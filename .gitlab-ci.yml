@@ -4,22 +4,51 @@
 # https://gitlab.com/wireshark/wireshark-containers/ instead.
 # The resulting images can be found at
 # https://hub.docker.com/r/wireshark/wireshark-centos-7-dev
-# https://hub.docker.com/r/wireshark/wireshark-centos-8-dev
 # https://hub.docker.com/r/wireshark/wireshark-debian-stable-dev
 # https://hub.docker.com/r/wireshark/wireshark-fedora-dev
 # https://hub.docker.com/r/wireshark/wireshark-opensuse-15.1-dev
-# https://hub.docker.com/r/wireshark/wireshark-opensuse-15.2-dev
 # https://hub.docker.com/r/wireshark/wireshark-ubuntu-dev
 
-.build: &build
+variables:
+  # Ensure that checkouts are a) fast and b) have a reachable tag. In a
+  # brighter, more glorious future we might be able to use --shallow-since:
+  # https://gitlab.com/gitlab-org/gitlab-runner/-/issues/3460
+  # In the mean time, fetching the last 2000 commits does the job.
+  GIT_DEPTH: "1"
+  GIT_FETCH_EXTRA_FLAGS: "--depth=2000"
+  CCACHE_DIR: "${CI_PROJECT_DIR}/ccache"
+
+# Common rule stanzas
+# These must currently be including using "!reference tags". "extends:" and
+# YAML anchors won't work:
+# https://gitlab.com/gitlab-org/gitlab/-/issues/322992
+#
+# Commits that have been approved and merged. Run automatically in the main
+# repo and allow manual runs in forks.
+.if-merged:
+  - if: '$CI_PIPELINE_SOURCE == "push" && $CI_PROJECT_URL =~ /.*gitlab.com\/wireshark\/wireshark/'
+    when: always
+  - if: '$CI_PIPELINE_SOURCE == "push" && $CI_PROJECT_URL !~ /.*gitlab.com\/wireshark\/wireshark/'
+    when: manual
+# Incoming merge requests.
+.if-merge-request:
+  - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    when: always
+# Incoming non-detached merge requests. Must be used for runners which are only
+# available in wireshark/wireshark, e.g. wireshark-windows-*
+.if-attached-merge-request:
+  - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_PROJECT_URL =~ /.*gitlab.com\/wireshark\/wireshark/'
+    when: always
+
+.build:
   stage: build
   after_script:
     - for builddir in build/packaging/rpm/BUILD/wireshark-*/build build/packaging/rpm/BUILD/wireshark-* build obj-*; do [ ! -d "$builddir/run" ] || break; done
     - if [[ "$CI_JOB_NAME" == "build:rpm-opensuse-"* ]]; then export LD_LIBRARY_PATH=$builddir/run; fi
     - if [ -f $builddir/run/tshark ]; then $builddir/run/tshark --version; fi
 
-.build-ubuntu: &build-ubuntu
-  <<: *build
+.build-ubuntu:
+  extends: .build
   image: wireshark/wireshark-ubuntu-dev
   retry: 1
   # https://gould.cx/ted/blog/2017/06/10/ccache-for-Gitlab-CI/
@@ -35,7 +64,6 @@
     - export PYTEST_ADDOPTS=--skip-missing-programs=dumpcap,rawshark
     - mkdir -p ccache
     - export CCACHE_BASEDIR=${PWD}
-    - export CCACHE_DIR=${PWD}/ccache
     - ccache --show-stats
     - export DEB_BUILD_OPTIONS=nocheck
     - export DH_QUIET=1
@@ -52,16 +80,24 @@
     - if [ -f run/dumpcap ]; then su user -c "run/dumpcap -D" ; fi
     - su user -c pytest-3
 
-.build-rpm: &build-rpm
-  <<: *build
+.build-rpm:
+  extends: .build
+  rules: !reference [.if-merged]
   artifacts:
     paths:
       - build/packaging/rpm/RPMS
     expire_in: 3 days
 
+.test-rpm:
+  rules: !reference [.if-merged]
+  stage: test
+  variables:
+    GIT_STRATEGY: none
+
 # Rely on fedora:latest and debian-stable jobs for testing a recent GCC version.
-clang-10: &clang-10
-  <<: *build-ubuntu
+clang-10:
+  extends: .build-ubuntu
+  rules: !reference [.if-merged]
   variables:
     CC: clang-10
     CXX: clang++-10
@@ -74,6 +110,7 @@ clang-10: &clang-10
 
 build:ubuntu-dist:
   extends: .build-ubuntu
+  rules: !reference [.if-merged]
   script:
     - perl ../tools/make-version.pl --set-release || ../perl make-version.pl --set-release
     - cmake -G Ninja $CMAKE_ARGS -DENABLE_CCACHE=ON ..
@@ -89,7 +126,7 @@ build:ubuntu-dist:
       - wireshark-*.tar.*
 
 build:rpm-centos-7:
-  <<: *build-rpm
+  extends: .build-rpm
   image: wireshark/wireshark-centos-7-dev
   script:
     - mkdir build
@@ -97,37 +134,34 @@ build:rpm-centos-7:
     - cmake3 -GNinja ..
     - ninja-build rpm-package
 test:rpm-centos-7:
-  stage: test
+  extends: .test-rpm
   image: wireshark/wireshark-centos-7-dev
   script:
     - yum --nogpgcheck localinstall -y build/packaging/rpm/RPMS/x86_64/*.rpm
     - tshark --version
   dependencies:
     - build:rpm-centos-7
-  variables:
-    GIT_STRATEGY: none
+
 build:rpm-opensuse-15.1:
+  extends: .build-rpm
   image: wireshark/wireshark-opensuse-15.1-dev
-  <<: *build-rpm
   script:
     - mkdir build
     - cd build
     - cmake -GNinja ..
     - ninja rpm-package
 test:rpm-opensuse-15.1:
+  extends: .test-rpm
   image: wireshark/wireshark-opensuse-15.1-dev
-  stage: test
   script:
     - zypper --no-gpg-checks install -y build/packaging/rpm/RPMS/x86_64/*.rpm
     - tshark --version
-  variables:
-    GIT_STRATEGY: none
   dependencies:
     - build:rpm-opensuse-15.1
 
 # Disabled for now due to issues with Fedora 33.
 .build:rpm-fedora:
-  <<: *build-rpm
+  extends: .build-rpm
   image: wireshark/wireshark-fedora-dev
   script:
     - mkdir build
@@ -135,24 +169,25 @@ test:rpm-opensuse-15.1:
     - cmake3 -GNinja ..
     - ninja-build rpm-package
 
-.test:rpm-fedora:
-  image: fedora
-  stage: test
-  script:
-    - dnf install -y build/packaging/rpm/RPMS/x86_64/*.rpm
-    - tshark --version
-  variables:
-    GIT_STRATEGY: none
-  dependencies:
-    - build:rpm-fedora
+# .test:rpm-fedora:
+#   extends: .test-rpm
+#   image: fedora
+#   script:
+#     - dnf install -y build/packaging/rpm/RPMS/x86_64/*.rpm
+#     - tshark --version
+#   dependencies:
+#     - build:rpm-fedora
 
 # Job to generate packages for Debian stable
 build:debian-stable:
-  <<: *build
+  extends: .build
+  rules: !reference [.if-merged]
   image: wireshark/wireshark-debian-stable-dev
   script:
     # Shared GitLab runners limit the log size to 4M, so reduce verbosity. See
     # https://gitlab.com/gitlab-com/support-forum/issues/2790
+    - export DH_QUIET=1
+    - export MAKEFLAGS=--silent
     - dpkg-buildpackage -b --no-sign -jauto
     - mkdir debian-packages
     - mv ../*.deb debian-packages/
@@ -161,6 +196,7 @@ build:debian-stable:
       - debian-packages/*.deb
     expire_in: 3 days
 test:debian-stable:
+  rules: !reference [.if-merged]
   image: wireshark/wireshark-debian-stable-dev
   stage: test
   script:
@@ -173,14 +209,19 @@ test:debian-stable:
 
 # Build Wireshark manuals
 # Note: Need ubuntu:focal with `ruby-coderay` and `ruby-asciidoctor-pdf` packages to build PDF docs
-docbook:
+documentation:
   stage: build
   image: wireshark/wireshark-ubuntu-dev
   rules:
-    - changes:
-      - "docbook/**"
-      - "epan/wslua/**"
+    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_PROJECT_URL =~ /.*gitlab.com\/wireshark\/wireshark/'
+      changes:
+        - "docbook/**"
+        - "epan/wslua/**"
+      when: always
   script:
+    # XXX We might want to move this to wireshark-ubuntu-dev or debian-setup.sh.
+    - DEBIAN_FRONTEND=noninteractive apt-get update
+    - DEBIAN_FRONTEND=noninteractive apt-get --yes install ruby-coderay ruby-asciidoctor-pdf
     - mkdir build
     - cd build
     - cmake -GNinja ..
@@ -200,11 +241,10 @@ docbook:
 # https://docs.gitlab.com/ee/user/gitlab_com/index.html#linux-shared-runners
 
 merge-req:commit-checks:
-  <<: *build-ubuntu
+  extends: .build-ubuntu
+  rules: !reference [.if-merge-request]
   tags:
     - docker
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
   script:
     # build-ubuntu puts us in `build`.
     - cd ..
@@ -212,11 +252,10 @@ merge-req:commit-checks:
     - tools/validate-commit.py
 
 merge-req:ubuntu-dpkg:
-  <<: *build-ubuntu
+  extends: .build-ubuntu
+  rules: !reference [.if-merge-request]
   tags:
     - docker
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
   script:
     # build-ubuntu puts us in `build`.
     - cd ..
@@ -224,11 +263,10 @@ merge-req:ubuntu-dpkg:
     - lintian --suppress-tags library-not-linked-against-libc,copyright-excludes-files-in-native-package --display-experimental --display-info --pedantic --profile debian
 
 merge-req:ubuntu-gcc-ctest:
-  <<: *build-ubuntu
+  extends: .build-ubuntu
+  rules: !reference [.if-merge-request]
   tags:
     - docker
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
   script:
     # build-ubuntu puts us in `build`.
     - perl ../tools/make-version.pl --set-release || ../perl make-version.pl --set-release
@@ -239,11 +277,13 @@ merge-req:ubuntu-gcc-ctest:
     - su user -c "ctest --parallel 3 --force-new-ctest-process --verbose"
 
 merge-req:ubuntu-clang-other-tests:
-  extends: clang-10
+  extends: .build-ubuntu
+  rules: !reference [.if-merge-request]
   tags:
     - docker
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+  variables:
+    CC: clang-10
+    CXX: clang++-10
   script:
     # build-ubuntu puts us in `build`.
     - cd ..
@@ -267,12 +307,10 @@ merge-req:ubuntu-clang-other-tests:
 # XXX We currently depend on Qt being installed in C:\Qt on the host. We should
 # find a more independent way of installing Qt, e.g. via a download+cache.
 merge-req:windows:
+  rules: !reference [.if-attached-merge-request]
   tags:
     - wireshark-windows-merge-req
   stage: build
-  rules:
-    # The Windows Docker image is currently only available via a dedicated runner.
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_PROJECT_URL == "https://gitlab.com/wireshark/wireshark"'
   before_script:
     # XXX Find a better location.
     - mkdir c:\Development
