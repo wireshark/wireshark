@@ -59,6 +59,11 @@ variables:
 .if-daily-schedule:
   - if: '$CI_PIPELINE_SOURCE == "schedule" && $SCHEDULE_TYPE == "daily"'
     when: always
+# Fuzz jobs. Care should be taken when changing this since the scheduler
+# often doesn't report errors.
+.if-fuzz-schedule:
+  - if: '$CI_PIPELINE_SOURCE == "schedule" && $SCHEDULE_TYPE == "fuzz"'
+    when: always
 
 .build:
   stage: build
@@ -570,3 +575,24 @@ sloccount:
     - sloccount . | awk "/^Computing results/ { results=1 } { if (results) print }" > $SLOC_OUT
     - cat $SLOC_OUT
     - if [ -n "$AWS_ACCESS_KEY_ID" ] && [ -n "$AWS_SECRET_ACCESS_KEY" ] && [ -n "$S3_DESTINATION_ANALYSIS" ] ; then aws s3 cp "$SLOC_OUT" "$S3_DESTINATION_ANALYSIS/" ; fi
+
+fuzz-test:
+  extends: .build-ubuntu
+  rules: !reference [.if-fuzz-schedule]
+  stage: test
+  resource_group: fuzz-master
+  variables:
+    MIN_PLUGINS: 10
+    MAX_PASSES: 5
+  script:
+    - mkdir /tmp/fuzz
+    # - JOB_START_SECS=$( date -d "$CI_JOB_STARTED_AT" +%s )
+    - cmake -G Ninja -DBUILD_wireshark=OFF -DCMAKE_BUILD_TYPE=Debug -DENABLE_ASAN=ON ..
+    - ninja
+    # - MAX_SECONDS=$(( 3600 - ( $( date +%s ) - $JOB_START_SECS ) - 300 ))
+    - MAX_SECONDS=300
+    - cd ..
+    - FUZZ_PASSED=false
+    - ./tools/fuzz-test.sh -a -2 -P $MIN_PLUGINS -b ./build/run -d /tmp/fuzz -t $MAX_SECONDS $( shuf -e test/captures/* ) 2> fuzz-test.err && FUZZ_PASSED=true
+    - if $FUZZ_PASSED ; then exit 0 ; fi
+    - echo Fuzzing failed.
