@@ -540,10 +540,13 @@ doxygen_all:
     - cmake -GNinja ..
     - ninja wsar_html_zip 2>&1 > doxygen_output.txt | tee doxygen_errors.txt
   after_script:
-    - mv build/wsar_html_zip .
+    - mv build/wsar_html.zip .
     - mv build/doxygen_output.txt .
     - mv build/doxygen_errors.txt .
-    - if [ -n "$AWS_ACCESS_KEY_ID" ] && [ -n "$AWS_SECRET_ACCESS_KEY" ] && [ -n "$S3_DESTINATION_DIST" ] ; then aws s3 cp wsar_html_zip "$S3_DESTINATION_DIST/" ; fi
+    - |
+      if [ -n "$AWS_ACCESS_KEY_ID" ] && [ -n "$AWS_SECRET_ACCESS_KEY" ] && [ -n "$S3_DESTINATION_DOCS" ] ; then
+        aws s3 cp wsar_html.zip "$S3_DESTINATION_DOCS/"
+      fi
   artifacts:
     when: always
     paths:
