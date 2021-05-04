@@ -276,9 +276,8 @@ test:debian-stable:
   needs:
     - build:debian-stable
 
-# Build Wireshark manuals
-# Note: Need ubuntu:focal with `ruby-coderay` and `ruby-asciidoctor-pdf` packages to build PDF docs
-docbook:
+# Build the User's Guide and Developer's Guide
+documentation:
   stage: build
   image: wireshark/wireshark-ubuntu-dev
   rules:
@@ -287,24 +286,30 @@ docbook:
         - "docbook/**"
         - "epan/wslua/**"
       when: always
-    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_PROJECT_URL !~ /.*gitlab.com\/wireshark\/wireshark/'
+    - if: '$CI_PIPELINE_SOURCE == "push"'
       when: manual
   script:
+    # XXX We might want to move this to wireshark-ubuntu-dev or debian-setup.sh.
+    - DEBIAN_FRONTEND=noninteractive apt-get update
+    - DEBIAN_FRONTEND=noninteractive apt-get --yes install ruby-coderay ruby-asciidoctor-pdf
     - mkdir build
     - cd build
     - cmake -GNinja ..
     - ninja all_guides
+    - cd docbook
+    - for HTML_DIR in wsug_html wsug_html_chunked wsdg_html wsdg_html_chunked ; do zip -9 -r "$HTML_DIR.zip" "$HTML_DIR" ; done
   after_script:
-    - mv build/docbook/wsug_html/ .
-    - mv build/docbook/wsug_html_chunked/ .
-    - mv build/docbook/wsdg_html/ .
-    - mv build/docbook/wsdg_html_chunked/ .
+    - mv -v build/docbook/ws[ud]g_html{,_chunked}.zip .
+    - mv -v build/docbook/{user,developer}-guide.pdf .
+    - if [ -n "$AWS_ACCESS_KEY_ID" ] && [ -n "$AWS_SECRET_ACCESS_KEY" ] && [ -n "$S3_DESTINATION_DOCS" ] ; then aws s3 cp ws[ud]g_html{,_chunked} {user,developer}-guide.pdf "$S3_DESTINATION_DOCS/" ; fi
   artifacts:
     paths:
-      - wsug_html/
-      - wsug_html_chunked/
-      - wsdg_html/
-      - wsdg_html_chunked/
+      - wsug_html.zip
+      - wsug_html_chunked.zip
+      - wsdg_html.zip
+      - wsdg_html_chunked.zip
+      - user-guide.pdf
+      - developer-guide.pdf
   needs: []
 
 
