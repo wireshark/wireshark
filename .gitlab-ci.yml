@@ -301,7 +301,12 @@ documentation:
   after_script:
     - mv -v build/docbook/ws[ud]g_html{,_chunked}.zip .
     - mv -v build/docbook/{user,developer}-guide.pdf .
-    - if [ -n "$AWS_ACCESS_KEY_ID" ] && [ -n "$AWS_SECRET_ACCESS_KEY" ] && [ -n "$S3_DESTINATION_DOCS" ] ; then aws s3 cp ws[ud]g_html{,_chunked} {user,developer}-guide.pdf "$S3_DESTINATION_DOCS/" ; fi
+    - |
+      if [ -n "$AWS_ACCESS_KEY_ID" ] && [ -n "$AWS_SECRET_ACCESS_KEY" ] && [ -n "$S3_DESTINATION_DOCS" ] ; then
+        for DOC_FILE in ws[ud]g_html{,_chunked}.zip {user,developer}-guide.pdf ; do
+          aws s3 cp "$DOC_FILE" "$S3_DESTINATION_DOCS/"
+        done
+      fi
   artifacts:
     paths:
       - wsug_html.zip
