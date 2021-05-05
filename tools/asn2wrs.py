@@ -921,7 +921,7 @@ class EthCtx:
         self.type_dep[type].append(dep)
 
     #--- eth_reg_type -----------------------------------------------------------
-    def eth_reg_type(self, ident, val):
+    def eth_reg_type(self, ident, val, mod=None):
         #print "eth_reg_type(ident='%s', type='%s')" % (ident, val.type)
         if ident in self.type:
             if self.type[ident]['import'] and (self.type[ident]['import'] == self.Module()) :
@@ -938,11 +938,18 @@ class EthCtx:
             self.type[ident]['tname'] = val.eth_tname()
         else:
             self.type[ident]['tname'] = asn2c(ident)
+        if mod :
+            mident = "$%s$%s" % (mod, ident)
+        else:
+            mident = None
         self.type[ident]['export'] = self.conform.use_item('EXPORTS', ident)
         self.type[ident]['enum'] = self.conform.use_item('MAKE_ENUM', ident)
         self.type[ident]['vals_ext'] = self.conform.use_item('USE_VALS_EXT', ident)
         self.type[ident]['user_def'] = self.conform.use_item('USER_DEFINED', ident)
-        self.type[ident]['no_emit'] = self.conform.use_item('NO_EMIT', ident)
+        if mident and self.conform.check_item('NO_EMIT', mident) :
+            self.type[ident]['no_emit'] = self.conform.use_item('NO_EMIT', mident)
+        else:
+            self.type[ident]['no_emit'] = self.conform.use_item('NO_EMIT', ident)
         self.type[ident]['tname'] = self.conform.use_item('TYPE_RENAME', ident, val_dflt=self.type[ident]['tname'])
         self.type[ident]['ethname'] = ''
         if (val.type == 'Type_Ref') or (val.type == 'TaggedType') or (val.type == 'SelectionType') :
@@ -3286,7 +3293,7 @@ class Type (Node):
             else:
                 trnm = self.val
         else:
-            ectx.eth_reg_type(nm, self)
+            ectx.eth_reg_type(nm, self, mod = ectx.Module())
             trnm = nm
         if ectx.conform.check_item('VIRTUAL_ASSGN', nm):
             vnm = ectx.conform.use_item('VIRTUAL_ASSGN', nm)

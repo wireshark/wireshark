@@ -4854,15 +4854,6 @@ dissect_itsv1_SemiAxisLength(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 }
 
 
-static const value_string itsv1_HeadingValue_vals[] = {
-  {   0, "wgs84North" },
-  { 900, "wgs84East" },
-  { 1800, "wgs84South" },
-  { 2700, "wgs84West" },
-  { 3601, "unavailable" },
-  { 0, NULL }
-};
-
 
 static int
 dissect_itsv1_HeadingValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
