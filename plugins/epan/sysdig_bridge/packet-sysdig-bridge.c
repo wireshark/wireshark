@@ -29,14 +29,15 @@
 #include <epan/proto.h>
 #include <epan/proto_data.h>
 #include <wsutil/wsjson.h>
+#include <epan/conversation_filter.h>
 #include "packet-sysdig-bridge.h"
+#include "conversation-macros.h"
 
 static int proto_sdplugin = -1;
 static gint ett_sdplugin = -1;
 static gint ett_bridge = -1;
 static dissector_handle_t json_dissector_handle = NULL;
 static dissector_table_t ptype_dissector_table;
-static guint64 n_parsed_events = 0;
 
 static int dissect_sdplugin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *data _U_);
 static int dissect_plg_bridge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *data _U_);
@@ -46,6 +47,7 @@ static int dissect_plg_bridge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
  */
 bridge_info* bridges = NULL;
 guint nbridges = 0;
+guint n_conv_fields = 0;
 
 /*
  * Fields
@@ -67,6 +69,21 @@ static hf_register_info hf[] = {
         NULL, HFILL }
     }
 };
+
+/*
+ * Conversation filters mappers setup
+ */
+conv_fld_info conv_fld_infos[MAX_N_CONV_FILTERS];
+DECLARE_CONV_FLTS()
+char conv_flt_vals[MAX_N_CONV_FILTERS][1024];
+guint conv_vals_cnt = 0;
+guint conv_fld_cnt = 0;
+
+void
+register_conversation_filters_mappings()
+{
+    MAP_CONV_FLTS()
+}
 
 void*
 getsym(void* handle, const char* name)
@@ -321,12 +338,19 @@ configure_plugin(char* filename, bridge_info* bi, char* config)
         {
             jsmntok_t* tok = tkfields + j;
             if (tok->type == JSMN_OBJECT) {
-                char* visibility = json_get_string(sfields, tok, "visibility");
-                if (visibility != NULL && (strcmp(visibility, "hidden") == 0)) {
+                char* properties = json_get_string(sfields, tok, "properties");
+                if (properties != NULL && (strstr(properties, "hidden") != NULL)) {
                     /*
                      * Skip the fields that are marked as hidden
                      */
                     continue;
+                }
+
+                if (strstr(properties, "conversation") != NULL) {
+                    n_conv_fields++;
+                    if (n_conv_fields >= MAX_N_CONV_FILTERS) {
+                        THROW_FORMATTED(DissectorError, "too many conversation fields in sysdig plugins.");
+                    }
                 }
 
                 bi->n_fields++;
@@ -337,7 +361,7 @@ configure_plugin(char* filename, bridge_info* bi, char* config)
         bi->hf_ids = (int*)wmem_alloc(wmem_epan_scope(), bi->n_fields * sizeof(int));
         bi->field_ids = (guint64*)wmem_alloc(wmem_epan_scope(), bi->n_fields * sizeof(guint64));
         bi->field_flags = (guint32*)wmem_alloc(wmem_epan_scope(), bi->n_fields * sizeof(guint32));
-        
+
         for (guint j = 0; j < bi->n_fields; j++)
         {
             bi->hf_ids[j] = -1;
@@ -355,8 +379,8 @@ configure_plugin(char* filename, bridge_info* bi, char* config)
             if (tok->type == JSMN_OBJECT) {
                 hf_register_info* ri = bi->hf + fld_cnt;
 
-                char* visibility = json_get_string(sfields, tok, "visibility");
-                if (visibility != NULL && (strcmp(visibility, "hidden") == 0)) {
+                char* properties = json_get_string(sfields, tok, "properties");
+                if (properties != NULL && (strstr(properties, "hidden") != NULL)) {
                     /*
                      * Skip the fields that are marked as hidden
                      */
@@ -403,8 +427,16 @@ configure_plugin(char* filename, bridge_info* bi, char* config)
 
                 bi->field_ids[fld_cnt] = id;
 
-                if (strcmp(visibility, "info") == 0) {
+                if (strstr(properties, "info") != NULL) {
                     bi->field_flags[fld_cnt] |= FLD_FLAG_USE_IN_INFO;
+                }
+
+                if (strstr(properties, "conversation") != NULL) {
+                    bi->field_flags[fld_cnt] |= FLD_FLAG_USE_IN_CONVERSATIONS;
+                    conv_fld_infos[conv_fld_cnt].field_info = ri;
+                    conv_fld_infos[conv_fld_cnt].proto_name = plugin_info->get_filter_name();
+                    register_conversation_filter(plugin_info->name, display, fv_func[conv_fld_cnt], bfs_func[conv_fld_cnt]);
+                    conv_fld_cnt++;
                 }
 
                 fld_cnt++;
@@ -454,7 +486,7 @@ import_plugin(char* fname, guint pos)
 
     bi->proto = proto_register_protocol (
         bi->si.name,              /* name */
-        "CT",                     /* short name  */
+        bi->si.get_filter_name(), /* short name  */
         bi->si.get_filter_name()  /* filter_name */
         );
 
@@ -490,6 +522,11 @@ proto_register_sdplugin(void)
      */
     ptype_dissector_table = register_dissector_table("sysdig_plugin.id",
         "Plugin ID", proto_sdplugin, FT_UINT32, BASE_DEC);
+
+    /*
+     * Create the mapping infrastructure for conversation filtering
+     */
+    register_conversation_filters_mappings();
 
     /*
      * Load the plugins
@@ -534,6 +571,8 @@ get_bridge_info(guint32 source_id)
 static int
 dissect_sdplugin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *data _U_)
 {
+    conv_vals_cnt = 0;
+
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "Sysdig Plugin");
     /* Clear out stuff in the info column */
     col_clear(pinfo->cinfo,COL_INFO);
@@ -571,7 +610,6 @@ dissect_plg_bridge(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree _U_, 
 {
     bridge_info* bi = p_get_proto_data(pinfo->pool, pinfo, proto_sdplugin, PROTO_DATA_BRIDGE_HANDLE);
     guint plen = tvb_captured_length(tvb);
-    n_parsed_events++;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, bi->si.name);
     /* Clear out stuff in the info column */
@@ -588,7 +626,7 @@ dissect_plg_bridge(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree _U_, 
         ss_plugin_info* plugin_info = &(bi->si);
 
         if (plugin_info->is_async_extractor_present) {
-            plugin_info->async_extractor_info.evtnum = n_parsed_events;
+            plugin_info->async_extractor_info.evtnum = pinfo->num;
             plugin_info->async_extractor_info.id = (guint32)bi->field_ids[j];
             plugin_info->async_extractor_info.arg = NULL;
             plugin_info->async_extractor_info.data = payload;
@@ -617,17 +655,28 @@ dissect_plg_bridge(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree _U_, 
             else
             {
                 pret = si->extract_str(si->state,
-                                       n_parsed_events, bi->field_ids[j],
+                                       pinfo->num, bi->field_ids[j],
                                        NULL, payload, plen);
             }
 
-            if (pret != NULL && strlen(pret) != 0)
-            {
+            if (pret != NULL && strlen(pret) != 0) {
                 proto_tree_add_string(sdplugin_tree, bi->hf_ids[j], tvb, 0, plen, pret);
                 if ((bi->field_flags[j] & FLD_FLAG_USE_IN_INFO) != 0) {
-//                    col_append_sep_fstr(pinfo->cinfo, COL_INFO, ", ", "%s=%s", bi->hf[j].hfinfo.name, pret);
                     col_append_sep_fstr(pinfo->cinfo, COL_INFO, ", ", "%s", pret);
                 }
+
+                if ((bi->field_flags[j] & FLD_FLAG_USE_IN_CONVERSATIONS) != 0) {
+                    char* cvalptr = conv_flt_vals[conv_vals_cnt];
+                    sprintf(cvalptr, "%s", pret);
+                    p_add_proto_data(pinfo->pool,
+                        pinfo,
+                        proto_sdplugin,
+                        PROTO_DATA_CONVINFO_USER_BASE + conv_vals_cnt, cvalptr);
+                }
+            }
+
+            if ((bi->field_flags[j] & FLD_FLAG_USE_IN_CONVERSATIONS) != 0) {
+                conv_vals_cnt++;
             }
         }
         else if (hfinfo->type == FT_UINT64) {
@@ -654,7 +703,7 @@ dissect_plg_bridge(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree _U_, 
                 }
             } else {
                 val = si->extract_u64(si->state,
-                    n_parsed_events, bi->field_ids[j],
+                    pinfo->num, bi->field_ids[j],
                     NULL, payload, plen, &field_present);
             }
             
