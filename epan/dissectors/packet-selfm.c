@@ -1387,6 +1387,7 @@ dissect_fmdata_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int of
                     tm.tm_hour = tvb_get_guint8(tvb, offset+3);
                     tm.tm_min = tvb_get_guint8(tvb, offset+4);
                     tm.tm_sec = tvb_get_guint8(tvb, offset+5);
+                    tm.tm_isdst = 0;
 
                     datetime.nsecs = (tvb_get_ntohs(tvb, offset+6) % 1000) * 1000000;
                     datetime.secs = mktime(&tm);
