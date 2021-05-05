@@ -81,6 +81,7 @@ static int proto_wow = -1;
 
 static int hf_wow_command = -1;
 static int hf_wow_error = -1;
+static int hf_wow_protocol_version = -1;
 static int hf_wow_pkt_size = -1;
 static int hf_wow_gamename = -1;
 static int hf_wow_version1 = -1;
@@ -179,7 +180,7 @@ dissect_wow_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 		case AUTH_LOGON_CHALLENGE :
 
 			if(WOW_CLIENT_TO_SERVER) {
-				proto_tree_add_item(wow_tree, hf_wow_error, tvb,
+				proto_tree_add_item(wow_tree, hf_wow_protocol_version, tvb,
 						    offset, 1, ENC_LITTLE_ENDIAN);
 				offset += 1;
 
@@ -246,11 +247,13 @@ dissect_wow_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 
 
 			} else if(WOW_SERVER_TO_CLIENT) {
-				proto_tree_add_item(wow_tree, hf_wow_error, tvb,
+				proto_tree_add_item(wow_tree, hf_wow_protocol_version, tvb,
 						    offset, 1, ENC_LITTLE_ENDIAN);
 				offset += 1;
 
-				offset += 1; /* Unknown field */
+				proto_tree_add_item(wow_tree, hf_wow_error, tvb,
+						    offset, 1, ENC_LITTLE_ENDIAN);
+				offset += 1;
 
 				proto_tree_add_item(wow_tree, hf_wow_srp_b, tvb,
 						    offset, 32, ENC_NA);
@@ -424,7 +427,11 @@ proto_register_wow(void)
 		    FT_UINT8, BASE_HEX, VALS(cmd_vs), 0,
 		    "Type of packet", HFILL }
 		},
-
+		{ &hf_wow_protocol_version,
+		  { "Protocol version", "wow.protocol_version",
+		    FT_UINT8, BASE_DEC, 0, 0,
+		    "Version of packet", HFILL }
+		},
 		{ &hf_wow_error,
 		  { "Error", "wow.error",
 		    FT_UINT8, BASE_DEC, 0, 0,
