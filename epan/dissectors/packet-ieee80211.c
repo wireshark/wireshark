@@ -19657,6 +19657,7 @@ dissect_operating_mode_notification(tvbuff_t *tvb, packet_info *pinfo _U_, proto
 static int
 dissect_reduced_neighbor_report(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
+  int tag_len = tvb_reported_length(tvb);
   int offset = 0, count;
   guint8 tbtt_length, tbtt_count;
   static int * const ieee80211_rnr_tbtt_information_header[] = {
@@ -19681,56 +19682,65 @@ dissect_reduced_neighbor_report(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
   };
   proto_tree *tbtt_subtree;
 
-  /* TBTT Information Header */
-  proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_ieee80211_rnr_tbtt_information_field_header,
-                                    ett_rnr_tbtt_information_tree, ieee80211_rnr_tbtt_information_header,
-                                    ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
-  tbtt_count = tvb_get_guint8(tvb, offset) >> 4;
-  tbtt_length = tvb_get_guint8(tvb, offset+1);
-  offset += 2;
+  while (tag_len > 0){
+    /* TBTT Information Header */
+    proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_ieee80211_rnr_tbtt_information_field_header,
+                                      ett_rnr_tbtt_information_tree, ieee80211_rnr_tbtt_information_header,
+                                      ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
+    tbtt_count = tvb_get_guint8(tvb, offset) >> 4;
+    tbtt_length = tvb_get_guint8(tvb, offset+1);
+    offset += 2;
+    tag_len -= 2;
 
-  proto_tree_add_item(tree, hf_ieee80211_rnr_operating_class, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-  offset += 1;
-
-  proto_tree_add_item(tree, hf_ieee80211_rnr_channel_number, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-  offset += 1;
-
-  count = tbtt_count;
-  while (count >= 0) {
-    tbtt_subtree = proto_tree_add_subtree_format(tree, tvb, offset, tbtt_length, ett_tag_rnr_tbtt_tree, NULL, "TBTT %d:", tbtt_count - count);
-
-    proto_tree_add_item(tbtt_subtree, hf_ieee80211_rnr_neighbor_ap_tbtt_offset, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_ieee80211_rnr_operating_class, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
+    tag_len -= 1;
 
-    /* BSSID */
-    if(tbtt_length == 7 || tbtt_length == 8 || tbtt_length >= 11){
-      proto_tree_add_item(tbtt_subtree, hf_ieee80211_rnr_bssid, tvb, offset, 6, ENC_NA);
-      offset += 6;
-    }
+    proto_tree_add_item(tree, hf_ieee80211_rnr_channel_number, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+    tag_len -= 1;
 
-    /* Short SSID */
-    if(tbtt_length == 5 || tbtt_length == 6 || tbtt_length >= 11){
-      proto_tree_add_item(tbtt_subtree, hf_ieee80211_rnr_short_ssid, tvb, offset, 4, ENC_NA);
-      offset += 4;
-    }
+    count = tbtt_count;
+    while (count >= 0) {
+      tbtt_subtree = proto_tree_add_subtree_format(tree, tvb, offset, tbtt_length, ett_tag_rnr_tbtt_tree, NULL, "TBTT %d:", tbtt_count - count);
 
-    /* BSS Parameters */
-    if(tbtt_length == 2 || tbtt_length == 6 || tbtt_length == 8 || tbtt_length >= 12){
-      proto_tree_add_bitmask_with_flags(tbtt_subtree, tvb, offset, hf_ieee80211_rnr_bss_parameters,
-                                        ett_rnr_bss_parameters, ieee80211_rnr_bss_parameters,
-                                        ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
+      proto_tree_add_item(tbtt_subtree, hf_ieee80211_rnr_neighbor_ap_tbtt_offset, tvb, offset, 1, ENC_LITTLE_ENDIAN);
       offset += 1;
-    }
+      tag_len -= 1;
 
-    /* 20 MHz PSD */
-    if(tbtt_length == 9 || tbtt_length == 13){
-      proto_tree_add_item(tbtt_subtree, hf_ieee80211_rnr_20_mhz_psd, tvb, offset, 1, ENC_NA);
-      offset += 1;
-    }
+      /* BSSID */
+      if(tbtt_length == 7 || tbtt_length == 8 || tbtt_length >= 11){
+        proto_tree_add_item(tbtt_subtree, hf_ieee80211_rnr_bssid, tvb, offset, 6, ENC_NA);
+        offset += 6;
+        tag_len -= 6;
+      }
 
-    count--;
+      /* Short SSID */
+      if(tbtt_length == 5 || tbtt_length == 6 || tbtt_length >= 11){
+        proto_tree_add_item(tbtt_subtree, hf_ieee80211_rnr_short_ssid, tvb, offset, 4, ENC_NA);
+        offset += 4;
+        tag_len -= 4;
+      }
+
+      /* BSS Parameters */
+      if(tbtt_length == 2 || tbtt_length == 6 || tbtt_length == 8 || tbtt_length >= 12){
+        proto_tree_add_bitmask_with_flags(tbtt_subtree, tvb, offset, hf_ieee80211_rnr_bss_parameters,
+                                          ett_rnr_bss_parameters, ieee80211_rnr_bss_parameters,
+                                          ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
+        offset += 1;
+        tag_len -= 1;
+      }
+
+      /* 20 MHz PSD */
+      if(tbtt_length == 9 || tbtt_length == 13){
+        proto_tree_add_item(tbtt_subtree, hf_ieee80211_rnr_20_mhz_psd, tvb, offset, 1, ENC_NA);
+        offset += 1;
+        tag_len -= 1;
+      }
+
+      count--;
+    }
   }
-
   return offset;
 }
 
