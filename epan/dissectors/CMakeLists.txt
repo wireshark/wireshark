@@ -1633,6 +1633,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-quake3.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-quakeworld.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-quic.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-r09.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-radius.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-radius_packetcable.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-raknet.c
