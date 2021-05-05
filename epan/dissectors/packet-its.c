@@ -2656,13 +2656,6 @@ dissect_its_ItsPduHeader(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 }
 
 
-static const value_string its_Latitude_vals[] = {
-  {  10, "oneMicrodegreeNorth" },
-  { -10, "oneMicrodegreeSouth" },
-  { 900000001, "unavailable" },
-  { 0, NULL }
-};
-
 
 static int
 dissect_its_Latitude(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -2673,13 +2666,6 @@ dissect_its_Latitude(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 }
 
 
-static const value_string its_Longitude_vals[] = {
-  {  10, "oneMicrodegreeEast" },
-  { -10, "oneMicrodegreeWest" },
-  { 1800000001, "unavailable" },
-  { 0, NULL }
-};
-
 
 static int
 dissect_its_Longitude(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -2689,13 +2675,6 @@ dissect_its_Longitude(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
   return offset;
 }
 
-
-static const value_string its_SemiAxisLength_vals[] = {
-  {   1, "oneCentimeter" },
-  { 4094, "outOfRange" },
-  { 4095, "unavailable" },
-  { 0, NULL }
-};
 
 
 static int
@@ -2741,13 +2720,6 @@ dissect_its_PosConfidenceEllipse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
   return offset;
 }
 
-
-static const value_string its_AltitudeValue_vals[] = {
-  {   0, "referenceEllipsoidSurface" },
-  {   1, "oneCentimeter" },
-  { 800001, "unavailable" },
-  { 0, NULL }
-};
 
 
 static int
@@ -2953,7 +2925,7 @@ static const per_sequence_t its_PtActivation_sequence[] = {
 
 static int
 dissect_its_PtActivation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 805 "./asn1/its/its.cnf"
+#line 810 "./asn1/its/its.cnf"
   void *priv_data = actx->private_data;
   its_pt_activation_data_t *pta;
 
@@ -2963,7 +2935,7 @@ dissect_its_PtActivation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_its_PtActivation, its_PtActivation_sequence);
 
-#line 811 "./asn1/its/its.cnf"
+#line 816 "./asn1/its/its.cnf"
   dissector_try_uint_new(cam_pt_activation_table, pta->type, pta->data, actx->pinfo, tree, TRUE, NULL);
   actx->private_data = priv_data;
 
@@ -3035,7 +3007,7 @@ dissect_its_CauseCodeType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 static int
 dissect_its_SubCauseCodeType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 773 "./asn1/its/its.cnf"
+#line 778 "./asn1/its/its.cnf"
   // Overwrite hf_index
   hf_index = *find_subcause_from_cause((CauseCodeType_enum) ((its_private_data_t*)actx->private_data)->cause_code);
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
@@ -4852,13 +4824,6 @@ dissect_itsv1_StationID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 }
 
 
-static const value_string itsv1_Latitude_vals[] = {
-  {  10, "oneMicrodegreeNorth" },
-  { -10, "oneMicrodegreeSouth" },
-  { 900000001, "unavailable" },
-  { 0, NULL }
-};
-
 
 static int
 dissect_itsv1_Latitude(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -4869,13 +4834,6 @@ dissect_itsv1_Latitude(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
 }
 
 
-static const value_string itsv1_Longitude_vals[] = {
-  {  10, "oneMicrodegreeEast" },
-  { -10, "oneMicrodegreeWest" },
-  { 1800000001, "unavailable" },
-  { 0, NULL }
-};
-
 
 static int
 dissect_itsv1_Longitude(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -4885,13 +4843,6 @@ dissect_itsv1_Longitude(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
   return offset;
 }
 
-
-static const value_string itsv1_SemiAxisLength_vals[] = {
-  {   1, "oneCentimeter" },
-  { 4094, "outOfRange" },
-  { 4095, "unavailable" },
-  { 0, NULL }
-};
 
 
 static int
@@ -4937,13 +4888,6 @@ dissect_itsv1_PosConfidenceEllipse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
   return offset;
 }
 
-
-static const value_string itsv1_AltitudeValue_vals[] = {
-  {   0, "referenceEllipsoidSurface" },
-  {   1, "oneCentimeter" },
-  { 800001, "unavailable" },
-  { 0, NULL }
-};
 
 
 static int
@@ -5149,7 +5093,7 @@ static const per_sequence_t itsv1_PtActivation_sequence[] = {
 
 static int
 dissect_itsv1_PtActivation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 805 "./asn1/its/its.cnf"
+#line 810 "./asn1/its/its.cnf"
   void *priv_data = actx->private_data;
   its_pt_activation_data_t *pta;
 
@@ -5159,7 +5103,7 @@ dissect_itsv1_PtActivation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_itsv1_PtActivation, itsv1_PtActivation_sequence);
 
-#line 811 "./asn1/its/its.cnf"
+#line 816 "./asn1/its/its.cnf"
   dissector_try_uint_new(cam_pt_activation_table, pta->type, pta->data, actx->pinfo, tree, TRUE, NULL);
   actx->private_data = priv_data;
 
@@ -11726,7 +11670,7 @@ static const value_string gdd_Code_Units_vals[] = {
 
 static int
 dissect_gdd_T_unit(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 798 "./asn1/its/its.cnf"
+#line 803 "./asn1/its/its.cnf"
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                            2U, 8U, NULL, FALSE);
 
@@ -11753,7 +11697,7 @@ dissect_gdd_Distance(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 
 static int
 dissect_gdd_T_unit_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 788 "./asn1/its/its.cnf"
+#line 793 "./asn1/its/its.cnf"
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                            10U, 12U, NULL, FALSE);
 
@@ -11807,7 +11751,7 @@ dissect_gdd_INTEGER_0_250(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 static int
 dissect_gdd_T_unit_02(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 783 "./asn1/its/its.cnf"
+#line 788 "./asn1/its/its.cnf"
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                            0U, 1U, NULL, FALSE);
 
@@ -12106,7 +12050,7 @@ dissect_gdd_DistOrDuration_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 
 static int
 dissect_gdd_DistOrDuration_Units(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 793 "./asn1/its/its.cnf"
+#line 798 "./asn1/its/its.cnf"
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                            2U, 9U, NULL, FALSE);
 

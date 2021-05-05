@@ -738,6 +738,11 @@ addGrpC      RegionId
 #.END
 
 #.NO_EMIT ONLY_VALS
+Latitude
+Longitude
+AltitudeValue
+SemiAxisLength
+$ITS-ContainerV1$HeadingValue
 #.END
 
 #.NO_EMIT WITHOUT_VALS
