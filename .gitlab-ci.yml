@@ -579,6 +579,8 @@ sloccount:
 fuzz-test:
   extends: .build-ubuntu
   rules: !reference [.if-fuzz-schedule]
+  tags:
+    - wireshark-ubuntu-fuzz
   stage: test
   resource_group: fuzz-master
   variables:
@@ -586,13 +588,23 @@ fuzz-test:
     MAX_PASSES: 5
   script:
     - mkdir /tmp/fuzz
-    # - JOB_START_SECS=$( date -d "$CI_JOB_STARTED_AT" +%s )
-    - cmake -G Ninja -DBUILD_wireshark=OFF -DCMAKE_BUILD_TYPE=Debug -DENABLE_ASAN=ON ..
+    - JOB_START_SECS=$( date -d "$CI_JOB_STARTED_AT" +%s )
+    - cmake -G Ninja -DBUILD_wireshark=OFF -DCMAKE_BUILD_TYPE=Debug -DENABLE_ASAN=ON -DCMAKE_INSTALL_PREFIX=$CI_PROJECT_DIR/install.asan ..
     - ninja
-    # - MAX_SECONDS=$(( 3600 - ( $( date +%s ) - $JOB_START_SECS ) - 300 ))
-    - MAX_SECONDS=300
+    - ninja install
+    # Run for 4 hours - build time - slop
+    - MAX_SECONDS=$(( 14400 - ( $( date +%s ) - $JOB_START_SECS ) - 300 ))
     - cd ..
     - FUZZ_PASSED=false
-    - ./tools/fuzz-test.sh -a -2 -P $MIN_PLUGINS -b ./build/run -d /tmp/fuzz -t $MAX_SECONDS $( shuf -e test/captures/* ) 2> fuzz-test.err && FUZZ_PASSED=true
+    - ./tools/fuzz-test.sh -a -2 -P $MIN_PLUGINS -b $CI_PROJECT_DIR/install.asan -d /tmp/fuzz -t $MAX_SECONDS $( shuf -e /var/menagerie/*/* ) 2> fuzz-test.err && FUZZ_PASSED=true
     - if $FUZZ_PASSED ; then exit 0 ; fi
-    - echo Fuzzing failed.
+    - echo Fuzzing failed. Generating report.
+    - FUZZ_CAPTURE=$( ls /tmp/fuzz/fuzz-*.pcap | head -n 1 )
+    - FUZZ_ERRORS="/tmp/fuzz/$( basename "$FUZZ_CAPTURE" .pcap ).err"
+    - printf "\nfuzz-test.sh stderr:\n"
+    - cat fuzz-test.err >> "$FUZZ_ERRORS"
+    - |
+      if [ -n "$AWS_ACCESS_KEY_ID" ] && [ -n "$AWS_SECRET_ACCESS_KEY" ] && [ -n "$S3_DESTINATION_FUZZ" ] ; then
+        aws s3 cp "$FUZZ_CAPTURE" "$S3_DESTINATION_FUZZ/"
+        aws s3 cp "$FUZZ_ERRORS" "$S3_DESTINATION_FUZZ/"
+      fi
