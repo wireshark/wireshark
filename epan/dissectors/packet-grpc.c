@@ -82,8 +82,6 @@ static gboolean grpc_decompress_body = FALSE;
 
 /* detect json automatically */
 static gboolean grpc_detect_json_automatically = TRUE;
-/* tell http2 to use streaming mode reassembly for grpc dissector */
-static gboolean grpc_enable_streaming_reassembly_mode = TRUE;
 /* whether embed GRPC messages under HTTP2 protocol tree items */
 static gboolean grpc_embedded_under_http2 = FALSE;
 
@@ -405,15 +403,6 @@ proto_register_grpc(void)
         "message according to content-type).",
         &grpc_detect_json_automatically);
 
-    prefs_register_bool_preference(grpc_module, "streaming_reassembly_mode",
-        "Turn on streaming reassembly mode. Required for parsing streaming RPCs.",
-        "If turned on, http2 will reassemble gRPC message as soon as possible. "
-        "Or else the gRPC message will be reassembled at the end of each HTTP2 "
-        "STREAM. If your .proto files contains streaming RPCs (declaring RPC "
-        "operation input/output message type with 'stream' label), you need "
-        "to keep this option on.",
-        &grpc_enable_streaming_reassembly_mode);
-
     prefs_register_bool_preference(grpc_module, "embedded_under_http2",
         "Embed gRPC messages under HTTP2 protocol tree items.",
         "Embed gRPC messages under HTTP2 protocol tree items.",
@@ -440,8 +429,6 @@ proto_register_grpc(void)
 void
 proto_reg_handoff_grpc(void)
 {
-    static gboolean initialized = FALSE;
-    char *del_table, *add_table;
     char *content_types[] = {
         "application/grpc",
         "application/grpc+proto",
@@ -450,19 +437,10 @@ proto_reg_handoff_grpc(void)
     };
     int i;
 
-    add_table = grpc_enable_streaming_reassembly_mode ? "streaming_content_type" : "media_type";
-    del_table = grpc_enable_streaming_reassembly_mode ? "media_type" : "streaming_content_type";
-
     /* register/deregister grpc_handle to/from tables */
     for (i = 0; content_types[i]; i++) {
-        if (initialized) {
-            dissector_delete_string(del_table, content_types[i], grpc_handle);
-        }
-        dissector_add_string(add_table, content_types[i], grpc_handle);
-    }
-
-    if (!initialized) {
-        initialized = TRUE;
+        dissector_add_string("streaming_content_type", content_types[i], grpc_handle);
+        dissector_add_string("media_type", content_types[i], grpc_handle);
     }
 }
 
