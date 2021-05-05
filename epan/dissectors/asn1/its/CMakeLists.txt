@@ -32,6 +32,7 @@ set( ASN_FILE_LIST
 	TIS_TPG_Transactions_Descriptions.asn
 	EVCSN-PDU-Descriptions.asn
 	EV-RSR-PDU-Descriptions.asn
+	CPM-PDU-Descriptions.asn
 )
 
 set( EXTRA_DIST

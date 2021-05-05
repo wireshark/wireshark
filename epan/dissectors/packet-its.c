@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-its.c                                                               */
-/* asn2wrs.py -o its -c ./its.cnf -s ./packet-its-template -D . -O ../.. ITS-Container.asn ITS-ContainerV1.asn ISO_TS_14816.asn ISO_TS_24534-3.asn ISO_TS_17419.asn ISO_TS_14906_Application.asn ISO_TS_19091.asn GDD.asn ISO19321IVIv2.asn ETSI_TS_103301.asn CAMv1.asn CAM.asn DENMv1.asn DENM.asn TIS_TPG_Transactions_Descriptions.asn EVCSN-PDU-Descriptions.asn EV-RSR-PDU-Descriptions.asn */
+/* asn2wrs.py -o its -c ./its.cnf -s ./packet-its-template -D . -O ../.. ITS-Container.asn ITS-ContainerV1.asn ISO_TS_14816.asn ISO_TS_24534-3.asn ISO_TS_17419.asn ISO_TS_14906_Application.asn ISO_TS_19091.asn GDD.asn ISO19321IVIv2.asn ETSI_TS_103301.asn CAMv1.asn CAM.asn DENMv1.asn DENM.asn TIS_TPG_Transactions_Descriptions.asn EVCSN-PDU-Descriptions.asn EV-RSR-PDU-Descriptions.asn CPM-PDU-Descriptions.asn */
 
 /* Input file: packet-its-template.c */
 
@@ -137,6 +137,7 @@ static int proto_its_mapemv1 = -1;
 static int proto_its_mapem = -1;
 static int proto_its_spatemv1 = -1;
 static int proto_its_spatem = -1;
+static int proto_its_cpm = -1;
 static int proto_addgrpc = -1;
 
 /*
@@ -1783,8 +1784,146 @@ static int hf_evrsr_powerSource = -1;             /* PowerSource */
 static int hf_evrsr_SupportedPaymentTypes_contract = -1;
 static int hf_evrsr_SupportedPaymentTypes_externalIdentification = -1;
 
+/* --- Module CPM-PDU-Descriptions --- --- ---                                */
+
+static int hf_cpm_cpm_CollectivePerceptionMessage_PDU = -1;  /* CollectivePerceptionMessage */
+static int hf_cpm_generationDeltaTime = -1;       /* GenerationDeltaTime */
+static int hf_cpm_cpmParameters = -1;             /* CpmParameters */
+static int hf_cpm_managementContainer = -1;       /* CpmManagementContainer */
+static int hf_cpm_stationDataContainer = -1;      /* StationDataContainer */
+static int hf_cpm_sensorInformationContainer = -1;  /* SensorInformationContainer */
+static int hf_cpm_perceivedObjectContainer = -1;  /* PerceivedObjectContainer */
+static int hf_cpm_freeSpaceAddendumContainer = -1;  /* FreeSpaceAddendumContainer */
+static int hf_cpm_numberOfPerceivedObjects = -1;  /* NumberOfPerceivedObjects */
+static int hf_cpm_stationType = -1;               /* StationType */
+static int hf_cpm_perceivedObjectContainerSegmentInfo = -1;  /* PerceivedObjectContainerSegmentInfo */
+static int hf_cpm_referencePosition = -1;         /* ReferencePosition */
+static int hf_cpm_originatingVehicleContainer = -1;  /* OriginatingVehicleContainer */
+static int hf_cpm_originatingRSUContainer = -1;   /* OriginatingRSUContainer */
+static int hf_cpm_heading = -1;                   /* Heading */
+static int hf_cpm_speed = -1;                     /* Speed */
+static int hf_cpm_vehicleOrientationAngle = -1;   /* WGS84Angle */
+static int hf_cpm_driveDirection = -1;            /* DriveDirection */
+static int hf_cpm_longitudinalAcceleration = -1;  /* LongitudinalAcceleration */
+static int hf_cpm_lateralAcceleration = -1;       /* LateralAcceleration */
+static int hf_cpm_verticalAcceleration = -1;      /* VerticalAcceleration */
+static int hf_cpm_yawRate = -1;                   /* YawRate */
+static int hf_cpm_pitchAngle = -1;                /* CartesianAngle */
+static int hf_cpm_rollAngle = -1;                 /* CartesianAngle */
+static int hf_cpm_vehicleLength = -1;             /* VehicleLength */
+static int hf_cpm_vehicleWidth = -1;              /* VehicleWidth */
+static int hf_cpm_vehicleHeight = -1;             /* VehicleHeight */
+static int hf_cpm_trailerDataContainer = -1;      /* TrailerDataContainer */
+static int hf_cpm_intersectionReferenceId = -1;   /* IntersectionReferenceID */
+static int hf_cpm_roadSegmentReferenceId = -1;    /* RoadSegmentReferenceID */
+static int hf_cpm_SensorInformationContainer_item = -1;  /* SensorInformation */
+static int hf_cpm_sensorID = -1;                  /* Identifier */
+static int hf_cpm_type = -1;                      /* SensorType */
+static int hf_cpm_detectionArea = -1;             /* DetectionArea */
+static int hf_cpm_freeSpaceConfidence = -1;       /* FreeSpaceConfidence */
+static int hf_cpm_PerceivedObjectContainer_item = -1;  /* PerceivedObject */
+static int hf_cpm_objectID = -1;                  /* Identifier */
+static int hf_cpm_sensorIDList = -1;              /* SensorIdList */
+static int hf_cpm_timeOfMeasurement = -1;         /* TimeOfMeasurement */
+static int hf_cpm_objectAge = -1;                 /* ObjectAge */
+static int hf_cpm_objectConfidence = -1;          /* ObjectConfidence */
+static int hf_cpm_xDistance = -1;                 /* ObjectDistanceWithConfidence */
+static int hf_cpm_yDistance = -1;                 /* ObjectDistanceWithConfidence */
+static int hf_cpm_zDistance = -1;                 /* ObjectDistanceWithConfidence */
+static int hf_cpm_xSpeed = -1;                    /* SpeedExtended */
+static int hf_cpm_ySpeed = -1;                    /* SpeedExtended */
+static int hf_cpm_zSpeed = -1;                    /* SpeedExtended */
+static int hf_cpm_xAcceleration = -1;             /* LongitudinalAcceleration */
+static int hf_cpm_yAcceleration = -1;             /* LateralAcceleration */
+static int hf_cpm_zAcceleration = -1;             /* VerticalAcceleration */
+static int hf_cpm_yawAngle = -1;                  /* CartesianAngle */
+static int hf_cpm_planarObjectDimension1 = -1;    /* ObjectDimension */
+static int hf_cpm_planarObjectDimension2 = -1;    /* ObjectDimension */
+static int hf_cpm_verticalObjectDimension = -1;   /* ObjectDimension */
+static int hf_cpm_objectRefPoint = -1;            /* ObjectRefPoint */
+static int hf_cpm_dynamicStatus = -1;             /* DynamicStatus */
+static int hf_cpm_classification = -1;            /* ObjectClassDescription */
+static int hf_cpm_matchedPosition = -1;           /* MatchedPosition */
+static int hf_cpm_vehicleSensor = -1;             /* VehicleSensor */
+static int hf_cpm_stationarySensorRadial = -1;    /* AreaRadial */
+static int hf_cpm_stationarySensorPolygon = -1;   /* AreaPolygon */
+static int hf_cpm_stationarySensorCircular = -1;  /* AreaCircular */
+static int hf_cpm_stationarySensorEllipse = -1;   /* AreaEllipse */
+static int hf_cpm_stationarySensorRectangle = -1;  /* AreaRectangle */
+static int hf_cpm_refPointId = -1;                /* RefPointId */
+static int hf_cpm_xSensorOffset = -1;             /* XSensorOffset */
+static int hf_cpm_ySensorOffset = -1;             /* YSensorOffset */
+static int hf_cpm_zSensorOffset = -1;             /* ZSensorOffset */
+static int hf_cpm_vehicleSensorPropertyList = -1;  /* VehicleSensorPropertyList */
+static int hf_cpm_VehicleSensorPropertyList_item = -1;  /* VehicleSensorProperties */
+static int hf_cpm_range = -1;                     /* Range */
+static int hf_cpm_horizontalOpeningAngleStart = -1;  /* CartesianAngleValue */
+static int hf_cpm_horizontalOpeningAngleEnd = -1;  /* CartesianAngleValue */
+static int hf_cpm_verticalOpeningAngleStart = -1;  /* CartesianAngleValue */
+static int hf_cpm_verticalOpeningAngleEnd = -1;   /* CartesianAngleValue */
+static int hf_cpm_nodeCenterPoint = -1;           /* OffsetPoint */
+static int hf_cpm_radius = -1;                    /* Radius */
+static int hf_cpm_semiMinorRangeLength = -1;      /* SemiRangeLength */
+static int hf_cpm_semiMajorRangeLength = -1;      /* SemiRangeLength */
+static int hf_cpm_semiMajorRangeOrientation = -1;  /* WGS84AngleValue */
+static int hf_cpm_semiHeight = -1;                /* SemiRangeLength */
+static int hf_cpm_polyPointList = -1;             /* PolyPointList */
+static int hf_cpm_PolyPointList_item = -1;        /* OffsetPoint */
+static int hf_cpm_stationaryHorizontalOpeningAngleStart = -1;  /* WGS84AngleValue */
+static int hf_cpm_stationaryHorizontalOpeningAngleEnd = -1;  /* WGS84AngleValue */
+static int hf_cpm_sensorPositionOffset = -1;      /* OffsetPoint */
+static int hf_cpm_sensorHeight = -1;              /* SensorHeight */
+static int hf_cpm_FreeSpaceAddendumContainer_item = -1;  /* FreeSpaceAddendum */
+static int hf_cpm_freeSpaceArea = -1;             /* FreeSpaceArea */
+static int hf_cpm_shadowingApplies = -1;          /* ShadowingApplies */
+static int hf_cpm_freeSpacePolygon = -1;          /* AreaPolygon */
+static int hf_cpm_freeSpaceCircular = -1;         /* AreaCircular */
+static int hf_cpm_freeSpaceEllipse = -1;          /* AreaEllipse */
+static int hf_cpm_freeSpaceRectangle = -1;        /* AreaRectangle */
+static int hf_cpm_value = -1;                     /* DistanceValue */
+static int hf_cpm_confidence = -1;                /* DistanceConfidence */
+static int hf_cpm_value_01 = -1;                  /* ObjectDimensionValue */
+static int hf_cpm_confidence_01 = -1;             /* ObjectDimensionConfidence */
+static int hf_cpm_value_02 = -1;                  /* CartesianAngleValue */
+static int hf_cpm_confidence_02 = -1;             /* AngleConfidence */
+static int hf_cpm_value_03 = -1;                  /* WGS84AngleValue */
+static int hf_cpm_value_04 = -1;                  /* SpeedValueExtended */
+static int hf_cpm_confidence_03 = -1;             /* SpeedConfidence */
+static int hf_cpm_SensorIdList_item = -1;         /* Identifier */
+static int hf_cpm_TrailerDataContainer_item = -1;  /* TrailerData */
+static int hf_cpm_hitchPointOffset = -1;          /* HitchPointOffset */
+static int hf_cpm_frontOverhang = -1;             /* FrontOverhang */
+static int hf_cpm_rearOverhang = -1;              /* RearOverhang */
+static int hf_cpm_trailerWidth = -1;              /* VehicleWidth */
+static int hf_cpm_hitchAngle = -1;                /* CartesianAngle */
+static int hf_cpm_longitudinalLanePositionValue = -1;  /* LongitudinalLanePositionValue */
+static int hf_cpm_longitudinalLanePositionConfidence = -1;  /* LongitudinalLanePositionConfidence */
+static int hf_cpm_laneID = -1;                    /* LaneID */
+static int hf_cpm_longitudinalLanePosition = -1;  /* LongitudinalLanePosition */
+static int hf_cpm_totalMsgSegments = -1;          /* SegmentCount */
+static int hf_cpm_thisSegmentNum = -1;            /* SegmentCount */
+static int hf_cpm_ObjectClassDescription_item = -1;  /* ObjectClass */
+static int hf_cpm_confidence_04 = -1;             /* ClassConfidence */
+static int hf_cpm_class = -1;                     /* T_class */
+static int hf_cpm_vehicle = -1;                   /* VehicleSubclass */
+static int hf_cpm_person = -1;                    /* PersonSubclass */
+static int hf_cpm_animal = -1;                    /* AnimalSubclass */
+static int hf_cpm_other = -1;                     /* OtherSubclass */
+static int hf_cpm_type_01 = -1;                   /* VehicleSubclassType */
+static int hf_cpm_type_02 = -1;                   /* PersonSubclassType */
+static int hf_cpm_type_03 = -1;                   /* AnimalSubclassType */
+static int hf_cpm_type_04 = -1;                   /* OtherSublassType */
+static int hf_cpm_nodeOffsetPointxy = -1;         /* NodeOffsetPointXY */
+static int hf_cpm_nodeOffsetPointZ = -1;          /* NodeOffsetPointZ */
+static int hf_cpm_node_Z1 = -1;                   /* Offset_B10 */
+static int hf_cpm_node_Z2 = -1;                   /* Offset_B11 */
+static int hf_cpm_node_Z3 = -1;                   /* Offset_B12 */
+static int hf_cpm_node_Z4 = -1;                   /* Offset_B13 */
+static int hf_cpm_node_Z5 = -1;                   /* Offset_B14 */
+static int hf_cpm_node_Z6 = -1;                   /* Offset_B16 */
+
 /*--- End of included file: packet-its-hf.c ---*/
-#line 286 "./asn1/its/packet-its-template.c"
+#line 287 "./asn1/its/packet-its-template.c"
 
 // CauseCode/SubCauseCode management
 static int hf_its_trafficConditionSubCauseCode = -1;
@@ -2338,8 +2477,54 @@ static gint ett_evrsr_Payment_ID = -1;
 static gint ett_evrsr_RechargingType = -1;
 static gint ett_evrsr_SupportedPaymentTypes = -1;
 
+/* --- Module CPM-PDU-Descriptions --- --- ---                                */
+
+static gint ett_cpm_CollectivePerceptionMessage = -1;
+static gint ett_cpm_CpmParameters = -1;
+static gint ett_cpm_CpmManagementContainer = -1;
+static gint ett_cpm_StationDataContainer = -1;
+static gint ett_cpm_OriginatingVehicleContainer = -1;
+static gint ett_cpm_OriginatingRSUContainer = -1;
+static gint ett_cpm_SensorInformationContainer = -1;
+static gint ett_cpm_SensorInformation = -1;
+static gint ett_cpm_PerceivedObjectContainer = -1;
+static gint ett_cpm_PerceivedObject = -1;
+static gint ett_cpm_DetectionArea = -1;
+static gint ett_cpm_VehicleSensor = -1;
+static gint ett_cpm_VehicleSensorPropertyList = -1;
+static gint ett_cpm_VehicleSensorProperties = -1;
+static gint ett_cpm_AreaCircular = -1;
+static gint ett_cpm_AreaEllipse = -1;
+static gint ett_cpm_AreaRectangle = -1;
+static gint ett_cpm_AreaPolygon = -1;
+static gint ett_cpm_PolyPointList = -1;
+static gint ett_cpm_AreaRadial = -1;
+static gint ett_cpm_FreeSpaceAddendumContainer = -1;
+static gint ett_cpm_FreeSpaceAddendum = -1;
+static gint ett_cpm_FreeSpaceArea = -1;
+static gint ett_cpm_ObjectDistanceWithConfidence = -1;
+static gint ett_cpm_ObjectDimension = -1;
+static gint ett_cpm_CartesianAngle = -1;
+static gint ett_cpm_WGS84Angle = -1;
+static gint ett_cpm_SpeedExtended = -1;
+static gint ett_cpm_SensorIdList = -1;
+static gint ett_cpm_TrailerDataContainer = -1;
+static gint ett_cpm_TrailerData = -1;
+static gint ett_cpm_LongitudinalLanePosition = -1;
+static gint ett_cpm_MatchedPosition = -1;
+static gint ett_cpm_PerceivedObjectContainerSegmentInfo = -1;
+static gint ett_cpm_ObjectClassDescription = -1;
+static gint ett_cpm_ObjectClass = -1;
+static gint ett_cpm_T_class = -1;
+static gint ett_cpm_VehicleSubclass = -1;
+static gint ett_cpm_PersonSubclass = -1;
+static gint ett_cpm_AnimalSubclass = -1;
+static gint ett_cpm_OtherSubclass = -1;
+static gint ett_cpm_OffsetPoint = -1;
+static gint ett_cpm_NodeOffsetPointZ = -1;
+
 /*--- End of included file: packet-its-ett.c ---*/
-#line 316 "./asn1/its/packet-its-template.c"
+#line 317 "./asn1/its/packet-its-template.c"
 
 // Deal with cause/subcause code management
 struct { CauseCodeType_enum cause; int* hf; } cause_to_subcause[] = {
@@ -2412,6 +2597,7 @@ static const value_string its_T_messageID_vals[] = {
   { ITS_EVCSN, "evcsn" },
   { ITS_SAEM, "saem" },
   { ITS_RTCMEM, "rtcmem" },
+  { ITS_CPM, "cpm" },
   { 0, NULL }
 };
 
@@ -2444,7 +2630,7 @@ static const per_sequence_t its_ItsPduHeader_sequence[] = {
 
 static int
 dissect_its_ItsPduHeader(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 653 "./asn1/its/its.cnf"
+#line 669 "./asn1/its/its.cnf"
   guint8 version = tvb_get_guint8(tvb, 0);
   int test_offset = offset;
   if ((test_offset = dissector_try_uint(its_version_subdissector_table, version, tvb, actx->pinfo, tree))) {
@@ -2767,7 +2953,7 @@ static const per_sequence_t its_PtActivation_sequence[] = {
 
 static int
 dissect_its_PtActivation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 789 "./asn1/its/its.cnf"
+#line 805 "./asn1/its/its.cnf"
   void *priv_data = actx->private_data;
   its_pt_activation_data_t *pta;
 
@@ -2777,7 +2963,7 @@ dissect_its_PtActivation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_its_PtActivation, its_PtActivation_sequence);
 
-#line 795 "./asn1/its/its.cnf"
+#line 811 "./asn1/its/its.cnf"
   dissector_try_uint_new(cam_pt_activation_table, pta->type, pta->data, actx->pinfo, tree, TRUE, NULL);
   actx->private_data = priv_data;
 
@@ -2849,7 +3035,7 @@ dissect_its_CauseCodeType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 static int
 dissect_its_SubCauseCodeType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 757 "./asn1/its/its.cnf"
+#line 773 "./asn1/its/its.cnf"
   // Overwrite hf_index
   hf_index = *find_subcause_from_cause((CauseCodeType_enum) ((its_private_data_t*)actx->private_data)->cause_code);
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
@@ -4963,7 +5149,7 @@ static const per_sequence_t itsv1_PtActivation_sequence[] = {
 
 static int
 dissect_itsv1_PtActivation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 789 "./asn1/its/its.cnf"
+#line 805 "./asn1/its/its.cnf"
   void *priv_data = actx->private_data;
   its_pt_activation_data_t *pta;
 
@@ -4973,7 +5159,7 @@ dissect_itsv1_PtActivation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_itsv1_PtActivation, itsv1_PtActivation_sequence);
 
-#line 795 "./asn1/its/its.cnf"
+#line 811 "./asn1/its/its.cnf"
   dissector_try_uint_new(cam_pt_activation_table, pta->type, pta->data, actx->pinfo, tree, TRUE, NULL);
   actx->private_data = priv_data;
 
@@ -7300,14 +7486,14 @@ static const per_sequence_t dsrc_Position3D_sequence[] = {
 
 static int
 dissect_dsrc_Position3D(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 558 "./asn1/its/its.cnf"
+#line 574 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_Position3D;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_dsrc_Position3D, dsrc_Position3D_sequence);
 
-#line 562 "./asn1/its/its.cnf"
+#line 578 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -7652,14 +7838,14 @@ static const per_sequence_t dsrc_LaneAttributes_sequence[] = {
 
 static int
 dissect_dsrc_LaneAttributes(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 504 "./asn1/its/its.cnf"
+#line 520 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_LaneAttributes;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_dsrc_LaneAttributes, dsrc_LaneAttributes_sequence);
 
-#line 508 "./asn1/its/its.cnf"
+#line 524 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -7882,7 +8068,7 @@ static const per_choice_t dsrc_NodeOffsetPointXY_choice[] = {
 
 static int
 dissect_dsrc_NodeOffsetPointXY(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 549 "./asn1/its/its.cnf"
+#line 565 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_NodeOffsetPointXY;
 
@@ -7890,7 +8076,7 @@ dissect_dsrc_NodeOffsetPointXY(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
                                  ett_dsrc_NodeOffsetPointXY, dsrc_NodeOffsetPointXY_choice,
                                  NULL);
 
-#line 553 "./asn1/its/its.cnf"
+#line 569 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -8071,7 +8257,7 @@ static const per_choice_t dsrc_LaneDataAttribute_choice[] = {
 
 static int
 dissect_dsrc_LaneDataAttribute(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 513 "./asn1/its/its.cnf"
+#line 529 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_LaneDataAttribute;
 
@@ -8079,7 +8265,7 @@ dissect_dsrc_LaneDataAttribute(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
                                  ett_dsrc_LaneDataAttribute, dsrc_LaneDataAttribute_choice,
                                  NULL);
 
-#line 517 "./asn1/its/its.cnf"
+#line 533 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -8127,14 +8313,14 @@ static const per_sequence_t dsrc_NodeAttributeSetXY_sequence[] = {
 
 static int
 dissect_dsrc_NodeAttributeSetXY(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 540 "./asn1/its/its.cnf"
+#line 556 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_NodeAttributeSetXY;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_dsrc_NodeAttributeSetXY, dsrc_NodeAttributeSetXY_sequence);
 
-#line 544 "./asn1/its/its.cnf"
+#line 560 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -8281,14 +8467,14 @@ static const per_sequence_t dsrc_ComputedLane_sequence[] = {
 
 static int
 dissect_dsrc_ComputedLane(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 459 "./asn1/its/its.cnf"
+#line 475 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_ComputedLane;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_dsrc_ComputedLane, dsrc_ComputedLane_sequence);
 
-#line 463 "./asn1/its/its.cnf"
+#line 479 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -8438,14 +8624,14 @@ static const per_sequence_t dsrc_GenericLane_sequence[] = {
 
 static int
 dissect_dsrc_GenericLane(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 477 "./asn1/its/its.cnf"
+#line 493 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_GenericLane;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_dsrc_GenericLane, dsrc_GenericLane_sequence);
 
-#line 481 "./asn1/its/its.cnf"
+#line 497 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -8473,14 +8659,14 @@ static const per_sequence_t dsrc_SignalControlZone_sequence[] = {
 
 static int
 dissect_dsrc_SignalControlZone(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 639 "./asn1/its/its.cnf"
+#line 655 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_SignalControlZone;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_dsrc_SignalControlZone, dsrc_SignalControlZone_sequence);
 
-#line 643 "./asn1/its/its.cnf"
+#line 659 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -8530,14 +8716,14 @@ static const per_sequence_t dsrc_IntersectionGeometry_sequence[] = {
 
 static int
 dissect_dsrc_IntersectionGeometry(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 486 "./asn1/its/its.cnf"
+#line 502 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_IntersectionGeometry;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_dsrc_IntersectionGeometry, dsrc_IntersectionGeometry_sequence);
 
-#line 490 "./asn1/its/its.cnf"
+#line 506 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -8625,14 +8811,14 @@ static const per_sequence_t dsrc_RoadSegment_sequence[] = {
 
 static int
 dissect_dsrc_RoadSegment(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 594 "./asn1/its/its.cnf"
+#line 610 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_RoadSegment;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_dsrc_RoadSegment, dsrc_RoadSegment_sequence);
 
-#line 598 "./asn1/its/its.cnf"
+#line 614 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -8736,7 +8922,7 @@ static const per_choice_t dsrc_RestrictionUserType_choice[] = {
 
 static int
 dissect_dsrc_RestrictionUserType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 585 "./asn1/its/its.cnf"
+#line 601 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_RestrictionUserType;
 
@@ -8744,7 +8930,7 @@ dissect_dsrc_RestrictionUserType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
                                  ett_dsrc_RestrictionUserType, dsrc_RestrictionUserType_choice,
                                  NULL);
 
-#line 589 "./asn1/its/its.cnf"
+#line 605 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -8823,7 +9009,7 @@ static const per_sequence_t dsrc_MapData_sequence[] = {
 
 static int
 dissect_dsrc_MapData(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 369 "./asn1/its/its.cnf"
+#line 379 "./asn1/its/its.cnf"
   its_private_data_t *regext = wmem_new0(wmem_packet_scope(), its_private_data_t);
   actx->private_data = (void*)regext;
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "MAPEM");
@@ -9381,7 +9567,7 @@ static const per_sequence_t dsrc_RTCMcorrections_sequence[] = {
 
 static int
 dissect_dsrc_RTCMcorrections(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 386 "./asn1/its/its.cnf"
+#line 396 "./asn1/its/its.cnf"
   its_private_data_t *regext = wmem_new0(wmem_packet_scope(), its_private_data_t);
   actx->private_data = (void*)regext;
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "RTCMEM");
@@ -9563,14 +9749,14 @@ static const per_sequence_t dsrc_AdvisorySpeed_sequence[] = {
 
 static int
 dissect_dsrc_AdvisorySpeed(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 450 "./asn1/its/its.cnf"
+#line 466 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_AdvisorySpeed;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_dsrc_AdvisorySpeed, dsrc_AdvisorySpeed_sequence);
 
-#line 454 "./asn1/its/its.cnf"
+#line 470 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -9615,14 +9801,14 @@ static const per_sequence_t dsrc_MovementEvent_sequence[] = {
 
 static int
 dissect_dsrc_MovementEvent(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 522 "./asn1/its/its.cnf"
+#line 538 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_MovementEvent;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_dsrc_MovementEvent, dsrc_MovementEvent_sequence);
 
-#line 526 "./asn1/its/its.cnf"
+#line 542 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -9687,14 +9873,14 @@ static const per_sequence_t dsrc_ConnectionManeuverAssist_sequence[] = {
 
 static int
 dissect_dsrc_ConnectionManeuverAssist(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 468 "./asn1/its/its.cnf"
+#line 484 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_ConnectionManeuverAssist;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_dsrc_ConnectionManeuverAssist, dsrc_ConnectionManeuverAssist_sequence);
 
-#line 472 "./asn1/its/its.cnf"
+#line 488 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -9740,14 +9926,14 @@ static const per_sequence_t dsrc_MovementState_sequence[] = {
 
 static int
 dissect_dsrc_MovementState(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 531 "./asn1/its/its.cnf"
+#line 547 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_MovementState;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_dsrc_MovementState, dsrc_MovementState_sequence);
 
-#line 535 "./asn1/its/its.cnf"
+#line 551 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -9798,14 +9984,14 @@ static const per_sequence_t dsrc_IntersectionState_sequence[] = {
 
 static int
 dissect_dsrc_IntersectionState(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 495 "./asn1/its/its.cnf"
+#line 511 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_IntersectionState;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_dsrc_IntersectionState, dsrc_IntersectionState_sequence);
 
-#line 499 "./asn1/its/its.cnf"
+#line 515 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -9850,7 +10036,7 @@ static const per_sequence_t dsrc_SPAT_sequence[] = {
 
 static int
 dissect_dsrc_SPAT(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 377 "./asn1/its/its.cnf"
+#line 387 "./asn1/its/its.cnf"
   its_private_data_t *regext = wmem_new0(wmem_packet_scope(), its_private_data_t);
   actx->private_data = (void*)regext;
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "SPATEM");
@@ -9942,14 +10128,14 @@ static const per_sequence_t dsrc_SignalRequest_sequence[] = {
 
 static int
 dissect_dsrc_SignalRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 612 "./asn1/its/its.cnf"
+#line 628 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_SignalRequest;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_dsrc_SignalRequest, dsrc_SignalRequest_sequence);
 
-#line 616 "./asn1/its/its.cnf"
+#line 632 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -9981,14 +10167,14 @@ static const per_sequence_t dsrc_SignalRequestPackage_sequence[] = {
 
 static int
 dissect_dsrc_SignalRequestPackage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 603 "./asn1/its/its.cnf"
+#line 619 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_SignalRequestPackage;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_dsrc_SignalRequestPackage, dsrc_SignalRequestPackage_sequence);
 
-#line 607 "./asn1/its/its.cnf"
+#line 623 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -10180,14 +10366,14 @@ static const per_sequence_t dsrc_RequestorType_sequence[] = {
 
 static int
 dissect_dsrc_RequestorType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 576 "./asn1/its/its.cnf"
+#line 592 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_RequestorType;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_dsrc_RequestorType, dsrc_RequestorType_sequence);
 
-#line 580 "./asn1/its/its.cnf"
+#line 596 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -10290,14 +10476,14 @@ static const per_sequence_t dsrc_RequestorDescription_sequence[] = {
 
 static int
 dissect_dsrc_RequestorDescription(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 567 "./asn1/its/its.cnf"
+#line 583 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_RequestorDescription;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_dsrc_RequestorDescription, dsrc_RequestorDescription_sequence);
 
-#line 571 "./asn1/its/its.cnf"
+#line 587 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -10330,7 +10516,7 @@ static const per_sequence_t dsrc_SignalRequestMessage_sequence[] = {
 
 static int
 dissect_dsrc_SignalRequestMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 361 "./asn1/its/its.cnf"
+#line 371 "./asn1/its/its.cnf"
   its_private_data_t *regext = wmem_new0(wmem_packet_scope(), its_private_data_t);
   actx->private_data = (void*)regext;
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "SREM");
@@ -10412,14 +10598,14 @@ static const per_sequence_t dsrc_SignalStatusPackage_sequence[] = {
 
 static int
 dissect_dsrc_SignalStatusPackage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 621 "./asn1/its/its.cnf"
+#line 637 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_SignalStatusPackage;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_dsrc_SignalStatusPackage, dsrc_SignalStatusPackage_sequence);
 
-#line 625 "./asn1/its/its.cnf"
+#line 641 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -10464,14 +10650,14 @@ static const per_sequence_t dsrc_SignalStatus_sequence[] = {
 
 static int
 dissect_dsrc_SignalStatus(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 630 "./asn1/its/its.cnf"
+#line 646 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_SignalStatus;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_dsrc_SignalStatus, dsrc_SignalStatus_sequence);
 
-#line 634 "./asn1/its/its.cnf"
+#line 650 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -10517,7 +10703,7 @@ static const per_sequence_t dsrc_SignalStatusMessage_sequence[] = {
 
 static int
 dissect_dsrc_SignalStatusMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 353 "./asn1/its/its.cnf"
+#line 363 "./asn1/its/its.cnf"
   its_private_data_t *regext = wmem_new0(wmem_packet_scope(), its_private_data_t);
   actx->private_data = (void*)regext;
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "SSEM");
@@ -10664,7 +10850,7 @@ static const per_sequence_t AddGrpC_ConnectionManeuverAssist_addGrpC_sequence[] 
 
 static int
 dissect_AddGrpC_ConnectionManeuverAssist_addGrpC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 395 "./asn1/its/its.cnf"
+#line 411 "./asn1/its/its.cnf"
   actx->private_data = wmem_new0(wmem_packet_scope(), its_private_data_t);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -10682,7 +10868,7 @@ static const per_sequence_t AddGrpC_ConnectionTrajectory_addGrpC_sequence[] = {
 
 static int
 dissect_AddGrpC_ConnectionTrajectory_addGrpC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 400 "./asn1/its/its.cnf"
+#line 416 "./asn1/its/its.cnf"
   actx->private_data = wmem_new0(wmem_packet_scope(), its_private_data_t);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -10729,7 +10915,7 @@ static const per_sequence_t AddGrpC_IntersectionState_addGrpC_sequence[] = {
 
 static int
 dissect_AddGrpC_IntersectionState_addGrpC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 410 "./asn1/its/its.cnf"
+#line 426 "./asn1/its/its.cnf"
   actx->private_data = wmem_new0(wmem_packet_scope(), its_private_data_t);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -10747,7 +10933,7 @@ static const per_sequence_t AddGrpC_LaneAttributes_addGrpC_sequence[] = {
 
 static int
 dissect_AddGrpC_LaneAttributes_addGrpC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 435 "./asn1/its/its.cnf"
+#line 451 "./asn1/its/its.cnf"
   actx->private_data = wmem_new0(wmem_packet_scope(), its_private_data_t);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -10794,7 +10980,7 @@ static const per_sequence_t AddGrpC_MapData_addGrpC_sequence[] = {
 
 static int
 dissect_AddGrpC_MapData_addGrpC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 415 "./asn1/its/its.cnf"
+#line 431 "./asn1/its/its.cnf"
   actx->private_data = wmem_new0(wmem_packet_scope(), its_private_data_t);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -10838,7 +11024,7 @@ static const per_sequence_t AddGrpC_MovementEvent_addGrpC_sequence[] = {
 
 static int
 dissect_AddGrpC_MovementEvent_addGrpC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 440 "./asn1/its/its.cnf"
+#line 456 "./asn1/its/its.cnf"
   actx->private_data = wmem_new0(wmem_packet_scope(), its_private_data_t);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -10916,7 +11102,7 @@ static const per_sequence_t AddGrpC_NodeAttributeSet_addGrpC_sequence[] = {
 
 static int
 dissect_AddGrpC_NodeAttributeSet_addGrpC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 405 "./asn1/its/its.cnf"
+#line 421 "./asn1/its/its.cnf"
   actx->private_data = wmem_new0(wmem_packet_scope(), its_private_data_t);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -10933,7 +11119,7 @@ static const per_sequence_t AddGrpC_Position3D_addGrpC_sequence[] = {
 
 static int
 dissect_AddGrpC_Position3D_addGrpC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 420 "./asn1/its/its.cnf"
+#line 436 "./asn1/its/its.cnf"
   actx->private_data = wmem_new0(wmem_packet_scope(), its_private_data_t);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -10971,7 +11157,7 @@ static const per_sequence_t AddGrpC_RestrictionUserType_addGrpC_sequence[] = {
 
 static int
 dissect_AddGrpC_RestrictionUserType_addGrpC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 425 "./asn1/its/its.cnf"
+#line 441 "./asn1/its/its.cnf"
   actx->private_data = wmem_new0(wmem_packet_scope(), its_private_data_t);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -11007,7 +11193,7 @@ static const per_sequence_t AddGrpC_RequestorDescription_addGrpC_sequence[] = {
 
 static int
 dissect_AddGrpC_RequestorDescription_addGrpC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 445 "./asn1/its/its.cnf"
+#line 461 "./asn1/its/its.cnf"
   actx->private_data = wmem_new0(wmem_packet_scope(), its_private_data_t);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -11045,7 +11231,7 @@ static const per_sequence_t AddGrpC_SignalStatusPackage_addGrpC_sequence[] = {
 
 static int
 dissect_AddGrpC_SignalStatusPackage_addGrpC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 430 "./asn1/its/its.cnf"
+#line 446 "./asn1/its/its.cnf"
   actx->private_data = wmem_new0(wmem_packet_scope(), its_private_data_t);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -11540,7 +11726,7 @@ static const value_string gdd_Code_Units_vals[] = {
 
 static int
 dissect_gdd_T_unit(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 782 "./asn1/its/its.cnf"
+#line 798 "./asn1/its/its.cnf"
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                            2U, 8U, NULL, FALSE);
 
@@ -11567,7 +11753,7 @@ dissect_gdd_Distance(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 
 static int
 dissect_gdd_T_unit_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 772 "./asn1/its/its.cnf"
+#line 788 "./asn1/its/its.cnf"
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                            10U, 12U, NULL, FALSE);
 
@@ -11621,7 +11807,7 @@ dissect_gdd_INTEGER_0_250(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 static int
 dissect_gdd_T_unit_02(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 767 "./asn1/its/its.cnf"
+#line 783 "./asn1/its/its.cnf"
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                            0U, 1U, NULL, FALSE);
 
@@ -11920,7 +12106,7 @@ dissect_gdd_DistOrDuration_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 
 static int
 dissect_gdd_DistOrDuration_Units(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 777 "./asn1/its/its.cnf"
+#line 793 "./asn1/its/its.cnf"
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                            2U, 9U, NULL, FALSE);
 
@@ -14362,7 +14548,7 @@ static const per_sequence_t ivi_IviStructure_sequence[] = {
 
 static int
 dissect_ivi_IviStructure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 347 "./asn1/its/its.cnf"
+#line 357 "./asn1/its/its.cnf"
   actx->private_data = (void*)wmem_new0(wmem_packet_scope(), its_private_data_t);
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "IVIM");
   col_set_str(actx->pinfo->cinfo, COL_INFO, "IVIM");
@@ -14701,7 +14887,7 @@ static const per_sequence_t camv1_CoopAwarenessV1_sequence[] = {
 
 static int
 dissect_camv1_CoopAwarenessV1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 311 "./asn1/its/its.cnf"
+#line 321 "./asn1/its/its.cnf"
   actx->private_data = (void*)wmem_new0(wmem_packet_scope(), its_private_data_t);
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "CAMv1");
   col_set_str(actx->pinfo->cinfo, COL_INFO, "CAMv1");
@@ -15022,7 +15208,7 @@ static const per_sequence_t cam_CoopAwareness_sequence[] = {
 
 static int
 dissect_cam_CoopAwareness(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 305 "./asn1/its/its.cnf"
+#line 315 "./asn1/its/its.cnf"
   actx->private_data = (void*)wmem_new0(wmem_packet_scope(), its_private_data_t);
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "CAM");
   col_set_str(actx->pinfo->cinfo, COL_INFO, "CAM");
@@ -15230,7 +15416,7 @@ static const per_sequence_t denmv1_DecentralizedEnvironmentalNotificationMessage
 
 static int
 dissect_denmv1_DecentralizedEnvironmentalNotificationMessageV1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 323 "./asn1/its/its.cnf"
+#line 333 "./asn1/its/its.cnf"
   actx->private_data = (void*)wmem_new0(wmem_packet_scope(), its_private_data_t);
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "DENMv1");
   col_set_str(actx->pinfo->cinfo, COL_INFO, "DENMv1");
@@ -15438,7 +15624,7 @@ static const per_sequence_t denm_DecentralizedEnvironmentalNotificationMessage_s
 
 static int
 dissect_denm_DecentralizedEnvironmentalNotificationMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 317 "./asn1/its/its.cnf"
+#line 327 "./asn1/its/its.cnf"
   actx->private_data = (void*)wmem_new0(wmem_packet_scope(), its_private_data_t);
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "DENM");
   col_set_str(actx->pinfo->cinfo, COL_INFO, "DENM");
@@ -16542,7 +16728,7 @@ static const per_choice_t tistpg_TisTpgTransaction_choice[] = {
 
 static int
 dissect_tistpg_TisTpgTransaction(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 341 "./asn1/its/its.cnf"
+#line 351 "./asn1/its/its.cnf"
   actx->private_data = (void*)wmem_new0(wmem_packet_scope(), its_private_data_t);
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "TISTPG");
   col_set_str(actx->pinfo->cinfo, COL_INFO, "TISTPG");
@@ -16675,7 +16861,7 @@ dissect_evcsn_ChargingSpotType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 static int
 dissect_evcsn_TypeOfReceptacle(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 690 "./asn1/its/its.cnf"
+#line 706 "./asn1/its/its.cnf"
   tvbuff_t *parameter_tvb = NULL;
   int len;
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
@@ -16849,7 +17035,7 @@ static const per_sequence_t evcsn_EVChargingSpotNotificationPOIMessage_sequence[
 
 static int
 dissect_evcsn_EVChargingSpotNotificationPOIMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 329 "./asn1/its/its.cnf"
+#line 339 "./asn1/its/its.cnf"
   actx->private_data = (void*)wmem_new0(wmem_packet_scope(), its_private_data_t);
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "EVCSN");
   col_set_str(actx->pinfo->cinfo, COL_INFO, "EVCSN");
@@ -17353,7 +17539,7 @@ static const per_choice_t evrsr_EV_RSR_MessageBody_choice[] = {
 
 static int
 dissect_evrsr_EV_RSR_MessageBody(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 335 "./asn1/its/its.cnf"
+#line 345 "./asn1/its/its.cnf"
   actx->private_data = (void*)wmem_new0(wmem_packet_scope(), its_private_data_t);
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "EV-RSR");
   col_set_str(actx->pinfo->cinfo, COL_INFO, "EV-RSR");
@@ -17377,8 +17563,1465 @@ static int dissect_evrsr_EV_RSR_MessageBody_PDU(tvbuff_t *tvb _U_, packet_info *
 }
 
 
+/* --- Module CPM-PDU-Descriptions --- --- ---                                */
+
+
+
+static int
+dissect_cpm_SegmentCount(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            1U, 127U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t cpm_PerceivedObjectContainerSegmentInfo_sequence[] = {
+  { &hf_cpm_totalMsgSegments, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_cpm_SegmentCount },
+  { &hf_cpm_thisSegmentNum  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_cpm_SegmentCount },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_cpm_PerceivedObjectContainerSegmentInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_cpm_PerceivedObjectContainerSegmentInfo, cpm_PerceivedObjectContainerSegmentInfo_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t cpm_CpmManagementContainer_sequence[] = {
+  { &hf_cpm_stationType     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_its_StationType },
+  { &hf_cpm_perceivedObjectContainerSegmentInfo, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_cpm_PerceivedObjectContainerSegmentInfo },
+  { &hf_cpm_referencePosition, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_its_ReferencePosition },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_cpm_CpmManagementContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_cpm_CpmManagementContainer, cpm_CpmManagementContainer_sequence);
+
+  return offset;
+}
+
+
+static const value_string cpm_WGS84AngleValue_vals[] = {
+  {   0, "wgs84North" },
+  { 900, "wgs84East" },
+  { 1800, "wgs84South" },
+  { 2700, "wgs84West" },
+  { 3601, "unavailable" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_cpm_WGS84AngleValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 3601U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const value_string cpm_AngleConfidence_vals[] = {
+  {   1, "zeroPointOneDegree" },
+  {  10, "oneDegree" },
+  { 126, "outOfRange" },
+  { 127, "unavailable" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_cpm_AngleConfidence(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            1U, 127U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t cpm_WGS84Angle_sequence[] = {
+  { &hf_cpm_value_03        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_cpm_WGS84AngleValue },
+  { &hf_cpm_confidence_02   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_cpm_AngleConfidence },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_cpm_WGS84Angle(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_cpm_WGS84Angle, cpm_WGS84Angle_sequence);
+
+  return offset;
+}
+
+
+static const value_string cpm_CartesianAngleValue_vals[] = {
+  {   1, "zeroPointOneDegree" },
+  {  10, "oneDegree" },
+  { 3601, "unavailable" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_cpm_CartesianAngleValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 3601U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t cpm_CartesianAngle_sequence[] = {
+  { &hf_cpm_value_02        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_cpm_CartesianAngleValue },
+  { &hf_cpm_confidence_02   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_cpm_AngleConfidence },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_cpm_CartesianAngle(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_cpm_CartesianAngle, cpm_CartesianAngle_sequence);
+
+  return offset;
+}
+
+
+
+static int
+dissect_cpm_RefPointId(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 255U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const value_string cpm_HitchPointOffset_vals[] = {
+  {   1, "zeroPointOneMeter" },
+  {  10, "oneMeter" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_cpm_HitchPointOffset(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 100U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const value_string cpm_FrontOverhang_vals[] = {
+  {   1, "zeroPointOneMeter" },
+  {  10, "oneMeter" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_cpm_FrontOverhang(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 50U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const value_string cpm_RearOverhang_vals[] = {
+  {   1, "zeroPointOneMeter" },
+  {  10, "oneMeter" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_cpm_RearOverhang(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 150U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t cpm_TrailerData_sequence[] = {
+  { &hf_cpm_refPointId      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_cpm_RefPointId },
+  { &hf_cpm_hitchPointOffset, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_cpm_HitchPointOffset },
+  { &hf_cpm_frontOverhang   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_cpm_FrontOverhang },
+  { &hf_cpm_rearOverhang    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_cpm_RearOverhang },
+  { &hf_cpm_trailerWidth    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_its_VehicleWidth },
+  { &hf_cpm_hitchAngle      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_cpm_CartesianAngle },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_cpm_TrailerData(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_cpm_TrailerData, cpm_TrailerData_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t cpm_TrailerDataContainer_sequence_of[1] = {
+  { &hf_cpm_TrailerDataContainer_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_cpm_TrailerData },
+};
+
+static int
+dissect_cpm_TrailerDataContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_cpm_TrailerDataContainer, cpm_TrailerDataContainer_sequence_of,
+                                                  1, 2, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t cpm_OriginatingVehicleContainer_sequence[] = {
+  { &hf_cpm_heading         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_its_Heading },
+  { &hf_cpm_speed           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_its_Speed },
+  { &hf_cpm_vehicleOrientationAngle, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_cpm_WGS84Angle },
+  { &hf_cpm_driveDirection  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_its_DriveDirection },
+  { &hf_cpm_longitudinalAcceleration, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_its_LongitudinalAcceleration },
+  { &hf_cpm_lateralAcceleration, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_its_LateralAcceleration },
+  { &hf_cpm_verticalAcceleration, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_its_VerticalAcceleration },
+  { &hf_cpm_yawRate         , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_its_YawRate },
+  { &hf_cpm_pitchAngle      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_cpm_CartesianAngle },
+  { &hf_cpm_rollAngle       , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_cpm_CartesianAngle },
+  { &hf_cpm_vehicleLength   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_its_VehicleLength },
+  { &hf_cpm_vehicleWidth    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_its_VehicleWidth },
+  { &hf_cpm_vehicleHeight   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_dsrc_VehicleHeight },
+  { &hf_cpm_trailerDataContainer, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_cpm_TrailerDataContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_cpm_OriginatingVehicleContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_cpm_OriginatingVehicleContainer, cpm_OriginatingVehicleContainer_sequence);
+
+  return offset;
+}
+
+
+static const value_string cpm_OriginatingRSUContainer_vals[] = {
+  {   0, "intersectionReferenceId" },
+  {   1, "roadSegmentReferenceId" },
+  { 0, NULL }
+};
+
+static const per_choice_t cpm_OriginatingRSUContainer_choice[] = {
+  {   0, &hf_cpm_intersectionReferenceId, ASN1_EXTENSION_ROOT    , dissect_dsrc_IntersectionReferenceID },
+  {   1, &hf_cpm_roadSegmentReferenceId, ASN1_EXTENSION_ROOT    , dissect_dsrc_RoadSegmentReferenceID },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_cpm_OriginatingRSUContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_cpm_OriginatingRSUContainer, cpm_OriginatingRSUContainer_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const value_string cpm_StationDataContainer_vals[] = {
+  {   0, "originatingVehicleContainer" },
+  {   1, "originatingRSUContainer" },
+  { 0, NULL }
+};
+
+static const per_choice_t cpm_StationDataContainer_choice[] = {
+  {   0, &hf_cpm_originatingVehicleContainer, ASN1_EXTENSION_ROOT    , dissect_cpm_OriginatingVehicleContainer },
+  {   1, &hf_cpm_originatingRSUContainer, ASN1_EXTENSION_ROOT    , dissect_cpm_OriginatingRSUContainer },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_cpm_StationDataContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_cpm_StationDataContainer, cpm_StationDataContainer_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_cpm_Identifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 255U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const value_string cpm_SensorType_vals[] = {
+  {   0, "undefined" },
+  {   1, "radar" },
+  {   2, "lidar" },
+  {   3, "monovideo" },
+  {   4, "stereovision" },
+  {   5, "nightvision" },
+  {   6, "ultrasonic" },
+  {   7, "pmd" },
+  {   8, "fusion" },
+  {   9, "inductionloop" },
+  {  10, "sphericalCamera" },
+  {  11, "itssaggregation" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_cpm_SensorType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 15U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const value_string cpm_XSensorOffset_vals[] = {
+  {  -1, "negativeZeroPointZeroOneMeter" },
+  { -100, "negativeOneMeter" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_cpm_XSensorOffset(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            -5000, 0U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const value_string cpm_YSensorOffset_vals[] = {
+  {   1, "zeroPointZeroOneMeter" },
+  { 100, "oneMeter" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_cpm_YSensorOffset(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            -1000, 1000U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const value_string cpm_ZSensorOffset_vals[] = {
+  {   1, "zeroPointZeroOneMeter" },
+  { 100, "oneMeter" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_cpm_ZSensorOffset(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 1000U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const value_string cpm_Range_vals[] = {
+  {   1, "zeroPointOneMeter" },
+  {  10, "oneMeter" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_cpm_Range(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 10000U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t cpm_VehicleSensorProperties_sequence[] = {
+  { &hf_cpm_range           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_cpm_Range },
+  { &hf_cpm_horizontalOpeningAngleStart, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_cpm_CartesianAngleValue },
+  { &hf_cpm_horizontalOpeningAngleEnd, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_cpm_CartesianAngleValue },
+  { &hf_cpm_verticalOpeningAngleStart, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_cpm_CartesianAngleValue },
+  { &hf_cpm_verticalOpeningAngleEnd, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_cpm_CartesianAngleValue },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_cpm_VehicleSensorProperties(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_cpm_VehicleSensorProperties, cpm_VehicleSensorProperties_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t cpm_VehicleSensorPropertyList_sequence_of[1] = {
+  { &hf_cpm_VehicleSensorPropertyList_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_cpm_VehicleSensorProperties },
+};
+
+static int
+dissect_cpm_VehicleSensorPropertyList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_cpm_VehicleSensorPropertyList, cpm_VehicleSensorPropertyList_sequence_of,
+                                                  1, 10, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t cpm_VehicleSensor_sequence[] = {
+  { &hf_cpm_refPointId      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_cpm_RefPointId },
+  { &hf_cpm_xSensorOffset   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_cpm_XSensorOffset },
+  { &hf_cpm_ySensorOffset   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_cpm_YSensorOffset },
+  { &hf_cpm_zSensorOffset   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_cpm_ZSensorOffset },
+  { &hf_cpm_vehicleSensorPropertyList, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_cpm_VehicleSensorPropertyList },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_cpm_VehicleSensor(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_cpm_VehicleSensor, cpm_VehicleSensor_sequence);
+
+  return offset;
+}
+
+
+static const value_string cpm_NodeOffsetPointZ_vals[] = {
+  {   0, "node-Z1" },
+  {   1, "node-Z2" },
+  {   2, "node-Z3" },
+  {   3, "node-Z4" },
+  {   4, "node-Z5" },
+  {   5, "node-Z6" },
+  { 0, NULL }
+};
+
+static const per_choice_t cpm_NodeOffsetPointZ_choice[] = {
+  {   0, &hf_cpm_node_Z1         , ASN1_NO_EXTENSIONS     , dissect_dsrc_Offset_B10 },
+  {   1, &hf_cpm_node_Z2         , ASN1_NO_EXTENSIONS     , dissect_dsrc_Offset_B11 },
+  {   2, &hf_cpm_node_Z3         , ASN1_NO_EXTENSIONS     , dissect_dsrc_Offset_B12 },
+  {   3, &hf_cpm_node_Z4         , ASN1_NO_EXTENSIONS     , dissect_dsrc_Offset_B13 },
+  {   4, &hf_cpm_node_Z5         , ASN1_NO_EXTENSIONS     , dissect_dsrc_Offset_B14 },
+  {   5, &hf_cpm_node_Z6         , ASN1_NO_EXTENSIONS     , dissect_dsrc_Offset_B16 },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_cpm_NodeOffsetPointZ(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_cpm_NodeOffsetPointZ, cpm_NodeOffsetPointZ_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t cpm_OffsetPoint_sequence[] = {
+  { &hf_cpm_nodeOffsetPointxy, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_dsrc_NodeOffsetPointXY },
+  { &hf_cpm_nodeOffsetPointZ, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_cpm_NodeOffsetPointZ },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_cpm_OffsetPoint(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_cpm_OffsetPoint, cpm_OffsetPoint_sequence);
+
+  return offset;
+}
+
+
+static const value_string cpm_SensorHeight_vals[] = {
+  {   1, "zeroPointZeroOneMeter" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_cpm_SensorHeight(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            -5000, 5000U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t cpm_AreaRadial_sequence[] = {
+  { &hf_cpm_range           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_cpm_Range },
+  { &hf_cpm_stationaryHorizontalOpeningAngleStart, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_cpm_WGS84AngleValue },
+  { &hf_cpm_stationaryHorizontalOpeningAngleEnd, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_cpm_WGS84AngleValue },
+  { &hf_cpm_verticalOpeningAngleStart, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_cpm_CartesianAngleValue },
+  { &hf_cpm_verticalOpeningAngleEnd, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_cpm_CartesianAngleValue },
+  { &hf_cpm_sensorPositionOffset, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_cpm_OffsetPoint },
+  { &hf_cpm_sensorHeight    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_cpm_SensorHeight },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_cpm_AreaRadial(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_cpm_AreaRadial, cpm_AreaRadial_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t cpm_PolyPointList_sequence_of[1] = {
+  { &hf_cpm_PolyPointList_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_cpm_OffsetPoint },
+};
+
+static int
+dissect_cpm_PolyPointList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_cpm_PolyPointList, cpm_PolyPointList_sequence_of,
+                                                  3, 16, TRUE);
+
+  return offset;
+}
+
+
+static const per_sequence_t cpm_AreaPolygon_sequence[] = {
+  { &hf_cpm_polyPointList   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_cpm_PolyPointList },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_cpm_AreaPolygon(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_cpm_AreaPolygon, cpm_AreaPolygon_sequence);
+
+  return offset;
+}
+
+
+static const value_string cpm_Radius_vals[] = {
+  {   1, "zeroPointOneMeter" },
+  {  10, "oneMeter" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_cpm_Radius(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 10000U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t cpm_AreaCircular_sequence[] = {
+  { &hf_cpm_nodeCenterPoint , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_cpm_OffsetPoint },
+  { &hf_cpm_radius          , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_cpm_Radius },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_cpm_AreaCircular(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_cpm_AreaCircular, cpm_AreaCircular_sequence);
+
+  return offset;
+}
+
+
+static const value_string cpm_SemiRangeLength_vals[] = {
+  {   1, "zeroPointOneMeter" },
+  {  10, "oneMeter" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_cpm_SemiRangeLength(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 10000U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t cpm_AreaEllipse_sequence[] = {
+  { &hf_cpm_nodeCenterPoint , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_cpm_OffsetPoint },
+  { &hf_cpm_semiMinorRangeLength, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_cpm_SemiRangeLength },
+  { &hf_cpm_semiMajorRangeLength, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_cpm_SemiRangeLength },
+  { &hf_cpm_semiMajorRangeOrientation, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_cpm_WGS84AngleValue },
+  { &hf_cpm_semiHeight      , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_cpm_SemiRangeLength },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_cpm_AreaEllipse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_cpm_AreaEllipse, cpm_AreaEllipse_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t cpm_AreaRectangle_sequence[] = {
+  { &hf_cpm_nodeCenterPoint , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_cpm_OffsetPoint },
+  { &hf_cpm_semiMajorRangeLength, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_cpm_SemiRangeLength },
+  { &hf_cpm_semiMinorRangeLength, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_cpm_SemiRangeLength },
+  { &hf_cpm_semiMajorRangeOrientation, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_cpm_WGS84AngleValue },
+  { &hf_cpm_semiHeight      , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_cpm_SemiRangeLength },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_cpm_AreaRectangle(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_cpm_AreaRectangle, cpm_AreaRectangle_sequence);
+
+  return offset;
+}
+
+
+static const value_string cpm_DetectionArea_vals[] = {
+  {   0, "vehicleSensor" },
+  {   1, "stationarySensorRadial" },
+  {   2, "stationarySensorPolygon" },
+  {   3, "stationarySensorCircular" },
+  {   4, "stationarySensorEllipse" },
+  {   5, "stationarySensorRectangle" },
+  { 0, NULL }
+};
+
+static const per_choice_t cpm_DetectionArea_choice[] = {
+  {   0, &hf_cpm_vehicleSensor   , ASN1_EXTENSION_ROOT    , dissect_cpm_VehicleSensor },
+  {   1, &hf_cpm_stationarySensorRadial, ASN1_EXTENSION_ROOT    , dissect_cpm_AreaRadial },
+  {   2, &hf_cpm_stationarySensorPolygon, ASN1_EXTENSION_ROOT    , dissect_cpm_AreaPolygon },
+  {   3, &hf_cpm_stationarySensorCircular, ASN1_EXTENSION_ROOT    , dissect_cpm_AreaCircular },
+  {   4, &hf_cpm_stationarySensorEllipse, ASN1_EXTENSION_ROOT    , dissect_cpm_AreaEllipse },
+  {   5, &hf_cpm_stationarySensorRectangle, ASN1_EXTENSION_ROOT    , dissect_cpm_AreaRectangle },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_cpm_DetectionArea(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_cpm_DetectionArea, cpm_DetectionArea_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const value_string cpm_FreeSpaceConfidence_vals[] = {
+  {   0, "unknown" },
+  {   1, "onePercent" },
+  { 100, "oneHundredPercent" },
+  { 101, "unavailable" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_cpm_FreeSpaceConfidence(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 101U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t cpm_SensorInformation_sequence[] = {
+  { &hf_cpm_sensorID        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_cpm_Identifier },
+  { &hf_cpm_type            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_cpm_SensorType },
+  { &hf_cpm_detectionArea   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_cpm_DetectionArea },
+  { &hf_cpm_freeSpaceConfidence, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_cpm_FreeSpaceConfidence },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_cpm_SensorInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_cpm_SensorInformation, cpm_SensorInformation_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t cpm_SensorInformationContainer_sequence_of[1] = {
+  { &hf_cpm_SensorInformationContainer_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_cpm_SensorInformation },
+};
+
+static int
+dissect_cpm_SensorInformationContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_cpm_SensorInformationContainer, cpm_SensorInformationContainer_sequence_of,
+                                                  1, 128, TRUE);
+
+  return offset;
+}
+
+
+static const per_sequence_t cpm_SensorIdList_sequence_of[1] = {
+  { &hf_cpm_SensorIdList_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_cpm_Identifier },
+};
+
+static int
+dissect_cpm_SensorIdList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_cpm_SensorIdList, cpm_SensorIdList_sequence_of,
+                                                  1, 128, TRUE);
+
+  return offset;
+}
+
+
+static const value_string cpm_TimeOfMeasurement_vals[] = {
+  {   1, "oneMilliSecond" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_cpm_TimeOfMeasurement(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            -1500, 1500U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const value_string cpm_ObjectAge_vals[] = {
+  {   1, "oneMiliSec" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_cpm_ObjectAge(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 1500U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const value_string cpm_ObjectConfidence_vals[] = {
+  {   0, "unknown" },
+  {   1, "onePercent" },
+  { 100, "oneHundredPercent" },
+  { 101, "unavailable" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_cpm_ObjectConfidence(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 101U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const value_string cpm_DistanceValue_vals[] = {
+  {   1, "zeroPointZeroOneMeter" },
+  { 100, "oneMeter" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_cpm_DistanceValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            -132768, 132767U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const value_string cpm_DistanceConfidence_vals[] = {
+  {   1, "zeroPointZeroOneMeter" },
+  { 100, "oneMeter" },
+  { 101, "outOfRange" },
+  { 102, "unavailable" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_cpm_DistanceConfidence(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 102U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t cpm_ObjectDistanceWithConfidence_sequence[] = {
+  { &hf_cpm_value           , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_cpm_DistanceValue },
+  { &hf_cpm_confidence      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_cpm_DistanceConfidence },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_cpm_ObjectDistanceWithConfidence(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_cpm_ObjectDistanceWithConfidence, cpm_ObjectDistanceWithConfidence_sequence);
+
+  return offset;
+}
+
+
+static const value_string cpm_SpeedValueExtended_vals[] = {
+  {   0, "standstill" },
+  {   1, "oneCentimeterPerSec" },
+  { 16383, "unavailable" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_cpm_SpeedValueExtended(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            -16383, 16383U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t cpm_SpeedExtended_sequence[] = {
+  { &hf_cpm_value_04        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_cpm_SpeedValueExtended },
+  { &hf_cpm_confidence_03   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_its_SpeedConfidence },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_cpm_SpeedExtended(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_cpm_SpeedExtended, cpm_SpeedExtended_sequence);
+
+  return offset;
+}
+
+
+static const value_string cpm_ObjectDimensionValue_vals[] = {
+  {   1, "zeroPointOneMeter" },
+  {  10, "oneMeter" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_cpm_ObjectDimensionValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 1023U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const value_string cpm_ObjectDimensionConfidence_vals[] = {
+  {   1, "zeroPointZeroOneMeter" },
+  { 100, "oneMeter" },
+  { 101, "outOfRange" },
+  { 102, "unavailable" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_cpm_ObjectDimensionConfidence(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 102U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t cpm_ObjectDimension_sequence[] = {
+  { &hf_cpm_value_01        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_cpm_ObjectDimensionValue },
+  { &hf_cpm_confidence_01   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_cpm_ObjectDimensionConfidence },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_cpm_ObjectDimension(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_cpm_ObjectDimension, cpm_ObjectDimension_sequence);
+
+  return offset;
+}
+
+
+static const value_string cpm_ObjectRefPoint_vals[] = {
+  {   0, "mid" },
+  {   1, "bottomLeft" },
+  {   2, "midLeft" },
+  {   3, "topLeft" },
+  {   4, "bottomMid" },
+  {   5, "topMid" },
+  {   6, "bottomRight" },
+  {   7, "midRight" },
+  {   8, "topRight" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_cpm_ObjectRefPoint(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 8U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const value_string cpm_DynamicStatus_vals[] = {
+  {   0, "dynamic" },
+  {   1, "hasBeenDynamic" },
+  {   2, "static" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_cpm_DynamicStatus(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 2U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const value_string cpm_ClassConfidence_vals[] = {
+  {   0, "unknown" },
+  {   1, "onePercent" },
+  { 100, "oneHundredPercent" },
+  { 101, "unavailable" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_cpm_ClassConfidence(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 101U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const value_string cpm_VehicleSubclassType_vals[] = {
+  {   0, "unknown" },
+  {   1, "moped" },
+  {   2, "motorcycle" },
+  {   3, "passengerCar" },
+  {   4, "bus" },
+  {   5, "lightTruck" },
+  {   6, "heavyTruck" },
+  {   7, "trailer" },
+  {   8, "specialVehicles" },
+  {   9, "tram" },
+  {  10, "emergencyVehicle" },
+  {  11, "agricultural" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_cpm_VehicleSubclassType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 255U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t cpm_VehicleSubclass_sequence[] = {
+  { &hf_cpm_type_01         , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_cpm_VehicleSubclassType },
+  { &hf_cpm_confidence_04   , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_cpm_ClassConfidence },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_cpm_VehicleSubclass(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_cpm_VehicleSubclass, cpm_VehicleSubclass_sequence);
+
+  return offset;
+}
+
+
+static const value_string cpm_PersonSubclassType_vals[] = {
+  {   0, "unknown" },
+  {   1, "pedestrian" },
+  {   2, "personInWheelchair" },
+  {   3, "cyclist" },
+  {   4, "personWithStroller" },
+  {   5, "personOnSkates" },
+  {   6, "personGroup" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_cpm_PersonSubclassType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 255U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t cpm_PersonSubclass_sequence[] = {
+  { &hf_cpm_type_02         , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_cpm_PersonSubclassType },
+  { &hf_cpm_confidence_04   , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_cpm_ClassConfidence },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_cpm_PersonSubclass(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_cpm_PersonSubclass, cpm_PersonSubclass_sequence);
+
+  return offset;
+}
+
+
+static const value_string cpm_AnimalSubclassType_vals[] = {
+  {   0, "unknown" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_cpm_AnimalSubclassType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 255U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t cpm_AnimalSubclass_sequence[] = {
+  { &hf_cpm_type_03         , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_cpm_AnimalSubclassType },
+  { &hf_cpm_confidence_04   , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_cpm_ClassConfidence },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_cpm_AnimalSubclass(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_cpm_AnimalSubclass, cpm_AnimalSubclass_sequence);
+
+  return offset;
+}
+
+
+static const value_string cpm_OtherSublassType_vals[] = {
+  {   0, "unknown" },
+  {   1, "roadSideUnit" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_cpm_OtherSublassType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 255U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t cpm_OtherSubclass_sequence[] = {
+  { &hf_cpm_type_04         , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_cpm_OtherSublassType },
+  { &hf_cpm_confidence_04   , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_cpm_ClassConfidence },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_cpm_OtherSubclass(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_cpm_OtherSubclass, cpm_OtherSubclass_sequence);
+
+  return offset;
+}
+
+
+static const value_string cpm_T_class_vals[] = {
+  {   0, "vehicle" },
+  {   1, "person" },
+  {   2, "animal" },
+  {   3, "other" },
+  { 0, NULL }
+};
+
+static const per_choice_t cpm_T_class_choice[] = {
+  {   0, &hf_cpm_vehicle         , ASN1_NO_EXTENSIONS     , dissect_cpm_VehicleSubclass },
+  {   1, &hf_cpm_person          , ASN1_NO_EXTENSIONS     , dissect_cpm_PersonSubclass },
+  {   2, &hf_cpm_animal          , ASN1_NO_EXTENSIONS     , dissect_cpm_AnimalSubclass },
+  {   3, &hf_cpm_other           , ASN1_NO_EXTENSIONS     , dissect_cpm_OtherSubclass },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_cpm_T_class(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_cpm_T_class, cpm_T_class_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t cpm_ObjectClass_sequence[] = {
+  { &hf_cpm_confidence_04   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_cpm_ClassConfidence },
+  { &hf_cpm_class           , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_cpm_T_class },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_cpm_ObjectClass(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_cpm_ObjectClass, cpm_ObjectClass_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t cpm_ObjectClassDescription_sequence_of[1] = {
+  { &hf_cpm_ObjectClassDescription_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_cpm_ObjectClass },
+};
+
+static int
+dissect_cpm_ObjectClassDescription(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_cpm_ObjectClassDescription, cpm_ObjectClassDescription_sequence_of,
+                                                  1, 8, FALSE);
+
+  return offset;
+}
+
+
+static const value_string cpm_LongitudinalLanePositionValue_vals[] = {
+  {   1, "zeroPointOneMeter" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_cpm_LongitudinalLanePositionValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 32767U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const value_string cpm_LongitudinalLanePositionConfidence_vals[] = {
+  {   1, "zeroPointZeroOneMeter" },
+  { 100, "oneMeter" },
+  { 101, "outOfRange" },
+  { 102, "unavailable" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_cpm_LongitudinalLanePositionConfidence(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 102U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t cpm_LongitudinalLanePosition_sequence[] = {
+  { &hf_cpm_longitudinalLanePositionValue, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_cpm_LongitudinalLanePositionValue },
+  { &hf_cpm_longitudinalLanePositionConfidence, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_cpm_LongitudinalLanePositionConfidence },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_cpm_LongitudinalLanePosition(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_cpm_LongitudinalLanePosition, cpm_LongitudinalLanePosition_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t cpm_MatchedPosition_sequence[] = {
+  { &hf_cpm_laneID          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_dsrc_LaneID },
+  { &hf_cpm_longitudinalLanePosition, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_cpm_LongitudinalLanePosition },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_cpm_MatchedPosition(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_cpm_MatchedPosition, cpm_MatchedPosition_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t cpm_PerceivedObject_sequence[] = {
+  { &hf_cpm_objectID        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_cpm_Identifier },
+  { &hf_cpm_sensorIDList    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_cpm_SensorIdList },
+  { &hf_cpm_timeOfMeasurement, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_cpm_TimeOfMeasurement },
+  { &hf_cpm_objectAge       , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_cpm_ObjectAge },
+  { &hf_cpm_objectConfidence, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_cpm_ObjectConfidence },
+  { &hf_cpm_xDistance       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_cpm_ObjectDistanceWithConfidence },
+  { &hf_cpm_yDistance       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_cpm_ObjectDistanceWithConfidence },
+  { &hf_cpm_zDistance       , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_cpm_ObjectDistanceWithConfidence },
+  { &hf_cpm_xSpeed          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_cpm_SpeedExtended },
+  { &hf_cpm_ySpeed          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_cpm_SpeedExtended },
+  { &hf_cpm_zSpeed          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_cpm_SpeedExtended },
+  { &hf_cpm_xAcceleration   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_its_LongitudinalAcceleration },
+  { &hf_cpm_yAcceleration   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_its_LateralAcceleration },
+  { &hf_cpm_zAcceleration   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_its_VerticalAcceleration },
+  { &hf_cpm_yawAngle        , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_cpm_CartesianAngle },
+  { &hf_cpm_planarObjectDimension1, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_cpm_ObjectDimension },
+  { &hf_cpm_planarObjectDimension2, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_cpm_ObjectDimension },
+  { &hf_cpm_verticalObjectDimension, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_cpm_ObjectDimension },
+  { &hf_cpm_objectRefPoint  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_cpm_ObjectRefPoint },
+  { &hf_cpm_dynamicStatus   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_cpm_DynamicStatus },
+  { &hf_cpm_classification  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_cpm_ObjectClassDescription },
+  { &hf_cpm_matchedPosition , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_cpm_MatchedPosition },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_cpm_PerceivedObject(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_cpm_PerceivedObject, cpm_PerceivedObject_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t cpm_PerceivedObjectContainer_sequence_of[1] = {
+  { &hf_cpm_PerceivedObjectContainer_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_cpm_PerceivedObject },
+};
+
+static int
+dissect_cpm_PerceivedObjectContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_cpm_PerceivedObjectContainer, cpm_PerceivedObjectContainer_sequence_of,
+                                                  1, 128, TRUE);
+
+  return offset;
+}
+
+
+static const value_string cpm_FreeSpaceArea_vals[] = {
+  {   0, "freeSpacePolygon" },
+  {   1, "freeSpaceCircular" },
+  {   2, "freeSpaceEllipse" },
+  {   3, "freeSpaceRectangle" },
+  { 0, NULL }
+};
+
+static const per_choice_t cpm_FreeSpaceArea_choice[] = {
+  {   0, &hf_cpm_freeSpacePolygon, ASN1_EXTENSION_ROOT    , dissect_cpm_AreaPolygon },
+  {   1, &hf_cpm_freeSpaceCircular, ASN1_EXTENSION_ROOT    , dissect_cpm_AreaCircular },
+  {   2, &hf_cpm_freeSpaceEllipse, ASN1_EXTENSION_ROOT    , dissect_cpm_AreaEllipse },
+  {   3, &hf_cpm_freeSpaceRectangle, ASN1_EXTENSION_ROOT    , dissect_cpm_AreaRectangle },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_cpm_FreeSpaceArea(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_cpm_FreeSpaceArea, cpm_FreeSpaceArea_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_cpm_ShadowingApplies(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_boolean(tvb, offset, actx, tree, hf_index, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t cpm_FreeSpaceAddendum_sequence[] = {
+  { &hf_cpm_freeSpaceConfidence, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_cpm_FreeSpaceConfidence },
+  { &hf_cpm_freeSpaceArea   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_cpm_FreeSpaceArea },
+  { &hf_cpm_sensorIDList    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_cpm_SensorIdList },
+  { &hf_cpm_shadowingApplies, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_cpm_ShadowingApplies },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_cpm_FreeSpaceAddendum(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_cpm_FreeSpaceAddendum, cpm_FreeSpaceAddendum_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t cpm_FreeSpaceAddendumContainer_sequence_of[1] = {
+  { &hf_cpm_FreeSpaceAddendumContainer_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_cpm_FreeSpaceAddendum },
+};
+
+static int
+dissect_cpm_FreeSpaceAddendumContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_cpm_FreeSpaceAddendumContainer, cpm_FreeSpaceAddendumContainer_sequence_of,
+                                                  1, 128, TRUE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_cpm_NumberOfPerceivedObjects(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 255U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t cpm_CpmParameters_sequence[] = {
+  { &hf_cpm_managementContainer, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_cpm_CpmManagementContainer },
+  { &hf_cpm_stationDataContainer, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_cpm_StationDataContainer },
+  { &hf_cpm_sensorInformationContainer, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_cpm_SensorInformationContainer },
+  { &hf_cpm_perceivedObjectContainer, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_cpm_PerceivedObjectContainer },
+  { &hf_cpm_freeSpaceAddendumContainer, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_cpm_FreeSpaceAddendumContainer },
+  { &hf_cpm_numberOfPerceivedObjects, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_cpm_NumberOfPerceivedObjects },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_cpm_CpmParameters(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_cpm_CpmParameters, cpm_CpmParameters_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t cpm_CollectivePerceptionMessage_sequence[] = {
+  { &hf_cpm_generationDeltaTime, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_cam_GenerationDeltaTime },
+  { &hf_cpm_cpmParameters   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_cpm_CpmParameters },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_cpm_CollectivePerceptionMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 404 "./asn1/its/its.cnf"
+  actx->private_data = (void*)wmem_new0(wmem_packet_scope(), its_private_data_t);
+  col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "CPM");
+  col_set_str(actx->pinfo->cinfo, COL_INFO, "CPM");
+
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_cpm_CollectivePerceptionMessage, cpm_CollectivePerceptionMessage_sequence);
+
+  return offset;
+}
+
+/*--- PDUs ---*/
+
+static int dissect_cpm_CollectivePerceptionMessage_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, FALSE, pinfo);
+  offset = dissect_cpm_CollectivePerceptionMessage(tvb, offset, &asn1_ctx, tree, hf_cpm_cpm_CollectivePerceptionMessage_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+
+
 /*--- End of included file: packet-its-fn.c ---*/
-#line 358 "./asn1/its/packet-its-template.c"
+#line 359 "./asn1/its/packet-its-template.c"
+
+static void
+its_latitude_fmt(gchar *s, guint32 v)
+{
+  gint32 lat = (gint32)v;
+  if (lat == 900000001) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "unavailable(%d)", lat);
+  } else {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "%u°%u'%.3f\"%c (%d)",
+               abs(lat) / 10000000,
+               abs(lat) % 10000000 * 6 / 1000000,
+               abs(lat) % 10000000 * 6 % 1000000 * 6.0 / 100000.0,
+               (lat >= 0) ? 'N' : 'S',
+               lat);
+  }
+}
+
+static void
+its_longitude_fmt(gchar *s, guint32 v)
+{
+  gint32 lng = (gint32)v;
+  if (lng == 1800000001) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "unavailable(%d)", lng);
+  } else {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "%u°%u'%.3f\"%c (%d)",
+               abs(lng) / 10000000,
+               abs(lng) % 10000000 * 6 / 1000000,
+               abs(lng) % 10000000 * 6 % 1000000 * 6.0 / 100000.0,
+               (lng >= 0) ? 'E' : 'W',
+               lng);
+  }
+}
+
+static void
+its_altitude_fmt(gchar *s, guint32 v)
+{
+  gint32 alt = (gint32)v;
+  if (alt == 800001) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "unavailable(%d)", alt);
+  } else {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "%.2fm (%d)", alt / 100.0, alt);
+  }
+}
+
+static void
+its_sax_length_fmt(gchar *s, guint32 v)
+{
+  if (v == 4095) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "unavailable(%d)", v);
+  } else if (v == 4094) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "outOfRange(%d)", v);
+  } else {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "%.2fm (%d)", v / 100.0, v);
+  }
+}
+
+static void
+its_heading_fmt(gchar *s, guint32 v)
+{
+  const gchar *p = try_val_to_str(v, VALS(its_HeadingValue_vals));
+  if (p) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "%s(%d)", p, v);
+  } else {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "%.1f° (%d)", v / 10.0, v);
+  }
+}
 
 static int
 dissect_its_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
@@ -17438,11 +19081,11 @@ void proto_register_its(void)
         NULL, HFILL }},
     { &hf_its_latitude,
       { "latitude", "its.latitude",
-        FT_INT32, BASE_DEC, VALS(its_Latitude_vals), 0,
+        FT_INT32, BASE_CUSTOM, CF_FUNC(its_latitude_fmt), 0,
         NULL, HFILL }},
     { &hf_its_longitude,
       { "longitude", "its.longitude",
-        FT_INT32, BASE_DEC, VALS(its_Longitude_vals), 0,
+        FT_INT32, BASE_CUSTOM, CF_FUNC(its_longitude_fmt), 0,
         NULL, HFILL }},
     { &hf_its_positionConfidenceEllipse,
       { "positionConfidenceEllipse", "its.positionConfidenceEllipse_element",
@@ -17466,7 +19109,7 @@ void proto_register_its(void)
         NULL, HFILL }},
     { &hf_its_altitudeValue,
       { "altitudeValue", "its.altitudeValue",
-        FT_INT32, BASE_DEC, VALS(its_AltitudeValue_vals), 0,
+        FT_INT32, BASE_CUSTOM, CF_FUNC(its_altitude_fmt), 0,
         NULL, HFILL }},
     { &hf_its_altitudeConfidence,
       { "altitudeConfidence", "its.altitudeConfidence",
@@ -17474,15 +19117,15 @@ void proto_register_its(void)
         NULL, HFILL }},
     { &hf_its_semiMajorConfidence,
       { "semiMajorConfidence", "its.semiMajorConfidence",
-        FT_UINT32, BASE_DEC, VALS(its_SemiAxisLength_vals), 0,
+        FT_UINT32, BASE_CUSTOM, CF_FUNC(its_sax_length_fmt), 0,
         "SemiAxisLength", HFILL }},
     { &hf_its_semiMinorConfidence,
       { "semiMinorConfidence", "its.semiMinorConfidence",
-        FT_UINT32, BASE_DEC, VALS(its_SemiAxisLength_vals), 0,
+        FT_UINT32, BASE_CUSTOM, CF_FUNC(its_sax_length_fmt), 0,
         "SemiAxisLength", HFILL }},
     { &hf_its_semiMajorOrientation,
       { "semiMajorOrientation", "its.semiMajorOrientation",
-        FT_UINT32, BASE_DEC, VALS(its_HeadingValue_vals), 0,
+        FT_UINT32, BASE_CUSTOM, CF_FUNC(its_heading_fmt), 0,
         "HeadingValue", HFILL }},
     { &hf_its_pathPosition,
       { "pathPosition", "its.pathPosition_element",
@@ -17518,7 +19161,7 @@ void proto_register_its(void)
         NULL, HFILL }},
     { &hf_its_headingValue,
       { "headingValue", "its.headingValue",
-        FT_UINT32, BASE_DEC, VALS(its_HeadingValue_vals), 0,
+        FT_UINT32, BASE_CUSTOM, CF_FUNC(its_heading_fmt), 0,
         NULL, HFILL }},
     { &hf_its_headingConfidence,
       { "headingConfidence", "its.headingConfidence",
@@ -17658,11 +19301,11 @@ void proto_register_its(void)
         "TimestampIts", HFILL }},
     { &hf_its_protectedZoneLatitude,
       { "protectedZoneLatitude", "its.protectedZoneLatitude",
-        FT_INT32, BASE_DEC, VALS(its_Latitude_vals), 0,
+        FT_INT32, BASE_CUSTOM, CF_FUNC(its_latitude_fmt), 0,
         "Latitude", HFILL }},
     { &hf_its_protectedZoneLongitude,
       { "protectedZoneLongitude", "its.protectedZoneLongitude",
-        FT_INT32, BASE_DEC, VALS(its_Longitude_vals), 0,
+        FT_INT32, BASE_CUSTOM, CF_FUNC(its_longitude_fmt), 0,
         "Longitude", HFILL }},
     { &hf_its_protectedZoneRadius,
       { "protectedZoneRadius", "its.protectedZoneRadius",
@@ -17917,11 +19560,11 @@ void proto_register_its(void)
 
     { &hf_itsv1_latitude,
       { "latitude", "itsv1.latitude",
-        FT_INT32, BASE_DEC, VALS(itsv1_Latitude_vals), 0,
+        FT_INT32, BASE_CUSTOM, CF_FUNC(its_latitude_fmt), 0,
         NULL, HFILL }},
     { &hf_itsv1_longitude,
       { "longitude", "itsv1.longitude",
-        FT_INT32, BASE_DEC, VALS(itsv1_Longitude_vals), 0,
+        FT_INT32, BASE_CUSTOM, CF_FUNC(its_longitude_fmt), 0,
         NULL, HFILL }},
     { &hf_itsv1_positionConfidenceEllipse,
       { "positionConfidenceEllipse", "itsv1.positionConfidenceEllipse_element",
@@ -17945,7 +19588,7 @@ void proto_register_its(void)
         NULL, HFILL }},
     { &hf_itsv1_altitudeValue,
       { "altitudeValue", "itsv1.altitudeValue",
-        FT_INT32, BASE_DEC, VALS(itsv1_AltitudeValue_vals), 0,
+        FT_INT32, BASE_CUSTOM, CF_FUNC(its_altitude_fmt), 0,
         NULL, HFILL }},
     { &hf_itsv1_altitudeConfidence,
       { "altitudeConfidence", "itsv1.altitudeConfidence",
@@ -17953,15 +19596,15 @@ void proto_register_its(void)
         NULL, HFILL }},
     { &hf_itsv1_semiMajorConfidence,
       { "semiMajorConfidence", "itsv1.semiMajorConfidence",
-        FT_UINT32, BASE_DEC, VALS(itsv1_SemiAxisLength_vals), 0,
+        FT_UINT32, BASE_CUSTOM, CF_FUNC(its_sax_length_fmt), 0,
         "SemiAxisLength", HFILL }},
     { &hf_itsv1_semiMinorConfidence,
       { "semiMinorConfidence", "itsv1.semiMinorConfidence",
-        FT_UINT32, BASE_DEC, VALS(itsv1_SemiAxisLength_vals), 0,
+        FT_UINT32, BASE_CUSTOM, CF_FUNC(its_sax_length_fmt), 0,
         "SemiAxisLength", HFILL }},
     { &hf_itsv1_semiMajorOrientation,
       { "semiMajorOrientation", "itsv1.semiMajorOrientation",
-        FT_UINT32, BASE_DEC, VALS(itsv1_HeadingValue_vals), 0,
+        FT_UINT32, BASE_CUSTOM, CF_FUNC(its_heading_fmt), 0,
         "HeadingValue", HFILL }},
     { &hf_itsv1_pathPosition,
       { "pathPosition", "itsv1.pathPosition_element",
@@ -17997,7 +19640,7 @@ void proto_register_its(void)
         NULL, HFILL }},
     { &hf_itsv1_headingValue,
       { "headingValue", "itsv1.headingValue",
-        FT_UINT32, BASE_DEC, VALS(itsv1_HeadingValue_vals), 0,
+        FT_UINT32, BASE_CUSTOM, CF_FUNC(its_heading_fmt), 0,
         NULL, HFILL }},
     { &hf_itsv1_headingConfidence,
       { "headingConfidence", "itsv1.headingConfidence",
@@ -18133,11 +19776,11 @@ void proto_register_its(void)
         "TimestampIts", HFILL }},
     { &hf_itsv1_protectedZoneLatitude,
       { "protectedZoneLatitude", "itsv1.protectedZoneLatitude",
-        FT_INT32, BASE_DEC, VALS(itsv1_Latitude_vals), 0,
+        FT_INT32, BASE_CUSTOM, CF_FUNC(its_latitude_fmt), 0,
         "Latitude", HFILL }},
     { &hf_itsv1_protectedZoneLongitude,
       { "protectedZoneLongitude", "itsv1.protectedZoneLongitude",
-        FT_INT32, BASE_DEC, VALS(itsv1_Longitude_vals), 0,
+        FT_INT32, BASE_CUSTOM, CF_FUNC(its_longitude_fmt), 0,
         "Longitude", HFILL }},
     { &hf_itsv1_protectedZoneRadius,
       { "protectedZoneRadius", "itsv1.protectedZoneRadius",
@@ -18917,11 +20560,11 @@ void proto_register_its(void)
         "DDateTime", HFILL }},
     { &hf_dsrc_long,
       { "long", "dsrc.long",
-        FT_INT32, BASE_DEC, VALS(its_Longitude_vals), 0,
+        FT_INT32, BASE_CUSTOM, CF_FUNC(its_longitude_fmt), 0,
         "Longitude", HFILL }},
     { &hf_dsrc_lat,
       { "lat", "dsrc.lat",
-        FT_INT32, BASE_DEC, VALS(its_Latitude_vals), 0,
+        FT_INT32, BASE_CUSTOM, CF_FUNC(its_latitude_fmt), 0,
         "Latitude", HFILL }},
     { &hf_dsrc_fpvElevation,
       { "elevation", "dsrc.fullPositionVector.elevation",
@@ -19257,7 +20900,7 @@ void proto_register_its(void)
         NULL, HFILL }},
     { &hf_dsrc_lon,
       { "lon", "dsrc.lon",
-        FT_INT32, BASE_DEC, VALS(its_Longitude_vals), 0,
+        FT_INT32, BASE_CUSTOM, CF_FUNC(its_longitude_fmt), 0,
         "Longitude", HFILL }},
     { &hf_dsrc_n20bX,
       { "x", "dsrc.x",
@@ -20806,7 +22449,7 @@ void proto_register_its(void)
         "INTEGER_0_255", HFILL }},
     { &hf_ivi_zoneHeading,
       { "zoneHeading", "ivi.zoneHeading",
-        FT_UINT32, BASE_DEC, VALS(its_HeadingValue_vals), 0,
+        FT_UINT32, BASE_CUSTOM, CF_FUNC(its_heading_fmt), 0,
         "HeadingValue", HFILL }},
     { &hf_ivi_zone,
       { "zone", "ivi.zone",
@@ -21082,11 +22725,11 @@ void proto_register_its(void)
         NULL, HFILL }},
     { &hf_ivi_latitude,
       { "latitude", "ivi.latitude",
-        FT_INT32, BASE_DEC, VALS(its_Latitude_vals), 0,
+        FT_INT32, BASE_CUSTOM, CF_FUNC(its_latitude_fmt), 0,
         NULL, HFILL }},
     { &hf_ivi_longitude,
       { "longitude", "ivi.longitude",
-        FT_INT32, BASE_DEC, VALS(its_Longitude_vals), 0,
+        FT_INT32, BASE_CUSTOM, CF_FUNC(its_longitude_fmt), 0,
         NULL, HFILL }},
     { &hf_ivi_altitude,
       { "altitude", "ivi.altitude_element",
@@ -23198,8 +24841,551 @@ void proto_register_its(void)
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
 
+/* --- Module CPM-PDU-Descriptions --- --- ---                                */
+
+    { &hf_cpm_cpm_CollectivePerceptionMessage_PDU,
+      { "CollectivePerceptionMessage", "cpm.CollectivePerceptionMessage_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_cpm_generationDeltaTime,
+      { "generationDeltaTime", "cpm.generationDeltaTime",
+        FT_UINT32, BASE_DEC, VALS(cam_GenerationDeltaTime_vals), 0,
+        NULL, HFILL }},
+    { &hf_cpm_cpmParameters,
+      { "cpmParameters", "cpm.cpmParameters_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_cpm_managementContainer,
+      { "managementContainer", "cpm.managementContainer_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "CpmManagementContainer", HFILL }},
+    { &hf_cpm_stationDataContainer,
+      { "stationDataContainer", "cpm.stationDataContainer",
+        FT_UINT32, BASE_DEC, VALS(cpm_StationDataContainer_vals), 0,
+        NULL, HFILL }},
+    { &hf_cpm_sensorInformationContainer,
+      { "sensorInformationContainer", "cpm.sensorInformationContainer",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_cpm_perceivedObjectContainer,
+      { "perceivedObjectContainer", "cpm.perceivedObjectContainer",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_cpm_freeSpaceAddendumContainer,
+      { "freeSpaceAddendumContainer", "cpm.freeSpaceAddendumContainer",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_cpm_numberOfPerceivedObjects,
+      { "numberOfPerceivedObjects", "cpm.numberOfPerceivedObjects",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_cpm_stationType,
+      { "stationType", "cpm.stationType",
+        FT_UINT32, BASE_DEC, VALS(its_StationType_vals), 0,
+        NULL, HFILL }},
+    { &hf_cpm_perceivedObjectContainerSegmentInfo,
+      { "perceivedObjectContainerSegmentInfo", "cpm.perceivedObjectContainerSegmentInfo_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_cpm_referencePosition,
+      { "referencePosition", "cpm.referencePosition_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_cpm_originatingVehicleContainer,
+      { "originatingVehicleContainer", "cpm.originatingVehicleContainer_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_cpm_originatingRSUContainer,
+      { "originatingRSUContainer", "cpm.originatingRSUContainer",
+        FT_UINT32, BASE_DEC, VALS(cpm_OriginatingRSUContainer_vals), 0,
+        NULL, HFILL }},
+    { &hf_cpm_heading,
+      { "heading", "cpm.heading_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_cpm_speed,
+      { "speed", "cpm.speed_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_cpm_vehicleOrientationAngle,
+      { "vehicleOrientationAngle", "cpm.vehicleOrientationAngle_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "WGS84Angle", HFILL }},
+    { &hf_cpm_driveDirection,
+      { "driveDirection", "cpm.driveDirection",
+        FT_UINT32, BASE_DEC, VALS(its_DriveDirection_vals), 0,
+        NULL, HFILL }},
+    { &hf_cpm_longitudinalAcceleration,
+      { "longitudinalAcceleration", "cpm.longitudinalAcceleration_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_cpm_lateralAcceleration,
+      { "lateralAcceleration", "cpm.lateralAcceleration_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_cpm_verticalAcceleration,
+      { "verticalAcceleration", "cpm.verticalAcceleration_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_cpm_yawRate,
+      { "yawRate", "cpm.yawRate_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_cpm_pitchAngle,
+      { "pitchAngle", "cpm.pitchAngle_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "CartesianAngle", HFILL }},
+    { &hf_cpm_rollAngle,
+      { "rollAngle", "cpm.rollAngle_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "CartesianAngle", HFILL }},
+    { &hf_cpm_vehicleLength,
+      { "vehicleLength", "cpm.vehicleLength_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_cpm_vehicleWidth,
+      { "vehicleWidth", "cpm.vehicleWidth",
+        FT_UINT32, BASE_DEC, VALS(its_VehicleWidth_vals), 0,
+        NULL, HFILL }},
+    { &hf_cpm_vehicleHeight,
+      { "vehicleHeight", "cpm.vehicleHeight",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_cpm_trailerDataContainer,
+      { "trailerDataContainer", "cpm.trailerDataContainer",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_cpm_intersectionReferenceId,
+      { "intersectionReferenceId", "cpm.intersectionReferenceId_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_cpm_roadSegmentReferenceId,
+      { "roadSegmentReferenceId", "cpm.roadSegmentReferenceId_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_cpm_SensorInformationContainer_item,
+      { "SensorInformation", "cpm.SensorInformation_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_cpm_sensorID,
+      { "sensorID", "cpm.sensorID",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "Identifier", HFILL }},
+    { &hf_cpm_type,
+      { "type", "cpm.type",
+        FT_UINT32, BASE_DEC, VALS(cpm_SensorType_vals), 0,
+        "SensorType", HFILL }},
+    { &hf_cpm_detectionArea,
+      { "detectionArea", "cpm.detectionArea",
+        FT_UINT32, BASE_DEC, VALS(cpm_DetectionArea_vals), 0,
+        NULL, HFILL }},
+    { &hf_cpm_freeSpaceConfidence,
+      { "freeSpaceConfidence", "cpm.freeSpaceConfidence",
+        FT_UINT32, BASE_DEC, VALS(cpm_FreeSpaceConfidence_vals), 0,
+        NULL, HFILL }},
+    { &hf_cpm_PerceivedObjectContainer_item,
+      { "PerceivedObject", "cpm.PerceivedObject_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_cpm_objectID,
+      { "objectID", "cpm.objectID",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "Identifier", HFILL }},
+    { &hf_cpm_sensorIDList,
+      { "sensorIDList", "cpm.sensorIDList",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_cpm_timeOfMeasurement,
+      { "timeOfMeasurement", "cpm.timeOfMeasurement",
+        FT_INT32, BASE_DEC, VALS(cpm_TimeOfMeasurement_vals), 0,
+        NULL, HFILL }},
+    { &hf_cpm_objectAge,
+      { "objectAge", "cpm.objectAge",
+        FT_UINT32, BASE_DEC, VALS(cpm_ObjectAge_vals), 0,
+        NULL, HFILL }},
+    { &hf_cpm_objectConfidence,
+      { "objectConfidence", "cpm.objectConfidence",
+        FT_UINT32, BASE_DEC, VALS(cpm_ObjectConfidence_vals), 0,
+        NULL, HFILL }},
+    { &hf_cpm_xDistance,
+      { "xDistance", "cpm.xDistance_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ObjectDistanceWithConfidence", HFILL }},
+    { &hf_cpm_yDistance,
+      { "yDistance", "cpm.yDistance_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ObjectDistanceWithConfidence", HFILL }},
+    { &hf_cpm_zDistance,
+      { "zDistance", "cpm.zDistance_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ObjectDistanceWithConfidence", HFILL }},
+    { &hf_cpm_xSpeed,
+      { "xSpeed", "cpm.xSpeed_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "SpeedExtended", HFILL }},
+    { &hf_cpm_ySpeed,
+      { "ySpeed", "cpm.ySpeed_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "SpeedExtended", HFILL }},
+    { &hf_cpm_zSpeed,
+      { "zSpeed", "cpm.zSpeed_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "SpeedExtended", HFILL }},
+    { &hf_cpm_xAcceleration,
+      { "xAcceleration", "cpm.xAcceleration_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "LongitudinalAcceleration", HFILL }},
+    { &hf_cpm_yAcceleration,
+      { "yAcceleration", "cpm.yAcceleration_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "LateralAcceleration", HFILL }},
+    { &hf_cpm_zAcceleration,
+      { "zAcceleration", "cpm.zAcceleration_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "VerticalAcceleration", HFILL }},
+    { &hf_cpm_yawAngle,
+      { "yawAngle", "cpm.yawAngle_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "CartesianAngle", HFILL }},
+    { &hf_cpm_planarObjectDimension1,
+      { "planarObjectDimension1", "cpm.planarObjectDimension1_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ObjectDimension", HFILL }},
+    { &hf_cpm_planarObjectDimension2,
+      { "planarObjectDimension2", "cpm.planarObjectDimension2_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ObjectDimension", HFILL }},
+    { &hf_cpm_verticalObjectDimension,
+      { "verticalObjectDimension", "cpm.verticalObjectDimension_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ObjectDimension", HFILL }},
+    { &hf_cpm_objectRefPoint,
+      { "objectRefPoint", "cpm.objectRefPoint",
+        FT_UINT32, BASE_DEC, VALS(cpm_ObjectRefPoint_vals), 0,
+        NULL, HFILL }},
+    { &hf_cpm_dynamicStatus,
+      { "dynamicStatus", "cpm.dynamicStatus",
+        FT_UINT32, BASE_DEC, VALS(cpm_DynamicStatus_vals), 0,
+        NULL, HFILL }},
+    { &hf_cpm_classification,
+      { "classification", "cpm.classification",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "ObjectClassDescription", HFILL }},
+    { &hf_cpm_matchedPosition,
+      { "matchedPosition", "cpm.matchedPosition_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_cpm_vehicleSensor,
+      { "vehicleSensor", "cpm.vehicleSensor_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_cpm_stationarySensorRadial,
+      { "stationarySensorRadial", "cpm.stationarySensorRadial_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "AreaRadial", HFILL }},
+    { &hf_cpm_stationarySensorPolygon,
+      { "stationarySensorPolygon", "cpm.stationarySensorPolygon_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "AreaPolygon", HFILL }},
+    { &hf_cpm_stationarySensorCircular,
+      { "stationarySensorCircular", "cpm.stationarySensorCircular_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "AreaCircular", HFILL }},
+    { &hf_cpm_stationarySensorEllipse,
+      { "stationarySensorEllipse", "cpm.stationarySensorEllipse_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "AreaEllipse", HFILL }},
+    { &hf_cpm_stationarySensorRectangle,
+      { "stationarySensorRectangle", "cpm.stationarySensorRectangle_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "AreaRectangle", HFILL }},
+    { &hf_cpm_refPointId,
+      { "refPointId", "cpm.refPointId",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_cpm_xSensorOffset,
+      { "xSensorOffset", "cpm.xSensorOffset",
+        FT_INT32, BASE_DEC, VALS(cpm_XSensorOffset_vals), 0,
+        NULL, HFILL }},
+    { &hf_cpm_ySensorOffset,
+      { "ySensorOffset", "cpm.ySensorOffset",
+        FT_INT32, BASE_DEC, VALS(cpm_YSensorOffset_vals), 0,
+        NULL, HFILL }},
+    { &hf_cpm_zSensorOffset,
+      { "zSensorOffset", "cpm.zSensorOffset",
+        FT_UINT32, BASE_DEC, VALS(cpm_ZSensorOffset_vals), 0,
+        NULL, HFILL }},
+    { &hf_cpm_vehicleSensorPropertyList,
+      { "vehicleSensorPropertyList", "cpm.vehicleSensorPropertyList",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_cpm_VehicleSensorPropertyList_item,
+      { "VehicleSensorProperties", "cpm.VehicleSensorProperties_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_cpm_range,
+      { "range", "cpm.range",
+        FT_UINT32, BASE_DEC, VALS(cpm_Range_vals), 0,
+        NULL, HFILL }},
+    { &hf_cpm_horizontalOpeningAngleStart,
+      { "horizontalOpeningAngleStart", "cpm.horizontalOpeningAngleStart",
+        FT_UINT32, BASE_DEC, VALS(cpm_CartesianAngleValue_vals), 0,
+        "CartesianAngleValue", HFILL }},
+    { &hf_cpm_horizontalOpeningAngleEnd,
+      { "horizontalOpeningAngleEnd", "cpm.horizontalOpeningAngleEnd",
+        FT_UINT32, BASE_DEC, VALS(cpm_CartesianAngleValue_vals), 0,
+        "CartesianAngleValue", HFILL }},
+    { &hf_cpm_verticalOpeningAngleStart,
+      { "verticalOpeningAngleStart", "cpm.verticalOpeningAngleStart",
+        FT_UINT32, BASE_DEC, VALS(cpm_CartesianAngleValue_vals), 0,
+        "CartesianAngleValue", HFILL }},
+    { &hf_cpm_verticalOpeningAngleEnd,
+      { "verticalOpeningAngleEnd", "cpm.verticalOpeningAngleEnd",
+        FT_UINT32, BASE_DEC, VALS(cpm_CartesianAngleValue_vals), 0,
+        "CartesianAngleValue", HFILL }},
+    { &hf_cpm_nodeCenterPoint,
+      { "nodeCenterPoint", "cpm.nodeCenterPoint_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "OffsetPoint", HFILL }},
+    { &hf_cpm_radius,
+      { "radius", "cpm.radius",
+        FT_UINT32, BASE_DEC, VALS(cpm_Radius_vals), 0,
+        NULL, HFILL }},
+    { &hf_cpm_semiMinorRangeLength,
+      { "semiMinorRangeLength", "cpm.semiMinorRangeLength",
+        FT_UINT32, BASE_DEC, VALS(cpm_SemiRangeLength_vals), 0,
+        "SemiRangeLength", HFILL }},
+    { &hf_cpm_semiMajorRangeLength,
+      { "semiMajorRangeLength", "cpm.semiMajorRangeLength",
+        FT_UINT32, BASE_DEC, VALS(cpm_SemiRangeLength_vals), 0,
+        "SemiRangeLength", HFILL }},
+    { &hf_cpm_semiMajorRangeOrientation,
+      { "semiMajorRangeOrientation", "cpm.semiMajorRangeOrientation",
+        FT_UINT32, BASE_DEC, VALS(cpm_WGS84AngleValue_vals), 0,
+        "WGS84AngleValue", HFILL }},
+    { &hf_cpm_semiHeight,
+      { "semiHeight", "cpm.semiHeight",
+        FT_UINT32, BASE_DEC, VALS(cpm_SemiRangeLength_vals), 0,
+        "SemiRangeLength", HFILL }},
+    { &hf_cpm_polyPointList,
+      { "polyPointList", "cpm.polyPointList",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_cpm_PolyPointList_item,
+      { "OffsetPoint", "cpm.OffsetPoint_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_cpm_stationaryHorizontalOpeningAngleStart,
+      { "stationaryHorizontalOpeningAngleStart", "cpm.stationaryHorizontalOpeningAngleStart",
+        FT_UINT32, BASE_DEC, VALS(cpm_WGS84AngleValue_vals), 0,
+        "WGS84AngleValue", HFILL }},
+    { &hf_cpm_stationaryHorizontalOpeningAngleEnd,
+      { "stationaryHorizontalOpeningAngleEnd", "cpm.stationaryHorizontalOpeningAngleEnd",
+        FT_UINT32, BASE_DEC, VALS(cpm_WGS84AngleValue_vals), 0,
+        "WGS84AngleValue", HFILL }},
+    { &hf_cpm_sensorPositionOffset,
+      { "sensorPositionOffset", "cpm.sensorPositionOffset_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "OffsetPoint", HFILL }},
+    { &hf_cpm_sensorHeight,
+      { "sensorHeight", "cpm.sensorHeight",
+        FT_INT32, BASE_DEC, VALS(cpm_SensorHeight_vals), 0,
+        NULL, HFILL }},
+    { &hf_cpm_FreeSpaceAddendumContainer_item,
+      { "FreeSpaceAddendum", "cpm.FreeSpaceAddendum_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_cpm_freeSpaceArea,
+      { "freeSpaceArea", "cpm.freeSpaceArea",
+        FT_UINT32, BASE_DEC, VALS(cpm_FreeSpaceArea_vals), 0,
+        NULL, HFILL }},
+    { &hf_cpm_shadowingApplies,
+      { "shadowingApplies", "cpm.shadowingApplies",
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_cpm_freeSpacePolygon,
+      { "freeSpacePolygon", "cpm.freeSpacePolygon_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "AreaPolygon", HFILL }},
+    { &hf_cpm_freeSpaceCircular,
+      { "freeSpaceCircular", "cpm.freeSpaceCircular_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "AreaCircular", HFILL }},
+    { &hf_cpm_freeSpaceEllipse,
+      { "freeSpaceEllipse", "cpm.freeSpaceEllipse_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "AreaEllipse", HFILL }},
+    { &hf_cpm_freeSpaceRectangle,
+      { "freeSpaceRectangle", "cpm.freeSpaceRectangle_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "AreaRectangle", HFILL }},
+    { &hf_cpm_value,
+      { "value", "cpm.value",
+        FT_INT32, BASE_DEC, VALS(cpm_DistanceValue_vals), 0,
+        "DistanceValue", HFILL }},
+    { &hf_cpm_confidence,
+      { "confidence", "cpm.confidence",
+        FT_UINT32, BASE_DEC, VALS(cpm_DistanceConfidence_vals), 0,
+        "DistanceConfidence", HFILL }},
+    { &hf_cpm_value_01,
+      { "value", "cpm.value",
+        FT_UINT32, BASE_DEC, VALS(cpm_ObjectDimensionValue_vals), 0,
+        "ObjectDimensionValue", HFILL }},
+    { &hf_cpm_confidence_01,
+      { "confidence", "cpm.confidence",
+        FT_UINT32, BASE_DEC, VALS(cpm_ObjectDimensionConfidence_vals), 0,
+        "ObjectDimensionConfidence", HFILL }},
+    { &hf_cpm_value_02,
+      { "value", "cpm.value",
+        FT_UINT32, BASE_DEC, VALS(cpm_CartesianAngleValue_vals), 0,
+        "CartesianAngleValue", HFILL }},
+    { &hf_cpm_confidence_02,
+      { "confidence", "cpm.confidence",
+        FT_UINT32, BASE_DEC, VALS(cpm_AngleConfidence_vals), 0,
+        "AngleConfidence", HFILL }},
+    { &hf_cpm_value_03,
+      { "value", "cpm.value",
+        FT_UINT32, BASE_DEC, VALS(cpm_WGS84AngleValue_vals), 0,
+        "WGS84AngleValue", HFILL }},
+    { &hf_cpm_value_04,
+      { "value", "cpm.value",
+        FT_INT32, BASE_DEC, VALS(cpm_SpeedValueExtended_vals), 0,
+        "SpeedValueExtended", HFILL }},
+    { &hf_cpm_confidence_03,
+      { "confidence", "cpm.confidence",
+        FT_UINT32, BASE_DEC, VALS(its_SpeedConfidence_vals), 0,
+        "SpeedConfidence", HFILL }},
+    { &hf_cpm_SensorIdList_item,
+      { "Identifier", "cpm.Identifier",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_cpm_TrailerDataContainer_item,
+      { "TrailerData", "cpm.TrailerData_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_cpm_hitchPointOffset,
+      { "hitchPointOffset", "cpm.hitchPointOffset",
+        FT_UINT32, BASE_DEC, VALS(cpm_HitchPointOffset_vals), 0,
+        NULL, HFILL }},
+    { &hf_cpm_frontOverhang,
+      { "frontOverhang", "cpm.frontOverhang",
+        FT_UINT32, BASE_DEC, VALS(cpm_FrontOverhang_vals), 0,
+        NULL, HFILL }},
+    { &hf_cpm_rearOverhang,
+      { "rearOverhang", "cpm.rearOverhang",
+        FT_UINT32, BASE_DEC, VALS(cpm_RearOverhang_vals), 0,
+        NULL, HFILL }},
+    { &hf_cpm_trailerWidth,
+      { "trailerWidth", "cpm.trailerWidth",
+        FT_UINT32, BASE_DEC, VALS(its_VehicleWidth_vals), 0,
+        "VehicleWidth", HFILL }},
+    { &hf_cpm_hitchAngle,
+      { "hitchAngle", "cpm.hitchAngle_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "CartesianAngle", HFILL }},
+    { &hf_cpm_longitudinalLanePositionValue,
+      { "longitudinalLanePositionValue", "cpm.longitudinalLanePositionValue",
+        FT_UINT32, BASE_DEC, VALS(cpm_LongitudinalLanePositionValue_vals), 0,
+        NULL, HFILL }},
+    { &hf_cpm_longitudinalLanePositionConfidence,
+      { "longitudinalLanePositionConfidence", "cpm.longitudinalLanePositionConfidence",
+        FT_UINT32, BASE_DEC, VALS(cpm_LongitudinalLanePositionConfidence_vals), 0,
+        NULL, HFILL }},
+    { &hf_cpm_laneID,
+      { "laneID", "cpm.laneID",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_cpm_longitudinalLanePosition,
+      { "longitudinalLanePosition", "cpm.longitudinalLanePosition_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_cpm_totalMsgSegments,
+      { "totalMsgSegments", "cpm.totalMsgSegments",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "SegmentCount", HFILL }},
+    { &hf_cpm_thisSegmentNum,
+      { "thisSegmentNum", "cpm.thisSegmentNum",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "SegmentCount", HFILL }},
+    { &hf_cpm_ObjectClassDescription_item,
+      { "ObjectClass", "cpm.ObjectClass_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_cpm_confidence_04,
+      { "confidence", "cpm.confidence",
+        FT_UINT32, BASE_DEC, VALS(cpm_ClassConfidence_vals), 0,
+        "ClassConfidence", HFILL }},
+    { &hf_cpm_class,
+      { "class", "cpm.class",
+        FT_UINT32, BASE_DEC, VALS(cpm_T_class_vals), 0,
+        NULL, HFILL }},
+    { &hf_cpm_vehicle,
+      { "vehicle", "cpm.vehicle_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "VehicleSubclass", HFILL }},
+    { &hf_cpm_person,
+      { "person", "cpm.person_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "PersonSubclass", HFILL }},
+    { &hf_cpm_animal,
+      { "animal", "cpm.animal_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "AnimalSubclass", HFILL }},
+    { &hf_cpm_other,
+      { "other", "cpm.other_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "OtherSubclass", HFILL }},
+    { &hf_cpm_type_01,
+      { "type", "cpm.type",
+        FT_UINT32, BASE_DEC, VALS(cpm_VehicleSubclassType_vals), 0,
+        "VehicleSubclassType", HFILL }},
+    { &hf_cpm_type_02,
+      { "type", "cpm.type",
+        FT_UINT32, BASE_DEC, VALS(cpm_PersonSubclassType_vals), 0,
+        "PersonSubclassType", HFILL }},
+    { &hf_cpm_type_03,
+      { "type", "cpm.type",
+        FT_UINT32, BASE_DEC, VALS(cpm_AnimalSubclassType_vals), 0,
+        "AnimalSubclassType", HFILL }},
+    { &hf_cpm_type_04,
+      { "type", "cpm.type",
+        FT_UINT32, BASE_DEC, VALS(cpm_OtherSublassType_vals), 0,
+        "OtherSublassType", HFILL }},
+    { &hf_cpm_nodeOffsetPointxy,
+      { "nodeOffsetPointxy", "cpm.nodeOffsetPointxy",
+        FT_UINT32, BASE_DEC, VALS(dsrc_NodeOffsetPointXY_vals), 0,
+        NULL, HFILL }},
+    { &hf_cpm_nodeOffsetPointZ,
+      { "nodeOffsetPointZ", "cpm.nodeOffsetPointZ",
+        FT_UINT32, BASE_DEC, VALS(cpm_NodeOffsetPointZ_vals), 0,
+        NULL, HFILL }},
+    { &hf_cpm_node_Z1,
+      { "node-Z1", "cpm.node_Z1",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "Offset_B10", HFILL }},
+    { &hf_cpm_node_Z2,
+      { "node-Z2", "cpm.node_Z2",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "Offset_B11", HFILL }},
+    { &hf_cpm_node_Z3,
+      { "node-Z3", "cpm.node_Z3",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "Offset_B12", HFILL }},
+    { &hf_cpm_node_Z4,
+      { "node-Z4", "cpm.node_Z4",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "Offset_B13", HFILL }},
+    { &hf_cpm_node_Z5,
+      { "node-Z5", "cpm.node_Z5",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "Offset_B14", HFILL }},
+    { &hf_cpm_node_Z6,
+      { "node-Z6", "cpm.node_Z6",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "Offset_B16", HFILL }},
+
 /*--- End of included file: packet-its-hfarr.c ---*/
-#line 394 "./asn1/its/packet-its-template.c"
+#line 461 "./asn1/its/packet-its-template.c"
 
     { &hf_its_roadworksSubCauseCode,
       { "roadworksSubCauseCode", "its.subCauseCode",
@@ -23926,8 +26112,54 @@ void proto_register_its(void)
     &ett_evrsr_RechargingType,
     &ett_evrsr_SupportedPaymentTypes,
 
+/* --- Module CPM-PDU-Descriptions --- --- ---                                */
+
+    &ett_cpm_CollectivePerceptionMessage,
+    &ett_cpm_CpmParameters,
+    &ett_cpm_CpmManagementContainer,
+    &ett_cpm_StationDataContainer,
+    &ett_cpm_OriginatingVehicleContainer,
+    &ett_cpm_OriginatingRSUContainer,
+    &ett_cpm_SensorInformationContainer,
+    &ett_cpm_SensorInformation,
+    &ett_cpm_PerceivedObjectContainer,
+    &ett_cpm_PerceivedObject,
+    &ett_cpm_DetectionArea,
+    &ett_cpm_VehicleSensor,
+    &ett_cpm_VehicleSensorPropertyList,
+    &ett_cpm_VehicleSensorProperties,
+    &ett_cpm_AreaCircular,
+    &ett_cpm_AreaEllipse,
+    &ett_cpm_AreaRectangle,
+    &ett_cpm_AreaPolygon,
+    &ett_cpm_PolyPointList,
+    &ett_cpm_AreaRadial,
+    &ett_cpm_FreeSpaceAddendumContainer,
+    &ett_cpm_FreeSpaceAddendum,
+    &ett_cpm_FreeSpaceArea,
+    &ett_cpm_ObjectDistanceWithConfidence,
+    &ett_cpm_ObjectDimension,
+    &ett_cpm_CartesianAngle,
+    &ett_cpm_WGS84Angle,
+    &ett_cpm_SpeedExtended,
+    &ett_cpm_SensorIdList,
+    &ett_cpm_TrailerDataContainer,
+    &ett_cpm_TrailerData,
+    &ett_cpm_LongitudinalLanePosition,
+    &ett_cpm_MatchedPosition,
+    &ett_cpm_PerceivedObjectContainerSegmentInfo,
+    &ett_cpm_ObjectClassDescription,
+    &ett_cpm_ObjectClass,
+    &ett_cpm_T_class,
+    &ett_cpm_VehicleSubclass,
+    &ett_cpm_PersonSubclass,
+    &ett_cpm_AnimalSubclass,
+    &ett_cpm_OtherSubclass,
+    &ett_cpm_OffsetPoint,
+    &ett_cpm_NodeOffsetPointZ,
+
 /*--- End of included file: packet-its-ettarr.c ---*/
-#line 597 "./asn1/its/packet-its-template.c"
+#line 664 "./asn1/its/packet-its-template.c"
     };
 
     static ei_register_info ei[] = {
@@ -23970,6 +26202,7 @@ void proto_register_its(void)
     proto_its_rtcmem = proto_register_protocol_in_name_only("ITS message - RTCMEM", "RTCMEM", "its.message.rtcmem", proto_its, FT_BYTES);
     proto_its_evcsn = proto_register_protocol_in_name_only("ITS message - EVCSN", "EVCSN", "its.message.evcsn", proto_its, FT_BYTES);
     proto_its_tistpg = proto_register_protocol_in_name_only("ITS message - TISTPG", "TISTPG", "its.message.tistpg", proto_its, FT_BYTES);
+    proto_its_cpm = proto_register_protocol_in_name_only("ITS message - CPM", "CPM", "its.message.cpm", proto_its, FT_BYTES);
 
     proto_addgrpc = proto_register_protocol_in_name_only("DSRC Addition Grp C (EU)", "ADDGRPC", "dsrc.addgrpc", proto_its, FT_BYTES);
 
@@ -23983,7 +26216,7 @@ void proto_register_its(void)
 }
 
 #define BTP_SUBDISS_SZ 2
-#define BTP_PORTS_SZ   11
+#define BTP_PORTS_SZ   12
 
 #define ITS_CAM_PROT_VER 2
 #define ITS_CAM_PROT_VERv1 1
@@ -23998,11 +26231,13 @@ void proto_register_its(void)
 #define ITS_SREM_PROT_VER 2
 #define ITS_SSEM_PROT_VER 2
 #define ITS_RTCMEM_PROT_VER 2
+#define ITS_TIS_TPG_PROT_VER 1
+#define ITS_CPM_PROT_VER 1
 
 void proto_reg_handoff_its(void)
 {
     const char *subdissector[BTP_SUBDISS_SZ] = { "btpa.port", "btpb.port" };
-    const guint16 ports[BTP_PORTS_SZ] = { ITS_WKP_DEN, ITS_WKP_CA, ITS_WKP_EVCSN, ITS_WKP_CHARGING, ITS_WKP_IVI, ITS_WKP_TPG, ITS_WKP_TLC_SSEM, ITS_WKP_GPC, ITS_WKP_TLC_SREM, ITS_WKP_RLT, ITS_WKP_TLM };
+    const guint16 ports[BTP_PORTS_SZ] = { ITS_WKP_DEN, ITS_WKP_CA, ITS_WKP_EVCSN, ITS_WKP_CHARGING, ITS_WKP_IVI, ITS_WKP_TPG, ITS_WKP_TLC_SSEM, ITS_WKP_GPC, ITS_WKP_TLC_SREM, ITS_WKP_RLT, ITS_WKP_TLM, ITS_WKP_CPS };
     int sdIdx, pIdx;
     dissector_handle_t its_handle_;
 
@@ -24027,12 +26262,13 @@ void proto_reg_handoff_its(void)
     dissector_add_uint("its.msg_id", (ITS_MAPEM_PROT_VER << 16) + ITS_MAPEM,        create_dissector_handle( dissect_dsrc_MapData_PDU, proto_its_mapem ));
     dissector_add_uint("its.msg_id", (ITS_IVIM_PROT_VERv1 << 16) + ITS_IVIM,        create_dissector_handle( dissect_ivi_IviStructure_PDU, proto_its_ivimv1 ));
     dissector_add_uint("its.msg_id", (ITS_IVIM_PROT_VER << 16) + ITS_IVIM,          create_dissector_handle( dissect_ivi_IviStructure_PDU, proto_its_ivim ));
-    dissector_add_uint("its.msg_id", ITS_EV_RSR,            create_dissector_handle( dissect_evrsr_EV_RSR_MessageBody_PDU, proto_its_evrsr ));
+    dissector_add_uint("its.msg_id", ITS_EV_RSR,                                    create_dissector_handle( dissect_evrsr_EV_RSR_MessageBody_PDU, proto_its_evrsr ));
     dissector_add_uint("its.msg_id", (ITS_SREM_PROT_VER << 16) + ITS_SREM,          create_dissector_handle( dissect_dsrc_SignalRequestMessage_PDU, proto_its_srem ));
     dissector_add_uint("its.msg_id", (ITS_SSEM_PROT_VER << 16) + ITS_SSEM,          create_dissector_handle( dissect_dsrc_SignalStatusMessage_PDU, proto_its_ssem ));
     dissector_add_uint("its.msg_id", (ITS_RTCMEM_PROT_VER << 16) + ITS_RTCMEM,      create_dissector_handle( dissect_dsrc_RTCMcorrections_PDU, proto_its_rtcmem ));
-    dissector_add_uint("its.msg_id", ITS_EVCSN,             create_dissector_handle( dissect_evcsn_EVChargingSpotNotificationPOIMessage_PDU, proto_its_evcsn ));
-    dissector_add_uint("its.msg_id", ITS_TISTPGTRANSACTION, create_dissector_handle( dissect_tistpg_TisTpgTransaction_PDU, proto_its_tistpg ));
+    dissector_add_uint("its.msg_id", ITS_EVCSN,                                     create_dissector_handle( dissect_evcsn_EVChargingSpotNotificationPOIMessage_PDU, proto_its_evcsn ));
+    dissector_add_uint("its.msg_id", (ITS_TIS_TPG_PROT_VER << 16) + ITS_TISTPGTRANSACTION, create_dissector_handle( dissect_tistpg_TisTpgTransaction_PDU, proto_its_tistpg ));
+    dissector_add_uint("its.msg_id", (ITS_CPM_PROT_VER << 16) + ITS_CPM,            create_dissector_handle(dissect_cpm_CollectivePerceptionMessage_PDU, proto_its_cpm));
 
     /* Missing definitions: ITS_POI, ITS_SAEM */
 

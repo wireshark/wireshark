@@ -22,6 +22,7 @@ MAPEM
 SPATEM
 EV-RSR
 RTCMEM
+CPM
 EvcsnPdu
 
 # Could be Language but size of Language bit string is 10 and DriverLanguage max is 15...
@@ -58,6 +59,7 @@ IVI							ivi
 GDD							gdd
 DSRC						dsrc
 RTCMEM-PDU-Descriptions   rtcmem
+CPM-PDU-Descriptions        cpm
 #.END
 
 #.PDU
@@ -74,6 +76,7 @@ MapData
 SignalRequestMessage
 SignalStatusMessage
 RTCMcorrections
+CollectivePerceptionMessage
 ItsPduHeader
 # AddGrpC regional extension
 ConnectionManeuverAssist-addGrpC
@@ -283,6 +286,13 @@ Node-XY-26b/y                     n26bY
 Node-XY-28b/y                     n28bY
 Node-XY-32b/y                     n32bY
 
+#.TYPE_ATTR
+Longitude      DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(its_longitude_fmt)
+Latitude       DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(its_latitude_fmt)
+AltitudeValue  DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(its_altitude_fmt)
+SemiAxisLength DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(its_sax_length_fmt)
+HeadingValue   DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(its_heading_fmt)
+
 #.FIELD_ATTR
 IntersectionState/status          ABBREV=intersectionState.status
 SignalStatusPackage/status        ABBREV=signalStatusPackage.status
@@ -388,6 +398,12 @@ CauseCodeType
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "RTCMEM");
   col_set_str(actx->pinfo->cinfo, COL_INFO, "RTCMEM");
   regext->type = Reg_RTCMcorrections;
+#.END
+
+#.FN_HDR CollectivePerceptionMessage
+  actx->private_data = (void*)wmem_new0(wmem_packet_scope(), its_private_data_t);
+  col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "CPM");
+  col_set_str(actx->pinfo->cinfo, COL_INFO, "CPM");
 #.END
 
 

@@ -129,6 +129,7 @@ static int proto_its_mapemv1 = -1;
 static int proto_its_mapem = -1;
 static int proto_its_spatemv1 = -1;
 static int proto_its_spatem = -1;
+static int proto_its_cpm = -1;
 static int proto_addgrpc = -1;
 
 /*
@@ -355,6 +356,72 @@ find_subcause_from_cause(CauseCodeType_enum cause)
 }
 
 #include "packet-its-fn.c"
+
+static void
+its_latitude_fmt(gchar *s, guint32 v)
+{
+  gint32 lat = (gint32)v;
+  if (lat == 900000001) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "unavailable(%d)", lat);
+  } else {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "%u°%u'%.3f\"%c (%d)",
+               abs(lat) / 10000000,
+               abs(lat) % 10000000 * 6 / 1000000,
+               abs(lat) % 10000000 * 6 % 1000000 * 6.0 / 100000.0,
+               (lat >= 0) ? 'N' : 'S',
+               lat);
+  }
+}
+
+static void
+its_longitude_fmt(gchar *s, guint32 v)
+{
+  gint32 lng = (gint32)v;
+  if (lng == 1800000001) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "unavailable(%d)", lng);
+  } else {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "%u°%u'%.3f\"%c (%d)",
+               abs(lng) / 10000000,
+               abs(lng) % 10000000 * 6 / 1000000,
+               abs(lng) % 10000000 * 6 % 1000000 * 6.0 / 100000.0,
+               (lng >= 0) ? 'E' : 'W',
+               lng);
+  }
+}
+
+static void
+its_altitude_fmt(gchar *s, guint32 v)
+{
+  gint32 alt = (gint32)v;
+  if (alt == 800001) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "unavailable(%d)", alt);
+  } else {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "%.2fm (%d)", alt / 100.0, alt);
+  }
+}
+
+static void
+its_sax_length_fmt(gchar *s, guint32 v)
+{
+  if (v == 4095) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "unavailable(%d)", v);
+  } else if (v == 4094) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "outOfRange(%d)", v);
+  } else {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "%.2fm (%d)", v / 100.0, v);
+  }
+}
+
+static void
+its_heading_fmt(gchar *s, guint32 v)
+{
+  const gchar *p = try_val_to_str(v, VALS(its_HeadingValue_vals));
+  if (p) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "%s(%d)", p, v);
+  } else {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "%.1f° (%d)", v / 10.0, v);
+  }
+}
 
 static int
 dissect_its_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
@@ -636,6 +703,7 @@ void proto_register_its(void)
     proto_its_rtcmem = proto_register_protocol_in_name_only("ITS message - RTCMEM", "RTCMEM", "its.message.rtcmem", proto_its, FT_BYTES);
     proto_its_evcsn = proto_register_protocol_in_name_only("ITS message - EVCSN", "EVCSN", "its.message.evcsn", proto_its, FT_BYTES);
     proto_its_tistpg = proto_register_protocol_in_name_only("ITS message - TISTPG", "TISTPG", "its.message.tistpg", proto_its, FT_BYTES);
+    proto_its_cpm = proto_register_protocol_in_name_only("ITS message - CPM", "CPM", "its.message.cpm", proto_its, FT_BYTES);
 
     proto_addgrpc = proto_register_protocol_in_name_only("DSRC Addition Grp C (EU)", "ADDGRPC", "dsrc.addgrpc", proto_its, FT_BYTES);
 
@@ -649,7 +717,7 @@ void proto_register_its(void)
 }
 
 #define BTP_SUBDISS_SZ 2
-#define BTP_PORTS_SZ   11
+#define BTP_PORTS_SZ   12
 
 #define ITS_CAM_PROT_VER 2
 #define ITS_CAM_PROT_VERv1 1
@@ -664,11 +732,13 @@ void proto_register_its(void)
 #define ITS_SREM_PROT_VER 2
 #define ITS_SSEM_PROT_VER 2
 #define ITS_RTCMEM_PROT_VER 2
+#define ITS_TIS_TPG_PROT_VER 1
+#define ITS_CPM_PROT_VER 1
 
 void proto_reg_handoff_its(void)
 {
     const char *subdissector[BTP_SUBDISS_SZ] = { "btpa.port", "btpb.port" };
-    const guint16 ports[BTP_PORTS_SZ] = { ITS_WKP_DEN, ITS_WKP_CA, ITS_WKP_EVCSN, ITS_WKP_CHARGING, ITS_WKP_IVI, ITS_WKP_TPG, ITS_WKP_TLC_SSEM, ITS_WKP_GPC, ITS_WKP_TLC_SREM, ITS_WKP_RLT, ITS_WKP_TLM };
+    const guint16 ports[BTP_PORTS_SZ] = { ITS_WKP_DEN, ITS_WKP_CA, ITS_WKP_EVCSN, ITS_WKP_CHARGING, ITS_WKP_IVI, ITS_WKP_TPG, ITS_WKP_TLC_SSEM, ITS_WKP_GPC, ITS_WKP_TLC_SREM, ITS_WKP_RLT, ITS_WKP_TLM, ITS_WKP_CPS };
     int sdIdx, pIdx;
     dissector_handle_t its_handle_;
 
@@ -693,12 +763,13 @@ void proto_reg_handoff_its(void)
     dissector_add_uint("its.msg_id", (ITS_MAPEM_PROT_VER << 16) + ITS_MAPEM,        create_dissector_handle( dissect_dsrc_MapData_PDU, proto_its_mapem ));
     dissector_add_uint("its.msg_id", (ITS_IVIM_PROT_VERv1 << 16) + ITS_IVIM,        create_dissector_handle( dissect_ivi_IviStructure_PDU, proto_its_ivimv1 ));
     dissector_add_uint("its.msg_id", (ITS_IVIM_PROT_VER << 16) + ITS_IVIM,          create_dissector_handle( dissect_ivi_IviStructure_PDU, proto_its_ivim ));
-    dissector_add_uint("its.msg_id", ITS_EV_RSR,            create_dissector_handle( dissect_evrsr_EV_RSR_MessageBody_PDU, proto_its_evrsr ));
+    dissector_add_uint("its.msg_id", ITS_EV_RSR,                                    create_dissector_handle( dissect_evrsr_EV_RSR_MessageBody_PDU, proto_its_evrsr ));
     dissector_add_uint("its.msg_id", (ITS_SREM_PROT_VER << 16) + ITS_SREM,          create_dissector_handle( dissect_dsrc_SignalRequestMessage_PDU, proto_its_srem ));
     dissector_add_uint("its.msg_id", (ITS_SSEM_PROT_VER << 16) + ITS_SSEM,          create_dissector_handle( dissect_dsrc_SignalStatusMessage_PDU, proto_its_ssem ));
     dissector_add_uint("its.msg_id", (ITS_RTCMEM_PROT_VER << 16) + ITS_RTCMEM,      create_dissector_handle( dissect_dsrc_RTCMcorrections_PDU, proto_its_rtcmem ));
-    dissector_add_uint("its.msg_id", ITS_EVCSN,             create_dissector_handle( dissect_evcsn_EVChargingSpotNotificationPOIMessage_PDU, proto_its_evcsn ));
-    dissector_add_uint("its.msg_id", ITS_TISTPGTRANSACTION, create_dissector_handle( dissect_tistpg_TisTpgTransaction_PDU, proto_its_tistpg ));
+    dissector_add_uint("its.msg_id", ITS_EVCSN,                                     create_dissector_handle( dissect_evcsn_EVChargingSpotNotificationPOIMessage_PDU, proto_its_evcsn ));
+    dissector_add_uint("its.msg_id", (ITS_TIS_TPG_PROT_VER << 16) + ITS_TISTPGTRANSACTION, create_dissector_handle( dissect_tistpg_TisTpgTransaction_PDU, proto_its_tistpg ));
+    dissector_add_uint("its.msg_id", (ITS_CPM_PROT_VER << 16) + ITS_CPM,            create_dissector_handle(dissect_cpm_CollectivePerceptionMessage_PDU, proto_its_cpm));
 
     /* Missing definitions: ITS_POI, ITS_SAEM */
 
