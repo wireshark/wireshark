@@ -7,7 +7,7 @@ include::attributes.adoc[]
 // XXX This should be surrounded by single quotes in the text. It’s
 // currently surrounded by plus signs for AsciiDoc compatibility.
 :dlt-glob: DLT_*
-:qt-lts-version: 5.12
+:qt-lts-version: 5.15
 :source-highlighter: coderay
 
 [[Preface]]

@@ -105,7 +105,7 @@ https://www.qt.io/download-open-source/#section-2[] using the version of Qt
 appropriate for your compiler.  Note that separate installations (into different directories) of Qt
 are required for 32 bit and 64 bit builds.  The environment variable QT5_BASE_DIR should be
 set as appropriate for your environment and should point to the Qt directory that contains the
-bin directory, e.g. _C:\Qt\5.9.5\msvc2017_64_.
+bin directory, e.g. _C:\Qt\5.15.2\msvc2019_64_.
 
 [[ChLibsGLib]]
 

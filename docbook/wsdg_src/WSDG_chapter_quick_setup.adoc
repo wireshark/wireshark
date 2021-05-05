@@ -232,17 +232,17 @@ Qt, go to the https://www.qt.io/download[“Download Qt” page], select “Go
 open source”, download the *Qt Online Installer for Windows* from the Qt
 Project and select, for the desired Qt version, a component that matches
 your target system and compiler. For example, at the time of this
-writing the Qt {qt-lts-version}.1 “msvc2017 64-bit” component is used to
+writing the Qt {qt-lts-version}.2 “msvc2019 64-bit” component is used to
 build the official 64-bit packages. The “Qt Debug Information Files”
 component contains PDB files which can be used for debugging. You can
 deselect all of the other the components such as “Qt Charts” or “Android
 xxxx” as they aren’t required.
 
 Note that installation of separate Qt components are required for 32 bit
-and 64 bit builds, e.g. “msvc2017 32-bit” and “msvc2017 64-bit”. The
+and 64 bit builds, e.g. “msvc2019 32-bit” and “msvc2019 64-bit”. The
 environment variable `QT5_BASE_DIR` should be set as appropriate for your
 environment and should point to the Qt directory that contains the bin
-directory, e.g. _C:\Qt{backslash}{qt-lts-version}.5\msvc2017_64_
+directory, e.g. _C:\Qt{backslash}{qt-lts-version}.2\msvc2019_64_
 
 The Qt maintenance tool (_C:\Qt\MaintenanceTool.exe_) can be used to
 upgrade Qt to newer versions.
@@ -450,7 +450,7 @@ Set the following environment variables, using paths and values suitable for you
 > set WIRESHARK_BASE_DIR=C:\Development
 > rem set WIRESHARK_LIB_DIR=c:\wireshark-win64-libs
 > rem Set the Qt installation directory
-> set QT5_BASE_DIR=C:\Qt{backslash}{qt-lts-version}.5\msvc2017_64
+> set QT5_BASE_DIR=C:\Qt{backslash}{qt-lts-version}.2\msvc2019_64
 > rem Append a custom string to the package version. Optional.
 > set WIRESHARK_VERSION_EXTRA=-YourExtraVersionInfo
 ----
