@@ -4,6 +4,13 @@
  * Anlagen zu VOEV 04.05 "LSA/R09.14 and R09.16"
  * https://www.vdv.de/voev-04-05-1-erg.pdfx
  *
+ * Copyright 2020, Tomas Kukosa
+ *
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
+ * Copyright 1998 Gerald Combs
+ *
+ * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
 #include "config.h"
