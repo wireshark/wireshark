@@ -17,7 +17,7 @@
 
 #include <epan/packet.h>
 
-#define PNAME  "R09"
+#define PNAME  "R09.x"
 #define PSNAME "R09"
 #define PFNAME "r09"
 
@@ -56,29 +56,12 @@ static const value_string r09_ha_vals[] = {
     {0, NULL}
 };
 
-const gchar*
-get_bcd_string(tvbuff_t* tvb, const gint offset, gint dlen, gboolean skip_first) {
-    const guint8* ptr;
-    int sf, i;
-    char* digit_str;
-    gint olen;
-    guint8 octet;
-
-    sf = (skip_first) ? 1 : 0;
-    olen = (dlen + sf + 1) / 2;
-    ptr = tvb_get_ptr(tvb, offset, olen);
-    digit_str = (char*)wmem_alloc0(wmem_packet_scope(), dlen + 1);
-    for (i = 0 + sf; i < dlen + sf; i++) {
-        octet = ptr[i / 2];
-        if ((i % 2) == 0) {
-            octet >>= 4;
-        }
-        octet &= 0x0F;
-        digit_str[i - sf] = (octet > 9) ? '.' : ('0' + octet);
+static dgt_set_t Dgt1_9_bcd = {
+    {
+        /*  0   1   2   3   4   5   6   7   8   9   a   b   c   d   e   f */
+           '0','1','2','3','4','5','6','7','8','9','?','?','?','?','?','?'
     }
-
-    return digit_str;
-}
+};
 
 static int
 dissect_r09(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
@@ -133,19 +116,19 @@ dissect_r09(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
     if (tl >= 3) {
         /* Zusatzbyte 2, 3 */
-        ln_str = get_bcd_string(tvb, 4, 3, TRUE);
+        ln_str = tvb_get_bcd_string(wmem_packet_scope(), tvb, 4, 2, &Dgt1_9_bcd, TRUE, FALSE, TRUE);
         proto_tree_add_string(r09_tree, hf_r09_ln, tvb, 4, 2, ln_str);
     }
 
     if (tl >= 4) {
         /* Zusatzbyte 4 */
-        kn_str = get_bcd_string(tvb, 6, 2, FALSE);
+        kn_str = tvb_get_bcd_string(wmem_packet_scope(), tvb, 6, 1, &Dgt1_9_bcd, FALSE, FALSE, TRUE);
         proto_tree_add_string(r09_tree, hf_r09_kn, tvb, 6, 1, kn_str);
     }
 
     if (tl >= 6) {
         /* Zusatzbyte 5, 6 */
-        zn_str = get_bcd_string(tvb, 7, 3, FALSE);
+        zn_str = tvb_get_bcd_string(wmem_packet_scope(), tvb, 7, 2, &Dgt1_9_bcd, FALSE, TRUE, TRUE);
         proto_tree_add_string(r09_tree, hf_r09_zn, tvb, 7, 2, zn_str);
     }
 
@@ -156,9 +139,9 @@ dissect_r09(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
     if (tl == 8) {
         /* Zusatzbyte 6, 7, 8 */
-        fn_str = get_bcd_string(tvb, 8, 3, TRUE);
+        fn_str = tvb_get_bcd_string(wmem_packet_scope(), tvb, 8, 2, &Dgt1_9_bcd, TRUE, FALSE, TRUE);
         proto_tree_add_string(r09_tree, hf_r09_fn, tvb, 8, 2, fn_str);
-        un_str = get_bcd_string(tvb, 10, 2, FALSE);
+        un_str = tvb_get_bcd_string(wmem_packet_scope(), tvb, 10, 1, &Dgt1_9_bcd, FALSE, FALSE, TRUE);
         proto_tree_add_string(r09_tree, hf_r09_un, tvb, 10, 1, un_str);
     }
 

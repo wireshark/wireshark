@@ -90,6 +90,7 @@ O-RAN fronthaul UC-plane (O-RAN)
 PDU Transport Protocol
 State Synchronization Protocol (SSyncP)
 UAVCAN\CAN
+R09.x (R09)
 --
 
 === Updated Protocol Support
