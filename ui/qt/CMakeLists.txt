@@ -632,12 +632,6 @@ set(WIRESHARK_QT_QRC
 	${CMAKE_CURRENT_BINARY_DIR}/i18n.qrc
 )
 
-if(CMAKE_VERSION VERSION_LESS "3.10.0")
-	set(CMAKE_AUTOMOC ON)
-	set(CMAKE_AUTOUIC ON)
-	set(CMAKE_AUTORCC ON)
-endif()
-
 if(NOT Qt5Widgets_VERSION VERSION_LESS "5.9")
 	# Drop the file modification time of source files from generated files
 	# to help with reproducible builds. We do not use QFileInfo.lastModified
@@ -739,6 +733,15 @@ set_target_properties(qtui PROPERTIES
 	# Ensure .qm files are generated before autogenerating i18n.qrc
 	AUTOGEN_TARGET_DEPENDS "${WIRESHARK_QT_QM}"
 )
+
+if (NOT CMAKE_AUTOMOC) # Set in the top-level CMakeLists.txt if we're using CMake 3.20.0 or .1
+	set_target_properties(qtui PROPERTIES
+		AUTOMOC ON
+		AUTOUIC ON
+		AUTORCC ON
+	)
+endif()
+
 if(MSVC)
 	set_target_properties(qtui PROPERTIES LINK_FLAGS_DEBUG "${WS_MSVC_DEBUG_LINK_FLAGS}")
 endif()

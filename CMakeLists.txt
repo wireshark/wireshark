@@ -1151,7 +1151,8 @@ ws_find_package(Systemd BUILD_sdjournal HAVE_SYSTEMD)
 
 # Build the Qt GUI?
 if(BUILD_wireshark)
-	if(NOT CMAKE_VERSION VERSION_LESS "3.10.0")
+	if(CMAKE_VERSION VERSION_GREATER "3.19.999" AND CMAKE_VERSION VERSION_LESS "3.20.2")
+		# https://gitlab.kitware.com/cmake/cmake/-/issues/22085
 		set(CMAKE_AUTOMOC ON)
 		set(CMAKE_AUTOUIC ON)
 		set(CMAKE_AUTORCC ON)
