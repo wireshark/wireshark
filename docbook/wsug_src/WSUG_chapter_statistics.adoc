@@ -817,10 +817,11 @@ The Reliable Server Pooling (RSerPool) windows show statistics for the different
 
 With these statistics you can:
 
-* Observe the number of packets and bytes per message type.
+* Observed number of messages and bytes per message type.
+* The share of messages and bytes for each message type.
 * See the first and last occurrence of each message type.
 * See the interval between first and last occurrence of each message type (if there are at least 2 messages of the corresponding type).
-* See the message rate within the interval for each message type (if there are at least 2 messages of the corresponding type).
+* See the message and byte rate within the interval for each message type (if there are at least 2 messages of the corresponding type).
 
 See link:https://www.uni-due.de/~be0001/rserpool/[Thomas Dreibholz's Reliable Server Pooling (RSerPool) Page] and Chapter{nbsp}3 of link:https://duepublico.uni-duisburg-essen.de/servlets/DerivateServlet/Derivate-16326/Dre2006_final.pdf[Reliable Server Pooling – Evaluation, Optimization and Extension of a Novel IETF Architecture] for more details about RSerPool and its protocols.
 
