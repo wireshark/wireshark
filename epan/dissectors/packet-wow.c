@@ -102,6 +102,8 @@ static int hf_wow_srp_g = -1;
 static int hf_wow_srp_n_len = -1;
 static int hf_wow_srp_n = -1;
 static int hf_wow_srp_s = -1;
+static int hf_wow_crc_salt = -1;
+static int hf_wow_two_factor_enabled = -1;
 
 static int hf_wow_srp_a = -1;
 static int hf_wow_srp_m1 = -1;
@@ -124,6 +126,47 @@ static gboolean wow_preference_desegment = TRUE;
 
 static gint ett_wow = -1;
 static gint ett_wow_realms = -1;
+
+struct game_version {
+	gint8 major_version;
+	gint8 minor_version;
+	gint8 patch_version;
+	gint16 revision;
+};
+static struct game_version client_game_version = { -1, -1, -1, -1 };
+
+// WoW uses a kind of SemVer.
+// So 1.0.0 is always greater than any 0.x.y, and
+// 1.2.0 is always greater than any 1.1.y
+static gboolean
+version_is_at_or_above(int major, int minor, int patch)
+{
+	if (client_game_version.major_version > major) {
+		return TRUE;
+	}
+	else if (client_game_version.major_version < major) {
+		return FALSE;
+	}
+	// Major versions must be equal
+
+	if (client_game_version.minor_version > minor) {
+		return TRUE;
+	}
+	else if (client_game_version.minor_version < minor) {
+		return FALSE;
+	}
+	// Both major and minor versions are equal
+	
+	if (client_game_version.minor_version > patch) {
+		return TRUE;
+	}
+	else if (client_game_version.patch_version < patch) {
+		return FALSE;
+	}
+	// All versions are identical
+
+	return TRUE;
+}
 
 static guint
 get_wow_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset, void *data _U_)
@@ -193,18 +236,24 @@ dissect_wow_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 						      tvb, offset, 4, string);
 				offset += 4;
 
+
+
+				client_game_version.major_version = tvb_get_guint8(tvb, offset);
 				proto_tree_add_item(wow_tree, hf_wow_version1,
 						    tvb, offset, 1, ENC_LITTLE_ENDIAN);
 				offset += 1;
 
+				client_game_version.minor_version = tvb_get_guint8(tvb, offset);
 				proto_tree_add_item(wow_tree, hf_wow_version2,
 						    tvb, offset, 1, ENC_LITTLE_ENDIAN);
 				offset += 1;
 
+				client_game_version.patch_version = tvb_get_guint8(tvb, offset);
 				proto_tree_add_item(wow_tree, hf_wow_version3,
 						    tvb, offset, 1, ENC_LITTLE_ENDIAN);
 				offset += 1;
 
+				client_game_version.revision = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
 				proto_tree_add_item(wow_tree, hf_wow_build, tvb,
 						    offset, 2, ENC_LITTLE_ENDIAN);
 				offset += 2;
@@ -279,9 +328,21 @@ dissect_wow_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 
 				proto_tree_add_item(wow_tree, hf_wow_srp_s, tvb,
 						    offset, 32, ENC_NA);
-				/*offset += 32;*/
+				offset += 32;
 
-				/*offset += 16;*/ /* Unknown field */
+				proto_tree_add_item(wow_tree, hf_wow_crc_salt, tvb,
+						    offset, 16, ENC_NA);
+				offset += 16;
+
+				if (version_is_at_or_above(1, 12, 0)) {
+					proto_tree_add_item(wow_tree, hf_wow_two_factor_enabled, tvb,
+							    offset, 1, ENC_LITTLE_ENDIAN);
+					offset += 1;
+
+					/* There are additional two factor fields if
+					 * two_factor_enabled is true, although it is
+					 * almost never used and getting a capture is hard. */
+				}
 			}
 
 			break;
@@ -533,6 +594,18 @@ proto_register_wow(void)
 		  { "SRP s", "wow.srp.s",
 		    FT_BYTES, BASE_NONE, 0, 0,
 		    "Secure Remote Password protocol 's' (user's salt) value",
+		    HFILL }
+		},
+		{ &hf_wow_crc_salt,
+		  { "CRC salt", "wow.crc_salt",
+		    FT_BYTES, BASE_NONE, 0, 0,
+		    "Salt to be used for the hash in the reply packet",
+		    HFILL }
+		},
+		{ &hf_wow_two_factor_enabled,
+		  { "Two factor enabled", "wow.two_factor_enabled",
+		    FT_BOOLEAN, BASE_NONE, 0, 0,
+		    "Enables two factor authentication",
 		    HFILL }
 		},
 		{ &hf_wow_srp_a,
