@@ -110,6 +110,8 @@ static int hf_wow_srp_m1 = -1;
 static int hf_wow_crc_hash = -1;
 static int hf_wow_num_keys = -1;
 
+static int hf_wow_hardware_survey_id = -1;
+
 static int hf_wow_srp_m2 = -1;
 
 static int hf_wow_num_realms = -1;
@@ -364,9 +366,17 @@ dissect_wow_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 
 				proto_tree_add_item(wow_tree, hf_wow_num_keys,
 						    tvb, offset, 1, ENC_LITTLE_ENDIAN);
-				/*offset += 1;*/
+				offset += 1;
 
-				/*offset += 1; *//* Unknown field */
+				if (version_is_at_or_above(1, 12, 0)) {
+					proto_tree_add_item(wow_tree, hf_wow_two_factor_enabled, tvb,
+							    offset, 1, ENC_LITTLE_ENDIAN);
+					offset += 1;
+
+					/* There are additional two factor fields if
+					 * two_factor_enabled is true, although it is
+					 * almost never used and getting a capture is hard. */
+				}
 
 			} else if(WOW_SERVER_TO_CLIENT) {
 				proto_tree_add_item(wow_tree, hf_wow_error, tvb,
@@ -375,11 +385,11 @@ dissect_wow_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 
 				proto_tree_add_item(wow_tree, hf_wow_srp_m2,
 						    tvb, offset, 20, ENC_NA);
-				/*offset += 20;*/
+				offset += 20;
 
-				/*offset += 4;*/ /* Unknown field */
-
-				/*offset += 2;*/ /* Unknown field */
+				proto_tree_add_item(wow_tree, hf_wow_hardware_survey_id,
+						    tvb, offset, 4, ENC_LITTLE_ENDIAN);
+				offset += 4;
 			}
 
 			break;
@@ -627,6 +637,11 @@ proto_register_wow(void)
 		  { "Number of keys", "wow.num_keys",
 		    FT_UINT8, BASE_DEC, 0, 0,
 		    NULL, HFILL }
+		},
+		{ &hf_wow_hardware_survey_id,
+		  { "Hardware Survey ID", "wow.hardware_survey_id",
+		    FT_UINT32, BASE_DEC, 0, 0,
+		    "ID of a hardware survey that the client should run", HFILL }
 		},
 		{ &hf_wow_srp_m2,
 		  { "SRP M2", "wow.srp.m2",
