@@ -647,6 +647,8 @@ fuzz-valgrind:
   extends: .fuzz-ubuntu
   stage: fuzz-valgrind
   script:
+    - DEBIAN_FRONTEND=noninteractive apt-get update
+    - DEBIAN_FRONTEND=noninteractive apt-get --yes install valgrind
     - JOB_START_SECS=$( date -d "$CI_JOB_STARTED_AT" +%s )
     - cmake -G Ninja -DBUILD_wireshark=OFF -DCMAKE_BUILD_TYPE=Debug -DENABLE_ASAN=OFF -DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX ..
     - ninja
