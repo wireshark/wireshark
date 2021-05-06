@@ -4133,7 +4133,8 @@ proto_reg_handoff_http2(void)
     media_type_dissector_table = find_dissector_table("media_type");
 #endif
 
-    dissector_add_for_decode_as_with_preference("tcp.port", http2_handle);
+    dissector_add_uint_range_with_preference("tcp.port", "", http2_handle);
+    dissector_add_for_decode_as("tcp.port", http2_handle);
 
     /*
      * SSL/TLS Application-Layer Protocol Negotiation (ALPN) protocol ID.
