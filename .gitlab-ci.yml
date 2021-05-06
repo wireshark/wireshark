@@ -14,6 +14,9 @@ stages:
   - build
   - analysis
   - test
+  - fuzz-asan
+  - fuzz-randpkt
+  - fuzz-valgrind
 
 variables:
   # Ensure that checkouts are a) fast and b) have a reachable tag. In a
@@ -576,35 +579,74 @@ sloccount:
     - cat $SLOC_OUT
     - if [ -n "$AWS_ACCESS_KEY_ID" ] && [ -n "$AWS_SECRET_ACCESS_KEY" ] && [ -n "$S3_DESTINATION_ANALYSIS" ] ; then aws s3 cp "$SLOC_OUT" "$S3_DESTINATION_ANALYSIS/" ; fi
 
-fuzz-test:
+# Fuzz TShark using ASAN and valgrind.
+.fuzz-ubuntu:
   extends: .build-ubuntu
   rules: !reference [.if-fuzz-schedule]
   tags:
     - wireshark-ubuntu-fuzz
-  stage: test
   resource_group: fuzz-master
   variables:
+    CC: "clang-$CLANG_VERSION"
+    CXX: "clang++-$CLANG_VERSION"
+    INSTALL_PREFIX: "$CI_PROJECT_DIR/_install"
     MIN_PLUGINS: 10
-    MAX_PASSES: 5
-  script:
+    MAX_PASSES: 15
+  before_script:
+    # Signal after_script, which runs in its own shell.
+    - echo "export FUZZ_PASSED=true" > /tmp/fuzz_result.sh
     - mkdir /tmp/fuzz
-    - JOB_START_SECS=$( date -d "$CI_JOB_STARTED_AT" +%s )
-    - cmake -G Ninja -DBUILD_wireshark=OFF -DCMAKE_BUILD_TYPE=Debug -DENABLE_ASAN=ON -DCMAKE_INSTALL_PREFIX=$CI_PROJECT_DIR/install.asan ..
-    - ninja
-    - ninja install
-    # Run for 4 hours - build time - slop
-    - MAX_SECONDS=$(( 14400 - ( $( date +%s ) - $JOB_START_SECS ) - 300 ))
-    - cd ..
-    - FUZZ_PASSED=false
-    - ./tools/fuzz-test.sh -a -2 -P $MIN_PLUGINS -b $CI_PROJECT_DIR/install.asan/bin -d /tmp/fuzz -t $MAX_SECONDS $( shuf -e /var/menagerie/*/* ) 2> fuzz-test.err && FUZZ_PASSED=true
+  after_script:
+    - . /tmp/fuzz_result.sh
     - if $FUZZ_PASSED ; then exit 0 ; fi
     - echo Fuzzing failed. Generating report.
     - FUZZ_CAPTURE=$( ls /tmp/fuzz/fuzz-*.pcap | head -n 1 )
     - FUZZ_ERRORS="/tmp/fuzz/$( basename "$FUZZ_CAPTURE" .pcap ).err"
-    - printf "\nfuzz-test.sh stderr:\n"
+    - printf "\nfuzz-test.sh stderr:\n" >> "$FUZZ_ERRORS"
     - cat fuzz-test.err >> "$FUZZ_ERRORS"
     - |
       if [ -n "$AWS_ACCESS_KEY_ID" ] && [ -n "$AWS_SECRET_ACCESS_KEY" ] && [ -n "$S3_DESTINATION_FUZZ" ] ; then
         aws s3 cp "$FUZZ_CAPTURE" "$S3_DESTINATION_FUZZ/"
         aws s3 cp "$FUZZ_ERRORS" "$S3_DESTINATION_FUZZ/"
       fi
+
+fuzz-asan:
+  extends: .fuzz-ubuntu
+  stage: fuzz-asan
+  script:
+    - JOB_START_SECS=$( date -d "$CI_JOB_STARTED_AT" +%s )
+    - cmake -G Ninja -DBUILD_wireshark=OFF -DCMAKE_BUILD_TYPE=Debug -DENABLE_ASAN=ON -DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX ..
+    - ninja
+    - ninja install
+    # Run for 4 hours - build time - slop
+    - MAX_SECONDS=$(( 14400 - ( $( date +%s ) - $JOB_START_SECS ) - 300 ))
+    - cd ..
+    # /var/menagerie contains captures harvested from wireshark.org's mailing list, wiki, issues, etc.
+    # We have more captures than we can fuzz in $MAX_SECONDS, so we shuffle them each run.
+    - ./tools/fuzz-test.sh -a -2 -P $MIN_PLUGINS -b $INSTALL_PREFIX/bin -d /tmp/fuzz -t $MAX_SECONDS $( shuf -e /var/menagerie/*/* ) 2> fuzz-test.err || echo "export FUZZ_PASSED=false" > /tmp/fuzz_result.sh
+
+fuzz-randpkt:
+  extends: .fuzz-ubuntu
+  stage: fuzz-randpkt
+  script:
+    # XXX Reuse fuzz-asan?
+    - cmake -G Ninja -DBUILD_wireshark=OFF -DCMAKE_BUILD_TYPE=Debug -DENABLE_ASAN=ON -DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX ..
+    - ninja
+    - ninja install
+    - cd ..
+    - ./tools/randpkt-test.sh -a -b $INSTALL_PREFIX/bin -d /tmp/fuzz -p $MAX_PASSES 2> fuzz-test.err || echo "export FUZZ_PASSED=false" > /tmp/fuzz_result.sh
+  needs: [ fuzz-asan ]
+
+fuzz-valgrind:
+  extends: .fuzz-ubuntu
+  stage: fuzz-valgrind
+  script:
+    - JOB_START_SECS=$( date -d "$CI_JOB_STARTED_AT" +%s )
+    - cmake -G Ninja -DBUILD_wireshark=OFF -DCMAKE_BUILD_TYPE=Debug -DENABLE_ASAN=OFF -DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX ..
+    - ninja
+    - ninja install
+    # Run for 3 hours - build time - slop
+    - MAX_SECONDS=$(( 10800 - ( $( date +%s ) - $JOB_START_SECS ) - 300 ))
+    - cd ..
+    - ./tools/fuzz-test.sh -g -P $MIN_PLUGINS -b $INSTALL_PREFIX/bin -d /tmp/fuzz -t $MAX_SECONDS $( shuf -e /var/menagerie/*/* ) 2> fuzz-test.err || echo "export FUZZ_PASSED=false" > /tmp/fuzz_result.sh
+  needs: [ fuzz-randpkt ]
