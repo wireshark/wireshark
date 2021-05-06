@@ -596,7 +596,7 @@ fuzz-test:
     - MAX_SECONDS=$(( 14400 - ( $( date +%s ) - $JOB_START_SECS ) - 300 ))
     - cd ..
     - FUZZ_PASSED=false
-    - ./tools/fuzz-test.sh -a -2 -P $MIN_PLUGINS -b $CI_PROJECT_DIR/install.asan -d /tmp/fuzz -t $MAX_SECONDS $( shuf -e /var/menagerie/*/* ) 2> fuzz-test.err && FUZZ_PASSED=true
+    - ./tools/fuzz-test.sh -a -2 -P $MIN_PLUGINS -b $CI_PROJECT_DIR/install.asan/bin -d /tmp/fuzz -t $MAX_SECONDS $( shuf -e /var/menagerie/*/* ) 2> fuzz-test.err && FUZZ_PASSED=true
     - if $FUZZ_PASSED ; then exit 0 ; fi
     - echo Fuzzing failed. Generating report.
     - FUZZ_CAPTURE=$( ls /tmp/fuzz/fuzz-*.pcap | head -n 1 )
