@@ -593,9 +593,12 @@ sloccount:
     MIN_PLUGINS: 10
     MAX_PASSES: 15
   before_script:
+    - mkdir -p ccache
     # Signal after_script, which runs in its own shell.
     - echo "export FUZZ_PASSED=true" > /tmp/fuzz_result.sh
     - mkdir /tmp/fuzz
+    - mkdir build
+    - cd build
   after_script:
     - . /tmp/fuzz_result.sh
     - if $FUZZ_PASSED ; then exit 0 ; fi
@@ -609,6 +612,9 @@ sloccount:
         aws s3 cp "$FUZZ_CAPTURE" "$S3_DESTINATION_FUZZ/"
         aws s3 cp "$FUZZ_ERRORS" "$S3_DESTINATION_FUZZ/"
       fi
+    # The cache should be large enough to be useful but it shouldn't take
+    # too long to restore+save each run.
+    - ccache --max-size $( du --summarize --block-size=1M "$CI_PROJECT_DIR/build" | awk '{printf ("%dM", $1 * 1.5)}' )
 
 fuzz-asan:
   extends: .fuzz-ubuntu
