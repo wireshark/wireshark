@@ -28,6 +28,9 @@
 #include <tap.h>
 #include <ui/tap-credentials.h>
 
+#include "packet-tls.h"
+#include "packet-tls-utils.h"
+
 void proto_register_ftp(void);
 void proto_reg_handoff_ftp(void);
 
@@ -82,6 +85,7 @@ static expert_field ei_ftp_pwd_response_invalid = EI_INIT;
 static dissector_handle_t ftpdata_handle;
 static dissector_handle_t ftp_handle;
 static dissector_handle_t data_text_lines_handle;
+static dissector_handle_t tls_handle;
 
 #define TCP_PORT_FTPDATA        20
 #define TCP_PORT_FTP            21
@@ -192,6 +196,7 @@ typedef struct ftp_conversation_t
     guint32     current_data_setup_frame;
     gchar *username;
     guint username_pkt_num;
+    gboolean tls_requested;
 } ftp_conversation_t;
 
 /* For a given packet, retrieve or initialise a new conversation, and return it */
@@ -969,6 +974,9 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         if (p_ftp_conv) {
             p_ftp_conv->last_command = wmem_strndup(wmem_file_scope(), line, linelen);
             p_ftp_conv->last_command_frame = pinfo->num;
+
+            if ( ( linelen == 8 ) && ! strncmp( "AUTH TLS", line, 8 ) )
+                p_ftp_conv->tls_requested = TRUE ;
         }
         /* And make sure set for FTP data conversation */
         if (p_ftp_conv && p_ftp_conv->current_data_conv && !p_ftp_conv->current_data_conv->command) {
@@ -1026,6 +1034,18 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
              */
             if (code == 229)
                 is_epasv_response = TRUE;
+
+            /*
+             * Response to AUTH TLS command as per RFC 4217
+             */
+            if (code == 234) {
+                if ( p_ftp_conv->tls_requested ) {
+                    /* AUTH TLS accepted, next reply will be TLS */
+                    ssl_starttls_ack( tls_handle, pinfo, ftp_handle);
+
+                    p_ftp_conv->tls_requested = FALSE ;
+                }
+            }
 
             /*
              * Responses to CWD command.
@@ -1662,6 +1682,7 @@ proto_reg_handoff_ftp(void)
 
     data_text_lines_handle = find_dissector_add_dependency("data-text-lines", proto_ftp_data);
 
+    tls_handle = find_dissector( "tls" );
 }
 
 /*
