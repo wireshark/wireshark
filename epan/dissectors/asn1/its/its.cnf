@@ -287,11 +287,33 @@ Node-XY-28b/y                     n28bY
 Node-XY-32b/y                     n32bY
 
 #.TYPE_ATTR
-Longitude      DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(its_longitude_fmt)
-Latitude       DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(its_latitude_fmt)
-AltitudeValue  DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(its_altitude_fmt)
-SemiAxisLength DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(its_sax_length_fmt)
-HeadingValue   DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(its_heading_fmt)
+Longitude          DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(its_longitude_fmt)
+Latitude           DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(its_latitude_fmt)
+AltitudeValue      DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(its_altitude_fmt)
+SemiAxisLength     DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(its_sax_length_fmt)
+HeadingValue       DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(its_heading_value_fmt)
+HeadingConfidence  DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(its_heading_confidence_fmt)
+SpeedValue         DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(its_speed_value_fmt)
+SpeedConfidence    DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(its_speed_confidence_fmt)
+VehicleLengthValue DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(its_vehicle_length_value_fmt)
+VehicleWidth       DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(its_vehicle_width_fmt)
+LongitudinalAccelerationValue DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(its_acceleration_value_fmt)
+LateralAccelerationValue      DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(its_acceleration_value_fmt)
+VerticalAccelerationValue     DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(its_acceleration_value_fmt)
+AccelerationConfidence        DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(its_acceleration_confidence_fmt)
+CurvatureValue     DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(its_curvature_value_fmt)
+YawRateValue       DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(its_yaw_rate_value_fmt)
+SteeringWheelAngleValue      DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(its_swa_value_fmt)
+SteeringWheelAngleConfidence DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(its_swa_confidence_fmt)
+
+GenerationDeltaTime                STRINGS=NULL
+
+MinuteOfTheYear DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(dsrc_moi_fmt)
+DSecond         DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(dsrc_dsecond_fmt)
+TimeMark        DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(dsrc_time_mark_fmt)
+TimeIntervalConfidence              STRINGS=VALS(dsrc_TimeIntervalConfidence_vals)
+Velocity        DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(dsrc_velocity_fmt)
+#.END
 
 #.FIELD_ATTR
 IntersectionState/status          ABBREV=intersectionState.status
@@ -743,6 +765,20 @@ Longitude
 AltitudeValue
 SemiAxisLength
 $ITS-ContainerV1$HeadingValue
+HeadingConfidence
+SpeedValue
+SpeedConfidence
+VehicleLengthValue
+VehicleWidth
+LongitudinalAcceleration
+LateralAccelerationValue
+VerticalAccelerationValue
+AccelerationConfidence
+CurvatureValue
+YawRateValue
+SteeringWheelAngleValue
+SteeringWheelAngleConfidence
+GenerationDeltaTime
 #.END
 
 #.NO_EMIT WITHOUT_VALS
