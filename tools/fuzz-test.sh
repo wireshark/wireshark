@@ -182,7 +182,7 @@ while { [ $PASS -lt "$MAX_PASSES" ] || [ "$MAX_PASSES" -lt 1 ]; } && ! $DONE ; d
         if [ "$OSTYPE" == "cygwin" ] ; then
             CF=$( cygpath --windows "$CF" )
         fi
-        echo -n "    $CF: "
+        printf "    %s: " "$( basename "$CF" )"
 
         "$CAPINFOS" "$CF" > /dev/null 2> "$TMP_DIR/$ERR_FILE"
         RETVAL=$?
