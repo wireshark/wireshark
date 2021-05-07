@@ -1334,7 +1334,7 @@ static value_string_ext aruba_mgt_typevals_ext = VALUE_STRING_EXT_INIT(aruba_mgt
 #define PA_NETWORK_CHANNEL_CONTROL         30
 #define PA_WHITE_SPACE_MAP_ANNOUNCEMENT    31
 #define PA_FTM_REQUEST                     32
-#define PA_FTM_RESPONSE                    33
+#define PA_FTM                             33
 #define PA_FILS_DISCOVERY                  34
 /* 802.11aj */
 #define PA_DCS_MEASUREMENT_REQUEST               35
@@ -2245,7 +2245,7 @@ static const value_string ff_pa_action_codes[] = {
   {PA_NETWORK_CHANNEL_CONTROL,         "Network Channel Control"},
   {PA_WHITE_SPACE_MAP_ANNOUNCEMENT,    "White Space Map Announcement"},
   {PA_FTM_REQUEST,                     "FTM Request"},
-  {PA_FTM_RESPONSE,                    "FTM Response"},
+  {PA_FTM,                             "FTM"},
   {PA_FILS_DISCOVERY,                  "FILS Discovery"},
   {PA_LOCATION_MEASUREMENT_REPORT,                                      "Location Measurement Report"},
   {PA_ISTA_PASSIVE_TB_RANGING_MEASUREMENT_REPORT,                       "ISTA Passive TB Ranging Measurement Report"},
@@ -2258,7 +2258,7 @@ value_string_ext ff_pa_action_codes_ext = VALUE_STRING_EXT_INIT(ff_pa_action_cod
 static const value_string protected_ftm_action_vals[] = {
   {0, "Reserved"},
   {1, "Protected FTM Request"},
-  {2, "Protected FTM Response"},
+  {2, "Protected FTM"},
   {3, "Protected Location Measurement Report"},
   {0, NULL}
 };
@@ -11486,7 +11486,7 @@ add_ff_ftm_request(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int 
 }
 
 static guint
-add_ff_ftm_response(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
+add_ff_ftm(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
 {
   guint start = offset;
   guint8 dialog_token = tvb_get_guint8(tvb, offset);
@@ -12213,9 +12213,9 @@ add_ff_action_public_fields(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
     col_set_str(pinfo->cinfo, COL_INFO, "FTM Request");
     offset += add_ff_ftm_request(tree, tvb, pinfo, offset);
     break;
-  case PA_FTM_RESPONSE:
-    col_set_str(pinfo->cinfo, COL_INFO, "FTM Response");
-    offset += add_ff_ftm_response(tree, tvb, pinfo, offset);
+  case PA_FTM:
+    col_set_str(pinfo->cinfo, COL_INFO, "FTM");
+    offset += add_ff_ftm(tree, tvb, pinfo, offset);
     break;
   case PA_FILS_DISCOVERY:
     col_set_str(pinfo->cinfo, COL_INFO, "FILS Discovery");
@@ -15429,7 +15429,7 @@ add_ff_action_protected_ftm(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
       offset += add_ff_ftm_request(tree, tvb, pinfo, offset);
       break;
     case 2:
-      offset += add_ff_ftm_response(tree, tvb, pinfo, offset);
+      offset += add_ff_ftm(tree, tvb, pinfo, offset);
       break;
     case 3:
       offset += add_ff_lmr_report(tree, tvb, pinfo, offset);
