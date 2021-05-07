@@ -132,7 +132,7 @@ variables:
       - build/packaging/rpm/RPMS
     expire_in: 3 days
   needs:
-    - build:ubuntu-dist
+    - 'Source Package'
 
 .test-rpm:
   rules: !reference [.if-merged]
@@ -165,14 +165,14 @@ variables:
   needs: []
 
 # Rely on fedora:latest and debian-stable jobs for testing a recent GCC version.
-clang-latest:
+Latest Clang:
   extends: .build-ubuntu
   rules: !reference [.if-merged]
   variables:
     CC: "clang-$CLANG_VERSION"
     CXX: "clang++-$CLANG_VERSION"
 
-build:ubuntu-dist:
+Source Package:
   extends: .build-ubuntu
   stage: .pre
   rules: !reference [.if-merged]
@@ -193,52 +193,49 @@ build:ubuntu-dist:
 # The custom CentOS 7 image pre-installs dependencies and compilers to speed up the build:
 # https://hub.docker.com/r/wireshark/wireshark-centos-7-dev
 # https://gitlab.com/wireshark/wireshark-containers/-/tree/master/dev/centos-7
-build:rpm-centos-7:
+CentOS 7 RPM Package:
   extends: .build-rpm
   image: wireshark/wireshark-centos-7-dev
   script:
     - cmake3 -GNinja ..
     - ninja-build rpm-package
-test:rpm-centos-7:
+CentOS 7 RPM Test:
   extends: .test-rpm
   image: wireshark/wireshark-centos-7-dev
   script:
     - yum --nogpgcheck localinstall -y build/packaging/rpm/RPMS/x86_64/*.rpm
     - tshark --version
-  needs:
-    - build:rpm-centos-7
+  needs: [ 'CentOS 7 RPM Package' ]
 
-build:rpm-centos-8:
+CentOS 8 RPM Package:
   extends: .build-rpm
   image: wireshark/wireshark-centos-8-dev
   script:
     - cmake -GNinja ..
     - ninja-build rpm-package
-test:rpm-centos-8:
+CentOS 8 RPM Test:
   extends: .test-rpm
   image: wireshark/wireshark-centos-8-dev
   script:
     - dnf --nogpgcheck localinstall -y build/packaging/rpm/RPMS/x86_64/*.rpm
     - tshark --version
-  needs:
-    - build:rpm-centos-8
+  needs: [ 'CentOS 8 RPM Package' ]
 
-build:rpm-opensuse-15.2:
+openSUSE 15.2 RPM Package:
   extends: .build-rpm
   image: wireshark/wireshark-opensuse-15.2-dev
   script:
     - cmake -GNinja ..
     - ninja rpm-package
-test:rpm-opensuse-15.2:
+openSUSE 15.2 RPM Test:
   extends: .test-rpm
   image: wireshark/wireshark-opensuse-15.2-dev
   script:
     - zypper --no-gpg-checks install -y build/packaging/rpm/RPMS/x86_64/*.rpm
     - tshark --version
-  needs:
-    - build:rpm-opensuse-15.2
+  needs: [ 'openSUSE 15.2 RPM Package' ]
 
-build:rpm-fedora:
+Fedora RPM Package:
   extends: .build-rpm
   image: wireshark/wireshark-fedora-dev
   script:
@@ -247,17 +244,16 @@ build:rpm-fedora:
     - export FORCE_CMAKE_NINJA_NON_VERBOSE=1
     - cmake3 -GNinja ..
     - ninja rpm-package
-# test:rpm-fedora:
-  # extends: .test-rpm
+# Fedora RPM Test:
+#   extends: .test-rpm
 #   image: fedora
 #   script:
 #     - dnf install -y build/packaging/rpm/RPMS/x86_64/*.rpm
 #     - tshark --version
-#   needs:
-#     - build:rpm-fedora
+#  needs: [ 'Fedora RPM Package' ]
 
 # Job to generate packages for Debian stable
-build:debian-stable:
+Debian Stable APT Package:
   extends: .build
   rules: !reference [.if-merged]
   image: wireshark/wireshark-debian-stable-dev
@@ -274,7 +270,7 @@ build:debian-stable:
     paths:
       - debian-packages/*.deb
     expire_in: 3 days
-test:debian-stable:
+Debian Stable APT Test:
   rules: !reference [.if-merged]
   image: wireshark/wireshark-debian-stable-dev
   stage: test
@@ -283,11 +279,10 @@ test:debian-stable:
     - tshark --version
   variables:
     GIT_STRATEGY: none
-  needs:
-    - build:debian-stable
+  needs: [ 'Debian Stable APT Package' ]
 
 # Build the User's Guide and Developer's Guide
-documentation:
+Documentation:
   stage: build
   image: wireshark/wireshark-ubuntu-dev
   rules:
@@ -330,7 +325,7 @@ documentation:
 
 # https://docs.gitlab.com/ee/user/gitlab_com/index.html#linux-shared-runners
 
-merge-req:commit-checks:
+Commit Check:
   extends: .build-ubuntu
   rules: !reference [.if-merge-request]
   tags:
@@ -341,7 +336,7 @@ merge-req:commit-checks:
     - bash ./tools/pre-commit 'HEAD^1'
     - tools/validate-commit.py
 
-merge-req:ubuntu-dpkg:
+Ubuntu .dpkg:
   extends: .build-ubuntu
   rules: !reference [.if-merge-request]
   tags:
@@ -356,7 +351,7 @@ merge-req:ubuntu-dpkg:
     # .build-ubuntu. We also build more stuff, so decrease our multiplier.
     - ccache --max-size $( du --summarize --block-size=1M --total "$CI_PROJECT_DIR"/obj-* | awk '/total$/ {printf ("%dM", $1 * 1.25)}' )
 
-merge-req:ubuntu-gcc-ctest:
+GCC Warnings:
   extends: .build-ubuntu
   rules: !reference [.if-merge-request]
   tags:
@@ -373,7 +368,7 @@ merge-req:ubuntu-gcc-ctest:
     paths:
       - gcc_report.html
 
-merge-req:ubuntu-clang-other-tests:
+Code Checks + Clang Warnings:
   extends: .build-ubuntu
   rules: !reference [.if-merge-request]
   tags:
@@ -406,7 +401,7 @@ merge-req:ubuntu-clang-other-tests:
 
 # Windows runners are still beta, at least technically:
 # https://docs.gitlab.com/ee/user/gitlab_com/index.html#windows-shared-runners-beta
-merge-req:windows:
+Windows Build:
   extends: .build-windows
   rules: !reference [.if-attached-merge-request]
   tags:
@@ -419,7 +414,7 @@ merge-req:windows:
 
 # Adapted from https://www.synopsys.com/blogs/software-security/integrating-coverity-scan-with-gitlab-ci/
 # and https://gitlab.gnome.org/GNOME/glib/-/blob/8f57a5b9/.gitlab-ci.yml#L481
-coverity-gcc:
+Coverity GCC Scan:
   image: wireshark/wireshark-ubuntu-dev
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule" && $SCHEDULE_TYPE == "coverity-gcc"'
@@ -441,14 +436,13 @@ coverity-gcc:
     - /tmp/cov-analysis-linux64-*/bin/cov-build --return-emit-failures --dir ../cov-int ninja
     - cd ..
     - tar --create --gzip --file cov-int.tar.gz cov-int
-    # - curl --form file=@cov-int.tar.gz --form token=$COVERITY_SCAN_TOKEN --form email=$GITLAB_USER_EMAIL --form description="Ubuntu $( git describe --tags ) $CI_COMMIT_REF_NAME:$CI_PIPELINE_ID" --form version=$( git describe --tags ) https://scan.coverity.com/builds?project=$COVERITY_SCAN_PROJECT_NAME
     - echo "export ARTIFACT_JOB_URL=$CI_JOB_URL" > job_environment_variables.sh
     - echo "export GIT_DESCRIPTION=$( git describe --tags )" >> job_environment_variables.sh
   artifacts:
     paths:
       - cov-int.tar.gz
       - job_environment_variables.sh
-coverity-gcc-submit:
+Coverity GCC Submit:
   image: curlimages/curl
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule" && $SCHEDULE_TYPE == "coverity-gcc"'
@@ -459,10 +453,9 @@ coverity-gcc-submit:
     - echo $ARTIFACT_JOB_URL
     - echo $GIT_DESCRIPTION
     - curl --fail --data "project=$COVERITY_SCAN_PROJECT_NAME&token=$COVERITY_SCAN_TOKEN&email=$GITLAB_USER_EMAIL&url=$ARTIFACT_JOB_URL/artifacts/raw/cov-int.tar.gz&version=$GIT_DESCRIPTION&description=Ubuntu $GIT_DESCRIPTION $CI_COMMIT_REF_NAME:$CI_PIPELINE_ID" https://scan.coverity.com/builds
-  needs:
-    - coverity-gcc
+  needs: [ 'Coverity GCC Scan' ]
 
-coverity-visual-c++:
+Coverity Visual C++ Scan:
   extends: .build-windows
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule" && $SCHEDULE_TYPE == "coverity-visual-c++"'
@@ -480,14 +473,13 @@ coverity-visual-c++:
     - Invoke-Expression "& $covAnalysisWin64\bin\cov-build.exe --return-emit-failures --dir ..\cov-int msbuild /verbosity:minimal `"/consoleloggerparameters:PerformanceSummary;NoSummary`" /maxcpucount:1 Wireshark.sln"
     - cd ..
     - C:\ProgramData\chocolatey\tools\7z a -tzip cov-int.zip cov-int
-    # - C:\Windows\System32\curl --form file=@cov-int.zip --form token=$COVERITY_SCAN_TOKEN--form email=$GITLAB_USER_EMAIL --form description="Windows $gitDescription $env:CI_COMMIT_REF_NAME`:$env:CI_PIPELINE_ID" --form version=$gitDescription https://scan.coverity.com/builds?project=$COVERITY_SCAN_PROJECT_NAME
     - '"export ARTIFACT_JOB_URL=$env:CI_JOB_URL" | Out-File -Encoding ascii job_environment_variables.sh'
     - '"export GIT_DESCRIPTION=$gitDescription" | Out-File -Encoding ascii -Append job_environment_variables.sh'
   artifacts:
     paths:
       - cov-int.zip
       - job_environment_variables.sh
-coverity-visual-c++-submit:
+Coverity Visual C++ Submit:
   image: curlimages/curl
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule" && $SCHEDULE_TYPE == "coverity-visual-c++"'
@@ -499,10 +491,9 @@ coverity-visual-c++-submit:
     - echo $ARTIFACT_JOB_URL
     - echo $GIT_DESCRIPTION
     - curl --fail --data "project=$COVERITY_SCAN_PROJECT_NAME&token=$COVERITY_SCAN_TOKEN&email=$GITLAB_USER_EMAIL&url=$ARTIFACT_JOB_URL/artifacts/raw/cov-int.zip&version=$GIT_DESCRIPTION&description=Windows $GIT_DESCRIPTION $CI_COMMIT_REF_NAME:$CI_PIPELINE_ID" https://scan.coverity.com/builds
-  needs:
-    - coverity-visual-c++
+  needs: [ 'Coverity Visual C++ Scan' ]
 
-clang-scan-build:
+Clang Static Analyzer:
   image: wireshark/wireshark-ubuntu-dev
   rules: !reference [.if-daily-schedule]
   stage: analysis
@@ -526,7 +517,7 @@ clang-scan-build:
 
 # Windows runners are still beta, at least technically:
 # https://docs.gitlab.com/ee/user/gitlab_com/index.html#windows-shared-runners-beta
-build:windows-vs-code-analysis:
+Visual Studio Code Analysis:
   extends: .build-windows
   tags:
     - wireshark-windows-dev
@@ -540,7 +531,7 @@ build:windows-vs-code-analysis:
     - msbuild /verbosity:minimal "/consoleloggerparameters:PerformanceSummary;NoSummary" /maxcpucount:2 Wireshark.sln
 
 # Build all doxygen docs
-doxygen_all:
+API Reference:
   image: wireshark/wireshark-ubuntu-dev
   rules: !reference [.if-daily-schedule]
   stage: build
@@ -565,7 +556,7 @@ doxygen_all:
     - wsar_html.zip
   needs: []
 
-sloccount:
+SLOCCount:
   extends: .build-ubuntu
   rules: !reference [.if-daily-schedule]
   stage: analysis
@@ -618,7 +609,7 @@ sloccount:
     # too long to restore+save each run.
     - ccache --max-size $( du --summarize --block-size=1M "$CI_PROJECT_DIR/build" | awk '{printf ("%dM", $1 * 1.5)}' )
 
-fuzz-asan:
+ASan Menagerie Fuzz:
   extends: .fuzz-ubuntu
   stage: fuzz-asan
   script:
@@ -631,7 +622,7 @@ fuzz-asan:
     # We have more captures than we can fuzz in $MAX_SECONDS, so we shuffle them each run.
     - ./tools/fuzz-test.sh -a -2 -P $MIN_PLUGINS -b $INSTALL_PREFIX/bin -d /tmp/fuzz -t $MAX_SECONDS $( shuf -e /var/menagerie/*/* ) 2> fuzz-test.err || echo "export FUZZ_PASSED=false" > /tmp/fuzz_result.sh
 
-fuzz-randpkt:
+ASan randpkt Fuzz:
   extends: .fuzz-ubuntu
   stage: fuzz-randpkt
   script:
@@ -641,9 +632,9 @@ fuzz-randpkt:
     - ninja install
     - cd ..
     - ./tools/randpkt-test.sh -a -b $INSTALL_PREFIX/bin -d /tmp/fuzz -p $MAX_PASSES 2> fuzz-test.err || echo "export FUZZ_PASSED=false" > /tmp/fuzz_result.sh
-  needs: [ fuzz-asan ]
+  needs: [ 'ASan Menagerie Fuzz' ]
 
-fuzz-valgrind:
+Valgrind Menagerie Fuzz:
   extends: .fuzz-ubuntu
   stage: fuzz-valgrind
   script:
@@ -655,4 +646,4 @@ fuzz-valgrind:
     - ninja install
     - cd ..
     - ./tools/fuzz-test.sh -g -P $MIN_PLUGINS -b $INSTALL_PREFIX/bin -d /tmp/fuzz -t $MAX_SECONDS $( shuf -e /var/menagerie/*/* ) 2> fuzz-test.err || echo "export FUZZ_PASSED=false" > /tmp/fuzz_result.sh
-  needs: [ fuzz-randpkt ]
+  needs: [ 'ASan randpkt Fuzz' ]
