@@ -11489,7 +11489,11 @@ static guint
 add_ff_ftm_response(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
 {
   guint start = offset;
+  guint8 dialog_token = tvb_get_guint8(tvb, offset);
   offset += add_ff_dialog_token(tree, tvb, pinfo, offset);
+  if (dialog_token == 0) {
+    col_append_fstr(pinfo->cinfo, COL_INFO, " (Termination)");
+  }
   offset += add_ff_followup_dialog_token(tree, tvb, pinfo, offset);
   offset += add_ff_ftm_tod(tree, tvb, pinfo, offset);
   offset += add_ff_ftm_toa(tree, tvb, pinfo, offset);
