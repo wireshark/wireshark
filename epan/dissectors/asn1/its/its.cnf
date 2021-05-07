@@ -770,7 +770,7 @@ SpeedValue
 SpeedConfidence
 VehicleLengthValue
 VehicleWidth
-LongitudinalAcceleration
+LongitudinalAccelerationValue
 LateralAccelerationValue
 VerticalAccelerationValue
 AccelerationConfidence

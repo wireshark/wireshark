@@ -3565,13 +3565,6 @@ dissect_its_EmbarkationStatus(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 }
 
 
-static const value_string its_LongitudinalAccelerationValue_vals[] = {
-  {   1, "pointOneMeterPerSecSquaredForward" },
-  {  -1, "pointOneMeterPerSecSquaredBackward" },
-  { 161, "unavailable" },
-  { 0, NULL }
-};
-
 
 static int
 dissect_its_LongitudinalAccelerationValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -5369,13 +5362,6 @@ dissect_itsv1_EmbarkationStatus(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
   return offset;
 }
 
-
-static const value_string itsv1_LongitudinalAccelerationValue_vals[] = {
-  {   1, "pointOneMeterPerSecSquaredForward" },
-  {  -1, "pointOneMeterPerSecSquaredBackward" },
-  { 161, "unavailable" },
-  { 0, NULL }
-};
 
 
 static int
