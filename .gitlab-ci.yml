@@ -9,6 +9,13 @@
 # https://hub.docker.com/r/wireshark/wireshark-opensuse-15.1-dev
 # https://hub.docker.com/r/wireshark/wireshark-ubuntu-dev
 
+stages:
+  - build
+  - test
+  - fuzz-asan
+  - fuzz-randpkt
+  - fuzz-valgrind
+
 variables:
   # Ensure that checkouts are a) fast and b) have a reachable tag. In a
   # brighter, more glorious future we might be able to use --shallow-since:
@@ -40,6 +47,11 @@ variables:
 # available in wireshark/wireshark, e.g. wireshark-windows-*
 .if-attached-merge-request:
   - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_PROJECT_URL =~ /.*gitlab.com\/wireshark\/wireshark/'
+    when: always
+# Fuzz jobs. Care should be taken when changing this since the scheduler
+# often doesn't report errors.
+.if-fuzz-schedule:
+  - if: '$CI_PIPELINE_SOURCE == "schedule" && $SCHEDULE_TYPE == "fuzz"'
     when: always
 
 .build:
@@ -333,3 +345,79 @@ Windows Build:
     - msbuild "/consoleloggerparameters:PerformanceSummary;NoSummary" /maxcpucount Wireshark.sln
     - msbuild "/consoleloggerparameters:PerformanceSummary;NoSummary" test-programs.vcxproj
     - ctest -C RelWithDebInfo --parallel 3 --force-new-ctest-process --verbose
+
+# Fuzz TShark using ASAN and valgrind.
+.fuzz-ubuntu:
+  extends: .build-ubuntu
+  rules: !reference [.if-fuzz-schedule]
+  tags:
+    - wireshark-ubuntu-fuzz
+  resource_group: fuzz-master
+  variables:
+    CC: "clang-$CLANG_VERSION"
+    CXX: "clang++-$CLANG_VERSION"
+    INSTALL_PREFIX: "$CI_PROJECT_DIR/_install"
+    MIN_PLUGINS: 10
+    MAX_PASSES: 15
+  before_script:
+    - mkdir -p ccache
+    # Signal after_script, which runs in its own shell.
+    - echo "export FUZZ_PASSED=true" > /tmp/fuzz_result.sh
+    - mkdir /tmp/fuzz
+    - mkdir build
+    - cd build
+  after_script:
+    - . /tmp/fuzz_result.sh
+    - if $FUZZ_PASSED ; then exit 0 ; fi
+    - echo Fuzzing failed. Generating report.
+    - FUZZ_CAPTURE=$( ls /tmp/fuzz/fuzz-*.pcap | head -n 1 )
+    - FUZZ_ERRORS="/tmp/fuzz/$( basename "$FUZZ_CAPTURE" .pcap ).err"
+    - printf "\nfuzz-test.sh stderr:\n" >> "$FUZZ_ERRORS"
+    - cat fuzz-test.err >> "$FUZZ_ERRORS"
+    - |
+      if [ -n "$AWS_ACCESS_KEY_ID" ] && [ -n "$AWS_SECRET_ACCESS_KEY" ] && [ -n "$S3_DESTINATION_FUZZ" ] ; then
+        aws s3 cp "$FUZZ_CAPTURE" "$S3_DESTINATION_FUZZ/"
+        aws s3 cp "$FUZZ_ERRORS" "$S3_DESTINATION_FUZZ/"
+      fi
+    # The cache should be large enough to be useful but it shouldn't take
+    # too long to restore+save each run.
+    - ccache --max-size $( du --summarize --block-size=1M "$CI_PROJECT_DIR/build" | awk '{printf ("%dM", $1 * 1.5)}' )
+
+ASan Menagerie Fuzz:
+  extends: .fuzz-ubuntu
+  stage: fuzz-asan
+  script:
+    - MAX_SECONDS=$(( 4 * 60 * 60 ))
+    - cmake -G Ninja -DBUILD_wireshark=OFF -DCMAKE_BUILD_TYPE=Debug -DENABLE_ASAN=ON -DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX ..
+    - ninja
+    - ninja install
+    - cd ..
+    # /var/menagerie contains captures harvested from wireshark.org's mailing list, wiki, issues, etc.
+    # We have more captures than we can fuzz in $MAX_SECONDS, so we shuffle them each run.
+    - ./tools/fuzz-test.sh -a -2 -P $MIN_PLUGINS -b $INSTALL_PREFIX/bin -d /tmp/fuzz -t $MAX_SECONDS $( shuf -e /var/menagerie/*/* ) 2> fuzz-test.err || echo "export FUZZ_PASSED=false" > /tmp/fuzz_result.sh
+
+ASan randpkt Fuzz:
+  extends: .fuzz-ubuntu
+  stage: fuzz-randpkt
+  script:
+    # XXX Reuse fuzz-asan?
+    - cmake -G Ninja -DBUILD_wireshark=OFF -DCMAKE_BUILD_TYPE=Debug -DENABLE_ASAN=ON -DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX ..
+    - ninja
+    - ninja install
+    - cd ..
+    - ./tools/randpkt-test.sh -a -b $INSTALL_PREFIX/bin -d /tmp/fuzz -p $MAX_PASSES 2> fuzz-test.err || echo "export FUZZ_PASSED=false" > /tmp/fuzz_result.sh
+  needs: [ 'ASan Menagerie Fuzz' ]
+
+Valgrind Menagerie Fuzz:
+  extends: .fuzz-ubuntu
+  stage: fuzz-valgrind
+  script:
+    - DEBIAN_FRONTEND=noninteractive apt-get update
+    - DEBIAN_FRONTEND=noninteractive apt-get --yes install valgrind
+    - MAX_SECONDS=$(( 3 * 60 * 60 ))
+    - cmake -G Ninja -DBUILD_wireshark=OFF -DCMAKE_BUILD_TYPE=Debug -DENABLE_ASAN=OFF -DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX ..
+    - ninja
+    - ninja install
+    - cd ..
+    - ./tools/fuzz-test.sh -g -P $MIN_PLUGINS -b $INSTALL_PREFIX/bin -d /tmp/fuzz -t $MAX_SECONDS $( shuf -e /var/menagerie/*/* ) 2> fuzz-test.err || echo "export FUZZ_PASSED=false" > /tmp/fuzz_result.sh
+  needs: [ 'ASan randpkt Fuzz' ]
