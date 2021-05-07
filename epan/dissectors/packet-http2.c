@@ -3050,9 +3050,9 @@ dissect_http2_rst_stream(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *http
 /* Settings */
 static int
 #ifdef HAVE_NGHTTP2
-dissect_http2_settings(tvbuff_t *tvb, packet_info *pinfo _U_, http2_session_t* h2session, proto_tree *http2_tree, guint offset, guint8 flags)
+dissect_http2_settings(tvbuff_t* tvb, packet_info* pinfo _U_, http2_session_t* h2session, proto_tree* http2_tree, guint offset, guint8 flags)
 #else
-dissect_http2_settings(tvbuff_t *tvb, packet_info *pinfo _U_, http2_session_t* h2session _U_, proto_tree *http2_tree, guint offset, guint8 flags _U_)
+dissect_http2_settings(tvbuff_t* tvb, packet_info* pinfo _U_, http2_session_t* h2session _U_, proto_tree* http2_tree, guint offset, guint8 flags _U_)
 #endif
 {
     guint32 settingsid;
@@ -3116,7 +3116,7 @@ dissect_http2_settings(tvbuff_t *tvb, packet_info *pinfo _U_, http2_session_t* h
     }
 
 #ifdef HAVE_NGHTTP2
-    if(!PINFO_FD_VISITED(pinfo)) {
+    if(!PINFO_FD_VISITED(pinfo)&&(h2session != NULL)) {
 
         if(flags & HTTP2_FLAGS_ACK) {
             apply_and_pop_settings(pinfo, h2session);
@@ -3135,6 +3135,11 @@ dissect_http2_settings(tvbuff_t *tvb, packet_info *pinfo _U_, http2_session_t* h
 #endif
 
     return offset;
+}
+
+void
+dissect_http2_settings_ext(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* http2_tree, guint offset) {
+    dissect_http2_settings(tvb, pinfo, NULL, http2_tree, offset, 0);
 }
 
 /* Push Promise */

@@ -50,6 +50,9 @@ http2_get_stream_id_le(guint streamid, guint sub_stream_id, guint *sub_stream_id
 WS_DLL_PUBLIC gboolean
 http2_get_stream_id_ge(guint streamid, guint sub_stream_id, guint *sub_stream_id_out);
 
+WS_DLL_PUBLIC void
+dissect_http2_settings_ext(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* http2_tree, guint offset);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

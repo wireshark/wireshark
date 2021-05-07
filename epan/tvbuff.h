@@ -1103,6 +1103,7 @@ extern tvbuff_t* base64_to_tvb(tvbuff_t *parent, const char *base64);
  */
 extern tvbuff_t* base64_tvb_to_new_tvb(tvbuff_t* parent, int offset, int length);
 
+extern tvbuff_t* base64uri_tvb_to_new_tvb(tvbuff_t* parent, int offset, int length);
 /**
  * Extract a variable length integer from a tvbuff.
  * Each byte in a varint, except the last byte, has the most significant bit (msb)

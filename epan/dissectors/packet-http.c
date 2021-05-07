@@ -33,8 +33,11 @@
 #include <epan/req_resp_hdrs.h>
 #include <epan/proto_data.h>
 #include <epan/export_object.h>
+#include <epan/exceptions.h>
+#include <epan/show_exception.h>
 
 #include "packet-http.h"
+#include "packet-http2.h"
 #include "packet-tcp.h"
 #include "packet-tls.h"
 #include "packet-acdr.h"
@@ -112,6 +115,7 @@ static int hf_http_sec_websocket_version = -1;
 static int hf_http_set_cookie = -1;
 static int hf_http_last_modified = -1;
 static int hf_http_x_forwarded_for = -1;
+static int hf_http_http2_settings = -1;
 static int hf_http_request_in = -1;
 static int hf_http_response_in = -1;
 static int hf_http_next_request_in = -1;
@@ -124,6 +128,7 @@ static int hf_http_chunk_boundary = -1;
 static int hf_http_chunked_trailer_part = -1;
 static int hf_http_file_data = -1;
 static int hf_http_unknown_header = -1;
+static int hf_http_http2_settings_uri = -1;
 
 static gint ett_http = -1;
 static gint ett_http_ntlmssp = -1;
@@ -135,6 +140,7 @@ static gint ett_http_chunked_response = -1;
 static gint ett_http_chunk_data = -1;
 static gint ett_http_encoded_entity = -1;
 static gint ett_http_header_item = -1;
+static gint ett_http_http2_settings_item = -1;
 
 static expert_field ei_http_chat = EI_INIT;
 static expert_field ei_http_te_and_length = EI_INIT;
@@ -2778,6 +2784,7 @@ typedef struct {
 #define HDR_WEBSOCKET_EXTENSIONS	11
 #define HDR_REFERER			12
 #define HDR_LOCATION			13
+#define HDR_HTTP2_SETTINGS		14
 
 static const header_info headers[] = {
 	{ "Authorization", &hf_http_authorization, HDR_AUTHORIZATION },
@@ -2809,6 +2816,7 @@ static const header_info headers[] = {
 	{ "Set-Cookie", &hf_http_set_cookie, HDR_NO_SPECIAL },
 	{ "Last-Modified", &hf_http_last_modified, HDR_NO_SPECIAL },
 	{ "X-Forwarded-For", &hf_http_x_forwarded_for, HDR_NO_SPECIAL },
+	{ "HTTP2-Settings", &hf_http_http2_settings, HDR_HTTP2_SETTINGS },
 };
 
 /*
@@ -3334,10 +3342,24 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 
 		case HDR_LOCATION:
 			if (conv_data->request_uri){
-				stat_info->location_target = wmem_strndup(wmem_packet_scope(), value, value_len);
+				stat_info->location_target = wmem_strndup(wmem_packet_scope(), value, value_offset);
 				stat_info->location_base_uri = wmem_strdup(wmem_packet_scope(), conv_data->full_uri);
 			}
 			break;
+		case HDR_HTTP2_SETTINGS:
+		{
+			proto_tree* settings_tree = proto_item_add_subtree(hdr_item, ett_http_http2_settings_item);
+			tvbuff_t* new_tvb = base64uri_tvb_to_new_tvb(tvb, value_offset, value_len);
+			add_new_data_source(pinfo, new_tvb, "Base64uri decoded");
+			TRY{
+				dissect_http2_settings_ext(new_tvb, pinfo, settings_tree, 0);
+			} CATCH_ALL{
+				show_exception(tvb, pinfo, settings_tree, EXCEPT_CODE, GET_MESSAGE);
+			}
+			ENDTRY;
+
+			break;
+		}
 		}
 	}
 }
@@ -4047,6 +4069,10 @@ proto_register_http(void)
 	      { "X-Forwarded-For", "http.x_forwarded_for",
 		FT_STRING, BASE_NONE, NULL, 0x0,
 		"HTTP X-Forwarded-For", HFILL }},
+	    { &hf_http_http2_settings,
+	      { "HTTP2-Settings", "http.http2_settings",
+		FT_STRING, BASE_NONE, NULL, 0x0,
+		NULL, HFILL }},
 	    { &hf_http_request_in,
 	      { "Request in frame", "http.request_in",
 		FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_REQUEST), 0,
@@ -4095,6 +4121,10 @@ proto_register_http(void)
 	      { "Unknown header", "http.unknown_header",
 		FT_STRING, BASE_NONE, NULL, 0,
 		NULL, HFILL }},
+	    { &hf_http_http2_settings_uri,
+	      { "HTTP2 Settings URI", "http.http2_settings_uri",
+		FT_BYTES, BASE_NONE, NULL, 0,
+		NULL, HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_http,
@@ -4106,7 +4136,8 @@ proto_register_http(void)
 		&ett_http_chunked_response,
 		&ett_http_chunk_data,
 		&ett_http_encoded_entity,
-		&ett_http_header_item
+		&ett_http_header_item,
+		&ett_http_http2_settings_item
 	};
 
 	static ei_register_info ei[] = {
