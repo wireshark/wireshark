@@ -620,12 +620,10 @@ fuzz-asan:
   extends: .fuzz-ubuntu
   stage: fuzz-asan
   script:
-    - JOB_START_SECS=$( date -d "$CI_JOB_STARTED_AT" +%s )
+    - MAX_SECONDS=$(( 4 * 60 * 60 ))
     - cmake -G Ninja -DBUILD_wireshark=OFF -DCMAKE_BUILD_TYPE=Debug -DENABLE_ASAN=ON -DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX ..
     - ninja
     - ninja install
-    # Run for 4 hours - build time - slop
-    - MAX_SECONDS=$(( 14400 - ( $( date +%s ) - $JOB_START_SECS ) - 300 ))
     - cd ..
     # /var/menagerie contains captures harvested from wireshark.org's mailing list, wiki, issues, etc.
     # We have more captures than we can fuzz in $MAX_SECONDS, so we shuffle them each run.
@@ -649,12 +647,10 @@ fuzz-valgrind:
   script:
     - DEBIAN_FRONTEND=noninteractive apt-get update
     - DEBIAN_FRONTEND=noninteractive apt-get --yes install valgrind
-    - JOB_START_SECS=$( date -d "$CI_JOB_STARTED_AT" +%s )
+    - MAX_SECONDS=$(( 3 * 60 * 60 ))
     - cmake -G Ninja -DBUILD_wireshark=OFF -DCMAKE_BUILD_TYPE=Debug -DENABLE_ASAN=OFF -DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX ..
     - ninja
     - ninja install
-    # Run for 3 hours - build time - slop
-    - MAX_SECONDS=$(( 10800 - ( $( date +%s ) - $JOB_START_SECS ) - 300 ))
     - cd ..
     - ./tools/fuzz-test.sh -g -P $MIN_PLUGINS -b $INSTALL_PREFIX/bin -d /tmp/fuzz -t $MAX_SECONDS $( shuf -e /var/menagerie/*/* ) 2> fuzz-test.err || echo "export FUZZ_PASSED=false" > /tmp/fuzz_result.sh
   needs: [ fuzz-randpkt ]
