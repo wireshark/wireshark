@@ -292,6 +292,9 @@ Documentation:
         - "epan/wslua/**"
       when: always
     - if: '$CI_PIPELINE_SOURCE == "push"'
+      changes:
+        - "docbook/**"
+        - "epan/wslua/**"
       when: manual
   script:
     # XXX We might want to move this to wireshark-ubuntu-dev or debian-setup.sh.
