@@ -97,7 +97,7 @@ variables:
     GIT_STRATEGY: none
 
 # Rely on fedora:latest and debian-stable jobs for testing a recent GCC version.
-clang-10:
+Clang 10:
   extends: .build-ubuntu
   rules: !reference [.if-merged]
   variables:
@@ -109,8 +109,7 @@ clang-10:
     paths:
       - dfilter-list-*.txt
 
-
-build:ubuntu-dist:
+Source Package:
   extends: .build-ubuntu
   rules: !reference [.if-merged]
   script:
@@ -127,7 +126,7 @@ build:ubuntu-dist:
     paths:
       - wireshark-*.tar.*
 
-build:rpm-centos-7:
+CentOS 7 RPM Package:
   extends: .build-rpm
   image: wireshark/wireshark-centos-7-dev
   script:
@@ -135,16 +134,15 @@ build:rpm-centos-7:
     - cd build
     - cmake3 -GNinja ..
     - ninja-build rpm-package
-test:rpm-centos-7:
+CentOS 7 RPM Test:
   extends: .test-rpm
   image: wireshark/wireshark-centos-7-dev
   script:
     - yum --nogpgcheck localinstall -y build/packaging/rpm/RPMS/x86_64/*.rpm
     - tshark --version
-  dependencies:
-    - build:rpm-centos-7
+  dependencies: [ 'CentOS 7 RPM Package' ]
 
-build:rpm-opensuse-15.1:
+openSUSE 15.1 RPM Package:
   extends: .build-rpm
   image: wireshark/wireshark-opensuse-15.1-dev
   script:
@@ -152,17 +150,16 @@ build:rpm-opensuse-15.1:
     - cd build
     - cmake -GNinja ..
     - ninja rpm-package
-test:rpm-opensuse-15.1:
+openSUSE 15.1 RPM Test:
   extends: .test-rpm
   image: wireshark/wireshark-opensuse-15.1-dev
   script:
     - zypper --no-gpg-checks install -y build/packaging/rpm/RPMS/x86_64/*.rpm
     - tshark --version
-  dependencies:
-    - build:rpm-opensuse-15.1
+  dependencies: [ 'openSUSE 15.1 RPM Package' ]
 
 # Disabled for now due to issues with Fedora 33.
-.build:rpm-fedora:
+.Fedora RPM Package:
   extends: .build-rpm
   image: wireshark/wireshark-fedora-dev
   script:
@@ -170,17 +167,16 @@ test:rpm-opensuse-15.1:
     - cd build
     - cmake3 -GNinja ..
     - ninja-build rpm-package
-# .test:rpm-fedora:
+# .Fedora RPM Test:
 #   extends: .test-rpm
 #   image: fedora
 #   script:
 #     - dnf install -y build/packaging/rpm/RPMS/x86_64/*.rpm
 #     - tshark --version
-#   dependencies:
-#     - build:rpm-fedora
+#   dependencies: [ 'Fedora RPM Package' ]
 
 # Job to generate packages for Debian stable
-build:debian-stable:
+Debian Stable APT Package:
   extends: .build
   rules: !reference [.if-merged]
   image: wireshark/wireshark-debian-stable-dev
@@ -197,7 +193,7 @@ build:debian-stable:
       - debian-packages/*.deb
     expire_in: 3 days
 
-merge-request:ubuntu-dpkg:
+Ubuntu .dpkg:
   extends: .build-ubuntu
   rules: !reference [.if-merge-request]
   tags:
@@ -210,7 +206,7 @@ merge-request:ubuntu-dpkg:
     - CC=/usr/lib/ccache/gcc CXX=/usr/lib/ccache/g++ dpkg-buildpackage -us -uc -rfakeroot -jauto -Zgzip -zfast
     - lintian --suppress-tags library-not-linked-against-libc,copyright-excludes-files-in-native-package --display-experimental --display-info --pedantic --profile debian
 
-merge-request:ubuntu-gcc-ctest:
+GCC Warnings:
   extends: .build-ubuntu
   rules: !reference [.if-merge-request]
   tags:
@@ -224,7 +220,7 @@ merge-request:ubuntu-gcc-ctest:
     - chown -R user .
     - su user -c "ctest --parallel 3 --force-new-ctest-process --verbose"
 
-merge-request:ubuntu-clang-other-tests:
+Code Checks + Clang Warnings:
   extends: .build-ubuntu
   rules: !reference [.if-merge-request]
   tags:
@@ -248,7 +244,7 @@ merge-request:ubuntu-clang-other-tests:
 # Dockerfile at https://github.com/wireshark/wireshark-windows-dev-docker.
 # XXX We currently depend on Qt being installed in C:\Qt on the host. We should
 # find a more independent way of installing Qt, e.g. via a download+cache.
-merge-request:windows:
+Windows Build:
   rules: !reference [.if-attached-merge-request]
   tags:
     - wireshark-windows-merge-req
