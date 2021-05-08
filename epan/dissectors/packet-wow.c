@@ -49,16 +49,6 @@ static const value_string cmd_vs[] = {
 	{ 0, NULL                                                          }
 };
 
-#if 0
-static const value_string account_type_vs[] = {
-	{ 0, "Player"        },
-	{ 1, "Moderator"     },
-	{ 2, "Game master"   },
-	{ 3, "Administrator" },
-	{ 0, NULL            }
-};
-#endif
-
 static const value_string realm_status_vs[] = {
 	{ 0, "Online"  },
 	{ 1, "Locked"  },
