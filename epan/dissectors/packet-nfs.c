@@ -401,6 +401,9 @@ static int hf_nfs4_aclsupport_deny_acl = -1;
 static int hf_nfs4_aclsupport_audit_acl = -1;
 static int hf_nfs4_aclsupport_alarm_acl = -1;
 static int hf_nfs4_fattr_lease_time = -1;
+static int hf_nfs4_fattr_fs_charset_cap = -1;
+static int hf_nfs4_fs_charset_cap_nonutf8 = -1;
+static int hf_nfs4_fs_charset_cap_utf8 = -1;
 static int hf_nfs4_fattr_fileid = -1;
 static int hf_nfs4_fattr_files_avail = -1;
 static int hf_nfs4_fattr_files_free = -1;
@@ -830,6 +833,7 @@ static gint ett_nfs4_open_result_flags = -1;
 static gint ett_nfs4_secinfo_flavor_info = -1;
 static gint ett_nfs4_stateid = -1;
 static gint ett_nfs4_fattr_fh_expire_type = -1;
+static gint ett_nfs4_fattr_fs_charset_cap = -1;
 static gint ett_nfs4_fattr_aclsupport = -1;
 static gint ett_nfs4_aclflag = -1;
 static gint ett_nfs4_ace = -1;
@@ -7000,6 +7004,25 @@ dissect_nfs4_fs_locations(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	return offset;
 }
 
+/* RFC5661 - '14.4. UTF-8 Capabilities' */
+#define FSCHARSET_CAP4_CONTAINS_NON_UTF8	0x00000001
+#define FSCHARSET_CAP4_ALLOWS_ONLY_UTF8		0x00000002
+
+static int
+dissect_nfs4_fattr_fs_charset_cap(tvbuff_t *tvb, int offset, proto_tree *tree)
+{
+	int * const fs_charset_cap_fields[] = {
+		&hf_nfs4_fs_charset_cap_nonutf8,
+		&hf_nfs4_fs_charset_cap_utf8,
+		NULL
+	};
+
+	proto_tree_add_bitmask(tree, tvb, offset, hf_nfs4_fattr_fs_charset_cap,
+		ett_nfs4_fattr_fs_charset_cap, fs_charset_cap_fields, ENC_BIG_ENDIAN);
+	offset += 4;
+
+	return offset;
+}
 
 static int
 dissect_nfs4_mode(tvbuff_t *tvb, int offset, proto_tree *tree)
@@ -7486,6 +7509,10 @@ dissect_nfs4_fattr_value(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		case FATTR4_OFFLINE:
 			offset = dissect_rpc_bool(tvb,
 				attr_tree, hf_nfs4_fattr_offline, offset);
+			break;
+
+		case FATTR4_FS_CHARSET_CAP:
+			offset = dissect_nfs4_fattr_fs_charset_cap(tvb, offset, attr_tree);
 			break;
 
 		default:
@@ -12965,6 +12992,18 @@ proto_register_nfs(void)
 			"context", "nfs.fattr4.security_label.context", FT_STRING, BASE_NONE,
 			NULL, 0, NULL, HFILL }},
 
+		{ &hf_nfs4_fattr_fs_charset_cap, {
+			"fs_charset_cap", "nfs.fattr4.fs_charset_cap", FT_UINT32, BASE_HEX,
+			NULL, 0, NULL, HFILL }},
+
+		{ &hf_nfs4_fs_charset_cap_nonutf8, {
+			"CONTAINS_NON_UTF8", "nfs.fattr4.fs_charset_cap.nonutf8", FT_BOOLEAN, 32,
+			NULL, FSCHARSET_CAP4_CONTAINS_NON_UTF8, NULL, HFILL }},
+
+		{ &hf_nfs4_fs_charset_cap_utf8, {
+			"ALLOWS_ONLY_UTF8", "nfs.fattr4.fs_charset_cap.utf8", FT_BOOLEAN, 32,
+			NULL, FSCHARSET_CAP4_ALLOWS_ONLY_UTF8, NULL, HFILL }},
+
 		{ &hf_nfs4_verifier, {
 			"verifier", "nfs.verifier4", FT_UINT64, BASE_HEX,
 			NULL, 0, NULL, HFILL }},
@@ -14430,6 +14469,7 @@ proto_register_nfs(void)
 		&ett_nfs4_stateid,
 		&ett_nfs4_fattr_fh_expire_type,
 		&ett_nfs4_fattr_aclsupport,
+		&ett_nfs4_fattr_fs_charset_cap,
 		&ett_nfs4_aclflag,
 		&ett_nfs4_ace,
 		&ett_nfs4_clientaddr,
