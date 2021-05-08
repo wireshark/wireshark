@@ -24,6 +24,7 @@ variables:
   GIT_DEPTH: "1"
   GIT_FETCH_EXTRA_FLAGS: "--depth=2000"
   CCACHE_DIR: "${CI_PROJECT_DIR}/ccache"
+  CLANG_VERSION: 10
 
 # Common rule stanzas
 # These must currently be including using "!reference tags". "extends:" and
@@ -113,8 +114,8 @@ Clang 10:
   extends: .build-ubuntu
   rules: !reference [.if-merged]
   variables:
-    CC: clang-10
-    CXX: clang++-10
+    CC: "clang-$CLANG_VERSION"
+    CXX: "clang++-$CLANG_VERSION"
   after_script:
     - build/run/tshark -G fields > dfilter-list-$( git describe --match "v*" | sed -e 's/^v//' ).txt
   artifacts:
@@ -238,8 +239,8 @@ Code Checks + Clang Warnings:
   tags:
     - docker
   variables:
-    CC: clang-10
-    CXX: clang++-10
+    CC: clang-$CLANG_VERSION
+    CXX: clang++-$CLANG_VERSION
   script:
     # build-ubuntu puts us in `build`.
     - cd ..
