@@ -615,6 +615,7 @@ static int hf_gtpv2_integer_number_val = -1;
 static int hf_gtpv2_maximum_wait_time = -1;
 static int hf_gtpv2_dl_buf_sug_pkt_cnt = -1;
 static int hf_gtpv2_ue_usage_type = -1;
+static int hf_gtpv2_rem_run_serv_gap_t = -1;
 static int hf_gtpv2_ran_nas_protocol_type = -1;
 static int hf_gtpv2_ran_nas_cause_type = -1;
 static int hf_gtpv2_ran_nas_cause_value = -1;
@@ -7452,12 +7453,23 @@ dissect_gtpv2_integer_number(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
         case GTPV2_FORWARD_RELOCATION_REQ:
         case GTPV2_CONTEXT_RESPONSE:
         case GTPV2_IDENTIFICATION_RESPONSE:
-            /* If the UE Usage Type is not available in the old MME/SGSN/AMF, the length field of this IE shall be set to 0. */
-            proto_item_append_text(item, "UE Usage Type");
-            if (length > 0) {
-                proto_tree_add_item(tree, hf_gtpv2_ue_usage_type, tvb, offset, length, ENC_BIG_ENDIAN);
-            }else{
-                proto_item_append_text(item, " not available in the old MME/SGSN/AMF");
+            switch (instance) {
+            case 0:
+                /* If the UE Usage Type is not available in the old MME/SGSN/AMF, the length field of this IE shall be set to 0. */
+                proto_item_append_text(item, "UE Usage Type");
+                if (length > 0) {
+                    proto_tree_add_item(tree, hf_gtpv2_ue_usage_type, tvb, offset, length, ENC_BIG_ENDIAN);
+                } else {
+                    proto_item_append_text(item, " not available in the old MME/SGSN/AMF");
+                }
+                break;
+            case 1:
+                /* Remaining Running Service Gap Timer */
+                proto_tree_add_item(tree, hf_gtpv2_rem_run_serv_gap_t, tvb, offset, length, ENC_BIG_ENDIAN);
+                break;
+            default:
+                proto_tree_add_item(tree, hf_gtpv2_integer_number_val, tvb, offset, length, ENC_BIG_ENDIAN);
+                break;
             }
             break;
         default:
@@ -11186,6 +11198,7 @@ void proto_register_gtpv2(void)
       { &hf_gtpv2_maximum_wait_time,{ "Maximum Wait Time", "gtpv2.maximum_wait_time", FT_UINT32, BASE_DEC | BASE_UNIT_STRING, &units_milliseconds, 0x0, NULL, HFILL } },
       { &hf_gtpv2_dl_buf_sug_pkt_cnt,{ "DL Buffering Suggested Packet Count", "gtpv2.dl_buf_sug_pkt_cnt", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
       { &hf_gtpv2_ue_usage_type,{ "UE Usage Type", "gtpv2.ue_usage_type", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+      { &hf_gtpv2_rem_run_serv_gap_t,{ "Remaining Running Service Gap Timer", "gtpv2.rem_run_serv_gap_t", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
       { &hf_gtpv2_ran_nas_protocol_type, {"RAN/NAS Protocol Type", "gtpv2.ran_nas.protocol_type", FT_UINT8, BASE_DEC, VALS(ran_nas_prot_type_vals), 0xF0, NULL, HFILL} },
       { &hf_gtpv2_ran_nas_cause_type, {"RAN/NAS S1AP Cause Type", "gtpv2.ran_nas.s1ap_type", FT_UINT8, BASE_DEC, VALS(s1ap_Cause_vals), 0x0F, NULL, HFILL} },
       { &hf_gtpv2_ran_nas_cause_value, {"RAN/NAS Cause Value", "gtpv2.ran_nas.cause_value", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL} },
