@@ -504,11 +504,19 @@ EarlyForwardingSNTransfer                N e1ap.proc.imsg id-earlyForwardingSNTr
 
 #.FN_BODY PLMN-Identity  VAL_PTR = &param_tvb
   tvbuff_t *param_tvb = NULL;
+  e1ap_private_data_t *e1ap_data = e1ap_get_private_data(actx->pinfo);
+  e212_number_type_t number_type = e1ap_data->number_type;
+  e1ap_data->number_type = E212_NONE;
 %(DEFAULT_BODY)s
   if (param_tvb) {
     proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_e1ap_PLMN_Identity);
-    dissect_e212_mcc_mnc(param_tvb, actx->pinfo, subtree, 0, E212_NONE, FALSE);
+    dissect_e212_mcc_mnc(param_tvb, actx->pinfo, subtree, 0, number_type, FALSE);
   }
+
+#.FN_BODY NR-CGI
+  e1ap_private_data_t *e1ap_data = e1ap_get_private_data(actx->pinfo);
+  e1ap_data->number_type = E212_NRCGI;
+%(DEFAULT_BODY)s
 
 #.TYPE_ATTR
 PortNumber TYPE = FT_UINT16 DISPLAY = BASE_DEC

@@ -80,6 +80,7 @@ typedef struct {
   guint32 procedure_code;
   guint32 protocol_ie_id;
   const char *obj_id;
+  e212_number_type_t number_type;
 } e1ap_private_data_t;
 
 /* Global variables */
