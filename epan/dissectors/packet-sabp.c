@@ -690,7 +690,7 @@ dissect_sabp_T_pLMNidentity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 	 if (!parameter_tvb)
 		return offset;
 	subtree = proto_item_add_subtree(actx->created_item, ett_sabp_e212);
-	dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, subtree, 0, E212_NONE, FALSE);
+	dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, subtree, 0, E212_SAI, FALSE);
 
 
 

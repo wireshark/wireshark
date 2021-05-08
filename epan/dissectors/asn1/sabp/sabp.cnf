@@ -165,7 +165,7 @@ Error-Indication                       N sabp.proc.imsg id-Error-Indication
 	 if (!parameter_tvb)
 		return offset;
 	subtree = proto_item_add_subtree(actx->created_item, ett_sabp_e212);
-	dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, subtree, 0, E212_NONE, FALSE);
+	dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, subtree, 0, E212_SAI, FALSE);
 
 #.FN_BODY Data-Coding-Scheme VAL_PTR = &parameter_tvb
  tvbuff_t *parameter_tvb=NULL;
