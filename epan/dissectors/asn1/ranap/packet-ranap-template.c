@@ -83,6 +83,7 @@ typedef struct ranap_private_data_t
 {
   guint32 transportLayerAddress_ipv4;
   guint16 binding_id_port;
+  e212_number_type_t number_type;
 } ranap_private_data_t;
 
 
