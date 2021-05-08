@@ -23,28 +23,30 @@ void proto_register_wow(void);
 void proto_reg_handoff_wow(void);
 
 typedef enum {
-	AUTH_LOGON_CHALLENGE = 0x00,
-	AUTH_LOGON_PROOF     = 0x01,
-	AUTH_LOGON_RECONNECT = 0x02,
-	REALM_LIST           = 0x10,
-	XFER_INITIATE        = 0x30,
-	XFER_DATA            = 0x31,
-	XFER_ACCEPT          = 0x32,
-	XFER_RESUME          = 0x33,
-	XFER_CANCEL          = 0x34
+	AUTH_LOGON_CHALLENGE       = 0x00,
+	AUTH_LOGON_PROOF           = 0x01,
+	AUTH_LOGON_RECONNECT       = 0x02,
+	AUTH_LOGON_RECONNECT_PROOF = 0x03,
+	REALM_LIST                 = 0x10,
+	XFER_INITIATE              = 0x30,
+	XFER_DATA                  = 0x31,
+	XFER_ACCEPT                = 0x32,
+	XFER_RESUME                = 0x33,
+	XFER_CANCEL                = 0x34
 } auth_cmd_e;
 
 static const value_string cmd_vs[] = {
-	{ AUTH_LOGON_CHALLENGE, "Authentication Logon Challenge"     },
-	{ AUTH_LOGON_PROOF,     "Authentication Logon Proof"         },
-	{ AUTH_LOGON_RECONNECT, "Authentication Reconnect Challenge" },
-	{ REALM_LIST,           "Realm List"                         },
-	{ XFER_INITIATE,        "Transfer Initiate"                  },
-	{ XFER_DATA,            "Transfer Data"                      },
-	{ XFER_ACCEPT,          "Transfer Accept"                    },
-	{ XFER_RESUME,          "Transfer Resume"                    },
-	{ XFER_CANCEL,          "Transfer Cancel"                    },
-	{ 0, NULL                                                    }
+	{ AUTH_LOGON_CHALLENGE,       "Authentication Logon Challenge"     },
+	{ AUTH_LOGON_PROOF,           "Authentication Logon Proof"         },
+	{ AUTH_LOGON_RECONNECT,       "Authentication Reconnect Challenge" },
+	{ AUTH_LOGON_RECONNECT_PROOF, "Authentication Reconnect Proof"     },
+	{ REALM_LIST,                 "Realm List"                         },
+	{ XFER_INITIATE,              "Transfer Initiate"                  },
+	{ XFER_DATA,                  "Transfer Data"                      },
+	{ XFER_ACCEPT,                "Transfer Accept"                    },
+	{ XFER_RESUME,                "Transfer Resume"                    },
+	{ XFER_CANCEL,                "Transfer Cancel"                    },
+	{ 0, NULL                                                          }
 };
 
 #if 0
@@ -118,6 +120,9 @@ static int hf_wow_srp_m2 = -1;
 
 static int hf_wow_challenge_data = -1;
 static int hf_wow_checksum_salt = -1;
+
+static int hf_wow_client_proof = -1;
+static int hf_wow_client_checksum = -1;
 
 static int hf_wow_num_realms = -1;
 static int hf_wow_realm_type = -1;
@@ -226,6 +231,34 @@ dissect_wow_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 		offset += 1;
 
 		switch(cmd) {
+
+		case AUTH_LOGON_RECONNECT_PROOF:
+			if (WOW_CLIENT_TO_SERVER) {
+				proto_tree_add_item(wow_tree, hf_wow_challenge_data, tvb,
+						    offset, 16, ENC_LITTLE_ENDIAN);
+				offset += 16;
+
+				proto_tree_add_item(wow_tree, hf_wow_client_proof, tvb,
+						    offset, 20, ENC_LITTLE_ENDIAN);
+				offset += 20;
+
+				proto_tree_add_item(wow_tree, hf_wow_client_checksum, tvb,
+						    offset, 20, ENC_LITTLE_ENDIAN);
+				offset += 20;
+
+				proto_tree_add_item(wow_tree, hf_wow_num_keys,
+						    tvb, offset, 1, ENC_LITTLE_ENDIAN);
+				offset += 1;
+
+			}
+			else if (WOW_SERVER_TO_CLIENT) {
+				proto_tree_add_item(wow_tree, hf_wow_error, tvb,
+						    offset, 1, ENC_LITTLE_ENDIAN);
+				offset += 1;
+
+			}
+
+			break;
 
 		case AUTH_LOGON_RECONNECT:
 			if (WOW_SERVER_TO_CLIENT) {
@@ -682,6 +715,16 @@ proto_register_wow(void)
 		  { "Reconnection Checksum Salt", "wow.reconnect_checksum_salt",
 		    FT_BYTES, BASE_NONE, 0, 0,
 		    "Unknown. Unused in 1.12", HFILL }
+		},
+		{ &hf_wow_client_proof,
+		  { "Reconnection Client Proof", "wow.reconnect_proof",
+		    FT_BYTES, BASE_NONE, 0, 0,
+		    "Client proof of knowing session key based on challenge data", HFILL }
+		},
+		{ &hf_wow_client_checksum,
+		  { "Reconnection Checksum", "wow.reconnect_checksum",
+		    FT_BYTES, BASE_NONE, 0, 0,
+		    NULL, HFILL }
 		},
 		{ &hf_wow_num_realms,
 		  { "Number of realms", "wow.num_realms",
