@@ -25,6 +25,7 @@ void proto_reg_handoff_wow(void);
 typedef enum {
 	AUTH_LOGON_CHALLENGE = 0x00,
 	AUTH_LOGON_PROOF     = 0x01,
+	AUTH_LOGON_RECONNECT = 0x02,
 	REALM_LIST           = 0x10,
 	XFER_INITIATE        = 0x30,
 	XFER_DATA            = 0x31,
@@ -34,15 +35,16 @@ typedef enum {
 } auth_cmd_e;
 
 static const value_string cmd_vs[] = {
-	{ AUTH_LOGON_CHALLENGE, "Authentication Logon Challenge" },
-	{ AUTH_LOGON_PROOF,     "Authentication Logon Proof"     },
-	{ REALM_LIST,           "Realm List"                     },
-	{ XFER_INITIATE,        "Transfer Initiate"              },
-	{ XFER_DATA,            "Transfer Data"                  },
-	{ XFER_ACCEPT,          "Transfer Accept"                },
-	{ XFER_RESUME,          "Transfer Resume"                },
-	{ XFER_CANCEL,          "Transfer Cancel"                },
-	{ 0, NULL                                                }
+	{ AUTH_LOGON_CHALLENGE, "Authentication Logon Challenge"     },
+	{ AUTH_LOGON_PROOF,     "Authentication Logon Proof"         },
+	{ AUTH_LOGON_RECONNECT, "Authentication Reconnect Challenge" },
+	{ REALM_LIST,           "Realm List"                         },
+	{ XFER_INITIATE,        "Transfer Initiate"                  },
+	{ XFER_DATA,            "Transfer Data"                      },
+	{ XFER_ACCEPT,          "Transfer Accept"                    },
+	{ XFER_RESUME,          "Transfer Resume"                    },
+	{ XFER_CANCEL,          "Transfer Cancel"                    },
+	{ 0, NULL                                                    }
 };
 
 #if 0
@@ -113,6 +115,9 @@ static int hf_wow_num_keys = -1;
 static int hf_wow_hardware_survey_id = -1;
 
 static int hf_wow_srp_m2 = -1;
+
+static int hf_wow_challenge_data = -1;
+static int hf_wow_checksum_salt = -1;
 
 static int hf_wow_num_realms = -1;
 static int hf_wow_realm_type = -1;
@@ -222,6 +227,26 @@ dissect_wow_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 
 		switch(cmd) {
 
+		case AUTH_LOGON_RECONNECT:
+			if (WOW_SERVER_TO_CLIENT) {
+				proto_tree_add_item(wow_tree, hf_wow_error, tvb,
+						    offset, 1, ENC_LITTLE_ENDIAN);
+				offset += 1;
+
+				proto_tree_add_item(wow_tree, hf_wow_challenge_data, tvb,
+						    offset, 16, ENC_LITTLE_ENDIAN);
+				offset += 16;
+
+				proto_tree_add_item(wow_tree, hf_wow_checksum_salt, tvb,
+						    offset, 16, ENC_LITTLE_ENDIAN);
+				offset += 16;
+
+				break;
+			}
+			__attribute__((fallthrough));
+			// If it's CLIENT_TO_SERVER we fallthrough.
+			// The packet is the same as AUTH_LOGON_CHALLENGE
+			// except for the cmd field.
 		case AUTH_LOGON_CHALLENGE :
 
 			if(WOW_CLIENT_TO_SERVER) {
@@ -647,6 +672,16 @@ proto_register_wow(void)
 		  { "SRP M2", "wow.srp.m2",
 		    FT_BYTES, BASE_NONE, 0, 0,
 		    "Secure Remote Password protocol 'M2' value", HFILL }
+		},
+		{ &hf_wow_challenge_data,
+		  { "Reconnection Challenge Data", "wow.reconnect_challenge_data",
+		    FT_BYTES, BASE_NONE, 0, 0,
+		    "Random data used for reconnection calculation", HFILL }
+		},
+		{ &hf_wow_checksum_salt,
+		  { "Reconnection Checksum Salt", "wow.reconnect_checksum_salt",
+		    FT_BYTES, BASE_NONE, 0, 0,
+		    "Unknown. Unused in 1.12", HFILL }
 		},
 		{ &hf_wow_num_realms,
 		  { "Number of realms", "wow.num_realms",
