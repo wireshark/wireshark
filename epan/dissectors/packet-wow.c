@@ -49,7 +49,7 @@ static const value_string cmd_vs[] = {
 	{ 0, NULL                                                          }
 };
 
-static const value_string realm_status_vs[] = {
+static const value_string realm_flags_vs[] = {
 	{ 0, "Online"  },
 	{ 1, "Locked"  },
 	{ 2, "Offline" },
@@ -116,7 +116,7 @@ static int hf_wow_client_checksum = -1;
 
 static int hf_wow_num_realms = -1;
 static int hf_wow_realm_type = -1;
-static int hf_wow_realm_status = -1;
+static int hf_wow_realm_flags = -1;
 static int hf_wow_realm_color = -1;
 static int hf_wow_realm_name = -1;
 static int hf_wow_realm_socket = -1;
@@ -198,7 +198,7 @@ dissect_wow_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 
 	gchar *string, *realm_name;
 	guint8 cmd, srp_i_len, srp_g_len, srp_n_len;
-	guint16 num_realms;
+	guint8 num_realms;
 	guint32 offset = 0;
 	gint len, ii;
 
@@ -456,13 +456,13 @@ dissect_wow_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 				offset += 4; /* Unknown field; always 0 */
 
 				proto_tree_add_item(wow_tree, hf_wow_num_realms,
-						    tvb, offset, 2, ENC_LITTLE_ENDIAN);
-				num_realms = tvb_get_letohs(tvb, offset);
-				offset += 2;
+						    tvb, offset, 1, ENC_LITTLE_ENDIAN);
+				num_realms = tvb_get_guint8(tvb, offset);
+				offset += 1;
 
 				for(ii = 0; ii < num_realms; ii++) {
 					realm_name = tvb_get_stringz_enc(wmem_packet_scope(), tvb,
-								     offset + 3,
+								     offset + 5,
 								     &len, ENC_ASCII);
 
 					wow_realms_tree = proto_tree_add_subtree(wow_tree, tvb,
@@ -470,13 +470,10 @@ dissect_wow_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 								 ett_wow_realms, NULL,
 								 realm_name);
 
-					proto_tree_add_item(wow_realms_tree, hf_wow_realm_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-					offset += 1;
+					proto_tree_add_item(wow_realms_tree, hf_wow_realm_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+					offset += 4;
 
-					proto_tree_add_item(wow_realms_tree, hf_wow_realm_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-					offset += 1;
-
-					proto_tree_add_item(wow_realms_tree, hf_wow_realm_color, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+					proto_tree_add_item(wow_realms_tree, hf_wow_realm_flags, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 					offset += 1;
 
 					proto_tree_add_string(wow_realms_tree, hf_wow_realm_name, tvb, offset, len, realm_name);
@@ -493,12 +490,16 @@ dissect_wow_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 					proto_tree_add_item(wow_realms_tree, hf_wow_realm_num_characters, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 					offset += 1;
 
+					proto_tree_add_item(wow_realms_tree, hf_wow_realm_color, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+					offset += 1;
+
 					proto_tree_add_item(wow_realms_tree, hf_wow_realm_timezone, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 					offset += 1;
 
-					offset += 1; /* Unknown field */
 				}
 
+				/* Footer is always 2 bytes */
+				offset += 2;
 				break;
 			}
 		}
@@ -726,9 +727,9 @@ proto_register_wow(void)
 		    FT_UINT8, BASE_DEC, VALS(realm_type_vs), 0,
 		    "Also known as realm icon", HFILL }
 		},
-		{ &hf_wow_realm_status,
-		  { "Status", "wow.realm_status",
-		    FT_UINT8, BASE_DEC, VALS(realm_status_vs), 0,
+		{ &hf_wow_realm_flags,
+		  { "Status", "wow.realm_flags",
+		    FT_UINT8, BASE_DEC, VALS(realm_flags_vs), 0,
 		    NULL, HFILL }
 		},
 		{ &hf_wow_realm_color,
