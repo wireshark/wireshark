@@ -118,7 +118,8 @@ private:
     QMenu ctx_menu_;
     QCPItemText *key_text_;
     QCPItemText *comment_text_;
-    seq_analysis_item_t *current_rtp_sai_;     // Used for passing current sai to rtp processing
+    seq_analysis_item_t *current_rtp_sai_selected_;     // Used for passing current sai to rtp processing
+    seq_analysis_item_t *current_rtp_sai_hovered_;     // Used for passing current sai to rtp processing
     QPointer<RtpStreamDialog> rtp_stream_dialog_;       // Singleton pattern used
     bool voipFeaturesEnabled;
 
@@ -129,6 +130,7 @@ private:
 
     static gboolean addFlowSequenceItem(const void *key, void *value, void *userdata);
 
+    void processRtpStream(bool select);
     QVector<rtpstream_id_t *>getSelectedRtpIds();
 };
 

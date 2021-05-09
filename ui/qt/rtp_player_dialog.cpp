@@ -131,6 +131,22 @@ public:
     }
 };
 
+
+RtpPlayerDialog *RtpPlayerDialog::pinstance_{nullptr};
+std::mutex RtpPlayerDialog::mutex_;
+
+RtpPlayerDialog *RtpPlayerDialog::openRtpPlayerDialog(QWidget &parent, CaptureFile &cf, QObject *packet_list, bool capture_running)
+{
+    std::lock_guard<std::mutex> lock(mutex_);
+    if (pinstance_ == nullptr)
+    {
+        pinstance_ = new RtpPlayerDialog(parent, cf, capture_running);
+        connect(pinstance_, SIGNAL(goToPacket(int)),
+                packet_list, SLOT(goToPacket(int)));
+    }
+    return pinstance_;
+}
+
 RtpPlayerDialog::RtpPlayerDialog(QWidget &parent, CaptureFile &cf, bool capture_running) :
     WiresharkDialog(parent, cf)
 #ifdef QT_MULTIMEDIA_LIB
@@ -306,6 +322,14 @@ RtpPlayerDialog::RtpPlayerDialog(QWidget &parent, CaptureFile &cf, bool capture_
 
     connect(&cap_file_, SIGNAL(captureEvent(CaptureEvent)),
             this, SLOT(captureEvent(CaptureEvent)));
+    connect(this, SIGNAL(updateFilter(QString, bool)),
+            &parent, SLOT(filterPackets(QString, bool)));
+    connect(this, SIGNAL(rtpAnalysisDialogReplaceRtpStreams(QVector<rtpstream_id_t *>)),
+            &parent, SLOT(rtpAnalysisDialogReplaceRtpStreams(QVector<rtpstream_id_t *>)));
+    connect(this, SIGNAL(rtpAnalysisDialogAddRtpStreams(QVector<rtpstream_id_t *>)),
+            &parent, SLOT(rtpAnalysisDialogAddRtpStreams(QVector<rtpstream_id_t *>)));
+    connect(this, SIGNAL(rtpAnalysisDialogRemoveRtpStreams(QVector<rtpstream_id_t *>)),
+            &parent, SLOT(rtpAnalysisDialogRemoveRtpStreams(QVector<rtpstream_id_t *>)));
 #endif // QT_MULTIMEDIA_LIB
 }
 
@@ -352,6 +376,7 @@ QToolButton *RtpPlayerDialog::addPlayerButton(QDialogButtonBox *button_box, QDia
 #ifdef QT_MULTIMEDIA_LIB
 RtpPlayerDialog::~RtpPlayerDialog()
 {
+    std::lock_guard<std::mutex> lock(mutex_);
     cleanupMarkerStream();
     for (int row = 0; row < ui->streamTreeWidget->topLevelItemCount(); row++) {
         QTreeWidgetItem *ti = ui->streamTreeWidget->topLevelItem(row);
@@ -360,6 +385,7 @@ RtpPlayerDialog::~RtpPlayerDialog()
             delete audio_stream;
     }
     delete ui;
+    pinstance_ = nullptr;
 }
 
 void RtpPlayerDialog::accept()
@@ -746,6 +772,7 @@ void RtpPlayerDialog::unlockUI()
 
 void RtpPlayerDialog::replaceRtpStreams(QVector<rtpstream_id_t *> stream_ids)
 {
+    std::lock_guard<std::mutex> lock(mutex_);
     lockUI();
 
     // Delete all existing rows
@@ -773,6 +800,7 @@ void RtpPlayerDialog::replaceRtpStreams(QVector<rtpstream_id_t *> stream_ids)
 
 void RtpPlayerDialog::addRtpStreams(QVector<rtpstream_id_t *> stream_ids)
 {
+    std::lock_guard<std::mutex> lock(mutex_);
     lockUI();
 
     int tli_count = ui->streamTreeWidget->topLevelItemCount();
@@ -794,6 +822,7 @@ void RtpPlayerDialog::addRtpStreams(QVector<rtpstream_id_t *> stream_ids)
 
 void RtpPlayerDialog::removeRtpStreams(QVector<rtpstream_id_t *> stream_ids)
 {
+    std::lock_guard<std::mutex> lock(mutex_);
     lockUI();
     int tli_count = ui->streamTreeWidget->topLevelItemCount();
 

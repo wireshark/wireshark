@@ -239,6 +239,21 @@ enum {
     num_graphs_
 };
 
+RtpAnalysisDialog *RtpAnalysisDialog::pinstance_{nullptr};
+std::mutex RtpAnalysisDialog::mutex_;
+
+RtpAnalysisDialog *RtpAnalysisDialog::openRtpAnalysisDialog(QWidget &parent, CaptureFile &cf, QObject *packet_list)
+{
+    std::lock_guard<std::mutex> lock(mutex_);
+    if (pinstance_ == nullptr)
+    {
+        pinstance_ = new RtpAnalysisDialog(parent, cf);
+        connect(pinstance_, SIGNAL(goToPacket(int)),
+                packet_list, SLOT(goToPacket(int)));
+    }
+    return pinstance_;
+}
+
 RtpAnalysisDialog::RtpAnalysisDialog(QWidget &parent, CaptureFile &cf) :
     WiresharkDialog(parent, cf),
     ui(new Ui::RtpAnalysisDialog),
@@ -285,6 +300,14 @@ RtpAnalysisDialog::RtpAnalysisDialog(QWidget &parent, CaptureFile &cf) :
             this, SLOT(updateWidgets()));
     connect(ui->tabWidget->tabBar(), SIGNAL(tabCloseRequested(int)),
             this, SLOT(closeTab(int)));
+    connect(this, SIGNAL(updateFilter(QString, bool)),
+            &parent, SLOT(filterPackets(QString, bool)));
+    connect(this, SIGNAL(rtpPlayerDialogReplaceRtpStreams(QVector<rtpstream_id_t *>)),
+            &parent, SLOT(rtpPlayerDialogReplaceRtpStreams(QVector<rtpstream_id_t *>)));
+    connect(this, SIGNAL(rtpPlayerDialogAddRtpStreams(QVector<rtpstream_id_t *>)),
+            &parent, SLOT(rtpPlayerDialogAddRtpStreams(QVector<rtpstream_id_t *>)));
+    connect(this, SIGNAL(rtpPlayerDialogRemoveRtpStreams(QVector<rtpstream_id_t *>)),
+            &parent, SLOT(rtpPlayerDialogRemoveRtpStreams(QVector<rtpstream_id_t *>)));
 
     updateWidgets();
 
@@ -293,11 +316,13 @@ RtpAnalysisDialog::RtpAnalysisDialog(QWidget &parent, CaptureFile &cf) :
 
 RtpAnalysisDialog::~RtpAnalysisDialog()
 {
+    std::lock_guard<std::mutex> lock(mutex_);
     delete ui;
     for(int i=0; i<tabs_.count(); i++) {
         deleteTabInfo(tabs_[i]);
         g_free(tabs_[i]);
     }
+    pinstance_ = nullptr;
 }
 
 void RtpAnalysisDialog::deleteTabInfo(tab_info_t *tab_info)
@@ -970,6 +995,7 @@ void RtpAnalysisDialog::showStreamMenu(QPoint pos)
 
 void RtpAnalysisDialog::replaceRtpStreams(QVector<rtpstream_id_t *> stream_ids)
 {
+    std::lock_guard<std::mutex> lock(mutex_);
     // Delete existing tabs (from last to first)
     if (tabs_.count() > 0) {
         for(int i=tabs_.count(); i>0; i--) {
@@ -981,6 +1007,7 @@ void RtpAnalysisDialog::replaceRtpStreams(QVector<rtpstream_id_t *> stream_ids)
 
 void RtpAnalysisDialog::addRtpStreams(QVector<rtpstream_id_t *> stream_ids)
 {
+    std::lock_guard<std::mutex> lock(mutex_);
     addRtpStreamsPrivate(stream_ids);
 }
 
@@ -1031,6 +1058,7 @@ void RtpAnalysisDialog::addRtpStreamsPrivate(QVector<rtpstream_id_t *> stream_id
 
 void RtpAnalysisDialog::removeRtpStreams(QVector<rtpstream_id_t *> stream_ids)
 {
+    std::lock_guard<std::mutex> lock(mutex_);
     setUpdatesEnabled(false);
     foreach(rtpstream_id_t *id, stream_ids) {
         QList<tab_info_t *> tabs = tab_hash_.values(rtpstream_id_to_hash(id));

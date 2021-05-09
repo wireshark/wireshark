@@ -259,6 +259,24 @@ private:
     gboolean tod_;
 };
 
+
+RtpStreamDialog *RtpStreamDialog::pinstance_{nullptr};
+std::mutex RtpStreamDialog::mutex_;
+
+RtpStreamDialog *RtpStreamDialog::openRtpStreamDialog(QWidget &parent, CaptureFile &cf, QObject *packet_list)
+{
+    std::lock_guard<std::mutex> lock(mutex_);
+    if (pinstance_ == nullptr)
+    {
+        pinstance_ = new RtpStreamDialog(parent, cf);
+        connect(pinstance_, SIGNAL(packetsMarked()),
+                packet_list, SLOT(redrawVisiblePackets()));
+        connect(pinstance_, SIGNAL(goToPacket(int)),
+                packet_list, SLOT(goToPacket(int)));
+    }
+    return pinstance_;
+}
+
 RtpStreamDialog::RtpStreamDialog(QWidget &parent, CaptureFile &cf) :
     WiresharkDialog(parent, cf),
     ui(new Ui::RtpStreamDialog),
@@ -334,6 +352,23 @@ RtpStreamDialog::RtpStreamDialog(QWidget &parent, CaptureFile &cf) :
         ui->displayFilterCheckBox->setChecked(true);
     }
 
+    connect(this, SIGNAL(updateFilter(QString, bool)),
+            &parent, SLOT(filterPackets(QString, bool)));
+    connect(&parent, SIGNAL(displayFilterSuccess(bool)),
+            this, SLOT(displayFilterSuccess(bool)));
+    connect(this, SIGNAL(rtpPlayerDialogReplaceRtpStreams(QVector<rtpstream_id_t *>)),
+            &parent, SLOT(rtpPlayerDialogReplaceRtpStreams(QVector<rtpstream_id_t *>)));
+    connect(this, SIGNAL(rtpPlayerDialogAddRtpStreams(QVector<rtpstream_id_t *>)),
+            &parent, SLOT(rtpPlayerDialogAddRtpStreams(QVector<rtpstream_id_t *>)));
+    connect(this, SIGNAL(rtpPlayerDialogRemoveRtpStreams(QVector<rtpstream_id_t *>)),
+            &parent, SLOT(rtpPlayerDialogRemoveRtpStreams(QVector<rtpstream_id_t *>)));
+    connect(this, SIGNAL(rtpAnalysisDialogReplaceRtpStreams(QVector<rtpstream_id_t *>)),
+            &parent, SLOT(rtpAnalysisDialogReplaceRtpStreams(QVector<rtpstream_id_t *>)));
+    connect(this, SIGNAL(rtpAnalysisDialogAddRtpStreams(QVector<rtpstream_id_t *>)),
+            &parent, SLOT(rtpAnalysisDialogAddRtpStreams(QVector<rtpstream_id_t *>)));
+    connect(this, SIGNAL(rtpAnalysisDialogRemoveRtpStreams(QVector<rtpstream_id_t *>)),
+            &parent, SLOT(rtpAnalysisDialogRemoveRtpStreams(QVector<rtpstream_id_t *>)));
+
     /* Scan for RTP streams (redissect all packets) */
     rtpstream_scan(&tapinfo_, cf.capFile(), NULL);
 
@@ -342,9 +377,11 @@ RtpStreamDialog::RtpStreamDialog(QWidget &parent, CaptureFile &cf) :
 
 RtpStreamDialog::~RtpStreamDialog()
 {
+    std::lock_guard<std::mutex> lock(mutex_);
     freeLastSelected();
     delete ui;
     remove_tap_listener_rtpstream(&tapinfo_);
+    pinstance_ = nullptr;
 }
 
 void RtpStreamDialog::setRtpStreamSelection(rtpstream_id_t *id, bool state)
@@ -364,6 +401,7 @@ void RtpStreamDialog::setRtpStreamSelection(rtpstream_id_t *id, bool state)
 
 void RtpStreamDialog::selectRtpStream(QVector<rtpstream_id_t *> stream_ids)
 {
+    std::lock_guard<std::mutex> lock(mutex_);
     foreach(rtpstream_id_t *id, stream_ids) {
         setRtpStreamSelection(id, true);
     }
@@ -371,6 +409,7 @@ void RtpStreamDialog::selectRtpStream(QVector<rtpstream_id_t *> stream_ids)
 
 void RtpStreamDialog::deselectRtpStream(QVector<rtpstream_id_t *> stream_ids)
 {
+    std::lock_guard<std::mutex> lock(mutex_);
     foreach(rtpstream_id_t *id, stream_ids) {
         setRtpStreamSelection(id, false);
     }

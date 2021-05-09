@@ -13,12 +13,14 @@
 #include "config.h"
 
 #include <glib.h>
+#include <mutex>
 
 #include "ui/rtp_stream.h"
 
 #include "wireshark_dialog.h"
 #include "rtp_audio_stream.h"
 
+#include <QWidget>
 #include <QMap>
 #include <QMultiHash>
 #include <QTreeWidgetItem>
@@ -54,6 +56,7 @@ typedef enum {
     save_mode_sync_file
 } save_mode_t;
 
+// Singleton by https://refactoring.guru/design-patterns/singleton/cpp/example#example-1
 class RtpPlayerDialog : public WiresharkDialog
 {
     Q_OBJECT
@@ -62,7 +65,16 @@ class RtpPlayerDialog : public WiresharkDialog
 #endif
 
 public:
-    explicit RtpPlayerDialog(QWidget &parent, CaptureFile &cf, bool capture_running);
+    /**
+     * Returns singleton
+     */
+    static RtpPlayerDialog *openRtpPlayerDialog(QWidget &parent, CaptureFile &cf, QObject *packet_list, bool capture_running);
+
+    /**
+     * Should not be clonnable and assignable
+     */
+    RtpPlayerDialog(RtpPlayerDialog &other) = delete;
+    void operator=(const RtpPlayerDialog &) = delete;
 
     /**
      * @brief Common routine to add a "Play call" button to a QDialogButtonBox.
@@ -72,8 +84,6 @@ public:
     static QToolButton *addPlayerButton(QDialogButtonBox *button_box, QDialog *dialog);
 
 #ifdef QT_MULTIMEDIA_LIB
-    ~RtpPlayerDialog();
-
     void accept();
     void reject();
 
@@ -107,6 +117,9 @@ public slots:
     void rtpAnalysisRemove();
 
 protected:
+    explicit RtpPlayerDialog(QWidget &parent, CaptureFile &cf, bool capture_running);
+    ~RtpPlayerDialog();
+
     virtual void showEvent(QShowEvent *);
     void contextMenuEvent(QContextMenuEvent *event);
     bool eventFilter(QObject *obj, QEvent *event);
@@ -182,6 +195,9 @@ private slots:
     void on_actionReadCapture_triggered();
 
 private:
+    static RtpPlayerDialog *pinstance_;
+    static std::mutex mutex_;
+
     Ui::RtpPlayerDialog *ui;
     QMenu *graph_ctx_menu_;
     QMenu *list_ctx_menu_;

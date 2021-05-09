@@ -42,8 +42,37 @@
 
 enum { voip_calls_type_ = 1000 };
 
+VoipCallsDialog *VoipCallsDialog::pinstance_voip_{nullptr};
+VoipCallsDialog *VoipCallsDialog::pinstance_sip_{nullptr};
+std::mutex VoipCallsDialog::mutex_;
+
+VoipCallsDialog *VoipCallsDialog::openVoipCallsDialogVoip(QWidget &parent, CaptureFile &cf, QObject *packet_list)
+{
+    std::lock_guard<std::mutex> lock(mutex_);
+    if (pinstance_voip_ == nullptr)
+    {
+        pinstance_voip_ = new VoipCallsDialog(parent, cf, false);
+        connect(pinstance_voip_, SIGNAL(goToPacket(int)),
+                packet_list, SLOT(goToPacket(int)));
+    }
+    return pinstance_voip_;
+}
+
+VoipCallsDialog *VoipCallsDialog::openVoipCallsDialogSip(QWidget &parent, CaptureFile &cf, QObject *packet_list)
+{
+    std::lock_guard<std::mutex> lock(mutex_);
+    if (pinstance_sip_ == nullptr)
+    {
+        pinstance_sip_ = new VoipCallsDialog(parent, cf, true);
+        connect(pinstance_sip_, SIGNAL(goToPacket(int)),
+                packet_list, SLOT(goToPacket(int)));
+    }
+    return pinstance_sip_;
+}
+
 VoipCallsDialog::VoipCallsDialog(QWidget &parent, CaptureFile &cf, bool all_flows) :
     WiresharkDialog(parent, cf),
+    all_flows_(all_flows),
     ui(new Ui::VoipCallsDialog),
     parent_(parent),
     voip_calls_tap_listeners_removed_(false)
@@ -64,7 +93,7 @@ VoipCallsDialog::VoipCallsDialog(QWidget &parent, CaptureFile &cf, bool all_flow
     connect(ui->callTreeView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
             this, SLOT(updateWidgets()));
     ui->callTreeView->sortByColumn(VoipCallsInfoModel::StartTime, Qt::AscendingOrder);
-    setWindowSubtitle(all_flows ? tr("SIP Flows") : tr("VoIP Calls"));
+    setWindowSubtitle(all_flows_ ? tr("SIP Flows") : tr("VoIP Calls"));
 
     sequence_button_ = ui->buttonBox->addButton(ui->actionFlowSequence->text(), QDialogButtonBox::ActionRole);
     sequence_button_->setToolTip(ui->actionFlowSequence->toolTip());
@@ -96,7 +125,7 @@ VoipCallsDialog::VoipCallsDialog(QWidget &parent, CaptureFile &cf, bool all_flow
     tapinfo_.tap_data = this;
     tapinfo_.callsinfos = g_queue_new();
     tapinfo_.h225_cstype = H225_OTHER;
-    tapinfo_.fs_option = all_flows ? FLOW_ALL : FLOW_ONLY_INVITES; /* flow show option */
+    tapinfo_.fs_option = all_flows_ ? FLOW_ALL : FLOW_ONLY_INVITES; /* flow show option */
     tapinfo_.graph_analysis = sequence_analysis_info_new();
     tapinfo_.graph_analysis->name = "voip";
     sequence_info_ = new SequenceInfo(tapinfo_.graph_analysis);
@@ -108,6 +137,17 @@ VoipCallsDialog::VoipCallsDialog(QWidget &parent, CaptureFile &cf, bool all_flow
         tapinfo_.apply_display_filter = true;
         ui->displayFilterCheckBox->setChecked(true);
     }
+
+    connect(this, SIGNAL(updateFilter(QString, bool)),
+            &parent, SLOT(filterPackets(QString, bool)));
+    connect(&parent, SIGNAL(displayFilterSuccess(bool)),
+            this, SLOT(displayFilterSuccess(bool)));
+    connect(this, SIGNAL(rtpPlayerDialogReplaceRtpStreams(QVector<rtpstream_id_t *>)),
+            &parent, SLOT(rtpPlayerDialogReplaceRtpStreams(QVector<rtpstream_id_t *>)));
+    connect(this, SIGNAL(rtpPlayerDialogAddRtpStreams(QVector<rtpstream_id_t *>)),
+            &parent, SLOT(rtpPlayerDialogAddRtpStreams(QVector<rtpstream_id_t *>)));
+    connect(this, SIGNAL(rtpPlayerDialogRemoveRtpStreams(QVector<rtpstream_id_t *>)),
+            &parent, SLOT(rtpPlayerDialogRemoveRtpStreams(QVector<rtpstream_id_t *>)));
 
     updateWidgets();
 
@@ -155,6 +195,7 @@ bool VoipCallsDialog::eventFilter(QObject *, QEvent *event)
 
 VoipCallsDialog::~VoipCallsDialog()
 {
+    std::lock_guard<std::mutex> lock(mutex_);
     delete ui;
 
     voip_calls_reset_all_taps(&tapinfo_);
@@ -168,6 +209,11 @@ VoipCallsDialog::~VoipCallsDialog()
     // with tapinfo_.callsinfos and was cleared
     // during voip_calls_reset_all_taps
     g_queue_free(shown_callsinfos_);
+    if (all_flows_) {
+        pinstance_sip_ = nullptr;
+    } else {
+        pinstance_voip_ = nullptr;
+    }
 }
 
 void VoipCallsDialog::removeTapListeners()

@@ -247,12 +247,6 @@ private:
 
     QWidget* getLayoutWidget(layout_pane_content_e type);
 
-    QPointer<RtpStreamDialog> rtp_stream_dialog_;       // Singleton pattern used
-    QPointer<VoipCallsDialog> voip_calls_dialog_;       // Singleton pattern used
-    QPointer<VoipCallsDialog> sip_calls_dialog_;        // Singleton pattern used
-    QPointer<RtpPlayerDialog> rtp_player_dialog_;       // Singleton pattern used
-    QPointer<RtpAnalysisDialog> rtp_analysis_dialog_;   // Singleton pattern used
-
     void freeze();
     void thaw();
 
@@ -685,10 +679,11 @@ private slots:
     void on_actionStatisticsHpfeeds_triggered();
     void on_actionStatisticsHTTP2_triggered();
 
-    void openTelephonyRtpStreamsDialog();
-    void openTelephonyRtpPlayerDialog();
-    void openTelephonyVoipCallsDialog(bool all_flows);
-    void openTelephonyRtpAnalysisDialog();
+    RtpStreamDialog *openTelephonyRtpStreamsDialog();
+    RtpPlayerDialog *openTelephonyRtpPlayerDialog();
+    VoipCallsDialog *openTelephonyVoipCallsDialogVoip();
+    VoipCallsDialog *openTelephonyVoipCallsDialogSip();
+    RtpAnalysisDialog *openTelephonyRtpAnalysisDialog();
     void on_actionTelephonyVoipCalls_triggered();
     void on_actionTelephonyGsmMapSummary_triggered();
     void statCommandLteMacStatistics(const char *arg, void *);

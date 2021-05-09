@@ -339,7 +339,7 @@ void SequenceDialog::yAxisChanged(QCPRange range)
 
 void SequenceDialog::diagramClicked(QMouseEvent *event)
 {
-    current_rtp_sai_ = NULL;
+    current_rtp_sai_selected_ = NULL;
     if (event) {
         seq_analysis_item_t *sai = seq_diagram_->itemForPosY(event->pos().y());
         if (voipFeaturesEnabled) {
@@ -351,7 +351,7 @@ void SequenceDialog::diagramClicked(QMouseEvent *event)
                     ui->actionSelectRtpStreams->setEnabled(true && !file_closed_);
                     ui->actionDeselectRtpStreams->setEnabled(true && !file_closed_);
                     player_button_->setEnabled(true && !file_closed_);
-                    current_rtp_sai_ = sai;
+                    current_rtp_sai_selected_ = sai;
                 }
             }
         }
@@ -371,7 +371,7 @@ void SequenceDialog::diagramClicked(QMouseEvent *event)
 
 void SequenceDialog::mouseMoved(QMouseEvent *event)
 {
-    current_rtp_sai_ = NULL;
+    current_rtp_sai_hovered_ = NULL;
     packet_num_ = 0;
     QString hint;
     if (event) {
@@ -380,7 +380,7 @@ void SequenceDialog::mouseMoved(QMouseEvent *event)
             if (GA_INFO_TYPE_RTP == sai->info_type) {
                 ui->actionSelectRtpStreams->setEnabled(true);
                 ui->actionDeselectRtpStreams->setEnabled(true);
-                current_rtp_sai_ = sai;
+                current_rtp_sai_hovered_ = sai;
             }
             packet_num_ = sai->frame_number;
             QString raw_comment = html_escape(sai->comment);
@@ -752,28 +752,39 @@ void SequenceDialog::on_actionZoomOut_triggered()
     zoomXAxis(false);
 }
 
-void SequenceDialog::on_actionSelectRtpStreams_triggered()
+void SequenceDialog::processRtpStream(bool select)
 {
-    if (current_rtp_sai_ && GA_INFO_TYPE_RTP == current_rtp_sai_->info_type) {
+    seq_analysis_item_t *current_rtp_sai = NULL;
+
+    // If RTP sai is below mouse, use it. If not, try selected RTP sai
+    if (current_rtp_sai_hovered_ && GA_INFO_TYPE_RTP == current_rtp_sai_hovered_->info_type) {
+        current_rtp_sai = current_rtp_sai_hovered_;
+    } else if (current_rtp_sai_selected_ && GA_INFO_TYPE_RTP == current_rtp_sai_selected_->info_type) {
+        current_rtp_sai = current_rtp_sai_selected_;
+    }
+
+    if (current_rtp_sai) {
         QVector<rtpstream_id_t *> stream_ids;
 
         // We don't need copy it as it is not cleared during retap
-        stream_ids << &((rtpstream_info_t *)current_rtp_sai_->info_ptr)->id;
-        emit rtpStreamsDialogSelectRtpStreams(stream_ids);
+        stream_ids << &((rtpstream_info_t *)current_rtp_sai->info_ptr)->id;
+        if (select) {
+            emit rtpStreamsDialogSelectRtpStreams(stream_ids);
+        } else {
+            emit rtpStreamsDialogDeselectRtpStreams(stream_ids);
+        }
         raise();
     }
 }
 
+void SequenceDialog::on_actionSelectRtpStreams_triggered()
+{
+    processRtpStream(true);
+}
+
 void SequenceDialog::on_actionDeselectRtpStreams_triggered()
 {
-    if (current_rtp_sai_ && GA_INFO_TYPE_RTP == current_rtp_sai_->info_type) {
-        QVector<rtpstream_id_t *> stream_ids;
-
-        // We don't need copy it as it is not cleared during retap
-        stream_ids << &((rtpstream_info_t *)current_rtp_sai_->info_ptr)->id;
-        emit rtpStreamsDialogDeselectRtpStreams(stream_ids);
-        raise();
-    }
+    processRtpStream(false);
 }
 
 void SequenceDialog::zoomXAxis(bool in)
@@ -814,8 +825,8 @@ QVector<rtpstream_id_t *>SequenceDialog::getSelectedRtpIds()
 {
     QVector<rtpstream_id_t *> stream_ids;
 
-    if (current_rtp_sai_ && GA_INFO_TYPE_RTP == current_rtp_sai_->info_type) {
-        stream_ids << &((rtpstream_info_t *)current_rtp_sai_->info_ptr)->id;
+    if (current_rtp_sai_selected_ && GA_INFO_TYPE_RTP == current_rtp_sai_selected_->info_type) {
+        stream_ids << &((rtpstream_info_t *)current_rtp_sai_selected_->info_ptr)->id;
     }
 
     return stream_ids;

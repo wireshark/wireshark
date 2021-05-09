@@ -13,6 +13,7 @@
 #include <config.h>
 
 #include <glib.h>
+#include <mutex>
 
 #include "epan/address.h"
 
@@ -57,13 +58,23 @@ typedef struct {
     QCheckBox *delta_checkbox;
 } tab_info_t;
 
+// Singleton by https://refactoring.guru/design-patterns/singleton/cpp/example#example-1
 class RtpAnalysisDialog : public WiresharkDialog
 {
     Q_OBJECT
 
 public:
-    explicit RtpAnalysisDialog(QWidget &parent, CaptureFile &cf);
-    ~RtpAnalysisDialog();
+    /**
+     * Returns singleton
+     */
+    static RtpAnalysisDialog *openRtpAnalysisDialog(QWidget &parent, CaptureFile &cf, QObject *packet_list);
+
+    /**
+     * Should not be clonnable and assignable
+     */
+    RtpAnalysisDialog(RtpAnalysisDialog &other) = delete;
+    void operator=(const RtpAnalysisDialog &) = delete;
+
     /**
      * @brief Common routine to add a "Analyze" button to a QDialogButtonBox.
      * @param button_box Caller's QDialogButtonBox.
@@ -95,6 +106,10 @@ public slots:
 protected slots:
     virtual void updateWidgets();
 
+protected:
+    explicit RtpAnalysisDialog(QWidget &parent, CaptureFile &cf);
+    ~RtpAnalysisDialog();
+
 private slots:
     void on_actionGoToPacket_triggered();
     void on_actionNextProblem_triggered();
@@ -111,6 +126,9 @@ private slots:
     void on_actionPrepareFilterAll_triggered();
 
 private:
+    static RtpAnalysisDialog *pinstance_;
+    static std::mutex mutex_;
+
     Ui::RtpAnalysisDialog *ui;
     enum StreamDirection { dir_all_, dir_one_ };
     int tab_seq;

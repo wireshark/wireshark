@@ -12,6 +12,8 @@
 
 #include "wireshark_dialog.h"
 
+#include <mutex>
+
 #include "ui/rtp_stream.h"
 #include "rtp_player_dialog.h"
 
@@ -22,13 +24,23 @@ namespace Ui {
 class RtpStreamDialog;
 }
 
+// Singleton by https://refactoring.guru/design-patterns/singleton/cpp/example#example-1
 class RtpStreamDialog : public WiresharkDialog
 {
     Q_OBJECT
 
 public:
-    explicit RtpStreamDialog(QWidget &parent, CaptureFile &cf);
-    ~RtpStreamDialog();
+    /**
+     * Returns singleton
+     */
+    static RtpStreamDialog *openRtpStreamDialog(QWidget &parent, CaptureFile &cf, QObject *packet_list);
+
+    /**
+     * Should not be clonnable and assignable
+     */
+    RtpStreamDialog(RtpStreamDialog &other) = delete;
+    void operator=(const RtpStreamDialog &) = delete;
+
     // Caller must provide ids which are immutable to recap
     void selectRtpStream(QVector<rtpstream_id_t *> stream_ids);
     // Caller must provide ids which are immutable to recap
@@ -58,11 +70,17 @@ public slots:
     void rtpAnalysisRemove();
 
 protected:
+    explicit RtpStreamDialog(QWidget &parent, CaptureFile &cf);
+    ~RtpStreamDialog();
+
     bool eventFilter(QObject *obj, QEvent *event);
     void captureFileClosing();
     void captureFileClosed();
 
 private:
+    static RtpStreamDialog *pinstance_;
+    static std::mutex mutex_;
+
     Ui::RtpStreamDialog *ui;
     rtpstream_tapinfo_t tapinfo_;
     QToolButton *find_reverse_button_;

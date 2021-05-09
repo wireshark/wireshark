@@ -13,6 +13,7 @@
 #include <config.h>
 
 #include <glib.h>
+#include <mutex>
 
 #include "cfile.h"
 
@@ -36,13 +37,23 @@ namespace Ui {
 class VoipCallsDialog;
 }
 
+// Singleton by https://refactoring.guru/design-patterns/singleton/cpp/example#example-1
 class VoipCallsDialog : public WiresharkDialog
 {
     Q_OBJECT
 
 public:
-    explicit VoipCallsDialog(QWidget &parent, CaptureFile &cf, bool all_flows = false);
-    ~VoipCallsDialog();
+    /**
+     * Returns singleton
+     */
+    static VoipCallsDialog *openVoipCallsDialogVoip(QWidget &parent, CaptureFile &cf, QObject *packet_list);
+    static VoipCallsDialog *openVoipCallsDialogSip(QWidget &parent, CaptureFile &cf, QObject *packet_list);
+
+    /**
+     * Should not be clonnable and assignable
+     */
+    VoipCallsDialog(VoipCallsDialog &other) = delete;
+    void operator=(const VoipCallsDialog &) = delete;
 
 signals:
     void updateFilter(QString filter, bool force = false);
@@ -61,6 +72,9 @@ public slots:
     void rtpPlayerRemove();
 
 protected:
+    explicit VoipCallsDialog(QWidget &parent, CaptureFile &cf, bool all_flows = false);
+    ~VoipCallsDialog();
+
     void contextMenuEvent(QContextMenuEvent *event);
     virtual void removeTapListeners();
     void captureFileClosing();
@@ -71,6 +85,12 @@ protected slots:
     void changeEvent(QEvent* event);
 
 private:
+    // We have two singletones - one for all protocols, one for sip protocol
+    static VoipCallsDialog *pinstance_voip_;
+    static VoipCallsDialog *pinstance_sip_;
+    bool all_flows_;
+    static std::mutex mutex_;
+
     Ui::VoipCallsDialog *ui;
     VoipCallsInfoModel *call_infos_model_;
     CacheProxyModel *cache_model_;
