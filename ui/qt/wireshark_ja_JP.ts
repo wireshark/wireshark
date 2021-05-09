@@ -3254,11 +3254,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Example GIF query packets have jumbo window sizes</source>
         <extracomment>These are pangrams. Feel free to replace with nonsense text that spans your alphabet. https://en.wikipedia.org/wiki/Pangram</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>サンプルのGIF形式のクエリパケットは巨大なウインドウサイズを持ちます。</translation>
     </message>
     <message>
         <source>Lazy badgers move unique waxy jellyfish packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Geraldさんが作成したpangram すべての文字を１文字使う回文 Lazy badgers move unique waxy jellyfish packets.</translation>
     </message>
     <message>
         <source>Font</source>
@@ -5407,7 +5407,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>MAC Statistics</source>
-        <translation type="unfinished">MAC統計</translation>
+        <translation>MAC統計</translation>
     </message>
 </context>
 <context>
@@ -5827,7 +5827,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>RLC Statistics</source>
-        <translation type="unfinished">RLC統計</translation>
+        <translation>RLC統計</translation>
     </message>
 </context>
 <context>
@@ -9077,7 +9077,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Copied </source>
-        <translation type="unfinished"></translation>
+        <translation>コピー済</translation>
     </message>
     <message>
         <source>Wiki Page for %1</source>
