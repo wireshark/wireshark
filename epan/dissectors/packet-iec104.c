@@ -1098,7 +1098,7 @@ static void get_CP32TimeA(tvbuff_t *tvb, guint8 *offset, proto_tree *tree)
 	guint16 ms;
 	guint8 value;
 	nstime_t  datetime;
-	struct tm tm;
+	struct tm tm = {0};
 	proto_item* ti;
 	proto_tree* cp32time2a_tree;
 
