@@ -45,7 +45,6 @@ ged125.desegment_body: FALSE
 giop.desegment_giop_messages: FALSE
 giop.reassemble: FALSE
 git.desegment: FALSE
-grpc.streaming_reassembly_mode: FALSE
 gryphon.desegment: FALSE
 gsm_sms.reassemble: FALSE
 gsm_sms.reassemble_with_lower_layers_info: FALSE

@@ -86,7 +86,8 @@ Wireshark 3.5.0 Release Notes
   New Protocol Support
 
    Kerberos SPAKE, O-RAN fronthaul UC-plane (O-RAN), PDU Transport
-   Protocol, State Synchronization Protocol (SSyncP), and UAVCAN\CAN
+   Protocol, R09.x (R09), State Synchronization Protocol (SSyncP), and
+   UAVCAN\CAN
 
   Updated Protocol Support
 
@@ -128,7 +129,7 @@ Wireshark 3.5.0 Release Notes
 
   A complete FAQ is available on the Wireshark web site[7].
 
-  Last updated 2021-05-02 09:04:46 UTC
+  Last updated 2021-05-09 09:05:30 UTC
 
  References
 
