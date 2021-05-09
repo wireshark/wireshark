@@ -141,6 +141,7 @@ typedef struct {
   const char *obj_id;
   guint32 sib_type;
   guint32 srb_id;
+  e212_number_type_t number_type;
 } f1ap_private_data_t;
 
 typedef struct {
