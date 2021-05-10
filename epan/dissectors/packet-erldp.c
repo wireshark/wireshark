@@ -168,6 +168,12 @@ static int hf_erldp_binary_ext = -1;
 static int hf_erldp_new_ref_ext_len = -1;
 static int hf_erldp_new_ref_ext_creation = -1;
 static int hf_erldp_new_ref_ext_id = -1;
+static int hf_erldp_fun_ext_num_free = -1;
+static int hf_erldp_new_fun_ext_size = -1;
+static int hf_erldp_new_fun_ext_arity = -1;
+static int hf_erldp_new_fun_ext_uniq = -1;
+static int hf_erldp_new_fun_ext_index = -1;
+static int hf_erldp_new_fun_ext_num_free = -1;
 
 static int hf_etf_tag = -1;
 static int hf_etf_dist_header_new_cache = -1;
@@ -490,6 +496,44 @@ static gint dissect_etf_type_content(guint8 tag, packet_info *pinfo, tvbuff_t *t
         proto_tree_add_uint_format(tree, hf_erldp_new_ref_ext_id, tvb, offset, 4,
                             id, "ID[%d]: 0x%08X", i, id);
         offset += 4;
+      }
+      break;
+
+    case FUN_EXT:
+      proto_tree_add_item_ret_uint(tree, hf_erldp_fun_ext_num_free, tvb, offset, 4, ENC_BIG_ENDIAN, &len);
+      offset += 4;
+      offset = dissect_etf_type("Pid", pinfo, tvb, offset, tree);
+      offset = dissect_etf_type("Module", pinfo, tvb, offset, tree);
+      offset = dissect_etf_type("Index", pinfo, tvb, offset, tree);
+      offset = dissect_etf_type("Unique", pinfo, tvb, offset, tree);
+
+      for (i = 0; i < len; i++) {
+          gchar buf[ITEM_LABEL_LENGTH];
+          g_snprintf(buf, sizeof(buf), "Free Var[%u]", i + 1);
+          offset = dissect_etf_type(buf, pinfo, tvb, offset, tree);
+      }
+      break;
+
+    case NEW_FUN_EXT:
+      proto_tree_add_item(tree, hf_erldp_new_fun_ext_size, tvb, offset, 4, ENC_BIG_ENDIAN);
+      offset += 4;
+      proto_tree_add_item(tree, hf_erldp_new_fun_ext_arity, tvb, offset, 1, ENC_BIG_ENDIAN);
+      offset += 1;
+      proto_tree_add_item(tree, hf_erldp_new_fun_ext_uniq, tvb, offset, 16, ENC_NA);
+      offset += 16;
+      proto_tree_add_item(tree, hf_erldp_new_fun_ext_index, tvb, offset, 4, ENC_BIG_ENDIAN);
+      offset += 4;
+      proto_tree_add_item_ret_uint(tree, hf_erldp_new_fun_ext_num_free, tvb, offset, 4, ENC_BIG_ENDIAN, &len);
+      offset += 4;
+      offset = dissect_etf_type("Module", pinfo, tvb, offset, tree);
+      offset = dissect_etf_type("OldIndex", pinfo, tvb, offset, tree);
+      offset = dissect_etf_type("OldUnique", pinfo, tvb, offset, tree);
+      offset = dissect_etf_type("Pid", pinfo, tvb, offset, tree);
+
+      for (i = 0; i < len; i++) {
+          gchar buf[ITEM_LABEL_LENGTH];
+          g_snprintf(buf, sizeof(buf), "Free Var[%u]", i + 1);
+          offset = dissect_etf_type(buf, pinfo, tvb, offset, tree);
       }
       break;
   }
@@ -850,7 +894,24 @@ void proto_register_erldp(void) {
     { &hf_erldp_new_ref_ext_id, { "ID", "erldp.new_ref_ext.id",
                         FT_UINT32, BASE_HEX, NULL, 0x0,
                         NULL, HFILL}},
-
+    { &hf_erldp_fun_ext_num_free, { "Num Free", "erldp.fun_ext.num_free",
+                        FT_UINT32, BASE_DEC, NULL, 0x0,
+                        NULL, HFILL}},
+    { &hf_erldp_new_fun_ext_size, { "Size", "erldp.new_fun_ext.size",
+                        FT_UINT32, BASE_DEC, NULL, 0x0,
+                        NULL, HFILL}},
+    { &hf_erldp_new_fun_ext_arity, { "Arity", "erldp.new_fun_ext.arity",
+                        FT_UINT8, BASE_DEC, NULL, 0x0,
+                        NULL, HFILL}},
+    { &hf_erldp_new_fun_ext_uniq, { "Uniq", "erldp.new_fun_ext.uniq",
+                        FT_BYTES, BASE_NONE, NULL, 0x0,
+                        NULL, HFILL}},
+    { &hf_erldp_new_fun_ext_index, { "Index", "erldp.new_fun_ext.index",
+                        FT_UINT32, BASE_DEC, NULL, 0x0,
+                        NULL, HFILL}},
+    { &hf_erldp_new_fun_ext_num_free, { "Num Free", "erldp.new_fun_ext.num_free",
+                        FT_UINT32, BASE_DEC, NULL, 0x0,
+                        NULL, HFILL}},
 
     /*---  ---*/
     { &hf_erldp_length_4, { "Length", "erldp.len",
