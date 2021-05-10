@@ -199,6 +199,7 @@ struct s1ap_private_data {
   guint16 enb_ue_s1ap_id;
   gboolean srvcc_ho_cs_only;
   guint8 transparent_container_type;
+  e212_number_type_t number_type;
 };
 
 enum {
