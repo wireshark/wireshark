@@ -3379,16 +3379,22 @@ again:
          * and random access dissection). Retransmitted segments that are part
          * of a MSP should already be passed only once to subdissectors due to
          * the "reassembled_in" check below.
-         * The following should also check for TCP_A_SPURIOUS_RETRANSMISSION to
-         * address bug 10289.
          */
-        if((tcpd->ta) && ((tcpd->ta->flags&TCP_A_RETRANSMISSION) == TCP_A_RETRANSMISSION)){
-            const char* str = "Retransmitted ";
-            nbytes = tvb_reported_length_remaining(tvb, offset);
-            proto_tree_add_bytes_format(tcp_tree, hf_tcp_segment_data, tvb, offset,
-                nbytes, NULL, "%sTCP segment data (%u byte%s)", str, nbytes,
-                plurality(nbytes, "", "s"));
-            return;
+        if(tcpd->ta) {
+            /* Spurious Retransmission is the most obvious case to handle, just ignore it.
+             * See issue 10289
+             */
+            if((tcpd->ta->flags&TCP_A_SPURIOUS_RETRANSMISSION) == TCP_A_SPURIOUS_RETRANSMISSION) {
+                return;
+            }
+            if((tcpd->ta->flags&TCP_A_RETRANSMISSION) == TCP_A_RETRANSMISSION) {
+                const char* str = "Retransmitted ";
+                nbytes = tvb_reported_length_remaining(tvb, offset);
+                proto_tree_add_bytes_format(tcp_tree, hf_tcp_segment_data, tvb, offset,
+                    nbytes, NULL, "%sTCP segment data (%u byte%s)", str, nbytes,
+                    plurality(nbytes, "", "s"));
+                return;
+            }
         }
         /* Else, find the most previous PDU starting before this sequence number */
         if (!msp) {
