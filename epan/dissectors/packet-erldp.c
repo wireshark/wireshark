@@ -15,6 +15,7 @@
 
 
 #include <epan/packet.h>
+#include <epan/to_str.h>
 #include "packet-tcp.h"
 #include "packet-epmd.h"
 
@@ -149,6 +150,11 @@ static int hf_erldp_atom_text = -1;
 static int hf_erldp_atom_cache_ref = -1;
 static int hf_erldp_small_int_ext = -1;
 static int hf_erldp_int_ext = -1;
+static int hf_erldp_small_big_ext_len = -1;
+static int hf_erldp_large_big_ext_len = -1;
+static int hf_erldp_big_ext_int = -1;
+static int hf_erldp_big_ext_str = -1;
+static int hf_erldp_big_ext_bytes = -1;
 static int hf_erldp_float_ext = -1;
 static int hf_erldp_new_float_ext = -1;
 static int hf_erldp_port_ext_id = -1;
@@ -270,6 +276,50 @@ static gint dissect_etf_tuple_content(gboolean large, packet_info *pinfo, tvbuff
   return offset;
 }
 
+static gint dissect_etf_big_ext(tvbuff_t *tvb, gint offset, gint32 len, proto_tree *tree, const gchar **value_str) {
+      guint8 sign;
+      gint32 i;
+
+      sign = tvb_get_guint8(tvb, offset);
+      offset += 1;
+
+      if (len <= 8) {
+        guint64 big_val = 0;
+
+        switch (len) {
+        case 1: big_val = tvb_get_guint8(tvb, offset); break;
+        case 2: big_val = tvb_get_letohs(tvb, offset); break;
+        case 3: big_val = tvb_get_letoh24(tvb, offset); break;
+        case 4: big_val = tvb_get_letohl(tvb, offset); break;
+        case 5: big_val = tvb_get_letoh40(tvb, offset); break;
+        case 6: big_val = tvb_get_letoh48(tvb, offset); break;
+        case 7: big_val = tvb_get_letoh56(tvb, offset); break;
+        case 8: big_val = tvb_get_letoh64(tvb, offset); break;
+        }
+        proto_tree_add_uint64_format_value(tree, hf_erldp_big_ext_int, tvb, offset, len,
+                                           big_val, "%s%" G_GINT64_MODIFIER "u", sign ? "-"  : "", big_val);
+        if (value_str)
+          *value_str = wmem_strdup_printf(wmem_packet_scope(), "%s%" G_GINT64_MODIFIER "u",
+                                          sign ? "-"  : "", big_val);
+      } if (len < 64) {
+        gchar *buf, *buf_ptr;
+
+        buf=buf_ptr=(gchar *)wmem_alloc(wmem_packet_scope(), len*1+3+1);
+        buf_ptr = g_stpcpy(buf, "0x");
+        for (i = len - 1; i >= 0; i--)
+          buf_ptr = guint8_to_hex(buf_ptr, tvb_get_guint8(tvb, offset + i));
+        *buf_ptr = 0;
+
+        proto_tree_add_string_format_value(tree, hf_erldp_big_ext_str, tvb, offset, len, buf, "%s", buf);
+
+        if (value_str)
+          *value_str = buf;
+      } else
+        proto_tree_add_item(tree, hf_erldp_big_ext_bytes, tvb, offset, len, ENC_NA);
+
+      return offset + len;
+}
+
 static gint dissect_etf_type_content(guint8 tag, packet_info *pinfo, tvbuff_t *tvb, gint offset, proto_tree *tree, const gchar **value_str) {
   gint32 len, int_val, i;
   guint32 uint_val;
@@ -301,6 +351,22 @@ static gint dissect_etf_type_content(guint8 tag, packet_info *pinfo, tvbuff_t *t
       if (value_str)
         *value_str = wmem_strdup_printf(wmem_packet_scope(), "%d", int_val);
       break;
+
+    case SMALL_BIG_EXT: {
+      proto_tree_add_item_ret_uint(tree, hf_erldp_small_big_ext_len, tvb, offset, 1, ENC_BIG_ENDIAN, &len);
+      offset += 1;
+
+      offset = dissect_etf_big_ext(tvb, offset, len, tree, value_str);
+      break;
+    }
+
+    case LARGE_BIG_EXT: {
+      proto_tree_add_item_ret_uint(tree, hf_erldp_large_big_ext_len, tvb, offset, 4, ENC_BIG_ENDIAN, &len);
+      offset += 4;
+
+      offset = dissect_etf_big_ext(tvb, offset, len, tree, value_str);
+      break;
+    }
 
     case FLOAT_EXT:
       proto_tree_add_item_ret_string(tree, hf_erldp_float_ext, tvb, offset, 31, ENC_NA|ENC_UTF_8, wmem_packet_scope(), &str_val);
@@ -729,6 +795,21 @@ void proto_register_erldp(void) {
                         NULL, HFILL}},
     { &hf_erldp_int_ext, { "Int", "erldp.int_ext",
                         FT_INT32, BASE_DEC, NULL, 0x0,
+                        NULL, HFILL}},
+    { &hf_erldp_small_big_ext_len, { "Len", "erldp.small_big_ext_len",
+                        FT_UINT8, BASE_DEC, NULL, 0x0,
+                        NULL, HFILL}},
+    { &hf_erldp_large_big_ext_len, { "Len", "erldp.large_big_ext_len",
+                        FT_UINT32, BASE_DEC, NULL, 0x0,
+                        NULL, HFILL}},
+    { &hf_erldp_big_ext_int, { "Int", "erldp.big_ext_int",
+                        FT_UINT64, BASE_DEC, NULL, 0x0,
+                        NULL, HFILL}},
+    { &hf_erldp_big_ext_str, { "Int", "erldp.big_ext_str",
+                        FT_STRING, BASE_NONE, NULL, 0x0,
+                        NULL, HFILL}},
+    { &hf_erldp_big_ext_bytes, { "Int", "erldp.big_ext_str",
+                        FT_BYTES, BASE_NONE, NULL, 0x0,
                         NULL, HFILL}},
     { &hf_erldp_float_ext, { "Float", "erldp.float_ext",
                         FT_STRINGZ, BASE_NONE, NULL, 0x0,
