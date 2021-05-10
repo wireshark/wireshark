@@ -455,6 +455,17 @@ static gint dissect_etf_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   return offset;
 }
 
+static gint dissect_etf_versioned_type(const gchar *label, packet_info *pinfo, tvbuff_t *tvb, gint offset, proto_tree *tree) {
+  if (tvb_get_guint8(tvb, offset) != VERSION_MAGIC) {
+    proto_tree_add_item(tree, hf_erldp_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+    col_set_str(pinfo->cinfo, COL_INFO, "unknown header format");
+    return offset + 1;
+  }
+  offset += 1;
+
+  return dissect_etf_type(label, pinfo, tvb, offset, tree);
+}
+
 static gint dissect_etf_type(const gchar *label, packet_info *pinfo, tvbuff_t *tvb, gint offset, proto_tree *tree) {
   gint begin = offset;
   guint8 tag;
@@ -597,7 +608,12 @@ static int dissect_erldp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
   switch (type) {
     case ERL_PASS_THROUGH:
       proto_tree_add_item(erldp_tree, hf_erldp_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-      offset++;
+      offset += 1;
+
+      offset = dissect_etf_versioned_type("ControlMessage", pinfo, tvb, offset, erldp_tree);
+      if (tvb_reported_length_remaining(tvb, offset) > 0) {
+        offset = dissect_etf_versioned_type("Message", pinfo, tvb, offset, erldp_tree);
+      }
       break;
 
     case VERSION_MAGIC:
