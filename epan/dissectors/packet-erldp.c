@@ -294,7 +294,7 @@ static gint dissect_etf_type_content(guint8 tag, packet_info *pinfo, tvbuff_t *t
       proto_tree_add_item(tree, hf_erldp_small_int_ext, tvb, offset, 1, ENC_BIG_ENDIAN);
       offset += 1;
       if (value_str)
-        *value_str = wmem_strdup_printf(wmem_packet_scope(), "%d", int_val);
+        *value_str = wmem_strdup_printf(wmem_packet_scope(), "%u", int_val);
       break;
 
     case INTEGER_EXT:
@@ -698,7 +698,7 @@ void proto_register_erldp(void) {
                         FT_UINT8, BASE_DEC, NULL, 0x0,
                         NULL, HFILL}},
     { &hf_erldp_small_int_ext, { "Int", "erldp.small_int_ext",
-                        FT_INT8, BASE_DEC, NULL, 0x0,
+                        FT_UINT8, BASE_DEC, NULL, 0x0,
                         NULL, HFILL}},
     { &hf_erldp_int_ext, { "Int", "erldp.int_ext",
                         FT_INT32, BASE_DEC, NULL, 0x0,
