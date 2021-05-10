@@ -149,6 +149,8 @@ static int hf_erldp_atom_text = -1;
 static int hf_erldp_atom_cache_ref = -1;
 static int hf_erldp_small_int_ext = -1;
 static int hf_erldp_int_ext = -1;
+static int hf_erldp_float_ext = -1;
+static int hf_erldp_new_float_ext = -1;
 static int hf_erldp_port_ext_id = -1;
 static int hf_erldp_port_ext_creation = -1;
 static int hf_erldp_pid_ext_id = -1;
@@ -298,6 +300,22 @@ static gint dissect_etf_type_content(guint8 tag, packet_info *pinfo, tvbuff_t *t
       offset += 4;
       if (value_str)
         *value_str = wmem_strdup_printf(wmem_packet_scope(), "%d", int_val);
+      break;
+
+    case FLOAT_EXT:
+      proto_tree_add_item_ret_string(tree, hf_erldp_float_ext, tvb, offset, 31, ENC_NA|ENC_UTF_8, wmem_packet_scope(), &str_val);
+      offset += 31;
+      if (value_str)
+        *value_str = str_val;
+      break;
+
+    case NEW_FLOAT_EXT:
+      proto_tree_add_item(tree, hf_erldp_new_float_ext, tvb, offset, 8, ENC_BIG_ENDIAN);
+      if (value_str) {
+        gdouble  new_float_val = tvb_get_ntohieee_double(tvb, offset);
+        *value_str = wmem_strdup_printf(wmem_packet_scope(), "%f", new_float_val);
+      }
+      offset += 8;
       break;
 
     case ATOM_UTF8_EXT:
@@ -711,6 +729,12 @@ void proto_register_erldp(void) {
                         NULL, HFILL}},
     { &hf_erldp_int_ext, { "Int", "erldp.int_ext",
                         FT_INT32, BASE_DEC, NULL, 0x0,
+                        NULL, HFILL}},
+    { &hf_erldp_float_ext, { "Float", "erldp.float_ext",
+                        FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                        NULL, HFILL}},
+    { &hf_erldp_new_float_ext, { "Float", "erldp.new_float_ext",
+                        FT_DOUBLE, BASE_NONE, NULL, 0x0,
                         NULL, HFILL}},
     { &hf_erldp_port_ext_id, { "ID", "erldp.port_ext.id",
                         FT_UINT32, BASE_HEX, NULL, 0x0,
