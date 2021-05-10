@@ -155,6 +155,8 @@ static int hf_erldp_pid_ext_id = -1;
 static int hf_erldp_pid_ext_serial = -1;
 static int hf_erldp_pid_ext_creation = -1;
 static int hf_erldp_list_ext_len = -1;
+static int hf_erldp_binary_ext_len = -1;
+static int hf_erldp_binary_ext = -1;
 static int hf_erldp_new_ref_ext_len = -1;
 static int hf_erldp_new_ref_ext_creation = -1;
 static int hf_erldp_new_ref_ext_id = -1;
@@ -380,6 +382,13 @@ static gint dissect_etf_type_content(guint8 tag, packet_info *pinfo, tvbuff_t *t
         offset = dissect_etf_type(NULL, pinfo, tvb, offset, tree);
       }
       offset = dissect_etf_type("Tail", pinfo, tvb, offset, tree);
+      break;
+
+    case BINARY_EXT:
+      proto_tree_add_item_ret_uint(tree, hf_erldp_binary_ext_len, tvb, offset, 4, ENC_BIG_ENDIAN, &len);
+      offset += 4;
+      proto_tree_add_item(tree, hf_erldp_binary_ext, tvb, offset, len, ENC_NA);
+      offset += len;
       break;
 
     case NEW_REFERENCE_EXT:
@@ -720,6 +729,12 @@ void proto_register_erldp(void) {
                         NULL, HFILL}},
     { &hf_erldp_list_ext_len, { "Len", "erldp.list_ext.len",
                         FT_UINT32, BASE_DEC, NULL, 0x0,
+                        NULL, HFILL}},
+    { &hf_erldp_binary_ext_len, { "Len", "erldp.binary_ext.len",
+                        FT_UINT32, BASE_DEC, NULL, 0x0,
+                        NULL, HFILL}},
+    { &hf_erldp_binary_ext, { "Binary", "erldp.binary_ext",
+                        FT_BYTES, BASE_SHOW_ASCII_PRINTABLE, NULL, 0x0,
                         NULL, HFILL}},
     { &hf_erldp_new_ref_ext_len, { "Len", "erldp.new_ref_ext.len",
                         FT_UINT16, BASE_DEC, NULL, 0x0,
