@@ -310,7 +310,7 @@ dissect_wow_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 
 				break;
 			}
-			__attribute__((fallthrough));
+			/* Fallthrough */
 			// If it's CLIENT_TO_SERVER we fallthrough.
 			// The packet is the same as AUTH_LOGON_CHALLENGE
 			// except for the cmd field.
