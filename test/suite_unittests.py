@@ -41,6 +41,10 @@ class case_unittests(subprocesstest.SubprocessTestCase):
             '--verbose'
         ), env=base_env)
 
+    def test_unit_wscbor_test(self, program, base_env):
+        '''wscbor_test'''
+        self.assertRun(program('wscbor_test'), env=base_env)
+
     def test_unit_wsutil(self, program, base_env):
         '''wsutil unit tests'''
         self.assertRun((program('test_wsutil'),

@@ -16,6 +16,63 @@ import sys
 
 @fixtures.mark_usefixtures('test_env')
 @fixtures.uses_fixtures
+class case_dissect_cose(subprocesstest.SubprocessTestCase):
+    '''
+    These test captures were generated from the COSE example files with command:
+    for FN in test/captures/cose*.cbordiag; do python3 tools/generate_cbor_pcap.py --content-type 'application/cose' --infile $FN --outfile ${FN%.cbordiag}.pcap; done
+    '''
+    def test_cose_sign_tagged(self, cmd_tshark, features, dirs, capture_file):
+        self.assertRun((cmd_tshark,
+                '-r', capture_file('cose_sign_tagged.pcap'),
+                '-Tfields', '-ecose.msg.signature',
+            ))
+        self.assertTrue(self.grepOutput('e2aeafd40d69d19dfe6e52077c5d7ff4e408282cbefb5d06cbf414af2e19d982ac45ac98b8544c908b4507de1e90b717c3d34816fe926a2b98f53afd2fa0f30a'))
+
+    def test_cose_sign1_tagged(self, cmd_tshark, features, dirs, capture_file):
+        self.assertRun((cmd_tshark,
+                '-r', capture_file('cose_sign1_tagged.pcap'),
+                '-Tfields', '-ecose.msg.signature',
+            ))
+        self.assertTrue(self.grepOutput('8eb33e4ca31d1c465ab05aac34cc6b23d58fef5c083106c4d25a91aef0b0117e2af9a291aa32e14ab834dc56ed2a223444547e01f11d3b0916e5a4c345cacb36'))
+
+    def test_cose_encrypt_tagged(self, cmd_tshark, features, dirs, capture_file):
+        self.assertRun((cmd_tshark,
+                '-r', capture_file('cose_encrypt_tagged.pcap'),
+                '-Tfields', '-ecose.kid',
+            ))
+        self.assertTrue(self.grepOutput('6f75722d736563726574'))
+
+    def test_cose_encrypt0_tagged(self, cmd_tshark, features, dirs, capture_file):
+        self.assertRun((cmd_tshark,
+                '-r', capture_file('cose_encrypt0_tagged.pcap'),
+                '-Tfields', '-ecose.iv',
+            ))
+        self.assertTrue(self.grepOutput('89f52f65a1c580933b5261a78c'))
+
+    def test_cose_mac_tagged(self, cmd_tshark, features, dirs, capture_file):
+        self.assertRun((cmd_tshark,
+                '-r', capture_file('cose_mac_tagged.pcap'),
+                '-Tfields', '-ecose.kid',
+            ))
+        self.assertTrue(self.grepOutput('30313863306165352d346439622d343731622d626664362d656566333134626337303337'))
+
+    def test_cose_mac0_tagged(self, cmd_tshark, features, dirs, capture_file):
+        self.assertRun((cmd_tshark,
+                '-r', capture_file('cose_mac0_tagged.pcap'),
+                '-Tfields', '-ecose.msg.mac_tag',
+            ))
+        self.assertTrue(self.grepOutput('726043745027214f'))
+
+    def test_cose_keyset(self, cmd_tshark, features, dirs, capture_file):
+        self.assertRun((cmd_tshark,
+                '-r', capture_file('cose_keyset.pcap'),
+                '-Tfields', '-ecose.key.k',
+            ))
+        self.assertTrue(self.grepOutput('849b57219dae48de646d07dbb533566e976686457c1491be3a76dcea6c427188'))
+
+
+@fixtures.mark_usefixtures('test_env')
+@fixtures.uses_fixtures
 class case_dissect_grpc(subprocesstest.SubprocessTestCase):
     def test_grpc_with_json(self, cmd_tshark, features, dirs, capture_file):
         '''gRPC with JSON payload'''

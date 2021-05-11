@@ -58,6 +58,7 @@
 #include "stats_tree.h"
 #include "secrets.h"
 #include "funnel.h"
+#include "wscbor.h"
 #include <dtd.h>
 
 #ifdef HAVE_PLUGINS
@@ -303,6 +304,7 @@ epan_init(register_cb cb, gpointer client_data, gboolean load_plugins)
 		g_slist_foreach(epan_plugins, epan_plugin_register_all_tap_listeners, NULL);
 		packet_cache_proto_handles();
 		dfilter_init();
+		wscbor_init();
 		final_registration_all_protocols();
 		print_cache_field_handles();
 		expert_packet_init();

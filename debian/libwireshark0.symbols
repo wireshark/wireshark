@@ -1221,6 +1221,14 @@ libwireshark.so.0 libwireshark0 #MINVER#
  proto_tree_add_bytes_format_value@Base 1.9.1
  proto_tree_add_bytes_item@Base 1.12.0~rc1
  proto_tree_add_bytes_with_length@Base 1.99.3
+ proto_tree_add_cbor_bitmask@Base 3.5.1
+ proto_tree_add_cbor_boolean@Base 3.5.1
+ proto_tree_add_cbor_bstr@Base 3.5.1
+ proto_tree_add_cbor_container@Base 3.5.1
+ proto_tree_add_cbor_ctrl@Base 3.5.1
+ proto_tree_add_cbor_int64@Base 3.5.1
+ proto_tree_add_cbor_tstr@Base 3.5.1
+ proto_tree_add_cbor_uint64@Base 3.5.1
  proto_tree_add_checksum@Base 2.1.1
  proto_tree_add_debug_text@Base 1.9.1
  proto_tree_add_double@Base 1.9.1
@@ -2026,6 +2034,24 @@ libwireshark.so.0 libwireshark0 #MINVER#
  ws_find_media_type_parameter@Base 2.2.0
  ws_strdup_escape_char@Base 1.9.1
  ws_strdup_unescape_char@Base 1.9.1
+ wscbor_chunk_free@Base 3.5.1
+ wscbor_chunk_mark_errors@Base 3.5.1
+ wscbor_chunk_read@Base 3.5.1
+ wscbor_error_new@Base 3.5.1
+ wscbor_has_errors@Base 3.5.1
+ wscbor_init@Base 3.5.1
+ wscbor_is_indefinite_break@Base 3.5.1
+ wscbor_require_array@Base 3.5.1
+ wscbor_require_array_size@Base 3.5.1
+ wscbor_require_boolean@Base 3.5.1
+ wscbor_require_bstr@Base 3.5.1
+ wscbor_require_int64@Base 3.5.1
+ wscbor_require_major_type@Base 3.5.1
+ wscbor_require_map@Base 3.5.1
+ wscbor_require_tstr@Base 3.5.1
+ wscbor_require_uint64@Base 3.5.1
+ wscbor_skip_if_errors@Base 3.5.1
+ wscbor_skip_next_item@Base 3.5.1
  wslua_count_plugins@Base 1.12.0~rc1
  wslua_plugin_type_name@Base 2.5.0
  wslua_plugins_dump_all@Base 1.12.0~rc1

@@ -3572,6 +3572,7 @@ add_custom_target(test-programs
 		reassemble_test
 		tvbtest
 		wmem_test
+		wscbor_test
 		test_wsutil
 	COMMENT "Building unit test programs and wrapper"
 )
