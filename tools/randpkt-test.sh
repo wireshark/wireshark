@@ -83,8 +83,14 @@ echo "($HOWMANY)"
 echo "Running $RANDPKT with args: $RANDPKT_ARGS"
 echo ""
 
-trap "MAX_PASSES=1; echo 'Caught signal'" HUP INT TERM
+# Clean up on <ctrl>C, etc
+trap_all() {
+    printf '\n\nCaught signal. Exiting.\n'
+    rm -f "$TMP_DIR/$TMP_FILE" "$TMP_DIR/$ERR_FILE"
+    exit 0
+}
 
+trap trap_all HUP INT TERM ABRT
 
 # Iterate over our capture files.
 PASS=0

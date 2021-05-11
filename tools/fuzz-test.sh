@@ -150,8 +150,9 @@ echo ""
 
 # Clean up on <ctrl>C, etc
 trap_all() {
-    DONE=true
-    echo 'Caught signal'
+    printf '\n\nCaught signal. Exiting.\n'
+    rm -f "$TMP_DIR/$TMP_FILE" "$TMP_DIR/$ERR_FILE"*
+    exit 0
 }
 
 trap_abrt() {
