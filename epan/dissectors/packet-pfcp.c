@@ -1139,6 +1139,7 @@ static int ett_pfcp_qer_indications = -1;
 static int ett_pfcp_vendor_specific_node_report_type = -1;
 
 static int ett_pfcp_enterprise_travelping_error_report = -1;
+static int ett_pfcp_enterprise_travelping_created_nat_binding = -1;
 
 static int ett_pfcp_bbf_ppp_protocol_flags = -1;
 static int ett_pfcp_bbf_l2tp_endp_flags = -1;
@@ -11125,6 +11126,7 @@ dissect_pfcp_enterprise_bbf_ies(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 /* Enterprise IE decoding Travelping */
 
 static void dissect_pfcp_enterprise_travelping_error_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args);
+static void dissect_pfcp_enterprise_travelping_created_nat_binding(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args);
 
 /* Enterprise IE decoding Travelping */
 #define PFCP_IE_ENTERPRISE_TRAVELPING_BUILD_ID          2
@@ -11135,6 +11137,7 @@ static void dissect_pfcp_enterprise_travelping_error_report(tvbuff_t *tvb, packe
 #define PFCP_IE_ENTERPRISE_TRAVELPING_ERROR_MESSAGE     7
 #define PFCP_IE_ENTERPRISE_TRAVELPING_FILE_NAME         8
 #define PFCP_IE_ENTERPRISE_TRAVELPING_LINE_NUMBER       9
+#define PFCP_IE_ENTERPRISE_TRAVELPING_CREATED_NAT_BINDING 10
 
 static const value_string pfcp_ie_enterprise_travelping_type[] = {
     { PFCP_IE_ENTERPRISE_TRAVELPING_BUILD_ID,           "Build Id"},
@@ -11145,6 +11148,7 @@ static const value_string pfcp_ie_enterprise_travelping_type[] = {
     { PFCP_IE_ENTERPRISE_TRAVELPING_ERROR_MESSAGE,      "Error Message"},
     { PFCP_IE_ENTERPRISE_TRAVELPING_FILE_NAME,          "File Name"},
     { PFCP_IE_ENTERPRISE_TRAVELPING_LINE_NUMBER,        "Line Number"},
+    { PFCP_IE_ENTERPRISE_TRAVELPING_CREATED_NAT_BINDING, "Created NAT Binding"},
     { 0, NULL }
 };
 
@@ -11274,6 +11278,7 @@ static const pfcp_ie_t pfcp_enterprise_travelping_ies[] = {
 /*      7 */    { dissect_pfcp_enterprise_travelping_error_message },
 /*      8 */    { dissect_pfcp_enterprise_travelping_file_name },
 /*      9 */    { dissect_pfcp_enterprise_travelping_line_number },
+/*     10 */    { dissect_pfcp_enterprise_travelping_created_nat_binding },
     { NULL },                                                        /* End of List */
 };
 
@@ -11285,6 +11290,12 @@ static void
 dissect_pfcp_enterprise_travelping_error_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
     dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_enterprise_travelping_elem[PFCP_IE_ENTERPRISE_TRAVELPING_ERROR_REPORT], args);
+}
+
+static void
+dissect_pfcp_enterprise_travelping_created_nat_binding(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type, pfcp_session_args_t *args)
+{
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_enterprise_travelping_elem[PFCP_IE_ENTERPRISE_TRAVELPING_CREATED_NAT_BINDING], args);
 }
 
 static int
@@ -15645,7 +15656,7 @@ proto_register_pfcp(void)
     };
 
     /* Setup protocol subtree array */
-#define NUM_INDIVIDUAL_ELEMS_PFCP    96
+#define NUM_INDIVIDUAL_ELEMS_PFCP    97
     gint *ett[NUM_INDIVIDUAL_ELEMS_PFCP +
         (NUM_PFCP_IES - 1) +
         (NUM_PFCP_ENTERPRISE_BBF_IES - 1) +
@@ -15744,12 +15755,13 @@ proto_register_pfcp(void)
     /* Enterprise */
     /* Travelping */
     ett[90] = &ett_pfcp_enterprise_travelping_error_report;
+    ett[91] = &ett_pfcp_enterprise_travelping_created_nat_binding;
     /* BBF */
-    ett[91] = &ett_pfcp_bbf_ppp_protocol_flags;
-    ett[92] = &ett_pfcp_bbf_l2tp_endp_flags;
-    ett[93] = &ett_pfcp_bbf_l2tp_type_flags;
-    ett[94] = &ett_pfcp_bbf_ppp_lcp_connectivity;
-    ett[95] = &ett_pfcp_bbf_l2tp_tunnel;
+    ett[92] = &ett_pfcp_bbf_ppp_protocol_flags;
+    ett[93] = &ett_pfcp_bbf_l2tp_endp_flags;
+    ett[94] = &ett_pfcp_bbf_l2tp_type_flags;
+    ett[95] = &ett_pfcp_bbf_ppp_lcp_connectivity;
+    ett[96] = &ett_pfcp_bbf_l2tp_tunnel;
 
     static ei_register_info ei[] = {
         { &ei_pfcp_ie_reserved,{ "pfcp.ie_id_reserved", PI_PROTOCOL, PI_ERROR, "Reserved IE value used", EXPFILL } },
