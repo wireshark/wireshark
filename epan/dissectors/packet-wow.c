@@ -49,6 +49,45 @@ static const value_string cmd_vs[] = {
 	{ 0, NULL                                                          }
 };
 
+typedef enum {
+	SUCCESS                 = 0x00,
+	FAIL_UNKNOWN0           = 0x01,
+	FAIL_UNKNOWN1           = 0x02,
+	FAIL_BANNED             = 0x03,
+	FAIL_UNKNOWN_ACCOUNT    = 0x04,
+	FAIL_INCORRECT_PASSWORD = 0x05,
+	FAIL_ALREADY_ONLINE     = 0x06,
+	FAIL_NO_TIME            = 0x07,
+	FAIL_DB_BUSY            = 0x08,
+	FAIL_VERSION_INVALID    = 0x09,
+	FAIL_VERSION_UPDATE     = 0x0A,
+	FAIL_INVALID_SERVER     = 0x0B,
+	FAIL_SUSPENDED          = 0x0C,
+	FAIL_NOACCESS           = 0x0D,
+	SUCCESS_SURVEY          = 0x0E,
+	FAIL_PARENTAL_CONTROL   = 0x0F
+} auth_error_e;
+
+static const value_string error_vs[] = {
+	{ SUCCESS,                 "Success" },
+	{ FAIL_UNKNOWN0,           "Unknown" },
+	{ FAIL_UNKNOWN1,           "Unknown" },
+	{ FAIL_BANNED,             "Account banned" },
+	{ FAIL_UNKNOWN_ACCOUNT,    "Unknown account" },
+	{ FAIL_INCORRECT_PASSWORD, "Incorrect password" },
+	{ FAIL_ALREADY_ONLINE,     "Already online" },
+	{ FAIL_NO_TIME,            "No game time on account" },
+	{ FAIL_DB_BUSY,            "Database busy (could not log in)" },
+	{ FAIL_VERSION_INVALID,    "Invalid game version" },
+	{ FAIL_VERSION_UPDATE,     "Failed version update" },
+	{ FAIL_INVALID_SERVER,     "Invalid server" },
+	{ FAIL_SUSPENDED,          "Account suspended" },
+	{ FAIL_NOACCESS,           "Unable to connect" },
+	{ SUCCESS_SURVEY,          "Survey success" },
+	{ FAIL_PARENTAL_CONTROL,   "Blocked by parental controls" },
+	{ 0, NULL }
+};
+
 static const value_string realm_flags_vs[] = {
 	{ 0, "Online"  },
 	{ 1, "Locked"  },
@@ -197,7 +236,7 @@ dissect_wow_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 	proto_tree *wow_tree, *wow_realms_tree;
 
 	gchar *string, *realm_name;
-	guint8 cmd, srp_i_len, srp_g_len, srp_n_len;
+	guint8 cmd, srp_i_len, srp_g_len, srp_n_len, error;
 	guint8 num_realms;
 	guint32 offset = 0;
 	gint len, ii;
@@ -225,15 +264,15 @@ dissect_wow_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 		case AUTH_LOGON_RECONNECT_PROOF:
 			if (WOW_CLIENT_TO_SERVER) {
 				proto_tree_add_item(wow_tree, hf_wow_challenge_data, tvb,
-						    offset, 16, ENC_LITTLE_ENDIAN);
+						    offset, 16, ENC_NA);
 				offset += 16;
 
 				proto_tree_add_item(wow_tree, hf_wow_client_proof, tvb,
-						    offset, 20, ENC_LITTLE_ENDIAN);
+						    offset, 20, ENC_NA);
 				offset += 20;
 
 				proto_tree_add_item(wow_tree, hf_wow_client_checksum, tvb,
-						    offset, 20, ENC_LITTLE_ENDIAN);
+						    offset, 20, ENC_NA);
 				offset += 20;
 
 				proto_tree_add_item(wow_tree, hf_wow_num_keys,
@@ -252,16 +291,21 @@ dissect_wow_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 
 		case AUTH_LOGON_RECONNECT:
 			if (WOW_SERVER_TO_CLIENT) {
+				error = tvb_get_guint8(tvb, offset);
 				proto_tree_add_item(wow_tree, hf_wow_error, tvb,
 						    offset, 1, ENC_LITTLE_ENDIAN);
 				offset += 1;
+				if (error != SUCCESS) {
+					// Following fields are only present when not an error.
+					break;
+				}
 
 				proto_tree_add_item(wow_tree, hf_wow_challenge_data, tvb,
-						    offset, 16, ENC_LITTLE_ENDIAN);
+						    offset, 16, ENC_NA);
 				offset += 16;
 
 				proto_tree_add_item(wow_tree, hf_wow_checksum_salt, tvb,
-						    offset, 16, ENC_LITTLE_ENDIAN);
+						    offset, 16, ENC_NA);
 				offset += 16;
 
 				break;
@@ -350,9 +394,14 @@ dissect_wow_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 						    offset, 1, ENC_LITTLE_ENDIAN);
 				offset += 1;
 
+				error = tvb_get_guint8(tvb, offset);
 				proto_tree_add_item(wow_tree, hf_wow_error, tvb,
 						    offset, 1, ENC_LITTLE_ENDIAN);
 				offset += 1;
+				if (error != SUCCESS) {
+					// Following fields are only present when not an error.
+					break;
+				}
 
 				proto_tree_add_item(wow_tree, hf_wow_srp_b, tvb,
 						    offset, 32, ENC_NA);
@@ -427,9 +476,14 @@ dissect_wow_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 				}
 
 			} else if(WOW_SERVER_TO_CLIENT) {
+				error = tvb_get_guint8(tvb, offset);
 				proto_tree_add_item(wow_tree, hf_wow_error, tvb,
 						    offset, 1, ENC_LITTLE_ENDIAN);
 				offset += 1;
+				if (error != SUCCESS) {
+					// Following fields are only present when not an error.
+					break;
+				}
 
 				proto_tree_add_item(wow_tree, hf_wow_srp_m2,
 						    tvb, offset, 20, ENC_NA);
@@ -554,7 +608,7 @@ proto_register_wow(void)
 		},
 		{ &hf_wow_error,
 		  { "Error", "wow.error",
-		    FT_UINT8, BASE_DEC, 0, 0,
+		    FT_UINT8, BASE_HEX, VALS(error_vs), 0,
 		    NULL, HFILL }
 		},
 		{ &hf_wow_pkt_size,
