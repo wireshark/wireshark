@@ -662,7 +662,7 @@ static gboolean test_drbd_protocol(tvbuff_t *tvb, packet_info *pinfo,
         proto_tree *tree, void *data _U_)
 {
     guint reported_length = tvb_reported_length(tvb);
-    if (reported_length < DRBD_FRAME_HEADER_80_LEN) {
+    if (reported_length < DRBD_FRAME_HEADER_80_LEN || tvb_captured_length(tvb) < 4) {
         return FALSE;
     }
 
@@ -1224,7 +1224,7 @@ void proto_register_drbd(void)
 void proto_reg_handoff_drbd(void)
 {
     drbd_handle = create_dissector_handle(dissect_drbd, proto_drbd);
-    heur_dissector_add("tcp", test_drbd_protocol, "DRBD over TCP", "drbd_tcp", proto_drbd, HEURISTIC_ENABLE);
+    heur_dissector_add("tcp", test_drbd_protocol, "DRBD over TCP", "drbd_tcp", proto_drbd, HEURISTIC_DISABLE);
 }
 
 /*
