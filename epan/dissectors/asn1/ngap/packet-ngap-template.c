@@ -227,6 +227,7 @@ struct ngap_private_data {
   struct ngap_supported_ta *supported_ta;
   struct ngap_tai *tai;
   guint32 ran_ue_ngap_id;
+  e212_number_type_t number_type;
 };
 
 enum {

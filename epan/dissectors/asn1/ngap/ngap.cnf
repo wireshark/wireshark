@@ -426,6 +426,11 @@ RepetitionPeriod DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
                                         hf_ngap_WarningMessageContents_nb_pages, hf_ngap_WarningMessageContents_decoded_page);
   }
 
+#.FN_BODY EPS-TAI
+  struct ngap_private_data *ngap_data = ngap_get_private_data(actx->pinfo);
+  ngap_data->number_type = E212_TAI;
+%(DEFAULT_BODY)s
+
 #.TYPE_ATTR
 EPS-TAC TYPE = FT_UINT16 DISPLAY = BASE_DEC_HEX
 #.FN_BODY EPS-TAC VAL_PTR = &parameter_tvb HF_INDEX = -1
@@ -437,7 +442,7 @@ EPS-TAC TYPE = FT_UINT16 DISPLAY = BASE_DEC_HEX
 
 #.FN_BODY TAI
   struct ngap_private_data *ngap_data = ngap_get_private_data(actx->pinfo);
-
+  ngap_data->number_type = E212_5GSTAI;
   ngap_data->tai = wmem_new0(wmem_packet_scope(), struct ngap_tai);
 %(DEFAULT_BODY)s
   if (!PINFO_FD_VISITED(actx->pinfo) && ngap_data->ngap_conv &&
@@ -479,10 +484,12 @@ TAC TYPE = FT_UINT24 DISPLAY = BASE_DEC_HEX
   tvbuff_t *parameter_tvb = NULL;
   proto_tree *subtree;
   struct ngap_private_data *ngap_data = ngap_get_private_data(actx->pinfo);
+  e212_number_type_t number_type = ngap_data->number_type;
+  ngap_data->number_type = E212_NONE;
 %(DEFAULT_BODY)s
   if (parameter_tvb) {
     subtree = proto_item_add_subtree(actx->created_item, ett_ngap_PLMNIdentity);
-    dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, subtree, 0, E212_NONE, FALSE);
+    dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, subtree, 0, number_type, FALSE);
     if (ngap_data->supported_ta) {
       guint32 plmn = tvb_get_ntoh24(parameter_tvb, 0);
       wmem_array_append_one(ngap_data->supported_ta->plmn, plmn);
@@ -565,6 +572,11 @@ TAC TYPE = FT_UINT24 DISPLAY = BASE_DEC_HEX
   proto_tree_add_item(subtree, hf_ngap_NGRANTraceID_TraceID, parameter_tvb, 3, 3, ENC_BIG_ENDIAN);
   proto_tree_add_item(subtree, hf_ngap_NGRANTraceID_TraceRecordingSessionReference, parameter_tvb, 6, 2, ENC_BIG_ENDIAN);
 
+#.FN_BODY NR-CGI
+  struct ngap_private_data *ngap_data = ngap_get_private_data(actx->pinfo);
+  ngap_data->number_type = E212_NRCGI;
+%(DEFAULT_BODY)s
+
 #.FIELD_ATTR
 NR-CGI/nRCellIdentity ABBREV=NRCellIdentity TYPE=FT_UINT40 DISPLAY=BASE_HEX
 
@@ -575,6 +587,11 @@ NR-CGI/nRCellIdentity ABBREV=NRCellIdentity TYPE=FT_UINT40 DISPLAY=BASE_HEX
     guint64 cell_id = tvb_get_bits64(cell_id_tvb, 0, 36, ENC_BIG_ENDIAN);
     actx->created_item = proto_tree_add_uint64(tree, hf_index, cell_id_tvb, 0, 5, cell_id);
   }
+
+#.FN_BODY EUTRA-CGI
+  struct ngap_private_data *ngap_data = ngap_get_private_data(actx->pinfo);
+  ngap_data->number_type = E212_ECGI;
+%(DEFAULT_BODY)s
 
 #.FIELD_ATTR
 EUTRA-CGI/eUTRACellIdentity ABBREV=EUTRACellIdentity TYPE=FT_UINT32 DISPLAY=BASE_HEX
@@ -1016,6 +1033,11 @@ ExtendedPacketDelayBudget DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ngap_ExtendedPacke
     proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_ngap_secondaryRATRestriction);
     proto_tree_add_bitmask_list(subtree, parameter_tvb, 0, 1, fields, ENC_BIG_ENDIAN);
   }
+
+#.FN_BODY LAI
+  struct ngap_private_data *ngap_data = ngap_get_private_data(actx->pinfo);
+  ngap_data->number_type = E212_LAI;
+%(DEFAULT_BODY)s
 
 #.TYPE_ATTR
 LAC TYPE = FT_UINT16 DISPLAY = BASE_DEC_HEX
