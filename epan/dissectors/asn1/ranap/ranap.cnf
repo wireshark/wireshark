@@ -308,7 +308,13 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 
 #.FN_BODY LAI
   ranap_private_data_t *private_data = (ranap_private_data_t*)ranap_get_private_data(actx);
-  private_data->number_type = E212_LAI;
+  /* The RANAP ASN.1 defines the RAI as being composed of the LAI and a RAC
+   * (cf. with the definition in the RNSAP ASN.1); don't override the fields
+   * in that case.
+   */
+  if (private_data->number_type != E212_RAI) {
+    private_data->number_type = E212_LAI;
+  }
 
 %(DEFAULT_BODY)s
 
