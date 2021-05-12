@@ -5,6 +5,8 @@
  * Copyright (c) 2014 VMware, Inc. All Rights Reserved.
  * Author: Jesse Gross <jesse@nicira.com>
  *
+ * Copyright 2021, Atul Sharma <asharm37@ncsu.edu>
+ *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -38,6 +40,13 @@ static const range_string class_id_names[] = {
     { 0x0102, 0x0102, "Open Virtual Networking (OVN)" },
     { 0x0103, 0x0103, "In-band Network Telemetry (INT)" },
     { 0x0104, 0x0104, "VMware" },
+    { 0x0105, 0x0105, "Amazon.com, Inc."},
+    { 0x0106, 0x0106, "Cisco Systems, Inc." },
+    { 0x0107, 0x0107, "Oracle Corporation" },
+    { 0x0108, 0x0110, "Amazon.com, Inc." },
+    { 0x0111, 0x0118, "IBM" },
+    { 0x0119, 0x0128, "Ericsson" },
+    { 0x0129, 0xFEFF, "Unassigned" },
     { 0xFFF0, 0xFFFF, "Experimental" },
     { 0, 0, NULL }
 };
