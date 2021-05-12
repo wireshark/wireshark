@@ -619,7 +619,7 @@ void maxmind_db_pref_cleanup(void)
 
 static void maxmind_db_pop_response(mmdb_response_t *response)
 {
-    mmdb_lookup_t *mmdb_val = (mmdb_lookup_t *) g_memdup2(&response->mmdb_val, sizeof(mmdb_lookup_t));
+    mmdb_lookup_t *mmdb_val = (mmdb_lookup_t *) wmem_memdup(wmem_epan_scope(), &response->mmdb_val, sizeof(mmdb_lookup_t));
     if (response->mmdb_val.country_iso) {
         char *country_iso = (char *) response->mmdb_val.country_iso;
         mmdb_val->country_iso = chunkify_string(country_iso);
