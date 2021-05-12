@@ -2915,27 +2915,29 @@ proto_reg_handoff_btpb(void)
 static void
 display_latitude( gchar *result, gint32 hexver )
 {
-    g_snprintf( result, ITEM_LABEL_LENGTH, "%ud%u'%.2f\"%c",
+    g_snprintf( result, ITEM_LABEL_LENGTH, "%ud%u'%.2f\"%c (%d)",
             abs(hexver)/10000000,
             abs(hexver%10000000)*6/1000000,
             abs(hexver*6%1000000)*6./100000.,
-            hexver>=0?'N':'S');
+            hexver>=0?'N':'S',
+            hexver);
 }
 
 static void
 display_longitude( gchar *result, gint32 hexver )
 {
-    g_snprintf( result, ITEM_LABEL_LENGTH, "%ud%u'%.2f\"%c",
+    g_snprintf( result, ITEM_LABEL_LENGTH, "%ud%u'%.2f\"%c (%d)",
             abs(hexver)/10000000,
             abs(hexver%10000000)*6/1000000,
             abs(hexver*6%1000000)*6./100000.,
-            hexver>=0?'E':'W');
+            hexver>=0?'E':'W',
+            hexver);
 }
 
 static void
 display_speed( gchar *result, gint32 hexver )
 {
-    g_snprintf( result, ITEM_LABEL_LENGTH, "%.2f m/s", abs(hexver)/100.);
+    g_snprintf( result, ITEM_LABEL_LENGTH, "%.2f m/s", hexver/100.);
 }
 
 static void
@@ -3176,7 +3178,7 @@ proto_register_geonw(void)
 
         { &hf_geonw_so_pv_speed,
           { "Speed", "geonw.src_pos.speed",
-            FT_INT16, BASE_CUSTOM, CF_FUNC(display_speed), 0x00,
+            FT_INT16, BASE_CUSTOM, CF_FUNC(display_speed), 0x7FFF,
             NULL, HFILL }},
 
         { &hf_geonw_so_pv_heading,
