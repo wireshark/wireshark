@@ -54,6 +54,7 @@ struct mptcpheader {
 	gboolean mh_prio;        /* true if seen an MP_PRIO */
 	gboolean mh_fail;        /* true if seen an MP_FAIL */
 	gboolean mh_fastclose;   /* true if seen a fastclose */
+	gboolean mh_tcprst;      /* true if seen a MP_TCPRST */
 
 	guint8  mh_capable_flags; /* to get hmac version for instance */
 	guint8  mh_dss_flags; /* data sequence signal flag */

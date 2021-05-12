@@ -104,6 +104,22 @@ enum mptcp_dsn_conversion {
     DSN_CONV_NONE
 } ;
 
+#define MPTCP_TCPRST_FLAG_T_PRESENT     0x1
+#define MPTCP_TCPRST_FLAG_W_PRESENT     0x2
+#define MPTCP_TCPRST_FLAG_V_PRESENT     0x4
+#define MPTCP_TCPRST_FLAG_U_PRESENT     0x8
+
+static const value_string mp_tcprst_reasons[] = {
+        { 0x0, "Unspecified error" },
+        { 0x1, "MPTCP-specific error" },
+        { 0x2, "Lack of resources" },
+        { 0x3, "Administratively prohibited" },
+        { 0x4, "Too much outstanding data" },
+        { 0x5, "Unacceptable performance" },
+        { 0x6, "Middlebox interference" },
+        { 0, NULL },
+};
+
 static gint tcp_default_window_scaling = (gint)WindowScaling_NotKnown;
 
 static int proto_tcp = -1;
@@ -261,6 +277,11 @@ static int hf_tcp_option_mptcp_m_flag = -1;
 static int hf_tcp_option_mptcp_M_flag = -1;
 static int hf_tcp_option_mptcp_a_flag = -1;
 static int hf_tcp_option_mptcp_A_flag = -1;
+static int hf_tcp_option_mptcp_U_flag = -1;
+static int hf_tcp_option_mptcp_V_flag = -1;
+static int hf_tcp_option_mptcp_W_flag = -1;
+static int hf_tcp_option_mptcp_T_flag = -1;
+static int hf_tcp_option_mptcp_tcprst_reason = -1;
 static int hf_tcp_option_mptcp_reserved_flag = -1;
 static int hf_tcp_option_mptcp_subtype = -1;
 static int hf_tcp_option_mptcp_version = -1;
@@ -521,6 +542,7 @@ static gboolean tcp_display_process_info = FALSE;
 #define TCPOPT_MPTCP_MP_PRIO       0x5    /* Multipath TCP Change Subflow Priority */
 #define TCPOPT_MPTCP_MP_FAIL       0x6    /* Multipath TCP Fallback */
 #define TCPOPT_MPTCP_MP_FASTCLOSE  0x7    /* Multipath TCP Fast Close */
+#define TCPOPT_MPTCP_MP_TCPRST     0x8    /* Multipath TCP Reset */
 
 /*
  *     Conversation Completeness values
@@ -607,6 +629,7 @@ static const value_string mptcp_subtype_vs[] = {
     { TCPOPT_MPTCP_MP_PRIO, "Change Subflow Priority" },
     { TCPOPT_MPTCP_MP_FAIL, "TCP Fallback" },
     { TCPOPT_MPTCP_MP_FASTCLOSE, "Fast Close" },
+    { TCPOPT_MPTCP_MP_TCPRST, "TCP Reset" },
     { 0, NULL }
 };
 
@@ -655,6 +678,14 @@ static int * const tcp_option_mptcp_dss_flags[] = {
   &hf_tcp_option_mptcp_M_flag,
   &hf_tcp_option_mptcp_a_flag,
   &hf_tcp_option_mptcp_A_flag,
+  NULL
+};
+
+static int * const tcp_option_mptcp_tcprst_flags[] = {
+  &hf_tcp_option_mptcp_U_flag,
+  &hf_tcp_option_mptcp_V_flag,
+  &hf_tcp_option_mptcp_W_flag,
+  &hf_tcp_option_mptcp_T_flag,
   NULL
 };
 
@@ -5123,6 +5154,16 @@ dissect_tcpopt_mptcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
             mph->mh_key = tvb_get_ntoh64(tvb,offset);
             break;
 
+        case TCPOPT_MPTCP_MP_TCPRST:
+            mph->mh_tcprst = TRUE;
+            proto_tree_add_bitmask(mptcp_tree, tvb, offset, hf_tcp_option_mptcp_flags,
+                                   ett_tcp_option_mptcp, tcp_option_mptcp_tcprst_flags,
+                                   ENC_BIG_ENDIAN);
+            offset += 1;
+            proto_tree_add_item(mptcp_tree, hf_tcp_option_mptcp_tcprst_reason, tvb,  offset, 1,
+                                ENC_BIG_ENDIAN);
+            break;
+
         default:
             break;
     }
@@ -7654,6 +7695,26 @@ proto_register_tcp(void)
         { &hf_tcp_option_mptcp_reserved_flag,
           { "Reserved", "tcp.options.mptcp.reserved.flag", FT_UINT8,
             BASE_HEX, NULL, 0x3E, NULL, HFILL}},
+
+        { &hf_tcp_option_mptcp_U_flag,
+          { "Flag U", "tcp.options.mptcp.flag_U.flag", FT_BOOLEAN,
+            4, TFS(&tfs_set_notset), MPTCP_TCPRST_FLAG_U_PRESENT, NULL, HFILL}},
+
+        { &hf_tcp_option_mptcp_V_flag,
+          { "Flag V", "tcp.options.mptcp.flag_V.flag", FT_BOOLEAN,
+            4, TFS(&tfs_set_notset), MPTCP_TCPRST_FLAG_V_PRESENT, NULL, HFILL}},
+
+        { &hf_tcp_option_mptcp_W_flag,
+          { "Flag W", "tcp.options.mptcp.flag_W.flag", FT_BOOLEAN,
+            4, TFS(&tfs_set_notset), MPTCP_TCPRST_FLAG_W_PRESENT, NULL, HFILL}},
+
+        { &hf_tcp_option_mptcp_T_flag,
+          { "Transient", "tcp.options.mptcp.flag_T.flag", FT_BOOLEAN,
+            4, TFS(&tfs_set_notset), MPTCP_TCPRST_FLAG_T_PRESENT, NULL, HFILL}},
+
+        { &hf_tcp_option_mptcp_tcprst_reason,
+          { "TCPRST Reason", "tcp.options.mptcp.rst_reason", FT_UINT8,
+            BASE_HEX, VALS(mp_tcprst_reasons), 0x0, "Multipath TCPRST Reason Code", HFILL}},
 
         { &hf_tcp_option_mptcp_address_id,
           { "Address ID", "tcp.options.mptcp.addrid", FT_UINT8,
