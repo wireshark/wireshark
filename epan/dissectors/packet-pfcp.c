@@ -1038,6 +1038,14 @@ static int hf_pfcp_bbf_l2tp_type_flags = -1;
 static int hf_pfcp_bbf_l2tp_type_flags_b0_t = -1;
 
 /* Travelping */
+static int hf_pfcp_enterprise_travelping_packet_measurement = -1;
+static int hf_pfcp_enterprise_travelping_packet_measurement_b2_dlnop = -1;
+static int hf_pfcp_enterprise_travelping_packet_measurement_b1_ulnop = -1;
+static int hf_pfcp_enterprise_travelping_packet_measurement_b0_tonop = -1;
+static int hf_pfcp_travelping_pkt_meas_tonop = -1;
+static int hf_pfcp_travelping_pkt_meas_ulnop = -1;
+static int hf_pfcp_travelping_pkt_meas_dlnop = -1;
+
 static int hf_pfcp_travelping_build_id = -1;
 static int hf_pfcp_travelping_build_id_str = -1;
 static int hf_pfcp_travelping_now = -1;
@@ -1138,6 +1146,7 @@ static int ett_pfcp_pfcpsdrsp = -1;
 static int ett_pfcp_qer_indications = -1;
 static int ett_pfcp_vendor_specific_node_report_type = -1;
 
+static int ett_pfcp_enterprise_travelping_packet_measurement = -1;
 static int ett_pfcp_enterprise_travelping_error_report = -1;
 static int ett_pfcp_enterprise_travelping_created_nat_binding = -1;
 
@@ -11129,6 +11138,7 @@ static void dissect_pfcp_enterprise_travelping_error_report(tvbuff_t *tvb, packe
 static void dissect_pfcp_enterprise_travelping_created_nat_binding(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args);
 
 /* Enterprise IE decoding Travelping */
+#define PFCP_IE_ENTERPRISE_TRAVELPING_PACKET_MEASUREMENT  1
 #define PFCP_IE_ENTERPRISE_TRAVELPING_BUILD_ID          2
 #define PFCP_IE_ENTERPRISE_TRAVELPING_NOW               3
 #define PFCP_IE_ENTERPRISE_TRAVELPING_START             4
@@ -11140,6 +11150,7 @@ static void dissect_pfcp_enterprise_travelping_created_nat_binding(tvbuff_t *tvb
 #define PFCP_IE_ENTERPRISE_TRAVELPING_CREATED_NAT_BINDING 10
 
 static const value_string pfcp_ie_enterprise_travelping_type[] = {
+    { PFCP_IE_ENTERPRISE_TRAVELPING_PACKET_MEASUREMENT, "Packet Measurement"},
     { PFCP_IE_ENTERPRISE_TRAVELPING_BUILD_ID,           "Build Id"},
     { PFCP_IE_ENTERPRISE_TRAVELPING_NOW,                "Now"},
     { PFCP_IE_ENTERPRISE_TRAVELPING_START,              "Start"},
@@ -11153,6 +11164,42 @@ static const value_string pfcp_ie_enterprise_travelping_type[] = {
 };
 
 static value_string_ext pfcp_ie_enterprise_travelping_type_ext = VALUE_STRING_EXT_INIT(pfcp_ie_enterprise_travelping_type);
+
+static void
+dissect_pfcp_enterprise_travelping_packet_measurement(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    int offset = 0;
+    guint64 flags;
+
+    static int * const pfcp_enterprise_travelping_packet_measurement_flags[] = {
+        &hf_pfcp_spare_b7_b3,
+        &hf_pfcp_enterprise_travelping_packet_measurement_b2_dlnop,
+        &hf_pfcp_enterprise_travelping_packet_measurement_b1_ulnop,
+        &hf_pfcp_enterprise_travelping_packet_measurement_b0_tonop,
+        NULL
+    };
+
+    proto_tree_add_bitmask_with_flags_ret_uint64(tree, tvb, offset, hf_pfcp_enterprise_travelping_packet_measurement,
+        ett_pfcp_enterprise_travelping_packet_measurement, pfcp_enterprise_travelping_packet_measurement_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT, &flags);
+    offset += 1;
+
+    if ((flags & 0x1)) {
+        proto_tree_add_item(tree, hf_pfcp_travelping_pkt_meas_tonop, tvb, offset, 8, ENC_BIG_ENDIAN);
+        offset += 8;
+    }
+    if ((flags & 0x2)) {
+        proto_tree_add_item(tree, hf_pfcp_travelping_pkt_meas_ulnop, tvb, offset, 8, ENC_BIG_ENDIAN);
+        offset += 8;
+    }
+    if ((flags & 0x4)) {
+        proto_tree_add_item(tree, hf_pfcp_travelping_pkt_meas_dlnop, tvb, offset, 8, ENC_BIG_ENDIAN);
+        offset += 8;
+    }
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
+    }
+}
 
 static void
 dissect_pfcp_enterprise_travelping_build_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
@@ -11269,7 +11316,7 @@ dissect_pfcp_enterprise_travelping_line_number(tvbuff_t *tvb, packet_info *pinfo
 
 static const pfcp_ie_t pfcp_enterprise_travelping_ies[] = {
 /*      0 */    { dissect_pfcp_reserved },
-/*      1 */    { dissect_pfcp_reserved },
+/*      1 */    { dissect_pfcp_enterprise_travelping_packet_measurement },
 /*      2 */    { dissect_pfcp_enterprise_travelping_build_id },
 /*      3 */    { dissect_pfcp_enterprise_travelping_now },
 /*      4 */    { dissect_pfcp_enterprise_travelping_start },
@@ -15613,6 +15660,41 @@ proto_register_pfcp(void)
         },
 
         /* Travelping */
+        { &hf_pfcp_enterprise_travelping_packet_measurement,
+        { "Flags", "pfcp.travelping.volume_measurement",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_enterprise_travelping_packet_measurement_b0_tonop,
+        { "TONOP", "pfcp.travelping.volume_measurement_flags.tonop",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_enterprise_travelping_packet_measurement_b1_ulnop,
+        { "ULNOP", "pfcp.travelping.volume_measurement_flags.ulnop",
+            FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_enterprise_travelping_packet_measurement_b2_dlnop,
+        { "DLNOP", "pfcp.travelping.volume_measurement_flags.dlnops",
+            FT_BOOLEAN, 8, NULL, 0x04,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_travelping_pkt_meas_tonop,
+        { "Total Number of Packets", "pfcp.travelping.volume_measurement.tonop",
+            FT_UINT64, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_travelping_pkt_meas_ulnop,
+        { "Uplink Number of Packets", "pfcp.travelping.volume_measurement.ulnop",
+            FT_UINT64, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_travelping_pkt_meas_dlnop,
+        { "Downlink Number of Packets", "pfcp.travelping.volume_measurement.dlnop",
+            FT_UINT64, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
         { &hf_pfcp_travelping_build_id,
         { "Build Identifier", "pfcp.travelping.build_id",
             FT_BYTES, BASE_NONE, NULL, 0x0,
@@ -15656,7 +15738,7 @@ proto_register_pfcp(void)
     };
 
     /* Setup protocol subtree array */
-#define NUM_INDIVIDUAL_ELEMS_PFCP    97
+#define NUM_INDIVIDUAL_ELEMS_PFCP    98
     gint *ett[NUM_INDIVIDUAL_ELEMS_PFCP +
         (NUM_PFCP_IES - 1) +
         (NUM_PFCP_ENTERPRISE_BBF_IES - 1) +
@@ -15754,14 +15836,15 @@ proto_register_pfcp(void)
     ett[89] = &ett_pfcp_vendor_specific_node_report_type;
     /* Enterprise */
     /* Travelping */
-    ett[90] = &ett_pfcp_enterprise_travelping_error_report;
-    ett[91] = &ett_pfcp_enterprise_travelping_created_nat_binding;
+    ett[90] = &ett_pfcp_enterprise_travelping_packet_measurement;
+    ett[91] = &ett_pfcp_enterprise_travelping_error_report;
+    ett[92] = &ett_pfcp_enterprise_travelping_created_nat_binding;
     /* BBF */
-    ett[92] = &ett_pfcp_bbf_ppp_protocol_flags;
-    ett[93] = &ett_pfcp_bbf_l2tp_endp_flags;
-    ett[94] = &ett_pfcp_bbf_l2tp_type_flags;
-    ett[95] = &ett_pfcp_bbf_ppp_lcp_connectivity;
-    ett[96] = &ett_pfcp_bbf_l2tp_tunnel;
+    ett[93] = &ett_pfcp_bbf_ppp_protocol_flags;
+    ett[94] = &ett_pfcp_bbf_l2tp_endp_flags;
+    ett[95] = &ett_pfcp_bbf_l2tp_type_flags;
+    ett[96] = &ett_pfcp_bbf_ppp_lcp_connectivity;
+    ett[97] = &ett_pfcp_bbf_l2tp_tunnel;
 
     static ei_register_info ei[] = {
         { &ei_pfcp_ie_reserved,{ "pfcp.ie_id_reserved", PI_PROTOCOL, PI_ERROR, "Reserved IE value used", EXPFILL } },
