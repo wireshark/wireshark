@@ -416,11 +416,13 @@ static gboolean is_reassembly_done(rdma_conv_info_t *p_rdma_conv_info, guint32 m
     request_t *p_request;
     segment_info_t *p_segment_info = NULL;
     gboolean ret = FALSE; /* Make sure there is at least one segment */
+    int segment_type = -1;
 
     /* Check all segments for the given reassembly message id */
     for (item = wmem_list_head(p_rdma_conv_info->segment_list); item != NULL; item = wmem_list_frame_next(item)) {
         p_segment_info = (segment_info_t *)wmem_list_frame_data(item);
         if (msgid == p_segment_info->msgid) {
+            segment_type = p_segment_info->type;
             /* Make sure all bytes have been added for reassembly */
             for (i=0; i<wmem_array_get_count(p_segment_info->requests); i++) {
                 p_request = (request_t *)wmem_array_index(p_segment_info->requests, i);
@@ -436,7 +438,7 @@ static gboolean is_reassembly_done(rdma_conv_info_t *p_rdma_conv_info, guint32 m
             segment_size += p_segment_info->length;
         }
     }
-    if (ret && p_segment_info && p_segment_info->type == RDMA_READ_CHUNK) {
+    if (ret && segment_type == RDMA_READ_CHUNK) {
         /*
          * Make sure all bytes are added to the reassembly table. Since the
          * reassembly is done on the READ_RESPONSE_LAST, a read request could
