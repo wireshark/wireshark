@@ -35,7 +35,7 @@ typedef struct _user_data_field_t {
   gchar*  udf_desc;
   guint32 udf_offset;
   guint32 udf_length;
-  guint32 udf_mask;
+  guint64 udf_mask;
   gchar*  udf_value_desc;
 } user_data_field_t;
 
@@ -159,13 +159,13 @@ user_data_fields_update_cb(void *r, char **err)
     return (*err == NULL);
   }
 
-  if (rec->udf_length > 4) {
-    *err = g_strdup_printf("length of user data field can't be greater 4 Bytes (name: %s offset: %i length: %i)", rec->udf_name, rec->udf_offset, rec->udf_length);
+  if (rec->udf_length > 8) {
+    *err = g_strdup_printf("length of user data field can't be greater 8 Bytes (name: %s offset: %i length: %i)", rec->udf_name, rec->udf_offset, rec->udf_length);
     return (*err == NULL);
   }
 
-  if (rec->udf_mask >= G_MAXUINT32) {
-    *err = g_strdup_printf("mask can only be up to 32bits (name: %s)", rec->udf_name);
+  if (rec->udf_mask >= G_MAXUINT64) {
+    *err = g_strdup_printf("mask can only be up to 64bits (name: %s)", rec->udf_name);
     return (*err == NULL);
   }
 
@@ -220,14 +220,14 @@ UAT_CSTRING_CB_DEF(user_data_fields, udf_name, user_data_field_t)
 UAT_CSTRING_CB_DEF(user_data_fields, udf_desc, user_data_field_t)
 UAT_DEC_CB_DEF(user_data_fields, udf_offset, user_data_field_t)
 UAT_DEC_CB_DEF(user_data_fields, udf_length, user_data_field_t)
-UAT_HEX_CB_DEF(user_data_fields, udf_mask, user_data_field_t)
+UAT_HEX64_CB_DEF(user_data_fields, udf_mask, user_data_field_t)
 UAT_CSTRING_CB_DEF(user_data_fields, udf_value_desc, user_data_field_t)
 
 static guint64
 calc_ett_key(guint32 offset, guint32 length)
 {
-  guint64 ret = offset;
-  return (ret * 0x100000000) ^ length;
+  guint64 ret = (guint64)offset;
+  return (ret << 32) ^ length;
 }
 
 /*
@@ -238,7 +238,7 @@ static gchar*
 calc_hf_key(user_data_field_t udf)
 {
   gchar* ret = NULL;
-  ret = g_strdup_printf("%i-%i-%i-%s", udf.udf_offset, udf.udf_length, udf.udf_mask, udf.udf_name);
+  ret = g_strdup_printf("%i-%i-%" G_GUINT64_FORMAT "-%s", udf.udf_offset, udf.udf_length, udf.udf_mask, udf.udf_name);
   return ret;
 }
 
@@ -339,15 +339,14 @@ user_data_post_update_cb(void)
       dynamic_hf[i].hfinfo.same_name_next = NULL;
       dynamic_hf[i].hfinfo.same_name_prev_id = -1;
 
-      if (user_data_fields[i].udf_mask == 0 || user_data_fields[i].udf_length <= 0 || user_data_fields[i].udf_length>4) {
+      if (user_data_fields[i].udf_mask == 0 || user_data_fields[i].udf_length <= 0 || user_data_fields[i].udf_length>8) {
         dynamic_hf[i].hfinfo.name = g_strdup(user_data_fields[i].udf_name);
         dynamic_hf[i].hfinfo.abbrev = g_strdup_printf("nm.user_data.%s", user_data_fields[i].udf_name);
         dynamic_hf[i].hfinfo.type = FT_BYTES;
         dynamic_hf[i].hfinfo.display = BASE_NONE;
         dynamic_hf[i].hfinfo.bitmask = 0;
         dynamic_hf[i].hfinfo.blurb = g_strdup(user_data_fields[i].udf_desc);
-      }
-      else {
+      } else {
         dynamic_hf[i].hfinfo.name = g_strdup(user_data_fields[i].udf_value_desc);
         dynamic_hf[i].hfinfo.abbrev = g_strdup_printf("nm.user_data.%s.%s", user_data_fields[i].udf_name, user_data_fields[i].udf_value_desc);
         dynamic_hf[i].hfinfo.type = FT_BOOLEAN;
@@ -414,15 +413,15 @@ dissect_autosar_nm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
   proto_item *ti;
   proto_tree *autosar_nm_tree;
   proto_tree *autosar_nm_subtree = NULL;
-  gchar* tmp = NULL;
+  gchar *tmp = NULL;
   guint32 offset = 0;
   guint32 length = 0;
   guint32 msg_length = 0;
   guint32 ctrl_bit_vector = 0;
   guint32 src_node_id = 0;
   guint i = 0;
-  int* hf_id;
-  int ett_id;
+  int *hf_id;
+  int *ett_id;
 
   static int * const control_bits_3_0[] = {
     &hf_autosar_nm_control_bit_vector_repeat_msg_req,
@@ -435,7 +434,6 @@ dissect_autosar_nm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     &hf_autosar_nm_control_bit_vector_reserved7,
     NULL
   };
-
 
   static int * const control_bits_3_2[] = {
     &hf_autosar_nm_control_bit_vector_repeat_msg_req,
@@ -556,12 +554,16 @@ dissect_autosar_nm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 
     offset = user_data_fields[i].udf_offset;
     length = user_data_fields[i].udf_length;
-    ett_id = *(get_ett_for_user_data(offset, length));
+    ett_id = (get_ett_for_user_data(offset, length));
 
     if (hf_id && msg_length >= length + offset) {
       if (user_data_fields[i].udf_mask == 0) {
         ti = proto_tree_add_item(autosar_nm_tree, *hf_id, tvb, offset, length, ENC_BIG_ENDIAN);
-        autosar_nm_subtree = proto_item_add_subtree(ti, ett_id);
+        if (ett_id == NULL) {
+            autosar_nm_subtree = NULL;
+        } else {
+            autosar_nm_subtree = proto_item_add_subtree(ti, *ett_id);
+        }
       } else {
         if (autosar_nm_subtree != NULL) {
           proto_tree_add_item(autosar_nm_subtree, *hf_id, tvb, offset, length, ENC_BIG_ENDIAN);
@@ -655,7 +657,7 @@ void proto_register_autosar_nm(void)
     UAT_FLD_CSTRING(user_data_fields, udf_desc, "User data desc", "Description of user data field"),
     UAT_FLD_DEC(user_data_fields, udf_offset, "User data offset", "Offset of the user data field in the AUTOSAR-NM message (uint32)"),
     UAT_FLD_DEC(user_data_fields, udf_length, "User data length", "Length of the user data field in the AUTOSAR-NM message (uint32)"),
-    UAT_FLD_DEC(user_data_fields, udf_mask, "User data mask", "Relevant bits of the user data field in the AUTOSAR-NM message (uint32)"),
+    UAT_FLD_HEX64(user_data_fields, udf_mask, "User data mask", "Relevant bits of the user data field in the AUTOSAR-NM message (uint64)"),
     UAT_FLD_CSTRING(user_data_fields, udf_value_desc, "User data value", "Description what the masked bits mean"),
     UAT_END_FIELDS
   };
