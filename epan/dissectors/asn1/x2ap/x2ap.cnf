@@ -371,6 +371,21 @@ Port-Number TYPE = FT_UINT16 DISPLAY = BASE_DEC
      proto_tree_add_item(subtree, hf_x2ap_traceCollectionEntityIPAddress_IPv6, parameter_tvb, 4, 16, ENC_NA);
   }
 
+#.FN_BODY ECGI
+  struct x2ap_private_data *x2ap_data = x2ap_get_private_data(actx->pinfo);
+  x2ap_data->number_type = E212_ECGI;
+%(DEFAULT_BODY)s
+
+#.FN_BODY NRCGI
+  struct x2ap_private_data *x2ap_data = x2ap_get_private_data(actx->pinfo);
+  x2ap_data->number_type = E212_NRCGI;
+%(DEFAULT_BODY)s
+
+#.FN_BODY TAI-Item
+  struct x2ap_private_data *x2ap_data = x2ap_get_private_data(actx->pinfo);
+  x2ap_data->number_type = E212_TAI;
+%(DEFAULT_BODY)s
+
 #.TYPE_ATTR
 TAC TYPE = FT_UINT16 DISPLAY = BASE_DEC_HEX
 #.FN_BODY TAC VAL_PTR = &parameter_tvb HF_INDEX = -1
@@ -401,6 +416,9 @@ FiveGS-TAC TYPE = FT_UINT24 DISPLAY = BASE_DEC_HEX
 #.FN_BODY PLMN-Identity  VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb = NULL;
   proto_tree *subtree;
+  struct x2ap_private_data *x2ap_data = x2ap_get_private_data(actx->pinfo);
+  e212_number_type_t number_type = x2ap_data->number_type;
+  x2ap_data->number_type = E212_NONE;
 
 %(DEFAULT_BODY)s
 
@@ -411,7 +429,7 @@ FiveGS-TAC TYPE = FT_UINT24 DISPLAY = BASE_DEC_HEX
     return offset;
 
   subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_PLMN_Identity);
-  dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, subtree, 0, E212_NONE, FALSE);
+  dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, subtree, 0, number_type, FALSE);
 
 #.TYPE_ATTR
 BitRate DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_bit_sec

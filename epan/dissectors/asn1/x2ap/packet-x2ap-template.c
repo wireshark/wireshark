@@ -202,6 +202,7 @@ struct x2ap_private_data {
   guint32 protocol_ie_id;
   guint32 message_type;
   rrc_container_type_e rrc_container_type;
+  e212_number_type_t number_type;
 };
 
 enum {
