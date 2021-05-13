@@ -17,6 +17,7 @@
 #include <epan/sctpppids.h>
 #include <epan/asn1.h>
 #include <epan/prefs.h>
+#include <epan/proto_data.h>
 
 #include "packet-per.h"
 #include "packet-e212.h"
@@ -46,6 +47,10 @@ static int ett_hnbap = -1;
 static int ett_hnbap_imsi = -1;
 #include "packet-hnbap-ett.c"
 
+struct hnbap_private_data {
+  e212_number_type_t number_type;
+};
+
 /* Global variables */
 static guint32 ProcedureCode;
 static guint32 ProtocolIE_ID;
@@ -66,6 +71,17 @@ static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, pro
 static int dissect_SuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
 static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
 void proto_reg_handoff_hnbap(void);
+
+static struct hnbap_private_data*
+hnbap_get_private_data(packet_info *pinfo)
+{
+  struct hnbap_private_data *hnbap_data = (struct hnbap_private_data*)p_get_proto_data(pinfo->pool, pinfo, proto_hnbap, 0);
+  if (!hnbap_data) {
+    hnbap_data = wmem_new0(pinfo->pool, struct hnbap_private_data);
+    p_add_proto_data(pinfo->pool, pinfo, proto_hnbap, 0, hnbap_data);
+  }
+  return hnbap_data;
+}
 
 #include "packet-hnbap-fn.c"
 

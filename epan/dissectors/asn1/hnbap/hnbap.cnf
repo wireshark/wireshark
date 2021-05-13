@@ -164,11 +164,29 @@ AccessResult
 
 #.FN_BODY PLMNidentity VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb;
+  struct hnbap_private_data *hnbap_data = hnbap_get_private_data(actx->pinfo);
+  e212_number_type_t number_type = hnbap_data->number_type;
+  hnbap_data->number_type = E212_NONE;
 %(DEFAULT_BODY)s
   if (parameter_tvb) {
-    dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, tree, 0, E212_NONE, FALSE);
+    dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, tree, 0, number_type, FALSE);
   }
 #.END
+
+#.FN_BODY CGI
+  struct hnbap_private_data *hnbap_data = hnbap_get_private_data(actx->pinfo);
+  hnbap_data->number_type = E212_CGI;
+%(DEFAULT_BODY)s
+
+#.FN_BODY LAI
+  struct hnbap_private_data *hnbap_data = hnbap_get_private_data(actx->pinfo);
+  /* The RAI is defined in the ASN.1 as the LAI plus the RAC; don't override
+   * the MNC/MCC field types in that case.
+   */
+  if (hnbap_data->number_type != E212_RAI) {
+    hnbap_data->number_type = E212_LAI;
+  }
+%(DEFAULT_BODY)s
 
 #.TYPE_ATTR
 LAC TYPE = FT_UINT16 DISPLAY = BASE_DEC_HEX
@@ -178,6 +196,11 @@ LAC TYPE = FT_UINT16 DISPLAY = BASE_DEC_HEX
   if (parameter_tvb) {
     actx->created_item = proto_tree_add_item(tree, hf_index, parameter_tvb, 0, 2, ENC_BIG_ENDIAN);
   }
+
+#.FN_BODY RAI
+  struct hnbap_private_data *hnbap_data = hnbap_get_private_data(actx->pinfo);
+  hnbap_data->number_type = E212_RAI;
+%(DEFAULT_BODY)s
 
 #.TYPE_ATTR
 RAC TYPE = FT_UINT8 DISPLAY = BASE_DEC_HEX
