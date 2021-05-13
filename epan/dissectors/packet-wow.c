@@ -155,6 +155,7 @@ static int hf_wow_client_checksum = -1;
 
 static int hf_wow_two_factor_pin_grid_seed = -1;
 static int hf_wow_two_factor_pin_salt = -1;
+static int hf_wow_two_factor_pin_hash = -1;
 
 static int hf_wow_num_realms = -1;
 static int hf_wow_realm_type = -1;
@@ -481,15 +482,25 @@ dissect_wow_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 						tvb, offset, 1, ENC_LITTLE_ENDIAN);
 				offset += 1;
 
-				if (version_is_at_or_above(1, 12, 0)) {
-					proto_tree_add_item(wow_tree, hf_wow_two_factor_enabled, tvb,
-							offset, 1, ENC_LITTLE_ENDIAN);
-					offset += 1;
-
-					/* There are additional two factor fields if
-					 * two_factor_enabled is true, although it is
-					 * almost never used and getting a capture is hard. */
+				if (!version_is_at_or_above(1, 12, 0)) {
+					break;
 				}
+				two_factor_enabled = tvb_get_guint8(tvb, offset);
+				proto_tree_add_item(wow_tree, hf_wow_two_factor_enabled, tvb,
+						offset, 1, ENC_LITTLE_ENDIAN);
+				offset += 1;
+
+				if (!two_factor_enabled) {
+					break;
+				}
+
+				proto_tree_add_item(wow_tree, hf_wow_two_factor_pin_salt, tvb,
+						offset, 16, ENC_NA);
+				offset += 16;
+
+				proto_tree_add_item(wow_tree, hf_wow_two_factor_pin_hash, tvb,
+						offset, 20, ENC_NA);
+				offset += 20;
 
 			} else if(WOW_SERVER_TO_CLIENT) {
 				error = tvb_get_guint8(tvb, offset);
@@ -793,6 +804,11 @@ proto_register_wow(void)
 		},
 		{ &hf_wow_two_factor_pin_salt,
 		  { "Two Factor PIN Salt", "wow.two_factor_pin_salt",
+		    FT_BYTES, BASE_NONE, 0, 0,
+		    NULL, HFILL }
+		},
+		{ &hf_wow_two_factor_pin_hash,
+		  { "Two Factor PIN Hash", "wow.two_factor_pin_hash",
 		    FT_BYTES, BASE_NONE, 0, 0,
 		    NULL, HFILL }
 		},
