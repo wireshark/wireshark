@@ -1,7 +1,7 @@
 /* packet-someip-sd.c
  * SOME/IP-SD dissector.
  * By Dr. Lars Voelker <lars.voelker@technica-engineering.de> / <lars.voelker@bmw.de>
- * Copyright 2012-2020 Dr. Lars Voelker
+ * Copyright 2012-2021 Dr. Lars Voelker
  * Copyright 2020      Ayoub Kaanich
  * Copyright 2019      Ana Pantar
  * Copyright 2019      Guenter Ebermann
@@ -128,6 +128,7 @@ static int hf_someip_sd_option_proto = -1;
 static int hf_someip_sd_option_reserved2 = -1;
 static int hf_someip_sd_option_data = -1;
 static int hf_someip_sd_option_config_string = -1;
+static int hf_someip_sd_option_config_string_element = -1;
 static int hf_someip_sd_option_lb_priority = -1;
 static int hf_someip_sd_option_lb_weight = -1;
 
@@ -138,6 +139,7 @@ static gint ett_someip_sd_entries = -1;
 static gint ett_someip_sd_entry = -1;
 static gint ett_someip_sd_options = -1;
 static gint ett_someip_sd_option = -1;
+static gint ett_someip_sd_config_string = -1;
 
 /*** Preferences ***/
 static range_t *someip_ignore_ports_udp = NULL;
@@ -206,6 +208,7 @@ static expert_field ef_someipsd_option_array_bytes_left = EI_INIT;
 static expert_field ef_someipsd_option_unknown = EI_INIT;
 static expert_field ef_someipsd_option_wrong_length = EI_INIT;
 static expert_field ef_someipsd_L4_protocol_unsupported = EI_INIT;
+static expert_field ef_someipsd_config_string_malformed = EI_INIT;
 
 /*** prototypes ***/
 void proto_register_someip_sd(void);
@@ -216,8 +219,11 @@ void proto_reg_handoff_someip_sd(void);
  *************************************/
 
 static void
-dissect_someip_sd_pdu_option_configuration(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint32 length, int optionnum) {
+dissect_someip_sd_pdu_option_configuration(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint32 length, int optionnum) {
     guint32         offset_orig = offset;
+    const guint8   *config_string;
+    proto_item     *ti;
+    proto_tree     *subtree;
 
     tree = proto_tree_add_subtree_format(tree, tvb, offset, length, ett_someip_sd_option, NULL, "%d: Configuration Option", optionnum);
 
@@ -231,9 +237,28 @@ dissect_someip_sd_pdu_option_configuration(tvbuff_t *tvb, packet_info *pinfo _U_
     proto_tree_add_item(tree, hf_someip_sd_option_reserved, tvb, offset, 1, ENC_NA);
     offset += 1;
 
-    proto_tree_add_item(tree, hf_someip_sd_option_config_string, tvb, offset, length - offset + offset_orig, ENC_ASCII|ENC_NA);
+    gint config_string_length = length - offset + offset_orig;
+    ti = proto_tree_add_item_ret_string(tree, hf_someip_sd_option_config_string, tvb, offset, config_string_length, ENC_ASCII | ENC_NA, wmem_packet_scope(), &config_string);
+    subtree = proto_item_add_subtree(ti, ett_someip_sd_config_string);
 
-    /* TODO: splitting the config string would be nice... does DNS have code for this? */
+    guint8 pos = 0;
+    guint8 element_length;
+    while (config_string != NULL && config_string_length - pos > 0) {
+        element_length = config_string[pos];
+        pos++;
+
+        if (element_length == 0) {
+            break;
+        }
+
+        if (element_length > config_string_length - pos) {
+            expert_add_info(pinfo, ti, &ef_someipsd_config_string_malformed);
+            break;
+        }
+
+        proto_tree_add_item(subtree, hf_someip_sd_option_config_string_element, tvb, offset + pos, element_length, ENC_ASCII | ENC_NA);
+        pos += element_length;
+    }
 }
 
 static void
@@ -559,7 +584,7 @@ dissect_someip_sd_pdu_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 
     /* lets add some combined filtering term */
-    uniqueid = (((guint64)serviceid) << 32) | instanceid << 16 | eventgroupid;
+    uniqueid = (((guint64)serviceid) << 32) | (guint64)instanceid << 16 | (guint64)eventgroupid;
 
     ti = NULL;
     if (ttl > 0) {
@@ -870,6 +895,9 @@ proto_register_someip_sd(void) {
         { &hf_someip_sd_option_config_string,
             { "Configuration String", "someipsd.option.config_string",
             FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_someip_sd_option_config_string_element,
+            { "Configuration String Element", "someipsd.option.config_string_element",
+            FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_someip_sd_option_lb_priority,
             { "Priority", "someipsd.option.priority",
             FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
@@ -908,6 +936,7 @@ proto_register_someip_sd(void) {
         &ett_someip_sd_entry,
         &ett_someip_sd_options,
         &ett_someip_sd_option,
+        &ett_someip_sd_config_string,
     };
 
     static ei_register_info ei_sd[] = {
@@ -920,6 +949,7 @@ proto_register_someip_sd(void) {
         { &ef_someipsd_option_unknown,{ "someipsd.option_unknown", PI_MALFORMED, PI_WARN, "SOME/IP-SD Unknown Option!", EXPFILL } },
         { &ef_someipsd_option_wrong_length,{ "someipsd.option_wrong_length", PI_MALFORMED, PI_ERROR, "SOME/IP-SD Option length is incorrect!", EXPFILL } },
         { &ef_someipsd_L4_protocol_unsupported,{ "someipsd.L4_protocol_unsupported", PI_MALFORMED, PI_ERROR, "SOME/IP-SD Unsupported Layer 4 Protocol!", EXPFILL } },
+        { &ef_someipsd_config_string_malformed,{ "someipsd.config_string_malformed", PI_MALFORMED, PI_ERROR, "SOME/IP-SD Configuration String malformed!", EXPFILL } },
     };
 
     /* Register ETTs */
