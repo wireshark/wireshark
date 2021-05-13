@@ -197,8 +197,8 @@ version_is_at_or_above(int major, int minor, int patch)
 		return FALSE;
 	}
 	// Both major and minor versions are equal
-	
-	if (client_game_version.minor_version > patch) {
+
+	if (client_game_version.patch_version > patch) {
 		return TRUE;
 	}
 	else if (client_game_version.patch_version < patch) {
