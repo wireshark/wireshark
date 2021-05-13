@@ -153,6 +153,9 @@ static int hf_wow_checksum_salt = -1;
 static int hf_wow_client_proof = -1;
 static int hf_wow_client_checksum = -1;
 
+static int hf_wow_two_factor_pin_grid_seed = -1;
+static int hf_wow_two_factor_pin_salt = -1;
+
 static int hf_wow_num_realms = -1;
 static int hf_wow_realm_type = -1;
 static int hf_wow_realm_flags = -1;
@@ -236,7 +239,7 @@ dissect_wow_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 	proto_tree *wow_tree, *wow_realms_tree;
 
 	gchar *string, *realm_name;
-	guint8 cmd, srp_i_len, srp_g_len, srp_n_len, error;
+	guint8 cmd, srp_i_len, srp_g_len, srp_n_len, error, two_factor_enabled;
 	guint8 num_realms;
 	guint32 offset = 0;
 	gint len, ii;
@@ -436,15 +439,25 @@ dissect_wow_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 						offset, 16, ENC_NA);
 				offset += 16;
 
-				if (version_is_at_or_above(1, 12, 0)) {
-					proto_tree_add_item(wow_tree, hf_wow_two_factor_enabled, tvb,
-							offset, 1, ENC_LITTLE_ENDIAN);
-					offset += 1;
-
-					/* There are additional two factor fields if
-					 * two_factor_enabled is true, although it is
-					 * almost never used and getting a capture is hard. */
+				if (!version_is_at_or_above(1, 12, 0)) {
+					/* The two factor fields were added in the 1.12 update. */
+					break;
 				}
+				two_factor_enabled = tvb_get_guint8(tvb, offset);
+				proto_tree_add_item(wow_tree, hf_wow_two_factor_enabled, tvb,
+						offset, 1, ENC_LITTLE_ENDIAN);
+				offset += 1;
+
+				if (!two_factor_enabled) {
+					break;
+				}
+				proto_tree_add_item(wow_tree, hf_wow_two_factor_pin_grid_seed, tvb,
+						offset, 4, ENC_LITTLE_ENDIAN);
+				offset += 4;
+
+				proto_tree_add_item(wow_tree, hf_wow_two_factor_pin_salt, tvb,
+						offset, 16, ENC_NA);
+				offset += 16;
 			}
 
 			break;
@@ -770,6 +783,16 @@ proto_register_wow(void)
 		},
 		{ &hf_wow_client_checksum,
 		  { "Reconnection Checksum", "wow.reconnect_checksum",
+		    FT_BYTES, BASE_NONE, 0, 0,
+		    NULL, HFILL }
+		},
+		{ &hf_wow_two_factor_pin_grid_seed,
+		  { "Two Factor PIN Grid Seed", "wow.two_factor_pin_grid_seed",
+		    FT_UINT32, BASE_HEX, 0, 0,
+		    NULL, HFILL }
+		},
+		{ &hf_wow_two_factor_pin_salt,
+		  { "Two Factor PIN Salt", "wow.two_factor_pin_salt",
 		    FT_BYTES, BASE_NONE, 0, 0,
 		    NULL, HFILL }
 		},
