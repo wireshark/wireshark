@@ -250,12 +250,15 @@ ProtocolExtensionID TYPE = FT_UINT8 DISPLAY = BASE_DEC|BASE_EXT_STRING STRINGS =
 #.FN_BODY PLMN-Identity  VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb = NULL;
   proto_tree *subtree;
+  struct xnap_private_data *xnap_data = xnap_get_private_data(actx->pinfo);
+  e212_number_type_t number_type = xnap_data->number_type;
+  xnap_data->number_type = E212_NONE;
 %(DEFAULT_BODY)s
   if (!parameter_tvb)
     return offset;
 
   subtree = proto_item_add_subtree(actx->created_item, ett_xnap_PLMN_Identity);
-  dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, subtree, 0, E212_NONE, FALSE);
+  dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, subtree, 0, number_type, FALSE);
 
 #.TYPE_ATTR
 PortNumber TYPE = FT_UINT16 DISPLAY = BASE_DEC
@@ -265,6 +268,16 @@ PortNumber TYPE = FT_UINT16 DISPLAY = BASE_DEC
   if (parameter_tvb) {
     actx->created_item = proto_tree_add_item(tree, hf_index, parameter_tvb, 0, 2, ENC_BIG_ENDIAN);
   }
+
+#.FN_BODY TAIsinAoI-Item
+  struct xnap_private_data *xnap_data = xnap_get_private_data(actx->pinfo);
+  xnap_data->number_type = E212_5GSTAI;
+%(DEFAULT_BODY)s
+
+#.FN_BODY TAIforMDT-Item
+  struct xnap_private_data *xnap_data = xnap_get_private_data(actx->pinfo);
+  xnap_data->number_type = E212_5GSTAI;
+%(DEFAULT_BODY)s
 
 #.TYPE_ATTR
 TAC TYPE = FT_UINT24 DISPLAY = BASE_DEC_HEX
@@ -309,6 +322,16 @@ E-UTRA-CGI/e-utra-CI ABBREV=E_UTRA_Cell_Identity TYPE=FT_UINT32 DISPLAY=BASE_HEX
 
 #.FIELD_ATTR
 NG-RAN-Cell-Identity/e-utra ABBREV=E_UTRA_Cell_Identity TYPE=FT_UINT32 DISPLAY=BASE_HEX
+
+#.FN_BODY NR-CGI
+  struct xnap_private_data *xnap_data = xnap_get_private_data(actx->pinfo);
+  xnap_data->number_type = E212_NRCGI;
+%(DEFAULT_BODY)s
+
+#.FN_BODY E-UTRA-CGI
+  struct xnap_private_data *xnap_data = xnap_get_private_data(actx->pinfo);
+  xnap_data->number_type = E212_ECGI;
+%(DEFAULT_BODY)s
 
 #.FN_BODY E-UTRA-Cell-Identity VAL_PTR = &cell_id_tvb HF_INDEX=-1
   tvbuff_t *cell_id_tvb = NULL;
