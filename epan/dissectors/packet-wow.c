@@ -160,7 +160,7 @@ static int hf_wow_two_factor_pin_hash = -1;
 static int hf_wow_num_realms = -1;
 static int hf_wow_realm_type = -1;
 static int hf_wow_realm_flags = -1;
-static int hf_wow_realm_color = -1;
+static int hf_wow_realm_category = -1;
 static int hf_wow_realm_name = -1;
 static int hf_wow_realm_socket = -1;
 static int hf_wow_realm_population_level = -1;
@@ -571,7 +571,7 @@ dissect_wow_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 					proto_tree_add_item(wow_realms_tree, hf_wow_realm_num_characters, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 					offset += 1;
 
-					proto_tree_add_item(wow_realms_tree, hf_wow_realm_color, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+					proto_tree_add_item(wow_realms_tree, hf_wow_realm_category, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 					offset += 1;
 
 					proto_tree_add_item(wow_realms_tree, hf_wow_realm_timezone, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -827,10 +827,10 @@ proto_register_wow(void)
 		    FT_UINT8, BASE_DEC, VALS(realm_flags_vs), 0,
 		    NULL, HFILL }
 		},
-		{ &hf_wow_realm_color,
-		  { "Color", "wow.realm_color",
+		{ &hf_wow_realm_category,
+		  { "Category", "wow.realm_category",
 		    FT_UINT8, BASE_DEC, 0, 0,
-		    NULL, HFILL }
+		    "Language category the realm should be shown in", HFILL }
 		},
 		{ &hf_wow_realm_name,
 		  { "Name", "wow.realm_name",
