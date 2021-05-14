@@ -165,7 +165,7 @@ static int hf_wow_realm_name = -1;
 static int hf_wow_realm_socket = -1;
 static int hf_wow_realm_population_level = -1;
 static int hf_wow_realm_num_characters = -1;
-static int hf_wow_realm_timezone = -1;
+static int hf_wow_realm_id = -1;
 
 static gboolean wow_preference_desegment = TRUE;
 
@@ -574,7 +574,7 @@ dissect_wow_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 					proto_tree_add_item(wow_realms_tree, hf_wow_realm_category, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 					offset += 1;
 
-					proto_tree_add_item(wow_realms_tree, hf_wow_realm_timezone, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+					proto_tree_add_item(wow_realms_tree, hf_wow_realm_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 					offset += 1;
 
 				}
@@ -852,10 +852,10 @@ proto_register_wow(void)
 		    FT_UINT8, BASE_DEC, 0, 0,
 		    "Number of characters the user has in this realm", HFILL }
 		},
-		{ &hf_wow_realm_timezone,
-		  { "Timezone", "wow.realm_timezone",
+		{ &hf_wow_realm_id,
+		  { "Realm id", "wow.realm_id",
 		    FT_UINT8, BASE_DEC, 0, 0,
-		    NULL, HFILL }
+		    "Used for initial sorting the in client menu", HFILL }
 		}
 	};
 
