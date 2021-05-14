@@ -57,7 +57,10 @@ BASIC_LIST="gcc \
 	qttools5-dev-tools \
 	libqt5svg5-dev \
 	qtmultimedia5-dev \
-	qt5-default \
+	qtbase5-dev \
+	qtchooser \
+	qt5-qmake \
+	qtbase5-dev-tools \
 	libc-ares-dev \
 	libpcap-dev \
 	flex \
