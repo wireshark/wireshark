@@ -149,6 +149,8 @@ static expert_field ei_http_subdissector_failed = EI_INIT;
 static expert_field ei_http_tls_port = EI_INIT;
 static expert_field ei_http_leading_crlf = EI_INIT;
 static expert_field ei_http_bad_header_name = EI_INIT;
+static expert_field ei_http_decompression_failed = EI_INIT;
+static expert_field ei_http_decompression_disabled = EI_INIT;
 
 static dissector_handle_t http_handle;
 static dissector_handle_t http_tcp_handle;
@@ -1784,7 +1786,12 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				add_new_data_source(pinfo, next_tvb,
 				    "Uncompressed entity body");
 			} else {
-				proto_item_append_text(e_ti, " [Error: Decompression failed]");
+				if (http_decompress_body) {
+					expert_add_info(pinfo, e_ti, &ei_http_decompression_failed);
+				}
+				else {
+					expert_add_info(pinfo, e_ti, &ei_http_decompression_disabled);
+				}
 				call_data_dissector(next_tvb, pinfo, e_tree);
 
 				goto body_dissected;
@@ -4148,6 +4155,8 @@ proto_register_http(void)
 		{ &ei_http_tls_port, { "http.tls_port", PI_SECURITY, PI_WARN, "Unencrypted HTTP protocol detected over encrypted port, could indicate a dangerous misconfiguration.", EXPFILL }},
 		{ &ei_http_leading_crlf, { "http.leading_crlf", PI_MALFORMED, PI_ERROR, "Leading CRLF previous message in the stream may have extra CRLF", EXPFILL }},
 		{ &ei_http_bad_header_name, { "http.bad_header_name", PI_PROTOCOL, PI_WARN, "Illegal characters found in header name", EXPFILL }},
+		{ &ei_http_decompression_failed, { "http.decompression_failed", PI_UNDECODED, PI_WARN, "Decompression failed", EXPFILL }},
+		{ &ei_http_decompression_disabled, { "http.decompression_disabled", PI_UNDECODED, PI_CHAT, "Decompression disabled", EXPFILL }},
 	};
 
 	/* UAT for header fields */
