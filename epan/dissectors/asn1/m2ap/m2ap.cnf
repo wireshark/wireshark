@@ -68,12 +68,20 @@ ProtocolIE-Field/value ie_field_value
 
 #.FN_BODY PLMN-Identity  VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb = NULL;
+  struct m2ap_private_data *m2ap_data = m2ap_get_private_data(actx->pinfo);
+  e212_number_type_t number_type = m2ap_data->number_type;
+  m2ap_data->number_type = E212_NONE;
 %(DEFAULT_BODY)s
   if (parameter_tvb) {
     proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_m2ap_PLMN_Identity);
-    dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, subtree, 0, E212_NONE, FALSE);
+    dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, subtree, 0, number_type, FALSE);
   }
 #.END
+
+#.FN_BODY ECGI
+  struct m2ap_private_data *m2ap_data = m2ap_get_private_data(actx->pinfo);
+  m2ap_data->number_type = E212_ECGI;
+%(DEFAULT_BODY)s
 
 #.FN_BODY IPAddress VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb = NULL;

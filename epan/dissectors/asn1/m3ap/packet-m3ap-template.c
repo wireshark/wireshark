@@ -18,6 +18,7 @@
 #include <epan/asn1.h>
 #include <epan/sctpppids.h>
 #include <epan/expert.h>
+#include <epan/proto_data.h>
 
 #include "packet-ber.h"
 #include "packet-per.h"
@@ -53,6 +54,10 @@ static int ett_m3ap_IPAddress = -1;
 
 static expert_field ei_m3ap_invalid_ip_address_len = EI_INIT;
 
+struct m3ap_private_data {
+  e212_number_type_t number_type;
+};
+
 enum{
   INITIATING_MESSAGE,
   SUCCESSFUL_OUTCOME,
@@ -78,6 +83,17 @@ static int dissect_ProtocolExtensionFieldExtensionValue(tvbuff_t *tvb, packet_in
 static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
 static int dissect_SuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
 static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
+
+static struct m3ap_private_data*
+m3ap_get_private_data(packet_info *pinfo)
+{
+  struct m3ap_private_data *m3ap_data = (struct m3ap_private_data*)p_get_proto_data(pinfo->pool, pinfo, proto_m3ap, 0);
+  if (!m3ap_data) {
+    m3ap_data = wmem_new0(pinfo->pool, struct m3ap_private_data);
+    p_add_proto_data(pinfo->pool, pinfo, proto_m3ap, 0, m3ap_data);
+  }
+  return m3ap_data;
+}
 
 #include "packet-m3ap-fn.c"
 
