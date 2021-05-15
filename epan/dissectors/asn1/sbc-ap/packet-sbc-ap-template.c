@@ -71,6 +71,7 @@ enum{
 
 struct sbc_ap_private_data {
   guint8 data_coding_scheme;
+  e212_number_type_t number_type;
 };
 
 /* Global variables */
