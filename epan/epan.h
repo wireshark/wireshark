@@ -15,7 +15,6 @@
 #include <epan/tvbuff.h>
 #include <epan/prefs.h>
 #include <epan/frame_data.h>
-#include <wsutil/plugins.h>
 #include <epan/register.h>
 #include "ws_symbol_export.h"
 
