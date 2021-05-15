@@ -112,6 +112,7 @@ static void write_json_proto_node_value_list(GSList *node_values_head,
                                              write_json_data *data);
 static void write_json_proto_node_filtered(proto_node *node, write_json_data *data);
 static void write_json_proto_node_hex_dump(proto_node *node, write_json_data *data);
+static void write_json_proto_node_dynamic(proto_node *node, write_json_data *data);
 static void write_json_proto_node_children(proto_node *node, write_json_data *data);
 static void write_json_proto_node_value(proto_node *node, write_json_data *data);
 static void write_json_proto_node_no_value(proto_node *node, write_json_data *data);
@@ -765,6 +766,23 @@ write_json_proto_tree(output_fields_t* fields,
 }
 
 /**
+ * Returns a boolean telling us whether that node list contains any node which has children
+ */
+static gboolean
+any_has_children(GSList *node_values_list)
+{
+    GSList *current_node = node_values_list;
+    while (current_node != NULL) {
+        proto_node *current_value = (proto_node *) current_node->data;
+        if (current_value->first_child != NULL) {
+            return TRUE;
+        }
+        current_node = current_node->next;
+    }
+    return FALSE;
+}
+
+/**
  * Write a json object containing a list of key:value pairs where each key:value pair corresponds to a different json
  * key and its associated nodes in the proto_tree.
  * @param proto_node_list_head A 2-dimensional list containing a list of values for each different node json key. The
@@ -792,11 +810,11 @@ write_json_proto_node_list(GSList *proto_node_list_head, write_json_data *pdata)
 
         field_info *fi = first_value->finfo;
         char *value_string_repr = fvalue_to_string_repr(NULL, &fi->value, FTREPR_DISPLAY, fi->hfinfo->display);
+        gboolean has_children = any_has_children(node_values_list);
 
         // We assume all values of a json key have roughly the same layout. Thus we can use the first value to derive
         // attributes of all the values.
         gboolean has_value = value_string_repr != NULL;
-        gboolean has_children = first_value->first_child != NULL;
         gboolean is_pseudo_text_field = fi->hfinfo->id == 0;
 
         wmem_free(NULL, value_string_repr); // fvalue_to_string_repr returns allocated buffer
@@ -831,7 +849,9 @@ write_json_proto_node_list(GSList *proto_node_list_head, write_json_data *pdata)
                     pdata->filter = NULL;
                 }
 
-                write_json_proto_node(node_values_list, suffix, write_json_proto_node_children, pdata);
+                // has_children is TRUE if any of the nodes have children. So we're not 100% sure whether this
+                // particular node has children or not => use the 'dynamic' version of 'write_json_proto_node'
+                write_json_proto_node(node_values_list, suffix, write_json_proto_node_dynamic, pdata);
 
                 // Put protocol filter back
                 if ((pdata->filter_flags&PF_INCLUDE_CHILDREN) == PF_INCLUDE_CHILDREN) {
@@ -964,6 +984,20 @@ write_json_proto_node_hex_dump(proto_node *node, write_json_data *pdata)
     json_dumper_value_anyf(pdata->dumper, "%" G_GINT32_MODIFIER "d", (gint32)fi->value.ftype->ftype);
 
     json_dumper_end_array(pdata->dumper);
+}
+
+/**
+ * Writes the value of a node, which may be a simple node with no value and no children,
+ * or a node with children -- this will be determined dynamically
+ */
+static void
+write_json_proto_node_dynamic(proto_node *node, write_json_data *data)
+{
+    if (node->first_child == NULL) {
+        write_json_proto_node_no_value(node, data);
+    } else {
+        write_json_proto_node_children(node, data);
+    }
 }
 
 /**
