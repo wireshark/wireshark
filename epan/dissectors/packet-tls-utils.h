@@ -242,6 +242,7 @@ typedef struct _StringInfo {
                                           http://www-archive.mozilla.org/projects/security/pki/nss/ssl/draft02.html */
 #define SSLV3_VERSION          0x300
 #define TLSV1_VERSION          0x301
+#define GMTLSV1_VERSION        0x101
 #define TLSV1DOT1_VERSION      0x302
 #define TLSV1DOT2_VERSION      0x303
 #define TLSV1DOT3_VERSION      0x304
@@ -365,7 +366,14 @@ typedef struct {
 #define KEX_TLS13       0x23
 #define KEX_ECJPAKE     0x24
 
+#define KEX_ECDHE_SM2   0x25
+#define KEX_ECC_SM2     0x26
+#define KEX_IBSDH_SM9   0x27
+#define KEX_IBC_SM9     0x28
+
 /* Order is significant, must match "ciphers" array in packet-tls-utils.c */
+
+#define ENC_START       0x30
 #define ENC_DES         0x30
 #define ENC_3DES        0x31
 #define ENC_RC4         0x32
@@ -378,12 +386,16 @@ typedef struct {
 #define ENC_SEED        0x39
 #define ENC_CHACHA20    0x3A
 #define ENC_NULL        0x3B
+#define ENC_SM1         0x3C
+#define ENC_SM4         0x3D
+
 
 #define DIG_MD5         0x40
 #define DIG_SHA         0x41
 #define DIG_SHA256      0x42
 #define DIG_SHA384      0x43
 #define DIG_NA          0x44 /* Not Applicable */
+#define DIG_SM3         0x45
 
 typedef struct {
     const gchar *name;

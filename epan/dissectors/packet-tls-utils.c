@@ -58,6 +58,7 @@ const value_string ssl_version_short_names[] = {
     { SSLV2_VERSION,        "SSLv2" },
     { SSLV3_VERSION,        "SSLv3" },
     { TLSV1_VERSION,        "TLSv1" },
+    { GMTLSV1_VERSION,      "GMTLSv1" },
     { TLSV1DOT1_VERSION,    "TLSv1.1" },
     { TLSV1DOT2_VERSION,    "TLSv1.2" },
     { TLSV1DOT3_VERSION,    "TLSv1.3" },
@@ -71,6 +72,7 @@ const value_string ssl_versions[] = {
     { SSLV2_VERSION,        "SSL 2.0" },
     { SSLV3_VERSION,        "SSL 3.0" },
     { TLSV1_VERSION,        "TLS 1.0" },
+    { GMTLSV1_VERSION,      "GMTLS" },
     { TLSV1DOT1_VERSION,    "TLS 1.1" },
     { TLSV1DOT2_VERSION,    "TLS 1.2" },
     { TLSV1DOT3_VERSION,    "TLS 1.3" },
@@ -369,6 +371,20 @@ static const value_string ssl_20_cipher_suites[] = {
     { 0x00CCAD, "TLS_DHE_PSK_WITH_CHACHA20_POLY1305_SHA256" },
     { 0x00CCAE, "TLS_RSA_PSK_WITH_CHACHA20_POLY1305_SHA256" },
 
+    /* GM/T 0024-2014 */
+    { 0x00e001, "ECDHE_SM1_SM3"},
+    { 0x00e003, "ECC_SM1_SM3"},
+    { 0x00e005, "IBSDH_SM1_SM3"},
+    { 0x00e007, "IBC_SM1_SM3"},
+    { 0x00e009, "RSA_SM1_SM3"},
+    { 0x00e00a, "RSA_SM1_SHA1"},
+    { 0x00e011, "ECDHE_SM4_SM3"},
+    { 0x00e013, "ECC_SM4_SM3"},
+    { 0x00e015, "IBSDH_SM4_SM3"},
+    { 0x00e017, "IBC_SM4_SM3"},
+    { 0x00e019, "RSA_SM4_SM3"},
+    { 0x00e01a, "RSA_SM4_SHA1"},
+
     /* https://tools.ietf.org/html/draft-josefsson-salsa20-tls */
     { 0x00E410, "TLS_RSA_WITH_ESTREAM_SALSA20_SHA1" },
     { 0x00E411, "TLS_RSA_WITH_SALSA20_SHA1" },
@@ -633,6 +649,7 @@ const value_string ssl_31_client_certificate_type[] = {
     { 64, "ECDSA Sign" },
     { 65, "RSA Fixed ECDH" },
     { 66, "ECDSA Fixed ECDH" },
+    { 80, "IBC Params" },
     { 0x00, NULL }
 };
 
@@ -1086,6 +1103,19 @@ static const value_string ssl_31_ciphersuite[] = {
     { 0xD005, "TLS_ECDHE_PSK_WITH_AES_128_CCM_SHA256" },
     /* RFC 8701 */
     { 0xDADA, "Reserved (GREASE)" },
+    /* GM/T 0024-2014 */
+    { 0xe001, "ECDHE_SM1_SM3"},
+    { 0xe003, "ECC_SM1_SM3"},
+    { 0xe005, "IBSDH_SM1_SM3"},
+    { 0xe007, "IBC_SM1_SM3"},
+    { 0xe009, "RSA_SM1_SM3"},
+    { 0xe00a, "RSA_SM1_SHA1"},
+    { 0xe011, "ECDHE_SM4_SM3"},
+    { 0xe013, "ECC_SM4_SM3"},
+    { 0xe015, "IBSDH_SM4_SM3"},
+    { 0xe017, "IBC_SM4_SM3"},
+    { 0xe019, "RSA_SM4_SM3"},
+    { 0xe01a, "RSA_SM4_SHA1"},
     /* https://tools.ietf.org/html/draft-josefsson-salsa20-tls */
     { 0xE410, "TLS_RSA_WITH_ESTREAM_SALSA20_SHA1" },
     { 0xE411, "TLS_RSA_WITH_SALSA20_SHA1" },
@@ -1227,6 +1257,7 @@ const value_string tls_hash_algorithm[] = {
     { 4, "SHA256" },
     { 5, "SHA384" },
     { 6, "SHA512" },
+    { 7, "SM3" },
     { 0, NULL }
 };
 
@@ -1235,6 +1266,7 @@ const value_string tls_signature_algorithm[] = {
     { 1, "RSA" },
     { 2, "DSA" },
     { 3, "ECDSA" },
+    { 4, "SM2" },
     { 0, NULL }
 };
 
@@ -3044,6 +3076,19 @@ static const SslCipherSuite cipher_suites[]={
     {0xCCAC,KEX_ECDHE_PSK,      ENC_CHACHA20,   DIG_SHA256, MODE_POLY1305 }, /* TLS_ECDHE_PSK_WITH_CHACHA20_POLY1305_SHA256 */
     {0xCCAD,KEX_DHE_PSK,        ENC_CHACHA20,   DIG_SHA256, MODE_POLY1305 }, /* TLS_DHE_PSK_WITH_CHACHA20_POLY1305_SHA256 */
     {0xCCAE,KEX_RSA_PSK,        ENC_CHACHA20,   DIG_SHA256, MODE_POLY1305 }, /* TLS_RSA_PSK_WITH_CHACHA20_POLY1305_SHA256 */
+    /* GM */
+    {0xe001,KEX_ECDHE_SM2,      ENC_SM1,        DIG_SM3,    MODE_CBC},        /* ECDHE_SM1_SM3 */
+    {0xe003,KEX_ECC_SM2,        ENC_SM1,        DIG_SM3,    MODE_CBC},        /* ECC_SM1_SM3 */
+    {0xe005,KEX_IBSDH_SM9,      ENC_SM1,        DIG_SM3,    MODE_CBC},        /* IBSDH_SM1_SM3 */
+    {0xe007,KEX_IBC_SM9,        ENC_SM1,        DIG_SM3,    MODE_CBC},        /* IBC_SM1_SM3 */
+    {0xe009,KEX_RSA,            ENC_SM1,        DIG_SM3,    MODE_CBC},        /* RSA_SM1_SM3 */
+    {0xe00a,KEX_RSA,            ENC_SM1,        DIG_SHA,    MODE_CBC},        /* RSA_SM1_SHA1 */
+    {0xe011,KEX_ECDHE_SM2,      ENC_SM4,        DIG_SM3,    MODE_CBC},        /* ECDHE_SM4_SM3 */
+    {0xe013,KEX_ECC_SM2,        ENC_SM4,        DIG_SM3,    MODE_CBC},        /* ECC_SM4_SM3 */
+    {0xe015,KEX_IBSDH_SM9,      ENC_SM4,        DIG_SM3,    MODE_CBC},        /* IBSDH_SM4_SM3 */
+    {0xe017,KEX_IBC_SM9,        ENC_SM4,        DIG_SM3,    MODE_CBC},        /* IBC_SM4_SM3 */
+    {0xe019,KEX_RSA,            ENC_SM4,        DIG_SM3,    MODE_CBC},        /* RSA_SM4_SM3 */
+    {0xe01a,KEX_RSA,            ENC_SM4,        DIG_SHA,    MODE_CBC},        /* RSA_SM4_SHA1 */
     {-1,    0,                  0,              0,          MODE_STREAM}
 };
 
@@ -3066,7 +3111,7 @@ ssl_find_cipher(int num)
 int
 ssl_get_cipher_algo(const SslCipherSuite *cipher_suite)
 {
-    return gcry_cipher_map_name(ciphers[cipher_suite->enc - 0x30]);
+    return gcry_cipher_map_name(ciphers[cipher_suite->enc - ENC_START]);
 }
 
 guint
@@ -3074,7 +3119,7 @@ ssl_get_cipher_blocksize(const SslCipherSuite *cipher_suite)
 {
     gint cipher_algo;
     if (cipher_suite->mode != MODE_CBC) return 0;
-    cipher_algo = ssl_get_cipher_by_name(ciphers[cipher_suite->enc - 0x30]);
+    cipher_algo = ssl_get_cipher_by_name(ciphers[cipher_suite->enc - ENC_START]);
     return (guint)gcry_cipher_get_algo_blklen(cipher_algo);
 }
 
@@ -3363,6 +3408,7 @@ prf(SslDecryptSession *ssl, StringInfo *secret, const gchar *usage,
     case TLSV1DOT1_VERSION:
     case DTLSV1DOT0_VERSION:
     case DTLSV1DOT0_OPENSSL_VERSION:
+    case GMTLSV1_VERSION:
         return tls_prf(secret, usage, rnd1, rnd2, out, out_len);
 
     default: /* TLSv1.2 */
@@ -3847,7 +3893,8 @@ ssl_generate_pre_master_secret(SslDecryptSession *ssl_session,
             ssl_session->session.version == TLSV1DOT1_VERSION ||
             ssl_session->session.version == TLSV1DOT2_VERSION ||
             ssl_session->session.version == DTLSV1DOT0_VERSION ||
-            ssl_session->session.version == DTLSV1DOT2_VERSION))
+            ssl_session->session.version == DTLSV1DOT2_VERSION ||
+            ssl_session->session.version == GMTLSV1_VERSION ))
         {
             encrlen  = tvb_get_ntohs(tvb, offset);
             skip = 2;
@@ -3951,6 +3998,7 @@ ssl_generate_keyring_material(SslDecryptSession*ssl_session)
             case TLSV1DOT1_VERSION:
             case DTLSV1DOT0_VERSION:
             case DTLSV1DOT0_OPENSSL_VERSION:
+            case GMTLSV1_VERSION:
                 ret = tls_handshake_hash(ssl_session, &handshake_hashed_data);
                 break;
             default:
@@ -4004,7 +4052,7 @@ ssl_generate_keyring_material(SslDecryptSession*ssl_session)
 
     /* Find the Libgcrypt cipher algorithm for the given SSL cipher suite ID */
     if (cipher_suite->enc != ENC_NULL) {
-        const char *cipher_name = ciphers[cipher_suite->enc-0x30];
+        const char *cipher_name = ciphers[cipher_suite->enc-ENC_START];
         ssl_debug_printf("%s CIPHER: %s\n", G_STRFUNC, cipher_name);
         cipher_algo = ssl_get_cipher_by_name(cipher_name);
         if (cipher_algo == 0) {
@@ -4241,7 +4289,7 @@ tls13_generate_keys(SslDecryptSession *ssl_session, const StringInfo *secret, gb
     }
 
     /* Find the Libgcrypt cipher algorithm for the given SSL cipher suite ID */
-    const char *cipher_name = ciphers[cipher_suite->enc-0x30];
+    const char *cipher_name = ciphers[cipher_suite->enc-ENC_START];
     ssl_debug_printf("%s CIPHER: %s\n", G_STRFUNC, cipher_name);
     cipher_algo = ssl_get_cipher_by_name(cipher_name);
     if (cipher_algo == 0) {
@@ -4957,7 +5005,7 @@ ssl_decrypt_record(SslDecryptSession *ssl, SslDecoder *decoder, guint8 ct, guint
             ssl_debug_printf("ssl_decrypt_record: mac ok\n");
         }
     }
-    else if(ssl->session.version==TLSV1_VERSION || ssl->session.version==TLSV1DOT1_VERSION || ssl->session.version==TLSV1DOT2_VERSION){
+    else if(ssl->session.version==TLSV1_VERSION || ssl->session.version==TLSV1DOT1_VERSION || ssl->session.version==TLSV1DOT2_VERSION || ssl->session.version==GMTLSV1_VERSION){
         if(tls_check_mac(decoder,ct,ssl->session.version,mac_frag,mac_fraglen,mac)< 0) {
             if(ignore_mac_failed) {
                 ssl_debug_printf("ssl_decrypt_record: mac failed, but ignored for troubleshooting ;-)\n");
@@ -8411,6 +8459,7 @@ ssl_try_set_version(SslSession *session, SslDecryptSession *ssl,
     case TLSV1DOT1_VERSION:
     case TLSV1DOT2_VERSION:
     case TLSV1DOT3_VERSION:
+    case GMTLSV1_VERSION:
         if (is_dtls)
             return;
         break;
