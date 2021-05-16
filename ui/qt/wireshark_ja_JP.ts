@@ -6935,7 +6935,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>SIP Call</source>
-        <translation type="unfinished"></translation>
+        <translation>SIP通話</translation>
     </message>
     <message>
         <source>Time Sequence (tcptrace)</source>
@@ -7724,7 +7724,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>RTP Player</source>
-        <translation type="unfinished">RTPプレイヤー</translation>
+        <translation>RTPプレイヤー</translation>
     </message>
     <message>
         <source>Play selected stream. Press CTRL key for playing reverse stream too.</source>
@@ -8089,7 +8089,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>SSRC value not found.</source>
-        <translation type="unfinished"></translation>
+        <translation>SSRC値が見つかりませんでした</translation>
     </message>
     <message>
         <source>Show or hide the toolbar</source>
@@ -8232,7 +8232,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>RTP packet search failed</source>
-        <translation type="unfinished"></translation>
+        <translation>RTPパケットの検索に失敗しました</translation>
     </message>
     <message>
         <source>No Interface Selected.</source>
@@ -9075,7 +9075,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Capture information header</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャ情報ヘッダー</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Use the &amp;quot;+&amp;quot; and &amp;quot;-&amp;quot; keys to zoom the preview in and out. Use the &amp;quot;0&amp;quot; key to reset the zoom level.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -9401,11 +9401,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Not a field or protocol</source>
-        <translation type="unfinished"></translation>
+        <translation>フィールドやプロトコルではあります</translation>
     </message>
     <message>
         <source>No field reference available for text labels.</source>
-        <translation type="unfinished"></translation>
+        <translation>テキストラベルのフィールドリファレンスが利用できません</translation>
     </message>
     <message>
         <source>Expand Subtrees</source>
@@ -10452,59 +10452,59 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Stream %1</source>
-        <translation type="unfinished"></translation>
+        <translation>ストリーム %1</translation>
     </message>
     <message>
         <source>Stream %1 Jitter</source>
-        <translation type="unfinished"></translation>
+        <translation>ストリーム %1 ジッタ</translation>
     </message>
     <message>
         <source>Stream %1 Difference</source>
-        <translation type="unfinished"></translation>
+        <translation>ストリーム %1 差異</translation>
     </message>
     <message>
         <source>Stream %1 Delta</source>
-        <translation type="unfinished"></translation>
+        <translation>ストリーム %1 デルタ</translation>
     </message>
     <message>
         <source> %1 streams, </source>
-        <translation type="unfinished"></translation>
+        <translation> %1 ストリーム, </translation>
     </message>
     <message>
         <source>Save one stream CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>１つのストリームをCSVで保存</translation>
     </message>
     <message>
         <source>Save all stream&apos;s CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>すべてのストリームのCSVを保存</translation>
     </message>
     <message>
         <source>&amp;Analyze</source>
-        <translation type="unfinished">分析(&amp;A)</translation>
+        <translation>分析(&amp;A)</translation>
     </message>
     <message>
         <source>Open the analysis window for the selected stream(s)</source>
-        <translation type="unfinished"></translation>
+        <translation>&#x3000;選択したストリームの分析ウインドウを開きます</translation>
     </message>
     <message>
         <source>&amp;Set List</source>
-        <translation type="unfinished"></translation>
+        <translation>リスト設定(&amp;S)</translation>
     </message>
     <message>
         <source>&amp;Add to List</source>
-        <translation type="unfinished"></translation>
+        <translation>リストに追加(&amp;A)</translation>
     </message>
     <message>
         <source>&amp;Remove from List</source>
-        <translation type="unfinished"></translation>
+        <translation>リストから削除(&amp;R)</translation>
     </message>
     <message>
         <source>Replace existing list in RTP Analysis Dialog with new one</source>
-        <translation type="unfinished"></translation>
+        <translation>RTP分析画面の既存リストを新規に置換</translation>
     </message>
     <message>
         <source>Add new set to existing list in RTP Analysis Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>RTP分析画面の既存のリストへ新規セットを追加</translation>
     </message>
     <message>
         <source>Remove selected streams from list in RTP Analysis Dialog</source>
@@ -10520,7 +10520,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&amp;Export</source>
-        <translation type="unfinished"></translation>
+        <translation>エクスポート(&amp;E)</translation>
     </message>
     <message>
         <source>Open export menu</source>
@@ -10532,7 +10532,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Save tables as CSV.</source>
-        <translation type="unfinished"></translation>
+        <translation>表をCSVとして保存します</translation>
     </message>
     <message>
         <source>Current Tab Stream CSV</source>
@@ -10584,7 +10584,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Prepare &amp;Filter</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">フィルタを準備(&amp;F)</translation>
     </message>
     <message>
         <source>Prepare a filter matching the selected stream(s).</source>
@@ -10600,11 +10600,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&amp;All Tabs</source>
-        <translation type="unfinished"></translation>
+        <translation>すべてのタブ(&amp;A)</translation>
     </message>
     <message>
         <source>Prepare a filter matching all tabs.</source>
-        <translation type="unfinished"></translation>
+        <translation>すべてのタブに合致するフィルタを準備します</translation>
     </message>
     <message>
         <source>RTP Stream Analysis</source>
@@ -10698,7 +10698,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Start playback of all unmuted streams</source>
-        <translation type="unfinished"></translation>
+        <translation>すべてのミュートしていないストリームの再生を開始</translation>
     </message>
     <message>
         <source>Pause/unpause playback</source>
@@ -10706,7 +10706,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Stop playback</source>
-        <translation type="unfinished"></translation>
+        <translation>再生を停止</translation>
     </message>
     <message>
         <source>Enable/disable skipping of silence during playback</source>
@@ -10726,7 +10726,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Output Audio Rate:</source>
-        <translation type="unfinished"></translation>
+        <translation>出力音声レート:</translation>
     </message>
     <message>
         <source>Jitter Buffer:</source>
@@ -10779,7 +10779,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&amp;Export</source>
-        <translation type="unfinished"></translation>
+        <translation>エクスポート(&amp;E)</translation>
     </message>
     <message>
         <source>Export audio of all unmuted selected channels or export payload of one channel.</source>
@@ -10787,19 +10787,19 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>From &amp;cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>カーソル位置から(&amp;c)</translation>
     </message>
     <message>
         <source>Save audio data started at the cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>カーソル位置で開始した音声データを保存</translation>
     </message>
     <message>
         <source>&amp;Stream Synchronized Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>音声同期ストリーム(&amp;S)</translation>
     </message>
     <message>
         <source>Save audio data synchronized to start of the earliest stream.</source>
-        <translation type="unfinished"></translation>
+        <translation>もっとも早いストリームの開始に同期した音声データを保存</translation>
     </message>
     <message>
         <source>&amp;File Synchronized Audio</source>
@@ -10811,7 +10811,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&amp;Payload</source>
-        <translation type="unfinished"></translation>
+        <translation>ペイロード(&amp;P)</translation>
     </message>
     <message>
         <source>Save RTP payload of selected stream.</source>
@@ -10867,51 +10867,51 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Remove Streams</source>
-        <translation type="unfinished"></translation>
+        <translation>ストリームを削除</translation>
     </message>
     <message>
         <source>Remove selected streams from the list</source>
-        <translation type="unfinished"></translation>
+        <translation>選択したストリームをリストから削除します</translation>
     </message>
     <message>
         <source>All</source>
-        <translation type="unfinished"></translation>
+        <translation>すべて</translation>
     </message>
     <message>
         <source>Select all</source>
-        <translation type="unfinished"></translation>
+        <translation>すべてを選択</translation>
     </message>
     <message>
         <source>None</source>
-        <translation type="unfinished">なし</translation>
+        <translation>なし</translation>
     </message>
     <message>
         <source>Clear selection</source>
-        <translation type="unfinished">選択をクリア</translation>
+        <translation>選択をクリア</translation>
     </message>
     <message>
         <source>Invert</source>
-        <translation type="unfinished">反転</translation>
+        <translation>反転</translation>
     </message>
     <message>
         <source>Invert selection</source>
-        <translation type="unfinished"></translation>
+        <translation>選択を反転します</translation>
     </message>
     <message>
         <source>Play/Pause</source>
-        <translation type="unfinished"></translation>
+        <translation>再生/一時停止</translation>
     </message>
     <message>
         <source>Start playing or pause playing</source>
-        <translation type="unfinished"></translation>
+        <translation>再生を開始または再生を一時停止します</translation>
     </message>
     <message>
         <source>Stop</source>
-        <translation type="unfinished"></translation>
+        <translation>停止</translation>
     </message>
     <message>
         <source>Stop playing</source>
-        <translation type="unfinished"></translation>
+        <translation>再生を停止します</translation>
     </message>
     <message>
         <source>I&amp;naudible streams</source>
@@ -10927,7 +10927,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&amp;Select</source>
-        <translation type="unfinished"></translation>
+        <translation>選択(&amp;S)</translation>
     </message>
     <message>
         <source>Select inaudible streams</source>
@@ -10935,7 +10935,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&amp;Deselect</source>
-        <translation type="unfinished"></translation>
+        <translation>非選択(&amp;D)</translation>
     </message>
     <message>
         <source>Deselect inaudible streams</source>
@@ -10943,15 +10943,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Prepare &amp;Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>フィルタを準備(&amp;F)</translation>
     </message>
     <message>
         <source>Prepare a filter matching the selected stream(s).</source>
-        <translation type="unfinished">選択したストリームに合致するフィルタを準備します</translation>
+        <translation>選択したストリームに合致するフィルタを準備します</translation>
     </message>
     <message>
         <source>R&amp;efresh streams</source>
-        <translation type="unfinished"></translation>
+        <translation>ストリームを更新(&amp;e)</translation>
     </message>
     <message>
         <source>Read captured packets from capture in progress to player</source>
@@ -10963,15 +10963,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>SR (Hz)</source>
-        <translation type="unfinished"></translation>
+        <translation>SR (Hz)</translation>
     </message>
     <message>
         <source>Sample rate of codec</source>
-        <translation type="unfinished"></translation>
+        <translation>コーデックのサンプリングレート</translation>
     </message>
     <message>
         <source>PR (Hz)</source>
-        <translation type="unfinished"></translation>
+        <translation>PR (Hz)</translation>
     </message>
     <message>
         <source>Play rate of decoded audio (depends e. g. on selected sound card)</source>
@@ -11007,19 +11007,19 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Play the stream</source>
-        <translation type="unfinished"></translation>
+        <translation>ストリームを再生</translation>
     </message>
     <message>
         <source>To Left</source>
-        <translation type="unfinished"></translation>
+        <translation>左へ</translation>
     </message>
     <message>
         <source>Left + Right</source>
-        <translation type="unfinished"></translation>
+        <translation>左 + 右</translation>
     </message>
     <message>
         <source>To Right</source>
-        <translation type="unfinished"></translation>
+        <translation>右へ</translation>
     </message>
     <message>
         <source>Invert Muting</source>
@@ -11031,7 +11031,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Select</source>
-        <translation type="unfinished"></translation>
+        <translation>選択</translation>
     </message>
     <message>
         <source>Audio Routing</source>
@@ -11039,7 +11039,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&amp;Play Streams</source>
-        <translation type="unfinished"></translation>
+        <translation>ストリームを再生(&amp;P)</translation>
     </message>
     <message>
         <source>Open RTP player dialog</source>
@@ -11103,7 +11103,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>, %1 selected</source>
-        <translation type="unfinished"></translation>
+        <translation>, %1 選択済</translation>
     </message>
     <message>
         <source>, %1 not muted</source>
@@ -11123,7 +11123,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Automatic</source>
-        <translation type="unfinished"></translation>
+        <translation>自動</translation>
     </message>
     <message>
         <source>WAV (*.wav)</source>
@@ -11143,11 +11143,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Save payload</source>
-        <translation type="unfinished"></translation>
+        <translation>ペイロードを保存</translation>
     </message>
     <message>
         <source>Warning</source>
-        <translation type="unfinished">警告</translation>
+        <translation>警告</translation>
     </message>
     <message>
         <source>No stream selected or none of selected streams provide audio</source>
@@ -11155,7 +11155,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Error</source>
-        <translation type="unfinished">エラー</translation>
+        <translation>エラー</translation>
     </message>
     <message>
         <source>All selected streams must use same play rate. Manual set of Output Audio Rate might help.</source>
@@ -11222,11 +11222,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Start Time</source>
-        <translation type="unfinished">開始時間</translation>
+        <translation>開始時間</translation>
     </message>
     <message>
         <source>Duration</source>
-        <translation type="unfinished">時間</translation>
+        <translation>時間</translation>
     </message>
     <message>
         <source>Payload</source>
@@ -11270,23 +11270,23 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Time of Day</source>
-        <translation type="unfinished">時刻</translation>
+        <translation>時刻</translation>
     </message>
     <message>
         <source>Find &amp;Reverse</source>
-        <translation type="unfinished"></translation>
+        <translation>逆方向を検索(&amp;R)</translation>
     </message>
     <message>
         <source>Prepare &amp;Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>フィルタを準備(&amp;F)</translation>
     </message>
     <message>
         <source>&amp;Export</source>
-        <translation type="unfinished"></translation>
+        <translation>エクスポート(&amp;E)</translation>
     </message>
     <message>
         <source>&amp;Analyze</source>
-        <translation type="unfinished">分析(&amp;A)</translation>
+        <translation>分析(&amp;A)</translation>
     </message>
     <message>
         <source>Open the analysis window for the selected stream(s) and add it to it</source>
@@ -11298,15 +11298,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Min Delta (ms)</source>
-        <translation type="unfinished"></translation>
+        <translation>最小間隔(ms)</translation>
     </message>
     <message>
         <source>Mean Delta (ms)</source>
-        <translation type="unfinished"></translation>
+        <translation>平均間隔(ms)</translation>
     </message>
     <message>
         <source>Min Jitter</source>
-        <translation type="unfinished"></translation>
+        <translation>最小ジッタ</translation>
     </message>
     <message>
         <source>All forward/reverse stream actions</source>
@@ -11326,7 +11326,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Shift+R</source>
-        <translation type="unfinished"></translation>
+        <translation>Shift+R</translation>
     </message>
     <message>
         <source>Find Only &amp;Singles</source>
@@ -11338,7 +11338,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Ctrl+R</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+R</translation>
     </message>
     <message>
         <source>Mark Packets</source>
@@ -11354,27 +11354,27 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>All</source>
-        <translation type="unfinished"></translation>
+        <translation>すべて</translation>
     </message>
     <message>
         <source>Select all</source>
-        <translation type="unfinished"></translation>
+        <translation>すべてを選択</translation>
     </message>
     <message>
         <source>None</source>
-        <translation type="unfinished">なし</translation>
+        <translation>なし</translation>
     </message>
     <message>
         <source>Clear selection</source>
-        <translation type="unfinished">選択をクリア</translation>
+        <translation>選択をクリア</translation>
     </message>
     <message>
         <source>Invert</source>
-        <translation type="unfinished">反転</translation>
+        <translation>反転</translation>
     </message>
     <message>
         <source>Invert selection</source>
-        <translation type="unfinished"></translation>
+        <translation>選択を反転します</translation>
     </message>
     <message>
         <source>Go To Setup</source>
@@ -11406,15 +11406,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>A</source>
-        <translation type="unfinished"></translation>
+        <translation>A </translation>
     </message>
     <message>
         <source>Cop&amp;y</source>
-        <translation type="unfinished"></translation>
+        <translation>コピー(&amp;y)</translation>
     </message>
     <message>
         <source>Open copy menu</source>
-        <translation type="unfinished"></translation>
+        <translation>コピーメニューを開く</translation>
     </message>
     <message>
         <source>Copy as CSV</source>
@@ -11438,7 +11438,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Select</source>
-        <translation type="unfinished"></translation>
+        <translation>選択</translation>
     </message>
     <message>
         <source>as CSV</source>
@@ -12462,11 +12462,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&amp;Export</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">エクスポート(&amp;E)</translation>
     </message>
     <message>
         <source>Export diagram</source>
-        <translation type="unfinished"></translation>
+        <translation>ダイアグラムをエクスポート</translation>
     </message>
     <message>
         <source>Zoom In</source>
@@ -12606,27 +12606,27 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Select RTP Stream</source>
-        <translation type="unfinished"></translation>
+        <translation>RTPストリームを選択</translation>
     </message>
     <message>
         <source>Select RTP stream in RTP Streams dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>RTPストリーム画面のRTPストリームを選択します</translation>
     </message>
     <message>
         <source>S</source>
-        <translation type="unfinished">S</translation>
+        <translation>S</translation>
     </message>
     <message>
         <source>Deselect RTP Stream</source>
-        <translation type="unfinished"></translation>
+        <translation>RTPストリームを選択解除</translation>
     </message>
     <message>
         <source>Deselect RTP stream in RTP Streams dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>RTPストリーム画面のRTPストリームを選択解除します</translation>
     </message>
     <message>
         <source>D</source>
-        <translation type="unfinished">D</translation>
+        <translation>D</translation>
     </message>
 </context>
 <context>
@@ -13771,7 +13771,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Prepare &amp;Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>フィルタを準備(&amp;F)</translation>
     </message>
     <message>
         <source>Prepare a filter matching the selected calls(s).</source>
@@ -13779,35 +13779,35 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Cop&amp;y</source>
-        <translation type="unfinished"></translation>
+        <translation>コピー(&amp;y)</translation>
     </message>
     <message>
         <source>Open copy menu</source>
-        <translation type="unfinished"></translation>
+        <translation>コピーメニューを開く</translation>
     </message>
     <message>
         <source>All</source>
-        <translation type="unfinished"></translation>
+        <translation>すべて</translation>
     </message>
     <message>
         <source>Select all</source>
-        <translation type="unfinished"></translation>
+        <translation>すべてを選択</translation>
     </message>
     <message>
         <source>None</source>
-        <translation type="unfinished">なし</translation>
+        <translation>なし</translation>
     </message>
     <message>
         <source>Invert</source>
-        <translation type="unfinished">反転</translation>
+        <translation>反転</translation>
     </message>
     <message>
         <source>Invert selection</source>
-        <translation type="unfinished"></translation>
+        <translation>選択を反転します</translation>
     </message>
     <message>
         <source>Select related RTP streams</source>
-        <translation type="unfinished"></translation>
+        <translation>関連するRTPストリームを選択します</translation>
     </message>
     <message>
         <source>Select RTP streams related to selected calls in RTP Streams dialog</source>
@@ -13815,15 +13815,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>S</source>
-        <translation type="unfinished">S</translation>
+        <translation>S</translation>
     </message>
     <message>
         <source>Deselect related RTP Streams</source>
-        <translation type="unfinished"></translation>
+        <translation>関連するRTPストリームを選択解除します</translation>
     </message>
     <message>
         <source>D</source>
-        <translation type="unfinished">D</translation>
+        <translation>D</translation>
     </message>
     <message>
         <source>Clear selection</source>
@@ -13867,7 +13867,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Select</source>
-        <translation type="unfinished"></translation>
+        <translation>選択</translation>
     </message>
 </context>
 <context>

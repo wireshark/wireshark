@@ -10722,27 +10722,27 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Start playback of all unmuted streams</source>
-        <translation type="unfinished"></translation>
+        <translation>Avvia la riproduzione di tutti i flussi non silenziati</translation>
     </message>
     <message>
         <source>Pause/unpause playback</source>
-        <translation type="unfinished"></translation>
+        <translation>Sospendi/Riprendi la riproduzione</translation>
     </message>
     <message>
         <source>Stop playback</source>
-        <translation type="unfinished"></translation>
+        <translation>Ferma la riproduzione</translation>
     </message>
     <message>
         <source>Enable/disable skipping of silence during playback</source>
-        <translation type="unfinished"></translation>
+        <translation>Abilita/Disabilita il salto del silenzio durante la riproduzione</translation>
     </message>
     <message>
         <source>Min silence:</source>
-        <translation type="unfinished"></translation>
+        <translation>Silenzio minimo:</translation>
     </message>
     <message>
         <source>Minimum silence duration to skip in seconds</source>
-        <translation type="unfinished"></translation>
+        <translation>Durata minima del silenzio da saltare in secondi:</translation>
     </message>
     <message>
         <source>Output Device:</source>
@@ -11322,15 +11322,15 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Min Delta (ms)</source>
-        <translation type="unfinished"></translation>
+        <translation>Delta minimo (ms)</translation>
     </message>
     <message>
         <source>Mean Delta (ms)</source>
-        <translation type="unfinished"></translation>
+        <translation>Delta medio (ms)</translation>
     </message>
     <message>
         <source>Min Jitter</source>
-        <translation type="unfinished"></translation>
+        <translation>Jitter minimo</translation>
     </message>
     <message>
         <source>All forward/reverse stream actions</source>
