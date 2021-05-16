@@ -1079,7 +1079,7 @@ de_nas_5gs_mm_5gs_mobile_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
          * MNC digit 3    MCC digit 3
          * MNC digit 2    MNC digit 1
          */
-        offset = dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, E212_NONE, TRUE);
+        offset = dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, E212_GUAMI, TRUE);
         /* AMF Region ID octet 7 */
         proto_tree_add_item(tree, hf_nas_5gs_amf_region_id, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;

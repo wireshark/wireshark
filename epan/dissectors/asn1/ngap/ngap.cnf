@@ -498,6 +498,11 @@ TAC TYPE = FT_UINT24 DISPLAY = BASE_DEC_HEX
     }
   }
 
+#.FN_BODY GUAMI
+  struct ngap_private_data *ngap_data = ngap_get_private_data(actx->pinfo);
+  ngap_data->number_type = E212_GUAMI;
+%(DEFAULT_BODY)s
+
 #.FN_HDR SupportedTAItem
   struct ngap_private_data *ngap_data = ngap_get_private_data(actx->pinfo);
 

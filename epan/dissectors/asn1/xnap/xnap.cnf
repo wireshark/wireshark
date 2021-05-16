@@ -269,6 +269,11 @@ PortNumber TYPE = FT_UINT16 DISPLAY = BASE_DEC
     actx->created_item = proto_tree_add_item(tree, hf_index, parameter_tvb, 0, 2, ENC_BIG_ENDIAN);
   }
 
+#.FN_BODY GUAMI
+  struct xnap_private_data *xnap_data = xnap_get_private_data(actx->pinfo);
+  xnap_data->number_type = E212_GUAMI;
+%(DEFAULT_BODY)s
+
 #.FN_BODY TAIsinAoI-Item
   struct xnap_private_data *xnap_data = xnap_get_private_data(actx->pinfo);
   xnap_data->number_type = E212_5GSTAI;
