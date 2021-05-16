@@ -1002,6 +1002,11 @@ BitRate DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_bit_sec
     dissect_lte_rrc_CellsToAddModListNR_r15_PDU(black_cells_list_tvb, actx->pinfo, subtree, NULL);
   }
 
+#.FN_BODY GUMMEI
+  struct s1ap_private_data *s1ap_data = s1ap_get_private_data(actx->pinfo);
+  s1ap_data->number_type = E212_GUMMEI;
+%(DEFAULT_BODY)s
+
 #.TYPE_ATTR
 MME-Code TYPE = FT_UINT8 DISPLAY = BASE_DEC_HEX
 #.FN_BODY MME-Code VAL_PTR = &parameter_tvb HF_INDEX = -1

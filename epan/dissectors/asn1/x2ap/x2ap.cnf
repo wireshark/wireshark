@@ -434,6 +434,11 @@ FiveGS-TAC TYPE = FT_UINT24 DISPLAY = BASE_DEC_HEX
 #.TYPE_ATTR
 BitRate DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_bit_sec
 
+#.FN_BODY GUMMEI
+  struct x2ap_private_data *x2ap_data = x2ap_get_private_data(actx->pinfo);
+  x2ap_data->number_type = E212_GUMMEI;
+%(DEFAULT_BODY)s
+
 #.TYPE_ATTR
 MME-Code TYPE = FT_UINT8 DISPLAY = BASE_DEC_HEX
 #.FN_BODY MME-Code VAL_PTR = &parameter_tvb HF_INDEX = -1
