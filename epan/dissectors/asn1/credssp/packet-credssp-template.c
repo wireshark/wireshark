@@ -92,7 +92,7 @@ dissect_credssp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
         if((ber_class == BER_CLASS_UNI) && (tag == BER_UNI_TAG_INTEGER)) {
           offset = get_ber_length(tvb, offset, &length, NULL);
           ver = tvb_get_guint8(tvb, offset);
-          if((length == 1) && ((ver == 2) || (ver == 3))) {
+          if((length == 1) && (ver > 1) && (ver < 99)) {
             if (have_tap_listener(exported_pdu_tap)) {
               exp_pdu_data_t *exp_pdu_data = export_pdu_create_common_tags(pinfo, "credssp", EXP_PDU_TAG_PROTO_NAME);
 
