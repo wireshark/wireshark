@@ -35,6 +35,7 @@
 #define TS_PASSWORD_CREDS   1
 #define TS_SMARTCARD_CREDS  2
 static gint creds_type;
+static gint credssp_ver;
 
 static gint exported_pdu_tap = -1;
 
@@ -67,13 +68,15 @@ static int hf_credssp_userHint = -1;              /* OCTET_STRING */
 static int hf_credssp_domainHint = -1;            /* OCTET_STRING */
 static int hf_credssp_credType = -1;              /* T_credType */
 static int hf_credssp_credentials = -1;           /* T_credentials */
-static int hf_credssp_version = -1;               /* INTEGER */
+static int hf_credssp_version = -1;               /* T_version */
 static int hf_credssp_negoTokens = -1;            /* NegoData */
 static int hf_credssp_authInfo = -1;              /* T_authInfo */
 static int hf_credssp_pubKeyAuth = -1;            /* OCTET_STRING */
+static int hf_credssp_errorCode = -1;             /* T_errorCode */
+static int hf_credssp_clientNonce = -1;           /* T_clientNonce */
 
 /*--- End of included file: packet-credssp-hf.c ---*/
-#line 43 "./asn1/credssp/packet-credssp-template.c"
+#line 44 "./asn1/credssp/packet-credssp-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_credssp = -1;
@@ -89,7 +92,7 @@ static gint ett_credssp_TSCredentials = -1;
 static gint ett_credssp_TSRequest = -1;
 
 /*--- End of included file: packet-credssp-ett.c ---*/
-#line 47 "./asn1/credssp/packet-credssp-template.c"
+#line 48 "./asn1/credssp/packet-credssp-template.c"
 
 
 /*--- Included file: packet-credssp-fn.c ---*/
@@ -98,7 +101,7 @@ static gint ett_credssp_TSRequest = -1;
 
 static int
 dissect_credssp_T_negoToken(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 45 "./asn1/credssp/credssp.cnf"
+#line 64 "./asn1/credssp/credssp.cnf"
 	tvbuff_t *token_tvb = NULL;
 	heur_dtbl_entry_t *hdtbl_entry;
 
@@ -228,7 +231,7 @@ dissect_credssp_T_credType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 static int
 dissect_credssp_T_credentials(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 23 "./asn1/credssp/credssp.cnf"
+#line 42 "./asn1/credssp/credssp.cnf"
 	tvbuff_t *creds_tvb = NULL;
 	tvbuff_t *decr_tvb = NULL;
 
@@ -273,8 +276,18 @@ dissect_credssp_TSCredentials(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 
 static int
+dissect_credssp_T_version(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                                &credssp_ver);
+
+  return offset;
+}
+
+
+
+static int
 dissect_credssp_T_authInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 10 "./asn1/credssp/credssp.cnf"
+#line 11 "./asn1/credssp/credssp.cnf"
 	tvbuff_t *auth_tvb = NULL;
 	tvbuff_t *decr_tvb = NULL;
 
@@ -292,11 +305,53 @@ dissect_credssp_T_authInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 }
 
 
+
+static int
+dissect_credssp_T_errorCode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 21 "./asn1/credssp/credssp.cnf"
+
+	if (credssp_ver < 3) {
+		return 0;
+	}
+
+	  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                                NULL);
+
+
+
+
+
+  return offset;
+}
+
+
+
+static int
+dissect_credssp_T_clientNonce(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 30 "./asn1/credssp/credssp.cnf"
+
+	if (credssp_ver < 5) {
+		return 0;
+	}
+
+	  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+
+
+
+
+  return offset;
+}
+
+
 static const ber_sequence_t TSRequest_sequence[] = {
-  { &hf_credssp_version     , BER_CLASS_CON, 0, 0, dissect_credssp_INTEGER },
+  { &hf_credssp_version     , BER_CLASS_CON, 0, 0, dissect_credssp_T_version },
   { &hf_credssp_negoTokens  , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_credssp_NegoData },
   { &hf_credssp_authInfo    , BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_credssp_T_authInfo },
   { &hf_credssp_pubKeyAuth  , BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL, dissect_credssp_OCTET_STRING },
+  { &hf_credssp_errorCode   , BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL, dissect_credssp_T_errorCode },
+  { &hf_credssp_clientNonce , BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL, dissect_credssp_T_clientNonce },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -320,7 +375,7 @@ static int dissect_TSRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
 
 
 /*--- End of included file: packet-credssp-fn.c ---*/
-#line 49 "./asn1/credssp/packet-credssp-template.c"
+#line 50 "./asn1/credssp/packet-credssp-template.c"
 
 /*
 * Dissect CredSSP PDUs
@@ -339,6 +394,8 @@ dissect_credssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void
   	col_clear(pinfo->cinfo, COL_INFO);
 
 	creds_type = -1;
+	credssp_ver = -1;
+
 	return dissect_TSRequest_PDU(tvb, pinfo, tree, data);
 }
 
@@ -480,7 +537,7 @@ void proto_register_credssp(void) {
     { &hf_credssp_version,
       { "version", "credssp.version",
         FT_INT32, BASE_DEC, NULL, 0,
-        "INTEGER", HFILL }},
+        NULL, HFILL }},
     { &hf_credssp_negoTokens,
       { "negoTokens", "credssp.negoTokens",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -493,9 +550,17 @@ void proto_register_credssp(void) {
       { "pubKeyAuth", "credssp.pubKeyAuth",
         FT_BYTES, BASE_NONE, NULL, 0,
         "OCTET_STRING", HFILL }},
+    { &hf_credssp_errorCode,
+      { "errorCode", "credssp.errorCode",
+        FT_INT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_credssp_clientNonce,
+      { "clientNonce", "credssp.clientNonce",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
 
 /*--- End of included file: packet-credssp-hfarr.c ---*/
-#line 135 "./asn1/credssp/packet-credssp-template.c"
+#line 138 "./asn1/credssp/packet-credssp-template.c"
   };
 
   /* List of subtrees */
@@ -513,7 +578,7 @@ void proto_register_credssp(void) {
     &ett_credssp_TSRequest,
 
 /*--- End of included file: packet-credssp-ettarr.c ---*/
-#line 141 "./asn1/credssp/packet-credssp-template.c"
+#line 144 "./asn1/credssp/packet-credssp-template.c"
   };
 
 

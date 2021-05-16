@@ -38,7 +38,9 @@ TSRequest ::= SEQUENCE {
 	version	       [0] INTEGER,
 	negoTokens     [1] NegoData OPTIONAL,
 	authInfo       [2] OCTET STRING OPTIONAL,
-	pubKeyAuth     [3] OCTET STRING OPTIONAL
+	pubKeyAuth     [3] OCTET STRING OPTIONAL,
+	errorCode      [4] INTEGER OPTIONAL,
+	clientNonce    [5] OCTET STRING OPTIONAL
 }
 
 END

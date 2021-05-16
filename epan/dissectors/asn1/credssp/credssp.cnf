@@ -4,6 +4,7 @@
 #.PDU
 TSRequest
 
+#.FN_PARS TSRequest/version VAL_PTR = &credssp_ver
 #.FN_PARS TSRequest/authInfo VAL_PTR = &auth_tvb
 
 #.FN_BODY TSRequest/authInfo
@@ -14,6 +15,24 @@ TSRequest
 
 	if(decr_tvb != NULL)
 		    offset = dissect_credssp_TSCredentials(FALSE, decr_tvb, 0, actx, tree, hf_credssp_TSCredentials);
+
+
+#.FN_BODY TSRequest/errorCode
+
+	if (credssp_ver < 3) {
+		return 0;
+	}
+
+	%(DEFAULT_BODY)s
+
+
+#.FN_BODY TSRequest/clientNonce
+
+	if (credssp_ver < 5) {
+		return 0;
+	}
+
+	%(DEFAULT_BODY)s
 
 
 #.FN_PARS TSCredentials/credType VAL_PTR = &creds_type

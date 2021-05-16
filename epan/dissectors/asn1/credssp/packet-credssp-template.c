@@ -27,6 +27,7 @@
 #define TS_PASSWORD_CREDS   1
 #define TS_SMARTCARD_CREDS  2
 static gint creds_type;
+static gint credssp_ver;
 
 static gint exported_pdu_tap = -1;
 
@@ -64,6 +65,8 @@ dissect_credssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void
   	col_clear(pinfo->cinfo, COL_INFO);
 
 	creds_type = -1;
+	credssp_ver = -1;
+
 	return dissect_TSRequest_PDU(tvb, pinfo, tree, data);
 }
 
