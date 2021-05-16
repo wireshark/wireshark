@@ -6016,6 +6016,7 @@ ka-sddp		31016/tcp	# Kollective Agent Secure Distributed Delivery Protocol
 ka-kdp		31016/udp	# Kollective Agent Kollective Delivery Protocol
 autotrac-acp	31020/tcp	# Autotrac ACP 245
 yawn		31029/udp	# YaWN - Yet Another Windows Notifier
+eldim		31337/tcp/udp	# eldim is a secure file upload proxy
 pace-licensed	31400/tcp	# PACE license server
 xqosd		31416/tcp/udp	# XQoS network monitor
 tetrinet	31457/tcp/udp	# TetriNET Protocol
