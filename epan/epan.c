@@ -74,6 +74,18 @@
 
 #include <ares_version.h>
 
+#ifdef HAVE_LZ4
+#include <lz4.h>
+#endif
+
+#ifdef HAVE_ZSTD
+#include <zstd.h>
+#endif
+
+#ifdef HAVE_MAXMINDDB
+#include <maxminddb.h>
+#endif
+
 #ifdef HAVE_NGHTTP2
 #include <nghttp2/nghttp2ver.h>
 #endif
@@ -794,7 +806,12 @@ epan_get_compiled_version_info(GString *str)
 	/* MaxMindDB */
 	g_string_append(str, ", ");
 #ifdef HAVE_MAXMINDDB
+# ifdef PACKAGE_VERSION
+	/* maxmind only defines PACKAGE_VERSION if _WIN32 */
+	g_string_append(str, "with MaxMind DB resolver " PACKAGE_VERSION);
+# else
 	g_string_append(str, "with MaxMind DB resolver");
+# endif /* PACKAGE_VERSION */
 #else
 	g_string_append(str, "without MaxMind DB resolver");
 #endif /* HAVE_MAXMINDDB */
@@ -818,7 +835,7 @@ epan_get_compiled_version_info(GString *str)
 	/* LZ4 */
 	g_string_append(str, ", ");
 #ifdef HAVE_LZ4
-	g_string_append(str, "with LZ4");
+	g_string_append(str, "with LZ4 " LZ4_VERSION_STRING);
 #else
 	g_string_append(str, "without LZ4");
 #endif /* HAVE_LZ4 */
@@ -826,7 +843,7 @@ epan_get_compiled_version_info(GString *str)
 	/* Zstandard */
 	g_string_append(str, ", ");
 #ifdef HAVE_ZSTD
-	g_string_append(str, "with Zstandard");
+	g_string_append(str, "with Zstandard " ZSTD_VERSION_STRING);
 #else
 	g_string_append(str, "without Zstandard");
 #endif /* HAVE_ZSTD */
@@ -868,6 +885,17 @@ epan_get_runtime_version_info(GString *str)
 	g_string_append_printf(str, ", with brotli %d.%d.%d", BrotliDecoderVersion() >> 24,
 		(BrotliDecoderVersion() >> 12) & 0xFFF, BrotliDecoderVersion() & 0xFFF);
 #endif
+
+	/* LZ4 */
+#ifdef HAVE_LZ4
+	g_string_append_printf(str, ", with LZ4 %s", LZ4_versionString());
+#endif /* HAVE_LZ4 */
+
+	/* Zstandard */
+#ifdef HAVE_ZSTD
+	g_string_append_printf(str, ", with Zstandard %s", ZSTD_versionString());
+#endif /* HAVE_ZSTD */
+
 }
 
 /*
