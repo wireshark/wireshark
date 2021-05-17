@@ -58,11 +58,14 @@ dissect_sparkplugb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     gchar **topic_elements, **current_element;
     char *topic = (char *)data;
 
+    if (topic == NULL)
+      return FALSE;
+
     /* Parse the topic into the elements */
     topic_elements = g_strsplit(topic, "/", 5);
 
     /* Heuristic check that the first element of the topic is the SparkplugB namespace */
-    if (!topic_elements || (strcmp("spBv1.0", topic_elements[0]) != 0)) {
+    if (!topic_elements || (g_strcmp0("spBv1.0", topic_elements[0]) != 0)) {
         g_strfreev(topic_elements);
         return FALSE;
     }
