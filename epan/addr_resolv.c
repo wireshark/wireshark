@@ -3200,6 +3200,8 @@ void host_name_lookup_reset(void)
     initialize_vlans();
     ethers_cleanup();
     initialize_ethers();
+    service_name_lookup_cleanup();
+    initialize_services();
     ipx_name_lookup_cleanup();
     initialize_ipxnets();
     enterprises_cleanup();
