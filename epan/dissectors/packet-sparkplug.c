@@ -63,6 +63,7 @@ dissect_sparkplugb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 
     /* Heuristic check that the first element of the topic is the SparkplugB namespace */
     if (!topic_elements || (strcmp("spBv1.0", topic_elements[0]) != 0)) {
+        g_strfreev(topic_elements);
         return FALSE;
     }
 
