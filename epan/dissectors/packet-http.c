@@ -1786,12 +1786,14 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				add_new_data_source(pinfo, next_tvb,
 				    "Uncompressed entity body");
 			} else {
+#if defined(HAVE_ZLIB) || defined(HAVE_BROTLI)
 				if (http_decompress_body) {
 					expert_add_info(pinfo, e_ti, &ei_http_decompression_failed);
 				}
 				else {
 					expert_add_info(pinfo, e_ti, &ei_http_decompression_disabled);
 				}
+#endif
 				call_data_dissector(next_tvb, pinfo, e_tree);
 
 				goto body_dissected;
