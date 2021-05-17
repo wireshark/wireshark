@@ -1,4 +1,4 @@
--- ETSI TS 129 171 V15.3.0 (2019-09)
+-- ETSI TS 129 171 V16.2.0 (2020-12)
 -- 7.5.6	Common Definitions
 
 -- ************************************************************** 
@@ -15,9 +15,9 @@ DEFINITIONS AUTOMATIC TAGS ::=
 
 BEGIN
 
-Criticality		::= ENUMERATED { reject, ignore, notify }
+Criticality	::= ENUMERATED { reject, ignore, notify }
 
-Presence		::= ENUMERATED { optional, conditional, mandatory }
+Presence	::= ENUMERATED { optional, conditional, mandatory }
 
 ProcedureCode	::= INTEGER (0..255)
 

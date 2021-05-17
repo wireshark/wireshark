@@ -215,12 +215,12 @@ static int hf_lcsap_GNSS_Positioning_Data_Set_item = -1;  /* GNSS_Positioning_Me
 static int hf_lcsap_high_Accuracy_Geographical_Coordinates = -1;  /* High_Accuracy_Geographical_Coordinates */
 static int hf_lcsap_high_Accuracy_Uncertainty_Ellipse = -1;  /* High_Accuracy_Uncertainty_Ellipse */
 static int hf_lcsap_high_Accuracy_Altitude = -1;  /* High_Accuracy_Altitude */
-static int hf_lcsap_high_Accuracy_Uncertainty_Altitude = -1;  /* Uncertainty_Altitude */
+static int hf_lcsap_high_Accuracy_Uncertainty_Altitude = -1;  /* High_Accuracy_Uncertainty_Code */
 static int hf_lcsap_vertical_Confidence = -1;     /* Confidence */
 static int hf_lcsap_high_Accuracy_DegreesLatitude = -1;  /* High_Accuracy_DegreesLatitude */
 static int hf_lcsap_high_Accuracy_DegreesLongitude = -1;  /* High_Accuracy_DegreesLongitude */
-static int hf_lcsap_high_Accuracy_Uncertainty_SemiMajor = -1;  /* Uncertainty_Code */
-static int hf_lcsap_high_Accuracy_Uncertainty_SemiMinor = -1;  /* Uncertainty_Code */
+static int hf_lcsap_high_Accuracy_Uncertainty_SemiMajor = -1;  /* High_Accuracy_Uncertainty_Code */
+static int hf_lcsap_high_Accuracy_Uncertainty_SemiMinor = -1;  /* High_Accuracy_Uncertainty_Code */
 static int hf_lcsap_orientation_Major_Axis = -1;  /* INTEGER_0_179 */
 static int hf_lcsap_bearing = -1;                 /* INTEGER_0_359 */
 static int hf_lcsap_horizontal_Speed = -1;        /* INTEGER_0_2047 */
@@ -1453,6 +1453,16 @@ dissect_lcsap_High_Accuracy_Geographical_Coordinates(tvbuff_t *tvb _U_, int offs
 
 
 static int
+dissect_lcsap_High_Accuracy_Uncertainty_Code(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 255U, NULL, FALSE);
+
+  return offset;
+}
+
+
+
+static int
 dissect_lcsap_INTEGER_0_179(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 179U, NULL, FALSE);
@@ -1462,9 +1472,10 @@ dissect_lcsap_INTEGER_0_179(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 
 
 static const per_sequence_t High_Accuracy_Uncertainty_Ellipse_sequence[] = {
-  { &hf_lcsap_high_Accuracy_Uncertainty_SemiMajor, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lcsap_Uncertainty_Code },
-  { &hf_lcsap_high_Accuracy_Uncertainty_SemiMinor, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lcsap_Uncertainty_Code },
-  { &hf_lcsap_orientation_Major_Axis, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lcsap_INTEGER_0_179 },
+  { &hf_lcsap_high_Accuracy_Uncertainty_SemiMajor, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lcsap_High_Accuracy_Uncertainty_Code },
+  { &hf_lcsap_high_Accuracy_Uncertainty_SemiMinor, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lcsap_High_Accuracy_Uncertainty_Code },
+  { &hf_lcsap_orientation_Major_Axis, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lcsap_INTEGER_0_179 },
+  { &hf_lcsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lcsap_ProtocolExtensionContainer },
   { NULL, 0, 0, NULL }
 };
 
@@ -1509,7 +1520,7 @@ static const per_sequence_t High_Accuracy_Ellipsoid_Point_With_Altitude_And_Unce
   { &hf_lcsap_high_Accuracy_Altitude, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lcsap_High_Accuracy_Altitude },
   { &hf_lcsap_high_Accuracy_Uncertainty_Ellipse, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lcsap_High_Accuracy_Uncertainty_Ellipse },
   { &hf_lcsap_confidence    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lcsap_Confidence },
-  { &hf_lcsap_high_Accuracy_Uncertainty_Altitude, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lcsap_Uncertainty_Altitude },
+  { &hf_lcsap_high_Accuracy_Uncertainty_Altitude, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lcsap_High_Accuracy_Uncertainty_Code },
   { &hf_lcsap_vertical_Confidence, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lcsap_Confidence },
   { &hf_lcsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lcsap_ProtocolExtensionContainer },
   { NULL, 0, 0, NULL }
@@ -3367,7 +3378,7 @@ void proto_register_lcsap(void) {
     { &hf_lcsap_high_Accuracy_Uncertainty_Altitude,
       { "high-Accuracy-Uncertainty-Altitude", "lcsap.high_Accuracy_Uncertainty_Altitude",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "Uncertainty_Altitude", HFILL }},
+        "High_Accuracy_Uncertainty_Code", HFILL }},
     { &hf_lcsap_vertical_Confidence,
       { "vertical-Confidence", "lcsap.vertical_Confidence",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -3383,11 +3394,11 @@ void proto_register_lcsap(void) {
     { &hf_lcsap_high_Accuracy_Uncertainty_SemiMajor,
       { "high-Accuracy-Uncertainty-SemiMajor", "lcsap.high_Accuracy_Uncertainty_SemiMajor",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "Uncertainty_Code", HFILL }},
+        "High_Accuracy_Uncertainty_Code", HFILL }},
     { &hf_lcsap_high_Accuracy_Uncertainty_SemiMinor,
       { "high-Accuracy-Uncertainty-SemiMinor", "lcsap.high_Accuracy_Uncertainty_SemiMinor",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "Uncertainty_Code", HFILL }},
+        "High_Accuracy_Uncertainty_Code", HFILL }},
     { &hf_lcsap_orientation_Major_Axis,
       { "orientation-Major-Axis", "lcsap.orientation_Major_Axis",
         FT_UINT32, BASE_DEC, NULL, 0,

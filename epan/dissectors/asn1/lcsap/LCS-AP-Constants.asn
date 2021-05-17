@@ -1,4 +1,4 @@
--- ETSI TS 129 171  V15.3.0 (2019-09)
+-- ETSI TS 129 171  V16.2.0 (2020-12)
 -- ************************************************************** 
 -- 
 -- Constant definitions 
@@ -20,12 +20,12 @@ BEGIN
 -- **************************************************************
 
 
-id-Location-Service-Request			INTEGER ::= 0
+id-Location-Service-Request		INTEGER ::= 0
 id-Connection-Oriented-Information-Transfer	INTEGER ::= 1
-id-Connectionless-Information-Transfer		INTEGER ::= 2
-id-Location-Abort				INTEGER ::= 3
-id-Reset					INTEGER ::= 4
-id-Ciphering-Key-Data-Delivery				INTEGER ::= 5
+id-Connectionless-Information-Transfer	INTEGER ::= 2
+id-Location-Abort		INTEGER ::= 3
+id-Reset			INTEGER ::= 4
+id-Ciphering-Key-Data-Delivery		INTEGER ::= 5
 
 
 -- **************************************************************
@@ -36,37 +36,37 @@ id-Ciphering-Key-Data-Delivery				INTEGER ::= 5
 
 
 id-Accuracy-Fulfillment-Indicator	INTEGER ::= 0
-id-APDU				INTEGER ::= 1
-id-Correlation-ID			INTEGER ::= 2
-id-Destination-ID			INTEGER ::= 3
-id-E-UTRAN-Cell-Identifier		INTEGER ::= 4
-id-Include-Velocity			INTEGER ::= 5
-id-IMEI				INTEGER ::= 6
-id-IMSI				INTEGER ::= 7
-id-LCS-Client-Type			INTEGER ::= 8
-id-LCS-Priority			INTEGER ::= 9
-id-LCS-QOS				INTEGER ::= 10
-id-LCS-Cause			INTEGER ::= 11
-id-Location-Estimate		INTEGER ::= 12
-id-Location-Type			INTEGER ::= 13
-id-MultipleAPDUs			INTEGER ::= 14
-id-Payload-Type			INTEGER ::= 15
-id-Positioning-Data			INTEGER ::= 16
-id-Return-Error-Request		INTEGER ::= 17
-id-Return-Error-Cause		INTEGER ::= 18
-id-Source-Identity			INTEGER ::= 19
+id-APDU		INTEGER ::= 1
+id-Correlation-ID		INTEGER ::= 2
+id-Destination-ID		INTEGER ::= 3
+id-E-UTRAN-Cell-Identifier	INTEGER ::= 4
+id-Include-Velocity		INTEGER ::= 5
+id-IMEI		INTEGER ::= 6
+id-IMSI		INTEGER ::= 7
+id-LCS-Client-Type		INTEGER ::= 8
+id-LCS-Priority		INTEGER ::= 9
+id-LCS-QOS		INTEGER ::= 10
+id-LCS-Cause		INTEGER ::= 11
+id-Location-Estimate	INTEGER ::= 12
+id-Location-Type		INTEGER ::= 13
+id-MultipleAPDUs		INTEGER ::= 14
+id-Payload-Type		INTEGER ::= 15
+id-Positioning-Data		INTEGER ::= 16
+id-Return-Error-Request	INTEGER ::= 17
+id-Return-Error-Cause	INTEGER ::= 18
+id-Source-Identity		INTEGER ::= 19
 id-UE-Positioning-Capability	INTEGER ::= 20
-id-Velocity-Estimate		INTEGER ::= 21
-id-LCS-Service-Type-ID		INTEGER ::= 22
-id-Cell-Portion-ID			INTEGER ::= 23
-id-Civic-Address			INTEGER ::= 24
-id-Barometric-Pressure		INTEGER ::= 25
+id-Velocity-Estimate	INTEGER ::= 21
+id-LCS-Service-Type-ID	INTEGER ::= 22
+id-Cell-Portion-ID		INTEGER ::= 23
+id-Civic-Address		INTEGER ::= 24
+id-Barometric-Pressure	INTEGER ::= 25
 id-Additional-PositioningDataSet	INTEGER ::= 26
-id-RAT-Type				INTEGER ::= 27
-id-Ciphering-Data			INTEGER ::= 28
-id-Ciphering-Data-Ack		INTEGER ::= 29
+id-RAT-Type		INTEGER ::= 27
+id-Ciphering-Data		INTEGER ::= 28
+id-Ciphering-Data-Ack	INTEGER ::= 29
 id-Ciphering-Data-Error-Report	INTEGER ::= 30
-id-Coverage-Level			INTEGER ::= 31
+id-Coverage-Level		INTEGER ::= 31
 
 
 
@@ -83,14 +83,14 @@ id-Coverage-Level			INTEGER ::= 31
 -- **************************************************************
 
 
-max-No-Of-Points		INTEGER ::= 15
-max-Set			INTEGER ::= 9
-max-GNSS-Set		INTEGER ::= 9
-max-Add-Pos-Set		INTEGER ::= 8
-max-Cipher-Set		INTEGER ::= 16
+max-No-Of-Points	INTEGER ::= 15
+max-Set		INTEGER ::= 9
+max-GNSS-Set	INTEGER ::= 9
+max-Add-Pos-Set	INTEGER ::= 8
+max-Cipher-Set	INTEGER ::= 16
 
 
 maxProtocolExtensions	INTEGER ::= 65535
-maxProtocolIEs		INTEGER ::= 65535
+maxProtocolIEs	INTEGER ::= 65535
 
 END

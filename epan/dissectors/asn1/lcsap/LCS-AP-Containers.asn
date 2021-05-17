@@ -1,4 +1,4 @@
--- ETSI TS 129 171 V15.3.0 (2019-09)
+-- ETSI TS 129 171 V16.2.0 (2020-12)
 --
 -- 7.5.8	Container Definitions
 -- ************************************************************** 
@@ -39,16 +39,16 @@ FROM LCS-AP-Constants;
 -- **************************************************************
 
 LCS-AP-PROTOCOL-IES ::= CLASS {
-	&id		ProtocolIE-ID	UNIQUE,
+	&id	ProtocolIE-ID	UNIQUE,
 	&criticality	Criticality	DEFAULT ignore,
 	&Value,
 	&presence	Presence
 }
 WITH SYNTAX {
-	ID			&id
-	CRITICALITY		&criticality
-	TYPE		&Value
-	PRESENCE		&presence
+	ID		&id
+	CRITICALITY	&criticality
+	TYPE	&Value
+	PRESENCE	&presence
 }
 
 -- **************************************************************
@@ -58,16 +58,16 @@ WITH SYNTAX {
 -- **************************************************************
 
 LCS-AP-PROTOCOL-EXTENSION ::= CLASS {
-	&id		ProtocolExtensionID	UNIQUE,
-	&criticality	Criticality		DEFAULT ignore,
+	&id	ProtocolExtensionID	UNIQUE,
+	&criticality	Criticality	DEFAULT ignore,
 	&Extension,
 	&presence	Presence
 }
 WITH SYNTAX {
-	ID			&id
-	CRITICALITY		&criticality
-	EXTENSION		&Extension
-	PRESENCE		&presence
+	ID		&id
+	CRITICALITY	&criticality
+	EXTENSION	&Extension
+	PRESENCE	&presence
 }
 
 -- **************************************************************
@@ -81,9 +81,9 @@ ProtocolIE-Container {LCS-AP-PROTOCOL-IES : IEsSetParam} ::=
 	ProtocolIE-Field {{IEsSetParam}}
 
 ProtocolIE-Field {LCS-AP-PROTOCOL-IES : IEsSetParam} ::= SEQUENCE {
-	id		LCS-AP-PROTOCOL-IES.&id		({IEsSetParam}),
+	id	LCS-AP-PROTOCOL-IES.&id	({IEsSetParam}),
 	criticality	LCS-AP-PROTOCOL-IES.&criticality	({IEsSetParam}{@id}),
-	value		LCS-AP-PROTOCOL-IES.&Value	 ({IEsSetParam}{@id})
+	value	LCS-AP-PROTOCOL-IES.&Value	 ({IEsSetParam}{@id})
 }
 
 -- **************************************************************
@@ -107,7 +107,7 @@ ProtocolExtensionContainer {LCS-AP-PROTOCOL-EXTENSION : ExtensionSetParam} ::=
 	ProtocolExtensionField {{ExtensionSetParam}}
 
 ProtocolExtensionField {LCS-AP-PROTOCOL-EXTENSION : ExtensionSetParam} ::= SEQUENCE {
-	id		LCS-AP-PROTOCOL-EXTENSION.&id		({ExtensionSetParam}),
+	id	LCS-AP-PROTOCOL-EXTENSION.&id	({ExtensionSetParam}),
 	criticality	LCS-AP-PROTOCOL-EXTENSION.&criticality	({ExtensionSetParam}{@id}),
 	extensionValue	LCS-AP-PROTOCOL-EXTENSION.&Extension	({ExtensionSetParam}{@id})
 }
