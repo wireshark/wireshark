@@ -2434,15 +2434,21 @@ quic_get_1rtt_hp_cipher(packet_info *pinfo, quic_info_data_t *quic_info, gboolea
     if (!quic_info->client_pp.next_secret) {
         /* Query TLS for the cipher suite. */
         if (!tls_get_cipher_info(pinfo, 0, &quic_info->cipher_algo, &quic_info->cipher_mode, &quic_info->hash_algo)) {
-            // No previous TLS handshake found or unsupported ciphers, fail.
-            // This is an optimization that allows skipping checks for future
-            // packets in case the capture starts in midst of a connection where
-            // the handshake is not present.
-            // If this breaks decryption because packets prior to the Server
-            // Hello are somehow misdetected as Short Packet, then this
-            // optimization should probably be removed.
-            quic_info->skip_decryption = TRUE;
-            *error = "Missing TLS handshake or unsupported ciphers";
+            /* We end up here if:
+                * no previous TLS handshake is found
+                * the used ciphers are unsupported
+                * some (unencrypted) padding is misdetected as SH coalesced packet
+               Because of the third scenario, we can't set quic_info->skip_decryption
+               to TRUE; otherwise we will stop decrypting the entire session, even if
+               we are able to.
+               Unfortunately, this way, we lost the optimization that allows skipping checks
+               for future packets in case the capture starts in midst of a
+               connection where the handshake is not present.
+               Note that even if we have a basic logic to detect unencrypted padding (via
+               check_dcid_on_coalesced_packet()), there is not a proper way to detect it
+               other than checking if the decryption successed
+            */
+            *error = "Missing TLS handshake, unsupported ciphers or padding";
             return NULL;
         }
 
