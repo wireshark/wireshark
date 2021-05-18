@@ -32,9 +32,16 @@ public:
     virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
     virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
 
-protected:
+    //
+    // This is not protected because we may need to invoke it from
+    // a wmem_map_foreach() callback implemented as an extern "C"
+    // static member function of a subclass.  wmem_map_foreach() is
+    // passed, as the user data, a pointer to the class instance to
+    // which we want to append rows.
+    //
     virtual void appendRow(const QStringList &, const QString & row_tooltip = QString(), const QModelIndex &parent = QModelIndex());
 
+protected:
     virtual QStringList headerColumns() const = 0;
 
 private:

@@ -20,20 +20,47 @@ extern "C"
 {
 
 static void
-serv_port_hash_to_qstringlist(gpointer key, gpointer value, gpointer sl_ptr)
+serv_port_hash_to_qstringlist(gpointer key, gpointer value, gpointer member_ptr)
 {
-    QStringList *string_list = (QStringList *) sl_ptr;
+    PortsModel *model = static_cast<PortsModel *>(member_ptr);
     serv_port_t *serv_port = (serv_port_t *)value;
     guint port = GPOINTER_TO_UINT(key);
 
-    QStringList entries;
+    if (serv_port->tcp_name) {
+        QStringList entries;
 
-    if (serv_port->tcp_name) entries << QString("%1 %2 tcp").arg(serv_port->tcp_name).arg(port);
-    if (serv_port->udp_name) entries << QString("%1 %2 udp").arg(serv_port->udp_name).arg(port);
-    if (serv_port->sctp_name) entries << QString("%1 %2 sctp").arg(serv_port->sctp_name).arg(port);
-    if (serv_port->dccp_name) entries << QString("%1 %2 dccp").arg(serv_port->dccp_name).arg(port);
+        entries << serv_port->tcp_name;
+        entries << QString("%1").arg(port);
+        entries << "tcp";
+        model->appendRow(entries);
+    }
+    if (serv_port->udp_name) {
+        QStringList entries;
 
-    if (!entries.isEmpty()) *string_list << entries.join("\n");
+    	entries = QStringList();
+        entries << serv_port->udp_name;
+        entries << QString("%1").arg(port);
+        entries << "udp";
+        model->appendRow(entries);
+    }
+    if (serv_port->sctp_name) {
+        QStringList entries;
+
+    	entries = QStringList();
+        entries << serv_port->sctp_name;
+        entries << QString("%1").arg(port);
+        entries << "sctp";
+        model->appendRow(entries);
+    }
+    if (serv_port->dccp_name) {
+        QStringList entries;
+
+    	entries = QStringList();
+        entries << serv_port->dccp_name;
+        entries << QString("%1").arg(port);
+        entries << "dccp";
+        model->appendRow(entries);
+    }
 }
 
 static void
@@ -175,15 +202,10 @@ QStringList PortsModel::headerColumns() const
 
 void PortsModel::populate()
 {
-    QStringList values;
-
     wmem_map_t *serv_port_hashtable = get_serv_port_hashtable();
     if (serv_port_hashtable) {
-        wmem_map_foreach(serv_port_hashtable, serv_port_hash_to_qstringlist, &values);
+        wmem_map_foreach(serv_port_hashtable, serv_port_hash_to_qstringlist, this);
     }
-
-    foreach(QString line, values)
-        appendRow(QStringList() << line.split(" "));
 }
 
 /*
