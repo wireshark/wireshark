@@ -1,4 +1,4 @@
--- 3GPP TS 38.455 V16.1.0 (2020-09)﻿
+-- 3GPP TS 38.455 V16.3.0 (2021-04)
 --9.3.4	PDU Definitions
 --
 -- **************************************************************
@@ -46,13 +46,12 @@ IMPORTS
 	TRPMeasurementQuantities,
 	TrpMeasurementResult,
 	TRP-ID,
-	TRPInformationTypeList,
-	TRPInformationList,
+	TRPInformationTypeListTRPReq,
+	TRPInformationListTRPResp,
 	TRP-MeasurementRequestList,
 	TRP-MeasurementResponseList,
 	MeasurementBeamInfoRequest,
 	PositioningBroadcastCells,
-	ActivationTime,
 	SRSResourceSetID,
 	SRSSpatialRelation,
 	SRSResourceTrigger,
@@ -103,8 +102,8 @@ FROM NRPPA-Containers
 	id-TRPMeasurementQuantities,
 	id-MeasurementResult,
 	id-TRP-ID,
-	id-TRPInformationTypeList,
-	id-TRPInformationList,	
+	id-TRPInformationTypeListTRPReq,
+	id-TRPInformationListTRPResp,
 	id-TRP-MeasurementRequestList,
 	id-TRP-MeasurementResponseList,
 	id-TRP-MeasurementReportList,
@@ -469,8 +468,8 @@ MeasurementRequest-IEs NRPPA-PROTOCOL-IES ::= {
 	{ ID id-MeasurementPeriodicity			CRITICALITY reject	TYPE MeasurementPeriodicity		PRESENCE conditional}|
 -- The IE shall be present if the Report Characteritics IE is set to “periodic” –
 	{ ID id-TRPMeasurementQuantities			CRITICALITY reject	TYPE TRPMeasurementQuantities		PRESENCE mandatory}|
-	{ ID id-SRSConfiguration				CRITICALITY ignore	TYPE SRSConfiguration			PRESENCE optional}|
 	{ ID id-SFNInitialisationTime			CRITICALITY ignore	TYPE SFNInitialisationTime		PRESENCE optional}|
+	{ ID id-SRSConfiguration				CRITICALITY ignore	TYPE SRSConfiguration			PRESENCE optional}|
 	{ ID id-MeasurementBeamInfoRequest		CRITICALITY ignore	TYPE MeasurementBeamInfoRequest	PRESENCE optional}|
 	{ ID id-SystemFrameNumber				CRITICALITY ignore	TYPE SystemFrameNumber			PRESENCE optional}|
 	{ ID id-SlotNumber						CRITICALITY ignore	TYPE SlotNumber					PRESENCE optional},
@@ -491,7 +490,7 @@ MeasurementResponse ::= SEQUENCE {
 MeasurementResponse-IEs NRPPA-PROTOCOL-IES ::= {
 	{ ID id-LMF-Measurement-ID		CRITICALITY reject	TYPE Measurement-ID				PRESENCE mandatory}|
 	{ ID id-RAN-Measurement-ID		CRITICALITY reject	TYPE Measurement-ID				PRESENCE mandatory}|
-	{ ID id-TRP-MeasurementResponseList	CRITICALITY reject	TYPE TRP-MeasurementResponseList PRESENCE mandatory}|
+	{ ID id-TRP-MeasurementResponseList	CRITICALITY reject	TYPE TRP-MeasurementResponseList PRESENCE optional}|
 	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional},
 	...
 }
@@ -599,8 +598,9 @@ TRPInformationRequest ::= SEQUENCE {
 }
 
 TRPInformationRequest-IEs NRPPA-PROTOCOL-IES ::= {
-	{ ID id-TRPList						CRITICALITY reject	TYPE TRPList				PRESENCE mandatory}|
-	{ ID id-TRPInformationTypeList		CRITICALITY reject	TYPE TRPInformationTypeList	PRESENCE mandatory},	...
+	{ ID id-TRPList							CRITICALITY ignore	TYPE TRPList				PRESENCE optional}|
+	{ ID id-TRPInformationTypeListTRPReq	CRITICALITY reject	TYPE TRPInformationTypeListTRPReq	PRESENCE mandatory},
+	...
 }
 
 -- **************************************************************
@@ -615,7 +615,7 @@ TRPInformationResponse ::= SEQUENCE {
 }
 
 TRPInformationResponse-IEs NRPPA-PROTOCOL-IES ::= {
-	{ ID id-TRPInformationList				CRITICALITY ignore	TYPE TRPInformationList			PRESENCE mandatory}|
+	{ ID id-TRPInformationListTRPResp				CRITICALITY ignore	TYPE TRPInformationListTRPResp			PRESENCE mandatory}|
 	{ ID id-CriticalityDiagnostics			CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional},
 	...
 }
@@ -652,7 +652,7 @@ PositioningActivationRequest ::= SEQUENCE {
 
 PositioningActivationRequestIEs NRPPA-PROTOCOL-IES ::= {
 	{ ID id-SRSType					CRITICALITY reject	TYPE SRSType					PRESENCE mandatory	} |
-	{ ID id-ActivationTime			CRITICALITY ignore	TYPE ActivationTime				PRESENCE optional	},
+	{ ID id-ActivationTime			CRITICALITY ignore	TYPE SFNInitialisationTime				PRESENCE optional	},
 	...
 } 
 

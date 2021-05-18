@@ -130,8 +130,8 @@ id-AssistanceInformationFailureList        ProtocolIE-ID
 id-SRSConfiguration                        ProtocolIE-ID
 id-MeasurementResult                       ProtocolIE-ID
 id-TRP-ID                                  ProtocolIE-ID
-id-TRPInformationTypeList                  ProtocolIE-ID
-id-TRPInformationList                      ProtocolIE-ID
+id-TRPInformationTypeListTRPReq            ProtocolIE-ID
+id-TRPInformationListTRPResp               ProtocolIE-ID
 id-MeasurementBeamInfoRequest              ProtocolIE-ID
 id-ResultSS-RSRP                           ProtocolIE-ID
 id-ResultSS-RSRQ                           ProtocolIE-ID
@@ -158,7 +158,11 @@ id-AbortTransmission                       ProtocolIE-ID
 id-SFNInitialisationTime                   ProtocolIE-ID
 id-ResultNR                                ProtocolIE-ID
 id-ResultEUTRA                             ProtocolIE-ID
-
+id-TRPInformationTypeItem                  ProtocolIE-ID
+id-CGI-NR                                  ProtocolIE-ID
+id-SFNInitialisationTime-NR                ProtocolIE-ID
+id-Cell-ID                                 ProtocolIE-ID
+id-SrsFrequency                            ProtocolIE-ID
 #.REGISTER
 #NRPPA-PROTOCOL-IES
 
@@ -187,8 +191,8 @@ Assistance-Information                     N nrppa.ies id-Assistance-Information
 Broadcast                                  N nrppa.ies id-Broadcast
 AssistanceInformationFailureList           N nrppa.ies id-AssistanceInformationFailureList
 SRSConfiguration                           N nrppa.ies id-SRSConfiguration
-TRPInformationTypeList                     N nrppa.ies id-TRPInformationTypeList
-TRPInformationList                         N nrppa.ies id-TRPInformationList
+TRPInformationTypeListTRPReq               N nrppa.ies id-TRPInformationTypeListTRPReq
+TRPInformationListTRPResp                  N nrppa.ies id-TRPInformationListTRPResp
 MeasurementBeamInfoRequest                 N nrppa.ies id-MeasurementBeamInfoRequest
 ResultSS-RSRP                              N nrppa.ies id-ResultSS-RSRP
 ResultSS-RSRQ                              N nrppa.ies id-ResultSS-RSRQ
@@ -201,7 +205,7 @@ Measurement-ID                             N nrppa.ies id-RAN-Measurement-ID
 TRP-MeasurementRequestList                 N nrppa.ies id-TRP-MeasurementRequestList
 TRP-MeasurementResponseList                N nrppa.ies id-TRP-MeasurementResponseList
 SRSType                                    N nrppa.ies id-SRSType
-ActivationTime                             N nrppa.ies id-ActivationTime
+SFNInitialisationTime                      N nrppa.ies id-ActivationTime
 TRPList                                    N nrppa.ies id-TRPList
 SystemFrameNumber                          N nrppa.ies id-SystemFrameNumber
 SlotNumber                                 N nrppa.ies id-SlotNumber
@@ -210,6 +214,11 @@ AbortTransmission                          N nrppa.ies id-AbortTransmission
 SFNInitialisationTime                      N nrppa.ies id-SFNInitialisationTime
 ResultNR                                   N nrppa.ies id-ResultNR
 ResultEUTRA                                N nrppa.ies id-ResultEUTRA
+TRPInformationTypeItem                     N nrppa.ies id-TRPInformationTypeItem
+CGI-NR                                     N nrppa.ies id-CGI-NR
+SFNInitialisationTime-EUTRA                N nrppa.ies id-SFNInitialisationTime-NR
+CGI-NR                                     N nrppa.ies id-Cell-ID
+SrsFrequency                               N nrppa.ies id-SrsFrequency
 
 
 #NRPPA-PROTOCOL-EXTENSION

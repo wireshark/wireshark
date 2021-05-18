@@ -1,4 +1,4 @@
--- 3GPP TS 38.455 V16.1.0 (2020-09)﻿
+-- 3GPP TS 38.455 V16.3.0 (2021-04)﻿
 -- 9.3.7	Constant definitions
 -- **************************************************************
 --
@@ -129,8 +129,8 @@ id-AssistanceInformationFailureList								ProtocolIE-ID ::= 25
 id-SRSConfiguration												ProtocolIE-ID ::= 26
 id-MeasurementResult											ProtocolIE-ID ::= 27
 id-TRP-ID														ProtocolIE-ID ::= 28
-id-TRPInformationTypeList										ProtocolIE-ID ::= 29
-id-TRPInformationList											ProtocolIE-ID ::= 30
+id-TRPInformationTypeListTRPReq									ProtocolIE-ID ::= 29
+id-TRPInformationListTRPResp									ProtocolIE-ID ::= 30
 id-MeasurementBeamInfoRequest									ProtocolIE-ID ::= 31
 id-ResultSS-RSRP												ProtocolIE-ID ::= 32
 id-ResultSS-RSRQ												ProtocolIE-ID ::= 33
@@ -153,9 +153,14 @@ id-SystemFrameNumber											ProtocolIE-ID ::= 49
 id-SlotNumber													ProtocolIE-ID ::= 50
 id-SRSResourceTrigger											ProtocolIE-ID ::= 51
 id-TRPMeasurementQuantities										ProtocolIE-ID ::= 52
-id-AbortTransmission											ProtocolIE-ID ::= 53 
+id-AbortTransmission											ProtocolIE-ID ::= 53
 id-SFNInitialisationTime										ProtocolIE-ID ::= 54
 id-ResultNR														ProtocolIE-ID ::= 55
 id-ResultEUTRA													ProtocolIE-ID ::= 56
+id-TRPInformationTypeItem										ProtocolIE-ID ::= 57
+id-CGI-NR														ProtocolIE-ID ::= 58
+id-SFNInitialisationTime-NR										ProtocolIE-ID ::= 59
+id-Cell-ID														ProtocolIE-ID ::= 60
+id-SrsFrequency													ProtocolIE-ID ::= 61
 
 END
