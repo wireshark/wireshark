@@ -1756,7 +1756,7 @@ static const value_string cip_vendor_vals[] = {
    {  245,   "Nihon Weidmuller Co., Ltd" },
    {  246,   "Brooks Instrument (Div. of Emerson)" },
    {  247,   "Reserved" },
-   {  248,   " Moeller GmbH" },
+   {  248,   "Moeller GmbH" },
    {  249,   "Varian Vacuum Products" },
    {  250,   "Yokogawa Electric Corporation" },
    {  251,   "Electrical Design Daiyu Co., Ltd" },
