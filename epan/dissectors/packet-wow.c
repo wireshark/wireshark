@@ -167,7 +167,7 @@ static struct {
 
 static struct {
     int checksum_salt;
-} hf_wow_reconnect_challenge_client_to_server = {-1};
+} hf_wow_reconnect_challenge_server_to_client = {-1};
 
 static int hf_wow_two_factor_enabled = -1;
 
@@ -374,8 +374,8 @@ parse_logon_reconnect_challenge_server_to_client(tvbuff_t *tvb, proto_tree *wow_
 			offset, 16, ENC_NA);
 	offset += 16;
 
-	proto_tree_add_item(wow_tree, hf_wow_reconnect_challenge_client_to_server.checksum_salt, tvb,
-			offset, 16, ENC_NA);
+	proto_tree_add_item(wow_tree, hf_wow_reconnect_challenge_server_to_client.checksum_salt, tvb,
+			    offset, 16, ENC_NA);
 	offset += 16;
 }
 
@@ -840,7 +840,7 @@ proto_register_wow(void)
 		    FT_BYTES, BASE_NONE, 0, 0,
 		    "Random data used for reconnection calculation", HFILL }
 		},
-		{ &hf_wow_reconnect_challenge_client_to_server.checksum_salt,
+		{ &hf_wow_reconnect_challenge_server_to_client.checksum_salt,
 		  { "Reconnection Checksum Salt", "wow.reconnect_checksum_salt",
 		    FT_BYTES, BASE_NONE, 0, 0,
 		    "Unknown. Unused in 1.12", HFILL }
