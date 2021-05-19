@@ -7471,9 +7471,6 @@ static gint ett_tag_neighbor_report_bssid_info_capability_tree = -1;
 static gint ett_tag_neighbor_report_subelement_tree = -1;
 static gint ett_tag_neighbor_report_sub_tag_tree = -1;
 
-static gint ett_tag_rnr_tbtt_tree = -1;
-static gint ett_tag_rnr_tbtt_subtree = -1;
-
 static gint ett_tag_wapi_param_set_akm_tree = -1;
 static gint ett_tag_wapi_param_set_ucast_tree = -1;
 static gint ett_tag_wapi_param_set_mcast_tree = -1;
@@ -7719,6 +7716,8 @@ static gint ett_fils_indication_realm_list = -1;
 static gint ett_fils_indication_public_key_list = -1;
 static gint ett_ff_fils_discovery_frame_control = -1;
 static gint ett_ff_fils_discovery_capability = -1;
+static gint ett_rnr_tbtt_tree = -1;
+static gint ett_rnr_tbtt_subtree = -1;
 static gint ett_rnr_tbtt_information_tree = -1;
 static gint ett_rnr_bss_parameters = -1;
 
@@ -19686,7 +19685,7 @@ dissect_reduced_neighbor_report(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
   while (tag_len > 0){
     /* TBTT Information Header */
-    subtree = proto_tree_add_subtree(tree, tvb, offset, 4, ett_tag_rnr_tbtt_tree, NULL, "TBTT Information");
+    subtree = proto_tree_add_subtree(tree, tvb, offset, 4, ett_rnr_tbtt_tree, NULL, "TBTT Information");
     proto_tree_add_bitmask_with_flags(subtree, tvb, offset, hf_ieee80211_rnr_tbtt_information_field_header,
                                       ett_rnr_tbtt_information_tree, ieee80211_rnr_tbtt_information_header,
                                       ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
@@ -19706,7 +19705,7 @@ dissect_reduced_neighbor_report(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
     count = tbtt_count;
     while (count >= 0) {
-      tbtt_subtree = proto_tree_add_subtree_format(subtree, tvb, offset, tbtt_length, ett_tag_rnr_tbtt_subtree, NULL, "TBTT %d:", tbtt_count - count);
+      tbtt_subtree = proto_tree_add_subtree_format(subtree, tvb, offset, tbtt_length, ett_rnr_tbtt_subtree, NULL, "TBTT %d:", tbtt_count - count);
 
       proto_tree_add_item(tbtt_subtree, hf_ieee80211_rnr_neighbor_ap_tbtt_offset, tvb, offset, 1, ENC_LITTLE_ENDIAN);
       offset += 1;
@@ -50287,9 +50286,6 @@ proto_register_ieee80211(void)
     &ett_tag_neighbor_report_subelement_tree,
     &ett_tag_neighbor_report_sub_tag_tree,
 
-    &ett_tag_rnr_tbtt_tree,
-    &ett_tag_rnr_tbtt_subtree,
-
     &ett_tag_wapi_param_set_akm_tree,
     &ett_tag_wapi_param_set_ucast_tree,
     &ett_tag_wapi_param_set_mcast_tree,
@@ -50474,6 +50470,8 @@ proto_register_ieee80211(void)
     &ett_fils_indication_realm_list,
     &ett_fils_indication_public_key_list,
 
+    &ett_rnr_tbtt_tree,
+    &ett_rnr_tbtt_subtree,
     &ett_rnr_tbtt_information_tree,
     &ett_rnr_bss_parameters,
 
