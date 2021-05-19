@@ -2,7 +2,7 @@
  * Routines for Bluetooth mesh dissection
  *
  * Copyright 2017, Anders Broman <anders.broman@ericsson.com>
- * Copyright 2019, Piotr Winiarczyk <wino45@gmail.com>
+ * Copyright 2019-2021, Piotr Winiarczyk <wino45@gmail.com>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -23,6 +23,7 @@
 #include <wsutil/wsgcrypt.h>
 #include <epan/expert.h>
 #include <stdio.h>
+#include <math.h>
 #include <epan/uat.h>
 #include <epan/reassemble.h>
 
@@ -118,6 +119,60 @@
 #define CONFIG_SIG_MODEL_APP_LIST                                0x804c
 #define CONFIG_VENDOR_MODEL_APP_GET                              0x804d
 #define CONFIG_VENDOR_MODEL_APP_LIST                             0x804e
+#define GENERIC_LOCATION_GLOBAL_STATUS                           0x0040
+#define GENERIC_LOCATION_GLOBAL_SET                              0x0041
+#define GENERIC_LOCATION_GLOBAL_SET_UNACKNOWLEDGED               0x0042
+#define GENERIC_ONOFF_GET                                        0x8201
+#define GENERIC_ONOFF_SET                                        0x8202
+#define GENERIC_ONOFF_SET_UNACKNOWLEDGED                         0x8203
+#define GENERIC_ONOFF_STATUS                                     0x8204
+#define GENERIC_LEVEL_GET                                        0x8205
+#define GENERIC_LEVEL_SET                                        0x8206
+#define GENERIC_LEVEL_SET_UNACKNOWLEDGED                         0x8207
+#define GENERIC_LEVEL_STATUS                                     0x8208
+#define GENERIC_DELTA_SET                                        0x8209
+#define GENERIC_DELTA_SET_UNACKNOWLEDGED                         0x820a
+#define GENERIC_MOVE_SET                                         0x820b
+#define GENERIC_MOVE_SET_UNACKNOWLEDGED                          0x820c
+#define GENERIC_DEFAULT_TRANSITION_TIME_GET                      0x820d
+#define GENERIC_DEFAULT_TRANSITION_TIME_SET                      0x820e
+#define GENERIC_DEFAULT_TRANSITION_TIME_SET_UNACKNOWLEDGED       0x820f
+#define GENERIC_DEFAULT_TRANSITION_TIME_STATUS                   0x8210
+#define GENERIC_ONPOWERUP_GET                                    0x8211
+#define GENERIC_ONPOWERUP_STATUS                                 0x8212
+#define GENERIC_ONPOWERUP_SET                                    0x8213
+#define GENERIC_ONPOWERUP_SET_UNACKNOWLEDGED                     0x8214
+#define GENERIC_POWER_LEVEL_GET                                  0x8215
+#define GENERIC_POWER_LEVEL_SET                                  0x8216
+#define GENERIC_POWER_LEVEL_SET_UNACKNOWLEDGED                   0x8217
+#define GENERIC_POWER_LEVEL_STATUS                               0x8218
+#define GENERIC_POWER_LAST_GET                                   0x8219
+#define GENERIC_POWER_LAST_STATUS                                0x821a
+#define GENERIC_POWER_DEFAULT_GET                                0x821b
+#define GENERIC_POWER_DEFAULT_STATUS                             0x821c
+#define GENERIC_POWER_RANGE_GET                                  0x821d
+#define GENERIC_POWER_RANGE_STATUS                               0x821e
+#define GENERIC_POWER_DEFAULT_SET                                0x821f
+#define GENERIC_POWER_DEFAULT_SET_UNACKNOWLEDGED                 0x8220
+#define GENERIC_POWER_RANGE_SET                                  0x8221
+#define GENERIC_POWER_RANGE_SET_UNACKNOWLEDGED                   0x8222
+#define GENERIC_BATTERY_GET                                      0x8223
+#define GENERIC_BATTERY_STATUS                                   0x8224
+#define GENERIC_LOCATION_GLOBAL_GET                              0x8225
+#define GENERIC_LOCATION_LOCAL_GET                               0x8226
+#define GENERIC_LOCATION_LOCAL_STATUS                            0x8227
+#define GENERIC_LOCATION_LOCAL_SET                               0x8228
+#define GENERIC_LOCATION_LOCAL_SET_UNACKNOWLEDGED                0x8229
+#define SCENE_STATUS                                             0x005e
+#define SCENE_GET                                                0x8241
+#define SCENE_RECALL                                             0x8242
+#define SCENE_RECALL_UNACKNOWLEDGED                              0x8243
+#define SCENE_REGISTER_GET                                       0x8244
+#define SCENE_REGISTER_STATUS                                    0x8245
+#define SCENE_STORE                                              0x8246
+#define SCENE_STORE_UNACKNOWLEDGED                               0x8247
+#define SCENE_DELETE                                             0x829e
+#define SCENE_DELETE_UNACKNOWLEDGED                              0x829f
 
 void proto_register_btmesh(void);
 
@@ -562,6 +617,169 @@ static int hf_btmesh_config_vendor_model_app_list_elementaddress = -1;
 static int hf_btmesh_config_vendor_model_app_list_modelidentifier = -1;
 static int hf_btmesh_config_vendor_model_app_list_appkeyindex = -1;
 static int hf_btmesh_config_vendor_model_app_list_appkeyindex_rfu = -1;
+static int hf_btmesh_generic_location_global_status_global_latitude = -1;
+static int hf_btmesh_generic_location_global_status_global_longitude = -1;
+static int hf_btmesh_generic_location_global_status_global_altitude = -1;
+static int hf_btmesh_generic_location_global_set_global_latitude = -1;
+static int hf_btmesh_generic_location_global_set_global_longitude = -1;
+static int hf_btmesh_generic_location_global_set_global_altitude = -1;
+static int hf_btmesh_generic_location_global_set_unacknowledged_global_latitude = -1;
+static int hf_btmesh_generic_location_global_set_unacknowledged_global_longitude = -1;
+static int hf_btmesh_generic_location_global_set_unacknowledged_global_altitude = -1;
+static int hf_btmesh_generic_onoff_set_onoff = -1;
+static int hf_btmesh_generic_onoff_set_tid = -1;
+static int hf_btmesh_generic_onoff_set_transition_time = -1;
+static int hf_btmesh_generic_onoff_set_transition_time_steps = -1;
+static int hf_btmesh_generic_onoff_set_transition_time_resolution = -1;
+static int hf_btmesh_generic_onoff_set_delay = -1;
+static int hf_btmesh_generic_onoff_set_unacknowledged_onoff = -1;
+static int hf_btmesh_generic_onoff_set_unacknowledged_tid = -1;
+static int hf_btmesh_generic_onoff_set_unacknowledged_transition_time = -1;
+static int hf_btmesh_generic_onoff_set_unacknowledged_transition_time_steps = -1;
+static int hf_btmesh_generic_onoff_set_unacknowledged_transition_time_resolution = -1;
+static int hf_btmesh_generic_onoff_set_unacknowledged_delay = -1;
+static int hf_btmesh_generic_onoff_status_present_onoff = -1;
+static int hf_btmesh_generic_onoff_status_target_onoff = -1;
+static int hf_btmesh_generic_onoff_status_remaining_time = -1;
+static int hf_btmesh_generic_onoff_status_remaining_time_steps = -1;
+static int hf_btmesh_generic_onoff_status_remaining_time_resolution = -1;
+static int hf_btmesh_generic_level_set_level = -1;
+static int hf_btmesh_generic_level_set_tid = -1;
+static int hf_btmesh_generic_level_set_transition_time = -1;
+static int hf_btmesh_generic_level_set_transition_time_steps = -1;
+static int hf_btmesh_generic_level_set_transition_time_resolution = -1;
+static int hf_btmesh_generic_level_set_delay = -1;
+static int hf_btmesh_generic_level_set_unacknowledged_level = -1;
+static int hf_btmesh_generic_level_set_unacknowledged_tid = -1;
+static int hf_btmesh_generic_level_set_unacknowledged_transition_time = -1;
+static int hf_btmesh_generic_level_set_unacknowledged_transition_time_steps = -1;
+static int hf_btmesh_generic_level_set_unacknowledged_transition_time_resolution = -1;
+static int hf_btmesh_generic_level_set_unacknowledged_delay = -1;
+static int hf_btmesh_generic_level_status_present_level = -1;
+static int hf_btmesh_generic_level_status_target_level = -1;
+static int hf_btmesh_generic_level_status_remaining_time = -1;
+static int hf_btmesh_generic_level_status_remaining_time_steps = -1;
+static int hf_btmesh_generic_level_status_remaining_time_resolution = -1;
+static int hf_btmesh_generic_delta_set_delta_level = -1;
+static int hf_btmesh_generic_delta_set_tid = -1;
+static int hf_btmesh_generic_delta_set_transition_time = -1;
+static int hf_btmesh_generic_delta_set_transition_time_steps = -1;
+static int hf_btmesh_generic_delta_set_transition_time_resolution = -1;
+static int hf_btmesh_generic_delta_set_delay = -1;
+static int hf_btmesh_generic_delta_set_unacknowledged_delta_level = -1;
+static int hf_btmesh_generic_delta_set_unacknowledged_tid = -1;
+static int hf_btmesh_generic_delta_set_unacknowledged_transition_time = -1;
+static int hf_btmesh_generic_delta_set_unacknowledged_transition_time_steps = -1;
+static int hf_btmesh_generic_delta_set_unacknowledged_transition_time_resolution = -1;
+static int hf_btmesh_generic_delta_set_unacknowledged_delay = -1;
+static int hf_btmesh_generic_move_set_delta_level = -1;
+static int hf_btmesh_generic_move_set_tid = -1;
+static int hf_btmesh_generic_move_set_transition_time = -1;
+static int hf_btmesh_generic_move_set_transition_time_steps = -1;
+static int hf_btmesh_generic_move_set_transition_time_resolution = -1;
+static int hf_btmesh_generic_move_set_delay = -1;
+static int hf_btmesh_generic_move_set_unacknowledged_delta_level = -1;
+static int hf_btmesh_generic_move_set_unacknowledged_tid = -1;
+static int hf_btmesh_generic_move_set_unacknowledged_transition_time = -1;
+static int hf_btmesh_generic_move_set_unacknowledged_transition_time_steps = -1;
+static int hf_btmesh_generic_move_set_unacknowledged_transition_time_resolution = -1;
+static int hf_btmesh_generic_move_set_unacknowledged_delay = -1;
+static int hf_btmesh_generic_default_transition_time_set_transition_time = -1;
+static int hf_btmesh_generic_default_transition_time_set_transition_time_steps = -1;
+static int hf_btmesh_generic_default_transition_time_set_transition_time_resolution = -1;
+static int hf_btmesh_generic_default_transition_time_set_unacknowledged_transition_time = -1;
+static int hf_btmesh_generic_default_transition_time_set_unacknowledged_transition_time_steps = -1;
+static int hf_btmesh_generic_default_transition_time_set_unacknowledged_transition_time_resolution = -1;
+static int hf_btmesh_generic_default_transition_time_status_transition_time = -1;
+static int hf_btmesh_generic_default_transition_time_status_transition_time_steps = -1;
+static int hf_btmesh_generic_default_transition_time_status_transition_time_resolution = -1;
+static int hf_btmesh_generic_onpowerup_status_onpowerup = -1;
+static int hf_btmesh_generic_onpowerup_set_onpowerup = -1;
+static int hf_btmesh_generic_onpowerup_set_unacknowledged_onpowerup = -1;
+static int hf_btmesh_generic_power_level_set_power = -1;
+static int hf_btmesh_generic_power_level_set_tid = -1;
+static int hf_btmesh_generic_power_level_set_transition_time = -1;
+static int hf_btmesh_generic_power_level_set_transition_time_steps = -1;
+static int hf_btmesh_generic_power_level_set_transition_time_resolution = -1;
+static int hf_btmesh_generic_power_level_set_delay = -1;
+static int hf_btmesh_generic_power_level_set_unacknowledged_power = -1;
+static int hf_btmesh_generic_power_level_set_unacknowledged_tid = -1;
+static int hf_btmesh_generic_power_level_set_unacknowledged_transition_time = -1;
+static int hf_btmesh_generic_power_level_set_unacknowledged_transition_time_steps = -1;
+static int hf_btmesh_generic_power_level_set_unacknowledged_transition_time_resolution = -1;
+static int hf_btmesh_generic_power_level_set_unacknowledged_delay = -1;
+static int hf_btmesh_generic_power_level_status_present_power = -1;
+static int hf_btmesh_generic_power_level_status_target_power = -1;
+static int hf_btmesh_generic_power_level_status_remaining_time = -1;
+static int hf_btmesh_generic_power_level_status_remaining_time_steps = -1;
+static int hf_btmesh_generic_power_level_status_remaining_time_resolution = -1;
+static int hf_btmesh_generic_power_last_status_power = -1;
+static int hf_btmesh_generic_power_default_status_power = -1;
+static int hf_btmesh_generic_power_range_status_status_code = -1;
+static int hf_btmesh_generic_power_range_status_range_min = -1;
+static int hf_btmesh_generic_power_range_status_range_max = -1;
+static int hf_btmesh_generic_power_default_set_power = -1;
+static int hf_btmesh_generic_power_default_set_unacknowledged_power = -1;
+static int hf_btmesh_generic_power_range_set_range_min = -1;
+static int hf_btmesh_generic_power_range_set_range_max = -1;
+static int hf_btmesh_generic_power_range_set_unacknowledged_range_min = -1;
+static int hf_btmesh_generic_power_range_set_unacknowledged_range_max = -1;
+static int hf_btmesh_generic_battery_status_battery_level = -1;
+static int hf_btmesh_generic_battery_status_time_to_discharge = -1;
+static int hf_btmesh_generic_battery_status_time_to_charge = -1;
+static int hf_btmesh_generic_battery_status_flags_presence = -1;
+static int hf_btmesh_generic_battery_status_flags_indicator = -1;
+static int hf_btmesh_generic_battery_status_flags_charging = -1;
+static int hf_btmesh_generic_battery_status_flags_serviceability = -1;
+static int hf_btmesh_generic_location_local_status_local_north = -1;
+static int hf_btmesh_generic_location_local_status_local_east = -1;
+static int hf_btmesh_generic_location_local_status_local_altitude = -1;
+static int hf_btmesh_generic_location_local_status_floor_number = -1;
+static int hf_btmesh_generic_location_local_status_uncertainty_stationary = -1;
+static int hf_btmesh_generic_location_local_status_uncertainty_rfu = -1;
+static int hf_btmesh_generic_location_local_status_uncertainty_update_time = -1;
+static int hf_btmesh_generic_location_local_status_uncertainty_precision = -1;
+static int hf_btmesh_generic_location_local_set_local_north = -1;
+static int hf_btmesh_generic_location_local_set_local_east = -1;
+static int hf_btmesh_generic_location_local_set_local_altitude = -1;
+static int hf_btmesh_generic_location_local_set_floor_number = -1;
+static int hf_btmesh_generic_location_local_set_uncertainty_stationary = -1;
+static int hf_btmesh_generic_location_local_set_uncertainty_rfu = -1;
+static int hf_btmesh_generic_location_local_set_uncertainty_update_time = -1;
+static int hf_btmesh_generic_location_local_set_uncertainty_precision = -1;
+static int hf_btmesh_generic_location_local_set_unacknowledged_local_north = -1;
+static int hf_btmesh_generic_location_local_set_unacknowledged_local_east = -1;
+static int hf_btmesh_generic_location_local_set_unacknowledged_local_altitude = -1;
+static int hf_btmesh_generic_location_local_set_unacknowledged_floor_number = -1;
+static int hf_btmesh_generic_location_local_set_unacknowledged_uncertainty_stationary = -1;
+static int hf_btmesh_generic_location_local_set_unacknowledged_uncertainty_rfu = -1;
+static int hf_btmesh_generic_location_local_set_unacknowledged_uncertainty_update_time = -1;
+static int hf_btmesh_generic_location_local_set_unacknowledged_uncertainty_precision = -1;
+static int hf_btmesh_scene_status_status_code = -1;
+static int hf_btmesh_scene_status_current_scene = -1;
+static int hf_btmesh_scene_status_target_scene = -1;
+static int hf_btmesh_scene_status_remaining_time = -1;
+static int hf_btmesh_scene_status_remaining_time_steps = -1;
+static int hf_btmesh_scene_status_remaining_time_resolution = -1;
+static int hf_btmesh_scene_recall_scene_number = -1;
+static int hf_btmesh_scene_recall_tid = -1;
+static int hf_btmesh_scene_recall_transition_time = -1;
+static int hf_btmesh_scene_recall_transition_time_steps = -1;
+static int hf_btmesh_scene_recall_transition_time_resolution = -1;
+static int hf_btmesh_scene_recall_delay = -1;
+static int hf_btmesh_scene_recall_unacknowledged_scene_number = -1;
+static int hf_btmesh_scene_recall_unacknowledged_tid = -1;
+static int hf_btmesh_scene_recall_unacknowledged_transition_time = -1;
+static int hf_btmesh_scene_recall_unacknowledged_transition_time_steps = -1;
+static int hf_btmesh_scene_recall_unacknowledged_transition_time_resolution = -1;
+static int hf_btmesh_scene_recall_unacknowledged_delay = -1;
+static int hf_btmesh_scene_register_status_status_code = -1;
+static int hf_btmesh_scene_register_status_current_scene = -1;
+static int hf_btmesh_scene_register_status_scene = -1;
+static int hf_btmesh_scene_store_scene_number = -1;
+static int hf_btmesh_scene_store_unacknowledged_scene_number = -1;
+static int hf_btmesh_scene_delete_scene_number = -1;
+static int hf_btmesh_scene_delete_unacknowledged_scene_number = -1;
 
 static int ett_btmesh = -1;
 static int ett_btmesh_net_pdu = -1;
@@ -593,6 +811,7 @@ static int ett_btmesh_config_model_app_index = -1;
 static int ett_btmesh_config_heartbeat_publication_set_features = -1;
 static int ett_btmesh_config_heartbeat_publication_status_features = -1;
 static int ett_btmesh_config_model_fault_array = -1;
+static int ett_btmesh_scene_register_status_scenes = -1;
 
 static expert_field ei_btmesh_not_decoded_yet = EI_INIT;
 static expert_field ei_btmesh_unknown_payload = EI_INIT;
@@ -1093,6 +1312,57 @@ static const value_string btmesh_fault_array_vals[] = {
     { 0, NULL }
 };
 
+static const value_string btmesh_generic_onpowerup_vals[] = {
+    { 0x00, "Off" },
+    { 0x01, "Default" },
+    { 0x02, "Restore" },
+    { 0, NULL }
+};
+
+static const value_string btmesh_on_off_vals[] = {
+    { 0x0, "Off" },
+    { 0x1, "On" },
+    { 0, NULL }
+};
+
+static const value_string btmesh_generic_battery_flags_presence_vals[] = {
+    { 0x0, "The battery is not present." },
+    { 0x1, "The battery is present and is removable." },
+    { 0x2, "The battery is present and is non-removable." },
+    { 0x3, "The battery presence is unknown." },
+    { 0, NULL }
+};
+
+static const value_string btmesh_generic_battery_flags_indicator_vals[] = {
+    { 0x0, "The battery charge is Critically Low Level." },
+    { 0x1, "The battery charge is Low Level." },
+    { 0x2, "The battery charge is Good Level." },
+    { 0x3, "The battery charge is unknown." },
+    { 0, NULL }
+};
+
+static const value_string btmesh_generic_battery_flags_charging_vals[] = {
+    { 0x0, "The battery is not chargeable." },
+    { 0x1, "The battery is chargeable and is not charging." },
+    { 0x2, "The battery is chargeable and is charging." },
+    { 0x3, "The battery charging state is unknown." },
+    { 0, NULL }
+};
+
+static const value_string btmesh_generic_battery_flags_serviceability_vals[] = {
+    { 0x0, "Reserved for Future Use" },
+    { 0x1, "The battery does not require service." },
+    { 0x2, "The battery requires service." },
+    { 0x3, "The battery serviceability is unknown." },
+    { 0, NULL }
+};
+
+static const value_string btmesh_generic_location_local_stationary_vals[] = {
+    { 0x0, "Stationary" },
+    { 0x1, "Mobile" },
+    { 0, NULL }
+};
+
 #if GCRYPT_VERSION_NUMBER >= 0x010600 /* 1.6.0 */
 
 static int * const config_composition_data_status_features_headers[] = {
@@ -1181,6 +1451,20 @@ static const value_string btmesh_status_code_vals[] = {
     { 0x0F, "Cannot Set" },
     { 0x10, "Unspecified Error" },
     { 0x11, "Invalid Binding" },
+    { 0, NULL }
+};
+
+static const value_string btmesh_generic_status_code_vals[] = {
+    { 0x00, "Success" },
+    { 0x01, "Cannot Set Range Min" },
+    { 0x02, "Cannot Set Range Max" },
+    { 0, NULL }
+};
+
+static const value_string btmesh_scene_status_code_vals[] = {
+    { 0x00, "Success" },
+    { 0x01, "Scene Register Full" },
+    { 0x02, "Scene Not Found" },
     { 0, NULL }
 };
 
@@ -1789,7 +2073,7 @@ static const guint32 period_interval_multiplier[] = {100, 1, 10, 10};
 
 static void
 format_publish_period(gchar *buf, guint32 value) {
-    guint32 idx = (value & 0xC0 ) >> 5;
+    guint32 idx = (value & 0xC0 ) >> 6;
     guint32 val = (value & 0x3F ) * period_interval_multiplier[idx];
     g_snprintf(buf, ITEM_LABEL_LENGTH, "%u %s", val, period_interval_unit[idx]);
 }
@@ -1857,6 +2141,155 @@ format_publish_appkeyindex_model(gchar *buf, guint32 value) {
 }
 
 static void
+format_delay_ms(gchar *buf, guint32 value) {
+    g_snprintf(buf, ITEM_LABEL_LENGTH, "%u ms", value * 5);
+}
+
+static void
+format_power(gchar *buf, guint32 value) {
+    gdouble val;
+    val =  (gdouble)value / (gdouble)655.35;
+    g_snprintf(buf, ITEM_LABEL_LENGTH, "% 3.2f %%", val);
+}
+
+static void
+format_battery_level(gchar *buf, guint32 value) {
+    if (value == 0xFF) {
+        g_snprintf(buf, ITEM_LABEL_LENGTH, "The percentage of the charge level is unknown");
+        return;
+    }
+    if (value <= 0x64) {
+        g_snprintf(buf, ITEM_LABEL_LENGTH, "%u %%", value);
+        return;
+    }
+    g_snprintf(buf, ITEM_LABEL_LENGTH, "Prohibited (%u)", value);
+}
+
+static void
+format_battery_time(gchar *buf, guint32 value) {
+    if (value == 0xFFFFFF) {
+        g_snprintf(buf, ITEM_LABEL_LENGTH, "The remaining time is not known");
+        return;
+    }
+    g_snprintf(buf, ITEM_LABEL_LENGTH, "%u minutes", value);
+}
+
+static void
+format_global_latitude(gchar *buf, gint32 value) {
+    if (value == INT_MIN) {
+        g_snprintf(buf, ITEM_LABEL_LENGTH, "Global Latitude is not configured.");
+        return;
+    }
+    gdouble val;
+    val =  (gdouble)90.0 / (gdouble) (0x7FFFFFFF) * (gdouble)value ;
+    g_snprintf(buf, ITEM_LABEL_LENGTH, "% 2.6f°", val);
+}
+
+static void
+format_global_longitude(gchar *buf, gint32 value) {
+    if (value == INT_MIN) {
+        g_snprintf(buf, ITEM_LABEL_LENGTH, "Global Longitude is not configured.");
+        return;
+    }
+    gdouble val;
+    val =  (gdouble)180.0 / (gdouble) (0x7FFFFFFF) * (gdouble)value;
+    g_snprintf(buf, ITEM_LABEL_LENGTH, "% 2.6f°", val);
+}
+
+static void
+format_global_altitude(gchar *buf, gint16 value) {
+    if (value == 0x7FFF) {
+        g_snprintf(buf, ITEM_LABEL_LENGTH, "Global Altitude is not configured.");
+        return;
+    }
+    if (value == 0x7FFE) {
+        g_snprintf(buf, ITEM_LABEL_LENGTH, "Global Altitude is greater than or equal to 32766 meters.");
+        return;
+    }
+    g_snprintf(buf, ITEM_LABEL_LENGTH, "%d meters", value);
+}
+
+static void
+format_local_north(gchar *buf, gint16 value) {
+    if (value == -32768) {
+        g_snprintf(buf, ITEM_LABEL_LENGTH, "Local North information is not configured.");
+        return;
+    }
+    gdouble val;
+    val =  (gdouble)value / (gdouble) 10.0;
+    g_snprintf(buf, ITEM_LABEL_LENGTH, "%.1f meters", val);
+}
+
+static void
+format_local_east(gchar *buf, gint16 value) {
+    if (value == -32768) {
+        g_snprintf(buf, ITEM_LABEL_LENGTH, "Local East information is not configured.");
+        return;
+    }
+    gdouble val;
+    val =  (gdouble)value / (gdouble) 10.0;
+    g_snprintf(buf, ITEM_LABEL_LENGTH, "%.1f meters", val);
+}
+
+static void
+format_local_altitude(gchar *buf, gint16 value) {
+    if (value == 0x7FFF) {
+        g_snprintf(buf, ITEM_LABEL_LENGTH, "Local Altitude is not configured.");
+        return;
+    }
+    if (value == 0x7FFE) {
+        g_snprintf(buf, ITEM_LABEL_LENGTH, "Local Altitude is greater than or equal to 3276.6 meters.");
+        return;
+    }
+    gdouble val;
+    val =  (gdouble)value / (gdouble) 10.0;
+    g_snprintf(buf, ITEM_LABEL_LENGTH, "%.1f meters", val);
+}
+
+static void
+format_floor_number(gchar *buf, guint8 value) {
+    switch (value) {
+        case 0x00:
+            g_snprintf(buf, ITEM_LABEL_LENGTH, "Floor -20 or any floor below -20.");
+        break;
+
+        case 0xFC:
+            g_snprintf(buf, ITEM_LABEL_LENGTH, "Floor 232 or any floor above 232.");
+        break;
+
+        case 0xFD:
+            g_snprintf(buf, ITEM_LABEL_LENGTH, "Ground floor. Floor 0.");
+        break;
+
+        case 0xFE:
+            g_snprintf(buf, ITEM_LABEL_LENGTH, "Ground floor. Floor 1.");
+        break;
+
+        case 0xFF:
+            g_snprintf(buf, ITEM_LABEL_LENGTH, "Not configured.");
+        break;
+
+        default:
+            g_snprintf(buf, ITEM_LABEL_LENGTH, "%d", (gint16)value - (gint16)20 );
+        break;
+    }
+}
+
+static void
+format_update_time(gchar *buf, guint16 value) {
+    gdouble val;
+    val =  pow((gdouble)2.0, (gdouble)(value - 3));
+    g_snprintf(buf, ITEM_LABEL_LENGTH, "%.*f seconds", (value<4?3-value:0), val);
+}
+
+static void
+format_precision(gchar *buf, guint16 value) {
+    gdouble val;
+    val =  pow((gdouble)2.0, (gdouble)(value - 3));
+    g_snprintf(buf, ITEM_LABEL_LENGTH, "%.*f meters", (value<4?3-value:0),val);
+}
+
+static void
 dissect_btmesh_model_layer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
     proto_tree *sub_tree;
@@ -1873,6 +2306,7 @@ dissect_btmesh_model_layer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     proto_tree *element_sub_tree, *model_sub_tree, *vendor_sub_tree;
     proto_tree *netkeylist_tree, *appkeylist_tree;
     proto_tree *fault_array_tree;
+    proto_tree *sceneslist_tree;
 
     guint32 netkeyindexes, appkeyindexes;
     guint32 nums, numv, element;
@@ -2714,6 +3148,467 @@ dissect_btmesh_model_layer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
             }
         }
         break;
+//
+//  ******************************************************************************************
+//
+    case GENERIC_LOCATION_GLOBAL_STATUS:
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_location_global_status_global_latitude, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset+=4;
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_location_global_status_global_longitude, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset+=4;
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_location_global_status_global_altitude, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        break;
+    case GENERIC_LOCATION_GLOBAL_SET:
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_location_global_set_global_latitude, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset+=4;
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_location_global_set_global_longitude, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset+=4;
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_location_global_set_global_altitude, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        break;
+    case GENERIC_LOCATION_GLOBAL_SET_UNACKNOWLEDGED:
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_location_global_set_unacknowledged_global_latitude, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset+=4;
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_location_global_set_unacknowledged_global_longitude, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset+=4;
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_location_global_set_unacknowledged_global_altitude, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        break;
+    case GENERIC_ONOFF_GET:
+        break;
+    case GENERIC_ONOFF_SET:
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_onoff_set_onoff, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_onoff_set_tid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        /* Optional */
+        if (tvb_reported_length_remaining(tvb, offset) > 0) {
+            publishperiod_item = proto_tree_add_item(sub_tree, hf_btmesh_generic_onoff_set_transition_time, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            publishperiod_sub_tree = proto_item_add_subtree(publishperiod_item, ett_btmesh_config_model_publishperiod);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_generic_onoff_set_transition_time_steps, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_generic_onoff_set_transition_time_resolution, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            proto_tree_add_item(sub_tree, hf_btmesh_generic_onoff_set_delay, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+        }
+        break;
+    case GENERIC_ONOFF_SET_UNACKNOWLEDGED:
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_onoff_set_unacknowledged_onoff, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_onoff_set_unacknowledged_tid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        /* Optional */
+        if (tvb_reported_length_remaining(tvb, offset) > 0) {
+            publishperiod_item = proto_tree_add_item(sub_tree, hf_btmesh_generic_onoff_set_unacknowledged_transition_time, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            publishperiod_sub_tree = proto_item_add_subtree(publishperiod_item, ett_btmesh_config_model_publishperiod);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_generic_onoff_set_unacknowledged_transition_time_steps, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_generic_onoff_set_unacknowledged_transition_time_resolution, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            proto_tree_add_item(sub_tree, hf_btmesh_generic_onoff_set_unacknowledged_delay, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+        }
+        break;
+    case GENERIC_ONOFF_STATUS:
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_onoff_status_present_onoff, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        /* Optional */
+        if (tvb_reported_length_remaining(tvb, offset) > 0) {
+            proto_tree_add_item(sub_tree, hf_btmesh_generic_onoff_status_target_onoff, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            publishperiod_item = proto_tree_add_item(sub_tree, hf_btmesh_generic_onoff_status_remaining_time, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            publishperiod_sub_tree = proto_item_add_subtree(publishperiod_item, ett_btmesh_config_model_publishperiod);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_generic_onoff_status_remaining_time_steps, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_generic_onoff_status_remaining_time_resolution, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+        }
+        break;
+    case GENERIC_LEVEL_GET:
+        break;
+    case GENERIC_LEVEL_SET:
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_level_set_level, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_level_set_tid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        /* Optional */
+        if (tvb_reported_length_remaining(tvb, offset) > 0) {
+            publishperiod_item = proto_tree_add_item(sub_tree, hf_btmesh_generic_level_set_transition_time, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            publishperiod_sub_tree = proto_item_add_subtree(publishperiod_item, ett_btmesh_config_model_publishperiod);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_generic_level_set_transition_time_steps, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_generic_level_set_transition_time_resolution, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            proto_tree_add_item(sub_tree, hf_btmesh_generic_level_set_delay, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+        }
+        break;
+    case GENERIC_LEVEL_SET_UNACKNOWLEDGED:
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_level_set_unacknowledged_level, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_level_set_unacknowledged_tid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        /* Optional */
+        if (tvb_reported_length_remaining(tvb, offset) > 0) {
+            publishperiod_item = proto_tree_add_item(sub_tree, hf_btmesh_generic_level_set_unacknowledged_transition_time, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            publishperiod_sub_tree = proto_item_add_subtree(publishperiod_item, ett_btmesh_config_model_publishperiod);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_generic_level_set_unacknowledged_transition_time_steps, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_generic_level_set_unacknowledged_transition_time_resolution, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            proto_tree_add_item(sub_tree, hf_btmesh_generic_level_set_unacknowledged_delay, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+        }
+        break;
+    case GENERIC_LEVEL_STATUS:
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_level_status_present_level, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        /* Optional */
+        if (tvb_reported_length_remaining(tvb, offset) > 0) {
+            proto_tree_add_item(sub_tree, hf_btmesh_generic_level_status_target_level, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset+=2;
+            publishperiod_item = proto_tree_add_item(sub_tree, hf_btmesh_generic_level_status_remaining_time, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            publishperiod_sub_tree = proto_item_add_subtree(publishperiod_item, ett_btmesh_config_model_publishperiod);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_generic_level_status_remaining_time_steps, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_generic_level_status_remaining_time_resolution, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+        }
+        break;
+    case GENERIC_DELTA_SET:
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_delta_set_delta_level, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset+=4;
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_delta_set_tid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        /* Optional */
+        if (tvb_reported_length_remaining(tvb, offset) > 0) {
+            publishperiod_item = proto_tree_add_item(sub_tree, hf_btmesh_generic_delta_set_transition_time, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            publishperiod_sub_tree = proto_item_add_subtree(publishperiod_item, ett_btmesh_config_model_publishperiod);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_generic_delta_set_transition_time_steps, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_generic_delta_set_transition_time_resolution, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            proto_tree_add_item(sub_tree, hf_btmesh_generic_delta_set_delay, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+        }
+        break;
+    case GENERIC_DELTA_SET_UNACKNOWLEDGED:
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_delta_set_unacknowledged_delta_level, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset+=4;
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_delta_set_unacknowledged_tid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        /* Optional */
+        if (tvb_reported_length_remaining(tvb, offset) > 0) {
+            publishperiod_item = proto_tree_add_item(sub_tree, hf_btmesh_generic_delta_set_unacknowledged_transition_time, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            publishperiod_sub_tree = proto_item_add_subtree(publishperiod_item, ett_btmesh_config_model_publishperiod);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_generic_delta_set_unacknowledged_transition_time_steps, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_generic_delta_set_unacknowledged_transition_time_resolution, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            proto_tree_add_item(sub_tree, hf_btmesh_generic_delta_set_unacknowledged_delay, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+        }
+        break;
+    case GENERIC_MOVE_SET:
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_move_set_delta_level, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_move_set_tid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        /* Optional */
+        if (tvb_reported_length_remaining(tvb, offset) > 0) {
+            publishperiod_item = proto_tree_add_item(sub_tree, hf_btmesh_generic_move_set_transition_time, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            publishperiod_sub_tree = proto_item_add_subtree(publishperiod_item, ett_btmesh_config_model_publishperiod);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_generic_move_set_transition_time_steps, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_generic_move_set_transition_time_resolution, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            proto_tree_add_item(sub_tree, hf_btmesh_generic_move_set_delay, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+        }
+        break;
+    case GENERIC_MOVE_SET_UNACKNOWLEDGED:
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_move_set_unacknowledged_delta_level, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_move_set_unacknowledged_tid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        /* Optional */
+        if (tvb_reported_length_remaining(tvb, offset) > 0) {
+            publishperiod_item = proto_tree_add_item(sub_tree, hf_btmesh_generic_move_set_unacknowledged_transition_time, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            publishperiod_sub_tree = proto_item_add_subtree(publishperiod_item, ett_btmesh_config_model_publishperiod);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_generic_move_set_unacknowledged_transition_time_steps, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_generic_move_set_unacknowledged_transition_time_resolution, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            proto_tree_add_item(sub_tree, hf_btmesh_generic_move_set_unacknowledged_delay, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+        }
+        break;
+    case GENERIC_DEFAULT_TRANSITION_TIME_GET:
+        break;
+    case GENERIC_DEFAULT_TRANSITION_TIME_SET:
+        publishperiod_item = proto_tree_add_item(sub_tree, hf_btmesh_generic_default_transition_time_set_transition_time, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        publishperiod_sub_tree = proto_item_add_subtree(publishperiod_item, ett_btmesh_config_model_publishperiod);
+        proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_generic_default_transition_time_set_transition_time_steps, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_generic_default_transition_time_set_transition_time_resolution, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        break;
+    case GENERIC_DEFAULT_TRANSITION_TIME_SET_UNACKNOWLEDGED:
+        publishperiod_item = proto_tree_add_item(sub_tree, hf_btmesh_generic_default_transition_time_set_unacknowledged_transition_time, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        publishperiod_sub_tree = proto_item_add_subtree(publishperiod_item, ett_btmesh_config_model_publishperiod);
+        proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_generic_default_transition_time_set_unacknowledged_transition_time_steps, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_generic_default_transition_time_set_unacknowledged_transition_time_resolution, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        break;
+    case GENERIC_DEFAULT_TRANSITION_TIME_STATUS:
+        publishperiod_item = proto_tree_add_item(sub_tree, hf_btmesh_generic_default_transition_time_status_transition_time, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        publishperiod_sub_tree = proto_item_add_subtree(publishperiod_item, ett_btmesh_config_model_publishperiod);
+        proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_generic_default_transition_time_status_transition_time_steps, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_generic_default_transition_time_status_transition_time_resolution, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        break;
+    case GENERIC_ONPOWERUP_GET:
+        break;
+    case GENERIC_ONPOWERUP_STATUS:
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_onpowerup_status_onpowerup, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        break;
+    case GENERIC_ONPOWERUP_SET:
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_onpowerup_set_onpowerup, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        break;
+    case GENERIC_ONPOWERUP_SET_UNACKNOWLEDGED:
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_onpowerup_set_unacknowledged_onpowerup, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        break;
+    case GENERIC_POWER_LEVEL_GET:
+        break;
+    case GENERIC_POWER_LEVEL_SET:
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_power_level_set_power, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_power_level_set_tid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        /* Optional */
+        if (tvb_reported_length_remaining(tvb, offset) > 0) {
+            publishperiod_item = proto_tree_add_item(sub_tree, hf_btmesh_generic_power_level_set_transition_time, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            publishperiod_sub_tree = proto_item_add_subtree(publishperiod_item, ett_btmesh_config_model_publishperiod);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_generic_power_level_set_transition_time_steps, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_generic_power_level_set_transition_time_resolution, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            proto_tree_add_item(sub_tree, hf_btmesh_generic_power_level_set_delay, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+        }
+        break;
+    case GENERIC_POWER_LEVEL_SET_UNACKNOWLEDGED:
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_power_level_set_unacknowledged_power, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_power_level_set_unacknowledged_tid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        /* Optional */
+        if (tvb_reported_length_remaining(tvb, offset) > 0) {
+            publishperiod_item = proto_tree_add_item(sub_tree, hf_btmesh_generic_power_level_set_unacknowledged_transition_time, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            publishperiod_sub_tree = proto_item_add_subtree(publishperiod_item, ett_btmesh_config_model_publishperiod);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_generic_power_level_set_unacknowledged_transition_time_steps, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_generic_power_level_set_unacknowledged_transition_time_resolution, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            proto_tree_add_item(sub_tree, hf_btmesh_generic_power_level_set_unacknowledged_delay, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+        }
+        break;
+    case GENERIC_POWER_LEVEL_STATUS:
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_power_level_status_present_power, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        /* Optional */
+        if (tvb_reported_length_remaining(tvb, offset) > 0) {
+            proto_tree_add_item(sub_tree, hf_btmesh_generic_power_level_status_target_power, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset+=2;
+            publishperiod_item = proto_tree_add_item(sub_tree, hf_btmesh_generic_power_level_status_remaining_time, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            publishperiod_sub_tree = proto_item_add_subtree(publishperiod_item, ett_btmesh_config_model_publishperiod);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_generic_power_level_status_remaining_time_steps, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_generic_power_level_status_remaining_time_resolution, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+        }
+        break;
+    case GENERIC_POWER_LAST_GET:
+        break;
+    case GENERIC_POWER_LAST_STATUS:
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_power_last_status_power, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        break;
+    case GENERIC_POWER_DEFAULT_GET:
+        break;
+    case GENERIC_POWER_DEFAULT_STATUS:
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_power_default_status_power, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        break;
+    case GENERIC_POWER_RANGE_GET:
+        break;
+    case GENERIC_POWER_RANGE_STATUS:
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_power_range_status_status_code, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_power_range_status_range_min, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_power_range_status_range_max, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        break;
+    case GENERIC_POWER_DEFAULT_SET:
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_power_default_set_power, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        break;
+    case GENERIC_POWER_DEFAULT_SET_UNACKNOWLEDGED:
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_power_default_set_unacknowledged_power, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        break;
+    case GENERIC_POWER_RANGE_SET:
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_power_range_set_range_min, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_power_range_set_range_max, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        break;
+    case GENERIC_POWER_RANGE_SET_UNACKNOWLEDGED:
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_power_range_set_unacknowledged_range_min, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_power_range_set_unacknowledged_range_max, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        break;
+    case GENERIC_BATTERY_GET:
+        break;
+    case GENERIC_BATTERY_STATUS:
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_battery_status_battery_level, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_battery_status_time_to_discharge, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+        offset+=3;
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_battery_status_time_to_charge, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+        offset+=3;
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_battery_status_flags_presence, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_battery_status_flags_indicator, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_battery_status_flags_charging, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_battery_status_flags_serviceability, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        break;
+    case GENERIC_LOCATION_GLOBAL_GET:
+        break;
+    case GENERIC_LOCATION_LOCAL_GET:
+        break;
+    case GENERIC_LOCATION_LOCAL_STATUS:
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_location_local_status_local_north, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_location_local_status_local_east, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_location_local_status_local_altitude, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_location_local_status_floor_number, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_location_local_status_uncertainty_stationary, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_location_local_status_uncertainty_rfu, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_location_local_status_uncertainty_update_time, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_location_local_status_uncertainty_precision, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        break;
+    case GENERIC_LOCATION_LOCAL_SET:
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_location_local_set_local_north, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_location_local_set_local_east, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_location_local_set_local_altitude, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_location_local_set_floor_number, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_location_local_set_uncertainty_stationary, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_location_local_set_uncertainty_rfu, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_location_local_set_uncertainty_update_time, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_location_local_set_uncertainty_precision, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        break;
+    case GENERIC_LOCATION_LOCAL_SET_UNACKNOWLEDGED:
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_location_local_set_unacknowledged_local_north, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_location_local_set_unacknowledged_local_east, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_location_local_set_unacknowledged_local_altitude, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_location_local_set_unacknowledged_floor_number, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_location_local_set_unacknowledged_uncertainty_stationary, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_location_local_set_unacknowledged_uncertainty_rfu, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_location_local_set_unacknowledged_uncertainty_update_time, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_location_local_set_unacknowledged_uncertainty_precision, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        break;
+
+    case SCENE_STATUS:
+        proto_tree_add_item(sub_tree, hf_btmesh_scene_status_status_code, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        proto_tree_add_item(sub_tree, hf_btmesh_scene_status_current_scene, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        /* Optional */
+        if (tvb_reported_length_remaining(tvb, offset) > 0) {
+            proto_tree_add_item(sub_tree, hf_btmesh_scene_status_target_scene, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset+=2;
+            publishperiod_item = proto_tree_add_item(sub_tree, hf_btmesh_scene_status_remaining_time, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            publishperiod_sub_tree = proto_item_add_subtree(publishperiod_item, ett_btmesh_config_model_publishperiod);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_scene_status_remaining_time_steps, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_scene_status_remaining_time_resolution, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+        }
+        break;
+    case SCENE_GET:
+        break;
+    case SCENE_RECALL:
+        proto_tree_add_item(sub_tree, hf_btmesh_scene_recall_scene_number, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_scene_recall_tid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        /* Optional */
+        if (tvb_reported_length_remaining(tvb, offset) > 0) {
+            publishperiod_item = proto_tree_add_item(sub_tree, hf_btmesh_scene_recall_transition_time, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            publishperiod_sub_tree = proto_item_add_subtree(publishperiod_item, ett_btmesh_config_model_publishperiod);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_scene_recall_transition_time_steps, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_scene_recall_transition_time_resolution, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            proto_tree_add_item(sub_tree, hf_btmesh_scene_recall_delay, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+        }
+        break;
+    case SCENE_RECALL_UNACKNOWLEDGED:
+        proto_tree_add_item(sub_tree, hf_btmesh_scene_recall_unacknowledged_scene_number, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_scene_recall_unacknowledged_tid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        /* Optional */
+        if (tvb_reported_length_remaining(tvb, offset) > 0) {
+            publishperiod_item = proto_tree_add_item(sub_tree, hf_btmesh_scene_recall_unacknowledged_transition_time, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            publishperiod_sub_tree = proto_item_add_subtree(publishperiod_item, ett_btmesh_config_model_publishperiod);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_scene_recall_unacknowledged_transition_time_steps, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_scene_recall_unacknowledged_transition_time_resolution, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            proto_tree_add_item(sub_tree, hf_btmesh_scene_recall_unacknowledged_delay, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+        }
+        break;
+    case SCENE_REGISTER_GET:
+        break;
+    case SCENE_REGISTER_STATUS:
+        proto_tree_add_item(sub_tree, hf_btmesh_scene_register_status_status_code, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        proto_tree_add_item(sub_tree, hf_btmesh_scene_register_status_current_scene, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        sceneslist_tree = proto_tree_add_subtree(sub_tree, tvb, offset, tvb_reported_length_remaining(tvb, offset), ett_btmesh_scene_register_status_scenes, NULL, "Scenes");
+        while (tvb_reported_length_remaining(tvb, offset) > 1) {
+            proto_tree_add_item(sceneslist_tree, hf_btmesh_scene_register_status_scene, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset+=2;
+        }
+        break;
+    case SCENE_STORE:
+        proto_tree_add_item(sub_tree, hf_btmesh_scene_store_scene_number, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        break;
+    case SCENE_STORE_UNACKNOWLEDGED:
+        proto_tree_add_item(sub_tree, hf_btmesh_scene_store_unacknowledged_scene_number, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        break;
+    case SCENE_DELETE:
+        proto_tree_add_item(sub_tree, hf_btmesh_scene_delete_scene_number, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        break;
+    case SCENE_DELETE_UNACKNOWLEDGED:
+        proto_tree_add_item(sub_tree, hf_btmesh_scene_delete_unacknowledged_scene_number, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        break;
+//
+//  ******************************************************************************************
+//
     default:
         if (tvb_reported_length_remaining(tvb, offset)) {
             proto_tree_add_item(sub_tree, hf_btmesh_model_layer_parameters, tvb, offset, -1, ENC_NA);
@@ -3480,6 +4375,58 @@ format_key_index(gchar *buf _U_, guint32 value _U_)
 static void
 format_dual_key_index(gchar *buf _U_, guint32 value _U_)
 {
+}
+
+static void
+format_delay_ms(gchar *buf _U_, guint32 value _U_) {
+}
+
+static void
+format_power(gchar *buf _U_, guint32 value _U_) {
+}
+
+static void
+format_battery_level(gchar *buf _U_, guint32 value _U_) {
+}
+
+static void
+format_battery_time(gchar *buf _U_, guint32 value _U_) {
+}
+
+static void
+format_global_latitude(gchar *buf _U_, gint32 value _U_) {
+}
+
+static void
+format_global_longitude(gchar *buf _U_, gint32 value _U_) {
+}
+
+static void
+format_global_altitude(gchar *buf _U_, gint16 value _U_) {
+}
+
+static void
+format_local_north(gchar *buf _U_, gint16 value _U_) {
+}
+
+static void
+format_local_east(gchar *buf _U_, gint16 value _U_) {
+}
+
+static void
+format_local_altitude(gchar *buf _U_, gint16 value _U_) {
+}
+
+static void
+format_floor_number(gchar *buf _U_, guint8 value _U_) {
+}
+
+static void
+format_update_time(gchar *buf _U_, guint16 value _U_) {
+}
+
+static void
+format_precision(gchar *buf _U_, guint16 value _U_) {
 }
 
 static gboolean
@@ -5686,7 +6633,822 @@ proto_register_btmesh(void)
             FT_UINT16, BASE_CUSTOM, CF_FUNC(format_key_index_rfu), 0x0,
             NULL, HFILL }
         },
-};
+        { &hf_btmesh_generic_location_global_status_global_latitude,
+            { "Global Latitude", "btmesh.model.generic_location_global_status.global_latitude",
+            FT_INT32, BASE_CUSTOM, CF_FUNC(format_global_latitude), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_location_global_status_global_longitude,
+            { "Global Longitude", "btmesh.model.generic_location_global_status.global_longitude",
+            FT_INT32, BASE_CUSTOM, CF_FUNC(format_global_longitude), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_location_global_status_global_altitude,
+            { "Global Altitude", "btmesh.model.generic_location_global_status.global_altitude",
+            FT_INT16, BASE_CUSTOM, CF_FUNC(format_global_altitude), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_location_global_set_global_latitude,
+            { "Global Latitude", "btmesh.model.generic_location_global_set.global_latitude",
+            FT_INT32, BASE_CUSTOM, CF_FUNC(format_global_latitude), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_location_global_set_global_longitude,
+            { "Global Longitude", "btmesh.model.generic_location_global_set.global_longitude",
+            FT_INT32, BASE_CUSTOM, CF_FUNC(format_global_longitude), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_location_global_set_global_altitude,
+            { "Global Altitude", "btmesh.model.generic_location_global_set.global_altitude",
+            FT_INT16, BASE_CUSTOM, CF_FUNC(format_global_altitude), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_location_global_set_unacknowledged_global_latitude,
+            { "Global Latitude", "btmesh.model.generic_location_global_set_unacknowledged.global_latitude",
+            FT_INT32, BASE_CUSTOM, CF_FUNC(format_global_latitude), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_location_global_set_unacknowledged_global_longitude,
+            { "Global Longitude", "btmesh.model.generic_location_global_set_unacknowledged.global_longitude",
+            FT_INT32, BASE_CUSTOM, CF_FUNC(format_global_longitude), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_location_global_set_unacknowledged_global_altitude,
+            { "Global Altitude", "btmesh.model.generic_location_global_set_unacknowledged.global_altitude",
+            FT_INT16, BASE_CUSTOM, CF_FUNC(format_global_altitude), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_onoff_set_onoff,
+            { "OnOff", "btmesh.model.generic_onoff_set.onoff",
+            FT_UINT8, BASE_DEC , VALS(btmesh_on_off_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_onoff_set_tid,
+            { "TID", "btmesh.model.generic_onoff_set.tid",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_onoff_set_transition_time,
+            { "Transition Time", "btmesh.model.generic_onoff_set.transition_time",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_publish_period), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_onoff_set_transition_time_resolution,
+            { "Step Resolution", "btmesh.model.generic_onoff_set.transition_time.resolution",
+            FT_UINT8, BASE_DEC, VALS(btmesh_publishperiod_resolution_vals), 0xC0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_onoff_set_transition_time_steps,
+            { "Number of Steps", "btmesh.model.generic_onoff_set.transition_time.steps",
+            FT_UINT8, BASE_DEC, NULL, 0x3F,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_onoff_set_delay,
+            { "Delay", "btmesh.model.generic_onoff_set.delay",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_delay_ms), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_onoff_set_unacknowledged_onoff,
+            { "OnOff", "btmesh.model.generic_onoff_set_unacknowledged.onoff",
+            FT_UINT8, BASE_DEC , VALS(btmesh_on_off_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_onoff_set_unacknowledged_tid,
+            { "TID", "btmesh.model.generic_onoff_set_unacknowledged.tid",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_onoff_set_unacknowledged_transition_time,
+            { "Transition Time", "btmesh.model.generic_onoff_set_unacknowledged.transition_time",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_publish_period), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_onoff_set_unacknowledged_transition_time_resolution,
+            { "Step Resolution", "btmesh.model.generic_onoff_set_unacknowledged.transition_time.resolution",
+            FT_UINT8, BASE_DEC, VALS(btmesh_publishperiod_resolution_vals), 0xC0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_onoff_set_unacknowledged_transition_time_steps,
+            { "Number of Steps", "btmesh.model.generic_onoff_set_unacknowledged.transition_time.steps",
+            FT_UINT8, BASE_DEC, NULL, 0x3F,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_onoff_set_unacknowledged_delay,
+            { "Delay", "btmesh.model.generic_onoff_set_unacknowledged.delay",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_delay_ms), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_onoff_status_present_onoff,
+            { "Present OnOff", "btmesh.model.generic_onoff_status.present_onoff",
+            FT_UINT8, BASE_DEC , VALS(btmesh_on_off_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_onoff_status_target_onoff,
+            { "Target OnOff", "btmesh.model.generic_onoff_status.target_onoff",
+            FT_UINT8, BASE_DEC , VALS(btmesh_on_off_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_onoff_status_remaining_time,
+            { "Remaining Time", "btmesh.model.generic_onoff_status.remaining_time",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_publish_period), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_onoff_status_remaining_time_resolution,
+            { "Step Resolution", "btmesh.model.generic_onoff_status.remaining_time.resolution",
+            FT_UINT8, BASE_DEC, VALS(btmesh_publishperiod_resolution_vals), 0xC0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_onoff_status_remaining_time_steps,
+            { "Number of Steps", "btmesh.model.generic_onoff_status.remaining_time.steps",
+            FT_UINT8, BASE_DEC, NULL, 0x3F,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_level_set_level,
+            { "Level", "btmesh.model.generic_level_set.level",
+            FT_INT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_level_set_tid,
+            { "TID", "btmesh.model.generic_level_set.tid",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_level_set_transition_time,
+            { "Transition Time", "btmesh.model.generic_level_set.transition_time",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_publish_period), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_level_set_transition_time_resolution,
+            { "Step Resolution", "btmesh.model.generic_level_set.transition_time.resolution",
+            FT_UINT8, BASE_DEC, VALS(btmesh_publishperiod_resolution_vals), 0xC0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_level_set_transition_time_steps,
+            { "Number of Steps", "btmesh.model.generic_level_set.transition_time.steps",
+            FT_UINT8, BASE_DEC, NULL, 0x3F,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_level_set_delay,
+            { "Delay", "btmesh.model.generic_level_set.delay",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_delay_ms), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_level_set_unacknowledged_level,
+            { "Level", "btmesh.model.generic_level_set_unacknowledged.level",
+            FT_INT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_level_set_unacknowledged_tid,
+            { "TID", "btmesh.model.generic_level_set_unacknowledged.tid",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_level_set_unacknowledged_transition_time,
+            { "Transition Time", "btmesh.model.generic_level_set_unacknowledged.transition_time",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_publish_period), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_level_set_unacknowledged_transition_time_resolution,
+            { "Step Resolution", "btmesh.model.generic_level_set_unacknowledged.transition_time.resolution",
+            FT_UINT8, BASE_DEC, VALS(btmesh_publishperiod_resolution_vals), 0xC0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_level_set_unacknowledged_transition_time_steps,
+            { "Number of Steps", "btmesh.model.generic_level_set_unacknowledged.transition_time.steps",
+            FT_UINT8, BASE_DEC, NULL, 0x3F,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_level_set_unacknowledged_delay,
+            { "Delay", "btmesh.model.generic_level_set_unacknowledged.delay",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_delay_ms), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_level_status_present_level,
+            { "Present Level", "btmesh.model.generic_level_status.present_level",
+            FT_INT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_level_status_target_level,
+            { "Target Level", "btmesh.model.generic_level_status.target_level",
+            FT_INT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_level_status_remaining_time,
+            { "Remaining Time", "btmesh.model.generic_level_status.remaining_time",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_publish_period), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_level_status_remaining_time_resolution,
+            { "Step Resolution", "btmesh.model.generic_level_status.remaining_time.resolution",
+            FT_UINT8, BASE_DEC, VALS(btmesh_publishperiod_resolution_vals), 0xC0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_level_status_remaining_time_steps,
+            { "Number of Steps", "btmesh.model.generic_level_status.remaining_time.steps",
+            FT_UINT8, BASE_DEC, NULL, 0x3F,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_delta_set_delta_level,
+            { "Delta Level", "btmesh.model.generic_delta_set.delta_level",
+            FT_INT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_delta_set_tid,
+            { "TID", "btmesh.model.generic_delta_set.tid",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_delta_set_transition_time,
+            { "Transition Time", "btmesh.model.generic_delta_set.transition_time",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_publish_period), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_delta_set_transition_time_resolution,
+            { "Step Resolution", "btmesh.model.generic_delta_set.transition_time.resolution",
+            FT_UINT8, BASE_DEC, VALS(btmesh_publishperiod_resolution_vals), 0xC0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_delta_set_transition_time_steps,
+            { "Number of Steps", "btmesh.model.generic_delta_set.transition_time.steps",
+            FT_UINT8, BASE_DEC, NULL, 0x3F,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_delta_set_delay,
+            { "Delay", "btmesh.model.generic_delta_set.delay",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_delay_ms), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_delta_set_unacknowledged_delta_level,
+            { "Delta Level", "btmesh.model.generic_delta_set_unacknowledged.delta_level",
+            FT_INT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_delta_set_unacknowledged_tid,
+            { "TID", "btmesh.model.generic_delta_set_unacknowledged.tid",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_delta_set_unacknowledged_transition_time,
+            { "Transition Time", "btmesh.model.generic_delta_set_unacknowledged.transition_time",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_publish_period), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_delta_set_unacknowledged_transition_time_resolution,
+            { "Step Resolution", "btmesh.model.generic_delta_set_unacknowledged.transition_time.resolution",
+            FT_UINT8, BASE_DEC, VALS(btmesh_publishperiod_resolution_vals), 0xC0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_delta_set_unacknowledged_transition_time_steps,
+            { "Number of Steps", "btmesh.model.generic_delta_set_unacknowledged.transition_time.steps",
+            FT_UINT8, BASE_DEC, NULL, 0x3F,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_delta_set_unacknowledged_delay,
+            { "Delay", "btmesh.model.generic_delta_set_unacknowledged.delay",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_delay_ms), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_move_set_delta_level,
+            { "Delta Level", "btmesh.model.generic_move_set.delta_level",
+            FT_INT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_move_set_tid,
+            { "TID", "btmesh.model.generic_move_set.tid",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_move_set_transition_time,
+            { "Transition Time", "btmesh.model.generic_move_set.transition_time",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_publish_period), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_move_set_transition_time_resolution,
+            { "Step Resolution", "btmesh.model.generic_move_set.transition_time.resolution",
+            FT_UINT8, BASE_DEC, VALS(btmesh_publishperiod_resolution_vals), 0xC0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_move_set_transition_time_steps,
+            { "Number of Steps", "btmesh.model.generic_move_set.transition_time.steps",
+            FT_UINT8, BASE_DEC, NULL, 0x3F,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_move_set_delay,
+            { "Delay", "btmesh.model.generic_move_set.delay",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_delay_ms), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_move_set_unacknowledged_delta_level,
+            { "Delta Level", "btmesh.model.generic_move_set_unacknowledged.delta_level",
+            FT_INT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_move_set_unacknowledged_tid,
+            { "TID", "btmesh.model.generic_move_set_unacknowledged.tid",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_move_set_unacknowledged_transition_time,
+            { "Transition Time", "btmesh.model.generic_move_set_unacknowledged.transition_time",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_publish_period), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_move_set_unacknowledged_transition_time_resolution,
+            { "Step Resolution", "btmesh.model.generic_move_set_unacknowledged.transition_time.resolution",
+            FT_UINT8, BASE_DEC, VALS(btmesh_publishperiod_resolution_vals), 0xC0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_move_set_unacknowledged_transition_time_steps,
+            { "Number of Steps", "btmesh.model.generic_move_set_unacknowledged.transition_time.steps",
+            FT_UINT8, BASE_DEC, NULL, 0x3F,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_move_set_unacknowledged_delay,
+            { "Delay", "btmesh.model.generic_move_set_unacknowledged.delay",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_delay_ms), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_default_transition_time_set_transition_time,
+            { "Transition Time", "btmesh.model.generic_default_transition_time_set.transition_time",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_publish_period), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_default_transition_time_set_transition_time_resolution,
+            { "Step Resolution", "btmesh.model.generic_default_transition_time_set.transition_time.resolution",
+            FT_UINT8, BASE_DEC, VALS(btmesh_publishperiod_resolution_vals), 0xC0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_default_transition_time_set_transition_time_steps,
+            { "Number of Steps", "btmesh.model.generic_default_transition_time_set.transition_time.steps",
+            FT_UINT8, BASE_DEC, NULL, 0x3F,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_default_transition_time_set_unacknowledged_transition_time,
+            { "Transition Time", "btmesh.model.generic_default_transition_time_set_unacknowledged.transition_time",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_publish_period), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_default_transition_time_set_unacknowledged_transition_time_resolution,
+            { "Step Resolution", "btmesh.model.generic_default_transition_time_set_unacknowledged.transition_time.resolution",
+            FT_UINT8, BASE_DEC, VALS(btmesh_publishperiod_resolution_vals), 0xC0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_default_transition_time_set_unacknowledged_transition_time_steps,
+            { "Number of Steps", "btmesh.model.generic_default_transition_time_set_unacknowledged.transition_time.steps",
+            FT_UINT8, BASE_DEC, NULL, 0x3F,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_default_transition_time_status_transition_time,
+            { "Transition Time", "btmesh.model.generic_default_transition_time_status.transition_time",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_publish_period), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_default_transition_time_status_transition_time_resolution,
+            { "Step Resolution", "btmesh.model.generic_default_transition_time_status.transition_time.resolution",
+            FT_UINT8, BASE_DEC, VALS(btmesh_publishperiod_resolution_vals), 0xC0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_default_transition_time_status_transition_time_steps,
+            { "Number of Steps", "btmesh.model.generic_default_transition_time_status.transition_time.steps",
+            FT_UINT8, BASE_DEC, NULL, 0x3F,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_onpowerup_status_onpowerup,
+            { "OnPowerUp", "btmesh.model.generic_onpowerup_status.onpowerup",
+            FT_UINT8, BASE_DEC , VALS(btmesh_generic_onpowerup_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_onpowerup_set_onpowerup,
+            { "OnPowerUp", "btmesh.model.generic_onpowerup_set.onpowerup",
+            FT_UINT8, BASE_DEC , VALS(btmesh_generic_onpowerup_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_onpowerup_set_unacknowledged_onpowerup,
+            { "OnPowerUp", "btmesh.model.generic_onpowerup_set_unacknowledged.onpowerup",
+            FT_UINT8, BASE_DEC , VALS(btmesh_generic_onpowerup_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_power_level_set_power,
+            { "Power", "btmesh.model.generic_power_level_set.power",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_power), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_power_level_set_tid,
+            { "TID", "btmesh.model.generic_power_level_set.tid",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_power_level_set_transition_time,
+            { "Transition Time", "btmesh.model.generic_power_level_set.transition_time",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_publish_period), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_power_level_set_transition_time_resolution,
+            { "Step Resolution", "btmesh.model.generic_power_level_set.transition_time.resolution",
+            FT_UINT8, BASE_DEC, VALS(btmesh_publishperiod_resolution_vals), 0xC0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_power_level_set_transition_time_steps,
+            { "Number of Steps", "btmesh.model.generic_power_level_set.transition_time.steps",
+            FT_UINT8, BASE_DEC, NULL, 0x3F,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_power_level_set_delay,
+            { "Delay", "btmesh.model.generic_power_level_set.delay",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_delay_ms), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_power_level_set_unacknowledged_power,
+            { "Power", "btmesh.model.generic_power_level_set_unacknowledged.power",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_power), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_power_level_set_unacknowledged_tid,
+            { "TID", "btmesh.model.generic_power_level_set_unacknowledged.tid",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_power_level_set_unacknowledged_transition_time,
+            { "Transition Time", "btmesh.model.generic_power_level_set_unacknowledged.transition_time",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_publish_period), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_power_level_set_unacknowledged_transition_time_resolution,
+            { "Step Resolution", "btmesh.model.generic_power_level_set_unacknowledged.transition_time.resolution",
+            FT_UINT8, BASE_DEC, VALS(btmesh_publishperiod_resolution_vals), 0xC0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_power_level_set_unacknowledged_transition_time_steps,
+            { "Number of Steps", "btmesh.model.generic_power_level_set_unacknowledged.transition_time.steps",
+            FT_UINT8, BASE_DEC, NULL, 0x3F,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_power_level_set_unacknowledged_delay,
+            { "Delay", "btmesh.model.generic_power_level_set_unacknowledged.delay",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_delay_ms), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_power_level_status_present_power,
+            { "Present Power", "btmesh.model.generic_power_level_status.present_power",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_power), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_power_level_status_target_power,
+            { "Target Power", "btmesh.model.generic_power_level_status.target_power",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_power), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_power_level_status_remaining_time,
+            { "Remaining Time", "btmesh.model.generic_power_level_status.remaining_time",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_publish_period), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_power_level_status_remaining_time_resolution,
+            { "Step Resolution", "btmesh.model.generic_power_level_status.remaining_time.resolution",
+            FT_UINT8, BASE_DEC, VALS(btmesh_publishperiod_resolution_vals), 0xC0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_power_level_status_remaining_time_steps,
+            { "Number of Steps", "btmesh.model.generic_power_level_status.remaining_time.steps",
+            FT_UINT8, BASE_DEC, NULL, 0x3F,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_power_last_status_power,
+            { "Power", "btmesh.model.generic_power_last_status.power",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_power), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_power_default_status_power,
+            { "Power", "btmesh.model.generic_power_default_status.power",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_power), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_power_range_status_status_code,
+            { "Status Code", "btmesh.model.generic_power_range_status.status_code",
+            FT_UINT8, BASE_DEC, VALS(btmesh_generic_status_code_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_power_range_status_range_min,
+            { "Range Min", "btmesh.model.generic_power_range_status.range_min",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_power), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_power_range_status_range_max,
+            { "Range Max", "btmesh.model.generic_power_range_status.range_max",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_power), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_power_default_set_power,
+            { "Power", "btmesh.model.generic_power_default_set.power",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_power), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_power_default_set_unacknowledged_power,
+            { "Power", "btmesh.model.generic_power_default_set_unacknowledged.power",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_power), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_power_range_set_range_min,
+            { "Range Min", "btmesh.model.generic_power_range_set.range_min",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_power), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_power_range_set_range_max,
+            { "Range Max", "btmesh.model.generic_power_range_set.range_max",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_power), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_power_range_set_unacknowledged_range_min,
+            { "Range Min", "btmesh.model.generic_power_range_set_unacknowledged.range_min",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_power), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_power_range_set_unacknowledged_range_max,
+            { "Range Max", "btmesh.model.generic_power_range_set_unacknowledged.range_max",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_power), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_battery_status_battery_level,
+            { "Battery Level", "btmesh.model.generic_battery_status.battery_level",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_battery_level), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_battery_status_time_to_discharge,
+            { "Time to Discharge", "btmesh.model.generic_battery_status.time_to_discharge",
+            FT_UINT24, BASE_CUSTOM, CF_FUNC(format_battery_time), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_battery_status_time_to_charge,
+            { "Time to Charge", "btmesh.model.generic_battery_status.time_to_charge",
+            FT_UINT24, BASE_CUSTOM, CF_FUNC(format_battery_time), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_battery_status_flags_presence,
+            { "Flags", "btmesh.model.generic_battery_status.flags.presence",
+            FT_UINT8, BASE_DEC, VALS(btmesh_generic_battery_flags_presence_vals), 0x03,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_battery_status_flags_indicator,
+            { "Flags", "btmesh.model.generic_battery_status.flags.indicator",
+            FT_UINT8, BASE_DEC, VALS(btmesh_generic_battery_flags_indicator_vals), 0x0C,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_battery_status_flags_charging,
+            { "Flags", "btmesh.model.generic_battery_status.flags.charging",
+            FT_UINT8, BASE_DEC, VALS(btmesh_generic_battery_flags_charging_vals), 0x30,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_battery_status_flags_serviceability,
+            { "Flags", "btmesh.model.generic_battery_status.flags.serviceability",
+            FT_UINT8, BASE_DEC, VALS(btmesh_generic_battery_flags_serviceability_vals), 0xC0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_location_local_status_local_north,
+            { "Local North", "btmesh.model.generic_location_local_status.local_north",
+            FT_INT16, BASE_CUSTOM, CF_FUNC(format_local_north), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_location_local_status_local_east,
+            { "Local East", "btmesh.model.generic_location_local_status.local_east",
+            FT_INT16, BASE_CUSTOM, CF_FUNC(format_local_east), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_location_local_status_local_altitude,
+            { "Local Altitude", "btmesh.model.generic_location_local_status.local_altitude",
+            FT_INT16, BASE_CUSTOM, CF_FUNC(format_local_altitude), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_location_local_status_floor_number,
+            { "Floor Number", "btmesh.model.generic_location_local_status.floor_number",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_floor_number), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_location_local_status_uncertainty_stationary,
+            { "Stationary", "btmesh.model.generic_location_local_status.uncertainty.stationary",
+            FT_UINT16, BASE_DEC, VALS(btmesh_generic_location_local_stationary_vals), 0x0001,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_location_local_status_uncertainty_rfu,
+            { "RFU", "btmesh.model.generic_location_local_status.uncertainty.rfu",
+            FT_UINT16, BASE_DEC, NULL, 0x00FE,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_location_local_status_uncertainty_update_time,
+            { "Update Time", "btmesh.model.generic_location_local_status.uncertainty.update_time",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_update_time), 0x0F00,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_location_local_status_uncertainty_precision,
+            { "Precision", "btmesh.model.generic_location_local_status.uncertainty.precision",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_precision), 0xF000,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_location_local_set_local_north,
+            { "Local North", "btmesh.model.generic_location_local_set.local_north",
+            FT_INT16, BASE_CUSTOM, CF_FUNC(format_local_north), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_location_local_set_local_east,
+            { "Local East", "btmesh.model.generic_location_local_set.local_east",
+            FT_INT16, BASE_CUSTOM, CF_FUNC(format_local_east), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_location_local_set_local_altitude,
+            { "Local Altitude", "btmesh.model.generic_location_local_set.local_altitude",
+            FT_INT16, BASE_CUSTOM, CF_FUNC(format_local_altitude), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_location_local_set_floor_number,
+            { "Floor Number", "btmesh.model.generic_location_local_set.floor_number",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_floor_number), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_location_local_set_uncertainty_stationary,
+            { "Stationary", "btmesh.model.generic_location_local_set.uncertainty.stationary",
+            FT_UINT16, BASE_DEC, VALS(btmesh_generic_location_local_stationary_vals), 0x0001,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_location_local_set_uncertainty_rfu,
+            { "RFU", "btmesh.model.generic_location_local_set.uncertainty.rfu",
+            FT_UINT16, BASE_DEC, NULL, 0x00FE,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_location_local_set_uncertainty_update_time,
+            { "Update Time", "btmesh.model.generic_location_local_set.uncertainty.update_time",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_update_time), 0x0F00,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_location_local_set_uncertainty_precision,
+            { "Precision", "btmesh.model.generic_location_local_set.uncertainty.precision",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_precision), 0xF000,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_location_local_set_unacknowledged_local_north,
+            { "Local North", "btmesh.model.generic_location_local_set_unacknowledged.local_north",
+            FT_INT16, BASE_CUSTOM, CF_FUNC(format_local_north), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_location_local_set_unacknowledged_local_east,
+            { "Local East", "btmesh.model.generic_location_local_set_unacknowledged.local_east",
+            FT_INT16, BASE_CUSTOM, CF_FUNC(format_local_east), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_location_local_set_unacknowledged_local_altitude,
+            { "Local Altitude", "btmesh.model.generic_location_local_set_unacknowledged.local_altitude",
+            FT_INT16, BASE_CUSTOM, CF_FUNC(format_local_altitude), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_location_local_set_unacknowledged_floor_number,
+            { "Floor Number", "btmesh.model.generic_location_local_set_unacknowledged.floor_number",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_floor_number), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_location_local_set_unacknowledged_uncertainty_stationary,
+            { "Stationary", "btmesh.model.generic_location_local_set_unacknowledged.uncertainty.stationary",
+            FT_UINT16, BASE_DEC, VALS(btmesh_generic_location_local_stationary_vals), 0x0001,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_location_local_set_unacknowledged_uncertainty_rfu,
+            { "RFU", "btmesh.model.generic_location_local_set_unacknowledged.uncertainty.rfu",
+            FT_UINT16, BASE_DEC, NULL, 0x00FE,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_location_local_set_unacknowledged_uncertainty_update_time,
+            { "Update Time", "btmesh.model.generic_location_local_set_unacknowledged.uncertainty.update_time",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_update_time), 0x0F00,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_location_local_set_unacknowledged_uncertainty_precision,
+            { "Precision", "btmesh.model.generic_location_local_set_unacknowledged.uncertainty.precision",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_precision), 0xF000,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_scene_status_status_code,
+            { "Status Code", "btmesh.model.scene_status.status_code",
+            FT_UINT8, BASE_DEC, VALS(btmesh_scene_status_code_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_scene_status_current_scene,
+            { "Current Scene", "btmesh.model.scene_status.current_scene",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_scene_status_target_scene,
+            { "Target Scene", "btmesh.model.scene_status.target_scene",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_scene_status_remaining_time,
+            { "Remaining Time", "btmesh.model.scene_status.remaining_time",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_publish_period), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_scene_status_remaining_time_resolution,
+            { "Step Resolution", "btmesh.model.scene_status.remaining_time.resolution",
+            FT_UINT8, BASE_DEC, VALS(btmesh_publishperiod_resolution_vals), 0xC0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_scene_status_remaining_time_steps,
+            { "Number of Steps", "btmesh.model.scene_status.remaining_time.steps",
+            FT_UINT8, BASE_DEC, NULL, 0x3F,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_scene_recall_scene_number,
+            { "Scene Number", "btmesh.model.scene_recall.scene_number",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_scene_recall_tid,
+            { "TID", "btmesh.model.scene_recall.tid",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_scene_recall_transition_time,
+            { "Transition Time", "btmesh.model.scene_recall.transition_time",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_publish_period), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_scene_recall_transition_time_resolution,
+            { "Step Resolution", "btmesh.model.scene_recall.transition_time.resolution",
+            FT_UINT8, BASE_DEC, VALS(btmesh_publishperiod_resolution_vals), 0xC0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_scene_recall_transition_time_steps,
+            { "Number of Steps", "btmesh.model.scene_recall.transition_time.steps",
+            FT_UINT8, BASE_DEC, NULL, 0x3F,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_scene_recall_delay,
+            { "Delay", "btmesh.model.scene_recall.delay",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_delay_ms), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_scene_recall_unacknowledged_scene_number,
+            { "Scene Number", "btmesh.model.scene_recall_unacknowledged.scene_number",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_scene_recall_unacknowledged_tid,
+            { "TID", "btmesh.model.scene_recall_unacknowledged.tid",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_scene_recall_unacknowledged_transition_time,
+            { "Transition Time", "btmesh.model.scene_recall_unacknowledged.transition_time",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_publish_period), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_scene_recall_unacknowledged_transition_time_resolution,
+            { "Step Resolution", "btmesh.model.scene_recall_unacknowledged.transition_time.resolution",
+            FT_UINT8, BASE_DEC, VALS(btmesh_publishperiod_resolution_vals), 0xC0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_scene_recall_unacknowledged_transition_time_steps,
+            { "Number of Steps", "btmesh.model.scene_recall_unacknowledged.transition_time.steps",
+            FT_UINT8, BASE_DEC, NULL, 0x3F,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_scene_recall_unacknowledged_delay,
+            { "Delay", "btmesh.model.scene_recall_unacknowledged.delay",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_delay_ms), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_scene_register_status_status_code,
+            { "Status Code", "btmesh.model.scene_register_status.status_code",
+            FT_UINT8, BASE_DEC, VALS(btmesh_scene_status_code_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_scene_register_status_current_scene,
+            { "Current Scene", "btmesh.model.scene_register_status.current_scene",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_scene_register_status_scene,
+            { "Scene", "btmesh.model.scene_register_status.scene",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_scene_store_scene_number,
+            { "Scene Number", "btmesh.model.scene_store.scene_number",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_scene_store_unacknowledged_scene_number,
+            { "Scene Number", "btmesh.model.scene_store_unacknowledged.scene_number",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_scene_delete_scene_number,
+            { "Scene Number", "btmesh.model.scene_delete.scene_number",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_scene_delete_unacknowledged_scene_number,
+            { "Scene Number", "btmesh.model.scene_delete_unacknowledged.scene_number",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+    };
 
     static gint *ett[] = {
         &ett_btmesh,
@@ -5718,6 +7480,7 @@ proto_register_btmesh(void)
         &ett_btmesh_config_heartbeat_publication_set_features,
         &ett_btmesh_config_heartbeat_publication_status_features,
         &ett_btmesh_config_model_fault_array,
+        &ett_btmesh_scene_register_status_scenes,
     };
 
     static ei_register_info ei[] = {
