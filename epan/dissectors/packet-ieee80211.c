@@ -4715,6 +4715,7 @@ static int hf_ieee80211_operat_mode_field_reserved = -1;
 static int hf_ieee80211_operat_mode_field_rxnss = -1;
 static int hf_ieee80211_operat_mode_field_rxnsstype= -1;
 
+static int hf_ieee80211_rnr_tbtt_information = -1;
 static int hf_ieee80211_rnr_tbtt_information_field_header = -1;
 static int hf_ieee80211_rnr_tbtt_information_field_type = -1;
 static int hf_ieee80211_rnr_tbtt_information_filtered_neighbor_ap = -1;
@@ -7471,6 +7472,7 @@ static gint ett_tag_neighbor_report_subelement_tree = -1;
 static gint ett_tag_neighbor_report_sub_tag_tree = -1;
 
 static gint ett_tag_rnr_tbtt_tree = -1;
+static gint ett_tag_rnr_tbtt_subtree = -1;
 
 static gint ett_tag_wapi_param_set_akm_tree = -1;
 static gint ett_tag_wapi_param_set_ucast_tree = -1;
@@ -19680,29 +19682,31 @@ dissect_reduced_neighbor_report(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     &hf_ieee80211_rnr_bss_parameters_b7,
     NULL
   };
-  proto_tree *tbtt_subtree;
+  proto_tree *tbtt_subtree, *subtree;
 
   while (tag_len > 0){
     /* TBTT Information Header */
-    proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_ieee80211_rnr_tbtt_information_field_header,
+    subtree = proto_tree_add_subtree(tree, tvb, offset, 4, ett_tag_rnr_tbtt_tree, NULL, "TBTT Information");
+    proto_tree_add_bitmask_with_flags(subtree, tvb, offset, hf_ieee80211_rnr_tbtt_information_field_header,
                                       ett_rnr_tbtt_information_tree, ieee80211_rnr_tbtt_information_header,
                                       ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
     tbtt_count = tvb_get_guint8(tvb, offset) >> 4;
     tbtt_length = tvb_get_guint8(tvb, offset+1);
+    proto_item_set_len(subtree, 4 + tbtt_length);
     offset += 2;
     tag_len -= 2;
 
-    proto_tree_add_item(tree, hf_ieee80211_rnr_operating_class, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(subtree, hf_ieee80211_rnr_operating_class, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
     tag_len -= 1;
 
-    proto_tree_add_item(tree, hf_ieee80211_rnr_channel_number, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(subtree, hf_ieee80211_rnr_channel_number, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
     tag_len -= 1;
 
     count = tbtt_count;
     while (count >= 0) {
-      tbtt_subtree = proto_tree_add_subtree_format(tree, tvb, offset, tbtt_length, ett_tag_rnr_tbtt_tree, NULL, "TBTT %d:", tbtt_count - count);
+      tbtt_subtree = proto_tree_add_subtree_format(subtree, tvb, offset, tbtt_length, ett_tag_rnr_tbtt_subtree, NULL, "TBTT %d:", tbtt_count - count);
 
       proto_tree_add_item(tbtt_subtree, hf_ieee80211_rnr_neighbor_ap_tbtt_offset, tvb, offset, 1, ENC_LITTLE_ENDIAN);
       offset += 1;
@@ -41654,6 +41658,11 @@ proto_register_ieee80211(void)
       FT_UINT8, BASE_HEX, NULL, 0x80,
       "Indicate that the Rx NSS subfield carries the maximum number of spatial streams that the STA can receive", HFILL }},
 
+    {&hf_ieee80211_rnr_tbtt_information,
+     {"TBTT Information", "wlan.rnr.tbtt_information",
+      FT_NONE, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }},
+
     {&hf_ieee80211_rnr_tbtt_information_field_header,
      {"TBTT Information Field Header", "wlan.rnr.tbtt_information.field_header",
       FT_UINT16, BASE_HEX, NULL, 0x0,
@@ -50279,6 +50288,7 @@ proto_register_ieee80211(void)
     &ett_tag_neighbor_report_sub_tag_tree,
 
     &ett_tag_rnr_tbtt_tree,
+    &ett_tag_rnr_tbtt_subtree,
 
     &ett_tag_wapi_param_set_akm_tree,
     &ett_tag_wapi_param_set_ucast_tree,
