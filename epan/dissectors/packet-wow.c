@@ -169,14 +169,16 @@ static struct {
     int checksum_salt;
 } hf_wow_reconnect_challenge_server_to_client = {-1};
 
+static struct {
+    int client_proof;
+    int client_checksum;
+} hf_wow_reconnect_proof_client_to_server = {-1, -1};
+
 static int hf_wow_two_factor_enabled = -1;
 
 static int hf_wow_num_keys = -1;
 
 static int hf_wow_challenge_data = -1;
-
-static int hf_wow_client_proof = -1;
-static int hf_wow_client_checksum = -1;
 
 static int hf_wow_two_factor_pin_salt = -1;
 
@@ -336,11 +338,11 @@ parse_logon_reconnect_proof(tvbuff_t *tvb, packet_info *pinfo, proto_tree *wow_t
 				offset, 16, ENC_NA);
 		offset += 16;
 
-		proto_tree_add_item(wow_tree, hf_wow_client_proof, tvb,
+		proto_tree_add_item(wow_tree, hf_wow_reconnect_proof_client_to_server.client_proof, tvb,
 				offset, 20, ENC_NA);
 		offset += 20;
 
-		proto_tree_add_item(wow_tree, hf_wow_client_checksum, tvb,
+		proto_tree_add_item(wow_tree, hf_wow_reconnect_proof_client_to_server.client_checksum, tvb,
 				offset, 20, ENC_NA);
 		offset += 20;
 
@@ -845,12 +847,12 @@ proto_register_wow(void)
 		    FT_BYTES, BASE_NONE, 0, 0,
 		    "Unknown. Unused in 1.12", HFILL }
 		},
-		{ &hf_wow_client_proof,
+		{ &hf_wow_reconnect_proof_client_to_server.client_proof,
 		  { "Reconnection Client Proof", "wow.reconnect_proof",
 		    FT_BYTES, BASE_NONE, 0, 0,
 		    "Client proof of knowing session key based on challenge data", HFILL }
 		},
-		{ &hf_wow_client_checksum,
+		{ &hf_wow_reconnect_proof_client_to_server.client_checksum,
 		  { "Reconnection Checksum", "wow.reconnect_checksum",
 		    FT_BYTES, BASE_NONE, 0, 0,
 		    NULL, HFILL }
