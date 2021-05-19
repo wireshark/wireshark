@@ -174,6 +174,18 @@ static struct {
     int client_checksum;
 } hf_wow_reconnect_proof_client_to_server = {-1, -1};
 
+static struct {
+    int num_realms;
+    int type;
+    int flags;
+    int category;
+    int name;
+    int socket;
+    int population_level;
+    int num_characters;
+    int id;
+} hf_wow_realm_server_to_client = {-1, -1, -1, -1, -1, -1, -1, -1, -1};
+
 static int hf_wow_two_factor_enabled = -1;
 
 static int hf_wow_num_keys = -1;
@@ -181,16 +193,6 @@ static int hf_wow_num_keys = -1;
 static int hf_wow_challenge_data = -1;
 
 static int hf_wow_two_factor_pin_salt = -1;
-
-static int hf_wow_num_realms = -1;
-static int hf_wow_realm_type = -1;
-static int hf_wow_realm_flags = -1;
-static int hf_wow_realm_category = -1;
-static int hf_wow_realm_name = -1;
-static int hf_wow_realm_socket = -1;
-static int hf_wow_realm_population_level = -1;
-static int hf_wow_realm_num_characters = -1;
-static int hf_wow_realm_id = -1;
 
 static gboolean wow_preference_desegment = TRUE;
 
@@ -627,7 +629,7 @@ parse_realm_list_server_to_client(tvbuff_t *tvb, proto_tree *wow_tree, guint32 o
 
 	offset += 4; /* Unknown field; always 0 */
 
-	proto_tree_add_item(wow_tree, hf_wow_num_realms,
+	proto_tree_add_item(wow_tree, hf_wow_realm_server_to_client.num_realms,
 			    tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	num_realms = tvb_get_guint8(tvb, offset);
 	offset += 1;
@@ -642,30 +644,30 @@ parse_realm_list_server_to_client(tvbuff_t *tvb, proto_tree *wow_tree, guint32 o
 							 ett_wow_realms, NULL,
 							 realm_name);
 
-		proto_tree_add_item(wow_realms_tree, hf_wow_realm_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(wow_realms_tree, hf_wow_realm_server_to_client.type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
 
-		proto_tree_add_item(wow_realms_tree, hf_wow_realm_flags, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(wow_realms_tree, hf_wow_realm_server_to_client.flags, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		offset += 1;
 
-		proto_tree_add_string(wow_realms_tree, hf_wow_realm_name, tvb, offset, len, realm_name);
+		proto_tree_add_string(wow_realms_tree, hf_wow_realm_server_to_client.name, tvb, offset, len, realm_name);
 		offset += len;
 
 		string = tvb_get_stringz_enc(wmem_packet_scope(), tvb, offset,
 					     &len, ENC_ASCII);
-		proto_tree_add_string(wow_realms_tree, hf_wow_realm_socket, tvb, offset, len, string);
+		proto_tree_add_string(wow_realms_tree, hf_wow_realm_server_to_client.socket, tvb, offset, len, string);
 		offset += len;
 
-		proto_tree_add_item(wow_realms_tree, hf_wow_realm_population_level, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(wow_realms_tree, hf_wow_realm_server_to_client.population_level, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
 
-		proto_tree_add_item(wow_realms_tree, hf_wow_realm_num_characters, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(wow_realms_tree, hf_wow_realm_server_to_client.num_characters, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		offset += 1;
 
-		proto_tree_add_item(wow_realms_tree, hf_wow_realm_category, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(wow_realms_tree, hf_wow_realm_server_to_client.category, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		offset += 1;
 
-		proto_tree_add_item(wow_realms_tree, hf_wow_realm_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(wow_realms_tree, hf_wow_realm_server_to_client.id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		offset += 1;
 
 	}
@@ -872,47 +874,47 @@ proto_register_wow(void)
 		    FT_BYTES, BASE_NONE, 0, 0,
 		    NULL, HFILL }
 		},
-		{ &hf_wow_num_realms,
+		{ &hf_wow_realm_server_to_client.num_realms,
 		  { "Number of realms", "wow.num_realms",
 		    FT_UINT16, BASE_DEC, 0, 0,
 		    NULL, HFILL }
 		},
-		{ &hf_wow_realm_type,
+		{ &hf_wow_realm_server_to_client.type,
 		  { "Type", "wow.realm_type",
 		    FT_UINT8, BASE_DEC, VALS(realm_type_vs), 0,
 		    "Also known as realm icon", HFILL }
 		},
-		{ &hf_wow_realm_flags,
+		{ &hf_wow_realm_server_to_client.flags,
 		  { "Status", "wow.realm_flags",
 		    FT_UINT8, BASE_DEC, VALS(realm_flags_vs), 0,
 		    NULL, HFILL }
 		},
-		{ &hf_wow_realm_category,
+		{ &hf_wow_realm_server_to_client.category,
 		  { "Category", "wow.realm_category",
 		    FT_UINT8, BASE_DEC, 0, 0,
 		    "Language category the realm should be shown in", HFILL }
 		},
-		{ &hf_wow_realm_name,
+		{ &hf_wow_realm_server_to_client.name,
 		  { "Name", "wow.realm_name",
 		    FT_STRINGZ, BASE_NONE, 0, 0,
 		    NULL, HFILL }
 		},
-		{ &hf_wow_realm_socket,
+		{ &hf_wow_realm_server_to_client.socket,
 		  { "Server socket", "wow.realm_socket",
 		    FT_STRINGZ, BASE_NONE, 0, 0,
 		    "IP address and port to connect to on the server to reach this realm", HFILL }
 		},
-		{ &hf_wow_realm_population_level,
+		{ &hf_wow_realm_server_to_client.population_level,
 		  { "Population level", "wow.realm_population_level",
 		    FT_FLOAT, BASE_NONE, 0, 0,
 		    NULL, HFILL }
 		},
-		{ &hf_wow_realm_num_characters,
+		{ &hf_wow_realm_server_to_client.num_characters,
 		  { "Number of characters", "wow.realm_num_characters",
 		    FT_UINT8, BASE_DEC, 0, 0,
 		    "Number of characters the user has in this realm", HFILL }
 		},
-		{ &hf_wow_realm_id,
+		{ &hf_wow_realm_server_to_client.id,
 		  { "Realm id", "wow.realm_id",
 		    FT_UINT8, BASE_DEC, 0, 0,
 		    "Used for initial sorting the in client menu", HFILL }
