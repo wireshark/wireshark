@@ -8159,7 +8159,7 @@ dissect_secchan_verf(tvbuff_t *tvb, int offset, packet_info *pinfo,
     proto_item *vf = NULL;
     proto_tree *subtree = NULL;
     guint64 encrypted_seq;
-    guint64 digest;
+    guint64 digest = 0;
     guint64 confounder = 0;
     int update_vars = 0;
 
