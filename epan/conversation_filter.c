@@ -20,7 +20,7 @@
 GList *conv_filter_list = NULL;
 
 
-void register_conversation_filter(const char *proto_name, const char *display_name,
+void do_register_conversation_filter(const char *proto_name, const char *display_name,
                                         is_filter_valid_func is_filter_valid, build_filter_string_func build_filter_string) {
     conversation_filter_t *entry;
 
@@ -32,6 +32,28 @@ void register_conversation_filter(const char *proto_name, const char *display_na
     entry->build_filter_string  = build_filter_string;
 
     conv_filter_list = g_list_append(conv_filter_list, entry);
+}
+
+void register_conversation_filter(const char *proto_name _U_, const char *display_name _U_,
+                                  is_filter_valid_func is_filter_valid _U_, build_filter_string_func build_filter_string _U_) {
+#ifdef LOGSHARK
+    return;
+#endif
+    return do_register_conversation_filter(proto_name,
+                                           display_name,
+                                           is_filter_valid,
+                                           build_filter_string);
+}
+
+void register_conversation_filter_logshark(const char *proto_name _U_, const char *display_name _U_,
+                                  is_filter_valid_func is_filter_valid _U_, build_filter_string_func build_filter_string _U_) {
+#ifndef LOGSHARK
+    return;
+#endif
+    return do_register_conversation_filter(proto_name,
+                                           display_name,
+                                           is_filter_valid,
+                                           build_filter_string);
 }
 
 struct conversation_filter_s* find_conversation_filter(const char *name)

@@ -32,6 +32,10 @@ typedef gchar* (*build_filter_string_func)(struct _packet_info *pinfo);
 WS_DLL_PUBLIC void register_conversation_filter(const char *proto_name, const char *display_name,
                                                       is_filter_valid_func is_filter_valid, build_filter_string_func build_filter_string);
 
+/** register a dissector filter, tailshark version */
+WS_DLL_PUBLIC void register_conversation_filter_logshark(const char *proto_name, const char *display_name,
+                                                      is_filter_valid_func is_filter_valid, build_filter_string_func build_filter_string);
+
 WS_DLL_PUBLIC struct conversation_filter_s* find_conversation_filter(const char *proto_name);
 
 /* Cleanup internal structures */

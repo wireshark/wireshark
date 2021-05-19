@@ -435,7 +435,7 @@ configure_plugin(char* filename, bridge_info* bi, char* config)
                     bi->field_flags[fld_cnt] |= FLD_FLAG_USE_IN_CONVERSATIONS;
                     conv_fld_infos[conv_fld_cnt].field_info = ri;
                     conv_fld_infos[conv_fld_cnt].proto_name = plugin_info->get_filter_name();
-                    register_conversation_filter(plugin_info->name, display, fv_func[conv_fld_cnt], bfs_func[conv_fld_cnt]);
+                    register_conversation_filter_logshark(plugin_info->name, display, fv_func[conv_fld_cnt], bfs_func[conv_fld_cnt]);
                     conv_fld_cnt++;
                 }
 
