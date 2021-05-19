@@ -82,10 +82,6 @@
 #include <zstd.h>
 #endif
 
-#ifdef HAVE_MAXMINDDB
-#include <maxminddb.h>
-#endif
-
 #ifdef HAVE_NGHTTP2
 #include <nghttp2/nghttp2ver.h>
 #endif
@@ -806,12 +802,7 @@ epan_get_compiled_version_info(GString *str)
 	/* MaxMindDB */
 	g_string_append(str, ", ");
 #ifdef HAVE_MAXMINDDB
-# ifdef PACKAGE_VERSION
-	/* maxmind only defines PACKAGE_VERSION if _WIN32 */
-	g_string_append(str, "with MaxMind DB resolver " PACKAGE_VERSION);
-# else
 	g_string_append(str, "with MaxMind DB resolver");
-# endif /* PACKAGE_VERSION */
 #else
 	g_string_append(str, "without MaxMind DB resolver");
 #endif /* HAVE_MAXMINDDB */
