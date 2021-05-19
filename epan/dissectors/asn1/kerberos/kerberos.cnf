@@ -94,6 +94,17 @@ PADATA-TYPE PROT_PREFIX UPPER_CASE
 AUTHDATA-TYPE PROT_PREFIX UPPER_CASE
 KrbFastArmorTypes PROT_PREFIX UPPER_CASE
 
+#.FN_BODY APOptions VAL_PTR = &out_tvb
+  tvbuff_t *out_tvb = NULL;
+  guint8 bit;
+  kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
+%(DEFAULT_BODY)s
+
+  if (out_tvb != NULL) {
+    bit = tvb_get_bits8(out_tvb, 1, 1);
+    private_data->u2u_use_session_key = bit ? TRUE : FALSE;
+  }
+
 #.FN_BODY MESSAGE-TYPE VAL_PTR = &msgtype
   kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
   guint32 msgtype;

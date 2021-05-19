@@ -146,6 +146,7 @@ typedef struct {
 	enc_key_t *PA_FAST_ARMOR_AP_subkey;
 	enc_key_t *fast_armor_key;
 	enc_key_t *fast_strengthen_key;
+	gboolean u2u_use_session_key;
 #endif
 } kerberos_private_data_t;
 
@@ -1883,6 +1884,8 @@ verify_krb5_pac(proto_tree *tree _U_, asn1_ctx_t *actx, tvbuff_t *pactvb)
 	krb5_data checksum_data = {0,0,NULL};
 	int length = tvb_captured_length(pactvb);
 	const guint8 *pacbuffer = NULL;
+        wmem_map_t *kerberos_keys = NULL;
+	const char *used_keys = NULL;
 	struct verify_krb5_pac_state state = {
 		.kdc_checksum = 0,
 	};
@@ -1923,39 +1926,47 @@ verify_krb5_pac(proto_tree *tree _U_, asn1_ctx_t *actx, tvbuff_t *pactvb)
 
 	read_keytab_file_from_preferences();
 
-	wmem_map_foreach(kerberos_longterm_keys,
+	if (private_data->u2u_use_session_key) {
+		kerberos_keys = kerberos_all_keys;
+		used_keys = "all_keys";
+	} else {
+		kerberos_keys = kerberos_longterm_keys;
+		used_keys = "longterm_keys";
+	}
+
+	wmem_map_foreach(kerberos_keys,
 			 verify_krb5_pac_try_key,
 			 &state);
 	if (state.server_ek != NULL) {
 		used_signing_key(tree, actx->pinfo, private_data,
 				 state.server_ek, pactvb,
 				 state.server_checksum, "Verified Server",
-				 "longterm_keys",
-				 wmem_map_size(kerberos_longterm_keys),
+				 used_keys,
+				 wmem_map_size(kerberos_keys),
 				 state.server_count);
 	} else {
 		int keytype = keytype_for_cksumtype(state.server_checksum);
 		missing_signing_key(tree, actx->pinfo, private_data,
 				    pactvb, state.server_checksum, keytype,
 				    "Missing Server",
-				    "longterm_keys",
-				    wmem_map_size(kerberos_longterm_keys),
+				    used_keys,
+				    wmem_map_size(kerberos_keys),
 				    state.server_count);
 	}
 	if (state.kdc_ek != NULL) {
 		used_signing_key(tree, actx->pinfo, private_data,
 				 state.kdc_ek, pactvb,
 				 state.kdc_checksum, "Verified KDC",
-				 "longterm_keys",
-				 wmem_map_size(kerberos_longterm_keys),
+				 used_keys,
+				 wmem_map_size(kerberos_keys),
 				 state.kdc_count);
 	} else {
 		int keytype = keytype_for_cksumtype(state.kdc_checksum);
 		missing_signing_key(tree, actx->pinfo, private_data,
 				    pactvb, state.kdc_checksum, keytype,
 				    "Missing KDC",
-				    "longterm_keys",
-				    wmem_map_size(kerberos_longterm_keys),
+				    used_keys,
+				    wmem_map_size(kerberos_keys),
 				    state.kdc_count);
 	}
 
