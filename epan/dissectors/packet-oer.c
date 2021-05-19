@@ -398,6 +398,10 @@ dissect_oer_bit_string_unconstr(tvbuff_t *tvb, guint32 offset _U_, asn1_ctx_t *a
     offset = dissect_oer_length_determinant(tvb, offset, actx, tree, -1 /*Don't show length value as internal field*/, &length);
     if (length > 0) {
         unused_bit_count = tvb_get_guint8(tvb, offset);
+        if (unused_bit_count > 7) {
+            dissect_oer_not_decoded_yet(tree, actx->pinfo, tvb, "too high unused bit count");
+            return offset + length;
+        }
         offset += 1;
         length -= 1;
     }
@@ -409,10 +413,13 @@ dissect_oer_bit_string_unconstr(tvbuff_t *tvb, guint32 offset _U_, asn1_ctx_t *a
             dissect_oer_not_decoded_yet(tree, actx->pinfo, tvb, "too many bitstring elements");
         }
         for (int i = 0; i < length; i++) {
-            values[i] = tvb_get_guint8(tvb, offset);
+            guint8 value = tvb_get_guint8(tvb, offset);
             if (i + 1 == length) {
                 /* unused bits of the last octet shall be set to zeros */
-                values[i] &= (0xFF << unused_bit_count);
+                value &= (0xFF << unused_bit_count);
+            }
+            if (i < values_size) {
+                values[i] = value;
             }
             offset += 1;
         }
