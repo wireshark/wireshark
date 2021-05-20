@@ -752,18 +752,25 @@ RecommendedCellItem/timeStayedInCell DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&
 
 %(DEFAULT_BODY)s
   if (parameter_tvb) {
+    proto_tree *subtree;
+    volatile dissector_handle_t handle;
+    subtree = proto_item_add_subtree(actx->created_item, ett_ngap_UERadioCapability);
     if (ngap_data->procedure_code == id_UERadioCapability_EUTRA_Format) {
-      if (lte_rrc_ue_radio_access_cap_info_handle) {
-        proto_tree *subtree;
-
-        subtree = proto_item_add_subtree(actx->created_item, ett_ngap_UERadioCapability);
-        call_dissector(lte_rrc_ue_radio_access_cap_info_handle, parameter_tvb, actx->pinfo, subtree);
+      handle = lte_rrc_ue_radio_access_cap_info_handle;
+    } else if ((ngap_is_nbiot_ue(actx->pinfo) && ngap_dissect_lte_container_as == NGAP_LTE_CONTAINER_AUTOMATIC) ||
+               (ngap_dissect_lte_container_as == NGAP_LTE_CONTAINER_NBIOT)) {
+      handle = lte_rrc_ue_radio_access_cap_info_nb_handle;
+    } else {
+      handle = nr_rrc_ue_radio_access_cap_info_handle;
+    }
+    if (handle) {
+      TRY {
+        call_dissector(handle, parameter_tvb, actx->pinfo, subtree);
       }
-    } else if (nr_rrc_ue_radio_access_cap_info_handle) {
-      proto_tree *subtree;
-
-      subtree = proto_item_add_subtree(actx->created_item, ett_ngap_UERadioCapability);
-      call_dissector(nr_rrc_ue_radio_access_cap_info_handle, parameter_tvb, actx->pinfo, subtree);
+      CATCH_BOUNDS_ERRORS {
+        show_exception(parameter_tvb, actx->pinfo, subtree, EXCEPT_CODE, GET_MESSAGE);
+      }
+      ENDTRY;
     }
   }
 
