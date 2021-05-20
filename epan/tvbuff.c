@@ -1630,11 +1630,11 @@ validate_single_byte_ascii_encoding(const guint encoding)
 	    case ENC_KEYPAD_ABC_TBCD:
 	    case ENC_KEYPAD_BC_TBCD:
 	    case ENC_ETSI_TS_102_221_ANNEX_A:
-		case ENC_APN_STR:
-		REPORT_DISSECTOR_BUG("Invalid string encoding type passed to tvb_get_string_XXX");
-		break;
+	    case ENC_APN_STR:
+	    REPORT_DISSECTOR_BUG("Invalid string encoding type passed to tvb_get_string_XXX");
+	    break;
 	    default:
-		break;
+	    break;
 	}
 	/* make sure something valid was set */
 	if (enc == 0)
@@ -3107,6 +3107,8 @@ tvb_get_string_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
 				name_len = name_len + strptr[tmp] + 1;
 				strptr[tmp] = '.';
 			}
+		} else {
+			strptr = (char*)"";
 		}
 	}
 		break;

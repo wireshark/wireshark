@@ -5123,25 +5123,13 @@ de_nas_5gs_cmn_dnn(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
 {
 
     guint32     curr_offset;
-    guint       curr_len;
-    guint8     *str;
     proto_item *pi;
 
     curr_offset = offset;
     /* A DNN value field contains an APN as defined in 3GPP TS 23.003 */
 
-    str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, len, ENC_ASCII | ENC_NA);
+    pi = proto_tree_add_item(tree, hf_nas_5gs_cmn_dnn, tvb, curr_offset, len, ENC_APN_STR | ENC_NA);
 
-    curr_len = 0;
-    while (curr_len < len)
-    {
-        guint step = str[curr_len];
-        str[curr_len] = '.';
-        curr_len += step + 1;
-    }
-
-    /* Highlight bytes including the first length byte */
-    pi = proto_tree_add_string(tree, hf_nas_5gs_cmn_dnn, tvb, curr_offset, len, str + 1);
     if (len > 100) {
         expert_add_info(pinfo, pi, &ei_nas_5gs_dnn_too_long);
     }
