@@ -153,15 +153,11 @@ static struct {
     int pin_grid_seed;
 } hf_wow_logon_challenge_server_to_client = {-1, -1, -1, -1, -1, -1, -1, -1};
 
-static struct {
-    int srp_a;
-    int srp_m1;
-    int crc_hash;
-    int pin_hash;
-} hf_wow_logon_proof_client_to_server = {-1, -1, -1, -1};
-
 static int hf_wow_two_factor_enabled = -1;
 
+static int hf_wow_srp_a = -1;
+static int hf_wow_srp_m1 = -1;
+static int hf_wow_crc_hash = -1;
 static int hf_wow_num_keys = -1;
 
 static int hf_wow_hardware_survey_id = -1;
@@ -175,6 +171,7 @@ static int hf_wow_client_proof = -1;
 static int hf_wow_client_checksum = -1;
 
 static int hf_wow_two_factor_pin_salt = -1;
+static int hf_wow_two_factor_pin_hash = -1;
 
 static int hf_wow_num_realms = -1;
 static int hf_wow_realm_type = -1;
@@ -553,15 +550,15 @@ parse_logon_proof(tvbuff_t *tvb, packet_info* pinfo, proto_tree *wow_tree, guint
 	guint8 error, two_factor_enabled;
 
 	if (WOW_CLIENT_TO_SERVER) {
-		proto_tree_add_item(wow_tree, hf_wow_logon_proof_client_to_server.srp_a, tvb,
+		proto_tree_add_item(wow_tree, hf_wow_srp_a, tvb,
 				    offset, 32, ENC_NA);
 		offset += 32;
 
-		proto_tree_add_item(wow_tree, hf_wow_logon_proof_client_to_server.srp_m1,
+		proto_tree_add_item(wow_tree, hf_wow_srp_m1,
 				    tvb, offset, 20, ENC_NA);
 		offset += 20;
 
-		proto_tree_add_item(wow_tree, hf_wow_logon_proof_client_to_server.crc_hash,
+		proto_tree_add_item(wow_tree, hf_wow_crc_hash,
 				    tvb, offset, 20, ENC_NA);
 		offset += 20;
 
@@ -585,7 +582,7 @@ parse_logon_proof(tvbuff_t *tvb, packet_info* pinfo, proto_tree *wow_tree, guint
 				    offset, 16, ENC_NA);
 		offset += 16;
 
-		proto_tree_add_item(wow_tree, hf_wow_logon_proof_client_to_server.pin_hash, tvb,
+		proto_tree_add_item(wow_tree, hf_wow_two_factor_pin_hash, tvb,
 				    offset, 20, ENC_NA);
 		offset += 20;
 
@@ -801,17 +798,17 @@ proto_register_wow(void)
 		    "Enables two factor authentication",
 		    HFILL }
 		},
-		{ &hf_wow_logon_proof_client_to_server.srp_a,
+		{ &hf_wow_srp_a,
 		  { "SRP A", "wow.srp.a",
 		    FT_BYTES, BASE_NONE, 0, 0,
 		    "Secure Remote Password protocol 'A' value (one of the public ephemeral values)", HFILL }
 		},
-		{ &hf_wow_logon_proof_client_to_server.srp_m1,
+		{ &hf_wow_srp_m1,
 		  { "SRP M1", "wow.srp.m1",
 		    FT_BYTES, BASE_NONE, 0, 0,
 		    "Secure Remote Password protocol 'M1' value", HFILL }
 		},
-		{ &hf_wow_logon_proof_client_to_server.crc_hash,
+		{ &hf_wow_crc_hash,
 		  { "CRC hash", "wow.crc_hash",
 		    FT_BYTES, BASE_NONE, 0, 0,
 		    NULL, HFILL }
@@ -861,7 +858,7 @@ proto_register_wow(void)
 		    FT_BYTES, BASE_NONE, 0, 0,
 		    NULL, HFILL }
 		},
-		{ &hf_wow_logon_proof_client_to_server.pin_hash,
+		{ &hf_wow_two_factor_pin_hash,
 		  { "Two Factor PIN Hash", "wow.two_factor_pin_hash",
 		    FT_BYTES, BASE_NONE, 0, 0,
 		    NULL, HFILL }
