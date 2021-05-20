@@ -142,17 +142,13 @@ static struct {
     int revision;
 } hf_wow_version = {-1, -1, -1, -1};
 
-static struct {
-    int srp_b;
-    int srp_g_len;
-    int srp_g;
-    int srp_n_len;
-    int srp_n;
-    int srp_s;
-    int crc_salt;
-    int pin_grid_seed;
-} hf_wow_logon_challenge_server_to_client = {-1, -1, -1, -1, -1, -1, -1, -1};
-
+static int hf_wow_srp_b = -1;
+static int hf_wow_srp_g_len = -1;
+static int hf_wow_srp_g = -1;
+static int hf_wow_srp_n_len = -1;
+static int hf_wow_srp_n = -1;
+static int hf_wow_srp_s = -1;
+static int hf_wow_crc_salt = -1;
 static int hf_wow_two_factor_enabled = -1;
 
 static int hf_wow_srp_a = -1;
@@ -170,6 +166,7 @@ static int hf_wow_checksum_salt = -1;
 static int hf_wow_client_proof = -1;
 static int hf_wow_client_checksum = -1;
 
+static int hf_wow_two_factor_pin_grid_seed = -1;
 static int hf_wow_two_factor_pin_salt = -1;
 static int hf_wow_two_factor_pin_hash = -1;
 
@@ -466,33 +463,33 @@ parse_logon_challenge_server_to_client(tvbuff_t *tvb, proto_tree *wow_tree, guin
 		return;
 	}
 
-	proto_tree_add_item(wow_tree, hf_wow_logon_challenge_server_to_client.srp_b, tvb,
+	proto_tree_add_item(wow_tree, hf_wow_srp_b, tvb,
 			offset, 32, ENC_NA);
 	offset += 32;
 
-	proto_tree_add_item(wow_tree, hf_wow_logon_challenge_server_to_client.srp_g_len,
+	proto_tree_add_item(wow_tree, hf_wow_srp_g_len,
 			tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	srp_g_len = tvb_get_guint8(tvb, offset);
 	offset += 1;
 
-	proto_tree_add_item(wow_tree, hf_wow_logon_challenge_server_to_client.srp_g, tvb,
+	proto_tree_add_item(wow_tree, hf_wow_srp_g, tvb,
 			offset, srp_g_len, ENC_NA);
 	offset += srp_g_len;
 
-	proto_tree_add_item(wow_tree, hf_wow_logon_challenge_server_to_client.srp_n_len,
+	proto_tree_add_item(wow_tree, hf_wow_srp_n_len,
 			tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	srp_n_len = tvb_get_guint8(tvb, offset);
 	offset += 1;
 
-	proto_tree_add_item(wow_tree, hf_wow_logon_challenge_server_to_client.srp_n, tvb,
+	proto_tree_add_item(wow_tree, hf_wow_srp_n, tvb,
 			offset, srp_n_len, ENC_NA);
 	offset += srp_n_len;
 
-	proto_tree_add_item(wow_tree, hf_wow_logon_challenge_server_to_client.srp_s, tvb,
+	proto_tree_add_item(wow_tree, hf_wow_srp_s, tvb,
 			offset, 32, ENC_NA);
 	offset += 32;
 
-	proto_tree_add_item(wow_tree, hf_wow_logon_challenge_server_to_client.crc_salt, tvb,
+	proto_tree_add_item(wow_tree, hf_wow_crc_salt, tvb,
 			offset, 16, ENC_NA);
 	offset += 16;
 
@@ -508,7 +505,7 @@ parse_logon_challenge_server_to_client(tvbuff_t *tvb, proto_tree *wow_tree, guin
 	if (!two_factor_enabled) {
 		return;
 	}
-	proto_tree_add_item(wow_tree, hf_wow_logon_challenge_server_to_client.pin_grid_seed, tvb,
+	proto_tree_add_item(wow_tree, hf_wow_two_factor_pin_grid_seed, tvb,
 			offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
@@ -753,40 +750,40 @@ proto_register_wow(void)
 		    FT_STRING, BASE_NONE, 0, 0,
 		    "Secure Remote Password protocol 'I' value (username)", HFILL }
 		},
-		{ &hf_wow_logon_challenge_server_to_client.srp_b,
+		{ &hf_wow_srp_b,
 		  { "SRP B", "wow.srp.b",
 		    FT_BYTES, BASE_NONE, 0, 0,
 		    "Secure Remote Password protocol 'B' value (one of the public ephemeral values)", HFILL }
 		},
-		{ &hf_wow_logon_challenge_server_to_client.srp_g_len,
+		{ &hf_wow_srp_g_len,
 		  { "SRP g length", "wow.srp.g_len",
 		    FT_UINT8, BASE_DEC, 0, 0,
 		    "Secure Remote Password protocol 'g' value length",
 		    HFILL }
 		},
-		{ &hf_wow_logon_challenge_server_to_client.srp_g,
+		{ &hf_wow_srp_g,
 		  { "SRP g", "wow.srp.g",
 		    FT_BYTES, BASE_NONE, 0, 0,
 		    "Secure Remote Password protocol 'g' value", HFILL }
 		},
-		{ &hf_wow_logon_challenge_server_to_client.srp_n_len,
+		{ &hf_wow_srp_n_len,
 		  { "SRP N length", "wow.srp.n_len",
 		    FT_UINT8, BASE_DEC, 0, 0,
 		    "Secure Remote Password protocol 'N' value length",
 		    HFILL }
 		},
-		{ &hf_wow_logon_challenge_server_to_client.srp_n,
+		{ &hf_wow_srp_n,
 		  { "SRP N", "wow.srp.n",
 		    FT_BYTES, BASE_NONE, 0, 0,
 		    "Secure Remote Password protocol 'N' value (a large safe prime)", HFILL }
 		},
-		{ &hf_wow_logon_challenge_server_to_client.srp_s,
+		{ &hf_wow_srp_s,
 		  { "SRP s", "wow.srp.s",
 		    FT_BYTES, BASE_NONE, 0, 0,
 		    "Secure Remote Password protocol 's' (user's salt) value",
 		    HFILL }
 		},
-		{ &hf_wow_logon_challenge_server_to_client.crc_salt,
+		{ &hf_wow_crc_salt,
 		  { "CRC salt", "wow.crc_salt",
 		    FT_BYTES, BASE_NONE, 0, 0,
 		    "Salt to be used for the hash in the reply packet",
@@ -848,7 +845,7 @@ proto_register_wow(void)
 		    FT_BYTES, BASE_NONE, 0, 0,
 		    NULL, HFILL }
 		},
-		{ &hf_wow_logon_challenge_server_to_client.pin_grid_seed,
+		{ &hf_wow_two_factor_pin_grid_seed,
 		  { "Two Factor PIN Grid Seed", "wow.two_factor_pin_grid_seed",
 		    FT_UINT32, BASE_HEX, 0, 0,
 		    NULL, HFILL }
