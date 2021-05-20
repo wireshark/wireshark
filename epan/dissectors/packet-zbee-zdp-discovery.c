@@ -966,21 +966,28 @@ dissect_zbee_zdp_rsp_complex_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     guint8      status;
     guint32     device, length;
 
-    status   = zdp_parse_status(tree, tvb, &offset);
-    proto_tree_add_item_ret_uint(tree, hf_zbee_zdp_nwk_addr, tvb, offset, 2, ENC_LITTLE_ENDIAN, &device);
-    offset += 2;
-    proto_tree_add_item_ret_uint(tree, hf_zbee_zdp_complex_length, tvb, offset, 1, ENC_LITTLE_ENDIAN, &length);
-    offset += 1;
+    status = zdp_parse_status(tree, tvb, &offset);
 
-    if (length) {
-        zdp_parse_complex_desc(tree, -1, tvb, &offset, length);
+    if ((status == ZBEE_ZDP_STATUS_SUCCESS) || (tvb_bytes_exist(tvb, offset, 2))) {
+        proto_tree_add_item_ret_uint(tree, hf_zbee_zdp_nwk_addr, tvb, offset, 2, ENC_LITTLE_ENDIAN, &device);
+        zbee_append_info(tree, pinfo, ", Nwk Addr: 0x%04x", device);
+        offset += 2;
+    }
+    if ((status == ZBEE_ZDP_STATUS_SUCCESS) || (tvb_bytes_exist(tvb, offset, 1))) {
+        proto_tree_add_item_ret_uint(tree, hf_zbee_zdp_complex_length, tvb, offset, 1, ENC_LITTLE_ENDIAN, &length);
+        offset += 1;
+
+        if (length) {
+            zdp_parse_complex_desc(tree, -1, tvb, &offset, length);
+        }
+
+
+        /* Dump any leftover bytes. */
+        zdp_dump_excess(tvb, offset, pinfo, tree);
     }
 
-    zbee_append_info(tree, pinfo, ", Nwk Addr: 0x%04x", device);
     zbee_append_info(tree, pinfo, ", Status: %s", zdp_status_name(status));
 
-    /* Dump any leftover bytes. */
-    zdp_dump_excess(tvb, offset, pinfo, tree);
 } /* dissect_zbee_zdp_rsp_complex_desc */
 
 /**
@@ -998,9 +1005,12 @@ dissect_zbee_zdp_rsp_user_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     guint32     device, user_length;
     gchar       *user;
 
-    status      = zdp_parse_status(tree, tvb, &offset);
-    proto_tree_add_item_ret_uint(tree, hf_zbee_zdp_nwk_addr, tvb, offset, 2, ENC_LITTLE_ENDIAN, &device);
-    offset += 2;
+    status = zdp_parse_status(tree, tvb, &offset);
+    if ((status == ZBEE_ZDP_STATUS_SUCCESS) || (tvb_bytes_exist(tvb, offset, 2))) {
+        proto_tree_add_item_ret_uint(tree, hf_zbee_zdp_nwk_addr, tvb, offset, 2, ENC_LITTLE_ENDIAN, &device);
+        zbee_append_info(tree, pinfo, ", Nwk Addr: 0x%04x", device);
+        offset += 2;
+    }
     if ((version >= ZBEE_VERSION_2007) || (status == ZBEE_ZDP_STATUS_SUCCESS)) {
         /* In ZigBee 2003 & earlier, the length field is omitted if not successful. */
         proto_tree_add_item_ret_uint(tree, hf_zbee_zdp_user_length, tvb, offset, 1, ENC_LITTLE_ENDIAN, &user_length);
@@ -1008,13 +1018,12 @@ dissect_zbee_zdp_rsp_user_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     }
     else user_length = 0;
 
-    user        = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, user_length, ENC_ASCII);
+    user = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, user_length, ENC_ASCII);
     if (tree) {
         proto_tree_add_string(tree, hf_zbee_zdp_user, tvb, offset, user_length, user);
     }
     offset += user_length;
 
-    zbee_append_info(tree, pinfo, ", Nwk Addr: 0x%04x", device);
     if (status == ZBEE_ZDP_STATUS_SUCCESS) {
         zbee_append_info(tree, pinfo, ", Desc: \'%s\'", user);
     }
@@ -1038,14 +1047,16 @@ dissect_zbee_zdp_rsp_user_desc_conf(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     guint8      status;
     guint32     device = 0;
 
-    status      = zdp_parse_status(tree, tvb, &offset);
+    status = zdp_parse_status(tree, tvb, &offset);
     if (version >= ZBEE_VERSION_2007) {
-        /* Device address present only on ZigBee 2006 & later. */
-        proto_tree_add_item_ret_uint(tree, hf_zbee_zdp_nwk_addr, tvb, offset, 2, ENC_LITTLE_ENDIAN, &device);
-        offset += 2;
+        if ((status == ZBEE_ZDP_STATUS_SUCCESS) || (tvb_bytes_exist(tvb, offset, 2))) {
+            /* Device address present only on ZigBee 2006 & later. */
+            proto_tree_add_item_ret_uint(tree, hf_zbee_zdp_nwk_addr, tvb, offset, 2, ENC_LITTLE_ENDIAN, &device);
+            zbee_append_info(tree, pinfo, ", Nwk Addr: 0x%04x", device);
+            offset += 2;
+        }
     }
 
-    zbee_append_info(tree, pinfo, ", Nwk Addr: 0x%04x", device);
     zbee_append_info(tree, pinfo, ", Status: %s", zdp_status_name(status));
 
     /* Dump any leftover bytes. */
@@ -1062,12 +1073,10 @@ dissect_zbee_zdp_rsp_user_desc_conf(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 void
 dissect_zbee_zdp_rsp_discovery_cache(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    guint       offset = 0;
+    guint  offset = 0;
+    guint8 status;
 
-    guint8      status;
-
-    status      = zdp_parse_status(tree, tvb, &offset);
-
+    status = zdp_parse_status(tree, tvb, &offset);
     zbee_append_info(tree, pinfo, ", Status: %s", zdp_status_name(status));
 
     /* Dump any leftover bytes. */
@@ -1084,13 +1093,14 @@ dissect_zbee_zdp_rsp_discovery_cache(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 void
 dissect_zbee_zdp_rsp_system_server_disc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    guint       offset = 0;
-
-    guint8      status;
-    /*guint16     server;*/
+    guint   offset = 0;
+    guint8  status;
 
     status   = zdp_parse_status(tree, tvb, &offset);
-    /*server =*/ zdp_parse_server_flags(tree, ett_zbee_zdp_server, tvb, &offset);
+
+    if ((status == ZBEE_ZDP_STATUS_SUCCESS) || (tvb_bytes_exist(tvb, offset, 2))) {
+        zdp_parse_server_flags(tree, ett_zbee_zdp_server, tvb, &offset);
+    }
 
     zbee_append_info(tree, pinfo, ", Status: %s", zdp_status_name(status));
 
@@ -1108,12 +1118,10 @@ dissect_zbee_zdp_rsp_system_server_disc(tvbuff_t *tvb, packet_info *pinfo, proto
 void
 dissect_zbee_zdp_rsp_discovery_store(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    guint       offset = 0;
-
-    guint8      status;
+    guint  offset = 0;
+    guint8 status;
 
     status = zdp_parse_status(tree, tvb, &offset);
-
     zbee_append_info(tree, pinfo, ", Status: %s", zdp_status_name(status));
 
     /* Dump any leftover bytes. */
@@ -1130,12 +1138,10 @@ dissect_zbee_zdp_rsp_discovery_store(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 void
 dissect_zbee_zdp_rsp_store_node_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    guint       offset = 0;
+    guint  offset = 0;
+    guint8 status;
 
-    guint8      status;
-
-    status      = zdp_parse_status(tree, tvb, &offset);
-
+    status = zdp_parse_status(tree, tvb, &offset);
     zbee_append_info(tree, pinfo, ", Status: %s", zdp_status_name(status));
 
     /* Dump any leftover bytes. */
@@ -1152,12 +1158,10 @@ dissect_zbee_zdp_rsp_store_node_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 void
 dissect_zbee_zdp_rsp_store_power_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    guint       offset = 0;
+    guint  offset = 0;
+    guint8 status;
 
-    guint8      status;
-
-    status      = zdp_parse_status(tree, tvb, &offset);
-
+    status = zdp_parse_status(tree, tvb, &offset);
     zbee_append_info(tree, pinfo, ", Status: %s", zdp_status_name(status));
 
     /* Dump any leftover bytes. */
@@ -1174,12 +1178,10 @@ dissect_zbee_zdp_rsp_store_power_desc(tvbuff_t *tvb, packet_info *pinfo, proto_t
 void
 dissect_zbee_zdp_rsp_store_active_ep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    guint       offset = 0;
+    guint  offset = 0;
+    guint8 status;
 
-    guint8      status;
-
-    status      = zdp_parse_status(tree, tvb, &offset);
-
+    status = zdp_parse_status(tree, tvb, &offset);
     zbee_append_info(tree, pinfo, ", Status: %s", zdp_status_name(status));
 
     /* Dump any leftover bytes. */
@@ -1196,12 +1198,10 @@ dissect_zbee_zdp_rsp_store_active_ep(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 void
 dissect_zbee_zdp_rsp_store_simple_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    guint       offset = 0;
+    guint  offset = 0;
+    guint8 status;
 
-    guint8      status;
-
-    status      = zdp_parse_status(tree, tvb, &offset);
-
+    status = zdp_parse_status(tree, tvb, &offset);
     zbee_append_info(tree, pinfo, ", Status: %s", zdp_status_name(status));
 
     /* Dump any leftover bytes. */
@@ -1218,12 +1218,10 @@ dissect_zbee_zdp_rsp_store_simple_desc(tvbuff_t *tvb, packet_info *pinfo, proto_
 void
 dissect_zbee_zdp_rsp_remove_node_cache(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    guint       offset = 0;
+    guint  offset = 0;
+    guint8 status;
 
-    guint8      status;
-
-    status      = zdp_parse_status(tree, tvb, &offset);
-
+    status = zdp_parse_status(tree, tvb, &offset);
     zbee_append_info(tree, pinfo, ", Status: %s", zdp_status_name(status));
 
     /* Dump any leftover bytes. */
@@ -1240,10 +1238,10 @@ dissect_zbee_zdp_rsp_remove_node_cache(tvbuff_t *tvb, packet_info *pinfo, proto_
 void
 dissect_zbee_zdp_rsp_find_node_cache(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    guint       offset = 0;
+    guint   offset = 0;
+    guint32 device, cache;
 
-    guint32     device, cache;
-
+    /* Find Node Cache does NOT start with status */
     proto_tree_add_item_ret_uint(tree, hf_zbee_zdp_cache, tvb, offset, 2, ENC_LITTLE_ENDIAN, &cache);
     offset += 2;
     proto_tree_add_item_ret_uint(tree, hf_zbee_zdp_nwk_addr, tvb, offset, 2, ENC_LITTLE_ENDIAN, &device);
@@ -1267,39 +1265,42 @@ dissect_zbee_zdp_rsp_find_node_cache(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 void
 dissect_zbee_zdp_rsp_ext_simple_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    proto_item      *ti;
+    proto_item  *ti;
     guint       offset = 0;
     guint       i;
     guint       sizeof_cluster = (int)sizeof(guint16);
-
     guint8      status;
     guint32     device, cluster, in_count, out_count, idx;
 
-    status      = zdp_parse_status(tree, tvb, &offset);
-    proto_tree_add_item_ret_uint(tree, hf_zbee_zdp_nwk_addr, tvb, offset, 2, ENC_LITTLE_ENDIAN, &device);
-    offset += 2;
-    proto_tree_add_item(tree, hf_zbee_zdp_endpoint, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    offset += 1;
-    proto_tree_add_item_ret_uint(tree, hf_zbee_zdp_in_count, tvb, offset, 1, ENC_LITTLE_ENDIAN, &in_count);
-    offset += 1;
-    proto_tree_add_item_ret_uint(tree, hf_zbee_zdp_out_count, tvb, offset, 1, ENC_LITTLE_ENDIAN, &out_count);
-    offset += 1;
-    proto_tree_add_item_ret_uint(tree, hf_zbee_zdp_index, tvb, offset, 1, ENC_LITTLE_ENDIAN, &idx);
-    offset += 1;
+    status = zdp_parse_status(tree, tvb, &offset);
+    if ((status == ZBEE_ZDP_STATUS_SUCCESS) || (tvb_bytes_exist(tvb, offset, 2))) {
+        proto_tree_add_item_ret_uint(tree, hf_zbee_zdp_nwk_addr, tvb, offset, 2, ENC_LITTLE_ENDIAN, &device);
+        zbee_append_info(tree, pinfo, ", Nwk Addr: 0x%04x", device);
+        offset += 2;
+    }
 
-    /* Display the input cluster list. */
-    for (i=idx; (i<in_count) && tvb_bytes_exist(tvb, offset, sizeof_cluster); i++) {
-        ti = proto_tree_add_item_ret_uint(tree, hf_zbee_zdp_in_cluster, tvb, offset, sizeof_cluster, ENC_LITTLE_ENDIAN, &cluster);
-        offset += sizeof_cluster;
-        proto_item_append_text(ti, " (%s)", rval_to_str(cluster, zbee_aps_cid_names, "Unknown Cluster"));
-    } /* for */
-    for (i-=in_count; (i<out_count) && tvb_bytes_exist(tvb, offset, sizeof_cluster); i++) {
-        ti = proto_tree_add_item_ret_uint(tree, hf_zbee_zdp_out_cluster, tvb, offset, sizeof_cluster, ENC_LITTLE_ENDIAN, &cluster);
-        offset += sizeof_cluster;
-        proto_item_append_text(ti, " (%s)", rval_to_str(cluster, zbee_aps_cid_names, "Unknown Cluster"));
-    } /* for */
+    if (status == ZBEE_ZDP_STATUS_SUCCESS) {
+        proto_tree_add_item(tree, hf_zbee_zdp_endpoint, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset += 1;
+        proto_tree_add_item_ret_uint(tree, hf_zbee_zdp_in_count, tvb, offset, 1, ENC_LITTLE_ENDIAN, &in_count);
+        offset += 1;
+        proto_tree_add_item_ret_uint(tree, hf_zbee_zdp_out_count, tvb, offset, 1, ENC_LITTLE_ENDIAN, &out_count);
+        offset += 1;
+        proto_tree_add_item_ret_uint(tree, hf_zbee_zdp_index, tvb, offset, 1, ENC_LITTLE_ENDIAN, &idx);
+        offset += 1;
 
-    zbee_append_info(tree, pinfo, ", Nwk Addr: 0x%04x", device);
+        /* Display the input cluster list. */
+        for (i=idx; (i<in_count) && tvb_bytes_exist(tvb, offset, sizeof_cluster); i++) {
+            ti = proto_tree_add_item_ret_uint(tree, hf_zbee_zdp_in_cluster, tvb, offset, sizeof_cluster, ENC_LITTLE_ENDIAN, &cluster);
+            offset += sizeof_cluster;
+            proto_item_append_text(ti, " (%s)", rval_to_str(cluster, zbee_aps_cid_names, "Unknown Cluster"));
+        } /* for */
+        for (i-=in_count; (i<out_count) && tvb_bytes_exist(tvb, offset, sizeof_cluster); i++) {
+            ti = proto_tree_add_item_ret_uint(tree, hf_zbee_zdp_out_cluster, tvb, offset, sizeof_cluster, ENC_LITTLE_ENDIAN, &cluster);
+           offset += sizeof_cluster;
+            proto_item_append_text(ti, " (%s)", rval_to_str(cluster, zbee_aps_cid_names, "Unknown Cluster"));
+        } /* for */
+    }
     zbee_append_info(tree, pinfo, ", Status: %s", zdp_status_name(status));
 
     /* Dump any leftover bytes. */
@@ -1324,23 +1325,29 @@ dissect_zbee_zdp_rsp_ext_active_ep(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     guint32     device, ep_count, idx;
 
     status   = zdp_parse_status(tree, tvb, &offset);
-    proto_tree_add_item_ret_uint(tree, hf_zbee_zdp_nwk_addr, tvb, offset, 2, ENC_LITTLE_ENDIAN, &device);
-    offset += 2;
-    proto_tree_add_item_ret_uint(tree, hf_zbee_zdp_ep_count, tvb, offset, 1, ENC_LITTLE_ENDIAN, &ep_count);
-    offset += 1;
-    proto_tree_add_item_ret_uint(tree, hf_zbee_zdp_index, tvb, offset, 1, ENC_LITTLE_ENDIAN, &idx);
-    offset += 1;
+    if ((status == ZBEE_ZDP_STATUS_SUCCESS) || (tvb_bytes_exist(tvb, offset, 2))) {
+        proto_tree_add_item_ret_uint(tree, hf_zbee_zdp_nwk_addr, tvb, offset, 2, ENC_LITTLE_ENDIAN, &device);
+        zbee_append_info(tree, pinfo, ", Nwk Addr: 0x%04x", device);
+        offset += 2;
+    }
 
-    if (tree && ep_count) {
-        field_tree = proto_tree_add_subtree(tree, tvb, offset, ep_count*(int)sizeof(guint8),
+    /* on success require both, when unsuccessful okay to skip both but not just one */
+    if ((status == ZBEE_ZDP_STATUS_SUCCESS) || (tvb_bytes_exist(tvb, offset, 1))) {
+        proto_tree_add_item_ret_uint(tree, hf_zbee_zdp_ep_count, tvb, offset, 1, ENC_LITTLE_ENDIAN, &ep_count);
+        offset += 1;
+        proto_tree_add_item_ret_uint(tree, hf_zbee_zdp_index, tvb, offset, 1, ENC_LITTLE_ENDIAN, &idx);
+        offset += 1;
+
+        if (tree && ep_count) {
+            field_tree = proto_tree_add_subtree(tree, tvb, offset, ep_count*(int)sizeof(guint8),
                             ett_zbee_zdp_endpoint, NULL, "Active Endpoint List");
-        for (i=idx; (i<ep_count) && tvb_bytes_exist(tvb, offset, (int)sizeof(guint8)); i++) {
-            proto_tree_add_item(field_tree, hf_zbee_zdp_endpoint, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            offset += 1;
+            for (i=idx; (i<ep_count) && tvb_bytes_exist(tvb, offset, (int)sizeof(guint8)); i++) {
+                proto_tree_add_item(field_tree, hf_zbee_zdp_endpoint, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                offset += 1;
+            }
         }
     }
 
-    zbee_append_info(tree, pinfo, ", Nwk Addr: 0x%04x", device);
     zbee_append_info(tree, pinfo, ", Status: %s", zdp_status_name(status));
 
     /* Dump any leftover bytes. */
