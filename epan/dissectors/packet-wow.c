@@ -259,7 +259,6 @@ parse_logon_proof(tvbuff_t *tvb, packet_info* pinfo, proto_tree *wow_tree, guint
 
 		proto_tree_add_item(wow_tree, hf_wow_two_factor_pin_hash, tvb,
 				    offset, 20, ENC_NA);
-		offset += 20;
 
 	} else if (WOW_SERVER_TO_CLIENT) {
 		error = tvb_get_guint8(tvb, offset);
@@ -277,7 +276,6 @@ parse_logon_proof(tvbuff_t *tvb, packet_info* pinfo, proto_tree *wow_tree, guint
 
 		proto_tree_add_item(wow_tree, hf_wow_hardware_survey_id,
 				    tvb, offset, 4, ENC_LITTLE_ENDIAN);
-		offset += 4;
 	}
 }
 static void
@@ -335,10 +333,6 @@ parse_realm_list_server_to_client(tvbuff_t *tvb, proto_tree *wow_tree, guint32 o
 		offset += 1;
 
 	}
-
-	/* Footer is always 2 bytes */
-	offset += 2;
-
 }
 
 static void
@@ -358,13 +352,11 @@ parse_logon_reconnect_proof(tvbuff_t *tvb, packet_info *pinfo, proto_tree *wow_t
 
 		proto_tree_add_item(wow_tree, hf_wow_num_keys,
 				tvb, offset, 1, ENC_LITTLE_ENDIAN);
-		offset += 1;
 
 	}
 	else if (WOW_SERVER_TO_CLIENT) {
 		proto_tree_add_item(wow_tree, hf_wow_error, tvb,
 				offset, 1, ENC_LITTLE_ENDIAN);
-		offset += 1;
 
 	}
 
@@ -388,7 +380,6 @@ parse_logon_reconnect_challenge_server_to_client(tvbuff_t *tvb, proto_tree *wow_
 
 	proto_tree_add_item(wow_tree, hf_wow_checksum_salt, tvb,
 			offset, 16, ENC_NA);
-	offset += 16;
 }
 
 static void
@@ -465,7 +456,6 @@ parse_logon_challenge_client_to_server(tvbuff_t *tvb, proto_tree *wow_tree, guin
 			hf_wow_srp_i, tvb,
 			offset, srp_i_len,
 			ENC_ASCII|ENC_NA);
-	/*offset += srp_i_len;*/
 }
 
 static void
@@ -533,7 +523,6 @@ parse_logon_challenge_server_to_client(tvbuff_t *tvb, proto_tree *wow_tree, guin
 
 	proto_tree_add_item(wow_tree, hf_wow_two_factor_pin_salt, tvb,
 			offset, 16, ENC_NA);
-	offset += 16;
 
 }
 
