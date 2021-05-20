@@ -670,8 +670,8 @@ proto_register_wow(void)
 {
 	module_t *wow_module; /* For our preferences */
 
-    static hf_register_info hf[] = {
-            { &hf_wow_command,
+	static hf_register_info hf[] = {
+		{ &hf_wow_command,
 		  { "Command", "wow.cmd",
 		    FT_UINT8, BASE_HEX, VALS(cmd_vs), 0,
 		    "Type of packet", HFILL }
