@@ -857,7 +857,7 @@ void proto_register_erldp(void) {
                         FT_UINT8, BASE_DEC, NULL, 0x0,
                         NULL, HFILL}},
     { &hf_erldp_tag,  { "Tag", "erldp.tag",
-                        FT_STRING, BASE_NONE, NULL, 0x0,
+                        FT_CHAR, BASE_HEX, NULL, 0x0,
                         NULL, HFILL}},
     { &hf_erldp_type, { "Type", "erldp.type",
                         FT_UINT8, BASE_DEC, NULL, 0x0,
