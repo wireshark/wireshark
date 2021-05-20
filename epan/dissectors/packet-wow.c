@@ -160,14 +160,13 @@ static struct {
     int pin_hash;
 } hf_wow_logon_proof_client_to_server = {-1, -1, -1, -1};
 
-static struct {
-    int srp_m2;
-    int hardware_survey_id;
-} hf_wow_logon_proof_server_to_client = {-1, -1};
-
 static int hf_wow_two_factor_enabled = -1;
 
 static int hf_wow_num_keys = -1;
+
+static int hf_wow_hardware_survey_id = -1;
+
+static int hf_wow_srp_m2 = -1;
 
 static int hf_wow_challenge_data = -1;
 static int hf_wow_checksum_salt = -1;
@@ -600,11 +599,11 @@ parse_logon_proof(tvbuff_t *tvb, packet_info* pinfo, proto_tree *wow_tree, guint
 			return;
 		}
 
-		proto_tree_add_item(wow_tree, hf_wow_logon_proof_server_to_client.srp_m2,
+		proto_tree_add_item(wow_tree, hf_wow_srp_m2,
 				    tvb, offset, 20, ENC_NA);
 		offset += 20;
 
-		proto_tree_add_item(wow_tree, hf_wow_logon_proof_server_to_client.hardware_survey_id,
+		proto_tree_add_item(wow_tree, hf_wow_hardware_survey_id,
 				    tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
 	}
@@ -822,12 +821,12 @@ proto_register_wow(void)
 		    FT_UINT8, BASE_DEC, 0, 0,
 		    NULL, HFILL }
 		},
-		{ &hf_wow_logon_proof_server_to_client.hardware_survey_id,
+		{ &hf_wow_hardware_survey_id,
 		  { "Hardware Survey ID", "wow.hardware_survey_id",
 		    FT_UINT32, BASE_DEC, 0, 0,
 		    "ID of a hardware survey that the client should run", HFILL }
 		},
-		{ &hf_wow_logon_proof_server_to_client.srp_m2,
+		{ &hf_wow_srp_m2,
 		  { "SRP M2", "wow.srp.m2",
 		    FT_BYTES, BASE_NONE, 0, 0,
 		    "Secure Remote Password protocol 'M2' value", HFILL }
