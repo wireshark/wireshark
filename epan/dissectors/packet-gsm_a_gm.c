@@ -604,7 +604,6 @@ static gint ett_sm_pco = -1;
 static expert_field ei_gsm_a_gm_extraneous_data = EI_INIT;
 static expert_field ei_gsm_a_gm_not_enough_data = EI_INIT;
 static expert_field ei_gsm_a_gm_undecoded = EI_INIT;
-static expert_field ei_gsm_a_gm_apn_too_long = EI_INIT;
 static expert_field ei_gsm_a_gm_missing_mandatory_element = EI_INIT;
 
 static dissector_handle_t rrc_irat_ho_info_handle;
@@ -4392,29 +4391,10 @@ guint16
 de_sm_apn(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint32     curr_offset;
-	guint       curr_len;
-	guint8     *str;
-	proto_item *pi;
 
 	curr_offset = offset;
 
-	str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, len, ENC_ASCII|ENC_NA);
-
-	curr_len = 0;
-	while (curr_len < len)
-	{
-		guint step    = str[curr_len];
-		str[curr_len] = '.';
-		curr_len     += step+1;
-	}
-
-	/* Highlight bytes including the first length byte */
-	if (str[0]) {
-		pi = proto_tree_add_string(tree, hf_gsm_a_gm_apn, tvb, curr_offset, len, str+1);
-		if (len > 100) {
-			expert_add_info(pinfo, pi, &ei_gsm_a_gm_apn_too_long);
-		}
-	}
+	proto_tree_add_item(tree, hf_gsm_a_gm_apn, tvb, curr_offset, len, ENC_APN_STR | ENC_NA);
 	curr_offset += len;
 
 	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset, pinfo, &ei_gsm_a_gm_extraneous_data);
@@ -9642,7 +9622,6 @@ proto_register_gsm_a_gm(void)
 		{ &ei_gsm_a_gm_extraneous_data, { "gsm_a.gm.extraneous_data", PI_PROTOCOL, PI_NOTE, "Extraneous Data, dissector bug or later version spec (report to wireshark.org)", EXPFILL }},
 		{ &ei_gsm_a_gm_not_enough_data, { "gsm_a.gm.not_enough_data", PI_PROTOCOL, PI_WARN, "Not enough data", EXPFILL }},
 		{ &ei_gsm_a_gm_undecoded, { "gsm_a.gm.undecoded", PI_UNDECODED, PI_WARN, "Not decoded", EXPFILL }},
-		{ &ei_gsm_a_gm_apn_too_long, { "gsm_a.gm.apn_to_long", PI_PROTOCOL, PI_ERROR, "APN encoding has more than 100 octets", EXPFILL }},
 		{ &ei_gsm_a_gm_missing_mandatory_element, { "gsm_a.gm.missing_mandatory_element", PI_PROTOCOL, PI_ERROR, "Missing Mandatory element, rest of dissection is suspect", EXPFILL }},
 	};
 

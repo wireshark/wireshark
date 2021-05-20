@@ -426,6 +426,7 @@ void proto_report_dissector_bug(const char *format, ...)
 #define ENC_ETSI_TS_102_221_ANNEX_A       0x0000004E /* ETSI TS 102 221 Annex A */
 #define ENC_GB18030                       0x00000050
 #define ENC_EUC_KR                        0x00000052
+#define ENC_APN_STR                       0x00000054 /* The encoding the APN/DNN field follows 3GPP TS 23.003 [2] clause 9.1.*/
 /*
  * TODO:
  *

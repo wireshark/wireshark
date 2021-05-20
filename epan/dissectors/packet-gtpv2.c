@@ -2200,29 +2200,12 @@ dissect_gtpv2_mm_ctx_for_cs_to_ps_srvcc(tvbuff_t *tvb, packet_info *pinfo _U_, p
 static void
 dissect_gtpv2_apn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type _U_, guint8 instance _U_, session_args_t * args _U_)
 {
-    int     offset = 0;
-    guint8 *apn    = NULL;
-    int     name_len, tmp;
+    const guint8 *apn    = NULL;
 
-    if (length > 0) {
-        proto_item *pi;
-
-        name_len = tvb_get_guint8(tvb, offset);
-        apn = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1, length - 1, ENC_ASCII);
-        for (;;) {
-            if (name_len >= length - 1)
-                break;
-            tmp = name_len;
-            name_len = name_len + apn[tmp] + 1;
-            apn[tmp] = '.';
-        }
-        pi = proto_tree_add_string(tree, hf_gtpv2_apn, tvb, offset, length, apn);
-        if (length > 100)
-            expert_add_info(pinfo, pi, &ei_gtpv2_apn_too_long);
-    }
-
-    if (apn)
+    proto_tree_add_item_ret_string(tree, hf_gtpv2_apn, tvb, 0, length, ENC_APN_STR | ENC_NA, wmem_packet_scope(), &apn);
+    if (apn) {
         proto_item_append_text(item, "%s", apn);
+    }
 
 }
 
@@ -7368,8 +7351,7 @@ dissect_gtpv2_apn_and_relative_capacity(tvbuff_t *tvb, packet_info *pinfo _U_, p
 {
     int       offset = 0;
     guint8 oct, apn_length;
-    guint8 *apn    = NULL;
-    int     name_len, tmp;
+    const guint8 *apn    = NULL;
 
     oct = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(tree, hf_gtpv2_relative_capacity, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -7381,18 +7363,8 @@ dissect_gtpv2_apn_and_relative_capacity(tvbuff_t *tvb, packet_info *pinfo _U_, p
     offset += 1;
 
     if (apn_length > 0) {
-        proto_item *pi;
-
-        name_len = tvb_get_guint8(tvb, offset);
-        apn = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1, apn_length - 1, ENC_ASCII);
-        for (;;) {
-            if (name_len >= apn_length - 1)
-                break;
-            tmp = name_len;
-            name_len = name_len + apn[tmp] + 1;
-            apn[tmp] = '.';
-        }
-        pi = proto_tree_add_string(tree, hf_gtpv2_apn, tvb, offset, apn_length, apn);
+        proto_item* pi;
+        pi = proto_tree_add_item_ret_string(tree, hf_gtpv2_apn, tvb, offset, apn_length, ENC_APN_STR | ENC_NA, wmem_packet_scope(), &apn);
         if (apn_length > 100)
             expert_add_info(pinfo, pi, &ei_gtpv2_apn_too_long);
     }
