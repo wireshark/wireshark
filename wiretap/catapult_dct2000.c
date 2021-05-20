@@ -20,7 +20,7 @@
 
 #define MAX_FIRST_LINE_LENGTH      150
 #define MAX_TIMESTAMP_LINE_LENGTH  50
-#define MAX_LINE_LENGTH            65536
+#define MAX_LINE_LENGTH            131072
 #define MAX_SECONDS_CHARS          16
 #define MAX_TIMESTAMP_LEN          (MAX_SECONDS_CHARS+5)
 #define MAX_SUBSECOND_DECIMALS     4
