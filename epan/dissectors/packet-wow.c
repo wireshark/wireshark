@@ -123,24 +123,18 @@ static int hf_wow_command = -1;
 static int hf_wow_error = -1;
 static int hf_wow_protocol_version = -1;
 static int hf_wow_pkt_size = -1;
-
-static struct {
-    int gamename;
-    int platform;
-    int os;
-    int country;
-    int timezone_bias;
-    int ip;
-    int srp_i_len;
-    int srp_i;
-} hf_wow_logon_challenge_client_to_server = {-1, -1, -1, -1, -1, -1, -1, -1};
-
-static struct {
-    int major;
-    int minor;
-    int patch;
-    int revision;
-} hf_wow_version = {-1, -1, -1, -1};
+static int hf_wow_gamename = -1;
+static int hf_wow_version1 = -1;
+static int hf_wow_version2 = -1;
+static int hf_wow_version3 = -1;
+static int hf_wow_build = -1;
+static int hf_wow_platform = -1;
+static int hf_wow_os = -1;
+static int hf_wow_country = -1;
+static int hf_wow_timezone_bias = -1;
+static int hf_wow_ip = -1;
+static int hf_wow_srp_i_len = -1;
+static int hf_wow_srp_i = -1;
 
 static int hf_wow_srp_b = -1;
 static int hf_wow_srp_g_len = -1;
@@ -383,65 +377,65 @@ parse_logon_challenge_client_to_server(tvbuff_t *tvb, proto_tree *wow_tree, guin
 	offset += 2;
 
 	string = g_strreverse(tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 4, ENC_ASCII));
-	proto_tree_add_string(wow_tree, hf_wow_logon_challenge_client_to_server.gamename,
-			      tvb, offset, 4, string);
+	proto_tree_add_string(wow_tree, hf_wow_gamename,
+			tvb, offset, 4, string);
 	offset += 4;
 
 
 
 	client_game_version.major_version = tvb_get_guint8(tvb, offset);
-	proto_tree_add_item(wow_tree, hf_wow_version.major,
+	proto_tree_add_item(wow_tree, hf_wow_version1,
 			tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
 
 	client_game_version.minor_version = tvb_get_guint8(tvb, offset);
-	proto_tree_add_item(wow_tree, hf_wow_version.minor,
+	proto_tree_add_item(wow_tree, hf_wow_version2,
 			tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
 
 	client_game_version.patch_version = tvb_get_guint8(tvb, offset);
-	proto_tree_add_item(wow_tree, hf_wow_version.patch,
+	proto_tree_add_item(wow_tree, hf_wow_version3,
 			tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
 
 	client_game_version.revision = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(wow_tree, hf_wow_version.revision, tvb,
+	proto_tree_add_item(wow_tree, hf_wow_build, tvb,
 			offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
 	string = g_strreverse(tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 4, ENC_ASCII));
-	proto_tree_add_string(wow_tree, hf_wow_logon_challenge_client_to_server.platform,
-			      tvb, offset, 4, string);
+	proto_tree_add_string(wow_tree, hf_wow_platform,
+			tvb, offset, 4, string);
 	offset += 4;
 
 	string = g_strreverse(tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 4, ENC_ASCII));
-	proto_tree_add_string(wow_tree, hf_wow_logon_challenge_client_to_server.os, tvb,
-			      offset, 4, string);
+	proto_tree_add_string(wow_tree, hf_wow_os, tvb,
+			offset, 4, string);
 	offset += 4;
 
 	string = g_strreverse(tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 4, ENC_ASCII));
-	proto_tree_add_string(wow_tree, hf_wow_logon_challenge_client_to_server.country,
-			      tvb, offset, 4, string);
+	proto_tree_add_string(wow_tree, hf_wow_country,
+			tvb, offset, 4, string);
 	offset += 4;
 
 	proto_tree_add_item(wow_tree,
-			    hf_wow_logon_challenge_client_to_server.timezone_bias,
-			    tvb, offset, 4, ENC_LITTLE_ENDIAN);
+			hf_wow_timezone_bias,
+			tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
-	proto_tree_add_item(wow_tree, hf_wow_logon_challenge_client_to_server.ip, tvb,
-			    offset, 4, ENC_BIG_ENDIAN);
+	proto_tree_add_item(wow_tree, hf_wow_ip, tvb,
+			offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	proto_tree_add_item(wow_tree,
-			    hf_wow_logon_challenge_client_to_server.srp_i_len,
-			    tvb, offset, 1, ENC_LITTLE_ENDIAN);
+			hf_wow_srp_i_len,
+			tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	srp_i_len = tvb_get_guint8(tvb, offset);
 	offset += 1;
 
 	proto_tree_add_item(wow_tree,
-			    hf_wow_logon_challenge_client_to_server.srp_i, tvb,
-			    offset, srp_i_len,
+			hf_wow_srp_i, tvb,
+			offset, srp_i_len,
 			ENC_ASCII|ENC_NA);
 	/*offset += srp_i_len;*/
 }
@@ -690,62 +684,62 @@ proto_register_wow(void)
 		    FT_UINT16, BASE_DEC, 0, 0,
 		    NULL, HFILL }
 		},
-		{ &hf_wow_logon_challenge_client_to_server.gamename,
+		{ &hf_wow_gamename,
 		  { "Game name", "wow.gamename",
 		    FT_STRING, BASE_NONE, 0, 0,
 		    NULL, HFILL }
 		},
-		{ &hf_wow_version.major,
+		{ &hf_wow_version1,
 		  { "Version 1", "wow.version1",
 		    FT_UINT8, BASE_DEC, 0, 0,
 		    NULL, HFILL }
 		},
-		{ &hf_wow_version.minor,
+		{ &hf_wow_version2,
 		  { "Version 2", "wow.version2",
 		    FT_UINT8, BASE_DEC, 0, 0,
 		    NULL, HFILL }
 		},
-		{ &hf_wow_version.patch,
+		{ &hf_wow_version3,
 		  { "Version 3", "wow.version3",
 		    FT_UINT8, BASE_DEC, 0, 0,
 		    NULL, HFILL }
 		},
-		{ &hf_wow_version.revision,
+		{ &hf_wow_build,
 		  { "Build", "wow.build",
 		    FT_UINT16, BASE_DEC, 0, 0,
 		    NULL, HFILL }
 		},
-		{ &hf_wow_logon_challenge_client_to_server.platform,
+		{ &hf_wow_platform,
 		  { "Platform", "wow.platform",
 		    FT_STRING, BASE_NONE, 0, 0,
 		    "CPU architecture of client system", HFILL }
 		},
-		{ &hf_wow_logon_challenge_client_to_server.os,
+		{ &hf_wow_os,
 		  { "Operating system", "wow.os",
 		    FT_STRING, BASE_NONE, 0, 0,
 		    "Operating system of client system", HFILL }
 		},
-		{ &hf_wow_logon_challenge_client_to_server.country,
+		{ &hf_wow_country,
 		  { "Country", "wow.country",
 		    FT_STRING, BASE_NONE, 0, 0,
 		    "Language and country of client system", HFILL }
 		},
-		{ &hf_wow_logon_challenge_client_to_server.timezone_bias,
+		{ &hf_wow_timezone_bias,
 		  { "Timezone bias", "wow.timezone_bias",
 		    FT_UINT32, BASE_DEC, 0, 0,
 		    NULL, HFILL }
 		},
-		{ &hf_wow_logon_challenge_client_to_server.ip,
+		{ &hf_wow_ip,
 		  { "IP address", "wow.ip",
 		    FT_IPv4, BASE_NONE, 0, 0,
 		    "Client's actual IP address", HFILL }
 		},
-		{ &hf_wow_logon_challenge_client_to_server.srp_i_len,
+		{ &hf_wow_srp_i_len,
 		  { "SRP I length", "wow.srp.i_len",
 		    FT_UINT8, BASE_DEC, 0, 0,
 		    "Secure Remote Password protocol 'I' value length", HFILL }
 		},
-		{ &hf_wow_logon_challenge_client_to_server.srp_i,
+		{ &hf_wow_srp_i,
 		  { "SRP I", "wow.srp.i",
 		    FT_STRING, BASE_NONE, 0, 0,
 		    "Secure Remote Password protocol 'I' value (username)", HFILL }
