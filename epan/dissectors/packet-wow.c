@@ -119,10 +119,17 @@ static const value_string realm_type_vs[] = {
 /* Initialize the protocol and registered fields */
 static int proto_wow = -1;
 
+/* More than 1 packet */
 static int hf_wow_command = -1;
 static int hf_wow_error = -1;
 static int hf_wow_protocol_version = -1;
 static int hf_wow_pkt_size = -1;
+static int hf_wow_two_factor_pin_salt = -1;
+static int hf_wow_num_keys = -1;
+static int hf_wow_two_factor_enabled = -1;
+static int hf_wow_challenge_data = -1;
+
+/* Logon Challenge Client to Server */
 static int hf_wow_gamename = -1;
 static int hf_wow_version1 = -1;
 static int hf_wow_version2 = -1;
@@ -136,6 +143,7 @@ static int hf_wow_ip = -1;
 static int hf_wow_srp_i_len = -1;
 static int hf_wow_srp_i = -1;
 
+/* Logon Challenge Server to Client */
 static int hf_wow_srp_b = -1;
 static int hf_wow_srp_g_len = -1;
 static int hf_wow_srp_g = -1;
@@ -143,27 +151,26 @@ static int hf_wow_srp_n_len = -1;
 static int hf_wow_srp_n = -1;
 static int hf_wow_srp_s = -1;
 static int hf_wow_crc_salt = -1;
-static int hf_wow_two_factor_enabled = -1;
+static int hf_wow_two_factor_pin_grid_seed = -1;
 
+/* Logon Proof Client to Server */
 static int hf_wow_srp_a = -1;
 static int hf_wow_srp_m1 = -1;
 static int hf_wow_crc_hash = -1;
-static int hf_wow_num_keys = -1;
+static int hf_wow_two_factor_pin_hash = -1;
 
+/* Logon Proof Server to Client */
+static int hf_wow_srp_m2 = -1;
 static int hf_wow_hardware_survey_id = -1;
 
-static int hf_wow_srp_m2 = -1;
-
-static int hf_wow_challenge_data = -1;
+/* Reconnect Challenge Server to Client */
 static int hf_wow_checksum_salt = -1;
 
+/* Reconnect Proof Client to Server */
 static int hf_wow_client_proof = -1;
 static int hf_wow_client_checksum = -1;
 
-static int hf_wow_two_factor_pin_grid_seed = -1;
-static int hf_wow_two_factor_pin_salt = -1;
-static int hf_wow_two_factor_pin_hash = -1;
-
+/* Realm List Server to Client */
 static int hf_wow_num_realms = -1;
 static int hf_wow_realm_type = -1;
 static int hf_wow_realm_flags = -1;
