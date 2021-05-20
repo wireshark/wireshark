@@ -129,7 +129,7 @@ wmem_array_append(wmem_array_t *array, const void *in, guint count)
 void *
 wmem_array_index(wmem_array_t *array, guint array_index)
 {
-    ws_assert(array_index < array->elem_count);
+    ws_assert_bounds(array_index < array->elem_count);
     return &array->buf[array_index * array->elem_size];
 }
 
