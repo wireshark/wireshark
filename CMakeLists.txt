@@ -2286,7 +2286,7 @@ add_custom_command(
 	OUTPUT ${_protobuf_data_files}
 	COMMAND ${CMAKE_COMMAND} -E make_directory "${DATAFILE_DIR}/protobuf"
 	COMMAND ${CMAKE_COMMAND} -E copy_if_different
-		"${_protobuf_src_files}"
+		${_protobuf_src_files}
 		"${DATAFILE_DIR}/protobuf"
 	VERBATIM
 	DEPENDS ${_protobuf_src_files}
