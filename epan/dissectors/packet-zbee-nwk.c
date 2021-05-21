@@ -1057,7 +1057,7 @@ dissect_zbee_nwk_route_rep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     }
 
     /* Update the info column. */
-    col_append_fstr(pinfo->cinfo, COL_INFO, ", Dst: 0x%04x, Src: 0x%04x", resp_addr, orig_addr);
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", Responder: 0x%04x, Originator: 0x%04x", resp_addr, orig_addr);
 
     /* Done */
     return offset;
