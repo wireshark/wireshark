@@ -1727,7 +1727,7 @@ static void decode_smart_resp_temps(proto_tree *grp, tvbuff_t *cmd_tvb, guint of
     if (bytes > max_bytes)
         bytes = max_bytes;
 
-    ti = proto_tree_add_item(grp, hf_nvme_get_logpage_smart_ts[0],  cmd_tvb, poff, max_bytes, ENC_NA);
+    ti = proto_tree_add_item(grp, hf_nvme_get_logpage_smart_ts[0],  cmd_tvb, poff, bytes, ENC_NA);
     grp =  proto_item_add_subtree(ti, ett_data);
     for (i = 0; i < 8; i++) {
         guint pos = 200 + i * 2;
@@ -1844,7 +1844,7 @@ static void decode_fw_slot_frs(proto_tree *grp, tvbuff_t *cmd_tvb, guint32 off, 
     if (bytes > max_bytes)
         bytes = max_bytes;
 
-    ti = proto_tree_add_item(grp, hf_nvme_get_logpage_fw_slot_frs[0],  cmd_tvb, poff, max_bytes, ENC_NA);
+    ti = proto_tree_add_item(grp, hf_nvme_get_logpage_fw_slot_frs[0],  cmd_tvb, poff, bytes, ENC_NA);
     grp =  proto_item_add_subtree(ti, ett_data);
     for (i = 0; i < 7; i++) {
         guint pos = 8 + i * 8;
