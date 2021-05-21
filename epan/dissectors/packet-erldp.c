@@ -134,7 +134,40 @@ static int hf_etf_version_magic = -1;
 static int hf_erldp_tag = -1;
 static int hf_erldp_type = -1;
 static int hf_erldp_version = -1;
-static int hf_erldp_flags = -1;
+static int hf_erldp_flags_v5 = -1;
+static int hf_erldp_flags_v6 = -1;
+static int hf_erldp_flags_published = -1;
+static int hf_erldp_flags_atom_cache = -1;
+static int hf_erldp_flags_extended_references = -1;
+static int hf_erldp_flags_dist_monitor = -1;
+static int hf_erldp_flags_fun_tags = -1;
+static int hf_erldp_flags_dist_monitor_name = -1;
+static int hf_erldp_flags_hidden_atom_cache = -1;
+static int hf_erldp_flags_new_fun_tags = -1;
+static int hf_erldp_flags_extended_pids_ports = -1;
+static int hf_erldp_flags_export_ptr_tag = -1;
+static int hf_erldp_flags_bit_binaries = -1;
+static int hf_erldp_flags_new_floats = -1;
+static int hf_erldp_flags_unicode_io = -1;
+static int hf_erldp_flags_dist_hdr_atom_cache = -1;
+static int hf_erldp_flags_small_atom_tags = -1;
+static int hf_erldp_flags_ets_compressed = -1;
+static int hf_erldp_flags_utf8_atoms = -1;
+static int hf_erldp_flags_map_tag = -1;
+static int hf_erldp_flags_big_creation = -1;
+static int hf_erldp_flags_send_sender = -1;
+static int hf_erldp_flags_big_seqtrace_labels = -1;
+static int hf_erldp_flags_pending_connect = -1;
+static int hf_erldp_flags_exit_payload = -1;
+static int hf_erldp_flags_fragments = -1;
+static int hf_erldp_flags_handshake_23 = -1;
+static int hf_erldp_flags_unlink_id = -1;
+static int hf_erldp_flags_reserved = -1;
+static int hf_erldp_flags_spawn = -1;
+static int hf_erldp_flags_name_me = -1;
+static int hf_erldp_flags_v4_nc = -1;
+static int hf_erldp_flags_alias = -1;
+static int hf_erldp_flags_spare = -1;
 static int hf_erldp_creation = -1;
 static int hf_erldp_challenge = -1;
 static int hf_erldp_digest = -1;
@@ -184,6 +217,7 @@ static int hf_etf_arity = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_erldp = -1;
+static gint ett_erldp_flags = -1;
 
 static gint ett_etf = -1;
 static gint ett_etf_flags = -1;
@@ -620,6 +654,42 @@ static void dissect_erldp_handshake(tvbuff_t *tvb, packet_info *pinfo, proto_tre
   guint32 str_len;
   const guint8 *str;
 
+  static int * const erldp_flags_flags[] = {
+    &hf_erldp_flags_spare,
+    &hf_erldp_flags_alias,
+    &hf_erldp_flags_v4_nc,
+    &hf_erldp_flags_name_me,
+    &hf_erldp_flags_spawn,
+    &hf_erldp_flags_reserved,
+    &hf_erldp_flags_unlink_id,
+    &hf_erldp_flags_handshake_23,
+    &hf_erldp_flags_fragments,
+    &hf_erldp_flags_exit_payload,
+    &hf_erldp_flags_pending_connect,
+    &hf_erldp_flags_big_seqtrace_labels,
+    &hf_erldp_flags_send_sender,
+    &hf_erldp_flags_big_creation,
+    &hf_erldp_flags_map_tag,
+    &hf_erldp_flags_utf8_atoms,
+    &hf_erldp_flags_ets_compressed,
+    &hf_erldp_flags_small_atom_tags,
+    &hf_erldp_flags_dist_hdr_atom_cache,
+    &hf_erldp_flags_unicode_io,
+    &hf_erldp_flags_new_floats,
+    &hf_erldp_flags_bit_binaries,
+    &hf_erldp_flags_export_ptr_tag,
+    &hf_erldp_flags_extended_pids_ports,
+    &hf_erldp_flags_new_fun_tags,
+    &hf_erldp_flags_hidden_atom_cache,
+    &hf_erldp_flags_dist_monitor_name,
+    &hf_erldp_flags_fun_tags,
+    &hf_erldp_flags_dist_monitor,
+    &hf_erldp_flags_extended_references,
+    &hf_erldp_flags_atom_cache,
+    &hf_erldp_flags_published,
+    NULL
+  };
+
   proto_tree_add_item(tree, hf_erldp_length_2, tvb, offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
   proto_tree_add_item_ret_uint(tree, hf_erldp_tag, tvb, offset, 1, ENC_ASCII|ENC_NA, &tag);
@@ -629,7 +699,9 @@ static void dissect_erldp_handshake(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     case 'n' :
       proto_tree_add_item(tree, hf_erldp_version, tvb, offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
-      proto_tree_add_item(tree, hf_erldp_flags, tvb, offset, 4, ENC_BIG_ENDIAN);
+
+      proto_tree_add_bitmask(tree, tvb, offset, hf_erldp_flags_v5,
+         ett_erldp_flags, erldp_flags_flags, ENC_BIG_ENDIAN);
       offset += 4;
       if (tvb_bytes_exist(tvb, offset, 4)) {
         if (!tvb_ascii_isprint(tvb, offset, 4)) {
@@ -646,7 +718,8 @@ static void dissect_erldp_handshake(tvbuff_t *tvb, packet_info *pinfo, proto_tre
       break;
 
     case 'N':
-      proto_tree_add_item(tree, hf_erldp_flags, tvb, offset, 8, ENC_BIG_ENDIAN);
+      proto_tree_add_bitmask(tree, tvb, offset, hf_erldp_flags_v6,
+         ett_erldp_flags, erldp_flags_flags, ENC_BIG_ENDIAN);
       offset += 8;
       if (tvb_bytes_exist(tvb, offset + 6, 4)) {
         if (!tvb_ascii_isprint(tvb, offset + 6, 4)) {
@@ -792,9 +865,108 @@ void proto_register_erldp(void) {
     { &hf_erldp_version, { "Version", "erldp.version",
                         FT_UINT16, BASE_DEC, VALS(epmd_version_vals), 0x0,
                         NULL, HFILL}},
-    { &hf_erldp_flags,  { "Flags", "erldp.flags",
+    { &hf_erldp_flags_v5, { "Flags", "erldp.flags_v5",
+                        FT_UINT32, BASE_HEX, NULL, 0x0,
+                        NULL, HFILL}},
+    { &hf_erldp_flags_v6, { "Flags", "erldp.flags_v6",
                         FT_UINT64, BASE_HEX, NULL, 0x0,
                         NULL, HFILL}},
+    { &hf_erldp_flags_published, { "Published", "erldp.flags.published",
+                        FT_BOOLEAN, 64, TFS(&tfs_true_false), 0x1,
+                        NULL, HFILL }},
+    { &hf_erldp_flags_atom_cache, { "Atom Cache", "erldp.flags.atom_cache",
+                        FT_BOOLEAN, 64, TFS(&tfs_true_false), 0x2,
+                        NULL, HFILL }},
+    { &hf_erldp_flags_extended_references, { "Extended References", "erldp.flags.extended_references",
+                        FT_BOOLEAN, 64, TFS(&tfs_true_false), 0x4,
+                        NULL, HFILL }},
+    { &hf_erldp_flags_dist_monitor, { "Dist Monitor", "erldp.flags.dist_monitor",
+                        FT_BOOLEAN, 64, TFS(&tfs_true_false), 0x8,
+                        NULL, HFILL }},
+    { &hf_erldp_flags_fun_tags, { "Fun Tags", "erldp.flags.fun_tags",
+                        FT_BOOLEAN, 64, TFS(&tfs_true_false), 0x10,
+                        NULL, HFILL }},
+    { &hf_erldp_flags_dist_monitor_name, { "Dist Monitor Name", "erldp.flags.dist_monitor_name",
+                        FT_BOOLEAN, 64, TFS(&tfs_true_false), 0x20,
+                        NULL, HFILL }},
+    { &hf_erldp_flags_hidden_atom_cache, { "Hidden Atom Cache", "erldp.flags.hidden_atom_cache",
+                        FT_BOOLEAN, 64, TFS(&tfs_true_false), 0x40,
+                        NULL, HFILL }},
+    { &hf_erldp_flags_new_fun_tags, { "New Fun Tags", "erldp.flags.new_fun_tags",
+                        FT_BOOLEAN, 64, TFS(&tfs_true_false), 0x80,
+                        NULL, HFILL }},
+    { &hf_erldp_flags_extended_pids_ports, { "Extended Pids Ports", "erldp.flags.extended_pids_ports",
+                        FT_BOOLEAN, 64, TFS(&tfs_true_false), 0x100,
+                        NULL, HFILL }},
+    { &hf_erldp_flags_export_ptr_tag, { "Export PTR Tag", "erldp.flags.export_ptr_tag",
+                        FT_BOOLEAN, 64, TFS(&tfs_true_false), 0x200,
+                        NULL, HFILL }},
+    { &hf_erldp_flags_bit_binaries, { "Bit Binaries", "erldp.flags.bit_binaries",
+                        FT_BOOLEAN, 64, TFS(&tfs_true_false), 0x400,
+                        NULL, HFILL }},
+    { &hf_erldp_flags_new_floats, { "New Floats", "erldp.flags.new_floats",
+                        FT_BOOLEAN, 64, TFS(&tfs_true_false), 0x800,
+                        NULL, HFILL }},
+    { &hf_erldp_flags_unicode_io, { "Unicode IO", "erldp.flags.unicode_io",
+                        FT_BOOLEAN, 64, TFS(&tfs_true_false), 0x1000,
+                        NULL, HFILL }},
+    { &hf_erldp_flags_dist_hdr_atom_cache, { "Dist HDR Atom Cache", "erldp.flags.dist_hdr_atom_cache",
+                        FT_BOOLEAN, 64, TFS(&tfs_true_false), 0x2000,
+                        NULL, HFILL }},
+    { &hf_erldp_flags_small_atom_tags, { "Small Atom Tags", "erldp.flags.small_atom_tags",
+                        FT_BOOLEAN, 64, TFS(&tfs_true_false), 0x4000,
+                        NULL, HFILL }},
+    { &hf_erldp_flags_ets_compressed, { "ETS Compressed", "erldp.flags.ets_compressed",
+                        FT_BOOLEAN, 64, TFS(&tfs_true_false), 0x8000,
+                        NULL, HFILL }},
+    { &hf_erldp_flags_utf8_atoms, { "UTF64 Atoms", "erldp.flags.utf8_atoms",
+                        FT_BOOLEAN, 64, TFS(&tfs_true_false), 0x10000,
+                        NULL, HFILL }},
+    { &hf_erldp_flags_map_tag, { "Map Tag", "erldp.flags.map_tag",
+                        FT_BOOLEAN, 64, TFS(&tfs_true_false), 0x20000,
+                        NULL, HFILL }},
+    { &hf_erldp_flags_big_creation, { "Big Creation", "erldp.flags.big_creation",
+                        FT_BOOLEAN, 64, TFS(&tfs_true_false), 0x40000,
+                        NULL, HFILL }},
+    { &hf_erldp_flags_send_sender, { "Send Sender", "erldp.flags.send_sender",
+                        FT_BOOLEAN, 64, TFS(&tfs_true_false), 0x80000,
+                        NULL, HFILL }},
+    { &hf_erldp_flags_big_seqtrace_labels, { "Big Seqtrace Labels", "erldp.flags.big_seqtrace_labels",
+                        FT_BOOLEAN, 64, TFS(&tfs_true_false), 0x100000,
+                        NULL, HFILL }},
+    { &hf_erldp_flags_pending_connect, { "Pending Connect", "erldp.flags.pending_connect",
+                        FT_BOOLEAN, 64, TFS(&tfs_true_false), 0x200000,
+                        NULL, HFILL }},
+    { &hf_erldp_flags_exit_payload, { "Exit Payload", "erldp.flags.exit_payload",
+                        FT_BOOLEAN, 64, TFS(&tfs_true_false), 0x400000,
+                        NULL, HFILL }},
+    { &hf_erldp_flags_fragments, { "Fragments", "erldp.flags.fragments",
+                        FT_BOOLEAN, 64, TFS(&tfs_true_false), 0x800000,
+                        NULL, HFILL }},
+    { &hf_erldp_flags_handshake_23, { "Handshake 23", "erldp.flags.handshake_23",
+                        FT_BOOLEAN, 64, TFS(&tfs_true_false), 0x1000000,
+                        NULL, HFILL }},
+    { &hf_erldp_flags_unlink_id, { "Unlink Id", "erldp.flags.unlink_id",
+                        FT_BOOLEAN, 64, TFS(&tfs_true_false), 0x2000000,
+                        NULL, HFILL }},
+    { &hf_erldp_flags_reserved, { "Reserved", "erldp.flags.reserved",
+                        FT_UINT64, BASE_DEC, NULL, 0xfc000000,
+                        NULL, HFILL }},
+    { &hf_erldp_flags_spawn, { "Spawn", "erldp.flags.spawn",
+                        FT_BOOLEAN, 64, TFS(&tfs_true_false), 1ULL << 32,
+                        NULL, HFILL }},
+    { &hf_erldp_flags_name_me, { "Name ME", "erldp.flags.name_me",
+                        FT_BOOLEAN, 64, TFS(&tfs_true_false), 1ULL << 33,
+                        NULL, HFILL }},
+    { &hf_erldp_flags_v4_nc, { "V4 NC", "erldp.flags.v4_nc",
+                        FT_BOOLEAN, 64, TFS(&tfs_true_false), 1ULL << 34,
+                        NULL, HFILL }},
+    { &hf_erldp_flags_alias, { "Alias", "erldp.flags.alias",
+                        FT_BOOLEAN, 64, TFS(&tfs_true_false), 1ULL << 35,
+                        NULL, HFILL }},
+    { &hf_erldp_flags_spare, { "Spare", "erldp.flags.spare",
+                        FT_UINT64, BASE_DEC, NULL,  ~(0ULL) << 36,
+                        NULL, HFILL }},
     { &hf_erldp_creation, { "Creation", "erldp.creation",
                         FT_UINT32, BASE_DEC, NULL, 0x0,
                         NULL, HFILL}},
@@ -948,6 +1120,7 @@ void proto_register_erldp(void) {
   /* List of subtrees */
   static gint *ett[] = {
     &ett_erldp,
+    &ett_erldp_flags,
     &ett_etf,
     &ett_etf_flags,
     &ett_etf_acrs,
