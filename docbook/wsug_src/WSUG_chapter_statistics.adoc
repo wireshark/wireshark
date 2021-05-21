@@ -820,6 +820,8 @@ Furthermore, statistics for application protocols provided by link:https://www.u
 * Component Status Protocol{nbsp}(CSP)
 * CalcApp Protocol
 * Fractal Generator Protocol
+* Ping Pong Protocol
+* Scripting Service Protocol{nbsp}(SSP)
 
 With these statistics you can:
 
@@ -845,6 +847,12 @@ image::wsug_graphics/ws-calcappprotocol-statistics.png[{screenshot-attrs}]
 
 .Fractal Generator Protocol Statistics window
 image::wsug_graphics/ws-fgp-statistics.png[{screenshot-attrs}]
+
+.Ping Pong Protocol Statistics window
+image::wsug_graphics/ws-pingpongprotocol-statistics.png[{screenshot-attrs}]
+
+.Scripting Service Protocol Statistics window
+image::wsug_graphics/ws-ssp-statistics.png[{screenshot-attrs}]
 
 [[ChStatF5]]
 
