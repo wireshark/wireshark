@@ -978,7 +978,7 @@ zdp_parse_complex_desc(proto_tree *tree, gint ettindex, tvbuff_t *tvb, guint *of
         lang_str[2] = '\0';
 
         g_snprintf(complex, max_len, "<%s>%s, %s</%s>", tag_name[tag_charset], lang_str, charset_str, tag_name[tag_charset]);
-    }                    
+    }
     else if (tag == tag_icon) {
         /* TODO: */
         g_snprintf(complex, max_len, "<%s>FixMe</%s>", tag_name[tag_icon], tag_name[tag_icon]);
@@ -1105,7 +1105,7 @@ dissect_zbee_zdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
             break;
         case ZBEE_ZDP_REQ_STORE_NODE_DESC:
             dissect_zbee_zdp_req_store_node_desc(zdp_tvb, pinfo, zdp_tree, nwk->version);
-            expert_add_info(pinfo, zdp_tree, &ei_deprecated_command);            
+            expert_add_info(pinfo, zdp_tree, &ei_deprecated_command);
             break;
         case ZBEE_ZDP_REQ_STORE_POWER_DESC:
             dissect_zbee_zdp_req_store_power_desc(zdp_tvb, pinfo, zdp_tree);
