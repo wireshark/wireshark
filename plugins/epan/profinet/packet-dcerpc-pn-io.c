@@ -8193,9 +8193,7 @@ dissect_IOCRBlockReq_block(tvbuff_t *tvb, int offset,
                 init_pnio_rtc1_station(station_info);
                 conversation_add_proto_data(conversation, current_aruuid, station_info);
             }
-            else {
-                station_info->ioDataObjectNr = u16NumberOfIODataObjects;
-            }
+            station_info->ioDataObjectNr += u16NumberOfIODataObjects;
 
             pn_find_dcp_station_info(station_info, conversation);
         }
