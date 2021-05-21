@@ -279,11 +279,11 @@ parse_logon_proof(tvbuff_t *tvb, packet_info* pinfo, proto_tree *wow_tree, guint
 	}
 }
 static void
-parse_realm_list_server_to_client(tvbuff_t *tvb, proto_tree *wow_tree, guint32 offset,
-				  proto_tree *wow_realms_tree) {
+parse_realm_list_server_to_client(tvbuff_t *tvb, proto_tree *wow_tree, guint32 offset) {
 	guint8 num_realms, ii;
 	gchar *string, *realm_name;
 	gint len;
+	proto_tree *wow_realms_tree;
 
 	proto_tree_add_item(wow_tree, hf_wow_pkt_size,
 			    tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -549,7 +549,7 @@ static int
 dissect_wow_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_item *ti;
-	proto_tree *wow_tree, *wow_realms_tree;
+	proto_tree *wow_tree;
 
 	guint8 cmd;
 	guint32 offset = 0;
@@ -609,7 +609,7 @@ dissect_wow_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 			if(WOW_CLIENT_TO_SERVER) {
 
 			} else if(WOW_SERVER_TO_CLIENT) {
-				parse_realm_list_server_to_client(tvb, wow_tree, offset, wow_realms_tree);
+				parse_realm_list_server_to_client(tvb, wow_tree, offset);
 
 			}
 
