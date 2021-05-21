@@ -2862,6 +2862,73 @@ static const dgt_set_t Dgt_ansi_tbcd = {
 	}
 };
 
+static guint8 *
+tvb_get_apn_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
+			     gint length)
+{
+	wmem_strbuf_t *str;
+
+	/*
+	 * This is a domain name.
+	 *
+	 * 3GPP TS 23.003, section 19.4.2 "Fully Qualified Domain Names
+	 * (FQDNs)", subsection 19.4.2.1 "General", says:
+	 *
+	 *    The encoding of any identifier used as part of a Fully
+	 *    Qualifed Domain Name (FQDN) shall follow the Name Syntax
+	 *    defined in IETF RFC 2181 [18], IETF RFC 1035 [19] and
+	 *    IETF RFC 1123 [20].  An FQDN consists of one or more
+	 *    labels. Each label is coded as a one octet length field
+	 *    followed by that number of octets coded as 8 bit ASCII
+	 *    characters.
+	 *
+	 * so this does not appear to use full-blown DNS compression -
+	 * the upper 2 bits of the length don't indicate that it's a
+	 * pointer or an extended label (RFC 2673).
+	 */
+	str = wmem_strbuf_sized_new(scope, length + 1, 0);
+	if (length > 0) {
+		const guint8 *ptr;
+
+		ptr = ensure_contiguous(tvb, offset, length);
+
+		for (;;) {
+			guint label_len;
+
+			/*
+			 * Process this label.
+			 */
+			label_len = *ptr;
+			ptr++;
+			length--;
+
+			while (label_len != 0) {
+				guint8 ch;
+
+				if (length == 0)
+					goto end;
+
+				ch = *ptr;
+				if (ch < 0x80)
+					wmem_strbuf_append_c(str, ch);
+				else
+					wmem_strbuf_append_unichar(str, UNREPL);
+				ptr++;
+				label_len--;
+				length--;
+			}
+
+			if (length == 0)
+				goto end;
+
+			wmem_strbuf_append_c(str, '.');
+		}
+	}
+
+end:
+	return (guint8 *) wmem_strbuf_finalize(str);
+}
+
 /*
  * Given a tvbuff, an offset, a length, and an encoding, allocate a
  * buffer big enough to hold a non-null-terminated string of that length
@@ -3087,30 +3154,17 @@ tvb_get_string_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
 	case ENC_ETSI_TS_102_221_ANNEX_A:
 		strptr = tvb_get_etsi_ts_102_221_annex_a_string(scope, tvb, offset, length);
 		break;
+
 	case ENC_GB18030:
 		strptr = tvb_get_gb18030_string(scope, tvb, offset, length);
 		break;
+
 	case ENC_EUC_KR:
 		strptr = tvb_get_euc_kr_string(scope, tvb, offset, length);
 		break;
-	case ENC_APN_STR:
-	{
-		int name_len, tmp;
 
-		if (length > 0) {
-			name_len = tvb_get_guint8(tvb, offset);
-			strptr = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1, length - 1, ENC_ASCII);
-			for (;;) {
-				if (name_len >= length - 1)
-					break;
-				tmp = name_len;
-				name_len = name_len + strptr[tmp] + 1;
-				strptr[tmp] = '.';
-			}
-		} else {
-			strptr = (char*)"";
-		}
-	}
+	case ENC_APN_STR:
+		strptr = tvb_get_apn_string(scope, tvb, offset, length);
 		break;
 	}
 	return strptr;
