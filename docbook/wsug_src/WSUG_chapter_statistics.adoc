@@ -815,6 +815,12 @@ The Reliable Server Pooling (RSerPool) windows show statistics for the different
 * Aggregate Server Access Protocol{nbsp}(ASAP)
 * Endpoint Handlespace Redundancy Protocol{nbsp}(ENRP)
 
+Furthermore, statistics for application protocols provided by link:https://www.uni-due.de/~be0001/rserpool/[RSPLIB] are provided as well:
+
+* Component Status Protocol{nbsp}(CSP)
+* CalcApp Protocol
+* Fractal Generator Protocol
+
 With these statistics you can:
 
 * Observed number of messages and bytes per message type.
@@ -830,6 +836,15 @@ image::wsug_graphics/ws-asap-statistics.png[{screenshot-attrs}]
 
 .ENRP Statistics window
 image::wsug_graphics/ws-enrp-statistics.png[{screenshot-attrs}]
+
+.Component Status Protocol Statistics window
+image::wsug_graphics/ws-csp-statistics.png[{screenshot-attrs}]
+
+.CalcApp Protocol Statistics window
+image::wsug_graphics/ws-calcappprotocol-statistics.png[{screenshot-attrs}]
+
+.Fractal Generator Protocol Statistics window
+image::wsug_graphics/ws-fgp-statistics.png[{screenshot-attrs}]
 
 [[ChStatF5]]
 
