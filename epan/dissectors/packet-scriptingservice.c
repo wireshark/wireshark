@@ -16,15 +16,17 @@
 
 #include <epan/packet.h>
 #include <epan/sctpppids.h>
-
-
-#define SSPROTOCOL_PAYLOAD_PROTOCOL_ID_LEGACY 0x29097604
+#include <epan/stat_tap_ui.h>
 
 void proto_register_ssprotocol(void);
 void proto_reg_handoff_ssprotocol(void);
 
+#define SSPROTOCOL_PAYLOAD_PROTOCOL_ID_LEGACY 0x29097604
+
+
 /* Initialize the protocol and registered fields */
 static int proto_ssprotocol     = -1;
+static int tap_ssprotocol       = -1;
 static int hf_message_type      = -1;
 static int hf_message_flags     = -1;
 static int hf_message_length    = -1;
@@ -34,6 +36,9 @@ static int hf_message_reason    = -1;
 static int hf_message_info      = -1;
 static int hf_message_hash      = -1;
 static int hf_environment_u_bit = -1;
+
+static guint64 ssprotocol_total_msgs  = 0;
+static guint64 ssprotocol_total_bytes = 0;
 
 /* Initialize the subtree pointers */
 static gint ett_ssprotocol        = -1;
@@ -95,24 +100,35 @@ static const true_false_string environment_u_bit = {
 };
 
 
+typedef struct _tap_ssprotocol_rec_t {
+  guint8      type;
+  guint16     size;
+  const char* type_string;
+} tap_ssprotocol_rec_t;
+
+
 static guint
 dissect_ssprotocol_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *ssprotocol_tree)
 {
   proto_item* flags_item;
   proto_tree* flags_tree;
-  guint8      type;
   guint16     data_length;
   guint16     info_length;
   guint       total_length;
 
-  type = tvb_get_guint8(message_tvb, MESSAGE_TYPE_OFFSET);
-  col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(type, message_type_values, "Unknown SSP type: %u"));
+  tap_ssprotocol_rec_t* tap_rec = wmem_new0(wmem_packet_scope(), tap_ssprotocol_rec_t);
+  tap_rec->type        = tvb_get_guint8(message_tvb, MESSAGE_TYPE_OFFSET);
+  tap_rec->size        = tvb_get_ntohs(message_tvb,  MESSAGE_LENGTH_OFFSET);
+  tap_rec->type_string = val_to_str_const(tap_rec->type, message_type_values, "Unknown SSP message type");
+  tap_queue_packet(tap_ssprotocol, pinfo, tap_rec);
+
+  col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", tap_rec->type_string);
 
   proto_tree_add_item(ssprotocol_tree, hf_message_type,   message_tvb, MESSAGE_TYPE_OFFSET,   MESSAGE_TYPE_LENGTH,   ENC_BIG_ENDIAN);
   flags_item = proto_tree_add_item(ssprotocol_tree, hf_message_flags,  message_tvb, MESSAGE_FLAGS_OFFSET,  MESSAGE_FLAGS_LENGTH,  ENC_BIG_ENDIAN);
   proto_tree_add_item(ssprotocol_tree, hf_message_length, message_tvb, MESSAGE_LENGTH_OFFSET, MESSAGE_LENGTH_LENGTH, ENC_BIG_ENDIAN);
   total_length = MESSAGE_LENGTH_OFFSET + MESSAGE_LENGTH_LENGTH;
-  switch (type) {
+  switch (tap_rec->type) {
     case SS_KEEPALIVE_ACK_TYPE:
     case SS_STATUS_TYPE:
       info_length = tvb_get_ntohs(message_tvb, MESSAGE_LENGTH_OFFSET) - MESSAGE_STATUS_OFFSET;
@@ -174,6 +190,229 @@ dissect_ssprotocol(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree, 
 }
 
 
+/* TAP STAT INFO */
+typedef enum
+{
+  MESSAGE_TYPE_COLUMN = 0,
+  MESSAGES_COLUMN,
+  MESSAGES_SHARE_COLUMN,
+  BYTES_COLUMN,
+  BYTES_SHARE_COLUMN,
+  FIRST_SEEN_COLUMN,
+  LAST_SEEN_COLUMN,
+  INTERVAL_COLUMN,
+  MESSAGE_RATE_COLUMN,
+  BYTE_RATE_COLUMN
+} ssprotocol_stat_columns;
+
+static stat_tap_table_item ssprotocol_stat_fields[] = {
+  { TABLE_ITEM_STRING, TAP_ALIGN_LEFT,  "ScriptingServiceProtocol Message Type", "%-25s" },
+  { TABLE_ITEM_UINT,   TAP_ALIGN_RIGHT, "Messages ",            "%u"       },
+  { TABLE_ITEM_UINT,   TAP_ALIGN_RIGHT, "Messages Share (%)"  , "%1.3f %%" },
+  { TABLE_ITEM_UINT,   TAP_ALIGN_RIGHT, "Bytes (B)",            "%u"       },
+  { TABLE_ITEM_UINT,   TAP_ALIGN_RIGHT, "Bytes Share (%) ",     "%1.3f %%" },
+  { TABLE_ITEM_FLOAT,  TAP_ALIGN_LEFT,  "First Seen (s)",       "%1.6f"    },
+  { TABLE_ITEM_FLOAT,  TAP_ALIGN_LEFT,  "Last Seen (s)",        "%1.6f"    },
+  { TABLE_ITEM_FLOAT,  TAP_ALIGN_LEFT,  "Interval (s)",         "%1.6f"    },
+  { TABLE_ITEM_FLOAT,  TAP_ALIGN_LEFT,  "Message Rate (Msg/s)", "%1.2f"    },
+  { TABLE_ITEM_FLOAT,  TAP_ALIGN_LEFT,  "Byte Rate (B/s)",      "%1.2f"    }
+};
+
+static void ssprotocol_stat_init(stat_tap_table_ui* new_stat)
+{
+  const char *table_name = "ScriptingServiceProtocol Statistics";
+  int num_fields = sizeof(ssprotocol_stat_fields)/sizeof(stat_tap_table_item);
+  stat_tap_table *table;
+  int i = 0;
+  stat_tap_table_item_type items[sizeof(ssprotocol_stat_fields)/sizeof(stat_tap_table_item)];
+
+  table = stat_tap_find_table(new_stat, table_name);
+  if (table) {
+    if (new_stat->stat_tap_reset_table_cb) {
+      new_stat->stat_tap_reset_table_cb(table);
+    }
+    return;
+  }
+
+  table = stat_tap_init_table(table_name, num_fields, 0, NULL);
+  stat_tap_add_table(new_stat, table);
+
+  /* Add a row for each value type */
+  while (message_type_values[i].strptr) {
+    items[MESSAGE_TYPE_COLUMN].type                = TABLE_ITEM_STRING;
+    items[MESSAGE_TYPE_COLUMN].value.string_value  = message_type_values[i].strptr;
+    items[MESSAGES_COLUMN].type                    = TABLE_ITEM_UINT;
+    items[MESSAGES_COLUMN].value.uint_value        = 0;
+    items[MESSAGES_SHARE_COLUMN].type              = TABLE_ITEM_NONE;
+    items[MESSAGES_SHARE_COLUMN].value.float_value = -1.0;
+    items[BYTES_COLUMN].type                       = TABLE_ITEM_UINT;
+    items[BYTES_COLUMN].value.uint_value           = 0;
+    items[BYTES_SHARE_COLUMN].type                 = TABLE_ITEM_NONE;
+    items[BYTES_SHARE_COLUMN].value.float_value    = -1.0;
+    items[FIRST_SEEN_COLUMN].type                  = TABLE_ITEM_NONE;
+    items[FIRST_SEEN_COLUMN].value.float_value     = DBL_MAX;
+    items[LAST_SEEN_COLUMN].type                   = TABLE_ITEM_NONE;
+    items[LAST_SEEN_COLUMN].value.float_value      = DBL_MIN;
+    items[INTERVAL_COLUMN].type                    = TABLE_ITEM_NONE;
+    items[INTERVAL_COLUMN].value.float_value       = -1.0;
+    items[MESSAGE_RATE_COLUMN].type                = TABLE_ITEM_NONE;
+    items[MESSAGE_RATE_COLUMN].value.float_value   = -1.0;
+    items[BYTE_RATE_COLUMN].type                   = TABLE_ITEM_NONE;
+    items[BYTE_RATE_COLUMN].value.float_value      = -1.0;
+    stat_tap_init_table_row(table, i, num_fields, items);
+    i++;
+  }
+}
+
+static tap_packet_status
+ssprotocol_stat_packet(void* tapdata, packet_info* pinfo _U_, epan_dissect_t* edt _U_, const void* data)
+{
+  stat_data_t*                stat_data = (stat_data_t*)tapdata;
+  const tap_ssprotocol_rec_t* tap_rec   = (const tap_ssprotocol_rec_t*)data;
+  stat_tap_table*             table;
+  stat_tap_table_item_type*   msg_data;
+  gint                        idx;
+  guint64                     messages;
+  guint64                     bytes;
+  int                         i         = 0;
+  double                      firstSeen = -1.0;
+  double                      lastSeen  = -1.0;
+
+  idx = str_to_val_idx(tap_rec->type_string, message_type_values);
+  if (idx < 0)
+    return TAP_PACKET_DONT_REDRAW;
+
+  table = g_array_index(stat_data->stat_tap_data->tables, stat_tap_table*, 0);
+
+  /* Update packets counter */
+  ssprotocol_total_msgs++;
+  msg_data = stat_tap_get_field_data(table, idx, MESSAGES_COLUMN);
+  msg_data->value.uint_value++;
+  messages = msg_data->value.uint_value;
+  stat_tap_set_field_data(table, idx, MESSAGES_COLUMN, msg_data);
+
+  /* Update bytes counter */
+  ssprotocol_total_bytes += tap_rec->size;
+  msg_data = stat_tap_get_field_data(table, idx, BYTES_COLUMN);
+  msg_data->value.uint_value += tap_rec->size;
+  bytes = msg_data->value.uint_value;
+  stat_tap_set_field_data(table, idx, BYTES_COLUMN, msg_data);
+
+  /* Update messages and bytes share */
+  while (message_type_values[i].strptr) {
+    msg_data = stat_tap_get_field_data(table, i, MESSAGES_COLUMN);
+    const guint m = msg_data->value.uint_value;
+    msg_data = stat_tap_get_field_data(table, i, BYTES_COLUMN);
+    const guint b = msg_data->value.uint_value;
+
+    msg_data = stat_tap_get_field_data(table, i, MESSAGES_SHARE_COLUMN);
+    msg_data->type = TABLE_ITEM_FLOAT;
+    msg_data->value.float_value = 100.0 * m / (double)ssprotocol_total_msgs;
+    stat_tap_set_field_data(table, i, MESSAGES_SHARE_COLUMN, msg_data);
+
+    msg_data = stat_tap_get_field_data(table, i, BYTES_SHARE_COLUMN);
+    msg_data->type = TABLE_ITEM_FLOAT;
+    msg_data->value.float_value = 100.0 * b / (double)ssprotocol_total_bytes;
+    stat_tap_set_field_data(table, i, BYTES_SHARE_COLUMN, msg_data);
+    i++;
+  }
+
+  /* Update first seen time */
+  if (pinfo->presence_flags & PINFO_HAS_TS) {
+    msg_data = stat_tap_get_field_data(table, idx, FIRST_SEEN_COLUMN);
+    msg_data->type = TABLE_ITEM_FLOAT;
+    msg_data->value.float_value = MIN(msg_data->value.float_value, nstime_to_sec(&pinfo->rel_ts));
+    firstSeen = msg_data->value.float_value;
+    stat_tap_set_field_data(table, idx, FIRST_SEEN_COLUMN, msg_data);
+  }
+
+  /* Update last seen time */
+  if (pinfo->presence_flags & PINFO_HAS_TS) {
+    msg_data = stat_tap_get_field_data(table, idx, LAST_SEEN_COLUMN);
+    msg_data->type = TABLE_ITEM_FLOAT;
+    msg_data->value.float_value = MAX(msg_data->value.float_value, nstime_to_sec(&pinfo->rel_ts));
+    lastSeen = msg_data->value.float_value;
+    stat_tap_set_field_data(table, idx, LAST_SEEN_COLUMN, msg_data);
+  }
+
+  if ((lastSeen - firstSeen) > 0.0) {
+    /* Update interval */
+    msg_data = stat_tap_get_field_data(table, idx, INTERVAL_COLUMN);
+    msg_data->type = TABLE_ITEM_FLOAT;
+    msg_data->value.float_value = lastSeen - firstSeen;
+    stat_tap_set_field_data(table, idx, INTERVAL_COLUMN, msg_data);
+
+    /* Update message rate */
+    msg_data = stat_tap_get_field_data(table, idx, MESSAGE_RATE_COLUMN);
+    msg_data->type = TABLE_ITEM_FLOAT;
+    msg_data->value.float_value = messages / (lastSeen - firstSeen);
+    stat_tap_set_field_data(table, idx, MESSAGE_RATE_COLUMN, msg_data);
+
+    /* Update byte rate */
+    msg_data = stat_tap_get_field_data(table, idx, BYTE_RATE_COLUMN);
+    msg_data->type = TABLE_ITEM_FLOAT;
+    msg_data->value.float_value = bytes / (lastSeen - firstSeen);
+    stat_tap_set_field_data(table, idx, BYTE_RATE_COLUMN, msg_data);
+  }
+
+  return TAP_PACKET_REDRAW;
+}
+
+static void
+ssprotocol_stat_reset(stat_tap_table* table)
+{
+  guint element;
+  stat_tap_table_item_type* item_data;
+
+  for (element = 0; element < table->num_elements; element++) {
+    item_data = stat_tap_get_field_data(table, element, MESSAGES_COLUMN);
+    item_data->value.uint_value = 0;
+    stat_tap_set_field_data(table, element, MESSAGES_COLUMN, item_data);
+
+    item_data = stat_tap_get_field_data(table, element, MESSAGES_SHARE_COLUMN);
+    item_data->type = TABLE_ITEM_NONE;
+    item_data->value.float_value = -1.0;
+    stat_tap_set_field_data(table, element, MESSAGES_SHARE_COLUMN, item_data);
+
+    item_data = stat_tap_get_field_data(table, element, BYTES_COLUMN);
+    item_data->value.uint_value = 0;
+    stat_tap_set_field_data(table, element, BYTES_COLUMN, item_data);
+
+    item_data = stat_tap_get_field_data(table, element, BYTES_SHARE_COLUMN);
+    item_data->type = TABLE_ITEM_NONE;
+    item_data->value.float_value = -1.0;
+    stat_tap_set_field_data(table, element, BYTES_SHARE_COLUMN, item_data);
+
+    item_data = stat_tap_get_field_data(table, element, FIRST_SEEN_COLUMN);
+    item_data->type = TABLE_ITEM_NONE;
+    item_data->value.float_value = DBL_MAX;
+    stat_tap_set_field_data(table, element, FIRST_SEEN_COLUMN, item_data);
+
+    item_data = stat_tap_get_field_data(table, element, LAST_SEEN_COLUMN);
+    item_data->type = TABLE_ITEM_NONE;
+    item_data->value.float_value = DBL_MIN;
+    stat_tap_set_field_data(table, element, LAST_SEEN_COLUMN, item_data);
+
+    item_data = stat_tap_get_field_data(table, element, INTERVAL_COLUMN);
+    item_data->type = TABLE_ITEM_NONE;
+    item_data->value.float_value = -1.0;
+    stat_tap_set_field_data(table, element, INTERVAL_COLUMN, item_data);
+
+    item_data = stat_tap_get_field_data(table, element, MESSAGE_RATE_COLUMN);
+    item_data->type = TABLE_ITEM_NONE;
+    item_data->value.float_value = -1.0;
+    stat_tap_set_field_data(table, element, MESSAGE_RATE_COLUMN, item_data);
+
+    item_data = stat_tap_get_field_data(table, element, BYTE_RATE_COLUMN);
+    item_data->type = TABLE_ITEM_NONE;
+    item_data->value.float_value = -1.0;
+    stat_tap_set_field_data(table, element, BYTE_RATE_COLUMN, item_data);
+  }
+  ssprotocol_total_msgs  = 0;
+  ssprotocol_total_bytes = 0;
+}
+
+
 /* Register the protocol */
 void
 proto_register_ssprotocol(void)
@@ -198,12 +437,35 @@ proto_register_ssprotocol(void)
     &ett_environment_flags
   };
 
+  static tap_param ssprotocol_stat_params[] = {
+    { PARAM_FILTER, "filter", "Filter", NULL, TRUE }
+  };
+
+  static stat_tap_table_ui ssprotocol_stat_table = {
+    REGISTER_STAT_GROUP_RSERPOOL,
+    "ScriptingServiceProtocol Statistics",
+    "ssprotocol",
+    "ssprotocol,stat",
+    ssprotocol_stat_init,
+    ssprotocol_stat_packet,
+    ssprotocol_stat_reset,
+    NULL,
+    NULL,
+    sizeof(ssprotocol_stat_fields)/sizeof(stat_tap_table_item), ssprotocol_stat_fields,
+    sizeof(ssprotocol_stat_params)/sizeof(tap_param), ssprotocol_stat_params,
+    NULL,
+    0
+  };
+
   /* Register the protocol name and description */
   proto_ssprotocol = proto_register_protocol("Scripting Service Protocol", "SSP", "ssp");
 
   /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_ssprotocol, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  tap_ssprotocol = register_tap("ssprotocol");
+
+  register_stat_tap_table_ui(&ssprotocol_stat_table);
 }
 
 void
