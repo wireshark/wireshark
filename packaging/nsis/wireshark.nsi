@@ -861,7 +861,7 @@ CreateDirectory $INSTDIR\extcap
 ; install the protobuf .proto definitions in the protobuf subdirectory
 ;
 SetOutPath $INSTDIR\protobuf
-File "${STAGING_DIR}\protobuf\sparkplug_b.proto"
+File "${STAGING_DIR}\protobuf\*.proto"
 
 ; Install the TPNCP DAT file in the "tpncp" subdirectory
 ; of the installation directory.
