@@ -939,11 +939,13 @@ load_all_files_in_dir(PbwDescriptorPool* pool, const gchar* dir_path)
                 dot = strrchr(name, '.');
                 if (dot && g_ascii_strcasecmp(dot + 1, "proto") == 0) {
                     /* Note: pbw_load_proto_file support absolute or relative (to one of search paths) path */
-                    if (pbw_load_proto_file(pool, path)) {
+                    if (pbw_load_proto_file(pool, path) != 0) {
+                        g_free(path);
                         return FALSE;
                     }
                 } else {
                     if (!load_all_files_in_dir(pool, path)) {
+                        g_free(path);
                         return FALSE;
                     }
                 }
