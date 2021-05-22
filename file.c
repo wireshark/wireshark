@@ -4879,11 +4879,12 @@ cf_export_specified_packets(capture_file *cf, const char *fname,
     break;
 
   case PSP_FAILED:
-    /* Error while saving.
-       If we're writing to a temporary file, remove it. */
-    if (fname_new != NULL)
-      ws_unlink(fname_new);
+    /* Error while saving. */
     wtap_dump_close(pdh, &err, &err_info);
+    /*
+     * We don't report any error from closing; the error that caused
+     * process_specified_records() to fail has already been reported.
+     */
     goto fail;
   }
 
