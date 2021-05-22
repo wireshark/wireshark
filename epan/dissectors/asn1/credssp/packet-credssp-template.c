@@ -37,6 +37,8 @@ static int proto_credssp = -1;
 /* List of dissectors to call for negoToken data */
 static heur_dissector_list_t credssp_heur_subdissector_list;
 
+static dissector_handle_t gssapi_handle;
+
 static int hf_credssp_TSPasswordCreds = -1;   /* TSPasswordCreds */
 static int hf_credssp_TSSmartCardCreds = -1;  /* TSSmartCardCreds */
 static int hf_credssp_TSCredentials = -1;     /* TSCredentials */
@@ -160,6 +162,8 @@ void proto_register_credssp(void) {
 
 /*--- proto_reg_handoff_credssp --- */
 void proto_reg_handoff_credssp(void) {
+
+  gssapi_handle = find_dissector_add_dependency("gssapi", proto_credssp);
 
   heur_dissector_add("tls", dissect_credssp_heur, "CredSSP over TLS", "credssp_tls", proto_credssp, HEURISTIC_ENABLE);
   heur_dissector_add("rdp", dissect_credssp_heur, "CredSSP in TPKT", "credssp_tpkt", proto_credssp, HEURISTIC_ENABLE);

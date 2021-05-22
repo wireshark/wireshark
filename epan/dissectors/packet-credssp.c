@@ -45,6 +45,8 @@ static int proto_credssp = -1;
 /* List of dissectors to call for negoToken data */
 static heur_dissector_list_t credssp_heur_subdissector_list;
 
+static dissector_handle_t gssapi_handle;
+
 static int hf_credssp_TSPasswordCreds = -1;   /* TSPasswordCreds */
 static int hf_credssp_TSSmartCardCreds = -1;  /* TSSmartCardCreds */
 static int hf_credssp_TSCredentials = -1;     /* TSCredentials */
@@ -76,7 +78,7 @@ static int hf_credssp_errorCode = -1;             /* T_errorCode */
 static int hf_credssp_clientNonce = -1;           /* T_clientNonce */
 
 /*--- End of included file: packet-credssp-hf.c ---*/
-#line 44 "./asn1/credssp/packet-credssp-template.c"
+#line 46 "./asn1/credssp/packet-credssp-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_credssp = -1;
@@ -92,7 +94,7 @@ static gint ett_credssp_TSCredentials = -1;
 static gint ett_credssp_TSRequest = -1;
 
 /*--- End of included file: packet-credssp-ett.c ---*/
-#line 48 "./asn1/credssp/packet-credssp-template.c"
+#line 50 "./asn1/credssp/packet-credssp-template.c"
 
 
 /*--- Included file: packet-credssp-fn.c ---*/
@@ -103,15 +105,13 @@ static int
 dissect_credssp_T_negoToken(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 64 "./asn1/credssp/credssp.cnf"
 	tvbuff_t *token_tvb = NULL;
-	heur_dtbl_entry_t *hdtbl_entry;
 
 	  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &token_tvb);
 
 
 	if(token_tvb != NULL)
-		      dissector_try_heuristic(credssp_heur_subdissector_list,
-		      token_tvb, actx->pinfo, proto_tree_get_root(tree), &hdtbl_entry, NULL);
+		call_dissector(gssapi_handle, token_tvb, actx->pinfo, tree);
 
 
 
@@ -375,7 +375,7 @@ static int dissect_TSRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
 
 
 /*--- End of included file: packet-credssp-fn.c ---*/
-#line 50 "./asn1/credssp/packet-credssp-template.c"
+#line 52 "./asn1/credssp/packet-credssp-template.c"
 
 /*
 * Dissect CredSSP PDUs
@@ -560,7 +560,7 @@ void proto_register_credssp(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-credssp-hfarr.c ---*/
-#line 138 "./asn1/credssp/packet-credssp-template.c"
+#line 140 "./asn1/credssp/packet-credssp-template.c"
   };
 
   /* List of subtrees */
@@ -578,7 +578,7 @@ void proto_register_credssp(void) {
     &ett_credssp_TSRequest,
 
 /*--- End of included file: packet-credssp-ettarr.c ---*/
-#line 144 "./asn1/credssp/packet-credssp-template.c"
+#line 146 "./asn1/credssp/packet-credssp-template.c"
   };
 
 
@@ -598,6 +598,8 @@ void proto_register_credssp(void) {
 
 /*--- proto_reg_handoff_credssp --- */
 void proto_reg_handoff_credssp(void) {
+
+  gssapi_handle = find_dissector_add_dependency("gssapi", proto_credssp);
 
   heur_dissector_add("tls", dissect_credssp_heur, "CredSSP over TLS", "credssp_tls", proto_credssp, HEURISTIC_ENABLE);
   heur_dissector_add("rdp", dissect_credssp_heur, "CredSSP in TPKT", "credssp_tpkt", proto_credssp, HEURISTIC_ENABLE);

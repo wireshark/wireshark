@@ -2432,18 +2432,6 @@ dissect_ntlmssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
   return tvb_captured_length(tvb);
 }
 
-static gboolean
-dissect_ntlmssp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
-{
-  if (tvb_memeql(tvb, 0, "NTLMSSP", 8) == 0) {
-    dissect_ntlmssp(tvb, pinfo, parent_tree, data);
-    return TRUE;
-  }
-
-  return FALSE;
-}
-
-
 /*
  * See page 45 of "DCE/RPC over SMB" by Luke Kenneth Casson Leighton.
  */
@@ -3504,8 +3492,6 @@ proto_reg_handoff_ntlmssp(void)
                                     DCE_C_RPC_AUTHN_PROTOCOL_NTLMSSP,
                                     &ntlmssp_seal_fns);
   ntlmssp_tap = register_tap("ntlmssp");
-
-  heur_dissector_add("credssp", dissect_ntlmssp_heur, "NTLMSSP over CredSSP", "ntlmssp_credssp", proto_ntlmssp, HEURISTIC_ENABLE);
 
 }
 
