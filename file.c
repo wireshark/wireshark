@@ -4867,8 +4867,10 @@ cf_export_specified_packets(capture_file *cf, const char *fname,
          XXX - should we do so even if we're not writing to a
          temporary file? */
       wtap_dump_close(pdh, &err);
-      if (fname_new != NULL)
+      if (fname_new != NULL) {
         ws_unlink(fname_new);
+        g_free(fname_new);
+      }
       return CF_WRITE_ABORTED;
     break;
 
