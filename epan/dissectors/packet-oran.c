@@ -352,6 +352,9 @@ static const range_string udCompParams[] = {
 };
 #endif
 
+static void write_pdu_label_and_info(proto_item *ti1, proto_item *ti2,
+    packet_info *pinfo, const char *format, ...) G_GNUC_PRINTF(4, 5);
+
  /* Write the given formatted text to:
     - the info column (if pinfo != NULL)
     - 1 or 2 other labels (optional)
@@ -360,7 +363,7 @@ static void write_pdu_label_and_info(proto_item *ti1, proto_item *ti2,
     packet_info *pinfo, const char *format, ...)
 {
 #define MAX_INFO_BUFFER 256
-    static char info_buffer[MAX_INFO_BUFFER];
+    char info_buffer[MAX_INFO_BUFFER];
     va_list ap;
 
     if ((ti1 == NULL) && (ti2 == NULL) && (pinfo == NULL)) {
@@ -388,7 +391,7 @@ write_section_info(proto_item *section_heading, packet_info *pinfo, proto_item *
 {
     switch (num_prbx) {
     case 0:
-        write_pdu_label_and_info(section_heading, protocol_item, pinfo, ", Id: %d (all PRBs");
+        write_pdu_label_and_info(section_heading, protocol_item, pinfo, ", Id: %d (all PRBs", section_id);
         break;
     case 1:
         write_pdu_label_and_info(section_heading, protocol_item, pinfo, ", Id: %d (PRB: %d)", section_id, start_prbx);
