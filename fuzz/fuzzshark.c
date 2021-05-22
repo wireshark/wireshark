@@ -250,8 +250,10 @@ fuzz_init(int argc _U_, char **argv)
 	 * Attempt to get the pathname of the executable file.
 	 */
 	init_progfile_dir_error = init_progfile_dir(argv[0]);
-	if (init_progfile_dir_error != NULL)
+	if (init_progfile_dir_error != NULL) {
 		fprintf(stderr, "fuzzshark: Can't get pathname of oss-fuzzshark program: %s.\n", init_progfile_dir_error);
+		g_free(init_progfile_dir_error);
+	}
 
 	/* Initialize the version information. */
 	ws_init_version_info("OSS Fuzzshark (Wireshark)", NULL,
