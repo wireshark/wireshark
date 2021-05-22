@@ -35,6 +35,8 @@ MESSAGE-TYPE ::= INTEGER {
 	krb-tgs-rep(13), -- Response to KRB_TGS_REQ request
 	krb-ap-req(14), -- application request to server
 	krb-ap-rep(15), -- Response to KRB_AP_REQ_MUTUAL
+	krb-tgt-req(16), -- TGT-REQ used in U2U
+	krb-tgt-rep(17), -- TGT-REP used in U2U
 	krb-safe(20), -- Safe (checksummed) application message
 	krb-priv(21), -- Private (encrypted) application message
 	krb-cred(22), -- Private (encrypted) message to forward credentials

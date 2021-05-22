@@ -2449,6 +2449,8 @@ decrypt_krb5_krb_cfx_dce(proto_tree *tree _U_,
 #define KRB5_MSG_TGS_REP		13	/* TGS-REP type */
 #define KRB5_MSG_AP_REQ			14	/* AP-REQ type */
 #define KRB5_MSG_AP_REP			15	/* AP-REP type */
+#define KRB5_MSG_TGT_REQ		16	/* TGT-REQ type */
+#define KRB5_MSG_TGT_REP		17	/* TGT-REP type */
 
 #define KRB5_MSG_SAFE			20	/* KRB-SAFE type */
 #define KRB5_MSG_PRIV			21	/* KRB-PRIV type */
@@ -2679,6 +2681,8 @@ static const value_string krb5_msg_types[] = {
 	{ KRB5_MSG_AS_REP,		"AS-REP" },
 	{ KRB5_MSG_AP_REQ,		"AP-REQ" },
 	{ KRB5_MSG_AP_REP,		"AP-REP" },
+	{ KRB5_MSG_TGT_REQ,		"TGT-REQ" },
+	{ KRB5_MSG_TGT_REP,		"TGT-REP" },
 	{ KRB5_MSG_SAFE,		"KRB-SAFE" },
 	{ KRB5_MSG_PRIV,		"KRB-PRIV" },
 	{ KRB5_MSG_CRED,		"KRB-CRED" },

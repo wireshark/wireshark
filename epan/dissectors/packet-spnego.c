@@ -560,6 +560,8 @@ dissect_spnego_InitialContextToken(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 #define KRB_TOKEN_GETMIC              0x0101
 #define KRB_TOKEN_WRAP                0x0102
 #define KRB_TOKEN_DELETE_SEC_CONTEXT  0x0201
+#define KRB_TOKEN_TGT_REQ             0x0004
+#define KRB_TOKEN_TGT_REP             0x0104
 #define KRB_TOKEN_CFX_GETMIC          0x0404
 #define KRB_TOKEN_CFX_WRAP            0x0405
 
@@ -570,6 +572,8 @@ static const value_string spnego_krb5_tok_id_vals[] = {
   { KRB_TOKEN_GETMIC,             "KRB5_GSS_GetMIC" },
   { KRB_TOKEN_WRAP,               "KRB5_GSS_Wrap" },
   { KRB_TOKEN_DELETE_SEC_CONTEXT, "KRB5_GSS_Delete_sec_context" },
+  { KRB_TOKEN_TGT_REQ,            "KERB_TGT_REQUEST" },
+  { KRB_TOKEN_TGT_REP,            "KERB_TGT_REPLY" },
   { KRB_TOKEN_CFX_GETMIC,         "KRB_TOKEN_CFX_GetMic" },
   { KRB_TOKEN_CFX_WRAP,            "KRB_TOKEN_CFX_WRAP" },
   { 0, NULL}
@@ -715,6 +719,13 @@ dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
   }
 
   switch (token_id) {
+
+    case KRB_TOKEN_TGT_REQ:
+       offset = dissect_kerberos_TGT_REQ(FALSE, tvb, offset, &asn1_ctx, subtree, -1);
+       break;
+    case KRB_TOKEN_TGT_REP:
+       offset = dissect_kerberos_TGT_REP(FALSE, tvb, offset, &asn1_ctx, subtree, -1);
+       break;
 
     case KRB_TOKEN_AP_REQ:
     case KRB_TOKEN_AP_REP:
@@ -1928,7 +1939,7 @@ void proto_register_spnego(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-spnego-hfarr.c ---*/
-#line 1383 "./asn1/spnego/packet-spnego-template.c"
+#line 1394 "./asn1/spnego/packet-spnego-template.c"
   };
 
   /* List of subtrees */
@@ -1951,7 +1962,7 @@ void proto_register_spnego(void) {
     &ett_spnego_InitialContextToken_U,
 
 /*--- End of included file: packet-spnego-ettarr.c ---*/
-#line 1393 "./asn1/spnego/packet-spnego-template.c"
+#line 1404 "./asn1/spnego/packet-spnego-template.c"
   };
 
   static ei_register_info ei[] = {

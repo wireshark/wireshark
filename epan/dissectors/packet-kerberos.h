@@ -157,6 +157,8 @@ extern gboolean krb_decrypt;
 #define KERBEROS_APPLICATIONS_ENCKRBPRIVPART  28
 #define KERBEROS_APPLICATIONS_ENCKRBCREDPART  29
 #define KERBEROS_APPLICATIONS_KRB_ERROR  30
+int dissect_kerberos_TGT_REQ(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+int dissect_kerberos_TGT_REP(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 int dissect_kerberos_ChangePasswdData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
 /*--- End of included file: packet-kerberos-exp.h ---*/

@@ -500,4 +500,17 @@ AD-AND-OR               ::= SEQUENCE {
 
 AD-MANDATORY-FOR-KDC    ::= AuthorizationData
 
+TGT-REQ                 ::= SEQUENCE {
+        pvno            [0] INTEGER (5),
+        msg-type        [1] MESSAGE-TYPE (16),
+        server-name     [2] PrincipalName OPTIONAL,
+        realm           [3] Realm OPTIONAL
+}
+
+TGT-REP                 ::= SEQUENCE {
+        pvno            [0] INTEGER (5),
+        msg-type        [1] MESSAGE-TYPE (17),
+        ticket          [2] Ticket
+}
+
 END

@@ -5,6 +5,8 @@
 #.EXPORTS
 ChangePasswdData
 Applications ONLY_ENUM
+TGT-REQ
+TGT-REP
 
 #.FIELD_RENAME
 Authenticator/_untag/subkey authenticator_subkey
