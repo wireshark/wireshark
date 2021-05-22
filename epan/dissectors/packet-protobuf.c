@@ -941,11 +941,13 @@ load_all_files_in_dir(PbwDescriptorPool* pool, const gchar* dir_path)
                     /* Note: pbw_load_proto_file support absolute or relative (to one of search paths) path */
                     if (pbw_load_proto_file(pool, path) != 0) {
                         g_free(path);
+                        ws_dir_close(dir);
                         return FALSE;
                     }
                 } else {
                     if (!load_all_files_in_dir(pool, path)) {
                         g_free(path);
+                        ws_dir_close(dir);
                         return FALSE;
                     }
                 }
