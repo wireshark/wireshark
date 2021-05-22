@@ -45,6 +45,7 @@ static dissector_handle_t gssapi_wrap_handle;
 static int hf_credssp_TSPasswordCreds = -1;   /* TSPasswordCreds */
 static int hf_credssp_TSSmartCardCreds = -1;  /* TSSmartCardCreds */
 static int hf_credssp_TSCredentials = -1;     /* TSCredentials */
+static int hf_credssp_decr_PublicKeyAuth = -1;/* decr_PublicKeyAuth */
 #include "packet-credssp-hf.c"
 
 /* Initialize the subtree pointers */
@@ -138,6 +139,10 @@ void proto_register_credssp(void) {
     { &hf_credssp_TSCredentials,
       { "TSCredentials", "credssp.TSCredentials",
         FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_credssp_decr_PublicKeyAuth,
+      { "Decrypted PublicKeyAuth (sha256)", "credssp.decr_PublicKeyAuth",
+        FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
 #include "packet-credssp-hfarr.c"
   };
