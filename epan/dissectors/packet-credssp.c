@@ -25,6 +25,8 @@
 #include <epan/exported_pdu.h>
 
 #include "packet-ber.h"
+#include "packet-dcerpc.h"
+#include "packet-gssapi.h"
 #include "packet-credssp.h"
 
 
@@ -46,6 +48,7 @@ static int proto_credssp = -1;
 static heur_dissector_list_t credssp_heur_subdissector_list;
 
 static dissector_handle_t gssapi_handle;
+static dissector_handle_t gssapi_wrap_handle;
 
 static int hf_credssp_TSPasswordCreds = -1;   /* TSPasswordCreds */
 static int hf_credssp_TSSmartCardCreds = -1;  /* TSSmartCardCreds */
@@ -78,7 +81,7 @@ static int hf_credssp_errorCode = -1;             /* T_errorCode */
 static int hf_credssp_clientNonce = -1;           /* T_clientNonce */
 
 /*--- End of included file: packet-credssp-hf.c ---*/
-#line 46 "./asn1/credssp/packet-credssp-template.c"
+#line 49 "./asn1/credssp/packet-credssp-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_credssp = -1;
@@ -94,7 +97,7 @@ static gint ett_credssp_TSCredentials = -1;
 static gint ett_credssp_TSRequest = -1;
 
 /*--- End of included file: packet-credssp-ett.c ---*/
-#line 50 "./asn1/credssp/packet-credssp-template.c"
+#line 53 "./asn1/credssp/packet-credssp-template.c"
 
 
 /*--- Included file: packet-credssp-fn.c ---*/
@@ -231,25 +234,20 @@ dissect_credssp_T_credType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 static int
 dissect_credssp_T_credentials(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 42 "./asn1/credssp/credssp.cnf"
+#line 47 "./asn1/credssp/credssp.cnf"
 	tvbuff_t *creds_tvb = NULL;
-	tvbuff_t *decr_tvb = NULL;
 
 	  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &creds_tvb);
 
 
-	if((decr_tvb != NULL) &&
-	((creds_type == TS_PASSWORD_CREDS) || (creds_type == TS_SMARTCARD_CREDS))) {
-
-		      switch(creds_type) {
-		      case TS_PASSWORD_CREDS:
-		    offset = dissect_credssp_TSPasswordCreds(FALSE, decr_tvb, 0, actx, tree, hf_credssp_TSPasswordCreds);
-		    	   break;
-			   case TS_SMARTCARD_CREDS:
-		    offset = dissect_credssp_TSSmartCardCreds(FALSE, decr_tvb, 0, actx, tree, hf_credssp_TSSmartCardCreds);
-		    	   break;
-		   }
+	switch(creds_type) {
+	case TS_PASSWORD_CREDS:
+		dissect_credssp_TSPasswordCreds(FALSE, creds_tvb, 0, actx, tree, hf_credssp_TSPasswordCreds);
+		break;
+	case TS_SMARTCARD_CREDS:
+		dissect_credssp_TSSmartCardCreds(FALSE, creds_tvb, 0, actx, tree, hf_credssp_TSSmartCardCreds);
+		break;
 	}
 
 
@@ -287,16 +285,22 @@ dissect_credssp_T_version(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
 static int
 dissect_credssp_T_authInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 11 "./asn1/credssp/credssp.cnf"
+#line 10 "./asn1/credssp/credssp.cnf"
 	tvbuff_t *auth_tvb = NULL;
 	tvbuff_t *decr_tvb = NULL;
+	gssapi_encrypt_info_t gssapi_encrypt;
 
 	  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &auth_tvb);
 
 
+	memset(&gssapi_encrypt, 0, sizeof(gssapi_encrypt));
+	gssapi_encrypt.decrypt_gssapi_tvb=DECRYPT_GSSAPI_NORMAL;
+	call_dissector_with_data(gssapi_wrap_handle, auth_tvb, actx->pinfo, tree, &gssapi_encrypt);
+	decr_tvb = gssapi_encrypt.gssapi_decrypted_tvb;
+
 	if(decr_tvb != NULL)
-		    offset = dissect_credssp_TSCredentials(FALSE, decr_tvb, 0, actx, tree, hf_credssp_TSCredentials);
+		dissect_credssp_TSCredentials(FALSE, decr_tvb, 0, actx, tree, hf_credssp_TSCredentials);
 
 
 
@@ -308,7 +312,7 @@ dissect_credssp_T_authInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 static int
 dissect_credssp_T_errorCode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 21 "./asn1/credssp/credssp.cnf"
+#line 26 "./asn1/credssp/credssp.cnf"
 
 	if (credssp_ver < 3) {
 		return 0;
@@ -328,7 +332,7 @@ dissect_credssp_T_errorCode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 static int
 dissect_credssp_T_clientNonce(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 30 "./asn1/credssp/credssp.cnf"
+#line 35 "./asn1/credssp/credssp.cnf"
 
 	if (credssp_ver < 5) {
 		return 0;
@@ -375,7 +379,7 @@ static int dissect_TSRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
 
 
 /*--- End of included file: packet-credssp-fn.c ---*/
-#line 52 "./asn1/credssp/packet-credssp-template.c"
+#line 55 "./asn1/credssp/packet-credssp-template.c"
 
 /*
 * Dissect CredSSP PDUs
@@ -560,7 +564,7 @@ void proto_register_credssp(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-credssp-hfarr.c ---*/
-#line 140 "./asn1/credssp/packet-credssp-template.c"
+#line 143 "./asn1/credssp/packet-credssp-template.c"
   };
 
   /* List of subtrees */
@@ -578,7 +582,7 @@ void proto_register_credssp(void) {
     &ett_credssp_TSRequest,
 
 /*--- End of included file: packet-credssp-ettarr.c ---*/
-#line 146 "./asn1/credssp/packet-credssp-template.c"
+#line 149 "./asn1/credssp/packet-credssp-template.c"
   };
 
 
@@ -600,6 +604,7 @@ void proto_register_credssp(void) {
 void proto_reg_handoff_credssp(void) {
 
   gssapi_handle = find_dissector_add_dependency("gssapi", proto_credssp);
+  gssapi_wrap_handle = find_dissector_add_dependency("gssapi_verf", proto_credssp);
 
   heur_dissector_add("tls", dissect_credssp_heur, "CredSSP over TLS", "credssp_tls", proto_credssp, HEURISTIC_ENABLE);
   heur_dissector_add("rdp", dissect_credssp_heur, "CredSSP in TPKT", "credssp_tpkt", proto_credssp, HEURISTIC_ENABLE);

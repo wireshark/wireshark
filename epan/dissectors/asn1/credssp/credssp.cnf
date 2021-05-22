@@ -5,16 +5,21 @@
 TSRequest
 
 #.FN_PARS TSRequest/version VAL_PTR = &credssp_ver
-#.FN_PARS TSRequest/authInfo VAL_PTR = &auth_tvb
 
-#.FN_BODY TSRequest/authInfo
+#.FN_BODY TSRequest/authInfo VAL_PTR = &auth_tvb
 	tvbuff_t *auth_tvb = NULL;
 	tvbuff_t *decr_tvb = NULL;
+	gssapi_encrypt_info_t gssapi_encrypt;
 
 	%(DEFAULT_BODY)s
 
+	memset(&gssapi_encrypt, 0, sizeof(gssapi_encrypt));
+	gssapi_encrypt.decrypt_gssapi_tvb=DECRYPT_GSSAPI_NORMAL;
+	call_dissector_with_data(gssapi_wrap_handle, auth_tvb, actx->pinfo, tree, &gssapi_encrypt);
+	decr_tvb = gssapi_encrypt.gssapi_decrypted_tvb;
+
 	if(decr_tvb != NULL)
-		    offset = dissect_credssp_TSCredentials(FALSE, decr_tvb, 0, actx, tree, hf_credssp_TSCredentials);
+		dissect_credssp_TSCredentials(FALSE, decr_tvb, 0, actx, tree, hf_credssp_TSCredentials);
 
 
 #.FN_BODY TSRequest/errorCode
@@ -40,21 +45,16 @@ TSRequest
 
 #.FN_BODY TSCredentials/credentials
 	tvbuff_t *creds_tvb = NULL;
-	tvbuff_t *decr_tvb = NULL;
 
 	%(DEFAULT_BODY)s
 
-	if((decr_tvb != NULL) &&
-	((creds_type == TS_PASSWORD_CREDS) || (creds_type == TS_SMARTCARD_CREDS))) {
-
-		      switch(creds_type) {
-		      case TS_PASSWORD_CREDS:
-		    offset = dissect_credssp_TSPasswordCreds(FALSE, decr_tvb, 0, actx, tree, hf_credssp_TSPasswordCreds);
-		    	   break;
-			   case TS_SMARTCARD_CREDS:
-		    offset = dissect_credssp_TSSmartCardCreds(FALSE, decr_tvb, 0, actx, tree, hf_credssp_TSSmartCardCreds);
-		    	   break;
-		   }
+	switch(creds_type) {
+	case TS_PASSWORD_CREDS:
+		dissect_credssp_TSPasswordCreds(FALSE, creds_tvb, 0, actx, tree, hf_credssp_TSPasswordCreds);
+		break;
+	case TS_SMARTCARD_CREDS:
+		dissect_credssp_TSSmartCardCreds(FALSE, creds_tvb, 0, actx, tree, hf_credssp_TSSmartCardCreds);
+		break;
 	}
 
 
