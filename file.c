@@ -4907,6 +4907,7 @@ cf_export_specified_packets(capture_file *cf, const char *fname,
       cf_rename_failure_alert_box(fname, errno);
       goto fail;
     }
+    g_free(fname_new);
   }
 
   return CF_WRITE_OK;
