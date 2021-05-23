@@ -3029,12 +3029,10 @@ QString MainWindow::findRtpStreams(QVector<rtpstream_id_t *> *stream_ids, bool r
 {
     rtpstream_tapinfo_t tapinfo;
     rtpstream_id_t *fwd_id, *rev_id;
+    bool fwd_id_used, rev_id_used;
     const gchar filter_text[] = "rtp && rtp.version == 2 && rtp.ssrc && (ip || ipv6)";
     dfilter_t *sfcode;
     gchar *err_msg;
-
-    fwd_id = g_new0(rtpstream_id_t, 1);
-    rev_id = g_new0(rtpstream_id_t, 1);
 
     /* Try to get the hfid for "rtp.ssrc". */
     int hfid_rtp_ssrc = proto_registrar_get_id_byname("rtp.ssrc");
@@ -3079,19 +3077,30 @@ QString MainWindow::findRtpStreams(QVector<rtpstream_id_t *> *stream_ids, bool r
 
     dfilter_free(sfcode);
 
-    /* OK, it is an RTP frame. Let's get the IP and port values */
-    rtpstream_id_copy_pinfo(&(edt.pi), fwd_id, false);
-
-    /* assume the inverse ip/port combination for the reverse direction */
-    rtpstream_id_copy_pinfo(&(edt.pi), rev_id, true);
-
-    /* now we need the SSRC value of the current frame */
+    /* We need the SSRC value of the current frame; try to get it. */
     GPtrArray *gp = proto_get_finfo_ptr_array(edt.tree, hfid_rtp_ssrc);
     if (gp == NULL || gp->len == 0) {
         /* XXX - should not happen, as the filter includes rtp.ssrc */
         epan_dissect_cleanup(&edt);
         return tr("SSRC value not found.");
     }
+
+    /*
+     * OK, we have the SSRC value, so we can proceed.
+     * Allocate RTP stream ID structures.
+     */
+    fwd_id = g_new0(rtpstream_id_t, 1);
+    fwd_id_used = false;
+    rev_id = g_new0(rtpstream_id_t, 1);
+    rev_id_used = false;
+
+    /* Get the IP and port values for the forward direction. */
+    rtpstream_id_copy_pinfo(&(edt.pi), fwd_id, false);
+
+    /* assume the inverse ip/port combination for the reverse direction */
+    rtpstream_id_copy_pinfo(&(edt.pi), rev_id, true);
+
+    /* Save the SSRC value for the forward direction. */
     fwd_id->ssrc = fvalue_get_uinteger(&((field_info *)gp->pdata[0])->value);
 
     epan_dissect_cleanup(&edt);
@@ -3109,6 +3118,7 @@ QString MainWindow::findRtpStreams(QVector<rtpstream_id_t *> *stream_ids, bool r
         if (rtpstream_id_equal(&(strinfo->id), fwd_id,RTPSTREAM_ID_EQUAL_NONE))
         {
             *stream_ids << fwd_id;
+            fwd_id_used = true;
         }
 
         if (rtpstream_id_equal(&(strinfo->id), rev_id,RTPSTREAM_ID_EQUAL_NONE))
@@ -3118,10 +3128,21 @@ QString MainWindow::findRtpStreams(QVector<rtpstream_id_t *> *stream_ids, bool r
             }
             if (reverse) {
                 *stream_ids << rev_id;
+                rev_id_used = true;
             }
         }
     }
 
+    //
+    // XXX - is it guaranteed that fwd_id and rev_id were both added to
+    // *stream_ids?  If so, this isn't necessary.
+    //
+    if (!fwd_id_used) {
+        rtpstream_id_free(fwd_id);
+    }
+    if (!rev_id_used) {
+        rtpstream_id_free(rev_id);
+    }
     return NULL;
 }
 
