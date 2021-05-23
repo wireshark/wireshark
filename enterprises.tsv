@@ -5,7 +5,7 @@
 # The format used here is: <NUMERICAL_ID><SPACE><NAME>
 # Where SPACE can be any sequence of spaces and tabs.
 #
-# (last updated 2021-05-14)
+# (last updated 2021-05-21)
 
 0	Reserved
 1	NxNetworks
@@ -2088,7 +2088,7 @@
 2081	StarBurst Communications Corporation Kevin
 2082	Tollgrade Communications, Inc.
 2083	Orange Services US
-2084	Sanken Electric Co., Ltd.
+2084	GS Yuasa Infrastructure Systems Co.,Ltd.
 2085	Isolation Systems Limited
 2086	AVIDIA Systems, Inc.
 2087	Cidera-Mainstream Services
@@ -2289,7 +2289,7 @@
 2284	Automated Concepts
 2285	Flash Networks Ltd
 2286	Oracom Inc.
-2287	Shell Services Company
+2287	Shell Information Technology International Inc.
 2288	Black Pigs of Death
 2289	N3ERZ
 2290	Technology Rendezvous Inc.
@@ -9112,7 +9112,7 @@
 9134	Telenet NV
 9135	Heyde AG
 9136	ISDN Communications Ltd
-9137	Anatel Communications
+9137	Annatel
 9138	AnteFacto
 9139	Petroleum Business Institute
 9140	Media General, Inc.
@@ -15425,7 +15425,7 @@
 15563	Adtron
 15564	Aselia Technologies, Inc.
 15565	Great Plains Mall.net
-15566	Cheetah Digital Japan Co., Ltd	# formerly 'Experian Japan Co., Ltd'
+15566	EmberPoint Holdings Co., Ltd	# formerly 'Cheetah Digital Japan Co., Ltd'
 15567	Neople Ltd.
 15568	Center for Development of Information Technology - CDIT
 15569	Krasnoyarsk ICC subdivision of MCC, JSC "Russian Railways"
@@ -57131,7 +57131,7 @@
 57334	LLC «Smart batteries»
 57335	Wi-Ing Aktiv - Die Hamburger Wirtschaftsingenieure e.V.
 57336	Faculty of Organization and Informatics
-57337	Bundesanstalt für den Digitalfunk der Behörden und Organisationen mit Sicherhietsaufgaben
+57337	Bundesanstalt für den Digitalfunk der Behörden und Organisationen mit Sicherheitsaufgaben
 57338	Leibniz-Institute for Psychology
 57339	PREMIUM SA
 57340	TELERY NETWORK S.R.L
@@ -57231,3 +57231,34 @@
 57435	Platbox
 57436	UDAP.org
 57437	NATIONAL INFORMATION TECHNOLOGY DEVELOPMENT AGENCY,
+57438	Quarkslab
+57439	voice INTER connect GmbH
+57440	AC Transit
+57441	achelos Gmbh
+57442	Diskbit
+57443	Wuhan Da Ta Technologies Co., Ltd.
+57444	BwFuhrparkService GmbH
+57445	Valir Rehabilitation Hospital
+57446	Ally
+57447	Northwest Health
+57448	PPS
+57449	Ermetris
+57450	Kao Collins Corp
+57451	HealthSmart Care Management Solutions, LP
+57452	Ludowici Roof Tile
+57453	Mobius Wireless Solutions
+57454	AlSego Luxembourg S.A.
+57455	KOIOS DatalytiX
+57456	Ravn Alaska
+57457	Suchy MIPS GmbH
+57458	Peloton Interactive, Inc.
+57459	Verhoeven B.V.
+57460	Netis Technologies.,LTD
+57461	Wago
+57462	Nueve Solutions LLC
+57463	Svenska Handelsbanken AB
+57464	Otto Martin Maschinenbau GmbH & Co. KG
+57465	CloudQuant, LLC
+57466	ILOVEPDF
+57467	Kitchell Corporation
+57468	Sonotechnik Austria AngioExperience GmbH
