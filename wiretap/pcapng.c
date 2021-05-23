@@ -1067,7 +1067,7 @@ pcapng_read_if_descr_block(wtap *wth, FILE_T fh, pcapng_block_header_t *bh,
                     if (option_content[0] == 0) {
                         if_filter.type = if_filter_pcap;
                         if_filter.data.filter_str = g_strndup((char *)option_content+1, oh.option_length-1);
-                        pcapng_debug("pcapng_read_if_descr_block: filter_str %s oh.option_length %u", if_filter.filter_str, oh.option_length);
+                        pcapng_debug("pcapng_read_if_descr_block: filter_str %s oh.option_length %u", if_filter.data.filter_str, oh.option_length);
                         /* Fails with multiple options; we silently ignore the failure */
                         wtap_block_add_if_filter_option(wblock->block, oh.option_code, &if_filter);
                         g_free(if_filter.data.filter_str);
@@ -2906,7 +2906,7 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
          * between Windows and UN*X as text rather than
          * binary data?
          */
-        pcapng_debug("pcapng_open: first block type %u not SHB", wblock.type);
+        pcapng_debug("pcapng_open: first block type %u not SHB", bh.block_type);
         return WTAP_OPEN_NOT_MINE;
     }
 
