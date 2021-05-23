@@ -70,17 +70,16 @@ message(STATUS "Generating build using CMake ${CMAKE_VERSION}")
 #Where to find local cmake scripts
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
 
-# CMake >= 3.9.0 enables LTO/IPO
-# Policy CMP0069 enables this behavior when we set the minimum CMake version < 3.9.0
+# CMake >= 3.9.0 supports LTO/IPO.
 if (ENABLE_LTO)
 	include(CheckIPOSupported)
-	check_ipo_supported(RESULT lto_supported)
+	check_ipo_supported(RESULT lto_supported OUTPUT lto_output)
 	if(lto_supported)
 		set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
+		message(STATUS "LTO/IPO is enabled")
+	else()
+		message(STATUS "LTO/IPO requested but it is not supported by the compiler: ${lto_output}") 
 	endif()
-endif()
-if (CMAKE_INTERPROCEDURAL_OPTIMIZATION)
-	message(STATUS "LTO/IPO is enabled")
 else()
 	message(STATUS "LTO/IPO is not enabled")
 endif()

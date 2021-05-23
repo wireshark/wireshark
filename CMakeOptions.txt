@@ -63,11 +63,14 @@ else()
 	option(ENABLE_COMPILER_COLOR_DIAGNOSTICS "Always enable the compiler's color diagnostic output" OFF)
 endif()
 
-if (WIN32)
+if(CMAKE_VERSION VERSION_GREATER "3.8.99")
 	option(ENABLE_LTO "Improves performance using Link time Optimization" ON)
-	option(ENABLE_VLD "Enable Visual Leak Detect in Debug configuration" OFF)
 else()
 	option(ENABLE_LTO "Improves performance using Link time Optimization" OFF)
+endif()
+
+if (WIN32)
+	option(ENABLE_VLD "Enable Visual Leak Detect in Debug configuration" OFF)
 endif()
 
 option(ENABLE_PCAP       "Enable libpcap support (required for capturing)" ON)
