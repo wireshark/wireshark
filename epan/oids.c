@@ -391,7 +391,7 @@ static inline oid_kind_t smikind(SmiNode* sN, oid_key_t** key_p) {
 	switch(sN->nodekind) {
 		case SMI_NODEKIND_ROW: {
 			SmiElement* sE;
-			oid_key_t* kl = NULL;
+			oid_key_t* kl = NULL;	/* points to last element in the list of oid_key_t's */
 			const oid_value_type_t* typedata = NULL;
 			gboolean implied;
 
@@ -466,13 +466,30 @@ static inline oid_kind_t smikind(SmiNode* sN, oid_key_t** key_p) {
 					} else {
 						k->key_type = OID_KEY_TYPE_WRONG;
 						k->num_subids = 0;
-						break;
 					}
 				}
 
-				if (!*key_p) *key_p = k;
-				if (kl) kl->next = k;
+				if (!kl) {
+					/*
+					 * The list is empty, so set the
+					 * pointer to the head of the list
+					 * to point to this entry.
+					 */
+					*key_p = k;
+				} else {
+					/*
+					 * The list is non-empty, and kl
+					 * points to its last element.
+					 * Make the last element point to
+					 * this entry as its successor.
+					 */
+					kl->next = k;
+				}
 
+				/*
+				 * This entry is now the last entry in
+				 * the list.
+				 */
 				kl = k;
 			}
 
