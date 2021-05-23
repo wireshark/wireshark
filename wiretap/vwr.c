@@ -16,6 +16,7 @@
 #include "file_wrappers.h"
 
 #include "vwr.h"
+#include <wsutil/ws_assert.h>
 
 /* platform-specific definitions for portability */
 
@@ -3362,7 +3363,7 @@ vwr_process_rec_data(FILE_T fh, int rec_size,
             break;
         default:
             g_free(rec);
-            g_assert_not_reached();
+            ws_assert_not_reached();
             return ret;
     }
 

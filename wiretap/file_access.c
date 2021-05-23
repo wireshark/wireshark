@@ -18,6 +18,7 @@
 #ifdef HAVE_PLUGINS
 #include <wsutil/plugins.h>
 #endif
+#include <wsutil/ws_assert.h>
 
 #include "wtap-int.h"
 #include "wtap_modules.h"
@@ -461,7 +462,7 @@ static void
 set_heuristic_routine(void)
 {
 	guint i;
-	g_assert(open_info_arr != NULL);
+	ws_assert(open_info_arr != NULL);
 
 	for (i = 0; i < open_info_arr->len; i++) {
 		if (open_routines[i].type == OPEN_INFO_HEURISTIC) {
@@ -469,10 +470,10 @@ set_heuristic_routine(void)
 			break;
 		}
 		/* sanity check */
-		g_assert(open_routines[i].type == OPEN_INFO_MAGIC);
+		ws_assert(open_routines[i].type == OPEN_INFO_MAGIC);
 	}
 
-	g_assert(heuristic_open_routine_idx > 0);
+	ws_assert(heuristic_open_routine_idx > 0);
 }
 
 void
@@ -1255,7 +1256,7 @@ void
 wtap_init_file_type_subtypes(void)
 {
 	/* Don't do this twice. */
-	g_assert(file_type_subtype_table_arr == NULL);
+	ws_assert(file_type_subtype_table_arr == NULL);
 
 	/*
 	 * Estimate the number of file types/subtypes as twice the
@@ -1833,7 +1834,7 @@ wtap_pcap_file_type_subtype(void)
 	 * Make sure pcap was registered as a file type/subtype;
 	 * it's one of our "native" formats.
 	 */
-	g_assert(pcap_file_type_subtype != -1);
+	ws_assert(pcap_file_type_subtype != -1);
 	return pcap_file_type_subtype;
 }
 
@@ -1847,7 +1848,7 @@ wtap_pcap_nsec_file_type_subtype(void)
 	 * Make sure nanosecond-resolution pcap was registered
 	 * as a file type/subtype; it's one of our "native" formats.
 	 */
-	g_assert(pcap_nsec_file_type_subtype != -1);
+	ws_assert(pcap_nsec_file_type_subtype != -1);
 	return pcap_nsec_file_type_subtype;
 }
 
@@ -1861,7 +1862,7 @@ wtap_pcapng_file_type_subtype(void)
 	 * Make sure pcapng was registered as a file type/subtype;
 	 * it's one of our "native" formats.
 	 */
-	g_assert(pcapng_file_type_subtype != -1);
+	ws_assert(pcapng_file_type_subtype != -1);
 	return pcapng_file_type_subtype;
 }
 

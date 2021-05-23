@@ -30,6 +30,7 @@
 #include "wsutil/os_version_info.h"
 #include "wsutil/str_util.h"
 #include <wsutil/inet_addr.h>
+#include <wsutil/ws_assert.h>
 
 
 #include "nettrace_3gpp_32_423.h"
@@ -449,7 +450,7 @@ nettrace_msg_to_packet(nettrace_3gpp_32_423_file_info_t *file_info, wtap_rec *re
 
 	if (exported_pdu_info.presence_flags & EXP_PDU_TAG_COL_PROT_BIT) {
 		/* The assert prevents static code analyzers to raise warnings */
-		g_assert(exported_pdu_info.proto_col_str);
+		ws_assert(exported_pdu_info.proto_col_str);
 		exp_pdu_tags_len += 4 + (int)strlen(exported_pdu_info.proto_col_str);
 	}
 

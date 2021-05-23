@@ -26,6 +26,7 @@
 #include <wsutil/report_message.h>
 
 #include <wsutil/plugins.h>
+#include <wsutil/ws_assert.h>
 
 typedef struct _plugin {
     GModule        *handle;       /* handle returned by g_module_open */
@@ -60,7 +61,7 @@ type_to_dir(plugin_type_e type)
         g_error("Unknown plugin type: %u. Aborting.", (unsigned) type);
         break;
     }
-    g_assert_not_reached();
+    ws_assert_not_reached();
 }
 
 static inline const char *
@@ -77,7 +78,7 @@ type_to_name(plugin_type_e type)
         g_error("Unknown plugin type: %u. Aborting.", (unsigned) type);
         break;
     }
-    g_assert_not_reached();
+    ws_assert_not_reached();
 }
 
 static void

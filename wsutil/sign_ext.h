@@ -12,13 +12,14 @@
 #define __WSUTIL_SIGN_EXT_H__
 
 #include <glib.h>
+#include <wsutil/ws_assert.h>
 
 /* sign extension routines */
 
 static inline guint32
 ws_sign_ext32(guint32 val, int no_of_bits)
 {
-	g_assert (no_of_bits >= 0 && no_of_bits <= 32);
+	ws_assert (no_of_bits >= 0 && no_of_bits <= 32);
 
 	if ((no_of_bits == 0) || (no_of_bits == 32))
 		return val;
@@ -38,7 +39,7 @@ ws_sign_ext32(guint32 val, int no_of_bits)
 static inline guint64
 ws_sign_ext64(guint64 val, int no_of_bits)
 {
-	g_assert (no_of_bits >= 0 && no_of_bits <= 64);
+	ws_assert (no_of_bits >= 0 && no_of_bits <= 64);
 
 	if ((no_of_bits == 0) || (no_of_bits == 64))
 		return val;

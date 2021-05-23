@@ -26,6 +26,7 @@
 #include <wsutil/wslog.h>
 #include <wsutil/strtoi.h>
 #include <wsutil/glib-compat.h>
+#include <wsutil/ws_assert.h>
 
 #include "wtap-int.h"
 #include "file_wrappers.h"
@@ -412,7 +413,7 @@ static GHashTable *option_handlers[NUM_BT_INDICES];
 static gboolean
 get_block_type_index(guint block_type, guint *bt_index)
 {
-    g_assert(bt_index);
+    ws_assert(bt_index);
 
     switch (block_type) {
 
@@ -3258,7 +3259,7 @@ pcapng_seek_read(wtap *wth, gint64 seek_off,
      * First, make sure we have at least one section; if we don't, that's
      * an internal error.
      */
-    g_assert(pcapng->sections->len >= 1);
+    ws_assert(pcapng->sections->len >= 1);
 
     /*
      * Now scan backwards through the array to find the first section
@@ -3278,7 +3279,7 @@ pcapng_seek_read(wtap *wth, gint64 seek_off,
          * If that's section 0, something's wrong; that section should
          * have an offset of 0.
          */
-        g_assert(section_number != 0);
+        ws_assert(section_number != 0);
         section_number--;
     }
 
@@ -4844,7 +4845,7 @@ static void write_wtap_idb_option(wtap_block_t block _U_, guint option_id, wtap_
                 break;
 
             default:
-                g_assert_not_reached();
+                ws_assert_not_reached();
                 return;
             }
 

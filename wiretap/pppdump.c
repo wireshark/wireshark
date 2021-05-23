@@ -14,6 +14,8 @@
 #include <errno.h>
 #include <string.h>
 
+#include <wsutil/ws_assert.h>
+
 /*
 pppdump records
 Daniel Thompson (STMicroelectronics) <daniel.thompson@st.com>
@@ -457,7 +459,7 @@ process_data(pppdump_t *state, FILE_T fh, pkt_t *pkt, int n, guint8 *pd,
 						pid->offset = pkt->id_offset;
 						pid->num_bytes_to_skip =
 						    pkt->sd_offset - pkt->id_offset - 3;
-						g_assert(pid->num_bytes_to_skip >= 0);
+						ws_assert(pid->num_bytes_to_skip >= 0);
 					}
 
 					num_bytes--;
@@ -557,7 +559,7 @@ collate(pppdump_t* state, FILE_T fh, int *err, gchar **err_info, guint8 *pd,
 	 * sequential processing.
 	 */
 	if (state->num_bytes > 0) {
-		g_assert(num_bytes_to_skip == 0);
+		ws_assert(num_bytes_to_skip == 0);
 		pkt = state->pkt;
 		num_written = process_data(state, fh, pkt, state->num_bytes,
 		    pd, err, err_info, pid);
@@ -631,7 +633,7 @@ collate(pppdump_t* state, FILE_T fh, int *err, gchar **err_info, guint8 *pd,
 				if (n == 0)
 					continue;
 
-				g_assert(num_bytes_to_skip < n);
+				ws_assert(num_bytes_to_skip < n);
 				while (num_bytes_to_skip) {
 					if (file_getc(fh) == EOF)
 						goto done;

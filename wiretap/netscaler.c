@@ -12,6 +12,7 @@
 #include "wtap-int.h"
 #include "file_wrappers.h"
 #include "netscaler.h"
+#include <wsutil/ws_assert.h>
 
 /* Defines imported from netscaler code: nsperfrc.h */
 
@@ -2188,7 +2189,7 @@ static gboolean nstrace_add_signature(wtap_dumper *wdh, int *err)
         nstrace->page_offset += (guint16) sig35.sig_RecordSize;
     } else
     {
-        g_assert_not_reached();
+        ws_assert_not_reached();
         return FALSE;
     }
 
@@ -2256,7 +2257,7 @@ nstrace_add_abstime(wtap_dumper *wdh, const wtap_rec *rec,
 
     } else
     {
-        g_assert_not_reached();
+        ws_assert_not_reached();
         return FALSE;
     }
 
@@ -2299,7 +2300,7 @@ static gboolean nstrace_dump(wtap_dumper *wdh, const wtap_rec *rec,
                 return FALSE;
         } else
         {
-            g_assert_not_reached();
+            ws_assert_not_reached();
             return FALSE;
         }
     }
@@ -2403,13 +2404,13 @@ static gboolean nstrace_dump(wtap_dumper *wdh, const wtap_rec *rec,
             nstrace->page_offset += (guint16) rec->rec_header.packet_header.caplen;
         } else
         {
-            g_assert_not_reached();
+            ws_assert_not_reached();
             return FALSE;
         }
         break;
 
     default:
-        g_assert_not_reached();
+        ws_assert_not_reached();
         return FALSE;
     }
 

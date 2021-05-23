@@ -12,6 +12,7 @@
 #include "wtap-int.h"
 #include "file_wrappers.h"
 #include "capsa.h"
+#include <wsutil/ws_assert.h>
 
 /*
  * A file begins with a header containing:
@@ -368,7 +369,7 @@ capsa_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
 		break;
 
 	default:
-		g_assert_not_reached();
+		ws_assert_not_reached();
 		*err = WTAP_ERR_INTERNAL;
 		*err_info = g_strdup_printf("capsa: format indicator is %u", capsa->format_indicator);
 		return -1;

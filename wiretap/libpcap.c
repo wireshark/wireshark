@@ -18,6 +18,7 @@
 #include "pcap-encap.h"
 #include "libpcap.h"
 #include "erf-common.h"
+#include <wsutil/ws_assert.h>
 
 /* See source to the "libpcap" library for information on the "libpcap"
    file format. */
@@ -584,7 +585,7 @@ done:
 		break;
 
 	default:
-		g_assert_not_reached();
+		ws_assert_not_reached();
 	}
 
 	/*
@@ -969,7 +970,7 @@ static int libpcap_read_header(wtap *wth, FILE_T fh, int *err, gchar **err_info,
 		break;
 
 	default:
-		g_assert_not_reached();
+		ws_assert_not_reached();
 		bytes_to_read = 0;
 	}
 	if (!wtap_read_bytes_or_eof(fh, hdr, bytes_to_read, err, err_info))

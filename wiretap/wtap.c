@@ -19,6 +19,7 @@
 #include "file_wrappers.h"
 #include <wsutil/file_util.h>
 #include <wsutil/buffer.h>
+#include <wsutil/ws_assert.h>
 #ifdef HAVE_PLUGINS
 #include <wsutil/plugins.h>
 #endif
@@ -209,9 +210,9 @@ wtap_add_generated_idb(wtap *wth)
 	wtapng_if_descr_mandatory_t *if_descr_mand;
 	int snaplen;
 
-	g_assert(wth->file_encap != WTAP_ENCAP_UNKNOWN &&
+	ws_assert(wth->file_encap != WTAP_ENCAP_UNKNOWN &&
 	    wth->file_encap != WTAP_ENCAP_PER_PACKET);
-	g_assert(wth->file_tsprec != WTAP_TSPREC_UNKNOWN &&
+	ws_assert(wth->file_tsprec != WTAP_TSPREC_UNKNOWN &&
 	    wth->file_tsprec != WTAP_TSPREC_PER_PACKET);
 
 	idb = wtap_block_create(WTAP_BLOCK_IF_ID_AND_INFO);
@@ -257,7 +258,7 @@ wtap_add_generated_idb(wtap *wth)
 		/*
 		 * Don't do this.
 		 */
-		g_assert_not_reached();
+		ws_assert_not_reached();
 		break;
 	}
 	snaplen = wth->snapshot_length;
@@ -316,7 +317,7 @@ wtap_get_debug_if_descr(const wtap_block_t if_descr,
 	guint8 tmp8;
 	if_filter_opt_t if_filter;
 
-	g_assert(if_descr);
+	ws_assert(if_descr);
 
 	if_descr_mand = (wtapng_if_descr_mandatory_t*)wtap_block_get_mandatory_data(if_descr);
 	if (wtap_block_get_string_option_value(if_descr, OPT_IDB_NAME, &tmp_content) == WTAP_OPTTYPE_SUCCESS) {
@@ -1557,7 +1558,7 @@ wtap_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
 		 * but the read routine didn't set this packet's
 		 * encapsulation type.
 		 */
-		g_assert(rec->rec_header.packet_header.pkt_encap != WTAP_ENCAP_PER_PACKET);
+		ws_assert(rec->rec_header.packet_header.pkt_encap != WTAP_ENCAP_PER_PACKET);
 	}
 
 	return TRUE;	/* success */
@@ -1702,7 +1703,7 @@ wtap_seek_read(wtap *wth, gint64 seek_off, wtap_rec *rec, Buffer *buf,
 		 * but the read routine didn't set this packet's
 		 * encapsulation type.
 		 */
-		g_assert(rec->rec_header.packet_header.pkt_encap != WTAP_ENCAP_PER_PACKET);
+		ws_assert(rec->rec_header.packet_header.pkt_encap != WTAP_ENCAP_PER_PACKET);
 	}
 
 	return TRUE;

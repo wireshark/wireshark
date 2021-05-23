@@ -15,6 +15,7 @@
 #include "wtap_opttypes.h"
 #include "wtap-int.h"
 #include "pcapng_module.h"
+#include <wsutil/ws_assert.h>
 
 #include <wsutil/glib-compat.h>
 
@@ -120,15 +121,15 @@ static void wtap_opttype_block_register(wtap_blocktype_t *blocktype)
     block_type = blocktype->block_type;
 
     /* Check input */
-    g_assert(block_type < MAX_WTAP_BLOCK_TYPE_VALUE);
+    ws_assert(block_type < MAX_WTAP_BLOCK_TYPE_VALUE);
 
     /* Don't re-register. */
-    g_assert(blocktype_list[block_type] == NULL);
+    ws_assert(blocktype_list[block_type] == NULL);
 
     /* Sanity check */
-    g_assert(blocktype->name);
-    g_assert(blocktype->description);
-    g_assert(blocktype->create);
+    ws_assert(blocktype->name);
+    ws_assert(blocktype->description);
+    ws_assert(blocktype->create);
 
     /*
      * Initialize the set of supported options.

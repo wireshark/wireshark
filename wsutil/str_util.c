@@ -11,6 +11,7 @@
 #include <config.h>
 
 #include "str_util.h"
+#include <wsutil/ws_assert.h>
 
 int
 ws_xton(char ch)
@@ -205,7 +206,7 @@ format_size(gint64 size, format_size_flags_e flags)
 			g_string_append(human_str, "packets/s");
 			break;
 		default:
-			g_assert_not_reached();
+			ws_assert_not_reached();
 	}
 
 	ret_val = g_string_free(human_str, FALSE);

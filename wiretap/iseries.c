@@ -147,6 +147,7 @@ Number  S/R  Length    Timer                        MAC Address   MAC Address   
 
 #include <wsutil/str_util.h>
 #include <wsutil/strtoi.h>
+#include <wsutil/ws_assert.h>
 
 #define ISERIES_LINE_LENGTH           270
 #define ISERIES_HDR_LINES_TO_CHECK    100
@@ -1015,7 +1016,7 @@ iseries_UNICODE_to_ASCII (guint8 * buf, guint bytes)
       if (buf[i] == 0x0A)
         break;
     }
-  g_assert(bufptr < buf + bytes);
+  ws_assert(bufptr < buf + bytes);
   *bufptr = '\0';
   return i;
 }

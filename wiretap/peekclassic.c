@@ -27,6 +27,7 @@
 
 #include <wsutil/epochs.h>
 #include <wsutil/802_11-utils.h>
+#include <wsutil/ws_assert.h>
 
 #include "wtap-int.h"
 #include "file_wrappers.h"
@@ -172,7 +173,7 @@ wtap_open_return_val peekclassic_open(wtap *wth, int *err, gchar **err_info)
 	 *      is zero, and check some other fields; this isn't perfect,
 	 *	and we may have to add more checks at some point.
 	 */
-	g_assert(sizeof(ep_hdr.master) == PEEKCLASSIC_MASTER_HDR_SIZE);
+	ws_assert(sizeof(ep_hdr.master) == PEEKCLASSIC_MASTER_HDR_SIZE);
 	if (!wtap_read_bytes(wth->fh, &ep_hdr.master,
 	    (int)sizeof(ep_hdr.master), err, err_info)) {
 		if (*err != WTAP_ERR_SHORT_READ)
@@ -201,7 +202,7 @@ wtap_open_return_val peekclassic_open(wtap *wth, int *err, gchar **err_info)
 	case 6:
 	case 7:
 		/* get the secondary header */
-		g_assert(sizeof(ep_hdr.secondary.v567) ==
+		ws_assert(sizeof(ep_hdr.secondary.v567) ==
 		        PEEKCLASSIC_V567_HDR_SIZE);
 		if (!wtap_read_bytes(wth->fh, &ep_hdr.secondary.v567,
 		    (int)sizeof(ep_hdr.secondary.v567), err, err_info)) {
@@ -343,7 +344,7 @@ wtap_open_return_val peekclassic_open(wtap *wth, int *err, gchar **err_info)
 
 	default:
 		/* this is impossible */
-		g_assert_not_reached();
+		ws_assert_not_reached();
 	}
 
 	wth->snapshot_length   = 0; /* not available in header */

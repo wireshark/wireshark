@@ -17,6 +17,7 @@
 #include <glib.h>
 
 #include "privileges.h"
+#include <wsutil/ws_assert.h>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -148,7 +149,7 @@ init_process_policies(void)
 gboolean
 started_with_special_privs(void)
 {
-	g_assert(init_process_policies_called);
+	ws_assert(init_process_policies_called);
 #ifdef HAVE_ISSETUGID
 	return issetugid();
 #else

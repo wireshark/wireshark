@@ -34,6 +34,8 @@
 #define _NTOP_SRC_CAST_
 #endif
 
+#include <wsutil/ws_assert.h>
+
 /*
  * We assume and require an inet_pton/inet_ntop that supports AF_INET
  * and AF_INET6.
@@ -54,7 +56,7 @@ _inet_pton(int af, const gchar *src, gpointer dst)
             g_critical("ws_inet_pton6: EAFNOSUPPORT");
         }
         else {
-            g_assert_not_reached();
+            ws_assert_not_reached();
         }
         errno = EAFNOSUPPORT;
     }

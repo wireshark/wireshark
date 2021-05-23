@@ -47,6 +47,7 @@
 #include "wtap-int.h"
 #include "file_wrappers.h"
 #include "ngsniffer.h"
+#include <wsutil/ws_assert.h>
 
 /* Magic number in Sniffer files. */
 static const char ngsniffer_magic[] = {
@@ -1115,7 +1116,7 @@ ngsniffer_seek_read(wtap *wth, gint64 seek_off,
 		/*
 		 * "Can't happen".
 		 */
-		g_assert_not_reached();
+		ws_assert_not_reached();
 		return FALSE;
 	}
 
@@ -2500,7 +2501,7 @@ ng_read_bytes_or_eof(wtap *wth, void *buffer, unsigned int nbytes, gboolean is_r
 			   random stream open, allocate the first element for the
 			   list of blobs, and make it the last element as well. */
 			if (wth->random_fh != NULL) {
-				g_assert(ngsniffer->first_blob == NULL);
+				ws_assert(ngsniffer->first_blob == NULL);
 				blob = g_new(blob_info_t,1);
 				blob->blob_comp_offset = comp_stream->comp_offset;
 				blob->blob_uncomp_offset = comp_stream->uncomp_offset;
@@ -2829,7 +2830,7 @@ ng_file_seek_rand(wtap *wth, gint64 offset, int *err, gchar **err_info)
 		   the blob, as otherwise it'd mean we need to seek before
 		   the beginning or after the end of this blob. */
 		delta = offset - ngsniffer->rand.uncomp_offset;
-		g_assert(delta >= 0 && (unsigned long)delta < ngsniffer->rand.nbytes);
+		ws_assert(delta >= 0 && (unsigned long)delta < ngsniffer->rand.nbytes);
 	}
 
 	/* OK, the place to which we're seeking is in the buffer; adjust

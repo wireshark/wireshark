@@ -19,6 +19,7 @@
 
 #include <wsutil/socket.h>
 #include <wsutil/inet_addr.h>
+#include <wsutil/ws_assert.h>
 
 #ifdef _WIN32
 #include <wsutil/win32-utils.h>
@@ -143,7 +144,7 @@ ws_socket_ptoa(struct sockaddr_storage *dst, const gchar *src,
         ret = 0;
     }
     else {
-        g_assert_not_reached();
+        ws_assert_not_reached();
     }
 
 out:

@@ -21,6 +21,7 @@
 #include "wtap-int.h"
 #include "file_wrappers.h"
 #include <wsutil/file_util.h>
+#include <wsutil/ws_assert.h>
 
 #ifdef HAVE_ZLIB
 #define ZLIB_CONST
@@ -1072,7 +1073,7 @@ file_seek(FILE_T file, gint64 offset, int whence, int *err)
     guint n;
 
     if (whence != SEEK_SET && whence != SEEK_CUR && whence != SEEK_END) {
-        g_assert_not_reached();
+        ws_assert_not_reached();
 /*
  *err = EINVAL;
  return -1;

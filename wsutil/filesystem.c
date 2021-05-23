@@ -44,6 +44,7 @@
 #include <wsutil/privileges.h>
 #include <wsutil/file_util.h>
 #include <wsutil/utf8_entities.h>
+#include <wsutil/ws_assert.h>
 
 #include <wiretap/wtap.h>   /* for WTAP_ERR_SHORT_WRITE */
 
@@ -104,7 +105,7 @@ get_basename(const char *path)
 {
     const char *filename;
 
-    g_assert(path != NULL);
+    ws_assert(path != NULL);
     filename = find_last_pathname_separator(path);
     if (filename == NULL) {
         /*
@@ -131,7 +132,7 @@ get_dirname(char *path)
 {
     char *separator;
 
-    g_assert(path != NULL);
+    ws_assert(path != NULL);
     separator = find_last_pathname_separator(path);
     if (separator == NULL) {
         /*

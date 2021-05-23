@@ -14,13 +14,14 @@
 
 #include "strtoi.h"
 #include <errno.h>
+#include <wsutil/ws_assert.h>
 
 gboolean ws_strtoi64(const gchar* str, const gchar** endptr, gint64* cint)
 {
 	gchar* end;
 	gint64 val;
 
-	g_assert(cint);
+	ws_assert(cint);
 
 	if (!str) {
 		errno = EINVAL;
@@ -151,7 +152,7 @@ gboolean ws_basestrtou64(const gchar* str, const gchar** endptr, guint64* cint, 
 	gchar* end;
 	guint64 val;
 
-	g_assert(cint);
+	ws_assert(cint);
 
 	if (!str) {
 		errno = EINVAL;
