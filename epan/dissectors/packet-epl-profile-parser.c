@@ -283,6 +283,7 @@ epl_eds_load(struct profile *profile, const char *eds_file)
 			epl_wmem_iarray_insert(obj->subindices, subobj.info.idx, &subobj.range);
 		}
 	}
+	g_strfreev(groups);
 
 	/* Unlike with XDDs, subindices might interleave with others, so let's sort them now */
 	wmem_map_foreach(profile->objects, sort_subindices, NULL);
