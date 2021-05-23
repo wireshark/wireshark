@@ -2225,6 +2225,7 @@ static guint dissect_nvme_get_logpage_ana_resp_grp(proto_tree *grp, tvbuff_t *cm
     guint done = 0;
     guint bytes;
     proto_item *ti;
+    guint nns;
 
     if (len < 4)
         return 0;
@@ -2245,13 +2246,13 @@ static guint dissect_nvme_get_logpage_ana_resp_grp(proto_tree *grp, tvbuff_t *cm
 
     if ((len - done) < 4)
         return done;
-    proto_tree_add_item(grp, hf_nvme_get_logpage_ana_grp_nns,  cmd_tvb, poff+4, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint(grp, hf_nvme_get_logpage_ana_grp_nns,  cmd_tvb, poff+4, 4, ENC_LITTLE_ENDIAN, &nns);
     done += 4;
 
     if ((len - done) < 8)
         return done;
     proto_tree_add_item(grp, hf_nvme_get_logpage_ana_grp_chcnt,  cmd_tvb, poff+8, 8, ENC_LITTLE_ENDIAN);
-    done += 4;
+    done += 8;
 
     if ((len - done) < 1)
         return done;
@@ -2261,25 +2262,28 @@ static guint dissect_nvme_get_logpage_ana_resp_grp(proto_tree *grp, tvbuff_t *cm
     if ((len - done) < 15)
         return done;
     proto_tree_add_item(grp, hf_nvme_get_logpage_ana_grp_rsvd,  cmd_tvb, poff+17, 15, ENC_NA);
-    done += 4;
+    done += 15;
 
     poff += 32;
-    while ((len - done) >= 4) {
-        proto_tree_add_item(grp, hf_nvme_get_logpage_ana_grp_nsid,  cmd_tvb, poff, 2, ENC_LITTLE_ENDIAN);
-        poff += 2;
-        done += 2;
+    while ((len - done) >= 4 && nns) {
+        proto_tree_add_item(grp, hf_nvme_get_logpage_ana_grp_nsid,  cmd_tvb, poff, 4, ENC_LITTLE_ENDIAN);
+        poff += 4;
+        done += 4;
+        nns--;
     }
     return done;
 }
 
-static void dissect_nvme_get_logpage_ana_resp_header(proto_tree *grp, tvbuff_t *cmd_tvb, guint len, guint32 off)
+static guint dissect_nvme_get_logpage_ana_resp_header(proto_tree *grp, tvbuff_t *cmd_tvb, guint len, guint32 off)
 {
+    guint groups=1;
     if (!off && len >= 8)
         proto_tree_add_item(grp, hf_nvme_get_logpage_ana_chcnt,  cmd_tvb, off, 8, ENC_LITTLE_ENDIAN);
     if (off <= 8 && (10 - off) <= len)
-        proto_tree_add_item(grp, hf_nvme_get_logpage_ana_ngd,  cmd_tvb, 8-off, 2, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item_ret_uint(grp, hf_nvme_get_logpage_ana_ngd,  cmd_tvb, 8-off, 2, ENC_LITTLE_ENDIAN, &groups);
     if (off <= 10 && (16 - off) <= len)
         proto_tree_add_item(grp, hf_nvme_get_logpage_ana_rsvd,  cmd_tvb, 10-off, 6, ENC_LITTLE_ENDIAN);
+    return groups;
 }
 
 static void dissect_nvme_get_logpage_ana_resp(proto_item *ti, tvbuff_t *cmd_tvb, struct nvme_cmd_ctx *cmd_ctx, guint len)
@@ -2287,18 +2291,19 @@ static void dissect_nvme_get_logpage_ana_resp(proto_item *ti, tvbuff_t *cmd_tvb,
     guint32 off = cmd_ctx->cmd_ctx.get_logpage.off & 0xffffffff; /* need guint type to silence clang-11 errors */
     proto_tree *grp;
     guint poff = 0;
-
+    guint groups = 1;
 
     grp =  proto_item_add_subtree(ti, ett_data);
     if (cmd_ctx->cmd_ctx.get_logpage.off < 16) {
-        dissect_nvme_get_logpage_ana_resp_header(grp, cmd_tvb, len, off);
+        groups = dissect_nvme_get_logpage_ana_resp_header(grp, cmd_tvb, len, off);
         poff = 16 - off;
     }
     len -= poff;
-    while (len >= 4) {
+    while (len >= 4 && groups) {
         guint done = dissect_nvme_get_logpage_ana_resp_grp(grp, cmd_tvb, len, poff);
         poff += done;
         len -= done;
+        groups--;
     }
 }
 
@@ -4987,7 +4992,7 @@ proto_register_nvme(void)
         },
         { &hf_nvme_get_logpage_ana_grp_nsid,
             { "Namespace Identifier", "nvme.cmd.get_logpage.ana.grp.nsid",
-               FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
+               FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
         /* LBA Status Information Response */
         { &hf_nvme_get_logpage_lba_status_lslplen,
