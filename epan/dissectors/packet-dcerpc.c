@@ -3839,6 +3839,7 @@ dissect_dcerpc_cn_auth(tvbuff_t *tvb, int stub_offset, packet_info *pinfo,
     auth_info->auth_tvb        = NULL;
     auth_info->auth_item       = NULL;
     auth_info->auth_tree       = NULL;
+    auth_info->auth_hdr_tvb    = NULL;
 
     /*
      * The authentication information is at the *end* of the PDU; in
