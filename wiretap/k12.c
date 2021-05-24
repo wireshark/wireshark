@@ -883,6 +883,7 @@ wtap_open_return_val k12_open(wtap *wth, int *err, gchar **err_info) {
                                         K12_FILE_HDR_RECORD_COUNT_1,
                                         pntoh32( header_buffer + K12_FILE_HDR_RECORD_COUNT_2 ),
                                         K12_FILE_HDR_RECORD_COUNT_2 );
+            destroy_k12_file_data(file_data);
             return WTAP_OPEN_ERROR;
         }
     }
