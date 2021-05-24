@@ -716,6 +716,7 @@ wtap_open_return_val nstrace_open(wtap *wth, int *err, gchar **err_info)
     bytes_read = file_read(nstrace_buf, page_size, wth->fh);
     if (bytes_read < 0 || bytes_read != page_size) {
         *err = file_error(wth->fh, err_info);
+        g_free(nstrace_buf);
         if (*err == 0 && bytes_read > 0)
             return WTAP_OPEN_NOT_MINE;
         return WTAP_OPEN_ERROR;
