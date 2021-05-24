@@ -943,7 +943,6 @@ static gint dissect_parameter_transport_rtps_type(
                         offset,
                         2, /* length: sizeof(guint16) */
                         param_length);
-                offset += 2;
 
                 proto_tree_add_string(
                         rtpsvt_tree_direction,
@@ -992,7 +991,6 @@ static gint dissect_rtps_virtual_transport_loss_info_type(
         }
         expert_add_info(NULL, tree_transport, &ei_missing_msg);
     }
-    offset += param_length;
 
     return tvb_captured_length(tvb);
 }
