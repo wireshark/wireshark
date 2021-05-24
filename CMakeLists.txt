@@ -426,6 +426,15 @@ else()
 	set(WS_PROGRAM_PATH ./run)
 endif()
 
+# Preprocessor definitions common to all compilers
+set_property(DIRECTORY
+	PROPERTY COMPILE_DEFINITIONS
+		"G_DISABLE_DEPRECATED"
+		"G_DISABLE_SINGLE_INCLUDES"
+		$<$<OR:$<BOOL:${DISABLE_ASSERT}>,$<CONFIG:Release>>:WS_DISABLE_ASSERT>
+		$<$<OR:$<BOOL:${ENABLE_DEBUG}>,$<CONFIG:Debug>>:WS_DEBUG>
+)
+
 if( CMAKE_C_COMPILER_ID MATCHES "MSVC")
 	if ((MSVC_VERSION LESS "1900") OR (MSVC_VERSION GREATER_EQUAL "2000"))
 		message(FATAL_ERROR "You are using an unsupported version of MSVC")
@@ -807,27 +816,6 @@ else() # ! MSVC
 				-fdiagnostics-color=always
 			)
 		endif()
-	endif()
-
-	add_definitions(
-		-DG_DISABLE_DEPRECATED
-		-DG_DISABLE_SINGLE_INCLUDES
-	)
-	if(DISABLE_ASSERT)
-		add_definitions(-DWS_DISABLE_ASSERT)
-	elseif(CMAKE_VERSION VERSION_GREATER "3.11.99")
-		# Build type dependency requires support for generator expressions.
-		# add_compile_definitions() requires cmake >= 3.12.
-		add_compile_definitions(
-			$<$<CONFIG:Release>:WS_DISABLE_ASSERT>
-		)
-	endif()
-	if(ENABLE_DEBUG)
-		add_definitions(-DWS_DEBUG)
-	elseif(CMAKE_VERSION VERSION_GREATER "3.11.99")
-		add_compile_definitions(
-			$<$<CONFIG:Debug>:WS_DEBUG>
-		)
 	endif()
 
 	set(WIRESHARK_LD_FLAGS
