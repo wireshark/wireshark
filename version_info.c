@@ -422,6 +422,10 @@ get_runtime_version_info(void (*additional_info)(GString *))
 	if (additional_info)
 		(*additional_info)(str);
 
+	/* GLib */
+	g_string_append_printf(str, ", with GLib %u.%u.%u",
+			glib_major_version, glib_minor_version, glib_micro_version);
+
 	/* zlib */
 #if defined(HAVE_ZLIB) && !defined(_WIN32)
 	g_string_append_printf(str, ", with zlib %s", zlibVersion());
