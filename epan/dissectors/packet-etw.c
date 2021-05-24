@@ -304,7 +304,7 @@ proto_register_etw(void)
         &ett_etw_buffer_context
     };
 
-    proto_etw = proto_register_protocol("Event Trace Windows", "ETW", "etw");
+    proto_etw = proto_register_protocol("Event Tracing for Windows", "ETW", "etw");
     proto_register_field_array(proto_etw, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 }

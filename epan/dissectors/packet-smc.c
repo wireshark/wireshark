@@ -1,6 +1,3 @@
-
-
-
 /* packet-smc.c
  * SMC dissector for wireshark
  * By Joe Fowler <fowlerja@us.ibm.com>

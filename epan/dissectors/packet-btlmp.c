@@ -2435,7 +2435,7 @@ proto_register_btlmp(void)
         &ett_btlmp
     };
 
-    proto_btlmp = proto_register_protocol("Bluetooth LMP Protocol", "BT LMP", "btlmp");
+    proto_btlmp = proto_register_protocol("Bluetooth Link Manager Protocol", "BT LMP", "btlmp");
     proto_register_field_array(proto_btlmp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
     btlmp_handle = register_dissector("btlmp", dissect_btlmp, proto_btlmp);

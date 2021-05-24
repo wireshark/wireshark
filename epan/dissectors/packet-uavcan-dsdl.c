@@ -660,7 +660,7 @@ proto_register_dsdl(void)
         &ett_dsdl,
     };
 
-    proto_dsdl = proto_register_protocol("DSDL", "DSDL", "uavcan_dsdl");
+    proto_dsdl = proto_register_protocol("UAVCAN DSDL", "DSDL", "uavcan_dsdl");
 
     proto_register_field_array(proto_dsdl, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
