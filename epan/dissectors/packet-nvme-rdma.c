@@ -1512,7 +1512,7 @@ proto_register_nvme_rdma(void)
                FT_UINT8, BASE_HEX, NULL, 0xC0, NULL, HFILL}
         },
         { &hf_nvme_rdma_cmd_sprop_csts.rsvd1,
-            { "Reserved", "nvme-rdma.cmd.prop_attr.set.csts.rsvd",
+            { "Reserved", "nvme-rdma.cmd.prop_attr.set.csts.rsvd1",
                FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL}
         },
         { &hf_nvme_rdma_cmd_sprop_nssr.nssrc,
@@ -1701,7 +1701,7 @@ proto_register_nvme_rdma(void)
                FT_UINT8, BASE_HEX, NULL, 0xC0, NULL, HFILL}
         },
         { &hf_nvme_rdma_cmd_gprop_csts.rsvd1,
-            { "Reserved", "nvme-rdma.cqe.status.pget.csts.rsvd",
+            { "Reserved", "nvme-rdma.cqe.status.pget.csts.rsvd1",
                FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL}
         },
         { &hf_nvme_rdma_cmd_gprop_nssr.nssrc,

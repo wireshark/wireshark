@@ -3496,7 +3496,7 @@ proto_register_nvme(void)
                FT_BOOLEAN, 8, NULL, 0x2, NULL, HFILL}
         },
         { &hf_nvme_identify_ctrl_lpa[3],
-            { "Extended Data Get Log Page Support", "nvme.cmd.identify.ctrl.lpa.elp.elp",
+            { "Extended Data Get Log Page Support", "nvme.cmd.identify.ctrl.lpa.elp",
                FT_BOOLEAN, 8, NULL, 0x4, NULL, HFILL}
         },
         { &hf_nvme_identify_ctrl_lpa[4],
@@ -3508,7 +3508,7 @@ proto_register_nvme(void)
                FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL}
         },
         { &hf_nvme_identify_ctrl_lpa[6],
-            { "Reserved", "nvme.cmd.identify.ctrl.lpa",
+            { "Reserved", "nvme.cmd.identify.ctrl.lpa.rsvd",
                FT_UINT8, BASE_HEX, NULL, 0xe0, NULL, HFILL}
         },
         { &hf_nvme_identify_ctrl_elpe,
