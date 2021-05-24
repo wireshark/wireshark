@@ -29,50 +29,6 @@ void proto_register_nvme(void);
 
 static int proto_nvme = -1;
 
-/* NVMe Cmd fields */
-
-static int hf_nvme_cmd_opc = -1;
-static int hf_nvme_cmd_rsvd = -1;
-static int hf_nvme_cmd_cid = -1;
-static int hf_nvme_cmd_fuse_op = -1;
-static int hf_nvme_cmd_psdt = -1;
-static int hf_nvme_cmd_nsid = -1;
-static int hf_nvme_cmd_rsvd1 = -1;
-static int hf_nvme_cmd_mptr = -1;
-static int hf_nvme_cmd_sgl = -1;
-static int hf_nvme_cmd_sgl_desc_type = -1;
-static int hf_nvme_cmd_sgl_desc_sub_type = -1;
-static int hf_nvme_cmd_sgl_desc_addr = -1;
-static int hf_nvme_cmd_sgl_desc_addr_rsvd = -1;
-static int hf_nvme_cmd_sgl_desc_len = -1;
-static int hf_nvme_cmd_sgl_desc_rsvd = -1;
-static int hf_nvme_cmd_sgl_desc_key = -1;
-static int hf_nvme_cmd_slba = -1;
-static int hf_nvme_cmd_nlb = -1;
-static int hf_nvme_cmd_rsvd2 = -1;
-static int hf_nvme_cmd_prinfo = -1;
-static int hf_nvme_cmd_prinfo_prchk_lbrtag = -1;
-static int hf_nvme_cmd_prinfo_prchk_apptag = -1;
-static int hf_nvme_cmd_prinfo_prchk_guard = -1;
-static int hf_nvme_cmd_prinfo_pract = -1;
-static int hf_nvme_cmd_fua = -1;
-static int hf_nvme_cmd_lr = -1;
-static int hf_nvme_cmd_eilbrt = -1;
-static int hf_nvme_cmd_elbat = -1;
-static int hf_nvme_cmd_elbatm = -1;
-static int hf_nvme_cmd_dsm = -1;
-static int hf_nvme_cmd_dsm_access_freq = -1;
-static int hf_nvme_cmd_dsm_access_lat = -1;
-static int hf_nvme_cmd_dsm_seq_req = -1;
-static int hf_nvme_cmd_dsm_incompressible = -1;
-static int hf_nvme_cmd_rsvd3 = -1;
-static int hf_nvme_identify_cntid = -1;
-static int hf_nvme_identify_rsvd = -1;
-static int hf_nvme_identify_cns = -1;
-static int hf_nvme_identify_nvmesetid = -1;
-static int hf_nvme_identify_rsvd1 = -1;
-static int hf_nvme_identify_uuid_index = -1;
-
 /* Windows compiler does not support designated Initializers */
 #define NEG_LST_2 -1, -1
 #define NEG_LST_3 -1, -1, -1
@@ -94,6 +50,54 @@ static int hf_nvme_identify_uuid_index = -1;
 #define NEG_LST_19 NEG_LST_10, NEG_LST_9
 #define NEG_LST_20 NEG_LST_10, NEG_LST_10
 #define NEG_LST_32 NEG_LST_16, NEG_LST_16
+
+
+/* NVMe Cmd fields */
+
+static int hf_nvme_cmd_opc = -1;
+static int hf_nvme_cmd_rsvd = -1;
+static int hf_nvme_cmd_cid = -1;
+static int hf_nvme_cmd_fuse_op = -1;
+static int hf_nvme_cmd_psdt = -1;
+static int hf_nvme_cmd_nsid = -1;
+static int hf_nvme_cmd_rsvd1 = -1;
+static int hf_nvme_cmd_mptr = -1;
+static int hf_nvme_cmd_sgl = -1;
+static int hf_nvme_cmd_sgl_desc_type = -1;
+static int hf_nvme_cmd_sgl_desc_sub_type = -1;
+static int hf_nvme_cmd_sgl_desc_addr = -1;
+static int hf_nvme_cmd_sgl_desc_addr_rsvd = -1;
+static int hf_nvme_cmd_sgl_desc_len = -1;
+static int hf_nvme_cmd_sgl_desc_rsvd = -1;
+static int hf_nvme_cmd_sgl_desc_key = -1;
+static int hf_nvme_cmd_dword10 = -1;
+static int hf_nvme_cmd_dword11 = -1;
+static int hf_nvme_cmd_dword12 = -1;
+static int hf_nvme_cmd_dword13 = -1;
+static int hf_nvme_cmd_dword14 = -1;
+static int hf_nvme_cmd_dword15 = -1;
+static int hf_nvme_cmd_slba = -1;
+static int hf_nvme_cmd_nlb = -1;
+static int hf_nvme_cmd_rsvd2 = -1;
+static int hf_nvme_cmd_prinfo = -1;
+static int hf_nvme_cmd_prinfo_prchk_lbrtag = -1;
+static int hf_nvme_cmd_prinfo_prchk_apptag = -1;
+static int hf_nvme_cmd_prinfo_prchk_guard = -1;
+static int hf_nvme_cmd_prinfo_pract = -1;
+static int hf_nvme_cmd_fua = -1;
+static int hf_nvme_cmd_lr = -1;
+static int hf_nvme_cmd_eilbrt = -1;
+static int hf_nvme_cmd_elbat = -1;
+static int hf_nvme_cmd_elbatm = -1;
+static int hf_nvme_cmd_dsm = -1;
+static int hf_nvme_cmd_dsm_access_freq = -1;
+static int hf_nvme_cmd_dsm_access_lat = -1;
+static int hf_nvme_cmd_dsm_seq_req = -1;
+static int hf_nvme_cmd_dsm_incompressible = -1;
+static int hf_nvme_cmd_rsvd3 = -1;
+static int hf_nvme_identify_dword10[4] = { NEG_LST_4 };
+static int hf_nvme_identify_dword11[3] = { NEG_LST_3 };
+static int hf_nvme_identify_dword14[3] = { NEG_LST_3 };
 
 static int hf_nvme_get_logpage_dword10[6] = { NEG_LST_6 };
 static int hf_nvme_get_logpage_numd = -1;
@@ -1413,23 +1417,17 @@ static void dissect_nvme_identify_resp(tvbuff_t *cmd_tvb, proto_tree *cmd_tree,
 static void dissect_nvme_identify_cmd(tvbuff_t *cmd_tvb, proto_tree *cmd_tree,
                                       struct nvme_cmd_ctx *cmd_ctx)
 {
-    guint32 val;
-    proto_item *item;
-
     cmd_ctx->cmd_ctx.cmd_identify.cns = tvb_get_guint16(cmd_tvb, 40, ENC_LITTLE_ENDIAN);
-    item = proto_tree_add_item_ret_uint(cmd_tree, hf_nvme_identify_cns, cmd_tvb,
-                        40, 1, ENC_LITTLE_ENDIAN, &val);
-    proto_item_append_text(item, " %s", val_to_str_const(val, cns_table, "Reserved"));
-    proto_tree_add_item(cmd_tree, hf_nvme_identify_rsvd, cmd_tvb,
-                        41, 1, ENC_NA);
-    proto_tree_add_item(cmd_tree, hf_nvme_identify_cntid, cmd_tvb,
-                        42, 2, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(cmd_tree, hf_nvme_identify_nvmesetid, cmd_tvb,
-                        44, 2, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(cmd_tree, hf_nvme_identify_rsvd1, cmd_tvb,
-                        46, 2, ENC_NA);
-    proto_tree_add_item(cmd_tree, hf_nvme_identify_uuid_index, cmd_tvb,
-                        56, 1, ENC_LITTLE_ENDIAN);
+
+    add_group_mask_entry(cmd_tvb, cmd_tree, 40, 4, ASPEC(hf_nvme_identify_dword10));
+    add_group_mask_entry(cmd_tvb, cmd_tree, 44, 4, ASPEC(hf_nvme_identify_dword11));
+
+    proto_tree_add_item(cmd_tree, hf_nvme_cmd_dword12, cmd_tvb, 48, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cmd_tree, hf_nvme_cmd_dword13, cmd_tvb, 52, 4, ENC_LITTLE_ENDIAN);
+
+    add_group_mask_entry(cmd_tvb, cmd_tree, 56, 4, ASPEC(hf_nvme_identify_dword14));
+
+    proto_tree_add_item(cmd_tree, hf_nvme_cmd_dword15, cmd_tvb, 60, 4, ENC_LITTLE_ENDIAN);
 }
 
 static const value_string logpage_tbl[] = {
@@ -2582,11 +2580,18 @@ static void dissect_nvme_get_logpage_cmd(tvbuff_t *cmd_tvb, proto_tree *cmd_tree
 
     add_group_mask_entry(cmd_tvb, cmd_tree, 40, 4, ASPEC(hf_nvme_get_logpage_dword10));
     ti = proto_tree_add_item_ret_uint(cmd_tree, hf_nvme_get_logpage_numd, cmd_tvb, 42, 4, ENC_LITTLE_ENDIAN, &val);
-    proto_item_append_text(ti, " (%"G_GUINT64_FORMAT" bytes)", ((guint64)(val+1)) * 2);
+    proto_item_append_text(ti, " (%"G_GUINT64_FORMAT" bytes)", ((guint64)(val+1)) * 4);
+
     add_group_mask_entry(cmd_tvb, cmd_tree, 44, 4, ASPEC(hf_nvme_get_logpage_dword11));
+
     proto_tree_add_item_ret_uint64(cmd_tree, hf_nvme_get_logpage_lpo, cmd_tvb, 48, 8, ENC_LITTLE_ENDIAN, &cmd_ctx->cmd_ctx.get_logpage.off);
     cmd_ctx->cmd_ctx.get_logpage.off &= (~((guint64)3)); /* clear two low bits, the target shall either deny the command or clear the bits */
+
+    proto_tree_add_item(cmd_tree, hf_nvme_cmd_dword13, cmd_tvb, 52, 4, ENC_LITTLE_ENDIAN);
+
     add_group_mask_entry(cmd_tvb, cmd_tree, 56, 4, ASPEC(hf_nvme_get_logpage_dword14));
+
+    proto_tree_add_item(cmd_tree, hf_nvme_cmd_dword15, cmd_tvb, 60, 4, ENC_LITTLE_ENDIAN);
 }
 
 static void dissect_nvme_rw_cmd(tvbuff_t *cmd_tvb, proto_tree *cmd_tree)
@@ -2665,6 +2670,16 @@ dissect_nvme_data_response(tvbuff_t *nvme_tvb, packet_info *pinfo, proto_tree *r
     col_append_sep_fstr(pinfo->cinfo, COL_INFO, " | ", "NVMe %s: Data", str_opcode);
 }
 
+static void dissect_nvme_unhandled_cmd(tvbuff_t *nvme_tvb, proto_tree *cmd_tree)
+{
+    proto_tree_add_item(cmd_tree, hf_nvme_cmd_dword10, nvme_tvb, 40, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cmd_tree, hf_nvme_cmd_dword11, nvme_tvb, 44, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cmd_tree, hf_nvme_cmd_dword12, nvme_tvb, 48, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cmd_tree, hf_nvme_cmd_dword13, nvme_tvb, 52, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cmd_tree, hf_nvme_cmd_dword14, nvme_tvb, 56, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cmd_tree, hf_nvme_cmd_dword15, nvme_tvb, 60, 4, ENC_LITTLE_ENDIAN);
+}
+
 void
 dissect_nvme_cmd(tvbuff_t *nvme_tvb, packet_info *pinfo, proto_tree *root_tree,
                  struct nvme_q_ctx *q_ctx, struct nvme_cmd_ctx *cmd_ctx)
@@ -2715,6 +2730,7 @@ dissect_nvme_cmd(tvbuff_t *nvme_tvb, packet_info *pinfo, proto_tree *root_tree,
             dissect_nvme_rw_cmd(nvme_tvb, cmd_tree);
             break;
         default:
+            dissect_nvme_unhandled_cmd(nvme_tvb, cmd_tree);
             break;
         }
     } else { //AQ
@@ -2726,6 +2742,7 @@ dissect_nvme_cmd(tvbuff_t *nvme_tvb, packet_info *pinfo, proto_tree *root_tree,
             dissect_nvme_get_logpage_cmd(nvme_tvb, cmd_tree, cmd_ctx);
             break;
         default:
+            dissect_nvme_unhandled_cmd(nvme_tvb, cmd_tree);
             break;
         }
     }
@@ -2854,6 +2871,30 @@ proto_register_nvme(void)
             { "Reserved", "nvme.cmd.sgl1.rsvd",
                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
+        { &hf_nvme_cmd_dword10,
+            { "DWORD10", "nvme.cmd.dword10",
+               FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_dword11,
+            { "DWORD11", "nvme.cmd.dword11",
+               FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_dword12,
+            { "DWORD12", "nvme.cmd.dword12",
+               FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_dword13,
+            { "DWORD13", "nvme.cmd.dword13",
+               FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_dword14,
+            { "DWORD14", "nvme.cmd.dword14",
+               FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_dword15,
+            { "DWORD15", "nvme.cmd.dword15",
+               FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL}
+        },
         { &hf_nvme_cmd_slba,
             { "Start LBA", "nvme.cmd.slba",
                FT_UINT64, BASE_HEX, NULL, 0, NULL, HFILL}
@@ -2935,29 +2976,45 @@ proto_register_nvme(void)
             { "Reserved", "nvme.cmd.rsvd3",
                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
-        { &hf_nvme_identify_cntid,
-            { "Controller Identifier (CNTID)", "nvme.cmd.identify.cntid",
-               FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        { &hf_nvme_identify_dword10[0],
+            { "DWORD10", "nvme.cmd.identify.dword10",
+               FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
-        { &hf_nvme_identify_rsvd,
-            { "Reserved", "nvme.cmd.identify.rsvd",
-               FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        { &hf_nvme_identify_dword10[1],
+            { "Controller or Namespace Structure (CNS)", "nvme.cmd.identify.dword10.cns",
+               FT_UINT32, BASE_HEX, VALS(cns_table), 0xff, NULL, HFILL}
         },
-        { &hf_nvme_identify_cns,
-            { "Controller or Namespace Structure (CNS)", "nvme.cmd.identify.cns",
-               FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        { &hf_nvme_identify_dword10[2],
+            { "Reserved", "nvme.cmd.identify.dword10.rsvd",
+               FT_UINT32, BASE_HEX, NULL, 0xff00, NULL, HFILL}
         },
-        { &hf_nvme_identify_nvmesetid,
-            { "NVM Set Identifier (NVMSETID)", "nvme.cmd.identify.nvmesetid",
-               FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        { &hf_nvme_identify_dword10[3],
+            { "Controller Identifier (CNTID)", "nvme.cmd.identify.dword10.cntid",
+               FT_UINT32, BASE_HEX, NULL, 0xffff0000, NULL, HFILL}
         },
-        { &hf_nvme_identify_rsvd1,
-            { "Reserved", "nvme.cmd.identify.rsvd1",
-               FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        { &hf_nvme_identify_dword11[0],
+            { "DWORD11", "nvme.cmd.identify.dword11",
+               FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
-        { &hf_nvme_identify_uuid_index,
-            { "UUID Index", "nvme.cmd.identify.uuid_index",
-               FT_UINT8, BASE_HEX, NULL, 0x7f, NULL, HFILL}
+        { &hf_nvme_identify_dword11[1],
+            { "NVM Set Identifier (NVMSETID)", "nvme.cmd.identify.dwrod11.nvmesetid",
+               FT_UINT32, BASE_HEX, NULL, 0xffff, NULL, HFILL}
+        },
+        { &hf_nvme_identify_dword11[2],
+            { "Reserved", "nvme.cmd.identify.dword11.rsvd",
+               FT_UINT32, BASE_HEX, NULL, 0xffff0000, NULL, HFILL}
+        },
+        { &hf_nvme_identify_dword14[0],
+            { "DWORD14", "nvme.cmd.identify.dword14",
+               FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_identify_dword14[1],
+            { "UUID Index", "nvme.cmd.identify.dword14.uuid_index",
+               FT_UINT32, BASE_HEX, NULL, 0x7f, NULL, HFILL}
+        },
+        { &hf_nvme_identify_dword14[2],
+            { "UUID Index", "nvme.cmd.identify.dword14.rsvd",
+               FT_UINT32, BASE_HEX, NULL, 0xffffff80, NULL, HFILL}
         },
         /* get log page */
         { &hf_nvme_get_logpage_dword10[0],
