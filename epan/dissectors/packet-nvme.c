@@ -106,6 +106,35 @@ static int hf_nvme_get_logpage_lpo = -1;
 static int hf_nvme_get_logpage_dword14[3] = { NEG_LST_3 };
 static int hf_nvme_set_features_dword10[4] = { NEG_LST_4 };
 static int hf_nvme_set_features_dword14[3] = { NEG_LST_3 };
+static int hf_nvme_cmd_set_features_dword11_arb[6] = { NEG_LST_6 };
+static int hf_nvme_cmd_set_features_dword11_pm[4] = { NEG_LST_4 };
+static int hf_nvme_cmd_set_features_dword11_lbart[3] = { NEG_LST_3 };
+static int hf_nvme_cmd_set_features_dword11_tt[5] = { NEG_LST_5 };
+static int hf_nvme_cmd_set_features_dword11_erec[4] = { NEG_LST_4 };
+static int hf_nvme_cmd_set_features_dword11_vwce[3] = { NEG_LST_3 };
+static int hf_nvme_cmd_set_features_dword11_nq[3] = { NEG_LST_3 };
+static int hf_nvme_cmd_set_features_dword11_irqc[3] = { NEG_LST_3 };
+static int hf_nvme_cmd_set_features_dword11_irqv[4] = { NEG_LST_4 };
+static int hf_nvme_cmd_set_features_dword11_wan[3] = { NEG_LST_3 };
+static int hf_nvme_cmd_set_features_dword11_aec[11] = { NEG_LST_11 };
+static int hf_nvme_cmd_set_features_dword11_apst[3] = { NEG_LST_3 };
+static int hf_nvme_cmd_set_features_dword11_kat[2] = { NEG_LST_2 };
+static int hf_nvme_cmd_set_features_dword11_hctm[3] = { NEG_LST_3 };
+static int hf_nvme_cmd_set_features_dword11_nops[3] = { NEG_LST_3 };
+static int hf_nvme_cmd_set_features_dword11_rrl[3] = { NEG_LST_3 };
+static int hf_nvme_cmd_set_features_dword12_rrl[3] = { NEG_LST_3 };
+static int hf_nvme_cmd_set_features_dword11_plmc[3] = { NEG_LST_3 };
+static int hf_nvme_cmd_set_features_dword12_plmc[3] = { NEG_LST_3 };
+static int hf_nvme_cmd_set_features_dword11_plmw[3] = { NEG_LST_3 };
+static int hf_nvme_cmd_set_features_dword12_plmw[3] = { NEG_LST_3 };
+static int hf_nvme_cmd_set_features_dword11_lbasi[3] = { NEG_LST_3 };
+static int hf_nvme_cmd_set_features_dword11_san[3] = { NEG_LST_3 };
+static int hf_nvme_cmd_set_features_dword11_eg[4] = { NEG_LST_4 };
+static int hf_nvme_cmd_set_features_dword11_swp[3] = { NEG_LST_3 };
+static int hf_nvme_cmd_set_features_dword11_hid[3] = { NEG_LST_3 };
+static int hf_nvme_cmd_set_features_dword11_rsrvn[6] = { NEG_LST_6 };
+static int hf_nvme_cmd_set_features_dword11_rsrvp[3] = { NEG_LST_3 };
+static int hf_nvme_cmd_set_features_dword11_nswp[3] = { NEG_LST_3 };
 static int hf_nvme_identify_ns_nsze = -1;
 static int hf_nvme_identify_ns_ncap = -1;
 static int hf_nvme_identify_ns_nuse = -1;
@@ -2596,46 +2625,169 @@ static void dissect_nvme_get_logpage_cmd(tvbuff_t *cmd_tvb, proto_tree *cmd_tree
     proto_tree_add_item(cmd_tree, hf_nvme_cmd_dword15, cmd_tvb, 60, 4, ENC_LITTLE_ENDIAN);
 }
 
+typedef enum {
+    F_ARBITRATION = 0x01,
+    F_POWER_MGMT = 0x02,
+    F_LBA_RANGE_TYPE = 0x03,
+    F_TEMP_THRESHOLD = 0x04,
+    F_ERROR_RECOVERY = 0x05,
+    F_VOLATILE_WC = 0x06,
+    F_NUM_OF_QUEUES = 0x07,
+    F_IRQ_COALESCING = 0x08,
+    F_IRQ_VECTOR_CONF = 0x09,
+    F_WRITE_ATOM_NORM = 0x0A,
+    F_ASYNC_EVENT_CONF = 0x0B,
+    F_AUTO_PS_TRANSITION = 0x0C,
+    F_HOST_MEM_BUF = 0x0D,
+    F_TIMESTAMP = 0x0E,
+    F_KA_TIMER = 0x0F,
+    F_HOST_CNTL_THERM_MGMT = 0x10,
+    F_NO_POWER_STATE_CONF = 0x11,
+    F_READ_REC_LEVEL_CONF = 0x12,
+    F_PRED_LAT_MODE_CONF = 0x13,
+    F_PRED_LAT_MODE_WIND = 0x14,
+    F_LBA_ST_INF_REP_INT = 0x15,
+    F_HOST_BEHV_SUPPORT = 0x16,
+    F_SANITIZE_CON = 0x17,
+    F_END_GROUP_EV_CONF = 0x18,
+    F_SW_PR_MARKER = 0x80,
+    F_HOST_ID = 0x81,
+    F_RSRV_NOT_MASK = 0x82,
+    F_RSRV_PRST = 0x83,
+    F_NS_WRITE_CONF = 0x84,
+} nvme_setf_t;
+
+
 static const value_string fid_table[] = {
-    { 0x01, "Arbitration" },
-    { 0x02, "Power Management" },
-    { 0x03, "LBA Range Type" },
-    { 0x04, "Temperature Threshold" },
-    { 0x05, "Error Recovery" },
-    { 0x06, "Volatile Write Cache" },
-    { 0x07, "Number of Queues" },
-    { 0x08, "Interrupt Coalescing" },
-    { 0x09, "Interrupt Vector Configuration" },
-    { 0x0A, "Write Atomicity Normal" },
-    { 0x0B, "Asynchronous Event Configuration" },
-    { 0x0C, "Autonomous Power State Transition" },
-    { 0x0D, "Host Memory Buffer" },
-    { 0x0E, "Timestamp" },
-    { 0x0F, "Keep Alive Timer" },
-    { 0x10, "Host Controlled Thermal Management" },
-    { 0x11, "Non-Operational Power State Config" },
-    { 0x12, "Read Recovery Level Config" },
-    { 0x13, "Predictable Latency Mode Config" },
-    { 0x14, "Predictable Latency Mode Window" },
-    { 0x15, "LBA Status Information Report Interval" },
-    { 0x16, "Host Behavior Support" },
-    { 0x17, "Sanitize Config" },
-    { 0x18, "Endurance Group Event Configuration" },
-    { 0x80, "Software Progress Marker" },
-    { 0x81, "Host Identifier" },
-    { 0x82, "Reservation Notification Mask" },
-    { 0x83, "Reservation Persistence" },
-    { 0x84, "Namespace Write Protection Config" },
+    { F_ARBITRATION, "Arbitration" },
+    { F_POWER_MGMT, "Power Management" },
+    { F_LBA_RANGE_TYPE, "LBA Range Type" },
+    { F_TEMP_THRESHOLD, "Temperature Threshold" },
+    { F_ERROR_RECOVERY, "Error Recovery" },
+    { F_VOLATILE_WC, "Volatile Write Cache" },
+    { F_NUM_OF_QUEUES, "Number of Queues" },
+    { F_IRQ_COALESCING, "Interrupt Coalescing" },
+    { F_IRQ_VECTOR_CONF, "Interrupt Vector Configuration" },
+    { F_WRITE_ATOM_NORM, "Write Atomicity Normal" },
+    { F_ASYNC_EVENT_CONF, "Asynchronous Event Configuration" },
+    { F_AUTO_PS_TRANSITION, "Autonomous Power State Transition" },
+    { F_HOST_MEM_BUF, "Host Memory Buffer" },
+    { F_TIMESTAMP, "Timestamp" },
+    { F_KA_TIMER, "Keep Alive Timer" },
+    { F_HOST_CNTL_THERM_MGMT, "Host Controlled Thermal Management" },
+    { F_NO_POWER_STATE_CONF, "Non-Operational Power State Config" },
+    { F_READ_REC_LEVEL_CONF, "Read Recovery Level Config" },
+    { F_PRED_LAT_MODE_CONF, "Predictable Latency Mode Config" },
+    { F_PRED_LAT_MODE_WIND, "Predictable Latency Mode Window" },
+    { F_LBA_ST_INF_REP_INT, "LBA Status Information Report Interval" },
+    { F_HOST_BEHV_SUPPORT, "Host Behavior Support" },
+    { F_SANITIZE_CON, "Sanitize Config" },
+    { F_END_GROUP_EV_CONF, "Endurance Group Event Configuration" },
+    { F_SW_PR_MARKER, "Software Progress Marker" },
+    { F_HOST_ID, "Host Identifier" },
+    { F_RSRV_NOT_MASK, "Reservation Notification Mask" },
+    { F_RSRV_PRST, "Reservation Persistence" },
+    { F_NS_WRITE_CONF, "Namespace Write Protection Config" },
     { 0, NULL },
 };
+
+static const value_string sf_tmpsel_table[] = {
+    { 0x0, "Composite Temperature" },
+    { 0x1, "Temperature Sensor 1" },
+    { 0x2, "Temperature Sensor 2" },
+    { 0x3, "Temperature Sensor 3" },
+    { 0x4, "Temperature Sensor 4" },
+    { 0x5, "Temperature Sensor 5" },
+    { 0x6, "Temperature Sensor 6" },
+    { 0x7, "Temperature Sensor 7" },
+    { 0x8, "Temperature Sensor 8" },
+    { 0xF, "All Temperature Sensors" },
+    { 0, NULL },
+};
+
+static const value_string sf_thpsel_table[] = {
+    { 0x0, "Over Temperature Threshold" },
+    { 0x1, "Under Temperature Threshold" },
+    { 0x2, "Reserved" },
+    { 0x3, "Reserved" },
+    { 0, NULL },
+};
+
+static const value_string sf_ws_table[] = {
+    { 0x0, "Reserved" },
+    { 0x1, "Deterministic Window" },
+    { 0x2, "Non-Deterministic Window" },
+    { 0x3, "Reserved" },
+    { 0x4, "Reserved" },
+    { 0x5, "Reserved" },
+    { 0x6, "Reserved" },
+    { 0x7, "Reserved" },
+    { 0, NULL },
+};
+
+static const value_string sf_wps[] = {
+    { 0x0, "No Write Protect" },
+    { 0x1, "Write Protect" },
+    { 0x2, "Write Protect Until Power Cycle" },
+    { 0x3, "Permanent Write Protect" },
+    { 0x4, "Reserved" },
+    { 0x5, "Reserved" },
+    { 0x6, "Reserved" },
+    { 0x7, "Reserved" },
+    { 0, NULL },
+};
+
+
+static void dissect_nvme_set_features_dword11(tvbuff_t *cmd_tvb, proto_tree *cmd_tree, guint fid)
+{
+    switch (fid) {
+        case F_ARBITRATION: add_group_mask_entry(cmd_tvb, cmd_tree, 44, 4, ASPEC(hf_nvme_cmd_set_features_dword11_arb)); break;
+        case F_POWER_MGMT: add_group_mask_entry(cmd_tvb, cmd_tree, 44, 4, ASPEC(hf_nvme_cmd_set_features_dword11_pm)); break;
+        case F_LBA_RANGE_TYPE: add_group_mask_entry(cmd_tvb, cmd_tree, 44, 4, ASPEC(hf_nvme_cmd_set_features_dword11_lbart)); break;
+        case F_TEMP_THRESHOLD: add_group_mask_entry(cmd_tvb, cmd_tree, 44, 4, ASPEC(hf_nvme_cmd_set_features_dword11_tt)); break;
+        case F_ERROR_RECOVERY: add_group_mask_entry(cmd_tvb, cmd_tree, 44, 4, ASPEC(hf_nvme_cmd_set_features_dword11_erec)); break;
+        case F_VOLATILE_WC: add_group_mask_entry(cmd_tvb, cmd_tree, 44, 4, ASPEC(hf_nvme_cmd_set_features_dword11_vwce)); break;
+        case F_NUM_OF_QUEUES: add_group_mask_entry(cmd_tvb, cmd_tree, 44, 4, ASPEC(hf_nvme_cmd_set_features_dword11_nq)); break;
+        case F_IRQ_COALESCING: add_group_mask_entry(cmd_tvb, cmd_tree, 44, 4, ASPEC(hf_nvme_cmd_set_features_dword11_irqc)); break;
+        case F_IRQ_VECTOR_CONF: add_group_mask_entry(cmd_tvb, cmd_tree, 44, 4, ASPEC(hf_nvme_cmd_set_features_dword11_irqv)); break;
+        case F_WRITE_ATOM_NORM: add_group_mask_entry(cmd_tvb, cmd_tree, 44, 4, ASPEC(hf_nvme_cmd_set_features_dword11_wan)); break;
+        case F_ASYNC_EVENT_CONF: add_group_mask_entry(cmd_tvb, cmd_tree, 44, 4, ASPEC(hf_nvme_cmd_set_features_dword11_aec)); break;
+        case F_AUTO_PS_TRANSITION: add_group_mask_entry(cmd_tvb, cmd_tree, 44, 4, ASPEC(hf_nvme_cmd_set_features_dword11_apst)); break;
+        case F_KA_TIMER: add_group_mask_entry(cmd_tvb, cmd_tree, 44, 4, ASPEC(hf_nvme_cmd_set_features_dword11_kat)); break;
+        case F_HOST_CNTL_THERM_MGMT: add_group_mask_entry(cmd_tvb, cmd_tree, 44, 4, ASPEC(hf_nvme_cmd_set_features_dword11_hctm)); break;
+        case F_NO_POWER_STATE_CONF: add_group_mask_entry(cmd_tvb, cmd_tree, 44, 4, ASPEC(hf_nvme_cmd_set_features_dword11_nops)); break;
+        case F_READ_REC_LEVEL_CONF: add_group_mask_entry(cmd_tvb, cmd_tree, 44, 4, ASPEC(hf_nvme_cmd_set_features_dword11_rrl)); break;
+        case F_PRED_LAT_MODE_CONF: add_group_mask_entry(cmd_tvb, cmd_tree, 44, 4, ASPEC(hf_nvme_cmd_set_features_dword11_plmc)); break;
+        case F_PRED_LAT_MODE_WIND: add_group_mask_entry(cmd_tvb, cmd_tree, 44, 4, ASPEC(hf_nvme_cmd_set_features_dword11_plmw)); break;
+        case F_LBA_ST_INF_REP_INT: add_group_mask_entry(cmd_tvb, cmd_tree, 44, 4, ASPEC(hf_nvme_cmd_set_features_dword11_lbasi)); break;
+        case F_SANITIZE_CON: add_group_mask_entry(cmd_tvb, cmd_tree, 44, 4, ASPEC(hf_nvme_cmd_set_features_dword11_san)); break;
+        case F_END_GROUP_EV_CONF: add_group_mask_entry(cmd_tvb, cmd_tree, 44, 4, ASPEC(hf_nvme_cmd_set_features_dword11_eg)); break;
+        case F_SW_PR_MARKER: add_group_mask_entry(cmd_tvb, cmd_tree, 44, 4, ASPEC(hf_nvme_cmd_set_features_dword11_swp)); break;
+        case F_HOST_ID: add_group_mask_entry(cmd_tvb, cmd_tree, 44, 4, ASPEC(hf_nvme_cmd_set_features_dword11_hid)); break;
+        case F_RSRV_NOT_MASK: add_group_mask_entry(cmd_tvb, cmd_tree, 44, 4, ASPEC(hf_nvme_cmd_set_features_dword11_rsrvn)); break;
+        case F_RSRV_PRST: add_group_mask_entry(cmd_tvb, cmd_tree, 44, 4, ASPEC(hf_nvme_cmd_set_features_dword11_rsrvp)); break;
+        case F_NS_WRITE_CONF: add_group_mask_entry(cmd_tvb, cmd_tree, 44, 4, ASPEC(hf_nvme_cmd_set_features_dword11_nswp)); break;
+        default: proto_tree_add_item(cmd_tree, hf_nvme_cmd_dword11, cmd_tvb, 44, 4, ENC_LITTLE_ENDIAN);
+    }
+}
+
+static void dissect_nvme_set_features_dword12(tvbuff_t *cmd_tvb, proto_tree *cmd_tree, guint fid)
+{
+    switch (fid) {
+        case F_READ_REC_LEVEL_CONF: add_group_mask_entry(cmd_tvb, cmd_tree, 48, 4, ASPEC(hf_nvme_cmd_set_features_dword12_rrl)); break;
+        case F_PRED_LAT_MODE_CONF: add_group_mask_entry(cmd_tvb, cmd_tree, 48, 4, ASPEC(hf_nvme_cmd_set_features_dword12_plmc)); break;
+        case F_PRED_LAT_MODE_WIND: add_group_mask_entry(cmd_tvb, cmd_tree, 48, 4, ASPEC(hf_nvme_cmd_set_features_dword12_plmw)); break;
+        default: proto_tree_add_item(cmd_tree, hf_nvme_cmd_dword12, cmd_tvb, 48, 4, ENC_LITTLE_ENDIAN);
+    }
+}
 
 static void dissect_nvme_set_features_cmd(tvbuff_t *cmd_tvb, proto_tree *cmd_tree,
                                       struct nvme_cmd_ctx *cmd_ctx)
 {
     cmd_ctx->cmd_ctx.set_features.fid = tvb_get_guint8(cmd_tvb, 40);
     add_group_mask_entry(cmd_tvb, cmd_tree, 40, 4, ASPEC(hf_nvme_set_features_dword10));
-    proto_tree_add_item(cmd_tree, hf_nvme_cmd_dword11, cmd_tvb, 44, 4, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(cmd_tree, hf_nvme_cmd_dword12, cmd_tvb, 48, 4, ENC_LITTLE_ENDIAN);
+    dissect_nvme_set_features_dword11(cmd_tvb, cmd_tree, cmd_ctx->cmd_ctx.set_features.fid);
+    dissect_nvme_set_features_dword12(cmd_tvb, cmd_tree, cmd_ctx->cmd_ctx.set_features.fid);
     proto_tree_add_item(cmd_tree, hf_nvme_cmd_dword13, cmd_tvb, 52, 4, ENC_LITTLE_ENDIAN);
     add_group_mask_entry(cmd_tvb, cmd_tree, 56, 4, ASPEC(hf_nvme_set_features_dword14));
     proto_tree_add_item(cmd_tree, hf_nvme_cmd_dword15, cmd_tvb, 60, 4, ENC_LITTLE_ENDIAN);
@@ -3151,6 +3303,426 @@ proto_register_nvme(void)
         { &hf_nvme_set_features_dword14[2],
             { "Reserved", "nvme.cmd.set_features.dword14.rsvd",
                FT_UINT32, BASE_HEX, NULL, 0xffffff80, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_arb[0],
+            { "DWORD11", "nvme.cmd.set_features.dword11.arb",
+               FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_arb[1],
+            { "Arbitration Burst", "nvme.cmd.set_features.dword11.arb.ab",
+               FT_UINT32, BASE_HEX, NULL, 0x7, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_arb[3],
+            { "Low Priority Weight", "nvme.cmd.set_features.dword11.arb.lpw",
+               FT_UINT32, BASE_HEX, NULL, 0xff00, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_arb[4],
+            { "Medium Priority Weight", "nvme.cmd.set_features.dword11.arb.mpw",
+               FT_UINT32, BASE_HEX, NULL, 0xff0000, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_arb[5],
+            { "High Priority Weight", "nvme.cmd.set_features.dword11.arb.hpw",
+               FT_UINT32, BASE_HEX, NULL, 0xff000000, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_pm[0],
+            { "DWORD11", "nvme.cmd.set_features.dword11.pm",
+               FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_pm[1],
+            { "Power State", "nvme.cmd.set_features.dword11.pm.ps",
+               FT_UINT32, BASE_HEX, NULL, 0x1f, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_pm[2],
+            { "Work Hint", "nvme.cmd.set_features.dword11.pm.wh",
+               FT_UINT32, BASE_HEX, NULL, 0xe0, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_pm[3],
+            { "Work Hint", "nvme.cmd.set_features.dword11.pm.rsvd",
+               FT_UINT32, BASE_HEX, NULL, 0xff000000, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_lbart[0],
+            { "DWORD11", "nvme.cmd.set_features.dword11.lbart",
+               FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_lbart[1],
+            { "DWORD11", "nvme.cmd.set_features.dword11.lbart.lbarn",
+               FT_UINT32, BASE_HEX, NULL, 0x3f, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_lbart[2],
+            { "DWORD11", "nvme.cmd.set_features.dword11.lbart.rsvd",
+               FT_UINT32, BASE_HEX, NULL, 0xffffffc0, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_tt[0],
+            { "DWORD11", "nvme.cmd.set_features.dword11.tt",
+               FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_tt[1],
+            { "Temperature Threshold", "nvme.cmd.set_features.dword11.tt.tmpth",
+               FT_UINT32, BASE_HEX, NULL, 0xffff, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_tt[2],
+            { "Threshold Temperature Select", "nvme.cmd.set_features.dword11.tt.tmpsel",
+               FT_UINT32, BASE_HEX, VALS(sf_tmpsel_table), 0xf0000, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_tt[3],
+            { "Threshold Type Select", "nvme.cmd.set_features.dword11.tt.thpsel",
+               FT_UINT32, BASE_HEX, VALS(sf_thpsel_table), 0x300000, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_tt[4],
+            { "Reserved", "nvme.cmd.set_features.dword11.tt.rsvd",
+               FT_UINT32, BASE_HEX, NULL, 0xc00000, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_erec[0],
+            { "DWORD11", "nvme.cmd.set_features.dword11.erec",
+               FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_erec[1],
+            { "Time Limited Error Recovery (100 ms units)", "nvme.cmd.set_features.dword11.erec.tler",
+               FT_UINT32, BASE_HEX, NULL, 0xffff, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_erec[2],
+            { "Deallocated or Unwritten Logical Block Error Enable", "nvme.cmd.set_features.dword11.erec.dulbe",
+               FT_BOOLEAN, 32, NULL, 0x10000, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_erec[3],
+            { "Reserved", "nvme.cmd.set_features.dword11.erec.rsvd",
+               FT_UINT32, BASE_HEX, NULL, 0xfe0000, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_vwce[0],
+            { "DWORD11", "nvme.cmd.set_features.dword11.vwce",
+               FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_vwce[1],
+            { "Volatile Write Cache Enable", "nvme.cmd.set_features.dword11.vwce.wce",
+               FT_BOOLEAN, 32, NULL, 0x1, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_vwce[2],
+            { "Volatile Write Cache Enable", "nvme.cmd.set_features.dword11.vwce.rsvd",
+               FT_UINT32, BASE_HEX, NULL, 0xfffffffe, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_nq[0],
+            { "DWORD11", "nvme.cmd.set_features.dword11.nq",
+               FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_nq[1],
+            { "Number of IO Submission Queues Requested", "nvme.cmd.set_features.dword11.nq.nsqr",
+               FT_UINT32, BASE_DEC, NULL, 0xffff, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_nq[2],
+            { "Number of IO Completion Queues Requested", "nvme.cmd.set_features.dword11.nq.ncqr",
+               FT_UINT32, BASE_DEC, NULL, 0xffff0000, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_irqc[0],
+            { "DWORD11", "nvme.cmd.set_features.dword11.irqc",
+               FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_irqc[1],
+            { "Aggregation Threshold", "nvme.cmd.set_features.dword11.irqc.thr",
+               FT_UINT32, BASE_HEX, NULL, 0xffff, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_irqc[2],
+            { "Aggregation Time (100 us units)", "nvme.cmd.set_features.dword11.irqc.time",
+               FT_UINT32, BASE_HEX, NULL, 0xffff0000, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_irqv[0],
+            { "DWORD11", "nvme.cmd.set_features.dword11.irqv",
+               FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_irqv[1],
+            { "IRQ Vector", "nvme.cmd.set_features.dword11.irqv.iv",
+               FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_irqv[2],
+            { "Coalescing Disable", "nvme.cmd.set_features.dword11.irqv.cd",
+               FT_BOOLEAN, 32, NULL, 0x1ffff, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_irqv[3],
+            { "Reserved", "nvme.cmd.set_features.dword11.irqv.rsvd",
+               FT_UINT32, BASE_HEX, NULL, 0xfffe0000, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_wan[0],
+            { "DWORD11", "nvme.cmd.set_features.dword11.wan",
+               FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_wan[1],
+            { "Disable Normal", "nvme.cmd.set_features.dword11.wan.dn",
+               FT_BOOLEAN, 32, NULL, 0x1, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_wan[2],
+            { "Reserved", "nvme.cmd.set_features.dword11.wan.rsvd",
+               FT_UINT32, BASE_HEX, NULL, 0xfffffffe, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_aec[0],
+            { "DWORD11", "nvme.cmd.set_features.dword11.aec",
+               FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_aec[1],
+            { "SMART and Health Critical Warnings Bitmask", "nvme.cmd.set_features.dword11.aec.smart",
+               FT_UINT32, BASE_HEX, NULL, 0xff, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_aec[2],
+            { "Namespace Attribute Notices", "nvme.cmd.set_features.dword11.aec.ns",
+               FT_BOOLEAN, 32, NULL, 0x100, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_aec[3],
+            { "Firmware Activation Notices", "nvme.cmd.set_features.dword11.aec.fwa",
+               FT_BOOLEAN, 32, NULL, 0x200, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_aec[4],
+            { "Telemetry Log Notices", "nvme.cmd.set_features.dword11.aec.tel",
+               FT_BOOLEAN, 32, NULL, 0x400, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_aec[5],
+            { "ANA Change Notices", "nvme.cmd.set_features.dword11.aec.ana",
+               FT_BOOLEAN, 32, NULL, 0x800, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_aec[6],
+            { "Predictable Latency Event Aggregate Log Change Notices", "nvme.cmd.set_features.dword11.aec.plat",
+               FT_BOOLEAN, 32, NULL, 0x1000, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_aec[7],
+            { "LBA Status Information Notices", "nvme.cmd.set_features.dword11.aec.lba",
+               FT_BOOLEAN, 32, NULL, 0x2000, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_aec[8],
+            { "Endurance Group Event Aggregate Log Change Notices", "nvme.cmd.set_features.dword11.aec.eg",
+               FT_BOOLEAN, 32, NULL, 0x4000, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_aec[9],
+            { "Reserved", "nvme.cmd.set_features.dword11.aec.rsvd",
+               FT_UINT32, BASE_HEX, NULL, 0x7fff8000, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_aec[10],
+            { "Discovery Log Page Change Notification", "nvme.cmd.set_features.dword11.aec.disc",
+               FT_BOOLEAN, 32, NULL, 0x80000000, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_apst[0],
+            { "DWORD11", "nvme.cmd.set_features.dword11.apst",
+               FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_apst[1],
+            { "Autonomous Power State Transition Enable", "nvme.cmd.set_features.dword11.apst.apste",
+               FT_BOOLEAN, 32, NULL, 0x1, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_apst[2],
+            { "Reserved", "nvme.cmd.set_features.dword11.apst.rsvd",
+               FT_UINT32, BASE_HEX, NULL, 0xfffffffe, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_kat[0],
+            { "DWORD11", "nvme.cmd.set_features.dword11.kat",
+               FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_kat[1],
+            { "Keep Alive Timeout (ms)", "nvme.cmd.set_features.dword11.kat.kato",
+               FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_hctm[0],
+            { "DWORD11", "nvme.cmd.set_features.dword11.hctm",
+               FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_hctm[1],
+            { "Thermal Management Temperature 2 (K)", "nvme.cmd.set_features.dword11.hctm.tmt2",
+               FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_hctm[2],
+            { "Thermal Management Temperature 1 (K)", "nvme.cmd.set_features.dword11.hctm.tmt1",
+               FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_nops[0],
+            { "DWORD11", "nvme.cmd.set_features.dword11.nops",
+               FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_nops[1],
+            { "Non-Operational Power State Permissive Mode Enable", "nvme.cmd.set_features.dword11.nops.noppme",
+               FT_UINT32, BASE_HEX, NULL, 0x1, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_nops[2],
+            { "Reserved", "nvme.cmd.set_features.dword11.nops.rsvd",
+               FT_UINT32, BASE_HEX, NULL, 0xfffffffe, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_rrl[0],
+            { "DWORD11", "nvme.cmd.set_features.dword11.rrl",
+               FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_rrl[1],
+            { "NVM Set Identifier", "nvme.cmd.set_features.dword11.rrl.nvmsetid",
+               FT_UINT32, BASE_HEX, NULL, 0xffff, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_rrl[2],
+            { "Reserved", "nvme.cmd.set_features.dword11.rrl.rsvd",
+               FT_UINT32, BASE_HEX, NULL, 0xffff0000, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword12_rrl[0],
+            { "DWORD12", "nvme.cmd.set_features.dword12.rrl",
+               FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword12_rrl[1],
+            { "Read Recovery Level", "nvme.cmd.set_features.dword12.rrl.rrl",
+               FT_UINT32, BASE_HEX, NULL, 0xf, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword12_rrl[2],
+            { "Reserved", "nvme.cmd.set_features.dword12.rrl.rsvd",
+               FT_UINT32, BASE_HEX, NULL, 0xfffffff0, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_plmc[0],
+            { "DWORD11", "nvme.cmd.set_features.dword11.plmc",
+               FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_plmc[1],
+            { "NVM Set Identifier", "nvme.cmd.set_features.dword11.plmc.nvmsetid",
+               FT_UINT32, BASE_HEX, NULL, 0xffff, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_plmc[2],
+            { "Reserved", "nvme.cmd.set_features.dword11.plmc.rsvd",
+               FT_UINT32, BASE_HEX, NULL, 0xffff0000, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword12_plmc[0],
+            { "DWORD12", "nvme.cmd.set_features.dword12.plmc",
+               FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword12_plmc[1],
+            { "Predictable Latency Enable", "nvme.cmd.set_features.dword12.plmc.ple",
+               FT_BOOLEAN, 32, NULL, 0x1, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword12_plmc[2],
+            { "Reserved", "nvme.cmd.set_features.dword12.plmc.rsvd",
+               FT_UINT32, BASE_HEX, NULL, 0xfffffffe, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_plmw[0],
+            { "DWORD11", "nvme.cmd.set_features.dword11.plmw",
+               FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_plmw[1],
+            { "NVM Set Identifier", "nvme.cmd.set_features.dword11.plmw.nvmsetid",
+               FT_UINT32, BASE_HEX, NULL, 0xffff, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_plmw[2],
+            { "Reserved", "nvme.cmd.set_features.dword11.plmw.rsvd",
+               FT_UINT32, BASE_HEX, NULL, 0xffff0000, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword12_plmw[0],
+            { "DWORD12", "nvme.cmd.set_features.dword12.plmw",
+               FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword12_plmw[1],
+            { "DWORD12", "nvme.cmd.set_features.dword12.plmw.ws",
+               FT_UINT32, BASE_HEX, VALS(sf_ws_table), 0x7, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword12_plmw[2],
+            { "Reserved", "nvme.cmd.set_features.dword12.plmw.rsvd",
+               FT_UINT32, BASE_HEX, NULL, 0xfffffff8, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_lbasi[0],
+            { "DWORD11", "nvme.cmd.set_features.dword11.lbasi",
+               FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_lbasi[1],
+            { "LBA Status Information Report Interval (100 ms)", "nvme.cmd.set_features.dword11.lbasi.lsiri",
+               FT_UINT32, BASE_HEX, NULL, 0xffff, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_lbasi[2],
+            { "LBA Status Information Poll Interval (100 ms)", "nvme.cmd.set_features.dword11.lbasi.lsipi",
+               FT_UINT32, BASE_HEX, NULL, 0xffff0000, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_san[0],
+            { "DWORD11", "nvme.cmd.set_features.dword11.san",
+               FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_san[1],
+            { "No-Deallocate Response Mode", "nvme.cmd.set_features.dword11.san.nodrm",
+               FT_BOOLEAN, 32, NULL, 0x1, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_san[2],
+            { "Reserved", "nvme.cmd.set_features.dword11.san.rsvd",
+               FT_UINT32, BASE_HEX, NULL, 0xfffffffe, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_eg[0],
+            { "DWORD11", "nvme.cmd.set_features.dword11.eg",
+               FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_eg[1],
+            { "Endurance Group Identifier", "nvme.cmd.set_features.dword11.eg.endgid",
+               FT_UINT32, BASE_HEX, NULL, 0xffff, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_eg[2],
+            { "Endurance Group Critical Warnings Bitmask", "nvme.cmd.set_features.dword11.eg.egcw",
+               FT_UINT32, BASE_HEX, NULL, 0xff0000, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_eg[3],
+            { "Reserved", "nvme.cmd.set_features.dword11.eg.rsvd",
+               FT_UINT32, BASE_HEX, NULL, 0xff000000, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_swp[0],
+            { "DWORD11", "nvme.cmd.set_features.dword11.swp",
+               FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_swp[1],
+            { "Pre-boot Software Load Count", "nvme.cmd.set_features.dword11.swp.pbslc",
+               FT_UINT32, BASE_HEX, NULL, 0xff, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_swp[2],
+            { "Reserved", "nvme.cmd.set_features.dword11.swp.rsvd",
+               FT_UINT32, BASE_HEX, NULL, 0xffffff00, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_hid[0],
+            { "DWORD11", "nvme.cmd.set_features.dword11.hid",
+               FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_hid[1],
+            { "Enable Extended Host Identifier", "nvme.cmd.set_features.dword11.hid.exhid",
+               FT_BOOLEAN, 32, NULL, 0x1, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_hid[2],
+            { "Reserved", "nvme.cmd.set_features.dword11.hid.rsvd",
+               FT_UINT32, BASE_HEX, NULL, 0xfffffffe, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_rsrvn[0],
+            { "DWORD11", "nvme.cmd.set_features.dword11.rsrvn",
+               FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_rsrvn[1],
+            { "Reserved", "nvme.cmd.set_features.dword11.rsrvn.rsvd0",
+               FT_UINT32, BASE_HEX, NULL, 0x1, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_rsrvn[2],
+            { "Mask Registration Preempted Notification" , "nvme.cmd.set_features.dword11.rsrvn.regpre",
+               FT_BOOLEAN, 32, NULL, 0x2, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_rsrvn[3],
+            { "Mask Reservation Released Notification", "nvme.cmd.set_features.dword11.rsrvn.resrel",
+               FT_BOOLEAN, 32, NULL, 0x4, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_rsrvn[4],
+            { "Mask Reservation Preempted Notification", "nvme.cmd.set_features.dword11.rsrvn.resrpe",
+               FT_BOOLEAN, 32, NULL, 0x8, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_rsrvn[5],
+            { "Reserved", "nvme.cmd.set_features.dword11.rsrvn.rsvd1",
+               FT_UINT32, BASE_HEX, NULL, 0xfffff0, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_rsrvp[0],
+            { "DWORD11", "nvme.cmd.set_features.dword11.rsrvp",
+               FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_rsrvp[1],
+            { "Persist Through Power Loss", "nvme.cmd.set_features.dword11.rsrvp.ptpl",
+               FT_BOOLEAN, 32, NULL, 0x1, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_rsrvp[2],
+            { "Reserved", "nvme.cmd.set_features.dword11.rsrvp.rsvd",
+               FT_UINT32, BASE_HEX, NULL, 0xfffffffe, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_nswp[0],
+            { "DWORD11", "nvme.cmd.set_features.dword11.nswp",
+               FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_nswp[1],
+            { "DWORD11", "nvme.cmd.set_features.dword11.nswp.wps",
+               FT_UINT32, BASE_HEX, VALS(sf_wps), 0x7, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_set_features_dword11_nswp[2],
+            { "DWORD11", "nvme.cmd.set_features.dword11.nswp.rsvd",
+               FT_UINT32, BASE_HEX, NULL, 0xfffffff8, NULL, HFILL}
         },
         /* Identify NS response */
         { &hf_nvme_identify_ns_nsze,
