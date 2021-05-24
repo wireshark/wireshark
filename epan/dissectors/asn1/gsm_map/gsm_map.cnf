@@ -1083,28 +1083,15 @@ MAP interfaces
 #.FN_BODY APN VAL_PTR = &parameter_tvb
     tvbuff_t	*parameter_tvb;
     proto_tree	*subtree;
-    int			length, name_len, tmp;
-    guint8		*apn_str = NULL;
+    const guint8		*apn_str = NULL;
 
 %(DEFAULT_BODY)s
 	if (!parameter_tvb)
                 return offset;
 
-    length = tvb_reported_length(parameter_tvb);
-    name_len = tvb_get_guint8(parameter_tvb, 0);
-    apn_str = tvb_get_string_enc(wmem_packet_scope(), parameter_tvb, 1, length - 1, ENC_ASCII|ENC_NA);
-    if (name_len < length-1) {
-		for (;;) {
-			if (name_len >= length - 1)
-				break;
-			tmp = name_len;
-			name_len = name_len + apn_str[tmp] + 1;
-			apn_str[tmp] = '.';
-		}
-	}
-	proto_item_append_text(actx->created_item, " - %%s", apn_str);
 	subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_apn_str);
-	proto_tree_add_string(subtree, hf_gsm_apn_str, parameter_tvb, 0, -1, apn_str);
+	proto_tree_add_item_ret_string(subtree, hf_gsm_apn_str, parameter_tvb, 0, -1, ENC_APN_STR | ENC_NA, wmem_packet_scope(), &apn_str);
+	proto_item_append_text(actx->created_item, " - %%s", apn_str);
 
 
 #.FN_BODY LocationNumber VAL_PTR = &parameter_tvb
