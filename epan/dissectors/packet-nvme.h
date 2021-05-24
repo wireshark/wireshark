@@ -45,6 +45,9 @@ struct nvme_cmd_ctx {
             guint64 off;
             guint8 uid_idx;
         } get_logpage;
+        struct {
+            guint8 fid;
+        } set_features;
     } cmd_ctx;
     guint8  opcode;
 };

@@ -104,6 +104,8 @@ static int hf_nvme_get_logpage_numd = -1;
 static int hf_nvme_get_logpage_dword11[3] = { NEG_LST_3 };
 static int hf_nvme_get_logpage_lpo = -1;
 static int hf_nvme_get_logpage_dword14[3] = { NEG_LST_3 };
+static int hf_nvme_set_features_dword10[4] = { NEG_LST_4 };
+static int hf_nvme_set_features_dword14[3] = { NEG_LST_3 };
 static int hf_nvme_identify_ns_nsze = -1;
 static int hf_nvme_identify_ns_ncap = -1;
 static int hf_nvme_identify_ns_nuse = -1;
@@ -2594,6 +2596,51 @@ static void dissect_nvme_get_logpage_cmd(tvbuff_t *cmd_tvb, proto_tree *cmd_tree
     proto_tree_add_item(cmd_tree, hf_nvme_cmd_dword15, cmd_tvb, 60, 4, ENC_LITTLE_ENDIAN);
 }
 
+static const value_string fid_table[] = {
+    { 0x01, "Arbitration" },
+    { 0x02, "Power Management" },
+    { 0x03, "LBA Range Type" },
+    { 0x04, "Temperature Threshold" },
+    { 0x05, "Error Recovery" },
+    { 0x06, "Volatile Write Cache" },
+    { 0x07, "Number of Queues" },
+    { 0x08, "Interrupt Coalescing" },
+    { 0x09, "Interrupt Vector Configuration" },
+    { 0x0A, "Write Atomicity Normal" },
+    { 0x0B, "Asynchronous Event Configuration" },
+    { 0x0C, "Autonomous Power State Transition" },
+    { 0x0D, "Host Memory Buffer" },
+    { 0x0E, "Timestamp" },
+    { 0x0F, "Keep Alive Timer" },
+    { 0x10, "Host Controlled Thermal Management" },
+    { 0x11, "Non-Operational Power State Config" },
+    { 0x12, "Read Recovery Level Config" },
+    { 0x13, "Predictable Latency Mode Config" },
+    { 0x14, "Predictable Latency Mode Window" },
+    { 0x15, "LBA Status Information Report Interval" },
+    { 0x16, "Host Behavior Support" },
+    { 0x17, "Sanitize Config" },
+    { 0x18, "Endurance Group Event Configuration" },
+    { 0x80, "Software Progress Marker" },
+    { 0x81, "Host Identifier" },
+    { 0x82, "Reservation Notification Mask" },
+    { 0x83, "Reservation Persistence" },
+    { 0x84, "Namespace Write Protection Config" },
+    { 0, NULL },
+};
+
+static void dissect_nvme_set_features_cmd(tvbuff_t *cmd_tvb, proto_tree *cmd_tree,
+                                      struct nvme_cmd_ctx *cmd_ctx)
+{
+    cmd_ctx->cmd_ctx.set_features.fid = tvb_get_guint8(cmd_tvb, 40);
+    add_group_mask_entry(cmd_tvb, cmd_tree, 40, 4, ASPEC(hf_nvme_set_features_dword10));
+    proto_tree_add_item(cmd_tree, hf_nvme_cmd_dword11, cmd_tvb, 44, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cmd_tree, hf_nvme_cmd_dword12, cmd_tvb, 48, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cmd_tree, hf_nvme_cmd_dword13, cmd_tvb, 52, 4, ENC_LITTLE_ENDIAN);
+    add_group_mask_entry(cmd_tvb, cmd_tree, 56, 4, ASPEC(hf_nvme_set_features_dword14));
+    proto_tree_add_item(cmd_tree, hf_nvme_cmd_dword15, cmd_tvb, 60, 4, ENC_LITTLE_ENDIAN);
+}
+
 static void dissect_nvme_rw_cmd(tvbuff_t *cmd_tvb, proto_tree *cmd_tree)
 {
     proto_item *ti, *dsm_tree, *item;
@@ -2740,6 +2787,9 @@ dissect_nvme_cmd(tvbuff_t *nvme_tvb, packet_info *pinfo, proto_tree *root_tree,
             break;
         case NVME_AQ_OPC_GET_LOG_PAGE:
             dissect_nvme_get_logpage_cmd(nvme_tvb, cmd_tree, cmd_ctx);
+            break;
+        case NVME_AQ_OPC_SET_FEATURES:
+            dissect_nvme_set_features_cmd(nvme_tvb, cmd_tree, cmd_ctx);
             break;
         default:
             dissect_nvme_unhandled_cmd(nvme_tvb, cmd_tree);
@@ -3018,51 +3068,51 @@ proto_register_nvme(void)
         },
         /* get log page */
         { &hf_nvme_get_logpage_dword10[0],
-            { "DWORD 10", "nvme.cmd.identify.get_logpage.dword10",
+            { "DWORD 10", "nvme.cmd.get_logpage.dword10",
                FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvme_get_logpage_dword10[1],
-            { "Log Page Identifier (LID)", "nvme.cmd.identify.get_logpage.dword10.id",
+            { "Log Page Identifier (LID)", "nvme.cmd.get_logpage.dword10.id",
                FT_UINT32, BASE_CUSTOM, CF_FUNC(add_logpage_lid), 0xff, NULL, HFILL}
         },
         { &hf_nvme_get_logpage_dword10[2],
-            { "Log Specific Field (LSP)", "nvme.cmd.identify.get_logpage.dword10.lsp",
+            { "Log Specific Field (LSP)", "nvme.cmd.get_logpage.dword10.lsp",
                FT_UINT32, BASE_HEX, NULL, 0x1f00, NULL, HFILL}
         },
         { &hf_nvme_get_logpage_dword10[3],
-            { "Reserved", "nvme.cmd.identify.get_logpage.dword10.rsvd",
+            { "Reserved", "nvme.cmd.get_logpage.dword10.rsvd",
                FT_UINT32, BASE_HEX, NULL, 0x6000, NULL, HFILL}
         },
         { &hf_nvme_get_logpage_dword10[4],
-            { "Retain Asynchronous Event (RAE)", "nvme.cmd.identify.get_logpage.dword10.rae",
+            { "Retain Asynchronous Event (RAE)", "nvme.cmd.get_logpage.dword10.rae",
                FT_BOOLEAN, 32, NULL, 0x8000, NULL, HFILL}
         },
         { &hf_nvme_get_logpage_dword10[5],
-            { "Number of Dwords Lower (NUMDL)", "nvme.cmd.identify.get_logpage.dword10.numdl",
+            { "Number of Dwords Lower (NUMDL)", "nvme.cmd.get_logpage.dword10.numdl",
                FT_UINT32, BASE_HEX, NULL, 0xffff0000, NULL, HFILL}
         },
         { &hf_nvme_get_logpage_numd,
-            { "Number of Dwords", "nvme.cmd.identify.get_logpage.numd",
+            { "Number of Dwords", "nvme.cmd.get_logpage.numd",
                FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvme_get_logpage_dword11[0],
-            { "DWORD 11", "nvme.cmd.identify.get_logpage.dword11",
+            { "DWORD 11", "nvme.cmd.get_logpage.dword11",
                FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvme_get_logpage_dword11[1],
-            { "Number of Dwords Upper (NUMDU)", "nvme.cmd.identify.get_logpage.dword11.numdu",
+            { "Number of Dwords Upper (NUMDU)", "nvme.cmd.get_logpage.dword11.numdu",
                FT_UINT32, BASE_HEX, NULL, 0xffff, NULL, HFILL}
         },
         { &hf_nvme_get_logpage_dword11[2],
-            { "Log Specific Identifier", "nvme.cmd.identify.get_logpage.dword11.lsi",
+            { "Log Specific Identifier", "nvme.cmd.get_logpage.dword11.lsi",
                FT_UINT32, BASE_HEX, NULL, 0xffff0000, NULL, HFILL}
         },
         { &hf_nvme_get_logpage_lpo,
-            { "Log Page Offset (DWORD 12 and DWORD 13)", "nvme.cmd.identify.get_logpage.lpo",
+            { "Log Page Offset (DWORD 12 and DWORD 13)", "nvme.cmd.get_logpage.lpo",
                FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvme_get_logpage_dword14[0],
-            { "DWORD 14", "nvme.cmd.identify.get_logpage.dword14",
+            { "DWORD 14", "nvme.cmd.get_logpage.dword14",
                FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvme_get_logpage_dword14[1],
@@ -3072,6 +3122,35 @@ proto_register_nvme(void)
         { &hf_nvme_get_logpage_dword14[2],
             { "Reserved", "nvme.cmd.identify.get_logpage.dword14.rsvd",
                FT_UINT32, BASE_HEX, NULL, 0xffffffc0, NULL, HFILL}
+        },
+        /* Set Features */
+        { &hf_nvme_set_features_dword10[0],
+            { "DWORD 10", "nvme.cmd.set_features.dword10",
+               FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_set_features_dword10[1],
+            { "Feature Identifier", "nvme.cmd.set_features.dword10.fid",
+               FT_UINT32, BASE_HEX, VALS(fid_table), 0xff, NULL, HFILL}
+        },
+        { &hf_nvme_set_features_dword10[2],
+            { "Reserved", "nvme.cmd.set_features.dword10.rsvd",
+               FT_UINT32, BASE_HEX, NULL, 0x7fffff00, NULL, HFILL}
+        },
+        { &hf_nvme_set_features_dword10[3],
+            { "Save", "nvme.cmd.set_features.dword10.sv",
+               FT_UINT32, BASE_HEX, NULL, 0x80000000, NULL, HFILL}
+        },
+        { &hf_nvme_set_features_dword14[0],
+            { "DWORD 14", "nvme.cmd.set_features.dword14",
+               FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_set_features_dword14[1],
+            { "UUID Index", "nvme.cmd.set_features.dword14.uuid",
+               FT_UINT32, BASE_HEX, NULL, 0x7f, NULL, HFILL}
+        },
+        { &hf_nvme_set_features_dword14[2],
+            { "Reserved", "nvme.cmd.set_features.dword14.rsvd",
+               FT_UINT32, BASE_HEX, NULL, 0xffffff80, NULL, HFILL}
         },
         /* Identify NS response */
         { &hf_nvme_identify_ns_nsze,
