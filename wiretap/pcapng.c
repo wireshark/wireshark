@@ -688,7 +688,7 @@ pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh,
     guint to_read, opt_cont_buf_len;
     pcapng_section_header_block_t shb;
     pcapng_option_header_t oh;
-    wtapng_mandatory_section_t* section_data;
+    wtapng_section_mandatory_t* section_data;
 
     guint8 *option_content = NULL; /* Allocate as large as the options block */
 
@@ -795,7 +795,7 @@ pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh,
     section_info->version_minor = version_minor;
 
     wblock->block = wtap_block_create(WTAP_BLOCK_SECTION);
-    section_data = (wtapng_mandatory_section_t*)wtap_block_get_mandatory_data(wblock->block);
+    section_data = (wtapng_section_mandatory_t*)wtap_block_get_mandatory_data(wblock->block);
     /* 64bit section_length (currently unused) */
     if (section_info->byte_swapped) {
         section_data->section_length = GUINT64_SWAP_LE_BE(shb.section_length);
@@ -3553,7 +3553,7 @@ pcapng_write_section_header_block(wtap_dumper *wdh, int *err)
     shb.version_major = 1;
     shb.version_minor = 0;
     if (wdh_shb) {
-        wtapng_mandatory_section_t* section_data = (wtapng_mandatory_section_t*)wtap_block_get_mandatory_data(wdh_shb);
+        wtapng_section_mandatory_t* section_data = (wtapng_section_mandatory_t*)wtap_block_get_mandatory_data(wdh_shb);
         shb.section_length = section_data->section_length;
     } else {
         shb.section_length = -1;

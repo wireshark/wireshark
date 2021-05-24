@@ -911,7 +911,7 @@ wtap_block_remove_nth_option_instance(wtap_block_t block, guint option_id,
 
 static void shb_create(wtap_block_t block)
 {
-    wtapng_mandatory_section_t* section_mand = g_new(wtapng_mandatory_section_t, 1);
+    wtapng_section_mandatory_t* section_mand = g_new(wtapng_section_mandatory_t, 1);
 
     section_mand->section_length = -1;
 
@@ -920,7 +920,7 @@ static void shb_create(wtap_block_t block)
 
 static void shb_copy_mand(wtap_block_t dest_block, wtap_block_t src_block)
 {
-    memcpy(dest_block->mandatory_data, src_block->mandatory_data, sizeof(wtapng_mandatory_section_t));
+    memcpy(dest_block->mandatory_data, src_block->mandatory_data, sizeof(wtapng_section_mandatory_t));
 }
 
 static void nrb_create(wtap_block_t block)

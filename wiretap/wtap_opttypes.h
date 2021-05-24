@@ -183,7 +183,7 @@ typedef struct wtapng_section_mandatory_s {
                                          *     be invalid if anything changes, such as the other
                                          *     members of this struct, or the packets written.
                                          */
-} wtapng_mandatory_section_t;
+} wtapng_section_mandatory_t;
 
 /** struct holding the information to build an WTAP_BLOCK_IF_ID_AND_INFO.
  *  the interface_data array holds an array of wtap_block_t

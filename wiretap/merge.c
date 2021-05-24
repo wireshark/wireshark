@@ -389,7 +389,7 @@ create_shb_header(const merge_in_file_t *in_files, const guint in_file_count,
     GString *os_info_str;
     guint i;
     char* shb_comment = NULL;
-    wtapng_mandatory_section_t* shb_data;
+    wtapng_section_mandatory_t* shb_data;
     gsize opt_len;
     gchar *opt_str;
 
@@ -421,7 +421,7 @@ create_shb_header(const merge_in_file_t *in_files, const guint in_file_count,
     os_info_str = g_string_new("");
     get_os_version_info(os_info_str);
 
-    shb_data = (wtapng_mandatory_section_t*)wtap_block_get_mandatory_data(shb_hdr);
+    shb_data = (wtapng_section_mandatory_t*)wtap_block_get_mandatory_data(shb_hdr);
     shb_data->section_length = -1;
     /* TODO: handle comments from each file being merged */
     opt_len = comment_gstr->len;
