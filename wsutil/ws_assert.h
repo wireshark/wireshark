@@ -43,9 +43,10 @@ WS_NORETURN void ws_assert_not_reached(void) {
     abort();
 };
 
-/* ws_assert_bounds() is always enabled. For bounds check where the array
- * size is known sometimes it's just not worth disabling assertions.
+/*
+ * ws_abort_if_fail() is always enabled. Usually used to appease a static
+ * analyzer.
  */
-#define ws_assert_bounds(expr) g_assert_true(expr)
+#define ws_abort_if_fail(expr) g_assert_true(expr)
 
 #endif /* __WS_ASSERT_H__ */
