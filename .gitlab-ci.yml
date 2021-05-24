@@ -330,7 +330,9 @@ ASan Menagerie Fuzz:
   stage: fuzz-asan
   script:
     - MAX_SECONDS=$(( 4 * 60 * 60 ))
-    - cmake -G Ninja -DBUILD_wireshark=OFF -DCMAKE_BUILD_TYPE=Debug -DENABLE_ASAN=ON -DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX ..
+    - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
+    - cmake -G Ninja -DBUILD_wireshark=OFF -DCMAKE_BUILD_TYPE=Debug -DENABLE_ASAN=ON -DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX -DENABLE_CCACHE=ON ..
+    - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
     - ninja
     - ninja install
     - cd ..
@@ -343,7 +345,9 @@ ASan randpkt Fuzz:
   stage: fuzz-randpkt
   script:
     # XXX Reuse fuzz-asan?
-    - cmake -G Ninja -DBUILD_wireshark=OFF -DCMAKE_BUILD_TYPE=Debug -DENABLE_ASAN=ON -DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX ..
+    - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
+    - cmake -G Ninja -DBUILD_wireshark=OFF -DCMAKE_BUILD_TYPE=Debug -DENABLE_ASAN=ON -DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX -DENABLE_CCACHE=ON ..
+    - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
     - ninja
     - ninja install
     - cd ..
@@ -357,7 +361,9 @@ Valgrind Menagerie Fuzz:
     - DEBIAN_FRONTEND=noninteractive apt-get update
     - DEBIAN_FRONTEND=noninteractive apt-get --yes install valgrind
     - MAX_SECONDS=$(( 3 * 60 * 60 ))
-    - cmake -G Ninja -DBUILD_wireshark=OFF -DCMAKE_BUILD_TYPE=Debug -DENABLE_ASAN=OFF -DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX ..
+    - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
+    - cmake -G Ninja -DBUILD_wireshark=OFF -DCMAKE_BUILD_TYPE=Debug -DENABLE_ASAN=OFF -DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX -DENABLE_CCACHE=ON ..
+    - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
     - ninja
     - ninja install
     - cd ..
