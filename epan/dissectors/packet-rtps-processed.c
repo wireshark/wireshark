@@ -318,7 +318,6 @@ static gint dissect_rtps_processed(
                     rtps_vendor_id,
                     &guid);
 
-            offset += param_length;
             /*
              * Get the decrypted submessages and update the column information.
              */
@@ -346,14 +345,12 @@ static gint dissect_rtps_processed(
                         pinfo,
                         rtpsproc_tree_frame1);
             }
-            offset += param_length;
         }
     } else {
         /*
          * If there is no security information, param_id is zeroed.
          * In that case the length is also zero, so we move 4 Bytes in total.
          */
-        offset += 4;
     }
     return tvb_captured_length(tvb);
 }
