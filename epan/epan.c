@@ -826,7 +826,7 @@ epan_get_compiled_version_info(GString *str)
 	/* LZ4 */
 	g_string_append(str, ", ");
 #ifdef HAVE_LZ4
-	g_string_append(str, "with LZ4 " LZ4_VERSION_STRING);
+	g_string_append(str, "with LZ4");
 #else
 	g_string_append(str, "without LZ4");
 #endif /* HAVE_LZ4 */
@@ -834,7 +834,7 @@ epan_get_compiled_version_info(GString *str)
 	/* Zstandard */
 	g_string_append(str, ", ");
 #ifdef HAVE_ZSTD
-	g_string_append(str, "with Zstandard " ZSTD_VERSION_STRING);
+	g_string_append(str, "with Zstandard");
 #else
 	g_string_append(str, "without Zstandard");
 #endif /* HAVE_ZSTD */
@@ -879,12 +879,16 @@ epan_get_runtime_version_info(GString *str)
 
 	/* LZ4 */
 #ifdef HAVE_LZ4
+#if LZ4_VERSION_NUMBER >= 10703
 	g_string_append_printf(str, ", with LZ4 %s", LZ4_versionString());
+#endif
 #endif /* HAVE_LZ4 */
 
 	/* Zstandard */
 #ifdef HAVE_ZSTD
+#if ZSTD_VERSION_NUMBER >= 10300
 	g_string_append_printf(str, ", with Zstandard %s", ZSTD_versionString());
+#endif
 #endif /* HAVE_ZSTD */
 
 }
