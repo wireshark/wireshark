@@ -186,9 +186,9 @@ OPUS_VERSION=1.3.1
 # macOS 11 Big Sur and Apple Silicon (Arm-based Macs).
 
 # So on Mountain Lion, choose 3.7.6, otherwise get the latest stable version
-# (3.9.3).
+# (3.9.5).
 if [[ $DARWIN_MAJOR_VERSION -gt 12 ]]; then
-    PYTHON3_VERSION=3.9.3
+    PYTHON3_VERSION=3.9.5
 else
     PYTHON3_VERSION=3.7.6
 fi
