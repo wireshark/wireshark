@@ -1590,7 +1590,7 @@ dissect_pcep_tlvs(proto_tree *pcep_obj, tvbuff_t *tvb, int offset, gint length, 
 
                     padding = (4 - (psts % 4)) % 4;
                     if (padding != 0) {
-                        proto_tree_add_item(tlv, hf_pcep_tlv_padding, tvb, offset+4+j+psts, padding, ENC_NA);
+                        proto_tree_add_item(tlv, hf_pcep_tlv_padding, tvb, offset + 4 + j + 4 + psts, padding, ENC_NA);
                     }
 
                     /* TODO: implement subTLV dissection */
