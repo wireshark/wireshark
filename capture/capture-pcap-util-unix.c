@@ -12,6 +12,7 @@
 
 #include <glib.h>
 
+#include <string.h>
 #include <ws_attributes.h>
 
 #ifdef HAVE_LIBPCAP
@@ -161,8 +162,16 @@ get_compiled_caplibs_version(GString *str)
 void
 get_runtime_caplibs_version(GString *str)
 {
-	g_string_append_printf(str, "with ");
-	g_string_append(str, pcap_lib_version());
+	const char *vstr = pcap_lib_version();
+
+	/*
+	 * Remove the substring "version" from the output of pcap_lib_version()
+	 * to be consistent with our format.
+	 */
+	if (g_str_has_prefix(vstr, "libpcap version ")) /* Sanity check */
+		g_string_append_printf(str, "with libpcap %s", vstr + strlen("libpcap version "));
+	else
+		g_string_append_printf(str, "with %s", vstr);
 }
 
 #else /* HAVE_LIBPCAP */
