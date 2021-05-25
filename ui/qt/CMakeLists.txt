@@ -728,6 +728,9 @@ target_compile_definitions(qtui
 set_target_properties(qtui PROPERTIES
 	LINK_FLAGS "${WS_LINK_FLAGS}"
 	FOLDER "UI"
+	AUTOMOC ON
+	AUTOUIC ON
+	AUTORCC ON
 	# Ensure .qm files are generated before autogenerating i18n.qrc
 	AUTOGEN_TARGET_DEPENDS "${WIRESHARK_QT_QM}"
 )

@@ -1115,12 +1115,6 @@ ws_find_package(Systemd BUILD_sdjournal HAVE_SYSTEMD)
 
 # Build the Qt GUI?
 if(BUILD_wireshark)
-	if(NOT CMAKE_VERSION VERSION_LESS "3.10.0")
-		set(CMAKE_AUTOMOC ON)
-		set(CMAKE_AUTOUIC ON)
-		set(CMAKE_AUTORCC ON)
-	endif()
-
 	# Untested, may not work if CMAKE_PREFIX_PATH gets overwritten
 	# somewhere. The if WIN32 in this place is annoying as well.
 	if(WIN32)
@@ -2387,6 +2381,9 @@ if(BUILD_wireshark AND QT_FOUND)
 		LINK_FLAGS "${WS_LINK_FLAGS}"
 		FOLDER "Executables"
 		INSTALL_RPATH "${EXECUTABLE_INSTALL_RPATH}"
+		AUTOMOC ON
+		AUTOUIC ON
+		AUTORCC ON
 	)
 	if(ENABLE_APPLICATION_BUNDLE OR WIN32)
 		set_target_properties(wireshark PROPERTIES OUTPUT_NAME Wireshark)
