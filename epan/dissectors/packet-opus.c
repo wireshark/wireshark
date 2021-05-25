@@ -15,8 +15,12 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
+#include <ftypes/ftypes.h>
 #include <glibconfig.h>
+#include <proto.h>
 #include <stdint.h>
+
+#define MAX_FRAMES_COUNT 48
 
 void proto_reg_handoff_opus(void);
 void proto_register_opus(void);
@@ -30,11 +34,15 @@ static int proto_opus = -1;
 static int hf_opus_toc_config = -1;
 static int hf_opus_toc_s = -1;
 static int hf_opus_toc_c = -1;
-static int hf_opus_payload = -1;
+static int hf_opus_frame = -1;
+static int hf_opus_frame_size = -1;
+static int hf_opus_frame_count_v = -1;
+static int hf_opus_frame_count_p = -1;
+static int hf_opus_frame_count_m = -1;
+static int hf_opus_padding = -1;
 
 /* Initialize the subtree pointers */
-static int ett_opus = -1;
-static int ett_opus_table_of_contents = -1;
+static gint ett_opus = -1;
 
 static expert_field ei_opus_err_r1 = EI_INIT;
 static expert_field ei_opus_err_r2 = EI_INIT;
@@ -43,11 +51,6 @@ static expert_field ei_opus_err_r4 = EI_INIT;
 static expert_field ei_opus_err_r5 = EI_INIT;
 static expert_field ei_opus_err_r6 = EI_INIT;
 static expert_field ei_opus_err_r7 = EI_INIT;
-
-static gint *ett[] = {
-    &ett_opus,
-    &ett_opus_table_of_contents
-};
 
 /* From RFC6716 chapter 3.1
  * The top five bits of the TOC byte, labeled "config", encode one of 32
@@ -91,6 +94,8 @@ static value_string_ext opus_codec_toc_config_request_vals_ext
     = VALUE_STRING_EXT_INIT(opus_codec_toc_config_request_vals);
 
 static const true_false_string toc_s_bit_vals = {"stereo", "mono"};
+static const true_false_string fc_v_bit_vals = {"VBR", "CBR"};
+static const true_false_string fc_p_bit_vals = {"Padding", "No Padding"};
 
 static const value_string opus_codec_toc_c_request_vals[]
     = {{0, "1 frame in the packet"},
@@ -102,18 +107,71 @@ static value_string_ext opus_codec_toc_c_request_vals_ext
     = VALUE_STRING_EXT_INIT(opus_codec_toc_c_request_vals);
 
 static int
+parse_size_field(const unsigned char *ch, int32_t cn, int16_t *size)
+{
+    if (cn < 1) {
+        *size = -1;
+        return -1;
+    }
+    else if (ch[0] < 252) {
+        *size = ch[0];
+        return 1;
+    }
+    else if (cn < 2) {
+        *size = -1;
+        return -1;
+    }
+    else {
+        *size = 4 * ch[1] + ch[0];
+        return 2;
+    }
+}
+
+static int16_t
+opus_packet_get_samples_per_frame(const unsigned char *data, int16_t Fs)
+{
+    int audiosize;
+    if (data[0] & 0x80) {
+        audiosize = ((data[0] >> 3) & 0x3);
+        audiosize = (Fs << audiosize) / 400;
+    }
+    else if ((data[0] & 0x60) == 0x60) {
+        audiosize = (data[0] & 0x08) ? Fs / 50 : Fs / 100;
+    }
+    else {
+        audiosize = ((data[0] >> 3) & 0x3);
+        if (audiosize == 3)
+            audiosize = Fs * 60 / 1000;
+        else
+            audiosize = (Fs << audiosize) / 100;
+    }
+    return audiosize;
+}
+
+static int
 dissect_opus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    tvbuff_t *newtvb;
+    int idx;
 
     proto_item *item;
     proto_tree *opus_tree;
 
-    proto_item *item_toc;
-    proto_tree *opus_toc_tree;
-
-    gint offset = 0;
-    guint cap_len, pkt_total;
+    gint pkt_total = 0, offset = 0;
+    guint cap_len = 0;
+    guint8 ch = 0, toc = 0, octet[2] = {0, 0};
+    int octet_cnt = 0;
+    int bytes = 0;
+    int16_t framesize = 0;
+    struct FRAME_T {
+        int16_t begin;
+        int16_t size;
+    } frames[MAX_FRAMES_COUNT] = {0};
+    int frame_count = 0;
+    static int *toc_fields[]
+        = {&hf_opus_toc_config, &hf_opus_toc_s, &hf_opus_toc_c};
+    static int *frame_count_fields[]
+        = {&hf_opus_frame_count_v, &hf_opus_frame_count_p,
+           &hf_opus_frame_count_m};
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "OPUS");
 
@@ -128,14 +186,7 @@ dissect_opus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
      *   | config  |s| c |
      *   +-+-+-+-+-+-+-+-+
      */
-    opus_toc_tree
-        = proto_tree_add_subtree(opus_tree, tvb, offset, -1,
-                                 ett_opus_table_of_contents, &item_toc,
-                                 "Payload Table of Contents");
-
-    proto_tree_add_item(opus_toc_tree, hf_opus_toc_config, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(opus_toc_tree, hf_opus_toc_s,      tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(opus_toc_tree, hf_opus_toc_c,      tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bitmask_list(opus_tree, tvb, offset, 1, toc_fields, ENC_NA);
 
     cap_len = tvb_captured_length(tvb);
     pkt_total = tvb_captured_length_remaining(tvb, offset);
@@ -144,9 +195,142 @@ dissect_opus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         expert_add_info(pinfo, opus_tree, &ei_opus_err_r1);
         return cap_len;
     }
-    offset++;  /* skip the TOC */
-    newtvb = tvb_new_subset_length_caplen(tvb, offset, pkt_total - offset, pkt_total - offset);
-    proto_tree_add_item(opus_tree, hf_opus_payload, newtvb, 0, -1, ENC_NA);
+
+    toc = tvb_get_guint8(tvb, offset++);
+
+    switch (toc & 0x3) {
+    case 0: /* One frame */
+        frames[0].begin = offset;
+        frames[0].size = pkt_total - offset;
+        frame_count = 1;
+        break;
+    case 1: /* Two CBR frames */
+        if ((pkt_total - offset) & 0x1) {
+            expert_add_info(pinfo, opus_tree, &ei_opus_err_r3);
+            return cap_len;
+        }
+        frames[0].begin = offset;
+        frames[0].size = frames[1].size = (pkt_total - offset) / 2;
+        frames[1].begin = frames[0].begin + frames[0].size;
+        frame_count = 2;
+        break;
+    case 2: /* Two VBR frames */
+        if (offset >= pkt_total) {
+            expert_add_info(pinfo, opus_tree, &ei_opus_err_r4);
+            return cap_len;
+        }
+        /* offset < pkt_total */
+        octet[octet_cnt++] = tvb_get_guint8(tvb, offset);
+        if (offset + 1 < pkt_total) {
+            octet[octet_cnt++] = tvb_get_guint8(tvb, offset + 1);
+        }
+        bytes = parse_size_field(octet, octet_cnt, &framesize);
+        if (framesize < 0 || framesize > pkt_total) {
+            expert_add_info(pinfo, opus_tree, &ei_opus_err_r1);
+            return cap_len;
+        }
+        proto_tree_add_item(opus_tree, hf_opus_frame_size, tvb, offset, bytes,
+                            ENC_NA);
+        offset += bytes;
+        /* frame[0] has size header, frame[1] is remaining */
+        frames[0].begin = offset;
+        frames[0].size = framesize;
+        frames[1].begin = frames[0].begin + framesize;
+        frames[1].size = -1;
+        frame_count = 2;
+        break;
+    /* Multiple CBR/VBR frames (from 0 to 120 ms) */
+    default: /* case 3:*/
+        if ((pkt_total - offset) < 2) {
+            expert_add_info(pinfo, opus_tree, &ei_opus_err_r6);
+            return cap_len;
+        }
+        proto_tree_add_bitmask_list(opus_tree, tvb, offset, 1,
+                                    frame_count_fields, ENC_NA);
+        /* Number of frames encoded in bits 0 to 5 */
+        ch = tvb_get_guint8(tvb, offset++);
+        frame_count = ch & 0x3F;
+        framesize = opus_packet_get_samples_per_frame(&toc, 48000U);
+        if (frame_count <= 0
+            || framesize * frame_count > 120 * MAX_FRAMES_COUNT) {
+            expert_add_info(pinfo, opus_tree, &ei_opus_err_r5);
+            return cap_len;
+        }
+        /* Padding flag (bit 6) used */
+        if (ch & 0x40) {
+            int p;
+            gint padding_size = 0;
+            gint padding_begin = offset;
+            do {
+                int tmp;
+                if (offset >= pkt_total) {
+                    expert_add_info(pinfo, opus_tree, &ei_opus_err_r7);
+                    return cap_len;
+                }
+                p = tvb_get_guint8(tvb, offset++);
+                tmp = p == 255 ? 254 : p;
+                padding_size += tmp;
+            } while (p == 255);
+            proto_tree_add_item(opus_tree, hf_opus_padding, tvb, padding_begin,
+                                padding_size, ENC_NA);
+            offset = padding_begin + padding_size;
+        }
+        if (offset >= pkt_total) {
+            expert_add_info(pinfo, opus_tree, &ei_opus_err_r7);
+            return cap_len;
+        }
+        /* VBR flag is bit 7 */
+        if (ch & 0x80) { /* VBR case */
+            for (idx = 0; idx < frame_count; idx++) {
+                octet_cnt = 0;
+                octet[octet_cnt++] = tvb_get_guint8(tvb, offset);
+                if (offset + 1 < pkt_total) {
+                    octet[octet_cnt++] = tvb_get_guint8(tvb, offset);
+                }
+                bytes = parse_size_field(octet, octet_cnt, &frames[idx].size);
+                if (frames[idx].size < 0
+                    || frames[idx].size > (pkt_total - offset)) {
+                    expert_add_info(pinfo, opus_tree, &ei_opus_err_r1);
+                    return cap_len;
+                }
+
+                proto_tree_add_item(opus_tree, hf_opus_frame_size, tvb, offset,
+                                    bytes, ENC_NA);
+                offset += bytes;
+            }
+            for (idx = 0; idx < frame_count; idx++) {
+                frames[idx].begin = offset;
+                offset += frames[idx].size;
+            }
+            if (offset > pkt_total) {
+                expert_add_info(pinfo, opus_tree, &ei_opus_err_r7);
+                return cap_len;
+            }
+        }
+        else { /* CBR case */
+            guint frame_size = (pkt_total - offset) / frame_count;
+            if (frame_size * frame_count != (guint)(pkt_total - offset)) {
+                expert_add_info(pinfo, opus_tree, &ei_opus_err_r6);
+                return cap_len;
+            }
+            for (idx = 0; idx < frame_count; idx++) {
+                frames[idx].begin = offset + idx * frame_size;
+                frames[idx].size = frame_size;
+            }
+        }
+        break;
+    }
+
+    for (idx = 0; idx < frame_count; idx++) {
+        struct FRAME_T *f = &frames[idx];
+        /* reject the frame which is larger than 1275. */
+        if (f->size > 1275) {
+            expert_add_info(pinfo, opus_tree, &ei_opus_err_r2);
+            return cap_len;
+        }
+        proto_tree_add_item(opus_tree, hf_opus_frame, tvb, f->begin, f->size,
+                            ENC_NA);
+    }
 
     return cap_len;
 }
@@ -159,19 +343,36 @@ proto_register_opus(void)
 
     static hf_register_info hf[] = {
         {&hf_opus_toc_config,
-         {"config", "opus.TOC.config", FT_UINT8, BASE_DEC | BASE_EXT_STRING,
+         {"TOC.config", "opus.TOC.config", FT_UINT8, BASE_DEC | BASE_EXT_STRING,
           &opus_codec_toc_config_request_vals_ext, 0xF8, "Opus TOC config",
           HFILL}},
         {&hf_opus_toc_s,
-         {"S bit", "opus.TOC.s", FT_BOOLEAN, SEP_DOT, TFS(&toc_s_bit_vals),
+         {"TOC.S bit", "opus.TOC.s", FT_BOOLEAN, SEP_DOT, TFS(&toc_s_bit_vals),
           0x04, NULL, HFILL}},
         {&hf_opus_toc_c,
-         {"C bits", "opus.TOC.c", FT_UINT8, BASE_DEC | BASE_EXT_STRING,
+         {"TOC.C bits", "opus.TOC.c", FT_UINT8, BASE_DEC | BASE_EXT_STRING,
           &opus_codec_toc_c_request_vals_ext, 0x03, "Opus TOC code", HFILL}},
-        {&hf_opus_payload,
-         {"Payload", "opus.payload", FT_BYTES, BASE_NONE, NULL, 0x0, NULL,
+        {&hf_opus_frame_count_m,
+         {"Frame Count.m", "opus.FC.m", FT_UINT8, BASE_DEC, NULL, 0x3F,
+          "Frame Count", HFILL}},
+        {&hf_opus_frame_count_p,
+         {"Frame Count.p bit", "opus.FC.p", FT_BOOLEAN, SEP_DOT,
+          TFS(&fc_p_bit_vals), 0x40, NULL, HFILL}},
+        {&hf_opus_frame_count_v,
+         {"Frame Count.v bit", "opus.FC.v", FT_BOOLEAN, SEP_DOT,
+          TFS(&fc_v_bit_vals), 0x80, NULL, HFILL}},
+        {&hf_opus_frame_size,
+         {"Frame Size", "opus.frame_size", FT_BYTES, BASE_NONE, NULL, 0x0, NULL,
+          HFILL}},
+        {&hf_opus_frame,
+         {"Frame Data", "opus.frame_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL,
+          HFILL}},
+        {&hf_opus_padding,
+         {"Padding", "opus.padding", FT_BYTES, BASE_NONE, NULL, 0x0, NULL,
           HFILL}},
     };
+
+    static gint *ett[] = { &ett_opus, };
 
     static ei_register_info ei[] = {
         {&ei_opus_err_r1,
