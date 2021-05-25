@@ -1760,6 +1760,11 @@ set_package_properties(Minizip PROPERTIES
 	DESCRIPTION "C library for supporting zip/unzip functionality"
 	PURPOSE "Support for profiles import/export"
 )
+set_package_properties(SMI PROPERTIES
+	URL "https://www.ibr.cs.tu-bs.de/projects/libsmi/"
+	DESCRIPTION "Library to access SMI management information"
+	PURPOSE "Support MIB and PIB parsing and OID resolution"
+)
 
 string(TOUPPER "${CMAKE_BUILD_TYPE}" _build_type)
 message(STATUS "C-Flags: ${CMAKE_C_FLAGS} ${CMAKE_C_FLAGS_${_build_type}}")

@@ -130,6 +130,9 @@
 /* Define to 1 if you have the `smi' library (-lsmi). */
 #cmakedefine HAVE_LIBSMI 1
 
+/* Define to 1 if libsmi exports a version string (and that symbol is visible). */
+#cmakedefine HAVE_SMI_VERSION_STRING 1
+
 /* Define to use zlib library */
 #cmakedefine HAVE_ZLIB 1
 

@@ -749,13 +749,6 @@ epan_dissect_packet_contains_field(epan_dissect_t* edt,
 void
 epan_get_compiled_version_info(GString *str)
 {
-	/* SNMP */
-#ifdef HAVE_LIBSMI
-	g_string_append(str, ", with SMI " SMI_VERSION_STRING);
-#else /* no SNMP library */
-	g_string_append(str, ", without SMI");
-#endif /* _SMI_H */
-
 	/* LUA */
 #ifdef HAVE_LUA
 	g_string_append(str, ", with " LUA_RELEASE);
@@ -838,6 +831,12 @@ epan_get_compiled_version_info(GString *str)
 	g_string_append(str, ", without libxml2");
 #endif /* HAVE_LIBXML2 */
 
+	/* SNMP */
+#ifdef HAVE_LIBSMI
+	g_string_append(str, ", with SMI " SMI_VERSION_STRING);
+#else /* no SNMP library */
+	g_string_append(str, ", without SMI");
+#endif /* HAVE_LIBSMI */
 }
 
 /*
@@ -885,6 +884,10 @@ epan_get_runtime_version_info(GString *str)
 #endif
 #endif /* HAVE_ZSTD */
 
+	/* SNMP */
+#ifdef HAVE_SMI_VERSION_STRING
+	g_string_append_printf(str, ", with libsmi %s", smi_version_string);
+#endif /* HAVE_SMI_VERSION_STRING */
 }
 
 /*
