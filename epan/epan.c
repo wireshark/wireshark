@@ -750,109 +750,95 @@ void
 epan_get_compiled_version_info(GString *str)
 {
 	/* SNMP */
-	g_string_append(str, ", ");
 #ifdef HAVE_LIBSMI
-	g_string_append(str, "with SMI " SMI_VERSION_STRING);
+	g_string_append(str, ", with SMI " SMI_VERSION_STRING);
 #else /* no SNMP library */
-	g_string_append(str, "without SMI");
+	g_string_append(str, ", without SMI");
 #endif /* _SMI_H */
 
 	/* c-ares */
-	g_string_append(str, ", ");
-	g_string_append(str, "with c-ares " ARES_VERSION_STR);
+	g_string_append(str, ", with c-ares " ARES_VERSION_STR);
 
 	/* LUA */
-	g_string_append(str, ", ");
 #ifdef HAVE_LUA
-	g_string_append(str, "with ");
-	g_string_append(str, LUA_RELEASE);
+	g_string_append(str, ", with " LUA_RELEASE);
 #else
-	g_string_append(str, "without Lua");
+	g_string_append(str, ", without Lua");
 #endif /* HAVE_LUA */
 
 	/* GnuTLS */
-	g_string_append(str, ", ");
 #ifdef HAVE_LIBGNUTLS
-	g_string_append(str, "with GnuTLS " LIBGNUTLS_VERSION);
+	g_string_append(str, ", with GnuTLS " LIBGNUTLS_VERSION);
 #ifdef HAVE_GNUTLS_PKCS11
 	g_string_append(str, " and PKCS #11 support");
 #endif /* HAVE_GNUTLS_PKCS11 */
 #else
-	g_string_append(str, "without GnuTLS");
+	g_string_append(str, ", without GnuTLS");
 #endif /* HAVE_LIBGNUTLS */
 
 	/* Gcrypt */
-	g_string_append(str, ", ");
-	g_string_append(str, "with Gcrypt " GCRYPT_VERSION);
+	g_string_append(str, ", with Gcrypt " GCRYPT_VERSION);
 
 	/* Kerberos */
 	/* XXX - I don't see how to get the version number, at least for KfW */
-	g_string_append(str, ", ");
 #ifdef HAVE_KERBEROS
 #ifdef HAVE_MIT_KERBEROS
-	g_string_append(str, "with MIT Kerberos");
+	g_string_append(str, ", with MIT Kerberos");
 #else
 	/* HAVE_HEIMDAL_KERBEROS */
-	g_string_append(str, "with Heimdal Kerberos");
+	g_string_append(str, ", with Heimdal Kerberos");
 #endif
 #else
-	g_string_append(str, "without Kerberos");
+	g_string_append(str, ", without Kerberos");
 #endif /* HAVE_KERBEROS */
 
 	/* MaxMindDB */
-	g_string_append(str, ", ");
 #ifdef HAVE_MAXMINDDB
-	g_string_append(str, "with MaxMind DB resolver");
+	g_string_append(str, ", with MaxMind DB resolver");
 #else
-	g_string_append(str, "without MaxMind DB resolver");
+	g_string_append(str, ", without MaxMind DB resolver");
 #endif /* HAVE_MAXMINDDB */
 
 	/* nghttp2 */
-	g_string_append(str, ", ");
 #ifdef HAVE_NGHTTP2
-	g_string_append(str, "with nghttp2 " NGHTTP2_VERSION);
+	g_string_append(str, ", with nghttp2 " NGHTTP2_VERSION);
 #else
-	g_string_append(str, "without nghttp2");
+	g_string_append(str, ", without nghttp2");
 #endif /* HAVE_NGHTTP2 */
 
 	/* brotli */
-	g_string_append(str, ", ");
 #ifdef HAVE_BROTLI
-	g_string_append(str, "with brotli");
+	g_string_append(str, ", with brotli");
 #else
-	g_string_append(str, "without brotli");
+	g_string_append(str, ", without brotli");
 #endif /* HAVE_BROTLI */
 
 	/* LZ4 */
-	g_string_append(str, ", ");
 #ifdef HAVE_LZ4
-	g_string_append(str, "with LZ4");
+	g_string_append(str, ", with LZ4");
 #else
-	g_string_append(str, "without LZ4");
+	g_string_append(str, ", without LZ4");
 #endif /* HAVE_LZ4 */
 
 	/* Zstandard */
-	g_string_append(str, ", ");
 #ifdef HAVE_ZSTD
-	g_string_append(str, "with Zstandard");
+	g_string_append(str, ", with Zstandard");
 #else
-	g_string_append(str, "without Zstandard");
+	g_string_append(str, ", without Zstandard");
 #endif /* HAVE_ZSTD */
 
 	/* Snappy */
-	g_string_append(str, ", ");
 #ifdef HAVE_SNAPPY
-	g_string_append(str, "with Snappy");
+	g_string_append(str, ", with Snappy");
 #else
-	g_string_append(str, "without Snappy");
+	g_string_append(str, ", without Snappy");
 #endif /* HAVE_SNAPPY */
 
 	/* libxml2 */
-	g_string_append(str, ", ");
 #ifdef HAVE_LIBXML2
-	g_string_append(str, "with libxml2 " LIBXML_DOTTED_VERSION);
+	g_string_append(str, ", with libxml2 " LIBXML_DOTTED_VERSION);
 #else
-	g_string_append(str, "without libxml2");
+	g_string_append(str, ", without libxml2");
 #endif /* HAVE_LIBXML2 */
 
 }
