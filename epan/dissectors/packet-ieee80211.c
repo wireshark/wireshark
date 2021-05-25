@@ -3782,8 +3782,6 @@ static int hf_ieee80211_he_trigger_ru_allocation = -1;
 static int hf_ieee80211_he_trigger_ru_allocation_region = -1;
 static int hf_ieee80211_he_trigger_ru_starting_spatial_stream = -1;
 static int hf_ieee80211_he_trigger_ru_number_spatial_streams = -1;
-static int hf_ieee80211_he_trigger_ru_number_ra_ru = -1;
-static int hf_ieee80211_he_trigger_ru_no_more_ra_ru = -1;
 static int hf_ieee80211_he_trigger_ul_fec_coding_type = -1;
 static int hf_ieee80211_he_trigger_ul_mcs = -1;
 static int hf_ieee80211_he_trigger_ul_dcm = -1;
@@ -30675,6 +30673,7 @@ dissect_ieee80211_block_ack(tvbuff_t *tvb, packet_info *pinfo _U_,
 #define TRIGGER_TYPE_GCR_MU_BAR 5
 #define TRIGGER_TYPE_BQRP       6
 #define TRIGGER_TYPE_NFRP       7
+#define TRIGGER_TYPE_RANGING    8
 
 static const val64_string trigger_type_vals[] = {
   { 0, "Basic" },
@@ -30943,127 +30942,6 @@ add_nfrp_trigger_dependent_user_info(proto_tree *tree, tvbuff_t *tvb,
 }
 
 /*
- * Print the target RSSI field as per the spec.
- *  0->90 map to -110 to -20 dBm.
- *  127 maps to Max ransmit power for assigned MCS
- *  rest are reserved.
- */
-static void
-target_rssi_base_custom(gchar *result, guint32 target_rssi)
-{
-  if (target_rssi <= 90) {
-    g_snprintf(result, ITEM_LABEL_LENGTH, "%ddBm", -110 + target_rssi);
-  } else if (target_rssi == 127) {
-    g_snprintf(result, ITEM_LABEL_LENGTH, "Max transmit power");
-  } else {
-    g_snprintf(result, ITEM_LABEL_LENGTH, "Reserved");
-  }
-}
-
-static int * const user_info_headers_no_2045[] = {
-  &hf_ieee80211_he_trigger_aid12,
-  &hf_ieee80211_he_trigger_ru_allocation_region,
-  &hf_ieee80211_he_trigger_ru_allocation,
-  &hf_ieee80211_he_trigger_ul_fec_coding_type,
-  &hf_ieee80211_he_trigger_ul_mcs,
-  &hf_ieee80211_he_trigger_ul_dcm,
-  &hf_ieee80211_he_trigger_ru_starting_spatial_stream,
-  &hf_ieee80211_he_trigger_ru_number_spatial_streams,
-  &hf_ieee80211_he_trigger_ul_target_rssi,
-  &hf_ieee80211_he_trigger_user_reserved,
-  NULL
-};
-
-static int * const user_info_headers_2045[] = {
-  &hf_ieee80211_he_trigger_aid12,
-  &hf_ieee80211_he_trigger_ru_allocation_region,
-  &hf_ieee80211_he_trigger_ru_allocation,
-  &hf_ieee80211_he_trigger_ul_fec_coding_type,
-  &hf_ieee80211_he_trigger_ul_mcs,
-  &hf_ieee80211_he_trigger_ul_dcm,
-  &hf_ieee80211_he_trigger_ru_number_ra_ru,
-  &hf_ieee80211_he_trigger_ru_no_more_ra_ru,
-  &hf_ieee80211_he_trigger_ul_target_rssi,
-  &hf_ieee80211_he_trigger_user_reserved,
-  NULL
-};
-
-static int
-add_he_trigger_user_info(proto_tree *tree, tvbuff_t *tvb, int offset,
-  packet_info *pinfo, guint8 trigger_type, int *frame_len)
-{
-  proto_item     *pi = NULL;
-  proto_tree     *user_info = NULL;
-  int            length = 0;
-  int            start_offset = offset;
-  guint16         aid12_subfield = 0;
-
-  /*
-   * If the AID12 subfield has the value 4095 it indicates the start of
-   * the padding field.
-   */
-  user_info = proto_tree_add_subtree(tree, tvb, offset, -1,
-                        ett_he_trigger_user_info, &pi, "User Info");
-  aid12_subfield = tvb_get_letohs(tvb, offset) & 0xFFF;
-
-  while (aid12_subfield != 4095) {
-
-    if (aid12_subfield != 0 && aid12_subfield != 2045)
-      proto_tree_add_bitmask_with_flags(user_info, tvb, offset,
-                          hf_ieee80211_he_trigger_user_info,
-                          ett_he_trigger_base_user_info,
-                          user_info_headers_no_2045,
-                          ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
-    else
-      proto_tree_add_bitmask_with_flags(user_info, tvb, offset,
-                          hf_ieee80211_he_trigger_user_info,
-                          ett_he_trigger_base_user_info,
-                          user_info_headers_2045,
-                          ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
-    offset += 5;
-    length += 5;
-
-    /*
-     * Handle the trigger dependent user info
-     */
-    switch (trigger_type) {
-      case TRIGGER_TYPE_BASIC:
-        add_basic_trigger_dependent_user_info(user_info, tvb, offset);
-        offset++;
-        length++;
-        break;
-      case TRIGGER_TYPE_BRP:
-        add_brp_trigger_dependent_user_info(user_info, tvb, offset);
-        offset++;
-        length++;
-        break;
-      case TRIGGER_TYPE_MU_BAR:
-        /* This is variable length so we need it to update the length */
-        offset = add_mu_bar_trigger_dependent_user_info(user_info, tvb,
-                                offset, pinfo, &length);
-        break;
-      case TRIGGER_TYPE_NFRP:
-        add_nfrp_trigger_dependent_user_info(user_info, tvb, offset);
-        offset += 5;
-        length += 5;
-        break;
-      default:
-        break;
-    }
-
-    if (tvb_reported_length_remaining(tvb, offset) < 5)
-      aid12_subfield = 4095;
-    else
-      aid12_subfield = tvb_get_letohs(tvb, offset) & 0xFFF;
-  }
-
-  proto_item_set_len(pi, offset - start_offset);
-
-  *frame_len += length;
-  return length;
-}
-
-/*
  * Dissect one of the ranging trigger types ...
  */
 static int * const poll_rpt_hdrs[] = {
@@ -31145,6 +31023,123 @@ dissect_ieee80211_ranging_trigger_variant(proto_tree *tree, tvbuff_t *tvb,
   return offset - saved_offset;
 }
 
+/*
+ * Print the target RSSI field as per the spec.
+ *  0->90 map to -110 to -20 dBm.
+ *  127 maps to Max ransmit power for assigned MCS
+ *  rest are reserved.
+ */
+static void
+target_rssi_base_custom(gchar *result, guint32 target_rssi)
+{
+  if (target_rssi <= 90) {
+    g_snprintf(result, ITEM_LABEL_LENGTH, "%ddBm", -110 + target_rssi);
+  } else if (target_rssi == 127) {
+    g_snprintf(result, ITEM_LABEL_LENGTH, "Max transmit power");
+  } else {
+    g_snprintf(result, ITEM_LABEL_LENGTH, "Reserved");
+  }
+}
+
+static int * const user_info_headers_no_2045[] = {
+  &hf_ieee80211_he_trigger_aid12,
+  &hf_ieee80211_he_trigger_ru_allocation_region,
+  &hf_ieee80211_he_trigger_ru_allocation,
+  &hf_ieee80211_he_trigger_ul_fec_coding_type,
+  &hf_ieee80211_he_trigger_ul_mcs,
+  &hf_ieee80211_he_trigger_ul_dcm,
+  &hf_ieee80211_he_trigger_ru_starting_spatial_stream,
+  &hf_ieee80211_he_trigger_ru_number_spatial_streams,
+  &hf_ieee80211_he_trigger_ul_target_rssi,
+  &hf_ieee80211_he_trigger_user_reserved,
+  NULL
+};
+
+static int
+add_he_trigger_user_info(proto_tree *tree, tvbuff_t *tvb, int offset,
+  packet_info *pinfo, guint8 trigger_type, guint8 subtype, int *frame_len)
+{
+  proto_item     *pi = NULL;
+  proto_tree     *user_info = NULL;
+  int            length = 0, range_len = 0;
+  int            start_offset = offset;
+  guint16         aid12_subfield = 0;
+
+  /*
+   * If the AID12 subfield has the value 4095 it indicates the start of
+   * the padding field.
+   */
+  user_info = proto_tree_add_subtree(tree, tvb, offset, -1,
+                        ett_he_trigger_user_info, &pi, "User Info");
+  aid12_subfield = tvb_get_letohs(tvb, offset) & 0xFFF;
+
+  while (aid12_subfield != 4095) {
+
+    switch (trigger_type) {
+      case TRIGGER_TYPE_BASIC:
+      case TRIGGER_TYPE_BRP:
+      case TRIGGER_TYPE_MU_BAR:
+      case TRIGGER_TYPE_MU_RTS:
+      case TRIGGER_TYPE_BSRP:
+      case TRIGGER_TYPE_GCR_MU_BAR:
+      case TRIGGER_TYPE_BQRP:
+        proto_tree_add_bitmask_with_flags(user_info, tvb, offset,
+                            hf_ieee80211_he_trigger_user_info,
+                            ett_he_trigger_base_user_info,
+                            user_info_headers_no_2045,
+                            ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
+        offset += 5;
+        length += 5;
+        break;
+      case TRIGGER_TYPE_NFRP:
+        add_nfrp_trigger_dependent_user_info(user_info, tvb, offset);
+        offset += 5;
+        length += 5;
+        break;
+      case TRIGGER_TYPE_RANGING:
+        range_len = dissect_ieee80211_ranging_trigger_variant(user_info, tvb,
+                                                offset, pinfo, subtype);
+        offset += range_len;
+        length += range_len;
+        break;
+    }
+
+
+    /*
+     * Handle the trigger dependent user info
+     */
+    switch (trigger_type) {
+      case TRIGGER_TYPE_BASIC:
+        add_basic_trigger_dependent_user_info(user_info, tvb, offset);
+        offset++;
+        length++;
+        break;
+      case TRIGGER_TYPE_BRP:
+        add_brp_trigger_dependent_user_info(user_info, tvb, offset);
+        offset++;
+        length++;
+        break;
+      case TRIGGER_TYPE_MU_BAR:
+        /* This is variable length so we need it to update the length */
+        offset = add_mu_bar_trigger_dependent_user_info(user_info, tvb,
+                                offset, pinfo, &length);
+        break;
+      default:
+        break;
+    }
+
+    if (tvb_reported_length_remaining(tvb, offset) < 5)
+      aid12_subfield = 4095;
+    else
+      aid12_subfield = tvb_get_letohs(tvb, offset) & 0xFFF;
+  }
+
+  proto_item_set_len(pi, offset - start_offset);
+
+  *frame_len += length;
+  return length;
+}
+
 static const range_string ranging_trigger_subtype_vals[] = {
   { 0, 0, "Poll" },
   { 1, 1, "Sounding" },
@@ -31176,7 +31171,7 @@ dissect_ieee80211_he_trigger(tvbuff_t *tvb, packet_info *pinfo _U_,
   const gchar *ether_name = tvb_get_ether_name(tvb, offset);
   proto_item      *hidden_item;
   proto_tree      *common_tree = NULL;
-  guint8          trigger_type = 0;
+  guint8          trigger_type = 0, subtype = 0;
   int             length = 0;
 
   proto_tree_add_item(tree, hf_ieee80211_addr_ta, tvb, offset, 6, ENC_NA);
@@ -31206,7 +31201,7 @@ dissect_ieee80211_he_trigger(tvbuff_t *tvb, packet_info *pinfo _U_,
    * If the trigger type is Ranging Trigger type, then deal with it separately.
    */
   if (trigger_type == 8) {
-    guint8 subtype = tvb_get_guint8(tvb, offset) & 0x0f;
+    subtype = tvb_get_guint8(tvb, offset) & 0x0f;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
                     rval_to_str(subtype, ranging_trigger_subtype_vals,
@@ -31234,11 +31229,10 @@ dissect_ieee80211_he_trigger(tvbuff_t *tvb, packet_info *pinfo _U_,
       break;
     }
 
-    dissect_ieee80211_ranging_trigger_variant(tree, tvb, offset,
-                                              pinfo, subtype);
   }
 
-  add_he_trigger_user_info(tree, tvb, offset, pinfo, trigger_type, &length);
+  add_he_trigger_user_info(tree, tvb, offset, pinfo, trigger_type, subtype,
+                           &length);
 
   /*
    *  Padding should commence here ... TODO, deal with it.
@@ -47114,15 +47108,6 @@ proto_register_ieee80211(void)
      {"Number Of Spatial Streams", "wlan.trigger.he.ru_number_of_spatial_stream",
       FT_UINT40, BASE_CUSTOM, CF_FUNC(he_trigger_minus_one_custom),
       0x00E0000000, NULL, HFILL }},
-
-    {&hf_ieee80211_he_trigger_ru_number_ra_ru,
-     {"Number of RA-RU", "wlan.trigger.he.ru_number_of_ra_ru",
-      FT_UINT40, BASE_CUSTOM, CF_FUNC(he_trigger_minus_one_custom),
-      0x003C000000, NULL, HFILL }},
-
-    {&hf_ieee80211_he_trigger_ru_no_more_ra_ru,
-     {"No More RA-RU", "wlan.trigger.he.ru_no_more_ra_ru",
-      FT_BOOLEAN, 40, NULL, 0x0040000000, NULL, HFILL }},
 
     {&hf_ieee80211_he_trigger_ul_target_rssi,
      {"Target RSSI", "wlan.trigger.he.target_rssi",
