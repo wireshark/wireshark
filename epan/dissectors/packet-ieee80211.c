@@ -31071,7 +31071,9 @@ add_he_trigger_user_info(proto_tree *tree, tvbuff_t *tvb, int offset,
    */
   user_info = proto_tree_add_subtree(tree, tvb, offset, -1,
                         ett_he_trigger_user_info, &pi, "User Info");
-  aid12_subfield = tvb_get_letohs(tvb, offset) & 0xFFF;
+
+  /* The stop sentinal is 0x0FFF, or 4095 */
+  aid12_subfield = tvb_get_letohs(tvb, offset);
 
   while (aid12_subfield != 4095) {
 
@@ -31131,7 +31133,7 @@ add_he_trigger_user_info(proto_tree *tree, tvbuff_t *tvb, int offset,
     if (tvb_reported_length_remaining(tvb, offset) < 5)
       aid12_subfield = 4095;
     else
-      aid12_subfield = tvb_get_letohs(tvb, offset) & 0xFFF;
+      aid12_subfield = tvb_get_letohs(tvb, offset);
   }
 
   proto_item_set_len(pi, offset - start_offset);
