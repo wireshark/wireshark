@@ -3758,6 +3758,8 @@ static int hf_ieee80211_he_trigger_doppler = -1;
 static int hf_ieee80211_he_trigger_ul_he_sig_a_reserved = -1;
 static int hf_ieee80211_he_trigger_reserved = -1;
 static int hf_ieee80211_he_trigger_user_info = -1;
+static int hf_ieee80211_he_trigger_user_info_padding_start = -1;
+static int hf_ieee80211_he_trigger_padding = -1;
 static int hf_ieee80211_he_trigger_bar_ctrl = -1;
 static int hf_ieee80211_he_trigger_bar_ctrl_ba_ack_policy = -1;
 static int hf_ieee80211_he_trigger_bar_ctrl_ba_type = -1;
@@ -31057,7 +31059,8 @@ static int * const user_info_headers_no_2045[] = {
 
 static int
 add_he_trigger_user_info(proto_tree *tree, tvbuff_t *tvb, int offset,
-  packet_info *pinfo, guint8 trigger_type, guint8 subtype, int *frame_len)
+  packet_info *pinfo, guint8 trigger_type, guint8 subtype, int *frame_len,
+  guint fcs_len)
 {
   proto_item     *pi = NULL;
   proto_tree     *user_info = NULL;
@@ -31136,7 +31139,23 @@ add_he_trigger_user_info(proto_tree *tree, tvbuff_t *tvb, int offset,
       aid12_subfield = tvb_get_letohs(tvb, offset);
   }
 
+  if (aid12_subfield == 4095) {
+    /* Show the Start of Padding field. */
+    proto_tree_add_item(user_info,
+                        hf_ieee80211_he_trigger_user_info_padding_start,
+                        tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+  }
+
   proto_item_set_len(pi, offset - start_offset);
+
+  /* Now, treat all the rest of the frame as padding */
+  if (aid12_subfield == 4095) {
+    proto_tree_add_item(tree, hf_ieee80211_he_trigger_padding, tvb, offset,
+                        tvb_reported_length_remaining(tvb, offset) - fcs_len,
+                        ENC_NA);
+  }
 
   *frame_len += length;
   return length;
@@ -31168,7 +31187,7 @@ static int * const ranging_headers2[] = {
 
 static int
 dissect_ieee80211_he_trigger(tvbuff_t *tvb, packet_info *pinfo _U_,
-  proto_tree *tree, int offset)
+  proto_tree *tree, int offset, guint fcs_len)
 {
   const gchar *ether_name = tvb_get_ether_name(tvb, offset);
   proto_item      *hidden_item;
@@ -31234,7 +31253,7 @@ dissect_ieee80211_he_trigger(tvbuff_t *tvb, packet_info *pinfo _U_,
   }
 
   add_he_trigger_user_info(tree, tvb, offset, pinfo, trigger_type, subtype,
-                           &length);
+                           &length, fcs_len);
 
   /*
    *  Padding should commence here ... TODO, deal with it.
@@ -32827,9 +32846,9 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
           /*
            * The len returned will be adjusted to include any padding required
            */
-          hdr_len = dissect_ieee80211_he_trigger(tvb, pinfo, hdr_tree, offset);
+          hdr_len = dissect_ieee80211_he_trigger(tvb, pinfo, hdr_tree, offset,
+                                                 phdr->fcs_len);
           ohdr_len = hdr_len;
-          has_fcs = FALSE;  /* Not sure at this stage */
           break;
 
         case CTRL_TACK:
@@ -47020,6 +47039,14 @@ proto_register_ieee80211(void)
     {&hf_ieee80211_he_trigger_user_info,
      {"User Info", "wlan.trigger.he.user_info",
       FT_UINT40, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_he_trigger_user_info_padding_start,
+     {"Start of Padding", "wlan.trigger.he.user_info.start_of_padding",
+      FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_he_trigger_padding,
+     {"Padding", "wlan.trigger.he.padding",
+      FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 
     {&hf_ieee80211_he_trigger_mpdu_mu_spacing,
      {"MPDU MU Spacing Factor", "wlan.trigger.he.mpdu_mu_spacing_factor",
