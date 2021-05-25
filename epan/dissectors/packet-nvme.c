@@ -449,6 +449,10 @@ static int hf_nvme_get_logpage_sanitize_rsvd = -1;
 
 /* NVMe CQE fields */
 static int hf_nvme_cqe_dword0 = -1;
+static int hf_nvme_cqe_dword0_sf_pm[4] = { NEG_LST_4 };
+static int hf_nvme_cqe_dword0_sf_lbart[3] = { NEG_LST_3 };
+static int hf_nvme_cqe_dword0_sf_nq[3] = { NEG_LST_3 };
+static int hf_nvme_cqe_dword0_sf_err = -1;
 static int hf_nvme_cqe_dword1 = -1;
 static int hf_nvme_cqe_sqhd = -1;
 static int hf_nvme_cqe_sqid = -1;
@@ -2939,6 +2943,10 @@ static const value_string sf_wps[] = {
     { 0, NULL },
 };
 
+static void add_nvme_queues(gchar *result, guint32 val)
+{
+    g_snprintf(result, ITEM_LABEL_LENGTH, "%x (%u)", val, val+1);
+}
 
 static void dissect_nvme_set_features_dword11(tvbuff_t *cmd_tvb, proto_tree *cmd_tree, guint fid)
 {
@@ -3188,9 +3196,45 @@ static const char *get_cqe_sc_string(guint sct, guint sc)
     }
 }
 
-void
-dissect_nvme_cqe(tvbuff_t *nvme_tvb, packet_info *pinfo, proto_tree *root_tree,
-                 struct nvme_cmd_ctx *cmd_ctx)
+static const value_string nvme_cqe_sc_sf_err_dword0_tbl[] = {
+    { 0xD, "Feature Identifier Not Saveable" },
+    { 0xE, "Feature Not Changeable" },
+    { 0xF, "Feature Not Namespace Specific" },
+    { 0x14, "Overlapping Range" },
+    { 0, NULL },
+};
+
+static void decode_dword0_cqe(tvbuff_t *nvme_tvb, proto_tree *cqe_tree, guint sc, struct nvme_cmd_ctx *cmd_ctx)
+{
+    switch (cmd_ctx->opcode) {
+        case NVME_AQ_OPC_SET_FEATURES:
+        {
+            if (sc) {
+                proto_tree_add_item(cqe_tree, hf_nvme_cqe_dword0_sf_err, nvme_tvb, 0, 4, ENC_LITTLE_ENDIAN);
+            } else {
+                switch (cmd_ctx->cmd_ctx.set_features.fid) {
+                    case F_POWER_MGMT:
+                        add_group_mask_entry(nvme_tvb, cqe_tree, 0, 4, ASPEC(hf_nvme_cqe_dword0_sf_pm));
+                        break;
+                    case F_LBA_RANGE_TYPE:
+                        add_group_mask_entry(nvme_tvb, cqe_tree, 0, 4, ASPEC(hf_nvme_cqe_dword0_sf_lbart));
+                        break;
+                    case F_NUM_OF_QUEUES:
+                        add_group_mask_entry(nvme_tvb, cqe_tree, 0, 4, ASPEC(hf_nvme_cqe_dword0_sf_nq));
+                        break;
+                    default:
+                        proto_tree_add_item(cqe_tree, hf_nvme_cqe_dword0, nvme_tvb, 0, 4, ENC_LITTLE_ENDIAN);
+                }
+            }
+            break;
+        }
+        default:
+            proto_tree_add_item(cqe_tree, hf_nvme_cqe_dword0, nvme_tvb, 0, 4, ENC_LITTLE_ENDIAN);
+            break;
+    }
+}
+
+void dissect_nvme_cqe(tvbuff_t *nvme_tvb, packet_info *pinfo, proto_tree *root_tree, struct nvme_cmd_ctx *cmd_ctx)
 {
     proto_tree *cqe_tree;
     proto_item *ti, *grp;
@@ -3206,14 +3250,14 @@ dissect_nvme_cqe(tvbuff_t *nvme_tvb, packet_info *pinfo, proto_tree *root_tree,
     nvme_publish_to_cmd_link(cqe_tree, nvme_tvb, hf_nvme_cmd_pkt, cmd_ctx);
     nvme_publish_cmd_latency(cqe_tree, cmd_ctx, hf_nvme_cmd_latency);
 
-    proto_tree_add_item(cqe_tree, hf_nvme_cqe_dword0, nvme_tvb, 0, 4, ENC_LITTLE_ENDIAN);
+    val = tvb_get_guint16(nvme_tvb, 14, ENC_LITTLE_ENDIAN);
+    decode_dword0_cqe(nvme_tvb, cqe_tree, ((val & 0x1fe) >> 9), cmd_ctx);
     proto_tree_add_item(cqe_tree, hf_nvme_cqe_dword1, nvme_tvb, 4, 4, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(cqe_tree, hf_nvme_cqe_sqhd, nvme_tvb, 8, 2, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(cqe_tree, hf_nvme_cqe_sqid, nvme_tvb, 10, 2, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(cqe_tree, hf_nvme_cqe_cid, nvme_tvb, 12, 2, ENC_LITTLE_ENDIAN);
 
-    val = tvb_get_guint16(nvme_tvb, 14, ENC_LITTLE_ENDIAN);
-    ti = proto_tree_add_item(root_tree, hf_nvme_cqe_status[0], nvme_tvb, 14, 2, ENC_LITTLE_ENDIAN);
+    ti = proto_tree_add_item(cqe_tree, hf_nvme_cqe_status[0], nvme_tvb, 14, 2, ENC_LITTLE_ENDIAN);
     grp =  proto_item_add_subtree(ti, ett_data);
     for (i = 1; i < array_length(hf_nvme_cqe_status); i++) {
         ti = proto_tree_add_item(grp, hf_nvme_cqe_status[i], nvme_tvb, 14, 2, ENC_LITTLE_ENDIAN);
@@ -3624,11 +3668,11 @@ proto_register_nvme(void)
         },
         { &hf_nvme_cmd_set_features_dword11_nq[1],
             { "Number of IO Submission Queues Requested", "nvme.cmd.set_features.dword11.nq.nsqr",
-               FT_UINT32, BASE_DEC, NULL, 0xffff, NULL, HFILL}
+               FT_UINT32, BASE_CUSTOM, CF_FUNC(add_nvme_queues), 0xffff, NULL, HFILL}
         },
         { &hf_nvme_cmd_set_features_dword11_nq[2],
             { "Number of IO Completion Queues Requested", "nvme.cmd.set_features.dword11.nq.ncqr",
-               FT_UINT32, BASE_DEC, NULL, 0xffff0000, NULL, HFILL}
+               FT_UINT32, BASE_CUSTOM, CF_FUNC(add_nvme_queues), 0xffff0000, NULL, HFILL}
         },
         { &hf_nvme_cmd_set_features_dword11_irqc[0],
             { "DWORD11", "nvme.cmd.set_features.dword11.irqc",
@@ -6076,6 +6120,50 @@ proto_register_nvme(void)
         { &hf_nvme_cqe_dword0,
             { "DWORD0", "nvme.cqe.dword0",
                FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_cqe_dword0_sf_err,
+            { "Set Features Error Specific Code", "nvme.cqe.dword0.set_features.err",
+               FT_UINT32, BASE_HEX, VALS(nvme_cqe_sc_sf_err_dword0_tbl), 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_cqe_dword0_sf_pm[0],
+            { "DWORD0: Set Feature Power Management Result", "nvme.cqe.dword0.set_features.pm",
+               FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_cqe_dword0_sf_pm[1],
+            { "Power Sate", "nvme.cqe.dword0.set_features.pm.ps",
+               FT_UINT32, BASE_HEX, NULL, 0x1f, NULL, HFILL}
+        },
+        { &hf_nvme_cqe_dword0_sf_pm[2],
+            { "Workload Hint", "nvme.cqe.dword0.set_features.pm.wh",
+               FT_UINT32, BASE_HEX, NULL, 0xe0, NULL, HFILL}
+        },
+        { &hf_nvme_cqe_dword0_sf_pm[3],
+            { "Reserved", "nvme.cqe.dword0.set_features.pm.rsvd",
+               FT_UINT32, BASE_HEX, NULL, 0xffffff00, NULL, HFILL}
+        },
+        { &hf_nvme_cqe_dword0_sf_lbart[0],
+            { "DWORD0: Set Feature LBA Range Type Result", "nvme.cqe.dword0.set_features.lbart",
+               FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_cqe_dword0_sf_lbart[1],
+            { "Number of LBA Ranges", "nvme.cqe.dword0.set_features.lbart.num",
+               FT_UINT32, BASE_HEX, NULL, 0x3f, NULL, HFILL}
+        },
+        { &hf_nvme_cqe_dword0_sf_lbart[2],
+            { "Reserved", "nvme.cqe.dword0.set_features.lbart.rsvd",
+               FT_UINT32, BASE_HEX, NULL, 0xffffffc0, NULL, HFILL}
+        },
+        { &hf_nvme_cqe_dword0_sf_nq[0],
+            { "DWORD0: Set Feature Number of Queues Result", "nvme.cqe.dword0.set_features.nq",
+               FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_cqe_dword0_sf_nq[1],
+            { "Number of IO Submission Queues Allocated", "nvme.cqe.dword0.set_features.nq.nsqa",
+               FT_UINT32, BASE_CUSTOM, CF_FUNC(add_nvme_queues), 0xffff, NULL, HFILL}
+        },
+        { &hf_nvme_cqe_dword0_sf_nq[2],
+            { "Number of IO Completion Queues Allocated", "nvme.cqe.dword0.set_features.ncqa",
+               FT_UINT32, BASE_CUSTOM, CF_FUNC(add_nvme_queues), 0xffff0000, NULL, HFILL}
         },
         { &hf_nvme_cqe_dword1,
             { "DWORD1", "nvme.cqe.dword1",
