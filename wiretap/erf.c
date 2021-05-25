@@ -3297,7 +3297,7 @@ static int populate_summary_info(erf_t *erf_priv, wtap *wth, union wtap_pseudo_h
 
 static gboolean get_user_comment_string(wtap_dumper *wdh, gchar** user_comment_ptr) {
   wtap_block_t wtap_block;
-  gboolean ret;
+  wtap_opttype_return_val ret;
 
   wtap_block = NULL;
 
@@ -3307,7 +3307,7 @@ static gboolean get_user_comment_string(wtap_dumper *wdh, gchar** user_comment_p
 
   if(wtap_block != NULL) {
     ret = wtap_block_get_nth_string_option_value(wtap_block, OPT_COMMENT, 0, user_comment_ptr);
-    if(ret) {
+    if(ret != WTAP_OPTTYPE_SUCCESS) {
       return FALSE;
     }
   }
