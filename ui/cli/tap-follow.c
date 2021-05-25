@@ -301,7 +301,7 @@ static void follow_draw(void *contextp)
     case SHOW_YAML:
       printf("  - packet: %d\n", follow_record->packet_num);
       printf("    peer: %d\n", follow_record->is_server ? 1 : 0);
-      printf("    timestamp: %" G_GINT64_MODIFIER "u.%09d\n", follow_record->abs_ts.secs, follow_record->abs_ts.nsecs);
+      printf("    timestamp: %.9f\n", nstime_to_sec(&follow_record->abs_ts));
       printf("    data: !!binary |\n");
       ii = 0;
       while (ii < follow_record->data->len) {
