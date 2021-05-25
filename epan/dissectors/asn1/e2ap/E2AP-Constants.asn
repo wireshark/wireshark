@@ -1,0 +1,93 @@
+-- ASN1START
+-- **************************************************************
+--
+-- Constant definitions
+--
+-- **************************************************************
+
+E2AP-Constants {
+iso(1) identified-organization(3) dod(6) internet(1) private(4) enterprise(1) 53148 e2(1) version1 (1) e2ap(1) e2ap-Constants (4) }
+
+DEFINITIONS AUTOMATIC TAGS ::=
+
+BEGIN
+
+IMPORTS
+ProcedureCode,
+ProtocolIE-ID
+FROM E2AP-CommonDataTypes;
+
+-- **************************************************************
+--
+-- Elementary Procedures
+--
+-- **************************************************************
+id-E2setup									ProcedureCode ::= 1
+id-ErrorIndication							ProcedureCode ::= 2
+id-Reset									ProcedureCode ::= 3
+id-RICcontrol								ProcedureCode ::= 4
+id-RICindication							ProcedureCode ::= 5
+id-RICserviceQuery							ProcedureCode ::= 6
+id-RICserviceUpdate							ProcedureCode ::= 7
+id-RICsubscription							ProcedureCode ::= 8
+id-RICsubscriptionDelete					ProcedureCode ::= 9
+
+-- **************************************************************
+--
+-- Extension constants
+--
+-- **************************************************************
+
+maxProtocolIEs								INTEGER ::= 65535
+
+
+-- **************************************************************
+--
+-- Lists
+--
+-- **************************************************************
+maxnoofErrors								INTEGER ::= 256
+maxofRANfunctionID							INTEGER ::= 256
+maxofRICactionID							INTEGER ::= 16
+
+-- **************************************************************
+--
+-- IEs
+--
+-- **************************************************************
+id-Cause									ProtocolIE-ID ::= 1
+id-CriticalityDiagnostics					ProtocolIE-ID ::= 2
+id-GlobalE2node-ID							ProtocolIE-ID ::= 3
+id-GlobalRIC-ID								ProtocolIE-ID ::= 4
+id-RANfunctionID   							ProtocolIE-ID ::= 5
+id-RANfunctionID-Item   					ProtocolIE-ID ::= 6
+id-RANfunctionIEcause-Item					ProtocolIE-ID ::= 7
+id-RANfunction-Item							ProtocolIE-ID ::= 8
+id-RANfunctionsAccepted						ProtocolIE-ID ::= 9
+id-RANfunctionsAdded						ProtocolIE-ID ::= 10
+id-RANfunctionsDeleted						ProtocolIE-ID ::= 11
+id-RANfunctionsModified						ProtocolIE-ID ::= 12
+id-RANfunctionsRejected						ProtocolIE-ID ::= 13
+id-RICaction-Admitted-Item					ProtocolIE-ID ::= 14
+id-RICactionID								ProtocolIE-ID ::= 15
+id-RICaction-NotAdmitted-Item				ProtocolIE-ID ::= 16
+id-RICactions-Admitted						ProtocolIE-ID ::= 17
+id-RICactions-NotAdmitted					ProtocolIE-ID ::= 18
+id-RICaction-ToBeSetup-Item					ProtocolIE-ID ::= 19
+id-RICcallProcessID							ProtocolIE-ID ::= 20
+id-RICcontrolAckRequest						ProtocolIE-ID ::= 21
+id-RICcontrolHeader							ProtocolIE-ID ::= 22
+id-RICcontrolMessage						ProtocolIE-ID ::= 23
+id-RICcontrolStatus							ProtocolIE-ID ::= 24
+id-RICindicationHeader						ProtocolIE-ID ::= 25
+id-RICindicationMessage						ProtocolIE-ID ::= 26
+id-RICindicationSN							ProtocolIE-ID ::= 27
+id-RICindicationType						ProtocolIE-ID ::= 28
+id-RICrequestID								ProtocolIE-ID ::= 29
+id-RICsubscriptionDetails					ProtocolIE-ID ::= 30
+id-TimeToWait								ProtocolIE-ID ::= 31
+id-RICcontrolOutcome						ProtocolIE-ID ::= 32
+
+
+END
+-- ASN1STOP

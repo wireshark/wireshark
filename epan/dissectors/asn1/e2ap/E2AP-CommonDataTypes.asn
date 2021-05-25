@@ -1,0 +1,27 @@
+-- ASN1START
+-- **************************************************************
+--
+-- Common definitions
+-- Derived from 3GPP 38.413 v15.4.0
+--
+-- **************************************************************
+
+E2AP-CommonDataTypes {
+iso(1) identified-organization(3) dod(6) internet(1) private(4) enterprise(1) 53148 e2(1) version1 (1) e2ap(1) e2ap-CommonDataTypes (3) }
+
+DEFINITIONS AUTOMATIC TAGS ::=
+
+BEGIN
+
+Criticality		::= ENUMERATED { reject, ignore, notify }
+
+Presence		::= ENUMERATED { optional, conditional, mandatory }
+
+ProcedureCode		::= INTEGER (0..255)
+
+ProtocolIE-ID		::= INTEGER (0..65535)
+
+TriggeringMessage	::= ENUMERATED { initiating-message, successful-outcome, unsuccessfull-outcome }
+
+END
+-- ASN1STOP

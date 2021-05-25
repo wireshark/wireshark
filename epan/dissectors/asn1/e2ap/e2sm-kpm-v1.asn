@@ -1,0 +1,426 @@
+-- ASN1START
+-- **************************************************************
+-- E2SM-KPM
+-- Information Element Definitions
+--
+-- **************************************************************
+
+
+E2SM-KPM-IEs {
+iso(1) identified-organization(3) dod(6) internet(1) private(4) enterprise(1) 53148 e2(1) version1 (1) e2sm(2) e2sm-KPMMON-IEs (2)}
+
+DEFINITIONS AUTOMATIC TAGS ::= 
+
+BEGIN
+
+-- **************************************************************
+-- IEs
+-- **************************************************************
+
+-- **************************************************************
+
+GlobalKPMnode-ID ::= CHOICE{
+	gNB					GlobalKPMnode-gNB-ID,
+	en-gNB				GlobalKPMnode-en-gNB-ID,
+	ng-eNB				GlobalKPMnode-ng-eNB-ID,
+	eNB					GlobalKPMnode-eNB-ID,
+	...
+}
+
+-- **************************************************************
+
+GlobalKPMnode-gNB-ID ::= SEQUENCE{
+	global-gNB-ID		GlobalgNB-ID,
+	gNB-CU-UP-ID		GNB-CU-UP-ID	OPTIONAL,
+	gNB-DU-ID			GNB-DU-ID		OPTIONAL,
+	...
+}
+
+--GlobalgNB-ID	::= SEQUENCE {
+--	plmn-id				PLMN-Identity,
+--	gnb-id				GNB-ID-Choice,
+--	...
+--}
+
+-- GNB-CU-UP-ID ::= 	INTEGER (0..68719476735)
+-- GNB-DU-ID ::= 		INTEGER (0..68719476735)
+
+-- GNB-ID-Choice ::= CHOICE {
+--	gnb-ID					BIT STRING (SIZE(22..32)),
+--	...
+--}
+
+-- **************************************************************
+
+GlobalKPMnode-en-gNB-ID ::= SEQUENCE{
+	global-gNB-ID		GlobalenGNB-ID,
+	...
+}
+
+--GlobalenGNB-ID ::= SEQUENCE {
+--	pLMN-Identity		PLMN-Identity,
+--	gNB-ID				ENGNB-ID,
+--	...
+--}
+
+--ENGNB-ID ::= CHOICE {
+--	gNB-ID	BIT STRING (SIZE (22..32)),
+--	...
+--}
+
+-- **************************************************************
+
+GlobalKPMnode-ng-eNB-ID ::= SEQUENCE{
+	global-ng-eNB-ID	GlobalngeNB-ID,
+	...
+}
+
+--GlobalngeNB-ID ::= SEQUENCE {
+--	plmn-id			PLMN-Identity,
+--	enb-id			ENB-ID-Choice,
+--	...
+--}
+
+--ENB-ID-Choice ::= CHOICE {
+--	enb-ID-macro			BIT STRING (SIZE(20)),
+--	enb-ID-shortmacro		BIT STRING (SIZE(18)),
+--	enb-ID-longmacro		BIT STRING (SIZE(21)),
+--	...
+--}
+
+-- **************************************************************
+
+GlobalKPMnode-eNB-ID ::= SEQUENCE{
+	global-eNB-ID		GlobalENB-ID,
+	...
+}
+
+--GlobalENB-ID ::= SEQUENCE {
+--	pLMN-Identity		PLMN-Identity,
+--	eNB-ID				ENB-ID,
+--	...
+--}
+
+--ENB-ID ::= CHOICE {
+--	macro-eNB-ID			BIT STRING (SIZE (20)),
+--	home-eNB-ID				BIT STRING (SIZE (28)),
+--	... ,
+--	short-Macro-eNB-ID		BIT STRING (SIZE(18)),
+--	long-Macro-eNB-ID		BIT STRING (SIZE(21))
+--}
+
+
+NRCGI ::= SEQUENCE {
+	pLMN-Identity			PLMN-Identity,
+	nRCellIdentity			NRCellIdentity
+}
+
+--PLMN-Identity ::= OCTET STRING (SIZE(3))
+
+NRCellIdentity ::= BIT STRING (SIZE(36))
+
+SNSSAI ::= SEQUENCE {
+	sST			OCTET STRING (SIZE(1)),
+	sD			OCTET STRING (SIZE(3)) 	OPTIONAL
+}
+
+-- **************************************************************
+--
+-- Lists
+--
+-- **************************************************************
+
+maxofMessageProtocolTests			INTEGER ::= 15
+maxofRICstyles						INTEGER ::= 63
+maxnoofQCI                          INTEGER ::= 256
+maxnoofQoSFlows                     INTEGER ::= 64
+maxnoofSliceItems                   INTEGER ::= 1024
+maxnoofContainerListItems           INTEGER ::=  3
+maxCellingNBDU                      INTEGER ::= 512
+maxofContainers                     INTEGER ::= 8
+maxPLMN                             INTEGER ::= 12 -- Maximum number of PLMNs broadcast and reported by UE at establisghment
+
+RIC-Style-Type ::= INTEGER
+
+RIC-Style-Name ::= PrintableString(SIZE(1..150,...))
+
+RIC-Format-Type ::= INTEGER
+
+
+-- **************************************************************
+-- E2SM-KPM Service model IEs
+-- **************************************************************
+
+-- **************************************************************
+-- Event Trigger Definition OCTET STRING contents
+-- **************************************************************
+
+-- E2SM-KPM-EventTriggerDefinition IE
+E2SM-KPM-EventTriggerDefinition ::= CHOICE{
+	eventDefinition-Format1		E2SM-KPM-EventTriggerDefinition-Format1,
+	...
+}
+
+-- E2SM-KPM-EventTriggerDefinition IE is used for Event Trigger Definition Format 1
+E2SM-KPM-EventTriggerDefinition-Format1 ::= SEQUENCE{
+	policyTest-List	SEQUENCE (SIZE(1..maxofMessageProtocolTests)) OF Trigger-ConditionIE-Item OPTIONAL,
+	...
+}
+
+-- **************************************************************
+-- Action Definition OCTET STRING contents
+-- **************************************************************
+
+-- E2SM-KPM-ActionDefinition IE
+E2SM-KPM-ActionDefinition ::= SEQUENCE{
+	ric-Style-Type				RIC-Style-Type,
+	...
+}
+
+-- **************************************************************
+-- Indication Header OCTET STRING contents
+-- **************************************************************
+
+-- E2SM-KPM-IndicationHeader IE
+E2SM-KPM-IndicationHeader ::= CHOICE{
+	indicationHeader-Format1		E2SM-KPM-IndicationHeader-Format1,
+	...
+}
+
+-- E2SM-KPM-IndicationHeader Format 1
+E2SM-KPM-IndicationHeader-Format1 ::= SEQUENCE{
+	id-GlobalKPMnode-ID			GlobalKPMnode-ID  OPTIONAL,
+	nRCGI                       NRCGI            OPTIONAL,
+    pLMN-Identity			PLMN-Identity    OPTIONAL,
+	sliceID		SNSSAI           OPTIONAL,
+	fiveQI					INTEGER (0..255) OPTIONAL,
+    qci                         INTEGER (0..255) OPTIONAL,
+    ...
+}
+
+-- **************************************************************
+-- Indication Message OCTET STRING contents
+-- **************************************************************
+
+-- E2SM-KPM-IndicationMessage IE
+E2SM-KPM-IndicationMessage ::= CHOICE{
+	ric-Style-Type				RIC-Style-Type,
+	indicationMessage-Format1		E2SM-KPM-IndicationMessage-Format1,
+	...
+}
+
+-- E2SM-KPM-IndicationMessage-Format 1 IE
+E2SM-KPM-IndicationMessage-Format1 ::= SEQUENCE{
+    pm-Containers SEQUENCE (SIZE(1..maxCellingNBDU)) OF PM-Containers-List,
+    ...
+}
+
+PM-Containers-List ::= SEQUENCE{
+	performanceContainer	    PF-Container    OPTIONAL,
+	theRANContainer     	    RAN-Container   OPTIONAL,
+	...
+}
+
+-- ***************************************************************
+-- RAN Function Description OCTET STRING contents
+-- ***************************************************************
+
+-- E2SM-KPM-RANfunction-Description
+E2SM-KPM-RANfunction-Description ::= SEQUENCE{
+	ranFunction-Name	RANfunction-Name,
+    e2SM-KPM-RANfunction-Item SEQUENCE{
+	    ric-EventTriggerStyle-List	SEQUENCE (SIZE(1..maxofRICstyles)) OF RIC-EventTriggerStyle-List OPTIONAL,
+	    ric-ReportStyle-List		SEQUENCE (SIZE(1..maxofRICstyles)) OF RIC-ReportStyle-List OPTIONAL,
+	    ...
+    },
+	...
+}
+
+
+-- ***************************************************************
+-- commmon IEs
+-- ***************************************************************
+
+NI-Type ::= ENUMERATED{
+    x2-u,
+    xn-u,
+    f1-u,
+    ...
+}
+
+RAN-Container ::= OCTET STRING
+
+Trigger-ConditionIE-Item ::= SEQUENCE{
+	report-Period-IE		RT-Period-IE,
+	...
+}
+
+RT-Period-IE ::= ENUMERATED{ ms10, ms20, ms32, ms40, ms60, ms64, ms70, ms80, ms128, ms160, ms256, ms320, ms512, ms640, ms1024, ms1280, ms2048, ms2560, ms5120, ms10240, ...}
+
+RANcallProcess-ID-string ::= PrintableString(SIZE(1..150,...))
+
+RANfunction-Name ::= SEQUENCE{
+    ranFunction-ShortName       PrintableString(SIZE(1..150,...)),
+    ranFunction-E2SM-OID		PrintableString(SIZE(1..1000,...)),
+    ranFunction-Description     PrintableString(SIZE(1..150,...)),
+    ranFunction-Instance        INTEGER OPTIONAL,
+    ...
+}
+
+RIC-EventTriggerStyle-List ::= SEQUENCE{
+	ric-EventTriggerStyle-Type			RIC-Style-Type,
+	ric-EventTriggerStyle-Name			RIC-Style-Name,
+	ric-EventTriggerFormat-Type			RIC-Format-Type,
+	...
+}
+
+RIC-ReportStyle-List ::= SEQUENCE{
+	ric-ReportStyle-Type				RIC-Style-Type,
+	ric-ReportStyle-Name				RIC-Style-Name,
+	ric-IndicationHeaderFormat-Type		RIC-Format-Type,
+	ric-IndicationMessageFormat-Type	RIC-Format-Type,
+	...
+}
+
+PF-Container ::= CHOICE {
+	oDU		ODU-PF-Container,
+	oCU-CP	OCUCP-PF-Container,
+    oCU-UP       OCUUP-PF-Container
+}
+
+GNB-CU-CP-Name ::= PrintableString(SIZE(1..150,...))
+
+GNB-DU-Name ::= PrintableString(SIZE(1..150,...))
+
+GNB-CU-UP-Name ::= PrintableString(SIZE(1..150,...))
+
+
+-- **************************************************************
+-- O-DU Container IEs
+-- **************************************************************
+
+
+ODU-PF-Container ::= SEQUENCE{
+    cellResourceReportList SEQUENCE (SIZE(1..maxCellingNBDU)) OF CellResourceReportListItem,
+    ...                 
+}
+
+CellResourceReportListItem ::= SEQUENCE{
+    nRCGI                       NRCGI,
+    dl-TotalofAvailablePRBs     INTEGER (0..273) OPTIONAL,
+    ul-TotalofAvailablePRBs     INTEGER (0..273) OPTIONAL,
+    servedPlmnPerCellList       SEQUENCE (SIZE(1..maxPLMN)) OF ServedPlmnPerCellListItem,
+    ...
+}
+
+ServedPlmnPerCellListItem ::= SEQUENCE{
+	pLMN-Identity			PLMN-Identity,
+    du-PM-5GC               FGC-DU-PM-Container OPTIONAL,
+    du-PM-EPC               EPC-DU-PM-Container OPTIONAL,
+    ...
+}
+
+FGC-DU-PM-Container ::= SEQUENCE{
+    slicePerPlmnPerCellList SEQUENCE (SIZE(1..maxnoofSliceItems)) OF SlicePerPlmnPerCellListItem,
+    ...
+}
+
+SlicePerPlmnPerCellListItem ::= SEQUENCE{
+    sliceID		SNSSAI,
+    fQIPERSlicesPerPlmnPerCellList SEQUENCE (SIZE(1..maxnoofQoSFlows)) OF FQIPERSlicesPerPlmnPerCellListItem,
+    ...
+}
+
+FQIPERSlicesPerPlmnPerCellListItem ::= SEQUENCE{
+    fiveQI				   INTEGER (0..255),
+    dl-PRBUsage            INTEGER (0..273) OPTIONAL,
+    ul-PRBUsage            INTEGER (0..273) OPTIONAL,
+    ...
+}
+
+EPC-DU-PM-Container ::= SEQUENCE{
+    perQCIReportList SEQUENCE (SIZE(1..maxnoofQCI)) OF PerQCIReportListItem,
+    ...
+}
+
+PerQCIReportListItem ::= SEQUENCE{
+    qci                    INTEGER (0..255),
+    dl-PRBUsage            INTEGER (0..100) OPTIONAL,
+    ul-PRBUsage            INTEGER (0..100) OPTIONAL,
+    ...
+}
+
+-- **************************************************************
+-- O-CUCP Container IEs
+-- **************************************************************
+
+
+OCUCP-PF-Container ::= SEQUENCE{
+    gNB-CU-CP-Name GNB-CU-CP-Name OPTIONAL,
+    cu-CP-Resource-Status SEQUENCE {
+        numberOfActive-UEs  INTEGER (1..65536, ...) OPTIONAL
+    }
+}
+
+-- **************************************************************
+-- O-CU-UP Container IEs
+-- **************************************************************
+
+OCUUP-PF-Container ::= SEQUENCE{
+    gNB-CU-UP-Name        GNB-CU-UP-Name OPTIONAL,
+    pf-ContainerList      SEQUENCE (SIZE(1..maxnoofContainerListItems)) OF PF-ContainerListItem,
+    ...                 
+}
+
+PF-ContainerListItem ::= SEQUENCE{
+    interface-type				  NI-Type,
+    o-CU-UP-PM-Container          CUUPMeasurement-Container,
+    ...
+}
+
+CUUPMeasurement-Container ::= SEQUENCE{
+    plmnList SEQUENCE (SIZE(1.. maxPLMN)) OF PlmnID-List,
+    ...
+}
+
+PlmnID-List ::= SEQUENCE{
+	pLMN-Identity			 PLMN-Identity,
+    cu-UP-PM-5GC             FGC-CUUP-PM-Format OPTIONAL,
+    cu-UP-PM-EPC             EPC-CUUP-PM-Format OPTIONAL,
+    ...
+}
+
+FGC-CUUP-PM-Format ::= SEQUENCE{
+    sliceToReportList SEQUENCE (SIZE(1..maxnoofSliceItems)) OF SliceToReportListItem,
+    ...
+}
+
+SliceToReportListItem ::= SEQUENCE{
+    sliceID		SNSSAI,
+    fQIPERSlicesPerPlmnList SEQUENCE (SIZE(1..maxnoofQoSFlows)) OF FQIPERSlicesPerPlmnListItem,
+    ...
+}
+
+FQIPERSlicesPerPlmnListItem ::= SEQUENCE{
+     fiveQI					INTEGER (0..255),
+     pDCPBytesDL            INTEGER (0..10000000000,...) OPTIONAL,
+     pDCPBytesUL            INTEGER (0..10000000000,...) OPTIONAL,
+     ...
+}
+
+EPC-CUUP-PM-Format ::= SEQUENCE{
+    perQCIReportList SEQUENCE (SIZE(1..maxnoofQCI)) OF PerQCIReportListItemFormat,
+    ...
+}
+
+PerQCIReportListItemFormat ::= SEQUENCE{
+    qci                    INTEGER (0..255),
+    pDCPBytesDL            INTEGER (0..10000000000,...) OPTIONAL,
+    pDCPBytesUL            INTEGER (0..10000000000,...) OPTIONAL,
+    ...
+}
+
+
+END
+
+-- ASN1STOP

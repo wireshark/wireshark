@@ -1,0 +1,533 @@
+# e2ap.cnf
+# e2ap conformation file
+
+#.OPT
+PER
+ALIGNED
+#.END
+
+#.USE_VALS_EXT
+ProcedureCode
+ProtocolIE-ID
+
+#.EXPORTS ONLY_VALS WS_DLL
+
+#.EXPORTS
+
+#.PDU
+E2AP-PDU
+
+E2SM-KPM-ActionDefinition
+E2SM-KPM-RANfunction-Description
+E2SM-KPM-EventTriggerDefinition
+E2SM-KPM-IndicationHeader
+RANcallProcess-ID-string
+E2SM-KPM-IndicationMessage-Format1
+
+
+#.MAKE_ENUM
+ProcedureCode
+ProtocolIE-ID
+
+#.NO_EMIT
+
+#.OMIT_ASSIGNMENT
+# Get rid of unused code warnings
+ProtocolIE-FieldPair
+ProtocolIE-ContainerList
+ProtocolIE-ContainerPair
+ProtocolIE-ContainerPairList
+Presence
+
+# KPM items.  Don't know which E2AP OCTET STRING is supposed to use this...
+GNB-DU-Name
+
+E2SM-KPM-IndicationMessage
+
+#.END
+
+
+#.TYPE_ATTR
+E2SM-KPM-IndicationMessage DISPLAY=BASE_DEC STRINGS=VALS(e2ap_E2SM_KPM_IndicationMessage_vals)
+
+#.TYPE_ATTR
+E2SM-KPM-IndicationHeader DISPLAY=BASE_DEC STRINGS=VALS(e2ap_E2SM_KPM_IndicationHeader_vals)
+
+#.TYPE_RENAME
+
+InitiatingMessage/value InitiatingMessage_value
+SuccessfulOutcome/value SuccessfulOutcome_value
+UnsuccessfulOutcome/value UnsuccessfulOutcome_value
+
+#.FIELD_RENAME
+
+InitiatingMessage/value initiatingMessagevalue
+UnsuccessfulOutcome/value unsuccessfulOutcome_value
+SuccessfulOutcome/value successfulOutcome_value
+
+#GlobalGNB-ID/gNB-ID globalGNB-ID_gNB-ID
+
+
+#.FIELD_ATTR
+#GlobalGNB-ID/gNB-ID       ABBREV=globalGNB_ID.gNB_ID
+
+#.FN_BODY ProtocolIE-ID VAL_PTR=&e2ap_data->protocol_ie_id
+  struct e2ap_private_data *e2ap_data = e2ap_get_private_data(actx->pinfo);
+%(DEFAULT_BODY)s
+
+#.FN_FTR ProtocolIE-ID
+  if (tree) {
+    proto_item_append_text(proto_item_get_parent_nth(actx->created_item, 2), ": %s",
+                           val_to_str_ext(e2ap_data->protocol_ie_id, &e2ap_ProtocolIE_ID_vals_ext, "unknown (%d)"));
+  }
+#.END
+
+
+# TODO: probably not worth it
+# #.FN_BODY E2AP-PDU VAL_PTR=&value
+#   guint32 value;
+# %(DEFAULT_BODY)s
+#   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%%s)", val_to_str(value, e2ap_E2AP_PDU_vals, "Unknown"));
+
+
+
+#.FN_PARS ProtocolIE-Field/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolIEFieldValue
+# Currently not used
+# FN_PARS ProtocolIE-FieldPair/firstValue  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolIEFieldPairFirstValue
+# FN_PARS ProtocolIE-FieldPair/secondValue  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolIEFieldPairSecondValue
+
+
+
+#.FN_BODY ProcedureCode  VAL_PTR = &e2ap_data->procedure_code
+  struct e2ap_private_data *e2ap_data = e2ap_get_private_data(actx->pinfo);
+%(DEFAULT_BODY)s
+  //col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%%s", val_to_str(e2ap_data->procedure_code, e2ap_ProcedureCode_vals, "Unknown"));
+#.END
+
+
+
+#.FN_PARS InitiatingMessage/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_InitiatingMessageValue
+#.FN_HDR InitiatingMessage/value
+  struct e2ap_private_data *e2ap_data = e2ap_get_private_data(actx->pinfo);
+  e2ap_data->message_type = INITIATING_MESSAGE;
+#.FN_PARS SuccessfulOutcome/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_SuccessfulOutcomeValue
+#.FN_HDR SuccessfulOutcome/value
+  struct e2ap_private_data *e2ap_data = e2ap_get_private_data(actx->pinfo);
+  e2ap_data->message_type = SUCCESSFUL_OUTCOME;
+#.FN_PARS UnsuccessfulOutcome/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_UnsuccessfulOutcomeValue
+#.FN_HDR UnsuccessfulOutcome/value
+  struct e2ap_private_data *e2ap_data = e2ap_get_private_data(actx->pinfo);
+  e2ap_data->message_type = UNSUCCESSFUL_OUTCOME;
+
+#--- Parameterization is not supported in asn2wrs ---
+
+#ProtocolIE-ContainerList {INTEGER : lowerBound, INTEGER : upperBound, e2ap-PROTOCOL-IES : IEsSetParam} ::=
+# SEQUENCE (SIZE (lowerBound..upperBound)) OF
+# ProtocolIE-Container {{IEsSetParam}}
+
+# #.FN_PARS ProtocolIE-ContainerList
+# MIN_VAL = asn1_param_get_integer(%(ACTX)s,"lowerBound")
+# MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
+# #.FN_HDR ProtocolIE-ContainerList
+#   static const asn1_par_def_t ProtocolIE_ContainerList_pars[] = {
+#     { "lowerBound", ASN1_PAR_INTEGER },
+#     { "upperBound", ASN1_PAR_INTEGER },
+#     { NULL, (asn1_par_type)0 }
+#   };
+#   asn1_stack_frame_check(actx, "ProtocolIE-ContainerList", ProtocolIE_ContainerList_pars);
+# #.END
+
+#ProtocolIE-ContainerPairList {INTEGER : lowerBound, INTEGER : upperBound, e2ap-PROTOCOL-IES-PAIR : IEsSetParam} ::=
+# SEQUENCE (SIZE (lowerBound..upperBound)) OF
+# ProtocolIE-ContainerPair {{IEsSetParam}}
+
+# Currently not used
+# FN_PARS ProtocolIE-ContainerPairList
+#MIN_VAL = asn1_param_get_integer(%(ACTX)s,"lowerBound")
+#MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
+# FN_HDR ProtocolIE-ContainerPairList
+#  static const asn1_par_def_t ProtocolIE_ContainerPairList_pars[] = {
+#    { "lowerBound", ASN1_PAR_INTEGER },
+#    { "upperBound", ASN1_PAR_INTEGER },
+#    { NULL, 0 }
+#  };
+#  asn1_stack_frame_check(actx, "ProtocolIE-ContainerPairList", ProtocolIE_ContainerPairList_pars);
+# END
+
+#PduSessionResource-IE-ContainerList                  { e2ap-PROTOCOL-IES      : IEsSetParam } ::= ProtocolIE-ContainerList     { 1, maxnoofPduSessionResources,   {IEsSetParam} }
+# FN_BODY PduSessionResource-IE-ContainerList
+#  asn1_stack_frame_push(%(ACTX)s, "ProtocolIE-ContainerList");
+#  asn1_param_push_integer(%(ACTX)s, 1);
+#  asn1_param_push_integer(%(ACTX)s, maxnoofE_RABs);
+# %(DEFAULT_BODY)s
+#  asn1_stack_frame_pop(%(ACTX)s, "ProtocolIE-ContainerList");
+# END
+
+# PduSessionResource-IE-ContainerPairList              { e2ap-PROTOCOL-IES-PAIR : IEsSetParam } ::= ProtocolIE-ContainerPairList { 1, maxnoofPduSessionResources,   {IEsSetParam} }
+# Currently not used
+# FN_BODY SAEB-IE-ContainerPairList
+#  asn1_stack_frame_push(%(ACTX)s, "ProtocolIE-ContainerPairList");
+#  asn1_param_push_integer(%(ACTX)s, 1);
+#  asn1_param_push_integer(%(ACTX)s, maxnoofE_RABs);
+#%(DEFAULT_BODY)s
+#  asn1_stack_frame_pop(%(ACTX)s, "ProtocolIE-ContainerPairList");
+# END
+
+# Currently not used
+# ProtocolError-IE-ContainerList        { e2ap-PROTOCOL-IES      : IEsSetParam } ::= ProtocolIE-ContainerList     { 1, maxnoofPduSessionResources,   {IEsSetParam} }
+# FN_BODY ProtocolError-IE-ContainerList
+#  asn1_stack_frame_push(%(ACTX)s, "ProtocolIE-ContainerList");
+#  asn1_param_push_integer(%(ACTX)s, 1);
+#  asn1_param_push_integer(%(ACTX)s, maxnoofE_RABs);
+#%(DEFAULT_BODY)s
+#  asn1_stack_frame_pop(%(ACTX)s, "ProtocolIE-ContainerList");
+# END
+
+# .FN_HDR PrivateIE-ID
+#  struct e2ap_private_data *e2ap_data = e2ap_get_private_data(actx->pinfo);
+#  e2ap_data->obj_id = NULL;
+
+# FN_BODY PrivateIE-ID/global  FN_VARIANT = _str  VAL_PTR = &e2ap_data->obj_id
+#  struct e2ap_private_data *e2ap_data = e2ap_get_private_data(actx->pinfo);
+# %(DEFAULT_BODY)s
+
+# FN_BODY PrivateIE-Field/value
+#  struct e2ap_private_data *e2ap_data = e2ap_get_private_data(actx->pinfo);
+#  if (e2ap_data->obj_id) {
+#    offset = call_per_oid_callback(e2ap_data->obj_id, tvb, actx->pinfo, tree, offset, actx, hf_index);
+#  } else {
+# %(DEFAULT_BODY)s
+#  }
+
+
+
+
+# #.FN_BODY E2AP-Message VAL_PTR = &parameter_tvb
+#  tvbuff_t *parameter_tvb;
+#  proto_tree *subtree;
+#%(DEFAULT_BODY)s
+#  if (!parameter_tvb)
+#    return offset;
+
+#  subtree = proto_item_add_subtree(actx->created_item, ett_e2ap_e2ap_Message);
+#  col_set_fence(actx->pinfo->cinfo, COL_INFO);
+#  call_dissector(e2ap_handle, parameter_tvb, actx->pinfo, subtree);
+
+
+
+# Calling in-depth KPM definitions of E2AP OCTET STRING fields.
+
+#.FN_BODY RICactionDefinition VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb;
+  %(DEFAULT_BODY)s
+  dissect_E2SM_KPM_ActionDefinition_PDU(parameter_tvb, actx->pinfo, tree, NULL);
+
+#.FN_BODY RICeventTriggerDefinition VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb;
+  %(DEFAULT_BODY)s
+  dissect_E2SM_KPM_EventTriggerDefinition_PDU(parameter_tvb, actx->pinfo, tree, NULL);
+
+#.FN_BODY RICindicationHeader VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb;
+  %(DEFAULT_BODY)s
+  dissect_E2SM_KPM_IndicationHeader_PDU(parameter_tvb, actx->pinfo, tree, NULL);
+
+#.FN_BODY RICindicationMessage VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb;
+  %(DEFAULT_BODY)s
+  /* It is believed that this is an error in the ASN in V1 of the spec... */
+  dissect_E2SM_KPM_IndicationMessage_Format1_PDU(parameter_tvb, actx->pinfo, tree, NULL);
+
+#.FN_BODY RANfunctionDefinition  VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb;
+  %(DEFAULT_BODY)s
+  dissect_E2SM_KPM_RANfunction_Description_PDU(parameter_tvb, actx->pinfo, tree, NULL);
+
+#.FN_BODY RICcallProcessID VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb;
+  %(DEFAULT_BODY)s
+  dissect_RANcallProcess_ID_string_PDU(parameter_tvb, actx->pinfo, tree, NULL);
+
+
+
+#.ASSIGN_VALUE_TO_TYPE  # e2ap does not have constants assigned to types, they are pure INTEGER
+# ProcedureCode
+
+id-E2setup                                   ProcedureCode
+id-ErrorIndication                           ProcedureCode
+id-Reset                                     ProcedureCode
+id-RICcontrol                                ProcedureCode
+id-RICindication                             ProcedureCode
+id-RICserviceQuery                           ProcedureCode
+id-RICserviceUpdate                          ProcedureCode
+id-RICsubscription                           ProcedureCode
+id-RICsubscriptionDelete                     ProcedureCode
+#id-E2nodeConfigurationUpdate	             ProcedureCode
+#id-E2connectionUpdate                        ProcedureCode
+
+
+
+# ProtocolIE-ID
+id-Cause                                      ProtocolIE-ID
+id-CriticalityDiagnostics                     ProtocolIE-ID
+id-GlobalE2node-ID                            ProtocolIE-ID
+id-GlobalRIC-ID                               ProtocolIE-ID
+id-RANfunctionID                              ProtocolIE-ID
+id-RANfunctionID-Item                         ProtocolIE-ID
+id-RANfunctionIEcause-Item                    ProtocolIE-ID
+id-RANfunction-Item                           ProtocolIE-ID
+id-RANfunctionsAccepted                       ProtocolIE-ID
+id-RANfunctionsAdded                          ProtocolIE-ID
+
+id-RANfunctionsDeleted                        ProtocolIE-ID
+id-RANfunctionsModified                       ProtocolIE-ID
+id-RANfunctionsRejected                       ProtocolIE-ID
+id-RICaction-Admitted-Item                    ProtocolIE-ID
+id-RICactionID                                ProtocolIE-ID
+id-RICaction-NotAdmitted-Item                 ProtocolIE-ID
+id-RICactions-Admitted                        ProtocolIE-ID
+id-RICactions-NotAdmitted                     ProtocolIE-ID
+id-RICaction-ToBeSetup-Item                   ProtocolIE-ID
+id-RICcallProcessID                           ProtocolIE-ID
+
+id-RICcontrolAckRequest                       ProtocolIE-ID
+id-RICcontrolHeader                           ProtocolIE-ID
+id-RICcontrolMessage                          ProtocolIE-ID
+id-RICcontrolStatus                           ProtocolIE-ID
+id-RICindicationHeader                        ProtocolIE-ID
+id-RICindicationMessage                       ProtocolIE-ID
+id-RICindicationSN                            ProtocolIE-ID
+id-RICindicationType                          ProtocolIE-ID
+id-RICrequestID                               ProtocolIE-ID
+id-RICsubscriptionDetails                     ProtocolIE-ID
+
+id-TimeToWait                                 ProtocolIE-ID
+id-RICcontrolOutcome                          ProtocolIE-ID
+#id-E2nodeComponentConfigUpdate                ProtocolIE-ID
+#id-E2nodeComponentConfigUpdate-Item           ProtocolIE-ID
+#id-E2nodeComponentConfigUpdateAck             ProtocolIE-ID
+#id-E2nodeComponentConfigUpdateAck-Item        ProtocolIE-ID
+#id-E2connectionSetup                          ProtocolIE-ID
+#id-E2connectionSetupFailed                    ProtocolIE-ID
+
+#id-E2connectionSetupFailed-Item               ProtocolIE-ID
+#id-E2connectionFailed-Item                    ProtocolIE-ID
+#id-E2connectionUpdate-Item                    ProtocolIE-ID
+#id-E2connectionUpdateAdd                      ProtocolIE-ID
+#id-E2connectionUpdateModify                   ProtocolIE-ID
+#id-E2connectionUpdateRemove                   ProtocolIE-ID
+#id-E2connectionUpdateRemove-Item              ProtocolIE-ID
+#id-TNLinformation                             ProtocolIE-ID
+#id-TransactionID                              ProtocolIE-ID
+#.END
+
+
+#.REGISTER
+
+#E2AP-PROTOCOL-IES
+
+Cause                                       N e2ap.ies id-Cause
+CriticalityDiagnostics                      N e2ap.ies id-CriticalityDiagnostics
+
+GlobalE2node-ID                             N e2ap.ies id-GlobalE2node-ID
+GlobalRIC-ID                                N e2ap.ies id-GlobalRIC-ID
+RANfunctionID                               N e2ap.ies id-RANfunctionID
+RANfunctionID-Item                          N e2ap.ies id-RANfunctionID-Item
+RANfunctionIDcause-Item                     N e2ap.ies id-RANfunctionIEcause-Item
+RANfunction-Item                            N e2ap.ies id-RANfunction-Item
+RANfunctionsID-List                         N e2ap.ies id-RANfunctionsAccepted
+RANfunctions-List                           N e2ap.ies id-RANfunctionsAdded
+RANfunctionsID-List                         N e2ap.ies id-RANfunctionsDeleted
+RANfunctions-List                           N e2ap.ies id-RANfunctionsModified
+RANfunctionsIDcause-List                    N e2ap.ies id-RANfunctionsRejected
+RICaction-Admitted-Item                     N e2ap.ies id-RICaction-Admitted-Item
+RICactionID                                 N e2ap.ies id-RICactionID
+RICaction-NotAdmitted-Item                  N e2ap.ies id-RICaction-NotAdmitted-Item
+RICaction-Admitted-List                    N e2ap.ies id-RICactions-Admitted
+RICaction-ToBeSetup-Item                    N e2ap.ies id-RICaction-ToBeSetup-Item
+RICcallProcessID                            N e2ap.ies id-RICcallProcessID
+RICaction-NotAdmitted-List                  N e2ap.ies id-RICactions-NotAdmitted
+RICcontrolAckRequest                        N e2ap.ies id-RICcontrolAckRequest
+RICcontrolHeader                            N e2ap.ies id-RICcontrolHeader
+RICcontrolMessage                           N e2ap.ies id-RICcontrolMessage
+RICcontrolOutcome                           N e2ap.ies id-RICcontrolOutcome
+RICcontrolStatus                            N e2ap.ies id-RICcontrolStatus
+RICindicationHeader                         N e2ap.ies id-RICindicationHeader
+RICindicationMessage                        N e2ap.ies id-RICindicationMessage
+RICindicationSN                             N e2ap.ies id-RICindicationSN
+RICindicationType                           N e2ap.ies id-RICindicationType
+RICrequestID                                N e2ap.ies id-RICrequestID
+RICsubscriptionDetails                      N e2ap.ies id-RICsubscriptionDetails
+TimeToWait                                  N e2ap.ies id-TimeToWait
+#TNLinformation                              N e2ap.ies id-TNLinformation
+#TransactionID                               N e2ap.ies id-TransactionID
+
+
+
+
+# TODO: V2?
+#Cause                                N e2ap.ies id-Cause
+#CriticalityDiagnostics               N e2ap.ies id-CriticalityDiagnostics
+#E2nodeComponentConfigUpdate          N e2ap.ies id-E2nodeComponentConfigUpdate
+#E2nodeComponentConfigUpdateAck       N e2ap.ies id-E2nodeComponentConfigUpdateAck
+#E2nodeComponentID                    N e2ap.ies id-E2nodeComponentID
+#E2nodeComponentType                  N e2ap.ies id-E2nodeComponentType
+#GlobalE2node-ID                      N e2ap.ies id-GlobalE2node-ID
+#GlobalRIC-ID                         N e2ap.ies id-GlobalRIC-ID
+#RANfunctionDefinition                N e2ap.ies id-RANfunctionDefinition
+#RANfunctionID                        N e2ap.ies id-RANfunctionID
+#RANfunctionOID                       N e2ap.ies id-RANfunctionOID
+#RANfunctionRevision                  N e2ap.ies id-RANfunctionRevision
+#RICactionDefinition                  N e2ap.ies id-RICactionDefinition
+#RICactionID                          N e2ap.ies id-RICactionID
+#RICactionType                        N e2ap.ies id-RICactionType
+#RICcallProcessID                     N e2ap.ies id-RICcallProcessID
+#RICcontrolAckRequest                 N e2ap.ies id-RICcontrolAckRequest
+#RICcontrolHeader                     N e2ap.ies id-RICcontrolHeader
+#RICcontrolMessage                    N e2ap.ies id-RICcontrolMessage
+#RICcontrolOutcome                    N e2ap.ies id-RICcontrolOutcome
+#RICcontrolStatus                     N e2ap.ies id-RICcontrolStatus
+#RICeventTriggerDefinition            N e2ap.ies id-RICeventTriggerDefinition
+#RICindicationHeader                  N e2ap.ies id-RICindicationHeader
+#RICindicationMessage                 N e2ap.ies id-RICindicationMessage
+#RICindicationSN                      N e2ap.ies id-RICindicationSN
+#RICindicationType                    N e2ap.ies id-RICindicationType
+#RICrequestID                         N e2ap.ies id-RICrequestID
+#RICsubsequentAction                  N e2ap.ies id-RICsubsequentAction
+#TimeToWait                           N e2ap.ies id-TimeToWait
+#TNLinformation                       N e2ap.ies id-TNLinformation
+#TNLusage                             N e2ap.ies id-TNLusage
+#TransactionID                        N e2ap.ies id-TransactionID
+
+
+#e2ap-PROTOCOL-EXTENSION
+
+
+
+#E2AP-ELEMENTARY-PROCEDURE
+
+#E2connectionUpdate                       N e2ap.proc.imsg id-E2connectionUpdate
+#E2connectionUpdateAcknowledge            N e2ap.proc.sout id-E2connectionUpdate
+#E2connectionUpdateFailure                N e2ap.proc.uout id-E2connectionUpdate
+
+#E2nodeConfigurationUpdate                N e2ap.proc.imsg id-E2nodeConfigurationUpdate
+#E2nodeConfigurationUpdateAcknowledge     N e2ap.proc.sout id-E2nodeConfigurationUpdate
+#E2nodeConfigurationUpdateFailure         N e2ap.proc.uout id-E2nodeConfigurationUpdate
+
+E2setupFailure                           N e2ap.proc.uout id-E2setup
+E2setupRequest                           N e2ap.proc.imsg id-E2setup
+E2setupResponse                          N e2ap.proc.sout id-E2setup
+
+ErrorIndication                          N e2ap.proc.imsg id-ErrorIndication
+
+ResetRequest                             N e2ap.proc.imsg id-Reset
+ResetResponse                            N e2ap.proc.sout id-Reset
+
+RICcontrolAcknowledge                    N e2ap.proc.sout id-RICcontrol
+RICcontrolFailure                        N e2ap.proc.uout id-RICcontrol
+RICcontrolRequest                        N e2ap.proc.imsg id-RICcontrol
+
+RICindication                            N e2ap.proc.imsg id-RICindication
+
+RICserviceQuery                          N e2ap.proc.imsg id-RICserviceQuery
+
+RICserviceUpdate                         N e2ap.proc.imsg id-RICserviceUpdate
+RICserviceUpdateAcknowledge              N e2ap.proc.sout id-RICserviceUpdate
+RICserviceUpdateFailure                  N e2ap.proc.uout id-RICserviceUpdate
+
+RICsubscriptionFailure                   N e2ap.proc.uout id-RICsubscription
+RICsubscriptionRequest                   N e2ap.proc.imsg id-RICsubscription
+RICsubscriptionResponse                  N e2ap.proc.sout id-RICsubscription
+
+RICsubscriptionDeleteFailure             N e2ap.proc.uout id-RICsubscriptionDelete
+RICsubscriptionDeleteRequest             N e2ap.proc.imsg id-RICsubscriptionDelete
+RICsubscriptionDeleteResponse            N e2ap.proc.sout id-RICsubscriptionDelete
+
+
+
+#.FN_HDR E2setupFailure
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "E2setupFailure");
+
+#.FN_HDR E2setupRequest
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "E2setupRequest");
+
+#.FN_HDR E2setupResponse
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "E2setupResponse");
+
+#.FN_HDR ErrorIndication
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ErrorIndication");
+
+#.FN_HDR ResetRequest
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ResetRequest");
+
+#.FN_HDR ResetResponse
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ResetResponse");
+
+#.FN_HDR RICcontrolAcknowledge
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RICcontrolAcknowledge");
+
+
+
+#.FN_HDR RICcontrolFailure
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RICcontrolFailure");
+
+#.FN_HDR RICcontrolRequest
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RICcontrolRequest");
+
+#.FN_HDR RICindication
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RICindication");
+
+
+#.FN_HDR RICserviceQuery
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RICserviceQuery");
+
+#.FN_HDR RICserviceUpdate
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RICserviceUpdate");
+
+
+#.FN_HDR RICserviceUpdateAcknowledge
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RICserviceUpdateAcknowledge");
+
+#.FN_HDR RICserviceUpdateFailure
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RICserviceUpdateFailure");
+
+
+
+#.FN_HDR RICsubscriptionFailure
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RICsubscriptionFailure");
+
+#.FN_HDR RICsubscriptionRequest
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RICsubscriptionRequest");
+
+#.FN_HDR RICsubscriptionResponse
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RICsubscriptionResponse");
+
+
+
+#.FN_HDR RICsubscriptionDeleteFailure
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RICsubscriptionDeleteFailure");
+
+#.FN_HDR RICsubscriptionDeleteRequest
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RICsubscriptionDeleteRequest");
+
+#.FN_HDR RICsubscriptionDeleteResponse
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RICsubscriptionDeleteResponse");
+
+
+
+
+
+
+
+#
+# Editor modelines  -  https://www.wireshark.org/tools/modelines.html
+#
+# Local variables:
+# c-basic-offset: 2
+# tab-width: 8
+# indent-tabs-mode: nil
+# End:
+#
+# vi: set shiftwidth=2 tabstop=8 expandtab:
+# :indentSize=2:tabSize=8:noTabs=true:
+#

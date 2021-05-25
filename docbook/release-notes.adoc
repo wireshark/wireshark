@@ -105,9 +105,7 @@ State Synchronization Protocol (SSyncP)
 Tagged Image File Format (TIFF)
 TP-Link Smart Home Protocol
 R09.x (R09)
-UAVCAN/CAN
-UAVCAN DSDL
-Van Jacobson PPP compression (VJC)
+O-RAN E2AP
 --
 
 === Updated Protocol Support

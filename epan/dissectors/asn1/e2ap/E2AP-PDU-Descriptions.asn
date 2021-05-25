@@ -1,0 +1,216 @@
+-- ASN1START
+-- **************************************************************
+--
+-- Elementary Procedure definitions
+-- Derived from 3GPP 38.413 v15.4.0 NGAP
+-- **************************************************************
+
+E2AP-PDU-Descriptions {
+iso(1) identified-organization(3) dod(6) internet(1) private(4) enterprise(1) 53148 e2(1) version1 (1) e2ap(1) e2ap-PDU-Descriptions (0) }
+
+DEFINITIONS AUTOMATIC TAGS ::=
+
+BEGIN
+
+-- **************************************************************
+--
+-- IE parameter types from other modules.
+--
+-- **************************************************************
+
+IMPORTS
+Criticality,
+ProcedureCode
+FROM E2AP-CommonDataTypes
+
+
+
+E2setupFailure,
+E2setupRequest,
+E2setupResponse,
+ErrorIndication,
+ResetRequest,
+ResetResponse,
+RICcontrolAcknowledge,
+RICcontrolFailure,
+RICcontrolRequest,
+RICindication,
+RICserviceQuery,
+RICserviceUpdate,
+RICserviceUpdateAcknowledge,
+RICserviceUpdateFailure,
+RICsubscriptionFailure,
+RICsubscriptionRequest,
+RICsubscriptionResponse,
+RICsubscriptionDeleteFailure,
+RICsubscriptionDeleteRequest,
+RICsubscriptionDeleteResponse
+FROM E2AP-PDU-Contents
+
+id-E2setup,
+id-ErrorIndication,
+id-Reset,
+id-RICcontrol,
+id-RICindication,
+id-RICserviceQuery,
+id-RICserviceUpdate,
+id-RICsubscription,
+id-RICsubscriptionDelete
+FROM E2AP-Constants;
+
+-- **************************************************************
+--
+-- Interface Elementary Procedure Class
+--
+-- **************************************************************
+
+E2AP-ELEMENTARY-PROCEDURE ::= CLASS {
+&InitiatingMessage										,
+&SuccessfulOutcome							OPTIONAL	,
+&UnsuccessfulOutcome						OPTIONAL	,
+&procedureCode				ProcedureCode	UNIQUE	,
+&criticality				Criticality		DEFAULT ignore
+}
+
+WITH SYNTAX {
+INITIATING MESSAGE			&InitiatingMessage
+[SUCCESSFUL OUTCOME			&SuccessfulOutcome]
+[UNSUCCESSFUL OUTCOME		&UnsuccessfulOutcome]
+PROCEDURE CODE				&procedureCode
+[CRITICALITY				&criticality]
+}
+
+-- **************************************************************
+--
+-- Interface PDU Definition
+--
+-- **************************************************************
+
+E2AP-PDU ::= CHOICE {
+initiatingMessage			InitiatingMessage,
+successfulOutcome			SuccessfulOutcome,
+unsuccessfulOutcome			UnsuccessfulOutcome,
+...
+}
+
+InitiatingMessage ::= SEQUENCE {
+procedureCode	E2AP-ELEMENTARY-PROCEDURE.&procedureCode		({E2AP-ELEMENTARY-PROCEDURES}),
+criticality		E2AP-ELEMENTARY-PROCEDURE.&criticality			({E2AP-ELEMENTARY-PROCEDURES}{@procedureCode}),
+value			E2AP-ELEMENTARY-PROCEDURE.&InitiatingMessage	({E2AP-ELEMENTARY-PROCEDURES}{@procedureCode})
+}
+
+SuccessfulOutcome ::= SEQUENCE {
+procedureCode	E2AP-ELEMENTARY-PROCEDURE.&procedureCode		({E2AP-ELEMENTARY-PROCEDURES}),
+criticality		E2AP-ELEMENTARY-PROCEDURE.&criticality			({E2AP-ELEMENTARY-PROCEDURES}{@procedureCode}),
+value			E2AP-ELEMENTARY-PROCEDURE.&SuccessfulOutcome	({E2AP-ELEMENTARY-PROCEDURES}{@procedureCode})
+}
+
+UnsuccessfulOutcome ::= SEQUENCE {
+procedureCode	E2AP-ELEMENTARY-PROCEDURE.&procedureCode		({E2AP-ELEMENTARY-PROCEDURES}),
+criticality		E2AP-ELEMENTARY-PROCEDURE.&criticality			({E2AP-ELEMENTARY-PROCEDURES}{@procedureCode}),
+value			E2AP-ELEMENTARY-PROCEDURE.&UnsuccessfulOutcome	({E2AP-ELEMENTARY-PROCEDURES}{@procedureCode})
+}
+
+-- **************************************************************
+--
+-- Interface Elementary Procedure List
+--
+-- **************************************************************
+
+E2AP-ELEMENTARY-PROCEDURES E2AP-ELEMENTARY-PROCEDURE ::= {
+E2AP-ELEMENTARY-PROCEDURES-CLASS-1					|
+E2AP-ELEMENTARY-PROCEDURES-CLASS-2,
+...
+}
+
+E2AP-ELEMENTARY-PROCEDURES-CLASS-1 E2AP-ELEMENTARY-PROCEDURE ::= {
+ricSubscription										|
+ricSubscriptionDelete								|
+ricServiceUpdate									|
+ricControl											|
+e2setup												|
+reset,
+...
+}
+
+E2AP-ELEMENTARY-PROCEDURES-CLASS-2 E2AP-ELEMENTARY-PROCEDURE ::= {
+ricIndication										|
+ricServiceQuery										|
+errorIndication,
+...
+}
+
+-- **************************************************************
+--
+-- Interface Elementary Procedures
+--
+-- **************************************************************
+
+e2setup	E2AP-ELEMENTARY-PROCEDURE ::= {
+INITIATING MESSAGE		E2setupRequest
+SUCCESSFUL OUTCOME		E2setupResponse
+UNSUCCESSFUL OUTCOME	E2setupFailure
+PROCEDURE CODE			id-E2setup
+CRITICALITY				reject
+}
+
+errorIndication E2AP-ELEMENTARY-PROCEDURE ::= {
+INITIATING MESSAGE		ErrorIndication
+PROCEDURE CODE			id-ErrorIndication
+CRITICALITY				ignore
+}
+
+reset	E2AP-ELEMENTARY-PROCEDURE ::= {
+INITIATING MESSAGE		ResetRequest
+SUCCESSFUL OUTCOME		ResetResponse
+PROCEDURE CODE			id-Reset
+CRITICALITY				reject
+}
+
+ricControl E2AP-ELEMENTARY-PROCEDURE ::= {
+INITIATING MESSAGE		RICcontrolRequest
+SUCCESSFUL OUTCOME		RICcontrolAcknowledge
+UNSUCCESSFUL OUTCOME	RICcontrolFailure
+PROCEDURE CODE			id-RICcontrol
+CRITICALITY				reject
+}
+
+ricIndication E2AP-ELEMENTARY-PROCEDURE ::= {
+INITIATING MESSAGE		RICindication
+PROCEDURE CODE			id-RICindication
+CRITICALITY				ignore
+}
+
+ricServiceQuery E2AP-ELEMENTARY-PROCEDURE ::= {
+INITIATING MESSAGE		RICserviceQuery
+PROCEDURE CODE			id-RICserviceQuery
+CRITICALITY				ignore
+}
+
+ricServiceUpdate E2AP-ELEMENTARY-PROCEDURE ::= {
+INITIATING MESSAGE		RICserviceUpdate
+SUCCESSFUL OUTCOME		RICserviceUpdateAcknowledge
+UNSUCCESSFUL OUTCOME	RICserviceUpdateFailure
+PROCEDURE CODE			id-RICserviceUpdate
+CRITICALITY				reject
+}
+
+ricSubscription E2AP-ELEMENTARY-PROCEDURE ::= {
+INITIATING MESSAGE		RICsubscriptionRequest
+SUCCESSFUL OUTCOME		RICsubscriptionResponse
+UNSUCCESSFUL OUTCOME	RICsubscriptionFailure
+PROCEDURE CODE			id-RICsubscription
+CRITICALITY				reject
+}
+
+ricSubscriptionDelete E2AP-ELEMENTARY-PROCEDURE ::= {
+INITIATING MESSAGE		RICsubscriptionDeleteRequest
+SUCCESSFUL OUTCOME		RICsubscriptionDeleteResponse
+UNSUCCESSFUL OUTCOME	RICsubscriptionDeleteFailure
+PROCEDURE CODE			id-RICsubscriptionDelete
+CRITICALITY				reject
+}
+
+
+END
+-- ASN1STOP

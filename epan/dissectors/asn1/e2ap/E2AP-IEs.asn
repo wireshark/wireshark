@@ -1,0 +1,384 @@
+-- ASN1START
+-- **************************************************************
+-- E2AP
+-- Information Element Definitions
+--
+-- **************************************************************
+
+E2AP-IEs {
+iso(1) identified-organization(3) dod(6) internet(1) private(4) enterprise(1) 53148 e2(1) version1 (1) e2ap(1) e2ap-IEs (2)}
+
+DEFINITIONS AUTOMATIC TAGS ::=
+
+BEGIN
+
+IMPORTS
+Criticality,
+Presence,
+ProcedureCode,
+ProtocolIE-ID,
+TriggeringMessage
+FROM E2AP-CommonDataTypes
+
+maxnoofErrors,
+maxProtocolIEs
+FROM E2AP-Constants;
+
+-- A
+-- B
+-- C
+Cause ::= CHOICE {
+ricRequest			CauseRIC,
+ricService			CauseRICservice,
+transport			CauseTransport,
+protocol			CauseProtocol,
+misc				CauseMisc,
+...
+}
+
+CauseMisc ::= ENUMERATED {
+control-processing-overload,
+hardware-failure,
+om-intervention,
+unspecified,
+...
+}
+CauseProtocol ::= ENUMERATED {
+transfer-syntax-error,
+abstract-syntax-error-reject,
+abstract-syntax-error-ignore-and-notify,
+message-not-compatible-with-receiver-state,
+semantic-error,
+abstract-syntax-error-falsely-constructed-message,
+unspecified,
+...
+}
+
+CauseRIC ::= ENUMERATED {
+ran-function-id-Invalid,
+action-not-supported,
+excessive-actions,
+duplicate-action,
+duplicate-event,
+function-resource-limit,
+request-id-unknown,
+inconsistent-action-subsequent-action-sequence,
+control-message-invalid,
+call-process-id-invalid,
+unspecified,
+...
+}
+
+CauseRICservice ::= ENUMERATED{
+function-not-required,
+excessive-functions,
+ric-resource-limit,
+...
+}
+CauseTransport ::= ENUMERATED {
+unspecified,
+transport-resource-unavailable,
+...
+}
+
+-- **************************************************************
+-- copied from 3GPP 38.413 NGAP IEs v15.5.0
+-- note: ie-Extensions removed
+-- **************************************************************
+CriticalityDiagnostics ::= SEQUENCE {
+procedureCode					ProcedureCode							OPTIONAL,
+triggeringMessage				TriggeringMessage						OPTIONAL,
+procedureCriticality			Criticality								OPTIONAL,
+ricRequestorID					RICrequestID							OPTIONAL,
+iEsCriticalityDiagnostics		CriticalityDiagnostics-IE-List			OPTIONAL,
+...
+}
+
+CriticalityDiagnostics-IE-List ::= SEQUENCE (SIZE(1..maxnoofErrors)) OF CriticalityDiagnostics-IE-Item
+
+CriticalityDiagnostics-IE-Item ::= SEQUENCE {
+iECriticality		Criticality,
+iE-ID				ProtocolIE-ID,
+typeOfError			TypeOfError,
+...
+}
+
+-- D
+-- E
+
+-- **************************************************************
+-- copied from 3GPP X2AP IEs v15.4.0
+-- note: ie-Extensions removed
+-- **************************************************************
+ENB-ID ::= CHOICE {
+macro-eNB-ID			BIT STRING (SIZE (20)),
+home-eNB-ID				BIT STRING (SIZE (28)),
+... ,
+short-Macro-eNB-ID		BIT STRING (SIZE(18)),
+long-Macro-eNB-ID		BIT STRING (SIZE(21))
+}
+-- **************************************************************
+-- copied from 3GPP 38.423 v15.5.0 XnAP IEs
+-- **************************************************************
+ENB-ID-Choice ::= CHOICE {
+enb-ID-macro			BIT STRING (SIZE(20)),
+enb-ID-shortmacro		BIT STRING (SIZE(18)),
+enb-ID-longmacro		BIT STRING (SIZE(21)),
+...
+}
+
+-- **************************************************************
+-- copied from 3GPP X2AP IEs v15.4.0
+-- note: ie-Extensions removed
+-- Note: to avoid duplicate names with XnAP, GNB-ID renamed ENGNB-ID, GlobalGNB-ID renamed GlobalenGNB-ID
+-- **************************************************************
+ENGNB-ID ::= CHOICE {
+gNB-ID	BIT STRING (SIZE (22..32)),
+...
+}
+
+-- F
+-- G
+GlobalE2node-ID ::= CHOICE{
+gNB					GlobalE2node-gNB-ID,
+en-gNB				GlobalE2node-en-gNB-ID,
+ng-eNB				GlobalE2node-ng-eNB-ID,
+eNB					GlobalE2node-eNB-ID,
+...
+}
+
+GlobalE2node-en-gNB-ID ::= SEQUENCE{
+global-gNB-ID		GlobalenGNB-ID,
+...
+}
+GlobalE2node-eNB-ID ::= SEQUENCE{
+global-eNB-ID		GlobalENB-ID,
+...
+}
+GlobalE2node-gNB-ID ::= SEQUENCE{
+global-gNB-ID		GlobalgNB-ID,
+gNB-CU-UP-ID		GNB-CU-UP-ID	OPTIONAL,
+gNB-DU-ID			GNB-DU-ID		OPTIONAL,
+...
+}
+GlobalE2node-ng-eNB-ID ::= SEQUENCE{
+global-ng-eNB-ID	GlobalngeNB-ID,
+...
+}
+-- **************************************************************
+-- copied from 3GPP X2AP IEs v15.4.0
+-- note: ie-Extensions removed
+-- **************************************************************
+
+GlobalENB-ID ::= SEQUENCE {
+pLMN-Identity		PLMN-Identity,
+eNB-ID				ENB-ID,
+...
+}
+-- **************************************************************
+-- copied from 3GPP X2AP IEs v15.4.0
+-- Note: to avoid duplicate names with XnAP, GNB-ID renamed ENGNB-ID, GlobalGNB-ID renamed GlobalenGNB-ID
+-- **************************************************************
+GlobalenGNB-ID ::= SEQUENCE {
+pLMN-Identity		PLMN-Identity,
+gNB-ID				ENGNB-ID,
+...
+}
+-- **************************************************************
+-- copied from 3GPP 38.423 v15.5.0 XnAP IEs
+-- **************************************************************
+GlobalgNB-ID	::= SEQUENCE {
+plmn-id				PLMN-Identity,
+gnb-id				GNB-ID-Choice,
+...
+}
+
+
+-- **************************************************************
+-- copied from 3GPP 38.423 v15.5.0 XnAP IEs
+-- **************************************************************
+GlobalngeNB-ID	::= SEQUENCE {
+plmn-id			PLMN-Identity,
+enb-id			ENB-ID-Choice,
+...
+}
+
+GlobalRIC-ID ::= SEQUENCE{
+pLMN-Identity			PLMN-Identity,
+ric-ID					BIT STRING (SIZE (20)),
+...
+}
+
+-- **************************************************************
+-- copied from 3GPP 38.463 v15.5.0 E1AP IEs
+-- **************************************************************
+GNB-CU-UP-ID::= 	INTEGER (0..68719476735)
+GNB-DU-ID::= 		INTEGER (0..68719476735)
+
+-- **************************************************************
+-- copied from 3GPP 38.423 v15.5.0 XnAP IEs
+-- **************************************************************
+GNB-ID-Choice ::= CHOICE {
+gnb-ID					BIT STRING (SIZE(22..32)),
+...
+}
+-- H
+-- I
+-- J
+-- K
+-- L
+-- M
+-- N
+-- O
+-- P
+-- **************************************************************
+-- copied from 3GPP X2AP IEs v15.4.0
+-- **************************************************************
+PLMN-Identity ::= OCTET STRING (SIZE(3))
+
+-- Q
+-- R
+-- **************************************************************
+-- Following IE defined in E2SM
+-- **************************************************************
+RANfunctionDefinition ::= OCTET STRING
+
+RANfunctionID ::= INTEGER (0..4095)
+
+RANfunctionRevision ::= INTEGER (0..4095)
+
+-- **************************************************************
+-- Following IE defined in E2SM
+-- **************************************************************
+RICactionDefinition ::= OCTET STRING
+
+RICactionID ::= INTEGER (0..255)
+
+RICactionType ::= ENUMERATED{
+report,
+insert,
+policy,
+...
+}
+
+-- **************************************************************
+-- Following IE defined in E2SM
+-- **************************************************************
+RICcallProcessID ::= OCTET STRING
+
+RICcontrolAckRequest ::= ENUMERATED{
+noAck,
+ack,
+nAck,
+...
+}
+
+-- **************************************************************
+-- Following IE defined in E2SM
+-- **************************************************************
+RICcontrolHeader ::= OCTET STRING
+
+-- **************************************************************
+-- Following IE defined in E2SM
+-- **************************************************************
+RICcontrolMessage ::= OCTET STRING
+
+-- **************************************************************
+-- Following IE defined in E2SM
+-- **************************************************************
+RICcontrolOutcome ::= OCTET STRING
+
+RICcontrolStatus ::= ENUMERATED{
+success,
+rejected,
+failed,
+...
+}
+
+-- **************************************************************
+-- Following IE defined in E2SM
+-- **************************************************************
+RICeventTriggerDefinition ::= OCTET STRING
+
+-- **************************************************************
+-- Following IE defined in E2SM
+-- **************************************************************
+RICindicationHeader ::= OCTET STRING
+
+-- **************************************************************
+-- Following IE defined in E2SM
+-- **************************************************************
+RICindicationMessage ::= OCTET STRING
+
+RICindicationSN ::= INTEGER (0..65535)
+
+RICindicationType ::= ENUMERATED{
+report,
+insert,
+...
+}
+
+RICrequestID ::= SEQUENCE {
+ricRequestorID				INTEGER (0..65535),
+ricInstanceID	INTEGER (0..65535),
+...
+}
+
+RICsubsequentAction ::=SEQUENCE{
+ricSubsequentActionType		RICsubsequentActionType,
+ricTimeToWait				RICtimeToWait,
+...
+}
+
+RICsubsequentActionType ::= ENUMERATED{
+continue,
+wait,
+...
+}
+
+RICtimeToWait ::= ENUMERATED{
+zero,
+w1ms,
+w2ms,
+w5ms,
+w10ms,
+w20ms,
+w30ms,
+w40ms,
+w50ms,
+w100ms,
+w200ms,
+w500ms,
+w1s,
+w2s,
+w5s,
+w10s,
+w20s,
+w60s,
+...
+}
+-- S
+-- T
+-- **************************************************************
+-- copied from 3GPP 38.413 NGAP IEs v15.5.0
+-- **************************************************************
+TimeToWait ::= ENUMERATED {v1s, v2s, v5s, v10s, v20s, v60s, ...}
+
+-- **************************************************************
+-- copied from 3GPP 38.413 NGAP IEs v15.5.0
+-- **************************************************************
+TypeOfError ::= ENUMERATED {
+not-understood,
+missing,
+...
+}
+
+-- U
+-- V
+-- W
+-- X
+-- Y
+-- Z
+
+END
+-- ASN1STOP

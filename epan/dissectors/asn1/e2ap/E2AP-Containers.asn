@@ -1,0 +1,132 @@
+-- ASN1START
+-- **************************************************************
+--
+-- Container definitions
+--
+-- derived from 3GPP 38.413 v15.4.0
+-- **************************************************************
+
+E2AP-Containers {
+iso(1) identified-organization(3) dod(6) internet(1) private(4) enterprise(1) 53148 e2(1) version1 (1) e2ap(1) e2ap-Containers (5) }
+
+DEFINITIONS AUTOMATIC TAGS ::=
+
+BEGIN
+
+-- **************************************************************
+--
+-- IE parameter types from other modules.
+--
+-- **************************************************************
+
+IMPORTS
+
+Criticality,
+Presence,
+PrivateIE-ID,
+ProtocolExtensionID,
+ProtocolIE-ID
+FROM E2AP-CommonDataTypes
+
+maxProtocolIEs
+FROM E2AP-Constants;
+
+-- **************************************************************
+--
+-- Class Definition for Protocol IEs
+--
+-- **************************************************************
+
+E2AP-PROTOCOL-IES ::= CLASS {
+&id				ProtocolIE-ID					UNIQUE,
+&criticality	Criticality,
+&Value,
+&presence		Presence
+}
+WITH SYNTAX {
+ID				&id
+CRITICALITY		&criticality
+TYPE			&Value
+PRESENCE		&presence
+}
+
+-- **************************************************************
+--
+-- Class Definition for Protocol IEs
+--
+-- **************************************************************
+
+E2AP-PROTOCOL-IES-PAIR ::= CLASS {
+&id					ProtocolIE-ID				UNIQUE,
+&firstCriticality	Criticality,
+&FirstValue,
+&secondCriticality	Criticality,
+&SecondValue,
+&presence			Presence
+}
+WITH SYNTAX {
+ID						&id
+FIRST CRITICALITY		&firstCriticality
+FIRST TYPE				&FirstValue
+SECOND CRITICALITY		&secondCriticality
+SECOND TYPE				&SecondValue
+PRESENCE				&presence
+}
+
+
+
+
+-- **************************************************************
+--
+-- Container for Protocol IEs
+--
+-- **************************************************************
+
+ProtocolIE-Container {E2AP-PROTOCOL-IES : IEsSetParam} ::=
+SEQUENCE (SIZE (0..maxProtocolIEs)) OF
+ProtocolIE-Field {{IEsSetParam}}
+
+ProtocolIE-SingleContainer {E2AP-PROTOCOL-IES : IEsSetParam} ::=
+ProtocolIE-Field {{IEsSetParam}}
+
+ProtocolIE-Field {E2AP-PROTOCOL-IES : IEsSetParam} ::= SEQUENCE {
+id				E2AP-PROTOCOL-IES.&id				({IEsSetParam}),
+criticality		E2AP-PROTOCOL-IES.&criticality		({IEsSetParam}{@id}),
+value			E2AP-PROTOCOL-IES.&Value			({IEsSetParam}{@id})
+}
+
+-- **************************************************************
+--
+-- Container for Protocol IE Pairs
+--
+-- **************************************************************
+
+ProtocolIE-ContainerPair {E2AP-PROTOCOL-IES-PAIR : IEsSetParam} ::=
+SEQUENCE (SIZE (0..maxProtocolIEs)) OF
+ProtocolIE-FieldPair {{IEsSetParam}}
+
+ProtocolIE-FieldPair {E2AP-PROTOCOL-IES-PAIR : IEsSetParam} ::= SEQUENCE {
+id					E2AP-PROTOCOL-IES-PAIR.&id					({IEsSetParam}),
+firstCriticality	E2AP-PROTOCOL-IES-PAIR.&firstCriticality	({IEsSetParam}{@id}),
+firstValue			E2AP-PROTOCOL-IES-PAIR.&FirstValue			({IEsSetParam}{@id}),
+secondCriticality	E2AP-PROTOCOL-IES-PAIR.&secondCriticality	({IEsSetParam}{@id}),
+secondValue			E2AP-PROTOCOL-IES-PAIR.&SecondValue			({IEsSetParam}{@id})
+}
+
+-- **************************************************************
+--
+-- Container Lists for Protocol IE Containers
+--
+-- **************************************************************
+
+ProtocolIE-ContainerList {INTEGER : lowerBound, INTEGER : upperBound, E2AP-PROTOCOL-IES : IEsSetParam} ::=
+SEQUENCE (SIZE (lowerBound..upperBound)) OF
+ProtocolIE-SingleContainer {{IEsSetParam}}
+
+ProtocolIE-ContainerPairList {INTEGER : lowerBound, INTEGER : upperBound, E2AP-PROTOCOL-IES-PAIR : IEsSetParam} ::=
+SEQUENCE (SIZE (lowerBound..upperBound)) OF
+ProtocolIE-ContainerPair {{IEsSetParam}}
+
+
+END
+-- ASN1STOP
