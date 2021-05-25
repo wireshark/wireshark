@@ -19,8 +19,8 @@ It is used for troubleshooting, analysis, development and education.
 // The Windows installers now ship with USBPcap 1.5.X.0.
 // They previously shipped with USBPcap 1.5.4.0.
 
-// The Windows installers now ship with Qt 5.15.x.
-// They previously shipped with Qt 5.12.1.
+The Windows installers now ship with Qt 5.15.2.
+They previously shipped with Qt 5.12.1.
 
 === Bug Fixes
 
