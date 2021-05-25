@@ -1257,6 +1257,8 @@ static int dissect_dvb_s2_bb(tvbuff_t *tvb, int cur_off, proto_tree *tree, packe
                         bb_data_len -= sub_dissected;
                         if (bb_data_len < DVB_S2_GSE_MINSIZE)
                             bb_data_len = 0;
+                    } else {
+                        bb_data_len = 0;
                     }
                 }
             }
