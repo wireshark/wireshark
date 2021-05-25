@@ -83,7 +83,7 @@
 #endif
 
 #ifdef HAVE_NGHTTP2
-#include <nghttp2/nghttp2ver.h>
+#include <nghttp2/nghttp2.h>
 #endif
 
 #ifdef HAVE_BROTLI
@@ -856,6 +856,14 @@ epan_get_runtime_version_info(GString *str)
 
 	/* Gcrypt */
 	g_string_append_printf(str, ", with Gcrypt %s", gcry_check_version(NULL));
+
+	/* nghttp2 */
+#ifdef HAVE_NGHTTP2
+#if NGHTTP2_VERSION_AGE >= 1
+	nghttp2_info *nghttp2_ptr = nghttp2_version(0);
+	g_string_append_printf(str, ", with nghttp2 %s",  nghttp2_ptr->version_str);
+#endif
+#endif /* HAVE_NGHTTP2 */
 
 	/* brotli */
 #ifdef HAVE_BROTLI
