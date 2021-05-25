@@ -448,12 +448,12 @@ static int hf_nvme_get_logpage_sanitize_etcend = -1;
 static int hf_nvme_get_logpage_sanitize_rsvd = -1;
 
 /* NVMe CQE fields */
-static int hf_nvme_cqe_sts = -1;
+static int hf_nvme_cqe_dword0 = -1;
+static int hf_nvme_cqe_dword1 = -1;
 static int hf_nvme_cqe_sqhd = -1;
-static int hf_nvme_cqe_rsvd = -1;
+static int hf_nvme_cqe_sqid = -1;
 static int hf_nvme_cqe_cid = -1;
-static int hf_nvme_cqe_status = -1;
-static int hf_nvme_cqe_status_rsvd = -1;
+static int hf_nvme_cqe_status[7] = { NEG_LST_7 };
 
 /* tracking Cmd and its respective CQE */
 static int hf_nvme_cmd_pkt = -1;
@@ -463,7 +463,6 @@ static int hf_nvme_cmd_latency = -1;
 
 /* Data response fields */
 static int hf_nvme_gen_data = -1;
-
 /* Initialize the subtree pointers */
 static gint ett_data = -1;
 
@@ -499,39 +498,242 @@ static gint ett_data = -1;
 #define NVME_IDENTIFY_CNS_IDENTIFY_CTRL     0x1
 #define NVME_IDENTIFY_CNS_IDENTIFY_NSLIST   0x2
 
+typedef enum {
+    NVME_CQE_SCT_GENERIC = 0x0,
+    NVME_CQE_SCT_COMMAND = 0x1,
+    NVME_CQE_SCT_MEDIA = 0x2,
+    NVME_CQE_SCT_PATH = 0x3,
+    NVME_CQE_SCT_VENDOR = 0x7,
+} nvme_cqe_sct_t;
 
-#define NVME_CQE_SCT_GENERIC     0x0
-#define NVME_CQE_SCT_SPECIFIC    0x1
-#define NVME_CQE_SCT_MDI         0x2
-#define NVME_CQE_SCT_VENDOR      0x7
+typedef enum {
+    NVME_CQE_SC_GEN_CMD_OK = 0x00,
+    NVME_CQE_SC_CMD_INVALID_OPCODE = 0x01,
+    NVME_CQE_SC_GEN_CMD_INVALID_FIELD = 0x02,
+    NVME_CQE_SC_GEN_CMD_CID_CONFLICT = 0x03,
+    NVME_CQE_SC_GEN_DATA_TRANSFER_ERR = 0x04,
+    NVME_CQE_SC_GEN_ABORT_DUE_TO_POWER_LOSS = 0x05,
+    NVME_CQE_SC_GEN_INTERNAL_ERROR = 0x06,
+    NVME_CQE_SC_GEN_ABORT_REQUESTED = 0x07,
+    NVME_CQE_SC_GEN_ABORT_DUE_TO_SQ_DELETE = 0x08,
+    NVME_CQE_SC_GEN_ABORT_DUE_TO_FAILED_FUSE = 0x09,
+    NVME_CQE_SC_GEN_ABORT_DUE_TO_MISSED_FUSE = 0x0A,
+    NVME_CQE_SC_GEN_INVALID_NAMESPACE_OR_FMT = 0x0B,
+    NVME_CQE_SC_GEN_COMMAND_SEQUENCE_ERR = 0x0C,
+    NVME_CQE_SC_GEN_INVALID_SGL_SD = 0x0D,
+    NVME_CQE_SC_GEN_INVALID_SGL_SD_NUM = 0x0E,
+    NVME_CQE_SC_GEN_INVALID_SGL_LEN = 0x0F,
+    NVME_CQE_SC_GEN_INVALID_MDATA_SGL_LEN = 0x10,
+    NVME_CQE_SC_GEN_INVALID_SGL_SD_TYPE = 0x11,
+    NVME_CQE_SC_GEN_INVALID_USE_OF_MC_BUF = 0x12,
+    NVME_CQE_SC_GEN_INVALID_PRP_OFFSET = 0x13,
+    NVME_CQE_SC_GEN_ATOMIC_WRITE_UNIT_EXCEED = 0x14,
+    NVME_CQE_SC_GEN_OPERATION_DENIED = 0x15,
+    NVME_CQE_SC_GEN_INVALID_SGL_OFFSET = 0x16,
+    NVME_CQE_SC_GEN_RESERVED_17H = 0x17,
+    NVME_CQE_SC_GEN_HOST_ID_INVALID_FMT = 0x18,
+    NVME_CQE_SC_GEN_KEEP_ALLIVE_EXPIRED = 0x19,
+    NVME_CQE_SC_GEN_KEEP_ALIVE_INVALID = 0x1A,
+    NVME_CQE_SC_GEN_ABORT_DUE_TO_PREEMPT_ABRT = 0x1B,
+    NVME_CQE_SC_GEN_SANITIZE_FAILED = 0x1C,
+    NVME_CQE_SC_GEN_SANITZE_IN_PROGRESS = 0x1D,
+    NVME_CQE_SC_GEN_SGL_BLOCK_GRAN_INVALID = 0x1E,
+    NVME_CQE_SC_GEN_CMD_NOT_SUPP_IN_CMB = 0x1F,
+    NVME_CQE_SC_GEN_NAMESPACE_IS_WP = 0x20,
+    NVME_CQE_SC_GEN_COMMAND_INTERRUPTED = 0x21,
+    NVME_CQE_SC_GEN_TRANSIENT_TRASPORT_ERROR = 0x22,
+    NVME_CQE_SC_GEN_LBA_OUT_OF_RANGE = 0x80,
+    NVME_CQE_SC_GEN_CAPACITY_EXCEED = 0x81,
+    NVME_CQE_SC_GEN_NAMESPACE_NOT_ERADY = 0x82,
+    NVME_CQE_SC_GEN_RESERVATION_CONFLICT = 0x83,
+    NVME_CQE_SC_GEN_FMT_IN_PROGRESS = 0x84,
+} nvme_cqe_sc_gen_t;
 
-#define NVME_CQE_SCODE_SUCCESS          0x0
-#define NVME_CQE_SCODE_INVALID_OPCODE   0x1
-#define NVME_CQE_SCODE_INVALID_FIELD    0x2
-#define NVME_CQE_SCODE_CID_CONFLICT     0x3
-#define NVME_CQE_SCODE_DATA_XFER_ERR    0x4
-#define NVME_CQE_SCODE_CMD_ABORTED      0x5
-#define NVME_CQE_SCODE_INTERNAL_ERR     0x6
-#define NVME_CQE_SCODE_CMD_ABORT_REQ    0x7
-#define NVME_CQE_SCODE_CMD_ABORT_SQD    0x8
-#define NVME_CQE_SCODE_CMD_ABORT_FF     0x9
-#define NVME_CQE_SCODE_CMD_ABORT_MF     0xa
-#define NVME_CQE_SCODE_INVALID_NS       0xb
-#define NVME_CQE_SCODE_CMD_SEQ_ERR      0xc
+typedef enum {
+    NVME_CQE_SC_CMD_INVALID_CQ = 0x00,
+    NVME_CQE_SC_CMD_INVALID_QID = 0x01,
+    NVME_CQE_SC_CMD_INVALID_QUEUE_SIZE = 0x02,
+    NVME_CQE_SC_CMD_ABORT_LIMIT_EXCEED = 0x03,
+    NVME_CQE_SC_CMD_RESERVED_4H = 0x04,
+    NVME_CQE_SC_CMD_ASYNC_REQ_LIMIT_EXCEED = 0x05,
+    NVME_CQE_SC_CMD_INVALID_FW_SLOT = 0x06,
+    NVME_CQE_SC_CMD_INVALID_FW_IMAGE = 0x07,
+    NVME_CQE_SC_CMD_INVALID_IRQ_VECTOR = 0x08,
+    NVME_CQE_SC_CMD_INVALID_LOG_PAGE = 0x09,
+    NVME_CQE_SC_CMD_INVALID_FMT = 0x0A,
+    NVME_CQE_SC_CMD_FW_ACTIVATION_NEEDS_RESET = 0x0B,
+    NVME_CQE_SC_CMD_INVALID_QUEUE_DELETE = 0x0C,
+    NVME_CQE_SC_CMD_FEATURE_ID_NOT_SAVEABLE = 0x0D,
+    NVME_CQE_SC_CMD_FEATURE_NOT_CHANGEABLE = 0x0E,
+    NVME_CQE_SC_CMD_FEATURE_NOT_NAMESPACE = 0x0F,
+    NVME_CQE_SC_CMD_FEATURE_ACTIVATION_NEEDS_NVM_RESET = 0x10,
+    NVME_CQE_SC_CMD_FEATURE_ACTIVATION_NEEDS_CNTRL_RESET = 0x11,
+    NVME_CQE_SC_CMD_FW_ACTIVATION_NEED_MAX_TIME = 0x12,
+    NVME_CQE_SC_CMD_FW_ACTIVATION_PROHIBITED = 0x13,
+    NVME_CQE_SC_CMD_OVERLAPPING_RANGE = 0x14,
+    NVME_CQE_SC_CMD_NAMESPACE_INSUF_CAPACITY = 0x15,
+    NVME_CQE_SC_CMD_NAMESPACE_ID_NOT_AVAILABLE = 0x16,
+    NVME_CQE_SC_CMD_RESERVED_17H = 0x17,
+    NVME_CQE_SC_CMD_NAMESPACE_ALREADY_ATATCHED = 0x18,
+    NVME_CQE_SC_CMD_NAMESPACE_IS_PRIVATE = 0x19,
+    NVME_CQE_SC_CMD_NAMESPACE_NOT_ATTACHED = 0x1A,
+    NVME_CQE_SC_CMD_THIN_PROVISION_NOT_SUPP = 0x1B,
+    NVME_CQE_SC_CMD_INVALID_CNTRL_LIST = 0x1C,
+    NVME_CQE_SC_CMD_SELF_TEST_IN_PROGRESS = 0x1D,
+    NVME_CQE_SC_CMD_BOOT_PART_WRITE_PROHIBIT = 0x1E,
+    NVME_CQE_SC_CMD_INVALID_CNTRL_ID = 0x1F,
+    NVME_CQE_SC_CMD_INVALID_SECOND_CNTRL_STATE = 0x20,
+    NVME_CQE_SC_CMD_IBVALID_CNRL_RES_NUM = 0x21,
+    NVME_CQE_SC_CMD_INVALID_RESOURSE_ID = 0x22,
+    NVME_CQE_SC_CMD_SANITIZE_PROHIBIT_WITH_PMR = 0x23,
+    NVME_CQE_SC_CMD_INVALID_ANA_GROUP_ID = 0x24,
+    NVME_CQE_SC_CMD_ANA_ATTACH_FAILED = 0x25,
+    NVME_CQE_SC_CMD_CONFLICTING_ATTRS = 0x80,
+    NVME_CQE_SC_CMD_INVALID_PROTECTION_INF = 0x81,
+    NVME_CQE_SC_CMD_WRITE_TO_RO_REGION = 0x82,
+} nvme_cqe_sc_cmd_t;
 
-#define NVME_CQE_SCODE_INVALID_SGL_DESC         0xd
-#define NVME_CQE_SCODE_INVALID_NUM_SGLS         0xe
-#define NVME_CQE_SCODE_INVALID_SGL_LEN          0xf
-#define NVME_CQE_SCODE_INVALID_MD_SGL_LEN       0x10
-#define NVME_CQE_SCODE_INVALID_SGL_DESC_TYPE    0x11
-#define NVME_CQE_SCODE_INVALID_CMB_USE          0x12
-#define NVME_CQE_SCODE_INVALID_PRP_OFFSET       0x13
-#define NVME_CQE_SCODE_INVALID_ATOMIC_WRITE_EXCEEDED 0x14
-#define NVME_CQE_SCODE_INVALID_SGL_OFFSET      0x16
-#define NVME_CQE_SCODE_INVALID_SGL_SUB_TYPE    0x17
-#define NVME_CQE_SCODE_INVALID_INCONSISTENT_HOSTID   0x18
-#define NVME_CQE_SCODE_INVALID_KA_TIMER_EXPIRED      0x19
-#define NVME_CQE_SCODE_INVALID_KA_TIMEOUT_INVALID    0x1a
+typedef enum {
+    NVME_CQE_SC_MEDIA_WRITE_FAULT = 0x80,
+    NVME_CQE_SC_MEDIA_READ_FAULT = 0x81,
+    NVME_CQE_SC_MEDIA_ETE_GUARD_CHECK_ERR = 0x82,
+    NVME_CQE_SC_MEDIA_ETE_APPTAG_CHECK_ERR = 0x83,
+    NVME_CQE_SC_MEDIA_ETE_REFTAG_CHECK_ERR = 0x84,
+    NVME_CQE_SC_MEDIA_COMPARE_FAILURE = 0x85,
+    NVME_CQE_SC_MEDIA_ACCESS_DENIED = 0x86,
+    NVME_CQE_SC_MEDIA_DEALLOCATED_LBA = 0x87,
+} nvme_cqe_sc_media_t;
+
+typedef enum {
+    NVME_CQE_SC_PATH_INTERNAL_PATH_ERROR = 0x00,
+    NVME_CQE_SC_PATH_ANA_PERSISTENT_LOSS = 0x01,
+    NVME_CQE_SC_PATH_ANA_INACCESSIBLE = 0x02,
+    NVME_CQE_SC_PATH_ANA_TRANSIENT = 0x03,
+    NVME_CQE_SC_PATH_CNTRL_PATH_ERROR = 0x60,
+    NVME_CQE_SC_PATH_HOST_PATH_ERROR = 0x70,
+    NVME_CQE_SC_PATH_CMD_ABORT = 0x71,
+} nvme_cqe_sc_path_t;
+
+static const value_string nvme_cqe_sct_tbl[] = {
+    { NVME_CQE_SCT_GENERIC, "Generic Command Status" },
+    { NVME_CQE_SCT_COMMAND, "Command Specific Status" },
+    { NVME_CQE_SCT_MEDIA, "Media and Data Integrity Errors" },
+    { NVME_CQE_SCT_PATH, "Path Related Status" },
+    { NVME_CQE_SCT_VENDOR, "Vendor Specific" },
+    { 0, NULL },
+};
+
+static const value_string nvme_cqe_sc_gen_tbl[] = {
+    { NVME_CQE_SC_GEN_CMD_OK, "Successful Completion" },
+    { NVME_CQE_SC_CMD_INVALID_OPCODE, "Invalid opcode field" },
+    { NVME_CQE_SC_GEN_CMD_INVALID_FIELD, "Invalid Field in Command" },
+    { NVME_CQE_SC_GEN_CMD_CID_CONFLICT, "Command ID Conflict" },
+    { NVME_CQE_SC_GEN_DATA_TRANSFER_ERR, "Data Transfer Error" },
+    { NVME_CQE_SC_GEN_ABORT_DUE_TO_POWER_LOSS, "Commands Aborted due to Power Loss Notification" },
+    { NVME_CQE_SC_GEN_INTERNAL_ERROR, "Internal Error" },
+    { NVME_CQE_SC_GEN_ABORT_REQUESTED, "Command Abort Requested" },
+    { NVME_CQE_SC_GEN_ABORT_DUE_TO_SQ_DELETE, "Command Aborted due to SQ Deletion" },
+    { NVME_CQE_SC_GEN_ABORT_DUE_TO_FAILED_FUSE, "Command Aborted due to Failed Fused Command" },
+    { NVME_CQE_SC_GEN_ABORT_DUE_TO_MISSED_FUSE, "Command Aborted due to Missing Fused Command" },
+    { NVME_CQE_SC_GEN_INVALID_NAMESPACE_OR_FMT, "Invalid Namespace or Format" },
+    { NVME_CQE_SC_GEN_COMMAND_SEQUENCE_ERR, "Command Sequence Error" },
+    { NVME_CQE_SC_GEN_INVALID_SGL_SD, "Invalid SGL Segment Descriptor" },
+    { NVME_CQE_SC_GEN_INVALID_SGL_SD_NUM, "Invalid Number of SGL Descriptors" },
+    { NVME_CQE_SC_GEN_INVALID_SGL_LEN, "Data SGL Length Invalid" },
+    { NVME_CQE_SC_GEN_INVALID_MDATA_SGL_LEN, "Metadata SGL Length Invalid" },
+    { NVME_CQE_SC_GEN_INVALID_SGL_SD_TYPE, "SGL Descriptor Type Invalid" },
+    { NVME_CQE_SC_GEN_INVALID_USE_OF_MC_BUF, "Invalid Use of Controller Memory Buffer" },
+    { NVME_CQE_SC_GEN_INVALID_PRP_OFFSET, "PRP Offset Invalid" },
+    { NVME_CQE_SC_GEN_ATOMIC_WRITE_UNIT_EXCEED, "Atomic Write Unit Exceeded" },
+    { NVME_CQE_SC_GEN_OPERATION_DENIED, "Operation Denied" },
+    { NVME_CQE_SC_GEN_INVALID_SGL_OFFSET, "SGL Offset Invalid" },
+    { NVME_CQE_SC_GEN_RESERVED_17H, "Reserved" },
+    { NVME_CQE_SC_GEN_HOST_ID_INVALID_FMT, "Host Identifier Inconsistent Format" },
+    { NVME_CQE_SC_GEN_KEEP_ALLIVE_EXPIRED, "Keep Alive Timer Expired" },
+    { NVME_CQE_SC_GEN_KEEP_ALIVE_INVALID, "Keep Alive Timeout Invalid" },
+    { NVME_CQE_SC_GEN_ABORT_DUE_TO_PREEMPT_ABRT, "Command Aborted due to Preempt and Abort" },
+    { NVME_CQE_SC_GEN_SANITIZE_FAILED, "Sanitize Failed" },
+    { NVME_CQE_SC_GEN_SANITZE_IN_PROGRESS,"Sanitize In Progress"  },
+    { NVME_CQE_SC_GEN_SGL_BLOCK_GRAN_INVALID, "SGL Data Block Granularity Invalid" },
+    { NVME_CQE_SC_GEN_CMD_NOT_SUPP_IN_CMB, "Command Not Supported for Queue in CMB" },
+    { NVME_CQE_SC_GEN_NAMESPACE_IS_WP, "Namespace is Write Protected" },
+    { NVME_CQE_SC_GEN_COMMAND_INTERRUPTED,"Command Interrupted" },
+    { NVME_CQE_SC_GEN_TRANSIENT_TRASPORT_ERROR, "Transient Transport Error"},
+    { NVME_CQE_SC_GEN_LBA_OUT_OF_RANGE, "LBA Out of Range" },
+    { NVME_CQE_SC_GEN_CAPACITY_EXCEED, "Capacity Exceeded" },
+    { NVME_CQE_SC_GEN_NAMESPACE_NOT_ERADY, "Namespace Not Ready" },
+    { NVME_CQE_SC_GEN_RESERVATION_CONFLICT, "Reservation Conflict" },
+    { NVME_CQE_SC_GEN_FMT_IN_PROGRESS, "Format In Progress"},
+    { 0, NULL },
+};
+
+static const value_string nvme_cqe_sc_cmd_tbl[] = {
+    { NVME_CQE_SC_CMD_INVALID_CQ, "Completion Queue Invalid" },
+    { NVME_CQE_SC_CMD_INVALID_QID, "Invalid Queue Identifier" },
+    { NVME_CQE_SC_CMD_INVALID_QUEUE_SIZE, "Invalid Queue Size" },
+    { NVME_CQE_SC_CMD_ABORT_LIMIT_EXCEED, "Abort Command Limit Exceeded" },
+    { NVME_CQE_SC_CMD_RESERVED_4H, "Reserved" },
+    { NVME_CQE_SC_CMD_ASYNC_REQ_LIMIT_EXCEED, "Asynchronous Event Request Limit Exceeded" },
+    { NVME_CQE_SC_CMD_INVALID_FW_SLOT, "Invalid Firmware Slot" },
+    { NVME_CQE_SC_CMD_INVALID_FW_IMAGE, "Invalid Firmware Image" },
+    { NVME_CQE_SC_CMD_INVALID_IRQ_VECTOR, "Invalid Interrupt Vector" },
+    { NVME_CQE_SC_CMD_INVALID_LOG_PAGE, "Invalid Log Page" },
+    { NVME_CQE_SC_CMD_INVALID_FMT, "Invalid Format" },
+    { NVME_CQE_SC_CMD_FW_ACTIVATION_NEEDS_RESET, "Firmware Activation Requires Conventional Reset" },
+    { NVME_CQE_SC_CMD_INVALID_QUEUE_DELETE, "Invalid Queue Deletion" },
+    { NVME_CQE_SC_CMD_FEATURE_ID_NOT_SAVEABLE, "Feature Identifier Not Saveable" },
+    { NVME_CQE_SC_CMD_FEATURE_NOT_CHANGEABLE, "Feature Not Changeable" },
+    { NVME_CQE_SC_CMD_FEATURE_NOT_NAMESPACE, "Feature Not Namespace Specific" },
+    { NVME_CQE_SC_CMD_FEATURE_ACTIVATION_NEEDS_NVM_RESET, "Firmware Activation Requires NVM Subsystem Reset" },
+    { NVME_CQE_SC_CMD_FEATURE_ACTIVATION_NEEDS_CNTRL_RESET, "Firmware Activation Requires Controller Level Reset" },
+    { NVME_CQE_SC_CMD_FW_ACTIVATION_NEED_MAX_TIME, "Firmware Activation Requires Maximum Time Violation" },
+    { NVME_CQE_SC_CMD_FW_ACTIVATION_PROHIBITED, "Firmware Activation Prohibited" },
+    { NVME_CQE_SC_CMD_OVERLAPPING_RANGE, "Overlapping Range" },
+    { NVME_CQE_SC_CMD_NAMESPACE_INSUF_CAPACITY, "Namespace Insufficient Capacity" },
+    { NVME_CQE_SC_CMD_NAMESPACE_ID_NOT_AVAILABLE, "Namespace Identifier Unavailable" },
+    { NVME_CQE_SC_CMD_RESERVED_17H, "Reserved" },
+    { NVME_CQE_SC_CMD_NAMESPACE_ALREADY_ATATCHED, "Namespace Already Attached" },
+    { NVME_CQE_SC_CMD_NAMESPACE_IS_PRIVATE, "Namespace Is Private" },
+    { NVME_CQE_SC_CMD_NAMESPACE_NOT_ATTACHED, "Namespace Not Attached" },
+    { NVME_CQE_SC_CMD_THIN_PROVISION_NOT_SUPP, "Thin Provisioning Not Supported" },
+    { NVME_CQE_SC_CMD_INVALID_CNTRL_LIST, "Controller List Invalid" },
+    { NVME_CQE_SC_CMD_SELF_TEST_IN_PROGRESS, "Device Self-test In Progress" },
+    { NVME_CQE_SC_CMD_BOOT_PART_WRITE_PROHIBIT, "Boot Partition Write Prohibited" },
+    { NVME_CQE_SC_CMD_INVALID_CNTRL_ID, "Invalid Controller Identifier" },
+    { NVME_CQE_SC_CMD_INVALID_SECOND_CNTRL_STATE, "Invalid Secondary Controller State" },
+    { NVME_CQE_SC_CMD_IBVALID_CNRL_RES_NUM, "Invalid Number of Controller Resources" },
+    { NVME_CQE_SC_CMD_INVALID_RESOURSE_ID, "Invalid Resource Identifier" },
+    { NVME_CQE_SC_CMD_SANITIZE_PROHIBIT_WITH_PMR, "Sanitize Prohibited While Persistent Memory Region  is Enabled" },
+    { NVME_CQE_SC_CMD_INVALID_ANA_GROUP_ID, "ANA Group Identifier Invalid" },
+    { NVME_CQE_SC_CMD_ANA_ATTACH_FAILED, "ANA Attach Failed" },
+    { NVME_CQE_SC_CMD_CONFLICTING_ATTRS, "Conflicting Attributes" },
+    { NVME_CQE_SC_CMD_INVALID_PROTECTION_INF, "Invalid Protection Information" },
+    { NVME_CQE_SC_CMD_WRITE_TO_RO_REGION, "Attempted Write to Read Only Range" },
+    { 0, NULL },
+};
+
+static const value_string nvme_cqe_sc_media_tbl[] = {
+    { NVME_CQE_SC_MEDIA_WRITE_FAULT, "Write Fault" },
+    { NVME_CQE_SC_MEDIA_READ_FAULT, "Unrecovered Read Error" },
+    { NVME_CQE_SC_MEDIA_ETE_GUARD_CHECK_ERR, "End-to-end Guard Check Error" },
+    { NVME_CQE_SC_MEDIA_ETE_APPTAG_CHECK_ERR, "End-to-end Application Tag Check Error" },
+    { NVME_CQE_SC_MEDIA_ETE_REFTAG_CHECK_ERR, "End-to-end Reference Tag Check Error" },
+    { NVME_CQE_SC_MEDIA_COMPARE_FAILURE, "Compare Failure" },
+    { NVME_CQE_SC_MEDIA_ACCESS_DENIED, "Access Denied" },
+    { NVME_CQE_SC_MEDIA_DEALLOCATED_LBA, "Deallocated or Unwritten Logical Block" },
+    { 0, NULL },
+};
+
+static const value_string nvme_cqe_sc_path_tbl[] = {
+    { NVME_CQE_SC_PATH_INTERNAL_PATH_ERROR, "Internal Path Error" },
+    { NVME_CQE_SC_PATH_ANA_PERSISTENT_LOSS, "Asymmetric Access Persistent Loss" },
+    { NVME_CQE_SC_PATH_ANA_INACCESSIBLE, "Asymmetric Access Inaccessible" },
+    { NVME_CQE_SC_PATH_ANA_TRANSIENT, "Asymmetric Access Transition" },
+    { NVME_CQE_SC_PATH_CNTRL_PATH_ERROR, "Controller Pathing Error" },
+    { NVME_CQE_SC_PATH_HOST_PATH_ERROR, "Host Pathing Error" },
+    { NVME_CQE_SC_PATH_CMD_ABORT, "Command Aborted By Host" },
+    { 0, NULL },
+};
 
 static const value_string aq_opc_tbl[] = {
     { NVME_AQ_OPC_DELETE_SQ,     "Delete SQ"},
@@ -2974,12 +3176,26 @@ nvme_is_io_queue_opcode(guint8  opcode)
             (opcode == NVME_IOQ_OPC_RESV_RELEASE));
 }
 
+static const char *get_cqe_sc_string(guint sct, guint sc)
+{
+    switch (sct) {
+        case NVME_CQE_SCT_GENERIC: return val_to_str_const(sc, nvme_cqe_sc_gen_tbl, "Uknown Status Code");
+        case NVME_CQE_SCT_COMMAND: return val_to_str_const(sc, nvme_cqe_sc_cmd_tbl, "Uknown Status Code");
+        case NVME_CQE_SCT_MEDIA: return val_to_str_const(sc, nvme_cqe_sc_media_tbl, "Uknown Status Code");
+        case NVME_CQE_SCT_PATH: return val_to_str_const(sc, nvme_cqe_sc_path_tbl, "Uknown Status Code");
+        case NVME_CQE_SCT_VENDOR: return "Vendor Error";
+        default: return "Uknown Status Code";
+    }
+}
+
 void
 dissect_nvme_cqe(tvbuff_t *nvme_tvb, packet_info *pinfo, proto_tree *root_tree,
                  struct nvme_cmd_ctx *cmd_ctx)
 {
     proto_tree *cqe_tree;
-    proto_item *ti;
+    proto_item *ti, *grp;
+    guint i;
+    guint16 val;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "NVMe");
     ti = proto_tree_add_item(root_tree, proto_nvme, nvme_tvb, 0,
@@ -2990,18 +3206,20 @@ dissect_nvme_cqe(tvbuff_t *nvme_tvb, packet_info *pinfo, proto_tree *root_tree,
     nvme_publish_to_cmd_link(cqe_tree, nvme_tvb, hf_nvme_cmd_pkt, cmd_ctx);
     nvme_publish_cmd_latency(cqe_tree, cmd_ctx, hf_nvme_cmd_latency);
 
-    proto_tree_add_item(cqe_tree, hf_nvme_cqe_sts, nvme_tvb,
-                        0, 8, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(cqe_tree, hf_nvme_cqe_sqhd, nvme_tvb,
-                        8, 2, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(cqe_tree, hf_nvme_cqe_rsvd, nvme_tvb,
-                        10, 2, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(cqe_tree, hf_nvme_cqe_cid, nvme_tvb,
-                        12, 2, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(cqe_tree, hf_nvme_cqe_status, nvme_tvb,
-                        14, 2, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(cqe_tree, hf_nvme_cqe_status_rsvd, nvme_tvb,
-                        14, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cqe_tree, hf_nvme_cqe_dword0, nvme_tvb, 0, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cqe_tree, hf_nvme_cqe_dword1, nvme_tvb, 4, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cqe_tree, hf_nvme_cqe_sqhd, nvme_tvb, 8, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cqe_tree, hf_nvme_cqe_sqid, nvme_tvb, 10, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cqe_tree, hf_nvme_cqe_cid, nvme_tvb, 12, 2, ENC_LITTLE_ENDIAN);
+
+    val = tvb_get_guint16(nvme_tvb, 14, ENC_LITTLE_ENDIAN);
+    ti = proto_tree_add_item(root_tree, hf_nvme_cqe_status[0], nvme_tvb, 14, 2, ENC_LITTLE_ENDIAN);
+    grp =  proto_item_add_subtree(ti, ett_data);
+    for (i = 1; i < array_length(hf_nvme_cqe_status); i++) {
+        ti = proto_tree_add_item(grp, hf_nvme_cqe_status[i], nvme_tvb, 14, 2, ENC_LITTLE_ENDIAN);
+        if (i == 2)
+            proto_item_append_text(ti, " (%s)", get_cqe_sc_string((val & 0xE00) >> 1, (val & 0x1fe) >> 9));
+    }
 }
 
 void
@@ -5855,29 +6073,53 @@ proto_register_nvme(void)
                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
         /* NVMe Response fields */
-        { &hf_nvme_cqe_sts,
-            { "Cmd specific Status", "nvme.cqe.sts",
-               FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        { &hf_nvme_cqe_dword0,
+            { "DWORD0", "nvme.cqe.dword0",
+               FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_cqe_dword1,
+            { "DWORD1", "nvme.cqe.dword1",
+               FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvme_cqe_sqhd,
             { "SQ Head Pointer", "nvme.cqe.sqhd",
                FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
-        { &hf_nvme_cqe_rsvd,
-            { "Reserved", "nvme.cqe.rsvd",
+        { &hf_nvme_cqe_sqid,
+            { "SQ Identifier", "nvme.cqe.sqid",
                FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvme_cqe_cid,
-            { "Command ID", "nvme.cqe.cid",
+            { "Command Identifier", "nvme.cqe.cid",
                FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
-        { &hf_nvme_cqe_status,
-            { "Status", "nvme.cqe.status",
-               FT_UINT16, BASE_HEX, NULL, 0xfffe, NULL, HFILL}
+        { &hf_nvme_cqe_status[0],
+            { "Status Field", "nvme.cqe.status",
+               FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
-        { &hf_nvme_cqe_status_rsvd,
-            { "Reserved", "nvme.cqe.status.rsvd",
+        { &hf_nvme_cqe_status[1],
+            { "Phase Tag", "nvme.cqe.status.p",
                FT_UINT16, BASE_HEX, NULL, 0x1, NULL, HFILL}
+        },
+        { &hf_nvme_cqe_status[2],
+            { "Status Code", "nvme.cqe.status.sc",
+               FT_UINT16, BASE_HEX, NULL, 0x1fe, NULL, HFILL}
+        },
+        { &hf_nvme_cqe_status[3],
+            { "Status Code Type", "nvme.cqe.status.sct",
+               FT_UINT16, BASE_HEX, VALS(nvme_cqe_sct_tbl), 0xE00, NULL, HFILL}
+        },
+        { &hf_nvme_cqe_status[4],
+            { "Command Retry Delay", "nvme.cqe.status.crd",
+               FT_UINT16, BASE_HEX, NULL, 0x3000, NULL, HFILL}
+        },
+        { &hf_nvme_cqe_status[5],
+            { "More Infornation in Log Page", "nvme.cqe.status.m",
+               FT_BOOLEAN, 16, NULL, 0x4000, NULL, HFILL}
+        },
+        { &hf_nvme_cqe_status[6],
+            { "Do not Retry", "nvme.cqe.status.dnr",
+               FT_BOOLEAN, 16, NULL, 0x8000, NULL, HFILL}
         },
         { &hf_nvme_cmd_pkt,
             { "Cmd in", "nvme.cmd_pkt",
