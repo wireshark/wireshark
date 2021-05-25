@@ -72,7 +72,7 @@
 #include <smi.h>
 #endif
 
-#include <ares_version.h>
+#include <ares.h>
 
 #ifdef HAVE_LZ4
 #include <lz4.h>
@@ -756,9 +756,6 @@ epan_get_compiled_version_info(GString *str)
 	g_string_append(str, ", without SMI");
 #endif /* _SMI_H */
 
-	/* c-ares */
-	g_string_append(str, ", with c-ares " ARES_VERSION_STR);
-
 	/* LUA */
 #ifdef HAVE_LUA
 	g_string_append(str, ", with " LUA_RELEASE);
@@ -849,6 +846,9 @@ epan_get_compiled_version_info(GString *str)
 void
 epan_get_runtime_version_info(GString *str)
 {
+	/* c-ares */
+	g_string_append_printf(str, ", with c-ares %s", ares_version(NULL));
+
 	/* GnuTLS */
 #ifdef HAVE_LIBGNUTLS
 	g_string_append_printf(str, ", with GnuTLS %s", gnutls_check_version(NULL));
