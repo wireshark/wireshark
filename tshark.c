@@ -400,7 +400,8 @@ print_usage(FILE *output)
   fprintf(output, "  -Y <display filter>, --display-filter <display filter>\n");
   fprintf(output, "                           packet displaY filter in Wireshark display filter\n");
   fprintf(output, "                           syntax\n");
-  fprintf(output, "  -n                       disable all name resolutions (def: all enabled)\n");
+  fprintf(output, "  -n                       disable all name resolutions (def: \"mNd\" enabled, or\n");
+  fprintf(output, "                           as set in preferences)\n");
   fprintf(output, "  -N <name resolve flags>  enable specific name resolution(s): \"mnNtdv\"\n");
   fprintf(output, "  -d %s ...\n", DECODE_AS_ARG_TEMPLATE);
   fprintf(output, "                           \"Decode As\", see the man page for details\n");

@@ -624,8 +624,11 @@ names); the B<-N> option might override this one.
 Turn on name resolving only for particular types of addresses and port
 numbers, with name resolving for other types of addresses and port
 numbers turned off.  This option overrides B<-n> if both B<-N> and B<-n>
-are present.  If both B<-N> and B<-n> options are not present, all name
-resolutions are turned on.
+are present.  This option and B<-n> override the options from the preferences,
+including preferences set via the B<-o> option.  If both B<-N> and B<-n> options
+are not present, the values from the preferences are used, which default to
+B<d>, B<m>, and B<N> turned on and the other options turned off. (NB, B<N> does
+not actually do anything without B<n> enabled as well.)
 
 The argument is a string that may contain the letters:
 
@@ -636,7 +639,7 @@ B<m> to enable MAC address resolution
 B<n> to enable network address resolution
 
 B<N> to enable using external resolvers (e.g., DNS) for network address
-resolution
+resolution; no effect without B<n> also enabled
 
 B<t> to enable transport-layer port number resolution
 

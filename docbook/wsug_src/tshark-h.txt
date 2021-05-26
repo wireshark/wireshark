@@ -51,7 +51,8 @@ Processing:
   -Y <display filter>, --display-filter <display filter>
                            packet displaY filter in Wireshark display filter
                            syntax
-  -n                       disable all name resolutions (def: all enabled)
+  -n                       disable all name resolutions (def: "mNd" enabled, or
+                           as set in preferences)
   -N <name resolve flags>  enable specific name resolution(s): "mnNtdv"
   -d <layer_type>==<selector>,<decode_as_protocol> ...
                            "Decode As", see the man page for details
