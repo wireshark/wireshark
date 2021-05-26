@@ -165,7 +165,7 @@ dissect_opus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     struct FRAME_T {
         int16_t begin;
         int16_t size;
-    } frames[MAX_FRAMES_COUNT] = {0};
+    } frames[MAX_FRAMES_COUNT] = {{0}};
     int frame_count = 0;
     static int *toc_fields[]
         = {&hf_opus_toc_config, &hf_opus_toc_s, &hf_opus_toc_c};
