@@ -269,7 +269,7 @@ static int hf_tiff_target_printer = -1;
 // Fields TBD
 
 #define TIFF_TAG_COPYRIGHT 0x8298
-int hf_tiff_copyright = -1;
+static int hf_tiff_copyright = -1;
 
 static const value_string tiff_endianness_names[] = {
     { 0x4949, "Little-Endian" },

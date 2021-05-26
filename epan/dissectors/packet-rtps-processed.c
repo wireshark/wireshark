@@ -77,7 +77,7 @@ static gint dissect_rtps_processed(
         packet_info *pinfo,
         proto_tree *tree,
         void *data);
-void get_new_colinfo_w_submessages(
+static void get_new_colinfo_w_submessages(
         wmem_strbuf_t *out,
         wmem_strbuf_t *frame,
         const gchar *submessages);
@@ -371,7 +371,7 @@ void proto_reg_handoff_rtps_processed(void)
     rtps_handle = find_dissector("rtps");
 }
 
-void get_new_colinfo_w_submessages(
+static void get_new_colinfo_w_submessages(
         wmem_strbuf_t *out,
         wmem_strbuf_t *frame,
         const gchar *submessages)

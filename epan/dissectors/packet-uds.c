@@ -436,7 +436,7 @@ post_update_one_id_string_template_cb(generic_one_id_string_t *data, guint data_
     }
 }
 
-char *
+static char *
 generic_lookup_uint16(guint16 id, GHashTable *ht) {
     guint32 tmp = (guint32)id;
 
@@ -479,12 +479,12 @@ post_update_uds_routine_cb(void) {
     post_update_one_id_string_template_cb(uds_uat_routine_ids, uds_uat_routine_id_num, uds_ht_routine_ids);
 }
 
-char *
+static char *
 uds_lookup_routine_name(guint16 id) {
     return generic_lookup_uint16(id, uds_ht_routine_ids);
 }
 
-void
+static void
 protoitem_append_routine_name(proto_item *ti, guint16 data_identifier) {
     gchar *routine_name = uds_lookup_routine_name((guint16)data_identifier);
     if (routine_name != NULL) {
@@ -492,7 +492,7 @@ protoitem_append_routine_name(proto_item *ti, guint16 data_identifier) {
     }
 }
 
-void
+static void
 infocol_append_routine_name(packet_info *pinfo, guint16 routine_identifier) {
     gchar *routine_name = uds_lookup_routine_name((guint16)routine_identifier);
     if (routine_name != NULL) {
@@ -521,12 +521,12 @@ post_update_uds_data_cb(void) {
     post_update_one_id_string_template_cb(uds_uat_data_ids, uds_uat_data_id_num, uds_ht_data_ids);
 }
 
-char *
+static char *
 uds_lookup_data_name(guint16 id) {
     return generic_lookup_uint16(id, uds_ht_data_ids);
 }
 
-void
+static void
 protoitem_append_data_name(proto_item *ti, guint16 data_identifier) {
     gchar *data_name = uds_lookup_data_name((guint16)data_identifier);
     if (data_name != NULL) {
@@ -534,7 +534,7 @@ protoitem_append_data_name(proto_item *ti, guint16 data_identifier) {
     }
 }
 
-void
+static void
 infocol_append_data_name(packet_info *pinfo, guint16 data_identifier) {
     gchar *data_name = uds_lookup_data_name((guint16)data_identifier);
     if (data_name != NULL) {
@@ -904,7 +904,7 @@ dissect_uds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void* data 
     return tvb_captured_length(tvb);
 }
 
-void
+static void
 pref_update_uds(void) {
     if (uds_ht_routine_ids && uds_uat_routine_id_num == 0) {
         g_hash_table_destroy(uds_ht_routine_ids);
