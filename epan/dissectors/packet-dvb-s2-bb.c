@@ -130,6 +130,7 @@ static int hf_dvb_s2_bb_crc = -1;
 static int hf_dvb_s2_bb_crc_status = -1;
 static int hf_dvb_s2_bb_df = -1;
 static int hf_dvb_s2_bb_eip_crc32 = -1;
+static int hf_dvb_s2_bb_eip_crc32_status = -1;
 
 static int hf_dvb_s2_bb_packetized = -1;
 static int hf_dvb_s2_bb_transport = -1;
@@ -1452,7 +1453,7 @@ static int dissect_dvb_s2_bb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         if (dvb_s2_df_dissection) {
             while (bb_data_len) {
                 if (sync_flag == DVB_S2_BB_SYNC_EIP_CRC32 && bb_data_len == DVB_S2_BB_EIP_CRC32_LEN) {
-                    proto_tree_add_item(dvb_s2_bb_tree, hf_dvb_s2_bb_eip_crc32, tvb, new_off, bb_data_len, ENC_NA);
+                    proto_tree_add_checksum(dvb_s2_bb_tree, tvb, new_off, hf_dvb_s2_bb_eip_crc32, hf_dvb_s2_bb_eip_crc32_status, &ei_dvb_s2_bb_crc, pinfo, crc32_mpeg2_tvb_offset(tvb, DVB_S2_BB_HEADER_LEN, new_off - DVB_S2_BB_HEADER_LEN), ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
                     bb_data_len = 0;
                     new_off += DVB_S2_BB_EIP_CRC32_LEN;
                 } else {
@@ -1779,7 +1780,12 @@ void proto_register_dvb_s2_modeadapt(void)
                 "EIP CRC32", "dvb-s2_bb.eip_crc32",
                 FT_UINT32, BASE_HEX, NULL, 0x0,
                 "Explicit Integrity Protection CRC32", HFILL}
-        }
+        },
+        {&hf_dvb_s2_bb_eip_crc32_status, {
+                "EIP CRC32 Status", "dvb-s2_bb.eip_crc32.status",
+                FT_UINT8, BASE_NONE, VALS(proto_checksum_vals), 0x0,
+                NULL, HFILL}
+        },
     };
 
     static gint *ett_bb[] = {
