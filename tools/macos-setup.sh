@@ -882,6 +882,7 @@ install_qt() {
             /Volumes/$QT_VOLUME/$QT_VOLUME.app/Contents/MacOS/$QT_VOLUME
             sudo hdiutil detach /Volumes/$QT_VOLUME
             touch qt-$QT_VERSION-done
+            ;;
         *)
             echo "The Qt Company no longer provides open source offline installers for Qt $QT_VERSION" 1>&2
             ;;
