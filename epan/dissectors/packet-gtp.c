@@ -10041,17 +10041,6 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                     tvbuff_t *pdcp_tvb;
                     struct pdcp_nr_info temp_data;
 
-                    /* Set the ROHC data */
-                    temp_data.rohc.rohc_compression = found_record->rohc_compression;
-                    temp_data.rohc.rohc_ip_version = 4; /* For now set it explicitly */
-                    temp_data.rohc.cid_inclusion_info = FALSE;
-                    temp_data.rohc.large_cid_present = FALSE;
-                    temp_data.rohc.mode = MODE_NOT_SET;
-                    temp_data.rohc.rnd = FALSE;
-                    temp_data.rohc.udp_checksum_present = FALSE;
-                    temp_data.rohc.profile = found_record->rohc_profile;
-
-
                     pdcp_tvb = tvb_new_subset_remaining(tvb, offset);
                     /* Fill in pdcp_nr_info */
 
