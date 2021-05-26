@@ -31075,8 +31075,7 @@ add_he_trigger_user_info(proto_tree *tree, tvbuff_t *tvb, int offset,
   user_info = proto_tree_add_subtree(tree, tvb, offset, -1,
                         ett_he_trigger_user_info, &pi, "User Info");
 
-  /* The stop sentinal is 0x0FFF, or 4095 */
-  aid12_subfield = tvb_get_letohs(tvb, offset);
+  aid12_subfield = tvb_get_letohs(tvb, offset) & 0x0FFF;
 
   while (aid12_subfield != 4095) {
 
@@ -31136,7 +31135,7 @@ add_he_trigger_user_info(proto_tree *tree, tvbuff_t *tvb, int offset,
     if (tvb_reported_length_remaining(tvb, offset) < 5)
       aid12_subfield = 4095;
     else
-      aid12_subfield = tvb_get_letohs(tvb, offset);
+      aid12_subfield = tvb_get_letohs(tvb, offset) & 0xFFF;
   }
 
   if (aid12_subfield == 4095) {
@@ -47042,7 +47041,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_he_trigger_user_info_padding_start,
      {"Start of Padding", "wlan.trigger.he.user_info.start_of_padding",
-      FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+      FT_UINT16, BASE_DEC, NULL, 0x0FFF, NULL, HFILL }},
 
     {&hf_ieee80211_he_trigger_padding,
      {"Padding", "wlan.trigger.he.padding",
