@@ -370,8 +370,9 @@ static gboolean macro_update(void* mp, gchar** error) {
 				*w = *r;
 				goto done;
 			case '\\':
-				*(w++) = *(++r);
-				r++;
+				*(w++) = *(r++);
+				if(*r)
+					*(w++) = *(r++);
 				break;
 			case '$': {
 				int cnt = 0;
