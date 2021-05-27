@@ -129,6 +129,8 @@ WS_DLL_PUBLIC GSList *get_export_pdu_tap_list(void);
 */
 #define EXP_PDU_TAG_TCP_INFO_DATA  34
 
+#define EXP_PDU_TAG_P2P_DIRECTION  35  /**< The packet direction (P2P_DIR_SENT, P2P_DIR_RCVD). */
+
 typedef struct _exp_pdu_data_t {
     guint        tlv_buffer_len;
     guint8      *tlv_buffer;

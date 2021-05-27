@@ -37,6 +37,7 @@ static int hf_exported_pdu_unknown_tag_val = -1;
 static int hf_exported_pdu_prot_name = -1;
 static int hf_exported_pdu_heur_prot_name = -1;
 static int hf_exported_pdu_dis_table_name = -1;
+static int hf_exported_pdu_p2p_dir = -1;
 static int hf_exported_pdu_dissector_data = -1;
 static int hf_exported_pdu_ipv4_src = -1;
 static int hf_exported_pdu_ipv4_dst = -1;
@@ -94,6 +95,7 @@ static const value_string exported_pdu_tag_vals[] = {
    { EXP_PDU_TAG_DISSECTOR_TABLE_NAME_NUM_VAL,  "Dissector table value" },
    { EXP_PDU_TAG_COL_PROT_TEXT,         "Column Protocol String" },
    { EXP_PDU_TAG_TCP_INFO_DATA,         "TCP Dissector Data" },
+   { EXP_PDU_TAG_P2P_DIRECTION,         "P2P direction" },
 
    { 0,        NULL   }
 };
@@ -118,6 +120,13 @@ static const value_string exported_pdu_port_type_vals[] = {
    { OLD_PT_TDMOP,    "TDMOP" },
 
    { 0,        NULL   }
+};
+
+static const value_string exported_pdu_p2p_dir_vals[] = {
+    { P2P_DIR_SENT, "Sent" },
+    { P2P_DIR_RECV, "Received" },
+    { P2P_DIR_UNKNOWN, "Unknown" },
+    { 0, NULL }
 };
 
 static port_type exp_pdu_old_to_new_port_type(guint type)
@@ -315,6 +324,10 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
                 dissector_data = tcpdata;
                 }
                 break;
+            case EXP_PDU_TAG_P2P_DIRECTION:
+                pinfo->p2p_dir = tvb_get_ntohl(tvb, offset);
+                proto_tree_add_item(tag_tree, hf_exported_pdu_p2p_dir, tvb, offset, 4, ENC_NA);
+                break;
             case EXP_PDU_TAG_END_OF_OPT:
                 break;
             default:
@@ -414,6 +427,11 @@ proto_register_exported_pdu(void)
         { &hf_exported_pdu_dis_table_name,
             { "Dissector Table Name", "exported_pdu.dis_table_name",
                FT_STRING, BASE_NONE, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_exported_pdu_p2p_dir,
+            { "P2P direction", "exported_pdu.p2p_dir",
+               FT_INT32, BASE_DEC, VALS(exported_pdu_p2p_dir_vals), 0,
               NULL, HFILL }
         },
         { &hf_exported_pdu_dissector_data,
