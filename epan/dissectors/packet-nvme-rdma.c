@@ -868,13 +868,14 @@ dissect_nvme_rdma_cmd(tvbuff_t *nvme_tvb, packet_info *pinfo, proto_tree *root_t
     }
 }
 
-
-static void dissect_rdma_read_transfer(tvbuff_t *data_tvb, guint len,
-            proto_tree *data_tree, struct nvme_rdma_cmd_ctx *rdma_cmd)
+static void dissect_rdma_read_transfer(tvbuff_t *data_tvb, packet_info *pinfo, proto_tree *data_tree,
+                       struct nvme_rdma_q_ctx *q_ctx, struct nvme_rdma_cmd_ctx *rdma_cmd, guint len)
 {
     if (rdma_cmd->n_cmd_ctx.fabric == TRUE) {
         if (rdma_cmd->fabric_cmd.fctype == NVME_FCTYPE_CONNECT && len >= 768)
             dissect_nvme_fabric_connect_cmd_data(data_tvb, data_tree, 0);
+    } else {
+        dissect_nvme_data_response(data_tvb, pinfo, data_tree, &q_ctx->n_q_ctx, &rdma_cmd->n_cmd_ctx, len);
     }
 }
 
@@ -911,7 +912,7 @@ dissect_nvme_from_host(tvbuff_t *nvme_tvb, packet_info *pinfo,
                                     hf_nvme_rdma_cmd_pkt, cmd);
             q_ctx->rdma_ctx.cmd_ctx = nvme_cmd_to_nvme_rdma_cmd(cmd);
             q_ctx->rdma_ctx.pkt_seq = info->packet_seq_num;
-            dissect_rdma_read_transfer(nvme_tvb, len, rdma_tree, rdma_cmd);
+            dissect_rdma_read_transfer(nvme_tvb, pinfo, rdma_tree, q_ctx, rdma_cmd, len);
         } else {
             proto_tree_add_item(nvme_tree, hf_nvme_rdma_read_from_host_unmatched,
                                     nvme_tvb, 0, len, ENC_NA);

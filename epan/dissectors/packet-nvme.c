@@ -135,6 +135,26 @@ static int hf_nvme_cmd_set_features_dword11_hid[3] = { NEG_LST_3 };
 static int hf_nvme_cmd_set_features_dword11_rsrvn[6] = { NEG_LST_6 };
 static int hf_nvme_cmd_set_features_dword11_rsrvp[3] = { NEG_LST_3 };
 static int hf_nvme_cmd_set_features_dword11_nswp[3] = { NEG_LST_3 };
+static int hf_nvme_set_features_tr_lbart = -1;
+static int hf_nvme_set_features_tr_lbart_type = -1;
+static int hf_nvme_set_features_tr_lbart_attr[4] = { NEG_LST_4 };
+static int hf_nvme_set_features_tr_lbart_rsvd0 = -1;
+static int hf_nvme_set_features_tr_lbart_slba = -1;
+static int hf_nvme_set_features_tr_lbart_nlb = -1;
+static int hf_nvme_set_features_tr_lbart_guid = -1;
+static int hf_nvme_set_features_tr_lbart_rsvd1 = -1;
+static int hf_nvme_set_features_tr_apst[5] = { NEG_LST_5 };
+static int hf_nvme_set_features_tr_tst[3] = { NEG_LST_3 };
+static int hf_nvme_set_features_tr_plmc = - 1;
+static int hf_nvme_set_features_tr_plmc_ee[7] = { NEG_LST_7 };
+static int hf_nvme_set_features_tr_plmc_rsvd0 = - 1;
+static int hf_nvme_set_features_tr_plmc_dtwinrt = -1;
+static int hf_nvme_set_features_tr_plmc_dtwinwt = -1;
+static int hf_nvme_set_features_tr_plmc_dtwintt = -1;
+static int hf_nvme_set_features_tr_plmc_rsvd1 = -1;
+static int hf_nvme_set_features_tr_hbs = -1;
+static int hf_nvme_set_features_tr_hbs_acre = -1;
+static int hf_nvme_set_features_tr_hbs_rsvd = -1;
 static int hf_nvme_identify_ns_nsze = -1;
 static int hf_nvme_identify_ns_ncap = -1;
 static int hf_nvme_identify_ns_nuse = -1;
@@ -1240,7 +1260,8 @@ static void dissect_nvme_identify_nslist_resp(tvbuff_t *cmd_tvb,
 
 static void add_group_mask_entry(tvbuff_t *tvb, proto_tree *tree, guint offset, guint bytes, int *array, guint array_len)
 {
-    proto_item *ti, *grp;
+    proto_item *ti;
+    proto_tree *grp;
     guint i;
 
     ti = proto_tree_add_item(tree, array[0], tvb, offset, bytes, ENC_LITTLE_ENDIAN);
@@ -3034,6 +3055,100 @@ static void dissect_nvme_rw_cmd(tvbuff_t *cmd_tvb, proto_tree *cmd_tree)
                         53, 3, ENC_NA);
 }
 
+static const value_string sf_lbart_type_table[] = {
+    { 0x0, "General Purpose" },
+    { 0x1, "Filesystem" },
+    { 0x2, "RAID" },
+    { 0x3, "Cache" },
+    { 0x4, "Swap" },
+    { 0, NULL },
+};
+
+static void dissect_nvme_set_features_transfer_lbart(tvbuff_t *tvb, proto_tree *tree, guint len)
+{
+    proto_tree *grp;
+    proto_item *ti;
+    guint off = 0;
+    while (len >= 64) {
+        ti =  proto_tree_add_bytes_format_value(tree, hf_nvme_set_features_tr_lbart, tvb, 0, 64, NULL, "LBA Range Structure %u", off / 64);
+        grp =  proto_item_add_subtree(ti, ett_data);
+        proto_tree_add_item(grp, hf_nvme_set_features_tr_lbart_type, tvb, off, 1, ENC_LITTLE_ENDIAN);
+        add_group_mask_entry(tvb, grp, off+1, 1, ASPEC(hf_nvme_set_features_tr_lbart_attr));
+        proto_tree_add_item(grp, hf_nvme_set_features_tr_lbart_rsvd0, tvb, off+2, 14, ENC_NA);
+        proto_tree_add_item(grp, hf_nvme_set_features_tr_lbart_slba, tvb, off+16, 8, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(grp, hf_nvme_set_features_tr_lbart_nlb, tvb, off+24, 8, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(grp, hf_nvme_set_features_tr_lbart_guid, tvb, off+32, 16, ENC_NA);
+        proto_tree_add_item(grp, hf_nvme_set_features_tr_lbart_rsvd1, tvb, off+48, 16, ENC_NA);
+        len -= 64;
+        off += 64;
+    }
+}
+
+static void dissect_nvme_set_features_transfer_apst(tvbuff_t *tvb, proto_tree *tree, guint len)
+{
+    guint off = 0;
+    while (len >= 8) {
+        add_group_mask_entry(tvb, tree, off, 8, ASPEC(hf_nvme_set_features_tr_apst));
+        len -= 8;
+        off += 8;
+    }
+}
+
+static void dissect_nvme_set_features_transfer_tst(tvbuff_t *tvb, proto_tree *tree)
+{
+    add_group_mask_entry(tvb, tree, 0, 8, ASPEC(hf_nvme_set_features_tr_tst));
+}
+
+
+static void dissect_nvme_set_features_transfer_plmc(tvbuff_t *tvb, proto_tree *tree, guint len)
+{
+    proto_tree *grp;
+    proto_item *ti;
+
+    ti = proto_tree_add_item(tree, hf_nvme_set_features_tr_plmc, tvb, 0, len, ENC_NA);
+    grp =  proto_item_add_subtree(ti, ett_data);
+    add_group_mask_entry(tvb, grp, 0, 2, ASPEC(hf_nvme_set_features_tr_plmc_ee));
+    proto_tree_add_item(grp, hf_nvme_set_features_tr_plmc_rsvd0, tvb, 2, 30, ENC_NA);
+    proto_tree_add_item(grp, hf_nvme_set_features_tr_plmc_dtwinrt, tvb, 32, 8, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(grp, hf_nvme_set_features_tr_plmc_dtwinwt, tvb, 40, 8, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(grp, hf_nvme_set_features_tr_plmc_dtwintt, tvb, 48, 8, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(grp, hf_nvme_set_features_tr_plmc_rsvd1, tvb, 56, len-56, ENC_NA);
+}
+
+static void dissect_nvme_set_features_transfer_hbs(tvbuff_t *tvb, proto_tree *tree, guint len)
+{
+    proto_tree *grp;
+    proto_item *ti;
+
+    ti = proto_tree_add_item(tree, hf_nvme_set_features_tr_hbs, tvb, 0, len, ENC_NA);
+    grp =  proto_item_add_subtree(ti, ett_data);
+    proto_tree_add_item(grp, hf_nvme_set_features_tr_hbs_acre, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(grp, hf_nvme_set_features_tr_hbs_rsvd, tvb, 1, len-1, ENC_NA);
+}
+
+static void dissect_nvme_set_features_transfer(tvbuff_t *tvb, proto_tree *tree, struct nvme_cmd_ctx *cmd_ctx, guint len)
+{
+    switch(cmd_ctx->cmd_ctx.set_features.fid) {
+        case F_LBA_RANGE_TYPE:
+            dissect_nvme_set_features_transfer_lbart(tvb, tree, len);
+            break;
+        case F_AUTO_PS_TRANSITION:
+            dissect_nvme_set_features_transfer_apst(tvb, tree, len);
+            break;
+        case F_TIMESTAMP:
+            dissect_nvme_set_features_transfer_tst(tvb, tree);
+            break;
+        case F_PRED_LAT_MODE_CONF:
+            dissect_nvme_set_features_transfer_plmc(tvb, tree, len);
+            break;
+        case F_HOST_BEHV_SUPPORT:
+            dissect_nvme_set_features_transfer_hbs(tvb, tree, len);
+            break;
+        default:
+            proto_tree_add_bytes_format_value(tree, hf_nvme_gen_data, tvb, 0, len, NULL, "Unhandled Set Features Transfer");
+    }
+}
+
 void
 dissect_nvme_data_response(tvbuff_t *nvme_tvb, packet_info *pinfo, proto_tree *root_tree,
                  struct nvme_q_ctx *q_ctx, struct nvme_cmd_ctx *cmd_ctx, guint len)
@@ -3067,6 +3182,10 @@ dissect_nvme_data_response(tvbuff_t *nvme_tvb, packet_info *pinfo, proto_tree *r
             break;
         case NVME_AQ_OPC_GET_LOG_PAGE:
             dissect_nvme_get_logpage_resp(nvme_tvb, cmd_tree, cmd_ctx, len);
+            break;
+
+        case NVME_AQ_OPC_SET_FEATURES:
+            dissect_nvme_set_features_transfer(nvme_tvb, cmd_tree, cmd_ctx, len);
             break;
 
         default:
@@ -3236,8 +3355,8 @@ static void decode_dword0_cqe(tvbuff_t *nvme_tvb, proto_tree *cqe_tree, guint sc
 
 void dissect_nvme_cqe(tvbuff_t *nvme_tvb, packet_info *pinfo, proto_tree *root_tree, struct nvme_cmd_ctx *cmd_ctx)
 {
-    proto_tree *cqe_tree;
-    proto_item *ti, *grp;
+    proto_tree *cqe_tree, *grp;
+    proto_item *ti;
     guint i;
     guint16 val;
 
@@ -3985,6 +4104,147 @@ proto_register_nvme(void)
         { &hf_nvme_cmd_set_features_dword11_nswp[2],
             { "DWORD11", "nvme.cmd.set_features.dword11.nswp.rsvd",
                FT_UINT32, BASE_HEX, NULL, 0xfffffff8, NULL, HFILL}
+        },
+        /* Set Features Transfers */
+        { &hf_nvme_set_features_tr_lbart,
+            { "LBA Range Structure", "nvme.set_features.lbart",
+               FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_set_features_tr_lbart_type,
+            { "Type", "nvme.set_features.lbart.type",
+               FT_UINT8, BASE_HEX, VALS(sf_lbart_type_table), 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_set_features_tr_lbart_attr[0],
+            { "Attributes", "nvme.set_features.lbart.attr",
+               FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_set_features_tr_lbart_attr[1],
+            { "LBA Range may be overwritten", "nvme.set_features.lbart.attr.ovw",
+               FT_BOOLEAN, 8, NULL, 0x1, NULL, HFILL}
+        },
+        { &hf_nvme_set_features_tr_lbart_attr[2],
+            { "LBA Range shall be hidden from OS/EFI/BIOS", "nvme.set_features.lbart.attr.hid",
+               FT_BOOLEAN, 8, NULL, 0x2, NULL, HFILL}
+        },
+        { &hf_nvme_set_features_tr_lbart_attr[3],
+            { "Reserved", "nvme.set_features.lbart.attr.rsvd",
+               FT_UINT8, BASE_HEX, NULL, 0xfc, NULL, HFILL}
+        },
+        { &hf_nvme_set_features_tr_lbart_rsvd0,
+            { "Reserved", "nvme.set_features.lbart.rsvd0",
+               FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_set_features_tr_lbart_slba,
+            { "Starting LBA", "nvme.set_features.lbart.slba",
+               FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_set_features_tr_lbart_nlb,
+            { "Number of Logical Blocks", "nvme.set_features.lbart.nlb",
+               FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_set_features_tr_lbart_guid,
+            { "Unique Identifier", "nvme.set_features.lbart.guid",
+               FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_set_features_tr_lbart_rsvd1,
+            { "Reserved", "nvme.set_features.lbart.rsvd1",
+               FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_set_features_tr_apst[0],
+            { "Autonomous Power State Transition Structure", "nvme.set_features.lbart.apst",
+               FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_set_features_tr_apst[1],
+            { "Reserved", "nvme.set_features.lbart.apst.rsvd0",
+               FT_UINT64, BASE_HEX, NULL, 0x7, NULL, HFILL}
+        },
+        { &hf_nvme_set_features_tr_apst[2],
+            { "Idle Transition Power State", "nvme.set_features.lbart.apst.itps",
+               FT_UINT64, BASE_HEX, NULL, 0xf8, NULL, HFILL}
+        },
+        { &hf_nvme_set_features_tr_apst[3],
+            { "Idle Time Prior to Transition (us)", "nvme.set_features.lbart.apst.itpt",
+               FT_UINT64, BASE_HEX, NULL, 0xfffff00, NULL, HFILL}
+        },
+        { &hf_nvme_set_features_tr_apst[4],
+            { "Reserved", "nvme.set_features.lbart.apst.rsvd1",
+               FT_UINT64, BASE_HEX, NULL, 0xffffffff00000000, NULL, HFILL}
+        },
+        { &hf_nvme_set_features_tr_tst[0],
+            { "Timestamp Structure", "nvme.set_features.tst",
+               FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_set_features_tr_tst[1],
+            { "Timestamp (milliseconds since 01-Jan-1970)", "nvme.set_features.tst.ms",
+               FT_UINT64, BASE_HEX, NULL, 0xffffffffffff, NULL, HFILL}
+        },
+        { &hf_nvme_set_features_tr_tst[2],
+            { "Reserved", "nvme.set_features.tst.rsvd",
+               FT_UINT64, BASE_HEX, NULL, 0xffff000000000000, NULL, HFILL}
+        },
+        { &hf_nvme_set_features_tr_plmc,
+            { "Reserved", "nvme.set_features.plmc",
+               FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_set_features_tr_plmc_ee[0],
+            { "Enable Event", "nvme.set_features.plmc.ee",
+               FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_set_features_tr_plmc_ee[1],
+            { "DTWIN Reads Warning", "nvme.set_features.plmc.ee.dtwinr",
+               FT_BOOLEAN, 16, NULL, 0x1, NULL, HFILL}
+        },
+        { &hf_nvme_set_features_tr_plmc_ee[2],
+            { "DTWIN Writes Warning", "nvme.set_features.plmc.ee.dtwinw",
+               FT_BOOLEAN, 16, NULL, 0x2, NULL, HFILL}
+        },
+        { &hf_nvme_set_features_tr_plmc_ee[3],
+            { "DTWIN Time Warning", "nvme.set_features.plmc.ee.dtwint",
+               FT_BOOLEAN, 16, NULL, 0x4, NULL, HFILL}
+        },
+        { &hf_nvme_set_features_tr_plmc_ee[4],
+            { "Reserved", "nvme.set_features.plmc.ee.rsvd",
+               FT_UINT16, BASE_HEX, NULL, 0x3ff8, NULL, HFILL}
+        },
+        { &hf_nvme_set_features_tr_plmc_ee[5],
+            { "DTWIN to NDWIN transition due to typical or maximum value exceeded", "nvme.set_features.plmc.ee.ndtwindv",
+               FT_BOOLEAN, 16, NULL, 0x4000, NULL, HFILL}
+        },
+        { &hf_nvme_set_features_tr_plmc_ee[6],
+            { "DTWIN to NDWIN transition due to Deterministic Excursion", "nvme.set_features.plmc.ee.ndtwindde",
+               FT_BOOLEAN, 16, NULL, 0x8000, NULL, HFILL}
+        },
+        { &hf_nvme_set_features_tr_plmc_rsvd0,
+            { "Reserved", "nvme.set_features.plmc.rsvd0",
+               FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_set_features_tr_plmc_dtwinrt,
+            { "DTWIN Reads Threshold", "nvme.set_features.plmc.dtwinrt",
+               FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_set_features_tr_plmc_dtwinwt,
+            { "DTWIN Writes Threshold", "nvme.set_features.plmc.dtwinwt",
+               FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_set_features_tr_plmc_dtwintt,
+            { "DTWIN Time Threshold", "nvme.set_features.plmc.dtwintt",
+               FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_set_features_tr_plmc_rsvd1,
+            { "Reserved", "nvme.set_features.plmc.rsvd1",
+               FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_set_features_tr_hbs,
+            { "Host Behavior Support Structure", "nvme.set_features.hbs",
+               FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_set_features_tr_hbs_acre,
+            { "Advanced Command Retry Enable", "nvme.set_features.hbs.acre",
+               FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_set_features_tr_hbs_rsvd,
+            { "Reserved", "nvme.set_features.hbs.rsvd",
+               FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
         /* Identify NS response */
         { &hf_nvme_identify_ns_nsze,
