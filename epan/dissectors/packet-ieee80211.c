@@ -30667,15 +30667,18 @@ dissect_ieee80211_block_ack(tvbuff_t *tvb, packet_info *pinfo _U_,
  * padding!
  */
 
-#define TRIGGER_TYPE_BASIC      0
-#define TRIGGER_TYPE_BRP        1
-#define TRIGGER_TYPE_MU_BAR     2
-#define TRIGGER_TYPE_MU_RTS     3
-#define TRIGGER_TYPE_BSRP       4
-#define TRIGGER_TYPE_GCR_MU_BAR 5
-#define TRIGGER_TYPE_BQRP       6
-#define TRIGGER_TYPE_NFRP       7
-#define TRIGGER_TYPE_RANGING    8
+typedef enum he_trigger_type {
+  TRIGGER_TYPE_BASIC = 0,
+  TRIGGER_TYPE_BRP,
+  TRIGGER_TYPE_MU_BAR,
+  TRIGGER_TYPE_MU_RTS,
+  TRIGGER_TYPE_BSRP,
+  TRIGGER_TYPE_GCR_MU_BAR,
+  TRIGGER_TYPE_BQRP,
+  TRIGGER_TYPE_NFRP,
+  TRIGGER_TYPE_RANGING,
+  TRIGGER_TYPE_MIN_RESERVED,
+} he_trigger_type_t;
 
 static const val64_string trigger_type_vals[] = {
   { 0, "Basic" },
@@ -31059,8 +31062,8 @@ static int * const user_info_headers_no_2045[] = {
 
 static int
 add_he_trigger_user_info(proto_tree *tree, tvbuff_t *tvb, int offset,
-  packet_info *pinfo, guint8 trigger_type, guint8 subtype, int *frame_len,
-  guint fcs_len)
+  packet_info *pinfo, guint8 trigger_type, guint8 subtype,
+  int *frame_len, guint fcs_len)
 {
   proto_item     *pi = NULL;
   proto_tree     *user_info = NULL;
@@ -31105,6 +31108,9 @@ add_he_trigger_user_info(proto_tree *tree, tvbuff_t *tvb, int offset,
                                                 offset, pinfo, subtype);
         offset += range_len;
         length += range_len;
+        break;
+      default:
+        /* Should never get here */
         break;
     }
 
@@ -31189,10 +31195,11 @@ dissect_ieee80211_he_trigger(tvbuff_t *tvb, packet_info *pinfo _U_,
   proto_tree *tree, int offset, guint fcs_len)
 {
   const gchar *ether_name = tvb_get_ether_name(tvb, offset);
-  proto_item      *hidden_item;
-  proto_tree      *common_tree = NULL;
-  guint8          trigger_type = 0, subtype = 0;
-  int             length = 0;
+  proto_item        *hidden_item;
+  proto_tree        *common_tree = NULL;
+  guint8            trigger_type;
+  guint8            subtype = 0;
+  int               length = 0;
 
   proto_tree_add_item(tree, hf_ieee80211_addr_ta, tvb, offset, 6, ENC_NA);
   hidden_item = proto_tree_add_string(tree, hf_ieee80211_addr_ta_resolved,
@@ -31211,6 +31218,18 @@ dissect_ieee80211_he_trigger(tvbuff_t *tvb, packet_info *pinfo _U_,
   trigger_type = tvb_get_guint8(tvb, offset) & 0x0F;
   col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
                 val64_to_str(trigger_type, trigger_type_vals, "Reserved"));
+
+  if (trigger_type >= TRIGGER_TYPE_MIN_RESERVED) {
+    /* Add an Expert Info and forget it */
+    proto_item *item;
+
+    item = proto_tree_add_item(tree, hf_ieee80211_he_trigger_type, tvb, offset,
+                               1, ENC_NA);
+    expert_add_info_format(pinfo, item, &ei_ieee80211_inv_val,
+                           "Trigger type too large: %u", trigger_type);
+    return tvb_captured_length_remaining(tvb, offset) + length;
+  }
+
   /*
    * Deal with the common Info and then any user info after that.
    */
