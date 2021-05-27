@@ -56,13 +56,9 @@ typedef struct _e_dccphdr {
     address ip_dst;
 } e_dccphdr;
 
-/* Conversation and process structures originally copied from packet-tcp.c */
 typedef struct _dccp_flow_t {
-	/* Process info, currently discovered via IPFIX */
-	guint32 process_uid;    /* UID of local process */
-	guint32 process_pid;    /* PID of local process */
-	gchar *username;	/* Username of the local process */
-	gchar *command;         /* Local process name + path + args */
+	guint8  static_flags;   /* flags */
+	guint64 base_seq;       /* base seq number (used by relative sequence numbers) */
 } dccp_flow_t;
 
 struct dccp_analysis {
