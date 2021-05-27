@@ -168,10 +168,10 @@ dissect_opus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     } frames[MAX_FRAMES_COUNT] = {{0}};
     int frame_count = 0;
     static int *toc_fields[]
-        = {&hf_opus_toc_config, &hf_opus_toc_s, &hf_opus_toc_c};
+        = {&hf_opus_toc_config, &hf_opus_toc_s, &hf_opus_toc_c, NULL};
     static int *frame_count_fields[]
         = {&hf_opus_frame_count_v, &hf_opus_frame_count_p,
-           &hf_opus_frame_count_m};
+        &hf_opus_frame_count_m, NULL};
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "OPUS");
 
