@@ -1046,7 +1046,6 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         offset += 1;
 
         dccph->seq = tvb_get_ntoh48(tvb, offset);
-        proto_tree_add_uint64(dccp_tree, hf_dccp_seq_abs, tvb, offset, 6, dccph->seq);
         if((dccp_relative_seq) && (dccpd->fwd->static_flags & DCCP_S_BASE_SEQ_SET)) {
             seq = dccph->seq - dccpd->fwd->base_seq;
             proto_tree_add_uint64_format_value(dccp_tree, hf_dccp_seq, tvb, offset, 6,
@@ -1055,6 +1054,7 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         else {
             seq = dccph->seq;
         }
+        proto_tree_add_uint64(dccp_tree, hf_dccp_seq_abs, tvb, offset, 6, dccph->seq);
 
         offset += 6;
     } else {
@@ -1132,10 +1132,10 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         }
 
         if (tree) {
-            proto_tree_add_uint64(dccp_tree, hf_dccp_ack_abs, tvb, offset + 2, 6, dccph->ack);
             if((dccp_relative_seq) && (dccpd->rev->static_flags & DCCP_S_BASE_SEQ_SET)) {
                 proto_tree_add_uint64(dccp_tree, hf_dccp_ack, tvb, offset + 2, 6, ack);
             }
+            proto_tree_add_uint64(dccp_tree, hf_dccp_ack_abs, tvb, offset + 2, 6, dccph->ack);
         }
         col_append_fstr(pinfo->cinfo, COL_INFO, " (Ack=%" G_GINT64_MODIFIER "u)", ack);
         offset += 8; /* move offset past the Acknowledgement Number Subheader */
@@ -1187,11 +1187,11 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
             }
 
             if (tree) {
-                proto_tree_add_uint64(dccp_tree, hf_dccp_ack_abs, tvb, offset + 2, 6, dccph->ack);
                 if((dccp_relative_seq) && (dccpd->rev->static_flags & DCCP_S_BASE_SEQ_SET)) {
                     proto_tree_add_uint64_format_value(dccp_tree, hf_dccp_ack, tvb, offset + 2, 6,
                                                        ack, "%lu    (relative acknowledgement number)", ack);
                 }
+                proto_tree_add_uint64(dccp_tree, hf_dccp_ack_abs, tvb, offset + 2, 6, dccph->ack);
             }
             col_append_fstr(pinfo->cinfo, COL_INFO, " (Ack=%" G_GINT64_MODIFIER "u)", ack);
             offset += 8; /* move offset past the Ack Number Subheader */
@@ -1222,11 +1222,11 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
             }
 
             if (tree) {
-                proto_tree_add_uint64(dccp_tree, hf_dccp_ack_abs, tvb, offset + 1, 3, dccph->ack);
                 if((dccp_relative_seq) && (dccpd->rev->static_flags & DCCP_S_BASE_SEQ_SET)) {
                     proto_tree_add_uint64_format_value(dccp_tree, hf_dccp_ack, tvb, offset + 1, 3,
                                                        ack, "%lu    (relative acknowledgement number)", ack);
                 }
+                proto_tree_add_uint64(dccp_tree, hf_dccp_ack_abs, tvb, offset + 1, 3, dccph->ack);
             }
             col_append_fstr(pinfo->cinfo, COL_INFO, " (Ack=%" G_GINT64_MODIFIER "u)", ack);
             offset += 4; /* move offset past the Ack. Number Subheader */
@@ -1252,11 +1252,21 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         dccph->ack <<= 32;
         dccph->ack += tvb_get_ntohl(tvb, offset + 4);
 
-        if (tree)
-            proto_tree_add_uint64(dccp_tree, hf_dccp_ack, tvb, offset + 2, 6,
-                                  dccph->ack);
-        col_append_fstr(pinfo->cinfo, COL_INFO,
-                        " (Ack=%" G_GINT64_MODIFIER "u)", dccph->ack);
+        if((dccp_relative_seq) && (dccpd->rev->static_flags & DCCP_S_BASE_SEQ_SET)) {
+            ack = (dccph->ack - dccpd->rev->base_seq) & 0xffffff;
+        }
+        else {
+            ack = dccph->ack;
+        }
+
+        if (tree) {
+            if((dccp_relative_seq) && (dccpd->rev->static_flags & DCCP_S_BASE_SEQ_SET)) {
+                proto_tree_add_uint64_format_value(dccp_tree, hf_dccp_ack, tvb, offset + 1, 3,
+                                                    ack, "%lu    (relative acknowledgement number)", ack);
+            }
+            proto_tree_add_uint64(dccp_tree, hf_dccp_ack_abs, tvb, offset + 1, 3, dccph->ack);
+        }
+        col_append_fstr(pinfo->cinfo, COL_INFO, " (Ack=%" G_GINT64_MODIFIER "u)", ack);
         offset += 8; /* move offset past the Ack. Number Subheader */
 
         dccph->reset_code = tvb_get_guint8(tvb, offset);
@@ -1301,11 +1311,22 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         dccph->ack = tvb_get_ntohs(tvb, offset + 2);
         dccph->ack <<= 32;
         dccph->ack += tvb_get_ntohl(tvb, offset + 4);
-        if (tree)
-            proto_tree_add_uint64(dccp_tree, hf_dccp_ack, tvb, offset + 2, 6,
-                                  dccph->ack);
-        col_append_fstr(pinfo->cinfo, COL_INFO,
-                        " (Ack=%" G_GINT64_MODIFIER "u)", dccph->ack);
+
+        if((dccp_relative_seq) && (dccpd->rev->static_flags & DCCP_S_BASE_SEQ_SET)) {
+            ack = (dccph->ack - dccpd->rev->base_seq) & 0xffffff;
+        }
+        else {
+            ack = dccph->ack;
+        }
+
+        if (tree) {
+            if((dccp_relative_seq) && (dccpd->rev->static_flags & DCCP_S_BASE_SEQ_SET)) {
+                proto_tree_add_uint64_format_value(dccp_tree, hf_dccp_ack, tvb, offset + 1, 3,
+                                                    ack, "%lu    (relative acknowledgement number)", ack);
+            }
+            proto_tree_add_uint64(dccp_tree, hf_dccp_ack_abs, tvb, offset + 1, 3, dccph->ack);
+        }
+        col_append_fstr(pinfo->cinfo, COL_INFO, " (Ack=%" G_GINT64_MODIFIER "u)", ack);
         offset += 8; /* move offset past the Ack. Number Subheader */
         break;
     default:
@@ -1690,6 +1711,12 @@ proto_register_dccp(void)
         "Check the validity of the DCCP checksum when possible",
         "Whether to check the validity of the DCCP checksum",
         &dccp_check_checksum);
+
+    prefs_register_bool_preference(
+        dccp_module, "relative_sequence_numbers",
+        "Relative sequence numbers",
+        "Make the DCCP dissector use relative sequence numbers instead of absolute ones.",
+        &dccp_relative_seq);
 
     register_conversation_table(proto_dccp, FALSE, dccpip_conversation_packet, dccpip_hostlist_packet);
     register_conversation_filter("dccp", "DCCP", dccp_filter_valid, dccp_build_filter);
