@@ -1078,8 +1078,8 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         if (tree)
             proto_tree_add_uint(dccp_tree, hf_dccp_service_code, tvb, offset, 4,
                                 dccph->service_code);
-        col_append_fstr(pinfo->cinfo, COL_INFO, " (service=%u)",
-                        dccph->service_code);
+        col_append_fstr(pinfo->cinfo, COL_INFO, " (service=%s)",
+                        val_to_str(dccph->service_code, dccp_service_code_vals, "Unknown (%u)"));
         offset += 4; /* move offset past the service code */
         break;
     case 0x1: /* DCCP-Response */
@@ -1112,8 +1112,8 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         if (tree)
             proto_tree_add_uint(dccp_tree, hf_dccp_service_code, tvb, offset, 4,
                                 dccph->service_code);
-        col_append_fstr(pinfo->cinfo, COL_INFO, " (service=%u)",
-                        dccph->service_code);
+        col_append_fstr(pinfo->cinfo, COL_INFO, " (service=%s)",
+                        val_to_str(dccph->service_code, dccp_service_code_vals, "Unknown (%u)"));
 
         offset += 4; /* move offset past the service code */
         break;
