@@ -414,6 +414,7 @@
      </property>
      <addaction name="actionAnalyzeFollowTCPStream"/>
      <addaction name="actionAnalyzeFollowUDPStream"/>
+     <addaction name="actionAnalyzeFollowDCCPStream"/>
      <addaction name="actionAnalyzeFollowTLSStream"/>
      <addaction name="actionAnalyzeFollowHTTPStream"/>
      <addaction name="actionAnalyzeFollowHTTP2Stream"/>
