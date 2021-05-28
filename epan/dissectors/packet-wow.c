@@ -88,10 +88,28 @@ static const value_string error_vs[] = {
 	{ 0, NULL }
 };
 
+typedef enum {
+    FLAG_NONE = 0x0,
+    FLAG_INVALID = 0x1,
+    FLAG_OFFLINE = 0x2,
+    FLAG_SPECIFY_BUILD = 0x4,
+    FLAG_UNK1 = 0x8,
+    FLAG_UNK2 = 0x10,
+    FLAG_FORCE_RECOMMENDED = 0x20,
+    FLAG_FORCE_NEW_PLAYERS = 0x40,
+    FLAG_FORCE_FULL = 0x80
+} auth_realm_flag_e;
+
 static const value_string realm_flags_vs[] = {
-	{ 0, "Online"  },
-	{ 1, "Locked"  },
-	{ 2, "Offline" },
+	{ FLAG_NONE, ""  },
+	{ FLAG_INVALID, "Locked"  },
+	{ FLAG_OFFLINE, "Offline" },
+	{ FLAG_SPECIFY_BUILD, "Realm version info appended" },
+	{ FLAG_UNK1, "Unknown" },
+	{ FLAG_UNK2, "Unknown" },
+	{ FLAG_FORCE_RECOMMENDED, "Realm status is 'Recommended' in blue text" },
+	{ FLAG_FORCE_NEW_PLAYERS, "Realm status is 'Recommended' in green text" },
+	{ FLAG_FORCE_FULL, "Realm status is 'Full' in red text" },
 	{ 0, NULL      }
 };
 
@@ -299,7 +317,7 @@ parse_logon_proof_server_to_client(tvbuff_t *tvb, proto_tree *wow_tree, guint32 
 }
 static void
 parse_realm_list_server_to_client(tvbuff_t *tvb, proto_tree *wow_tree, guint32 offset) {
-	guint8 num_realms, ii, number_of_realms_field_size, realm_name_offset, realm_type_field_size;
+	guint8 num_realms, ii, number_of_realms_field_size, realm_name_offset, realm_type_field_size, realm_flags;
 	gchar *string, *realm_name;
 	gint len;
 	proto_tree *wow_realms_tree;
@@ -345,6 +363,7 @@ parse_realm_list_server_to_client(tvbuff_t *tvb, proto_tree *wow_tree, guint32 o
 			offset += 1;
 		}
 
+		realm_flags = tvb_get_guint8(tvb, offset);
 		proto_tree_add_item(wow_realms_tree, hf_wow_realm_flags, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		offset += 1;
 
@@ -368,6 +387,23 @@ parse_realm_list_server_to_client(tvbuff_t *tvb, proto_tree *wow_tree, guint32 o
 		proto_tree_add_item(wow_realms_tree, hf_wow_realm_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		offset += 1;
 
+		if (version_is_at_or_above(2, 4, 3) && (realm_flags & FLAG_SPECIFY_BUILD)) {
+			proto_tree_add_item(wow_realms_tree, hf_wow_version1,
+					    tvb, offset, 1, ENC_LITTLE_ENDIAN);
+			offset += 1;
+
+			proto_tree_add_item(wow_realms_tree, hf_wow_version2,
+					    tvb, offset, 1, ENC_LITTLE_ENDIAN);
+			offset += 1;
+
+			proto_tree_add_item(wow_realms_tree, hf_wow_version3,
+					    tvb, offset, 1, ENC_LITTLE_ENDIAN);
+			offset += 1;
+
+			proto_tree_add_item(wow_realms_tree, hf_wow_build, tvb,
+					    offset, 2, ENC_LITTLE_ENDIAN);
+			offset += 2;
+		}
 	}
 }
 
@@ -910,7 +946,7 @@ proto_register_wow(void)
 		    "Realm appears as locked in client", HFILL }
 		},
 		{ &hf_wow_realm_flags,
-		  { "Status", "wow.realm_flags",
+		  { "Flags", "wow.realm_flags",
 		    FT_UINT8, BASE_DEC, VALS(realm_flags_vs), 0,
 		    NULL, HFILL }
 		},
