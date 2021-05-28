@@ -168,6 +168,7 @@ static int hf_wow_client_checksum = -1;
 /* Realm List Server to Client */
 static int hf_wow_num_realms = -1;
 static int hf_wow_realm_type = -1;
+static int hf_wow_realm_locked = -1;
 static int hf_wow_realm_flags = -1;
 static int hf_wow_realm_category = -1;
 static int hf_wow_realm_name = -1;
@@ -298,7 +299,7 @@ parse_logon_proof_server_to_client(tvbuff_t *tvb, proto_tree *wow_tree, guint32 
 }
 static void
 parse_realm_list_server_to_client(tvbuff_t *tvb, proto_tree *wow_tree, guint32 offset) {
-	guint8 num_realms, ii;
+	guint8 num_realms, ii, number_of_realms_field_size, realm_name_offset, realm_type_field_size;
 	gchar *string, *realm_name;
 	gint len;
 	proto_tree *wow_realms_tree;
@@ -309,14 +310,25 @@ parse_realm_list_server_to_client(tvbuff_t *tvb, proto_tree *wow_tree, guint32 o
 
 	offset += 4; /* Unknown field; always 0 */
 
+	if (version_is_at_or_above(2, 4, 3)) {
+		/* Possibly valid for versions starting at 2.0.0 as well */
+		number_of_realms_field_size = 2;
+		realm_name_offset = 3;
+		realm_type_field_size = 1;
+	} else {
+		number_of_realms_field_size = 1;
+		realm_name_offset = 5;
+		realm_type_field_size = 4;
+	}
+
 	proto_tree_add_item(wow_tree, hf_wow_num_realms,
-			    tvb, offset, 1, ENC_LITTLE_ENDIAN);
+			    tvb, offset, number_of_realms_field_size, ENC_LITTLE_ENDIAN);
 	num_realms = tvb_get_guint8(tvb, offset);
-	offset += 1;
+	offset += number_of_realms_field_size;
 
 	for(ii = 0; ii < num_realms; ii++) {
 		realm_name = tvb_get_stringz_enc(wmem_packet_scope(), tvb,
-						 offset + 5,
+						 offset + realm_name_offset,
 						 &len, ENC_ASCII);
 
 		wow_realms_tree = proto_tree_add_subtree(wow_tree, tvb,
@@ -324,8 +336,14 @@ parse_realm_list_server_to_client(tvbuff_t *tvb, proto_tree *wow_tree, guint32 o
 							 ett_wow_realms, NULL,
 							 realm_name);
 
-		proto_tree_add_item(wow_realms_tree, hf_wow_realm_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-		offset += 4;
+		proto_tree_add_item(wow_realms_tree, hf_wow_realm_type, tvb, offset, realm_type_field_size, ENC_LITTLE_ENDIAN);
+		offset += realm_type_field_size;
+
+		if (version_is_at_or_above(2, 4, 3)) {
+			/* Possibly valid for versions starting at 2.0.0 as well */
+			proto_tree_add_item(wow_realms_tree, hf_wow_realm_locked, tvb, offset, 1, ENC_NA);
+			offset += 1;
+		}
 
 		proto_tree_add_item(wow_realms_tree, hf_wow_realm_flags, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		offset += 1;
@@ -885,6 +903,11 @@ proto_register_wow(void)
 		  { "Type", "wow.realm_type",
 		    FT_UINT8, BASE_DEC, VALS(realm_type_vs), 0,
 		    "Also known as realm icon", HFILL }
+		},
+		{ &hf_wow_realm_locked,
+			{ "Locked", "wow.realm_locked",
+		    FT_BOOLEAN, BASE_NONE, 0, 0,
+		    "Realm appears as locked in client", HFILL }
 		},
 		{ &hf_wow_realm_flags,
 		  { "Status", "wow.realm_flags",
