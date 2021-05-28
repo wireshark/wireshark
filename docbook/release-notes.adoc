@@ -26,13 +26,13 @@ They previously shipped with Qt 5.12.1.
 
 // The following vulnerabilities have been fixed:
 
-// * wssalink:2021-04[]
-// Foo dissector {crash,infinite loop,memory leak}.
+* wssalink:2021-04[]
+DVB-S2-BB dissector infinite loop
 // wsbuglink:xxxx[].
 // cveidlink:2021-xxxx[].
-// Fixed in master: xxxx
-// Fixed in release-3.4: xxxx
-// Fixed in master-3.2: xxxx
+// Fixed in master: 0137c24d60
+// Fixed in release-3.4: 0d8be1fb79
+// Fixed in master-3.2: n/a
 // CVSS AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:L
 
 The following bugs have been fixed:
@@ -42,6 +42,16 @@ The following bugs have been fixed:
 //* cveidlink:2014-2486[]
 //* Wireshark exposed details your sordid redneck past, which were subsequently widely disseminated on social media.
 // cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log v3.4.4rc0.. | gsed -e 's/\(close\|fix\|resolv\)[^ ]* #/\nclose #/gI' | grep ^close | sed -e 's/close.*#\([1-9][0-9]*\).*/\1/' | sort -V -u` ; do "$(git rev-parse --show-toplevel)/tools/gen-bugnote" $bugnumber; pbpaste >> /tmp/buglist.txt; done
+
+* Macro filters can't handle escaped characters wsbuglink:17160[].
+
+* Display filter crashes Wireshark wsbuglink:17316[].
+
+* IEEE-1588 Signalling Unicast TLV incorrectly reported as being malformed wsbuglink:17355[].
+
+* IETF QUIC TLS decryption error with extraneous packets during the handshake wsbuglink:17383[].
+
+* Statistics -> Resolved Addresses: multi-protocol (TCP/UDP/...) ports not displayed wsbuglink:17395[].
 
 === New and Updated Features
 
@@ -64,15 +74,25 @@ There are no new protocols in this release.
 // Add one protocol per line between the -- delimiters.
 [commaize]
 --
+DNP
+DVB-S2-BB
+ProtoBuf
+PTP
+QUIC
+RANAP
+TACACS
 --
 
 === New and Updated Capture File Support
 
-There is no new or updated capture file support in this release.
+// There is no new or updated capture file support in this release.
 // Add one file type per line between the -- delimiters.
-// [commaize]
-// --
-// --
+[commaize]
+--
+ERF
+K12
+NetScaler
+--
 
 // === New and Updated Capture Interfaces support
 
