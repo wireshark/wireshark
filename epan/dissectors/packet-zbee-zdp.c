@@ -1945,8 +1945,8 @@ void proto_register_zbee_zdp(void)
     static ei_register_info ei[] = {
         {
             &ei_deprecated_command,
-            { "zbee_zdp.zdo_command_depreciated", PI_DEPRECATED, PI_WARN,
-              "Depreciated ZDO Command", EXPFILL }
+            { "zbee_zdp.zdo_command_deprecated", PI_DEPRECATED, PI_WARN,
+              "Deprecated ZDO Command", EXPFILL }
         }
     };
 
