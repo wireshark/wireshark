@@ -4738,12 +4738,12 @@ proto_register_gsm_a_common(void)
     },
     { &hf_gsm_a_geo_loc_high_acc_uncertainty_semi_major,
         { "High accuracy uncertainty semi-major", "gsm_a.gad.high_acc_uncertainty_semi_major",
-        FT_UINT8, BASE_DEC, NULL, 0x7f,
+        FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_gsm_a_geo_loc_high_acc_uncertainty_semi_minor,
         { "High accuracy uncertainty semi-minor", "gsm_a.gad.high_acc_uncertainty_semi_minor",
-        FT_UINT8, BASE_DEC, NULL, 0x7f,
+        FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_gsm_a_geo_loc_high_acc_alt,
