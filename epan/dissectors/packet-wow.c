@@ -155,6 +155,8 @@ static int hf_wow_two_factor_pin_hash = -1;
 /* Logon Proof Server to Client */
 static int hf_wow_srp_m2 = -1;
 static int hf_wow_hardware_survey_id = -1;
+static int hf_wow_account_flags = -1;
+static int hf_wow_unknown_flags = -1;
 
 /* Reconnect Challenge Server to Client */
 static int hf_wow_checksum_salt = -1;
@@ -279,8 +281,20 @@ parse_logon_proof_server_to_client(tvbuff_t *tvb, proto_tree *wow_tree, guint32 
 			    tvb, offset, 20, ENC_NA);
 	offset += 20;
 
+	if (version_is_at_or_above(2, 4, 0)) {
+		proto_tree_add_item(wow_tree, hf_wow_account_flags,
+				    tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		offset += 4;
+	}
+
 	proto_tree_add_item(wow_tree, hf_wow_hardware_survey_id,
 			    tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	offset += 4;
+
+	if (version_is_at_or_above(2, 0, 3)) {
+		proto_tree_add_item(wow_tree, hf_wow_unknown_flags,
+				    tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	}
 }
 static void
 parse_realm_list_server_to_client(tvbuff_t *tvb, proto_tree *wow_tree, guint32 offset) {
@@ -811,6 +825,16 @@ proto_register_wow(void)
 		  { "Hardware Survey ID", "wow.hardware_survey_id",
 		    FT_UINT32, BASE_DEC, 0, 0,
 		    "ID of a hardware survey that the client should run", HFILL }
+		},
+		{ &hf_wow_account_flags,
+			{ "Account Flags", "wow.account_flags",
+				FT_UINT32, BASE_HEX, 0, 0,
+				NULL, HFILL }
+		},
+		{ &hf_wow_unknown_flags,
+			{ "Unknown Flags", "wow.unknown_flags",
+				FT_UINT16, BASE_HEX, 0, 0,
+				NULL, HFILL }
 		},
 		{ &hf_wow_srp_m2,
 		  { "SRP M2", "wow.srp.m2",
