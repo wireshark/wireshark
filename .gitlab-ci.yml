@@ -105,7 +105,9 @@ variables:
     - ccache --max-size $( du --summarize --block-size=1M "$CI_PROJECT_DIR/build" | awk '{printf ("%dM", $1 * 1.5)}' )
   script:
     # setcap restricts our library paths
+    - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
     - CFLAGS=-Wl,-rpath=$(pwd)/run CXXFLAGS=-Wl,-rpath=$(pwd)/run cmake -GNinja $CMAKE_ARGS ..
+    - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
     - ninja
     - ninja install
     - ninja shellcheck
@@ -178,7 +180,9 @@ Source Package:
   rules: !reference [.if-merged]
   script:
     - perl ../tools/make-version.pl --set-release || ../perl make-version.pl --set-release
+    - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
     - cmake -G Ninja $CMAKE_ARGS -DENABLE_CCACHE=ON ..
+    - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
     - cd $CI_PROJECT_DIR
     - build/packaging/source/git-export-release.sh -d .
   after_script:
@@ -197,7 +201,9 @@ CentOS 7 RPM Package:
   extends: .build-rpm
   image: wireshark/wireshark-centos-7-dev
   script:
+    - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
     - cmake3 -GNinja ..
+    - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
     - ninja-build rpm-package
 CentOS 7 RPM Test:
   extends: .test-rpm
@@ -211,7 +217,9 @@ CentOS 8 RPM Package:
   extends: .build-rpm
   image: wireshark/wireshark-centos-8-dev
   script:
+    - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
     - cmake -GNinja ..
+    - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
     - ninja-build rpm-package
 CentOS 8 RPM Test:
   extends: .test-rpm
@@ -225,7 +233,9 @@ openSUSE 15.2 RPM Package:
   extends: .build-rpm
   image: wireshark/wireshark-opensuse-15.2-dev
   script:
+    - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
     - cmake -GNinja ..
+    - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
     - ninja rpm-package
 openSUSE 15.2 RPM Test:
   extends: .test-rpm
@@ -242,7 +252,9 @@ Fedora RPM Package:
     # Shared GitLab runners limit the log size to 4M, so reduce verbosity. See
     # https://gitlab.com/gitlab-com/support-forum/issues/2790
     - export FORCE_CMAKE_NINJA_NON_VERBOSE=1
+    - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
     - cmake3 -GNinja ..
+    - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
     - ninja rpm-package
 # Fedora RPM Test:
 #   extends: .test-rpm
@@ -302,7 +314,9 @@ Documentation:
     - DEBIAN_FRONTEND=noninteractive apt-get --yes install ruby-coderay ruby-asciidoctor-pdf
     - mkdir build
     - cd build
+    - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
     - cmake -GNinja ..
+    - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
     - ninja all_guides
     - cd docbook
     - for HTML_DIR in wsug_html wsug_html_chunked wsdg_html wsdg_html_chunked ; do zip -9 -r "$HTML_DIR.zip" "$HTML_DIR" ; done
@@ -361,7 +375,9 @@ GCC Warnings:
     - docker
   script:
     # build-ubuntu puts us in `build`.
+    - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
     - CC=gcc CXX=g++ cmake -DENABLE_EXTRA_COMPILER_WARNINGS=on -DCMAKE_EXPORT_COMPILE_COMMANDS=on -DENABLE_CCACHE=ON -G Ninja ..
+    - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
     - script --command ninja --flush --quiet --return ../gcc_report.txt
     - ansi2html < ../gcc_report.txt > ../gcc_report.html
     - ninja test-programs
@@ -388,7 +404,9 @@ Code Checks + Clang Warnings:
     - ./tools/check_tfs.py --commits 1 | tee tfs_check.txt
     - if [[ -s "cppcheck_report.xml" ]]; then cppcheck-htmlreport --file cppcheck_report.xml  --report-dir . ; fi
     - cd build
+    - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
     - cmake -DENABLE_EXTRA_COMPILER_WARNINGS=on -DENABLE_CHECKHF_CONFLICT=on -DCMAKE_EXPORT_COMPILE_COMMANDS=on -DENABLE_CCACHE=ON -G Ninja ..
+    - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
     - script --command ninja --flush --quiet --return ../clang_report.txt
     - ansi2html < ../clang_report.txt > ../clang_report.html
     - ./run/tshark -v
@@ -541,7 +559,9 @@ API Reference:
   script:
     - mkdir build
     - cd build
+    - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
     - cmake -GNinja ..
+    - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
     - ninja wsar_html_zip 2>&1 > doxygen_output.txt | tee doxygen_errors.txt
   after_script:
     - mv build/wsar_html.zip .
@@ -566,7 +586,9 @@ SLOCCount:
   variables:
     SLOC_OUT: sloccount.txt
   script:
+    - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
     - cmake -G Ninja ..
+    - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
     - ninja
     - cd ..
     - echo -n "SLOCCount version:\ "
