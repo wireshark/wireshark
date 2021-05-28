@@ -206,7 +206,7 @@ BROTLI_VERSION=1.0.9
 # minizip
 ZLIB_VERSION=1.2.11
 # Uncomment to enable automatic updates using Sparkle
-#SPARKLE_VERSION=1.22.0
+#SPARKLE_VERSION=1.26.0
 
 #
 # Asciidoctor is required to build the documentation.
@@ -2176,10 +2176,10 @@ install_sparkle() {
         #
         # Download the tarball and unpack it in /usr/local/Sparkle-x.y.z
         #
-        [ -f Sparkle-$SPARKLE_VERSION.tar.bz2 ] || curl -L -o Sparkle-$SPARKLE_VERSION.tar.bz2 https://github.com/sparkle-project/Sparkle/releases/download/$SPARKLE_VERSION/Sparkle-$SPARKLE_VERSION.tar.bz2 || exit 1
+        [ -f Sparkle-$SPARKLE_VERSION.tar.xz ] || curl -L -o Sparkle-$SPARKLE_VERSION.tar.xz https://github.com/sparkle-project/Sparkle/releases/download/$SPARKLE_VERSION/Sparkle-$SPARKLE_VERSION.tar.xz || exit 1
         $no_build && echo "Skipping installation" && return
         test -d "/usr/local/Sparkle-$SPARKLE_VERSION" || sudo mkdir "/usr/local/Sparkle-$SPARKLE_VERSION"
-        sudo tar -C "/usr/local/Sparkle-$SPARKLE_VERSION" -xpof Sparkle-$SPARKLE_VERSION.tar.bz2
+        sudo tar -C "/usr/local/Sparkle-$SPARKLE_VERSION" -xpof Sparkle-$SPARKLE_VERSION.tar.xz
         touch sparkle-$SPARKLE_VERSION-done
     fi
 }
@@ -2189,7 +2189,7 @@ uninstall_sparkle() {
         echo "Uninstalling Sparkle:"
         sudo rm -rf "/usr/local/Sparkle-$installed_sparkle_version"
         if [ "$#" -eq 1 ] && [ "$1" = "-r" ] ; then
-            rm -f "Sparkle-$installed_sparkle_version.tar.bz2"
+            rm -f "Sparkle-$installed_sparkle_version.tar.xz"
         fi
 
         installed_sparkle_version=""
