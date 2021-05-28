@@ -407,6 +407,7 @@
      </property>
      <addaction name="actionSCTPAnalyseThisAssociation"/>
      <addaction name="actionSCTPShowAllAssociations"/>
+     <addaction name="actionSCTPFilterThisAssociation"/>
     </widget>
     <widget class="QMenu" name="menuFollow">
      <property name="title">
