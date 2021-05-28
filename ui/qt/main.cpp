@@ -297,6 +297,8 @@ get_gui_compiled_info(GString *str)
 void
 get_wireshark_runtime_info(GString *str)
 {
+    g_string_append_printf(str, ", with Qt %s", qVersion());
+
 #ifdef HAVE_LIBPCAP
     /* Capture libraries */
     g_string_append(str, ", ");
