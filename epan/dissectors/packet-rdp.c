@@ -31,6 +31,8 @@
 void proto_register_rdp(void);
 void proto_reg_handoff_rdp(void);
 
+static heur_dissector_list_t rdp_heur_subdissector_list;
+
 static int proto_rdp = -1;
 
 static int ett_rdp = -1;
@@ -2352,6 +2354,12 @@ dissect_rdp_fastpath(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 
 static gboolean
 dissect_rdp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_) {
+    heur_dtbl_entry_t *hdtbl_entry;
+
+    if (dissector_try_heuristic(rdp_heur_subdissector_list, tvb, pinfo, parent_tree,
+                                &hdtbl_entry, NULL)) {
+        return TRUE;
+    }
     return dissect_rdp_fastpath(tvb, pinfo, parent_tree, NULL);
 }
 
@@ -3420,6 +3428,8 @@ proto_register_rdp(void) {
   prefs_register_static_text_preference(rdp_module, "tcp_port_info",
             "The TCP ports used by the RDP protocol should be added to the TPKT preference \"TPKT TCP ports\", or by selecting \"TPKT\" as the \"Transport\" protocol in the \"Decode As\" dialog.",
             "RDP TCP Port preference moved information");
+
+  rdp_heur_subdissector_list = register_heur_dissector_list("rdp", proto_rdp);
 }
 
 void
