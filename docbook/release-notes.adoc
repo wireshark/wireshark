@@ -13,8 +13,8 @@ It is used for troubleshooting, analysis, development and education.
 
 == What’s New
 
-// The Windows installers now ship with Npcap 1.10.
-// They previously shipped with Npcap 1.00.
+The Windows installers now ship with Npcap 1.31.
+They previously shipped with Npcap 1.10.
 
 // The Windows installers now ship with USBPcap 1.5.X.0.
 // They previously shipped with USBPcap 1.5.4.0.
