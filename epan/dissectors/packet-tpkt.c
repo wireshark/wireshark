@@ -27,6 +27,8 @@
 void proto_register_tpkt(void);
 void proto_reg_handoff_tpkt(void);
 
+static heur_dissector_list_t tpkt_heur_subdissector_list;
+
 /* TPKT header fields             */
 static int proto_tpkt                = -1;
 static protocol_t *proto_tpkt_ptr;
@@ -362,6 +364,7 @@ dissect_tpkt_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     volatile int length;
     tvbuff_t *volatile next_tvb;
     const char *saved_proto;
+    heur_dtbl_entry_t *hdtbl_entry;
 
     /*
      * If we're reassembling segmented TPKT PDUs, empty the COL_INFO
@@ -388,6 +391,13 @@ dissect_tpkt_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
              * so don't get the length and don't try to
              * do reassembly.
              */
+
+            if (dissector_try_heuristic(tpkt_heur_subdissector_list, tvb,
+                                        pinfo, proto_tree_get_root(tree),
+                                        &hdtbl_entry, NULL)) {
+                return;
+            }
+
             col_set_str(pinfo->cinfo, COL_PROTOCOL, "TPKT");
             col_set_str(pinfo->cinfo, COL_INFO, "Continuation");
             if (tree) {
@@ -654,6 +664,10 @@ proto_register_tpkt(void)
                                   "TCP ports to be decoded as TPKT (default: "
                                   DEFAULT_TPKT_PORT_RANGE ")",
                                   &tpkt_tcp_port_range, MAX_TCP_PORT);
+
+    /* heuristic dissectors for premable CredSSP before RDP and Fast-Path RDP packets */
+    tpkt_heur_subdissector_list = register_heur_dissector_list("tpkt", proto_tpkt);
+
 }
 
 void
