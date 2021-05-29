@@ -77,7 +77,8 @@ typedef enum {
 	ENDPOINT_ISUP,			/* ISDN User Part CIC */
 	ENDPOINT_BICC,			/* BICC Circuit identifier */
 	ENDPOINT_GSMTAP,
-	ENDPOINT_IUUP
+	ENDPOINT_IUUP,
+	ENDPOINT_DVBBBF                 /* DVB Base Band Frame ISI/PLP_ID */
 } endpoint_type;
 
 /**

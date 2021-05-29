@@ -27,13 +27,10 @@
 #include <epan/exceptions.h>
 #include <epan/show_exception.h>
 #include "packet-l2tp.h"
+#include "packet-mp2t.h"
 
 void proto_register_mp2t(void);
 void proto_reg_handoff_mp2t(void);
-
-/* The MPEG2 TS packet size */
-#define MP2T_PACKET_SIZE 188
-#define MP2T_SYNC_BYTE   0x47
 
 #define MP2T_PID_DOCSIS  0x1FFE
 #define MP2T_PID_NULL    0x1FFF
