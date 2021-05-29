@@ -21,7 +21,7 @@
  * - The application name (fixed, "Wireshark")
  * - The application version ("<major>.<minor>.<micro>")
  * - The operating system (variable, one of "Windows" or "macOS")
- * - The architecture name (variable, one of "x86", "x86-64")
+ * - The architecture name (variable, one of "x86", "x86-64", or "arm64")
  * - The locale (fixed, "en-US")
  * - The update channel (variable, one of "development" or "stable") + .xml
  *
@@ -57,8 +57,10 @@
 #define SU_ARCH "x86-64"
 #elif defined(__i386__) || defined(_M_IX86)
 #define SU_ARCH "x86"
+#elif defined(__arm64__)
+#define SU_ARCH "arm64"
 #else
-#error HAVE_SOFTWARE_UPDATE can only be defined for x86-64 or x86.
+#error HAVE_SOFTWARE_UPDATE can only be defined for x86-64 or x86 or arm64.
 #endif
 
 static char *get_appcast_update_url(software_update_channel_e chan) {
