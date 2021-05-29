@@ -1947,7 +1947,9 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     rtp_info->info_media_types = 0;
     rtp_info->info_payload_type = payload_type;
     rtp_info->info_seq_num = seq_num;
+    rtp_info->info_extended_seq_num = seq_num; /* initial with seq_number */
     rtp_info->info_timestamp = timestamp;
+    rtp_info->info_extended_timestamp = timestamp; /* initial with timestamp */
     rtp_info->info_sync_src = sync_src;
     rtp_info->info_is_srtp = FALSE;
     rtp_info->info_setup_frame_num = 0;
