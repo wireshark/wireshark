@@ -969,11 +969,9 @@ static gint dissect_rtps_virtual_transport_loss_info_type(
 {
 
     guint16 param_id;
-    guint16 param_length;
 
     param_id = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
     offset += 2;
-    param_length = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
     offset += 2;
     if (param_id == PARAM_ID_LOST_MESSAGES) {
         guint64 first_lost = tvb_get_guint64(tvb, offset, ENC_BIG_ENDIAN);
