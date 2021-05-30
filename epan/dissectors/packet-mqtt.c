@@ -752,12 +752,7 @@ static gboolean mqtt_user_decode_message(proto_tree *tree, proto_tree *mqtt_tree
                                              message_decode_entry->payload_proto_name);
       proto_item_set_generated(ti);
 
-     if (strcmp(dissector_handle_get_short_name(message_decode_entry->payload_proto), "SparkplugB") == 0)
-     {
-        call_dissector_with_data(message_decode_entry->payload_proto, msg_tvb, pinfo, tree, (void*)topic_str);
-     } else {
-        call_dissector(message_decode_entry->payload_proto, msg_tvb, pinfo, tree);
-     }
+      call_dissector(message_decode_entry->payload_proto, msg_tvb, pinfo, tree);
     }
   }
 
