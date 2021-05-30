@@ -602,7 +602,7 @@ install_cmake() {
             # 3.19.3 and later have a macos-universal DMG for 10.13 and later,
             # and a macos10.10-universal DMG for 10.10 and later.
             #
-            if [ "$CMAKE_MINOR_VERSION" -lt 5]; then
+            if [ "$CMAKE_MINOR_VERSION" -lt 5 ]; then
                 echo "CMake $CMAKE_VERSION" is too old 1>&2
             elif [ "$CMAKE_MINOR_VERSION" -lt 19 -o \
                  "$CMAKE_VERSION" = 3.19.0 -o \
