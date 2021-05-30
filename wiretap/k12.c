@@ -925,7 +925,7 @@ wtap_open_return_val k12_open(wtap *wth, int *err, gchar **err_info) {
         if (rec_len < K12_RECORD_TYPE + 4) {
             /* Record isn't long enough to have a type field */
             *err = WTAP_ERR_BAD_FILE;
-            *err_info = g_strdup_printf("k12_open: record length %u < %u",
+            *err_info = g_strdup_printf("k12: record length %u < %u",
                                         rec_len, K12_RECORD_TYPE + 4);
             return WTAP_OPEN_ERROR;
         }
@@ -956,7 +956,7 @@ wtap_open_return_val k12_open(wtap *wth, int *err, gchar **err_info) {
                  * of the source descriptor field.
                  */
                 *err = WTAP_ERR_BAD_FILE;
-                *err_info = g_strdup_printf("k12_open: source descriptor record length %u < %u",
+                *err_info = g_strdup_printf("k12: source descriptor record length %u < %u",
                                             rec_len, K12_SRCDESC_HWPART);
                 destroy_k12_file_data(file_data);
                 g_free(rec);
@@ -989,7 +989,7 @@ wtap_open_return_val k12_open(wtap *wth, int *err, gchar **err_info) {
                  * field, including the variable-length parts.
                  */
                 *err = WTAP_ERR_BAD_FILE;
-                *err_info = g_strdup_printf("k12_open: source descriptor record length %u < %u (%u + %u + %u + %u)",
+                *err_info = g_strdup_printf("k12: source descriptor record length %u < %u (%u + %u + %u + %u)",
                                             rec_len,
                                             K12_SRCDESC_HWPART + hwpart_len + name_len + stack_len,
                                             K12_SRCDESC_HWPART, hwpart_len, name_len, stack_len);
@@ -1002,7 +1002,7 @@ wtap_open_return_val k12_open(wtap *wth, int *err, gchar **err_info) {
                 if (hwpart_len < 4) {
                     /* Hardware part isn't long enough to have a type field */
                     *err = WTAP_ERR_BAD_FILE;
-                    *err_info = g_strdup_printf("k12_open: source descriptor hardware part length %u < 4",
+                    *err_info = g_strdup_printf("k12: source descriptor hardware part length %u < 4",
                                                 hwpart_len);
                     destroy_k12_file_data(file_data);
                     g_free(rec);
@@ -1022,7 +1022,7 @@ wtap_open_return_val k12_open(wtap *wth, int *err, gchar **err_info) {
                         if (hwpart_len < K12_SRCDESC_ATM_VCI + 2) {
                             /* Hardware part isn't long enough to have ATM information */
                             *err = WTAP_ERR_BAD_FILE;
-                            *err_info = g_strdup_printf("k12_open: source descriptor hardware part length %u < %u",
+                            *err_info = g_strdup_printf("k12: source descriptor hardware part length %u < %u",
                                                         hwpart_len,
                                                         K12_SRCDESC_ATM_VCI + 2);
                             destroy_k12_file_data(file_data);
