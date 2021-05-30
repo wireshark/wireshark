@@ -7,9 +7,30 @@ Wireshark 3.4.6 Release Notes
 
  What’s New
 
+  The Windows installers now ship with Npcap 1.31. They previously
+  shipped with Npcap 1.10.
+
+  The Windows installers now ship with Qt 5.15.2. They previously
+  shipped with Qt 5.12.1.
+
   Bug Fixes
 
+     • wnpa-sec-2021-04[1] DVB-S2-BB dissector infinite loop
+
    The following bugs have been fixed:
+
+     • Macro filters can’t handle escaped characters Issue 17160[2].
+
+     • Display filter crashes Wireshark Issue 17316[3].
+
+     • IEEE-1588 Signalling Unicast TLV incorrectly reported as being
+       malformed Issue 17355[4].
+
+     • IETF QUIC TLS decryption error with extraneous packets during the
+       handshake Issue 17383[5].
+
+     • Statistics → Resolved Addresses: multi-protocol (TCP/UDP/…​)
+       ports not displayed Issue 17395[6].
 
   New and Updated Features
 
@@ -19,9 +40,11 @@ Wireshark 3.4.6 Release Notes
 
   Updated Protocol Support
 
+   DNP, DVB-S2-BB, ProtoBuf, PTP, QUIC, RANAP, and TACACS
+
   New and Updated Capture File Support
 
-   There is no new or updated capture file support in this release.
+   ERF, K12, and NetScaler
 
  Getting Wireshark
 
@@ -33,7 +56,7 @@ Wireshark 3.4.6 Release Notes
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[1] on the Wireshark web site.
+   be found on the download page[7] on the Wireshark web site.
 
  File Locations
 
@@ -47,22 +70,28 @@ Wireshark 3.4.6 Release Notes
   The User’s Guide, manual pages and various other documentation can be
   found at https://www.wireshark.org/docs/
 
-  Community support is available on Wireshark’s Q&A site[2] and on the
+  Community support is available on Wireshark’s Q&A site[8] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[3].
+  for all of Wireshark’s mailing lists can be found on the web site[9].
 
-  Issues and feature requests can be reported on the issue tracker[4].
+  Issues and feature requests can be reported on the issue tracker[10].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[5].
+  A complete FAQ is available on the Wireshark web site[11].
 
-  Last updated 2021-05-23 09:32:54 UTC
+  Last updated 2021-05-30 17:14:48 UTC
 
  References
 
-   1. https://www.wireshark.org/download.html#thirdparty
-   2. https://ask.wireshark.org/
-   3. https://www.wireshark.org/lists/
-   4. https://gitlab.com/wireshark/wireshark/-/issues
-   5. https://www.wireshark.org/faq.html
+   1. https://www.wireshark.org/security/wnpa-sec-2021-04
+   2. https://gitlab.com/wireshark/wireshark/-/issues/17160
+   3. https://gitlab.com/wireshark/wireshark/-/issues/17316
+   4. https://gitlab.com/wireshark/wireshark/-/issues/17355
+   5. https://gitlab.com/wireshark/wireshark/-/issues/17383
+   6. https://gitlab.com/wireshark/wireshark/-/issues/17395
+   7. https://www.wireshark.org/download.html#thirdparty
+   8. https://ask.wireshark.org/
+   9. https://www.wireshark.org/lists/
+  10. https://gitlab.com/wireshark/wireshark/-/issues
+  11. https://www.wireshark.org/faq.html
