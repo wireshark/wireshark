@@ -8,7 +8,7 @@ set -e
 dmgbuild="@DMGBUILD_EXECUTABLE@"
 version="@VERSION@"
 settings_file="@CMAKE_BINARY_DIR@/packaging/macosx/dmgbuild-settings.py"
-architecture="Intel 64"
+architecture=""
 
 # Help message
 #----------------------------------------------------------
@@ -31,6 +31,15 @@ dmgbuild-settings.py.in.
 
 if [ ! -x "$dmgbuild" ] ; then
 	echo "Error: \"$dmgbuild\" not found."
+	exit 1
+fi
+
+if lipo Wireshark.app/Contents/MacOS/Wireshark -verify_arch arm64e ; then
+	architecture="ARM 64"
+elif lipo Wireshark.app/Contents/MacOS/Wireshark -verify_arch x86_64 ; then
+	architecture="Intel 64"
+else
+	echo "Error: Wireshark.app missing or has unknown architecture."
 	exit 1
 fi
 
