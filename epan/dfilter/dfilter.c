@@ -240,6 +240,7 @@ dfilter_compile(const gchar *text, dfilter_t **dfp, gchar **err_msg)
 	state.dfw = dfw;
 	state.quoted_string = NULL;
 	state.in_set = FALSE;
+	state.raw_string = FALSE;
 
 	df_set_extra(&state, scanner);
 

@@ -56,6 +56,11 @@ They previously shipped with Npcap 1.20.
   Also the timestamp format now allows the second-fractions to be placed anywhere in the timestamp and it will be stored with
   nanosecond instead of microsecond precision.
 
+* Display filter literal strings can now be specified using raw string syntax,
+  identical to raw strings in the Python programming language. This is useful
+  to avoid the complexity of using two levels of character escapes with regular
+  expressions.
+
 * Significant RTP Player redesign and improvements (see Wireshark User Documentation,
   https://www.wireshark.org/docs/wsug_html_chunked/ChTelPlayingCalls.html[Playing VoIP Calls] and
   https://www.wireshark.org/docs/wsug_html_chunked/_rtp.html#ChTelRtpPlayer[RTP Player Window])

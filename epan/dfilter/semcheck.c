@@ -409,6 +409,8 @@ dfilter_g_regex_from_string(dfwork_t *dfw, const char *s)
 	 */
 	cflags = (GRegexCompileFlags)(cflags | G_REGEX_RAW);
 
+	DebugLog(("Compile regex pattern: '%s'\n", s));
+
 	pcre = g_regex_new(
 			s,			/* pattern */
 			cflags,			/* Compile options */

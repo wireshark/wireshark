@@ -219,7 +219,7 @@ static void mark_lval_deprecated(const char *s);
 	return SCAN_FAILED;
 }
 
-\042				{
+[rR]{0,1}\042			{
 	/* start quote of a quoted string */
 	/* The example of how to scan for strings was taken from
 	the flex 2.5.4 manual, from the section "Start Conditions".
@@ -238,6 +238,21 @@ static void mark_lval_deprecated(const char *s);
 		about to set it in the next line. */
 	}
 	yyextra->quoted_string = g_string_new("");
+	if (yytext[0] == 'r' || yytext[0] == 'R') {
+		/*
+		 * This is a raw string (like in Python). Rules: 1) The two
+		 * escape sequences are \\ and \". 2) Backslashes are
+		 * preserved. 3) Double quotes in the string must be escaped.
+		 * Corollary: Strings cannot end with an odd number of
+		 * backslashes.
+		 * Example: r"a\b\x12\"\\" is the string (including the implicit NUL terminator)
+		 * {'a', '\\', 'b', '\\', 'x', '1', '2', '\\', '"', '\\'. '\\', '\0'}
+		 */
+		yyextra->raw_string = TRUE;
+	}
+	else {
+		yyextra->raw_string = FALSE;
+	}
 }
 
 <DQUOTE><<EOF>>				{
@@ -263,28 +278,43 @@ static void mark_lval_deprecated(const char *s);
 
 <DQUOTE>\\[0-7]{1,3} {
 	/* octal sequence */
-	unsigned long result;
-	result = strtoul(yytext + 1, NULL, 8);
-	if (result > 0xff) {
-		g_string_free(yyextra->quoted_string, TRUE);
-		yyextra->quoted_string = NULL;
-		dfilter_fail(yyextra->dfw, "%s is larger than 255.", yytext);
-		return SCAN_FAILED;
+	if (yyextra->raw_string) {
+		g_string_append(yyextra->quoted_string, yytext);
 	}
-	g_string_append_c(yyextra->quoted_string, (gchar) result);
+	else {
+		unsigned long result;
+		result = strtoul(yytext + 1, NULL, 8);
+		if (result > 0xff) {
+			g_string_free(yyextra->quoted_string, TRUE);
+			yyextra->quoted_string = NULL;
+			dfilter_fail(yyextra->dfw, "%s is larger than 255.", yytext);
+			return SCAN_FAILED;
+		}
+		g_string_append_c(yyextra->quoted_string, (gchar) result);
+	}
 }
 
 <DQUOTE>\\x[[:xdigit:]]{1,2} {
 	/* hex sequence */
-	unsigned long result;
-	result = strtoul(yytext + 2, NULL, 16);
-	g_string_append_c(yyextra->quoted_string, (gchar) result);
+	if (yyextra->raw_string) {
+		g_string_append(yyextra->quoted_string, yytext);
+	}
+	else {
+		unsigned long result;
+		result = strtoul(yytext + 2, NULL, 16);
+		g_string_append_c(yyextra->quoted_string, (gchar) result);
+	}
 }
 
 
 <DQUOTE>\\.				{
 	/* escaped character */
-	g_string_append_c(yyextra->quoted_string, yytext[1]);
+	if (yyextra->raw_string) {
+		g_string_append(yyextra->quoted_string, yytext);
+	}
+	else {
+		g_string_append_c(yyextra->quoted_string, yytext[1]);
+	}
 }
 
 <DQUOTE>[^\\\042]+			{
