@@ -83,11 +83,30 @@ Wireshark 3.5.0 Release Notes
 
    Follow stream is now able to follow SIP call by SIP.Call-ID
 
+   Follow stream YAML output format’s has been changed to add timestamps
+   and peers information (for more details see the user’s guide,
+   Following Protocol Streams[3])
+
+   IP fragments between public IPv4 addresses are now reassembled even
+   if they have different VLAN IDs. Reassembly of IP fragments where one
+   endpoint is a private (RFC 1918 section 3) or link-local (RFC 3927)
+   IPv4 address continues to take the VLAN ID into account, as those
+   addresses can be reused. To revert to the previous behavior and not
+   reassemble fragments with different VLAN IDs, turn on the "Enable
+   stricter conversation tracking heuristics" top level protocol
+   preference.
+
   New Protocol Support
 
-   Kerberos SPAKE, O-RAN fronthaul UC-plane (O-RAN), PDU Transport
-   Protocol, R09.x (R09), SparkplugB, State Synchronization Protocol
-   (SSyncP), and UAVCAN\CAN
+   Bluetooth Link Manager Protocol (BT LMP), Event Tracing for Windows
+   (ETW), Kerberos SPAKE, Linux psample protocol, Microsoft Task
+   Scheduler Service, O-RAN E2AP, O-RAN fronthaul UC-plane (O-RAN), Opus
+   Interactive Audio Codec (OPUS), PDU Transport Protocol, R09.x (R09),
+   Real-Time Publish-Subscribe Virtual Transport (RTPS-VT), Real-Time
+   Publish-Subscribe Wire Protocol (processed) (RTPS-PROC), Shared
+   Memory Communications (SMC), Signal PDU, SparkplugB, State
+   Synchronization Protocol (SSyncP), Tagged Image File Format (TIFF),
+   and TP-Link Smart Home Protocol
 
   Updated Protocol Support
 
@@ -105,7 +124,7 @@ Wireshark 3.5.0 Release Notes
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[3] on the Wireshark web site.
+   be found on the download page[4] on the Wireshark web site.
 
  File Locations
 
@@ -119,17 +138,17 @@ Wireshark 3.5.0 Release Notes
   The User’s Guide, manual pages and various other documentation can be
   found at https://www.wireshark.org/docs/
 
-  Community support is available on Wireshark’s Q&A site[4] and on the
+  Community support is available on Wireshark’s Q&A site[5] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[5].
+  for all of Wireshark’s mailing lists can be found on the web site[6].
 
-  Bugs and feature requests can be reported on the issue tracker[6].
+  Bugs and feature requests can be reported on the issue tracker[7].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[7].
+  A complete FAQ is available on the Wireshark web site[8].
 
-  Last updated 2021-05-23 09:05:31 UTC
+  Last updated 2021-05-30 09:05:30 UTC
 
  References
 
@@ -137,8 +156,10 @@ Wireshark 3.5.0 Release Notes
   .html
    2. https://www.wireshark.org/docs/wsug_html_chunked/_rtp.html#ChTelRt
   pPlayer
-   3. https://www.wireshark.org/download.html#thirdparty
-   4. https://ask.wireshark.org/
-   5. https://www.wireshark.org/lists/
-   6. https://gitlab.com/wireshark/wireshark/-/issues
-   7. https://www.wireshark.org/faq.html
+   3. https://www.wireshark.org/docs/wsug_html_chunked//ChAdvFollowStrea
+  mSection.html
+   4. https://www.wireshark.org/download.html#thirdparty
+   5. https://ask.wireshark.org/
+   6. https://www.wireshark.org/lists/
+   7. https://gitlab.com/wireshark/wireshark/-/issues
+   8. https://www.wireshark.org/faq.html

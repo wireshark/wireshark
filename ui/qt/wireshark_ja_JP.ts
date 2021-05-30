@@ -4294,7 +4294,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Perl compatible regular expression capturing a single packet in the file with named groups identifieing data to import. Anchors ^ and $ also match before/after newlines &lt;/p&gt;&lt;p&gt;Required is only a data group, also supported are time, dir and seqno.&lt;/p&gt;&lt;p&gt;Regex flags: DUPNAMES, MULTILINE and NOEMPTY&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;インポートするデータを識別する名前付きグループとともにファイルにある１つのパケットをキャプチャするPerl互換正規表現 アンカー、 ^ および $ 記号も新規の行の前後に合致します。 &lt;/p&gt;&lt;p&gt;必須はデータグループのみ、またtime,dirおよびseqnoもサポートされます。&lt;/p&gt;&lt;p&gt;Regex フラグ: DUPNAMES, MULTILINE および NOEMPTY&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>This is regexHintLabel, it will be set to default_regex_hint</source>
@@ -4370,7 +4370,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The format in which to parse timestamps in the text file (e.g. %H:%M:%S.%f).&lt;/p&gt;&lt;p&gt;Format specifiers are based on strptime(3) with the addition of %f for second fractions. The percision of %f is determined from it&apos;s length.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;テキストファイルのタイムスタンプを解析する形式(例 %H:%M:%S.%f)&lt;/p&gt;&lt;p&gt; 形式の仕様はstrptime(3)に %fでコンマ秒を加えた仕様に基づきます %fの精度はその長さにより決まります。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>%H:%M:%S.%f</source>
@@ -7728,7 +7728,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Play selected stream. Press CTRL key for playing reverse stream too.</source>
-        <translation type="unfinished"></translation>
+        <translation>選択したストリームを再生します。CTRLキーを押して逆方向のストリームも再生します。</translation>
     </message>
     <message>
         <source>IA&amp;X2 Stream Analysis</source>
@@ -9071,7 +9071,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Print capture file information on each page&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;ページ毎にキャプチャファイル情報を印刷&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Capture information header</source>
@@ -10783,7 +10783,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Export audio of all unmuted selected channels or export payload of one channel.</source>
-        <translation type="unfinished"></translation>
+        <translation>すべてのミュートされていない選択したチャンネルのオーディオをエクスポート、または１チャンネルのペイロードをエクスポート</translation>
     </message>
     <message>
         <source>From &amp;cursor</source>
@@ -10855,15 +10855,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Route audio to left channel of selected streams</source>
-        <translation type="unfinished"></translation>
+        <translation>選択したストリームの左チャンネルへオーディオを接続</translation>
     </message>
     <message>
         <source>Route audio to left and right channel of selected streams</source>
-        <translation type="unfinished"></translation>
+        <translation>選択したストリームの左と右のチャンネルへオーディオを接続</translation>
     </message>
     <message>
         <source>Route audio to right channel of selected streams</source>
-        <translation type="unfinished"></translation>
+        <translation>選択したストリームの右チャンネルへオーディオを接続</translation>
     </message>
     <message>
         <source>Remove Streams</source>
@@ -10955,7 +10955,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Read captured packets from capture in progress to player</source>
-        <translation type="unfinished"></translation>
+        <translation>現在キャプチャ中のキャプチャしたパケットから読み込んでプレイヤーへ</translation>
     </message>
     <message>
         <source>Zoom In</source>
@@ -10975,7 +10975,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Play rate of decoded audio (depends e. g. on selected sound card)</source>
-        <translation type="unfinished"></translation>
+        <translation>デコードされた音声の再生レート(選択されたサウンドカード等に依存します)</translation>
     </message>
     <message>
         <source>Zoom Out</source>
@@ -11115,7 +11115,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>, start: %1, cursor: %2. Press &quot;G&quot; to go to packet %3. Double click on graph to set start of playback.</source>
-        <translation type="unfinished"></translation>
+        <translation>, 開始: %1, カーソル: %2. &quot;G&quot; を押してパケット %3 へ移動します。ダブルクリックして再生開始を設定します。</translation>
     </message>
     <message>
         <source>Playback of stream %1 failed!</source>
@@ -11159,7 +11159,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>All selected streams must use same play rate. Manual set of Output Audio Rate might help.</source>
-        <translation type="unfinished"></translation>
+        <translation>すべての選択されたストリームは同一の再生レートを使用しなければなりません。出力音声レートのマニュアル設定が助けになるかもしれません。</translation>
     </message>
     <message>
         <source>No streams are suitable for save</source>
@@ -13751,7 +13751,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Only show conversations matching the current display filter&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;現在の表示フィルタに合致した対話のみ表示します&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;現在の表示フィルタに合致した対話のみ表示します&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Limit to display filter</source>
@@ -13767,7 +13767,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Show flow sequence for selected call(s).</source>
-        <translation type="unfinished"></translation>
+        <translation>選択した通話のフロー順序を表示</translation>
     </message>
     <message>
         <source>Prepare &amp;Filter</source>
