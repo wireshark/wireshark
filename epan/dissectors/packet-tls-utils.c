@@ -96,6 +96,22 @@ const value_string ssl_versions[] = {
     { DTLSV1DOT0_OPENSSL_VERSION, "DTLS 1.0 (OpenSSL pre 0.9.8f)" },
     { DTLSV1DOT0_VERSION,   "DTLS 1.0" },
     { DTLSV1DOT2_VERSION,   "DTLS 1.2" },
+    { 0x0A0A,               "Reserved (GREASE)" }, /* RFC 8701 */
+    { 0x1A1A,               "Reserved (GREASE)" }, /* RFC 8701 */
+    { 0x2A2A,               "Reserved (GREASE)" }, /* RFC 8701 */
+    { 0x3A3A,               "Reserved (GREASE)" }, /* RFC 8701 */
+    { 0x4A4A,               "Reserved (GREASE)" }, /* RFC 8701 */
+    { 0x5A5A,               "Reserved (GREASE)" }, /* RFC 8701 */
+    { 0x6A6A,               "Reserved (GREASE)" }, /* RFC 8701 */
+    { 0x7A7A,               "Reserved (GREASE)" }, /* RFC 8701 */
+    { 0x8A8A,               "Reserved (GREASE)" }, /* RFC 8701 */
+    { 0x9A9A,               "Reserved (GREASE)" }, /* RFC 8701 */
+    { 0xAAAA,               "Reserved (GREASE)" }, /* RFC 8701 */
+    { 0xBABA,               "Reserved (GREASE)" }, /* RFC 8701 */
+    { 0xCACA,               "Reserved (GREASE)" }, /* RFC 8701 */
+    { 0xDADA,               "Reserved (GREASE)" }, /* RFC 8701 */
+    { 0xEAEA,               "Reserved (GREASE)" }, /* RFC 8701 */
+    { 0xFAFA,               "Reserved (GREASE)" }, /* RFC 8701 */
     { 0x00, NULL }
 };
 
