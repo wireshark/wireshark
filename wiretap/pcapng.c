@@ -1764,7 +1764,7 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh,
 
     if (0 >= section_info->interfaces->len) {
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup("pcapng_read_simple_packet_block: SPB appeared before any IDBs in the section");
+        *err_info = g_strdup("pcapng: SPB appeared before any IDBs in the section");
         return FALSE;
     }
     iface_info = g_array_index(section_info->interfaces, interface_info_t, 0);
@@ -1920,7 +1920,7 @@ name_resolution_block_find_name_end(const char *p, guint record_len, int *err,
              * finding a NUL.
              */
             *err = WTAP_ERR_BAD_FILE;
-            *err_info = g_strdup("pcapng_read_name_resolution_block: NRB record has non-null-terminated host name");
+            *err_info = g_strdup("pcapng: NRB record has non-null-terminated host name");
             return -1;
         }
         if (*p == '\0')
