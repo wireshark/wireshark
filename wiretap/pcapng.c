@@ -3067,7 +3067,7 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
                 ws_debug("%s: No more IDBs available...", G_STRFUNC);
                 break;
             } else {
-                ws_debug("%s:: couldn't read IDB", G_STRFUNC);
+                ws_debug("%s: couldn't read IDB", G_STRFUNC);
                 return WTAP_OPEN_ERROR;
             }
         }
