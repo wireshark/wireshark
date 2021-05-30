@@ -41,8 +41,8 @@ They previously shipped with Npcap 1.20.
   by setting the new 'add_default_value' preference. The default values might be explicitly declared in 'proto2' files,
   or false for bools, first value for enums, zero for numeric types.
 
-* Wireshark now supports reading Event Tracing for Windows (ETW). A new extcap named ETW reader is created that now can open an etl file, convert all
-  events in the file to DLT_ETW packets and write to a specified FIFO destination. Also, a new packet_etw dissector is
+* Wireshark now supports reading Event Tracing for Windows (ETW). A new extcap named ETW reader is created that now can open an etl file,
+  convert all events in the file to DLT_ETW packets and write to a specified FIFO destination. Also, a new packet_etw dissector is
   created to dissect DLT_ETW packets so Wireshark can display the DLT_ETW packet header, its message and packet_etw dissector
   calls packet_mbim sub_dissector if its provider matches the MBIM provider GUID.
 
@@ -56,7 +56,9 @@ They previously shipped with Npcap 1.20.
   Also the timestamp format now allows the second-fractions to be placed anywhere in the timestamp and it will be stored with
   nanosecond instead of microsecond precision.
 
-* Significant RTP Player redesign and improvements (see Wireshark User Documentation, https://www.wireshark.org/docs/wsug_html_chunked/ChTelPlayingCalls.html[Playing VoIP Calls] and https://www.wireshark.org/docs/wsug_html_chunked/_rtp.html#ChTelRtpPlayer[RTP Player Window])
+* Significant RTP Player redesign and improvements (see Wireshark User Documentation,
+  https://www.wireshark.org/docs/wsug_html_chunked/ChTelPlayingCalls.html[Playing VoIP Calls] and
+  https://www.wireshark.org/docs/wsug_html_chunked/_rtp.html#ChTelRtpPlayer[RTP Player Window])
 ** RTP Player can play many streams in row
 ** UI is more responsive
 ** RTP Player maintains playlist, other tools can add/remove streams to it
@@ -72,7 +74,10 @@ They previously shipped with Npcap 1.20.
 * Follow stream YAML output format’s has been changed to add timestamps and peers information (for more details see the user’s guide,
 {wireshark-users-guide-url}/ChAdvFollowStreamSection.html[Following Protocol Streams])
 
-* IP fragments between public IPv4 addresses are now reassembled even if they have different VLAN IDs. Reassembly of IP fragments where one endpoint is a private (RFC 1918 section 3) or link-local (RFC 3927) IPv4 address continues to take the VLAN ID into account, as those addresses can be reused. To revert to the previous behavior and not reassemble fragments with different VLAN IDs, turn on the "Enable stricter conversation tracking heuristics" top level protocol preference.
+* IP fragments between public IPv4 addresses are now reassembled even if they have different VLAN IDs. Reassembly of IP fragments
+  where one endpoint is a private (RFC 1918 section 3) or link-local (RFC 3927) IPv4 address continues to take the VLAN ID into
+  account, as those addresses can be reused. To revert to the previous behavior and not reassemble fragments with different VLAN IDs,
+  turn on the "Enable stricter conversation tracking heuristics" top level protocol preference.
 
 // === Removed Features and Support
 
