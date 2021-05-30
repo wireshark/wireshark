@@ -284,6 +284,12 @@ static void mark_lval_deprecated(const char *s);
 	else {
 		unsigned long result;
 		result = strtoul(yytext + 1, NULL, 8);
+		if (result == 0) {
+			g_string_free(yyextra->quoted_string, TRUE);
+			yyextra->quoted_string = NULL;
+			dfilter_fail(yyextra->dfw, "%s (NUL byte) cannot be used with a regular string.", yytext);
+			return SCAN_FAILED;
+		}
 		if (result > 0xff) {
 			g_string_free(yyextra->quoted_string, TRUE);
 			yyextra->quoted_string = NULL;
@@ -302,6 +308,12 @@ static void mark_lval_deprecated(const char *s);
 	else {
 		unsigned long result;
 		result = strtoul(yytext + 2, NULL, 16);
+		if (result == 0) {
+			g_string_free(yyextra->quoted_string, TRUE);
+			yyextra->quoted_string = NULL;
+			dfilter_fail(yyextra->dfw, "%s (NUL byte) cannot be used with a regular string.", yytext);
+			return SCAN_FAILED;
+		}
 		g_string_append_c(yyextra->quoted_string, (gchar) result);
 	}
 }
