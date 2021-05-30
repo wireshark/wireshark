@@ -11,6 +11,13 @@ Wireshark 3.2.14 Release Notes
 
    The following bugs have been fixed:
 
+     • Macro filters can’t handle escaped characters Issue 17160[1].
+
+     • Display filter crashes Wireshark Issue 17316[2].
+
+     • IEEE-1588 Signalling Unicast TLV incorrectly reported as being
+       malformed Issue 17355[3].
+
   New and Updated Features
 
    There are no new features in this release.
@@ -21,9 +28,11 @@ Wireshark 3.2.14 Release Notes
 
   Updated Protocol Support
 
+   DNP, ProtoBuf, PTP, and TACACS
+
   New and Updated Capture File Support
 
-   There is no new or updated capture file support in this release.
+   ERF, K12, and NetScaler
 
  Getting Wireshark
 
@@ -35,7 +44,7 @@ Wireshark 3.2.14 Release Notes
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[1] on the Wireshark web site.
+   be found on the download page[4] on the Wireshark web site.
 
  File Locations
 
@@ -49,22 +58,25 @@ Wireshark 3.2.14 Release Notes
   The User’s Guide, manual pages and various other documentation can be
   found at https://www.wireshark.org/docs/
 
-  Community support is available on Wireshark’s Q&A site[2] and on the
+  Community support is available on Wireshark’s Q&A site[5] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[3].
+  for all of Wireshark’s mailing lists can be found on the web site[6].
 
-  Issues and feature requests can be reported on the issue tracker[4].
+  Issues and feature requests can be reported on the issue tracker[7].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[5].
+  A complete FAQ is available on the Wireshark web site[8].
 
-  Last updated 2021-05-23 09:57:31 UTC
+  Last updated 2021-05-30 17:40:29 UTC
 
  References
 
-   1. https://www.wireshark.org/download.html#thirdparty
-   2. https://ask.wireshark.org/
-   3. https://www.wireshark.org/lists/
-   4. https://gitlab.com/wireshark/wireshark/-/issues
-   5. https://www.wireshark.org/faq.html
+   1. https://gitlab.com/wireshark/wireshark/-/issues/17160
+   2. https://gitlab.com/wireshark/wireshark/-/issues/17316
+   3. https://gitlab.com/wireshark/wireshark/-/issues/17355
+   4. https://www.wireshark.org/download.html#thirdparty
+   5. https://ask.wireshark.org/
+   6. https://www.wireshark.org/lists/
+   7. https://gitlab.com/wireshark/wireshark/-/issues
+   8. https://www.wireshark.org/faq.html
