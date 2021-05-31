@@ -368,6 +368,7 @@ parse_ascend(ascend_t *ascend, FILE_T fh, wtap_rec *rec, Buffer *buf,
         if (ascend->inittime > parser_state.secs)
             ascend->inittime -= parser_state.secs;
         }
+        rec->rec_type = REC_TYPE_PACKET;
         rec->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
         rec->ts.secs = parser_state.secs + ascend->inittime;
         rec->ts.nsecs = parser_state.usecs * 1000;
