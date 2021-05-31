@@ -346,11 +346,6 @@ static gint dissect_rtps_processed(
                         rtpsproc_tree_frame1);
             }
         }
-    } else {
-        /*
-         * If there is no security information, param_id is zeroed.
-         * In that case the length is also zero, so we move 4 Bytes in total.
-         */
     }
     return tvb_captured_length(tvb);
 }
