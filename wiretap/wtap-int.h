@@ -127,7 +127,6 @@ WS_DLL_PUBLIC gboolean wtap_dump_file_write(wtap_dumper *wdh, const void *buf,
 WS_DLL_PUBLIC gint64 wtap_dump_file_seek(wtap_dumper *wdh, gint64 offset, int whence, int *err);
 WS_DLL_PUBLIC gint64 wtap_dump_file_tell(wtap_dumper *wdh, int *err);
 
-
 extern gint wtap_num_file_types;
 
 #include <wsutil/pint.h>
@@ -362,6 +361,47 @@ struct backwards_compatibiliity_lua_name {
 
 WS_DLL_PUBLIC
 const GArray *get_backwards_compatibility_lua_table(void);
+
+/**
+ * @brief Gets new section header block for new file, based on existing info.
+ * @details Creates a new wtap_block_t section header block and only
+ *          copies appropriate members of the SHB for a new file. In
+ *          particular, the comment string is copied, and any custom options
+ *          which should be copied are copied. The os, hardware, and
+ *          application strings are *not* copied.
+ *
+ * @note Use wtap_free_shb() to free the returned section header.
+ *
+ * @param wth The wiretap session.
+ * @return The new section header, which must be wtap_free_shb'd.
+ */
+GArray* wtap_file_get_shb_for_new_file(wtap *wth);
+
+/**
+ * @brief Generate an IDB, given a wiretap handle for the file,
+ *      using the file's encapsulation type, snapshot length,
+ *      and time stamp resolution, and add it to the interface
+ *      data for a file.
+ * @note This requires that the encapsulation type and time stamp
+ *      resolution not be per-packet; it will terminate the process
+ *      if either of them are.
+ *
+ * @param wth The wiretap handle for the file.
+ */
+WS_DLL_PUBLIC
+void wtap_add_generated_idb(wtap *wth);
+
+/**
+ * @brief Gets new name resolution info for new file, based on existing info.
+ * @details Creates a new wtap_block_t of name resolution info and only
+ *          copies appropriate members for a new file.
+ *
+ * @note Use wtap_free_nrb() to free the returned pointer.
+ *
+ * @param wth The wiretap session.
+ * @return The new name resolution info, which must be freed.
+ */
+GArray* wtap_file_get_nrb_for_new_file(wtap *wth);
 
 #endif /* __WTAP_INT_H__ */
 

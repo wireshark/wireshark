@@ -95,10 +95,8 @@ libwiretap.so.0 libwiretap0 #MINVER#
  wtap_file_encap@Base 1.9.1
  wtap_file_get_idb_info@Base 1.9.1
  wtap_file_get_nrb@Base 2.1.2
- wtap_file_get_nrb_for_new_file@Base 1.99.9
  wtap_file_get_num_shbs@Base 3.3.0
  wtap_file_get_shb@Base 1.99.9
- wtap_file_get_shb_for_new_file@Base 1.99.9
  wtap_file_size@Base 1.9.1
  wtap_file_tsprec@Base 1.99.0
  wtap_file_type_subtype@Base 1.12.0~rc1

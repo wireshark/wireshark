@@ -1825,22 +1825,6 @@ WS_DLL_PUBLIC
 wtap_block_t wtap_file_get_shb(wtap *wth, guint shb_num);
 
 /**
- * @brief Gets new section header block for new file, based on existing info.
- * @details Creates a new wtap_block_t section header block and only
- *          copies appropriate members of the SHB for a new file. In
- *          particular, the comment string is copied, and any custom options
- *          which should be copied are copied. The os, hardware, and
- *          application strings are *not* copied.
- *
- * @note Use wtap_free_shb() to free the returned section header.
- *
- * @param wth The wiretap session.
- * @return The new section header, which must be wtap_free_shb'd.
- */
-WS_DLL_PUBLIC
-GArray* wtap_file_get_shb_for_new_file(wtap *wth);
-
-/**
  * @brief Sets or replaces the section header comment.
  * @details The passed-in comment string is set to be the comment
  *          for the section header block. The passed-in string's
@@ -1852,20 +1836,6 @@ GArray* wtap_file_get_shb_for_new_file(wtap *wth);
  */
 WS_DLL_PUBLIC
 void wtap_write_shb_comment(wtap *wth, gchar *comment);
-
-/**
- * @brief Generate an IDB, given a wiretap handle for the file,
- *      using the file's encapsulation type, snapshot length,
- *      and time stamp resolution, and add it to the interface
- *      data for a file.
- * @note This requires that the encapsulation type and time stamp
- *      resolution not be per-packet; it will terminate the process
- *      if either of them are.
- *
- * @param wth The wiretap handle for the file.
- */
-WS_DLL_PUBLIC
-void wtap_add_generated_idb(wtap *wth);
 
 /**
  * @brief Gets existing interface descriptions.
@@ -1937,19 +1907,6 @@ gchar *wtap_get_debug_if_descr(const wtap_block_t if_descr,
  */
 WS_DLL_PUBLIC
 wtap_block_t wtap_file_get_nrb(wtap *wth);
-
-/**
- * @brief Gets new name resolution info for new file, based on existing info.
- * @details Creates a new wtap_block_t of name resolution info and only
- *          copies appropriate members for a new file.
- *
- * @note Use wtap_free_nrb() to free the returned pointer.
- *
- * @param wth The wiretap session.
- * @return The new name resolution info, which must be freed.
- */
-WS_DLL_PUBLIC
-GArray* wtap_file_get_nrb_for_new_file(wtap *wth);
 
 /*** close the file descriptors for the current file ***/
 WS_DLL_PUBLIC
