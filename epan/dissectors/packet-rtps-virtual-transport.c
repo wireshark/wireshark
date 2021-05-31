@@ -211,7 +211,7 @@ static gint dissect_rtps_virtual_transport(
             rtpsvt_hf_version,
             tvb,
             offset,
-            sizeof(guint16),
+            2, /* 2B: sizeof(guint16) */
             version,
             "Version: %d.%d",
             transport_data.version_major,
@@ -225,14 +225,14 @@ static gint dissect_rtps_virtual_transport(
             rtpsvt_hf_version_major,
             tvb,
             offset,
-            sizeof(guint8),
+            1, /* length: sizeof(guint8) */
             ENC_NA);
     proto_tree_add_item(
             rtpsvt_tree_version,
             rtpsvt_hf_version_minor,
             tvb,
             offset + 1,
-            sizeof(guint8),
+            1, /* length: sizeof(guint8) */
             ENC_NA);
     offset += 2;
 
@@ -243,7 +243,7 @@ static gint dissect_rtps_virtual_transport(
             rtpsvt_hf_content_kind,
             tvb,
             offset,
-            sizeof(guint8),
+            1, /* length: sizeof(guint8) */
             ENC_NA);
     if (content_type == CONTENT_KIND_RTPS) {
         content_type_label = "RTPS";
@@ -346,9 +346,9 @@ static gint dissect_rtps_virtual_transport_rtps_type(
      */
     do {
         param_id = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
-        offset += sizeof(guint16);
+        offset += 2;
         param_length = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
-        offset += sizeof(guint16);
+        offset += 2;
         if (param_id == PARAM_ID_MAIN_FRAME) {
             proto_tree *rtpsvt_tree_frame;
             transport_data->rtps_length = param_length;
@@ -366,14 +366,14 @@ static gint dissect_rtps_virtual_transport_rtps_type(
                     rtpsvt_hf_param_id,
                     tvb,
                     offset,
-                    sizeof(guint16),
+                    2, /* 2B: sizeof(guint16) */
                     param_id);
             proto_tree_add_uint(
                     rtpsvt_tree_frame,
                     rtpsvt_hf_param_length,
                     tvb,
-                    offset + sizeof(guint16),
-                    sizeof(guint16),
+                    offset + 2,
+                    2,
                     param_length);
             break;
         }
@@ -419,7 +419,7 @@ static gint dissect_parameter_transport_rtps_type(
      */
     guint16 param_id = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
     guint16 param_length = tvb_get_guint16(tvb, offset + 2, ENC_BIG_ENDIAN);
-    const gint OFFSET_TO_VAL = offset + 2 * sizeof(guint16);
+    const gint OFFSET_TO_VAL = offset + 4;
     if (param_length <=0) {
         /* Length not valid: skip parameter (id + length) */
         return OFFSET_TO_VAL;
@@ -451,17 +451,17 @@ static gint dissect_parameter_transport_rtps_type(
                         rtpsvt_hf_param_id,
                         tvb,
                         offset,
-                        sizeof(guint16), /* length: 2B */
+                        2, /* length: sizeof(guint16) */
                         param_id);
-                offset += sizeof(guint16);
+                offset += 2;
                 proto_tree_add_uint(
                         rtpsvt_tree_information_class,
                         rtpsvt_hf_param_length,
                         tvb,
                         offset,
-                        sizeof(guint16), /* length: 2B */
+                        2, /* length: sizeof(guint16) */
                         param_length);
-                offset += sizeof(guint16);
+                offset += 2;
 
                 /*
                  * Add transport class as item to the tree.
@@ -516,17 +516,17 @@ static gint dissect_parameter_transport_rtps_type(
                         rtpsvt_hf_param_id,
                         tvb,
                         offset,
-                        sizeof(guint16),
+                        2, /* length: sizeof(guint16) */
                         param_id);
-                offset += sizeof(guint16);
+                offset += 2;
                 proto_tree_add_uint(
                         rtpsvt_tree_monitoring_guid,
                         rtpsvt_hf_param_length,
                         tvb,
                         offset,
-                        sizeof(guint16),
+                        2, /* length: sizeof(guint16) */
                         param_length);
-                offset += sizeof(guint16);
+                offset += 2;
 
                 proto_tree_add_item(
                         rtpsvt_tree_monitoring_guid,
@@ -565,17 +565,17 @@ static gint dissect_parameter_transport_rtps_type(
                         rtpsvt_hf_param_id,
                         tvb,
                         offset,
-                        sizeof(guint16),
+                        2, /* length: sizeof(guint16) */
                         param_id);
-                offset += sizeof(guint16);
+                offset += 2;
                 proto_tree_add_uint(
                         rtpsvt_tree_seqNr,
                         rtpsvt_hf_param_length,
                         tvb,
                         offset,
-                        sizeof(guint16),
+                        2, /* length: sizeof(guint16) */
                         param_length);
-                offset += sizeof(guint16);
+                offset += 2;
 
                 proto_tree_add_uint64(
                         rtpsvt_tree_seqNr,
@@ -652,17 +652,17 @@ static gint dissect_parameter_transport_rtps_type(
                         rtpsvt_hf_param_id,
                         tvb,
                         offset,
-                        sizeof(guint16),
+                        2, /* length: sizeof(guint16) */
                         param_id);
-                offset += sizeof(guint16);
+                offset += 2;
                 proto_tree_add_uint(
                         rtpsvt_tree_information_address,
                         rtpsvt_hf_param_length,
                         tvb,
                         offset,
-                        sizeof(guint16),
+                        2, /* length: sizeof(guint16) */
                         param_length);
-                offset += sizeof(guint16);
+                offset += 2;
 
                 /* Add source to the transport information tree */
                 proto_tree_add_string(
@@ -708,17 +708,17 @@ static gint dissect_parameter_transport_rtps_type(
                         rtpsvt_hf_param_id,
                         tvb,
                         offset,
-                        sizeof(guint16),
+                        2, /* length: sizeof(guint16) */
                         param_id);
-                offset += sizeof(guint16);
+                offset += 2;
                 proto_tree_add_uint(
                         rtpsvt_tree_information_port,
                         rtpsvt_hf_param_length,
                         tvb,
                         offset,
-                        sizeof(guint16),
+                        2, /* length: sizeof(guint16) */
                         param_length);
-                offset += sizeof(guint16);
+                offset += 2;
 
                 proto_tree_add_uint(
                         rtpsvt_tree_information_port,
@@ -805,17 +805,17 @@ static gint dissect_parameter_transport_rtps_type(
                         rtpsvt_hf_param_id,
                         tvb,
                         offset,
-                        sizeof(guint16),
+                        2, /* length: sizeof(guint16) */
                         param_id);
-                offset += sizeof(guint16);
+                offset += 2;
                 proto_tree_add_uint(
                         rtpsvt_tree_information_address,
                         rtpsvt_hf_param_length,
                         tvb,
                         offset,
-                        sizeof(guint16),
+                        2, /* length: sizeof(guint16) */
                         param_length);
-                offset += sizeof(guint16);
+                offset += 2;
 
                 /* Add destination to the transport information tree */
                 proto_tree_add_string(
@@ -873,17 +873,17 @@ static gint dissect_parameter_transport_rtps_type(
                         rtpsvt_hf_param_id,
                         tvb,
                         offset,
-                        sizeof(guint16),
+                        2, /* length: sizeof(guint16) */
                         param_id);
-                offset += sizeof(guint16);
+                offset += 2;
                 proto_tree_add_uint(
                         rtpsvt_tree_information_port,
                         rtpsvt_hf_param_length,
                         tvb,
                         offset,
-                        sizeof(guint16),
+                        2, /* length: sizeof(guint16) */
                         param_length);
-                offset += sizeof(guint16);
+                offset += 2;
 
                 proto_tree_add_uint(
                         rtpsvt_tree_information_port,
@@ -933,17 +933,17 @@ static gint dissect_parameter_transport_rtps_type(
                         rtpsvt_hf_param_id,
                         tvb,
                         offset,
-                        sizeof(guint16),
+                        2, /* length: sizeof(guint16) */
                         param_id);
-                offset += sizeof(guint16);
+                offset += 2;
                 proto_tree_add_uint(
                         rtpsvt_tree_direction,
                         rtpsvt_hf_param_length,
                         tvb,
                         offset,
-                        sizeof(guint16),
+                        2, /* length: sizeof(guint16) */
                         param_length);
-                offset += sizeof(guint16);
+                offset += 2;
 
                 proto_tree_add_string(
                         rtpsvt_tree_direction,
@@ -973,9 +973,9 @@ static gint dissect_rtps_virtual_transport_loss_info_type(
     guint16 param_length;
 
     param_id = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
-    offset += sizeof(guint16);
+    offset += 2;
     param_length = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
-    offset += sizeof(guint16);
+    offset += 2;
     if (param_id == PARAM_ID_LOST_MESSAGES) {
         guint64 first_lost = tvb_get_guint64(tvb, offset, ENC_BIG_ENDIAN);
         guint64 last_lost = tvb_get_guint64(tvb, offset+8, ENC_BIG_ENDIAN);
