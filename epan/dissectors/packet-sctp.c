@@ -392,10 +392,7 @@ static gboolean enable_tsn_analysis         = TRUE;
 static gboolean enable_association_indexing = FALSE;
 static gboolean enable_ulp_dissection       = TRUE;
 static gboolean use_reassembly              = TRUE;
-/* FIXME
-static gboolean show_chunk_types           = TRUE;
-*/
-static gboolean show_always_control_chunks = TRUE;
+static gboolean show_always_control_chunks  = TRUE;
 static gboolean show_relative_tsns          = TRUE;
 
 /* Data types and functions for generation/handling of chunk types for chunk statistics */
@@ -5089,13 +5086,6 @@ proto_register_sctp(void)
                          "Show port numbers in the protocol tree",
                          "Show source and destination port numbers in the protocol tree",
                          &show_port_numbers);
-  /* FIXME
-  prefs_register_bool_preference(sctp_module, "show_chunk_types_in_tree",
-                         "Show chunk types in the protocol tree",
-                         "Show chunk types in the protocol tree",
-                         &show_chunk_types);
-  */
-
   prefs_register_bool_preference(sctp_module, "relative_tsns", "Relative TSNs",
                          "Use relative TSNs instead of absolute ones",
                          &show_relative_tsns);
