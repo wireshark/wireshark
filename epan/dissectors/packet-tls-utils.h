@@ -130,6 +130,7 @@ typedef enum {
 #define SSL_HND_HELLO_EXT_GREASE_2A2A                   10794
 #define SSL_HND_HELLO_EXT_NPN                           13172 /* 0x3374 */
 #define SSL_HND_HELLO_EXT_GREASE_3A3A                   14906
+#define SSL_HND_HELLO_EXT_ALPS                          17513 /* draft-vvv-tls-alps-01, temporary value used in BoringSSL implementation */
 #define SSL_HND_HELLO_EXT_GREASE_4A4A                   19018
 #define SSL_HND_HELLO_EXT_GREASE_5A5A                   23130
 #define SSL_HND_HELLO_EXT_GREASE_6A6A                   27242
@@ -1036,6 +1037,12 @@ typedef struct ssl_common_dissect {
         gint esni_encrypted_sni;
         gint esni_nonce;
 
+        gint hs_ext_alps_len;
+        gint hs_ext_alps_alpn_list;
+        gint hs_ext_alps_alpn_str;
+        gint hs_ext_alps_alpn_str_len;
+        gint hs_ext_alps_settings;
+
         /* do not forget to update SSL_COMMON_LIST_T and SSL_COMMON_HF_LIST! */
     } hf;
     struct {
@@ -1068,6 +1075,7 @@ typedef struct ssl_common_dissect {
         gint cert_status;
         gint ocsp_response;
         gint uncompressed_certificates;
+        gint hs_ext_alps;
 
         /* do not forget to update SSL_COMMON_LIST_T and SSL_COMMON_ETT_LIST! */
     } ett;
@@ -1260,11 +1268,12 @@ ssl_common_dissect_t name = {   \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1      \
+        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
+        -1, -1, -1, -1                                                  \
     },                                                                  \
     /* ett */ {                                                         \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1              \
+        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1          \
     },                                                                  \
     /* ei */ {                                                          \
         EI_INIT, EI_INIT, EI_INIT, EI_INIT, EI_INIT, EI_INIT, EI_INIT   \
@@ -2390,6 +2399,31 @@ ssl_common_dissect_t name = {   \
       { "Nonce", prefix ".esni.nonce",                                  \
         FT_BYTES, BASE_NONE, NULL, 0x00,                                \
         "Contents of ClientESNIInner.nonce", HFILL }                    \
+    },                                                                  \
+    { & name .hf.hs_ext_alps_len,                                       \
+      { "ALPS Extension Length", prefix ".handshake.extensions_alps_len", \
+        FT_UINT16, BASE_DEC, NULL, 0x0,                                 \
+        "Length of the ALPS Extension", HFILL }                         \
+    },                                                                  \
+    { & name .hf.hs_ext_alps_alpn_list,                                 \
+      { "Supported ALPN List", prefix ".handshake.extensions_alps_alpn_list", \
+        FT_NONE, BASE_NONE, NULL, 0x0,                                  \
+        "List of supported ALPN by ALPS", HFILL }                       \
+    },                                                                  \
+    { & name .hf.hs_ext_alps_alpn_str_len,                              \
+      { "Supported ALPN Length", prefix ".handshake.extensions_alps_alpn_str_len", \
+        FT_UINT8, BASE_DEC, NULL, 0x0,                                  \
+        "Length of ALPN string", HFILL }                                \
+    },                                                                  \
+    { & name .hf.hs_ext_alps_alpn_str,                                  \
+      { "Supported ALPN", prefix ".handshake.extensions_alps_alpn_str", \
+        FT_STRING, BASE_NONE, NULL, 0x00,                               \
+        "ALPN supported by ALPS", HFILL }                               \
+    },                                                                  \
+    { & name .hf.hs_ext_alps_settings,                                  \
+      { "ALPN Opaque Settings", prefix ".handshake.extensions_alps.settings", \
+        FT_BYTES, BASE_NONE, NULL, 0x00,                                \
+        "ALPN Opaque Settings", HFILL }                                 \
     }
 /* }}} */
 
@@ -2424,6 +2458,7 @@ ssl_common_dissect_t name = {   \
         & name .ett.cert_status,                    \
         & name .ett.ocsp_response,                  \
         & name .ett.uncompressed_certificates,      \
+        & name .ett.hs_ext_alps,                    \
 /* }}} */
 
 /* {{{ */

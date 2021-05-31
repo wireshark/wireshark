@@ -1215,6 +1215,7 @@ const value_string tls_hello_extension_types[] = {
     { SSL_HND_HELLO_EXT_GREASE_2A2A, "Reserved (GREASE)" }, /* RFC 8701 */
     { SSL_HND_HELLO_EXT_NPN, "next_protocol_negotiation"}, /* https://tools.ietf.org/id/draft-agl-tls-nextprotoneg-03.html */
     { SSL_HND_HELLO_EXT_GREASE_3A3A, "Reserved (GREASE)" }, /* RFC 8701 */
+    { SSL_HND_HELLO_EXT_ALPS, "application_settings" }, /* draft-vvv-tls-alps-01 */
     { SSL_HND_HELLO_EXT_GREASE_4A4A, "Reserved (GREASE)" }, /* RFC 8701 */
     { SSL_HND_HELLO_EXT_GREASE_5A5A, "Reserved (GREASE)" }, /* RFC 8701 */
     { SSL_HND_HELLO_EXT_GREASE_6A6A, "Reserved (GREASE)" }, /* RFC 8701 */
@@ -6675,6 +6676,65 @@ ssl_dissect_hnd_ext_delegated_credentials(ssl_common_dissect_t *hf, tvbuff_t *tv
 }
 
 static gint
+ssl_dissect_hnd_hello_ext_alps(ssl_common_dissect_t *hf, tvbuff_t *tvb,
+                               packet_info *pinfo, proto_tree *tree,
+                               guint32 offset, guint32 offset_end,
+                               guint8 hnd_type)
+{
+
+    /* https://datatracker.ietf.org/doc/html/draft-vvv-tls-alps-01#section-4 */
+
+    switch (hnd_type) {
+    case SSL_HND_CLIENT_HELLO: {
+        proto_tree *alps_tree;
+        proto_item *ti;
+        guint32     next_offset, alps_length, name_length;
+
+       /*
+        *  opaque ProtocolName<1..2^8-1>;
+        *  struct {
+        *      ProtocolName supported_protocols<2..2^16-1>
+        *  } ApplicationSettingsSupport;
+        */
+
+        if (!ssl_add_vector(hf, tvb, pinfo, tree, offset, offset_end, &alps_length,
+                            hf->hf.hs_ext_alps_len, 2, G_MAXUINT16)) {
+            return offset_end;
+        }
+        offset += 2;
+        next_offset = offset + alps_length;
+
+        ti = proto_tree_add_item(tree, hf->hf.hs_ext_alps_alpn_list,
+                                 tvb, offset, alps_length, ENC_NA);
+        alps_tree = proto_item_add_subtree(ti, hf->ett.hs_ext_alps);
+
+        /* Parse list (note missing check for end of vector, ssl_add_vector below
+         * ensures that data is always available.) */
+        while (offset < next_offset) {
+            if (!ssl_add_vector(hf, tvb, pinfo, alps_tree, offset, next_offset, &name_length,
+                                hf->hf.hs_ext_alps_alpn_str_len, 1, G_MAXUINT8)) {
+                return next_offset;
+            }
+            offset++;
+
+            proto_tree_add_item(alps_tree, hf->hf.hs_ext_alps_alpn_str,
+                                tvb, offset, name_length, ENC_ASCII|ENC_NA);
+            offset += name_length;
+        }
+
+        return offset;
+    }
+    case SSL_HND_ENCRYPTED_EXTS:
+	/* Opaque blob */
+        proto_tree_add_item(tree, hf->hf.hs_ext_alps_settings,
+                            tvb, offset, offset_end - offset, ENC_ASCII|ENC_NA);
+        break;
+    }
+
+    return offset_end;
+}
+
+static gint
 ssl_dissect_hnd_hello_ext_alpn(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                                packet_info *pinfo, proto_tree *tree,
                                guint32 offset, guint32 offset_end,
@@ -9562,6 +9622,9 @@ ssl_dissect_hnd_extension(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
             break;
         case SSL_HND_HELLO_EXT_NPN:
             offset = ssl_dissect_hnd_hello_ext_npn(hf, tvb, pinfo, ext_tree, offset, next_offset);
+            break;
+        case SSL_HND_HELLO_EXT_ALPS:
+            offset = ssl_dissect_hnd_hello_ext_alps(hf, tvb, pinfo, ext_tree, offset, next_offset, hnd_type);
             break;
         case SSL_HND_HELLO_EXT_RENEGOTIATION_INFO:
             offset = ssl_dissect_hnd_hello_ext_reneg_info(hf, tvb, pinfo, ext_tree, offset, next_offset);
