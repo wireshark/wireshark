@@ -1535,7 +1535,9 @@ static reassembly_table upper_transport_reassembly_table;
 
 typedef struct _upper_transport_fragment_key {
     guint16 src;
-    guint16 seq0;
+    guint seq0;
+    guint ivindex;
+    guint32 net_key_iv_index_hash;
 } upper_transport_fragment_key;
 
 static guint
@@ -1544,8 +1546,18 @@ upper_transport_fragment_hash(gconstpointer k)
     const upper_transport_fragment_key* key = (const upper_transport_fragment_key*) k;
     guint hash_val;
 
-    hash_val = key->src;
-    hash_val += ( ((guint)key->seq0) << 16);
+    const guint8 hash_buf_len = sizeof(guint16) + 2 * sizeof(guint) + sizeof(guint32);
+    guint idx=0;
+    guint8* hash_buf = (guint8*)wmem_alloc(wmem_packet_scope(), hash_buf_len);
+    memcpy(hash_buf, &key->src, sizeof(guint16));
+    idx += sizeof(guint16);
+    memcpy(&hash_buf[idx], &key->seq0, sizeof(guint));
+    idx += sizeof(guint);
+    memcpy(&hash_buf[idx], &key->ivindex, sizeof(key->ivindex));
+    idx += sizeof(guint);
+    memcpy(&hash_buf[idx], &key->net_key_iv_index_hash, sizeof(key->net_key_iv_index_hash));
+    hash_val = wmem_strong_hash(hash_buf, hash_buf_len);
+
     return hash_val;
 }
 
@@ -1555,7 +1567,8 @@ upper_transport_fragment_equal(gconstpointer k1, gconstpointer k2)
     const upper_transport_fragment_key* key1 = (const upper_transport_fragment_key*) k1;
     const upper_transport_fragment_key* key2 = (const upper_transport_fragment_key*) k2;
 
-    return ((key1->src == key2->src) && (key1->seq0 == key2->seq0)
+    return ((key1->src == key2->src) && (key1->seq0 == key2->seq0) &&
+            (key1->ivindex == key2->ivindex) && (key1->net_key_iv_index_hash == key2->net_key_iv_index_hash)
             ? TRUE : FALSE);
 }
 
@@ -1568,6 +1581,8 @@ upper_transport_fragment_temporary_key(const packet_info *pinfo _U_, const guint
 
     key->src = pkt->src;
     key->seq0 = pkt->seq0;
+    key->ivindex = pkt->ivindex;
+    key->net_key_iv_index_hash = pkt->net_key_iv_index_hash;
 
     return key;
 }
@@ -1589,6 +1604,8 @@ upper_transport_fragment_persistent_key(const packet_info *pinfo _U_, const guin
 
     key->src = pkt->src;
     key->seq0 = pkt->seq0;
+    key->ivindex = pkt->ivindex;
+    key->net_key_iv_index_hash = pkt->net_key_iv_index_hash;
 
     return key;
 }
@@ -2327,13 +2344,13 @@ dissect_btmesh_model_layer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         } else {
         /* Two octet opcode */
         proto_tree_add_item_ret_uint(sub_tree, hf_btmesh_model_layer_opcode, tvb, offset, 2, ENC_NA, &opcode);
-        col_set_str(pinfo->cinfo, COL_INFO, val_to_str(opcode, btmesh_models_opcode_vals, "Unknown"));
+        col_set_str(pinfo->cinfo, COL_INFO, val_to_str(opcode, btmesh_models_opcode_vals, "Access Message Unknown"));
         offset+=2;
         }
     } else {
         /* One octet opcode */
         proto_tree_add_item(sub_tree, hf_btmesh_model_layer_opcode, tvb, offset, 1, ENC_NA);
-        col_set_str(pinfo->cinfo, COL_INFO, val_to_str(opcode, btmesh_models_opcode_vals, "Unknown"));
+        col_set_str(pinfo->cinfo, COL_INFO, val_to_str(opcode, btmesh_models_opcode_vals, "Access Message Unknown"));
         offset++;
     }
 
@@ -3637,6 +3654,9 @@ dissect_btmesh_transport_control_message(tvbuff_t *tvb, packet_info *pinfo, prot
 {
     proto_tree *sub_tree;
 
+    col_append_fstr(pinfo->cinfo, COL_INFO, "%s",
+        val_to_str_const(opcode, btmesh_ctrl_opcode_vals, "Control Message Unknown"));
+
     sub_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1, ett_btmesh_transp_ctrl_msg, NULL, "Transport Control Message %s",
         val_to_str_const(opcode, btmesh_ctrl_opcode_vals, "Unknown"));
 
@@ -3768,7 +3788,6 @@ static gboolean
 try_access_decrypt(tvbuff_t *tvb, int offset, guint8 *decrypted_data, int enc_data_len, guint8 *key, network_decryption_ctx_t *dec_ctx)
 {
     guint8 accessnonce[13];
-    guint32 seq0;
     gcry_cipher_hd_t cipher_hd;
     gcry_error_t gcrypt_err;
     guint64 ccm_lengths[3];
@@ -3778,20 +3797,12 @@ try_access_decrypt(tvbuff_t *tvb, int offset, guint8 *decrypted_data, int enc_da
     accessnonce[1] = (dec_ctx->transmic_size == 4 ? 0x00 : 0x80 );
     memcpy((guint8 *)&accessnonce + 2, dec_ctx->seq_src_buf, 5);
     if (dec_ctx->seg) {
-        /* Use 13 Lsbs from seqzero */
-        seq0 = dec_ctx->seq;
-        /* Check for overflow */
-        if ((dec_ctx->seq & 0x1fff) < dec_ctx->seqzero) {
-            seq0 -= 0x2000;
-        }
-        seq0 = seq0 & ~0x1fff;
-        seq0 += dec_ctx->seqzero;
-        accessnonce[2] = (seq0 & 0xff0000 ) >> 16;
-        accessnonce[3] = (seq0 & 0x00ff00 ) >> 8;
-        accessnonce[4] = (seq0 & 0x0000ff ) ;
+        accessnonce[2] = (dec_ctx->seqzero & 0xff0000 ) >> 16;
+        accessnonce[3] = (dec_ctx->seqzero & 0x00ff00 ) >> 8;
+        accessnonce[4] = (dec_ctx->seqzero & 0x0000ff );
     }
-    memcpy((guint8 *)&accessnonce + 7, dec_ctx->dst_buf, 2);
-    memcpy((guint8 *)&accessnonce + 9, dec_ctx->ivindex_buf, 4);
+    memcpy((guint8 *)&accessnonce + 7, dec_ctx->dst_buf, sizeof(dec_ctx->dst_buf));
+    memcpy((guint8 *)&accessnonce + 9, dec_ctx->ivindex_buf, sizeof(dec_ctx->ivindex_buf));
 
     /* Decrypt packet EXPERIMENTAL CODE */
     if (gcry_cipher_open(&cipher_hd, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_CCM, 0)) {
@@ -4002,49 +4013,61 @@ dissect_btmesh_transport_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             /* Segment */
             proto_tree_add_item(sub_tree, hf_btmesh_segment, tvb, offset, -1, ENC_NA);
 
-            upper_transport_fragment_key frg_key;
-            /* src is 15 bit, seqzero is 13 bit*/
-            frg_key.src = dec_ctx->src;
-            frg_key.seq0 = seqzero;
+            /* Use 13 Lsbs from seqzero */
+            dec_ctx->seqzero = dec_ctx->seq;
+            /* Check for overflow */
+            if ((dec_ctx->seq & 0x1fff) < seqzero) {
+                dec_ctx->seqzero -= 0x2000;
+            }
+            dec_ctx->seqzero = dec_ctx->seqzero & ~0x1fff;
+            dec_ctx->seqzero += seqzero;
 
-            if (!pinfo->fd->visited) {
-                guint32 total_length = 0;
-                if (segn == sego) {
-                    total_length = segn * 8 + tvb_captured_length_remaining(tvb, offset);
-                }
-
-                /* Last fragment can be delivered out of order, and can be the first one. */
-                fd_head = fragment_get(&upper_transport_reassembly_table, pinfo, BTMESH_NOT_USED, &frg_key);
-
-                if ((fd_head) && (total_length)) {
-                    fragment_set_tot_len(&upper_transport_reassembly_table, pinfo, BTMESH_NOT_USED, &frg_key, total_length);
-                }
-                fd_head = fragment_add(&upper_transport_reassembly_table,
-                            tvb, offset, pinfo,
-                            BTMESH_NOT_USED, &frg_key,
-                            8 * sego,
-                            tvb_captured_length_remaining(tvb, offset),
-                            ( segn == 0 ? FALSE : TRUE) );
-
-                if ((!fd_head) && (total_length)) {
-                    fragment_set_tot_len(&upper_transport_reassembly_table, pinfo, BTMESH_NOT_USED, &frg_key, total_length);
-                }
+            if (segn == 0) {
+                dissect_btmesh_transport_control_message(tvb, pinfo, tree, offset, opcode);
             } else {
-                fd_head = fragment_get(&upper_transport_reassembly_table, pinfo, BTMESH_NOT_USED, &frg_key);
-                if (fd_head && (fd_head->flags&FD_DEFRAGMENTED)) {
-                    tvbuff_t *next_tvb;
-                    next_tvb = process_reassembled_data(tvb, offset, pinfo, "Reassembled Control PDU", fd_head, &btmesh_segmented_control_frag_items, NULL, sub_tree);
-                    if (next_tvb) {
-                        dissect_btmesh_transport_control_message(next_tvb, pinfo, tree, 0, opcode);
-                        col_append_str(pinfo->cinfo, COL_INFO, " (Message Reassembled)");
-                    } else {
-                        col_append_fstr(pinfo->cinfo, COL_INFO," (Message fragment %u)", sego);
+                upper_transport_fragment_key frg_key;
+                frg_key.src = dec_ctx->src;
+                frg_key.net_key_iv_index_hash = dec_ctx->net_key_iv_index_hash;
+                memcpy(&frg_key.ivindex, dec_ctx->ivindex_buf, sizeof(frg_key.ivindex));
+                frg_key.seq0 = dec_ctx->seqzero;
+
+                if (!pinfo->fd->visited) {
+                    guint32 total_length = 0;
+                    if (segn == sego) {
+                        total_length = segn * 8 + tvb_captured_length_remaining(tvb, offset);
+                    }
+
+                    /* Last fragment can be delivered out of order, and can be the first one. */
+                    fd_head = fragment_get(&upper_transport_reassembly_table, pinfo, BTMESH_NOT_USED, &frg_key);
+
+                    if ((fd_head) && (total_length)) {
+                        fragment_set_tot_len(&upper_transport_reassembly_table, pinfo, BTMESH_NOT_USED, &frg_key, total_length);
+                    }
+                    fd_head = fragment_add(&upper_transport_reassembly_table,
+                                tvb, offset, pinfo,
+                                BTMESH_NOT_USED, &frg_key,
+                                8 * sego,
+                                tvb_captured_length_remaining(tvb, offset),
+                                ( segn == 0 ? FALSE : TRUE) );
+
+                    if ((!fd_head) && (total_length)) {
+                        fragment_set_tot_len(&upper_transport_reassembly_table, pinfo, BTMESH_NOT_USED, &frg_key, total_length);
+                    }
+                } else {
+                    fd_head = fragment_get(&upper_transport_reassembly_table, pinfo, BTMESH_NOT_USED, &frg_key);
+                    if (fd_head && (fd_head->flags&FD_DEFRAGMENTED)) {
+                        tvbuff_t *next_tvb;
+                        next_tvb = process_reassembled_data(tvb, offset, pinfo, "Reassembled Control PDU", fd_head, &btmesh_segmented_control_frag_items, NULL, sub_tree);
+                        if (next_tvb) {
+                            dissect_btmesh_transport_control_message(next_tvb, pinfo, tree, 0, opcode);
+                            col_append_str(pinfo->cinfo, COL_INFO, " (Message Reassembled)");
+                        } else {
+                            col_append_fstr(pinfo->cinfo, COL_INFO,"Control Message (fragment %u)", sego);
+                        }
                     }
                 }
             }
         } else {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "%s",
-                val_to_str_const(opcode, btmesh_ctrl_opcode_vals, "Unknown"));
             if (opcode == 0) {
                 /* OBO 1 */
                 proto_tree_add_item(sub_tree, hf_btmesh_obo, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -4088,49 +4111,63 @@ dissect_btmesh_transport_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             proto_tree_add_item_ret_uint(sub_tree, hf_btmesh_segn, tvb, offset, 3, ENC_BIG_ENDIAN, &segn);
             offset += 3;
 
-            dec_ctx->seqzero = seqzero;
-
             /* Segment m 8 to 96 Segment m of the Upper Transport Access PDU */
             proto_tree_add_item(sub_tree, hf_btmesh_segment, tvb, offset, -1, ENC_NA);
 
-            upper_transport_fragment_key frg_key;
-            /* src is 15 bit, seqzero is 13 bit*/
-            frg_key.src = dec_ctx->src;
-            frg_key.seq0 = seqzero;
+            /* Use 13 Lsbs from seqzero */
+            dec_ctx->seqzero = dec_ctx->seq;
+            /* Check for overflow */
+            if ((dec_ctx->seq & 0x1fff) < seqzero) {
+                dec_ctx->seqzero -= 0x2000;
+            }
+            dec_ctx->seqzero = dec_ctx->seqzero & ~0x1fff;
+            dec_ctx->seqzero += seqzero;
 
-            if (!pinfo->fd->visited) {
-                guint32 total_length = 0;
-                if (segn == sego) {
-                    total_length = segn * 12 + tvb_captured_length_remaining(tvb, offset);
-                }
-
-                /* Last fragment can be delivered out of order, and can be the first one. */
-                fd_head = fragment_get(&upper_transport_reassembly_table, pinfo, BTMESH_NOT_USED, &frg_key);
-
-                if ((fd_head) && (total_length)) {
-                    fragment_set_tot_len(&upper_transport_reassembly_table, pinfo, BTMESH_NOT_USED, &frg_key, total_length);
-                }
-                fd_head = fragment_add(&upper_transport_reassembly_table,
-                            tvb, offset, pinfo,
-                            BTMESH_NOT_USED, &frg_key,
-                            12 * sego,
-                            tvb_captured_length_remaining(tvb, offset),
-                            ( segn == 0 ? FALSE : TRUE) );
-
-                if ((!fd_head) && (total_length)) {
-                    fragment_set_tot_len(&upper_transport_reassembly_table, pinfo, BTMESH_NOT_USED, &frg_key, total_length);
-                }
+            if (segn == 0) {
+                proto_item_set_len(ti, 1);
+                dec_ctx->transmic_size = 4; /*TransMic is 32 bits*/
+                dissect_btmesh_transport_access_message(tvb, pinfo, tree, offset, dec_ctx);
             } else {
-                fd_head = fragment_get(&upper_transport_reassembly_table, pinfo, BTMESH_NOT_USED, &frg_key);
-                if (fd_head && (fd_head->flags&FD_DEFRAGMENTED)) {
-                    tvbuff_t *next_tvb;
-                    next_tvb = process_reassembled_data(tvb, offset, pinfo, "Reassembled Access PDU", fd_head, &btmesh_segmented_access_frag_items, NULL, sub_tree);
-                    if (next_tvb) {
-                        dec_ctx->transmic_size = (szmic ? 8 : 4 );
-                        dissect_btmesh_transport_access_message(next_tvb, pinfo, tree, 0, dec_ctx);
-                        col_append_str(pinfo->cinfo, COL_INFO, " (Message Reassembled)");
-                    } else {
-                        col_append_fstr(pinfo->cinfo, COL_INFO," (Message fragment %u)", sego);
+                upper_transport_fragment_key frg_key;
+                frg_key.src = dec_ctx->src;
+                frg_key.net_key_iv_index_hash = dec_ctx->net_key_iv_index_hash;
+                memcpy(&frg_key.ivindex, dec_ctx->ivindex_buf, sizeof(frg_key.ivindex));
+                frg_key.seq0 = dec_ctx->seqzero;
+
+                if (!pinfo->fd->visited) {
+                    guint32 total_length = 0;
+                    if (segn == sego) {
+                        total_length = segn * 12 + tvb_captured_length_remaining(tvb, offset);
+                    }
+
+                    /* Last fragment can be delivered out of order, and can be the first one. */
+                    fd_head = fragment_get(&upper_transport_reassembly_table, pinfo, BTMESH_NOT_USED, &frg_key);
+
+                    if ((fd_head) && (total_length)) {
+                        fragment_set_tot_len(&upper_transport_reassembly_table, pinfo, BTMESH_NOT_USED, &frg_key, total_length);
+                    }
+                    fd_head = fragment_add(&upper_transport_reassembly_table,
+                                tvb, offset, pinfo,
+                                BTMESH_NOT_USED, &frg_key,
+                                12 * sego,
+                                tvb_captured_length_remaining(tvb, offset),
+                                ( segn == 0 ? FALSE : TRUE) );
+
+                    if ((!fd_head) && (total_length)) {
+                        fragment_set_tot_len(&upper_transport_reassembly_table, pinfo, BTMESH_NOT_USED, &frg_key, total_length);
+                    }
+                } else {
+                    fd_head = fragment_get(&upper_transport_reassembly_table, pinfo, BTMESH_NOT_USED, &frg_key);
+                    if (fd_head && (fd_head->flags&FD_DEFRAGMENTED)) {
+                        tvbuff_t *next_tvb;
+                        next_tvb = process_reassembled_data(tvb, offset, pinfo, "Reassembled Access PDU", fd_head, &btmesh_segmented_access_frag_items, NULL, sub_tree);
+                        if (next_tvb) {
+                            dec_ctx->transmic_size = (szmic ? 8 : 4 );
+                            dissect_btmesh_transport_access_message(next_tvb, pinfo, tree, 0, dec_ctx);
+                            col_append_str(pinfo->cinfo, COL_INFO, " (Message Reassembled)");
+                        } else {
+                            col_append_fstr(pinfo->cinfo, COL_INFO,"Access Message (fragment %u)", sego);
+                        }
                     }
                 }
             }
@@ -4229,7 +4266,7 @@ btmesh_network_find_key_and_decrypt(tvbuff_t *tvb, packet_info *pinfo, guint8 **
                 /* Tag authenticated, now close the cypher handle */
                 gcry_cipher_close(cipher_hd);
                 dec_ctx->net_key_iv_index_hash = record->net_key_iv_index_hash;
-                memcpy(dec_ctx->ivindex_buf, record->ivindex, 4);
+                memcpy(dec_ctx->ivindex_buf, record->ivindex, sizeof(dec_ctx->ivindex_buf));
 
                 return de_obf_tvb;
             }  else {
@@ -4608,14 +4645,14 @@ uat_btmesh_record_update_cb(void *r, char **err _U_)
     }
     if (rec->valid == BTMESH_KEY_ENTRY_VALID - 1) {
         /* Compute net_key_index_hash */
-        rec->net_key_iv_index_hash =    (guint32) rec->encryptionkey[0];
-        rec->net_key_iv_index_hash +=  ((guint32)(rec->encryptionkey[1]) << 8);
-        rec->net_key_iv_index_hash +=  ((guint32)(rec->encryptionkey[2]) << 16);
-        rec->net_key_iv_index_hash +=  ((guint32)(rec->encryptionkey[3]) << 24);
-        rec->net_key_iv_index_hash +=   (guint32) rec->ivindex[0];
-        rec->net_key_iv_index_hash +=  ((guint32)(rec->ivindex[1]) << 8);
-        rec->net_key_iv_index_hash +=  ((guint32)(rec->ivindex[2]) << 16);
-        rec->net_key_iv_index_hash +=  ((guint32)(rec->ivindex[3]) << 24);
+        const guint8 hash_buf_len = 16 + 4;
+        guint idx=0;
+        guint8* hash_buf = (guint8 *)g_malloc(hash_buf_len);
+        memcpy(hash_buf, rec->encryptionkey, 16);
+        idx += 16;
+        memcpy(&hash_buf[idx], rec->ivindex, 4);
+        rec->net_key_iv_index_hash = wmem_strong_hash(hash_buf, hash_buf_len);
+        g_free(hash_buf);
         rec->valid++;
     }
     return TRUE;
