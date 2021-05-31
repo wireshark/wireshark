@@ -3339,7 +3339,7 @@ dissect_data_chunk(tvbuff_t *chunk_tvb,
   u_bit = oct & SCTP_DATA_CHUNK_U_BIT;
 
   tsn = tvb_get_ntohl(chunk_tvb, DATA_CHUNK_TSN_OFFSET);
-  if(show_relative_tsns) {
+  if((show_relative_tsns) && (ha)) {
      tsn -= ha->first_tsn;
   }
 
@@ -3353,7 +3353,7 @@ dissect_data_chunk(tvbuff_t *chunk_tvb,
 
     flags_tree  = proto_item_add_subtree(flags_item, ett_sctp_data_chunk_flags);
     proto_tree_add_bitmask_list(flags_tree, chunk_tvb, CHUNK_FLAGS_OFFSET, CHUNK_FLAGS_LENGTH, chunk_flags, ENC_NA);
-    if(show_relative_tsns) {
+    if((show_relative_tsns) && (ha)) {
        tsn_item = proto_tree_add_uint(chunk_tree, hf_data_chunk_tsn, chunk_tvb, DATA_CHUNK_TSN_OFFSET, DATA_CHUNK_TSN_LENGTH, tsn);
        proto_tree_add_item(chunk_tree, hf_data_chunk_tsn_raw, chunk_tvb, DATA_CHUNK_TSN_OFFSET, DATA_CHUNK_TSN_LENGTH, ENC_BIG_ENDIAN);
     }
@@ -3631,13 +3631,13 @@ dissect_sack_chunk(packet_info *pinfo, tvbuff_t *chunk_tvb, proto_tree *chunk_tr
   guint16 last_end;
 
   cum_tsn_ack = tvb_get_ntohl(chunk_tvb, SACK_CHUNK_CUMULATIVE_TSN_ACK_OFFSET);
-  if(show_relative_tsns) {
+  if((show_relative_tsns) && (ha) && (ha->peer)) {
     cum_tsn_ack -= ha->peer->first_tsn;
   }
 
   flags_tree  = proto_item_add_subtree(flags_item, ett_sctp_sack_chunk_flags);
   proto_tree_add_item(flags_tree, hf_sack_chunk_ns, chunk_tvb, CHUNK_FLAGS_OFFSET, CHUNK_FLAGS_LENGTH, ENC_BIG_ENDIAN);
-  if(show_relative_tsns) {
+  if((show_relative_tsns) && (ha) && (ha->peer)) {
      ctsa_item = proto_tree_add_uint(chunk_tree, hf_sack_chunk_cumulative_tsn_ack, chunk_tvb, SACK_CHUNK_CUMULATIVE_TSN_ACK_OFFSET, SACK_CHUNK_CUMULATIVE_TSN_ACK_LENGTH, cum_tsn_ack);
      proto_tree_add_item(chunk_tree, hf_sack_chunk_cumulative_tsn_ack_raw, chunk_tvb, SACK_CHUNK_CUMULATIVE_TSN_ACK_OFFSET, SACK_CHUNK_CUMULATIVE_TSN_ACK_LENGTH, ENC_BIG_ENDIAN);
   }
