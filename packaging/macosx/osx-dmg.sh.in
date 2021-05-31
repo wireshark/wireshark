@@ -35,7 +35,7 @@ if [ ! -x "$dmgbuild" ] ; then
 fi
 
 if lipo Wireshark.app/Contents/MacOS/Wireshark -verify_arch arm64e ; then
-	architecture="ARM 64"
+	architecture="Arm 64"
 elif lipo Wireshark.app/Contents/MacOS/Wireshark -verify_arch x86_64 ; then
 	architecture="Intel 64"
 else
