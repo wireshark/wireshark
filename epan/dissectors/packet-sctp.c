@@ -107,9 +107,8 @@ static int hf_initack_chunk_number_of_outbound_streams = -1;
 static int hf_initack_chunk_number_of_inbound_streams  = -1;
 static int hf_initack_chunk_initial_tsn    = -1;
 
-/* static int hf_cumulative_tsn_ack = -1; */
-
 static int hf_data_chunk_tsn = -1;
+static int hf_data_chunk_tsn_raw = -1;
 static int hf_data_chunk_stream_id = -1;
 static int hf_data_chunk_stream_seq_number = -1;
 static int hf_data_chunk_payload_proto_id = -1;
@@ -124,6 +123,7 @@ static int hf_data_chunk_i_bit = -1;
 
 static int hf_sack_chunk_ns = -1;
 static int hf_sack_chunk_cumulative_tsn_ack = -1;
+static int hf_sack_chunk_cumulative_tsn_ack_raw = -1;
 static int hf_sack_chunk_adv_rec_window_credit = -1;
 static int hf_sack_chunk_number_of_gap_blocks = -1;
 static int hf_sack_chunk_number_of_dup_tsns = -1;
@@ -396,6 +396,7 @@ static gboolean use_reassembly              = TRUE;
 static gboolean show_chunk_types           = TRUE;
 */
 static gboolean show_always_control_chunks = TRUE;
+static gboolean show_relative_tsns          = TRUE;
 
 /* Data types and functions for generation/handling of chunk types for chunk statistics */
 
@@ -3316,13 +3317,13 @@ dissect_data_chunk(tvbuff_t *chunk_tvb,
       proto_item_append_text(chunk_item, ", bogus chunk length %u < %u)", chunk_length, I_DATA_CHUNK_HEADER_LENGTH);
       return TRUE;
     }
-    payload_proto_id  = tvb_get_ntohl(chunk_tvb, I_DATA_CHUNK_PAYLOAD_PROTOCOL_ID_OFFSET);
+    payload_proto_id = tvb_get_ntohl(chunk_tvb, I_DATA_CHUNK_PAYLOAD_PROTOCOL_ID_OFFSET);
   } else {
     if (chunk_length < DATA_CHUNK_HEADER_LENGTH) {
       proto_item_append_text(chunk_item, ", bogus chunk length %u < %u)", chunk_length, DATA_CHUNK_HEADER_LENGTH);
       return TRUE;
     }
-    payload_proto_id  = tvb_get_ntohl(chunk_tvb, DATA_CHUNK_PAYLOAD_PROTOCOL_ID_OFFSET);
+    payload_proto_id = tvb_get_ntohl(chunk_tvb, DATA_CHUNK_PAYLOAD_PROTOCOL_ID_OFFSET);
   }
 
   /* insert the PPID in the pinfo structure if it is not already there and there is still room */
@@ -3339,7 +3340,11 @@ dissect_data_chunk(tvbuff_t *chunk_tvb,
   e_bit = oct & SCTP_DATA_CHUNK_E_BIT;
   b_bit = oct & SCTP_DATA_CHUNK_B_BIT;
   u_bit = oct & SCTP_DATA_CHUNK_U_BIT;
+
   tsn = tvb_get_ntohl(chunk_tvb, DATA_CHUNK_TSN_OFFSET);
+  if(show_relative_tsns) {
+     tsn -= ha->first_tsn;
+  }
 
   col_append_fstr(pinfo->cinfo, COL_INFO, "(TSN=%" G_GUINT32_FORMAT ") ", tsn);
 
@@ -3351,13 +3356,19 @@ dissect_data_chunk(tvbuff_t *chunk_tvb,
 
     flags_tree  = proto_item_add_subtree(flags_item, ett_sctp_data_chunk_flags);
     proto_tree_add_bitmask_list(flags_tree, chunk_tvb, CHUNK_FLAGS_OFFSET, CHUNK_FLAGS_LENGTH, chunk_flags, ENC_NA);
-    tsn_item = proto_tree_add_item(chunk_tree, hf_data_chunk_tsn,    chunk_tvb, DATA_CHUNK_TSN_OFFSET,                 DATA_CHUNK_TSN_LENGTH,                 ENC_BIG_ENDIAN);
-    proto_tree_add_item(chunk_tree, hf_data_chunk_stream_id,         chunk_tvb, DATA_CHUNK_STREAM_ID_OFFSET,           DATA_CHUNK_STREAM_ID_LENGTH,           ENC_BIG_ENDIAN);
+    if(show_relative_tsns) {
+       tsn_item = proto_tree_add_uint(chunk_tree, hf_data_chunk_tsn, chunk_tvb, DATA_CHUNK_TSN_OFFSET, DATA_CHUNK_TSN_LENGTH, tsn);
+       proto_tree_add_item(chunk_tree, hf_data_chunk_tsn_raw, chunk_tvb, DATA_CHUNK_TSN_OFFSET, DATA_CHUNK_TSN_LENGTH, ENC_BIG_ENDIAN);
+    }
+    else {
+       tsn_item = proto_tree_add_item(chunk_tree, hf_data_chunk_tsn_raw, chunk_tvb, DATA_CHUNK_TSN_OFFSET, DATA_CHUNK_TSN_LENGTH, ENC_BIG_ENDIAN);
+    }
+    proto_tree_add_item(chunk_tree, hf_data_chunk_stream_id,          chunk_tvb, DATA_CHUNK_STREAM_ID_OFFSET, DATA_CHUNK_STREAM_ID_LENGTH, ENC_BIG_ENDIAN);
     if (is_idata) {
       proto_tree_add_item(chunk_tree, hf_idata_chunk_reserved, chunk_tvb, I_DATA_CHUNK_RESERVED_OFFSET, I_DATA_CHUNK_RESERVED_LENGTH, ENC_BIG_ENDIAN);
       proto_tree_add_item(chunk_tree, hf_idata_chunk_mid, chunk_tvb, I_DATA_CHUNK_MID_OFFSET, I_DATA_CHUNK_MID_LENGTH, ENC_BIG_ENDIAN);
       if (b_bit)
-        proto_tree_add_item(chunk_tree, hf_data_chunk_payload_proto_id,  chunk_tvb, I_DATA_CHUNK_PAYLOAD_PROTOCOL_ID_OFFSET, I_DATA_CHUNK_PAYLOAD_PROTOCOL_ID_LENGTH, ENC_BIG_ENDIAN);
+        proto_tree_add_item(chunk_tree, hf_data_chunk_payload_proto_id, chunk_tvb, I_DATA_CHUNK_PAYLOAD_PROTOCOL_ID_OFFSET, I_DATA_CHUNK_PAYLOAD_PROTOCOL_ID_LENGTH, ENC_BIG_ENDIAN);
       else
         proto_tree_add_item(chunk_tree, hf_idata_chunk_fsn, chunk_tvb, I_DATA_CHUNK_FSN_OFFSET, I_DATA_CHUNK_FSN_LENGTH, ENC_BIG_ENDIAN);
     } else {
@@ -3622,12 +3633,23 @@ dissect_sack_chunk(packet_info *pinfo, tvbuff_t *chunk_tvb, proto_tree *chunk_tr
   guint32 a_rwnd;
   guint16 last_end;
 
+  cum_tsn_ack = tvb_get_ntohl(chunk_tvb, SACK_CHUNK_CUMULATIVE_TSN_ACK_OFFSET);
+  if(show_relative_tsns) {
+    cum_tsn_ack -= ha->peer->first_tsn;
+  }
+
   flags_tree  = proto_item_add_subtree(flags_item, ett_sctp_sack_chunk_flags);
-  proto_tree_add_item(flags_tree, hf_sack_chunk_ns,                    chunk_tvb, CHUNK_FLAGS_OFFSET,                      CHUNK_FLAGS_LENGTH,                      ENC_BIG_ENDIAN);
-  ctsa_item = proto_tree_add_item(chunk_tree, hf_sack_chunk_cumulative_tsn_ack,    chunk_tvb, SACK_CHUNK_CUMULATIVE_TSN_ACK_OFFSET,    SACK_CHUNK_CUMULATIVE_TSN_ACK_LENGTH,    ENC_BIG_ENDIAN);
-  a_rwnd_item = proto_tree_add_item(chunk_tree, hf_sack_chunk_adv_rec_window_credit, chunk_tvb, SACK_CHUNK_ADV_REC_WINDOW_CREDIT_OFFSET, SACK_CHUNK_ADV_REC_WINDOW_CREDIT_LENGTH, ENC_BIG_ENDIAN);
-  proto_tree_add_item(chunk_tree, hf_sack_chunk_number_of_gap_blocks,  chunk_tvb, SACK_CHUNK_NUMBER_OF_GAP_BLOCKS_OFFSET,  SACK_CHUNK_NUMBER_OF_GAP_BLOCKS_LENGTH,  ENC_BIG_ENDIAN);
-  proto_tree_add_item(chunk_tree, hf_sack_chunk_number_of_dup_tsns,    chunk_tvb, SACK_CHUNK_NUMBER_OF_DUP_TSNS_OFFSET,    SACK_CHUNK_NUMBER_OF_DUP_TSNS_LENGTH,    ENC_BIG_ENDIAN);
+  proto_tree_add_item(flags_tree, hf_sack_chunk_ns, chunk_tvb, CHUNK_FLAGS_OFFSET, CHUNK_FLAGS_LENGTH, ENC_BIG_ENDIAN);
+  if(show_relative_tsns) {
+     ctsa_item = proto_tree_add_uint(chunk_tree, hf_sack_chunk_cumulative_tsn_ack, chunk_tvb, SACK_CHUNK_CUMULATIVE_TSN_ACK_OFFSET, SACK_CHUNK_CUMULATIVE_TSN_ACK_LENGTH, cum_tsn_ack);
+     proto_tree_add_item(chunk_tree, hf_sack_chunk_cumulative_tsn_ack_raw, chunk_tvb, SACK_CHUNK_CUMULATIVE_TSN_ACK_OFFSET, SACK_CHUNK_CUMULATIVE_TSN_ACK_LENGTH, ENC_BIG_ENDIAN);
+  }
+  else {
+     ctsa_item = proto_tree_add_item(chunk_tree, hf_sack_chunk_cumulative_tsn_ack_raw, chunk_tvb, SACK_CHUNK_CUMULATIVE_TSN_ACK_OFFSET, SACK_CHUNK_CUMULATIVE_TSN_ACK_LENGTH, ENC_BIG_ENDIAN);
+  }
+  a_rwnd_item = proto_tree_add_item(chunk_tree, hf_sack_chunk_adv_rec_window_credit,  chunk_tvb, SACK_CHUNK_ADV_REC_WINDOW_CREDIT_OFFSET, SACK_CHUNK_ADV_REC_WINDOW_CREDIT_LENGTH, ENC_BIG_ENDIAN);
+  proto_tree_add_item(chunk_tree, hf_sack_chunk_number_of_gap_blocks, chunk_tvb, SACK_CHUNK_NUMBER_OF_GAP_BLOCKS_OFFSET, SACK_CHUNK_NUMBER_OF_GAP_BLOCKS_LENGTH, ENC_BIG_ENDIAN);
+  proto_tree_add_item(chunk_tree, hf_sack_chunk_number_of_dup_tsns,   chunk_tvb, SACK_CHUNK_NUMBER_OF_DUP_TSNS_OFFSET,   SACK_CHUNK_NUMBER_OF_DUP_TSNS_LENGTH,   ENC_BIG_ENDIAN);
 
   a_rwnd = tvb_get_ntohl(chunk_tvb, SACK_CHUNK_ADV_REC_WINDOW_CREDIT_OFFSET);
   if (a_rwnd == 0)
@@ -3637,7 +3659,6 @@ dissect_sack_chunk(packet_info *pinfo, tvbuff_t *chunk_tvb, proto_tree *chunk_tr
   /* handle the gap acknowledgement blocks */
   number_of_gap_blocks = tvb_get_ntohs(chunk_tvb, SACK_CHUNK_NUMBER_OF_GAP_BLOCKS_OFFSET);
   gap_block_offset     = SACK_CHUNK_GAP_BLOCK_OFFSET;
-  cum_tsn_ack          = tvb_get_ntohl(chunk_tvb, SACK_CHUNK_CUMULATIVE_TSN_ACK_OFFSET);
 
   acks_tree = proto_item_add_subtree(ctsa_item,ett_sctp_ack);
   sctp_ack_block(pinfo, ha, chunk_tvb, acks_tree, NULL, cum_tsn_ack);
@@ -4831,10 +4852,8 @@ proto_register_sctp(void)
     { &hf_initack_chunk_number_of_outbound_streams, { "Number of outbound streams",                     "sctp.initack_nr_out_streams",                          FT_UINT16,  BASE_DEC,  NULL,                                           0x0,                                NULL, HFILL } },
     { &hf_initack_chunk_number_of_inbound_streams,  { "Number of inbound streams",                      "sctp.initack_nr_in_streams",                           FT_UINT16,  BASE_DEC,  NULL,                                           0x0,                                NULL, HFILL } },
     { &hf_initack_chunk_initial_tsn,                { "Initial TSN",                                    "sctp.initack_initial_tsn",                             FT_UINT32,  BASE_DEC,  NULL,                                           0x0,                                NULL, HFILL } },
-#if 0
-    { &hf_cumulative_tsn_ack,                       { "Cumulative TSN Ack",                             "sctp.cumulative_tsn_ack",                              FT_UINT32,  BASE_DEC,  NULL,                                           0x0,                                NULL, HFILL } },
-#endif
-    { &hf_data_chunk_tsn,                           { "Transmission sequence number",                   "sctp.data_tsn",                                        FT_UINT32,  BASE_DEC,  NULL,                                           0x0,                                NULL, HFILL } },
+    { &hf_data_chunk_tsn,                           { "Transmission sequence number (relative)",        "sctp.data_tsn",                                        FT_UINT32,  BASE_DEC,  NULL,                                           0x0,                                NULL, HFILL } },
+    { &hf_data_chunk_tsn_raw,                       { "Transmission sequence number (absolute)",        "sctp.data_tsn_raw",                                    FT_UINT32,  BASE_DEC,  NULL,                                           0x0,                                NULL, HFILL } },
     { &hf_data_chunk_stream_id,                     { "Stream identifier",                              "sctp.data_sid",                                        FT_UINT16,  BASE_HEX,  NULL,                                           0x0,                                NULL, HFILL } },
     { &hf_data_chunk_stream_seq_number,             { "Stream sequence number",                         "sctp.data_ssn",                                        FT_UINT16,  BASE_DEC,  NULL,                                           0x0,                                NULL, HFILL } },
     { &hf_data_chunk_payload_proto_id,              { "Payload protocol identifier",                    "sctp.data_payload_proto_id",                           FT_UINT32,  BASE_DEC|BASE_EXT_STRING, &sctpppid_val_ext,               0x0,                                NULL, HFILL } },
@@ -4846,7 +4865,8 @@ proto_register_sctp(void)
     { &hf_data_chunk_u_bit,                         { "U-Bit",                                          "sctp.data_u_bit",                                      FT_BOOLEAN, 8,         TFS(&sctp_data_chunk_u_bit_value),              SCTP_DATA_CHUNK_U_BIT,              NULL, HFILL } },
     { &hf_data_chunk_i_bit,                         { "I-Bit",                                          "sctp.data_i_bit",                                      FT_BOOLEAN, 8,         TFS(&sctp_data_chunk_i_bit_value),              SCTP_DATA_CHUNK_I_BIT,              NULL, HFILL } },
     { &hf_sack_chunk_ns,                            { "Nounce sum",                                     "sctp.sack_nounce_sum",                                 FT_UINT8,   BASE_DEC,  NULL,                                           SCTP_SACK_CHUNK_NS_BIT,             NULL, HFILL } },
-    { &hf_sack_chunk_cumulative_tsn_ack,            { "Cumulative TSN ACK",                             "sctp.sack_cumulative_tsn_ack",                         FT_UINT32,  BASE_DEC,  NULL,                                           0x0,                                NULL, HFILL } },
+    { &hf_sack_chunk_cumulative_tsn_ack,            { "Cumulative TSN ACK (relative)",                  "sctp.sack_cumulative_tsn_ack",                         FT_UINT32,  BASE_DEC,  NULL,                                           0x0,                                NULL, HFILL } },
+    { &hf_sack_chunk_cumulative_tsn_ack_raw,        { "Cumulative TSN ACK (absolute)",                  "sctp.sack_cumulative_tsn_ack_raw",                     FT_UINT32,  BASE_DEC,  NULL,                                           0x0,                                NULL, HFILL } },
     { &hf_sack_chunk_adv_rec_window_credit,         { "Advertised receiver window credit (a_rwnd)",     "sctp.sack_a_rwnd",                                     FT_UINT32,  BASE_DEC,  NULL,                                           0x0,                                NULL, HFILL } },
     { &hf_sack_chunk_number_of_gap_blocks,          { "Number of gap acknowledgement blocks",           "sctp.sack_number_of_gap_blocks",                       FT_UINT16,  BASE_DEC,  NULL,                                           0x0,                                NULL, HFILL } },
     { &hf_sack_chunk_number_of_dup_tsns,            { "Number of duplicated TSNs",                      "sctp.sack_number_of_duplicated_tsns",                  FT_UINT16,  BASE_DEC,  NULL,                                           0x0,                                NULL, HFILL } },
@@ -5075,6 +5095,10 @@ proto_register_sctp(void)
                          "Show chunk types in the protocol tree",
                          &show_chunk_types);
   */
+
+  prefs_register_bool_preference(sctp_module, "relative_tsns", "Relative TSNs",
+                         "Use relative TSNs instead of absolute ones",
+                         &show_relative_tsns);
   prefs_register_enum_preference(sctp_module, "checksum", "Checksum type",
                          "The type of checksum used in SCTP packets",
                          &sctp_checksum, sctp_checksum_options, FALSE);
