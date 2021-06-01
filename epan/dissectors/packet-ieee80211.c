@@ -31918,6 +31918,8 @@ dissect_ieee80211_pv1(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
   guint8       type, subtype, from_ds;
   guint        offset = 0;
   const gchar *fts_str = NULL;
+  proto_item  *ti;
+  proto_tree  *hdr_tree;
   proto_item  *fc_item = NULL;
   proto_tree  *fc_tree = NULL;
   gboolean    a1_is_sid = FALSE;
@@ -31936,7 +31938,13 @@ dissect_ieee80211_pv1(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
   fts_str = val_to_str(type, pv1_frame_type_vals, "Unrecognized frame type (%d)");
   col_set_str(pinfo->cinfo, COL_INFO, fts_str);
 
-  fc_item = proto_tree_add_item(tree, hf_ieee80211_fc_field, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  /* Create the protocol tree */
+  ti = proto_tree_add_protocol_format (tree, proto_wlan, tvb, 0, -1,
+                                       "IEEE 802.11 %s", fts_str);
+  hdr_tree = proto_item_add_subtree(ti, ett_80211);
+
+  /* Add the FC and duration/id to the current tree */
+  fc_item = proto_tree_add_item(hdr_tree, hf_ieee80211_fc_field, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 
   fc_tree = proto_item_add_subtree(fc_item, ett_fc_tree);
 
@@ -32087,7 +32095,7 @@ dissect_ieee80211_pv1(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     extract_a3_a4_amsdu(a1, &a3_present, &a4_present, &a_msdu);
     set_sid_addr_cols(pinfo, a1, TRUE); /* Set the R SID address from A1 */
 
-    dst_sid = proto_tree_add_subtree(tree, tvb, offset, 2, ett_pv1_sid,
+    dst_sid = proto_tree_add_subtree(hdr_tree, tvb, offset, 2, ett_pv1_sid,
                                       NULL, "Receiver SID");
     dissect_pv1_sid(dst_sid, pinfo, tvb, offset);
     offset += 2;
@@ -32096,10 +32104,10 @@ dissect_ieee80211_pv1(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     const gchar *ether_name = tvb_get_ether_name(tvb, offset);
 
     set_dst_addr_cols(pinfo, tvb, offset, "RA");
-    proto_tree_add_item(tree, hf_ieee80211_addr_ra, tvb, offset, 6, ENC_NA);
-    hidden = proto_tree_add_item(tree, hf_ieee80211_addr, tvb, offset, 6, ENC_NA);
+    proto_tree_add_item(hdr_tree, hf_ieee80211_addr_ra, tvb, offset, 6, ENC_NA);
+    hidden = proto_tree_add_item(hdr_tree, hf_ieee80211_addr, tvb, offset, 6, ENC_NA);
     PROTO_ITEM_SET_HIDDEN(hidden);
-    hidden = proto_tree_add_string(tree, hf_ieee80211_addr_ra_resolved, tvb,
+    hidden = proto_tree_add_string(hdr_tree, hf_ieee80211_addr_ra_resolved, tvb,
                                    offset, 6, ether_name);
     PROTO_ITEM_SET_HIDDEN(hidden);
     offset += 6;
@@ -32112,7 +32120,7 @@ dissect_ieee80211_pv1(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     extract_a3_a4_amsdu(a2, &a3_present, &a4_present, &a_msdu);
     set_sid_addr_cols(pinfo, a2, FALSE); /* Set the T SID address from A1 */
 
-    src_sid = proto_tree_add_subtree(tree, tvb, offset, 2, ett_pv1_sid,
+    src_sid = proto_tree_add_subtree(hdr_tree, tvb, offset, 2, ett_pv1_sid,
                                       NULL, "Transmitter SID");
     dissect_pv1_sid(src_sid, pinfo, tvb, offset);
     offset += 2;
@@ -32121,10 +32129,10 @@ dissect_ieee80211_pv1(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     const gchar *ether_name = tvb_get_ether_name(tvb, offset);
 
     set_src_addr_cols(pinfo, tvb, offset, "TA");
-    proto_tree_add_item(tree, hf_ieee80211_addr_ta, tvb, offset, 6, ENC_NA);
-    hidden = proto_tree_add_item(tree, hf_ieee80211_addr_ta, tvb, offset, 6, ENC_NA);
+    proto_tree_add_item(hdr_tree, hf_ieee80211_addr_ta, tvb, offset, 6, ENC_NA);
+    hidden = proto_tree_add_item(hdr_tree, hf_ieee80211_addr_ta, tvb, offset, 6, ENC_NA);
     PROTO_ITEM_SET_HIDDEN(hidden);
-    hidden = proto_tree_add_string(tree, hf_ieee80211_addr_ta_resolved, tvb,
+    hidden = proto_tree_add_string(hdr_tree, hf_ieee80211_addr_ta_resolved, tvb,
                                    offset, 6, ether_name);
     PROTO_ITEM_SET_HIDDEN(hidden);
     offset += 6;
@@ -32134,12 +32142,12 @@ dissect_ieee80211_pv1(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
   switch (type) {
   case PV1_QOS_DATA_1MAC:
   case PV1_QOS_DATA_2MAC:
-    dissect_pv1_sequence_control(tree, pinfo, tvb, offset);
+    dissect_pv1_sequence_control(hdr_tree, pinfo, tvb, offset);
     offset += 2;
     break;
   case PV1_MANAGEMENT:
     if (subtype != PV1_MANAGEMENT_PROBE_RESPONSE) {
-      dissect_pv1_sequence_control(tree, pinfo, tvb, offset);
+      dissect_pv1_sequence_control(hdr_tree, pinfo, tvb, offset);
       offset += 2;
     }
     break;
@@ -32150,10 +32158,10 @@ dissect_ieee80211_pv1(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     const gchar *ether_name = tvb_get_ether_name(tvb, offset);
 
     set_dst_addr_cols(pinfo, tvb, offset, "DA");
-    proto_tree_add_item(tree, hf_ieee80211_addr_da, tvb, offset, 6, ENC_NA);
-    hidden = proto_tree_add_item(tree, hf_ieee80211_addr, tvb, offset, 6, ENC_NA);
+    proto_tree_add_item(hdr_tree, hf_ieee80211_addr_da, tvb, offset, 6, ENC_NA);
+    hidden = proto_tree_add_item(hdr_tree, hf_ieee80211_addr, tvb, offset, 6, ENC_NA);
     PROTO_ITEM_SET_HIDDEN(hidden);
-    hidden = proto_tree_add_string(tree, hf_ieee80211_addr_da_resolved, tvb,
+    hidden = proto_tree_add_string(hdr_tree, hf_ieee80211_addr_da_resolved, tvb,
                                    offset, 6, ether_name);
     PROTO_ITEM_SET_HIDDEN(hidden);
     offset += 6;
@@ -32166,10 +32174,10 @@ dissect_ieee80211_pv1(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     set_dst_addr_cols(pinfo, tvb, offset, "SA");
     set_address_tvb(&pinfo->dl_src, wlan_address_type, 6, tvb, offset);
     copy_address_shallow(&pinfo->src, &pinfo->dl_src);
-    proto_tree_add_item(tree, hf_ieee80211_addr_sa, tvb, offset, 6, ENC_NA);
-    hidden = proto_tree_add_item(tree, hf_ieee80211_addr, tvb, offset, 6, ENC_NA);
+    proto_tree_add_item(hdr_tree, hf_ieee80211_addr_sa, tvb, offset, 6, ENC_NA);
+    hidden = proto_tree_add_item(hdr_tree, hf_ieee80211_addr, tvb, offset, 6, ENC_NA);
     PROTO_ITEM_SET_HIDDEN(hidden);
-    hidden = proto_tree_add_string(tree, hf_ieee80211_addr_sa_resolved, tvb,
+    hidden = proto_tree_add_string(hdr_tree, hf_ieee80211_addr_sa_resolved, tvb,
                                    offset, 6, ether_name);
     PROTO_ITEM_SET_HIDDEN(hidden);
     offset += 6;
@@ -32198,31 +32206,20 @@ dissect_ieee80211_pv1(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
   /* Now, handle the FCS, if present */
   if (phdr->fcs_len == 4) {
-    proto_tree_add_checksum(tree, tvb, len - 4, hf_ieee80211_fcs, hf_ieee80211_fcs_status, &ei_ieee80211_fcs, pinfo, 0, ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
+    proto_tree_add_checksum(hdr_tree, tvb, len - 4, hf_ieee80211_fcs, hf_ieee80211_fcs_status, &ei_ieee80211_fcs, pinfo, 0, ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
   }
 
   return offset;
 }
 
-/* ************************************************************************* */
-/*                          Dissect 802.11 frame                             */
-/* ************************************************************************* */
-/*
- * The 802.11n specification makes some fairly significant changes to the
- * layout of the MAC header.  The first two bits of the MAC header are the
- * protocol version.  You'd think that the 802.11 committee would have
- * bumped the version to indicate a different MAC layout, but NOOOO -- we
- * have to go digging for bits in various locations instead.
- */
 static int
-dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
-                          proto_tree *tree, guint32 option_flags,
-                          struct ieee_802_11_phdr *phdr)
+dissect_ieee80211_pv0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                      guint32 option_flags, wlan_hdr_t *whdr,
+                      struct ieee_802_11_phdr *phdr)
 {
   guint16          fcf, flags, frame_type_subtype, ctrl_fcf, ctrl_type_subtype;
   guint16          cw_fcf;
   guint16          seq_control;
-  guint8           pv = 0;
   guint32          seq_number, frag_number;
   gboolean         more_frags;
   proto_item      *ti          = NULL;
@@ -32253,15 +32250,12 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
   gint             meshctl_len = 0;
   guint8           mesh_flags;
   guint16          meshoff     = 0;
-  static wlan_hdr_t whdrs[4];
   gboolean         retransmitted;
   gboolean         isDMG = (phdr->phy == PHDR_802_11_PHY_11AD);
-  gboolean         isS1G = (phdr->phy == PHDR_802_11_PHY_11AH);
 
   encap_t     encap_type;
   proto_tree *hdr_tree = NULL;
   tvbuff_t   *next_tvb = NULL;
-  wlan_hdr_t *whdr;
 
 #define PROTECTION_ALG_WEP  DOT11DECRYPT_KEY_TYPE_WEP
 #define PROTECTION_ALG_TKIP  DOT11DECRYPT_KEY_TYPE_TKIP
@@ -32276,58 +32270,7 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
   guint8 algorithm=G_MAXUINT8;
   guint32 sec_trailer=0;
 
-  /* Update these so the info is available down the line */
-  if (pinfo->pseudo_header) {
-    pinfo->pseudo_header->ieee_802_11.has_frequency = phdr->has_frequency;
-    pinfo->pseudo_header->ieee_802_11.frequency = phdr->frequency;
-  }
-
-  p_add_proto_data(wmem_file_scope(), pinfo, proto_wlan, IS_DMG_KEY, GINT_TO_POINTER(isDMG));
-
-  whdr= &whdrs[0];
-
-  p_add_proto_data(wmem_file_scope(), pinfo, proto_wlan, IS_S1G_KEY, GINT_TO_POINTER(isS1G));
-
-  /* Handling for one-one mapping between assocations and conversations */
-  if (!pinfo->fd->visited) {
-    p_add_proto_data(wmem_file_scope(), pinfo, proto_wlan, ASSOC_COUNTER_KEY,
-                     GUINT_TO_POINTER(association_counter));
-  }
-
-  col_set_str(pinfo->cinfo, COL_PROTOCOL, "802.11");
-  col_clear(pinfo->cinfo, COL_INFO);
-
   fcf = FETCH_FCF(0);
-
-  /*
-   * Handle PV1 in a separate function for now.
-   */
-  pv = FCF_PROT_VERSION(fcf);
-  switch (pv) {
-  case PV0:
-    /* Handled below */
-    break;
-  case PV1:
-    dissect_ieee80211_pv1(tvb, pinfo, tree, phdr);
-    return tvb_captured_length(tvb);
-    break;
-  default: /* Unknown protocol version */
-    col_add_fstr(pinfo->cinfo, COL_INFO,"Unknown protocol version: %d", pv);
-    len = tvb_reported_length_remaining(tvb, offset);
-    ti = proto_tree_add_protocol_format(tree, proto_wlan, tvb, offset, len,
-                                        "IEEE 802.11 Unknown Protocol Version:"
-                                        "%d", pv);
-    hdr_tree = proto_item_add_subtree(ti, ett_80211);
-    proto_tree_add_item(hdr_tree, hf_ieee80211_fc_proto_version, tvb, offset, 1, ENC_NA);
-    if (phdr->fcs_len == 4)
-      len -= 4;
-    len -= 2;  /* We have already dealt with two bytes */
-    next_tvb = tvb_new_subset_length_caplen(tvb, 2, len, len);
-    call_data_dissector(next_tvb, pinfo, hdr_tree);
-    proto_tree_add_checksum(hdr_tree, tvb, len + 2, hf_ieee80211_fcs, hf_ieee80211_fcs_status, &ei_ieee80211_fcs, pinfo, 0, ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
-    return tvb_captured_length(tvb);
-    break;
-  }
 
   frame_type_subtype = COMPOSE_FRAME_TYPE(fcf);
   whdr->type = frame_type_subtype;
@@ -32641,11 +32584,12 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
     hdr_len += meshctl_len;
   }
 
-  /* Add the FC and duration/id to the current tree */
-  ti = proto_tree_add_protocol_format (tree, proto_wlan, tvb, 0, hdr_len,
-                                           "IEEE 802.11 %s", fts_str);
+  /* Create the protocol tree */
+  ti = proto_tree_add_protocol_format(tree, proto_wlan, tvb, 0, hdr_len,
+                                      "IEEE 802.11 %s", fts_str);
   hdr_tree = proto_item_add_subtree(ti, ett_80211);
 
+  /* Add the FC and duration/id to the current tree */
   dissect_frame_control(hdr_tree, tvb, option_flags, 0, pinfo, isDMG);
   dissect_durid(hdr_tree, tvb, frame_type_subtype, 2);
 
@@ -34134,6 +34078,99 @@ end_of_wlan:
   tap_queue_packet(wlan_tap, pinfo, whdr);
   memset(&wlan_stats, 0, sizeof wlan_stats);
 
+  return tvb_captured_length(tvb);
+}
+
+static int
+dissect_ieee80211_unknown_pv(tvbuff_t *tvb, packet_info *pinfo _U_,
+                             proto_tree *tree, guint8 pv,
+                             struct ieee_802_11_phdr *phdr)
+{
+  proto_item *ti;
+  gint        len;
+  guint       offset = 0;
+  proto_tree *hdr_tree;
+  tvbuff_t   *next_tvb;
+
+  col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown protocol version: %u", pv);
+
+  /* Create the protocol tree */
+  len = tvb_reported_length_remaining(tvb, offset);
+  ti = proto_tree_add_protocol_format(tree, proto_wlan, tvb, offset, len,
+                                      "IEEE 802.11 Unknown Protocol Version:"
+                                      "%d", pv);
+  hdr_tree = proto_item_add_subtree(ti, ett_80211);
+  proto_tree_add_item(hdr_tree, hf_ieee80211_fc_proto_version, tvb, offset, 1, ENC_NA);
+  if (phdr->fcs_len == 4)
+    len -= 4;
+  len -= 2;  /* We have already dealt with two bytes */
+  next_tvb = tvb_new_subset_length_caplen(tvb, 2, len, len);
+  call_data_dissector(next_tvb, pinfo, hdr_tree);
+  proto_tree_add_checksum(hdr_tree, tvb, len + 2, hf_ieee80211_fcs, hf_ieee80211_fcs_status, &ei_ieee80211_fcs, pinfo, 0, ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
+
+  return tvb_captured_length(tvb);
+}
+
+/* ************************************************************************* */
+/*                          Dissect 802.11 frame                             */
+/* ************************************************************************* */
+/*
+ * The 802.11n specification makes some fairly significant changes to the
+ * layout of the MAC header.  The first two bits of the MAC header are the
+ * protocol version.  You'd think that the 802.11 committee would have
+ * bumped the version to indicate a different MAC layout, but NOOOO -- we
+ * have to go digging for bits in various locations instead.
+ */
+static int
+dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
+                          proto_tree *tree, guint32 option_flags,
+                          struct ieee_802_11_phdr *phdr)
+{
+  guint8           pv = 0;
+  gboolean         isDMG = (phdr->phy == PHDR_802_11_PHY_11AD);
+  gboolean         isS1G = (phdr->phy == PHDR_802_11_PHY_11AH);
+  guint16          fcf;
+  static wlan_hdr_t whdrs[4];
+  wlan_hdr_t *whdr;
+
+  /* Update these so the info is available down the line */
+  if (pinfo->pseudo_header) {
+    pinfo->pseudo_header->ieee_802_11.has_frequency = phdr->has_frequency;
+    pinfo->pseudo_header->ieee_802_11.frequency = phdr->frequency;
+  }
+
+  p_add_proto_data(wmem_file_scope(), pinfo, proto_wlan, IS_DMG_KEY, GINT_TO_POINTER(isDMG));
+
+  whdr= &whdrs[0];
+
+  p_add_proto_data(wmem_file_scope(), pinfo, proto_wlan, IS_S1G_KEY, GINT_TO_POINTER(isS1G));
+
+  /* Handling for one-one mapping between assocations and conversations */
+  if (!pinfo->fd->visited) {
+    p_add_proto_data(wmem_file_scope(), pinfo, proto_wlan, ASSOC_COUNTER_KEY,
+                     GUINT_TO_POINTER(association_counter));
+  }
+
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "802.11");
+  col_clear(pinfo->cinfo, COL_INFO);
+
+  fcf = FETCH_FCF(0);
+
+  /*
+   * Handle PV0 and PV1 in separate functions.
+   */
+  pv = FCF_PROT_VERSION(fcf);
+  switch (pv) {
+  case PV0:
+    dissect_ieee80211_pv0(tvb, pinfo, tree, option_flags, whdr, phdr);
+    break;
+  case PV1:
+    dissect_ieee80211_pv1(tvb, pinfo, tree, phdr);
+    break;
+  default: /* Unknown protocol version */
+    dissect_ieee80211_unknown_pv(tvb, pinfo, tree, pv, phdr);
+    break;
+  }
   return tvb_captured_length(tvb);
 }
 
