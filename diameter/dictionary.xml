@@ -6232,6 +6232,60 @@
 			<enum name="NOT-SUBSCRIBED" code="0"/>
 			<enum name="SUBSCRIBED" code="1"/>
 		</avp>
+		<avp name="Ethernet-PDN-Type-Indicator" code="1707" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="FALSE" code="0"/>
+			<enum name="TRUE" code="1"/>
+		</avp>
+		<avp name="Subscribed-ARPI" code="1708" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="IAB-Operation-Permission" code="1709" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="IAB_OPERATION_ALLOWED" code="0"/>
+			<enum name="IAB_OPERATION_NOTALLOWED" code="1"/>
+		</avp>
+		<avp name="V2X-Subscription-Data-Nr" code="1710" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP">
+			<grouped>
+				<gavp name="V2X-Permission"/>
+				<gavp name="UE-PC5-AMBR"/>
+				<gavp name="UE-PC5-QoS "/>
+			</grouped>
+		</avp>
+		<avp name="UE-PC5-QoS" code="1711" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP">
+			<grouped>
+				<gavp name="PC5-QoS-Flow"/>
+				<gavp name="PC5-Link-AMBR"/>
+			</grouped>
+		</avp>
+		<avp name="PC5-QoS-Flow" code="1712" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP">
+			<grouped>
+				<gavp name="5QI"/>
+				<gavp name="PC5-Flow-Bitrates"/>
+				<gavp name="PC5-Range"/>
+			</grouped>
+		</avp>
+		<avp name="5QI" code="1713" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Integer32"/>
+		</avp>
+		<avp name="PC5-Flow-Bitrates" code="1714" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP">
+			<grouped>
+				<gavp name="Guaranteed-Flow-Bitrates"/>
+				<gavp name="Maximum-Flow-Bitrates"/>
+			</grouped>
+		</avp>
+		<avp name="Guaranteed-Flow-Bitrates" code="1715" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Integer32"/>
+		</avp>
+		<avp name="Maximum-Flow-Bitrates" code="1716" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Integer32"/>
+		</avp>
+		<avp name="PC5-Range" code="1717" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Integer32"/>
+		</avp>
+		<avp name="PC5-Link-AMBR" code="1718" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Integer32"/>
+		</avp>
 
 		<avp name="SMS-Information" code="2000" vendor-bit="must" vendor-id="TGPP">
 			<grouped>

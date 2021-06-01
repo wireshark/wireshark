@@ -49,10 +49,26 @@ trap 'rm -rf "$tmpdir"' EXIT
 #   2) (but) we do want to use xmllint to find problems
 #   3) (and) users see the AVP names.  Showing them "TGPP" instead of "3GPP"
 #      is annoying enough to warrant this extra work.
+
+# Declare and populate associative exceptions array
+declare -A exceptions=(
+        ["3GPP"]="TGPP"
+        ["5QI"]="FiveQI"
+)
+
+# Loop through the exceptions, building the sed options
+sedopts=
+for e in ${!exceptions[@]}; do
+        sedopts="${sedopts}s/name=\"$e/name=\"${exceptions[$e]}/;"
+done
+
+# Delete the last character, i.e., the trailing semicolon
+sedopts=${sedopts%?}
+
 cp diameter/dictionary.dtd "$tmpdir" || exit 1
 for f in diameter/*.xml
 do
-	sed 's/name="3GPP/name="TGPP/g' "$f" > "$tmpdir/${f##*/}" || exit 1
+        sed "${sedopts}" "$f" > "$tmpdir/${f##*/}" || exit 1
 done
 
 xmllint --noout --noent --postvalid "$tmpdir/dictionary.xml" &&
