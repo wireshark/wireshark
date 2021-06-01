@@ -30680,6 +30680,15 @@ typedef enum he_trigger_type {
   TRIGGER_TYPE_MIN_RESERVED,
 } he_trigger_type_t;
 
+typedef enum he_trigger_subtype {
+  TRIGGER_SUBTYPE_POLL = 0,
+  TRIGGER_SUBTYPE_SOUNDING,
+  TRIGGER_SUBTYPE_SECURE_SOUNDING,
+  TRIGGER_SUBTYPE_REPORT,
+  TRIGGER_SUBTYPE_PASSIVE_TB_MEAS_EXCHANGE,
+  TRIGGER_SUBTYPE_MIN_RESERVED,
+} he_trigger_subtype_t;
+
 static const val64_string trigger_type_vals[] = {
   { 0, "Basic" },
   { 1, "Beamforming Report Poll (BRP)" },
@@ -30995,22 +31004,22 @@ dissect_ieee80211_ranging_trigger_variant(proto_tree *tree, tvbuff_t *tvb,
   int saved_offset = offset;
 
   switch (subtype) {
-  case 0:
-  case 3:
+  case TRIGGER_SUBTYPE_POLL:
+  case TRIGGER_SUBTYPE_REPORT:
     proto_tree_add_bitmask(tree, tvb, offset,
                            hf_ieee80211_he_trigger_ranging_trigger_poll_rpt,
                            ett_he_trigger_ranging_poll, poll_rpt_hdrs,
                            ENC_LITTLE_ENDIAN);
     offset += 5;
     break;
-  case 1: /* Sounding subvariant */
+  case TRIGGER_SUBTYPE_SOUNDING: /* Sounding subvariant */
     proto_tree_add_bitmask(tree, tvb, offset,
                            hf_ieee80211_he_trigger_ranging_trigger_sounding,
                            ett_he_trigger_ranging_poll, sounding_hdrs,
                            ENC_LITTLE_ENDIAN);
     offset += 5;
     break;
-  case 2:
+  case TRIGGER_SUBTYPE_SECURE_SOUNDING:
     proto_tree_add_bitmask(tree, tvb, offset,
                            hf_ieee80211_he_trigger_ranging_trigger_sec_sound,
                            ett_he_trigger_ranging_poll, sec_sound_hdrs,
@@ -31021,8 +31030,17 @@ dissect_ieee80211_ranging_trigger_variant(proto_tree *tree, tvbuff_t *tvb,
                         tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
     break;
+  case TRIGGER_SUBTYPE_PASSIVE_TB_MEAS_EXCHANGE:
+    /* This is much the same as SOUNDING subtype */
+    proto_tree_add_bitmask(tree, tvb, offset,
+                           hf_ieee80211_he_trigger_ranging_trigger_sounding,
+                           ett_he_trigger_ranging_poll, sounding_hdrs,
+                           ENC_LITTLE_ENDIAN);
+    offset += 5;
+    break;
   default:
-    /* XXX - unknown subtype, report this somehow */
+    /* Unknown subtypes are filtered out above us. Should not get here! */
+    DISSECTOR_ASSERT_NOT_REACHED();
     break;
   }
 
@@ -31247,30 +31265,35 @@ dissect_ieee80211_he_trigger(tvbuff_t *tvb, packet_info *pinfo _U_,
   /*
    * If the trigger type is Ranging Trigger type, then deal with it separately.
    */
-  if (trigger_type == 8) {
+  if (trigger_type == TRIGGER_TYPE_RANGING) {
     subtype = tvb_get_guint8(tvb, offset) & 0x0f;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
                     rval_to_str(subtype, ranging_trigger_subtype_vals,
                                 "Reserved"));
 
+    if (subtype >= TRIGGER_SUBTYPE_MIN_RESERVED) {
+      proto_item *item;
+
+      item = proto_tree_add_item(tree, hf_ieee80211_ranging_trigger_subtype1,
+                                 tvb, offset, 1, ENC_NA);
+      expert_add_info_format(pinfo, item, &ei_ieee80211_inv_val,
+                             "Ranging trigger subtype too large: %u", subtype);
+      return tvb_captured_length_remaining(tvb, offset) + length;
+    }
+
     switch (subtype) {
-    case 0:
-    case 1:
-    case 2:
-    case 3:
+    case TRIGGER_SUBTYPE_POLL:
+    case TRIGGER_SUBTYPE_SOUNDING:
+    case TRIGGER_SUBTYPE_SECURE_SOUNDING:
+    case TRIGGER_SUBTYPE_REPORT:
       proto_tree_add_bitmask(common_tree, tvb, offset,
                              hf_ieee80211_he_trigger_ranging_common_info_1,
                              ett_he_trigger_ranging, ranging_headers1,
                              ENC_NA);
       offset += 1;
       break;
-    case 4:
-      /*
-       * XXX - dissect_ieee80211_ranging_trigger_variant() will
-       * not update the offset for this type, and will return a length
-       * of 0, causing an infinite loop.
-       */
+    case TRIGGER_SUBTYPE_PASSIVE_TB_MEAS_EXCHANGE:
       proto_tree_add_bitmask(common_tree, tvb, offset,
                              hf_ieee80211_he_trigger_ranging_common_info_2,
                              ett_he_trigger_ranging, ranging_headers2,
@@ -31278,11 +31301,8 @@ dissect_ieee80211_he_trigger(tvbuff_t *tvb, packet_info *pinfo _U_,
       offset += 2;
       break;
     default:
-      /*
-       * XXX - dissect_ieee80211_ranging_trigger_variant() will
-       * not update the offset for this type, and will return a length
-       * of 0, causing an infinite loop.
-       */
+      /* We should never get here! */
+      DISSECTOR_ASSERT_NOT_REACHED();
       break;
     }
 
