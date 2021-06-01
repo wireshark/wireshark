@@ -325,7 +325,7 @@ QString CaptureFilePropertiesDialog::summaryToHtml()
                 << table_hheader20_tmpl.arg(tr("Dropped packets"))
                 << table_hheader20_tmpl.arg(tr("Capture filter"))
                 << table_hheader20_tmpl.arg(tr("Link type"))
-                << table_hheader20_tmpl.arg(tr("Packet size limit"))
+                << table_hheader20_tmpl.arg(tr("Packet size limit (snaplen)"))
                 << table_row_end;
         }
 
