@@ -31020,7 +31020,9 @@ dissect_ieee80211_ranging_trigger_variant(proto_tree *tree, tvbuff_t *tvb,
     proto_tree_add_item(tree, hf_ieee80211_he_trigger_ranging_user_info_sac,
                         tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
+    break;
   default:
+    /* XXX - unknown subtype, report this somehow */
     break;
   }
 
@@ -31106,6 +31108,10 @@ add_he_trigger_user_info(proto_tree *tree, tvbuff_t *tvb, int offset,
       case TRIGGER_TYPE_RANGING:
         range_len = dissect_ieee80211_ranging_trigger_variant(user_info, tvb,
                                                 offset, pinfo, subtype);
+        if (range_len == 0) {
+          /* XXX - unknown subtype, report this somehow */
+          goto out;
+        }
         offset += range_len;
         length += range_len;
         break;
@@ -31143,6 +31149,8 @@ add_he_trigger_user_info(proto_tree *tree, tvbuff_t *tvb, int offset,
     else
       aid12_subfield = tvb_get_letohs(tvb, offset) & 0xFFF;
   }
+
+out:
 
   if (aid12_subfield == 4095) {
     /* Show the Start of Padding field. */
@@ -31258,6 +31266,11 @@ dissect_ieee80211_he_trigger(tvbuff_t *tvb, packet_info *pinfo _U_,
       offset += 1;
       break;
     case 4:
+      /*
+       * XXX - dissect_ieee80211_ranging_trigger_variant() will
+       * not update the offset for this type, and will return a length
+       * of 0, causing an infinite loop.
+       */
       proto_tree_add_bitmask(common_tree, tvb, offset,
                              hf_ieee80211_he_trigger_ranging_common_info_2,
                              ett_he_trigger_ranging, ranging_headers2,
@@ -31265,6 +31278,11 @@ dissect_ieee80211_he_trigger(tvbuff_t *tvb, packet_info *pinfo _U_,
       offset += 2;
       break;
     default:
+      /*
+       * XXX - dissect_ieee80211_ranging_trigger_variant() will
+       * not update the offset for this type, and will return a length
+       * of 0, causing an infinite loop.
+       */
       break;
     }
 
