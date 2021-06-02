@@ -1361,6 +1361,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
         } else
             proto_item_set_len(option_item, option_length + 2 * 2);
     }
+    proto_item_set_end(options_item, tvb, offset);
 
     return offset;
 }
