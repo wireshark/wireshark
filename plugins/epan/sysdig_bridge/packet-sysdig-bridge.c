@@ -10,6 +10,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+// set_profile_name
 #include "config.h"
 
 #ifdef _WIN32
@@ -29,6 +30,8 @@
 #include <epan/proto.h>
 #include <epan/proto_data.h>
 #include <wsutil/wsjson.h>
+#include <wsutil/file_util.h>
+#include <wsutil/filesystem.h>
 #include <epan/conversation_filter.h>
 #include "packet-sysdig-bridge.h"
 #include "conversation-macros.h"
@@ -474,11 +477,15 @@ configure_plugin(char* filename, bridge_info* bi, char* config)
 }
 
 void
-import_plugin(char* fname, guint pos)
+import_plugin(char* fname)
 {
-    bridge_info* bi = &bridges[pos];
+    nbridges++;
+    bridges = (bridge_info*)g_realloc(bridges, nbridges * sizeof(bridge_info));
+
+    bridge_info* bi = &bridges[nbridges - 1];
 
     if (create_dynlib_source(fname, &(bi->si)) == FALSE) {
+        nbridges--;
         THROW_FORMATTED(DissectorError, "unable to load sysdig plugin %s.", fname);
     }
 
@@ -506,6 +513,8 @@ on_wireshark_exit(void)
     }
 }
 
+#include <unistd.h>
+
 void
 proto_register_sdplugin(void)
 {
@@ -531,14 +540,27 @@ proto_register_sdplugin(void)
     /*
      * Load the plugins
      */
-    nbridges = 1;
-    bridges = (bridge_info*)g_malloc(nbridges * sizeof(bridge_info));
+    WS_DIR *dir;
+    WS_DIRENT *file;
+    gchar *filename;
+    char dname[2048];
+    const char *wspgdname = get_plugins_dir();
+    snprintf(dname, sizeof(dname), "%s/../sysdig", wspgdname);
 
+    if ((dir = ws_dir_open(dname, 0, NULL)) != NULL) {
+        while ((file = ws_dir_read_name(dir)) != NULL) {
+            filename = g_build_filename(dname, ws_dir_get_name(file), NULL);
 #ifdef _WIN32
-    import_plugin("cloudtrail.dll", 0);
+            import_plugin(filename);
 #else
-    import_plugin("libcloudtrail.so", 0);
+            import_plugin(filename);
 #endif
+
+            g_free(filename);
+        }
+        ws_dir_close(dir);
+    }
+
 
     /*
      * Setup protocol subtree array

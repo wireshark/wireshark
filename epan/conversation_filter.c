@@ -39,10 +39,10 @@ void register_conversation_filter(const char *proto_name _U_, const char *displa
 #ifdef LOGSHARK
     return;
 #endif
-    return do_register_conversation_filter(proto_name,
-                                           display_name,
-                                           is_filter_valid,
-                                           build_filter_string);
+    do_register_conversation_filter(proto_name,
+                                        display_name,
+                                        is_filter_valid,
+                                        build_filter_string);
 }
 
 void register_conversation_filter_logshark(const char *proto_name _U_, const char *display_name _U_,
@@ -50,10 +50,10 @@ void register_conversation_filter_logshark(const char *proto_name _U_, const cha
 #ifndef LOGSHARK
     return;
 #endif
-    return do_register_conversation_filter(proto_name,
-                                           display_name,
-                                           is_filter_valid,
-                                           build_filter_string);
+    do_register_conversation_filter(proto_name,
+                                        display_name,
+                                        is_filter_valid,
+                                        build_filter_string);
 }
 
 struct conversation_filter_s* find_conversation_filter(const char *name)
