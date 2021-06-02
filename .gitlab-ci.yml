@@ -87,7 +87,7 @@ variables:
     - cd build
   script:
     # setcap restricts our library paths
-    - CFLAGS=-Wl,-rpath=$(pwd)/run CXXFLAGS=-Wl,-rpath=$(pwd)/run cmake -GNinja $CMAKE_ARGS ..
+    - CFLAGS=-Wl,-rpath=$(pwd)/run CXXFLAGS=-Wl,-rpath=$(pwd)/run cmake -GNinja -DENABLE_CCACHE=ON ..
     - ninja
     - ninja test-programs
     - chown -R user .
@@ -116,11 +116,6 @@ Clang 10:
   variables:
     CC: "clang-$CLANG_VERSION"
     CXX: "clang++-$CLANG_VERSION"
-  after_script:
-    - build/run/tshark -G fields > dfilter-list-$( git describe --match "v*" | sed -e 's/^v//' ).txt
-  artifacts:
-    paths:
-      - dfilter-list-*.txt
 
 Source Package:
   extends: .build-ubuntu
@@ -205,6 +200,23 @@ Debian Stable APT Package:
     paths:
       - debian-packages/*.deb
     expire_in: 3 days
+Debian Stable APT Test:
+  rules: !reference [.if-merged]
+  image: wireshark/wireshark-debian-stable-dev
+  stage: test
+  script:
+    - DEBIAN_FRONTEND=noninteractive apt-get install ./debian-packages/*.deb -y
+    - tshark --version
+  after_script:
+    # Used for https://www.wireshark.org/docs/dfref/
+    - TSHARK_VERSION=$( tshark --version | head -n 1 | sed -e 's/.*(v//' -e 's/)$//' )
+    - tshark -G fields > dfilter-list-${TSHARK_VERSION}.txt
+  artifacts:
+    paths:
+      - dfilter-list-*.txt
+  variables:
+    GIT_STRATEGY: none
+  dependencies: [ 'Debian Stable APT Package' ]
 
 Ubuntu .dpkg:
   extends: .build-ubuntu
