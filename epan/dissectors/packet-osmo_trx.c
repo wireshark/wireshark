@@ -39,6 +39,7 @@ static int hf_otrxd_pdu_ver = -1;
 
 /* TRXD common fields */
 static int hf_otrxd_chdr_reserved = -1;
+static int hf_otrxd_shadow_ind = -1;
 static int hf_otrxd_batch_ind = -1;
 static int hf_otrxd_trx_num = -1;
 static int hf_otrxd_tdma_tn = -1;
@@ -95,6 +96,12 @@ static expert_field ei_otrxc_unknown_dir = EI_INIT;
 
 /* Custom units */
 static const unit_name_string otrx_units_toa256 = { " (1/256 of a symbol)", NULL };
+
+/* TRXD SHADOW.ind value description */
+static const true_false_string otrxd_shadow_bool_val = {
+	"This is a shadow PDU",
+	"This is a primary PDU",
+};
 
 /* TRXD BATCH.ind value description */
 static const true_false_string otrxd_batch_bool_val = {
@@ -245,6 +252,8 @@ struct otrxd_pdu_info {
 	guint32 ver;
 	/* BATCH.ind marker */
 	gboolean batch;
+	/* SHADOW.ind marker */
+	gboolean shadow;
 	/* Number of batched PDUs */
 	guint32 num_pdus;
 	/* TRX (RF channel) number */
@@ -385,6 +394,8 @@ static int dissect_otrxd_rx_hdr_v2(tvbuff_t *tvb, packet_info *pinfo _U_,
 
 	proto_tree_add_item_ret_boolean(tree, hf_otrxd_batch_ind, tvb,
 					offset, 1, ENC_NA, &pi->batch);
+	proto_tree_add_item_ret_boolean(tree, hf_otrxd_shadow_ind, tvb,
+					offset, 1, ENC_NA, &pi->shadow);
 	proto_tree_add_item_ret_uint(tree, hf_otrxd_trx_num, tvb,
 				     offset, 1, ENC_NA, &pi->trx_num);
 	offset += 1;
@@ -834,6 +845,8 @@ void proto_register_osmo_trx(void)
 		  FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL } },
 		{ &hf_otrxd_batch_ind, { "BATCH Indication", "osmo_trxd.batch_ind",
 		  FT_BOOLEAN, 8, TFS(&otrxd_batch_bool_val), 0x80, NULL, HFILL } },
+		{ &hf_otrxd_shadow_ind, { "PDU class", "osmo_trxd.shadow_ind",
+		  FT_BOOLEAN, 8, TFS(&otrxd_shadow_bool_val), 0x40, NULL, HFILL } },
 		{ &hf_otrxd_trx_num, { "TRX (RF Channel) Number", "osmo_trxd.trx_num",
 		  FT_UINT8, BASE_DEC, NULL, 0x3f, NULL, HFILL } },
 
