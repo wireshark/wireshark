@@ -23,6 +23,7 @@
               <Directory Id="dirPluginsVersionCodecs" Name="codecs"/>
             </Directory>
           </Directory>
+          <Directory Id="dirUsersGuide" Name="Wireshark User's Guide"/>
           <Directory Id="dirProfiles" Name="profiles"/>
           <Directory Id="dirSnmp" Name="snmp">
             <Directory Id="dirSnmpMibs" Name="mibs"/>

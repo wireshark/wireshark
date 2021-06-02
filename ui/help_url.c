@@ -19,12 +19,6 @@
 #include "urls.h"
 #include "wsutil/filesystem.h"
 
-#ifdef HHC_DIR
-#include <windows.h>
-#include <htmlhelp.h>
-#include <wsutil/unicode-utils.h>
-#endif
-
 // To do:
 // - Automatically generate part or all of this, e.g. by parsing
 //   the DocBook XML or the chunked HTML.
@@ -36,40 +30,30 @@ gchar *
 user_guide_url(const gchar *page) {
     GString *url = g_string_new("");
 
+#if defined(WIN32)
     /*
-     * Try to open local .chm file. This is not the most intuitive way to
-     * go about this but it fits in with the rest of the _url functions.
+     * The User's Guide is in a directory named "Wireshark User's Guide" in
+     * the program directory.
      */
-#ifdef HHC_DIR
-    HWND hw;
 
-    g_string_printf(url, "%s\\user-guide.chm::/wsug_chm/%s>Wireshark Help",
-        get_datafile_dir(), page);
-
-    hw = HtmlHelpW(NULL,
-        utf_8to16(url->str),
-        HH_DISPLAY_TOPIC, 0);
-
-    /* if the .chm file could be opened, stop here */
-    if(hw != NULL) {
-        g_string_free(url, TRUE /* free_segment */);
-        return NULL;
+    GString *ug_dir = g_string_new("");
+    g_string_printf(ug_dir, "%s\\Wireshark User's Guide", get_datafile_dir());
+    if (g_file_test(ug_dir->str, G_FILE_TEST_IS_DIR)) {
+        g_string_printf(url, "file:///%s/%s", ug_dir->str, page);
     }
-#endif /* HHC_DIR */
-
-#ifdef DOC_DIR
+    g_string_free(ug_dir, TRUE);
+#elif defined(DOC_DIR)
     if (g_file_test(DOC_DIR "/guides/wsug_html_chunked", G_FILE_TEST_IS_DIR)) {
         /* try to open the HTML page from wireshark.org instead */
         g_string_printf(url, "file://" DOC_DIR "/guides/wsug_html_chunked/%s", page);
-    } else {
-#endif /* ifdef DOC_DIR */
-       /* try to open the HTML page from wireshark.org instead */
-        g_string_printf(url, WS_DOCS_URL "/wsug_html_chunked/%s", page);
-#ifdef DOC_DIR
     }
-#endif /* ifdef DOC_DIR */
+#endif /* WIN32 / DOC_DIR */
 
 
+    /* Fall back to wireshark.org. */
+    if (url->len == 0) {
+        g_string_printf(url, WS_DOCS_URL "/wsug_html_chunked/%s", page);
+    }
     return g_string_free(url, FALSE);
 }
 

@@ -566,14 +566,7 @@
   </Fragment>
 
   <?ifdef DOCBOOK_DIR?>
-    <!-- User Guide -->
-    <Fragment>
-      <DirectoryRef Id="INSTALLFOLDER">
-        <Component Id="cmpUserGuide_chm" Guid="*">
-          <File Id="filUserGuide_chm" KeyPath="yes" Source="$(var.DOCBOOK_DIR)\user-guide.chm" />
-        </Component>
-      </DirectoryRef>
-    </Fragment>
+    <!-- User Guide is created by heat -->
     <!-- FAQ -->
     <Fragment>
       <DirectoryRef Id="INSTALLFOLDER">
@@ -584,7 +577,6 @@
     </Fragment>
     <Fragment>
       <ComponentGroup Id="CG.Documentation">
-        <ComponentRef Id="cmpUserGuide_chm" />
         <ComponentRef Id="cmpFAQ_html" />
       </ComponentGroup>
     </Fragment>

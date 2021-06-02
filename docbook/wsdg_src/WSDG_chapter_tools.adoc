@@ -287,9 +287,6 @@ compiler (MSVC), you'll need:
 
 . Windows platform headers and libraries (e.g.
 _windows.h_, _WS2_32.lib_)
-+
-// Can we drop support for CHM?
-. HTML help headers and libraries (_htmlhelp.h_, _htmlhelp.lib_)
 
 ==== Official Toolchain Packages And Alternatives
 
@@ -469,7 +466,6 @@ Man page HTML:: pod2html
 
 Guide HTML:: Asciidoctor → _DocBook XML_ → xsltproc + DocBook XSL
 Guide PDF:: Asciidoctor
-Guide HTML Help:: Asciidoctor → _DocBook XML_ → xsltproc + DocBook XSL → HHC
 
 Release notes HTML:: Asciidoctor
 Release notes text:: Asciidoctor → _HTML_ → html2text.py
@@ -491,9 +487,9 @@ but _not_ with Asciidoctor.
 
 ==== DocBook XML and XSL
 
-Converting from DocBook to HTML and CHM requires the DocBook DTD
-(http://www.sagehill.net/docbookxsl/ToolsSetup.html) and DocBook
-stylesheets
+Converting from DocBook to HTML requires the DocBook DTD
+(http://www.sagehill.net/docbookxsl/ToolsSetup.html)
+and DocBook stylesheets
 (http://www.sagehill.net/docbookxsl/InstallStylesheets.html).
 These are available via installable packages on most Linux distributions, Chocolatey, and Homebrew.
 
@@ -501,25 +497,6 @@ These are available via installable packages on most Linux distributions, Chocol
 
 http://xmlsoft.org/xslt/[xsltproc] converts DocBook XML to various formats based on XSL stylesheets.
 It either ships as part of the operating system or is available via an installable package on most Linux distributions, Chocolatey, and Homebrew.
-
-==== HTML Help
-
-HTML Help is used to create the User’s and Developer’s Guide in .chm format.
-The User’s Guide .chm file is included with the NSIS and WiX installers and
-is used as Wireshark's built-in help on Windows.
-
-This compiler is used to generate a .chm file from a bunch of HTML files -- in
-our case to generate the User’s and Developer’s Guide in .chm format.
-
-The compiler is only available as the free (as in beer) "HTML Help Workshop"
-download. If you want to compile the guides yourself, you need to download and
-install this. If you don't install it into the default directory, you may also
-have a look at the HHC_DIR setting in the file docbook/Makefile.
-
-The files `htmlhelp.c` and `htmlhelp.lib` are required to
-be able to open .chm files from Wireshark and show the
-online help. Both files are part of the SDK (standalone (P)SDK or MSVC
-since 2002).
 
 [[ChToolsDebugger]]
 

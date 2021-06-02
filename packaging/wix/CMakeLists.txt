@@ -16,6 +16,7 @@ set(WIX_GENERATED_FILES
 	${CMAKE_CURRENT_BINARY_DIR}/QtTranslation.wxs
 	${CMAKE_CURRENT_BINARY_DIR}/RadiusDict.wxs
 	${CMAKE_CURRENT_BINARY_DIR}/SNMPMibs.wxs
+	${CMAKE_CURRENT_BINARY_DIR}/UsersGuide.wxs
 )
 set(WIX_GENERATED_FILES ${WIX_GENERATED_FILES} PARENT_SCOPE)
 
@@ -47,6 +48,7 @@ set(WIX_OUT_FILES
 	${CMAKE_CURRENT_BINARY_DIR}/QtTranslation.wixobj
 	${CMAKE_CURRENT_BINARY_DIR}/RadiusDict.wixobj
 	${CMAKE_CURRENT_BINARY_DIR}/SNMPMibs.wixobj
+	${CMAKE_CURRENT_BINARY_DIR}/UsersGuide.wixobj
 	${CMAKE_CURRENT_BINARY_DIR}/Wireshark.wixobj
 	${CMAKE_CURRENT_BINARY_DIR}/WiresharkOptionsDlg.wixobj
 	${CMAKE_CURRENT_BINARY_DIR}/WiresharkWixUI.wixobj
@@ -217,6 +219,7 @@ set(WIX_CANDLE_DEFINES
 	-dQtTranslationDir=${ARCHIVE_OUTPUT_PATH}/${CMAKE_BUILD_TYPE}/translations
 	-dRadiusDictDir=${ARCHIVE_OUTPUT_PATH}/${CMAKE_BUILD_TYPE}/radius
 	-dSnmpMibDir=${ARCHIVE_OUTPUT_PATH}/${CMAKE_BUILD_TYPE}/snmp/mibs
+	-dUsersGuideDir=${ARCHIVE_OUTPUT_PATH}/${CMAKE_BUILD_TYPE}/docbook/wsug_html_chunked
 	-dVCRedistVersion=${MSVC_CRT_VERSION}
 	-dVCRedistDir=${MERGE_MODULE_DIR}
 	${d_smi_dir}
@@ -269,6 +272,14 @@ macro( ADD_WIX_PACKAGE_TARGET )
 			DEPENDS "${_wix_source_dir}/windeployqt-to-wix.ps1"
 		)
 
+		# UsersGuide.wxs. Collects the contents of wsug_html_chunked.
+		# Generated with heat.exe
+		add_custom_command(OUTPUT ${_wix_binary_dir}/UsersGuide.wxs
+			COMMAND ${WIX_HEAT_EXECUTABLE} dir ${CMAKE_BINARY_DIR}/docbook/wsug_html_chunked
+					${WIX_HEAT_FLAGS} -cg CG.Documentation -dr dirUsersGuide -var var.UsersGuideDir
+					-out ${_wix_binary_dir}/UsersGuide.wxs
+		)
+
 		# SNMPMibs.wxs. Collects all MIBs in "output" snmp/mibs
 		# directory. Generated with heat.exe
 		add_custom_command(OUTPUT ${_wix_binary_dir}/SNMPMibs.wxs
@@ -308,7 +319,7 @@ macro( ADD_WIX_PACKAGE_TARGET )
 			DEPENDS
 				${WIX_FILES}
 				copy_data_files
-				user_guide_chm
+				user_guide_html
 				faq_html
 		)
 		set_target_properties(wix_package_prep PROPERTIES
@@ -340,6 +351,7 @@ endmacro( ADD_WIX_PACKAGE_TARGET )
 set(CLEAN_FILES
 	DependentComponents.wxs
 	QtDependentComponents.wxs
+	UsersGuide.wxs
 	SNMPMibs.wxs
 	RadiusDict.wxs
 	Diameter.wxs

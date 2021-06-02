@@ -8,10 +8,10 @@ It might one day replace the NSIS installer, but needs to be a little more compl
 . You need the https://wixtoolset.org/[WiX toolset] to build the .msi installer.
 Version 3.10 or later is recommended.
 
-. SNMP, Radius, Diameter, and Qt translations files are harvested to be included in
-the installer.  Any custom/additional files just need to be written to the appropriate
-build output directory and the installer will pick them up.  NSIS required modifying
-a file (custom_mibs.txt, etc) for inclusion
+. The User's Guide, SNMP, Radius, Diameter, and Qt translations files are harvested to
+be included in the installer.  Any custom/additional files just need to be written to the
+appropriate build output directory and the installer will pick them up.  NSIS required
+modifying a file (custom_mibs.txt, etc) for inclusion
 
 . Plugin DLLs are not automatically harvested. To include your DLL, modify Plugins.wxi.
 

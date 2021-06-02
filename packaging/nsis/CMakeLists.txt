@@ -229,7 +229,7 @@ macro( ADD_NSIS_PACKAGE_TARGET )
 			DEPENDS
 				${NSIS_FILES}
 				copy_data_files
-				user_guide_chm
+				user_guide_html
 				faq_html
 				${DATAFILE_DIR}/uninstall.exe
 		)

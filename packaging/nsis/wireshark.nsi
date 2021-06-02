@@ -1200,8 +1200,10 @@ SectionGroupEnd ; "Tools"
 !ifdef DOCBOOK_DIR
 Section "Documentation" SecDocumentation
 ;-------------------------------------------
+SetOutPath "$INSTDIR\Wireshark User's Guide"
+File /r "${DOCBOOK_DIR}\wsug_html_chunked\*.*"
+
 SetOutPath $INSTDIR
-File "${DOCBOOK_DIR}\user-guide.chm"
 File "${DOCBOOK_DIR}\faq.html"
 SectionEnd
 !endif

@@ -21,35 +21,6 @@ function(set_docbook_target_properties _target)
 		)
 endfunction(set_docbook_target_properties)
 
-if(WIN32)
-	find_package( HTMLHelp )
-	if(HTML_HELP_COMPILER)
-		# We do not need the HTML Help headers and library, just the
-		# compiler. To avoid confusion, report the package as found.
-		# https://gitlab.kitware.com/cmake/cmake/issues/15886
-		set(HTMLHelp_FOUND 1)
-	endif()
-	macro( HHP2CHM _hhpsource )
-		get_filename_component( _source_base_name ${_hhpsource} NAME_WE )
-
-		add_custom_command(
-			OUTPUT ${_output_chm}
-			WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-			# The number and order of arguments MUST match hhc.cmake.
-			COMMAND ${CMAKE_COMMAND} -P
-				${CMAKE_SOURCE_DIR}/cmake/modules/hhc.cmake
-					"${HTML_HELP_COMPILER}"
-					${_hhpsource}
-			DEPENDS
-				${_hhpsource}
-		)
-	endmacro()
-else()
-	macro( HHP2CHM _hhpsource )
-	# Dummy.
-	endmacro()
-endif()
-
 set(COMMON_FILES
 	common_src/GPL_appendix.adoc
 )
@@ -425,18 +396,6 @@ if(ASCIIDOCTOR_FOUND AND ASCIIDOCTOR_PDF_EXECUTABLE)
 	add_dependencies(user_guides user_guide_pdf)
 endif()
 
-if(WIN32 AND ASCIIDOCTOR_FOUND)
-	XML2HHP(user_guide wsug "Wireshark User's Guide" user-guide.xml)
-	HHP2CHM(user-guide.hhp)
-	add_custom_target(
-		user_guide_chm
-		DEPENDS
-			user-guide.chm
-	)
-	set_docbook_target_properties(user_guide_chm)
-	add_dependencies(user_guides user_guide_chm)
-endif()
-
 # Developer's Guide chain.
 if(ASCIIDOCTOR_FOUND AND XSLTPROC_EXECUTABLE)
 	XML2HTML(
@@ -475,18 +434,6 @@ if(ASCIIDOCTOR_FOUND AND ASCIIDOCTOR_PDF_EXECUTABLE)
 	)
 	set_docbook_target_properties(developer_guide_pdf)
 	add_dependencies(developer_guides developer_guide_pdf)
-endif()
-
-if(WIN32 AND ASCIIDOCTOR_FOUND)
-	XML2HHP(developer_guide	wsdg "Wireshark Developer's Guide" developer-guide.xml)
-	HHP2CHM(developer-guide.hhp)
-	add_custom_target(
-		developer_guide_chm
-		DEPENDS
-			developer-guide.chm
-	)
-	set_docbook_target_properties(developer_guide_chm)
-	add_dependencies(developer_guides developer_guide_chm)
 endif()
 
 if (GUIDE_INSTALL_DIRS)

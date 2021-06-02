@@ -92,11 +92,6 @@ endif()
 
 target_link_libraries(ui wsutil caputils)
 
-if (HTML_HELP_COMPILER)
-	add_definitions(-DHHC_DIR)
-	target_link_libraries(ui Htmlhelp.lib)
-endif()
-
 target_include_directories(ui SYSTEM
 	PRIVATE
 		${WINSPARKLE_INCLUDE_DIRS}
