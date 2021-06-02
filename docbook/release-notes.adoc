@@ -89,9 +89,11 @@ TACACS
 // Add one file type per line between the -- delimiters.
 [commaize]
 --
+Ascend
 ERF
 K12
 NetScaler
+pcapng
 --
 
 // === New and Updated Capture Interfaces support
