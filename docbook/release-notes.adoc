@@ -43,12 +43,6 @@ The following bugs have been fixed:
 //* Wireshark is solely responsible for the decline of shopping malls in your area.
 // cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log v3.2.10rc0.. | gsed -e 's/\(close\|fix\|resolv\)[^ ]* #/\nclose #/gI' | grep ^close | sed -e 's/close.*#\([1-9][0-9]*\).*/\1/' | sort -V -u` ; do "$(git rev-parse --show-toplevel)/tools/gen-bugnote" $bugnumber; pbpaste >> /tmp/buglist.txt; done
 
-* Macro filters can't handle escaped characters wsbuglink:17160[].
-
-* Display filter crashes Wireshark wsbuglink:17316[].
-
-* IEEE-1588 Signalling Unicast TLV incorrectly reported as being malformed wsbuglink:17355[].
-
 === New and Updated Features
 
 There are no new features in this release.
@@ -72,24 +66,15 @@ There are no new protocols in this release.
 // Add one protocol per line between the -- delimiters.
 [commaize]
 --
-DNP
-ProtoBuf
-PTP
-TACACS
 --
 
 === New and Updated Capture File Support
 
-// There is no new or updated capture file support in this release.
+There is no new or updated capture file support in this release.
 // Add one file type per line between the -- delimiters.
-[commaize]
---
-Ascend
-ERF
-K12
-NetScaler
-pcapng
---
+// [commaize]
+// --
+// --
 
 // === New and Updated Capture Interfaces support
 
