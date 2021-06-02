@@ -711,6 +711,7 @@ static expert_field ei_sccp_gt_digits_missing = EI_INIT;
 static gboolean sccp_reassemble = TRUE;
 static gboolean show_key_params = FALSE;
 static gboolean set_addresses = FALSE;
+static gboolean dt1_ignore_length = FALSE;
 
 static int ss7pc_address_type = -1;
 
@@ -3092,6 +3093,8 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
     break;
 
   case SCCP_MSG_TYPE_DT1:
+  {
+    gint remaining_length;
     source_local_ref = tvb_get_letoh24(tvb, offset);
     offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
                                      PARAMETER_DESTINATION_LOCAL_REFERENCE,
@@ -3116,7 +3119,12 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
                                       PARAMETER_DATA, variable_pointer1, &sccp_info);
 
     } else {
-      new_tvb = sccp_reassemble_fragments(tvb, pinfo, tree, variable_pointer1, source_local_ref, more);
+      remaining_length = tvb_reported_length_remaining(tvb, variable_pointer1 + 1);
+      if(dt1_ignore_length && remaining_length > 255) {
+        new_tvb = tvb_new_subset_length(tvb, variable_pointer1 + 1, remaining_length);
+      } else {
+        new_tvb = sccp_reassemble_fragments(tvb, pinfo, tree, variable_pointer1, source_local_ref, more);
+      }
 
       if (new_tvb)
         dissect_sccp_data_param(new_tvb, pinfo, tree, sccp_info.assoc);
@@ -3124,6 +3132,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 
     /* End reassemble */
     break;
+  }
 
   case SCCP_MSG_TYPE_DT2:
     offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
@@ -4195,6 +4204,11 @@ proto_register_sccp(void)
   prefs_register_string_preference(sccp_module, "default_payload", "Default Payload",
                                    "The protocol which should be used to dissect the payload if nothing else has claimed it",
                                    &default_payload);
+
+  prefs_register_bool_preference(sccp_module, "dt1_ignore_length", "Ignore length in DT1",
+                                 "Use all bytes for data payload. Overcome 255 bytes limit of SCCP stadard."
+                                 "  (Some tracing tool save information without DT1 segmentation of 255 bytes)",
+                                 &dt1_ignore_length);
 
   register_init_routine(&init_sccp);
   reassembly_table_register(&sccp_xudt_msg_reassembly_table,
