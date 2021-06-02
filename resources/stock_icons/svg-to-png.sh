@@ -70,6 +70,7 @@ ICONS="
     x-filter-matching-bookmark
     x-filter-matching-bookmark.active
     x-filter-matching-bookmark.selected
+    x-hide-ro
     x-resize-columns
     x-stay-last
     zoom-in.template

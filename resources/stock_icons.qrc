@@ -87,6 +87,7 @@
         <file>stock_icons/16x16/x-capture-stop@2x.png</file>
         <file>stock_icons/16x16/x-colorize-packets.png</file>
         <file>stock_icons/16x16/x-colorize-packets@2x.png</file>
+        <file>stock_icons/16x16/x-hide-ro.png</file>
         <file>stock_icons/16x16/x-resize-columns.png</file>
         <file>stock_icons/16x16/x-resize-columns@2x.png</file>
         <file>stock_icons/16x16/x-stay-last.png</file>
@@ -129,6 +130,7 @@
         <file>stock_icons/24x24/x-capture-stop@2x.png</file>
         <file>stock_icons/24x24/x-colorize-packets.png</file>
         <file>stock_icons/24x24/x-colorize-packets@2x.png</file>
+        <file>stock_icons/24x24/x-hide-ro.png</file>
         <file>stock_icons/24x24/x-resize-columns.png</file>
         <file>stock_icons/24x24/x-resize-columns@2x.png</file>
         <file>stock_icons/24x24/x-stay-last.png</file>
