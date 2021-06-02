@@ -1339,6 +1339,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
             proto_item_append_text(option_item, " = %s", str);
 
     }
+    proto_item_set_end(options_item, tvb, offset);
 
     return offset;
 }
