@@ -32,7 +32,7 @@ Wireshark 3.2.14 Release Notes
 
   New and Updated Capture File Support
 
-   ERF, K12, and NetScaler
+   Ascend, ERF, K12, NetScaler, and pcapng
 
  Getting Wireshark
 
@@ -68,7 +68,7 @@ Wireshark 3.2.14 Release Notes
 
   A complete FAQ is available on the Wireshark web site[8].
 
-  Last updated 2021-05-30 17:40:29 UTC
+  Last updated 2021-06-02 17:35:28 UTC
 
  References
 

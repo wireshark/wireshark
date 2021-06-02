@@ -26,7 +26,7 @@ It is used for troubleshooting, analysis, development and education.
 
 // The following vulnerabilities have been fixed:
 
-// * wssalink:2021-04[]
+// * wssalink:2021-06[]
 // Foo dissector {crash,infinite loop,memory leak}.
 // wsbuglink:xxxx[].
 // cveidlink:2021-xxxx[].
@@ -84,9 +84,11 @@ TACACS
 // Add one file type per line between the -- delimiters.
 [commaize]
 --
+Ascend
 ERF
 K12
 NetScaler
+pcapng
 --
 
 // === New and Updated Capture Interfaces support
