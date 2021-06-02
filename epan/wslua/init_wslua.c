@@ -119,6 +119,18 @@ static expert_field ei_lua_proto_comments_note    = EI_INIT;
 static expert_field ei_lua_proto_comments_warn    = EI_INIT;
 static expert_field ei_lua_proto_comments_error   = EI_INIT;
 
+static expert_field ei_lua_proto_decryption_comment = EI_INIT;
+static expert_field ei_lua_proto_decryption_chat    = EI_INIT;
+static expert_field ei_lua_proto_decryption_note    = EI_INIT;
+static expert_field ei_lua_proto_decryption_warn    = EI_INIT;
+static expert_field ei_lua_proto_decryption_error   = EI_INIT;
+
+static expert_field ei_lua_proto_assumption_comment = EI_INIT;
+static expert_field ei_lua_proto_assumption_chat    = EI_INIT;
+static expert_field ei_lua_proto_assumption_note    = EI_INIT;
+static expert_field ei_lua_proto_assumption_warn    = EI_INIT;
+static expert_field ei_lua_proto_assumption_error   = EI_INIT;
+
 static expert_field ei_lua_proto_deprecated_comment = EI_INIT;
 static expert_field ei_lua_proto_deprecated_chat    = EI_INIT;
 static expert_field ei_lua_proto_deprecated_note    = EI_INIT;
@@ -911,6 +923,18 @@ void wslua_init(register_cb cb, gpointer client_data) {
         { &ei_lua_proto_comments_note,      { "_ws.lua.proto.note",    PI_COMMENTS_GROUP, PI_NOTE    ,"Protocol Note",    EXPFILL }},
         { &ei_lua_proto_comments_warn,      { "_ws.lua.proto.warning", PI_COMMENTS_GROUP, PI_WARN    ,"Protocol Warning", EXPFILL }},
         { &ei_lua_proto_comments_error,     { "_ws.lua.proto.error",   PI_COMMENTS_GROUP, PI_ERROR   ,"Protocol Error",   EXPFILL }},
+
+        { &ei_lua_proto_decryption_comment, { "_ws.lua.proto.comment", PI_DECRYPTION, PI_COMMENT ,"Protocol Comment", EXPFILL }},
+        { &ei_lua_proto_decryption_chat,    { "_ws.lua.proto.chat",    PI_DECRYPTION, PI_CHAT    ,"Protocol Chat",    EXPFILL }},
+        { &ei_lua_proto_decryption_note,    { "_ws.lua.proto.note",    PI_DECRYPTION, PI_NOTE    ,"Protocol Note",    EXPFILL }},
+        { &ei_lua_proto_decryption_warn,    { "_ws.lua.proto.warning", PI_DECRYPTION, PI_WARN    ,"Protocol Warning", EXPFILL }},
+        { &ei_lua_proto_decryption_error,   { "_ws.lua.proto.error",   PI_DECRYPTION, PI_ERROR   ,"Protocol Error",   EXPFILL }},
+
+        { &ei_lua_proto_assumption_comment, { "_ws.lua.proto.comment", PI_ASSUMPTION, PI_COMMENT ,"Protocol Comment", EXPFILL }},
+        { &ei_lua_proto_assumption_chat,    { "_ws.lua.proto.chat",    PI_ASSUMPTION, PI_CHAT    ,"Protocol Chat",    EXPFILL }},
+        { &ei_lua_proto_assumption_note,    { "_ws.lua.proto.note",    PI_ASSUMPTION, PI_NOTE    ,"Protocol Note",    EXPFILL }},
+        { &ei_lua_proto_assumption_warn,    { "_ws.lua.proto.warning", PI_ASSUMPTION, PI_WARN    ,"Protocol Warning", EXPFILL }},
+        { &ei_lua_proto_assumption_error,   { "_ws.lua.proto.error",   PI_ASSUMPTION, PI_ERROR   ,"Protocol Error",   EXPFILL }},
 
         { &ei_lua_proto_deprecated_comment, { "_ws.lua.proto.comment", PI_DEPRECATED, PI_COMMENT ,"Protocol Comment", EXPFILL }},
         { &ei_lua_proto_deprecated_chat,    { "_ws.lua.proto.chat",    PI_DEPRECATED, PI_CHAT    ,"Protocol Chat",    EXPFILL }},

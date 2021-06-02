@@ -56,7 +56,10 @@ my %EXPERT_GROUPS = ('PI_CHECKSUM' => "PI_CHECKSUM",
 					   'PI_DEBUG' => "PI_DEBUG",
 					   'PI_PROTOCOL' => "PI_PROTOCOL",
 					   'PI_SECURITY' => "PI_SECURITY",
-					   'PI_COMMENTS_GROUP' => "PI_COMMENTS_GROUP");
+					   'PI_COMMENTS_GROUP' => "PI_COMMENTS_GROUP",
+   					   'PI_DECRYPTION' => "PI_DECRYPTION",
+   					   'PI_ASSUMPTION' => "PI_ASSUMPTION",						  
+					   'PI_DEPRECATED' => "PI_DEPRECATED");			   
 
 my @expert_list;
 my $protabbrev = "";

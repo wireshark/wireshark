@@ -42,8 +42,9 @@ WSLUA_CONSTRUCTOR ProtoExpert_new(lua_State* L) {
                                              `expert.group.REQUEST_CODE`, `expert.group.UNDECODED`,
                                              `expert.group.REASSEMBLE`, `expert.group.MALFORMED`,
                                              `expert.group.DEBUG`, `expert.group.PROTOCOL`,
-                                             `expert.group.SECURITY`, `expert.group.COMMENTS_GROUP`
-                                             or `expert.group.DECRYPTION`. */
+                                             `expert.group.SECURITY`, `expert.group.COMMENTS_GROUP`,
+                                             `expert.group.DECRYPTION`, `expert.group.ASSUMPTION`
+                                             or `expert.group.DEPRECATED`. */
 #define WSLUA_ARG_ProtoExpert_new_SEVERITY 4 /* Expert severity type: one of:
                                                 `expert.severity.COMMENT`, `expert.severity.CHAT`,
                                                 `expert.severity.NOTE`, `expert.severity.WARN`,
@@ -88,6 +89,7 @@ WSLUA_CONSTRUCTOR ProtoExpert_new(lua_State* L) {
     case PI_SECURITY:
     case PI_COMMENTS_GROUP:
     case PI_DECRYPTION:
+    case PI_ASSUMPTION:
     case PI_DEPRECATED:
         break;
     default:
