@@ -4498,7 +4498,7 @@ dissect_tcpopt_sack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
      * (1) A D-SACK block is only used to report a duplicate contiguous sequence of data received by
      *     the receiver in the most recent packet.
      */
-    if (GE_SEQ(tcph->sack_right_edge[0], tcph->th_ack) ||
+    if (LE_SEQ(tcph->sack_right_edge[0], tcph->th_ack) ||
          (tcph->num_sack_ranges > 1 &&
           LT_SEQ(tcph->sack_left_edge[1], tcph->sack_right_edge[0]) &&
           GE_SEQ(tcph->sack_right_edge[1], tcph->sack_right_edge[0]))
