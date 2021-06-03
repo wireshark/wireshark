@@ -14500,7 +14500,7 @@ proto_register_pn_io (void)
         NULL, HFILL }
     },
     { &hf_pn_io_mau_type_extension,
-    { "MAU Type Extension", "pn_io.mau_type_extension",
+    { "MAUTypeExtension", "pn_io.mau_type_extension",
         FT_UINT16, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_mau_type_extension), 0x0,
         NULL, HFILL }
     },
