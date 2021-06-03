@@ -1954,9 +1954,10 @@ dissect_oml_manuf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	proto_tree_add_item(tree, hf_oml_manuf_id_val, tvb,
 			    offset + 1, len, ENC_ASCII|ENC_NA);
 
-	if (len == sizeof(ipaccess_magic) &&
-	    tvb_memeql(tvb, offset+1, ipaccess_magic, sizeof(ipaccess_magic))) {
-		offset += (int)sizeof(ipaccess_magic) + 1;
+	/* Some implementations include '\0', some don't - handle this */
+	if ((len == (sizeof(ipaccess_magic) + 1) || len == sizeof(ipaccess_magic)) &&
+	    !tvb_memeql(tvb, offset+1, ipaccess_magic, sizeof(ipaccess_magic))) {
+		offset += len + 1;
 		return dissect_oml_fom(tvb, pinfo, tree, offset, top_ti);
 	} else {
 		expert_add_info(pinfo, top_ti, &ei_unknown_manuf);
