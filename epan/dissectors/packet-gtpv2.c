@@ -1,7 +1,7 @@
 /* packet-gtpv2.c
  *
  * Routines for GTPv2 dissection
- * Copyright 2009 - 2020, Anders Broman <anders.broman [at] ericsson.com>
+ * Copyright 2009 - 2021, Anders Broman <anders.broman [at] ericsson.com>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -798,6 +798,7 @@ static int hf_gtpv2_max_pkt_loss_rte_dl = -1;
 static int hf_gtpv2_mm_context_iov_updates_counter = -1;
 static int hf_gtpv2_mm_context_ear_len = -1;
 static int hf_gtpv2_node_number_len = -1;
+static int hf_gtpv2_additional_rrm_policy_index = -1;
 
 static gint ett_gtpv2 = -1;
 static gint ett_gtpv2_flags = -1;
@@ -1241,6 +1242,15 @@ static gint ett_gtpv2_ies[NUM_GTPV2_IES];
 #define GTPV2_IE_APN_RTE_CNTRL_STATUS                204
 #define GTPV2_IE_EXT_TRS_INF                         205
 #define GTPV2_IE_MON_EVENT_EXT_INF                   206
+#define GTPV2_IE_ADDITIONAL_RRM_POLICY_INDEX         207
+#define GTPV2_IE_V2X_CONTEXT                         208
+#define GTPV2_IE_PC5_QOS_PARAMETERS                  209
+#define GTPV2_IE_SERVICES_AUTHORIZED                 210
+#define GTPV2_IE_BIT_RATE                            211
+#define GTPV2_IE_PC5_QOS_FLOW                        212
+#define GTPV2_IE_SGI_PTP_TUNNEL_ADDRESS              213
+#define GTPV2_IE_PGW_CHANGE_INFO                     214
+#define GTPV2_IE_PGW_SET_FQDN                        215
 /*
 203 to 253    Spare. For future use.
 254    Special IE type for IE Type Extension
@@ -1426,7 +1436,17 @@ static const value_string gtpv2_element_type_vals[] = {
     {204, "APN Rate Control Status" },                                          /* Extendable / 8.135 */
     {205, "Extended Trace Information" },                                       /* Extendable / 8.136 */
     {206, "Monitoring Event Extension Information" },                           /* Extendable / 8.137 */
-                                                                                /* 206 to 254    Spare. For future use.    */
+    {207, "Additional RRM Policy Index" },                                      /* Fixed Length / 8.138 */
+    {208, "V2X Context" },                                                      /* Extendable / 8.139 */
+    {209, "PC5 QoS Parameters" },                                               /* Extendable / 8.140 */
+    {210, "Services Authorized" },                                              /* Extendable / 8.141 */
+    {211, "Bit Rate" },                                                         /* Extendable / 8.142 */
+    {212, "PC5 QoS Flow" },                                                     /* Extendable / 8.143 */
+    {213, "SGi PtP Tunnel Address" },                                           /* Extendable / 8.144 */
+    {214, "PGW Change Info" },                                                  /* Extendable / 8.145 */
+    {215, "PGW Set FQDN" },                                                     /* Extendable / 8.146 */
+
+                                                                                /* 216 to 254    Spare. For future use.    */
     {255, "Private Extension"},                                                 /* Variable Length / 8.67 */
     {0, NULL}
 };
@@ -8126,6 +8146,69 @@ dissect_gtpv2_ie_mon_event_ext_inf(tvbuff_t* tvb, packet_info* pinfo, proto_tree
     }
 }
 
+/* 207 Additional RRM Policy Index Fixed Length / 8.138 */
+static void
+dissect_gtpv2_ie_additional_rrm_policy_index(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, proto_item* item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_, session_args_t* args _U_)
+{
+    /*5 to 8 Additional RRM Policy Index, The ARPI is encoded as Unsigned32 binary integer values.*/
+    proto_tree_add_item(tree, hf_gtpv2_additional_rrm_policy_index, tvb, 0, 4, ENC_BIG_ENDIAN);
+}
+
+/* 208 V2X Context Extendable / 8.139 */
+static void
+dissect_gtpv2_ie_v2x_context(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, proto_item* item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_, session_args_t* args _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, 0, length);
+}
+
+/* 209 PC5 QoS Parameters Extendable / 8.140 */
+static void
+dissect_gtpv2_ie_pc5_qos_parameters(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, proto_item* item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_, session_args_t* args _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, 0, length);
+}
+
+/* 210 Services Authorized Extendable / 8.141 */
+static void
+dissect_gtpv2_ie_services_authorized(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, proto_item* item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_, session_args_t* args _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, 0, length);
+}
+
+/* 211 Bit Rate Extendable / 8.142 */
+static void
+dissect_gtpv2_ie_bit_rate(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, proto_item* item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_, session_args_t* args _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, 0, length);
+}
+
+/* 212 PC5 QoS Flow Extendable / 8.143 */
+static void
+dissect_gtpv2_ie_pc5_qos_flow(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, proto_item* item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_, session_args_t* args _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, 0, length);
+}
+
+/* 213 SGi PtP Tunnel Address Extendable / 8.144 */
+static void
+dissect_gtpv2_ie_sgi_ptp_tunnel_address(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, proto_item* item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_, session_args_t* args _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, 0, length);
+}
+
+/* 214 PGW Change Info Extendable / 8.145 */
+static void
+dissect_gtpv2_ie_pgw_change_info(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, proto_item* item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_, session_args_t* args _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, 0, length);
+}
+
+/* 215 PGW Set FQDN Extendable / 8.146 */
+static void
+dissect_gtpv2_ie_pgw_set_fqdn(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, proto_item* item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_, session_args_t* args _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, 0, length);
+}
 
 /* Table 8.1-1: Information Element types for GTPv2 */
 
@@ -8289,7 +8372,16 @@ static const gtpv2_ie_t gtpv2_ies[] = {
     {GTPV2_IE_MAX_PKT_LOSS_RTE, dissect_gtpv2_max_pkt_loss_rte },            /* 203, 8.134 Maximum Packet Loss Rate */
     {GTPV2_IE_APN_RTE_CNTRL_STATUS, dissect_gtpv2_apn_rte_cntrl_status },    /* 204, 8.135 APN Rate Control Status */
     {GTPV2_IE_EXT_TRS_INF, dissect_gtpv2_ext_trs_inf },                      /* 205, 8.136 Extended Trace Information */
-    {GTPV2_IE_MON_EVENT_EXT_INF, dissect_gtpv2_ie_mon_event_ext_inf },       /* 206, 8.136 Monitoring Event Extension Information */
+    {GTPV2_IE_MON_EVENT_EXT_INF, dissect_gtpv2_ie_mon_event_ext_inf },       /* 206, 8.137 Monitoring Event Extension Information */
+    {GTPV2_IE_ADDITIONAL_RRM_POLICY_INDEX, dissect_gtpv2_ie_additional_rrm_policy_index },  /* 207 Additional RRM Policy Index Fixed Length / 8.138 */
+    {GTPV2_IE_V2X_CONTEXT, dissect_gtpv2_ie_v2x_context },                   /* 208 V2X Context Extendable / 8.139 */
+    {GTPV2_IE_PC5_QOS_PARAMETERS, dissect_gtpv2_ie_pc5_qos_parameters },     /* 209 PC5 QoS Parameters Extendable / 8.140 */
+    {GTPV2_IE_SERVICES_AUTHORIZED, dissect_gtpv2_ie_services_authorized },   /* 210 Services Authorized Extendable / 8.141 */
+    {GTPV2_IE_BIT_RATE, dissect_gtpv2_ie_bit_rate },                         /* 211 Bit Rate Extendable / 8.142 */
+    {GTPV2_IE_PC5_QOS_FLOW, dissect_gtpv2_ie_pc5_qos_flow },                 /* 212 PC5 QoS Flow Extendable / 8.143 */
+    {GTPV2_IE_SGI_PTP_TUNNEL_ADDRESS, dissect_gtpv2_ie_sgi_ptp_tunnel_address }, /* 213 SGi PtP Tunnel Address Extendable / 8.144 */
+    {GTPV2_IE_PGW_CHANGE_INFO, dissect_gtpv2_ie_pgw_change_info },           /* 214 PGW Change Info Extendable / 8.145 */
+    {GTPV2_IE_PGW_SET_FQDN, dissect_gtpv2_ie_pgw_set_fqdn },                 /* 215 PGW Set FQDN Extendable / 8.146 */
 
     {GTPV2_IE_PRIVATE_EXT, dissect_gtpv2_private_ext},
 
@@ -12017,6 +12109,11 @@ void proto_register_gtpv2(void)
       { &hf_gtpv2_node_number_len,
       { "Length", "gtpv2.node_number.len",
           FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_additional_rrm_policy_index,
+      { "Additional RRM Policy Index", "gtpv2.additional_rrm_policy_index",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
           NULL, HFILL }
       },
     };
