@@ -189,7 +189,7 @@ static gint ett_vlan = -1;
 static expert_field ei_vlan_len = EI_INIT;
 static expert_field ei_vlan_too_many_tags = EI_INIT;
 
-#define VLAN_MAX_NESTED_TAGS 10
+#define VLAN_MAX_NESTED_TAGS 20
 
 static gboolean
 capture_vlan(const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_ ) {
