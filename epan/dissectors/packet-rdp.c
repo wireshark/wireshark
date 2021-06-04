@@ -93,6 +93,7 @@ static int hf_rdp_neg_length = -1;
 static int hf_rdp_requestedProtocols = -1;
 static int hf_rdp_requestedProtocols_flag_ssl = -1;
 static int hf_rdp_requestedProtocols_flag_hybrid = -1;
+static int hf_rdp_requestedProtocols_flag_rdstls = -1;
 static int hf_rdp_requestedProtocols_flag_hybrid_ex = -1;
 static int hf_rdp_correlationInfo_flags;
 static int hf_rdp_correlationId = -1;
@@ -103,9 +104,6 @@ static int hf_rdp_negRsp_flag_dynvc_gfx_protocol_supported = -1;
 static int hf_rdp_negRsp_flag_restricted_admin_mode_supported = -1;
 static int hf_rdp_negRsp_flag_restricted_authentication_mode_supported = -1;
 static int hf_rdp_selectedProtocol = -1;
-static int hf_rdp_selectedProtocol_flag_ssl = -1;
-static int hf_rdp_selectedProtocol_flag_hybrid = -1;
-static int hf_rdp_selectedProtocol_flag_hybrid_ex = -1;
 static int hf_rdp_negFailure_failureCode = -1;
 
 static int hf_rdp_ClientData = -1;
@@ -672,12 +670,13 @@ static const value_string rdp_connectionType_vals[] = {
   {   0, NULL},
 };
 
-static const value_string rdp_requestedProtocols_vals[] = {
-  {   0, "Standard RDP Security" },
-  {   1, "TLS 1.0" },
-  {   2, "Credential Security Support Provider protocol (CredSSP)" },
-  {   3, "Credential Security Support Provider protocol (CredSSP)" },
-  {   0, NULL},
+static const value_string rdp_selectedProtocol_vals[] = {
+  {   0x0, "Standard RDP Security" },
+  {   0x1, "TLS 1.0, 1.1 or 1.2" },
+  {   0x2, "CredSSP" },
+  {   0x4, "RDSTLS protocol" },
+  {   0x8, "CredSSP with Early User Authorization Result PDU" },
+  {   0x0, NULL},
 };
 
 static const value_string rdp_flagsPkt_vals[] = {
@@ -1805,6 +1804,7 @@ dissect_rdp_ClientData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     {&hf_rdp_monitorCount,           4, NULL, 0, 0, NULL },
     FI_TERMINATOR
   };
+
   rdp_field_info_t multitransport_fields[] = {
     {&hf_rdp_headerType,             2, NULL, 0, 0, NULL },
     {&hf_rdp_headerLength,           2, NULL, 0, 0, NULL },
@@ -2121,6 +2121,7 @@ dissect_rdpNegReq(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tre
   static int * const requestedProtocols_bits[] = {
     &hf_rdp_requestedProtocols_flag_ssl,
     &hf_rdp_requestedProtocols_flag_hybrid,
+    &hf_rdp_requestedProtocols_flag_rdstls,
     &hf_rdp_requestedProtocols_flag_hybrid_ex,
     NULL
   };
@@ -2215,12 +2216,6 @@ dissect_rdpNegRsp(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tre
     &hf_rdp_negRsp_flag_restricted_authentication_mode_supported,
     NULL
   };
-  static int * const selectedProtocol_bits[] = {
-    &hf_rdp_selectedProtocol_flag_ssl,
-    &hf_rdp_selectedProtocol_flag_hybrid,
-    &hf_rdp_selectedProtocol_flag_hybrid_ex,
-    NULL
-  };
 
   col_append_str(pinfo->cinfo, COL_INFO, "Negotiate Response");
 
@@ -2236,9 +2231,7 @@ dissect_rdpNegRsp(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tre
     expert_add_info_format(pinfo, length_item, &ei_rdp_neg_len_invalid, "RDP Negotiate Response length is %u, not 8", length);
     return offset;
   }
-  proto_tree_add_bitmask(tree, tvb, offset, hf_rdp_selectedProtocol,
-                         ett_selectedProtocol, selectedProtocol_bits,
-                         ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(tree, hf_rdp_selectedProtocol, tvb, offset, 4, ENC_LITTLE_ENDIAN);
   offset += 4;
   return offset;
 }
@@ -2354,8 +2347,12 @@ proto_register_rdp(void) {
       { "CredSSP supported", "rdp.negReq.requestedProtocols.hybrid",
         FT_BOOLEAN, 32, NULL, 0x00000002,
 	NULL, HFILL }},
+    { &hf_rdp_requestedProtocols_flag_rdstls,
+      { "RDSTLS supported", "rdp.negReq.requestedProtocols.rdstls",
+        FT_BOOLEAN, 32, NULL, 0x00000004,
+	NULL, HFILL }},
     { &hf_rdp_requestedProtocols_flag_hybrid_ex,
-      { "Early User Authorization Result PDU supported", "rdp.negReq.requestedProtocols.hybrid_ex",
+      { "CredSSP with Early User Authorization Result PDU supported", "rdp.negReq.requestedProtocols.hybrid_ex",
         FT_BOOLEAN, 32, NULL, 0x00000008,
 	NULL, HFILL }},
     { &hf_rdp_correlationInfo_flags,
@@ -2392,19 +2389,7 @@ proto_register_rdp(void) {
 	NULL, HFILL }},
     { &hf_rdp_selectedProtocol,
       { "selectedProtocol", "rdp.negReq.selectedProtocol",
-        FT_UINT32, BASE_HEX, NULL, 0,
-	NULL, HFILL }},
-    { &hf_rdp_selectedProtocol_flag_ssl,
-      { "TLS security selected", "rdp.negReq.selectedProtocol.ssl",
-        FT_BOOLEAN, 32, NULL, 0x00000001,
-	NULL, HFILL }},
-    { &hf_rdp_selectedProtocol_flag_hybrid,
-      { "CredSSP selected", "rdp.negReq.selectedProtocol.hybrid",
-        FT_BOOLEAN, 32, NULL, 0x00000002,
-	NULL, HFILL }},
-    { &hf_rdp_selectedProtocol_flag_hybrid_ex,
-      { "Early User Authorization Result PDU selected", "rdp.negReq.selectedProtocol.hybrid_ex",
-        FT_BOOLEAN, 32, NULL, 0x00000008,
+        FT_UINT32, BASE_HEX, VALS(rdp_selectedProtocol_vals), 0,
 	NULL, HFILL }},
     { &hf_rdp_negFailure_failureCode,
       { "failureCode", "rdp.negFailure.failureCode",
@@ -2688,7 +2673,7 @@ proto_register_rdp(void) {
         NULL, HFILL }},
     { &hf_rdp_clientRequestedProtocols,
       { "clientRequestedProtocols", "rdp.client.requestedProtocols",
-        FT_UINT32, BASE_HEX, VALS(rdp_requestedProtocols_vals), 0,
+        FT_UINT32, BASE_HEX, NULL, 0,
         NULL, HFILL }},
     { &hf_rdp_MCSChannelId,
       { "MCSChannelId", "rdp.MCSChannelId",
