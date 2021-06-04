@@ -84,6 +84,8 @@ They previously shipped with Npcap 1.20.
   account, as those addresses can be reused. To revert to the previous behavior and not reassemble fragments with different VLAN IDs,
   turn on the "Enable stricter conversation tracking heuristics" top level protocol preference.
 
+* tshark can now export TLS session keys with the --export-tls-session-keys option.
+
 // === Removed Features and Support
 
 // === Removed Dissectors

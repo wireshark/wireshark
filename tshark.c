@@ -88,6 +88,7 @@
 #include "ui/cli/tap-exportobject.h"
 #include "ui/tap_export_pdu.h"
 #include "ui/dissect_opts.h"
+#include "ui/ssl_key_export.h"
 #include "ui/failure_message.h"
 #if defined(HAVE_LIBSMI)
 #include "epan/oids.h"
@@ -141,6 +142,7 @@
 #define LONGOPT_COLOR                   LONGOPT_BASE_APPLICATION+2
 #define LONGOPT_NO_DUPLICATE_KEYS       LONGOPT_BASE_APPLICATION+3
 #define LONGOPT_ELASTIC_MAPPING_FILTER  LONGOPT_BASE_APPLICATION+4
+#define LONGOPT_EXPORT_TLS_SESSION_KEYS LONGOPT_BASE_APPLICATION+5
 
 capture_file cfile;
 
@@ -465,6 +467,8 @@ print_usage(FILE *output)
   fprintf(output, "  --export-objects <protocol>,<destdir>\n");
   fprintf(output, "                           save exported objects for a protocol to a directory\n");
   fprintf(output, "                           named \"destdir\"\n");
+  fprintf(output, "  --export-tls-session-keys <keyfile>\n");
+  fprintf(output, "                           export TLS Session Keys to a file named \"keyfile\"\n");
   fprintf(output, "  --color                  color output text similarly to the Wireshark GUI,\n");
   fprintf(output, "                           requires a terminal with 24-bit color support\n");
   fprintf(output, "                           Also supplies color attributes to pdml and psml formats\n");
@@ -524,6 +528,22 @@ glossary_option_help(void)
   fprintf(output, "  -G defaultprefs          dump default preferences and exit\n");
   fprintf(output, "  -G folders               dump about:folders\n");
   fprintf(output, "\n");
+}
+
+static void
+tshark_write_to_file(const gchar *filename, const gchar *data)
+{
+  int fd = ws_open(filename, O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0644);
+  if (fd == -1) {
+    open_failure_message(filename, errno, TRUE);
+    return;
+  }
+
+  if (ws_write(fd, data, (unsigned int)strlen(data)) < 0) {
+    write_failure_message(filename, errno);
+  }
+
+  ws_close(fd);
 }
 
 static void
@@ -720,6 +740,7 @@ main(int argc, char *argv[])
     LONGOPT_DISSECT_COMMON
     {"print", no_argument, NULL, 'P'},
     {"export-objects", required_argument, NULL, LONGOPT_EXPORT_OBJECTS},
+    {"export-tls-session-keys", required_argument, NULL, LONGOPT_EXPORT_TLS_SESSION_KEYS},
     {"color", no_argument, NULL, LONGOPT_COLOR},
     {"no-duplicate-keys", no_argument, NULL, LONGOPT_NO_DUPLICATE_KEYS},
     {"elastic-mapping-filter", required_argument, NULL, LONGOPT_ELASTIC_MAPPING_FILTER},
@@ -756,6 +777,7 @@ main(int argc, char *argv[])
   gchar               *output_only = NULL;
   gchar               *volatile pdu_export_arg = NULL;
   char                *volatile exp_pdu_filename = NULL;
+  const gchar         *volatile tls_session_keys_file = NULL;
   exp_pdu_t            exp_pdu_tap_data;
   const gchar*         elastic_mapping_filter = NULL;
 
@@ -1502,6 +1524,9 @@ main(int argc, char *argv[])
         exit_status = INVALID_OPTION;
         goto clean_exit;
       }
+      break;
+    case LONGOPT_EXPORT_TLS_SESSION_KEYS:   /* --export-tls-session-keys */
+      tls_session_keys_file = optarg;
       break;
     case LONGOPT_COLOR: /* print in color where appropriate */
       dissect_color = TRUE;
@@ -2319,6 +2344,13 @@ main(int argc, char *argv[])
 
   if (draw_taps)
     draw_tap_listeners(TRUE);
+
+  if (tls_session_keys_file) {
+    gchar *keylist = ssl_export_sessions();
+    tshark_write_to_file(tls_session_keys_file, keylist);
+    g_free(keylist);
+  }
+
   /* Memory cleanup */
   reset_tap_listeners();
   funnel_dump_all_text_windows();
