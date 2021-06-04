@@ -243,6 +243,9 @@ class case_fileformat_mime(subprocesstest.SubprocessTestCase):
         proc = self.assertRun((cmd_tshark,
                 '-r', capture_file('icmp.pcapng.gz'),
                 '-Xread_format:MIME Files Format',
-                '-Tfields', '-e', 'frame.len', '-e', 'pcapng.block.length',
+                '-Tfields',
+                '-e', 'frame.len',
+                '-e', 'pcapng.block.length',
+                '-e', 'pcapng.block.length_trailer',
             ))
-        self.assertEqual(proc.stdout_str.strip(), '480\t128,128,88,88,132,132,132,132')
+        self.assertEqual(proc.stdout_str.strip(), '480\t128,88,132,132\t128,88,132,132')
