@@ -3341,6 +3341,8 @@ dissect_data_chunk(tvbuff_t *chunk_tvb,
   u_bit = oct & SCTP_DATA_CHUNK_U_BIT;
   tsn = tvb_get_ntohl(chunk_tvb, DATA_CHUNK_TSN_OFFSET);
 
+  col_append_fstr(pinfo->cinfo, COL_INFO, "(TSN=%" G_GUINT32_FORMAT ") ", tsn);
+
   if (chunk_tree) {
     if (is_idata)
       proto_item_set_len(chunk_item, I_DATA_CHUNK_HEADER_LENGTH);
@@ -3362,7 +3364,7 @@ dissect_data_chunk(tvbuff_t *chunk_tvb,
       proto_tree_add_item(chunk_tree, hf_data_chunk_stream_seq_number, chunk_tvb, DATA_CHUNK_STREAM_SEQ_NUMBER_OFFSET,   DATA_CHUNK_STREAM_SEQ_NUMBER_LENGTH,   ENC_BIG_ENDIAN);
       proto_tree_add_item(chunk_tree, hf_data_chunk_payload_proto_id,  chunk_tvb, DATA_CHUNK_PAYLOAD_PROTOCOL_ID_OFFSET, DATA_CHUNK_PAYLOAD_PROTOCOL_ID_LENGTH, ENC_BIG_ENDIAN);
     }
-    proto_item_append_text(chunk_item, "(%s, ", (u_bit) ? "unordered" : "ordered");
+    proto_item_append_text(chunk_item, " (%s, ", (u_bit) ? "unordered" : "ordered");
     if (b_bit) {
       if (e_bit)
         proto_item_append_text(chunk_item, "complete");
@@ -3678,6 +3680,19 @@ dissect_sack_chunk(packet_info *pinfo, tvbuff_t *chunk_tvb, proto_tree *chunk_tr
        expert_add_info(pinfo, pi, &ei_sctp_sack_chunk_gap_block_out_of_order);
     }
     last_end = end;
+  }
+
+  if(last_end == 0) {
+    /* No GapAck -> only show CumAck */
+    col_append_fstr(pinfo->cinfo, COL_INFO,
+                    "(Ack=%" G_GUINT32_FORMAT ", Arwnd=%" G_GUINT32_FORMAT ") ",
+                    cum_tsn_ack, a_rwnd);
+  }
+  else {
+    /* Show CumAck + highest GapAck */
+    col_append_fstr(pinfo->cinfo, COL_INFO,
+                    "(Ack=%" G_GUINT32_FORMAT "+%" G_GUINT32_FORMAT ", Arwnd=%" G_GUINT32_FORMAT ") ",
+                    cum_tsn_ack, last_end, a_rwnd);
   }
 
   if (tsns_gap_acked) {
