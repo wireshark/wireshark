@@ -2341,7 +2341,7 @@ proto_register_pcapng(void)
     static ei_register_info ei[] = {
         { &ei_invalid_byte_order_magic, { "pcapng.invalid_byte_order_magic", PI_PROTOCOL, PI_ERROR, "The byte-order magic number is not valid", EXPFILL }},
         { &ei_block_length_too_short, { "pcapng.block_length_too_short", PI_PROTOCOL, PI_ERROR, "Block length is < 12 bytes", EXPFILL }},
-        { &ei_block_length_not_multiple_of_4, { "pcapng.block_length_too_short", PI_PROTOCOL, PI_ERROR, "Block length is not a multiple of 4", EXPFILL }},
+        { &ei_block_length_not_multiple_of_4, { "pcapng.block_length_not_multiple_of4", PI_PROTOCOL, PI_ERROR, "Block length is not a multiple of 4", EXPFILL }},
         { &ei_invalid_option_length, { "pcapng.invalid_option_length", PI_PROTOCOL, PI_ERROR, "Invalid Option Length", EXPFILL }},
         { &ei_invalid_record_length, { "pcapng.invalid_record_length", PI_PROTOCOL, PI_ERROR, "Invalid Record Length", EXPFILL }},
         { &ei_missing_idb, { "pcapng.no_interfaces", PI_PROTOCOL, PI_ERROR, "No Interface Description before block that requires it", EXPFILL }},
