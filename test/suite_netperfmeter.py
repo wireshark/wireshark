@@ -30,67 +30,67 @@ class case_netperfmeter(subprocesstest.SubprocessTestCase):
 8 0.019316433 192.168.0.20 → 192.168.0.27 NetPerfMeter 260 NetPerfMeter Add Flow
 10 0.038537718 192.168.0.27 → 192.168.0.20 NetPerfMeter 88 NetPerfMeter Acknowledge
 14 0.326752277 192.168.0.27 → 192.168.0.20 NetPerfMeter 88 NetPerfMeter Acknowledge
-18 0.333703948 192.168.0.20 → 192.168.0.27 NetPerfMeter 276 SACK (Ack=588623976, Arwnd=106496) NetPerfMeter Add Flow
-19 0.340092259 192.168.0.27 → 192.168.0.20 NetPerfMeter 104 SACK (Ack=726338181, Arwnd=106496) NetPerfMeter Acknowledge
+18 0.333703948 192.168.0.20 → 192.168.0.27 NetPerfMeter 276 SACK (Ack=1, Arwnd=106496) NetPerfMeter Add Flow
+19 0.340092259 192.168.0.27 → 192.168.0.20 NetPerfMeter 104 SACK (Ack=1, Arwnd=106496) NetPerfMeter Acknowledge
 23 0.547510935 192.168.0.27 → 192.168.0.20 NetPerfMeter 88 NetPerfMeter Acknowledge
-24 0.548336846 192.168.0.20 → 192.168.0.27 NetPerfMeter 276 SACK (Ack=588623978, Arwnd=106496) NetPerfMeter Add Flow
-25 0.556582544 192.168.0.27 → 192.168.0.20 NetPerfMeter 104 SACK (Ack=726338182, Arwnd=106496) NetPerfMeter Acknowledge
+24 0.548336846 192.168.0.20 → 192.168.0.27 NetPerfMeter 276 SACK (Ack=3, Arwnd=106496) NetPerfMeter Add Flow
+25 0.556582544 192.168.0.27 → 192.168.0.20 NetPerfMeter 104 SACK (Ack=2, Arwnd=106496) NetPerfMeter Acknowledge
 28 0.768799828 192.168.0.27 → 192.168.0.20 NetPerfMeter 88 NetPerfMeter Acknowledge
-29 0.769562835 192.168.0.20 → 192.168.0.27 NetPerfMeter 276 SACK (Ack=588623980, Arwnd=106496) NetPerfMeter Add Flow
-30 0.777872331 192.168.0.27 → 192.168.0.20 NetPerfMeter 104 SACK (Ack=726338183, Arwnd=106496) NetPerfMeter Acknowledge
+29 0.769562835 192.168.0.20 → 192.168.0.27 NetPerfMeter 276 SACK (Ack=5, Arwnd=106496) NetPerfMeter Add Flow
+30 0.777872331 192.168.0.27 → 192.168.0.20 NetPerfMeter 104 SACK (Ack=3, Arwnd=106496) NetPerfMeter Acknowledge
 33 0.986925179 192.168.0.27 → 192.168.0.20 NetPerfMeter 88 NetPerfMeter Acknowledge
-37 0.992962317 192.168.0.20 → 192.168.0.27 NetPerfMeter 276 SACK (Ack=588623982, Arwnd=106496) NetPerfMeter Add Flow
-38 1.000163511 192.168.0.27 → 192.168.0.20 NetPerfMeter 104 SACK (Ack=726338184, Arwnd=106496) NetPerfMeter Acknowledge
+37 0.992962317 192.168.0.20 → 192.168.0.27 NetPerfMeter 276 SACK (Ack=7, Arwnd=106496) NetPerfMeter Add Flow
+38 1.000163511 192.168.0.27 → 192.168.0.20 NetPerfMeter 104 SACK (Ack=4, Arwnd=106496) NetPerfMeter Acknowledge
 41 1.245101828 192.168.0.27 → 192.168.0.20 NetPerfMeter 88 NetPerfMeter Acknowledge
-45 1.248598897 192.168.0.20 → 192.168.0.27 NetPerfMeter 276 SACK (Ack=588623984, Arwnd=106496) NetPerfMeter Add Flow
-46 1.257101874 192.168.0.27 → 192.168.0.20 NetPerfMeter 104 SACK (Ack=726338185, Arwnd=106496) NetPerfMeter Acknowledge
+45 1.248598897 192.168.0.20 → 192.168.0.27 NetPerfMeter 276 SACK (Ack=9, Arwnd=106496) NetPerfMeter Add Flow
+46 1.257101874 192.168.0.27 → 192.168.0.20 NetPerfMeter 104 SACK (Ack=5, Arwnd=106496) NetPerfMeter Acknowledge
 49 1.502117462 192.168.0.27 → 192.168.0.20 NetPerfMeter 88 NetPerfMeter Acknowledge
-53 1.509411259 192.168.0.20 → 192.168.0.27 NetPerfMeter 276 SACK (Ack=588623986, Arwnd=106496) NetPerfMeter Add Flow
-54 1.518356124 192.168.0.27 → 192.168.0.20 NetPerfMeter 104 SACK (Ack=726338186, Arwnd=106496) NetPerfMeter Acknowledge
+53 1.509411259 192.168.0.20 → 192.168.0.27 NetPerfMeter 276 SACK (Ack=11, Arwnd=106496) NetPerfMeter Add Flow
+54 1.518356124 192.168.0.27 → 192.168.0.20 NetPerfMeter 104 SACK (Ack=6, Arwnd=106496) NetPerfMeter Acknowledge
 57 1.762124577 192.168.0.27 → 192.168.0.20 NetPerfMeter 88 NetPerfMeter Acknowledge
-61 1.768546288 192.168.0.20 → 192.168.0.27 NetPerfMeter 276 SACK (Ack=588623988, Arwnd=106496) NetPerfMeter Add Flow
-62 1.776275446 192.168.0.27 → 192.168.0.20 NetPerfMeter 104 SACK (Ack=726338187, Arwnd=106496) NetPerfMeter Acknowledge
+61 1.768546288 192.168.0.20 → 192.168.0.27 NetPerfMeter 276 SACK (Ack=13, Arwnd=106496) NetPerfMeter Add Flow
+62 1.776275446 192.168.0.27 → 192.168.0.20 NetPerfMeter 104 SACK (Ack=7, Arwnd=106496) NetPerfMeter Acknowledge
 65 1.996204594 192.168.0.27 → 192.168.0.20 NetPerfMeter 88 NetPerfMeter Acknowledge
-69 2.003084950 192.168.0.20 → 192.168.0.27 NetPerfMeter 276 SACK (Ack=588623990, Arwnd=106496) NetPerfMeter Add Flow
-70 2.012723649 192.168.0.27 → 192.168.0.20 NetPerfMeter 104 SACK (Ack=726338188, Arwnd=106496) NetPerfMeter Acknowledge
+69 2.003084950 192.168.0.20 → 192.168.0.27 NetPerfMeter 276 SACK (Ack=15, Arwnd=106496) NetPerfMeter Add Flow
+70 2.012723649 192.168.0.27 → 192.168.0.20 NetPerfMeter 104 SACK (Ack=8, Arwnd=106496) NetPerfMeter Acknowledge
 73 2.253277911 192.168.0.27 → 192.168.0.20 NetPerfMeter 88 NetPerfMeter Acknowledge
-77 2.259089003 192.168.0.20 → 192.168.0.27 NetPerfMeter 276 SACK (Ack=588623992, Arwnd=106496) NetPerfMeter Add Flow
-78 2.267758027 192.168.0.27 → 192.168.0.20 NetPerfMeter 104 SACK (Ack=726338189, Arwnd=106496) NetPerfMeter Acknowledge
+77 2.259089003 192.168.0.20 → 192.168.0.27 NetPerfMeter 276 SACK (Ack=17, Arwnd=106496) NetPerfMeter Add Flow
+78 2.267758027 192.168.0.27 → 192.168.0.20 NetPerfMeter 104 SACK (Ack=9, Arwnd=106496) NetPerfMeter Acknowledge
 81 2.513148441 192.168.0.27 → 192.168.0.20 NetPerfMeter 88 NetPerfMeter Acknowledge
-85 2.519444777 192.168.0.20 → 192.168.0.27 NetPerfMeter 276 SACK (Ack=588623994, Arwnd=106496) NetPerfMeter Add Flow
-86 2.526479512 192.168.0.27 → 192.168.0.20 NetPerfMeter 104 SACK (Ack=726338190, Arwnd=106496) NetPerfMeter Acknowledge
+85 2.519444777 192.168.0.20 → 192.168.0.27 NetPerfMeter 276 SACK (Ack=19, Arwnd=106496) NetPerfMeter Add Flow
+86 2.526479512 192.168.0.27 → 192.168.0.20 NetPerfMeter 104 SACK (Ack=10, Arwnd=106496) NetPerfMeter Acknowledge
 89 2.772395957 192.168.0.27 → 192.168.0.20 NetPerfMeter 88 NetPerfMeter Acknowledge
-93 2.781575331 192.168.0.20 → 192.168.0.27 NetPerfMeter 276 SACK (Ack=588623996, Arwnd=106496) NetPerfMeter Add Flow
-94 2.789065601 192.168.0.27 → 192.168.0.20 NetPerfMeter 104 SACK (Ack=726338191, Arwnd=106496) NetPerfMeter Acknowledge
+93 2.781575331 192.168.0.20 → 192.168.0.27 NetPerfMeter 276 SACK (Ack=21, Arwnd=106496) NetPerfMeter Add Flow
+94 2.789065601 192.168.0.27 → 192.168.0.20 NetPerfMeter 104 SACK (Ack=11, Arwnd=106496) NetPerfMeter Acknowledge
 97 2.998736571 192.168.0.27 → 192.168.0.20 NetPerfMeter 88 NetPerfMeter Acknowledge
-101 3.005046187 192.168.0.20 → 192.168.0.27 NetPerfMeter 276 SACK (Ack=588623998, Arwnd=106496) NetPerfMeter Add Flow
-102 3.011025634 192.168.0.27 → 192.168.0.20 NetPerfMeter 104 SACK (Ack=726338192, Arwnd=106496) NetPerfMeter Acknowledge
+101 3.005046187 192.168.0.20 → 192.168.0.27 NetPerfMeter 276 SACK (Ack=23, Arwnd=106496) NetPerfMeter Add Flow
+102 3.011025634 192.168.0.27 → 192.168.0.20 NetPerfMeter 104 SACK (Ack=12, Arwnd=106496) NetPerfMeter Acknowledge
 105 3.255120658 192.168.0.27 → 192.168.0.20 NetPerfMeter 88 NetPerfMeter Acknowledge
-109 3.262979723 192.168.0.20 → 192.168.0.27 NetPerfMeter 276 SACK (Ack=588624000, Arwnd=106496) NetPerfMeter Add Flow
-110 3.270638348 192.168.0.27 → 192.168.0.20 NetPerfMeter 104 SACK (Ack=726338193, Arwnd=106496) NetPerfMeter Acknowledge
+109 3.262979723 192.168.0.20 → 192.168.0.27 NetPerfMeter 276 SACK (Ack=25, Arwnd=106496) NetPerfMeter Add Flow
+110 3.270638348 192.168.0.27 → 192.168.0.20 NetPerfMeter 104 SACK (Ack=13, Arwnd=106496) NetPerfMeter Acknowledge
 113 3.518145868 192.168.0.27 → 192.168.0.20 NetPerfMeter 88 NetPerfMeter Acknowledge
-118 3.536880998 192.168.0.20 → 192.168.0.27 NetPerfMeter 276 SACK (Ack=588624002, Arwnd=106496) NetPerfMeter Add Flow
-119 3.541489068 192.168.0.27 → 192.168.0.20 NetPerfMeter 104 SACK (Ack=726338194, Arwnd=106496) NetPerfMeter Acknowledge
+118 3.536880998 192.168.0.20 → 192.168.0.27 NetPerfMeter 276 SACK (Ack=27, Arwnd=106496) NetPerfMeter Add Flow
+119 3.541489068 192.168.0.27 → 192.168.0.20 NetPerfMeter 104 SACK (Ack=14, Arwnd=106496) NetPerfMeter Acknowledge
 123 3.776536632 192.168.0.27 → 192.168.0.20 NetPerfMeter 88 NetPerfMeter Acknowledge
-124 3.777268092 192.168.0.20 → 192.168.0.27 NetPerfMeter 276 SACK (Ack=588624004, Arwnd=106496) NetPerfMeter Add Flow
-125 3.784200653 192.168.0.27 → 192.168.0.20 NetPerfMeter 104 SACK (Ack=726338195, Arwnd=106496) NetPerfMeter Acknowledge
+124 3.777268092 192.168.0.20 → 192.168.0.27 NetPerfMeter 276 SACK (Ack=29, Arwnd=106496) NetPerfMeter Add Flow
+125 3.784200653 192.168.0.27 → 192.168.0.20 NetPerfMeter 104 SACK (Ack=15, Arwnd=106496) NetPerfMeter Acknowledge
 128 3.995220129 192.168.0.27 → 192.168.0.20 NetPerfMeter 88 NetPerfMeter Acknowledge
-129 3.995907203 192.168.0.20 → 192.168.0.27 NetPerfMeter 276 SACK (Ack=588624006, Arwnd=106496) NetPerfMeter Add Flow
-131 4.006264635 192.168.0.27 → 192.168.0.20 NetPerfMeter 104 SACK (Ack=726338196, Arwnd=106496) NetPerfMeter Acknowledge
+129 3.995907203 192.168.0.20 → 192.168.0.27 NetPerfMeter 276 SACK (Ack=31, Arwnd=106496) NetPerfMeter Add Flow
+131 4.006264635 192.168.0.27 → 192.168.0.20 NetPerfMeter 104 SACK (Ack=16, Arwnd=106496) NetPerfMeter Acknowledge
 135 4.215292054 192.168.0.27 → 192.168.0.20 NetPerfMeter 88 NetPerfMeter Acknowledge
-136 4.216018889 192.168.0.20 → 192.168.0.27 NetPerfMeter 276 SACK (Ack=588624008, Arwnd=106496) NetPerfMeter Add Flow
-137 4.222906817 192.168.0.27 → 192.168.0.20 NetPerfMeter 104 SACK (Ack=726338197, Arwnd=106496) NetPerfMeter Acknowledge
+136 4.216018889 192.168.0.20 → 192.168.0.27 NetPerfMeter 276 SACK (Ack=33, Arwnd=106496) NetPerfMeter Add Flow
+137 4.222906817 192.168.0.27 → 192.168.0.20 NetPerfMeter 104 SACK (Ack=17, Arwnd=106496) NetPerfMeter Acknowledge
 141 4.430858169 192.168.0.27 → 192.168.0.20 NetPerfMeter 88 NetPerfMeter Acknowledge
-142 4.431619137 192.168.0.20 → 192.168.0.27 NetPerfMeter 276 SACK (Ack=588624010, Arwnd=106496) NetPerfMeter Add Flow
-143 4.439186831 192.168.0.27 → 192.168.0.20 NetPerfMeter 104 SACK (Ack=726338198, Arwnd=106496) NetPerfMeter Acknowledge
+142 4.431619137 192.168.0.20 → 192.168.0.27 NetPerfMeter 276 SACK (Ack=35, Arwnd=106496) NetPerfMeter Add Flow
+143 4.439186831 192.168.0.27 → 192.168.0.20 NetPerfMeter 104 SACK (Ack=18, Arwnd=106496) NetPerfMeter Acknowledge
 147 4.647960736 192.168.0.27 → 192.168.0.20 NetPerfMeter 88 NetPerfMeter Acknowledge
-148 4.648753903 192.168.0.20 → 192.168.0.27 NetPerfMeter 276 SACK (Ack=588624012, Arwnd=106496) NetPerfMeter Add Flow
-149 4.654062259 192.168.0.27 → 192.168.0.20 NetPerfMeter 104 SACK (Ack=726338199, Arwnd=106496) NetPerfMeter Acknowledge
+148 4.648753903 192.168.0.20 → 192.168.0.27 NetPerfMeter 276 SACK (Ack=37, Arwnd=106496) NetPerfMeter Add Flow
+149 4.654062259 192.168.0.27 → 192.168.0.20 NetPerfMeter 104 SACK (Ack=19, Arwnd=106496) NetPerfMeter Acknowledge
 153 4.861696359 192.168.0.27 → 192.168.0.20 NetPerfMeter 88 NetPerfMeter Acknowledge
-158 4.881874024 192.168.0.20 → 192.168.0.27 NetPerfMeter 276 SACK (Ack=588624014, Arwnd=106496) NetPerfMeter Add Flow
-159 4.886932549 192.168.0.27 → 192.168.0.20 NetPerfMeter 104 SACK (Ack=726338200, Arwnd=106496) NetPerfMeter Acknowledge
+158 4.881874024 192.168.0.20 → 192.168.0.27 NetPerfMeter 276 SACK (Ack=39, Arwnd=106496) NetPerfMeter Add Flow
+159 4.886932549 192.168.0.27 → 192.168.0.20 NetPerfMeter 104 SACK (Ack=20, Arwnd=106496) NetPerfMeter Acknowledge
 163 5.095411239 192.168.0.27 → 192.168.0.20 NetPerfMeter 88 NetPerfMeter Acknowledge
-184 5.101147570 192.168.0.20 → 192.168.0.27 NetPerfMeter 96 SACK (Ack=588624016, Arwnd=106496) NetPerfMeter Start Measurement
+184 5.101147570 192.168.0.20 → 192.168.0.27 NetPerfMeter 96 SACK (Ack=41, Arwnd=106496) NetPerfMeter Start Measurement
 227 5.315482367 192.168.0.27 → 192.168.0.20 NetPerfMeter 88 NetPerfMeter Acknowledge
 2084 15.615367349 192.168.0.20 → 192.168.0.27 NetPerfMeter 80 NetPerfMeter Stop Measurement
 2086 16.091680420 192.168.0.27 → 192.168.0.20 NetPerfMeter 88 NetPerfMeter Acknowledge
@@ -164,95 +164,95 @@ class case_netperfmeter(subprocesstest.SubprocessTestCase):
 2189 16.138407582 192.168.0.27 → 192.168.0.20 NetPerfMeter 1468 NetPerfMeter Results
 2190 16.138407852 192.168.0.27 → 192.168.0.20 NetPerfMeter 1468 NetPerfMeter Results
 2191 16.138407948 192.168.0.27 → 192.168.0.20 NetPerfMeter 1360 NetPerfMeter Results
-2193 16.138949169 192.168.0.20 → 192.168.0.27 NetPerfMeter 100 SACK (Ack=588624088, Arwnd=106496) NetPerfMeter Remove Flow
-2194 16.147965640 192.168.0.27 → 192.168.0.20 NetPerfMeter 104 SACK (Ack=726338203, Arwnd=106496) NetPerfMeter Acknowledge
+2193 16.138949169 192.168.0.20 → 192.168.0.27 NetPerfMeter 100 SACK (Ack=113, Arwnd=106496) NetPerfMeter Remove Flow
+2194 16.147965640 192.168.0.27 → 192.168.0.20 NetPerfMeter 104 SACK (Ack=23, Arwnd=106496) NetPerfMeter Acknowledge
 2195 16.149160472 192.168.0.27 → 192.168.0.20 NetPerfMeter 1468 NetPerfMeter Results
 2197 16.149694877 192.168.0.27 → 192.168.0.20 NetPerfMeter 1468 NetPerfMeter Results
 2199 16.359112863 192.168.0.27 → 192.168.0.20 NetPerfMeter 400 NetPerfMeter Results
-2200 16.360439472 192.168.0.20 → 192.168.0.27 NetPerfMeter 100 SACK (Ack=588624092, Arwnd=106496) NetPerfMeter Remove Flow
-2201 16.367838301 192.168.0.27 → 192.168.0.20 NetPerfMeter 104 SACK (Ack=726338204, Arwnd=106496) NetPerfMeter Acknowledge
+2200 16.360439472 192.168.0.20 → 192.168.0.27 NetPerfMeter 100 SACK (Ack=117, Arwnd=106496) NetPerfMeter Remove Flow
+2201 16.367838301 192.168.0.27 → 192.168.0.20 NetPerfMeter 104 SACK (Ack=24, Arwnd=106496) NetPerfMeter Acknowledge
 2202 16.369999711 192.168.0.27 → 192.168.0.20 NetPerfMeter 1468 NetPerfMeter Results
 2204 16.370249698 192.168.0.27 → 192.168.0.20 NetPerfMeter 252 NetPerfMeter Results
-2205 16.371333521 192.168.0.20 → 192.168.0.27 NetPerfMeter 100 SACK (Ack=588624095, Arwnd=106496) NetPerfMeter Remove Flow
-2206 16.377931209 192.168.0.27 → 192.168.0.20 NetPerfMeter 104 SACK (Ack=726338205, Arwnd=106496) NetPerfMeter Acknowledge
+2205 16.371333521 192.168.0.20 → 192.168.0.27 NetPerfMeter 100 SACK (Ack=120, Arwnd=106496) NetPerfMeter Remove Flow
+2206 16.377931209 192.168.0.27 → 192.168.0.20 NetPerfMeter 104 SACK (Ack=25, Arwnd=106496) NetPerfMeter Acknowledge
 2207 16.379416052 192.168.0.27 → 192.168.0.20 NetPerfMeter 1468 NetPerfMeter Results
 2209 16.379921676 192.168.0.27 → 192.168.0.20 NetPerfMeter 1468 NetPerfMeter Results
 2211 16.586758032 192.168.0.27 → 192.168.0.20 NetPerfMeter 460 NetPerfMeter Results
-2212 16.588004878 192.168.0.20 → 192.168.0.27 NetPerfMeter 100 SACK (Ack=588624099, Arwnd=106496) NetPerfMeter Remove Flow
-2213 16.596287178 192.168.0.27 → 192.168.0.20 NetPerfMeter 104 SACK (Ack=726338206, Arwnd=106496) NetPerfMeter Acknowledge
+2212 16.588004878 192.168.0.20 → 192.168.0.27 NetPerfMeter 100 SACK (Ack=124, Arwnd=106496) NetPerfMeter Remove Flow
+2213 16.596287178 192.168.0.27 → 192.168.0.20 NetPerfMeter 104 SACK (Ack=26, Arwnd=106496) NetPerfMeter Acknowledge
 2214 16.600862615 192.168.0.27 → 192.168.0.20 NetPerfMeter 1468 NetPerfMeter Results
 2216 16.601572074 192.168.0.27 → 192.168.0.20 NetPerfMeter 256 NetPerfMeter Results
-2217 16.602770488 192.168.0.20 → 192.168.0.27 NetPerfMeter 100 SACK (Ack=588624102, Arwnd=106496) NetPerfMeter Remove Flow
-2218 16.608528578 192.168.0.27 → 192.168.0.20 NetPerfMeter 104 SACK (Ack=726338207, Arwnd=106496) NetPerfMeter Acknowledge
+2217 16.602770488 192.168.0.20 → 192.168.0.27 NetPerfMeter 100 SACK (Ack=127, Arwnd=106496) NetPerfMeter Remove Flow
+2218 16.608528578 192.168.0.27 → 192.168.0.20 NetPerfMeter 104 SACK (Ack=27, Arwnd=106496) NetPerfMeter Acknowledge
 2219 16.610851595 192.168.0.27 → 192.168.0.20 NetPerfMeter 1468 NetPerfMeter Results
 2221 16.611228721 192.168.0.27 → 192.168.0.20 NetPerfMeter 1468 NetPerfMeter Results
 2224 16.820428495 192.168.0.27 → 192.168.0.20 NetPerfMeter 368 NetPerfMeter Results
-2226 16.821725312 192.168.0.20 → 192.168.0.27 NetPerfMeter 100 SACK (Ack=588624106, Arwnd=106496) NetPerfMeter Remove Flow
-2227 16.829665670 192.168.0.27 → 192.168.0.20 NetPerfMeter 104 SACK (Ack=726338208, Arwnd=106496) NetPerfMeter Acknowledge
+2226 16.821725312 192.168.0.20 → 192.168.0.27 NetPerfMeter 100 SACK (Ack=131, Arwnd=106496) NetPerfMeter Remove Flow
+2227 16.829665670 192.168.0.27 → 192.168.0.20 NetPerfMeter 104 SACK (Ack=28, Arwnd=106496) NetPerfMeter Acknowledge
 2228 16.831477557 192.168.0.27 → 192.168.0.20 NetPerfMeter 1468 NetPerfMeter Results
 2230 16.831711400 192.168.0.27 → 192.168.0.20 NetPerfMeter 276 NetPerfMeter Results
-2233 16.832859448 192.168.0.20 → 192.168.0.27 NetPerfMeter 100 SACK (Ack=588624109, Arwnd=106496) NetPerfMeter Remove Flow
-2235 16.838963861 192.168.0.27 → 192.168.0.20 NetPerfMeter 104 SACK (Ack=726338209, Arwnd=106496) NetPerfMeter Acknowledge
+2233 16.832859448 192.168.0.20 → 192.168.0.27 NetPerfMeter 100 SACK (Ack=134, Arwnd=106496) NetPerfMeter Remove Flow
+2235 16.838963861 192.168.0.27 → 192.168.0.20 NetPerfMeter 104 SACK (Ack=29, Arwnd=106496) NetPerfMeter Acknowledge
 2236 16.839917250 192.168.0.27 → 192.168.0.20 NetPerfMeter 1468 NetPerfMeter Results
 2238 16.841055807 192.168.0.27 → 192.168.0.20 NetPerfMeter 236 NetPerfMeter Results
-2241 16.842312060 192.168.0.20 → 192.168.0.27 NetPerfMeter 100 SACK (Ack=588624112, Arwnd=106496) NetPerfMeter Remove Flow
-2243 16.847748197 192.168.0.27 → 192.168.0.20 NetPerfMeter 104 SACK (Ack=726338210, Arwnd=106496) NetPerfMeter Acknowledge
+2241 16.842312060 192.168.0.20 → 192.168.0.27 NetPerfMeter 100 SACK (Ack=137, Arwnd=106496) NetPerfMeter Remove Flow
+2243 16.847748197 192.168.0.27 → 192.168.0.20 NetPerfMeter 104 SACK (Ack=30, Arwnd=106496) NetPerfMeter Acknowledge
 2244 16.848933463 192.168.0.27 → 192.168.0.20 NetPerfMeter 1468 NetPerfMeter Results
 2246 16.849525492 192.168.0.27 → 192.168.0.20 NetPerfMeter 236 NetPerfMeter Results
-2249 16.850661714 192.168.0.20 → 192.168.0.27 NetPerfMeter 100 SACK (Ack=588624115, Arwnd=106496) NetPerfMeter Remove Flow
-2251 16.857615760 192.168.0.27 → 192.168.0.20 NetPerfMeter 104 SACK (Ack=726338211, Arwnd=106496) NetPerfMeter Acknowledge
+2249 16.850661714 192.168.0.20 → 192.168.0.27 NetPerfMeter 100 SACK (Ack=140, Arwnd=106496) NetPerfMeter Remove Flow
+2251 16.857615760 192.168.0.27 → 192.168.0.20 NetPerfMeter 104 SACK (Ack=31, Arwnd=106496) NetPerfMeter Acknowledge
 2252 16.859140443 192.168.0.27 → 192.168.0.20 NetPerfMeter 1468 NetPerfMeter Results
 2254 16.859653107 192.168.0.27 → 192.168.0.20 NetPerfMeter 976 NetPerfMeter Results
-2257 16.860923512 192.168.0.20 → 192.168.0.27 NetPerfMeter 100 SACK (Ack=588624118, Arwnd=106496) NetPerfMeter Remove Flow
-2259 16.866293943 192.168.0.27 → 192.168.0.20 NetPerfMeter 104 SACK (Ack=726338212, Arwnd=106496) NetPerfMeter Acknowledge
+2257 16.860923512 192.168.0.20 → 192.168.0.27 NetPerfMeter 100 SACK (Ack=143, Arwnd=106496) NetPerfMeter Remove Flow
+2259 16.866293943 192.168.0.27 → 192.168.0.20 NetPerfMeter 104 SACK (Ack=32, Arwnd=106496) NetPerfMeter Acknowledge
 2260 16.867822941 192.168.0.27 → 192.168.0.20 NetPerfMeter 1468 NetPerfMeter Results
 2262 16.868668201 192.168.0.27 → 192.168.0.20 NetPerfMeter 1468 NetPerfMeter Results
 2265 17.079265007 192.168.0.27 → 192.168.0.20 NetPerfMeter 368 NetPerfMeter Results
-2267 17.080555093 192.168.0.20 → 192.168.0.27 NetPerfMeter 100 SACK (Ack=588624122, Arwnd=106496) NetPerfMeter Remove Flow
-2268 17.089928582 192.168.0.27 → 192.168.0.20 NetPerfMeter 104 SACK (Ack=726338213, Arwnd=106496) NetPerfMeter Acknowledge
+2267 17.080555093 192.168.0.20 → 192.168.0.27 NetPerfMeter 100 SACK (Ack=147, Arwnd=106496) NetPerfMeter Remove Flow
+2268 17.089928582 192.168.0.27 → 192.168.0.20 NetPerfMeter 104 SACK (Ack=33, Arwnd=106496) NetPerfMeter Acknowledge
 2269 17.091479195 192.168.0.27 → 192.168.0.20 NetPerfMeter 1468 NetPerfMeter Results
 2271 17.092073003 192.168.0.27 → 192.168.0.20 NetPerfMeter 272 NetPerfMeter Results
-2274 17.093044526 192.168.0.20 → 192.168.0.27 NetPerfMeter 100 SACK (Ack=588624125, Arwnd=106496) NetPerfMeter Remove Flow
-2276 17.099098185 192.168.0.27 → 192.168.0.20 NetPerfMeter 104 SACK (Ack=726338214, Arwnd=106496) NetPerfMeter Acknowledge
+2274 17.093044526 192.168.0.20 → 192.168.0.27 NetPerfMeter 100 SACK (Ack=150, Arwnd=106496) NetPerfMeter Remove Flow
+2276 17.099098185 192.168.0.27 → 192.168.0.20 NetPerfMeter 104 SACK (Ack=34, Arwnd=106496) NetPerfMeter Acknowledge
 2277 17.100201203 192.168.0.27 → 192.168.0.20 NetPerfMeter 1468 NetPerfMeter Results
 2279 17.100852674 192.168.0.27 → 192.168.0.20 NetPerfMeter 244 NetPerfMeter Results
-2282 17.101916382 192.168.0.20 → 192.168.0.27 NetPerfMeter 100 SACK (Ack=588624128, Arwnd=106496) NetPerfMeter Remove Flow
-2284 17.109026614 192.168.0.27 → 192.168.0.20 NetPerfMeter 104 SACK (Ack=726338215, Arwnd=106496) NetPerfMeter Acknowledge
+2282 17.101916382 192.168.0.20 → 192.168.0.27 NetPerfMeter 100 SACK (Ack=153, Arwnd=106496) NetPerfMeter Remove Flow
+2284 17.109026614 192.168.0.27 → 192.168.0.20 NetPerfMeter 104 SACK (Ack=35, Arwnd=106496) NetPerfMeter Acknowledge
 2285 17.112907819 192.168.0.27 → 192.168.0.20 NetPerfMeter 1468 NetPerfMeter Results
 2287 17.115302865 192.168.0.27 → 192.168.0.20 NetPerfMeter 244 NetPerfMeter Results
-2290 17.116443045 192.168.0.20 → 192.168.0.27 NetPerfMeter 100 SACK (Ack=588624131, Arwnd=106496) NetPerfMeter Remove Flow
-2292 17.122058351 192.168.0.27 → 192.168.0.20 NetPerfMeter 104 SACK (Ack=726338216, Arwnd=106496) NetPerfMeter Acknowledge
+2290 17.116443045 192.168.0.20 → 192.168.0.27 NetPerfMeter 100 SACK (Ack=156, Arwnd=106496) NetPerfMeter Remove Flow
+2292 17.122058351 192.168.0.27 → 192.168.0.20 NetPerfMeter 104 SACK (Ack=36, Arwnd=106496) NetPerfMeter Acknowledge
 2293 17.125840461 192.168.0.27 → 192.168.0.20 NetPerfMeter 1468 NetPerfMeter Results
 2295 17.126459769 192.168.0.27 → 192.168.0.20 NetPerfMeter 976 NetPerfMeter Results
-2297 17.126760188 192.168.0.20 → 192.168.0.27 NetPerfMeter 100 SACK (Ack=588624134, Arwnd=106496) NetPerfMeter Remove Flow
-2300 17.132579296 192.168.0.27 → 192.168.0.20 NetPerfMeter 104 SACK (Ack=726338217, Arwnd=106496) NetPerfMeter Acknowledge
+2297 17.126760188 192.168.0.20 → 192.168.0.27 NetPerfMeter 100 SACK (Ack=159, Arwnd=106496) NetPerfMeter Remove Flow
+2300 17.132579296 192.168.0.27 → 192.168.0.20 NetPerfMeter 104 SACK (Ack=37, Arwnd=106496) NetPerfMeter Acknowledge
 2301 17.133301477 192.168.0.27 → 192.168.0.20 NetPerfMeter 1468 NetPerfMeter Results
 2302 17.133302153 192.168.0.27 → 192.168.0.20 NetPerfMeter 284 NetPerfMeter Results
-2304 17.133706810 192.168.0.20 → 192.168.0.27 NetPerfMeter 100 SACK (Ack=588624137, Arwnd=106496) NetPerfMeter Remove Flow
-2305 17.138731552 192.168.0.27 → 192.168.0.20 NetPerfMeter 104 SACK (Ack=726338218, Arwnd=106496) NetPerfMeter Acknowledge
+2304 17.133706810 192.168.0.20 → 192.168.0.27 NetPerfMeter 100 SACK (Ack=162, Arwnd=106496) NetPerfMeter Remove Flow
+2305 17.138731552 192.168.0.27 → 192.168.0.20 NetPerfMeter 104 SACK (Ack=38, Arwnd=106496) NetPerfMeter Acknowledge
 2306 17.139818471 192.168.0.27 → 192.168.0.20 NetPerfMeter 1468 NetPerfMeter Results
 2308 17.140335127 192.168.0.27 → 192.168.0.20 NetPerfMeter 288 NetPerfMeter Results
-2309 17.140830809 192.168.0.20 → 192.168.0.27 NetPerfMeter 100 SACK (Ack=588624140, Arwnd=106496) NetPerfMeter Remove Flow
-2310 17.145622016 192.168.0.27 → 192.168.0.20 NetPerfMeter 104 SACK (Ack=726338219, Arwnd=106496) NetPerfMeter Acknowledge
+2309 17.140830809 192.168.0.20 → 192.168.0.27 NetPerfMeter 100 SACK (Ack=165, Arwnd=106496) NetPerfMeter Remove Flow
+2310 17.145622016 192.168.0.27 → 192.168.0.20 NetPerfMeter 104 SACK (Ack=39, Arwnd=106496) NetPerfMeter Acknowledge
 2311 17.147059541 192.168.0.27 → 192.168.0.20 NetPerfMeter 1468 NetPerfMeter Results
 2313 17.148571671 192.168.0.27 → 192.168.0.20 NetPerfMeter 1468 NetPerfMeter Results
 2314 17.149475099 192.168.0.27 → 192.168.0.20 NetPerfMeter 1468 NetPerfMeter Results
 2316 17.150223037 192.168.0.27 → 192.168.0.20 NetPerfMeter 1468 NetPerfMeter Results
 2318 17.359940788 192.168.0.27 → 192.168.0.20 NetPerfMeter 740 NetPerfMeter Results
-2319 17.361102522 192.168.0.20 → 192.168.0.27 NetPerfMeter 100 SACK (Ack=588624146, Arwnd=106496) NetPerfMeter Remove Flow
-2320 17.368203507 192.168.0.27 → 192.168.0.20 NetPerfMeter 104 SACK (Ack=726338220, Arwnd=106496) NetPerfMeter Acknowledge
+2319 17.361102522 192.168.0.20 → 192.168.0.27 NetPerfMeter 100 SACK (Ack=171, Arwnd=106496) NetPerfMeter Remove Flow
+2320 17.368203507 192.168.0.27 → 192.168.0.20 NetPerfMeter 104 SACK (Ack=40, Arwnd=106496) NetPerfMeter Acknowledge
 2321 17.370823736 192.168.0.27 → 192.168.0.20 NetPerfMeter 1468 NetPerfMeter Results
 2323 17.371236232 192.168.0.27 → 192.168.0.20 NetPerfMeter 280 NetPerfMeter Results
-2324 17.372205596 192.168.0.20 → 192.168.0.27 NetPerfMeter 100 SACK (Ack=588624149, Arwnd=106496) NetPerfMeter Remove Flow
-2325 17.378113171 192.168.0.27 → 192.168.0.20 NetPerfMeter 104 SACK (Ack=726338221, Arwnd=106496) NetPerfMeter Acknowledge
+2324 17.372205596 192.168.0.20 → 192.168.0.27 NetPerfMeter 100 SACK (Ack=174, Arwnd=106496) NetPerfMeter Remove Flow
+2325 17.378113171 192.168.0.27 → 192.168.0.20 NetPerfMeter 104 SACK (Ack=41, Arwnd=106496) NetPerfMeter Acknowledge
 2326 17.379408121 192.168.0.27 → 192.168.0.20 NetPerfMeter 1468 NetPerfMeter Results
 2328 17.379940226 192.168.0.27 → 192.168.0.20 NetPerfMeter 284 NetPerfMeter Results
-2329 17.380772832 192.168.0.20 → 192.168.0.27 NetPerfMeter 100 SACK (Ack=588624152, Arwnd=106496) NetPerfMeter Remove Flow
-2330 17.389000119 192.168.0.27 → 192.168.0.20 NetPerfMeter 104 SACK (Ack=726338222, Arwnd=106496) NetPerfMeter Acknowledge
+2329 17.380772832 192.168.0.20 → 192.168.0.27 NetPerfMeter 100 SACK (Ack=177, Arwnd=106496) NetPerfMeter Remove Flow
+2330 17.389000119 192.168.0.27 → 192.168.0.20 NetPerfMeter 104 SACK (Ack=42, Arwnd=106496) NetPerfMeter Acknowledge
 2331 17.389893116 192.168.0.27 → 192.168.0.20 NetPerfMeter 1468 NetPerfMeter Results
 2332 17.389893325 192.168.0.27 → 192.168.0.20 NetPerfMeter 380 NetPerfMeter Results
-2334 17.390667295 192.168.0.20 → 192.168.0.27 NetPerfMeter 100 SACK (Ack=588624155, Arwnd=106496) NetPerfMeter Remove Flow
-2335 17.395701306 192.168.0.27 → 192.168.0.20 NetPerfMeter 104 SACK (Ack=726338223, Arwnd=106496) NetPerfMeter Acknowledge
+2334 17.390667295 192.168.0.20 → 192.168.0.27 NetPerfMeter 100 SACK (Ack=180, Arwnd=106496) NetPerfMeter Remove Flow
+2335 17.395701306 192.168.0.27 → 192.168.0.20 NetPerfMeter 104 SACK (Ack=43, Arwnd=106496) NetPerfMeter Acknowledge
 2336 17.397791412 192.168.0.27 → 192.168.0.20 NetPerfMeter 1468 NetPerfMeter Results
 2338 17.398332887 192.168.0.27 → 192.168.0.20 NetPerfMeter 284 NetPerfMeter Results
 """.replace("\r\n", "\n"),
@@ -417,15 +417,15 @@ class case_netperfmeter(subprocesstest.SubprocessTestCase):
 181 5.099244178 192.168.0.20 → 192.168.0.27 NetPerfMeter 1232 NetPerfMeter Data NetPerfMeter Data
 182 5.099428646 192.168.0.20 → 192.168.0.27 NetPerfMeter 1088 NetPerfMeter Data
 183 5.099642887 192.168.0.20 → 192.168.0.27 NetPerfMeter 1088 NetPerfMeter Data
-215 5.242589734 192.168.0.27 → 192.168.0.20 NetPerfMeter 1104 SACK (Ack=1500264946, Arwnd=106496) NetPerfMeter Data
-216 5.242748399 192.168.0.20 → 192.168.0.27 NetPerfMeter 1248 SACK (Ack=1775217866, Arwnd=211968) NetPerfMeter Data NetPerfMeter Data
+215 5.242589734 192.168.0.27 → 192.168.0.20 NetPerfMeter 1104 SACK (Ack=11, Arwnd=106496) NetPerfMeter Data
+216 5.242748399 192.168.0.20 → 192.168.0.27 NetPerfMeter 1248 SACK (Ack=0, Arwnd=211968) NetPerfMeter Data NetPerfMeter Data
 218 5.247412901 192.168.0.27 → 192.168.0.20 NetPerfMeter 680 NetPerfMeter Data
-220 5.252114400 192.168.0.27 → 192.168.0.20 NetPerfMeter 208 SACK (Ack=1500264948, Arwnd=105344) NetPerfMeter Data
+220 5.252114400 192.168.0.27 → 192.168.0.20 NetPerfMeter 208 SACK (Ack=13, Arwnd=105344) NetPerfMeter Data
 221 5.266387026 192.168.0.27 → 192.168.0.20 NetPerfMeter 1088 NetPerfMeter Data
 223 5.266637245 192.168.0.27 → 192.168.0.20 NetPerfMeter 1088 NetPerfMeter Data
-224 5.273527654 192.168.0.27 → 192.168.0.20 NetPerfMeter 1104 SACK (Ack=1016166938, Arwnd=106496) NetPerfMeter Data
-232 5.349726358 192.168.0.20 → 192.168.0.27 NetPerfMeter 208 SACK (Ack=1775217871, Arwnd=212992) NetPerfMeter Data
-235 5.355361743 192.168.0.27 → 192.168.0.20 NetPerfMeter 1104 SACK (Ack=1500264949, Arwnd=106368) NetPerfMeter Data
-242 5.475302128 192.168.0.20 → 192.168.0.27 NetPerfMeter 208 SACK (Ack=1775217872, Arwnd=212992) NetPerfMeter Data
+224 5.273527654 192.168.0.27 → 192.168.0.20 NetPerfMeter 1104 SACK (Ack=1, Arwnd=106496) NetPerfMeter Data
+232 5.349726358 192.168.0.20 → 192.168.0.27 NetPerfMeter 208 SACK (Ack=5, Arwnd=212992) NetPerfMeter Data
+235 5.355361743 192.168.0.27 → 192.168.0.20 NetPerfMeter 1104 SACK (Ack=14, Arwnd=106368) NetPerfMeter Data
+242 5.475302128 192.168.0.20 → 192.168.0.27 NetPerfMeter 208 SACK (Ack=6, Arwnd=212992) NetPerfMeter Data
 """.replace("\r\n", "\n"),
             result)
