@@ -601,10 +601,9 @@ dissect_diameter_mip6_feature_vector(tvbuff_t *tvb, packet_info *pinfo _U_, prot
 
 	guint32 application_id = 0;
 	diam_sub_dis_t *diam_sub_dis_inf = (diam_sub_dis_t*)data;
+	DISSECTOR_ASSERT(diam_sub_dis_inf);
 
-	if(diam_sub_dis_inf) {
-		application_id = diam_sub_dis_inf->application_id;
-	}
+	application_id = diam_sub_dis_inf->application_id;
 
 	/* Hide the item created in packet-diameter.c and only show the one created here */
 	proto_item_set_hidden(diam_sub_dis_inf->item);
