@@ -44,6 +44,8 @@ static char *appname_with_version;
 static char *comp_info;
 static char *runtime_info;
 
+static void get_compiler_info(GString *str);
+
 void
 ws_init_version_info(const char *appname,
 	void (*prepend_compile_time_info)(GString *),
@@ -152,6 +154,11 @@ get_compiled_version_info(void (*prepend_info)(GString *),
 		g_string_append(str, "(32-bit) ");
 	else
 		g_string_append(str, "(64-bit) ");
+
+	/* Compiler info */
+	g_string_append(str, "using ");
+	get_compiler_info(str);
+	g_string_append(str, ", ");
 
 	if (prepend_info) {
 		(*prepend_info)(str);
@@ -312,16 +319,14 @@ get_compiler_info(GString *str)
 		 * which I guess is not to be confused with the build number,
 		 * the _BUILD in the name nonwithstanding.
 		 */
-		g_string_append_printf(str, "\n\nBuilt using Microsoft Visual Studio " VS_VERSION " (VC++ %d.%d, build %d)",
+		g_string_append_printf(str, "Microsoft Visual Studio " VS_VERSION " (VC++ %d.%d, build %d)",
 			VCPP_MAJOR_VERSION, COMPILER_MINOR_VERSION, COMPILER_BUILD_NUMBER);
 		#if defined(__clang__)
 			/*
 			 * See above.
 			 */
-			g_string_append_printf(str, " clang/C2 %s and -fno-ms-compatibility.\n",
+			g_string_append_printf(str, " clang/C2 %s and -fno-ms-compatibility",
 				__VERSION__);
-		#else
-	        g_string_append_printf(str, ".\n");
 		#endif
 	#elif defined(__GNUC__) && defined(__VERSION__)
 		/*
@@ -336,26 +341,25 @@ get_compiler_info(GString *str)
 			 * with other compilers.
 			 */
 			gchar* version = g_strstrip(g_strdup(__VERSION__));
-			g_string_append_printf(str, "\n\nBuilt using clang %s.\n", version);
+			g_string_append_printf(str, "clang %s", version);
 			g_free(version);
 		#elif defined(__llvm__)
 			/* llvm-gcc */
-			g_string_append_printf(str, "\n\nBuilt using llvm-gcc %s.\n", __VERSION__);
+			g_string_append_printf(str, "llvm-gcc %s", __VERSION__);
 		#else /* boring old GCC */
-			g_string_append_printf(str, "\n\nBuilt using gcc %s.\n", __VERSION__);
+			g_string_append_printf(str, "GCC %s", __VERSION__);
 		#endif /* llvm */
 	#elif defined(__HP_aCC)
-		g_string_append_printf(str, "\n\nBuilt using HP aCC %d.\n", __HP_aCC);
+		g_string_append_printf(str, "HP aCC %d", __HP_aCC);
 	#elif defined(__xlC__)
-		g_string_append_printf(str, "\n\nBuilt using IBM XL C %d.%d\n",
+		g_string_append_printf(str, "IBM XL C %d.%d",
 			(__xlC__ >> 8) & 0xFF, __xlC__ & 0xFF);
 		#ifdef __IBMC__
 			if ((__IBMC__ % 10) != 0)
 				g_string_append_printf(str, " patch %d", __IBMC__ % 10);
 		#endif /* __IBMC__ */
-		g_string_append_printf(str, "\n");
 	#elif defined(__INTEL_COMPILER)
-		g_string_append_printf(str, "\n\nBuilt using Intel C %d.%d",
+		g_string_append_printf(str, "Intel C %d.%d",
 			__INTEL_COMPILER / 100, (__INTEL_COMPILER / 10) % 10);
 		if ((__INTEL_COMPILER % 10) != 0)
 			g_string_append_printf(str, " patch %d", __INTEL_COMPILER % 10);
@@ -365,13 +369,11 @@ get_compiler_info(GString *str)
 				(__INTEL_COMPILER_BUILD_DATE / 100) % 100,
 				__INTEL_COMPILER_BUILD_DATE % 100);
 		#endif /* __INTEL_COMPILER_BUILD_DATE */
-		g_string_append_printf(str, "\n");
 	#elif defined(__SUNPRO_C)
-		g_string_append_printf(str, "\n\nBuilt using Sun C %d.%d",
+		g_string_append_printf(str, "Sun C %d.%d",
 			(__SUNPRO_C >> 8) & 0xF, (__SUNPRO_C >> 4) & 0xF);
 		if ((__SUNPRO_C & 0xF) != 0)
 			g_string_append_printf(str, " patch %d", __SUNPRO_C & 0xF);
-		g_string_append_printf(str, "\n");
 	#endif
 }
 
@@ -464,9 +466,6 @@ get_runtime_version_info(void (*additional_info)(GString *))
 #endif
 
 	g_string_append(str, ".");
-
-	/* Compiler info */
-	get_compiler_info(str);
 
 	end_string(str);
 
