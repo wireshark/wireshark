@@ -139,7 +139,7 @@ void FilterDialog::on_newToolButton_clicked()
     } else {
         //: This text is automatically filled in when a new filter is created
         name = tr("New display filter");
-        filter = "ip.addr == host.example.com";
+        filter = "ip.host == host.example.com";
     }
 
     addFilter(name, filter, true);
