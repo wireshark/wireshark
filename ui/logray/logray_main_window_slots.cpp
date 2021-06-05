@@ -2733,12 +2733,10 @@ void LograyMainWindow::connectCaptureMenuActions()
     });
 
     connect(main_ui_->actionCaptureCaptureFilters, &QAction::triggered, this, [this]() {
-        if (!capture_filter_dlg_) {
-            capture_filter_dlg_ = new FilterDialog(this, FilterDialog::CaptureFilter);
-        }
-        capture_filter_dlg_->show();
-        capture_filter_dlg_->raise();
-        capture_filter_dlg_->activateWindow();
+        FilterDialog *capture_filter_dlg = new FilterDialog(window(), FilterDialog::CaptureFilter);
+        capture_filter_dlg->setWindowModality(Qt::ApplicationModal);
+        capture_filter_dlg->setAttribute(Qt::WA_DeleteOnClose);
+        capture_filter_dlg->show();
     });
 
 #ifdef HAVE_LIBPCAP
@@ -2882,12 +2880,10 @@ void LograyMainWindow::matchFieldFilter(FilterAction::Action action, FilterActio
 
 void LograyMainWindow::on_actionAnalyzeDisplayFilters_triggered()
 {
-    if (!display_filter_dlg_) {
-        display_filter_dlg_ = new FilterDialog(this, FilterDialog::DisplayFilter);
-    }
-    display_filter_dlg_->show();
-    display_filter_dlg_->raise();
-    display_filter_dlg_->activateWindow();
+    FilterDialog *display_filter_dlg = new FilterDialog(window(), FilterDialog::DisplayFilter);
+    display_filter_dlg->setWindowModality(Qt::ApplicationModal);
+    display_filter_dlg->setAttribute(Qt::WA_DeleteOnClose);
+    display_filter_dlg->show();
 }
 
 struct epan_uat;

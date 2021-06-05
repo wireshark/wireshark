@@ -180,8 +180,6 @@ private:
     CaptureOptionsDialog *capture_options_dialog_;
     info_data_t info_data_;
 #endif
-    FilterDialog *display_filter_dlg_;
-    FilterDialog *capture_filter_dlg_;
 
 #if defined(Q_OS_MAC)
     QMenu *dock_menu_;
