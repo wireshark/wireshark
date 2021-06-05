@@ -453,7 +453,8 @@ void esp_sa_record_add_from_dissector(guint8 protocol, const gchar *srcIP, const
    record->authentication_key = NULL;
 
    /* Parse keys */
-   uat_esp_sa_record_update_cb(record, NULL);
+   char *err = NULL;
+   uat_esp_sa_record_update_cb(record, &err);
 }
 
 /*************************************/
