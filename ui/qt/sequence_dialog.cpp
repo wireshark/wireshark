@@ -340,20 +340,20 @@ void SequenceDialog::yAxisChanged(QCPRange range)
 
 void SequenceDialog::diagramClicked(QMouseEvent *event)
 {
+    Q_ASSERT(event);
     current_rtp_sai_selected_ = NULL;
-    if (event) {
-        seq_analysis_item_t *sai = seq_diagram_->itemForPosY(event->pos().y());
-        if (voipFeaturesEnabled) {
-            ui->actionSelectRtpStreams->setEnabled(false);
-            ui->actionDeselectRtpStreams->setEnabled(false);
-            player_button_->setEnabled(false);
-            if (sai) {
-                if (GA_INFO_TYPE_RTP == sai->info_type) {
-                    ui->actionSelectRtpStreams->setEnabled(true && !file_closed_);
-                    ui->actionDeselectRtpStreams->setEnabled(true && !file_closed_);
-                    player_button_->setEnabled(true && !file_closed_);
-                    current_rtp_sai_selected_ = sai;
-                }
+
+    seq_analysis_item_t *sai = seq_diagram_->itemForPosY(event->pos().y());
+    if (voipFeaturesEnabled) {
+        ui->actionSelectRtpStreams->setEnabled(false);
+        ui->actionDeselectRtpStreams->setEnabled(false);
+        player_button_->setEnabled(false);
+        if (sai) {
+            if (GA_INFO_TYPE_RTP == sai->info_type) {
+                ui->actionSelectRtpStreams->setEnabled(true && !file_closed_);
+                ui->actionDeselectRtpStreams->setEnabled(true && !file_closed_);
+                player_button_->setEnabled(true && !file_closed_);
+                current_rtp_sai_selected_ = sai;
             }
         }
 
@@ -377,20 +377,20 @@ void SequenceDialog::diagramClicked(QMouseEvent *event)
 
 void SequenceDialog::mouseMoved(QMouseEvent *event)
 {
+    Q_ASSERT(event);
     current_rtp_sai_hovered_ = NULL;
     packet_num_ = 0;
     QString hint;
-    if (event) {
-        seq_analysis_item_t *sai = seq_diagram_->itemForPosY(event->pos().y());
-        if (sai) {
-            if (GA_INFO_TYPE_RTP == sai->info_type) {
-                ui->actionSelectRtpStreams->setEnabled(true);
-                ui->actionDeselectRtpStreams->setEnabled(true);
-                current_rtp_sai_hovered_ = sai;
-            }
-            packet_num_ = sai->frame_number;
-            hint = QString("Packet %1: %2").arg(packet_num_).arg(sai->comment);
+
+    seq_analysis_item_t *sai = seq_diagram_->itemForPosY(event->pos().y());
+    if (sai) {
+        if (GA_INFO_TYPE_RTP == sai->info_type) {
+            ui->actionSelectRtpStreams->setEnabled(true);
+            ui->actionDeselectRtpStreams->setEnabled(true);
+            current_rtp_sai_hovered_ = sai;
         }
+        packet_num_ = sai->frame_number;
+        hint = QString("Packet %1: %2").arg(packet_num_).arg(sai->comment);
     }
 
     if (hint.isEmpty()) {
