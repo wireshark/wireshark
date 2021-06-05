@@ -3291,7 +3291,7 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
     proto_item *item;
     struct tcp_multisegment_pdu *msp;
     gboolean cleared_writable = col_get_writable(pinfo->cinfo, COL_PROTOCOL);
-    const gboolean reassemble_ooo = tcp_desegment && tcp_reassemble_out_of_order;
+    const gboolean reassemble_ooo = tcp_analyze_seq && tcp_desegment && tcp_reassemble_out_of_order;
 
 again:
     ipfd_head = NULL;
