@@ -526,7 +526,7 @@ English and C-like operators are interchangeable and can be mixed within a filte
 |ge |>= |Greater than or equal to| `frame.len ge 0x100`
 |le |\<= |Less than or equal to| `frame.len \<= 0x20`
 |contains||Protocol, field or slice contains a value| `sip.To contains "a1762"`
-|matches|~|Protocol or text field matches a Perl-compatible regular expression| `http.host matches "acme\.(org\|com\|net)"`
+|matches|~|Protocol or text field matches a Perl-compatible regular expression| `http.host matches "acme\\.(org\|com\|net)"`
 |bitwise_and|&|Bitwise AND is non-zero| `tcp.flags & 0x02`
 |===
 
@@ -535,7 +535,8 @@ of the types with examples of how to use them in display filters.
 
 [[ChWorkFieldTypes]]
 
-.Display Filter Field Types
+===== Display Filter Field Types
+
 Unsigned integer::
   Can be 8, 16, 24, 32, or 64 bits. You can express integers in decimal, octal,
   or hexadecimal. The following display filters are equivalent:
@@ -583,6 +584,18 @@ As with IPv4 addresses, IPv6 addresses can match a subnet.
 
 Text string::
   `http.request.uri == "https://www.wireshark.org/"`
++
+Strings are a sequence of bytes. Functions like `lower()` use ASCII, otherwise
+no particular encoding is assumed. String literals are specified with double
+quotes. Characters can also be specified using a byte escape sequence using
+hex \x__hh__ or octal {backslash}__ddd__, where _h_ and _d_ are hex and octal
+numerical digits respectively:
++
+`dns.qry.name contains "www.\x77\x69\x72\x65\x73\x68\x61\x72\x6b.org"`
+
+[[ChWorkFilterExamples]]
+
+===== Some Examples
 
 ----
 udp contains 81:60:03
@@ -595,17 +608,35 @@ sip.To contains "a1762"
 The display filter above matches packets where the SIP To-header contains the string "a1762"
 anywhere in the header.
 ----
-http.host matches "acme\.(org|com|net)"
+http.host matches "acme\\.(org|com|net)"
 ----
 The display filter above matches HTTP packets where the HOST header contains
 acme.org, acme.com, or acme.net.
 Comparisons are case-insensitive.
-
 ----
 tcp.flags & 0x02
 ----
 That display filter will match all packets that contain the “tcp.flags” field with the 0x02 bit,
 i.e. the SYN bit, set.
+
+==== Possible Pitfalls Using Regular Expressions
+
+String literals containing regular expressions are parsed twice. Once by Wireshark's display
+filter engine and again by the PCRE library. It's important to keep this in mind when using
+the "matches" operator with regex escape sequences and special characters.
+
+For example the filter expression `+frame matches "AB\x43"+` uses the string `+"ABC"+` as input
+pattern to PCRE. However the expression `+frame matches "AB\\x43"+` uses the string `+"AB\x43"+`
+as the pattern. In this case both expressions give the same result because Wireshark and PCRE
+both support the same byte escape sequence (0x43 is the ASCII hex code for `C`).
+
+An example where this fails badly is `+foo matches "bar\x28"+`. Because 0x28 is the ASCII
+code for `(` the pattern input to PCRE is `+"bar("+`. This regular expression is synctatically
+invalid (missing closing parenthesis). To match a literal parenthesis in a display filter regular
+expression it must be escaped (twice) with backslashes.
+
+Another common pitfall is using `\.` instead of `\\.` in a regular expression. The former
+will match any character (the backslash is superfluous) while the latter will match a literal dot.
 
 ==== Combining Expressions
 
@@ -742,7 +773,7 @@ string(frame.number) matches "[13579]$"
 
 To match IP addresses ending in 255 in a block of subnets (172.16 to 172.31):
 ----
-string(ip.dst) matches "^172\.(1[6-9]|2[0-9]|3[0-1])\..{1,3}\.255"
+string(ip.dst) matches "^172\\.(1[6-9]|2[0-9]|3[0-1])\\.[0-9]{1,3}\\.255"
 ----
 
 [[ChWorkBuildDisplayFilterMistake]]
