@@ -125,6 +125,7 @@ set(WSUTIL_COMMON_FILES
 	ws_pipe.c
 	wsgcrypt.c
 	wsjson.c
+	wslog.c
 	xtea.c
 )
 
