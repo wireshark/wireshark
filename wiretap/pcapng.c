@@ -121,6 +121,18 @@ typedef struct pcapng_name_resolution_block_s {
  */
 #define MIN_NRB_SIZE    ((guint32)(MIN_BLOCK_SIZE + sizeof(pcapng_name_resolution_block_t)))
 
+/* pcapng: custom block file encoding */
+typedef struct pcapng_custom_block_s {
+    guint32 pen;
+    /* Custom data and options */
+} pcapng_custom_block_t;
+
+/*
+ * Minimum CB size = minimum block size + size of fixed length portion of CB.
+ */
+
+#define MIN_CB_SIZE     ((guint32)(MIN_BLOCK_SIZE + sizeof(pcapng_custom_block_t)))
+
 /*
  * Minimum ISB size = minimum block size + size of fixed length portion of ISB.
  */
@@ -281,6 +293,8 @@ register_pcapng_block_type_handler(guint block_type, block_reader reader,
     case BLOCK_TYPE_ISB:
     case BLOCK_TYPE_EPB:
     case BLOCK_TYPE_DSB:
+    case BLOCK_TYPE_CB_COPY:
+    case BLOCK_TYPE_CB_NO_COPY:
     case BLOCK_TYPE_SYSDIG_EVENT:
     case BLOCK_TYPE_SYSDIG_EVENT_V2:
     case BLOCK_TYPE_SYSTEMD_JOURNAL:
@@ -2365,6 +2379,77 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh,
 }
 
 static gboolean
+pcapng_handle_generic_custom_block(FILE_T fh, pcapng_block_header_t *bh,
+                                   guint32 pen, wtapng_block_t *wblock,
+                                   int *err, gchar **err_info)
+{
+    guint to_read;
+
+    ws_debug("unknown pen %u", pen);
+    if (bh->block_total_length % 4) {
+        to_read = bh->block_total_length + 4 - (bh->block_total_length % 4);
+    } else {
+        to_read = bh->block_total_length;
+    }
+    to_read -= MIN_CB_SIZE;
+    wblock->rec->rec_type = REC_TYPE_CUSTOM_BLOCK;
+    wblock->rec->presence_flags = 0;
+    wblock->rec->rec_header.custom_block_header.length = bh->block_total_length - MIN_CB_SIZE;
+    wblock->rec->rec_header.custom_block_header.pen = pen;
+    wblock->rec->rec_header.custom_block_header.copy_allowed = (bh->block_type == BLOCK_TYPE_CB_COPY);
+    if (!wtap_read_packet_bytes(fh, wblock->frame_buffer, to_read, err, err_info)) {
+        return FALSE;
+    }
+    /*
+     * We return these to the caller in pcapng_read().
+     */
+    wblock->internal = FALSE;
+    return TRUE;
+}
+static gboolean
+pcapng_read_custom_block(FILE_T fh, pcapng_block_header_t *bh,
+                         const section_info_t *section_info,
+                         wtapng_block_t *wblock,
+                         int *err, gchar **err_info)
+{
+    pcapng_custom_block_t cb;
+    guint32 pen;
+
+    /* Is this block long enough to be an CB? */
+    if (bh->block_total_length < MIN_CB_SIZE) {
+        /*
+         * No.
+         */
+        *err = WTAP_ERR_BAD_FILE;
+        *err_info = g_strdup_printf("pcapng_read_custom_block: total block length %u is too small (< %u)",
+                                    bh->block_total_length, MIN_CB_SIZE);
+        return FALSE;
+    }
+
+    /* Custom block read fixed part */
+    if (!wtap_read_bytes(fh, &cb, sizeof cb, err, err_info)) {
+        ws_debug("failed to read pen");
+        return FALSE;
+    }
+    if (section_info->byte_swapped) {
+        pen = GUINT32_SWAP_LE_BE(cb.pen);
+    } else {
+        pen = cb.pen;
+    }
+    ws_debug("pen %u, custom data and option length %u", pen, bh->block_total_length - MIN_CB_SIZE);
+
+    switch (pen) {
+        default:
+            if (!pcapng_handle_generic_custom_block(fh, bh, pen, wblock, err, err_info)) {
+                return FALSE;
+            }
+            break;
+    }
+
+    return TRUE;
+}
+
+static gboolean
 pcapng_read_sysdig_event_block(FILE_T fh, pcapng_block_header_t *bh,
                                const section_info_t *section_info,
                                wtapng_block_t *wblock,
@@ -2794,6 +2879,11 @@ pcapng_read_block(wtap *wth, FILE_T fh, pcapng_t *pn,
                 if (!pcapng_read_decryption_secrets_block(fh, &bh, section_info, wblock, err, err_info))
                     return FALSE;
                 break;
+            case(BLOCK_TYPE_CB_COPY):
+            case(BLOCK_TYPE_CB_NO_COPY):
+                if (!pcapng_read_custom_block(fh, &bh, section_info, wblock, err, err_info))
+                    return FALSE;
+                break;
             case(BLOCK_TYPE_SYSDIG_EVENT):
             case(BLOCK_TYPE_SYSDIG_EVENT_V2):
             /* case(BLOCK_TYPE_SYSDIG_EVF): */
@@ -3113,7 +3203,7 @@ pcapng_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
          * Read the next block.
          */
         if (!pcapng_read_block(wth, wth->fh, pcapng, current_section,
-                              &new_section, &wblock, err, err_info)) {
+                               &new_section, &wblock, err, err_info)) {
             ws_debug("data_offset is finally %" G_GINT64_MODIFIER "d", *data_offset);
             ws_debug("couldn't read packet block");
             wtap_block_free(wblock.block);
@@ -4087,6 +4177,73 @@ pcapng_write_systemd_journal_export_block(wtap_dumper *wdh, const wtap_rec *rec,
 }
 
 static gboolean
+pcapng_write_custom_block(wtap_dumper *wdh, const wtap_rec *rec,
+                          const guint8 *pd, int *err)
+{
+    pcapng_block_header_t bh;
+    pcapng_custom_block_t cb;
+    const guint32 zero_pad = 0;
+    guint32 pad_len;
+
+    /* Don't write anything we are not supposed to. */
+    if (!rec->rec_header.custom_block_header.copy_allowed) {
+        return TRUE;
+    }
+
+    /* Don't write anything we're not willing to read. */
+    if (rec->rec_header.custom_block_header.length > WTAP_MAX_PACKET_SIZE_STANDARD) {
+        *err = WTAP_ERR_PACKET_TOO_LARGE;
+        return FALSE;
+    }
+
+    if (rec->rec_header.custom_block_header.length % 4) {
+        pad_len = 4 - (rec->rec_header.custom_block_header.length % 4);
+    } else {
+        pad_len = 0;
+    }
+
+    /* write block header */
+    bh.block_type = BLOCK_TYPE_CB_COPY;
+    bh.block_total_length = (guint32)sizeof(bh) + (guint32)sizeof(cb) + rec->rec_header.custom_block_header.length + pad_len + 4;
+    ws_debug("writing %u bytes, %u padded",
+             rec->rec_header.custom_block_header.length,
+             bh.block_total_length);
+    if (!wtap_dump_file_write(wdh, &bh, sizeof bh, err)) {
+        return FALSE;
+    }
+    wdh->bytes_dumped += sizeof bh;
+
+    /* write custom block header */
+    cb.pen = rec->rec_header.custom_block_header.pen;
+    if (!wtap_dump_file_write(wdh, &cb, sizeof cb, err)) {
+        return FALSE;
+    }
+    wdh->bytes_dumped += sizeof cb;
+
+    /* write custom data */
+    if (!wtap_dump_file_write(wdh, pd, rec->rec_header.custom_block_header.length, err)) {
+        return FALSE;
+    }
+    wdh->bytes_dumped += rec->rec_header.custom_block_header.length;
+
+    /* write padding (if any) */
+    if (pad_len > 0) {
+        if (!wtap_dump_file_write(wdh, &zero_pad, pad_len, err)) {
+            return FALSE;
+        }
+        wdh->bytes_dumped += pad_len;
+    }
+
+    /* write block footer */
+    if (!wtap_dump_file_write(wdh, &bh.block_total_length,
+                              sizeof bh.block_total_length, err)) {
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+static gboolean
 pcapng_write_decryption_secrets_block(wtap_dumper *wdh, wtap_block_t sdata, int *err)
 {
     pcapng_block_header_t bh;
@@ -5041,6 +5198,12 @@ static gboolean pcapng_dump(wtap_dumper *wdh,
             }
             break;
 
+        case REC_TYPE_CUSTOM_BLOCK:
+            if (!pcapng_write_custom_block(wdh, rec, pd, err)) {
+                return FALSE;
+            }
+            break;
+
         default:
             /* We don't support writing this record type. */
             *err = WTAP_ERR_UNWRITABLE_REC_TYPE;
@@ -5281,6 +5444,9 @@ static const struct supported_block_type pcapng_blocks_supported[] = {
 
     /* Multiple systemd journal records. */
     { WTAP_BLOCK_SYSTEMD_JOURNAL, MULTIPLE_BLOCKS_SUPPORTED, OPTION_TYPES_SUPPORTED(systemd_journal_block_options_supported) },
+
+    /* Multiple custom blocks. */
+    { WTAP_BLOCK_CUSTOM_BLOCK, MULTIPLE_BLOCKS_SUPPORTED, NO_OPTIONS_SUPPORTED },
 };
 
 static const struct file_type_subtype_info pcapng_info = {

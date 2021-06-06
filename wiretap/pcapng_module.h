@@ -30,6 +30,8 @@
 #define BLOCK_TYPE_SYSDIG_EVF       0x00000208 /* Sysdig Event Block with flags */
 #define BLOCK_TYPE_SYSDIG_EVENT_V2  0x00000216 /* Sysdig Event Block version 2 */
 #define BLOCK_TYPE_SYSDIG_EVF_V2    0x00000217 /* Sysdig Event Block with flags version 2 */
+#define BLOCK_TYPE_CB_COPY          0x00000BAD /* Custom Block which can be copied */
+#define BLOCK_TYPE_CB_NO_COPY       0x40000BAD /* Custom Block which should not be copied */
 
 /* TODO: the following are not yet well defined in the draft spec,
  * and do not yet have block type values assigned to them:

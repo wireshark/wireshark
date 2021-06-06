@@ -504,6 +504,10 @@ dissect_record(epan_dissect_t *edt, int file_type_subtype,
 		record_type = "Systemd Journal Entry";
 		break;
 
+	case REC_TYPE_CUSTOM_BLOCK:
+		record_type = "PCAPNG Custom Block";
+		break;
+
 	default:
 		/*
 		 * XXX - if we add record types that shouldn't be
@@ -549,6 +553,10 @@ dissect_record(epan_dissect_t *edt, int file_type_subtype,
 		break;
 
 	case REC_TYPE_SYSTEMD_JOURNAL:
+		edt->pi.pseudo_header = NULL;
+		break;
+
+	case REC_TYPE_CUSTOM_BLOCK:
 		edt->pi.pseudo_header = NULL;
 		break;
 	}

@@ -30,6 +30,7 @@
 #include <wsutil/wsgcrypt.h>
 #include <wsutil/str_util.h>
 #include <epan/proto_data.h>
+#include <epan/addr_resolv.h>
 #include <wmem/wmem.h>
 
 #include "packet-frame.h"
@@ -90,6 +91,8 @@ static int hf_frame_pack_start_frame_delimiter_error = -1;
 static int hf_frame_pack_preamble_error = -1;
 static int hf_frame_pack_symbol_error = -1;
 static int hf_frame_wtap_encap = -1;
+static int hf_frame_cb_pen = -1;
+static int hf_frame_cb_copy_allowed = -1;
 static int hf_comments_text = -1;
 
 static gint ett_frame = -1;
@@ -385,6 +388,10 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 		pinfo->current_proto = "Systemd Journal";
 		break;
 
+	case REC_TYPE_CUSTOM_BLOCK:
+		pinfo->current_proto = "PCAPNG Custom Block";
+		break;
+
 	default:
 		DISSECTOR_ASSERT_NOT_REACHED();
 		break;
@@ -511,6 +518,20 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 			ti = proto_tree_add_protocol_format(tree, proto_frame, tvb, 0, tvb_captured_length(tvb),
 			    "Systemd Journal Entry %u: %u byte%s",
 			    pinfo->num, frame_len, frame_plurality);
+			break;
+
+		case REC_TYPE_CUSTOM_BLOCK:
+			ti = proto_tree_add_protocol_format(tree, proto_frame, tvb, 0, tvb_captured_length(tvb),
+			                                    "PCAPNG Custom Block %u: %u byte%s",
+			                                    pinfo->num, frame_len, frame_plurality);
+			if (generate_bits_field) {
+				proto_item_append_text(ti, " (%u bits)", frame_len * 8);
+			}
+			proto_item_append_text(ti, " of custom data and options, PEN %s (%u)",
+			                       enterprises_lookup(pinfo->rec->rec_header.custom_block_header.pen, "Unknown"),
+			                       pinfo->rec->rec_header.custom_block_header.pen);
+			proto_item_append_text(ti, ", copying%s allowed",
+			                       pinfo->rec->rec_header.custom_block_header.copy_allowed ? "" : " not");
 			break;
 		}
 
@@ -829,6 +850,21 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 					    tvb, pinfo, parent_tree,
 					    (void *)pinfo->pseudo_header);
 				}
+				break;
+
+			case REC_TYPE_CUSTOM_BLOCK:
+				col_set_str(pinfo->cinfo, COL_PROTOCOL, "PCAPNG");
+				proto_tree_add_uint_format_value(fh_tree, hf_frame_cb_pen, tvb, 0, 0,
+				                                 pinfo->rec->rec_header.custom_block_header.pen,
+				                                 "%s (%u)",
+				                                 enterprises_lookup(pinfo->rec->rec_header.custom_block_header.pen, "Unknown"),
+				                                 pinfo->rec->rec_header.custom_block_header.pen);
+				proto_tree_add_boolean(fh_tree, hf_frame_cb_copy_allowed, tvb, 0, 0, pinfo->rec->rec_header.custom_block_header.copy_allowed);
+				col_add_fstr(pinfo->cinfo, COL_INFO, "Custom Block: PEN = %s (%d), will%s be copied",
+				             enterprises_lookup(pinfo->rec->rec_header.custom_block_header.pen, "Unknown"),
+				             pinfo->rec->rec_header.custom_block_header.pen,
+				             pinfo->rec->rec_header.custom_block_header.copy_allowed ? "" : " not");
+				call_data_dissector(tvb, pinfo, parent_tree);
 				break;
 			}
 #ifdef _MSC_VER
@@ -1216,6 +1252,16 @@ proto_register_frame(void)
 		  { "Drop Count", "frame.drop_count",
 		    FT_UINT64, BASE_DEC, NULL, 0x0,
 		    "Number of frames lost between this frame and the preceding one on the same interface", HFILL }},
+
+		{ &hf_frame_cb_pen,
+		  { "Private Enterprise Number", "frame.cb_pen",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    "IANA assigned private enterprise number (PEN)", HFILL }},
+
+		{ &hf_frame_cb_copy_allowed,
+		  { "Copying", "frame.cb_copy",
+		    FT_BOOLEAN, BASE_DEC, TFS(&tfs_allowed_not_allowed), 0x0,
+		    "Whether the custom block will be written or not", HFILL }},
 	};
 
 	static hf_register_info hf_encap =

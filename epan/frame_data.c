@@ -201,6 +201,16 @@ frame_data_init(frame_data *fdata, guint32 num, const wtap_rec *rec,
     fdata->cum_bytes = cum_bytes + rec->rec_header.systemd_journal_header.record_len;
     fdata->cap_len = rec->rec_header.systemd_journal_header.record_len;
     break;
+
+  case REC_TYPE_CUSTOM_BLOCK:
+    /*
+     * XXX - is cum_bytes supposed to count non-packet bytes?
+     */
+    fdata->pkt_len = rec->rec_header.custom_block_header.length;
+    fdata->cum_bytes = cum_bytes + rec->rec_header.custom_block_header.length;
+    fdata->cap_len = rec->rec_header.custom_block_header.length;
+    break;
+
   }
 
   /* To save some memory, we coerce it into 4 bits */
