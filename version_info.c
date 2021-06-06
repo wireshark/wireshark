@@ -334,21 +334,23 @@ get_compiler_info(GString *str)
 		 * distinguish between them.
 		 */
 		#if defined(__clang__)
-			/*
-			 * We know this isn't clang/C2, as _MSC_FULL_VER isn't defined.
-			 *
-			 * Strip out trailing space from clang's __VERSION__ to be consistent
-			 * with other compilers.
-			 */
-			gchar* version = g_strstrip(g_strdup(__VERSION__));
-			g_string_append_printf(str, "clang %s", version);
+			/* clang */
+			gchar *version; /* clang's version string has a trailing space. */
+			#if defined(__clang_version__)
+				version = g_strdup(__clang_version__);
+				g_string_append_printf(str, "Clang %s", g_strstrip(version));
+			#else
+				version = g_strdup(__VERSION__);
+				g_string_append_printf(str, "%s", g_strstrip(version));
+			#endif /* __clang_version__ */
 			g_free(version);
 		#elif defined(__llvm__)
 			/* llvm-gcc */
 			g_string_append_printf(str, "llvm-gcc %s", __VERSION__);
-		#else /* boring old GCC */
+		#else
+			/* boring old GCC */
 			g_string_append_printf(str, "GCC %s", __VERSION__);
-		#endif /* llvm */
+		#endif
 	#elif defined(__HP_aCC)
 		g_string_append_printf(str, "HP aCC %d", __HP_aCC);
 	#elif defined(__xlC__)
@@ -374,6 +376,8 @@ get_compiler_info(GString *str)
 			(__SUNPRO_C >> 8) & 0xF, (__SUNPRO_C >> 4) & 0xF);
 		if ((__SUNPRO_C & 0xF) != 0)
 			g_string_append_printf(str, " patch %d", __SUNPRO_C & 0xF);
+	#else
+		g_string_append(str, "unknown compiler");
 	#endif
 }
 
