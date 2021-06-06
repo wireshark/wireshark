@@ -42381,7 +42381,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_s1g_raw_channel_indication_preference,
      {"Channel Indication Preference",
-      "wlan.s1g.rps.raw_control.channel_indiction_preference",
+      "wlan.s1g.rps.raw_control.channel_indication_preference",
       FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x40, NULL, HFILL }},
 
     {&hf_ieee80211_s1g_raw_periodic_raw_indication,

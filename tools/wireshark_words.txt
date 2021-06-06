@@ -1,6 +1,7 @@
 0x%02x
 0x%08x
 100kbps
+100mb
 10base
 10gig
 16bit
@@ -54,6 +55,7 @@ asciidoc
 asn1
 asn1cnf
 asn2wrs
+assoc
 assymetric
 async
 asynchronously
@@ -84,11 +86,13 @@ backoff
 bacnet
 batched
 baudrate
+bayer
 bcast
 beamformed
 beamformee
 beamformer
 beamforming
+bibliography
 bidirectional
 bidirectionally
 bitfield
@@ -206,6 +210,7 @@ contactless
 contiguously
 Coord3D
 copyfile
+corba
 couchbase
 coverity
 cpdlc
@@ -286,6 +291,7 @@ desegmentation
 desegmenting
 deselect
 destport
+deutschland
 devcap
 devmode
 dfilter
@@ -298,6 +304,7 @@ diffie
 Digicel
 diplexer
 directionality
+disambiguation
 dissection
 dissector
 dissectors
@@ -350,6 +357,7 @@ entityid
 entryid
 enumerations
 epasv
+ericsson
 errinf
 errno
 errorcode
@@ -425,6 +433,7 @@ groupa
 groupb
 groupcast
 groupmod
+gssapi
 guint
 handoff
 hangup
@@ -500,8 +509,10 @@ iptables
 iptrace
 ipv4addr
 isakmp
+iseries
 isobus
 isochronous
+italia
 iterating
 iterator
 itunes
@@ -554,6 +565,7 @@ mappable
 maybefcs
 mcast
 mcsset
+measurability
 measurements
 megabit
 megaco
@@ -638,6 +650,7 @@ ngsniffer
 niagra
 noauth
 nofcs
+nokia
 nominals
 nonblock
 noncriticalextension
@@ -728,6 +741,7 @@ portinfo
 portmod
 portnumber
 portstatus
+posix
 powercontrol
 prach
 preconfiguration
@@ -953,6 +967,7 @@ sshkey
 ssupervisor
 stanag
 stateful
+statfs
 statusbar
 stderr
 stdout
@@ -1008,6 +1023,7 @@ syslog
 systemd
 tablemod
 tclas
+tcpdump
 tcpip
 tcpudp
 tdd128
@@ -1017,6 +1033,7 @@ technica
 Telecomunicaciones
 Telefónica
 Teléfonos
+telekom
 telenor
 teletex
 telia
@@ -1031,6 +1048,7 @@ timezone
 tipcv
 toggled
 toggling
+toolbar
 toolongfragment
 tooltip
 touchlink
@@ -1159,6 +1177,7 @@ uploading
 uploads
 urlencoded
 urnti
+usability
 userdata
 userinfo
 userlist
@@ -1185,6 +1204,7 @@ versioning
 virtualization
 vlans
 vocoder
+vodafone
 volerr
 wakeup
 webcam
