@@ -196,6 +196,7 @@ libwsutil.so.0 libwsutil0 #MINVER#
  unix_epoch_to_nstime@Base 3.5.0
  update_adler32@Base 1.12.0~rc1
  update_crc10_by_bytes@Base 1.10.0
+ write_file_binary_mode@Base 3.5.0
  ws_add_crash_info@Base 1.10.0
  ws_ascii_strnatcasecmp@Base 1.99.1
  ws_ascii_strnatcmp@Base 1.99.1

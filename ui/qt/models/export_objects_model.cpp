@@ -12,7 +12,7 @@
 
 #include <ui/qt/utils/qt_ui_utils.h>
 #include <ui/qt/utils/variant_pointer.h>
-#include <ui/export_object_ui.h>
+#include <wsutil/filesystem.h>
 #include <epan/prefs.h>
 
 #include <QDir>
@@ -149,7 +149,7 @@ bool ExportObjectModel::saveEntry(QModelIndex &index, QString filename)
         return false;
 
     if (filename.length() > 0) {
-        eo_save_entry(filename.toUtf8().constData(), entry);
+        write_file_binary_mode(qUtf8Printable(filename), entry->payload_data, entry->payload_len);
     }
 
     return true;
@@ -191,7 +191,8 @@ void ExportObjectModel::saveAllEntries(QString path)
             filename = QString::fromUtf8(safe_filename->str);
             g_string_free(safe_filename, TRUE);
         } while (save_dir.exists(filename) && ++count < prefs.gui_max_export_objects);
-        eo_save_entry(save_dir.filePath(filename).toUtf8().constData(), entry);
+        write_file_binary_mode(qUtf8Printable(save_dir.filePath(filename)),
+                               entry->payload_data, entry->payload_len);
     }
 }
 

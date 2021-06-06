@@ -308,6 +308,17 @@ WS_DLL_PUBLIC gboolean files_identical(const char *fname1, const char *fname2);
 WS_DLL_PUBLIC gboolean file_needs_reopen(int fd, const char* filename);
 
 /*
+ * Write content to a file in binary mode, for those operating systems that
+ * care about such things. This should be OK for all files, even text files, as
+ * we'll write the raw bytes, and we don't look at the bytes as we copy them.
+ *
+ * Returns TRUE on success, FALSE on failure. If a failure, it also
+ * displays a simple dialog window with the error message.
+ */
+WS_DLL_PUBLIC gboolean write_file_binary_mode(const char *filename,
+    const void *content, size_t content_len);
+
+/*
  * Copy a file in binary mode, for those operating systems that care about
  * such things.  This should be OK for all files, even text files, as
  * we'll copy the raw bytes, and we don't look at the bytes as we copy

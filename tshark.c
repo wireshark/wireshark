@@ -531,22 +531,6 @@ glossary_option_help(void)
 }
 
 static void
-tshark_write_to_file(const gchar *filename, const gchar *data)
-{
-  int fd = ws_open(filename, O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0644);
-  if (fd == -1) {
-    open_failure_message(filename, errno, TRUE);
-    return;
-  }
-
-  if (ws_write(fd, data, (unsigned int)strlen(data)) < 0) {
-    write_failure_message(filename, errno);
-  }
-
-  ws_close(fd);
-}
-
-static void
 tshark_log_handler (const gchar *log_domain, GLogLevelFlags log_level,
     const gchar *message, gpointer user_data)
 {
@@ -2347,7 +2331,7 @@ main(int argc, char *argv[])
 
   if (tls_session_keys_file) {
     gchar *keylist = ssl_export_sessions();
-    tshark_write_to_file(tls_session_keys_file, keylist);
+    write_file_binary_mode(tls_session_keys_file, keylist, strlen(keylist));
     g_free(keylist);
   }
 

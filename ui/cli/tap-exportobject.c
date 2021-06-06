@@ -18,12 +18,12 @@
 #include <string.h>
 
 #include <wsutil/file_util.h>
+#include <wsutil/filesystem.h>
 #include <ui/cmdarg_err.h>
 
 #include <epan/packet_info.h>
 #include <epan/packet.h>
 #include <epan/export_object.h>
-#include <ui/export_object_ui.h>
 #include "tap-exportobject.h"
 
 typedef struct _export_object_list_gui_t {
@@ -139,7 +139,7 @@ eo_draw(void *tapdata)
             g_string_free(safe_filename, TRUE);
         } while (g_file_test(save_as_fullpath, G_FILE_TEST_EXISTS) && ++count < prefs.gui_max_export_objects);
         count = 0;
-        eo_save_entry(save_as_fullpath, entry);
+        write_file_binary_mode(save_as_fullpath, entry->payload_data, entry->payload_len);
         g_free(save_as_fullpath);
         save_as_fullpath = NULL;
         slist = slist->next;

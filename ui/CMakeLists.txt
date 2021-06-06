@@ -17,7 +17,6 @@ set(NONGENERATED_UI_SRC
 	console.c
 	decode_as_utils.c
 	dissect_opts.c
-	export_object_ui.c
 	export_pdu_ui_utils.c
 	help_url.c
 	failure_message.c
