@@ -927,10 +927,10 @@ image::wsug_graphics/ws-filter-macros.png[{screenshot-attrs}]
 . To add a new filter macro, click the btn:[{plus}] button in the bottom-left corner. A new row will appear in the Display Filter Macros table above.
 
 . Enter the name of your macro in the `Name` column. Enter your filter macro in the `Text` column.
-+
-NOTE: To learn more about the filter macros syntax, see the link:https://www.wireshark.org/docs/man-pages/wireshark-filter.html[wireshark-filter man page].
 
 . To save your modifications, click the btn:[OK] button in the bottom-right corner of the <<FilterMacrosDialog>>.
+
+To learn more about display filter macro syntax, see <<ChDisplayFilterMacrosSection>>.
 
 [[ChWorkFindPacketSection]]
 
