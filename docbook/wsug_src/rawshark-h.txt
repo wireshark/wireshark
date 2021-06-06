@@ -1,4 +1,4 @@
-Rawshark (Wireshark) 3.2.14 (v3.2.14rc0-0-gde1ac8c76151)
+Rawshark (Wireshark) 3.2.15 (v3.2.15rc0-3-g0a9aebe0fbf9)
 Dump and analyze network traffic.
 See https://www.wireshark.org for more information.
 
