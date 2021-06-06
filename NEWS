@@ -56,6 +56,11 @@ Wireshark 3.5.0 Release Notes
        anywhere in the timestamp and it will be stored with nanosecond
        instead of microsecond precision.
 
+     • Display filter literal strings can now be specified using raw
+       string syntax, identical to raw strings in the Python programming
+       language. This is useful to avoid the complexity of using two
+       levels of character escapes with regular expressions.
+
      • Significant RTP Player redesign and improvements (see Wireshark
        User Documentation, Playing VoIP Calls[1] and RTP Player
        Window[2])
@@ -148,7 +153,7 @@ Wireshark 3.5.0 Release Notes
 
   A complete FAQ is available on the Wireshark web site[8].
 
-  Last updated 2021-05-30 09:05:30 UTC
+  Last updated 2021-06-06 09:05:30 UTC
 
  References
 
