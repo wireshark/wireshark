@@ -579,23 +579,48 @@ API Reference:
     - wsar_html.zip
   needs: []
 
-SLOCCount:
+Code Lines:
   extends: .build-ubuntu
   rules: !reference [.if-daily-schedule]
   stage: analysis
   variables:
-    SLOC_OUT: sloccount.txt
+    CLOC_OUT: /tmp/cloc.txt
+    SCC_OUT: /tmp/scc.txt
+    SLOC_OUT: /tmp/sloccount.txt
+    TOKEI_OUT: /tmp/tokei.txt
+  before_script:
+    - DEBIAN_FRONTEND=noninteractive apt-get update
+    - DEBIAN_FRONTEND=noninteractive apt-get --yes install sloccount cloc curl unzip
+    - cd /tmp
+    - curl -L -O https://github.com/boyter/scc/releases/download/v3.0.0/scc-3.0.0-x86_64-unknown-linux.zip
+    - unzip scc-3.0.0-x86_64-unknown-linux.zip
+    - curl -L -O https://github.com/XAMPPRocky/tokei/releases/download/v12.1.2/tokei-x86_64-unknown-linux-gnu.tar.gz
+    - tar -xf tokei-x86_64-unknown-linux-gnu.tar.gz
   script:
+    - DEBIAN_FRONTEND=noninteractive apt-get update
+    - DEBIAN_FRONTEND=noninteractive apt-get --yes install sloccount cloc curl unzip
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
     - cmake -G Ninja ..
     - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
     - ninja
     - cd ..
+    - echo -n "cloc version:\ "
+    - cloc --version
+    - cloc --quiet . | tee $CLOC_OUT
+    - /tmp/scc --version
+    - /tmp/scc --not-match 'qt/.*.ts' . | tee $SCC_OUT
     - echo -n "SLOCCount version:\ "
     - sloccount --version
-    - sloccount . | awk "/^Computing results/ { results=1 } { if (results) print }" > $SLOC_OUT
-    - cat $SLOC_OUT
-    - if [ -n "$AWS_ACCESS_KEY_ID" ] && [ -n "$AWS_SECRET_ACCESS_KEY" ] && [ -n "$S3_DESTINATION_ANALYSIS" ] ; then aws s3 cp "$SLOC_OUT" "$S3_DESTINATION_ANALYSIS/" ; fi
+    - sloccount . | awk "/^Computing results/ { results=1 } { if (results) print }" | tee $SLOC_OUT
+    - /tmp/tokei --version
+    - /tmp/tokei --exclude 'qt/*.ts' . | tee $TOKEI_OUT
+    - |
+      if [ -n "$AWS_ACCESS_KEY_ID" ] && [ -n "$AWS_SECRET_ACCESS_KEY" ] && [ -n "$S3_DESTINATION_ANALYSIS" ] ; then
+        aws s3 cp "$CLOC_OUT" "$S3_DESTINATION_ANALYSIS/"
+        aws s3 cp "$SCC_OUT" "$S3_DESTINATION_ANALYSIS/"
+        aws s3 cp "$SLOC_OUT" "$S3_DESTINATION_ANALYSIS/"
+        aws s3 cp "$TOKEI_OUT" "$S3_DESTINATION_ANALYSIS/"
+      fi
 
 # Fuzz TShark using ASAN and valgrind.
 .fuzz-ubuntu:
