@@ -19693,7 +19693,7 @@ dissect_reduced_neighbor_report(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
   while (tag_len > 0){
     /* TBTT Information Header */
-    subtree = proto_tree_add_subtree(tree, tvb, offset, 4, ett_rnr_tbtt_tree, NULL, "TBTT Information");
+    subtree = proto_tree_add_subtree(tree, tvb, offset, 4, ett_rnr_tbtt_tree, NULL, "Neighbor AP Information");
     proto_tree_add_bitmask_with_flags(subtree, tvb, offset, hf_ieee80211_rnr_tbtt_information_field_header,
                                       ett_rnr_tbtt_information_tree, ieee80211_rnr_tbtt_information_header,
                                       ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
