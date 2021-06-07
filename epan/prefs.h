@@ -220,7 +220,6 @@ typedef struct _e_prefs {
   gboolean     gui_qt_packet_list_hover_style; /* Enable/Disable mouse-over colorization */
   gboolean     gui_qt_show_selected_packet;
   gboolean     gui_qt_show_file_load_time;
-  gboolean     gui_packet_editor; /* Enable Packet Editor */
   elide_mode_e gui_packet_list_elide_mode;
   gboolean     gui_packet_list_show_related;
   gboolean     gui_packet_list_show_minimap;

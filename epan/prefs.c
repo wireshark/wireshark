@@ -3386,11 +3386,6 @@ prefs_register_modules(void)
                                    "Show file load time in the Status Bar",
                                    &prefs.gui_qt_show_file_load_time);
 
-    prefs_register_bool_preference(gui_module, "packet_editor.enabled",
-                                   "Enable Packet Editor",
-                                   "Enable Packet Editor (Experimental)",
-                                   &prefs.gui_packet_editor);
-
     prefs_register_enum_preference(gui_module, "packet_list_elide_mode",
                        "Elide mode",
                        "The position of \"...\" in packet list text.",
@@ -4146,7 +4141,6 @@ pre_init_prefs(void)
     prefs.gui_layout_content_1       = layout_pane_content_plist;
     prefs.gui_layout_content_2       = layout_pane_content_pdetails;
     prefs.gui_layout_content_3       = layout_pane_content_pbytes;
-    prefs.gui_packet_editor          = FALSE;
     prefs.gui_packet_list_elide_mode = ELIDE_RIGHT;
     prefs.gui_packet_list_show_related = TRUE;
     prefs.gui_packet_list_show_minimap = TRUE;
