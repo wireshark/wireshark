@@ -752,8 +752,7 @@ void RtpStreamDialog::on_actionExportAsRtpDump_triggered()
             g_free(dest_file);
             // else error dialog?
             if (save_ok) {
-                path = QDir(file_name);
-                wsApp->setLastOpenDir(path.canonicalPath().toUtf8().constData());
+                wsApp->setLastOpenDirFromFilename(file_name);
             }
         }
 

@@ -872,8 +872,7 @@ void LteRlcGraphDialog::on_buttonBox_accepted()
         }
         // else error dialog?
         if (save_ok) {
-            path = QDir(file_name);
-            wsApp->setLastOpenDir(path.canonicalPath().toUtf8().constData());
+            wsApp->setLastOpenDirFromFilename(file_name);
         }
     }
 }

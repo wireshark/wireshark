@@ -189,7 +189,7 @@ void FirewallRulesDialog::on_buttonBox_clicked(QAbstractButton *button)
             }
 
             /* Save the directory name for future file dialogs. */
-            wsApp->setLastOpenDir(file_name.constData());
+            wsApp->setLastOpenDirFromFilename(file_name);
         }
     } else if (button == ui->buttonBox->button(QDialogButtonBox::Apply)) {
         if (ui->textBrowser->textCursor().hasSelection()) {

@@ -282,8 +282,10 @@ QDir WiresharkApplication::lastOpenDir() {
     return QDir(last_open_dir);
 }
 
-void WiresharkApplication::setLastOpenDir(QString dir_str) {
-    setLastOpenDir(qUtf8Printable(dir_str));
+void WiresharkApplication::setLastOpenDirFromFilename(const QString file_name)
+{
+    QString directory = QFileInfo(file_name).absolutePath();
+    setLastOpenDir(qUtf8Printable(directory));
 }
 
 void WiresharkApplication::helpTopicAction(topic_action_e action)

@@ -735,7 +735,7 @@ QString ProfileDialog::lastOpenDir()
 void ProfileDialog::storeLastDir(QString dir)
 {
     if (wsApp && dir.length() > 0)
-        wsApp->setLastOpenDir(dir.toUtf8().constData());
+        wsApp->setLastOpenDir(qUtf8Printable(dir));
 }
 
 void ProfileDialog::resetTreeView()

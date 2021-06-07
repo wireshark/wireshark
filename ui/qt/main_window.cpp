@@ -1297,10 +1297,8 @@ void MainWindow::mergeCaptureFile()
             return;
         }
 
-        /* Save the name of the containing directory specified in the path name,
-           if any; we can write over cf_merged_name, which is a good thing, given that
-           "get_dirname()" does write over its argument. */
-        wsApp->setLastOpenDir(get_dirname(tmpname));
+        /* Save the name of the containing directory specified in the path name. */
+        wsApp->setLastOpenDirFromFilename(tmpname);
         g_free(tmpname);
         main_ui_->statusBar->showExpert();
         return;
