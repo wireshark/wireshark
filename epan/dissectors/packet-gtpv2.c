@@ -8148,10 +8148,13 @@ dissect_gtpv2_ie_mon_event_ext_inf(tvbuff_t* tvb, packet_info* pinfo, proto_tree
 
 /* 207 Additional RRM Policy Index Fixed Length / 8.138 */
 static void
-dissect_gtpv2_ie_additional_rrm_policy_index(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, proto_item* item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_, session_args_t* args _U_)
+dissect_gtpv2_ie_additional_rrm_policy_index(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, proto_item* item, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_, session_args_t* args _U_)
 {
+    guint32 rrm_policy_index;
+
     /*5 to 8 Additional RRM Policy Index, The ARPI is encoded as Unsigned32 binary integer values.*/
-    proto_tree_add_item(tree, hf_gtpv2_additional_rrm_policy_index, tvb, 0, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_gtpv2_additional_rrm_policy_index, tvb, 0, 4, ENC_BIG_ENDIAN, &rrm_policy_index);
+    proto_item_append_text(item, "%u", rrm_policy_index);
 }
 
 /* 208 V2X Context Extendable / 8.139 */
