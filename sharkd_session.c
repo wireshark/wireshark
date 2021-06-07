@@ -2046,7 +2046,7 @@ sharkd_session_process_tap_eo_cb(void *tapdata)
 
 		sharkd_json_value_stringf("_download", "%s_%d", object_list->type, i);
 
-		sharkd_json_value_anyf("len", "%" G_GINT64_FORMAT, eo_entry->payload_len);
+		sharkd_json_value_anyf("len", "%zu", eo_entry->payload_len);
 
 		json_dumper_end_object(&dumper);
 
@@ -4070,7 +4070,7 @@ sharkd_session_process_download(char *buf, const jsmntok_t *tokens, int count)
 			json_dumper_begin_object(&dumper);
 			sharkd_json_value_string("file", filename);
 			sharkd_json_value_string("mime", mime);
-			sharkd_json_value_base64("data", eo_entry->payload_data, (size_t) eo_entry->payload_len);
+			sharkd_json_value_base64("data", eo_entry->payload_data, eo_entry->payload_len);
 			json_dumper_end_object(&dumper);
 			json_dumper_finish(&dumper);
 		}
