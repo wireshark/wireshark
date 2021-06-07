@@ -4077,7 +4077,8 @@ sharkd_session_process_download(char *buf, const jsmntok_t *tokens, int count)
 	}
 	else if (!strcmp(tok_token, "ssl-secrets"))
 	{
-		char *str = ssl_export_sessions();
+		gsize str_len;
+		char *str = ssl_export_sessions(&str_len);
 
 		if (str)
 		{
@@ -4087,7 +4088,7 @@ sharkd_session_process_download(char *buf, const jsmntok_t *tokens, int count)
 			json_dumper_begin_object(&dumper);
 			sharkd_json_value_string("file", filename);
 			sharkd_json_value_string("mime", mime);
-			sharkd_json_value_base64("data", str, strlen(str));
+			sharkd_json_value_base64("data", str, str_len);
 			json_dumper_end_object(&dumper);
 			json_dumper_finish(&dumper);
 		}

@@ -25,10 +25,12 @@ extern int ssl_session_key_count(void);
 
 /** Dump our SSL Session Keys to a string
  *
+ * @param[out] length Length of returned string.
+ *
  * @return A string containing all the SSL Session Keys. Must be freed with
  * g_free().
  */
-extern gchar* ssl_export_sessions(void);
+extern gchar* ssl_export_sessions(gsize *length);
 
 #ifdef __cplusplus
 }

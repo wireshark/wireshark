@@ -74,7 +74,7 @@ ssl_export_client_randoms_func(gpointer key, gpointer value, gpointer user_data)
 }
 
 gchar*
-ssl_export_sessions(void)
+ssl_export_sessions(gsize *length)
 {
     /* Output format is:
      * "RSA Session-ID:xxxx Master-Key:yyyy\n"
@@ -98,5 +98,6 @@ ssl_export_sessions(void)
     g_hash_table_foreach(ssl_session_hash, ssl_export_sessions_func, (gpointer)keylist);
     g_hash_table_foreach(ssl_crandom_hash, ssl_export_client_randoms_func, (gpointer)keylist);
 
+    *length = keylist->len;
     return g_string_free(keylist, FALSE);
 }

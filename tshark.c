@@ -2330,8 +2330,9 @@ main(int argc, char *argv[])
     draw_tap_listeners(TRUE);
 
   if (tls_session_keys_file) {
-    gchar *keylist = ssl_export_sessions();
-    write_file_binary_mode(tls_session_keys_file, keylist, strlen(keylist));
+    gsize keylist_length;
+    gchar *keylist = ssl_export_sessions(&keylist_length);
+    write_file_binary_mode(tls_session_keys_file, keylist, keylist_length);
     g_free(keylist);
   }
 

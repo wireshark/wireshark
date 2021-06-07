@@ -1856,8 +1856,9 @@ void MainWindow::on_actionFileExportTLSSessionKeys_triggered()
                                             tr("TLS Session Keys (*.keys *.txt);;All Files (" ALL_FILES_WILDCARD ")")
                                             );
     if (file_name.length() > 0) {
-        gchar *keylist = ssl_export_sessions();
-        write_file_binary_mode(qUtf8Printable(file_name), keylist, strlen(keylist));
+        gsize keylist_length;
+        gchar *keylist = ssl_export_sessions(&keylist_length);
+        write_file_binary_mode(qUtf8Printable(file_name), keylist, keylist_length);
 
         /* Save the directory name for future file dialogs. */
         wsApp->setLastOpenDir(file_name);
