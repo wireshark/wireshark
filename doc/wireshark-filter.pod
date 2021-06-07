@@ -232,7 +232,14 @@ double quotes.
 
     smb.path contains "\\\\SERVER\\SHARE"
 
-looks for \\SERVER\SHARE in "smb.path".
+looks for \\SERVER\SHARE in "smb.path". This may be more conveniently written
+as
+
+    smb.path contains r"\\SERVER\SHARE"
+
+String literals prefixed with 'r' are called "raw strings". Such strings treat
+backslash as a literal character. Double quotes may still be escaped with
+backslash but note that backslashes are always preserved in the result.
 
 =head2 The slice operator
 

@@ -592,6 +592,11 @@ hex \x__hh__ or octal {backslash}__ddd__, where _h_ and _d_ are hex and octal
 numerical digits respectively:
 +
 `dns.qry.name contains "www.\x77\x69\x72\x65\x73\x68\x61\x72\x6b.org"`
++
+Alternatively a raw string syntax can be used. Such strings are prefixed with `r` or `R` and treat
+backslash as a literal character.
++
+`http.user_agent matches r"\(X11;"`
 
 [[ChWorkFilterExamples]]
 
@@ -637,6 +642,8 @@ expression it must be escaped (twice) with backslashes.
 
 Another common pitfall is using `\.` instead of `\\.` in a regular expression. The former
 will match any character (the backslash is superfluous) while the latter will match a literal dot.
+
+TIP: Using raw strings avoids most problem with the "matches" operator and double escapes.
 
 ==== Combining Expressions
 
@@ -773,7 +780,7 @@ string(frame.number) matches "[13579]$"
 
 To match IP addresses ending in 255 in a block of subnets (172.16 to 172.31):
 ----
-string(ip.dst) matches "^172\\.(1[6-9]|2[0-9]|3[0-1])\\.[0-9]{1,3}\\.255"
+string(ip.dst) matches r"^172\.(1[6-9]|2[0-9]|3[0-1])\.[0-9]{1,3}\.255"
 ----
 
 [[ChWorkBuildDisplayFilterMistake]]
