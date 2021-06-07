@@ -588,15 +588,15 @@ Code Lines:
     SCC_OUT: /tmp/scc.txt
     SLOC_OUT: /tmp/sloccount.txt
     TOKEI_OUT: /tmp/tokei.txt
-  before_script:
+  script:
     - DEBIAN_FRONTEND=noninteractive apt-get update
     - DEBIAN_FRONTEND=noninteractive apt-get --yes install sloccount cloc curl unzip
-    - cd /tmp
+    - pushd /tmp
     - curl -L -O https://github.com/boyter/scc/releases/download/v3.0.0/scc-3.0.0-x86_64-unknown-linux.zip
     - unzip scc-3.0.0-x86_64-unknown-linux.zip
     - curl -L -O https://github.com/XAMPPRocky/tokei/releases/download/v12.1.2/tokei-x86_64-unknown-linux-gnu.tar.gz
     - tar -xf tokei-x86_64-unknown-linux-gnu.tar.gz
-  script:
+    - popd
     - DEBIAN_FRONTEND=noninteractive apt-get update
     - DEBIAN_FRONTEND=noninteractive apt-get --yes install sloccount cloc curl unzip
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
