@@ -92,8 +92,8 @@ You can force case sensitivity using
 
 This is an example of PCRE's B<(?>optionB<)> construct. B<(?-i)> performs a
 case-sensitive pattern match but other options can be specified as well. More
-information can be found in the pcrepattern(3) man page at
-L<https://perldoc.perl.org/perlre.html>).
+information can be found in the
+L<pcrepattern(3)|https://www.pcre.org/original/doc/html/pcrepattern.html> man page.
 
 =head2 Functions
 
