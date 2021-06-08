@@ -1127,7 +1127,7 @@ get_gse_subpacket_data(gse_analysis_data *dvbs2_data, guint32 num, guint32 fragi
 }
 
 /* *** helper functions *** */
-static guint8 compute_crc8(tvbuff_t *p, guint8 len, guint8 offset)
+static guint8 compute_crc8(tvbuff_t *p, guint8 len, guint offset)
 {
     int    i;
     guint8 crc = 0, tmp;
