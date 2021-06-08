@@ -1598,7 +1598,7 @@ dissect_spb_data(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
     int offset = 0;
     struct interface_description *interface_description;
     proto_item *ti;
-    guint32 captured_length;
+    volatile guint32 captured_length;
     guint32 reported_length;
     proto_item *packet_data_item;
 
@@ -1888,7 +1888,7 @@ static gint dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
     guint32          block_type;
     guint32          block_length, block_length_trailer;
     guint32          length;
-    tvbuff_t        *next_tvb;
+    tvbuff_t        *volatile next_tvb = NULL;
     block_data_arg   arg;
     volatile gboolean stop_dissecting = FALSE;
 
