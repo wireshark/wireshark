@@ -13,6 +13,7 @@
 #include "uat_dialog.h"
 
 #include <wsutil/strtoi.h>
+#include <wsutil/wslog.h>
 
 #include "ui/tap-sctp-analysis.h"
 #include <ui/qt/utils/qt_ui_utils.h>
@@ -89,7 +90,7 @@ void SCTPChunkStatisticsDialog::fillTable(bool all, const sctp_assoc_info_t *sel
 
     pref_t *pref = prefs_find_preference(prefs_find_module("sctp"),"statistics_chunk_types");
     if (!pref) {
-        g_log(NULL, G_LOG_LEVEL_ERROR, "Can't find preference sctp/statistics_chunk_types");
+        ws_log(LOG_DOMAIN_QTUI, LOG_LEVEL_ERROR, "Can't find preference sctp/statistics_chunk_types");
         return;
     }
     uat_t *uat = prefs_get_uat_value(pref);
@@ -105,7 +106,7 @@ void SCTPChunkStatisticsDialog::fillTable(bool all, const sctp_assoc_info_t *sel
             if (errno == ENOENT) {
                 init = true;
             } else {
-                g_log(NULL, G_LOG_LEVEL_ERROR, "Can't open %s: %s", fname, g_strerror(errno));
+                ws_log(LOG_DOMAIN_QTUI, LOG_LEVEL_ERROR, "Can't open %s: %s", fname, g_strerror(errno));
                 return;
             }
         }
@@ -213,7 +214,7 @@ void SCTPChunkStatisticsDialog::on_pushButton_clicked()
 
     pref_t *pref = prefs_find_preference(prefs_find_module("sctp"),"statistics_chunk_types");
     if (!pref) {
-        g_log(NULL, G_LOG_LEVEL_ERROR, "Can't find preference sctp/statistics_chunk_types");
+        ws_log(LOG_DOMAIN_QTUI, LOG_LEVEL_ERROR, "Can't find preference sctp/statistics_chunk_types");
         return;
     }
 
@@ -290,7 +291,7 @@ void SCTPChunkStatisticsDialog::on_actionChunkTypePreferences_triggered()
 
     pref_t *pref = prefs_find_preference(prefs_find_module("sctp"),"statistics_chunk_types");
     if (!pref) {
-        g_log(NULL, G_LOG_LEVEL_ERROR, "Can't find preference sctp/statistics_chunk_types");
+        ws_log(LOG_DOMAIN_QTUI, LOG_LEVEL_ERROR, "Can't find preference sctp/statistics_chunk_types");
         return;
     }
 
@@ -299,7 +300,7 @@ void SCTPChunkStatisticsDialog::on_actionChunkTypePreferences_triggered()
 
     if (!uat_load(uat, NULL, &err)) {
         /* XXX - report this through the GUI */
-        g_log(NULL, G_LOG_LEVEL_WARNING, "Error loading table '%s': %s", uat->name, err);
+        ws_log(LOG_DOMAIN_QTUI, LOG_LEVEL_WARNING, "Error loading table '%s': %s", uat->name, err);
         g_free(err);
     }
 

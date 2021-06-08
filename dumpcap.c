@@ -8,6 +8,7 @@
  */
 
 #include <config.h>
+#define WS_LOG_DOMAIN LOG_DOMAIN_CAPCHILD
 
 #include <stdio.h>
 #include <stdlib.h> /* for exit() */
@@ -47,6 +48,7 @@
 #include <version_info.h>
 
 #include <wsutil/socket.h>
+#include <wsutil/wslog.h>
 
 #ifdef HAVE_LIBCAP
 # include <sys/prctl.h>
@@ -78,7 +80,6 @@
 #include <capture/capture_sync.h>
 
 #include "wsutil/tempfile.h"
-#include "log.h"
 #include "wsutil/file_util.h"
 #include "wsutil/cpu_info.h"
 #include "wsutil/os_version_info.h"
@@ -326,8 +327,8 @@ static gboolean need_timeout_workaround;
 #define WRITER_THREAD_TIMEOUT 100000 /* usecs */
 
 static void
-console_log_handler(const char *log_domain, GLogLevelFlags log_level,
-                    const char *message, gpointer user_data _U_);
+dumpcap_log_writer(const char *message, enum ws_log_domain domain,
+                    enum ws_log_level level, void *ptr);
 
 /* capture related options */
 static capture_options global_capture_opts;
@@ -510,9 +511,7 @@ static void
 /* ....                                                                      */
 print_caps(const char *pfx) {
     cap_t caps = cap_get_proc();
-    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
-          "%s: EUID: %d  Capabilities: %s", pfx,
-          geteuid(), cap_to_text(caps, NULL));
+    ws_debug("%s: EUID: %d  Capabilities: %s", pfx, geteuid(), cap_to_text(caps, NULL));
     cap_free(caps);
 }
 #else
@@ -931,8 +930,7 @@ print_statistics_loop(gboolean machine_readable)
          * connections. We avoid collecting stats on them.
          */
         if (!strncmp(if_info->name, "nf", 2)) {
-            g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "Skipping interface %s for stats",
-                if_info->name);
+            ws_debug("Skipping interface %s for stats", if_info->name);
             continue;
         }
 #endif
@@ -1025,10 +1023,8 @@ capture_cleanup_handler(DWORD dwCtrlType)
        user logs out.  (XXX - can we explicitly check whether we're
        running as a service?) */
 
-    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO,
-        "Console: Control signal");
-    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
-        "Console: Control signal, CtrlType: %lu", dwCtrlType);
+    ws_info("Console: Control signal");
+    ws_debug("Console: Control signal, CtrlType: %lu", dwCtrlType);
 
     /* Keep capture running if we're a service and a user logs off */
     if (capture_child || (dwCtrlType != CTRL_LOGOFF_EVENT)) {
@@ -1045,11 +1041,6 @@ capture_cleanup_handler(int signum _U_)
     /* On UN*X, we cleanly shut down the capture on SIGINT, SIGHUP, and
        SIGTERM.  We assume that if the user wanted it to keep running
        after they logged out, they'd have nohupped it. */
-
-    /* Note: don't call g_log() in the signal handler: if we happened to be in
-     * g_log() in process context when the signal came in, g_log will detect
-     * the "recursion" and abort.
-     */
 
     capture_loop_stop();
 }
@@ -1452,7 +1443,7 @@ cap_pipe_read_data_bytes(capture_src *pcap_src, char *errmsg, size_t errmsgl)
     ssize_t b;
 
 #ifdef LOG_CAPTURE_VERBOSE
-    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "cap_pipe_read_data_bytes read %lu of %lu",
+    ws_debug("cap_pipe_read_data_bytes read %lu of %lu",
           pcap_src->cap_pipe_bytes_read, pcap_src->cap_pipe_bytes_to_read);
 #endif
     sz = pcap_src->cap_pipe_bytes_to_read - pcap_src->cap_pipe_bytes_read;
@@ -1501,7 +1492,7 @@ cap_pipe_read_data_bytes(capture_src *pcap_src, char *errmsg, size_t errmsgl)
     }
     pcap_src->cap_pipe_bytes_read += bytes_read;
 #ifdef LOG_CAPTURE_VERBOSE
-    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "cap_pipe_read_data_bytes read %lu of %lu",
+    ws_debug("cap_pipe_read_data_bytes read %lu of %lu",
           pcap_src->cap_pipe_bytes_read, pcap_src->cap_pipe_bytes_to_read);
 #endif
     return bytes_read;
@@ -1552,7 +1543,7 @@ cap_pipe_open_live(char *pipename,
     pcap_src->cap_pipe_h = INVALID_HANDLE_VALUE;
 #endif
 
-    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "cap_pipe_open_live: %s", pipename);
+    ws_debug("cap_pipe_open_live: %s", pipename);
 
     /*
      * XXX - this blocks until a pcap per-file header has been written to
@@ -1868,7 +1859,7 @@ cap_pipe_open_live(char *pipename,
     return;
 
 error:
-    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "cap_pipe_open_live: error %s", errmsg);
+    ws_debug("cap_pipe_open_live: error %s", errmsg);
     pcap_src->cap_pipe_err = PIPERR;
     cap_pipe_close(fd, pcap_src->from_cap_socket);
     pcap_src->cap_pipe_fd = -1;
@@ -1992,7 +1983,7 @@ pcap_pipe_open_live(int fd,
     return;
 
 error:
-    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "pcap_pipe_open_live: error %s", errmsg);
+    ws_debug("pcap_pipe_open_live: error %s", errmsg);
     pcap_src->cap_pipe_err = PIPERR;
     cap_pipe_close(fd, pcap_src->from_cap_socket);
     pcap_src->cap_pipe_fd = -1;
@@ -2043,10 +2034,10 @@ pcapng_read_shb(capture_src *pcap_src,
     switch (shb.magic)
     {
     case PCAPNG_MAGIC:
-        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "pcapng SHB MAGIC");
+        ws_debug("pcapng SHB MAGIC");
         break;
     case PCAPNG_SWAPPED_MAGIC:
-        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "pcapng SHB SWAPPED MAGIC");
+        ws_debug("pcapng SHB SWAPPED MAGIC");
         /*
          * pcapng sources can contain all sorts of block types.
          * Rather than add a bunch of complexity to this code (which is
@@ -2141,7 +2132,7 @@ pcapng_adjust_block(capture_src *pcap_src, const pcapng_block_header_t *bh, u_ch
                 g_free(idb_source->idb);
                 memset(idb_source, 0, sizeof(saved_idb_t));
                 idb_source->deleted = TRUE;
-                g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "%s: deleted pcapng IDB %u", G_STRFUNC, iface_id);
+                ws_debug("%s: deleted pcapng IDB %u", G_STRFUNC, iface_id);
             }
         }
         g_array_set_size(pcap_src->cap_pipe_info.pcapng.src_iface_to_global, 0);
@@ -2160,7 +2151,7 @@ pcapng_adjust_block(capture_src *pcap_src, const pcapng_block_header_t *bh, u_ch
         g_array_append_val(global_ld.saved_idbs, idb_source);
         guint32 iface_id = global_ld.saved_idbs->len - 1;
         g_array_append_val(pcap_src->cap_pipe_info.pcapng.src_iface_to_global, iface_id);
-        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "%s: mapped pcapng IDB %u -> %u from source %u",
+        ws_debug("%s: mapped pcapng IDB %u -> %u from source %u",
               G_STRFUNC, pcap_src->cap_pipe_info.pcapng.src_iface_to_global->len - 1, iface_id, pcap_src->interface_id);
     }
         break;
@@ -2178,7 +2169,7 @@ pcapng_adjust_block(capture_src *pcap_src, const pcapng_block_header_t *bh, u_ch
             memcpy(pd + sizeof(pcapng_block_header_t),
                    &g_array_index(pcap_src->cap_pipe_info.pcapng.src_iface_to_global, guint32, iface_id), 4);
         } else {
-            g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "%s: pcapng EPB or ISB interface id %u > max %u", G_STRFUNC, iface_id, pcap_src->cap_pipe_info.pcapng.src_iface_to_global->len);
+            ws_debug("%s: pcapng EPB or ISB interface id %u > max %u", G_STRFUNC, iface_id, pcap_src->cap_pipe_info.pcapng.src_iface_to_global->len);
             return FALSE;
         }
     }
@@ -2203,7 +2194,7 @@ pcapng_pipe_open_live(int fd,
     guint32 type = BLOCK_TYPE_SHB;
     pcapng_block_header_t *bh = &pcap_src->cap_pipe_info.pcapng.bh;
 
-    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "pcapng_pipe_open_live: fd %d", fd);
+    ws_debug("pcapng_pipe_open_live: fd %d", fd);
 
     /*
      * A pcapng block begins with the block type followed by the block
@@ -2266,7 +2257,7 @@ pcapng_pipe_open_live(int fd,
     return;
 
 error:
-    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "pcapng_pipe_open_live: error %s", errmsg);
+    ws_debug("pcapng_pipe_open_live: error %s", errmsg);
     pcap_src->cap_pipe_err = PIPERR;
     cap_pipe_close(fd, pcap_src->from_cap_socket);
     pcap_src->cap_pipe_fd = -1;
@@ -2291,7 +2282,7 @@ pcap_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, size_t er
     pcap_pipe_info_t *pcap_info = &pcap_src->cap_pipe_info.pcap;
 
 #ifdef LOG_CAPTURE_VERBOSE
-    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "pcap_pipe_dispatch");
+    ws_debug("pcap_pipe_dispatch");
 #endif
 
     switch (pcap_src->cap_pipe_state) {
@@ -2531,14 +2522,14 @@ pcapng_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, size_t 
     pcapng_block_header_t *bh = &pcap_src->cap_pipe_info.pcapng.bh;
 
 #ifdef LOG_CAPTURE_VERBOSE
-    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "pcapng_pipe_dispatch");
+    ws_debug("pcapng_pipe_dispatch");
 #endif
 
     switch (pcap_src->cap_pipe_state) {
 
     case STATE_EXPECT_REC_HDR:
 #ifdef LOG_CAPTURE_VERBOSE
-        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "pcapng_pipe_dispatch STATE_EXPECT_REC_HDR");
+        ws_debug("pcapng_pipe_dispatch STATE_EXPECT_REC_HDR");
 #endif
 #ifdef _WIN32
         if (g_mutex_trylock(pcap_src->cap_pipe_read_mtx)) {
@@ -2560,7 +2551,7 @@ pcapng_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, size_t 
 
     case STATE_READ_REC_HDR:
 #ifdef LOG_CAPTURE_VERBOSE
-        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "pcapng_pipe_dispatch STATE_READ_REC_HDR");
+        ws_debug("pcapng_pipe_dispatch STATE_READ_REC_HDR");
 #endif
 #ifdef _WIN32
         if (pcap_src->from_cap_socket) {
@@ -2593,7 +2584,7 @@ pcapng_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, size_t 
 
     case STATE_EXPECT_DATA:
 #ifdef LOG_CAPTURE_VERBOSE
-        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "pcapng_pipe_dispatch STATE_EXPECT_DATA");
+        ws_debug("pcapng_pipe_dispatch STATE_EXPECT_DATA");
 #endif
 #ifdef _WIN32
         if (g_mutex_trylock(pcap_src->cap_pipe_read_mtx)) {
@@ -2615,7 +2606,7 @@ pcapng_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, size_t 
 
     case STATE_READ_DATA:
 #ifdef LOG_CAPTURE_VERBOSE
-        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "pcapng_pipe_dispatch STATE_READ_DATA");
+        ws_debug("pcapng_pipe_dispatch STATE_READ_DATA");
 #endif
 #ifdef _WIN32
         if (pcap_src->from_cap_socket) {
@@ -2808,7 +2799,7 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
         g_rw_lock_writer_lock (&ld->saved_shb_idb_lock);
         g_array_append_val(global_ld.saved_idbs, idb_source);
         g_rw_lock_writer_unlock (&ld->saved_shb_idb_lock);
-        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "%s: saved capture_opts IDB %u",
+        ws_debug("%s: saved capture_opts IDB %u",
               G_STRFUNC, i);
 
 #ifdef MUST_DO_SELECT
@@ -2831,7 +2822,7 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
 #endif
         g_array_append_val(ld->pcaps, pcap_src);
 
-        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_open_input : %s", interface_opts->name);
+        ws_debug("capture_loop_open_input : %s", interface_opts->name);
         pcap_src->pcap_h = open_capture_device(capture_opts, interface_opts,
             CAP_READ_TIMEOUT, &open_err, &open_err_str);
 
@@ -2963,7 +2954,7 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
          */
         ld->pcapng_passthrough = TRUE;
         g_rw_lock_writer_lock (&ld->saved_shb_idb_lock);
-        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "%s: Clearing %u interfaces for passthrough",
+        ws_debug("%s: Clearing %u interfaces for passthrough",
               G_STRFUNC, global_ld.saved_idbs->len);
         g_array_set_size(global_ld.saved_idbs, 0);
         g_rw_lock_writer_unlock (&ld->saved_shb_idb_lock);
@@ -2988,7 +2979,7 @@ static void capture_loop_close_input(loop_data *ld)
     guint        i;
     capture_src *pcap_src;
 
-    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_close_input");
+    ws_debug("capture_loop_close_input");
 
     for (i = 0; i < ld->pcaps->len; i++) {
         pcap_src = g_array_index(ld->pcaps, capture_src *, i);
@@ -3017,7 +3008,7 @@ static void capture_loop_close_input(loop_data *ld)
         } else {
             /* Capture device.  If open, close the pcap_t. */
             if (pcap_src->pcap_h != NULL) {
-                g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_close_input: closing %p", (void *)pcap_src->pcap_h);
+                ws_debug("capture_loop_close_input: closing %p", (void *)pcap_src->pcap_h);
                 pcap_close(pcap_src->pcap_h);
                 pcap_src->pcap_h = NULL;
             }
@@ -3035,7 +3026,7 @@ capture_loop_init_filter(pcap_t *pcap_h, gboolean from_cap_pipe,
 {
     struct bpf_program fcode;
 
-    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_init_filter: %s", cfilter);
+    ws_debug("capture_loop_init_filter: %s", cfilter);
 
     /* capture filters only work on real interfaces */
     if (cfilter && !from_cap_pipe) {
@@ -3072,7 +3063,7 @@ capture_loop_init_pcapng_output(capture_options *capture_opts, loop_data *ld,
 
     if (ld->pcapng_passthrough && !ld->saved_shb) {
         /* We have a single pcapng capture interface and this is the first or only output file. */
-        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "%s: skipping dumpcap SHB and IDBs in favor of source", G_STRFUNC);
+        ws_debug("%s: skipping dumpcap SHB and IDBs in favor of source", G_STRFUNC);
         g_rw_lock_reader_unlock (&ld->saved_shb_idb_lock);
         return TRUE;
     }
@@ -3092,7 +3083,7 @@ capture_loop_init_pcapng_output(capture_options *capture_opts, loop_data *ld,
 
         successful = pcapng_write_block(ld->pdh, ld->saved_shb, bh.block_total_length, &ld->bytes_written, err);
 
-        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "%s: wrote saved passthrough SHB %d", G_STRFUNC, successful);
+        ws_debug("%s: wrote saved passthrough SHB %d", G_STRFUNC, successful);
     } else {
         GString *cpu_info_str = g_string_new("");
         get_cpu_info(cpu_info_str);
@@ -3105,7 +3096,7 @@ capture_loop_init_pcapng_output(capture_options *capture_opts, loop_data *ld,
                                                        -1,                          /* section_length */
                                                        &ld->bytes_written,
                                                        err);
-        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "%s: wrote dumpcap SHB %d", G_STRFUNC, successful);
+        ws_debug("%s: wrote dumpcap SHB %d", G_STRFUNC, successful);
         g_string_free(cpu_info_str, TRUE);
     }
 
@@ -3138,10 +3129,10 @@ capture_loop_init_pcapng_output(capture_options *capture_opts, loop_data *ld,
                                                                   0,                                /* IDB_IF_SPEED      8 */
                                                                   6,                                /* IDB_TSRESOL       9 */
                                                                   &global_ld.err);
-            g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "%s: skipping deleted pcapng IDB %u", G_STRFUNC, i);
+            ws_debug("%s: skipping deleted pcapng IDB %u", G_STRFUNC, i);
         } else if (idb_source.idb && idb_source.idb_len) {
             successful = pcapng_write_block(global_ld.pdh, idb_source.idb, idb_source.idb_len, &ld->bytes_written, err);
-            g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "%s: wrote pcapng IDB %d", G_STRFUNC, successful);
+            ws_debug("%s: wrote pcapng IDB %d", G_STRFUNC, successful);
         } else if (idb_source.interface_id < capture_opts->ifaces->len) {
             unsigned if_id = idb_source.interface_id;
             interface_options *interface_opts = &g_array_index(capture_opts->ifaces, interface_options, if_id);
@@ -3164,7 +3155,7 @@ capture_loop_init_pcapng_output(capture_options *capture_opts, loop_data *ld,
                                                                   0,                          /* IDB_IF_SPEED      8 */
                                                                   pcap_src->ts_nsec ? 9 : 6,  /* IDB_TSRESOL       9 */
                                                                   &global_ld.err);
-            g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "%s: wrote capture_opts IDB %d: %d", G_STRFUNC, if_id, successful);
+            ws_debug("%s: wrote capture_opts IDB %d: %d", G_STRFUNC, if_id, successful);
         }
     }
     g_rw_lock_reader_unlock (&ld->saved_shb_idb_lock);
@@ -3180,7 +3171,7 @@ capture_loop_init_output(capture_options *capture_opts, loop_data *ld, char *err
 {
     int err = 0;
 
-    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_init_output");
+    ws_debug("capture_loop_init_output");
 
     if ((capture_opts->use_pcapng == FALSE) &&
         (capture_opts->ifaces->len > 1)) {
@@ -3210,7 +3201,7 @@ capture_loop_init_output(capture_options *capture_opts, loop_data *ld, char *err
             /* Increase the size of the IO buffer */
             ld->io_buffer = (char *)g_malloc(buffsize);
             setvbuf(ld->pdh, ld->io_buffer, _IOFBF, buffsize);
-            g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_init_output: buffsize %zu", buffsize);
+            ws_debug("capture_loop_init_output: buffsize %zu", buffsize);
         }
     }
     if (ld->pdh) {
@@ -3265,7 +3256,7 @@ capture_loop_close_output(capture_options *capture_opts, loop_data *ld, int *err
     guint64      end_time = create_timestamp();
     gboolean success;
 
-    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_close_output");
+    ws_debug("capture_loop_close_output");
 
     if (capture_opts->multi_files_on) {
         return ringbuf_libpcap_dump_close(&capture_opts->save_file, err_close);
@@ -3333,7 +3324,7 @@ capture_loop_dispatch(loop_data *ld,
     if (pcap_src->from_cap_pipe) {
         /* dispatch from capture pipe */
 #ifdef LOG_CAPTURE_VERBOSE
-        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_dispatch: from capture pipe");
+        ws_debug("capture_loop_dispatch: from capture pipe");
 #endif
 #ifdef _WIN32
         if (pcap_src->from_cap_socket) {
@@ -3362,7 +3353,7 @@ capture_loop_dispatch(loop_data *ld,
              */
             inpkts = pcap_src->cap_pipe_dispatch(ld, pcap_src, errmsg, errmsg_len);
             if (inpkts < 0) {
-                g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "%s: src %u pipe reached EOF or err, rcv: %u drop: %u flush: %u",
+                ws_debug("%s: src %u pipe reached EOF or err, rcv: %u drop: %u flush: %u",
                       G_STRFUNC, pcap_src->interface_id, pcap_src->received, pcap_src->dropped, pcap_src->flushed);
                 g_assert(pcap_src->cap_pipe_err != PIPOK);
             }
@@ -3386,7 +3377,7 @@ capture_loop_dispatch(loop_data *ld,
          * later, so it can use pcap_breakloop().
          */
 #ifdef LOG_CAPTURE_VERBOSE
-        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_dispatch: from pcap_dispatch with select");
+        ws_debug("capture_loop_dispatch: from pcap_dispatch with select");
 #endif
         if (pcap_src->pcap_fd != -1) {
             sel_ret = cap_pipe_select(pcap_src->pcap_fd);
@@ -3427,7 +3418,7 @@ capture_loop_dispatch(loop_data *ld,
             /* dispatch from pcap without select */
 #if 1
 #ifdef LOG_CAPTURE_VERBOSE
-            g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_dispatch: from pcap_dispatch");
+            ws_debug("capture_loop_dispatch: from pcap_dispatch");
 #endif
 #ifdef _WIN32
             /*
@@ -3457,7 +3448,7 @@ capture_loop_dispatch(loop_data *ld,
             }
 #else /* pcap_next_ex */
 #ifdef LOG_CAPTURE_VERBOSE
-            g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_dispatch: from pcap_next_ex");
+            ws_debug("capture_loop_dispatch: from pcap_next_ex");
 #endif
             /* XXX - this is currently unused, as there is some confusion with pcap_next_ex() vs. pcap_dispatch() */
 
@@ -3496,7 +3487,7 @@ capture_loop_dispatch(loop_data *ld,
     }
 
 #ifdef LOG_CAPTURE_VERBOSE
-    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_dispatch: %d new packet%s", inpkts, plurality(inpkts, "", "s"));
+    ws_debug("capture_loop_dispatch: %d new packet%s", inpkts, plurality(inpkts, "", "s"));
 #endif
 
     return ld->packets_captured - packet_count_before;
@@ -3538,7 +3529,7 @@ capture_loop_open_output(capture_options *capture_opts, int *save_file_fd,
     gboolean  is_tempfile;
     GError   *err_tempfile = NULL;
 
-    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_open_output: %s",
+    ws_debug("capture_loop_open_output: %s",
           (capture_opts->save_file) ? capture_opts->save_file : "(not specified)");
 
     if (capture_opts->save_file != NULL) {
@@ -3790,8 +3781,7 @@ pcap_read_handler(void* arg)
     capture_src *pcap_src = (capture_src *)arg;
     char         errmsg[MSG_MAX_LENGTH+1];
 
-    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, "Started thread for interface %d.",
-          pcap_src->interface_id);
+    ws_info("Started thread for interface %d.", pcap_src->interface_id);
 
     /* If this is a pipe input it might finish early. */
     while (global_ld.go && pcap_src->cap_pipe_err == PIPOK) {
@@ -3799,8 +3789,7 @@ pcap_read_handler(void* arg)
         capture_loop_dispatch(&global_ld, errmsg, sizeof(errmsg), pcap_src);
     }
 
-    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, "Stopped thread for interface %d.",
-          pcap_src->interface_id);
+    ws_info("Stopped thread for interface %d.", pcap_src->interface_id);
     g_thread_exit(NULL);
     return (NULL);
 }
@@ -3823,8 +3812,7 @@ capture_loop_dequeue_packet(void) {
     g_async_queue_unlock(pcap_queue);
     if (queue_element) {
         if (queue_element->pcap_src->from_pcapng) {
-            g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO,
-                  "Dequeued a block of type 0x%08x of length %d captured on interface %d.",
+            ws_info("Dequeued a block of type 0x%08x of length %d captured on interface %d.",
                   queue_element->u.bh.block_type, queue_element->u.bh.block_total_length,
                   queue_element->pcap_src->interface_id);
 
@@ -3832,8 +3820,7 @@ capture_loop_dequeue_packet(void) {
                                         &queue_element->u.bh,
                                         queue_element->pd);
         } else {
-            g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO,
-                "Dequeued a packet of length %d captured on interface %d.",
+            ws_info("Dequeued a packet of length %d captured on interface %d.",
                 queue_element->u.phdr.caplen, queue_element->pcap_src->interface_id);
 
             capture_loop_write_packet_cb((u_char *) queue_element->pcap_src,
@@ -3935,8 +3922,8 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
     /* We haven't yet gotten the capture statistics. */
     *stats_known      = FALSE;
 
-    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, "Capture loop starting ...");
-    capture_opts_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, capture_opts);
+    ws_info("Capture loop starting ...");
+    capture_opts_log(LOG_DOMAIN_CAPCHILD, LOG_LEVEL_DEBUG, capture_opts);
 
     /* open the "input file" from network interface or capture pipe */
     if (!capture_loop_open_input(capture_opts, &global_ld, errmsg, sizeof(errmsg),
@@ -4031,8 +4018,8 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
     gettimeofday(&upd_time, NULL);
 #endif
     start_time = create_timestamp();
-    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, "Capture loop running.");
-    capture_opts_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, capture_opts);
+    ws_info("Capture loop running.");
+    capture_opts_log(LOG_DOMAIN_CAPCHILD, LOG_LEVEL_DEBUG, capture_opts);
 
     /* WOW, everything is prepared! */
     /* please fasten your seat belts, we will enter now the actual capture loop */
@@ -4158,16 +4145,14 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
         }
     }
 
-    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, "Capture loop stopping ...");
+    ws_info("Capture loop stopping ...");
     if (use_threads) {
 
         for (i = 0; i < global_ld.pcaps->len; i++) {
             pcap_src = g_array_index(global_ld.pcaps, capture_src *, i);
-            g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, "Waiting for thread of interface %u...",
-                  pcap_src->interface_id);
+            ws_info("Waiting for thread of interface %u...", pcap_src->interface_id);
             g_thread_join(pcap_src->tid);
-            g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, "Thread of interface %u terminated.",
-                  pcap_src->interface_id);
+            ws_info("Thread of interface %u terminated.", pcap_src->interface_id);
         }
         while (1) {
             gboolean dequeued = capture_loop_dequeue_packet();
@@ -4374,7 +4359,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
     /* close the input file (pcap or capture pipe) */
     capture_loop_close_input(&global_ld);
 
-    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, "Capture loop stopped.");
+    ws_info("Capture loop stopped.");
 
     /* ok, if the write and the close were successful. */
     return write_ok && close_ok;
@@ -4404,7 +4389,7 @@ error:
     /* close the input file (pcap or cap_pipe) */
     capture_loop_close_input(&global_ld);
 
-    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, "Capture loop stopped with error");
+    ws_info("Capture loop stopped with error");
 
     return FALSE;
 }
@@ -4531,7 +4516,7 @@ capture_loop_write_pcapng_cb(capture_src *pcap_src, const pcapng_block_header_t 
     }
 
     if (!pcapng_adjust_block(pcap_src, bh, pd)) {
-        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, "%s failed to adjust pcapng block.", G_STRFUNC);
+        ws_info("%s failed to adjust pcapng block.", G_STRFUNC);
         g_assert_not_reached();
         return;
     }
@@ -4564,8 +4549,7 @@ capture_loop_write_pcapng_cb(capture_src *pcap_src, const pcapng_block_header_t 
         } else if (bh->block_type == BLOCK_TYPE_EPB || bh->block_type == BLOCK_TYPE_SPB || bh->block_type == BLOCK_TYPE_SYSTEMD_JOURNAL) {
             /* count packet only if we actually have an EPB or SPB */
 #if defined(DEBUG_DUMPCAP) || defined(DEBUG_CHILD_DUMPCAP)
-            g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO,
-                  "Wrote a pcapng block type %u of length %d captured on interface %u.",
+            ws_info("Wrote a pcapng block type %u of length %d captured on interface %u.",
                    bh->block_type, bh->block_total_length, pcap_src->interface_id);
 #endif
             capture_loop_wrote_one_packet(pcap_src);
@@ -4582,7 +4566,7 @@ capture_loop_write_packet_cb(u_char *pcap_src_p, const struct pcap_pkthdr *phdr,
     int          err;
     guint        ts_mul    = pcap_src->ts_nsec ? 1000000000 : 1000000;
 
-    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_write_packet_cb");
+    ws_debug("capture_loop_write_packet_cb");
 
     /* We may be called multiple times from pcap_dispatch(); if we've set
        the "stop capturing" flag, ignore this packet, as we're not
@@ -4620,8 +4604,7 @@ capture_loop_write_packet_cb(u_char *pcap_src_p, const struct pcap_pkthdr *phdr,
             pcap_src->dropped++;
         } else {
 #if defined(DEBUG_DUMPCAP) || defined(DEBUG_CHILD_DUMPCAP)
-            g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO,
-                  "Wrote a pcap packet of length %d captured on interface %u.",
+            ws_info("Wrote a pcap packet of length %d captured on interface %u.",
                    phdr->caplen, pcap_src->interface_id);
 #endif
             capture_loop_wrote_one_packet(pcap_src);
@@ -4675,19 +4658,16 @@ capture_loop_queue_packet_cb(u_char *pcap_src_p, const struct pcap_pkthdr *phdr,
         pcap_src->dropped++;
         g_free(queue_element->pd);
         g_free(queue_element);
-        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO,
-              "Dropped a packet of length %d captured on interface %u.",
+        ws_info("Dropped a packet of length %d captured on interface %u.",
               phdr->caplen, pcap_src->interface_id);
     } else {
         pcap_src->received++;
-        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO,
-              "Queued a packet of length %d captured on interface %u.",
+        ws_info("Queued a packet of length %d captured on interface %u.",
               phdr->caplen, pcap_src->interface_id);
     }
     /* I don't want to hold the mutex over the debug output. So the
        output may be wrong */
-    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO,
-          "Queue size is now %" G_GINT64_MODIFIER "d bytes (%" G_GINT64_MODIFIER "d packets)",
+    ws_info("Queue size is now %" G_GINT64_MODIFIER "d bytes (%" G_GINT64_MODIFIER "d packets)",
           pcap_queue_bytes, pcap_queue_packets);
 }
 
@@ -4735,19 +4715,16 @@ capture_loop_queue_pcapng_cb(capture_src *pcap_src, const pcapng_block_header_t 
         pcap_src->dropped++;
         g_free(queue_element->pd);
         g_free(queue_element);
-        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO,
-              "Dropped a packet of length %d captured on interface %u.",
+        ws_info("Dropped a packet of length %d captured on interface %u.",
               bh->block_total_length, pcap_src->interface_id);
     } else {
         pcap_src->received++;
-        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO,
-              "Queued a block of type 0x%08x of length %d captured on interface %u.",
+        ws_info("Queued a block of type 0x%08x of length %d captured on interface %u.",
               bh->block_type, bh->block_total_length, pcap_src->interface_id);
     }
     /* I don't want to hold the mutex over the debug output. So the
        output may be wrong */
-    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO,
-          "Queue size is now %" G_GINT64_MODIFIER "d bytes (%" G_GINT64_MODIFIER "d packets)",
+    ws_info("Queue size is now %" G_GINT64_MODIFIER "d bytes (%" G_GINT64_MODIFIER "d packets)",
           pcap_queue_bytes, pcap_queue_packets);
 }
 
@@ -4852,7 +4829,6 @@ main(int argc, char *argv[])
 
     gboolean          stats_known;
     struct pcap_stat  stats = {0};
-    GLogLevelFlags    log_flags;
     gboolean          list_interfaces       = FALSE;
     int               caps_queries          = 0;
     gboolean          print_bpf_code        = FALSE;
@@ -4868,7 +4844,18 @@ main(int argc, char *argv[])
 #endif
     GString          *str;
 
+    /* Initialize log handler early so we can have proper logging during startup. */
+    ws_log_init(dumpcap_log_writer);
+
     cmdarg_err_init(dumpcap_cmdarg_err, dumpcap_cmdarg_err_cont);
+
+    /* Command line options are parsed too late to configure logging, do it
+        manually. */
+    const char *opt_err_val;
+    if ((opt_err_val = ws_log_set_level_args(&argc, argv)) != NULL) {
+        cmdarg_err("Invalid log level \"%s\"", opt_err_val);
+        exit (1);
+    }
 
 #ifdef _WIN32
     create_app_running_mutex();
@@ -4969,37 +4956,6 @@ main(int argc, char *argv[])
         }
     }
 
-    /* The default_log_handler will use stdout, which makes trouble in   */
-    /* capture child mode, as it uses stdout for its sync_pipe.          */
-    /* So: the filtering is done in the console_log_handler and not here.*/
-    /* We set the log handlers right up front to make sure that any log  */
-    /* messages when running as child will be sent back to the parent    */
-    /* with the correct format.                                          */
-
-    log_flags =
-        (GLogLevelFlags)(
-        G_LOG_LEVEL_ERROR|
-        G_LOG_LEVEL_CRITICAL|
-        G_LOG_LEVEL_WARNING|
-        G_LOG_LEVEL_MESSAGE|
-        G_LOG_LEVEL_INFO|
-        G_LOG_LEVEL_DEBUG|
-        G_LOG_FLAG_FATAL|
-        G_LOG_FLAG_RECURSION);
-
-    g_log_set_handler(NULL,
-                      log_flags,
-                      console_log_handler, NULL /* user_data */);
-    g_log_set_handler(LOG_DOMAIN_MAIN,
-                      log_flags,
-                      console_log_handler, NULL /* user_data */);
-    g_log_set_handler(LOG_DOMAIN_CAPTURE,
-                      log_flags,
-                      console_log_handler, NULL /* user_data */);
-    g_log_set_handler(LOG_DOMAIN_CAPTURE_CHILD,
-                      log_flags,
-                      console_log_handler, NULL /* user_data */);
-
     /* Initialize the pcaps list and IDBs */
     global_ld.pcaps = g_array_new(FALSE, FALSE, sizeof(capture_src *));
     global_ld.pcapng_passthrough = FALSE;
@@ -5009,10 +4965,10 @@ main(int argc, char *argv[])
     err_msg = ws_init_sockets();
     if (err_msg != NULL)
     {
-        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_ERROR,
+        ws_log(LOG_DOMAIN_CAPCHILD, LOG_LEVEL_ERROR,
                           "ERROR: %s", err_msg);
         g_free(err_msg);
-        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_ERROR,
+        ws_log(LOG_DOMAIN_CAPCHILD, LOG_LEVEL_ERROR,
                           "%s", please_report_bug());
         exit_main(1);
     }
@@ -5237,8 +5193,7 @@ main(int argc, char *argv[])
                                              GENERIC_READ, 0, NULL, OPEN_EXISTING, 0, NULL);
 
                 if (sig_pipe_handle == INVALID_HANDLE_VALUE) {
-                    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO,
-                          "Signal pipe: Unable to open %s.  Dead parent?",
+                    ws_info("Signal pipe: Unable to open %s.  Dead parent?",
                           sig_pipe_name);
                     exit_main(1);
                 }
@@ -5535,8 +5490,7 @@ main(int argc, char *argv[])
             interface_options *interface_opts;
 
             interface_opts = &g_array_index(global_capture_opts.ifaces, interface_options, j);
-            g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "Interface: %s\n",
-                  interface_opts->name);
+            ws_debug("Interface: %s\n", interface_opts->name);
         }
     } else {
         str = g_string_new("");
@@ -5613,92 +5567,29 @@ main(int argc, char *argv[])
 }
 
 static void
-console_log_handler(const char *log_domain, GLogLevelFlags log_level,
-                    const char *message, gpointer user_data _U_)
+dumpcap_log_writer(const char *message, enum ws_log_domain domain _U_,
+                    enum ws_log_level level _U_, void *ptr _U_)
 {
-    time_t      curr;
-    struct tm  *today;
-    const char *level;
-    gchar      *msg;
-
-    /* ignore log message, if log_level isn't interesting */
-    if ( !(log_level & G_LOG_LEVEL_MASK & ~(G_LOG_LEVEL_DEBUG|G_LOG_LEVEL_INFO))) {
-#if !defined(DEBUG_DUMPCAP) && !defined(DEBUG_CHILD_DUMPCAP)
-        return;
-#endif
-    }
-
-    switch(log_level & G_LOG_LEVEL_MASK) {
-    case G_LOG_LEVEL_ERROR:
-        level = "Err ";
-        break;
-    case G_LOG_LEVEL_CRITICAL:
-        level = "Crit";
-        break;
-    case G_LOG_LEVEL_WARNING:
-        level = "Warn";
-        break;
-    case G_LOG_LEVEL_MESSAGE:
-        level = "Msg ";
-        break;
-    case G_LOG_LEVEL_INFO:
-        level = "Info";
-        break;
-    case G_LOG_LEVEL_DEBUG:
-        level = "Dbg ";
-        break;
-    default:
-        fprintf(stderr, "unknown log_level %d\n", log_level);
-        level = NULL;
-        g_assert_not_reached();
-    }
-
-    /* Generate the output message                                  */
-    if (log_level & G_LOG_LEVEL_MESSAGE) {
-        /* normal user messages without additional infos */
-        msg =  g_strdup_printf("%s\n", message);
-    } else {
-        /* create a "timestamp" */
-        time(&curr);
-        today = localtime(&curr);
-
-        /* info/debug messages with additional infos */
-        if (today != NULL)
-            msg = g_strdup_printf("%02u:%02u:%02u %8s %s %s\n",
-                                  today->tm_hour, today->tm_min, today->tm_sec,
-                                  log_domain != NULL ? log_domain : "",
-                                  level, message);
-        else
-            msg = g_strdup_printf("Time not representable %8s %s %s\n",
-                                  log_domain != NULL ? log_domain : "",
-                                  level, message);
-    }
-
-    /* DEBUG & INFO msgs (if we're debugging today)                 */
 #if defined(DEBUG_DUMPCAP) || defined(DEBUG_CHILD_DUMPCAP)
-    if ( !(log_level & G_LOG_LEVEL_MASK & ~(G_LOG_LEVEL_DEBUG|G_LOG_LEVEL_INFO))) {
 #ifdef DEBUG_DUMPCAP
-        fprintf(stderr, "%s", msg);
+        fprintf(stderr, "%s\n", message);
         fflush(stderr);
 #endif
 #ifdef DEBUG_CHILD_DUMPCAP
-        fprintf(debug_log, "%s", msg);
+        fprintf(debug_log, "%s\n", message);
         fflush(debug_log);
 #endif
-        g_free(msg);
-        return;
-    }
+    return;
 #endif
 
-    /* ERROR, CRITICAL, WARNING, MESSAGE messages goto stderr or    */
+    /* Messages goto stderr or    */
     /*  to parent especially formatted if dumpcap running as child. */
     if (capture_child) {
-        sync_pipe_errmsg_to_parent(2, msg, "");
+        sync_pipe_errmsg_to_parent(2, message, "");
     } else {
-        fprintf(stderr, "%s", msg);
+        fprintf(stderr, "%s", message);
         fflush(stderr);
     }
-    g_free(msg);
 }
 
 
@@ -5714,7 +5605,7 @@ report_packet_count(unsigned int packet_count)
 
     if (capture_child) {
         g_snprintf(count_str, sizeof(count_str), "%u", packet_count);
-        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "Packets: %s", count_str);
+        ws_debug("Packets: %s", count_str);
         pipe_write_block(2, SP_PACKET_COUNT, count_str);
     } else {
         count += packet_count;
@@ -5728,7 +5619,7 @@ static void
 report_new_capture_file(const char *filename)
 {
     if (capture_child) {
-        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "File: %s", filename);
+        ws_debug("File: %s", filename);
         pipe_write_block(2, SP_FILE, filename);
     } else {
 #ifdef SIGINFO
@@ -5767,7 +5658,7 @@ report_cfilter_error(capture_options *capture_opts, guint i, const char *errmsg)
     if (i < capture_opts->ifaces->len) {
         if (capture_child) {
             g_snprintf(tmp, sizeof(tmp), "%u:%s", i, errmsg);
-            g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "Capture filter error: %s", errmsg);
+            ws_debug("Capture filter error: %s", errmsg);
             pipe_write_block(2, SP_BAD_FILTER, tmp);
         } else {
             /*
@@ -5789,10 +5680,8 @@ static void
 report_capture_error(const char *error_msg, const char *secondary_error_msg)
 {
     if (capture_child) {
-        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
-            "Primary Error: %s", error_msg);
-        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
-            "Secondary Error: %s", secondary_error_msg);
+        ws_debug("Primary Error: %s", error_msg);
+        ws_debug("Secondary Error: %s", secondary_error_msg);
         sync_pipe_errmsg_to_parent(2, error_msg, secondary_error_msg);
     } else {
         cmdarg_err("%s", error_msg);
@@ -5809,8 +5698,7 @@ report_packet_drops(guint32 received, guint32 pcap_drops, guint32 drops, guint32
     if (capture_child) {
         char* tmp = g_strdup_printf("%u:%s", total_drops, name);
 
-        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
-            "Packets received/dropped on interface '%s': %u/%u (pcap:%u/dumpcap:%u/flushed:%u/ps_ifdrop:%u)",
+        ws_debug("Packets received/dropped on interface '%s': %u/%u (pcap:%u/dumpcap:%u/flushed:%u/ps_ifdrop:%u)",
             name, received, total_drops, pcap_drops, drops, flushed, ps_ifdrop);
         pipe_write_block(2, SP_DROPS, tmp);
         g_free(tmp);
@@ -5844,8 +5732,7 @@ signal_pipe_check_running(void)
 
     if (!sig_pipe_name || !sig_pipe_handle) {
         /* This shouldn't happen */
-        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO,
-            "Signal pipe: No name or handle");
+        ws_info("Signal pipe: No name or handle");
         return FALSE;
     }
 
@@ -5860,10 +5747,8 @@ signal_pipe_check_running(void)
     if (!result || avail > 0) {
         /* peek failed or some bytes really available */
         /* (if not piping from stdin this would fail) */
-        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO,
-            "Signal pipe: Stop capture: %s", sig_pipe_name);
-        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
-            "Signal pipe: %s (%p) result: %u avail: %lu", sig_pipe_name,
+        ws_info("Signal pipe: Stop capture: %s", sig_pipe_name);
+        ws_debug("Signal pipe: %s (%p) result: %u avail: %lu", sig_pipe_name,
             sig_pipe_handle, result, avail);
         return FALSE;
     } else {

@@ -12,10 +12,10 @@
 
 #include "win32-utils.h"
 
-#include <log.h>
-
 #include <tchar.h>
 #include <VersionHelpers.h>
+
+#include <wsutil/wslog.h>
 
 /* Quote the argument element if necessary, so that it will get
  * reconstructed correctly in the C runtime startup code.  Note that
@@ -199,7 +199,7 @@ static void win32_kill_child_on_exit(HANDLE child_handle) {
         cjo_handle = CreateJobObject(NULL, NULL);
 
         if (!cjo_handle) {
-            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "Could not create child cleanup job object: %s",
+            ws_log(LOG_DOMAIN_CAPTURE, LOG_LEVEL_DEBUG, "Could not create child cleanup job object: %s",
                 win32strerror(GetLastError()));
             return;
         }
@@ -209,14 +209,14 @@ static void win32_kill_child_on_exit(HANDLE child_handle) {
         BOOL sijo_ret = SetInformationJobObject(cjo_handle, JobObjectExtendedLimitInformation,
             &cjo_jel_info, sizeof(cjo_jel_info));
         if (!sijo_ret) {
-            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "Could not set child cleanup limits: %s",
+            ws_log(LOG_DOMAIN_CAPTURE, LOG_LEVEL_DEBUG, "Could not set child cleanup limits: %s",
                 win32strerror(GetLastError()));
         }
     }
 
     BOOL aptjo_ret = AssignProcessToJobObject(cjo_handle, child_handle);
     if (!aptjo_ret) {
-        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "Could not assign child cleanup process: %s",
+        ws_log(LOG_DOMAIN_CAPTURE, LOG_LEVEL_DEBUG, "Could not assign child cleanup process: %s",
             win32strerror(GetLastError()));
     }
 }

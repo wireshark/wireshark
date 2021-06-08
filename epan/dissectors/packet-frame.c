@@ -29,13 +29,13 @@
 #include <epan/expert.h>
 #include <wsutil/wsgcrypt.h>
 #include <wsutil/str_util.h>
+#include <wsutil/wslog.h>
 #include <epan/proto_data.h>
 #include <epan/addr_resolv.h>
 #include <wmem/wmem.h>
 
 #include "packet-frame.h"
 #include "packet-icmp.h"
-#include "log.h"
 
 #include <epan/column-info.h>
 #include <epan/color_filters.h>
@@ -1012,7 +1012,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 				field_info* fi = proto_find_field_from_offset(tree, i, tvb);
 				if (fi && fi->hfinfo->id != proto_frame) {
 					if (prefs.incomplete_dissectors_check_debug)
-						g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_WARNING,
+						ws_log(LOG_DOMAIN_CAPTURE, LOG_LEVEL_WARNING,
 							"Dissector %s incomplete in frame %u: undecoded byte number %u "
 							"(0x%.4X+%u)",
 							fi->hfinfo->abbrev,

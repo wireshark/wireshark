@@ -10,6 +10,7 @@
  */
 
 #include <config.h>
+#define WS_LOG_DOMAIN LOG_DOMAIN_CAPTURE
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -28,7 +29,6 @@
 #endif
 
 #include <glib.h>
-#include <log.h>
 
 #ifdef __linux__
 #define HAS_G_SPAWN_LINUX_THREAD_SAFETY_BUG
@@ -39,6 +39,7 @@
 
 #include "wsutil/filesystem.h"
 #include "wsutil/ws_pipe.h"
+#include "wsutil/wslog.h"
 
 #ifdef HAS_G_SPAWN_LINUX_THREAD_SAFETY_BUG
 struct linux_dirent64 {
@@ -175,7 +176,7 @@ convert_to_argv(const char *command, int args_count, char *const *args)
         // arguments would silently be ignored because protect_arg returns an
         // empty string, therefore we print a warning here.
         if (!*args[i]) {
-            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_WARNING, "Empty argument %d in arguments list", i);
+            ws_warning("Empty argument %d in arguments list", i);
         }
         argv[1 + i] = g_strdup(args[i]);
     }
@@ -252,7 +253,7 @@ gboolean ws_pipe_spawn_sync(const gchar *working_directory, const gchar *command
     gchar **argv = convert_to_argv(command, argc, args);
     gchar *command_line = convert_to_command_line(argv);
 
-    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "spawn_sync: %s", command_line);
+    ws_debug("command line: %s", command_line);
 
     guint64 start_time = g_get_monotonic_time();
 
@@ -265,7 +266,7 @@ gboolean ws_pipe_spawn_sync(const gchar *working_directory, const gchar *command
     {
         g_free(command_line);
         g_strfreev(argv);
-        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "Could not create stdout overlapped event");
+        ws_debug("Could not create stdout overlapped event");
         return FALSE;
     }
     stderr_overlapped.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
@@ -274,7 +275,7 @@ gboolean ws_pipe_spawn_sync(const gchar *working_directory, const gchar *command
         CloseHandle(stdout_overlapped.hEvent);
         g_free(command_line);
         g_strfreev(argv);
-        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "Could not create stderr overlapped event");
+        ws_debug("Could not create stderr overlapped event");
         return FALSE;
     }
 
@@ -289,7 +290,7 @@ gboolean ws_pipe_spawn_sync(const gchar *working_directory, const gchar *command
         CloseHandle(stderr_overlapped.hEvent);
         g_free(command_line);
         g_strfreev(argv);
-        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "Could not create stdout handle");
+        ws_debug("Could not create stdout handle");
         return FALSE;
     }
 
@@ -301,7 +302,7 @@ gboolean ws_pipe_spawn_sync(const gchar *working_directory, const gchar *command
         CloseHandle(child_stdout_wr);
         g_free(command_line);
         g_strfreev(argv);
-        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "Could not create stderr handle");
+        ws_debug("Could not create stderr handle");
         return FALSE;
     }
 
@@ -330,7 +331,7 @@ gboolean ws_pipe_spawn_sync(const gchar *working_directory, const gchar *command
         {
             if (GetLastError() != ERROR_IO_PENDING)
             {
-                g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "ReadFile on child stdout pipe failed. Error %d", GetLastError());
+                ws_debug("ReadFile on child stdout pipe failed. Error %d", GetLastError());
                 pending_stdout = FALSE;
             }
         }
@@ -339,7 +340,7 @@ gboolean ws_pipe_spawn_sync(const gchar *working_directory, const gchar *command
         {
             if (GetLastError() != ERROR_IO_PENDING)
             {
-                g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "ReadFile on child stderr pipe failed. Error %d", GetLastError());
+                ws_debug("ReadFile on child stderr pipe failed. Error %d", GetLastError());
                 pending_stderr = FALSE;
             }
         }
@@ -390,7 +391,7 @@ gboolean ws_pipe_spawn_sync(const gchar *working_directory, const gchar *command
                             pending_stdout = FALSE;
                             continue;
                         }
-                        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "GetOverlappedResult on stdout failed. Error %d", GetLastError());
+                        ws_debug("GetOverlappedResult on stdout failed. Error %d", GetLastError());
                     }
                     if (process_finished && (bytes_read == 0))
                     {
@@ -403,7 +404,7 @@ gboolean ws_pipe_spawn_sync(const gchar *working_directory, const gchar *command
                     {
                         if (GetLastError() != ERROR_IO_PENDING)
                         {
-                            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "ReadFile on child stdout pipe failed. Error %d", GetLastError());
+                            ws_debug("ReadFile on child stdout pipe failed. Error %d", GetLastError());
                             pending_stdout = FALSE;
                         }
                     }
@@ -419,7 +420,7 @@ gboolean ws_pipe_spawn_sync(const gchar *working_directory, const gchar *command
                             pending_stderr = FALSE;
                             continue;
                         }
-                        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "GetOverlappedResult on stderr failed. Error %d", GetLastError());
+                        ws_debug("GetOverlappedResult on stderr failed. Error %d", GetLastError());
                     }
                     if (process_finished && (bytes_read == 0))
                     {
@@ -430,7 +431,7 @@ gboolean ws_pipe_spawn_sync(const gchar *working_directory, const gchar *command
                     {
                         if (GetLastError() != ERROR_IO_PENDING)
                         {
-                            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "ReadFile on child stderr pipe failed. Error %d", GetLastError());
+                            ws_debug("ReadFile on child stderr pipe failed. Error %d", GetLastError());
                             pending_stderr = FALSE;
                         }
                     }
@@ -438,7 +439,7 @@ gboolean ws_pipe_spawn_sync(const gchar *working_directory, const gchar *command
             }
             else
             {
-                g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "WaitForMultipleObjects returned 0x%08X. Error %d", dw, GetLastError());
+                ws_debug("WaitForMultipleObjects returned 0x%08X. Error %d", dw, GetLastError());
             }
         }
 
@@ -486,12 +487,12 @@ gboolean ws_pipe_spawn_sync(const gchar *working_directory, const gchar *command
         status = FALSE;
 #endif
 
-    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "%s finished in %.3fms", argv[0], (g_get_monotonic_time() - start_time) / 1000.0);
+    ws_debug("%s finished in %.3fms", argv[0], (g_get_monotonic_time() - start_time) / 1000.0);
 
     if (status)
     {
         if (local_output != NULL) {
-            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "spawn output: %s", local_output);
+            ws_debug("spawn output: %s", local_output);
             if (command_output != NULL)
                 *command_output = g_strdup(local_output);
         }
@@ -534,7 +535,7 @@ GPid ws_pipe_spawn_async(ws_pipe_t *ws_pipe, GPtrArray *args)
     gchar **argv = convert_to_argv(args_array[0], args->len - 2, args_array + 1);
     gchar *command_line = convert_to_command_line(argv);
 
-    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "spawn_async: %s", command_line);
+    ws_debug("command line: %s", command_line);
 
 #ifdef _WIN32
     sa.nLength = sizeof(SECURITY_ATTRIBUTES);
@@ -545,7 +546,7 @@ GPid ws_pipe_spawn_async(ws_pipe_t *ws_pipe, GPtrArray *args)
     {
         g_free(command_line);
         g_strfreev(argv);
-        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "Could not create stdin handle");
+        ws_debug("Could not create stdin handle");
         return WS_INVALID_PID;
     }
 
@@ -555,7 +556,7 @@ GPid ws_pipe_spawn_async(ws_pipe_t *ws_pipe, GPtrArray *args)
         CloseHandle(child_stdin_wr);
         g_free(command_line);
         g_strfreev(argv);
-        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "Could not create stdout handle");
+        ws_debug("Could not create stdout handle");
         return WS_INVALID_PID;
     }
 
@@ -567,7 +568,7 @@ GPid ws_pipe_spawn_async(ws_pipe_t *ws_pipe, GPtrArray *args)
         CloseHandle(child_stdout_wr);
         g_free(command_line);
         g_strfreev(argv);
-        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "Could not create stderr handle");
+        ws_debug("Could not create stderr handle");
         return WS_INVALID_PID;
     }
 
@@ -602,7 +603,7 @@ GPid ws_pipe_spawn_async(ws_pipe_t *ws_pipe, GPtrArray *args)
                              flags, child_setup, NULL,
                              &pid, &ws_pipe->stdin_fd, &ws_pipe->stdout_fd, &ws_pipe->stderr_fd, &error);
     if (!spawned) {
-        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "Error creating async pipe: %s", error->message);
+        ws_debug("Error creating async pipe: %s", error->message);
         g_free(error->message);
     }
 #endif
@@ -646,7 +647,7 @@ ws_pipe_wait_for_pipe(HANDLE * pipe_handles, int num_pipe_handles, HANDLE pid)
 
     if (num_pipe_handles == 0 || num_pipe_handles > 3)
     {
-        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "Invalid number of pipes given as argument.");
+        ws_debug("Invalid number of pipes given as argument.");
         return FALSE;
     }
 
@@ -655,7 +656,7 @@ ws_pipe_wait_for_pipe(HANDLE * pipe_handles, int num_pipe_handles, HANDLE pid)
         pipeinsts[i].ol.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
         if (!pipeinsts[i].ol.hEvent)
         {
-            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "Could not create overlapped event");
+            ws_debug("Could not create overlapped event");
             for (int j = 0; j < i; j++)
             {
                 CloseHandle(pipeinsts[j].ol.hEvent);
@@ -683,7 +684,7 @@ ws_pipe_wait_for_pipe(HANDLE * pipe_handles, int num_pipe_handles, HANDLE pid)
                 break;
 
             default:
-                g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "ConnectNamedPipe failed with %d\n.", error);
+                ws_debug("ConnectNamedPipe failed with %d\n.", error);
                 result = FALSE;
             }
         }
@@ -714,7 +715,7 @@ ws_pipe_wait_for_pipe(HANDLE * pipe_handles, int num_pipe_handles, HANDLE pid)
         int handle_idx = dw - WAIT_OBJECT_0;
         if (dw == WAIT_TIMEOUT)
         {
-            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "extcap didn't connect to pipe within 30 seconds.");
+            ws_debug("extcap didn't connect to pipe within 30 seconds.");
             result = FALSE;
             break;
         }
@@ -723,7 +724,7 @@ ws_pipe_wait_for_pipe(HANDLE * pipe_handles, int num_pipe_handles, HANDLE pid)
         {
             if (handles[handle_idx] == pid)
             {
-                g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "extcap terminated without connecting to pipe.");
+                ws_debug("extcap terminated without connecting to pipe.");
                 result = FALSE;
             }
             for (int i = 0; i < num_pipe_handles; ++i)
@@ -738,7 +739,7 @@ ws_pipe_wait_for_pipe(HANDLE * pipe_handles, int num_pipe_handles, HANDLE pid)
                         TRUE);                     // wait
                     if (!success)
                     {
-                        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "Error %d \n.", GetLastError());
+                        ws_debug("Error %d \n.", GetLastError());
                         result = FALSE;
                     }
                     pipeinsts[i].pendingIO = FALSE;
@@ -747,7 +748,7 @@ ws_pipe_wait_for_pipe(HANDLE * pipe_handles, int num_pipe_handles, HANDLE pid)
         }
         else
         {
-            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "WaitForMultipleObjects returned 0x%08X. Error %d", dw, GetLastError());
+            ws_debug("WaitForMultipleObjects returned 0x%08X. Error %d", dw, GetLastError());
             result = FALSE;
         }
     }
@@ -836,7 +837,7 @@ ws_read_string_from_pipe(ws_pipe_handle read_pipe, gchar *buffer,
         if (buffer_bytes_remaining == 0)
         {
             /* The string won't fit in the buffer. */
-            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "Buffer too small (%zd).", buffer_size);
+            ws_debug("Buffer too small (%zd).", buffer_size);
             break;
         }
 

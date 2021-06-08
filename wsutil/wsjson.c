@@ -11,6 +11,7 @@
  */
 
 #include "config.h"
+#define WS_LOG_DOMAIN LOG_DOMAIN_MAIN
 
 #include "wsjson.h"
 
@@ -19,7 +20,7 @@
 #include <wsutil/jsmn.h>
 #include <wsutil/str_util.h>
 #include <wsutil/unicode-utils.h>
-#include "log.h"
+#include <wsutil/wslog.h>
 
 gboolean
 json_validate(const guint8 *buf, const size_t len)
@@ -39,11 +40,11 @@ json_validate(const guint8 *buf, const size_t len)
      * XXX - should we check for NULs anywhere in the buffer?
      */
     if (len == 0) {
-        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "jsmn: JSON string is empty");
+        ws_debug("JSON string is empty");
         return FALSE;
     }
     if (buf[0] == '\0') {
-        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "jsmn: invalid character inside JSON string");
+        ws_debug("invalid character inside JSON string");
         return FALSE;
     }
 
@@ -57,17 +58,17 @@ json_validate(const guint8 *buf, const size_t len)
     if (rcode < 0) {
         switch (rcode) {
             case JSMN_ERROR_NOMEM:
-                g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "jsmn: not enough tokens were provided");
+                ws_debug("not enough tokens were provided");
                 break;
             case JSMN_ERROR_INVAL:
-                g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "jsmn: invalid character inside JSON string");
+                ws_debug("invalid character inside JSON string");
                 break;
             case JSMN_ERROR_PART:
-                g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "jsmn: the string is not a full JSON packet, "
+                ws_debug("the string is not a full JSON packet, "
                     "more bytes expected");
                 break;
             default:
-                g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "jsmn: unexpected error");
+                ws_debug("unexpected error");
                 break;
         }
         ret = FALSE;

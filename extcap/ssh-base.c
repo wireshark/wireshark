@@ -15,10 +15,10 @@
 #include "ssh-base.h"
 
 #include <extcap/extcap-base.h>
-#include <log.h>
 #include <string.h>
 #include <libssh/callbacks.h>
 #include <ws_attributes.h>
+#include <wsutil/wslog.h>
 
 static void extcap_log(int priority _U_, const char *function, const char *buffer, void *userdata _U_)
 {
@@ -92,7 +92,7 @@ ssh_session create_ssh_connection(const ssh_params_t* ssh_params, char** err_inf
 	ssh_options_get(sshs, SSH_OPTIONS_USER, &username);
 	ssh_options_get_port(sshs, &port);
 
-	g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, "Opening ssh connection to %s@%s:%u", username,
+	ws_log(LOG_DOMAIN_CAPCHILD, LOG_LEVEL_INFO, "Opening ssh connection to %s@%s:%u", username,
 		ssh_params->host, port);
 
 	ssh_string_free_char(username);
@@ -108,36 +108,36 @@ ssh_session create_ssh_connection(const ssh_params_t* ssh_params, char** err_inf
 		ssh_key pkey = ssh_key_new();
 		int ret;
 
-		g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, "Connecting using public key in %s...", ssh_params->sshkey_path);
+		ws_info("Connecting using public key in %s...", ssh_params->sshkey_path);
 		ret = ssh_pki_import_privkey_file(ssh_params->sshkey_path, ssh_params->sshkey_passphrase, NULL, NULL, &pkey);
 
 		if (ret == SSH_OK) {
 			if (ssh_userauth_publickey(sshs, NULL, pkey) == SSH_AUTH_SUCCESS) {
-				g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, "done");
+				ws_info("done");
 				ssh_key_free(pkey);
 				return sshs;
 			}
 		}
 		ssh_key_free(pkey);
-		g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, "failed (%s)", ssh_get_error(sshs));
+		ws_info("failed (%s)", ssh_get_error(sshs));
 	}
 
 	/* Try to authenticate using standard public key */
-	g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, "Connecting using standard public key...");
+	ws_info("Connecting using standard public key...");
 	if (ssh_userauth_publickey_auto(sshs, NULL, NULL) == SSH_AUTH_SUCCESS) {
-		g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, "done");
+		ws_info("done");
 		return sshs;
 	}
-	g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, "failed");
+	ws_info("failed");
 
 	/* If a password has been provided and all previous attempts failed, try to use it */
 	if (ssh_params->password) {
-		g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, "Connecting using password...");
+		ws_info("Connecting using password...");
 		if (ssh_userauth_password(sshs, ssh_params->username, ssh_params->password) == SSH_AUTH_SUCCESS) {
-			g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, "done");
+			ws_info("done");
 			return sshs;
 		}
-		g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, "failed");
+		ws_info("failed");
 	}
 
 	*err_info = g_strdup_printf("Can't find a valid authentication. Disconnecting.");

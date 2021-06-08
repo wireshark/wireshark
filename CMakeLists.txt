@@ -3374,10 +3374,10 @@ set(SHARK_PUBLIC_HEADERS
 	cli_main.h
 	file.h
 	globals.h
-	log.h
 	ws_attributes.h
 	ws_compiler_tests.h
 	ws_diag_control.h
+	ws_log_domains.h
 	ws_symbol_export.h
 	version_info.h
 	${CMAKE_BINARY_DIR}/ws_version.h

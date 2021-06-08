@@ -21,9 +21,13 @@
 extern "C" {
 #endif /* __cplusplus */
 
-/** Set the console log handler.
+#include <wsutil/wslog.h>
+
+/** The GUI log writer.
  */
-void set_console_log_handler(void);
+void
+console_log_writer(const char *message, enum ws_log_domain domain,
+                    enum ws_log_level level, void *ptr);
 
 #ifdef __cplusplus
 }

@@ -19,11 +19,11 @@
 
 #include <epan/prefs.h>
 #include <epan/to_str.h>
+#include <wsutil/wslog.h>
 
 #include "ui/capture_ui_utils.h"
 #include "ui/capture_globals.h"
 #include "ui/iface_lists.h"
-#include "../log.h"
 
 /*
  * Try to populate the given device with options (like capture filter) from
@@ -433,7 +433,7 @@ fill_in_local_interfaces(void(*update_cb)(void))
 
     /* record the time we started, so we can log total time later */
     start_time = g_get_monotonic_time();
-    g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_INFO, "fill_in_local_interfaces() starts");
+    ws_log(LOG_DOMAIN_MAIN, LOG_LEVEL_INFO, "fill_in_local_interfaces() starts");
 
     if (!initialized) {
         /* do the actual work */
@@ -443,7 +443,7 @@ fill_in_local_interfaces(void(*update_cb)(void))
     /* log how long it took */
     elapsed = (g_get_monotonic_time() - start_time) / 1e6;
 
-    g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_INFO, "fill_in_local_interfaces() ends, taking %.3fs", elapsed);
+    ws_log(LOG_DOMAIN_MAIN, LOG_LEVEL_INFO, "fill_in_local_interfaces() ends, taking %.3fs", elapsed);
 }
 
 void

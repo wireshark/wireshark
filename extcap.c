@@ -11,6 +11,7 @@
  */
 
 #include <config.h>
+#define WS_LOG_DOMAIN LOG_DOMAIN_CAPCHILD
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -31,7 +32,6 @@
 #endif
 
 #include <glib.h>
-#include <log.h>
 
 #include <epan/prefs.h>
 
@@ -41,6 +41,7 @@
 #include <wsutil/filesystem.h>
 #include <wsutil/ws_pipe.h>
 #include <wsutil/tempfile.h>
+#include <wsutil/wslog.h>
 
 #include "capture_opts.h"
 
@@ -498,7 +499,7 @@ extcap_run_all(const char *argv[], extcap_run_cb_t output_cb, gsize data_size, g
     g_cond_clear(&pool.cond);
     g_thread_pool_free(pool.pool, FALSE, TRUE);
 
-    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "extcap: completed discovery of %d tools in %.3fms",
+    ws_debug("extcap: completed discovery of %d tools in %.3fms",
             paths_count, (g_get_monotonic_time() - start_time) / 1000.0);
     *count = paths_count;
     return infos;
@@ -534,7 +535,7 @@ static gboolean cb_dlt(extcap_callback_info_t cb_info)
     dlts = extcap_parse_dlts(cb_info.output);
     temp = dlts;
 
-    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "Extcap pipe %s ", cb_info.extcap);
+    ws_debug("Extcap pipe %s ", cb_info.extcap);
 
     /*
      * Allocate the interface capabilities structure.
@@ -548,8 +549,7 @@ static gboolean cb_dlt(extcap_callback_info_t cb_info)
         dlt_item = (extcap_dlt *)dlts->data;
         if (dlt_item)
         {
-            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
-                  "  DLT %d name=\"%s\" display=\"%s\" ", dlt_item->number,
+            ws_debug("  DLT %d name=\"%s\" display=\"%s\" ", dlt_item->number,
                   dlt_item->name, dlt_item->display);
 
             data_link_info = g_new(data_link_info_t, 1);
@@ -572,7 +572,7 @@ static gboolean cb_dlt(extcap_callback_info_t cb_info)
     {
         if (cb_info.err_str)
         {
-            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "  returned no DLTs");
+            ws_debug("  returned no DLTs");
             *(cb_info.err_str) = g_strdup("Extcap returned no DLTs");
         }
         g_free(caps);
@@ -930,8 +930,7 @@ extcap_get_if_configuration(const char *ifname)
     extcap_interface *interface = extcap_find_interface_for_ifname(ifname);
     if (interface)
     {
-        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "Extcap path %s",
-              get_extcap_dir());
+        ws_debug("Extcap path %s", get_extcap_dir());
 
         arguments = g_list_append(arguments, g_strdup(EXTCAP_ARGUMENT_CONFIG));
         arguments = g_list_append(arguments, g_strdup(EXTCAP_ARGUMENT_INTERFACE));
@@ -976,8 +975,7 @@ extcap_get_if_configuration_values(const char * ifname, const char * argname, GH
     extcap_interface *interface = extcap_find_interface_for_ifname(ifname);
     if (interface)
     {
-        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "Extcap path %s",
-              get_extcap_dir());
+        ws_debug("Extcap path %s", get_extcap_dir());
 
         args = g_list_append(args, g_strdup(EXTCAP_ARGUMENT_CONFIG));
         args = g_list_append(args, g_strdup(EXTCAP_ARGUMENT_INTERFACE));
@@ -1113,8 +1111,7 @@ extcap_verify_capture_filter(const char *ifname, const char *filter, gchar **err
     extcap_interface *interface = extcap_find_interface_for_ifname(ifname);
     if (interface)
     {
-        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "Extcap path %s",
-              get_extcap_dir());
+        ws_debug("Extcap path %s", get_extcap_dir());
 
         arguments = g_list_append(arguments, g_strdup(EXTCAP_ARGUMENT_CAPTURE_FILTER));
         arguments = g_list_append(arguments, g_strdup(filter));
@@ -1175,14 +1172,12 @@ void extcap_if_cleanup(capture_options *capture_opts, gchar **errormsg)
 
         overwrite_exitcode = FALSE;
 
-        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
-              "Extcap [%s] - Cleaning up fifo: %s; PID: %d", interface_opts->name,
+        ws_debug("Extcap [%s] - Cleaning up fifo: %s; PID: %d", interface_opts->name,
               interface_opts->extcap_fifo, interface_opts->extcap_pid);
 #ifdef _WIN32
         if (interface_opts->extcap_pipe_h != INVALID_HANDLE_VALUE)
         {
-            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
-                  "Extcap [%s] - Closing pipe", interface_opts->name);
+            ws_debug("Extcap [%s] - Closing pipe", interface_opts->name);
             FlushFileBuffers(interface_opts->extcap_pipe_h);
             DisconnectNamedPipe(interface_opts->extcap_pipe_h);
             CloseHandle(interface_opts->extcap_pipe_h);
@@ -1190,8 +1185,7 @@ void extcap_if_cleanup(capture_options *capture_opts, gchar **errormsg)
         }
         if (interface_opts->extcap_control_in_h != INVALID_HANDLE_VALUE)
         {
-            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
-                  "Extcap [%s] - Closing control_in pipe", interface_opts->name);
+            ws_debug("Extcap [%s] - Closing control_in pipe", interface_opts->name);
             FlushFileBuffers(interface_opts->extcap_control_in_h);
             DisconnectNamedPipe(interface_opts->extcap_control_in_h);
             CloseHandle(interface_opts->extcap_control_in_h);
@@ -1199,8 +1193,7 @@ void extcap_if_cleanup(capture_options *capture_opts, gchar **errormsg)
         }
         if (interface_opts->extcap_control_out_h != INVALID_HANDLE_VALUE)
         {
-            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
-                  "Extcap [%s] - Closing control_out pipe", interface_opts->name);
+            ws_debug("Extcap [%s] - Closing control_out pipe", interface_opts->name);
             FlushFileBuffers(interface_opts->extcap_control_out_h);
             DisconnectNamedPipe(interface_opts->extcap_control_out_h);
             CloseHandle(interface_opts->extcap_control_out_h);
@@ -1233,8 +1226,7 @@ void extcap_if_cleanup(capture_options *capture_opts, gchar **errormsg)
 #endif
         /* Maybe the client closed and removed fifo, but ws should check if
          * pid should be closed */
-        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
-              "Extcap [%s] - Closing spawned PID: %d", interface_opts->name,
+        ws_debug("Extcap [%s] - Closing spawned PID: %d", interface_opts->name,
               interface_opts->extcap_pid);
 
         pipedata = (ws_pipe_t *) interface_opts->extcap_pipedata;
@@ -1535,13 +1527,13 @@ static gboolean extcap_create_pipe(const gchar *ifname, gchar **fifo, HANDLE *ha
 
     if (*handle_out == INVALID_HANDLE_VALUE)
     {
-        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "\nError creating pipe => (%d)", GetLastError());
+        ws_debug("Error creating pipe => (%d)", GetLastError());
         g_free (pipename);
         return FALSE;
     }
     else
     {
-        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "\nWireshark Created pipe =>(%s) handle (%" G_GUINTPTR_FORMAT ")", pipename, *handle_out);
+        ws_debug("Wireshark Created pipe =>(%s) handle (%" G_GUINTPTR_FORMAT ")", pipename, *handle_out);
         *fifo = g_strdup(pipename);
     }
 
@@ -1563,8 +1555,7 @@ static gboolean extcap_create_pipe(const gchar *ifname, gchar **fifo, const gcha
 
     ws_close(fd);
 
-    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
-          "Extcap - Creating fifo: %s", temp_name);
+    ws_debug("Extcap - Creating fifo: %s", temp_name);
 
     if (file_exists(temp_name))
     {
@@ -1780,12 +1771,12 @@ process_new_extcap(const char *extcap, char *output)
     /* Load interfaces from utility */
     interfaces = extcap_parse_interfaces(output, &control_items);
 
-    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "Loading interface list for %s ", extcap);
+    ws_debug("Loading interface list for %s ", extcap);
 
     /* Seems, that there where no interfaces to be loaded */
     if ( ! interfaces || g_list_length(interfaces) == 0 )
     {
-        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "Cannot load interfaces for %s", extcap );
+        ws_debug("Cannot load interfaces for %s", extcap );
         g_list_free(interface_keys);
         g_free(toolname);
         return;
@@ -1795,8 +1786,7 @@ process_new_extcap(const char *extcap, char *output)
     element = extcap_ensure_interface(toolname, TRUE);
     if ( element == NULL )
     {
-        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_WARNING,
-            "Cannot store interface %s, already loaded as personal plugin", extcap );
+        ws_warning("Cannot store interface %s, already loaded as personal plugin", extcap );
         g_list_foreach(interfaces, remove_extcap_entry, NULL);
         g_list_free(interfaces);
         g_list_free(interface_keys);
@@ -1817,7 +1807,7 @@ process_new_extcap(const char *extcap, char *output)
         int_iter = (extcap_interface *)walker->data;
 
         if (int_iter->call != NULL)
-            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "Interface found %s\n", int_iter->call);
+            ws_debug("Interface found %s\n", int_iter->call);
 
         /* Help is not necessarily stored with the interface, but rather with the version string.
          * As the version string allways comes in front of the interfaces, this ensures, that it get's
@@ -1825,7 +1815,7 @@ process_new_extcap(const char *extcap, char *output)
         if (int_iter->if_type == EXTCAP_SENTENCE_EXTCAP)
         {
             if (int_iter->call != NULL)
-                g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "  Extcap [%s] ", int_iter->call);
+                ws_debug("  Extcap [%s] ", int_iter->call);
 
             /* Only initialize values if none are set. Need to check only one element here */
             if ( ! element->version )
@@ -1854,14 +1844,14 @@ process_new_extcap(const char *extcap, char *output)
         {
             if ( g_list_find(interface_keys, int_iter->call) )
             {
-                g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_WARNING, "Extcap interface \"%s\" is already provided by \"%s\" ",
+                ws_warning("Extcap interface \"%s\" is already provided by \"%s\" ",
                       int_iter->call, extcap_if_executable(int_iter->call));
                 walker = g_list_next(walker);
                 continue;
             }
 
             if ((int_iter->call != NULL) && (int_iter->display))
-                g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "  Interface [%s] \"%s\" ", int_iter->call, int_iter->display);
+                ws_debug("  Interface [%s] \"%s\" ", int_iter->call, int_iter->display);
 
             int_iter->extcap_path = g_strdup(extcap);
 

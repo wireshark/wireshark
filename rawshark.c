@@ -60,6 +60,7 @@
 #include <wsutil/privileges.h>
 #include <wsutil/report_message.h>
 #include <wsutil/please_report_bug.h>
+#include <wsutil/wslog.h>
 #include <ui/clopts_common.h>
 
 #include "globals.h"
@@ -102,7 +103,6 @@
 #include "capture/capture-wpcap.h"
 #endif /* _WIN32 */
 #endif /* HAVE_LIBPCAP */
-#include "log.h"
 
 #if 0
 /*
@@ -208,12 +208,6 @@ print_usage(FILE *output)
     fprintf(output, "  -v                       display version info and exit\n");
 }
 
-static void
-log_func_ignore (const gchar *log_domain _U_, GLogLevelFlags log_level _U_,
-                 const gchar *message _U_, gpointer user_data _U_)
-{
-}
-
 /**
  * Open a pipe for raw input.  This is a stripped-down version of
  * pcap_loop.c:cap_pipe_open_live().
@@ -234,7 +228,7 @@ raw_pipe_open(const char *pipe_name)
 #endif
     int          rfd;
 
-    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "open_raw_pipe: %s", pipe_name);
+    ws_log(LOG_DOMAIN_CAPCHILD, LOG_LEVEL_DEBUG, "open_raw_pipe: %s", pipe_name);
 
     /*
      * XXX Rawshark blocks until we return
@@ -417,7 +411,6 @@ main(int argc, char *argv[])
     gchar               *rfilters[64];
     e_prefs             *prefs_p;
     char                 badopt;
-    int                  log_flags;
     GPtrArray           *disp_fields = g_ptr_array_new();
     guint                fc;
     gboolean             skip_pcap_header = FALSE;
@@ -454,7 +447,18 @@ main(int argc, char *argv[])
     setlocale(LC_ALL, "");
 #endif
 
+    /* Initialize log handler early so we can have proper logging during startup. */
+    ws_log_init(NULL);
+
     cmdarg_err_init(rawshark_cmdarg_err, rawshark_cmdarg_err_cont);
+
+    /* Command line options are parsed too late to configure logging,  do it
+        manually. */
+    const char *opt_err_val;
+    if ((opt_err_val = ws_log_set_level_args(&argc, argv)) != NULL) {
+        cmdarg_err("Invalid log level \"%s\"", opt_err_val);
+        return INVALID_OPTION;
+    }
 
     /* Initialize the version information. */
     ws_init_version_info("Rawshark (Wireshark)", NULL,
@@ -492,20 +496,6 @@ main(int argc, char *argv[])
         fprintf(stderr, "rawshark: Can't get pathname of rawshark program: %s.\n",
                 err_msg);
     }
-
-    /* nothing more than the standard GLib handler, but without a warning */
-    log_flags =
-        G_LOG_LEVEL_WARNING |
-        G_LOG_LEVEL_MESSAGE |
-        G_LOG_LEVEL_INFO |
-        G_LOG_LEVEL_DEBUG;
-
-    g_log_set_handler(NULL,
-                      (GLogLevelFlags)log_flags,
-                      log_func_ignore, NULL /* user_data */);
-    g_log_set_handler(LOG_DOMAIN_CAPTURE_CHILD,
-                      (GLogLevelFlags)log_flags,
-                      log_func_ignore, NULL /* user_data */);
 
     init_report_message("rawshark", &rawshark_report_routines);
 

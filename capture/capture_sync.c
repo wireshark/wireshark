@@ -9,6 +9,7 @@
  */
 
 #include "config.h"
+#define WS_LOG_DOMAIN LOG_DOMAIN_CAPTURE
 
 #ifdef HAVE_LIBPCAP
 
@@ -20,6 +21,7 @@
 #include <signal.h>
 
 #include <wsutil/strtoi.h>
+#include <wsutil/wslog.h>
 
 #ifdef _WIN32
 #include <wsutil/unicode-utils.h>
@@ -81,7 +83,6 @@
 #include <wsutil/file_util.h>
 #include <wsutil/report_message.h>
 #include "extcap.h"
-#include "log.h"
 
 #ifdef _WIN32
 #include <process.h>    /* For spawning child process */
@@ -230,8 +231,8 @@ sync_pipe_start(capture_options *capture_opts, capture_session *cap_session, inf
 
     if (capture_opts->ifaces->len > 1)
         capture_opts->use_pcapng = TRUE;
-    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "sync_pipe_start");
-    capture_opts_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, capture_opts);
+    ws_debug("sync_pipe_start");
+    capture_opts_log(LOG_DOMAIN_CAPTURE, LOG_LEVEL_DEBUG, capture_opts);
 
     cap_session->fork_child = WS_INVALID_PID;
 
@@ -447,7 +448,7 @@ sync_pipe_start(capture_options *capture_opts, capture_session *cap_session, inf
         argv = sync_pipe_add_arg(argv, &argc, capture_opts->save_file);
     }
     for (i = 0; i < argc; i++) {
-        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "argv[%d]: %s", i, argv[i]);
+        ws_debug("argv[%d]: %s", i, argv[i]);
     }
     if (capture_opts->compress_type) {
         argv = sync_pipe_add_arg(argv, &argc, "--compress-type");
@@ -682,7 +683,7 @@ sync_pipe_open_command(char* const argv[], int *data_read_fd,
     *fork_child = WS_INVALID_PID;
     *data_read_fd = -1;
     *message_read_fd = -1;
-    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "sync_pipe_open_command");
+    ws_debug("sync_pipe_open_command");
 
     if (!msg) {
         /* We can't return anything */
@@ -1096,21 +1097,21 @@ sync_pipe_run_command(char* const argv[], gchar **data, gchar **primary_msg,
     int logging_enabled;
 
     /* check if logging is actually enabled, otherwise don't expend the CPU generating logging */
-    logging_enabled=( (G_LOG_LEVEL_DEBUG | G_LOG_LEVEL_INFO) & G_LOG_LEVEL_MASK & prefs.console_log_level);
-    if(logging_enabled){
+    logging_enabled = ws_log_level_is_active(LOG_LEVEL_INFO);
+    if (logging_enabled) {
         start_time = g_get_monotonic_time();
-        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_INFO, "sync_pipe_run_command() starts");
-        for(i=0; argv[i] != 0; i++) {
-            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "  argv[%d]: %s", i, argv[i]);
+        ws_info("sync_pipe_run_command() starts");
+        for (i=0; argv[i] != 0; i++) {
+            ws_debug("  argv[%d]: %s", i, argv[i]);
         }
     }
     /* do the actual sync pipe run command */
-    ret=sync_pipe_run_command_actual(argv, data, primary_msg, secondary_msg, update_cb);
+    ret = sync_pipe_run_command_actual(argv, data, primary_msg, secondary_msg, update_cb);
 
-    if(logging_enabled){
+    if (logging_enabled) {
         elapsed = (g_get_monotonic_time() - start_time) / 1e6;
 
-        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_INFO, "sync_pipe_run_command() ends, taking %.3fs, result=%d", elapsed, ret);
+        ws_info("sync_pipe_run_command() ends, taking %.3fs, result=%d", elapsed, ret);
 
     }
     return ret;
@@ -1191,7 +1192,7 @@ sync_interface_list_open(gchar **data, gchar **primary_msg,
     char **argv;
     int ret;
 
-    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "sync_interface_list_open");
+    ws_debug("sync_interface_list_open");
 
     argv = init_pipe_args(&argc);
 
@@ -1236,7 +1237,7 @@ sync_if_capabilities_open(const gchar *ifname, gboolean monitor_mode, const gcha
     char **argv;
     int ret;
 
-    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "sync_if_capabilities_open");
+    ws_debug("sync_if_capabilities_open");
 
     argv = init_pipe_args(&argc);
 
@@ -1291,7 +1292,7 @@ sync_interface_stats_open(int *data_read_fd, ws_process_id *fork_child, gchar **
     /*char *secondary_msg_text;*/
     char *combined_msg;
 
-    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "sync_interface_stats_open");
+    ws_debug("sync_interface_stats_open");
 
     argv = init_pipe_args(&argc);
 
@@ -1456,17 +1457,14 @@ pipe_read_bytes(int pipe_fd, char *bytes, int required, char **msg)
         newly = ws_read(pipe_fd, &bytes[offset], required);
         if (newly == 0) {
             /* EOF */
-            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
-                  "read from pipe %d: EOF (capture closed?)", pipe_fd);
+            ws_debug("read from pipe %d: EOF (capture closed?)", pipe_fd);
             *msg = 0;
             return offset;
         }
         if (newly < 0) {
             /* error */
             error = errno;
-            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
-                  "read from pipe %d: error(%u): %s", pipe_fd, error,
-                  g_strerror(error));
+            ws_debug("read from pipe %d: error(%u): %s", pipe_fd, error, g_strerror(error));
             *msg = g_strdup_printf("Error reading from sync pipe: %s",
                                    g_strerror(error));
             return newly;
@@ -1501,8 +1499,7 @@ sync_pipe_gets_nonblock(int pipe_fd, char *bytes, int max) {
             break;
         } else if (newly == -1) {
             /* error */
-            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
-                  "read from pipe %d: error(%u): %s", pipe_fd, errno, g_strerror(errno));
+            ws_debug("read from pipe %d: error(%u): %s", pipe_fd, errno, g_strerror(errno));
             return -1;
         } else if (bytes[offset] == '\n') {
             break;
@@ -1547,12 +1544,10 @@ pipe_read_block(int pipe_fd, char *indicator, int len, char *msg,
              * is an "I'm done" indication, so don't report it as an
              * error.
              */
-            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
-                  "read %d got an EOF", pipe_fd);
+            ws_debug("read %d got an EOF", pipe_fd);
             return 0;
         }
-        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
-              "read %d failed to read header: %lu", pipe_fd, (long)newly);
+        ws_debug("read %d failed to read header: %lu", pipe_fd, (long)newly);
         if (newly != -1) {
             /*
              * Short read, but not an immediate EOF.
@@ -1568,15 +1563,13 @@ pipe_read_block(int pipe_fd, char *indicator, int len, char *msg,
 
     /* only indicator with no value? */
     if(required == 0) {
-        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
-              "read %d indicator: %c empty value", pipe_fd, *indicator);
+        ws_debug("read %d indicator: %c empty value", pipe_fd, *indicator);
         return 4;
     }
 
     /* does the data fit into the given buffer? */
     if(required > len) {
-        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
-              "read %d length error, required %d > len %d, header: 0x%02x 0x%02x 0x%02x 0x%02x",
+        ws_debug("read %d length error, required %d > len %d, header: 0x%02x 0x%02x 0x%02x 0x%02x",
               pipe_fd, required, len,
               header[0], header[1], header[2], header[3]);
 
@@ -1584,8 +1577,7 @@ pipe_read_block(int pipe_fd, char *indicator, int len, char *msg,
         memcpy(msg, header, sizeof(header));
         newly = ws_read(pipe_fd, &msg[sizeof(header)], len-sizeof(header));
         if (newly < 0) { /* error */
-            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
-                  "read from pipe %d: error(%u): %s", pipe_fd, errno, g_strerror(errno));
+            ws_debug("read from pipe %d: error(%u): %s", pipe_fd, errno, g_strerror(errno));
         }
         *err_msg = g_strdup_printf("Unknown message from dumpcap reading header, try to show it as a string: %s",
                                    msg);
@@ -1604,9 +1596,7 @@ pipe_read_block(int pipe_fd, char *indicator, int len, char *msg,
     }
 
     /* XXX If message is "2part", the msg probably won't be sent to debug log correctly */
-    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
-          "read %d ok indicator: %c len: %u msg: %s", pipe_fd, *indicator,
-          len, msg);
+    ws_debug("read %d ok indicator: %c len: %u msg: %s", pipe_fd, *indicator, len, msg);
     *err_msg = NULL;
     return newly + 4;
 }
@@ -1672,7 +1662,7 @@ sync_pipe_input_cb(gint source, gpointer user_data)
 #ifdef _WIN32
         ws_close(cap_session->signal_pipe_write_fd);
 #endif
-        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "sync_pipe_input_cb: cleaning extcap pipe");
+        ws_debug("cleaning extcap pipe");
         extcap_if_cleanup(cap_session->capture_opts, &primary_msg);
         cap_session->closed(cap_session, primary_msg);
         g_free(primary_msg);
@@ -1683,7 +1673,7 @@ sync_pipe_input_cb(gint source, gpointer user_data)
     switch(indicator) {
     case SP_FILE:
         if(!cap_session->new_file(cap_session, buffer)) {
-            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "sync_pipe_input_cb: file failed, closing capture");
+            ws_debug("file failed, closing capture");
 
             /* We weren't able to open the new capture file; user has been
                alerted. Close the sync pipe. */
@@ -1708,9 +1698,9 @@ sync_pipe_input_cb(gint source, gpointer user_data)
         break;
     case SP_PACKET_COUNT:
         if (!ws_strtou32(buffer, NULL, &npackets)) {
-            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_WARNING, "Invalid packets number: %s", buffer);
+            ws_warning("Invalid packets number: %s", buffer);
         }
-        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "sync_pipe_input_cb: new packets %u", npackets);
+        ws_debug("new packets %u", npackets);
         cap_session->count += npackets;
         cap_session->new_packets(cap_session, npackets);
         break;
@@ -1781,7 +1771,7 @@ sync_pipe_wait_for_child(ws_process_id fork_child, gchar **msgp)
 
     start_time = g_get_monotonic_time();
 
-    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "sync_pipe_wait_for_child: wait till child closed");
+    ws_debug("wait till child closed");
     g_assert(fork_child != WS_INVALID_PID);
 
     *msgp = NULL; /* assume no error */
@@ -1849,7 +1839,7 @@ sync_pipe_wait_for_child(ws_process_id fork_child, gchar **msgp)
                  * kills dumpcap, so we should eventually see that and
                  * clean up and terminate.
                  */
-                g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_WARNING, "sync_pipe_wait_for_child: waitpid returned EINTR. retrying.");
+                ws_warning("waitpid returned EINTR. retrying.");
                 continue;
             } else if (errno == ECHILD) {
                 /*
@@ -1870,7 +1860,7 @@ sync_pipe_wait_for_child(ws_process_id fork_child, gchar **msgp)
 #endif
 
     elapsed = (g_get_monotonic_time() - start_time) / 1e6;
-    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "sync_pipe_wait_for_child: capture child closed after %.3fs", elapsed);
+    ws_debug("capture child closed after %.3fs", elapsed);
     return ret;
 }
 
@@ -1997,15 +1987,14 @@ signal_pipe_capquit_to_child(capture_session *cap_session)
     const char quit_msg[] = "QUIT";
     int ret;
 
-    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "signal_pipe_capquit_to_child");
+    ws_debug("signal_pipe_capquit_to_child");
 
     /* it doesn't matter *what* we send here, the first byte will stop the capture */
     /* simply sending a "QUIT" string */
     /*pipe_write_block(cap_session->signal_pipe_write_fd, SP_QUIT, quit_msg);*/
     ret = ws_write(cap_session->signal_pipe_write_fd, quit_msg, sizeof quit_msg);
     if(ret == -1) {
-        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_WARNING,
-              "signal_pipe_capquit_to_child: %d header: error %s", cap_session->signal_pipe_write_fd, g_strerror(errno));
+        ws_warning("%d header: error %s", cap_session->signal_pipe_write_fd, g_strerror(errno));
     }
 }
 #endif
@@ -2025,8 +2014,7 @@ sync_pipe_stop(capture_session *cap_session)
         /* send the SIGINT signal to close the capture child gracefully. */
         int sts = kill(cap_session->fork_child, SIGINT);
         if (sts != 0) {
-            g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_WARNING,
-                  "Sending SIGINT to child failed: %s\n", g_strerror(errno));
+            ws_warning("Sending SIGINT to child failed: %s\n", g_strerror(errno));
         }
 #else
 #define STOP_SLEEP_TIME 500 /* ms */
@@ -2048,8 +2036,7 @@ sync_pipe_stop(capture_session *cap_session)
 
         /* Force the issue. */
         if (terminate) {
-            g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_WARNING,
-                  "sync_pipe_stop: forcing child to exit");
+            ws_warning("sync_pipe_stop: forcing child to exit");
             sync_pipe_kill(cap_session->fork_child);
         }
 #endif
@@ -2065,8 +2052,7 @@ sync_pipe_kill(ws_process_id fork_child)
 #ifndef _WIN32
         int sts = kill(fork_child, SIGTERM);    /* SIGTERM so it can clean up if necessary */
         if (sts != 0) {
-            g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_WARNING,
-                  "Sending SIGTERM to child failed: %s\n", g_strerror(errno));
+            ws_warning("Sending SIGTERM to child failed: %s\n", g_strerror(errno));
         }
 #else
         /* Remark: This is not the preferred method of closing a process!

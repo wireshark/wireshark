@@ -10,13 +10,14 @@
  */
 
 #include "config.h"
+#define WS_LOG_DOMAIN LOG_DOMAIN_WSUTIL
 
 #include "rsa.h"
 #include <glib.h>
 #include "filesystem.h"
 #include "file_util.h"
-#include "log.h"
 #include <errno.h>
+#include <wsutil/wslog.h>
 
 
 #ifdef HAVE_LIBGNUTLS
@@ -229,7 +230,7 @@ rsa_load_pkcs12(FILE *fp, const gchar *cert_passwd, char **err)
         return NULL;
     }
 
-    g_log(NULL, G_LOG_LEVEL_INFO, "rsa_privkey_to_sexp: PKCS#12 imported\n");
+    ws_debug("grsa_privkey_to_sexp: PKCS#12 imported");
 
     /* TODO: Use gnutls_pkcs12_simple_parse, since 3.1.0 (August 2012) */
     for (i=0; ; i++) {
@@ -263,7 +264,7 @@ rsa_load_pkcs12(FILE *fp, const gchar *cert_passwd, char **err)
                                        ret);
                 goto done;
             }
-            g_log(NULL, G_LOG_LEVEL_INFO, "Bag %d/%d: %s\n", i, j, BAGTYPE(bag_type));
+            ws_debug("Bag %d/%d: %s", i, j, BAGTYPE(bag_type));
             if (bag_type == GNUTLS_BAG_ENCRYPTED) {
                 ret = gnutls_pkcs12_bag_decrypt(bag, cert_passwd);
                 if (ret == 0) {
@@ -279,7 +280,7 @@ rsa_load_pkcs12(FILE *fp, const gchar *cert_passwd, char **err)
                                                ret);
                         goto done;
                     }
-                    g_log(NULL, G_LOG_LEVEL_INFO, "Bag %d/%d decrypted: %s\n", i, j, BAGTYPE(bag_type));
+                    ws_debug("Bag %d/%d decrypted: %s", i, j, BAGTYPE(bag_type));
                 }
             }
 

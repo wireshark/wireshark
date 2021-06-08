@@ -29,6 +29,7 @@
 #include <wsutil/file_util.h>
 #include <wsutil/privileges.h>
 #include <wsutil/report_message.h>
+#include <wsutil/wslog.h>
 #include <version_info.h>
 #include <wiretap/wtap_opttypes.h>
 
@@ -53,8 +54,6 @@
 #include <epan/secrets.h>
 
 #include <wsutil/codecs.h>
-
-#include "log.h"
 
 #include <wsutil/str_util.h>
 #include <wsutil/utf8_entities.h>
@@ -115,7 +114,18 @@ main(int argc, char *argv[])
     cfile_close_failure_message
   };
 
+  /* Initialize log handler early so we can have proper logging during startup. */
+  ws_log_init(NULL);
+
   cmdarg_err_init(sharkd_cmdarg_err, sharkd_cmdarg_err_cont);
+
+  /* Command line options are parsed too late to configure logging, do it
+      manually. */
+  const char *opt_err_val;
+  if ((opt_err_val = ws_log_set_level_args(&argc, argv)) != NULL) {
+    cmdarg_err("Invalid log level \"%s\"", opt_err_val);
+    return INIT_FAILED;
+  }
 
   /*
    * Get credential information for later use, and drop privileges

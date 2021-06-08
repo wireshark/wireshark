@@ -22,7 +22,6 @@
 #include "sync_pipe.h"
 #include "wsutil/file_util.h"
 
-#include "log.h"
 #ifdef _WIN32
 #include <wsutil/win32-utils.h>
 #endif

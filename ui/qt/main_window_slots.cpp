@@ -44,6 +44,7 @@ DIAG_ON(frame-larger-than=)
 
 #include "wsutil/file_util.h"
 #include "wsutil/filesystem.h"
+#include <wsutil/wslog.h>
 
 #include "epan/addr_resolv.h"
 #include "epan/column.h"
@@ -927,8 +928,6 @@ void MainWindow::pipeTimeout() {
 
     /* try to read data from the pipe only 5 times, to avoid blocking */
     while (iterations < 5) {
-        /*g_log(NULL, G_LOG_LEVEL_DEBUG, "pipe_timer_cb: new iteration");*/
-
         /* Oddly enough although Named pipes don't work on win9x,
            PeekNamedPipe does !!! */
         handle = (HANDLE)_get_osfhandle(pipe_source_);
@@ -943,17 +942,14 @@ void MainWindow::pipeTimeout() {
            callback */
         if (!result || avail > 0 || childstatus != STILL_ACTIVE) {
 
-            /*g_log(NULL, G_LOG_LEVEL_DEBUG, "pipe_timer_cb: data avail");*/
-
             /* And call the real handler */
             if (!pipe_input_cb_(pipe_source_, pipe_user_data_)) {
-                g_log(NULL, G_LOG_LEVEL_DEBUG, "pipe_timer_cb: input pipe closed, iterations: %u", iterations);
+                ws_log(LOG_DOMAIN_DEFAULT, LOG_LEVEL_DEBUG, "pipe_timer_cb: input pipe closed, iterations: %u", iterations);
                 /* pipe closed, return false so that the old timer is not run again */
                 delete pipe_timer_;
                 return;
             }
         } else {
-            /*g_log(NULL, G_LOG_LEVEL_DEBUG, "pipe_timer_cb: no data avail");*/
             /* No data, stop now */
             break;
         }

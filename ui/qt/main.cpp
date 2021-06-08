@@ -41,6 +41,7 @@
 #include <wsutil/filesystem.h>
 #include <wsutil/privileges.h>
 #include <wsutil/socket.h>
+#include <wsutil/wslog.h>
 #ifdef HAVE_PLUGINS
 #include <wsutil/plugins.h>
 #endif
@@ -70,7 +71,6 @@
 /* general (not Qt specific) */
 #include "file.h"
 #include "epan/color_filters.h"
-#include "log.h"
 
 #include "epan/rtd_table.h"
 #include "epan/srt_table.h"
@@ -129,19 +129,6 @@
 #include <ui/qt/utils/qt_ui_utils.h>
 
 //#define DEBUG_STARTUP_TIME 1
-/*
-# Log level
-# Console log level (for debugging)
-# A bitmask of log levels:
-# ERROR    = 4
-# CRITICAL = 8
-# WARNING  = 16
-# MESSAGE  = 32
-# INFO     = 64
-# DEBUG    = 128
-
-#define DEBUG_STARTUP_TIME_LOGLEVEL 252
-*/
 
 /* update the main window */
 void main_window_update(void)
@@ -335,29 +322,29 @@ get_wireshark_runtime_info(GString *str)
 }
 
 static void
-g_log_message_handler(QtMsgType type, const QMessageLogContext &, const QString &msg)
+qt_log_message_handler(QtMsgType type, const QMessageLogContext &, const QString &msg)
 {
-    GLogLevelFlags log_level = G_LOG_LEVEL_DEBUG;
+    enum ws_log_level log_level = LOG_LEVEL_DEBUG;
 
     switch (type) {
     case QtInfoMsg:
-        log_level = G_LOG_LEVEL_INFO;
+        log_level = LOG_LEVEL_INFO;
         break;
     // We want qDebug() messages to show up at our default log level.
     case QtDebugMsg:
     case QtWarningMsg:
-        log_level = G_LOG_LEVEL_WARNING;
+        log_level = LOG_LEVEL_WARNING;
         break;
     case QtCriticalMsg:
-        log_level = G_LOG_LEVEL_CRITICAL;
+        log_level = LOG_LEVEL_CRITICAL;
         break;
     case QtFatalMsg:
-        log_level = G_LOG_FLAG_FATAL;
+        log_level = LOG_LEVEL_ERROR;
         break;
     default:
         break;
     }
-    g_log(LOG_DOMAIN_MAIN, log_level, "%s", qUtf8Printable(msg));
+    ws_log(LOG_DOMAIN_MAIN, log_level, "%s", qUtf8Printable(msg));
 }
 
 #ifdef HAVE_LIBPCAP
@@ -542,18 +529,16 @@ int main(int argc, char *qt_argv[])
     macos_enable_layer_backing();
 #endif
 
-    /* Enable destinations for logging earlier in startup */
-    set_console_log_handler();
-    qInstallMessageHandler(g_log_message_handler);
+    /* Initialize log handler early so we can have proper logging during startup. */
+    ws_log_init(console_log_writer);
+
+    qInstallMessageHandler(qt_log_message_handler);
+
 #ifdef _WIN32
     restore_pipes();
 #endif
 
 #ifdef DEBUG_STARTUP_TIME
-    /* At least on Windows there is a problem with the logging as the preferences is taken
-     * into account and the preferences are loaded pretty late in the startup process.
-     */
-    prefs.console_log_level = DEBUG_STARTUP_TIME_LOGLEVEL;
     prefs.gui_console_open = console_open_always;
 #endif /* DEBUG_STARTUP_TIME */
     cmdarg_err_init(wireshark_cmdarg_err, wireshark_cmdarg_err_cont);
@@ -595,6 +580,14 @@ int main(int argc, char *qt_argv[])
     create_app_running_mutex();
 #endif /* _WIN32 */
 
+    /* Command line options are parsed too late to configure logging, do it
+        manually. */
+    const char *opt_err_val;
+    if ((opt_err_val = ws_log_set_level_args(&argc, argv)) != NULL) {
+        cmdarg_err("Invalid log level \"%s\"", opt_err_val);
+        exit_application(INVALID_OPTION);
+    }
+
     /*
      * Get credential information for later use, and drop privileges
      * before doing anything else.
@@ -608,7 +601,7 @@ int main(int argc, char *qt_argv[])
      * executable file.
      */
     /* init_progfile_dir_error = */ init_progfile_dir(argv[0]);
-    /* g_log(NULL, G_LOG_LEVEL_DEBUG, "progfile_dir: %s", get_progfile_dir()); */
+    /* ws_log(NULL, LOG_LEVEL_DEBUG, "progfile_dir: %s", get_progfile_dir()); */
 
 #ifdef _WIN32
     ws_init_dll_search_path();
@@ -741,7 +734,7 @@ int main(int argc, char *qt_argv[])
     read_language_prefs();
     wsApp->loadLanguage(language);
 
-    /* g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Translator %s", language); */
+    /* ws_log(LOG_DOMAIN_MAIN, LOG_LEVEL_DEBUG, "Translator %s", language); */
 
     // Init the main window (and splash)
     main_w = new(MainWindow);
@@ -763,7 +756,7 @@ int main(int argc, char *qt_argv[])
     }
 
 #ifdef DEBUG_STARTUP_TIME
-    g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_INFO, "set_console_log_handler, elapsed time %" G_GUINT64_FORMAT " us \n", g_get_monotonic_time() - start_time);
+    ws_log(LOG_DOMAIN_MAIN, LOG_LEVEL_INFO, "set_console_log_handler, elapsed time %" G_GUINT64_FORMAT " us \n", g_get_monotonic_time() - start_time);
 #endif
 
 #ifdef HAVE_LIBPCAP
@@ -783,7 +776,7 @@ int main(int argc, char *qt_argv[])
 
     splash_update(RA_DISSECTORS, NULL, NULL);
 #ifdef DEBUG_STARTUP_TIME
-    g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_INFO, "Calling epan init, elapsed time %" G_GUINT64_FORMAT " us \n", g_get_monotonic_time() - start_time);
+    ws_log(LOG_DOMAIN_MAIN, LOG_LEVEL_INFO, "Calling epan init, elapsed time %" G_GUINT64_FORMAT " us \n", g_get_monotonic_time() - start_time);
 #endif
     /* Register all dissectors; we must do this before checking for the
        "-G" flag, as the "-G" flag dumps information registered by the
@@ -796,9 +789,8 @@ int main(int argc, char *qt_argv[])
     }
 #ifdef DEBUG_STARTUP_TIME
     /* epan_init resets the preferences */
-    prefs.console_log_level = DEBUG_STARTUP_TIME_LOGLEVEL;
     prefs.gui_console_open = console_open_always;
-    g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_INFO, "epan done, elapsed time %" G_GUINT64_FORMAT " us \n", g_get_monotonic_time() - start_time);
+    ws_log(LOG_DOMAIN_MAIN, LOG_LEVEL_INFO, "epan done, elapsed time %" G_GUINT64_FORMAT " us \n", g_get_monotonic_time() - start_time);
 #endif
 
     /* Register all audio codecs. */
@@ -817,7 +809,7 @@ int main(int argc, char *qt_argv[])
 
     splash_update(RA_LISTENERS, NULL, NULL);
 #ifdef DEBUG_STARTUP_TIME
-    g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_INFO, "Register all tap listeners, elapsed time %" G_GUINT64_FORMAT " us \n", g_get_monotonic_time() - start_time);
+    ws_log(LOG_DOMAIN_MAIN, LOG_LEVEL_INFO, "Register all tap listeners, elapsed time %" G_GUINT64_FORMAT " us \n", g_get_monotonic_time() - start_time);
 #endif
     /* Register all tap listeners; we do this before we parse the arguments,
        as the "-z" argument can specify a registered tap. */
@@ -835,13 +827,13 @@ int main(int argc, char *qt_argv[])
     }
 
 #ifdef DEBUG_STARTUP_TIME
-    g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_INFO, "Calling extcap_register_preferences, elapsed time %" G_GUINT64_FORMAT " us \n", g_get_monotonic_time() - start_time);
+    ws_log(LOG_DOMAIN_MAIN, LOG_LEVEL_INFO, "Calling extcap_register_preferences, elapsed time %" G_GUINT64_FORMAT " us \n", g_get_monotonic_time() - start_time);
 #endif
     splash_update(RA_EXTCAP, NULL, NULL);
     extcap_register_preferences();
     splash_update(RA_PREFERENCES, NULL, NULL);
 #ifdef DEBUG_STARTUP_TIME
-    g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_INFO, "Calling module preferences, elapsed time %" G_GUINT64_FORMAT " us \n", g_get_monotonic_time() - start_time);
+    ws_log(LOG_DOMAIN_MAIN, LOG_LEVEL_INFO, "Calling module preferences, elapsed time %" G_GUINT64_FORMAT " us \n", g_get_monotonic_time() - start_time);
 #endif
 
     global_commandline_info.prefs_p = ws_app.readConfigurationFiles(false);
@@ -863,7 +855,7 @@ int main(int argc, char *qt_argv[])
 
 #ifdef HAVE_LIBPCAP
 #ifdef DEBUG_STARTUP_TIME
-    g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_INFO, "Calling fill_in_local_interfaces, elapsed time %" G_GUINT64_FORMAT " us \n", g_get_monotonic_time() - start_time);
+    ws_log(LOG_DOMAIN_MAIN, LOG_LEVEL_INFO, "Calling fill_in_local_interfaces, elapsed time %" G_GUINT64_FORMAT " us \n", g_get_monotonic_time() - start_time);
 #endif
     splash_update(RA_INTERFACES, NULL, NULL);
 
@@ -940,7 +932,7 @@ int main(int argc, char *qt_argv[])
        changed either from one of the preferences file or from the command
        line that their preferences have changed. */
 #ifdef DEBUG_STARTUP_TIME
-    g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_INFO, "Calling prefs_apply_all, elapsed time %" G_GUINT64_FORMAT " us \n", g_get_monotonic_time() - start_time);
+    ws_log(LOG_DOMAIN_MAIN, LOG_LEVEL_INFO, "Calling prefs_apply_all, elapsed time %" G_GUINT64_FORMAT " us \n", g_get_monotonic_time() - start_time);
 #endif
     prefs_apply_all();
     prefs_to_capture_opts();
@@ -986,7 +978,7 @@ int main(int argc, char *qt_argv[])
     }
 
     wsApp->allSystemsGo();
-    g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_INFO, "Wireshark is up and ready to go, elapsed time %.3fs\n", (float) (g_get_monotonic_time() - start_time) / 1000000);
+    ws_log(LOG_DOMAIN_MAIN, LOG_LEVEL_INFO, "Wireshark is up and ready to go, elapsed time %.3fs\n", (float) (g_get_monotonic_time() - start_time) / 1000000);
     SimpleDialog::displayQueuedMessages(main_w);
 
     /* User could specify filename, or display filter, or both */

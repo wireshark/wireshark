@@ -7,7 +7,6 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#include "log.h"
 #include "traffic_table_dialog.h"
 #include <ui_traffic_table_dialog.h>
 

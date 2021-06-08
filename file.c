@@ -813,8 +813,6 @@ cf_continue_tail(capture_file *cf, volatile int to_read, wtap_rec *rec,
   /* Don't freeze/thaw the list when doing live capture */
   /*packet_list_freeze();*/
 
-  /*g_log(NULL, G_LOG_LEVEL_MESSAGE, "cf_continue_tail: %u new: %u", cf->count, to_read);*/
-
   epan_dissect_init(&edt, cf->epan, create_proto_tree, FALSE);
 
   TRY {
@@ -865,9 +863,6 @@ cf_continue_tail(capture_file *cf, volatile int to_read, wtap_rec *rec,
   dfilter_free(dfcode);
 
   epan_dissect_cleanup(&edt);
-
-  /*g_log(NULL, G_LOG_LEVEL_MESSAGE, "cf_continue_tail: count %u state: %u err: %u",
-    cf->count, cf->state, *err);*/
 
   /* Don't freeze/thaw the list when doing live capture */
   /*packet_list_thaw();*/

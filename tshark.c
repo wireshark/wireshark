@@ -12,7 +12,7 @@
 
 #include <config.h>
 
-#define G_LOG_DOMAIN "tshark"
+#define WS_LOG_DOMAIN  LOG_DOMAIN_MAIN
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -117,12 +117,12 @@
 #include <capture/capture_sync.h>
 #include <ui/capture_info.h>
 #endif /* HAVE_LIBPCAP */
-#include "log.h"
 #include <epan/funnel.h>
 
 #include <wsutil/str_util.h>
 #include <wsutil/utf8_entities.h>
 #include <wsutil/json_dumper.h>
+#include <wsutil/wslog.h>
 #ifdef _WIN32
 #include <wsutil/win32-utils.h>
 #endif
@@ -531,31 +531,6 @@ glossary_option_help(void)
 }
 
 static void
-tshark_log_handler (const gchar *log_domain, GLogLevelFlags log_level,
-    const gchar *message, gpointer user_data)
-{
-  /* ignore log message, if log_level isn't interesting based
-     upon the console log preferences.
-     If the preferences haven't been loaded yet, display the
-     message anyway.
-
-     The default console_log_level preference value is such that only
-       ERROR, CRITICAL and WARNING level messages are processed;
-       MESSAGE, INFO and DEBUG level messages are ignored.
-
-     XXX: Aug 07, 2009: Prior tshark g_log code was hardwired to process only
-           ERROR and CRITICAL level messages so the current code is a behavioral
-           change.  The current behavior is the same as in Wireshark.
-  */
-  if (prefs_loaded && (log_level & G_LOG_LEVEL_MASK & prefs.console_log_level) == 0) {
-    return;
-  }
-
-  g_log_default_handler(log_domain, log_level, message, user_data);
-
-}
-
-static void
 print_current_user(void) {
   gchar *cur_user, *cur_group;
 
@@ -757,7 +732,6 @@ main(int argc, char *argv[])
   dfilter_t           *rfcode = NULL;
   dfilter_t           *dfcode = NULL;
   e_prefs             *prefs_p;
-  int                  log_flags;
   gchar               *output_only = NULL;
   gchar               *volatile pdu_export_arg = NULL;
   char                *volatile exp_pdu_filename = NULL;
@@ -798,9 +772,20 @@ main(int argc, char *argv[])
   setlocale(LC_ALL, "");
 #endif
 
-  ws_debug("tshark started with %d args", argc);
+  /* Initialize log handler early so we can have proper logging during startup. */
+  ws_log_init(NULL);
 
   cmdarg_err_init(tshark_cmdarg_err, tshark_cmdarg_err_cont);
+
+  /* Command line options are parsed too late to configure logging, do it
+      manually. */
+  const char *opt_err_val;
+  if ((opt_err_val = ws_log_set_level_args(&argc, argv)) != NULL) {
+    cmdarg_err("Invalid log level \"%s\"", opt_err_val);
+    return INVALID_OPTION;
+  }
+
+  ws_debug("tshark started with %d args", argc);
 
 #ifdef _WIN32
   create_app_running_mutex();
@@ -921,33 +906,6 @@ main(int argc, char *argv[])
       break;
     }
   }
-
-/** Send All g_log messages to our own handler **/
-
-  log_flags =
-                    G_LOG_LEVEL_ERROR|
-                    G_LOG_LEVEL_CRITICAL|
-                    G_LOG_LEVEL_WARNING|
-                    G_LOG_LEVEL_MESSAGE|
-                    G_LOG_LEVEL_INFO|
-                    G_LOG_LEVEL_DEBUG|
-                    G_LOG_FLAG_FATAL|G_LOG_FLAG_RECURSION;
-
-  g_log_set_handler(NULL,
-                    (GLogLevelFlags)log_flags,
-                    tshark_log_handler, NULL /* user_data */);
-  g_log_set_handler(LOG_DOMAIN_MAIN,
-                    (GLogLevelFlags)log_flags,
-                    tshark_log_handler, NULL /* user_data */);
-
-#ifdef HAVE_LIBPCAP
-  g_log_set_handler(LOG_DOMAIN_CAPTURE,
-                    (GLogLevelFlags)log_flags,
-                    tshark_log_handler, NULL /* user_data */);
-  g_log_set_handler(LOG_DOMAIN_CAPTURE_CHILD,
-                    (GLogLevelFlags)log_flags,
-                    tshark_log_handler, NULL /* user_data */);
-#endif
 
   init_report_message("TShark", &tshark_report_routines);
 
@@ -2403,8 +2361,6 @@ pipe_timer_cb(gpointer data)
 
   /* try to read data from the pipe only 5 times, to avoid blocking */
   while(iterations < 5) {
-    /*g_log(NULL, G_LOG_LEVEL_DEBUG, "pipe_timer_cb: new iteration");*/
-
     /* Oddly enough although Named pipes don't work on win9x,
        PeekNamedPipe does !!! */
     handle = (HANDLE) _get_osfhandle (pipe_input_p->source);
@@ -2419,26 +2375,21 @@ pipe_timer_cb(gpointer data)
        callback */
     if (!result || avail > 0 || childstatus != STILL_ACTIVE) {
 
-      /*g_log(NULL, G_LOG_LEVEL_DEBUG, "pipe_timer_cb: data avail");*/
-
       /* And call the real handler */
       if (!pipe_input_p->input_cb(pipe_input_p->source, pipe_input_p->user_data)) {
-        g_log(NULL, G_LOG_LEVEL_DEBUG, "pipe_timer_cb: input pipe closed, iterations: %u", iterations);
+        ws_debug("input pipe closed, iterations: %u", iterations);
         /* pipe closed, return false so that the timer is stopped */
         g_mutex_unlock (pipe_input_p->callback_running);
         return FALSE;
       }
     }
     else {
-      /*g_log(NULL, G_LOG_LEVEL_DEBUG, "pipe_timer_cb: no data avail");*/
       /* No data, stop now */
       break;
     }
 
     iterations++;
   }
-
-  /*g_log(NULL, G_LOG_LEVEL_DEBUG, "pipe_timer_cb: finished with iterations: %u, new timer", iterations);*/
 
   g_mutex_unlock (pipe_input_p->callback_running);
 
@@ -2465,7 +2416,6 @@ pipe_input_set_handler(gint source, gpointer user_data, ws_process_id *child_pro
      this but doesn't seem to work over processes.  Attempt to do
      something similar here, start a timer and check for data on every
      timeout. */
-  /*g_log(NULL, G_LOG_LEVEL_DEBUG, "pipe_input_set_handler: new");*/
   pipe_input.pipe_input_id = g_timeout_add(200, pipe_timer_cb, &pipe_input);
 #endif
 }
@@ -2627,7 +2577,7 @@ capture(void)
 #endif
         /* Call the real handler */
         if (!pipe_input.input_cb(pipe_input.source, pipe_input.user_data)) {
-          g_log(NULL, G_LOG_LEVEL_DEBUG, "input pipe closed");
+          ws_debug("input pipe closed");
           ret = FALSE;
           loop_running = FALSE;
         }
@@ -2704,9 +2654,9 @@ capture_input_new_file(capture_session *cap_session, gchar *new_file)
   int      err;
 
   if (cap_session->state == CAPTURE_PREPARING) {
-    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture started.");
+    ws_message("Capture started.");
   }
-  g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "File: \"%s\"", new_file);
+  ws_message("File: \"%s\"", new_file);
 
   g_assert(cap_session->state == CAPTURE_PREPARING || cap_session->state == CAPTURE_RUNNING);
 

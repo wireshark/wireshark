@@ -32,11 +32,11 @@
 #include <QRegExp>
 
 #include <glib.h>
-#include <log.h>
 
 #include <extcap.h>
 #include <epan/prefs.h>
 #include <epan/prefs-int.h>
+#include <wsutil/wslog.h>
 #include <ui/qt/utils/color_utils.h>
 
 #include <extcap_parser.h>
@@ -542,7 +542,7 @@ QWidget * ExtArgNumber::createEditor(QWidget * parent)
                 guint tmp = extcap_complex_get_uint(_argument->range_start);
                 if (tmp > G_MAXINT)
                 {
-                    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "Defined value for range_start of %s exceeds valid integer range", _argument->call);
+                    ws_log(LOG_DOMAIN_CAPTURE, LOG_LEVEL_DEBUG, "Defined value for range_start of %s exceeds valid integer range", _argument->call);
                     val = G_MAXINT;
                 }
                 else
@@ -553,7 +553,7 @@ QWidget * ExtArgNumber::createEditor(QWidget * parent)
         }
         if (_argument->arg_type == EXTCAP_ARG_UNSIGNED && textValidator->bottom() < 0)
         {
-            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "%s sets negative bottom range for unsigned value, setting to 0", _argument->call);
+            ws_log(LOG_DOMAIN_CAPTURE, LOG_LEVEL_DEBUG, "%s sets negative bottom range for unsigned value, setting to 0", _argument->call);
             textValidator->setBottom(0);
         }
 
@@ -567,7 +567,7 @@ QWidget * ExtArgNumber::createEditor(QWidget * parent)
                 guint tmp = extcap_complex_get_uint(_argument->range_end);
                 if (tmp > G_MAXINT)
                 {
-                    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "Defined value for range_end of %s exceeds valid integer range", _argument->call);
+                    ws_log(LOG_DOMAIN_CAPTURE, LOG_LEVEL_DEBUG, "Defined value for range_end of %s exceeds valid integer range", _argument->call);
                     val = G_MAXINT;
                 }
                 else

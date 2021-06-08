@@ -20,6 +20,7 @@
 #include <wsutil/privileges.h>
 #include <wsutil/socket.h>
 #include <wsutil/please_report_bug.h>
+#include <wsutil/wslog.h>
 
 #include <cli_main.h>
 #include <ui/cmdarg_err.h>
@@ -127,7 +128,7 @@ static int list_config(char *interface)
 
 static void randpktdump_cmdarg_err(const char *msg_format, va_list ap)
 {
-	g_logv(G_LOG_DOMAIN, G_LOG_LEVEL_WARNING, msg_format, ap);
+	ws_logv(LOG_DOMAIN_CAPCHILD, LOG_LEVEL_WARNING, msg_format, ap);
 }
 
 int main(int argc, char *argv[])
@@ -150,7 +151,18 @@ int main(int argc, char *argv[])
 	char* help_url;
 	char* help_header = NULL;
 
+	/* Initialize log handler early so we can have proper logging during startup. */
+	ws_log_init(NULL);
+
 	cmdarg_err_init(randpktdump_cmdarg_err, randpktdump_cmdarg_err);
+
+	/* Command line options are parsed too late to configure logging, do it
+		manually. */
+	const char *opt_err_val;
+	if ((opt_err_val = ws_log_set_level_args(&argc, argv)) != NULL) {
+		cmdarg_err("Invalid log level \"%s\"", opt_err_val);
+		return EXIT_FAILURE;
+	}
 
 	/*
 	 * Get credential information for later use.

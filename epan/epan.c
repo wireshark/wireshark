@@ -31,6 +31,7 @@
 #include "epan_dissect.h"
 
 #include <wsutil/nstime.h>
+#include <wsutil/wslog.h>
 
 #include "conversation.h"
 #include "except.h"
@@ -137,26 +138,28 @@ epan_get_version_number(int *major, int *minor, int *micro)
 static void
 quiet_gcrypt_logger (void *dummy _U_, int level, const char *format, va_list args)
 {
-	GLogLevelFlags log_level = G_LOG_LEVEL_WARNING;
+	enum ws_log_level log_level;
 
 	switch (level) {
 	case GCRY_LOG_CONT: // Continuation. Ignore for now.
 	case GCRY_LOG_DEBUG:
 	case GCRY_LOG_INFO:
-	default:
 		return;
+		break;
 	case GCRY_LOG_WARN:
 	case GCRY_LOG_BUG:
-		log_level = G_LOG_LEVEL_WARNING;
+		log_level = LOG_LEVEL_WARNING;
 		break;
 	case GCRY_LOG_ERROR:
-		log_level = G_LOG_LEVEL_ERROR;
+		log_level = LOG_LEVEL_ERROR;
 		break;
 	case GCRY_LOG_FATAL:
-		log_level = G_LOG_LEVEL_CRITICAL;
+		log_level = LOG_LEVEL_CRITICAL;
 		break;
+	default:
+		return;
 	}
-	g_logv(NULL, log_level, format, args);
+	ws_logv(LOG_DOMAIN_EPAN, log_level, format, args);
 }
 #endif // _WIN32
 

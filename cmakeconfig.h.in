@@ -380,5 +380,6 @@
 #endif
 
 #include <ws_diag_control.h>
+#include <ws_log_domains.h>
 
 #endif /* __CONFIG_H__ */

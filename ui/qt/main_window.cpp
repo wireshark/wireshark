@@ -21,6 +21,7 @@ DIAG_ON(frame-larger-than=)
 #include "epan/conversation_filter.h"
 #include <epan/epan_dissect.h>
 #include <wsutil/filesystem.h>
+#include <wsutil/wslog.h>
 #include <version_info.h>
 #include <epan/prefs.h>
 #include <epan/stats_tree_priv.h>
@@ -843,7 +844,7 @@ void MainWindow::setPipeInputHandler(gint source, gpointer user_data, ws_process
        this but doesn't seem to work over processes.  Attempt to do
        something similar here, start a timer and check for data on every
        timeout. */
-       /*g_log(NULL, G_LOG_LEVEL_DEBUG, "pipe_input_set_handler: new");*/
+       /*ws_log(NULL, LOG_LEVEL_DEBUG, "pipe_input_set_handler: new");*/
 
     if (pipe_timer_) {
         disconnect(pipe_timer_, SIGNAL(timeout()), this, SLOT(pipeTimeout()));

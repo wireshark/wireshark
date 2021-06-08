@@ -31,8 +31,6 @@
 #define NETIO_STATUS DWORD
 #endif
 
-#include "log.h"
-
 #include "capture/capture_ifinfo.h"
 #include "capture/capture_win_ifnames.h"
 

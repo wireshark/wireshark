@@ -11,8 +11,7 @@
 
 #include "config.h"
 
-/* Start with G_MESSAGES_DEBUG=secrets to see messages. */
-#define G_LOG_DOMAIN "secrets"
+#define WS_LOG_DOMAIN LOG_DOMAIN_EPAN
 
 #include "secrets.h"
 #include <wiretap/wtap.h>

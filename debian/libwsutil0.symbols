@@ -225,7 +225,20 @@ libwsutil.so.0 libwsutil0 #MINVER#
  ws_inet_pton4@Base 2.1.2
  ws_inet_pton6@Base 2.1.2
  ws_init_sockets@Base 3.1.0
+ ws_log@Base 3.5.0
+ ws_log_add_custom_file@Base 3.5.0
+ ws_log_default_writer@Base 3.5.0
+ ws_log_domain_to_string@Base 3.5.0
  ws_log_full@Base 3.5.0
+ ws_log_get_level@Base 3.5.0
+ ws_log_init@Base 3.5.0
+ ws_log_init_with_data@Base 3.5.0
+ ws_log_level_is_active@Base 3.5.0
+ ws_log_level_to_string@Base 3.5.0
+ ws_log_set_level@Base 3.5.0
+ ws_log_set_level_args@Base 3.5.0
+ ws_log_set_level_str@Base 3.5.0
+ ws_logv@Base 3.5.0
  ws_mempbrk_compile@Base 1.99.4
  ws_mempbrk_exec@Base 1.99.4
  ws_pipe_close@Base 2.6.5

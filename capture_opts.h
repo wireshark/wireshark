@@ -22,6 +22,7 @@
 
 #include <capture/capture_ifinfo.h>
 #include "ringbuffer.h"
+#include <wsutil/wslog.h>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -338,7 +339,7 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg)
 
 /* log content of capture_opts */
 extern void
-capture_opts_log(const char *log_domain, GLogLevelFlags log_level, capture_options *capture_opts);
+capture_opts_log(enum ws_log_domain domain, enum ws_log_level level, capture_options *capture_opts);
 
 enum caps_query {
     CAPS_QUERY_LINK_TYPES      = 0x1,

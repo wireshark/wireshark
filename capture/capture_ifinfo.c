@@ -9,6 +9,7 @@
  */
 
 #include "config.h"
+#define WS_LOG_DOMAIN LOG_DOMAIN_CAPTURE
 
 #ifdef HAVE_LIBPCAP
 
@@ -23,7 +24,6 @@
 #include "capture/capture_session.h"
 #include "capture/capture_sync.h"
 #include "extcap.h"
-#include "log.h"
 
 #include <capture/capture_ifinfo.h>
 #include <wsutil/inet_addr.h>
@@ -90,8 +90,6 @@ capture_interface_list(int *err, char **err_str, void (*update_cb)(void))
     if_info_t *if_info;
     if_addr_t *if_addr;
 
-    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Interface List ...");
-
     *err = 0;
     if (err_str) {
         *err_str = NULL;
@@ -101,12 +99,12 @@ capture_interface_list(int *err, char **err_str, void (*update_cb)(void))
     ret = sync_interface_list_open(&data, &primary_msg, &secondary_msg, update_cb);
     if (ret != 0) {
         /* Add the extcap interfaces that can exist, even if no native interfaces have been found */
-        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Loading External Capture Interface List ...");
+        ws_message("Loading External Capture Interface List ...");
         if_list = append_extcap_interface_list(if_list, err_str);
         /* err_str is ignored, as the error for the interface loading list will take precedence */
         if ( g_list_length(if_list) == 0 ) {
 
-            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Interface List failed. Error %d, %s (%s)",
+            ws_message("Capture Interface List failed. Error %d, %s (%s)",
                   *err, primary_msg ? primary_msg : "no message",
                   secondary_msg ? secondary_msg : "no secondary message");
             if (err_str) {
@@ -185,7 +183,7 @@ capture_interface_list(int *err, char **err_str, void (*update_cb)(void))
 #endif
 
     /* Add the extcap interfaces after the native and remote interfaces */
-    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Loading External Capture Interface List ...");
+    ws_message("Loading External Capture Interface List ...");
     if_list = append_extcap_interface_list(if_list, err_str);
 
     return if_list;
@@ -205,8 +203,6 @@ capture_get_if_capabilities(const gchar *ifname, gboolean monitor_mode,
     gchar              *data, *primary_msg, *secondary_msg;
     gchar             **raw_list;
 
-    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Interface Capabilities ...");
-
     /* see if the interface is from extcap */
     caps = extcap_get_if_dlts(ifname, err_primary_msg);
     if (caps != NULL)
@@ -220,7 +216,7 @@ capture_get_if_capabilities(const gchar *ifname, gboolean monitor_mode,
     err = sync_if_capabilities_open(ifname, monitor_mode, auth_string, &data,
                                     &primary_msg, &secondary_msg, update_cb);
     if (err != 0) {
-        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Interface Capabilities failed. Error %d, %s",
+        ws_message("Capture Interface Capabilities failed. Error %d, %s",
               err, primary_msg ? primary_msg : "no message");
         if (err_primary_msg)
             *err_primary_msg = primary_msg;
@@ -245,7 +241,7 @@ capture_get_if_capabilities(const gchar *ifname, gboolean monitor_mode,
      * First line is 0 if monitor mode isn't supported, 1 if it is.
      */
     if (raw_list[0] == NULL || *raw_list[0] == '\0') {
-        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Interface Capabilities returned no information.");
+        ws_message("Capture Interface Capabilities returned no information.");
         if (err_primary_msg) {
             *err_primary_msg = g_strdup("Dumpcap returned no interface capability information");
         }
@@ -268,7 +264,7 @@ capture_get_if_capabilities(const gchar *ifname, gboolean monitor_mode,
         break;
 
     default:
-        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Interface Capabilities returned bad information.");
+        ws_message("Capture Interface Capabilities returned bad information.");
         if (err_primary_msg) {
             *err_primary_msg = g_strdup_printf("Dumpcap returned \"%s\" for monitor-mode capability",
                                        raw_list[0]);

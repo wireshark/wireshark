@@ -19,7 +19,6 @@
 capture_file cfile;
 
 #include "file.h"
-#include "log.h"
 
 #include "epan/epan_dissect.h"
 

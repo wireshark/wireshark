@@ -9,7 +9,6 @@
 
 #include "simple_dialog.h"
 
-#include "log.h"
 #include "file.h"
 
 #include "epan/strutil.h"
@@ -18,6 +17,7 @@
 #include "ui/commandline.h"
 
 #include <wsutil/utf8_entities.h>
+#include <wsutil/wslog.h>
 
 #include <ui/qt/utils/qt_ui_utils.h>
 #include "wireshark_application.h"
@@ -63,7 +63,7 @@ static void visible_message_finished(QMessageBox *box, int result _U_)
     visible_messages_mutex.lock();
     for (int i = 0; i < visible_messages.size(); i++) {
         if (visible_messages[i].box == box) {
-            g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_WARNING, "%d duplicates of \"%s\" were suppressed",
+            ws_log(LOG_DOMAIN_MAIN, LOG_LEVEL_WARNING, "%d duplicates of \"%s\" were suppressed",
                 visible_messages[i].counter, box->text().toStdString().c_str());
             visible_messages.removeAt(i);
             break;

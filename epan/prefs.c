@@ -2424,73 +2424,6 @@ gui_layout_callback(void)
  ******************************************************/
 static void custom_pref_no_cb(pref_t* pref _U_) {}
 
-
-/*
- * Console log level custom preference functions
- */
-static void
-console_log_level_reset_cb(pref_t* pref)
-{
-    *pref->varp.uint = pref->default_val.uint;
-}
-
-static prefs_set_pref_e
-console_log_level_set_cb(pref_t* pref, const gchar* value, unsigned int* changed_flags)
-{
-    guint    uval;
-
-    if (!ws_strtou32(value, NULL, &uval))
-        return PREFS_SET_SYNTAX_ERR;        /* number was bad */
-
-    if (*pref->varp.uint != uval) {
-        *changed_flags = prefs_get_effect_flags(pref);
-        *pref->varp.uint = uval;
-    }
-
-    if (*pref->varp.uint & (G_LOG_LEVEL_INFO|G_LOG_LEVEL_DEBUG)) {
-        /*
-         * GLib drops INFO and DEBUG messages by default. If the user
-         * hasn't set G_MESSAGES_DEBUG, possibly to a specific set of
-         * domains, tell it not to do that.
-         */
-        const char *s = g_getenv("G_MESSAGES_DEBUG");
-        if(s != NULL) {
-            g_message("prefs: Skip overwriting environment variable "
-                        "G_MESSAGES_DEBUG=\"%s\"", s);
-        }
-        else {
-            g_info("prefs: Set environment variable G_MESSAGES_DEBUG=\"all\"");
-            g_setenv("G_MESSAGES_DEBUG", "all", FALSE);
-        }
-    }
-
-    return PREFS_SET_OK;
-}
-
-static const char * console_log_level_type_name_cb(void) {
-    return "Log level";
-}
-
-static char * console_log_level_type_description_cb(void) {
-    return g_strdup_printf(
-        "Console log level (for debugging)\n"
-        "A bitmask of log levels:\n"
-        "ERROR    = 4\n"
-        "CRITICAL = 8\n"
-        "WARNING  = 16\n"
-        "MESSAGE  = 32\n"
-        "INFO     = 64\n"
-        "DEBUG    = 128");
-}
-
-static gboolean console_log_level_is_default_cb(pref_t* pref) {
-    return *pref->varp.uint == pref->default_val.uint;
-}
-
-static char * console_log_level_to_str_cb(pref_t* pref, gboolean default_val) {
-    return g_strdup_printf("%u",  default_val ? pref->default_val.uint : *pref->varp.uint);
-}
-
 /*
  * Column preference functions
  */
@@ -3547,15 +3480,7 @@ prefs_register_modules(void)
     console_module = prefs_register_module(NULL, "console", "Console",
         "Console logging and debugging output", NULL, FALSE);
 
-    custom_cbs.free_cb = custom_pref_no_cb;
-    custom_cbs.reset_cb = console_log_level_reset_cb;
-    custom_cbs.set_cb = console_log_level_set_cb;
-    custom_cbs.type_name_cb = console_log_level_type_name_cb;
-    custom_cbs.type_description_cb = console_log_level_type_description_cb;
-    custom_cbs.is_default_cb = console_log_level_is_default_cb;
-    custom_cbs.to_str_cb = console_log_level_to_str_cb;
-    prefs_register_uint_custom_preference(console_module, "log.level", "logging level",
-        "A bitmask of GLib log levels", &custom_cbs, &prefs.console_log_level);
+    prefs_register_obsolete_preference(console_module, "log.level");
 
     prefs_register_bool_preference(console_module, "incomplete_dissectors_check_debug",
                                    "Print debug line for incomplete dissectors",
@@ -4270,9 +4195,6 @@ pre_init_prefs(void)
             prefs.capture_columns = g_list_append(prefs.capture_columns, col_name);
         }
     }
-
-    prefs.console_log_level          =
-        G_LOG_LEVEL_WARNING | G_LOG_LEVEL_CRITICAL | G_LOG_LEVEL_ERROR;
 
 /* set the default values for the tap/statistics dialog box */
     prefs.tap_update_interval    = TAP_UPDATE_DEFAULT_INTERVAL;

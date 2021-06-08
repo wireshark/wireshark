@@ -9,6 +9,7 @@
  */
 
 #include "config.h"
+#define WS_LOG_DOMAIN LOG_DOMAIN_CAPCHILD
 
 #ifdef HAVE_LIBPCAP
 
@@ -68,10 +69,9 @@
 #include "capture/capture-pcap-util.h"
 #include "capture/capture-pcap-util-int.h"
 
-#include "log.h"
-
 #include <wsutil/file_util.h>
 #include <wsutil/please_report_bug.h>
+#include <wsutil/wslog.h>
 
 #ifndef _WIN32
 #include <netinet/in.h>
@@ -1275,23 +1275,19 @@ open_capture_device_pcap_create(
 	pcap_t *pcap_h;
 	int status;
 
-	g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
-	    "Calling pcap_create() using %s.", interface_opts->name);
+	ws_debug("Calling pcap_create() using %s.", interface_opts->name);
 	pcap_h = pcap_create(interface_opts->name, *open_err_str);
-	g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
-	    "pcap_create() returned %p.", (void *)pcap_h);
+	ws_debug("pcap_create() returned %p.", (void *)pcap_h);
 	if (pcap_h == NULL) {
 		*open_err = CAP_DEVICE_OPEN_ERR_NOT_PERMISSIONS;
 		return NULL;
 	}
 	if (interface_opts->has_snaplen) {
-		g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
-		    "Calling pcap_set_snaplen() with snaplen %d.",
+		ws_debug("Calling pcap_set_snaplen() with snaplen %d.",
 		    interface_opts->snaplen);
 		pcap_set_snaplen(pcap_h, interface_opts->snaplen);
 	}
-	g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
-	    "Calling pcap_set_promisc() with promisc_mode %d.",
+	ws_debug("Calling pcap_set_promisc() with promisc_mode %d.",
 	    interface_opts->promisc_mode);
 	pcap_set_promisc(pcap_h, interface_opts->promisc_mode);
 	pcap_set_timeout(pcap_h, timeout);
@@ -1337,18 +1333,15 @@ open_capture_device_pcap_create(
 	}
 #endif /* HAVE_PCAP_SET_TSTAMP_PRECISION */
 
-	g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
-	    "buffersize %d.", interface_opts->buffer_size);
+	ws_debug("buffersize %d.", interface_opts->buffer_size);
 	if (interface_opts->buffer_size != 0)
 		pcap_set_buffer_size(pcap_h,
 		    interface_opts->buffer_size * 1024 * 1024);
-	g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
-	    "monitor_mode %d.", interface_opts->monitor_mode);
+	ws_debug("monitor_mode %d.", interface_opts->monitor_mode);
 	if (interface_opts->monitor_mode)
 		pcap_set_rfmon(pcap_h, 1);
 	status = pcap_activate(pcap_h);
-	g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
-	    "pcap_activate() returned %d.", status);
+	ws_debug("pcap_activate() returned %d.", status);
 	if (status < 0) {
 		/* Failed to activate, set to NULL */
 		if (status == PCAP_ERROR) {
@@ -1424,13 +1417,11 @@ open_capture_device_pcap_open_live(interface_options *interface_opts,
 		 */
 		snaplen = 256*1024;
 	}
-	g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
-	    "pcap_open_live() calling using name %s, snaplen %d, promisc_mode %d.",
+	ws_debug("pcap_open_live() calling using name %s, snaplen %d, promisc_mode %d.",
 	    interface_opts->name, snaplen, interface_opts->promisc_mode);
 	pcap_h = pcap_open_live(interface_opts->name, snaplen,
 	    interface_opts->promisc_mode, timeout, *open_err_str);
-	g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
-	    "pcap_open_live() returned %p.", (void *)pcap_h);
+	ws_debug("pcap_open_live() returned %p.", (void *)pcap_h);
 	if (pcap_h == NULL) {
 		*open_err = CAP_DEVICE_OPEN_ERR_GENERIC;
 		return NULL;
@@ -1538,7 +1529,7 @@ open_capture_device(capture_options *capture_opts,
 	   Some versions of libpcap may put warnings into the error buffer
 	   if they succeed; to tell if that's happened, we have to clear
 	   the error buffer, and check if it's still a null string.  */
-	g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "Entering open_capture_device().");
+	ws_debug("Entering open_capture_device().");
 	*open_err = CAP_DEVICE_OPEN_NO_ERR;
 	(*open_err_str)[0] = '\0';
 #if defined(HAVE_PCAP_OPEN) && defined(HAVE_PCAP_REMOTE)
@@ -1563,8 +1554,7 @@ open_capture_device(capture_options *capture_opts,
 			 */
 			snaplen = 256*1024;
 		}
-		g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
-		    "Calling pcap_open() using name %s, snaplen %d, promisc_mode %d, datatx_udp %d, nocap_rpcap %d.",
+		ws_debug("Calling pcap_open() using name %s, snaplen %d, promisc_mode %d, datatx_udp %d, nocap_rpcap %d.",
 		    interface_opts->name, snaplen,
 		    interface_opts->promisc_mode, interface_opts->datatx_udp,
 		    interface_opts->nocap_rpcap);
@@ -1597,16 +1587,15 @@ open_capture_device(capture_options *capture_opts,
 				    sizeof *open_err_str);
 			}
 		}
-		g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
-		    "pcap_open() returned %p.", (void *)pcap_h);
-		g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "open_capture_device %s : %s", pcap_h ? "SUCCESS" : "FAILURE", interface_opts->name);
+		ws_debug("pcap_open() returned %p.", (void *)pcap_h);
+		ws_debug("open_capture_device %s : %s", pcap_h ? "SUCCESS" : "FAILURE", interface_opts->name);
 		return pcap_h;
 	}
 #endif
 
 	pcap_h = open_capture_device_local(capture_opts, interface_opts,
 	    timeout, open_err, open_err_str);
-	g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "open_capture_device %s : %s", pcap_h ? "SUCCESS" : "FAILURE", interface_opts->name);
+	ws_debug("open_capture_device %s : %s", pcap_h ? "SUCCESS" : "FAILURE", interface_opts->name);
 	return pcap_h;
 }
 

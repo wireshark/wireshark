@@ -19,7 +19,7 @@
 
 #include "config.h"
 
-#define G_LOG_DOMAIN "epan"
+#define WS_LOG_DOMAIN LOG_DOMAIN_EPAN
 
 #include <stdio.h>
 #include "reedsolomon.h"

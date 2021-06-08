@@ -11,6 +11,8 @@
 
 #include <config.h>
 
+#define WS_LOG_DOMAIN  LOG_DOMAIN_MAIN
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -45,6 +47,7 @@
 #include <wsutil/file_util.h>
 #include <wsutil/privileges.h>
 #include <wsutil/report_message.h>
+#include <wsutil/wslog.h>
 #include <cli_main.h>
 #include <version_info.h>
 
@@ -74,7 +77,6 @@
 #include <wiretap/wtap-int.h>
 #include <wiretap/file_wrappers.h>
 
-#include "log.h"
 #include <epan/funnel.h>
 
 #ifdef HAVE_PLUGINS
@@ -251,31 +253,6 @@ glossary_option_help(void)
 }
 
 static void
-tfshark_log_handler (const gchar *log_domain, GLogLevelFlags log_level,
-    const gchar *message, gpointer user_data)
-{
-  /* ignore log message, if log_level isn't interesting based
-     upon the console log preferences.
-     If the preferences haven't been loaded yet, display the
-     message anyway.
-
-     The default console_log_level preference value is such that only
-       ERROR, CRITICAL and WARNING level messages are processed;
-       MESSAGE, INFO and DEBUG level messages are ignored.
-
-     XXX: Aug 07, 2009: Prior tshark g_log code was hardwired to process only
-           ERROR and CRITICAL level messages so the current code is a behavioral
-           change.  The current behavior is the same as in Wireshark.
-  */
-  if (prefs_loaded && (log_level & G_LOG_LEVEL_MASK & prefs.console_log_level) == 0) {
-    return;
-  }
-
-  g_log_default_handler(log_domain, log_level, message, user_data);
-
-}
-
-static void
 print_current_user(void) {
   gchar *cur_user, *cur_group;
 
@@ -323,7 +300,6 @@ main(int argc, char *argv[])
   dfilter_t           *dfcode = NULL;
   gchar               *err_msg;
   e_prefs             *prefs_p;
-  int                  log_flags;
   gchar               *output_only = NULL;
 
 /*
@@ -371,7 +347,18 @@ main(int argc, char *argv[])
   setlocale(LC_ALL, "");
 #endif
 
+  /* Initialize log handler early so we can have proper logging during startup. */
+  ws_log_init(NULL);
+
   cmdarg_err_init(tfshark_cmdarg_err, tfshark_cmdarg_err_cont);
+
+  /* Command line options are parsed too late to configure logging, do it
+      manually. */
+  const char *opt_err_val;
+  if ((opt_err_val = ws_log_set_level_args(&argc, argv)) != NULL) {
+    cmdarg_err("Invalid log level \"%s\"", opt_err_val);
+    return INVALID_OPTION;
+  }
 
 #ifdef _WIN32
   create_app_running_mutex();
@@ -459,24 +446,6 @@ main(int argc, char *argv[])
    */
   if (print_summary == -1)
     print_summary = (print_details || print_hex) ? FALSE : TRUE;
-
-/** Send All g_log messages to our own handler **/
-
-  log_flags =
-                    G_LOG_LEVEL_ERROR|
-                    G_LOG_LEVEL_CRITICAL|
-                    G_LOG_LEVEL_WARNING|
-                    G_LOG_LEVEL_MESSAGE|
-                    G_LOG_LEVEL_INFO|
-                    G_LOG_LEVEL_DEBUG|
-                    G_LOG_FLAG_FATAL|G_LOG_FLAG_RECURSION;
-
-  g_log_set_handler(NULL,
-                    (GLogLevelFlags)log_flags,
-                    tfshark_log_handler, NULL /* user_data */);
-  g_log_set_handler(LOG_DOMAIN_MAIN,
-                    (GLogLevelFlags)log_flags,
-                    tfshark_log_handler, NULL /* user_data */);
 
   init_report_message("tfshark", &tfshark_report_routines);
 

@@ -23,7 +23,6 @@
 #include <cmath>
 
 #include "globals.h"
-#include "../../log.h"
 #include <epan/dissectors/packet-ieee80211-radio.h>
 
 #include <epan/color_filters.h>

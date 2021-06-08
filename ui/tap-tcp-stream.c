@@ -105,8 +105,6 @@ graph_segment_list_get(capture_file *cf, struct tcp_graph *tg)
     GString    *error_string;
     tcp_scan_t  ts;
 
-    g_log(NULL, G_LOG_LEVEL_DEBUG, "graph_segment_list_get()");
-
     if (!cf || !tg) {
         return;
     }

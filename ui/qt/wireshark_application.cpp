@@ -43,7 +43,6 @@
 #include "coloring_rules_dialog.h"
 
 #include "epan/color_filters.h"
-#include "log.h"
 #include "recent_file_status.h"
 
 #include "extcap.h"

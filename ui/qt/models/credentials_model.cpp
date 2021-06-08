@@ -13,7 +13,6 @@
 #include "credentials_model.h"
 
 #include <file.h>
-#include <log.h>
 #include <ui/qt/utils/qt_ui_utils.h>
 
 CredentialsModel::CredentialsModel(QObject *parent)

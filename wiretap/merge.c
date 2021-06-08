@@ -14,7 +14,7 @@
 
 #include "config.h"
 
-#define G_LOG_DOMAIN "wiretap"
+#define WS_LOG_DOMAIN LOG_DOMAIN_WIRETAP
 
 #include <stdlib.h>
 #include <errno.h>

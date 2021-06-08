@@ -93,18 +93,6 @@ needs_redirection(int std_handle)
     return FALSE;
 }
 
-/* The code to create and desstroy console windows should not be necessary,
-   at least as I read the GLib source code, as it looks as if GLib is, on
-   Win32, *supposed* to create a console window into which to display its
-   output.
-
-   That doesn't happen, however.  I suspect there's something completely
-   broken about that code in GLib-for-Win32, and that it may be related
-   to the breakage that forces us to just call "printf()" on the message
-   rather than passing the message on to "g_log_default_handler()"
-   (which is the routine that does the aforementioned non-functional
-   console window creation).  */
-
 /*
  * If this application has no console window to which its standard output
  * would go, create one.
