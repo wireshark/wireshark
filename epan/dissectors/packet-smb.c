@@ -1145,7 +1145,7 @@ insert_chunk(active_file   *file, export_object_entry_t *entry, const smb_eo_t *
 			entry->payload_data = NULL;
 		} else {
 			entry->payload_data = (guint8 *)g_try_malloc((gsize)calculated_size);
-			entry->payload_len  = calculated_size;
+			entry->payload_len  = (size_t)calculated_size;
 		}
 		if (!entry->payload_data) {
 			/* Memory error */
@@ -1177,7 +1177,7 @@ insert_chunk(active_file   *file, export_object_entry_t *entry, const smb_eo_t *
 				entry->payload_len = 0;
 			} else {
 				entry->payload_data = (guint8 *)dest_memory_addr;
-				entry->payload_len = calculated_size;
+				entry->payload_len = (size_t)calculated_size;
 			}
 		}
 	}
