@@ -224,8 +224,6 @@ parser.add_argument('--commits', action='store',
                     help='last N commits to check')
 parser.add_argument('--open', action='store_true',
                     help='check open files')
-parser.add_argument('--common', action='store_true',
-                    help='check for potential new entries for tfs.c')
 
 args = parser.parse_args()
 
