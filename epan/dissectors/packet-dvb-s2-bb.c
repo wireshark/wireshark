@@ -1595,22 +1595,23 @@ static int dissect_dvb_s2_bb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
     if (conv) {
         virtual_id = virtual_stream_lookup(conv, isi);
+        /* DVB Base Band streams are unidirectional. Differentiate by direction
+         * for the unlikely case of two streams between the same endpoints in
+         * the opposite direction.
+         */
+        if (addresses_equal(&pinfo->src, conversation_key_addr1(conv->key_ptr))) {
+            pinfo->p2p_dir = P2P_DIR_SENT;
+        } else {
+            pinfo->p2p_dir = P2P_DIR_RECV;
+        }
+
     } else {
         virtual_id = isi;
+        pinfo->p2p_dir = P2P_DIR_SENT;
     }
     subcircuit = find_conversation_by_id(pinfo->num, ENDPOINT_DVBBBF, virtual_id, 0);
     if (subcircuit == NULL) {
         subcircuit = conversation_new_by_id(pinfo->num, ENDPOINT_DVBBBF, virtual_id, 0);
-    }
-
-    /* DVB Base Band streams are unidirectional. Differentiate by direction
-     * for the unlikely case of two streams between the same endpoints in the
-     * opposite direction.
-     */
-    if (addresses_equal(&pinfo->src, conversation_key_addr1(conv->key_ptr))) {
-        pinfo->p2p_dir = P2P_DIR_SENT;
-    } else {
-        pinfo->p2p_dir = P2P_DIR_RECV;
     }
 
     /* conversation_create_endpoint() could be useful for the subdissectors
@@ -1807,6 +1808,9 @@ static int dissect_dvb_s2_bb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                     ts_frag = stream_add_frag(ts_stream, pinfo->num, new_off,
                             next_tvb, pinfo, TRUE);
                 }
+                stream_process_reassembled(next_tvb, 0, pinfo,
+                    "Reassembled TSP", ts_frag, &dvbs2_frag_items, NULL,
+                    tree);
                 new_off += bb_data_len;
             } else {
                 syncd >>= 3;
