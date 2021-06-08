@@ -26,6 +26,7 @@
 :wireshark-authors-url: {wireshark-main-url}about.html#authors
 :wireshark-buildbot-url: https://buildbot.wireshark.org/wireshark-master/waterfall
 :wireshark-code-browse-url: https://gitlab.com/wireshark/wireshark/tree/master
+:wireshark-code-file-url: https://gitlab.com/wireshark/wireshark/blob/master/
 :wireshark-merge-request-url: https://gitlab.com/wireshark/wireshark/merge_requests
 :wireshark-developers-guide-url: {wireshark-main-url}docs/wsdg_html_chunked/
 :wireshark-display-filter-reference-url: {wireshark-main-url}docs/dfref/

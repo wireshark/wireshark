@@ -386,10 +386,10 @@ Apt should take care of all of the dependency issues for you.
 [NOTE]
 .Capturing requires privileges
 ====
-By installing Wireshark packages non-root users won’t gain rights automatically
+By installing Wireshark packages non-root, users won’t gain rights automatically
 to capture packets. To allow non-root users to capture packets follow the
-procedure described in
-file:///usr/share/doc/wireshark-common/README.Debian[/usr/share/doc/wireshark-common/README.Debian]
+procedure described in {wireshark-code-file-url}debian/README.Debian
+(file:///usr/share/doc/wireshark-common/README.Debian.gz[/usr/share/doc/wireshark-common/README.Debian.gz])
 ====
 
 ==== Installing from portage under Gentoo Linux
