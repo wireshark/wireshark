@@ -6948,8 +6948,8 @@ proto_reg_handoff_ptp(void)
     dissector_handle_t ptp_handle;
     dissector_handle_t ethertype_ptp_handle;
 
-    ptp_handle   = create_dissector_handle(dissect_ptp, proto_ptp);
-    ethertype_ptp_handle    = create_dissector_handle(dissect_ptp_oE, proto_ptp);
+    ptp_handle = register_dissector("ptp", dissect_ptp, proto_ptp);
+    ethertype_ptp_handle = register_dissector("ptp_over_ethernet", dissect_ptp_oE, proto_ptp);
 
     dissector_add_uint_range_with_preference("udp.port",  PTP_PORT_RANGE, ptp_handle);
     dissector_add_uint("ethertype", ETHERTYPE_PTP, ethertype_ptp_handle);
