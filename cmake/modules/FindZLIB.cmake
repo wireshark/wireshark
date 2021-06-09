@@ -40,8 +40,10 @@ include( FindWSWinLibs )
 FindWSWinLibs( "vcpkg-export-*" "ZLIB_HINTS" )
 
 if (NOT ZLIB_INCLUDE_DIR OR NOT ZLIB_LIBRARY)
-    find_package(PkgConfig)
-    pkg_search_module(ZLIB zlib)
+    if (NOT WIN32) # else we'll find Strawberry Perl's pkgconfig
+        find_package(PkgConfig)
+        pkg_search_module(ZLIB zlib)
+    endif()
 
     FIND_PATH(ZLIB_INCLUDE_DIR
         NAMES

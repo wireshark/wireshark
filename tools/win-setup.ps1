@@ -69,8 +69,8 @@ Param(
 # trouble instead of trying to catch exceptions everywhere.
 $ErrorActionPreference = "Stop"
 
-$Win64CurrentTag = "2021-04-25"
-$Win32CurrentTag = "2021-04-25"
+$Win64CurrentTag = "2021-06-09"
+$Win32CurrentTag = "2021-06-09"
 
 # Archive file / SHA256
 $Win64Archives = @{
@@ -94,7 +94,7 @@ $Win64Archives = @{
     "sbc-1.3-1-win64ws.zip" = "08cef6898c421277a6582ef3225d8820f74a037cbd5b6e673a4d8f4593ce80a1";
     "snappy-1.1.8-1-win64ws.zip" = "45d496ac98ffd365f2b86707a077498f4ab59cca33f65dcca1f89669a85ee92a";
     "spandsp-0.0.6-2-win64ws.zip" = "2eb8278633037f60f44815ea1606486ab5dcdf3bddc500b20c9fe356856236b2";
-    "vcpkg-export-20190318-win64ws.zip" = "72c2c43594b0581de2bc86517870a561cc40df294662502536b2a6c06cace87e";
+    "vcpkg-export-20210609-1-win64ws.zip" = "2207112ecae2d93e64405cb33e625d37c85f9b9db90b440a4d0f0362346564e4";
     "WinSparkle-0.5.7.zip" = "56d396ef0c4e8b0589ea74134e484376ca6459d972cd1ab1da6b9624d82e6d04";
     "zstd-1.4.0-win64ws.zip" = "154199227bdfdfa608972bcdcea38e20768937085e5a59a8fa06c72d07b00d6b";
 }
@@ -120,7 +120,7 @@ $Win32Archives = @{
     "sbc-1.3-1-win32ws.zip" = "ad37825e9ace4b849a5442c08f1ed7e30634e6b774bba4307fb86f35f82e71ba";
     "snappy-1.1.8-1-win32ws.zip" = "058c12605d747e805e0fcb310b8fe6efdde5b36d68664bbf54f7ee8fa5fd5adb";
     "spandsp-0.0.6-2-win32ws.zip" = "31a4b5ca228c719ab4190e1b46801f1483efb8756f1e33d10ecc915244612fca";
-    "vcpkg-export-20190318-win32ws.zip" = "5f9eb78b1ea9e6762c2a4104e0126f1f5453919dc9df66fef2b1e0be8d8c5829";
+    "vcpkg-export-20210609-1-win32ws.zip" = "da544758352e31aed6cf9e62a6670df218b3d369cd113a462e94010b0ef8e472";
     "WinSparkle-0.5.7.zip" = "56d396ef0c4e8b0589ea74134e484376ca6459d972cd1ab1da6b9624d82e6d04";
     "zstd-1.4.0-win32ws.zip" = "9141716d4d749e67dad40d4aab6bbb3206085bf68e5acb03baf1e5667aa0b6f5";
 }

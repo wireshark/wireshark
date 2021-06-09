@@ -50,11 +50,13 @@ The following cache variables may also be set:
 include(FindWSWinLibs)
 FindWSWinLibs("vcpkg-export-.*" LIBXML2_HINTS)
 
-# use pkg-config to get the directories and then use these values
-# in the find_path() and find_library() calls
-find_package(PkgConfig QUIET)
-PKG_CHECK_MODULES(PC_LIBXML QUIET libxml-2.0)
-set(LIBXML2_DEFINITIONS ${PC_LIBXML_CFLAGS_OTHER})
+if (NOT WIN32) # else we'll find Strawberry Perl's pkgconfig
+    # use pkg-config to get the directories and then use these values
+    # in the find_path() and find_library() calls
+    find_package(PkgConfig QUIET)
+    PKG_CHECK_MODULES(PC_LIBXML QUIET libxml-2.0)
+    set(LIBXML2_DEFINITIONS ${PC_LIBXML_CFLAGS_OTHER})
+endif()
 
 find_path(LIBXML2_INCLUDE_DIR NAMES libxml/xpath.h
    HINTS
