@@ -347,7 +347,7 @@ parse_realm_list_server_to_client(tvbuff_t *tvb, proto_tree *wow_tree, guint32 o
 	for(ii = 0; ii < num_realms; ii++) {
 		realm_name = tvb_get_stringz_enc(wmem_packet_scope(), tvb,
 						 offset + realm_name_offset,
-						 &len, ENC_ASCII);
+						 &len, ENC_UTF_8);
 
 		wow_realms_tree = proto_tree_add_subtree(wow_tree, tvb,
 							 offset, 0,
@@ -371,7 +371,7 @@ parse_realm_list_server_to_client(tvbuff_t *tvb, proto_tree *wow_tree, guint32 o
 		offset += len;
 
 		string = tvb_get_stringz_enc(wmem_packet_scope(), tvb, offset,
-					     &len, ENC_ASCII);
+					     &len, ENC_UTF_8);
 		proto_tree_add_string(wow_realms_tree, hf_wow_realm_socket, tvb, offset, len, string);
 		offset += len;
 
@@ -527,7 +527,7 @@ parse_logon_challenge_client_to_server(tvbuff_t *tvb, proto_tree *wow_tree, guin
 	proto_tree_add_item(wow_tree,
 			hf_wow_srp_i, tvb,
 			offset, srp_i_len,
-			ENC_ASCII|ENC_NA);
+			ENC_UTF_8|ENC_NA);
 }
 
 static void
