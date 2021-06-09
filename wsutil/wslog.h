@@ -31,7 +31,7 @@ void ws_log_full(const char *log_domain, GLogLevelFlags log_level,
  * to produce output for specic domains, or G_MESSAGES_DEBUG="all" for
  * all domains.
  */
-#ifdef WS_DEBUG
+#ifndef WS_DISABLE_DEBUG
 #define ws_debug(...)   ws_log_full(G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG,        \
                                             __FILE__, __LINE__, G_STRFUNC,  \
                                             __VA_ARGS__)
