@@ -30,16 +30,17 @@ void ws_log_full(const char *log_domain, GLogLevelFlags log_level,
  *   G_MESSAGES_DEBUG="<domain1> <domain2> ..." (separated with spaces)
  * to produce output for specic domains, or G_MESSAGES_DEBUG="all" for
  * all domains.
- *
- * Any variable that is only used with ws_debug() needs to be guarded
- * with #if WS_DEBUG.
  */
-#if WS_DEBUG
+#ifdef WS_DEBUG
 #define ws_debug(...)   ws_log_full(G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG,        \
                                             __FILE__, __LINE__, G_STRFUNC,  \
                                             __VA_ARGS__)
 #else
-#define ws_debug(...)   ((void)0)
+/* This avoids -Wunused warnings for variables referenced by ws_debug()
+ * only. The compiler will optimize it away. */
+#define ws_debug(...)    \
+     G_STMT_START { if (0) ws_log_full(G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG,    \
+               __FILE__, __LINE__, G_STRFUNC, __VA_ARGS__); } G_STMT_END
 #endif
 
 #endif /* __WSLOG_H__ */

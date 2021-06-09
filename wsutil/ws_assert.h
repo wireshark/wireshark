@@ -21,7 +21,7 @@
 #ifndef WS_DISABLE_ASSERT
 #define ws_assert(expr) g_assert(expr)
 #else
-#define ws_assert(expr) (void)0
+#define ws_assert(expr) G_STMT_START { if (0) g_assert(expr); } G_STMT_END
 #endif
 
 /*

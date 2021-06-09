@@ -233,7 +233,7 @@ WSLUA_METHOD Proto_register_heuristic(lua_State* L) {
     Proto proto = checkProto(L,1);
     const gchar *listname = luaL_checkstring(L, WSLUA_ARG_Proto_register_heuristic_LISTNAME);
     const gchar *proto_name = proto->name;
-    const int top _U_ = lua_gettop(L);
+    const int top = lua_gettop(L);
     gchar *short_name;
 
     if (!proto_name || proto->hfid == -1) {
