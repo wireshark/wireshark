@@ -927,6 +927,7 @@ wtap_open_return_val k12_open(wtap *wth, int *err, gchar **err_info) {
             *err = WTAP_ERR_BAD_FILE;
             *err_info = g_strdup_printf("k12: record length %u < %u",
                                         rec_len, K12_RECORD_TYPE + 4);
+            destroy_k12_file_data(file_data);
             return WTAP_OPEN_ERROR;
         }
         type = pntoh32( read_buffer + K12_RECORD_TYPE );
