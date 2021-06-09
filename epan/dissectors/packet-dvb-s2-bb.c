@@ -1837,7 +1837,7 @@ static int dissect_dvb_s2_bb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                                 &ei_dvb_s2_bb_crc, pinfo, crc8, ENC_NA, flags);
                         crc8 = compute_crc8(next_tvb, user_packet_length - 1, 1);
                         flags = PROTO_CHECKSUM_VERIFY;
-                        tvb_composite_append(tsp_tvb, tvb_new_subset_length(next_tvb, 1, MP2T_PACKET_SIZE));
+                        tvb_composite_append(tsp_tvb, tvb_new_subset_length(next_tvb, 1, MP2T_PACKET_SIZE - 1));
                         /* XXX: ISSY is not fully dissected */
                         if (issyi == 2) {
                             proto_tree_add_item(dvb_s2_bb_tree, hf_dvb_s2_bb_issy_short,
