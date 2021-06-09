@@ -2313,6 +2313,7 @@ read_keytab_file(const char *service_key_file)
 			service_key_list = g_slist_append(service_key_list, (gpointer) sk);
 			if (fseek(skf, newline_skip, SEEK_CUR) < 0) {
 				fprintf(stderr, "unable to seek...\n");
+				fclose(skf);
 				return;
 			}
 			count++;
