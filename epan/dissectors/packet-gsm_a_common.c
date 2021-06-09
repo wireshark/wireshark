@@ -1035,15 +1035,15 @@ dissect_geographical_description(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
         break;
     case HIGH_ACC_ELLIPSOID_PNT_WITH_UNCERT_ELLIPSE:
         loc_offset = offset;
-        lat_item = proto_tree_add_item_ret_uint(tree, hf_gsm_a_geo_loc_high_acc_deg_of_lat, tvb, offset, 4, ENC_BIG_ENDIAN, &uvalue32);
+        lat_item = proto_tree_add_item_ret_int(tree, hf_gsm_a_geo_loc_high_acc_deg_of_lat, tvb, offset, 4, ENC_BIG_ENDIAN, &svalue32);
         deg_lat_str = wmem_strdup_printf(wmem_packet_scope(), "%s%.5f",
-            (uvalue32 & 0x80000000) ? "-" : "",
-            ((double)(uvalue32 & 0x7fffffff) / 2147483647.0) * 90);
+            (svalue32 & 0x80000000) ? "-" : "",
+            ((double)(svalue32 & 0x7fffffff) / 2147483647.0) * 90);
         proto_item_append_text(lat_item, " (%s degrees)", deg_lat_str);
         offset += 4;
-        long_item = proto_tree_add_item_ret_uint(tree, hf_gsm_a_geo_loc_high_acc_deg_of_long, tvb, offset, 4, ENC_BIG_ENDIAN, &svalue32);
+        long_item = proto_tree_add_item_ret_int(tree, hf_gsm_a_geo_loc_high_acc_deg_of_long, tvb, offset, 4, ENC_BIG_ENDIAN, &svalue32);
         deg_lon_str = wmem_strdup_printf(wmem_packet_scope(), "%s%.5f",
-            (uvalue32 & 0x80000000) ? "-" : "",
+            (svalue32 & 0x80000000) ? "-" : "",
             ((double)svalue32 / 2147483647.0) * 180);
         proto_item_append_text(long_item, " (%s degrees)", deg_lon_str);
 
@@ -1069,21 +1069,26 @@ dissect_geographical_description(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 
         break;
     case HIGH_ACC_ELLIPSOID_PNT_WITH_ALT_AND_UNCERT_ELLIPSOID:
-        lat_item = proto_tree_add_item_ret_uint(tree, hf_gsm_a_geo_loc_high_acc_deg_of_lat, tvb, offset, 4, ENC_BIG_ENDIAN, &uvalue32);
+        lat_item = proto_tree_add_item_ret_int(tree, hf_gsm_a_geo_loc_high_acc_deg_of_lat, tvb, offset, 4, ENC_BIG_ENDIAN, &svalue32);
         deg_lat_str = wmem_strdup_printf(wmem_packet_scope(), "%s%.5f",
-            (uvalue32 & 0x80000000) ? "-" : "",
-            ((double)(uvalue32 & 0x7fffffff) / 2147483647.0) * 90);
+            (svalue32 & 0x80000000) ? "-" : "",
+            ((double)(svalue32 & 0x7fffffff) / 2147483647.0) * 90);
         proto_item_append_text(lat_item, " (%s degrees)", deg_lat_str);
         offset += 4;
-        long_item = proto_tree_add_item_ret_uint(tree, hf_gsm_a_geo_loc_high_acc_deg_of_long, tvb, offset, 4, ENC_BIG_ENDIAN, &svalue32);
+        long_item = proto_tree_add_item_ret_int(tree, hf_gsm_a_geo_loc_high_acc_deg_of_long, tvb, offset, 4, ENC_BIG_ENDIAN, &svalue32);
         deg_lon_str = wmem_strdup_printf(wmem_packet_scope(), "%s%.5f",
-            (uvalue32 & 0x80000000) ? "-" : "",
+            (svalue32 & 0x80000000) ? "-" : "",
             ((double)svalue32 / 2147483647.0) * 180);
         proto_item_append_text(long_item, " (%s degrees)", deg_lon_str);
         offset += 4;
 
-        /* High accuracy altitude*/
-        proto_tree_add_item(tree, hf_gsm_a_geo_loc_high_acc_alt, tvb, offset, 3, ENC_BIG_ENDIAN);
+        /* High accuracy altitude
+         * High accuracy altitude is encoded as a number N between -64000 and 1280000 using 2's complement binary on 22 bits.
+         */
+
+        alt_item = proto_tree_add_item_ret_int(tree, hf_gsm_a_geo_loc_high_acc_alt, tvb, offset, 3, ENC_BIG_ENDIAN, &svalue32);
+        /* double z = pow(double x, double y);*/
+        proto_item_append_text(alt_item, " (%.1f m)", (double)svalue32 * pow(2,-7));
         offset += 3;
 
         /* High accuracy uncertainty semi-major*/
@@ -1103,7 +1108,9 @@ dissect_geographical_description(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
         offset++;
 
         /* High accuracy uncertenty altitude */
-        proto_tree_add_item(tree, hf_gsm_a_geo_loc_high_acc_uncertainty_alt, tvb, offset, 1, ENC_BIG_ENDIAN);
+        value = tvb_get_guint8(tvb, offset) & 0x7f;
+        alt_item = proto_tree_add_item(tree, hf_gsm_a_geo_loc_high_acc_uncertainty_alt, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_item_append_text(alt_item, " (%.1f m)", 45 * (pow(1.025, (double)value) - 1));
         offset++;
 
         /* Vertical confidence*/
@@ -4728,12 +4735,12 @@ proto_register_gsm_a_common(void)
     },
     { &hf_gsm_a_geo_loc_high_acc_deg_of_lat,
         { "High accuracy degrees of latitude", "gsm_a.gad.hig_acc_deg_of_lat",
-        FT_UINT32, BASE_DEC, NULL, 0x0,
+        FT_INT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_gsm_a_geo_loc_high_acc_deg_of_long,
         { "High accuracy degrees of longitude", "gsm_a.gad.high_acc_deg_of_long",
-        FT_UINT32, BASE_DEC, NULL, 0x0,
+        FT_INT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_gsm_a_geo_loc_high_acc_uncertainty_semi_major,
@@ -4748,7 +4755,7 @@ proto_register_gsm_a_common(void)
     },
     { &hf_gsm_a_geo_loc_high_acc_alt,
         { "High accuracy altitude", "gsm_a.gad.high_acc_alt",
-        FT_UINT24, BASE_DEC, NULL, 0x3fffff,
+        FT_INT24, BASE_DEC, NULL, 0x3fffff,
         NULL, HFILL }
     },
     { &hf_gsm_a_velocity_type,
