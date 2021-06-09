@@ -35,7 +35,7 @@ static dissector_table_t ie_handle_table;
 #define NAN_DEVICE_CAP_LENGTH 9
 #define NAN_NDP_MIN_LENGTH 11
 #define NAN_NDPE_MIN_LENGTH 11
-#define NAN_AVAILABILITY_MIN_LENGTH 10
+#define NAN_AVAILABILITY_MIN_LENGTH 8
 #define NAN_NDC_MIN_LENGTH 11
 #define NAN_NDL_MIN_LENGTH 4
 #define NAN_NDL_QOS_LENGTH 3
