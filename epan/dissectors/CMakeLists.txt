@@ -1641,6 +1641,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-raw.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-rdm.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-rdp.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-rdp_drdynvc.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-rdt.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-redback.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-redbackli.c
