@@ -1227,7 +1227,7 @@ ospf_has_at_block(tvbuff_t *tvb, int offset, guint8 packet_type, guint8 version)
 {
     guint32 v3flags;
 
-    /* AT (Authentication Trailer) block can be found only in OSPFv3 HELLO packets */
+    /* AT (Authentication Trailer) block can be found in OSPFv3 HELLO and DD packets */
     switch (packet_type) {
     case OSPF_HELLO:
         switch (version) {
@@ -1236,6 +1236,15 @@ ospf_has_at_block(tvbuff_t *tvb, int offset, guint8 packet_type, guint8 version)
             v3flags = v3flags >> 8;
             return v3flags & OSPF_V3_OPTIONS_AT;
         }
+        break;
+    case OSPF_DB_DESC:
+        switch (version) {
+        case OSPF_VERSION_3:
+            v3flags = tvb_get_ntohl(tvb, offset + 1);
+            v3flags = v3flags >> 8;
+            return v3flags & OSPF_V3_OPTIONS_AT;
+        }
+        break;
     }
 
     return 0;
