@@ -65,22 +65,25 @@ FindWSLibrary( GLIB2_LIBRARY
 		/usr/lib
 )
 
-# search the glibconfig.h include dir under the same root where the library is found
-get_filename_component( glib2LibDir "${GLIB2_LIBRARY}" PATH)
+if (WIN32)
+	# In the Windows vcpkg port glibconfig.h is in
+	# installed/$ARCH-windows/lib/glib-2.0/include.
+	set( glib2LibDir "${GLIB2_HINTS}/lib" )
+else()
+	# On UNIX and UNIX-like platforms, the glibconfig.h include dir
+	# should be in glib-2.0/include in the library directory.
+	get_filename_component( glib2LibDir "${GLIB2_LIBRARY}" PATH)
+endif()
 
 find_path( GLIB2_INTERNAL_INCLUDE_DIR
 	NAMES
 		glibconfig.h
 	HINTS
-		"${GLIB2_INCLUDEDIR}"
-		"${GLIB2_HINTS}/lib"
 		"${glib2LibDir}"
+		"${GLIB2_INCLUDEDIR}"
 		${CMAKE_SYSTEM_LIBRARY_PATH}
 	PATH_SUFFIXES
 		glib-2.0/include
-	PATHS
-		${GLIB2_LIBRARY}
-
 )
 
 if(PC_GLIB2_VERSION)
