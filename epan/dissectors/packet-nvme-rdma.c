@@ -163,6 +163,7 @@ static int hf_nvme_rdma_cm_req_recfmt = -1;
 static int hf_nvme_rdma_cm_req_qid = -1;
 static int hf_nvme_rdma_cm_req_hrqsize = -1;
 static int hf_nvme_rdma_cm_req_hsqsize = -1;
+static int hf_nvme_rdma_cm_req_cntlid = -1;
 static int hf_nvme_rdma_cm_req_reserved = -1;
 
 static int hf_nvme_rdma_cm_rsp_recfmt = -1;
@@ -171,7 +172,6 @@ static int hf_nvme_rdma_cm_rsp_reserved = -1;
 
 static int hf_nvme_rdma_cm_rej_recfmt = -1;
 static int hf_nvme_rdma_cm_rej_status = -1;
-static int hf_nvme_rdma_cm_rej_reserved = -1;
 
 /* NVMe Fabric Cmd */
 static int hf_nvme_rdma_cmd = -1;
@@ -530,14 +530,23 @@ find_ib_cm_conversation(packet_info *pinfo)
     return get_conversion_data(conv);
 }
 
+static void add_rdma_cm_qid(gchar *result, guint32 val)
+{
+    g_snprintf(result, ITEM_LABEL_LENGTH, "%x (%s)", val, val ? "IOQ" : "AQ");
+}
+
+static void add_rdma_cm_hrqsize(gchar *result, guint32 val)
+{
+    g_snprintf(result, ITEM_LABEL_LENGTH, "%u", val+1);
+}
+
 static void dissect_rdma_cm_req_packet(tvbuff_t *tvb, proto_tree *tree)
 {
     proto_tree *cm_tree;
-    proto_item *ti, *qid_item;
+    proto_item *ti;
     /* NVME-RDMA connect private data starts at offset 0 of RDMA-CM
      * private data
      */
-    guint16 qid;
 
     /* create display subtree for private data */
     ti = proto_tree_add_item(tree, proto_nvme_rdma, tvb, 0, 32, ENC_NA);
@@ -546,17 +555,16 @@ static void dissect_rdma_cm_req_packet(tvbuff_t *tvb, proto_tree *tree)
     proto_tree_add_item(cm_tree, hf_nvme_rdma_cm_req_recfmt, tvb,
                         0, 2, ENC_LITTLE_ENDIAN);
 
-    qid_item = proto_tree_add_item(cm_tree, hf_nvme_rdma_cm_req_qid, tvb,
-                                   2, 2, ENC_LITTLE_ENDIAN);
-    qid = tvb_get_guint16(tvb, 2, ENC_LITTLE_ENDIAN);
-    proto_item_append_text(qid_item, " %s", qid ? "IOQ" : "AQ");
-
+    proto_tree_add_item(cm_tree, hf_nvme_rdma_cm_req_qid, tvb,
+                        2, 2, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(cm_tree, hf_nvme_rdma_cm_req_hrqsize, tvb,
                         4, 2, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(cm_tree, hf_nvme_rdma_cm_req_hsqsize, tvb,
                         6, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cm_tree, hf_nvme_rdma_cm_req_cntlid, tvb,
+                        8, 2, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(cm_tree, hf_nvme_rdma_cm_req_reserved, tvb,
-                        8, 24, ENC_NA);
+                        10, 22, ENC_NA);
 }
 
 static void dissect_rdma_cm_rsp_packet(tvbuff_t *tvb, proto_tree *tree)
@@ -582,15 +590,13 @@ static void dissect_rdma_cm_rej_packet(tvbuff_t *tvb, proto_tree *tree)
     proto_item *ti;
 
     /* create display subtree for the private datat that start at offset 0 */
-    ti = proto_tree_add_item(tree, proto_nvme_rdma, tvb, 0, 32, ENC_NA);
+    ti = proto_tree_add_item(tree, proto_nvme_rdma, tvb, 0, 4, ENC_NA);
     cm_tree = proto_item_add_subtree(ti, ett_cm);
 
     proto_tree_add_item(cm_tree, hf_nvme_rdma_cm_rej_recfmt, tvb,
             0, 2, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(cm_tree, hf_nvme_rdma_cm_rej_status, tvb,
             2, 2, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(cm_tree, hf_nvme_rdma_cm_rej_reserved, tvb,
-            4, 28, ENC_NA);
 }
 
 static int dissect_rdma_cm_packet(tvbuff_t *tvb, proto_tree *tree,
@@ -1280,19 +1286,23 @@ proto_register_nvme_rdma(void)
     static hf_register_info hf[] = {
         /* IB RDMA CM fields */
         { &hf_nvme_rdma_cm_req_recfmt,
-            { "Recfmt", "nvme-rdma.cm.req.recfmt",
-               FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
+            { "Record Format", "nvme-rdma.cm.req.recfmt",
+               FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvme_rdma_cm_req_qid,
-            { "Qid", "nvme-rdma.cm.req.qid",
-               FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
+            { "Queue Id", "nvme-rdma.cm.req.qid",
+               FT_UINT16, BASE_CUSTOM, CF_FUNC(add_rdma_cm_qid), 0x0, NULL, HFILL}
         },
         { &hf_nvme_rdma_cm_req_hrqsize,
-            { "HrqSize", "nvme-rdma.cm.req.hrqsize",
-               FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
+            { "RDMA QP Host Receive Queue Size", "nvme-rdma.cm.req.hrqsize",
+               FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvme_rdma_cm_req_hsqsize,
-            { "HsqSize", "nvme-rdma.cm.req.hsqsize",
+            { "RDMA QP Host Send Queue Size", "nvme-rdma.cm.req.hsqsize",
+               FT_UINT16, BASE_CUSTOM, add_rdma_cm_hrqsize, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_rdma_cm_req_cntlid,
+            { "Controller ID", "nvme-rdma.cm.req.cntlid",
                FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvme_rdma_cm_req_reserved,
@@ -1300,28 +1310,24 @@ proto_register_nvme_rdma(void)
                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvme_rdma_cm_rsp_recfmt,
-            { "Recfmt", "nvme-rdma.cm.rsp.recfmt",
-               FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
+            { "Record Format", "nvme-rdma.cm.rsp.recfmt",
+               FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvme_rdma_cm_rsp_crqsize,
-            { "CrqSize", "nvme-rdma.cm.rsp.crqsize",
-               FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
+            { "RDMA QP Controller Receive Queue Size", "nvme-rdma.cm.rsp.crqsize",
+               FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvme_rdma_cm_rsp_reserved,
             { "Reserved", "nvme-rdma.cm.rsp.reserved",
                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvme_rdma_cm_rej_recfmt,
-            { "Recfmt", "nvme-rdma.cm.rej.recfmt",
-               FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
+            { "Record Format", "nvme-rdma.cm.rej.recfmt",
+               FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvme_rdma_cm_rej_status,
             { "Status", "nvme-rdma.cm.rej.status",
                FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
-        },
-        { &hf_nvme_rdma_cm_rej_reserved,
-            { "Reserved", "nvme-rdma.cm.rej.reserved",
-               FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
         /* IB RDMA NVMe Command fields */
         { &hf_nvme_rdma_cmd,
