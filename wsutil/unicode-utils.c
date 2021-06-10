@@ -148,10 +148,11 @@ arg_list_utf_16to8(int argc, wchar_t *wc_argv[]) {
   char               **argv;
   int                  i;
 
-  argv = (char **) g_malloc(sizeof(char *) * argc);
+  argv = (char **) g_malloc((argc + 1) * sizeof(char *));
   for (i = 0; i < argc; i++) {
     argv[i] = g_utf16_to_utf8(wc_argv[i], -1, NULL, NULL, NULL);
   }
+  argv[argc] = NULL;
   return argv;
 }
 
