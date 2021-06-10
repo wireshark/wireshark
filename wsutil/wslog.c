@@ -18,7 +18,7 @@
 #include <wsutil/ws_assert.h>
 #include <wsutil/time_util.h>
 
-#define LOGBUFSIZE  256
+#define PREFIX_BUFSIZE  128
 
 #define LOGENVVAR "WS_LOG_LEVEL"
 
@@ -27,11 +27,11 @@
 
 static enum ws_log_level current_log_level = LOG_LEVEL_MESSAGE;
 
-static ws_log_writer_t *current_log_writer = ws_log_default_writer;
+static ws_log_writer_cb *registered_log_writer = NULL;
 
-static void *current_log_writer_data = NULL;
+static void *registered_log_writer_data = NULL;
 
-static ws_log_writer_free_data_t *current_log_writer_data_free = NULL;
+static ws_log_writer_free_data_cb *registered_log_writer_data_free = NULL;
 
 static FILE *custom_log = NULL;
 
@@ -39,23 +39,14 @@ static FILE *custom_log = NULL;
 static void ws_log_cleanup(void);
 
 
-static void
-log_default_writer_do_work(FILE *fp, const char *message)
+void
+ws_log_fprint(FILE *fp, const char *format, va_list ap,
+                                const char *prefix)
 {
-    ws_assert(message);
-    fputs(message, fp);
+    fputs(prefix, fp);
+    vfprintf(fp, format, ap);
     fputc('\n', fp);
     fflush(fp);
-}
-
-
-void
-ws_log_default_writer(const char *message,
-                       enum ws_log_domain domain _U_,
-                       enum ws_log_level level _U_,
-                       void *user_data _U_)
-{
-    log_default_writer_do_work(stderr, message);
 }
 
 
@@ -213,10 +204,10 @@ const char *ws_log_set_level_args(int *argc_ptr, char *argv[])
 }
 
 
-void ws_log_init(ws_log_writer_t *_writer)
+void ws_log_init(ws_log_writer_cb *_writer)
 {
     if (_writer) {
-        current_log_writer = _writer;
+        registered_log_writer = _writer;
     }
 
     const char *env = g_getenv(LOGENVVAR);
@@ -228,32 +219,32 @@ void ws_log_init(ws_log_writer_t *_writer)
 }
 
 
-void ws_log_init_with_data(ws_log_writer_t *writer, void *user_data,
-                              ws_log_writer_free_data_t *free_user_data)
+void ws_log_init_with_data(ws_log_writer_cb *writer, void *user_data,
+                              ws_log_writer_free_data_cb *free_user_data)
 {
-    current_log_writer_data = user_data;
-    current_log_writer_data_free = free_user_data;
+    registered_log_writer_data = user_data;
+    registered_log_writer_data_free = free_user_data;
     ws_log_init(writer);
 }
 
 
-static inline const char *_level_to_string(enum ws_log_level level)
+static inline const char *_lvl_to_str(enum ws_log_level level)
 {
     switch (level) {
-        case LOG_LEVEL_NONE:       return "NUL";
-        case LOG_LEVEL_ERROR:      return "ERR";
-        case LOG_LEVEL_CRITICAL:   return "CRI";
-        case LOG_LEVEL_WARNING:    return "WRN";
-        case LOG_LEVEL_MESSAGE:    return "MSG";
-        case LOG_LEVEL_INFO:       return "NFO";
-        case LOG_LEVEL_DEBUG:      return "DBG";
+        case LOG_LEVEL_NONE:       return "(NONE)";
+        case LOG_LEVEL_ERROR:      return "ERROR";
+        case LOG_LEVEL_CRITICAL:   return "CRITICAL";
+        case LOG_LEVEL_WARNING:    return "WARNING";
+        case LOG_LEVEL_MESSAGE:    return "MESSAGE";
+        case LOG_LEVEL_INFO:       return "INFO";
+        case LOG_LEVEL_DEBUG:      return "DEBUG";
         default:
             return "(BOGUS LOG LEVEL)";
     }
 }
 
 
-static inline const char *_domain_to_string(enum ws_log_domain domain)
+static inline const char *_dom_to_str(enum ws_log_domain domain)
 {
     switch (domain) {
         case LOG_DOMAIN_DEFAULT:   return "Dflt";
@@ -270,43 +261,113 @@ static inline const char *_domain_to_string(enum ws_log_domain domain)
 }
 
 
-static void ws_log_writev(enum ws_log_domain domain, enum ws_log_level level,
-                            const char *location, const char *format, va_list ap)
+struct logstr {
+    char buffer[PREFIX_BUFSIZE];
+    char *ptr;
+    int free;
+};
+
+
+static inline void logstr_init(struct logstr *str)
 {
-    char timestamp[sizeof("00:00:00.000")];
-    char user_string[LOGBUFSIZE];
-    char message[LOGBUFSIZE*2];
+    str->free = (int)(sizeof(str->buffer) - 1);
+    str->buffer[sizeof(str->buffer) - 1] = '\0';
+    str->ptr = str->buffer;
+
+#ifndef WS_DISABLE_ASSERT
+    memset(str->buffer, 0, sizeof(str->buffer));
+#endif
+}
+
+
+static inline int logstr_snprintf(struct logstr *str, const char *fmt, ...)
+{
+    int write;
+    va_list ap;
+
+    if (str->free <= 0)
+        return -1;
+
+    va_start(ap, fmt);
+    write = vsnprintf(str->ptr, str->free, fmt, ap);
+    va_end(ap);
+
+    if (write < 0 || write >= str->free) {
+        str->ptr = NULL;
+        str->free = -1;
+        return -1;
+    }
+
+    str->ptr += write;
+    ws_assert(str->ptr < str->buffer + sizeof(str->buffer));
+    str->free -= write;
+    ws_assert(str->free > 0);
+    return 0;
+}
+
+
+static void create_log_time(struct logstr *str)
+{
     time_t curr;
     struct tm *today;
+    guint64 microseconds;
 
-    /* create a "timestamp" */
     time(&curr);
     today = localtime(&curr);
-    guint64 microseconds = create_timestamp();
-    if (today != NULL) {
-        snprintf(timestamp, sizeof(timestamp), "%02d:%02d:%02d.%03" G_GUINT64_FORMAT,
-                    today->tm_hour, today->tm_min, today->tm_sec,
-                    microseconds % 1000000 / 1000);
-    }
-    else {
-        snprintf(timestamp, sizeof(timestamp), "(notime)");
+    microseconds = create_timestamp();
+
+    if (G_UNLIKELY(today == NULL)) {
+        logstr_snprintf(str, " ** ");
+        return;
     }
 
-    vsnprintf(user_string, sizeof(user_string), format, ap);
+    logstr_snprintf(str, " ** %02d:%02d:%02d.%03" G_GUINT64_FORMAT,
+                today->tm_hour, today->tm_min, today->tm_sec,
+                microseconds % 1000000 / 1000);
+}
 
-    snprintf(message, sizeof(message), "%s %s-%s %s : %s",
-                timestamp,
-                _domain_to_string(domain),
-                _level_to_string(level),
-                location ? location : "(nofile)",
-                user_string);
+
+static void logstr_prefix_print(struct logstr *str,
+                                enum ws_log_domain domain,  enum ws_log_level level,
+                                const char *file, int line, const char *func)
+{
+    create_log_time(str);
+
+    logstr_snprintf(str, " [%s-%s]", _dom_to_str(domain), _lvl_to_str(level));
+
+    if (func)
+        logstr_snprintf(str, " %s()", func);
+    else if (file && line >= 0)
+        logstr_snprintf(str, " (%d)%s", file, line);
+    else if (file)
+        logstr_snprintf(str, " %s", file);
+
+    logstr_snprintf(str, " -- ");
+}
+
+
+static void log_internal_write(enum ws_log_domain domain, enum ws_log_level level,
+                            const char *file, int line, const char *func,
+                            const char *user_format, va_list user_ap)
+{
+    struct logstr prefix;
+
+    logstr_init(&prefix);
+
+    logstr_prefix_print(&prefix, domain, level, file, line, func);
 
     /* Call the registered writer, or the default if one wasn't registered. */
-    current_log_writer(message, domain, level, current_log_writer_data);
+    if (registered_log_writer) {
+        registered_log_writer(user_format, user_ap, prefix.buffer,
+                                domain, level, registered_log_writer_data);
+    }
+    else {
+        ws_log_fprint(stderr, user_format, user_ap, prefix.buffer);
+    }
 
     /* If we have a custom file, write to it _also_. */
     if (custom_log) {
-        log_default_writer_do_work(custom_log, message);
+        ws_log_fprint(custom_log, user_format, user_ap, prefix.buffer);
     }
 
     if (level == LOG_LEVEL_ERROR) {
@@ -322,7 +383,7 @@ void ws_logv(enum ws_log_domain domain, enum ws_log_level level,
     if (!ws_log_level_is_active(level))
         return;
 
-    ws_log_writev(domain, level, NULL, format, ap);
+    log_internal_write(domain, level, NULL, -1, NULL, format, ap);
 }
 
 
@@ -335,7 +396,7 @@ void ws_log(enum ws_log_domain domain, enum ws_log_level level,
         return;
 
     va_start(ap, format);
-    ws_log_writev(domain, level, NULL, format, ap);
+    log_internal_write(domain, level, NULL, -1, NULL, format, ap);
     va_end(ap);
 }
 
@@ -345,27 +406,21 @@ void ws_log_full(enum ws_log_domain domain, enum ws_log_level level,
                     const char *format, ...)
 {
     va_list ap;
-    char location[LOGBUFSIZE];
 
     if (!ws_log_level_is_active(level))
         return;
 
-    if (func)
-        snprintf(location, sizeof(location), "%s(%d) %s()", file, line, func);
-    else
-        snprintf(location, sizeof(location), "%s(%d)", file, line);
-
     va_start(ap, format);
-    ws_log_writev(domain, level, location, format, ap);
+    log_internal_write(domain, level, file, line, func, format, ap);
     va_end(ap);
 }
 
 
 static void ws_log_cleanup(void)
 {
-    if (current_log_writer_data_free) {
-        current_log_writer_data_free(current_log_writer_data);
-        current_log_writer_data = NULL;
+    if (registered_log_writer_data_free) {
+        registered_log_writer_data_free(registered_log_writer_data);
+        registered_log_writer_data = NULL;
     }
     if (custom_log) {
         fclose(custom_log);

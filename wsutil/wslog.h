@@ -40,21 +40,22 @@ enum ws_log_level {
 #endif
 
 
-/** Signature for registering a log writer. */
-typedef void (ws_log_writer_t)(const char *message,
+/** Callback for registering a log writer. */
+typedef void (ws_log_writer_cb)(const char *format, va_list ap,
+                                   const char *prefix,
                                    enum ws_log_domain domain,
                                    enum ws_log_level level,
                                    void *user_data);
 
 
-typedef void (ws_log_writer_free_data_t)(void *user_data);
+/** Callback for freeing a user data pointer. */
+typedef void (ws_log_writer_free_data_cb)(void *user_data);
 
 
+/** Writes to stream a new log line and flushes. */
 WS_DLL_PUBLIC
-void ws_log_default_writer(const char *message,
-                                   enum ws_log_domain domain,
-                                   enum ws_log_level level,
-                                   void *user_data);
+void ws_log_fprint(FILE *fp, const char *format, va_list ap,
+                                   const char *prefix);
 
 
 /** Convert a numerical level to its string representation. */
@@ -114,7 +115,7 @@ const char *ws_log_set_level_args(int *argcp, char **argv);
  * is NULL the default log writer is used.
  */
 WS_DLL_PUBLIC
-void ws_log_init(ws_log_writer_t *writer);
+void ws_log_init(ws_log_writer_cb *writer);
 
 
 /** Initializes the logging code.
@@ -124,8 +125,8 @@ void ws_log_init(ws_log_writer_t *writer);
  * is passed it will be called with user_data when the program terminates.
  */
 WS_DLL_PUBLIC
-void ws_log_init_with_data(ws_log_writer_t *writer, void *user_data,
-                              ws_log_writer_free_data_t *free_user_data);
+void ws_log_init_with_data(ws_log_writer_cb *writer, void *user_data,
+                              ws_log_writer_free_data_cb *free_user_data);
 
 
 /** This function is called to output a message to the log.

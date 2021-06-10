@@ -227,8 +227,8 @@ libwsutil.so.0 libwsutil0 #MINVER#
  ws_init_sockets@Base 3.1.0
  ws_log@Base 3.5.0
  ws_log_add_custom_file@Base 3.5.0
- ws_log_default_writer@Base 3.5.0
  ws_log_domain_to_string@Base 3.5.0
+ ws_log_fprint@Base 3.5.0
  ws_log_full@Base 3.5.0
  ws_log_get_level@Base 3.5.0
  ws_log_init@Base 3.5.0

@@ -19,8 +19,9 @@
 #include "console.h"
 
 void
-console_log_writer(const char *message, enum ws_log_domain domain _U_,
-                    enum ws_log_level level, void *ptr _U_)
+console_log_writer(const char *format, va_list ap,
+                    const char *prefix, enum ws_log_domain domain _U_,
+                    enum ws_log_level level _U_, void *ptr _U_)
 {
     gboolean fatal = level == LOG_LEVEL_ERROR;
 #ifdef _WIN32
@@ -32,12 +33,7 @@ console_log_writer(const char *message, enum ws_log_domain domain _U_,
     (void)fatal;
 #endif /* _WIN32 */
 
-    FILE *fp = stderr;
-    g_assert(message);
-
-    fputs(message, fp);
-    fputc('\n', fp);
-    fflush(fp);
+    ws_log_fprint(stderr, format, ap, prefix);
 
 #ifdef _WIN32
     if (fatal) {

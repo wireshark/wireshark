@@ -26,7 +26,8 @@ extern "C" {
 /** The GUI log writer.
  */
 void
-console_log_writer(const char *message, enum ws_log_domain domain,
+console_log_writer(const char *format, va_list ap,
+                    const char *prefix, enum ws_log_domain domain,
                     enum ws_log_level level, void *ptr);
 
 #ifdef __cplusplus
