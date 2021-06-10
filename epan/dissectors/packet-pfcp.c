@@ -970,7 +970,7 @@ static int ett_pfcp_bbf_l2tp_tunnel = -1;
 static expert_field ei_pfcp_ie_reserved = EI_INIT;
 static expert_field ei_pfcp_ie_data_not_decoded = EI_INIT;
 static expert_field ei_pfcp_ie_not_decoded_null = EI_INIT;
-static expert_field ei_pfcp_ie_not_decoded_to_large = EI_INIT;
+static expert_field ei_pfcp_ie_not_decoded_too_large = EI_INIT;
 static expert_field ei_pfcp_enterprise_ie_3gpp = EI_INIT;
 static expert_field ei_pfcp_ie_encoding_error = EI_INIT;
 
@@ -1002,8 +1002,6 @@ typedef struct pfcp_info {
 } pfcp_info_t;
 
 typedef struct _pfcp_sub_dis_t {
-    proto_item* item;          /**< The item created for this AVP*/
-
     guint8 message_type;
     pfcp_session_args_t *args;
 } pfcp_sub_dis_t;
@@ -8921,7 +8919,7 @@ dissect_pfcp_ies_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
                     }
                 } else {
                     /* IE id outside of array, We have no decoding function for it */
-                    proto_tree_add_expert(ie_tree, pinfo, &ei_pfcp_ie_not_decoded_to_large, tvb, offset, length_ie);
+                    proto_tree_add_expert(ie_tree, pinfo, &ei_pfcp_ie_not_decoded_too_large, tvb, offset, length_ie);
                 }
             }
             offset += length_ie;
@@ -8930,7 +8928,7 @@ dissect_pfcp_ies_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
 }
 
 static void
-dissect_pfcp_enterprise_ies_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint8 message_type, pfcp_session_args_t *args,
+dissect_pfcp_enterprise_ies_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 message_type, pfcp_session_args_t *args,
                                    guint num_pfcp_enterprise_ies, gint * ett_pfcp_enterprise_elem, const pfcp_ie_t * pfcp_enterprise_ies,
                                    value_string_ext * pfcp_ie_enterprise_type_ext)
 {
@@ -8984,7 +8982,7 @@ dissect_pfcp_enterprise_ies_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             }
         } else {
             /* IE id outside of array, We have no decoding function for it */
-            proto_tree_add_expert(ie_tree, pinfo, &ei_pfcp_ie_not_decoded_to_large, tvb, offset, length_ie);
+            proto_tree_add_expert(ie_tree, pinfo, &ei_pfcp_ie_not_decoded_too_large, tvb, offset, length_ie);
         }
     }
 }
@@ -9172,12 +9170,24 @@ dissect_pfcp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void *data 
 
 /* Enterprise IE decoding 3GPP */
 static int
-dissect_pfcp_3gpp_enterprise_ies(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+dissect_pfcp_3gpp_enterprise_ies(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    proto_item *top_item = (proto_item *)data;
-    /* We are give the complete ie, but the first 6 octets are dissected in the pfcp dissector*/
-    proto_item_append_text(top_item, " Enterprise ID set to '10415' shall not be used for the vendor specific IEs.");
-    proto_tree_add_expert(tree, pinfo, &ei_pfcp_enterprise_ie_3gpp, tvb, 0, -1);
+    gint offset = 0;
+    proto_tree *ie_tree;
+    guint16 type;
+
+    type = tvb_get_ntohs(tvb, offset) & ~0x8000;
+
+    ie_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1, ett_pfcp_ie, NULL,
+                                            "Enterprise %s specific IE: %u [Enterprise ID set to '10415' shall not be used for the vendor specific IEs]",
+                                            try_enterprises_lookup(VENDOR_THE3GPP), type);
+    proto_tree_add_item(ie_tree, hf_pfcp2_enterprise_ie, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+    proto_tree_add_item(ie_tree, hf_pfcp2_ie_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+    proto_tree_add_item(ie_tree, hf_pfcp_enterprise_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+    proto_tree_add_expert(ie_tree, pinfo, &ei_pfcp_enterprise_ie_3gpp, tvb, offset, -1);
 
     return tvb_reported_length(tvb);
 }
@@ -9205,7 +9215,7 @@ static void dissect_pfcp_enterprise_bbf_l2tp_tunnel(tvbuff_t *tvb, packet_info *
 #define PFCP_IE_ENTERPRISE_BBF_PPP_LCP_CONNECTIVITY             12 /* 32780 */
 #define PFCP_IE_ENTERPRISE_BBF_L2TP_TUNNEL                      13 /* 32781 */
 
-static const value_string pfcp_ie_enterpise_bbf_type[] = {
+static const value_string pfcp_ie_enterprise_bbf_type[] = {
     { PFCP_IE_ENTERPRISE_BBF_UP_FUNCTION_FEATURES,              "BBF UP Function Features"},
     { PFCP_IE_ENTERPRISE_BBF_LOGICAL_PORT,                      "Logical Port"},
     { PFCP_IE_ENTERPRISE_BBF_OUTER_HEADER_CREATION,             "BBF Outer Header Creation"},
@@ -9223,7 +9233,7 @@ static const value_string pfcp_ie_enterpise_bbf_type[] = {
     { 0, NULL }
 };
 
-static value_string_ext pfcp_ie_enterpise_bbf_type_ext = VALUE_STRING_EXT_INIT(pfcp_ie_enterpise_bbf_type);
+static value_string_ext pfcp_ie_enterprise_bbf_type_ext = VALUE_STRING_EXT_INIT(pfcp_ie_enterprise_bbf_type);
 
 /*
  * TR-459: 6.6.1 BBF UP Function Features
@@ -9575,9 +9585,9 @@ dissect_pfcp_enterprise_bbf_ies(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 {
     pfcp_sub_dis_t *pfcp_sub_dis_info = (pfcp_sub_dis_t *)data;
 
-    dissect_pfcp_enterprise_ies_common(tvb, pinfo, tree, pfcp_sub_dis_info->item, pfcp_sub_dis_info->message_type, pfcp_sub_dis_info->args,
+    dissect_pfcp_enterprise_ies_common(tvb, pinfo, tree, pfcp_sub_dis_info->message_type, pfcp_sub_dis_info->args,
                                        NUM_PFCP_ENTERPRISE_BBF_IES, ett_pfcp_enterprise_bbf_elem,
-                                       pfcp_enterprise_bbf_ies, &pfcp_ie_enterpise_bbf_type_ext);
+                                       pfcp_enterprise_bbf_ies, &pfcp_ie_enterprise_bbf_type_ext);
     return tvb_reported_length(tvb);
 }
 
@@ -9595,7 +9605,7 @@ static void dissect_pfcp_enterprise_travelping_error_report(tvbuff_t *tvb, packe
 #define PFCP_IE_ENTERPRISE_TRAVELPING_FILE_NAME         8
 #define PFCP_IE_ENTERPRISE_TRAVELPING_LINE_NUMBER       9
 
-static const value_string pfcp_ie_enterpise_travelping_type[] = {
+static const value_string pfcp_ie_enterprise_travelping_type[] = {
     { PFCP_IE_ENTERPRISE_TRAVELPING_BUILD_ID,           "Build Id"},
     { PFCP_IE_ENTERPRISE_TRAVELPING_NOW,                "Now"},
     { PFCP_IE_ENTERPRISE_TRAVELPING_START,              "Start"},
@@ -9607,7 +9617,7 @@ static const value_string pfcp_ie_enterpise_travelping_type[] = {
     { 0, NULL }
 };
 
-static value_string_ext pfcp_ie_enterpise_travelping_type_ext = VALUE_STRING_EXT_INIT(pfcp_ie_enterpise_travelping_type);
+static value_string_ext pfcp_ie_enterprise_travelping_type_ext = VALUE_STRING_EXT_INIT(pfcp_ie_enterprise_travelping_type);
 
 static void
 dissect_pfcp_enterprise_travelping_build_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
@@ -9751,9 +9761,9 @@ dissect_pfcp_enterprise_travelping_ies(tvbuff_t *tvb, packet_info *pinfo, proto_
 {
     pfcp_sub_dis_t *pfcp_sub_dis_info = (pfcp_sub_dis_t *)data;
 
-    dissect_pfcp_enterprise_ies_common(tvb, pinfo, tree, pfcp_sub_dis_info->item, pfcp_sub_dis_info->message_type, pfcp_sub_dis_info->args,
+    dissect_pfcp_enterprise_ies_common(tvb, pinfo, tree, pfcp_sub_dis_info->message_type, pfcp_sub_dis_info->args,
                                        NUM_PFCP_ENTERPRISE_TRAVELPING_IES, ett_pfcp_enterprise_travelping_elem,
-                                       pfcp_enterprise_travelping_ies, &pfcp_ie_enterpise_travelping_type_ext);
+                                       pfcp_enterprise_travelping_ies, &pfcp_ie_enterprise_travelping_type_ext);
     return tvb_reported_length(tvb);
 }
 
@@ -13487,7 +13497,7 @@ proto_register_pfcp(void)
         { &ei_pfcp_ie_reserved,{ "pfcp.ie_id_reserved", PI_PROTOCOL, PI_ERROR, "Reserved IE value used", EXPFILL } },
         { &ei_pfcp_ie_data_not_decoded,{ "pfcp.ie_data_not_decoded", PI_UNDECODED, PI_NOTE, "IE data not decoded by WS yet", EXPFILL } },
         { &ei_pfcp_ie_not_decoded_null,{ "pfcp.ie_not_decoded_null", PI_UNDECODED, PI_NOTE, "IE not decoded yet(WS:no decoding function(NULL))", EXPFILL } },
-        { &ei_pfcp_ie_not_decoded_to_large,{ "pfcp.ie_not_decoded", PI_UNDECODED, PI_NOTE, "IE not decoded yet(WS:IE id to large)", EXPFILL } },
+        { &ei_pfcp_ie_not_decoded_too_large,{ "pfcp.ie_not_decoded", PI_UNDECODED, PI_NOTE, "IE not decoded yet(WS:IE id too large)", EXPFILL } },
         { &ei_pfcp_enterprise_ie_3gpp,{ "pfcp.ie_enterprise_3gpp", PI_PROTOCOL, PI_ERROR, "IE not decoded yet(WS:No vendor dissector)", EXPFILL } },
         { &ei_pfcp_ie_encoding_error,{ "pfcp.ie_encoding_error", PI_PROTOCOL, PI_ERROR, "IE wrongly encoded", EXPFILL } },
     };
