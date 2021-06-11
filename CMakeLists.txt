@@ -661,7 +661,6 @@ else() # ! MSVC
 
 	list(APPEND WIRESHARK_C_ONLY_FLAGS
 		# The following are C only, not C++
-		-Wc++-compat
 		-Wunused-const-variable
 		#
 		# XXX - some versions of GCC, including the one in at
