@@ -21,6 +21,7 @@ import subprocess
 import sys
 import tempfile
 import urllib.request
+import re
 
 
 parser = argparse.ArgumentParser()
@@ -109,7 +110,8 @@ def extract_subject(subject):
 
 
 def verify_body(body):
-    old_lines = body.splitlines(True)
+    bodynocomments = re.sub('^#.*$', '', body, flags=re.MULTILINE)
+    old_lines = bodynocomments.splitlines(True)
     is_good = True
     if len(old_lines) >= 2 and old_lines[1].strip():
         print('ERROR: missing blank line after the first subject line.')
