@@ -359,6 +359,7 @@ main(int argc, char *argv[])
     cmdarg_err("Invalid log level \"%s\"", opt_err_val);
     return INVALID_OPTION;
   }
+  ws_log_set_domain_filter_args(&argc, argv);
 
 #ifdef _WIN32
   create_app_running_mutex();

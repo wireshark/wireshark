@@ -227,7 +227,6 @@ libwsutil.so.0 libwsutil0 #MINVER#
  ws_init_sockets@Base 3.1.0
  ws_log@Base 3.5.0
  ws_log_add_custom_file@Base 3.5.0
- ws_log_domain_to_string@Base 3.5.0
  ws_log_fprint@Base 3.5.0
  ws_log_full@Base 3.5.0
  ws_log_get_level@Base 3.5.0
@@ -235,6 +234,8 @@ libwsutil.so.0 libwsutil0 #MINVER#
  ws_log_init_with_data@Base 3.5.0
  ws_log_level_is_active@Base 3.5.0
  ws_log_level_to_string@Base 3.5.0
+ ws_log_set_domain_filter_args@Base 3.5.0
+ ws_log_set_domain_filter_str@Base 3.5.0
  ws_log_set_level@Base 3.5.0
  ws_log_set_level_args@Base 3.5.0
  ws_log_set_level_str@Base 3.5.0

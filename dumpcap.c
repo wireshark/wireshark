@@ -329,7 +329,7 @@ static gboolean need_timeout_workaround;
 static void
 dumpcap_log_writer(const char *format, va_list ap,
                                    const char *prefix,
-                                   enum ws_log_domain domain,
+                                   const char *domain,
                                    enum ws_log_level level,
                                    void *user_data);
 
@@ -4859,6 +4859,7 @@ main(int argc, char *argv[])
         cmdarg_err("Invalid log level \"%s\"", opt_err_val);
         exit (1);
     }
+    ws_log_set_domain_filter_args(&argc, argv);
 
 #ifdef _WIN32
     create_app_running_mutex();
@@ -5572,7 +5573,7 @@ main(int argc, char *argv[])
 static void
 dumpcap_log_writer(const char *format, va_list ap,
                                    const char *prefix,
-                                   enum ws_log_domain domain _U_,
+                                   const char *domain _U_,
                                    enum ws_log_level level _U_,
                                    void *user_data _U_)
 {

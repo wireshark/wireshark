@@ -150,7 +150,7 @@ capture_opts_cleanup(capture_options *capture_opts)
 
 /* log content of capture_opts */
 void
-capture_opts_log(enum ws_log_domain log_domain, enum ws_log_level log_level, capture_options *capture_opts) {
+capture_opts_log(const char *log_domain, enum ws_log_level log_level, capture_options *capture_opts) {
     guint i;
 
     ws_log(log_domain, log_level, "CAPTURE OPTIONS     :");

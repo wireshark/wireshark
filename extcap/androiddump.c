@@ -2540,6 +2540,7 @@ int main(int argc, char *argv[]) {
         cmdarg_err("Invalid log level \"%s\"", opt_err_val);
         return EXIT_FAILURE;
     }
+    ws_log_set_domain_filter_args(&argc, argv);
 
     /*
      * Get credential information for later use.

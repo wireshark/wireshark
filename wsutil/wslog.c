@@ -20,12 +20,15 @@
 
 #define PREFIX_BUFSIZE  128
 
-#define LOGENVVAR "WS_LOG_LEVEL"
+#define _ENV_LEVEL "WS_LOG_LEVEL"
+#define _ENV_DOMAINS "WS_LOG_DOMAINS"
 
 
 /* TODO: Add filtering by domain. */
 
 static enum ws_log_level current_log_level = LOG_LEVEL_MESSAGE;
+
+GPtrArray *domain_filter = NULL;
 
 static ws_log_writer_cb *registered_log_writer = NULL;
 
@@ -73,34 +76,30 @@ const char *ws_log_level_to_string(enum ws_log_level level)
 }
 
 
-const char *ws_log_domain_to_string(enum ws_log_domain domain)
-{
-    switch (domain) {
-        case LOG_DOMAIN_DEFAULT:
-            return "Default";
-        case LOG_DOMAIN_MAIN:
-            return "Main";
-        case LOG_DOMAIN_CAPTURE:
-            return "Capture";
-        case LOG_DOMAIN_CAPCHILD:
-            return "CapChild";
-        case LOG_DOMAIN_WIRETAP:
-            return "Wiretap";
-        case LOG_DOMAIN_EPAN:
-            return "Epan";
-        case LOG_DOMAIN_WSUTIL:
-            return "Util";
-        case LOG_DOMAIN_QTUI:
-            return "GUI";
-        default:
-            return "(BOGUS LOG DOMAIN)";
-    }
-}
-
-
 gboolean ws_log_level_is_active(enum ws_log_level level)
 {
     return level <= current_log_level;
+}
+
+
+gboolean ws_log_domain_is_active(const char *domain)
+{
+    if (domain_filter == NULL)
+        return TRUE;
+
+    for (guint i = 0; i < domain_filter->len; i++) {
+        if (g_ascii_strcasecmp(domain_filter->pdata[i], domain) == 0) {
+            return TRUE;
+        }
+    }
+
+    return FALSE;
+}
+
+
+static gboolean log_drop_message(const char *domain, enum ws_log_level level)
+{
+    return !ws_log_level_is_active(level) || !ws_log_domain_is_active(domain);
 }
 
 
@@ -146,14 +145,11 @@ enum ws_log_level ws_log_set_level_str(const char *str_level)
 }
 
 
-static const char *set_level_and_prune_argv(int count, char **ptr, int prune_extra,
+static const char *log_prune_argv(int count, char **ptr, int prune_extra,
                                 const char *optarg, int *ret_argc)
 {
-    if (optarg && ws_log_set_level_str(optarg) != LOG_LEVEL_NONE)
-        optarg = NULL; /* success */
-
     /*
-     * We found a "--log-level" option. We will remove it from
+     * We found a log option. We will remove it from
      * the argv by moving up the other strings in the array. This is
      * so that it doesn't generate an unrecognized option
      * error further along in the initialization process.
@@ -165,21 +161,20 @@ static const char *set_level_and_prune_argv(int count, char **ptr, int prune_ext
     return optarg;
 }
 
-const char *ws_log_set_level_args(int *argc_ptr, char *argv[])
+const char *log_parse_args(int *argc_ptr, char *argv[], const char *optstr)
 {
     char **p;
     int c;
-    const char *opt = "--log-level";
-    size_t len = strlen(opt);
+    size_t optlen = strlen(optstr);
     const char *optarg;
 
     for (p = argv, c = *argc_ptr; *p != NULL; p++, c--) {
-        if (strncmp(*p, opt, len) == 0) {
-            optarg = *p + len;
+        if (strncmp(*p, optstr, optlen) == 0) {
+            optarg = *p + optlen;
             /* Two possibilities:
-             *      --log_level <level>
+             *      --<option> <value>
              * or
-             *      --log-level=<level>
+             *      --<option>=<value>
              */
             if (optarg[0] == '\0') {
                 /* value is separated with blank space */
@@ -188,19 +183,68 @@ const char *ws_log_set_level_args(int *argc_ptr, char *argv[])
                 /* If the option value after the blank is missing or stars with '-' just ignore it.
                  * But we should probably signal an error (missing required value). */
                 if (optarg == NULL || !*optarg || *optarg == '-') {
-                    return set_level_and_prune_argv(c, p, 0, NULL, argc_ptr);
+                    return log_prune_argv(c, p, 0, NULL, argc_ptr);
                 }
-                return set_level_and_prune_argv(c, p, 1, optarg, argc_ptr);
+                return log_prune_argv(c, p, 1, optarg, argc_ptr);
             }
             else if (optarg[0] == '=') {
                 /* value is after equals */
                 optarg += 1;
-                return set_level_and_prune_argv(c, p, 0, optarg, argc_ptr);
+                return log_prune_argv(c, p, 0, optarg, argc_ptr);
             }
             /* we didn't find what we want */
         }
     }
     return NULL; /* No log-level option, ignore and return success. */
+}
+
+
+const char *ws_log_set_level_args(int *argc_ptr, char *argv[])
+{
+    const char *optval = NULL;
+    enum ws_log_level level;
+
+    optval = log_parse_args(argc_ptr, argv, "--log-level");
+    if (optval == NULL)
+        return NULL;
+
+    level = ws_log_set_level_str(optval);
+    if (level == LOG_LEVEL_NONE)
+        return optval;
+
+    return NULL;
+}
+
+
+void ws_log_set_domain_filter_str(const char *str_filter)
+{
+    char *tok;
+    const char *sep = ",;";
+    char *str;
+
+    if (domain_filter != NULL)
+        g_ptr_array_free(domain_filter, TRUE);
+
+    domain_filter = g_ptr_array_new_with_free_func(g_free);
+
+    str = g_strdup(str_filter);
+
+    for (tok = strtok(str, sep); tok != NULL; tok = strtok(NULL, sep)) {
+        g_ptr_array_add(domain_filter, g_strdup(tok));
+    }
+
+    g_free(str);
+}
+
+void ws_log_set_domain_filter_args(int *argc_ptr, char *argv[])
+{
+    const char *optval = NULL;
+
+    optval = log_parse_args(argc_ptr, argv, "--log-domains");
+    if (optval == NULL)
+        return;
+
+    ws_log_set_domain_filter_str(optval);
 }
 
 
@@ -210,10 +254,16 @@ void ws_log_init(ws_log_writer_cb *_writer)
         registered_log_writer = _writer;
     }
 
-    const char *env = g_getenv(LOGENVVAR);
+    const char *env;
+
+    env = g_getenv(_ENV_LEVEL);
     if (env && ws_log_set_level_str(env) == LOG_LEVEL_NONE) {
-        fprintf(stderr, "Ignoring invalid environment value %s=\"%s\"\n", LOGENVVAR, env);
+        fprintf(stderr, "Ignoring invalid environment value %s=\"%s\"\n", _ENV_LEVEL, env);
     }
+
+    env = g_getenv(_ENV_DOMAINS);
+    if (env)
+        ws_log_set_domain_filter_str(env);
 
     atexit(ws_log_cleanup);
 }
@@ -240,23 +290,6 @@ static inline const char *_lvl_to_str(enum ws_log_level level)
         case LOG_LEVEL_DEBUG:      return "DEBUG";
         default:
             return "(BOGUS LOG LEVEL)";
-    }
-}
-
-
-static inline const char *_dom_to_str(enum ws_log_domain domain)
-{
-    switch (domain) {
-        case LOG_DOMAIN_DEFAULT:   return "Dflt";
-        case LOG_DOMAIN_MAIN:      return "Main";
-        case LOG_DOMAIN_CAPTURE:   return "Capt";
-        case LOG_DOMAIN_CAPCHILD:  return "CChd";
-        case LOG_DOMAIN_WIRETAP:   return "Wtap";
-        case LOG_DOMAIN_EPAN:      return "Epan";
-        case LOG_DOMAIN_WSUTIL:    return "Util";
-        case LOG_DOMAIN_QTUI:      return "Qtui";
-        default:
-            return "(BOGUS LOG DOMAIN)";
     }
 }
 
@@ -328,12 +361,12 @@ static void create_log_time(struct logstr *str)
 
 
 static void logstr_prefix_print(struct logstr *str,
-                                enum ws_log_domain domain,  enum ws_log_level level,
+                                const char *domain,  enum ws_log_level level,
                                 const char *file, int line, const char *func)
 {
     create_log_time(str);
 
-    logstr_snprintf(str, " [%s-%s]", _dom_to_str(domain), _lvl_to_str(level));
+    logstr_snprintf(str, " [%s-%s]", domain, _lvl_to_str(level));
 
     if (func)
         logstr_snprintf(str, " %s()", func);
@@ -346,7 +379,7 @@ static void logstr_prefix_print(struct logstr *str,
 }
 
 
-static void log_internal_write(enum ws_log_domain domain, enum ws_log_level level,
+static void log_internal_write(const char *domain, enum ws_log_level level,
                             const char *file, int line, const char *func,
                             const char *user_format, va_list user_ap)
 {
@@ -377,22 +410,22 @@ static void log_internal_write(enum ws_log_domain domain, enum ws_log_level leve
 }
 
 
-void ws_logv(enum ws_log_domain domain, enum ws_log_level level,
+void ws_logv(const char *domain, enum ws_log_level level,
                     const char *format, va_list ap)
 {
-    if (!ws_log_level_is_active(level))
+    if (log_drop_message(domain, level))
         return;
 
     log_internal_write(domain, level, NULL, -1, NULL, format, ap);
 }
 
 
-void ws_log(enum ws_log_domain domain, enum ws_log_level level,
+void ws_log(const char *domain, enum ws_log_level level,
                     const char *format, ...)
 {
     va_list ap;
 
-    if (!ws_log_level_is_active(level))
+    if (log_drop_message(domain, level))
         return;
 
     va_start(ap, format);
@@ -401,13 +434,13 @@ void ws_log(enum ws_log_domain domain, enum ws_log_level level,
 }
 
 
-void ws_log_full(enum ws_log_domain domain, enum ws_log_level level,
+void ws_log_full(const char *domain, enum ws_log_level level,
                     const char *file, int line, const char *func,
                     const char *format, ...)
 {
     va_list ap;
 
-    if (!ws_log_level_is_active(level))
+    if (log_drop_message(domain, level))
         return;
 
     va_start(ap, format);
@@ -425,6 +458,10 @@ static void ws_log_cleanup(void)
     if (custom_log) {
         fclose(custom_log);
         custom_log = NULL;
+    }
+    if (domain_filter) {
+        g_ptr_array_free(domain_filter, TRUE);
+        domain_filter = NULL;
     }
 }
 

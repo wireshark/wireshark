@@ -11,22 +11,21 @@
 #ifndef __WS_LOG_DOMAINS_H__
 #define __WS_LOG_DOMAINS_H__
 
-enum ws_log_domain {
+     /* Null domain */
+#define LOG_DOMAIN_NONE       "(notset)"
      /* Default domain */
-     LOG_DOMAIN_DEFAULT,
+#define LOG_DOMAIN_DEFAULT    "Default"
      /* Main execution domain (wireshark, tshark, etc) */
-     LOG_DOMAIN_MAIN,
+#define LOG_DOMAIN_MAIN       "Main"
      /* Capture domain (except for capture child, see below) */
-     LOG_DOMAIN_CAPTURE,
+#define LOG_DOMAIN_CAPTURE    "Capture"
      /* Capture child domain (the capture child might also contain
       * file domain messages!) */
-     LOG_DOMAIN_CAPCHILD,
-     LOG_DOMAIN_WIRETAP,
-     LOG_DOMAIN_EPAN,
-     LOG_DOMAIN_WSUTIL,
-     LOG_DOMAIN_QTUI,
-     _LOG_DOMAIN_LAST
-};
+#define LOG_DOMAIN_CAPCHILD   "Capchild"
+#define LOG_DOMAIN_WIRETAP    "Wiretap"
+#define LOG_DOMAIN_EPAN       "Epan"
+#define LOG_DOMAIN_WSUTIL     "WSUtil"
+#define LOG_DOMAIN_QTUI        "GUI"
 
 #endif /* __WS_LOG_DOMAINS_H__ */
 

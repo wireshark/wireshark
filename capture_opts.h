@@ -339,7 +339,7 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg)
 
 /* log content of capture_opts */
 extern void
-capture_opts_log(enum ws_log_domain domain, enum ws_log_level level, capture_options *capture_opts);
+capture_opts_log(const char *domain, enum ws_log_level level, capture_options *capture_opts);
 
 enum caps_query {
     CAPS_QUERY_LINK_TYPES      = 0x1,

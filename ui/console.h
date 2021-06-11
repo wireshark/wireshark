@@ -27,7 +27,7 @@ extern "C" {
  */
 void
 console_log_writer(const char *format, va_list ap,
-                    const char *prefix, enum ws_log_domain domain,
+                    const char *prefix, const char *domain,
                     enum ws_log_level level, void *ptr);
 
 #ifdef __cplusplus

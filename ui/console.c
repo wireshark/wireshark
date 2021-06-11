@@ -20,7 +20,7 @@
 
 void
 console_log_writer(const char *format, va_list ap,
-                    const char *prefix, enum ws_log_domain domain _U_,
+                    const char *prefix, const char *domain _U_,
                     enum ws_log_level level _U_, void *ptr _U_)
 {
     gboolean fatal = level == LOG_LEVEL_ERROR;

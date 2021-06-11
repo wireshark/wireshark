@@ -784,6 +784,7 @@ main(int argc, char *argv[])
     cmdarg_err("Invalid log level \"%s\"", opt_err_val);
     return INVALID_OPTION;
   }
+  ws_log_set_domain_filter_args(&argc, argv);
 
   ws_debug("tshark started with %d args", argc);
 

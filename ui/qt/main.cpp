@@ -587,6 +587,7 @@ int main(int argc, char *qt_argv[])
         cmdarg_err("Invalid log level \"%s\"", opt_err_val);
         exit_application(INVALID_OPTION);
     }
+    ws_log_set_domain_filter_args(&argc, argv);
 
     /*
      * Get credential information for later use, and drop privileges
