@@ -20,8 +20,8 @@
 
 #define PREFIX_BUFSIZE  128
 
-#define _ENV_LEVEL "WS_LOG_LEVEL"
-#define _ENV_DOMAINS "WS_LOG_DOMAINS"
+#define _ENV_LEVEL "WIRESHARK_LOG_LEVEL"
+#define _ENV_DOMAINS "WIRESHARK_LOG_DOMAINS"
 
 
 /* TODO: Add filtering by domain. */
