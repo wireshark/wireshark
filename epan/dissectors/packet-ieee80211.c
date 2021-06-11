@@ -41928,17 +41928,17 @@ proto_register_ieee80211(void)
       NULL, HFILL }},
 
     {&hf_ieee80211_rnr_bss_parameters_b2,
-     {"Multiple SSID", "wlan.rnr.bss_parameters.b2",
+     {"Multiple BSSID", "wlan.rnr.bss_parameters.b2",
       FT_BOOLEAN, 8, NULL, 0x04,
       NULL, HFILL }},
 
     {&hf_ieee80211_rnr_bss_parameters_b3,
-     {"Transmitted SSID", "wlan.rnr.bss_parameters.b3",
+     {"Transmitted BSSID", "wlan.rnr.bss_parameters.b3",
       FT_BOOLEAN, 8, NULL, 0x08,
       NULL, HFILL }},
 
     {&hf_ieee80211_rnr_bss_parameters_b4,
-     {"Member of ESS with 2.4/5 Ghz Co-Located AP", "wlan.rnr.bss_parameters.b4",
+     {"Member of ESS with 2.4/5 GHz Co-Located AP", "wlan.rnr.bss_parameters.b4",
       FT_BOOLEAN, 8, NULL, 0x10,
       NULL, HFILL }},
 
@@ -41948,7 +41948,7 @@ proto_register_ieee80211(void)
       NULL, HFILL }},
 
     {&hf_ieee80211_rnr_bss_parameters_b6,
-     {"Co-located AP", "wlan.rnr.bss_parameters.b6",
+     {"Co-Located AP", "wlan.rnr.bss_parameters.b6",
       FT_BOOLEAN, 8, NULL, 0x40,
       NULL, HFILL }},
 
