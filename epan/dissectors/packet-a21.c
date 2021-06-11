@@ -1,4 +1,4 @@
-﻿/* packet-a21.c
+/* packet-a21.c
  *
  * Routines for A21/s102 Message dissection
  * Copyright 2012, Joseph Chai <chaienzhao@gmail.com>

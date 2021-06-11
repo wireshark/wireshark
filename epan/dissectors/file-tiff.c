@@ -1,4 +1,4 @@
-﻿/* file-tiff.c
+/* file-tiff.c
  *
  * Routines for image/tiff dissection
  * Copyright 2021, Daniel Dulaney.
