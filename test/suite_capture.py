@@ -165,7 +165,7 @@ def check_capture_stdin(cmd_dumpcap):
         )
         is_gui = type(cmd) != str and '-k' in cmd[0]
         if is_gui:
-            capture_cmd += ' -o console.log.level:127'
+            capture_cmd += ' --log-level=info'
         pipe_proc = self.assertRun(slow_dhcp_cmd + ' | ' + capture_cmd, shell=True)
         if is_gui:
             self.assertTrue(self.grepOutput('Wireshark is up and ready to go'), 'No startup message.')
