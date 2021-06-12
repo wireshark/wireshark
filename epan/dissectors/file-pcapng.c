@@ -151,7 +151,8 @@ static int hf_pcapng_option_data_packet_darwin_flags_ka = -1;
 static int hf_pcapng_option_data_packet_darwin_flags_nf = -1;
 
 static expert_field ei_invalid_byte_order_magic = EI_INIT;
-static expert_field ei_block_length_too_short = EI_INIT;
+static expert_field ei_block_length_below_block_minimum = EI_INIT;
+static expert_field ei_block_length_below_block_content_length = EI_INIT;
 static expert_field ei_block_length_not_multiple_of_4 = EI_INIT;
 static expert_field ei_block_lengths_dont_match = EI_INIT;
 static expert_field ei_invalid_option_length = EI_INIT;
@@ -1430,7 +1431,7 @@ process_block_length(proto_tree *block_tree, packet_info *pinfo,
 
     *block_length_item_p = proto_tree_add_item_ret_uint(block_tree, hf_pcapng_block_length, tvb, offset, 4, encoding, block_length_p);
     if (*block_length_p < 3*4) {
-        expert_add_info(pinfo, *block_length_item_p, &ei_block_length_too_short);
+        expert_add_info(pinfo, *block_length_item_p, &ei_block_length_below_block_minimum);
         return NULL;
     }
     /*
@@ -1954,7 +1955,7 @@ static gint dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
              * The body didn't fit in the block.
              * Mark the length as being too small.
              */
-            expert_add_info(pinfo, block_length_item, &ei_block_length_too_short);
+            expert_add_info(pinfo, block_length_item, &ei_block_length_below_block_content_length);
         }
         CATCH_ALL {
             /*
@@ -2016,7 +2017,7 @@ static gint dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
              * The body didn't fit in the block.
              * Mark the length as being too small.
              */
-            expert_add_info(pinfo, block_length_item, &ei_block_length_too_short);
+            expert_add_info(pinfo, block_length_item, &ei_block_length_below_block_content_length);
         }
         CATCH_ALL {
             /*
@@ -2702,7 +2703,8 @@ proto_register_pcapng(void)
 
     static ei_register_info ei[] = {
         { &ei_invalid_byte_order_magic, { "pcapng.invalid_byte_order_magic", PI_PROTOCOL, PI_ERROR, "The byte-order magic number is not valid", EXPFILL }},
-        { &ei_block_length_too_short, { "pcapng.block_length_too_short", PI_PROTOCOL, PI_ERROR, "Block length is < 12 bytes", EXPFILL }},
+        { &ei_block_length_below_block_minimum, { "pcapng.block_length_below_block_minimum", PI_PROTOCOL, PI_ERROR, "Block length is < 12 bytes", EXPFILL }},
+        { &ei_block_length_below_block_content_length, { "pcapng.block_length_below_block_content_length", PI_PROTOCOL, PI_ERROR, "Block length is < the length of the contents of the block", EXPFILL }},
         { &ei_block_length_not_multiple_of_4, { "pcapng.block_length_not_multiple_of4", PI_PROTOCOL, PI_ERROR, "Block length is not a multiple of 4", EXPFILL }},
         { &ei_block_lengths_dont_match, { "pcapng.block_lengths_dont_match", PI_PROTOCOL, PI_ERROR, "Block length in trailer differs from block length in header", EXPFILL }},
         { &ei_invalid_option_length, { "pcapng.invalid_option_length", PI_PROTOCOL, PI_ERROR, "Invalid Option Length", EXPFILL }},
