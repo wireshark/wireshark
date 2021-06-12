@@ -13,6 +13,9 @@
 #include <string.h>
 #include <time.h>
 #include <stdarg.h>
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
 #include <ws_attributes.h>
 
 #include <wsutil/ws_assert.h>
@@ -27,6 +30,8 @@
 
 
 static enum ws_log_level current_log_level = LOG_LEVEL_NONE;
+
+static const char *registered_appname = NULL;
 
 GPtrArray *domain_filter = NULL;
 
@@ -255,6 +260,8 @@ void ws_log_set_domain_filter_args(int *argc_ptr, char *argv[])
 
 void ws_log_init(ws_log_writer_cb *_writer)
 {
+    registered_appname = g_get_prgname();
+
     if (_writer)
         registered_log_writer = _writer;
 
@@ -356,11 +363,11 @@ static void create_log_time(struct logstr *str)
     microseconds = create_timestamp();
 
     if (G_UNLIKELY(today == NULL)) {
-        logstr_snprintf(str, " ** ");
+        logstr_snprintf(str, " ");
         return;
     }
 
-    logstr_snprintf(str, " ** %02d:%02d:%02d.%03" G_GUINT64_FORMAT,
+    logstr_snprintf(str, " %02d:%02d:%02d.%03" G_GUINT64_FORMAT,
                 today->tm_hour, today->tm_min, today->tm_sec,
                 microseconds % 1000000 / 1000);
 }
@@ -370,6 +377,16 @@ static void logstr_prefix_print(struct logstr *str,
                                 const char *domain,  enum ws_log_level level,
                                 const char *file, int line, const char *func)
 {
+#ifndef _WIN32
+    logstr_snprintf(str, " ** (%s:%ld)",
+                    registered_appname ? registered_appname : "PID", getpid());
+#else
+    if (registered_appname)
+        logstr_snprintf(str, " ** (%s)", registered_appname);
+    else
+        logstr_snprintf(str, " **");
+#endif
+
     create_log_time(str);
 
     logstr_snprintf(str, " [%s-%s]", domain, _lvl_to_str(level));

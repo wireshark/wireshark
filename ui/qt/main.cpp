@@ -529,6 +529,8 @@ int main(int argc, char *qt_argv[])
     macos_enable_layer_backing();
 #endif
 
+    g_set_prgname("wireshark");
+
     /* Initialize log handler early so we can have proper logging during startup. */
     ws_log_init(console_log_writer);
 

@@ -4847,6 +4847,8 @@ main(int argc, char *argv[])
 #endif
     GString          *str;
 
+    g_set_prgname("dumpcap");
+
     /* Initialize log handler early so we can have proper logging during startup. */
     ws_log_init(dumpcap_log_writer);
 

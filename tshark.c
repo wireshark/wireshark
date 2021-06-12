@@ -772,6 +772,8 @@ main(int argc, char *argv[])
   setlocale(LC_ALL, "");
 #endif
 
+  g_set_prgname("tshark");
+
   /* Initialize log handler early so we can have proper logging during startup. */
   ws_log_init(NULL);
 

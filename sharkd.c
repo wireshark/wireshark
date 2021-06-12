@@ -114,6 +114,8 @@ main(int argc, char *argv[])
     cfile_close_failure_message
   };
 
+  g_set_prgname("sharkd");
+
   /* Initialize log handler early so we can have proper logging during startup. */
   ws_log_init(NULL);
 
