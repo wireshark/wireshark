@@ -49,21 +49,18 @@ typedef struct stream stream_t;
 typedef struct stream_pdu_fragment stream_pdu_fragment_t;
 
 
-
-struct circuit;
 struct conversation;
 
 /* initialise a new stream. Call this when you first identify a distinct
- * stream. The circit pointer is just used as a key to look up the stream. */
-WS_DLL_PUBLIC stream_t *stream_new_circ ( const struct circuit *circuit, int p2p_dir );
-extern stream_t *stream_new_conv ( const struct conversation *conv, int p2p_dir );
+ * stream. The conversation pointer is just used as a key to look up the stream.
+ */
+WS_DLL_PUBLIC stream_t *stream_new ( const struct conversation *conv, int p2p_dir );
 
 /* retrieve a previously-created stream.
  *
  * Returns null if no matching stream was found.
  */
-WS_DLL_PUBLIC stream_t *find_stream_circ ( const struct circuit *circuit, int p2p_dir );
-extern stream_t *find_stream_conv ( const struct conversation *conv, int p2p_dir );
+WS_DLL_PUBLIC stream_t *find_stream ( const struct conversation *conv, int p2p_dir );
 
 
 

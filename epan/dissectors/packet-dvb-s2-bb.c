@@ -1794,9 +1794,9 @@ static int dissect_dvb_s2_bb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         if (dvb_s2_df_dissection && user_packet_length) {
             sync_tvb = tvb_new_subset_length(tvb, DVB_S2_BB_OFFS_SYNC, 1);
             tsp_tvb = tvb_new_composite();
-            ts_stream = find_stream_conv(subcircuit, pinfo->p2p_dir);
+            ts_stream = find_stream(subcircuit, pinfo->p2p_dir);
             if (ts_stream == NULL) {
-                ts_stream = stream_new_conv(subcircuit, pinfo->p2p_dir);
+                ts_stream = stream_new(subcircuit, pinfo->p2p_dir);
             }
             if (syncd == 0xFFFF) {
                 /* Largely theoretical for TS (cf. Generic Packetized, GSE-HEM)

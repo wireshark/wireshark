@@ -63,13 +63,8 @@ struct stream {
 
 /* key */
 typedef struct stream_key {
-    /* streams can be attached to circuits or conversations, and we note
-       that here */
-    gboolean is_circuit;
-    union {
-        const struct circuit *circuit;
-        const struct conversation *conv;
-    } circ;
+    /* streams are attached to conversations */
+    const struct conversation *conv;
     int p2p_dir;
 } stream_key_t;
 
@@ -79,8 +74,7 @@ static guint stream_hash_func(gconstpointer k)
 {
     const stream_key_t *key = (const stream_key_t *)k;
 
-    /* is_circuit is redundant to the circuit/conversation pointer */
-    return (GPOINTER_TO_UINT(key->circ.circuit)) ^ key->p2p_dir;
+    return (GPOINTER_TO_UINT(key->conv)) ^ key->p2p_dir;
 }
 
 /* compare func */
@@ -89,14 +83,10 @@ static gboolean stream_compare_func(gconstpointer a,
 {
     const stream_key_t *key1 = (const stream_key_t *)a;
     const stream_key_t *key2 = (const stream_key_t *)b;
-    if( key1 -> p2p_dir != key2 -> p2p_dir ||
-        key1-> is_circuit != key2 -> is_circuit )
+    if( key1 -> p2p_dir != key2 -> p2p_dir)
         return FALSE;
 
-    if( key1 -> is_circuit )
-        return (key1 -> circ.circuit == key2 -> circ.circuit );
-    else
-        return (key1 -> circ.conv == key2 -> circ.conv );
+    return (key1 -> conv == key2 -> conv );
 }
 
 /* the hash table */
@@ -119,20 +109,10 @@ static void init_stream_hash( void ) {
 }
 
 /* lookup function, returns null if not found */
-static stream_t *stream_hash_lookup_circ( const struct circuit *circuit, int p2p_dir )
+static stream_t *stream_hash_lookup( const struct conversation *conv, int p2p_dir )
 {
     stream_key_t key;
-    key.is_circuit=TRUE;
-    key.circ.circuit=circuit;
-    key.p2p_dir=p2p_dir;
-    return (stream_t *)g_hash_table_lookup(stream_hash, &key);
-}
-
-static stream_t *stream_hash_lookup_conv( const struct conversation *conv, int p2p_dir )
-{
-    stream_key_t key;
-    key.is_circuit=FALSE;
-    key.circ.conv = conv;
+    key.conv = conv;
     key.p2p_dir=p2p_dir;
     return (stream_t *)g_hash_table_lookup(stream_hash, &key);
 }
@@ -155,25 +135,12 @@ static stream_t *new_stream( stream_key_t *key )
 
 
 /* insert function */
-static stream_t *stream_hash_insert_circ( const struct circuit *circuit, int p2p_dir )
+static stream_t *stream_hash_insert( const struct conversation *conv, int p2p_dir )
 {
     stream_key_t *key;
 
     key = wmem_new(wmem_file_scope(), stream_key_t);
-    key->is_circuit = TRUE;
-    key->circ.circuit = circuit;
-    key->p2p_dir = p2p_dir;
-
-    return new_stream(key);
-}
-
-static stream_t *stream_hash_insert_conv( const struct conversation *conv, int p2p_dir )
-{
-    stream_key_t *key;
-
-    key = wmem_new(wmem_file_scope(), stream_key_t);
-    key->is_circuit = FALSE;
-    key->circ.conv = conv;
+    key->conv = conv;
     key->p2p_dir = p2p_dir;
 
     return new_stream(key);
@@ -303,30 +270,16 @@ static reassembly_table stream_reassembly_table;
 
 /* Initialise a new stream. Call this when you first identify a distinct
  * stream. */
-stream_t *stream_new_circ ( const struct circuit *circuit, int p2p_dir )
-{
-    stream_t * stream;
-
-    /* we don't want to replace the previous data if we get called twice on the
-       same circuit, so do a lookup first */
-    stream = stream_hash_lookup_circ(circuit, p2p_dir);
-    DISSECTOR_ASSERT( stream == NULL );
-
-    stream = stream_hash_insert_circ(circuit, p2p_dir);
-
-    return stream;
-}
-
-stream_t *stream_new_conv ( const struct conversation *conv, int p2p_dir )
+stream_t *stream_new ( const struct conversation *conv, int p2p_dir )
 {
     stream_t * stream;
 
     /* we don't want to replace the previous data if we get called twice on the
        same conversation, so do a lookup first */
-    stream = stream_hash_lookup_conv(conv, p2p_dir);
+    stream = stream_hash_lookup(conv, p2p_dir);
     DISSECTOR_ASSERT( stream == NULL );
 
-    stream = stream_hash_insert_conv(conv, p2p_dir);
+    stream = stream_hash_insert(conv, p2p_dir);
     return stream;
 }
 
@@ -335,13 +288,9 @@ stream_t *stream_new_conv ( const struct conversation *conv, int p2p_dir )
  *
  * Returns null if no matching stream was found.
  */
-stream_t *find_stream_circ ( const struct circuit *circuit, int p2p_dir )
+stream_t *find_stream ( const struct conversation *conv, int p2p_dir )
 {
-    return stream_hash_lookup_circ(circuit,p2p_dir);
-}
-stream_t *find_stream_conv ( const struct conversation *conv, int p2p_dir )
-{
-    return stream_hash_lookup_conv(conv,p2p_dir);
+    return stream_hash_lookup(conv,p2p_dir);
 }
 
 /* cleanup the stream routines */

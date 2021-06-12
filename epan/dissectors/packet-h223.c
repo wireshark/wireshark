@@ -753,9 +753,9 @@ dissect_mux_sdu_fragment(tvbuff_t *volatile next_tvb, packet_info *pinfo,
                     stream_t *substream;
                     stream_pdu_fragment_t *frag;
 
-                    substream = find_stream_conv(subcircuit,pinfo->p2p_dir);
+                    substream = find_stream(subcircuit,pinfo->p2p_dir);
                     if(substream == NULL )
-                        substream = stream_new_conv(subcircuit,pinfo->p2p_dir);
+                        substream = stream_new(subcircuit,pinfo->p2p_dir);
                     frag = stream_find_frag(substream,pinfo->num,pkt_offset);
 
                     if(frag == NULL ) {

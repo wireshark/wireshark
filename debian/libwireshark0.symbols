@@ -653,7 +653,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  find_or_create_conversation_by_id@Base 2.6.3
  find_protocol_by_id@Base 1.9.1
  find_sid_name@Base 1.9.1
- find_stream_circ@Base 1.9.1
+ find_stream@Base 3.5.0
  find_tap_id@Base 1.9.1
  follow_get_stat_tap_string@Base 2.1.0
  follow_info_free@Base 2.3.0
@@ -1569,7 +1569,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  str_to_val_idx@Base 1.9.1
  stream_add_frag@Base 1.9.1
  stream_find_frag@Base 1.9.1
- stream_new_circ@Base 1.9.1
+ stream_new@Base 3.5.0
  stream_process_reassembled@Base 1.9.1
  string_or_null@Base 1.9.1
  string_replace@Base 1.9.1
