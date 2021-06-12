@@ -15,6 +15,8 @@
 #define NVME_CMD_SIZE 64
 #define NVME_CQE_SIZE 16
 
+#define NVME_FABRIC_OPC 0x7F
+
 struct nvme_q_ctx {
     wmem_tree_t *pending_cmds;
     wmem_tree_t *done_cmds;
@@ -48,9 +50,18 @@ struct nvme_cmd_ctx {
         struct {
             guint8 fid;
         } set_features;
+        struct {
+            guint8 fctype; /* fabric cmd type */
+            struct {
+                guint8 offset;
+            } prop_get;
+        } fabric_cmd;
     } cmd_ctx;
     guint8  opcode;
 };
+
+extern int hf_nvmeof_cmd_pkt;
+extern int hf_nvmeof_data_req;
 
 void
 nvme_publish_qid(proto_tree *tree, int field_index, guint16 qid);
@@ -84,6 +95,17 @@ struct keyed_data_req
     guint32 key;
     guint32 size;
 };
+
+void
+dissect_nvmeof_fabric_cmd(tvbuff_t *nvme_tvb, packet_info *pinfo, proto_tree *nvme_tree,
+                                struct nvme_q_ctx *q_ctx, struct nvme_cmd_ctx *cmd);
+void
+dissect_nvmeof_cmd_data(tvbuff_t *data_tvb, proto_tree *data_tree,
+                                 guint offset, struct nvme_cmd_ctx *cmd, guint len);
+void
+dissect_nvmeof_fabric_cqe(tvbuff_t *nvme_tvb,
+                        proto_tree *nvme_tree,
+                        struct nvme_cmd_ctx *cmd_ctx);
 
 void
 nvme_add_data_request(struct nvme_q_ctx *q_ctx, struct nvme_cmd_ctx *cmd_ctx,
@@ -135,10 +157,6 @@ nvme_get_opcode_string(guint8  opcode, guint16 qid);
  */
 int
 nvme_is_io_queue_opcode(guint8  opcode);
-
-void add_group_mask_entry(tvbuff_t *tvb, proto_tree *tree, guint offset, guint bytes, int *array, guint array_len);
-
-#define ASPEC(_x_) _x_, array_length(_x_)
 
 #endif
 
