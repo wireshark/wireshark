@@ -655,7 +655,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
     guint64       value_u64;
     e_guid_t      uuid;
 
-    if (tvb_reported_length(tvb) <= 0)
+    if (tvb_reported_length_remaining(tvb, offset) <= 0)
         return 0;
 
     options_item = proto_tree_add_item(tree, hf_pcapng_options, tvb, offset, -1, ENC_NA);
