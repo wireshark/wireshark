@@ -1258,7 +1258,7 @@ static void dissect_nvme_identify_nslist_resp(tvbuff_t *cmd_tvb,
     }
 }
 
-static void add_group_mask_entry(tvbuff_t *tvb, proto_tree *tree, guint offset, guint bytes, int *array, guint array_len)
+void add_group_mask_entry(tvbuff_t *tvb, proto_tree *tree, guint offset, guint bytes, int *array, guint array_len)
 {
     proto_item *ti;
     proto_tree *grp;
@@ -1270,9 +1270,6 @@ static void add_group_mask_entry(tvbuff_t *tvb, proto_tree *tree, guint offset, 
     for (i = 1; i < array_len; i++)
         proto_tree_add_item(grp, array[i], tvb, offset, bytes, ENC_LITTLE_ENDIAN);
 }
-
-
-#define ASPEC(_x_) _x_, array_length(_x_)
 
 static void add_ctrl_x16_bytes( gchar *result, guint32 val)
 {

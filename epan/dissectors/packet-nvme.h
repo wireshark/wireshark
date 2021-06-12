@@ -136,6 +136,10 @@ nvme_get_opcode_string(guint8  opcode, guint16 qid);
 int
 nvme_is_io_queue_opcode(guint8  opcode);
 
+void add_group_mask_entry(tvbuff_t *tvb, proto_tree *tree, guint offset, guint bytes, int *array, guint array_len);
+
+#define ASPEC(_x_) _x_, array_length(_x_)
+
 #endif
 
 /*

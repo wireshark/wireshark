@@ -83,16 +83,28 @@ http://www.iana.org/assignments/service-names-port-numbers/service-names-port-nu
 
 #define NVME_FABRIC_OPC 0x7F
 
-#define NVME_FCTYPE_CONNECT   0x1
-#define NVME_FCTYPE_AUTH_RECV 0x6
-#define NVME_FCTYPE_PROP_GET  0x4
 #define NVME_FCTYPE_PROP_SET  0x0
+#define NVME_FCTYPE_CONNECT   0x1
+#define NVME_FCTYPE_PROP_GET  0x4
+#define NVME_FCTYPE_AUTH_SEND 0x5
+#define NVME_FCTYPE_AUTH_RECV 0x6
+#define NVME_FCTYPE_AUTH_DISC 0x8
 
 static const value_string fctype_tbl[] = {
-    { NVME_FCTYPE_CONNECT,       "Connect"},
-    { NVME_FCTYPE_PROP_GET,      "Property Get"},
-    { NVME_FCTYPE_PROP_SET,      "Property Set"},
-    { NVME_FCTYPE_AUTH_RECV,     "Authentication Recv"},
+    { NVME_FCTYPE_PROP_SET,      "Property Set" },
+    { NVME_FCTYPE_CONNECT,       "Connect" },
+    { NVME_FCTYPE_PROP_GET,      "Property Get" },
+    { NVME_FCTYPE_AUTH_SEND,     "Authentication Send" },
+    { NVME_FCTYPE_AUTH_RECV,     "Authentication Recv" },
+    { NVME_FCTYPE_AUTH_DISC,     "Disconnect" },
+    { 0, NULL}
+};
+
+static const value_string pclass_tbl[] = {
+    { 0x0, "Urgent" },
+    { 0x1, "High" },
+    { 0x2, "Medium" },
+    { 0x3, "Low", },
     { 0, NULL}
 };
 
@@ -186,7 +198,7 @@ static int hf_nvme_rdma_cmd_connect_sgl1 = -1;
 static int hf_nvme_rdma_cmd_connect_recfmt = -1;
 static int hf_nvme_rdma_cmd_connect_qid = -1;
 static int hf_nvme_rdma_cmd_connect_sqsize = -1;
-static int hf_nvme_rdma_cmd_connect_cattr = -1;
+static int hf_nvme_rdma_cmd_connect_cattr[5] =  { -1, -1, -1, -1, -1};
 static int hf_nvme_rdma_cmd_connect_rsvd2 = -1;
 static int hf_nvme_rdma_cmd_connect_kato = -1;
 static int hf_nvme_rdma_cmd_connect_rsvd3 = -1;
@@ -535,7 +547,7 @@ static void add_rdma_cm_qid(gchar *result, guint32 val)
     g_snprintf(result, ITEM_LABEL_LENGTH, "%x (%s)", val, val ? "IOQ" : "AQ");
 }
 
-static void add_rdma_cm_hrqsize(gchar *result, guint32 val)
+static void add_zero_base(gchar *result, guint32 val)
 {
     g_snprintf(result, ITEM_LABEL_LENGTH, "%u", val+1);
 }
@@ -650,8 +662,8 @@ static void dissect_nvme_fabric_connect_cmd(proto_tree *cmd_tree, packet_info *p
                         42, 2, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(cmd_tree, hf_nvme_rdma_cmd_connect_sqsize, cmd_tvb,
                         44, 2, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(cmd_tree, hf_nvme_rdma_cmd_connect_cattr, cmd_tvb,
-                        46, 1, ENC_LITTLE_ENDIAN);
+
+    add_group_mask_entry(cmd_tvb, cmd_tree, 46, 1, ASPEC(hf_nvme_rdma_cmd_connect_cattr));
     proto_tree_add_item(cmd_tree, hf_nvme_rdma_cmd_connect_rsvd2, cmd_tvb,
                         47, 1, ENC_NA);
     proto_tree_add_item(cmd_tree, hf_nvme_rdma_cmd_connect_kato, cmd_tvb,
@@ -760,7 +772,7 @@ dissect_nvme_fabric_cmd(tvbuff_t *nvme_tvb, packet_info *pinfo, proto_tree *nvme
         struct nvme_rdma_q_ctx *q_ctx, struct nvme_rdma_cmd_ctx *cmd_ctx)
 {
     proto_tree *cmd_tree;
-    proto_item *ti, *opc_item, *fctype_item;
+    proto_item *ti;
     guint8 fctype;
 
     fctype = tvb_get_guint8(nvme_tvb, 4);
@@ -770,9 +782,8 @@ dissect_nvme_fabric_cmd(tvbuff_t *nvme_tvb, packet_info *pinfo, proto_tree *nvme
                              NVME_FABRIC_CMD_SIZE, ENC_NA);
     cmd_tree = proto_item_add_subtree(ti, ett_data);
 
-    opc_item = proto_tree_add_item(cmd_tree, hf_nvme_rdma_cmd_opc, nvme_tvb,
-                                   0, 1, ENC_LITTLE_ENDIAN);
-    proto_item_append_text(opc_item, "%s", " Fabric Cmd");
+    proto_tree_add_bytes_format(cmd_tree, hf_nvme_rdma_cmd_opc, nvme_tvb, 0, 1, NULL, "Opcode: 0x%x (Fabric Command)",
+                                NVME_FABRIC_OPC);
 
     cmd_ctx->n_cmd_ctx.opcode = NVME_FABRIC_OPC;
     nvme_publish_to_data_req_link(cmd_tree, nvme_tvb, hf_nvme_rdma_data_req,
@@ -785,12 +796,8 @@ dissect_nvme_fabric_cmd(tvbuff_t *nvme_tvb, packet_info *pinfo, proto_tree *nvme
     proto_tree_add_item(cmd_tree, hf_nvme_rdma_cmd_cid, nvme_tvb,
                         2, 2, ENC_LITTLE_ENDIAN);
 
-    fctype_item = proto_tree_add_item(cmd_tree, hf_nvme_rdma_cmd_fctype,
-                                      nvme_tvb,
-                                      4, 1, ENC_LITTLE_ENDIAN);
-    proto_item_append_text(fctype_item, " %s",
-                           val_to_str(fctype, fctype_tbl, "Unknown FcType"));
-
+    proto_tree_add_item(cmd_tree, hf_nvme_rdma_cmd_fctype, nvme_tvb,
+                        4, 1, ENC_LITTLE_ENDIAN);
     switch(fctype) {
     case NVME_FCTYPE_CONNECT:
         dissect_nvme_fabric_connect_cmd(cmd_tree, pinfo, nvme_tvb, q_ctx, cmd_ctx);
@@ -1299,7 +1306,7 @@ proto_register_nvme_rdma(void)
         },
         { &hf_nvme_rdma_cm_req_hsqsize,
             { "RDMA QP Host Send Queue Size", "nvme-rdma.cm.req.hsqsize",
-               FT_UINT16, BASE_CUSTOM, add_rdma_cm_hrqsize, 0x0, NULL, HFILL}
+               FT_UINT16, BASE_CUSTOM, CF_FUNC(add_zero_base), 0x0, NULL, HFILL}
         },
         { &hf_nvme_rdma_cm_req_cntlid,
             { "Controller ID", "nvme-rdma.cm.req.cntlid",
@@ -1340,19 +1347,19 @@ proto_register_nvme_rdma(void)
         },
         { &hf_nvme_rdma_cmd_opc,
             { "Opcode", "nvme-rdma.cmd.opc",
-               FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+               FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvme_rdma_cmd_rsvd,
             { "Reserved", "nvme-rdma.cmd.rsvd",
                FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvme_rdma_cmd_cid,
-            { "Command ID", "nvme-rdma.cmd.cid",
+            { "Command Identifier", "nvme-rdma.cmd.cid",
                FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvme_rdma_cmd_fctype,
-            { "Fabric Cmd Type", "nvme-rdma.cmd.fctype",
-               FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+            { "Fabric Command Type", "nvme-rdma.cmd.fctype",
+               FT_UINT8, BASE_HEX, VALS(fctype_tbl), 0x0, NULL, HFILL}
         },
         { &hf_nvme_rdma_cmd_connect_rsvd1,
             { "Reserved", "nvme-rdma.cmd.connect.rsvd1",
@@ -1364,19 +1371,35 @@ proto_register_nvme_rdma(void)
         },
         { &hf_nvme_rdma_cmd_connect_recfmt,
             { "Record Format", "nvme-rdma.cmd.connect.recfmt",
-               FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
+               FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvme_rdma_cmd_connect_qid,
             { "Queue ID", "nvme-rdma.cmd.connect.qid",
-               FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
+               FT_UINT16, BASE_CUSTOM, CF_FUNC(add_rdma_cm_qid), 0x0, NULL, HFILL}
         },
         { &hf_nvme_rdma_cmd_connect_sqsize,
-            { "SQ Size", "nvme-rdma.cmd.connect.sqsize",
-               FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
+            { "Submission Queue Size", "nvme-rdma.cmd.connect.sqsize",
+               FT_UINT16, BASE_CUSTOM, CF_FUNC(add_zero_base), 0x0, NULL, HFILL}
         },
-        { &hf_nvme_rdma_cmd_connect_cattr,
+        { &hf_nvme_rdma_cmd_connect_cattr[0],
             { "Connect Attributes", "nvme-rdma.cmd.connect.cattr",
                FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_rdma_cmd_connect_cattr[1],
+            { "Priority Class", "nvme-rdma.cmd.connect.cattr.pc",
+               FT_UINT8, BASE_HEX, VALS(pclass_tbl), 0x3, NULL, HFILL}
+        },
+        { &hf_nvme_rdma_cmd_connect_cattr[2],
+            { "Disable SQ Flow Control", "nvme-rdma.cmd.connect.cattr.dfc",
+               FT_UINT8, BASE_HEX, NULL, 0x4, NULL, HFILL}
+        },
+        { &hf_nvme_rdma_cmd_connect_cattr[3],
+            { "Support Deletion of IO Queues", "nvme-rdma.cmd.connect.cattr.dioq",
+               FT_UINT8, BASE_HEX, NULL, 0x8, NULL, HFILL}
+        },
+        { &hf_nvme_rdma_cmd_connect_cattr[4],
+            { "Reserved", "nvme-rdma.cmd.connect.cattr.rsvd",
+               FT_UINT8, BASE_HEX, NULL, 0xf0, NULL, HFILL}
         },
         { &hf_nvme_rdma_cmd_connect_rsvd2,
             { "Reserved", "nvme-rdma.cmd.connect.rsvd2",
