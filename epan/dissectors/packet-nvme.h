@@ -63,6 +63,8 @@ struct nvme_cmd_ctx {
 extern int hf_nvmeof_cmd_pkt;
 extern int hf_nvmeof_data_req;
 
+const gchar *get_nvmeof_cmd_string(guint8 fctype);
+
 void
 nvme_publish_qid(proto_tree *tree, int field_index, guint16 qid);
 
@@ -98,7 +100,7 @@ struct keyed_data_req
 
 void
 dissect_nvmeof_fabric_cmd(tvbuff_t *nvme_tvb, packet_info *pinfo, proto_tree *nvme_tree,
-                                struct nvme_q_ctx *q_ctx, struct nvme_cmd_ctx *cmd, guint off);
+                                struct nvme_q_ctx *q_ctx, struct nvme_cmd_ctx *cmd, guint off, gboolean link_data_req);
 void
 dissect_nvmeof_cmd_data(tvbuff_t *data_tvb, proto_tree *data_tree,
                                  guint offset, struct nvme_cmd_ctx *cmd, guint len);

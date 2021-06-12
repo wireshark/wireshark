@@ -3633,7 +3633,7 @@ static void dissect_nvmeof_fabric_generic_cmd(proto_tree *cmd_tree, tvbuff_t *cm
 }
 
 void dissect_nvmeof_fabric_cmd(tvbuff_t *nvme_tvb, packet_info *pinfo, proto_tree *nvme_tree,
-        struct nvme_q_ctx *q_ctx, struct nvme_cmd_ctx *cmd, guint off)
+        struct nvme_q_ctx *q_ctx, struct nvme_cmd_ctx *cmd, guint off, gboolean link_data_req)
 {
     proto_tree *cmd_tree;
     proto_item *ti;
@@ -3650,7 +3650,8 @@ void dissect_nvmeof_fabric_cmd(tvbuff_t *nvme_tvb, packet_info *pinfo, proto_tre
                                 NVME_FABRIC_OPC);
 
     cmd->opcode = NVME_FABRIC_OPC;
-    nvme_publish_to_data_req_link(cmd_tree, nvme_tvb, hf_nvmeof_data_req, cmd);
+    if (link_data_req)
+        nvme_publish_to_data_req_link(cmd_tree, nvme_tvb, hf_nvmeof_data_req, cmd);
     nvme_publish_to_cqe_link(cmd_tree, nvme_tvb, hf_nvmeof_cqe_pkt, cmd);
 
     proto_tree_add_item(cmd_tree, hf_nvmeof_cmd_rsvd, nvme_tvb,
@@ -3796,6 +3797,12 @@ dissect_nvmeof_cqe_status_8B(proto_tree *cqe_tree, tvbuff_t *cqe_tvb,
                             0+off, 8, ENC_LITTLE_ENDIAN);
         break;
     };
+}
+
+
+const gchar *get_nvmeof_cmd_string(guint8 fctype)
+{
+    return val_to_str(fctype, fctype_tbl, "Unknown Fabric Command");
 }
 
 void
