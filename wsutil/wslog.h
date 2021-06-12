@@ -149,6 +149,7 @@ WS_DLL_PUBLIC
 void ws_log(const char *domain, enum ws_log_level level,
                     const char *format, ...) G_GNUC_PRINTF(3,4);
 
+
 /** This function is called to output a message to the log.
  *
  * Takes a format string and a 'va_list'.

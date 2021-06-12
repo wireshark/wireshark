@@ -20,13 +20,13 @@
 
 #define PREFIX_BUFSIZE  128
 
-#define _ENV_LEVEL "WIRESHARK_LOG_LEVEL"
-#define _ENV_DOMAINS "WIRESHARK_LOG_DOMAINS"
+#define ENV_VAR_LEVEL       "WIRESHARK_LOG_LEVEL"
+#define ENV_VAR_DOMAINS     "WIRESHARK_LOG_DOMAINS"
+
+#define DEFAULT_LOG_LEVEL   LOG_LEVEL_MESSAGE
 
 
-/* TODO: Add filtering by domain. */
-
-static enum ws_log_level current_log_level = LOG_LEVEL_MESSAGE;
+static enum ws_log_level current_log_level = LOG_LEVEL_NONE;
 
 GPtrArray *domain_filter = NULL;
 
@@ -99,6 +99,9 @@ gboolean ws_log_domain_is_active(const char *domain)
 
 static gboolean log_drop_message(const char *domain, enum ws_log_level level)
 {
+    if (level <= LOG_LEVEL_CRITICAL)
+        return FALSE;
+
     return !ws_log_level_is_active(level) || !ws_log_domain_is_active(domain);
 }
 
@@ -160,6 +163,7 @@ static const char *log_prune_argv(int count, char **ptr, int prune_extra,
     *ret_argc -= (1 + prune_extra);
     return optarg;
 }
+
 
 const char *log_parse_args(int *argc_ptr, char *argv[], const char *optstr)
 {
@@ -236,6 +240,7 @@ void ws_log_set_domain_filter_str(const char *str_filter)
     g_free(str);
 }
 
+
 void ws_log_set_domain_filter_args(int *argc_ptr, char *argv[])
 {
     const char *optval = NULL;
@@ -250,19 +255,20 @@ void ws_log_set_domain_filter_args(int *argc_ptr, char *argv[])
 
 void ws_log_init(ws_log_writer_cb *_writer)
 {
-    if (_writer) {
+    if (_writer)
         registered_log_writer = _writer;
-    }
 
     const char *env;
 
-    env = g_getenv(_ENV_LEVEL);
-    if (env && ws_log_set_level_str(env) == LOG_LEVEL_NONE) {
-        fprintf(stderr, "Ignoring invalid environment value %s=\"%s\"\n", _ENV_LEVEL, env);
+    current_log_level = DEFAULT_LOG_LEVEL;
+
+    env = g_getenv(ENV_VAR_LEVEL);
+    if (env != NULL && ws_log_set_level_str(env) == LOG_LEVEL_NONE) {
+        fprintf(stderr, "Ignoring invalid environment value %s=\"%s\"\n", ENV_VAR_LEVEL, env);
     }
 
-    env = g_getenv(_ENV_DOMAINS);
-    if (env)
+    env = g_getenv(ENV_VAR_DOMAINS);
+    if (env != NULL)
         ws_log_set_domain_filter_str(env);
 
     atexit(ws_log_cleanup);
