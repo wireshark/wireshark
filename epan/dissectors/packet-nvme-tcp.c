@@ -422,7 +422,7 @@ dissect_nvme_fabric_connect_cmd(struct nvme_tcp_q_ctx *queue, packet_info *pinfo
     proto_tree_add_item(cmd_tree, hf_nvme_fabrics_cmd_connect_rsvd2, cmd_tvb,
             offset + 5, 19, ENC_NA);
     dissect_nvme_cmd_sgl(cmd_tvb, cmd_tree, hf_nvme_fabrics_cmd_connect_sgl1,
-            NULL, NULL, PINFO_FD_VISITED(pinfo));
+            NULL, NULL, offset, PINFO_FD_VISITED(pinfo));
     proto_tree_add_item(cmd_tree, hf_nvme_fabrics_cmd_connect_recfmt, cmd_tvb,
             offset + 40, 2, ENC_LITTLE_ENDIAN);
 

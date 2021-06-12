@@ -98,14 +98,14 @@ struct keyed_data_req
 
 void
 dissect_nvmeof_fabric_cmd(tvbuff_t *nvme_tvb, packet_info *pinfo, proto_tree *nvme_tree,
-                                struct nvme_q_ctx *q_ctx, struct nvme_cmd_ctx *cmd);
+                                struct nvme_q_ctx *q_ctx, struct nvme_cmd_ctx *cmd, guint off);
 void
 dissect_nvmeof_cmd_data(tvbuff_t *data_tvb, proto_tree *data_tree,
                                  guint offset, struct nvme_cmd_ctx *cmd, guint len);
 void
 dissect_nvmeof_fabric_cqe(tvbuff_t *nvme_tvb,
                         proto_tree *nvme_tree,
-                        struct nvme_cmd_ctx *cmd_ctx);
+                        struct nvme_cmd_ctx *cmd_ctx, guint off);
 
 void
 nvme_add_data_request(struct nvme_q_ctx *q_ctx, struct nvme_cmd_ctx *cmd_ctx,
@@ -129,7 +129,7 @@ nvme_lookup_cmd_in_done_list(packet_info *pinfo, struct nvme_q_ctx *q_ctx,
                              guint16 cmd_id);
 
 void dissect_nvme_cmd_sgl(tvbuff_t *cmd_tvb, proto_tree *cmd_tree, int field_index,
-                 struct nvme_q_ctx *q_ctx, struct nvme_cmd_ctx *cmd_ctx, gboolean visited);
+                 struct nvme_q_ctx *q_ctx, struct nvme_cmd_ctx *cmd_ctx, guint cmd_off, gboolean visited);
 
 void
 dissect_nvme_cmd(tvbuff_t *nvme_tvb, packet_info *pinfo, proto_tree *root_tree,

@@ -1350,11 +1350,11 @@ void nvme_publish_to_data_resp_link(proto_tree *tree, tvbuff_t *tvb,
 }
 
 void dissect_nvme_cmd_sgl(tvbuff_t *cmd_tvb, proto_tree *cmd_tree,
-                          int field_index, struct nvme_q_ctx *q_ctx, struct nvme_cmd_ctx *cmd_ctx, gboolean visited)
+                          int field_index, struct nvme_q_ctx *q_ctx, struct nvme_cmd_ctx *cmd_ctx, guint cmd_off, gboolean visited)
 {
     proto_item *ti, *sgl_tree, *type_item, *sub_type_item;
     guint8 sgl_identifier, desc_type, desc_sub_type;
-    int offset = 24;
+    int offset = 24 + cmd_off;
 
     ti = proto_tree_add_item(cmd_tree, field_index, cmd_tvb, offset,
                              16, ENC_NA);
@@ -3486,26 +3486,26 @@ static void add_zero_base(gchar *result, guint32 val)
 
 static
 void dissect_nvmeof_fabric_connect_cmd(proto_tree *cmd_tree, packet_info *pinfo, tvbuff_t *cmd_tvb,
-        struct nvme_q_ctx *q_ctx, struct nvme_cmd_ctx *cmd)
+        struct nvme_q_ctx *q_ctx, struct nvme_cmd_ctx *cmd, guint off)
 {
     proto_tree_add_item(cmd_tree, hf_nvmeof_cmd_connect_rsvd1, cmd_tvb,
-                        5, 19, ENC_NA);
+                        5+off, 19, ENC_NA);
     dissect_nvme_cmd_sgl(cmd_tvb, cmd_tree, hf_nvmeof_cmd_connect_sgl1,
-        q_ctx, cmd, PINFO_FD_VISITED(pinfo));
+        q_ctx, cmd, off, PINFO_FD_VISITED(pinfo));
     proto_tree_add_item(cmd_tree, hf_nvmeof_cmd_connect_recfmt, cmd_tvb,
-                        40, 2, ENC_LITTLE_ENDIAN);
+                        40+off, 2, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(cmd_tree, hf_nvmeof_cmd_connect_qid, cmd_tvb,
-                        42, 2, ENC_LITTLE_ENDIAN);
+                        42+off, 2, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(cmd_tree, hf_nvmeof_cmd_connect_sqsize, cmd_tvb,
-                        44, 2, ENC_LITTLE_ENDIAN);
+                        44+off, 2, ENC_LITTLE_ENDIAN);
 
-    add_group_mask_entry(cmd_tvb, cmd_tree, 46, 1, ASPEC(hf_nvmeof_cmd_connect_cattr));
+    add_group_mask_entry(cmd_tvb, cmd_tree, 46+off, 1, ASPEC(hf_nvmeof_cmd_connect_cattr));
     proto_tree_add_item(cmd_tree, hf_nvmeof_cmd_connect_rsvd2, cmd_tvb,
-                        47, 1, ENC_NA);
+                        47+off, 1, ENC_NA);
     proto_tree_add_item(cmd_tree, hf_nvmeof_cmd_connect_kato, cmd_tvb,
-                        48, 4, ENC_LITTLE_ENDIAN);
+                        48+off, 4, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(cmd_tree, hf_nvmeof_cmd_connect_rsvd3, cmd_tvb,
-                        52, 12, ENC_NA);
+                        52+off, 12, ENC_NA);
 }
 
 static void
@@ -3562,78 +3562,78 @@ dissect_nvmeof_prop_nssr(proto_tree *tree, tvbuff_t *tvb, const struct prop_nssr
     proto_tree_add_item(tree, nssrc_ctx->rsvd, tvb, offset+4, 4, ENC_NA);
 }
 
-static guint8 dissect_nvme_fabric_prop_cmd_common(proto_tree *cmd_tree, tvbuff_t *cmd_tvb)
+static guint8 dissect_nvme_fabric_prop_cmd_common(proto_tree *cmd_tree, tvbuff_t *cmd_tvb, guint off)
 {
     proto_item *attr_item, *offset_item;
     guint32 offset;
     guint8 attr;
 
     proto_tree_add_item(cmd_tree, hf_nvmeof_cmd_prop_attr_rsvd, cmd_tvb,
-                        5, 35, ENC_NA);
+                        5+off, 35, ENC_NA);
     proto_tree_add_item(cmd_tree, hf_nvmeof_cmd_prop_attr_rsvd1, cmd_tvb,
-                        40, 1, ENC_LITTLE_ENDIAN);
+                        40+off, 1, ENC_LITTLE_ENDIAN);
     attr_item = proto_tree_add_item(cmd_tree, hf_nvmeof_cmd_prop_attr_size, cmd_tvb,
-                                    40, 1, ENC_LITTLE_ENDIAN);
-    attr = tvb_get_guint8(cmd_tvb, 40) & 0x7;
+                                    40+off, 1, ENC_LITTLE_ENDIAN);
+    attr = tvb_get_guint8(cmd_tvb, 40+off) & 0x7;
     proto_item_append_text(attr_item, " %s",
                            val_to_str(attr, attr_size_tbl, "Reserved"));
 
     proto_tree_add_item(cmd_tree, hf_nvmeof_cmd_prop_attr_rsvd2, cmd_tvb,
-                        41, 3, ENC_NA);
+                        41+off, 3, ENC_NA);
 
     offset_item = proto_tree_add_item_ret_uint(cmd_tree, hf_nvmeof_cmd_prop_attr_offset,
-                                      cmd_tvb, 44, 4, ENC_LITTLE_ENDIAN, &offset);
+                                      cmd_tvb, 44+off, 4, ENC_LITTLE_ENDIAN, &offset);
     proto_item_append_text(offset_item, " %s",
                            val_to_str(offset, prop_offset_tbl, "Unknown Property"));
     return attr;
 }
 
-static void dissect_nvmeof_fabric_prop_get_cmd(proto_tree *cmd_tree, tvbuff_t *cmd_tvb, struct nvme_cmd_ctx *cmd)
+static void dissect_nvmeof_fabric_prop_get_cmd(proto_tree *cmd_tree, tvbuff_t *cmd_tvb, struct nvme_cmd_ctx *cmd, guint off)
 {
-    cmd->cmd_ctx.fabric_cmd.prop_get.offset = tvb_get_guint8(cmd_tvb, 44);
-    dissect_nvme_fabric_prop_cmd_common(cmd_tree, cmd_tvb);
+    cmd->cmd_ctx.fabric_cmd.prop_get.offset = tvb_get_guint8(cmd_tvb, 44+off);
+    dissect_nvme_fabric_prop_cmd_common(cmd_tree, cmd_tvb, off);
     proto_tree_add_item(cmd_tree, hf_nvmeof_cmd_prop_attr_get_rsvd3, cmd_tvb,
-                        48, 16, ENC_NA);
+                        48+off, 16, ENC_NA);
 }
 
-static void dissect_nvmeof_fabric_prop_set_cmd(proto_tree *cmd_tree, tvbuff_t *cmd_tvb)
+static void dissect_nvmeof_fabric_prop_set_cmd(proto_tree *cmd_tree, tvbuff_t *cmd_tvb, guint off)
 {
     guint8 attr;
     guint32 offset;
 
-    attr = dissect_nvme_fabric_prop_cmd_common(cmd_tree, cmd_tvb);
-    offset = tvb_get_guint32(cmd_tvb, 44, ENC_LITTLE_ENDIAN);
+    attr = dissect_nvme_fabric_prop_cmd_common(cmd_tree, cmd_tvb, off);
+    offset = tvb_get_guint32(cmd_tvb, 44+off, ENC_LITTLE_ENDIAN);
     switch(offset) {
-        case 0x14: dissect_nvmeof_prop_cc(cmd_tree, cmd_tvb, &hf_nvmeof_cmd_sprop_cc, 48); break;
-        case 0x1c: dissect_nvmeof_prop_csts(cmd_tree, cmd_tvb, &hf_nvmeof_cmd_sprop_csts, 48); break;
-        case 0x20: dissect_nvmeof_prop_nssr(cmd_tree, cmd_tvb, &hf_nvmeof_cmd_sprop_nssr, 48);  break;
+        case 0x14: dissect_nvmeof_prop_cc(cmd_tree, cmd_tvb, &hf_nvmeof_cmd_sprop_cc, 48+off); break;
+        case 0x1c: dissect_nvmeof_prop_csts(cmd_tree, cmd_tvb, &hf_nvmeof_cmd_sprop_csts, 48+off); break;
+        case 0x20: dissect_nvmeof_prop_nssr(cmd_tree, cmd_tvb, &hf_nvmeof_cmd_sprop_nssr, 48+off);  break;
         default:
         {
             if (attr == 0) {
             proto_tree_add_item(cmd_tree, hf_nvmeof_cmd_prop_attr_set_4B_value, cmd_tvb,
-                            48, 4, ENC_LITTLE_ENDIAN);
+                            48+off, 4, ENC_LITTLE_ENDIAN);
             proto_tree_add_item(cmd_tree, hf_nvmeof_cmd_prop_attr_set_4B_value_rsvd, cmd_tvb,
-                            52, 4, ENC_LITTLE_ENDIAN);
+                            52+off, 4, ENC_LITTLE_ENDIAN);
             } else {
                 proto_tree_add_item(cmd_tree, hf_nvmeof_cmd_prop_attr_set_8B_value, cmd_tvb,
-                            48, 8, ENC_LITTLE_ENDIAN);
+                            48+off, 8, ENC_LITTLE_ENDIAN);
             }
         }
     }
     proto_tree_add_item(cmd_tree, hf_nvmeof_cmd_prop_attr_set_rsvd3, cmd_tvb,
-                        56, 8, ENC_NA);
+                        56+off, 8, ENC_NA);
 }
 
-static void dissect_nvmeof_fabric_generic_cmd(proto_tree *cmd_tree, tvbuff_t *cmd_tvb)
+static void dissect_nvmeof_fabric_generic_cmd(proto_tree *cmd_tree, tvbuff_t *cmd_tvb, guint off)
 {
     proto_tree_add_item(cmd_tree, hf_nvmeof_cmd_generic_rsvd1, cmd_tvb,
-                        5, 35, ENC_NA);
+                        5+off, 35, ENC_NA);
     proto_tree_add_item(cmd_tree, hf_nvmeof_cmd_generic_field, cmd_tvb,
-                        40, 24, ENC_NA);
+                        40+off, 24, ENC_NA);
 }
 
 void dissect_nvmeof_fabric_cmd(tvbuff_t *nvme_tvb, packet_info *pinfo, proto_tree *nvme_tree,
-        struct nvme_q_ctx *q_ctx, struct nvme_cmd_ctx *cmd)
+        struct nvme_q_ctx *q_ctx, struct nvme_cmd_ctx *cmd, guint off)
 {
     proto_tree *cmd_tree;
     proto_item *ti;
@@ -3642,11 +3642,11 @@ void dissect_nvmeof_fabric_cmd(tvbuff_t *nvme_tvb, packet_info *pinfo, proto_tre
     fctype = tvb_get_guint8(nvme_tvb, 4);
     cmd->cmd_ctx.fabric_cmd.fctype = fctype;
 
-    ti = proto_tree_add_item(nvme_tree, hf_nvmeof_cmd, nvme_tvb, 0,
+    ti = proto_tree_add_item(nvme_tree, hf_nvmeof_cmd, nvme_tvb, off,
                              NVME_CMD_SIZE, ENC_NA);
     cmd_tree = proto_item_add_subtree(ti, ett_data);
 
-    proto_tree_add_bytes_format(cmd_tree, hf_nvmeof_cmd_opc, nvme_tvb, 0, 1, NULL, "Opcode: 0x%x (Fabric Command)",
+    proto_tree_add_bytes_format(cmd_tree, hf_nvmeof_cmd_opc, nvme_tvb, off, 1, NULL, "Opcode: 0x%x (Fabric Command)",
                                 NVME_FABRIC_OPC);
 
     cmd->opcode = NVME_FABRIC_OPC;
@@ -3654,25 +3654,25 @@ void dissect_nvmeof_fabric_cmd(tvbuff_t *nvme_tvb, packet_info *pinfo, proto_tre
     nvme_publish_to_cqe_link(cmd_tree, nvme_tvb, hf_nvmeof_cqe_pkt, cmd);
 
     proto_tree_add_item(cmd_tree, hf_nvmeof_cmd_rsvd, nvme_tvb,
-                        1, 1, ENC_NA);
+                        1+off, 1, ENC_NA);
     proto_tree_add_item(cmd_tree, hf_nvmeof_cmd_cid, nvme_tvb,
-                        2, 2, ENC_LITTLE_ENDIAN);
+                        2+off, 2, ENC_LITTLE_ENDIAN);
 
     proto_tree_add_item(cmd_tree, hf_nvmeof_cmd_fctype, nvme_tvb,
-                        4, 1, ENC_LITTLE_ENDIAN);
+                        4+off, 1, ENC_LITTLE_ENDIAN);
     switch(fctype) {
     case NVME_FCTYPE_CONNECT:
-        dissect_nvmeof_fabric_connect_cmd(cmd_tree, pinfo, nvme_tvb, q_ctx, cmd);
+        dissect_nvmeof_fabric_connect_cmd(cmd_tree, pinfo, nvme_tvb, q_ctx, cmd, off);
         break;
     case NVME_FCTYPE_PROP_GET:
-        dissect_nvmeof_fabric_prop_get_cmd(cmd_tree, nvme_tvb, cmd);
+        dissect_nvmeof_fabric_prop_get_cmd(cmd_tree, nvme_tvb, cmd, off);
         break;
     case NVME_FCTYPE_PROP_SET:
-        dissect_nvmeof_fabric_prop_set_cmd(cmd_tree, nvme_tvb);
+        dissect_nvmeof_fabric_prop_set_cmd(cmd_tree, nvme_tvb, off);
         break;
     case NVME_FCTYPE_AUTH_RECV:
     default:
-        dissect_nvmeof_fabric_generic_cmd(cmd_tree, nvme_tvb);
+        dissect_nvmeof_fabric_generic_cmd(cmd_tree, nvme_tvb, off);
         break;
     }
 }
@@ -3704,28 +3704,28 @@ dissect_nvmeof_cmd_data(tvbuff_t *data_tvb, proto_tree *data_tree,
 }
 
 static void
-dissect_nvmeof_status_prop_get_cap(proto_tree *cqe_tree, tvbuff_t *cqe_tvb)
+dissect_nvmeof_status_prop_get_cap(proto_tree *cqe_tree, tvbuff_t *cqe_tvb, guint off)
 {
     proto_item *ti;
     guint8 order, set;
 
-    proto_tree_add_item(cqe_tree, hf_nvmeof_cmd_gprop_cap.mqes, cqe_tvb, 0, 2, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(cqe_tree, hf_nvmeof_cmd_gprop_cap.cqr, cqe_tvb, 2, 1, ENC_LITTLE_ENDIAN);
-    ti = proto_tree_add_item(cqe_tree, hf_nvmeof_cmd_gprop_cap.ams, cqe_tvb, 2, 1, ENC_LITTLE_ENDIAN);
-    set = (tvb_get_guint8(cqe_tvb, 3)) & 0x3;
+    proto_tree_add_item(cqe_tree, hf_nvmeof_cmd_gprop_cap.mqes, cqe_tvb, 0+off, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cqe_tree, hf_nvmeof_cmd_gprop_cap.cqr, cqe_tvb, 2+off, 1, ENC_LITTLE_ENDIAN);
+    ti = proto_tree_add_item(cqe_tree, hf_nvmeof_cmd_gprop_cap.ams, cqe_tvb, 2+off, 1, ENC_LITTLE_ENDIAN);
+    set = (tvb_get_guint8(cqe_tvb, 3+off)) & 0x3;
     switch (set) {
         case 0: proto_item_append_text(ti, " (None)"); break;
         case 1: proto_item_append_text(ti, " (Weighted Round Robin with Urgent Priority Class"); break;
         case 2: proto_item_append_text(ti, " (Vendor Specific)"); break;
         case 3: proto_item_append_text(ti, " (Weighted Round Robin with Urgent Priority Class, Vendor Specific)"); break;
     };
-    proto_tree_add_item(cqe_tree, hf_nvmeof_cmd_gprop_cap.rsvd, cqe_tvb, 2, 1, ENC_LITTLE_ENDIAN);
-    ti = proto_tree_add_item(cqe_tree, hf_nvmeof_cmd_gprop_cap.to, cqe_tvb, 3, 1, ENC_LITTLE_ENDIAN);
-    proto_item_append_text(ti, " (%u milliseconds)", 500U * tvb_get_guint8(cqe_tvb, 3));
-    proto_tree_add_item(cqe_tree, hf_nvmeof_cmd_gprop_cap.dstrd, cqe_tvb, 4, 2, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(cqe_tree, hf_nvmeof_cmd_gprop_cap.nssrs, cqe_tvb, 4, 2, ENC_LITTLE_ENDIAN);
-    ti = proto_tree_add_item(cqe_tree, hf_nvmeof_cmd_gprop_cap.css, cqe_tvb, 4, 2, ENC_LITTLE_ENDIAN);
-    set = (tvb_get_guint16(cqe_tvb, 4, ENC_LITTLE_ENDIAN) >> 5) & 0xFF;
+    proto_tree_add_item(cqe_tree, hf_nvmeof_cmd_gprop_cap.rsvd, cqe_tvb, 2+off, 1, ENC_LITTLE_ENDIAN);
+    ti = proto_tree_add_item(cqe_tree, hf_nvmeof_cmd_gprop_cap.to, cqe_tvb, 3+off, 1, ENC_LITTLE_ENDIAN);
+    proto_item_append_text(ti, " (%u milliseconds)", 500U * tvb_get_guint8(cqe_tvb, 3+off));
+    proto_tree_add_item(cqe_tree, hf_nvmeof_cmd_gprop_cap.dstrd, cqe_tvb, 4+off, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cqe_tree, hf_nvmeof_cmd_gprop_cap.nssrs, cqe_tvb, 4+off, 2, ENC_LITTLE_ENDIAN);
+    ti = proto_tree_add_item(cqe_tree, hf_nvmeof_cmd_gprop_cap.css, cqe_tvb, 4+off, 2, ENC_LITTLE_ENDIAN);
+    set = (tvb_get_guint16(cqe_tvb, 4+off, ENC_LITTLE_ENDIAN) >> 5) & 0xFF;
     if (set) {
         if (set & 0x1)
             proto_item_append_text(ti, " (NVM IO Command Set)");
@@ -3734,66 +3734,66 @@ dissect_nvmeof_status_prop_get_cap(proto_tree *cqe_tree, tvbuff_t *cqe_tvb)
         else
             proto_item_append_text(ti, "(Reserved)");
     }
-    proto_tree_add_item(cqe_tree, hf_nvmeof_cmd_gprop_cap.bps, cqe_tvb, 4, 2, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(cqe_tree, hf_nvmeof_cmd_gprop_cap.rsvd1, cqe_tvb, 4, 2, ENC_LITTLE_ENDIAN);
-    ti = proto_tree_add_item(cqe_tree, hf_nvmeof_cmd_gprop_cap.mpsmin, cqe_tvb, 6, 1, ENC_LITTLE_ENDIAN);
-    order =  12 + (tvb_get_guint8(cqe_tvb, 6) & 0xF);
+    proto_tree_add_item(cqe_tree, hf_nvmeof_cmd_gprop_cap.bps, cqe_tvb, 4+off, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cqe_tree, hf_nvmeof_cmd_gprop_cap.rsvd1, cqe_tvb, 4+off, 2, ENC_LITTLE_ENDIAN);
+    ti = proto_tree_add_item(cqe_tree, hf_nvmeof_cmd_gprop_cap.mpsmin, cqe_tvb, 6+off, 1, ENC_LITTLE_ENDIAN);
+    order =  12 + (tvb_get_guint8(cqe_tvb, 6+off) & 0xF);
     proto_item_append_text(ti, " (%lu bytes)", 1UL << order);
-    ti = proto_tree_add_item(cqe_tree, hf_nvmeof_cmd_gprop_cap.mpsmax, cqe_tvb, 6, 1, ENC_LITTLE_ENDIAN);
-    order =  12 + ((tvb_get_guint8(cqe_tvb, 6) & 0xF0) >> 4);
+    ti = proto_tree_add_item(cqe_tree, hf_nvmeof_cmd_gprop_cap.mpsmax, cqe_tvb, 6+off, 1, ENC_LITTLE_ENDIAN);
+    order =  12 + ((tvb_get_guint8(cqe_tvb, 6+off) & 0xF0) >> 4);
     proto_item_append_text(ti, " (%lu bytes)", 1UL << order);
-    proto_tree_add_item(cqe_tree, hf_nvmeof_cmd_gprop_cap.pmrs, cqe_tvb, 7, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(cqe_tree, hf_nvmeof_cmd_gprop_cap.cmbs, cqe_tvb, 7, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(cqe_tree, hf_nvmeof_cmd_gprop_cap.rsvd2, cqe_tvb, 7, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(cqe_tree, hf_nvmeof_cmd_gprop_cap.rsvd3, cqe_tvb, 8, 1, ENC_NA);
+    proto_tree_add_item(cqe_tree, hf_nvmeof_cmd_gprop_cap.pmrs, cqe_tvb, 7+off, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cqe_tree, hf_nvmeof_cmd_gprop_cap.cmbs, cqe_tvb, 7+off, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cqe_tree, hf_nvmeof_cmd_gprop_cap.rsvd2, cqe_tvb, 7+off, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cqe_tree, hf_nvmeof_cmd_gprop_cap.rsvd3, cqe_tvb, 8+off, 1, ENC_NA);
 }
 
 static void
-dissect_nvmeof_status_prop_get_vs(proto_tree *cqe_tree, tvbuff_t *cqe_tvb)
+dissect_nvmeof_status_prop_get_vs(proto_tree *cqe_tree, tvbuff_t *cqe_tvb, guint off)
 {
-    proto_tree_add_item(cqe_tree, hf_nvmeof_cmd_gprop_ver.ter, cqe_tvb, 0, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(cqe_tree, hf_nvmeof_cmd_gprop_ver.mnr, cqe_tvb, 1, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(cqe_tree, hf_nvmeof_cmd_gprop_ver.mjr, cqe_tvb, 2, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cqe_tree, hf_nvmeof_cmd_gprop_ver.ter, cqe_tvb, 0+off, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cqe_tree, hf_nvmeof_cmd_gprop_ver.mnr, cqe_tvb, 1+off, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cqe_tree, hf_nvmeof_cmd_gprop_ver.mjr, cqe_tvb, 2+off, 2, ENC_LITTLE_ENDIAN);
 }
 
 static void
-dissect_nvmeof_status_prop_get(proto_tree *cqe_tree, tvbuff_t *cqe_tvb, struct nvme_cmd_ctx *cmd)
+dissect_nvmeof_status_prop_get(proto_tree *cqe_tree, tvbuff_t *cqe_tvb, struct nvme_cmd_ctx *cmd, guint off)
 {
     proto_item *ti = proto_tree_add_item(cqe_tree, hf_nvmeof_cqe_sts, cqe_tvb, 0, 8, ENC_LITTLE_ENDIAN);
     proto_item_append_text(ti, " (value for property: %s)", val_to_str(cmd->cmd_ctx.fabric_cmd.prop_get.offset, prop_offset_tbl, "Unknown Property"));
     switch (cmd->cmd_ctx.fabric_cmd.prop_get.offset) {
-        case 0: dissect_nvmeof_status_prop_get_cap(cqe_tree, cqe_tvb); break;
-        case 8: dissect_nvmeof_status_prop_get_vs(cqe_tree, cqe_tvb); break;
-        case 0x14: dissect_nvmeof_prop_cc(cqe_tree, cqe_tvb, &hf_nvmeof_cmd_gprop_cc, 0); break;
-        case 0x1c: dissect_nvmeof_prop_csts(cqe_tree, cqe_tvb, &hf_nvmeof_cmd_gprop_csts, 0); break;
-        case 0x20: dissect_nvmeof_prop_nssr(cqe_tree, cqe_tvb, &hf_nvmeof_cmd_gprop_nssr, 0); break;
+        case 0: dissect_nvmeof_status_prop_get_cap(cqe_tree, cqe_tvb, off); break;
+        case 8: dissect_nvmeof_status_prop_get_vs(cqe_tree, cqe_tvb, off); break;
+        case 0x14: dissect_nvmeof_prop_cc(cqe_tree, cqe_tvb, &hf_nvmeof_cmd_gprop_cc, off); break;
+        case 0x1c: dissect_nvmeof_prop_csts(cqe_tree, cqe_tvb, &hf_nvmeof_cmd_gprop_csts, off); break;
+        case 0x20: dissect_nvmeof_prop_nssr(cqe_tree, cqe_tvb, &hf_nvmeof_cmd_gprop_nssr, off); break;
     }
 };
 
 static void
 dissect_nvmeof_cqe_status_8B(proto_tree *cqe_tree, tvbuff_t *cqe_tvb,
-                                  struct nvme_cmd_ctx *cmd)
+                                  struct nvme_cmd_ctx *cmd, guint off)
 {
     switch (cmd->cmd_ctx.fabric_cmd.fctype) {
     case NVME_FCTYPE_CONNECT:
         proto_tree_add_item(cqe_tree, hf_nvmeof_cqe_connect_cntlid, cqe_tvb,
-                            0, 2, ENC_LITTLE_ENDIAN);
+                            0+off, 2, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(cqe_tree, hf_nvmeof_cqe_connect_authreq, cqe_tvb,
-                            2, 2, ENC_LITTLE_ENDIAN);
+                            2+off, 2, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(cqe_tree, hf_nvmeof_cqe_connect_rsvd, cqe_tvb,
-                            4, 4, ENC_NA);
+                            4+off, 4, ENC_NA);
         break;
     case NVME_FCTYPE_PROP_GET:
-        dissect_nvmeof_status_prop_get(cqe_tree, cqe_tvb, cmd);
+        dissect_nvmeof_status_prop_get(cqe_tree, cqe_tvb, cmd, off);
         break;
     case NVME_FCTYPE_PROP_SET:
         proto_tree_add_item(cqe_tree, hf_nvmeof_cqe_prop_set_rsvd, cqe_tvb,
-                            0, 8, ENC_NA);
+                            0+off, 8, ENC_NA);
         break;
     case NVME_FCTYPE_AUTH_RECV:
     default:
         proto_tree_add_item(cqe_tree, hf_nvmeof_cqe_sts, cqe_tvb,
-                            0, 8, ENC_LITTLE_ENDIAN);
+                            0+off, 8, ENC_LITTLE_ENDIAN);
         break;
     };
 }
@@ -3801,13 +3801,13 @@ dissect_nvmeof_cqe_status_8B(proto_tree *cqe_tree, tvbuff_t *cqe_tvb,
 void
 dissect_nvmeof_fabric_cqe(tvbuff_t *nvme_tvb,
                         proto_tree *nvme_tree,
-                        struct nvme_cmd_ctx *cmd)
+                        struct nvme_cmd_ctx *cmd, guint off)
 {
     proto_tree *cqe_tree;
     proto_item *ti;
 
     ti = proto_tree_add_item(nvme_tree, hf_nvmeof_cqe, nvme_tvb,
-                             0, NVME_CQE_SIZE, ENC_NA);
+                             0+off, NVME_CQE_SIZE, ENC_NA);
     proto_item_append_text(ti, " (For Cmd: %s)", val_to_str(cmd->cmd_ctx.fabric_cmd.fctype,
                                                 fctype_tbl, "Unknown Cmd"));
 
@@ -3817,18 +3817,18 @@ dissect_nvmeof_fabric_cqe(tvbuff_t *nvme_tvb,
                                  cmd);
     nvme_publish_cmd_latency(cqe_tree, cmd, hf_nvmeof_cmd_latency);
 
-    dissect_nvmeof_cqe_status_8B(cqe_tree, nvme_tvb, cmd);
+    dissect_nvmeof_cqe_status_8B(cqe_tree, nvme_tvb, cmd, off);
 
     proto_tree_add_item(cqe_tree, hf_nvmeof_cqe_sqhd, nvme_tvb,
-                        8, 2, ENC_NA);
+                        8+off, 2, ENC_NA);
     proto_tree_add_item(cqe_tree, hf_nvmeof_cqe_rsvd, nvme_tvb,
-                        10, 2, ENC_LITTLE_ENDIAN);
+                        10+off, 2, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(cqe_tree, hf_nvmeof_cqe_cid, nvme_tvb,
-                        12, 2, ENC_LITTLE_ENDIAN);
+                        12+off, 2, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(cqe_tree, hf_nvmeof_cqe_status, nvme_tvb,
-                        14, 2, ENC_LITTLE_ENDIAN);
+                        14+off, 2, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(cqe_tree, hf_nvmeof_cqe_status_rsvd, nvme_tvb,
-                        14, 2, ENC_LITTLE_ENDIAN);
+                        14+off, 2, ENC_LITTLE_ENDIAN);
 }
 
 static void dissect_nvme_unhandled_cmd(tvbuff_t *nvme_tvb, proto_tree *cmd_tree)
@@ -3883,7 +3883,7 @@ dissect_nvme_cmd(tvbuff_t *nvme_tvb, packet_info *pinfo, proto_tree *root_tree,
     proto_tree_add_item(cmd_tree, hf_nvme_cmd_mptr, nvme_tvb,
                         16, 8, ENC_LITTLE_ENDIAN);
 
-    dissect_nvme_cmd_sgl(nvme_tvb, cmd_tree, hf_nvme_cmd_sgl, q_ctx, cmd_ctx, PINFO_FD_VISITED(pinfo));
+    dissect_nvme_cmd_sgl(nvme_tvb, cmd_tree, hf_nvme_cmd_sgl, q_ctx, cmd_ctx, 0, PINFO_FD_VISITED(pinfo));
 
     if (q_ctx->qid) { //IOQ
         switch (cmd_ctx->opcode) {

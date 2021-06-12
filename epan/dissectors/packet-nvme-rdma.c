@@ -403,7 +403,7 @@ dissect_nvme_rdma_cmd(tvbuff_t *nvme_tvb, packet_info *pinfo, proto_tree *root_t
     cmd_ctx = bind_cmd_to_qctx(pinfo, &q_ctx->n_q_ctx, cmd_id);
     if (opcode == NVME_FABRIC_OPC) {
         cmd_ctx->n_cmd_ctx.fabric = TRUE;
-        dissect_nvmeof_fabric_cmd(nvme_tvb, pinfo, nvme_tree, &q_ctx->n_q_ctx, &cmd_ctx->n_cmd_ctx);
+        dissect_nvmeof_fabric_cmd(nvme_tvb, pinfo, nvme_tree, &q_ctx->n_q_ctx, &cmd_ctx->n_cmd_ctx, 0);
     } else {
         cmd_ctx->n_cmd_ctx.fabric = FALSE;
         dissect_nvme_cmd(nvme_tvb, pinfo, root_tree, &q_ctx->n_q_ctx, &cmd_ctx->n_cmd_ctx);
@@ -507,7 +507,7 @@ dissect_nvme_rdma_cqe(tvbuff_t *nvme_tvb, packet_info *pinfo,
     nvme_update_cmd_end_info(pinfo, &cmd_ctx->n_cmd_ctx);
 
     if (cmd_ctx->n_cmd_ctx.fabric)
-        dissect_nvmeof_fabric_cqe(nvme_tvb, nvme_tree, &cmd_ctx->n_cmd_ctx);
+        dissect_nvmeof_fabric_cqe(nvme_tvb, nvme_tree, &cmd_ctx->n_cmd_ctx, 0);
     else
         dissect_nvme_cqe(nvme_tvb, pinfo, root_tree, &cmd_ctx->n_cmd_ctx);
     return;
