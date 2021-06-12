@@ -1463,6 +1463,7 @@ static void conversation_completeness_fill(gchar *buf, guint32 value)
 static gboolean tcp_analyze_seq           = TRUE;
 static gboolean tcp_relative_seq          = TRUE;
 static gboolean tcp_track_bytes_in_flight = TRUE;
+static gboolean tcp_bif_seq_based         = FALSE;
 static gboolean tcp_calculate_ts          = TRUE;
 
 static gboolean tcp_analyze_mptcp                   = TRUE;
@@ -2489,64 +2490,94 @@ finished_checking_retransmission_type:
 
     /* how many bytes of data are there in flight after this frame
      * was sent
+     * The historical evaluation is done from the payload seen in the
+     * segments captured. Another method deduced from the SEQ numbers
+     * is introduced with issue 7703, but not used by default now. The
+     * method is chosen by the user preference tcp_bif_seq_based.
      */
-    ual=tcpd->fwd->tcp_analyze_seq_info->segments;
-    if (tcp_track_bytes_in_flight && seglen!=0 && ual && tcpd->fwd->valid_bif) {
-        guint32 first_seq, last_seq, in_flight;
-        guint32 delivered = 0;
+    if(tcp_track_bytes_in_flight) {
+        guint32 in_flight, delivered = 0;
+        /*
+         * "don't repeat yourself" boolean, for the shared part
+         * between both methods
+         */
+        gboolean dry_bif_handling = FALSE;
 
-        first_seq = ual->seq - tcpd->fwd->base_seq;
-        last_seq = ual->nextseq - tcpd->fwd->base_seq;
-        while (ual) {
-            if ((ual->nextseq-tcpd->fwd->base_seq)>last_seq) {
-                last_seq = ual->nextseq-tcpd->fwd->base_seq;
+        /*
+         * historical calculation method based on payloads, which is
+         * by now still the default.
+         */
+        if(!tcp_bif_seq_based) {
+            ual=tcpd->fwd->tcp_analyze_seq_info->segments;
+
+            if (seglen!=0 && ual && tcpd->fwd->valid_bif) {
+                guint32 first_seq, last_seq;
+
+                dry_bif_handling = TRUE;
+
+                first_seq = ual->seq - tcpd->fwd->base_seq;
+                last_seq = ual->nextseq - tcpd->fwd->base_seq;
+                while (ual) {
+                    if ((ual->nextseq-tcpd->fwd->base_seq)>last_seq) {
+                        last_seq = ual->nextseq-tcpd->fwd->base_seq;
+                    }
+                    if ((ual->seq-tcpd->fwd->base_seq)<first_seq) {
+                        first_seq = ual->seq-tcpd->fwd->base_seq;
+                    }
+                    ual = ual->next;
+                }
+                in_flight = last_seq-first_seq;
             }
-            if ((ual->seq-tcpd->fwd->base_seq)<first_seq) {
-                first_seq = ual->seq-tcpd->fwd->base_seq;
+        } else { /* calculation based on SEQ numbers (see issue 7703) */
+            if (seglen!=0 && tcpd->fwd->tcp_analyze_seq_info && tcpd->fwd->valid_bif) {
+
+                dry_bif_handling = TRUE;
+
+                in_flight = tcpd->fwd->tcp_analyze_seq_info->nextseq
+                          - tcpd->rev->tcp_analyze_seq_info->lastack;
             }
-            ual = ual->next;
         }
-        in_flight = last_seq-first_seq;
-
-        /* subtract any SACK block */
-        if(tcpd->rev->tcp_analyze_seq_info->num_sack_ranges > 0) {
-            int i;
-            for(i = 0; i<tcpd->rev->tcp_analyze_seq_info->num_sack_ranges; i++) {
-                delivered += (tcpd->rev->tcp_analyze_seq_info->sack_right_edge[i+1] -
-                              tcpd->rev->tcp_analyze_seq_info->sack_left_edge[i+1]);
+        if(dry_bif_handling) {
+            /* subtract any SACK block */
+            if(tcpd->rev->tcp_analyze_seq_info->num_sack_ranges > 0) {
+                int i;
+                for(i = 0; i<tcpd->rev->tcp_analyze_seq_info->num_sack_ranges; i++) {
+                    delivered += (tcpd->rev->tcp_analyze_seq_info->sack_right_edge[i+1] -
+                                  tcpd->rev->tcp_analyze_seq_info->sack_left_edge[i+1]);
+                }
+                in_flight -= delivered;
             }
-            in_flight -= delivered;
-        }
 
-        if (in_flight>0 && in_flight<2000000000) {
+            if (in_flight>0 && in_flight<2000000000) {
+                if(!tcpd->ta) {
+                    tcp_analyze_get_acked_struct(pinfo->num, seq, ack, TRUE, tcpd);
+                }
+                tcpd->ta->bytes_in_flight = in_flight;
+                /* Decrement in_flight bytes by one when we have a SYN or FIN bit
+                 * flag set as it is only virtual.
+                 */
+                if (flags&(TH_SYN|TH_FIN))  {
+                    tcpd->ta->bytes_in_flight -= 1;
+		    }
+            }
+
+            if((flags & TH_PUSH) && !tcpd->fwd->push_set_last) {
+              tcpd->fwd->push_bytes_sent += seglen;
+              tcpd->fwd->push_set_last = TRUE;
+            } else if ((flags & TH_PUSH) && tcpd->fwd->push_set_last) {
+              tcpd->fwd->push_bytes_sent = seglen;
+              tcpd->fwd->push_set_last = TRUE;
+            } else if (tcpd->fwd->push_set_last) {
+              tcpd->fwd->push_bytes_sent = seglen;
+              tcpd->fwd->push_set_last = FALSE;
+            } else {
+              tcpd->fwd->push_bytes_sent += seglen;
+            }
             if(!tcpd->ta) {
-                tcp_analyze_get_acked_struct(pinfo->num, seq, ack, TRUE, tcpd);
+              tcp_analyze_get_acked_struct(pinfo->fd->num, seq, ack, TRUE, tcpd);
             }
-            tcpd->ta->bytes_in_flight = in_flight;
-            /* Decrement in_flight bytes by one when we have a SYN or FIN bit
-             * flag set as it is only virtual.
-             */
-            if (flags&(TH_SYN|TH_FIN))  {
-                tcpd->ta->bytes_in_flight -= 1;
-		}
+            tcpd->ta->push_bytes_sent = tcpd->fwd->push_bytes_sent;
         }
-
-        if((flags & TH_PUSH) && !tcpd->fwd->push_set_last) {
-          tcpd->fwd->push_bytes_sent += seglen;
-          tcpd->fwd->push_set_last = TRUE;
-        } else if ((flags & TH_PUSH) && tcpd->fwd->push_set_last) {
-          tcpd->fwd->push_bytes_sent = seglen;
-          tcpd->fwd->push_set_last = TRUE;
-        } else if (tcpd->fwd->push_set_last) {
-          tcpd->fwd->push_bytes_sent = seglen;
-          tcpd->fwd->push_set_last = FALSE;
-        } else {
-          tcpd->fwd->push_bytes_sent += seglen;
-        }
-        if(!tcpd->ta) {
-          tcp_analyze_get_acked_struct(pinfo->fd->num, seq, ack, TRUE, tcpd);
-        }
-        tcpd->ta->push_bytes_sent = tcpd->fwd->push_bytes_sent;
     }
 
 }
@@ -8396,6 +8427,11 @@ proto_register_tcp(void)
         "To use this option you must also enable \"Analyze TCP sequence numbers\". "
         "This takes a lot of memory but allows you to track how much data are in flight at a time and graphing it in io-graphs",
         &tcp_track_bytes_in_flight);
+    prefs_register_bool_preference(tcp_module, "bif_seq_based",
+        "Evaluate bytes in flight based on sequence numbers",
+        "Evaluate BiF on actual sequence numbers or use the historical method based on payloads (default). "
+        "This option has no effect if not used with \"Track number of bytes in flight\". ",
+        &tcp_bif_seq_based);
     prefs_register_bool_preference(tcp_module, "calculate_timestamps",
         "Calculate conversation timestamps",
         "Calculate timestamps relative to the first frame and the previous frame in the tcp conversation",
