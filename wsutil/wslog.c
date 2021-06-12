@@ -149,7 +149,7 @@ enum ws_log_level ws_log_set_level_str(const char *str_level)
 
 
 static const char *log_prune_argv(int count, char **ptr, int prune_extra,
-                                const char *optarg, int *ret_argc)
+                                const char *arg, int *ret_argc)
 {
     /*
      * We found a log option. We will remove it from
@@ -161,40 +161,40 @@ static const char *log_prune_argv(int count, char **ptr, int prune_extra,
     /* Include the terminating NULL in the memmove. */
     memmove(ptr, ptr + 1 + prune_extra, (count - prune_extra) * sizeof(*ptr));
     *ret_argc -= (1 + prune_extra);
-    return optarg;
+    return arg;
 }
 
 
-const char *log_parse_args(int *argc_ptr, char *argv[], const char *optstr)
+const char *log_parse_args(int *argc_ptr, char *argv[], const char *option)
 {
     char **p;
     int c;
-    size_t optlen = strlen(optstr);
-    const char *optarg;
+    size_t optlen = strlen(option);
+    const char *value;
 
     for (p = argv, c = *argc_ptr; *p != NULL; p++, c--) {
-        if (strncmp(*p, optstr, optlen) == 0) {
-            optarg = *p + optlen;
+        if (strncmp(*p, option, optlen) == 0) {
+            value = *p + optlen;
             /* Two possibilities:
              *      --<option> <value>
              * or
              *      --<option>=<value>
              */
-            if (optarg[0] == '\0') {
+            if (value[0] == '\0') {
                 /* value is separated with blank space */
-                optarg = *(p + 1);
+                value = *(p + 1);
 
                 /* If the option value after the blank is missing or stars with '-' just ignore it.
                  * But we should probably signal an error (missing required value). */
-                if (optarg == NULL || !*optarg || *optarg == '-') {
+                if (value == NULL || !*value || *value == '-') {
                     return log_prune_argv(c, p, 0, NULL, argc_ptr);
                 }
-                return log_prune_argv(c, p, 1, optarg, argc_ptr);
+                return log_prune_argv(c, p, 1, value, argc_ptr);
             }
-            else if (optarg[0] == '=') {
+            else if (value[0] == '=') {
                 /* value is after equals */
-                optarg += 1;
-                return log_prune_argv(c, p, 0, optarg, argc_ptr);
+                value += 1;
+                return log_prune_argv(c, p, 0, value, argc_ptr);
             }
             /* we didn't find what we want */
         }
