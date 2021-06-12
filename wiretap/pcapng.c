@@ -654,12 +654,12 @@ pcapng_process_uint64_option(wtapng_block_t *wblock,
 
 #ifdef HAVE_PLUGINS
 static gboolean
-pcap_process_unhandled_option(wtapng_block_t *wblock,
-                              guint bt_index,
-                              const section_info_t *section_info,
-                              pcapng_option_header_t *ohp,
-                              guint8 *option_content,
-                              int *err, gchar **err_info)
+pcapng_process_unhandled_option(wtapng_block_t *wblock,
+                                guint bt_index,
+                                const section_info_t *section_info,
+                                pcapng_option_header_t *ohp,
+                                guint8 *option_content,
+                                int *err, gchar **err_info)
 {
     option_handler *handler;
 
@@ -679,12 +679,12 @@ pcap_process_unhandled_option(wtapng_block_t *wblock,
 }
 #else
 static gboolean
-pcap_process_unhandled_option(wtapng_block_t *wblock _U_,
-                              guint bt_index _U_,
-                              const section_info_t *section_info _U_,
-                              pcapng_option_header_t *ohp _U_,
-                              guint8 *option_content _U_,
-                              int *err _U_, gchar **err_info _U_)
+pcapng_process_unhandled_option(wtapng_block_t *wblock _U_,
+                                guint bt_index _U_,
+                                const section_info_t *section_info _U_,
+                                pcapng_option_header_t *ohp _U_,
+                                guint8 *option_content _U_,
+                                int *err _U_, gchar **err_info _U_)
 {
     return TRUE;
 }
@@ -880,7 +880,7 @@ pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh,
                 pcapng_process_string_option(wblock, &oh, option_content, opt_cont_buf_len);
                 break;
             default:
-                if (!pcap_process_unhandled_option(wblock, BT_INDEX_SHB, section_info, &oh, option_content, err, err_info))
+                if (!pcapng_process_unhandled_option(wblock, BT_INDEX_SHB, section_info, &oh, option_content, err, err_info))
                     return PCAPNG_BLOCK_ERROR;
                 break;
         }
@@ -1191,7 +1191,7 @@ pcapng_read_if_descr_block(wtap *wth, FILE_T fh, pcapng_block_header_t *bh,
                  * be useful for highly synchronized capture systems? 1234
                  */
             default:
-                if (!pcap_process_unhandled_option(wblock, BT_INDEX_IDB, section_info, &oh, option_content, err, err_info))
+                if (!pcapng_process_unhandled_option(wblock, BT_INDEX_IDB, section_info, &oh, option_content, err, err_info))
                     return FALSE;
                 break;
         }
@@ -2228,7 +2228,7 @@ read_options:
                 pcapng_process_string_option(wblock, &oh, option_content, opt_cont_buf_len);
                 break;
             default:
-                if (!pcap_process_unhandled_option(wblock, BT_INDEX_NRB, section_info, &oh, option_content, err, err_info))
+                if (!pcapng_process_unhandled_option(wblock, BT_INDEX_NRB, section_info, &oh, option_content, err, err_info))
                     return FALSE;
                 break;
         }
@@ -2362,7 +2362,7 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh,
                 pcapng_process_uint64_option(wblock, section_info, &oh, option_content, opt_cont_buf_len);
                 break;
             default:
-                if (!pcap_process_unhandled_option(wblock, BT_INDEX_ISB, section_info, &oh, option_content, err, err_info))
+                if (!pcapng_process_unhandled_option(wblock, BT_INDEX_ISB, section_info, &oh, option_content, err, err_info))
                     return FALSE;
                 break;
         }
