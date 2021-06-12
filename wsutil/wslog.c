@@ -33,6 +33,8 @@
 
 static enum ws_log_level current_log_level = LOG_LEVEL_NONE;
 
+static gboolean color_enabled = FALSE;
+
 static const char *registered_appname = NULL;
 
 static GPtrArray *domain_filter = NULL;
@@ -272,12 +274,22 @@ void ws_log_set_domain_filter_str(const char *str_filter)
 
 void ws_log_init(ws_log_writer_cb *writer)
 {
+    const char *env;
+
     registered_appname = g_get_prgname();
 
     if (writer)
         registered_log_writer = writer;
 
-    const char *env;
+    /*
+     * Some versions of Windows 10 support ANSI color escapes, we should
+     * check for that somehow. We also assume every non-Windows console
+     * supports it.
+     */
+#ifndef _WIN32
+    if (ws_isatty(ws_fileno(stderr)))
+        color_enabled = TRUE;
+#endif
 
     current_log_level = DEFAULT_LOG_LEVEL;
 
@@ -328,7 +340,7 @@ static void create_log_time(char *buf, size_t bufsize)
 }
 
 
-static void log_write_do_work(FILE *fp, const char *timestamp,
+static void log_write_do_work(FILE *fp, gboolean use_color, const char *timestamp,
                                 const char *domain,  enum ws_log_level level,
                                 const char *file, int line, const char *func,
                                 const char *user_format, va_list user_ap)
@@ -352,14 +364,20 @@ static void log_write_do_work(FILE *fp, const char *timestamp,
     else
         fprintf(fp, " [%s]", level_str);
 
+    if (use_color)
+        fputs("\033[34m", fp); /* color on */
+
     if (func)
-        fprintf(fp, " %s() -- " , func);
+        fprintf(fp, " %s()" , func);
     else if (file && line >= 0)
-        fprintf(fp, " (%d)%s -- ", line, file);
+        fprintf(fp, " (%d)%s", line, file);
     else if (file)
-        fprintf(fp, " %s -- ", file);
-    else
-        fprintf(fp, " -- ");
+        fprintf(fp, " %s", file);
+
+    if (use_color)
+        fputs("\033[0m", fp); /* color off */
+
+    fputs(" -- ", fp);
 
     vfprintf(fp, user_format, user_ap);
     fputc('\n', fp);
@@ -380,12 +398,12 @@ static void log_write_dispatch(const char *domain, enum ws_log_level level,
                         user_format, user_ap, registered_log_writer_data);
     }
     else {
-        log_write_do_work(stderr, tstamp, domain, level, file, line, func,
+        log_write_do_work(stderr, color_enabled, tstamp, domain, level, file, line, func,
                         user_format, user_ap);
     }
 
     if (custom_log) {
-        log_write_do_work(custom_log, tstamp, domain, level, file, line, func,
+        log_write_do_work(custom_log, FALSE, tstamp, domain, level, file, line, func,
                         user_format, user_ap);
     }
 
@@ -441,7 +459,7 @@ void ws_log_default_writer(const char *domain, enum ws_log_level level,
                             const char *user_format, va_list user_ap,
                             void *user_data _U_)
 {
-    log_write_do_work(stderr, timestamp, domain, level, file, line, func, user_format, user_ap);
+    log_write_do_work(stderr, color_enabled, timestamp, domain, level, file, line, func, user_format, user_ap);
 }
 
 
