@@ -56,7 +56,7 @@ static int proto_nvme = -1;
 #define NVME_FCTYPE_PROP_GET  0x4
 #define NVME_FCTYPE_AUTH_SEND 0x5
 #define NVME_FCTYPE_AUTH_RECV 0x6
-#define NVME_FCTYPE_AUTH_DISC 0x8
+#define NVME_FCTYPE_DISCONNECT 0x8
 
 
 /* NVMeOF fields */
@@ -77,10 +77,23 @@ static int hf_nvmeof_cmd_connect_kato = -1;
 static int hf_nvmeof_cmd_connect_rsvd3 = -1;
 static int hf_nvmeof_cmd_connect_data_hostid = -1;
 static int hf_nvmeof_cmd_connect_data_cntlid = -1;
-static int hf_nvmeof_cmd_connect_data_rsvd = -1;
+static int hf_nvmeof_cmd_connect_data_rsvd0 = -1;
 static int hf_nvmeof_cmd_connect_data_subnqn = -1;
 static int hf_nvmeof_cmd_connect_data_hostnqn = -1;
 static int hf_nvmeof_cmd_connect_data_rsvd1 = -1;
+
+static int hf_nvmeof_cmd_auth_rsdv1 = -1;
+static int hf_nvmeof_cmd_auth_sgl1 = -1;
+static int hf_nvmeof_cmd_auth_rsdv2 = -1;
+static int hf_nvmeof_cmd_auth_spsp0 = -1;
+static int hf_nvmeof_cmd_auth_spsp1 = -1;
+static int hf_nvmeof_cmd_auth_secp = -1;
+static int hf_nvmeof_cmd_auth_al = -1;
+static int hf_nvmeof_cmd_auth_rsdv3 = -1;
+
+static int hf_nvmeof_cmd_disconnect_rsvd0 = -1;
+static int hf_nvmeof_cmd_disconnect_recfmt = -1;
+static int hf_nvmeof_cmd_disconnect_rsvd1 = -1;
 
 static int hf_nvmeof_cmd_prop_get_set_rsvd0 = -1;
 static int hf_nvmeof_cmd_prop_get_set_attrib[3] =  { NEG_LST_3 };
@@ -125,7 +138,7 @@ static const value_string fctype_tbl[] = {
     { NVME_FCTYPE_PROP_GET,      "Property Get" },
     { NVME_FCTYPE_AUTH_SEND,     "Authentication Send" },
     { NVME_FCTYPE_AUTH_RECV,     "Authentication Recv" },
-    { NVME_FCTYPE_AUTH_DISC,     "Disconnect" },
+    { NVME_FCTYPE_DISCONNECT,     "Disconnect" },
     { 0, NULL}
 };
 
@@ -3383,6 +3396,38 @@ void dissect_nvmeof_fabric_connect_cmd(proto_tree *cmd_tree, packet_info *pinfo,
                         52+off, 12, ENC_NA);
 }
 
+static
+void dissect_nvmeof_fabric_auth_cmd(proto_tree *cmd_tree, packet_info *pinfo, tvbuff_t *cmd_tvb,
+        struct nvme_q_ctx *q_ctx, struct nvme_cmd_ctx *cmd, guint off)
+{
+    proto_tree_add_item(cmd_tree, hf_nvmeof_cmd_auth_rsdv1, cmd_tvb,
+                        5+off, 19, ENC_NA);
+    dissect_nvme_cmd_sgl(cmd_tvb, cmd_tree, hf_nvmeof_cmd_auth_sgl1,
+        q_ctx, cmd, off, PINFO_FD_VISITED(pinfo));
+    proto_tree_add_item(cmd_tree, hf_nvmeof_cmd_auth_rsdv2, cmd_tvb,
+                        40+off, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cmd_tree, hf_nvmeof_cmd_auth_spsp0, cmd_tvb,
+                        41+off, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cmd_tree, hf_nvmeof_cmd_auth_spsp1, cmd_tvb,
+                        42+off, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cmd_tree, hf_nvmeof_cmd_auth_secp, cmd_tvb,
+                        43+off, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cmd_tree, hf_nvmeof_cmd_auth_al, cmd_tvb,
+                        44+off, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cmd_tree, hf_nvmeof_cmd_auth_rsdv3, cmd_tvb,
+                        48+off, 16, ENC_NA);
+}
+
+static void dissect_nvme_fabric_disconnect_cmd(proto_tree *cmd_tree, tvbuff_t *cmd_tvb, guint off)
+{
+    proto_tree_add_item(cmd_tree, hf_nvmeof_cmd_disconnect_rsvd0, cmd_tvb,
+                        5+off, 35, ENC_NA);
+    proto_tree_add_item(cmd_tree, hf_nvmeof_cmd_disconnect_recfmt, cmd_tvb,
+                        40+off, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cmd_tree, hf_nvmeof_cmd_disconnect_rsvd1, cmd_tvb,
+                        42+off, 22, ENC_NA);
+}
+
 static void dissect_nvme_fabric_prop_cmd_common(proto_tree *cmd_tree, tvbuff_t *cmd_tvb, guint off)
 {
     proto_tree_add_item(cmd_tree, hf_nvmeof_cmd_prop_get_set_rsvd0, cmd_tvb,
@@ -3506,7 +3551,13 @@ void dissect_nvmeof_fabric_cmd(tvbuff_t *nvme_tvb, packet_info *pinfo, proto_tre
     case NVME_FCTYPE_PROP_SET:
         dissect_nvmeof_fabric_prop_set_cmd(cmd_tree, nvme_tvb, off);
         break;
+    case NVME_FCTYPE_DISCONNECT:
+        dissect_nvme_fabric_disconnect_cmd(cmd_tree, nvme_tvb, off);
+        break;
     case NVME_FCTYPE_AUTH_RECV:
+    case NVME_FCTYPE_AUTH_SEND:
+        dissect_nvmeof_fabric_auth_cmd(cmd_tree, pinfo, nvme_tvb, q_ctx, cmd, off);
+        break;
     default:
         dissect_nvmeof_fabric_generic_cmd(cmd_tree, nvme_tvb, off);
         break;
@@ -3521,7 +3572,7 @@ dissect_nvmeof_fabric_connect_cmd_data(tvbuff_t *data_tvb, proto_tree *data_tree
                         offset, 16, ENC_NA);
     proto_tree_add_item(data_tree, hf_nvmeof_cmd_connect_data_cntlid, data_tvb,
                         offset + 16, 2, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(data_tree, hf_nvmeof_cmd_connect_data_rsvd, data_tvb,
+    proto_tree_add_item(data_tree, hf_nvmeof_cmd_connect_data_rsvd0, data_tvb,
                         offset + 18, 238, ENC_NA);
     proto_tree_add_item(data_tree, hf_nvmeof_cmd_connect_data_subnqn, data_tvb,
                         offset + 256, 256, ENC_ASCII | ENC_NA);
@@ -3565,7 +3616,6 @@ dissect_nvmeof_cqe_status_8B(proto_tree *cqe_tree, tvbuff_t *cqe_tvb,
         proto_tree_add_item(cqe_tree, hf_nvmeof_cqe_prop_set_rsvd, cqe_tvb,
                             0+off, 8, ENC_NA);
         break;
-    case NVME_FCTYPE_AUTH_RECV:
     default:
         proto_tree_add_item(cqe_tree, hf_nvmeof_cqe_sts, cqe_tvb,
                             0+off, 8, ENC_LITTLE_ENDIAN);
@@ -3884,7 +3934,7 @@ proto_register_nvme(void)
             { "Reserved", "nvmeof.cmd.connect.rsvd3",
                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
-                { &hf_nvmeof_cmd_connect_data_hostid,
+        { &hf_nvmeof_cmd_connect_data_hostid,
             { "Host Identifier", "nvmeof.cmd.connect.data.hostid",
                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
@@ -3892,8 +3942,8 @@ proto_register_nvme(void)
             { "Controller ID", "nvmeof.cmd.connect.data.cntrlid",
                FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
-        { &hf_nvmeof_cmd_connect_data_rsvd,
-            { "Reserved", "nvmeof.cmd.connect.data.rsvd",
+        { &hf_nvmeof_cmd_connect_data_rsvd0,
+            { "Reserved", "nvmeof.cmd.connect.data.rsvd0",
                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvmeof_cmd_connect_data_subnqn,
@@ -3906,6 +3956,50 @@ proto_register_nvme(void)
         },
         { &hf_nvmeof_cmd_connect_data_rsvd1,
             { "Reserved", "nvmeof.cmd.connect.data.rsvd1",
+               FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvmeof_cmd_auth_rsdv1,
+            { "Reserved", "nvmeof.cmd.auth.rsvd1",
+               FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvmeof_cmd_auth_sgl1,
+            { "SGL1", "nvmeof.cmd.auth.sgl1",
+               FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvmeof_cmd_auth_rsdv2,
+            { "Reserved", "nvmeof.cmd.auth.rsvd2",
+               FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvmeof_cmd_auth_spsp0,
+            { "SP Specific 0", "nvmeof.cmd.auth.spsp0",
+               FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvmeof_cmd_auth_spsp1,
+            { "SP Specific 1", "nvmeof.cmd.auth.spsp1",
+               FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvmeof_cmd_auth_secp,
+            { "Security Protocol", "nvmeof.cmd.auth.secp",
+               FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvmeof_cmd_auth_al,
+            { "Allocation Length", "nvmeof.cmd.auth.al",
+               FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvmeof_cmd_auth_rsdv3,
+            { "Reserved", "nvmeof.cmd.auth.rsvd3",
+               FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvmeof_cmd_disconnect_rsvd0,
+            { "Reserved", "nvmeof.cmd.disconnect.rsvd0",
+               FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvmeof_cmd_disconnect_recfmt,
+            { "Record Format", "nvmeof.cmd.disconnect.recfmt",
+               FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvmeof_cmd_disconnect_rsvd1,
+            { "Reserved", "nvmeof.cmd.disconnect.rsvd1",
                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvmeof_cmd_prop_get_set_rsvd0,
