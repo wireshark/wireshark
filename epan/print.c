@@ -1812,7 +1812,7 @@ print_escaped_xml(FILE *fh, const char *unescaped_string)
         return;
     }
 
-    for (p = unescaped_string; *p != '\0'; p++) {
+    for (p = unescaped_string; *p != '\0' && (offset<(ESCAPED_BUFFER_MAX-1)); p++) {
         switch (*p) {
         case '&':
             (void) g_strlcpy(&temp_buffer[offset], "&amp;", ESCAPED_BUFFER_MAX-offset);
