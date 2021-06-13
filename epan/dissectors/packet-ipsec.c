@@ -455,6 +455,10 @@ void esp_sa_record_add_from_dissector(guint8 protocol, const gchar *srcIP, const
    /* Parse keys */
    char *err = NULL;
    uat_esp_sa_record_update_cb(record, &err);
+   if (err) {
+       /* Free (but ignore) any error string set */
+       g_free(err);
+   }
 }
 
 /*************************************/
