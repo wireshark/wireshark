@@ -1,4 +1,4 @@
-TShark (Wireshark) 3.5.0 (v3.5.0rc0-21-gce47866a4337)
+TShark (Wireshark) 3.5.0 (v3.5.0rc0-2153-g76174b19b0ce)
 Dump and analyze network traffic.
 See https://www.wireshark.org for more information.
 
@@ -114,6 +114,8 @@ Output:
   --export-objects <protocol>,<destdir>
                            save exported objects for a protocol to a directory
                            named "destdir"
+  --export-tls-session-keys <keyfile>
+                           export TLS Session Keys to a file named "keyfile"
   --color                  color output text similarly to the Wireshark GUI,
                            requires a terminal with 24-bit color support
                            Also supplies color attributes to pdml and psml formats
