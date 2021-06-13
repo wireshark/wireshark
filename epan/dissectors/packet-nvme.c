@@ -107,11 +107,6 @@ static int hf_nvmeof_prop_get_ccap[17] = { NEG_LST_17 };
 /* NVMe Fabric CQE */
 static int hf_nvmeof_cqe = -1;
 static int hf_nvmeof_cqe_sts = -1;
-static int hf_nvmeof_cqe_sqhd = -1;
-static int hf_nvmeof_cqe_rsvd = -1;
-static int hf_nvmeof_cqe_cid = -1;
-static int hf_nvmeof_cqe_status = -1;
-static int hf_nvmeof_cqe_status_rsvd = -1;
 
 static int hf_nvmeof_cqe_connect_cntlid = -1;
 static int hf_nvmeof_cqe_connect_authreq = -1;
@@ -623,6 +618,7 @@ static int hf_nvme_cqe_sqhd = -1;
 static int hf_nvme_cqe_sqid = -1;
 static int hf_nvme_cqe_cid = -1;
 static int hf_nvme_cqe_status[7] = { NEG_LST_7 };
+static int hf_nvme_cqe_status_rsvd = -1;
 
 /* tracking Cmd and its respective CQE */
 static int hf_nvme_cmd_pkt = -1;
@@ -3583,6 +3579,8 @@ const gchar *get_nvmeof_cmd_string(guint8 fctype)
     return val_to_str(fctype, fctype_tbl, "Unknown Fabric Command");
 }
 
+static void dissect_nvme_cqe_common(tvbuff_t *nvme_tvb, proto_tree *cqe_tree, guint off, gboolean nvmeof);
+
 void
 dissect_nvmeof_fabric_cqe(tvbuff_t *nvme_tvb,
                         proto_tree *nvme_tree,
@@ -3604,16 +3602,7 @@ dissect_nvmeof_fabric_cqe(tvbuff_t *nvme_tvb,
 
     dissect_nvmeof_cqe_status_8B(cqe_tree, nvme_tvb, cmd, off);
 
-    proto_tree_add_item(cqe_tree, hf_nvmeof_cqe_sqhd, nvme_tvb,
-                        8+off, 2, ENC_NA);
-    proto_tree_add_item(cqe_tree, hf_nvmeof_cqe_rsvd, nvme_tvb,
-                        10+off, 2, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(cqe_tree, hf_nvmeof_cqe_cid, nvme_tvb,
-                        12+off, 2, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(cqe_tree, hf_nvmeof_cqe_status, nvme_tvb,
-                        14+off, 2, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(cqe_tree, hf_nvmeof_cqe_status_rsvd, nvme_tvb,
-                        14+off, 2, ENC_LITTLE_ENDIAN);
+    dissect_nvme_cqe_common(nvme_tvb, cqe_tree, off, TRUE);
 }
 
 static void dissect_nvme_unhandled_cmd(tvbuff_t *nvme_tvb, proto_tree *cmd_tree)
@@ -3625,7 +3614,6 @@ static void dissect_nvme_unhandled_cmd(tvbuff_t *nvme_tvb, proto_tree *cmd_tree)
     proto_tree_add_item(cmd_tree, hf_nvme_cmd_dword14, nvme_tvb, 56, 4, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(cmd_tree, hf_nvme_cmd_dword15, nvme_tvb, 60, 4, ENC_LITTLE_ENDIAN);
 }
-
 
 void
 dissect_nvme_cmd(tvbuff_t *nvme_tvb, packet_info *pinfo, proto_tree *root_tree,
@@ -3742,11 +3730,13 @@ static const value_string nvme_cqe_sc_sf_err_dword0_tbl[] = {
     { 0, NULL },
 };
 
-static void decode_dword0_cqe(tvbuff_t *nvme_tvb, proto_tree *cqe_tree, guint sc, struct nvme_cmd_ctx *cmd_ctx)
+static void decode_dword0_cqe(tvbuff_t *nvme_tvb, proto_tree *cqe_tree, struct nvme_cmd_ctx *cmd_ctx)
 {
     switch (cmd_ctx->opcode) {
         case NVME_AQ_OPC_SET_FEATURES:
         {
+            guint16 sc = tvb_get_guint16(nvme_tvb, 14, ENC_LITTLE_ENDIAN);
+            sc = ((sc & 0x1fe) >> 9);
             if (sc) {
                 proto_tree_add_item(cqe_tree, hf_nvme_cqe_dword0_sf_err, nvme_tvb, 0, 4, ENC_LITTLE_ENDIAN);
             } else {
@@ -3772,12 +3762,36 @@ static void decode_dword0_cqe(tvbuff_t *nvme_tvb, proto_tree *cqe_tree, guint sc
     }
 }
 
+static void dissect_nvme_cqe_common(tvbuff_t *nvme_tvb, proto_tree *cqe_tree, guint off, gboolean nvmeof)
+{
+    proto_item *ti;
+    proto_tree *grp;
+    guint16 val;
+    guint i;
+
+    val = tvb_get_guint16(nvme_tvb, off+14, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cqe_tree, hf_nvme_cqe_sqhd, nvme_tvb, off+8, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cqe_tree, hf_nvme_cqe_sqid, nvme_tvb, off+10, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cqe_tree, hf_nvme_cqe_cid, nvme_tvb, off+12, 2, ENC_LITTLE_ENDIAN);
+
+    ti = proto_tree_add_item(cqe_tree, hf_nvme_cqe_status[0], nvme_tvb, off+14, 2, ENC_LITTLE_ENDIAN);
+    grp =  proto_item_add_subtree(ti, ett_data);
+    if (nvmeof)
+        proto_tree_add_item(grp, hf_nvme_cqe_status_rsvd, nvme_tvb, off+14, 2, ENC_LITTLE_ENDIAN);
+    else
+        proto_tree_add_item(grp, hf_nvme_cqe_status[1], nvme_tvb, off+14, 2, ENC_LITTLE_ENDIAN);
+
+    ti = proto_tree_add_item(grp, hf_nvme_cqe_status[2], nvme_tvb, off+14, 2, ENC_LITTLE_ENDIAN);
+    proto_item_append_text(ti, " (%s)", get_cqe_sc_string((val & 0xE00) >> 1, (val & 0x1FE) >> 9));
+
+    for (i = 3; i < array_length(hf_nvme_cqe_status); i++)
+        proto_tree_add_item(grp, hf_nvme_cqe_status[i], nvme_tvb, off+14, 2, ENC_LITTLE_ENDIAN);
+}
+
 void dissect_nvme_cqe(tvbuff_t *nvme_tvb, packet_info *pinfo, proto_tree *root_tree, struct nvme_cmd_ctx *cmd_ctx)
 {
-    proto_tree *cqe_tree, *grp;
+    proto_tree *cqe_tree;
     proto_item *ti;
-    guint i;
-    guint16 val;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "NVMe");
     ti = proto_tree_add_item(root_tree, proto_nvme, nvme_tvb, 0,
@@ -3788,20 +3802,9 @@ void dissect_nvme_cqe(tvbuff_t *nvme_tvb, packet_info *pinfo, proto_tree *root_t
     nvme_publish_to_cmd_link(cqe_tree, nvme_tvb, hf_nvme_cmd_pkt, cmd_ctx);
     nvme_publish_cmd_latency(cqe_tree, cmd_ctx, hf_nvme_cmd_latency);
 
-    val = tvb_get_guint16(nvme_tvb, 14, ENC_LITTLE_ENDIAN);
-    decode_dword0_cqe(nvme_tvb, cqe_tree, ((val & 0x1fe) >> 9), cmd_ctx);
+    decode_dword0_cqe(nvme_tvb, cqe_tree, cmd_ctx);
     proto_tree_add_item(cqe_tree, hf_nvme_cqe_dword1, nvme_tvb, 4, 4, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(cqe_tree, hf_nvme_cqe_sqhd, nvme_tvb, 8, 2, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(cqe_tree, hf_nvme_cqe_sqid, nvme_tvb, 10, 2, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(cqe_tree, hf_nvme_cqe_cid, nvme_tvb, 12, 2, ENC_LITTLE_ENDIAN);
-
-    ti = proto_tree_add_item(cqe_tree, hf_nvme_cqe_status[0], nvme_tvb, 14, 2, ENC_LITTLE_ENDIAN);
-    grp =  proto_item_add_subtree(ti, ett_data);
-    for (i = 1; i < array_length(hf_nvme_cqe_status); i++) {
-        ti = proto_tree_add_item(grp, hf_nvme_cqe_status[i], nvme_tvb, 14, 2, ENC_LITTLE_ENDIAN);
-        if (i == 2)
-            proto_item_append_text(ti, " (%s)", get_cqe_sc_string((val & 0xE00) >> 1, (val & 0x1fe) >> 9));
-    }
+    dissect_nvme_cqe_common(nvme_tvb, cqe_tree, 0, FALSE);
 }
 
 void
@@ -4046,22 +4049,6 @@ proto_register_nvme(void)
             { "Cmd specific Status", "nvmeof.cqe.sts",
                FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
-        { &hf_nvmeof_cqe_sqhd,
-            { "SQ Head Pointer", "nvmeof.cqe.sqhd",
-               FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
-        },
-        { &hf_nvmeof_cqe_rsvd,
-            { "Reserved", "nvmeof.cqe.rsvd",
-               FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
-        },
-        { &hf_nvmeof_cqe_cid,
-            { "Command ID", "nvmeof.cqe.cid",
-               FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
-        },
-        { &hf_nvmeof_cqe_status,
-            { "Status", "nvmeof.cqe.status",
-               FT_UINT16, BASE_HEX, NULL, 0xfffe, NULL, HFILL}
-        },
         { &hf_nvmeof_prop_get_ccap[0],
             { "Controller Capabilities", "nvmeof.prop_get.ccap",
                FT_UINT64, BASE_HEX, NULL, 0, NULL, HFILL}
@@ -4145,10 +4132,6 @@ proto_register_nvme(void)
         { &hf_nvmeof_prop_get_vs[3],
             { "Major Version", "nvmeof.prop_get.vs.mjr",
                FT_UINT32, BASE_DEC, NULL, 0xffff0000, NULL, HFILL}
-        },
-        { &hf_nvmeof_cqe_status_rsvd,
-            { "Reserved", "nvmeof.cqe.status.rsvd",
-               FT_UINT16, BASE_HEX, NULL, 0x1, NULL, HFILL}
         },
         { &hf_nvmeof_cqe_connect_cntlid,
             { "Controller ID", "nvmeof.cqe.connect.cntrlid",
@@ -7245,6 +7228,10 @@ proto_register_nvme(void)
         },
         { &hf_nvme_cqe_status[1],
             { "Phase Tag", "nvme.cqe.status.p",
+               FT_UINT16, BASE_HEX, NULL, 0x1, NULL, HFILL}
+        },
+        { &hf_nvme_cqe_status_rsvd,
+            { "Reserved", "nvme.cqe.status.rsvd",
                FT_UINT16, BASE_HEX, NULL, 0x1, NULL, HFILL}
         },
         { &hf_nvme_cqe_status[2],
