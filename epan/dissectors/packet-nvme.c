@@ -82,76 +82,27 @@ static int hf_nvmeof_cmd_connect_data_subnqn = -1;
 static int hf_nvmeof_cmd_connect_data_hostnqn = -1;
 static int hf_nvmeof_cmd_connect_data_rsvd1 = -1;
 
-static int hf_nvmeof_cmd_prop_attr_rsvd = -1;
-static int hf_nvmeof_cmd_prop_attr_rsvd1 = -1;
-static int hf_nvmeof_cmd_prop_attr_size = -1;
-static int hf_nvmeof_cmd_prop_attr_rsvd2 = -1;
-static int hf_nvmeof_cmd_prop_attr_offset = -1;
-static int hf_nvmeof_cmd_prop_attr_get_rsvd3 = -1;
-static int hf_nvmeof_cmd_prop_attr_set_4B_value = -1;
-static int hf_nvmeof_cmd_prop_attr_set_4B_value_rsvd = -1;
-static int hf_nvmeof_cmd_prop_attr_set_8B_value = -1;
-static int hf_nvmeof_cmd_prop_attr_set_rsvd3 = -1;
+static int hf_nvmeof_cmd_prop_get_set_rsvd0 = -1;
+static int hf_nvmeof_cmd_prop_get_set_attrib[3] =  { NEG_LST_3 };
+static int hf_nvmeof_cmd_prop_get_set_rsvd1 = -1;
+static int hf_nvmeof_cmd_prop_get_set_offset = -1;
+static int hf_nvmeof_cmd_prop_get_rsvd2 = -1;
+
+static int hf_nvmeof_cmd_prop_set_rsvd = -1;
 
 static int hf_nvmeof_cmd_generic_rsvd1 = -1;
 static int hf_nvmeof_cmd_generic_field = -1;
 
-/* MVME Fabric Property Set commands */
-/* Controller Configuration */
-struct prop_cc_ctx {
-    int en;
-    int rsvd;
-    int css;
-    int mps;
-    int ams;
-    int shn;
-    int iosqes;
-    int iocqes;
-    int rsvd1;
-    int rsvd2;
-};
-static struct prop_cc_ctx hf_nvmeof_cmd_sprop_cc = {
-    .en = -1,
-    .rsvd = -1,
-    .css = -1,
-    .mps = -1,
-    .ams = -1,
-    .shn = -1,
-    .iosqes = -1,
-    .iocqes = -1,
-    .rsvd1 = -1,
-    .rsvd2 = -1,
-};
+static int hf_nvmeof_prop_get_set_data = -1;
+static int hf_nvmeof_prop_get_set_data_4B = -1;
+static int hf_nvmeof_prop_get_set_data_4B_rsvd = -1;
+static int hf_nvmeof_prop_get_set_data_8B= -1;
+static int hf_nvmeof_prop_get_set_cc[10] = { NEG_LST_10 };
+static int hf_nvmeof_prop_get_set_csts[7] = { NEG_LST_7 };
+static int hf_nvmeof_prop_get_set_nssr[2] = { NEG_LST_2 };
+static int hf_nvmeof_prop_get_vs[4] = { NEG_LST_4 };
+static int hf_nvmeof_prop_get_ccap[17] = { NEG_LST_17 };
 
-/* Controller Status */
-struct prop_csts_ctx {
-    int rdy;
-    int cfs;
-    int shst;
-    int nssro;
-    int pp;
-    int rsvd;
-    int rsvd1;
-};
-static struct prop_csts_ctx hf_nvmeof_cmd_sprop_csts = {
-    .rdy= -1,
-    .cfs= -1,
-    .shst= -1,
-    .nssro= -1,
-    .pp= -1,
-    .rsvd= -1,
-    .rsvd1= -1,
-};
-
-/* NVM Subsystem Reset*/
-struct prop_nssrc_ctx {
-    int nssrc;
-    int rsvd;
-};
-static struct prop_nssrc_ctx hf_nvmeof_cmd_sprop_nssr = {
-    .nssrc = -1,
-    .rsvd = -1,
-};
 
 /* NVMe Fabric CQE */
 static int hf_nvmeof_cqe = -1;
@@ -172,72 +123,6 @@ int hf_nvmeof_cmd_pkt = -1;
 int hf_nvmeof_data_req = -1;
 static int hf_nvmeof_cqe_pkt = -1;
 static int hf_nvmeof_cmd_latency = -1;
-
-/* NVMe Fabric Property Get Status */
-/* Controller Capabilities */
-struct prop_cap_ctx {
-    int mqes ;
-    int cqr ;
-    int ams ;
-    int rsvd ;
-    int to ;
-    int dstrd ;
-    int nssrs ;
-    int css ;
-    int bps ;
-    int rsvd1 ;
-    int mpsmin ;
-    int mpsmax ;
-    int pmrs ;
-    int cmbs ;
-    int rsvd2 ;
-    int rsvd3 ;
-};
-static struct prop_cap_ctx hf_nvmeof_cmd_gprop_cap = {
-    .mqes = -1,
-    .cqr = -1,
-    .ams = -1,
-    .rsvd = -1,
-    .to = -1,
-    .dstrd = -1,
-    .nssrs = -1,
-    .css = -1,
-    .bps = -1,
-    .rsvd1 = -1,
-    .mpsmin = -1,
-    .mpsmax = -1,
-    .pmrs = -1,
-    .cmbs = -1,
-    .rsvd2 = -1,
-    .rsvd3 = -1,
-};
-
-/* Version */
-struct prop_ver_ctx {
-    int ter;
-    int mnr;
-    int mjr;
-};
-
-static struct prop_ver_ctx hf_nvmeof_cmd_gprop_ver = {
-    .ter = -1,
-    .mnr = -1,
-    .mjr = -1,
-};
-
-/* Controller Configuration */
-static struct prop_cc_ctx hf_nvmeof_cmd_gprop_cc = {
-    .en = -1,
-    .rsvd = -1,
-    .css = -1,
-    .mps = -1,
-    .ams = -1,
-    .shn = -1,
-    .iosqes = -1,
-    .iocqes = -1,
-    .rsvd1 = -1,
-    .rsvd2 = -1,
-};
 
 static const value_string fctype_tbl[] = {
     { NVME_FCTYPE_PROP_SET,      "Property Set" },
@@ -305,16 +190,6 @@ static const value_string ams_table[] = {
     { 0x0, NULL}
 };
 
-/* Controller Status */
-static struct prop_csts_ctx hf_nvmeof_cmd_gprop_csts = {
-    .rdy= -1,
-    .cfs= -1,
-    .shst= -1,
-    .nssro= -1,
-    .pp= -1,
-    .rsvd= -1,
-    .rsvd1= -1,
-};
 static const value_string shst_table[] = {
     { 0x0, "No Shutdown"},
     { 0x1, "Shutdown in Process"},
@@ -322,13 +197,6 @@ static const value_string shst_table[] = {
     { 0x3, "Reserved"},
     { 0x0, NULL}
 };
-
-/* NVM Subsystem Reset*/
-static struct prop_nssrc_ctx hf_nvmeof_cmd_gprop_nssr = {
-    .nssrc = -1,
-    .rsvd = -1,
-};
-
 
 /* NVMe Cmd fields */
 static int hf_nvme_cmd_opc = -1;
@@ -1791,6 +1659,17 @@ static void add_ctrl_pow2_bytes(gchar *result, guint32 val)
 {
     g_snprintf(result, ITEM_LABEL_LENGTH, "0x%x (%" G_GUINT64_FORMAT" bytes)", val, ((guint64)1) << val);
 }
+
+static void add_ctrl_pow2_page_size(gchar *result, guint32 val)
+{
+    g_snprintf(result, ITEM_LABEL_LENGTH, "0x%x (%" G_GUINT64_FORMAT" bytes)", val, ((guint64)1) << (12+val));
+}
+
+static void add_ctrl_pow2_dstrd_size(gchar *result, guint32 val)
+{
+    g_snprintf(result, ITEM_LABEL_LENGTH, "0x%x (%" G_GUINT64_FORMAT" bytes)", val, ((guint64)1) << (2+val));
+}
+
 
 static const value_string fcb_type_tbl[] = {
     { 0, "support for the NSID field set to FFFFFFFFh is not indicated" },
@@ -3508,119 +3387,79 @@ void dissect_nvmeof_fabric_connect_cmd(proto_tree *cmd_tree, packet_info *pinfo,
                         52+off, 12, ENC_NA);
 }
 
-static void
-dissect_nvmeof_prop_cc(proto_tree *tree, tvbuff_t *tvb, const struct prop_cc_ctx *cc_ctx, guint8 offset)
+static void dissect_nvme_fabric_prop_cmd_common(proto_tree *cmd_tree, tvbuff_t *cmd_tvb, guint off)
 {
-    proto_item *ti;
-    guint8 val;
-
-    proto_tree_add_item(tree, cc_ctx->en, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(tree, cc_ctx->rsvd, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-    ti = proto_tree_add_item(tree, cc_ctx->css, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-    val = (tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN) & 0x70) >> 4;
-    proto_item_append_text(ti, " (%s)", val_to_str(val, css_table, "Unknown"));
-    ti = proto_tree_add_item(tree, cc_ctx->mps, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-    val =  12 + ((tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN) & 0x780) >> 7);
-    proto_item_append_text(ti, " (%lu bytes)", 1UL << val);
-    ti = proto_tree_add_item(tree, cc_ctx->ams, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-    val = (tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN) & 0x3800) >> 11;
-    proto_item_append_text(ti, " (%s)", val_to_str(val, ams_table, "Unknown"));
-    ti = proto_tree_add_item(tree, cc_ctx->shn, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-    val = (tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN) & 0xC000) >> 14;
-    proto_item_append_text(ti, " (%s)", val_to_str(val, sn_table, "Unknown"));
-    ti = proto_tree_add_item(tree, cc_ctx->iosqes, tvb, offset+2, 1, ENC_LITTLE_ENDIAN);
-    val = tvb_get_guint8(tvb, offset+2) & 0xF;
-    proto_item_append_text(ti, " (%lu bytes)", 1UL << val);
-    ti = proto_tree_add_item(tree, cc_ctx->iocqes, tvb, offset+2, 1, ENC_LITTLE_ENDIAN);
-    val = tvb_get_guint8(tvb, offset+2) >> 4;
-    proto_item_append_text(ti, " (%lu bytes)", 1UL << val);
-    proto_tree_add_item(tree, cc_ctx->rsvd1, tvb, offset+3, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(tree, cc_ctx->rsvd2, tvb, offset+4, 4, ENC_NA);
-}
-
-static void
-dissect_nvmeof_prop_csts(proto_tree *tree, tvbuff_t *tvb, const struct prop_csts_ctx *csts_ctx, guint8 offset)
-{
-    proto_item *ti;
-    guint8 val;
-
-    proto_tree_add_item(tree, csts_ctx->rdy, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(tree, csts_ctx->cfs, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    ti = proto_tree_add_item(tree, csts_ctx->shst, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    val = (tvb_get_guint8(tvb, offset) & 0xC) >> 2;
-    proto_item_append_text(ti, " (%s)", val_to_str(val, shst_table, "Unknown"));
-    proto_tree_add_item(tree, csts_ctx->nssro, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(tree, csts_ctx->pp, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(tree, csts_ctx->rsvd, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(tree, csts_ctx->rsvd1, tvb, offset+1, 7, ENC_NA);
-}
-
-static void
-dissect_nvmeof_prop_nssr(proto_tree *tree, tvbuff_t *tvb, const struct prop_nssrc_ctx *nssrc_ctx, guint8 offset)
-{
-    proto_tree_add_item(tree, nssrc_ctx->nssrc, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(tree, nssrc_ctx->rsvd, tvb, offset+4, 4, ENC_NA);
-}
-
-static guint8 dissect_nvme_fabric_prop_cmd_common(proto_tree *cmd_tree, tvbuff_t *cmd_tvb, guint off)
-{
-    proto_item *attr_item, *offset_item;
-    guint32 offset;
-    guint8 attr;
-
-    proto_tree_add_item(cmd_tree, hf_nvmeof_cmd_prop_attr_rsvd, cmd_tvb,
+    proto_tree_add_item(cmd_tree, hf_nvmeof_cmd_prop_get_set_rsvd0, cmd_tvb,
                         5+off, 35, ENC_NA);
-    proto_tree_add_item(cmd_tree, hf_nvmeof_cmd_prop_attr_rsvd1, cmd_tvb,
-                        40+off, 1, ENC_LITTLE_ENDIAN);
-    attr_item = proto_tree_add_item(cmd_tree, hf_nvmeof_cmd_prop_attr_size, cmd_tvb,
-                                    40+off, 1, ENC_LITTLE_ENDIAN);
-    attr = tvb_get_guint8(cmd_tvb, 40+off) & 0x7;
-    proto_item_append_text(attr_item, " %s",
-                           val_to_str(attr, attr_size_tbl, "Reserved"));
 
-    proto_tree_add_item(cmd_tree, hf_nvmeof_cmd_prop_attr_rsvd2, cmd_tvb,
+    add_group_mask_entry(cmd_tvb, cmd_tree, 40+off, 1, ASPEC(hf_nvmeof_cmd_prop_get_set_attrib));
+
+    proto_tree_add_item(cmd_tree, hf_nvmeof_cmd_prop_get_set_rsvd1, cmd_tvb,
                         41+off, 3, ENC_NA);
 
-    offset_item = proto_tree_add_item_ret_uint(cmd_tree, hf_nvmeof_cmd_prop_attr_offset,
-                                      cmd_tvb, 44+off, 4, ENC_LITTLE_ENDIAN, &offset);
-    proto_item_append_text(offset_item, " %s",
-                           val_to_str(offset, prop_offset_tbl, "Unknown Property"));
-    return attr;
+    proto_tree_add_item(cmd_tree, hf_nvmeof_cmd_prop_get_set_offset, cmd_tvb,
+                        44+off, 4, ENC_LITTLE_ENDIAN);
 }
 
 static void dissect_nvmeof_fabric_prop_get_cmd(proto_tree *cmd_tree, tvbuff_t *cmd_tvb, struct nvme_cmd_ctx *cmd, guint off)
 {
     cmd->cmd_ctx.fabric_cmd.prop_get.offset = tvb_get_guint8(cmd_tvb, 44+off);
     dissect_nvme_fabric_prop_cmd_common(cmd_tree, cmd_tvb, off);
-    proto_tree_add_item(cmd_tree, hf_nvmeof_cmd_prop_attr_get_rsvd3, cmd_tvb,
+    proto_tree_add_item(cmd_tree, hf_nvmeof_cmd_prop_get_rsvd2, cmd_tvb,
                         48+off, 16, ENC_NA);
 }
 
+static void add_500ms_units(gchar *result, guint32 val)
+{
+    g_snprintf(result, ITEM_LABEL_LENGTH, "%x (%u ms)", val, val * 500);
+}
+
+static void add_ccap_css(gchar *result, guint32 val)
+{
+    if (val & 0x1)
+        g_snprintf(result, ITEM_LABEL_LENGTH, "%x (NVM IO Command Set)", val);
+    else if (val & 0x80)
+        g_snprintf(result, ITEM_LABEL_LENGTH, "%x (Admin Command Set Only)", val);
+    else
+        g_snprintf(result, ITEM_LABEL_LENGTH, "%x (Reserved)", val);
+}
+
+static void dissect_nvmeof_fabric_prop_data(proto_tree *tree, tvbuff_t *tvb, guint off, guint prop_off, guint8 attr)
+{
+    proto_item *ti, *grp;
+    ti = proto_tree_add_item(tree, hf_nvmeof_prop_get_set_data, tvb, off, 8, ENC_LITTLE_ENDIAN);
+    grp =  proto_item_add_subtree(ti, ett_data);
+    switch(prop_off) {
+        case 0x0:  add_group_mask_entry(tvb, grp, off, 8, ASPEC(hf_nvmeof_prop_get_ccap)); attr=1; break;
+        case 0x8:  add_group_mask_entry(tvb, grp, off, 4, ASPEC(hf_nvmeof_prop_get_vs)); attr=0; break;
+        case 0x14: add_group_mask_entry(tvb, grp, off, 4, ASPEC(hf_nvmeof_prop_get_set_cc)); attr=0; break;
+        case 0x1c: add_group_mask_entry(tvb, grp, off, 4, ASPEC(hf_nvmeof_prop_get_set_csts)); attr=0; break;
+        case 0x20: add_group_mask_entry(tvb, grp, off, 4, ASPEC(hf_nvmeof_prop_get_set_nssr)); attr=0; break;
+        default:
+        {
+            if (attr == 0)
+            proto_tree_add_item(grp, hf_nvmeof_prop_get_set_data_4B, tvb,
+                            off, 4, ENC_LITTLE_ENDIAN);
+            else
+                proto_tree_add_item(grp, hf_nvmeof_prop_get_set_data_8B, tvb,
+                            off, 8, ENC_LITTLE_ENDIAN);
+            break;
+        }
+    }
+    if (attr == 0)
+        proto_tree_add_item(grp, hf_nvmeof_prop_get_set_data_4B_rsvd, tvb,
+                        off+4, 4, ENC_LITTLE_ENDIAN);
+}
 static void dissect_nvmeof_fabric_prop_set_cmd(proto_tree *cmd_tree, tvbuff_t *cmd_tvb, guint off)
 {
     guint8 attr;
-    guint32 offset;
+    guint32 prop_off;
 
-    attr = dissect_nvme_fabric_prop_cmd_common(cmd_tree, cmd_tvb, off);
-    offset = tvb_get_guint32(cmd_tvb, 44+off, ENC_LITTLE_ENDIAN);
-    switch(offset) {
-        case 0x14: dissect_nvmeof_prop_cc(cmd_tree, cmd_tvb, &hf_nvmeof_cmd_sprop_cc, 48+off); break;
-        case 0x1c: dissect_nvmeof_prop_csts(cmd_tree, cmd_tvb, &hf_nvmeof_cmd_sprop_csts, 48+off); break;
-        case 0x20: dissect_nvmeof_prop_nssr(cmd_tree, cmd_tvb, &hf_nvmeof_cmd_sprop_nssr, 48+off);  break;
-        default:
-        {
-            if (attr == 0) {
-            proto_tree_add_item(cmd_tree, hf_nvmeof_cmd_prop_attr_set_4B_value, cmd_tvb,
-                            48+off, 4, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(cmd_tree, hf_nvmeof_cmd_prop_attr_set_4B_value_rsvd, cmd_tvb,
-                            52+off, 4, ENC_LITTLE_ENDIAN);
-            } else {
-                proto_tree_add_item(cmd_tree, hf_nvmeof_cmd_prop_attr_set_8B_value, cmd_tvb,
-                            48+off, 8, ENC_LITTLE_ENDIAN);
-            }
-        }
-    }
-    proto_tree_add_item(cmd_tree, hf_nvmeof_cmd_prop_attr_set_rsvd3, cmd_tvb,
+    dissect_nvme_fabric_prop_cmd_common(cmd_tree, cmd_tvb, off);
+    attr = tvb_get_guint8(cmd_tvb, 40+off) & 0x7;
+    prop_off = tvb_get_guint32(cmd_tvb, 44+off, ENC_LITTLE_ENDIAN);
+    dissect_nvmeof_fabric_prop_data(cmd_tree, cmd_tvb, 48+off, prop_off, attr);
+    proto_tree_add_item(cmd_tree, hf_nvmeof_cmd_prop_set_rsvd, cmd_tvb,
                         56+off, 8, ENC_NA);
 }
 
@@ -3705,70 +3544,9 @@ dissect_nvmeof_cmd_data(tvbuff_t *data_tvb, proto_tree *data_tree,
 }
 
 static void
-dissect_nvmeof_status_prop_get_cap(proto_tree *cqe_tree, tvbuff_t *cqe_tvb, guint off)
-{
-    proto_item *ti;
-    guint8 order, set;
-
-    proto_tree_add_item(cqe_tree, hf_nvmeof_cmd_gprop_cap.mqes, cqe_tvb, 0+off, 2, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(cqe_tree, hf_nvmeof_cmd_gprop_cap.cqr, cqe_tvb, 2+off, 1, ENC_LITTLE_ENDIAN);
-    ti = proto_tree_add_item(cqe_tree, hf_nvmeof_cmd_gprop_cap.ams, cqe_tvb, 2+off, 1, ENC_LITTLE_ENDIAN);
-    set = (tvb_get_guint8(cqe_tvb, 3+off)) & 0x3;
-    switch (set) {
-        case 0: proto_item_append_text(ti, " (None)"); break;
-        case 1: proto_item_append_text(ti, " (Weighted Round Robin with Urgent Priority Class"); break;
-        case 2: proto_item_append_text(ti, " (Vendor Specific)"); break;
-        case 3: proto_item_append_text(ti, " (Weighted Round Robin with Urgent Priority Class, Vendor Specific)"); break;
-    };
-    proto_tree_add_item(cqe_tree, hf_nvmeof_cmd_gprop_cap.rsvd, cqe_tvb, 2+off, 1, ENC_LITTLE_ENDIAN);
-    ti = proto_tree_add_item(cqe_tree, hf_nvmeof_cmd_gprop_cap.to, cqe_tvb, 3+off, 1, ENC_LITTLE_ENDIAN);
-    proto_item_append_text(ti, " (%u milliseconds)", 500U * tvb_get_guint8(cqe_tvb, 3+off));
-    proto_tree_add_item(cqe_tree, hf_nvmeof_cmd_gprop_cap.dstrd, cqe_tvb, 4+off, 2, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(cqe_tree, hf_nvmeof_cmd_gprop_cap.nssrs, cqe_tvb, 4+off, 2, ENC_LITTLE_ENDIAN);
-    ti = proto_tree_add_item(cqe_tree, hf_nvmeof_cmd_gprop_cap.css, cqe_tvb, 4+off, 2, ENC_LITTLE_ENDIAN);
-    set = (tvb_get_guint16(cqe_tvb, 4+off, ENC_LITTLE_ENDIAN) >> 5) & 0xFF;
-    if (set) {
-        if (set & 0x1)
-            proto_item_append_text(ti, " (NVM IO Command Set)");
-        else if (set & 0x80)
-            proto_item_append_text(ti, " (Admin Command Set Only)");
-        else
-            proto_item_append_text(ti, "(Reserved)");
-    }
-    proto_tree_add_item(cqe_tree, hf_nvmeof_cmd_gprop_cap.bps, cqe_tvb, 4+off, 2, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(cqe_tree, hf_nvmeof_cmd_gprop_cap.rsvd1, cqe_tvb, 4+off, 2, ENC_LITTLE_ENDIAN);
-    ti = proto_tree_add_item(cqe_tree, hf_nvmeof_cmd_gprop_cap.mpsmin, cqe_tvb, 6+off, 1, ENC_LITTLE_ENDIAN);
-    order =  12 + (tvb_get_guint8(cqe_tvb, 6+off) & 0xF);
-    proto_item_append_text(ti, " (%lu bytes)", 1UL << order);
-    ti = proto_tree_add_item(cqe_tree, hf_nvmeof_cmd_gprop_cap.mpsmax, cqe_tvb, 6+off, 1, ENC_LITTLE_ENDIAN);
-    order =  12 + ((tvb_get_guint8(cqe_tvb, 6+off) & 0xF0) >> 4);
-    proto_item_append_text(ti, " (%lu bytes)", 1UL << order);
-    proto_tree_add_item(cqe_tree, hf_nvmeof_cmd_gprop_cap.pmrs, cqe_tvb, 7+off, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(cqe_tree, hf_nvmeof_cmd_gprop_cap.cmbs, cqe_tvb, 7+off, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(cqe_tree, hf_nvmeof_cmd_gprop_cap.rsvd2, cqe_tvb, 7+off, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(cqe_tree, hf_nvmeof_cmd_gprop_cap.rsvd3, cqe_tvb, 8+off, 1, ENC_NA);
-}
-
-static void
-dissect_nvmeof_status_prop_get_vs(proto_tree *cqe_tree, tvbuff_t *cqe_tvb, guint off)
-{
-    proto_tree_add_item(cqe_tree, hf_nvmeof_cmd_gprop_ver.ter, cqe_tvb, 0+off, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(cqe_tree, hf_nvmeof_cmd_gprop_ver.mnr, cqe_tvb, 1+off, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(cqe_tree, hf_nvmeof_cmd_gprop_ver.mjr, cqe_tvb, 2+off, 2, ENC_LITTLE_ENDIAN);
-}
-
-static void
 dissect_nvmeof_status_prop_get(proto_tree *cqe_tree, tvbuff_t *cqe_tvb, struct nvme_cmd_ctx *cmd, guint off)
 {
-    proto_item *ti = proto_tree_add_item(cqe_tree, hf_nvmeof_cqe_sts, cqe_tvb, 0, 8, ENC_LITTLE_ENDIAN);
-    proto_item_append_text(ti, " (value for property: %s)", val_to_str(cmd->cmd_ctx.fabric_cmd.prop_get.offset, prop_offset_tbl, "Unknown Property"));
-    switch (cmd->cmd_ctx.fabric_cmd.prop_get.offset) {
-        case 0: dissect_nvmeof_status_prop_get_cap(cqe_tree, cqe_tvb, off); break;
-        case 8: dissect_nvmeof_status_prop_get_vs(cqe_tree, cqe_tvb, off); break;
-        case 0x14: dissect_nvmeof_prop_cc(cqe_tree, cqe_tvb, &hf_nvmeof_cmd_gprop_cc, off); break;
-        case 0x1c: dissect_nvmeof_prop_csts(cqe_tree, cqe_tvb, &hf_nvmeof_cmd_gprop_csts, off); break;
-        case 0x20: dissect_nvmeof_prop_nssr(cqe_tree, cqe_tvb, &hf_nvmeof_cmd_gprop_nssr, off); break;
-    }
+    dissect_nvmeof_fabric_prop_data(cqe_tree, cqe_tvb, off, cmd->cmd_ctx.fabric_cmd.prop_get.offset, 1);
 };
 
 static void
@@ -4127,120 +3905,128 @@ proto_register_nvme(void)
             { "Reserved", "nvmeof.cmd.connect.data.rsvd1",
                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
-        { &hf_nvmeof_cmd_prop_attr_rsvd,
-            { "Reserved", "nvmeof.cmd.prop_attr.rsvd",
+        { &hf_nvmeof_cmd_prop_get_set_rsvd0,
+            { "Reserved", "nvmeof.cmd.prop_get_set.rsvd0",
                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
-        { &hf_nvmeof_cmd_prop_attr_rsvd1,
-            { "Reserved", "nvmeof.cmd.prop_attr.rsvd1",
-               FT_UINT8, BASE_HEX, NULL, 0xf8, NULL, HFILL}
-        },
-        { &hf_nvmeof_cmd_prop_attr_size,
-            { "Property Size", "nvmeof.cmd.prop_attr.size",
+        { &hf_nvmeof_cmd_prop_get_set_attrib[0],
+            { "Attributes", "nvmeof.cmd.prop_get_set.attrib",
                FT_UINT8, BASE_HEX, NULL, 0x7, NULL, HFILL}
         },
-        { &hf_nvmeof_cmd_prop_attr_rsvd2,
-            { "Reserved", "nvmeof.cmd.prop_attr.rsvd2",
+        { &hf_nvmeof_cmd_prop_get_set_attrib[1],
+            { "Property Size", "nvmeof.cmd.prop_get_set.attrib.size",
+               FT_UINT8, BASE_HEX, VALS(attr_size_tbl), 0x7, NULL, HFILL}
+        },
+        { &hf_nvmeof_cmd_prop_get_set_attrib[2],
+            { "Reserved", "nvmeof.cmd.prop_get_set.attrib.rsvd",
+               FT_UINT8, BASE_HEX, NULL, 0xf8, NULL, HFILL}
+        },
+        { &hf_nvmeof_cmd_prop_get_set_rsvd1,
+            { "Reserved", "nvmeof.cmd.prop_get_set.rsvd1",
                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
-        { &hf_nvmeof_cmd_prop_attr_offset,
-            { "Offset", "nvmeof.cmd.prop_attr.offset",
-               FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        { &hf_nvmeof_cmd_prop_get_set_offset,
+            { "Offset", "nvmeof.cmd.prop_get_set.offset",
+               FT_UINT32, BASE_HEX, VALS(prop_offset_tbl), 0x0, NULL, HFILL}
         },
-        { &hf_nvmeof_cmd_prop_attr_get_rsvd3,
-            { "Reserved", "nvmeof.cmd.prop_attr.get.rsvd3",
+        { &hf_nvmeof_cmd_prop_get_rsvd2,
+            { "Reserved", "nvmeof.cmd.prop_get.rsvd2",
                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
-        { &hf_nvmeof_cmd_prop_attr_set_4B_value,
-            { "Value", "nvmeof.cmd.prop_attr.set.value.4B",
+        { &hf_nvmeof_prop_get_set_data,
+            { "Property Data", "nvmeof.prop_get_set.data",
+               FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvmeof_prop_get_set_data_4B,
+            { "Value", "nvmeof.prop_get_set.data.4B",
                FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
-        { &hf_nvmeof_cmd_prop_attr_set_4B_value_rsvd,
-            { "Reserved", "nvmeof.cmd.prop_attr.set.value.rsvd",
+        { &hf_nvmeof_prop_get_set_data_4B_rsvd,
+            { "Reserved", "nvmeof.prop_get_set.data.rsvd",
                FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
-        { &hf_nvmeof_cmd_prop_attr_set_8B_value,
-            { "Value", "nvmeof.cmd.prop_attr.set.value.8B",
+        { &hf_nvmeof_prop_get_set_data_8B,
+            { "Value", "nvmeof.prop_get_set.data.8B",
                FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
-        { &hf_nvmeof_cmd_sprop_cc.en,
-            { "Enable", "nvmeof.cmd.prop_attr.set.cc.en",
-               FT_UINT16, BASE_HEX, NULL, 0x1, NULL, HFILL}
+        { &hf_nvmeof_prop_get_set_cc[0],
+            { "Controller Configuration", "nvmeof.prop_get_set.cc",
+               FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
-        { &hf_nvmeof_cmd_sprop_cc.rsvd,
-            { "Reserved", "nvmeof.cmd.prop_attr.set.cc.rsvd",
-               FT_UINT16, BASE_HEX, NULL, 0xE, NULL, HFILL}
+        { &hf_nvmeof_prop_get_set_cc[1],
+            { "Enable", "nvmeof.prop_get_set.cc.en",
+               FT_UINT32, BASE_HEX, NULL, 0x1, NULL, HFILL}
         },
-        { &hf_nvmeof_cmd_sprop_cc.css,
-            { "IO Command Set Selected", "nvmeof.cmd.prop_attr.set.cc.css",
-               FT_UINT16, BASE_HEX, NULL, 0x70, NULL, HFILL}
+        { &hf_nvmeof_prop_get_set_cc[2],
+            { "Reserved", "nvmeof.prop_get_set.cc.rsvd0",
+               FT_UINT32, BASE_HEX, NULL, 0xE, NULL, HFILL}
         },
-        { &hf_nvmeof_cmd_sprop_cc.mps,
-            { "Memory Page Size", "nvmeof.cmd.prop_attr.set.cc.mps",
-               FT_UINT16, BASE_HEX, NULL, 0x780, NULL, HFILL}
+        { &hf_nvmeof_prop_get_set_cc[3],
+            { "IO Command Set Selected", "nvmeof.prop_get_set.cc.css",
+               FT_UINT32, BASE_HEX, VALS(css_table), 0x70, NULL, HFILL}
         },
-        { &hf_nvmeof_cmd_sprop_cc.ams,
-            { "Arbitration Mechanism Selected", "nvmeof.cmd.prop_attr.set.cc.ams",
-               FT_UINT16, BASE_HEX, NULL, 0x3800, NULL, HFILL}
+        { &hf_nvmeof_prop_get_set_cc[4],
+            { "Memory Page Size", "nvmeof.prop_get_set.cc.mps",
+               FT_UINT32, BASE_CUSTOM, CF_FUNC(add_ctrl_pow2_page_size), 0x780, NULL, HFILL}
         },
-        { &hf_nvmeof_cmd_sprop_cc.shn,
-            { "Shutdown Notification", "nvmeof.cmd.prop_attr.set.cc.shn",
-               FT_UINT16, BASE_HEX, NULL, 0xc000, NULL, HFILL}
+        { &hf_nvmeof_prop_get_set_cc[5],
+            { "Arbitration Mechanism Selected", "nvmeof.prop_get_set.cc.ams",
+               FT_UINT32, BASE_HEX, VALS(ams_table), 0x3800, NULL, HFILL}
         },
-        { &hf_nvmeof_cmd_sprop_cc.iosqes,
-            { "IO Submission Queue Entry Size", "nvmeof.cmd.prop_attr.set.cc.iosqes",
-               FT_UINT8, BASE_HEX, NULL, 0xF, NULL, HFILL}
+        { &hf_nvmeof_prop_get_set_cc[6],
+            { "Shutdown Notification", "nvmeof.prop_get_set.cc.shn",
+               FT_UINT32, BASE_HEX, VALS(sn_table), 0xc000, NULL, HFILL}
         },
-        { &hf_nvmeof_cmd_sprop_cc.iocqes,
-            { "IO Completion Queue Entry Size", "nvmeof.cmd.prop_attr.set.cc.iocqes",
-               FT_UINT8, BASE_HEX, NULL, 0xF0, NULL, HFILL}
+        { &hf_nvmeof_prop_get_set_cc[7],
+            { "IO Submission Queue Entry Size", "nvmeof.prop_get_set.cc.iosqes",
+               FT_UINT32, BASE_CUSTOM, CF_FUNC(add_ctrl_pow2_bytes), 0xF0000, NULL, HFILL}
         },
-        { &hf_nvmeof_cmd_sprop_cc.rsvd1,
-            { "Reserved", "nvmeof.cmd.prop_attr.set.cc.rsvd1",
-               FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL}
+        { &hf_nvmeof_prop_get_set_cc[8],
+            { "IO Completion Queue Entry Size", "nvmeof.prop_get_set.cc.iocqes",
+               FT_UINT32, BASE_CUSTOM, CF_FUNC(add_ctrl_pow2_bytes), 0xF00000, NULL, HFILL}
         },
-        { &hf_nvmeof_cmd_sprop_cc.rsvd2,
-            { "Reserved", "nvmeof.cmd.prop_attr.set.cc.rsvd2",
-               FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL}
+        { &hf_nvmeof_prop_get_set_cc[9],
+            { "Reserved", "nvmeof.prop_get_set.cc.rsvd1",
+               FT_UINT32, BASE_HEX, NULL, 0xff000000, NULL, HFILL}
         },
-        { &hf_nvmeof_cmd_sprop_csts.rdy,
-            { "Ready", "nvmeof.cmd.prop_attr.set.csts.rdy",
-               FT_UINT8, BASE_HEX, NULL, 0x1, NULL, HFILL}
+        { &hf_nvmeof_prop_get_set_csts[0],
+            { "Controller Status", "nvmeof.prop_get_set.csts",
+               FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
-        { &hf_nvmeof_cmd_sprop_csts.cfs,
-            { "Controller Fatal Status", "nvmeof.cmd.prop_attr.set.csts.cfs",
-               FT_UINT8, BASE_HEX, NULL, 0x2, NULL, HFILL}
+        { &hf_nvmeof_prop_get_set_csts[1],
+            { "Ready", "nvmeof.prop_get_set.csts.rdy",
+               FT_UINT32, BASE_HEX, NULL, 0x1, NULL, HFILL}
         },
-        { &hf_nvmeof_cmd_sprop_csts.shst,
-            { "Shutdown Status", "nvmeof.cmd.prop_attr.set.csts.shst",
-               FT_UINT8, BASE_HEX, NULL, 0xC, NULL, HFILL}
+        { &hf_nvmeof_prop_get_set_csts[2],
+            { "Controller Fatal Status", "nvmeof.prop_get_set.csts.cfs",
+               FT_UINT32, BASE_HEX, NULL, 0x2, NULL, HFILL}
         },
-        { &hf_nvmeof_cmd_sprop_csts.nssro,
-            { "NVM Subsystem Reset Occurred", "nvmeof.cmd.prop_attr.set.csts.nssro",
-               FT_UINT8, BASE_HEX, NULL, 0x10, NULL, HFILL}
+        { &hf_nvmeof_prop_get_set_csts[3],
+            { "Shutdown Status", "nvmeof.prop_get_set.csts.shst",
+               FT_UINT32, BASE_HEX, VALS(shst_table), 0xC, NULL, HFILL}
         },
-        { &hf_nvmeof_cmd_sprop_csts.pp,
-            { "Processing Paused", "nvmeof.cmd.prop_attr.set.csts.pp",
-               FT_UINT8, BASE_HEX, NULL, 0x20, NULL, HFILL}
+        { &hf_nvmeof_prop_get_set_csts[4],
+            { "NVM Subsystem Reset Occurred", "nvmeof.prop_get_set.csts.nssro",
+               FT_UINT32, BASE_HEX, NULL, 0x10, NULL, HFILL}
         },
-        { &hf_nvmeof_cmd_sprop_csts.rsvd,
-            { "Reserved", "nvmeof.cmd.prop_attr.set.csts.rsvd",
-               FT_UINT8, BASE_HEX, NULL, 0xC0, NULL, HFILL}
+        { &hf_nvmeof_prop_get_set_csts[5],
+            { "Processing Paused", "nvmeof.prop_get_set.csts.pp",
+               FT_UINT32, BASE_HEX, NULL, 0x20, NULL, HFILL}
         },
-        { &hf_nvmeof_cmd_sprop_csts.rsvd1,
-            { "Reserved", "nvmeof.cmd.prop_attr.set.csts.rsvd1",
-               FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL}
+        { &hf_nvmeof_prop_get_set_csts[6],
+            { "Reserved", "nvmeof.prop_get_set.csts.rsvd",
+               FT_UINT32, BASE_HEX, NULL, 0xffffffC0, NULL, HFILL}
         },
-        { &hf_nvmeof_cmd_sprop_nssr.nssrc,
-            { "NVM Subsystem Reset Control", "nvmeof.cmd.prop_attr.set.nssr.nssrc",
+        { &hf_nvmeof_prop_get_set_nssr[0],
+            { "NVM Subsystem Reset", "nvmeof.cmd.prop_attr.set.nssr",
                FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL}
         },
-        { &hf_nvmeof_cmd_sprop_nssr.rsvd,
-            { "Reserved", "nvmeof.cmd.prop_attr.set.nssr.rsvd",
-               FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL}
+        { &hf_nvmeof_prop_get_set_nssr[1],
+            { "NVM Subsystem Reset Control", "nvmeof.cmd.prop_attr.set.nssr.nssrc",
+               FT_UINT32, BASE_HEX, NULL, 0xffffffff, NULL, HFILL}
         },
-        { &hf_nvmeof_cmd_prop_attr_set_rsvd3,
-            { "Reserved", "nvmeof.cmd.prop_attr.set.rsvd3",
+        { &hf_nvmeof_cmd_prop_set_rsvd,
+            { "Reserved", "nvmeof.cmd.prop_set.rsvd",
                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvmeof_cmd_generic_rsvd1,
@@ -4276,157 +4062,89 @@ proto_register_nvme(void)
             { "Status", "nvmeof.cqe.status",
                FT_UINT16, BASE_HEX, NULL, 0xfffe, NULL, HFILL}
         },
-        { &hf_nvmeof_cmd_gprop_cap.mqes,
-            { "Maximum Queue Entries Supported", "nvmeof.cqe.status.pget.cap.mqes",
-               FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL}
+        { &hf_nvmeof_prop_get_ccap[0],
+            { "Controller Capabilities", "nvmeof.prop_get.ccap",
+               FT_UINT64, BASE_HEX, NULL, 0, NULL, HFILL}
         },
-        { &hf_nvmeof_cmd_gprop_cap.cqr,
-            { "Contiguous Queues Required", "nvmeof.cqe.status.pget.cap.cqr",
-               FT_UINT8, BASE_HEX, NULL, 0x1, NULL, HFILL}
+        { &hf_nvmeof_prop_get_ccap[1],
+            { "Maximum Queue Entries Supported", "nvmeof.prop_get.ccap.mqes",
+               FT_UINT64, BASE_CUSTOM, CF_FUNC(add_zero_base), 0xffff, NULL, HFILL}
         },
-        { &hf_nvmeof_cmd_gprop_cap.ams,
-            { "Arbitration Mechanism Supported", "nvmeof.cqe.status.pget.cap.ams",
-               FT_UINT8, BASE_HEX, NULL, 0x6, NULL, HFILL}
+        { &hf_nvmeof_prop_get_ccap[2],
+            { "Contiguous Queues Required", "nvmeof.prop_get.ccap.cqr",
+               FT_BOOLEAN, 64, NULL, 0x10000, NULL, HFILL}
         },
-        { &hf_nvmeof_cmd_gprop_cap.rsvd,
-            { "Reserved", "nvmeof.cqe.status.pget.cap.rsvd",
-               FT_UINT8, BASE_HEX, NULL, 0xF8, NULL, HFILL}
+        { &hf_nvmeof_prop_get_ccap[3],
+            { "Supports Arbitration Mechanism with Weighted Round Robin and Urgent Priority Class", "nvmeof.prop_get.ccap.ams.wrr",
+               FT_BOOLEAN, 64, NULL, 0x20000, NULL, HFILL}
         },
-        { &hf_nvmeof_cmd_gprop_cap.to,
-            { "Timeout (to ready status)", "nvmeof.cqe.status.pget.cap.to",
-               FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL}
+        { &hf_nvmeof_prop_get_ccap[4],
+            { "Supports Arbitration Mechanism Vendor Specific", "nvmeof.prop_get.ccap.ams.vs",
+               FT_BOOLEAN, 64, NULL, 0x40000, NULL, HFILL}
         },
-        { &hf_nvmeof_cmd_gprop_cap.dstrd,
-            { "Doorbell Stride", "nvmeof.cqe.status.pget.cap.dstrd",
-               FT_UINT16, BASE_HEX, NULL, 0xF, NULL, HFILL}
+        { &hf_nvmeof_prop_get_ccap[5],
+            { "Reserved", "nvmeof.prop_get.ccap.rsvd0",
+               FT_UINT64, BASE_HEX, NULL, 0xF80000, NULL, HFILL}
         },
-        { &hf_nvmeof_cmd_gprop_cap.nssrs,
-            { "NVM Subsystem Reset Supported", "nvmeof.cqe.status.pget.cap.nssrs",
-               FT_UINT16, BASE_HEX, NULL, 0x10, NULL, HFILL}
+        { &hf_nvmeof_prop_get_ccap[6],
+            { "Timeout (to ready status)", "nvmeof.prop_get.ccap.to",
+               FT_UINT64, BASE_CUSTOM, CF_FUNC(add_500ms_units), 0xFF000000, NULL, HFILL}
         },
-        { &hf_nvmeof_cmd_gprop_cap.css,
-            { "Command Sets Supported", "nvmeof.cqe.status.pget.cap.css",
-               FT_UINT16, BASE_HEX, NULL, 0x1FE0, NULL, HFILL}
+        { &hf_nvmeof_prop_get_ccap[7],
+            { "Doorbell Stride", "nvmeof.prop_get.ccap.dstrd",
+               FT_UINT64, BASE_CUSTOM, CF_FUNC(add_ctrl_pow2_dstrd_size), 0xF00000000, NULL, HFILL}
         },
-        { &hf_nvmeof_cmd_gprop_cap.bps,
-            { "Boot Partition Support", "nvmeof.cqe.status.pget.cap.bps",
-               FT_UINT16, BASE_HEX, NULL, 0x2000, NULL, HFILL}
+        { &hf_nvmeof_prop_get_ccap[8],
+            { "NVM Subsystem Reset Supported", "nvmeof.prop_get.ccap.nssrs",
+               FT_BOOLEAN, 64, NULL, 0x1000000000, NULL, HFILL}
         },
-        { &hf_nvmeof_cmd_gprop_cap.rsvd1,
-            { "Reserved", "nvmeof.cqe.status.pget.cap.rsdv1",
-               FT_UINT16, BASE_HEX, NULL, 0x4000, NULL, HFILL}
+        { &hf_nvmeof_prop_get_ccap[9],
+            { "Command Sets Supported", "nvmeof.prop_get.ccap.css",
+               FT_UINT64, BASE_CUSTOM, CF_FUNC(add_ccap_css), 0x1FE000000000, NULL, HFILL}
         },
-        { &hf_nvmeof_cmd_gprop_cap.mpsmin,
-            { "Memory Page Size Minimum", "nvmeof.cqe.status.pget.cap.mpsmin",
-               FT_UINT8, BASE_HEX, NULL, 0xF, NULL, HFILL}
+        { &hf_nvmeof_prop_get_ccap[10],
+            { "Boot Partition Support", "nvmeof.prop_get.ccap.bps",
+               FT_BOOLEAN, 64, NULL, 0x200000000000, NULL, HFILL}
         },
-        { &hf_nvmeof_cmd_gprop_cap.mpsmax,
-            { "Memory Page Size Maximum", "nvmeof.cqe.status.pget.cap.mpsmax",
-               FT_UINT8, BASE_HEX, NULL, 0xF0, NULL, HFILL}
+        { &hf_nvmeof_prop_get_ccap[11],
+            { "Reserved", "nvmeof.prop_get.ccap.rsdv1",
+               FT_UINT64, BASE_HEX, NULL, 0xC00000000000, NULL, HFILL}
         },
-        { &hf_nvmeof_cmd_gprop_cap.pmrs,
-            { "Persistent Memory Region Supported", "nvmeof.cqe.status.pget.cap.pmrs",
-               FT_UINT8, BASE_HEX, NULL, 0x1, NULL, HFILL}
+        { &hf_nvmeof_prop_get_ccap[12],
+            { "Memory Page Size Minimum", "nvmeof.prop_get.ccap.mpsmin",
+               FT_UINT64, BASE_CUSTOM, CF_FUNC(add_ctrl_pow2_page_size), 0xF000000000000, NULL, HFILL}
         },
-        { &hf_nvmeof_cmd_gprop_cap.cmbs,
-            { "Controller Memory Buffer Supported", "nvmeof.cqe.status.pget.cap.cmbs",
-               FT_UINT8, BASE_HEX, NULL, 0x2, NULL, HFILL}
+        { &hf_nvmeof_prop_get_ccap[13],
+            { "Memory Page Size Maximum", "nvmeof.prop_get.ccap.mpsmax",
+               FT_UINT64, BASE_CUSTOM, CF_FUNC(add_ctrl_pow2_page_size), 0xF0000000000000, NULL, HFILL}
         },
-        { &hf_nvmeof_cmd_gprop_cap.rsvd2,
-            { "Reserved", "nvmeof.cqe.status.pget.cap.rsvd2",
-               FT_UINT8, BASE_HEX, NULL, 0xFC, NULL, HFILL}
+        { &hf_nvmeof_prop_get_ccap[14],
+            { "Persistent Memory Region Supported", "nvmeof.prop_get.ccap.pmrs",
+               FT_BOOLEAN, 64, NULL, 0x100000000000000, NULL, HFILL}
         },
-        { &hf_nvmeof_cmd_gprop_cap.rsvd3,
-            { "Reserved", "nvmeof.cqe.status.pget.cap.rsvd3",
-               FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL}
+        { &hf_nvmeof_prop_get_ccap[15],
+            { "Controller Memory Buffer Supported", "nvmeof.prop_get.ccap.cmbs",
+               FT_BOOLEAN, 64, NULL, 0x200000000000000, NULL, HFILL}
         },
-        { &hf_nvmeof_cmd_gprop_ver.ter,
-            { "Tertiary Version", "nvmeof.cqe.status.pget.vs.ter",
-               FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL}
+        { &hf_nvmeof_prop_get_ccap[16],
+            { "Reserved", "nvmeof.prop_get.ccap.rsvd2",
+               FT_UINT64, BASE_HEX, NULL, 0xFC00000000000000, NULL, HFILL}
         },
-        { &hf_nvmeof_cmd_gprop_ver.mnr,
-            { "Minor Version", "nvmeof.cqe.status.pget.vs.mnr",
-               FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL}
-        },
-        { &hf_nvmeof_cmd_gprop_ver.mjr,
-            { "Major Version", "nvmeof.cqe.status.pget.vs.mjr",
-               FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL}
-        },
-        { &hf_nvmeof_cmd_gprop_cc.en,
-            { "Enable", "nvmeof.cqe.status.pget.cc.en",
-               FT_UINT16, BASE_HEX, NULL, 0x1, NULL, HFILL}
-        },
-        { &hf_nvmeof_cmd_gprop_cc.rsvd,
-            { "Reserved", "nvmeof.cqe.status.pget.cc.rsvd",
-               FT_UINT16, BASE_HEX, NULL, 0xE, NULL, HFILL}
-        },
-        { &hf_nvmeof_cmd_gprop_cc.css,
-            { "IO Command Set Selected", "nvmeof.cqe.status.pget.cc.css",
-               FT_UINT16, BASE_HEX, NULL, 0x70, NULL, HFILL}
-        },
-        { &hf_nvmeof_cmd_gprop_cc.mps,
-            { "Memory Page Size", "nvmeof.cqe.status.pget.cc.mps",
-               FT_UINT16, BASE_HEX, NULL, 0x780, NULL, HFILL}
-        },
-        { &hf_nvmeof_cmd_gprop_cc.ams,
-            { "Arbitration Mechanism Selected", "nvmeof.cqe.status.pget.cc.ams",
-               FT_UINT16, BASE_HEX, NULL, 0x3800, NULL, HFILL}
-        },
-        { &hf_nvmeof_cmd_gprop_cc.shn,
-            { "Shutdown Notification", "nvmeof.cqe.status.pget.cc.shn",
-               FT_UINT16, BASE_HEX, NULL, 0xc000, NULL, HFILL}
-        },
-        { &hf_nvmeof_cmd_gprop_cc.iosqes,
-            { "IO Submission Queue Entry Size", "nvmeof.cqe.status.pget.cc.iosqes",
-               FT_UINT8, BASE_HEX, NULL, 0xF, NULL, HFILL}
-        },
-        { &hf_nvmeof_cmd_gprop_cc.iocqes,
-            { "IO Completion Queue Entry Size", "nvmeof.cqe.status.pget.cc.iocqes",
-               FT_UINT8, BASE_HEX, NULL, 0xF0, NULL, HFILL}
-        },
-        { &hf_nvmeof_cmd_gprop_cc.rsvd1,
-            { "Reserved", "nvmeof.cqe.status.pget.cc.rsvd1",
-               FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL}
-        },
-        { &hf_nvmeof_cmd_gprop_cc.rsvd2,
-            { "Reserved", "nvmeof.cqe.status.pget.cc.rsvd2",
-               FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL}
-        },
-        { &hf_nvmeof_cmd_gprop_csts.rdy,
-            { "Ready", "nvmeof.cqe.status.pget.csts.rdy",
-               FT_UINT8, BASE_HEX, NULL, 0x1, NULL, HFILL}
-        },
-        { &hf_nvmeof_cmd_gprop_csts.cfs,
-            { "Controller Fatal Status", "nvmeof.cqe.status.pget.csts.cfs",
-               FT_UINT8, BASE_HEX, NULL, 0x2, NULL, HFILL}
-        },
-        { &hf_nvmeof_cmd_gprop_csts.shst,
-            { "Shutdown Status", "nvmeof.cqe.status.pget.csts.shst",
-               FT_UINT8, BASE_HEX, NULL, 0xC, NULL, HFILL}
-        },
-        { &hf_nvmeof_cmd_gprop_csts.nssro,
-            { "NVM Subsystem Reset Occurred", "nvmeof.cqe.status.pget.csts.nssro",
-               FT_UINT8, BASE_HEX, NULL, 0x10, NULL, HFILL}
-        },
-        { &hf_nvmeof_cmd_gprop_csts.pp,
-            { "Processing Paused", "nvmeof.cqe.status.pget.csts.pp",
-               FT_UINT8, BASE_HEX, NULL, 0x20, NULL, HFILL}
-        },
-        { &hf_nvmeof_cmd_gprop_csts.rsvd,
-            { "Reserved", "nvmeof.cqe.status.pget.csts.rsvd",
-               FT_UINT8, BASE_HEX, NULL, 0xC0, NULL, HFILL}
-        },
-        { &hf_nvmeof_cmd_gprop_csts.rsvd1,
-            { "Reserved", "nvmeof.cqe.status.pget.csts.rsvd1",
-               FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL}
-        },
-        { &hf_nvmeof_cmd_gprop_nssr.nssrc,
-            { "NVM Subsystem Reset Control", "nvmeof.cqe.status.pget.nssr.nssrc",
+        { &hf_nvmeof_prop_get_vs[0],
+            { "Version", "nvmeof.prop_get.vs",
                FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL}
         },
-        { &hf_nvmeof_cmd_gprop_nssr.rsvd,
-            { "Reserved", "nvmeof.cqe.status.pget.nssr.rsvd",
-               FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL}
+        { &hf_nvmeof_prop_get_vs[1],
+            { "Tertiary Version", "nvmeof.prop_get.vs.ter",
+               FT_UINT32, BASE_DEC, NULL, 0xff, NULL, HFILL}
+        },
+        { &hf_nvmeof_prop_get_vs[2],
+            { "Minor Version", "nvmeof.prop_get.vs.mnr",
+               FT_UINT32, BASE_DEC, NULL, 0xff00, NULL, HFILL}
+        },
+        { &hf_nvmeof_prop_get_vs[3],
+            { "Major Version", "nvmeof.prop_get.vs.mjr",
+               FT_UINT32, BASE_DEC, NULL, 0xffff0000, NULL, HFILL}
         },
         { &hf_nvmeof_cqe_status_rsvd,
             { "Reserved", "nvmeof.cqe.status.rsvd",
