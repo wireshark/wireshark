@@ -1250,7 +1250,7 @@ add_octetstring_tree(proto_tree *tree, tvbuff_t *tvb, int offset, int name_lengt
             break;
 
         default :
-            value = wmem_strdup(wmem_packet_scope(), tvb_bytes_to_str(wmem_packet_scope(), tvb, offset + 1 + 2 + name_length + 2, value_length));
+            value = tvb_bytes_to_str(wmem_packet_scope(), tvb, offset + 1 + 2 + name_length + 2, value_length);
 
             valoffset += 1 + 2 + name_length + 2 + value_length;
             break;
