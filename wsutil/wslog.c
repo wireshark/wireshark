@@ -33,7 +33,7 @@ static enum ws_log_level current_log_level = LOG_LEVEL_NONE;
 
 static const char *registered_appname = NULL;
 
-GPtrArray *domain_filter = NULL;
+static GPtrArray *domain_filter = NULL;
 
 static ws_log_writer_cb *registered_log_writer = NULL;
 
