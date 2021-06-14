@@ -3763,12 +3763,12 @@ nvme_is_io_queue_opcode(guint8  opcode)
 static const char *get_cqe_sc_string(guint sct, guint sc)
 {
     switch (sct) {
-        case NVME_CQE_SCT_GENERIC: return val_to_str_const(sc, nvme_cqe_sc_gen_tbl, "Uknown Status Code");
-        case NVME_CQE_SCT_COMMAND: return val_to_str_const(sc, nvme_cqe_sc_cmd_tbl, "Uknown Status Code");
-        case NVME_CQE_SCT_MEDIA: return val_to_str_const(sc, nvme_cqe_sc_media_tbl, "Uknown Status Code");
-        case NVME_CQE_SCT_PATH: return val_to_str_const(sc, nvme_cqe_sc_path_tbl, "Uknown Status Code");
+        case NVME_CQE_SCT_GENERIC: return val_to_str_const(sc, nvme_cqe_sc_gen_tbl, "Unknown Status Code");
+        case NVME_CQE_SCT_COMMAND: return val_to_str_const(sc, nvme_cqe_sc_cmd_tbl, "Unknown Status Code");
+        case NVME_CQE_SCT_MEDIA: return val_to_str_const(sc, nvme_cqe_sc_media_tbl, "Unknown Status Code");
+        case NVME_CQE_SCT_PATH: return val_to_str_const(sc, nvme_cqe_sc_path_tbl, "Unknown Status Code");
         case NVME_CQE_SCT_VENDOR: return "Vendor Error";
-        default: return "Uknown Status Code";
+        default: return "Unknown Status Code";
     }
 }
 
