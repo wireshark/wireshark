@@ -23,6 +23,36 @@
 void proto_register_netlink_route(void);
 void proto_reg_handoff_netlink_route(void);
 
+/*
+ * The "legacy" flag indicates that the packet is a legacy dump
+ * request message.
+ *
+ * Some legacy tools, including iproute2 < 3.9, issue shorter RTM_GETLINK
+ * and RTM_GETADDR dump queries which only contain struct rtgenmsg rather
+ * than struct ifinfomsg. As noted in kernel comment in rtnl_dump_ifinfo(),
+ * these legacy requests will be (even with attributes) always shorter than
+ * struct ifinfomsg so that they are easy to detect.
+ *
+ * Similar problem can be observed with tools using nl_rtgen_request()
+ * function from libnl3; this also affects other RTM_GET* types.
+ *
+ * If such legacy message is detected by length shorter than expected data
+ * structure, we parse it as this legacy version with (1-byte) struct
+ * rtgenmsg so that it's shown as intended rather than as malformed.
+ *
+ * The legacy messages appear, from looking at the iproute2 3.1.0 code,
+ * to be a structure containing a struct nlmsghdr followed by a struct
+ * rtgenmsg.
+ *
+ * struct rtgenmsg contains only a 1-byte address family value, as noted.
+ * *However*, a struct nlmsghdr has a 4-byte length field, and is, as a
+ * result, aligned on a 4-byte boundary, so the structure containing those
+ * two structures is also aligned on a 4-byte boundary, and thus has a
+ * length that's a multiple of 4 bytes.  Therefore, there are 3 bytes of
+ * padding following the address family byte.
+ *
+ * We just show those bytes as padding.
+ */
 struct netlink_route_info {
 	packet_info *pinfo;
 	gboolean legacy;
@@ -329,6 +359,10 @@ static gint ett_netlink_route_attr_linkstats = -1;
 static gint ett_netlink_route_attr_linkstats_rxerrs = -1;
 static gint ett_netlink_route_attr_linkstats_txerrs = -1;
 
+static header_field_info hfi_netlink_route_padding NETLINK_ROUTE_HFI_INIT =
+	{ "Padding", "netlink-route.padding", FT_NONE, BASE_NONE,
+	  NULL, 0x00, NULL, HFILL };
+
 static void
 _fill_label_value_string_bitmask(char *label, guint32 value, const value_string *vals)
 {
@@ -443,8 +477,15 @@ dissect_netlink_route_ifinfomsg(tvbuff_t *tvb, struct netlink_route_info *info, 
 	proto_tree_add_item(tree, &hfi_netlink_route_ifi_family, tvb, offset, 1, nl_data->encoding);
 	offset += 1;
 
-	if (info->legacy)
+	if (info->legacy) {
+		/*
+		 * See the comment for the netlink_route_info structure,
+		 * above.
+		 */
+		proto_tree_add_item(tree, &hfi_netlink_route_padding, tvb, offset, 3, ENC_NA);
+		offset += 3;
 		return offset;
+	}
 
 	/* XXX padding, check if 0 */
 	offset += 1;
@@ -953,8 +994,15 @@ dissect_netlink_route_ifaddrmsg(tvbuff_t *tvb, struct netlink_route_info *info, 
 	proto_tree_add_item(tree, &hfi_netlink_route_ifa_family,    tvb, offset, 1, ENC_NA);
 	offset += 1;
 
-	if (info->legacy)
+	if (info->legacy) {
+		/*
+		 * See the comment for the netlink_route_info structure,
+		 * above.
+		 */
+		proto_tree_add_item(tree, &hfi_netlink_route_padding, tvb, offset, 3, ENC_NA);
+		offset += 3;
 		return offset;
+	}
 
 	proto_tree_add_item(tree, &hfi_netlink_route_ifa_prefixlen, tvb, offset, 1, ENC_NA);
 	offset += 1;
@@ -1134,8 +1182,15 @@ dissect_netlink_route_rtmsg(tvbuff_t *tvb, struct netlink_route_info *info, stru
 	proto_tree_add_item(tree, &hfi_netlink_route_rt_family,   tvb, offset, 1, ENC_NA);
 	offset += 1;
 
-	if (info->legacy)
+	if (info->legacy) {
+		/*
+		 * See the comment for the netlink_route_info structure,
+		 * above.
+		 */
+		proto_tree_add_item(tree, &hfi_netlink_route_padding, tvb, offset, 3, ENC_NA);
+		offset += 3;
 		return offset;
+	}
 
 	proto_tree_add_item(tree, &hfi_netlink_route_rt_dst_len,  tvb, offset, 1, ENC_NA);
 	offset += 1;
@@ -1291,8 +1346,15 @@ dissect_netlink_route_ndmsg(tvbuff_t *tvb, struct netlink_route_info *info, stru
 	proto_tree_add_item(tree, &hfi_netlink_route_nd_family, tvb, offset, 1, ENC_NA);
 	offset += 1;
 
-	if (info->legacy)
+	if (info->legacy) {
+		/*
+		 * See the comment for the netlink_route_info structure,
+		 * above.
+		 */
+		proto_tree_add_item(tree, &hfi_netlink_route_padding, tvb, offset, 3, ENC_NA);
+		offset += 3;
 		return offset;
+	}
 
 	/* XXX, 3B padding */
 	offset += 3;
@@ -1405,7 +1467,13 @@ dissect_netlink_route(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 		case WS_RTM_NEWLINK:
 		case WS_RTM_DELLINK:
 		case WS_RTM_GETLINK:
-			/* backward compatibility with legacy tools; 16 is sizeof(struct ifinfomsg) */
+			/*
+			 * Backward compatibility with legacy tools; 16 is
+			 * sizeof(struct ifinfomsg).
+			 *
+			 * See the comment for the netlink_route_info
+			 * structure, above.
+			 */
 			info.legacy = (nl_data->type == WS_RTM_GETLINK) && (tvb_reported_length_remaining(tvb, offset) < 16);
 			offset = dissect_netlink_route_ifinfomsg(tvb, &info, nl_data, nlmsg_tree, offset);
 			/* Optional attributes */
@@ -1415,7 +1483,13 @@ dissect_netlink_route(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 		case WS_RTM_NEWADDR:
 		case WS_RTM_DELADDR:
 		case WS_RTM_GETADDR:
-			/* backward compatibility with legacy tools; 8 is sizeof(struct ifaddrmsg) */
+			/*
+			 * Backward compatibility with legacy tools; 8 is
+			 * sizeof(struct ifaddrmsg).
+			 *
+			 * See the comment for the netlink_route_info
+			 * structure, above.
+			 */
 			info.legacy = (nl_data->type == WS_RTM_GETADDR) && (tvb_reported_length_remaining(tvb, offset) < 8);
 			offset = dissect_netlink_route_ifaddrmsg(tvb, &info, nl_data, nlmsg_tree, offset);
 			/* Optional attributes */
@@ -1425,7 +1499,13 @@ dissect_netlink_route(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 		case WS_RTM_NEWROUTE:
 		case WS_RTM_DELROUTE:
 		case WS_RTM_GETROUTE:
-			/* backward compatibility with legacy tools; 12 is sizeof(struct rtmsg) */
+			/*
+			 * Backward compatibility with legacy tools; 12 is
+			 * sizeof(struct rtmsg).
+			 *
+			 * See the comment for the netlink_route_info
+			 * structure, above.
+			 */
 			info.legacy = (nl_data->type == WS_RTM_GETROUTE) && (tvb_reported_length_remaining(tvb, offset) < 12);
 			offset = dissect_netlink_route_rtmsg(tvb, &info, nl_data, nlmsg_tree, offset);
 			/* Optional attributes */
@@ -1435,7 +1515,13 @@ dissect_netlink_route(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 		case WS_RTM_NEWNEIGH:
 		case WS_RTM_DELNEIGH:
 		case WS_RTM_GETNEIGH:
-			/* backward compatibility with legacy tools; 12 is sizeof(struct ndmsg) */
+			/*
+			 * Backward compatibility with legacy tools; 12 is
+			 * sizeof(struct ndmsg).
+			 *
+			 * See the comment for the netlink_route_info
+			 * structure, above.
+			 */
 			info.legacy = (nl_data->type == WS_RTM_GETNEIGH) && (tvb_reported_length_remaining(tvb, offset) < 12);
 			offset = dissect_netlink_route_ndmsg(tvb, &info, nl_data, nlmsg_tree, offset);
 			break;
@@ -1450,6 +1536,7 @@ proto_register_netlink_route(void)
 #ifndef HAVE_HFI_SECTION_INIT
 	static header_field_info *hfi[] = {
 		&hfi_netlink_route_nltype,
+		&hfi_netlink_route_padding,
 
 	/* Interface */
 		&hfi_netlink_route_ifi_family,
