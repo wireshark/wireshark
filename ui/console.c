@@ -19,11 +19,14 @@
 #include "console.h"
 
 void
-console_log_writer(const char *format, va_list ap,
-                    const char *prefix, const char *domain _U_,
-                    enum ws_log_level level _U_, void *ptr _U_)
+console_log_writer(const char *domain, enum ws_log_level level,
+                                   const char *timestamp,
+                                   const char *file, int line, const char *func,
+                                   const char *user_format, va_list user_ap,
+                                   void *user_data _U_)
 {
     gboolean fatal = level == LOG_LEVEL_ERROR;
+
 #ifdef _WIN32
     if (prefs.gui_console_open != console_open_never || fatal) {
         /* the user wants a console or the application will terminate immediately */
@@ -33,7 +36,8 @@ console_log_writer(const char *format, va_list ap,
     (void)fatal;
 #endif /* _WIN32 */
 
-    ws_log_fprint(stderr, format, ap, prefix);
+    ws_log_default_writer(domain, level, timestamp, file, line, func,
+                                user_format, user_ap, NULL);
 
 #ifdef _WIN32
     if (fatal) {

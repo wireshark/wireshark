@@ -41,10 +41,10 @@ enum ws_log_level {
 
 
 /** Callback for registering a log writer. */
-typedef void (ws_log_writer_cb)(const char *format, va_list ap,
-                                   const char *prefix,
-                                   const char *domain,
-                                   enum ws_log_level level,
+typedef void (ws_log_writer_cb)(const char *domain, enum ws_log_level level,
+                                   const char *timestamp,
+                                   const char *file, int line, const char *func,
+                                   const char *user_format, va_list user_ap,
                                    void *user_data);
 
 
@@ -52,10 +52,12 @@ typedef void (ws_log_writer_cb)(const char *format, va_list ap,
 typedef void (ws_log_writer_free_data_cb)(void *user_data);
 
 
-/** Writes to stream a new log line and flushes. */
 WS_DLL_PUBLIC
-void ws_log_fprint(FILE *fp, const char *format, va_list ap,
-                                   const char *prefix);
+void ws_log_default_writer(const char *domain, enum ws_log_level level,
+                            const char *timestamp,
+                            const char *file, int line, const char *func,
+                            const char *user_format, va_list user_ap,
+                            void *user_data);
 
 
 /** Convert a numerical level to its string representation. */

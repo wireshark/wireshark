@@ -49,17 +49,6 @@ static FILE *custom_log = NULL;
 static void ws_log_cleanup(void);
 
 
-void
-ws_log_fprint(FILE *fp, const char *format, va_list ap,
-                                const char *prefix)
-{
-    fputs(prefix, fp);
-    vfprintf(fp, format, ap);
-    fputc('\n', fp);
-    fflush(fp);
-}
-
-
 const char *ws_log_level_to_string(enum ws_log_level level)
 {
     switch (level) {
@@ -281,12 +270,12 @@ void ws_log_set_domain_filter_str(const char *str_filter)
 }
 
 
-void ws_log_init(ws_log_writer_cb *_writer)
+void ws_log_init(ws_log_writer_cb *writer)
 {
     registered_appname = g_get_prgname();
 
-    if (_writer)
-        registered_log_writer = _writer;
+    if (writer)
+        registered_log_writer = writer;
 
     const char *env;
 
@@ -314,128 +303,90 @@ void ws_log_init_with_data(ws_log_writer_cb *writer, void *user_data,
 }
 
 
-struct logstr {
-    char buffer[PREFIX_BUFSIZE];
-    char *ptr;
-    int free;
-};
+#define TIMESTAMP_BUFSIZE   sizeof("HH:MM:SS.mmm")
 
-
-static inline void logstr_init(struct logstr *str)
-{
-    str->free = (int)(sizeof(str->buffer) - 1);
-    str->buffer[sizeof(str->buffer) - 1] = '\0';
-    str->ptr = str->buffer;
-
-#ifndef WS_DISABLE_ASSERT
-    memset(str->buffer, 0, sizeof(str->buffer));
-#endif
-}
-
-
-static inline int logstr_snprintf(struct logstr *str, const char *fmt, ...)
-{
-    int write;
-    va_list ap;
-
-    if (str->free <= 0)
-        return -1;
-
-    va_start(ap, fmt);
-    write = vsnprintf(str->ptr, str->free, fmt, ap);
-    va_end(ap);
-
-    if (write < 0 || write >= str->free) {
-        str->ptr = NULL;
-        str->free = -1;
-        return -1;
-    }
-
-    str->ptr += write;
-    ws_assert(str->ptr < str->buffer + sizeof(str->buffer));
-    str->free -= write;
-    ws_assert(str->free > 0);
-    return 0;
-}
-
-
-static void create_log_time(struct logstr *str)
+static void create_log_time(char *buf, size_t bufsize)
 {
     time_t curr;
     struct tm *today;
     guint64 microseconds;
+
+    ws_assert(buf && bufsize >= TIMESTAMP_BUFSIZE);
 
     time(&curr);
     today = localtime(&curr);
     microseconds = create_timestamp();
 
     if (G_UNLIKELY(today == NULL)) {
-        logstr_snprintf(str, " ");
+        *buf = '\0';
         return;
     }
 
-    logstr_snprintf(str, " %02d:%02d:%02d.%03" G_GUINT64_FORMAT,
+    snprintf(buf, bufsize, "%02d:%02d:%02d.%03" G_GUINT64_FORMAT,
                 today->tm_hour, today->tm_min, today->tm_sec,
                 microseconds % 1000000 / 1000);
 }
 
 
-static void logstr_prefix_print(struct logstr *str,
+static void log_write_do_work(FILE *fp, const char *timestamp,
                                 const char *domain,  enum ws_log_level level,
-                                const char *file, int line, const char *func)
+                                const char *file, int line, const char *func,
+                                const char *user_format, va_list user_ap)
 {
 #ifndef _WIN32
-    logstr_snprintf(str, " ** (%s:%ld)",
-                    registered_appname ? registered_appname : "PID", getpid());
+    fprintf(fp, " ** (%s:%ld) ",
+                    registered_appname ? registered_appname : "PID", (long)getpid());
 #else
     if (registered_appname)
-        logstr_snprintf(str, " ** (%s)", registered_appname);
+        fprintf(fp, " ** (%s) ", registered_appname);
     else
-        logstr_snprintf(str, " **");
+        fprintf(fp, " ** ");
 #endif
 
-    create_log_time(str);
+    fputs(timestamp, fp);
 
     const char *level_str = ws_log_level_to_string(level);
 
     if (strcmp(domain, LOG_DOMAIN_DEFAULT) != 0)
-        logstr_snprintf(str, " [%s-%s]", domain, level_str);
+        fprintf(fp, " [%s-%s]", domain, level_str);
     else
-        logstr_snprintf(str, " [%s]", level_str);
+        fprintf(fp, " [%s]", level_str);
 
     if (func)
-        logstr_snprintf(str, " %s()", func);
+        fprintf(fp, " %s() -- " , func);
     else if (file && line >= 0)
-        logstr_snprintf(str, " (%d)%s", file, line);
+        fprintf(fp, " (%d)%s -- ", line, file);
     else if (file)
-        logstr_snprintf(str, " %s", file);
+        fprintf(fp, " %s -- ", file);
+    else
+        fprintf(fp, " -- ");
 
-    logstr_snprintf(str, " -- ");
+    vfprintf(fp, user_format, user_ap);
+    fputc('\n', fp);
+    fflush(fp);
 }
 
 
-static void log_internal_write(const char *domain, enum ws_log_level level,
+static void log_write_dispatch(const char *domain, enum ws_log_level level,
                             const char *file, int line, const char *func,
                             const char *user_format, va_list user_ap)
 {
-    struct logstr prefix;
+    char tstamp[TIMESTAMP_BUFSIZE];
 
-    logstr_init(&prefix);
+    create_log_time(tstamp, sizeof(tstamp));
 
-    logstr_prefix_print(&prefix, domain, level, file, line, func);
-
-    /* Call the registered writer, or the default if one wasn't registered. */
     if (registered_log_writer) {
-        registered_log_writer(user_format, user_ap, prefix.buffer,
-                                domain, level, registered_log_writer_data);
+        registered_log_writer(domain, level, tstamp, file, line, func,
+                        user_format, user_ap, registered_log_writer_data);
     }
     else {
-        ws_log_fprint(stderr, user_format, user_ap, prefix.buffer);
+        log_write_do_work(stderr, tstamp, domain, level, file, line, func,
+                        user_format, user_ap);
     }
 
-    /* If we have a custom file, write to it _also_. */
     if (custom_log) {
-        ws_log_fprint(custom_log, user_format, user_ap, prefix.buffer);
+        log_write_do_work(custom_log, tstamp, domain, level, file, line, func,
+                        user_format, user_ap);
     }
 
     if (level == LOG_LEVEL_ERROR) {
@@ -451,7 +402,7 @@ void ws_logv(const char *domain, enum ws_log_level level,
     if (log_drop_message(domain, level))
         return;
 
-    log_internal_write(domain, level, NULL, -1, NULL, format, ap);
+    log_write_dispatch(domain, level, NULL, -1, NULL, format, ap);
 }
 
 
@@ -464,7 +415,7 @@ void ws_log(const char *domain, enum ws_log_level level,
         return;
 
     va_start(ap, format);
-    log_internal_write(domain, level, NULL, -1, NULL, format, ap);
+    log_write_dispatch(domain, level, NULL, -1, NULL, format, ap);
     va_end(ap);
 }
 
@@ -479,8 +430,18 @@ void ws_log_full(const char *domain, enum ws_log_level level,
         return;
 
     va_start(ap, format);
-    log_internal_write(domain, level, file, line, func, format, ap);
+    log_write_dispatch(domain, level, file, line, func, format, ap);
     va_end(ap);
+}
+
+
+void ws_log_default_writer(const char *domain, enum ws_log_level level,
+                            const char *timestamp,
+                            const char *file, int line, const char *func,
+                            const char *user_format, va_list user_ap,
+                            void *user_data _U_)
+{
+    log_write_do_work(stderr, timestamp, domain, level, file, line, func, user_format, user_ap);
 }
 
 

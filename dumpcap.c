@@ -327,10 +327,10 @@ static gboolean need_timeout_workaround;
 #define WRITER_THREAD_TIMEOUT 100000 /* usecs */
 
 static void
-dumpcap_log_writer(const char *format, va_list ap,
-                                   const char *prefix,
-                                   const char *domain,
-                                   enum ws_log_level level,
+dumpcap_log_writer(const char *domain, enum ws_log_level level,
+                                   const char *timestamp,
+                                   const char *file, int line, const char *func,
+                                   const char *user_format, va_list user_ap,
                                    void *user_data);
 
 /* capture related options */
@@ -5569,28 +5569,28 @@ main(int argc, char *argv[])
 }
 
 static void
-dumpcap_log_writer(const char *format, va_list ap,
-                                   const char *prefix,
-                                   const char *domain _U_,
-                                   enum ws_log_level level _U_,
+dumpcap_log_writer(const char *domain, enum ws_log_level level,
+                                   const char *timestamp,
+                                   const char *file, int line, const char *func,
+                                   const char *user_format, va_list user_ap,
                                    void *user_data _U_)
 {
 #if defined(DEBUG_DUMPCAP) || defined(DEBUG_CHILD_DUMPCAP)
 #ifdef DEBUG_DUMPCAP
-    ws_log_fprint(stderr, format, ap, prefix);
+    ws_log_default_writer(domain, level, timestamp, file, line, func, user_format, user_ap, NULL);
 #endif
 #ifdef DEBUG_CHILD_DUMPCAP
-    ws_log_fprint(debug_log, format, ap, prefix);
+    ws_log_default_writer(domain, level, timestamp, file, line, func, user_format, user_ap, NULL);
 #endif
 #else
     /* Messages goto stderr or to parent especially formatted if dumpcap
      * is running as child. */
     if (capture_child) {
-        gchar *msg = g_strdup_vprintf(format, ap);
+        gchar *msg = g_strdup_vprintf(user_format, user_ap);
         sync_pipe_errmsg_to_parent(2, msg, "");
         g_free(msg);
     } else {
-        ws_log_fprint(stderr, format, ap, prefix);
+    ws_log_default_writer(domain, level, timestamp, file, line, func, user_format, user_ap, NULL);
     }
 #endif
 }
