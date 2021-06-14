@@ -3468,7 +3468,7 @@ static void add_ccap_css(gchar *result, guint32 val)
 static void dissect_nvmeof_fabric_prop_data(proto_tree *tree, tvbuff_t *tvb, guint off, guint prop_off, guint8 attr)
 {
     proto_item *ti, *grp;
-    ti = proto_tree_add_item(tree, hf_nvmeof_prop_get_set_data, tvb, off, 8, ENC_LITTLE_ENDIAN);
+    ti = proto_tree_add_item(tree, hf_nvmeof_prop_get_set_data, tvb, off, 8, ENC_NA);
     grp =  proto_item_add_subtree(ti, ett_data);
     switch(prop_off) {
         case 0x0:  add_group_mask_entry(tvb, grp, off, 8, ASPEC(hf_nvmeof_prop_get_ccap)); attr=1; break;
@@ -3863,404 +3863,404 @@ proto_register_nvme(void)
     static hf_register_info hf[] = {
         /* NVMeOF Fabric Command Fileds */
         { &hf_nvmeof_cmd,
-            { "Cmd", "nvmeof.cmd",
+            { "Cmd", "nvme.fabrics.cmd",
                FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvmeof_cmd_opc,
-            { "Opcode", "nvmeof.cmd.opc",
+            { "Opcode", "nvme.fabrics.cmd.opc",
                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvmeof_cmd_rsvd,
-            { "Reserved", "nvmeof.cmd.rsvd",
+            { "Reserved", "nvme.fabrics.cmd.rsvd",
                FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvmeof_cmd_cid,
-            { "Command Identifier", "nvmeof.cmd.cid",
+            { "Command Identifier", "nvme.fabrics.cmd.cid",
                FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvmeof_cmd_fctype,
-            { "Fabric Command Type", "nvmeof.cmd.fctype",
+            { "Fabric Command Type", "nvme.fabrics.cmd.fctype",
                FT_UINT8, BASE_HEX, VALS(fctype_tbl), 0x0, NULL, HFILL}
         },
         { &hf_nvmeof_cmd_connect_rsvd1,
-            { "Reserved", "nvmeof.cmd.connect.rsvd1",
+            { "Reserved", "nvme.fabrics.cmd.connect.rsvd1",
                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvmeof_cmd_connect_sgl1,
-            { "SGL1", "nvmeof.cmd.connect.sgl1",
+            { "SGL1", "nvme.fabrics.cmd.connect.sgl1",
                FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvmeof_cmd_connect_recfmt,
-            { "Record Format", "nvmeof.cmd.connect.recfmt",
+            { "Record Format", "nvme.fabrics.cmd.connect.recfmt",
                FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvmeof_cmd_connect_qid,
-            { "Queue ID", "nvmeof.cmd.connect.qid",
+            { "Queue ID", "nvme.fabrics.cmd.connect.qid",
                FT_UINT16, BASE_CUSTOM, CF_FUNC(add_nvme_qid), 0x0, NULL, HFILL}
         },
         { &hf_nvmeof_cmd_connect_sqsize,
-            { "Submission Queue Size", "nvmeof.cmd.connect.sqsize",
+            { "Submission Queue Size", "nvme.fabrics.cmd.connect.sqsize",
                FT_UINT16, BASE_CUSTOM, CF_FUNC(add_zero_base), 0x0, NULL, HFILL}
         },
         { &hf_nvmeof_cmd_connect_cattr[0],
-            { "Connect Attributes", "nvmeof.cmd.connect.cattr",
+            { "Connect Attributes", "nvme.fabrics.cmd.connect.cattr",
                FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvmeof_cmd_connect_cattr[1],
-            { "Priority Class", "nvmeof.cmd.connect.cattr.pc",
+            { "Priority Class", "nvme.fabrics.cmd.connect.cattr.pc",
                FT_UINT8, BASE_HEX, VALS(pclass_tbl), 0x3, NULL, HFILL}
         },
         { &hf_nvmeof_cmd_connect_cattr[2],
-            { "Disable SQ Flow Control", "nvmeof.cmd.connect.cattr.dfc",
+            { "Disable SQ Flow Control", "nvme.fabrics.cmd.connect.cattr.dfc",
                FT_UINT8, BASE_HEX, NULL, 0x4, NULL, HFILL}
         },
         { &hf_nvmeof_cmd_connect_cattr[3],
-            { "Support Deletion of IO Queues", "nvmeof.cmd.connect.cattr.dioq",
+            { "Support Deletion of IO Queues", "nvme.fabrics.cmd.connect.cattr.dioq",
                FT_UINT8, BASE_HEX, NULL, 0x8, NULL, HFILL}
         },
         { &hf_nvmeof_cmd_connect_cattr[4],
-            { "Reserved", "nvmeof.cmd.connect.cattr.rsvd",
+            { "Reserved", "nvme.fabrics.cmd.connect.cattr.rsvd",
                FT_UINT8, BASE_HEX, NULL, 0xf0, NULL, HFILL}
         },
         { &hf_nvmeof_cmd_connect_rsvd2,
-            { "Reserved", "nvmeof.cmd.connect.rsvd2",
+            { "Reserved", "nvme.fabrics.cmd.connect.rsvd2",
                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvmeof_cmd_connect_kato,
-            { "Keep Alive Timeout", "nvmeof.cmd.connect.kato",
+            { "Keep Alive Timeout", "nvme.fabrics.cmd.connect.kato",
                FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_milliseconds, 0x0, NULL, HFILL}
         },
         { &hf_nvmeof_cmd_connect_rsvd3,
-            { "Reserved", "nvmeof.cmd.connect.rsvd3",
+            { "Reserved", "nvme.fabrics.cmd.connect.rsvd3",
                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvmeof_cmd_connect_data_hostid,
-            { "Host Identifier", "nvmeof.cmd.connect.data.hostid",
+            { "Host Identifier", "nvme.fabrics.cmd.connect.data.hostid",
                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvmeof_cmd_connect_data_cntlid,
-            { "Controller ID", "nvmeof.cmd.connect.data.cntrlid",
+            { "Controller ID", "nvme.fabrics.cmd.connect.data.cntrlid",
                FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvmeof_cmd_connect_data_rsvd0,
-            { "Reserved", "nvmeof.cmd.connect.data.rsvd0",
+            { "Reserved", "nvme.fabrics.cmd.connect.data.rsvd0",
                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvmeof_cmd_connect_data_subnqn,
-            { "Subsystem NQN", "nvmeof.cmd.connect.data.subnqn",
+            { "Subsystem NQN", "nvme.fabrics.cmd.connect.data.subnqn",
                FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvmeof_cmd_connect_data_hostnqn,
-            { "Host NQN", "nvmeof.cmd.connect.data.hostnqn",
+            { "Host NQN", "nvme.fabrics.cmd.connect.data.hostnqn",
                FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvmeof_cmd_connect_data_rsvd1,
-            { "Reserved", "nvmeof.cmd.connect.data.rsvd1",
+            { "Reserved", "nvme.fabrics.cmd.connect.data.rsvd1",
                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvmeof_cmd_auth_rsdv1,
-            { "Reserved", "nvmeof.cmd.auth.rsvd1",
+            { "Reserved", "nvme.fabrics.cmd.auth.rsvd1",
                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvmeof_cmd_auth_sgl1,
-            { "SGL1", "nvmeof.cmd.auth.sgl1",
+            { "SGL1", "nvme.fabrics.cmd.auth.sgl1",
                FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvmeof_cmd_auth_rsdv2,
-            { "Reserved", "nvmeof.cmd.auth.rsvd2",
+            { "Reserved", "nvme.fabrics.cmd.auth.rsvd2",
                FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvmeof_cmd_auth_spsp0,
-            { "SP Specific 0", "nvmeof.cmd.auth.spsp0",
+            { "SP Specific 0", "nvme.fabrics.cmd.auth.spsp0",
                FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvmeof_cmd_auth_spsp1,
-            { "SP Specific 1", "nvmeof.cmd.auth.spsp1",
+            { "SP Specific 1", "nvme.fabrics.cmd.auth.spsp1",
                FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvmeof_cmd_auth_secp,
-            { "Security Protocol", "nvmeof.cmd.auth.secp",
+            { "Security Protocol", "nvme.fabrics.cmd.auth.secp",
                FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvmeof_cmd_auth_al,
-            { "Allocation Length", "nvmeof.cmd.auth.al",
+            { "Allocation Length", "nvme.fabrics.cmd.auth.al",
                FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvmeof_cmd_auth_rsdv3,
-            { "Reserved", "nvmeof.cmd.auth.rsvd3",
+            { "Reserved", "nvme.fabrics.cmd.auth.rsvd3",
                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvmeof_cmd_disconnect_rsvd0,
-            { "Reserved", "nvmeof.cmd.disconnect.rsvd0",
+            { "Reserved", "nvme.fabrics.cmd.disconnect.rsvd0",
                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvmeof_cmd_disconnect_recfmt,
-            { "Record Format", "nvmeof.cmd.disconnect.recfmt",
+            { "Record Format", "nvme.fabrics.cmd.disconnect.recfmt",
                FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvmeof_cmd_disconnect_rsvd1,
-            { "Reserved", "nvmeof.cmd.disconnect.rsvd1",
+            { "Reserved", "nvme.fabrics.cmd.disconnect.rsvd1",
                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvmeof_cmd_prop_get_set_rsvd0,
-            { "Reserved", "nvmeof.cmd.prop_get_set.rsvd0",
+            { "Reserved", "nvme.fabrics.cmd.prop_get_set.rsvd0",
                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvmeof_cmd_prop_get_set_attrib[0],
-            { "Attributes", "nvmeof.cmd.prop_get_set.attrib",
+            { "Attributes", "nvme.fabrics.cmd.prop_get_set.attrib",
                FT_UINT8, BASE_HEX, NULL, 0x7, NULL, HFILL}
         },
         { &hf_nvmeof_cmd_prop_get_set_attrib[1],
-            { "Property Size", "nvmeof.cmd.prop_get_set.attrib.size",
+            { "Property Size", "nvme.fabrics.cmd.prop_get_set.attrib.size",
                FT_UINT8, BASE_HEX, VALS(attr_size_tbl), 0x7, NULL, HFILL}
         },
         { &hf_nvmeof_cmd_prop_get_set_attrib[2],
-            { "Reserved", "nvmeof.cmd.prop_get_set.attrib.rsvd",
+            { "Reserved", "nvme.fabrics.cmd.prop_get_set.attrib.rsvd",
                FT_UINT8, BASE_HEX, NULL, 0xf8, NULL, HFILL}
         },
         { &hf_nvmeof_cmd_prop_get_set_rsvd1,
-            { "Reserved", "nvmeof.cmd.prop_get_set.rsvd1",
+            { "Reserved", "nvme.fabrics.cmd.prop_get_set.rsvd1",
                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvmeof_cmd_prop_get_set_offset,
-            { "Offset", "nvmeof.cmd.prop_get_set.offset",
+            { "Offset", "nvme.fabrics.cmd.prop_get_set.offset",
                FT_UINT32, BASE_HEX, VALS(prop_offset_tbl), 0x0, NULL, HFILL}
         },
         { &hf_nvmeof_cmd_prop_get_rsvd2,
-            { "Reserved", "nvmeof.cmd.prop_get.rsvd2",
+            { "Reserved", "nvme.fabrics.cmd.prop_get.rsvd2",
                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvmeof_prop_get_set_data,
-            { "Property Data", "nvmeof.prop_get_set.data",
+            { "Property Data", "nvme.fabrics.prop_get_set.data",
                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvmeof_prop_get_set_data_4B,
-            { "Value", "nvmeof.prop_get_set.data.4B",
+            { "Value", "nvme.fabrics.prop_get_set.data.4B",
                FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvmeof_prop_get_set_data_4B_rsvd,
-            { "Reserved", "nvmeof.prop_get_set.data.rsvd",
+            { "Reserved", "nvme.fabrics.prop_get_set.data.rsvd",
                FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvmeof_prop_get_set_data_8B,
-            { "Value", "nvmeof.prop_get_set.data.8B",
+            { "Value", "nvme.fabrics.prop_get_set.data.8B",
                FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvmeof_prop_get_set_cc[0],
-            { "Controller Configuration", "nvmeof.prop_get_set.cc",
+            { "Controller Configuration", "nvme.fabrics.prop_get_set.cc",
                FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvmeof_prop_get_set_cc[1],
-            { "Enable", "nvmeof.prop_get_set.cc.en",
+            { "Enable", "nvme.fabrics.prop_get_set.cc.en",
                FT_UINT32, BASE_HEX, NULL, 0x1, NULL, HFILL}
         },
         { &hf_nvmeof_prop_get_set_cc[2],
-            { "Reserved", "nvmeof.prop_get_set.cc.rsvd0",
+            { "Reserved", "nvme.fabrics.prop_get_set.cc.rsvd0",
                FT_UINT32, BASE_HEX, NULL, 0xE, NULL, HFILL}
         },
         { &hf_nvmeof_prop_get_set_cc[3],
-            { "IO Command Set Selected", "nvmeof.prop_get_set.cc.css",
+            { "IO Command Set Selected", "nvme.fabrics.prop_get_set.cc.css",
                FT_UINT32, BASE_HEX, VALS(css_table), 0x70, NULL, HFILL}
         },
         { &hf_nvmeof_prop_get_set_cc[4],
-            { "Memory Page Size", "nvmeof.prop_get_set.cc.mps",
+            { "Memory Page Size", "nvme.fabrics.prop_get_set.cc.mps",
                FT_UINT32, BASE_CUSTOM, CF_FUNC(add_ctrl_pow2_page_size), 0x780, NULL, HFILL}
         },
         { &hf_nvmeof_prop_get_set_cc[5],
-            { "Arbitration Mechanism Selected", "nvmeof.prop_get_set.cc.ams",
+            { "Arbitration Mechanism Selected", "nvme.fabrics.prop_get_set.cc.ams",
                FT_UINT32, BASE_HEX, VALS(ams_table), 0x3800, NULL, HFILL}
         },
         { &hf_nvmeof_prop_get_set_cc[6],
-            { "Shutdown Notification", "nvmeof.prop_get_set.cc.shn",
+            { "Shutdown Notification", "nvme.fabrics.prop_get_set.cc.shn",
                FT_UINT32, BASE_HEX, VALS(sn_table), 0xc000, NULL, HFILL}
         },
         { &hf_nvmeof_prop_get_set_cc[7],
-            { "IO Submission Queue Entry Size", "nvmeof.prop_get_set.cc.iosqes",
+            { "IO Submission Queue Entry Size", "nvme.fabrics.prop_get_set.cc.iosqes",
                FT_UINT32, BASE_CUSTOM, CF_FUNC(add_ctrl_pow2_bytes), 0xF0000, NULL, HFILL}
         },
         { &hf_nvmeof_prop_get_set_cc[8],
-            { "IO Completion Queue Entry Size", "nvmeof.prop_get_set.cc.iocqes",
+            { "IO Completion Queue Entry Size", "nvme.fabrics.prop_get_set.cc.iocqes",
                FT_UINT32, BASE_CUSTOM, CF_FUNC(add_ctrl_pow2_bytes), 0xF00000, NULL, HFILL}
         },
         { &hf_nvmeof_prop_get_set_cc[9],
-            { "Reserved", "nvmeof.prop_get_set.cc.rsvd1",
+            { "Reserved", "nvme.fabrics.prop_get_set.cc.rsvd1",
                FT_UINT32, BASE_HEX, NULL, 0xff000000, NULL, HFILL}
         },
         { &hf_nvmeof_prop_get_set_csts[0],
-            { "Controller Status", "nvmeof.prop_get_set.csts",
+            { "Controller Status", "nvme.fabrics.prop_get_set.csts",
                FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvmeof_prop_get_set_csts[1],
-            { "Ready", "nvmeof.prop_get_set.csts.rdy",
+            { "Ready", "nvme.fabrics.prop_get_set.csts.rdy",
                FT_UINT32, BASE_HEX, NULL, 0x1, NULL, HFILL}
         },
         { &hf_nvmeof_prop_get_set_csts[2],
-            { "Controller Fatal Status", "nvmeof.prop_get_set.csts.cfs",
+            { "Controller Fatal Status", "nvme.fabrics.prop_get_set.csts.cfs",
                FT_UINT32, BASE_HEX, NULL, 0x2, NULL, HFILL}
         },
         { &hf_nvmeof_prop_get_set_csts[3],
-            { "Shutdown Status", "nvmeof.prop_get_set.csts.shst",
+            { "Shutdown Status", "nvme.fabrics.prop_get_set.csts.shst",
                FT_UINT32, BASE_HEX, VALS(shst_table), 0xC, NULL, HFILL}
         },
         { &hf_nvmeof_prop_get_set_csts[4],
-            { "NVM Subsystem Reset Occurred", "nvmeof.prop_get_set.csts.nssro",
+            { "NVM Subsystem Reset Occurred", "nvme.fabrics.prop_get_set.csts.nssro",
                FT_UINT32, BASE_HEX, NULL, 0x10, NULL, HFILL}
         },
         { &hf_nvmeof_prop_get_set_csts[5],
-            { "Processing Paused", "nvmeof.prop_get_set.csts.pp",
+            { "Processing Paused", "nvme.fabrics.prop_get_set.csts.pp",
                FT_UINT32, BASE_HEX, NULL, 0x20, NULL, HFILL}
         },
         { &hf_nvmeof_prop_get_set_csts[6],
-            { "Reserved", "nvmeof.prop_get_set.csts.rsvd",
+            { "Reserved", "nvme.fabrics.prop_get_set.csts.rsvd",
                FT_UINT32, BASE_HEX, NULL, 0xffffffC0, NULL, HFILL}
         },
         { &hf_nvmeof_prop_get_set_nssr[0],
-            { "NVM Subsystem Reset", "nvmeof.cmd.prop_attr.set.nssr",
+            { "NVM Subsystem Reset", "nvme.fabrics.cmd.prop_attr.set.nssr",
                FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL}
         },
         { &hf_nvmeof_prop_get_set_nssr[1],
-            { "NVM Subsystem Reset Control", "nvmeof.cmd.prop_attr.set.nssr.nssrc",
+            { "NVM Subsystem Reset Control", "nvme.fabrics.cmd.prop_attr.set.nssr.nssrc",
                FT_UINT32, BASE_HEX, NULL, 0xffffffff, NULL, HFILL}
         },
         { &hf_nvmeof_cmd_prop_set_rsvd,
-            { "Reserved", "nvmeof.cmd.prop_set.rsvd",
+            { "Reserved", "nvme.fabrics.cmd.prop_set.rsvd",
                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvmeof_cmd_generic_rsvd1,
-            { "Reserved", "nvmeof.cmd.generic.rsvd1",
+            { "Reserved", "nvme.fabrics.cmd.generic.rsvd1",
                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvmeof_cmd_generic_field,
-            { "Fabric Cmd specific field", "nvmeof.cmd.generic.field",
+            { "Fabric Cmd specific field", "nvme.fabrics.cmd.generic.field",
                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
         /* NVMeOF Fabric Commands CQE fields */
         { &hf_nvmeof_cqe,
-            { "Cqe", "nvmeof.cqe",
+            { "Cqe", "nvme.fabrics.cqe",
                FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvmeof_cqe_sts,
-            { "Cmd specific Status", "nvmeof.cqe.sts",
+            { "Cmd specific Status", "nvme.fabrics.cqe.sts",
                FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvmeof_prop_get_ccap[0],
-            { "Controller Capabilities", "nvmeof.prop_get.ccap",
+            { "Controller Capabilities", "nvme.fabrics.prop_get.ccap",
                FT_UINT64, BASE_HEX, NULL, 0, NULL, HFILL}
         },
         { &hf_nvmeof_prop_get_ccap[1],
-            { "Maximum Queue Entries Supported", "nvmeof.prop_get.ccap.mqes",
+            { "Maximum Queue Entries Supported", "nvme.fabrics.prop_get.ccap.mqes",
                FT_UINT64, BASE_CUSTOM, CF_FUNC(add_zero_base), 0xffff, NULL, HFILL}
         },
         { &hf_nvmeof_prop_get_ccap[2],
-            { "Contiguous Queues Required", "nvmeof.prop_get.ccap.cqr",
+            { "Contiguous Queues Required", "nvme.fabrics.prop_get.ccap.cqr",
                FT_BOOLEAN, 64, NULL, 0x10000, NULL, HFILL}
         },
         { &hf_nvmeof_prop_get_ccap[3],
-            { "Supports Arbitration Mechanism with Weighted Round Robin and Urgent Priority Class", "nvmeof.prop_get.ccap.ams.wrr",
+            { "Supports Arbitration Mechanism with Weighted Round Robin and Urgent Priority Class", "nvme.fabrics.prop_get.ccap.ams.wrr",
                FT_BOOLEAN, 64, NULL, 0x20000, NULL, HFILL}
         },
         { &hf_nvmeof_prop_get_ccap[4],
-            { "Supports Arbitration Mechanism Vendor Specific", "nvmeof.prop_get.ccap.ams.vs",
+            { "Supports Arbitration Mechanism Vendor Specific", "nvme.fabrics.prop_get.ccap.ams.vs",
                FT_BOOLEAN, 64, NULL, 0x40000, NULL, HFILL}
         },
         { &hf_nvmeof_prop_get_ccap[5],
-            { "Reserved", "nvmeof.prop_get.ccap.rsvd0",
+            { "Reserved", "nvme.fabrics.prop_get.ccap.rsvd0",
                FT_UINT64, BASE_HEX, NULL, 0xF80000, NULL, HFILL}
         },
         { &hf_nvmeof_prop_get_ccap[6],
-            { "Timeout (to ready status)", "nvmeof.prop_get.ccap.to",
+            { "Timeout (to ready status)", "nvme.fabrics.prop_get.ccap.to",
                FT_UINT64, BASE_CUSTOM, CF_FUNC(add_500ms_units), 0xFF000000, NULL, HFILL}
         },
         { &hf_nvmeof_prop_get_ccap[7],
-            { "Doorbell Stride", "nvmeof.prop_get.ccap.dstrd",
+            { "Doorbell Stride", "nvme.fabrics.prop_get.ccap.dstrd",
                FT_UINT64, BASE_CUSTOM, CF_FUNC(add_ctrl_pow2_dstrd_size), 0xF00000000, NULL, HFILL}
         },
         { &hf_nvmeof_prop_get_ccap[8],
-            { "NVM Subsystem Reset Supported", "nvmeof.prop_get.ccap.nssrs",
+            { "NVM Subsystem Reset Supported", "nvme.fabrics.prop_get.ccap.nssrs",
                FT_BOOLEAN, 64, NULL, 0x1000000000, NULL, HFILL}
         },
         { &hf_nvmeof_prop_get_ccap[9],
-            { "Command Sets Supported", "nvmeof.prop_get.ccap.css",
+            { "Command Sets Supported", "nvme.fabrics.prop_get.ccap.css",
                FT_UINT64, BASE_CUSTOM, CF_FUNC(add_ccap_css), 0x1FE000000000, NULL, HFILL}
         },
         { &hf_nvmeof_prop_get_ccap[10],
-            { "Boot Partition Support", "nvmeof.prop_get.ccap.bps",
+            { "Boot Partition Support", "nvme.fabrics.prop_get.ccap.bps",
                FT_BOOLEAN, 64, NULL, 0x200000000000, NULL, HFILL}
         },
         { &hf_nvmeof_prop_get_ccap[11],
-            { "Reserved", "nvmeof.prop_get.ccap.rsdv1",
+            { "Reserved", "nvme.fabrics.prop_get.ccap.rsdv1",
                FT_UINT64, BASE_HEX, NULL, 0xC00000000000, NULL, HFILL}
         },
         { &hf_nvmeof_prop_get_ccap[12],
-            { "Memory Page Size Minimum", "nvmeof.prop_get.ccap.mpsmin",
+            { "Memory Page Size Minimum", "nvme.fabrics.prop_get.ccap.mpsmin",
                FT_UINT64, BASE_CUSTOM, CF_FUNC(add_ctrl_pow2_page_size), 0xF000000000000, NULL, HFILL}
         },
         { &hf_nvmeof_prop_get_ccap[13],
-            { "Memory Page Size Maximum", "nvmeof.prop_get.ccap.mpsmax",
+            { "Memory Page Size Maximum", "nvme.fabrics.prop_get.ccap.mpsmax",
                FT_UINT64, BASE_CUSTOM, CF_FUNC(add_ctrl_pow2_page_size), 0xF0000000000000, NULL, HFILL}
         },
         { &hf_nvmeof_prop_get_ccap[14],
-            { "Persistent Memory Region Supported", "nvmeof.prop_get.ccap.pmrs",
+            { "Persistent Memory Region Supported", "nvme.fabrics.prop_get.ccap.pmrs",
                FT_BOOLEAN, 64, NULL, 0x100000000000000, NULL, HFILL}
         },
         { &hf_nvmeof_prop_get_ccap[15],
-            { "Controller Memory Buffer Supported", "nvmeof.prop_get.ccap.cmbs",
+            { "Controller Memory Buffer Supported", "nvme.fabrics.prop_get.ccap.cmbs",
                FT_BOOLEAN, 64, NULL, 0x200000000000000, NULL, HFILL}
         },
         { &hf_nvmeof_prop_get_ccap[16],
-            { "Reserved", "nvmeof.prop_get.ccap.rsvd2",
+            { "Reserved", "nvme.fabrics.prop_get.ccap.rsvd2",
                FT_UINT64, BASE_HEX, NULL, 0xFC00000000000000, NULL, HFILL}
         },
         { &hf_nvmeof_prop_get_vs[0],
-            { "Version", "nvmeof.prop_get.vs",
+            { "Version", "nvme.fabrics.prop_get.vs",
                FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL}
         },
         { &hf_nvmeof_prop_get_vs[1],
-            { "Tertiary Version", "nvmeof.prop_get.vs.ter",
+            { "Tertiary Version", "nvme.fabrics.prop_get.vs.ter",
                FT_UINT32, BASE_DEC, NULL, 0xff, NULL, HFILL}
         },
         { &hf_nvmeof_prop_get_vs[2],
-            { "Minor Version", "nvmeof.prop_get.vs.mnr",
+            { "Minor Version", "nvme.fabrics.prop_get.vs.mnr",
                FT_UINT32, BASE_DEC, NULL, 0xff00, NULL, HFILL}
         },
         { &hf_nvmeof_prop_get_vs[3],
-            { "Major Version", "nvmeof.prop_get.vs.mjr",
+            { "Major Version", "nvme.fabrics.prop_get.vs.mjr",
                FT_UINT32, BASE_DEC, NULL, 0xffff0000, NULL, HFILL}
         },
         { &hf_nvmeof_cqe_connect_cntlid,
-            { "Controller ID", "nvmeof.cqe.connect.cntrlid",
+            { "Controller ID", "nvme.fabrics.cqe.connect.cntrlid",
                FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvmeof_cqe_connect_authreq,
-            { "Authentication Required", "nvmeof.cqe.connect.authreq",
+            { "Authentication Required", "nvme.fabrics.cqe.connect.authreq",
                FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvmeof_cqe_connect_rsvd,
-            { "Reserved", "nvmeof.cqe.connect.rsvd",
+            { "Reserved", "nvme.fabrics.cqe.connect.rsvd",
                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvmeof_cqe_prop_set_rsvd,
-            { "Reserved", "nvmeof.cqe.prop_set.rsvd",
+            { "Reserved", "nvme.fabrics.cqe.prop_set.rsvd",
                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
         /* Tracking commands, completions and transfers */
                 { &hf_nvmeof_cmd_pkt,
-            { "Fabric Cmd in", "nvmeof.cmd_pkt",
+            { "Fabric Cmd in", "nvme.fabrics.cmd_pkt",
               FT_FRAMENUM, BASE_NONE, NULL, 0,
               "The Cmd for this transaction is in this frame", HFILL }
         },
         { &hf_nvmeof_cqe_pkt,
-            { "Fabric Cqe in", "nvmeof.cqe_pkt",
+            { "Fabric Cqe in", "nvme.fabrics.cqe_pkt",
               FT_FRAMENUM, BASE_NONE, NULL, 0,
               "The Cqe for this transaction is in this frame", HFILL }
         },
         { &hf_nvmeof_data_req,
-            { "DATA Transfer Request", "nvmeof.data_req",
+            { "DATA Transfer Request", "nvme.fabrics.data_req",
               FT_FRAMENUM, BASE_NONE, NULL, 0,
               "DATA transfer request for this transaction is in this frame", HFILL }
         },
         { &hf_nvmeof_cmd_latency,
-            { "Cmd Latency", "nvmeof.cmd_latency",
+            { "Cmd Latency", "nvme.fabrics.cmd_latency",
               FT_DOUBLE, BASE_NONE, NULL, 0x0,
               "The time between the command and completion, in usec", HFILL }
         },

@@ -682,44 +682,44 @@ proto_register_nvme_rdma(void)
                FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvmeof_from_host_unknown_data,
-            { "Dissection unsupported", "nvmeof.unknown_data",
+            { "Dissection unsupported", "nvme-rdma.unknown_data",
                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvmeof_read_to_host_req,
-            { "RDMA Read Request Sent to Host", "nvmeof.read_to_host_req",
+            { "RDMA Read Request Sent to Host", "nvme-rdma.read_to_host_req",
                FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvmeof_read_to_host_unmatched,
-            { "RDMA Read Request Sent to Host (no Command Match)", "nvmeof.read_to_host_req",
+            { "RDMA Read Request Sent to Host (no Command Match)", "nvme-rdma.read_to_host_req",
                FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvmeof_read_from_host_resp,
-            { "RDMA Read Transfer Sent from Host", "nvmeof.read_from_host_resp",
+            { "RDMA Read Transfer Sent from Host", "nvme-rdma.read_from_host_resp",
                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvmeof_read_from_host_unmatched,
-            { "RDMA Read Transfer Sent from Host (no Command Match)", "nvmeof.read_from_host_resp",
+            { "RDMA Read Transfer Sent from Host (no Command Match)", "nvme-rdma.read_from_host_resp",
                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvmeof_write_to_host_req,
-            { "RDMA Write Request Sent to Host", "nvmeof.write_to_host_req",
+            { "RDMA Write Request Sent to Host", "nvme-rdma.write_to_host_req",
                FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvmeof_write_to_host_unmatched,
-            { "RDMA Write Request Sent to Host (no Command Match)", "nvmeof.write_to_host_req",
+            { "RDMA Write Request Sent to Host (no Command Match)", "nvme-rdma.write_to_host_req",
                FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvmeof_to_host_unknown_data,
-            { "Dissection unsupported", "nvmeof.unknown_data",
+            { "Dissection unsupported", "nvme-rdma.unknown_data",
                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvmeof_data_resp,
-            { "DATA Transfer Response", "nvmeof.data_resp",
+            { "DATA Transfer Response", "nvme-rdma.data_resp",
               FT_FRAMENUM, BASE_NONE, NULL, 0,
               "DATA transfer response for this transaction is in this frame", HFILL }
         },
         { &hf_nvmeof_cmd_qid,
-            { "Cmd Qid", "nvmeof.cmd.qid",
+            { "Cmd Qid", "nvme-rdma.cmd.qid",
               FT_UINT16, BASE_HEX, NULL, 0x0,
               "Qid on which command is issued", HFILL }
         },
