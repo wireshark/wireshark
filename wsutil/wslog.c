@@ -419,6 +419,20 @@ void ws_logv(const char *domain, enum ws_log_level level,
 }
 
 
+void ws_logv_full(const char *domain, enum ws_log_level level,
+                    const char *file, int line, const char *func,
+                    const char *format, va_list ap)
+{
+    if (domain == NULL || domain[0] == '\0')
+        domain = LOG_DOMAIN_DEFAULT;
+
+    if (log_drop_message(domain, level))
+        return;
+
+    log_write_dispatch(domain, level, file, line, func, format, ap);
+}
+
+
 void ws_log(const char *domain, enum ws_log_level level,
                     const char *format, ...)
 {

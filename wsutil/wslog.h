@@ -168,6 +168,17 @@ void ws_log_full(const char *domain, enum ws_log_level level,
                     const char *format, ...) G_GNUC_PRINTF(6,7);
 
 
+/** This function is called to output a message to the log.
+ *
+ * In addition to the message this function accepts file/line/function
+ * information. 'func' may be NULL.
+ */
+WS_DLL_PUBLIC
+void ws_logv_full(const char *domain, enum ws_log_level level,
+                    const char *file, int line, const char *func,
+                    const char *format, va_list ap);
+
+
 #define _LOG_FULL(level, ...) ws_log_full(WS_LOG_DOMAIN, level,  \
                                    __FILE__, __LINE__, G_STRFUNC, __VA_ARGS__)
 
