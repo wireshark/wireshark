@@ -364,20 +364,22 @@ static void log_write_do_work(FILE *fp, gboolean use_color, const char *timestam
     else
         fprintf(fp, " [%s]", level_str);
 
-    if (use_color)
-        fputs("\033[34m", fp); /* color on */
-
-    if (func)
-        fprintf(fp, " %s()" , func);
-    else if (file && line >= 0)
-        fprintf(fp, " (%d)%s", line, file);
+    if (file && line >= 0)
+        fprintf(fp, " %s:%d", file, line);
     else if (file)
         fprintf(fp, " %s", file);
 
-    if (use_color)
-        fputs("\033[0m", fp); /* color off */
-
     fputs(" -- ", fp);
+
+    if (func) {
+        if (use_color) {
+            fputs("\033[34m", fp); /* color on */
+        }
+        fprintf(fp, "%s(): " , func);
+        if (use_color) {
+            fputs("\033[0m", fp); /* color off */
+        }
+    }
 
     vfprintf(fp, user_format, user_ap);
     fputc('\n', fp);
