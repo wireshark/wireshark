@@ -320,7 +320,6 @@ dissect_nvme_tcp_command(tvbuff_t *tvb,
         cmd_ctx->n_cmd_ctx.fabric = TRUE;
         dissect_nvmeof_fabric_cmd(tvb, pinfo, nvme_tcp_tree, &queue->n_q_ctx, &cmd_ctx->n_cmd_ctx, offset, FALSE);
         cmd_string = get_nvmeof_cmd_string(cmd_ctx->n_cmd_ctx.cmd_ctx.fabric_cmd.fctype);
-        col_append_sep_fstr(pinfo->cinfo, COL_INFO, " | ", "Fabrics %s Request", cmd_string);
         proto_item_append_text(nvme_tcp_ti,
                 ", Fabrics Type: %s (0x%02x) Cmd ID: 0x%04x", cmd_string,
                 cmd_ctx->n_cmd_ctx.cmd_ctx.fabric_cmd.fctype, cmd_id);
@@ -330,7 +329,7 @@ dissect_nvme_tcp_command(tvbuff_t *tvb,
 
             ti = proto_tree_add_item(nvme_tcp_tree, hf_nvme_fabrics_cmd_data, tvb, offset, incapsuled_data_size, ENC_NA);
             data_tree = proto_item_add_subtree(ti, ett_nvme_tcp);
-            dissect_nvmeof_cmd_data(tvb, data_tree, offset + NVME_FABRIC_CMD_SIZE + data_offset, &cmd_ctx->n_cmd_ctx, incapsuled_data_size);
+            dissect_nvmeof_cmd_data(tvb, pinfo, data_tree, offset + NVME_FABRIC_CMD_SIZE + data_offset, &cmd_ctx->n_cmd_ctx, incapsuled_data_size);
         }
         return;
     }
@@ -341,7 +340,6 @@ dissect_nvme_tcp_command(tvbuff_t *tvb,
     cmd_ctx->n_cmd_ctx.fabric = FALSE;
     nvme_tvbuff = tvb_new_subset_remaining(tvb, NVME_TCP_HEADER_SIZE);
     cmd_string = nvme_get_opcode_string(opcode, queue->n_q_ctx.qid);
-    col_append_sep_fstr(pinfo->cinfo, COL_INFO, " | ", "NVMe %s", cmd_string);
     dissect_nvme_cmd(nvme_tvbuff, pinfo, root_tree, &queue->n_q_ctx,
             &cmd_ctx->n_cmd_ctx);
     proto_item_append_text(nvme_tcp_ti,
@@ -355,7 +353,7 @@ dissect_nvme_tcp_command(tvbuff_t *tvb,
         nvme_data = tvb_new_subset_remaining(tvb, offset +
                 NVME_CMD_SIZE + data_offset);
         dissect_nvme_data_response(nvme_data, pinfo, root_tree, &queue->n_q_ctx,
-                &cmd_ctx->n_cmd_ctx, incapsuled_data_size);
+                &cmd_ctx->n_cmd_ctx, incapsuled_data_size, TRUE);
     }
 }
 
@@ -455,7 +453,7 @@ dissect_nvme_tcp_c2h_data(tvbuff_t *tvb,
     nvme_data = tvb_new_subset_remaining(tvb, NVME_TCP_DATA_PDU_SIZE + data_offset);
 
     dissect_nvme_data_response(nvme_data, pinfo, root_tree, &queue->n_q_ctx,
-            &cmd_ctx->n_cmd_ctx, data_length);
+            &cmd_ctx->n_cmd_ctx, data_length, FALSE);
 
 }
 
@@ -554,7 +552,7 @@ dissect_nvme_tcp_h2c_data(tvbuff_t *tvb,
 
     nvme_data = tvb_new_subset_remaining(tvb, NVME_TCP_DATA_PDU_SIZE + data_offset);
     dissect_nvme_data_response(nvme_data, pinfo, root_tree, &queue->n_q_ctx,
-            &cmd_ctx->n_cmd_ctx, data_length);
+            &cmd_ctx->n_cmd_ctx, data_length, FALSE);
 }
 
 static void
@@ -683,7 +681,7 @@ dissect_nvme_tcp_cqe(tvbuff_t *tvb,
                 ", Cqe Fabrics Cmd: %s (0x%02x) Cmd ID: 0x%04x", cmd_string,
                cmd_ctx->n_cmd_ctx.cmd_ctx.fabric_cmd.fctype , cmd_id);
 
-        dissect_nvmeof_fabric_cqe(tvb, nvme_tree, &cmd_ctx->n_cmd_ctx, offset);
+        dissect_nvmeof_fabric_cqe(tvb, pinfo, nvme_tree, &cmd_ctx->n_cmd_ctx, offset);
     } else {
         tvbuff_t *nvme_tvb;
         proto_item_set_len(ti, NVME_TCP_HEADER_SIZE);
@@ -694,9 +692,7 @@ dissect_nvme_tcp_cqe(tvbuff_t *tvb,
                 cmd_string, cmd_ctx->n_cmd_ctx.opcode, cmd_id);
         /* get incapsuled nvme command */
         nvme_tvb = tvb_new_subset_remaining(tvb, NVME_TCP_HEADER_SIZE);
-        col_append_sep_fstr(pinfo->cinfo, COL_INFO, " | ", "NVMe %s: Response",
-                cmd_string);
-        dissect_nvme_cqe(nvme_tvb, pinfo, root_tree, &cmd_ctx->n_cmd_ctx);
+        dissect_nvme_cqe(nvme_tvb, pinfo, root_tree, &queue->n_q_ctx, &cmd_ctx->n_cmd_ctx);
     }
 }
 
@@ -1023,6 +1019,12 @@ void proto_register_nvme_tcp(void) {
        { &hf_nvme_tcp_h2ctermreq_data,
            { "Terminated PDU header", "nvme-tcp.h2ctermreq.data",
              FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL } },
+       { &hf_nvme_fabrics_cmd_cid,
+           { "Command ID", "nvme-tcp.cmd.cid",
+             FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+       { &hf_nvme_tcp_unknown_data,
+           { "Unknown Data", "nvme-tcp.unknown_data",
+             FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
        /* NVMe command data */
        { &hf_nvme_fabrics_cmd_data,
            { "Data", "nvme-tcp.cmd.data",

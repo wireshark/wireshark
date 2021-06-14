@@ -414,9 +414,9 @@ static void dissect_rdma_read_transfer(tvbuff_t *data_tvb, packet_info *pinfo, p
                        struct nvme_rdma_q_ctx *q_ctx, struct nvme_rdma_cmd_ctx *rdma_cmd, guint len)
 {
     if (rdma_cmd->n_cmd_ctx.fabric == TRUE)
-        dissect_nvmeof_cmd_data(data_tvb, data_tree, 0, &rdma_cmd->n_cmd_ctx, len);
+        dissect_nvmeof_cmd_data(data_tvb, pinfo, data_tree, 0, &rdma_cmd->n_cmd_ctx, len);
     else
-        dissect_nvme_data_response(data_tvb, pinfo, data_tree, &q_ctx->n_q_ctx, &rdma_cmd->n_cmd_ctx, len);
+        dissect_nvme_data_response(data_tvb, pinfo, data_tree, &q_ctx->n_q_ctx, &rdma_cmd->n_cmd_ctx, len, FALSE);
 }
 
 static void
@@ -507,9 +507,9 @@ dissect_nvme_rdma_cqe(tvbuff_t *nvme_tvb, packet_info *pinfo,
     nvme_update_cmd_end_info(pinfo, &cmd_ctx->n_cmd_ctx);
 
     if (cmd_ctx->n_cmd_ctx.fabric)
-        dissect_nvmeof_fabric_cqe(nvme_tvb, nvme_tree, &cmd_ctx->n_cmd_ctx, 0);
+        dissect_nvmeof_fabric_cqe(nvme_tvb, pinfo, nvme_tree, &cmd_ctx->n_cmd_ctx, 0);
     else
-        dissect_nvme_cqe(nvme_tvb, pinfo, root_tree, &cmd_ctx->n_cmd_ctx);
+        dissect_nvme_cqe(nvme_tvb, pinfo, root_tree, &q_ctx->n_q_ctx, &cmd_ctx->n_cmd_ctx);
     return;
 
 not_found:
@@ -545,6 +545,7 @@ dissect_nvme_to_host(tvbuff_t *nvme_tvb, packet_info *pinfo,
                                      hf_nvmeof_cmd_pkt, cmd);
             q_ctx->rdma_ctx.cmd_ctx = nvme_cmd_to_nvme_rdma_cmd(cmd);
             q_ctx->rdma_ctx.pkt_seq = info->packet_seq_num;
+            nvme_update_transfer_request(pinfo, cmd, &q_ctx->n_q_ctx);
         } else {
             proto_tree_add_item(nvme_tree, hf_nvmeof_read_to_host_unmatched,
                                 nvme_tvb, 0, len, ENC_NA);
@@ -587,7 +588,7 @@ dissect_nvme_to_host(tvbuff_t *nvme_tvb, packet_info *pinfo,
 
         if (cmd_ctx)
             dissect_nvme_data_response(nvme_tvb, pinfo, root_tree, &q_ctx->n_q_ctx,
-                                       &cmd_ctx->n_cmd_ctx, len);
+                                       &cmd_ctx->n_cmd_ctx, len, FALSE);
         break;
     }
     default:
