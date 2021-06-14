@@ -456,12 +456,8 @@ main(int argc, char *argv[])
 
     /* Command line options are parsed too late to configure logging,  do it
         manually. */
-    const char *opt_err_val;
-    if ((opt_err_val = ws_log_set_level_args(&argc, argv)) != NULL) {
-        cmdarg_err("Invalid log level \"%s\"", opt_err_val);
+    if (ws_log_parse_args(&argc, argv, cmdarg_err) != 0)
         return INVALID_OPTION;
-    }
-    ws_log_set_domain_filter_args(&argc, argv);
 
     /* Initialize the version information. */
     ws_init_version_info("Rawshark (Wireshark)", NULL,

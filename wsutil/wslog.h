@@ -93,16 +93,6 @@ WS_DLL_PUBLIC
 enum ws_log_level ws_log_set_level_str(const char *str_level);
 
 
-/** Set the active log level from an argv vector.
- *
- * Will search the arv for the option parameter "--log-level=<string>".
- * If it finds the parameter and the string is valid sets the log level and
- * returns NULL (success). Othwerise returns the invalid option argument after '='.
- */
-WS_DLL_PUBLIC
-const char *ws_log_set_level_args(int *argcp, char **argv);
-
-
 /** Set a domain filter from a string.
  *
  * Domain filter is a case insensitive list separated by ',' or ';'. Only
@@ -112,12 +102,12 @@ WS_DLL_PUBLIC
 void ws_log_set_domain_filter_str(const char *domain_filter);
 
 
-/** Set the active domain from an argv vector.
+/** Parses the command line arguments for log options.
  *
- * Same as above but parses the filter from the command line arguments.
+ * Returns zero for no error, non-zero for a bad option value.
  */
 WS_DLL_PUBLIC
-void ws_log_set_domain_filter_args(int *argcp, char **argv);
+int ws_log_parse_args(int *argc_ptr, char *argv[], void (*print_err)(const char *, ...));
 
 
 /** Initializes the logging code.

@@ -153,75 +153,87 @@ enum ws_log_level ws_log_set_level_str(const char *str_level)
 }
 
 
-static const char *log_prune_argv(int count, char **ptr, int prune_extra,
-                                const char *arg, int *ret_argc)
+static const char *opt_level   = "--log-level";
+static const char *opt_domains = "--log-domains";
+
+
+int ws_log_parse_args(int *argc_ptr, char *argv[], void (*print_err)(const char *, ...))
 {
-    /*
-     * We found a log option. We will remove it from
-     * the argv by moving up the other strings in the array. This is
-     * so that it doesn't generate an unrecognized option
-     * error further along in the initialization process.
-     */
+    char **ptr = argv;
+    int count = *argc_ptr;
+    int ret = 0;
+    size_t optlen;
+    const char *option, *value;
+    int prune_extra;
 
-    /* Include the terminating NULL in the memmove. */
-    memmove(ptr, ptr + 1 + prune_extra, (count - prune_extra) * sizeof(*ptr));
-    *ret_argc -= (1 + prune_extra);
-    return arg;
-}
-
-
-const char *log_parse_args(int *argc_ptr, char *argv[], const char *option)
-{
-    char **p;
-    int c;
-    size_t optlen = strlen(option);
-    const char *value;
-
-    for (p = argv, c = *argc_ptr; *p != NULL; p++, c--) {
-        if (strncmp(*p, option, optlen) == 0) {
-            value = *p + optlen;
-            /* Two possibilities:
-             *      --<option> <value>
-             * or
-             *      --<option>=<value>
-             */
-            if (value[0] == '\0') {
-                /* value is separated with blank space */
-                value = *(p + 1);
-
-                /* If the option value after the blank is missing or stars with '-' just ignore it.
-                 * But we should probably signal an error (missing required value). */
-                if (value == NULL || !*value || *value == '-') {
-                    return log_prune_argv(c, p, 0, NULL, argc_ptr);
-                }
-                return log_prune_argv(c, p, 1, value, argc_ptr);
-            }
-            else if (value[0] == '=') {
-                /* value is after equals */
-                value += 1;
-                return log_prune_argv(c, p, 0, value, argc_ptr);
-            }
-            /* we didn't find what we want */
+    while (*ptr != NULL) {
+        if (g_str_has_prefix(*ptr, opt_level)) {
+            option = opt_level;
+            optlen = strlen(opt_level);
         }
+        else if (g_str_has_prefix(*ptr, opt_domains)) {
+            option = opt_domains;
+            optlen = strlen(opt_domains);
+        }
+        else {
+            ptr += 1;
+            count -= 1;
+            continue;
+        }
+
+        value = *ptr + optlen;
+        /* Two possibilities:
+         *      --<option> <value>
+         * or
+         *      --<option>=<value>
+         */
+        if (value[0] == '\0') {
+            /* value is separated with blank space */
+            value = *(ptr + 1);
+            prune_extra = 1;
+
+            /* If the option value after the blank is missing or stars with '-' just ignore it.
+             * But we should probably signal an error (missing required value). */
+            if (value == NULL || !*value || *value == '-') {
+                option = NULL;
+                prune_extra = 0;
+            }
+        }
+        else if (value[0] == '=') {
+            /* value is after equals */
+            value += 1;
+            prune_extra = 0;
+        }
+        else {
+            ptr += 1;
+            count -= 1;
+            continue;
+        }
+
+        if (option == opt_level) {
+            if (ws_log_set_level_str(value) == LOG_LEVEL_NONE) {
+                print_err("Invalid log level \"%s\"\n", value);
+                ret += 1;
+            }
+        }
+        else if (option == opt_domains) {
+            ws_log_set_domain_filter_str(value);
+        }
+
+        /*
+         * We found a log option. We will remove it from
+         * the argv by moving up the other strings in the array. This is
+         * so that it doesn't generate an unrecognized option
+         * error further along in the initialization process.
+         */
+        /* Include the terminating NULL in the memmove. */
+        memmove(ptr, ptr + 1 + prune_extra, (count - prune_extra) * sizeof(*ptr));
+        /* No need to increment ptr here. */
+        count -= (1 + prune_extra);
+        *argc_ptr -= (1 + prune_extra);
     }
-    return NULL; /* No log-level option, ignore and return success. */
-}
 
-
-const char *ws_log_set_level_args(int *argc_ptr, char *argv[])
-{
-    const char *optval = NULL;
-    enum ws_log_level level;
-
-    optval = log_parse_args(argc_ptr, argv, "--log-level");
-    if (optval == NULL)
-        return NULL;
-
-    level = ws_log_set_level_str(optval);
-    if (level == LOG_LEVEL_NONE)
-        return optval;
-
-    return NULL;
+    return ret;
 }
 
 
@@ -243,18 +255,6 @@ void ws_log_set_domain_filter_str(const char *str_filter)
     }
 
     g_free(str);
-}
-
-
-void ws_log_set_domain_filter_args(int *argc_ptr, char *argv[])
-{
-    const char *optval = NULL;
-
-    optval = log_parse_args(argc_ptr, argv, "--log-domains");
-    if (optval == NULL)
-        return;
-
-    ws_log_set_domain_filter_str(optval);
 }
 
 
