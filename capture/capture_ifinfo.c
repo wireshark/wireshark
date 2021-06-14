@@ -99,12 +99,12 @@ capture_interface_list(int *err, char **err_str, void (*update_cb)(void))
     ret = sync_interface_list_open(&data, &primary_msg, &secondary_msg, update_cb);
     if (ret != 0) {
         /* Add the extcap interfaces that can exist, even if no native interfaces have been found */
-        ws_message("Loading External Capture Interface List ...");
+        ws_info("Loading External Capture Interface List ...");
         if_list = append_extcap_interface_list(if_list, err_str);
         /* err_str is ignored, as the error for the interface loading list will take precedence */
         if ( g_list_length(if_list) == 0 ) {
 
-            ws_message("Capture Interface List failed. Error %d, %s (%s)",
+            ws_info("Capture Interface List failed. Error %d, %s (%s)",
                   *err, primary_msg ? primary_msg : "no message",
                   secondary_msg ? secondary_msg : "no secondary message");
             if (err_str) {
@@ -183,7 +183,7 @@ capture_interface_list(int *err, char **err_str, void (*update_cb)(void))
 #endif
 
     /* Add the extcap interfaces after the native and remote interfaces */
-    ws_message("Loading External Capture Interface List ...");
+    ws_info("Loading External Capture Interface List ...");
     if_list = append_extcap_interface_list(if_list, err_str);
 
     return if_list;
@@ -216,7 +216,7 @@ capture_get_if_capabilities(const gchar *ifname, gboolean monitor_mode,
     err = sync_if_capabilities_open(ifname, monitor_mode, auth_string, &data,
                                     &primary_msg, &secondary_msg, update_cb);
     if (err != 0) {
-        ws_message("Capture Interface Capabilities failed. Error %d, %s",
+        ws_info("Capture Interface Capabilities failed. Error %d, %s",
               err, primary_msg ? primary_msg : "no message");
         if (err_primary_msg)
             *err_primary_msg = primary_msg;
@@ -241,7 +241,7 @@ capture_get_if_capabilities(const gchar *ifname, gboolean monitor_mode,
      * First line is 0 if monitor mode isn't supported, 1 if it is.
      */
     if (raw_list[0] == NULL || *raw_list[0] == '\0') {
-        ws_message("Capture Interface Capabilities returned no information.");
+        ws_info("Capture Interface Capabilities returned no information.");
         if (err_primary_msg) {
             *err_primary_msg = g_strdup("Dumpcap returned no interface capability information");
         }
@@ -264,7 +264,7 @@ capture_get_if_capabilities(const gchar *ifname, gboolean monitor_mode,
         break;
 
     default:
-        ws_message("Capture Interface Capabilities returned bad information.");
+        ws_info("Capture Interface Capabilities returned bad information.");
         if (err_primary_msg) {
             *err_primary_msg = g_strdup_printf("Dumpcap returned \"%s\" for monitor-mode capability",
                                        raw_list[0]);
