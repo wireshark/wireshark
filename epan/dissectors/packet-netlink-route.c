@@ -51,7 +51,8 @@ void proto_reg_handoff_netlink_route(void);
  * length that's a multiple of 4 bytes.  Therefore, there are 3 bytes of
  * padding following the address family byte.
  *
- * We just show those bytes as padding.
+ * The message length, however, doesn't include those bytes, so we don't
+ * dissect them.
  */
 struct netlink_route_info {
 	packet_info *pinfo;
@@ -359,10 +360,6 @@ static gint ett_netlink_route_attr_linkstats = -1;
 static gint ett_netlink_route_attr_linkstats_rxerrs = -1;
 static gint ett_netlink_route_attr_linkstats_txerrs = -1;
 
-static header_field_info hfi_netlink_route_padding NETLINK_ROUTE_HFI_INIT =
-	{ "Padding", "netlink-route.padding", FT_NONE, BASE_NONE,
-	  NULL, 0x00, NULL, HFILL };
-
 static void
 _fill_label_value_string_bitmask(char *label, guint32 value, const value_string *vals)
 {
@@ -482,8 +479,6 @@ dissect_netlink_route_ifinfomsg(tvbuff_t *tvb, struct netlink_route_info *info, 
 		 * See the comment for the netlink_route_info structure,
 		 * above.
 		 */
-		proto_tree_add_item(tree, &hfi_netlink_route_padding, tvb, offset, 3, ENC_NA);
-		offset += 3;
 		return offset;
 	}
 
@@ -999,8 +994,6 @@ dissect_netlink_route_ifaddrmsg(tvbuff_t *tvb, struct netlink_route_info *info, 
 		 * See the comment for the netlink_route_info structure,
 		 * above.
 		 */
-		proto_tree_add_item(tree, &hfi_netlink_route_padding, tvb, offset, 3, ENC_NA);
-		offset += 3;
 		return offset;
 	}
 
@@ -1187,8 +1180,6 @@ dissect_netlink_route_rtmsg(tvbuff_t *tvb, struct netlink_route_info *info, stru
 		 * See the comment for the netlink_route_info structure,
 		 * above.
 		 */
-		proto_tree_add_item(tree, &hfi_netlink_route_padding, tvb, offset, 3, ENC_NA);
-		offset += 3;
 		return offset;
 	}
 
@@ -1351,8 +1342,6 @@ dissect_netlink_route_ndmsg(tvbuff_t *tvb, struct netlink_route_info *info, stru
 		 * See the comment for the netlink_route_info structure,
 		 * above.
 		 */
-		proto_tree_add_item(tree, &hfi_netlink_route_padding, tvb, offset, 3, ENC_NA);
-		offset += 3;
 		return offset;
 	}
 
@@ -1536,7 +1525,6 @@ proto_register_netlink_route(void)
 #ifndef HAVE_HFI_SECTION_INIT
 	static header_field_info *hfi[] = {
 		&hfi_netlink_route_nltype,
-		&hfi_netlink_route_padding,
 
 	/* Interface */
 		&hfi_netlink_route_ifi_family,
