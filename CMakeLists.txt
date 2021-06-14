@@ -489,6 +489,19 @@ if( CMAKE_C_COMPILER_ID MATCHES "MSVC")
 	# /Qspectre is not available for VS2015 or older VS2017. Test for its availability.
 	set(WIRESHARK_COMMON_FLAGS /Qspectre)
 
+	if (MSVC_VERSION GREATER_EQUAL "1920")
+		# Compile with Control-flow Enforcement Technology (CET) Shadow Stack compatability
+		# See https://docs.microsoft.com/en-us/cpp/build/reference/cetcompat
+		set(WS_LINK_FLAGS "${WS_LINK_FLAGS} /CETCOMPAT")
+	endif()
+
+	if (MSVC_VERSION GREATER_EQUAL "1920" AND WIRESHARK_TARGET_PLATFORM MATCHES "win64")
+		# Enable generation of EH Continuation (EHCONT) metadata by the compiler.
+		# See https://docs.microsoft.com/en-us/cpp/build/reference/guard-enable-eh-continuation-metadata
+		list(APPEND LOCAL_CFLAGS /guard:ehcont)
+		set(WS_LINK_FLAGS "${WS_LINK_FLAGS} /guard:ehcont")
+	endif()
+
 	if(ENABLE_CODE_ANALYSIS)
 		# We should probably add a code_analysis.props file and use it to set
 		# CAExcludePath, otherwise we trigger on Qt's headers:
