@@ -11,6 +11,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
 #include <time.h>
 #include <stdarg.h>
 #ifdef HAVE_UNISTD_H
@@ -20,6 +21,7 @@
 
 #include <wsutil/ws_assert.h>
 #include <wsutil/time_util.h>
+#include <wsutil/file_util.h>
 
 #define PREFIX_BUFSIZE  128
 
@@ -155,6 +157,7 @@ enum ws_log_level ws_log_set_level_str(const char *str_level)
 
 static const char *opt_level   = "--log-level";
 static const char *opt_domains = "--log-domains";
+static const char *opt_file    = "--log-file";
 
 
 int ws_log_parse_args(int *argc_ptr, char *argv[], void (*print_err)(const char *, ...))
@@ -174,6 +177,10 @@ int ws_log_parse_args(int *argc_ptr, char *argv[], void (*print_err)(const char 
         else if (g_str_has_prefix(*ptr, opt_domains)) {
             option = opt_domains;
             optlen = strlen(opt_domains);
+        }
+        else if (g_str_has_prefix(*ptr, opt_file)) {
+            option = opt_file;
+            optlen = strlen(opt_file);
         }
         else {
             ptr += 1;
@@ -218,6 +225,16 @@ int ws_log_parse_args(int *argc_ptr, char *argv[], void (*print_err)(const char 
         }
         else if (option == opt_domains) {
             ws_log_set_domain_filter_str(value);
+        }
+        else if (option == opt_file) {
+            FILE *fp = ws_fopen(value, "w");
+            if (fp == NULL) {
+                print_err("Error opening file '%s' for writing: %s\n", value, g_strerror(errno));
+                ret += 1;
+            }
+            else {
+                ws_log_add_custom_file(fp);
+            }
         }
 
         /*
@@ -493,9 +510,6 @@ void ws_log_add_custom_file(FILE *fp)
 {
         if (custom_log != NULL) {
             fclose(custom_log);
-            custom_log = NULL;
         }
-        if (fp != NULL) {
-            custom_log = fp;
-        }
+        custom_log = fp;
 }
