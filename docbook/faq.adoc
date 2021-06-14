@@ -57,17 +57,13 @@ bibliography]
 
 === Where can I get help?
 
-Community support is available on the https://ask.wireshark.org/[Q&A
-site] and on the wireshark-users mailing list. Subscription information
-and archives for all of Wireshark's mailing lists can be found at
+Community support is available on the
+https://ask.wireshark.org/[Q&A site]
+and on the wireshark-users mailing list.
+Subscription information and archives for all of Wireshark's mailing lists can be found at
 https://www.wireshark.org/mailman/listinfo[https://www.wireshark.org/mailman/listinfo].
-An IRC channel dedicated to Wireshark can be found at
-irc://irc.freenode.net/wireshark[irc://irc.freenode.net/wireshark].
-
-Self-paced and instructor-led training is available at
-https://www.wiresharktraining.com[Wireshark University]. Wireshark
-University also offers certification via the Wireshark Certified Network
-Analyst program.
+// An IRC channel dedicated to Wireshark can be found at
+// irc://irc.freenode.net/wireshark[irc://irc.freenode.net/wireshark].
 
 === What kind of shark is Wireshark?
 
