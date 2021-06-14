@@ -33,6 +33,12 @@ enum ws_log_level {
      _LOG_LEVEL_LAST
 };
 
+/*
+ * Which log domain to use is a matter of policy. Any string is valid (names
+ * using parenthesis should be avoided). There are no hard rules but using a
+ * non-default pre-defined log domain is a good rule of thumb.
+ */
+
 #include <ws_log_domains.h>
 
 #ifndef WS_LOG_DOMAIN

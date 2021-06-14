@@ -84,6 +84,11 @@ gboolean ws_log_domain_is_active(const char *domain)
     if (domain_filter == NULL)
         return TRUE;
 
+    /* We don't filter the default domain. Default means undefined, pretty much
+     * every permanent call to ws_log should be using a chosen domain. */
+    if (strcmp(domain, LOG_DOMAIN_DEFAULT) == 0)
+        return TRUE;
+
     for (guint i = 0; i < domain_filter->len; i++) {
         if (g_ascii_strcasecmp(domain_filter->pdata[i], domain) == 0) {
             return TRUE;
@@ -405,6 +410,9 @@ static void log_write_dispatch(const char *domain, enum ws_log_level level,
 void ws_logv(const char *domain, enum ws_log_level level,
                     const char *format, va_list ap)
 {
+    if (domain == NULL || domain[0] == '\0')
+        domain = LOG_DOMAIN_DEFAULT;
+
     if (log_drop_message(domain, level))
         return;
 
@@ -416,6 +424,9 @@ void ws_log(const char *domain, enum ws_log_level level,
                     const char *format, ...)
 {
     va_list ap;
+
+    if (domain == NULL || domain[0] == '\0')
+        domain = LOG_DOMAIN_DEFAULT;
 
     if (log_drop_message(domain, level))
         return;
@@ -431,6 +442,9 @@ void ws_log_full(const char *domain, enum ws_log_level level,
                     const char *format, ...)
 {
     va_list ap;
+
+    if (domain == NULL || domain[0] == '\0')
+        domain = LOG_DOMAIN_DEFAULT;
 
     if (log_drop_message(domain, level))
         return;
