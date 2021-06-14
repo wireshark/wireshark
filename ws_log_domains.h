@@ -14,7 +14,7 @@
      /* Null domain */
 #define LOG_DOMAIN_NONE       "(notset)"
      /* Default domain */
-#define LOG_DOMAIN_DEFAULT    "Default"
+#define LOG_DOMAIN_DEFAULT    "()"
      /* Main execution domain (wireshark, tshark, etc) */
 #define LOG_DOMAIN_MAIN       "Main"
      /* Capture domain (except for capture child, see below) */
@@ -25,7 +25,7 @@
 #define LOG_DOMAIN_WIRETAP    "Wiretap"
 #define LOG_DOMAIN_EPAN       "Epan"
 #define LOG_DOMAIN_WSUTIL     "WSUtil"
-#define LOG_DOMAIN_QTUI        "GUI"
+#define LOG_DOMAIN_QTUI       "GUI"
 
 #endif /* __WS_LOG_DOMAINS_H__ */
 

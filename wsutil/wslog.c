@@ -314,22 +314,6 @@ void ws_log_init_with_data(ws_log_writer_cb *writer, void *user_data,
 }
 
 
-static inline const char *_lvl_to_str(enum ws_log_level level)
-{
-    switch (level) {
-        case LOG_LEVEL_NONE:       return "(NONE)";
-        case LOG_LEVEL_ERROR:      return "ERROR";
-        case LOG_LEVEL_CRITICAL:   return "CRITICAL";
-        case LOG_LEVEL_WARNING:    return "WARNING";
-        case LOG_LEVEL_MESSAGE:    return "MESSAGE";
-        case LOG_LEVEL_INFO:       return "INFO";
-        case LOG_LEVEL_DEBUG:      return "DEBUG";
-        default:
-            return "(BOGUS LOG LEVEL)";
-    }
-}
-
-
 struct logstr {
     char buffer[PREFIX_BUFSIZE];
     char *ptr;
@@ -412,7 +396,12 @@ static void logstr_prefix_print(struct logstr *str,
 
     create_log_time(str);
 
-    logstr_snprintf(str, " [%s-%s]", domain, _lvl_to_str(level));
+    const char *level_str = ws_log_level_to_string(level);
+
+    if (strcmp(domain, LOG_DOMAIN_DEFAULT) != 0)
+        logstr_snprintf(str, " [%s-%s]", domain, level_str);
+    else
+        logstr_snprintf(str, " [%s]", level_str);
 
     if (func)
         logstr_snprintf(str, " %s()", func);
