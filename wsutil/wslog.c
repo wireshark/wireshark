@@ -280,14 +280,15 @@ void ws_log_init(ws_log_writer_cb *writer)
     if (writer)
         registered_log_writer = writer;
 
-    /*
-     * Some versions of Windows 10 support ANSI color escapes, we should
-     * check for that somehow. We also assume every non-Windows console
-     * supports it.
-     */
-#ifndef _WIN32
-    if (ws_isatty(ws_fileno(stderr)))
-        color_enabled = TRUE;
+#if GLIB_CHECK_VERSION(2,50,0)
+    color_enabled = g_log_writer_supports_color(ws_fileno(stderr));
+#elif !defined(_WIN32)
+    /* We assume every non-Windows console supports color. */
+    color_enabled = (ws_isatty(ws_fileno(stderr)) == 1);
+#else
+     /* Our Windows build version of GLib is pretty recent, we are probably
+      * fine here, unless we want to do better than GLib. */
+    color_enabled = FALSE;
 #endif
 
     current_log_level = DEFAULT_LOG_LEVEL;
@@ -313,6 +314,16 @@ void ws_log_init_with_data(ws_log_writer_cb *writer, void *user_data,
     ws_log_init(writer);
 }
 
+
+static inline const char *color_on(gboolean enable)
+{
+    return enable ? "\033[34m" : ""; /* blue */
+}
+
+static inline const char *color_off(gboolean enable)
+{
+    return enable ? "\033[0m" : "";
+}
 
 static void log_write_do_work(FILE *fp, gboolean use_color, const char *timestamp,
                                 const char *domain,  enum ws_log_level level,
@@ -346,15 +357,8 @@ static void log_write_do_work(FILE *fp, gboolean use_color, const char *timestam
 
     fputs(" -- ", fp);
 
-    if (func) {
-        if (use_color) {
-            fputs("\033[34m", fp); /* color on */
-        }
-        fprintf(fp, "%s(): " , func);
-        if (use_color) {
-            fputs("\033[0m", fp); /* color off */
-        }
-    }
+    if (func)
+        fprintf(fp, "%s%s()%s: " , color_on(use_color), func, color_off(use_color));
 
     vfprintf(fp, user_format, user_ap);
     fputc('\n', fp);
