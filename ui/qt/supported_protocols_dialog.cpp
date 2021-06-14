@@ -44,10 +44,17 @@ SupportedProtocolsDialog::SupportedProtocolsDialog(QWidget *parent) :
     ui->supportedProtocolsTreeView->setColumnWidth(SupportedProtocolsModel::colDescription, one_em * 30);
 
     QTimer::singleShot(0, this, SLOT(fillTree()));
+
+    /* Create a single-shot timer for debouncing calls to
+     * updateSearchLineEdit() */
+    searchLineEditTimer = new QTimer(this);
+    searchLineEditTimer->setSingleShot(true);
+    connect(searchLineEditTimer, &QTimer::timeout, this, &SupportedProtocolsDialog::updateSearchLineEdit);
 }
 
 SupportedProtocolsDialog::~SupportedProtocolsDialog()
 {
+    delete searchLineEditTimer;
     delete ui;
     delete supported_protocols_model_;
     delete proxyModel_;
@@ -68,7 +75,22 @@ void SupportedProtocolsDialog::fillTree()
     updateStatistics();
 }
 
+void SupportedProtocolsDialog::updateSearchLineEdit()
+{
+    proxyModel_->setFilter(searchLineEditText);
+}
+
 void SupportedProtocolsDialog::on_searchLineEdit_textChanged(const QString &search_re)
 {
-    proxyModel_->setFilter(search_re);
+    /* As filtering the list of protocols takes a noticeable amount
+     * of time and so would introduce significant lag while typing a string
+     * into the Search box, we instead debounce the call to
+     * proxyModel_->setFilter(), so that it doesn't run until a set amount of
+     * time has elapsed with no updates to the Search field.
+     *
+     * If the user types something before the timer elapses, the timer restarts
+     * the countdown.
+     */
+    searchLineEditText = search_re;
+    searchLineEditTimer->start(200);
 }
