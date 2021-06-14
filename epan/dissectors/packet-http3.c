@@ -84,6 +84,8 @@ static const val64_string http3_frame_types[] = {
     { 0x09, "Reserved" },
     { 0x0d, "MAX_PUSH_ID" },
     { 0x0e, "DUPLICATE_PUSH" }, // Removed in draft-26
+    { 0xF0700, "PRIORITY_UPDATE" }, // draft-ietf-httpbis-priority-03
+    { 0xF0701, "PRIORITY_UPDATE" }, // draft-ietf-httpbis-priority-03
     /* 0x40 - 0x3FFFFFFFFFFFFFFF Assigned via Specification Required policy */
     { 0, NULL }
 };
