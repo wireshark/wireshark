@@ -199,11 +199,13 @@ int ws_log_parse_args(int *argc_ptr, char *argv[], void (*print_err)(const char 
             value = *(ptr + 1);
             prune_extra = 1;
 
-            /* If the option value after the blank is missing or stars with '-' just ignore it.
-             * But we should probably signal an error (missing required value). */
             if (value == NULL || !*value || *value == '-') {
+                /* If the option value after the blank starts with '-' assume
+                 * it is another option. */
+                print_err("Option \"%s\" requires a value.\n", *ptr);
                 option = NULL;
                 prune_extra = 0;
+                ret += 1;
             }
         }
         else if (value[0] == '=') {
@@ -212,6 +214,7 @@ int ws_log_parse_args(int *argc_ptr, char *argv[], void (*print_err)(const char 
             prune_extra = 0;
         }
         else {
+            /* Option isn't known. */
             ptr += 1;
             count -= 1;
             continue;
@@ -235,6 +238,9 @@ int ws_log_parse_args(int *argc_ptr, char *argv[], void (*print_err)(const char 
             else {
                 ws_log_add_custom_file(fp);
             }
+        }
+        else {
+            /* Option value missing or invalid, do nothing. */
         }
 
         /*
