@@ -22,7 +22,6 @@
 #include <wsutil/ws_assert.h>
 #include <wsutil/file_util.h>
 
-#define PREFIX_BUFSIZE  128
 
 #define ENV_VAR_LEVEL       "WIRESHARK_LOG_LEVEL"
 #define ENV_VAR_DOMAINS     "WIRESHARK_LOG_DOMAINS"
