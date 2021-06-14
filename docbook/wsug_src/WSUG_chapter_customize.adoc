@@ -631,7 +631,7 @@ side is a tree where you can select the page to be shown.
 image::wsug_graphics/ws-gui-preferences.png[{screenshot-attrs}]
 
 Wireshark supports quite a few protocols, which is reflected in the long list of entries in the “Protocols” pane.
-You can jump to the preferences for a specific protocol by expanding “Protocols” and quickly typing the first few letters of the protocol name.
+You can jump to the preferences for a specific protocol by expanding “Protocols” and typing the first few letters of the protocol name.
 
 The “Advanced” pane will let you view and edit all of Wireshark’s preferences, similar to link:about:config[] and link:chrome:flags[] in the Firefox and Chrome web browsers.
 

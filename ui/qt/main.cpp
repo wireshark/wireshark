@@ -651,6 +651,10 @@ int main(int argc, char *qt_argv[])
     /* Create The Wireshark app */
     WiresharkApplication ws_app(argc, qt_argv);
 
+    // Default value is 400ms = "quickly typing" when searching in Preferences->Protocols
+    // 1000ms allows a more "hunt/peck" typing speed. 2000ms tested - too long.
+    QApplication::setKeyboardInputInterval(1000);
+
     /* initialize the funnel mini-api */
     // xxx qtshark
     //initialize_funnel_ops();
