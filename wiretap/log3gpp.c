@@ -142,7 +142,7 @@ log3gpp_open(wtap *wth, int *err, gchar **err_info _U_)
     /********************************************************************/
     /* First line needs to contain at least as many characters as magic */
 
-    /*g_warning("Open file"); */
+    /*ws_warning("Open file"); */
 
     if (!read_new_line(wth->fh, &firstline_length, linebuff,
         sizeof linebuff, err, err_info)) {

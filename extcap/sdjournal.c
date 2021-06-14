@@ -18,12 +18,14 @@
  */
 
 #include "config.h"
+#define WS_LOG_DOMAIN "sdjournal"
 
 #include <extcap/extcap-base.h>
 #include <wsutil/interface.h>
 #include <wsutil/file_util.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/privileges.h>
+#include <wsutil/wslog.h>
 #include <writecap/pcapio.h>
 #include <wiretap/wtap.h>
 
@@ -89,9 +91,9 @@ static int sdj_dump_entries(sd_journal *jnl, FILE* fp)
 		memcpy(entry_buff, &block_type, 4);
 
 		jr = sd_journal_next(jnl);
-		g_debug("sd_journal_next: %d", jr);
+		ws_debug("sd_journal_next: %d", jr);
 		if (jr < 0) {
-			g_warning("Error fetching journal entry: %s", g_strerror(jr));
+			ws_warning("Error fetching journal entry: %s", g_strerror(jr));
 			goto end;
 		} else if (jr == 0) {
 			sd_journal_wait(jnl, (uint64_t) -1);
@@ -100,7 +102,7 @@ static int sdj_dump_entries(sd_journal *jnl, FILE* fp)
 
 		jr = sd_journal_get_cursor(jnl, &cursor);
 		if (jr < 0) {
-			g_warning("Error fetching cursor: %s", g_strerror(jr));
+			ws_warning("Error fetching cursor: %s", g_strerror(jr));
 			goto end;
 		}
 		data_end += g_snprintf(entry_buff+data_end, MAX_EXPORT_ENTRY_LENGTH-data_end, "__CURSOR=%s\n", cursor);
@@ -108,31 +110,31 @@ static int sdj_dump_entries(sd_journal *jnl, FILE* fp)
 
 		jr = sd_journal_get_realtime_usec(jnl, &pkt_rt_ts);
 		if (jr < 0) {
-			g_warning("Error fetching realtime timestamp: %s", g_strerror(jr));
+			ws_warning("Error fetching realtime timestamp: %s", g_strerror(jr));
 			goto end;
 		}
 		data_end += g_snprintf(entry_buff+data_end, MAX_EXPORT_ENTRY_LENGTH-data_end, "__REALTIME_TIMESTAMP=%" G_GUINT64_FORMAT "\n", pkt_rt_ts);
 
 		jr = sd_journal_get_monotonic_usec(jnl, &mono_ts, &boot_id);
 		if (jr < 0) {
-			g_warning("Error fetching monotonic timestamp: %s", g_strerror(jr));
+			ws_warning("Error fetching monotonic timestamp: %s", g_strerror(jr));
 			goto end;
 		}
 		sd_id128_to_string(boot_id, boot_id_str + strlen(FLD_BOOT_ID));
 		data_end += g_snprintf(entry_buff+data_end, MAX_EXPORT_ENTRY_LENGTH-data_end, "__MONOTONIC_TIMESTAMP=%" G_GUINT64_FORMAT "\n%s\n", mono_ts, boot_id_str);
-		g_debug("Entry header is %u bytes", data_end);
+		ws_debug("Entry header is %u bytes", data_end);
 
 		SD_JOURNAL_FOREACH_DATA(jnl, fld_data, fld_len) {
 			guint8 *eq_ptr = (guint8 *) memchr(fld_data, '=', fld_len);
 			if (!eq_ptr) {
-				g_warning("Invalid field.");
+				ws_warning("Invalid field.");
 				goto end;
 			}
 			if (g_utf8_validate((const char *) fld_data, (gssize) fld_len, NULL)) {
 				// Allow for two trailing newlines, one here and one
 				// at the end of the buffer.
 				if (fld_len > MAX_EXPORT_ENTRY_LENGTH-data_end-2) {
-					g_debug("Breaking on UTF-8 field: %u + %zd", data_end, fld_len);
+					ws_debug("Breaking on UTF-8 field: %u + %zd", data_end, fld_len);
 					break;
 				}
 				memcpy(entry_buff+data_end, fld_data, fld_len);
@@ -142,7 +144,7 @@ static int sdj_dump_entries(sd_journal *jnl, FILE* fp)
 			} else {
 				// \n + 64-bit size + \n + trailing \n = 11
 				if (fld_len > MAX_EXPORT_ENTRY_LENGTH-data_end-11) {
-					g_debug("Breaking on binary field: %u + %zd", data_end, fld_len);
+					ws_debug("Breaking on binary field: %u + %zd", data_end, fld_len);
 					break;
 				}
 				ptrdiff_t name_len = eq_ptr - (const guint8 *) fld_data;
@@ -169,9 +171,9 @@ static int sdj_dump_entries(sd_journal *jnl, FILE* fp)
 		memcpy (entry_buff+4, &total_len, 4);
 		memcpy (entry_buff+data_end, &total_len, 4);
 
-		g_debug("Attempting to write %u bytes", total_len);
+		ws_debug("Attempting to write %u bytes", total_len);
 		if (!pcapng_write_block(fp, entry_buff, total_len, &bytes_written, &err)) {
-			g_warning("Can't write event: %s", strerror(err));
+			ws_warning("Can't write event: %s", strerror(err));
 			ret = EXIT_FAILURE;
 			break;
 		}
@@ -202,7 +204,7 @@ static int sdj_start_export(const int start_from_entries, const gboolean start_f
 		/* Open or create the output file */
 		fp = fopen(fifo, "wb");
 		if (fp == NULL) {
-			g_warning("Error creating output file: %s (%s)", fifo, g_strerror(errno));
+			ws_warning("Error creating output file: %s (%s)", fifo, g_strerror(errno));
 			return EXIT_FAILURE;
 		}
 	}
@@ -221,26 +223,26 @@ static int sdj_start_export(const int start_from_entries, const gboolean start_f
 	g_free(appname);
 
 	if (!success) {
-		g_warning("Can't write pcapng file header");
+		ws_warning("Can't write pcapng file header");
 		goto cleanup;
 	}
 
 	jr = sd_journal_open(&jnl, 0);
 	if (jr < 0) {
-		g_warning("Error opening journal: %s", g_strerror(jr));
+		ws_warning("Error opening journal: %s", g_strerror(jr));
 		goto cleanup;
 	}
 
 	jr = sd_id128_get_boot(&boot_id);
 	if (jr < 0) {
-		g_warning("Error fetching system boot ID: %s", g_strerror(jr));
+		ws_warning("Error fetching system boot ID: %s", g_strerror(jr));
 		goto cleanup;
 	}
 
 	sd_id128_to_string(boot_id, boot_id_str + strlen(FLD_BOOT_ID));
 	jr = sd_journal_add_match(jnl, boot_id_str, strlen(boot_id_str));
 	if (jr < 0) {
-		g_warning("Error adding match: %s", g_strerror(jr));
+		ws_warning("Error adding match: %s", g_strerror(jr));
 		goto cleanup;
 	}
 
@@ -250,28 +252,28 @@ static int sdj_start_export(const int start_from_entries, const gboolean start_f
 	sd_journal_set_data_threshold(jnl, 2048);
 
 	if (start_from_end) {
-		g_debug("Attempting to seek %d entries from the end", start_from_entries);
+		ws_debug("Attempting to seek %d entries from the end", start_from_entries);
 		jr = sd_journal_seek_tail(jnl);
 		if (jr < 0) {
-			g_warning("Error starting at end: %s", g_strerror(jr));
+			ws_warning("Error starting at end: %s", g_strerror(jr));
 			goto cleanup;
 		}
 		jr = sd_journal_previous_skip(jnl, (uint64_t) start_from_entries + 1);
 		if (jr < 0) {
-			g_warning("Error skipping backward: %s", g_strerror(jr));
+			ws_warning("Error skipping backward: %s", g_strerror(jr));
 			goto cleanup;
 		}
 	} else {
-		g_debug("Attempting to seek %d entries from the beginning", start_from_entries);
+		ws_debug("Attempting to seek %d entries from the beginning", start_from_entries);
 		jr = sd_journal_seek_head(jnl);
 		if (jr < 0) {
-			g_warning("Error starting at beginning: %s", g_strerror(jr));
+			ws_warning("Error starting at beginning: %s", g_strerror(jr));
 			goto cleanup;
 		}
 		if (start_from_entries > 0) {
 			jr = sd_journal_next_skip(jnl, (uint64_t) start_from_entries);
 			if (jr < 0) {
-				g_warning("Error skipping forward: %s", g_strerror(jr));
+				ws_warning("Error skipping forward: %s", g_strerror(jr));
 				goto cleanup;
 			}
 		}
@@ -279,7 +281,7 @@ static int sdj_start_export(const int start_from_entries, const gboolean start_f
 
 	/* read from channel and write into fp */
 	if (sdj_dump_entries(jnl, fp) != 0) {
-		g_warning("Error dumping entries");
+		ws_warning("Error dumping entries");
 		goto cleanup;
 	}
 
@@ -291,7 +293,7 @@ cleanup:
 	}
 
 	if (err_info) {
-		g_warning("%s", err_info);
+		ws_warning("%s", err_info);
 	}
 
 	g_free(err_info);
@@ -308,12 +310,12 @@ static int list_config(char *interface)
 	unsigned inc = 0;
 
 	if (!interface) {
-		g_warning("ERROR: No interface specified.");
+		ws_warning("ERROR: No interface specified.");
 		return EXIT_FAILURE;
 	}
 
 	if (g_strcmp0(interface, SDJOURNAL_EXTCAP_INTERFACE)) {
-		g_warning("ERROR: interface must be %s", SDJOURNAL_EXTCAP_INTERFACE);
+		ws_warning("ERROR: interface must be %s", SDJOURNAL_EXTCAP_INTERFACE);
 		return EXIT_FAILURE;
 	}
 
@@ -350,7 +352,7 @@ int main(int argc, char **argv)
 	 */
 	init_progfile_dir_error = init_progfile_dir(argv[0]);
 	if (init_progfile_dir_error != NULL) {
-		g_warning("Can't get pathname of directory containing the captype program: %s.",
+		ws_warning("Can't get pathname of directory containing the captype program: %s.",
 			init_progfile_dir_error);
 		g_free(init_progfile_dir_error);
 	}
@@ -402,7 +404,7 @@ int main(int argc, char **argv)
 			case OPT_START_FROM:
 				start_from_entries = (int) strtol(optarg, NULL, 10);
 				if (errno == EINVAL) {
-					g_warning("Invalid entry count: %s", optarg);
+					ws_warning("Invalid entry count: %s", optarg);
 					goto end;
 				}
 				if (strlen(optarg) > 0 && optarg[0] == '+') {
@@ -412,17 +414,17 @@ int main(int argc, char **argv)
 					start_from_end = TRUE;
 					start_from_entries *= -1;
 				}
-				g_debug("start %d from %s", start_from_entries, start_from_end ? "end" : "beginning");
+				ws_debug("start %d from %s", start_from_entries, start_from_end ? "end" : "beginning");
 				break;
 
 			case ':':
 				/* missing option argument */
-				g_warning("Option '%s' requires an argument", argv[optind - 1]);
+				ws_warning("Option '%s' requires an argument", argv[optind - 1]);
 				break;
 
 			default:
 				if (!extcap_base_parse_options(extcap_conf, result - EXTCAP_OPT_LIST_INTERFACES, optarg)) {
-					g_warning("Invalid option: %s", argv[optind - 1]);
+					ws_warning("Invalid option: %s", argv[optind - 1]);
 					goto end;
 				}
 		}
@@ -443,7 +445,7 @@ int main(int argc, char **argv)
 	if (extcap_conf->capture) {
 		ret = sdj_start_export(start_from_entries, start_from_end, extcap_conf->fifo);
 	} else {
-		g_debug("You should not come here... maybe some parameter missing?");
+		ws_debug("You should not come here... maybe some parameter missing?");
 		ret = EXIT_FAILURE;
 	}
 

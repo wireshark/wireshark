@@ -34,7 +34,7 @@
 static inline void print_debug_line(const CHAR *function, const CHAR *msg, const INT level)
 {
     if (level <= DEBUG_USED_LEVEL)
-        g_warning("dbg(%d)|(%s) %s", level, function, msg);
+        ws_warning("dbg(%d)|(%s) %s", level, function, msg);
 }
 
 #define DEBUG_PRINT_LINE(msg, level) print_debug_line(G_STRFUNC , msg, level)
@@ -42,7 +42,7 @@ static inline void print_debug_line(const CHAR *function, const CHAR *msg, const
 static inline void DEBUG_DUMP(const char* x, const guint8* y, int z)
 {
     char* tmp_str = bytes_to_str(NULL, y, (z));
-    g_warning("%s: %s", x, tmp_str);
+    ws_warning("%s: %s", x, tmp_str);
     wmem_free(NULL, tmp_str);
 }
 

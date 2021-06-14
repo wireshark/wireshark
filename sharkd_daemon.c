@@ -10,6 +10,7 @@
  */
 
 #include <config.h>
+#define WS_LOG_DOMAIN LOG_DOMAIN_MAIN
 
 #include <glib.h>
 
@@ -28,6 +29,7 @@
 #include <wsutil/socket.h>
 #include <wsutil/inet_addr.h>
 #include <wsutil/please_report_bug.h>
+#include <wsutil/wslog.h>
 /*
  * If we have getopt_long() in the system library, include <getopt.h>.
  * Otherwise, we're using our own getopt_long() (either because the
@@ -70,9 +72,9 @@ socket_init(char *path)
 
 	err_msg = ws_init_sockets();
 	if (err_msg != NULL) {
-		g_warning("ERROR: %s", err_msg);
+		ws_warning("ERROR: %s", err_msg);
 		g_free(err_msg);
-		g_warning("%s", please_report_bug());
+		ws_warning("%s", please_report_bug());
 		return fd;
 	}
 

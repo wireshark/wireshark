@@ -25,7 +25,7 @@
 /* dbg_print:
  * which:  a pointer to the current level of debugging for a feature
  * how: the level over which this message should be printed out
- * where: the file on which to print (g_message if null)
+ * where: the file on which to print (ws_message if null)
  * fmt, ...: what to print
  */
 
@@ -40,7 +40,7 @@ void dbg_print(const gint* which, gint how, FILE* where, const gchar* fmt, ... )
 	va_end( list );
 
 	if (! where) {
-		g_message("%s", debug_buffer);
+		ws_message("%s", debug_buffer);
 	} else {
 		fputs(debug_buffer,where);
 		fputs("\n",where);
@@ -123,7 +123,7 @@ gchar* scs_subscribe(SCS_collection* c, const gchar* s) {
 			len = SCS_HUGE_SIZE;
 		} else {
 			len = SCS_HUGE_SIZE;
-			g_warning("mate SCS: string truncated due to huge size");
+			ws_warning("mate SCS: string truncated due to huge size");
 		}
 
 		orig = (gchar *)g_slice_alloc(len);
@@ -173,7 +173,7 @@ void scs_unsubscribe(SCS_collection* c, gchar* s) {
 			(*ip)--;
 		}
 	} else {
-		g_warning("unsubscribe: not subscribed");
+		ws_warning("unsubscribe: not subscribed");
 	}
 }
 

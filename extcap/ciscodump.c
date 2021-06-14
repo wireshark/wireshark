@@ -11,6 +11,7 @@
  */
 
 #include "config.h"
+#define WS_LOG_DOMAIN "ciscodump"
 
 #include <extcap/extcap-base.h>
 #include <wsutil/interface.h>
@@ -18,6 +19,7 @@
 #include <wsutil/filesystem.h>
 #include <wsutil/privileges.h>
 #include <wsutil/please_report_bug.h>
+#include <wsutil/wslog.h>
 #include <extcap/ssh-base.h>
 #include <writecap/pcapio.h>
 
@@ -121,7 +123,7 @@ static int read_output_bytes(ssh_channel channel, int bytes, char* outbuf)
 	bytes_read = 0;
 
 	while(ssh_channel_read_timeout(channel, &chr, 1, 0, 2000) > 0 && bytes_read < total) {
-		g_debug("%c", chr);
+		ws_debug("%c", chr);
 		if (chr == '^')
 			return EXIT_FAILURE;
 		if (outbuf)
@@ -157,7 +159,7 @@ static int wait_until_data(ssh_channel channel, const guint32 count)
 
 	while (got < count && rounds--) {
 		if (ssh_channel_printf(channel, "show monitor capture buffer %s parameters\n", WIRESHARK_CAPTURE_BUFFER) == EXIT_FAILURE) {
-			g_warning("Can't write to channel");
+			ws_warning("Can't write to channel");
 			return EXIT_FAILURE;
 		}
 		if (read_output_bytes(channel, SSH_READ_BLOCK_SIZE, output) == EXIT_FAILURE)
@@ -165,14 +167,14 @@ static int wait_until_data(ssh_channel channel, const guint32 count)
 
 		output_ptr = g_strstr_len(output, strlen(output), "Packets");
 		if (!output_ptr) {
-			g_warning("Error in sscanf()");
+			ws_warning("Error in sscanf()");
 			return EXIT_FAILURE;
 		} else {
 			if (sscanf(output_ptr, "Packets : %lu", &got) != 1)
 				return EXIT_FAILURE;
 		}
 	}
-	g_debug("All packets got: dumping");
+	ws_debug("All packets got: dumping");
 	return EXIT_SUCCESS;
 }
 
@@ -239,7 +241,7 @@ static void ssh_loop_read(ssh_channel channel, FILE* fp, const guint32 count)
 
 	do {
 		if (ssh_channel_read_timeout(channel, &chr, 1, FALSE, SSH_READ_TIMEOUT) == SSH_ERROR) {
-			g_warning("Error reading from channel");
+			ws_warning("Error reading from channel");
 			g_free(packet);
 			return;
 		}
@@ -257,10 +259,10 @@ static void ssh_loop_read(ssh_channel channel, FILE* fp, const guint32 count)
 				if (!libpcap_write_packet(fp,
 						(guint32)(curtime / G_USEC_PER_SEC), (guint32)(curtime % G_USEC_PER_SEC),
 						packet_size, packet_size, packet, &bytes_written, &err)) {
-					g_debug("Error in libpcap_write_packet(): %s", g_strerror(err));
+					ws_debug("Error in libpcap_write_packet(): %s", g_strerror(err));
 					break;
 				}
-				g_debug("Dumped packet %lu size: %u", packets, packet_size);
+				ws_debug("Dumped packet %lu size: %u", packets, packet_size);
 				packet_size = 0;
 				status = CISCODUMP_PARSER_STARTING;
 				packets++;
@@ -297,14 +299,14 @@ static int check_ios_version(ssh_channel channel)
 			return FALSE;
 
 		if ((major > MINIMUM_IOS_MAJOR) || (major == MINIMUM_IOS_MAJOR && minor >= MINIMUM_IOS_MINOR)) {
-			g_debug("Current IOS Version: %u.%u", major, minor);
+			ws_debug("Current IOS Version: %u.%u", major, minor);
 			if (read_output_bytes(channel, -1, NULL) == EXIT_FAILURE)
 				return FALSE;
 			return TRUE;
 		}
 	}
 
-	g_warning("Invalid IOS version. Minimum version: 12.4, current: %u.%u", major, minor);
+	ws_warning("Invalid IOS version. Minimum version: 12.4, current: %u.%u", major, minor);
 	return FALSE;
 }
 
@@ -356,7 +358,7 @@ static ssh_channel run_capture(ssh_session sshs, const char* iface, const char* 
 		chr = multiline_filter;
 		while((chr = g_strstr_len(chr, strlen(chr), ",")) != NULL) {
 			chr[0] = '\n';
-			g_debug("Splitting filter into multiline");
+			ws_debug("Splitting filter into multiline");
 		}
 		ret = ssh_channel_write(channel, multiline_filter, (uint32_t)strlen(multiline_filter));
 		g_free(multiline_filter);
@@ -402,7 +404,7 @@ static ssh_channel run_capture(ssh_session sshs, const char* iface, const char* 
 	return channel;
 error:
 	g_free(cmdline);
-	g_warning("Error running ssh remote command");
+	ws_warning("Error running ssh remote command");
 	read_output_bytes(channel, -1, NULL);
 
 	ssh_channel_close(channel);
@@ -425,19 +427,19 @@ static int ssh_open_remote_connection(const ssh_params_t* ssh_params, const char
 		/* Open or create the output file */
 		fp = fopen(fifo, "wb");
 		if (!fp) {
-			g_warning("Error creating output file: %s", g_strerror(errno));
+			ws_warning("Error creating output file: %s", g_strerror(errno));
 			return EXIT_FAILURE;
 		}
 	}
 
 	sshs = create_ssh_connection(ssh_params, &err_info);
 	if (!sshs) {
-		g_warning("Error creating connection: %s", err_info);
+		ws_warning("Error creating connection: %s", err_info);
 		goto cleanup;
 	}
 
 	if (!libpcap_write_file_header(fp, 1, PCAP_SNAPLEN, FALSE, &bytes_written, &err)) {
-		g_warning("Can't write pcap file header");
+		ws_warning("Can't write pcap file header");
 		goto cleanup;
 	}
 
@@ -467,12 +469,12 @@ static int list_config(char *interface, unsigned int remote_port)
 	char* ipfilter;
 
 	if (!interface) {
-		g_warning("No interface specified.");
+		ws_warning("No interface specified.");
 		return EXIT_FAILURE;
 	}
 
 	if (g_strcmp0(interface, CISCODUMP_EXTCAP_INTERFACE)) {
-		g_warning("interface must be %s", CISCODUMP_EXTCAP_INTERFACE);
+		ws_warning("interface must be %s", CISCODUMP_EXTCAP_INTERFACE);
 		return EXIT_FAILURE;
 	}
 
@@ -543,7 +545,7 @@ int main(int argc, char *argv[])
 	 */
 	err_msg = init_progfile_dir(argv[0]);
 	if (err_msg != NULL) {
-		g_warning("Can't get pathname of directory containing the captype program: %s.",
+		ws_warning("Can't get pathname of directory containing the captype program: %s.",
 			err_msg);
 		g_free(err_msg);
 	}
@@ -608,7 +610,7 @@ int main(int argc, char *argv[])
 
 		case OPT_REMOTE_PORT:
 			if (!ws_strtou16(optarg, NULL, &ssh_params->port) || ssh_params->port == 0) {
-				g_warning("Invalid port: %s", optarg);
+				ws_warning("Invalid port: %s", optarg);
 				goto end;
 			}
 			break;
@@ -652,19 +654,19 @@ int main(int argc, char *argv[])
 
 		case OPT_REMOTE_COUNT:
 			if (!ws_strtou32(optarg, NULL, &count)) {
-				g_warning("Invalid packet count: %s", optarg);
+				ws_warning("Invalid packet count: %s", optarg);
 				goto end;
 			}
 			break;
 
 		case ':':
 			/* missing option argument */
-			g_warning("Option '%s' requires an argument", argv[optind - 1]);
+			ws_warning("Option '%s' requires an argument", argv[optind - 1]);
 			break;
 
 		default:
 			if (!extcap_base_parse_options(extcap_conf, result - EXTCAP_OPT_LIST_INTERFACES, optarg)) {
-				g_warning("Invalid option: %s", argv[optind - 1]);
+				ws_warning("Invalid option: %s", argv[optind - 1]);
 				goto end;
 			}
 		}
@@ -673,7 +675,7 @@ int main(int argc, char *argv[])
 	extcap_cmdline_debug(argv, argc);
 
 	if (optind != argc) {
-		g_warning("Unexpected extra option: %s", argv[optind]);
+		ws_warning("Unexpected extra option: %s", argv[optind]);
 		goto end;
 	}
 
@@ -689,31 +691,31 @@ int main(int argc, char *argv[])
 
 	err_msg = ws_init_sockets();
 	if (err_msg != NULL) {
-		g_warning("ERROR: %s", err_msg);
+		ws_warning("ERROR: %s", err_msg);
                 g_free(err_msg);
-		g_warning("%s", please_report_bug());
+		ws_warning("%s", please_report_bug());
 		goto end;
 	}
 
 	if (extcap_conf->capture) {
 		if (!ssh_params->host) {
-			g_warning("Missing parameter: --remote-host");
+			ws_warning("Missing parameter: --remote-host");
 			goto end;
 		}
 
 		if (!remote_interface) {
-			g_warning("ERROR: No interface specified (--remote-interface)");
+			ws_warning("ERROR: No interface specified (--remote-interface)");
 			goto end;
 		}
 		if (count == 0) {
-			g_warning("ERROR: count of packets must be specified (--remote-count)");
+			ws_warning("ERROR: count of packets must be specified (--remote-count)");
 			goto end;
 		}
 		ssh_params->debug = extcap_conf->debug;
 		ret = ssh_open_remote_connection(ssh_params, remote_interface,
 			remote_filter, count, extcap_conf->fifo);
 	} else {
-		g_debug("You should not come here... maybe some parameter missing?");
+		ws_debug("You should not come here... maybe some parameter missing?");
 		ret = EXIT_FAILURE;
 	}
 

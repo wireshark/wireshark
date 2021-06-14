@@ -9,6 +9,7 @@
  */
 
 #include <config.h>
+#define WS_LOG_DOMAIN LOG_DOMAIN_EPAN
 
 #include <stdio.h>
 
@@ -25,6 +26,7 @@
 #include <epan/packet_info.h>
 #include <epan/dfilter/dfilter.h>
 #include <epan/tap.h>
+#include <wsutil/wslog.h>
 
 static gboolean tapping_is_active=FALSE;
 
@@ -105,7 +107,7 @@ tap_register_plugin(const tap_plugin *plug)
 void
 tap_register_plugin(const tap_plugin *plug _U_)
 {
-	g_warning("tap_register_plugin: built without support for binary plugins");
+	ws_warning("tap_register_plugin: built without support for binary plugins");
 }
 #endif /* HAVE_PLUGINS */
 
@@ -236,7 +238,7 @@ tap_queue_packet(int tap_id, packet_info *pinfo, const void *tap_specific_data)
 	 * rather than having a fixed maximum number of entries?
 	 */
 	if(tap_packet_index >= TAP_PACKET_QUEUE_LEN){
-		g_warning("Too many taps queued");
+		ws_warning("Too many taps queued");
 		return;
 	}
 
@@ -679,7 +681,7 @@ remove_tap_listener(void *tapdata)
 
 		}
 		if(!tl) {
-			g_warning("remove_tap_listener(): no listener found with that tap data");
+			ws_warning("remove_tap_listener(): no listener found with that tap data");
 			return;
 		}
 	}

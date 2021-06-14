@@ -25,6 +25,8 @@
 #include <epan/stat_tap_ui.h>
 #include <epan/dissectors/packet-rtsp.h>
 
+#include <wsutil/wslog.h>
+
 #include <ui/cmdarg_err.h>
 
 void register_tap_listener_rtspstat(void);
@@ -85,7 +87,7 @@ static void
 rtsp_draw_hash_responses( gpointer* key _U_ , rtsp_response_code_t *data, char * format)
 {
 	if (data == NULL) {
-		g_warning("No data available, key=%d\n", GPOINTER_TO_INT(key));
+		ws_warning("No data available, key=%d\n", GPOINTER_TO_INT(key));
 		exit(EXIT_FAILURE);
 	}
 	if (data->packets == 0)

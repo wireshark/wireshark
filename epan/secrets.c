@@ -16,6 +16,7 @@
 #include "secrets.h"
 #include <wiretap/wtap.h>
 #include <wsutil/glib-compat.h>
+#include <wsutil/wslog.h>
 
 #include <string.h>
 #ifdef HAVE_LIBGNUTLS
@@ -138,7 +139,7 @@ rsa_privkey_add(const cert_key_id_t *key_id, gnutls_privkey_t pkey)
     void *ht_key = g_memdup2(key_id->key_id, sizeof(cert_key_id_t));
     const guint32 *dw = (const guint32 *)key_id->key_id;
     g_hash_table_insert(rsa_privkeys, ht_key, pkey);
-    g_debug("Adding RSA private, Key ID %08x%08x%08x%08x%08x", g_htonl(dw[0]),
+    ws_debug("Adding RSA private, Key ID %08x%08x%08x%08x%08x", g_htonl(dw[0]),
             g_htonl(dw[1]), g_htonl(dw[2]), g_htonl(dw[3]), g_htonl(dw[4]));
 }
 
@@ -175,13 +176,13 @@ get_pkcs11_token_uris(void)
         }
 
         if (ret < 0) {
-            g_debug("Failed to query token %u: %s\n", i, gnutls_strerror(ret));
+            ws_debug("Failed to query token %u: %s\n", i, gnutls_strerror(ret));
             break;
         }
 
         ret = gnutls_pkcs11_token_get_flags(uri, &flags);
         if (ret < 0) {
-            g_debug("Failed to query token flags for %s: %s\n", uri, gnutls_strerror(ret));
+            ws_debug("Failed to query token flags for %s: %s\n", uri, gnutls_strerror(ret));
             gnutls_free(uri);
             continue;
         }
@@ -297,12 +298,12 @@ pkcs11_load_keys_from_token(const char *token_uri, const char *pin, char **err)
         ret = gnutls_privkey_import_url(privkey, obj_uri, 0);
         if (ret < 0) {
             /* Bad PIN or some other system error? */
-            g_debug("Failed to import private key %s: %s", obj_uri, gnutls_strerror(ret));
+            ws_debug("Failed to import private key %s: %s", obj_uri, gnutls_strerror(ret));
             goto cont;
         }
 
         if (gnutls_privkey_get_pk_algorithm(privkey, NULL) != GNUTLS_PK_RSA) {
-            g_debug("Skipping private key %s, not RSA.", obj_uri);
+            ws_debug("Skipping private key %s, not RSA.", obj_uri);
             goto cont;
         }
 
@@ -315,14 +316,14 @@ pkcs11_load_keys_from_token(const char *token_uri, const char *pin, char **err)
         /* This requires GnuTLS 3.4.0 and will fail on older versions. */
         ret = gnutls_pubkey_import_privkey(pubkey, privkey, 0, 0);
         if (ret < 0) {
-            g_debug("Failed to import public key %s: %s", obj_uri, gnutls_strerror(ret));
+            ws_debug("Failed to import public key %s: %s", obj_uri, gnutls_strerror(ret));
             goto cont;
         }
 
         size = sizeof(key_id);
         ret = gnutls_pubkey_get_key_id(pubkey, GNUTLS_KEYID_USE_SHA1, key_id.key_id, &size);
         if (ret < 0 || size != sizeof(key_id)) {
-            g_debug("Failed to calculate Key ID for %s: %s", obj_uri, gnutls_strerror(ret));
+            ws_debug("Failed to calculate Key ID for %s: %s", obj_uri, gnutls_strerror(ret));
             goto cont;
         }
 

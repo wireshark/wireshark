@@ -492,13 +492,13 @@ static void statcmd_init(const char *opt_arg, void* userdata) {
         case 0:
             break;
         case LUA_ERRRUN:
-            g_warning("Runtime error while calling statcmd callback");
+            ws_warning("Runtime error while calling statcmd callback");
             break;
         case LUA_ERRMEM:
-            g_warning("Memory alloc error while calling statcmd callback");
+            ws_warning("Memory alloc error while calling statcmd callback");
             break;
         case LUA_ERRERR:
-            g_warning("Error while running the error handler function for statcmd callback");
+            ws_warning("Error while running the error handler function for statcmd callback");
             break;
         default:
             ws_assert_not_reached();

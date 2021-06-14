@@ -445,7 +445,7 @@ static void wslua_push_attributes(lua_State *L, const wslua_attribute_table *t, 
             if (methods_idx) {
                 lua_rawgetfield(L, methods_idx, t->fieldname);
                 if (!lua_isnil(L, -1)) {
-                    g_error("'%s' attribute name already exists as method name for class\n", t->fieldname);
+                    ws_error("'%s' attribute name already exists as method name for class\n", t->fieldname);
                 }
                 lua_pop(L,1);  /* pop the nil */
             }
@@ -541,7 +541,7 @@ void wslua_register_class(lua_State *L, const wslua_class *cls_def)
     /* Check for existing global variables/classes with the same name. */
     lua_getglobal(L, cls_def->name);
     if (!lua_isnil (L, -1)) {
-        g_error("Attempt to register class '%s' which already exists in global Lua table\n", cls_def->name);
+        ws_error("Attempt to register class '%s' which already exists in global Lua table\n", cls_def->name);
     }
     lua_pop(L, 1);
 

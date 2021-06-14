@@ -438,7 +438,7 @@ capture_input_new_file(capture_session *cap_session, gchar *new_file)
         if (!cap_session->wtap) {
             err_msg = g_strdup_printf(cf_open_error_message(err, err_info),
                                       new_file);
-            g_warning("capture_input_new_file: %d (%s)", err, err_msg);
+            ws_warning("capture_input_new_file: %d (%s)", err, err_msg);
             g_free(err_msg);
             return FALSE;
         }
@@ -481,7 +481,7 @@ capture_info_new_packets(int to_read, wtap *wth, info_data_t* cap_info)
 
     cap_info->ui.new_packets = to_read;
 
-    /*g_warning("new packets: %u", to_read);*/
+    /*ws_warning("new packets: %u", to_read);*/
 
     wtap_rec_init(&rec);
     ws_buffer_init(&buf, 1514);
@@ -497,7 +497,7 @@ capture_info_new_packets(int to_read, wtap *wth, info_data_t* cap_info)
                     rec.rec_header.packet_header.caplen,
                     pseudo_header);
 
-                /*g_warning("new packet");*/
+                /*ws_warning("new packet");*/
                 to_read--;
             }
         }

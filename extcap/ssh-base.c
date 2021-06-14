@@ -22,7 +22,7 @@
 
 static void extcap_log(int priority _U_, const char *function, const char *buffer, void *userdata _U_)
 {
-	g_debug("[%s] %s", function, buffer);
+	ws_debug("[%s] %s", function, buffer);
 }
 
 void add_libssh_info(extcap_parameters * extcap_conf)

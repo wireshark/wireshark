@@ -15,6 +15,7 @@
 #define __MATE_H_
 
 #include "config.h"
+#define WS_LOG_DOMAIN "MATE"
 
 #include <gmodule.h>
 
@@ -23,6 +24,7 @@
 #include <errno.h>
 
 #include <wsutil/report_message.h>
+#include <wsutil/wslog.h>
 
 #include <epan/packet.h>
 #include <epan/exceptions.h>
@@ -182,7 +184,7 @@ typedef struct _mate_config {
 	GArray *wanted_hfids;    /* hfids of protocols and fields MATE needs */
 	guint num_fields_wanted; /* number of fields MATE will look at */
 
-	FILE* dbg_facility; /* where to dump dbgprint output g_message if null */
+	FILE* dbg_facility; /* where to dump dbgprint output ws_message if null */
 
 	gchar* mate_lib_path; /* where to look for "Include" files first */
 

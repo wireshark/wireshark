@@ -9,6 +9,8 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+#define WS_LOG_DOMAIN "wmem"
+
 #include <stdlib.h>
 #include <string.h>
 #include <glib.h>
@@ -24,6 +26,7 @@
 #include "wmem_allocator_strict.h"
 
 #include <wsutil/ws_assert.h>
+#include <wsutil/wslog.h>
 
 /* Set according to the WIRESHARK_DEBUG_WMEM_OVERRIDE environment variable in
  * wmem_init. Should not be set again. */
@@ -195,7 +198,7 @@ wmem_init(void)
             override_type = WMEM_ALLOCATOR_BLOCK_FAST;
         }
         else {
-            g_warning("Unrecognized wmem override");
+            ws_warning("Unrecognized wmem override");
             do_override = FALSE;
         }
     }

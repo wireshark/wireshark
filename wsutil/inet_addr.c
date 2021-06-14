@@ -9,6 +9,7 @@
 
 #include "config.h"
 #include "inet_addr.h"
+#define WS_LOG_DOMAIN LOG_DOMAIN_WSUTIL
 
 #include <errno.h>
 #include <string.h>
@@ -35,6 +36,7 @@
 #endif
 
 #include <wsutil/ws_assert.h>
+#include <wsutil/wslog.h>
 
 /*
  * We assume and require an inet_pton/inet_ntop that supports AF_INET
@@ -49,11 +51,11 @@ _inet_pton(int af, const gchar *src, gpointer dst)
         /* EAFNOSUPPORT */
         if (af == AF_INET) {
             memset(dst, 0, sizeof(struct in_addr));
-            g_critical("ws_inet_pton4: EAFNOSUPPORT");
+            ws_critical("ws_inet_pton4: EAFNOSUPPORT");
         }
         else if (af == AF_INET6) {
             memset(dst, 0, sizeof(struct in6_addr));
-            g_critical("ws_inet_pton6: EAFNOSUPPORT");
+            ws_critical("ws_inet_pton6: EAFNOSUPPORT");
         }
         else {
             ws_assert_not_reached();
@@ -73,7 +75,7 @@ _inet_ntop(int af, gconstpointer src, gchar *dst, guint dst_size)
         switch (errno) {
             case EAFNOSUPPORT:
                 errmsg = "<<EAFNOSUPPORT>>";
-                g_critical("ws_inet_ntop: EAFNOSUPPORT");
+                ws_critical("ws_inet_ntop: EAFNOSUPPORT");
                 break;
             case ENOSPC:
                 errmsg = "<<ENOSPC>>";

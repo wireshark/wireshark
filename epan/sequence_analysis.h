@@ -73,7 +73,7 @@ typedef struct register_analysis register_analysis_t;
 #if 0
 #define SEQ_ANALYSIS_DEBUG(...) { \
     char *SEQ_ANALYSIS_DEBUG_MSG = g_strdup_printf(__VA_ARGS__); \
-    g_warning("sequence analysis: %s:%d %s", G_STRFUNC, __LINE__, SEQ_ANALYSIS_DEBUG_MSG); \
+    ws_warning("sequence analysis: %s:%d %s", G_STRFUNC, __LINE__, SEQ_ANALYSIS_DEBUG_MSG); \
     g_free(SEQ_ANALYSIS_DEBUG_MSG); \
 }
 #else

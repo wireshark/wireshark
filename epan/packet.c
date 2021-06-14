@@ -9,6 +9,7 @@
  */
 
 #include "config.h"
+#define WS_LOG_DOMAIN LOG_DOMAIN_EPAN
 
 #include <glib.h>
 
@@ -39,6 +40,7 @@
 #include <epan/range.h>
 
 #include <wsutil/str_util.h>
+#include <wsutil/wslog.h>
 
 static gint proto_malformed = -1;
 static dissector_handle_t frame_handle = NULL;
@@ -970,7 +972,7 @@ find_dissector_table(const char *name)
 			dissector_table = (dissector_table_t) g_hash_table_lookup(dissector_tables, new_name);
 		}
 		if (dissector_table) {
-			g_warning("%s is now %s", name, new_name);
+			ws_warning("%s is now %s", name, new_name);
 		}
 	}
 	return dissector_table;
@@ -1016,13 +1018,13 @@ dissector_add_uint_sanity_check(const char *name, guint32 pattern, dissector_han
 	dtbl_entry_t *dtbl_entry;
 
 	if (pattern == 0) {
-		g_warning("%s: %s registering using a pattern of 0",
+		ws_warning("%s: %s registering using a pattern of 0",
 			  name, proto_get_protocol_filter_name(proto_get_id(handle->protocol)));
 	}
 
 	dtbl_entry = g_hash_table_lookup(sub_dissectors->hash_table, GUINT_TO_POINTER(pattern));
 	if (dtbl_entry != NULL) {
-		g_warning("%s: %s registering using pattern %d already registered by %s",
+		ws_warning("%s: %s registering using pattern %d already registered by %s",
 			  name, proto_get_protocol_filter_name(proto_get_id(handle->protocol)),
 			  pattern, proto_get_protocol_filter_name(proto_get_id(dtbl_entry->initial->protocol)));
 	}
@@ -1209,7 +1211,7 @@ void dissector_add_uint_range_with_preference(const char *name, const char* rang
 			break;
 
 		default:
-			g_error("The dissector table %s (%s) is not an integer type - are you using a buggy plugin?", name, pref_dissector_table->ui_name);
+			ws_error("The dissector table %s (%s) is not an integer type - are you using a buggy plugin?", name, pref_dissector_table->ui_name);
 			g_assert_not_reached();
 		}
 
@@ -2451,7 +2453,7 @@ register_dissector_table(const char *name, const char *ui_name, const int proto,
 
 	/* Make sure the registration is unique */
 	if (g_hash_table_lookup(dissector_tables, name)) {
-		g_error("The dissector table %s (%s) is already registered - are you using a buggy plugin?", name, ui_name);
+		ws_error("The dissector table %s (%s) is already registered - are you using a buggy plugin?", name, ui_name);
 	}
 
 	/* Create and register the dissector table for this name; returns */
@@ -2503,7 +2505,7 @@ register_dissector_table(const char *name, const char *ui_name, const int proto,
 		break;
 
 	default:
-		g_error("The dissector table %s (%s) is registering an unsupported type - are you using a buggy plugin?", name, ui_name);
+		ws_error("The dissector table %s (%s) is registering an unsupported type - are you using a buggy plugin?", name, ui_name);
 		g_assert_not_reached();
 	}
 	sub_dissectors->dissector_handles = NULL;
@@ -2523,7 +2525,7 @@ dissector_table_t register_custom_dissector_table(const char *name,
 
 	/* Make sure the registration is unique */
 	if (g_hash_table_lookup(dissector_tables, name)) {
-		g_error("The dissector table %s (%s) is already registered - are you using a buggy plugin?", name, ui_name);
+		ws_error("The dissector table %s (%s) is already registered - are you using a buggy plugin?", name, ui_name);
 	}
 
 	/* Create and register the dissector table for this name; returns */
@@ -2624,7 +2626,7 @@ check_valid_heur_name_or_fail(const char *heur_name)
 	}
 
 	if (found_invalid) {
-		g_error("Heuristic Protocol internal name \"%s\" has one or more invalid characters."
+		ws_error("Heuristic Protocol internal name \"%s\" has one or more invalid characters."
 			" Allowed are lowercase, digits, '-', '_' and non-repeating '.'."
 			" This might be caused by an inappropriate plugin or a development error.", heur_name);
 	}
@@ -2697,7 +2699,7 @@ heur_dissector_add(const char *name, heur_dissector_t dissector, const char *dis
 
 	/* Ensure short_name is unique */
 	if (g_hash_table_lookup(heuristic_short_names, internal_name) != NULL) {
-		g_error("Duplicate heuristic short_name \"%s\"!"
+		ws_error("Duplicate heuristic short_name \"%s\"!"
 			" This might be caused by an inappropriate plugin or a development error.", internal_name);
 	}
 
@@ -3012,7 +3014,7 @@ register_heur_dissector_list(const char *name, const int proto)
 
 	/* Make sure the registration is unique */
 	if (g_hash_table_lookup(heur_dissector_lists, name) != NULL) {
-		g_error("The heuristic dissector list %s is already registered - are you using a buggy plugin?", name);
+		ws_error("The heuristic dissector list %s is already registered - are you using a buggy plugin?", name);
 	}
 
 	/* Create and register the dissector table for this name; returns */

@@ -144,12 +144,12 @@ static int FrameInfo_set_data (lua_State* L) {
     FrameInfo fi = checkFrameInfo(L,1);
 
     if (!fi->rec) {
-        g_warning("Error in FrameInfo set data: NULL pointer");
+        ws_warning("Error in FrameInfo set data: NULL pointer");
         return 0;
     }
 
     if (!fi->buf) {
-        g_warning("Error in FrameInfo set data: NULL frame_buffer pointer");
+        ws_warning("Error in FrameInfo set data: NULL frame_buffer pointer");
         return 0;
     }
 

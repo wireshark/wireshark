@@ -10,6 +10,7 @@
  */
 
 #include <config.h>
+#define WS_LOG_DOMAIN "randpkt"
 
 #include "randpkt_core.h"
 
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <wsutil/file_util.h>
+#include <wsutil/wslog.h>
 #include <wiretap/wtap_opttypes.h>
 
 #include "ui/failure_message.h"
@@ -719,7 +721,7 @@ int randpkt_parse_type(char *string)
 	}
 
 	/* Complain */
-	g_error("randpkt: Type %s not known.\n", string);
+	ws_error("randpkt: Type %s not known.\n", string);
 	return -1;
 }
 

@@ -10,6 +10,7 @@
  */
 
 #include "config.h"
+#define WS_LOG_DOMAIN LOG_DOMAIN_EPAN
 
 #include <glib.h>
 #include <epan/packet.h>
@@ -18,6 +19,8 @@
 #include <epan/prefs.h>
 #include <epan/prefs-int.h>
 #include <epan/show_exception.h>
+
+#include <wsutil/wslog.h>
 
 static int proto_short = -1;
 static int proto_malformed = -1;
@@ -136,7 +139,7 @@ show_exception(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		    pinfo->current_proto,
 		    exception_message == NULL ?
 		        dissector_error_nomsg : exception_message);
-		g_warning("Dissector bug, protocol %s, in packet %u: %s",
+		ws_warning("Dissector bug, protocol %s, in packet %u: %s",
 		    pinfo->current_proto, pinfo->num,
 		    exception_message == NULL ?
 		        dissector_error_nomsg : exception_message);

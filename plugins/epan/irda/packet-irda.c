@@ -1007,8 +1007,8 @@ static void dissect_appl_proto(tvbuff_t* tvb, packet_info* pinfo, proto_tree* ro
 
     if (lmp_conv)
     {
-/*g_message("%x:%d->%x:%d = %p\n", src, pinfo->srcport, circuit_id, pinfo->destport, lmp_conv); */
-/*g_message("->%d: %d %d %p\n", pinfo->num, lmp_conv->iap_result_frame, lmp_conv->ttp, lmp_conv->proto_dissector); */
+/*ws_message("%x:%d->%x:%d = %p\n", src, pinfo->srcport, circuit_id, pinfo->destport, lmp_conv); */
+/*ws_message("->%d: %d %d %p\n", pinfo->num, lmp_conv->iap_result_frame, lmp_conv->ttp, lmp_conv->proto_dissector); */
         if ((lmp_conv->ttp) && (pdu_type != DISCONNECT_PDU))
         {
             offset += dissect_ttp(tvb, pinfo, root, (pdu_type == DATA_PDU));
@@ -1203,7 +1203,7 @@ void add_lmp_conversation(packet_info* pinfo, guint8 dlsap, gboolean ttp, dissec
     lmp_conversation_t* lmp_conv = NULL;
 
 
-/*g_message("%d: add_lmp_conversation(%p, %d, %d, %p) = ", pinfo->num, pinfo, dlsap, ttp, proto_dissector); */
+/*ws_message("%d: add_lmp_conversation(%p, %d, %d, %p) = ", pinfo->num, pinfo, dlsap, ttp, proto_dissector); */
     set_address(&srcaddr, irda_address_type, 1, &circuit_id);
     dest = circuit_id ^ CMD_FRAME;
     set_address(&destaddr, irda_address_type, 1, &dest);
@@ -1239,7 +1239,7 @@ void add_lmp_conversation(packet_info* pinfo, guint8 dlsap, gboolean ttp, dissec
     lmp_conv->ttp              = ttp;
     lmp_conv->dissector        = dissector;
 
-/*g_message("%p\n", lmp_conv); */
+/*ws_message("%p\n", lmp_conv); */
 }
 
 

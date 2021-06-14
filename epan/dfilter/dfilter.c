@@ -7,6 +7,7 @@
  */
 
 #include "config.h"
+#define WS_LOG_DOMAIN "Dfilter"
 
 #include <stdio.h>
 #include <string.h>
@@ -20,6 +21,7 @@
 #include "dfilter.h"
 #include "dfilter-macro.h"
 #include "scanner_lex.h"
+#include <wsutil/wslog.h>
 
 
 #define DFILTER_TOKEN_ID_OFFSET	1
@@ -52,7 +54,7 @@ void
 dfilter_init(void)
 {
 	if (ParserObj) {
-		g_message("I expected ParserObj to be NULL\n");
+		ws_message("I expected ParserObj to be NULL\n");
 		/* Free the Lemon Parser object */
 		DfilterFree(ParserObj, g_free);
 	}

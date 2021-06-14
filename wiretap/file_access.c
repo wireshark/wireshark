@@ -7,6 +7,7 @@
  */
 
 #include "config.h"
+#define WS_LOG_DOMAIN LOG_DOMAIN_WIRETAP
 
 #include <string.h>
 #include <stdlib.h>
@@ -19,6 +20,7 @@
 #include <wsutil/plugins.h>
 #endif
 #include <wsutil/ws_assert.h>
+#include <wsutil/wslog.h>
 
 #include "wtap-int.h"
 #include "wtap_modules.h"
@@ -510,13 +512,13 @@ void
 wtap_register_open_info(struct open_info *oi, const gboolean first_routine)
 {
 	if (!oi || !oi->name) {
-		g_error("No open_info name given to register");
+		ws_error("No open_info name given to register");
 		return;
 	}
 
 	/* verify name doesn't already exist */
 	if (wtap_has_open_info(oi->name)) {
-		g_error("Name given to register_open_info already exists");
+		ws_error("Name given to register_open_info already exists");
 		return;
 	}
 
@@ -548,7 +550,7 @@ wtap_deregister_open_info(const gchar *name)
 	guint i;
 
 	if (!name) {
-		g_error("Missing open_info name to de-register");
+		ws_error("Missing open_info name to de-register");
 		return;
 	}
 
@@ -561,7 +563,7 @@ wtap_deregister_open_info(const gchar *name)
 		}
 	}
 
-	g_error("deregister_open_info: name not found");
+	ws_error("deregister_open_info: name not found");
 }
 
 /* Determines if a open routine short name already exists
@@ -572,7 +574,7 @@ wtap_has_open_info(const gchar *name)
 	guint i;
 
 	if (!name) {
-		g_error("No name given to wtap_has_open_info!");
+		ws_error("No name given to wtap_has_open_info!");
 		return FALSE;
 	}
 
@@ -1315,7 +1317,7 @@ wtap_register_file_type_subtype(const struct file_type_subtype_info* fi)
 	 * Check for required fields (description and name).
 	 */
 	if (!fi || !fi->description || !fi->name) {
-		g_warning("no file type info");
+		ws_warning("no file type info");
 		return -1;
 	}
 
@@ -1324,7 +1326,7 @@ wtap_register_file_type_subtype(const struct file_type_subtype_info* fi)
 	 * type/subtype supports.
 	 */
 	if (fi->num_supported_blocks == 0 || fi->supported_blocks == NULL) {
-		g_warning("no blocks supported by file type \"%s\"", fi->name);
+		ws_warning("no blocks supported by file type \"%s\"", fi->name);
 		return -1;
 	}
 
@@ -1335,7 +1337,7 @@ wtap_register_file_type_subtype(const struct file_type_subtype_info* fi)
 		/*
 		 * Yes.  You don't get to replace an existing handler.
 		 */
-		g_warning("file type \"%s\" is already registered", fi->name);
+		ws_warning("file type \"%s\" is already registered", fi->name);
 		return -1;
 	}
 
@@ -1388,11 +1390,11 @@ wtap_deregister_file_type_subtype(const int subtype)
 	struct file_type_subtype_info* finfo;
 
 	if (subtype < 0 || subtype >= (int)file_type_subtype_table_arr->len) {
-		g_error("invalid file type to de-register");
+		ws_error("invalid file type to de-register");
 		return;
 	}
 	if ((guint)subtype >= wtap_num_builtin_file_types_subtypes) {
-		g_error("built-in file types cannot be de-registered");
+		ws_error("built-in file types cannot be de-registered");
 		return;
 	}
 

@@ -24,6 +24,8 @@
 #include <epan/value_string.h>
 #include <epan/dissectors/packet-sip.h>
 
+#include <wsutil/wslog.h>
+
 #include <ui/cmdarg_err.h>
 
 void register_tap_listener_sipstat(void);
@@ -98,7 +100,7 @@ static void
 sip_draw_hash_responses( gint *key _U_ , sip_response_code_t *data, char *format)
 {
 	if (data == NULL) {
-		g_warning("C'est quoi ce borderl key=%d\n", *key);
+		ws_warning("C'est quoi ce borderl key=%d\n", *key);
 		exit(EXIT_FAILURE);
 	}
 	if (data->packets == 0)

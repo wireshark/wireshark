@@ -11,6 +11,7 @@
  */
 
 #include "config.h"
+#define WS_LOG_DOMAIN "sshdump"
 
 #include <extcap/extcap-base.h>
 #include <extcap/ssh-base.h>
@@ -20,6 +21,7 @@
 #include <wsutil/filesystem.h>
 #include <wsutil/privileges.h>
 #include <wsutil/please_report_bug.h>
+#include <wsutil/wslog.h>
 
 #include <errno.h>
 #include <string.h>
@@ -82,14 +84,14 @@ static int ssh_loop_read(ssh_channel channel, FILE* fp)
 	while (ssh_channel_is_open(channel) && !ssh_channel_is_eof(channel)) {
 		nbytes = ssh_channel_read(channel, buffer, SSH_READ_BLOCK_SIZE, 0);
 		if (nbytes < 0) {
-			g_warning("Error reading from channel");
+			ws_warning("Error reading from channel");
 			goto end;
 		}
 		if (nbytes == 0) {
 			break;
 		}
 		if (fwrite(buffer, 1, nbytes, fp) != (guint)nbytes) {
-			g_warning("Error writing to fifo");
+			ws_warning("Error writing to fifo");
 			ret = EXIT_FAILURE;
 			goto end;
 		}
@@ -100,18 +102,18 @@ static int ssh_loop_read(ssh_channel channel, FILE* fp)
 	while (ssh_channel_is_open(channel) && !ssh_channel_is_eof(channel)) {
 		nbytes = ssh_channel_read(channel, buffer, SSH_READ_BLOCK_SIZE, 1);
 		if (nbytes < 0) {
-			g_warning("Error reading from channel");
+			ws_warning("Error reading from channel");
 			goto end;
 		}
 		if (fwrite(buffer, 1, nbytes, stderr) != (guint)nbytes) {
-			g_warning("Error writing to stderr");
+			ws_warning("Error writing to stderr");
 			break;
 		}
 	}
 
 end:
 	if (ssh_channel_send_eof(channel) != SSH_OK) {
-		g_warning("Error sending EOF in ssh channel");
+		ws_warning("Error sending EOF in ssh channel");
 		ret = EXIT_FAILURE;
 	}
 	return ret;
@@ -137,12 +139,12 @@ static ssh_channel run_ssh_command(ssh_session sshs, const char* capture_command
 
 	channel = ssh_channel_new(sshs);
 	if (!channel) {
-		g_warning("Can't create channel");
+		ws_warning("Can't create channel");
 		return NULL;
 	}
 
 	if (ssh_channel_open_session(channel) != SSH_OK) {
-		g_warning("Can't open session");
+		ws_warning("Can't open session");
 		ssh_channel_free(channel);
 		return NULL;
 	}
@@ -152,7 +154,7 @@ static ssh_channel run_ssh_command(ssh_session sshs, const char* capture_command
 	/* escape parameters to go save with the shell */
 	if (capture_command && *capture_command) {
 		cmdline = g_strdup(capture_command);
-		g_debug("Remote capture command has disabled other options");
+		ws_debug("Remote capture command has disabled other options");
 	} else {
 		quoted_iface = iface ? g_shell_quote(iface) : NULL;
 		quoted_filter = g_shell_quote(cfilter ? cfilter : "");
@@ -168,9 +170,9 @@ static ssh_channel run_ssh_command(ssh_session sshs, const char* capture_command
 			quoted_filter);
 	}
 
-	g_debug("Running: %s", cmdline);
+	ws_debug("Running: %s", cmdline);
 	if (ssh_channel_request_exec(channel, cmdline) != SSH_OK) {
-		g_warning("Can't request exec");
+		ws_warning("Can't request exec");
 		ssh_channel_close(channel);
 		ssh_channel_free(channel);
 		channel = NULL;
@@ -197,7 +199,7 @@ static int ssh_open_remote_connection(const ssh_params_t* params, const char* if
 		/* Open or create the output file */
 		fp = fopen(fifo, "wb");
 		if (fp == NULL) {
-			g_warning("Error creating output file: %s (%s)", fifo, g_strerror(errno));
+			ws_warning("Error creating output file: %s (%s)", fifo, g_strerror(errno));
 			return EXIT_FAILURE;
 		}
 	}
@@ -205,20 +207,20 @@ static int ssh_open_remote_connection(const ssh_params_t* params, const char* if
 	sshs = create_ssh_connection(params, &err_info);
 
 	if (!sshs) {
-		g_warning("Error creating connection.");
+		ws_warning("Error creating connection.");
 		goto cleanup;
 	}
 
 	channel = run_ssh_command(sshs, capture_command, use_sudo, noprom, iface, cfilter, count);
 
 	if (!channel) {
-		g_warning("Can't run ssh command.");
+		ws_warning("Can't run ssh command.");
 		goto cleanup;
 	}
 
 	/* read from channel and write into fp */
 	if (ssh_loop_read(channel, fp) != EXIT_SUCCESS) {
-		g_warning("Error in read loop.");
+		ws_warning("Error in read loop.");
 		ret = EXIT_FAILURE;
 		goto cleanup;
 	}
@@ -226,7 +228,7 @@ static int ssh_open_remote_connection(const ssh_params_t* params, const char* if
 	ret = EXIT_SUCCESS;
 cleanup:
 	if (err_info)
-		g_warning("%s", err_info);
+		ws_warning("%s", err_info);
 	g_free(err_info);
 
 	/* clean up and exit */
@@ -269,12 +271,12 @@ static int list_config(char *interface, unsigned int remote_port)
 	char* ipfilter;
 
 	if (!interface) {
-		g_warning("ERROR: No interface specified.");
+		ws_warning("ERROR: No interface specified.");
 		return EXIT_FAILURE;
 	}
 
 	if (g_strcmp0(interface, sshdump_extcap_interface)) {
-		g_warning("ERROR: interface must be %s", sshdump_extcap_interface);
+		ws_warning("ERROR: interface must be %s", sshdump_extcap_interface);
 		return EXIT_FAILURE;
 	}
 
@@ -373,7 +375,7 @@ int main(int argc, char *argv[])
 	 */
 	err_msg = init_progfile_dir(argv[0]);
 	if (err_msg != NULL) {
-		g_warning("Can't get pathname of directory containing the captype program: %s.",
+		ws_warning("Can't get pathname of directory containing the captype program: %s.",
 			err_msg);
 		g_free(err_msg);
 	}
@@ -447,7 +449,7 @@ int main(int argc, char *argv[])
 
 		case OPT_REMOTE_PORT:
 			if (!ws_strtou16(optarg, NULL, &ssh_params->port) || ssh_params->port == 0) {
-				g_warning("Invalid port: %s", optarg);
+				ws_warning("Invalid port: %s", optarg);
 				goto end;
 			}
 			break;
@@ -500,7 +502,7 @@ int main(int argc, char *argv[])
 
 		case OPT_REMOTE_COUNT:
 			if (!ws_strtou32(optarg, NULL, &count)) {
-				g_warning("Invalid value for count: %s", optarg);
+				ws_warning("Invalid value for count: %s", optarg);
 				goto end;
 			}
 			break;
@@ -511,12 +513,12 @@ int main(int argc, char *argv[])
 
 		case ':':
 			/* missing option argument */
-			g_warning("Option '%s' requires an argument", argv[optind - 1]);
+			ws_warning("Option '%s' requires an argument", argv[optind - 1]);
 			break;
 
 		default:
 			if (!extcap_base_parse_options(extcap_conf, result - EXTCAP_OPT_LIST_INTERFACES, optarg)) {
-				g_warning("Invalid option: %s", argv[optind - 1]);
+				ws_warning("Invalid option: %s", argv[optind - 1]);
 				goto end;
 			}
 		}
@@ -536,9 +538,9 @@ int main(int argc, char *argv[])
 
 	err_msg = ws_init_sockets();
 	if (err_msg != NULL) {
-		g_warning("ERROR: %s", err_msg);
+		ws_warning("ERROR: %s", err_msg);
 		g_free(err_msg);
-		g_warning("%s", please_report_bug());
+		ws_warning("%s", please_report_bug());
 		goto end;
 	}
 
@@ -546,7 +548,7 @@ int main(int argc, char *argv[])
 		char* filter;
 
 		if (!ssh_params->host) {
-			g_warning("Missing parameter: --remote-host");
+			ws_warning("Missing parameter: --remote-host");
 			goto end;
 		}
 		filter = concat_filters(extcap_conf->capture_filter, remote_filter);
@@ -555,7 +557,7 @@ int main(int argc, char *argv[])
 			filter, remote_capture_command, use_sudo, noprom, count, extcap_conf->fifo);
 		g_free(filter);
 	} else {
-		g_debug("You should not come here... maybe some parameter missing?");
+		ws_debug("You should not come here... maybe some parameter missing?");
 		ret = EXIT_FAILURE;
 	}
 

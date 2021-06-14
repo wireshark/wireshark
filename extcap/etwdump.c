@@ -74,12 +74,12 @@ static int list_config(char* interface)
     unsigned inc = 0;
 
     if (!interface) {
-        g_warning("No interface specified.");
+        ws_warning("No interface specified.");
         return EXIT_FAILURE;
     }
 
     if (g_strcmp0(interface, ETW_EXTCAP_INTERFACE)) {
-        g_warning("Interface must be %s", ETW_EXTCAP_INTERFACE);
+        ws_warning("Interface must be %s", ETW_EXTCAP_INTERFACE);
         return EXIT_FAILURE;
     }
     /*
@@ -132,7 +132,7 @@ int main(int argc, char* argv[])
      */
     err_msg = init_progfile_dir(argv[0]);
     if (err_msg != NULL) {
-        g_warning("Can't get pathname of directory containing the captype program: %s.",
+        ws_warning("Can't get pathname of directory containing the captype program: %s.",
             err_msg);
         g_free(err_msg);
     }
@@ -190,14 +190,14 @@ int main(int argc, char* argv[])
 
         case ':':
             /* missing option argument */
-            g_warning("Option '%s' requires an argument", argv[optind - 1]);
+            ws_warning("Option '%s' requires an argument", argv[optind - 1]);
             break;
 
         default:
             /* Handle extcap specific options */
             if (!extcap_base_parse_options(extcap_conf, result - EXTCAP_OPT_LIST_INTERFACES, optarg))
             {
-                g_warning("Invalid option: %s", argv[optind - 1]);
+                ws_warning("Invalid option: %s", argv[optind - 1]);
                 goto end;
             }
         }
@@ -218,13 +218,13 @@ int main(int argc, char* argv[])
     if (extcap_conf->capture) {
 
         if (g_strcmp0(extcap_conf->interface, ETW_EXTCAP_INTERFACE)) {
-            g_warning("ERROR: invalid interface");
+            ws_warning("ERROR: invalid interface");
             goto end;
         }
 
         if (etlfile == NULL && params == NULL)
         {
-            g_warning("ERROR: Both --etlfile and --params arguments are empty");
+            ws_warning("ERROR: Both --etlfile and --params arguments are empty");
             goto end;
         }
 
@@ -236,38 +236,38 @@ int main(int argc, char* argv[])
         {
         case WTAP_OPEN_ERROR:
             if (err_msg != NULL) {
-                g_warning("etw_dump failed: %s.",
+                ws_warning("etw_dump failed: %s.",
                     err_msg);
                 g_free(err_msg);
             }
             else
             {
-                g_warning("etw_dump failed");
+                ws_warning("etw_dump failed");
             }
             break;
         case WTAP_OPEN_NOT_MINE:
             if (etlfile == NULL)
             {
                 if (err_msg != NULL) {
-                    g_warning("The live session didn't caputre any event. Error message: %s.",
+                    ws_warning("The live session didn't caputre any event. Error message: %s.",
                         err_msg);
                     g_free(err_msg);
                 }
                 else
                 {
-                    g_warning("The live session didn't caputre any event");
+                    ws_warning("The live session didn't caputre any event");
                 }
             }
             else
             {
                 if (err_msg != NULL) {
-                    g_warning("The file %s is not etl format. Error message: %s.",
+                    ws_warning("The file %s is not etl format. Error message: %s.",
                         etlfile, err_msg);
                     g_free(err_msg);
                 }
                 else
                 {
-                    g_warning("The file %s is not etl format", etlfile);
+                    ws_warning("The file %s is not etl format", etlfile);
                 }
             }
             break;

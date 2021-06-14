@@ -131,7 +131,7 @@ DWORD GetPropertyLength(PEVENT_RECORD pEvent, PTRACE_EVENT_INFO pInfo, USHORT i,
             }
             else
             {
-                g_debug("Event %d Unexpected length of 0 for intype %d and outtype %d", g_num_events,
+                ws_debug("Event %d Unexpected length of 0 for intype %d and outtype %d", g_num_events,
                     pInfo->EventPropertyInfoArray[i].nonStructType.InType,
                     pInfo->EventPropertyInfoArray[i].nonStructType.OutType);
 
@@ -385,7 +385,7 @@ BOOL get_event_information(PEVENT_RECORD pEvent, PTRACE_EVENT_INFO* pInfo)
         *pInfo = (TRACE_EVENT_INFO*)g_malloc(BufferSize);
         if (*pInfo == NULL)
         {
-            g_debug("Event %d GetEventInformation Failed to allocate memory for event info (size=%lu).", g_num_events, BufferSize);
+            ws_debug("Event %d GetEventInformation Failed to allocate memory for event info (size=%lu).", g_num_events, BufferSize);
             goto Exit;
         }
         /* Retrieve the event metadata. */

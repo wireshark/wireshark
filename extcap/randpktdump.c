@@ -83,12 +83,12 @@ static int list_config(char *interface)
 	char** longname_list;
 
 	if (!interface) {
-		g_warning("No interface specified.");
+		ws_warning("No interface specified.");
 		return EXIT_FAILURE;
 	}
 
 	if (g_strcmp0(interface, RANDPKT_EXTCAP_INTERFACE)) {
-		g_warning("Interface must be %s", RANDPKT_EXTCAP_INTERFACE);
+		ws_warning("Interface must be %s", RANDPKT_EXTCAP_INTERFACE);
 		return EXIT_FAILURE;
 	}
 
@@ -174,7 +174,7 @@ int main(int argc, char *argv[])
 	 */
 	err_msg = init_progfile_dir(argv[0]);
 	if (err_msg != NULL) {
-		g_warning("Can't get pathname of directory containing the captype program: %s.",
+		ws_warning("Can't get pathname of directory containing the captype program: %s.",
 			err_msg);
 		g_free(err_msg);
 	}
@@ -223,7 +223,7 @@ int main(int argc, char *argv[])
 
 		case OPT_MAXBYTES:
 			if (!ws_strtou16(optarg, NULL, &maxbytes)) {
-				g_warning("Invalid parameter maxbytes: %s (max value is %u)",
+				ws_warning("Invalid parameter maxbytes: %s (max value is %u)",
 					optarg, G_MAXUINT16);
 				goto end;
 			}
@@ -231,14 +231,14 @@ int main(int argc, char *argv[])
 
 		case OPT_COUNT:
 			if (!ws_strtou64(optarg, NULL, &count)) {
-				g_warning("Invalid packet count: %s", optarg);
+				ws_warning("Invalid packet count: %s", optarg);
 				goto end;
 			}
 			break;
 
 		case OPT_DELAY:
 			if (!ws_strtou64(optarg, NULL, &packet_delay_ms)) {
-				g_warning("Invalid packet delay: %s", optarg);
+				ws_warning("Invalid packet delay: %s", optarg);
 				goto end;
 			}
 			break;
@@ -258,14 +258,14 @@ int main(int argc, char *argv[])
 
 		case ':':
 			/* missing option argument */
-			g_warning("Option '%s' requires an argument", argv[optind - 1]);
+			ws_warning("Option '%s' requires an argument", argv[optind - 1]);
 			break;
 
 		default:
 			/* Handle extcap specific options */
 			if (!extcap_base_parse_options(extcap_conf, result - EXTCAP_OPT_LIST_INTERFACES, optarg))
 			{
-				g_warning("Invalid option: %s", argv[optind - 1]);
+				ws_warning("Invalid option: %s", argv[optind - 1]);
 				goto end;
 			}
 		}
@@ -285,7 +285,7 @@ int main(int argc, char *argv[])
 
 	/* Some sanity checks */
 	if ((random_type) && (all_random)) {
-		g_warning("You can specify only one between: --random-type, --all-random");
+		ws_warning("You can specify only one between: --random-type, --all-random");
 		goto end;
 	}
 
@@ -297,16 +297,16 @@ int main(int argc, char *argv[])
 
 	err_msg = ws_init_sockets();
 	if (err_msg != NULL) {
-		g_warning("ERROR: %s", err_msg);
+		ws_warning("ERROR: %s", err_msg);
 		g_free(err_msg);
-		g_warning("%s", please_report_bug());
+		ws_warning("%s", please_report_bug());
 		goto end;
 	}
 
 	if (extcap_conf->capture) {
 
 		if (g_strcmp0(extcap_conf->interface, RANDPKT_EXTCAP_INTERFACE)) {
-			g_warning("ERROR: invalid interface");
+			ws_warning("ERROR: invalid interface");
 			goto end;
 		}
 
@@ -319,7 +319,7 @@ int main(int argc, char *argv[])
 			if (!example)
 				goto end;
 
-			g_debug("Generating packets: %s", example->abbrev);
+			ws_debug("Generating packets: %s", example->abbrev);
 
 			randpkt_example_init(example, extcap_conf->fifo, maxbytes);
 			randpkt_loop(example, count, packet_delay_ms);

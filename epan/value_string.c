@@ -9,6 +9,7 @@
  */
 
 #include "config.h"
+#define WS_LOG_DOMAIN LOG_DOMAIN_EPAN
 
 #include <stdio.h>
 #include <string.h>
@@ -17,6 +18,8 @@
 #include "proto.h"
 #include "to_str.h"
 #include "value_string.h"
+
+#include <wsutil/wslog.h>
 
 /* REGULAR VALUE STRING */
 
@@ -452,14 +455,14 @@ _try_val_to_str_ext_init(const guint32 val, value_string_ext *vse)
         /* XXX: Should check for dups ?? */
         if (type == VS_BIN_TREE) {
             if (prev_value > vs_p[i].value) {
-                g_warning("Extended value string '%s' forced to fall back to linear search:\n"
+                ws_warning("Extended value string '%s' forced to fall back to linear search:\n"
                           "  entry %u, value %u [%#x] < previous entry, value %u [%#x]",
                           vse->_vs_name, i, vs_p[i].value, vs_p[i].value, prev_value, prev_value);
                 type = VS_SEARCH;
                 break;
             }
             if (first_value > vs_p[i].value) {
-                g_warning("Extended value string '%s' forced to fall back to linear search:\n"
+                ws_warning("Extended value string '%s' forced to fall back to linear search:\n"
                           "  entry %u, value %u [%#x] < first entry, value %u [%#x]",
                           vse->_vs_name, i, vs_p[i].value, vs_p[i].value, first_value, first_value);
                 type = VS_SEARCH;
@@ -737,14 +740,14 @@ _try_val64_to_str_ext_init(const guint64 val, val64_string_ext *vse)
         /* XXX: Should check for dups ?? */
         if (type == VS_BIN_TREE) {
             if (prev_value > vs_p[i].value) {
-                g_warning("Extended value string '%s' forced to fall back to linear search:\n"
+                ws_warning("Extended value string '%s' forced to fall back to linear search:\n"
                           "  entry %u, value %" G_GINT64_MODIFIER "u [%#" G_GINT64_MODIFIER "x] < previous entry, value %" G_GINT64_MODIFIER "u [%#" G_GINT64_MODIFIER "x]",
                           vse->_vs_name, i, vs_p[i].value, vs_p[i].value, prev_value, prev_value);
                 type = VS_SEARCH;
                 break;
             }
             if (first_value > vs_p[i].value) {
-                g_warning("Extended value string '%s' forced to fall back to linear search:\n"
+                ws_warning("Extended value string '%s' forced to fall back to linear search:\n"
                           "  entry %u, value %" G_GINT64_MODIFIER "u [%#" G_GINT64_MODIFIER "x] < first entry, value %" G_GINT64_MODIFIER "u [%#" G_GINT64_MODIFIER "x]",
                           vse->_vs_name, i, vs_p[i].value, vs_p[i].value, first_value, first_value);
                 type = VS_SEARCH;

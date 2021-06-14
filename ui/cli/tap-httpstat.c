@@ -22,6 +22,8 @@
 #include <epan/stat_tap_ui.h>
 #include <epan/dissectors/packet-http.h>
 
+#include <wsutil/wslog.h>
+
 #include <ui/cmdarg_err.h>
 
 void register_tap_listener_httpstat(void);
@@ -82,7 +84,7 @@ static void
 http_draw_hash_responses(gint * key _U_, http_response_code_t *data, char *format)
 {
 	if (data == NULL) {
-		g_warning("No data available, key=%d\n", *key);
+		ws_warning("No data available, key=%d\n", *key);
 		exit(EXIT_FAILURE);
 	}
 	if (data->packets == 0)

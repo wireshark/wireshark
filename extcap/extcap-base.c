@@ -215,7 +215,7 @@ uint8_t extcap_base_handle_interface(extcap_parameters * extcap)
     /* A fifo must be provided for capture */
     if (extcap->capture && (extcap->fifo == NULL || strlen(extcap->fifo) <= 0)) {
         extcap->capture = 0;
-        g_error("Extcap Error: No FIFO pipe provided");
+        ws_error("Extcap Error: No FIFO pipe provided");
         return 0;
     }
 
@@ -320,7 +320,7 @@ void extcap_init_custom_log(const char* filename)
         return;
     custom_log = fopen(filename, "w");
     if (!custom_log)
-        g_error("Can't open custom log file: %s (%s)", filename, strerror(errno));
+        ws_error("Can't open custom log file: %s (%s)", filename, strerror(errno));
     ws_log_add_custom_file(custom_log);
 }
 
@@ -340,7 +340,7 @@ void extcap_cmdline_debug(char** ar, const unsigned n)
     unsigned i;
     for (i = 0; i < n; i++)
         g_string_append_printf(cmdline, "%s ", ar[i]);
-    g_debug("%s", cmdline->str);
+    ws_debug("%s", cmdline->str);
     g_string_free(cmdline, TRUE);
 }
 

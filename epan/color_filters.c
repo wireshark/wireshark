@@ -12,6 +12,7 @@
  */
 
 #include <config.h>
+#define WS_LOG_DOMAIN LOG_DOMAIN_EPAN
 
 #include <glib.h>
 
@@ -21,6 +22,7 @@
 
 #include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
+#include <wsutil/wslog.h>
 
 #include <epan/packet.h>
 #include "color_filters.h"
@@ -651,7 +653,7 @@ read_filters_file(const gchar *path, FILE *f, gpointer user_data, color_filter_a
             gchar *local_err_msg = NULL;
 
             if (!disabled && !dfilter_compile(filter_exp, &temp_dfilter, &local_err_msg)) {
-                g_warning("Could not compile \"%s\" in colorfilters file \"%s\".\n%s",
+                ws_warning("Could not compile \"%s\" in colorfilters file \"%s\".\n%s",
                           name, path, local_err_msg);
                 g_free(local_err_msg);
                 prefs.unknown_colorfilters = TRUE;

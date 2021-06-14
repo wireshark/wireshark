@@ -199,7 +199,7 @@ void epan_register_plugin(const epan_plugin *plug)
 #else /* HAVE_PLUGINS */
 void epan_register_plugin(const epan_plugin *plug _U_)
 {
-	g_warning("epan_register_plugin: built without support for binary plugins");
+	ws_warning("epan_register_plugin: built without support for binary plugins");
 }
 #endif /* HAVE_PLUGINS */
 
@@ -479,7 +479,7 @@ epan_get_frame_ts(const epan_t *session, guint32 frame_num)
 		abs_ts = session->funcs.get_frame_ts(session->prov, frame_num);
 
 	if (!abs_ts)
-		g_warning("!!! couldn't get frame ts for %u !!!\n", frame_num);
+		ws_warning("!!! couldn't get frame ts for %u !!!\n", frame_num);
 
 	return abs_ts;
 }

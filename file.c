@@ -9,6 +9,7 @@
  */
 
 #include <config.h>
+#define WS_LOG_DOMAIN LOG_DOMAIN_CAPTURE
 
 #include <time.h>
 
@@ -21,6 +22,7 @@
 #include <wsutil/file_util.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/json_dumper.h>
+#include <wsutil/wslog.h>
 #include <version_info.h>
 
 #include <wiretap/merge.h>
@@ -515,7 +517,7 @@ cf_read(capture_file *cf, gboolean reloading)
    * case it occurs let's fail gracefully.
    */
   if (cf->read_lock) {
-    g_warning("Failing due to recursive cf_read(\"%s\", %d) call!",
+    ws_warning("Failing due to recursive cf_read(\"%s\", %d) call!",
               cf->filename, reloading);
     return CF_READ_ERROR;
   }
@@ -888,11 +890,11 @@ cf_continue_tail(capture_file *cf, volatile int to_read, wtap_rec *rec,
     /* We got an error reading the capture file.
        XXX - pop up a dialog box instead? */
     if (err_info != NULL) {
-      g_warning("Error \"%s\" while reading \"%s\" (\"%s\")",
+      ws_warning("Error \"%s\" while reading \"%s\" (\"%s\")",
                 wtap_strerror(*err), cf->filename, err_info);
       g_free(err_info);
     } else {
-      g_warning("Error \"%s\" while reading \"%s\"",
+      ws_warning("Error \"%s\" while reading \"%s\"",
                 wtap_strerror(*err), cf->filename);
     }
     return CF_READ_ERROR;
@@ -1008,11 +1010,11 @@ cf_finish_tail(capture_file *cf, wtap_rec *rec, Buffer *buf, int *err)
     /* We got an error reading the capture file.
        XXX - pop up a dialog box? */
     if (err_info != NULL) {
-      g_warning("Error \"%s\" while reading \"%s\" (\"%s\")",
+      ws_warning("Error \"%s\" while reading \"%s\" (\"%s\")",
                 wtap_strerror(*err), cf->filename, err_info);
       g_free(err_info);
     } else {
-      g_warning("Error \"%s\" while reading \"%s\"",
+      ws_warning("Error \"%s\" while reading \"%s\"",
                 wtap_strerror(*err), cf->filename);
     }
     return CF_READ_ERROR;
@@ -2129,7 +2131,7 @@ process_specified_records(capture_file *cf, packet_range_t *range,
   progbar_val = 0.0f;
 
   if (cf->read_lock) {
-    g_warning("Failing due to nested process_specified_records(\"%s\") call!", cf->filename);
+    ws_warning("Failing due to nested process_specified_records(\"%s\") call!", cf->filename);
     return PSP_FAILED;
   }
   cf->read_lock = TRUE;
@@ -4453,7 +4455,7 @@ cf_save_records(capture_file *cf, const char *fname, guint save_format,
   /* XXX caller should avoid saving the file while a read is pending
    * (e.g. by delaying the save action) */
   if (cf->read_lock) {
-    g_warning("cf_save_records(\"%s\") while the file is being read, potential crash ahead", fname);
+    ws_warning("cf_save_records(\"%s\") while the file is being read, potential crash ahead", fname);
   }
 
   cf_callback_invoke(cf_cb_file_save_started, (gpointer)fname);
@@ -4962,7 +4964,7 @@ cf_reload(capture_file *cf) {
   int       err;
 
   if (cf->read_lock) {
-    g_warning("Failing cf_reload(\"%s\") since a read is in progress", cf->filename);
+    ws_warning("Failing cf_reload(\"%s\") since a read is in progress", cf->filename);
     return;
   }
 

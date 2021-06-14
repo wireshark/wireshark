@@ -9,6 +9,7 @@
  */
 
 #include "config.h"
+#define WS_LOG_DOMAIN LOG_DOMAIN_EPAN
 
 #include <glib.h>
 #include <stdio.h>
@@ -16,6 +17,8 @@
 #include "packet.h"
 
 #include "capture_dissectors.h"
+
+#include <wsutil/wslog.h>
 
 struct capture_dissector_table {
     GHashTable *hash_table;
@@ -65,7 +68,7 @@ void register_capture_dissector_table(const char *name, const char *ui_name)
 
     /* Make sure the registration is unique */
     if(g_hash_table_lookup( capture_dissector_tables, name )) {
-        g_error("The capture dissector table %s (%s) is already registered - are you using a buggy plugin?", name, ui_name);
+        ws_error("The capture dissector table %s (%s) is already registered - are you using a buggy plugin?", name, ui_name);
     }
 
     sub_dissectors = g_new(struct capture_dissector_table, 1);

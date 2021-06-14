@@ -75,7 +75,7 @@ cap_file_provider_get_user_comment(struct packet_provider_data *prov, const fram
   if (prov->frames_user_comments)
      return (const char *)g_tree_lookup(prov->frames_user_comments, fd);
 
-  /* g_warning? */
+  /* ws_warning? */
   return NULL;
 }
 

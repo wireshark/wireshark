@@ -9,6 +9,7 @@
  */
 
 #include "config.h"
+#define WS_LOG_DOMAIN LOG_DOMAIN_WSUTIL
 
 #include <time.h>
 
@@ -24,6 +25,7 @@
 #include <wsutil/privileges.h>
 #include <wsutil/file_util.h>
 #include <wsutil/report_message.h>
+#include <wsutil/wslog.h>
 
 #include <wsutil/plugins.h>
 #include <wsutil/ws_assert.h>
@@ -58,7 +60,7 @@ type_to_dir(plugin_type_e type)
     case WS_PLUGIN_CODEC:
         return TYPE_DIR_CODECS;
     default:
-        g_error("Unknown plugin type: %u. Aborting.", (unsigned) type);
+        ws_error("Unknown plugin type: %u. Aborting.", (unsigned) type);
         break;
     }
     ws_assert_not_reached();
@@ -75,7 +77,7 @@ type_to_name(plugin_type_e type)
     case WS_PLUGIN_CODEC:
         return TYPE_NAME_CODEC;
     default:
-        g_error("Unknown plugin type: %u. Aborting.", (unsigned) type);
+        ws_error("Unknown plugin type: %u. Aborting.", (unsigned) type);
         break;
     }
     ws_assert_not_reached();

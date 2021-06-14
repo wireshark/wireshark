@@ -6,12 +6,14 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 #include "config.h"
+#define WS_LOG_DOMAIN LOG_DOMAIN_WSUTIL
 
 #include <stdlib.h>
 #include <string.h>
 
 #include "buffer.h"
 #include <wsutil/ws_assert.h>
+#include <wsutil/wslog.h>
 
 #define SMALL_BUFFER_SIZE (2 * 1024) /* Everyone still uses 1500 byte frames, right? */
 static GPtrArray *small_buffers = NULL; /* Guaranteed to be at least SMALL_BUFFER_SIZE */
@@ -112,10 +114,10 @@ ws_buffer_remove_start(Buffer* buffer, gsize bytes)
 {
 	ws_assert(buffer);
 	if (buffer->start + bytes > buffer->first_free) {
-		g_error("ws_buffer_remove_start trying to remove %" G_GINT64_MODIFIER "u bytes. s=%" G_GINT64_MODIFIER "u ff=%" G_GINT64_MODIFIER "u!\n",
+		ws_error("ws_buffer_remove_start trying to remove %" G_GINT64_MODIFIER "u bytes. s=%" G_GINT64_MODIFIER "u ff=%" G_GINT64_MODIFIER "u!\n",
 			(guint64)bytes, (guint64)buffer->start,
 			(guint64)buffer->first_free);
-		/** g_error() does an abort() and thus never returns **/
+		/** ws_error() does an abort() and thus never returns **/
 	}
 	buffer->start += bytes;
 

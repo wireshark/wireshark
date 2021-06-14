@@ -9,6 +9,7 @@
  */
 
 #include "config.h"
+#define WS_LOG_DOMAIN LOG_DOMAIN_EPAN
 
 #include "ws_diag_control.h"
 
@@ -33,6 +34,7 @@
 #include "print.h"
 #include <wsutil/file_util.h>
 #include <wsutil/report_message.h>
+#include <wsutil/wslog.h>
 
 #include <epan/prefs-int.h>
 #include <epan/uat-int.h>
@@ -504,7 +506,7 @@ prefs_register_module_or_subtree(module_t *parent, const char *name,
         for (p = name; (c = *p) != '\0'; p++) {
             if (!(g_ascii_islower(c) || g_ascii_isdigit(c) || c == '_' ||
                   c == '-' || c == '.'))
-                g_error("Preference module \"%s\" contains invalid characters", name);
+                ws_error("Preference module \"%s\" contains invalid characters", name);
         }
 
         /*
@@ -520,7 +522,7 @@ prefs_register_module_or_subtree(module_t *parent, const char *name,
          * something such as that, to be added to all their names).
          */
         if (prefs_find_module(name) != NULL)
-            g_error("Preference module \"%s\" is being registered twice", name);
+            ws_error("Preference module \"%s\" is being registered twice", name);
 
         /*
          * Insert this module in the list of all modules.
@@ -532,7 +534,7 @@ prefs_register_module_or_subtree(module_t *parent, const char *name,
          * subtree, and crash if it's not.
          */
         if (!is_subtree)
-            g_error("Preferences module with no name is being registered at the top level");
+            ws_error("Preferences module with no name is being registered at the top level");
     }
 
     /*
@@ -579,7 +581,7 @@ prefs_register_module_alias(const char *name, module_t *module)
     for (p = name; (c = *p) != '\0'; p++) {
         if (!(g_ascii_isalpha(c) || g_ascii_isdigit(c) || c == '_' ||
               c == '-' || c == '.'))
-            g_error("Preference module alias \"%s\" contains invalid characters", name);
+            ws_error("Preference module alias \"%s\" contains invalid characters", name);
     }
 
     /*
@@ -591,7 +593,7 @@ prefs_register_module_alias(const char *name, module_t *module)
      * We search the list of all aliases.
      */
     if (prefs_find_module_alias(name) != NULL)
-        g_error("Preference module alias \"%s\" is being registered twice", name);
+        ws_error("Preference module alias \"%s\" is being registered twice", name);
 
     alias = wmem_new(wmem_epan_scope(), module_alias_t);
     alias->name = name;
@@ -626,7 +628,7 @@ prefs_register_protocol(int id, void (*apply_cb)(void))
     }
     protocol = find_protocol_by_id(id);
     if (protocol == NULL)
-        g_error("Protocol preferences being registered with an invalid protocol ID");
+        ws_error("Protocol preferences being registered with an invalid protocol ID");
     return prefs_register_module(protocols_module,
                                  proto_get_protocol_filter_name(id),
                                  proto_get_protocol_short_name(protocol),
@@ -638,7 +640,7 @@ prefs_deregister_protocol (int id)
 {
     protocol_t *protocol = find_protocol_by_id(id);
     if (protocol == NULL)
-        g_error("Protocol preferences being de-registered with an invalid protocol ID");
+        ws_error("Protocol preferences being de-registered with an invalid protocol ID");
     prefs_deregister_module (protocols_module,
                              proto_get_protocol_filter_name(id),
                              proto_get_protocol_short_name(protocol));
@@ -698,7 +700,7 @@ prefs_register_protocol_subtree(const char *subtree, int id, void (*apply_cb)(vo
 
     protocol = find_protocol_by_id(id);
     if (protocol == NULL)
-        g_error("Protocol subtree being registered with an invalid protocol ID");
+        ws_error("Protocol subtree being registered with an invalid protocol ID");
     return prefs_register_module(subtree_module,
                                  proto_get_protocol_filter_name(id),
                                  proto_get_protocol_short_name(protocol),
@@ -729,7 +731,7 @@ prefs_register_protocol_obsolete(int id)
     }
     protocol = find_protocol_by_id(id);
     if (protocol == NULL)
-        g_error("Protocol being registered with an invalid protocol ID");
+        ws_error("Protocol being registered with an invalid protocol ID");
     module = prefs_register_module(protocols_module,
                                    proto_get_protocol_filter_name(id),
                                    proto_get_protocol_short_name(protocol),
@@ -1005,7 +1007,7 @@ register_preference(module_t *module, const char *name, const char *title,
      */
     for (p = name; *p != '\0'; p++)
         if (!(g_ascii_islower(*p) || g_ascii_isdigit(*p) || *p == '_' || *p == '.'))
-            g_error("Preference \"%s.%s\" contains invalid characters", module->name, name);
+            ws_error("Preference \"%s.%s\" contains invalid characters", module->name, name);
 
     /*
      * Make sure there's not already a preference with that
@@ -1014,7 +1016,7 @@ register_preference(module_t *module, const char *name, const char *title,
      * more than one preference with the same name.
      */
     if (prefs_find_preference(module, name) != NULL)
-        g_error("Preference %s has already been registered", name);
+        ws_error("Preference %s has already been registered", name);
 
     if ((!IS_PREF_OBSOLETE(type)) &&
         /* Don't compare if it's a subtree */
@@ -1025,30 +1027,30 @@ register_preference(module_t *module, const char *name, const char *title,
          */
         if (!((strncmp(name, module->name, strlen(module->name)) != 0) ||
             (((name[strlen(module->name)]) != '.') && ((name[strlen(module->name)]) != '_'))))
-            g_error("Preference %s begins with the module name", name);
+            ws_error("Preference %s begins with the module name", name);
     }
 
     /* The title shows up in the preferences dialog. Make sure it's UI-friendly. */
     if (preference->title) {
         const char *cur_char;
         if (preference->type != PREF_STATIC_TEXT && g_utf8_strlen(preference->title, -1) > 80) { // Arbitrary.
-            g_error("Title for preference %s.%s is too long: %s", name_prefix, preference->name, preference->title);
+            ws_error("Title for preference %s.%s is too long: %s", name_prefix, preference->name, preference->title);
         }
 
         if (!g_utf8_validate(preference->title, -1, NULL)) {
-            g_error("Title for preference %s.%s isn't valid UTF-8.", name_prefix, preference->name);
+            ws_error("Title for preference %s.%s isn't valid UTF-8.", name_prefix, preference->name);
         }
 
         for (cur_char = preference->title; *cur_char; cur_char = g_utf8_next_char(cur_char)) {
             if (!g_unichar_isprint(g_utf8_get_char(cur_char))) {
-                g_error("Title for preference %s.%s isn't printable UTF-8.", name_prefix, preference->name);
+                ws_error("Title for preference %s.%s isn't printable UTF-8.", name_prefix, preference->name);
             }
         }
     }
 
     if (preference->description) {
         if (!g_utf8_validate(preference->description, -1, NULL)) {
-            g_error("Description for preference %s.%s isn't valid UTF-8.", name_prefix, preference->name);
+            ws_error("Description for preference %s.%s isn't valid UTF-8.", name_prefix, preference->name);
         }
     }
 
@@ -4521,7 +4523,7 @@ read_prefs_file(const char *pf_path, FILE *pf,
                                  * If the pref has a trailing comma, eliminate it.
                                  */
                                 cur_val->str[cur_val->len-1] = '\0';
-                                g_warning ("%s line %d: trailing comma in \"%s\" %s", pf_path, pline, cur_var->str, hint);
+                                ws_warning("%s line %d: trailing comma in \"%s\" %s", pf_path, pline, cur_var->str, hint);
                             }
                         }
                         /* Call the routine to set the preference; it will parse
@@ -4537,12 +4539,12 @@ read_prefs_file(const char *pf_path, FILE *pf,
                             break;
 
                         case PREFS_SET_SYNTAX_ERR:
-                            g_warning ("Syntax error in preference \"%s\" at line %d of\n%s %s",
+                            ws_warning("Syntax error in preference \"%s\" at line %d of\n%s %s",
                                        cur_var->str, pline, pf_path, hint);
                             break;
 
                         case PREFS_SET_NO_SUCH_PREF:
-                            g_warning ("No such preference \"%s\" at line %d of\n%s %s",
+                            ws_warning("No such preference \"%s\" at line %d of\n%s %s",
                                        cur_var->str, pline, pf_path, hint);
                             prefs.unknown_prefs = TRUE;
                             break;
@@ -4559,13 +4561,13 @@ read_prefs_file(const char *pf_path, FILE *pf,
                              * in the console window so that the
                              * user can make an informed choice.
                              */
-                            g_warning ("Obsolete preference \"%s\" at line %d of\n%s %s",
+                            ws_warning("Obsolete preference \"%s\" at line %d of\n%s %s",
                                        cur_var->str, pline, pf_path, hint);
                             prefs.unknown_prefs = TRUE;
                             break;
                         }
                     } else {
-                        g_warning ("Incomplete preference at line %d: of\n%s %s", pline, pf_path, hint);
+                        ws_warning("Incomplete preference at line %d: of\n%s %s", pline, pf_path, hint);
                     }
                 }
                 state      = IN_VAR;
@@ -4578,7 +4580,7 @@ read_prefs_file(const char *pf_path, FILE *pf,
             } else if (got_c == '#') {
                 state = IN_SKIP;
             } else {
-                g_warning ("Malformed preference at line %d of\n%s %s", fline, pf_path, hint);
+                ws_warning("Malformed preference at line %d of\n%s %s", fline, pf_path, hint);
             }
             break;
         case IN_VAR:
@@ -4623,12 +4625,12 @@ read_prefs_file(const char *pf_path, FILE *pf,
                 break;
 
             case PREFS_SET_SYNTAX_ERR:
-                g_warning ("Syntax error in preference %s at line %d of\n%s %s",
+                ws_warning("Syntax error in preference %s at line %d of\n%s %s",
                            cur_var->str, pline, pf_path, hint);
                 break;
 
             case PREFS_SET_NO_SUCH_PREF:
-                g_warning ("No such preference \"%s\" at line %d of\n%s %s",
+                ws_warning("No such preference \"%s\" at line %d of\n%s %s",
                            cur_var->str, pline, pf_path, hint);
                 prefs.unknown_prefs = TRUE;
                 break;
@@ -4638,7 +4640,7 @@ read_prefs_file(const char *pf_path, FILE *pf,
                 break;
             }
         } else {
-            g_warning("Incomplete preference at line %d of\n%s %s",
+            ws_warning("Incomplete preference at line %d of\n%s %s",
                        pline, pf_path, hint);
         }
     }
@@ -5291,16 +5293,16 @@ deprecated_port_pref(gchar *pref_name, const gchar *value)
         for (i = 0; i < G_N_ELEMENTS(port_prefs); i++) {
             module = prefs_find_module(port_prefs[i].module_name);
             if (!module) {
-                g_warning("Deprecated ports pref check - module '%s' not found", port_prefs[i].module_name);
+                ws_warning("Deprecated ports pref check - module '%s' not found", port_prefs[i].module_name);
                 continue;
             }
             pref = prefs_find_preference(module, port_prefs[i].table_name);
             if (!pref) {
-                g_warning("Deprecated ports pref '%s.%s' not found", module->name, port_prefs[i].table_name);
+                ws_warning("Deprecated ports pref '%s.%s' not found", module->name, port_prefs[i].table_name);
                 continue;
             }
             if (pref->type != PREF_DECODE_AS_UINT && pref->type != PREF_DECODE_AS_RANGE) {
-                g_warning("Deprecated ports pref '%s.%s' has wrong type: %#x (%s)", module->name, port_prefs[i].table_name, pref->type, prefs_pref_type_name(pref));
+                ws_warning("Deprecated ports pref '%s.%s' has wrong type: %#x (%s)", module->name, port_prefs[i].table_name, pref->type, prefs_pref_type_name(pref));
             }
         }
     }
@@ -5358,7 +5360,7 @@ deprecated_port_pref(gchar *pref_name, const gchar *value)
                     break;
 
                 default:
-                    g_error("The dissector table %s (%s) is not an integer type - are you using a buggy plugin?", port_range_prefs[i].table_name, get_dissector_table_ui_name(port_range_prefs[i].table_name));
+                    ws_error("The dissector table %s (%s) is not an integer type - are you using a buggy plugin?", port_range_prefs[i].table_name, get_dissector_table_ui_name(port_range_prefs[i].table_name));
                     g_assert_not_reached();
                 }
 
@@ -5568,7 +5570,7 @@ set_pref(gchar *pref_name, const gchar *value, void *private_data _U_,
                         }
                     }
                     if (module) {
-                        g_warning ("Preference \"%s.%s\" has been converted to \"%s.%s\"\n"
+                        ws_warning("Preference \"%s.%s\" has been converted to \"%s.%s\"\n"
                                    "Save your preferences to make this change permanent.",
                                    pref_name, dotp+1, module->name, dotp+1);
                         prefs.unknown_prefs = TRUE;
@@ -6671,7 +6673,7 @@ write_prefs(char **pf_path_return)
             char *err = NULL;
             prefs.filter_expressions_old = FALSE;
             if (!uat_save(uat_get_table_by_name("Display expressions"), &err)) {
-                g_warning("Unable to save Display expressions: %s", err);
+                ws_warning("Unable to save Display expressions: %s", err);
                 g_free(err);
             }
         }

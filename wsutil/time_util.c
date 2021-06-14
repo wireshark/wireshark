@@ -9,10 +9,12 @@
 
 
 #include "config.h"
+#define WS_LOG_DOMAIN LOG_DOMAIN_WSUTIL
 
 #include <glib.h>
 
 #include <wsutil/epochs.h>
+#include <wsutil/wslog.h>
 
 #include "time_util.h"
 
@@ -148,7 +150,7 @@ void log_resource_usage(gboolean reset_delta, const char *format, ...) {
 	g_string_append_vprintf(log_str, format, ap);
 	va_end(ap);
 
-	g_warning("%s", log_str->str);
+	ws_warning("%s", log_str->str);
 	g_string_free(log_str, TRUE);
 
 }

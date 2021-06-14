@@ -10,6 +10,7 @@
  */
 
 #include "config.h"
+#define WS_LOG_DOMAIN LOG_DOMAIN_EPAN
 
 #include <stdio.h>
 #include <string.h>
@@ -24,6 +25,7 @@
 #include "disabled_protos.h"
 #include <wsutil/file_util.h>
 #include <wsutil/report_message.h>
+#include <wsutil/wslog.h>
 
 #define ENABLED_PROTOCOLS_FILE_NAME     "enabled_protos"
 #define DISABLED_PROTOCOLS_FILE_NAME    "disabled_protos"
@@ -320,7 +322,7 @@ read_protos_list_file(const char *ff_path, FILE *ff, GList **flp)
       if (c != EOF && c != '\n' && c != '#') {
         /* Non-white-space after the protocol name; warn about it,
            in case we come up with a reason to use it. */
-        g_warning("'%s' line %d has extra stuff after the protocol name.",
+        ws_warning("'%s' line %d has extra stuff after the protocol name.",
                   ff_path, line);
       }
     }
@@ -335,7 +337,7 @@ read_protos_list_file(const char *ff_path, FILE *ff, GList **flp)
         goto error;     /* I/O error */
       else {
         /* EOF, not error; no newline seen before EOF */
-        g_warning("'%s' line %d doesn't have a newline.", ff_path,
+        ws_warning("'%s' line %d doesn't have a newline.", ff_path,
                   line);
       }
       break;    /* nothing more to read */
@@ -641,7 +643,7 @@ read_heur_dissector_list_file(const char *ff_path, FILE *ff, GList **flp)
       if (c != EOF && c != '\n' && c != '#') {
         /* Non-white-space after the protocol name; warn about it,
            in case we come up with a reason to use it. */
-        g_warning("'%s' line %d has extra stuff after the protocol name.",
+        ws_warning("'%s' line %d has extra stuff after the protocol name.",
                   ff_path, line);
       }
     }
@@ -656,7 +658,7 @@ read_heur_dissector_list_file(const char *ff_path, FILE *ff, GList **flp)
         goto error;     /* I/O error */
       else {
         /* EOF, not error; no newline seen before EOF */
-        g_warning("'%s' line %d doesn't have a newline.", ff_path,
+        ws_warning("'%s' line %d doesn't have a newline.", ff_path,
                   line);
       }
       break;    /* nothing more to read */
