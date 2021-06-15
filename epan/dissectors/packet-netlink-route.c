@@ -51,8 +51,19 @@ void proto_reg_handoff_netlink_route(void);
  * length that's a multiple of 4 bytes.  Therefore, there are 3 bytes of
  * padding following the address family byte.
  *
- * The message length, however, doesn't include those bytes, so we don't
- * dissect them.
+ * The message length, however, doesn't include those bytes.
+ *
+ * Legacy messages don't include any attributes - they're not large enough
+ * to contain anything other than the netlink message header and the one-byte
+ * address family.  For legacy messages, the attribute we hand to
+ * dissect_netlink_route_attributes() is not aligned on a 4-byte boundary,
+ * as it's the offset right after the 1-byte address family value;
+ * dissect_netlink_route_attributes() will try to align that on a 4-byte
+ * boundary, but that will go past the "immediately after the end of
+ * the packet" offset, which can cause problems if any checking is done
+ * to make sure the offset is valid.  Therefore, we don't try to dissect
+ * the attributes, rather than relying on the attributes dissector to
+ * discover that there's nothing left in the packet.
  */
 struct netlink_route_info {
 	packet_info *pinfo;
@@ -1481,8 +1492,15 @@ dissect_netlink_route(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 			 */
 			info.legacy = (nl_data->type == WS_RTM_GETADDR) && (tvb_reported_length_remaining(tvb, offset) < 8);
 			offset = dissect_netlink_route_ifaddrmsg(tvb, &info, nl_data, nlmsg_tree, offset);
-			/* Optional attributes */
-			offset = dissect_netlink_route_attributes(tvb, &hfi_netlink_route_ifa_attr_type, &info, nl_data, nlmsg_tree, offset, dissect_netlink_route_ifa_attrs);
+			if (!info.legacy) {
+				/*
+				 * Optional attributes.
+				 *
+				 * Not present in legacy-tool messages;
+				 * again, see the comment above.
+				 */
+				offset = dissect_netlink_route_attributes(tvb, &hfi_netlink_route_ifa_attr_type, &info, nl_data, nlmsg_tree, offset, dissect_netlink_route_ifa_attrs);
+			}
 			break;
 
 		case WS_RTM_NEWROUTE:
@@ -1498,7 +1516,15 @@ dissect_netlink_route(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 			info.legacy = (nl_data->type == WS_RTM_GETROUTE) && (tvb_reported_length_remaining(tvb, offset) < 12);
 			offset = dissect_netlink_route_rtmsg(tvb, &info, nl_data, nlmsg_tree, offset);
 			/* Optional attributes */
-			offset = dissect_netlink_route_attributes(tvb, &hfi_netlink_route_rta_attr_type, &info, nl_data, nlmsg_tree, offset, dissect_netlink_route_route_attrs);
+			if (!info.legacy) {
+				/*
+				 * Optional attributes.
+				 *
+				 * Not present in legacy-tool messages;
+				 * again, see the comment above.
+				 */
+				offset = dissect_netlink_route_attributes(tvb, &hfi_netlink_route_rta_attr_type, &info, nl_data, nlmsg_tree, offset, dissect_netlink_route_route_attrs);
+			}
 			break;
 
 		case WS_RTM_NEWNEIGH:
@@ -1512,7 +1538,15 @@ dissect_netlink_route(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 			 * structure, above.
 			 */
 			info.legacy = (nl_data->type == WS_RTM_GETNEIGH) && (tvb_reported_length_remaining(tvb, offset) < 12);
-			offset = dissect_netlink_route_ndmsg(tvb, &info, nl_data, nlmsg_tree, offset);
+			if (!info.legacy) {
+				/*
+				 * Optional attributes.
+				 *
+				 * Not present in legacy-tool messages;
+				 * again, see the comment above.
+				 */
+				offset = dissect_netlink_route_ndmsg(tvb, &info, nl_data, nlmsg_tree, offset);
+			}
 			break;
 	}
 
