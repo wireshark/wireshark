@@ -8677,6 +8677,16 @@ dissect_nas_5gs_media_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         str = json_get_string(json_data, cur_tok, "contentId");
     } else {
         cur_tok = json_get_object(json_data, tokens, "n1SmMsg");
+        /* TS 29.502 ch6.1.6.4.4 n1SmInfoFromUe, n1SmInfoToUe, unknownN1SmInfo */
+        if (!cur_tok) {
+            cur_tok = json_get_object(json_data, tokens, "n1SmInfoFromUe");
+        }
+        if (!cur_tok) {
+            cur_tok = json_get_object(json_data, tokens, "n1SmInfoToUe");
+        }
+        if (!cur_tok) {
+            cur_tok = json_get_object(json_data, tokens, "unknownN1SmInfo");
+        }
         if (cur_tok) {
             n1_msg_class = "SM";
             str = json_get_string(json_data, cur_tok, "contentId");
