@@ -15,6 +15,7 @@
 
 #include <epan/packet.h>
 #include <epan/arptypes.h>
+#include <epan/exceptions.h>
 #include <wiretap/wtap.h>
 
 #include "packet-netlink.h"
@@ -240,21 +241,30 @@ dissect_netlink_attributes_common(tvbuff_t *tvb, header_field_info *hfi_type, in
 {
 	int encoding;
 	int padding = (4 - offset) & 3;
+	guint data_length;
 
 	DISSECTOR_ASSERT(nl_data);
 
 	encoding = nl_data->encoding;
 
+	/*
+	 * A "negative" length is really a very large positive
+	 * length, which we presume to go past the end of the
+	 * packet.
+	 */
+	if (length < 0)
+		THROW(ReportedBoundsError);
+
 	/* align to 4 */
 	offset += padding;
-	if (length == -1) {
-		length = tvb_captured_length_remaining(tvb, offset);
-	} else {
-		length -= padding;
-	}
+	if (length < padding)
+		THROW(ReportedBoundsError);
+	length -= padding;
 
-	while (length >= 4) {
-		guint16 rta_len, rta_type, type;
+	data_length = length;
+
+	while (data_length >= 4) {
+		guint rta_len, rta_type, type;
 
 		proto_item *ti, *type_item;
 		proto_tree *attr_tree, *type_tree;
@@ -265,8 +275,8 @@ dissect_netlink_attributes_common(tvbuff_t *tvb, header_field_info *hfi_type, in
 			break;
 		}
 
-		/* XXX expert info when rta_len < length? */
-		rta_len = MIN(rta_len, length);
+		/* XXX expert info when rta_len < data_length? */
+		rta_len = MIN(rta_len, data_length);
 
 		attr_tree = proto_tree_add_subtree(tree, tvb, offset, rta_len, ett_tree, &ti, "Attribute");
 
@@ -338,9 +348,11 @@ dissect_netlink_attributes_common(tvbuff_t *tvb, header_field_info *hfi_type, in
 		}
 
 		/* Assume offset already aligned, next offset is rta_len plus alignment. */
-		rta_len = MIN((rta_len + 3) & ~3, length);
+		rta_len = MIN((rta_len + 3) & ~3, data_length);
 		offset += rta_len - 4;  /* Header was already skipped */
-		length -= rta_len;
+		if (data_length < rta_len)
+			THROW(ReportedBoundsError);
+		data_length -= rta_len;
 	}
 
 	return offset;
@@ -350,6 +362,12 @@ int
 dissect_netlink_attributes(tvbuff_t *tvb, header_field_info *hfi_type, int ett, void *data, struct packet_netlink_data *nl_data, proto_tree *tree, int offset, int length, netlink_attributes_cb_t cb)
 {
 	return dissect_netlink_attributes_common(tvb, hfi_type, ett, -1, data, nl_data, tree, offset, length, cb);
+}
+
+int
+dissect_netlink_attributes_to_end(tvbuff_t *tvb, header_field_info *hfi_type, int ett, void *data, struct packet_netlink_data *nl_data, proto_tree *tree, int offset, netlink_attributes_cb_t cb)
+{
+	return dissect_netlink_attributes_common(tvb, hfi_type, ett, -1, data, nl_data, tree, offset, tvb_ensure_reported_length_remaining(tvb, offset), cb);
 }
 
 int

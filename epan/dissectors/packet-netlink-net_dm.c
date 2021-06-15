@@ -433,7 +433,7 @@ dissect_netlink_net_dm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 	info.pinfo = pinfo;
 	info.protocol = 0;
 
-	offset = dissect_netlink_attributes(tvb, &hfi_net_dm_attrs, ett_net_dm_attrs, &info, genl_info->nl_data, nlmsg_tree, offset, -1, dissect_net_dm_attrs);
+	offset = dissect_netlink_attributes_to_end(tvb, &hfi_net_dm_attrs, ett_net_dm_attrs, &info, genl_info->nl_data, nlmsg_tree, offset, dissect_net_dm_attrs);
 
 	return offset;
 }

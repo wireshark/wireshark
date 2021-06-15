@@ -363,7 +363,7 @@ dissect_genl_ctrl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, v
 	if (!tvb_reported_length_remaining(tvb, offset))
 	    return offset;
 
-	dissect_netlink_attributes(tvb, &hfi_genl_ctrl_attr, ett_genl_ctrl_attr, &info, genl_info->nl_data, genl_info->genl_tree, offset, -1, dissect_genl_ctrl_attrs);
+	dissect_netlink_attributes_to_end(tvb, &hfi_genl_ctrl_attr, ett_genl_ctrl_attr, &info, genl_info->nl_data, genl_info->genl_tree, offset, dissect_genl_ctrl_attrs);
 
 	/*
 	 * Remember association of dynamic ID with the family name such that

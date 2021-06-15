@@ -829,8 +829,8 @@ static int
 dissect_netfilter_ct(tvbuff_t *tvb, netlink_netfilter_info_t *info, struct packet_netlink_data *nl_data, proto_tree *tree, int offset)
 {
 	offset = dissect_netlink_netfilter_header(tvb, tree, offset);
-	return dissect_netlink_attributes(tvb, &hfi_nfct_attr, ett_nfct_attr, info, nl_data,
-					  tree, offset, -1, dissect_nfct_attrs);
+	return dissect_netlink_attributes_to_end(tvb, &hfi_nfct_attr, ett_nfct_attr, info, nl_data,
+						 tree, offset, dissect_nfct_attrs);
 }
 
 /* EXP */
@@ -1010,8 +1010,8 @@ dissect_netfilter_exp(tvbuff_t *tvb, netlink_netfilter_info_t *info, struct pack
 	//enum ws_ctnl_exp_msg_types type = (enum ws_ctnl_exp_msg_types) (info->data->type & 0xff);
 
 	offset = dissect_netlink_netfilter_header(tvb, tree, offset);
-	return dissect_netlink_attributes(tvb, &hfi_nfexp_attr, ett_nfexp_attr, info, nl_data,
-					  tree, offset, -1, dissect_nfexp_attrs);
+	return dissect_netlink_attributes_to_end(tvb, &hfi_nfexp_attr, ett_nfexp_attr, info, nl_data,
+						 tree, offset, dissect_nfexp_attrs);
 }
 
 /* QUEUE */
@@ -1442,11 +1442,11 @@ dissect_netfilter_queue(tvbuff_t *tvb, netlink_netfilter_info_t *info, struct pa
 
 	switch (type) {
 		case WS_NFQNL_MSG_CONFIG:
-			return dissect_netlink_attributes(tvb, &hfi_nfq_config_attr, ett_nfq_config_attr, info, nl_data, tree, offset, -1, dissect_nfq_config_attrs);
+			return dissect_netlink_attributes_to_end(tvb, &hfi_nfq_config_attr, ett_nfq_config_attr, info, nl_data, tree, offset, dissect_nfq_config_attrs);
 
 		case WS_NFQNL_MSG_PACKET:
 		case WS_NFQNL_MSG_VERDICT:
-			return dissect_netlink_attributes(tvb, &hfi_nfq_attr, ett_nfq_attr, info, nl_data, tree, offset, -1, dissect_nfq_attrs);
+			return dissect_netlink_attributes_to_end(tvb, &hfi_nfq_attr, ett_nfq_attr, info, nl_data, tree, offset, dissect_nfq_attrs);
 
 		case WS_NFQNL_MSG_VERDICT_BATCH:
 			/* TODO */
@@ -1826,7 +1826,7 @@ static int
 dissect_netfilter_ipset(tvbuff_t *tvb, netlink_netfilter_info_t *info, struct packet_netlink_data *nl_data, proto_tree *tree, int offset)
 {
 	offset = dissect_netlink_netfilter_header(tvb, tree, offset);
-	return dissect_netlink_attributes(tvb, &hfi_ipset_attr, ett_ipset_attr, info, nl_data, tree, offset, -1, dissect_ipset_attrs);
+	return dissect_netlink_attributes_to_end(tvb, &hfi_ipset_attr, ett_ipset_attr, info, nl_data, tree, offset, dissect_ipset_attrs);
 }
 
 

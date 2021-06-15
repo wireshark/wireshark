@@ -271,7 +271,7 @@ dissect_netlink_psample(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	info.pinfo = pinfo;
 	info.protocol = 0;
 
-	offset = dissect_netlink_attributes(tvb, &hfi_psample_attrs, ett_psample_attrs, &info, genl_info->nl_data, nlmsg_tree, offset, -1, dissect_psample_attrs);
+	offset = dissect_netlink_attributes_to_end(tvb, &hfi_psample_attrs, ett_psample_attrs, &info, genl_info->nl_data, nlmsg_tree, offset, dissect_psample_attrs);
 
 	return offset;
 }

@@ -111,6 +111,8 @@ typedef int netlink_attributes_cb_t(tvbuff_t *tvb, void *data, struct packet_net
 
 int dissect_netlink_attributes(tvbuff_t *tvb, header_field_info *hfi_type, int ett, void *data, struct packet_netlink_data *nl_data,  proto_tree *tree, int offset, int length, netlink_attributes_cb_t cb);
 
+int dissect_netlink_attributes_to_end(tvbuff_t *tvb, header_field_info *hfi_type, int ett, void *data, struct packet_netlink_data *nl_data, proto_tree *tree, int offset, netlink_attributes_cb_t cb);
+
 /*
  * Similar to dissect_netlink_attributes, but used to parse nested attributes
  * that model an array of attributes. The first level (tree ett_array) contains
