@@ -20,7 +20,6 @@
 #include <ws_attributes.h>
 
 #include <wsutil/ws_assert.h>
-#include <wsutil/time_util.h>
 #include <wsutil/file_util.h>
 
 #define PREFIX_BUFSIZE  128
@@ -315,31 +314,6 @@ void ws_log_init_with_data(ws_log_writer_cb *writer, void *user_data,
 }
 
 
-#define TIMESTAMP_BUFSIZE   sizeof("HH:MM:SS.mmm")
-
-static void create_log_time(char *buf, size_t bufsize)
-{
-    time_t curr;
-    struct tm *today;
-    guint64 microseconds;
-
-    ws_assert(buf && bufsize >= TIMESTAMP_BUFSIZE);
-
-    time(&curr);
-    today = localtime(&curr);
-    microseconds = create_timestamp();
-
-    if (G_UNLIKELY(today == NULL)) {
-        *buf = '\0';
-        return;
-    }
-
-    snprintf(buf, bufsize, "%02d:%02d:%02d.%03" G_GUINT64_FORMAT,
-                today->tm_hour, today->tm_min, today->tm_sec,
-                microseconds % 1000000 / 1000);
-}
-
-
 static void log_write_do_work(FILE *fp, gboolean use_color, const char *timestamp,
                                 const char *domain,  enum ws_log_level level,
                                 const char *file, int line, const char *func,
@@ -355,7 +329,8 @@ static void log_write_do_work(FILE *fp, gboolean use_color, const char *timestam
         fprintf(fp, " ** ");
 #endif
 
-    fputs(timestamp, fp);
+    if (timestamp)
+        fputs(timestamp, fp);
 
     const char *level_str = ws_log_level_to_string(level);
 
@@ -391,9 +366,14 @@ static void log_write_dispatch(const char *domain, enum ws_log_level level,
                             const char *file, int line, const char *func,
                             const char *user_format, va_list user_ap)
 {
-    char tstamp[TIMESTAMP_BUFSIZE];
+    GDateTime *now;
+    char *tstamp = NULL;
 
-    create_log_time(tstamp, sizeof(tstamp));
+    now = g_date_time_new_now_local();
+    if (now) {
+        tstamp = g_date_time_format(now, "%H:%M:%S.%f");
+        g_date_time_unref(now);
+    }
 
     if (registered_log_writer) {
         registered_log_writer(domain, level, tstamp, file, line, func,
@@ -408,6 +388,8 @@ static void log_write_dispatch(const char *domain, enum ws_log_level level,
         log_write_do_work(custom_log, FALSE, tstamp, domain, level, file, line, func,
                         user_format, user_ap);
     }
+
+    g_free(tstamp);
 
     if (level == LOG_LEVEL_ERROR) {
         G_BREAKPOINT();
