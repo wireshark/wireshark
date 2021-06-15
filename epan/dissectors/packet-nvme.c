@@ -2025,6 +2025,7 @@ static void dissect_nvme_get_logpage_ify_resp(proto_item *ti, tvbuff_t *cmd_tvb,
     guint roff;
     guint max_bytes;
     guint64 rcrd;
+    guint64 recnum = 0;
 
     grp =  proto_item_add_subtree(ti, ett_data);
 
@@ -2033,7 +2034,7 @@ static void dissect_nvme_get_logpage_ify_resp(proto_item *ti, tvbuff_t *cmd_tvb,
 
     /* guint casts are to silence clang-11 compile errors */
     if (off <= 8 && (16 - (guint)off) <= len)
-        proto_tree_add_item(grp, hf_nvme_get_logpage_ify_numrec, cmd_tvb, (guint)(8-off), 8, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item_ret_uint64(grp, hf_nvme_get_logpage_ify_numrec, cmd_tvb, (guint)(8-off), 8, ENC_LITTLE_ENDIAN, &recnum);
 
     if (off <= 16 && (18 - (guint)off) <= len)
         proto_tree_add_item(grp, hf_nvme_get_logpage_ify_recfmt, cmd_tvb, (guint)(16-off), 2, ENC_LITTLE_ENDIAN);
@@ -2060,13 +2061,18 @@ static void dissect_nvme_get_logpage_ify_resp(proto_item *ti, tvbuff_t *cmd_tvb,
     poff += max_bytes;
     len -= max_bytes;
     rcrd++;
+    if (!recnum)
+        recnum = (len  + 1023) / 1024;
+    else
+        recnum--;
 
-    while (len) {
+    while (len && recnum) {
         max_bytes = (len >= 1024) ? 1024 : len;
         dissect_nvme_get_logpage_ify_rcrd_resp(cmd_tvb, grp, rcrd, 0, poff, len);
         poff += max_bytes;
         len -= max_bytes;
         rcrd++;
+        recnum--;
     }
 }
 
