@@ -201,6 +201,8 @@ print_usage(FILE *output)
     fprintf(output, "                           (%%D - name, %%S - stringval, %%N numval)\n");
     fprintf(output, "  -t ad|a|r|d|dd|e         output format of time stamps (def: r: rel. to first)\n");
 
+    ws_log_print_usage(output);
+
     fprintf(output, "\n");
     fprintf(output, "Miscellaneous:\n");
     fprintf(output, "  -h                       display this help and exit\n");

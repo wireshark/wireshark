@@ -682,3 +682,15 @@ void ws_log_add_custom_file(FILE *fp)
         }
         custom_log = fp;
 }
+
+
+void ws_log_print_usage(FILE *fp)
+{
+    fprintf(fp, "Diagnostic output:\n");
+    fprintf(fp, "  --log-level <level>      one of \"critical\", \"warning\", \"message\","
+                                            "\"info\", \"debug\" or \"noisy\"\n");
+    fprintf(fp, "  --log-domains <list>     comma separated list of the active log domains\n");
+    fprintf(fp, "  --log-file <file>        path of file to output messages to (in addition to stderr)\n");
+    fprintf(fp, "  --log-debug <list>       comma separated list of domains with \"debug\" level\n");
+    fprintf(fp, "  --log-noisy <list>       comma separated list of domains with \"noisy\" level\n");
+}

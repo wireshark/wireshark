@@ -175,6 +175,8 @@ commandline_print_usage(gboolean for_help_option) {
     fprintf(output, "  --capture-comment <comment>\n");
     fprintf(output, "                           set the capture file comment, if supported\n");
 
+    ws_log_print_usage(output);
+
     fprintf(output, "\n");
     fprintf(output, "Miscellaneous:\n");
     fprintf(output, "  -h, --help               display this help and exit\n");

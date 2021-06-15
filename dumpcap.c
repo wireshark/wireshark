@@ -443,6 +443,9 @@ print_usage(FILE *output)
     fprintf(output, "                           add a capture comment to the output file\n");
     fprintf(output, "                           (only for pcapng)\n");
     fprintf(output, "\n");
+
+    ws_log_print_usage(output);
+
     fprintf(output, "Miscellaneous:\n");
     fprintf(output, "  -N <packet_limit>        maximum number of packets buffered within dumpcap\n");
     fprintf(output, "  -C <byte_limit>          maximum number of bytes used for buffering packets\n");

@@ -296,11 +296,12 @@ You can debug using command-line debuggers such as gdb, dbx, or lldb.
 If you prefer a graphic debugger, you can use an IDE or debugging frontend
 such as Qt Creator, CLion, or Eclipse.
 
-Additional traps can be set on GLib by setting the `G_DEBUG` environment variable:
+Additional traps can be set on Wireshark by setting the `WIRESHARK_LOG_FATAL`
+environment variable:
 
 [source,sh]
 ----
-$ G_DEBUG=fatal_criticals gdb wireshark
+$ WIRESHARK_LOG_FATAL=critical gdb wireshark
 ----
 
 If you're encountering memory safety bugs, you might want to build with

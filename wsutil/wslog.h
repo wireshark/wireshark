@@ -16,6 +16,7 @@
 #include <stdarg.h>
 
 #ifndef WS_LOG_DOMAIN
+/* Should this be an error instead? */
 #define WS_LOG_DOMAIN LOG_DOMAIN_DEFAULT
 #endif
 
@@ -263,6 +264,10 @@ void ws_logv_full(const char *domain, enum ws_log_level level,
  */
 WS_DLL_PUBLIC
 void ws_log_add_custom_file(FILE *fp);
+
+
+WS_DLL_PUBLIC
+void ws_log_print_usage(FILE *fp);
 
 #ifdef __cplusplus
 }

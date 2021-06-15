@@ -479,6 +479,8 @@ print_usage(FILE *output)
   fprintf(output, "  --elastic-mapping-filter <protocols> If -G elastic-mapping is specified, put only the\n");
   fprintf(output, "                           specified protocols within the mapping file\n");
 
+  ws_log_print_usage(output);
+
   fprintf(output, "\n");
   fprintf(output, "Miscellaneous:\n");
   fprintf(output, "  -h, --help               display this help and exit\n");
