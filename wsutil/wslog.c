@@ -38,7 +38,12 @@ static gboolean color_enabled = FALSE;
 
 static const char *registered_appname = NULL;
 
+/* List of domains to filter. */
 static GPtrArray *domain_filter = NULL;
+
+/* True if active domains should match, false if actice domains should not
+ * match. */
+static gboolean domain_filter_positive = TRUE;
 
 static ws_log_writer_cb *registered_log_writer = NULL;
 
@@ -93,11 +98,11 @@ gboolean ws_log_domain_is_active(const char *domain)
 
     for (guint i = 0; i < domain_filter->len; i++) {
         if (g_ascii_strcasecmp(domain_filter->pdata[i], domain) == 0) {
-            return TRUE;
+            return domain_filter_positive;
         }
     }
 
-    return FALSE;
+    return !domain_filter_positive;
 }
 
 
@@ -261,20 +266,28 @@ void ws_log_set_domain_filter_str(const char *str_filter)
 {
     char *tok;
     const char *sep = ",;";
-    char *str;
+    char *list, *str;
 
     if (domain_filter != NULL)
         g_ptr_array_free(domain_filter, TRUE);
 
     domain_filter = g_ptr_array_new_with_free_func(g_free);
 
-    str = g_strdup(str_filter);
+    list = str = g_strdup(str_filter);
+
+    if (str[0] == '!') {
+        domain_filter_positive = FALSE;
+        str += 1;
+    }
+    else {
+        domain_filter_positive = TRUE;
+    }
 
     for (tok = strtok(str, sep); tok != NULL; tok = strtok(NULL, sep)) {
         g_ptr_array_add(domain_filter, g_strdup(tok));
     }
 
-    g_free(str);
+    g_free(list);
 }
 
 

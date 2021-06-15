@@ -105,6 +105,8 @@ enum ws_log_level ws_log_set_level_str(const char *str_level);
  *
  * Domain filter is a case insensitive list separated by ',' or ';'. Only
  * the domains in the filter will generate output; the others will be muted.
+ * Filter expressions can be preceded by '!' to invert the sense of the match.
+ * In this case only non-matching domains will generate output.
  */
 WS_DLL_PUBLIC
 void ws_log_set_domain_filter_str(const char *domain_filter);
