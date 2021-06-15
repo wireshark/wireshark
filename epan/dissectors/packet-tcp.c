@@ -1885,7 +1885,7 @@ pdu_store_sequencenumber_of_next_pdu(packet_info *pinfo, guint32 seq, guint32 nx
     msp->last_frame_time=pinfo->abs_ts;
     msp->flags=0;
     wmem_tree_insert32(multisegment_pdus, seq, (void *)msp);
-    /*g_warning("pdu_store_sequencenumber_of_next_pdu: seq %u", seq);*/
+    /*ws_warning("pdu_store_sequencenumber_of_next_pdu: seq %u", seq);*/
     return msp;
 }
 

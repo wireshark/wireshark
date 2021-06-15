@@ -54,7 +54,7 @@
 #define DEBUG_NBAP 0
 #if DEBUG_NBAP
 #include <epan/to_str.h>
-#define nbap_debug(...) g_warning(__VA_ARGS__)
+#define nbap_debug(...) ws_warning(__VA_ARGS__)
 #else
 #define nbap_debug(...)
 #endif
@@ -25070,7 +25070,7 @@ static int
 dissect_nbap_HSDSCH_Paging_System_InformationFDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 2437 "./asn1/nbap/nbap.cnf"
   /*
-  g_warning("HS-DSCH Type 3 NOT Implemented!");
+  ws_warning("HS-DSCH Type 3 NOT Implemented!");
   */
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_nbap_HSDSCH_Paging_System_InformationFDD, HSDSCH_Paging_System_InformationFDD_sequence);

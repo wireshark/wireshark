@@ -50,6 +50,7 @@
 #include "wsutil/pint.h"
 #include "wsutil/strtoi.h"
 #include "wsutil/str_util.h"
+#include <wsutil/wslog.h>
 
 #ifdef HAVE_NGHTTP2
 #define http2_header_repr_type_VALUE_STRING_LIST(XXX)                   \
@@ -1743,7 +1744,7 @@ fix_partial_header_dissection_support(nghttp2_hd_inflater *hd_inflater, gboolean
                                              dummy_header, dummy_header_size,
                                              i == 0);
         if (rv != dummy_header_size) {
-            g_log(G_LOG_DOMAIN, G_LOG_LEVEL_WARNING,
+            ws_log(WS_LOG_DOMAIN, LOG_LEVEL_WARNING,
                   "unexpected decompression state: %d != %d", rv,
                   dummy_header_size);
             break;

@@ -46,7 +46,7 @@
 #define DEBUG_NBAP 0
 #if DEBUG_NBAP
 #include <epan/to_str.h>
-#define nbap_debug(...) g_warning(__VA_ARGS__)
+#define nbap_debug(...) ws_warning(__VA_ARGS__)
 #else
 #define nbap_debug(...)
 #endif

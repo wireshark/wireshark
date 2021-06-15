@@ -1207,7 +1207,7 @@ update_saved_invokedata(packet_info *pinfo, struct ansi_tcap_private_t *p_privat
                             wmem_strdup(wmem_file_scope(), buf),
                             ansi_map_saved_invokedata);
 
-        /*g_warning("Invoke Hash string %s pkt: %u",buf,pinfo->num);*/
+        /*ws_warning("Invoke Hash string %s pkt: %u",buf,pinfo->num);*/
     }
 }
 /* value strings */
@@ -15976,7 +15976,7 @@ find_saved_invokedata(asn1_ctx_t *actx, struct ansi_tcap_private_t *p_private_tc
             break;
     }
 
-    /*g_warning("Find Hash string %s pkt: %u",buf,actx->pinfo->num);*/
+    /*ws_warning("Find Hash string %s pkt: %u",buf,actx->pinfo->num);*/
     ansi_map_saved_invokedata = (struct ansi_map_invokedata_t *)wmem_map_lookup(TransactionId_table, buf);
     if(ansi_map_saved_invokedata){
         OperationCode = ansi_map_saved_invokedata->opcode & 0xff;

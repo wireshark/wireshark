@@ -2435,7 +2435,7 @@ int i;
 #This guy should perhaps also be impletemented, hsdsch frame type 3
 #.FN_BODY HSDSCH-Paging-System-InformationFDD
   /*
-  g_warning("HS-DSCH Type 3 NOT Implemented!");
+  ws_warning("HS-DSCH Type 3 NOT Implemented!");
   */
 %(DEFAULT_BODY)s
 

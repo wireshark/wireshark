@@ -19,7 +19,7 @@
 
 #include "config.h"
 
-#define G_LOG_DOMAIN "jxta"
+#define WS_LOG_DOMAIN "jxta"
 
 #include <epan/packet.h>
 #include <epan/conversation.h>
@@ -285,7 +285,7 @@ static gboolean dissect_jxta_UDP_heur(tvbuff_t * tvb, packet_info * pinfo, proto
     save_desegment_len = pinfo->desegment_len;
     ret = dissect_jxta_udp(tvb, pinfo, tree, NULL);
 
-    /* g_message( "%d Heuristic UDP Dissection : %d", pinfo->num, ret ); */
+    /* ws_message( "%d Heuristic UDP Dissection : %d", pinfo->num, ret ); */
 
     if (ret < 0) {
         /*
@@ -335,7 +335,7 @@ static gboolean dissect_jxta_TCP_heur(tvbuff_t * tvb, packet_info * pinfo, proto
     save_desegment_len = pinfo->desegment_len;
     ret = dissect_jxta_stream(tvb, pinfo, tree, NULL);
 
-    /* g_message( "%d Heuristic TCP Dissection : %d", pinfo->num, ret ); */
+    /* ws_message( "%d Heuristic TCP Dissection : %d", pinfo->num, ret ); */
 
     if (ret < 0) {
         /*
@@ -395,7 +395,7 @@ static gboolean dissect_jxta_SCTP_heur(tvbuff_t * tvb, packet_info * pinfo, prot
     save_desegment_len = pinfo->desegment_len;
     ret = dissect_jxta_stream(tvb, pinfo, tree, NULL);
 
-    /* g_message( "%d Heuristic SCTP Dissection : %d", pinfo->num, ret ); */
+    /* ws_message( "%d Heuristic SCTP Dissection : %d", pinfo->num, ret ); */
 
     if (ret < 0) {
         /*
@@ -495,7 +495,7 @@ static int dissect_jxta_udp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tr
     }
 
     if ((needed > 0) && gDESEGMENT && pinfo->can_desegment) {
-        /* g_message( "UDP requesting %d more bytes", needed ); */
+        /* ws_message( "UDP requesting %d more bytes", needed ); */
         pinfo->desegment_offset = 0;
         pinfo->desegment_len = needed;
         return -needed;
@@ -560,7 +560,7 @@ static int dissect_jxta_stream(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
     proto_item *jxta_tree_item = NULL;
     proto_tree *jxta_tree = NULL;
 
-    /* g_message("Dissecting%s : %d", (NULL != tree) ? " for display" : "", pinfo->num ); */
+    /* ws_message("Dissecting%s : %d", (NULL != tree) ? " for display" : "", pinfo->num ); */
 
     if (available < sizeof(JXTA_WELCOME_MSG_SIG)) {
         needed = (gint) (sizeof(JXTA_WELCOME_MSG_SIG) - available);
@@ -631,7 +631,7 @@ static int dissect_jxta_stream(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
             return 0;
         }
 
-        /* g_message("%d Tpt %s:%d -> %s:%d tvb len=%d\n\t%s %d", pinfo->num,
+        /* ws_message("%d Tpt %s:%d -> %s:%d tvb len=%d\n\t%s %d", pinfo->num,
                   address_to_str(wmem_packet_scope(), &pinfo->src), pinfo->srcport,
                   address_to_str(wmem_packet_scope(), &pinfo->dst), pinfo->destport,
                   tvb_reported_length_remaining(tvb, 0),
@@ -659,13 +659,13 @@ static int dissect_jxta_stream(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
 
             /* Use our source and destination addresses if we have them */
             if (NULL != peer_conversation) {
-                /* g_message("%d Tpt %s:%d -> %s:%d", pinfo->num,
+                /* ws_message("%d Tpt %s:%d -> %s:%d", pinfo->num,
                           address_to_str(wmem_packet_scope(), &tpt_conv_data->initiator_tpt_address), tpt_conv_data->initiator_tpt_port,
                           address_to_str(wmem_packet_scope(), &tpt_conv_data->receiver_tpt_address), tpt_conv_data->receiver_tpt_port); */
 
                 if (addresses_equal(&pinfo->src, &tpt_conv_data->initiator_tpt_address)
                     && tpt_conv_data->initiator_tpt_port == pinfo->srcport) {
-                    /* g_message("%d From initiator : %s -> %s ", pinfo->num,
+                    /* ws_message("%d From initiator : %s -> %s ", pinfo->num,
                               address_to_str(wmem_packet_scope(), &tpt_conv_data->initiator_address),
                               address_to_str(wmem_packet_scope(), &tpt_conv_data->receiver_address)); */
                     copy_address_shallow(&pinfo->src, &tpt_conv_data->initiator_address);
@@ -675,7 +675,7 @@ static int dissect_jxta_stream(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
                     pinfo->ptype = PT_NONE;
                 } else if (addresses_equal(&pinfo->src, &tpt_conv_data->receiver_tpt_address) &&
                            tpt_conv_data->receiver_tpt_port == pinfo->srcport) {
-                    /* g_message("%d From receiver : %s -> %s ", pinfo->num,
+                    /* ws_message("%d From receiver : %s -> %s ", pinfo->num,
                               address_to_str(wmem_packet_scope(), &tpt_conv_data->receiver_address),
                               address_to_str(wmem_packet_scope(), &tpt_conv_data->initiator_address)); */
                     copy_address_shallow(&pinfo->src, &tpt_conv_data->receiver_address);
@@ -684,7 +684,7 @@ static int dissect_jxta_stream(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
                     pinfo->destport = 0;
                     pinfo->ptype = PT_NONE;
                 } else {
-                    /* g_message("%d Nothing matches %s:%d -> %s:%d", pinfo->num,
+                    /* ws_message("%d Nothing matches %s:%d -> %s:%d", pinfo->num,
                               address_to_str(wmem_packet_scope(), &pinfo->src), pinfo->srcport,
                               address_to_str(wmem_packet_scope(), &pinfo->dst), pinfo->destport); */
                 }
@@ -704,7 +704,7 @@ static int dissect_jxta_stream(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
 
 Common_Exit:
     if ((needed > 0) && gDESEGMENT && pinfo->can_desegment) {
-        /* g_message( "Stream requesting %d more bytes", needed ); */
+        /* ws_message( "Stream requesting %d more bytes", needed ); */
         pinfo->desegment_offset = offset;
         pinfo->desegment_len = needed;
         return -needed;
@@ -1060,7 +1060,7 @@ static int dissect_jxta_message_framing(tvbuff_t * tvb, packet_info * pinfo, pro
     } while (TRUE);
 
     if ((needed > 0) && gDESEGMENT && pinfo->can_desegment) {
-        /* g_message( "Framing requesting %d more bytes", needed ); */
+        /* ws_message( "Framing requesting %d more bytes", needed ); */
         pinfo->desegment_offset = 0;
         pinfo->desegment_len = needed;
         return -needed;
@@ -1273,7 +1273,7 @@ static int dissect_jxta_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
                      * probably be expert info, not a g_warning. Pending confirmation
                      * just comment it out since a g_warning is definitely the
                      * wrong thing to do.
-                     * g_warning( "Failure processing message element #%d of %d of frame %d", each_elem, elem_count, pinfo->num );
+                     * ws_warning( "Failure processing message element #%d of %d of frame %d", each_elem, elem_count, pinfo->num );
                      */
                     return 0;
                 }
@@ -1294,11 +1294,11 @@ static int dissect_jxta_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
 
         complete_messages++;
 
-        /* g_message( "%d Scanned message #%d: ", pinfo->num, complete_messages ); */
+        /* ws_message( "%d Scanned message #%d: ", pinfo->num, complete_messages ); */
     }
 
     if ((needed > 0) && gDESEGMENT && pinfo->can_desegment) {
-        /* g_message("Frame %d: Message requesting %d more bytes", pinfo->num, needed); */
+        /* ws_message("Frame %d: Message requesting %d more bytes", pinfo->num, needed); */
         pinfo->desegment_offset = 0;
         pinfo->desegment_len = needed;
         return -needed;
@@ -1440,7 +1440,7 @@ static int dissect_jxta_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
     }
 
     if( tree ) {
-        /* g_message( "%d tvb offset : %d  tree offset : %d", pinfo->num, offset, tree_offset ); */
+        /* ws_message( "%d tvb offset : %d  tree offset : %d", pinfo->num, offset, tree_offset ); */
         DISSECTOR_ASSERT(tree_offset == offset);
     }
 
@@ -1605,7 +1605,7 @@ static int dissect_jxta_message_element_1(tvbuff_t * tvb, packet_info * pinfo, p
     }
 
     if ((needed > 0) && gDESEGMENT && pinfo->can_desegment) {
-        /* g_message( "Element1 requesting %d more bytes", needed ); */
+        /* ws_message( "Element1 requesting %d more bytes", needed ); */
         pinfo->desegment_offset = 0;
         pinfo->desegment_len = needed;
         return -needed;
@@ -1862,7 +1862,7 @@ static int dissect_jxta_message_element_2(tvbuff_t * tvb, packet_info * pinfo, p
     }
 
     if ((needed > 0) && gDESEGMENT && pinfo->can_desegment) {
-        /* g_message( "Element2 requesting %d more bytes", needed ); */
+        /* ws_message( "Element2 requesting %d more bytes", needed ); */
         pinfo->desegment_offset = 0;
         pinfo->desegment_len = needed;
         return -needed;
@@ -2054,7 +2054,7 @@ static int dissect_media( const gchar* fullmediatype, tvbuff_t * tvb, packet_inf
             dissected = dissector_try_string(media_type_dissector_table, mediatype, tvb, pinfo, tree, &message_info) ? tvb_captured_length(tvb) : 0;
 
             if( dissected != (int) tvb_captured_length(tvb) ) {
-                /* g_message( "%s : %d expected, %d dissected", mediatype, tvb_captured_length(tvb), dissected ); */
+                /* ws_message( "%s : %d expected, %d dissected", mediatype, tvb_captured_length(tvb), dissected ); */
             }
         }
 
@@ -2392,25 +2392,25 @@ void proto_reg_handoff_jxta(void)
 
     if( gMSG_MEDIA ) {
         if( !msg_media_register_done ) {
-            /* g_message( "Registering JXTA Message media type" ); */
+            /* ws_message( "Registering JXTA Message media type" ); */
             dissector_add_string("media_type", "application/x-jxta-msg", message_jxta_handle);
             msg_media_register_done = TRUE;
             }
     } else {
         if( msg_media_register_done ) {
-            /* g_message( "Deregistering JXTA Message media type" ); */
+            /* ws_message( "Deregistering JXTA Message media type" ); */
             dissector_delete_string("media_type", "application/x-jxta-msg", message_jxta_handle);
             msg_media_register_done = FALSE;
             }
     }
 
-    /* g_message( "Registering UDP Heuristic dissector" ); */
+    /* ws_message( "Registering UDP Heuristic dissector" ); */
     heur_dissector_add("udp", dissect_jxta_UDP_heur, "JXTA over UDP", "jxta_udp", proto_jxta, HEURISTIC_ENABLE);
 
-    /* g_message( "Registering TCP Heuristic dissector" ); */
+    /* ws_message( "Registering TCP Heuristic dissector" ); */
     heur_dissector_add("tcp", dissect_jxta_TCP_heur, "JXTA over TCP", "jxta_tcp", proto_jxta, HEURISTIC_ENABLE);
 
-    /* g_message( "Registering SCTP Heuristic dissector" ); */
+    /* ws_message( "Registering SCTP Heuristic dissector" ); */
     heur_dissector_add("sctp", dissect_jxta_SCTP_heur, "JXTA over SCTP", "jxta_sctp", proto_jxta, HEURISTIC_ENABLE);
 }
 

@@ -933,7 +933,7 @@ sccp_reassemble_fragments(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 #define RETURN_FALSE \
   do { \
-    /*g_warning("Frame %d not protocol %d @ line %d", frame_num, my_mtp3_standard, __LINE__);*/ \
+    /*ws_warning("Frame %d not protocol %d @ line %d", frame_num, my_mtp3_standard, __LINE__);*/ \
     return FALSE; \
   } while (0)
 

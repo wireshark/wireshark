@@ -1468,7 +1468,7 @@ if(state_dec >= 0 && state_dec <= 3) {
   switch(cn_domain){
     case RRC_NAS_SYS_INFO_CS:
       /*
-      g_warning("Not implemented");
+      ws_warning("Not implemented");
       */
       break;
     case RRC_NAS_SYS_INFO_PS:

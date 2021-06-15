@@ -175,7 +175,7 @@ save_invoke_data(packet_info *pinfo, proto_tree *tree _U_, tvbuff_t *tvb _U_){
                         wmem_strdup(wmem_file_scope(), buf),
                         ansi_tcap_saved_invokedata);
           /*
-          g_warning("Tcap Invoke Hash string %s",buf);
+          ws_warning("Tcap Invoke Hash string %s",buf);
           */
   }
 }

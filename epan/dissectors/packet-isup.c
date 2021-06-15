@@ -5180,7 +5180,7 @@ dissect_isup_application_transport_parameter(tvbuff_t *parameter_tvb, packet_inf
    */
   if (isup_apm_desegment) {
     if ((si_and_apm_seg_ind != 0xc0) && ((si_and_apm_seg_ind & H_8BIT_MASK)!=0x80)) {
-      /* debug g_warning("got here Frame %u", pinfo->num); */
+      /* debug ws_warning("got here Frame %u", pinfo->num); */
       /* Segmented message */
       save_fragmented = pinfo->fragmented;
       pinfo->fragmented = TRUE;

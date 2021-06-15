@@ -17,8 +17,7 @@
 
 #include <errno.h>
 
-/* Start with G_MESSAGES_DEBUG=packet-wireguard to see messages. */
-#define G_LOG_DOMAIN "packet-wireguard"
+#define WS_LOG_DOMAIN "packet-wireguard"
 
 #include <epan/packet.h>
 #include <epan/expert.h>
@@ -30,6 +29,7 @@
 #include <wsutil/filesystem.h>
 #include <wsutil/wsgcrypt.h>
 #include <wsutil/curve25519.h>
+#include <wsutil/wslog.h>
 #include <epan/secrets.h>
 #include <wiretap/secrets-types.h>
 
@@ -644,17 +644,17 @@ wg_keylog_read(void)
 
     // Reopen file if it got deleted/overwritten.
     if (wg_keylog_file && file_needs_reopen(ws_fileno(wg_keylog_file), pref_keylog_file)) {
-        g_debug("Key log file got changed or deleted, trying to re-open.");
+        ws_debug("Key log file got changed or deleted, trying to re-open.");
         wg_keylog_reset();
     }
 
     if (!wg_keylog_file) {
         wg_keylog_file = ws_fopen(pref_keylog_file, "r");
         if (!wg_keylog_file) {
-            g_debug("Failed to open key log file %s: %s", pref_keylog_file, g_strerror(errno));
+            ws_debug("Failed to open key log file %s: %s", pref_keylog_file, g_strerror(errno));
             return;
         }
-        g_debug("Opened key log file %s", pref_keylog_file);
+        ws_debug("Opened key log file %s", pref_keylog_file);
     }
 
     /* File format: each line follows the format "<type>=<key>" (leading spaces
@@ -675,7 +675,7 @@ wg_keylog_read(void)
             if (feof(wg_keylog_file)) {
                 clearerr(wg_keylog_file);
             } else if (ferror(wg_keylog_file)) {
-                g_debug("Error while reading %s, closing it.", pref_keylog_file);
+                ws_debug("Error while reading %s, closing it.", pref_keylog_file);
                 wg_keylog_reset();
             }
             break;
@@ -706,7 +706,7 @@ wg_keylog_process_lines(const void *data, guint datalen)
             linelen--;      /* drop CR */
         }
 
-        g_debug("Read WG key log line: %.*s", (int)linelen, line);
+        ws_debug("Read WG key log line: %.*s", (int)linelen, line);
 
         /* Strip leading spaces. */
         const char *p = line;
@@ -741,7 +741,7 @@ wg_keylog_process_lines(const void *data, guint datalen)
 
         wg_qqword key;
         if (!key_value[0] || !decode_base64_key(&key, key_value)) {
-            g_debug("Unrecognized key log line: %.*s", (int)linelen, line);
+            ws_debug("Unrecognized key log line: %.*s", (int)linelen, line);
             continue;
         }
 
@@ -757,10 +757,10 @@ wg_keylog_process_lines(const void *data, guint datalen)
                 wg_add_psk(wg_keylog_last_ekey, &key);
                 wg_keylog_last_ekey = NULL;
             } else {
-                g_debug("Ignored PSK as no new ephemeral key was found");
+                ws_debug("Ignored PSK as no new ephemeral key was found");
             }
         } else {
-            g_debug("Unrecognized key log line: %.*s", (int)linelen, line);
+            ws_debug("Unrecognized key log line: %.*s", (int)linelen, line);
         }
     }
 }
@@ -940,7 +940,7 @@ wg_process_response(tvbuff_t *tvb, wg_handshake_state_t *hs)
     // XXX when multiple responses are linkable to a single handshake state,
     // they should probably fork into a new state or be discarded when equal.
     if (hs->initiator_recv_cipher || hs->responder_recv_cipher) {
-        g_warning("%s FIXME multiple responses linked to a single session", G_STRFUNC);
+        ws_warning("%s FIXME multiple responses linked to a single session", G_STRFUNC);
         return;
     }
     DISSECTOR_ASSERT(!hs->initiator_recv_cipher);
@@ -1943,7 +1943,7 @@ proto_register_wg(void)
             &pref_keylog_file, FALSE);
 
     if (!wg_decrypt_init()) {
-        g_warning("%s: decryption will not be possible due to lack of algorithms support", G_STRFUNC);
+        ws_warning("%s: decryption will not be possible due to lack of algorithms support", G_STRFUNC);
     }
 
     secrets_register_type(SECRETS_TYPE_WIREGUARD, wg_keylog_process_lines);

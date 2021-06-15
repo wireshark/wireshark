@@ -16,6 +16,7 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <wsutil/wsgcrypt.h>
+#include <wsutil/wslog.h>
 
 /* for dissect_mscldap_string */
 #include "packet-ldap.h"
@@ -6829,14 +6830,14 @@ netlogon_dissect_netrserverauthenticate023_reply(tvbuff_t *tvb, int offset,
                         /* Open the cipher */
                         err = gcry_cipher_open(&cipher_hd, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_CFB8, 0);
                         if (err != 0) {
-                            g_warning("GCRY: cipher open %s/%s\n", gcry_strsource(err), gcry_strerror(err));
+                            ws_warning("GCRY: cipher open %s/%s\n", gcry_strsource(err), gcry_strerror(err));
                             break;
                         }
 
                         /* Set the initial value */
                         err = gcry_cipher_setiv(cipher_hd, iv, sizeof(iv));
                         if (err != 0) {
-                            g_warning("GCRY: setiv %s/%s\n", gcry_strsource(err), gcry_strerror(err));
+                            ws_warning("GCRY: setiv %s/%s\n", gcry_strsource(err), gcry_strerror(err));
                             gcry_cipher_close(cipher_hd);
                             break;
                         }
@@ -6844,7 +6845,7 @@ netlogon_dissect_netrserverauthenticate023_reply(tvbuff_t *tvb, int offset,
                         /* Set the key */
                         err = gcry_cipher_setkey(cipher_hd, session_key, 16);
                         if (err != 0) {
-                            g_warning("GCRY: setkey %s/%s\n", gcry_strsource(err), gcry_strerror(err));
+                            ws_warning("GCRY: setkey %s/%s\n", gcry_strsource(err), gcry_strerror(err));
                             gcry_cipher_close(cipher_hd);
                             break;
                         }
@@ -6854,7 +6855,7 @@ netlogon_dissect_netrserverauthenticate023_reply(tvbuff_t *tvb, int offset,
                                                   (guint8 *)&calculated_cred, 8,
                                                   (const guint8 *)&vars->server_challenge, 8);
                         if (err != 0) {
-                            g_warning("GCRY: encrypt %s/%s\n", gcry_strsource(err), gcry_strerror(err));
+                            ws_warning("GCRY: encrypt %s/%s\n", gcry_strsource(err), gcry_strerror(err));
                             gcry_cipher_close(cipher_hd);
                             break;
                         }
@@ -7888,14 +7889,14 @@ static guint64 uncrypt_sequence_aes(guint8* session_key,guint64 checksum,guint64
     /* Open the cipher */
     err = gcry_cipher_open(&cipher_hd, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_CFB8, 0);
     if (err != 0) {
-        g_warning("GCRY: cipher open %s/%s\n", gcry_strsource(err), gcry_strerror(err));
+        ws_warning("GCRY: cipher open %s/%s\n", gcry_strsource(err), gcry_strerror(err));
         return 0;
     }
 
     /* Set the initial value */
     err = gcry_cipher_setiv(cipher_hd, iv, sizeof(iv));
     if (err != 0) {
-        g_warning("GCRY: setiv %s/%s\n", gcry_strsource(err), gcry_strerror(err));
+        ws_warning("GCRY: setiv %s/%s\n", gcry_strsource(err), gcry_strerror(err));
         gcry_cipher_close(cipher_hd);
         return 0;
     }
@@ -7903,14 +7904,14 @@ static guint64 uncrypt_sequence_aes(guint8* session_key,guint64 checksum,guint64
     /* Set the key */
     err = gcry_cipher_setkey(cipher_hd, session_key, 16);
     if (err != 0) {
-        g_warning("GCRY: setkey %s/%s\n", gcry_strsource(err), gcry_strerror(err));
+        ws_warning("GCRY: setkey %s/%s\n", gcry_strsource(err), gcry_strerror(err));
         gcry_cipher_close(cipher_hd);
         return 0;
     }
 
     err = gcry_cipher_decrypt(cipher_hd, (guint8*) &enc_seq, 8, NULL, 0);
     if (err != 0) {
-        g_warning("GCRY: encrypt %s/%s\n", gcry_strsource(err), gcry_strerror(err));
+        ws_warning("GCRY: encrypt %s/%s\n", gcry_strsource(err), gcry_strerror(err));
         gcry_cipher_close(cipher_hd);
         return 0;
     }
@@ -7985,14 +7986,14 @@ static gcry_error_t prepare_decryption_cipher_aes(netlogon_auth_vars *vars,
     /* Open the cipher */
     err = gcry_cipher_open(&cipher_hd, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_CFB8, 0);
     if (err != 0) {
-        g_warning("GCRY: cipher open %s/%s\n", gcry_strsource(err), gcry_strerror(err));
+        ws_warning("GCRY: cipher open %s/%s\n", gcry_strsource(err), gcry_strerror(err));
         return 0;
     }
 
     /* Set the initial value */
     err = gcry_cipher_setiv(cipher_hd, iv, sizeof(iv));
     if (err != 0) {
-        g_warning("GCRY: setiv %s/%s\n", gcry_strsource(err), gcry_strerror(err));
+        ws_warning("GCRY: setiv %s/%s\n", gcry_strsource(err), gcry_strerror(err));
         gcry_cipher_close(cipher_hd);
         return 0;
     }
@@ -8000,7 +8001,7 @@ static gcry_error_t prepare_decryption_cipher_aes(netlogon_auth_vars *vars,
     /* Set the key */
     err = gcry_cipher_setkey(cipher_hd, vars->encryption_key, 16);
     if (err != 0) {
-        g_warning("GCRY: setkey %s/%s\n", gcry_strsource(err), gcry_strerror(err));
+        ws_warning("GCRY: setkey %s/%s\n", gcry_strsource(err), gcry_strerror(err));
         gcry_cipher_close(cipher_hd);
         return 0;
     }
@@ -8022,26 +8023,26 @@ static gcry_error_t prepare_decryption_cipher_strong(netlogon_auth_vars *vars,
 
     err = ws_hmac_buffer(GCRY_MD_MD5, tmp, zeros, 4, vars->encryption_key, 16);
     if (err != 0) {
-        g_warning("GCRY: GCRY_MD_MD5 %s/%s\n", gcry_strsource(err), gcry_strerror(err));
+        ws_warning("GCRY: GCRY_MD_MD5 %s/%s\n", gcry_strsource(err), gcry_strerror(err));
         return err;
     }
     err = ws_hmac_buffer(GCRY_MD_MD5, seal_key, (guint8*)&sequence, 8, tmp, HASH_MD5_LENGTH);
     if (err != 0) {
-        g_warning("GCRY: GCRY_MD_MD5 %s/%s\n", gcry_strsource(err), gcry_strerror(err));
+        ws_warning("GCRY: GCRY_MD_MD5 %s/%s\n", gcry_strsource(err), gcry_strerror(err));
         return err;
     }
 
     /* Open the cipher */
     err = gcry_cipher_open(&cipher_hd, GCRY_CIPHER_ARCFOUR, GCRY_CIPHER_MODE_STREAM, 0);
     if (err != 0) {
-        g_warning("GCRY: cipher open %s/%s\n", gcry_strsource(err), gcry_strerror(err));
+        ws_warning("GCRY: cipher open %s/%s\n", gcry_strsource(err), gcry_strerror(err));
         return err;
     }
 
     /* Set the key */
     err = gcry_cipher_setkey(cipher_hd, seal_key, 16);
     if (err != 0) {
-        g_warning("GCRY: setkey %s/%s\n", gcry_strsource(err), gcry_strerror(err));
+        ws_warning("GCRY: setkey %s/%s\n", gcry_strsource(err), gcry_strerror(err));
         gcry_cipher_close(cipher_hd);
         return err;
     }
@@ -8103,7 +8104,7 @@ dissect_packet_data(tvbuff_t *tvb ,tvbuff_t *auth_tvb _U_,
                 }
                 err = prepare_decryption_cipher(vars, &cipher_hd);
                 if (err != 0) {
-                    g_warning("GCRY: prepare_decryption_cipher %s/%s\n",
+                    ws_warning("GCRY: prepare_decryption_cipher %s/%s\n",
                               gcry_strsource(err), gcry_strerror(err));
                     return NULL;
                 }

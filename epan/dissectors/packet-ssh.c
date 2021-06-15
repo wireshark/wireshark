@@ -49,6 +49,7 @@
 #include <wsutil/filesystem.h>
 #include <wsutil/wsgcrypt.h>
 #include <wsutil/curve25519.h>
+#include <wsutil/wslog.h>
 
 #include "packet-tcp.h"
 
@@ -1411,7 +1412,7 @@ static void
 ssh_keylog_read_file(void)
 {
     if (!pref_keylog_file || !*pref_keylog_file) {
-        g_debug("no keylog file preference set");
+        ws_debug("no keylog file preference set");
         return;
     }
 
@@ -1423,7 +1424,7 @@ ssh_keylog_read_file(void)
     if (!ssh_keylog_file) {
         ssh_keylog_file = ws_fopen(pref_keylog_file, "r");
         if (!ssh_keylog_file) {
-            g_debug("ssh: failed to open key log file %s: %s",
+            ws_debug("ssh: failed to open key log file %s: %s",
                     pref_keylog_file, g_strerror(errno));
             return;
         }
@@ -1441,7 +1442,7 @@ ssh_keylog_read_file(void)
 
         if (!fgets(buf, sizeof(buf), ssh_keylog_file)) {
             if (ferror(ssh_keylog_file)) {
-                g_debug("Error while reading %s, closing it.", pref_keylog_file);
+                ws_debug("Error while reading %s, closing it.", pref_keylog_file);
                 ssh_keylog_reset();
             }
             break;
@@ -1454,14 +1455,14 @@ ssh_keylog_read_file(void)
 static void
 ssh_keylog_process_line(char *line)
 {
-    g_debug("ssh: process line: %s", line);
+    ws_debug("ssh: process line: %s", line);
 
     gchar **split = g_strsplit(line, " ", 2);
     gchar *key, *value;
     int key_len;
 
     if (g_strv_length(split) != 2) {
-        g_debug("ssh keylog: invalid format");
+        ws_debug("ssh keylog: invalid format");
         g_strfreev(split);
         return;
     }
@@ -1472,7 +1473,7 @@ ssh_keylog_process_line(char *line)
     if (!strcmp(key, "curve25519")) {
         key_len = 32;
     } else {
-        g_debug("ssh: key exchange method not supported");
+        ws_debug("ssh: key exchange method not supported");
         g_strfreev(split);
         return;
     }
@@ -1486,7 +1487,7 @@ ssh_keylog_process_line(char *line)
         hexbyte[1] = value[i * 2 + 1];
 
         if (!ws_hexstrtou8(hexbyte, NULL, &c)) {
-            g_debug("ssh: can't process key, invalid hex number: %s", hexbyte);
+            ws_debug("ssh: can't process key, invalid hex number: %s", hexbyte);
             g_free(converted);
             g_strfreev(split);
             return;
@@ -1527,18 +1528,18 @@ ssh_keylog_add_keys(guint8 *priv, guint priv_length, gchar *type_string)
 
     if (SSH_KEX_CURVE25519 == type) {
         if (crypto_scalarmult_curve25519_base(pub->data, priv)) {
-            g_debug("cannot compute curve25519 public key");
+            ws_debug("cannot compute curve25519 public key");
             return;
         }
     } else {
-        g_debug("key type %s not supported", type_string);
+        ws_debug("key type %s not supported", type_string);
         return;
     }
 
     if (!wmem_map_contains(ssh_kex_keys, pub)) {
         ssh_kex_key *value = ssh_kex_make_key(NULL, priv_length);
         if (!value) {
-            g_debug("invalid key length %u", priv_length);
+            ws_debug("invalid key length %u", priv_length);
             return;
         }
         memcpy(value->data, priv, priv_length);
@@ -1594,7 +1595,7 @@ ssh_read_e(tvbuff_t *tvb, int offset, struct ssh_flow_data *global_data)
     guint type = ssh_kex_type(global_data->kex);
     ssh_kex_pub_key *kex = ssh_kex_make_pub_key(NULL, length, type);
     if (!kex) {
-        g_debug("invalid key length %u", length);
+        ws_debug("invalid key length %u", length);
         return;
     }
     global_data->kex_e = kex;
@@ -1640,7 +1641,7 @@ ssh_keylog_compute_hash(tvbuff_t *tvb, int offset,
         priv = (ssh_kex_key *)wmem_map_lookup(ssh_kex_keys, &kex_f);
 
         if (!priv) {
-            g_debug("ssh decryption: private key not available");
+            ws_debug("ssh decryption: private key not available");
             return;
 
         // we have the server's private key
@@ -1690,12 +1691,12 @@ ssh_kex_shared_secret(ssh_kex_pub_key *pub, ssh_kex_key *priv)
 {
     ssh_kex_key *secret = ssh_kex_make_key(NULL, pub->length);
     if (!secret) {
-        g_debug("invalid key length %u", pub->length);
+        ws_debug("invalid key length %u", pub->length);
         return NULL;
     }
 
     if (crypto_scalarmult_curve25519(secret->data, priv->data, pub->data)) {
-        g_debug("curve25519: can't compute shared secret");
+        ws_debug("curve25519: can't compute shared secret");
         return NULL;
     }
 

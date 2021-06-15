@@ -18,6 +18,7 @@
 #include <wsutil/filesystem.h>
 #include <wsutil/privileges.h>
 #include <wsutil/please_report_bug.h>
+#include <wsutil/wslog.h>
 
 #include <cli_main.h>
 #include <ui/cmdarg_err.h>

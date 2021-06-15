@@ -9,8 +9,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-// Activate g_debug output with environment variable: G_MESSAGES_DEBUG=packet-knxip
-#define G_LOG_DOMAIN "packet-knxip"
+#define WS_LOG_DOMAIN "packet-knxip"
 
 #include <wsutil/file_util.h>
 #include "proto.h"
@@ -18,6 +17,7 @@
 #include <epan/wmem/wmem.h>
 #include <wsutil/wsgcrypt.h>
 #include <wsutil/strtoi.h>
+#include <wsutil/wslog.h>
 
 #define TEXT_BUFFER_SIZE  128
 
@@ -582,7 +582,7 @@ void read_knx_keyring_xml_file( const gchar* key_file, const gchar* password, co
 
     make_password_hash( password_hash, password );
 
-    g_debug( "%s:", key_file );
+    ws_debug( "%s:", key_file );
 
     gint c = fgetc( f );
 
@@ -672,7 +672,7 @@ void read_knx_keyring_xml_file( const gchar* key_file, const gchar* password, co
               if( !tag_end )
               {
                 // Found name="value" construct between < and >
-                g_debug( "%s %s=%s", tag_name, name, value );
+                ws_debug( "%s %s=%s", tag_name, name, value );
 
                 // Process name/value pair
                 if( strcmp( tag_name, "Keyring" ) == 0 )

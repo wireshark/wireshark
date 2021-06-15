@@ -22,6 +22,7 @@
 #include <epan/show_exception.h>
 #include <epan/asn1.h>
 #include <wsutil/bitswap.h>
+#include <wsutil/wslog.h>
 
 #include "packet-h245.h"
 #include "packet-iax2.h"
@@ -399,7 +400,7 @@ init_logical_channel( guint32 start_frame, h223_call_info* call_info, int vc, in
     if( subcircuit == NULL ) {
         subcircuit = conversation_new_by_id( start_frame, ENDPOINT_H223, circuit_id, 0 );
 #ifdef DEBUG_H223
-        g_debug("%d: Created new circuit %d for call %p VC %d", start_frame, circuit_id, call_info, vc);
+        ws_debug("%d: Created new circuit %d for call %p VC %d", start_frame, circuit_id, call_info, vc);
 #endif
         vc_info = h223_vc_info_new( call_info );
         conversation_add_proto_data( subcircuit, proto_h223, vc_info );
@@ -453,7 +454,7 @@ find_or_create_call_info_circ(packet_info * pinfo, endpoint_type etype, guint32 
         datax = create_call_info(pinfo->num);
 
 #ifdef DEBUG_H223
-        g_debug("%u: Created new call %p for circuit %p ctype %d, id %u",
+        ws_debug("%u: Created new call %p for circuit %p ctype %d, id %u",
                 pinfo->num, datax, circ, type, circuit_id);
 #endif
         conversation_add_proto_data(circ, proto_h223, datax);
@@ -499,7 +500,7 @@ find_or_create_call_info_conv(packet_info * pinfo)
 
         if(datax != NULL) {
 #ifdef DEBUG_H223
-            g_debug("%u: Identified conv %p as reverse of conv %p with call %p and type=%u src=%u.%u.%u.%u:%u dst=%u.%u.%u.%u:%u",
+            ws_debug("%u: Identified conv %p as reverse of conv %p with call %p and type=%u src=%u.%u.%u.%u:%u dst=%u.%u.%u.%u:%u",
                     pinfo->num, conv, conv2, datax, pinfo->ptype,
                     pinfo->dst.data[0], pinfo->dst.data[1], pinfo->dst.data[2], pinfo->dst.data[3],
                     pinfo->destport,
@@ -516,7 +517,7 @@ find_or_create_call_info_conv(packet_info * pinfo)
         datax = create_call_info(pinfo->num);
 
 #ifdef DEBUG_H223
-        g_debug("%u: Created new call %p for conv %p type=%u src=%u.%u.%u.%u:%u dst=%u.%u.%u.%u:%u",
+        ws_debug("%u: Created new call %p for conv %p type=%u src=%u.%u.%u.%u:%u dst=%u.%u.%u.%u:%u",
                 pinfo->num, datax, conv, pinfo->ptype,
                 pinfo->src.data[0], pinfo->src.data[1], pinfo->src.data[2], pinfo->src.data[3],
                 pinfo->srcport,
@@ -738,7 +739,7 @@ dissect_mux_sdu_fragment(tvbuff_t *volatile next_tvb, packet_info *pinfo,
         vc_tree = proto_item_add_subtree (vc_item, ett_h223_mux_vc);
 
         if( subcircuit == NULL ) {
-            g_message( "Frame %d: Subcircuit id %d not found for call %p VC %d", pinfo->num,
+            ws_message( "Frame %d: Subcircuit id %d not found for call %p VC %d", pinfo->num,
                        circuit_id, (void *)call_info, vc );
         } else {
             vc_info = (h223_vc_info *)conversation_get_proto_data(subcircuit, proto_h223);
@@ -760,14 +761,14 @@ dissect_mux_sdu_fragment(tvbuff_t *volatile next_tvb, packet_info *pinfo,
 
                     if(frag == NULL ) {
 #ifdef DEBUG_H223
-                        g_debug("%d: New H.223 VC fragment: Parent circuit %d; subcircuit %d; offset %d; len %d, end %d",
+                        ws_debug("%d: New H.223 VC fragment: Parent circuit %d; subcircuit %d; offset %d; len %d, end %d",
                                 pinfo->num, orig_circuit, circuit_id, pkt_offset, tvb_reported_length(next_tvb), end_of_mux_sdu);
 #endif
                         frag = stream_add_frag(substream,pinfo->num,pkt_offset,
                                                next_tvb,pinfo,!end_of_mux_sdu);
                     } else {
 #ifdef DEBUG_H223
-                        g_debug("%d: Found H.223 VC fragment: Parent circuit %d; subcircuit %d; offset %d; len %d, end %d",
+                        ws_debug("%d: Found H.223 VC fragment: Parent circuit %d; subcircuit %d; offset %d; len %d, end %d",
                                 pinfo->num, orig_circuit, circuit_id, pkt_offset, tvb_reported_length(next_tvb), end_of_mux_sdu);
 #endif
                     }
@@ -939,7 +940,7 @@ dissect_mux_pdu( tvbuff_t *tvb, packet_info *pinfo, guint32 pkt_offset,
     proto_tree *pdu_tree = NULL;
 
 #ifdef DEBUG_H223_FRAGMENTATION
-    g_debug("%u: dissecting complete H.223 MUX-PDU, pkt_offset %u, len %u",
+    ws_debug("%u: dissecting complete H.223 MUX-PDU, pkt_offset %u, len %u",
             pinfo->num, pkt_offset, tvb_reported_length(tvb));
 #endif
 
@@ -1177,7 +1178,7 @@ dissect_mux_pdu_fragment( tvbuff_t *tvb, guint32 start_offset,
 
 
 #ifdef DEBUG_H223_FRAGMENTATION
-    g_debug("%d: dissecting H.223 PDU, start_offset %u, %u bytes left",
+    ws_debug("%d: dissecting H.223 PDU, start_offset %u, %u bytes left",
             pinfo->num,start_offset, tvb_reported_length_remaining( tvb, start_offset ));
 #endif
 
@@ -1214,13 +1215,13 @@ dissect_mux_pdu_fragment( tvbuff_t *tvb, guint32 start_offset,
             /* we haven't found the closing hdlc yet, but we don't know how
              * much more we need */
 #ifdef DEBUG_H223_FRAGMENTATION
-            g_debug("\tBailing, requesting more bytes");
+            ws_debug("\tBailing, requesting more bytes");
 #endif
             return 0;
         } else {
             guint32 needed = pdu_minlen-(offset-start_offset);
 #ifdef DEBUG_H223_FRAGMENTATION
-            g_debug("\tBailing, requesting %i-%i=%u more bytes", pdu_minlen,(offset-start_offset),needed);
+            ws_debug("\tBailing, requesting %i-%i=%u more bytes", pdu_minlen,(offset-start_offset),needed);
 #endif
             return - (gint) needed;
         }

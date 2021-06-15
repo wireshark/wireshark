@@ -454,7 +454,7 @@ sua_assoc(packet_info* pinfo, address* opc, address* dpc, guint src_rn, guint ds
                 assoc = new_assoc(opck, dpck);
                 wmem_tree_insert32_array(assocs,bw_key,assoc);
                 assoc->has_bw_key = TRUE;
-                /*g_warning("CORE dpck %u,opck %u,src_rn %u",dpck,opck,src_rn);*/
+                /*ws_warning("CORE dpck %u,opck %u,src_rn %u",dpck,opck,src_rn);*/
             }
             break;
 
@@ -489,7 +489,7 @@ sua_assoc(packet_info* pinfo, address* opc, address* dpc, guint src_rn, guint ds
 
             bw_key[3].length = 0;
             bw_key[3].key = NULL;
-                    /*g_warning("MESSAGE_TYPE_COAK dst_rn %u,src_rn %u ",dst_rn,src_rn);*/
+                    /*ws_warning("MESSAGE_TYPE_COAK dst_rn %u,src_rn %u ",dst_rn,src_rn);*/
                     if ( ( assoc = (sua_assoc_info_t *)wmem_tree_lookup32_array(assocs, bw_key) ) ) {
                             goto got_assoc;
                     }

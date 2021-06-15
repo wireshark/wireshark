@@ -2149,7 +2149,7 @@ dissect_rohc_ir_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
             gboolean tmp_prev_rnd = rohc_cid_context->rnd;
             gboolean tmp_prev_udp_checksum_present = rohc_cid_context->udp_checksum_present;
 
-            /*g_warning("IR pkt found CID %u",cid);*/
+            /*ws_warning("IR pkt found CID %u",cid);*/
 
             rohc_cid_context = wmem_new(wmem_file_scope(), rohc_cid_context_t);
             rohc_cid_context->profile = profile;
@@ -2176,7 +2176,7 @@ dissect_rohc_ir_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
             rohc_cid_context->rohc_ip_version = p_rohc_info->rohc_ip_version;
             rohc_cid_context->mode = p_rohc_info->mode;
 
-            /*g_warning("IR pkt New CID %u",cid);*/
+            /*ws_warning("IR pkt New CID %u",cid);*/
 
             g_hash_table_insert(rohc_cid_hash, GUINT_TO_POINTER(key), rohc_cid_context);
             p_add_proto_data(wmem_file_scope(), pinfo, proto_rohc, 0, rohc_cid_context);
@@ -2270,7 +2270,7 @@ dissect_rohc_ir_dyn_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
             gboolean tmp_prev_rnd = rohc_cid_context->rnd;
             gboolean tmp_prev_udp_checksum_present = rohc_cid_context->udp_checksum_present;
 
-            /*g_warning("IR pkt found CID %u",cid);*/
+            /*ws_warning("IR pkt found CID %u",cid);*/
 
             rohc_cid_context = wmem_new(wmem_file_scope(), rohc_cid_context_t);
             rohc_cid_context->profile = profile;
@@ -2297,7 +2297,7 @@ dissect_rohc_ir_dyn_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
             rohc_cid_context->ir_frame_number = pinfo->num;
             rohc_cid_context->mode = p_rohc_info->mode;
 
-            /*g_warning("IR pkt New CID %u",cid);*/
+            /*ws_warning("IR pkt New CID %u",cid);*/
 
             g_hash_table_insert(rohc_cid_hash, GUINT_TO_POINTER(key), rohc_cid_context);
             p_add_proto_data(wmem_file_scope(), pinfo, proto_rohc, 0, rohc_cid_context);
@@ -2544,10 +2544,10 @@ start_over:
     if (!pinfo->fd->visited){
         gint key = cid;
 
-        /*g_warning("Lookup CID %u",cid);*/
+        /*ws_warning("Lookup CID %u",cid);*/
         rohc_cid_context = (rohc_cid_context_t*)g_hash_table_lookup(rohc_cid_hash, GUINT_TO_POINTER(key));
         if(rohc_cid_context){
-            /*g_warning("Found CID %u",cid);*/
+            /*ws_warning("Found CID %u",cid);*/
         }else{
             rohc_cid_context = wmem_new(wmem_file_scope(), rohc_cid_context_t);
             /*rohc_cid_context->d_mode;*/
@@ -2559,7 +2559,7 @@ start_over:
             rohc_cid_context->large_cid_present = p_rohc_info->large_cid_present;
             rohc_cid_context->prev_ir_frame_number = -1;
             rohc_cid_context->ir_frame_number = -1;
-            /*g_warning("Store dummy data %u",cid);*/
+            /*ws_warning("Store dummy data %u",cid);*/
         }
         p_add_proto_data(wmem_file_scope(), pinfo, proto_rohc, 0, rohc_cid_context);
     } else {

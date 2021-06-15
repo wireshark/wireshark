@@ -1417,7 +1417,7 @@ dissect_rtp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     pinfo->desegment_len = 0;
 
 #ifdef DEBUG_FRAGMENTS
-    g_debug("%d: RTP Part of convo %d(%p); seqno %d",
+    ws_debug("%d: RTP Part of convo %d(%p); seqno %d",
         pinfo->num,
         p_conv_data->frame_number, p_conv_data,
         seqno
@@ -1432,7 +1432,7 @@ dissect_rtp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         fragment_head *fd_head;
 
 #ifdef DEBUG_FRAGMENTS
-        g_debug("\tContinues fragment %d", fid);
+        ws_debug("\tContinues fragment %d", fid);
 #endif
 
         /* we always assume the datagram is complete; if this is the
@@ -1448,7 +1448,7 @@ dissect_rtp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                           &rtp_fragment_items, NULL, tree);
 
 #ifdef DEBUG_FRAGMENTS
-        g_debug("\tFragment Coalesced; fd_head=%p, newtvb=%p (len %d)", fd_head, newtvb,
+        ws_debug("\tFragment Coalesced; fd_head=%p, newtvb=%p (len %d)", fd_head, newtvb,
             newtvb?tvb_reported_length(newtvb):0);
 #endif
 
@@ -1463,7 +1463,7 @@ dissect_rtp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             {
                 if (pinfo->desegment_offset == 0) {
 #ifdef DEBUG_FRAGMENTS
-                    g_debug("\tNo complete pdus in payload" );
+                    ws_debug("\tNo complete pdus in payload" );
 #endif
                     /* Mark the fragments as not complete yet */
                     fragment_set_partial_reassembly(&rtp_reassembly_table,
@@ -1490,7 +1490,7 @@ dissect_rtp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
          * so process it as normal
          */
 #ifdef DEBUG_FRAGMENTS
-        g_debug("\tRTP non-fragment payload");
+        ws_debug("\tRTP non-fragment payload");
 #endif
         newtvb = tvb_new_subset_length_caplen( tvb, offset, data_len, data_reported_len );
 
@@ -1515,7 +1515,7 @@ dissect_rtp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         fragment_head *fd_head;
 
 #ifdef DEBUG_FRAGMENTS
-        g_debug("\tRTP Must Desegment: tvb_len=%d ds_len=%d %d frag_len=%d ds_off=%d",
+        ws_debug("\tRTP Must Desegment: tvb_len=%d ds_len=%d %d frag_len=%d ds_off=%d",
             tvb_reported_length(newtvb),
             pinfo->desegment_len,
             pinfo->fd->visited,
@@ -1547,13 +1547,13 @@ dissect_rtp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                      fd_head->reassembled_in);
                 proto_item_set_generated(rtp_tree_item);
 #ifdef DEBUG_FRAGMENTS
-                g_debug("\tReassembled in %d", fd_head->reassembled_in);
+                ws_debug("\tReassembled in %d", fd_head->reassembled_in);
 #endif
             }
             else if (fd_head->reassembled_in == 0)
             {
 #ifdef DEBUG_FRAGMENTS
-                g_debug("\tUnfinished fragment");
+                ws_debug("\tUnfinished fragment");
 #endif
                 /* this fragment is never reassembled */
                 proto_tree_add_expert(tree, pinfo, &ei_rtp_fragment_unfinished, tvb, deseg_offset, -1);
@@ -1566,7 +1566,7 @@ dissect_rtp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
              * frag_table; we don't yet know where it is reassembled
              */
 #ifdef DEBUG_FRAGMENTS
-            g_debug("\tnew pdu");
+            ws_debug("\tnew pdu");
 #endif
         }
 

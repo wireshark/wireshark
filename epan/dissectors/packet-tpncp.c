@@ -12,7 +12,7 @@
 
 /*---------------------------------------------------------------------------*/
 
-#define G_LOG_DOMAIN "TPNCP"
+#define WS_LOG_DOMAIN "TPNCP"
 #include "config.h"
 
 #include <epan/packet.h>

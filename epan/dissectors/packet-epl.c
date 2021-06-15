@@ -71,6 +71,7 @@
 #include <wsutil/strtoi.h>
 #include <wsutil/file_util.h>
 #include <wsutil/report_message.h>
+#include <wsutil/wslog.h>
 #include <string.h>
 
 #ifdef HAVE_LIBXML2
@@ -6593,7 +6594,7 @@ device_profile_parse_uat(void)
 		wmem_map_insert(epl_profiles_by_device, GUINT_TO_POINTER(profile->id), profile);
 		profile->parent_map = epl_profiles_by_device;
 
-		g_log(NULL, G_LOG_LEVEL_INFO, "Loading %s\n", profile->path);
+		ws_log(NULL, LOG_LEVEL_INFO, "Loading %s\n", profile->path);
 	}
 }
 
@@ -6676,7 +6677,7 @@ nodeid_profile_parse_uat(void)
 			wmem_map_insert(epl_profiles_by_address, &profile->node_addr, profile);
 			profile->parent_map = epl_profiles_by_address;
 		}
-		g_log(NULL, G_LOG_LEVEL_INFO, "Loading %s\n", profile->path);
+		ws_log(NULL, LOG_LEVEL_INFO, "Loading %s\n", profile->path);
 	}
 }
 

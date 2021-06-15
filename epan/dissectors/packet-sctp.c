@@ -485,7 +485,7 @@ static struct _sctp_info sctp_info;
 
 #define RETURN_DIRECTION(direction) \
   do { \
-    /*g_warning("Returning %d at %d: a-itag=0x%x, a-vtag1=0x%x, a-vtag2=0x%x, b-itag=0x%x, b-vtag1=0x%x, b-vtag2=0x%x", \
+    /*ws_warning("Returning %d at %d: a-itag=0x%x, a-vtag1=0x%x, a-vtag2=0x%x, b-itag=0x%x, b-vtag1=0x%x, b-vtag2=0x%x", \
               direction, __LINE__, a->initiate_tag, a->verification_tag1, a->verification_tag2, b->initiate_tag, b->verification_tag1, b->verification_tag2);*/ \
     return direction; \
   } while (0)

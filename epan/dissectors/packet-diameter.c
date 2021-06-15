@@ -838,7 +838,7 @@ dissect_diameter_avp(diam_ctx_t *c, tvbuff_t *tvb, int offset, diam_sub_dis_t *d
 			value_string *vendor_avp_vs = VALUE_STRING_EXT_VS_P(vendor->vs_avps_ext);
 			gint i = 0;
 			while (vendor_avp_vs[i].strptr != NULL) {
-				g_warning("%u %s", vendor_avp_vs[i].value, vendor_avp_vs[i].strptr);
+				ws_warning("%u %s", vendor_avp_vs[i].value, vendor_avp_vs[i].strptr);
 				i++;
 			}
 		}

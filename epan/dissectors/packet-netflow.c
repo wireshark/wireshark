@@ -142,7 +142,7 @@ void proto_register_netflow(void);
 void proto_reg_handoff_netflow(void);
 
 #if 0
-#define ipfix_debug(...) g_warning(__VA_ARGS__)
+#define ipfix_debug(...) ws_warning(__VA_ARGS__)
 #else
 #define ipfix_debug(...)
 #endif

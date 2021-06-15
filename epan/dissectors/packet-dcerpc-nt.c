@@ -775,7 +775,7 @@ void dcerpc_store_polhnd_name(e_ctx_hnd *policy_hnd, packet_info *pinfo,
 		if (pol->name && name) {
 #ifdef DEBUG_HASH_COLL
 			if (strcmp(pol->name, name) != 0)
-				g_warning("dcerpc_smb: pol_hash name collision %s/%s\n", value->name, name);
+				ws_warning("dcerpc_smb: pol_hash name collision %s/%s\n", value->name, name);
 #endif
 			/* pol->name is wmem_file_scope() allocated, don't free it now */
 		}

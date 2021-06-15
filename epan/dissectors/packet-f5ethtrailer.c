@@ -204,6 +204,7 @@ Notes:
 #define F5FILEINFOTAP_SRC
 #include "packet-f5ethtrailer.h"
 #undef F5FILEINFOTAP_SRC
+#include <wsutil/wslog.h>
 
 /* Wireshark ID of the F5ETHTRAILER protocol */
 static int proto_f5ethtrailer = -1;
@@ -3553,19 +3554,19 @@ proto_init_f5ethtrailer(void)
         error_string = register_tap_listener(
             "ip", &tap_ip_enabled, NULL, TL_REQUIRES_NOTHING, NULL, ip_tap_pkt, NULL, NULL);
         if (error_string) {
-            g_warning("Unable to register tap \"ip\" for f5ethtrailer: %s", error_string->str);
+            ws_warning("Unable to register tap \"ip\" for f5ethtrailer: %s", error_string->str);
             g_string_free(error_string, TRUE);
         }
         error_string = register_tap_listener(
             "ipv6", &tap_ipv6_enabled, NULL, TL_REQUIRES_NOTHING, NULL, ipv6_tap_pkt, NULL, NULL);
         if (error_string) {
-            g_warning("Unable to register tap \"ipv6\" for f5ethtrailer: %s", error_string->str);
+            ws_warning("Unable to register tap \"ipv6\" for f5ethtrailer: %s", error_string->str);
             g_string_free(error_string, TRUE);
         }
         error_string = register_tap_listener(
             "tcp", &tap_tcp_enabled, NULL, TL_REQUIRES_NOTHING, NULL, tcp_tap_pkt, NULL, NULL);
         if (error_string) {
-            g_warning("Unable to register tap \"tcp\" for f5ethtrailer: %s", error_string->str);
+            ws_warning("Unable to register tap \"tcp\" for f5ethtrailer: %s", error_string->str);
             g_string_free(error_string, TRUE);
         }
     }
