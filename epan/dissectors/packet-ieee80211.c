@@ -756,7 +756,7 @@ static const value_string tag_num_vals_eid_ext[] = {
   { ETAG_MULTIPLE_BSSID_CONFIGURATION,        "Multiple BSSID Configuration" },
   { ETAG_KNOWN_BSSID,                         "Known BSSID" },
   { ETAG_SHORT_SSID,                          "Short SSID" },
-  { ETAG_HE_6GHZ_BAND_CAPABILITIES,           "HE 6Ghz Band Capabilities" },
+  { ETAG_HE_6GHZ_BAND_CAPABILITIES,           "HE 6 GHz Band Capabilities" },
   { ETAG_UL_MU_POWER_CAPABILITIES,            "UL MU Power Capabilities" },
   { ETAG_MSCS_DESCRIPTOR_ELEMENT,             "MSCS Descriptor Element" },
   { ETAG_TCLAS_MASK,                          "TCLAS Mask" },
@@ -2698,7 +2698,7 @@ static const value_string vht_max_ampdu_flag[] = {
   {0x00, "8 191"},
   {0x01, "16 383"},
   {0x02, "32 767"},
-  {0x03, "65,535"},
+  {0x03, "65 535"},
   {0x04, "131 071"},
   {0x05, "262 143"},
   {0x06, "524 287"},
@@ -23358,14 +23358,14 @@ dissect_he_6ghz_band_capabilities(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 {
   if (len != 2) {
     expert_add_info_format(pinfo, tree, &ei_ieee80211_tag_length,
-                           "HE 6Ghz Band Capabilities must be at 2 octets long");
+                           "HE 6 GHz Band Capabilities must be at 2 octets long");
     return;
   }
 
-  proto_tree_add_bitmask(tree, tvb, offset, hf_ieee80211_tag_he_6ghz_cap_inf,
+  proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_ieee80211_tag_he_6ghz_cap_inf,
                          ett_tag_he_6ghz_cap_inf_tree,
                          ieee80211_tag_he_6ghz_cap_inf,
-                         ENC_LITTLE_ENDIAN);
+                         ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
 }
 
 static void
@@ -41486,18 +41486,18 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_tag_he_6ghz_cap_inf_b0_b2,
      {"Minimum MPDU Start Spacing", "wlan.tag.he_6ghz.cap_inf.b0_b2",
-      FT_UINT16, BASE_HEX, NULL, 0x0007,
+      FT_UINT16, BASE_HEX, VALS(s1g_min_mpdu_start_spacing_vals), 0x0007,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_he_6ghz_cap_inf_b3_b5,
-     {"Maximum A-MPDU Start Spacing", "wlan.tag.he_6ghz.cap_inf.b3_b5",
-      FT_UINT16, BASE_HEX, NULL, 0x0038,
-      NULL, HFILL }},
+     {"Maximum A-MPDU Length Exponent", "wlan.tag.he_6ghz.cap_inf.b3_b5",
+      FT_UINT16, BASE_HEX, VALS(vht_max_ampdu_flag), 0x0038,
+      "Octets", HFILL }},
 
     {&hf_ieee80211_tag_he_6ghz_cap_inf_b6_b7,
      {"Maximum MPDU Length", "wlan.tag.he_6ghz.cap_inf.b6_b7",
-      FT_UINT16, BASE_HEX, NULL, 0x00C0,
-      NULL, HFILL }},
+      FT_UINT16, BASE_HEX, VALS(vht_max_mpdu_length_flag), 0x00C0,
+      "Octets", HFILL }},
 
     {&hf_ieee80211_tag_he_6ghz_cap_inf_b8,
      {"Reserved", "wlan.tag.he_6ghz.cap_inf.b8",
@@ -41506,22 +41506,22 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_tag_he_6ghz_cap_inf_b9_b10,
      {"SM Power Save", "wlan.tag.he_6ghz.cap_inf.b9b_b10",
-      FT_UINT16, BASE_HEX, NULL, 0x0600,
+      FT_UINT16, BASE_HEX, VALS(ht_sm_pwsave_flag), 0x0600,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_he_6ghz_cap_inf_b11,
      {"RD Responder", "wlan.tag.he_6ghz.cap_inf.b11",
-      FT_UINT16, BASE_HEX, NULL, 0x0800,
+      FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x0800,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_he_6ghz_cap_inf_b12,
      {"Rx Antenna Pattern Consistency", "wlan.tag.he_6ghz.cap_inf.b12",
-      FT_UINT16, BASE_HEX, NULL, 0x1000,
+      FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x1000,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_he_6ghz_cap_inf_b13,
      {"Tx Antenna Pattern Consistency", "wlan.tag.he_6ghz.cap_inf.b13",
-      FT_UINT16, BASE_HEX, NULL, 0x2000,
+      FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x2000,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_he_6ghz_cap_inf_b14_b15,
@@ -43322,7 +43322,7 @@ proto_register_ieee80211(void)
     {&hf_ieee80211_vht_max_mpdu_length,
      {"Maximum MPDU Length", "wlan.vht.capabilities.maxmpdulength",
       FT_UINT32, BASE_HEX, VALS(vht_max_mpdu_length_flag), 0x00000003,
-      "In Octets unit", HFILL }},
+      "Octets", HFILL }},
 
     {&hf_ieee80211_vht_supported_chan_width_set,
      {"Supported Channel Width Set", "wlan.vht.capabilities.supportedchanwidthset",
@@ -43397,7 +43397,7 @@ proto_register_ieee80211(void)
     {&hf_ieee80211_vht_max_ampdu,
      {"Max A-MPDU Length Exponent", "wlan.vht.capabilities.maxampdu",
       FT_UINT32, BASE_HEX, VALS(vht_max_ampdu_flag), 0x03800000,
-      "In Octets unit", HFILL }},
+      "Octets", HFILL }},
 
     {&hf_ieee80211_vht_link_adaptation_cap,
      {"VHT Link Adaptation", "wlan.vht.capabilities.linkadapt",
