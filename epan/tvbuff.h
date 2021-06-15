@@ -252,6 +252,10 @@ WS_DLL_PUBLIC guint tvb_reported_length(const tvbuff_t *tvb);
 WS_DLL_PUBLIC gint tvb_reported_length_remaining(const tvbuff_t *tvb,
     const gint offset);
 
+/** Same as above, but throws an exception if the offset is out of bounds. */
+WS_DLL_PUBLIC guint tvb_ensure_reported_length_remaining(const tvbuff_t *tvb,
+    const gint offset);
+
 /** Set the reported length of a tvbuff to a given value; used for protocols
    whose headers contain an explicit length and where the calling
    dissector's payload may include padding as well as the packet for

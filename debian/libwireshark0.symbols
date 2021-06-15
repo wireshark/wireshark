@@ -1730,6 +1730,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  tvb_ensure_bytes_exist@Base 1.9.1
  tvb_ensure_bytes_exist64@Base 1.99.0
  tvb_ensure_captured_length_remaining@Base 1.12.0~rc1
+ tvb_ensure_reported_length_remaining@Base 3.5.0
  tvb_get_etsi_ts_102_221_annex_a_string@Base 3.3.1
  tvb_find_guint8@Base 1.9.1
  tvb_find_guint16@Base 2.3.0

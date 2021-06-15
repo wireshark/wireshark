@@ -539,9 +539,6 @@ tvb_ensure_captured_length_remaining(const tvbuff_t *tvb, const gint offset)
 	return rem_length;
 }
 
-
-
-
 /* Validates that 'length' bytes are available starting from
  * offset (pos/neg). Does not throw an exception. */
 gboolean
@@ -711,6 +708,24 @@ tvb_reported_length_remaining(const tvbuff_t *tvb, const gint offset)
 		return tvb->reported_length - abs_offset;
 	else
 		return 0;
+}
+
+guint
+tvb_ensure_reported_length_remaining(const tvbuff_t *tvb, const gint offset)
+{
+	guint abs_offset = 0;
+	int   exception;
+
+	DISSECTOR_ASSERT(tvb && tvb->initialized);
+
+	exception = compute_offset(tvb, offset, &abs_offset);
+	if (exception)
+		THROW(exception);
+
+	if (tvb->reported_length >= abs_offset)
+		return tvb->reported_length - abs_offset;
+	else
+		THROW(ReportedBoundsError);
 }
 
 /* Set the reported length of a tvbuff to a given value; used for protocols
