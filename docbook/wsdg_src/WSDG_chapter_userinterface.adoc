@@ -103,10 +103,10 @@ open when the capture file closes.
 ===== Names
 
 The code in _ui/qt_ directory uses three APIs: Qt (which uses
-InterCapConvention), GLib (which uses underscore_convention), and the Wireshark
-API (which also uses underscore_convention). As a general rule Wireshark’s Qt
-code uses InterCapConvention for class names, interCapConvention for methods,
-and underscore_convention for variables, with a trailing_underscore_ for member
+PascalCase), GLib (which uses snake_case), and the Wireshark
+API (which also uses snake_case). As a general rule Wireshark’s Qt
+code uses PascalCase for class names, camelCase for methods,
+and snake_case for variables, with a trailing_underscore_ for member
 variables.
 
 ===== Dialogs
