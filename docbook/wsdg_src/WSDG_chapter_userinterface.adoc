@@ -160,7 +160,7 @@ QStrings are generally *much* safer and easier to use. They also make
 translations easier.
 
 If you need to pass strings between Qt and GLib you can use a number
-of convenience routines which are defined in _ui/qt/qt_ui_utils.h_.
+of convenience routines which are defined in _ui/qt/utils/qt_ui_utils.h_.
 
 If you're calling a function that returns wmem-allocated memory it might make
 more sense to add a wrapper function to _qt_ui_utils_ than to call wmem_free in
@@ -186,7 +186,7 @@ usually available as `tr()`.
 However, please avoid using `tr()` for static strings and define them in _*.ui_
 files instead. `tr()` on manually created objects like `QMenu` are not
 automatically retranslated and must instead be manually translated using
-`changeEvent()` and `retranslateUi()`. See _summary_dialog.[ch]_ for an example
+`changeEvent()` and `retranslateUi()`. See _ui/qt/main_window.cpp_ for an example
 of this.
 
 NOTE: If your object life is short and your components are (re)created
@@ -199,7 +199,7 @@ Qt makes translating the Wireshark UI into different languages easy. To add a ne
 translation, do the following:
 
 - Add your translation (_ui/qt/wireshark_XX.ts_) to _ui/qt/CMakeLists.txt_
-- (Recommended) Add a flag image for your language in _images/languages/XX.svg_. Update _image/languages/languages.qrc_ accordingly.
+- (Recommended) Add a flag image for your language in _image/languages/XX.svg_. Update _image/languages/languages.qrc_ accordingly.
 - Run `lupdate ui/qt -ts ui/qt/wireshark_XX.ts` to generate/update your translation file.
 - Add ui/qt/wireshark_XX.ts to `.tx/config`.
 - Translate with Qt Linguist: `linguist ui/qt/wireshark_XX.ts`.
