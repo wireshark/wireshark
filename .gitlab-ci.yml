@@ -293,6 +293,97 @@ Debian Stable APT Test:
     GIT_STRATEGY: none
   needs: [ 'Debian Stable APT Package' ]
 
+Win64 Package:
+  extends: .build-windows
+  rules: !reference [.if-merged]
+  tags:
+    - wireshark-win64-package
+  before_script:
+    - $env:WIRESHARK_BASE_DIR = "C:\Development"
+    - $env:Configuration = "RelWithDebInfo"
+    - $env:Path += ";C:\Program Files\CMake\bin"
+    - $env:Path += ";C:\Strawberry\c\bin;C:\Strawberry\perl\site\bin;C:\Strawberry\perl\bin"
+    - $env:Path += ";C:\qt\5.15.2\msvc2019_64\bin"
+    - $env:Path += ";C:\Program Files (x86)\NSIS"
+    - $env:Path += ";C:\Program Files (x86)\WiX Toolset v3.11\bin"
+    - $env:Path += ";C:\Program Files\Amazon\AWSCLIV2"
+    # https://help.appveyor.com/discussions/questions/18777-how-to-use-vcvars64bat-from-powershell
+    - cmd.exe /c "call `"C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\VC\Auxiliary\Build\vcvars64.bat`" && set > %temp%\vcvars.txt"
+    - Get-Content "$env:temp\vcvars.txt" | Foreach-Object { if ($_ -match "^(.*?)=(.*)$") { Set-Content "env:\$($matches[1])" $matches[2] } }
+    - mkdir build
+    - cd build
+  script:
+    - perl ../tools/make-version.pl --set-release
+    - cmake -G "Visual Studio 16 2019" -A x64 -DENABLE_LTO=off ..
+    - msbuild /verbosity:minimal "/consoleloggerparameters:PerformanceSummary;NoSummary" /maxcpucount Wireshark.sln
+    - msbuild /verbosity:minimal /maxcpucount test-programs.vcxproj
+    - msbuild /verbosity:minimal /maxcpucount nsis_package_prep.vcxproj
+    - msbuild /verbosity:minimal /maxcpucount wix_package_prep.vcxproj
+    - C:\gitlab-builds\bin\sign-files.ps1 -Recurse -Path run\RelWithDebInfo
+    - msbuild /verbosity:minimal nsis_package.vcxproj
+    - C:\gitlab-builds\bin\sign-files.ps1 -Path packaging\nsis
+    - msbuild /verbosity:minimal wix_package.vcxproj
+    - C:\gitlab-builds\bin\sign-files.ps1 -Path packaging\wix
+    - $plugins = Get-ChildItem run\RelWithDebInfo\plugins\*\*.dll ; signtool verify /v /pa /all run\RelWithDebInfo\*.exe run\RelWithDebInfo\extcap\*.exe $plugins run\RelWithDebInfo\libwireshark.dll run\RelWithDebInfo\libwiretap.dll run\RelWithDebInfo\libwsutil.dll packaging\nsis\Wireshark-win??-*.exe packaging\wix\Wireshark-win??-*.msi
+    - msbuild /verbosity:minimal pdb_zip_package.vcxproj
+    - C:\gitlab-builds\bin\mse-scan.ps1
+    - $packages = Get-ChildItem "packaging\nsis\Wireshark-win??-*.exe", "packaging\wix\Wireshark-win??-*.msi"
+    - foreach ($package in $packages) { certutil -hashfile $package SHA256 }
+    - |
+      if ((Test-Path env:AWS_ACCESS_KEY_ID) -and (Test-Path env:AWS_SECRET_ACCESS_KEY) -and (Test-Path env:S3_DESTINATION_WIN64)) {
+        foreach ($package in $packages) {
+          aws s3 cp "$package" "$env:S3_DESTINATION_WIN64/"
+        }
+      }
+    - ctest -C RelWithDebInfo --parallel 3 --force-new-ctest-process --verbose
+
+Win32 Package:
+  extends: .build-windows
+  rules: !reference [.if-merged]
+  tags:
+    - wireshark-win32-package
+  before_script:
+    - $env:WIRESHARK_BASE_DIR = "C:\Development"
+    - $env:Configuration = "RelWithDebInfo"
+    - $env:Path += ";C:\Program Files\CMake\bin"
+    - $env:Path += ";C:\Strawberry\c\bin;C:\Strawberry\perl\site\bin;C:\Strawberry\perl\bin"
+    - $env:Path += ";C:\qt\5.15.2\msvc2019\bin"
+    - $env:Path += ";C:\Program Files (x86)\NSIS"
+    - $env:Path += ";C:\Program Files (x86)\WiX Toolset v3.11\bin"
+    - $env:Path += ";C:\Program Files\Amazon\AWSCLIV2"
+    # https://help.appveyor.com/discussions/questions/18777-how-to-use-vcvars64bat-from-powershell
+    - cmd.exe /c "call `"C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\VC\Auxiliary\Build\vcvarsamd64_x86.bat`" && set > %temp%\vcvars.txt"
+    - Get-Content "$env:temp\vcvars.txt" | Foreach-Object { if ($_ -match "^(.*?)=(.*)$") { Set-Content "env:\$($matches[1])" $matches[2] } }
+    - $env:Platform = "Win32"
+    - mkdir build
+    - cd build
+  script:
+    - perl ../tools/make-version.pl --set-release
+    - cmake -G "Visual Studio 16 2019" -A Win32 -DENABLE_LTO=off ..
+    - msbuild /verbosity:minimal "/consoleloggerparameters:PerformanceSummary;NoSummary" /maxcpucount Wireshark.sln
+    - msbuild /verbosity:minimal /maxcpucount test-programs.vcxproj
+    - msbuild /verbosity:minimal /maxcpucount nsis_package_prep.vcxproj
+    - msbuild /verbosity:minimal /maxcpucount wix_package_prep.vcxproj
+    - C:\gitlab-builds\bin\sign-files.ps1 -Recurse -Path run\RelWithDebInfo
+    - msbuild /verbosity:minimal nsis_package.vcxproj
+    - C:\gitlab-builds\bin\sign-files.ps1 -Path packaging\nsis
+    - msbuild /verbosity:minimal wix_package.vcxproj
+    - C:\gitlab-builds\bin\sign-files.ps1 -Path packaging\wix
+    - msbuild /verbosity:minimal portableapps_package.vcxproj
+    - C:\gitlab-builds\bin\sign-files.ps1 -Path packaging\portableapps
+    - $plugins = Get-ChildItem run\RelWithDebInfo\plugins\*\*.dll ; signtool verify /v /pa /all run\RelWithDebInfo\*.exe run\RelWithDebInfo\extcap\*.exe $plugins run\RelWithDebInfo\libwireshark.dll run\RelWithDebInfo\libwiretap.dll run\RelWithDebInfo\libwsutil.dll packaging\nsis\Wireshark-win??-*.exe packaging\wix\Wireshark-win??-*.msi packaging\portableapps\WiresharkPortable_*.paf.exe
+    - msbuild /verbosity:minimal pdb_zip_package.vcxproj
+    - C:\gitlab-builds\bin\mse-scan.ps1
+    - $packages = Get-ChildItem "packaging\nsis\Wireshark-win??-*.exe", "packaging\wix\Wireshark-win??-*.msi", "packaging\portableapps\WiresharkPortable_*.paf.exe"
+    - foreach ($package in $packages) { certutil -hashfile $package SHA256 }
+    - |
+      if ((Test-Path env:AWS_ACCESS_KEY_ID) -and (Test-Path env:AWS_SECRET_ACCESS_KEY) -and (Test-Path env:S3_DESTINATION_WIN32)) {
+        foreach ($package in $packages) {
+          aws s3 cp "$package" "$env:S3_DESTINATION_WIN32/"
+        }
+      }
+    - ctest -C RelWithDebInfo --parallel 3 --force-new-ctest-process --verbose
+
 # Build the User's Guide and Developer's Guide
 Documentation:
   stage: build
@@ -430,7 +521,7 @@ Windows Build:
   script:
     - cmake -G "Visual Studio 16 2019" -A x64 -DENABLE_LTO=off ..
     - msbuild /verbosity:minimal "/consoleloggerparameters:PerformanceSummary;NoSummary" /maxcpucount Wireshark.sln
-    - msbuild /verbosity:minimal test-programs.vcxproj
+    - msbuild /verbosity:minimal /maxcpucount test-programs.vcxproj
     - ctest -C RelWithDebInfo --parallel 3 --force-new-ctest-process --verbose
 
 # Adapted from https://www.synopsys.com/blogs/software-security/integrating-coverity-scan-with-gitlab-ci/
