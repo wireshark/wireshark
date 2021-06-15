@@ -38,11 +38,13 @@ ETYPE-INFO2-ENTRY/salt info2_salt
 AP-REQ/_untag/authenticator authenticator_enc_part
 PA-FX-FAST-REQUEST/armored-data armored_data_request
 PA-FX-FAST-REPLY/armored-data armored_data_reply
+PA-KERB-KEY-LIST-REP/_item kerbKeyListRep_key
 
 #.FIELD_ATTR
 KDC-REQ-BODY/etype      ABBREV=kdc-req-body.etype
 ETYPE-INFO-ENTRY/salt   ABBREV=info_salt
 ETYPE-INFO2-ENTRY/salt  ABBREV=info2_salt
+PA-KERB-KEY-LIST-REP/_item ABBREV=kerbKeyListRep.key NAME="key"
 
 #.OMIT_ASSIGNMENT
 AD-AND-OR
@@ -254,6 +256,12 @@ KrbFastArmorTypes PROT_PREFIX UPPER_CASE
     break;
   case KERBEROS_PA_ENCRYPTED_CHALLENGE:
     offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_EncryptedChallenge);
+    break;
+  case KERBEROS_PA_KERB_KEY_LIST_REQ:
+    offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset, hf_index, dissect_kerberos_PA_KERB_KEY_LIST_REQ);
+    break;
+  case KERBEROS_PA_KERB_KEY_LIST_REP:
+    offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset, hf_index, dissect_kerberos_PA_KERB_KEY_LIST_REP);
     break;
   case KERBEROS_PA_SUPPORTED_ETYPES:
     offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_PA_SUPPORTED_ENCTYPES);
@@ -508,6 +516,18 @@ KrbFastArmorTypes PROT_PREFIX UPPER_CASE
   private_data->save_encryption_key_parent_hf_index = hf_kerberos_ticket_info_item;
 ##ifdef HAVE_KERBEROS
   private_data->save_encryption_key_fn = save_KrbCredInfo_key;
+##endif
+%(DEFAULT_BODY)s
+  private_data->save_encryption_key_parent_hf_index = save_encryption_key_parent_hf_index;
+  private_data->save_encryption_key_fn = saved_encryption_key_fn;
+
+#.FN_BODY PA-KERB-KEY-LIST-REP/_item
+  kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
+  gint save_encryption_key_parent_hf_index = private_data->save_encryption_key_parent_hf_index;
+  kerberos_key_save_fn saved_encryption_key_fn = private_data->save_encryption_key_fn;
+  private_data->save_encryption_key_parent_hf_index = hf_kerberos_kerbKeyListRep_key;
+##ifdef HAVE_KERBEROS
+  private_data->save_encryption_key_fn = save_encryption_key;
 ##endif
 %(DEFAULT_BODY)s
   private_data->save_encryption_key_parent_hf_index = save_encryption_key_parent_hf_index;

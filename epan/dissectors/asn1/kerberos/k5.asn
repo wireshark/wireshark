@@ -116,6 +116,8 @@ PADATA-TYPE ::= INTEGER {
 	pA-PKU2U-NAME(148),		-- [PKU2U]
 	pA-REQ-ENC-PA-REP(149), 	-- [RFC6806]
 	pA-SPAKE(151),			-- draft-ietf-kitten-krb-spake-preauth-09
+	pA-KERB-KEY-LIST-REQ(161), -- [MS-KILE]
+	pA-KERB-KEY-LIST-REP(162), -- [MS-KILE]
 	pA-SUPPORTED-ETYPES(165),	-- [MS-KILE]
 	pA-EXTENDED-ERROR(166),		-- [MS-KILE]
 	pA-PAC-OPTIONS(167),		-- [MS-KILE]
@@ -236,7 +238,7 @@ ADDR-TYPE ::= INTEGER {
 
 -- error-codes (WS extension)
 ERROR-CODE ::= INTEGER {
---error table constants 
+--error table constants
 	eRR-NONE(0),
 	eRR-NAME-EXP(1),
 	eRR-SERVICE-EXP(2),
@@ -557,7 +559,7 @@ LR-TYPE ::= INTEGER {
 -- MS-KILE: https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-kile
 -- MS-SFU: https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-sfu
 PA-PAC-REQUEST ::= SEQUENCE {
-	include-pac[0]		BOOLEAN -- Indicates whether a PAC 
+	include-pac[0]		BOOLEAN -- Indicates whether a PAC
 					-- should be included or not
 }
 
@@ -812,7 +814,7 @@ KRB5SignedPathData ::= SEQUENCE {
 
 KRB5SignedPath ::= SEQUENCE {
 	-- DERcoded KRB5SignedPathData
-	-- krbtgt key (etype), KeyUsage = XXX 
+	-- krbtgt key (etype), KeyUsage = XXX
 	etype[0]	ENCTYPE,
 	cksum[1]	Checksum,
 	-- srvs delegated though
@@ -867,6 +869,19 @@ KERB-AD-RESTRICTION-ENTRY ::= [UNIVERSAL 16] SEQUENCE {
 	restriction-type	[0] Int32,
 	restriction		[1] OCTET STRING -- LSAP_TOKEN_INFO_INTEGRITY structure
 }
+
+-- [MS-KILE]
+
+-- Section 2.2.11
+PA-KERB-KEY-LIST-REQ ::= SEQUENCE OF ENCTYPE
+
+-- Section 2.2.12
+
+-- This is EncryptionKey but we're redefining it so it's named
+PA-KERB-KEY-LIST-REP-Key ::= EncryptionKey
+
+PA-KERB-KEY-LIST-REP ::= SEQUENCE OF PA-KERB-KEY-LIST-REP-Key
+
 
 END
 
