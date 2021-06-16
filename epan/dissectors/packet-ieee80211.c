@@ -22194,8 +22194,15 @@ dissect_multiple_bssid_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
   guint8 sub_tag_id, sub_tag_len;
   const gchar *sub_tag_name;
   proto_tree *sub_tag_tree;
-  const guint8 ids[] = { TAG_VENDOR_SPECIFIC_IE };
-  const guint8 ids2[] = { TAG_SSID, TAG_MULTIPLE_BSSID_INDEX, TAG_NO_BSSID_CAPABILITY, TAG_VENDOR_SPECIFIC_IE };
+  const guint8 valid_ids[] = { TAG_VENDOR_SPECIFIC_IE };
+  const guint8 invalid_ids[] = { TAG_TIM, TAG_DS_PARAMETER, TAG_IBSS_PARAMETER,
+    TAG_COUNTRY_INFO, TAG_CHANNEL_SWITCH_ANN, TAG_EXTENDED_CHANNEL_SWITCH_ANNOUNCEMENT,
+    TAG_WIDE_BW_CHANNEL_SWITCH, TAG_TX_PWR_ENVELOPE, TAG_SUPPORTED_OPERATING_CLASSES, TAG_IBSS_DFS,
+    TAG_ERP_INFO, TAG_ERP_INFO_OLD, TAG_HT_CAPABILITY, TAG_HT_INFO, TAG_VHT_CAPABILITY,
+    TAG_VHT_OPERATION, TAG_S1G_BEACON_COMPATIBILITY, TAG_SHORT_BEACON_INTERVAL,
+    TAG_S1G_CAPABILITIES, TAG_S1G_OPERATION };
+  const guint8 invalid_ext_ids[] = { ETAG_HE_CAPABILITIES, ETAG_HE_OPERATION,
+    ETAG_HE_6GHZ_BAND_CAPABILITIES, ETAG_BSS_COLOR_CHANGE_ANNOUNCEMENT, ETAG_SPATIAL_REUSE_PARAMETER_SET };
   guint32 s_offset, s_end;
 
   if (tag_len < 1)
@@ -22236,7 +22243,9 @@ dissect_multiple_bssid_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
       s_end = offset + sub_tag_len;
       beacon_padding = 0; /* this is for the beacon padding confused with ssid fix */
       while (s_offset < s_end) {
-        int tlen = add_tagged_field(pinfo, sub_tag_tree, tvb, s_offset, 0, ids2, G_N_ELEMENTS(ids2), NULL);
+        int tlen = add_tagged_field_with_validation(pinfo, sub_tag_tree, tvb, s_offset, 0,
+          invalid_ids, G_N_ELEMENTS(invalid_ids), TRUE,
+          invalid_ext_ids, G_N_ELEMENTS(invalid_ext_ids), TRUE, NULL);
         if (tlen==0)
           break;
         s_offset += tlen;
@@ -22249,7 +22258,7 @@ dissect_multiple_bssid_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
        * add_tagged_field will insert expert info if there is a problem so
        * we ignore the return value.
        */
-      add_tagged_field(pinfo, sub_tag_tree, tvb, offset, 0, ids, G_N_ELEMENTS(ids), NULL);
+      add_tagged_field(pinfo, sub_tag_tree, tvb, offset, 0, valid_ids, G_N_ELEMENTS(valid_ids), NULL);
       break;
 
     default:
@@ -24751,9 +24760,19 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
                  const guint8 *valid_element_ids, guint valid_element_ids_count,
                  association_sanity_check_t *association_sanity_check)
 {
+  return add_tagged_field_with_validation(pinfo, tree, tvb, offset, ftype, valid_element_ids,
+    valid_element_ids_count, FALSE, NULL, 0, FALSE, association_sanity_check);
+}
+
+int
+add_tagged_field_with_validation(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, int ftype,
+                 const guint8 *element_ids, guint element_ids_count, gboolean element_ids_assume_invalid,
+                 const guint8 *ext_element_ids, guint ext_element_ids_count, gboolean ext_element_ids_assume_invalid,
+                 association_sanity_check_t *association_sanity_check)
+{
   tvbuff_t     *tag_tvb;
   guint32       tag_no, tag_len;
-  guint32       ext_tag_no;
+  guint32       ext_tag_no = 0;
   proto_tree   *orig_tree = tree;
   proto_item   *ti        = NULL;
   proto_item   *ti_len, *ti_tag;
@@ -24792,21 +24811,43 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
                            "Tag Length is longer than remaining payload");
   }
 
-  /* If the list of valid elements is restricted, require an Element ID to be
-   * present in that list. Otherwise stop decoding the value to prevent possible
-   * infinite recursions due to unexpected elements. */
-  if (valid_element_ids_count) {
-    gboolean valid_tag_no = FALSE;
+  /* If the list enumerates valid element IDs, require the Element ID to be
+   * present in that list, otherwise, if the list enumerates invalid element IDs,
+   * check the Element ID is not in the list. If either check fails, stop decoding
+   * the value to prevent possible infinite recursions due to unexpected elements. */
+  if (element_ids_count) {
+    gboolean current_tag_no = FALSE;
     guint i;
 
-    for (i = 0; i < valid_element_ids_count; i++) {
-      valid_tag_no = valid_element_ids[i] == tag_no;
-      if (valid_tag_no)
+    for (i = 0; i < element_ids_count; i++) {
+      current_tag_no = element_ids[i] == tag_no;
+      if (current_tag_no)
         break;
     }
-    if (!valid_tag_no) {
+
+    if ((!current_tag_no && !element_ids_assume_invalid) ||
+          (current_tag_no && element_ids_assume_invalid)) {
       expert_add_info_format(pinfo, ti_tag, &ei_ieee80211_tag_number,
           "Unexpected Element ID %d", tag_no);
+        return tag_len + 1 + 1;
+    }
+  }
+
+  /* Same as above, but for Extended Element IDs */
+  if (ext_tag_no && ext_element_ids_count) {
+    gboolean current_ext_tag_no = FALSE;
+    guint i;
+
+    for (i = 0; i < ext_element_ids_count; i++) {
+      current_ext_tag_no = ext_element_ids[i] == ext_tag_no;
+      if (current_ext_tag_no)
+        break;
+    }
+
+    if ((!current_ext_tag_no && !ext_element_ids_assume_invalid) ||
+          (current_ext_tag_no && ext_element_ids_assume_invalid)) {
+      expert_add_info_format(pinfo, ti_tag, &ei_ieee80211_tag_number,
+          "Unexpected Extended Element ID %d", ext_tag_no);
         return tag_len + 1 + 1;
     }
   }

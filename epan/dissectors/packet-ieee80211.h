@@ -53,12 +53,21 @@ typedef struct ieee80211_tagged_field_data
   proto_item* item_tag_length;
 } ieee80211_tagged_field_data_t;
 
-
 int add_tagged_field(packet_info *pinfo, proto_tree *tree,
                             tvbuff_t *tvb, int offset, int ftype,
                             const guint8 *valid_element_ids,
                             guint valid_element_ids_count,
                             association_sanity_check_t *association_sanity_check);
+
+int add_tagged_field_with_validation(packet_info *pinfo, proto_tree *tree,
+                                      tvbuff_t *tvb, int offset, int ftype,
+                                      const guint8 *element_ids,
+                                      guint element_ids_count,
+                                      gboolean elements_ids_assume_invalid,
+                                      const guint8 *ext_element_ids,
+                                      guint ext_element_ids_count,
+                                      gboolean ext_element_ids_assume_invalid,
+                                      association_sanity_check_t *association_sanity_check);
 
 int dissect_wifi_dpp_config_proto(packet_info *pinfo, proto_tree *query,
                                   tvbuff_t *tvb, int offset);
