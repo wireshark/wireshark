@@ -183,7 +183,7 @@ frame_data_sequence_find(frame_data_sequence *fds, guint32 num)
   frame_data ***level2;
   frame_data ****level3;
 
-  if (num == 0) {
+  if (num == 0 || fds == NULL) {
     /* There is no frame number 0 */
     return NULL;
   }
