@@ -40,6 +40,11 @@
  * domain filter. */
 #define ENV_VAR_DEBUG       "WIRESHARK_LOG_DEBUG"
 
+/* Domains that will produce noisy output, regardless of log level or
+ * domain filter. */
+#define ENV_VAR_NOISY       "WIRESHARK_LOG_NOISY"
+
+
 #define DEFAULT_LOG_LEVEL   LOG_LEVEL_MESSAGE
 
 
@@ -54,6 +59,9 @@ static GPtrArray *domain_filter = NULL;
 
 /* List of domains to output debug level unconditionally. */
 static GPtrArray *debug_filter = NULL;
+
+/* List of domains to output noisy level unconditionally. */
+static GPtrArray *noisy_filter = NULL;
 
 /* True if active domains should match, false if actice domains should not
  * match. */
@@ -90,6 +98,8 @@ const char *ws_log_level_to_string(enum ws_log_level level)
             return "INFO";
         case LOG_LEVEL_DEBUG:
             return "DEBUG";
+        case LOG_LEVEL_NOISY:
+            return "NOISY";
         default:
             return "(BOGUS LOG LEVEL)";
     }
@@ -101,7 +111,9 @@ static enum ws_log_level string_to_log_level(const char *str_level)
     if (!str_level)
         return LOG_LEVEL_NONE;
 
-    if (g_ascii_strcasecmp(str_level, "debug") == 0)
+    if (g_ascii_strcasecmp(str_level, "noisy") == 0)
+        return LOG_LEVEL_NOISY;
+    else if (g_ascii_strcasecmp(str_level, "debug") == 0)
         return LOG_LEVEL_DEBUG;
     else if (g_ascii_strcasecmp(str_level, "info") == 0)
         return LOG_LEVEL_INFO;
@@ -161,7 +173,12 @@ gboolean ws_log_domain_is_active(const char *domain)
 
 static gboolean log_drop_message(const char *domain, enum ws_log_level level)
 {
-    if (debug_filter != NULL && filter_contains(debug_filter, domain)) {
+    if (noisy_filter != NULL && filter_contains(noisy_filter, domain)) {
+        return FALSE;
+    }
+
+    if (debug_filter != NULL && level <= LOG_LEVEL_DEBUG &&
+                                filter_contains(debug_filter, domain)) {
         return FALSE;
     }
 
@@ -202,6 +219,7 @@ static const char *opt_domains = "--log-domains";
 static const char *opt_file    = "--log-file";
 static const char *opt_fatal   = "--log-fatal";
 static const char *opt_debug   = "--log-debug";
+static const char *opt_noisy   = "--log-noisy";
 
 
 int ws_log_parse_args(int *argc_ptr, char *argv[], void (*print_err)(const char *, ...))
@@ -233,6 +251,10 @@ int ws_log_parse_args(int *argc_ptr, char *argv[], void (*print_err)(const char 
         else if (g_str_has_prefix(*ptr, opt_debug)) {
             option = opt_debug;
             optlen = strlen(opt_debug);
+        }
+        else if (g_str_has_prefix(*ptr, opt_noisy)) {
+            option = opt_noisy;
+            optlen = strlen(opt_noisy);
         }
         else {
             ptr += 1;
@@ -279,7 +301,7 @@ int ws_log_parse_args(int *argc_ptr, char *argv[], void (*print_err)(const char 
             }
         }
         else if (option == opt_domains) {
-            ws_log_set_domain_filter_str(value);
+            ws_log_set_domain_filter(value);
         }
         else if (option == opt_file) {
             FILE *fp = ws_fopen(value, "w");
@@ -299,7 +321,10 @@ int ws_log_parse_args(int *argc_ptr, char *argv[], void (*print_err)(const char 
             }
         }
         else if (option == opt_debug) {
-            ws_log_set_debug_filter_str(value);
+            ws_log_set_debug_filter(value);
+        }
+        else if (option == opt_noisy) {
+            ws_log_set_noisy_filter(value);
         }
         else {
             /* Option value missing or invalid, do nothing. */
@@ -357,7 +382,7 @@ static GPtrArray *tokenize_filter_str(const char *str_filter,
 }
 
 
-void ws_log_set_domain_filter_str(const char *str_filter)
+void ws_log_set_domain_filter(const char *str_filter)
 {
     if (domain_filter != NULL)
         g_ptr_array_free(domain_filter, TRUE);
@@ -366,12 +391,21 @@ void ws_log_set_domain_filter_str(const char *str_filter)
 }
 
 
-void ws_log_set_debug_filter_str(const char *str_filter)
+void ws_log_set_debug_filter(const char *str_filter)
 {
     if (debug_filter != NULL)
         g_ptr_array_free(debug_filter, TRUE);
 
     debug_filter = tokenize_filter_str(str_filter, NULL);
+}
+
+
+void ws_log_set_noisy_filter(const char *str_filter)
+{
+    if (noisy_filter != NULL)
+        g_ptr_array_free(noisy_filter, TRUE);
+
+    noisy_filter = tokenize_filter_str(str_filter, NULL);
 }
 
 
@@ -423,7 +457,7 @@ void ws_log_init(ws_log_writer_cb *writer)
 
     env = g_getenv(ENV_VAR_DOMAINS);
     if (env != NULL)
-        ws_log_set_domain_filter_str(env);
+        ws_log_set_domain_filter(env);
 
     env = g_getenv(ENV_VAR_FATAL);
     if (env != NULL && ws_log_set_fatal_str(env) == LOG_LEVEL_NONE)
@@ -431,7 +465,11 @@ void ws_log_init(ws_log_writer_cb *writer)
 
     env = g_getenv(ENV_VAR_DEBUG);
     if (env != NULL)
-        ws_log_set_debug_filter_str(env);
+        ws_log_set_debug_filter(env);
+
+    env = g_getenv(ENV_VAR_NOISY);
+    if (env != NULL)
+        ws_log_set_noisy_filter(env);
 
     atexit(ws_log_cleanup);
 }
@@ -629,6 +667,10 @@ static void ws_log_cleanup(void)
     if (debug_filter) {
         g_ptr_array_free(debug_filter, TRUE);
         debug_filter = NULL;
+    }
+    if (noisy_filter) {
+        g_ptr_array_free(noisy_filter, TRUE);
+        noisy_filter = NULL;
     }
 }
 

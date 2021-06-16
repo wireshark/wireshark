@@ -25,11 +25,12 @@ extern "C" {
 enum ws_log_level {
      LOG_LEVEL_NONE,       /* not user facing */
      LOG_LEVEL_ERROR,      /* "error" is always fatal (aborts) */
-     LOG_LEVEL_CRITICAL,
-     LOG_LEVEL_WARNING,
-     LOG_LEVEL_MESSAGE,
-     LOG_LEVEL_INFO,
-     LOG_LEVEL_DEBUG,
+     LOG_LEVEL_CRITICAL,   /* always enabled, can be set to fatal */
+     LOG_LEVEL_WARNING,    /* can be set to fatal */
+     LOG_LEVEL_MESSAGE,    /* default level, doesn't show file/function name */
+     LOG_LEVEL_INFO,       /* chatty status but not debug */
+     LOG_LEVEL_DEBUG,      /* normal debugging level */
+     LOG_LEVEL_NOISY,      /* extra verbose debugging */
      _LOG_LEVEL_LAST
 };
 
@@ -109,7 +110,7 @@ enum ws_log_level ws_log_set_level_str(const char *str_level);
  * In this case only non-matching domains will generate output.
  */
 WS_DLL_PUBLIC
-void ws_log_set_domain_filter_str(const char *domain_filter);
+void ws_log_set_domain_filter(const char *domain_filter);
 
 
 /** Set a debug filter from a string.
@@ -118,7 +119,16 @@ void ws_log_set_domain_filter_str(const char *domain_filter);
  * on, regardless of the global log level and domain filter.
  */
 WS_DLL_PUBLIC
-void ws_log_set_debug_filter_str(const char *str_filter);
+void ws_log_set_debug_filter(const char *str_filter);
+
+
+/** Set a noisy filter from a string.
+ *
+ * A noisy filter lists all domains that should have noisy level output turned
+ * on, regardless of the global log level and domain filter.
+ */
+WS_DLL_PUBLIC
+void ws_log_set_noisy_filter(const char *str_filter);
 
 
 /** Set the fatal log level.
@@ -244,20 +254,31 @@ void ws_logv_full(const char *domain, enum ws_log_level level,
  */
 #define ws_info(...)     _LOG_FULL(LOG_LEVEL_INFO, __VA_ARGS__)
 
+#ifndef WS_DISABLE_DEBUG
+#define _LOG_DEBUG(level, ...)   _LOG_FULL(level, __VA_ARGS__)
+#else
+/*
+ * This avoids -Wunused warnings for variables used only with
+ * !WS_DISABLE_DEBUG,typically inside a ws_debug() call. The compiler will
+ * optimize away the dead execution branch.
+ */
+#define _LOG_DEBUG(level, ...) \
+          G_STMT_START { \
+               if (0) _LOG_FULL(level, __VA_ARGS__); \
+          } G_STMT_END
+#endif
+
 /** Logs with "debug" level.
  *
  * Accepts a format string and includes the file and function name.
  */
-#ifndef WS_DISABLE_DEBUG
-#define ws_debug(...)    _LOG_FULL(LOG_LEVEL_DEBUG, __VA_ARGS__)
-#else
-/* This avoids -Wunused warnings for variables referenced by ws_debug()
- * only. The compiler will optimize it away. */
-#define ws_debug(...) \
-          G_STMT_START { \
-               if (0) _LOG_FULL(LOG_LEVEL_DEBUG, __VA_ARGS__); \
-          } G_STMT_END
-#endif
+#define ws_debug(...)    _LOG_DEBUG(LOG_LEVEL_DEBUG, __VA_ARGS__)
+
+/** Logs with "noisy" level.
+ *
+ * Accepts a format string and includes the file and function name.
+ */
+#define ws_noisy(...)    _LOG_DEBUG(LOG_LEVEL_NOISY, __VA_ARGS__)
 
 
 /** Define an auxilliary file pointer where messages should be written.
