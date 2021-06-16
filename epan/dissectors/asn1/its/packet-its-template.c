@@ -515,7 +515,7 @@ its_curvature_value_fmt(gchar *s, guint32 v)
   gint32 curv = (gint32)v;
   if (curv == 0) {
     g_snprintf(s, ITEM_LABEL_LENGTH, "straight(%d)", v);
-  } else if (curv == 1023) {
+  } else if (curv == 30001) {
     g_snprintf(s, ITEM_LABEL_LENGTH, "unavailable(%d)", v);
   } else {
     g_snprintf(s, ITEM_LABEL_LENGTH, "%.3fm %s (%d)",
