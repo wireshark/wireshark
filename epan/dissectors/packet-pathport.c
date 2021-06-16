@@ -12,7 +12,7 @@
 #include "config.h"
 #include <epan/packet.h>
 #include <epan/to_str.h>
-
+#include <wsutil/ws_roundup.h>
 
 #define PATHPORT_UDP_PORT  3792 /* Not IANA registered */
 #define PATHPORT_MIN_LENGTH 24 /* HEADER + 1 PDU */
@@ -26,7 +26,7 @@
 #define PATHPORT_HEADER_END (PATHPORT_HEADER_OFFSET + PATHPORT_HEADER_LENGTH)
 
 /** Rounds the specified integer up to the next multiple of four. */
-#define roof4(a) (((a)+3)&~3)
+#define roof4(a) WS_ROUNDUP_4(a)
 
 void proto_reg_handoff_pathport(void);
 void proto_register_pathport(void);

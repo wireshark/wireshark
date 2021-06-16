@@ -30,6 +30,7 @@
 #include <epan/crc32-tvb.h>
 #include <wsutil/crc32.h>
 #include <wsutil/strtoi.h>
+#include <wsutil/ws_roundup.h>
 
 void proto_register_iscsi(void);
 void proto_reg_handoff_iscsi(void);
@@ -1035,7 +1036,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 
                 /* strip off padding bytes */
                 if(ahs_offset & 3){
-                    ahs_offset=(ahs_offset+3) & ~3;
+                    ahs_offset=WS_ROUNDUP_4(ahs_offset);
                 }
 
             }

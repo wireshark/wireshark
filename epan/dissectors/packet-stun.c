@@ -54,6 +54,7 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/to_str.h>
+#include <wsutil/ws_roundup.h>
 #include "packet-tcp.h"
 
 void proto_register_stun(void);
@@ -1068,7 +1069,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
             att_type = tvb_get_ntohs(tvb, offset);     /* Attribute type field in attribute header */
             att_length = tvb_get_ntohs(tvb, offset+2); /* Attribute length field in attribute header */
             if (network_version >= NET_VER_5389)
-                att_length_pad = (att_length + 3) & ~3; /* Attribute length including padding */
+                att_length_pad = WS_ROUNDUP_4(att_length); /* Attribute length including padding */
             else
                 att_length_pad = att_length;
             att_type_display = att_type;
@@ -1304,7 +1305,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                        }
                    }
                    /* Hopefully, in case MS-TURN ever gets PASSWORD-ALGORITHM(S) support they will add it with padding */
-                   alg_param_len_pad = (alg_param_len + 3) & ~3;
+                   alg_param_len_pad = WS_ROUNDUP_4(alg_param_len);
 
                    if (alg_param_len < alg_param_len_pad)
                        proto_tree_add_uint(att_tree, hf_stun_att_padding, tvb, loopoffset+alg_param_len, alg_param_len_pad-alg_param_len, alg_param_len_pad-alg_param_len);

@@ -25,6 +25,7 @@
 #include <epan/prefs.h>
 #include <epan/strutil.h>
 #include <epan/expert.h>
+#include <wsutil/ws_roundup.h>
 #include "packet-tcp.h"
 
 #define TCP_PORT_PVFS2 3334 /* Not IANA registered */
@@ -756,9 +757,6 @@ dissect_pvfs2_ds_type(tvbuff_t *tvb, proto_tree *tree, int offset,
 	return offset;
 }
 
-#define roundup4(x) (((x) + 3) & ~3)
-#define roundup8(x) (((x) + 7) & ~7)
-
 static int
 dissect_pvfs_opaque_data(tvbuff_t *tvb, int offset,
 	proto_tree *tree,
@@ -813,9 +811,9 @@ dissect_pvfs_opaque_data(tvbuff_t *tvb, int offset,
 	 */
 
 	if (!string_data)
-		string_length_full = roundup4(string_length);
+		string_length_full = WS_ROUNDUP_4(string_length);
 	else
-		string_length_full = roundup8(4 + string_length);
+		string_length_full = WS_ROUNDUP_8(4 + string_length);
 
 	if (string_length_captured < string_length) {
 		/* truncated string */
@@ -1148,7 +1146,7 @@ dissect_pvfs_distribution(tvbuff_t *tvb, proto_tree *tree, int offset)
 	tmpstr = (char *) tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 4, distlen, ENC_ASCII);
 
 	/* 'distlen' does not include the NULL terminator */
-	total_len = roundup8(4 + distlen + 1);
+	total_len = WS_ROUNDUP_8(4 + distlen + 1);
 
 	if (((distlen + 1) == PVFS_DIST_SIMPLE_STRIPE_NAME_SIZE) &&
 			(g_ascii_strncasecmp(tmpstr, PVFS_DIST_SIMPLE_STRIPE_NAME,

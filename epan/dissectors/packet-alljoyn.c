@@ -12,6 +12,7 @@
 #include "config.h"
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <wsutil/ws_roundup.h>
 
 void proto_register_AllJoyn(void);
 void proto_reg_handoff_AllJoyn(void);
@@ -245,9 +246,9 @@ static gint ett_alljoyn_mess_header = -1;
 static gint ett_alljoyn_mess_body_parameters = -1;
 static gint ett_alljoyn_ardp = -1;  /* This is the top ARDP tree. */
 
-#define ROUND_TO_2BYTE(len) ((len + 1) & ~1)
-#define ROUND_TO_4BYTE(len) ((len + 3) & ~3)
-#define ROUND_TO_8BYTE(len) ((len + 7) & ~7)
+#define ROUND_TO_2BYTE(len) WS_ROUNDUP_2(len)
+#define ROUND_TO_4BYTE(len) WS_ROUNDUP_4(len)
+#define ROUND_TO_8BYTE(len) WS_ROUNDUP_8(len)
 
 static const value_string endian_encoding_vals[] = {
     { 'B', "Big endian" },

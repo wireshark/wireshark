@@ -15,6 +15,7 @@
 #include <epan/etypes.h>
 #include <epan/packet.h>
 #include <wiretap/wtap.h>
+#include <wsutil/ws_roundup.h>
 
 #include "packet-netlink.h"
 
@@ -280,7 +281,7 @@ dissect_nflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
         if (tlv_type == WS_NFULA_PAYLOAD)
             next_tvb = tvb_new_subset_length(tvb, offset + 4, value_len);
 
-        offset += ((tlv_len + 3) & ~3); /* next TLV aligned to 4B */
+        offset += WS_ROUNDUP_4(tlv_len); /* next TLV aligned to 4B */
     }
 
     if (next_tvb && hw_protocol) {

@@ -27,6 +27,7 @@
 #include <wsutil/strtoi.h>
 #include <wsutil/glib-compat.h>
 #include <wsutil/ws_assert.h>
+#include <wsutil/ws_roundup.h>
 
 #include "wtap-int.h"
 #include "file_wrappers.h"
@@ -37,7 +38,7 @@
 #include "pcapng_module.h"
 #include "secrets-types.h"
 
-#define ROUND_TO_4BYTE(len) ((len + 3) & ~3)
+#define ROUND_TO_4BYTE(len) WS_ROUNDUP_4(len)
 
 static gboolean
 pcapng_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,

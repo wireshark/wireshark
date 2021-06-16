@@ -53,6 +53,7 @@
 #include <epan/exceptions.h>
 #include <wsutil/pint.h>
 #include <wsutil/str_util.h>
+#include <wsutil/ws_roundup.h>
 #include <epan/addr_resolv.h>
 #include <epan/address_types.h>
 #include <epan/strutil.h>
@@ -134,10 +135,6 @@ sta_prop_equal_fn(gconstpointer v, gconstpointer w)
 
   return memcmp(k1, k2, 6) == 0; /* Compare each address for equality */
 }
-
-#ifndef roundup2
-#define roundup2(x, y)  (((x)+((y)-1))&(~((y)-1)))  /* if y is powers of two */
-#endif
 
 /* bitmask for bits [l..h]
  * taken from kernel's include/linux/bitops.h
@@ -8359,7 +8356,7 @@ add_mimo_csi_matrices_report(proto_tree *tree, tvbuff_t *tvb, int offset, mimo_c
 
   ns = get_mimo_ns(mimo_cntrl.chan_width, mimo_cntrl.grouping);
   csi_matrix_size = ns*(3+(2*mimo_cntrl.nc*mimo_cntrl.nr*mimo_cntrl.coefficient_size));
-  csi_matrix_size = roundup2(csi_matrix_size, 8) / 8;
+  csi_matrix_size = WS_ROUNDUP_8(csi_matrix_size) / 8;
   proto_tree_add_item(snr_tree, hf_ieee80211_ff_mimo_csi_matrices, tvb, offset, csi_matrix_size, ENC_NA);
   offset += csi_matrix_size;
   return offset - start_offset;
@@ -8387,7 +8384,7 @@ add_mimo_beamforming_feedback_report(proto_tree *tree, tvbuff_t *tvb, int offset
 
   ns = get_mimo_ns(mimo_cntrl.chan_width, mimo_cntrl.grouping);
   csi_matrix_size = ns*(2*mimo_cntrl.nc*mimo_cntrl.nr*mimo_cntrl.coefficient_size);
-  csi_matrix_size = roundup2(csi_matrix_size, 8) / 8;
+  csi_matrix_size = WS_ROUNDUP_8(csi_matrix_size) / 8;
   proto_tree_add_item(snr_tree, hf_ieee80211_ff_mimo_csi_bf_matrices, tvb, offset, csi_matrix_size, ENC_NA);
   offset += csi_matrix_size;
   return offset - start_offset;
@@ -8430,7 +8427,7 @@ add_mimo_compressed_beamforming_feedback_report(proto_tree *tree, tvbuff_t *tvb,
   na = get_mimo_na(mimo_cntrl.nr, mimo_cntrl.nc);
   ns = get_mimo_ns(mimo_cntrl.chan_width, mimo_cntrl.grouping);
   csi_matrix_size = ns*(na*((mimo_cntrl.codebook_info+1)*2 + 2)/2);
-  csi_matrix_size = roundup2(csi_matrix_size, 8) / 8;
+  csi_matrix_size = WS_ROUNDUP_8(csi_matrix_size) / 8;
   proto_tree_add_item(snr_tree, hf_ieee80211_ff_mimo_csi_cbf_matrices, tvb, offset, csi_matrix_size, ENC_NA);
   offset += csi_matrix_size;
   return offset - start_offset;
@@ -8495,7 +8492,7 @@ capture_ieee80211_common(const guchar * pd, int offset, int len,
            * is before the mesh header, possibly because it doesn't
            * recognize the mesh header.
            */
-          hdr_length = roundup2(hdr_length, 4);
+          hdr_length = WS_ROUNDUP_4(hdr_length);
         }
 
         /*
@@ -14365,7 +14362,7 @@ add_ff_vht_compressed_beamforming_report(proto_tree *tree, tvbuff_t *tvb, packet
       carry = 1;
     else
       carry = 0;
-    len = roundup2((pos + matrix_size), 8)/8 - roundup2(pos, 8)/8;
+    len = WS_ROUNDUP_8(pos + matrix_size)/8 - WS_ROUNDUP_8(pos)/8;
     scidx = vht_compressed_skip_scidx(chan_width, grouping, scidx);
 
     /* TODO : For certain values from na_arr, there is always going be a carry over or overflow from the previous or
@@ -32555,7 +32552,7 @@ dissect_ieee80211_pv0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
      * is before the mesh header, possibly because it doesn't
      * recognize the mesh header.
      */
-    hdr_len = roundup2(hdr_len, 4);
+    hdr_len = WS_ROUNDUP_4(hdr_len);
   }
 
   if (FCF_FRAME_TYPE (fcf) == DATA_FRAME) {
@@ -33909,7 +33906,7 @@ dissect_ieee80211_pv0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           msdu_length = tvb_get_ntohs(next_tvb, msdu_offset+12);
 
           parent_item = proto_tree_add_item(mpdu_tree, hf_ieee80211_amsdu_subframe, next_tvb,
-                            msdu_offset, roundup2(msdu_offset+14+msdu_length, 4), ENC_NA);
+                            msdu_offset, WS_ROUNDUP_4(msdu_offset+14+msdu_length), ENC_NA);
           proto_item_append_text(parent_item, " #%u", i);
           subframe_tree = proto_item_add_subtree(parent_item, ett_msdu_aggregation_subframe_tree);
           i += 1;
@@ -33929,7 +33926,7 @@ dissect_ieee80211_pv0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           msdu_offset += 14;
           msdu_tvb = tvb_new_subset_length(next_tvb, msdu_offset, msdu_length);
           call_dissector(llc_handle, msdu_tvb, pinfo, subframe_tree);
-          msdu_offset = roundup2(msdu_offset+msdu_length, 4);
+          msdu_offset = WS_ROUNDUP_4(msdu_offset+msdu_length);
         } while (tvb_reported_length_remaining(next_tvb, msdu_offset) > 14);
       } else {
         /* I guess some bridges take Netware Ethernet_802_3 frames,

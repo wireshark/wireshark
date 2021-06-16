@@ -19,6 +19,7 @@
 #include <epan/expert.h>
 #include <epan/ipproto.h>
 #include <epan/addr_resolv.h>
+#include <wsutil/ws_roundup.h>
 
 void proto_register_openflow_v6(void);
 void proto_reg_handoff_openflow_v6(void);
@@ -1138,7 +1139,7 @@ dissect_openflow_stats_v6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
         offset = oxs_end;
     }
 
-    padding = ((stats_length + 7) & ~7) - stats_length;
+    padding = WS_ROUNDUP_8(stats_length) - stats_length;
     if (padding) {
         proto_tree_add_item(tree, hf_openflow_v6_stats_pad, tvb, oxs_end, padding, ENC_NA);
         offset += padding;
@@ -2863,7 +2864,7 @@ dissect_openflow_port_desc_prop_v6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
         while(offset < fields_end) {
             offset = dissect_openflow_oxm_v6(tvb, pinfo, prop_tree, offset, length);
         }
-        offset+=((prop_length + 7) & ~7) - prop_length;
+        offset+=WS_ROUNDUP_8(prop_length) - prop_length;
         break;
 
     case OFPPDPT_RECIRCULATE:
@@ -2872,7 +2873,7 @@ dissect_openflow_port_desc_prop_v6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
             proto_tree_add_item(tree, hf_openflow_v6_port_desc_prop_recirculate_port_no, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
         }
-        offset+=((prop_length + 7) & ~7) - prop_length;
+        offset+=WS_ROUNDUP_8(prop_length) - prop_length;
         break;
 
     case OFPPDPT_EXPERIMENTER:

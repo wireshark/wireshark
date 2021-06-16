@@ -19,6 +19,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/to_str.h>
+#include <wsutil/ws_roundup.h>
 #include "packet-tcp.h"
 
 void proto_reg_handoff_yami(void);
@@ -145,7 +146,7 @@ dissect_yami_parameter(tvbuff_t *tvb, proto_tree *tree, int offset, proto_item *
 	name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, name_len, ENC_ASCII | ENC_NA);
 	proto_item_append_text(ti, ": %s", name);
 	proto_item_append_text(par_ti, "%s, ", name);
-	offset += (name_len + 3) & ~3;
+	offset += WS_ROUNDUP_4(name_len);
 	proto_tree_add_string(yami_param, &hfi_yami_param_name, tvb, name_offset, offset - name_offset, name);
 
 	type = tvb_get_letohl(tvb, offset);
@@ -201,7 +202,7 @@ dissect_yami_parameter(tvbuff_t *tvb, proto_tree *tree, int offset, proto_item *
 			val = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, val_len, ENC_ASCII | ENC_NA);
 
 			proto_item_append_text(ti, ", Type: string, Value: \"%s\"", val);
-			offset += (val_len + 3) & ~3;
+			offset += WS_ROUNDUP_4(val_len);
 			proto_tree_add_string(yami_param, &hfi_yami_param_value_str, tvb, val_offset, offset - val_offset, val);
 			break;
 		}
@@ -220,7 +221,7 @@ dissect_yami_parameter(tvbuff_t *tvb, proto_tree *tree, int offset, proto_item *
 			repr = bytes_to_str(wmem_packet_scope(), val, val_len);
 
 			proto_item_append_text(ti, ", Type: binary, Value: %s", repr);
-			offset += (val_len + 3) & ~3;
+			offset += WS_ROUNDUP_4(val_len);
 			proto_tree_add_bytes_format_value(yami_param, &hfi_yami_param_value_bin, tvb, val_offset, offset - val_offset, val, "%s", repr);
 			break;
 		}
@@ -354,7 +355,7 @@ dissect_yami_parameter(tvbuff_t *tvb, proto_tree *tree, int offset, proto_item *
 
 				proto_item_append_text(ti, "\"%s\", ", val);
 				proto_tree_add_string(yami_param, &hfi_yami_param_value_str, tvb, val_offset, offset - val_offset, val);
-				offset += (val_len + 3) & ~3;
+				offset += WS_ROUNDUP_4(val_len);
 			}
 			proto_item_append_text(ti, "}");
 			break;
@@ -384,7 +385,7 @@ dissect_yami_parameter(tvbuff_t *tvb, proto_tree *tree, int offset, proto_item *
 				repr = bytes_to_str(wmem_packet_scope(), val, val_len);
 
 				proto_item_append_text(ti, "%s, ", repr);
-				offset += (val_len + 3) & ~3;
+				offset += WS_ROUNDUP_4(val_len);
 				proto_tree_add_bytes_format_value(yami_param, &hfi_yami_param_value_bin, tvb, val_offset, offset - val_offset, val, "%s", repr);
 			}
 			proto_item_append_text(ti, "}");

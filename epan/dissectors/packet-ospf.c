@@ -62,6 +62,7 @@
 #include <epan/in_cksum.h>
 #include <epan/expert.h>
 #include <epan/addr_resolv.h>
+#include <wsutil/ws_roundup.h>
 #include "packet-rsvp.h"
 
 void proto_register_ospf(void);
@@ -2811,7 +2812,7 @@ dissect_ospf_lsa_opaque_ri(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_
                     proto_tree_add_item(stlv_tree, hf_ospf_tlv_value, tvb, stlv_offset + 4, stlv_length, ENC_NA);
                     break;
                 }
-                stlv_offset += 4 + ((stlv_length + 3) & ~3);
+                stlv_offset += 4 + WS_ROUNDUP_4(stlv_length);
             }
             break;
 
@@ -2863,7 +2864,7 @@ dissect_ospf_lsa_opaque_ri(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_
          * RFC 7770, section 2.3: 4-octet aligned, but type, length and padding
          * is not included in the length.
          * */
-        offset += 4 + ((tlv_length + 3) & ~3);
+        offset += 4 + WS_ROUNDUP_4(tlv_length);
     }
 }
 
@@ -3013,7 +3014,7 @@ dissect_ospf_lsa_ext_prefix(tvbuff_t *tvb, packet_info *pinfo, int offset, proto
                     proto_tree_add_item(stlv_tree, hf_ospf_tlv_value, tvb, stlv_offset + 4, stlv_length, ENC_NA);
                     break;
                 }
-                stlv_offset += 4 + ((stlv_length + 3) & ~3);
+                stlv_offset += 4 + WS_ROUNDUP_4(stlv_length);
             }
         }
 
@@ -3021,7 +3022,7 @@ dissect_ospf_lsa_ext_prefix(tvbuff_t *tvb, packet_info *pinfo, int offset, proto
          * RFC 7770, section 2.3: 4-octet aligned, but type, length and padding
          * is not included in the length.
          * */
-        offset += 4 + ((tlv_length + 3) & ~3);
+        offset += 4 + WS_ROUNDUP_4(tlv_length);
     }
 }
 
@@ -3180,7 +3181,7 @@ dissect_ospf_lsa_ext_link(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_t
                     proto_tree_add_item(stlv_tree, hf_ospf_tlv_value, tvb, stlv_offset + 4, stlv_length, ENC_NA);
                     break;
                 }
-                stlv_offset += 4 + ((stlv_length + 3) & ~3);
+                stlv_offset += 4 + WS_ROUNDUP_4(stlv_length);
             }
             break;
 
@@ -3203,7 +3204,7 @@ dissect_ospf_lsa_ext_link(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_t
          * RFC 7770, section 2.3: 4-octet aligned, but type, length and padding
          * is not included in the length.
          * */
-        offset += 4 + ((tlv_length + 3) & ~3);
+        offset += 4 + WS_ROUNDUP_4(tlv_length);
     }
 }
 

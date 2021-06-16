@@ -26,6 +26,7 @@
 #include <epan/decode_as.h>
 #include <epan/proto_data.h>
 #include <wsutil/pint.h>
+#include <wsutil/ws_roundup.h>
 
 #include "packet-usb.h"
 #include "packet-mausb.h"
@@ -4554,7 +4555,7 @@ dissect_darwin_usb_iso_transfer(packet_info *pinfo _U_, proto_tree *tree, usb_he
 
         /* Padding to align the next header */
         offset        += frame_header_length;
-        offset         = ((offset + 3) & ~3);
+        offset         = WS_ROUNDUP_4(offset);
         iso_tree_start = offset;
 
         len -= frame_header_length;
@@ -4685,7 +4686,7 @@ dissect_freebsd_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent, void 
              */
             proto_tree_add_item(frame_tree, hf_usb_frame_data, tvb, offset,
                                 framelen, ENC_NA);
-            offset += (framelen + 3) & ~3;
+            offset += WS_ROUNDUP_4(framelen);
         }
         proto_item_set_end(ti, tvb, offset);
     }

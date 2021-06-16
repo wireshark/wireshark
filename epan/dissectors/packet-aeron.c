@@ -18,6 +18,7 @@
 #include <epan/exceptions.h>
 #include <epan/to_str.h>
 #include <wsutil/pint.h>
+#include <wsutil/ws_roundup.h>
 
 /*
  * The Aeron protocol is defined at
@@ -55,7 +56,7 @@ typedef struct
 
 static int aeron_pos_roundup(int offset)
 {
-    return ((offset+31) & (~31));
+    return WS_ROUNDUP_32(offset);
 }
 
 static int aeron_pos_compare(const aeron_pos_t * pos1, const aeron_pos_t * pos2)

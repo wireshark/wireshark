@@ -14,6 +14,7 @@
 #include "atm.h"
 #include "snoop.h"
 #include <wsutil/802_11-utils.h>
+#include <wsutil/ws_roundup.h>
 
 /* See RFC 1761 for a description of the "snoop" file format. */
 
@@ -891,7 +892,7 @@ static gboolean snoop_dump(wtap_dumper *wdh,
 
 
 	/* ... plus enough bytes to pad it to a 4-byte boundary. */
-	padlen = ((reclen + 3) & ~3) - reclen;
+	padlen = WS_ROUNDUP_4(reclen) - reclen;
 	reclen += padlen;
 
 	/* Don't write anything we're not willing to read. */

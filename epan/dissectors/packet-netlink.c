@@ -17,6 +17,7 @@
 #include <epan/arptypes.h>
 #include <epan/exceptions.h>
 #include <wiretap/wtap.h>
+#include <wsutil/ws_roundup.h>
 
 #include "packet-netlink.h"
 
@@ -348,7 +349,7 @@ dissect_netlink_attributes_common(tvbuff_t *tvb, header_field_info *hfi_type, in
 		}
 
 		/* Assume offset already aligned, next offset is rta_len plus alignment. */
-		rta_len = MIN((rta_len + 3) & ~3, data_length);
+		rta_len = MIN(WS_ROUNDUP_4(rta_len), data_length);
 		offset += rta_len - 4;  /* Header was already skipped */
 		if (data_length < rta_len)
 			THROW(ReportedBoundsError);

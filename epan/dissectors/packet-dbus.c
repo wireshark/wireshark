@@ -18,6 +18,7 @@
 #include <wiretap/wtap.h>
 #include <epan/expert.h>
 #include <epan/ptvcursor.h>
+#include <wsutil/ws_roundup.h>
 #include "packet-tcp.h"
 
 #define DBUS_MAX_ARRAY_LEN (64 * 1024 * 1024)
@@ -1212,7 +1213,7 @@ get_dbus_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
 	}
 
 	len_hdr = DBUS_HEADER_LEN + get_guint32(tvb, offset + 12);
-	len_hdr = (len_hdr + 7) & ~7;
+	len_hdr = WS_ROUNDUP_8(len_hdr);
 	len_body = get_guint32(tvb, offset + 4);
 
 	return len_hdr + len_body;

@@ -41,6 +41,7 @@
 #include "read_keytab_file.h"
 
 #include <wsutil/wsgcrypt.h>
+#include <wsutil/ws_roundup.h>
 
 //#define DEBUG_SMB2
 #ifdef DEBUG_SMB2
@@ -5313,7 +5314,7 @@ dissect_smb2_negotiate_protocol_request(tvbuff_t *tvb, packet_info *pinfo, proto
 	}
 
 	for (i = 0; i < ncc; i++) {
-		offset = (offset + 7) & ~7;
+		offset = WS_ROUNDUP_8(offset);
 		offset = dissect_smb2_negotiate_context(tvb, pinfo, tree, offset, si);
 	}
 
@@ -5430,7 +5431,7 @@ dissect_smb2_negotiate_protocol_response(tvbuff_t *tvb, packet_info *pinfo, prot
 	}
 
 	for (i = 0; i < ncc; i++) {
-		offset = (offset + 7) & ~7;
+		offset = WS_ROUNDUP_8(offset);
 		offset = dissect_smb2_negotiate_context(tvb, pinfo, tree, offset, si);
 	}
 
