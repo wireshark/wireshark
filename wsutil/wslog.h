@@ -112,6 +112,25 @@ WS_DLL_PUBLIC
 void ws_log_set_domain_filter_str(const char *domain_filter);
 
 
+/** Set the fatal log level.
+ *
+ * Sets the log level at which calls to ws_log() will abort the program. The
+ * argument can be LOG_LEVEL_CRITICAL or LOG_LEVEL_WARNING. Level
+ * LOG_LEVEL_ERROR is always fatal.
+ */
+WS_DLL_PUBLIC
+enum ws_log_level ws_log_set_fatal(enum ws_log_level log_level);
+
+
+/** Set the fatal log level from a string.
+ *
+ * Same as ws_log_set_fatal(), but accepts the strings "critical" or "warnings"
+ * instead as arguments.
+ */
+WS_DLL_PUBLIC
+enum ws_log_level  ws_log_set_fatal_str(const char *str_level);
+
+
 /** Parses the command line arguments for log options.
  *
  * Returns zero for no error, non-zero for a bad option value.

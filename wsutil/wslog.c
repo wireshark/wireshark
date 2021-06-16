@@ -26,8 +26,15 @@
 #include <wsutil/file_util.h>
 
 
+/* Runtime log level. */
 #define ENV_VAR_LEVEL       "WIRESHARK_LOG_LEVEL"
+
+/* Log domains enabled/disabled. */
 #define ENV_VAR_DOMAINS     "WIRESHARK_LOG_DOMAINS"
+
+/* Log level that generates a trap and aborts. Can be "critical"
+ * or "warning". */
+#define ENV_VAR_FATAL       "WIRESHARK_LOG_FATAL"
 
 #define DEFAULT_LOG_LEVEL   LOG_LEVEL_MESSAGE
 
@@ -53,6 +60,8 @@ static ws_log_writer_free_data_cb *registered_log_writer_data_free = NULL;
 
 static FILE *custom_log = NULL;
 
+static enum ws_log_level fatal_log_level = LOG_LEVEL_ERROR;
+
 
 static void ws_log_cleanup(void);
 
@@ -77,6 +86,28 @@ const char *ws_log_level_to_string(enum ws_log_level level)
         default:
             return "(BOGUS LOG LEVEL)";
     }
+}
+
+
+static enum ws_log_level string_to_log_level(const char *str_level)
+{
+    if (!str_level)
+        return LOG_LEVEL_NONE;
+
+    if (g_ascii_strcasecmp(str_level, "debug") == 0)
+        return LOG_LEVEL_DEBUG;
+    else if (g_ascii_strcasecmp(str_level, "info") == 0)
+        return LOG_LEVEL_INFO;
+    else if (g_ascii_strcasecmp(str_level, "message") == 0)
+        return LOG_LEVEL_MESSAGE;
+    else if (g_ascii_strcasecmp(str_level, "warning") == 0)
+        return LOG_LEVEL_WARNING;
+    else if (g_ascii_strcasecmp(str_level, "critical") == 0)
+        return LOG_LEVEL_CRITICAL;
+    else if (g_ascii_strcasecmp(str_level, "error") == 0)
+        return LOG_LEVEL_ERROR;
+    else
+        return LOG_LEVEL_NONE;
 }
 
 
@@ -134,22 +165,8 @@ enum ws_log_level ws_log_set_level_str(const char *str_level)
 {
     enum ws_log_level level;
 
-    if (!str_level)
-        return LOG_LEVEL_NONE;
-
-    if (g_ascii_strcasecmp(str_level, "debug") == 0)
-        level = LOG_LEVEL_DEBUG;
-    else if (g_ascii_strcasecmp(str_level, "info") == 0)
-        level = LOG_LEVEL_INFO;
-    else if (g_ascii_strcasecmp(str_level, "message") == 0)
-        level = LOG_LEVEL_MESSAGE;
-    else if (g_ascii_strcasecmp(str_level, "warning") == 0)
-        level = LOG_LEVEL_WARNING;
-    else if (g_ascii_strcasecmp(str_level, "critical") == 0)
-        level = LOG_LEVEL_CRITICAL;
-    else if (g_ascii_strcasecmp(str_level, "error") == 0)
-        level = LOG_LEVEL_ERROR;
-    else
+    level = string_to_log_level(str_level);
+    if (level == LOG_LEVEL_NONE)
         return LOG_LEVEL_NONE;
 
     current_log_level = level;
@@ -160,6 +177,7 @@ enum ws_log_level ws_log_set_level_str(const char *str_level)
 static const char *opt_level   = "--log-level";
 static const char *opt_domains = "--log-domains";
 static const char *opt_file    = "--log-file";
+static const char *opt_fatal   = "--log-fatal";
 
 
 int ws_log_parse_args(int *argc_ptr, char *argv[], void (*print_err)(const char *, ...))
@@ -183,6 +201,10 @@ int ws_log_parse_args(int *argc_ptr, char *argv[], void (*print_err)(const char 
         else if (g_str_has_prefix(*ptr, opt_file)) {
             option = opt_file;
             optlen = strlen(opt_file);
+        }
+        else if (g_str_has_prefix(*ptr, opt_fatal)) {
+            option = opt_fatal;
+            optlen = strlen(opt_fatal);
         }
         else {
             ptr += 1;
@@ -241,6 +263,13 @@ int ws_log_parse_args(int *argc_ptr, char *argv[], void (*print_err)(const char 
                 ws_log_add_custom_file(fp);
             }
         }
+        else if (option == opt_fatal) {
+            if (ws_log_set_fatal_str(value) == LOG_LEVEL_NONE) {
+                print_err("Fatal log level must be \"critical\" or \"warning\", "
+                          "not \"%s\".\n", value);
+                ret += 1;
+            }
+        }
         else {
             /* Option value missing or invalid, do nothing. */
         }
@@ -291,6 +320,26 @@ void ws_log_set_domain_filter_str(const char *str_filter)
 }
 
 
+enum ws_log_level ws_log_set_fatal(enum ws_log_level log_level)
+{
+    ws_assert(log_level > LOG_LEVEL_NONE);
+
+    /* Not possible to set lower level than "critical" to fatal. */
+    if (log_level > LOG_LEVEL_CRITICAL)
+        return LOG_LEVEL_NONE;
+
+    fatal_log_level = log_level;
+    return fatal_log_level;
+}
+
+
+enum ws_log_level ws_log_set_fatal_str(const char *str_level)
+{
+    enum ws_log_level level = string_to_log_level(str_level);
+    return ws_log_set_fatal(level);
+}
+
+
 void ws_log_init(ws_log_writer_cb *writer)
 {
     const char *env;
@@ -314,13 +363,16 @@ void ws_log_init(ws_log_writer_cb *writer)
     current_log_level = DEFAULT_LOG_LEVEL;
 
     env = g_getenv(ENV_VAR_LEVEL);
-    if (env != NULL && ws_log_set_level_str(env) == LOG_LEVEL_NONE) {
-        fprintf(stderr, "Ignoring invalid environment value %s=\"%s\"\n", ENV_VAR_LEVEL, env);
-    }
+    if (env != NULL && ws_log_set_level_str(env) == LOG_LEVEL_NONE)
+        fprintf(stderr, "Ignoring invalid environment value %s=\"%s\".\n", ENV_VAR_LEVEL, env);
 
     env = g_getenv(ENV_VAR_DOMAINS);
     if (env != NULL)
         ws_log_set_domain_filter_str(env);
+
+    env = g_getenv(ENV_VAR_FATAL);
+    if (env != NULL && ws_log_set_fatal_str(env) == LOG_LEVEL_NONE)
+        fprintf(stderr, "Ignoring invalid environment value %s=\"%s\".\n", ENV_VAR_FATAL, env);
 
     atexit(ws_log_cleanup);
 }
@@ -421,7 +473,8 @@ static void log_write_dispatch(const char *domain, enum ws_log_level level,
 
     g_free(tstamp);
 
-    if (level == LOG_LEVEL_ERROR) {
+    ws_assert(level != LOG_LEVEL_NONE);
+    if (level <= fatal_log_level) {
         G_BREAKPOINT();
         ws_assert_not_reached();
     }
