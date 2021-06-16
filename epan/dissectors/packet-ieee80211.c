@@ -6940,7 +6940,7 @@ static int hf_ieee80211_he_mac_capabilities = -1;
 static int hf_ieee80211_he_htc_he_support = -1;
 static int hf_ieee80211_he_twt_requester_support = -1;
 static int hf_ieee80211_he_twt_responder_support = -1;
-static int hf_ieee80211_he_fragmentation_support = -1;
+static int hf_ieee80211_he_dynamic_fragmentation_support = -1;
 static int hf_ieee80211_he_max_number_fragmented_msdus = -1;
 static int hf_ieee80211_he_min_fragment_size = -1;
 static int hf_ieee80211_he_trigger_frame_mac_padding_dur = -1;
@@ -27077,12 +27077,12 @@ ieee80211_tag_symbol_proprietary_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 }
 
 #define HE_HTC_HE_SUPPORT                0x00000001
-#define HE_FRAGMENTATION_SUPPORT         0x00000018
+#define HE_DYNAMIC_FRAGMENTATION_SUPPORT 0x00000018
 #define HE_ALL_ACK_SUPPORT               0x00000200
 #define HE_UMRS_SUPPORT                  0x00000400
 #define HE_BSR_SUPPORT                   0x00000800
 
-static const val64_string he_fragmentation_support_vals[] = {
+static const val64_string he_dynamic_fragmentation_support_vals[] = {
   { 0, "No support for dynamic fragmentation" },
   { 1, "Level 1 dynamic fragmentation support" },
   { 2, "Level 2 dynamic fragmentation support" },
@@ -27348,7 +27348,7 @@ dissect_he_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     &hf_ieee80211_he_htc_he_support,                           /* 0 */
     &hf_ieee80211_he_twt_requester_support,                    /* 1 */
     &hf_ieee80211_he_twt_responder_support,                    /* 2 */
-    &hf_ieee80211_he_fragmentation_support,                    /* 3 */
+    &hf_ieee80211_he_dynamic_fragmentation_support,            /* 3 */
     &hf_ieee80211_he_max_number_fragmented_msdus,              /* 4 */
     &hf_ieee80211_he_min_fragment_size,                        /* 5 */
     &hf_ieee80211_he_trigger_frame_mac_padding_dur,            /* 6 */
@@ -27425,7 +27425,7 @@ dissect_he_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     he_mac_headers[17] = &hf_ieee80211_he_reserved_bit_25;
     he_mac_headers[25] = &hf_ieee80211_he_reserved_bit_34;
   }
-  if (!(he_mac_caps & HE_FRAGMENTATION_SUPPORT)) {
+  if (!(he_mac_caps & HE_DYNAMIC_FRAGMENTATION_SUPPORT)) {
     he_mac_headers[4]  = &hf_ieee80211_he_reserved_bits_5_7;
     he_mac_headers[5]  = &hf_ieee80211_he_reserved_bits_8_9;
     he_mac_headers[20] = &hf_ieee80211_he_reserved_bit_29;
@@ -48926,10 +48926,10 @@ proto_register_ieee80211(void)
       FT_BOOLEAN, 48, TFS(&tfs_supported_not_supported), 0x000000000004,
       NULL, HFILL }},
 
-    {&hf_ieee80211_he_fragmentation_support,
-     {"Dynamic Fragmentation Support", "wlan.ext_tag.he_mac_cap.fragmentation_support",
+    {&hf_ieee80211_he_dynamic_fragmentation_support,
+     {"Dynamic Fragmentation Support", "wlan.ext_tag.he_mac_cap.dynamic_fragmentation_support",
       FT_UINT48, BASE_DEC|BASE_VAL64_STRING,
-      VALS64(he_fragmentation_support_vals), 0x000000000018,
+      VALS64(he_dynamic_fragmentation_support_vals), 0x000000000018,
       NULL, HFILL }},
 
     {&hf_ieee80211_he_max_number_fragmented_msdus,
