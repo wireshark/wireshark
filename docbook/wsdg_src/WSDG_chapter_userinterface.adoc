@@ -102,12 +102,14 @@ open when the capture file closes.
 
 ===== Names
 
-The code in _ui/qt_ directory uses three APIs: Qt (which uses
-PascalCase), GLib (which uses snake_case), and the Wireshark
-API (which also uses snake_case). As a general rule Wireshark’s Qt
-code uses PascalCase for class names, camelCase for methods,
-and snake_case for variables, with a trailing_underscore_ for member
-variables.
+The code in _ui/qt_ directory uses three APIs: Qt (which uses upper camel case), GLib (which uses snake_case), and the Wireshark
+API (which also uses snake_case). 
+
+As a general rule, for names, Wireshark’s Qt code:
+
+- uses upper camel case, in which words in the name are not separated by underscores, and the first letter of each word is capitalized, for classes, for example, `PacketList`;
+- uses lower camel case, in which words in the name are not separated by underscores, and the first letter of each word other than the first word is capitalized, for methods, for example, `resetColumns`;
+- uses snake case, in which words in the name are separated by underscores, and the first letter of the word is not capitalized, for variables, with a trailing underscore used for member variables, for example, `packet_list_model_`.
 
 ===== Dialogs
 
