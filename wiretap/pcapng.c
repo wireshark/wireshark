@@ -2732,8 +2732,8 @@ pcapng_read_unknown_block(FILE_T fh, pcapng_block_header_t *bh,
 
 static gboolean
 pcapng_read_and_check_block_trailer(FILE_T fh, pcapng_block_header_t *bh,
-                           section_info_t *section_info,
-                           int *err, gchar **err_info)
+                                    section_info_t *section_info,
+                                    int *err, gchar **err_info)
 {
     guint32 block_total_length;
 
