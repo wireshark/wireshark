@@ -408,8 +408,8 @@ lawyer instead. It’s the authors view and this view might be wrong.
 
 Wireshark and its libraries depend on POSIX functions such as fopen()
 and malloc(). On Windows, these functions are provided by the Microsoft
-Visual {cpp} Runtime. There are many different versions of the CRT and
-Visual {cpp} 2015 and later use the _Universal CRT_.
+Visual {cpp} C Runtime (CRT). There are many different versions of the CRT and
+Visual {cpp} 2015 and later use the _Universal CRT_ (UCRT).
 
 The Universal CRT comes standard with Windows 10 and is installed as part
 of Windows Update on earlier versions of Windows. The Wireshark .exe
