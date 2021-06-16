@@ -50,13 +50,12 @@ WS_DLL_PUBLIC
 const char *ws_log_level_to_string(enum ws_log_level level);
 
 
-/** Checks if the active log level would discard a message for the given
- * log domain.
+/** Checks if a domain and level combination generate output.
  *
- * Returns TRUE if a message will be discarded for the domain/log_level combo.
+ * Returns TRUE if a message will be printed for the domain/log_level combo.
  */
 WS_DLL_PUBLIC
-gboolean ws_log_level_is_active(enum ws_log_level level);
+gboolean ws_log_message_is_active(const char *domain, enum ws_log_level level);
 
 
 /** Return the currently active log level. */

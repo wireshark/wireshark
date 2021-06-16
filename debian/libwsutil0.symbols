@@ -232,8 +232,8 @@ libwsutil.so.0 libwsutil0 #MINVER#
  ws_log_get_level@Base 3.5.0
  ws_log_init@Base 3.5.0
  ws_log_init_with_data@Base 3.5.0
- ws_log_level_is_active@Base 3.5.0
  ws_log_level_to_string@Base 3.5.0
+ ws_log_message_is_active@Base 3.5.0
  ws_log_parse_args@Base 3.5.0
  ws_log_print_usage@Base 3.5.0
  ws_log_set_debug_filter@Base 3.5.0
