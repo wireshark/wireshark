@@ -3123,7 +3123,7 @@ static const value_string geographic_location_type_vals[] = {
     {0, NULL}
 };
 
-static int
+int
 dissect_diameter_3gpp_uli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     diam_sub_dis_t *diam_sub_dis = (diam_sub_dis_t*)data;
