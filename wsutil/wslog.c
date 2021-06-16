@@ -36,6 +36,10 @@
  * or "warning". */
 #define ENV_VAR_FATAL       "WIRESHARK_LOG_FATAL"
 
+/* Domains that will produce debug output, regardless of log level or
+ * domain filter. */
+#define ENV_VAR_DEBUG       "WIRESHARK_LOG_DEBUG"
+
 #define DEFAULT_LOG_LEVEL   LOG_LEVEL_MESSAGE
 
 
@@ -47,6 +51,9 @@ static const char *registered_appname = NULL;
 
 /* List of domains to filter. */
 static GPtrArray *domain_filter = NULL;
+
+/* List of domains to output debug level unconditionally. */
+static GPtrArray *debug_filter = NULL;
 
 /* True if active domains should match, false if actice domains should not
  * match. */
@@ -113,7 +120,25 @@ static enum ws_log_level string_to_log_level(const char *str_level)
 
 gboolean ws_log_level_is_active(enum ws_log_level level)
 {
+    /*
+     * Lower numerical levels have higher priority. Critical and above
+     * are always enabled.
+     */
+    if (level <= LOG_LEVEL_CRITICAL)
+        return TRUE;
+
     return level <= current_log_level;
+}
+
+
+static inline gboolean filter_contains(GPtrArray *filter, const char *domain)
+{
+    for (guint i = 0; i < filter->len; i++) {
+        if (g_ascii_strcasecmp(filter->pdata[i], domain) == 0) {
+            return TRUE;
+        }
+    }
+    return FALSE;
 }
 
 
@@ -127,11 +152,8 @@ gboolean ws_log_domain_is_active(const char *domain)
     if (strcmp(domain, LOG_DOMAIN_DEFAULT) == 0)
         return TRUE;
 
-    for (guint i = 0; i < domain_filter->len; i++) {
-        if (g_ascii_strcasecmp(domain_filter->pdata[i], domain) == 0) {
-            return domain_filter_positive;
-        }
-    }
+    if (filter_contains(domain_filter, domain))
+        return domain_filter_positive;
 
     return !domain_filter_positive;
 }
@@ -139,8 +161,9 @@ gboolean ws_log_domain_is_active(const char *domain)
 
 static gboolean log_drop_message(const char *domain, enum ws_log_level level)
 {
-    if (level <= LOG_LEVEL_CRITICAL)
+    if (debug_filter != NULL && filter_contains(debug_filter, domain)) {
         return FALSE;
+    }
 
     return !ws_log_level_is_active(level) || !ws_log_domain_is_active(domain);
 }
@@ -178,6 +201,7 @@ static const char *opt_level   = "--log-level";
 static const char *opt_domains = "--log-domains";
 static const char *opt_file    = "--log-file";
 static const char *opt_fatal   = "--log-fatal";
+static const char *opt_debug   = "--log-debug";
 
 
 int ws_log_parse_args(int *argc_ptr, char *argv[], void (*print_err)(const char *, ...))
@@ -205,6 +229,10 @@ int ws_log_parse_args(int *argc_ptr, char *argv[], void (*print_err)(const char 
         else if (g_str_has_prefix(*ptr, opt_fatal)) {
             option = opt_fatal;
             optlen = strlen(opt_fatal);
+        }
+        else if (g_str_has_prefix(*ptr, opt_debug)) {
+            option = opt_debug;
+            optlen = strlen(opt_debug);
         }
         else {
             ptr += 1;
@@ -270,6 +298,9 @@ int ws_log_parse_args(int *argc_ptr, char *argv[], void (*print_err)(const char 
                 ret += 1;
             }
         }
+        else if (option == opt_debug) {
+            ws_log_set_debug_filter_str(value);
+        }
         else {
             /* Option value missing or invalid, do nothing. */
         }
@@ -291,32 +322,56 @@ int ws_log_parse_args(int *argc_ptr, char *argv[], void (*print_err)(const char 
 }
 
 
-void ws_log_set_domain_filter_str(const char *str_filter)
+static GPtrArray *tokenize_filter_str(const char *str_filter,
+                                        gboolean *ret_positive)
 {
     char *tok;
     const char *sep = ",;";
     char *list, *str;
+    GPtrArray *domains;
+    gboolean positive;
 
-    if (domain_filter != NULL)
-        g_ptr_array_free(domain_filter, TRUE);
+    ws_assert(str_filter);
 
-    domain_filter = g_ptr_array_new_with_free_func(g_free);
+    domains = g_ptr_array_new_with_free_func(g_free);
 
     list = str = g_strdup(str_filter);
 
     if (str[0] == '!') {
-        domain_filter_positive = FALSE;
+        positive = FALSE;
         str += 1;
     }
     else {
-        domain_filter_positive = TRUE;
+        positive = TRUE;
     }
 
     for (tok = strtok(str, sep); tok != NULL; tok = strtok(NULL, sep)) {
-        g_ptr_array_add(domain_filter, g_strdup(tok));
+        g_ptr_array_add(domains, g_strdup(tok));
     }
 
     g_free(list);
+
+    if (ret_positive)
+        *ret_positive = positive;
+    return domains;
+}
+
+
+void ws_log_set_domain_filter_str(const char *str_filter)
+{
+    if (domain_filter != NULL)
+        g_ptr_array_free(domain_filter, TRUE);
+
+    domain_filter = tokenize_filter_str(str_filter, &domain_filter_positive);
+}
+
+
+void ws_log_set_debug_filter_str(const char *str_filter)
+{
+    if (debug_filter != NULL)
+        g_ptr_array_free(debug_filter, TRUE);
+
+    debug_filter = tokenize_filter_str(str_filter, NULL);
 }
 
 
@@ -373,6 +428,10 @@ void ws_log_init(ws_log_writer_cb *writer)
     env = g_getenv(ENV_VAR_FATAL);
     if (env != NULL && ws_log_set_fatal_str(env) == LOG_LEVEL_NONE)
         fprintf(stderr, "Ignoring invalid environment value %s=\"%s\".\n", ENV_VAR_FATAL, env);
+
+    env = g_getenv(ENV_VAR_DEBUG);
+    if (env != NULL)
+        ws_log_set_debug_filter_str(env);
 
     atexit(ws_log_cleanup);
 }
@@ -566,6 +625,10 @@ static void ws_log_cleanup(void)
     if (domain_filter) {
         g_ptr_array_free(domain_filter, TRUE);
         domain_filter = NULL;
+    }
+    if (debug_filter) {
+        g_ptr_array_free(debug_filter, TRUE);
+        debug_filter = NULL;
     }
 }
 

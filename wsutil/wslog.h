@@ -112,6 +112,15 @@ WS_DLL_PUBLIC
 void ws_log_set_domain_filter_str(const char *domain_filter);
 
 
+/** Set a debug filter from a string.
+ *
+ * A debug filter lists all domains that should have debug level output turned
+ * on, regardless of the global log level and domain filter.
+ */
+WS_DLL_PUBLIC
+void ws_log_set_debug_filter_str(const char *str_filter);
+
+
 /** Set the fatal log level.
  *
  * Sets the log level at which calls to ws_log() will abort the program. The
