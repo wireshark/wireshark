@@ -248,7 +248,7 @@ typedef enum {
   PROCESS_FILE_ERROR,
   PROCESS_FILE_INTERRUPTED
 } process_file_status_t;
-static process_file_status_t process_cap_file(capture_file *, char *, int, gboolean, int, gint64);
+static process_file_status_t process_cap_file(capture_file *, char *, int, gboolean, capture_options);
 
 static gboolean process_packet_single_pass(capture_file *cf,
     epan_dissect_t *edt, gint64 offset, wtap_rec *rec, Buffer *buf,
@@ -741,6 +741,7 @@ main(int argc, char *argv[])
   const gchar         *volatile tls_session_keys_file = NULL;
   exp_pdu_t            exp_pdu_tap_data;
   const gchar*         elastic_mapping_filter = NULL;
+  gboolean             use_pcapng = TRUE;
 
 /*
  * The leading + ensures that getopt_long() does not permute the argv[]
@@ -1497,6 +1498,12 @@ main(int argc, char *argv[])
   /* set the default file type to pcapng */
   if (out_file_type == WTAP_FILE_TYPE_SUBTYPE_UNKNOWN)
     out_file_type = wtap_pcapng_file_type_subtype();
+  if (out_file_type == wtap_pcapng_file_type_subtype()) {
+    use_pcapng = TRUE;
+  }
+  else {
+    use_pcapng = FALSE;
+  }
 
   /*
    * Print packet summary information is the default if neither -V or -x
@@ -1704,11 +1711,24 @@ main(int argc, char *argv[])
         goto clean_exit;
       }
       if (global_capture_opts.capture_comment) {
-        cmdarg_err("A capture comment was specified, but "
-          "a capture isn't being done.\nThere's no support for adding "
-          "a capture comment to an existing capture file.");
-        exit_status = INVALID_OPTION;
-        goto clean_exit;
+        if (global_capture_opts.saving_to_file) {
+          /* They specified a "-w" flag, so we'll be saving to a capture file.
+           * This is fine if they're using pcapng.
+           */
+          if (!use_pcapng) {
+            cmdarg_err("A capture comment can only be written to a pcapng file.");
+            exit_status = INVALID_OPTION;
+            goto clean_exit;
+          }
+        }
+        else {
+          cmdarg_err("A capture comment was specified, but "
+              "a capture isn't being done\nand you aren't writing a capture file."
+              "\nThere's no support for adding "
+              "a capture comment to an existing capture file.");
+          exit_status = INVALID_OPTION;
+          goto clean_exit;
+        }
       }
 
       /* Note: TShark now allows the restriction of a _read_ file by packet count
@@ -1736,7 +1756,6 @@ main(int argc, char *argv[])
 
       if (global_capture_opts.saving_to_file) {
         /* They specified a "-w" flag, so we'll be saving to a capture file. */
-        gboolean use_pcapng;
 
         /* When capturing, we only support writing pcap or pcapng format. */
         if (out_file_type == wtap_pcapng_file_type_subtype()) {
@@ -2071,14 +2090,13 @@ main(int argc, char *argv[])
     /* Process the packets in the file */
     ws_debug("tshark: invoking process_cap_file() to process the packets");
     TRY {
-      status = process_cap_file(&cfile, output_file_name, out_file_type, out_file_name_res,
-#ifdef HAVE_LIBPCAP
-          global_capture_opts.has_autostop_packets ? global_capture_opts.autostop_packets : 0,
-          global_capture_opts.has_autostop_filesize ? global_capture_opts.autostop_filesize : 0);
-#else
-          max_packet_count,
-          0);
+#ifndef HAVE_LIBPCAP
+      global_capture_opts.has_autostop_packets = max_packet_count > 0;
+      global_capture_opts.autostop_packets = max_packet_count;
+      global_capture_opts.has_autostop_filesize = FALSE;
+      global_capture_opts.autostop_filesize = 0;
 #endif
+      status = process_cap_file(&cfile, output_file_name, out_file_type, out_file_name_res, global_capture_opts);
     }
     CATCH(OutOfMemoryError) {
       fprintf(stderr,
@@ -3517,7 +3535,7 @@ process_cap_file_single_pass(capture_file *cf, wtap_dumper *pdh,
 
 static process_file_status_t
 process_cap_file(capture_file *cf, char *save_file, int out_file_type,
-    gboolean out_file_name_res, int max_packet_count, gint64 max_byte_count)
+    gboolean out_file_name_res, capture_options capture_opts)
 {
   process_file_status_t status = PROCESS_FILE_SUCCEEDED;
   wtap_dumper *pdh;
@@ -3530,6 +3548,13 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
   wtap_dump_params params = WTAP_DUMP_PARAMS_INIT;
   char        *shb_user_appl;
   pass_status_t first_pass_status, second_pass_status;
+  int          max_packet_count = 0;
+  int          max_byte_count = 0;
+
+  if (capture_opts.has_autostop_packets)
+    max_packet_count = capture_opts.autostop_packets;
+  if (capture_opts.has_autostop_filesize)
+    max_byte_count = capture_opts.autostop_filesize;
 
   if (save_file != NULL) {
     /* Set up to write to the capture file. */
@@ -3539,6 +3564,12 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
     if (wtap_block_get_string_option_value(g_array_index(params.shb_hdrs, wtap_block_t, 0), OPT_SHB_USERAPPL, &shb_user_appl) != WTAP_OPTTYPE_SUCCESS) {
       /* this is free'd by wtap_block_unref() later */
       wtap_block_add_string_option_format(g_array_index(params.shb_hdrs, wtap_block_t, 0), OPT_SHB_USERAPPL, "%s", get_appname_and_version());
+    }
+    if (capture_opts.capture_comment != NULL) {
+      guint i;
+      for (i = 0; i < capture_opts.capture_comment->len; i++) {
+        wtap_block_add_string_option_format(g_array_index(params.shb_hdrs, wtap_block_t, 0), OPT_COMMENT, "%s", (char*)g_ptr_array_index(capture_opts.capture_comment, i));
+      }
     }
 
     ws_debug("tshark: writing format type %d, to %s", out_file_type, save_file);

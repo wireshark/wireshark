@@ -147,6 +147,10 @@ capture_opts_cleanup(capture_options *capture_opts)
         capture_opts->all_ifaces = NULL;
     }
     g_free(capture_opts->save_file);
+    if (capture_opts->capture_comment != NULL) {
+        g_ptr_array_free(capture_opts->capture_comment, TRUE);
+        capture_opts->capture_comment = NULL;
+    }
 }
 
 /* log content of capture_opts */
@@ -800,11 +804,10 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
 
     switch(opt) {
     case LONGOPT_NUM_CAP_COMMENT:  /* capture comment */
-        if (capture_opts->capture_comment) {
-            cmdarg_err("--capture-comment can be set only once per file");
-            return 1;
+        if (!capture_opts->capture_comment) {
+            capture_opts->capture_comment = g_ptr_array_new_with_free_func(g_free);
         }
-        capture_opts->capture_comment = g_strdup(optarg_str_p);
+        g_ptr_array_add(capture_opts->capture_comment, g_strdup(optarg_str_p));
         break;
     case 'a':        /* autostop criteria */
         if (set_autostop_criterion(capture_opts, optarg_str_p) == FALSE) {

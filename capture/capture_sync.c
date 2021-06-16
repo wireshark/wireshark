@@ -258,8 +258,10 @@ sync_pipe_start(capture_options *capture_opts, capture_session *cap_session, inf
         argv = sync_pipe_add_arg(argv, &argc, "-P");
 
     if (capture_opts->capture_comment) {
-        argv = sync_pipe_add_arg(argv, &argc, "--capture-comment");
-        argv = sync_pipe_add_arg(argv, &argc, capture_opts->capture_comment);
+        for (j = 0; j < capture_opts->capture_comment->len; j++) {
+            argv = sync_pipe_add_arg(argv, &argc, "--capture-comment");
+            argv = sync_pipe_add_arg(argv, &argc, (char*)g_ptr_array_index(capture_opts->capture_comment, j));
+        }
     }
 
     if (capture_opts->multi_files_on) {

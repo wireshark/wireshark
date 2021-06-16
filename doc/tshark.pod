@@ -1731,7 +1731,10 @@ SMB packets exchanged by the host at IP address 1.2.3.4 .
 Add a capture comment to the output file.
 
 This option is only available if a new output file in pcapng format is
-created. Only one capture comment may be set per output file.
+created.
+
+This option may be specified multiple times. Note that Wireshark currently only
+recognizes the first comment of a capture file.
 
 =item --list-time-stamp-types
 

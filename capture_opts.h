@@ -313,7 +313,7 @@ typedef struct capture_options_tag {
                                                    is specified */
     gdouble            autostop_duration;     /**< Maximum capture duration */
 
-    gchar             *capture_comment;       /** capture comment to write to the
+    GPtrArray         *capture_comment;       /** capture comment to write to the
                                                   output file */
     gboolean           print_file_names;      /**< TRUE if printing names of completed
                                                    files as we close them */
