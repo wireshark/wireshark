@@ -29,6 +29,16 @@ TSSmartCardCreds ::=  SEQUENCE {
 		 domainHint 	[3] OCTET STRING OPTIONAL
 }
 
+TSRemoteGuardPackageCred ::= SEQUENCE {
+	packageName	[0] OCTET STRING,
+	credBuffer	[1] OCTET STRING
+}
+
+TSRemoteGuardCreds ::= SEQUENCE {
+	logonCred		[0] TSRemoteGuardPackageCred,
+	supplementalCreds	[1] SEQUENCE OF TSRemoteGuardPackageCred OPTIONAL
+}
+
 TSCredentials ::= SEQUENCE {
 	      credType 	   [0] INTEGER,
 	      credentials  [1] OCTET STRING

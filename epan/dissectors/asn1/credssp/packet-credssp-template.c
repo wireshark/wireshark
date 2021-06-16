@@ -28,6 +28,8 @@
 
 #define TS_PASSWORD_CREDS   1
 #define TS_SMARTCARD_CREDS  2
+#define TS_REMOTEGUARD_CREDS  6
+
 static gint creds_type;
 static gint credssp_ver;
 
@@ -44,6 +46,7 @@ static dissector_handle_t gssapi_wrap_handle;
 
 static int hf_credssp_TSPasswordCreds = -1;   /* TSPasswordCreds */
 static int hf_credssp_TSSmartCardCreds = -1;  /* TSSmartCardCreds */
+static int hf_credssp_TSRemoteGuardCreds = -1;/* TSRemoteGuardCreds */
 static int hf_credssp_TSCredentials = -1;     /* TSCredentials */
 static int hf_credssp_decr_PublicKeyAuth = -1;/* decr_PublicKeyAuth */
 #include "packet-credssp-hf.c"
@@ -134,6 +137,10 @@ void proto_register_credssp(void) {
         NULL, HFILL }},
     { &hf_credssp_TSSmartCardCreds,
       { "TSSmartCardCreds", "credssp.TSSmartCardCreds",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_credssp_TSRemoteGuardCreds,
+      { "TSRemoteGuardCreds", "credssp.TSRemoteGuardCreds",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_credssp_TSCredentials,

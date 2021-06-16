@@ -36,6 +36,8 @@
 
 #define TS_PASSWORD_CREDS   1
 #define TS_SMARTCARD_CREDS  2
+#define TS_REMOTEGUARD_CREDS  6
+
 static gint creds_type;
 static gint credssp_ver;
 
@@ -52,6 +54,7 @@ static dissector_handle_t gssapi_wrap_handle;
 
 static int hf_credssp_TSPasswordCreds = -1;   /* TSPasswordCreds */
 static int hf_credssp_TSSmartCardCreds = -1;  /* TSSmartCardCreds */
+static int hf_credssp_TSRemoteGuardCreds = -1;/* TSRemoteGuardCreds */
 static int hf_credssp_TSCredentials = -1;     /* TSCredentials */
 static int hf_credssp_decr_PublicKeyAuth = -1;/* decr_PublicKeyAuth */
 
@@ -72,6 +75,11 @@ static int hf_credssp_pin = -1;                   /* OCTET_STRING */
 static int hf_credssp_cspData = -1;               /* TSCspDataDetail */
 static int hf_credssp_userHint = -1;              /* OCTET_STRING */
 static int hf_credssp_domainHint = -1;            /* OCTET_STRING */
+static int hf_credssp_packageName = -1;           /* T_packageName */
+static int hf_credssp_credBuffer = -1;            /* OCTET_STRING */
+static int hf_credssp_logonCred = -1;             /* TSRemoteGuardPackageCred */
+static int hf_credssp_supplementalCreds = -1;     /* SEQUENCE_OF_TSRemoteGuardPackageCred */
+static int hf_credssp_supplementalCreds_item = -1;  /* TSRemoteGuardPackageCred */
 static int hf_credssp_credType = -1;              /* T_credType */
 static int hf_credssp_credentials = -1;           /* T_credentials */
 static int hf_credssp_version = -1;               /* T_version */
@@ -82,7 +90,7 @@ static int hf_credssp_errorCode = -1;             /* T_errorCode */
 static int hf_credssp_clientNonce = -1;           /* T_clientNonce */
 
 /*--- End of included file: packet-credssp-hf.c ---*/
-#line 50 "./asn1/credssp/packet-credssp-template.c"
+#line 53 "./asn1/credssp/packet-credssp-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_credssp = -1;
@@ -94,11 +102,14 @@ static gint ett_credssp_NegoData_item = -1;
 static gint ett_credssp_TSPasswordCreds = -1;
 static gint ett_credssp_TSCspDataDetail = -1;
 static gint ett_credssp_TSSmartCardCreds = -1;
+static gint ett_credssp_TSRemoteGuardPackageCred = -1;
+static gint ett_credssp_TSRemoteGuardCreds = -1;
+static gint ett_credssp_SEQUENCE_OF_TSRemoteGuardPackageCred = -1;
 static gint ett_credssp_TSCredentials = -1;
 static gint ett_credssp_TSRequest = -1;
 
 /*--- End of included file: packet-credssp-ett.c ---*/
-#line 54 "./asn1/credssp/packet-credssp-template.c"
+#line 57 "./asn1/credssp/packet-credssp-template.c"
 
 
 /*--- Included file: packet-credssp-fn.c ---*/
@@ -107,7 +118,7 @@ static gint ett_credssp_TSRequest = -1;
 
 static int
 dissect_credssp_T_negoToken(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 78 "./asn1/credssp/credssp.cnf"
+#line 81 "./asn1/credssp/credssp.cnf"
 	tvbuff_t *token_tvb = NULL;
 
 	  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -224,6 +235,65 @@ dissect_credssp_TSSmartCardCreds(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
 
 static int
+dissect_credssp_T_packageName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 93 "./asn1/credssp/credssp.cnf"
+	tvbuff_t *pname = NULL;
+
+	offset = dissect_ber_octet_string(implicit_tag, actx, NULL, tvb, offset, hf_index, &pname);
+
+	if(pname != NULL)
+		proto_tree_add_item(tree, hf_index, pname, 0, -1, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+
+
+  return offset;
+}
+
+
+static const ber_sequence_t TSRemoteGuardPackageCred_sequence[] = {
+  { &hf_credssp_packageName , BER_CLASS_CON, 0, 0, dissect_credssp_T_packageName },
+  { &hf_credssp_credBuffer  , BER_CLASS_CON, 1, 0, dissect_credssp_OCTET_STRING },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_credssp_TSRemoteGuardPackageCred(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   TSRemoteGuardPackageCred_sequence, hf_index, ett_credssp_TSRemoteGuardPackageCred);
+
+  return offset;
+}
+
+
+static const ber_sequence_t SEQUENCE_OF_TSRemoteGuardPackageCred_sequence_of[1] = {
+  { &hf_credssp_supplementalCreds_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_credssp_TSRemoteGuardPackageCred },
+};
+
+static int
+dissect_credssp_SEQUENCE_OF_TSRemoteGuardPackageCred(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      SEQUENCE_OF_TSRemoteGuardPackageCred_sequence_of, hf_index, ett_credssp_SEQUENCE_OF_TSRemoteGuardPackageCred);
+
+  return offset;
+}
+
+
+static const ber_sequence_t TSRemoteGuardCreds_sequence[] = {
+  { &hf_credssp_logonCred   , BER_CLASS_CON, 0, 0, dissect_credssp_TSRemoteGuardPackageCred },
+  { &hf_credssp_supplementalCreds, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_credssp_SEQUENCE_OF_TSRemoteGuardPackageCred },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_credssp_TSRemoteGuardCreds(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   TSRemoteGuardCreds_sequence, hf_index, ett_credssp_TSRemoteGuardCreds);
+
+  return offset;
+}
+
+
+
+static int
 dissect_credssp_T_credType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 &creds_type);
@@ -248,6 +318,9 @@ dissect_credssp_T_credentials(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 		break;
 	case TS_SMARTCARD_CREDS:
 		dissect_credssp_TSSmartCardCreds(FALSE, creds_tvb, 0, actx, tree, hf_credssp_TSSmartCardCreds);
+		break;
+	case TS_REMOTEGUARD_CREDS:
+		dissect_credssp_TSRemoteGuardCreds(FALSE, creds_tvb, 0, actx, tree, hf_credssp_TSRemoteGuardCreds);
 		break;
 	}
 
@@ -405,7 +478,7 @@ static int dissect_TSRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
 
 
 /*--- End of included file: packet-credssp-fn.c ---*/
-#line 56 "./asn1/credssp/packet-credssp-template.c"
+#line 59 "./asn1/credssp/packet-credssp-template.c"
 
 /*
 * Dissect CredSSP PDUs
@@ -489,6 +562,10 @@ void proto_register_credssp(void) {
       { "TSSmartCardCreds", "credssp.TSSmartCardCreds",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_credssp_TSRemoteGuardCreds,
+      { "TSRemoteGuardCreds", "credssp.TSRemoteGuardCreds",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_credssp_TSCredentials,
       { "TSCredentials", "credssp.TSCredentials",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -560,6 +637,26 @@ void proto_register_credssp(void) {
       { "domainHint", "credssp.domainHint",
         FT_BYTES, BASE_NONE, NULL, 0,
         "OCTET_STRING", HFILL }},
+    { &hf_credssp_packageName,
+      { "packageName", "credssp.packageName",
+        FT_STRING, STR_UNICODE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_credssp_credBuffer,
+      { "credBuffer", "credssp.credBuffer",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "OCTET_STRING", HFILL }},
+    { &hf_credssp_logonCred,
+      { "logonCred", "credssp.logonCred_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "TSRemoteGuardPackageCred", HFILL }},
+    { &hf_credssp_supplementalCreds,
+      { "supplementalCreds", "credssp.supplementalCreds",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "SEQUENCE_OF_TSRemoteGuardPackageCred", HFILL }},
+    { &hf_credssp_supplementalCreds_item,
+      { "TSRemoteGuardPackageCred", "credssp.TSRemoteGuardPackageCred_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_credssp_credType,
       { "credType", "credssp.credType",
         FT_INT32, BASE_DEC, NULL, 0,
@@ -594,7 +691,7 @@ void proto_register_credssp(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-credssp-hfarr.c ---*/
-#line 148 "./asn1/credssp/packet-credssp-template.c"
+#line 155 "./asn1/credssp/packet-credssp-template.c"
   };
 
   /* List of subtrees */
@@ -608,11 +705,14 @@ void proto_register_credssp(void) {
     &ett_credssp_TSPasswordCreds,
     &ett_credssp_TSCspDataDetail,
     &ett_credssp_TSSmartCardCreds,
+    &ett_credssp_TSRemoteGuardPackageCred,
+    &ett_credssp_TSRemoteGuardCreds,
+    &ett_credssp_SEQUENCE_OF_TSRemoteGuardPackageCred,
     &ett_credssp_TSCredentials,
     &ett_credssp_TSRequest,
 
 /*--- End of included file: packet-credssp-ettarr.c ---*/
-#line 154 "./asn1/credssp/packet-credssp-template.c"
+#line 161 "./asn1/credssp/packet-credssp-template.c"
   };
 
 

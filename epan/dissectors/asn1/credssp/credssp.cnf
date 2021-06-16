@@ -69,6 +69,9 @@ TSRequest
 	case TS_SMARTCARD_CREDS:
 		dissect_credssp_TSSmartCardCreds(FALSE, creds_tvb, 0, actx, tree, hf_credssp_TSSmartCardCreds);
 		break;
+	case TS_REMOTEGUARD_CREDS:
+		dissect_credssp_TSRemoteGuardCreds(FALSE, creds_tvb, 0, actx, tree, hf_credssp_TSRemoteGuardCreds);
+		break;
 	}
 
 
@@ -83,6 +86,16 @@ TSRequest
 		call_dissector(gssapi_handle, token_tvb, actx->pinfo, tree);
 
 
+#.TYPE_ATTR
+TSRemoteGuardPackageCred/packageName TYPE = FT_STRING DISPLAY = STR_UNICODE STRINGS = NULL
+
+#.FN_BODY TSRemoteGuardPackageCred/packageName VAL_PTR = &pname
+	tvbuff_t *pname = NULL;
+
+	offset = dissect_ber_octet_string(implicit_tag, actx, NULL, tvb, offset, hf_index, &pname);
+
+	if(pname != NULL)
+		proto_tree_add_item(tree, hf_index, pname, 0, -1, ENC_UTF_16|ENC_LITTLE_ENDIAN);
 #.END
 
 
