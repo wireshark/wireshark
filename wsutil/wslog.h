@@ -9,43 +9,19 @@
 #ifndef __WSLOG_H__
 #define __WSLOG_H__
 
+#include <ws_log_defs.h>
 #include <ws_symbol_export.h>
 #include <glib.h>
 #include <stdio.h>
 #include <stdarg.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-
-/*
- * Descending order by priority needs to be maintained. Higher priorities have
- * lower values.
- */
-enum ws_log_level {
-     LOG_LEVEL_NONE,       /* not user facing */
-     LOG_LEVEL_ERROR,      /* "error" is always fatal (aborts) */
-     LOG_LEVEL_CRITICAL,   /* always enabled, can be set to fatal */
-     LOG_LEVEL_WARNING,    /* can be set to fatal */
-     LOG_LEVEL_MESSAGE,    /* default level, doesn't show file/function name */
-     LOG_LEVEL_INFO,       /* chatty status but not debug */
-     LOG_LEVEL_DEBUG,      /* normal debugging level */
-     LOG_LEVEL_NOISY,      /* extra verbose debugging */
-     _LOG_LEVEL_LAST
-};
-
-/*
- * Which log domain to use is a matter of policy. Any string is valid (names
- * using parenthesis should be avoided). There are no hard rules but using a
- * non-default pre-defined log domain is a good rule of thumb.
- */
-
-#include <ws_log_domains.h>
-
 #ifndef WS_LOG_DOMAIN
 #define WS_LOG_DOMAIN LOG_DOMAIN_DEFAULT
 #endif
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
 
 /** Callback for registering a log writer. */
 typedef void (ws_log_writer_cb)(const char *domain, enum ws_log_level level,

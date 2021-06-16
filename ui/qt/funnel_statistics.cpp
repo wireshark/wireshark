@@ -17,6 +17,8 @@
 #include "epan/funnel.h"
 #include "epan/prefs.h"
 
+#include <wsutil/wslog.h>
+
 #include "ui/progress_dlg.h"
 #include "ui/simple_dialog.h"
 
@@ -37,7 +39,7 @@
 // - Add a FunnelGraphDialog class?
 
 extern "C" {
-static void funnel_statistics_logger(const gchar *, GLogLevelFlags, const gchar *message, gpointer);
+static void funnel_statistics_logger(const gchar *, enum ws_log_level, const gchar *message, gpointer);
 static void funnel_statistics_retap_packets(funnel_ops_id_t *ops_id);
 static void funnel_statistics_copy_to_clipboard(GString *text);
 static const gchar *funnel_statistics_get_filter(funnel_ops_id_t *ops_id);
@@ -214,14 +216,11 @@ void FunnelStatistics::displayFilterTextChanged(const QString &filter)
     display_filter_ = filter.toUtf8();
 }
 
-
-/* The GTK+ code says "finish this." We shall follow its lead */
-// XXX Finish this.
-void funnel_statistics_logger(const gchar *,
-                          GLogLevelFlags,
+void funnel_statistics_logger(const gchar *log_domain,
+                          enum ws_log_level log_level,
                           const gchar *message,
                           gpointer) {
-    fputs(message, stderr);
+    ws_log(log_domain, log_level, "%s", message);
 }
 
 void funnel_statistics_retap_packets(funnel_ops_id_t *ops_id) {

@@ -26,6 +26,8 @@
 #include <lualib.h>
 #include <lauxlib.h>
 
+#include <ws_log_defs.h>
+
 #include <wiretap/wtap.h>
 
 #include <wsutil/report_message.h>
@@ -56,7 +58,7 @@
 #define WSLUA_INIT_ROUTINES "init_routines"
 #define WSLUA_PREFS_CHANGED "prefs_changed"
 
-typedef void (*wslua_logger_t)(const gchar *, GLogLevelFlags, const gchar *, gpointer);
+typedef void (*wslua_logger_t)(const gchar *, enum ws_log_level, const gchar *, gpointer);
 extern wslua_logger_t wslua_logger;
 
 /* type conversion macros - lua_Number is a double, so casting isn't kosher; and

@@ -3378,7 +3378,7 @@ set(SHARK_PUBLIC_HEADERS
 	ws_attributes.h
 	ws_compiler_tests.h
 	ws_diag_control.h
-	ws_log_domains.h
+	ws_log_defs.h
 	ws_symbol_export.h
 	version_info.h
 	${CMAKE_BINARY_DIR}/ws_version.h

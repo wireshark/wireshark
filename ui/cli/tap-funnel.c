@@ -20,6 +20,8 @@
 
 #include "ws_attributes.h"
 
+#include <wsutil/wslog.h>
+
 void register_tap_listener_funnel(void);
 
 struct _funnel_text_window_t {
@@ -64,12 +66,11 @@ static const gchar *text_window_get_text(funnel_text_window_t *tw) {
     return tw->text->str;
 }
 
-/* XXX: finish this */
-static void funnel_logger(const gchar *log_domain _U_,
-                          GLogLevelFlags log_level _U_,
+static void funnel_logger(const gchar *log_domain,
+                          enum ws_log_level log_level,
                           const gchar *message,
                           gpointer user_data _U_) {
-    fputs(message, stderr);
+    ws_log(log_domain, log_level, "%s", message);
 }
 
 

@@ -17,6 +17,7 @@
 #include <glib.h>
 #include <epan/stat_groups.h>
 #include "ws_symbol_export.h"
+#include <ws_log_defs.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -67,7 +68,7 @@ typedef struct _funnel_ops_t {
     void (*close_dialogs)(void);
 
     void (*logger)(const gchar *log_domain,
-                   GLogLevelFlags log_level,
+                   enum ws_log_level log_level,
                    const gchar *message,
                    gpointer user_data);
 

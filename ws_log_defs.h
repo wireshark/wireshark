@@ -1,4 +1,4 @@
-/* ws_log_domains.h
+/* ws_log_defs.h
  * log domain definitions
  *
  * Wireshark - Network traffic analyzer
@@ -10,6 +10,12 @@
 
 #ifndef __WS_LOG_DOMAINS_H__
 #define __WS_LOG_DOMAINS_H__
+
+/*
+ * Which log domain to use is a matter of policy. Any string is valid (names
+ * using parenthesis should be avoided). There are no hard rules but using a
+ * non-default pre-defined log domain is a good rule of thumb.
+ */
 
      /* Null domain */
 #define LOG_DOMAIN_NONE       "(notset)"
@@ -26,6 +32,22 @@
 #define LOG_DOMAIN_EPAN       "Epan"
 #define LOG_DOMAIN_WSUTIL     "WSUtil"
 #define LOG_DOMAIN_QTUI       "GUI"
+
+/*
+ * Descending order by priority needs to be maintained. Higher priorities have
+ * lower values.
+ */
+enum ws_log_level {
+     LOG_LEVEL_NONE,       /* not user facing */
+     LOG_LEVEL_ERROR,      /* "error" is always fatal (aborts) */
+     LOG_LEVEL_CRITICAL,   /* always enabled, can be set to fatal */
+     LOG_LEVEL_WARNING,    /* can be set to fatal */
+     LOG_LEVEL_MESSAGE,    /* default level, doesn't show file/function name */
+     LOG_LEVEL_INFO,       /* chatty status but not debug */
+     LOG_LEVEL_DEBUG,      /* normal debugging level */
+     LOG_LEVEL_NOISY,      /* extra verbose debugging */
+     _LOG_LEVEL_LAST
+};
 
 #endif /* __WS_LOG_DOMAINS_H__ */
 

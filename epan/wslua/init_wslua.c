@@ -23,6 +23,7 @@
 #include <epan/ex-opt.h>
 #include <wsutil/privileges.h>
 #include <wsutil/file_util.h>
+#include <wsutil/wslog.h>
 
 /* linked list of Lua plugins */
 typedef struct _wslua_plugin {
@@ -605,11 +606,11 @@ static gboolean lua_load_plugin_script(const gchar* name,
 }
 
 
-static void basic_logger(const gchar *log_domain _U_,
-                          GLogLevelFlags log_level _U_,
+static void basic_logger(const gchar *log_domain,
+                          enum ws_log_level log_level,
                           const gchar *message,
                           gpointer user_data _U_) {
-    fputs(message,stderr);
+    ws_log(log_domain, log_level, "%s", message);
 }
 
 static int wslua_panic(lua_State* LS) {
