@@ -755,6 +755,14 @@ pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh,
     }
 
     /*
+     * Add padding bytes to the block total length.
+     *
+     * See the comment in pcapng_read_block() for a long discussion
+     * of this.
+     */
+    bh->block_total_length = ROUND_TO_4BYTE(bh->block_total_length);
+
+    /*
      * Is this block long enough to be an SHB?
      */
     if (bh->block_total_length < MIN_SHB_SIZE) {
@@ -1302,7 +1310,6 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh,
     pcapng_enhanced_packet_block_t epb;
     pcapng_packet_block_t pb;
     wtapng_packet_t packet;
-    guint32 block_total_length;
     guint32 padding;
     interface_info_t iface_info;
     guint64 ts;
@@ -1396,38 +1403,29 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh,
     else
         padding = 0;
 
-    /* add padding bytes to "block total length" */
-    /* (the "block total length" of some example files don't contain the packet data padding bytes!) */
-    if (bh->block_total_length % 4) {
-        block_total_length = bh->block_total_length + 4 - (bh->block_total_length % 4);
-    } else {
-        block_total_length = bh->block_total_length;
-    }
-    ws_debug("block_total_length %d", block_total_length);
-
     /*
      * Is this block long enough to hold the packet data?
      */
     if (enhanced) {
-        if (block_total_length <
+        if (bh->block_total_length <
             MIN_EPB_SIZE + packet.cap_len + padding) {
             /*
              * No.
              */
             *err = WTAP_ERR_BAD_FILE;
             *err_info = g_strdup_printf("pcapng: total block length %u of EPB is too small for %u bytes of packet data",
-                                        block_total_length, packet.cap_len);
+                                        bh->block_total_length, packet.cap_len);
             return FALSE;
         }
     } else {
-        if (block_total_length <
+        if (bh->block_total_length <
             MIN_PB_SIZE + packet.cap_len + padding) {
             /*
              * No.
              */
             *err = WTAP_ERR_BAD_FILE;
             *err_info = g_strdup_printf("pcapng: total block length %u of PB is too small for %u bytes of packet data",
-                                        block_total_length, packet.cap_len);
+                                        bh->block_total_length, packet.cap_len);
             return FALSE;
         }
     }
@@ -1523,7 +1521,7 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh,
      * epb_queue      6
      * epb_verdict    7
      */
-    to_read = block_total_length -
+    to_read = bh->block_total_length -
         (int)sizeof(pcapng_block_header_t) -
         block_read -    /* fixed and variable part, including padding */
         (int)sizeof(bh->block_total_length);
@@ -1753,7 +1751,6 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh,
     interface_info_t iface_info;
     pcapng_simple_packet_block_t spb;
     wtapng_simple_packet_t simple_packet;
-    guint32 block_total_length;
     guint32 padding;
     int pseudo_header_len;
 
@@ -1807,19 +1804,10 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh,
     else
         padding = 0;
 
-    /* add padding bytes to "block total length" */
-    /* (the "block total length" of some example files don't contain the packet data padding bytes!) */
-    if (bh->block_total_length % 4) {
-        block_total_length = bh->block_total_length + 4 - (bh->block_total_length % 4);
-    } else {
-        block_total_length = bh->block_total_length;
-    }
-    ws_debug("block_total_length %d", block_total_length);
-
     /*
      * Is this block long enough to hold the packet data?
      */
-    if (block_total_length < MIN_SPB_SIZE + simple_packet.cap_len + padding) {
+    if (bh->block_total_length < MIN_SPB_SIZE + simple_packet.cap_len + padding) {
         /*
          * No.  That means that the problem is with the packet
          * length; the snapshot length can be bigger than the amount
@@ -1828,7 +1816,7 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh,
          */
         *err = WTAP_ERR_BAD_FILE;
         *err_info = g_strdup_printf("pcapng: total block length %u of PB is too small for %u bytes of packet data",
-                                    block_total_length, simple_packet.packet_len);
+                                    bh->block_total_length, simple_packet.packet_len);
         return FALSE;
     }
 
@@ -2747,6 +2735,19 @@ pcapng_read_and_check_block_trailer(FILE_T fh, pcapng_block_header_t *bh,
     if (section_info->byte_swapped)
         block_total_length = GUINT32_SWAP_LE_BE(block_total_length);
 
+    /*
+     * According to the pcapng spec, this should equal the block total
+     * length value at the beginning of the block, which MUST (in the
+     * IANA sense) be a multiple of 4.
+     *
+     * We round the value at the beginning of the block to a multiple
+     * of 4, so do so with this value as well.  This *does* mean that
+     * the two values, if they're not both multiples of 4, can differ
+     * and this code won't detect that, but we're already not detecting
+     * non-multiple-of-4 total lengths.
+     */
+    block_total_length = ROUND_TO_4BYTE(block_total_length);
+
     if (block_total_length != bh->block_total_length) {
         *err = WTAP_ERR_BAD_FILE;
         *err_info = g_strdup_printf("pcapng: total block lengths (first %u and second %u) don't match",
@@ -2824,6 +2825,35 @@ pcapng_read_block(wtap *wth, FILE_T fh, pcapng_t *pn,
             bh.block_type         = GUINT32_SWAP_LE_BE(bh.block_type);
             bh.block_total_length = GUINT32_SWAP_LE_BE(bh.block_total_length);
         }
+
+        /*
+         * Add padding bytes to the block total length.
+         * (The "block total length" fields of some example files
+         * don't contain the packet data padding bytes!)
+         *
+         * For all block types currently defined in the pcapng
+         * specification, the portion of the block that precedes
+         * the options is, if necessary, padded to be a multiple
+         * of 4 octets, the header of an option is 4 octets long,
+         * and the value of an option is also padded to be a
+         * multiple of 4 octets, so the total length of a block
+         * is always a multiple of 4 octets.
+         *
+         * If you have defined a block where that is not true, you
+         * have violated the pcapng specification - hwere it says
+         * that "[The value fo the Block Total Length] MUST be a
+         * multiple of 4.", with MUST as described in BCP 14 (RFC 2119/
+         * RFC 8174).
+         *
+         * Therefore, if adjusting the block total length causes the
+         * code to read your block type not to work, that's your
+         * problem.  It's bad enough that some blocks were written
+         * out with the block total length not including the padding.
+         * (Please note that libpcap is less forgiving that we are;
+         * it reports an error if the block total length isn't a
+         * multiple of 4.)
+         */
+        bh.block_total_length = ROUND_TO_4BYTE(bh.block_total_length);
 
         wblock->type = bh.block_type;
 
