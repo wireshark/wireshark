@@ -17,6 +17,9 @@
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
+#ifdef _WIN32
+#include <process.h>
+#endif
 #include <ws_attributes.h>
 
 #include <wsutil/ws_assert.h>
@@ -334,35 +337,41 @@ static void log_write_do_work(FILE *fp, gboolean use_color, const char *timestam
                                 const char *file, int line, const char *func,
                                 const char *user_format, va_list user_ap)
 {
-#ifndef _WIN32
-    fprintf(fp, " ** (%s:%ld) ",
-                    registered_appname ? registered_appname : "PID", (long)getpid());
-#else
-    if (registered_appname)
-        fprintf(fp, " ** (%s) ", registered_appname);
-    else
-        fprintf(fp, " ** ");
-#endif
-
-    if (timestamp)
-        fputs(timestamp, fp);
-
     const char *level_str = ws_log_level_to_string(level);
+    gboolean doextra = (level != LOG_LEVEL_MESSAGE);
 
-    if (strcmp(domain, LOG_DOMAIN_DEFAULT) != 0)
-        fprintf(fp, " [%s-%s]", domain, level_str);
-    else
-        fprintf(fp, " [%s]", level_str);
+    if (doextra) {
+        fprintf(fp, " ** (%s:%ld) ", registered_appname ?
+                        registered_appname : "PID", (long)getpid());
+    }
+    else {
+        fputs(" ** ", fp);
+    }
 
-    if (file && line >= 0)
-        fprintf(fp, " %s:%d", file, line);
-    else if (file)
-        fprintf(fp, " %s", file);
+    if (timestamp) {
+        fputs(timestamp, fp);
+        fputc(' ', fp);
+    }
 
-    fputs(" -- ", fp);
+    if (strcmp(domain, LOG_DOMAIN_DEFAULT) != 0) {
+        fprintf(fp, "[%s-%s] ", domain, level_str);
+    }
+    else {
+        fprintf(fp, "[%s] ", level_str);
+    }
 
-    if (func)
-        fprintf(fp, "%s%s()%s: " , color_on(use_color), func, color_off(use_color));
+    if (doextra) {
+        if (file && line >= 0) {
+            fprintf(fp, "%s:%d ", file, line);
+        }
+        else if (file) {
+            fprintf(fp, "%s ", file);
+        }
+        fputs("-- ", fp);
+        if (func) {
+            fprintf(fp, "%s%s()%s: " , color_on(use_color), func, color_off(use_color));
+        }
+    }
 
     vfprintf(fp, user_format, user_ap);
     fputc('\n', fp);
