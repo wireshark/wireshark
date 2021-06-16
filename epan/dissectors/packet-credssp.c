@@ -130,7 +130,6 @@ dissect_credssp_T_negoToken(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 
 
-
   return offset;
 }
 
@@ -236,13 +235,20 @@ dissect_credssp_TSSmartCardCreds(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
 static int
 dissect_credssp_T_packageName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 93 "./asn1/credssp/credssp.cnf"
+#line 92 "./asn1/credssp/credssp.cnf"
 	tvbuff_t *pname = NULL;
+	proto_tree *subtree;
 
-	offset = dissect_ber_octet_string(implicit_tag, actx, NULL, tvb, offset, hf_index, &pname);
+	  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       &pname);
 
-	if(pname != NULL)
-		proto_tree_add_item(tree, hf_index, pname, 0, -1, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+
+	if (!pname)
+		return offset;
+
+	subtree = proto_item_add_subtree(actx->created_item, ett_credssp_TSRemoteGuardPackageCred);
+	proto_tree_add_item(subtree, hf_index, pname, 0, -1, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+
 
 
   return offset;
