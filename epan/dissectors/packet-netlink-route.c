@@ -1167,7 +1167,7 @@ static const value_string netlink_route_rt_type_vals[] = {
 	{ WS_RTN_UNREACHABLE, "Unreachable destination" },
 	{ WS_RTN_PROHIBIT,    "Administratively prohibited" },
 	{ WS_RTN_THROW,       "Routing lookup in another table" },
-	{ WS_RTN_NAT,         "Netwrk address translation rule" },
+	{ WS_RTN_NAT,         "Network address translation rule" },
 	{ WS_RTN_XRESOLVE,    "Use external resolver" },
 	{ 0, NULL }
 };
@@ -1318,7 +1318,7 @@ hfi_netlink_route_nd_states_label(char *label, guint32 value)
 		{ WS_NUD_PROBE,      "PROBE" },
 		{ WS_NUD_FAILED,     "FAILED" },
 		{ WS_NUD_NOARP,      "NOARP" },
-		{ WS_NUD_PERMANENT,  "PERMAMENT" },
+		{ WS_NUD_PERMANENT,  "PERMANENT" },
 		{ 0, NULL }
 	};
 
