@@ -52,7 +52,7 @@ WSLUA_CLASS_DEFINE(Tvb,FAIL_ON_NULL_OR_EXPIRED("Tvb"));
    and can be used to extract information (via `TvbRange`) from the packet's data.
 
    To create a `TvbRange` the `Tvb` must be called with offset and length as optional arguments;
-   the offset defaults to 0 and the length to `tvb:len()`.
+   the offset defaults to 0 and the length to `tvb:captured_len()`.
 
    [WARNING]
    ====
@@ -130,15 +130,24 @@ static int Tvb__gc(lua_State* L) {
 }
 
 WSLUA_METHOD Tvb_reported_len(lua_State* L) {
-    /* Obtain the reported (not captured) length of a `Tvb`. */
+    /* Obtain the reported length (length on the network) of a `Tvb`. */
     Tvb tvb = checkTvb(L,1);
 
     lua_pushnumber(L,tvb_reported_length(tvb->ws_tvb));
     WSLUA_RETURN(1); /* The reported length of the `Tvb`. */
 }
 
+WSLUA_METHOD Tvb_captured_len(lua_State* L) {
+    /* Obtain the captured length (amount saved in the capture process) of a `Tvb`. */
+    Tvb tvb = checkTvb(L,1);
+
+    lua_pushnumber(L,tvb_captured_length(tvb->ws_tvb));
+    WSLUA_RETURN(1); /* The captured length of the `Tvb`. */
+}
+
 WSLUA_METHOD Tvb_len(lua_State* L) {
-    /* Obtain the actual (captured) length of a `Tvb`. */
+    /* Obtain the captured length (amount saved in the capture process) of a `Tvb`.
+       Same as captured_len; kept only for backwards compatibility */
     Tvb tvb = checkTvb(L,1);
 
     lua_pushnumber(L,tvb_captured_length(tvb->ws_tvb));
@@ -297,10 +306,11 @@ WSLUA_METAMETHOD Tvb__eq(lua_State* L) {
 WSLUA_METHODS Tvb_methods[] = {
     WSLUA_CLASS_FNREG(Tvb,bytes),
     WSLUA_CLASS_FNREG(Tvb,range),
-    WSLUA_CLASS_FNREG(Tvb,len),
     WSLUA_CLASS_FNREG(Tvb,offset),
     WSLUA_CLASS_FNREG(Tvb,reported_len),
     WSLUA_CLASS_FNREG(Tvb,reported_length_remaining),
+    WSLUA_CLASS_FNREG(Tvb,captured_len),
+    WSLUA_CLASS_FNREG(Tvb,len),
     WSLUA_CLASS_FNREG(Tvb,raw),
     { NULL, NULL }
 };
