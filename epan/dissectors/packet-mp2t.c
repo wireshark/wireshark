@@ -507,9 +507,9 @@ mp2t_fragment_handle(tvbuff_t *tvb, guint offset, packet_info *pinfo,
         guint frag_offset, guint frag_len,
         gboolean fragment_last, enum pid_payload_type pload_type)
 {
-    /* proto_item *ti; */
     fragment_head *frag_msg;
     tvbuff_t      *new_tvb;
+    const char    *save_proto;
     gboolean       save_fragmented;
     address        save_src, save_dst;
 
@@ -540,8 +540,29 @@ mp2t_fragment_handle(tvbuff_t *tvb, guint offset, packet_info *pinfo,
     copy_address_shallow(&pinfo->dst, &save_dst);
 
     if (new_tvb) {
-        /* ti = */ proto_tree_add_item(tree, hf_msg_ts_packet_reassembled, tvb, 0, 0, ENC_NA);
-        mp2t_dissect_packet(new_tvb, pload_type, pinfo, tree);
+        proto_tree_add_item(tree, hf_msg_ts_packet_reassembled, tvb, 0, 0, ENC_NA);
+        save_proto = pinfo->current_proto;
+        /*
+         * Dissect the reassembled packet.
+         *
+         * Because there isn't an explicit fragment ID (other than one
+         * we've made ourselves) if frames were dropped or out of order
+         * it's quite likely that a subdissector throws an exception.
+         * However, that doesn't mean we must stop dissecting, since we have
+         * the pointer to where the next upper level packet begins in the
+         * TSP begins. (Also, we want to make sure we increment our fragment
+         * ID and store the packet analysis data, which happens after this
+         * back in the calling function.)
+         */
+        TRY {
+            mp2t_dissect_packet(new_tvb, pload_type, pinfo, tree);
+        }
+        CATCH_NONFATAL_ERRORS {
+            show_exception(tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
+
+            pinfo->current_proto = save_proto;
+        }
+        ENDTRY;
     } else {
         col_set_str(pinfo->cinfo, COL_INFO, "[MP2T fragment of a reassembled packet]");
     }
@@ -858,6 +879,10 @@ mp2t_process_fragmented_payload(tvbuff_t *tvb, gint offset, guint remaining_len,
         frag_cur_pos += remaining_len;
     }
 
+    /* XXX: Ideally this would be handled with a TRY...FINALLY or
+     * similar, with more care taken to keep things consistent even
+     * with fatal errors in subdissectors.
+     */
 save_state:
     pid_analysis->fragmentation = fragmentation;
     pid_analysis->frag_cur_pos = frag_cur_pos;
