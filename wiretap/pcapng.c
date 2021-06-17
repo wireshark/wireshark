@@ -2961,7 +2961,7 @@ pcapng_process_idb(wtap *wth, section_info_t *section_info,
     iface_info.tsprecision = wblock_if_descr_mand->tsprecision;
 
     if (wtap_block_get_uint8_option_value(wblock->block, OPT_IDB_FCSLEN,
-        &if_fcslen) == WTAP_OPTTYPE_SUCCESS)
+                                          &if_fcslen) == WTAP_OPTTYPE_SUCCESS)
         iface_info.fcslen = if_fcslen;
     else
         iface_info.fcslen = -1;
@@ -3407,7 +3407,7 @@ pcapng_seek_read(wtap *wth, gint64 seek_off,
 
     /* read the block */
     if (!pcapng_read_block(wth, wth->random_fh, pcapng, section_info,
-                          &new_section, &wblock, err, err_info)) {
+                           &new_section, &wblock, err, err_info)) {
         ws_debug("couldn't read packet block (err=%d).", *err);
         wtap_block_free(wblock.block);
         return FALSE;
