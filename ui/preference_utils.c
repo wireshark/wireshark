@@ -14,6 +14,7 @@
 
 #include <epan/column.h>
 #include <wsutil/filesystem.h>
+#include <wsutil/wslog.h>
 #include <epan/prefs.h>
 #include <epan/prefs-int.h>
 #include <epan/packet.h>
