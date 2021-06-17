@@ -5475,7 +5475,7 @@ static const struct supported_block_type pcapng_blocks_supported[] = {
     { WTAP_BLOCK_SYSTEMD_JOURNAL_EXPORT, MULTIPLE_BLOCKS_SUPPORTED, OPTION_TYPES_SUPPORTED(systemd_journal_export_block_options_supported) },
 
     /* Multiple custom blocks. */
-    { WTAP_BLOCK_CUSTOM_BLOCK, MULTIPLE_BLOCKS_SUPPORTED, NO_OPTIONS_SUPPORTED },
+    { WTAP_BLOCK_CUSTOM, MULTIPLE_BLOCKS_SUPPORTED, NO_OPTIONS_SUPPORTED },
 };
 
 static const struct file_type_subtype_info pcapng_info = {
