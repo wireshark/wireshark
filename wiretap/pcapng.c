@@ -2354,6 +2354,9 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh,
         return FALSE;
     }
 
+    /*
+     * Set wblock->block to a newly-allocated interface statistics block.
+     */
     wblock->block = wtap_block_create(WTAP_BLOCK_IF_STATISTICS);
 
     /*
@@ -2465,7 +2468,6 @@ pcapng_read_sysdig_event_block(FILE_T fh, pcapng_block_header_t *bh,
                                int *err, gchar **err_info)
 {
     unsigned block_read;
-    guint32 block_total_length;
     guint16 cpu_id;
     guint64 wire_ts;
     guint64 ts;
@@ -2487,17 +2489,6 @@ pcapng_read_sysdig_event_block(FILE_T fh, pcapng_block_header_t *bh,
                                     bh->block_total_length, min_event_size);
         return FALSE;
     }
-
-    /* add padding bytes to "block total length" */
-    /* (the "block total length" of some example files don't contain any padding bytes!) */
-    if (bh->block_total_length % 4) {
-        block_total_length = bh->block_total_length + 4 - (bh->block_total_length % 4);
-    } else {
-        block_total_length = bh->block_total_length;
-    }
-
-    ws_debug("block_total_length %u",
-             bh->block_total_length);
 
     wblock->rec->rec_type = REC_TYPE_SYSCALL;
     wblock->rec->rec_header.syscall_header.record_type = bh->block_type;
@@ -2558,7 +2549,7 @@ pcapng_read_sysdig_event_block(FILE_T fh, pcapng_block_header_t *bh,
     wblock->rec->ts.secs = (time_t) (ts / 1000000000);
     wblock->rec->ts.nsecs = (int) (ts % 1000000000);
 
-    block_read = block_total_length - min_event_size;
+    block_read = bh->block_total_length - min_event_size;
 
     wblock->rec->rec_header.syscall_header.event_filelen = block_read;
 
@@ -2581,7 +2572,6 @@ static gboolean
 pcapng_read_systemd_journal_export_block(wtap *wth, FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn _U_, wtapng_block_t *wblock, int *err, gchar **err_info)
 {
     guint32 entry_length;
-    guint32 block_total_length;
     guint64 rt_ts;
     gboolean have_ts = FALSE;
 
@@ -2592,17 +2582,7 @@ pcapng_read_systemd_journal_export_block(wtap *wth, FILE_T fh, pcapng_block_head
         return FALSE;
     }
 
-    /* add padding bytes to "block total length" */
-    /* (the "block total length" of some example files don't contain any padding bytes!) */
-    if (bh->block_total_length % 4) {
-        block_total_length = bh->block_total_length + 4 - (bh->block_total_length % 4);
-    } else {
-        block_total_length = bh->block_total_length;
-    }
-
-    ws_debug("block_total_length %u", bh->block_total_length);
-
-    entry_length = block_total_length - MIN_BLOCK_SIZE;
+    entry_length = bh->block_total_length - MIN_BLOCK_SIZE;
 
     /* Includes padding bytes. */
     if (!wtap_read_packet_bytes(fh, wblock->frame_buffer,
@@ -2687,7 +2667,6 @@ pcapng_read_unknown_block(FILE_T fh, pcapng_block_header_t *bh,
     int *err, gchar **err_info)
 {
     guint32 block_read;
-    guint32 block_total_length;
 #ifdef HAVE_PLUGINS
     block_handler *handler;
 #endif
@@ -2699,15 +2678,7 @@ pcapng_read_unknown_block(FILE_T fh, pcapng_block_header_t *bh,
         return FALSE;
     }
 
-    /* add padding bytes to "block total length" */
-    /* (the "block total length" of some example files don't contain any padding bytes!) */
-    if (bh->block_total_length % 4) {
-        block_total_length = bh->block_total_length + 4 - (bh->block_total_length % 4);
-    } else {
-        block_total_length = bh->block_total_length;
-    }
-
-    block_read = block_total_length - MIN_BLOCK_SIZE;
+    block_read = bh->block_total_length - MIN_BLOCK_SIZE;
 
 #ifdef HAVE_PLUGINS
     /*
