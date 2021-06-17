@@ -4983,7 +4983,59 @@
 		<avp name="Secondary-RAT-Type" code="1304" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="OctetString"/>
 		</avp>
-
+    <avp name="Civic-Address-Information" code="1305" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="UTF8String"/>
+    </avp>
+    		<avp name="WLAN-Operator-Id" code="1306" vendor-bit="must" vendor-id="TGPP">
+			<grouped>
+				<gavp name="WLAN-PLMN-Id"/>
+				<gavp name="WLAN-Operator-Name"/>
+			</grouped>
+		</avp>
+    <avp name="WLAN-Operator-Name" code="1307" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="UTF8String"/>
+    </avp>
+    <avp name="WLAN-PLMN-Id" code="1308" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="UTF8String"/>
+    </avp>
+    <avp name="API-Content" code="1309" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="UTF8String"/>
+    </avp>
+		<avp name="API-Direction" code="1310" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="Invocation" code="0"/>
+			<enum name="Notification" code="1"/>
+		</avp>
+    <avp name="API-Identifier" code="1311" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="OctetString"/>
+    </avp>
+    <avp name="API-Invocation-Timestamp" code="1312" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Time"/>
+    </avp>
+    <avp name="API-Result-Code" code="1313" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Unsigned32"/>
+    </avp>
+    <avp name="API-Size" code="1314" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Unsigned64"/>
+    </avp>
+    <!-- The API-Network-Service-Node AVP (AVP code 1315) is of type Enumerated,and holds the identifier of the network element as defined in TS 23.682[243], that triggers the API notification.
+		<avp name="API-Network-Service-Node" code="1315" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="" code="0"/>
+			<enum name="" code="1"/>
+		</avp>
+-->
+    <!--
+1315	API-Network-Service-Node	Enumerated
+1316	Exposure-Function-API-Information	Grouped
+1317	SCEF-Address	Address
+1318	TLTRI	Unsigned32
+1319	TTRI	Unsigned32
+1320	3GPP-OC-Specific-Reduction	Grouped
+1321	3GPP-OC-Rating-Group	Unsigned32
+1322	3GPP-OC-Request-Type	Enumerated
+1323	VoLTE-Information	Grouped
+-->
 		<!-- 3GPP TS 29.272 V9.1.0 (2009-12 -->
 		<avp name="Subscription-Data" code="1400" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
 			<grouped>
