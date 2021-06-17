@@ -5471,7 +5471,7 @@ static const struct supported_block_type pcapng_blocks_supported[] = {
     /* Multiple file-type specific events (including local ones). */
     { WTAP_BLOCK_FT_SPECIFIC_EVENT, MULTIPLE_BLOCKS_SUPPORTED, OPTION_TYPES_SUPPORTED(ft_specific_event_block_options_supported) },
 
-    /* Multiple systemd journal records. */
+    /* Multiple systemd journal export records. */
     { WTAP_BLOCK_SYSTEMD_JOURNAL_EXPORT, MULTIPLE_BLOCKS_SUPPORTED, OPTION_TYPES_SUPPORTED(systemd_journal_export_block_options_supported) },
 
     /* Multiple custom blocks. */
