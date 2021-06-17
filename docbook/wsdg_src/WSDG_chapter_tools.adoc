@@ -627,7 +627,7 @@ You can also use Chocolatey to install Python:
 
 [source,cmd]
 ----
-PS:\> choco install Python3
+PS:\> choco install python3
 ----
 
 Chocolatey installs Python into _C:\Python37_ by
@@ -717,13 +717,13 @@ straightforward.
 You may also use Chocolatey to install either package:
 
 ----
-PS:\> choco install StrawberryPerl
+PS:\> choco install strawberryperl
 ----
 
 or
 
 ----
-PS:\> choco install ActivePerl
+PS:\> choco install activeperl
 ----
 
 After correct installation, typing at the command
