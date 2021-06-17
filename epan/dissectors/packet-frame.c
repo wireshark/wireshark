@@ -384,7 +384,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 		pinfo->current_proto = "System Call";
 		break;
 
-	case REC_TYPE_SYSTEMD_JOURNAL:
+	case REC_TYPE_SYSTEMD_JOURNAL_EXPORT:
 		pinfo->current_proto = "Systemd Journal";
 		break;
 
@@ -507,7 +507,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 			    pinfo->num, frame_len, frame_plurality);
 			break;
 
-		case REC_TYPE_SYSTEMD_JOURNAL:
+		case REC_TYPE_SYSTEMD_JOURNAL_EXPORT:
 			/*
 			 * XXX - we need to rethink what's handled by
 			 * packet-record.c, what's handled by packet-frame.c.
@@ -844,7 +844,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 				}
 				break;
 
-			case REC_TYPE_SYSTEMD_JOURNAL:
+			case REC_TYPE_SYSTEMD_JOURNAL_EXPORT:
 				if (systemd_journal_handle) {
 					call_dissector_with_data(systemd_journal_handle,
 					    tvb, pinfo, parent_tree,

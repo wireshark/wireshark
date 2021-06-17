@@ -41,7 +41,7 @@
 #define SDJOURNAL_VERSION_RELEASE "0"
 
 #define SDJOURNAL_EXTCAP_INTERFACE "sdjournal"
-#define BLOCK_TYPE_SYSTEMD_JOURNAL 0x00000009
+#define BLOCK_TYPE_SYSTEMD_JOURNAL_EXPORT 0x00000009
 
 enum {
 	EXTCAP_BASE_OPTIONS_ENUM,
@@ -81,7 +81,7 @@ static int sdj_dump_entries(sd_journal *jnl, FILE* fp)
 		uint64_t pkt_rt_ts, mono_ts;
 		sd_id128_t boot_id;
 		char boot_id_str[FLD_BOOT_ID_LEN] = FLD_BOOT_ID;
-		guint32 block_type = BLOCK_TYPE_SYSTEMD_JOURNAL;
+		guint32 block_type = BLOCK_TYPE_SYSTEMD_JOURNAL_EXPORT;
 		guint32 data_end = 8; // Block type + total length
 		const void *fld_data;
 		size_t fld_len;

@@ -229,9 +229,9 @@ systemd_journal_read_export_entry(FILE_T fh, wtap_rec *rec, Buffer *buf, int *er
         return FALSE;
     }
 
-    rec->rec_type = REC_TYPE_SYSTEMD_JOURNAL;
+    rec->rec_type = REC_TYPE_SYSTEMD_JOURNAL_EXPORT;
     rec->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
-    rec->rec_header.systemd_journal_header.record_len = (guint32) fld_end;
+    rec->rec_header.systemd_journal_export_header.record_len = (guint32) fld_end;
 
     return TRUE;
 }
@@ -240,7 +240,7 @@ static const struct supported_block_type systemd_journal_blocks_supported[] = {
     /*
      * We support systemd journal blocks, with no comments or other options.
      */
-    { WTAP_BLOCK_SYSTEMD_JOURNAL, MULTIPLE_BLOCKS_SUPPORTED, NO_OPTIONS_SUPPORTED }
+    { WTAP_BLOCK_SYSTEMD_JOURNAL_EXPORT, MULTIPLE_BLOCKS_SUPPORTED, NO_OPTIONS_SUPPORTED }
 };
 
 static const struct file_type_subtype_info systemd_journal_info = {

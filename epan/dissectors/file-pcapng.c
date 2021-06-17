@@ -242,7 +242,7 @@ static gboolean pref_dissect_next_layer = FALSE;
 #define BLOCK_ENHANCED_PACKET        0x00000006
 #define BLOCK_IRIG_TIMESTAMP         0x00000007
 #define BLOCK_ARINC_429              0x00000008
-#define BLOCK_SYSTEMD_JOURNAL        0x00000009
+#define BLOCK_SYSTEMD_JOURNAL_EXPORT 0x00000009
 #define BLOCK_DSB                    0x0000000a
 #define BLOCK_SECTION_HEADER         0x0A0D0D0A
 #define BLOCK_DARWIN_PROCESS         0x80000001

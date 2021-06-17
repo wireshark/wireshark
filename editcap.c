@@ -2097,8 +2097,8 @@ main(int argc, char *argv[])
                     do_mutation = TRUE;
                     break;
 
-                case REC_TYPE_SYSTEMD_JOURNAL:
-                    caplen = rec->rec_header.systemd_journal_header.record_len;
+                case REC_TYPE_SYSTEMD_JOURNAL_EXPORT:
+                    caplen = rec->rec_header.systemd_journal_export_header.record_len;
                     do_mutation = TRUE;
                     break;
                 }

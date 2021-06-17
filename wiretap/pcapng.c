@@ -298,7 +298,7 @@ register_pcapng_block_type_handler(guint block_type, block_reader reader,
     case BLOCK_TYPE_CB_NO_COPY:
     case BLOCK_TYPE_SYSDIG_EVENT:
     case BLOCK_TYPE_SYSDIG_EVENT_V2:
-    case BLOCK_TYPE_SYSTEMD_JOURNAL:
+    case BLOCK_TYPE_SYSTEMD_JOURNAL_EXPORT:
         /*
          * Yes; we already handle it, and don't allow a replacement to
          * be registeted (if there's a bug in our code, or there's
@@ -2628,8 +2628,8 @@ pcapng_read_systemd_journal_export_block(wtap *wth, FILE_T fh, pcapng_block_head
         }
     }
 
-    wblock->rec->rec_type = REC_TYPE_SYSTEMD_JOURNAL;
-    wblock->rec->rec_header.systemd_journal_header.record_len = entry_length;
+    wblock->rec->rec_type = REC_TYPE_SYSTEMD_JOURNAL_EXPORT;
+    wblock->rec->rec_header.systemd_journal_export_header.record_len = entry_length;
     wblock->rec->presence_flags = WTAP_HAS_CAP_LEN;
     if (have_ts) {
         wblock->rec->presence_flags |= WTAP_HAS_TS;
@@ -2912,7 +2912,7 @@ pcapng_read_block(wtap *wth, FILE_T fh, pcapng_t *pn,
                 if (!pcapng_read_sysdig_event_block(fh, &bh, section_info, wblock, err, err_info))
                     return FALSE;
                 break;
-            case(BLOCK_TYPE_SYSTEMD_JOURNAL):
+            case(BLOCK_TYPE_SYSTEMD_JOURNAL_EXPORT):
                 if (!pcapng_read_systemd_journal_export_block(wth, fh, &bh, pn, wblock, err, err_info))
                     return FALSE;
                 break;
@@ -4161,23 +4161,23 @@ pcapng_write_systemd_journal_export_block(wtap_dumper *wdh, const wtap_rec *rec,
     guint32 pad_len;
 
     /* Don't write anything we're not willing to read. */
-    if (rec->rec_header.systemd_journal_header.record_len > WTAP_MAX_PACKET_SIZE_STANDARD) {
+    if (rec->rec_header.systemd_journal_export_header.record_len > WTAP_MAX_PACKET_SIZE_STANDARD) {
         *err = WTAP_ERR_PACKET_TOO_LARGE;
         return FALSE;
     }
 
-    if (rec->rec_header.systemd_journal_header.record_len % 4) {
-        pad_len = 4 - (rec->rec_header.systemd_journal_header.record_len % 4);
+    if (rec->rec_header.systemd_journal_export_header.record_len % 4) {
+        pad_len = 4 - (rec->rec_header.systemd_journal_export_header.record_len % 4);
     } else {
         pad_len = 0;
     }
 
     /* write systemd journal export block header */
-    bh.block_type = BLOCK_TYPE_SYSTEMD_JOURNAL;
-    bh.block_total_length = (guint32)sizeof(bh) + rec->rec_header.systemd_journal_header.record_len + pad_len + 4;
+    bh.block_type = BLOCK_TYPE_SYSTEMD_JOURNAL_EXPORT;
+    bh.block_total_length = (guint32)sizeof(bh) + rec->rec_header.systemd_journal_export_header.record_len + pad_len + 4;
 
     ws_debug("writing %u bytes, %u padded",
-             rec->rec_header.systemd_journal_header.record_len,
+             rec->rec_header.systemd_journal_export_header.record_len,
              bh.block_total_length);
 
     if (!wtap_dump_file_write(wdh, &bh, sizeof bh, err))
@@ -4185,9 +4185,9 @@ pcapng_write_systemd_journal_export_block(wtap_dumper *wdh, const wtap_rec *rec,
     wdh->bytes_dumped += sizeof bh;
 
     /* write entry data */
-    if (!wtap_dump_file_write(wdh, pd, rec->rec_header.systemd_journal_header.record_len, err))
+    if (!wtap_dump_file_write(wdh, pd, rec->rec_header.systemd_journal_export_header.record_len, err))
         return FALSE;
-    wdh->bytes_dumped += rec->rec_header.systemd_journal_header.record_len;
+    wdh->bytes_dumped += rec->rec_header.systemd_journal_export_header.record_len;
 
     /* write padding (if any) */
     if (pad_len != 0) {
@@ -5221,7 +5221,7 @@ static gboolean pcapng_dump(wtap_dumper *wdh,
             }
             break;
 
-        case REC_TYPE_SYSTEMD_JOURNAL:
+        case REC_TYPE_SYSTEMD_JOURNAL_EXPORT:
             if (!pcapng_write_systemd_journal_export_block(wdh, rec, pd, err)) {
                 return FALSE;
             }
@@ -5442,7 +5442,7 @@ static const struct supported_option_type ft_specific_event_block_options_suppor
 };
 
 /* Options for systemd journal entry. */
-static const struct supported_option_type systemd_journal_block_options_supported[] = {
+static const struct supported_option_type systemd_journal_export_block_options_supported[] = {
     { OPT_COMMENT, MULTIPLE_OPTIONS_SUPPORTED }
 };
 
@@ -5472,7 +5472,7 @@ static const struct supported_block_type pcapng_blocks_supported[] = {
     { WTAP_BLOCK_FT_SPECIFIC_EVENT, MULTIPLE_BLOCKS_SUPPORTED, OPTION_TYPES_SUPPORTED(ft_specific_event_block_options_supported) },
 
     /* Multiple systemd journal records. */
-    { WTAP_BLOCK_SYSTEMD_JOURNAL, MULTIPLE_BLOCKS_SUPPORTED, OPTION_TYPES_SUPPORTED(systemd_journal_block_options_supported) },
+    { WTAP_BLOCK_SYSTEMD_JOURNAL_EXPORT, MULTIPLE_BLOCKS_SUPPORTED, OPTION_TYPES_SUPPORTED(systemd_journal_export_block_options_supported) },
 
     /* Multiple custom blocks. */
     { WTAP_BLOCK_CUSTOM_BLOCK, MULTIPLE_BLOCKS_SUPPORTED, NO_OPTIONS_SUPPORTED },

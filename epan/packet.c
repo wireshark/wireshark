@@ -502,7 +502,7 @@ dissect_record(epan_dissect_t *edt, int file_type_subtype,
 		record_type = "System Call";
 		break;
 
-	case REC_TYPE_SYSTEMD_JOURNAL:
+	case REC_TYPE_SYSTEMD_JOURNAL_EXPORT:
 		record_type = "Systemd Journal Entry";
 		break;
 
@@ -554,7 +554,7 @@ dissect_record(epan_dissect_t *edt, int file_type_subtype,
 		edt->pi.pseudo_header = NULL;
 		break;
 
-	case REC_TYPE_SYSTEMD_JOURNAL:
+	case REC_TYPE_SYSTEMD_JOURNAL_EXPORT:
 		edt->pi.pseudo_header = NULL;
 		break;
 

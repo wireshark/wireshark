@@ -1207,12 +1207,12 @@ union wtap_pseudo_header {
  * option would suffice for this purpose, so nothing needs to be
  * added to pcapng for this.)
  */
-#define REC_TYPE_PACKET               0    /**< packet */
-#define REC_TYPE_FT_SPECIFIC_EVENT    1    /**< file-type-specific event */
-#define REC_TYPE_FT_SPECIFIC_REPORT   2    /**< file-type-specific report */
-#define REC_TYPE_SYSCALL              3    /**< system call */
-#define REC_TYPE_SYSTEMD_JOURNAL      4    /**< systemd journal entry */
-#define REC_TYPE_CUSTOM_BLOCK         5    /**< pcapng custom block */
+#define REC_TYPE_PACKET                 0    /**< packet */
+#define REC_TYPE_FT_SPECIFIC_EVENT      1    /**< file-type-specific event */
+#define REC_TYPE_FT_SPECIFIC_REPORT     2    /**< file-type-specific report */
+#define REC_TYPE_SYSCALL                3    /**< system call */
+#define REC_TYPE_SYSTEMD_JOURNAL_EXPORT 4    /**< systemd journal entry */
+#define REC_TYPE_CUSTOM_BLOCK           5    /**< pcapng custom block */
 
 typedef struct {
     guint32   caplen;           /* data length in the file */
@@ -1322,7 +1322,7 @@ typedef struct {
 
 typedef struct {
     guint32   record_len;       /* length of the record */
-} wtap_systemd_journal_header;
+} wtap_systemd_journal_export_header;
 
 typedef struct {
     guint32   length;           /* length of the record */
@@ -1339,7 +1339,7 @@ typedef struct {
         wtap_packet_header packet_header;
         wtap_ft_specific_header ft_specific_header;
         wtap_syscall_header syscall_header;
-        wtap_systemd_journal_header systemd_journal_header;
+        wtap_systemd_journal_export_header systemd_journal_export_header;
         wtap_custom_block_header custom_block_header;
     } rec_header;
     /*
