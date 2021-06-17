@@ -15,10 +15,11 @@
 #include <stdio.h>
 #include <stdarg.h>
 
-#ifndef WS_LOG_DOMAIN
-/* Should this be an error instead? */
-#define WS_LOG_DOMAIN LOG_DOMAIN_DEFAULT
-#endif
+/*
+ * Define the macro WS_LOG_DOMAIN *before* including this header,
+ * for example:
+ *   #define WS_LOG_DOMAIN LOG_DOMAIN_MAIN
+ */
 
 #ifdef __cplusplus
 extern "C" {
@@ -196,8 +197,13 @@ void ws_logv_full(const char *domain, enum ws_log_level level,
                     const char *format, va_list ap);
 
 
+#ifdef WS_LOG_DOMAIN
 #define _LOG_FULL(level, ...) ws_log_full(WS_LOG_DOMAIN, level,  \
                                    __FILE__, __LINE__, G_STRFUNC, __VA_ARGS__)
+#else
+#define _LOG_FULL(level, ...) ws_log_full(NULL, level,  \
+                                   __FILE__, __LINE__, G_STRFUNC, __VA_ARGS__)
+#endif
 
 /** Logs with "error" level.
  *

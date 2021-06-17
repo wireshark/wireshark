@@ -944,7 +944,7 @@ void MainWindow::pipeTimeout() {
 
             /* And call the real handler */
             if (!pipe_input_cb_(pipe_source_, pipe_user_data_)) {
-                ws_log(LOG_DOMAIN_DEFAULT, LOG_LEVEL_DEBUG, "pipe_timer_cb: input pipe closed, iterations: %u", iterations);
+                ws_log(LOG_DOMAIN_MAIN, LOG_LEVEL_DEBUG, "pipe_timer_cb: input pipe closed, iterations: %u", iterations);
                 /* pipe closed, return false so that the old timer is not run again */
                 delete pipe_timer_;
                 return;

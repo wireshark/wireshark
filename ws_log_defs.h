@@ -12,25 +12,28 @@
 #define __WS_LOG_DOMAINS_H__
 
 /*
- * Which log domain to use is a matter of policy. Any string is valid (names
- * using parenthesis should be avoided). There are no hard rules but using a
- * non-default pre-defined log domain is a good rule of thumb.
+ * Which log domain to use is a matter of policy. Any string is valid.
+ * There are no hard rules but using a pre-defined log domain is a good
+ * rule of thumb (there is no pre-defined domain below for dissectors
+ * though).
  */
 
-     /* Null domain */
-#define LOG_DOMAIN_NONE       "(notset)"
-     /* Default domain */
-#define LOG_DOMAIN_DEFAULT    "()"
-     /* Main execution domain (wireshark, tshark, etc) */
+/* Main execution domain (wireshark, tshark, etc) */
 #define LOG_DOMAIN_MAIN       "Main"
-     /* Capture domain (except for capture child, see below) */
+
+/* Capture domain (except for capture child, see below) */
 #define LOG_DOMAIN_CAPTURE    "Capture"
-     /* Capture child domain (the capture child might also contain
-      * file domain messages!) */
+
+/* Capture child domain (the capture child might also contain
+ * file domain messages!) */
 #define LOG_DOMAIN_CAPCHILD   "Capchild"
+
 #define LOG_DOMAIN_WIRETAP    "Wiretap"
+
 #define LOG_DOMAIN_EPAN       "Epan"
+
 #define LOG_DOMAIN_WSUTIL     "WSUtil"
+
 #define LOG_DOMAIN_QTUI       "GUI"
 
 /*

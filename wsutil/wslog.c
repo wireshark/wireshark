@@ -44,8 +44,9 @@
  * domain filter. */
 #define ENV_VAR_NOISY       "WIRESHARK_LOG_NOISY"
 
-
 #define DEFAULT_LOG_LEVEL   LOG_LEVEL_MESSAGE
+
+#define DOMAIN_NOTSET(domain)  ((domain) == NULL || *(domain) == '\0')
 
 
 static enum ws_log_level current_log_level = LOG_LEVEL_NONE;
@@ -145,6 +146,9 @@ gboolean ws_log_level_is_active(enum ws_log_level level)
 
 static inline gboolean filter_contains(GPtrArray *filter, const char *domain)
 {
+    if (filter == NULL || DOMAIN_NOTSET(domain))
+        return FALSE;
+
     for (guint i = 0; i < filter->len; i++) {
         if (g_ascii_strcasecmp(filter->pdata[i], domain) == 0) {
             return TRUE;
@@ -156,12 +160,11 @@ static inline gboolean filter_contains(GPtrArray *filter, const char *domain)
 
 gboolean ws_log_domain_is_active(const char *domain)
 {
-    if (domain_filter == NULL)
-        return TRUE;
-
-    /* We don't filter the default domain. Default means undefined, pretty much
-     * every permanent call to ws_log should be using a chosen domain. */
-    if (strcmp(domain, LOG_DOMAIN_DEFAULT) == 0)
+    /*
+     * We don't filter the undefined domain, pretty much every permanent
+     * call to ws_log should be using a set domain.
+     */
+    if (DOMAIN_NOTSET(domain))
         return TRUE;
 
     if (filter_contains(domain_filter, domain))
@@ -515,12 +518,10 @@ static void log_write_do_work(FILE *fp, gboolean use_color, const char *timestam
         fputc(' ', fp);
     }
 
-    if (strcmp(domain, LOG_DOMAIN_DEFAULT) != 0) {
-        fprintf(fp, "[%s-%s] ", domain, level_str);
-    }
-    else {
+    if (DOMAIN_NOTSET(domain))
         fprintf(fp, "[%s] ", level_str);
-    }
+    else
+        fprintf(fp, "[%s-%s] ", domain, level_str);
 
     if (doextra) {
         if (file && line >= 0) {
@@ -581,8 +582,6 @@ static void log_write_dispatch(const char *domain, enum ws_log_level level,
 void ws_logv(const char *domain, enum ws_log_level level,
                     const char *format, va_list ap)
 {
-    if (domain == NULL || domain[0] == '\0')
-        domain = LOG_DOMAIN_DEFAULT;
 
     if (log_drop_message(domain, level))
         return;
@@ -595,9 +594,6 @@ void ws_logv_full(const char *domain, enum ws_log_level level,
                     const char *file, int line, const char *func,
                     const char *format, va_list ap)
 {
-    if (domain == NULL || domain[0] == '\0')
-        domain = LOG_DOMAIN_DEFAULT;
-
     if (log_drop_message(domain, level))
         return;
 
@@ -609,9 +605,6 @@ void ws_log(const char *domain, enum ws_log_level level,
                     const char *format, ...)
 {
     va_list ap;
-
-    if (domain == NULL || domain[0] == '\0')
-        domain = LOG_DOMAIN_DEFAULT;
 
     if (log_drop_message(domain, level))
         return;
@@ -627,9 +620,6 @@ void ws_log_full(const char *domain, enum ws_log_level level,
                     const char *format, ...)
 {
     va_list ap;
-
-    if (domain == NULL || domain[0] == '\0')
-        domain = LOG_DOMAIN_DEFAULT;
 
     if (log_drop_message(domain, level))
         return;

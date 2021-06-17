@@ -25,6 +25,7 @@
 */
 
 #include "config.h"
+#define WS_LOG_DOMAIN "packet-http2"
 
 #include <epan/packet.h>
 #include <epan/expert.h>
