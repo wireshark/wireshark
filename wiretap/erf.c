@@ -2457,6 +2457,7 @@ static int erf_populate_interface(erf_t *erf_priv, wtap *wth, union wtap_pseudo_
   int_data_mand->wtap_encap = WTAP_ENCAP_ERF;
   /* int_data.time_units_per_second = (1LL<<32);  ERF format resolution is 2^-32, capture resolution is unknown */
   int_data_mand->time_units_per_second = 1000000000; /* XXX Since Wireshark only supports down to nanosecond resolution we have to dilute to this */
+  int_data_mand->tsprecision = WTAP_TSPREC_NSEC;
   int_data_mand->snap_len = 65535; /* ERF max length */
 
   /* XXX: if_IPv4addr opt 4  Interface network address and netmask.*/
