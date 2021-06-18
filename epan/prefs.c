@@ -3064,6 +3064,8 @@ prefs_register_modules(void)
 
     prefs_register_obsolete_preference(gui_module, "hex_dump_highlight_style");
 
+    prefs_register_obsolete_preference(gui_module, "packet_editor.enabled");
+
     gui_column_module = prefs_register_subtree(gui_module, "Columns", "Columns", NULL);
     /* For reading older preference files with "column." preferences */
     prefs_register_module_alias("column", gui_column_module);
