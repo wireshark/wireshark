@@ -154,12 +154,12 @@ bool SearchFrame::regexCompile()
         return false;
     }
 
-    GError *g_error = nullptr;
+    GError *error = nullptr;
     regex_ = g_regex_new(sf_ui_->searchLineEdit->text().toUtf8().constData(),
-                         (GRegexCompileFlags)flags, (GRegexMatchFlags) 0, &g_error);
-    if (g_error) {
-        regex_error_ = g_error->message;
-        g_error_free(g_error);
+                         (GRegexCompileFlags)flags, (GRegexMatchFlags) 0, &error);
+    if (error) {
+        regex_error_ = error->message;
+        g_error_free(error);
     }
 
     return regex_ ? true : false;
