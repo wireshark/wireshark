@@ -1270,8 +1270,8 @@ static int dissect_jxta_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
                      * when the message_version is valid but the JXTA_MSGELEM_SIG
                      * (some sort of magic number?) is not. This almost
                      * certainly indicates a corrupt packet, so this should
-                     * probably be expert info, not a g_warning. Pending confirmation
-                     * just comment it out since a g_warning is definitely the
+                     * probably be expert info, not a ws_warning. Pending confirmation
+                     * just comment it out since a ws_warning is definitely the
                      * wrong thing to do.
                      * ws_warning( "Failure processing message element #%d of %d of frame %d", each_elem, elem_count, pinfo->num );
                      */

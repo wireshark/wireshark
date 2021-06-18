@@ -35,6 +35,7 @@
 #include "ui/util.h"
 
 #include "wsutil/str_util.h"
+#include <wsutil/wslog.h>
 
 #include <epan/color_filters.h>
 #include "frame_tvbuff.h"
@@ -1730,7 +1731,7 @@ void PacketList::sectionMoved(int logicalIndex, int oldVisualIndex, int newVisua
     // Since we undo the move below, these should always stay in sync.
     // Otherwise the order of columns can be unexpected after drag and drop.
     if (logicalIndex != oldVisualIndex) {
-        g_warning("Column moved from an unexpected state (%d, %d, %d)",
+        ws_warning("Column moved from an unexpected state (%d, %d, %d)",
                 logicalIndex, oldVisualIndex, newVisualIndex);
     }
 

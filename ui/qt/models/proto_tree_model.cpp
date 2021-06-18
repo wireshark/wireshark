@@ -10,6 +10,7 @@
 #include <ui/qt/models/proto_tree_model.h>
 
 #include <epan/prefs.h>
+#include <wsutil/wslog.h>
 
 #include <ui/qt/utils/color_utils.h>
 
@@ -110,7 +111,7 @@ QVariant ProtoTreeModel::data(const QModelIndex &index, int role) const
         case(PI_ERROR):
             return ColorUtils::expert_color_error;
         default:
-            g_warning("%s:%d Unhandled severity flag: %u", G_STRFUNC, __LINE__, finfo.flag(PI_SEVERITY_MASK));
+            ws_warning("Unhandled severity flag: %u", finfo.flag(PI_SEVERITY_MASK));
         }
         if (finfo.headerInfo().type == FT_PROTOCOL) {
             return QApplication::palette().window();

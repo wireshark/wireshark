@@ -1809,7 +1809,7 @@ bool MainWindow::testCaptureFileClose(QString before_what, FileCloseContext cont
          * callers should be modified to check this condition and act
          * accordingly (ignore action or queue it up), so print a warning.
          */
-        g_warning("Refusing to close \"%s\" which is being read.", capture_file_.capFile()->filename);
+        ws_warning("Refusing to close \"%s\" which is being read.", capture_file_.capFile()->filename);
         return false;
     }
 

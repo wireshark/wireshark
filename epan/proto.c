@@ -7352,7 +7352,7 @@ proto_register_protocol(const char *name, const char *short_name,
 	 */
 
 	if (g_hash_table_lookup(proto_names, name)) {
-		/* g_error will terminate the program */
+		/* ws_error will terminate the program */
 		ws_error("Duplicate protocol name \"%s\"!"
 			" This might be caused by an inappropriate plugin or a development error.", name);
 	}
@@ -8916,7 +8916,7 @@ proto_register_subtree_array(gint * const *indices, const int num_indices)
 	 */
 	for (i = 0; i < num_indices; i++, ptr++, num_tree_types++) {
 		if (**ptr != -1) {
-			/* g_error will terminate the program */
+			/* ws_error will terminate the program */
 			ws_error("register_subtree_array: subtree item type (ett_...) not -1 !"
 				" This is a development error:"
 				" Either the subtree item type has already been assigned or"
