@@ -2952,6 +2952,12 @@ log domains and takes precedence over the active domains filter.
 
 =back
 
+=head1 AUTHORS
+
+Wireshark would not be the powerful, featureful application it is without the generous contributions of hundreds of developers.
+
+A complete list of authors can be found in the AUTHORS file in Wireshark's source code repository and at L<https://www.wireshark.org/about.html#authors>.
+
 =head1 SEE ALSO
 
 wireshark-filter(4), tshark(1), editcap(1), pcap(3), dumpcap(1), mergecap(1),
@@ -2964,7 +2970,3 @@ L<https://www.wireshark.org>.
 
 HTML versions of the Wireshark project man pages are available at:
 L<https://www.wireshark.org/docs/man-pages>.
-
-=head1 AUTHORS
-
-
