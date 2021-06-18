@@ -48,6 +48,7 @@
 #include <wsutil/privileges.h>
 #include <wsutil/report_message.h>
 #include <wsutil/wslog.h>
+#include <wsutil/ws_assert.h>
 #include <cli_main.h>
 #include <version_info.h>
 
@@ -896,7 +897,7 @@ main(int argc, char *argv[])
         break;
 
       default:
-        g_assert_not_reached();
+        ws_assert_not_reached();
       }
     }
   }
@@ -1239,7 +1240,7 @@ local_wtap_read(capture_file *cf, wtap_rec *file_rec _U_, int *err, gchar **err_
      * but the read routine didn't set this packet's
      * encapsulation type.
      */
-    g_assert(wth->rec.rec_header.packet_header.pkt_encap != WTAP_ENCAP_PER_PACKET);
+    ws_assert(wth->rec.rec_header.packet_header.pkt_encap != WTAP_ENCAP_PER_PACKET);
 #endif
 
     return TRUE; /* success */
@@ -1647,7 +1648,7 @@ write_preamble(capture_file *cf)
     return !ferror(stdout);
 
   default:
-    g_assert_not_reached();
+    ws_assert_not_reached();
     return FALSE;
   }
 }
@@ -1947,7 +1948,7 @@ print_packet(capture_file *cf, epan_dissect_t *edt)
         write_psml_columns(edt, stdout, FALSE);
         return !ferror(stdout);
       case WRITE_FIELDS: /*No non-verbose "fields" format */
-        g_assert_not_reached();
+        ws_assert_not_reached();
         break;
       }
     }
@@ -2009,7 +2010,7 @@ write_finale(void)
     return !ferror(stdout);
 
   default:
-    g_assert_not_reached();
+    ws_assert_not_reached();
     return FALSE;
   }
 }

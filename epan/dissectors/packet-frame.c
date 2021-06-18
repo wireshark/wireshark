@@ -30,6 +30,7 @@
 #include <wsutil/wsgcrypt.h>
 #include <wsutil/str_util.h>
 #include <wsutil/wslog.h>
+#include <wsutil/ws_assert.h>
 #include <epan/proto_data.h>
 #include <epan/addr_resolv.h>
 #include <wmem/wmem.h>

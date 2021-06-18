@@ -33,6 +33,7 @@
 #include <ui/clopts_common.h>
 #include <ui/cmdarg_err.h>
 #include <wsutil/file_util.h>
+#include <wsutil/ws_assert.h>
 
 #include "ui/dissect_opts.h"
 
@@ -146,7 +147,7 @@ dissect_opts_handle_opt(int opt, char *optarg_str_p)
         break;
     default:
         /* the caller is responsible to send us only the right opt's */
-        g_assert_not_reached();
+        ws_assert_not_reached();
     }
     return TRUE;
 }

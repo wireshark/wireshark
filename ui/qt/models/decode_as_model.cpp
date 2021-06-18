@@ -21,6 +21,7 @@
 
 #include <ui/qt/utils/qt_ui_utils.h>
 #include <wsutil/file_util.h>
+#include <wsutil/ws_assert.h>
 
 #include <QVector>
 
@@ -199,7 +200,7 @@ QVariant DecodeAsModel::headerData(int section, Qt::Orientation orientation, int
     case colProtocol:
         return tr("Current");
     default:
-        g_assert_not_reached();
+        ws_assert_not_reached();
     }
 
     return QVariant();
@@ -548,7 +549,7 @@ QString DecodeAsModel::entryString(const gchar *table_name, gconstpointer value)
                 break;
 
             default:
-                g_assert_not_reached();
+                ws_assert_not_reached();
                 break;
             }
             entry_str = QString("%1").arg(int_to_qstring(num_val, width, 16));
@@ -578,7 +579,7 @@ QString DecodeAsModel::entryString(const gchar *table_name, gconstpointer value)
         return "0";
 
     default:
-        g_assert_not_reached();
+        ws_assert_not_reached();
         break;
     }
     return entry_str;

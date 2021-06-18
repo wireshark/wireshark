@@ -17,6 +17,7 @@
 #include "sttype-set.h"
 #include "sttype-function.h"
 #include "ftypes/ftypes.h"
+#include <wsutil/ws_assert.h>
 
 static void
 gencode(dfwork_t *dfw, stnode_t *st_node);
@@ -198,7 +199,7 @@ dfw_append_function(dfwork_t *dfw, stnode_t *node, dfvm_value_t **p_jmp)
 				insn->arg4 = val;
 				break;
 			default:
-				g_assert_not_reached();
+				ws_assert_not_reached();
 		}
 
 		params = params->next;
@@ -221,7 +222,7 @@ dfw_append_function(dfwork_t *dfw, stnode_t *node, dfvm_value_t **p_jmp)
 	/* We need another instruction to jump to another exit
 	 * place, if the call() of our function failed for some reaosn */
 	insn = dfvm_insn_new(IF_FALSE_GOTO);
-	g_assert(p_jmp);
+	ws_assert(p_jmp);
 	*p_jmp = dfvm_value_new(INSN_NUMBER);
 	insn->arg1 = *p_jmp;
 	dfw_append_insn(dfw, insn);
@@ -411,7 +412,7 @@ gen_entity(dfwork_t *dfw, stnode_t *st_arg, dfvm_value_t **p_jmp)
 		reg = dfw_append_read_tree(dfw, hfinfo);
 
 		insn = dfvm_insn_new(IF_FALSE_GOTO);
-		g_assert(p_jmp);
+		ws_assert(p_jmp);
 		*p_jmp = dfvm_value_new(INSN_NUMBER);
 		insn->arg1 = *p_jmp;
 		dfw_append_insn(dfw, insn);
@@ -430,7 +431,7 @@ gen_entity(dfwork_t *dfw, stnode_t *st_arg, dfvm_value_t **p_jmp)
 	}
 	else {
 		/* printf("sttype_id is %u\n", (unsigned)e_type); */
-		g_assert_not_reached();
+		ws_assert_not_reached();
 	}
 	return reg;
 }
@@ -450,7 +451,7 @@ gen_test(dfwork_t *dfw, stnode_t *st_node)
 
 	switch (st_op) {
 		case TEST_OP_UNINITIALIZED:
-			g_assert_not_reached();
+			ws_assert_not_reached();
 			break;
 
 		case TEST_OP_EXISTS:
@@ -560,7 +561,7 @@ gencode(dfwork_t *dfw, stnode_t *st_node)
 			gen_test(dfw, st_node);
 			break;
 		default:
-			g_assert_not_reached();
+			ws_assert_not_reached();
 	}
 }
 

@@ -32,6 +32,7 @@
 #include "wsutil/unicode-utils.h"
 #include "wsutil/nstime.h"
 #include "wsutil/time_util.h"
+#include <wsutil/ws_assert.h>
 #include "tvbuff.h"
 #include "tvbuff-int.h"
 #include "strutil.h"
@@ -70,7 +71,7 @@ tvb_new(const struct tvb_ops *ops)
 	tvbuff_t *tvb;
 	gsize     size = ops->tvb_size;
 
-	g_assert(size >= sizeof(*tvb));
+	ws_assert(size >= sizeof(*tvb));
 
 	tvb = (tvbuff_t *) g_slice_alloc(size);
 
@@ -4433,7 +4434,7 @@ tvb_get_varint(tvbuff_t *tvb, guint offset, guint maxlen, guint64 *value, const 
 			*value = tvb_get_ntoh64(tvb, offset) & G_GUINT64_CONSTANT(0x3FFFFFFFFFFFFFFF);
 			return 8;
 		default: /* No Possible */
-			g_assert_not_reached();
+			ws_assert_not_reached();
 			break;
 		}
 

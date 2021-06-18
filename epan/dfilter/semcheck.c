@@ -21,6 +21,8 @@
 #include <epan/exceptions.h>
 #include <epan/packet.h>
 
+#include <wsutil/ws_assert.h>
+
 #include <ftypes/ftypes-int.h>
 
 /* Enable debug logging by defining AM_CFLAGS
@@ -130,10 +132,10 @@ compatible_ftypes(ftenum_t a, ftenum_t b)
 			}
 
 		case FT_NUM_TYPES:
-			g_assert_not_reached();
+			ws_assert_not_reached();
 	}
 
-	g_assert_not_reached();
+	ws_assert_not_reached();
 	return FALSE;
 }
 
@@ -242,7 +244,7 @@ mk_fvalue_from_val_string(dfwork_t *dfw, header_field_info *hfinfo, char *s)
 			break;
 
 		case FT_NUM_TYPES:
-			g_assert_not_reached();
+			ws_assert_not_reached();
 	}
 
 	/* TRUE/FALSE *always* exist for FT_BOOLEAN. */
@@ -381,10 +383,10 @@ is_bytes_type(enum ftenum type)
 			return FALSE;
 
 		case FT_NUM_TYPES:
-			g_assert_not_reached();
+			ws_assert_not_reached();
 	}
 
-	g_assert_not_reached();
+	ws_assert_not_reached();
 	return FALSE;
 }
 
@@ -476,7 +478,7 @@ check_exists(dfwork_t *dfw, stnode_t *st_arg1)
 		case STTYPE_SET:
 		case STTYPE_PCRE:
 		case STTYPE_NUM_TYPES:
-			g_assert_not_reached();
+			ws_assert_not_reached();
 	}
 }
 
@@ -571,7 +573,7 @@ check_drange_node_sanity(gpointer data, gpointer user_data)
 
 	case DRANGE_NODE_END_T_UNINITIALIZED:
 	default:
-		g_assert_not_reached();
+		ws_assert_not_reached();
 	}
 }
 
@@ -810,7 +812,7 @@ check_relation_LHS_FIELD(dfwork_t *dfw, const char *relation_string,
 		GSList *nodelist;
 		/* A set should only ever appear on RHS of 'in' operation */
 		if (strcmp(relation_string, "in") != 0) {
-			g_assert_not_reached();
+			ws_assert_not_reached();
 		}
 		/* Attempt to interpret one element of the set at a time. Each
 		 * element is represented by two items in the list, the element
@@ -827,7 +829,7 @@ check_relation_LHS_FIELD(dfwork_t *dfw, const char *relation_string,
 			}
 
 			nodelist = g_slist_next(nodelist);
-			g_assert(nodelist);
+			ws_assert(nodelist);
 			stnode_t *node_right = (stnode_t *)nodelist->data;
 			if (node_right) {
 				/* range type, check if comparison is possible. */
@@ -849,7 +851,7 @@ check_relation_LHS_FIELD(dfwork_t *dfw, const char *relation_string,
 		}
 	}
 	else {
-		g_assert_not_reached();
+		ws_assert_not_reached();
 	}
 }
 
@@ -943,7 +945,7 @@ check_relation_LHS_STRING(dfwork_t *dfw, const char* relation_string,
 		THROW(TypeError);
 	}
 	else {
-		g_assert_not_reached();
+		ws_assert_not_reached();
 	}
 }
 
@@ -1037,7 +1039,7 @@ check_relation_LHS_UNPARSED(dfwork_t *dfw, const char* relation_string,
 		THROW(TypeError);
 	}
 	else {
-		g_assert_not_reached();
+		ws_assert_not_reached();
 	}
 }
 
@@ -1240,7 +1242,7 @@ check_relation_LHS_RANGE(dfwork_t *dfw, const char *relation_string,
 		THROW(TypeError);
 	}
 	else {
-		g_assert_not_reached();
+		ws_assert_not_reached();
 	}
 }
 
@@ -1401,7 +1403,7 @@ check_relation_LHS_FUNCTION(dfwork_t *dfw, const char *relation_string,
 		THROW(TypeError);
 	}
 	else {
-		g_assert_not_reached();
+		ws_assert_not_reached();
 	}
 }
 
@@ -1463,7 +1465,7 @@ header_field_info   *hfinfo;
 		case STTYPE_FVALUE:
 		case STTYPE_SET:
 		default:
-			g_assert_not_reached();
+			ws_assert_not_reached();
 	}
 }
 
@@ -1483,7 +1485,7 @@ check_test(dfwork_t *dfw, stnode_t *st_node, GPtrArray *deprecated)
 
 	switch (st_op) {
 		case TEST_OP_UNINITIALIZED:
-			g_assert_not_reached();
+			ws_assert_not_reached();
 			break;
 
 		case TEST_OP_EXISTS:
@@ -1550,7 +1552,7 @@ check_test(dfwork_t *dfw, stnode_t *st_node, GPtrArray *deprecated)
 			break;
 
 		default:
-			g_assert_not_reached();
+			ws_assert_not_reached();
 	}
 	DebugLog(("  3 check_test(stnode_t *st_node = %p) [%u] - End\n", st_node, i++));
 }
@@ -1571,7 +1573,7 @@ semcheck(dfwork_t *dfw, stnode_t *st_node, GPtrArray *deprecated)
 			check_test(dfw, st_node, deprecated);
 			break;
 		default:
-			g_assert_not_reached();
+			ws_assert_not_reached();
 	}
 }
 

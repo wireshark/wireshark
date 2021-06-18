@@ -25,6 +25,7 @@
 #include <wsutil/file_util.h>
 #include <wsutil/str_util.h>
 #include <wsutil/report_message.h>
+#include <wsutil/ws_assert.h>
 
 #include <wsutil/filesystem.h>
 #include <epan/packet.h>
@@ -64,7 +65,7 @@ uat_t* uat_new(const char* name,
     g_ptr_array_add(all_uats,uat);
 
     /* Check params */
-    g_assert(name && size && filename && data_ptr && numitems_ptr);
+    ws_assert(name && size && filename && data_ptr && numitems_ptr);
 
     /* Set uat values from inputs */
     uat->name = g_strdup(name);
@@ -153,7 +154,7 @@ void uat_update_record(uat_t *uat, const void *record, gboolean valid_rec) {
     }
     if (pos == uat->raw_data->len) {
         /* Data is not within list?! */
-        g_assert_not_reached();
+        ws_assert_not_reached();
     }
 
     valid = &g_array_index(uat->valid_data, gboolean, pos);
@@ -165,7 +166,7 @@ void uat_swap(uat_t* uat, guint a, guint b) {
     void* tmp;
     gboolean tmp_bool;
 
-    g_assert( a < uat->raw_data->len && b < uat->raw_data->len );
+    ws_assert( a < uat->raw_data->len && b < uat->raw_data->len );
 
     if (a == b) return;
 
@@ -184,7 +185,7 @@ void uat_swap(uat_t* uat, guint a, guint b) {
 
 void uat_insert_record_idx(uat_t* uat, guint idx, const void *src_record) {
     /* Allow insert before an existing item or append after the last item. */
-    g_assert( idx <= uat->raw_data->len );
+    ws_assert( idx <= uat->raw_data->len );
 
     /* Store a copy of the record and invoke copy_cb to clone pointers too. */
     g_array_insert_vals(uat->raw_data, idx, src_record, 1);
@@ -203,7 +204,7 @@ void uat_insert_record_idx(uat_t* uat, guint idx, const void *src_record) {
 
 void uat_remove_record_idx(uat_t* uat, guint idx) {
 
-    g_assert( idx < uat->raw_data->len );
+    ws_assert( idx < uat->raw_data->len );
 
     if (uat->free_cb) {
         uat->free_cb(UAT_INDEX_PTR(uat,idx));
@@ -295,7 +296,7 @@ char *uat_fld_tostr(void *rec, uat_field_t *f) {
             break;
         }
         default:
-            g_assert_not_reached();
+            ws_assert_not_reached();
             out = NULL;
             break;
     }
@@ -350,7 +351,7 @@ static void putfld(FILE* fp, void* rec, uat_field_t* f) {
             break;
         }
         default:
-            g_assert_not_reached();
+            ws_assert_not_reached();
     }
 
     g_free(fld_ptr);

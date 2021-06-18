@@ -11,6 +11,7 @@
 #include "dfvm.h"
 
 #include <ftypes/ftypes-int.h>
+#include <wsutil/ws_assert.h>
 
 dfvm_insn_t*
 dfvm_insn_new(dfvm_opcode_t op)
@@ -133,7 +134,7 @@ dfvm_dump(FILE *f, dfilter_t *df)
 			case IF_TRUE_GOTO:
 			case IF_FALSE_GOTO:
 			default:
-				g_assert_not_reached();
+				ws_assert_not_reached();
 				break;
 		}
 	}
@@ -175,7 +176,7 @@ dfvm_dump(FILE *f, dfilter_t *df)
 
 			case PUT_FVALUE:
 				/* We already dumped these */
-				g_assert_not_reached();
+				ws_assert_not_reached();
 				break;
 
 			case PUT_PCRE:
@@ -292,7 +293,7 @@ dfvm_dump(FILE *f, dfilter_t *df)
 				break;
 
 			default:
-				g_assert_not_reached();
+				ws_assert_not_reached();
 				break;
 		}
 	}
@@ -429,8 +430,8 @@ any_in_range(dfilter_t *df, int reg1, int reg2, int reg3)
 	 * the list length MUST be one. This should have been enforced by
 	 * grammar.lemon.
 	 */
-	g_assert(list_low && !g_list_next(list_low));
-	g_assert(list_high && !g_list_next(list_high));
+	ws_assert(list_low && !g_list_next(list_low));
+	ws_assert(list_high && !g_list_next(list_high));
 	low = (fvalue_t *)list_low->data;
 	high = (fvalue_t *)list_high->data;
 
@@ -490,7 +491,7 @@ mk_range(dfilter_t *df, int from_reg, int to_reg, drange_t *d_range)
 		/* Assert here because semcheck.c should have
 		 * already caught the cases in which a slice
 		 * cannot be made. */
-		g_assert(new_fv);
+		ws_assert(new_fv);
 		to_list = g_list_append(to_list, new_fv);
 
 		from_list = g_list_next(from_list);
@@ -516,7 +517,7 @@ dfvm_apply(dfilter_t *df, proto_tree *tree)
 	GList		*param1;
 	GList		*param2;
 
-	g_assert(tree);
+	ws_assert(tree);
 
 	length = df->insns->len;
 
@@ -662,12 +663,12 @@ dfvm_apply(dfilter_t *df, proto_tree *tree)
 #endif
 
 			default:
-				g_assert_not_reached();
+				ws_assert_not_reached();
 				break;
 		}
 	}
 
-	g_assert_not_reached();
+	ws_assert_not_reached();
 	return FALSE; /* to appease the compiler */
 }
 
@@ -715,7 +716,7 @@ dfvm_init_const(dfilter_t *df)
 			case IF_TRUE_GOTO:
 			case IF_FALSE_GOTO:
 			default:
-				g_assert_not_reached();
+				ws_assert_not_reached();
 				break;
 		}
 	}

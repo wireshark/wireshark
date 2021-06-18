@@ -10,6 +10,7 @@
 
 #include "syntax-tree.h"
 #include "sttype-function.h"
+#include <wsutil/ws_assert.h>
 
 typedef struct {
 	guint32		magic;
@@ -24,7 +25,7 @@ function_new(gpointer funcdef)
 {
 	function_t		*stfuncrec;
 
-	g_assert(funcdef != NULL);
+	ws_assert(funcdef != NULL);
 
 	stfuncrec = g_new(function_t, 1);
 
@@ -67,7 +68,7 @@ static void
 function_free(gpointer value)
 {
 	function_t	*stfuncrec = (function_t*)value;
-	assert_magic(stfuncrec, FUNCTION_MAGIC);
+	ws_assert_magic(stfuncrec, FUNCTION_MAGIC);
 	st_funcparams_free(stfuncrec->params);
 	g_free(stfuncrec);
 }
@@ -81,7 +82,7 @@ sttype_function_set_params(stnode_t *node, GSList *params)
 	function_t	*stfuncrec;
 
 	stfuncrec = (function_t*)stnode_data(node);
-	assert_magic(stfuncrec, FUNCTION_MAGIC);
+	ws_assert_magic(stfuncrec, FUNCTION_MAGIC);
 
 	stfuncrec->params = params;
 }
@@ -93,7 +94,7 @@ sttype_function_funcdef(stnode_t *node)
 	function_t	*stfuncrec;
 
 	stfuncrec = (function_t*)stnode_data(node);
-	assert_magic(stfuncrec, FUNCTION_MAGIC);
+	ws_assert_magic(stfuncrec, FUNCTION_MAGIC);
 	return stfuncrec->funcdef;
 }
 
@@ -104,7 +105,7 @@ sttype_function_params(stnode_t *node)
 	function_t	*stfuncrec;
 
 	stfuncrec = (function_t*)stnode_data(node);
-	assert_magic(stfuncrec, FUNCTION_MAGIC);
+	ws_assert_magic(stfuncrec, FUNCTION_MAGIC);
 	return stfuncrec->params;
 }
 

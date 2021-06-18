@@ -31,6 +31,7 @@
 #include <wsutil/filesystem.h>
 #include <version_info.h>
 #include <wsutil/utf8_entities.h>
+#include <wsutil/ws_assert.h>
 #include <ftypes/ftypes-int.h>
 
 #define PDML_VERSION "0"
@@ -168,7 +169,7 @@ proto_tree_print_node(proto_node *node, gpointer data)
     gchar        *label_ptr;
 
     /* dissection with an invisible proto tree? */
-    g_assert(fi);
+    ws_assert(fi);
 
     /* Don't print invisible entries. */
     if (proto_item_is_hidden(node) && (prefs.display_hidden_proto_items == FALSE))
@@ -233,7 +234,7 @@ proto_tree_print_node(proto_node *node, gpointer data)
     /* If we're printing all levels, or if this node is one with a
        subtree and its subtree is expanded, recurse into the subtree,
        if it exists. */
-    g_assert((fi->tree_type >= -1) && (fi->tree_type < num_tree_types));
+    ws_assert((fi->tree_type >= -1) && (fi->tree_type < num_tree_types));
     if ((pdata->print_dissections == print_dissections_expanded) ||
         ((pdata->print_dissections == print_dissections_as_displayed) &&
          (fi->tree_type >= 0) && tree_expanded(fi->tree_type))) {
@@ -304,8 +305,8 @@ write_pdml_proto_tree(output_fields_t* fields, gchar **protocolfilter, pf_flags 
     write_pdml_data data;
     const color_filter_t *cfp;
 
-    g_assert(edt);
-    g_assert(fh);
+    ws_assert(edt);
+    ws_assert(fh);
 
     cfp = edt->pi.fd->color_filter;
 
@@ -347,8 +348,8 @@ write_ek_proto_tree(output_fields_t* fields,
                     column_info *cinfo,
                     FILE *fh)
 {
-    g_assert(edt);
-    g_assert(fh);
+    ws_assert(edt);
+    ws_assert(fh);
 
     write_json_data data;
 
@@ -402,8 +403,8 @@ write_ek_proto_tree(output_fields_t* fields,
 void
 write_fields_proto_tree(output_fields_t* fields, epan_dissect_t *edt, column_info *cinfo, FILE *fh)
 {
-    g_assert(edt);
-    g_assert(fh);
+    ws_assert(edt);
+    ws_assert(fh);
 
     /* Create the output */
     write_specified_fields(FORMAT_CSV, fields, edt, cinfo, fh, NULL);
@@ -445,7 +446,7 @@ proto_tree_write_node_pdml(proto_node *node, gpointer data)
     gboolean         wrap_in_fake_protocol;
 
     /* dissection with an invisible proto tree? */
-    g_assert(fi);
+    ws_assert(fi);
 
     /* Will wrap up top-level field items inside a fake protocol wrapper to
        preserve the PDML schema */
@@ -608,7 +609,7 @@ proto_tree_write_node_pdml(proto_node *node, gpointer data)
                             fprintf(pdata->fh, "%" G_GINT64_MODIFIER "X", fvalue_get_uinteger64(&fi->value));
                             break;
                         default:
-                            g_assert_not_reached();
+                            ws_assert_not_reached();
                     }
                     fputs("\" unmaskedvalue=\"", pdata->fh);
                     pdml_write_field_hex_value(pdata, fi);
@@ -971,7 +972,7 @@ write_json_proto_node_hex_dump(proto_node *node, write_json_data *pdata)
                 json_dumper_value_anyf(pdata->dumper, "\"%" G_GINT64_MODIFIER "X\"", fvalue_get_uinteger64(&fi->value));
                 break;
             default:
-                g_assert_not_reached();
+                ws_assert_not_reached();
         }
     } else {
         json_write_field_hex_value(pdata, fi);
@@ -1194,7 +1195,7 @@ ek_fill_attr(proto_node *node, GSList **attr_list, GHashTable *attr_table, write
         fi_parent = PNODE_FINFO(current_node->parent);
 
         /* dissection with an invisible proto tree? */
-        g_assert(fi);
+        ws_assert(fi);
 
         if (fi_parent == NULL) {
             node_name = g_strdup(fi->hfinfo->abbrev);
@@ -1294,7 +1295,7 @@ ek_write_hex(field_info *fi, write_json_data *pdata)
                 json_dumper_value_anyf(pdata->dumper, "\"%" G_GINT64_MODIFIER "X\"", fvalue_get_uinteger64(&fi->value));
                 break;
             default:
-                g_assert_not_reached();
+                ws_assert_not_reached();
         }
     } else {
         json_write_field_hex_value(pdata, fi);
@@ -2103,7 +2104,7 @@ print_hex_data_buffer(print_stream_t *stream, const guchar *cp,
 
 gsize output_fields_num_fields(output_fields_t* fields)
 {
-    g_assert(fields);
+    ws_assert(fields);
 
     if (NULL == fields->fields) {
         return 0;
@@ -2114,7 +2115,7 @@ gsize output_fields_num_fields(output_fields_t* fields)
 
 void output_fields_free(output_fields_t* fields)
 {
-    g_assert(fields);
+    ws_assert(fields);
 
     if (NULL != fields->fields) {
         gsize i;
@@ -2146,8 +2147,8 @@ void output_fields_add(output_fields_t *fields, const gchar *field)
 {
     gchar *field_copy;
 
-    g_assert(fields);
-    g_assert(field);
+    ws_assert(fields);
+    ws_assert(field);
 
 
     if (NULL == fields->fields) {
@@ -2197,8 +2198,8 @@ gboolean output_fields_set_option(output_fields_t *info, gchar *option)
     const gchar *option_name;
     const gchar *option_value;
 
-    g_assert(info);
-    g_assert(option);
+    ws_assert(info);
+    ws_assert(option);
 
     if ('\0' == *option) {
         return FALSE; /* this happens if we're called from tshark -E '' */
@@ -2321,7 +2322,7 @@ void output_fields_list_options(FILE *fh)
 
 gboolean output_fields_has_cols(output_fields_t* fields)
 {
-    g_assert(fields);
+    ws_assert(fields);
     return fields->includes_col_fields;
 }
 
@@ -2329,9 +2330,9 @@ void write_fields_preamble(output_fields_t* fields, FILE *fh)
 {
     gsize i;
 
-    g_assert(fields);
-    g_assert(fh);
-    g_assert(fields->fields);
+    ws_assert(fields);
+    ws_assert(fh);
+    ws_assert(fields->fields);
 
     if (fields->print_bom) {
         fputs(UTF8_BOM, fh);
@@ -2409,7 +2410,7 @@ static void format_field_values(output_fields_t* fields, gpointer field_index, g
         }
         break;
     default:
-        g_assert_not_reached();
+        ws_assert_not_reached();
         break;
     }
 
@@ -2426,7 +2427,7 @@ static void proto_tree_get_node_field_values(proto_node *node, gpointer data)
     fi = PNODE_FINFO(node);
 
     /* dissection with an invisible proto tree? */
-    g_assert(fi);
+    ws_assert(fi);
 
     field_index = g_hash_table_lookup(call_data->fields->field_indicies, fi->hfinfo->abbrev);
     if (NULL != field_index) {
@@ -2451,14 +2452,14 @@ static void write_specified_fields(fields_format format, output_fields_t *fields
 
     write_field_data_t data;
 
-    g_assert(fields);
-    g_assert(fields->fields);
-    g_assert(edt);
+    ws_assert(fields);
+    ws_assert(fields->fields);
+    ws_assert(edt);
     /* JSON formats must go through json_dumper */
     if (format == FORMAT_JSON || format == FORMAT_EK) {
-        g_assert(!fh && dumper);
+        ws_assert(!fh && dumper);
     } else {
-        g_assert(fh && !dumper);
+        ws_assert(fh && !dumper);
     }
 
     data.fields = fields;
@@ -2620,7 +2621,7 @@ static void write_specified_fields(fields_format format, output_fields_t *fields
 
     default:
         fprintf(stderr, "Unknown fields format %d\n", format);
-        g_assert_not_reached();
+        ws_assert_not_reached();
         break;
     }
 }

@@ -25,6 +25,7 @@
 #include "packet.h"
 #include "wsutil/filesystem.h"
 #include "dissectors/packet-ber.h"
+#include <wsutil/ws_assert.h>
 
 #ifdef HAVE_LIBSMI
 #include <smi.h>
@@ -152,12 +153,12 @@ static oid_info_t* add_oid(const char* name, oid_kind_t kind, const oid_value_ty
 		c = n;
 	} while(++i);
 
-	g_assert_not_reached();
+	ws_assert_not_reached();
 	return NULL;
 }
 
 void oid_add(const char* name, guint oid_len, guint32 *subids) {
-	g_assert(subids && *subids <= 2);
+	ws_assert(subids && *subids <= 2);
 	if (oid_len) {
 		gchar* sub = oid_subid2string(NULL, subids,oid_len);
 		D(3,("\tOid (from subids): %s %s ",name?name:"NULL", sub));
@@ -1038,7 +1039,7 @@ guint oid_encoded2subid_sub(wmem_allocator_t *scope, const guint8 *oid_bytes, gi
 		subid = 0;
 	}
 
-	g_assert(subids == subid_overflow);
+	ws_assert(subids == subid_overflow);
 
 	return n;
 }

@@ -11,6 +11,7 @@
  */
 
 #include "mate.h"
+#include <wsutil/ws_assert.h>
 
 typedef struct _mate_range mate_range;
 
@@ -429,7 +430,7 @@ static void analyze_gop(mate_config* mc, mate_gop* gop) {
 				}
 
 				/** Can't get here because of "breaks" above */
-				g_assert_not_reached();
+				ws_assert_not_reached();
 			}
 		} /* while */
 

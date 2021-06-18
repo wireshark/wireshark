@@ -20,6 +20,7 @@
 #include <glib.h>
 #include <epan/epan.h>
 #include <epan/proto.h>
+#include <wsutil/ws_assert.h>
 
 #include "plugin_if.h"
 
@@ -61,16 +62,16 @@ extern ext_menu_t * ext_menubar_register_menu(int proto_id, const gchar * menula
     gchar * name = NULL;
 
     /* A name for the entry must be provided */
-    g_assert(menulabel != NULL && strlen ( menulabel ) > 0 );
+    ws_assert(menulabel != NULL && strlen ( menulabel ) > 0 );
 
     /* A protocol must exist for the given id */
-    g_assert(find_protocol_by_id(proto_id) != NULL);
+    ws_assert(find_protocol_by_id(proto_id) != NULL);
 
     /* Create unique name, which is used by GTK to provide the menu */
     name = g_strconcat(proto_get_protocol_filter_name(proto_id), "Menu", NULL);
 
     /* For now, a protocol may only register one main menu */
-    g_assert(g_list_find(menubar_menunames, name) == NULL);
+    ws_assert(g_list_find(menubar_menunames, name) == NULL);
 
     entry = g_new0(ext_menubar_t, 1);
     entry->type = EXT_MENUBAR_MENU;
@@ -95,9 +96,9 @@ extern ext_menu_t * ext_menubar_register_menu(int proto_id, const gchar * menula
 
 extern ext_menu_t * ext_menubar_set_parentmenu(ext_menu_t * menu, const gchar * parentmenu)
 {
-    g_assert(menu != NULL && menu->parent == NULL);
+    ws_assert(menu != NULL && menu->parent == NULL);
 
-    g_assert(parentmenu != 0);
+    ws_assert(parentmenu != 0);
 
     menu->parent_menu = g_strdup(parentmenu);
 
@@ -109,10 +110,10 @@ extern ext_menu_t * ext_menubar_add_submenu(ext_menu_t * parent, const gchar *me
     ext_menubar_t * entry = NULL;
 
     /* A name for the entry must be provided */
-    g_assert(menulabel != NULL && strlen ( menulabel ) > 0 );
+    ws_assert(menulabel != NULL && strlen ( menulabel ) > 0 );
 
     /* Parent must be a valid parent */
-    g_assert(parent != NULL && parent->type == EXT_MENUBAR_MENU);
+    ws_assert(parent != NULL && parent->type == EXT_MENUBAR_MENU);
 
     parent->submenu_cnt++;
 
@@ -140,9 +141,9 @@ static void ext_menubar_add_generic_entry (
     ext_menubar_t * entry = NULL;
 
     /* A valid parent must exist */
-    g_assert(parent != NULL && parent->type == EXT_MENUBAR_MENU);
+    ws_assert(parent != NULL && parent->type == EXT_MENUBAR_MENU);
     /* A label for the entry must be provided */
-    g_assert(label != NULL && strlen ( label ) > 0 );
+    ws_assert(label != NULL && strlen ( label ) > 0 );
 
     parent->item_cnt++;
 
@@ -166,7 +167,7 @@ extern void ext_menubar_add_entry(ext_menu_t * parent, const gchar *label,
         const gchar *tooltip, ext_menubar_action_cb callback, gpointer user_data)
 {
     /* A callback must be provided */
-    g_assert(callback != NULL);
+    ws_assert(callback != NULL);
 
     ext_menubar_add_generic_entry ( EXT_MENUBAR_ITEM, parent, label, tooltip, callback, user_data );
 }
@@ -175,7 +176,7 @@ extern void ext_menubar_add_website(ext_menu_t * parent, const gchar *label,
         const gchar *tooltip, const gchar *url)
 {
     /* An url for the entry must be provided */
-    g_assert(url != NULL && strlen ( url ) > 0 );
+    ws_assert(url != NULL && strlen ( url ) > 0 );
 
     ext_menubar_add_generic_entry ( EXT_MENUBAR_URL, parent, label, tooltip, NULL, (gpointer) g_strdup(url) );
 }
@@ -199,7 +200,7 @@ ext_toolbar_t * ext_toolbar_register_toolbar(const gchar * toolbarlabel)
     ext_toolbar_t * entry = NULL;
 
     /* A name for the entry must be provided */
-    g_assert(toolbarlabel != NULL && strlen ( toolbarlabel ) > 0 );
+    ws_assert(toolbarlabel != NULL && strlen ( toolbarlabel ) > 0 );
 
     entry = g_new0(ext_toolbar_t, 1);
     entry->type = EXT_TOOLBAR_BAR;
@@ -309,11 +310,11 @@ ext_toolbar_add_entry( ext_toolbar_t * parent, ext_toolbar_item_t type, const gc
     ext_toolbar_t * entry = NULL;
 
     /* A valid parent must exist */
-    g_assert(parent != NULL && parent->type == EXT_TOOLBAR_BAR);
+    ws_assert(parent != NULL && parent->type == EXT_TOOLBAR_BAR);
     /* A label for the entry must be provided */
-    g_assert(label != NULL && strlen ( label ) > 0 );
+    ws_assert(label != NULL && strlen ( label ) > 0 );
     /* A callback must be provided */
-    g_assert(callback != NULL);
+    ws_assert(callback != NULL);
 
     parent->item_cnt++;
 

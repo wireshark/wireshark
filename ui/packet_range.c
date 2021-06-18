@@ -21,6 +21,8 @@
 
 #include "packet_range.h"
 
+#include <wsutil/ws_assert.h>
+
 /* (re-)calculate the packet counts (except the user specified range) */
 static void packet_range_calc(packet_range_t *range) {
     guint32       framenum;
@@ -54,7 +56,7 @@ static void packet_range_calc(packet_range_t *range) {
     range->displayed_ignored_mark_range_cnt = 0;
     range->displayed_ignored_user_range_cnt = 0;
 
-    g_assert(range->cf != NULL);
+    ws_assert(range->cf != NULL);
 
     /* XXX - this doesn't work unless you have a full set of frame_data
      * structures for all packets in the capture, which is not,
@@ -160,7 +162,7 @@ static void packet_range_calc_user(packet_range_t *range) {
     range->displayed_user_range_cnt         = 0;
     range->displayed_ignored_user_range_cnt = 0;
 
-    g_assert(range->cf != NULL);
+    ws_assert(range->cf != NULL);
 
     /* XXX - this doesn't work unless you have a full set of frame_data
      * structures for all packets in the capture, which is not,
@@ -210,7 +212,7 @@ static void packet_range_calc_selection(packet_range_t *range) {
     range->displayed_selection_range_cnt         = 0;
     range->displayed_ignored_selection_range_cnt = 0;
 
-    g_assert(range->cf != NULL);
+    ws_assert(range->cf != NULL);
 
     if (range->cf->provider.frames != NULL) {
         for (framenum = 1; framenum <= range->cf->count; framenum++) {
@@ -292,7 +294,7 @@ range_process_e packet_range_process_packet(packet_range_t *range, frame_data *f
         return range_process_next;
     }
 
-    g_assert(range->cf != NULL);
+    ws_assert(range->cf != NULL);
 
     switch(range->process) {
     case(range_process_all):
@@ -329,7 +331,7 @@ range_process_e packet_range_process_packet(packet_range_t *range, frame_data *f
         }
         break;
     default:
-        g_assert_not_reached();
+        ws_assert_not_reached();
     }
 
     /* This packet has to pass the display filter but didn't?
@@ -361,7 +363,7 @@ void packet_range_convert_str(packet_range_t *range, const gchar *es)
     if (range->user_range != NULL)
         wmem_free(NULL, range->user_range);
 
-    g_assert(range->cf != NULL);
+    ws_assert(range->cf != NULL);
 
     ret = range_convert_str(NULL, &new_range, es, range->cf->count);
     if (ret != CVT_NO_ERROR) {
@@ -388,7 +390,7 @@ void packet_range_convert_selection_str(packet_range_t *range, const char *es)
     if (range->selection_range != NULL)
         wmem_free(NULL, range->selection_range);
 
-    g_assert(range->cf != NULL);
+    ws_assert(range->cf != NULL);
 
     ret = range_convert_str(NULL, &new_range, es, range->cf->count);
     if (ret != CVT_NO_ERROR) {

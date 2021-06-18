@@ -40,6 +40,7 @@
 #include <wsutil/strtoi.h>
 #include <wsutil/wsgcrypt.h>
 #include <wsutil/rsa.h>
+#include <wsutil/ws_assert.h>
 #include <version_info.h>
 #include "packet-ber.h"
 #include "packet-x509af.h"
@@ -4715,7 +4716,7 @@ tls_decrypt_aead_record(SslDecryptSession *ssl, SslDecoder *decoder,
             /* struct { opaque salt[4]; opaque nonce_explicit[8] } CCMNonce (RFC 6655) */
             nonce_with_counter[IMPLICIT_NONCE_LEN + EXPLICIT_NONCE_LEN + 3] = 1;
         } else {
-            g_assert_not_reached();
+            ws_assert_not_reached();
         }
 #endif
     } else if (version == TLSV1DOT3_VERSION || cipher_mode == MODE_POLY1305) {
@@ -5813,7 +5814,7 @@ tls13_load_secret(SslDecryptSession *ssl, ssl_master_key_map_t *mk_map,
         }
         break;
     default:
-        g_assert_not_reached();
+        ws_assert_not_reached();
     }
 
     /* Transitioning to new keys, mark old ones as unusable. */

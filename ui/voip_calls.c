@@ -55,6 +55,7 @@
 #include "ui/voip_calls.h"
 
 #include "wsutil/glib-compat.h"
+#include <wsutil/ws_assert.h>
 
 #define DUMP_PTR1(p) printf("#=> %p\n",(void *)p)
 #define DUMP_PTR2(p) printf("==> %p\n",(void *)p)
@@ -2042,7 +2043,7 @@ h225_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt,
         while (list)
         {
             tmp_listinfo=(voip_calls_info_t *)list->data;
-            g_assert(tmp_listinfo != NULL);
+            ws_assert(tmp_listinfo != NULL);
             if (tmp_listinfo->protocol == VOIP_H323) {
                 tmp_h323info = (h323_calls_info_t *)tmp_listinfo->prot_info;
                 if (tmp_h323info->requestSeqNum == pi->requestSeqNum) {
@@ -2060,7 +2061,7 @@ h225_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt,
             tmp_listinfo=(voip_calls_info_t *)list->data;
             if (tmp_listinfo->protocol == VOIP_H323) {
                 tmp_h323info = (h323_calls_info_t *)tmp_listinfo->prot_info;
-                g_assert(tmp_h323info != NULL);
+                ws_assert(tmp_h323info != NULL);
                 if ( (memcmp(tmp_h323info->guid, &guid_allzero, GUID_LEN) != 0) && (memcmp(tmp_h323info->guid, &pi->guid,GUID_LEN)==0) ) {
                     callsinfo = (voip_calls_info_t*)(list->data);
                     break;
@@ -2088,7 +2089,7 @@ h225_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt,
         callsinfo->free_prot_info = free_h225_info;
 
         tmp_h323info = (h323_calls_info_t *)callsinfo->prot_info;
-        g_assert(tmp_h323info != NULL);
+        ws_assert(tmp_h323info != NULL);
         tmp_h323info->guid = (e_guid_t *)g_memdup2(&pi->guid, sizeof pi->guid);
         /* DUMP_PTR1(tmp_h323info->guid); */
 
@@ -2120,7 +2121,7 @@ h225_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt,
 
 
     /* XXX: it is supposed to be initialized isn't it? */
-    g_assert(tmp_h323info != NULL);
+    ws_assert(tmp_h323info != NULL);
 
     /* change the status */
     if (pi->msg_type == H225_CS) {
@@ -2756,7 +2757,7 @@ mgcp_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt,
         g_queue_push_tail(tapinfo->callsinfos, callsinfo);
     }
 
-    g_assert(tmp_mgcpinfo != NULL);
+    ws_assert(tmp_mgcpinfo != NULL);
 
     /* change call state and add to graph */
     switch (pi->mgcp_type)

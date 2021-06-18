@@ -22,6 +22,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <wsutil/ws_assert.h>
 
 GList *decode_as_list = NULL;
 
@@ -30,9 +31,9 @@ void register_decode_as(decode_as_t* reg)
     dissector_table_t decode_table;
 
     /* Ensure valid functions */
-    g_assert(reg->populate_list);
-    g_assert(reg->reset_value);
-    g_assert(reg->change_value);
+    ws_assert(reg->populate_list);
+    ws_assert(reg->reset_value);
+    ws_assert(reg->change_value);
 
     decode_table = find_dissector_table(reg->table_name);
     if (decode_table != NULL)
@@ -368,7 +369,7 @@ decode_as_write_entry (const gchar *table_name, ftenum_t selector_type,
         break;
 
     default:
-        g_assert_not_reached();
+        ws_assert_not_reached();
         break;
     }
 
@@ -478,7 +479,7 @@ decode_build_reset_list (const gchar *table_name, ftenum_t selector_type,
         break;
 
     default:
-        g_assert_not_reached();
+        ws_assert_not_reached();
     }
     dissector_reset_list = g_slist_prepend(dissector_reset_list, item);
 }
@@ -519,7 +520,7 @@ decode_clear_all(void)
             break;
 
         default:
-            g_assert_not_reached();
+            ws_assert_not_reached();
         }
         g_free(item->ddi_table_name);
         g_free(item);

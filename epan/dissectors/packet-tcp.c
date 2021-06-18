@@ -34,6 +34,7 @@
 #include <wsutil/str_util.h>
 #include <wsutil/wsgcrypt.h>
 #include <wsutil/pint.h>
+#include <wsutil/ws_assert.h>
 
 #include "packet-tcp.h"
 #include "packet-ip.h"

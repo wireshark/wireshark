@@ -17,6 +17,7 @@
 #include <epan/tap.h>
 #include <epan/stat_tap_ui.h>
 #include "globals.h"
+#include <wsutil/ws_assert.h>
 
 #define CALC_TYPE_FRAMES 0
 #define CALC_TYPE_BYTES  1
@@ -195,7 +196,7 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
                      * "Can't happen"; see the checks
                      * in register_io_tap().
                      */
-                    g_assert_not_reached();
+                    ws_assert_not_reached();
                     break;
                 }
             }
@@ -271,7 +272,7 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
                      * "Can't happen"; see the checks
                      * in register_io_tap().
                      */
-                    g_assert_not_reached();
+                    ws_assert_not_reached();
                     break;
                 }
             }
@@ -340,7 +341,7 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
                      * "Can't happen"; see the checks
                      * in register_io_tap().
                      */
-                    g_assert_not_reached();
+                    ws_assert_not_reached();
                     break;
                 }
             }
@@ -399,7 +400,7 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
                      * "Can't happen"; see the checks
                      * in register_io_tap().
                      */
-                    g_assert_not_reached();
+                    ws_assert_not_reached();
                     break;
                 }
             }

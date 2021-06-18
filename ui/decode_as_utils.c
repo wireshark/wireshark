@@ -23,6 +23,7 @@
 
 #include "wsutil/file_util.h"
 #include "wsutil/filesystem.h"
+#include <wsutil/ws_assert.h>
 #include "ui/cmdarg_err.h"
 #include "version_info.h"
 
@@ -63,8 +64,8 @@ display_dissector_names(const gchar *table _U_, gpointer handle, gpointer output
     if (proto_id != -1) {
         proto_filter_name = proto_get_protocol_filter_name(proto_id);
         proto_ui_name = proto_get_protocol_name(proto_id);
-        g_assert(proto_filter_name != NULL);
-        g_assert(proto_ui_name != NULL);
+        ws_assert(proto_filter_name != NULL);
+        ws_assert(proto_ui_name != NULL);
 
         if ((prev_display_dissector_name == NULL) ||
             (strcmp(prev_display_dissector_name, proto_filter_name) != 0)) {
@@ -141,14 +142,14 @@ find_protocol_name_func(const gchar *table _U_, gpointer handle, gpointer user_d
     const gchar            *protocol_filter_name;
     protocol_name_search_t  search_info;
 
-    g_assert(handle);
+    ws_assert(handle);
 
     search_info = (protocol_name_search_t)user_data;
 
     proto_id = dissector_handle_get_protocol_index((dissector_handle_t)handle);
     if (proto_id != -1) {
         protocol_filter_name = proto_get_protocol_filter_name(proto_id);
-        g_assert(protocol_filter_name != NULL);
+        ws_assert(protocol_filter_name != NULL);
         if (strcmp(protocol_filter_name, search_info->searched_name) == 0) {
             /* Found a match */
             if (search_info->nb_match == 0) {
@@ -186,9 +187,9 @@ gboolean decode_as_command_option(const gchar *cl_param)
 
     /* The following code will allocate and copy the command-line options in a string pointed by decoded_param */
 
-    g_assert(cl_param);
+    ws_assert(cl_param);
     decoded_param = g_strdup(cl_param);
-    g_assert(decoded_param);
+    ws_assert(decoded_param);
 
 
     /* The lines below will parse this string (modifying it) to extract all
@@ -358,7 +359,7 @@ gboolean decode_as_command_option(const gchar *cl_param)
     default:
         /* There are currently no dissector tables with any types other
         than the ones listed above. */
-        g_assert_not_reached();
+        ws_assert_not_reached();
     }
 
     if (remaining_param == NULL) {
@@ -482,7 +483,7 @@ gboolean decode_as_command_option(const gchar *cl_param)
     default:
         /* There are currently no dissector tables with any types other
         than the ones listed above. */
-        g_assert_not_reached();
+        ws_assert_not_reached();
     }
     g_free(decoded_param); /* "Decode As" rule has been successfully added */
     return TRUE;

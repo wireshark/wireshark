@@ -23,6 +23,7 @@
 #include <wsutil/filesystem.h>
 #include <wsutil/json_dumper.h>
 #include <wsutil/wslog.h>
+#include <wsutil/ws_assert.h>
 #include <version_info.h>
 
 #include <wiretap/merge.h>
@@ -153,7 +154,7 @@ cf_callback_invoke(int event, gpointer data)
   GList              *cb_item = cf_callbacks;
 
   /* there should be at least one interested */
-  g_assert(cb_item != NULL);
+  ws_assert(cb_item != NULL);
 
   while (cb_item != NULL) {
     cb = (cf_callback_data_t *)cb_item->data;
@@ -191,7 +192,7 @@ cf_callback_remove(cf_callback_t func, gpointer user_data)
     cb_item = g_list_next(cb_item);
   }
 
-  g_assert_not_reached();
+  ws_assert_not_reached();
 }
 
 void
@@ -363,8 +364,8 @@ cf_close(capture_file *cf)
     return; /* Nothing to do */
 
   /* Die if we're in the middle of reading a file. */
-  g_assert(cf->state != FILE_READ_IN_PROGRESS);
-  g_assert(!cf->read_lock);
+  ws_assert(cf->state != FILE_READ_IN_PROGRESS);
+  ws_assert(!cf->read_lock);
 
   cf_callback_invoke(cf_cb_file_closing, cf);
 
@@ -508,7 +509,7 @@ cf_read(capture_file *cf, gboolean reloading)
   column_info         *cinfo;
   volatile gboolean    create_proto_tree;
   guint                tap_flags;
-  gboolean             compiled;
+  gboolean             compiled _U_;
   volatile gboolean    is_read_aborted = FALSE;
 
   /* The update_progress_dlg call below might end up accepting a user request to
@@ -528,7 +529,7 @@ cf_read(capture_file *cf, gboolean reloading)
    * cf_filter IFF the filter was valid.
    */
   compiled = dfilter_compile(cf->dfilter, &dfcode, NULL);
-  g_assert(!cf->dfilter || (compiled && dfcode));
+  ws_assert(!cf->dfilter || (compiled && dfcode));
 
   /* Get the union of the flags for all tap listeners. */
   tap_flags = union_of_tap_listener_flags();
@@ -632,7 +633,7 @@ cf_read(capture_file *cf, gboolean reloading)
          * session. If that did happen, it could blow up when read_record tries
          * to use the destroyed edt.session, so detect it right here.
          */
-        g_assert(edt.session == cf->epan);
+        ws_assert(edt.session == cf->epan);
       }
 
       if (cf->state == FILE_READ_ABORTED) {
@@ -718,7 +719,7 @@ cf_read(capture_file *cf, gboolean reloading)
   }
 
   /* It is safe again to execute redissections. */
-  g_assert(cf->read_lock);
+  ws_assert(cf->read_lock);
   cf->read_lock = FALSE;
 
   if (is_read_aborted) {
@@ -781,14 +782,14 @@ cf_continue_tail(capture_file *cf, volatile int to_read, wtap_rec *rec,
   epan_dissect_t    edt;
   gboolean          create_proto_tree;
   guint             tap_flags;
-  gboolean          compiled;
+  gboolean          compiled _U_;
 
   /* Compile the current display filter.
    * We assume this will not fail since cf->dfilter is only set in
    * cf_filter IFF the filter was valid.
    */
   compiled = dfilter_compile(cf->dfilter, &dfcode, NULL);
-  g_assert(!cf->dfilter || (compiled && dfcode));
+  ws_assert(!cf->dfilter || (compiled && dfcode));
 
   /* Get the union of the flags for all tap listeners. */
   tap_flags = union_of_tap_listener_flags();
@@ -917,14 +918,14 @@ cf_finish_tail(capture_file *cf, wtap_rec *rec, Buffer *buf, int *err)
   epan_dissect_t edt;
   gboolean   create_proto_tree;
   guint      tap_flags;
-  gboolean   compiled;
+  gboolean   compiled _U_;
 
   /* Compile the current display filter.
    * We assume this will not fail since cf->dfilter is only set in
    * cf_filter IFF the filter was valid.
    */
   compiled = dfilter_compile(cf->dfilter, &dfcode, NULL);
-  g_assert(!cf->dfilter || (compiled && dfcode));
+  ws_assert(!cf->dfilter || (compiled && dfcode));
 
   /* Get the union of the flags for all tap listeners. */
   tap_flags = union_of_tap_listener_flags();
@@ -1316,7 +1317,7 @@ merge_callback(merge_event event, int num _U_,
   guint i;
   callback_data_t *cb_data = (callback_data_t*) data;
 
-  g_assert(cb_data != NULL);
+  ws_assert(cb_data != NULL);
 
   switch (event) {
 
@@ -1646,13 +1647,13 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
   gboolean    create_proto_tree;
   guint       tap_flags;
   gboolean    add_to_packet_list = FALSE;
-  gboolean    compiled;
+  gboolean    compiled _U_;
   guint32     frames_count;
   gboolean    queued_rescan_type = RESCAN_NONE;
 
   /* Rescan in progress, clear pending actions. */
   cf->redissection_queued = RESCAN_NONE;
-  g_assert(!cf->read_lock);
+  ws_assert(!cf->read_lock);
   cf->read_lock = TRUE;
 
   wtap_rec_init(&rec);
@@ -1663,7 +1664,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
    * cf_filter IFF the filter was valid.
    */
   compiled = dfilter_compile(cf->dfilter, &dfcode, NULL);
-  g_assert(!cf->dfilter || (compiled && dfcode));
+  ws_assert(!cf->dfilter || (compiled && dfcode));
 
   /* Get the union of the flags for all tap listeners. */
   tap_flags = union_of_tap_listener_flags();
@@ -1812,7 +1813,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
       /* let's not divide by zero. I should never be started
        * with count == 0, so let's assert that
        */
-      g_assert(cf->count > 0);
+      ws_assert(cf->count > 0);
       progbar_val = (gfloat) count / frames_count;
 
       if (progbar != NULL) {
@@ -1948,9 +1949,9 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
          it's before or after that frame) and make that the current frame.
          If the next and previous displayed frames are equidistant from the
          selected frame, choose the next one. */
-      g_assert(following_frame == NULL ||
+      ws_assert(following_frame == NULL ||
                following_frame->num >= selected_frame->num);
-      g_assert(preceding_frame == NULL ||
+      ws_assert(preceding_frame == NULL ||
                preceding_frame->num <= selected_frame->num);
       if (following_frame == NULL) {
         /* No frame after the selected frame passed the filter, so we
@@ -2000,7 +2001,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
   dfilter_free(dfcode);
 
   /* It is safe again to execute redissections. */
-  g_assert(cf->read_lock);
+  ws_assert(cf->read_lock);
   cf->read_lock = FALSE;
 
   /* If another rescan (due to dfilter change) or redissection (due to profile
@@ -2167,7 +2168,7 @@ process_specified_records(capture_file *cf, packet_range_t *range,
       /* let's not divide by zero. I should never be started
        * with count == 0, so let's assert that
        */
-      g_assert(cf->count > 0);
+      ws_assert(cf->count > 0);
       progbar_val = (gfloat) progbar_count / cf->count;
 
       g_snprintf(progbar_status_str, sizeof(progbar_status_str),
@@ -2219,7 +2220,7 @@ process_specified_records(capture_file *cf, packet_range_t *range,
     destroy_progress_dlg(progbar);
   g_timer_destroy(prog_timer);
 
-  g_assert(cf->read_lock);
+  ws_assert(cf->read_lock);
   cf->read_lock = FALSE;
 
   wtap_rec_cleanup(&rec);
@@ -2314,7 +2315,7 @@ cf_retap_packets(capture_file *cf)
     return CF_READ_ERROR;
   }
 
-  g_assert_not_reached();
+  ws_assert_not_reached();
   return CF_READ_OK;
 }
 
@@ -3124,7 +3125,7 @@ match_subtree_text(proto_node *node, gpointer data)
   size_t        c_match    = 0;
 
   /* dissection with an invisible proto tree? */
-  g_assert(fi);
+  ws_assert(fi);
 
   if (mdata->frame_matched) {
     /* We already had a match; don't bother doing any more work. */
@@ -3291,7 +3292,7 @@ cf_find_packet_data(capture_file *cf, const guint8 *string, size_t string_size,
       return find_packet(cf, match_wide, &info, dir);
 
     default:
-      g_assert_not_reached();
+      ws_assert_not_reached();
       return FALSE;
     }
   } else
@@ -3338,7 +3339,7 @@ match_narrow_and_wide(capture_file *cf, frame_data *fdata,
         }
       }
       else {
-        g_assert(i>=c_match);
+        ws_assert(i>=c_match);
         i -= (guint32)c_match;
         c_match = 0;
       }
@@ -3387,7 +3388,7 @@ match_narrow(capture_file *cf, frame_data *fdata,
       }
     }
     else {
-      g_assert(i>=c_match);
+      ws_assert(i>=c_match);
       i -= (guint32)c_match;
       c_match = 0;
     }
@@ -3437,7 +3438,7 @@ match_wide(capture_file *cf, frame_data *fdata,
       i += 1;
     }
     else {
-      g_assert(i>=(c_match*2));
+      ws_assert(i>=(c_match*2));
       i -= (guint32)c_match*2;
       c_match = 0;
     }
@@ -3481,7 +3482,7 @@ match_binary(capture_file *cf, frame_data *fdata,
       }
     }
     else {
-      g_assert(i>=c_match);
+      ws_assert(i>=c_match);
       i -= (guint32)c_match;
       c_match = 0;
     }
@@ -3659,7 +3660,7 @@ find_packet(capture_file *cf, ws_match_function match_function,
       /* let's not divide by zero. I should never be started
        * with count == 0, so let's assert that
        */
-      g_assert(cf->count > 0);
+      ws_assert(cf->count > 0);
 
       progbar_val = (gfloat) count / cf->count;
 
@@ -3819,7 +3820,7 @@ cf_goto_framenum(capture_file *cf)
 
   if (cf->finfo_selected) {
     hfinfo = cf->finfo_selected->hfinfo;
-    g_assert(hfinfo);
+    ws_assert(hfinfo);
     if (hfinfo->type == FT_FRAMENUM) {
       framenum = fvalue_get_uinteger(&cf->finfo_selected->value);
       if (framenum != 0)

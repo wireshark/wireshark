@@ -22,6 +22,7 @@
 
 #include <wsutil/strtoi.h>
 #include <wsutil/wslog.h>
+#include <wsutil/ws_assert.h>
 
 #ifdef _WIN32
 #include <wsutil/unicode-utils.h>
@@ -1515,9 +1516,9 @@ sync_pipe_gets_nonblock(int pipe_fd, char *bytes, int max) {
 
 /* convert header values (indicator and 3-byte length) */
 static void
-pipe_convert_header(const guchar *header, int header_len, char *indicator, int *block_len) {
+pipe_convert_header(const guchar *header, int header_len _U_, char *indicator, int *block_len) {
 
-    g_assert(header_len == 4);
+    ws_assert(header_len == 4);
 
     /* convert header values */
     *indicator = header[0];
@@ -1742,7 +1743,7 @@ sync_pipe_input_cb(gint source, gpointer user_data)
         break;
         }
     default:
-        g_assert_not_reached();
+        ws_assert_not_reached();
     }
 
     return TRUE;
@@ -1772,7 +1773,7 @@ sync_pipe_wait_for_child(ws_process_id fork_child, gchar **msgp)
     start_time = g_get_monotonic_time();
 
     ws_debug("wait till child closed");
-    g_assert(fork_child != WS_INVALID_PID);
+    ws_assert(fork_child != WS_INVALID_PID);
 
     *msgp = NULL; /* assume no error */
 #ifdef _WIN32

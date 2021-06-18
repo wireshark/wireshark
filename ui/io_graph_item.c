@@ -40,7 +40,7 @@ GString *check_field_unit(const char *field_name, int *hf_index, io_graph_item_u
     if (item_unit >= IOG_ITEM_UNIT_CALC_SUM) {
         header_field_info *hfi;
 
-        const char *item_unit_names[NUM_IOG_ITEM_UNITS] = {
+        const char *item_unit_names[NUM_IOG_ITEM_UNITS+1] = {
             "Packets",
             "Bytes",
             "Bits",
@@ -50,7 +50,8 @@ GString *check_field_unit(const char *field_name, int *hf_index, io_graph_item_u
             "MAX",
             "MIN",
             "AVG",
-            "LOAD"
+            "LOAD",
+            NULL
         };
 
         /* There was no field specified */
@@ -104,7 +105,7 @@ GString *check_field_unit(const char *field_name, int *hf_index, io_graph_item_u
             case IOG_ITEM_UNIT_CALC_LOAD:
                 break;
             default:
-                g_assert(item_unit < NUM_IOG_ITEM_UNITS);
+                ws_assert(item_unit < NUM_IOG_ITEM_UNITS);
                 err_str = g_string_new("");
                 g_string_printf(err_str, "\"%s\" is a relative-time field. %s calculations are not supported on it.",
                     field_name,

@@ -23,6 +23,7 @@
 #include <epan/dfilter/dfilter.h>
 #include <epan/column.h>
 #include <epan/packet.h>
+#include <wsutil/ws_assert.h>
 
 /* Given a format number (as defined in column-utils.h), returns its equivalent
    string */
@@ -171,7 +172,7 @@ col_format_desc(const gint fmt_num) {
   };
 
   const gchar *val_str = try_val_to_str(fmt_num, dlist_vals);
-  g_assert(val_str != NULL);
+  ws_assert(val_str != NULL);
   return val_str;
 }
 
@@ -294,7 +295,7 @@ get_timestamp_column_longest_string(const gint type, const gint precision)
                 return "0000-00-00 00:00:00.000000000";
                 break;
             default:
-                g_assert_not_reached();
+                ws_assert_not_reached();
         }
             break;
     case(TS_ABSOLUTE_WITH_YDOY):
@@ -320,7 +321,7 @@ get_timestamp_column_longest_string(const gint type, const gint precision)
                 return "0000/000 00:00:00.000000000";
                 break;
             default:
-                g_assert_not_reached();
+                ws_assert_not_reached();
         }
             break;
     case(TS_ABSOLUTE):
@@ -346,7 +347,7 @@ get_timestamp_column_longest_string(const gint type, const gint precision)
                 return "00:00:00.000000000";
                 break;
             default:
-                g_assert_not_reached();
+                ws_assert_not_reached();
         }
         break;
     case(TS_RELATIVE):  /* fallthrough */
@@ -373,7 +374,7 @@ get_timestamp_column_longest_string(const gint type, const gint precision)
                 return "0000.000000000";
                 break;
             default:
-                g_assert_not_reached();
+                ws_assert_not_reached();
         }
         break;
     case(TS_EPOCH):
@@ -399,14 +400,14 @@ get_timestamp_column_longest_string(const gint type, const gint precision)
                 return "0000000000000000000.000000000";
                 break;
             default:
-                g_assert_not_reached();
+                ws_assert_not_reached();
         }
         break;
     case(TS_NOT_SET):
         return "0000.000000";
         break;
     default:
-        g_assert_not_reached();
+        ws_assert_not_reached();
     }
 
     /* never reached, satisfy compiler */

@@ -21,6 +21,7 @@
 #include <errno.h>
 
 #include <wsutil/strtoi.h>
+#include <wsutil/ws_assert.h>
 
 /*
  * Win32 doesn't have SIGALRM (and it's the OS where name lookup calls
@@ -818,7 +819,7 @@ static void
 initialize_services(void)
 {
     gboolean parse_file = TRUE;
-    g_assert(serv_port_hashtable == NULL);
+    ws_assert(serv_port_hashtable == NULL);
     serv_port_hashtable = wmem_map_new(wmem_epan_scope(), g_direct_hash, g_direct_equal);
 
     /* Compute the pathname of the services file. */
@@ -906,7 +907,7 @@ parse_enterprises_file(const char * path)
 static void
 initialize_enterprises(void)
 {
-    g_assert(enterprises_hashtable == NULL);
+    ws_assert(enterprises_hashtable == NULL);
     enterprises_hashtable = g_hash_table_new_full(NULL, NULL, NULL, g_free);
 
     if (g_enterprises_path == NULL) {
@@ -957,10 +958,10 @@ enterprises_base_custom(char *buf, guint32 value)
 static void
 enterprises_cleanup(void)
 {
-    g_assert(enterprises_hashtable);
+    ws_assert(enterprises_hashtable);
     g_hash_table_destroy(enterprises_hashtable);
     enterprises_hashtable = NULL;
-    g_assert(g_enterprises_path);
+    ws_assert(g_enterprises_path);
     g_free(g_enterprises_path);
     g_enterprises_path = NULL;
     g_free(g_penterprises_path);
@@ -1870,7 +1871,7 @@ eth_addr_resolve(hashether_t *tp) {
         tp->status = HASHETHER_STATUS_RESOLVED_DUMMY;
         return tp;
     }
-    g_assert_not_reached();
+    ws_assert_not_reached();
 } /* eth_addr_resolve */
 
 static hashether_t *
@@ -2208,7 +2209,7 @@ get_vlannamebyid(guint16 id)
 static void
 initialize_vlans(void)
 {
-    g_assert(vlan_hash_table == NULL);
+    ws_assert(vlan_hash_table == NULL);
     vlan_hash_table = wmem_map_new(wmem_epan_scope(), g_direct_hash, g_direct_equal);
 
     /* Set g_pvlan_path here, but don't actually do anything
@@ -2534,7 +2535,7 @@ subnet_lookup(const guint32 addr)
 
         /* Note that we run from 31 (length 32)  to 0 (length 1)  */
         --i;
-        g_assert(i < SUBNETLENGTHSIZE);
+        ws_assert(i < SUBNETLENGTHSIZE);
 
 
         length_entry = &subnet_length_entries[i];
@@ -2578,7 +2579,7 @@ subnet_entry_set(guint32 subnet_addr, const guint8 mask_length, const gchar* nam
     sub_net_hashipv4_t * tp;
     gsize hash_idx;
 
-    g_assert(mask_length > 0 && mask_length <= 32);
+    ws_assert(mask_length > 0 && mask_length <= 32);
 
     entry = &subnet_length_entries[mask_length - 1];
 
@@ -2779,7 +2780,7 @@ ss7pc_name_lookup_init(void)
 {
     char *ss7pcspath;
 
-    g_assert(ss7pc_hash_table == NULL);
+    ws_assert(ss7pc_hash_table == NULL);
 
     ss7pc_hash_table = wmem_map_new(wmem_epan_scope(), g_direct_hash, g_direct_equal);
 
@@ -3100,16 +3101,16 @@ host_name_lookup_init(void)
     char *hostspath;
     guint i;
 
-    g_assert(ipxnet_hash_table == NULL);
+    ws_assert(ipxnet_hash_table == NULL);
     ipxnet_hash_table = wmem_map_new(wmem_epan_scope(), g_direct_hash, g_direct_equal);
 
-    g_assert(ipv4_hash_table == NULL);
+    ws_assert(ipv4_hash_table == NULL);
     ipv4_hash_table = wmem_map_new(wmem_epan_scope(), g_direct_hash, g_direct_equal);
 
-    g_assert(ipv6_hash_table == NULL);
+    ws_assert(ipv6_hash_table == NULL);
     ipv6_hash_table = wmem_map_new(wmem_epan_scope(), ipv6_oat_hash, ipv6_equal);
 
-    g_assert(async_dns_queue_head == NULL);
+    ws_assert(async_dns_queue_head == NULL);
     async_dns_queue_head = wmem_list_new(wmem_epan_scope());
 
     if (manually_resolved_ipv4_list == NULL)
@@ -3266,7 +3267,7 @@ port_with_resolution_to_str(wmem_allocator_t *scope, port_type proto, guint port
         return wmem_strdup_printf(scope, "%u", port);
     }
     port_str = serv_name_lookup(proto, port);
-    g_assert(port_str);
+    ws_assert(port_str);
     return wmem_strdup_printf(scope, "%s (%u)", port_str, port);
 }
 
@@ -3280,7 +3281,7 @@ port_with_resolution_to_str_buf(gchar *buf, gulong buf_size, port_type proto, gu
         return g_snprintf(buf, buf_size, "%u", port);
     }
     port_str = serv_name_lookup(proto, port);
-    g_assert(port_str);
+    ws_assert(port_str);
     return g_snprintf(buf, buf_size, "%s (%u)", port_str, port);
 }
 

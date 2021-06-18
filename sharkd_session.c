@@ -21,6 +21,7 @@
 
 #include <wsutil/wsjson.h>
 #include <wsutil/json_dumper.h>
+#include <wsutil/ws_assert.h>
 
 #include <file.h>
 #include <epan/epan_dissect.h>
@@ -2714,7 +2715,7 @@ sharkd_session_process_frame_cb_tree(epan_dissect_t *edt, proto_tree *tree, tvbu
 		{
 			const char *severity = try_val_to_str(FI_GET_FLAG(finfo, PI_SEVERITY_MASK), expert_severity_vals);
 
-			g_assert(severity != NULL);
+			ws_assert(severity != NULL);
 
 			sharkd_json_value_string("s", severity);
 		}

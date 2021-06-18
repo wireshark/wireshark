@@ -111,7 +111,7 @@ static void
 print_fd(fragment_head *fd, gboolean is_head) {
     int i;
 
-    g_assert(fd != NULL);
+    g_assert_true(fd != NULL);
     printf("        %16p %16p %3u %3u %3u", fd, fd->next, fd->frame, fd->offset, fd->len);
     if (is_head) {
         printf(" %3u %3u", fd->datalen, fd->reassembled_in);
@@ -133,7 +133,7 @@ static void
 print_fd_chain(fragment_head *fd_head) {
     fragment_item *fdp;
 
-    g_assert(fd_head != NULL);
+    g_assert_true(fd_head != NULL);
     print_fd(fd_head, TRUE);
     for (fdp=fd_head->next; fdp != NULL; fdp=fdp->next) {
         print_fd(fdp, FALSE);

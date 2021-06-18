@@ -59,6 +59,7 @@
 #include <wsutil/report_message.h>
 #include <wsutil/please_report_bug.h>
 #include <wsutil/wslog.h>
+#include <wsutil/ws_assert.h>
 #include <cli_main.h>
 #include <version_info.h>
 #include <wiretap/wtap_opttypes.h>
@@ -1974,7 +1975,7 @@ main(int argc, char *argv[])
         break;
 
       default:
-        g_assert_not_reached();
+        ws_assert_not_reached();
       }
     }
   }
@@ -2618,7 +2619,7 @@ capture_input_cfilter_error(capture_session *cap_session, guint i, const char *e
   dfilter_t         *rfcode = NULL;
   interface_options *interface_opts;
 
-  g_assert(i < capture_opts->ifaces->len);
+  ws_assert(i < capture_opts->ifaces->len);
   interface_opts = &g_array_index(capture_opts->ifaces, interface_options, i);
 
   if (dfilter_compile(interface_opts->cfilter, &rfcode, NULL) && rfcode != NULL) {
@@ -2659,7 +2660,7 @@ capture_input_new_file(capture_session *cap_session, gchar *new_file)
   }
   ws_message("File: \"%s\"", new_file);
 
-  g_assert(cap_session->state == CAPTURE_PREPARING || cap_session->state == CAPTURE_RUNNING);
+  ws_assert(cap_session->state == CAPTURE_PREPARING || cap_session->state == CAPTURE_RUNNING);
 
   /* free the old filename */
   if (capture_opts->save_file != NULL) {
@@ -3837,7 +3838,7 @@ process_packet_single_pass(capture_file *cf, epan_dissect_t *edt, gint64 offset,
     if (print_packet_info) {
       /* We're printing packet information; print the information for
          this packet. */
-      g_assert(edt);
+      ws_assert(edt);
       print_packet(cf, edt);
 
       /* If we're doing "line-buffering", flush the standard output
@@ -3895,7 +3896,7 @@ write_preamble(capture_file *cf)
     return TRUE;
 
   default:
-    g_assert_not_reached();
+    ws_assert_not_reached();
     return FALSE;
   }
 }
@@ -4230,7 +4231,7 @@ print_packet(capture_file *cf, epan_dissect_t *edt)
   case WRITE_FIELDS:
     if (print_summary) {
       /*No non-verbose "fields" format */
-      g_assert_not_reached();
+      ws_assert_not_reached();
     }
     if (print_details) {
       write_fields_proto_tree(output_fields, edt, &cf->cinfo, stdout);
@@ -4241,7 +4242,7 @@ print_packet(capture_file *cf, epan_dissect_t *edt)
 
   case WRITE_JSON:
     if (print_summary)
-      g_assert_not_reached();
+      ws_assert_not_reached();
     if (print_details) {
       write_json_proto_tree(output_fields, print_dissections_expanded,
                             print_hex, protocolfilter, protocolfilter_flags,
@@ -4252,7 +4253,7 @@ print_packet(capture_file *cf, epan_dissect_t *edt)
 
   case WRITE_JSON_RAW:
     if (print_summary)
-      g_assert_not_reached();
+      ws_assert_not_reached();
     if (print_details) {
       write_json_proto_tree(output_fields, print_dissections_none, TRUE,
                             protocolfilter, protocolfilter_flags,
@@ -4267,7 +4268,7 @@ print_packet(capture_file *cf, epan_dissect_t *edt)
     return !ferror(stdout);
 
   default:
-    g_assert_not_reached();
+    ws_assert_not_reached();
   }
 
   if (print_hex) {
@@ -4311,7 +4312,7 @@ write_finale(void)
     return TRUE;
 
   default:
-    g_assert_not_reached();
+    ws_assert_not_reached();
     return FALSE;
   }
 }

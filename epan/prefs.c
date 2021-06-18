@@ -35,6 +35,7 @@
 #include <wsutil/file_util.h>
 #include <wsutil/report_message.h>
 #include <wsutil/wslog.h>
+#include <wsutil/ws_assert.h>
 
 #include <epan/prefs-int.h>
 #include <epan/uat-int.h>
@@ -1183,7 +1184,7 @@ prefs_register_uint_preference(module_t *module, const char *name,
                                      PREF_UINT);
     preference->varp.uint = var;
     preference->default_val.uint = *var;
-    g_assert(base > 0 && base != 1 && base < 37);
+    ws_assert(base > 0 && base != 1 && base < 37);
     preference->info.base = base;
 }
 
@@ -1253,7 +1254,7 @@ unsigned int prefs_set_bool_value(pref_t *pref, gboolean value, pref_source_t so
         }
         break;
     default:
-        g_assert_not_reached();
+        ws_assert_not_reached();
         break;
     }
 
@@ -1274,7 +1275,7 @@ void prefs_invert_bool_value(pref_t *pref, pref_source_t source)
         *pref->varp.boolp = !(*pref->varp.boolp);
         break;
     default:
-        g_assert_not_reached();
+        ws_assert_not_reached();
         break;
     }
 }
@@ -1293,7 +1294,7 @@ gboolean prefs_get_bool_value(pref_t *pref, pref_source_t source)
         return *pref->varp.boolp;
         break;
     default:
-        g_assert_not_reached();
+        ws_assert_not_reached();
         break;
     }
 
@@ -1348,7 +1349,7 @@ unsigned int prefs_set_enum_value(pref_t *pref, gint value, pref_source_t source
         }
         break;
     default:
-        g_assert_not_reached();
+        ws_assert_not_reached();
         break;
     }
 
@@ -1376,7 +1377,7 @@ gint prefs_get_enum_value(pref_t *pref, pref_source_t source)
         return *pref->varp.enump;
         break;
     default:
-        g_assert_not_reached();
+        ws_assert_not_reached();
         break;
     }
 
@@ -1439,7 +1440,7 @@ register_string_like_preference(module_t *module, const char *name,
     pref->default_val.string = g_strdup(*var);
     pref->stashed_val.string = NULL;
     if (type == PREF_CUSTOM) {
-        g_assert(custom_cbs);
+        ws_assert(custom_cbs);
         pref->custom_cbs = *custom_cbs;
     }
 }
@@ -1499,7 +1500,7 @@ prefs_set_string_value(pref_t *pref, const char* value, pref_source_t source)
         }
         break;
     default:
-        g_assert_not_reached();
+        ws_assert_not_reached();
         break;
     }
 
@@ -1517,7 +1518,7 @@ char* prefs_get_string_value(pref_t *pref, pref_source_t source)
     case pref_current:
         return *pref->varp.string;
     default:
-        g_assert_not_reached();
+        ws_assert_not_reached();
         break;
     }
 
@@ -1686,7 +1687,7 @@ gboolean prefs_set_range_value(pref_t *pref, range_t *value, pref_source_t sourc
         }
         break;
     default:
-        g_assert_not_reached();
+        ws_assert_not_reached();
         break;
     }
 
@@ -1706,7 +1707,7 @@ range_t* prefs_get_range_value_real(pref_t *pref, pref_source_t source)
         return *pref->varp.range;
         break;
     default:
-        g_assert_not_reached();
+        ws_assert_not_reached();
         break;
     }
 
@@ -1825,7 +1826,7 @@ gboolean prefs_set_color_value(pref_t *pref, color_t value, pref_source_t source
         }
         break;
     default:
-        g_assert_not_reached();
+        ws_assert_not_reached();
         break;
     }
 
@@ -1845,7 +1846,7 @@ color_t* prefs_get_color_value(pref_t *pref, pref_source_t source)
         return pref->varp.colorp;
         break;
     default:
-        g_assert_not_reached();
+        ws_assert_not_reached();
         break;
     }
 
@@ -2057,7 +2058,7 @@ pref_stash(pref_t *pref, gpointer unused _U_)
         break;
 
     case PREF_OBSOLETE:
-        g_assert_not_reached();
+        ws_assert_not_reached();
         break;
     }
     return 0;
@@ -2198,7 +2199,7 @@ pref_unstash(pref_t *pref, gpointer unstash_data_p)
         break;
 
     case PREF_OBSOLETE:
-        g_assert_not_reached();
+        ws_assert_not_reached();
         break;
     }
     return 0;
@@ -2248,7 +2249,7 @@ reset_stashed_pref(pref_t *pref) {
         break;
 
     case PREF_OBSOLETE:
-        g_assert_not_reached();
+        ws_assert_not_reached();
         break;
     }
 }
@@ -2293,7 +2294,7 @@ pref_clean_stash(pref_t *pref, gpointer unused _U_)
         break;
 
     case PREF_OBSOLETE:
-        g_assert_not_reached();
+        ws_assert_not_reached();
         break;
     }
     return 0;
@@ -2624,7 +2625,7 @@ column_format_reset_cb(pref_t* pref)
     }
 
     col_num_pref = prefs_find_preference(gui_column_module, PRS_COL_NUM);
-    g_assert(col_num_pref != NULL); /* Should never happen */
+    ws_assert(col_num_pref != NULL); /* Should never happen */
     column_num_reset_cb(col_num_pref);
 }
 
@@ -2675,9 +2676,9 @@ column_format_set_cb(pref_t* pref, const gchar* value, unsigned int* changed_fla
     free_col_info(*pref->varp.list);
     *pref->varp.list = NULL;
     hidden_pref = prefs_find_preference(gui_column_module, PRS_COL_HIDDEN);
-    g_assert(hidden_pref != NULL); /* Should never happen */
+    ws_assert(hidden_pref != NULL); /* Should never happen */
     col_num_pref = prefs_find_preference(gui_column_module, PRS_COL_NUM);
-    g_assert(col_num_pref != NULL); /* Should never happen */
+    ws_assert(col_num_pref != NULL); /* Should never happen */
     llen             = g_list_length(col_l);
     *col_num_pref->varp.uint = llen / 2;
     col_l_elt = g_list_first(col_l);
@@ -4765,7 +4766,7 @@ guint prefs_get_uint_value_real(pref_t *pref, pref_source_t source)
         return *pref->varp.uint;
         break;
     default:
-        g_assert_not_reached();
+        ws_assert_not_reached();
         break;
     }
 
@@ -4801,7 +4802,7 @@ unsigned int prefs_set_uint_value(pref_t *pref, guint value, pref_source_t sourc
         }
         break;
     default:
-        g_assert_not_reached();
+        ws_assert_not_reached();
         break;
     }
 
@@ -5357,7 +5358,7 @@ deprecated_port_pref(gchar *pref_name, const gchar *value)
 
                 default:
                     ws_error("The dissector table %s (%s) is not an integer type - are you using a buggy plugin?", port_range_prefs[i].table_name, get_dissector_table_ui_name(port_range_prefs[i].table_name));
-                    g_assert_not_reached();
+                    ws_assert_not_reached();
                 }
 
                 module = prefs_find_module(port_range_prefs[i].module_name);
@@ -6342,7 +6343,7 @@ prefs_pref_is_default(pref_t *pref)
     case PREF_STATIC_TEXT:
     case PREF_UAT:
         return FALSE;
-        /* g_assert_not_reached(); */
+        /* ws_assert_not_reached(); */
         break;
     }
     return FALSE;

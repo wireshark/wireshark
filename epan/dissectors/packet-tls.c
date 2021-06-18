@@ -66,6 +66,7 @@
 #include <wsutil/str_util.h>
 #include <wsutil/strtoi.h>
 #include <wsutil/rsa.h>
+#include <wsutil/ws_assert.h>
 #include "packet-tcp.h"
 #include "packet-x509af.h"
 #include "packet-tls.h"
@@ -3872,7 +3873,7 @@ tls13_get_quic_secret(packet_info *pinfo, gboolean is_from_server, int type, gui
         }
         break;
     default:
-        g_assert_not_reached();
+        ws_assert_not_reached();
     }
 
     StringInfo *secret = (StringInfo *)g_hash_table_lookup(key_map, &ssl->client_random);

@@ -12,7 +12,7 @@
 #include "file.h"
 
 #include <epan/tap.h>
-
+#include <wsutil/ws_assert.h>
 #include <ui/service_response_time.h>
 
 #include "rpc_service_response_time_dialog.h"
@@ -332,7 +332,7 @@ const QString ServiceResponseTimeDialog::filterExpression()
         QTreeWidgetItem *ti = statsTreeWidget()->selectedItems()[0];
         if (ti->type() == srt_row_type_) {
             SrtTableTreeWidgetItem *srtt_ti = static_cast<SrtTableTreeWidgetItem *>(ti->parent());
-            g_assert(srtt_ti);
+            ws_assert(srtt_ti);
             QString field = srtt_ti->filterField();
             QString value = ti->text(SRT_COLUMN_INDEX);
             if (!field.isEmpty() && !value.isEmpty()) {

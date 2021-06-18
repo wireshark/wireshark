@@ -45,6 +45,7 @@ DIAG_ON(frame-larger-than=)
 #include "wsutil/file_util.h"
 #include "wsutil/filesystem.h"
 #include <wsutil/wslog.h>
+#include <wsutil/ws_assert.h>
 
 #include "epan/addr_resolv.h"
 #include "epan/column.h"
@@ -463,7 +464,7 @@ void MainWindow::queuedFilterAction(QString action_filter, FilterAction::Action 
         }
         break;
     default:
-        g_assert_not_reached();
+        ws_assert_not_reached();
         break;
     }
 
@@ -492,7 +493,7 @@ void MainWindow::queuedFilterAction(QString action_filter, FilterAction::Action 
         break;
     }
     default:
-        g_assert_not_reached();
+        ws_assert_not_reached();
         break;
     }
 }
@@ -960,10 +961,10 @@ void MainWindow::pipeTimeout() {
 }
 
 void MainWindow::pipeActivated(int source) {
-#ifdef _WIN32
     Q_UNUSED(source)
-#else
-    g_assert(source == pipe_source_);
+
+#ifndef _WIN32
+    ws_assert(source == pipe_source_);
 
     pipe_notifier_->setEnabled(false);
     if (pipe_input_cb_(pipe_source_, pipe_user_data_)) {

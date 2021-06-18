@@ -22,6 +22,7 @@
 #include "dfilter-macro.h"
 #include "scanner_lex.h"
 #include <wsutil/wslog.h>
+#include <wsutil/ws_assert.h>
 
 
 #define DFILTER_TOKEN_ID_OFFSET	1
@@ -212,7 +213,7 @@ dfilter_compile(const gchar *text, dfilter_t **dfp, gchar **err_msg)
 	/* XXX, GHashTable */
 	GPtrArray	*deprecated;
 
-	g_assert(dfp);
+	ws_assert(dfp);
 
 	if (!text) {
 		*dfp = NULL;

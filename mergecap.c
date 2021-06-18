@@ -41,6 +41,7 @@
 #include <wsutil/file_util.h>
 #include <wsutil/privileges.h>
 #include <wsutil/strnatcmp.h>
+#include <wsutil/ws_assert.h>
 
 #include <cli_main.h>
 #include <version_info.h>
@@ -388,7 +389,7 @@ main(int argc, char *argv[])
 
     case MERGE_USER_ABORTED:
       /* we don't catch SIGINT/SIGTERM (yet?), so we couldn't have aborted */
-      g_assert_not_reached();
+      ws_assert_not_reached();
       break;
 
     case MERGE_ERR_CANT_OPEN_INFILE:

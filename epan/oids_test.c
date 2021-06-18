@@ -10,6 +10,7 @@
  */
 
 #include "config.h"
+#undef G_DISABLE_ASSERT
 
 #include <stdio.h>
 #include <string.h>

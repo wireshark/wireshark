@@ -17,6 +17,7 @@
 #include "tvbuff.h"
 #include "ipv6.h"
 #include "addr_and_mask.h"
+#include <wsutil/ws_assert.h>
 
 guint32
 ip_get_subnet_mask(const guint32 mask_length)
@@ -33,7 +34,7 @@ ip_get_subnet_mask(const guint32 mask_length)
 		0xfffffff8, 0xfffffffc, 0xfffffffe, 0xffffffff,
 	};
 
-	g_assert(mask_length <= 32);
+	ws_assert(mask_length <= 32);
 
 	return masks[mask_length];
 }

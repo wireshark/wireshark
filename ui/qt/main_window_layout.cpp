@@ -29,6 +29,8 @@
 #include <ui/qt/packet_diagram.h>
 #include <ui/qt/proto_tree.h>
 
+#include <wsutil/ws_assert.h>
+
 /*
  * The generated Ui_MainWindow::setupUi() can grow larger than our configured limit,
  * so turn off -Wframe-larger-than= for ui_main_window.h.
@@ -60,7 +62,7 @@ QWidget* MainWindow::getLayoutWidget(layout_pane_content_e type) {
         case layout_pane_content_pdiagram:
             return packet_diagram_;
         default:
-            g_assert_not_reached();
+            ws_assert_not_reached();
             return NULL;
     }
 }
@@ -116,7 +118,7 @@ void MainWindow::layoutPanes()
         break;
 
     default:
-        g_assert_not_reached();
+        ws_assert_not_reached();
     }
 
     switch(prefs.gui_layout_type) {
@@ -139,7 +141,7 @@ void MainWindow::layoutPanes()
         parents[2] = &master_split_;
         break;
     default:
-        g_assert_not_reached();
+        ws_assert_not_reached();
     }
 
     if (parents[0] == &extra_split_) {

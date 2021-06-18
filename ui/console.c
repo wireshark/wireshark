@@ -15,6 +15,7 @@
 
 #include "epan/prefs.h"
 #include "wsutil/time_util.h"
+#include <wsutil/ws_assert.h>
 
 #include "console.h"
 

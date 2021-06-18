@@ -15,6 +15,7 @@
 #include <wsutil/glib-compat.h>
 
 #include <epan/exceptions.h>
+#include <wsutil/ws_assert.h>
 
 #define CMP_MATCHES cmp_matches
 
@@ -137,11 +138,11 @@ val_repr_len(fvalue_t *fv, ftrepr_t rtype, int field_display _U_)
 }
 
 static void
-val_to_repr(fvalue_t *fv, ftrepr_t rtype, int field_display _U_, char * volatile buf, unsigned int size _U_)
+val_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char * volatile buf, unsigned int size _U_)
 {
 	guint length;
 
-	g_assert(rtype == FTREPR_DFILTER);
+	ws_assert(rtype == FTREPR_DFILTER);
 
 	TRY {
 		length = tvb_captured_length(fv->value.protocol.tvb);

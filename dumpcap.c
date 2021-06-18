@@ -88,6 +88,7 @@
 #include "wsutil/time_util.h"
 #include "wsutil/please_report_bug.h"
 #include "wsutil/glib-compat.h"
+#include <wsutil/ws_assert.h>
 
 #include "capture/ws80211_utils.h"
 
@@ -2134,7 +2135,7 @@ pcapng_adjust_block(capture_src *pcap_src, const pcapng_block_header_t *bh, u_ch
             for (unsigned i = 0; i < pcap_src->cap_pipe_info.pcapng.src_iface_to_global->len; i++) {
                 guint32 iface_id = g_array_index(pcap_src->cap_pipe_info.pcapng.src_iface_to_global, guint32, i);
                 saved_idb_t *idb_source = &g_array_index(global_ld.saved_idbs, saved_idb_t, iface_id);
-                g_assert(idb_source->interface_id == pcap_src->interface_id);
+                ws_assert(idb_source->interface_id == pcap_src->interface_id);
                 g_free(idb_source->idb);
                 memset(idb_source, 0, sizeof(saved_idb_t));
                 idb_source->deleted = TRUE;
@@ -3361,7 +3362,7 @@ capture_loop_dispatch(loop_data *ld,
             if (inpkts < 0) {
                 ws_debug("%s: src %u pipe reached EOF or err, rcv: %u drop: %u flush: %u",
                       G_STRFUNC, pcap_src->interface_id, pcap_src->received, pcap_src->dropped, pcap_src->flushed);
-                g_assert(pcap_src->cap_pipe_err != PIPOK);
+                ws_assert(pcap_src->cap_pipe_err != PIPOK);
             }
         }
     }
@@ -4346,7 +4347,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
         interface_opts = &g_array_index(capture_opts->ifaces, interface_options, i);
         received = pcap_src->received;
         if (pcap_src->pcap_h != NULL) {
-            g_assert(!pcap_src->from_cap_pipe);
+            ws_assert(!pcap_src->from_cap_pipe);
             /* Get the capture statistics, so we know how many packets were dropped. */
             if (pcap_stats(pcap_src->pcap_h, stats) >= 0) {
                 *stats_known = TRUE;
@@ -4511,7 +4512,7 @@ capture_loop_write_pcapng_cb(capture_src *pcap_src, const pcapng_block_header_t 
     /*
      * This should never be called if we're not writing pcapng.
      */
-    g_assert(global_capture_opts.use_pcapng);
+    ws_assert(global_capture_opts.use_pcapng);
 
     /* We may be called multiple times from pcap_dispatch(); if we've set
        the "stop capturing" flag, ignore this packet, as we're not
@@ -4523,7 +4524,7 @@ capture_loop_write_pcapng_cb(capture_src *pcap_src, const pcapng_block_header_t 
 
     if (!pcapng_adjust_block(pcap_src, bh, pd)) {
         ws_info("%s failed to adjust pcapng block.", G_STRFUNC);
-        g_assert_not_reached();
+        ws_assert_not_reached();
         return;
     }
 

@@ -12,6 +12,7 @@
 #include "config.h"
 
 #include "drange.h"
+#include <wsutil/ws_assert.h>
 
 /* drange_node constructor */
 drange_node*
@@ -54,28 +55,28 @@ drange_node_free(drange_node* drnode)
 gint
 drange_node_get_start_offset(drange_node* drnode)
 {
-    g_assert(drnode->ending != DRANGE_NODE_END_T_UNINITIALIZED);
+    ws_assert(drnode->ending != DRANGE_NODE_END_T_UNINITIALIZED);
     return drnode->start_offset;
 }
 
 gint
 drange_node_get_length(drange_node* drnode)
 {
-    g_assert(drnode->ending == DRANGE_NODE_END_T_LENGTH);
+    ws_assert(drnode->ending == DRANGE_NODE_END_T_LENGTH);
     return drnode->length;
 }
 
 gint
 drange_node_get_end_offset(drange_node* drnode)
 {
-    g_assert(drnode->ending == DRANGE_NODE_END_T_OFFSET);
+    ws_assert(drnode->ending == DRANGE_NODE_END_T_OFFSET);
     return drnode->end_offset;
 }
 
 drange_node_end_t
 drange_node_get_ending(drange_node* drnode)
 {
-    g_assert(drnode->ending != DRANGE_NODE_END_T_UNINITIALIZED);
+    ws_assert(drnode->ending != DRANGE_NODE_END_T_UNINITIALIZED);
     return drnode->ending;
 }
 

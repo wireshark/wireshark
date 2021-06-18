@@ -29,6 +29,7 @@
 #include "ui/alert_box.h"
 #include "ui/simple_dialog.h"
 #include <wsutil/utf8_entities.h>
+#include <wsutil/ws_assert.h>
 
 #include "wsutil/file_util.h"
 #include "wsutil/str_util.h"
@@ -111,7 +112,7 @@ FollowStreamDialog::FollowStreamDialog(QWidget &parent, CaptureFile &cf, follow_
         follower_ = get_follow_by_name("SIP");
         break;
     default :
-        g_assert_not_reached();
+        ws_assert_not_reached();
     }
 
     memset(&follow_info_, 0, sizeof(follow_info_));
@@ -537,7 +538,7 @@ FollowStreamDialog::readStream()
         break;
 
     default :
-        g_assert_not_reached();
+        ws_assert_not_reached();
         ret = (frs_return_t)0;
         break;
     }

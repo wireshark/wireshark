@@ -113,12 +113,18 @@ const char *
 stnode_deprecated(stnode_t *node);
 
 #define assert_magic(obj, mnum) \
-	g_assert((obj)); \
+	g_assert_true((obj)); \
 	if ((obj)->magic != (mnum)) { \
 		g_print("\nMagic num is 0x%08x, but should be 0x%08x", \
 			(obj)->magic, (mnum)); \
-			g_assert((obj)->magic == (mnum)); \
+			g_assert_true((obj)->magic == (mnum)); \
 	}
+
+#ifdef WS_DEBUG
+#define ws_assert_magic(obj, mnum) assert_magic(obj, mnum)
+#else
+#define ws_assert_magic(obj, mnum)
+#endif
 
 #define STTYPE_ACCESSOR(ret,type,attr,magicnum) \
 	ret \
@@ -126,7 +132,7 @@ stnode_deprecated(stnode_t *node);
 {\
 	CONCAT(type,_t)	*value; \
 	value = (CONCAT(type,_t) *)stnode_data(node);\
-	assert_magic(value, magicnum); \
+	ws_assert_magic(value, magicnum); \
 	return value->attr; \
 }
 

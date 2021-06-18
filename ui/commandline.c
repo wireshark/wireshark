@@ -35,6 +35,7 @@
 #include <ui/cmdarg_err.h>
 #include <ui/exit_codes.h>
 #include <wsutil/filesystem.h>
+#include <wsutil/ws_assert.h>
 
 #include <epan/ex-opt.h>
 #include <epan/packet.h>
@@ -521,7 +522,7 @@ void commandline_other_options(int argc, char *argv[], gboolean opt_reset)
                                 exit_application(1);
                                 break;
                             default:
-                                g_assert_not_reached();
+                                ws_assert_not_reached();
                         }
                         break;
                     case PREFS_SET_OBSOLETE:
@@ -530,7 +531,7 @@ void commandline_other_options(int argc, char *argv[], gboolean opt_reset)
                         exit_application(1);
                         break;
                     default:
-                        g_assert_not_reached();
+                        ws_assert_not_reached();
                 }
                 break;
             }

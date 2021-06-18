@@ -24,6 +24,7 @@
 #include <epan/follow.h>
 #include <epan/stat_tap_ui.h>
 #include <epan/tap.h>
+#include <wsutil/ws_assert.h>
 
 void register_tap_listener_follow(void);
 
@@ -71,11 +72,11 @@ static const char * follow_str_type(cli_follow_info_t* cli_follow_info)
   case SHOW_RAW:        return "raw";
   case SHOW_YAML:       return "yaml";
   default:
-    g_assert_not_reached();
+    ws_assert_not_reached();
     break;
   }
 
-  g_assert_not_reached();
+  ws_assert_not_reached();
 
   return "<unknown-mode>";
 }
@@ -245,7 +246,7 @@ static void follow_draw(void *contextp)
       break;
 
     default:
-      g_assert_not_reached();
+      ws_assert_not_reached();
     }
 
     /* Print data */
@@ -316,7 +317,7 @@ static void follow_draw(void *contextp)
       break;
 
     default:
-      g_assert_not_reached();
+      ws_assert_not_reached();
     }
   }
 

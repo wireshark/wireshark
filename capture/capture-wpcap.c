@@ -35,6 +35,7 @@ gboolean has_wpcap = FALSE;
 #include "capture/capture-pcap-util-int.h"
 
 #include <wsutil/file_util.h>
+#include <wsutil/ws_assert.h>
 
 /* XXX - yes, I know, I should move cppmagic.h to a generic location. */
 #include "tools/lemon/cppmagic.h"
@@ -247,7 +248,7 @@ local_code_page_str_to_utf8(char *str)
 static void
 prepare_errbuf(char *errbuf)
 {
-	g_assert(errbuf);
+	ws_assert(errbuf);
 	errbuf[0] = '\0';
 }
 
@@ -283,49 +284,49 @@ cant_load_winpcap_err(const char *app_name)
 void
 pcap_close(pcap_t *a)
 {
-	g_assert(has_wpcap);
+	ws_assert(has_wpcap);
 	p_pcap_close(a);
 }
 
 int
 pcap_stats(pcap_t *a, struct pcap_stat *b)
 {
-	g_assert(has_wpcap);
+	ws_assert(has_wpcap);
 	return p_pcap_stats(a, b);
 }
 
 int
 pcap_dispatch(pcap_t *a, int b, pcap_handler c, guchar *d)
 {
-	g_assert(has_wpcap);
+	ws_assert(has_wpcap);
 	return p_pcap_dispatch(a, b, c, d);
 }
 
 int
 pcap_snapshot(pcap_t *a)
 {
-	g_assert(has_wpcap);
+	ws_assert(has_wpcap);
 	return p_pcap_snapshot(a);
 }
 
 int
 pcap_datalink(pcap_t *a)
 {
-	g_assert(has_wpcap);
+	ws_assert(has_wpcap);
 	return p_pcap_datalink(a);
 }
 
 int
 pcap_set_datalink(pcap_t *p, int dlt)
 {
-	g_assert(has_wpcap);
+	ws_assert(has_wpcap);
 	return p_pcap_set_datalink(p, dlt);
 }
 
 int
 pcap_setfilter(pcap_t *a, struct bpf_program *b)
 {
-	g_assert(has_wpcap);
+	ws_assert(has_wpcap);
 	return p_pcap_setfilter(a, b);
 }
 
@@ -333,7 +334,7 @@ char*
 pcap_geterr(pcap_t *a)
 {
 	char *errbuf;
-	g_assert(has_wpcap);
+	ws_assert(has_wpcap);
 	errbuf = p_pcap_geterr(a);
 	convert_errbuf_to_utf8(errbuf);
 	return errbuf;
@@ -343,7 +344,7 @@ int
 pcap_compile(pcap_t *a, struct bpf_program *b, const char *c, int d,
 	     bpf_u_int32 e)
 {
-	g_assert(has_wpcap);
+	ws_assert(has_wpcap);
 	return p_pcap_compile(a, b, c, d, e);
 }
 
@@ -351,7 +352,7 @@ int
 pcap_compile_nopcap(int a, int b, struct bpf_program *c, const char *d, int e,
 		    bpf_u_int32 f)
 {
-	g_assert(has_wpcap);
+	ws_assert(has_wpcap);
 	return p_pcap_compile_nopcap(a, b, c, d, e, f);
 }
 
@@ -359,7 +360,7 @@ int
 pcap_lookupnet(const char *a, bpf_u_int32 *b, bpf_u_int32 *c, char *errbuf)
 {
 	int ret;
-	g_assert(has_wpcap);
+	ws_assert(has_wpcap);
 	ret = p_pcap_lookupnet(a, b, c, errbuf);
 	if (ret == -1)
 		convert_errbuf_to_utf8(errbuf);
@@ -421,7 +422,7 @@ int
 pcap_findalldevs_ex(const char *a, struct pcap_rmtauth *b, pcap_if_t **c, char *errbuf)
 {
 	int ret;
-	g_assert(has_wpcap);
+	ws_assert(has_wpcap);
 	ret = p_pcap_findalldevs_ex(a, b, c, errbuf);
 	if (ret == -1)
 		convert_errbuf_to_utf8(errbuf);
@@ -433,7 +434,7 @@ pcap_createsrcstr(char *a, int b, const char *c, const char *d, const char *e,
 		  char *errbuf)
 {
 	int ret;
-	g_assert(has_wpcap);
+	ws_assert(has_wpcap);
 	ret = p_pcap_createsrcstr(a, b, c, d, e, errbuf);
 	if (ret == -1)
 		convert_errbuf_to_utf8(errbuf);
@@ -445,7 +446,7 @@ pcap_createsrcstr(char *a, int b, const char *c, const char *d, const char *e,
 struct pcap_samp *
 pcap_setsampling(pcap_t *a)
 {
-	g_assert(has_wpcap);
+	ws_assert(has_wpcap);
 	if (p_pcap_setsampling != NULL) {
 		return p_pcap_setsampling(a);
 	}
@@ -456,14 +457,14 @@ pcap_setsampling(pcap_t *a)
 int
 pcap_loop(pcap_t *a, int b, pcap_handler c, guchar *d)
 {
-	g_assert(has_wpcap);
+	ws_assert(has_wpcap);
 	return p_pcap_loop(a, b, c, d);
 }
 
 void
 pcap_freecode(struct bpf_program *a)
 {
-	g_assert(has_wpcap);
+	ws_assert(has_wpcap);
 	p_pcap_freecode(a);
 }
 
@@ -471,7 +472,7 @@ int
 pcap_findalldevs(pcap_if_t **a, char *errbuf)
 {
 	int ret;
-	g_assert(has_wpcap);
+	ws_assert(has_wpcap);
 	ret = p_pcap_findalldevs(a, errbuf);
 	if (ret == -1)
 		convert_errbuf_to_utf8(errbuf);
@@ -481,7 +482,7 @@ pcap_findalldevs(pcap_if_t **a, char *errbuf)
 void
 pcap_freealldevs(pcap_if_t *a)
 {
-	g_assert(has_wpcap);
+	ws_assert(has_wpcap);
 	p_pcap_freealldevs(a);
 }
 
@@ -490,7 +491,7 @@ pcap_t *
 pcap_create(const char *a, char *errbuf)
 {
 	pcap_t *p;
-	g_assert(has_wpcap && p_pcap_create != NULL);
+	ws_assert(has_wpcap && p_pcap_create != NULL);
 	p = p_pcap_create(a, errbuf);
 	if (p == NULL)
 		convert_errbuf_to_utf8(errbuf);
@@ -500,21 +501,21 @@ pcap_create(const char *a, char *errbuf)
 int
 pcap_set_snaplen(pcap_t *a, int b)
 {
-	g_assert(has_wpcap && p_pcap_set_snaplen != NULL);
+	ws_assert(has_wpcap && p_pcap_set_snaplen != NULL);
 	return p_pcap_set_snaplen(a, b);
 }
 
 int
 pcap_set_promisc(pcap_t *a, int b)
 {
-	g_assert(has_wpcap && p_pcap_set_promisc != NULL);
+	ws_assert(has_wpcap && p_pcap_set_promisc != NULL);
 	return p_pcap_set_promisc(a, b);
 }
 
 int
 pcap_can_set_rfmon(pcap_t *a)
 {
-	g_assert(has_wpcap);
+	ws_assert(has_wpcap);
 	if (p_pcap_can_set_rfmon != NULL) {
 		return p_pcap_can_set_rfmon(a);
 	}
@@ -524,27 +525,27 @@ pcap_can_set_rfmon(pcap_t *a)
 int
 pcap_set_rfmon(pcap_t *a, int b)
 {
-	g_assert(has_wpcap && p_pcap_set_rfmon != NULL);
+	ws_assert(has_wpcap && p_pcap_set_rfmon != NULL);
 	return p_pcap_set_rfmon(a, b);
 }
 
 int
 pcap_set_timeout(pcap_t *a, int b)
 {
-	g_assert(has_wpcap && p_pcap_set_timeout != NULL);
+	ws_assert(has_wpcap && p_pcap_set_timeout != NULL);
 	return p_pcap_set_timeout(a, b);
 }
 int
 pcap_set_buffer_size(pcap_t *a, int b)
 {
-	g_assert(has_wpcap && p_pcap_set_buffer_size != NULL);
+	ws_assert(has_wpcap && p_pcap_set_buffer_size != NULL);
 	return p_pcap_set_buffer_size(a, b);
 }
 
 int
 pcap_activate(pcap_t *a)
 {
-	g_assert(has_wpcap && p_pcap_activate != NULL);
+	ws_assert(has_wpcap && p_pcap_activate != NULL);
 	return p_pcap_activate(a);
 
 }
@@ -554,7 +555,7 @@ pcap_statustostr(int a)
 {
     static char ebuf[15 + 10 + 1];
 
-    g_assert(has_wpcap);
+    ws_assert(has_wpcap);
     if (p_pcap_statustostr != NULL) {
         return p_pcap_statustostr(a);
     }
@@ -569,7 +570,7 @@ pcap_statustostr(int a)
 #ifdef HAVE_PCAP_SET_TSTAMP_TYPE
 int
 pcap_set_tstamp_type(pcap_t *a, int b) {
-	g_assert(has_wpcap);
+	ws_assert(has_wpcap);
 	if (p_pcap_set_tstamp_type != NULL) {
 		return p_pcap_set_tstamp_type(a, b);
 	}
@@ -578,7 +579,7 @@ pcap_set_tstamp_type(pcap_t *a, int b) {
 
 int
 pcap_set_tstamp_precision(pcap_t *a, int b) {
-	g_assert(has_wpcap);
+	ws_assert(has_wpcap);
 	if (p_pcap_set_tstamp_precision != NULL) {
 		return p_pcap_set_tstamp_precision(a, b);
 	}
@@ -588,7 +589,7 @@ pcap_set_tstamp_precision(pcap_t *a, int b) {
 
 int
 pcap_get_tstamp_precision(pcap_t *a) {
-	g_assert(has_wpcap);
+	ws_assert(has_wpcap);
 	if (p_pcap_get_tstamp_precision != NULL) {
 		return p_pcap_get_tstamp_precision(a);
 	}
@@ -598,7 +599,7 @@ pcap_get_tstamp_precision(pcap_t *a) {
 
 int
 pcap_list_tstamp_types(pcap_t *a, int **b) {
-	g_assert(has_wpcap);
+	ws_assert(has_wpcap);
 	if (p_pcap_list_tstamp_types != NULL) {
 		return p_pcap_list_tstamp_types(a, b);
 	}
@@ -607,7 +608,7 @@ pcap_list_tstamp_types(pcap_t *a, int **b) {
 
 void
 pcap_free_tstamp_types(int *a) {
-	g_assert(has_wpcap);
+	ws_assert(has_wpcap);
 	if (p_pcap_free_tstamp_types != NULL) {
 		p_pcap_free_tstamp_types(a);
 	}
@@ -615,7 +616,7 @@ pcap_free_tstamp_types(int *a) {
 
 int
 pcap_tstamp_type_name_to_val(const char *a) {
-	g_assert(has_wpcap);
+	ws_assert(has_wpcap);
 	if (p_pcap_tstamp_type_name_to_val != NULL) {
 		return p_pcap_tstamp_type_name_to_val(a);
 	}
@@ -624,7 +625,7 @@ pcap_tstamp_type_name_to_val(const char *a) {
 
 const char *
 pcap_tstamp_type_val_to_name(int a) {
-	g_assert(has_wpcap);
+	ws_assert(has_wpcap);
 	if (p_pcap_tstamp_type_val_to_name != NULL) {
 		return p_pcap_tstamp_type_val_to_name(a);
 	}
@@ -633,7 +634,7 @@ pcap_tstamp_type_val_to_name(int a) {
 
 const char *
 pcap_tstamp_type_val_to_description(int a) {
-	g_assert(has_wpcap);
+	ws_assert(has_wpcap);
 	if (p_pcap_tstamp_type_val_to_description != NULL) {
 		return p_pcap_tstamp_type_val_to_description(a);
 	}
@@ -663,7 +664,7 @@ pcap_list_datalinks(pcap_t *p, int **ddlt)
 void
 pcap_free_datalinks(int *ddlt)
 {
-	g_assert(has_wpcap);
+	ws_assert(has_wpcap);
 
 	/*
 	 * If we don't have pcap_free_datalinks() in WinPcap,
@@ -703,7 +704,7 @@ void pcap_breakloop(pcap_t *a)
 /* setbuff is win32 specific! */
 int pcap_setbuff(pcap_t *a, int b)
 {
-	g_assert(has_wpcap);
+	ws_assert(has_wpcap);
 	return p_pcap_setbuff(a, b);
 }
 
@@ -711,7 +712,7 @@ int pcap_setbuff(pcap_t *a, int b)
 /* (if you get a declaration warning here, try to update to at least WinPcap 3.1b4 develpack) */
 int pcap_next_ex(pcap_t *a, struct pcap_pkthdr **b, const u_char **c)
 {
-	g_assert(has_wpcap);
+	ws_assert(has_wpcap);
 	return p_pcap_next_ex(a, b, c);
 }
 

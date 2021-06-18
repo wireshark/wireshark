@@ -12,6 +12,7 @@
 
 #include <ui/qt/models/uat_delegate.h>
 #include "epan/value_string.h"
+#include <wsutil/ws_assert.h>
 #include <QComboBox>
 #include <QEvent>
 #include <QFileDialog>
@@ -128,7 +129,7 @@ QWidget *UatDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &
         break;
 
     default:
-        g_assert_not_reached();
+        ws_assert_not_reached();
         break;
     }
 

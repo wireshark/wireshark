@@ -9,6 +9,7 @@
 
 #include "voip_calls_info_model.h"
 #include <wsutil/utf8_entities.h>
+#include <wsutil/ws_assert.h>
 #include <ui/qt/utils/qt_ui_utils.h>
 
 #include <QDateTime>
@@ -101,7 +102,7 @@ QVariant VoipCallsInfoModel::data(const QModelIndex &index, int role) const
             return call_info->call_comment;
         }
     case ColumnCount:
-        g_assert_not_reached();
+        ws_assert_not_reached();
     }
     return QVariant();
 }
@@ -131,7 +132,7 @@ QVariant VoipCallsInfoModel::headerData(int section, Qt::Orientation orientation
         case Comments:
            return tr("Comments");
         case ColumnCount:
-            g_assert_not_reached();
+            ws_assert_not_reached();
         }
     }
     return QVariant();

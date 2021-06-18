@@ -18,6 +18,7 @@
 #include "wsutil/pint.h"
 #include "wsutil/str_util.h"
 #include "wsutil/inet_addr.h"
+#include <wsutil/ws_assert.h>
 
 struct _address_type_t {
     int                     addr_type; /* From address_type enumeration or registered value */
@@ -54,18 +55,18 @@ static address_type_t* type_list[MAX_ADDR_TYPE_VALUE + 1];
 static void address_type_register(int addr_type, address_type_t *at)
 {
     /* Check input */
-    g_assert(addr_type < MAX_ADDR_TYPE_VALUE);
-    g_assert(addr_type == at->addr_type);
+    ws_assert(addr_type < MAX_ADDR_TYPE_VALUE);
+    ws_assert(addr_type == at->addr_type);
 
     /* Don't re-register. */
-    g_assert(type_list[addr_type] == NULL);
+    ws_assert(type_list[addr_type] == NULL);
 
     /* Sanity check */
-    g_assert(at->name);
-    g_assert(at->pretty_name);
-    g_assert(at->addr_to_str);
-    g_assert(at->addr_str_len);
-    g_assert(((at->addr_name_res_str != NULL) && (at->addr_name_res_len != NULL)) ||
+    ws_assert(at->name);
+    ws_assert(at->pretty_name);
+    ws_assert(at->addr_to_str);
+    ws_assert(at->addr_str_len);
+    ws_assert(((at->addr_name_res_str != NULL) && (at->addr_name_res_len != NULL)) ||
                      ((at->addr_name_res_str == NULL) && (at->addr_name_res_len == NULL)));
 
     type_list[addr_type] = at;
@@ -79,16 +80,16 @@ int address_type_dissector_register(const char* name, const char* pretty_name,
     int addr_type;
 
     /* Ensure valid data/functions for required fields */
-    g_assert(name);
-    g_assert(pretty_name);
-    g_assert(to_str_func);
-    g_assert(str_len_func);
+    ws_assert(name);
+    ws_assert(pretty_name);
+    ws_assert(to_str_func);
+    ws_assert(str_len_func);
     /* Either have both or neither */
-    g_assert(((name_res_str_func != NULL) && (name_res_len_func != NULL)) ||
+    ws_assert(((name_res_str_func != NULL) && (name_res_len_func != NULL)) ||
                      ((name_res_str_func == NULL) && (name_res_len_func == NULL)));
 
     /* This shouldn't happen, so flag it for fixing */
-    g_assert(num_dissector_addr_type < MAX_DISSECTOR_ADDR_TYPE);
+    ws_assert(num_dissector_addr_type < MAX_DISSECTOR_ADDR_TYPE);
 
     addr_type = AT_END_OF_LIST+num_dissector_addr_type;
     dissector_type_addresses[num_dissector_addr_type].addr_type = addr_type;
@@ -699,7 +700,7 @@ void address_types_initialize(void)
 /* Given an address type id, return an address_type_t* */
 #define ADDR_TYPE_LOOKUP(addr_type, result)    \
     /* Check input */                          \
-    g_assert(addr_type < MAX_ADDR_TYPE_VALUE); \
+    ws_assert(addr_type < MAX_ADDR_TYPE_VALUE); \
     result = type_list[addr_type];
 
 static int address_type_get_length(const address* addr)
@@ -938,7 +939,7 @@ tvb_address_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, int type, const gint 
     /* For variable length fields, use tvb_address_var_to_str() */
     if (at->addr_fixed_len == NULL)
     {
-        g_assert_not_reached();
+        ws_assert_not_reached();
         return NULL;
     }
 
@@ -973,7 +974,7 @@ tvb_address_with_resolution_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, int t
     /* For variable length fields, use tvb_address_var_with_resolution_to_str() */
     if (at->addr_fixed_len == NULL)
     {
-        g_assert_not_reached();
+        ws_assert_not_reached();
         return NULL;
     }
 

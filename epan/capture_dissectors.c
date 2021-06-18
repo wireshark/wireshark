@@ -17,6 +17,7 @@
 #include "packet.h"
 
 #include "capture_dissectors.h"
+#include <wsutil/ws_assert.h>
 
 #include <wsutil/wslog.h>
 
@@ -107,7 +108,7 @@ capture_dissector_handle_t register_capture_dissector(const char *name, capture_
     capture_dissector_handle_t handle;
 
     /* Make sure the registration is unique */
-    g_assert(g_hash_table_lookup(registered_dissectors, name) == NULL);
+    ws_assert(g_hash_table_lookup(registered_dissectors, name) == NULL);
 
     handle = new_capture_dissector_handle(dissector, proto, name);
     g_hash_table_insert(registered_dissectors, (gpointer)name, handle);
@@ -131,7 +132,7 @@ void capture_dissector_add_uint(const char *name, const guint32 pattern, capture
     }
 
     /* Make sure the registration is unique */
-    g_assert(g_hash_table_lookup(sub_dissectors->hash_table, GUINT_TO_POINTER(pattern)) == NULL);
+    ws_assert(g_hash_table_lookup(sub_dissectors->hash_table, GUINT_TO_POINTER(pattern)) == NULL);
 
     g_hash_table_insert(sub_dissectors->hash_table, GUINT_TO_POINTER(pattern), (gpointer) handle);
 }

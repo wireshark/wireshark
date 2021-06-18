@@ -21,6 +21,7 @@
 
 #include <wsutil/file_util.h>
 #include <wsutil/filesystem.h>
+#include <wsutil/ws_assert.h>
 
 #include <epan/strutil.h>
 
@@ -124,8 +125,8 @@ fileset_is_file_in_set(const char *fname1, const char *fname2)
 
 
     /* just to be sure ... */
-    g_assert(fileset_filename_match_pattern(fname1));
-    g_assert(fileset_filename_match_pattern(fname2));
+    ws_assert(fileset_filename_match_pattern(fname1));
+    ws_assert(fileset_filename_match_pattern(fname2));
 
     dup_f1 = g_strdup(fname1);
     dup_f2 = g_strdup(fname2);

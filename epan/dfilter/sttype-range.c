@@ -18,6 +18,7 @@
 #include <epan/proto.h>
 #include "drange.h"
 #include "sttype-range.h"
+#include <wsutil/ws_assert.h>
 
 typedef struct {
 	guint32	   magic;
@@ -28,11 +29,11 @@ typedef struct {
 #define RANGE_MAGIC	0xec0990ce
 
 static gpointer
-range_new(gpointer junk)
+range_new(gpointer junk _U_)
 {
 	range_t		*range;
 
-	g_assert(junk == NULL);
+	ws_assert(junk == NULL);
 
 	range = g_new(range_t, 1);
 
@@ -60,7 +61,7 @@ static void
 range_free(gpointer value)
 {
 	range_t	*range = (range_t*)value;
-	assert_magic(range, RANGE_MAGIC);
+	ws_assert_magic(range, RANGE_MAGIC);
 
 	if (range->drange)
 		drange_free(range->drange);
@@ -77,7 +78,7 @@ sttype_range_remove_drange(stnode_t *node)
 	range_t		*range;
 
 	range = (range_t*)stnode_data(node);
-	assert_magic(range, RANGE_MAGIC);
+	ws_assert_magic(range, RANGE_MAGIC);
 
 	range->drange = NULL;
 }
@@ -90,7 +91,7 @@ sttype_range_set(stnode_t *node, stnode_t *entity, GSList* drange_list)
 	range_t		*range;
 
 	range = (range_t*)stnode_data(node);
-	assert_magic(range, RANGE_MAGIC);
+	ws_assert_magic(range, RANGE_MAGIC);
 
 	range->entity = entity;
 

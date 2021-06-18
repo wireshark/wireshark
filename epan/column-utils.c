@@ -33,6 +33,7 @@
 #include <epan/dfilter/dfilter.h>
 
 #include <wsutil/utf8_entities.h>
+#include <wsutil/ws_assert.h>
 
 #ifdef HAVE_LUA
 #include <epan/wslua/wslua.h>
@@ -912,7 +913,7 @@ set_abs_ymd_time(const frame_data *fd, gchar *buf, char *decimal_point, gboolean
       tsprecision = fd->tsprec;
       break;
     default:
-      g_assert_not_reached();
+      ws_assert_not_reached();
     }
     switch (tsprecision) {
     case WTAP_TSPREC_SEC:
@@ -980,7 +981,7 @@ set_abs_ymd_time(const frame_data *fd, gchar *buf, char *decimal_point, gboolean
         fd->abs_ts.nsecs);
       break;
     default:
-      g_assert_not_reached();
+      ws_assert_not_reached();
     }
   } else {
     buf[0] = '\0';
@@ -1046,7 +1047,7 @@ set_abs_ydoy_time(const frame_data *fd, gchar *buf, char *decimal_point, gboolea
       tsprecision = fd->tsprec;
       break;
     default:
-      g_assert_not_reached();
+      ws_assert_not_reached();
     }
     switch (tsprecision) {
     case WTAP_TSPREC_SEC:
@@ -1108,7 +1109,7 @@ set_abs_ydoy_time(const frame_data *fd, gchar *buf, char *decimal_point, gboolea
         fd->abs_ts.nsecs);
       break;
     default:
-      g_assert_not_reached();
+      ws_assert_not_reached();
     }
   } else {
     buf[0] = '\0';
@@ -1163,7 +1164,7 @@ set_time_seconds(const frame_data *fd, const nstime_t *ts, gchar *buf)
     tsprecision = fd->tsprec;
     break;
   default:
-    g_assert_not_reached();
+    ws_assert_not_reached();
   }
   switch (tsprecision) {
   case WTAP_TSPREC_SEC:
@@ -1191,7 +1192,7 @@ set_time_seconds(const frame_data *fd, const nstime_t *ts, gchar *buf)
       (gint64) ts->secs, ts->nsecs, TO_STR_TIME_RES_T_NSECS);
     break;
   default:
-    g_assert_not_reached();
+    ws_assert_not_reached();
   }
 }
 
@@ -1235,7 +1236,7 @@ set_time_hour_min_sec(const frame_data *fd, const nstime_t *ts, gchar *buf, char
     tsprecision = fd->tsprec;
     break;
   default:
-    g_assert_not_reached();
+    ws_assert_not_reached();
   }
   switch (tsprecision) {
   case WTAP_TSPREC_SEC:
@@ -1377,7 +1378,7 @@ set_time_hour_min_sec(const frame_data *fd, const nstime_t *ts, gchar *buf, char
     }
     break;
   default:
-    g_assert_not_reached();
+    ws_assert_not_reached();
   }
 }
 
@@ -1405,7 +1406,7 @@ col_set_rel_time(const frame_data *fd, column_info *cinfo, const int col)
     set_time_seconds(fd, &del_rel_ts, cinfo->col_expr.col_expr_val[col]);
     break;
   default:
-    g_assert_not_reached();
+    ws_assert_not_reached();
   }
   cinfo->columns[col].col_data = cinfo->columns[col].col_buf;
 }
@@ -1429,7 +1430,7 @@ col_set_delta_time(const frame_data *fd, column_info *cinfo, const int col)
     set_time_seconds(fd, &del_cap_ts, cinfo->col_expr.col_expr_val[col]);
     break;
   default:
-    g_assert_not_reached();
+    ws_assert_not_reached();
   }
 
   cinfo->columns[col].col_data = cinfo->columns[col].col_buf;
@@ -1459,7 +1460,7 @@ col_set_delta_time_dis(const frame_data *fd, column_info *cinfo, const int col)
     set_time_seconds(fd, &del_dis_ts, cinfo->col_expr.col_expr_val[col]);
     break;
   default:
-    g_assert_not_reached();
+    ws_assert_not_reached();
   }
 
   cinfo->columns[col].col_data = cinfo->columns[col].col_buf;
@@ -1504,7 +1505,7 @@ set_abs_time(const frame_data *fd, gchar *buf, char *decimal_point, gboolean loc
       tsprecision = fd->tsprec;
       break;
     default:
-      g_assert_not_reached();
+      ws_assert_not_reached();
     }
     switch (tsprecision) {
     case WTAP_TSPREC_SEC:
@@ -1554,7 +1555,7 @@ set_abs_time(const frame_data *fd, gchar *buf, char *decimal_point, gboolean loc
         fd->abs_ts.nsecs);
       break;
     default:
-      g_assert_not_reached();
+      ws_assert_not_reached();
     }
 
   } else {
@@ -1614,7 +1615,7 @@ set_epoch_time(const frame_data *fd, gchar *buf)
     tsprecision = fd->tsprec;
     break;
   default:
-    g_assert_not_reached();
+    ws_assert_not_reached();
   }
   switch (tsprecision) {
   case WTAP_TSPREC_SEC:
@@ -1642,7 +1643,7 @@ set_epoch_time(const frame_data *fd, gchar *buf)
        fd->abs_ts.secs, fd->abs_ts.nsecs, TO_STR_TIME_RES_T_NSECS);
     break;
   default:
-    g_assert_not_reached();
+    ws_assert_not_reached();
   }
   return TRUE;
 }
@@ -1688,7 +1689,7 @@ set_fd_time(const epan_t *epan, frame_data *fd, gchar *buf)
         set_time_seconds(fd, &del_rel_ts, buf);
         break;
       default:
-        g_assert_not_reached();
+        ws_assert_not_reached();
       }
     } else {
       buf[0] = '\0';
@@ -1709,7 +1710,7 @@ set_fd_time(const epan_t *epan, frame_data *fd, gchar *buf)
         set_time_hour_min_sec(fd, &del_cap_ts, buf, col_decimal_point);
         break;
       default:
-        g_assert_not_reached();
+        ws_assert_not_reached();
       }
     } else {
       buf[0] = '\0';
@@ -1730,7 +1731,7 @@ set_fd_time(const epan_t *epan, frame_data *fd, gchar *buf)
         set_time_hour_min_sec(fd, &del_dis_ts, buf, col_decimal_point);
         break;
       default:
-        g_assert_not_reached();
+        ws_assert_not_reached();
       }
     } else {
       buf[0] = '\0';
@@ -1755,7 +1756,7 @@ set_fd_time(const epan_t *epan, frame_data *fd, gchar *buf)
 
   case TS_NOT_SET:
     /* code is missing for this case, but I don't know which [jmayer20051219] */
-    g_assert_not_reached();
+    ws_assert_not_reached();
     break;
   }
 }
@@ -1806,7 +1807,7 @@ col_set_cls_time(const frame_data *fd, column_info *cinfo, const gint col)
 
   case TS_NOT_SET:
     /* code is missing for this case, but I don't know which [jmayer20051219] */
-    g_assert_not_reached();
+    ws_assert_not_reached();
     break;
   }
 }
@@ -1859,7 +1860,7 @@ col_set_fmt_time(const frame_data *fd, column_info *cinfo, const gint fmt, const
     break;
 
   default:
-    g_assert_not_reached();
+    ws_assert_not_reached();
     break;
   }
 }
@@ -1918,7 +1919,7 @@ col_set_time(column_info *cinfo, const gint el, const nstime_t *ts, const char *
           (gint64) ts->secs, ts->nsecs, TO_STR_TIME_RES_T_NSECS);
         break;
       default:
-        g_assert_not_reached();
+        ws_assert_not_reached();
       }
       col_item->col_data = col_item->col_buf;
       cinfo->col_expr.col_expr[col] = fieldname;
@@ -2049,8 +2050,8 @@ col_set_port(packet_info *pinfo, const int col, const gboolean is_res, const gbo
 gboolean
 col_based_on_frame_data(column_info *cinfo, const gint col)
 {
-  g_assert(cinfo);
-  g_assert(col < cinfo->num_cols);
+  ws_assert(cinfo);
+  ws_assert(col < cinfo->num_cols);
 
   switch (cinfo->columns[col].col_fmt) {
   case COL_NUMBER:
@@ -2236,11 +2237,11 @@ col_fill_in(packet_info *pinfo, const gboolean fill_col_exprs, const gboolean fi
         break;
 
       case NUM_COL_FMTS:  /* keep compiler happy - shouldn't get here */
-        g_assert_not_reached();
+        ws_assert_not_reached();
         break;
       default:
         if (col_item->col_fmt >= NUM_COL_FMTS) {
-          g_assert_not_reached();
+          ws_assert_not_reached();
         }
         /*
          * Formatting handled by col_custom_set_edt() (COL_CUSTOM), expert.c
@@ -2276,7 +2277,7 @@ col_fill_in_error(column_info *cinfo, frame_data *fdata, const gboolean fill_col
       col_item->col_data = "Read error";
     } else {
       if (col_item->col_fmt >= NUM_COL_FMTS) {
-        g_assert_not_reached();
+        ws_assert_not_reached();
       }
       /*
        * No dissection was done, and these columns are set as the

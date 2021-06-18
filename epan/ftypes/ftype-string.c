@@ -15,6 +15,7 @@
 #define CMP_MATCHES cmp_matches
 
 #include <strutil.h>
+#include <wsutil/ws_assert.h>
 
 static void
 string_fvalue_new(fvalue_t *fv)
@@ -49,7 +50,7 @@ string_repr_len(fvalue_t *fv, ftrepr_t rtype, int field_display _U_)
 		case FTREPR_DFILTER:
 			return escape_string_len(fv->value.string);
 	}
-	g_assert_not_reached();
+	ws_assert_not_reached();
 	return -1;
 }
 
@@ -65,7 +66,7 @@ string_to_repr(fvalue_t *fv, ftrepr_t rtype, int field_display _U_, char *buf, u
 			escape_string(buf, fv->value.string);
 			return;
 	}
-	g_assert_not_reached();
+	ws_assert_not_reached();
 }
 
 

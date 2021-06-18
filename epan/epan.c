@@ -32,6 +32,7 @@
 
 #include <wsutil/nstime.h>
 #include <wsutil/wslog.h>
+#include <wsutil/ws_assert.h>
 
 #include "conversation.h"
 #include "except.h"
@@ -519,7 +520,7 @@ epan_set_always_visible(gboolean force)
 void
 epan_dissect_init(epan_dissect_t *edt, epan_t *session, const gboolean create_proto_tree, const gboolean proto_tree_visible)
 {
-	g_assert(edt);
+	ws_assert(edt);
 
 	edt->session = session;
 
@@ -551,7 +552,7 @@ epan_dissect_reset(epan_dissect_t *edt)
 	/* We have to preserve the pool pointer across the memzeroing */
 	wmem_allocator_t *tmp;
 
-	g_assert(edt);
+	ws_assert(edt);
 
 	g_slist_free(edt->pi.proto_data);
 	g_slist_free(edt->pi.dependent_frames);
@@ -652,7 +653,7 @@ epan_dissect_file_run_with_taps(epan_dissect_t *edt, wtap_rec *rec,
 void
 epan_dissect_cleanup(epan_dissect_t* edt)
 {
-	g_assert(edt);
+	ws_assert(edt);
 
 	g_slist_foreach(epan_plugins, epan_plugin_dissect_cleanup, edt);
 

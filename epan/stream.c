@@ -18,6 +18,7 @@
 #include <epan/reassemble.h>
 #include <epan/stream.h>
 #include <epan/tvbuff.h>
+#include <wsutil/ws_assert.h>
 
 
 typedef struct {
@@ -103,7 +104,7 @@ static void cleanup_stream_hash( void ) {
 
 /* init function, call from stream_init() */
 static void init_stream_hash( void ) {
-    g_assert(stream_hash==NULL);
+    ws_assert(stream_hash==NULL);
     stream_hash = g_hash_table_new(stream_hash_func,
                                    stream_compare_func);
 }
@@ -221,7 +222,7 @@ static void cleanup_fragment_hash( void ) {
 
 /* init function, call from stream_init() */
 static void init_fragment_hash( void ) {
-    g_assert(fragment_hash==NULL);
+    ws_assert(fragment_hash==NULL);
     fragment_hash = g_hash_table_new(fragment_hash_func,
                                      fragment_compare_func);
 }

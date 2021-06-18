@@ -19,6 +19,7 @@
 #include <epan/tap.h>
 #include <epan/stat_tap_ui.h>
 #include <epan/expert.h>
+#include <wsutil/ws_assert.h>
 
 void register_tap_listener_expert_info(void);
 
@@ -98,7 +99,7 @@ expert_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U
             severity_level = error_level;
             break;
         default:
-            g_assert_not_reached();
+            ws_assert_not_reached();
             return TAP_PACKET_DONT_REDRAW;
     }
 

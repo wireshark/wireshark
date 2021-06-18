@@ -119,7 +119,7 @@ any "error" symbols are shifted, if possible. */
 		case STTYPE_RANGE:
 		case STTYPE_FVALUE:
 		case STTYPE_PCRE:
-			g_assert_not_reached();
+			ws_assert_not_reached();
 			break;
 	}
 	dfw->syntax_error = TRUE;
@@ -280,7 +280,7 @@ relation_test(T) ::= entity(E) rel_op2(O) relation_test(R).
 
 	F = R;
 	do {
-		g_assert(F != NULL && stnode_type_id(F) == STTYPE_TEST);
+		ws_assert(F != NULL && stnode_type_id(F) == STTYPE_TEST);
 		sttype_test_get(F, NULL, &F, NULL);
 	} while (stnode_type_id(F) == STTYPE_TEST);
 

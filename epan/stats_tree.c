@@ -30,6 +30,7 @@
 
 #include "strutil.h"
 #include "stats_tree.h"
+#include <wsutil/ws_assert.h>
 
 enum _stat_tree_columns {
     COL_NAME,
@@ -273,7 +274,7 @@ stats_tree_register_with_group(const char *tapname, const char *abbr, const char
     stats_tree_cfg *cfg = g_new0(stats_tree_cfg, 1);
 
     /* at the very least the abbrev and the packet function should be given */
-    g_assert( tapname && abbr && packet );
+    ws_assert( tapname && abbr && packet );
 
     cfg->tapname = g_strdup(tapname);
     cfg->abbr = g_strdup(abbr);
@@ -503,7 +504,7 @@ new_stat_node(stats_tree *st, const gchar *name, int parent_id, stat_node_dataty
         node->parent = (stat_node *)g_ptr_array_index(st->parents,parent_id);
     } else {
         /* ??? should we set the parent to be root ??? */
-        g_assert_not_reached();
+        ws_assert_not_reached();
     }
 
     if (node->parent->children) {
@@ -653,7 +654,7 @@ stats_tree_manip_node_int(manip_node_mode mode, stats_tree *st, const char *name
     stat_node *node = NULL;
     stat_node *parent = NULL;
 
-    g_assert( parent_id >= 0 && parent_id < (int) st->parents->len );
+    ws_assert( parent_id >= 0 && parent_id < (int) st->parents->len );
 
     parent = (stat_node *)g_ptr_array_index(st->parents,parent_id);
 
@@ -715,7 +716,7 @@ stats_tree_manip_node_float(manip_node_mode mode, stats_tree *st, const char *na
     stat_node *node = NULL;
     stat_node *parent = NULL;
 
-    g_assert(parent_id >= 0 && parent_id < (int)st->parents->len);
+    ws_assert(parent_id >= 0 && parent_id < (int)st->parents->len);
 
     parent = (stat_node *)g_ptr_array_index(st->parents, parent_id);
 
@@ -746,7 +747,7 @@ stats_tree_manip_node_float(manip_node_mode mode, stats_tree *st, const char *na
         break;
     default:
         //only average is currently supported
-        g_assert_not_reached();
+        ws_assert_not_reached();
         break;
     }
 
@@ -763,7 +764,7 @@ stats_tree_get_abbr(const char *opt_arg)
 
     /* XXX: this fails when tshark is given any options
        after the -z */
-    g_assert(opt_arg != NULL);
+    ws_assert(opt_arg != NULL);
 
     for (i=0; opt_arg[i] && opt_arg[i] != ','; i++);
 
@@ -922,7 +923,7 @@ stats_tree_tick_range(stats_tree *st, const gchar *name, int parent_id,
     if (parent_id >= 0 && parent_id < (int) st->parents->len) {
         parent = (stat_node *)g_ptr_array_index(st->parents,parent_id);
     } else {
-        g_assert_not_reached();
+        ws_assert_not_reached();
     }
 
     if( parent->hash ) {
@@ -932,7 +933,7 @@ stats_tree_tick_range(stats_tree *st, const gchar *name, int parent_id,
     }
 
     if ( node == NULL )
-        g_assert_not_reached();
+        ws_assert_not_reached();
 
     /* update stats for container node. counter should already be ticked so we only update total and min/max */
     node->total.int_total += value_in_range;
@@ -1259,7 +1260,7 @@ stats_tree_sort_compare (const stat_node *a, const stat_node *b, gint sort_colum
 
         default:
             /* no sort comparison found for column - must update this switch statement */
-            g_assert_not_reached();
+            ws_assert_not_reached();
     }
 
     /* break tie between items with same primary search result */

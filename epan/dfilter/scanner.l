@@ -474,7 +474,7 @@ simple(int token)
 		case TOKEN_TEST_IN:
 			break;
 		default:
-			g_assert_not_reached();
+			ws_assert_not_reached();
 	}
 	return token;
 }
@@ -501,7 +501,7 @@ set_lval(int token, gpointer data)
 			type_id = STTYPE_FUNCTION;
 			break;
 		default:
-			g_assert_not_reached();
+			ws_assert_not_reached();
 	}
 	stnode_init(df_lval, type_id, data);
 	return token;
@@ -522,7 +522,7 @@ set_lval_int(dfwork_t *dfw, int token, char *s)
 			type_id = STTYPE_INTEGER;
 			break;
 		default:
-			g_assert_not_reached();
+			ws_assert_not_reached();
 	}
 
 	stnode_init_int(df_lval, type_id, val);

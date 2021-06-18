@@ -29,6 +29,7 @@
 #include <ui/exit_codes.h>
 #include <wsutil/file_util.h>
 #include <wsutil/ws_pipe.h>
+#include <wsutil/ws_assert.h>
 
 #include "capture/capture_ifinfo.h"
 #include "capture/capture-pcap-util.h"
@@ -997,7 +998,7 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
         break;
     default:
         /* the caller is responsible to send us only the right opt's */
-        g_assert_not_reached();
+        ws_assert_not_reached();
     }
 
     return 0;

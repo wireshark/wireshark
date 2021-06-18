@@ -18,6 +18,7 @@
 #include <ftypes/ftypes-int.h>
 #include <ftypes/ftypes.h>
 #include <epan/exceptions.h>
+#include <wsutil/ws_assert.h>
 
 /* Convert an FT_STRING using a callback function */
 static gboolean
@@ -191,7 +192,7 @@ ul_semcheck_params(dfwork_t *dfw, int param_num, stnode_t *st_node)
         }
     }
     else {
-        g_assert_not_reached();
+        ws_assert_not_reached();
     }
 }
 
@@ -213,7 +214,7 @@ ul_semcheck_len_params(dfwork_t *dfw, int param_num, stnode_t *st_node)
         }
     }
     else {
-        g_assert_not_reached();
+        ws_assert_not_reached();
     }
 }
 
@@ -234,7 +235,7 @@ ul_semcheck_field_param(dfwork_t *dfw, int param_num, stnode_t *st_node)
         }
     }
     else {
-        g_assert_not_reached();
+        ws_assert_not_reached();
     }
 }
 
@@ -300,7 +301,7 @@ ul_semcheck_string_param(dfwork_t *dfw, int param_num, stnode_t *st_node)
         }
     }
     else {
-        g_assert_not_reached();
+        ws_assert_not_reached();
     }
 }
 

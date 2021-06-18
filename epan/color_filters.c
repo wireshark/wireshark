@@ -23,6 +23,7 @@
 #include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
 #include <wsutil/wslog.h>
+#include <wsutil/ws_assert.h>
 
 #include <epan/packet.h>
 #include "color_filters.h"
@@ -84,8 +85,8 @@ color_filters_add_tmp(GSList **cfl)
     color_t         bg_color, fg_color;
     color_filter_t *colorf;
 
-    g_assert(strlen(prefs.gui_colorized_fg)==69);
-    g_assert(strlen(prefs.gui_colorized_bg)==69);
+    ws_assert(strlen(prefs.gui_colorized_fg)==69);
+    ws_assert(strlen(prefs.gui_colorized_bg)==69);
     fg_colors = g_strsplit(prefs.gui_colorized_fg, ",", -1);
     bg_colors = g_strsplit(prefs.gui_colorized_bg, ",", -1);
 
@@ -406,7 +407,7 @@ color_filter_compile_cb(gpointer filter_arg, gpointer err)
     gchar **err_msg = (gchar**)err;
     gchar *local_err_msg = NULL;
 
-    g_assert(colorf->c_colorfilter == NULL);
+    ws_assert(colorf->c_colorfilter == NULL);
 
     /* If the filter is disabled it doesn't matter if it compiles or not. */
     if (colorf->disabled) return;
@@ -417,7 +418,7 @@ color_filter_compile_cb(gpointer filter_arg, gpointer err)
         g_free(local_err_msg);
         /* this filter was compilable before, so this should never happen */
         /* except if the OK button of the parent window has been clicked */
-        /* so don't use g_assert_not_reached() but check the filters again */
+        /* so don't use ws_assert_not_reached() but check the filters again */
     }
 }
 
@@ -428,7 +429,7 @@ color_filter_validate_cb(gpointer filter_arg, gpointer err)
     gchar **err_msg = (gchar**)err;
     gchar *local_err_msg;
 
-    g_assert(colorf->c_colorfilter == NULL);
+    ws_assert(colorf->c_colorfilter == NULL);
 
     /* If the filter is disabled it doesn't matter if it compiles or not. */
     if (colorf->disabled) return;

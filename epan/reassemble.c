@@ -18,6 +18,7 @@
 #include <epan/tvbuff-int.h>
 
 #include <wsutil/str_util.h>
+#include <wsutil/ws_assert.h>
 
 /*
  * Functions for reassembly tables where the endpoint addresses, and a
@@ -2189,7 +2190,7 @@ fragment_add_seq_single_move(reassembly_table *table, const packet_info *pinfo,
 	if (fh == NULL) {
 		/* Shouldn't be called this way.
 		 * Probably wouldn't hurt to just create fh in this case. */
-		g_assert_not_reached();
+		ws_assert_not_reached();
 		return;
 	}
 	if (fh->flags & FD_DATALEN_SET && fh->datalen <= offset) {

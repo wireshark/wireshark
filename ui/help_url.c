@@ -18,6 +18,7 @@
 #include "help_url.h"
 #include "urls.h"
 #include "wsutil/filesystem.h"
+#include <wsutil/ws_assert.h>
 
 // To do:
 // - Automatically generate part or all of this, e.g. by parsing
@@ -303,7 +304,7 @@ topic_action_url(topic_action_e action)
 
     case(TOPIC_ACTION_NONE):
     default:
-        g_assert_not_reached();
+        ws_assert_not_reached();
         url = g_strdup(WS_HOME_PAGE_URL);
     }
 

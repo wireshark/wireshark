@@ -18,6 +18,7 @@
 #include <epan/frame_data.h>
 #include <epan/column-utils.h>
 #include <epan/timestamp.h>
+#include <wsutil/ws_assert.h>
 
 #define COMPARE_FRAME_NUM()     ((fdata1->num < fdata2->num) ? -1 : \
                                  (fdata1->num > fdata2->num) ? 1 : \
@@ -214,7 +215,7 @@ frame_data_init(frame_data *fdata, guint32 num, const wtap_rec *rec,
   }
 
   /* To save some memory, we coerce it into 4 bits */
-  g_assert(rec->tsprec <= 0xF);
+  ws_assert(rec->tsprec <= 0xF);
   fdata->tsprec = (unsigned int)rec->tsprec;
   fdata->abs_ts = rec->ts;
   fdata->has_phdr_comment = (rec->opt_comment != NULL);

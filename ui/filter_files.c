@@ -21,6 +21,7 @@
 #include <wsutil/filesystem.h>
 #include <wsutil/report_message.h>
 #include <wsutil/wslog.h>
+#include <wsutil/ws_assert.h>
 
 #include "ui/filter_files.h"
 
@@ -144,7 +145,7 @@ read_filter_list(filter_list_type_t list_type)
             break;
 
         default:
-            g_assert_not_reached();
+            ws_assert_not_reached();
             return;
     }
 
@@ -383,7 +384,7 @@ get_filter_list(filter_list_type_t list_type)
             break;
 
         default:
-            g_assert_not_reached();
+            ws_assert_not_reached();
             flpp = NULL;
     }
     return flpp;
@@ -461,7 +462,7 @@ save_filter_list(filter_list_type_t list_type)
             break;
 
         default:
-            g_assert_not_reached();
+            ws_assert_not_reached();
             return;
     }
 

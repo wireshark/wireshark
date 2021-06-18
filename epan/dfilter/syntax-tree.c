@@ -9,6 +9,7 @@
 #include "config.h"
 
 #include "syntax-tree.h"
+#include <wsutil/ws_assert.h>
 
 /* Keep track of sttype_t's via their sttype_id_t number */
 static sttype_t* type_list[STTYPE_NUM_TYPES];
@@ -44,10 +45,10 @@ sttype_register(sttype_t *type)
 	type_id = type->id;
 
 	/* Check input */
-	g_assert(type_id < STTYPE_NUM_TYPES);
+	ws_assert(type_id < STTYPE_NUM_TYPES);
 
 	/* Don't re-register. */
-	g_assert(type_list[type_id] == NULL);
+	ws_assert(type_list[type_id] == NULL);
 
 	type_list[type_id] = type;
 }
@@ -58,12 +59,12 @@ sttype_lookup(sttype_id_t type_id)
 	sttype_t	*result;
 
 	/* Check input */
-	g_assert(type_id < STTYPE_NUM_TYPES);
+	ws_assert(type_id < STTYPE_NUM_TYPES);
 
 	result = type_list[type_id];
 
 	/* Check output. */
-	g_assert(result != NULL);
+	ws_assert(result != NULL);
 
 	return result;
 }
@@ -86,7 +87,7 @@ stnode_new(sttype_id_t type_id, gpointer data)
 	}
 	else {
 		type = sttype_lookup(type_id);
-		g_assert(type);
+		ws_assert(type);
 		node->type = type;
 		if (type->func_new) {
 			node->data = type->func_new(data);
@@ -136,12 +137,12 @@ stnode_init(stnode_t *node, sttype_id_t type_id, gpointer data)
 {
 	sttype_t	*type;
 
-	assert_magic(node, STNODE_MAGIC);
-	g_assert(!node->type);
-	g_assert(!node->data);
+	ws_assert_magic(node, STNODE_MAGIC);
+	ws_assert(!node->type);
+	ws_assert(!node->data);
 
 	type = sttype_lookup(type_id);
-	g_assert(type);
+	ws_assert(type);
 	node->type = type;
 	if (type->func_new) {
 		node->data = type->func_new(data);
@@ -161,14 +162,14 @@ stnode_init_int(stnode_t *node, sttype_id_t type_id, gint32 value)
 void
 stnode_free(stnode_t *node)
 {
-	assert_magic(node, STNODE_MAGIC);
+	ws_assert_magic(node, STNODE_MAGIC);
 	if (node->type) {
 		if (node->type->func_free) {
 			node->type->func_free(node->data);
 		}
 	}
 	else {
-		g_assert(!node->data);
+		ws_assert(!node->data);
 	}
 	g_free(node);
 }
@@ -176,7 +177,7 @@ stnode_free(stnode_t *node)
 const char*
 stnode_type_name(stnode_t *node)
 {
-	assert_magic(node, STNODE_MAGIC);
+	ws_assert_magic(node, STNODE_MAGIC);
 	if (node->type)
 		return node->type->name;
 	else
@@ -186,7 +187,7 @@ stnode_type_name(stnode_t *node)
 sttype_id_t
 stnode_type_id(stnode_t *node)
 {
-	assert_magic(node, STNODE_MAGIC);
+	ws_assert_magic(node, STNODE_MAGIC);
 	if (node->type)
 		return node->type->id;
 	else
@@ -196,16 +197,16 @@ stnode_type_id(stnode_t *node)
 gpointer
 stnode_data(stnode_t *node)
 {
-	assert_magic(node, STNODE_MAGIC);
+	ws_assert_magic(node, STNODE_MAGIC);
 	return node->data;
 }
 
 gpointer
 stnode_steal_data(stnode_t *node)
 {
-	assert_magic(node, STNODE_MAGIC);
+	ws_assert_magic(node, STNODE_MAGIC);
 	gpointer data = node->data;
-	g_assert(data);
+	ws_assert(data);
 	node->data = NULL;
 	return data;
 }
@@ -213,7 +214,7 @@ stnode_steal_data(stnode_t *node)
 gint32
 stnode_value(stnode_t *node)
 {
-	assert_magic(node, STNODE_MAGIC);
+	ws_assert_magic(node, STNODE_MAGIC);
 	return node->value;
 }
 

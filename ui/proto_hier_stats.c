@@ -18,6 +18,7 @@
 #include "ui/progress_dlg.h"
 #include "epan/epan_dissect.h"
 #include "epan/proto.h"
+#include <wsutil/ws_assert.h>
 
 /* Update the progress bar this many times when scanning the packet list. */
 #define N_PROGBAR_UPDATES	100
@@ -88,7 +89,7 @@ process_node(proto_node *ptree_node, GNode *parent_stat_node, ph_stats_t *ps)
     finfo = PNODE_FINFO(ptree_node);
     /* We don't fake protocol nodes we expect them to have a field_info.
      * Dissection with faked proto tree? */
-    g_assert(finfo);
+    ws_assert(finfo);
 
     /* If the field info isn't related to a protocol but to a field,
      * don't count them, as they don't belong to any protocol.
@@ -255,7 +256,7 @@ ph_stats_new(capture_file *cf)
             /* let's not divide by zero. I should never be started
              * with count == 0, so let's assert that
              */
-            g_assert(cf->count > 0);
+            ws_assert(cf->count > 0);
 
             progbar_val = (gfloat) count / cf->count;
 

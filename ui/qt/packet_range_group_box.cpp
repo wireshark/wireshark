@@ -9,6 +9,7 @@
 
 #include "packet_range_group_box.h"
 #include <ui_packet_range_group_box.h>
+#include <wsutil/ws_assert.h>
 
 PacketRangeGroupBox::PacketRangeGroupBox(QWidget *parent) :
     QGroupBox(parent),
@@ -211,7 +212,7 @@ void PacketRangeGroupBox::updateCounts() {
         break;
 
     default:
-        g_assert_not_reached();
+        ws_assert_not_reached();
         return;
     }
 
@@ -238,7 +239,7 @@ void PacketRangeGroupBox::updateCounts() {
         displayed_ignored_cnt = range_->displayed_ignored_user_range_cnt;
         break;
     default:
-        g_assert_not_reached();
+        ws_assert_not_reached();
     }
 
     if (displayed_checked)

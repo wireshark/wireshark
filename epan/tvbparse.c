@@ -19,6 +19,7 @@
 #include <epan/proto.h>
 #include <epan/packet_info.h>
 #include <epan/tvbparse.h>
+#include <wsutil/ws_assert.h>
 
 
 #define TVBPARSE_DEBUG_ALL 0xffffffff
@@ -737,7 +738,7 @@ tvbparse_wanted_t* tvbparse_some(const int id,
 
     tvbparse_wanted_t* w = wmem_new0(wmem_epan_scope(), tvbparse_wanted_t);
 
-    g_assert(from <= to);
+    ws_assert(from <= to);
 
     w->condition = cond_some;
     w->id = id;
@@ -920,7 +921,7 @@ tvbparse_wanted_t* tvbparse_ft(int id,
 
         return w;
     } else {
-        g_assert(! "unsupported ftenum" );
+        ws_assert(! "unsupported ftenum" );
         return NULL;
     }
 }
@@ -1153,12 +1154,12 @@ tvbparse_wanted_t* tvbparse_ft_numcmp(int id,
             w->control.number.value.i = va_arg(ap,gdouble);
             break;
         default:
-            g_assert(! "comparison unsupported");
+            ws_assert(! "comparison unsupported");
     }
 
     w->control.number.extract = extracts[little_endian][ftenum];
 
-    g_assert(w->control.number.extract && "extraction unsupported");
+    ws_assert(w->control.number.extract && "extraction unsupported");
 
     w->id = id;
     w->condition = cond_ft_comp;

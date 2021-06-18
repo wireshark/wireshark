@@ -26,6 +26,7 @@
 #include "wsutil/file_util.h"
 #include "wsutil/str_util.h"
 #include "wsutil/unicode-utils.h"
+#include <wsutil/ws_assert.h>
 
 #include "wsutil/filesystem.h"
 #include "epan/prefs.h"
@@ -459,7 +460,7 @@ win32_merge_file (HWND h_wnd, const wchar_t *title, GString *file_name, GString 
                 *merge_type = -1;
                 break;
             default:
-                g_assert_not_reached();
+                ws_assert_not_reached();
         }
     }
 
@@ -630,7 +631,7 @@ print_update_dynamic(HWND dlg_hwnd, print_args_t *args) {
                 args->print_dissections = print_dissections_expanded;
                 break;
             default:
-                g_assert_not_reached();
+                ws_assert_not_reached();
         }
         EnableWindow(cur_ctrl, TRUE);
     } else {
@@ -684,7 +685,7 @@ format_handle_wm_initdialog(HWND dlg_hwnd, print_args_t *args) {
             SendMessage(cur_ctrl, CB_SETCURSEL, 2, 0);
             break;
         default:
-            g_assert_not_reached();
+            ws_assert_not_reached();
     }
 
     /* Set the "Packet bytes" box */
@@ -1510,7 +1511,7 @@ range_update_dynamics(HWND dlg_hwnd, packet_range_t *range) {
            break;
 
         default:
-            g_assert_not_reached();
+            ws_assert_not_reached();
     }
 
     /* RANGE_REMOVE_IGNORED_PACKETS */
@@ -1536,7 +1537,7 @@ range_update_dynamics(HWND dlg_hwnd, packet_range_t *range) {
             displayed_ignored_cnt = range->displayed_ignored_user_range_cnt;
             break;
         default:
-            g_assert_not_reached();
+            ws_assert_not_reached();
     }
 
     cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_REMOVE_IGN_CB);
@@ -1597,7 +1598,7 @@ range_handle_wm_initdialog(HWND dlg_hwnd, packet_range_t *range) {
             cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_RANGE_BTN);
             break;
         default:
-            g_assert_not_reached();
+            ws_assert_not_reached();
     }
     SendMessage(cur_ctrl, BM_SETCHECK, TRUE, 0);
 }

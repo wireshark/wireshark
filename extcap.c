@@ -42,6 +42,7 @@
 #include <wsutil/ws_pipe.h>
 #include <wsutil/tempfile.h>
 #include <wsutil/wslog.h>
+#include <wsutil/ws_assert.h>
 
 #include "capture_opts.h"
 
@@ -457,7 +458,7 @@ static gpointer
 extcap_run_all(const char *argv[], extcap_run_cb_t output_cb, gsize data_size, guint *count)
 {
     /* Need enough space for at least 'extcap_path'. */
-    g_assert(data_size >= sizeof(char *));
+    ws_assert(data_size >= sizeof(char *));
 
     GSList *paths = extcap_get_extcap_paths();
     int i = 0;

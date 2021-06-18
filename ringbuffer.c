@@ -382,7 +382,6 @@ gboolean ringbuf_is_initialized(void)
 
 const gchar *ringbuf_current_filename(void)
 {
-  /* g_assert(ringbuf_is_initialized()); */
   return rb_data.files[rb_data.curr_file_num % rb_data.num_files].name;
 }
 

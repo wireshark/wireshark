@@ -18,6 +18,7 @@
 #include "proto.h"
 #include "to_str.h"
 #include "value_string.h"
+#include <wsutil/ws_assert.h>
 
 #include <wsutil/wslog.h>
 
@@ -370,7 +371,7 @@ _try_val_to_str_index(const guint32 val, value_string_ext *vse)
 
     i = val - vse->_vs_first_value;
     if (i < vse->_vs_num_entries) {
-        g_assert (val == vse->_vs_p[i].value);
+        ws_assert (val == vse->_vs_p[i].value);
         return &(vse->_vs_p[i]);
     }
     return NULL;
@@ -484,7 +485,7 @@ _try_val_to_str_ext_init(const guint32 val, value_string_ext *vse)
             vse->_vs_match2 = _try_val_to_str_index;
             break;
         default:
-            g_assert_not_reached();
+            ws_assert_not_reached();
             break;
     }
 
@@ -655,7 +656,7 @@ _try_val64_to_str_index(const guint64 val, val64_string_ext *vse)
 
     i = val - vse->_vs_first_value;
     if (i < vse->_vs_num_entries) {
-        g_assert (val == vse->_vs_p[i].value);
+        ws_assert (val == vse->_vs_p[i].value);
         return &(vse->_vs_p[i]);
     }
     return NULL;
@@ -769,7 +770,7 @@ _try_val64_to_str_ext_init(const guint64 val, val64_string_ext *vse)
             vse->_vs_match2 = _try_val64_to_str_index;
             break;
         default:
-            g_assert_not_reached();
+            ws_assert_not_reached();
             break;
     }
 

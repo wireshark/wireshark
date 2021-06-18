@@ -24,6 +24,7 @@
 #include "ui/recent.h"
 
 #include <wsutil/file_util.h>
+#include <wsutil/ws_assert.h>
 
 static GList *current_profiles = NULL;
 static GList *edited_profiles = NULL;
@@ -268,7 +269,7 @@ empty_profile_list(gboolean edit_list)
             *flpp = remove_profile_entry(*flpp, g_list_first(*flpp));
         }
 
-        g_assert(g_list_length(*flpp) == 0);
+        ws_assert(g_list_length(*flpp) == 0);
         if ( ! edited_profiles )
             edited_profiles = NULL;
     }
@@ -279,7 +280,7 @@ empty_profile_list(gboolean edit_list)
         *flpp = remove_profile_entry(*flpp, g_list_first(*flpp));
     }
 
-    g_assert(g_list_length(*flpp) == 0);
+    ws_assert(g_list_length(*flpp) == 0);
     if ( ! current_profiles )
         current_profiles = NULL;
 }

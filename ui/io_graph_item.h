@@ -14,6 +14,7 @@
 #define __IO_GRAPH_ITEM_H__
 
 #include "cfile.h"
+#include <wsutil/ws_assert.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -381,7 +382,7 @@ update_io_graph_item(io_graph_item_t *items, int idx, packet_info *pinfo, epan_d
                      * type is compatible" check in
                      * filter_callback().
                      */
-                    g_assert_not_reached();
+                    ws_assert_not_reached();
                 }
                 break;
             }

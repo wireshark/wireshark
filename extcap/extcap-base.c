@@ -20,6 +20,7 @@
 #include <errno.h>
 #include <wsutil/wslog.h>
 
+#include <wsutil/ws_assert.h>
 /*
  * If we have getopt_long() in the system library, include <getopt.h>.
  * Otherwise, we're using our own getopt_long() (either because the
@@ -84,9 +85,9 @@ void extcap_base_set_util_info(extcap_parameters * extcap, const char * exename,
 {
     extcap->exename = g_path_get_basename(exename);
 
-    g_assert(major);
+    ws_assert(major);
     if (!minor)
-        g_assert(!release);
+        ws_assert(!release);
 
     extcap->version = g_strdup_printf("%s%s%s%s%s",
         major,

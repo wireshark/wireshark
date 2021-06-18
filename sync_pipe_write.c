@@ -14,6 +14,7 @@
 #include <glib.h>
 
 #include <wsutil/file_util.h>
+#include <wsutil/ws_assert.h>
 
 #include "sync_pipe.h"
 
@@ -28,7 +29,7 @@ pipe_write_header(int pipe_fd, char indicator, int length)
     guchar header[1+3]; /* indicator + 3-byte len */
 
 
-    g_assert(length <= SP_MAX_MSG_LEN);
+    ws_assert(length <= SP_MAX_MSG_LEN);
 
     /* write header (indicator + 3-byte len) */
     header[0] = indicator;

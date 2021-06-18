@@ -17,6 +17,7 @@
 #include <glib.h>
 
 #include <epan/stat_tap_ui.h>
+#include <wsutil/ws_assert.h>
 
 /* structure to keep track of what stats have registered command-line
    arguments.
@@ -238,11 +239,11 @@ void stat_tap_init_table_row(stat_tap_table *stat_table, guint table_index, guin
 stat_tap_table_item_type* stat_tap_get_field_data(const stat_tap_table *stat_table, guint table_index, guint field_index)
 {
     stat_tap_table_item_type* field_value;
-    g_assert(table_index < stat_table->num_elements);
+    ws_assert(table_index < stat_table->num_elements);
 
     field_value = stat_table->elements[table_index];
 
-    g_assert(field_index < stat_table->num_fields);
+    ws_assert(field_index < stat_table->num_fields);
 
     return &field_value[field_index];
 }
@@ -250,11 +251,11 @@ stat_tap_table_item_type* stat_tap_get_field_data(const stat_tap_table *stat_tab
 void stat_tap_set_field_data(stat_tap_table *stat_table, guint table_index, guint field_index, stat_tap_table_item_type* field_data)
 {
     stat_tap_table_item_type* field_value;
-    g_assert(table_index < stat_table->num_elements);
+    ws_assert(table_index < stat_table->num_elements);
 
     field_value = stat_table->elements[table_index];
 
-    g_assert(field_index < stat_table->num_fields);
+    ws_assert(field_index < stat_table->num_fields);
 
     field_value[field_index] = *field_data;
 }

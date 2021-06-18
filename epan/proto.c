@@ -23,6 +23,7 @@
 #include <wsutil/utf8_entities.h>
 #include <wsutil/json_dumper.h>
 #include <wsutil/wslog.h>
+#include <wsutil/ws_assert.h>
 
 #include <ftypes/ftypes-int.h>
 
@@ -144,7 +145,7 @@ struct ptvcursor {
 /** See inlined comments.
  @param pi the created protocol item we're about to return */
 #define TRY_TO_FAKE_THIS_REPR(pi)	\
-	g_assert(pi);			\
+	ws_assert(pi);			\
 	if (!(PTREE_DATA(pi)->visible)) { \
 		/* If the tree (GUI) isn't visible it's pointless for us to generate the protocol \
 		 * items string representation */ \
@@ -3707,7 +3708,7 @@ proto_tree_add_item_ret_string_and_length(proto_tree *tree, int hfindex,
 		break;
 
 	default:
-		g_assert_not_reached();
+		ws_assert_not_reached();
 	}
 
 	return pi;
@@ -3802,7 +3803,7 @@ proto_tree_add_item_ret_display_string_and_length(proto_tree *tree, int hfindex,
 		break;
 
 	default:
-		g_assert_not_reached();
+		ws_assert_not_reached();
 	}
 
 	new_fi->flags |= (encoding & ENC_LITTLE_ENDIAN) ? FI_LITTLE_ENDIAN : FI_BIG_ENDIAN;
@@ -3826,7 +3827,7 @@ proto_tree_add_item_ret_display_string_and_length(proto_tree *tree, int hfindex,
 		break;
 
 	default:
-		g_assert_not_reached();
+		ws_assert_not_reached();
 	}
 
 	return pi;
@@ -3883,7 +3884,7 @@ proto_tree_add_item_ret_time_string(proto_tree *tree, int hfindex,
 		proto_tree_set_time(new_fi, &time_stamp);
 		break;
 	default:
-		g_assert_not_reached();
+		ws_assert_not_reached();
 	}
 
 	new_fi->flags |= (encoding & ENC_LITTLE_ENDIAN) ? FI_LITTLE_ENDIAN : FI_BIG_ENDIAN;
@@ -6244,7 +6245,7 @@ new_field_info(proto_tree *tree, header_field_info *hfinfo, tvbuff_t *tvb,
 static void
 proto_tree_set_representation_value(proto_item *pi, const char *format, va_list ap)
 {
-	g_assert(pi);
+	ws_assert(pi);
 
 	/* If the tree (GUI) or item isn't visible it's pointless for us to generate the protocol
 	 * items string representation */
@@ -6669,7 +6670,7 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, gint occurrence,
 	int field_id;
 	int ii = 0;
 
-	g_assert(field_ids != NULL);
+	ws_assert(field_ids != NULL);
 	while ((field_idx = (int *) g_slist_nth_data(field_ids, ii++))) {
 		field_id = *field_idx;
 		PROTO_REGISTRAR_GET_NTH((guint)field_id, hfinfo);
@@ -13090,14 +13091,14 @@ tree_expanded(int tree_type)
 	if (tree_type == -1) {
 		return FALSE;
 	}
-	g_assert(tree_type >= 0 && tree_type < num_tree_types);
+	ws_assert(tree_type >= 0 && tree_type < num_tree_types);
 	return tree_is_expanded[tree_type >> 5] & (1U << (tree_type & 31));
 }
 
 void
 tree_expanded_set(int tree_type, gboolean value)
 {
-	g_assert(tree_type >= 0 && tree_type < num_tree_types);
+	ws_assert(tree_type >= 0 && tree_type < num_tree_types);
 
 	if (value)
 		tree_is_expanded[tree_type >> 5] |= (1U << (tree_type & 31));

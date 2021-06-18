@@ -12,6 +12,7 @@
 #define __EXCEPTIONS_H__
 
 #include "except.h"
+#include <wsutil/ws_assert.h>
 
 /* Wireshark has only one exception group, to make these macros simple */
 #define XCEPT_GROUP_WIRESHARK 1
@@ -398,7 +399,7 @@
 #define RETHROW                                     \
     {                                               \
         /* check we're in a catch block */          \
-        g_assert(except_state == EXCEPT_CAUGHT);    \
+        ws_assert(except_state == EXCEPT_CAUGHT);    \
 	/* we can't use except_rethrow here, as that pops a catch block \
 	 * off the stack, and we don't want to do that, because we want to \
 	 * excecute the FINALLY {} block first.     \

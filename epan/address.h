@@ -16,6 +16,7 @@
 
 #include "tvbuff.h"
 #include "wmem/wmem.h"
+#include <wsutil/ws_assert.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -78,12 +79,12 @@ static inline void
 set_address(address *addr, int addr_type, int addr_len, const void *addr_data) {
     if (addr_len == 0) {
         /* Zero length must mean no data */
-        g_assert(addr_data == NULL);
+        ws_assert(addr_data == NULL);
     } else {
         /* Must not be AT_NONE - AT_NONE must have no data */
-        g_assert(addr_type != AT_NONE);
+        ws_assert(addr_type != AT_NONE);
         /* Make sure we *do* have data */
-        g_assert(addr_data != NULL);
+        ws_assert(addr_data != NULL);
     }
     addr->type = addr_type;
     addr->len  = addr_len;
@@ -112,7 +113,7 @@ set_address_tvb(address *addr, int addr_type, int addr_len, tvbuff_t *tvb, int o
 
     if (addr_len != 0) {
         /* Must not be AT_NONE - AT_NONE must have no data */
-        g_assert(addr_type != AT_NONE);
+        ws_assert(addr_type != AT_NONE);
         p = tvb_get_ptr(tvb, offset, addr_len);
     } else
         p = NULL;
@@ -132,19 +133,19 @@ set_address_tvb(address *addr, int addr_type, int addr_len, tvbuff_t *tvb, int o
 static inline void
 alloc_address_wmem(wmem_allocator_t *scope, address *addr,
                         int addr_type, int addr_len, const void *addr_data) {
-    g_assert(addr);
+    ws_assert(addr);
     clear_address(addr);
     addr->type = addr_type;
     if (addr_len == 0) {
         /* Zero length must mean no data */
-        g_assert(addr_data == NULL);
+        ws_assert(addr_data == NULL);
         /* Nothing to copy */
         return;
     }
     /* Must not be AT_NONE - AT_NONE must have no data */
-    g_assert(addr_type != AT_NONE);
+    ws_assert(addr_type != AT_NONE);
     /* Make sure we *do* have data to copy */
-    g_assert(addr_data != NULL);
+    ws_assert(addr_data != NULL);
     addr->data = addr->priv = wmem_memdup(scope, addr_data, addr_len);
     addr->len = addr_len;
 }
@@ -287,7 +288,7 @@ free_address_wmem(wmem_allocator_t *scope, address *addr) {
     if (addr->type != AT_NONE && addr->len > 0 && addr->priv != NULL) {
         /* Make sure API use is correct */
         /* if priv is not null then data == priv */
-        g_assert(addr->data == addr->priv);
+        ws_assert(addr->data == addr->priv);
         wmem_free(scope, addr->priv);
     }
     clear_address(addr);
