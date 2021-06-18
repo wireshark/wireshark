@@ -835,7 +835,7 @@ libpcap_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
 		int interface_id;
 		/* Set interface ID for ERF format */
 		rec->presence_flags |= WTAP_HAS_INTERFACE_ID;
-		if ((interface_id = erf_populate_interface_from_header((erf_t*) libpcap->encap_priv, wth, &rec->rec_header.packet_header.pseudo_header)) < 0)
+		if ((interface_id = erf_populate_interface_from_header((erf_t*) libpcap->encap_priv, wth, &rec->rec_header.packet_header.pseudo_header, err, err_info)) < 0)
 			return FALSE;
 
 		rec->rec_header.packet_header.interface_id = (guint) interface_id;
