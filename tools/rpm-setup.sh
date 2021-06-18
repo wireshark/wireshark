@@ -76,7 +76,8 @@ ADDITIONAL_LIST="libcap-devel \
 #	oxipng \
 #	pngcrush"
 
-RPMDEPS_LIST="rpm-build"
+RPMDEPS_LIST="rpm-build \
+	rubygem-asciidoctor.noarch"
 
 # Guess which package manager we will use
 for PM in zypper dnf yum ''; do
@@ -203,9 +204,6 @@ echo "Gettext devel is unavailable" >&2
 
 add_package ADDITIONAL_LIST perl-Pod-Html ||
 echo "perl-Pod-Html is unavailable" >&2
-
-add_package ADDITIONAL_LIST asciidoctor || add_package ADDITIONAL_LIST rubygem-asciidoctor.noarch ||
-echo "asciidoctor is unavailable" >&2
 
 add_package ADDITIONAL_LIST ninja || add_package ADDITIONAL_LIST ninja-build ||
 echo "ninja is unavailable" >&2

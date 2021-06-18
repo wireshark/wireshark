@@ -1,63 +1,68 @@
-=begin man
+= randpkt(1)
+:doctype: manpage
+include::../docbook/attributes.adoc[]
+:stylesheet: ws.css
+:linkcss:
+:copycss: ../docbook/{stylesheet}
 
-=encoding utf8
-
-=end man
-
-=head1 NAME
+== NAME
 
 randpkt - Random packet generator
 
-=head1 SYNOPSIS
+== SYNOPSIS
 
-B<randpkt>
-S<[ B<-b> E<lt>maxbytesE<gt> ]>
-S<[ B<-c> E<lt>countE<gt> ]>
-S<[ B<-t> E<lt>typeE<gt> ]>
-E<lt>filenameE<gt>
+[manarg]
+*randpkt*
+[ *-b* <maxbytes> ]
+[ *-c* <count> ]
+[ *-t* <type> ]
+<filename>
 
-=head1 DESCRIPTION
+== DESCRIPTION
 
-B<randpkt> is a small utility that creates a B<pcap> trace file
+*randpkt* is a small utility that creates a *pcap* trace file
 full of random packets.
 
 By creating many randomized packets of a certain type, you can
 test packet sniffers to see how well they handle malformed packets.
 The sniffer can never trust the data that it sees in the packet because
 you can always sniff a very bad packet that conforms to no standard.
-B<randpkt> produces I<very bad> packets.
+*randpkt* produces __very bad__ packets.
 
-When creating packets of a certain type, B<randpkt> uses a sample
-packet that is stored internally to B<randpkt>. It uses this as the
+When creating packets of a certain type, *randpkt* uses a sample
+packet that is stored internally to *randpkt*. It uses this as the
 starting point for your random packets, and then adds extra random
 bytes to the end of this sample packet.
 
-For example, if you choose to create random ARP packets, B<randpkt>
+For example, if you choose to create random ARP packets, *randpkt*
 will create a packet which contains a predetermined Ethernet II header,
 with the Type field set to ARP. After the Ethernet II header, it will
 put a random number of bytes with random values.
 
-=head1 OPTIONS
+== OPTIONS
 
-=over 4
-
-=item -b E<lt>maxbytesE<gt>
-
+-b <maxbytes>::
++
+--
 Default 5000.
 
 Defines the maximum number of bytes added to the sample packet.
-If you choose a B<maxbytes> value that is less than the size of the
+If you choose a *maxbytes* value that is less than the size of the
 sample packet, then your packets would contain only the sample
-packet... not much variance there! B<randpkt> exits on that condition.
+packet... not much variance there! *randpkt* exits on that condition.
+--
 
-=item -c E<lt>countE<gt>
-
+-c <count>::
++
+--
 Default 1000.
 
 Defines the number of packets to generate.
+--
 
-=item -t E<lt>typeE<gt>
-
+-t <type>::
++
+--
 Default Ethernet II frame.
 
 Defines the type of packet to generate:
@@ -85,10 +90,9 @@ Defines the type of packet to generate:
         udp             User Datagram Protocol
         usb             Universal Serial Bus
         usb-linux       Universal Serial Bus with Linux specific header
+--
 
-=back
-
-=head1 EXAMPLES
+== EXAMPLES
 
 To see a description of the randpkt options use:
 
@@ -102,6 +106,6 @@ To generate a small capture file with just a single LLC frame use:
 
     randpkt -b 100 -c 1 -t llc single_llc.pcap
 
-=head1 SEE ALSO
+== SEE ALSO
 
-pcap(3), editcap(1)
+xref:https://www.tcpdump.org/manpages/pcap.3pcap.html[pcap](3), xref:editcap.html[editcap](1)

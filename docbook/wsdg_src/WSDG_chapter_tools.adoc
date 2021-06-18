@@ -452,17 +452,16 @@ Edition, it will include an SDK.
 [[ChToolsDocumentationToolchain]]
 === Documentation Toolchain
 
-Wireshark’s documentation is split across two directories. The `doc`
-directory contains man pages written in Perl’s POD (Plain Old
-Documentation) format. The `docbook` directory contains the User’s
-Guide, Developer’s Guide, and the release notes, which are written in
-Asciidoctor markup.
+Wireshark’s documentation is split across two directories.
+The `doc` directory contains man pages written in Asciidoctor markup.
+The `docbook` directory contains the User’s Guide, Developer’s Guide, and the release notes, which are also written in Asciidoctor markup.
+The split is for historical reasons (described below), and the documentation will likely be consolidated into one directory in the future.
 
 Our various output formats are generated using the following tools.
 Intermediate formats are in _italics_.
 
-Man page roff:: pod2man
-Man page HTML:: pod2html
+Man page roff:: Asciidoctor
+Man page HTML:: Asciidoctor
 
 Guide HTML:: Asciidoctor → _DocBook XML_ → xsltproc + DocBook XSL
 Guide PDF:: Asciidoctor
@@ -478,6 +477,7 @@ The Ruby and Java flavors can be used to build Wireshark’s documentation, but 
 
 The guides and release notes were originally written in DocBook (hence the directory name).
 They were later converted to AsciiDoc and then migrated to Asciidoctor.
+The man pages were originally in Perl’s POD (Plain Old Documentation) format and were later converted to Asciidoctor.
 We currently use Asciidoctor’s modern (>= 1.5.0) syntax.
 
 PDF output requires Asciidoctor’s PDF backend.

@@ -1,206 +1,156 @@
-=begin man
+= wireshark(1)
+:doctype: manpage
+include::../docbook/attributes.adoc[]
+:stylesheet: ws.css
+:linkcss:
+:copycss: ../docbook/{stylesheet}
 
-=encoding utf8
-
-=end man
-
-=head1 NAME
+== NAME
 
 wireshark - Interactively dump and analyze network traffic
 
-=head1 SYNOPSIS
+== SYNOPSIS
 
-B<wireshark>
-S<[ B<-i> E<lt>capture interfaceE<gt>|- ]>
-S<[ B<-f> E<lt>capture filterE<gt> ]>
-S<[ B<-Y> E<lt>display filterE<gt> ]>
-S<[ B<-w> E<lt>outfileE<gt> ]>
-S<[ B<options> ]>
-S<[ E<lt>infileE<gt> ]>
+[manarg]
+*wireshark*
+[ *-i* <capture interface>|- ]
+[ *-f* <capture filter> ]
+[ *-Y* <display filter> ]
+[ *-w* <outfile> ]
+[ *options* ]
+[ <infile> ]
 
-=head1 DESCRIPTION
+== DESCRIPTION
 
-B<Wireshark> is a GUI network protocol analyzer.  It lets you
+*Wireshark* is a GUI network protocol analyzer.  It lets you
 interactively browse packet data from a live network or from a
-previously saved capture file.  B<Wireshark>'s native capture file
-formats are B<pcapng> format and B<pcap> format; it can read and write
-both formats..  B<pcap> format is also the format used by B<tcpdump> and
-various other tools; B<tcpdump>, when using newer verions of the
-B<libpcap> library, can also read some pcapng files, and, on newer
+previously saved capture file.  *Wireshark*'s native capture file
+formats are *pcapng* format and *pcap* format; it can read and write
+both formats..  *pcap* format is also the format used by *tcpdump* and
+various other tools; *tcpdump*, when using newer verions of the
+*libpcap* library, can also read some pcapng files, and, on newer
 versions of macOS, can read all pcapng files and can write them as well.
 
-B<Wireshark> can also read / import the following file formats:
+*Wireshark* can also read / import the following file formats:
 
-=over 4
+* Oracle (previously Sun) *snoop* and *atmsnoop* captures
 
-=item *
-Oracle (previously Sun) B<snoop> and B<atmsnoop> captures
+* Finisar (previously Shomiti) *Surveyor* captures
 
-=item *
-Finisar (previously Shomiti) B<Surveyor> captures
+* Microsoft *Network Monitor* captures
 
-=item *
-Microsoft B<Network Monitor> captures
+* Novell *LANalyzer* captures
 
-=item *
-Novell B<LANalyzer> captures
+* AIX's *iptrace* captures
 
-=item *
-AIX's B<iptrace> captures
+* Cinco Networks *NetXRay* captures
 
-=item *
-Cinco Networks B<NetXRay> captures
+* NETSCOUT (previously Network Associates/Network General) Windows-based
+*Sniffer* captures
 
-=item *
-NETSCOUT (previously Network Associates/Network General) Windows-based
-B<Sniffer> captures
-
-=item *
-Network General/Network Associates DOS-based B<Sniffer> captures
+* Network General/Network Associates DOS-based *Sniffer* captures
 (compressed or uncompressed)
 
-=item *
-LiveAction (previously WildPackets/Savvius) B<*Peek>/B<EtherHelp>/B<PacketGrabber> captures
+* LiveAction (previously WildPackets/Savvius) **Peek*/*EtherHelp*/*PacketGrabber* captures
 
-=item *
-B<RADCOM>'s WAN/LAN analyzer captures
+* *RADCOM*'s WAN/LAN analyzer captures
 
-=item *
-Viavi (previously Network Instruments) B<Observer> captures
+* Viavi (previously Network Instruments) *Observer* captures
 
-=item *
-B<Lucent/Ascend> router debug output
+* *Lucent/Ascend* router debug output
 
-=item *
-captures from HP-UX B<nettl>
+* captures from HP-UX *nettl*
 
-=item *
-B<Toshiba's> ISDN routers dump output
+* *Toshiba's* ISDN routers dump output
 
-=item *
-the output from B<i4btrace> from the ISDN4BSD project
+* the output from *i4btrace* from the ISDN4BSD project
 
-=item *
-traces from the B<EyeSDN> USB S0
+* traces from the *EyeSDN* USB S0
 
-=item *
-the B<IPLog> format output from the Cisco Secure Intrusion Detection System
+* the *IPLog* format output from the Cisco Secure Intrusion Detection System
 
-=item *
-B<pppd logs> (pppdump format)
+* *pppd logs* (pppdump format)
 
-=item *
-the output from VMS's B<TCPIPtrace>/B<TCPtrace>/B<UCX$TRACE> utilities
+* the output from VMS's *TCPIPtrace*/*TCPtrace*/*UCX$TRACE* utilities
 
-=item *
-the text output from the B<DBS Etherwatch> VMS utility
+* the text output from the *DBS Etherwatch* VMS utility
 
-=item *
-Visual Networks' B<Visual UpTime> traffic capture
+* Visual Networks' *Visual UpTime* traffic capture
 
-=item *
-the output from B<CoSine> L2 debug
+* the output from *CoSine* L2 debug
 
-=item *
-the output from InfoVista (previously Accellent) B<5View> LAN agents
+* the output from InfoVista (previously Accellent) *5View* LAN agents
 
-=item *
-Endace Measurement Systems' ERF format captures
+* Endace Measurement Systems' ERF format captures
 
-=item *
-Linux Bluez Bluetooth stack B<hcidump -w> traces
+* Linux Bluez Bluetooth stack *hcidump -w* traces
 
-=item *
-Catapult DCT2000 .out files
+* Catapult DCT2000 .out files
 
-=item *
-Gammu generated text output from Nokia DCT3 phones in Netmonitor mode
+* Gammu generated text output from Nokia DCT3 phones in Netmonitor mode
 
-=item *
-IBM Series (OS/400) Comm traces (ASCII & UNICODE)
+* IBM Series (OS/400) Comm traces (ASCII & UNICODE)
 
-=item *
-Juniper Netscreen snoop files
+* Juniper Netscreen snoop files
 
-=item *
-Symbian OS btsnoop files
+* Symbian OS btsnoop files
 
-=item *
-TamoSoft CommView files
+* TamoSoft CommView files
 
-=item *
-Tektronix K12xx 32bit .rf5 format files
+* Tektronix K12xx 32bit .rf5 format files
 
-=item *
-Tektronix K12 text file format captures
+* Tektronix K12 text file format captures
 
-=item *
-Apple PacketLogger files
+* Apple PacketLogger files
 
-=item *
-Captures from Aethra Telecommunications' PC108 software for their test
+* Captures from Aethra Telecommunications' PC108 software for their test
 instruments
 
-=item *
-Citrix NetScaler Trace files
+* Citrix NetScaler Trace files
 
-=item *
-Android Logcat binary and text format logs
+* Android Logcat binary and text format logs
 
-=item *
-Colasoft Capsa and PacketBuilder captures
+* Colasoft Capsa and PacketBuilder captures
 
-=item *
-Micropross mplog files
+* Micropross mplog files
 
-=item *
-Unigraf DPA-400 DisplayPort AUX channel monitor traces
+* Unigraf DPA-400 DisplayPort AUX channel monitor traces
 
-=item *
-802.15.4 traces from Daintree's Sensor Network Analyzer
+* 802.15.4 traces from Daintree's Sensor Network Analyzer
 
-=item *
-MPEG-2 Transport Streams as defined in ISO/IEC 13818-1
+* MPEG-2 Transport Streams as defined in ISO/IEC 13818-1
 
-=item *
-Log files from the _candump_ utility
+* Log files from the _candump_ utility
 
-=item *
-Logs from the BUSMASTER tool
+* Logs from the BUSMASTER tool
 
-=item *
-Ixia IxVeriWave raw captures
+* Ixia IxVeriWave raw captures
 
-=item *
-Rabbit Labs CAM Inspector files
+* Rabbit Labs CAM Inspector files
 
-=item *
- _systemd_ journal files
+*  _systemd_ journal files
 
-=item *
-3GPP TS 32.423 trace files
+* 3GPP TS 32.423 trace files
 
-=back
-
-There is no need to tell B<Wireshark> what type of
+There is no need to tell *Wireshark* what type of
 file you are reading; it will determine the file type by itself.
-B<Wireshark> is also capable of reading any of these file formats if they
-are compressed using gzip.  B<Wireshark> recognizes this directly from
+*Wireshark* is also capable of reading any of these file formats if they
+are compressed using gzip.  *Wireshark* recognizes this directly from
 the file; the '.gz' extension is not required for this purpose.
 
-Like other protocol analyzers, B<Wireshark>'s main window shows 3 views
+Like other protocol analyzers, *Wireshark*'s main window shows 3 views
 of a packet.  It shows a summary line, briefly describing what the
 packet is.  A packet details display is shown, allowing you to drill
 down to exact protocol or field that you interested in.  Finally, a hex
 dump shows you exactly what the packet looks like when it goes over the
 wire.
 
-In addition, B<Wireshark> has some features that make it unique.  It can
+In addition, *Wireshark* has some features that make it unique.  It can
 assemble all the packets in a TCP conversation and show you the ASCII
 (or EBCDIC, or hex) data in that conversation.  Display filters in
-B<Wireshark> are very powerful; more fields are filterable in B<Wireshark>
+*Wireshark* are very powerful; more fields are filterable in *Wireshark*
 than in other protocol analyzers, and the syntax you can use to create
-your filters is richer.  As B<Wireshark> progresses, expect more and more
+your filters is richer.  As *Wireshark* progresses, expect more and more
 protocol fields to be allowed in display filters.
 
 Packet capturing is performed with the pcap library.  The capture filter
@@ -208,91 +158,94 @@ syntax follows the rules of the pcap library.  This syntax is different
 from the display filter syntax.
 
 Compressed file support uses (and therefore requires) the zlib library.
-If the zlib library is not present, B<Wireshark> will compile, but will
+If the zlib library is not present, *Wireshark* will compile, but will
 be unable to read compressed files.
 
 The pathname of a capture file to be read can be specified with the
-B<-r> option or can be specified as a command-line argument.
+*-r* option or can be specified as a command-line argument.
 
-=head1 OPTIONS
+== OPTIONS
 
-Most users will want to start B<Wireshark> without options and configure
+Most users will want to start *Wireshark* without options and configure
 it from the menus instead.  Those users may just skip this section.
 
-=over 4
+-a|--autostop  <capture autostop condition>::
++
+--
+Specify a criterion that specifies when *Wireshark* is to stop writing
+to a capture file.  The criterion is of the form __test:value__,
+where __test__ is one of:
 
-=item -a|--autostop  E<lt>capture autostop conditionE<gt>
-
-Specify a criterion that specifies when B<Wireshark> is to stop writing
-to a capture file.  The criterion is of the form I<test:value>,
-where I<test> is one of:
-
-B<duration>:I<value> Stop writing to a capture file after I<value> seconds have
+*duration*:__value__ Stop writing to a capture file after __value__ seconds have
 elapsed. Floating point values (e.g. 0.5) are allowed.
 
-B<files>:I<value> Stop writing to capture files after I<value> number of files
+*files*:__value__ Stop writing to capture files after __value__ number of files
 were written.
 
-B<filesize>:I<value> Stop writing to a capture file after it reaches a size of
-I<value> kB.  If this option is used together with the -b option, Wireshark
+*filesize*:__value__ Stop writing to a capture file after it reaches a size of
+__value__ kB.  If this option is used together with the -b option, Wireshark
 will stop writing to the current capture file and switch to the next one if
 filesize is reached.  Note that the filesize is limited to a maximum value of
 2 GiB.
 
-B<packets>:I<value> Stop writing to a capture file after it contains I<value>
-packets. Same as B<-c>E<lt>capture packet countE<gt>.
+*packets*:__value__ Stop writing to a capture file after it contains __value__
+packets. Same as *-c*<capture packet count>.
+--
 
-=item -b|--ring-buffer  E<lt>capture ring buffer optionE<gt>
+-b|--ring-buffer  <capture ring buffer option>::
++
+--
+Cause *Wireshark* to run in "multiple files" mode.  In "multiple files" mode,
+*Wireshark* will write to several capture files.  When the first capture file
+fills up, *Wireshark* will switch writing to the next file and so on.
 
-Cause B<Wireshark> to run in "multiple files" mode.  In "multiple files" mode,
-B<Wireshark> will write to several capture files.  When the first capture file
-fills up, B<Wireshark> will switch writing to the next file and so on.
-
-The created filenames are based on the filename given with the B<-w> flag,
+The created filenames are based on the filename given with the *-w* flag,
 the number of the file and on the creation date and time,
 e.g. outfile_00001_20210714120117.pcap, outfile_00002_20210714120523.pcap, ...
 
-With the I<files> option it's also possible to form a "ring buffer".
+With the __files__ option it's also possible to form a "ring buffer".
 This will fill up new files until the number of files specified,
-at which point B<Wireshark> will discard the data in the first file and start
-writing to that file and so on.  If the I<files> option is not set,
+at which point *Wireshark* will discard the data in the first file and start
+writing to that file and so on.  If the __files__ option is not set,
 new files filled up until one of the capture stop conditions match (or
 until the disk is full).
 
-The criterion is of the form I<key:value>,
-where I<key> is one of:
+The criterion is of the form __key:value__,
+where __key__ is one of:
 
-B<duration>:I<value> switch to the next file after I<value> seconds have
+*duration*:__value__ switch to the next file after __value__ seconds have
 elapsed, even if the current file is not completely filled up. Floating
 point values (e.g. 0.5) are allowed.
 
-B<files>:I<value> begin again with the first file after I<value> number of
+*files*:__value__ begin again with the first file after __value__ number of
 files were written (form a ring buffer).  This value must be less than 100000.
 Caution should be used when using large numbers of files: some filesystems do
-not handle many files in a single directory well.  The B<files> criterion
+not handle many files in a single directory well.  The *files* criterion
 requires one of the other criteria to be specified to
-control when to go to the next file.  It should be noted that each B<-b>
+control when to go to the next file.  It should be noted that each *-b*
 parameter takes exactly one criterion; to specify two criteria, each must be
-preceded by the B<-b> option.
+preceded by the *-b* option.
 
-B<filesize>:I<value> switch to the next file after it reaches a size of
-I<value> kB.  Note that the filesize is limited to a maximum value of 2 GiB.
+*filesize*:__value__ switch to the next file after it reaches a size of
+__value__ kB.  Note that the filesize is limited to a maximum value of 2 GiB.
 
-B<interval>:I<value> switch to the next file when the time is an exact
-multiple of I<value> seconds.
+*interval*:__value__ switch to the next file when the time is an exact
+multiple of __value__ seconds.
 
-B<packets>:I<value> switch to the next file after it contains I<value>
+*packets*:__value__ switch to the next file after it contains __value__
 packets.
 
-Example: B<-b filesize:1000 -b files:5> results in a ring buffer of five files
+Example: *-b filesize:1000 -b files:5* results in a ring buffer of five files
 of size one megabyte each.
+--
 
-=item -B|--buffer-size  E<lt>capture buffer sizeE<gt>
-
+-B|--buffer-size  <capture buffer size>::
++
+--
 Set capture buffer size (in MiB, default is 2 MiB).  This is used by
 the capture driver to buffer packet data until that data can be written
 to disk.  If you encounter packet drops while capturing, try to increase
-this size.  Note that, while B<Wireshark> attempts to set the buffer size
+this size.  Note that, while *Wireshark* attempts to set the buffer size
 to 2 MiB by default, and can be told to set it to a larger value, the
 system or interface on which you're capturing might silently limit the
 capture buffer size to a lower value or raise it to a higher value.
@@ -302,144 +255,178 @@ Windows.  It is not available on UNIX systems with earlier versions of
 libpcap.
 
 This option can occur multiple times.  If used before the first
-occurrence of the B<-i> option, it sets the default capture buffer size.
-If used after an B<-i> option, it sets the capture buffer size for
-the interface specified by the last B<-i> option occurring before
+occurrence of the *-i* option, it sets the default capture buffer size.
+If used after an *-i* option, it sets the capture buffer size for
+the interface specified by the last *-i* option occurring before
 this option.  If the capture buffer size is not set specifically,
 the default capture buffer size is used instead.
+--
 
-=item -c  E<lt>capture packet countE<gt>
-
+-c  <capture packet count>::
++
+--
 Set the maximum number of packets to read when capturing live
-data. Same as B<-a packets:>E<lt>capture packet countE<gt>.
+data. Same as *-a packets:*<capture packet count>.
+--
 
-=item -C  E<lt>configuration profileE<gt>
-
+-C  <configuration profile>::
++
+--
 Start with the given configuration profile.
+--
 
-=item --capture-comment E<lt>commentE<gt>
-
-When performing a capture file from the command line, with the B<-k>
+--capture-comment <comment>::
++
+--
+When performing a capture file from the command line, with the *-k*
 flag, add a capture comment to the output file, if supported by the
 capture format.
 
 This option may be specified multiple times.  Note that Wireshark
 currently only displays the first comment of a capture file.
+--
 
-=item -d  E<lt>layer typeE<gt>==E<lt>selectorE<gt>,E<lt>decode-as protocolE<gt>
-
-Like Wireshark's B<Decode As...> feature, this lets you specify how a
+-d  <layer type>==<selector>,<decode-as protocol>::
++
+--
+Like Wireshark's *Decode As...* feature, this lets you specify how a
 layer type should be dissected.  If the layer type in question (for example,
-B<tcp.port> or B<udp.port> for a TCP or UDP port number) has the specified
+*tcp.port* or *udp.port* for a TCP or UDP port number) has the specified
 selector value, packets should be dissected as the specified protocol.
 
-Example: B<-d tcp.port==8888,http> will decode any traffic running over
+Example: *-d tcp.port==8888,http* will decode any traffic running over
 TCP port 8888 as HTTP.
 
-See the tshark(1) manual page for more examples.
+See the xref:tshark.html[tshark](1) manual page for more examples.
+--
 
-=item -D|--list-interfaces
-
-Print a list of the interfaces on which B<Wireshark> can capture, and
+-D|--list-interfaces::
++
+--
+Print a list of the interfaces on which *Wireshark* can capture, and
 exit.  For each network interface, a number and an
 interface name, possibly followed by a text description of the
 interface, is printed.  The interface name or the number can be supplied
-to the B<-i> flag to specify an interface on which to capture.
+to the *-i* flag to specify an interface on which to capture.
 
 This can be useful on systems that don't have a command to list them
-(UNIX systems lacking B<ifconfig -a> or Linux systems lacking
-B<ip link show>). The number can be useful on Windows systems, where
+(UNIX systems lacking *ifconfig -a* or Linux systems lacking
+*ip link show*). The number can be useful on Windows systems, where
 the interface name might be a long name or a GUID.
 
-Note that "can capture" means that B<Wireshark> was able to open
+Note that "can capture" means that *Wireshark* was able to open
 that device to do a live capture; if, on your system, a program doing a
 network capture must be run from an account with special privileges (for
-example, as root), then, if B<Wireshark> is run with the B<-D> flag and
+example, as root), then, if *Wireshark* is run with the *-D* flag and
 is not run from such an account, it will not list any interfaces.
+--
 
-=item --display E<lt>X display to useE<gt>
-
+--display <X display to use>::
++
+--
 Specifies the X display to use.  A hostname and screen (otherhost:0.0)
 or just a screen (:0.0) can be specified.  This option is not available
 under Windows.
+--
 
-=item --disable-protocol E<lt>proto_nameE<gt>
-
+--disable-protocol <proto_name>::
++
+--
 Disable dissection of proto_name.
+--
 
-=item --disable-heuristic E<lt>short_nameE<gt>
-
+--disable-heuristic <short_name>::
++
+--
 Disable dissection of heuristic protocol.
+--
 
-=item --enable-protocol E<lt>proto_nameE<gt>
-
+--enable-protocol <proto_name>::
++
+--
 Enable dissection of proto_name.
+--
 
-=item --enable-heuristic E<lt>short_nameE<gt>
-
+--enable-heuristic <short_name>::
++
+--
 Enable dissection of heuristic protocol.
+--
 
-=item -f  E<lt>capture filterE<gt>
-
+-f  <capture filter>::
++
+--
 Set the capture filter expression.
 
 This option can occur multiple times.  If used before the first
-occurrence of the B<-i> option, it sets the default capture filter expression.
-If used after an B<-i> option, it sets the capture filter expression for
-the interface specified by the last B<-i> option occurring before
+occurrence of the *-i* option, it sets the default capture filter expression.
+If used after an *-i* option, it sets the capture filter expression for
+the interface specified by the last *-i* option occurring before
 this option.  If the capture filter expression is not set specifically,
 the default capture filter expression is used if provided.
 
 Pre-defined capture filter names, as shown in the GUI menu item Capture->Capture Filters,
 can be used by prefixing the argument with "predef:".
-Example: B<-f "predef:MyPredefinedHostOnlyFilter">
+Example: *-f "predef:MyPredefinedHostOnlyFilter"*
+--
 
-=item --fullscreen
-
+--fullscreen::
++
+--
 Start Wireshark in full screen mode (kiosk mode). To exit from fullscreen mode,
 open the View menu and select the Full Screen option. Alternatively, press the
 F11 key (or Ctrl + Cmd + F for macOS).
+--
 
-=item -g  E<lt>packet numberE<gt>
+-g  <packet number>::
++
+--
+After reading in a capture file using the *-r* flag, go to the given __packet number__.
+--
 
-After reading in a capture file using the B<-r> flag, go to the given I<packet number>.
-
-=item -h|--help
-
+-h|--help::
++
+--
 Print the version number and options and exit.
+--
 
-=item -H
-
+-H::
++
+--
 Hide the capture info dialog during live packet capture.
+--
 
-=item -i|--interface  E<lt>capture interfaceE<gt>|-
-
+-i|--interface  <capture interface>|-::
++
+--
 Set the name of the network interface or pipe to use for live packet
 capture.
 
 Network interface names should match one of the names listed in
-"B<wireshark -D>" (described above); a number, as reported by
-"B<wireshark -D>", can also be used.  If you're using UNIX, "B<netstat
--i>", "B<ifconfig -a>" or "B<ip link>" might also work to list interface names,
-although not all versions of UNIX support the B<-a> flag to B<ifconfig>.
+"*wireshark -D*" (described above); a number, as reported by
+"*wireshark -D*", can also be used.  If you're using UNIX, "*netstat
+ -i*", "*ifconfig -a*" or "*ip link*" might also work to list interface names,
+although not all versions of UNIX support the *-a* flag to *ifconfig*.
 
-If no interface is specified, B<Wireshark> searches the list of
+If no interface is specified, *Wireshark* searches the list of
 interfaces, choosing the first non-loopback interface if there are any
 non-loopback interfaces, and choosing the first loopback interface if
 there are no non-loopback interfaces.  If there are no interfaces at all,
-B<Wireshark> reports an error and doesn't start the capture.
+*Wireshark* reports an error and doesn't start the capture.
 
 Pipe names should be either the name of a FIFO (named pipe) or "-" to
 read data from the standard input.  On Windows systems, pipe names must be
-of the form "\\pipe\.\B<pipename>".  Data read from pipes must be in
+of the form "\\pipe\.\*pipename*".  Data read from pipes must be in
 standard pcapng or pcap format. Pcapng data must have the same
 endianness as the capturing host.
 
 This option can occur multiple times. When capturing from multiple
 interfaces, the capture file will be saved in pcapng format.
+--
 
-=item -I|--monitor-mode
-
+-I|--monitor-mode::
++
+--
 Put the interface in "monitor mode"; this is supported only on IEEE
 802.11 Wi-Fi interfaces, and supported only on some operating systems.
 
@@ -451,275 +438,329 @@ if you are capturing in monitor mode and are not connected to another
 network with another adapter.
 
 This option can occur multiple times.  If used before the first
-occurrence of the B<-i> option, it enables the monitor mode for all interfaces.
-If used after an B<-i> option, it enables the monitor mode for
-the interface specified by the last B<-i> option occurring before
+occurrence of the *-i* option, it enables the monitor mode for all interfaces.
+If used after an *-i* option, it enables the monitor mode for
+the interface specified by the last *-i* option occurring before
 this option.
+--
 
-=item -j
-
-Use after B<-J> to change the behavior when no exact match is found for
+-j::
++
+--
+Use after *-J* to change the behavior when no exact match is found for
 the filter.  With this option select the first packet before.
+--
 
-=item -J  E<lt>jump filterE<gt>
-
-After reading in a capture file using the B<-r> flag, jump to the packet
+-J  <jump filter>::
++
+--
+After reading in a capture file using the *-r* flag, jump to the packet
 matching the filter (display filter syntax).  If no exact match is found
 the first packet after that is selected.
+--
 
-=item -k
-
-Start the capture session immediately.  If the B<-i> flag was
+-k::
++
+--
+Start the capture session immediately.  If the *-i* flag was
 specified, the capture uses the specified interface.  Otherwise,
-B<Wireshark> searches the list of interfaces, choosing the first
+*Wireshark* searches the list of interfaces, choosing the first
 non-loopback interface if there are any non-loopback interfaces, and
 choosing the first loopback interface if there are no non-loopback
-interfaces; if there are no interfaces, B<Wireshark> reports an error and
+interfaces; if there are no interfaces, *Wireshark* reports an error and
 doesn't start the capture.
+--
 
-=item -K  E<lt>keytabE<gt>
-
+-K  <keytab>::
++
+--
 Load kerberos crypto keys from the specified keytab file.
 This option can be used multiple times to load keys from several files.
 
-Example: B<-K krb5.keytab>
+Example: *-K krb5.keytab*
+--
 
-=item -l
-
+-l::
++
+--
 Turn on automatic scrolling if the packet display is being updated
 automatically as packets arrive during a capture (as specified by the
-B<-S> flag).
+*-S* flag).
+--
 
-=item -L|--list-data-link-types
-
+-L|--list-data-link-types::
++
+--
 List the data link types supported by the interface and exit.
+--
 
-=item --list-time-stamp-types
-
+--list-time-stamp-types::
++
+--
 List time stamp types supported for the interface. If no time stamp type can be
 set, no time stamp types are listed.
+--
 
-=item -n
-
+-n::
++
+--
 Disable network object name resolution (such as hostname, TCP and UDP port
-names), the B<-N> flag might override this one.
+names), the *-N* flag might override this one.
+--
 
-=item -N  E<lt>name resolving flagsE<gt>
-
+-N  <name resolving flags>::
++
+--
 Turn on name resolving only for particular types of addresses and port
 numbers, with name resolving for other types of addresses and port
-numbers turned off.  This flag overrides B<-n> if both B<-N> and B<-n> are
-present.  If both B<-N> and B<-n> flags are not present, all name resolutions
+numbers turned off.  This flag overrides *-n* if both *-N* and *-n* are
+present.  If both *-N* and *-n* flags are not present, all name resolutions
 are turned on.
 
 The argument is a string that may contain the letters:
 
-B<m> to enable MAC address resolution
+*m* to enable MAC address resolution
 
-B<n> to enable network address resolution
+*n* to enable network address resolution
 
-B<N> to enable using external resolvers (e.g., DNS) for network address
+*N* to enable using external resolvers (e.g., DNS) for network address
 resolution
 
-B<t> to enable transport-layer port number resolution
+*t* to enable transport-layer port number resolution
 
-B<d> to enable resolution from captured DNS packets
+*d* to enable resolution from captured DNS packets
 
-B<v> to enable VLAN IDs to names resolution
+*v* to enable VLAN IDs to names resolution
+--
 
-=item -o  E<lt>preference/recent settingE<gt>
-
+-o  <preference/recent setting>::
++
+--
 Set a preference or recent value, overriding the default value and any value
 read from a preference/recent file.  The argument to the flag is a string of
-the form I<prefname:value>, where I<prefname> is the name of the
+the form __prefname:value__, where __prefname__ is the name of the
 preference/recent value (which is the same name that would appear in the
-preference/recent file), and I<value> is the value to which it should be set.
-Since B<Ethereal> 0.10.12, the recent settings replaces the formerly used
+preference/recent file), and __value__ is the value to which it should be set.
+Since *Ethereal* 0.10.12, the recent settings replaces the formerly used
 -B, -P and -T flags to manipulate the GUI dimensions.
 
-If I<prefname> is "uat", you can override settings in various user access
-tables using the form uatB<:>I<uat filename>:I<uat record>.  I<uat filename>
-must be the name of a UAT file, e.g. I<user_dlts>.  I<uat_record> must be in
+If __prefname__ is "uat", you can override settings in various user access
+tables using the form uat*:*__uat filename__:__uat record__.  __uat filename__
+must be the name of a UAT file, e.g. __user_dlts__.  __uat_record__ must be in
 the form of a valid record for that file, including quotes.  For instance, to
 specify a user DLT from the command line, you would use
 
     -o "uat:user_dlts:\"User 0 (DLT=147)\",\"cops\",\"0\",\"\",\"0\",\"\""
+--
 
-=item -p|--no-promiscuous-mode
-
-I<Don't> put the interface into promiscuous mode.  Note that the
+-p|--no-promiscuous-mode::
++
+--
+__Don't__ put the interface into promiscuous mode.  Note that the
 interface might be in promiscuous mode for some other reason; hence,
-B<-p> cannot be used to ensure that the only traffic that is captured is
-traffic sent to or from the machine on which B<Wireshark> is running,
+*-p* cannot be used to ensure that the only traffic that is captured is
+traffic sent to or from the machine on which *Wireshark* is running,
 broadcast traffic, and multicast traffic to addresses received by that
 machine.
 
 This option can occur multiple times.  If used before the first
-occurrence of the B<-i> option, no interface will be put into the
+occurrence of the *-i* option, no interface will be put into the
 promiscuous mode.
-If used after an B<-i> option, the interface specified by the last B<-i>
+If used after an *-i* option, the interface specified by the last *-i*
 option occurring before this option will not be put into the
 promiscuous mode.
+--
 
-=item -P E<lt>path settingE<gt>
-
+-P <path setting>::
++
+--
 Special path settings usually detected automatically.  This is used for
 special cases, e.g. starting Wireshark from a known location on an USB stick.
 
-The criterion is of the form I<key:path>, where I<key> is one of:
+The criterion is of the form __key:path__, where __key__ is one of:
 
-B<persconf>:I<path> path of personal configuration files, like the
+*persconf*:__path__ path of personal configuration files, like the
 preferences files.
 
-B<persdata>:I<path> path of personal data files, it's the folder initially
+*persdata*:__path__ path of personal data files, it's the folder initially
 opened.  After the very first initialization, the recent file will keep the
 folder last used.
+--
 
-=item -r|--read-file  E<lt>infileE<gt>
-
-Read packet data from I<infile>, can be any supported capture file format
+-r|--read-file  <infile>::
++
+--
+Read packet data from __infile__, can be any supported capture file format
 (including gzipped files).  It's not possible to use named pipes or stdin
-here! To capture from a pipe or from stdin use B<-i ->
+here! To capture from a pipe or from stdin use *-i -*
+--
 
-=item -R|--read-filter  E<lt>read (display) filterE<gt>
-
-When reading a capture file specified with the B<-r> flag, causes the
+-R|--read-filter  <read (display) filter>::
++
+--
+When reading a capture file specified with the *-r* flag, causes the
 specified filter (which uses the syntax of display filters, rather than
 that of capture filters) to be applied to all packets read from the
 capture file; packets not matching the filter are discarded.
+--
 
-=item -s|--snapshot-length  E<lt>capture snaplenE<gt>
-
+-s|--snapshot-length  <capture snaplen>::
++
+--
 Set the default snapshot length to use when capturing live data.
-No more than I<snaplen> bytes of each network packet will be read into
+No more than __snaplen__ bytes of each network packet will be read into
 memory, or saved to disk.  A value of 0 specifies a snapshot length of
 262144, so that the full packet is captured; this is the default.
 
 This option can occur multiple times.  If used before the first
-occurrence of the B<-i> option, it sets the default snapshot length.
-If used after an B<-i> option, it sets the snapshot length for
-the interface specified by the last B<-i> option occurring before
+occurrence of the *-i* option, it sets the default snapshot length.
+If used after an *-i* option, it sets the snapshot length for
+the interface specified by the last *-i* option occurring before
 this option.  If the snapshot length is not set specifically,
 the default snapshot length is used if provided.
+--
 
-=item -S
-
+-S::
++
+--
 Automatically update the packet display as packets are coming in.
+--
 
-=item -t  a|ad|adoy|d|dd|e|r|u|ud|udoy
-
+-t  a|ad|adoy|d|dd|e|r|u|ud|udoy::
++
+--
 Set the format of the packet timestamp displayed in the packet list
 window.  The format can be one of:
 
-B<a> absolute: The absolute time, as local time in your time zone,
+*a* absolute: The absolute time, as local time in your time zone,
 is the actual time the packet was captured, with no date displayed
 
-B<ad> absolute with date: The absolute date, displayed as YYYY-MM-DD,
+*ad* absolute with date: The absolute date, displayed as YYYY-MM-DD,
 and time, as local time in your time zone, is the actual time and date
 the packet was captured
 
-B<adoy> absolute with date using day of year: The absolute date,
+*adoy* absolute with date using day of year: The absolute date,
 displayed as YYYY/DOY, and time, as local time in your time zone,
 is the actual time and date the packet was captured
 
-B<d> delta: The delta time is the time since the previous packet was
+*d* delta: The delta time is the time since the previous packet was
 captured
 
-B<dd> delta_displayed: The delta_displayed time is the time since the
+*dd* delta_displayed: The delta_displayed time is the time since the
 previous displayed packet was captured
 
-B<e> epoch: The time in seconds since epoch (Jan 1, 1970 00:00:00)
+*e* epoch: The time in seconds since epoch (Jan 1, 1970 00:00:00)
 
-B<r> relative: The relative time is the time elapsed between the first packet
+*r* relative: The relative time is the time elapsed between the first packet
 and the current packet
 
-B<u> UTC: The absolute time, as UTC, is the actual time the packet was
+*u* UTC: The absolute time, as UTC, is the actual time the packet was
 captured, with no date displayed
 
-B<ud> UTC with date: The absolute date, displayed as YYYY-MM-DD,
+*ud* UTC with date: The absolute date, displayed as YYYY-MM-DD,
 and time, as UTC, is the actual time and date the packet was captured
 
-B<udoy> UTC with date using day of year: The absolute date, displayed
+*udoy* UTC with date using day of year: The absolute date, displayed
 as YYYY/DOY, and time, as UTC, is the actual time and date the packet
 was captured
 
 The default format is relative.
+--
 
-=item --time-stamp-type E<lt>typeE<gt>
-
+--time-stamp-type <type>::
++
+--
 Change the interface's timestamp method. See --list-time-stamp-types.
+--
 
-=item -u E<lt>s|hmsE<gt>
-
+-u <s|hms>::
++
+--
 Output format of seconds (def: s: seconds)
+--
 
-=item -v|--version
-
+-v|--version::
++
+--
 Print the full version information and exit.
+--
 
-=item -w  E<lt>outfileE<gt>
-
+-w  <outfile>::
++
+--
 Set the default capture file name, or '-' for standard output.
+--
 
-=item -X E<lt>eXtension optionsE<gt>
+-X <eXtension options>::
++
+--
+Specify an option to be passed to an *Wireshark* module.  The eXtension option
+is in the form __extension_key:value__, where __extension_key__ can be:
 
-Specify an option to be passed to an B<Wireshark> module.  The eXtension option
-is in the form I<extension_key:value>, where I<extension_key> can be:
-
-B<lua_script>:I<lua_script_filename> tells B<Wireshark> to load the given script in addition to the
+*lua_script*:__lua_script_filename__ tells *Wireshark* to load the given script in addition to the
 default Lua scripts.
 
-B<lua_script>I<num>:I<argument> tells B<Wireshark> to pass the given argument
+**lua_script**__num__:__argument__ tells *Wireshark* to pass the given argument
 to the lua script identified by 'num', which is the number indexed order of the 'lua_script' command.
 For example, if only one script was loaded with '-X lua_script:my.lua', then '-X lua_script1:foo'
 will pass the string 'foo' to the 'my.lua' script.  If two scripts were loaded, such as '-X lua_script:my.lua'
 and '-X lua_script:other.lua' in that order, then a '-X lua_script2:bar' would pass the string 'bar' to the second lua
 script, namely 'other.lua'.
 
-B<read_format>:I<file_format> tells B<Wireshark> to use the given file format to read in the
-file (the file given in the B<-r> command option).
+*read_format*:__file_format__ tells *Wireshark* to use the given file format to read in the
+file (the file given in the *-r* command option).
 
-B<stdin_descr>:I<description> tells B<Wireshark> to use the given description when
-capturing from standard input (B<-i ->).
+*stdin_descr*:__description__ tells *Wireshark* to use the given description when
+capturing from standard input (*-i -*).
+--
 
-=item -y|--linktype  E<lt>capture link typeE<gt>
-
-If a capture is started from the command line with B<-k>, set the data
-link type to use while capturing packets.  The values reported by B<-L>
+-y|--linktype  <capture link type>::
++
+--
+If a capture is started from the command line with *-k*, set the data
+link type to use while capturing packets.  The values reported by *-L*
 are the values that can be used.
 
 This option can occur multiple times.  If used before the first
-occurrence of the B<-i> option, it sets the default capture link type.
-If used after an B<-i> option, it sets the capture link type for
-the interface specified by the last B<-i> option occurring before
+occurrence of the *-i* option, it sets the default capture link type.
+If used after an *-i* option, it sets the capture link type for
+the interface specified by the last *-i* option occurring before
 this option.  If the capture link type is not set specifically,
 the default capture link type is used if provided.
+--
 
-=item -Y|--display-filter  E<lt>displaY filterE<gt>
-
+-Y|--display-filter  <displaY filter>::
++
+--
 Start with the given display filter.
+--
 
-=item -z  E<lt>statisticsE<gt>
-
-Get B<Wireshark> to collect various types of statistics and display the result
+-z  <statistics>::
++
+--
+Get *Wireshark* to collect various types of statistics and display the result
 in a window that updates in semi-real time.
 
 Currently implemented statistics are:
+--
 
-=over 4
+*-z help*::
++
+--
+Display all possible values for *-z*.
+--
 
-=item B<-z help>
-
-Display all possible values for B<-z>.
-
-=item B<-z> afp,srt[,I<filter>]
-
+*-z* afp,srt[,__filter__]::
++
+--
 Show Apple Filing Protocol service response time statistics.
+--
 
-=item B<-z> conv,I<type>[,I<filter>]
-
+*-z* conv,__type__[,__filter__]::
++
+--
 Create a table that lists all conversations that could be seen in the
-capture.  I<type> specifies the conversation endpoint types for which we
+capture.  __type__ specifies the conversation endpoint types for which we
 want to generate the statistics; currently the supported ones are:
 
   "eth"   Ethernet addresses
@@ -732,7 +773,7 @@ want to generate the statistics; currently the supported ones are:
   "tr"    Token Ring addresses
   "udp"   UDP/IP socket pairs   Both IPv4 and IPv6 are supported
 
-If the optional I<filter> is specified, only those packets that match the
+If the optional __filter__ is specified, only those packets that match the
 filter will be used in the calculations.
 
 The table is presented with one line for each conversation and displays
@@ -742,39 +783,47 @@ the total number of packets.
 
 These tables can also be generated at runtime by selecting the appropriate
 conversation type from the menu "Tools/Statistics/Conversation List/".
+--
 
-=item B<-z> dcerpc,srt,I<name-or-uuid>,I<major>.I<minor>[,I<filter>]
-
+*-z* dcerpc,srt,__name-or-uuid__,__major__.__minor__[,__filter__]::
++
+--
 Collect call/reply SRT (Service Response Time) data for DCERPC interface
-I<name> or I<uuid>, version I<major>.I<minor>.
+__name__ or __uuid__, version __major__.__minor__.
 Data collected is the number of calls for each procedure, MinSRT, MaxSRT
 and AvgSRT.
-Interface I<name> and I<uuid> are case-insensitive.
+Interface __name__ and __uuid__ are case-insensitive.
 
-Example: S<B<-z dcerpc,srt,12345778-1234-abcd-ef00-0123456789ac,1.0>> will collect data for the CIFS SAMR Interface.
+Example: [.nowrap]#*-z dcerpc,srt,12345778-1234-abcd-ef00-0123456789ac,1.0*# will collect data for the CIFS SAMR Interface.
 
 This option can be used multiple times on the command line.
 
-If the optional I<filter>  is provided, the stats will only be calculated
+If the optional __filter__  is provided, the stats will only be calculated
 on those calls that match that filter.
 
-Example: S<B<-z dcerpc,srt,12345778-1234-abcd-ef00-0123456789ac,1.0,ip.addr==1.2.3.4>> will collect SAMR
+Example: [.nowrap]#*-z dcerpc,srt,12345778-1234-abcd-ef00-0123456789ac,1.0,ip.addr==1.2.3.4*# will collect SAMR
 SRT statistics for a specific host.
+--
 
-=item B<-z> bootp,stat[,I<filter>]
-
+*-z* bootp,stat[,__filter__]::
++
+--
 Show DHCP (BOOTP) statistics.
+--
 
-=item B<-z> expert
-
+*-z* expert::
++
+--
 Show expert information.
+--
 
-=item B<-z> fc,srt[,I<filter>]
-
+*-z* fc,srt[,__filter__]::
++
+--
 Collect call/reply SRT (Service Response Time) data for FC.  Data collected
 is the number of calls for each Fibre Channel command, MinSRT, MaxSRT and AvgSRT.
 
-Example: B<-z fc,srt>
+Example: *-z fc,srt*
 will calculate the Service Response Time as the time delta between the
 First packet of the exchange and the Last packet of the exchange.
 
@@ -784,49 +833,55 @@ displayed.
 
 This option can be used multiple times on the command line.
 
-If the optional I<filter> is provided, the stats will only be calculated
+If the optional __filter__ is provided, the stats will only be calculated
 on those calls that match that filter.
 
-Example: B<-z "fc,srt,fc.id==01.02.03"> will collect stats only for
+Example: *-z "fc,srt,fc.id==01.02.03"* will collect stats only for
 FC packets exchanged by the host at FC address 01.02.03 .
+--
 
-=item B<-z> h225,counter[I<,filter>]
-
+*-z* h225,counter[__,filter__]::
++
+--
 Count ITU-T H.225 messages and their reasons.  In the first column you get a
 list of H.225 messages and H.225 message reasons which occur in the current
 capture file.  The number of occurrences of each message or reason is displayed
 in the second column.
 
-Example: B<-z h225,counter>
+Example: *-z h225,counter*
 
 This option can be used multiple times on the command line.
 
-If the optional I<filter> is provided, the stats will only be calculated
+If the optional __filter__ is provided, the stats will only be calculated
 on those calls that match that filter.
 
-Example: B<-z "h225,counter,ip.addr==1.2.3.4"> will collect stats only for
+Example: *-z "h225,counter,ip.addr==1.2.3.4"* will collect stats only for
 H.225 packets exchanged by the host at IP address 1.2.3.4 .
+--
 
-=item B<-z> h225,srt[I<,filter>]
-
+*-z* h225,srt[__,filter__]::
++
+--
 Collect request/response SRT (Service Response Time) data for ITU-T H.225 RAS.
 Data collected is the number of calls of each ITU-T H.225 RAS Message Type,
 Minimum SRT, Maximum SRT, Average SRT, Minimum in Packet, and Maximum in Packet.
 You will also get the number of Open Requests (Unresponded Requests),
 Discarded Responses (Responses without matching request) and Duplicate Messages.
 
-Example: B<-z h225,srt>
+Example: *-z h225,srt*
 
 This option can be used multiple times on the command line.
 
-If the optional I<filter> is provided, the stats will only be calculated
+If the optional __filter__ is provided, the stats will only be calculated
 on those calls that match that filter.
 
-Example: B<-z "h225,srt,ip.addr==1.2.3.4"> will collect stats only for
+Example: *-z "h225,srt,ip.addr==1.2.3.4"* will collect stats only for
 ITU-T H.225 RAS packets exchanged by the host at IP address 1.2.3.4 .
+--
 
-=item B<-z> io,stat
-
+*-z* io,stat::
++
+--
 Collect packet/bytes statistics for the capture in intervals of 1 second.
 This option will open a window with up to 5 color-coded graphs where
 number-of-packets-per-second or number-of-bytes-per-second statistics
@@ -836,13 +891,15 @@ This option can be used multiple times on the command line.
 
 This graph window can also be opened from the Analyze:Statistics:Traffic:IO-Stat
 menu item.
+--
 
-=item B<-z> ldap,srt[,I<filter>]
-
+*-z* ldap,srt[,__filter__]::
++
+--
 Collect call/reply SRT (Service Response Time) data for LDAP.  Data collected
 is the number of calls for each implemented LDAP command, MinSRT, MaxSRT and AvgSRT.
 
-Example: B<-z ldap,srt>
+Example: *-z ldap,srt*
 will calculate the Service Response Time as the time delta between the
 Request and the Response.
 
@@ -852,10 +909,10 @@ displayed.
 
 This option can be used multiple times on the command line.
 
-If the optional I<filter> is provided, the stats will only be calculated
+If the optional __filter__ is provided, the stats will only be calculated
 on those calls that match that filter.
 
-Example: use B<-z "ldap,srt,ip.addr==10.1.1.1"> will collect stats only for
+Example: use *-z "ldap,srt,ip.addr==10.1.1.1"* will collect stats only for
 LDAP packets exchanged by the host at IP address 10.1.1.1 .
 
 The only LDAP commands that are currently implemented and for which the stats will be available are:
@@ -867,73 +924,87 @@ DELETE
 MODRDN
 COMPARE
 EXTENDED
+--
 
-=item B<-z> megaco,srt[I<,filter>]
-
+*-z* megaco,srt[__,filter__]::
++
+--
 Collect request/response SRT (Service Response Time) data for MEGACO.
-(This is similar to B<-z smb,srt>).  Data collected is the number of calls
+(This is similar to *-z smb,srt*).  Data collected is the number of calls
 for each known MEGACO Command, Minimum SRT, Maximum SRT and Average SRT.
 
-Example: B<-z megaco,srt>
+Example: *-z megaco,srt*
 
 This option can be used multiple times on the command line.
 
-If the optional I<filter> is provided, the stats will only be calculated
+If the optional __filter__ is provided, the stats will only be calculated
 on those calls that match that filter.
 
-Example: B<-z "megaco,srt,ip.addr==1.2.3.4"> will collect stats only for
+Example: *-z "megaco,srt,ip.addr==1.2.3.4"* will collect stats only for
 MEGACO packets exchanged by the host at IP address 1.2.3.4 .
+--
 
-=item B<-z> mgcp,srt[I<,filter>]
-
+*-z* mgcp,srt[__,filter__]::
++
+--
 Collect request/response SRT (Service Response Time) data for MGCP.
-(This is similar to B<-z smb,srt>).  Data collected is the number of calls
+(This is similar to *-z smb,srt*).  Data collected is the number of calls
 for each known MGCP Type, Minimum SRT, Maximum SRT and Average SRT.
 
-Example: B<-z mgcp,srt>
+Example: *-z mgcp,srt*
 
 This option can be used multiple times on the command line.
 
-If the optional I<filter> is provided, the stats will only be calculated
+If the optional __filter__ is provided, the stats will only be calculated
 on those calls that match that filter.
 
-Example: B<-z "mgcp,srt,ip.addr==1.2.3.4"> will collect stats only for
+Example: *-z "mgcp,srt,ip.addr==1.2.3.4"* will collect stats only for
 MGCP packets exchanged by the host at IP address 1.2.3.4 .
+--
 
-=item B<-z> mtp3,msus[,<filter>]
-
+*-z* mtp3,msus[,<filter>]::
++
+--
 Show MTP3 MSU statistics.
+--
 
-=item B<-z> multicast,stat[,<filter>]
-
+*-z* multicast,stat[,<filter>]::
++
+--
 Show UDP multicast stream statistics.
+--
 
-=item B<-z> rpc,programs
-
+*-z* rpc,programs::
++
+--
 Collect call/reply SRT data for all known ONC-RPC programs/versions.
 Data collected is the number of calls for each protocol/version, MinSRT,
 MaxSRT and AvgSRT.
+--
 
-=item B<-z> rpc,srt,I<name-or-number>,I<version>[,<filter>]
-
+*-z* rpc,srt,__name-or-number__,__version__[,<filter>]::
++
+--
 Collect call/reply SRT (Service Response Time) data for program
-I<name>/I<version> or I<number>/I<version>.
+__name__/__version__ or __number__/__version__.
 Data collected is the number of calls for each procedure, MinSRT, MaxSRT and
 AvgSRT.
-Program I<name> is case-insensitive.
+Program __name__ is case-insensitive.
 
-Example: B<-z rpc,srt,100003,3> will collect data for NFS v3.
+Example: *-z rpc,srt,100003,3* will collect data for NFS v3.
 
 This option can be used multiple times on the command line.
 
-If the optional I<filter> is provided, the stats will only be calculated
+If the optional __filter__ is provided, the stats will only be calculated
 on those calls that match that filter.
 
-Example: S<B<-z rpc,srt,nfs,3,nfs.fh.hash==0x12345678>> will collect NFS v3
+Example: [.nowrap]#*-z rpc,srt,nfs,3,nfs.fh.hash==0x12345678*# will collect NFS v3
 SRT statistics for a specific file.
+--
 
-=item B<-z> scsi,srt,I<cmdset>[,<filter>]
-
+*-z* scsi,srt,__cmdset__[,<filter>]::
++
+--
 Collect call/reply SRT (Service Response Time) data for SCSI commandset <cmdset>.
 
 Commandsets are 0:SBC   1:SSC  5:MMC
@@ -941,38 +1012,42 @@ Commandsets are 0:SBC   1:SSC  5:MMC
 Data collected
 is the number of calls for each procedure, MinSRT, MaxSRT and AvgSRT.
 
-Example: B<-z scsi,srt,0> will collect data for SCSI BLOCK COMMANDS (SBC).
+Example: *-z scsi,srt,0* will collect data for SCSI BLOCK COMMANDS (SBC).
 
 This option can be used multiple times on the command line.
 
-If the optional I<filter> is provided, the stats will only be calculated
+If the optional __filter__ is provided, the stats will only be calculated
 on those calls that match that filter.
 
-Example: B<-z scsi,srt,0,ip.addr==1.2.3.4> will collect SCSI SBC
+Example: *-z scsi,srt,0,ip.addr==1.2.3.4* will collect SCSI SBC
 SRT statistics for a specific iscsi/ifcp/fcip host.
+--
 
-=item B<-z> sip,stat[I<,filter>]
-
+*-z* sip,stat[__,filter__]::
++
+--
 This option will activate a counter for SIP messages.  You will get the number
 of occurrences of each SIP Method and of each SIP Status-Code.  Additionally you
 also get the number of resent SIP Messages (only for SIP over UDP).
 
-Example: B<-z sip,stat>
+Example: *-z sip,stat*
 
 This option can be used multiple times on the command line.
 
-If the optional I<filter> is provided, the stats will only be calculated
+If the optional __filter__ is provided, the stats will only be calculated
 on those calls that match that filter.
 
-Example: B<-z "sip,stat,ip.addr==1.2.3.4"> will collect stats only for
+Example: *-z "sip,stat,ip.addr==1.2.3.4"* will collect stats only for
 SIP packets exchanged by the host at IP address 1.2.3.4 .
+--
 
-=item B<-z> smb,srt[,I<filter>]
-
+*-z* smb,srt[,__filter__]::
++
+--
 Collect call/reply SRT (Service Response Time) data for SMB.  Data collected
 is the number of calls for each SMB command, MinSRT, MaxSRT and AvgSRT.
 
-Example: B<-z smb,srt>
+Example: *-z smb,srt*
 
 The data will be presented as separate tables for all normal SMB commands,
 all Transaction2 commands and all NT Transaction commands.
@@ -985,60 +1060,75 @@ This is a flaw that might be fixed in the future.
 
 This option can be used multiple times on the command line.
 
-If the optional I<filter> is provided, the stats will only be calculated
+If the optional __filter__ is provided, the stats will only be calculated
 on those calls that match that filter.
 
-Example: B<-z "smb,srt,ip.addr==1.2.3.4"> will collect stats only for
+Example: *-z "smb,srt,ip.addr==1.2.3.4"* will collect stats only for
 SMB packets exchanged by the host at IP address 1.2.3.4 .
+--
 
-=item B<-z> voip,calls
-
+*-z* voip,calls::
++
+--
 This option will show a window that shows VoIP calls found in the capture file.
 This is the same window shown as when you go to the Statistics Menu and choose
 VoIP Calls.
 
-Example: B<-z voip,calls>
+Example: *-z voip,calls*
+--
 
-=item B<-z> wlan,stat[,<filter>]
-
+*-z* wlan,stat[,<filter>]::
++
+--
 Show IEEE 802.11 network and station statistics.
+--
 
-=item B<-z> wsp,stat[,<filter>]
-
+*-z* wsp,stat[,<filter>]::
++
+--
 Show WSP packet counters.
+--
 
-=back
+== INTERFACE
 
-=back
+=== MENU ITEMS
 
-=head1 INTERFACE
+menu:File[Open]::
++
+--
+--
 
-=head2 MENU ITEMS
+menu:File[Open Recent]::
++
+--
+--
 
-=over 4
-
-=item File:Open
-
-=item File:Open Recent
-
-=item File:Merge
-
-Merge another capture file to the currently loaded one.  The I<File:Merge>
+menu:File[Merge]::
++
+--
+Merge another capture file to the currently loaded one.  The __File:Merge__
 dialog box allows the merge "Prepended", "Chronologically" or "Appended",
 relative to the already loaded one.
+--
 
-=item File:Close
-
-Open or close a capture file.  The I<File:Open> dialog box
+menu:File[Close]::
++
+--
+Open or close a capture file.  The __File:Open__ dialog box
 allows a filter to be specified; when the capture file is read, the
 filter is applied to all packets read from the file, and packets not
-matching the filter are discarded.  The I<File:Open Recent> is a submenu
+matching the filter are discarded.  The __File:Open Recent__ is a submenu
 and will show a list of previously opened files.
+--
 
-=item File:Save
+menu:File[Save]::
++
+--
+--
 
-=item File:Save As
-
+menu:File[Save As]::
++
+--
 Save the current capture, or the packets currently displayed from that
 capture, to a file.  Check boxes let you select whether to save all
 packets, or just those that have passed the current display filter and/or
@@ -1046,58 +1136,79 @@ those that are currently marked, and an option menu lets you select (from
 a list of file formats in which at particular capture, or the packets
 currently displayed from that capture, can be saved), a file format in
 which to save it.
+--
 
-=item File:File Set:List Files
-
+menu:File[File Set,List Files]::
++
+--
 Show a dialog box that lists all files of the file set matching the currently
 loaded file.  A file set is a compound of files resulting from a capture using
 the "multiple files" / "ringbuffer" mode, recognizable by the filename pattern,
 e.g.: Filename_00001_20210714101530.pcap.
+--
 
-=item File:File Set:Next File
+menu:File[File Set,Next File]::
++
+--
+--
 
-=item File:File Set:Previous File
-
+menu:File[File Set,Previous File]::
++
+--
 If the currently loaded file is part of a file set (see above), open the
 next / previous file in that set.
+--
 
-=item File:Export
-
+menu:File[Export]::
++
+--
 Export captured data into an external format.  Note: the data cannot be
 imported back into Wireshark, so be sure to keep the capture file.
+--
 
-=item File:Print
-
+menu:File[Print]::
++
+--
 Print packet data from the current capture.  You can select the range of
 packets to be printed (which packets are printed), and the output format of
 each packet (how each packet is printed).  The output format will be similar
 to the displayed values, so a summary line, the packet details view, and/or
 the hex dump of the packet can be printed.
 
-Printing options can be set with the I<Edit:Preferences> menu item, or in the
+Printing options can be set with the __Edit:Preferences__ menu item, or in the
 dialog box popped up by this menu item.
+--
 
-=item File:Quit
-
+menu:File[Quit]::
++
+--
 Exit the application.
+--
 
-=item Edit:Copy:Description
-
+menu:Edit[Copy,Description]::
++
+--
 Copies the description of the selected field in the protocol tree to
 the clipboard.
+--
 
-=item Edit:Copy:Fieldname
-
+menu:Edit[Copy,Fieldname]::
++
+--
 Copies the fieldname of the selected field in the protocol tree to
 the clipboard.
+--
 
-=item Edit:Copy:Value
-
+menu:Edit[Copy,Value]::
++
+--
 Copies the value of the selected field in the protocol tree to
 the clipboard.
+--
 
-=item Edit:Copy:As Filter
-
+menu:Edit[Copy,As Filter]::
++
+--
 Create a display filter based on the data currently highlighted in the
 packet details and copy that filter to the clipboard.
 
@@ -1106,9 +1217,11 @@ expression, the display filter will test that field; otherwise, the
 display filter will be based on the absolute offset within the packet.
 Therefore it could be unreliable if the packet contains protocols with
 variable-length headers, such as a source-routed token-ring packet.
+--
 
-=item Edit:Find Packet
-
+menu:Edit[Find Packet]::
++
+--
 Search forward or backward, starting with the currently selected packet
 (or the most recently selected packet, if no packet is selected).  Search
 criteria can be a display filter expression, a string of hexadecimal
@@ -1121,37 +1234,56 @@ packet details pane.
 Hexadecimal digits can be separated by colons, periods, or dashes.
 Text string searches can be ASCII or Unicode (or both), and may be
 case insensitive.
+--
 
-=item Edit:Find Next
+menu:Edit[Find Next]::
++
+--
+--
 
-=item Edit:Find Previous
-
+menu:Edit[Find Previous]::
++
+--
 Search forward / backward for a packet matching the filter from the previous
 search, starting with the currently selected packet (or the most recently
 selected packet, if no packet is selected).
+--
 
-=item Edit:Mark Packet (toggle)
-
+menu:Edit[Mark Packet (toggle)]::
++
+--
 Mark (or unmark if currently marked) the selected packet.  The field
 "frame.marked" is set for packets that are marked, so that, for example,
 a display filters can be used to display only marked packets, and so that
-the L</"Edit:Find Packet"> dialog can be used to find the next or previous
+the /"Edit:Find Packet" dialog can be used to find the next or previous
 marked packet.
+--
 
-=item Edit:Find Next Mark
+menu:Edit[Find Next Mark]::
++
+--
+--
 
-=item Edit:Find Previous Mark
-
+menu:Edit[Find Previous Mark]::
++
+--
 Find next/previous marked packet.
+--
 
-=item Edit:Mark All Packets
+menu:Edit[Mark All Packets]::
++
+--
+--
 
-=item Edit:Unmark All Packets
-
+menu:Edit[Unmark All Packets]::
++
+--
 Mark / Unmark all packets that are currently displayed.
+--
 
-=item Edit:Time Reference:Set Time Reference (toggle)
-
+menu:Edit[Time Reference,Set Time Reference (toggle)]::
++
+--
 Set (or unset if currently set) the selected packet as a Time Reference packet.
 When a packet is set as a Time Reference packet, the timestamps in the packet
 list pane will be replaced with the string "*REF*".
@@ -1165,94 +1297,151 @@ hide these packets.
 
 If there is a column displayed for "Cumulative Bytes" this counter will
 be reset at every Time Reference packet.
+--
 
-=item Edit:Time Reference:Find Next
+menu:Edit[Time Reference,Find Next]::
++
+--
+--
 
-=item Edit:Time Reference:Find Previous
-
+menu:Edit[Time Reference,Find Previous]::
++
+--
 Search forward / backward for a time referenced packet.
+--
 
-=item Edit:Configuration Profiles
-
+menu:Edit[Configuration Profiles]::
++
+--
 Manage configuration profiles to be able to use more than one set of
 preferences and configurations.
+--
 
-=item Edit:Preferences
-
+menu:Edit[Preferences]::
++
+--
 Set the GUI, capture, printing and protocol options
-(see L</Preferences> dialog below).
+(see /Preferences dialog below).
+--
 
-=item View:Main Toolbar
+menu:View[Main Toolbar]::
++
+--
+--
 
-=item View:Filter Toolbar
+menu:View[Filter Toolbar]::
++
+--
+--
 
-=item View:Statusbar
-
+menu:View[Statusbar]::
++
+--
 Show or hide the main window controls.
+--
 
-=item View:Packet List
+menu:View[Packet List]::
++
+--
+--
 
-=item View:Packet Details
+menu:View[Packet Details]::
++
+--
+--
 
-=item View:Packet Bytes
-
+menu:View[Packet Bytes]::
++
+--
 Show or hide the main window panes.
+--
 
-=item View:Time Display Format
-
+menu:View[Time Display Format]::
++
+--
 Set the format of the packet timestamp displayed in the packet list window.
+--
 
-=item View:Name Resolution:Resolve Name
-
+menu:View[Name Resolution,Resolve Name]::
++
+--
 Try to resolve a name for the currently selected item.
+--
 
-=item View:Name Resolution:Enable for ... Layer
-
+menu:View[Name Resolution,Enable for ... Layer]::
++
+--
 Enable or disable translation of addresses to names in the display.
+--
 
-=item View:Colorize Packet List
-
+menu:View[Colorize Packet List]::
++
+--
 Enable or disable the coloring rules.  Disabling will improve performance.
+--
 
-=item View:Auto Scroll in Live Capture
-
+menu:View[Auto Scroll in Live Capture]::
++
+--
 Enable or disable the automatic scrolling of the
 packet list while a live capture is in progress.
+--
 
-=item View:Zoom In
+menu:View[Zoom In]::
++
+--
+--
 
-=item View:Zoom Out
-
+menu:View[Zoom Out]::
++
+--
 Zoom into / out of the main window data (by changing the font size).
+--
 
-=item View:Normal Size
-
+menu:View[Normal Size]::
++
+--
 Reset the zoom factor of zoom in / zoom out back to normal font size.
+--
 
-=item View:Resize All Columns
-
+menu:View[Resize All Columns]::
++
+--
 Resize all columns to best fit the current packet display.
+--
 
-=item View:Expand / Collapse Subtrees
-
+menu:View[Expand / Collapse Subtrees]::
++
+--
 Expands / Collapses the currently selected item and it's subtrees in the packet details.
+--
 
-=item View:Expand All
+menu:View[Expand All]::
++
+--
+--
 
-=item View:Collapse All
-
+menu:View[Collapse All]::
++
+--
 Expand / Collapse all branches of the packet details.
+--
 
-=item View:Colorize Conversation
-
+menu:View[Colorize Conversation]::
++
+--
 Select color for a conversation.
+--
 
-=item View:Reset Coloring 1-10
-
+menu:View[Reset Coloring 1-10]::
++
+--
 Reset Color for a conversation.
+--
 
-=item View:Coloring Rules
-
+menu:View[Coloring Rules]::
++
+--
 Change the foreground and background colors of the packet information in
 the list of packets, based upon display filters.  The list of display
 filters is applied to each packet sequentially.  After the first display
@@ -1260,11 +1449,11 @@ filter matches a packet, any additional display filters in the list are
 ignored.  Therefore, if you are filtering on the existence of protocols,
 you should list the higher-level protocols first, and the lower-level
 protocols last.
+--
 
-=over
-
-=item How Colorization Works
-
+How Colorization Works::
++
+--
 Packets are colored according to a list of color filters.  Each filter
 consists of a name, a filter expression and a coloration.  A packet is
 colored according to the first filter that it matches.  Color filter
@@ -1272,44 +1461,49 @@ expressions use exactly the same syntax as display filter expressions.
 
 When Wireshark starts, the color filters are loaded from:
 
-=over
-
-=item 1. The user's personal color filters file or, if that does not exist,
-
-=item 2. The global color filters file.
-
-=back
+1. The user's personal color filters file or, if that does not exist,
+2. The global color filters file.
 
 If neither of these exist then the packets will not be colored.
+--
 
-=back
-
-=item View:Show Packet In New Window
-
+menu:View[Show Packet In New Window]::
++
+--
 Create a new window containing a packet details view and a hex dump
 window of the currently selected packet; this window will continue to
 display that packet's details and data even if another packet is
 selected.
+--
 
-=item View:Reload
-
-Reload a capture file.  Same as I<File:Close> and I<File:Open> the same
+menu:View[Reload]::
++
+--
+Reload a capture file.  Same as __File:Close__ and __File:Open__ the same
 file again.
+--
 
-=item Go:Back
-
+menu:Go[Back]::
++
+--
 Go back in previously visited packets history.
+--
 
-=item Go:Forward
-
+menu:Go[Forward]::
++
+--
 Go forward in previously visited packets history.
+--
 
-=item Go:Go To Packet
-
+menu:Go[Go To Packet]::
++
+--
 Go to a particular numbered packet.
+--
 
-=item Go:Go To Corresponding Packet
-
+menu:Go[Go To Corresponding Packet]::
++
+--
 If a field in the packet details pane containing a packet number is
 selected, go to the packet number specified by that field.  (This works
 only if the dissector that put that entry into the packet details put it
@@ -1317,70 +1511,104 @@ into the details as a filterable field rather than just as text.) This
 can be used, for example, to go to the packet for the request
 corresponding to a reply, or the reply corresponding to a request, if
 that packet number has been put into the packet details.
+--
 
-=item Go:Previous Packet
+menu:Go[Previous Packet]::
++
+--
+--
 
-=item Go:Next Packet
+menu:Go[Next Packet]::
++
+--
+--
 
-=item Go:First Packet
+menu:Go[First Packet]::
++
+--
+--
 
-=item Go:Last Packet
-
+menu:Go[Last Packet]::
++
+--
 Go to the previous / next / first / last packet in the capture.
+--
 
-=item Go:Previous Packet In Conversation
+menu:Go[Previous Packet In Conversation]::
++
+--
+--
 
-=item Go:Next Packet In Conversation
-
+menu:Go[Next Packet In Conversation]::
++
+--
 Go to the previous / next packet of the conversation (TCP, UDP or IP)
+--
 
-=item Capture:Interfaces
-
+menu:Capture[Interfaces]::
++
+--
 Shows a dialog box with all currently known interfaces and displaying the
 current network traffic amount.  Capture sessions can be started from here.
 Beware: keeping this box open results in high system load!
+--
 
-=item Capture:Options
-
-Initiate a live packet capture (see L</"Capture Options Dialog">
+menu:Capture[Options]::
++
+--
+Initiate a live packet capture (see /"Capture Options Dialog"
 below).  If no filename is specified, a temporary file will be created
 to hold the capture.  The location of the file can be chosen by setting your
-TMPDIR environment variable before starting B<Wireshark>.  Otherwise, the
-default TMPDIR location is system-dependent, but is likely either F</var/tmp>
-or F</tmp>.
+TMPDIR environment variable before starting *Wireshark*.  Otherwise, the
+default TMPDIR location is system-dependent, but is likely either __/var/tmp__
+or __/tmp__.
+--
 
-=item Capture:Start
-
+menu:Capture[Start]::
++
+--
 Start a live packet capture with the previously selected options.  This won't
 open the options dialog box, and can be convenient for repeatedly capturing
 with the same options.
+--
 
-=item Capture:Stop
-
+menu:Capture[Stop]::
++
+--
 Stop a running live capture.
+--
 
-=item Capture:Restart
-
+menu:Capture[Restart]::
++
+--
 While a live capture is running, stop it and restart with the same options
 again.  This can be convenient to remove irrelevant packets, if no valuable
 packets were captured so far.
+--
 
-=item Capture:Capture Filters
-
+menu:Capture[Capture Filters]::
++
+--
 Edit the saved list of capture filters, allowing filters to be added,
 changed, or deleted.
+--
 
-=item Analyze:Display Filters
-
+menu:Analyze[Display Filters]::
++
+--
 Edit the saved list of display filters, allowing filters to be added,
 changed, or deleted.
+--
 
-=item Analyze:Display Filter Macros
-
+menu:Analyze[Display Filter Macros]::
++
+--
 Create shortcuts for complex macros
+--
 
-=item Analyze:Apply as Filter
-
+menu:Analyze[Apply as Filter]::
++
+--
 Create a display filter based on the data currently highlighted in the
 packet details and apply the filter.
 
@@ -1390,21 +1618,25 @@ display filter will be based on the absolute offset within the packet.
 Therefore it could be unreliable if the packet contains protocols with
 variable-length headers, such as a source-routed token-ring packet.
 
-The B<Selected> option creates a display filter that tests for a match
-of the data; the B<Not Selected> option creates a display filter that
-tests for a non-match of the data.  The B<And Selected>, B<Or Selected>,
-B<And Not Selected>, and B<Or Not Selected> options add to the end of
+The *Selected* option creates a display filter that tests for a match
+of the data; the *Not Selected* option creates a display filter that
+tests for a non-match of the data.  The *And Selected*, *Or Selected*,
+*And Not Selected*, and *Or Not Selected* options add to the end of
 the display filter in the strip at the top (or bottom) an AND or OR
 operator followed by the new display filter expression.
+--
 
-=item Analyze:Prepare as Filter
-
+menu:Analyze[Prepare as Filter]::
++
+--
 Create a display filter based on the data currently highlighted in the
 packet details.  The filter strip at the top (or bottom) is updated but
 it is not yet applied.
+--
 
-=item Analyze:Enabled Protocols
-
+menu:Analyze[Enabled Protocols]::
++
+--
 Allow protocol dissection to be enabled or disabled for a specific
 protocol.  Individual protocols can be enabled or disabled by clicking
 on them in the list or by highlighting them and pressing the space bar.
@@ -1420,9 +1652,11 @@ dependent on TCP.
 
 The list of protocols can be saved, so that Wireshark will start up with
 the protocols in that list disabled.
+--
 
-=item Analyze:Decode As
-
+menu:Analyze[Decode As]::
++
+--
 If you have a packet selected, present a dialog allowing you to change
 which dissectors are used to decode this packet.  The dialog has one
 panel each for the link layer, network layer and transport layer
@@ -1430,15 +1664,19 @@ protocol/port numbers, and will allow each of these to be changed
 independently.  For example, if the selected packet is a TCP packet to
 port 12345, using this dialog you can instruct Wireshark to decode all
 packets to or from that TCP port as HTTP packets.
+--
 
-=item Analyze:User Specified Decodes
-
+menu:Analyze[User Specified Decodes]::
++
+--
 Create a new window showing whether any protocol ID to dissector
 mappings have been changed by the user.  This window also allows the
 user to reset all decodes to their default values.
+--
 
-=item Analyze:Follow TCP Stream
-
+menu:Analyze[Follow TCP Stream]::
++
+--
 If you have a TCP packet selected, display the contents of the data
 stream for the TCP connection to which that packet belongs, as text, in
 a separate window, and leave the list of packets in a filtered state,
@@ -1449,68 +1687,87 @@ resetting it back to no display filter).
 
 The window in which the data stream is displayed lets you select:
 
-=over 8
-
-=item *
-whether to display the entire conversation, or one or the other side of
+* whether to display the entire conversation, or one or the other side of
 it;
 
-=item *
-whether the data being displayed is to be treated as ASCII or EBCDIC
+* whether the data being displayed is to be treated as ASCII or EBCDIC
 text or as raw hex data;
 
-=back
-
 and lets you print what's currently being displayed, using the same
-print options that are used for the I<File:Print Packet> menu item, or
+print options that are used for the __File:Print Packet__ menu item, or
 save it as text to a file.
+--
 
-=item Analyze:Follow UDP Stream
+menu:Analyze[Follow UDP Stream]::
++
+--
+--
 
-=item Analyze:Follow TLS Stream
-
+menu:Analyze[Follow TLS Stream]::
++
+--
 (Similar to Analyze:Follow TCP Stream)
+--
 
-=item Analyze:Expert Info
+menu:Analyze[Expert Info]::
++
+--
+--
 
-=item Analyze:Expert Info Composite
-
+menu:Analyze[Expert Info Composite]::
++
+--
 (Kind of) a log of anomalies found by Wireshark in a capture file.
+--
 
-=item Analyze:Conversation Filter
+menu:Analyze[Conversation Filter]::
++
+--
+--
 
-=item Statistics:Summary
-
+menu:Statistics[Summary]::
++
+--
 Show summary information about the capture, including elapsed time,
 packet counts, byte counts, and the like.  If a display filter is in
 effect, summary information will be shown about the capture and about
 the packets currently being displayed.
+--
 
-=item Statistics:Protocol Hierarchy
-
+menu:Statistics[Protocol Hierarchy]::
++
+--
 Show the number of packets, and the number of bytes in those packets,
 for each protocol in the trace.  It organizes the protocols in the same
 hierarchy in which they were found in the trace.  Besides counting the
 packets in which the protocol exists, a count is also made for packets
 in which the protocol is the last protocol in the stack.  These
 last-protocol counts show you how many packets (and the byte count
-associated with those packets) B<ended> in a particular protocol.  In
+associated with those packets) *ended* in a particular protocol.  In
 the table, they are listed under "End Packets" and "End Bytes".
+--
 
-=item Statistics:Conversations
-
+menu:Statistics[Conversations]::
++
+--
 Lists of conversations; selectable by protocol.  See Statistics:Conversation List below.
+--
 
-=item Statistics:End Points
-
+menu:Statistics[End Points]::
++
+--
 List of End Point Addresses by protocol with packets/bytes/.... counts.
+--
 
-=item Statistics:Packet Lengths
-
+menu:Statistics[Packet Lengths]::
++
+--
 Grouped counts of packet lengths (0-19 bytes, 20-39 bytes, ...)
+--
 
-=item Statistics:I/O Graphs
-
+menu:Statistics[I/O Graphs]::
++
+--
 Open a window where up to 5 graphs in different colors can be displayed
 to indicate number of packets or number of bytes per second for all packets
 matching the specified filter.
@@ -1557,7 +1814,7 @@ second intervals.
 interval will be in the drawing area.  The default is 5 pixels per tick.
 
 "Y-scale:" controls the max value for the y-axis.  Default value is
-"auto" which means that B<Wireshark> will try to adjust the maxvalue
+"auto" which means that *Wireshark* will try to adjust the maxvalue
 automatically.
 
 "advanced..." If Unit:advanced...  is selected the window will display
@@ -1651,9 +1908,11 @@ Below the graph are the LOAD values for each interval that would be calculated.
   |     |     |     |     |     |     |     |     |
   --------------------------------------------------> Time
    500   1500   500  750   1000   500    0     0
+--
 
-=item Statistics:Conversation List
-
+menu:Statistics[Conversation List]::
++
+--
 This option will open a new window that displays a list of all
 conversations between two endpoints.  The list has one row for each
 unique conversation and displays total number of packets/bytes seen as
@@ -1669,46 +1928,42 @@ mouse button) Wireshark will display a popup menu offering several different
 filter operations to apply to the capture.
 
 These statistics windows can also be invoked from the Wireshark command
-line using the B<-z conv> argument.
+line using the *-z conv* argument.
+--
 
-=item Statistics:Service Response Time
+menu:Statistics[Service Response Time]::
++
+--
 
-=over 4
+* AFP
 
-=item *
-AFP
+* CAMEL
 
-=item *
-CAMEL
-
-=item *
-DCE-RPC
+* DCE-RPC
 
 Open a window to display Service Response Time statistics for an
 arbitrary DCE-RPC program
-interface and display B<Procedure>, B<Number of Calls>, B<Minimum SRT>,
-B<Maximum SRT> and B<Average SRT> for all procedures for that
+interface and display *Procedure*, *Number of Calls*, *Minimum SRT*,
+*Maximum SRT* and *Average SRT* for all procedures for that
 program/version.  These windows opened will update in semi-real time to
 reflect changes when doing live captures or when reading new capture
-files into B<Wireshark>.
+files into *Wireshark*.
 
 This dialog will also allow an optional filter string to be used.
 If an optional filter string is used only such DCE-RPC request/response pairs
 that match that filter will be used to calculate the statistics.  If no filter
 string is specified all request/response pairs will be used.
 
-=item *
-Diameter
+* Diameter
 
-=item *
-Fibre Channel
+* Fibre Channel
 
 Open a window to display Service Response Time statistics for Fibre Channel
-and display B<FC Type>, B<Number of Calls>, B<Minimum SRT>,
-B<Maximum SRT> and B<Average SRT> for all FC types.
+and display *FC Type*, *Number of Calls*, *Minimum SRT*,
+*Maximum SRT* and *Average SRT* for all FC types.
 These windows opened will update in semi-real time to
 reflect changes when doing live captures or when reading new capture
-files into B<Wireshark>.
+files into *Wireshark*.
 The Service Response Time is calculated as the time delta between the
 First packet of the exchange and the Last packet of the exchange.
 
@@ -1717,53 +1972,46 @@ If an optional filter string is used only such FC first/last exchange pairs
 that match that filter will be used to calculate the statistics.  If no filter
 string is specified all request/response pairs will be used.
 
-=item *
-GTP
+* GTP
 
-=item *
-H.225 RAS
+* H.225 RAS
 
 Collect requests/response SRT (Service Response Time) data for ITU-T H.225 RAS.
-Data collected is B<number of calls> for each known ITU-T H.225 RAS Message Type,
-B<Minimum SRT>, B<Maximum SRT>, B<Average SRT>, B<Minimum in Packet>, and B<Maximum in Packet>.
-You will also get the number of B<Open Requests> (Unresponded Requests),
-B<Discarded Responses> (Responses without matching request) and Duplicate Messages.
+Data collected is *number of calls* for each known ITU-T H.225 RAS Message Type,
+*Minimum SRT*, *Maximum SRT*, *Average SRT*, *Minimum in Packet*, and *Maximum in Packet*.
+You will also get the number of *Open Requests* (Unresponded Requests),
+*Discarded Responses* (Responses without matching request) and Duplicate Messages.
 These windows opened will update in semi-real time to reflect changes when
-doing live captures or when reading new capture files into B<Wireshark>.
+doing live captures or when reading new capture files into *Wireshark*.
 
 You can apply an optional filter string in a dialog box, before starting
 the calculation.  The statistics will only be calculated
 on those calls matching that filter.
 
-=item *
-LDAP
+* LDAP
 
-=item *
-MEGACO
+* MEGACO
 
-=item *
-MGCP
+* MGCP
 
 Collect requests/response SRT (Service Response Time) data for MGCP.
-Data collected is B<number of calls> for each known MGCP Type,
-B<Minimum SRT>, B<Maximum SRT>, B<Average SRT>, B<Minimum in Packet>, and B<Maximum in Packet>.
+Data collected is *number of calls* for each known MGCP Type,
+*Minimum SRT*, *Maximum SRT*, *Average SRT*, *Minimum in Packet*, and *Maximum in Packet*.
 These windows opened will update in semi-real time to reflect changes when
-doing live captures or when reading new capture files into B<Wireshark>.
+doing live captures or when reading new capture files into *Wireshark*.
 
 You can apply an optional filter string in a dialog box, before starting
 the calculation.  The statistics will only be calculated
 on those calls matching that filter.
 
-=item *
-NCP
+* NCP
 
-=item *
-ONC-RPC
+* ONC-RPC
 
 Open a window to display statistics for an arbitrary ONC-RPC program interface
-and display B<Procedure>, B<Number of Calls>, B<Minimum SRT>, B<Maximum SRT> and B<Average SRT> for all procedures for that program/version.
+and display *Procedure*, *Number of Calls*, *Minimum SRT*, *Maximum SRT* and *Average SRT* for all procedures for that program/version.
 These windows opened will update in semi-real time to reflect changes when
-doing live captures or when reading new capture files into B<Wireshark>.
+doing live captures or when reading new capture files into *Wireshark*.
 
 This dialog will also allow an optional filter string to be used.
 If an optional filter string is used only such ONC-RPC request/response pairs
@@ -1775,14 +2023,11 @@ right mouse button (on those platforms that have a right
 mouse button) Wireshark will display a popup menu offering several different
 filter operations to apply to the capture.
 
-=item *
-RADIUS
+* RADIUS
 
-=item *
-SCSI
+* SCSI
 
-=item *
-SMB
+* SMB
 
 Collect call/reply SRT (Service Response Time) data for SMB.  Data collected
 is the number of calls for each SMB command, MinSRT, MaxSRT and AvgSRT.
@@ -1805,156 +2050,193 @@ right mouse button (on those platforms that have a right
 mouse button) Wireshark will display a popup menu offering several different
 filter operations to apply to the capture.
 
-=item *
-SMB2
+* SMB2
+--
 
-=back
+menu:Statistics[BOOTP-DHCP]::
++
+--
 
-=item Statistics:BOOTP-DHCP
+--
 
-
-
-=item Statistics:Compare
-
+menu:Statistics[Compare]::
++
+--
 Compare two Capture Files
+--
 
-=item Statistics:Flow Graph
-
+menu:Statistics[Flow Graph]::
++
+--
 Flow Graph: General/TCP
+--
 
-=item Statistics:HTTP
-
+menu:Statistics[HTTP]::
++
+--
 HTTP Load Distribution, Packet Counter & Requests
+--
 
-=item Statistics:IP Addresses
-
+menu:Statistics[IP Addresses]::
++
+--
 Count/Rate/Percent by IP Address
+--
 
-=item Statistics:IP Destinations
-
+menu:Statistics[IP Destinations]::
++
+--
 Count/Rate/Percent by IP Address/protocol/port
+--
 
-=item Statistics:IP Protocol Types
-
+menu:Statistics[IP Protocol Types]::
++
+--
 Count/Rate/Percent by IP Protocol Types
+--
 
-=item Statistics:ONC-RPC Programs
-
+menu:Statistics[ONC-RPC Programs]::
++
+--
 This dialog will open a window showing aggregated SRT statistics for all
 ONC-RPC Programs/versions that exist in the capture file.
+--
 
-=item Statistics:TCP Stream Graph
-
+menu:Statistics[TCP Stream Graph]::
++
+--
 Graphs: Round Trip; Throughput; Time-Sequence (Stevens); Time-Sequence (tcptrace)
+--
 
-=item Statistics:UDP Multicast streams
-
+menu:Statistics[UDP Multicast streams]::
++
+--
 Multicast Streams Counts/Rates/... by Source/Destination Address/Port pairs
+--
 
-=item Statistics:WLAN Traffic
-
+menu:Statistics[WLAN Traffic]::
++
+--
 WLAN Traffic Statistics
+--
 
-=item Telephony:ITU-T H.225
-
+menu:Telephony[ITU-T H.225]::
++
+--
 Count ITU-T H.225 messages and their reasons.  In the first column you get a
 list of H.225 messages and H.225 message reasons, which occur in the current
 capture file.  The number of occurrences of each message or reason will be displayed
 in the second column.
 This window opened will update in semi-real time to reflect changes when
-doing live captures or when reading new capture files into B<Wireshark>.
+doing live captures or when reading new capture files into *Wireshark*.
 
 You can apply an optional filter string in a dialog box, before starting
 the counter.  The statistics will only be calculated
 on those calls matching that filter.
+--
 
-=item Telephony:SIP
-
+menu:Telephony[SIP]::
++
+--
 Activate a counter for SIP messages.  You will get the number of occurrences of each
 SIP Method and of each SIP Status-Code.  Additionally you also get the number of
 resent SIP Messages (only for SIP over UDP).
 
 This window opened will update in semi-real time to reflect changes when
-doing live captures or when reading new capture files into B<Wireshark>.
+doing live captures or when reading new capture files into *Wireshark*.
 
 You can apply an optional filter string in a dialog box, before starting
 the counter.  The statistics will only be calculated
 on those calls matching that filter.
+--
 
-=item Tools:Firewall ACL Rules
+menu:Tools[Firewall ACL Rules]::
++
+--
 
+--
 
-
-=item Help:Contents
-
+menu:Help[Contents]::
++
+--
 Some help texts.
+--
 
-=item Help:Supported Protocols
-
+menu:Help[Supported Protocols]::
++
+--
 List of supported protocols and display filter protocol fields.
+--
 
-=item Help:Manual Pages
-
+menu:Help[Manual Pages]::
++
+--
 Display locally installed HTML versions of these manual pages in a web browser.
+--
 
-=item Help:Wireshark Online
-
+menu:Help[Wireshark Online]::
++
+--
 Various links to online resources to be open in a web browser, like
-L<https://www.wireshark.org>.
+https://www.wireshark.org.
+--
 
-=item Help:About Wireshark
-
-See various information about Wireshark (see L</About> dialog below), like the
+menu:Help[About Wireshark]::
++
+--
+See various information about Wireshark (see /About dialog below), like the
 version, the folders used, the available plugins, ...
+--
 
-=back
+=== WINDOWS
 
-=head2 WINDOWS
-
-=over 4
-
-=item Main Window
-
+Main Window::
++
+--
 The main window contains the usual things like the menu, some toolbars, the
 main area and a statusbar.  The main area is split into three panes, you can
 resize each pane using a "thumb" at the right end of each divider line.
 
 The main window is much more flexible than before.  The layout of the main
-window can be customized by the I<Layout> page in the dialog box popped
-up by I<Edit:Preferences>, the following will describe the layout with the
+window can be customized by the __Layout__ page in the dialog box popped
+up by __Edit:Preferences__, the following will describe the layout with the
 default settings.
+--
 
-=over 6
-
-=item Main Toolbar
-
+Main Toolbar::
++
+--
 Some menu items are available for quick access here.  There is no way to
 customize the items in the toolbar, however the toolbar can be hidden by
-I<View:Main Toolbar>.
+__View:Main Toolbar__.
+--
 
-=item Filter Toolbar
-
+Filter Toolbar::
++
+--
 A display filter can be entered into the filter toolbar.
 A filter for HTTP, HTTPS, and DNS traffic might look like this:
 
   tcp.port in {80 443 53}
 
-Selecting the I<Filter:> button lets you choose from a list of named
+Selecting the __Filter:__ button lets you choose from a list of named
 filters that you can optionally save.  Pressing the Return or Enter
-keys, or selecting the I<Apply> button, will cause the filter to be
-applied to the current list of packets.  Selecting the I<Reset> button
+keys, or selecting the __Apply__ button, will cause the filter to be
+applied to the current list of packets.  Selecting the __Reset__ button
 clears the display filter so that all packets are displayed (again).
 
 There is no way to customize the items in the toolbar, however the toolbar
-can be hidden by I<View:Filter Toolbar>.
+can be hidden by __View:Filter Toolbar__.
+--
 
-=item Packet List Pane
-
+Packet List Pane::
++
+--
 The top pane contains the list of network packets that you can scroll
 through and select.  By default, the packet number, packet timestamp,
 source and destination addresses, protocol, and description are
-displayed for each packet; the I<Columns> page in the dialog box popped
-up by I<Edit:Preferences> lets you change this (although, unfortunately,
+displayed for each packet; the __Columns__ page in the dialog box popped
+up by __Edit:Preferences__ lets you change this (although, unfortunately,
 you currently have to save the preferences, and exit and restart
 Wireshark, for those changes to take effect).
 
@@ -1969,49 +2251,55 @@ MAC layer address is displayed for unknown packet types.
 The right mouse button can be used to pop up a menu of operations.
 
 The middle mouse button can be used to mark a packet.
+--
 
-=item Packet Details Pane
-
+Packet Details Pane::
++
+--
 The middle pane contains a display of the details of the
 currently-selected packet.  The display shows each field and its value
 in each protocol header in the stack.  The right mouse button can be
 used to pop up a menu of operations.
+--
 
-=item Packet Bytes Pane
-
+Packet Bytes Pane::
++
+--
 The lowest pane contains a hex and ASCII dump of the actual packet data.
 Selecting a field in the packet details highlights the corresponding
 bytes in this section.
 
 The right mouse button can be used to pop up a menu of operations.
+--
 
-=item Statusbar
-
+Statusbar::
++
+--
 The statusbar is divided into three parts, on the left some context dependent
 things are shown, like information about the loaded file, in the center the
 number of packets are displayed, and on the right the current configuration
 profile.
 
-The statusbar can be hidden by I<View:Statusbar>.
+The statusbar can be hidden by __View:Statusbar__.
+--
 
-=back
+Preferences::
++
+--
+The __Preferences__ dialog lets you control various personal preferences
+for the behavior of *Wireshark*.
+--
 
-=item Preferences
-
-The I<Preferences> dialog lets you control various personal preferences
-for the behavior of B<Wireshark>.
-
-=over 6
-
-=item User Interface Preferences
-
-The I<User Interface> page is used to modify small aspects of the GUI to
+User Interface Preferences::
++
+--
+The __User Interface__ page is used to modify small aspects of the GUI to
 your own personal taste:
+--
 
-=over 6
-
-=item Selection Bars
-
+Selection Bars::
++
+--
 The selection bar in the packet list and packet details can have either
 a "browse" or "select" behavior.  If the selection bar has a "browse"
 behavior, the arrow keys will move an outline of the selection bar,
@@ -2019,155 +2307,200 @@ allowing you to browse the rest of the list or details without changing
 the selection until you press the space bar.  If the selection bar has a
 "select" behavior, the arrow keys will move the selection bar and change
 the selection to the new item in the packet list or packet details.
+--
 
-=item Save Window Position
-
+Save Window Position::
++
+--
 If this item is selected, the position of the main Wireshark window will
 be saved when Wireshark exits, and used when Wireshark is started again.
+--
 
-=item Save Window Size
-
+Save Window Size::
++
+--
 If this item is selected, the size of the main Wireshark window will
 be saved when Wireshark exits, and used when Wireshark is started again.
+--
 
-=item Save Window Maximized state
-
+Save Window Maximized state::
++
+--
 If this item is selected the maximize state of the main Wireshark window
 will be saved when Wireshark exists, and used when Wireshark is started again.
+--
 
-=item File Open Dialog Behavior
-
+File Open Dialog Behavior::
++
+--
 This item allows the user to select how Wireshark handles the listing
 of the "File Open" Dialog when opening trace files.  "Remember Last
 Directory" causes Wireshark to automatically position the dialog in the
 directory of the most recently opened file, even between launches of Wireshark.
 "Always Open in Directory" allows the user to define a persistent directory
 that the dialog will always default to.
+--
 
-=item Directory
-
+Directory::
++
+--
 Allows the user to specify a persistent File Open directory.  Trailing
 slashes or backslashes will automatically be added.
+--
 
-=item File Open Preview timeout
-
+File Open Preview timeout::
++
+--
 This items allows the user to define how much time is spend reading the
 capture file to present preview data in the File Open dialog.
+--
 
-=item Open Recent maximum list entries
-
+Open Recent maximum list entries::
++
+--
 The File menu supports a recent file list.  This items allows the user to
 specify how many files are kept track of in this list.
+--
 
-=item Ask for unsaved capture files
-
+Ask for unsaved capture files::
++
+--
 When closing a capture file or Wireshark itself if the file isn't saved yet
 the user is presented the option to save the file when this item is set.
+--
 
-=item Wrap during find
-
+Wrap during find::
++
+--
 This items determines the behavior when reaching the beginning or the end
 of a capture file.  When set the search wraps around and continues, otherwise
 it stops.
+--
 
-=item Settings dialogs show a save button
-
+Settings dialogs show a save button::
++
+--
 This item determines if the various dialogs sport an explicit Save button
 or that save is implicit in OK / Apply.
+--
 
-=item Web browser command
-
+Web browser command::
++
+--
 This entry specifies the command line to launch a web browser.  It is used
 to access online content, like the Wiki and user guide.  Use '%s' to place
 the request URL in the command line.
+--
 
-=back
-
-=item Layout Preferences
-
-The I<Layout> page lets you specify the general layout of the main window.
+Layout Preferences::
++
+--
+The __Layout__ page lets you specify the general layout of the main window.
 You can choose from six different layouts and fill the three panes with the
 contents you like.
+--
 
-=over 6
-
-=item Scrollbars
-
+Scrollbars::
++
+--
 The vertical scrollbars in the three panes can be set to be either on
 the left or the right.
+--
 
-=item Alternating row colors
+Alternating row colors::
++
+--
+--
 
-=item Hex Display
-
+Hex Display::
++
+--
 The highlight method in the hex dump display for the selected protocol
 item can be set to use either inverse video, or bold characters.
+--
 
-=item Toolbar style
+Toolbar style::
++
+--
+--
 
-=item Filter toolbar placement
+Filter toolbar placement::
++
+--
+--
 
-=item Custom window title
+Custom window title::
++
+--
 
-=back
+--
 
-=item Column Preferences
-
-The I<Columns> page lets you specify the number, title, and format
+Column Preferences::
++
+--
+The __Columns__ page lets you specify the number, title, and format
 of each column in the packet list.
 
-The I<Column title> entry is used to specify the title of the column
+The __Column title__ entry is used to specify the title of the column
 displayed at the top of the packet list.  The type of data that the column
-displays can be specified using the I<Column format> option menu.
+displays can be specified using the __Column format__ option menu.
 The row of buttons on the left perform the following actions:
+--
 
-=over 6
-
-=item New
-
+New::
++
+--
 Adds a new column to the list.
+--
 
-=item Delete
-
+Delete::
++
+--
 Deletes the currently selected list item.
+--
 
-=item Up / Down
-
+Up / Down::
++
+--
 Moves the selected list item up or down one position.
+--
 
-=back
+Font Preferences::
++
+--
+The __Font__ page lets you select the font to be used for most text.
+--
 
-=item Font Preferences
-
-The I<Font> page lets you select the font to be used for most text.
-
-=item Color Preferences
-
-The I<Colors> page can be used to change the color of the text
+Color Preferences::
++
+--
+The __Colors__ page can be used to change the color of the text
 displayed in the TCP stream window and for marked packets.  To change a color,
 simply select an attribute from the "Set:" menu and use the color selector to
 get the desired color.  The new text colors are displayed as a sample text.
+--
 
-=item Capture Preferences
-
-The I<Capture> page lets you specify various parameters for capturing
+Capture Preferences::
++
+--
+The __Capture__ page lets you specify various parameters for capturing
 live packet data; these are used the first time a capture is started.
 
-The I<Interface:> combo box lets you specify the interface from which to
+The __Interface:__ combo box lets you specify the interface from which to
 capture packet data, or the name of a FIFO from which to get the packet
 data.
 
-The I<Data link type:> option menu lets you, for some interfaces, select
+The __Data link type:__ option menu lets you, for some interfaces, select
 the data link header you want to see on the packets you capture.  For
 example, in some OSes and with some versions of libpcap, you can choose,
 on an 802.11 interface, whether the packets should appear as Ethernet
 packets (with a fake Ethernet header) or as 802.11 packets.
 
-The I<Limit each packet to ... bytes> check box lets you set the
+The __Limit each packet to ... bytes__ check box lets you set the
 snapshot length to use when capturing live data; turn on the check box,
 and then set the number of bytes to use as the snapshot length.
 
-The I<Filter:> text entry lets you set a capture filter expression to be
+The __Filter:__ text entry lets you set a capture filter expression to be
 used when capturing.
 
 If any of the environment variables SSH_CONNECTION, SSH_CLIENT,
@@ -2175,169 +2508,208 @@ REMOTEHOST, DISPLAY, or SESSIONNAME are set, Wireshark will create a
 default capture filter that excludes traffic from the hosts and ports
 defined in those variables.
 
-The I<Capture packets in promiscuous mode> check box lets you specify
+The __Capture packets in promiscuous mode__ check box lets you specify
 whether to put the interface in promiscuous mode when capturing.
 
-The I<Update list of packets in real time> check box lets you specify
+The __Update list of packets in real time__ check box lets you specify
 that the display should be updated as packets are seen.
 
-The I<Automatic scrolling in live capture> check box lets you specify
+The __Automatic scrolling in live capture__ check box lets you specify
 whether, in an "Update list of packets in real time" capture, the packet
 list pane should automatically scroll to show the most recently captured
 packets.
+--
 
-=item Printing Preferences
-
-The radio buttons at the top of the I<Printing> page allow you choose
-between printing packets with the I<File:Print Packet> menu item as text
+Printing Preferences::
++
+--
+The radio buttons at the top of the __Printing__ page allow you choose
+between printing packets with the __File:Print Packet__ menu item as text
 or PostScript, and sending the output directly to a command or saving it
-to a file.  The I<Command:> text entry box, on UNIX-compatible systems,
-is the command to send files to (usually B<lpr>), and the I<File:> entry
+to a file.  The __Command:__ text entry box, on UNIX-compatible systems,
+is the command to send files to (usually *lpr*), and the __File:__ entry
 box lets you enter the name of the file you wish to save to.
-Additionally, you can select the I<File:> button to browse the file
+Additionally, you can select the __File:__ button to browse the file
 system for a particular save file.
+--
 
-=item Name Resolution Preferences
-
-The I<Enable MAC name resolution>, I<Enable network name resolution> and
-I<Enable transport name resolution> check boxes let you specify whether
+Name Resolution Preferences::
++
+--
+The __Enable MAC name resolution__, __Enable network name resolution__ and
+__Enable transport name resolution__ check boxes let you specify whether
 MAC addresses, network addresses, and transport-layer port numbers
 should be translated to names.
 
-The I<Enable concurrent DNS name resolution> allows Wireshark to send out
+The __Enable concurrent DNS name resolution__ allows Wireshark to send out
 multiple name resolution requests and not wait for the result before
 continuing dissection.  This speeds up dissection with network name
 resolution but initially may miss resolutions.  The number of concurrent
 requests can be set here as well.
 
-I<SMI paths>
+__SMI paths__
 
-I<SMI modules>
+__SMI modules__
+--
 
-=item RTP Player Preferences
-
+RTP Player Preferences::
++
+--
 This page allows you to select the number of channels visible in the
 RTP player window.  It determines the height of the window, more channels
 are possible and visible by means of a scroll bar.
+--
 
-=item Protocol Preferences
-
+Protocol Preferences::
++
+--
 There are also pages for various protocols that Wireshark dissects,
 controlling the way Wireshark handles those protocols.
+--
 
-=back
+Edit Capture Filter List::
++
+--
+--
 
-=item Edit Capture Filter List
+Edit Display Filter List::
++
+--
+--
 
-=item Edit Display Filter List
+Capture Filter::
++
+--
+--
 
-=item Capture Filter
+Display Filter::
++
+--
+--
 
-=item Display Filter
+Read Filter::
++
+--
+--
 
-=item Read Filter
-
-=item Search Filter
-
-The I<Edit Capture Filter List> dialog lets you create, modify, and
-delete capture filters, and the I<Edit Display Filter List> dialog lets
+Search Filter::
++
+--
+The __Edit Capture Filter List__ dialog lets you create, modify, and
+delete capture filters, and the __Edit Display Filter List__ dialog lets
 you create, modify, and delete display filters.
 
-The I<Capture Filter> dialog lets you do all of the editing operations
+The __Capture Filter__ dialog lets you do all of the editing operations
 listed, and also lets you choose or construct a filter to be used when
 capturing packets.
 
-The I<Display Filter> dialog lets you do all of the editing operations
+The __Display Filter__ dialog lets you do all of the editing operations
 listed, and also lets you choose or construct a filter to be used to
 filter the current capture being viewed.
 
-The I<Read Filter> dialog lets you do all of the editing operations
+The __Read Filter__ dialog lets you do all of the editing operations
 listed, and also lets you choose or construct a filter to be used to
 as a read filter for a capture file you open.
 
-The I<Search Filter> dialog lets you do all of the editing operations
+The __Search Filter__ dialog lets you do all of the editing operations
 listed, and also lets you choose or construct a filter expression to be
 used in a find operation.
 
-In all of those dialogs, the I<Filter name> entry specifies a
-descriptive name for a filter, e.g.  B<Web and DNS traffic>.  The
-I<Filter string> entry is the text that actually describes the filtering
+In all of those dialogs, the __Filter name__ entry specifies a
+descriptive name for a filter, e.g.  *Web and DNS traffic*.  The
+__Filter string__ entry is the text that actually describes the filtering
 action to take, as described above.The dialog buttons perform the
 following actions:
+--
 
-=over 6
-
-=item New
-
+New::
++
+--
 If there is text in the two entry boxes, creates a new associated list
 item.
+--
 
-=item Edit
-
+Edit::
++
+--
 Modifies the currently selected list item to match what's in the entry
 boxes.
+--
 
-=item Delete
-
+Delete::
++
+--
 Deletes the currently selected list item.
+--
 
-=item Add Expression...
-
+Add Expression...::
++
+--
 For display filter expressions, pops up a dialog box to allow you to
 construct a filter expression to test a particular field; it offers
 lists of field names, and, when appropriate, lists from which to select
 tests to perform on the field and values with which to compare it.  In
 that dialog box, the OK button will cause the filter expression you
-constructed to be entered into the I<Filter string> entry at the current
+constructed to be entered into the __Filter string__ entry at the current
 cursor position.
+--
 
-=item OK
-
-In the I<Capture Filter> dialog, closes the dialog box and makes the
-filter in the I<Filter string> entry the filter in the I<Capture
-Preferences> dialog.  In the I<Display Filter> dialog, closes the dialog
-box and makes the filter in the I<Filter string> entry the current
-display filter, and applies it to the current capture.  In the I<Read
-Filter> dialog, closes the dialog box and makes the filter in the
-I<Filter string> entry the filter in the I<Open Capture File> dialog.
-In the I<Search Filter> dialog, closes the dialog box and makes the
-filter in the I<Filter string> entry the filter in the I<Find Packet>
+OK::
++
+--
+In the __Capture Filter__ dialog, closes the dialog box and makes the
+filter in the __Filter string__ entry the filter in the __Capture
+ Preferences__ dialog.  In the __Display Filter__ dialog, closes the dialog
+box and makes the filter in the __Filter string__ entry the current
+display filter, and applies it to the current capture.  In the __Read
+ Filter__ dialog, closes the dialog box and makes the filter in the
+__Filter string__ entry the filter in the __Open Capture File__ dialog.
+In the __Search Filter__ dialog, closes the dialog box and makes the
+filter in the __Filter string__ entry the filter in the __Find Packet__
 dialog.
+--
 
-=item Apply
-
-Makes the filter in the I<Filter string> entry the current display
+Apply::
++
+--
+Makes the filter in the __Filter string__ entry the current display
 filter, and applies it to the current capture.
+--
 
-=item Save
-
+Save::
++
+--
 If the list of filters being edited is the list of
 capture filters, saves the current filter list to the personal capture
 filters file, and if the list of filters being edited is the list of
 display filters, saves the current filter list to the personal display
 filters file.
+--
 
-=item Close
+Close::
++
+--
+Closes the dialog without doing anything with the filter in the __Filter
+ string__ entry.
+--
 
-Closes the dialog without doing anything with the filter in the I<Filter
-string> entry.
-
-=back
-
-=item The Color Filters Dialog
-
+The Color Filters Dialog::
++
+--
 This dialog displays a list of color filters and allows it to be
 modified.
+--
 
-=over
-
-=item THE FILTER LIST
-
+THE FILTER LIST::
++
+--
 Single rows may be selected by clicking.  Multiple rows may be selected
 by using the ctrl and shift keys in combination with the mouse button.
+--
 
-=item NEW
-
+NEW::
++
+--
 Adds a new filter at the bottom of the list and opens the Edit Color
 Filter dialog box.  You will have to alter the filter expression at
 least before the filter will be accepted.  The format of color filter
@@ -2345,136 +2717,162 @@ expressions is identical to that of display filters.  The new filter is
 selected, so it may immediately be moved up and down, deleted or edited.
 To avoid confusion all filters are unselected before the new filter is
 created.
+--
 
-=item EDIT
-
+EDIT::
++
+--
 Opens the Edit Color Filter dialog box for the selected filter. (If this
 button is disabled you may have more than one filter selected, making it
 ambiguous which is to be edited.)
+--
 
-=item ENABLE
-
+ENABLE::
++
+--
 Enables the selected color filter(s).
+--
 
-=item DISABLE
-
+DISABLE::
++
+--
 Disables the selected color filter(s).
+--
 
-=item DELETE
-
+DELETE::
++
+--
 Deletes the selected color filter(s).
+--
 
-=item EXPORT
-
+EXPORT::
++
+--
 Allows you to choose a file in which to save the current list of color
 filters.  You may also choose to save only the selected filters.  A
 button is provided to save the filters in the global color filters file
 (you must have sufficient permissions to write this file, of course).
+--
 
-=item IMPORT
-
+IMPORT::
++
+--
 Allows you to choose a file containing color filters which are then
 added to the bottom of the current list.  All the added filters are
 selected, so they may be moved to the correct position in the list as a
 group.  To avoid confusion, all filters are unselected before the new
 filters are imported.  A button is provided to load the filters from the
 global color filters file.
+--
 
-=item CLEAR
-
+CLEAR::
++
+--
 Deletes your personal color filters file, reloads the global
 color filters file, if any, and closes the dialog.
+--
 
-=item UP
-
+UP::
++
+--
 Moves the selected filter(s) up the list, making it more likely that
 they will be used to color packets.
+--
 
-=item DOWN
-
+DOWN::
++
+--
 Moves the selected filter(s) down the list, making it less likely that
 they will be used to color packets.
+--
 
-=item OK
-
+OK::
++
+--
 Closes the dialog and uses the color filters as they stand.
+--
 
-=item APPLY
-
+APPLY::
++
+--
 Colors the packets according to the current list of color filters, but
 does not close the dialog.
+--
 
-=item SAVE
-
+SAVE::
++
+--
 Saves the current list of color filters in your personal color filters
 file.  Unless you do this they will not be used the next time you start
 Wireshark.
+--
 
-=item CLOSE
-
+CLOSE::
++
+--
 Closes the dialog without changing the coloration of the packets.  Note
 that changes you have made to the current list of color filters are not
 undone.
+--
 
-=back
-
-=item Capture Options Dialog
-
-The I<Capture Options Dialog> lets you specify various parameters for
+Capture Options Dialog::
++
+--
+The __Capture Options Dialog__ lets you specify various parameters for
 capturing live packet data.
 
-The I<Interface:> field lets you specify the interface from which to
+The __Interface:__ field lets you specify the interface from which to
 capture packet data or a command from which to get the packet data via a
 pipe.
 
-The I<Link layer header type:> field lets you specify the interfaces link
+The __Link layer header type:__ field lets you specify the interfaces link
 layer header type.  This field is usually disabled, as most interface have
 only one header type.
 
-The I<Capture packets in promiscuous mode> check box lets you specify
+The __Capture packets in promiscuous mode__ check box lets you specify
 whether the interface should be put into promiscuous mode when
 capturing.
 
-The I<Limit each packet to ... bytes> check box and field lets you
+The __Limit each packet to ... bytes__ check box and field lets you
 specify a maximum number of bytes per packet to capture and save; if the
 check box is not checked, the limit will be 262144 bytes.
 
-The I<Capture Filter:> entry lets you specify the capture filter using a
+The __Capture Filter:__ entry lets you specify the capture filter using a
 tcpdump-style filter string as described above.
 
-The I<File:> entry lets you specify the file into which captured packets
-should be saved, as in the I<Printer Options> dialog above.  If not
+The __File:__ entry lets you specify the file into which captured packets
+should be saved, as in the __Printer Options__ dialog above.  If not
 specified, the captured packets will be saved in a temporary file; you
-can save those packets to a file with the I<File:Save As> menu item.
+can save those packets to a file with the __File:Save As__ menu item.
 
-The I<Use multiple files> check box lets you specify that the capture
+The __Use multiple files__ check box lets you specify that the capture
 should be done in "multiple files" mode.  This option is disabled, if the
-I<Update list of packets in real time> option is checked.
+__Update list of packets in real time__ option is checked.
 
-The I<Next file every ...  megabyte(s)> check box and fields lets
+The __Next file every ...  megabyte(s)__ check box and fields lets
 you specify that a switch to a next file should be done
 if the specified filesize is reached.  You can also select the appropriate
 unit, but beware that the filesize has a maximum of 2 GiB.
 The check box is forced to be checked, as "multiple files" mode requires a
 file size to be specified.
 
-The I<Next file every ... minute(s)> check box and fields lets
+The __Next file every ... minute(s)__ check box and fields lets
 you specify that the switch to a next file should be done after the specified
 time has elapsed, even if the specified capture size is not reached.
 
-The I<Ring buffer with ... files> field lets you specify the number
+The __Ring buffer with ... files__ field lets you specify the number
 of files of a ring buffer.  This feature will capture into the first file
 again, after the specified number of files have been used.
 
-The I<Stop capture after ... files> field lets you specify the number
+The __Stop capture after ... files__ field lets you specify the number
 of capture files used, until the capture is stopped.
 
-The I<Stop capture after ... packet(s)> check box and field let
+The __Stop capture after ... packet(s)__ check box and field let
 you specify that Wireshark should stop capturing after having captured
 some number of packets; if the check box is not checked, Wireshark will
 not stop capturing at some fixed number of captured packets.
 
-The I<Stop capture after ... megabyte(s)> check box and field lets
+The __Stop capture after ... megabyte(s)__ check box and field lets
 you specify that Wireshark should stop capturing after the file to which
 captured packets are being saved grows as large as or larger than some
 specified number of megabytes.  If the check box is not checked, Wireshark
@@ -2483,145 +2881,157 @@ system on which Wireshark is running, or the available disk space, may still
 limit the maximum size of a capture file).  This option is disabled, if
 "multiple files" mode is used,
 
-The I<Stop capture after ...  second(s)> check box and field let you
+The __Stop capture after ...  second(s)__ check box and field let you
 specify that Wireshark should stop capturing after it has been capturing
 for some number of seconds; if the check box is not checked, Wireshark
 will not stop capturing after some fixed time has elapsed.
 
-The I<Update list of packets in real time> check box lets you specify
+The __Update list of packets in real time__ check box lets you specify
 whether the display should be updated as packets are captured and, if
-you specify that, the I<Automatic scrolling in live capture> check box
+you specify that, the __Automatic scrolling in live capture__ check box
 lets you specify the packet list pane should automatically scroll to
 show the most recently captured packets as new packets arrive.
 
-The I<Enable MAC name resolution>, I<Enable network name resolution> and
-I<Enable transport name resolution> check boxes let you specify whether
+The __Enable MAC name resolution__, __Enable network name resolution__ and
+__Enable transport name resolution__ check boxes let you specify whether
 MAC addresses, network addresses, and transport-layer port numbers
 should be translated to names.
+--
 
-=item About
+About::
++
+--
+The __About__ dialog lets you view various information about Wireshark.
+--
 
-The I<About> dialog lets you view various information about Wireshark.
-
-=item About:Wireshark
-
-The I<Wireshark> page lets you view general information about Wireshark,
+menu:About[Wireshark]::
++
+--
+The __Wireshark__ page lets you view general information about Wireshark,
 like the installed version, licensing information and such.
+--
 
-=item About:Authors
+menu:About[Authors]::
++
+--
+The __Authors__ page shows the author and all contributors.
+--
 
-The I<Authors> page shows the author and all contributors.
-
-=item About:Folders
-
-The I<Folders> page lets you view the directory names where Wireshark is
+menu:About[Folders]::
++
+--
+The __Folders__ page lets you view the directory names where Wireshark is
 searching it's various configuration and other files.
+--
 
-=item About:Plugins
-
-The I<Plugins> page lets you view the dissector plugin modules
+menu:About[Plugins]::
++
+--
+The __Plugins__ page lets you view the dissector plugin modules
 available on your system.
 
-The I<Plugins List> shows the name and version of each dissector plugin
+The __Plugins List__ shows the name and version of each dissector plugin
 module found on your system.
 
 On Unix-compatible systems, the plugins are looked for in the following
-directories: the F<lib/wireshark/plugins/$VERSION> directory under the
+directories: the __lib/wireshark/plugins/$VERSION__ directory under the
 main installation directory (for example,
-F</usr/local/lib/wireshark/plugins/$VERSION>), and then
-F<$HOME/.wireshark/plugins>.
+__/usr/local/lib/wireshark/plugins/$VERSION__), and then
+__$HOME/.wireshark/plugins__.
 
 On Windows systems, the plugins are looked for in the following
-directories: F<plugins\$VERSION> directory under the main installation
-directory (for example, F<C:\Program Files\Wireshark\plugins\$VERSION>),
-and then F<%APPDATA%\Wireshark\plugins\$VERSION> (or, if %APPDATA% isn't
-defined, F<%USERPROFILE%\Application Data\Wireshark\plugins\$VERSION>).
+directories: __plugins\$VERSION__ directory under the main installation
+directory (for example, __C:\Program Files\Wireshark\plugins\$VERSION__),
+and then __%APPDATA%\Wireshark\plugins\$VERSION__ (or, if %APPDATA% isn't
+defined, __%USERPROFILE%\Application Data\Wireshark\plugins\$VERSION__).
 
 $VERSION is the version number of the plugin interface, which
 is typically the version number of Wireshark.  Note that a dissector
 plugin module may support more than one protocol; there is not
 necessarily a one-to-one correspondence between dissector plugin modules
 and protocols.  Protocols supported by a dissector plugin module are
-enabled and disabled using the I<Edit:Protocols> dialog box, just as
+enabled and disabled using the __Edit:Protocols__ dialog box, just as
 protocols built into Wireshark are.
+--
 
-=back
+== CAPTURE FILTER SYNTAX
 
-=head1 CAPTURE FILTER SYNTAX
+See the manual page of xref:https://www.tcpdump.org/manpages/pcap-filter.7.html[pcap-filter](7) or, if that doesn't exist, xref:https://www.tcpdump.org/manpages/tcpdump.1.html[tcpdump](8),
+or, if that doesn't exist, https://gitlab.com/wireshark/wireshark/-/wikis/CaptureFilters.
 
-See the manual page of pcap-filter(7) or, if that doesn't exist, tcpdump(8),
-or, if that doesn't exist, L<https://gitlab.com/wireshark/wireshark/-/wikis/CaptureFilters>.
-
-=head1 DISPLAY FILTER SYNTAX
+== DISPLAY FILTER SYNTAX
 
 For a complete table of protocol and protocol fields that are filterable
-in B<Wireshark> see the wireshark-filter(4) manual page.
+in *Wireshark* see the xref:wireshark-filter.html[wireshark-filter](4) manual page.
 
-=head1 FILES
+== FILES
 
-These files contains various B<Wireshark> configuration settings.
+These files contains various *Wireshark* configuration settings.
 
-=over 4
-
-=item Preferences
-
-The F<preferences> files contain global (system-wide) and personal
+Preferences::
++
+--
+The __preferences__ files contain global (system-wide) and personal
 preference settings.  If the system-wide preference file exists, it is
 read first, overriding the default settings.  If the personal preferences
 file exists, it is read next, overriding any previous values.  Note: If
-the command line flag B<-o> is used (possibly more than once), it will
+the command line flag *-o* is used (possibly more than once), it will
 in turn override values from the preferences files.
 
-The preferences settings are in the form I<prefname:value>,
+The preferences settings are in the form __prefname:value__,
 one per line,
-where I<prefname> is the name of the preference
-and I<value> is the value to
-which it should be set; white space is allowed between B<:> and
-I<value>.  A preference setting can be continued on subsequent lines by
-indenting the continuation lines with white space.  A B<#> character
+where __prefname__ is the name of the preference
+and __value__ is the value to
+which it should be set; white space is allowed between *:* and
+__value__.  A preference setting can be continued on subsequent lines by
+indenting the continuation lines with white space.  A *#* character
 starts a comment that runs to the end of the line:
 
   # Vertical scrollbars should be on right side?
   # TRUE or FALSE (case-insensitive).
   gui.scrollbar_on_right: TRUE
 
-The global preferences file is looked for in the F<wireshark> directory
-under the F<share> subdirectory of the main installation directory (for
-example, F</usr/local/share/wireshark/preferences>) on UNIX-compatible
+The global preferences file is looked for in the __wireshark__ directory
+under the __share__ subdirectory of the main installation directory (for
+example, __/usr/local/share/wireshark/preferences__) on UNIX-compatible
 systems, and in the main installation directory (for example,
-F<C:\Program Files\Wireshark\preferences>) on Windows systems.
+__C:\Program Files\Wireshark\preferences__) on Windows systems.
 
 The personal preferences file is looked for in
-F<$XDG_CONFIG_HOME/wireshark/preferences>
-(or, if F<$XDG_CONFIG_HOME/wireshark> does not exist while F<$HOME/.wireshark>
-is present, F<$HOME/.wireshark/preferences>) on
-UNIX-compatible systems and F<%APPDATA%\Wireshark\preferences> (or, if
-%APPDATA% isn't defined, F<%USERPROFILE%\Application
-Data\Wireshark\preferences>) on Windows systems.
+__$XDG_CONFIG_HOME/wireshark/preferences__
+(or, if __$XDG_CONFIG_HOME/wireshark__ does not exist while __$HOME/.wireshark__
+is present, __$HOME/.wireshark/preferences__) on
+UNIX-compatible systems and __%APPDATA%\Wireshark\preferences__ (or, if
+%APPDATA% isn't defined, __%USERPROFILE%\Application
+ Data\Wireshark\preferences__) on Windows systems.
 
-Note: Whenever the preferences are saved by using the I<Save> button
-in the I<Edit:Preferences> dialog box, your personal preferences file
+Note: Whenever the preferences are saved by using the __Save__ button
+in the __Edit:Preferences__ dialog box, your personal preferences file
 will be overwritten with the new settings, destroying any comments and
 unknown/obsolete settings that were in the file.
+--
 
-=item Recent
-
-The F<recent> file contains personal settings (mostly GUI related) such
-as the current B<Wireshark> window size.  The file is saved at program exit and
-read in at program start automatically.  Note: The command line flag B<-o>
+Recent::
++
+--
+The __recent__ file contains personal settings (mostly GUI related) such
+as the current *Wireshark* window size.  The file is saved at program exit and
+read in at program start automatically.  Note: The command line flag *-o*
 may be used to override settings from this file.
 
-The settings in this file have the same format as in the F<preferences>
+The settings in this file have the same format as in the __preferences__
 files, and the same directory as for the personal preferences file is
 used.
 
 Note: Whenever Wireshark is closed, your recent file
 will be overwritten with the new settings, destroying any comments and
 unknown/obsolete settings that were in the file.
+--
 
-=item Disabled (Enabled) Protocols
-
-The F<disabled_protos> files contain system-wide and personal lists of
+Disabled (Enabled) Protocols::
++
+--
+The __disabled_protos__ files contain system-wide and personal lists of
 protocols that have been disabled, so that their dissectors are never
 called.  The files contain protocol names, one per line, where the
 protocol name is the same name that would be used in a display filter
@@ -2630,38 +3040,42 @@ for the protocol:
   http
   tcp     # a comment
 
-If a protocol is listed in the global F<disabled_protos> file, it is not
-displayed in the I<Analyze:Enabled Protocols> dialog box, and so cannot
+If a protocol is listed in the global __disabled_protos__ file, it is not
+displayed in the __Analyze:Enabled Protocols__ dialog box, and so cannot
 be enabled by the user.
 
-The global F<disabled_protos> file uses the same directory as the global
+The global __disabled_protos__ file uses the same directory as the global
 preferences file.
 
-The personal F<disabled_protos> file uses the same directory as the
+The personal __disabled_protos__ file uses the same directory as the
 personal preferences file.
 
-Note: Whenever the disabled protocols list is saved by using the I<Save>
-button in the I<Analyze:Enabled Protocols> dialog box, your personal
+Note: Whenever the disabled protocols list is saved by using the __Save__
+button in the __Analyze:Enabled Protocols__ dialog box, your personal
 disabled protocols file will be overwritten with the new settings,
 destroying any comments that were in the file.
+--
 
-=item Name Resolution (hosts)
-
-If the personal F<hosts> file exists, it is
+Name Resolution (hosts)::
++
+--
+If the personal __hosts__ file exists, it is
 used to resolve IPv4 and IPv6 addresses before any other
-attempts are made to resolve them.  The file has the standard F<hosts>
+attempts are made to resolve them.  The file has the standard __hosts__
 file syntax; each line contains one IP address and name, separated by
 whitespace.  The same directory as for the personal preferences file is used.
 
 Capture filter name resolution is handled by libpcap on UNIX-compatible
-systems and WinPcap on Windows.  As such the Wireshark personal F<hosts> file
+systems and WinPcap on Windows.  As such the Wireshark personal __hosts__ file
 will not be consulted for capture filter name resolution.
+--
 
-=item Name Resolution (subnets)
-
+Name Resolution (subnets)::
++
+--
 If an IPv4 address cannot be translated via name resolution (no exact
-match is found) then a partial match is attempted via the F<subnets> file.
-Both the global F<subnets> file and personal F<subnets> files are used
+match is found) then a partial match is attempted via the __subnets__ file.
+Both the global __subnets__ file and personal __subnets__ files are used
 if they exist.
 
 Each line of this file consists of an IPv4 address, a subnet mask length
@@ -2678,40 +3092,44 @@ A partially matched name will be printed as "subnet-name.remaining-address".
 For example, "192.168.0.1" under the subnet above would be printed as
 "ws_test_network.1"; if the mask length above had been 16 rather than 24, the
 printed address would be "ws_test_network.0.1".
+--
 
-=item Name Resolution (ethers)
-
-The F<ethers> files are consulted to correlate 6-byte hardware addresses to
-names.  First the personal F<ethers> file is tried and if an address is not
-found there the global F<ethers> file is tried next.
+Name Resolution (ethers)::
++
+--
+The __ethers__ files are consulted to correlate 6-byte hardware addresses to
+names.  First the personal __ethers__ file is tried and if an address is not
+found there the global __ethers__ file is tried next.
 
 Each line contains one hardware address and name, separated by
 whitespace.  The digits of the hardware address are separated by colons
 (:), dashes (-) or periods (.).  The same separator character must be
 used consistently in an address.  The following three lines are valid
-lines of an F<ethers> file:
+lines of an __ethers__ file:
 
   ff:ff:ff:ff:ff:ff          Broadcast
   c0-00-ff-ff-ff-ff          TR_broadcast
   00.00.00.00.00.00          Zero_broadcast
 
-The global F<ethers> file is looked for in the F</etc> directory on
+The global __ethers__ file is looked for in the __/etc__ directory on
 UNIX-compatible systems, and in the main installation directory (for
-example, F<C:\Program Files\Wireshark>) on Windows systems.
+example, __C:\Program Files\Wireshark__) on Windows systems.
 
-The personal F<ethers> file is looked for in the same directory as the personal
+The personal __ethers__ file is looked for in the same directory as the personal
 preferences file.
 
 Capture filter name resolution is handled by libpcap on UNIX-compatible
-systems and WinPcap on Windows.  As such the Wireshark personal F<ethers> file
+systems and WinPcap on Windows.  As such the Wireshark personal __ethers__ file
 will not be consulted for capture filter name resolution.
+--
 
-=item Name Resolution (manuf)
-
-The F<manuf> file is used to match the 3-byte vendor portion of a 6-byte
+Name Resolution (manuf)::
++
+--
+The __manuf__ file is used to match the 3-byte vendor portion of a 6-byte
 hardware address with the manufacturer's name; it can also contain well-known
 MAC addresses and address ranges specified with a netmask.  The format of the
-file is the same as the F<ethers> files, except that entries such as:
+file is the same as the __ethers__ files, except that entries such as:
 
   00:00:0C      Cisco
 
@@ -2726,16 +3144,18 @@ significant bits, or 5 bytes, and would match addresses from
 00-00-0C-07-AC-00 through 00-00-0C-07-AC-FF.  The mask need not be a
 multiple of 8.
 
-The F<manuf> file is looked for in the same directory as the global
+The __manuf__ file is looked for in the same directory as the global
 preferences file.
+--
 
-=item Name Resolution (services)
-
-The F<services> file is used to translate port numbers into names.
-Both the global F<services> file and personal F<services> files are used
+Name Resolution (services)::
++
+--
+The __services__ file is used to translate port numbers into names.
+Both the global __services__ file and personal __services__ files are used
 if they exist.
 
-The file has the standard F<services> file syntax; each line contains one
+The file has the standard __services__ file syntax; each line contains one
 (service) name and one transport identifier separated by white space.  The
 transport identifier includes one port number and one transport protocol name
 (typically tcp, udp, or sctp) separated by a /.
@@ -2744,74 +3164,82 @@ An example is:
 
 mydns       5045/udp     # My own Domain Name Server
 mydns       5045/tcp     # My own Domain Name Server
+--
 
-=item Name Resolution (ipxnets)
-
-The F<ipxnets> files are used to correlate 4-byte IPX network numbers to
-names.  First the global F<ipxnets> file is tried and if that address is not
+Name Resolution (ipxnets)::
++
+--
+The __ipxnets__ files are used to correlate 4-byte IPX network numbers to
+names.  First the global __ipxnets__ file is tried and if that address is not
 found there the personal one is tried next.
 
-The format is the same as the F<ethers>
+The format is the same as the __ethers__
 file, except that each address is four bytes instead of six.
 Additionally, the address can be represented as a single hexadecimal
 number, as is more common in the IPX world, rather than four hex octets.
-For example, these four lines are valid lines of an F<ipxnets> file:
+For example, these four lines are valid lines of an __ipxnets__ file:
 
   C0.A8.2C.00              HR
   c0-a8-1c-00              CEO
   00:00:BE:EF              IT_Server1
   110f                     FileServer3
 
-The global F<ipxnets> file is looked for in the F</etc> directory on
+The global __ipxnets__ file is looked for in the __/etc__ directory on
 UNIX-compatible systems, and in the main installation directory (for
-example, F<C:\Program Files\Wireshark>) on Windows systems.
+example, __C:\Program Files\Wireshark__) on Windows systems.
 
-The personal F<ipxnets> file is looked for in the same directory as the
+The personal __ipxnets__ file is looked for in the same directory as the
 personal preferences file.
+--
 
-=item Capture Filters
-
-The F<cfilters> files contain system-wide and personal capture filters.
+Capture Filters::
++
+--
+The __cfilters__ files contain system-wide and personal capture filters.
 Each line contains one filter, starting with the string displayed in the
 dialog box in quotation marks, followed by the filter string itself:
 
   "HTTP" port 80
   "DCERPC" port 135
 
-The global F<cfilters> file uses the same directory as the
+The global __cfilters__ file uses the same directory as the
 global preferences file.
 
-The personal F<cfilters> file uses the same directory as the personal
+The personal __cfilters__ file uses the same directory as the personal
 preferences file.  It is written through the Capture:Capture Filters
 dialog.
 
-If the global F<cfilters> file exists, it is used only if the personal
-F<cfilters> file does not exist; global and personal capture filters are
+If the global __cfilters__ file exists, it is used only if the personal
+__cfilters__ file does not exist; global and personal capture filters are
 not merged.
+--
 
-=item Display Filters
-
-The F<dfilters> files contain system-wide and personal display filters.
+Display Filters::
++
+--
+The __dfilters__ files contain system-wide and personal display filters.
 Each line contains one filter, starting with the string displayed in the
 dialog box in quotation marks, followed by the filter string itself:
 
   "HTTP" http
   "DCERPC" dcerpc
 
-The global F<dfilters> file uses the same directory as the
+The global __dfilters__ file uses the same directory as the
 global preferences file.
 
-The personal F<dfilters> file uses the same directory as the
+The personal __dfilters__ file uses the same directory as the
 personal preferences file.  It is written through the Analyze:Display
 Filters dialog.
 
-If the global F<dfilters> file exists, it is used only if the personal
-F<dfilters> file does not exist; global and personal display filters are
+If the global __dfilters__ file exists, it is used only if the personal
+__dfilters__ file does not exist; global and personal display filters are
 not merged.
+--
 
-=item Color Filters (Coloring Rules)
-
-The F<colorfilters> files contain system-wide and personal color filters.
+Color Filters (Coloring Rules)::
++
+--
+The __colorfilters__ files contain system-wide and personal color filters.
 Each line contains one filter, starting with the string displayed in the
 dialog box, followed by the corresponding display filter.  Then the
 background and foreground colors are appended:
@@ -2820,148 +3248,173 @@ background and foreground colors are appended:
   @tcp@tcp@[59345,58980,65534][0,0,0]
   @udp@udp@[28834,57427,65533][0,0,0]
 
-The global F<colorfilters> file uses the same directory as the
+The global __colorfilters__ file uses the same directory as the
 global preferences file.
 
-The personal F<colorfilters> file uses the same directory as the
+The personal __colorfilters__ file uses the same directory as the
 personal preferences file.  It is written through the View:Coloring Rules
 dialog.
 
-If the global F<colorfilters> file exists, it is used only if the personal
-F<colorfilters> file does not exist; global and personal color filters are
+If the global __colorfilters__ file exists, it is used only if the personal
+__colorfilters__ file does not exist; global and personal color filters are
 not merged.
+--
 
-=item Plugins
-
+Plugins::
++
+--
 See above in the description of the About:Plugins page.
+--
 
-=back
+== ENVIRONMENT VARIABLES
 
-=head1 ENVIRONMENT VARIABLES
-
-=over 4
-
-=item WIRESHARK_CONFIG_DIR
-
+WIRESHARK_CONFIG_DIR::
++
+--
 This environment variable overrides the location of personal configuration
-files. It defaults to F<$XDG_CONFIG_HOME/wireshark> (or F<$HOME/.wireshark> if
+files. It defaults to __$XDG_CONFIG_HOME/wireshark__ (or __$HOME/.wireshark__ if
 the former is missing while the latter exists). On Windows,
-F<%APPDATA%\Wireshark> is used instead. Available since Wireshark 3.0.
+__%APPDATA%\Wireshark__ is used instead. Available since Wireshark 3.0.
+--
 
-=item WIRESHARK_DEBUG_WMEM_OVERRIDE
-
+WIRESHARK_DEBUG_WMEM_OVERRIDE::
++
+--
 Setting this environment variable forces the wmem framework to use the
 specified allocator backend for *all* allocations, regardless of which
 backend is normally specified by the code. This is mainly useful to developers
-when testing or debugging. See I<README.wmem> in the source distribution for
+when testing or debugging. See __README.wmem__ in the source distribution for
 details.
+--
 
-=item WIRESHARK_RUN_FROM_BUILD_DIRECTORY
-
+WIRESHARK_RUN_FROM_BUILD_DIRECTORY::
++
+--
 This environment variable causes the plugins and other data files to be loaded
 from the build directory (where the program was compiled) rather than from the
 standard locations.  It has no effect when the program in question is running
 with root (or setuid) permissions on *NIX.
+--
 
-=item WIRESHARK_DATA_DIR
-
+WIRESHARK_DATA_DIR::
++
+--
 This environment variable causes the various data files to be loaded from
 a directory other than the standard locations.  It has no effect when the
 program in question is running with root (or setuid) permissions on *NIX.
+--
 
-=item ERF_RECORDS_TO_CHECK
-
+ERF_RECORDS_TO_CHECK::
++
+--
 This environment variable controls the number of ERF records checked when
 deciding if a file really is in the ERF format.  Setting this environment
 variable a number higher than the default (20) would make false positives
 less likely.
+--
 
-=item IPFIX_RECORDS_TO_CHECK
-
+IPFIX_RECORDS_TO_CHECK::
++
+--
 This environment variable controls the number of IPFIX records checked when
 deciding if a file really is in the IPFIX format.  Setting this environment
 variable a number higher than the default (20) would make false positives
 less likely.
+--
 
-=item WIRESHARK_ABORT_ON_DISSECTOR_BUG
-
-If this environment variable is set, B<Wireshark> will call abort(3)
+WIRESHARK_ABORT_ON_DISSECTOR_BUG::
++
+--
+If this environment variable is set, *Wireshark* will call abort(3)
 when a dissector bug is encountered.  abort(3) will cause the program to
-exit abnormally; if you are running B<Wireshark> in a debugger, it
+exit abnormally; if you are running *Wireshark* in a debugger, it
 should halt in the debugger and allow inspection of the process, and, if
 you are not running it in a debugger, it will, on some OSes, assuming
 your environment is configured correctly, generate a core dump file.
 This can be useful to developers attempting to troubleshoot a problem
 with a protocol dissector.
+--
 
-=item WIRESHARK_ABORT_ON_TOO_MANY_ITEMS
-
-If this environment variable is set, B<Wireshark> will call abort(3)
+WIRESHARK_ABORT_ON_TOO_MANY_ITEMS::
++
+--
+If this environment variable is set, *Wireshark* will call abort(3)
 if a dissector tries to add too many items to a tree (generally this
 is an indication of the dissector not breaking out of a loop soon enough).
 abort(3) will cause the program to exit abnormally; if you are running
-B<Wireshark> in a debugger, it should halt in the debugger and allow
+*Wireshark* in a debugger, it should halt in the debugger and allow
 inspection of the process, and, if you are not running it in a debugger,
 it will, on some OSes, assuming your environment is configured correctly,
 generate a core dump file.  This can be useful to developers attempting to
 troubleshoot a problem with a protocol dissector.
+--
 
-=item WIRESHARK_QUIT_AFTER_CAPTURE
-
-Cause B<Wireshark> to exit after the end of the capture session.  This
-doesn't automatically start a capture; you must still use B<-k> to do
-that.  You must also specify an autostop condition, e.g.  B<-c> or B<-a
-duration:...>.  This means that you will not be able to see the results
+WIRESHARK_QUIT_AFTER_CAPTURE::
++
+--
+Cause *Wireshark* to exit after the end of the capture session.  This
+doesn't automatically start a capture; you must still use *-k* to do
+that.  You must also specify an autostop condition, e.g.  *-c* or *-a
+ duration:...*.  This means that you will not be able to see the results
 of the capture after it stops; it's primarily useful for testing.
+--
 
-=item WIRESHARK_LOG_LEVEL
-
+WIRESHARK_LOG_LEVEL::
++
+--
 This environment variable controls the verbosity of diagnostic messages to
-the console. From less verbose to most verbose levels can be C<critical>,
-C<warning>, C<message>, C<info>, C<debug> or C<noisy>. Levels above the
-current level are also active. Levels C<critical> and C<error> are always
+the console. From less verbose to most verbose levels can be `critical`,
+`warning`, `message`, `info`, `debug` or `noisy`. Levels above the
+current level are also active. Levels `critical` and `error` are always
 active.
+--
 
-=item WIRESHARK_LOG_FATAL
-
+WIRESHARK_LOG_FATAL::
++
+--
 Sets the fatal log level. Fatal log levels cause the program to abort.
-This level can be set to C<Error>, C<critical> or C<warning>. C<Error> is
+This level can be set to `Error`, `critical` or `warning`. `Error` is
 always fatal and is the default.
+--
 
-=item WIRESHARK_LOG_DOMAINS
-
+WIRESHARK_LOG_DOMAINS::
++
+--
 This environment variable selects which log domains are active. The filter is
 given as a case-insensitive comma separated list. If set only the included
 domains will be enabled. The default domain is always considered to be enabled.
 Domain filter lists can be preceded by '!' to invert the sense of the match.
+--
 
-=item WIRESHARK_LOG_DEBUG
-
-List of domains with C<debug> log level. This sets the level of the provided
+WIRESHARK_LOG_DEBUG::
++
+--
+List of domains with `debug` log level. This sets the level of the provided
 log domains and takes precedence over the active domains filter. If preceded
-by '!' this disables the C<debug> level instead.
+by '!' this disables the `debug` level instead.
+--
 
-=item WIRESHARK_LOG_NOISY
+WIRESHARK_LOG_NOISY::
++
+--
+Same as above but for `noisy` log level instead.
+--
 
-Same as above but for C<noisy> log level instead.
-
-=back
-
-=head1 AUTHORS
+== AUTHORS
 
 Wireshark would not be the powerful, featureful application it is without the generous contributions of hundreds of developers.
 
-A complete list of authors can be found in the AUTHORS file in Wireshark's source code repository and at L<https://www.wireshark.org/about.html#authors>.
+A complete list of authors can be found in the AUTHORS file in Wireshark's source code repository and at https://www.wireshark.org/about.html#authors.
 
-=head1 SEE ALSO
+== SEE ALSO
 
-wireshark-filter(4), tshark(1), editcap(1), pcap(3), dumpcap(1), mergecap(1),
-text2pcap(1), pcap-filter(7) or tcpdump(8)
+xref:wireshark-filter.html[wireshark-filter](4), xref:tshark.html[tshark](1), xref:editcap.html[editcap](1), xref:https://www.tcpdump.org/manpages/pcap.3pcap.html[pcap](3), xref:dumpcap.html[dumpcap](1), xref:mergecap.html[mergecap](1),
+xref:text2pcap.html[text2pcap](1), xref:https://www.tcpdump.org/manpages/pcap-filter.7.html[pcap-filter](7) or xref:https://www.tcpdump.org/manpages/tcpdump.1.html[tcpdump](8)
 
-=head1 NOTES
+== NOTES
 
-The latest version of B<Wireshark> can be found at
-L<https://www.wireshark.org>.
+The latest version of *Wireshark* can be found at
+https://www.wireshark.org.
 
 HTML versions of the Wireshark project man pages are available at:
-L<https://www.wireshark.org/docs/man-pages>.
+https://www.wireshark.org/docs/man-pages.

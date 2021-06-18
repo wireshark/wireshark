@@ -122,7 +122,7 @@ include::../docbook/attributes.adoc[]
                 continue
 
             # Inline unordered and ordered list items
-            item = re.match(r'=item\s*(\*\s+.*|\d+\.\s+.*)\s*$', podline)
+            item = re.match(r'=item\s*([-\*]\s+.*|\d+\.\s+.*)\s*$', podline)
             if item:
                 adoc_body += f'{item.group(1)}'
                 continue

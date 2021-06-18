@@ -1,14 +1,15 @@
-=begin man
+= extcap(4)
+:doctype: manpage
+include::../docbook/attributes.adoc[]
+:stylesheet: ws.css
+:linkcss:
+:copycss: ../docbook/{stylesheet}
 
-=encoding utf8
-
-=end man
-
-=head1 NAME
+== NAME
 
 extcap - The extcap interface
 
-=head1 DESCRIPTION
+== DESCRIPTION
 
 The extcap interface is a versatile plugin interface that allows external binaries
 to act as capture interfaces directly in Wireshark. It is used in scenarios, where
@@ -41,39 +42,49 @@ can be found (it is not designed to be launched by hand).  This is done on purpo
 only be extcap programs (executable, python scripts, ...) in the extcap folder to reduce the startup
 time and not have Wireshark trying to execute other file types.
 
-
-=head1 GRAMMAR ELEMENTS
+== GRAMMAR ELEMENTS
 
 Grammar elements:
 
-=over 4
-
-=item arg (options)
-
+arg (options)::
++
+--
 argument for CLI calling
+--
 
-=item number
-
+number::
++
+--
 Reference # of argument for other values, display order
+--
 
-=item call
-
+call::
++
+--
 Literal argument to call (--call=...)
+--
 
-=item display
-
+display::
++
+--
 Displayed name
+--
 
-=item default
-
+default::
++
+--
 Default value, in proper form for type
+--
 
-=item range
-
+range::
++
+--
 Range of valid values for UI checking (min,max) in proper form
+--
 
-=item type
-
+type::
++
+--
 Argument type for UI filtering for raw, or UI type for selector:
 
     integer
@@ -87,15 +98,16 @@ Argument type for UI filtering for raw, or UI type for selector:
     multicheck (display a textbox for selecting multiple options, values as strings)
     password (display a textbox with masked text)
     timestamp (display a calendar)
+--
 
-=item value (options)
-
+value (options)::
++
+--
     Values for argument selection
     arg     Argument # this value applies to
+--
 
-=back
-
-=head1 EXAMPLES
+== EXAMPLES
 
 Example 1:
 
@@ -128,30 +140,22 @@ Example 5:
     arg {number=0}{call=--start}{display=Start Time}{type=timestamp}
     arg {number=1}{call=--end}{display=End Time}{type=timestamp}
 
-=head1 Security awareness
+== Security awareness
 
-=over 4
+- Users running wireshark as root, we can't save you
+- Dumpcap retains suid/setgid and group+x permissions to allow users in wireshark group only
+- Third-party capture programs run w/ whatever privs they're installed with
+- If an attacker can write to a system binary directory, we're game over anyhow
+- Reference the folders tab in the wireshark->about information, to see from which directory extcap is being run
 
-=item - Users running wireshark as root, we can't save you
+== SEE ALSO
 
-=item - Dumpcap retains suid/setgid and group+x permissions to allow users in wireshark group only
+xref:wireshark.html[wireshark](1), xref:tshark.html[tshark](1), xref:dumpcap.html[dumpcap](1), xref:androiddump.html[androiddump](1), xref:sshdump.html[sshdump](1), xref:randpktdump.html[randpktdump](1)
 
-=item - Third-party capture programs run w/ whatever privs they're installed with
+== NOTES
 
-=item - If an attacker can write to a system binary directory, we're game over anyhow
-
-=item - Reference the folders tab in the wireshark->about information, to see from which directory extcap is being run
-
-=back
-
-=head1 SEE ALSO
-
-wireshark(1), tshark(1), dumpcap(1), androiddump(1), sshdump(1), randpktdump(1)
-
-=head1 NOTES
-
-B<Extcap> is feature of B<Wireshark>.  The latest version
-of B<Wireshark> can be found at L<https://www.wireshark.org>.
+*Extcap* is feature of *Wireshark*.  The latest version
+of *Wireshark* can be found at https://www.wireshark.org.
 
 HTML versions of the Wireshark project man pages are available at:
-L<https://www.wireshark.org/docs/man-pages>.
+https://www.wireshark.org/docs/man-pages.

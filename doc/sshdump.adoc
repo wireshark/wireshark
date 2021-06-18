@@ -1,58 +1,64 @@
-=begin man
+= sshdump(1)
+:doctype: manpage
+include::../docbook/attributes.adoc[]
+:stylesheet: ws.css
+:linkcss:
+:copycss: ../docbook/{stylesheet}
 
-=encoding utf8
-
-=end man
-
-=head1 NAME
+== NAME
 
 sshdump - Provide interfaces to capture from a remote host through SSH using a remote capture binary.
 
-=head1 SYNOPSIS
+== SYNOPSIS
 
-B<sshdump>
-S<[ B<--help> ]>
-S<[ B<--version> ]>
-S<[ B<--extcap-interfaces> ]>
-S<[ B<--extcap-dlts> ]>
-S<[ B<--extcap-interface>=E<lt>interfaceE<gt> ]>
-S<[ B<--extcap-config> ]>
-S<[ B<--extcap-capture-filter>=E<lt>capture filterE<gt> ]>
-S<[ B<--capture> ]>
-S<[ B<--fifo>=E<lt>path to file or pipeE<gt> ]>
-S<[ B<--remote-host>=E<lt>IP addressE<gt> ]>
-S<[ B<--remote-port>=E<lt>TCP portE<gt> ]>
-S<[ B<--remote-username>=E<lt>usernameE<gt> ]>
-S<[ B<--remote-password>=E<lt>passwordE<gt> ]>
-S<[ B<--sshkey>=E<lt>public key pathE<gt> ]>
-S<[ B<--remote-interface>=E<lt>interfaceE<gt> ]>
-S<[ B<--remote-capture-command>=E<lt>capture commandE<gt> ]>
-S<[ B<--remote-sudo> ]>
+[manarg]
+*sshdump*
+[ *--help* ]
+[ *--version* ]
+[ *--extcap-interfaces* ]
+[ *--extcap-dlts* ]
+[ *--extcap-interface*=<interface> ]
+[ *--extcap-config* ]
+[ *--extcap-capture-filter*=<capture filter> ]
+[ *--capture* ]
+[ *--fifo*=<path to file or pipe> ]
+[ *--remote-host*=<IP address> ]
+[ *--remote-port*=<TCP port> ]
+[ *--remote-username*=<username> ]
+[ *--remote-password*=<password> ]
+[ *--sshkey*=<public key path> ]
+[ *--remote-interface*=<interface> ]
+[ *--remote-capture-command*=<capture command> ]
+[ *--remote-sudo* ]
 
-B<sshdump>
-S<B<--extcap-interfaces>>
+[manarg]
+*sshdump*
+*--extcap-interfaces*
 
-B<sshdump>
-S<B<--extcap-interface>=E<lt>interfaceE<gt>>
-S<B<--extcap-dlts>>
+[manarg]
+*sshdump*
+*--extcap-interface*=<interface>
+*--extcap-dlts*
 
-B<sshdump>
-S<B<--extcap-interface>=E<lt>interfaceE<gt>>
-S<B<--extcap-config>>
+[manarg]
+*sshdump*
+*--extcap-interface*=<interface>
+*--extcap-config*
 
-B<sshdump>
-S<B<--extcap-interface>=E<lt>interfaceE<gt>>
-S<B<--fifo>=E<lt>path to file or pipeE<gt>>
-S<B<--capture>>
-S<B<--remote-host=myremotehost>>
-S<B<--remote-port=22>>
-S<B<--remote-username=user>>
-S<B<--remote-interface=eth2>>
-S<B<--remote-capture-command='tcpdump -U -i eth0 -w-'>>
+[manarg]
+*sshdump*
+*--extcap-interface*=<interface>
+*--fifo*=<path to file or pipe>
+*--capture*
+*--remote-host=myremotehost*
+*--remote-port=22*
+*--remote-username=user*
+*--remote-interface=eth2*
+*--remote-capture-command='tcpdump -U -i eth0 -w-'*
 
-=head1 DESCRIPTION
+== DESCRIPTION
 
-B<Sshdump> is an extcap tool that allows one to run a remote capture
+*Sshdump* is an extcap tool that allows one to run a remote capture
 tool over a SSH connection. The requirement is that the capture
 executable must have the capabilities to capture from the wanted
 interface.
@@ -69,7 +75,7 @@ The feature is functionally equivalent to run commands like
 
 Typically sshdump is not invoked directly. Instead it can be configured through
 the Wireshark graphical user interface or its command line. The following will
-start Wireshark and start capturing from host B<remotehost>:
+start Wireshark and start capturing from host *remotehost*:
 
     $ wireshark '-oextcap.sshdump.remotehost:"remotehost"' -i sshdump -k
 
@@ -81,96 +87,120 @@ To explicitly control the remote capture command:
 
 Supported interfaces:
 
-=over 4
+1. ssh
 
-=item 1. ssh
+== OPTIONS
 
-=back
-
-=head1 OPTIONS
-
-=over 4
-
-=item --help
-
+--help::
++
+--
 Print program arguments.
+--
 
-=item --version
-
+--version::
++
+--
 Print program version.
+--
 
-=item --extcap-interfaces
-
+--extcap-interfaces::
++
+--
 List available interfaces.
+--
 
-=item --extcap-interface=E<lt>interfaceE<gt>
-
+--extcap-interface=<interface>::
++
+--
 Use specified interfaces.
+--
 
-=item --extcap-dlts
-
+--extcap-dlts::
++
+--
 List DLTs of specified interface.
+--
 
-=item --extcap-config
-
+--extcap-config::
++
+--
 List configuration options of specified interface.
+--
 
-=item --capture
-
+--capture::
++
+--
 Start capturing from specified interface and write raw packet data to the location specified by --fifo.
+--
 
-=item --fifo=E<lt>path to file or pipeE<gt>
-
+--fifo=<path to file or pipe>::
++
+--
 Save captured packet to file or send it through pipe.
+--
 
-=item --remote-host=E<lt>remote hostE<gt>
-
+--remote-host=<remote host>::
++
+--
 The address of the remote host for capture.
+--
 
-=item --remote-port=E<lt>remote portE<gt>
-
+--remote-port=<remote port>::
++
+--
 The SSH port of the remote host.
+--
 
-=item --remote-username=E<lt>usernameE<gt>
-
+--remote-username=<username>::
++
+--
 The username for ssh authentication.
+--
 
-=item --remote-password=E<lt>passwordE<gt>
-
+--remote-password=<password>::
++
+--
 The password to use (if not ssh-agent and pubkey are used). WARNING: the
 passwords are stored in plaintext and visible to all users on this system. It is
 recommended to use keyfiles with a SSH agent.
+--
 
-=item --sshkey=E<lt>SSH private key pathE<gt>
-
+--sshkey=<SSH private key path>::
++
+--
 The path to a private key for authentication.
+--
 
-=item --remote-interface=E<lt>remote interfaceE<gt>
-
+--remote-interface=<remote interface>::
++
+--
 The remote network interface to capture from.
+--
 
-=item --remote-capture-command=E<lt>capture commandE<gt>
-
+--remote-capture-command=<capture command>::
++
+--
 A custom remote capture command that produces the remote stream that is shown in Wireshark.
 The command must be able to produce a PCAP stream written to STDOUT. See below for more
 examples.
 
-If using tcpdump, use the B<-w-> option to ensure that packets are written to
-standard output (stdout). Include the B<-U> option to write packets as soon as
+If using tcpdump, use the *-w-* option to ensure that packets are written to
+standard output (stdout). Include the *-U* option to write packets as soon as
 they are received.
 
 When specified, this command will be used as is, options such as the capture
-filter (B<--extcap-capture-filter>) will not be appended.
+filter (*--extcap-capture-filter*) will not be appended.
+--
 
-=item --extcap-capture-filter=E<lt>capture filterE<gt>
-
-The capture filter. It corresponds to the value provided via the B<tshark -f>
+--extcap-capture-filter=<capture filter>::
++
+--
+The capture filter. It corresponds to the value provided via the *tshark -f*
 option, and the Capture Filter field next to the interfaces list in the
 Wireshark interface.
+--
 
-=back
-
-=head1 EXAMPLES
+== EXAMPLES
 
 To see program arguments:
 
@@ -253,20 +283,20 @@ to show up twice in wireshark (for instance to handle multiple profiles), we can
 sshdump-host1 and sshdump-host2. Each binary will show up an interface name same as the executable
 name. Those executables not being "sshdump" will show up as "custom version" in the interface description.
 
-=head1 SEE ALSO
+== SEE ALSO
 
-wireshark(1), tshark(1), dumpcap(1), extcap(4), tcpdump(1)
+xref:wireshark.html[wireshark](1), xref:tshark.html[tshark](1), xref:dumpcap.html[dumpcap](1), xref:extcap.html[extcap](4), xref:https://www.tcpdump.org/manpages/tcpdump.1.html[tcpdump](1)
 
-=head1 NOTES
+== NOTES
 
-B<Sshdump> is part of the B<Wireshark> distribution.  The latest version
-of B<Wireshark> can be found at L<https://www.wireshark.org>.
+*Sshdump* is part of the *Wireshark* distribution.  The latest version
+of *Wireshark* can be found at https://www.wireshark.org.
 
 HTML versions of the Wireshark project man pages are available at:
-L<https://www.wireshark.org/docs/man-pages>.
+https://www.wireshark.org/docs/man-pages.
 
-=head1 AUTHORS
+== AUTHORS
 
-  Original Author
-  -------- ------
-  Dario Lombardo             <lomato[AT]gmail.com>
+.Original Author
+[%hardbreaks]
+Dario Lombardo <lomato[AT]gmail.com>

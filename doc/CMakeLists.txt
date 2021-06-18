@@ -7,6 +7,8 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
 
+find_package( Asciidoctor 1.5 )
+
 add_custom_command(
 	OUTPUT AUTHORS-SHORT
 	COMMAND ${PERL_EXECUTABLE}
@@ -18,97 +20,68 @@ add_custom_command(
 		${CMAKE_SOURCE_DIR}/AUTHORS
 )
 
+set(MAN1_INSTALL_FILES)
+set(MAN4_INSTALL_FILES)
+set(HTML_INSTALL_FILES)
 
-pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/wireshark   1)
-pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/androiddump 1)
-pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/capinfos    1)
-pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/captype     1)
-pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/ciscodump   1)
-pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/dftest      1)
-pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/dumpcap     1)
-pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/editcap     1)
-pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/mergecap    1)
-pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/randpkt     1)
-pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/randpktdump 1)
-pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/etwdump 1)
-pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/rawshark    1)
-pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/reordercap  1)
-pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/sshdump     1)
-pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/text2pcap   1)
-pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/tshark      1)
-pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/udpdump     1)
+macro (ASCIIDOCTOR2MANHTML _page_name _man_section)
+	if(ASCIIDOCTOR_FOUND)
+		ASCIIDOCTOR2HTML(${_page_name}.adoc)
+		ASCIIDOCTOR2MAN(${_page_name}.adoc ${_man_section})
 
-pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/extcap           4)
-pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/wireshark-filter 4)
+		list(APPEND HTML_INSTALL_FILES ${CMAKE_CURRENT_BINARY_DIR}/${_page_name}.html)
+		if (${_man_section} EQUAL 1)
+			list(APPEND MAN1_INSTALL_FILES ${CMAKE_CURRENT_BINARY_DIR}/${_page_name}.${_man_section})
+		elseif (${_man_section} EQUAL 4)
+			list(APPEND MAN4_INSTALL_FILES ${CMAKE_CURRENT_BINARY_DIR}/${_page_name}.${_man_section})
+		else()
+			message(FATAL_ERROR "Unsupported manual page section ${_man_section} for ${_page_name}")
+		endif()
+	endif()
+endmacro()
+
+ASCIIDOCTOR2MANHTML(wireshark   1)
+ASCIIDOCTOR2MANHTML(androiddump 1)
+ASCIIDOCTOR2MANHTML(capinfos    1)
+ASCIIDOCTOR2MANHTML(captype     1)
+ASCIIDOCTOR2MANHTML(ciscodump   1)
+ASCIIDOCTOR2MANHTML(dftest      1)
+ASCIIDOCTOR2MANHTML(dumpcap     1)
+ASCIIDOCTOR2MANHTML(editcap     1)
+ASCIIDOCTOR2MANHTML(mergecap    1)
+ASCIIDOCTOR2MANHTML(randpkt     1)
+ASCIIDOCTOR2MANHTML(randpktdump 1)
+ASCIIDOCTOR2MANHTML(etwdump     1)
+ASCIIDOCTOR2MANHTML(rawshark    1)
+ASCIIDOCTOR2MANHTML(reordercap  1)
+ASCIIDOCTOR2MANHTML(sshdump     1)
+ASCIIDOCTOR2MANHTML(text2pcap   1)
+ASCIIDOCTOR2MANHTML(tshark      1)
+ASCIIDOCTOR2MANHTML(udpdump     1)
+
+ASCIIDOCTOR2MANHTML(extcap           4)
+ASCIIDOCTOR2MANHTML(wireshark-filter 4)
 
 if(BUILD_dpauxmon AND HAVE_LIBNL3)
-	pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/dpauxmon    1)
+	ASCIIDOCTOR2MANHTML(dpauxmon    1)
 endif()
 
 if(BUILD_sdjournal AND SYSTEMD_FOUND)
-	pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/sdjournal   1)
+	ASCIIDOCTOR2MANHTML(sdjournal   1)
 endif()
 
 if(MAXMINDDB_FOUND)
-	pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/mmdbresolve 1)
+	ASCIIDOCTOR2MANHTML(mmdbresolve 1)
 endif()
 
 if (BUILD_corbaidl2wrs)
-	pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/idl2wrs     1)
+	ASCIIDOCTOR2MANHTML(idl2wrs     1)
 endif()
+
 if (BUILD_xxx2deb)
-	pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/asn2deb     1)
-	pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/idl2deb     1)
+	ASCIIDOCTOR2MANHTML(asn2deb     1)
+	ASCIIDOCTOR2MANHTML(idl2deb     1)
 endif()
-
-set(MAN1_INSTALL_FILES
-	${CMAKE_CURRENT_BINARY_DIR}/androiddump.1
-	${CMAKE_CURRENT_BINARY_DIR}/capinfos.1
-	${CMAKE_CURRENT_BINARY_DIR}/captype.1
-	${CMAKE_CURRENT_BINARY_DIR}/ciscodump.1
-	${CMAKE_CURRENT_BINARY_DIR}/ciscodump.1
-	${CMAKE_CURRENT_BINARY_DIR}/dftest.1
-	${CMAKE_CURRENT_BINARY_DIR}/dumpcap.1
-	${CMAKE_CURRENT_BINARY_DIR}/editcap.1
-	${CMAKE_CURRENT_BINARY_DIR}/mergecap.1
-	${CMAKE_CURRENT_BINARY_DIR}/randpkt.1
-	${CMAKE_CURRENT_BINARY_DIR}/randpktdump.1
-	${CMAKE_CURRENT_BINARY_DIR}/etwdump.1
-	${CMAKE_CURRENT_BINARY_DIR}/rawshark.1
-	${CMAKE_CURRENT_BINARY_DIR}/reordercap.1
-	${CMAKE_CURRENT_BINARY_DIR}/sshdump.1
-	${CMAKE_CURRENT_BINARY_DIR}/text2pcap.1
-	${CMAKE_CURRENT_BINARY_DIR}/tshark.1
-	${CMAKE_CURRENT_BINARY_DIR}/udpdump.1
-	${CMAKE_CURRENT_BINARY_DIR}/wireshark.1
-)
-
-if(BUILD_dpauxmon AND HAVE_LIBNL3)
-	list(APPEND MAN1_INSTALL_FILES ${CMAKE_CURRENT_BINARY_DIR}/dpauxmon.1)
-endif()
-
-if(BUILD_sdjournal AND SYSTEMD_FOUND)
-	list(APPEND MAN1_INSTALL_FILES ${CMAKE_CURRENT_BINARY_DIR}/sdjournal.1)
-endif()
-
-if(MAXMINDDB_FOUND)
-	list(APPEND MAN1_INSTALL_FILES ${CMAKE_CURRENT_BINARY_DIR}/mmdbresolve.1)
-endif()
-
-if (BUILD_corbaidl2wrs)
-	list(APPEND MAN1_INSTALL_FILES ${CMAKE_CURRENT_BINARY_DIR}/idl2wrs.1)
-endif()
-if (BUILD_xxx2deb)
-	list(APPEND MAN1_INSTALL_FILES
-		${CMAKE_CURRENT_BINARY_DIR}/asn2deb.1
-		${CMAKE_CURRENT_BINARY_DIR}/idl2deb.1
-	)
-endif()
-
-set(MAN4_INSTALL_FILES
-	${CMAKE_CURRENT_BINARY_DIR}/extcap.4
-	${CMAKE_CURRENT_BINARY_DIR}/wireshark-filter.4
-)
 
 set(BUNDLE_RESOURCE_SHARE_MAN1_FILES ${MAN1_INSTALL_FILES} PARENT_SCOPE)
 set(BUNDLE_RESOURCE_SHARE_MAN4_FILES ${MAN4_INSTALL_FILES} PARENT_SCOPE)
@@ -117,52 +90,6 @@ add_custom_target(manpages DEPENDS
 	${MAN1_INSTALL_FILES}
 	${MAN4_INSTALL_FILES}
 )
-
-set(HTML_INSTALL_FILES
-	${CMAKE_CURRENT_BINARY_DIR}/androiddump.html
-	${CMAKE_CURRENT_BINARY_DIR}/capinfos.html
-	${CMAKE_CURRENT_BINARY_DIR}/captype.html
-	${CMAKE_CURRENT_BINARY_DIR}/ciscodump.html
-	${CMAKE_CURRENT_BINARY_DIR}/ciscodump.html
-	${CMAKE_CURRENT_BINARY_DIR}/dftest.html
-	${CMAKE_CURRENT_BINARY_DIR}/dumpcap.html
-	${CMAKE_CURRENT_BINARY_DIR}/editcap.html
-	${CMAKE_CURRENT_BINARY_DIR}/extcap.html
-	${CMAKE_CURRENT_BINARY_DIR}/mergecap.html
-	${CMAKE_CURRENT_BINARY_DIR}/randpkt.html
-	${CMAKE_CURRENT_BINARY_DIR}/randpktdump.html
-	${CMAKE_CURRENT_BINARY_DIR}/etwdump.html
-	${CMAKE_CURRENT_BINARY_DIR}/rawshark.html
-	${CMAKE_CURRENT_BINARY_DIR}/reordercap.html
-	${CMAKE_CURRENT_BINARY_DIR}/sshdump.html
-	${CMAKE_CURRENT_BINARY_DIR}/text2pcap.html
-	${CMAKE_CURRENT_BINARY_DIR}/tshark.html
-	${CMAKE_CURRENT_BINARY_DIR}/udpdump.html
-	${CMAKE_CURRENT_BINARY_DIR}/wireshark-filter.html
-	${CMAKE_CURRENT_BINARY_DIR}/wireshark.html
-)
-
-if(BUILD_dpauxmon AND HAVE_LIBNL3)
-	list(APPEND HTML_INSTALL_FILES ${CMAKE_CURRENT_BINARY_DIR}/dpauxmon.html)
-endif()
-
-if(BUILD_sdjournal AND SYSTEMD_FOUND)
-	list(APPEND HTML_INSTALL_FILES ${CMAKE_CURRENT_BINARY_DIR}/sdjournal.html)
-endif()
-
-if(MAXMINDDB_FOUND)
-	list(APPEND HTML_INSTALL_FILES ${CMAKE_CURRENT_BINARY_DIR}/mmdbresolve.html)
-endif()
-
-if (BUILD_corbaidl2wrs)
-	list(APPEND HTML_INSTALL_FILES ${CMAKE_CURRENT_BINARY_DIR}/idl2wrs.html)
-endif()
-if (BUILD_xxx2deb)
-	list(APPEND HTML_INSTALL_FILES
-		${CMAKE_CURRENT_BINARY_DIR}/asn2deb.html
-		${CMAKE_CURRENT_BINARY_DIR}/idl2deb.html
-	)
-endif()
 
 add_custom_target(
 	docs ALL
@@ -174,19 +101,21 @@ add_custom_target(
 )
 set_target_properties(docs PROPERTIES FOLDER "Docs")
 
-install(
-	FILES
-		${MAN1_INSTALL_FILES}
-	DESTINATION
-		${CMAKE_INSTALL_MANDIR}/man1
-)
+if(ASCIIDOCTOR_FOUND)
+	install(
+		FILES
+			${MAN1_INSTALL_FILES}
+		DESTINATION
+			${CMAKE_INSTALL_MANDIR}/man1
+	)
 
-install(
-	FILES
-		${MAN4_INSTALL_FILES}
-	DESTINATION
-		${CMAKE_INSTALL_MANDIR}/man4
-)
+	install(
+		FILES
+			${MAN4_INSTALL_FILES}
+		DESTINATION
+			${CMAKE_INSTALL_MANDIR}/man4
+	)
+endif()
 
 #
 # Installation of HTML manuals is done

@@ -1,87 +1,99 @@
-=begin man
+= sdjournal(1)
+:doctype: manpage
+include::../docbook/attributes.adoc[]
+:stylesheet: ws.css
+:linkcss:
+:copycss: ../docbook/{stylesheet}
 
-=encoding utf8
-
-=end man
-
-=head1 NAME
+== NAME
 
 sdjournal - Provide an interface to capture systemd journal entries.
 
-=head1 SYNOPSIS
+== SYNOPSIS
 
-B<sdjournal>
-S<[ B<--help> ]>
-S<[ B<--version> ]>
-S<[ B<--extcap-interfaces> ]>
-S<[ B<--extcap-dlts> ]>
-S<[ B<--extcap-interface>=E<lt>interfaceE<gt> ]>
-S<[ B<--extcap-config> ]>
-S<[ B<--capture> ]>
-S<[ B<--fifo>=E<lt>path to file or pipeE<gt> ]>
-S<[ B<--start-from>=E<lt>entry countE<gt> ]>
+[manarg]
+*sdjournal*
+[ *--help* ]
+[ *--version* ]
+[ *--extcap-interfaces* ]
+[ *--extcap-dlts* ]
+[ *--extcap-interface*=<interface> ]
+[ *--extcap-config* ]
+[ *--capture* ]
+[ *--fifo*=<path to file or pipe> ]
+[ *--start-from*=<entry count> ]
 
-=head1 DESCRIPTION
+== DESCRIPTION
 
-B<sdjournal> is an extcap tool that allows one to capture systemd
+*sdjournal* is an extcap tool that allows one to capture systemd
 journal entries. It can be used to correlate system events with
 network traffic.
 
 Supported interfaces:
 
-=over 4
+1. sdjournal
 
-=item 1. sdjournal
+== OPTIONS
 
-=back
-
-=head1 OPTIONS
-
-=over 4
-
-=item --help
-
+--help::
++
+--
 Print program arguments.
+--
 
-=item --version
-
+--version::
++
+--
 Print program version.
+--
 
-=item --extcap-interfaces
-
+--extcap-interfaces::
++
+--
 List available interfaces.
+--
 
-=item --extcap-interface=E<lt>interfaceE<gt>
-
+--extcap-interface=<interface>::
++
+--
 Use specified interfaces.
+--
 
-=item --extcap-dlts
-
+--extcap-dlts::
++
+--
 List DLTs of specified interface.
+--
 
-=item --extcap-config
-
+--extcap-config::
++
+--
 List configuration options of specified interface.
+--
 
-=item --capture
-
+--capture::
++
+--
 Start capturing from specified interface and write raw packet data to the location specified by --fifo.
+--
 
-=item --fifo=E<lt>path to file or pipeE<gt>
-
+--fifo=<path to file or pipe>::
++
+--
 Save captured packet to file or send it through pipe.
+--
 
-=item --start-from=E<lt>entry countE<gt>
-
-Start from the last E<lt>entry countE<gt> entries, similar to the
-"-n" or "--lines" argument for the L<tail(1)> command. Values prefixed
-with a B<+> sign start from the beginning of the journal, otherwise
+--start-from=<entry count>::
++
+--
+Start from the last <entry count> entries, similar to the
+"-n" or "--lines" argument for the tail(1) command. Values prefixed
+with a *+* sign start from the beginning of the journal, otherwise
 the count starts from the end. The default value is 10. To include
-all entries use B<+0>.
+all entries use *+0*.
+--
 
-=back
-
-=head1 EXAMPLES
+== EXAMPLES
 
 To see program arguments:
 
@@ -126,20 +138,20 @@ To capture all entries since the system was booted:
 
 NOTE: To stop capturing CTRL+C/kill/terminate application.
 
-=head1 SEE ALSO
+== SEE ALSO
 
-wireshark(1), tshark(1), dumpcap(1), extcap(4), tcpdump(1)
+xref:wireshark.html[wireshark](1), xref:tshark.html[tshark](1), xref:dumpcap.html[dumpcap](1), xref:extcap.html[extcap](4), xref:https://www.tcpdump.org/manpages/tcpdump.1.html[tcpdump](1)
 
-=head1 NOTES
+== NOTES
 
-B<sdjournal> is part of the B<Wireshark> distribution.  The latest version
-of B<Wireshark> can be found at L<https://www.wireshark.org>.
+*sdjournal* is part of the *Wireshark* distribution.  The latest version
+of *Wireshark* can be found at https://www.wireshark.org.
 
 HTML versions of the Wireshark project man pages are available at:
-L<https://www.wireshark.org/docs/man-pages>.
+https://www.wireshark.org/docs/man-pages.
 
-=head1 AUTHORS
+== AUTHORS
 
-  Original Author
-  -------- ------
-  Gerald Combs             <gerald[AT]wireshark.org>
+.Original Author
+[%hardbreaks]
+Gerald Combs <gerald[AT]wireshark.org>

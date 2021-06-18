@@ -39,12 +39,14 @@ if(ASCIIDOCTOR_EXECUTABLE)
     set (_asciidoctor_common_args
         # Doesn't work with AsciidoctorJ?
         # --failure-level=WARN
+        # --trace
         --attribute build_dir=${CMAKE_CURRENT_BINARY_DIR}
-        --require ${CMAKE_CURRENT_SOURCE_DIR}/asciidoctor-macros/ws_utils.rb
-        --require ${CMAKE_CURRENT_SOURCE_DIR}/asciidoctor-macros/commaize-block.rb
-        --require ${CMAKE_CURRENT_SOURCE_DIR}/asciidoctor-macros/cveidlink-inline-macro.rb
-        --require ${CMAKE_CURRENT_SOURCE_DIR}/asciidoctor-macros/wsbuglink-inline-macro.rb
-        --require ${CMAKE_CURRENT_SOURCE_DIR}/asciidoctor-macros/wssalink-inline-macro.rb
+        --require ${CMAKE_SOURCE_DIR}/docbook/asciidoctor-macros/ws_utils.rb
+        --require ${CMAKE_SOURCE_DIR}/docbook/asciidoctor-macros/commaize-block.rb
+        --require ${CMAKE_SOURCE_DIR}/docbook/asciidoctor-macros/cveidlink-inline-macro.rb
+        --require ${CMAKE_SOURCE_DIR}/docbook/asciidoctor-macros/manarg-block.rb
+        --require ${CMAKE_SOURCE_DIR}/docbook/asciidoctor-macros/wsbuglink-inline-macro.rb
+        --require ${CMAKE_SOURCE_DIR}/docbook/asciidoctor-macros/wssalink-inline-macro.rb
     )
 
     set(_asciidoctor_common_command
@@ -83,7 +85,7 @@ if(ASCIIDOCTOR_EXECUTABLE)
         unset(_output_xml)
     ENDMACRO()
 
-    # Currently single page only.
+    # Single page only, for the release notes and man pages.
     MACRO( ASCIIDOCTOR2HTML _asciidocsource )
         GET_FILENAME_COMPONENT( _source_base_name ${_asciidocsource} NAME_WE )
         set( _output_html ${_source_base_name}.html )
@@ -122,6 +124,27 @@ if(ASCIIDOCTOR_EXECUTABLE)
         )
         unset(_output_html)
         unset(_output_txt)
+    ENDMACRO()
+
+    # Single page only, for the release notes and man pages.
+    MACRO( ASCIIDOCTOR2MAN _asciidocsource _man_section)
+        GET_FILENAME_COMPONENT( _source_base_name ${_asciidocsource} NAME_WE )
+        set( _output_man ${_source_base_name}.${_man_section} )
+
+        ADD_CUSTOM_COMMAND(
+            OUTPUT
+                ${_output_man}
+            COMMAND ${_asciidoctor_common_command}
+                --backend manpage
+                --out-file ${_output_man}
+                ${CMAKE_CURRENT_SOURCE_DIR}/${_asciidocsource}
+            DEPENDS
+                ${CMAKE_CURRENT_SOURCE_DIR}/${_asciidocsource}
+                ${ARGN}
+        )
+        add_custom_target(generate_${_output_man} DEPENDS ${_output_man})
+        set_asciidoctor_target_properties(generate_${_output_man})
+        unset(_output_man)
     ENDMACRO()
 
     # news: release-notes.txt

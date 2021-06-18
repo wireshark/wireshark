@@ -1,84 +1,104 @@
-=begin man
+= etwdump(1)
+:doctype: manpage
+include::../docbook/attributes.adoc[]
+:stylesheet: ws.css
+:linkcss:
+:copycss: ../docbook/{stylesheet}
 
-=encoding utf8
-
-=end man
-
-=head1 NAME
+== NAME
 
 etwdump - Provide an interface to read ETW
 
-=head1 SYNOPSIS
+== SYNOPSIS
 
-B<etwdump>
-S<[ B<--help> ]>
-S<[ B<--version> ]>
-S<[ B<--extcap-interfaces> ]>
-S<[ B<--extcap-dlts> ]>
-S<[ B<--extcap-interface>=E<lt>interfaceE<gt> ]>
-S<[ B<--extcap-config> ]>
-S<[ B<--capture> ]>
-S<[ B<--fifo>=E<lt>path to file or pipeE<gt> ]>
-S<[ B<--iue>=E<lt>Should undecidable events be includedE<gt> ]>
-S<[ B<--etlfile>=E<lt>etl fileE<gt> ]>
-S<[ B<--params>=E<lt>filter parametersE<gt> ]>
+[manarg]
+*etwdump*
+[ *--help* ]
+[ *--version* ]
+[ *--extcap-interfaces* ]
+[ *--extcap-dlts* ]
+[ *--extcap-interface*=<interface> ]
+[ *--extcap-config* ]
+[ *--capture* ]
+[ *--fifo*=<path to file or pipe> ]
+[ *--iue*=<Should undecidable events be included> ]
+[ *--etlfile*=<etl file> ]
+[ *--params*=<filter parameters> ]
 
-=head1 DESCRIPTION
+== DESCRIPTION
 
-B<etwdump> is a extcap tool that provides access to a etl file.
+*etwdump* is a extcap tool that provides access to a etl file.
 It is only used to display event trace on Windows.
 
-=head1 OPTIONS
+== OPTIONS
 
-=over 4
-
-=item --help
-
+--help::
++
+--
 Print program arguments.
+--
 
-=item --version
-
+--version::
++
+--
 Print program version.
+--
 
-=item --extcap-interfaces
-
+--extcap-interfaces::
++
+--
 List available interfaces.
+--
 
-=item --extcap-interface=E<lt>interfaceE<gt>
-
+--extcap-interface=<interface>::
++
+--
 Use specified interfaces.
+--
 
-=item --extcap-dlts
-
+--extcap-dlts::
++
+--
 List DLTs of specified interface.
+--
 
-=item --extcap-config
-
+--extcap-config::
++
+--
 List configuration options of specified interface.
+--
 
-=item --capture
-
+--capture::
++
+--
 Start capturing from specified interface save saved it in place specified by --fifo.
+--
 
-=item --fifo=E<lt>path to file or pipeE<gt>
-
+--fifo=<path to file or pipe>::
++
+--
 Save captured packet to file or send it through pipe.
+--
 
-=item --iue=E<lt>Should undecidable events be includedE<gt>
-
+--iue=<Should undecidable events be included>::
++
+--
 Choose if the undecidable event is included.
+--
 
-=item --etlfile=E<lt>Etl fileE<gt>
-
+--etlfile=<Etl file>::
++
+--
 Select etl file to display in Wireshark.
+--
 
-=item --params=E<lt>filter parametersE<gt>
-
+--params=<filter parameters>::
++
+--
 Input providers, keyword and level filters for the etl file and live session.
+--
 
-=back
-
-=head1 EXAMPLES
+== EXAMPLES
 
 To see program arguments:
 
@@ -117,20 +137,20 @@ To capture:
 
 NOTE: To stop capturing CTRL+C/kill/terminate application.
 
-=head1 SEE ALSO
+== SEE ALSO
 
-wireshark(1), tshark(1), dumpcap(1), extcap(4)
+xref:wireshark.html[wireshark](1), xref:tshark.html[tshark](1), xref:dumpcap.html[dumpcap](1), xref:extcap.html[extcap](4)
 
-=head1 NOTES
+== NOTES
 
-B<etwdump> is part of the B<Wireshark> distribution.  The latest version
-of B<Wireshark> can be found at L<https://www.wireshark.org>.
+*etwdump* is part of the *Wireshark* distribution.  The latest version
+of *Wireshark* can be found at https://www.wireshark.org.
 
 HTML versions of the Wireshark project man pages are available at:
-L<https://www.wireshark.org/docs/man-pages>.
+https://www.wireshark.org/docs/man-pages.
 
-=head1 AUTHORS
+== AUTHORS
 
-  Original Author
-  ---------------
-  Odysseus Yang             L<wiresharkyyh@outlook.com>
+.Original Author
+[%hardbreaks]
+Odysseus Yang L<wiresharkyyh@outlook.com>

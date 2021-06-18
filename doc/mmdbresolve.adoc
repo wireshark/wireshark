@@ -1,23 +1,25 @@
-=begin man
+= mmdbresolve(1)
+:doctype: manpage
+include::../docbook/attributes.adoc[]
+:stylesheet: ws.css
+:linkcss:
+:copycss: ../docbook/{stylesheet}
 
-=encoding utf8
-
-=end man
-
-=head1 NAME
+== NAME
 
 mmdbresolve - Read IPv4 and IPv6 addresses and print their IP geolocation information.
 
-=head1 SYNOPSIS
+== SYNOPSIS
 
-B<mmdbresolve>
-S<B<-f E<lt>dbfileE<gt>>>
-S<[ B<-f E<lt>dbfileE<gt>> ]>
-I<...>
+[manarg]
+*mmdbresolve*
+*-f <dbfile>*
+[ *-f <dbfile>* ]
+__...__
 
-=head1 DESCRIPTION
+== DESCRIPTION
 
-B<mmdbresolve> reads IPv4 and IPv6 addresses on stdin and prints their IP geolocation information
+*mmdbresolve* reads IPv4 and IPv6 addresses on stdin and prints their IP geolocation information
 on stdout. Each input line must contain exactly one address. Output is in INI format, with a section
 delimiter named after the query address followed by a set of "key: value" pairs. A comment
 beginning with "# End" is appended to each section.
@@ -25,17 +27,15 @@ beginning with "# End" is appended to each section.
 At startup an "[init]" section is printed that shows the status of each datbase and of mmdbresolve
 itself.
 
-=head1 OPTIONS
+== OPTIONS
 
-=over 4
-
-=item -f
-
+-f::
++
+--
 Path to a MaxMind Database file. Multiple databases may be specified.
+--
 
-=back
-
-=head1 EXAMPLES
+== EXAMPLES
 
 To resolve a single address:
 
@@ -56,20 +56,20 @@ Example output:
     location.longitude: -97.822000
     # End 4.4.4.4
 
-=head1 SEE ALSO
+== SEE ALSO
 
-wireshark(1), tshark(1)
+xref:wireshark.html[wireshark](1), xref:tshark.html[tshark](1)
 
-=head1 NOTES
+== NOTES
 
-B<mmdbresolve> is part of the B<Wireshark> distribution. The latest version
-of B<Wireshark> can be found at L<https://www.wireshark.org>.
+*mmdbresolve* is part of the *Wireshark* distribution. The latest version
+of *Wireshark* can be found at https://www.wireshark.org.
 
 HTML versions of the Wireshark project man pages are available at:
-L<https://www.wireshark.org/docs/man-pages>.
+https://www.wireshark.org/docs/man-pages.
 
-=head1 AUTHORS
+== AUTHORS
 
-  Original Author
-  ---------------
-  Gerald Combs            <gerald[AT]wireshark.org>
+.Original Author
+[%hardbreaks]
+Gerald Combs <gerald[AT]wireshark.org>

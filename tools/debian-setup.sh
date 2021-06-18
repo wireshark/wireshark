@@ -72,7 +72,6 @@ BASIC_LIST="gcc \
 ADDITIONAL_LIST="libnl-3-dev \
 	libkrb5-dev \
 	libsmi2-dev \
-	asciidoctor \
 	libsbc-dev \
 	liblua5.2-dev \
 	libnl-cli-3-dev \
@@ -97,6 +96,7 @@ ADDITIONAL_LIST="libnl-3-dev \
 
 DEBDEPS_LIST="debhelper \
 	dh-python \
+	asciidoctor \
 	docbook-xml \
 	docbook-xsl \
 	libxml2-utils \

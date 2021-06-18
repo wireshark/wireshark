@@ -17,13 +17,13 @@ The guides and release notes are written in
 https://asciidoctor.org/docs/asciidoc-syntax-quick-reference/[Asciidoctor syntax].
 For more information see https://asciidoctor.org.
 
-= Requirements
+== Requirements
 
 Ultimately we'd like to reduce the toolchain requirements to AsciidoctorJ alone, but that's not yet possible.
 Additional tooling is required for the HTML and HTMLHelp targets.
 See the https://www.wireshark.org/docs/wsdg_html_chunked/ChToolsDocumentationToolchain.html[Developer's Guide] for instructions on installing required packages for your platform.
 
-= Asciidoctor Markup
+== Asciidoctor Markup
 
 The User’s and Developer’s Guides were originally written in DocBook and
 were later converted to https://asciidoc.org/[AsciiDoc]. We subsequently
@@ -58,6 +58,25 @@ C:\> echo Windows
 Admonitions ([NOTE], [TIP], and [WARNING]) can be used to highlight important
 information. Keep in mind that they interrupt the flow of text by design. Too
 many (especially in a row) are distracting and annoying.
+
+== Custom Asciidoctor Macros
+
+The following custom macros are available in `docbook/asciidoctor-macros`:
+
+commaize-block::
+Sorts a list of items and separates them with commas with an "and" preceding the last item.
+
+cveidlink-inline-macro::
+Links a CVE ID to cve.mitre.org.
+
+manarg-block::
+Ensures that individual arguments don't wrap in order to improve readability.
+
+wsbuglink-inline-macro::
+Links an issue number to gitlab.org/wireshark/wireshark/-/issues.
+
+wssalink-inline-macro::
+Links a security advisory to www.wireshark.org.
 
 == Asciidoctor Live Preview
 

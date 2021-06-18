@@ -1,80 +1,92 @@
-=begin man
+= idl2deb(1)
+:doctype: manpage
+include::../docbook/attributes.adoc[]
+:stylesheet: ws.css
+:linkcss:
+:copycss: ../docbook/{stylesheet}
 
-=encoding utf8
-
-=end man
-
-=head1 NAME
+== NAME
 
 idl2deb - Create a Debian package for CORBA monitoring from IDL
 
-=head1 SYNOPSIS
+== SYNOPSIS
 
-B<idl2deb>
-S<[ B<-d> E<lt>optsE<gt> ]>
-S<[ B<--dbopts>=E<lt>optsE<gt> ]>
-S<[ B<-e> E<lt>addressE<gt> ]>
-S<[ B<--email>=E<lt>addressE<gt> ]>
-S<[ B<-h> ]>
-S<[ B<--help> ]>
-S<[ B<-i> E<lt>idlfileE<gt> ]>
-S<[ B<--idl>=E<lt>idlfileE<gt> ]>
-S<[ B<-n> E<lt>nameE<gt> ]>
-S<[ B<--name>=E<lt>nameE<gt> ]>
-S<[ B<-p> ]>
-S<[ B<--preserve> ]>
-S<[ B<-v> ]>
-S<[ B<--version> ]>
+[manarg]
+*idl2deb*
+[ *-d* <opts> ]
+[ *--dbopts*=<opts> ]
+[ *-e* <address> ]
+[ *--email*=<address> ]
+[ *-h* ]
+[ *--help* ]
+[ *-i* <idlfile> ]
+[ *--idl*=<idlfile> ]
+[ *-n* <name> ]
+[ *--name*=<name> ]
+[ *-p* ]
+[ *--preserve* ]
+[ *-v* ]
+[ *--version* ]
 
-=head1 DESCRIPTION
+== DESCRIPTION
 
-This manual page documents briefly the B<idl2deb> command. B<idl2deb>
+This manual page documents briefly the *idl2deb* command. *idl2deb*
 takes an CORBA IDL file as input and creates a Debian package from it. The
 package contains a loadable module for the Wireshark network analyser.
 
-=head1 OPTIONS
+== OPTIONS
 
-=over 4
-
-=item -d E<lt>optsE<gt> --dbopts=E<lt>optsE<gt>
-
+-d <opts> --dbopts=<opts>::
++
+--
 options for dpkg-buildpackage.
+--
 
-=item -e E<lt>addressE<gt> --email=E<lt>addressE<gt>
-
+-e <address> --email=<address>::
++
+--
 use e-mail address.
+--
 
-=item -h --help
-
+-h --help::
++
+--
 print help and exit.
+--
 
-=item -i E<lt>idlfileE<gt> --idl=E<lt>idlfileE<gt>
-
+-i <idlfile> --idl=<idlfile>::
++
+--
 IDL file to use (mandatory)
+--
 
-=item -n E<lt>nameE<gt> --name=E<lt>nameE<gt>
-
+-n <name> --name=<name>::
++
+--
 use user name.
+--
 
-=item -p --preserve
-
+-p --preserve::
++
+--
 do not overwrite files.
+--
 
-=item -v --version
-
+-v --version::
++
+--
 print version and exit.
+--
 
-=back
-
-=head1 EXAMPLES
+== EXAMPLES
 
 /usr/bin/idl2deb -e me@foo.net -i bar.idl \-n "My Name" -d "-rfakeroot -uc -us"-d "-rfakeroot -uc -us"
 
-=head1 SEE ALSO
+== SEE ALSO
 
-A lot of tools are used, which you have to B<apt-get install>: wireshark-dev, python, cdbs, autotools-dev, debhelper, dpkg-dev.
+A lot of tools are used, which you have to *apt-get install*: wireshark-dev, python, cdbs, autotools-dev, debhelper, dpkg-dev.
 
-=head1 COPYING
+== COPYING
 
 This manual page was written by W. Borgert debacle@debian.org
 for Debian GNU/Linux (but may be used by others). Permission is granted
@@ -82,10 +94,10 @@ to copy, distribute and/or modify this document under the terms of the
 GNU General Public License, Version 2 or any later version published by
 the Free Software Foundation.
 
-=head1 AUTHOR
+== AUTHOR
 
-B<W. Borgert> Author.
+*W. Borgert* Author.
 
-=head1 COPYRIGHT
+== COPYRIGHT
 
 Copyright (C) 2003, 2005 W. Borger

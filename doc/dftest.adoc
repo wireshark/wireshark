@@ -1,33 +1,33 @@
-=begin man
+= dftest(1)
+:doctype: manpage
+include::../docbook/attributes.adoc[]
+:stylesheet: ws.css
+:linkcss:
+:copycss: ../docbook/{stylesheet}
 
-=encoding utf8
-
-=end man
-
-=head1 NAME
+== NAME
 
 dftest - Shows display filter byte-code, for debugging dfilter routines.
 
-=head1 SYNOPSIS
+== SYNOPSIS
 
-B<dftest>
-S<[ E<lt>filterE<gt> ]>
+[manarg]
+*dftest*
+[ <filter> ]
 
-=head1 DESCRIPTION
+== DESCRIPTION
 
-B<dftest> is a simple tool which compiles a display filter and shows its bytecode.
+*dftest* is a simple tool which compiles a display filter and shows its bytecode.
 
-=head1 OPTIONS
+== OPTIONS
 
-=over 4
-
-=item filter
-
+filter::
++
+--
 The display filter expression. If needed it has to be quoted.
+--
 
-=back
-
-=head1 EXAMPLES
+== EXAMPLES
 
 Show how the IP protocol is filtered:
 
@@ -37,6 +37,6 @@ Shows how frame 150 is filtered:
 
     dftest "frame.number == 150"
 
-=head1 SEE ALSO
+== SEE ALSO
 
-wireshark-filter(4)
+xref:wireshark-filter.html[wireshark-filter](4)

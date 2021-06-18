@@ -1,54 +1,55 @@
-=begin man
+= captype(1)
+:doctype: manpage
+include::../docbook/attributes.adoc[]
+:stylesheet: ws.css
+:linkcss:
+:copycss: ../docbook/{stylesheet}
 
-=encoding utf8
-
-=end man
-
-=head1 NAME
+== NAME
 
 captype - Prints the types of capture files
 
-=head1 SYNOPSIS
+== SYNOPSIS
 
-B<captype>
-E<lt>I<infile>E<gt>
-I<...>
+[manarg]
+*captype*
+<__infile__>
+__...__
 
-=head1 DESCRIPTION
+== DESCRIPTION
 
-B<Captype> is a program that opens one or more capture files and
-prints the capture file type of each E<lt>I<infile>E<gt>.
+*Captype* is a program that opens one or more capture files and
+prints the capture file type of each <__infile__>.
 
-B<Captype> is able to detect and read the same capture files that are
-supported by B<Wireshark>.
+*Captype* is able to detect and read the same capture files that are
+supported by *Wireshark*.
 The input files don't need a specific filename extension; the file
 format and an optional gzip, zstd or lz4 compression will be automatically detected.
-Near the beginning of the DESCRIPTION section of wireshark(1) or
-L<https://www.wireshark.org/docs/man-pages/wireshark.html>
-is a detailed description of the way B<Wireshark> handles this, which is
-the same way B<Captype> handles this.
+Near the beginning of the DESCRIPTION section of xref:wireshark.html[wireshark](1) or
+https://www.wireshark.org/docs/man-pages/wireshark.html
+is a detailed description of the way *Wireshark* handles this, which is
+the same way *Captype* handles this.
 
-=head1 SEE ALSO
+== SEE ALSO
 
-pcap(3), wireshark(1), mergecap(1), editcap(1), tshark(1),
-dumpcap(1), capinfos(1), pcap-filter(7) or tcpdump(8)
+xref:https://www.tcpdump.org/manpages/pcap.3pcap.html[pcap](3), xref:wireshark.html[wireshark](1), xref:mergecap.html[mergecap](1), xref:editcap.html[editcap](1), xref:tshark.html[tshark](1),
+xref:dumpcap.html[dumpcap](1), xref:capinfos.html[capinfos](1), xref:https://www.tcpdump.org/manpages/pcap-filter.7.html[pcap-filter](7) or xref:https://www.tcpdump.org/manpages/tcpdump.1.html[tcpdump](8)
 
-=head1 NOTES
+== NOTES
 
-B<Captype> is part of the B<Wireshark> distribution.  The latest version
-of B<Wireshark> can be found at L<https://www.wireshark.org>.
+*Captype* is part of the *Wireshark* distribution.  The latest version
+of *Wireshark* can be found at https://www.wireshark.org.
 
 HTML versions of the Wireshark project man pages are available at:
-L<https://www.wireshark.org/docs/man-pages>.
+https://www.wireshark.org/docs/man-pages.
 
-=head1 AUTHORS
+== AUTHORS
 
-  Original Author
-  -------- ------
-  Ian Schorr           <ian[AT]ianschorr.com>
+.Original Author
+[%hardbreaks]
+Ian Schorr <ian[AT]ianschorr.com>
 
-
-  Contributors
-  ------------
-  Gerald Combs         <gerald[AT]wireshark.org>
-  Jim Young            <jyoung[AT]gsu.edu>
+.Contributors
+[%hardbreaks]
+Gerald Combs <gerald[AT]wireshark.org>
+Jim Young <jyoung[AT]gsu.edu>

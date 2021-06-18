@@ -1,100 +1,126 @@
-=begin man
+= randpktdump(1)
+:doctype: manpage
+include::../docbook/attributes.adoc[]
+:stylesheet: ws.css
+:linkcss:
+:copycss: ../docbook/{stylesheet}
 
-=encoding utf8
-
-=end man
-
-=head1 NAME
+== NAME
 
 randpktdump - Provide an interface to generate random captures using randpkt
 
-=head1 SYNOPSIS
+== SYNOPSIS
 
-B<randpktdump>
-S<[ B<--help> ]>
-S<[ B<--version> ]>
-S<[ B<--extcap-interfaces> ]>
-S<[ B<--extcap-dlts> ]>
-S<[ B<--extcap-interface>=E<lt>interfaceE<gt> ]>
-S<[ B<--extcap-config> ]>
-S<[ B<--capture> ]>
-S<[ B<--fifo>=E<lt>path to file or pipeE<gt> ]>
-S<[ B<--maxbytes>=E<lt>bytesE<gt> ]>
-S<[ B<--count>=E<lt>numE<gt> ]>
-S<[ B<--delay>=E<lt>msE<gt> ]>
-S<[ B<--random-type>=E<lt>true|falseE<gt> ]>
-S<[ B<--all-random>=E<lt>true|falseE<gt> ]>
-S<[ B<--type>=E<lt>packet typeE<gt> ]>
+[manarg]
+*randpktdump*
+[ *--help* ]
+[ *--version* ]
+[ *--extcap-interfaces* ]
+[ *--extcap-dlts* ]
+[ *--extcap-interface*=<interface> ]
+[ *--extcap-config* ]
+[ *--capture* ]
+[ *--fifo*=<path to file or pipe> ]
+[ *--maxbytes*=<bytes> ]
+[ *--count*=<num> ]
+[ *--delay*=<ms> ]
+[ *--random-type*=<true|false> ]
+[ *--all-random*=<true|false> ]
+[ *--type*=<packet type> ]
 
-=head1 DESCRIPTION
+== DESCRIPTION
 
-B<randpktdump> is a extcap tool that provides access to the random
+*randpktdump* is a extcap tool that provides access to the random
 packet generator (randpkt). It is mainly used for testing and
 educational purpose.
 
-=head1 OPTIONS
+== OPTIONS
 
-=over 4
-
-=item --help
-
+--help::
++
+--
 Print program arguments.
+--
 
-=item --version
-
+--version::
++
+--
 Print program version.
+--
 
-=item --extcap-interfaces
-
+--extcap-interfaces::
++
+--
 List available interfaces.
+--
 
-=item --extcap-interface=E<lt>interfaceE<gt>
-
+--extcap-interface=<interface>::
++
+--
 Use specified interfaces.
+--
 
-=item --extcap-dlts
-
+--extcap-dlts::
++
+--
 List DLTs of specified interface.
+--
 
-=item --extcap-config
-
+--extcap-config::
++
+--
 List configuration options of specified interface.
+--
 
-=item --capture
-
+--capture::
++
+--
 Start capturing from specified interface save saved it in place specified by --fifo.
+--
 
-=item --fifo=E<lt>path to file or pipeE<gt>
-
+--fifo=<path to file or pipe>::
++
+--
 Save captured packet to file or send it through pipe.
+--
 
-=item --maxbytes=E<lt>bytesE<gt>
-
+--maxbytes=<bytes>::
++
+--
 Set the max number of bytes per packet.
+--
 
-=item --count=E<lt>numE<gt>
-
+--count=<num>::
++
+--
 Number of packets to generate (-1 for infinite).
+--
 
-=item --delay=E<lt>msE<gt>
-
+--delay=<ms>::
++
+--
 Wait a number of milliseconds after writing each packet.
+--
 
-=item --random-type
-
+--random-type::
++
+--
 Choose a random packet type for all packets if set to true.
+--
 
-=item --all-random
-
+--all-random::
++
+--
 Choose a different random packet type for each packet if set to true.
+--
 
-=item --type=E<lt>packet typeE<gt>
-
+--type=<packet type>::
++
+--
 Use the selected packet type. To list all the available packet type, run randpktdump --help.
+--
 
-=back
-
-=head1 EXAMPLES
+== EXAMPLES
 
 To see program arguments:
 
@@ -139,20 +165,20 @@ To capture:
 
 NOTE: To stop capturing CTRL+C/kill/terminate application.
 
-=head1 SEE ALSO
+== SEE ALSO
 
-wireshark(1), tshark(1), dumpcap(1), extcap(4), randpkt(1)
+xref:wireshark.html[wireshark](1), xref:tshark.html[tshark](1), xref:dumpcap.html[dumpcap](1), xref:extcap.html[extcap](4), xref:randpkt.html[randpkt](1)
 
-=head1 NOTES
+== NOTES
 
-B<randpktdump> is part of the B<Wireshark> distribution.  The latest version
-of B<Wireshark> can be found at L<https://www.wireshark.org>.
+*randpktdump* is part of the *Wireshark* distribution.  The latest version
+of *Wireshark* can be found at https://www.wireshark.org.
 
 HTML versions of the Wireshark project man pages are available at:
-L<https://www.wireshark.org/docs/man-pages>.
+https://www.wireshark.org/docs/man-pages.
 
-=head1 AUTHORS
+== AUTHORS
 
-  Original Author
-  ---------------
-  Dario Lombardo             <lomato[AT]gmail.com>
+.Original Author
+[%hardbreaks]
+Dario Lombardo <lomato[AT]gmail.com>

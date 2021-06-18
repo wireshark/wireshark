@@ -58,10 +58,7 @@ BuildRequires:  python3
 BuildRequires:	gcc
 BuildRequires:	perl
 BuildRequires:	flex
-%if %{with guides}
-# HTML guides
 BuildRequires:	asciidoctor
-%endif
 
 BuildRequires:	glib2-devel >= 2.32.0
 Requires:	glib2

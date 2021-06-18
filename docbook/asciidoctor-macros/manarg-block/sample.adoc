@@ -1,0 +1,19 @@
+= androiddump(1)
+:doctype: manpage
+
+== NAME
+
+sample - Sample man page
+
+== SYNOPSIS
+
+[manarg]
+*androiddump*
+*--mandatory-argument
+[ *--optional-argument* ]
+*--complex-mandatory*=<argument>
+[ *--complex-optional*=<argument> ]
+
+== DESCRIPTION
+
+Sample man page.
