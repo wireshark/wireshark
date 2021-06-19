@@ -48,7 +48,18 @@
 
 #define DEFAULT_APPNAME     "PID"
 
-#define DOMAIN_NOTSET(domain)  ((domain) == NULL || *(domain) == '\0')
+#define DOMAIN_UNDEFED(domain)    ((domain) == NULL || *(domain) == '\0')
+#define DOMAIN_DEFINED(domain)    (!DOMAIN_UNDEFED(domain))
+
+/*
+ * Note: I didn't measure it but I assume using a string array is faster than
+ * a GHashTable for small number N of domains.
+ */
+typedef struct {
+    char **domainv;
+    gboolean positive;              /* positive or negative match */
+    enum ws_log_level max_level;    /* for level filters */
+} log_filter_t;
 
 
 static enum ws_log_level current_log_level = LOG_LEVEL_NONE;
@@ -58,25 +69,13 @@ static gboolean color_enabled = FALSE;
 static const char *registered_appname = NULL;
 
 /* List of domains to filter. */
-static GPtrArray *domain_filter = NULL;
+static log_filter_t *domain_filter = NULL;
 
 /* List of domains to output debug level unconditionally. */
-static GPtrArray *debug_filter = NULL;
+static log_filter_t *debug_filter = NULL;
 
 /* List of domains to output noisy level unconditionally. */
-static GPtrArray *noisy_filter = NULL;
-
-/* True if active domains should match, false if active domains should not
- * match. */
-static gboolean domain_filter_positive = TRUE;
-
-/* True if debug filter enables debug log level, false if debug filter
- * disables debug log level. */
-static gboolean debug_filter_positive = TRUE;
-
-/* True if noisy filter enables noisy log level, false if noisy filter
- * disables noisy log level. */
-static gboolean noisy_filter_positive = TRUE;
+static log_filter_t *noisy_filter = NULL;
 
 static ws_log_writer_cb *registered_log_writer = NULL;
 
@@ -148,19 +147,14 @@ static inline const char *domain_to_string(const char *domain)
 }
 
 
-static inline gboolean log_level_is_active(enum ws_log_level level)
+static inline gboolean filter_contains(log_filter_t *filter, const char *domain)
 {
-    return level <= current_log_level;
-}
+    ws_assert(filter);
+    ws_assert(domain);
+    char **domv;
 
-
-static inline gboolean filter_contains(GPtrArray *filter, const char *domain)
-{
-    if (filter == NULL || DOMAIN_NOTSET(domain))
-        return FALSE;
-
-    for (guint i = 0; i < filter->len; i++) {
-        if (g_ascii_strcasecmp(filter->pdata[i], domain) == 0) {
+    for (domv = filter->domainv; *domv != NULL; domv++) {
+        if (g_ascii_strcasecmp(*domv, domain) == 0) {
             return TRUE;
         }
     }
@@ -168,56 +162,37 @@ static inline gboolean filter_contains(GPtrArray *filter, const char *domain)
 }
 
 
-static inline gboolean log_domain_is_active(const char *domain)
-{
-    if (domain_filter == NULL)
-        return TRUE;
-
-    /*
-     * We don't filter the undefined domain, pretty much every permanent
-     * call to ws_log should be using a set domain.
-     */
-    if (DOMAIN_NOTSET(domain))
-        return TRUE;
-
-    if (filter_contains(domain_filter, domain))
-        return domain_filter_positive;
-
-    return !domain_filter_positive;
-}
-
-#define ACTIVE     1
-#define SILENT     0
-#define CONTINUE  -1
-
-static inline int level_filter_matches(GPtrArray *ptr, const char *domain,
+static gboolean level_filter_matches(log_filter_t *filter,
+                                        const char *domain,
                                         enum ws_log_level level,
-                                        enum ws_log_level max_level,
-                                        gboolean positive)
+                                        gboolean *active)
 {
-    if (filter_contains(ptr, domain) == FALSE)
-        return CONTINUE;
+    ws_assert(filter);
+    ws_assert(filter->max_level != LOG_LEVEL_NONE);
+    ws_assert(domain != NULL);
+    ws_assert(level != LOG_LEVEL_NONE);
+    ws_assert(active != NULL);
 
-    if (positive)
-        return level <= max_level ? ACTIVE : SILENT;
+    if (filter_contains(filter, domain) == FALSE)
+        return FALSE;
+
+    if (filter->positive) {
+        *active = level >= filter->max_level;
+        return TRUE;
+    }
 
     /* negative match */
-    return level >= max_level ? SILENT : CONTINUE;
+    if (level <= filter->max_level) {
+        *active = FALSE;
+        return TRUE;
+    }
+
+    return FALSE;
 }
-
-#define DEBUG_FILTER_MATCHES(domain, level) \
-            level_filter_matches(debug_filter, domain, level, \
-                        LOG_LEVEL_DEBUG, debug_filter_positive)
-
-#define NOISY_FILTER_MATCHES(domain, level) \
-            level_filter_matches(noisy_filter, domain, level, \
-                        LOG_LEVEL_NOISY, noisy_filter_positive)
 
 
 gboolean ws_log_msg_is_active(const char *domain, enum ws_log_level level)
 {
-    int action;
-
     /*
      * Lower numerical levels have higher priority. Critical and above
      * are always enabled.
@@ -225,13 +200,44 @@ gboolean ws_log_msg_is_active(const char *domain, enum ws_log_level level)
     if (level <= LOG_LEVEL_CRITICAL)
         return TRUE;
 
-    if ((action = NOISY_FILTER_MATCHES(domain, level)) != CONTINUE)
-        return action;
+    /*
+     * The debug/noisy filter overrides the other parameters.
+     */
+    if (DOMAIN_DEFINED(domain)) {
+        gboolean active;
+        if (noisy_filter && level_filter_matches(noisy_filter, domain, level, &active))
+            return active;
+        if (debug_filter && level_filter_matches(debug_filter, domain, level, &active))
+            return active;
+    }
 
-    if ((action = DEBUG_FILTER_MATCHES(domain, level)) != CONTINUE)
-        return action;
+    /*
+     * If the priority is lower than the current minimum drop the
+     * message.
+     */
+    if (level > current_log_level)
+        return FALSE;
 
-    return log_level_is_active(level) && log_domain_is_active(domain);
+    /*
+     * If we don't have domain filtering enabled we are done.
+     */
+    if (domain_filter == NULL)
+        return TRUE;
+
+    /*
+     * We have a filter but we don't use it with the undefined domain,
+     * pretty much every permanent call to ws_log should be using a
+     * chosen domain.
+     */
+    if (DOMAIN_UNDEFED(domain))
+        return TRUE;
+
+    /* Check if the domain filter matches. */
+    if (filter_contains(domain_filter, domain))
+        return domain_filter->positive;
+
+    /* We have a domain filter but it didn't match. */
+    return !domain_filter->positive;
 }
 
 
@@ -396,62 +402,79 @@ int ws_log_parse_args(int *argc_ptr, char *argv[], void (*print_err)(const char 
 }
 
 
-static GPtrArray *tokenize_filter_str(const char *str_filter,
-                                        gboolean *ret_positive)
+static void free_log_filter(log_filter_t **filter_ptr)
 {
-    char *tok;
+    ws_assert(filter_ptr);
+    if (*filter_ptr == NULL)
+        return;
+    g_strfreev((*filter_ptr)->domainv);
+    g_free(*filter_ptr);
+    *filter_ptr = NULL;
+}
+
+
+static void tokenize_filter_str(log_filter_t **filter_ptr, const char *str_filter,
+                            enum ws_log_level max_level)
+{
+    char *tok, *str;
     const char *sep = ",;";
-    char *list, *str;
-    GPtrArray *domains;
+    GPtrArray *ptr;
     gboolean negated = FALSE;
+    log_filter_t *filter;
 
-    ws_assert(str_filter);
+    ws_assert(filter_ptr);
+    ws_assert(*filter_ptr == NULL);
 
-    domains = g_ptr_array_new_with_free_func(g_free);
+    if (str_filter == NULL)
+        return;
 
-    list = str = g_strdup(str_filter);
-
-    if (str[0] == '!') {
+    if (str_filter[0] == '!') {
         negated = TRUE;
-        str += 1;
+        str_filter += 1;
     }
+    if (*str_filter == '\0')
+        return;
+
+    ptr = g_ptr_array_new_with_free_func(g_free);
+    str = g_strdup(str_filter);
 
     for (tok = strtok(str, sep); tok != NULL; tok = strtok(NULL, sep)) {
-        g_ptr_array_add(domains, g_strdup(tok));
+        g_ptr_array_add(ptr, g_strdup(tok));
     }
 
-    g_free(list);
+    g_free(str);
+    if (ptr->len == 0) {
+        g_ptr_array_free(ptr, TRUE);
+        return;
+    }
+    g_ptr_array_add(ptr, NULL);
 
-    if (ret_positive)
-        *ret_positive = !negated;
-    return domains;
+    filter = g_new(log_filter_t, 1);
+    filter->domainv = (void *)g_ptr_array_free(ptr, FALSE);
+    filter->positive = !negated;
+    filter->max_level = max_level;
+    *filter_ptr = filter;
 }
 
 
 void ws_log_set_domain_filter(const char *str_filter)
 {
-    if (domain_filter != NULL)
-        g_ptr_array_free(domain_filter, TRUE);
-
-    domain_filter = tokenize_filter_str(str_filter, &domain_filter_positive);
+    free_log_filter(&domain_filter);
+    tokenize_filter_str(&domain_filter, str_filter, LOG_LEVEL_NONE);
 }
 
 
 void ws_log_set_debug_filter(const char *str_filter)
 {
-    if (debug_filter != NULL)
-        g_ptr_array_free(debug_filter, TRUE);
-
-    debug_filter = tokenize_filter_str(str_filter, &debug_filter_positive);
+    free_log_filter(&debug_filter);
+    tokenize_filter_str(&debug_filter, str_filter, LOG_LEVEL_DEBUG);
 }
 
 
 void ws_log_set_noisy_filter(const char *str_filter)
 {
-    if (noisy_filter != NULL)
-        g_ptr_array_free(noisy_filter, TRUE);
-
-    noisy_filter = tokenize_filter_str(str_filter, &noisy_filter_positive);
+    free_log_filter(&noisy_filter);
+    tokenize_filter_str(&noisy_filter, str_filter, LOG_LEVEL_NOISY);
 }
 
 
@@ -690,18 +713,9 @@ static void ws_log_cleanup(void)
         fclose(custom_log);
         custom_log = NULL;
     }
-    if (domain_filter) {
-        g_ptr_array_free(domain_filter, TRUE);
-        domain_filter = NULL;
-    }
-    if (debug_filter) {
-        g_ptr_array_free(debug_filter, TRUE);
-        debug_filter = NULL;
-    }
-    if (noisy_filter) {
-        g_ptr_array_free(noisy_filter, TRUE);
-        noisy_filter = NULL;
-    }
+    free_log_filter(&domain_filter);
+    free_log_filter(&debug_filter);
+    free_log_filter(&noisy_filter);
 }
 
 
