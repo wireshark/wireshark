@@ -168,6 +168,9 @@ static inline gboolean filter_contains(GPtrArray *filter, const char *domain)
 
 static inline gboolean log_domain_is_active(const char *domain)
 {
+    if (domain_filter == NULL)
+        return TRUE;
+
     /*
      * We don't filter the undefined domain, pretty much every permanent
      * call to ws_log should be using a set domain.
