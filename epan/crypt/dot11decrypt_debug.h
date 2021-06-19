@@ -24,7 +24,7 @@ static inline void
 debug_dump(const char *file, int line, const char* func,
            const char* x, const guint8* y, size_t z, enum ws_log_level level)
 {
-    if (!ws_log_message_is_active(WS_LOG_DOMAIN, level))
+    if (!ws_log_msg_is_active(WS_LOG_DOMAIN, level))
         return;
     char* tmp_str = bytes_to_str(NULL, y, (z));
     ws_log_full(WS_LOG_DOMAIN, level, file, line, func, "%s: %s", x, tmp_str);

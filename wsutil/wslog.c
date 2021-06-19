@@ -221,7 +221,7 @@ static inline int level_filter_matches(GPtrArray *ptr, const char *domain,
                         LOG_LEVEL_NOISY, noisy_filter_positive)
 
 
-gboolean ws_log_message_is_active(const char *domain, enum ws_log_level level)
+gboolean ws_log_msg_is_active(const char *domain, enum ws_log_level level)
 {
     int action;
 
@@ -623,7 +623,7 @@ void ws_logv(const char *domain, enum ws_log_level level,
                     const char *format, va_list ap)
 {
 
-    if (ws_log_message_is_active(domain, level) == FALSE)
+    if (ws_log_msg_is_active(domain, level) == FALSE)
         return;
 
     log_write_dispatch(domain, level, NULL, -1, NULL, format, ap);
@@ -634,7 +634,7 @@ void ws_logv_full(const char *domain, enum ws_log_level level,
                     const char *file, int line, const char *func,
                     const char *format, va_list ap)
 {
-    if (ws_log_message_is_active(domain, level) == FALSE)
+    if (ws_log_msg_is_active(domain, level) == FALSE)
         return;
 
     log_write_dispatch(domain, level, file, line, func, format, ap);
@@ -646,7 +646,7 @@ void ws_log(const char *domain, enum ws_log_level level,
 {
     va_list ap;
 
-    if (ws_log_message_is_active(domain, level) == FALSE)
+    if (ws_log_msg_is_active(domain, level) == FALSE)
         return;
 
     va_start(ap, format);
@@ -661,7 +661,7 @@ void ws_log_full(const char *domain, enum ws_log_level level,
 {
     va_list ap;
 
-    if (ws_log_message_is_active(domain, level) == FALSE)
+    if (ws_log_msg_is_active(domain, level) == FALSE)
         return;
 
     va_start(ap, format);

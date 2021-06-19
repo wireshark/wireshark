@@ -1098,7 +1098,7 @@ sync_pipe_run_command(char* const argv[], gchar **data, gchar **primary_msg,
     int logging_enabled;
 
     /* check if logging is actually enabled, otherwise don't expend the CPU generating logging */
-    logging_enabled = ws_log_message_is_active(WS_LOG_DOMAIN, LOG_LEVEL_INFO);
+    logging_enabled = ws_log_msg_is_active(WS_LOG_DOMAIN, LOG_LEVEL_INFO);
     if (logging_enabled) {
         start_time = g_get_monotonic_time();
         ws_info("sync_pipe_run_command() starts");

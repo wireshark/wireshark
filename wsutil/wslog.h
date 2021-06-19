@@ -55,7 +55,7 @@ const char *ws_log_level_to_string(enum ws_log_level level);
  * Returns TRUE if a message will be printed for the domain/log_level combo.
  */
 WS_DLL_PUBLIC
-gboolean ws_log_message_is_active(const char *domain, enum ws_log_level level);
+gboolean ws_log_msg_is_active(const char *domain, enum ws_log_level level);
 
 
 /** Return the currently active log level. */
