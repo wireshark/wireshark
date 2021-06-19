@@ -1096,7 +1096,7 @@ It might take some time, even on fast machines.
 ====
 
 If everything went well, you will now find something like:
-_WiresharkPortable_{wireshark-version}.paf.exe_ in
+_WiresharkPortable64_{wireshark-version}.paf.exe_ in
 the _packaging/portableapps_ directory.
 
 [[ChSrcMimeTypes]]

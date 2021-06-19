@@ -989,7 +989,8 @@ Wireshark’s .msi packaging is currently experimental and the generated package
 === Windows: PortableApps (Optional)
 
 The PortableApps.com Installer is used to generate
-_WiresharkPortable-{wireshark-version}.paf.exe_ from all the files
+_WiresharkPortable64-{wireshark-version}.paf.exe_ and
+_WiresharkPortable32-{wireshark-version}.paf.exe_ from all the files
 needed to be installed, including all required DLLs, plugins, and supporting
 files.
 
@@ -1003,10 +1004,6 @@ To install it, do the following:
 ** PortableApps.com Installer
 
 ** PortableApps.com Launcher
-
-** NSIS Portable (Unicode)
-
-** PortableApps.com AppCompactor
 
 You can find more instructions on using the PortableApps.com Installer in
 <<ChSrcPortableApps>>.

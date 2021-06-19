@@ -7,10 +7,24 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
 
-# To do:
-# - Use CPack to generate the PortableApps package.
+# PortableApps.com appears to use "FooAppPortable" for 32-bit packages
+# and "FooAppPortable64" for 64-bit packages. We deviate from that here
+# by always appending a bit suffix.
+#
+# PA.com also tends to ship 32-bit and 64-bit executables in combined
+# packages. We don't do that because a) we're large and b) we build
+# our 32-bit and 64-bit packages independently in separate pipelines.
 
-set(PORTABLEAPPS_NAME "${CMAKE_PROJECT_NAME}Portable")
+if(WIRESHARK_TARGET_PLATFORM STREQUAL "win32")
+	set(PORTABLEAPPS_BITS 32)
+elseif(WIRESHARK_TARGET_PLATFORM STREQUAL "win64")
+	set(PORTABLEAPPS_BITS 64)
+else()
+		message(FATAL_ERROR "Your mysterious moon-man architecture \"${WIRESHARK_TARGET_PLATFORM}\" frightens and confuses us.")
+endif()
+set(PORTABLEAPPS_BITS ${PORTABLEAPPS_BITS} PARENT_SCOPE)
+
+set(PORTABLEAPPS_NAME "${CMAKE_PROJECT_NAME}Portable${PORTABLEAPPS_BITS}")
 set(PORTABLEAPPS_NAME ${PORTABLEAPPS_NAME} PARENT_SCOPE)
 
 set (_launcher_dir "${CMAKE_CURRENT_BINARY_DIR}/${PORTABLEAPPS_NAME}")
@@ -66,7 +80,7 @@ macro( ADD_PORTABLEAPPS_PACKAGE_TARGET )
 
 	# Build the PortableApps package.
 	# nsis_package_prep must be built prior to this.
-	set (_portableapps_package ${CMAKE_BINARY_DIR}/packaging/portableapps/WiresharkPortable_$(VERSION).exe)
+	set (_portableapps_package ${CMAKE_BINARY_DIR}/packaging/portableapps/${PORTABLEAPPS_NAME}_${VERSION}.paf.exe)
 	add_custom_target(portableapps_package
 		DEPENDS
 			portableapps_runtime
@@ -85,17 +99,14 @@ macro( ADD_PORTABLEAPPS_PACKAGE_TARGET )
 	)
 
 	foreach(_portableapps_dir ${PORTABLEAPPS_DIRS})
-		add_custom_command(OUTPUT ${_portableapps_dir}
-			COMMAND ${CMAKE_COMMAND} -E make_directory ${_portableapps_dir}
-		)
+		file(MAKE_DIRECTORY ${_portableapps_dir})
 	endforeach()
 
 	set(_portableapps_launcher_ini ${PORTABLEAPPS_LAUNCHER_STAGING_DIR}/App/AppInfo/Launcher/${PORTABLEAPPS_NAME}.ini)
-	add_custom_command(OUTPUT ${_portableapps_launcher_ini}
-		DEPENDS
-			${PORTABLEAPPS_DIRS}
-			${CMAKE_SOURCE_DIR}/packaging/portableapps/${PORTABLEAPPS_NAME}.ini
-		COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_SOURCE_DIR}/packaging/portableapps/${PORTABLEAPPS_NAME}.ini ${_portableapps_launcher_ini}
+	configure_file(
+		${CMAKE_SOURCE_DIR}/packaging/portableapps/${CMAKE_PROJECT_NAME}Portable.tmpl
+		${_portableapps_launcher_ini}
+		NEWLINE_STYLE WIN32
 	)
 
 	set(_portableapps_launcher_exe ${PORTABLEAPPS_LAUNCHER_STAGING_DIR}/${PORTABLEAPPS_NAME}.exe)
@@ -114,8 +125,8 @@ macro( ADD_PORTABLEAPPS_PACKAGE_TARGET )
 
 	add_custom_command(OUTPUT ${_portableapps_package}
 		DEPENDS
-			${PORTABLEAPPS_DIRS}
-			${CMAKE_BINARY_DIR}/packaging/portableapps/appinfo.ini
+			${PORTABLEAPPS_LAUNCHER_STAGING_DIR}/App/AppInfo/appinfo.ini
+			${_portableapps_launcher_ini}
 			${_portableapps_launcher_exe}
 		COMMAND ${PORTABLEAPPS_INSTALLER_EXECUTABLE} ${_portableapps_native}
 	)
