@@ -150,13 +150,6 @@ static inline const char *domain_to_string(const char *domain)
 
 static inline gboolean log_level_is_active(enum ws_log_level level)
 {
-    /*
-     * Lower numerical levels have higher priority. Critical and above
-     * are always enabled.
-     */
-    if (level <= LOG_LEVEL_CRITICAL)
-        return TRUE;
-
     return level <= current_log_level;
 }
 
@@ -224,6 +217,13 @@ static inline int level_filter_matches(GPtrArray *ptr, const char *domain,
 gboolean ws_log_msg_is_active(const char *domain, enum ws_log_level level)
 {
     int action;
+
+    /*
+     * Lower numerical levels have higher priority. Critical and above
+     * are always enabled.
+     */
+    if (level <= LOG_LEVEL_CRITICAL)
+        return TRUE;
 
     if ((action = NOISY_FILTER_MATCHES(domain, level)) != CONTINUE)
         return action;
