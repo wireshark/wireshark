@@ -127,6 +127,8 @@ static int hf_quic_stream_fin = -1;
 static int hf_quic_stream_len = -1;
 static int hf_quic_stream_off = -1;
 static int hf_quic_stream_stream_id = -1;
+static int hf_quic_stream_initiator = -1;
+static int hf_quic_stream_direction = -1;
 static int hf_quic_stream_offset = -1;
 static int hf_quic_stream_length = -1;
 static int hf_quic_stream_data = -1;
@@ -199,6 +201,7 @@ static gint ett_quic_short_header = -1;
 static gint ett_quic_connection_info = -1;
 static gint ett_quic_ft = -1;
 static gint ett_quic_ftflags = -1;
+static gint ett_quic_ftid = -1;
 static gint ett_quic_fragments = -1;
 static gint ett_quic_fragment = -1;
 
@@ -612,6 +615,9 @@ static const range_string quic_frame_type_vals[] = {
 #define FTFLAGS_STREAM_LEN 0x02
 #define FTFLAGS_STREAM_OFF 0x04
 
+#define FTFLAGS_STREAM_INITIATOR 0x01
+#define FTFLAGS_STREAM_DIRECTION 0x02
+
 static const range_string quic_transport_error_code_vals[] = {
     /* 0x00 - 0x3f Assigned via Standards Action or IESG Review policies. */
     { 0x0000, 0x0000, "NO_ERROR" },
@@ -645,6 +651,17 @@ static const value_string quic_packet_number_lengths[] = {
     { 0, NULL }
 };
 
+static const val64_string quic_frame_id_initiator[] = {
+    { 0, "Client-initiated" },
+    { 1, "Server-initiated" },
+    { 0, NULL }
+};
+
+static const val64_string quic_frame_id_direction[] = {
+    { 0, "Bidirectional" },
+    { 1, "Unidirectional" },
+    { 0, NULL }
+};
 
 static void
 quic_extract_header(tvbuff_t *tvb, guint8 *long_packet_type, guint32 *version,
@@ -1581,8 +1598,8 @@ void *quic_stream_get_proto_data(packet_info *pinfo, quic_stream_info *stream_in
 static int
 dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint offset, quic_info_data_t *quic_info, gboolean from_server)
 {
-    proto_item *ti_ft, *ti_ftflags, *ti;
-    proto_tree *ft_tree, *ftflags_tree;
+    proto_item *ti_ft, *ti_ftflags, *ti_ftid, *ti;
+    proto_tree *ft_tree, *ftflags_tree, *ftid_tree;
     guint64 frame_type;
     gint32 lenft;
     guint   orig_offset = offset;
@@ -1777,7 +1794,10 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             proto_tree_add_item(ftflags_tree, hf_quic_stream_off, tvb, offset, 1, ENC_NA);
             offset += 1;
 
-            proto_tree_add_item_ret_varint(ft_tree, hf_quic_stream_stream_id, tvb, offset, -1, ENC_VARINT_QUIC, &stream_id, &lenvar);
+            ti_ftid = proto_tree_add_item_ret_varint(ft_tree, hf_quic_stream_stream_id, tvb, offset, -1, ENC_VARINT_QUIC, &stream_id, &lenvar);
+            ftid_tree = proto_item_add_subtree(ti_ftid, ett_quic_ftid);
+            proto_tree_add_item_ret_varint(ftid_tree, hf_quic_stream_initiator, tvb, offset, -1, ENC_VARINT_QUIC, NULL, NULL);
+            proto_tree_add_item_ret_varint(ftid_tree, hf_quic_stream_direction, tvb, offset, -1, ENC_VARINT_QUIC, NULL, NULL);
             offset += lenvar;
 
             proto_item_append_text(ti_ft, " id=%" G_GINT64_MODIFIER "u", stream_id);
@@ -1797,7 +1817,9 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             } else {
                 length = tvb_reported_length_remaining(tvb, offset);
             }
-            proto_item_append_text(ti_ft, " len=%" G_GINT64_MODIFIER "u uni=%d", length, !!(stream_id & 2U));
+            proto_item_append_text(ti_ft, " len=%" G_GINT64_MODIFIER "u dir=%s origin=%s", length,
+                                   val64_to_str_const(!!(stream_id & FTFLAGS_STREAM_DIRECTION), quic_frame_id_direction, "unknown"),
+                                   val64_to_str_const(!!(stream_id & FTFLAGS_STREAM_INITIATOR), quic_frame_id_initiator, "unknown"));
 
             proto_tree_add_item(ft_tree, hf_quic_stream_data, tvb, offset, (int)length, ENC_NA);
             if (have_tap_listener(quic_follow_tap)) {
@@ -4193,6 +4215,16 @@ proto_register_quic(void)
             FT_UINT64, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
+        { &hf_quic_stream_initiator,
+          { "Stream initiator", "quic.stream.initiator",
+            FT_UINT64, BASE_DEC | BASE_VAL64_STRING, VALS64(quic_frame_id_initiator), FTFLAGS_STREAM_INITIATOR,
+            NULL, HFILL }
+        },
+        { &hf_quic_stream_direction,
+          { "Stream direction", "quic.stream.direction",
+            FT_UINT64, BASE_DEC | BASE_VAL64_STRING, VALS64(quic_frame_id_direction), FTFLAGS_STREAM_DIRECTION,
+            NULL, HFILL }
+        },
         { &hf_quic_stream_offset,
           { "Offset", "quic.stream.offset",
             FT_UINT64, BASE_DEC, NULL, 0x0,
@@ -4427,6 +4459,7 @@ proto_register_quic(void)
         &ett_quic_connection_info,
         &ett_quic_ft,
         &ett_quic_ftflags,
+        &ett_quic_ftid,
         &ett_quic_fragments,
         &ett_quic_fragment,
     };
