@@ -41,12 +41,6 @@ class case_unittests(subprocesstest.SubprocessTestCase):
             '--verbose'
         ), env=base_env)
 
-    def test_unit_wmem_test(self, program, base_env):
-        '''wmem_test'''
-        self.assertRun((program('wmem_test'),
-            '--verbose'
-        ), env=base_env)
-
     def test_unit_fieldcount(self, cmd_tshark, test_env):
         '''fieldcount'''
         self.assertRun((cmd_tshark, '-G', 'fieldcount'), env=test_env)
