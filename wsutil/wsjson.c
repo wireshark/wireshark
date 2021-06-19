@@ -99,7 +99,7 @@ jsmntok_t *json_get_next_object(jsmntok_t *cur)
     return next;
 }
 
-jsmntok_t *json_get_object(const char *buf, jsmntok_t *parent, const gchar* name)
+jsmntok_t *json_get_object(const char *buf, jsmntok_t *parent, const char *name)
 {
     int i;
     jsmntok_t *cur = parent+1;
@@ -116,7 +116,44 @@ jsmntok_t *json_get_object(const char *buf, jsmntok_t *parent, const gchar* name
     return NULL;
 }
 
-char *json_get_string(char *buf, jsmntok_t *parent, const gchar* name)
+jsmntok_t *json_get_array(const char *buf, jsmntok_t *parent, const char *name)
+{
+    int i;
+    jsmntok_t *cur = parent+1;
+
+    for (i = 0; i < parent->size; i++) {
+        if (cur->type == JSMN_STRING &&
+            !strncmp(&buf[cur->start], name, cur->end - cur->start)
+            && strlen(name) == (size_t)(cur->end - cur->start) &&
+            cur->size == 1 && (cur+1)->type == JSMN_ARRAY) {
+            return cur+1;
+        }
+        cur = json_get_next_object(cur);
+    }
+    return NULL;
+}
+
+int json_get_array_len(jsmntok_t *array)
+{
+    if (array->type != JSMN_ARRAY)
+        return -1;
+    return array->size;
+}
+
+jsmntok_t *json_get_array_index(jsmntok_t *array, int idx)
+{
+    int i;
+    jsmntok_t *cur = array+1;
+
+
+    if (array->type != JSMN_ARRAY || idx < 0 || idx >= array->size)
+        return NULL;
+    for (i = 0; i < idx; i++)
+        cur = json_get_next_object(cur);
+    return cur;
+}
+
+char *json_get_string(char *buf, jsmntok_t *parent, const char *name)
 {
     int i;
     jsmntok_t *cur = parent+1;
@@ -136,7 +173,7 @@ char *json_get_string(char *buf, jsmntok_t *parent, const gchar* name)
     return NULL;
 }
 
-gboolean json_get_double(char *buf, jsmntok_t *parent, const gchar* name, gdouble *val)
+gboolean json_get_double(char *buf, jsmntok_t *parent, const char *name, gdouble *val)
 {
     int i;
     jsmntok_t *cur = parent+1;

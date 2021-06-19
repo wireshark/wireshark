@@ -123,6 +123,9 @@ libwsutil.so.0 libwsutil0 #MINVER#
  json_dumper_value_string@Base 2.9.0
  json_dumper_value_va_list@Base 2.9.1
  json_dumper_write_base64@Base 2.9.1
+ json_get_array@Base 3.5.0
+ json_get_array_index@Base 3.5.0
+ json_get_array_len@Base 3.5.0
  json_get_double@Base 3.1.0
  json_get_object@Base 3.1.0
  json_get_string@Base 3.1.0

@@ -33,20 +33,38 @@ WS_DLL_PUBLIC int json_parse(const char *buf, jsmntok_t *tokens, unsigned int ma
  * Get the pointer to an object belonging to parent object and named as the name variable.
  * Returns NULL if not found.
  */
-WS_DLL_PUBLIC jsmntok_t *json_get_object(const char *buf, jsmntok_t *parent, const gchar* name);
+WS_DLL_PUBLIC jsmntok_t *json_get_object(const char *buf, jsmntok_t *parent, const char *name);
+
+/**
+ * Get the pointer to an array belonging to parent object and named as the name variable.
+ * Returns NULL if not found.
+ */
+WS_DLL_PUBLIC jsmntok_t *json_get_array(const char *buf, jsmntok_t *parent, const char *name);
+
+/**
+ * Get the number of elements of an array.
+ * Returns -1 if the JSON objecct is not an array.
+ */
+WS_DLL_PUBLIC int json_get_array_len(jsmntok_t *array);
+
+/**
+ * Get the pointer to idx element of an array.
+ * Returns NULL if not found.
+ */
+WS_DLL_PUBLIC jsmntok_t *json_get_array_index(jsmntok_t *parent, int idx);
 
 /**
  * Get the unescaped value of a string object belonging to parent object and named as the name variable.
  * Returns NULL if not found. Caution: it modifies input buffer.
  */
-WS_DLL_PUBLIC char *json_get_string(char *buf, jsmntok_t *parent, const gchar* name);
+WS_DLL_PUBLIC char *json_get_string(char *buf, jsmntok_t *parent, const char *name);
 
 /**
  * Get the value of a number object belonging to parent object and named as the name variable.
  * Returns FALSE if not found. Caution: it modifies input buffer.
  * Scientific notation not supported yet.
  */
-WS_DLL_PUBLIC gboolean json_get_double(char *buf, jsmntok_t *parent, const gchar* name, gdouble *val);
+WS_DLL_PUBLIC gboolean json_get_double(char *buf, jsmntok_t *parent, const char *name, gdouble *val);
 
 /**
  * Decode the contents of a JSON string value by overwriting the input data.
