@@ -140,7 +140,8 @@ show_exception(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		    pinfo->current_proto,
 		    exception_message == NULL ?
 		        dissector_error_nomsg : exception_message);
-		ws_warning("Dissector bug, protocol %s, in packet %u: %s",
+		ws_log(WS_LOG_DOMAIN, LOG_LEVEL_WARNING,
+		    "Dissector bug, protocol %s, in packet %u: %s",
 		    pinfo->current_proto, pinfo->num,
 		    exception_message == NULL ?
 		        dissector_error_nomsg : exception_message);
