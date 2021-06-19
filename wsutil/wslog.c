@@ -58,7 +58,7 @@
 typedef struct {
     char **domainv;
     gboolean positive;              /* positive or negative match */
-    enum ws_log_level max_level;    /* for level filters */
+    enum ws_log_level min_level;    /* for level filters */
 } log_filter_t;
 
 
@@ -168,7 +168,7 @@ static gboolean level_filter_matches(log_filter_t *filter,
                                         gboolean *active)
 {
     ws_assert(filter);
-    ws_assert(filter->max_level != LOG_LEVEL_NONE);
+    ws_assert(filter->min_level != LOG_LEVEL_NONE);
     ws_assert(domain != NULL);
     ws_assert(level != LOG_LEVEL_NONE);
     ws_assert(active != NULL);
@@ -177,12 +177,12 @@ static gboolean level_filter_matches(log_filter_t *filter,
         return FALSE;
 
     if (filter->positive) {
-        *active = level >= filter->max_level;
+        *active = level >= filter->min_level;
         return TRUE;
     }
 
     /* negative match */
-    if (level <= filter->max_level) {
+    if (level <= filter->min_level) {
         *active = FALSE;
         return TRUE;
     }
@@ -194,10 +194,10 @@ static gboolean level_filter_matches(log_filter_t *filter,
 gboolean ws_log_msg_is_active(const char *domain, enum ws_log_level level)
 {
     /*
-     * Lower numerical levels have higher priority. Critical and above
+     * Higher numerical levels have higher priority. Critical and above
      * are always enabled.
      */
-    if (level <= LOG_LEVEL_CRITICAL)
+    if (level >= LOG_LEVEL_CRITICAL)
         return TRUE;
 
     /*
@@ -215,7 +215,7 @@ gboolean ws_log_msg_is_active(const char *domain, enum ws_log_level level)
      * If the priority is lower than the current minimum drop the
      * message.
      */
-    if (level > current_log_level)
+    if (level < current_log_level)
         return FALSE;
 
     /*
@@ -414,7 +414,7 @@ static void free_log_filter(log_filter_t **filter_ptr)
 
 
 static void tokenize_filter_str(log_filter_t **filter_ptr, const char *str_filter,
-                            enum ws_log_level max_level)
+                            enum ws_log_level min_level)
 {
     char *tok, *str;
     const char *sep = ",;";
@@ -452,7 +452,7 @@ static void tokenize_filter_str(log_filter_t **filter_ptr, const char *str_filte
     filter = g_new(log_filter_t, 1);
     filter->domainv = (void *)g_ptr_array_free(ptr, FALSE);
     filter->positive = !negated;
-    filter->max_level = max_level;
+    filter->min_level = min_level;
     *filter_ptr = filter;
 }
 
@@ -482,8 +482,8 @@ enum ws_log_level ws_log_set_fatal(enum ws_log_level log_level)
 {
     ws_assert(log_level > LOG_LEVEL_NONE);
 
-    /* Not possible to set lower level than "warning" to fatal. */
-    if (log_level > LOG_LEVEL_WARNING)
+    /* Not possible to set lower priority than "warning" to fatal. */
+    if (log_level < LOG_LEVEL_WARNING)
         return LOG_LEVEL_NONE;
 
     fatal_log_level = log_level;
@@ -635,7 +635,7 @@ static void log_write_dispatch(const char *domain, enum ws_log_level level,
     g_free(tstamp);
 
     ws_assert(level != LOG_LEVEL_NONE);
-    if (level <= fatal_log_level) {
+    if (level >= fatal_log_level) {
         G_BREAKPOINT();
         ws_assert_not_reached();
     }
