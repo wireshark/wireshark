@@ -94,7 +94,7 @@ const char *ws_log_level_to_string(enum ws_log_level level)
 {
     switch (level) {
         case LOG_LEVEL_NONE:
-            return "(none)";
+            return "(zero)";
         case LOG_LEVEL_ERROR:
             return "ERROR";
         case LOG_LEVEL_CRITICAL:
@@ -136,6 +136,13 @@ static enum ws_log_level string_to_log_level(const char *str_level)
         return LOG_LEVEL_ERROR;
     else
         return LOG_LEVEL_NONE;
+}
+
+
+WS_RETNONNULL
+static inline const char *domain_to_string(const char *domain)
+{
+    return (domain == NULL) ? "(none)" : domain;
 }
 
 
@@ -536,6 +543,7 @@ static void log_write_do_work(FILE *fp, gboolean use_color, const char *timestam
                                 const char *file, int line, const char *func,
                                 const char *user_format, va_list user_ap)
 {
+    const char *domain_str = domain_to_string(domain);
     const char *level_str = ws_log_level_to_string(level);
     gboolean doextra = (level != LOG_LEVEL_MESSAGE);
 
@@ -552,10 +560,7 @@ static void log_write_do_work(FILE *fp, gboolean use_color, const char *timestam
         fputc(' ', fp);
     }
 
-    if (DOMAIN_NOTSET(domain))
-        fprintf(fp, "[%s] ", level_str);
-    else
-        fprintf(fp, "[%s-%s] ", domain, level_str);
+    fprintf(fp, "[%s-%s] ", domain_str, level_str);
 
     if (doextra) {
         if (file && line >= 0) {
