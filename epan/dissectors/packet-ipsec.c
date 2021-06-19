@@ -130,8 +130,11 @@ static dissector_table_t ip_dissector_table;
 /* Encryption algorithm defined in RFC 2144 */
 #define IPSEC_ENCRYPT_CAST5_CBC 7
 
-/* Encryption algorithm defined in RFC 4106 */
-#define IPSEC_ENCRYPT_AES_GCM 8
+/* Encryption algorithms defined in RFC 4106 */
+#define IPSEC_ENCRYPT_AES_GCM     8
+#define IPSEC_ENCRYPT_AES_GCM_8   9
+#define IPSEC_ENCRYPT_AES_GCM_12  10
+#define IPSEC_ENCRYPT_AES_GCM_16  11
 
 /* Authentication algorithms defined in RFC 4305 */
 #define IPSEC_AUTH_NULL 0
@@ -1794,6 +1797,12 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
           }
           break;
 
+        case IPSEC_ENCRYPT_AES_GCM_8 :
+        case IPSEC_ENCRYPT_AES_GCM_12:
+        case IPSEC_ENCRYPT_AES_GCM_16 :
+          esp_crypt_algo = IPSEC_ENCRYPT_AES_GCM;
+          /* falls through */
+
         case IPSEC_ENCRYPT_AES_CTR :
         case IPSEC_ENCRYPT_AES_GCM :
           /* RFC 3686 says :
@@ -2368,7 +2377,10 @@ proto_register_ipsec(void)
     { IPSEC_ENCRYPT_CAST5_CBC, "CAST5-CBC [RFC2144]" },
     { IPSEC_ENCRYPT_BLOWFISH_CBC, "BLOWFISH-CBC [RFC2451]" },
     { IPSEC_ENCRYPT_TWOFISH_CBC, "TWOFISH-CBC" },
-    { IPSEC_ENCRYPT_AES_GCM, "AES-GCM [RFC4106]" },
+    { IPSEC_ENCRYPT_AES_GCM,    "AES-GCM [RFC4106]" }, /*  unspecified ICV length */
+    { IPSEC_ENCRYPT_AES_GCM_8,  "AES-GCM with 8 octet ICV [RFC4106]" },
+    { IPSEC_ENCRYPT_AES_GCM_12, "AES-GCM with 12 octet ICV [RFC4106]" },
+    { IPSEC_ENCRYPT_AES_GCM_16, "AES-GCM with 16 octet ICV [RFC4106]" },
     { 0x00, NULL }
   };
 
