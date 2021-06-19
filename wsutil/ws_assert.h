@@ -41,7 +41,7 @@ static inline
 WS_NORETURN void ws_assert_not_reached(void) {
     g_assert_not_reached();
     abort();
-};
+}
 
 /*
  * ws_abort_if_fail() is always enabled. Usually used to appease a static
