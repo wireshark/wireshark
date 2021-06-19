@@ -459,8 +459,8 @@ enum ws_log_level ws_log_set_fatal(enum ws_log_level log_level)
 {
     ws_assert(log_level > LOG_LEVEL_NONE);
 
-    /* Not possible to set lower level than "critical" to fatal. */
-    if (log_level > LOG_LEVEL_CRITICAL)
+    /* Not possible to set lower level than "warning" to fatal. */
+    if (log_level > LOG_LEVEL_WARNING)
         return LOG_LEVEL_NONE;
 
     fatal_log_level = log_level;
@@ -720,6 +720,7 @@ void ws_log_print_usage(FILE *fp)
     fprintf(fp, "  --log-level <level>      one of \"critical\", \"warning\", \"message\","
                                             "\"info\", \"debug\" or \"noisy\"\n");
     fprintf(fp, "  --log-domains <list>     comma separated list of the active log domains\n");
+    fprintf(fp, "  --log-fatal <level>      one of \"critical\" or \"warning\", causes level to abort the program\n");
     fprintf(fp, "  --log-file <file>        path of file to output messages to (in addition to stderr)\n");
     fprintf(fp, "  --log-debug <list>       comma separated list of domains with \"debug\" level\n");
     fprintf(fp, "  --log-noisy <list>       comma separated list of domains with \"noisy\" level\n");
