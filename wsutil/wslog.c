@@ -46,6 +46,8 @@
 
 #define DEFAULT_LOG_LEVEL   LOG_LEVEL_MESSAGE
 
+#define DEFAULT_APPNAME     "PID"
+
 #define DOMAIN_NOTSET(domain)  ((domain) == NULL || *(domain) == '\0')
 
 
@@ -478,6 +480,8 @@ void ws_log_init(ws_log_writer_cb *writer)
     const char *env;
 
     registered_appname = g_get_prgname();
+    if (registered_appname == NULL)
+        registered_appname = DEFAULT_APPNAME;
 
     if (writer)
         registered_log_writer = writer;
@@ -545,15 +549,12 @@ static void log_write_do_work(FILE *fp, gboolean use_color, const char *timestam
 {
     const char *domain_str = domain_to_string(domain);
     const char *level_str = ws_log_level_to_string(level);
-    gboolean doextra = (level != LOG_LEVEL_MESSAGE);
+    gboolean doextra = (level != DEFAULT_LOG_LEVEL);
 
-    if (doextra) {
-        fprintf(fp, " ** (%s:%ld) ", registered_appname ?
-                        registered_appname : "PID", (long)getpid());
-    }
-    else {
+    if (doextra)
+        fprintf(fp, " ** (%s:%ld) ", registered_appname, (long)getpid());
+    else
         fputs(" ** ", fp);
-    }
 
     if (timestamp) {
         fputs(timestamp, fp);
