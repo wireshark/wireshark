@@ -3274,10 +3274,31 @@ static int populate_summary_info(erf_t *erf_priv, wtap *wth, union wtap_pseudo_h
          * Since wireshark doesn't have a concept of different summary metadata
          * over time, skip the record if metadata is older than what we already have.
          */
-        /* TODO: This doesn't work very well for some tags that wireshark only
-         * supports one copy of, we'll only end up with the first one.
-         * wtap_block_set_*_value() currently fails on WTAP_OPTTYPE_NOT_FOUND
-         * for everything except strings.
+        /* TODO: This doesn't work very well for some tags that map to
+         * pcapng options where the pcapng specification only allows one
+         * instance per block, which is the case for most options.  The
+         * only current exxceptions are:
+         *
+         *   comments;
+         *   IPv4 and IPv6 addresses for an interface;
+         *   hash values for a packet;
+         *   custom options.
+         *
+         * For options where only one instance is allowed per block,
+         * wtap_block_add_XXX_option() is currently used to add a new
+         * instance of an option to a block that has no instance (it
+         * fails if there's already an instance), and
+         * wtap_block_set_XXX_optin() is currently used to change the
+         * value of an option in a block that has one instance (it fails
+         * if there isn't already an instance).
+         *
+         * For options where more than one instance is allowed per block,
+         * wtap_block_add_XXX_option() is used to add a new instance to
+         * a block, no matter how many instances it currently has, and
+         * wtap_block_set_nth_XXX_option() is used to change the value
+         * of the Nth instance of an option in a block (the block must
+         * *have* an Nth instance).
+         *
          * Currently we only particularly care about updating the capture comment
          * and a few counters anyway.
          */
