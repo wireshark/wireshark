@@ -25,6 +25,7 @@
 #include <wsutil/filesystem.h>
 #include <wsutil/privileges.h>
 #include <wsutil/report_message.h>
+#include <wsutil/wslog.h>
 #include <version_info.h>
 
 #include <wiretap/wtap.h>
@@ -233,6 +234,9 @@ fuzz_init(int argc _U_, char **argv)
 
 	g_setenv("WIRESHARK_DEBUG_WMEM_OVERRIDE", "simple", 0);
 	g_setenv("G_SLICE", "always-malloc", 0);
+
+	/* Initialize log handler early so we can have proper logging during startup. */
+	ws_log_init("fuzzshark", NULL);
 
 	cmdarg_err_init(fuzzshark_cmdarg_err, fuzzshark_cmdarg_err_cont);
 

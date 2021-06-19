@@ -42,6 +42,7 @@
 #include <wsutil/privileges.h>
 #include <wsutil/strnatcmp.h>
 #include <wsutil/ws_assert.h>
+#include <wsutil/wslog.h>
 
 #include <cli_main.h>
 #include <version_info.h>
@@ -227,7 +228,13 @@ main(int argc, char *argv[])
   idb_merge_mode      mode               = IDB_MERGE_MODE_MAX;
   merge_progress_callback_t cb;
 
+  /* Initialize log handler early so we can have proper logging during startup. */
+  ws_log_init("mergecap", NULL);
+
   cmdarg_err_init(mergecap_cmdarg_err, mergecap_cmdarg_err_cont);
+
+  /* Early logging command-line initialization. */
+  ws_log_parse_args(&argc, argv, vcmdarg_err, 1);
 
 #ifdef _WIN32
   create_app_running_mutex();

@@ -368,6 +368,9 @@ int main(int argc, char *argv[])
 	char* payload = NULL;
 	char* port_msg = NULL;
 
+	/* Initialize log handler early so we can have proper logging during startup. */
+	ws_log_init("udpdump", NULL);
+
 	/*
 	 * Get credential information for later use.
 	 */

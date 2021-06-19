@@ -2528,17 +2528,13 @@ int main(int argc, char *argv[]) {
     char            *help_url;
     char            *help_header = NULL;
 
-    g_set_prgname("androiddump");
-
     /* Initialize log handler early so we can have proper logging during startup. */
-    ws_log_init(NULL);
+    ws_log_init("androiddump", NULL);
 
     cmdarg_err_init(androiddump_cmdarg_err, androiddump_cmdarg_err);
 
-    /* Command line options are parsed too late to configure logging, do it
-        manually. */
-    if (ws_log_parse_args(&argc, argv, cmdarg_err) != 0)
-        return EXIT_FAILURE;
+    /* Early logging command-line initialization. */
+    ws_log_parse_args(&argc, argv, vcmdarg_err, EXIT_FAILURE);
 
     /*
      * Get credential information for later use.

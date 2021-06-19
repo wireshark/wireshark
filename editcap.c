@@ -84,6 +84,7 @@
 #include <wsutil/pint.h>
 #include <wsutil/strtoi.h>
 #include <wsutil/ws_assert.h>
+#include <wsutil/wslog.h>
 #include <wiretap/wtap_opttypes.h>
 
 #include "ui/failure_message.h"
@@ -1153,7 +1154,13 @@ main(int argc, char *argv[])
     gboolean                     valid_seed = FALSE;
     unsigned int                 seed = 0;
 
+    /* Initialize log handler early so we can have proper logging during startup. */
+    ws_log_init("editcap", NULL);
+
     cmdarg_err_init(editcap_cmdarg_err, editcap_cmdarg_err_cont);
+
+    /* Early logging command-line initialization. */
+    ws_log_parse_args(&argc, argv, vcmdarg_err, INVALID_OPTION);
 
 #ifdef _WIN32
     create_app_running_mutex();

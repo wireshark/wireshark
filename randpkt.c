@@ -29,6 +29,7 @@
 #endif
 
 #include <wsutil/report_message.h>
+#include <wsutil/wslog.h>
 
 /*
  * If we have getopt_long() in the system library, include <getopt.h>.
@@ -137,6 +138,14 @@ main(int argc, char *argv[])
 		{0, 0, 0, 0 }
 	};
 
+	/* Initialize log handler early so we can have proper logging during startup. */
+	ws_log_init("randpkt", NULL);
+
+	cmdarg_err_init(randpkt_cmdarg_err, randpkt_cmdarg_err_cont);
+
+	/* Early logging command-line initialization. */
+	ws_log_parse_args(&argc, argv, vcmdarg_err, INVALID_OPTION);
+
 	/*
 	 * Get credential information for later use.
 	 */
@@ -157,8 +166,6 @@ main(int argc, char *argv[])
 	init_report_message("randpkt", &randpkt_report_routines);
 
 	wtap_init(TRUE);
-
-	cmdarg_err_init(randpkt_cmdarg_err, randpkt_cmdarg_err_cont);
 
 #ifdef _WIN32
 	create_app_running_mutex();

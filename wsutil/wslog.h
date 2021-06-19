@@ -132,7 +132,9 @@ enum ws_log_level  ws_log_set_fatal_str(const char *str_level);
  * Returns zero for no error, non-zero for a bad option value.
  */
 WS_DLL_PUBLIC
-int ws_log_parse_args(int *argc_ptr, char *argv[], void (*print_err)(const char *, ...));
+int ws_log_parse_args(int *argc_ptr, char *argv[],
+                        void (*vcmdarg_err)(const char *, va_list ap),
+                        int exit_failure);
 
 
 /** Initializes the logging code.
@@ -142,7 +144,7 @@ int ws_log_parse_args(int *argc_ptr, char *argv[], void (*print_err)(const char 
  * is NULL the default log writer is used.
  */
 WS_DLL_PUBLIC
-void ws_log_init(ws_log_writer_cb *writer);
+void ws_log_init(const char *progname, ws_log_writer_cb *writer);
 
 
 /** Initializes the logging code.
@@ -152,7 +154,8 @@ void ws_log_init(ws_log_writer_cb *writer);
  * is passed it will be called with user_data when the program terminates.
  */
 WS_DLL_PUBLIC
-void ws_log_init_with_data(ws_log_writer_cb *writer, void *user_data,
+void ws_log_init_with_data(const char *progname, ws_log_writer_cb *writer,
+                              void *user_data,
                               ws_log_writer_free_data_cb *free_user_data);
 
 

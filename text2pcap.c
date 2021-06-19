@@ -103,6 +103,7 @@
 #include <cli_main.h>
 #include <version_info.h>
 #include <wsutil/inet_addr.h>
+#include <wsutil/wslog.h>
 
 #ifdef _WIN32
 #include <io.h>     /* for _setmode */
@@ -1863,6 +1864,9 @@ int
 main(int argc, char *argv[])
 {
     int ret = EXIT_SUCCESS;
+
+    /* Initialize log handler early so we can have proper logging during startup. */
+    ws_log_init("text2pcap", NULL);
 
 #ifdef _WIN32
     create_app_running_mutex();

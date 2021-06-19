@@ -4851,17 +4851,13 @@ main(int argc, char *argv[])
 #endif
     GString          *str;
 
-    g_set_prgname("dumpcap");
-
     /* Initialize log handler early so we can have proper logging during startup. */
-    ws_log_init(dumpcap_log_writer);
+    ws_log_init("dumpcap", dumpcap_log_writer);
 
     cmdarg_err_init(dumpcap_cmdarg_err, dumpcap_cmdarg_err_cont);
 
-    /* Command line options are parsed too late to configure logging, do it
-        manually. */
-    if (ws_log_parse_args(&argc, argv, cmdarg_err) != 0)
-        exit(1);
+    /* Early logging command-line initialization. */
+    ws_log_parse_args(&argc, argv, vcmdarg_err, 1);
 
 #ifdef _WIN32
     create_app_running_mutex();

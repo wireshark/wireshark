@@ -46,7 +46,7 @@
 
 #define DEFAULT_LOG_LEVEL   LOG_LEVEL_MESSAGE
 
-#define DEFAULT_APPNAME     "PID"
+#define DEFAULT_PROGNAME    "PID"
 
 #define DOMAIN_UNDEFED(domain)    ((domain) == NULL || *(domain) == '\0')
 #define DOMAIN_DEFINED(domain)    (!DOMAIN_UNDEFED(domain))
@@ -66,7 +66,7 @@ static enum ws_log_level current_log_level = LOG_LEVEL_NONE;
 
 static gboolean color_enabled = FALSE;
 
-static const char *registered_appname = NULL;
+static const char *registered_progname = DEFAULT_PROGNAME;
 
 /* List of domains to filter. */
 static log_filter_t *domain_filter = NULL;
@@ -86,6 +86,10 @@ static ws_log_writer_free_data_cb *registered_log_writer_data_free = NULL;
 static FILE *custom_log = NULL;
 
 static enum ws_log_level fatal_log_level = LOG_LEVEL_ERROR;
+
+#ifndef WS_DISABLE_DEBUG
+static gboolean init_complete = FALSE;
+#endif
 
 
 static void ws_log_cleanup(void);
@@ -277,7 +281,26 @@ static const char *opt_debug   = "--log-debug";
 static const char *opt_noisy   = "--log-noisy";
 
 
-int ws_log_parse_args(int *argc_ptr, char *argv[], void (*print_err)(const char *, ...))
+static void print_err(void (*log_args_print_err)(const char *, va_list ap),
+                        int log_args_exit_failure,
+                        const char *fmt, ...)
+{
+    va_list ap;
+
+    if (log_args_print_err == NULL)
+        return;
+
+    va_start(ap, fmt);
+    log_args_print_err(fmt, ap);
+    va_end(ap);
+    if (log_args_exit_failure >= 0)
+        exit(log_args_exit_failure);
+}
+
+
+int ws_log_parse_args(int *argc_ptr, char *argv[],
+                        void (*vcmdarg_err)(const char *, va_list ap),
+                        int exit_failure)
 {
     char **ptr = argv;
     int count = *argc_ptr;
@@ -331,7 +354,8 @@ int ws_log_parse_args(int *argc_ptr, char *argv[], void (*print_err)(const char 
             if (value == NULL || !*value || *value == '-') {
                 /* If the option value after the blank starts with '-' assume
                  * it is another option. */
-                print_err("Option \"%s\" requires a value.\n", *ptr);
+                print_err(vcmdarg_err, exit_failure,
+                            "Option \"%s\" requires a value.\n", *ptr);
                 option = NULL;
                 prune_extra = 0;
                 ret += 1;
@@ -351,7 +375,8 @@ int ws_log_parse_args(int *argc_ptr, char *argv[], void (*print_err)(const char 
 
         if (option == opt_level) {
             if (ws_log_set_level_str(value) == LOG_LEVEL_NONE) {
-                print_err("Invalid log level \"%s\"\n", value);
+                print_err(vcmdarg_err, exit_failure,
+                            "Invalid log level \"%s\".\n", value);
                 ret += 1;
             }
         }
@@ -361,7 +386,9 @@ int ws_log_parse_args(int *argc_ptr, char *argv[], void (*print_err)(const char 
         else if (option == opt_file) {
             FILE *fp = ws_fopen(value, "w");
             if (fp == NULL) {
-                print_err("Error opening file '%s' for writing: %s\n", value, g_strerror(errno));
+                print_err(vcmdarg_err, exit_failure,
+                            "Error opening file '%s' for writing: %s.\n",
+                            value, g_strerror(errno));
                 ret += 1;
             }
             else {
@@ -370,8 +397,9 @@ int ws_log_parse_args(int *argc_ptr, char *argv[], void (*print_err)(const char 
         }
         else if (option == opt_fatal) {
             if (ws_log_set_fatal_str(value) == LOG_LEVEL_NONE) {
-                print_err("Fatal log level must be \"critical\" or \"warning\", "
-                          "not \"%s\".\n", value);
+                print_err(vcmdarg_err, exit_failure,
+                            "Fatal log level must be \"critical\" or "
+                            "\"warning\", not \"%s\".\n", value);
                 ret += 1;
             }
         }
@@ -498,13 +526,14 @@ enum ws_log_level ws_log_set_fatal_str(const char *str_level)
 }
 
 
-void ws_log_init(ws_log_writer_cb *writer)
+void ws_log_init(const char *progname, ws_log_writer_cb *writer)
 {
     const char *env;
 
-    registered_appname = g_get_prgname();
-    if (registered_appname == NULL)
-        registered_appname = DEFAULT_APPNAME;
+    if (progname != NULL) {
+        registered_progname = progname;
+        g_set_prgname(progname);
+    }
 
     if (writer)
         registered_log_writer = writer;
@@ -543,15 +572,20 @@ void ws_log_init(ws_log_writer_cb *writer)
         ws_log_set_noisy_filter(env);
 
     atexit(ws_log_cleanup);
+
+#ifndef WS_DISABLE_DEBUG
+    init_complete = TRUE;
+#endif
 }
 
 
-void ws_log_init_with_data(ws_log_writer_cb *writer, void *user_data,
-                              ws_log_writer_free_data_cb *free_user_data)
+void ws_log_init_with_data(const char *progname, ws_log_writer_cb *writer,
+                            void *user_data,
+                            ws_log_writer_free_data_cb *free_user_data)
 {
     registered_log_writer_data = user_data;
     registered_log_writer_data_free = free_user_data;
-    ws_log_init(writer);
+    ws_log_init(progname, writer);
 }
 
 
@@ -574,8 +608,14 @@ static void log_write_do_work(FILE *fp, gboolean use_color, const char *timestam
     const char *level_str = ws_log_level_to_string(level);
     gboolean doextra = (level != DEFAULT_LOG_LEVEL);
 
+#ifndef WS_DISABLE_DEBUG
+    if (!init_complete) {
+        fprintf(fp, " ** (noinit)");
+    }
+#endif
+
     if (doextra)
-        fprintf(fp, " ** (%s:%ld) ", registered_appname, (long)getpid());
+        fprintf(fp, " ** (%s:%ld) ", registered_progname, (long)getpid());
     else
         fputs(" ** ", fp);
 

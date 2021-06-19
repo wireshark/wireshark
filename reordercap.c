@@ -44,6 +44,7 @@
 #endif
 
 #include <wsutil/report_message.h>
+#include <wsutil/wslog.h>
 
 #include "ui/failure_message.h"
 
@@ -207,7 +208,13 @@ main(int argc, char *argv[])
     char *infile;
     const char *outfile;
 
+    /* Initialize log handler early so we can have proper logging during startup. */
+    ws_log_init("reordercap", NULL);
+
     cmdarg_err_init(reordercap_cmdarg_err, reordercap_cmdarg_err_cont);
+
+    /* Early logging command-line initialization. */
+    ws_log_parse_args(&argc, argv, vcmdarg_err, INVALID_OPTION);
 
     /* Initialize the version information. */
     ws_init_version_info("Reordercap (Wireshark)", NULL, NULL, NULL);

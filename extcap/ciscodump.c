@@ -534,6 +534,9 @@ int main(int argc, char *argv[])
 	char* help_url;
 	char* help_header = NULL;
 
+	/* Initialize log handler early so we can have proper logging during startup. */
+	ws_log_init("ciscodump", NULL);
+    
 	/*
 	 * Get credential information for later use.
 	 */

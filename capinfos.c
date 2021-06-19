@@ -84,6 +84,7 @@
 #include <wsutil/str_util.h>
 #include <wsutil/file_util.h>
 #include <wsutil/ws_assert.h>
+#include <wsutil/wslog.h>
 
 #include <wsutil/wsgcrypt.h>
 
@@ -1580,7 +1581,14 @@ main(int argc, char *argv[])
   setlocale(LC_ALL, "");
 #endif
 
+
+  /* Initialize log handler early so we can have proper logging during startup. */
+  ws_log_init("capinfos", NULL);
+
   cmdarg_err_init(capinfos_cmdarg_err, capinfos_cmdarg_err_cont);
+
+  /* Early logging command-line initialization. */
+  ws_log_parse_args(&argc, argv, vcmdarg_err, INVALID_OPTION);
 
   /* Get the decimal point. */
   decimal_point = g_strdup(localeconv()->decimal_point);

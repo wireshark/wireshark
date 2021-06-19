@@ -114,17 +114,13 @@ main(int argc, char *argv[])
     cfile_close_failure_message
   };
 
-  g_set_prgname("sharkd");
-
   /* Initialize log handler early so we can have proper logging during startup. */
-  ws_log_init(NULL);
+  ws_log_init("sharkd", NULL);
 
   cmdarg_err_init(sharkd_cmdarg_err, sharkd_cmdarg_err_cont);
 
-  /* Command line options are parsed too late to configure logging, do it
-      manually. */
-  if (ws_log_parse_args(&argc, argv, cmdarg_err) != 0)
-    return INIT_FAILED;
+  /* Early logging command-line initialization. */
+  ws_log_parse_args(&argc, argv, vcmdarg_err, INIT_FAILED);
 
   /*
    * Get credential information for later use, and drop privileges
