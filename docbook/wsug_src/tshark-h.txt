@@ -1,4 +1,4 @@
-TShark (Wireshark) 3.5.0 (v3.5.0rc0-2153-g76174b19b0ce)
+TShark (Wireshark) 3.5.0 (v3.5.0rc0-2268-g798e45aaeb2b)
 Dump and analyze network traffic.
 See https://www.wireshark.org for more information.
 
@@ -125,6 +125,12 @@ Output:
                            values
   --elastic-mapping-filter <protocols> If -G elastic-mapping is specified, put only the
                            specified protocols within the mapping file
+Diagnostic output:
+  --log-level <level>      one of "critical", "warning", "message","info", "debug" or "noisy"
+  --log-domains <list>     comma separated list of the active log domains
+  --log-file <file>        path of file to output messages to (in addition to stderr)
+  --log-debug <list>       comma separated list of domains with "debug" level
+  --log-noisy <list>       comma separated list of domains with "noisy" level
 
 Miscellaneous:
   -h, --help               display this help and exit

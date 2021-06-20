@@ -1,4 +1,4 @@
-Dumpcap (Wireshark) 3.5.0 (v3.5.0rc0-1363-geaf6554aa174)
+Dumpcap (Wireshark) 3.5.0 (v3.5.0rc0-2268-g798e45aaeb2b)
 Capture network packets and dump them into a pcapng or pcap file.
 See https://www.wireshark.org for more information.
 
@@ -61,6 +61,12 @@ Output (files):
                            add a capture comment to the output file
                            (only for pcapng)
 
+Diagnostic output:
+  --log-level <level>      one of "critical", "warning", "message","info", "debug" or "noisy"
+  --log-domains <list>     comma separated list of the active log domains
+  --log-file <file>        path of file to output messages to (in addition to stderr)
+  --log-debug <list>       comma separated list of domains with "debug" level
+  --log-noisy <list>       comma separated list of domains with "noisy" level
 Miscellaneous:
   -N <packet_limit>        maximum number of packets buffered within dumpcap
   -C <byte_limit>          maximum number of bytes used for buffering packets

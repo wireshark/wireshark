@@ -1,4 +1,4 @@
-Rawshark (Wireshark) 3.5.0 (v3.5.0rc0-21-gce47866a4337)
+Rawshark (Wireshark) 3.5.0 (v3.5.0rc0-2268-g798e45aaeb2b)
 Dump and analyze network traffic.
 See https://www.wireshark.org for more information.
 
@@ -24,6 +24,12 @@ Output:
   -S                       format string for fields
                            (%D - name, %S - stringval, %N numval)
   -t ad|a|r|d|dd|e         output format of time stamps (def: r: rel. to first)
+Diagnostic output:
+  --log-level <level>      one of "critical", "warning", "message","info", "debug" or "noisy"
+  --log-domains <list>     comma separated list of the active log domains
+  --log-file <file>        path of file to output messages to (in addition to stderr)
+  --log-debug <list>       comma separated list of domains with "debug" level
+  --log-noisy <list>       comma separated list of domains with "noisy" level
 
 Miscellaneous:
   -h                       display this help and exit

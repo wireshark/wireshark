@@ -4077,7 +4077,7 @@ irp		4604/tcp	# Identity Registration Protocol
 sixchat		4605/tcp	# Direct End to End Secure Chat Protocol
 sixid		4606/tcp	# Secure ID to IP registration and lookup
 ventoso		4621/udp	# Bidirectional single port remote radio VOIP and Control stream
-dots-signal	4646/tcp/udp	# Distributed Denial-of-Service Open Threat Signaling (DOTS) Signal Channel
+dots-signal	4646/tcp/udp	# Distributed Denial-of-Service Open Threat Signaling (DOTS) Signal Channel Protocol. The service name is used to construct the SRV service names "_dots-signal._udp" and "_dots-signal._tcp" for discovering DOTS servers used to establish DOTS signal channel.
 playsta2-app	4658/tcp/udp	# PlayStation2 App Port
 playsta2-lob	4659/tcp/udp	# PlayStation2 Lobby Port
 smaclmgr	4660/tcp/udp
