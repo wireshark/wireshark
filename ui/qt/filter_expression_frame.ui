@@ -84,7 +84,7 @@
             </size>
            </property>
            <property name="placeholderText">
-            <string>Enter a description for the filter button</string>
+            <string>Enter a description for the filter button (group with "//" separator)</string>
            </property>
           </widget>
          </item>

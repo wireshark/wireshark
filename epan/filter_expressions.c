@@ -85,7 +85,7 @@ static uat_field_t display_filter_uat_flds[] = {
 	UAT_FLD_BOOL(display_filter_macro_uat, enabled, "Show in toolbar",
 		"Checked to add display filter button to toolbar"),
 	UAT_FLD_CSTRING(display_filter_macro_uat, label, "Button Label",
-		"Name of the display filter button"),
+		"Name of the display filter button (group with \"//\" separator)"),
 	UAT_FLD_DISPLAY_FILTER(display_filter_macro_uat, expression, "Filter Expression",
 		"Filter expression to be applied by the button"),
 	UAT_FLD_CSTRING(display_filter_macro_uat, comment, "Comment",
