@@ -19,8 +19,9 @@
 #include "packet-ber.h"
 #include "packet-dcerpc.h"
 #include "packet-gssapi.h"
+#include "packet-kerberos.h"
+#include "packet-ntlmssp.h"
 #include "packet-credssp.h"
-
 
 #define PNAME  "Credential Security Support Provider"
 #define PSNAME "CredSSP"
@@ -32,6 +33,15 @@
 
 static gint creds_type;
 static gint credssp_ver;
+
+static char kerberos_pname[] = "K\0e\0r\0b\0e\0r\0o\0s";
+static char ntlm_pname[] = "N\0T\0L\0M";
+
+#define TS_RGC_UNKNOWN	0
+#define TS_RGC_KERBEROS	1
+#define TS_RGC_NTLM	2
+
+static gint credssp_TS_RGC_package;
 
 static gint exported_pdu_tap = -1;
 
@@ -53,6 +63,8 @@ static int hf_credssp_decr_PublicKeyAuth = -1;/* decr_PublicKeyAuth */
 
 /* Initialize the subtree pointers */
 static gint ett_credssp = -1;
+static gint ett_credssp_RGC_CredBuffer = -1;
+
 #include "packet-credssp-ett.c"
 
 #include "packet-credssp-fn.c"
@@ -157,6 +169,7 @@ void proto_register_credssp(void) {
   /* List of subtrees */
   static gint *ett[] = {
     &ett_credssp,
+    &ett_credssp_RGC_CredBuffer,
 #include "packet-credssp-ettarr.c"
   };
 

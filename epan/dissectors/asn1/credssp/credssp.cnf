@@ -94,8 +94,37 @@ TSRemoteGuardPackageCred/packageName TYPE = FT_STRING DISPLAY = STR_UNICODE STRI
 
 	offset = dissect_ber_octet_string(implicit_tag, actx, NULL, tvb, offset, hf_index, &pname);
 
-	if(pname != NULL)
+	if(pname != NULL) {
+		gint nlen = tvb_captured_length(pname);
+
+		if (nlen == sizeof(kerberos_pname) && memcmp(tvb_get_ptr(pname, 0, nlen), kerberos_pname, nlen) == 0) {
+			credssp_TS_RGC_package = TS_RGC_KERBEROS;
+		} else if (nlen == sizeof(ntlm_pname) && memcmp(tvb_get_ptr(pname, 0, nlen), ntlm_pname, nlen) == 0) {
+			credssp_TS_RGC_package = TS_RGC_NTLM;
+		}
 		proto_tree_add_item(tree, hf_index, pname, 0, -1, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+	}
+
+#.FN_BODY TSRemoteGuardPackageCred/credBuffer VAL_PTR = &creds
+	tvbuff_t *creds= NULL;
+	proto_tree *subtree;
+
+	%(DEFAULT_BODY)s
+
+	if (!creds)
+		return offset;
+
+	switch(credssp_TS_RGC_package) {
+	case TS_RGC_KERBEROS:
+		subtree = proto_item_add_subtree(actx->created_item, ett_credssp_RGC_CredBuffer);
+		dissect_kerberos_KERB_TICKET_LOGON(creds, 0, actx, subtree);
+		break;
+	case TS_RGC_NTLM:
+		subtree = proto_item_add_subtree(actx->created_item, ett_credssp_RGC_CredBuffer);
+		dissect_ntlmssp_NTLM_REMOTE_SUPPLEMENTAL_CREDENTIAL(creds, 0, subtree);
+		break;
+	}
+
 #.END
 
 

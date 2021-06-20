@@ -71,6 +71,9 @@ gint kerberos_rm_to_reclen(guint krb_rm);
 void
 show_krb_recordmark(proto_tree *tree, tvbuff_t *tvb, gint start, guint32 krb_rm);
 
+int
+dissect_kerberos_KERB_TICKET_LOGON(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree);
+
 #ifdef HAVE_KERBEROS
 #define KRB_MAX_ORIG_LEN	256
 #define KRB_MAX_KEY_LENGTH	32

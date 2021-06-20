@@ -251,6 +251,19 @@ static int hf_ntlmssp_ntlmv2_response_pad = -1;
 static int hf_ntlmssp_ntlmv2_response_time = -1;
 static int hf_ntlmssp_ntlmv2_response_chal = -1;
 
+static int hf_ntlmssp_NTLM_REMOTE_SUPPLEMENTAL_CREDENTIAL = -1;
+static int hf_ntlmssp_NTLM_REMOTE_SUPPLEMENTAL_CREDENTIAL_Version = -1;
+static int hf_ntlmssp_NTLM_REMOTE_SUPPLEMENTAL_CREDENTIAL_Flags = -1;
+static int hf_ntlmssp_NTLM_REMOTE_SUPPLEMENTAL_CREDENTIAL_FLAG_LM_PRESENT = -1;
+static int hf_ntlmssp_NTLM_REMOTE_SUPPLEMENTAL_CREDENTIAL_FLAG_NT_PRESENT = -1;
+static int hf_ntlmssp_NTLM_REMOTE_SUPPLEMENTAL_CREDENTIAL_FLAG_REMOVED = -1;
+static int hf_ntlmssp_NTLM_REMOTE_SUPPLEMENTAL_CREDENTIAL_FLAG_CREDKEY_PRESENT = -1;
+static int hf_ntlmssp_NTLM_REMOTE_SUPPLEMENTAL_CREDENTIAL_FLAG_SHA_PRESENT = -1;
+static int hf_ntlmssp_NTLM_REMOTE_SUPPLEMENTAL_CREDENTIAL_CredentialKey = -1;
+static int hf_ntlmssp_NTLM_REMOTE_SUPPLEMENTAL_CREDENTIAL_CredentialKeyType = -1;
+static int hf_ntlmssp_NTLM_REMOTE_SUPPLEMENTAL_CREDENTIAL_EncryptedCredsSize = -1;
+static int hf_ntlmssp_NTLM_REMOTE_SUPPLEMENTAL_CREDENTIAL_EncryptedCreds = -1;
+
 static gint ett_ntlmssp = -1;
 static gint ett_ntlmssp_negotiate_flags = -1;
 static gint ett_ntlmssp_string = -1;
@@ -260,6 +273,7 @@ static gint ett_ntlmssp_challenge_target_info = -1;
 static gint ett_ntlmssp_challenge_target_info_item = -1;
 static gint ett_ntlmssp_ntlmv2_response = -1;
 static gint ett_ntlmssp_ntlmv2_response_item = -1;
+static gint ett_ntlmssp_NTLM_REMOTE_SUPPLEMENTAL_CREDENTIAL = -1;
 
 static expert_field ei_ntlmssp_v2_key_too_long = EI_INIT;
 static expert_field ei_ntlmssp_blob_len_too_long = EI_INIT;
@@ -2821,6 +2835,93 @@ static dcerpc_auth_subdissector_fns ntlmssp_seal_fns = {
   wrap_dissect_ntlmssp_payload_only     /* Response data */
 };
 
+static const value_string MSV1_0_CRED_VERSION[] = {
+    { 0x00000000, "MSV1_0_CRED_VERSION" },
+    { 0x00000002, "MSV1_0_CRED_VERSION_V2" },
+    { 0x00000004, "MSV1_0_CRED_VERSION_V3" },
+    { 0xffff0001, "MSV1_0_CRED_VERSION_IUM" },
+    { 0xffff0002, "MSV1_0_CRED_VERSION_REMOTE" },
+    { 0xfffffffe, "MSV1_0_CRED_VERSION_RESERVED_1" },
+    { 0xffffffff, "MSV1_0_CRED_VERSION_INVALID" },
+    { 0, NULL }
+};
+
+#define MSV1_0_CRED_LM_PRESENT      0x0001
+#define MSV1_0_CRED_NT_PRESENT      0x0002
+#define MSV1_0_CRED_REMOVED         0x0004
+#define MSV1_0_CRED_CREDKEY_PRESENT 0x0008
+#define MSV1_0_CRED_SHA_PRESENT     0x0010
+
+static int* const MSV1_0_CRED_FLAGS_bits[] = {
+	&hf_ntlmssp_NTLM_REMOTE_SUPPLEMENTAL_CREDENTIAL_FLAG_LM_PRESENT,
+	&hf_ntlmssp_NTLM_REMOTE_SUPPLEMENTAL_CREDENTIAL_FLAG_NT_PRESENT,
+	&hf_ntlmssp_NTLM_REMOTE_SUPPLEMENTAL_CREDENTIAL_FLAG_REMOVED,
+	&hf_ntlmssp_NTLM_REMOTE_SUPPLEMENTAL_CREDENTIAL_FLAG_CREDKEY_PRESENT,
+	&hf_ntlmssp_NTLM_REMOTE_SUPPLEMENTAL_CREDENTIAL_FLAG_SHA_PRESENT,
+	NULL
+};
+
+static const value_string MSV1_0_CREDENTIAL_KEY_TYPE[] = {
+    { 0, "InvalidCredKey" },
+    { 1, "IUMCredKey" },
+    { 2, "DomainUserCredKey" },
+    { 3, "LocalUserCredKey" },
+    { 4, "ExternallySuppliedCredKey" },
+    { 0, NULL }
+};
+
+#define MSV1_0_CREDENTIAL_KEY_LENGTH 20
+
+int
+dissect_ntlmssp_NTLM_REMOTE_SUPPLEMENTAL_CREDENTIAL(tvbuff_t *tvb, int offset, proto_tree *tree)
+{
+	proto_item *item;
+	proto_tree *subtree;
+	guint32 EncryptedCredsSize;
+
+	if (tvb_captured_length(tvb) < 36)
+		return offset;
+
+	item = proto_tree_add_item(tree, hf_ntlmssp_NTLM_REMOTE_SUPPLEMENTAL_CREDENTIAL, tvb,
+                                   offset, -1, ENC_NA);
+	subtree = proto_item_add_subtree(item, ett_ntlmssp_NTLM_REMOTE_SUPPLEMENTAL_CREDENTIAL);
+
+	proto_tree_add_item(subtree, hf_ntlmssp_NTLM_REMOTE_SUPPLEMENTAL_CREDENTIAL_Version, tvb,
+                            offset, 4, ENC_LITTLE_ENDIAN);
+	offset+=4;
+
+	proto_tree_add_bitmask(subtree, tvb, offset,
+                               hf_ntlmssp_NTLM_REMOTE_SUPPLEMENTAL_CREDENTIAL_Flags,
+                               ett_ntlmssp, MSV1_0_CRED_FLAGS_bits, ENC_LITTLE_ENDIAN);
+	offset+=4;
+
+	proto_tree_add_item(subtree, hf_ntlmssp_NTLM_REMOTE_SUPPLEMENTAL_CREDENTIAL_CredentialKey,
+                            tvb, offset, MSV1_0_CREDENTIAL_KEY_LENGTH, ENC_NA);
+	offset+=MSV1_0_CREDENTIAL_KEY_LENGTH;
+
+	proto_tree_add_item(subtree, hf_ntlmssp_NTLM_REMOTE_SUPPLEMENTAL_CREDENTIAL_CredentialKeyType,
+                            tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	offset+=4;
+
+	EncryptedCredsSize = tvb_get_letohl(tvb, offset);
+	proto_tree_add_item(subtree, hf_ntlmssp_NTLM_REMOTE_SUPPLEMENTAL_CREDENTIAL_EncryptedCredsSize,
+                            tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	offset+=4;
+
+	if (EncryptedCredsSize == 0)
+		return offset;
+
+	if (tvb_captured_length(tvb) < (36 + EncryptedCredsSize))
+		return offset;
+
+	proto_tree_add_item(subtree, hf_ntlmssp_NTLM_REMOTE_SUPPLEMENTAL_CREDENTIAL_EncryptedCreds,
+                            tvb, offset, EncryptedCredsSize, ENC_NA);
+	offset+=EncryptedCredsSize;
+
+	return offset;
+}
+
+
 void
 proto_register_ntlmssp(void)
 {
@@ -3406,6 +3507,54 @@ proto_register_ntlmssp(void)
         FT_BYTES, BASE_NONE, NULL, 0x0,
         "The 8-byte NTLMv2 challenge message generated by the client", HFILL }
     },
+    { &hf_ntlmssp_NTLM_REMOTE_SUPPLEMENTAL_CREDENTIAL,
+      { "NTLM_REMOTE_SUPPLEMENTAL_CREDENTIAL", "ntlmssp.NTLM_REMOTE_SUPPLEMENTAL_CREDENTIAL",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_ntlmssp_NTLM_REMOTE_SUPPLEMENTAL_CREDENTIAL_Version,
+      { "Version", "ntlmssp.NTLM_REMOTE_SUPPLEMENTAL_CREDENTIAL.Version",
+        FT_UINT32, BASE_HEX, VALS(MSV1_0_CRED_VERSION), 0,
+        NULL, HFILL }},
+    { &hf_ntlmssp_NTLM_REMOTE_SUPPLEMENTAL_CREDENTIAL_Flags,
+      { "Flags", "ntlmssp.NTLM_REMOTE_SUPPLEMENTAL_CREDENTIAL.Flags",
+        FT_UINT32, BASE_HEX, NULL, 0,
+        NULL, HFILL }},
+    { &hf_ntlmssp_NTLM_REMOTE_SUPPLEMENTAL_CREDENTIAL_FLAG_LM_PRESENT,
+      { "lm_present", "ntlmssp.NTLM_REMOTE_SUPPLEMENTAL_CREDENTIAL.LM_PRESENT",
+        FT_BOOLEAN, 32, NULL, MSV1_0_CRED_LM_PRESENT,
+        NULL, HFILL }},
+    { &hf_ntlmssp_NTLM_REMOTE_SUPPLEMENTAL_CREDENTIAL_FLAG_NT_PRESENT,
+      { "nt_present", "ntlmssp.NTLM_REMOTE_SUPPLEMENTAL_CREDENTIAL.NT_PRESENT",
+        FT_BOOLEAN, 32, NULL, MSV1_0_CRED_NT_PRESENT,
+        NULL, HFILL }},
+    { &hf_ntlmssp_NTLM_REMOTE_SUPPLEMENTAL_CREDENTIAL_FLAG_REMOVED,
+      { "removed", "ntlmssp.NTLM_REMOTE_SUPPLEMENTAL_CREDENTIAL.REMOVED",
+        FT_BOOLEAN, 32, NULL, MSV1_0_CRED_REMOVED,
+        NULL, HFILL }},
+    { &hf_ntlmssp_NTLM_REMOTE_SUPPLEMENTAL_CREDENTIAL_FLAG_CREDKEY_PRESENT,
+      { "credkey_present", "ntlmssp.NTLM_REMOTE_SUPPLEMENTAL_CREDENTIAL.CREDKEY_PRESENT",
+        FT_BOOLEAN, 32, NULL, MSV1_0_CRED_CREDKEY_PRESENT,
+        NULL, HFILL }},
+    { &hf_ntlmssp_NTLM_REMOTE_SUPPLEMENTAL_CREDENTIAL_FLAG_SHA_PRESENT,
+      { "sha_present", "ntlmssp.NTLM_REMOTE_SUPPLEMENTAL_CREDENTIAL.SHA_PRESENT",
+        FT_BOOLEAN, 32, NULL, MSV1_0_CRED_SHA_PRESENT,
+        NULL, HFILL }},
+    { &hf_ntlmssp_NTLM_REMOTE_SUPPLEMENTAL_CREDENTIAL_CredentialKey,
+      { "CredentialKey", "ntlmssp.NTLM_REMOTE_SUPPLEMENTAL_CREDENTIAL.CredentialKey",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_ntlmssp_NTLM_REMOTE_SUPPLEMENTAL_CREDENTIAL_CredentialKeyType,
+      { "CredentialKeyType", "ntlmssp.NTLM_REMOTE_SUPPLEMENTAL_CREDENTIAL.CredentialKeyType",
+        FT_UINT32, BASE_DEC, VALS(MSV1_0_CREDENTIAL_KEY_TYPE), 0,
+        NULL, HFILL }},
+    { &hf_ntlmssp_NTLM_REMOTE_SUPPLEMENTAL_CREDENTIAL_EncryptedCredsSize,
+      { "EncryptedCredsSize", "ntlmssp.NTLM_REMOTE_SUPPLEMENTAL_CREDENTIAL.EncryptedCredsSize",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_ntlmssp_NTLM_REMOTE_SUPPLEMENTAL_CREDENTIAL_EncryptedCreds,
+      { "EncryptedCreds", "ntlmssp.NTLM_REMOTE_SUPPLEMENTAL_CREDENTIAL.EncryptedCreds",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
   };
 
 
@@ -3419,6 +3568,7 @@ proto_register_ntlmssp(void)
     &ett_ntlmssp_challenge_target_info_item,
     &ett_ntlmssp_ntlmv2_response,
     &ett_ntlmssp_ntlmv2_response_item,
+    &ett_ntlmssp_NTLM_REMOTE_SUPPLEMENTAL_CREDENTIAL,
   };
   static ei_register_info ei[] = {
      { &ei_ntlmssp_v2_key_too_long, { "ntlmssp.v2_key_too_long", PI_UNDECODED, PI_WARN, "NTLM v2 key is too long", EXPFILL }},

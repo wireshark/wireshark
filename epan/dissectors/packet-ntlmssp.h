@@ -61,4 +61,7 @@ ntlmssp_create_session_key(packet_info *pinfo,
                            const ntlmssp_blob *ntlm_response,
                            const ntlmssp_blob *lm_response);
 
+int
+dissect_ntlmssp_NTLM_REMOTE_SUPPLEMENTAL_CREDENTIAL(tvbuff_t *tvb, int offset, proto_tree *tree);
+
 #endif
