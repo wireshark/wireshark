@@ -81,7 +81,7 @@ char *qword_to_hex_punct(char *out, guint64 qword, char punct);
  * String is not NUL terminated by this routine.
  * There needs to be at least len * 3 - 1 bytes in the buffer.
  */
-char *bytes_to_hexstr_punct(char *out, const guint8 *ad, guint32 len, char punct);
+char *bytes_to_hexstr_punct(char *out, const guint8 *ad, size_t len, char punct);
 
 /**
  * oct_to_str_back()

@@ -175,7 +175,7 @@ WS_DLL_PUBLIC char *dword_to_hex(char *out, guint32 dword);
  * @param bd_len The length of the byte array
  * @return A pointer to the formatted string
  */
-WS_DLL_PUBLIC char *bytes_to_str(wmem_allocator_t *scope, const guint8 *bd, int bd_len);
+WS_DLL_PUBLIC char *bytes_to_str(wmem_allocator_t *scope, const guint8 *bd, size_t bd_len);
 
 /** Turn an array of bytes into a string showing the bytes in hex,
  *  separated by a punctuation character.
@@ -188,7 +188,7 @@ WS_DLL_PUBLIC char *bytes_to_str(wmem_allocator_t *scope, const guint8 *bd, int 
  *
  * @see bytes_to_str()
  */
-WS_DLL_PUBLIC gchar *bytestring_to_str(wmem_allocator_t *scope, const guint8 *ad, const guint32 len, const char punct);
+WS_DLL_PUBLIC gchar *bytestring_to_str(wmem_allocator_t *scope, const guint8 *ad, size_t len, const char punct);
 
 /**
  * bytes_to_hexstr()
@@ -199,7 +199,7 @@ WS_DLL_PUBLIC gchar *bytestring_to_str(wmem_allocator_t *scope, const guint8 *ad
  * String is not NUL terminated by this routine.
  * There needs to be at least len * 2 bytes in the buffer.
  */
-WS_DLL_PUBLIC char *bytes_to_hexstr(char *out, const guint8 *ad, guint32 len);
+WS_DLL_PUBLIC char *bytes_to_hexstr(char *out, const guint8 *ad, size_t len);
 
 /**
  * uint_to_str_back()

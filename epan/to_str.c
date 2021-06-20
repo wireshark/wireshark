@@ -134,9 +134,9 @@ qword_to_hex_punct(char *out, guint64 qword, char punct)
  * There needs to be at least len * 2 bytes left in the buffer.
  */
 char *
-bytes_to_hexstr(char *out, const guint8 *ad, guint32 len)
+bytes_to_hexstr(char *out, const guint8 *ad, size_t len)
 {
-	guint32 i;
+	size_t i;
 
 	if (!ad)
 		REPORT_DISSECTOR_BUG("Null pointer passed to bytes_to_hexstr()");
@@ -155,9 +155,9 @@ bytes_to_hexstr(char *out, const guint8 *ad, guint32 len)
  * There needs to be at least len * 3 - 1 bytes left in the buffer.
  */
 char *
-bytes_to_hexstr_punct(char *out, const guint8 *ad, guint32 len, char punct)
+bytes_to_hexstr_punct(char *out, const guint8 *ad, size_t len, char punct)
 {
-	guint32 i;
+	size_t i;
 
 	if (!ad)
 		REPORT_DISSECTOR_BUG("Null pointer passed to bytes_to_hexstr_punct()");
@@ -181,10 +181,10 @@ bytes_to_hexstr_punct(char *out, const guint8 *ad, guint32 len, char punct)
  * the resulting string is (len-1) bytes shorter)
  */
 gchar *
-bytestring_to_str(wmem_allocator_t *scope, const guint8 *ad, const guint32 len, const char punct)
+bytestring_to_str(wmem_allocator_t *scope, const guint8 *ad, size_t len, const char punct)
 {
 	gchar *buf;
-	guint32 buflen = len;
+	size_t buflen = len;
 	gchar *buf_ptr;
 	int truncated = 0;
 
@@ -215,7 +215,7 @@ bytestring_to_str(wmem_allocator_t *scope, const guint8 *ad, const guint32 len, 
 }
 
 char *
-bytes_to_str(wmem_allocator_t *scope, const guint8 *bd, int bd_len)
+bytes_to_str(wmem_allocator_t *scope, const guint8 *bd, size_t bd_len)
 {
 	gchar *cur;
 	gchar *cur_ptr;
@@ -225,7 +225,7 @@ bytes_to_str(wmem_allocator_t *scope, const guint8 *bd, int bd_len)
 		REPORT_DISSECTOR_BUG("Null pointer passed to bytes_to_str()");
 
 	cur=(gchar *)wmem_alloc(scope, MAX_BYTE_STR_LEN+3+1);
-	if (bd_len <= 0) { cur[0] = '\0'; return cur; }
+	if (bd_len == 0) { cur[0] = '\0'; return cur; }
 
 	if (bd_len > MAX_BYTE_STR_LEN/2) {	/* bd_len > 24 */
 		truncated = 1;
