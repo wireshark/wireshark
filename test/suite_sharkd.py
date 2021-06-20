@@ -63,45 +63,51 @@ def check_sharkd_session(run_sharkd_session, request):
 class case_sharkd(subprocesstest.SubprocessTestCase):
     def test_sharkd_req_load_bad_pcap(self, check_sharkd_session, capture_file):
         check_sharkd_session((
-            {"req": "load", "file": capture_file('non-existant.pcap')},
+            {"jsonrpc":"2.0", "id":1, "method":"load",
+            "params":{"file": capture_file('non-existant.pcap')}
+            },
         ), (
-            {"err": 2},
+            {"jsonrpc":"2.0","id":1,"error":{"code":-2001,"message":"Unable to open the file"}},
         ))
 
     def test_sharkd_req_status_no_pcap(self, check_sharkd_session):
         check_sharkd_session((
-            {"req": "status"},
+            {"jsonrpc":"2.0", "id":1, "method":"status"},
         ), (
-            {"frames": 0, "duration": 0.0},
+            {"jsonrpc":"2.0","id":1,"result":{"frames":0,"duration":0.000000000}},
         ))
 
     def test_sharkd_req_status(self, check_sharkd_session, capture_file):
         check_sharkd_session((
-            {"req": "load", "file": capture_file('dhcp.pcap')},
-            {"req": "status"},
+            {"jsonrpc":"2.0", "id":1, "method":"load",
+            "params":{"file": capture_file('dhcp.pcap')}
+            },
+            {"jsonrpc":"2.0", "id":2, "method":"status"},
         ), (
-            {"err": 0},
-            {"frames": 4, "duration": 0.070345000,
-                "filename": "dhcp.pcap", "filesize": 1400},
+            {"jsonrpc":"2.0","id":1,"result":{"status":"OK"}},
+            {"jsonrpc":"2.0","id":2,"result":{"frames": 4, "duration": 0.070345000,
+                "filename": "dhcp.pcap", "filesize": 1400}},
         ))
 
     def test_sharkd_req_analyse(self, check_sharkd_session, capture_file):
         check_sharkd_session((
-            {"req": "load", "file": capture_file('dhcp.pcap')},
-            {"req": "analyse"},
+            {"jsonrpc":"2.0", "id":1, "method":"load",
+            "params":{"file": capture_file('dhcp.pcap')}
+            },
+            {"jsonrpc":"2.0", "id":2, "method":"analyse"},
         ), (
-            {"err": 0},
-            {"frames": 4, "protocols": ["frame", "eth", "ethertype", "ip", "udp",
-                                        "dhcp"], "first": 1102274184.317452908, "last": 1102274184.387798071},
+            {"jsonrpc":"2.0","id":1,"result":{"status":"OK"}},
+            {"jsonrpc":"2.0","id":2,"result":{"frames": 4, "protocols": ["frame", "eth", "ethertype", "ip", "udp",
+                                        "dhcp"], "first": 1102274184.317452908, "last": 1102274184.387798071}},
         ))
 
     def test_sharkd_req_info(self, check_sharkd_session):
         matchTapNameList = MatchList(
             {"tap": MatchAny(str), "name": MatchAny(str)})
         check_sharkd_session((
-            {"req": "info"},
+            {"jsonrpc":"2.0", "id":1, "method":"info"},
         ), (
-            {
+            {"jsonrpc":"2.0","id":1,"result":{
                 "version": MatchAny(str),
                 "columns": MatchList({"format": MatchAny(str), "name": MatchAny(str)}),
                 "stats": matchTapNameList,
@@ -114,81 +120,95 @@ class case_sharkd(subprocesstest.SubprocessTestCase):
                 "follow": matchTapNameList,
                 "ftypes": MatchList(MatchAny(str)),
                 "nstat": matchTapNameList,
-            },
+            }},
         ))
 
     def test_sharkd_req_check(self, check_sharkd_session, capture_file):
         check_sharkd_session((
-            {"req": "load", "file": capture_file('dhcp.pcap')},
-            {"req": "check"},
-            {"req": "check", "filter": "garbage filter"},
-            {"req": "check", "field": "garbage field"},
-            {"req": "check", "filter": "ip", "field": "ip"},
+            {"jsonrpc":"2.0", "id":1, "method":"load",
+            "params":{"file": capture_file('dhcp.pcap')}
+            },
+            {"jsonrpc":"2.0", "id":2, "method":"check"},
+            {"jsonrpc":"2.0", "id":3, "method":"check", "params":{"filter": "garbage filter"}},
+            {"jsonrpc":"2.0", "id":4, "method":"check", "params":{"field": "garbage field"}},
+            {"jsonrpc":"2.0", "id":5, "method":"check", "params":{"filter": "ip", "field": "ip"}},
         ), (
-            {"err": 0},
-            {"err": 0},
-            {"err": 0, "filter": '"filter" was unexpected in this context.'},
-            {"err": 0, "field": "notfound"},
-            {"err": 0, "filter": "ok", "field": "ok"},
+            {"jsonrpc":"2.0","id":1,"result":{"status":"OK"}},
+            {"jsonrpc":"2.0","id":2,"result":{"status":"OK"}},
+            {"jsonrpc":"2.0","id":3,"error":{"code":-5001,"message":"Filter invalid - \"filter\" was unexpected in this context."}},
+            {"jsonrpc":"2.0","id":4,"error":{"code":-5002,"message":"Field garbage field not found"}},
+            {"jsonrpc":"2.0","id":5,"result":{"status":"OK"}},
         ))
 
     def test_sharkd_req_complete_field(self, check_sharkd_session):
         check_sharkd_session((
-            {"req": "complete"},
-            {"req": "complete", "field": "frame.le"},
-            {"req": "complete", "field": "garbage.nothing.matches"},
+            {"jsonrpc":"2.0", "id":1, "method":"complete"},
+            {"jsonrpc":"2.0", "id":2, "method":"complete", "params":{"field": "frame.le"}},
+            {"jsonrpc":"2.0", "id":3, "method":"complete", "params":{"field": "garbage.nothing.matches"}},
         ), (
-            {"err": 0},
-            {"err": 0, "field": MatchList(
-                {"f": "frame.len", "t": 7, "n": "Frame length on the wire"}, match_element=any)},
-            {"err": 0, "field": []},
+            {"jsonrpc":"2.0","id":1,"result":{}},
+            {"jsonrpc":"2.0","id":2,"result":{"field": MatchList(
+                {"f": "frame.len", "t": 7, "n": "Frame length on the wire"}, match_element=any)}
+            },
+            {"jsonrpc":"2.0","id":3,"result":{"field": []}},
         ))
 
     def test_sharkd_req_complete_pref(self, check_sharkd_session):
         check_sharkd_session((
-            {"req": "complete", "pref": "tcp."},
-            {"req": "complete", "pref": "garbage.nothing.matches"},
+            {"jsonrpc":"2.0", "id":1, "method":"complete", "params":{"pref": "tcp."}},
+            {"jsonrpc":"2.0", "id":2, "method":"complete", "params":{"pref": "garbage.nothing.matches"}},
         ), (
-            {"err": 0, "pref": MatchList(
-                {"f": "tcp.check_checksum", "d": "Validate the TCP checksum if possible"}, match_element=any)},
-            {"err": 0, "pref": []},
+            {"jsonrpc":"2.0","id":1,"result":{"pref": MatchList(
+                {"f": "tcp.check_checksum", "d": "Validate the TCP checksum if possible"}, match_element=any)}
+            },
+            {"jsonrpc":"2.0","id":2,"result":{"pref": []}},
         ))
 
     def test_sharkd_req_frames(self, check_sharkd_session, capture_file):
         # XXX need test for optional input parameters, ignored/marked/commented
         check_sharkd_session((
-            {"req": "load", "file": capture_file('dhcp.pcap')},
-            {"req": "frames"},
+            {"jsonrpc":"2.0", "id":1, "method":"load",
+            "params":{"file": capture_file('dhcp.pcap')}
+            },
+            {"jsonrpc":"2.0", "id":2, "method":"frames"},
         ), (
-            {"err": 0},
+            {"jsonrpc":"2.0","id":1,"result":{"status":"OK"}},
+            {"jsonrpc":"2.0","id":2,"result":
             MatchList({
                 "c": MatchList(MatchAny(str)),
                 "num": MatchAny(int),
                 "bg": MatchAny(str),
                 "fg": MatchAny(str),
-            }),
+            })
+            },
         ))
 
     def test_sharkd_req_tap_invalid(self, check_sharkd_session, capture_file):
         # XXX Unrecognized taps result in an empty line, modify
         #     run_sharkd_session such that checking for it is possible.
         check_sharkd_session((
-            {"req": "load", "file": capture_file('dhcp.pcap')},
-            {"req": "tap"},
-            {"req": "tap", "tap0": "garbage tap"},
+            {"jsonrpc":"2.0", "id":1, "method":"load",
+            "params":{"file": capture_file('dhcp.pcap')}
+            },
+            {"jsonrpc":"2.0", "id":2, "method":"tap"},
+            {"jsonrpc":"2.0", "id":3, "method":"tap", "params":{"tap0": "garbage tap"}},
         ), (
-            {"err": 0},
+            {"jsonrpc":"2.0","id":1,"result":{"status":"OK"}},
+            {"jsonrpc":"2.0","id":2,"error":{"code":-32600,"message":"Mandatory parameter tap0 is missing"}},
+            {"jsonrpc":"2.0","id":3,"error":{"code":-11012,"message":"sharkd_session_process_tap() garbage tap not recognized"}},
         ))
 
     def test_sharkd_req_tap(self, check_sharkd_session, capture_file):
         check_sharkd_session((
-            {"req": "load", "file": capture_file('dhcp.pcap')},
-            {"req": "tap"},
-            {"req": "tap", "tap0": "conv:Ethernet", "tap1": "endpt:TCP"},
+            {"jsonrpc":"2.0", "id":1, "method":"load",
+            "params":{"file": capture_file('dhcp.pcap')}
+            },
+            {"jsonrpc":"2.0", "id":2, "method":"tap"},
+            {"jsonrpc":"2.0", "id":3, "method":"tap", "params":{"tap0": "conv:Ethernet", "tap1": "endpt:TCP"}},
         ), (
-            {"err": 0},
-            {
-                "err": 0,
+            {"jsonrpc":"2.0","id":1,"result":{"status":"OK"}},
+            {"jsonrpc":"2.0","id":2,"error":{"code":-32600,"message":"Mandatory parameter tap0 is missing"}},
+            {"jsonrpc":"2.0","id":3,"result":{
                 "taps": [
                     {
                         "tap": "endpt:TCP",
@@ -228,108 +248,160 @@ class case_sharkd(subprocesstest.SubprocessTestCase):
                         ],
                     },
                 ]
-            },
+            }},
         ))
 
     def test_sharkd_req_follow_bad(self, check_sharkd_session, capture_file):
         # Unrecognized taps currently produce no output (not even err).
         check_sharkd_session((
-            {"req": "load", "file": capture_file('dhcp.pcap')},
-            {"req": "follow"},
-            {"req": "follow", "follow": "garbage follow", "filter": "ip"},
-            {"req": "follow", "follow": "HTTP", "filter": "garbage filter"},
+            {"jsonrpc":"2.0", "id":1, "method":"load",
+            "params":{"file": capture_file('dhcp.pcap')}
+            },
+            {"jsonrpc":"2.0", "id":2, "method":"follow"},
+            {"jsonrpc":"2.0", "id":3, "method":"follow",
+            "params":{"follow": "garbage follow", "filter": "ip"}
+            },
+            {"jsonrpc":"2.0", "id":4, "method":"follow",
+            "params":{"follow": "HTTP", "filter": "garbage filter"}
+            },
         ), (
-            {"err": 0},
+            {"jsonrpc":"2.0","id":1,"result":{"status":"OK"}},
+            {"jsonrpc":"2.0","id":2,"error":{"code":-32600,"message":"Mandatory parameter follow is missing"}},
+            {"jsonrpc":"2.0","id":3,"error":{"code":-12001,"message":"sharkd_session_process_follow() follower=garbage follow not found"}},
+            {"jsonrpc":"2.0","id":4,
+            "error":{"code":-12002,"message":"sharkd_session_process_follow() name=HTTP error=Filter \"garbage filter\" is invalid - \"filter\" was unexpected in this context."}
+            },
         ))
 
     def test_sharkd_req_follow_no_match(self, check_sharkd_session, capture_file):
         check_sharkd_session((
-            {"req": "load", "file": capture_file('dhcp.pcap')},
-            {"req": "follow", "follow": "HTTP", "filter": "ip"},
+            {"jsonrpc":"2.0", "id":1, "method":"load",
+            "params":{"file": capture_file('dhcp.pcap')}
+            },
+            {"jsonrpc":"2.0", "id":2, "method":"follow",
+            "params":{"follow": "HTTP", "filter": "ip"}
+            },
         ), (
-            {"err": 0},
-            {"err": 0, "shost": "NONE", "sport": "0", "sbytes": 0,
-             "chost": "NONE", "cport": "0", "cbytes": 0},
+            {"jsonrpc":"2.0","id":1,"result":{"status":"OK"}},
+            {"jsonrpc":"2.0","id":2,
+            "result":{"shost": "NONE", "sport": "0", "sbytes": 0,
+             "chost": "NONE", "cport": "0", "cbytes": 0}
+            },
         ))
 
     def test_sharkd_req_follow_udp(self, check_sharkd_session, capture_file):
         check_sharkd_session((
-            {"req": "load", "file": capture_file('dhcp.pcap')},
-            {"req": "follow", "follow": "UDP", "filter": "frame.number==1"},
+            {"jsonrpc":"2.0", "id":1, "method":"load",
+            "params":{"file": capture_file('dhcp.pcap')}
+            },
+            {"jsonrpc":"2.0", "id":2, "method":"follow",
+            "params":{"follow": "UDP", "filter": "frame.number==1"}
+            },
         ), (
-            {"err": 0},
-            {"err": 0,
+            {"jsonrpc":"2.0","id":1,"result":{"status":"OK"}},
+            {"jsonrpc":"2.0","id":2,
+            "result":{
              "shost": "255.255.255.255", "sport": "67", "sbytes": 272,
              "chost": "0.0.0.0", "cport": "68", "cbytes": 0,
              "payloads": [
-                 {"n": 1, "d": MatchRegExp(r'AQEGAAAAPR0A[a-zA-Z0-9]{330}AANwQBAwYq/wAAAAAAAAA=')}]},
+                 {"n": 1, "d": MatchRegExp(r'AQEGAAAAPR0A[a-zA-Z0-9]{330}AANwQBAwYq/wAAAAAAAAA=')}]}
+            },
         ))
 
     def test_sharkd_req_iograph_bad(self, check_sharkd_session, capture_file):
         check_sharkd_session((
-            {"req": "load", "file": capture_file('dhcp.pcap')},
-            {"req": "iograph"},
-            {"req": "iograph", "graph0": "garbage graph name"},
+            {"jsonrpc":"2.0", "id":1, "method":"load",
+            "params":{"file": capture_file('dhcp.pcap')}
+            },
+            {"jsonrpc":"2.0", "id":2, "method":"iograph"},
+            {"jsonrpc":"2.0", "id":3, "method":"iograph",
+            "params":{"graph0": "garbage graph name"}
+            },
         ), (
-            {"err": 0},
-            {"iograph": []},
-            {"iograph": []},
+            {"jsonrpc":"2.0","id":1,"result":{"status":"OK"}},
+            {"jsonrpc":"2.0","id":2,"error":{"code":-32600,"message":"Mandatory parameter graph0 is missing"}},
+            {"jsonrpc":"2.0","id":3,"result":{"iograph": []}},
         ))
 
     def test_sharkd_req_iograph_basic(self, check_sharkd_session, capture_file):
         check_sharkd_session((
-            {"req": "load", "file": capture_file('dhcp.pcap')},
-            {"req": "iograph", "graph0": "max:udp.length", "filter0": "udp.length"},
-            {"req": "iograph", "graph0": "packets", "graph1": "bytes"},
-            {"req": "iograph", "graph0": "packets", "filter0": "garbage filter"},
+            {"jsonrpc":"2.0", "id":1, "method":"load",
+            "params":{"file": capture_file('dhcp.pcap')}
+            },
+            {"jsonrpc":"2.0", "id":1, "method":"iograph",
+            "params":{"graph0": "max:udp.length", "filter0": "udp.length"}
+            },
+            {"jsonrpc":"2.0", "id":2, "method":"iograph",
+            "params":{"graph0": "packets", "graph1": "bytes"}
+            },
+            {"jsonrpc":"2.0", "id":3, "method":"iograph",
+            "params":{"graph0": "packets", "filter0": "garbage filter"}
+            },
         ), (
-            {"err": 0},
-            {"iograph": [{"items": [308.000000]}]},
-            {"iograph": [{"items": [4.000000]}, {"items": [1312.000000]}]},
-            {"iograph": [
-                {"errmsg": 'Filter "garbage filter" is invalid - "filter" was unexpected in this context.'}]},
+            {"jsonrpc":"2.0","id":1,"result":{"status":"OK"}},
+            {"jsonrpc":"2.0","id":1,"result":{"iograph": [{"items": [308.000000]}]}},
+            {"jsonrpc":"2.0","id":2,"result":{"iograph": [{"items": [4.000000]}, {"items": [1312.000000]}]}},
+            {"jsonrpc":"2.0","id":3,"error":{"code":-6001,"message":"Filter \"garbage filter\" is invalid - \"filter\" was unexpected in this context."}},
         ))
 
     def test_sharkd_req_intervals_bad(self, check_sharkd_session, capture_file):
         check_sharkd_session((
-            {"req": "load", "file": capture_file('dhcp.pcap')},
-            {"req": "intervals", "filter": "garbage filter"},
+            {"jsonrpc":"2.0", "id":1, "method":"load",
+            "params":{"file": capture_file('dhcp.pcap')}
+            },
+            {"jsonrpc":"2.0", "id":2, "method":"intervals",
+            "params":{"filter": "garbage filter"}
+            },
         ), (
-            {"err": 0},
+            {"jsonrpc":"2.0","id":1,"result":{"status":"OK"}},
+            {"jsonrpc":"2.0","id":2,"error":{"code":-7001,"message":"Invalid filter parameter: garbage filter"}},
         ))
 
     def test_sharkd_req_intervals_basic(self, check_sharkd_session, capture_file):
         check_sharkd_session((
-            {"req": "load", "file": capture_file('dhcp.pcap')},
-            {"req": "intervals"},
-            {"req": "intervals", "interval": 1},
-            {"req": "intervals", "filter": "frame.number <= 2"},
+            {"jsonrpc":"2.0", "id":1, "method":"load",
+            "params":{"file": capture_file('dhcp.pcap')}
+            },
+            {"jsonrpc":"2.0", "id":2, "method":"intervals"},
+            {"jsonrpc":"2.0", "id":3, "method":"intervals",
+            "params":{"interval": 1}
+            },
+            {"jsonrpc":"2.0", "id":4, "method":"intervals",
+            "params":{"filter": "frame.number <= 2"}
+            },
         ), (
-            {"err": 0},
-            {"intervals": [[0, 4, 1312]], "last": 0,
-                "frames": 4, "bytes": 1312},
-            {"intervals": [[0, 2, 656], [70, 2, 656]],
-                "last": 70, "frames": 4, "bytes": 1312},
-            {"intervals": [[0, 2, 656]], "last": 0, "frames": 2, "bytes": 656},
+            {"jsonrpc":"2.0","id":1,"result":{"status":"OK"}},
+            {"jsonrpc":"2.0","id":2,"result":{"intervals":[[0,4,1312]],"last":0,"frames":4,"bytes":1312}},
+            {"jsonrpc":"2.0","id":3,"result":{"intervals":[[0,2,656],[70,2,656]],"last":70,"frames":4,"bytes":1312}},
+            {"jsonrpc":"2.0","id":4,"result":{"intervals":[[0,2,656]],"last":0,"frames":2,"bytes":656}},
         ))
 
     def test_sharkd_req_frame_basic(self, check_sharkd_session, capture_file):
         # XXX add more tests for other options (ref_frame, prev_frame, columns, color, bytes, hidden)
         check_sharkd_session((
-            {"req": "load", "file": capture_file('dhcp.pcap')},
-            {"req": "frame", "frame": 2},
+            {"jsonrpc":"2.0", "id":1, "method":"load",
+            "params":{"file": capture_file('dhcp.pcap')}
+            },
+            {"jsonrpc":"2.0", "id":2, "method":"frame",
+            "params":{"frame": 2}
+            },
         ), (
-            {"err": 0},
-            {"err": 0, "fol": [["UDP", "udp.stream eq 1"]]},
+            {"jsonrpc":"2.0","id":1,"result":{"status":"OK"}},
+            {"jsonrpc":"2.0","id":2,"result":{"fol": [["UDP", "udp.stream eq 1"]]}},
         ))
 
     def test_sharkd_req_frame_proto(self, check_sharkd_session, capture_file):
         # Check proto tree output (including an UTF-8 value).
         check_sharkd_session((
-            {"req": "load", "file": capture_file('dhcp.pcap')},
-            {"req": "frame", "frame": 2, "proto": True},
+            {"jsonrpc":"2.0", "id":1, "method":"load",
+            "params":{"file": capture_file('dhcp.pcap')}
+            },
+            {"jsonrpc":"2.0", "id":2, "method":"frame",
+            "params":{"frame": 2, "proto": True}
+            },
         ), (
-            {"err": 0},
+            {"jsonrpc":"2.0","id":1,"result":{"status":"OK"}},
+            {"jsonrpc":"2.0","id":2,"result":
             MatchObject({
                 "tree": MatchList({
                     "l": "Dynamic Host Configuration Protocol (Offer)",
@@ -343,119 +415,160 @@ class case_sharkd(subprocesstest.SubprocessTestCase):
                     }, match_element=any),  # match one element from 'n'
                     "h": [42, 300],
                 }, match_element=any),  # match one element from 'tree'
-            }),
+            })
+            },
         ))
 
     def test_sharkd_req_setcomment(self, check_sharkd_session, capture_file):
         check_sharkd_session((
-            {"req": "load", "file": capture_file('dhcp.pcap')},
-            # invalid frame number returns early.
-            {"req": "setcomment", "frame": 99999, "comment": "meh\nbaz"},
-            {"req": "setcomment", "frame": 3, "comment": "foo\nbar"},
-            {"req": "frame", "frame": 3},
+            {"jsonrpc":"2.0", "id":1, "method":"load",
+            "params":{"file": capture_file('dhcp.pcap')}
+            },
+            {"jsonrpc":"2.0", "id":2, "method":"setcomment",
+            "params":{"frame": 99999, "comment": "meh\nbaz"}
+            },
+            {"jsonrpc":"2.0", "id":3, "method":"setcomment",
+            "params":{"frame": 3, "comment": "foo\nbar"}
+            },
+            {"jsonrpc":"2.0", "id":4, "method":"frame",
+            "params":{"frame": 3}
+            },
 
         ), (
-            {"err": 0},
-            {"err": 0},
-            {"err": 0, "comment": "foo\nbar", "fol": MatchAny(list)},
+            {"jsonrpc":"2.0","id":1,"result":{"status":"OK"}},
+            {"jsonrpc":"2.0","id":2,"error":{"code":-3002,"message":"Frame number is out of range"}},
+            {"jsonrpc":"2.0","id":3,"result":{"status":"OK"}},
+            {"jsonrpc":"2.0","id":4,"result":{"comment":"foo\nbar","fol": MatchAny(list)}},
         ))
 
     def test_sharkd_req_setconf_bad(self, check_sharkd_session):
         check_sharkd_session((
-            {"req": "setconf", "name": "uat:garbage-pref", "value": "\"\""},
+            {"jsonrpc":"2.0", "id":1, "method":"setconf",
+            "params":{"name": "uat:garbage-pref", "value": "\"\""}
+            },
         ), (
-            {"err": 1, "errmsg": "Unknown preference"},
+            {"jsonrpc":"2.0","id":1,"error":{"code":-4005,"message":"Unable to set the preference"}},
         ))
 
     def test_sharkd_req_dumpconf_bad(self, check_sharkd_session):
         check_sharkd_session((
-            {"req": "dumpconf", "pref": "invalid-garbage-preference"},
-            {"req": "dumpconf", "pref": "uat:custom_http_header_fields"},
-        ), ())
+            {"jsonrpc":"2.0", "id":1, "method":"dumpconf",
+            "params":{"pref": "bad.preference"}
+            },
+            {"jsonrpc":"2.0", "id":2, "method":"dumpconf",
+            "params":{"pref": "invalid-garbage-preference"}
+            },
+            {"jsonrpc":"2.0", "id":3, "method":"dumpconf",
+            "params":{"pref": "uat:custom_http_header_fields"}
+            },
+        ), (
+            {"jsonrpc":"2.0","id":1,"error":{"code":-9001,"message":"Invalid pref bad.preference."}},
+            {"jsonrpc":"2.0","id":2,"error":{"code":-9002,"message":"Invalid pref invalid-garbage-preference."}},
+            {"jsonrpc":"2.0","id":3,"error":{"code":-9002,"message":"Invalid pref uat:custom_http_header_fields."}},
+        ))
 
     def test_sharkd_req_dumpconf_all(self, check_sharkd_session):
         check_sharkd_session((
-            {"req": "dumpconf"},
+            {"jsonrpc":"2.0", "id":1, "method":"dumpconf"},
         ), (
-            {"prefs": MatchObject({"tcp.check_checksum": {"b": 0}})},
+            {"jsonrpc":"2.0","id":1,"result":{"prefs": MatchObject({"tcp.check_checksum": {"b": 0}})}
+            },
         ))
 
     def test_sharkd_req_download_tls_secrets(self, check_sharkd_session, capture_file):
         # XXX test download for eo: and rtp: too
         check_sharkd_session((
-            {"req": "load", "file": capture_file('tls12-dsb.pcapng')},
-            {"req": "download", "token": "ssl-secrets"},
+            {"jsonrpc":"2.0", "id":1, "method":"load",
+            "params":{"file": capture_file('tls12-dsb.pcapng')}
+            },
+            {"jsonrpc":"2.0", "id":2, "method":"download",
+            "params":{"token": "ssl-secrets"}
+            },
         ), (
-            {"err": 0},
+            {"jsonrpc":"2.0","id":1,"result":{"status":"OK"}},
             # TODO remove "RSA Session-ID:" support and support "CLIENT_RANDOM "... only
-            {"file": "keylog.txt", "mime": "text/plain",
-                "data": MatchRegExp(r'UlNBIFNlc3Npb24tSUQ6.+')},
+            {"jsonrpc":"2.0","id":2,"result":{"file": "keylog.txt", "mime": "text/plain",
+                "data": MatchRegExp(r'UlNBIFNlc3Npb24tSUQ6.+')}
+            },
         ))
 
     def test_sharkd_req_bye(self, check_sharkd_session):
         check_sharkd_session((
-            {"req": "bye"},
+            {"jsonrpc":"2.0", "id":1, "method":"bye"},
         ), (
+            {"jsonrpc":"2.0","id":1,"result":{"status":"OK"}},
         ))
 
     def test_sharkd_bad_request(self, check_sharkd_session):
         check_sharkd_session((
-            {"req": 1337},
+            {"jsonrpc":"2.0", "id":1, "method":"dud"},
         ), (
+            {'jsonrpc': '2.0', 'id': 1, 'error': {'code': -32601, 'message': 'The method dud is not supported'}},
         ))
 
     def test_sharkd_config(self, check_sharkd_session):
         check_sharkd_session((
-            {"req": "setconf", "name": "uat:custom_http_header_fields",
-                "value": "\"X-Header-Name\", \"Description\""},
-            {"req": "setconf", "name": "tcp.check_checksum", "value": "TRUE"},
-            {"req": "dumpconf", "pref": "tcp.check_checksum"},
-            {"req": "setconf", "name": "tcp.check_checksum", "value": "FALSE"},
-            {"req": "dumpconf", "pref": "tcp.check_checksum"},
+            {"jsonrpc":"2.0", "id":1, "method":"setconf",
+            "params":{"name": "uat:custom_http_header_fields", "value": "\"X-Header-Name\", \"Description\""}
+            },
+            {"jsonrpc":"2.0", "id":2, "method":"setconf",
+            "params":{"name": "tcp.check_checksum", "value": "true"}
+            },
+            {"jsonrpc":"2.0", "id":3, "method":"dumpconf",
+            "params":{"pref": "tcp.check_checksum"}
+            },
+            {"jsonrpc":"2.0", "id":4, "method":"setconf",
+            "params":{"name": "tcp.check_checksum", "value": "false"}
+            },
+            {"jsonrpc":"2.0", "id":5, "method":"dumpconf",
+            "params":{"pref": "tcp.check_checksum"}
+            },
         ), (
             # Check that the UAT preference is set. There is no way to query it
             # (other than testing for side-effects in dissection).
-            {"err": 0},
-            {"err": 0},
-            {"prefs": {"tcp.check_checksum": {"b": 1}}},
-            {"err": 0},
-            {"prefs": {"tcp.check_checksum": {"b": 0}}},
+            {"jsonrpc":"2.0","id":1,"result":{"status":"OK"}},
+            {"jsonrpc":"2.0","id":2,"result":{"status":"OK"}},
+            {"jsonrpc":"2.0","id":3,"result":{"prefs":{"tcp.check_checksum":{"b":1}}}},
+            {"jsonrpc":"2.0","id":4,"result":{"status":"OK"}},
+            {"jsonrpc":"2.0","id":5,"result":{"prefs":{"tcp.check_checksum":{"b":0}}}},
         ))
 
     def test_sharkd_config_enum(self, check_sharkd_session):
         '''Dump default enum preference value, change it and restore it.'''
         check_sharkd_session((
-            {"req": "dumpconf", "pref": "wlan.ignore_wep"},
-            {"req": "setconf", "name": "wlan.ignore_wep", "value": "Yes - with IV"},
-            {"req": "dumpconf", "pref": "wlan.ignore_wep"},
-            {"req": "setconf", "name": "wlan.ignore_wep", "value": "No"},
-            {"req": "dumpconf", "pref": "wlan.ignore_wep"},
+            {"jsonrpc":"2.0", "id":1, "method":"dumpconf",
+            "params":{"pref": "wlan.ignore_wep"}
+            },
+            {"jsonrpc":"2.0", "id":2, "method":"setconf",
+            "params":{"name": "wlan.ignore_wep", "value": "Yes - with IV"}
+            },
+            {"jsonrpc":"2.0", "id":3, "method":"dumpconf",
+            "params":{"pref": "wlan.ignore_wep"}
+            },
+            {"jsonrpc":"2.0", "id":4, "method":"setconf",
+            "params":{"name": "wlan.ignore_wep", "value": "No"}
+            },
+            {"jsonrpc":"2.0", "id":5, "method":"dumpconf",
+            "params":{"pref": "wlan.ignore_wep"}
+            },
         ), (
-            {"prefs": {"wlan.ignore_wep": {"e": [
-                {"v": 0, "s": 1, "d": "No"},
-                {"v": 1, "d": "Yes - without IV"},
-                {"v": 2, "d": "Yes - with IV"}
-            ]}}},
-            {"err": 0},
-            {"prefs": {"wlan.ignore_wep": {"e": [
-                {"v": 0, "d": "No"},
-                {"v": 1, "d": "Yes - without IV"},
-                {"v": 2, "s": 1, "d": "Yes - with IV"}
-            ]}}},
-            {"err": 0},
-            {"prefs": {"wlan.ignore_wep": {"e": [
-                {"v": 0, "s": 1, "d": "No"},
-                {"v": 1, "d": "Yes - without IV"},
-                {"v": 2, "d": "Yes - with IV"}
-            ]}}},
+            {"jsonrpc":"2.0","id":1,"result":{"prefs":{"wlan.ignore_wep":{"e":[{"v":0,"s":1,"d":"No"},{"v":1,"d":"Yes - without IV"},{"v":2,"d":"Yes - with IV"}]}}}},
+            {"jsonrpc":"2.0","id":2,"result":{"status":"OK"}},
+            {"jsonrpc":"2.0","id":3,"result":{"prefs":{"wlan.ignore_wep":{"e":[{"v":0,"d":"No"},{"v":1,"d":"Yes - without IV"},{"v":2,"s":1,"d":"Yes - with IV"}]}}}},
+            {"jsonrpc":"2.0","id":4,"result":{"status":"OK"}},
+            {"jsonrpc":"2.0","id":5,"result":{"prefs":{"wlan.ignore_wep":{"e":[{"v":0,"s":1,"d":"No"},{"v":1,"d":"Yes - without IV"},{"v":2,"d":"Yes - with IV"}]}}}},
         ))
 
     def test_sharkd_nested_file(self, check_sharkd_session, capture_file):
         '''Request a frame from a file with a deep level of nesting.'''
         check_sharkd_session((
-            {"req": "load", "file": capture_file("http2-data-reassembly.pcap")},
-            {"req": "frame", "frame": "4", "proto": "yes"},
+            {"jsonrpc":"2.0", "id":1, "method":"load",
+            "params":{"file": capture_file("http2-data-reassembly.pcap")}
+            },
+            {"jsonrpc":"2.0", "id":2, "method":"frame",
+            "params":{"frame": "4", "proto": "yes"}
+            },
         ), (
-            {"err": 0},
+            {"jsonrpc":"2.0","id":1,"result":{"status":"OK"}},
             MatchAny(),
         ))
