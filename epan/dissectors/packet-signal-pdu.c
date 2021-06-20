@@ -1751,17 +1751,17 @@ proto_reg_handoff_signal_pdu(void) {
     static  gboolean initialized = FALSE;
 
     if (!initialized) {
-        signal_pdu_handle_someip = create_dissector_handle(dissect_spdu_message_someip, proto_signal_pdu);
+        signal_pdu_handle_someip = register_dissector("signal_pdu_over_someip", dissect_spdu_message_someip, proto_signal_pdu);
 
-        signal_pdu_handle_can = create_dissector_handle(dissect_spdu_message_can, proto_signal_pdu);
+        signal_pdu_handle_can = register_dissector("signal_pdu_over_can", dissect_spdu_message_can, proto_signal_pdu);
         dissector_add_for_decode_as("can.subdissector", signal_pdu_handle_can);
         heur_dissector_add("can", dissect_spdu_message_can_heur, "Signal-PDU-Heuristic", "signal_pdu_can_heur", proto_signal_pdu, HEURISTIC_ENABLE);
 
-        signal_pdu_handle_flexray = create_dissector_handle(dissect_spdu_message_flexray, proto_signal_pdu);
+        signal_pdu_handle_flexray = register_dissector("signal_pdu_over_flexray", dissect_spdu_message_flexray, proto_signal_pdu);
         dissector_add_for_decode_as("flexray.subdissector", signal_pdu_handle_flexray);
         heur_dissector_add("flexray", dissect_spdu_message_flexray_heur, "Signal-PDU-Heuristic", "signal_pdu_flexray_heur", proto_signal_pdu, HEURISTIC_ENABLE);
 
-        signal_pdu_handle_pdu_transport = create_dissector_handle(dissect_spdu_message_pdu_transport, proto_signal_pdu);
+        signal_pdu_handle_pdu_transport = register_dissector("signal_pdu_over_pdu_transport", dissect_spdu_message_pdu_transport, proto_signal_pdu);
 
         initialized = TRUE;
     }
