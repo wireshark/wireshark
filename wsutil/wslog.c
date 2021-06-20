@@ -589,14 +589,38 @@ void ws_log_init_with_data(const char *progname, ws_log_writer_cb *writer,
 }
 
 
-static inline const char *color_on(gboolean enable)
+#define MAGENTA "\033[35m"
+#define BLUE    "\033[34m"
+#define CYAN    "\033[36m"
+#define GREEN   "\033[32m"
+#define YELLOW  "\033[33m"
+#define RED     "\033[31m"
+#define RESET   "\033[0m"
+
+static inline const char *msg_color_on(gboolean enable, enum ws_log_level level)
 {
-    return enable ? "\033[34m" : ""; /* blue */
+    if (!enable)
+        return "";
+
+    if (level <= LOG_LEVEL_NOISY)
+        return MAGENTA;
+    else if (level <= LOG_LEVEL_DEBUG)
+        return GREEN;
+    else if (level <= LOG_LEVEL_INFO)
+        return CYAN;
+    else if (level <= LOG_LEVEL_MESSAGE)
+        return BLUE;
+    else if (level <= LOG_LEVEL_WARNING)
+        return YELLOW;
+    else if (level <= LOG_LEVEL_ERROR)
+        return RED;
+    else
+        ws_assert_not_reached();
 }
 
 static inline const char *color_off(gboolean enable)
 {
-    return enable ? "\033[0m" : "";
+    return enable ? RESET : "";
 }
 
 static void log_write_do_work(FILE *fp, gboolean use_color, const char *timestamp,
@@ -614,31 +638,34 @@ static void log_write_do_work(FILE *fp, gboolean use_color, const char *timestam
     }
 #endif
 
-    if (doextra)
-        fprintf(fp, " ** (%s:%ld) ", registered_progname, (long)getpid());
-    else
-        fputs(" ** ", fp);
+    /* Process name */
+    fprintf(fp, " ** (%s:%ld) ", registered_progname, (long)getpid());
 
-    if (timestamp) {
+    /* Timestamp */
+    if (timestamp != NULL) {
         fputs(timestamp, fp);
         fputc(' ', fp);
     }
 
-    fprintf(fp, "[%s-%s] ", domain_str, level_str);
+    /* Message priority (domain/level) */
+    fprintf(fp, "[%s%s%s %s] ", msg_color_on(use_color, level),
+                                level_str,
+                                color_off(use_color),
+                                domain_str);
 
-    if (doextra) {
-        if (file && line >= 0) {
-            fprintf(fp, "%s:%d ", file, line);
-        }
-        else if (file) {
-            fprintf(fp, "%s ", file);
-        }
-        fputs("-- ", fp);
-        if (func) {
-            fprintf(fp, "%s%s()%s: " , color_on(use_color), func, color_off(use_color));
-        }
-    }
+    /* File/line */
+    if (doextra && file != NULL && line >= 0)
+        fprintf(fp, "%s:%d ", file, line);
+    else if (doextra && file != NULL)
+        fprintf(fp, "%s ", file);
 
+    fputs("-- ", fp);
+
+    /* Function name */
+    if (doextra && func != NULL)
+        fprintf(fp, "%s(): ", func);
+
+    /* User message */
     vfprintf(fp, user_format, user_ap);
     fputc('\n', fp);
     fflush(fp);
