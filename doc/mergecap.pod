@@ -150,16 +150,33 @@ This setting is mandatory.
 
 =head1 EXAMPLES
 
-To merge two capture files together, 100 seconds apart use:
+To merge two capture files together into a third capture file, in which
+the last packet of one file arrives 100 seconds before the first packet
+of another file, use the following sequence of commands.
+
+First, use:
 
     capinfos -aeS a.pcap b.pcap
 
-(Let's suppose a.pcap starts at 1009932757 and b.pcap ends
-at 873660281. 1009932757 - 873660281 - 100 = 136272376
-seconds.)
+to determine the start and end times of the two capture files, as
+seconds since January 1, 1970, 00:00:00 UTC.
+
+If a.pcap starts at 1009932757 and b.pcap ends at 873660281, then the
+time adjustment to b.pcap that would make it end 100 seconds before
+a.pcap begins would be 1009932757 - 873660281 - 100 = 136272376 seconds.
+
+Thus, the next step would be to use:
 
     editcap -t 136272376 b.pcap b-shifted.pcap
+
+to generate a version of b.pcap with its time stamps shifted 136272376
+ahead.
+
+Then the final step would be to use :
+
     mergecap -w compare.pcap a.pcap b-shifted.pcap
+
+to merge a.pcap and the shifted b.pcap into compare.pcap.
 
 =head1 SEE ALSO
 
