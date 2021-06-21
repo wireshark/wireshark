@@ -34,6 +34,8 @@ register_plugin_files(plugin.c
 
 add_plugin_library(l16mono codecs)
 
+target_include_directories(l16mono PRIVATE ${CMAKE_SOURCE_DIR}/codecs)
+
 target_link_libraries(l16mono wsutil)
 
 install_plugin(l16mono codecs)

@@ -34,6 +34,8 @@ register_plugin_files(plugin.c
 
 add_plugin_library(ilbc codecs)
 
+target_include_directories(ilbc PRIVATE ${CMAKE_SOURCE_DIR}/codecs)
+
 target_link_libraries(ilbc wsutil ${ILBC_LIBRARIES})
 
 target_include_directories(ilbc SYSTEM PRIVATE ${ILBC_INCLUDE_DIRS})

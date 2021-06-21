@@ -34,6 +34,8 @@ register_plugin_files(plugin.c
 
 add_plugin_library(opus_dec codecs)
 
+target_include_directories(opus_dec PRIVATE ${CMAKE_SOURCE_DIR}/codecs)
+
 target_link_libraries(opus_dec wsutil ${OPUS_LIBRARIES})
 
 target_include_directories(opus_dec SYSTEM PRIVATE ${OPUS_INCLUDE_DIRS})

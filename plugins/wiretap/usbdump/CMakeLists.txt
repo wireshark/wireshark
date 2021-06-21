@@ -34,6 +34,8 @@ register_plugin_files(plugin.c
 
 add_plugin_library(usbdump wiretap)
 
+target_include_directories(usbdump PRIVATE ${CMAKE_SOURCE_DIR}/wiretap)
+
 target_link_libraries(usbdump wiretap)
 
 install_plugin(usbdump wiretap)

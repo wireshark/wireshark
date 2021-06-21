@@ -34,6 +34,8 @@ register_plugin_files(plugin.c
 
 add_plugin_library(sbc codecs)
 
+target_include_directories(sbc PRIVATE ${CMAKE_SOURCE_DIR}/codecs)
+
 target_link_libraries(sbc wsutil ${SBC_LIBRARIES})
 
 target_include_directories(sbc SYSTEM PRIVATE ${SBC_INCLUDE_DIRS})

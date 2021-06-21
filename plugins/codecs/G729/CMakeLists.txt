@@ -34,6 +34,8 @@ register_plugin_files(plugin.c
 
 add_plugin_library(g729 codecs)
 
+target_include_directories(g729 PRIVATE ${CMAKE_SOURCE_DIR}/codecs)
+
 target_link_libraries(g729 wsutil ${BCG729_LIBRARIES})
 
 target_include_directories(g729 SYSTEM PRIVATE ${BCG729_INCLUDE_DIRS})

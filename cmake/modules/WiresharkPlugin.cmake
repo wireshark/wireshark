@@ -34,6 +34,8 @@ macro(ADD_PLUGIN_LIBRARY _plugin _subfolder)
 		${PLUGIN_RC_FILE}
 	)
 
+	target_include_directories(${_plugin} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
 	set_target_properties(${_plugin} PROPERTIES
 		PREFIX ""
 		LINK_FLAGS "${WS_LINK_FLAGS}"

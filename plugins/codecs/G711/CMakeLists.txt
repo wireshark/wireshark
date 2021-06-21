@@ -34,6 +34,8 @@ register_plugin_files(plugin.c
 
 add_plugin_library(g711 codecs)
 
+target_include_directories(g711 PRIVATE ${CMAKE_SOURCE_DIR}/codecs)
+
 target_link_libraries(g711 wsutil)
 
 install_plugin(g711 codecs)
