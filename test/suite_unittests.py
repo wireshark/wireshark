@@ -41,6 +41,12 @@ class case_unittests(subprocesstest.SubprocessTestCase):
             '--verbose'
         ), env=base_env)
 
+    def test_unit_wsutil(self, program, base_env):
+        '''wsutil unit tests'''
+        self.assertRun((program('test_wsutil'),
+            '--verbose'
+        ), env=base_env)
+
     def test_unit_fieldcount(self, cmd_tshark, test_env):
         '''fieldcount'''
         self.assertRun((cmd_tshark, '-G', 'fieldcount'), env=test_env)
