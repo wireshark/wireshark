@@ -40,6 +40,7 @@
  * - STREAM with sizes larger than 32 bit are unsupported. STREAM sizes can be
  *   up to 62 bit in QUIC, but the TVB and reassembly API is limited to 32 bit.
  * - Out-of-order and overlapping STREAM frame data is not handled.
+ * - "Follow QUIC Stream" doesn't work with STREAM IDs larger than 32 bit
  */
 
 #include <config.h>
@@ -334,6 +335,14 @@ typedef struct _quic_stream_state {
 } quic_stream_state;
 
 /**
+ * Data used to allow "Follow QUIC Stream" functionality
+ */
+typedef struct _quic_follow_stream {
+    guint32         num;
+    guint64         stream_id;
+} quic_follow_stream;
+
+/**
  * State for a single QUIC connection, identified by one or more Destination
  * Connection IDs (DCID).
  */
@@ -366,6 +375,8 @@ typedef struct quic_info_data {
     dissector_handle_t app_handle;  /**< Application protocol handle (NULL if unknown). */
     wmem_map_t     *client_streams; /**< Map from Stream ID -> STREAM info (guint64 -> quic_stream_state), sent by the client. */
     wmem_map_t     *server_streams; /**< Map from Stream ID -> STREAM info (guint64 -> quic_stream_state), sent by the server. */
+    wmem_list_t    *streams_list;   /**< Ordered list of QUIC Stream ID in this connection (both directions). Used by "Follow QUIC Stream" functionality */
+    wmem_map_t     *streams_map;    /**< Map pinfo->num --> First stream in that frame (guint -> quic_follow_stream). Used by "Follow QUIC Stream" functionality */
     gquic_info_data_t *gquic_info; /**< GQUIC info for >Q050 flows. */
 } quic_info_data_t;
 
@@ -666,6 +677,8 @@ static const val64_string quic_frame_id_direction[] = {
 static void
 quic_extract_header(tvbuff_t *tvb, guint8 *long_packet_type, guint32 *version,
                     quic_cid_t *dcid, quic_cid_t *scid);
+static void
+quic_streams_add(packet_info *pinfo, quic_info_data_t *quic_info, guint64 stream_id);
 
 static void
 quic_hp_cipher_reset(quic_hp_cipher *hp_cipher)
@@ -1804,6 +1817,10 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             col_append_fstr(pinfo->cinfo, COL_INFO, "(%" G_GINT64_MODIFIER "u)", stream_id);
 
             proto_item_append_text(ti_ft, " fin=%d", !!(frame_type & FTFLAGS_STREAM_FIN));
+
+            if (!PINFO_FD_VISITED(pinfo)) {
+                quic_streams_add(pinfo, quic_info, stream_id);
+            }
 
             if (frame_type & FTFLAGS_STREAM_OFF) {
                 proto_tree_add_item_ret_varint(ft_tree, hf_quic_stream_offset, tvb, offset, -1, ENC_VARINT_QUIC, &stream_offset, &lenvar);
@@ -3774,6 +3791,104 @@ quic_cleanup(void)
 
 /* Follow QUIC Stream functionality {{{ */
 
+static void
+quic_streams_add(packet_info *pinfo, quic_info_data_t *quic_info, guint64 stream_id)
+{
+    /* List: ordered list of Stream IDs in this connection */
+    if (!quic_info->streams_list) {
+        quic_info->streams_list = wmem_list_new(wmem_file_scope());
+    }
+    if (!wmem_list_find(quic_info->streams_list, (void *)(stream_id))) {
+        wmem_list_insert_sorted(quic_info->streams_list, (void *)(stream_id),
+                                uint64_compare);
+    }
+
+    /* Map: first Stream ID for each UDP payload */
+    quic_follow_stream *stream;
+    if (!quic_info->streams_map) {
+        quic_info->streams_map = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
+    }
+    stream = wmem_map_lookup(quic_info->streams_map, GUINT_TO_POINTER(pinfo->num));
+    if (!stream) {
+        stream = wmem_new0(wmem_file_scope(), quic_follow_stream);
+        stream->num = pinfo->num;
+        stream->stream_id = stream_id;
+        wmem_map_insert(quic_info->streams_map, GUINT_TO_POINTER(stream->num), stream);
+    }
+}
+
+static quic_info_data_t *
+get_conn_by_number(guint conn_number)
+{
+    quic_info_data_t *conn;
+    wmem_list_frame_t *elem;
+
+    elem = wmem_list_head(quic_connections);
+    while (elem) {
+        conn = (quic_info_data_t *)wmem_list_frame_data(elem);
+        if (conn->number == conn_number)
+            return conn;
+        elem = wmem_list_frame_next(elem);
+    }
+    return NULL;
+}
+
+gboolean
+quic_get_stream_id_le(guint streamid, guint sub_stream_id, guint *sub_stream_id_out)
+{
+    quic_info_data_t *quic_info;
+    wmem_list_frame_t *curr_entry;
+    guint64 prev_stream_id;
+
+    quic_info = get_conn_by_number(streamid);
+    if (!quic_info) {
+        return FALSE;
+    }
+
+    prev_stream_id = G_MAXUINT64;
+    curr_entry = wmem_list_head(quic_info->streams_list);
+    while (curr_entry) {
+        if ((guint64)wmem_list_frame_data(curr_entry) > sub_stream_id &&
+            prev_stream_id != G_MAXUINT64) {
+            *sub_stream_id_out = (guint)prev_stream_id;
+            return TRUE;
+        }
+        prev_stream_id = (guint64)wmem_list_frame_data(curr_entry);
+        curr_entry = wmem_list_frame_next(curr_entry);
+    }
+
+    if (prev_stream_id != G_MAXUINT64) {
+        *sub_stream_id_out = (guint)prev_stream_id;
+        return TRUE;
+    }
+
+    return FALSE;
+}
+
+gboolean
+quic_get_stream_id_ge(guint streamid, guint sub_stream_id, guint *sub_stream_id_out)
+{
+    quic_info_data_t *quic_info;
+    wmem_list_frame_t *curr_entry;
+
+    quic_info = get_conn_by_number(streamid);
+    if (!quic_info) {
+        return FALSE;
+    }
+
+    curr_entry = wmem_list_head(quic_info->streams_list);
+    while (curr_entry) {
+        if ((guint64)wmem_list_frame_data(curr_entry) >= sub_stream_id) {
+            /* StreamIDs are 64 bits long in QUIC, but "Follow Stream" generic code uses guint variables */
+            *sub_stream_id_out = (guint)(guint64)wmem_list_frame_data(curr_entry);
+            return TRUE;
+        }
+        curr_entry = wmem_list_frame_next(curr_entry);
+    }
+
+    return FALSE;
+}
+
 static gchar *
 quic_follow_conv_filter(epan_dissect_t *edt _U_, packet_info *pinfo, guint *stream, guint *sub_stream)
 {
@@ -3784,11 +3899,15 @@ quic_follow_conv_filter(epan_dissect_t *edt _U_, packet_info *pinfo, guint *stre
         if (!conn) {
             return NULL;
         }
-        // XXX Look up stream ID for the current packet.
-        guint stream_id = 0;
-        *stream = conn->number;
-        *sub_stream = stream_id;
-        return g_strdup_printf("quic.connection.number eq %u and quic.stream.stream_id eq %u", conn->number, stream_id);
+
+        /* First Stream ID in the selected packet */
+        quic_follow_stream *s;
+        s = wmem_map_lookup(conn->streams_map, GUINT_TO_POINTER(pinfo->num));
+        if (s) {
+            *stream = conn->number;
+            *sub_stream = (guint)s->stream_id;
+            return g_strdup_printf("quic.connection.number eq %u and quic.stream.stream_id eq %u", conn->number, *sub_stream);
+        }
     }
 
     return NULL;

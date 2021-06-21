@@ -252,6 +252,9 @@ void FollowStreamDialog::updateWidgets(bool follow_in_progress)
     ui->cbDirections->setEnabled(enable);
     ui->cbCharset->setEnabled(enable);
     ui->streamNumberSpinBox->setEnabled(enable);
+    if (follow_type_ == FOLLOW_HTTP2 || follow_type_ == FOLLOW_QUIC) {
+        ui->subStreamNumberSpinBox->setEnabled(enable);
+    }
     ui->leFind->setEnabled(enable);
     ui->bFind->setEnabled(enable);
     b_filter_out_->setEnabled(enable);
@@ -399,12 +402,32 @@ void FollowStreamDialog::on_streamNumberSpinBox_valueChanged(int stream_num)
     sub_stream_num = ui->subStreamNumberSpinBox->value();
     ui->subStreamNumberSpinBox->blockSignals(false);
 
+    /* We need to find a suitable sub stream for the new stream */
+    guint sub_stream_num_new = static_cast<guint>(sub_stream_num);
+    gboolean ok;
     if (sub_stream_num < 0) {
-        sub_stream_num = 0;
+        // Stream ID 0 should always exist as it is used for control messages.
+        sub_stream_num_new = 0;
+        ok = TRUE;
+    } else if (follow_type_ == FOLLOW_HTTP2) {
+        ok = http2_get_stream_id_ge(static_cast<guint>(stream_num), sub_stream_num_new, &sub_stream_num_new);
+        if (!ok) {
+            ok = http2_get_stream_id_le(static_cast<guint>(stream_num), sub_stream_num_new, &sub_stream_num_new);
+        }
+    } else if (follow_type_ == FOLLOW_QUIC) {
+        ok = quic_get_stream_id_ge(static_cast<guint>(stream_num), sub_stream_num_new, &sub_stream_num_new);
+        if (!ok) {
+            ok = quic_get_stream_id_le(static_cast<guint>(stream_num), sub_stream_num_new, &sub_stream_num_new);
+        }
+    } else {
+        // Should not happen, this field is only visible for suitable protocols.
+        return;
     }
+    sub_stream_num = static_cast<gint>(sub_stream_num_new);
 
-    if (stream_num >= 0) {
+    if (stream_num >= 0 && ok) {
         follow(previous_filter_, true, stream_num, sub_stream_num);
+        previous_sub_stream_num_ = sub_stream_num;
     }
 }
 
@@ -432,8 +455,11 @@ void FollowStreamDialog::on_subStreamNumberSpinBox_valueChanged(int sub_stream_n
             ok = http2_get_stream_id_le(static_cast<guint>(stream_num), sub_stream_num_new, &sub_stream_num_new);
         }
     } else if (follow_type_ == FOLLOW_QUIC) {
-        // TODO clamp the stream IDs correctly for QUIC
-        ok = TRUE;
+        if (previous_sub_stream_num_ < sub_stream_num) {
+            ok = quic_get_stream_id_ge(static_cast<guint>(stream_num), sub_stream_num_new, &sub_stream_num_new);
+        } else {
+            ok = quic_get_stream_id_le(static_cast<guint>(stream_num), sub_stream_num_new, &sub_stream_num_new);
+        }
     } else {
         // Should not happen, this field is only visible for suitable protocols.
         return;
@@ -935,9 +961,15 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index, 
         follow_filter = gchar_free_to_qstring(get_follow_conv_func(follower_)(cap_file_.capFile()->edt, &cap_file_.capFile()->edt->pi, &stream_num, &sub_stream_num));
     }
     if (follow_filter.isEmpty()) {
-        QMessageBox::warning(this,
-                             tr("Error creating filter for this stream."),
-                             tr("A transport or network layer header is needed."));
+        if (follow_type_ == FOLLOW_QUIC) {
+            QMessageBox::warning(this,
+                                 tr("Error creating filter for this stream."),
+                                 tr("QUIC streams not found on the selected packet."));
+        } else {
+            QMessageBox::warning(this,
+                                 tr("Error creating filter for this stream."),
+                                 tr("A transport or network layer header is needed."));
+        }
         return false;
     }
 
@@ -1038,17 +1070,18 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index, 
         ui->streamNumberSpinBox->setMaximum(stream_count-1);
         ui->streamNumberSpinBox->setValue(stream_num);
         ui->streamNumberSpinBox->blockSignals(false);
-        ui->streamNumberSpinBox->setToolTip(tr("%Ln total stream(s).", "", stream_count));
+        ui->streamNumberSpinBox->setToolTip(tr("Total number of QUIC connections: %Ln", "", stream_count));
         ui->streamNumberLabel->setToolTip(ui->streamNumberSpinBox->toolTip());
 
-        // TODO extract number of QUIC streams?
-        stream_count = G_MAXINT32;
+        guint substream_max_id = 0;
+        quic_get_stream_id_le(static_cast<guint>(stream_num), G_MAXINT32, &substream_max_id);
+        stream_count = static_cast<gint>(substream_max_id);
         ui->subStreamNumberSpinBox->blockSignals(true);
         ui->subStreamNumberSpinBox->setEnabled(true);
         ui->subStreamNumberSpinBox->setMaximum(stream_count);
         ui->subStreamNumberSpinBox->setValue(sub_stream_num);
         ui->subStreamNumberSpinBox->blockSignals(false);
-        ui->subStreamNumberSpinBox->setToolTip(tr("%Ln total sub stream(s).", "", stream_count));
+        ui->subStreamNumberSpinBox->setToolTip(tr("Max QUIC Stream ID for the selected connection: %Ln", "", stream_count));
         ui->subStreamNumberSpinBox->setToolTip(ui->subStreamNumberSpinBox->toolTip());
         ui->subStreamNumberSpinBox->setVisible(true);
         ui->subStreamNumberLabel->setVisible(true);

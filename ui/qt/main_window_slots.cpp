@@ -1189,6 +1189,7 @@ void MainWindow::setMenusForSelectedPacket()
             is_dccp = proto_is_frame_protocol(capture_file_.capFile()->edt->pi.layers, "dccp");
             is_http = proto_is_frame_protocol(capture_file_.capFile()->edt->pi.layers, "http");
             is_http2 = proto_is_frame_protocol(capture_file_.capFile()->edt->pi.layers, "http2");
+            /* TODO: to follow a QUIC stream we need a *decrypted* QUIC connection, i.e. checking for "quic" in the protocol stack is not enough */
             is_quic = proto_is_frame_protocol(capture_file_.capFile()->edt->pi.layers, "quic");
             is_sip = proto_is_frame_protocol(capture_file_.capFile()->edt->pi.layers, "sip");
         }

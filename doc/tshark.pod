@@ -1261,7 +1261,7 @@ stream on the first TCP session (index 0) with HTTP/2 Stream ID 1.
       0000002B  00 40 00 00 00 00 00 00  01 89 50 4e 47 0d 0a 1a  .@...... ..PNG...
 
 QUIC streams can be selected through B<-z "follow,quic,hex,3,0">, the first
-number indicates the UDP stream index whereas the second number selects the QUIC
+number indicates the QUIC connection number whereas the second number selects the QUIC
 Stream ID.
 
 =item B<-z> h225,counter[I<,filter>]

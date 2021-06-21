@@ -187,7 +187,7 @@ a HTTP/2 Stream Index (field name `http2.streamid`) which are unique within a
 TCP connection. The “Stream” selector determines the TCP connection whereas the
 “Substream” selector is used to pick the HTTP/2 Stream ID.
 
-The QUIC protocol is similar, the first number selects the UDP stream index
+The QUIC protocol is similar, the first number selects the QUIC connection number
 while the "Substream" field selects the QUIC Stream ID.
 
 .The “Follow SIP Call” dialog box
