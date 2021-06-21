@@ -2935,20 +2935,32 @@ of the capture after it stops; it's primarily useful for testing.
 
 This environment variable controls the verbosity of diagnostic messages to
 the console. From less verbose to most verbose levels can be C<critical>,
-C<warning>, C<message>, C<info> or C<debug>. Levels above the current level
-are also active. Levels C<critical> and C<error> are always active.
+C<warning>, C<message>, C<info>, C<debug> or C<noisy>. Levels above the
+current level are also active. Levels C<critical> and C<error> are always
+active.
+
+=item WIRESHARK_LOG_FATAL
+
+Sets the fatal log level. Fatal log levels cause the progeam to abort.
+The fatal log level be set to C<critical> or C<warning>. C<Error> is
+always fatal. 
 
 =item WIRESHARK_LOG_DOMAINS
 
-This environment variable selects with log domains are active. The filter is
+This environment variable selects which log domains are active. The filter is
 given as a case-insensitive comma separated list. If set only the included
 domains will be enabled. The default domain is always considered to be enabled.
 Domain filter lists can be preceded by '!' to invert the sense of the match.
 
 =item WIRESHARK_LOG_DEBUG
 
-List of domains with C<debug> log level. This sets the level of the listed
-log domains and takes precedence over the active domains filter.
+List of domains with C<debug> log level. This sets the level of the provided
+log domains and takes precedence over the active domains filter. If preceded
+by '!' this disables the C<debug> level instead.
+
+=item WIRESHARK_LOG_NOISY
+
+Same as above but for C<noisy> log level instead.
 
 =back
 
