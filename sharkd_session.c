@@ -20,7 +20,6 @@
 #include <glib.h>
 
 #include <wsutil/wsjson.h>
-#include <wsutil/ws_printf.h>
 #include <wsutil/json_dumper.h>
 #include <wsutil/ws_assert.h>
 
