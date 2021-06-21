@@ -2279,13 +2279,13 @@ dissect_rsl_ie_message_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
             return offset;
     }
 
-    ie_tree = proto_tree_add_subtree(tree, tvb, offset, 0, ett_ie_message_id, NULL, "Message Identifier IE");
+    ie_tree = proto_tree_add_subtree(tree, tvb, offset, 2, ett_ie_message_id, NULL, "Message Identifier IE");
 
     /* Element identifier */
     proto_tree_add_item(ie_tree, hf_rsl_ie_id, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     /* Message Type */
-    proto_tree_add_item(tree, hf_rsl_msg_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ie_tree, hf_rsl_msg_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     return offset;
 }
