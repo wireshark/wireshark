@@ -48,6 +48,7 @@ static gchar* funnel_statistics_get_color_filter_slot(guint8 filter_num);
 static void funnel_statistics_set_color_filter_slot(guint8 filter_num, const gchar* filter_string);
 static gboolean funnel_statistics_open_file(funnel_ops_id_t *ops_id, const char* fname, const char* filter, char**);
 static void funnel_statistics_reload_packets(funnel_ops_id_t *ops_id);
+static void funnel_statistics_redissect_packets(funnel_ops_id_t *ops_id);
 static void funnel_statistics_reload_lua_plugins(funnel_ops_id_t *ops_id);
 static void funnel_statistics_apply_filter(funnel_ops_id_t *ops_id);
 static gboolean browser_open_url(const gchar *url);
@@ -140,6 +141,7 @@ FunnelStatistics::FunnelStatistics(QObject *parent, CaptureFile &cf) :
     funnel_ops_->set_color_filter_slot = funnel_statistics_set_color_filter_slot;
     funnel_ops_->open_file = funnel_statistics_open_file;
     funnel_ops_->reload_packets = funnel_statistics_reload_packets;
+    funnel_ops_->redissect_packets = funnel_statistics_redissect_packets;
     funnel_ops_->reload_lua_plugins = funnel_statistics_reload_lua_plugins;
     funnel_ops_->apply_filter = funnel_statistics_apply_filter;
     funnel_ops_->browser_open_url = browser_open_url;
@@ -186,6 +188,12 @@ void FunnelStatistics::emitSetDisplayFilter(const QString filter)
 void FunnelStatistics::reloadPackets()
 {
     capture_file_.reload();
+}
+
+void FunnelStatistics::redissectPackets()
+{
+    // This will trigger a packet redissection.
+    wsApp->emitAppSignal(WiresharkApplication::PacketDissectionChanged);
 }
 
 void FunnelStatistics::reloadLuaPlugins()
@@ -273,6 +281,12 @@ void funnel_statistics_reload_packets(funnel_ops_id_t *ops_id) {
     if (!ops_id || !ops_id->funnel_statistics) return;
 
     ops_id->funnel_statistics->reloadPackets();
+}
+
+void funnel_statistics_redissect_packets(funnel_ops_id_t *ops_id) {
+    if (!ops_id || !ops_id->funnel_statistics) return;
+
+    ops_id->funnel_statistics->redissectPackets();
 }
 
 void funnel_statistics_reload_lua_plugins(funnel_ops_id_t *ops_id) {

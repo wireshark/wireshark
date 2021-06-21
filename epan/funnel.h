@@ -82,6 +82,7 @@ typedef struct _funnel_ops_t {
     void (*set_color_filter_slot)(guint8 filt_nr, const gchar* filter);
     gboolean (*open_file)(funnel_ops_id_t *ops_id, const char* fname, const char* filter, char** error);
     void (*reload_packets)(funnel_ops_id_t *ops_id);
+    void (*redissect_packets)(funnel_ops_id_t *ops_id);
     void (*reload_lua_plugins)(funnel_ops_id_t *ops_id);
     void (*apply_filter)(funnel_ops_id_t *ops_id);
 

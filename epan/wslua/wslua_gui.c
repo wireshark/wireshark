@@ -1090,6 +1090,28 @@ WSLUA_FUNCTION wslua_reload_packets(lua_State* L) { /*
 }
 
 
+WSLUA_FUNCTION wslua_redissect_packets(lua_State* L) { /*
+    Redissect all packets in the current capture file.
+    Requires a GUI.
+
+    [WARNING]
+    ====
+    Avoid calling this from within a dissector function or else an infinite loop can occur if it causes the dissector to be called again.
+    This function is best used in a button callback (from a dialog or text window) or menu callback.
+    ====
+    */
+
+    if (!ops->redissect_packets) {
+        WSLUA_ERROR(reload, "GUI not available");
+        return 0;
+    }
+
+    ops->redissect_packets(ops->ops_id);
+
+    return 0;
+}
+
+
 WSLUA_FUNCTION wslua_reload_lua_plugins(lua_State* L) { /* Reload all Lua plugins. */
 
     if (!ops->reload_lua_plugins) {

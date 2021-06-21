@@ -30,6 +30,7 @@ public:
     const char *displayFilter();
     void emitSetDisplayFilter(const QString filter);
     void reloadPackets();
+    void redissectPackets();
     void reloadLuaPlugins();
     void emitApplyDisplayFilter();
     void emitOpenCaptureFile(QString cf_path, QString filter);
