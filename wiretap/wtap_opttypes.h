@@ -23,90 +23,94 @@ extern "C" {
  */
 
 /* Options for all blocks */
-#define OPT_EOFOPT           0     /**< Appears in pcapng files, but not in blocks. */
-#define OPT_COMMENT          1     /**< A UTF-8 string containing a human-readable comment. */
-
+#define OPT_EOFOPT             0     /**< Appears in pcapng files, but not in blocks. */
+#define OPT_COMMENT            1     /**< A UTF-8 string containing a human-readable comment. */
+#define OPT_CUSTOM_STR_COPY    2988  /**< A custom option containing a string, copying allowed. */
+#define OPT_CUSTOM_BIN_COPY    2989  /**< A custom option containing binary data, copying allowed. */
+#define OPT_CUSTOM_STR_NO_COPY 19372 /**< A custom option containing binary data, copying not allowed. */
+#define OPT_CUSTOM_BIN_NO_COPY 19373 /**< A custom option containing binary data, copying not allowed. */
 /* Section Header block (SHB) */
-#define OPT_SHB_HARDWARE     2     /**< A UTF-8 string containing the description of the
-                                     *     hardware used to create this section.
-                                     */
-#define OPT_SHB_OS           3     /**< A UTF-8 string containing the
-                                     *     name of the operating system used to create this section.
-                                     */
-#define OPT_SHB_USERAPPL     4     /**< A UTF-8 string containing the
-                                     *     name of the application used to create this section.
-                                     */
+#define OPT_SHB_HARDWARE       2     /**< A UTF-8 string containing the description of the
+                                       *     hardware used to create this section.
+                                       */
+#define OPT_SHB_OS             3     /**< A UTF-8 string containing the
+                                       *     name of the operating system used to create this section.
+                                       */
+#define OPT_SHB_USERAPPL       4     /**< A UTF-8 string containing the
+                                       *     name of the application used to create this section.
+                                       */
 
 /* Interface Description block (IDB) */
-#define OPT_IDB_NAME         2     /**< A UTF-8 string containing the name
-                                     *     of the device used to capture data.
-                                     *     "eth0" / "\Device\NPF_{AD1CE675-96D0-47C5-ADD0-2504B9126B68}"
-                                     */
-#define OPT_IDB_DESCR        3     /**< A UTF-8 string containing the description
-                                     *     of the device used to capture data.
-                                     *     "Wi-Fi" / "Local Area Connection" /
-                                     *     "Wireless Network Connection" /
-                                     *     "First Ethernet Interface"
-                                     */
-#define OPT_IDB_IP4ADDR      4     /**< XXX: if_IPv4addr Interface network address and netmask.
-                                     *     This option can be repeated multiple times within the same Interface Description Block
-                                     *     when multiple IPv4 addresses are assigned to the interface.
-                                     *     192 168 1 1 255 255 255 0
-                                     */
-#define OPT_IDB_IP6ADDR      5     /* XXX: if_IPv6addr Interface network address and prefix length (stored in the last byte).
-                                     *     This option can be repeated multiple times within the same Interface
-                                     *     Description Block when multiple IPv6 addresses are assigned to the interface.
-                                     *     2001:0db8:85a3:08d3:1319:8a2e:0370:7344/64 is written (in hex) as
-                                     *     "20 01 0d b8 85 a3 08 d3 13 19 8a 2e 03 70 73 44 40"*/
-#define OPT_IDB_MACADDR      6     /* XXX: if_MACaddr  Interface Hardware MAC address (48 bits).                             */
-#define OPT_IDB_EUIADDR      7     /* XXX: if_EUIaddr  Interface Hardware EUI address (64 bits)                              */
-#define OPT_IDB_SPEED        8     /**< Interface speed (in bps). 100000000 for 100Mbps
-                                     */
-#define OPT_IDB_TSRESOL      9     /**< Resolution of timestamps. If the Most Significant Bit is equal to zero,
-                                     *     the remaining bits indicates the resolution of the timestamp as as a
-                                     *     negative power of 10 (e.g. 6 means microsecond resolution, timestamps
-                                     *     are the number of microseconds since 1/1/1970). If the Most Significant Bit
-                                     *     is equal to one, the remaining bits indicates the resolution has a
-                                     *     negative power of 2 (e.g. 10 means 1/1024 of second).
-                                     *     If this option is not present, a resolution of 10^-6 is assumed
-                                     *     (i.e. timestamps have the same resolution of the standard 'libpcap' timestamps).
-                                     */
-#define OPT_IDB_TZONE        10    /* XXX: if_tzone    Time zone for GMT support (TODO: specify better). */
-#define OPT_IDB_FILTER       11    /**< The filter (e.g. "capture only TCP traffic") used to capture traffic.
-                                     *     The first byte of the Option Data keeps a code of the filter used
-                                     *     (e.g. if this is a libpcap string, or BPF bytecode, and more).
-                                     *     More details about this format will be presented in Appendix XXX (TODO).
-                                     *     (TODO: better use different options for different fields?
-                                     *     e.g. if_filter_pcap, if_filter_bpf, ...) 00 "tcp port 23 and host 10.0.0.5"
-                                     */
-#define OPT_IDB_OS           12    /**< A UTF-8 string containing the name of the operating system of the
-                                     *     machine in which this interface is installed.
-                                     *     This can be different from the same information that can be
-                                     *     contained by the Section Header Block
-                                     *     (Section 3.1 (Section Header Block (mandatory))) because
-                                     *     the capture can have been done on a remote machine.
-                                     *     "Windows XP SP2" / "openSUSE 10.2"
-                                     */
-#define OPT_IDB_FCSLEN       13    /**< An integer value that specified the length of the
-                                     *     Frame Check Sequence (in bits) for this interface.
-                                     *     For link layers whose FCS length can change during time,
-                                     *     the Packet Block Flags Word can be used (see Appendix A (Packet Block Flags Word))
-                                     */
-#define OPT_IDB_TSOFFSET     14    /**< XXX: A 64 bits integer value that specifies an offset (in seconds)
-                                     *     that must be added to the timestamp of each packet to obtain
-                                     *     the absolute timestamp of a packet. If the option is missing,
-                                     *     the timestamps stored in the packet must be considered absolute
-                                     *     timestamps. The time zone of the offset can be specified with the
-                                     *     option if_tzone. TODO: won't a if_tsoffset_low for fractional
-                                     *     second offsets be useful for highly synchronized capture systems?
-                                     */
-#define OPT_IDB_HARDWARE     15     /**< A UTF-8 string containing the description
-                                     *     of the hardware of the device used
-                                     *     to capture data.
-                                     *     "Broadcom NetXtreme" /
-                                     *     "Intel(R) PRO/1000 MT Network Connection" /
-                                     *     "NETGEAR WNA1000Mv2 N150 Wireless USB Micro Adapter"
-                                     */
+#define OPT_IDB_NAME           2     /**< A UTF-8 string containing the name
+                                       *     of the device used to capture data.
+                                       *     "eth0" / "\Device\NPF_{AD1CE675-96D0-47C5-ADD0-2504B9126B68}"
+                                       */
+#define OPT_IDB_DESCR          3     /**< A UTF-8 string containing the description
+                                       *     of the device used to capture data.
+                                       *     "Wi-Fi" / "Local Area Connection" /
+                                       *     "Wireless Network Connection" /
+                                       *     "First Ethernet Interface"
+                                       */
+#define OPT_IDB_IP4ADDR        4     /**< XXX: if_IPv4addr Interface network address and netmask.
+                                       *     This option can be repeated multiple times within the same Interface Description Block
+                                       *     when multiple IPv4 addresses are assigned to the interface.
+                                       *     192 168 1 1 255 255 255 0
+                                       */
+#define OPT_IDB_IP6ADDR        5     /**< XXX: if_IPv6addr Interface network address and prefix length (stored in the last byte).
+                                       *     This option can be repeated multiple times within the same Interface
+                                       *     Description Block when multiple IPv6 addresses are assigned to the interface.
+                                       *     2001:0db8:85a3:08d3:1319:8a2e:0370:7344/64 is written (in hex) as
+                                       *     "20 01 0d b8 85 a3 08 d3 13 19 8a 2e 03 70 73 44 40"
+                                       */
+#define OPT_IDB_MACADDR        6     /**< XXX: if_MACaddr  Interface Hardware MAC address (48 bits).                             */
+#define OPT_IDB_EUIADDR        7     /**< XXX: if_EUIaddr  Interface Hardware EUI address (64 bits)                              */
+#define OPT_IDB_SPEED          8     /**< Interface speed (in bps). 100000000 for 100Mbps
+                                       */
+#define OPT_IDB_TSRESOL        9     /**< Resolution of timestamps. If the Most Significant Bit is equal to zero,
+                                       *     the remaining bits indicates the resolution of the timestamp as as a
+                                       *     negative power of 10 (e.g. 6 means microsecond resolution, timestamps
+                                       *     are the number of microseconds since 1/1/1970). If the Most Significant Bit
+                                       *     is equal to one, the remaining bits indicates the resolution has a
+                                       *     negative power of 2 (e.g. 10 means 1/1024 of second).
+                                       *     If this option is not present, a resolution of 10^-6 is assumed
+                                       *     (i.e. timestamps have the same resolution of the standard 'libpcap' timestamps).
+                                       */
+#define OPT_IDB_TZONE          10    /**< XXX: if_tzone    Time zone for GMT support (TODO: specify better). */
+#define OPT_IDB_FILTER         11    /**< The filter (e.g. "capture only TCP traffic") used to capture traffic.
+                                       *     The first byte of the Option Data keeps a code of the filter used
+                                       *     (e.g. if this is a libpcap string, or BPF bytecode, and more).
+                                       *     More details about this format will be presented in Appendix XXX (TODO).
+                                       *     (TODO: better use different options for different fields?
+                                       *     e.g. if_filter_pcap, if_filter_bpf, ...) 00 "tcp port 23 and host 10.0.0.5"
+                                       */
+#define OPT_IDB_OS             12    /**< A UTF-8 string containing the name of the operating system of the
+                                       *     machine in which this interface is installed.
+                                       *     This can be different from the same information that can be
+                                       *     contained by the Section Header Block
+                                       *     (Section 3.1 (Section Header Block (mandatory))) because
+                                       *     the capture can have been done on a remote machine.
+                                       *     "Windows XP SP2" / "openSUSE 10.2"
+                                       */
+#define OPT_IDB_FCSLEN         13    /**< An integer value that specified the length of the
+                                       *     Frame Check Sequence (in bits) for this interface.
+                                       *     For link layers whose FCS length can change during time,
+                                       *     the Packet Block Flags Word can be used (see Appendix A (Packet Block Flags Word))
+                                       */
+#define OPT_IDB_TSOFFSET       14    /**< XXX: A 64 bits integer value that specifies an offset (in seconds)
+                                       *     that must be added to the timestamp of each packet to obtain
+                                       *     the absolute timestamp of a packet. If the option is missing,
+                                       *     the timestamps stored in the packet must be considered absolute
+                                       *     timestamps. The time zone of the offset can be specified with the
+                                       *     option if_tzone. TODO: won't a if_tsoffset_low for fractional
+                                       *     second offsets be useful for highly synchronized capture systems?
+                                       */
+#define OPT_IDB_HARDWARE       15    /**< A UTF-8 string containing the description
+                                       *     of the hardware of the device used
+                                       *     to capture data.
+                                       *     "Broadcom NetXtreme" /
+                                       *     "Intel(R) PRO/1000 MT Network Connection" /
+                                       *     "NETGEAR WNA1000Mv2 N150 Wireless USB Micro Adapter"
+                                       */
 
 
 #define OPT_NS_DNSNAME       2
@@ -241,7 +245,8 @@ typedef enum {
     WTAP_OPTTYPE_STRING,
     WTAP_OPTTYPE_IPv4,
     WTAP_OPTTYPE_IPv6,
-    WTAP_OPTTYPE_IF_FILTER
+    WTAP_OPTTYPE_IF_FILTER,
+    WTAP_OPTTYPE_CUSTOM
 } wtap_opttype_e;
 
 typedef enum {
@@ -283,6 +288,16 @@ typedef struct if_filter_opt_s {
 } if_filter_opt_t;
 
 /*
+ * Structure describing a custom option.
+ */
+
+typedef struct custom_opt_s {
+    guint32 pen;
+    gsize custom_data_len;
+    gchar *custom_data;
+} custom_opt_t;
+
+/*
  * Structure describing a value of an option.
  */
 typedef union {
@@ -292,6 +307,7 @@ typedef union {
     ws_in6_addr ipv6val;
     char *stringval;
     if_filter_opt_t if_filterval;
+    custom_opt_t custom_opt;
 } wtap_optval_t;
 
 /*
@@ -619,6 +635,19 @@ wtap_block_set_if_filter_option_value(wtap_block_t block, guint option_id, if_fi
  */
 WS_DLL_PUBLIC wtap_opttype_return_val
 wtap_block_get_if_filter_option_value(wtap_block_t block, guint option_id, if_filter_opt_t* value) G_GNUC_WARN_UNUSED_RESULT;
+
+/** Add an custom option to a block
+ *
+ * @param[in] block Block to which to add the option
+ * @param[in] option_id Identifier value for option
+ * @param[in] pen PEN
+ * @param[in] custom_data pointer to the data
+ * @param[in] custom_data_len length of custom_data
+ * @return wtap_opttype_return_val - WTAP_OPTTYPE_SUCCESS if successful,
+ * error code otherwise
+ */
+WS_DLL_PUBLIC wtap_opttype_return_val
+wtap_block_add_custom_option(wtap_block_t block, guint option_id, guint32 pen, const char *custom_data, gsize custom_data_len);
 
 /** Remove an option from a block
  *

@@ -1352,6 +1352,7 @@ typedef struct {
                                       but due to the way the current code is
                                       reusing the wtap_rec structure, it's
                                       impossible to nicely clean it up. */
+    GArray    *custom_options;     /* Array of generic custom options of EPBs */
     /*
      * We use a Buffer so that we don't have to allocate and free
      * a buffer for the options for each record.

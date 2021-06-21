@@ -117,6 +117,12 @@ static void wtap_opttype_block_register(wtap_blocktype_t *blocktype)
         WTAP_OPTTYPE_STRING,
         WTAP_OPTTYPE_FLAG_MULTIPLE_ALLOWED
     };
+    static const wtap_opttype_t opt_custom = {
+        "opt_custom",
+        "Custom Option",
+        WTAP_OPTTYPE_CUSTOM,
+        WTAP_OPTTYPE_FLAG_MULTIPLE_ALLOWED
+    };
 
     block_type = blocktype->block_type;
 
@@ -133,7 +139,8 @@ static void wtap_opttype_block_register(wtap_blocktype_t *blocktype)
 
     /*
      * Initialize the set of supported options.
-     * All blocks that support options at all support OPT_COMMENT.
+     * All blocks that support options at all support
+     * OPT_COMMENT and OPT_CUSTOM.
      *
      * XXX - there's no "g_uint_hash()" or "g_uint_equal()",
      * so we use "g_direct_hash()" and "g_direct_equal()".
@@ -141,6 +148,14 @@ static void wtap_opttype_block_register(wtap_blocktype_t *blocktype)
     blocktype->options = g_hash_table_new(g_direct_hash, g_direct_equal);
     g_hash_table_insert(blocktype->options, GUINT_TO_POINTER(OPT_COMMENT),
                         (gpointer)&opt_comment);
+    g_hash_table_insert(blocktype->options, GUINT_TO_POINTER(OPT_CUSTOM_STR_COPY),
+                        (gpointer)&opt_custom);
+    g_hash_table_insert(blocktype->options, GUINT_TO_POINTER(OPT_CUSTOM_BIN_COPY),
+                        (gpointer)&opt_custom);
+    g_hash_table_insert(blocktype->options, GUINT_TO_POINTER(OPT_CUSTOM_STR_NO_COPY),
+                        (gpointer)&opt_custom);
+    g_hash_table_insert(blocktype->options, GUINT_TO_POINTER(OPT_CUSTOM_BIN_NO_COPY),
+                        (gpointer)&opt_custom);
 
     blocktype_list[block_type] = blocktype;
 }
@@ -224,6 +239,10 @@ static void wtap_block_free_option(wtap_block_t block, wtap_option_t *opt)
 
     case WTAP_OPTTYPE_IF_FILTER:
         if_filter_free(&opt->value.if_filterval);
+        break;
+
+    case WTAP_OPTTYPE_CUSTOM:
+        g_free(opt->value.custom_opt.custom_data);
         break;
 
     default:
@@ -317,6 +336,10 @@ wtap_block_copy(wtap_block_t dest_block, wtap_block_t src_block)
 
         case WTAP_OPTTYPE_IF_FILTER:
             wtap_block_add_if_filter_option(dest_block, src_opt->option_id, &src_opt->value.if_filterval);
+            break;
+
+        case WTAP_OPTTYPE_CUSTOM:
+            wtap_block_add_custom_option(dest_block, src_opt->option_id, src_opt->value.custom_opt.pen, src_opt->value.custom_opt.custom_data, src_opt->value.custom_opt.custom_data_len);
             break;
         }
     }
@@ -825,6 +848,21 @@ wtap_block_get_if_filter_option_value(wtap_block_t block, guint option_id, if_fi
     if (ret != WTAP_OPTTYPE_SUCCESS)
         return ret;
     *value = optval->if_filterval;
+    return WTAP_OPTTYPE_SUCCESS;
+}
+
+wtap_opttype_return_val
+wtap_block_add_custom_option(wtap_block_t block, guint option_id, guint32 pen, const char *custom_data, gsize custom_data_len)
+{
+    wtap_opttype_return_val ret;
+    wtap_option_t *opt;
+
+    ret = wtap_block_add_option_common(block, option_id, WTAP_OPTTYPE_CUSTOM, &opt);
+    if (ret != WTAP_OPTTYPE_SUCCESS)
+        return ret;
+    opt->value.custom_opt.pen = pen;
+    opt->value.custom_opt.custom_data_len = custom_data_len;
+    opt->value.custom_opt.custom_data = g_memdup2(custom_data, custom_data_len);
     return WTAP_OPTTYPE_SUCCESS;
 }
 

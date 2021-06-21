@@ -1664,12 +1664,24 @@ wtap_rec_init(wtap_rec *rec)
 void
 wtap_rec_cleanup(wtap_rec *rec)
 {
+	wtap_option_t option;
+	guint i;
+
 	g_free(rec->opt_comment);
 	rec->opt_comment = NULL;
 	ws_buffer_free(&rec->options_buf);
 	if (rec->packet_verdict != NULL) {
 		g_ptr_array_free(rec->packet_verdict, TRUE);
 		rec->packet_verdict = NULL;
+	}
+	if (rec->custom_options != NULL) {
+		for (i = 0; i < rec->custom_options->len; i++) {
+			option = g_array_index(rec->custom_options, wtap_option_t, i);
+			g_free(option.value.custom_opt.custom_data);
+			option.value.custom_opt.custom_data = NULL;
+		}
+		g_array_free(rec->custom_options, TRUE);
+		rec->custom_options = NULL;
 	}
 }
 
