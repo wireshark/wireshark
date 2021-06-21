@@ -211,7 +211,7 @@ sharkd_json_result_prologue(guint32 id)
 }
 
 static void
-sharkd_json_result_epilogue()
+sharkd_json_result_epilogue(void)
 {
 	json_dumper_end_object(&dumper);  // end the result object
 	json_dumper_end_object(&dumper);  // end the message
@@ -226,7 +226,7 @@ sharkd_json_result_array_prologue(guint32 id)
 }
 
 static void
-sharkd_json_result_array_epilogue()
+sharkd_json_result_array_epilogue(void)
 {
 	sharkd_json_array_close();        // end of result array
 	json_dumper_end_object(&dumper);  // end the message
@@ -282,11 +282,11 @@ sharkd_json_error(guint32 id, int code, char* data, char* format, ...)
 }
 
 static gboolean
-is_param_match(char *param_in, char *valid_param)
+is_param_match(const char *param_in, const char *valid_param)
 {
 	char* ptr;
 
-	if (ptr = g_strrstr(valid_param, "*"))
+	if ((ptr = g_strrstr(valid_param, "*")))
 	{
 		int prefix_len = ptr - valid_param;
 		return !strncmp(param_in, valid_param, prefix_len);
@@ -459,7 +459,7 @@ json_prep(char* buf, const jsmntok_t* tokens, int count)
 			rpcid, -32600, NULL,
 			"The request must an object"
 		);
-		goto fail;
+		return FALSE;
 	}
 
 	/* don't need [0] token */
@@ -472,7 +472,7 @@ json_prep(char* buf, const jsmntok_t* tokens, int count)
 			rpcid, -32600, NULL,
 			"The request must contain name/value pairs"
 		);
-		goto fail;
+		return FALSE;
 	}
 
 	for (i = 0; i < count; i += 2)
@@ -483,7 +483,7 @@ json_prep(char* buf, const jsmntok_t* tokens, int count)
 				rpcid, -32600, NULL,
 				"Member names must be a string - member %d is not string", (i / 2) + 1
 			);
-			goto fail;
+			return FALSE;
 		}
 
 		buf[tokens[i + 0].end] = '\0';
@@ -501,7 +501,7 @@ json_prep(char* buf, const jsmntok_t* tokens, int count)
 					rpcid, -32600, NULL,
 					"The id value must be a positive integer"
 				);
-				goto fail;
+				return FALSE;
 			}
 		}
 
@@ -513,7 +513,7 @@ json_prep(char* buf, const jsmntok_t* tokens, int count)
 					rpcid, -32600, NULL,
 					"Only JSON %s is supported", "2.0"
 				);
-				goto fail;
+				return FALSE;
 			}
 		}
 
@@ -524,7 +524,7 @@ json_prep(char* buf, const jsmntok_t* tokens, int count)
 				rpcid, -32600, NULL,
 				"Cannot unescape the value string of member %d", (i / 2) + 1
 			);
-			goto fail;
+			return FALSE;
 		}
 
 		/* Confirm that the member is valid */
@@ -587,7 +587,7 @@ json_prep(char* buf, const jsmntok_t* tokens, int count)
 							rpcid, -32600, NULL,
 							"The data type for member %s is not a valid", attr_name
 						);
-						goto fail;
+						return FALSE;
 					}
 					else if (name_array[j].type == JSMN_PRIMITIVE && name_array[j].value_type == SHARKD_JSON_UINTEGER)
 					{
@@ -598,7 +598,7 @@ json_prep(char* buf, const jsmntok_t* tokens, int count)
 								rpcid, -32600, NULL,
 								"The value for %s must be a positive integer", name_array[j].name
 							);
-							goto fail;
+							return FALSE;
 						}
 					}
 					else if (name_array[j].type == JSMN_PRIMITIVE && name_array[j].value_type == SHARKD_JSON_BOOLEAN)
@@ -609,7 +609,7 @@ json_prep(char* buf, const jsmntok_t* tokens, int count)
 								rpcid, -32600, NULL,
 								"The value for %s must be a boolean (true or false)", name_array[j].name
 							);
-							goto fail;
+							return FALSE;
 						}
 
 					}
@@ -639,7 +639,7 @@ json_prep(char* buf, const jsmntok_t* tokens, int count)
 						rpcid, -32601, NULL,
 						"The method %s is not supported", attr_value
 					);
-					goto fail;
+					return FALSE;
 				}
 			}
 		}
@@ -650,7 +650,7 @@ json_prep(char* buf, const jsmntok_t* tokens, int count)
 				rpcid, -32600, NULL,
 				"%s is not a valid member name", attr_name
 			);
-			goto fail;
+			return FALSE;
 		}
 	}
 
@@ -667,7 +667,7 @@ json_prep(char* buf, const jsmntok_t* tokens, int count)
 					rpcid, -32600, NULL,
 					"Mandatory member %s is missing", name_array[j].name
 				);
-				goto fail;
+				return FALSE;
 			}
 		}
 		j++;
@@ -686,7 +686,7 @@ json_prep(char* buf, const jsmntok_t* tokens, int count)
 					rpcid, -32600, NULL,
 					"Mandatory parameter %s is missing", name_array[j].name
 				);
-				goto fail;
+				return FALSE;
 			}
 		}
 		j++;
@@ -696,9 +696,6 @@ json_prep(char* buf, const jsmntok_t* tokens, int count)
 	// check that the parameters for the current request are valid for the method and that the data type for the value is valid
 
 	return TRUE;
-
-fail:
-	return FALSE;
 }
 
 static void
