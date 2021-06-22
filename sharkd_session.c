@@ -288,7 +288,7 @@ is_param_match(const char *param_in, const char *valid_param)
 
 	if ((ptr = g_strrstr(valid_param, "*")))
 	{
-		int prefix_len = ptr - valid_param;
+		size_t prefix_len = ptr - valid_param;
 		return !strncmp(param_in, valid_param, prefix_len);
 	}
 	else
