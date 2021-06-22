@@ -191,6 +191,55 @@ static const value_string cpi2val[] = {
 /* The length of the two fields (SPI and Sequence Number) preceding the Payload Data */
 #define ESP_HEADER_LEN 8
 
+
+static const value_string esp_encryption_type_vals[] = {
+  { IPSEC_ENCRYPT_NULL, "NULL" },
+  { IPSEC_ENCRYPT_3DES_CBC, "TripleDES-CBC [RFC2451]" },
+  { IPSEC_ENCRYPT_AES_CBC, "AES-CBC [RFC3602]" },
+  { IPSEC_ENCRYPT_AES_CTR, "AES-CTR [RFC3686]" },
+  { IPSEC_ENCRYPT_DES_CBC, "DES-CBC [RFC2405]" },
+  { IPSEC_ENCRYPT_CAST5_CBC, "CAST5-CBC [RFC2144]" },
+  { IPSEC_ENCRYPT_BLOWFISH_CBC, "BLOWFISH-CBC [RFC2451]" },
+  { IPSEC_ENCRYPT_TWOFISH_CBC, "TWOFISH-CBC" },
+  { IPSEC_ENCRYPT_AES_GCM,    "AES-GCM [RFC4106]" }, /* deprecated; (no ICV length specified) */
+  { IPSEC_ENCRYPT_AES_GCM_8,  "AES-GCM with 8 octet ICV [RFC4106]" },
+  { IPSEC_ENCRYPT_AES_GCM_12, "AES-GCM with 12 octet ICV [RFC4106]" },
+  { IPSEC_ENCRYPT_AES_GCM_16, "AES-GCM with 16 octet ICV [RFC4106]" },
+  { 0x00, NULL }
+};
+
+static const char *
+esp_get_encr_algo_name(gint esp_encr_algo)
+{
+  return esp_encryption_type_vals[esp_encr_algo].strptr;
+}
+
+
+static const value_string esp_authentication_type_vals[] = {
+  { IPSEC_AUTH_NULL, "NULL" },
+  { IPSEC_AUTH_HMAC_SHA1_96, "HMAC-SHA-1-96 [RFC2404]" },
+  { IPSEC_AUTH_HMAC_SHA256_96, "HMAC-SHA-256-96 [draft-ietf-ipsec-ciph-sha-256-00]" },
+  { IPSEC_AUTH_HMAC_SHA256_128, "HMAC-SHA-256-128 [RFC4868]" },
+  { IPSEC_AUTH_HMAC_SHA384_192, "HMAC-SHA-384-192 [RFC4868]" },
+  { IPSEC_AUTH_HMAC_SHA512_256, "HMAC-SHA-512-256 [RFC4868]" },
+  { IPSEC_AUTH_HMAC_MD5_96, "HMAC-MD5-96 [RFC2403]" },
+  { IPSEC_AUTH_HMAC_RIPEMD160_96, "MAC-RIPEMD-160-96 [RFC2857]" },
+  /*    { IPSEC_AUTH_AES_XCBC_MAC_96, "AES-XCBC-MAC-96 [RFC3566]" }, */
+  { IPSEC_AUTH_ANY_64BIT, "ANY 64 bit authentication [no checking]" },
+  { IPSEC_AUTH_ANY_96BIT, "ANY 96 bit authentication [no checking]" },
+  { IPSEC_AUTH_ANY_128BIT, "ANY 128 bit authentication [no checking]" },
+  { IPSEC_AUTH_ANY_192BIT, "ANY 192 bit authentication [no checking]" },
+  { IPSEC_AUTH_ANY_256BIT, "ANY 256 bit authentication [no checking]" },
+  { 0x00, NULL }
+};
+
+static const char *
+esp_get_auth_algo_name(gint esp_auth_algo)
+{
+  return esp_authentication_type_vals[esp_auth_algo].strptr;
+}
+
+
 /*-------------------------------------
  * UAT for ESP
  *-------------------------------------
@@ -1855,7 +1904,9 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
           proto_item *encr_data_item;
 
           encr_data_item = proto_tree_add_item(esp_tree, hf_esp_encrypted_data, tvb, offset, esp_encr_data_len, ENC_NA);
-          proto_item_append_text(encr_data_item, " (%d bytes)", esp_encr_data_len);
+          proto_item_append_text(encr_data_item, " (%d bytes) <%s>",
+                                 esp_encr_data_len,
+                                 esp_get_encr_algo_name(esp_encr_algo));
 
           esp_encr_data = (guchar *)tvb_memdup(wmem_packet_scope(), tvb, offset, esp_encr_data_len);
           offset += esp_encr_data_len;
@@ -1869,7 +1920,12 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
         if (esp_icv_len) {
           icv_item = proto_tree_add_item(esp_tree, hf_esp_icv, tvb, offset, esp_icv_len, ENC_NA);
-          proto_item_append_text(icv_item, " (%d bytes)",esp_icv_len);
+          proto_item_append_text(icv_item, " (%d bytes) <%s>",
+                                 esp_icv_len,
+                                 icv_type == ICV_TYPE_AEAD ?
+                                 esp_get_encr_algo_name(esp_encr_algo) :
+                                 esp_get_auth_algo_name(esp_auth_algo));
+
         }
 
         if (decrypt_using_libgcrypt)
@@ -2360,40 +2416,6 @@ proto_register_ipsec(void)
   static const value_string esp_proto_type_vals[] = {
     { IPSEC_SA_IPV4, "IPv4" },
     { IPSEC_SA_IPV6, "IPv6" },
-    { 0x00, NULL }
-  };
-
-  static const value_string esp_encryption_type_vals[] = {
-    { IPSEC_ENCRYPT_NULL, "NULL" },
-    { IPSEC_ENCRYPT_3DES_CBC, "TripleDES-CBC [RFC2451]" },
-    { IPSEC_ENCRYPT_AES_CBC, "AES-CBC [RFC3602]" },
-    { IPSEC_ENCRYPT_AES_CTR, "AES-CTR [RFC3686]" },
-    { IPSEC_ENCRYPT_DES_CBC, "DES-CBC [RFC2405]" },
-    { IPSEC_ENCRYPT_CAST5_CBC, "CAST5-CBC [RFC2144]" },
-    { IPSEC_ENCRYPT_BLOWFISH_CBC, "BLOWFISH-CBC [RFC2451]" },
-    { IPSEC_ENCRYPT_TWOFISH_CBC, "TWOFISH-CBC" },
-    { IPSEC_ENCRYPT_AES_GCM,    "AES-GCM [RFC4106]" }, /* deprecated; (no ICV length specified) */
-    { IPSEC_ENCRYPT_AES_GCM_8,  "AES-GCM with 8 octet ICV [RFC4106]" },
-    { IPSEC_ENCRYPT_AES_GCM_12, "AES-GCM with 12 octet ICV [RFC4106]" },
-    { IPSEC_ENCRYPT_AES_GCM_16, "AES-GCM with 16 octet ICV [RFC4106]" },
-    { 0x00, NULL }
-  };
-
-  static const value_string esp_authentication_type_vals[] = {
-    { IPSEC_AUTH_NULL, "NULL" },
-    { IPSEC_AUTH_HMAC_SHA1_96, "HMAC-SHA-1-96 [RFC2404]" },
-    { IPSEC_AUTH_HMAC_SHA256_96, "HMAC-SHA-256-96 [draft-ietf-ipsec-ciph-sha-256-00]" },
-    { IPSEC_AUTH_HMAC_SHA256_128, "HMAC-SHA-256-128 [RFC4868]" },
-    { IPSEC_AUTH_HMAC_SHA384_192, "HMAC-SHA-384-192 [RFC4868]" },
-    { IPSEC_AUTH_HMAC_SHA512_256, "HMAC-SHA-512-256 [RFC4868]" },
-    { IPSEC_AUTH_HMAC_MD5_96, "HMAC-MD5-96 [RFC2403]" },
-    { IPSEC_AUTH_HMAC_RIPEMD160_96, "MAC-RIPEMD-160-96 [RFC2857]" },
-/*    { IPSEC_AUTH_AES_XCBC_MAC_96, "AES-XCBC-MAC-96 [RFC3566]" }, */
-    { IPSEC_AUTH_ANY_64BIT, "ANY 64 bit authentication [no checking]" },
-    { IPSEC_AUTH_ANY_96BIT, "ANY 96 bit authentication [no checking]" },
-    { IPSEC_AUTH_ANY_128BIT, "ANY 128 bit authentication [no checking]" },
-    { IPSEC_AUTH_ANY_192BIT, "ANY 192 bit authentication [no checking]" },
-    { IPSEC_AUTH_ANY_256BIT, "ANY 256 bit authentication [no checking]" },
     { 0x00, NULL }
   };
 
