@@ -249,8 +249,8 @@ dissect_twamp_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
             sender_port = tvb_get_ntohs(tvb, 12);
             receiver_port = tvb_get_ntohs(tvb, 14);
             /* try to find session from past visits */
-            if ((g_slist_find_custom(ct->sessions, &sender_port,
-                    (GCompareFunc) find_twamp_session_by_sender_port)) == NULL) {
+            if (g_slist_find_custom(ct->sessions, &sender_port,
+                    (GCompareFunc) find_twamp_session_by_sender_port) == NULL) {
                 session = g_new0(twamp_session_t, 1);
                 session->sender_port = sender_port;
                 session->receiver_port = receiver_port;
