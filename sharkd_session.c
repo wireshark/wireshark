@@ -603,7 +603,7 @@ json_prep(char* buf, const jsmntok_t* tokens, int count)
 					}
 					else if (name_array[j].type == JSMN_PRIMITIVE && name_array[j].value_type == SHARKD_JSON_BOOLEAN)
 					{
-						if (!strcmp(attr_value, "true") && !strcmp(attr_value, "false"))
+						if (strcmp(attr_value, "true") && strcmp(attr_value, "false"))
 						{
 							sharkd_json_error(
 								rpcid, -32600, NULL,
