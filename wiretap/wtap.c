@@ -20,6 +20,7 @@
 #include <wsutil/file_util.h>
 #include <wsutil/buffer.h>
 #include <wsutil/ws_assert.h>
+#include <wsutil/wslog.h>
 #ifdef HAVE_PLUGINS
 #include <wsutil/plugins.h>
 #endif
