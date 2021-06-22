@@ -104,7 +104,7 @@ typedef struct {
 	drdynvc_known_channel_t type;
 } drdynvc_know_channel_def;
 
-drdynvc_know_channel_def knownChannels[] = {
+static drdynvc_know_channel_def knownChannels[] = {
 	{"AUDIO_INPUT", "audin",						DRDYNVC_CHANNEL_AUDIN},
 	{"AUDIO_PLAYBACK_DVC", "audiout",				DRDYNVC_CHANNEL_AUDIOUT},
 	{"AUDIO_PLAYBACK_LOSSY_DVC", "audiout lossy",	DRDYNVC_CHANNEL_AUDIOUT},
