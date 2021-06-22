@@ -157,6 +157,11 @@ static dissector_table_t ip_dissector_table;
 #define IPSEC_AUTH_ANY_192BIT 11
 #define IPSEC_AUTH_ANY_256BIT 12
 
+/* ICV types (not an RFC classification) */
+#define ICV_TYPE_UNCHECKED 0  /* ICV is not verified */
+#define ICV_TYPE_HMAC 1       /* ICV is verified before decryption using an HMAC */
+#define ICV_TYPE_AEAD 2       /* ICV is verified during decryption using an AEAD cipher */
+
 #define IPSEC_IPV6_ADDR_LEN 128
 #define IPSEC_IPV4_ADDR_LEN 32
 #define IPSEC_STRLEN_IPV6 32
@@ -1260,6 +1265,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   gint protocol_typ = IPSEC_SA_UNKNOWN;
   gint esp_encr_algo = IPSEC_ENCRYPT_NULL;
   gint esp_auth_algo = IPSEC_AUTH_NULL;
+  gint icv_type = ICV_TYPE_UNCHECKED;
   gchar *esp_encr_key = NULL;
   gchar *esp_auth_key = NULL;
   guint esp_encr_key_len = 0;
@@ -1276,7 +1282,6 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   gint esp_salt_len = 0;
   gboolean decrypt_ok = FALSE;
   gboolean decrypt_using_libgcrypt = FALSE;
-  gboolean authentication_check_using_hmac_libgcrypt = FALSE;
   gboolean icv_checked = FALSE;
   gboolean icv_correct = FALSE;
   gboolean sad_is_present = FALSE;
@@ -1448,7 +1453,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             significantly increase security strength).
           */
           auth_algo_libgcrypt = GCRY_MD_SHA1;
-          authentication_check_using_hmac_libgcrypt = TRUE;
+          icv_type = ICV_TYPE_HMAC;
           break;
 
         case IPSEC_AUTH_NULL:
@@ -1464,17 +1469,17 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         case IPSEC_AUTH_HMAC_SHA256_96:
         case IPSEC_AUTH_HMAC_SHA256_128:
           auth_algo_libgcrypt = GCRY_MD_SHA256;
-          authentication_check_using_hmac_libgcrypt = TRUE;
+          icv_type = ICV_TYPE_HMAC;
           break;
 
         case IPSEC_AUTH_HMAC_SHA384_192:
           auth_algo_libgcrypt = GCRY_MD_SHA384;
-          authentication_check_using_hmac_libgcrypt = TRUE;
+          icv_type = ICV_TYPE_HMAC;
           break;
 
         case IPSEC_AUTH_HMAC_SHA512_256:
           auth_algo_libgcrypt = GCRY_MD_SHA512;
-          authentication_check_using_hmac_libgcrypt = TRUE;
+          icv_type = ICV_TYPE_HMAC;
           break;
 
         case IPSEC_AUTH_HMAC_MD5_96:
@@ -1492,7 +1497,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             significantly increase security strength).
           */
           auth_algo_libgcrypt = GCRY_MD_MD5;
-          authentication_check_using_hmac_libgcrypt = TRUE;
+          icv_type = ICV_TYPE_HMAC;
           break;
 
         case IPSEC_AUTH_HMAC_RIPEMD160_96:
@@ -1504,7 +1509,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             96 bits MUST be supported.
           */
           auth_algo_libgcrypt = GCRY_MD_RMD160;
-          authentication_check_using_hmac_libgcrypt = TRUE;
+          icv_type = ICV_TYPE_HMAC;
           break;
 
         case IPSEC_AUTH_ANY_64BIT:
@@ -1516,7 +1521,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
           break;
         }
 
-        if(authentication_check_using_hmac_libgcrypt)
+        if(icv_type == ICV_TYPE_HMAC)
         {
           /* Allocate buffer for ICV  */
           esp_icv = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, esp_packet_len - esp_icv_len, esp_icv_len);
@@ -1735,10 +1740,11 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             decrypt_ok = FALSE;
           }
 
-          if (esp_encr_algo == IPSEC_ENCRYPT_AES_GCM && esp_auth_algo != IPSEC_AUTH_NULL) {
-            REPORT_DISSECTOR_BUG("<ESP Preferences> Error: AES-GCM encryption can only be used with NULL authentication\n");
-            decrypt_using_libgcrypt = FALSE;
-            decrypt_ok = FALSE;
+          if (esp_encr_algo == IPSEC_ENCRYPT_AES_GCM) {
+            if (esp_auth_algo != IPSEC_AUTH_NULL) {
+              REPORT_DISSECTOR_BUG("<ESP Preferences> Error: AES-GCM encryption can only be used with NULL authentication\n");
+            }
+            icv_type = ICV_TYPE_AEAD;
           }
 
           break;
@@ -1886,8 +1892,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
           /* (Lazily) create the cipher_hd */
           if (!(*cipher_hd_created)) {
             err = gcry_cipher_open(cipher_hd, crypt_algo_libgcrypt, crypt_mode_libgcrypt, 0);
-            if (err)
-            {
+            if (err) {
               REPORT_DISSECTOR_BUG("<IPsec/ESP Dissector> Error in Algorithm %s Mode %d, grcy_open_cipher failed: %s\n",
                                    gcry_cipher_algo_name(crypt_algo_libgcrypt), crypt_mode_libgcrypt, gcry_strerror(err));
             }
@@ -1898,11 +1903,10 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
               {
                 err = gcry_cipher_setkey(*cipher_hd, esp_encr_key, esp_encr_key_len);
 
-                if (err)
-                {
+                if (err) {
+                  gcry_cipher_close(*cipher_hd);
                   REPORT_DISSECTOR_BUG("<IPsec/ESP Dissector> Error in Algorithm %s Mode %d, gcry_cipher_setkey(key_len=%u) failed: %s\n",
                                        gcry_cipher_algo_name(crypt_algo_libgcrypt), crypt_mode_libgcrypt, esp_encr_key_len, gcry_strerror(err));
-                  gcry_cipher_close(*cipher_hd);
                 }
               }
 
@@ -1940,6 +1944,30 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             err = gcry_cipher_setiv(*cipher_hd, esp_iv, esp_iv_len);
           }
 
+          if (err) {
+            gcry_cipher_close(*cipher_hd);
+            REPORT_DISSECTOR_BUG("<IPsec/ESP Dissector> Error in Algorithm %s Mode %d, gcry_cipher_set%s() failed: %s\n",
+                                 gcry_cipher_algo_name(crypt_algo_libgcrypt), crypt_mode_libgcrypt,
+                                 (crypt_mode_libgcrypt == GCRY_CIPHER_MODE_CTR) ? "ctr" : "iv",
+                                 gcry_strerror(err));
+          }
+
+
+#ifdef HAVE_LIBGCRYPT_AEAD
+          if (icv_type == ICV_TYPE_AEAD) {
+            /* Allocate buffer for ICV  */
+            esp_icv = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, esp_packet_len - esp_icv_len, esp_icv_len);
+
+            err = gcry_cipher_authenticate(*cipher_hd, tvb_get_ptr(tvb, 0, ESP_HEADER_LEN), ESP_HEADER_LEN);
+
+            if (err) {
+              gcry_cipher_close(*cipher_hd);
+              REPORT_DISSECTOR_BUG("<IPsec/ESP Dissector> Error in Algorithm %s Mode %d, gcry_cipher_authenticate() failed: %s\n",
+                                   gcry_cipher_algo_name(crypt_algo_libgcrypt), crypt_mode_libgcrypt, gcry_strerror(err));
+            }
+          }
+#endif
+
           if (!err)
           {
             err = gcry_cipher_decrypt(*cipher_hd, esp_decr_data, esp_decr_data_len, esp_encr_data, esp_encr_data_len);
@@ -1956,6 +1984,37 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
           {
             /* Decryption has finished */
             decrypt_ok = TRUE;
+
+#ifdef HAVE_LIBGCRYPT_AEAD
+            if (icv_type == ICV_TYPE_AEAD) {
+              guchar *esp_icv_computed;
+              gint tag_len;
+
+              tag_len = (gint)gcry_cipher_get_algo_blklen(crypt_algo_libgcrypt);
+
+              if (tag_len < esp_icv_len) {
+                fprintf (stderr, "<IPsec/ESP Dissector> Error in Algorithm %s, tag length (%d) is less than icv length (%d)\n",
+                         gcry_md_algo_name(crypt_algo_libgcrypt), tag_len, esp_icv_len);
+              }
+
+              esp_icv_computed = (guchar *)wmem_alloc(wmem_packet_scope(), tag_len);
+              err = gcry_cipher_gettag(*cipher_hd, esp_icv_computed, tag_len);
+              if (err) {
+                gcry_cipher_close(*cipher_hd);
+                REPORT_DISSECTOR_BUG("<IPsec/ESP Dissector> Error in Algorithm %s:  gcry_cipher_gettag failed: %s",
+                                     gcry_md_algo_name(crypt_algo_libgcrypt), gcry_strerror(err));
+              }
+
+              if (memcmp(esp_icv_computed, esp_icv, esp_icv_len) == 0) {
+                  icv_checked = TRUE;
+                  icv_correct = TRUE;
+              } else {
+                icv_checked = TRUE;
+                icv_correct = FALSE;
+                esp_icv_expected = bytes_to_str(wmem_packet_scope(), esp_icv_computed, esp_icv_len);
+              }
+            }
+#endif
           }
         }
       }
