@@ -98,6 +98,7 @@
 #define SEGMENT_ROUTING_LB       22
 #define NODE_MSD                 23            /* rfc8491 */
 #define SRV6_CAP                 25
+#define FLEX_ALGO_DEF            26            /* draft-ietf-lsr-flex-algo-16 */
 
 
 /*Sub-TLVs under Group Address TLV*/
@@ -129,6 +130,13 @@
 #define IGP_MSD_TYPE_T_INSERT       43
 #define IGP_MSD_TYPE_T_ENCAP        44
 #define IGP_MSD_TYPE_END_D          45
+
+/* Flex Algo Definition Sub-TLV (draft-ietf-lsr-flex-algo-16) */
+#define FAD_EXCLUDE_AG              1
+#define FAD_INCLUDE_ANY_AG          2
+#define FAD_INCLUDE_ALL_AG          3
+#define FAD_DEF_FLAGS               4
+#define FAD_EXCLUDE_SRLG            5
 
 /* Prefix Attribute Flags Sub-TLV (rfc7794)*/
 #define ISIS_LSP_PFX_ATTR_FLAG_X    0x80
@@ -413,6 +421,21 @@ static int hf_isis_lsp_clv_srv6_cap_flags_o = -1;
 static int hf_isis_lsp_clv_srv6_cap_flags_unused = -1;
 static int hf_isis_lsp_clv_igp_msd_type = -1;
 static int hf_isis_lsp_clv_igp_msd_value = -1;
+static int hf_isis_lsp_clv_ext_admin_group = -1;
+static int hf_isis_lsp_clv_app_sabm_legacy = -1;
+static int hf_isis_lsp_clv_app_sabm_length = -1;
+static int hf_isis_lsp_clv_app_sabm_bits = -1;
+static int hf_isis_lsp_clv_app_sabm_bits_r = -1;
+static int hf_isis_lsp_clv_app_sabm_bits_s = -1;
+static int hf_isis_lsp_clv_app_sabm_bits_f = -1;
+static int hf_isis_lsp_clv_app_sabm_bits_x = -1;
+static int hf_isis_lsp_clv_app_udabm_reserved = -1;
+static int hf_isis_lsp_clv_app_udabm_length = -1;
+static int hf_isis_lsp_clv_app_udabm_bits = -1;
+static int hf_isis_lsp_clv_flex_algo_algorithm = -1;
+static int hf_isis_lsp_clv_flex_algo_metric_type = -1;
+static int hf_isis_lsp_clv_flex_algo_calc_type = -1;
+static int hf_isis_lsp_clv_flex_algo_priority = -1;
 static int hf_isis_lsp_clv_srv6_endx_sid_system_id = -1;
 static int hf_isis_lsp_clv_srv6_endx_sid_flags = -1;
 static int hf_isis_lsp_clv_srv6_endx_sid_flags_b = -1;
@@ -547,6 +570,9 @@ static gint ett_isis_lsp_clv_sr_lb = -1;
 static gint ett_isis_lsp_clv_node_msd = -1;
 static gint ett_isis_lsp_clv_srv6_cap = -1;
 static gint ett_isis_lsp_clv_srv6_cap_flags = -1;
+static gint ett_isis_lsp_clv_flex_algo_def = -1;
+static gint ett_isis_lsp_clv_flex_algo_def_sub_tlv = -1;
+static gint ett_isis_lsp_clv_app_sabm_bits = -1;
 static gint ett_isis_lsp_clv_ipv6_te_rtrid = -1;
 static gint ett_isis_lsp_clv_trill_version = -1;
 static gint ett_isis_lsp_clv_trees = -1;
@@ -707,6 +733,29 @@ static const value_string isis_lsp_igp_msd_types[] = {
     { 0, NULL }
 };
 
+static const value_string isis_lsp_flex_algo_metric_type_vals[] = {
+    { 0, "IGP Metric"},
+    { 1, "Min Unidirectional Link Delay"},
+    { 2, "TE Metric"},
+    { 0, NULL }
+};
+
+static const value_string isis_lsp_flex_algo_sub_tlv_vals[] = {
+    { FAD_EXCLUDE_AG,       "Flexible Algorithm Exclude Admin Group"},
+    { FAD_INCLUDE_ANY_AG,   "Flexible Algorithm Include-Any Admin Group"},
+    { FAD_INCLUDE_ALL_AG,   "Flexible Algorithm Include-All Admin Group"},
+    { FAD_DEF_FLAGS,        "Flexible Algorithm Definition Flags"},
+    { FAD_EXCLUDE_SRLG,     "Flexible Algorithm Exclude SRLG"},
+    { 0, NULL } };
+
+static int * const isis_lsp_app_sabm_bits[] = {
+    &hf_isis_lsp_clv_app_sabm_bits_r,
+    &hf_isis_lsp_clv_app_sabm_bits_s,
+    &hf_isis_lsp_clv_app_sabm_bits_f,
+    &hf_isis_lsp_clv_app_sabm_bits_x,
+    NULL,
+};
+
 static const value_string isis_lsp_grp_types[] = {
     { GRP_MAC_ADDRESS,  "MAC address" },
     { GRP_IPV4_ADDRESS, "IPv4 address" },
@@ -735,6 +784,7 @@ static const value_string isis_lsp_ext_is_reachability_code_vals[] = {
     { 13, "IPv6 Neighbor Address" },
     { 14, "Extended Administrative Group" },
     { 15, "Link Maximum SID Depth" },
+    { 16, "Application-Specific Link Attributes" },
     { 18, "TE Default metric" },
     { 19, "Link-attributes" },
     { 20, "Link Protection Type" },
@@ -1547,12 +1597,15 @@ dissect_lsp_sr_sid_label_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
     }
 }
 
+static void dissect_subclv_ext_admin_group(tvbuff_t *tvb, proto_tree *tree,
+                                           int offset, int subtype _U_, int sublen);
+
 static int
 dissect_isis_trill_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
         proto_tree *tree, int offset, int subtype, int sublen)
 {
     guint16 rt_block;
-    proto_tree *rt_tree, *cap_tree;
+    proto_tree *rt_tree, *cap_tree, *subtree;
     guint16 root_id;
     guint8 tlv_type, tlv_len;
     int i;
@@ -1796,6 +1849,41 @@ dissect_isis_trill_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
             proto_tree_add_item(rt_tree, hf_isis_lsp_clv_igp_msd_value, tvb, offset+1, 1, ENC_NA);
             sublen -= 2;
             offset += 2;
+        }
+        return(0);
+
+    case FLEX_ALGO_DEF:
+        rt_tree = proto_tree_add_subtree_format(tree, tvb, offset-2, sublen+2,
+                                               ett_isis_lsp_clv_flex_algo_def,
+                                                NULL, "Flexible Alogorithm Definition (t=%u, l=%u)",
+                                                subtype, sublen);
+        proto_tree_add_item(rt_tree, hf_isis_lsp_clv_flex_algo_algorithm, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(rt_tree, hf_isis_lsp_clv_flex_algo_metric_type, tvb, offset+1, 1, ENC_NA);
+        proto_tree_add_item(rt_tree, hf_isis_lsp_clv_flex_algo_calc_type, tvb, offset+2, 1, ENC_NA);
+        proto_tree_add_item(rt_tree, hf_isis_lsp_clv_flex_algo_priority, tvb, offset+3, 1, ENC_NA);
+        sublen -= 4;
+        offset += 4;
+        while (sublen >= 2) {
+            tlv_type = tvb_get_guint8(tvb, offset);
+            tlv_len = tvb_get_guint8(tvb, offset+1);
+            sublen -= 2;
+            offset += 2;
+            subtree = proto_tree_add_subtree_format(rt_tree, tvb, offset-2, tlv_len+2,
+                                                    ett_isis_lsp_clv_flex_algo_def_sub_tlv,
+                                                    NULL, "%s (t=%u, l=%u)",
+                                                    val_to_str(tlv_type, isis_lsp_flex_algo_sub_tlv_vals, "Unknown"),
+                                                    tlv_type, tlv_len);
+            switch (tlv_type) {
+            case FAD_EXCLUDE_AG:
+            case FAD_INCLUDE_ANY_AG:
+            case FAD_INCLUDE_ALL_AG:
+                dissect_subclv_ext_admin_group(tvb, subtree, offset, tlv_type, tlv_len);
+                break;
+            default:
+                break;
+            }
+            sublen -= tlv_len;
+            offset += tlv_len;
         }
         return(0);
 
@@ -3085,6 +3173,40 @@ dissect_subclv_spb_link_metric(tvbuff_t *tvb, packet_info *pinfo,
 }
 
 /*
+ * Name : dissect_subclv_ext_admin_group()
+ *
+ * Description : called by function dissect_sub_clv_tlv_22_22_23_141_222_223()
+ *
+ *   Dissects Extended Administrative Groups subclv
+ *
+ * Input :
+ *   tvbuff_t * : tvbuffer for packet data
+ *   proto_tree * : protocol display tree to fill out.
+ *   int : offset into packet data where we are (beginning of the sub_clv value).
+ *   int : subtlv type
+ *   int : subtlv length
+ *
+ * Output:
+ *   void
+ */
+static void
+dissect_subclv_ext_admin_group(tvbuff_t *tvb, proto_tree *tree,
+                               int offset, int subtype _U_, int sublen)
+{
+    int i;
+    guint32 admin_group;
+
+    /* Number of Extended Admin Groups */
+    for (i = 0; i < (sublen / 4); i++) {
+        admin_group = tvb_get_guint32(tvb, offset + (i * 4), ENC_BIG_ENDIAN);
+        proto_tree_add_uint_format(tree, hf_isis_lsp_clv_ext_admin_group,
+                                   tvb, offset + (i * 4), 4, admin_group,
+                                   "Extended Admin Group[%d]: 0x%08x",
+                                   i, admin_group);
+    }
+}
+
+/*
  * Name : dissect_subclv_adj_sid()
  *
  * Description : called by function dissect_sub_clv_tlv_22_22_23_141_222_223()
@@ -3185,53 +3307,63 @@ dissect_sub_clv_tlv_22_22_23_141_222_223(tvbuff_t *tvb, packet_info* pinfo, prot
     int local_offset, local_len;
     proto_item *ti;
     gfloat percentage;
+    guint8 sabm_length = 0, udabm_length = 0;
 
-    sub_tlv_offset  = offset;
     while (i < subclvs_len) {
-        subtree = proto_tree_add_subtree(tree, tvb, sub_tlv_offset+11+i, 0,
+        /* offset for each sub-TLV */
+        sub_tlv_offset = offset + i;
+
+        subtree = proto_tree_add_subtree(tree, tvb, sub_tlv_offset, 0,
                                          ett_isis_lsp_part_of_clv_ext_is_reachability_subtlv,
                                          &ti_subclvs, "subTLV");
         proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_code,
-                            tvb, sub_tlv_offset+11+i, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_len, tvb, sub_tlv_offset+12+i, 1, ENC_BIG_ENDIAN);
-        clv_code = tvb_get_guint8(tvb, sub_tlv_offset+11+i);
-        clv_len  = tvb_get_guint8(tvb, sub_tlv_offset+12+i);
+                            tvb, sub_tlv_offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_len, tvb, sub_tlv_offset+1, 1, ENC_BIG_ENDIAN);
+        clv_code = tvb_get_guint8(tvb, sub_tlv_offset);
+        clv_len  = tvb_get_guint8(tvb, sub_tlv_offset+1);
         proto_item_append_text(ti_subclvs, ": %s (c=%u, l=%u)", val_to_str(clv_code, isis_lsp_ext_is_reachability_code_vals, "Unknown"), clv_code, clv_len);
         proto_item_set_len(ti_subclvs, clv_len+2);
+
+        sub_tlv_offset += 2;
+
         switch (clv_code) {
             case 3 :
-                dissect_subclv_admin_group(tvb, subtree, sub_tlv_offset+13+i);
+                dissect_subclv_admin_group(tvb, subtree, sub_tlv_offset);
             break;
             case 4 :
                 proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_link_local_identifier,
-                                    tvb, sub_tlv_offset+13+i, 4, ENC_BIG_ENDIAN);
+                                    tvb, sub_tlv_offset, 4, ENC_BIG_ENDIAN);
                 proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_link_remote_identifier,
-                                    tvb, sub_tlv_offset+17+i, 4, ENC_BIG_ENDIAN);
+                                    tvb, sub_tlv_offset + 4, 4, ENC_BIG_ENDIAN);
             break;
             case 6 :
-                proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_ipv4_interface_address, tvb, sub_tlv_offset+13+i, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_ipv4_interface_address, tvb, sub_tlv_offset, 4, ENC_BIG_ENDIAN);
             break;
             case 8 :
-                proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_ipv4_neighbor_address, tvb, sub_tlv_offset+13+i, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_ipv4_neighbor_address, tvb, sub_tlv_offset, 4, ENC_BIG_ENDIAN);
             break;
             case 9 :
-                dissect_subclv_max_bw(tvb, subtree, sub_tlv_offset+13+i);
+                dissect_subclv_max_bw(tvb, subtree, sub_tlv_offset);
             break;
             case 10:
-                dissect_subclv_rsv_bw(tvb, subtree, sub_tlv_offset+13+i);
+                dissect_subclv_rsv_bw(tvb, subtree, sub_tlv_offset);
             break;
             case 11:
-                dissect_subclv_unrsv_bw(tvb, subtree, sub_tlv_offset+13+i);
+                dissect_subclv_unrsv_bw(tvb, subtree, sub_tlv_offset);
             break;
             case 12:
-                proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_ipv6_interface_address, tvb, sub_tlv_offset+13+i, 16, ENC_NA);
+                proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_ipv6_interface_address, tvb, sub_tlv_offset, 16, ENC_NA);
             break;
             case 13:
-                proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_ipv6_neighbor_address, tvb, sub_tlv_offset+13+i, 16, ENC_NA);
+                proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_ipv6_neighbor_address, tvb, sub_tlv_offset, 16, ENC_NA);
             break;
+            case 14:
+                /* Extended Administrative Groups (rfc7308) */
+                dissect_subclv_ext_admin_group(tvb, subtree, sub_tlv_offset, clv_code, clv_len);
+                break;
             case 15:
                 /* Link MSD */
-                local_offset = sub_tlv_offset + 13 + i;
+                local_offset = sub_tlv_offset;
                 local_len = clv_len;
                 while (local_len >= 2) {
                     proto_tree_add_item(subtree, hf_isis_lsp_clv_igp_msd_type, tvb, local_offset, 1, ENC_NA);
@@ -3240,101 +3372,126 @@ dissect_sub_clv_tlv_22_22_23_141_222_223(tvbuff_t *tvb, packet_info* pinfo, prot
                     local_offset += 2;
                 }
             break;
+            case 16:
+                /* Application-Specific Link Attributes (rfc8919) */
+                local_offset = sub_tlv_offset;
+                local_len = clv_len;
+                proto_tree_add_item(subtree, hf_isis_lsp_clv_app_sabm_legacy, tvb, local_offset, 1, ENC_NA);
+                sabm_length = tvb_get_guint8(tvb, local_offset);
+                proto_tree_add_uint(subtree, hf_isis_lsp_clv_app_sabm_length, tvb, local_offset, 1, sabm_length);
+                proto_tree_add_item(subtree, hf_isis_lsp_clv_app_udabm_reserved, tvb, local_offset + 1, 1, ENC_NA);
+                udabm_length = tvb_get_guint8(tvb, local_offset + 1);
+                proto_tree_add_uint(subtree, hf_isis_lsp_clv_app_udabm_length, tvb, local_offset + 1, 1, udabm_length);
+                local_offset += 2;
+                local_len -= 2;
+                if (sabm_length > 0) {
+                    proto_tree_add_bitmask(subtree, tvb, local_offset,
+                                           hf_isis_lsp_clv_app_sabm_bits,
+                                           ett_isis_lsp_clv_app_sabm_bits,
+                                           isis_lsp_app_sabm_bits, ENC_NA);
+                    local_offset += sabm_length;
+                    local_len -= sabm_length;
+                }
+                if (udabm_length > 0) {
+                    proto_tree_add_item(subtree, hf_isis_lsp_clv_app_udabm_bits,
+                                        tvb, local_offset, udabm_length, ENC_NA);
+                    local_offset += udabm_length;
+                    local_len -= udabm_length;
+                }
+                if (local_len > 2) {
+                    /* Dissect Link Attribute sub-sub-TLVs */
+                    dissect_sub_clv_tlv_22_22_23_141_222_223(tvb, pinfo, subtree, local_offset, local_len);
+                }
+                break;
             case 18:
                 proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_traffic_engineering_default_metric,
-                                    tvb, sub_tlv_offset+13+i, 3, ENC_BIG_ENDIAN);
+                                    tvb, sub_tlv_offset, 3, ENC_BIG_ENDIAN);
             break;
             case 22:
-                dissect_subclv_bw_ct(tvb, subtree, sub_tlv_offset+13+i, clv_len);
+                dissect_subclv_bw_ct(tvb, subtree, sub_tlv_offset, clv_len);
             break;
             case 29:
                 dissect_subclv_spb_link_metric(tvb, pinfo, subtree,
-                                               sub_tlv_offset+13+i, clv_code, clv_len);
+                                               sub_tlv_offset, clv_code, clv_len);
             break;
             case 31:
             case 32:
-                dissect_subclv_adj_sid(tvb, pinfo, subtree, sub_tlv_offset+13+i, clv_code, clv_len);
+                dissect_subclv_adj_sid(tvb, pinfo, subtree, sub_tlv_offset, clv_code, clv_len);
             break;
             case 33:
                 /* Unidirectional Link Delay (rfc8570) */
-                local_offset = sub_tlv_offset + 13 + i;
-                proto_tree_add_bitmask(subtree, tvb, local_offset,
+                proto_tree_add_bitmask(subtree, tvb, sub_tlv_offset,
                                        hf_isis_lsp_ext_is_reachability_unidir_link_flags,
                                        ett_isis_lsp_clv_unidir_link_flags,
                                        unidir_link_flags, ENC_NA);
-                proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_unidir_link_delay, tvb, local_offset+1, 3, ENC_BIG_ENDIAN);
+                proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_unidir_link_delay, tvb, sub_tlv_offset+1, 3, ENC_BIG_ENDIAN);
             break;
             case 34:
                 /* Min/Max Unidirectional Link Delay (rfc8570) */
-                local_offset = sub_tlv_offset + 13 + i;
-                proto_tree_add_bitmask(subtree, tvb, local_offset,
+                proto_tree_add_bitmask(subtree, tvb, sub_tlv_offset,
                                        hf_isis_lsp_ext_is_reachability_unidir_link_flags,
                                        ett_isis_lsp_clv_unidir_link_flags,
                                        unidir_link_flags, ENC_NA);
-                proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_unidir_link_delay_min, tvb, local_offset+1, 3, ENC_BIG_ENDIAN);
-                proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_unidir_link_reserved, tvb, local_offset+4, 1, ENC_NA);
-                proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_unidir_link_delay_max, tvb, local_offset+5, 3, ENC_BIG_ENDIAN);
+                proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_unidir_link_delay_min, tvb, sub_tlv_offset+1, 3, ENC_BIG_ENDIAN);
+                proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_unidir_link_reserved, tvb, sub_tlv_offset+4, 1, ENC_NA);
+                proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_unidir_link_delay_max, tvb, sub_tlv_offset+5, 3, ENC_BIG_ENDIAN);
             break;
             case 35:
                 /* Unidirectional Delay Variation (rfc8570) */
-                local_offset = sub_tlv_offset + 13 + i;
-                proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_unidir_link_reserved, tvb, local_offset, 1, ENC_NA);
-                proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_unidir_delay_variation, tvb, local_offset+1, 3, ENC_BIG_ENDIAN);
+                proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_unidir_link_reserved, tvb, sub_tlv_offset, 1, ENC_NA);
+                proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_unidir_delay_variation, tvb, sub_tlv_offset+1, 3, ENC_BIG_ENDIAN);
             break;
             case 36:
                 /* Unidirectional Link Loss (rfc8570) */
-                local_offset = sub_tlv_offset + 13 + i;
-                proto_tree_add_bitmask(subtree, tvb, local_offset,
+                proto_tree_add_bitmask(subtree, tvb, sub_tlv_offset,
                                        hf_isis_lsp_ext_is_reachability_unidir_link_flags,
                                        ett_isis_lsp_clv_unidir_link_flags,
                                        unidir_link_flags, ENC_NA);
-                ti = proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_unidir_link_loss, tvb, local_offset+1, 3, ENC_BIG_ENDIAN);
+                ti = proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_unidir_link_loss, tvb, sub_tlv_offset+1, 3, ENC_BIG_ENDIAN);
                 if (ti) {
-                    percentage = (gfloat)tvb_get_guint24(tvb, local_offset+1, ENC_BIG_ENDIAN);
+                    percentage = (gfloat)tvb_get_guint24(tvb, sub_tlv_offset+1, ENC_BIG_ENDIAN);
                     proto_item_append_text(ti, " (%f %%)", percentage * 0.000003);
                 }
             break;
             case 37:
                 /* 37: Unidirectional Residual Bandwidth (rfc8570) */
-                proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_unidir_residual_bandwidth, tvb, sub_tlv_offset+13+i, 4, ENC_BIG_ENDIAN);
-            break;
+                proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_unidir_residual_bandwidth, tvb, sub_tlv_offset, 4, ENC_BIG_ENDIAN);
+                break;
             case 38:
                 /* 38: Unidirectional Available Bandwidth (rfc8570) */
-                proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_unidir_available_bandwidth, tvb, sub_tlv_offset+13+i, 4, ENC_BIG_ENDIAN);
-            break;
+                proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_unidir_available_bandwidth, tvb, sub_tlv_offset, 4, ENC_BIG_ENDIAN);
+                break;
             case 39:
                 /* 39: Unidirectional Utilized Bandwidth (rfc8570) */
-                proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_unidir_utilized_bandwidth, tvb, sub_tlv_offset+13+i, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_unidir_utilized_bandwidth, tvb, sub_tlv_offset, 4, ENC_BIG_ENDIAN);
             break;
             case 43:
                 /* SRv6 End.X SID */
-                local_offset = sub_tlv_offset + 13 + i;
-                proto_tree_add_bitmask(subtree, tvb, local_offset,
+                proto_tree_add_bitmask(subtree, tvb, sub_tlv_offset,
                                        hf_isis_lsp_clv_srv6_endx_sid_flags,
                                        ett_isis_lsp_clv_srv6_endx_sid_flags,
                                        srv6_endx_sid_flags, ENC_BIG_ENDIAN);
-                proto_tree_add_item(subtree, hf_isis_lsp_clv_srv6_endx_sid_alg, tvb, local_offset+1, 1, ENC_NA);
-                proto_tree_add_item(subtree, hf_isis_lsp_clv_srv6_endx_sid_weight, tvb, local_offset+2, 1, ENC_BIG_ENDIAN);
-                proto_tree_add_item(subtree, hf_isis_lsp_clv_srv6_endx_sid_endpoint_func, tvb, local_offset+3, 2, ENC_NA);
-                proto_tree_add_item(subtree, hf_isis_lsp_clv_srv6_endx_sid_sid, tvb, local_offset+5, 16, ENC_NA);
-                proto_tree_add_item(subtree, hf_isis_lsp_clv_srv6_endx_sid_subsubclvs_len, tvb, local_offset+21, 1, ENC_NA);
+                proto_tree_add_item(subtree, hf_isis_lsp_clv_srv6_endx_sid_alg, tvb, sub_tlv_offset+1, 1, ENC_NA);
+                proto_tree_add_item(subtree, hf_isis_lsp_clv_srv6_endx_sid_weight, tvb, sub_tlv_offset+2, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(subtree, hf_isis_lsp_clv_srv6_endx_sid_endpoint_func, tvb, sub_tlv_offset+3, 2, ENC_NA);
+                proto_tree_add_item(subtree, hf_isis_lsp_clv_srv6_endx_sid_sid, tvb, sub_tlv_offset+5, 16, ENC_NA);
+                proto_tree_add_item(subtree, hf_isis_lsp_clv_srv6_endx_sid_subsubclvs_len, tvb, sub_tlv_offset+21, 1, ENC_NA);
                 break;
             case 44:
                 /* SRv6 LAN End.X SID */
-                local_offset = sub_tlv_offset + 13 + i;
-                proto_tree_add_item(subtree, hf_isis_lsp_clv_srv6_endx_sid_system_id, tvb, local_offset, 6, ENC_NA);
-                proto_tree_add_bitmask(subtree, tvb, local_offset+6,
+                proto_tree_add_item(subtree, hf_isis_lsp_clv_srv6_endx_sid_system_id, tvb, sub_tlv_offset, 6, ENC_NA);
+                proto_tree_add_bitmask(subtree, tvb, sub_tlv_offset+6,
                                        hf_isis_lsp_clv_srv6_endx_sid_flags,
                                        ett_isis_lsp_clv_srv6_endx_sid_flags,
                                        srv6_endx_sid_flags, ENC_BIG_ENDIAN);
-                proto_tree_add_item(subtree, hf_isis_lsp_clv_srv6_endx_sid_alg, tvb, local_offset+7, 1, ENC_NA);
-                proto_tree_add_item(subtree, hf_isis_lsp_clv_srv6_endx_sid_weight, tvb, local_offset+8, 1, ENC_BIG_ENDIAN);
-                proto_tree_add_item(subtree, hf_isis_lsp_clv_srv6_endx_sid_endpoint_func, tvb, local_offset+9, 2, ENC_NA);
-                proto_tree_add_item(subtree, hf_isis_lsp_clv_srv6_endx_sid_sid, tvb, local_offset+11, 16, ENC_NA);
-                proto_tree_add_item(subtree, hf_isis_lsp_clv_srv6_endx_sid_subsubclvs_len, tvb, local_offset+27, 1, ENC_NA);
+                proto_tree_add_item(subtree, hf_isis_lsp_clv_srv6_endx_sid_alg, tvb, sub_tlv_offset+7, 1, ENC_NA);
+                proto_tree_add_item(subtree, hf_isis_lsp_clv_srv6_endx_sid_weight, tvb, sub_tlv_offset+8, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(subtree, hf_isis_lsp_clv_srv6_endx_sid_endpoint_func, tvb, sub_tlv_offset+9, 2, ENC_NA);
+                proto_tree_add_item(subtree, hf_isis_lsp_clv_srv6_endx_sid_sid, tvb, sub_tlv_offset+11, 16, ENC_NA);
+                proto_tree_add_item(subtree, hf_isis_lsp_clv_srv6_endx_sid_subsubclvs_len, tvb, sub_tlv_offset+27, 1, ENC_NA);
                 break;
             default:
-                proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_value, tvb, sub_tlv_offset+13+i, clv_len, ENC_NA);
+                proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_value, tvb, sub_tlv_offset, clv_len, ENC_NA);
             break;
         }
     i += clv_len + 2;
@@ -3391,7 +3548,7 @@ dissect_lsp_ext_is_reachability_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tre
         }
         else {
             dissect_sub_clv_tlv_22_22_23_141_222_223(tvb, pinfo, ntree,
-                                                    offset, subclvs_len);
+                                                    offset + 11, subclvs_len);
         }
 
         len = 11 + subclvs_len;
@@ -6098,6 +6255,87 @@ proto_register_isis_lsp(void)
             NULL, HFILL }
         },
 
+        /* rfc7308 */
+        { &hf_isis_lsp_clv_ext_admin_group,
+            { "Extended Admin Group", "isis.lsp.extended_admin_group",
+              FT_UINT32, BASE_HEX, NULL, 0x0,
+              NULL, HFILL }
+        },
+
+        /* rfc8919 */
+        { &hf_isis_lsp_clv_app_sabm_legacy,
+          { "Legacy flag (L)", "isis.lsp.application.sabm.legacy",
+            FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x80,
+            NULL, HFILL }
+        },
+        { &hf_isis_lsp_clv_app_sabm_length,
+          { "SABM Length", "isis.lsp.application.sabm.length",
+            FT_UINT8, BASE_DEC, NULL, 0x7f,
+            NULL, HFILL }
+        },
+        { &hf_isis_lsp_clv_app_udabm_reserved,
+          { "Reserved (R)", "isis.lsp.application.udabm.reserved",
+            FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x80,
+            NULL, HFILL }
+        },
+        { &hf_isis_lsp_clv_app_udabm_length,
+          { "UDABM Length", "isis.lsp.application.udabm.length",
+            FT_UINT8, BASE_DEC, NULL, 0x7f,
+            NULL, HFILL }
+        },
+        { &hf_isis_lsp_clv_app_sabm_bits,
+            { "Standard Application Identifier Bit Mask", "isis.lsp.application.sabm.bits",
+              FT_UINT8, BASE_HEX, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_clv_app_sabm_bits_r,
+            { "RSVP-TE bit (R)", "isis.lsp.application.sabm.bits.r",
+              FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x80,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_clv_app_sabm_bits_s,
+            { "Segment Routing Policy bit (S)", "isis.lsp.application.sabm.bits.s",
+              FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x40,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_clv_app_sabm_bits_f,
+            { "Loop-Free Alternate (LFA) bit (F)", "isis.lsp.application.sabm.bits.f",
+              FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x20,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_clv_app_sabm_bits_x,
+            { "Flexible Algorithm bit (X)", "isis.lsp.application.sabm.bits.x",
+              FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x10,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_clv_app_udabm_bits,
+          { "User-Defined Application Identifier Bit Mask", "isis.lsp.application.udabm.bits",
+            FT_BYTES, SEP_SPACE, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        /* draft-ietf-lsr-flex-algo-16 */
+        { &hf_isis_lsp_clv_flex_algo_algorithm,
+          { "Flex-Algorithm", "isis.lsp.flex_algorighm.algorithm",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_isis_lsp_clv_flex_algo_metric_type,
+          { "Metric-Type", "isis.lsp.flex_algorighm.metric_type",
+            FT_UINT8, BASE_DEC, VALS(isis_lsp_flex_algo_metric_type_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_isis_lsp_clv_flex_algo_calc_type,
+          { "Calculation-Type", "isis.lsp.flex_algorighm.calculation_type",
+            FT_UINT8, BASE_DEC, VALS(isis_igp_alg_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_isis_lsp_clv_flex_algo_priority,
+          { "Calculation-Type", "isis.lsp.flex_algorighm.priority",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+
         /* rfc6232 */
         { &hf_isis_lsp_purge_orig_id_num,
             { "Number of System IDs", "isis.lsp.purge_originator_id.num",
@@ -6449,6 +6687,9 @@ proto_register_isis_lsp(void)
         &ett_isis_lsp_clv_srv6_locator,
         &ett_isis_lsp_clv_srv6_loc_flags,
         &ett_isis_lsp_clv_srv6_loc_sub_tlv,
+        &ett_isis_lsp_clv_flex_algo_def,
+        &ett_isis_lsp_clv_flex_algo_def_sub_tlv,
+        &ett_isis_lsp_clv_app_sabm_bits,
         &ett_isis_lsp_sl_flags,
         &ett_isis_lsp_sl_sub_tlv,
         &ett_isis_lsp_sl_sub_tlv_flags,
