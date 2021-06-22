@@ -345,7 +345,7 @@ Chocolatey ensures cmake.exe is on your path.
 
 ==== Install Asciidoctor, Xsltproc, And DocBook
 
-https://asciidoctor.org/[Asciidoctor] can be run directly as a Ruby script or via a Java wrapper (AsciidoctorJ).
+https://asciidoctor.org/[Asciidoctor] can be run directly as a Ruby script or via a Java wrapper (AsciidoctorJ) or JavaScript (Asciidoctor.js).
 It is used in conjunction with Xsltproc and DocBook to generate the documentation you're reading and the User’s Guide.
 
 You can install AsciidoctorJ, Xsltproc, and DocBook using Chocolatey.
