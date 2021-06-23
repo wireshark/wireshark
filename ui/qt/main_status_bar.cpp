@@ -246,6 +246,7 @@ void MainStatusBar::changeEvent(QEvent *event)
     if (event->type() == QEvent::LanguageChange) {
         info_status_.popText(STATUS_CTX_MAIN);
         info_status_.pushText(ready_msg_, STATUS_CTX_MAIN);
+        setStatusbarForCaptureFile();
         showCaptureStatistics();
         setProfileName();
     }
@@ -256,6 +257,17 @@ void MainStatusBar::setCaptureFile(capture_file *cf)
 {
     cap_file_ = cf;
     comment_button_->setEnabled(cap_file_ != NULL);
+}
+
+void MainStatusBar::setStatusbarForCaptureFile()
+{
+    if (cap_file_ && cap_file_->filename && (cap_file_->state != FILE_CLOSED)) {
+        popGenericStatus(STATUS_CTX_FILE);
+        QString msgtip = QString("%1 (%2)")
+                .arg(cap_file_->filename)
+                .arg(file_size_to_qstring(cap_file_->f_datalen));
+        pushGenericStatus(STATUS_CTX_FILE, cf_get_display_name(cap_file_), msgtip);
+    }
 }
 
 void MainStatusBar::selectedFieldChanged(FieldInformation * finfo)

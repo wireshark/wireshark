@@ -2641,6 +2641,7 @@ void WiresharkMainWindow::changeEvent(QEvent* event)
             main_ui_->retranslateUi(this);
             // make sure that the "Clear Menu" item is retranslated
             mainApp->emitAppSignal(WiresharkApplication::RecentCapturesChanged);
+            setTitlebarForCaptureFile();
             break;
         case QEvent::LocaleChange: {
             QString locale = QLocale::system().name();

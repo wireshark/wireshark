@@ -68,6 +68,7 @@ private:
     guint32 cs_count_;
 
     void showCaptureStatistics();
+    void setStatusbarForCaptureFile();
 
     void pushGenericStatus(StatusContext status, const QString &message, const QString &messagetip = QString());
     void popGenericStatus(StatusContext status);
