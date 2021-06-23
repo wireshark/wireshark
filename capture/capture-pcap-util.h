@@ -58,20 +58,21 @@ gboolean have_high_resolution_timestamp(pcap_t *pcap_h);
 #endif /* HAVE_PCAP_SET_TSTAMP_PRECISION */
 
 /*
- * Error values.
+ * Capture device open status values.
  */
 typedef enum {
-    CAP_DEVICE_OPEN_NO_ERR,              /* No error */
+    CAP_DEVICE_OPEN_NO_ERR,              /* No error and no warning */
     CAP_DEVICE_OPEN_ERR_PERMISSIONS,     /* Error is known to be a permissions error */
     CAP_DEVICE_OPEN_ERR_NOT_PERMISSIONS, /* Error is known not to be a permissions error */
-    CAP_DEVICE_OPEN_ERR_GENERIC          /* Error is not known to be one or the other */
-} cap_device_open_err;
+    CAP_DEVICE_OPEN_ERR_GENERIC,         /* Error is not known to be one or the other */
+    CAP_DEVICE_OPEN_WARNING_GENERIC      /* No error, but a warning */
+} cap_device_open_status;
 extern if_capabilities_t *get_if_capabilities(interface_options *interface_opts,
-    cap_device_open_err *err, char **err_str);
+    cap_device_open_status *status, char **status_str);
 extern pcap_t *open_capture_device(capture_options *capture_opts,
     interface_options *interface_opts,
-    int timeout, cap_device_open_err *open_err,
-    char (*open_err_str)[PCAP_ERRBUF_SIZE]);
+    int timeout, cap_device_open_status *open_status,
+    char (*open_status_str)[PCAP_ERRBUF_SIZE]);
 
 #endif /* HAVE_LIBPCAP */
 

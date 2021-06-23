@@ -573,8 +573,8 @@ relinquish_all_capabilities(void)
 #endif
 
 static const char *
-get_pcap_failure_secondary_error_message(cap_device_open_err open_err,
-                                         const char *open_err_str)
+get_pcap_failure_secondary_error_message(cap_device_open_status open_status,
+                                         const char *open_status_str)
 {
 #ifdef _WIN32
     /*
@@ -596,7 +596,7 @@ get_pcap_failure_secondary_error_message(cap_device_open_err open_err,
      * have platform-specific suggestions at the end (for example, suggestions
      * for how to get permission to capture).
      */
-    if (open_err == CAP_DEVICE_OPEN_ERR_GENERIC) {
+    if (open_status == CAP_DEVICE_OPEN_ERR_GENERIC) {
         /*
          * We don't know what kind of error it is.  See if there's a hint
          * in the error string; if not, throw all generic suggestions at
@@ -612,7 +612,7 @@ get_pcap_failure_secondary_error_message(cap_device_open_err open_err,
          * from an NDIS error after the initial part, so we do a prefix
          * check rather than an exact match check.)
          */
-        if (strncmp(open_err_str, promisc_failed, sizeof promisc_failed - 1) == 0) {
+        if (strncmp(open_status_str, promisc_failed, sizeof promisc_failed - 1) == 0) {
             /*
              * Yes.  Suggest that the user turn off promiscuous mode on that
              * device.
@@ -625,7 +625,7 @@ get_pcap_failure_secondary_error_message(cap_device_open_err open_err,
                    "the proper interface or pipe specified."
                    PLATFORM_PERMISSIONS_SUGGESTION;
         }
-    } else if (open_err == CAP_DEVICE_OPEN_ERR_PERMISSIONS) {
+    } else if (open_status == CAP_DEVICE_OPEN_ERR_PERMISSIONS) {
         /*
          * This is a permissions error, so no need to specify any other
          * warnings.
@@ -644,8 +644,8 @@ get_pcap_failure_secondary_error_message(cap_device_open_err open_err,
 }
 
 static void
-get_capture_device_open_failure_messages(cap_device_open_err open_err,
-                                         const char *open_err_str,
+get_capture_device_open_failure_messages(cap_device_open_status open_status,
+                                         const char *open_status_str,
                                          const char *iface,
                                          char *errmsg, size_t errmsg_len,
                                          char *secondary_errmsg,
@@ -653,9 +653,9 @@ get_capture_device_open_failure_messages(cap_device_open_err open_err,
 {
     g_snprintf(errmsg, (gulong) errmsg_len,
                "The capture session could not be initiated on interface '%s' (%s).",
-               iface, open_err_str);
+               iface, open_status_str);
     g_snprintf(secondary_errmsg, (gulong) secondary_errmsg_len, "%s",
-               get_pcap_failure_secondary_error_message(open_err, open_err_str));
+               get_pcap_failure_secondary_error_message(open_status, open_status_str));
 }
 
 static gboolean
@@ -697,8 +697,8 @@ show_filter_code(capture_options *capture_opts)
 {
     interface_options *interface_opts;
     pcap_t *pcap_h;
-    cap_device_open_err open_err;
-    gchar open_err_str[PCAP_ERRBUF_SIZE];
+    cap_device_open_status open_status;
+    gchar open_status_str[PCAP_ERRBUF_SIZE];
     char errmsg[MSG_MAX_LENGTH+1];
     char secondary_errmsg[MSG_MAX_LENGTH+1];
     struct bpf_program fcode;
@@ -709,10 +709,10 @@ show_filter_code(capture_options *capture_opts)
     for (j = 0; j < capture_opts->ifaces->len; j++) {
         interface_opts = &g_array_index(capture_opts->ifaces, interface_options, j);
         pcap_h = open_capture_device(capture_opts, interface_opts,
-            CAP_READ_TIMEOUT, &open_err, &open_err_str);
+            CAP_READ_TIMEOUT, &open_status, &open_status_str);
         if (pcap_h == NULL) {
             /* Open failed; get messages */
-            get_capture_device_open_failure_messages(open_err, open_err_str,
+            get_capture_device_open_failure_messages(open_status, open_status_str,
                                                      interface_opts->name,
                                                      errmsg, sizeof errmsg,
                                                      secondary_errmsg,
@@ -2773,8 +2773,8 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
                         char *errmsg, size_t errmsg_len,
                         char *secondary_errmsg, size_t secondary_errmsg_len)
 {
-    cap_device_open_err open_err;
-    gchar               open_err_str[PCAP_ERRBUF_SIZE];
+    cap_device_open_status open_status;
+    gchar               open_status_str[PCAP_ERRBUF_SIZE];
     gchar              *sync_msg_str;
     interface_options  *interface_opts;
     capture_src        *pcap_src;
@@ -2831,7 +2831,7 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
 
         ws_debug("capture_loop_open_input : %s", interface_opts->name);
         pcap_src->pcap_h = open_capture_device(capture_opts, interface_opts,
-            CAP_READ_TIMEOUT, &open_err, &open_err_str);
+            CAP_READ_TIMEOUT, &open_status, &open_status_str);
 
         if (pcap_src->pcap_h != NULL) {
             /* we've opened "iface" as a network device */
@@ -2911,8 +2911,8 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
                      * doesn't exist.  Report the error message for
                      * the interface.
                      */
-                    get_capture_device_open_failure_messages(open_err,
-                                                             open_err_str,
+                    get_capture_device_open_failure_messages(open_status,
+                                                             open_status_str,
                                                              interface_opts->name,
                                                              errmsg,
                                                              errmsg_len,
@@ -2925,9 +2925,11 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
                  */
                 return FALSE;
             } else {
-                /* cap_pipe_open_live() succeeded; don't want
-                   error message from pcap_open_live() */
-                open_err_str[0] = '\0';
+                /*
+                 * We tried opening as an interface, and that failed,
+                 * so we tried to open it as a pipe, and that succeeded.
+                 */
+                open_status = CAP_DEVICE_OPEN_NO_ERR;
             }
         }
 
@@ -2938,10 +2940,11 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
         }
 #endif
 
-        /* Does "open_err_str" contain a non-empty string?  If so, "pcap_open_live()"
-           returned a warning; print it, but keep capturing. */
-        if (open_err_str[0] != '\0') {
-            sync_msg_str = g_strdup_printf("%s.", open_err_str);
+        /* Is "open_status" something other than CAP_DEVICE_OPEN_NO_ERR?
+           If so, "open_capture_device()" returned a warning; print it,
+           but keep capturing. */
+        if (open_status != CAP_DEVICE_OPEN_NO_ERR) {
+            sync_msg_str = g_strdup_printf("%s.", open_status_str);
             report_capture_error(sync_msg_str, "");
             g_free(sync_msg_str);
         }
@@ -5424,8 +5427,8 @@ main(int argc, char *argv[])
     if (caps_queries) {
         /* Get the list of link-layer and/or timestamp types for the capture device. */
         if_capabilities_t *caps;
-        cap_device_open_err err;
-        gchar *err_str;
+        cap_device_open_status open_status;
+        gchar *open_status_str;
         guint  ii;
 
         for (ii = 0; ii < global_capture_opts.ifaces->len; ii++) {
@@ -5433,23 +5436,23 @@ main(int argc, char *argv[])
 
             interface_opts = &g_array_index(global_capture_opts.ifaces, interface_options, ii);
 
-            caps = get_if_capabilities(interface_opts, &err, &err_str);
+            caps = get_if_capabilities(interface_opts, &open_status, &open_status_str);
             if (caps == NULL) {
                 if (capture_child) {
                     char *error_msg = g_strdup_printf("The capabilities of the capture device"
                                                 " \"%s\" could not be obtained (%s)",
-                                                interface_opts->name, err_str);
+                                                interface_opts->name, open_status_str);
                     sync_pipe_errmsg_to_parent(2, error_msg,
-                            get_pcap_failure_secondary_error_message(err, err_str));
+                            get_pcap_failure_secondary_error_message(open_status, open_status_str));
                     g_free(error_msg);
                 }
                 else {
                     cmdarg_err("The capabilities of the capture device"
                                 "\"%s\" could not be obtained (%s).\n%s",
-                                interface_opts->name, err_str,
-                                get_pcap_failure_secondary_error_message(err, err_str));
+                                interface_opts->name, open_status_str,
+                                get_pcap_failure_secondary_error_message(open_status, open_status_str));
                 }
-                g_free(err_str);
+                g_free(open_status_str);
                 exit_main(2);
             }
 
