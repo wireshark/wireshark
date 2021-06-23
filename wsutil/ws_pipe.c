@@ -492,7 +492,7 @@ gboolean ws_pipe_spawn_sync(const gchar *working_directory, const gchar *command
     if (status)
     {
         if (local_output != NULL) {
-            ws_debug("spawn output: %s", local_output);
+            ws_noisy("spawn output: %s", local_output);
             if (command_output != NULL)
                 *command_output = g_strdup(local_output);
         }
