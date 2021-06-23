@@ -602,16 +602,14 @@ static inline const char *msg_color_on(gboolean enable, enum ws_log_level level)
     if (!enable)
         return "";
 
-    if (level <= LOG_LEVEL_NOISY)
-        return MAGENTA;
-    else if (level <= LOG_LEVEL_DEBUG)
+    if (level <= LOG_LEVEL_DEBUG)
         return GREEN;
-    else if (level <= LOG_LEVEL_INFO)
-        return CYAN;
     else if (level <= LOG_LEVEL_MESSAGE)
-        return BLUE;
+        return CYAN;
     else if (level <= LOG_LEVEL_WARNING)
         return YELLOW;
+    else if (level <= LOG_LEVEL_CRITICAL)
+        return MAGENTA;
     else if (level <= LOG_LEVEL_ERROR)
         return RED;
     else
@@ -648,10 +646,10 @@ static void log_write_do_work(FILE *fp, gboolean use_color, const char *timestam
     }
 
     /* Message priority (domain/level) */
-    fprintf(fp, "[%s%s%s %s] ", msg_color_on(use_color, level),
+    fprintf(fp, "[%s %s%s%s] ", domain_str,
+                                msg_color_on(use_color, level),
                                 level_str,
-                                color_off(use_color),
-                                domain_str);
+                                color_off(use_color));
 
     /* File/line */
     if (doextra && file != NULL && line >= 0)
