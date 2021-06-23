@@ -344,7 +344,7 @@ qt_log_message_handler(QtMsgType type, const QMessageLogContext &, const QString
     default:
         break;
     }
-    ws_log(LOG_DOMAIN_MAIN, log_level, "%s", qUtf8Printable(msg));
+    ws_log(LOG_DOMAIN_QTUI, log_level, "%s", qUtf8Printable(msg));
 }
 
 #ifdef HAVE_LIBPCAP
