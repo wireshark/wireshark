@@ -16,6 +16,7 @@
 
 #include <epan/packet.h>
 #include <epan/to_str.h>
+#include <epan/reassemble.h>
 #include "packet-tcp.h"
 #include "packet-epmd.h"
 
@@ -52,6 +53,8 @@
 #define FUN_EXT             'u'
 
 #define DIST_HEADER         'D'
+#define DIST_FRAG_HEADER    'E'
+#define DIST_FRAG_CONT      'F'
 #define ATOM_CACHE_REF      'R'
 #define COMPRESSED          'P'
 
@@ -91,8 +94,17 @@ static const value_string etf_tag_vals[] = {
   { EXPORT_EXT          , "EXPORT_EXT" },
   { FUN_EXT             , "FUN_EXT" },
   { DIST_HEADER         , "DIST_HEADER" },
+  { DIST_FRAG_HEADER    , "DIST_FRAG_HEADER" },
+  { DIST_FRAG_CONT      , "DIST_FRAG_CONT" },
   { ATOM_CACHE_REF      , "ATOM_CACHE_REF" },
   { COMPRESSED          , "COMPRESSED" },
+  {  0, NULL }
+};
+
+static const value_string etf_header_tag_vals[] = {
+  { DIST_HEADER         , "DIST_HEADER" },
+  { DIST_FRAG_HEADER    , "DIST_FRAG_HEADER" },
+  { DIST_FRAG_CONT      , "DIST_FRAG_CONT" },
   {  0, NULL }
 };
 
@@ -174,6 +186,8 @@ static int hf_erldp_digest = -1;
 static int hf_erldp_nlen = -1;
 static int hf_erldp_name = -1;
 static int hf_erldp_status = -1;
+static int hf_erldp_sequence_id = -1;
+static int hf_erldp_fragment_id = -1;
 static int hf_erldp_num_atom_cache_refs = -1;
 static int hf_erldp_etf_flags = -1;
 static int hf_erldp_internal_segment_index = -1;
@@ -209,11 +223,26 @@ static int hf_erldp_new_fun_ext_index = -1;
 static int hf_erldp_new_fun_ext_num_free = -1;
 
 static int hf_etf_tag = -1;
+static int hf_etf_dist_header_tag = -1;
 static int hf_etf_dist_header_new_cache = -1;
 static int hf_etf_dist_header_segment_index = -1;
 static int hf_etf_dist_header_long_atoms = -1;
 static int hf_etf_arity4 = -1;
 static int hf_etf_arity = -1;
+
+static int hf_etf_fragments = -1;
+static int hf_etf_fragment = -1;
+static int hf_etf_fragment_overlap = -1;
+static int hf_etf_fragment_overlap_conflicts = -1;
+static int hf_etf_fragment_multiple_tails = -1;
+static int hf_etf_fragment_too_long_fragment = -1;
+static int hf_etf_fragment_error = -1;
+static int hf_etf_fragment_count = -1;
+static int hf_etf_reassembled_in = -1;
+static int hf_etf_reassembled_length = -1;
+static int hf_etf_reassembled_data = -1;
+
+static reassembly_table erldp_reassembly_table;
 
 /* Initialize the subtree pointers */
 static gint ett_erldp = -1;
@@ -225,15 +254,42 @@ static gint ett_etf_acrs = -1;
 static gint ett_etf_acr = -1;
 static gint ett_etf_tmp = -1;
 
+static gint ett_etf_fragment = -1;
+static gint ett_etf_fragments = -1;
+
 /* Preferences */
 static gboolean erldp_desegment = TRUE;
 
 /* Dissectors */
 static dissector_handle_t erldp_handle = NULL;
 
+/* Defragmentation */
+static const fragment_items etf_frag_items = {
+    /* Fragment subtrees */
+    &ett_etf_fragment,
+    &ett_etf_fragments,
+    /* Fragment fields */
+    &hf_etf_fragments,
+    &hf_etf_fragment,
+    &hf_etf_fragment_overlap,
+    &hf_etf_fragment_overlap_conflicts,
+    &hf_etf_fragment_multiple_tails,
+    &hf_etf_fragment_too_long_fragment,
+    &hf_etf_fragment_error,
+    &hf_etf_fragment_count,
+    /* Reassembled in field */
+    &hf_etf_reassembled_in,
+    /* Reassembled length field */
+    &hf_etf_reassembled_length,
+    &hf_etf_reassembled_data,
+    /* Tag */
+    "Message fragments"
+};
+
 /*--- External Term Format ---*/
 
 static gint dissect_etf_type(const gchar *label, packet_info *pinfo, tvbuff_t *tvb, gint offset, proto_tree *tree);
+static gint dissect_etf_pdu_data(packet_info *pinfo, tvbuff_t *tvb, gint offset, proto_tree *tree);
 
 static gint dissect_etf_dist_header(packet_info *pinfo _U_, tvbuff_t *tvb, gint offset, proto_tree *tree) {
   guint32 num, isi;
@@ -316,7 +372,7 @@ static gint dissect_etf_tuple_content(gboolean large, packet_info *pinfo, tvbuff
   return offset;
 }
 
-static gint dissect_etf_big_ext(tvbuff_t *tvb, gint offset, gint32 len, proto_tree *tree, const gchar **value_str) {
+static gint dissect_etf_big_ext(tvbuff_t *tvb, gint offset, guint32 len, proto_tree *tree, const gchar **value_str) {
       guint8 sign;
       gint32 i;
 
@@ -361,16 +417,12 @@ static gint dissect_etf_big_ext(tvbuff_t *tvb, gint offset, gint32 len, proto_tr
 }
 
 static gint dissect_etf_type_content(guint8 tag, packet_info *pinfo, tvbuff_t *tvb, gint offset, proto_tree *tree, const gchar **value_str) {
-  gint32 len, int_val, i;
-  guint32 uint_val;
+  gint32 int_val;
+  guint32 len, i, uint_val;
   guint32 id;
   const guint8 *str_val;
 
   switch (tag) {
-    case DIST_HEADER:
-      offset = dissect_etf_dist_header(pinfo, tvb, offset, tree);
-      break;
-
     case ATOM_CACHE_REF:
       proto_tree_add_item_ret_uint(tree, hf_erldp_atom_cache_ref, tvb, offset, 1, ENC_BIG_ENDIAN, &uint_val);
       offset += 1;
@@ -412,7 +464,7 @@ static gint dissect_etf_type_content(guint8 tag, packet_info *pinfo, tvbuff_t *t
       proto_tree_add_item_ret_string(tree, hf_erldp_float_ext, tvb, offset, 31, ENC_NA|ENC_UTF_8, wmem_packet_scope(), &str_val);
       offset += 31;
       if (value_str)
-        *value_str = str_val;
+        *value_str = (const gchar *)str_val;
       break;
 
     case NEW_FLOAT_EXT:
@@ -430,7 +482,7 @@ static gint dissect_etf_type_content(guint8 tag, packet_info *pinfo, tvbuff_t *t
       proto_tree_add_item_ret_string(tree, hf_erldp_atom_text, tvb, offset, len, ENC_NA|ENC_UTF_8, wmem_packet_scope(), &str_val);
       offset += len;
       if (value_str)
-        *value_str = str_val;
+        *value_str = (const gchar *)str_val;
       break;
 
     case SMALL_ATOM_UTF8_EXT:
@@ -439,7 +491,7 @@ static gint dissect_etf_type_content(guint8 tag, packet_info *pinfo, tvbuff_t *t
       proto_tree_add_item_ret_string(tree, hf_erldp_atom_text, tvb, offset, len, ENC_NA|ENC_UTF_8, wmem_packet_scope(), &str_val);
       offset += len;
       if (value_str)
-        *value_str = str_val;
+        *value_str = (const gchar *)str_val;
       break;
 
     case PORT_EXT:
@@ -575,6 +627,20 @@ static gint dissect_etf_type_content(guint8 tag, packet_info *pinfo, tvbuff_t *t
   return offset;
 }
 
+static gint dissect_etf_pdu_data(packet_info *pinfo, tvbuff_t *tvb, gint offset, proto_tree *tree) {
+  guint8 ctl_op;
+
+  if ((tvb_get_guint8(tvb, offset) == SMALL_TUPLE_EXT) && (tvb_get_guint8(tvb, offset + 2) == SMALL_INTEGER_EXT)) {
+    ctl_op = tvb_get_guint8(tvb, offset + 3);
+    col_add_str(pinfo->cinfo, COL_INFO, val_to_str(ctl_op, VALS(erldp_ctlmsg_vals), "unknown ControlMessage operation (%d)"));
+  }
+  offset = dissect_etf_type("ControlMessage", pinfo, tvb, offset, tree);
+  if (tvb_reported_length_remaining(tvb, offset) > 0)
+    offset = dissect_etf_type("Message", pinfo, tvb, offset, tree);
+
+  return offset;
+}
+
 static gint dissect_etf_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, const gchar *label) {
   gint offset = 0;
   guint8 mag;
@@ -592,15 +658,71 @@ static gint dissect_etf_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   proto_tree_add_item(etf_tree, hf_etf_version_magic, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset++;
 
-  proto_tree_add_item_ret_uint(etf_tree, hf_etf_tag, tvb, offset, 1, ENC_BIG_ENDIAN, &tag);
+  proto_tree_add_item_ret_uint(etf_tree, hf_etf_dist_header_tag, tvb, offset, 1, ENC_BIG_ENDIAN, &tag);
   offset++;
 
   if (!label)
-    proto_item_set_text(ti, "%s", val_to_str(tag, VALS(etf_tag_vals), "unknown tag (%d)"));
+    proto_item_set_text(ti, "%s", val_to_str(tag, VALS(etf_header_tag_vals), "unknown tag (%d)"));
 
-  offset = dissect_etf_type_content(tag, pinfo, tvb, offset, etf_tree, NULL);
+  switch (tag) {
+    case DIST_HEADER:
+      offset = dissect_etf_dist_header(pinfo, tvb, offset, etf_tree);
+      proto_item_set_len(ti, offset);
 
-  proto_item_set_len(ti, offset);
+      dissect_etf_pdu_data(pinfo, tvb, offset, tree);
+      break;
+
+    case DIST_FRAG_HEADER:
+    case DIST_FRAG_CONT:
+    {
+      guint64 sequence_id, fragment_id;
+      gboolean save_fragmented;
+      fragment_head *frag_msg = NULL;
+      tvbuff_t *next_tvb = NULL;
+      gint len_rem;
+
+      proto_tree_add_item_ret_uint64(etf_tree, hf_erldp_sequence_id, tvb, offset, 8, ENC_BIG_ENDIAN, &sequence_id);
+      offset += 8;
+
+      proto_tree_add_item_ret_uint64(etf_tree, hf_erldp_fragment_id, tvb, offset, 8, ENC_BIG_ENDIAN, &fragment_id);
+      offset += 8;
+
+      save_fragmented = pinfo->fragmented;
+
+      len_rem = tvb_reported_length_remaining(tvb, offset);
+      if (len_rem <= 0)
+        return offset;
+
+      pinfo->fragmented = TRUE;
+
+      frag_msg = fragment_add_seq_next(&erldp_reassembly_table,
+                                       tvb, offset, pinfo, (guint32)sequence_id, NULL,
+                                       len_rem, fragment_id != 1);
+
+      next_tvb = process_reassembled_data(tvb, offset, pinfo,
+                                          "Reassembled ErlDP", frag_msg,
+                                          &etf_frag_items, NULL, tree);
+
+      if (next_tvb == NULL)
+      { /* make a new subset */
+        next_tvb = tvb_new_subset_remaining(tvb, offset);
+        call_data_dissector(next_tvb, pinfo, tree);
+        col_append_fstr(pinfo->cinfo, COL_INFO, " (Fragment ID: %lu)", fragment_id);
+      }
+      else
+      {
+        offset = dissect_etf_dist_header(pinfo, next_tvb, 0, etf_tree);
+        proto_item_set_len(ti, offset);
+
+        dissect_etf_pdu_data(pinfo, next_tvb, offset, tree);
+        col_append_fstr(pinfo->cinfo, COL_INFO, " (Reassembled, Fragment ID: %lu)", fragment_id);
+      }
+
+      pinfo->fragmented = save_fragmented;
+      offset = tvb_reported_length_remaining(tvb, offset);
+      break;
+    }
+  }
 
   return offset;
 }
@@ -764,7 +886,7 @@ static void dissect_erldp_handshake(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 static int dissect_erldp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
   gint offset;
   guint32 msg_len;
-  guint8 type, ctl_op;
+  guint8 type;
   proto_tree *erldp_tree;
   proto_item *ti;
   tvbuff_t *next_tvb = NULL;
@@ -804,14 +926,7 @@ static int dissect_erldp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     case VERSION_MAGIC:
       next_tvb = tvb_new_subset_length_caplen(tvb, offset, -1, 4 + msg_len - offset);
       offset += dissect_etf_pdu(next_tvb, pinfo, erldp_tree, "DistributionHeader");
-      if ((tvb_get_guint8(tvb, offset) == SMALL_TUPLE_EXT) && (tvb_get_guint8(tvb, offset + 2) == SMALL_INTEGER_EXT)) {
-        ctl_op = tvb_get_guint8(tvb, offset + 3);
-        col_add_str(pinfo->cinfo, COL_INFO, val_to_str(ctl_op, VALS(erldp_ctlmsg_vals), "unknown ControlMessage operation (%d)"));
-      }
-      offset = dissect_etf_type("ControlMessage", pinfo, tvb, offset, erldp_tree);
-      if (tvb_reported_length_remaining(tvb, offset) > 0)
-        dissect_etf_type("Message", pinfo, tvb, offset, erldp_tree);
-      break;
+     break;
 
     default:
       proto_tree_add_item(erldp_tree, hf_erldp_type, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -919,7 +1034,7 @@ void proto_register_erldp(void) {
     { &hf_erldp_flags_ets_compressed, { "ETS Compressed", "erldp.flags.ets_compressed",
                         FT_BOOLEAN, 64, TFS(&tfs_true_false), 0x8000,
                         NULL, HFILL }},
-    { &hf_erldp_flags_utf8_atoms, { "UTF64 Atoms", "erldp.flags.utf8_atoms",
+    { &hf_erldp_flags_utf8_atoms, { "UTF8 Atoms", "erldp.flags.utf8_atoms",
                         FT_BOOLEAN, 64, TFS(&tfs_true_false), 0x10000,
                         NULL, HFILL }},
     { &hf_erldp_flags_map_tag, { "Map Tag", "erldp.flags.map_tag",
@@ -984,6 +1099,12 @@ void proto_register_erldp(void) {
                         NULL, HFILL}},
     { &hf_erldp_status, { "Status", "erldp.status",
                         FT_STRING, BASE_NONE, NULL, 0x0,
+                        NULL, HFILL}},
+    { &hf_erldp_sequence_id, { "Sequence Id", "erldp.sequence_id",
+                        FT_UINT64, BASE_HEX, NULL, 0x0,
+                        NULL, HFILL}},
+    { &hf_erldp_fragment_id, { "Fragment Id", "erldp.fragment_id",
+                        FT_UINT64, BASE_HEX, NULL, 0x0,
                         NULL, HFILL}},
     { &hf_erldp_num_atom_cache_refs, { "NumberOfAtomCacheRefs", "erldp.num_atom_cache_refs",
                         FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -1094,6 +1215,9 @@ void proto_register_erldp(void) {
     { &hf_etf_tag,    { "Tag", "erldp.etf_tag",
                         FT_UINT8, BASE_DEC, VALS(etf_tag_vals), 0x0,
                         NULL, HFILL}},
+    { &hf_etf_dist_header_tag, { "Tag", "erldp.etf_header_tag",
+                        FT_UINT8, BASE_DEC, VALS(etf_header_tag_vals), 0x0,
+                        NULL, HFILL}},
 
     { &hf_etf_dist_header_new_cache,    { "NewCacheEntryFlag", "erldp.dist_header.new_cache",
                         FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x08,
@@ -1115,6 +1239,51 @@ void proto_register_erldp(void) {
                         FT_UINT8, BASE_DEC, NULL, 0x0,
                         NULL, HFILL}},
 
+    { &hf_etf_fragments, { "Message fragments", "erldp.dist.fragments",
+                        FT_NONE, BASE_NONE, NULL, 0x0, NULL,
+                        HFILL }},
+
+    { &hf_etf_fragment, { "Message fragment", "erldp.dist.fragment",
+                        FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+                        NULL, HFILL }},
+
+    { &hf_etf_fragment_overlap, { "Message fragment overlap", "erldp.dist.fragment.overlap",
+                        FT_BOOLEAN, 0, NULL, 0x0,
+                        NULL, HFILL }},
+
+    { &hf_etf_fragment_overlap_conflicts, { "Message fragment overlapping with conflicting data",
+                                                            "erldp.dist.fragment.overlap.conflicts",
+                        FT_BOOLEAN, 0, NULL, 0x0,
+                        NULL, HFILL }},
+
+    { &hf_etf_fragment_multiple_tails, { "Message has multiple tail fragments",
+                                                         "erldp.dist.fragment.multiple_tails",
+                        FT_BOOLEAN, 0, NULL, 0x0,
+                        NULL, HFILL }},
+
+    { &hf_etf_fragment_too_long_fragment, { "Message fragment too long", "erldp.dist.fragment.too_long_fragment",
+                        FT_BOOLEAN, 0, NULL, 0x0,
+                        NULL, HFILL }},
+
+    { &hf_etf_fragment_error, { "Message defragmentation error", "erldp.dist.fragment.error",
+                        FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+                        NULL, HFILL }},
+
+    { &hf_etf_fragment_count, { "Message fragment count", "erldp.dist.fragment.count",
+                        FT_UINT32, BASE_DEC, NULL, 0x0,
+                        NULL, HFILL }},
+
+    { &hf_etf_reassembled_in, { "Reassembled in", "erldp.dist.reassembled.in",
+                        FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+                        NULL, HFILL }},
+
+    { &hf_etf_reassembled_length, { "Reassembled length", "erldp.dist.reassembled.length",
+                        FT_UINT32, BASE_DEC, NULL, 0x0,
+                        NULL, HFILL }},
+
+    { &hf_etf_reassembled_data, { "Reassembled data", "erldp.dist.reassembled.data",
+                        FT_BYTES, BASE_NONE, NULL, 0x0,
+                        NULL, HFILL }},
   };
 
   /* List of subtrees */
@@ -1126,10 +1295,14 @@ void proto_register_erldp(void) {
     &ett_etf_acrs,
     &ett_etf_acr,
     &ett_etf_tmp,
+    &ett_etf_fragment,
+    &ett_etf_fragments,
   };
 
   /* Register protocol and dissector */
   proto_erldp = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  reassembly_table_register(&erldp_reassembly_table,
+                          &addresses_reassembly_table_functions);
 
   erldp_handle = register_dissector(PFNAME, dissect_erldp, proto_erldp);
 
