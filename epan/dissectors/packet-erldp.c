@@ -707,7 +707,7 @@ static gint dissect_etf_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       { /* make a new subset */
         next_tvb = tvb_new_subset_remaining(tvb, offset);
         call_data_dissector(next_tvb, pinfo, tree);
-        col_append_fstr(pinfo->cinfo, COL_INFO, " (Fragment ID: %lu)", fragment_id);
+        col_append_fstr(pinfo->cinfo, COL_INFO, " (Fragment ID: %" G_GUINT64_FORMAT ")", fragment_id);
       }
       else
       {
@@ -715,7 +715,7 @@ static gint dissect_etf_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         proto_item_set_len(ti, offset);
 
         dissect_etf_pdu_data(pinfo, next_tvb, offset, tree);
-        col_append_fstr(pinfo->cinfo, COL_INFO, " (Reassembled, Fragment ID: %lu)", fragment_id);
+        col_append_fstr(pinfo->cinfo, COL_INFO, " (Reassembled, Fragment ID: %" G_GUINT64_FORMAT ")", fragment_id);
       }
 
       pinfo->fragmented = save_fragmented;
