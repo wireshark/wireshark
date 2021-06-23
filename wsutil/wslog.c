@@ -685,17 +685,23 @@ static void log_write_dispatch(const char *domain, enum ws_log_level level,
         g_date_time_unref(now);
     }
 
+    if (custom_log) {
+        va_list user_ap_copy;
+
+        G_VA_COPY(user_ap_copy, user_ap);
+        log_write_do_work(custom_log, FALSE,
+                            tstamp, domain, level,
+                            file, line, func,
+                            user_format, user_ap_copy);
+        va_end(user_ap_copy);
+    }
+
     if (registered_log_writer) {
         registered_log_writer(domain, level, tstamp, file, line, func,
                         user_format, user_ap, registered_log_writer_data);
     }
     else {
         log_write_do_work(stderr, color_enabled, tstamp, domain, level, file, line, func,
-                        user_format, user_ap);
-    }
-
-    if (custom_log) {
-        log_write_do_work(custom_log, FALSE, tstamp, domain, level, file, line, func,
                         user_format, user_ap);
     }
 
