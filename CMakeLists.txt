@@ -1207,6 +1207,7 @@ if(BUILD_wireshark)
 endif()
 
 # MaxMind DB address resolution
+reset_find_package(MAXMINDDB)
 ws_find_package(MaxMindDB BUILD_mmdbresolve HAVE_MAXMINDDB)
 
 # SMI SNMP
