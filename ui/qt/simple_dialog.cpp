@@ -63,8 +63,10 @@ static void visible_message_finished(QMessageBox *box, int result _U_)
     visible_messages_mutex.lock();
     for (int i = 0; i < visible_messages.size(); i++) {
         if (visible_messages[i].box == box) {
-            ws_log(LOG_DOMAIN_MAIN, LOG_LEVEL_WARNING, "%d duplicates of \"%s\" were suppressed",
-                visible_messages[i].counter, box->text().toStdString().c_str());
+            if (visible_messages[i].counter) {
+                ws_log(LOG_DOMAIN_MAIN, LOG_LEVEL_WARNING, "%d duplicates of \"%s\" were suppressed",
+                    visible_messages[i].counter, box->text().toStdString().c_str());
+            }
             visible_messages.removeAt(i);
             break;
         }
