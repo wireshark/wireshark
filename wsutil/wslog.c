@@ -526,6 +526,36 @@ enum ws_log_level ws_log_set_fatal_str(const char *str_level)
 }
 
 
+static void glib_log_handler(const char *domain, GLogLevelFlags flags,
+                        const char *message, gpointer user_data _U_)
+{
+    enum ws_log_level level;
+
+    /*
+     * The highest priority bit in the mask defines the level. We
+     * ignore the GLib fatal log level mask and use our own fatal
+     * log level setting instead.
+     */
+
+    if (flags & G_LOG_LEVEL_ERROR)
+        level = LOG_LEVEL_ERROR;
+    else if (flags & G_LOG_LEVEL_CRITICAL)
+        level = LOG_LEVEL_CRITICAL;
+    else if (flags & G_LOG_LEVEL_WARNING)
+        level = LOG_LEVEL_WARNING;
+    else if (flags & G_LOG_LEVEL_MESSAGE)
+        level = LOG_LEVEL_MESSAGE;
+    else if (flags & G_LOG_LEVEL_INFO)
+        level = LOG_LEVEL_INFO;
+    else if (flags & G_LOG_LEVEL_DEBUG)
+        level = LOG_LEVEL_DEBUG;
+    else
+        level = LOG_LEVEL_NONE; /* Should not happen. */
+
+    ws_log(domain, level, "%s", message);
+}
+
+
 /*
  * We can't write to stderr in ws_log_init() because dumpcap uses stderr
  * to communicate with the parent and it will block. Any failures are
@@ -575,6 +605,14 @@ void ws_log_init(const char *progname, ws_log_writer_cb *writer)
     env = g_getenv(ENV_VAR_NOISY);
     if (env != NULL)
         ws_log_set_noisy_filter(env);
+
+    /* Set the GLib log handler for the default domain. */
+    g_log_set_handler(NULL, G_LOG_LEVEL_MASK | G_LOG_FLAG_FATAL,
+                        glib_log_handler, NULL);
+
+    /* Set the GLib log handler for GLib itself. */
+    g_log_set_handler("GLib", G_LOG_LEVEL_MASK | G_LOG_FLAG_FATAL,
+                        glib_log_handler, NULL);
 
     atexit(ws_log_cleanup);
 
