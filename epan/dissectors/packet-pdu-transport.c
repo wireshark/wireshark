@@ -361,8 +361,8 @@ proto_reg_handoff_pdu_transport(void) {
     static gboolean initialized = FALSE;
 
     if (!initialized) {
-        pdu_transport_handle_udp = create_dissector_handle(dissect_pdu_transport_udp, proto_pdu_transport);
-        pdu_transport_handle_tcp = create_dissector_handle(dissect_pdu_transport_tcp, proto_pdu_transport);
+        pdu_transport_handle_udp = register_dissector("pdu_transport_over_udp", dissect_pdu_transport_udp, proto_pdu_transport);
+        pdu_transport_handle_tcp = register_dissector("pdu_transport_over_tcp", dissect_pdu_transport_tcp, proto_pdu_transport);
 
         initialized = TRUE;
     } else {
