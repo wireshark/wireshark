@@ -36,7 +36,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 
-
+#include "packet-tcp.h"
 
 #define TCP_PORT_DLM3           21064 /* Not IANA registered */
 #define SCTP_PORT_DLM3          TCP_PORT_DLM3
@@ -154,6 +154,8 @@
 #define DLM3_RS_DONE_ALL        0x00000080
 
 #define DLM3_RESNAME_MAXLEN     64
+
+#define DLM_HEADER_LEN (4 + 4 + 4 + 2 + 1 + 1)
 
 /* Forward declaration we need below */
 void proto_register_dlm3(void);
@@ -958,6 +960,28 @@ dissect_dlm3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *d
   return tvb_captured_length(tvb);
 }
 
+/* This method dissects fully reassembled messages */
+static int
+dissect_dlm3_message(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_)
+{
+  dissect_dlm3(tvb, pinfo, tree, data);
+  return tvb_captured_length(tvb);
+}
+
+/* determine PDU length of protocol foo */
+static guint
+get_dlm3_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
+{
+  return tvb_get_letohs(tvb, offset + DLM_HEADER_LEN - 2 - 1 - 1);
+}
+
+static int
+dissect_tcp_dlm3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+  tcp_dissect_pdus(tvb, pinfo, tree, TRUE, DLM_HEADER_LEN - 1 - 1,
+                   get_dlm3_message_len, dissect_dlm3_message, data);
+  return tvb_captured_length(tvb);
+}
 
 /* Register the protocol with Wireshark */
 
@@ -1559,7 +1583,7 @@ proto_reg_handoff_dlm3(void)
 
   if (!dissector_registered) {
     dlm3_sctp_handle = create_dissector_handle(dissect_dlm3, proto_dlm3);
-    dlm3_tcp_handle = create_dissector_handle(dissect_dlm3, proto_dlm3);
+    dlm3_tcp_handle = create_dissector_handle(dissect_tcp_dlm3, proto_dlm3);
     dissector_add_uint_with_preference("tcp.port", TCP_PORT_DLM3, dlm3_tcp_handle);
     dissector_registered = TRUE;
   } else {
