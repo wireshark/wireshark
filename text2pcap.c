@@ -1860,13 +1860,23 @@ parse_options (int argc, char *argv[])
     return EXIT_SUCCESS;
 }
 
+void
+text2pcap_vcmdarg_err(const char *fmt, va_list ap)
+{
+    vfprintf(stderr, fmt, ap);
+    fputc('\n', stderr);
+}
+
 int
 main(int argc, char *argv[])
 {
     int ret = EXIT_SUCCESS;
 
     /* Initialize log handler early so we can have proper logging during startup. */
-    ws_log_init("text2pcap", NULL);
+    ws_log_init("text2pcap", text2pcap_vcmdarg_err);
+
+    /* Early logging command-line initialization. */
+    ws_log_parse_args(&argc, argv, text2pcap_vcmdarg_err, 1);
 
 #ifdef _WIN32
     create_app_running_mutex();

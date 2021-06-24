@@ -350,17 +350,13 @@ main(int argc, char *argv[])
   setlocale(LC_ALL, "");
 #endif
 
-  g_set_prgname("tfshark");
-
-  /* Initialize log handler early so we can have proper logging during startup. */
-  ws_log_init(NULL);
-
   cmdarg_err_init(tfshark_cmdarg_err, tfshark_cmdarg_err_cont);
 
-  /* Command line options are parsed too late to configure logging, do it
-      manually. */
-  if (ws_log_parse_args(&argc, argv, cmdarg_err) != 0)
-    return INVALID_OPTION;
+  /* Initialize log handler early so we can have proper logging during startup. */
+  ws_log_init("tfshark", vcmdarg_err);
+
+  /* Early logging command-line initialization. */
+  ws_log_parse_args(&argc, argv, vcmdarg_err, INVALID_OPTION);
 
 #ifdef _WIN32
   create_app_running_mutex();

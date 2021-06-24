@@ -67,7 +67,7 @@ enum ws_log_level ws_log_get_level(void);
 
 /** Set the actice log level. Returns the same value (the active level). */
 WS_DLL_PUBLIC
-enum ws_log_level ws_log_set_level(enum ws_log_level log_level);
+void ws_log_set_level(enum ws_log_level log_level);
 
 
 /** Set the actice log level from a string.
@@ -117,7 +117,7 @@ void ws_log_set_noisy_filter(const char *str_filter);
  * LOG_LEVEL_ERROR is always fatal.
  */
 WS_DLL_PUBLIC
-enum ws_log_level ws_log_set_fatal(enum ws_log_level log_level);
+void ws_log_set_fatal(enum ws_log_level log_level);
 
 
 /** Set the fatal log level from a string.
@@ -128,6 +128,8 @@ enum ws_log_level ws_log_set_fatal(enum ws_log_level log_level);
 WS_DLL_PUBLIC
 enum ws_log_level  ws_log_set_fatal_str(const char *str_level);
 
+
+#define LOG_ARGS_NOEXIT -1
 
 /** Parses the command line arguments for log options.
  *
@@ -146,7 +148,8 @@ int ws_log_parse_args(int *argc_ptr, char *argv[],
  * is NULL the default log writer is used.
  */
 WS_DLL_PUBLIC
-void ws_log_init(const char *progname, ws_log_writer_cb *writer);
+void ws_log_init(const char *progname,
+                        void (*vcmdarg_err)(const char *, va_list ap));
 
 
 /** Initializes the logging code.
@@ -156,9 +159,17 @@ void ws_log_init(const char *progname, ws_log_writer_cb *writer);
  * is passed it will be called with user_data when the program terminates.
  */
 WS_DLL_PUBLIC
-void ws_log_init_with_data(const char *progname, ws_log_writer_cb *writer,
-                              void *user_data,
-                              ws_log_writer_free_data_cb *free_user_data);
+void ws_log_init_with_writer(const char *progname,
+                        ws_log_writer_cb *writer,
+                        void (*vcmdarg_err)(const char *, va_list ap));
+
+
+WS_DLL_PUBLIC
+void ws_log_init_with_writer_and_data(const char *progname,
+                        ws_log_writer_cb *writer,
+                        void *user_data,
+                        ws_log_writer_free_data_cb *free_user_data,
+                        void (*vcmdarg_err)(const char *, va_list ap));
 
 
 /** This function is called to output a message to the log.

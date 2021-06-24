@@ -449,10 +449,10 @@ main(int argc, char *argv[])
     setlocale(LC_ALL, "");
 #endif
 
-    /* Initialize log handler early so we can have proper logging during startup. */
-    ws_log_init("rawshark", NULL);
-
     cmdarg_err_init(rawshark_cmdarg_err, rawshark_cmdarg_err_cont);
+
+    /* Initialize log handler early so we can have proper logging during startup. */
+    ws_log_init("rawshark", vcmdarg_err);
 
     /* Early logging command-line initialization. */
     ws_log_parse_args(&argc, argv, vcmdarg_err, INVALID_OPTION);

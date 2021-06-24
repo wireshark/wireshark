@@ -775,10 +775,10 @@ main(int argc, char *argv[])
   setlocale(LC_ALL, "");
 #endif
 
-  /* Initialize log handler early so we can have proper logging during startup. */
-  ws_log_init("tshark", NULL);
-
   cmdarg_err_init(tshark_cmdarg_err, tshark_cmdarg_err_cont);
+
+  /* Initialize log handler early so we can have proper logging during startup. */
+  ws_log_init("tshark", vcmdarg_err);
 
   /* Early logging command-line initialization. */
   ws_log_parse_args(&argc, argv, vcmdarg_err, INVALID_OPTION);

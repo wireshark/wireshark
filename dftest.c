@@ -60,10 +60,10 @@ main(int argc, char **argv)
 	dfilter_t	*df;
 	gchar		*err_msg;
 
-	/* Initialize log handler early so we can have proper logging during startup. */
-	ws_log_init("dftest", NULL);
-
 	cmdarg_err_init(dftest_cmdarg_err, dftest_cmdarg_err_cont);
+
+	/* Initialize log handler early so we can have proper logging during startup. */
+	ws_log_init("dftest", vcmdarg_err);
 
 	/* Early logging command-line initialization. */
 	ws_log_parse_args(&argc, argv, vcmdarg_err, 1);

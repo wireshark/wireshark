@@ -120,10 +120,10 @@ main(int argc, char *argv[])
   setlocale(LC_ALL, "");
 #endif
 
-  /* Initialize log handler early so we can have proper logging during startup. */
-  ws_log_init("captype", NULL);
-
   cmdarg_err_init(captype_cmdarg_err, captype_cmdarg_err_cont);
+
+  /* Initialize log handler early so we can have proper logging during startup. */
+  ws_log_init("captype", vcmdarg_err);
 
   /* Early logging command-line initialization. */
   ws_log_parse_args(&argc, argv, vcmdarg_err, 1);

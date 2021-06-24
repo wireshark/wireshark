@@ -1154,10 +1154,10 @@ main(int argc, char *argv[])
     gboolean                     valid_seed = FALSE;
     unsigned int                 seed = 0;
 
-    /* Initialize log handler early so we can have proper logging during startup. */
-    ws_log_init("editcap", NULL);
-
     cmdarg_err_init(editcap_cmdarg_err, editcap_cmdarg_err_cont);
+
+    /* Initialize log handler early so we can have proper logging during startup. */
+    ws_log_init("editcap", vcmdarg_err);
 
     /* Early logging command-line initialization. */
     ws_log_parse_args(&argc, argv, vcmdarg_err, INVALID_OPTION);

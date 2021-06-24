@@ -2528,13 +2528,13 @@ int main(int argc, char *argv[]) {
     char            *help_url;
     char            *help_header = NULL;
 
+    cmdarg_err_init(androiddump_cmdarg_err, androiddump_cmdarg_err);
+
     /* Initialize log handler early so we can have proper logging during startup. */
     ws_log_init("androiddump", NULL);
 
-    cmdarg_err_init(androiddump_cmdarg_err, androiddump_cmdarg_err);
-
     /* Early logging command-line initialization. */
-    ws_log_parse_args(&argc, argv, vcmdarg_err, EXIT_FAILURE);
+    ws_log_parse_args(&argc, argv, NULL, LOG_ARGS_NOEXIT);
 
     /*
      * Get credential information for later use.

@@ -1581,11 +1581,10 @@ main(int argc, char *argv[])
   setlocale(LC_ALL, "");
 #endif
 
+  cmdarg_err_init(capinfos_cmdarg_err, capinfos_cmdarg_err_cont);
 
   /* Initialize log handler early so we can have proper logging during startup. */
-  ws_log_init("capinfos", NULL);
-
-  cmdarg_err_init(capinfos_cmdarg_err, capinfos_cmdarg_err_cont);
+  ws_log_init("capinfos", vcmdarg_err);
 
   /* Early logging command-line initialization. */
   ws_log_parse_args(&argc, argv, vcmdarg_err, INVALID_OPTION);

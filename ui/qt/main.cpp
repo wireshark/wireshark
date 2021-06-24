@@ -529,8 +529,10 @@ int main(int argc, char *qt_argv[])
     macos_enable_layer_backing();
 #endif
 
+    cmdarg_err_init(wireshark_cmdarg_err, wireshark_cmdarg_err_cont);
+
     /* Initialize log handler early so we can have proper logging during startup. */
-    ws_log_init("wireshark", console_log_writer);
+    ws_log_init_with_writer("wireshark", console_log_writer, vcmdarg_err);
 
     qInstallMessageHandler(qt_log_message_handler);
 
@@ -541,7 +543,6 @@ int main(int argc, char *qt_argv[])
 #ifdef DEBUG_STARTUP_TIME
     prefs.gui_console_open = console_open_always;
 #endif /* DEBUG_STARTUP_TIME */
-    cmdarg_err_init(wireshark_cmdarg_err, wireshark_cmdarg_err_cont);
 
 #if defined(Q_OS_MAC)
     /* Disable automatic addition of tab menu entries in view menu */
