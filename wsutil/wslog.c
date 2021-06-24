@@ -526,6 +526,11 @@ enum ws_log_level ws_log_set_fatal_str(const char *str_level)
 }
 
 
+/*
+ * We can't write to stderr in ws_log_init() because dumpcap uses stderr
+ * to communicate with the parent and it will block. Any failures are
+ * therefore ignored.
+ */
 void ws_log_init(const char *progname, ws_log_writer_cb *writer)
 {
     const char *env;
@@ -552,16 +557,16 @@ void ws_log_init(const char *progname, ws_log_writer_cb *writer)
     current_log_level = DEFAULT_LOG_LEVEL;
 
     env = g_getenv(ENV_VAR_LEVEL);
-    if (env != NULL && ws_log_set_level_str(env) == LOG_LEVEL_NONE)
-        fprintf(stderr, "Ignoring invalid environment value %s=\"%s\".\n", ENV_VAR_LEVEL, env);
+    if (env != NULL)
+        ws_log_set_level_str(env);
+
+    env = g_getenv(ENV_VAR_FATAL);
+    if (env != NULL)
+        ws_log_set_fatal_str(env);
 
     env = g_getenv(ENV_VAR_DOMAINS);
     if (env != NULL)
         ws_log_set_domain_filter(env);
-
-    env = g_getenv(ENV_VAR_FATAL);
-    if (env != NULL && ws_log_set_fatal_str(env) == LOG_LEVEL_NONE)
-        fprintf(stderr, "Ignoring invalid environment value %s=\"%s\".\n", ENV_VAR_FATAL, env);
 
     env = g_getenv(ENV_VAR_DEBUG);
     if (env != NULL)
