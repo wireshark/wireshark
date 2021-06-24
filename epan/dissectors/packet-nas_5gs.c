@@ -678,6 +678,9 @@ static const value_string nas_5gs_security_header_type_vals[] = {
     { 0,    NULL }
 };
 
+#define N1_SMINFO_FROM_UE "n1SmInfoFromUe"
+#define N1_SMINFO_TO_UE   "n1SmInfoToUe"
+#define UNKNOWN_N1_SMINFO "unknownN1SmInfo"
 
 #define TGPP_PD_5GMM 0x7e
 #define TGPP_PD_5GSM 0x2e
@@ -7293,6 +7296,121 @@ nas_5gs_sm_5gsm_status(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, 
 
 }
 
+/* TS 29.502 6.1.6.4.4 n1SmInfoFromUe, n1SmInfoToUe, unknownN1SmInfo */
+
+/*
+ * 6.1.6.4.4-1 n1SmInfoFromUE
+ */
+static void
+nas_5gs_n1_sm_info_from_ue(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+{
+    guint32 curr_offset;
+    guint32 consumed;
+    guint   curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    /* Direction: UE to network */
+    pinfo->link_dir = P2P_DIR_UL;
+
+    /*9-    PDU session type    PDU session type     9.11.4.5    O    TV    1*/
+    ELEM_OPT_TV_SHORT(0x90, NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_PDU_SESSION_TYPE, NULL);
+
+    /*A-    SSC mode    SSC mode     9.11.4.9    O    TV    1*/
+    ELEM_OPT_TV_SHORT(0xa0, NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_SSC_MODE, NULL);
+
+    /*55    Maximum number of supported packet filter    Maximum number of supported packet filter   9.11.4.9    O    TV    3*/
+    ELEM_OPT_TV(0x55, NAS_5GS_PDU_TYPE_SM,  DE_NAS_5GS_SM_MAX_NUM_SUP_PKT_FLT, NULL);
+
+    /* 13    Integrity protection maximum data rate    Integrity protection maximum data rate 9.11.4.7    O    TV    3 */
+    ELEM_OPT_TV(0x13, NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_INT_PROT_MAX_DATA_RTE, NULL);
+
+    /*39    SM PDU DN request container    SM PDU DN request container 9.11.4.15    O    TLV    3-255 */
+    ELEM_OPT_TLV(0x39, NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_PDU_DN_REQ_CONT, NULL);
+
+    /*7B    Extended protocol configuration options    Extended protocol configuration options     9.11.4.2    O    TLV-E    4-65538*/
+    ELEM_OPT_TLV_E(0x7B, NAS_PDU_TYPE_ESM, DE_ESM_EXT_PCO, NULL);
+
+    /*78    EAP message    EAP message 9.10.2.2    O    TLV - E    7 - 1503*/
+    ELEM_OPT_TLV_E(0x78,  NAS_5GS_PDU_TYPE_COMMON, DE_NAS_5GS_CMN_EAP_MESSAGE, NULL);
+
+    /* 7A    Requested QoS rules    QoS rules 9.11.4.13    O    TLV-E    3-65538 */
+    ELEM_OPT_TLV_E(0x7A, NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_QOS_RULES, " - Requested QoS rules");
+
+    /*79    Requested QoS flow descriptions     QoS flow descriptions     9.11.4.12    O    TLV-E    6-65538*/
+    ELEM_OPT_TLV_E(0x79, NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_QOS_FLOW_DES, " - Requested");
+
+    /* 59    5GSM cause    5GSM cause 9.11.4.2    O    TV    2 */
+    ELEM_OPT_TV(0x59, NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_5GSM_CAUSE, NULL);
+
+    /*28    5GSM capability    5GSM capability     9.11.4.10    O    TLV    3-15 */
+    ELEM_OPT_TLV(0x28, NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_5GSM_CAP, NULL);
+
+    /*75    Mapped EPS bearer contexts     Mapped EPS  bearer contexts     9.11.4.5    O    TLV-E    7-65538*/
+    ELEM_OPT_TLV_E(0x75, NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_MAPPED_EPS_B_CONT, NULL);
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_5gs_extraneous_data);
+}
+
+/*
+ * 6.1.6.4.4-2 n1SmInfoToUE
+ */
+static void
+nas_5gs_n1_sm_info_to_ue(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+{
+    guint32 curr_offset;
+    guint32 consumed;
+    guint   curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    /* Direction: network to UE*/
+    pinfo->link_dir = P2P_DIR_DL;
+
+    /*56    RQ timer value    GPRS timer     9.11.4.3    O    TV    2*/
+    ELEM_OPT_TV(0x56, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER, " - PDU session release time");
+
+    /*78    EAP message    EAP message 9.10.2.2    O    TLV - E    7 - 1503*/
+    ELEM_OPT_TLV_E(0x78,  NAS_5GS_PDU_TYPE_COMMON, DE_NAS_5GS_CMN_EAP_MESSAGE, NULL);
+
+    /*F-    Allowed SSC mode    Allowed SSC mode 9.11.4.3    O    TV    1*/
+    ELEM_OPT_TV_SHORT(0xF0, NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_5GSM_ALLOWED_SSC_MODE, NULL);
+
+    /*7B    Extended protocol configuration options    Extended protocol configuration options     9.11.4.2    O    TLV-E    4-65538*/
+    ELEM_OPT_TLV_E(0x7B, NAS_PDU_TYPE_ESM, DE_ESM_EXT_PCO, NULL);
+
+    /* 59    5GSM cause    5GSM cause 9.11.4.2    O    TV    2 */
+    ELEM_OPT_TV(0x59, NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_5GSM_CAUSE, NULL);
+
+    /*75    Mapped EPS bearer contexts     Mapped EPS  bearer contexts     9.11.4.5    O    TLV-E    7-65538*/
+    ELEM_OPT_TLV_E(0x75, NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_MAPPED_EPS_B_CONT, NULL);
+
+    /* 77    ATSSS container    ATSSS container 9.11.4.22    O    TLV-E    3-65538  */
+    ELEM_OPT_TLV_E(0x77, NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_ATSSS_CONT, NULL);
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_5gs_extraneous_data);
+}
+
+/*
+ * 6.1.6.4.4 unknownN1SmInfo
+ */
+static void
+nas_5gs_unknown_n1_sm_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+{
+    guint32 curr_offset;
+    guint   curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    /* Direction: network to UE*/
+    pinfo->link_dir = P2P_DIR_DL;
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_5gs_extraneous_data);
+}
+
 /* Traffic descriptor component type identifier */
 static const value_string nas_5gs_ursp_traff_desc_component_type_values[] = {
     { 0x01, "Match-all type" },
@@ -8208,8 +8326,6 @@ static void(*nas_5gs_sm_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info 
 
 };
 
-
-
 /* Table D.6.1.1: UE policy delivery service message type */
 static const value_string nas_5gs_updp_msg_strings[] = {
     { 0x0,    "Reserved"},
@@ -8378,6 +8494,45 @@ dissect_nas_5gs_mm_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
     {
         (*msg_fcn_p)(tvb, tree, pinfo, offset, len - offset);
     }
+
+}
+
+/* 6.1.6.4.4 n1SmInfoFromUe, n1SmInfoToUe, unknownN1SmInfo */
+static void
+dissect_nas_5gs_sm_info(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset, const char *n1_msg_class)
+{
+    guint32      len;
+    void(*msg_fcn_p)(tvbuff_t * tvb, proto_tree * tree, packet_info * pinfo, guint32 offset, guint len);
+
+    /* make entry in the Protocol column on summary display */
+    col_append_sep_str(pinfo->cinfo, COL_PROTOCOL, "/", "NAS-5GS");
+
+    len = tvb_reported_length(tvb);
+    msg_fcn_p = NULL;
+
+    if (!strcmp(n1_msg_class, N1_SMINFO_FROM_UE)) {
+        msg_fcn_p = nas_5gs_n1_sm_info_from_ue;
+    } else if (!strcmp(n1_msg_class, N1_SMINFO_TO_UE)) {
+        msg_fcn_p = nas_5gs_n1_sm_info_to_ue;
+    } else if (!strcmp(n1_msg_class, UNKNOWN_N1_SMINFO)) {
+        msg_fcn_p = nas_5gs_unknown_n1_sm_info;
+    } else {
+        proto_tree_add_expert_format(tree, pinfo, &ei_nas_5gs_sm_unknown_msg_type, tvb, offset, -1, "Unknown Message Type");
+        return;
+    }
+
+    col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, n1_msg_class);
+
+    /*
+    * Add PDCP message name
+    */
+    proto_tree_add_item(tree, hf_nas_5gs_sm_msg_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    /*
+    * decode elements
+    */
+    (*msg_fcn_p)(tvb, tree, pinfo, offset, len - offset);
 
 }
 
@@ -8677,21 +8832,28 @@ dissect_nas_5gs_media_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         str = json_get_string(json_data, cur_tok, "contentId");
     } else {
         cur_tok = json_get_object(json_data, tokens, "n1SmMsg");
-        /* TS 29.502 ch6.1.6.4.4 n1SmInfoFromUe, n1SmInfoToUe, unknownN1SmInfo */
-        if (!cur_tok) {
-            cur_tok = json_get_object(json_data, tokens, "n1SmInfoFromUe");
-        }
-        if (!cur_tok) {
-            cur_tok = json_get_object(json_data, tokens, "n1SmInfoToUe");
-        }
-        if (!cur_tok) {
-            cur_tok = json_get_object(json_data, tokens, "unknownN1SmInfo");
-        }
         if (cur_tok) {
             n1_msg_class = "SM";
             str = json_get_string(json_data, cur_tok, "contentId");
         } else {
-            return 0;
+            /* TS 29.502 ch6.1.6.4.4 n1SmInfoFromUe, n1SmInfoToUe, unknownN1SmInfo */
+            if (!cur_tok) {
+                cur_tok = json_get_object(json_data, tokens, N1_SMINFO_FROM_UE);
+                n1_msg_class = N1_SMINFO_FROM_UE;
+            }
+            if (!cur_tok) {
+                cur_tok = json_get_object(json_data, tokens, N1_SMINFO_TO_UE);
+                n1_msg_class = N1_SMINFO_TO_UE;
+            }
+            if (!cur_tok) {
+                cur_tok = json_get_object(json_data, tokens, UNKNOWN_N1_SMINFO);
+                n1_msg_class = UNKNOWN_N1_SMINFO;
+            }
+            if (cur_tok) {
+                str = json_get_string(json_data, cur_tok, "contentId");
+            } else {
+                return 0;
+            }
         }
     }
     if (!str || strcmp(str, message_info->content_id))
@@ -8699,6 +8861,11 @@ dissect_nas_5gs_media_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     if (!strcmp(n1_msg_class, "5GMM") ||
         !strcmp(n1_msg_class, "SM")) {
         subdissector = nas_5gs_handle;
+    } else if (!strcmp(n1_msg_class, N1_SMINFO_FROM_UE) ||
+               !strcmp(n1_msg_class, N1_SMINFO_TO_UE) ||
+               !strcmp(n1_msg_class, UNKNOWN_N1_SMINFO)) {
+        dissect_nas_5gs_sm_info(tvb, pinfo, tree, 0, n1_msg_class);
+        return tvb_captured_length(tvb);
     } else if (!strcmp(n1_msg_class, "LPP")) {
         subdissector = lpp_handle;
     } else if (!strcmp(n1_msg_class, "SMS")) {
