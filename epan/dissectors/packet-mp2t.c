@@ -242,7 +242,7 @@ static const fragment_items mp2t_msg_frag_items = {
 
 /* Data structure used for detecting CC drops
  *
- *  conversation
+ *  conversation + direction
  *    |
  *    +-> mp2t_analysis_data
  *          |
@@ -262,6 +262,34 @@ static const fragment_items mp2t_msg_frag_items = {
  *                            +-> ts_analysis_data
  *                            +-> ts_analysis_data
  */
+
+static wmem_map_t *mp2t_stream_hashtable = NULL;
+
+typedef struct {
+    const conversation_t* conv;
+    gint dir;
+} mp2t_stream_key;
+
+/* Hash functions */
+static gint
+mp2t_stream_equal(gconstpointer v, gconstpointer w)
+{
+    const mp2t_stream_key *v1 = (const mp2t_stream_key *)v;
+    const mp2t_stream_key *v2 = (const mp2t_stream_key *)w;
+    gint result;
+    result = (v1->conv == v2->conv && v1->dir == v2->dir);
+    return result;
+}
+
+static guint
+mp2t_stream_hash(gconstpointer v)
+{
+    const mp2t_stream_key *key = (const mp2t_stream_key *)v;
+    /* Actually getting multiple streams in opposite directions is
+     * quite unlikely, so to optimize don't include it in the hash */
+    guint hash_val = GPOINTER_TO_UINT(key->conv);
+    return hash_val;
+}
 
 typedef struct mp2t_analysis_data {
 
@@ -355,14 +383,19 @@ init_mp2t_conversation_data(void)
 }
 
 static mp2t_analysis_data_t *
-get_mp2t_conversation_data(conversation_t *conv)
+get_mp2t_conversation_data(conversation_t *conv, gint dir)
 {
+    mp2t_stream_key       key, *new_key;
     mp2t_analysis_data_t *mp2t_data;
+    key.conv = conv;
+    key.dir = dir;
 
-    mp2t_data = (mp2t_analysis_data_t *)conversation_get_proto_data(conv, proto_mp2t);
+    mp2t_data = (mp2t_analysis_data_t *)wmem_map_lookup(mp2t_stream_hashtable, &key);
     if (!mp2t_data) {
+        new_key = wmem_new(wmem_file_scope(), mp2t_stream_key);
+        *new_key = key;
         mp2t_data = init_mp2t_conversation_data();
-        conversation_add_proto_data(conv, proto_mp2t, mp2t_data);
+        wmem_map_insert(mp2t_stream_hashtable, new_key, mp2t_data);
     }
 
     return mp2t_data;
@@ -1176,13 +1209,12 @@ dissect_mp2t_adaptation_field(tvbuff_t *tvb, gint offset, proto_tree *tree)
 
 static void
 dissect_tsp(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-        proto_tree *tree, conversation_t *conv)
+        proto_tree *tree, mp2t_analysis_data_t *mp2t_data)
 {
     guint32              header;
     guint                afc;
     gint                 start_offset = offset;
     gint                 payload_len;
-    mp2t_analysis_data_t *mp2t_data;
     pid_analysis_data_t *pid_analysis;
 
     guint32     skips;
@@ -1224,8 +1256,6 @@ dissect_tsp(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     proto_tree_add_item( mp2t_header_tree, hf_mp2t_tsc, tvb, offset, 4, ENC_BIG_ENDIAN);
     afci = proto_tree_add_item( mp2t_header_tree, hf_mp2t_afc, tvb, offset, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item( mp2t_header_tree, hf_mp2t_cc, tvb, offset, 4, ENC_BIG_ENDIAN);
-
-    mp2t_data = get_mp2t_conversation_data(conv);
 
     pid_analysis = get_pid_analysis(mp2t_data, pid);
 
@@ -1296,11 +1326,28 @@ dissect_tsp(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 static int
 dissect_mp2t( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_ )
 {
-    volatile guint offset = 0;
-    conversation_t *conv;
-    const char     *saved_proto;
+    volatile guint        offset = 0;
+    conversation_t       *conv;
+    mp2t_analysis_data_t *mp2t_data;
+    gint                  dir;
+    const char           *saved_proto;
 
     conv = find_or_create_conversation(pinfo);
+    /* Conversations on UDP, etc. are bidirectional, but in the odd case
+     * that we have two MP2T streams in the opposite directions, we have to
+     * separately track their Continuity Counters, manage their fragmentation
+     * status information, etc.
+     */
+    if (addresses_equal(&pinfo->src, conversation_key_addr1(conv->key_ptr))) {
+        dir = P2P_DIR_SENT;
+    } else if (addresses_equal(&pinfo->dst, conversation_key_addr1(conv->key_ptr))) {
+        dir = P2P_DIR_RECV;
+    } else {
+        /* DVB Base Band Frames, or some other endpoint that doesn't set the
+         * address, presumably unidirectional.
+         */
+        dir = P2P_DIR_SENT;
+    }
 
     for (; tvb_reported_length_remaining(tvb, offset) >= MP2T_PACKET_SIZE; offset += MP2T_PACKET_SIZE) {
         /*
@@ -1317,7 +1364,8 @@ dissect_mp2t( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
          */
         saved_proto = pinfo->current_proto;
         TRY {
-            dissect_tsp(tvb, offset, pinfo, tree, conv);
+            mp2t_data = get_mp2t_conversation_data(conv, dir);
+            dissect_tsp(tvb, offset, pinfo, tree, mp2t_data);
         }
         CATCH_NONFATAL_ERRORS {
             show_exception(tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
@@ -1649,6 +1697,8 @@ proto_register_mp2t(void)
     /* Register init of processing of fragmented DEPI packets */
     reassembly_table_register(&mp2t_reassembly_table,
         &addresses_ports_reassembly_table_functions);
+
+    mp2t_stream_hashtable = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), mp2t_stream_hash, mp2t_stream_equal);
 }
 
 
