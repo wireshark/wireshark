@@ -4198,7 +4198,7 @@ btmesh_network_find_key_and_decrypt(tvbuff_t *tvb, packet_info *pinfo, guint8 **
     /* Get the next record to try */
     for (i = 0; i < num_btmesh_uat; i++) {
         record = &uat_btmesh_records[i];
-        if (nid == record->nid) {
+        if (record->valid == BTMESH_KEY_ENTRY_VALID && nid == record->nid) {
             offset = 1;
             de_obf_tvb = btmesh_deobfuscate(tvb, pinfo, offset, record);
 
@@ -4515,7 +4515,7 @@ dissect_btmesh_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 #endif /* GCRYPT_VERSION_NUMBER >= 0x010600 */
 
 static gint
-compute_ascii_key(guchar **ascii_key, const gchar *key)
+compute_ascii_key(guchar **ascii_key, const gchar *key, const gchar *key_name, guint expected_octets, char **err)
 {
     guint key_len = 0, raw_key_len;
     gint hex_digit;
@@ -4525,7 +4525,9 @@ compute_ascii_key(guchar **ascii_key, const gchar *key)
     if (key != NULL)
     {
         raw_key_len = (guint)strlen(key);
-        if ((raw_key_len > 2) && (key[0] == '0') && ((key[1] == 'x') || (key[1] == 'X')))
+        if (((raw_key_len == expected_octets * 2 + 2) || (raw_key_len == expected_octets * 2 + 1)) &&
+            (key[0] == '0')
+            && ((key[1] == 'x') || (key[1] == 'X')))
         {
             /*
              * Key begins with "0x" or "0X"; skip that and treat the rest
@@ -4548,6 +4550,7 @@ compute_ascii_key(guchar **ascii_key, const gchar *key)
                 {
                     g_free(*ascii_key);
                     *ascii_key = NULL;
+                    *err = g_strdup_printf("Key %s begins with an invalid hex char (%c)", key, key[i]);
                     return -1;    /* not a valid hex digit */
                 }
                 (*ascii_key)[j] = (guchar)hex_digit;
@@ -4562,7 +4565,6 @@ compute_ascii_key(guchar **ascii_key, const gchar *key)
                 key_len = (raw_key_len - 2) / 2;
                 *ascii_key = (guchar *)g_malloc((key_len + 1) * sizeof(gchar));
             }
-
             while (i < (raw_key_len - 1))
             {
                 hex_digit = g_ascii_xdigit_value(key[i]);
@@ -4571,6 +4573,7 @@ compute_ascii_key(guchar **ascii_key, const gchar *key)
                 {
                     g_free(*ascii_key);
                     *ascii_key = NULL;
+                    *err = g_strdup_printf("%s %s has an invalid hex char (%c)", key_name, key, key[i-1]);
                     return -1;    /* not a valid hex digit */
                 }
                 key_byte = ((guchar)hex_digit) << 4;
@@ -4580,6 +4583,7 @@ compute_ascii_key(guchar **ascii_key, const gchar *key)
                 {
                     g_free(*ascii_key);
                     *ascii_key = NULL;
+                    *err = g_strdup_printf("%s %s has an invalid hex char (%c)", key_name, key, key[i-1]);
                     return -1;    /* not a valid hex digit */
                 }
                 key_byte |= (guchar)hex_digit;
@@ -4587,23 +4591,17 @@ compute_ascii_key(guchar **ascii_key, const gchar *key)
                 j++;
             }
             (*ascii_key)[j] = '\0';
-        }
-
-        else if ((raw_key_len == 2) && (key[0] == '0') && ((key[1] == 'x') || (key[1] == 'X')))
-        {
-            return 0;
-        }
-        else
-        {
-            key_len = raw_key_len;
-            *ascii_key = (guchar*)g_strdup(key);
+        } else {
+            *ascii_key = NULL;
+            *err = g_strdup_printf("%s %s has to start with '0x' or '0X', and represent exactly %d octets", key_name, key, expected_octets);
+            return -1;
         }
     }
     return key_len;
 }
 
 static gboolean
-uat_btmesh_record_update_cb(void *r, char **err _U_)
+uat_btmesh_record_update_cb(void *r, char **err)
 {
     uat_btmesh_record_t *rec = (uat_btmesh_record_t *)r;
 
@@ -4612,34 +4610,34 @@ uat_btmesh_record_update_cb(void *r, char **err _U_)
     /* Compute keys & lengths once and for all */
     if (rec->network_key_string) {
         g_free(rec->network_key);
-        rec->network_key_length = compute_ascii_key(&rec->network_key, rec->network_key_string);
+        rec->network_key_length = compute_ascii_key(&rec->network_key, rec->network_key_string, "Network Key", 16, err);
         g_free(rec->encryptionkey);
         rec->encryptionkey = g_new(guint8, 16);
         memset(rec->encryptionkey, 0, 16 * sizeof(guint8));
         g_free(rec->privacykey);
         rec->privacykey = g_new(guint8, 16);
-        if (create_master_security_keys(rec)) {
+        if (*err == NULL && create_master_security_keys(rec)) {
             rec->valid++;
         }
     } else {
         rec->network_key_length = 0;
         rec->network_key = NULL;
     }
-    if (rec->application_key_string) {
+    if (*err == NULL && rec->application_key_string) {
         g_free(rec->application_key);
-        rec->application_key_length = compute_ascii_key(&rec->application_key, rec->application_key_string);
+        rec->application_key_length = compute_ascii_key(&rec->application_key, rec->application_key_string, "Application Key", 16, err);
         /* compute AID */
-        if (k4(rec)) {
+        if (*err == NULL && k4(rec)) {
             rec->valid++;
         }
     } else {
         rec->application_key_length = 0;
         rec->application_key = NULL;
     }
-    if (rec->ivindex_string) {
+    if (*err == NULL && rec->ivindex_string) {
         g_free(rec->ivindex);
-        rec->ivindex_string_length = compute_ascii_key(&rec->ivindex, rec->ivindex_string);
-        if (rec->ivindex_string_length == 4) {
+        rec->ivindex_string_length = compute_ascii_key(&rec->ivindex, rec->ivindex_string, "IVindex", 4, err);
+        if (*err == NULL) {
             rec->valid++;
         }
     }
@@ -4655,7 +4653,7 @@ uat_btmesh_record_update_cb(void *r, char **err _U_)
         g_free(hash_buf);
         rec->valid++;
     }
-    return TRUE;
+    return rec->valid == BTMESH_KEY_ENTRY_VALID;
 }
 
 static void *
@@ -4672,8 +4670,11 @@ uat_btmesh_record_copy_cb(void *n, const void *o, size_t siz _U_)
     new_rec->ivindex_string = g_strdup(old_rec->ivindex_string);
 
     /* Parse keys as in an update */
-    uat_btmesh_record_update_cb(new_rec, NULL);
-
+    char *err = NULL;
+    uat_btmesh_record_update_cb(new_rec, &err);
+    if (err) {
+        g_free(err);
+    }
     return new_rec;
 }
 
@@ -4697,7 +4698,7 @@ UAT_CSTRING_CB_DEF(uat_btmesh_records, application_key_string, uat_btmesh_record
 UAT_CSTRING_CB_DEF(uat_btmesh_records, ivindex_string, uat_btmesh_record_t)
 
 static gboolean
-uat_btmesh_dev_key_record_update_cb(void *r, char **err _U_)
+uat_btmesh_dev_key_record_update_cb(void *r, char **err)
 {
     uat_btmesh_dev_key_record_t *rec = (uat_btmesh_dev_key_record_t *)r;
 
@@ -4706,25 +4707,25 @@ uat_btmesh_dev_key_record_update_cb(void *r, char **err _U_)
     /* Compute key & lengths once and for all */
     if (rec->device_key_string) {
         g_free(rec->device_key);
-        rec->device_key_length = compute_ascii_key(&rec->device_key, rec->device_key_string);
-        if (rec->device_key_length == 16) {
+        rec->device_key_length = compute_ascii_key(&rec->device_key, rec->device_key_string, "Device Key", 16, err);
+        if (*err == NULL) {
             rec->valid++;
         }
     } else {
         rec->device_key_length = 0;
         rec->device_key = NULL;
     }
-    if (rec->src_string) {
+    if (*err == NULL && rec->src_string) {
         g_free(rec->src);
-        rec->src_length = compute_ascii_key(&rec->src, rec->src_string);
-        if (rec->src_length == 2) {
+        rec->src_length = compute_ascii_key(&rec->src, rec->src_string, "SRC Address", 2, err);
+        if (*err == NULL) {
             rec->valid++;
         }
     } else {
         rec->src_length = 0;
         rec->src = NULL;
     }
-    return TRUE;
+    return rec->valid == BTMESH_DEVICE_KEY_ENTRY_VALID;
 }
 
 static void *
@@ -4740,8 +4741,11 @@ uat_btmesh_dev_key_record_copy_cb(void *n, const void *o, size_t siz _U_)
     new_rec->src_string = g_strdup(old_rec->src_string);
 
     /* Parse key and src as in an update */
-    uat_btmesh_dev_key_record_update_cb(new_rec, NULL);
-
+    char *err = NULL;
+    uat_btmesh_dev_key_record_update_cb(new_rec, &err);
+    if (err) {
+        g_free(err);
+    }
     return new_rec;
 }
 
@@ -4760,7 +4764,7 @@ UAT_CSTRING_CB_DEF(uat_btmesh_dev_key_records, device_key_string, uat_btmesh_dev
 UAT_CSTRING_CB_DEF(uat_btmesh_dev_key_records, src_string, uat_btmesh_dev_key_record_t)
 
 static gboolean
-uat_btmesh_label_uuid_record_update_cb(void *r, char **err _U_)
+uat_btmesh_label_uuid_record_update_cb(void *r, char **err)
 {
     uat_btmesh_label_uuid_record_t *rec = (uat_btmesh_label_uuid_record_t *)r;
 
@@ -4769,15 +4773,15 @@ uat_btmesh_label_uuid_record_update_cb(void *r, char **err _U_)
     /* Compute label UUID & lengths */
     if (rec->label_uuid_string) {
         g_free(rec->label_uuid);
-        rec->label_uuid_length = compute_ascii_key(&rec->label_uuid, rec->label_uuid_string);
-        if (label_uuid_hash(rec)) {
+        rec->label_uuid_length = compute_ascii_key(&rec->label_uuid, rec->label_uuid_string, "Label UUID", 16, err);
+        if (*err == NULL && label_uuid_hash(rec)) {
             rec->valid++;
         }
     } else {
         rec->label_uuid_length = 0;
         rec->label_uuid = NULL;
     }
-    return TRUE;
+    return rec->valid == BTMESH_LABEL_UUID_ENTRY_VALID;
 }
 
 static void *
@@ -4792,7 +4796,11 @@ uat_btmesh_label_uuid_record_copy_cb(void *n, const void *o, size_t siz _U_)
     new_rec->label_uuid_string = g_strdup(old_rec->label_uuid_string);
 
     /* Parse Label UUID as in an update */
-    uat_btmesh_label_uuid_record_update_cb(new_rec, NULL);
+    char *err = NULL;
+    uat_btmesh_label_uuid_record_update_cb(new_rec, &err);
+    if (err) {
+        g_free(err);
+    }
 
     return new_rec;
 }
