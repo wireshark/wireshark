@@ -449,54 +449,65 @@ mp2t_get_packet_length(tvbuff_t *tvb, guint offset, packet_info *pinfo,
     gint           pkt_len = 0;
     guint          remaining_len;
 
-    frag = fragment_get(&mp2t_reassembly_table, pinfo, frag_id, NULL);
-    if (frag)
-        frag = frag->next;
-
-    if (!frag) { /* First frame */
-        remaining_len = tvb_reported_length_remaining(tvb, offset);
-        if ( (pload_type == pid_pload_docsis && remaining_len < 4) ||
-                (pload_type == pid_pload_sect && remaining_len < 3) ||
-                (pload_type == pid_pload_pes && remaining_len < 5) ) {
-            /* Not enough info to determine the size of the encapsulated packet */
-            /* Just add the fragment and we'll check out the length later */
+    if (pinfo->fd->visited) {
+        frag = fragment_get_reassembled_id(&mp2t_reassembly_table, pinfo, frag_id);
+        if (!frag) {
+            /* Not reassembled on the first pass, i.e. at the end of the
+             * capture. We're not going to reassemble it, so just return -1.
+             */
             return -1;
         }
-
-        len_tvb = tvb;
+        len_tvb = frag->tvb_data;
+        offset = 0;
     } else {
-        /* Create a composite tvb out of the two */
-        frag_tvb = tvb_new_subset_remaining(frag->tvb_data, 0);
-        len_tvb = tvb_new_composite();
-        tvb_composite_append(len_tvb, frag_tvb);
+        frag = fragment_get(&mp2t_reassembly_table, pinfo, frag_id, NULL);
+        if (frag)
+            frag = frag->next;
 
-        data_tvb = tvb_new_subset_remaining(tvb, offset);
-        tvb_composite_append(len_tvb, data_tvb);
-        tvb_composite_finalize(len_tvb);
+        if (!frag) { /* First frame */
+            len_tvb = tvb;
+        } else {
+            /* Create a composite tvb out of the two */
+            frag_tvb = tvb_new_subset_remaining(frag->tvb_data, 0);
+            len_tvb = tvb_new_composite();
+            tvb_composite_append(len_tvb, frag_tvb);
 
-        offset = frag->offset;
+            data_tvb = tvb_new_subset_remaining(tvb, offset);
+            tvb_composite_append(len_tvb, data_tvb);
+            tvb_composite_finalize(len_tvb);
+
+            offset = frag->offset;
+        }
     }
 
-    /* Get the next packet's size if possible */
+    /* Get the next packet's size if possible; if not, return -1 */
+    remaining_len = tvb_reported_length_remaining(len_tvb, offset);
+    /* Normally the only time we would not enough info to determine the size
+     * of the encapsulated packet is when the first fragment is at the very end
+     * of a TSP, but prevent exceptions in the case of dropped and OOO frames.
+     */
     switch (pload_type) {
         case pid_pload_docsis:
+            if (remaining_len < 4)
+                return -1;
             pkt_len = tvb_get_ntohs(len_tvb, offset + 2) + 6;
             break;
         case pid_pload_pes:
+            if (remaining_len < 6)
+                return -1;
             pkt_len = tvb_get_ntohs(len_tvb, offset + 4);
             if (pkt_len) /* A size of 0 means size not bounded */
                 pkt_len += 6;
             break;
         case pid_pload_sect:
+            if (remaining_len < 3)
+                return -1;
             pkt_len = (tvb_get_ntohs(len_tvb, offset + 1) & 0xFFF) + 3;
             break;
         default:
             /* Should not happen */
             break;
     }
-
-    if (frag_tvb)
-        tvb_free(frag_tvb);
 
     return pkt_len;
 }
