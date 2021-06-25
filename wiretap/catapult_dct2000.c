@@ -583,7 +583,7 @@ catapult_dct2000_dump(wtap_dumper *wdh, const wtap_rec *rec,
     const union wtap_pseudo_header *pseudo_header = &rec->rec_header.packet_header.pseudo_header;
     guint32 n;
     line_prefix_info_t *prefix = NULL;
-    gchar time_string[16];
+    gchar time_string[MAX_TIMESTAMP_LEN];
     gboolean is_comment;
     gboolean is_sprint = FALSE;
     dct2000_dump_t *dct2000;
