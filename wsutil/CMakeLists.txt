@@ -122,6 +122,7 @@ set(WSUTIL_COMMON_FILES
 	type_util.c
 	unicode-utils.c
 	glib-compat.c
+	ws_assert.c
 	ws_mempbrk.c
 	ws_pipe.c
 	wsgcrypt.c

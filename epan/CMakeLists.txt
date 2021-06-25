@@ -386,7 +386,7 @@ install(FILES ${LIBWIRESHARK_PUBLIC_HEADERS}
 )
 
 add_executable(exntest EXCLUDE_FROM_ALL exntest.c except.c)
-target_link_libraries(exntest ${GLIB2_LIBRARIES})
+target_link_libraries(exntest epan)
 set_target_properties(exntest PROPERTIES
 	FOLDER "Tests"
 	EXCLUDE_FROM_DEFAULT_BUILD True
