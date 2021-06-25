@@ -178,20 +178,20 @@ static const value_string delim_desc[] = {
 static guint32
 get_preamble_length(tvbuff_t *tvb) {
 
-    guint32 index = 0;
+    guint32 offset = 0;
 
-    if( 0x50 == tvb_get_guint8(tvb, index) )
+    if( 0x50 == tvb_get_guint8(tvb, offset) )
     {
         //First octet contains preamble alignment bits. Ignore it.
-        index = 1;
+        offset = 1;
     }
 
-    while( tvb_get_guint8(tvb, index) == Octet_0x55 && ( index + 2 < tvb_reported_length(tvb) ) )
+    while( tvb_get_guint8(tvb, offset) == Octet_0x55 && ( offset + 2 < tvb_reported_length(tvb) ) )
     {
-        index++;
+        offset++;
     }
 
-    guint8 smd1 = tvb_get_guint8(tvb, index);
+    guint8 smd1 = tvb_get_guint8(tvb, offset);
 
     switch (smd1) {
         case SMD_PP_Start_0:
@@ -201,12 +201,12 @@ get_preamble_length(tvbuff_t *tvb) {
         case SMD_Verify:
         case SMD_Respond:
         case SMD_Express:
-            return index + 1;
+            return offset + 1;
         case SMD_PP_ContFrag_0:
         case SMD_PP_ContFrag_1:
         case SMD_PP_ContFrag_2:
         case SMD_PP_ContFrag_3:
-            return index + 2;
+            return offset + 2;
         default:
             return FPP_DEFAULT_PREAMBLE_LENGTH;
     }
@@ -231,21 +231,21 @@ static fpp_packet_t
 get_packet_type(tvbuff_t *tvb) {
     /* function analyze a packet based on preamble and ignore crc */
 
-    guint32 index = 0;
+    guint32 offset = 0;
 
-    if( 0x50 == tvb_get_guint8(tvb, index) )
+    if( 0x50 == tvb_get_guint8(tvb, offset) )
     {
         //First octet contains preamble alignment bits. Ignore it.
-        index = 1;
+        offset = 1;
     }
 
-    while( tvb_get_guint8(tvb, index) == Octet_0x55 && ( index + 2 < tvb_reported_length(tvb) ) )
+    while( tvb_get_guint8(tvb, offset) == Octet_0x55 && ( offset + 2 < tvb_reported_length(tvb) ) )
     {
-        index++;
+        offset++;
     }
 
-    guint8 smd1 = tvb_get_guint8(tvb, index);
-    guint8 smd2 = tvb_get_guint8(tvb, index + 1);
+    guint8 smd1 = tvb_get_guint8(tvb, offset);
+    guint8 smd2 = tvb_get_guint8(tvb, offset + 1);
 
     switch (smd1) {
         case SMD_PP_Start_0:
