@@ -13,17 +13,15 @@
 #include <string.h>
 #include <errno.h>
 #include <time.h>
-#include <stdarg.h>
+#include <assert.h>
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
 #ifdef _WIN32
 #include <process.h>
 #endif
-#include <ws_attributes.h>
 
-#include <wsutil/ws_assert.h>
-#include <wsutil/file_util.h>
+#include "file_util.h"
 
 
 /* Runtime log level. */
@@ -153,11 +151,10 @@ static inline const char *domain_to_string(const char *domain)
 
 static inline gboolean filter_contains(log_filter_t *filter, const char *domain)
 {
-    ws_assert(filter);
-    ws_assert(domain);
-    char **domv;
+    if (filter == NULL || DOMAIN_UNDEFED(domain))
+        return FALSE;
 
-    for (domv = filter->domainv; *domv != NULL; domv++) {
+    for (char **domv = filter->domainv; *domv != NULL; domv++) {
         if (g_ascii_strcasecmp(*domv, domain) == 0) {
             return TRUE;
         }
@@ -166,28 +163,27 @@ static inline gboolean filter_contains(log_filter_t *filter, const char *domain)
 }
 
 
-static gboolean level_filter_matches(log_filter_t *filter,
+static inline gboolean level_filter_matches(log_filter_t *filter,
                                         const char *domain,
                                         enum ws_log_level level,
-                                        gboolean *active)
+                                        gboolean *active_ptr)
 {
-    ws_assert(filter);
-    ws_assert(filter->min_level != LOG_LEVEL_NONE);
-    ws_assert(domain != NULL);
-    ws_assert(level != LOG_LEVEL_NONE);
-    ws_assert(active != NULL);
+    if (filter == NULL || DOMAIN_UNDEFED(domain))
+        return FALSE;
 
     if (filter_contains(filter, domain) == FALSE)
         return FALSE;
 
     if (filter->positive) {
-        *active = level >= filter->min_level;
+        if (active_ptr)
+            *active_ptr = level >= filter->min_level;
         return TRUE;
     }
 
     /* negative match */
     if (level <= filter->min_level) {
-        *active = FALSE;
+        if (active_ptr)
+            *active_ptr = FALSE;
         return TRUE;
     }
 
@@ -209,9 +205,10 @@ gboolean ws_log_msg_is_active(const char *domain, enum ws_log_level level)
      */
     if (DOMAIN_DEFINED(domain)) {
         gboolean active;
-        if (noisy_filter && level_filter_matches(noisy_filter, domain, level, &active))
+
+        if (level_filter_matches(noisy_filter, domain, level, &active))
             return active;
-        if (debug_filter && level_filter_matches(debug_filter, domain, level, &active))
+        if (level_filter_matches(debug_filter, domain, level, &active))
             return active;
     }
 
@@ -253,9 +250,9 @@ enum ws_log_level ws_log_get_level(void)
 
 enum ws_log_level ws_log_set_level(enum ws_log_level log_level)
 {
-    ws_assert(log_level > LOG_LEVEL_NONE && log_level < _LOG_LEVEL_LAST);
+    if (log_level > LOG_LEVEL_NONE && log_level < _LOG_LEVEL_LAST)
+        current_log_level = log_level;
 
-    current_log_level = log_level;
     return current_log_level;
 }
 
@@ -432,8 +429,7 @@ int ws_log_parse_args(int *argc_ptr, char *argv[],
 
 static void free_log_filter(log_filter_t **filter_ptr)
 {
-    ws_assert(filter_ptr);
-    if (*filter_ptr == NULL)
+    if (filter_ptr == NULL || *filter_ptr == NULL)
         return;
     g_strfreev((*filter_ptr)->domainv);
     g_free(*filter_ptr);
@@ -450,8 +446,8 @@ static void tokenize_filter_str(log_filter_t **filter_ptr, const char *str_filte
     gboolean negated = FALSE;
     log_filter_t *filter;
 
-    ws_assert(filter_ptr);
-    ws_assert(*filter_ptr == NULL);
+    assert(filter_ptr);
+    assert(*filter_ptr == NULL);
 
     if (str_filter == NULL)
         return;
@@ -508,8 +504,6 @@ void ws_log_set_noisy_filter(const char *str_filter)
 
 enum ws_log_level ws_log_set_fatal(enum ws_log_level log_level)
 {
-    ws_assert(log_level > LOG_LEVEL_NONE);
-
     /* Not possible to set lower priority than "warning" to fatal. */
     if (log_level < LOG_LEVEL_WARNING)
         return LOG_LEVEL_NONE;
@@ -574,10 +568,10 @@ void ws_log_init(const char *progname, ws_log_writer_cb *writer)
         registered_log_writer = writer;
 
 #if GLIB_CHECK_VERSION(2,50,0)
-    color_enabled = g_log_writer_supports_color(ws_fileno(stderr));
+    color_enabled = g_log_writer_supports_color(fileno(stderr));
 #elif !defined(_WIN32)
     /* We assume every non-Windows console supports color. */
-    color_enabled = (ws_isatty(ws_fileno(stderr)) == 1);
+    color_enabled = (isatty(fileno(stderr)) == 1);
 #else
      /* Our Windows build version of GLib is pretty recent, we are probably
       * fine here, unless we want to do better than GLib. */
@@ -656,7 +650,7 @@ static inline const char *msg_color_on(gboolean enable, enum ws_log_level level)
     else if (level <= LOG_LEVEL_ERROR)
         return RED;
     else
-        ws_assert_not_reached();
+        return "";
 }
 
 static inline const char *color_off(gboolean enable)
@@ -748,10 +742,8 @@ static void log_write_dispatch(const char *domain, enum ws_log_level level,
 
     g_free(tstamp);
 
-    ws_assert(level != LOG_LEVEL_NONE);
     if (level >= fatal_log_level) {
-        G_BREAKPOINT();
-        ws_assert_not_reached();
+        abort();
     }
 }
 

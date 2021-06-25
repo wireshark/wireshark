@@ -9,11 +9,13 @@
 #ifndef __WSLOG_H__
 #define __WSLOG_H__
 
-#include <ws_log_defs.h>
 #include <ws_symbol_export.h>
+#include <ws_attributes.h>
 #include <glib.h>
 #include <stdio.h>
 #include <stdarg.h>
+
+#include <ws_log_defs.h>
 
 /*
  * Define the macro WS_LOG_DOMAIN *before* including this header,
