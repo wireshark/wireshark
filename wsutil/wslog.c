@@ -201,6 +201,12 @@ gboolean ws_log_msg_is_active(const char *domain, enum ws_log_level level)
         return TRUE;
 
     /*
+     * Check if the level has been configured as fatal.
+     */
+    if (level >= fatal_log_level)
+        return TRUE;
+
+    /*
      * The debug/noisy filter overrides the other parameters.
      */
     if (DOMAIN_DEFINED(domain)) {
