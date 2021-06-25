@@ -11,9 +11,10 @@
 #ifndef _CODECS_H_
 #define _CODECS_H_
 
-#include <epan/epan.h>
 #include "ws_symbol_export.h"
 #include "ws_attributes.h"
+
+#include <glib.h>
 
 #ifdef __cplusplus
 extern "C" {
