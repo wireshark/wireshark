@@ -1179,11 +1179,6 @@ while ($_ = pop @filelist)
             $errorCount += check_hf_entries(\$fileContents, $filename);
         }
 
-        if ($fileContents =~ m{ __func__ }xo)
-        {
-                print STDERR "Error: Found __func__ (which is not portable, use G_STRFUNC) in " .$filename."\n";
-                $errorCount++;
-        }
         if ($fileContents =~ m{ %ll }xo)
         {
                 # use G_GINT64_MODIFIER instead of ll
