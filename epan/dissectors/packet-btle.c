@@ -1119,14 +1119,18 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             proto_tree_add_item(ext_header_tree, hf_extended_advertising_mode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset += 1;
 
-            ext_flags_item = proto_tree_add_item(ext_header_tree, hf_extended_advertising_flags, tvb, offset, 1, ENC_NA);
-            ext_flags_tree = proto_item_add_subtree(ext_flags_item, ett_extended_advertising_flags);
+            if (ext_header_len > 0) {
+                ext_flags_item = proto_tree_add_item(ext_header_tree, hf_extended_advertising_flags, tvb, offset, 1, ENC_NA);
+                ext_flags_tree = proto_item_add_subtree(ext_flags_item, ett_extended_advertising_flags);
 
-            proto_tree_add_bitmask_list(ext_flags_tree, tvb, offset, 1, hfx_extended_advertising_flags, ENC_NA);
-            flags = tvb_get_guint8(tvb, offset);
-            offset += 1;
+                proto_tree_add_bitmask_list(ext_flags_tree, tvb, offset, 1, hfx_extended_advertising_flags, ENC_NA);
+                flags = tvb_get_guint8(tvb, offset);
+                offset += 1;
 
-            acad_len -= 1;
+                acad_len -= 1;
+            } else {
+                flags = 0;
+            }
 
             if (flags & 0x01) {
                 /* Advertiser Address */
