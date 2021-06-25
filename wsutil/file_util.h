@@ -13,8 +13,6 @@
 
 #include <glib.h>
 
-#include "config.h"
-
 #include "ws_symbol_export.h"
 
 #ifdef _WIN32
