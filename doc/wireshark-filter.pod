@@ -11,10 +11,10 @@ wireshark-filter - Wireshark display filter syntax and reference
 =head1 SYNOPSIS
 
 B<wireshark> [other options]
-S<[ B<-Y> "display filter expression" | b<--display-filter> "display filter expression" ]>
+S<[ B<-Y> "display filter expression" | B<--display-filter> "display filter expression" ]>
 
 B<tshark> [other options]
-S<[ B<-Y> "display filter expression" ]>
+S<[ B<-Y> "display filter expression" | B<--display-filter> "display filter expression" ]>
 
 =head1 DESCRIPTION
 
@@ -81,14 +81,14 @@ implemented for protocols and for protocol fields with a text string
 representation. Matches are case-insensitive by default.  For example,
 to search for a given WAP WSP User-Agent, you can write:
 
-    wsp.user_agent matches "cldc"
+    wsp.header.user_agent matches "cldc"
 
 This would match "cldc", "CLDC", "cLdC" or any other combination of upper
 and lower case letters.
 
 You can force case sensitivity using
 
-    wsp.user_agent matches "(?-i)cldc"
+    wsp.header.user_agent matches "(?-i)cldc"
 
 This is an example of PCRE's B<(?>optionB<)> construct. B<(?-i)> performs a
 case-sensitive pattern match but other options can be specified as well. More
@@ -150,12 +150,12 @@ An integer may be expressed in decimal, octal, or hexadecimal notation,
 or as a C-style character constant.  The following six display filters
 are equivalent:
 
-    frame.pkt_len > 10
-    frame.pkt_len > 012
-    frame.pkt_len > 0xa
-    frame.pkt_len > '\n'
-    frame.pkt_len > '\xa'
-    frame.pkt_len > '\012'
+    frame.len > 10
+    frame.len > 012
+    frame.len > 0xa
+    frame.len > '\n'
+    frame.len > '\x0a'
+    frame.len > '\012'
 
 Boolean values are either true or false.  In a display filter expression
 testing the value of a Boolean field, "true" is expressed as 1 or any
@@ -180,8 +180,8 @@ digits.  The hex digits may be separated by colons, periods, or hyphens:
 IPv4 addresses can be represented in either dotted decimal notation or
 by using the hostname:
 
-    ip.dst eq www.mit.edu
     ip.src == 192.168.1.1
+    ip.dst eq www.mit.edu
 
 IPv4 addresses can be compared with the same logical relations as numbers:
 eq, ne, gt, ge, lt, and le.  The IPv4 address is stored in host order,
@@ -197,7 +197,7 @@ will find all packets in the 129.111 Class-B network:
 Remember, the number after the slash represents the number of bits used
 to represent the network.  CIDR notation can also be used with
 hostnames, as in this example of finding IP addresses on the same Class C
-network as 'sneezy':
+network as 'sneezy' (requires that 'sneezy' resolve to an IP address for filter to be valid):
 
     ip.addr eq sneezy/24
 
@@ -284,7 +284,7 @@ or
 
 A slice is always compared against either a string or a byte sequence.
 As a special case, when the slice is only 1 byte wide, you can compare
-it against a hex integer that 0xff or less (which means it fits inside
+it against a hex integer that is 0xff or less (which means it fits inside
 one byte). This is not allowed for byte sequences greater than one byte,
 because then one would need to specify the endianness of the multi-byte
 integer. Also, this is not allowed for decimal numbers, since they
@@ -450,7 +450,7 @@ The online Display Filter Reference: L<https://www.wireshark.org/docs/dfref/>
 
 =item *
 
-I<Help:Supported Protocols> in Wireshark
+I<View:Internals:Supported Protocols> in Wireshark
 
 =item *
 
@@ -464,7 +464,7 @@ The Wireshark wiki: L<https://gitlab.com/wireshark/wireshark/-/wikis/DisplayFilt
 
 =head1 NOTES
 
-The B<wireshark-filters> manpage is part of the B<Wireshark> distribution.
+The B<wireshark-filter(4)> manpage is part of the B<Wireshark> distribution.
 The latest version of B<Wireshark> can be found at
 L<https://www.wireshark.org>.
 
