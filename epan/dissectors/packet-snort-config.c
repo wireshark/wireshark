@@ -927,16 +927,15 @@ void create_config(SnortConfig_t **snort_config, const char *snort_config_file)
     if (config_file_fd == NULL) {
         snort_debug_printf("Failed to open config file %s\n", snort_config_file);
         report_failure("Snort dissector: Failed to open config file %s\n", snort_config_file);
-        return;
     }
-
-    /* Start parsing from the top-level config file. */
-    parse_config_file(*snort_config, config_file_fd, snort_config_file, dirname, 1 /* recursion level */);
+    else {
+        /* Start parsing from the top-level config file. */
+        parse_config_file(*snort_config, config_file_fd, snort_config_file, dirname, 1 /* recursion level */);
+        fclose(config_file_fd);
+    }
 
     g_free(dirname);
     g_free(basename);
-
-    fclose(config_file_fd);
 }
 
 
