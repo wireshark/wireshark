@@ -1217,7 +1217,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 guint16 sf;
 
                 /* Sync Info */
-                sync_info_item = proto_tree_add_item(ext_header_tree, hf_extended_advertising_sync_info, tvb, offset, 1, ENC_NA);
+                sync_info_item = proto_tree_add_item(ext_header_tree, hf_extended_advertising_sync_info, tvb, offset, 18, ENC_NA);
                 sync_info_tree = proto_item_add_subtree(sync_info_item, ett_extended_advertising_sync_info);
 
                 sf = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
