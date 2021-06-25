@@ -2013,11 +2013,10 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 sub_item = proto_tree_add_item(ext_header_tree, hf_extended_advertising_cte_info, tvb, offset, 1, ENC_NA);
                 sub_tree = proto_item_add_subtree(sub_item, ett_extended_advertising_cte_info);
 
-                proto_tree_add_item(sub_tree, hf_extended_advertising_cte_info_time, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-                proto_tree_add_item(sub_tree, hf_extended_advertising_cte_info_rfu, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-                proto_tree_add_item(sub_tree, hf_extended_advertising_cte_info_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                 item = proto_tree_add_item_ret_uint(sub_tree, hf_extended_advertising_cte_info_time, tvb, offset, 1, ENC_LITTLE_ENDIAN, &cte_time);
                 proto_item_append_text(item, " (%u usec)", cte_time * 8);
+                proto_tree_add_item(sub_tree, hf_extended_advertising_cte_info_rfu, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(sub_tree, hf_extended_advertising_cte_info_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                 offset += 1;
 
                 acad_len -= 1;
@@ -4059,18 +4058,18 @@ proto_register_btle(void)
             NULL, HFILL }
         },
         { &hf_extended_advertising_cte_info_time,
-            { "CTE Info",                        "btle.extended_advertising_header.cte_info.time",
+            { "CTE Time",                        "btle.extended_advertising_header.cte_info.time",
             FT_UINT8, BASE_HEX, NULL, 0x1F,
             NULL, HFILL }
         },
         { &hf_extended_advertising_cte_info_rfu,
-            { "CTE Info",                        "btle.extended_advertising_header.cte_info.rfu",
-            FT_UINT8, BASE_HEX, NULL, 0x2,
+            { "RFU",                             "btle.extended_advertising_header.cte_info.rfu",
+            FT_UINT8, BASE_HEX, NULL, 0x20,
             NULL, HFILL }
         },
         { &hf_extended_advertising_cte_info_type,
-            { "CTE Info",                        "btle.extended_advertising_header.cte_info.type",
-            FT_UINT8, BASE_HEX, VALS(le_cte_type_vals), 0xC,
+            { "CTE Type",                        "btle.extended_advertising_header.cte_info.type",
+            FT_UINT8, BASE_HEX, VALS(le_cte_type_vals), 0xC0,
             NULL, HFILL }
         },
         { &hf_extended_advertising_data_info,
