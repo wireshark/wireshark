@@ -193,6 +193,8 @@ class case_dissect_protobuf(subprocesstest.SubprocessTestCase):
 
     def test_protobuf_field_subdissector(self, cmd_tshark, features, dirs, capture_file):
         '''Test "protobuf_field" subdissector table'''
+        if not features.have_lua:
+            self.skipTest('Test requires Lua scripting support.')
         well_know_types_dir = os.path.join(dirs.protobuf_lang_files_dir, 'well_know_types').replace('\\', '/')
         user_defined_types_dir = os.path.join(dirs.protobuf_lang_files_dir, 'user_defined_types').replace('\\', '/')
         lua_file = os.path.join(dirs.lua_dir, 'protobuf_test_field_subdissector_table.lua')
@@ -210,6 +212,8 @@ class case_dissect_protobuf(subprocesstest.SubprocessTestCase):
 
     def test_protobuf_called_by_custom_dissector(self, cmd_tshark, features, dirs, capture_file):
         '''Test Protobuf invoked by other dissector (passing type by pinfo.private)'''
+        if not features.have_lua:
+            self.skipTest('Test requires Lua scripting support.')
         well_know_types_dir = os.path.join(dirs.protobuf_lang_files_dir, 'well_know_types').replace('\\', '/')
         user_defined_types_dir = os.path.join(dirs.protobuf_lang_files_dir, 'user_defined_types').replace('\\', '/')
         lua_file = os.path.join(dirs.lua_dir, 'protobuf_test_called_by_custom_dissector.lua')
