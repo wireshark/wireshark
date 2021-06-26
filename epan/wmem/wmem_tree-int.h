@@ -12,7 +12,7 @@
 #ifndef __WMEM_TREE_INT_H__
 #define __WMEM_TREE_INT_H__
 
-#include <epan/wmem/wmem_tree.h>
+#include "wmem_tree.h"
 
 #ifdef __cplusplus
 extern "C" {
