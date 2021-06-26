@@ -9,8 +9,6 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#define WS_LOG_DOMAIN "wmem"
-
 #include <stdlib.h>
 #include <string.h>
 #include <glib.h>
@@ -25,9 +23,6 @@
 #include "wmem_allocator_block_fast.h"
 #include "wmem_allocator_strict.h"
 
-#include <wsutil/ws_assert.h>
-#include <wsutil/wslog.h>
-
 /* Set according to the WIRESHARK_DEBUG_WMEM_OVERRIDE environment variable in
  * wmem_init. Should not be set again. */
 static gboolean do_override = FALSE;
@@ -40,7 +35,7 @@ wmem_alloc(wmem_allocator_t *allocator, const size_t size)
         return g_malloc(size);
     }
 
-    ws_assert(allocator->in_scope);
+    g_assert(allocator->in_scope);
 
     if (size == 0) {
         return NULL;
@@ -71,7 +66,7 @@ wmem_free(wmem_allocator_t *allocator, void *ptr)
         return;
     }
 
-    ws_assert(allocator->in_scope);
+    g_assert(allocator->in_scope);
 
     if (ptr == NULL) {
         return;
@@ -96,7 +91,7 @@ wmem_realloc(wmem_allocator_t *allocator, void *ptr, const size_t size)
         return NULL;
     }
 
-    ws_assert(allocator->in_scope);
+    g_assert(allocator->in_scope);
 
     return allocator->wrealloc(allocator->private_data, ptr, size);
 }
@@ -162,7 +157,7 @@ wmem_allocator_new(const wmem_allocator_type_t type)
             wmem_strict_allocator_init(allocator);
             break;
         default:
-            ws_assert_not_reached();
+            g_assert_not_reached();
             break;
     };
 
@@ -198,7 +193,7 @@ wmem_init(void)
             override_type = WMEM_ALLOCATOR_BLOCK_FAST;
         }
         else {
-            ws_warning("Unrecognized wmem override");
+            g_warning("Unrecognized wmem override");
             do_override = FALSE;
         }
     }

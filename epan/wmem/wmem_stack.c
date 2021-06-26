@@ -16,8 +16,6 @@
 #include "wmem_stack.h"
 #include "wmem_list.h"
 
-#include <wsutil/ws_assert.h>
-
 /* Wmem stack is implemented as a simple wrapper over Wmem list */
 
 void *
@@ -27,7 +25,7 @@ wmem_stack_peek(const wmem_stack_t *stack)
 
     frame = wmem_list_head(stack);
 
-    ws_assert(frame);
+    g_assert(frame);
 
     return wmem_list_frame_data(frame);
 }

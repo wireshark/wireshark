@@ -19,8 +19,6 @@
 #include "wmem_allocator.h"
 #include "wmem_allocator_simple.h"
 
-#include <wsutil/ws_assert.h>
-
 #define DEFAULT_ALLOCS 8192
 
 typedef struct _wmem_simple_allocator_t {
@@ -65,7 +63,7 @@ wmem_simple_free(void *private_data, void *ptr)
         }
     }
 
-    ws_assert_not_reached();
+    g_assert_not_reached();
 }
 
 static void *
@@ -82,7 +80,9 @@ wmem_simple_realloc(void *private_data, void *ptr, const size_t size)
         }
     }
 
-    ws_assert_not_reached();
+    g_assert_not_reached();
+    /* not reached */
+    return NULL;
 }
 
 static void

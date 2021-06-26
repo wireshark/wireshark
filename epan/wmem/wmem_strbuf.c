@@ -10,7 +10,6 @@
  */
 
 #include "config.h"
-#define WS_LOG_DOMAIN "wmem"
 
 #include <string.h>
 #include <stdio.h>
@@ -19,9 +18,6 @@
 
 #include "wmem_core.h"
 #include "wmem_strbuf.h"
-
-#include <wsutil/ws_assert.h>
-#include <wsutil/wslog.h>
 
 #define DEFAULT_MINIMUM_LEN 16
 
@@ -56,7 +52,7 @@ wmem_strbuf_sized_new(wmem_allocator_t *allocator,
 {
     wmem_strbuf_t *strbuf;
 
-    ws_assert((max_len == 0) || (alloc_len <= max_len));
+    g_assert((max_len == 0) || (alloc_len <= max_len));
 
     strbuf = wmem_new(allocator, wmem_strbuf_t);
 
@@ -179,7 +175,7 @@ int _strbuf_vsnprintf(wmem_strbuf_t *strbuf, const char *format, va_list ap, gbo
     want_len = vsnprintf(buffer, buffer_size, format, ap);
     if (want_len < 0) {
         /* Error. */
-        ws_warning("%s: vsnprintf (%d): %s", G_STRFUNC, want_len, g_strerror(errno));
+        g_warning("%s: vsnprintf: (%d) %s", G_STRFUNC, want_len, g_strerror(errno));
         return -1;
     }
     if ((size_t)want_len < buffer_size) {
@@ -194,7 +190,7 @@ int _strbuf_vsnprintf(wmem_strbuf_t *strbuf, const char *format, va_list ap, gbo
     }
     else {
         strbuf->len += buffer_size - 1; /* Append. */
-        ws_assert(strbuf->len == strbuf->alloc_len - 1);
+        g_assert(strbuf->len == strbuf->alloc_len - 1);
     }
 
     return want_len; /* Length (not including terminating null) that would be written
