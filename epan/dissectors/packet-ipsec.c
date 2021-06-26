@@ -1290,7 +1290,8 @@ static int
 dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   proto_tree *esp_tree = NULL, *decr_tree = NULL, *icv_tree = NULL;
-  proto_item *item = NULL, *icv_item = NULL;
+  proto_item *item = NULL;
+  proto_item *iv_item = NULL, *encr_data_item = NULL, *icv_item = NULL;
 
   /* Packet Variables related */
   gchar *ip_src = NULL;
@@ -1325,6 +1326,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   gint offset = 0;
   gint esp_packet_len = 0;
   gint esp_iv_len = 0;
+  gint esp_block_len = 0;
   gint esp_encr_data_len = 0;
   gint esp_decr_data_len = 0;
   gint esp_icv_len = 0;
@@ -1641,7 +1643,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
              length with the extra 8 bits used for parity. */
 
           /* Fix parameters for 3DES-CBC */
-          esp_iv_len = 8;
+          esp_iv_len = esp_block_len = 8;
           crypt_algo_libgcrypt = GCRY_CIPHER_3DES;
           crypt_mode_libgcrypt = GCRY_CIPHER_MODE_CBC;
 
@@ -1666,7 +1668,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
              bits and 256 bits. */
 
           /* Fix parameters for AES-CBC */
-          esp_iv_len = 16;
+          esp_iv_len = esp_block_len = 16;
           crypt_mode_libgcrypt = GCRY_CIPHER_MODE_CBC;
 
           switch(esp_encr_key_len * 8)
@@ -1703,7 +1705,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
              We support only 128 bits. */
 
           /* Fix parameters for CAST5-CBC */
-          esp_iv_len = 8;
+          esp_iv_len = esp_block_len = 8;
           crypt_mode_libgcrypt = GCRY_CIPHER_MODE_CBC;
 
           switch(esp_encr_key_len * 8)
@@ -1728,7 +1730,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
              bit in every byte is the parity bit.] */
 
           /* Fix parameters for DES-CBC */
-          esp_iv_len = 8;
+          esp_iv_len = esp_block_len = 8;
           crypt_algo_libgcrypt = GCRY_CIPHER_DES;
           crypt_mode_libgcrypt = GCRY_CIPHER_MODE_CBC;
 
@@ -1755,6 +1757,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
           /* Fix parameters for AES-CTR/AES-GCM */
           esp_iv_len = 8;
+          esp_block_len = 1;
           /* The counter mode key includes a 4 byte nonce following the key, which is used as the salt */
           esp_salt_len = 4;
           esp_encr_key_len -= esp_salt_len;
@@ -1839,7 +1842,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
           */
 
           /* Fix parameters for BLOWFISH-CBC */
-          esp_iv_len = 8;
+          esp_iv_len = esp_block_len = 8;
           crypt_algo_libgcrypt = GCRY_CIPHER_BLOWFISH;
           crypt_mode_libgcrypt = GCRY_CIPHER_MODE_CBC;
 
@@ -1858,6 +1861,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         default :
           /* Fix parameters */
           esp_iv_len = 0;
+          esp_block_len = 1;
 
           /* Allocate buffer for decrypted data  */
           esp_decr_data = (guint8 *)wmem_alloc(wmem_packet_scope(), esp_encr_data_len);
@@ -1885,8 +1889,6 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         * if the specified encryption algorithm uses IV.
         */
         if (esp_iv_len) {
-          proto_item *iv_item;
-
           tvb_ensure_bytes_exist(tvb, offset, esp_iv_len);
 
           iv_item = proto_tree_add_item(esp_tree, hf_esp_iv, tvb, offset, esp_iv_len, ENC_NA);
@@ -1896,21 +1898,34 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
           offset += esp_iv_len;
         }
 
+       /*
+        * Add the encrypted portion to the tree and store it in a packet scope buffer for later decryption.
+        */
+       if (esp_encr_data_len) {
+         encr_data_item = proto_tree_add_item(esp_tree, hf_esp_encrypted_data, tvb, offset, esp_encr_data_len, ENC_NA);
+         proto_item_append_text(encr_data_item, " (%d bytes) <%s>",
+                                esp_encr_data_len,
+                                esp_get_encr_algo_name(esp_encr_algo));
 
-        /*
-         * Add the encrypted portion to the tree and store it in a packet scope buffer for later decryption.
-         */
-        if (esp_encr_data_len) {
-          proto_item *encr_data_item;
+         esp_encr_data = (guchar *)tvb_memdup(wmem_packet_scope(), tvb, offset, esp_encr_data_len);
+         offset += esp_encr_data_len;
 
-          encr_data_item = proto_tree_add_item(esp_tree, hf_esp_encrypted_data, tvb, offset, esp_encr_data_len, ENC_NA);
-          proto_item_append_text(encr_data_item, " (%d bytes) <%s>",
-                                 esp_encr_data_len,
-                                 esp_get_encr_algo_name(esp_encr_algo));
-
-          esp_encr_data = (guchar *)tvb_memdup(wmem_packet_scope(), tvb, offset, esp_encr_data_len);
-          offset += esp_encr_data_len;
-        }
+         /*
+          * Verify that the encrypted payload data is properly aligned: The ciphertext length
+          * needs to be a multiple of the of block size (which equals 1 for 'stream ciphers'
+          * like AES-GCM and AES-CTR) and the ciphertext needs to terminate on a 4-byte boundary,
+          * according to RFC 2406, section 2.4. Given the fact that all current block sizes are
+          * powers of 2, only the stricter alignment requirement needs to be checked:
+          */
+         if (esp_block_len > 4 && esp_encr_data_len % esp_block_len != 0) {
+           proto_item_append_text(encr_data_item, "[Invalid length, ciphertext should be a multiple of block size (%u)]",
+                                  esp_block_len);
+           decrypt_using_libgcrypt = FALSE;
+         } else if (esp_encr_data_len % 4 != 0) {
+           proto_item_append_text(encr_data_item, "[Invalid length, ciphertext should terminate at 4-byte boundary]");
+           decrypt_using_libgcrypt = FALSE;
+         }
+       }
 
 
         /*
@@ -1930,13 +1945,6 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
         if (decrypt_using_libgcrypt)
         {
-          /*
-           * Confirm encrypted data length is multiple of block size.
-           */
-          if (esp_encr_data_len % esp_iv_len != 0) {
-            return esp_packet_len;
-          }
-
           /*
            * Allocate buffer for decrypted data.
            */
