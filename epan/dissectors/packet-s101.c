@@ -360,15 +360,16 @@ dissect_S101(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (len < S101_MIN_LENGTH)
         return 0;
 
-    /* Set the Protocol column to the constant string of S101 */
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "S101");
-
     current_offset = 0;
     do {
         offset = current_offset;
         crc = 0xFFFF;
         if (0 == find_s101_packet_header(tvb, &offset, &start, &slot, &message, &version, &dtd,  &command, &flags, &app_bytes[0], &msgLength, &crc)) {
             break;
+        }
+        if (0 == current_offset) {
+            /* Set the Protocol column to the constant string of S101 */
+            col_set_str(pinfo->cinfo, COL_PROTOCOL, "S101");
         }
 
         /* create display subtree for the protocol */
