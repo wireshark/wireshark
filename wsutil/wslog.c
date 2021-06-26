@@ -586,8 +586,8 @@ static void glib_log_handler(const char *domain, GLogLevelFlags flags,
 
 /*
  * We can't write to stderr in ws_log_init() because dumpcap uses stderr
- * to communicate with the parent and it will block. Any failures are
- * therefore ignored.
+ * to communicate with the parent and it will block. We have to use
+ * vcmdarg_err to report errors.
  */
 void ws_log_init(const char *progname,
                             void (*vcmdarg_err)(const char *, va_list ap))
