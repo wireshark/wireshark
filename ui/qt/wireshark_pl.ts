@@ -1059,8 +1059,9 @@
         <translation>Typ łącza</translation>
     </message>
     <message>
-        <source>Packet size limit</source>
-        <translation>Limit rozmiaru pakietu</translation>
+        <source>Packet size limit (snaplen)</source>
+        <oldsource>Packet size limit</oldsource>
+        <translation type="unfinished">Limit rozmiaru pakietu</translation>
     </message>
     <message>
         <source>none</source>

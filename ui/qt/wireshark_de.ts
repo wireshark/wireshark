@@ -1052,8 +1052,9 @@
         <translation>Linktyp</translation>
     </message>
     <message>
-        <source>Packet size limit</source>
-        <translation>Paketgrößenlimit</translation>
+        <source>Packet size limit (snaplen)</source>
+        <oldsource>Packet size limit</oldsource>
+        <translation type="unfinished">Paketgrößenlimit</translation>
     </message>
     <message>
         <source>none</source>

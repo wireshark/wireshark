@@ -1059,8 +1059,9 @@
         <translation>Тип связи</translation>
     </message>
     <message>
-        <source>Packet size limit</source>
-        <translation>Ограничение размера пакета</translation>
+        <source>Packet size limit (snaplen)</source>
+        <oldsource>Packet size limit</oldsource>
+        <translation type="unfinished">Ограничение размера пакета</translation>
     </message>
     <message>
         <source>none</source>

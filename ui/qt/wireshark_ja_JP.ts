@@ -1045,8 +1045,9 @@
         <translation>リンク種別</translation>
     </message>
     <message>
-        <source>Packet size limit</source>
-        <translation>パケットサイズ制限</translation>
+        <source>Packet size limit (snaplen)</source>
+        <oldsource>Packet size limit</oldsource>
+        <translation type="unfinished">パケットサイズ制限</translation>
     </message>
     <message>
         <source>none</source>

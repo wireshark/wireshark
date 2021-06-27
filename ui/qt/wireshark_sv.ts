@@ -1052,8 +1052,9 @@
         <translation>Länktyp</translation>
     </message>
     <message>
-        <source>Packet size limit</source>
-        <translation>Gräns på paketstorlek</translation>
+        <source>Packet size limit (snaplen)</source>
+        <oldsource>Packet size limit</oldsource>
+        <translation type="unfinished">Gräns på paketstorlek</translation>
     </message>
     <message>
         <source>none</source>

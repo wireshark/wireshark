@@ -1052,8 +1052,9 @@
         <translation>Tipo di link</translation>
     </message>
     <message>
-        <source>Packet size limit</source>
-        <translation>Dimensione limite del pacchetto</translation>
+        <source>Packet size limit (snaplen)</source>
+        <oldsource>Packet size limit</oldsource>
+        <translation type="unfinished">Dimensione limite del pacchetto</translation>
     </message>
     <message>
         <source>none</source>

@@ -1033,8 +1033,9 @@
         <translation>Тип з&apos;єднання</translation>
     </message>
     <message>
-        <source>Packet size limit</source>
-        <translation>Ліміт розміру пакету</translation>
+        <source>Packet size limit (snaplen)</source>
+        <oldsource>Packet size limit</oldsource>
+        <translation type="unfinished">Ліміт розміру пакету</translation>
     </message>
     <message>
         <source>none</source>

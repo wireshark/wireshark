@@ -1052,7 +1052,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Packet size limit</source>
+        <source>Packet size limit (snaplen)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

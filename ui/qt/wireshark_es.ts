@@ -1029,8 +1029,9 @@
         <translation>Tipo de enlace</translation>
     </message>
     <message>
-        <source>Packet size limit</source>
-        <translation>Límite de tamaño de paquete</translation>
+        <source>Packet size limit (snaplen)</source>
+        <oldsource>Packet size limit</oldsource>
+        <translation type="unfinished">Límite de tamaño de paquete</translation>
     </message>
     <message>
         <source>none</source>

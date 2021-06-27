@@ -1045,8 +1045,9 @@
         <translation>链路类型</translation>
     </message>
     <message>
-        <source>Packet size limit</source>
-        <translation>分组大小限制</translation>
+        <source>Packet size limit (snaplen)</source>
+        <oldsource>Packet size limit</oldsource>
+        <translation type="unfinished">分组大小限制</translation>
     </message>
     <message>
         <source>none</source>

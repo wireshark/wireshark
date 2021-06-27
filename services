@@ -5868,6 +5868,7 @@ ipdtp-port	20202/tcp/udp	# IPD Tunneling Port
 ipulse-ics	20222/tcp/udp	# iPulse-ICS
 emwavemsg	20480/tcp/udp	# emWave Message Service
 track		20670/tcp/udp	# Track
+crtech-nlm	20810/tcp	# CRTech NLM
 athand-mmp	20999/tcp/udp	# At Hand MMP
 irtrans		21000/tcp/udp	# IRTrans Control
 notezilla-lan	21010/tcp	# Notezilla.Lan Server
