@@ -2018,7 +2018,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
 
 #ifdef HAVE_LIBGCRYPT_AEAD
-          if (icv_type == ICV_TYPE_AEAD) {
+          if (g_esp_enable_authentication_check && icv_type == ICV_TYPE_AEAD) {
             /* Allocate buffer for ICV  */
             esp_icv = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, esp_packet_len - esp_icv_len, esp_icv_len);
 
@@ -2050,7 +2050,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             decrypt_ok = TRUE;
 
 #ifdef HAVE_LIBGCRYPT_AEAD
-            if (icv_type == ICV_TYPE_AEAD) {
+            if (g_esp_enable_authentication_check && icv_type == ICV_TYPE_AEAD) {
               guchar *esp_icv_computed;
               gint tag_len;
 
