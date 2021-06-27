@@ -3668,6 +3668,19 @@ static gboolean pcapng_write_custom_option(wtap_dumper *wdh, guint option_id, cu
 }
 
 
+static gboolean pcapng_write_option_eofopt(wtap_dumper *wdh, int *err)
+{
+    struct pcapng_option_header option_hdr;
+
+    /* Write end of options */
+    option_hdr.type = OPT_EOFOPT;
+    option_hdr.value_length = 0;
+    if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
+        return FALSE;
+    wdh->bytes_dumped += 4;
+    return TRUE;
+}
+
 static gboolean pcapng_write_option_string(wtap_dumper *wdh, guint option_id, char *str, int *err)
 {
     struct pcapng_option_header option_hdr;
@@ -3819,7 +3832,6 @@ pcapng_write_section_header_block(wtap_dumper *wdh, int *err)
     pcapng_block_header_t bh;
     pcapng_section_header_block_t shb;
     pcapng_block_size_t block_size;
-    struct pcapng_option_header option_hdr;
     wtap_block_t wdh_shb = NULL;
 
     if (wdh->shb_hdrs && (wdh->shb_hdrs->len > 0)) {
@@ -3880,11 +3892,8 @@ pcapng_write_section_header_block(wtap_dumper *wdh, int *err)
                 return FALSE;
 
             /* Write end of options */
-            option_hdr.type = OPT_EOFOPT;
-            option_hdr.value_length = 0;
-            if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
+            if (!pcapng_write_option_eofopt(wdh, err))
                 return FALSE;
-            wdh->bytes_dumped += 4;
         }
     }
 
@@ -4226,9 +4235,8 @@ pcapng_write_enhanced_packet_block(wtap_dumper *wdh, const wtap_rec *rec,
     }
     /* Write end of options if we have options */
     if (have_options) {
-        if (!wtap_dump_file_write(wdh, &zero_pad, 4, err))
+        if (!pcapng_write_option_eofopt(wdh, err))
             return FALSE;
-        wdh->bytes_dumped += 4;
     }
 
     /* write block footer */
@@ -5039,7 +5047,6 @@ pcapng_write_interface_statistics_block(wtap_dumper *wdh, wtap_block_t if_stats,
     pcapng_interface_statistics_block_t isb;
     pcapng_block_size_t block_size;
     pcapng_write_block_t block_data;
-    struct pcapng_option_header option_hdr;
     wtapng_if_stats_mandatory_t* mand_data = (wtapng_if_stats_mandatory_t*)wtap_block_get_mandatory_data(if_stats);
 
     ws_debug("entering function");
@@ -5082,11 +5089,8 @@ pcapng_write_interface_statistics_block(wtap_dumper *wdh, wtap_block_t if_stats,
             return FALSE;
 
         /* Write end of options */
-        option_hdr.type = OPT_EOFOPT;
-        option_hdr.value_length = 0;
-        if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
+        if (!pcapng_write_option_eofopt(wdh, err))
             return FALSE;
-        wdh->bytes_dumped += 4;
     }
 
     /* write block footer */
@@ -5314,7 +5318,6 @@ pcapng_write_if_descr_block(wtap_dumper *wdh, wtap_block_t int_data, int *err)
     pcapng_interface_description_block_t idb;
     pcapng_block_size_t block_size;
     pcapng_write_block_t block_data;
-    struct pcapng_option_header option_hdr;
     wtapng_if_descr_mandatory_t* mand_data = (wtapng_if_descr_mandatory_t*)wtap_block_get_mandatory_data(int_data);
     int link_type;
 
@@ -5369,11 +5372,8 @@ pcapng_write_if_descr_block(wtap_dumper *wdh, wtap_block_t int_data, int *err)
             return FALSE;
 
         /* Write end of options */
-        option_hdr.type = OPT_EOFOPT;
-        option_hdr.value_length = 0;
-        if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
+        if (!pcapng_write_option_eofopt(wdh, err))
             return FALSE;
-        wdh->bytes_dumped += 4;
     }
 
     /* write block footer */
