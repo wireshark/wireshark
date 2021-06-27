@@ -29,6 +29,7 @@ extern "C" {
 #define OPT_CUSTOM_BIN_COPY    2989  /**< A custom option containing binary data, copying allowed. */
 #define OPT_CUSTOM_STR_NO_COPY 19372 /**< A custom option containing binary data, copying not allowed. */
 #define OPT_CUSTOM_BIN_NO_COPY 19373 /**< A custom option containing binary data, copying not allowed. */
+
 /* Section Header block (SHB) */
 #define OPT_SHB_HARDWARE       2     /**< A UTF-8 string containing the description of the
                                        *     hardware used to create this section.
@@ -113,10 +114,12 @@ extern "C" {
                                        */
 
 
+/* Name Resolution Block (NRB) */
 #define OPT_NS_DNSNAME       2
 #define OPT_NS_DNSIP4ADDR    3
 #define OPT_NS_DNSIP6ADDR    4
 
+/* Interface Statistics Block (ISB) */
 #define OPT_ISB_STARTTIME    2
 #define OPT_ISB_ENDTIME      3
 #define OPT_ISB_IFRECV       4
@@ -541,7 +544,8 @@ wtap_block_add_string_option_format(wtap_block_t block, guint option_id, const c
 WS_DLL_PUBLIC wtap_opttype_return_val
 wtap_block_set_string_option_value(wtap_block_t block, guint option_id, const char* value, gsize value_length);
 
-/** Set string option value for nth instance of a particular option in a block
+/** Set string option value for the nth instance of a particular option
+ * in a block
  *
  * @param[in] block Block in which to set the option value
  * @param[in] option_id Identifier value for option
@@ -566,8 +570,8 @@ WS_DLL_PUBLIC wtap_opttype_return_val
 wtap_block_set_string_option_value_format(wtap_block_t block, guint option_id, const char *format, ...)
                                           G_GNUC_PRINTF(3,4);
 
-/** Set string option value for nth instance of a particular option in a block
- * to a printf-formatted string
+/** Set string option value for the nth instance of a particular option
+ * in a block to a printf-formatted string
  *
  * @param[in] block Block in which to set the option value
  * @param[in] option_id Identifier value for option
@@ -591,7 +595,8 @@ wtap_block_set_nth_string_option_value_format(wtap_block_t block, guint option_i
 WS_DLL_PUBLIC wtap_opttype_return_val
 wtap_block_get_string_option_value(wtap_block_t block, guint option_id, char** value) G_GNUC_WARN_UNUSED_RESULT;
 
-/** Get string option value for nth instance of a particular option in a block
+/** Get string option value for the nth instance of a particular option
+ * in a block
  *
  * @param[in] block Block from which to get the option value
  * @param[in] option_id Identifier value for option
