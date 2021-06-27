@@ -60,10 +60,11 @@ typedef struct _funnel_ops_t {
     void (*add_button)(funnel_text_window_t*  win, funnel_bt_t* cb, const char* label);
 
     void (*new_dialog)(const gchar* title,
-		       const gchar** fieldnames,
-		       funnel_dlg_cb_t dlg_cb,
-		       void* data,
-		       funnel_dlg_cb_data_free_t dlg_cb_data_free);
+                    const gchar** field_names,
+                    const gchar** field_values,
+                    funnel_dlg_cb_t dlg_cb,
+                    void* data,
+                    funnel_dlg_cb_data_free_t dlg_cb_data_free);
 
     void (*close_dialogs)(void);
 
