@@ -3573,7 +3573,7 @@ static guint32 pcapng_compute_custom_option_size(size_t custom_data_len)
     return (guint32)size;
 }
 
-static void compute_shb_option_size(wtap_block_t block _U_, guint option_id, wtap_opttype_e option_type _U_, wtap_optval_t* optval, void* user_data)
+static gboolean compute_shb_option_size(wtap_block_t block _U_, guint option_id, wtap_opttype_e option_type _U_, wtap_optval_t* optval, void* user_data)
 {
     pcapng_block_size_t* block_size = (pcapng_block_size_t*)user_data;
     guint32 size = 0;
@@ -3605,13 +3605,13 @@ static void compute_shb_option_size(wtap_block_t block _U_, guint option_id, wta
         }
         block_size->size += 4;
     }
+    return TRUE; /* we always succeed */
 }
 
 typedef struct pcapng_write_block_t
 {
     wtap_dumper *wdh;
     int *err;
-    gboolean success;
 }
 pcapng_write_block_t;
 
@@ -3666,7 +3666,6 @@ static gboolean pcapng_write_custom_option(wtap_dumper *wdh, guint option_id, cu
 
     return TRUE;
 }
-
 
 static gboolean pcapng_write_option_eofopt(wtap_dumper *wdh, int *err)
 {
@@ -3790,13 +3789,9 @@ static gboolean pcapng_write_option_uint64(wtap_dumper *wdh, guint option_id, gu
     return TRUE;
 }
 
-static void write_wtap_shb_option(wtap_block_t block _U_, guint option_id, wtap_opttype_e option_type _U_, wtap_optval_t *optval, void* user_data)
+static gboolean write_wtap_shb_option(wtap_block_t block _U_, guint option_id, wtap_opttype_e option_type _U_, wtap_optval_t *optval, void* user_data)
 {
     pcapng_write_block_t* write_block = (pcapng_write_block_t*)user_data;
-
-    /* Don't continue if there has been an error */
-    if (!write_block->success)
-        return;
 
     switch(option_id)
     {
@@ -3804,22 +3799,19 @@ static void write_wtap_shb_option(wtap_block_t block _U_, guint option_id, wtap_
     case OPT_SHB_HARDWARE:
     case OPT_SHB_OS:
     case OPT_SHB_USERAPPL:
-        if (!pcapng_write_option_string(write_block->wdh, option_id, optval->stringval, write_block->err)) {
-            write_block->success = FALSE;
-            return;
-        }
+        if (!pcapng_write_option_string(write_block->wdh, option_id, optval->stringval, write_block->err))
+            return FALSE;
         break;
     case OPT_CUSTOM_STR_COPY:
     case OPT_CUSTOM_BIN_COPY:
-        if (!pcapng_write_custom_option(write_block->wdh, option_id, &optval->custom_opt, write_block->err)) {
-            write_block->success = FALSE;
-            return;
-        }
+        if (!pcapng_write_custom_option(write_block->wdh, option_id, &optval->custom_opt, write_block->err))
+            return FALSE;
         break;
     default:
         /* Unknown options - write by datatype? */
         break;
     }
+    return TRUE; /* success */
 }
 
 /* Write a section header block.
@@ -3885,10 +3877,8 @@ pcapng_write_section_header_block(wtap_dumper *wdh, int *err)
             /* Write options */
             block_data.wdh = wdh;
             block_data.err = err;
-            block_data.success = TRUE;
-            wtap_block_foreach_option(wdh_shb, write_wtap_shb_option, &block_data);
-
-            if (!block_data.success)
+            if (!wtap_block_foreach_option(wdh_shb, write_wtap_shb_option,
+                                           &block_data))
                 return FALSE;
 
             /* Write end of options */
@@ -4539,7 +4529,7 @@ pcapng_write_decryption_secrets_block(wtap_dumper *wdh, wtap_block_t sdata, int 
 
 #define NRES_BLOCK_MAX_SIZE (1024*1024)
 
-static void
+static gboolean
 compute_nrb_option_size(wtap_block_t block _U_, guint option_id, wtap_opttype_e option_type _U_, wtap_optval_t* optval, void* user_data)
 {
     pcapng_block_size_t* block_size = (pcapng_block_size_t*)user_data;
@@ -4576,9 +4566,10 @@ compute_nrb_option_size(wtap_block_t block _U_, guint option_id, wtap_opttype_e 
         }
         block_size->size += 4;
     }
+    return TRUE; /* we always succeed */
 }
 
-static void
+static gboolean
 put_nrb_option(wtap_block_t block _U_, guint option_id, wtap_opttype_e option_type _U_, wtap_optval_t* optval, void* user_data)
 {
     guint8 **opt_ptrp = (guint8 **)user_data;
@@ -4661,6 +4652,7 @@ put_nrb_option(wtap_block_t block _U_, guint option_id, wtap_opttype_e option_ty
         /* Unknown options - size by datatype? */
         break;
     }
+    return TRUE; /* we always succeed */
 }
 
 static void
@@ -4952,7 +4944,7 @@ pcapng_write_name_resolution_block(wtap_dumper *wdh, int *err)
     return TRUE;
 }
 
-static void compute_isb_option_size(wtap_block_t block _U_, guint option_id, wtap_opttype_e option_type _U_, wtap_optval_t *optval, void* user_data)
+static gboolean compute_isb_option_size(wtap_block_t block _U_, guint option_id, wtap_opttype_e option_type _U_, wtap_optval_t *optval, void* user_data)
 {
     pcapng_block_size_t* block_size = (pcapng_block_size_t*)user_data;
     guint32 size = 0;
@@ -4992,52 +4984,42 @@ static void compute_isb_option_size(wtap_block_t block _U_, guint option_id, wta
         }
         block_size->size += 4;
     }
+    return TRUE; /* we always succeed */
 }
 
-static void write_wtap_isb_option(wtap_block_t block _U_, guint option_id, wtap_opttype_e option_type _U_, wtap_optval_t *optval, void* user_data)
+static gboolean write_wtap_isb_option(wtap_block_t block _U_, guint option_id, wtap_opttype_e option_type _U_, wtap_optval_t *optval, void* user_data)
 {
     pcapng_write_block_t* write_block = (pcapng_write_block_t*)user_data;
-
-    /* Don't continue if there has been an error */
-    if (!write_block->success)
-        return;
 
     switch(option_id)
     {
     case OPT_COMMENT:
-        if (!pcapng_write_option_string(write_block->wdh, option_id, optval->stringval, write_block->err)) {
-            write_block->success = FALSE;
-            return;
-        }
+        if (!pcapng_write_option_string(write_block->wdh, option_id, optval->stringval, write_block->err))
+            return FALSE;
         break;
     case OPT_CUSTOM_STR_COPY:
     case OPT_CUSTOM_BIN_COPY:
-        if (!pcapng_write_custom_option(write_block->wdh, option_id, &optval->custom_opt, write_block->err)) {
-            write_block->success = FALSE;
-            return;
-        }
+        if (!pcapng_write_custom_option(write_block->wdh, option_id, &optval->custom_opt, write_block->err))
+            return FALSE;
         break;
     case OPT_ISB_STARTTIME:
     case OPT_ISB_ENDTIME:
-        if (!pcapng_write_option_timestamp(write_block->wdh, option_id, optval->uint64val, write_block->err)) {
-            write_block->success = FALSE;
-            return;
-        }
+        if (!pcapng_write_option_timestamp(write_block->wdh, option_id, optval->uint64val, write_block->err))
+            return FALSE;
         break;
     case OPT_ISB_IFRECV:
     case OPT_ISB_IFDROP:
     case OPT_ISB_FILTERACCEPT:
     case OPT_ISB_OSDROP:
     case OPT_ISB_USRDELIV:
-        if (!pcapng_write_option_uint64(write_block->wdh, option_id, optval->uint64val, write_block->err)) {
-            write_block->success = FALSE;
-            return;
-        }
+        if (!pcapng_write_option_uint64(write_block->wdh, option_id, optval->uint64val, write_block->err))
+            return FALSE;
         break;
     default:
         /* Unknown options - write by datatype? */
         break;
     }
+    return TRUE; /* success */
 }
 
 static gboolean
@@ -5082,10 +5064,8 @@ pcapng_write_interface_statistics_block(wtap_dumper *wdh, wtap_block_t if_stats,
     if (block_size.size > 0) {
         block_data.wdh = wdh;
         block_data.err = err;
-        block_data.success = TRUE;
-        wtap_block_foreach_option(if_stats, write_wtap_isb_option, &block_data);
-
-        if (!block_data.success)
+        if (!wtap_block_foreach_option(if_stats, write_wtap_isb_option,
+                                       &block_data))
             return FALSE;
 
         /* Write end of options */
@@ -5101,7 +5081,7 @@ pcapng_write_interface_statistics_block(wtap_dumper *wdh, wtap_block_t if_stats,
     return TRUE;
 }
 
-static void compute_idb_option_size(wtap_block_t block _U_, guint option_id, wtap_opttype_e option_type _U_, wtap_optval_t *optval, void* user_data)
+static gboolean compute_idb_option_size(wtap_block_t block _U_, guint option_id, wtap_opttype_e option_type _U_, wtap_optval_t *optval, void* user_data)
 {
     pcapng_block_size_t* block_size = (pcapng_block_size_t*)user_data;
     guint32 size = 0;
@@ -5163,9 +5143,10 @@ static void compute_idb_option_size(wtap_block_t block _U_, guint option_id, wta
         }
         block_size->size += 4;
     }
+    return TRUE; /* we always succeed */
 }
 
-static void write_wtap_idb_option(wtap_block_t block _U_, guint option_id, wtap_opttype_e option_type _U_, wtap_optval_t *optval, void* user_data)
+static gboolean write_wtap_idb_option(wtap_block_t block _U_, guint option_id, wtap_opttype_e option_type _U_, wtap_optval_t *optval, void* user_data)
 {
     pcapng_write_block_t* write_block = (pcapng_write_block_t*)user_data;
     struct pcapng_option_header option_hdr;
@@ -5178,29 +5159,21 @@ static void write_wtap_idb_option(wtap_block_t block _U_, guint option_id, wtap_
     case OPT_IDB_DESCR:
     case OPT_IDB_OS:
     case OPT_IDB_HARDWARE:
-        if (!pcapng_write_option_string(write_block->wdh, option_id, optval->stringval, write_block->err)) {
-            write_block->success = FALSE;
-            return;
-        }
+        if (!pcapng_write_option_string(write_block->wdh, option_id, optval->stringval, write_block->err))
+            return FALSE;
         break;
     case OPT_CUSTOM_STR_COPY:
     case OPT_CUSTOM_BIN_COPY:
-        if (!pcapng_write_custom_option(write_block->wdh, option_id, &optval->custom_opt, write_block->err)) {
-            write_block->success = FALSE;
-            return;
-        }
+        if (!pcapng_write_custom_option(write_block->wdh, option_id, &optval->custom_opt, write_block->err))
+            return FALSE;
         break;
     case OPT_IDB_SPEED:
-        if (!pcapng_write_option_uint64(write_block->wdh, option_id, optval->uint64val, write_block->err)) {
-            write_block->success = FALSE;
-            return;
-        }
+        if (!pcapng_write_option_uint64(write_block->wdh, option_id, optval->uint64val, write_block->err))
+            return FALSE;
         break;
     case OPT_IDB_TSRESOL:
-        if (!pcapng_write_option_uint8(write_block->wdh, option_id, optval->uint8val, write_block->err)) {
-            write_block->success = FALSE;
-            return;
-        }
+        if (!pcapng_write_option_uint8(write_block->wdh, option_id, optval->uint8val, write_block->err))
+            return FALSE;
         break;
     case OPT_IDB_FILTER:
         {
@@ -5220,7 +5193,7 @@ static void write_wtap_idb_option(wtap_block_t block _U_, guint option_id, wtap_
                      *
                      * XXX - truncate it?  Report an error?
                      */
-                    return;
+                    return TRUE;
                 }
                 break;
 
@@ -5235,13 +5208,13 @@ static void write_wtap_idb_option(wtap_block_t block _U_, guint option_id, wtap_
                      *
                      * XXX - truncate it?  Report an error?
                      */
-                    return;
+                    return TRUE;
                 }
                 break;
 
             default:
                 /* Unknown filter type; don't write anything. */
-                return;
+                return TRUE;
             }
             size = (guint32)(filter_data_len + 1);
             if ((size % 4)) {
@@ -5252,63 +5225,52 @@ static void write_wtap_idb_option(wtap_block_t block _U_, guint option_id, wtap_
 
             option_hdr.type         = option_id;
             option_hdr.value_length = size;
-            if (!wtap_dump_file_write(write_block->wdh, &option_hdr, 4, write_block->err)) {
-                write_block->success = FALSE;
-                return;
-            }
+            if (!wtap_dump_file_write(write_block->wdh, &option_hdr, 4, write_block->err))
+                return FALSE;
             write_block->wdh->bytes_dumped += 4;
 
             /* Write the filter type */
-            if (!wtap_dump_file_write(write_block->wdh, &filter_type, 1, write_block->err)) {
-                write_block->success = FALSE;
-                return;
-            }
+            if (!wtap_dump_file_write(write_block->wdh, &filter_type, 1, write_block->err))
+                return FALSE;
             write_block->wdh->bytes_dumped += 1;
 
             switch (filter->type) {
 
             case if_filter_pcap:
                 /* Write the filter string */
-                if (!wtap_dump_file_write(write_block->wdh, filter->data.filter_str, filter_data_len, write_block->err)) {
-                    write_block->success = FALSE;
-                    return;
-                }
+                if (!wtap_dump_file_write(write_block->wdh, filter->data.filter_str, filter_data_len, write_block->err))
+                    return FALSE;
                 write_block->wdh->bytes_dumped += filter_data_len;
                 break;
 
             case if_filter_bpf:
-                if (!wtap_dump_file_write(write_block->wdh, filter->data.bpf_prog.bpf_prog, filter_data_len, write_block->err)) {
-                    write_block->success = FALSE;
-                    return;
-                }
+                if (!wtap_dump_file_write(write_block->wdh, filter->data.bpf_prog.bpf_prog, filter_data_len, write_block->err))
+                    return FALSE;
                 write_block->wdh->bytes_dumped += filter_data_len;
                 break;
 
             default:
                 ws_assert_not_reached();
-                return;
+                return TRUE;
             }
 
             /* write padding (if any) */
             if (pad != 0) {
-                if (!wtap_dump_file_write(write_block->wdh, &zero_pad, pad, write_block->err)) {
-                    write_block->success = FALSE;
-                    return;
-                }
+                if (!wtap_dump_file_write(write_block->wdh, &zero_pad, pad, write_block->err))
+                    return FALSE;
                 write_block->wdh->bytes_dumped += pad;
             }
         }
         break;
     case OPT_IDB_FCSLEN:
-        if (!pcapng_write_option_uint8(write_block->wdh, option_id, optval->uint8val, write_block->err)) {
-            write_block->success = FALSE;
-            return;
-        }
+        if (!pcapng_write_option_uint8(write_block->wdh, option_id, optval->uint8val, write_block->err))
+            return FALSE;
         break;
     default:
         /* Unknown options - size by datatype? */
         break;
     }
+    return TRUE;
 }
 
 static gboolean
@@ -5365,10 +5327,8 @@ pcapng_write_if_descr_block(wtap_dumper *wdh, wtap_block_t int_data, int *err)
         /* Write options */
         block_data.wdh = wdh;
         block_data.err = err;
-        block_data.success = TRUE;
-        wtap_block_foreach_option(int_data, write_wtap_idb_option, &block_data);
-
-        if (!block_data.success)
+        if (!wtap_block_foreach_option(int_data, write_wtap_idb_option,
+                                       &block_data))
             return FALSE;
 
         /* Write end of options */

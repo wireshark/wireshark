@@ -354,7 +354,7 @@ wtap_block_t wtap_block_make_copy(wtap_block_t block)
     return block_copy;
 }
 
-void wtap_block_foreach_option(wtap_block_t block, wtap_block_foreach_func func, void* user_data)
+gboolean wtap_block_foreach_option(wtap_block_t block, wtap_block_foreach_func func, void* user_data)
 {
     guint i;
     wtap_option_t *opt;
@@ -363,8 +363,10 @@ void wtap_block_foreach_option(wtap_block_t block, wtap_block_foreach_func func,
     for (i = 0; i < block->options->len; i++) {
         opt = &g_array_index(block->options, wtap_option_t, i);
         opttype = GET_OPTION_TYPE(block->info->options, opt->option_id);
-        func(block, opt->option_id, opttype->data_type, &opt->value, user_data);
+        if (!func(block, opt->option_id, opttype->data_type, &opt->value, user_data))
+            return FALSE;
     }
+    return TRUE;
 }
 
 static wtap_opttype_return_val

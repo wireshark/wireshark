@@ -693,8 +693,8 @@ WS_DLL_PUBLIC void wtap_block_copy(wtap_block_t dest_block, wtap_block_t src_blo
  */
 WS_DLL_PUBLIC wtap_block_t wtap_block_make_copy(wtap_block_t block);
 
-typedef void (*wtap_block_foreach_func)(wtap_block_t block, guint option_id, wtap_opttype_e option_type, wtap_optval_t *option, void *user_data);
-WS_DLL_PUBLIC void wtap_block_foreach_option(wtap_block_t block, wtap_block_foreach_func func, void* user_data);
+typedef gboolean (*wtap_block_foreach_func)(wtap_block_t block, guint option_id, wtap_opttype_e option_type, wtap_optval_t *option, void *user_data);
+WS_DLL_PUBLIC gboolean wtap_block_foreach_option(wtap_block_t block, wtap_block_foreach_func func, void* user_data);
 
 /** Cleanup the internal structures
  */

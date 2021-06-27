@@ -994,7 +994,7 @@ static void erf_dump_priv_init_gen_time(erf_dump_t *dump_priv) {
 }
 
 
-static void erf_write_wtap_option_to_capture_tag(wtap_block_t block _U_,
+static gboolean erf_write_wtap_option_to_capture_tag(wtap_block_t block _U_,
     guint option_id,
     wtap_opttype_e option_type _U_,
     wtap_optval_t *optval,
@@ -1024,9 +1024,11 @@ static void erf_write_wtap_option_to_capture_tag(wtap_block_t block _U_,
 
   if (tag_ptr)
     g_ptr_array_add(section_ptr->tags, tag_ptr);
+
+  return TRUE; /* we always succeed */
 }
 
-static void erf_write_wtap_option_to_host_tag(wtap_block_t block _U_,
+static gboolean erf_write_wtap_option_to_host_tag(wtap_block_t block _U_,
     guint option_id,
     wtap_opttype_e option_type _U_,
     wtap_optval_t *optval,
@@ -1056,9 +1058,11 @@ static void erf_write_wtap_option_to_host_tag(wtap_block_t block _U_,
 
   if (tag_ptr)
     g_ptr_array_add(section_ptr->tags, tag_ptr);
+
+  return TRUE; /* we always succeed */
 }
 
-static void erf_write_wtap_option_to_interface_tag(wtap_block_t block _U_,
+static gboolean erf_write_wtap_option_to_interface_tag(wtap_block_t block _U_,
     guint option_id,
     wtap_opttype_e option_type _U_,
     wtap_optval_t *optval,
@@ -1164,6 +1168,7 @@ static void erf_write_wtap_option_to_interface_tag(wtap_block_t block _U_,
   if (tag_ptr)
     g_ptr_array_add(section_ptr->tags, tag_ptr);
 
+  return TRUE; /* we always succeed */
 }
 
 static void erf_populate_section_length_by_tags(struct erf_meta_section *section_ptr) {
