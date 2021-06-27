@@ -14,11 +14,15 @@
 #include <errno.h>
 #include <time.h>
 #include <assert.h>
+#ifdef HAVE_SYS_TIME_H
+#include <sys/time.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
 #ifdef _WIN32
 #include <process.h>
+#include <windows.h>
 #endif
 
 #include "file_util.h"
@@ -683,8 +687,8 @@ void ws_log_init_with_writer_and_data(const char *progname,
 #define RED     "\033[31m"
 #define RESET   "\033[0m"
 
-static inline const char *msg_color_on(gboolean enable,
-                                        enum ws_log_level level)
+static inline const char *level_color_on(gboolean enable,
+                                            enum ws_log_level level)
 {
     if (!enable)
         return "";
@@ -708,14 +712,17 @@ static inline const char *color_off(gboolean enable)
     return enable ? RESET : "";
 }
 
+/*
+ * We must not call anything that might log a message
+ * in the log handler context (GLib might log a message if we register
+ * our own handler for the GLib domain).
+ */
 static void log_write_do_work(FILE *fp, gboolean use_color,
                                 const char *timestamp,
                                 const char *domain,  enum ws_log_level level,
                                 const char *file, int line, const char *func,
                                 const char *user_format, va_list user_ap)
 {
-    const char *domain_str = domain_to_string(domain);
-    const char *level_str = ws_log_level_to_string(level);
     gboolean doextra = (level != DEFAULT_LOG_LEVEL);
 
 #ifndef WS_DISABLE_DEBUG
@@ -723,17 +730,14 @@ static void log_write_do_work(FILE *fp, gboolean use_color,
         fputs(" ** (noinit)", fp);
 #endif
 
-    /* Process name */
-    fprintf(fp, " ** (%s:%ld) ", registered_progname, (long)getpid());
-
-    /* Timestamp */
-    if (timestamp != NULL)
-        fprintf(fp, "%s ", timestamp);
-
-    /* Message priority (domain/level) */
-    fprintf(fp, "[%s %s%s%s] ", domain_str,
-                                msg_color_on(use_color, level),
-                                level_str,
+    /* Process - timestamp - priority */
+    fprintf(fp, " ** (%s:%ld) %s [%s %s%s%s] ",
+                                registered_progname,
+                                (long)getpid(),
+                                timestamp,
+                                domain_to_string(domain),
+                                level_color_on(use_color, level),
+                                ws_log_level_to_string(level),
                                 color_off(use_color));
 
     /* File/line */
@@ -755,18 +759,45 @@ static void log_write_do_work(FILE *fp, gboolean use_color,
 }
 
 
+#define NOTIME "(notime)"
+
+WS_RETNONNULL
+static const char *print_timestamp(char *buf, size_t size)
+{
+#ifdef _WIN32
+    SYSTEMTIME lt;
+
+    GetLocalTime(&lt);
+    snprintf(buf, size, "%02d:%02d:%02d.%03d",
+                lt.wHour, lt.wMinute, lt.wSecond, lt.wMilliseconds);
+#else
+    struct timeval tv;
+    struct tm *now;
+
+    gettimeofday(&tv, NULL);
+    now = localtime(&tv.tv_sec);
+    if (now == NULL)
+        return NOTIME;
+    snprintf(buf, size, "%02d:%02d:%02d.%03ld",
+                now->tm_hour, now->tm_min, now->tm_sec, tv.tv_usec / 1000);
+#endif
+    return buf;
+}
+
+
+/*
+ * We must not call anything that might log a message
+ * in the log handler context (GLib might log a message if we register
+ * our own handler for the GLib domain).
+ */
 static void log_write_dispatch(const char *domain, enum ws_log_level level,
                             const char *file, int line, const char *func,
                             const char *user_format, va_list user_ap)
 {
-    GDateTime *now;
-    char *tstamp = NULL;
+    char timebuf[32];
+    const char *tstamp;
 
-    now = g_date_time_new_now_local();
-    if (now) {
-        tstamp = g_date_time_format(now, "%H:%M:%S.%f");
-        g_date_time_unref(now);
-    }
+    tstamp = print_timestamp(timebuf, sizeof(timebuf));
 
     if (custom_log) {
         va_list user_ap_copy;
@@ -787,8 +818,6 @@ static void log_write_dispatch(const char *domain, enum ws_log_level level,
         log_write_do_work(stderr, color_enabled, tstamp, domain, level,
                         file, line, func, user_format, user_ap);
     }
-
-    g_free(tstamp);
 
     if (level >= fatal_log_level) {
         abort();

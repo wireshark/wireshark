@@ -49,6 +49,7 @@ void ws_log_default_writer(const char *domain, enum ws_log_level level,
 
 /** Convert a numerical level to its string representation. */
 WS_DLL_PUBLIC
+WS_RETNONNULL
 const char *ws_log_level_to_string(enum ws_log_level level);
 
 
