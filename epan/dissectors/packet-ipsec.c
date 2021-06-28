@@ -440,6 +440,9 @@ static void* uat_esp_sa_record_copy_cb(void* n, const void* o, size_t siz _U_) {
   /* Parse keys as in an update */
   char *err = NULL;
   uat_esp_sa_record_update_cb(new_rec, &err);
+  if (err) {
+    g_free(err);
+  }
 
   return new_rec;
 }
