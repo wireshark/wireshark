@@ -1000,6 +1000,7 @@ static expert_field ei_ospf_lsa_constraint_missing = EI_INIT;
 static expert_field ei_ospf_lsa_bc_error = EI_INIT;
 static expert_field ei_ospf_lsa_unknown_type = EI_INIT;
 static expert_field ei_ospf_unknown_link_subtype = EI_INIT;
+static expert_field ei_ospf_stlv_length_invalid = EI_INIT;
 
 static gint ospf_msg_type_to_filter (guint8 msg_type)
 {
@@ -2551,6 +2552,13 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree 
             while (stlv_offset < tlv_end_offset) {
                 stlv_type = tvb_get_ntohs(tvb, stlv_offset);
                 stlv_len = tvb_get_ntohs(tvb, stlv_offset + 2);
+
+                if (stlv_len < 4) {
+                  proto_tree_add_expert_format(tlv_tree, pinfo, &ei_ospf_stlv_length_invalid, tvb, stlv_offset + 2, 2,
+                                        "Invalid sub-TLV lentgh: %u", stlv_len);
+                  break;
+                }
+
                 stlv_name = val_to_str_const(stlv_type, oif_stlv_str, "Unknown sub-TLV");
                 switch (stlv_type) {
 
@@ -4758,6 +4766,7 @@ proto_register_ospf(void)
         { &ei_ospf_lsa_bc_error, { "ospf.lsa.bc_error", PI_PROTOCOL, PI_WARN, "BC error", EXPFILL }},
         { &ei_ospf_lsa_unknown_type, { "ospf.lsa.unknown_type", PI_PROTOCOL, PI_WARN, "Unknown LSA Type", EXPFILL }},
         { &ei_ospf_unknown_link_subtype, { "ospf.unknown_link_subtype", PI_PROTOCOL, PI_WARN, "Unknown Link sub-TLV", EXPFILL }},
+        { &ei_ospf_stlv_length_invalid, { "ospf.stlv.invalid_length", PI_PROTOCOL, PI_WARN, "Invalid sub-TLV length", EXPFILL }},
     };
 
     expert_module_t* expert_ospf;
