@@ -503,6 +503,8 @@ void FollowStreamDialog::resetStream()
         follow_info_.fragments[1] = Q_NULLPTR;
     }
 
+    free_address(&follow_info_.client_ip);
+    free_address(&follow_info_.server_ip);
     follow_info_.payload = Q_NULLPTR;
     follow_info_.client_port = 0;
 }
