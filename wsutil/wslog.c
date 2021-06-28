@@ -779,7 +779,7 @@ static const char *print_timestamp(char *buf, size_t size)
     if (now == NULL)
         return NOTIME;
     snprintf(buf, size, "%02d:%02d:%02d.%03ld",
-                now->tm_hour, now->tm_min, now->tm_sec, tv.tv_usec / 1000);
+                now->tm_hour, now->tm_min, now->tm_sec, (long)tv.tv_usec / 1000);
 #endif
     return buf;
 }
