@@ -4329,6 +4329,7 @@ tvb_bcd_dig_to_wmem_packet_str_be(tvbuff_t *tvb, const gint offset, const gint l
 gchar *tvb_bytes_to_str(wmem_allocator_t *allocator, tvbuff_t *tvb,
     const gint offset, const gint len)
 {
+	DISSECTOR_ASSERT(len > 0);
 	return bytes_to_str(allocator, ensure_contiguous(tvb, offset, len), len);
 }
 
