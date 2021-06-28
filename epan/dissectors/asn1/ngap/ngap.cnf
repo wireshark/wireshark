@@ -291,20 +291,28 @@ UE-NGAP-IDs/aMF-UE-NGAP-ID ABBREV=AMF_UE_NGAP_ID
     /* Don't want elements inside container to write to info column */
     col_set_writable(actx->pinfo->cinfo, COL_INFO, FALSE);
     subtree = proto_item_add_subtree(actx->created_item, ett_ngap_SourceToTarget_TransparentContainer);
-    switch(ngap_data->handover_type_value) {
-    case intra5gs:
-    case eps_to_5gs:
-      dissect_ngap_SourceNGRANNode_ToTargetNGRANNode_TransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
-      break;
-    case fivegs_to_eps:
-      dissect_s1ap_SourceeNB_ToTargeteNB_TransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
-      break;
-    case fivegs_to_utran:
-      dissect_rrc_ToTargetRNC_Container_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
-      break;
-    default:
-      break;
+    TRY {
+
+        switch(ngap_data->handover_type_value) {
+        case intra5gs:
+        case eps_to_5gs:
+            dissect_ngap_SourceNGRANNode_ToTargetNGRANNode_TransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+            break;
+        case fivegs_to_eps:
+            dissect_s1ap_SourceeNB_ToTargeteNB_TransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+            break;
+        case fivegs_to_utran:
+            dissect_rrc_ToTargetRNC_Container_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+            break;
+        default:
+            break;
+        }
     }
+    CATCH_BOUNDS_ERRORS {
+          show_exception(tvb, actx->pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
+    }
+    ENDTRY;
+
     /* Enable writing of the column again */
     col_set_writable(actx->pinfo->cinfo, COL_INFO, TRUE);
   }
@@ -1180,6 +1188,19 @@ QosMonitoringReportingFrequency DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units
     proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_ngap_UpdateFeedback);
     proto_tree_add_bitmask_list(subtree, parameter_tvb, 0, 1, fields, ENC_BIG_ENDIAN);
   }
+
+#.FN_BODY PDUSessionResourceSetupRequestTransfer
+volatile guint32 _offset;
+  _offset = offset;
+        TRY {
+  _offset = dissect_per_sequence(tvb, _offset, actx, tree, hf_index,
+                                   ett_ngap_PDUSessionResourceSetupRequestTransfer, PDUSessionResourceSetupRequestTransfer_sequence);
+        }
+        CATCH_BOUNDS_ERRORS {
+          show_exception(tvb, actx->pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
+        }
+        ENDTRY;
+  offset = _offset;
 
 #.ASSIGN_VALUE_TO_TYPE  # NGAP does not have constants assigned to types, they are pure INTEGER
 # ProcedureCode
