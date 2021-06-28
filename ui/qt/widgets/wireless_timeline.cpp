@@ -331,6 +331,14 @@ WirelessTimeline::WirelessTimeline(QWidget *parent) : QWidget(parent)
     connect(wsApp, SIGNAL(appInitialized()), this, SLOT(appInitialized()));
 }
 
+WirelessTimeline::~WirelessTimeline()
+{
+    if (radio_packet_list != NULL)
+    {
+        g_hash_table_destroy(radio_packet_list);
+    }
+}
+
 void WirelessTimeline::setPacketList(PacketList *packet_list)
 {
     this->packet_list = packet_list;
