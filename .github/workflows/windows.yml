@@ -39,7 +39,7 @@ jobs:
         run: cmake --build . --config RelWithDebInfo
         working-directory: build
       - name: Build guides
-        run: cmake --build . --config RelWithDebInfo --target user_guide_chm
+        run: cmake --build . --config RelWithDebInfo --target user_guide_html
         working-directory: build
       - name: Build test-programs
         run: cmake --build . --config RelWithDebInfo --target test-programs
