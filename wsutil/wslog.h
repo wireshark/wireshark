@@ -13,6 +13,7 @@
 #include <ws_attributes.h>
 #include <glib.h>
 #include <stdio.h>
+#include <time.h>
 #include <stdarg.h>
 
 #include <ws_log_defs.h>
@@ -27,9 +28,15 @@
 extern "C" {
 #endif /* __cplusplus */
 
+typedef struct {
+    time_t tv_sec;  /* -1 if no time source is available */
+    long tv_nsec;   /* -1 if subsecond resolution is not available */
+} ws_log_time_t;
+
+
 /** Callback for registering a log writer. */
 typedef void (ws_log_writer_cb)(const char *domain, enum ws_log_level level,
-                            const char *timestamp,
+                            ws_log_time_t timestamp,
                             const char *file, int line, const char *func,
                             const char *user_format, va_list user_ap,
                             void *user_data);
@@ -41,7 +48,7 @@ typedef void (ws_log_writer_free_data_cb)(void *user_data);
 
 WS_DLL_PUBLIC
 void ws_log_default_writer(const char *domain, enum ws_log_level level,
-                            const char *timestamp,
+                            ws_log_time_t timestamp,
                             const char *file, int line, const char *func,
                             const char *user_format, va_list user_ap,
                             void *user_data);

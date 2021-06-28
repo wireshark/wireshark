@@ -7,6 +7,11 @@
  */
 
 #include "config.h"
+
+#if defined(WS_DISABLE_ASSERT) && !defined(NDEBUG)
+#define NDEBUG
+#endif
+
 #include "wslog.h"
 
 #include <stdlib.h>
@@ -14,9 +19,6 @@
 #include <errno.h>
 #include <time.h>
 #include <assert.h>
-#ifdef HAVE_SYS_TIME_H
-#include <sys/time.h>
-#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -712,13 +714,15 @@ static inline const char *color_off(gboolean enable)
     return enable ? RESET : "";
 }
 
+#define NANOSECS_IN_MICROSEC 1000
+
 /*
  * We must not call anything that might log a message
  * in the log handler context (GLib might log a message if we register
  * our own handler for the GLib domain).
  */
 static void log_write_do_work(FILE *fp, gboolean use_color,
-                                const char *timestamp,
+                                struct tm *when, long nanosecs,
                                 const char *domain,  enum ws_log_level level,
                                 const char *file, int line, const char *func,
                                 const char *user_format, va_list user_ap)
@@ -730,12 +734,22 @@ static void log_write_do_work(FILE *fp, gboolean use_color,
         fputs(" ** (noinit)", fp);
 #endif
 
-    /* Process - timestamp - priority */
-    fprintf(fp, " ** (%s:%ld) %s [%s %s%s%s] ",
-                                registered_progname,
-                                (long)getpid(),
-                                timestamp,
-                                domain_to_string(domain),
+    /* Process */
+    fprintf(fp, " ** (%s:%ld) ", registered_progname, (long)getpid());
+
+    /* Timestamp */
+    if (when != NULL && nanosecs >= 0)
+        fprintf(fp, "%02d:%02d:%02d.%06ld ",
+                            when->tm_hour, when->tm_min, when->tm_sec,
+                            nanosecs / NANOSECS_IN_MICROSEC);
+    else if (when != NULL)
+        fprintf(fp, "%02d:%02d:%02d ",
+                            when->tm_hour, when->tm_min, when->tm_sec);
+    else
+        fputs("(notime) ", fp);
+
+    /* Domain/level */
+    fprintf(fp, "[%s %s%s%s] ", domain_to_string(domain),
                                 level_color_on(use_color, level),
                                 ws_log_level_to_string(level),
                                 color_off(use_color));
@@ -759,29 +773,32 @@ static void log_write_do_work(FILE *fp, gboolean use_color,
 }
 
 
-#define NOTIME "(notime)"
-
-WS_RETNONNULL
-static const char *print_timestamp(char *buf, size_t size)
+static inline ws_log_time_t *get_timestamp(ws_log_time_t *ts)
 {
-#ifdef _WIN32
-    SYSTEMTIME lt;
-
-    GetLocalTime(&lt);
-    snprintf(buf, size, "%02d:%02d:%02d.%03d",
-                lt.wHour, lt.wMinute, lt.wSecond, lt.wMilliseconds);
-#else
-    struct timeval tv;
-    struct tm *now;
-
-    gettimeofday(&tv, NULL);
-    now = localtime(&tv.tv_sec);
-    if (now == NULL)
-        return NOTIME;
-    snprintf(buf, size, "%02d:%02d:%02d.%03ld",
-                now->tm_hour, now->tm_min, now->tm_sec, (long)tv.tv_usec / 1000);
+    assert(ts);
+#if defined(HAVE_CLOCK_GETTIME)
+    if (clock_gettime(CLOCK_REALTIME, (struct timespec *)ts) == 0)
+        return ts;
+#elif defined(_WIN32)
+    if (timespec_get((struct timespec *)ts, TIME_UTC) == TIME_UTC)
+        return ts;
 #endif
-    return buf;
+    ts->tv_sec = time(NULL);
+    ts->tv_nsec = -1;
+    return ts;
+}
+
+
+static inline struct tm *get_localtime(time_t unix_time, struct tm **cookie)
+{
+    if (unix_time == (time_t)-1)
+        return NULL;
+    if (cookie && *cookie)
+        return *cookie;
+    struct tm *when = localtime(&unix_time);
+    if (cookie)
+        *cookie = when;
+    return when;
 }
 
 
@@ -794,18 +811,19 @@ static void log_write_dispatch(const char *domain, enum ws_log_level level,
                             const char *file, int line, const char *func,
                             const char *user_format, va_list user_ap)
 {
-    char timebuf[32];
-    const char *tstamp;
+    ws_log_time_t tstamp;
+    struct tm *cookie = NULL;
 
-    tstamp = print_timestamp(timebuf, sizeof(timebuf));
+    get_timestamp(&tstamp);
 
     if (custom_log) {
         va_list user_ap_copy;
 
         G_VA_COPY(user_ap_copy, user_ap);
         log_write_do_work(custom_log, FALSE,
-                            tstamp, domain, level,
-                            file, line, func,
+                            get_localtime(tstamp.tv_sec, &cookie),
+                            tstamp.tv_nsec,
+                            domain, level, file, line, func,
                             user_format, user_ap_copy);
         va_end(user_ap_copy);
     }
@@ -815,8 +833,11 @@ static void log_write_dispatch(const char *domain, enum ws_log_level level,
                         user_format, user_ap, registered_log_writer_data);
     }
     else {
-        log_write_do_work(stderr, color_enabled, tstamp, domain, level,
-                        file, line, func, user_format, user_ap);
+        log_write_do_work(stderr, color_enabled,
+                            get_localtime(tstamp.tv_sec, &cookie),
+                            tstamp.tv_nsec,
+                            domain, level, file, line, func,
+                            user_format, user_ap);
     }
 
     if (level >= fatal_log_level) {
@@ -876,13 +897,16 @@ void ws_log_full(const char *domain, enum ws_log_level level,
 
 
 void ws_log_default_writer(const char *domain, enum ws_log_level level,
-                            const char *timestamp,
+                            ws_log_time_t timestamp,
                             const char *file, int line, const char *func,
                             const char *user_format, va_list user_ap,
                             void *user_data _U_)
 {
-    log_write_do_work(stderr, color_enabled, timestamp, domain, level,
-                                    file, line, func, user_format, user_ap);
+    log_write_do_work(stderr, color_enabled,
+                        get_localtime(timestamp.tv_sec, NULL),
+                        timestamp.tv_nsec,
+                        domain, level, file, line, func,
+                        user_format, user_ap);
 }
 
 
