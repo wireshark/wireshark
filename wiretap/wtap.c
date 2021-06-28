@@ -1094,7 +1094,7 @@ static struct encap_type_info encap_table_base[] = {
 	{ "vsock", "Linux vsock" },
 
 	/* WTAP_ENCAP_NORDIC_BLE */
-	{ "nordic_ble", "Nordic BLE Sniffer" },
+	{ "nordic_ble", "nRF Sniffer for Bluetooth LE" },
 
 	/* WTAP_ENCAP_NETMON_NET_NETEVENT */
 	{ "netmon_event", "Network Monitor Network Event" },

@@ -134,7 +134,7 @@ editcap: The available encapsulation types for the "-T" flag are:
     netmon_network_info - Network Monitor Network Info
     nfc-llcp - NFC LLCP
     nflog - NFLOG
-    nordic_ble - Nordic BLE Sniffer
+    nordic_ble - nRF Sniffer for Bluetooth LE
     nstrace10 - NetScaler Encapsulation 1.0 of Ethernet
     nstrace20 - NetScaler Encapsulation 2.0 of Ethernet
     nstrace30 - NetScaler Encapsulation 3.0 of Ethernet

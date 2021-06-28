@@ -1,5 +1,5 @@
 /* packet-nordic_ble.c
- * Routines for Nordic BLE sniffer dissection
+ * Routines for nRF Sniffer for Bluetooth LE dissection
  *
  * Copyright (c) 2016-2018 Nordic Semiconductor.
  *
@@ -10,7 +10,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-/* Nordic BLE Sniffer packet format: BoardID + Header + Payload
+/* nRF Sniffer for Bluetooth LE packet format: BoardID + Header + Payload
  *
  *  +--------+--------+--------+--------+--------+--------+--------+--------+
  *  |                           BoardID  (1 byte)                           |

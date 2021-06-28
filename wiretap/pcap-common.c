@@ -452,7 +452,7 @@ static const struct {
 	/* Linux vsock */
 	{ 271,		WTAP_ENCAP_VSOCK },
 
-	/* Nordic BLE Sniffer */
+	/* nRF Sniffer for Bluetooth LE */
 	{ 272,		WTAP_ENCAP_NORDIC_BLE },
 
 	/* DOCSIS31 XRA31 Sniffer */
