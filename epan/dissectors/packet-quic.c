@@ -342,6 +342,11 @@ typedef struct _quic_follow_stream {
     guint64         stream_id;
 } quic_follow_stream;
 
+typedef struct quic_follow_tap_data {
+    tvbuff_t *tvb;
+    guint64  stream_id;
+} quic_follow_tap_data_t;
+
 /**
  * State for a single QUIC connection, identified by one or more Destination
  * Connection IDs (DCID).
@@ -1843,7 +1848,12 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
 
             proto_tree_add_item(ft_tree, hf_quic_stream_data, tvb, offset, (int)length, ENC_NA);
             if (have_tap_listener(quic_follow_tap)) {
-                tap_queue_packet(quic_follow_tap, pinfo, tvb_new_subset_length(tvb, offset, (int)length));
+                quic_follow_tap_data_t *follow_data = wmem_new0(wmem_packet_scope(), quic_follow_tap_data_t);
+
+                follow_data->tvb = tvb_new_subset_remaining(tvb, offset);
+                follow_data->stream_id = stream_id;
+
+                tap_queue_packet(quic_follow_tap, pinfo, follow_data);
             }
             quic_stream_state *stream = quic_get_stream_state(pinfo, quic_info, from_server, stream_id);
             quic_stream_info stream_info = {
@@ -3935,10 +3945,15 @@ quic_follow_address_filter(address *src_addr _U_, address *dst_addr _U_, int src
 static tap_packet_status
 follow_quic_tap_listener(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const void *data)
 {
-    // TODO fix filtering for multiple streams, see
-    // https://gitlab.com/wireshark/wireshark/-/issues/16093
-    follow_tvb_tap_listener(tapdata, pinfo, NULL, data);
-    return TAP_PACKET_DONT_REDRAW;
+    follow_info_t *follow_info = (follow_info_t *)tapdata;
+    const quic_follow_tap_data_t *follow_data = (const quic_follow_tap_data_t *)data;
+
+    if (follow_info->substream_id != SUBSTREAM_UNUSED &&
+        follow_info->substream_id != follow_data->stream_id) {
+        return TAP_PACKET_DONT_REDRAW;
+    }
+
+    return follow_tvb_tap_listener(tapdata, pinfo, NULL, follow_data->tvb);
 }
 
 guint32 get_quic_connections_count(void)

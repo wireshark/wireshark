@@ -269,6 +269,11 @@ typedef struct {
     tcp_flow_t *fwd_flow;
 } http2_session_t;
 
+typedef struct http2_follow_tap_data {
+    tvbuff_t *tvb;
+    guint64  stream_id;
+} http2_follow_tap_data_t;
+
 #ifdef HAVE_NGHTTP2
 /* Decode as functions */
 static gpointer
@@ -2163,6 +2168,20 @@ http2_follow_index_filter(guint stream, guint sub_stream)
     return g_strdup_printf("tcp.stream eq %u and http2.streamid eq %u", stream, sub_stream);
 }
 
+static tap_packet_status
+follow_http2_tap_listener(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const void *data)
+{
+    follow_info_t *follow_info = (follow_info_t *)tapdata;
+    const http2_follow_tap_data_t *follow_data = (const http2_follow_tap_data_t *)data;
+
+    if (follow_info->substream_id != SUBSTREAM_UNUSED &&
+        follow_info->substream_id != follow_data->stream_id) {
+        return TAP_PACKET_DONT_REDRAW;
+    }
+
+    return follow_tvb_tap_listener(tapdata, pinfo, NULL, follow_data->tvb);
+}
+
 static guint8
 dissect_http2_header_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *http2_tree, guint offset, guint8 type)
 {
@@ -3474,7 +3493,12 @@ dissect_http2_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     tap_queue_packet(http2_tap, pinfo, http2_stats);
 
     if (have_tap_listener(http2_follow_tap)) {
-        tap_queue_packet(http2_follow_tap, pinfo, tvb);
+        http2_follow_tap_data_t *follow_data = wmem_new0(wmem_packet_scope(), http2_follow_tap_data_t);
+
+        follow_data->tvb = tvb;
+        follow_data->stream_id = streamid;
+
+        tap_queue_packet(http2_follow_tap, pinfo, follow_data);
     }
 
     return tvb_captured_length(tvb);
@@ -4113,7 +4137,7 @@ proto_register_http2(void)
     http2_follow_tap = register_tap("http2_follow");
 
     register_follow_stream(proto_http2, "http2_follow", http2_follow_conv_filter, http2_follow_index_filter, tcp_follow_address_filter,
-                           tcp_port_to_display, follow_tvb_tap_listener);
+                           tcp_port_to_display, follow_http2_tap_listener);
 }
 
 static void http2_stats_tree_init(stats_tree* st)

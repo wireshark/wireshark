@@ -3529,6 +3529,7 @@ set(_test_group_list
 	suite_fileformats
 	suite_follow
 	suite_follow_dccp
+	suite_follow_multistream
 	suite_io
 	suite_mergecap
 	suite_netperfmeter

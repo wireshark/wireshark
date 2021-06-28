@@ -117,6 +117,7 @@ FollowStreamDialog::FollowStreamDialog(QWidget &parent, CaptureFile &cf, follow_
 
     memset(&follow_info_, 0, sizeof(follow_info_));
     follow_info_.show_stream = BOTH_HOSTS;
+    follow_info_.substream_id = SUBSTREAM_UNUSED;
 
     ui->teStreamContent->installEventFilter(this);
 
@@ -983,6 +984,8 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index, 
     {
         filter_out_filter_ = QString("!(%1)").arg(follow_filter);
     }
+
+    follow_info_.substream_id = sub_stream_num;
 
     /* data will be passed via tap callback*/
     if (!registerTapListener(get_follow_tap_string(follower_), &follow_info_,
