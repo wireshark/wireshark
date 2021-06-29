@@ -256,8 +256,8 @@ static const value_string grace_tlv_type_vals[] = {
 #define OPAQUE_TLV_NAT              10
 #define OPAQUE_TLV_SBD              11
 #define OPAQUE_TLV_NODE_MSD         12
-#define OPAQUE_TLV_SRLB             13
-#define OPAQUE_TLV_SRMS_PREF        14
+#define OPAQUE_TLV_SRLB             14
+#define OPAQUE_TLV_SRMS_PREF        15
 
 /* The Opaque RI LSA TLV types definitions. */
 static const value_string ri_tlv_type_vals[] = {
@@ -269,7 +269,7 @@ static const value_string ri_tlv_type_vals[] = {
     {OPAQUE_TLV_PCED,               "PCED"                               },
     {OPAQUE_TLV_DH,                 "OSPF Dynamic Hostname"              },
     {OPAQUE_TLV_SA,                 "SR-Algorithm "                      },
-    {OPAQUE_TLV_SLR,                "SID/Label Range "                   },
+    {OPAQUE_TLV_SLR,                "SID/Label Range"                    },
     {OPAQUE_TLV_NAT,                "Node Admin Tag "                    },
     {OPAQUE_TLV_SBD,                "S-BFD Discriminator"                },
     {OPAQUE_TLV_NODE_MSD,           "Node MSD"                           },
@@ -2819,7 +2819,9 @@ dissect_ospf_lsa_opaque_ri(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_
                 return;
             }
             tlv_tree = proto_tree_add_subtree_format(ri_tree, tvb, offset, tlv_length+4,
-                                    ett_ospf_lsa_unknown_tlv, NULL, "%s", val_to_str_const(tlv_type, ri_tlv_type_vals, "Unknown Opaque RI LSA TLV"));
+                                    ett_ospf_lsa_unknown_tlv, NULL, "%s  (t=%u, l=%u)",
+                                    val_to_str_const(tlv_type, ri_tlv_type_vals, "Unknown Opaque RI LSA TLV"),
+                                    tlv_type, tlv_length);
 
             proto_tree_add_item(tlv_tree, hf_ospf_tlv_type_opaque, tvb, offset, 2, ENC_BIG_ENDIAN);
 
