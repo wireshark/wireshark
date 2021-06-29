@@ -3541,7 +3541,7 @@ typedef struct compute_options_size_t
     compute_option_size_func compute_option_size;
 } compute_options_size_t;
 
-static guint32 pcapng_compute_option_string_size(char *str)
+static guint32 pcapng_compute_string_option_size(char *str)
 {
     guint32 size = 0, pad;
 
@@ -3557,26 +3557,7 @@ static guint32 pcapng_compute_option_string_size(char *str)
     return size;
 }
 
-static guint32 pcapng_compute_custom_option_size(size_t custom_data_len)
-{
-    size_t size, pad;
-
-    size = custom_data_len + sizeof(guint32);
-    if (size > 65535) {
-        size = 65535;
-    }
-    if ((size % 4)) {
-        pad = 4 - (size % 4);
-    } else {
-        pad = 0;
-    }
-
-    size += pad;
-
-    return (guint32)size;
-}
-
-static guint32 compute_if_filter_option_size(wtap_optval_t *optval)
+static guint32 pcapng_compute_if_filter_option_size(wtap_optval_t *optval)
 {
     if_filter_opt_t* filter = &optval->if_filterval;
     guint32 size;
@@ -3599,6 +3580,25 @@ static guint32 compute_if_filter_option_size(wtap_optval_t *optval)
     return size;
 }
 
+static guint32 pcapng_compute_custom_option_size(size_t custom_data_len)
+{
+    size_t size, pad;
+
+    size = custom_data_len + sizeof(guint32);
+    if (size > 65535) {
+        size = 65535;
+    }
+    if ((size % 4)) {
+        pad = 4 - (size % 4);
+    } else {
+        pad = 0;
+    }
+
+    size += pad;
+
+    return (guint32)size;
+}
+
 static gboolean
 compute_block_option_size(wtap_block_t block _U_, guint option_id, wtap_opttype_e option_type, wtap_optval_t *optval, void *user_data)
 {
@@ -3612,7 +3612,7 @@ compute_block_option_size(wtap_block_t block _U_, guint option_id, wtap_opttype_
     switch(option_id)
     {
     case OPT_COMMENT:
-        size = pcapng_compute_option_string_size(optval->stringval);
+        size = pcapng_compute_string_option_size(optval->stringval);
         break;
     case OPT_CUSTOM_STR_COPY:
     case OPT_CUSTOM_BIN_COPY:
@@ -3686,7 +3686,7 @@ static guint32 compute_shb_option_size(wtap_block_t block _U_, guint option_id, 
     case OPT_SHB_HARDWARE:
     case OPT_SHB_OS:
     case OPT_SHB_USERAPPL:
-        size = pcapng_compute_option_string_size(optval->stringval);
+        size = pcapng_compute_string_option_size(optval->stringval);
         break;
     default:
         /* Unknown options - size by datatype? */
@@ -3706,58 +3706,6 @@ typedef struct write_options_t
 }
 write_options_t;
 
-static gboolean pcapng_write_custom_option(wtap_dumper *wdh, guint option_id, custom_opt_t *custom_option, int *err)
-{
-    struct pcapng_option_header option_hdr;
-    const guint32 zero_pad = 0;
-    size_t pad;
-
-    if ((option_id == OPT_CUSTOM_STR_NO_COPY) ||
-        (option_id == OPT_CUSTOM_BIN_NO_COPY))
-        return TRUE;
-    if (custom_option->custom_data_len + sizeof(guint32) > 65535) {
-        /*
-         * Too big to fit in the option.
-         * Don't write anything.
-         *
-         * XXX - truncate it?  Report an error?
-         */
-        return TRUE;
-    }
-
-    /* write option header */
-    option_hdr.type         = (guint16)option_id;
-    option_hdr.value_length = (guint16)(custom_option->custom_data_len + sizeof(guint32));
-    if (!wtap_dump_file_write(wdh, &option_hdr, sizeof(struct pcapng_option_header), err))
-        return FALSE;
-    wdh->bytes_dumped += sizeof(struct pcapng_option_header);
-
-    /* write PEN */
-    if (!wtap_dump_file_write(wdh, &custom_option->pen, sizeof(guint32), err))
-        return FALSE;
-    wdh->bytes_dumped += sizeof(guint32);
-
-    /* write custom data */
-    if (!wtap_dump_file_write(wdh, custom_option->custom_data, custom_option->custom_data_len, err))
-        return FALSE;
-    wdh->bytes_dumped += custom_option->custom_data_len;
-
-    /* write padding (if any) */
-    if ((custom_option->custom_data_len % 4)) {
-        pad = 4 - (custom_option->custom_data_len % 4);
-    } else {
-        pad = 0;
-    }
-    if (pad != 0) {
-        if (!wtap_dump_file_write(wdh, &zero_pad, pad, err))
-            return FALSE;
-        wdh->bytes_dumped += pad;
-    }
-    ws_debug("Wrote custom option: type %u, length %u", option_hdr.type, option_hdr.value_length);
-
-    return TRUE;
-}
-
 static gboolean pcapng_write_option_eofopt(wtap_dumper *wdh, int *err)
 {
     struct pcapng_option_header option_hdr;
@@ -3771,7 +3719,69 @@ static gboolean pcapng_write_option_eofopt(wtap_dumper *wdh, int *err)
     return TRUE;
 }
 
-static gboolean pcapng_write_option_string(wtap_dumper *wdh, guint option_id, char *str, int *err)
+static gboolean pcapng_write_uint8_option(wtap_dumper *wdh, guint option_id, guint8 uint8, int *err)
+{
+    struct pcapng_option_header option_hdr;
+    const guint32 zero_pad = 0;
+
+    option_hdr.type         = (guint16)option_id;
+    option_hdr.value_length = (guint16)1;
+    if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
+        return FALSE;
+    wdh->bytes_dumped += 4;
+
+    if (!wtap_dump_file_write(wdh, &uint8, 1, err))
+        return FALSE;
+    wdh->bytes_dumped += 1;
+
+    if (!wtap_dump_file_write(wdh, &zero_pad, 3, err))
+        return FALSE;
+    wdh->bytes_dumped += 3;
+
+    return TRUE;
+}
+
+static gboolean pcapng_write_uint64_option(wtap_dumper *wdh, guint option_id, guint64 uint64, int *err)
+{
+    struct pcapng_option_header option_hdr;
+
+    option_hdr.type         = (guint16)option_id;
+    option_hdr.value_length = (guint16)8;
+    if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
+        return FALSE;
+    wdh->bytes_dumped += 4;
+
+    if (!wtap_dump_file_write(wdh, &uint64, sizeof(guint64), err))
+        return FALSE;
+    wdh->bytes_dumped += 8;
+
+    return TRUE;
+}
+
+static gboolean pcapng_write_timestamp_option(wtap_dumper *wdh, guint option_id, guint64 timestamp, int *err)
+{
+    struct pcapng_option_header option_hdr;
+    guint32 high, low;
+
+    option_hdr.type         = (guint16)option_id;
+    option_hdr.value_length = (guint16)8;
+    if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
+        return FALSE;
+    wdh->bytes_dumped += 4;
+
+    high = (guint32)(timestamp >> 32);
+    low = (guint32)(timestamp >> 0);
+    if (!wtap_dump_file_write(wdh, &high, sizeof(guint32), err))
+        return FALSE;
+    wdh->bytes_dumped += 4;
+    if (!wtap_dump_file_write(wdh, &low, sizeof(guint32), err))
+        return FALSE;
+    wdh->bytes_dumped += 4;
+
+    return TRUE;
+}
+
+static gboolean pcapng_write_string_option(wtap_dumper *wdh, guint option_id, char *str, int *err)
 {
     struct pcapng_option_header option_hdr;
     size_t size = strlen(str);
@@ -3818,69 +3828,7 @@ static gboolean pcapng_write_option_string(wtap_dumper *wdh, guint option_id, ch
     return TRUE;
 }
 
-static gboolean pcapng_write_option_uint8(wtap_dumper *wdh, guint option_id, guint8 uint8, int *err)
-{
-    struct pcapng_option_header option_hdr;
-    const guint32 zero_pad = 0;
-
-    option_hdr.type         = (guint16)option_id;
-    option_hdr.value_length = (guint16)1;
-    if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
-        return FALSE;
-    wdh->bytes_dumped += 4;
-
-    if (!wtap_dump_file_write(wdh, &uint8, 1, err))
-        return FALSE;
-    wdh->bytes_dumped += 1;
-
-    if (!wtap_dump_file_write(wdh, &zero_pad, 3, err))
-        return FALSE;
-    wdh->bytes_dumped += 3;
-
-    return TRUE;
-}
-
-static gboolean pcapng_write_option_timestamp(wtap_dumper *wdh, guint option_id, guint64 timestamp, int *err)
-{
-    struct pcapng_option_header option_hdr;
-    guint32 high, low;
-
-    option_hdr.type         = (guint16)option_id;
-    option_hdr.value_length = (guint16)8;
-    if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
-        return FALSE;
-    wdh->bytes_dumped += 4;
-
-    high = (guint32)(timestamp >> 32);
-    low = (guint32)(timestamp >> 0);
-    if (!wtap_dump_file_write(wdh, &high, sizeof(guint32), err))
-        return FALSE;
-    wdh->bytes_dumped += 4;
-    if (!wtap_dump_file_write(wdh, &low, sizeof(guint32), err))
-        return FALSE;
-    wdh->bytes_dumped += 4;
-
-    return TRUE;
-}
-
-static gboolean pcapng_write_option_uint64(wtap_dumper *wdh, guint option_id, guint64 uint64, int *err)
-{
-    struct pcapng_option_header option_hdr;
-
-    option_hdr.type         = (guint16)option_id;
-    option_hdr.value_length = (guint16)8;
-    if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
-        return FALSE;
-    wdh->bytes_dumped += 4;
-
-    if (!wtap_dump_file_write(wdh, &uint64, sizeof(guint64), err))
-        return FALSE;
-    wdh->bytes_dumped += 8;
-
-    return TRUE;
-}
-
-static gboolean pcapng_write_option_if_filter(wtap_dumper *wdh, guint option_id, wtap_optval_t *optval, int *err)
+static gboolean pcapng_write_if_filter_option(wtap_dumper *wdh, guint option_id, wtap_optval_t *optval, int *err)
 {
     if_filter_opt_t* filter = &optval->if_filterval;
     guint32 size, pad;
@@ -3971,6 +3919,58 @@ static gboolean pcapng_write_option_if_filter(wtap_dumper *wdh, guint option_id,
     return TRUE;
 }
 
+static gboolean pcapng_write_custom_option(wtap_dumper *wdh, guint option_id, custom_opt_t *custom_option, int *err)
+{
+    struct pcapng_option_header option_hdr;
+    const guint32 zero_pad = 0;
+    size_t pad;
+
+    if ((option_id == OPT_CUSTOM_STR_NO_COPY) ||
+        (option_id == OPT_CUSTOM_BIN_NO_COPY))
+        return TRUE;
+    if (custom_option->custom_data_len + sizeof(guint32) > 65535) {
+        /*
+         * Too big to fit in the option.
+         * Don't write anything.
+         *
+         * XXX - truncate it?  Report an error?
+         */
+        return TRUE;
+    }
+
+    /* write option header */
+    option_hdr.type         = (guint16)option_id;
+    option_hdr.value_length = (guint16)(custom_option->custom_data_len + sizeof(guint32));
+    if (!wtap_dump_file_write(wdh, &option_hdr, sizeof(struct pcapng_option_header), err))
+        return FALSE;
+    wdh->bytes_dumped += sizeof(struct pcapng_option_header);
+
+    /* write PEN */
+    if (!wtap_dump_file_write(wdh, &custom_option->pen, sizeof(guint32), err))
+        return FALSE;
+    wdh->bytes_dumped += sizeof(guint32);
+
+    /* write custom data */
+    if (!wtap_dump_file_write(wdh, custom_option->custom_data, custom_option->custom_data_len, err))
+        return FALSE;
+    wdh->bytes_dumped += custom_option->custom_data_len;
+
+    /* write padding (if any) */
+    if ((custom_option->custom_data_len % 4)) {
+        pad = 4 - (custom_option->custom_data_len % 4);
+    } else {
+        pad = 0;
+    }
+    if (pad != 0) {
+        if (!wtap_dump_file_write(wdh, &zero_pad, pad, err))
+            return FALSE;
+        wdh->bytes_dumped += pad;
+    }
+    ws_debug("Wrote custom option: type %u, length %u", option_hdr.type, option_hdr.value_length);
+
+    return TRUE;
+}
+
 static gboolean write_block_option(wtap_block_t block, guint option_id, wtap_opttype_e option_type _U_, wtap_optval_t *optval, void* user_data)
 {
     write_options_t* write_options = (write_options_t*)user_data;
@@ -3982,7 +3982,7 @@ static gboolean write_block_option(wtap_block_t block, guint option_id, wtap_opt
     switch(option_id)
     {
     case OPT_COMMENT:
-        if (!pcapng_write_option_string(write_options->wdh, option_id, optval->stringval, write_options->err))
+        if (!pcapng_write_string_option(write_options->wdh, option_id, optval->stringval, write_options->err))
             return FALSE;
         break;
     case OPT_CUSTOM_STR_COPY:
@@ -4031,7 +4031,7 @@ static gboolean write_wtap_shb_option(wtap_dumper *wdh, wtap_block_t block _U_, 
     case OPT_SHB_HARDWARE:
     case OPT_SHB_OS:
     case OPT_SHB_USERAPPL:
-        if (!pcapng_write_option_string(wdh, option_id, optval->stringval, err))
+        if (!pcapng_write_string_option(wdh, option_id, optval->stringval, err))
             return FALSE;
         break;
     default:
@@ -4750,7 +4750,7 @@ compute_nrb_option_size(wtap_block_t block _U_, guint option_id, wtap_opttype_e 
     switch(option_id)
     {
     case OPT_NS_DNSNAME:
-        size = pcapng_compute_option_string_size(optval->stringval);
+        size = pcapng_compute_string_option_size(optval->stringval);
         break;
     case OPT_NS_DNSIP4ADDR:
         size = 4;
@@ -5169,7 +5169,7 @@ static gboolean write_wtap_isb_option(wtap_dumper *wdh, wtap_block_t block _U_, 
     {
     case OPT_ISB_STARTTIME:
     case OPT_ISB_ENDTIME:
-        if (!pcapng_write_option_timestamp(wdh, option_id, optval->uint64val, err))
+        if (!pcapng_write_timestamp_option(wdh, option_id, optval->uint64val, err))
             return FALSE;
         break;
     case OPT_ISB_IFRECV:
@@ -5177,7 +5177,7 @@ static gboolean write_wtap_isb_option(wtap_dumper *wdh, wtap_block_t block _U_, 
     case OPT_ISB_FILTERACCEPT:
     case OPT_ISB_OSDROP:
     case OPT_ISB_USRDELIV:
-        if (!pcapng_write_option_uint64(wdh, option_id, optval->uint64val, err))
+        if (!pcapng_write_uint64_option(wdh, option_id, optval->uint64val, err))
             return FALSE;
         break;
     default:
@@ -5242,7 +5242,7 @@ static guint32 compute_idb_option_size(wtap_block_t block _U_, guint option_id, 
     case OPT_IDB_DESCR:
     case OPT_IDB_OS:
     case OPT_IDB_HARDWARE:
-        size = pcapng_compute_option_string_size(optval->stringval);
+        size = pcapng_compute_string_option_size(optval->stringval);
         break;
     case OPT_IDB_SPEED:
         size = 8;
@@ -5251,7 +5251,7 @@ static guint32 compute_idb_option_size(wtap_block_t block _U_, guint option_id, 
         size = 1;
         break;
     case OPT_IDB_FILTER:
-        size = compute_if_filter_option_size(optval);
+        size = pcapng_compute_if_filter_option_size(optval);
         break;
     case OPT_IDB_FCSLEN:
         size = 1;
@@ -5272,23 +5272,23 @@ static gboolean write_wtap_idb_option(wtap_dumper *wdh, wtap_block_t block _U_, 
     case OPT_IDB_DESCR:
     case OPT_IDB_OS:
     case OPT_IDB_HARDWARE:
-        if (!pcapng_write_option_string(wdh, option_id, optval->stringval, err))
+        if (!pcapng_write_string_option(wdh, option_id, optval->stringval, err))
             return FALSE;
         break;
     case OPT_IDB_SPEED:
-        if (!pcapng_write_option_uint64(wdh, option_id, optval->uint64val, err))
+        if (!pcapng_write_uint64_option(wdh, option_id, optval->uint64val, err))
             return FALSE;
         break;
     case OPT_IDB_TSRESOL:
-        if (!pcapng_write_option_uint8(wdh, option_id, optval->uint8val, err))
+        if (!pcapng_write_uint8_option(wdh, option_id, optval->uint8val, err))
             return FALSE;
         break;
     case OPT_IDB_FILTER:
-        if (!pcapng_write_option_if_filter(wdh, option_id, optval, err))
+        if (!pcapng_write_if_filter_option(wdh, option_id, optval, err))
             return FALSE;
         break;
     case OPT_IDB_FCSLEN:
-        if (!pcapng_write_option_uint8(wdh, option_id, optval->uint8val, err))
+        if (!pcapng_write_uint8_option(wdh, option_id, optval->uint8val, err))
             return FALSE;
         break;
     default:
