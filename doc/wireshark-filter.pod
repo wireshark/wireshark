@@ -188,15 +188,15 @@ eq, ne, gt, ge, lt, and le.  The IPv4 address is stored in host order,
 so you do not have to worry about the endianness of an IPv4 address
 when using it in a display filter.
 
-Classless InterDomain Routing (CIDR) notation can be used to test if an
+Classless Inter-Domain Routing (CIDR) notation can be used to test if an
 IPv4 address is in a certain subnet.  For example, this display filter
-will find all packets in the 129.111 Class-B network:
+will find all packets in the 129.111 network:
 
     ip.addr == 129.111.0.0/16
 
 Remember, the number after the slash represents the number of bits used
 to represent the network.  CIDR notation can also be used with
-hostnames, as in this example of finding IP addresses on the same Class C
+hostnames, as in this example of finding IP addresses on the same
 network as 'sneezy' (requires that 'sneezy' resolve to an IP address for filter to be valid):
 
     ip.addr eq sneezy/24
@@ -205,10 +205,10 @@ The CIDR notation can only be used on IP addresses or hostnames, not in
 variable names.  So, a display filter like "ip.src/24 == ip.dst/24" is
 not valid (yet).
 
-IPX networks are represented by unsigned 32-bit integers.  Most likely
-you will be using hexadecimal when testing IPX network values:
+Transaction and other IDs are often represented by unsigned 16 or 32 bit integers
+and formatted as a hexadecimal string with "0x" prefix:
 
-    ipx.src.net == 0xc0a82c00
+	(dhcp.id == 0xfe089c15) || (ip.id == 0x0373)
 
 Strings are enclosed in double quotes:
 
