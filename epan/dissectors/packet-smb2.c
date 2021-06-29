@@ -225,6 +225,7 @@ static int hf_smb2_write_flags_write_through = -1;
 static int hf_smb2_write_flags_write_unbuffered = -1;
 static int hf_smb2_write_count = -1;
 static int hf_smb2_write_remaining = -1;
+static int hf_smb2_read_blob = -1;
 static int hf_smb2_read_length = -1;
 static int hf_smb2_read_remaining = -1;
 static int hf_smb2_read_padding = -1;
@@ -1746,6 +1747,7 @@ static int dissect_smb2_file_full_ea_info(tvbuff_t *tvb, packet_info *pinfo, pro
 enum offset_length_buffer_offset_size {
 	OLB_O_UINT16_S_UINT16,
 	OLB_O_UINT16_S_UINT32,
+	OLB_O_UINT8_P_UINT8_S_UINT32,
 	OLB_O_UINT32_S_UINT32,
 	OLB_S_UINT32_O_UINT32
 };
@@ -1776,6 +1778,16 @@ dissect_smb2_olb_length_offset(tvbuff_t *tvb, int offset, offset_length_buffer_t
 		olb->off = tvb_get_letohs(tvb, offset);
 		olb->off_offset = offset;
 		offset += 2;
+		olb->len = tvb_get_letohl(tvb, offset);
+		olb->len_offset = offset;
+		offset += 4;
+		break;
+	case OLB_O_UINT8_P_UINT8_S_UINT32:
+		olb->off = tvb_get_guint8(tvb, offset);
+		olb->off_offset = offset;
+		offset += 1;
+		/* 1 byte reserved */
+		offset += 1;
 		olb->len = tvb_get_letohl(tvb, offset);
 		olb->len_offset = offset;
 		offset += 4;
@@ -1854,6 +1866,11 @@ dissect_smb2_olb_off_string(packet_info *pinfo, proto_tree *parent_tree, tvbuff_
 		proto_tree_add_item(tree, hf_smb2_olb_offset, tvb, olb->off_offset, 2, ENC_LITTLE_ENDIAN);
 		proto_tree_add_item(tree, hf_smb2_olb_length, tvb, olb->len_offset, 4, ENC_LITTLE_ENDIAN);
 		break;
+	case OLB_O_UINT8_P_UINT8_S_UINT32:
+		proto_tree_add_item(tree, hf_smb2_olb_offset, tvb, olb->off_offset, 1, ENC_NA);
+		proto_tree_add_item(tree, hf_smb2_reserved, tvb, olb->off_offset+1, 1, ENC_NA);
+		proto_tree_add_item(tree, hf_smb2_olb_length, tvb, olb->len_offset, 4, ENC_LITTLE_ENDIAN);
+		break;
 	case OLB_O_UINT32_S_UINT32:
 		proto_tree_add_item(tree, hf_smb2_olb_offset, tvb, olb->off_offset, 4, ENC_LITTLE_ENDIAN);
 		proto_tree_add_item(tree, hf_smb2_olb_length, tvb, olb->len_offset, 4, ENC_LITTLE_ENDIAN);
@@ -1907,6 +1924,11 @@ dissect_smb2_olb_buffer(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *t
 		break;
 	case OLB_O_UINT16_S_UINT32:
 		proto_tree_add_item(parent_tree, hf_smb2_olb_offset, tvb, olb->off_offset, 2, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(parent_tree, hf_smb2_olb_length, tvb, olb->len_offset, 4, ENC_LITTLE_ENDIAN);
+		break;
+	case OLB_O_UINT8_P_UINT8_S_UINT32:
+		proto_tree_add_item(parent_tree, hf_smb2_olb_offset, tvb, olb->off_offset, 1, ENC_NA);
+		proto_tree_add_item(parent_tree, hf_smb2_reserved, tvb, olb->off_offset+1, 1, ENC_NA);
 		proto_tree_add_item(parent_tree, hf_smb2_olb_length, tvb, olb->len_offset, 4, ENC_LITTLE_ENDIAN);
 		break;
 	case OLB_O_UINT32_S_UINT32:
@@ -8024,13 +8046,29 @@ dissect_smb2_read_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	return offset;
 }
 
+static void
+dissect_smb2_read_blob(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, smb2_info_t *si)
+{
+	gint offset = 0;
+	gint length = tvb_captured_length_remaining(tvb, offset);
+
+	smb2_pipe_set_file_id(pinfo, si);
+
+	offset = dissect_file_data_smb2_pipe(tvb, pinfo, tree, offset, length, si->top_tree, si);
+	if (offset != 0) {
+		/* managed to dissect pipe data */
+		return;
+	}
+
+	/* data */
+	proto_tree_add_item(tree, hf_smb2_read_data, tvb, offset, length, ENC_NA);
+}
 
 static int
 dissect_smb2_read_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si _U_)
 {
-	guint16 dataoffset = 0;
+	offset_length_buffer_t olb;
 	guint32 data_tvb_len;
-	guint32 length;
 	gboolean continue_dissection;
 
 	switch (si->status) {
@@ -8040,15 +8078,10 @@ dissect_smb2_read_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 		if (!continue_dissection) return offset;
 	}
 
-	/* data offset */
-	dataoffset=tvb_get_letohl(tvb,offset);
-	proto_tree_add_item(tree, hf_smb2_data_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-	offset += 2;
-
-	/* length  might even be 64bits if they are ambitious*/
-	length = tvb_get_letohl(tvb, offset);
-	proto_tree_add_item(tree, hf_smb2_read_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-	offset += 4;
+	/* data offset 8 bit, 8 bit reserved, length 32bit */
+	offset = dissect_smb2_olb_length_offset(tvb, offset, &olb,
+						OLB_O_UINT8_P_UINT8_S_UINT32,
+						hf_smb2_read_blob);
 
 	/* remaining */
 	proto_tree_add_item(tree, hf_smb2_read_remaining, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -8060,26 +8093,13 @@ dissect_smb2_read_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 	data_tvb_len=(guint32)tvb_captured_length_remaining(tvb, offset);
 
-	/* data or namedpipe ?*/
-	if (length) {
-		int oldoffset = offset;
-		smb2_pipe_set_file_id(pinfo, si);
-		offset = dissect_file_data_smb2_pipe(tvb, pinfo, tree, offset, length, si->top_tree, si);
-		if (offset != oldoffset) {
-			/* managed to dissect pipe data */
-			goto out;
-		}
-	}
+	dissect_smb2_olb_buffer(pinfo, tree, tvb, &olb, si, dissect_smb2_read_blob);
 
-	/* data */
-	proto_tree_add_item(tree, hf_smb2_read_data, tvb, offset, length, ENC_NA);
+	offset += MIN(olb.len, data_tvb_len);
 
-	offset += MIN(length,data_tvb_len);
-
-out:
-	if (have_tap_listener(smb2_eo_tap) && (data_tvb_len == length)) {
+	if (have_tap_listener(smb2_eo_tap) && (data_tvb_len == olb.len)) {
 		if (si->saved && si->eo_file_info) { /* without this data we don't know wich file this belongs to */
-			feed_eo_smb2(tvb,pinfo,si,dataoffset,length,si->saved->file_offset);
+			feed_eo_smb2(tvb,pinfo,si,olb.off,olb.len,si->saved->file_offset);
 		}
 	}
 
@@ -11512,6 +11532,11 @@ proto_register_smb2(void)
 		{ &hf_smb2_write_length,
 			{ "Write Length", "smb2.write_length", FT_UINT32, BASE_DEC,
 			NULL, 0, "Amount of data to write", HFILL }
+		},
+
+		{ &hf_smb2_read_blob,
+			{ "Info", "smb2.read.blob", FT_BYTES, BASE_NONE,
+			NULL, 0, "Read Blob", HFILL }
 		},
 
 		{ &hf_smb2_read_length,
