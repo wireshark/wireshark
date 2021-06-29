@@ -50,13 +50,21 @@ variables:
     when: always
   - if: '$CI_PIPELINE_SOURCE == "push" && $CI_PROJECT_URL !~ /.*gitlab.com\/wireshark\/wireshark/'
     when: manual
+# Merged commits for runners which are only available in
+# wireshark/wireshark, e.g. wireshark-windows-*. Run automatically in
+# the main repo and allow manual runs in the web UI.
+.if-w-w-only-merged:
+  - if: '$CI_PIPELINE_SOURCE == "push" && $CI_PROJECT_URL =~ /.*gitlab.com\/wireshark\/wireshark/'
+    when: always
+  - if: '$CI_PIPELINE_SOURCE == "web"'
+    when: always
 # Incoming merge requests.
 .if-merge-request:
   - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
     when: always
 # Incoming non-detached merge requests. Must be used for runners which are only
 # available in wireshark/wireshark, e.g. wireshark-windows-*
-.if-attached-merge-request:
+.if-w-w-only-merge-request:
   - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_PROJECT_URL =~ /.*gitlab.com\/wireshark\/wireshark/'
     when: always
 # Daily jobs. Care should be taken when changing this since the scheduler
@@ -295,7 +303,7 @@ Debian Stable APT Test:
 
 Win64 Package:
   extends: .build-windows
-  rules: !reference [.if-merged]
+  rules: !reference [.if-w-w-only-merged]
   tags:
     - wireshark-win64-package
   before_script:
@@ -341,7 +349,7 @@ Win64 Package:
 
 Win32 Package:
   extends: .build-windows
-  rules: !reference [.if-merged]
+  rules: !reference [.if-w-w-only-merged]
   tags:
     - wireshark-win32-package
   before_script:
@@ -517,7 +525,7 @@ Code Checks + Clang Warnings:
 # https://docs.gitlab.com/ee/user/gitlab_com/index.html#windows-shared-runners-beta
 Windows Build:
   extends: .build-windows
-  rules: !reference [.if-attached-merge-request]
+  rules: !reference [.if-w-w-only-merge-request]
   tags:
     - wireshark-windows-merge-req
   script:
