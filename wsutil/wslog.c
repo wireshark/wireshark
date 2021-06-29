@@ -58,9 +58,7 @@
 #define DOMAIN_DEFINED(domain)    (!DOMAIN_UNDEFED(domain))
 
 #define VALID_FATAL_LEVEL(level) \
-        (level == LOG_LEVEL_ERROR || \
-            level == LOG_LEVEL_CRITICAL || \
-            level == LOG_LEVEL_WARNING)
+        (level >= LOG_LEVEL_WARNING && level <= LOG_LEVEL_ERROR)
 
 /*
  * Note: I didn't measure it but I assume using a string array is faster than
@@ -191,7 +189,7 @@ static inline gboolean level_filter_matches(log_filter_t *filter,
     if (filter == NULL || DOMAIN_UNDEFED(domain))
         return FALSE;
 
-    if (filter_contains(filter, domain) == FALSE)
+    if (!filter_contains(filter, domain))
         return FALSE;
 
     if (filter->positive) {
@@ -851,7 +849,7 @@ static void log_write_dispatch(const char *domain, enum ws_log_level level,
 void ws_logv(const char *domain, enum ws_log_level level,
                     const char *format, va_list ap)
 {
-    if (ws_log_msg_is_active(domain, level) == FALSE)
+    if (!ws_log_msg_is_active(domain, level))
         return;
 
     log_write_dispatch(domain, level, NULL, -1, NULL, format, ap);
@@ -862,7 +860,7 @@ void ws_logv_full(const char *domain, enum ws_log_level level,
                     const char *file, int line, const char *func,
                     const char *format, va_list ap)
 {
-    if (ws_log_msg_is_active(domain, level) == FALSE)
+    if (!ws_log_msg_is_active(domain, level))
         return;
 
     log_write_dispatch(domain, level, file, line, func, format, ap);
@@ -872,7 +870,7 @@ void ws_logv_full(const char *domain, enum ws_log_level level,
 void ws_log(const char *domain, enum ws_log_level level,
                     const char *format, ...)
 {
-    if (ws_log_msg_is_active(domain, level) == FALSE)
+    if (!ws_log_msg_is_active(domain, level))
         return;
 
     va_list ap;
@@ -887,7 +885,7 @@ void ws_log_full(const char *domain, enum ws_log_level level,
                     const char *file, int line, const char *func,
                     const char *format, ...)
 {
-    if (ws_log_msg_is_active(domain, level) == FALSE)
+    if (!ws_log_msg_is_active(domain, level))
         return;
 
     va_list ap;

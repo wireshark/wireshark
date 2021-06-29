@@ -155,7 +155,7 @@ int ws_log_parse_args(int *argc_ptr, char *argv[],
 /** Initializes the logging code.
  *
  * Must be called at startup before using the log API. If provided
- * vcmdarg_err is used to print initialization errors. This usuallu means
+ * vcmdarg_err is used to print initialization errors. This usually means
  * a misconfigured environment variable.
  */
 WS_DLL_PUBLIC
@@ -177,7 +177,7 @@ void ws_log_init_with_writer(const char *progname,
 /** Initializes the logging code.
  *
  * Accepts a user data pointer in addition to the writer. This pointer will
- * be provided to the writer wit hevery invocation. If provided
+ * be provided to the writer with every invocation. If provided
  * free_user_data will be called during cleanup.
  */
 WS_DLL_PUBLIC
