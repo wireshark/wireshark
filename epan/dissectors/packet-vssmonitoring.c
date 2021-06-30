@@ -220,7 +220,7 @@ proto_register_vssmonitoring(void)
   proto_register_field_array(proto_vssmonitoring, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  vssmonitoring_module = prefs_register_protocol(proto_vssmonitoring, NULL);
+  vssmonitoring_module = prefs_register_protocol_obsolete(proto_vssmonitoring);
 
   prefs_register_obsolete_preference(vssmonitoring_module, "use_heuristics");
 }
