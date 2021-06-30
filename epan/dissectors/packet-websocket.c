@@ -811,6 +811,8 @@ proto_reg_handoff_websocket(void)
 {
   dissector_add_string("http.upgrade", "websocket", websocket_handle);
 
+  dissector_add_for_decode_as("tcp.port", websocket_handle);
+
   text_lines_handle = find_dissector_add_dependency("data-text-lines", proto_websocket);
   json_handle = find_dissector_add_dependency("json", proto_websocket);
   sip_handle = find_dissector_add_dependency("sip", proto_websocket);
