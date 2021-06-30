@@ -176,6 +176,29 @@ NegotiationToken
     }
   }
 
+
+#.FN_BODY NegTokenTarg/mechListMIC VAL_PTR = &mechListMIC_tvb
+
+  tvbuff_t *mechListMIC_tvb;
+
+
+%(DEFAULT_BODY)s
+
+
+  /*
+   * Now, we should be able to dispatch, if we've gotten a tvbuff for
+   * the token and we have information on how to dissect its contents.
+   * However, we should make sure that there is something in the
+   * response token ...
+   */
+  if (mechListMIC_tvb && (tvb_reported_length(mechListMIC_tvb) > 0) ){
+    gssapi_oid_value *value=next_level_value;
+
+    if(value){
+      call_dissector(value->handle, mechListMIC_tvb, actx->pinfo, tree);
+    }
+  }
+
 #.END
 
 #
