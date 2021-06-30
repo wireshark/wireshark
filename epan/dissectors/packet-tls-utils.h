@@ -108,7 +108,7 @@ typedef enum {
 #define SSL_HND_HELLO_EXT_COMPRESS_CERTIFICATE          27
 #define SSL_HND_HELLO_EXT_RECORD_SIZE_LIMIT             28
 /* 26-33  Unassigned*/
-#define SSL_HND_HELLO_EXT_DELEGATED_CREDENTIALS         34 /* draft-ietf-tls-subcerts-09.txt */
+#define SSL_HND_HELLO_EXT_DELEGATED_CREDENTIALS         34 /* draft-ietf-tls-subcerts-10.txt */
 #define SSL_HND_HELLO_EXT_SESSION_TICKET_TLS            35
 /* RFC 8446 (TLS 1.3) */
 #define SSL_HND_HELLO_EXT_KEY_SHARE_OLD                 40 /* draft-ietf-tls-tls13-22 (removed in -23) */
@@ -966,6 +966,11 @@ typedef struct ssl_common_dissect {
         gint hs_ext_oid_filters_oid_length;
         gint hs_ext_oid_filters_oid;
         gint hs_ext_oid_filters_values_length;
+        gint hs_cred_valid_time;
+        gint hs_cred_pubkey;
+        gint hs_cred_pubkey_len;
+        gint hs_cred_signature;
+        gint hs_cred_signature_len;
 
         /* compress_certificate */
         gint hs_ext_compress_certificate_algorithms_length;
@@ -1269,7 +1274,7 @@ ssl_common_dissect_t name = {   \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1, -1                                                  \
+        -1, -1, -1, -1, -1, -1, -1, -1, -1                              \
     },                                                                  \
     /* ett */ {                                                         \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
@@ -2069,6 +2074,31 @@ ssl_common_dissect_t name = {   \
       { "Certificate Extension Values Length", prefix ".extension.oid_filters.values_length", \
         FT_UINT16, BASE_DEC, NULL, 0x00,                                \
         NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_cred_valid_time,                                    \
+      { "Valid Time", prefix ".handshake.cred.valid_time",              \
+        FT_UINT16, BASE_DEC, NULL, 0x0,                                 \
+        "Delegated Credentials Valid Time", HFILL }                     \
+    },                                                                  \
+    { & name .hf.hs_cred_pubkey,                                        \
+      { "Subject Public Key Info", prefix ".handshake.cred.pubkey",     \
+        FT_BYTES, BASE_NONE, NULL, 0x0,                                 \
+        "Delegated Credentials Subject Public Key Info", HFILL }        \
+    },                                                                  \
+    { & name .hf.hs_cred_pubkey_len,                                    \
+      { "Subject Public Key Info Length", prefix ".handshake.cred.pubkey_len", \
+        FT_UINT24, BASE_DEC, NULL, 0x0,                                 \
+        "Delegated Credentials Subject Public Key Info Length", HFILL } \
+    },                                                                  \
+    { & name .hf.hs_cred_signature,                                     \
+      { "Signature", prefix ".handshake.cred.signature",                \
+        FT_BYTES, BASE_NONE, NULL, 0x0,                                 \
+        "Delegated Credentials Signature", HFILL }                      \
+    },                                                                  \
+    { & name .hf.hs_cred_signature_len,                                 \
+      { "Signature Length", prefix ".handshake.cred.signature_len",     \
+        FT_UINT16, BASE_DEC, NULL, 0x0,                                 \
+        "Delegated Credentials Signature Length", HFILL }               \
     },                                                                  \
     { & name .hf.hs_ext_compress_certificate_algorithms_length,         \
       { "Algorithms Length", prefix ".compress_certificate.algorithms_length", \
