@@ -457,6 +457,11 @@ static void insert_to_graph_t38(voip_calls_tapinfo_t *tapinfo, packet_info *pinf
     gboolean  inserted;
     gchar     time_str[COL_MAX_LEN];
 
+    if (!tapinfo->graph_analysis){
+        /* Nothing to do */
+        return;
+    }
+
     new_gai = g_new0(seq_analysis_item_t, 1);
     new_gai->frame_number = frame_num;
     copy_address(&(new_gai->src_addr),src_addr);
@@ -481,25 +486,25 @@ static void insert_to_graph_t38(voip_calls_tapinfo_t *tapinfo, packet_info *pinf
 
     item_num = 0;
     inserted = FALSE;
-    if(tapinfo->graph_analysis){
-        list = g_queue_peek_nth_link(tapinfo->graph_analysis->items, 0);
-        while (list)
-        {
-            gai = (seq_analysis_item_t *)list->data;
-            if (gai->frame_number > frame_num) {
-                g_queue_insert_before(tapinfo->graph_analysis->items, list, new_gai);
-                g_hash_table_insert(tapinfo->graph_analysis->ht, GUINT_TO_POINTER(new_gai->frame_number), new_gai);
-                inserted = TRUE;
-                break;
-            }
-            list = g_list_next(list);
-            item_num++;
-        }
 
-        if (!inserted) {
-            g_queue_push_tail(tapinfo->graph_analysis->items, new_gai);
+    list = g_queue_peek_nth_link(tapinfo->graph_analysis->items, 0);
+    while (list)
+    {
+        gai = (seq_analysis_item_t *)list->data;
+        if (gai->frame_number > frame_num) {
+            g_queue_insert_before(tapinfo->graph_analysis->items, list, new_gai);
             g_hash_table_insert(tapinfo->graph_analysis->ht, GUINT_TO_POINTER(new_gai->frame_number), new_gai);
+            inserted = TRUE;
+            break;
         }
+        list = g_list_next(list);
+        item_num++;
+    }
+
+    if (!inserted) {
+        /* Just add to the end */
+        g_queue_push_tail(tapinfo->graph_analysis->items, new_gai);
+        g_hash_table_insert(tapinfo->graph_analysis->ht, GUINT_TO_POINTER(new_gai->frame_number), new_gai);
     }
 }
 
