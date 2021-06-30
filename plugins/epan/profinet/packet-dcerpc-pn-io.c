@@ -9378,8 +9378,8 @@ dissect_ExpectedSubmoduleBlockReq_block(tvbuff_t *tvb, int offset,
                                                         }
                                                     }
                                                 }
+                                                break;    /* Found the PROFIsafe Module */
                                             }
-                                            break;    /* Found the PROFIsafe Module */
                                         }
                                     }
                                 }
