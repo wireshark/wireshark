@@ -1442,11 +1442,12 @@ static const value_string pcep_p2mp_leaf_type_vals[] = {
 static const value_string pcep_association_type_field_vals[] = {
     {0, "Reserved"}, /* RFC 8697*/
     {1, "Path Protection Association"}, /* RFC 8745 */
-    {0, "Disjoint Association"}, /* RFC 8800 */
-    {0, "Policy Association"}, /* RFC 9005 */
-    {0, "Single-Sided Bidirectional LSP Association"}, /* RFC 9059 */
-    {0, "Double-Sided Bidirectional LSP Association"}, /* RFC 9059 */
-    {0, "SR Policy Association"}, /* TEMPORARY registered 2021-03-30 expires 2022-03-30 draft-ietf-pce-segment-routing-policy-cp-04 */
+    {2, "Disjoint Association"}, /* RFC 8800 */
+    {3, "Policy Association"}, /* RFC 9005 */
+    {4, "Single-Sided Bidirectional LSP Association"}, /* RFC 9059 */
+    {5, "Double-Sided Bidirectional LSP Association"}, /* RFC 9059 */
+    {6, "SR Policy Association"}, /* TEMPORARY registered 2021-03-30 expires 2022-03-30 draft-ietf-pce-segment-routing-policy-cp-04 */
+    {0, NULL }
 };
 #define OBJ_HDR_LEN  4       /* length of object header */
 
