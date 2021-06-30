@@ -1438,13 +1438,23 @@ static const value_string pcep_p2mp_leaf_type_vals[] = {
     {0, NULL }
 };
 
+/* Association Type Fields.  */
+static const value_string pcep_association_type_field_vals[] = {
+    {0, "Reserved"}, /* RFC 8697*/
+    {1, "Path Protection Association"}, /* RFC 8745 */
+    {0, "Disjoint Association"}, /* RFC 8800 */
+    {0, "Policy Association"}, /* RFC 9005 */
+    {0, "Single-Sided Bidirectional LSP Association"}, /* RFC 9059 */
+    {0, "Double-Sided Bidirectional LSP Association"}, /* RFC 9059 */
+    {0, "SR Policy Association"}, /* TEMPORARY registered 2021-03-30 expires 2022-03-30 draft-ietf-pce-segment-routing-policy-cp-04 */
+};
 #define OBJ_HDR_LEN  4       /* length of object header */
 
 static void
 dissect_pcep_tlvs(proto_tree *pcep_obj, tvbuff_t *tvb, int offset, gint length, gint ett_pcep_obj)
 {
     proto_tree *tlv;
-    guint16     tlv_length, tlv_type, of_code;
+    guint16     tlv_length, tlv_type, of_code, assoc_type;
     int         i, j;
     int         padding = 0;
 
@@ -1597,6 +1607,14 @@ dissect_pcep_tlvs(proto_tree *pcep_obj, tvbuff_t *tvb, int offset, gint length, 
                 }
                 break;
 
+            case 35:    /* ASSOC-Type-List TLV */
+                for (i=0; i<tlv_length/2; i++) {
+                    assoc_type = tvb_get_ntohs(tvb, offset+4+j+i*2);
+                    proto_tree_add_uint_format(tlv, hf_pcep_association_type, tvb, offset+4+j+i*2, 2, assoc_type, "Assoc-Type #%d: %s (%u)",
+                                               i+1, val_to_str_const(assoc_type, pcep_association_type_field_vals, "Unknown"), assoc_type);
+                }
+                break;
+                            
             case 40:    /* SRCPAG-INFO TLV */
                 proto_tree_add_item(tlv, hf_pcep_srcpag_info_color, tvb, offset + 4 + j, 4, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv, hf_pcep_srcpag_info_destination_endpoint, tvb, offset + 4 + j + 4, 4, ENC_NA);
