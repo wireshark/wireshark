@@ -1313,20 +1313,18 @@ dissect_spdu_payload_signal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         if (item->scale_or_offset) {
             value_gdouble = item->scaler * value_gdouble + item->offset;
             ti = proto_tree_add_double(tree, hf_id_effective, tvb, offset, signal_length, value_gdouble);
-            if (value_name != NULL) {
-                proto_item_append_text(ti, " [%" G_GUINT64_FORMAT ": %s]", value_guint64, value_name);
-            } else {
-                proto_item_append_text(ti, " [%" G_GUINT64_FORMAT "]", value_guint64);
-            }
         } else {
             ti = proto_tree_add_uint64(tree, hf_id_effective, tvb, offset, signal_length, value_guint64);
         }
         if (value_name != NULL) {
-            proto_item_append_text(ti, " [%s]", value_name);
+            proto_item_append_text(ti, " [raw: 0x%" G_GINT64_MODIFIER "x: %s]", value_guint64, value_name);
+        } else {
+            proto_item_append_text(ti, " [raw: 0x%" G_GINT64_MODIFIER "x]", value_guint64);
         }
 
         subtree = proto_item_add_subtree(ti, ett_spdu_signal);
         ti = proto_tree_add_uint64(subtree, hf_id_raw, tvb, offset, signal_length, value_guint64);
+        proto_item_append_text(ti, " (0x%" G_GINT64_MODIFIER "x)", value_guint64);
     } else if (g_strcmp0("int", item->data_type) == 0) {
         gint64 value_gint64 = ws_sign_ext64(value_guint64, (gint)item->bitlength_encoded_type);
         gdouble value_gdouble = (gdouble)value_gint64;
@@ -1339,20 +1337,18 @@ dissect_spdu_payload_signal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         if (item->scale_or_offset) {
             value_gdouble = item->scaler * value_gdouble + item->offset;
             ti = proto_tree_add_double(tree, hf_id_effective, tvb, offset, signal_length, value_gdouble);
-            if (value_name != NULL) {
-                proto_item_append_text(ti, " [%" G_GINT64_FORMAT ": %s]", value_gint64, value_name);
-            } else {
-                proto_item_append_text(ti, " [%" G_GINT64_FORMAT "]", value_gint64);
-            }
         } else {
             ti = proto_tree_add_int64(tree, hf_id_effective, tvb, offset, signal_length, value_gint64);
         }
         if (value_name != NULL) {
-            proto_item_append_text(ti, " [%s]", value_name);
+            proto_item_append_text(ti, " [raw: %" G_GINT64_MODIFIER "x: %s]", value_gint64, value_name);
+        } else {
+            proto_item_append_text(ti, " [raw: %" G_GINT64_MODIFIER "x]", value_gint64);
         }
 
         subtree = proto_item_add_subtree(ti, ett_spdu_signal);
         ti = proto_tree_add_int64(subtree, hf_id_raw, tvb, offset, signal_length, value_gint64);
+        proto_item_append_text(ti, " (0x%" G_GINT64_MODIFIER "x)", value_gint64);
     }
 
     /* hide raw value per default, if effective value is present */
