@@ -165,6 +165,8 @@ static gboolean includeUdCompHeaderDownlink = FALSE;
 
 static guint num_bf_weights = 1;
 
+static guint data_plane_section_total_rbs = 273;
+
 
 static const enum_val_t compression_options[] = {
     { "COMP_NONE",        "No Compression",                   COMP_NONE },
@@ -403,7 +405,7 @@ write_section_info(proto_item *section_heading, packet_info *pinfo, proto_item *
 {
     switch (num_prbx) {
     case 0:
-        write_pdu_label_and_info(section_heading, protocol_item, pinfo, ", Id: %d (all PRBs", section_id);
+        write_pdu_label_and_info(section_heading, protocol_item, pinfo, ", Id: %d (all PRBs)", section_id);
         break;
     case 1:
         write_pdu_label_and_info(section_heading, protocol_item, pinfo, ", Id: %d (PRB: %d)", section_id, start_prbx);
@@ -547,7 +549,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                                                                 tvb, offset, 0, "", "Extension");
         proto_tree *extension_tree = proto_item_add_subtree(extension_ti, ett_oran_c_section_extension);
 
-        /* ef (i.e. another extension after this one) */
+        /* ef (i.e. another extension after this one?) */
         proto_tree_add_item_ret_boolean(extension_tree, hf_oran_ef, tvb, offset, 1, ENC_BIG_ENDIAN, &extension_flag);
 
         /* extType */
@@ -1020,6 +1022,7 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         offset += 1;
 
         if (includeUdCompHeader) {
+            /* TODO: extract these values to inform how wide IQ samples in each PRB will be? */
             proto_tree_add_item(section_tree, hf_oran_udCompHdrMeth, tvb, offset, 1, ENC_NA);
             proto_tree_add_item(section_tree, hf_oran_udCompHdrIqWidth, tvb, offset, 1, ENC_NA);
             offset += 1;
@@ -1028,6 +1031,12 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         }
 
         write_section_info(sectionHeading, pinfo, protocol_item, sectionId, startPrbu, numPrbu);
+
+        if (numPrbu == 0) {
+            /* Special case for all PRBs */
+            numPrbu = data_plane_section_total_rbs;
+            startPrbu = 0;  /* may already be 0... */
+        }
 
         for (guint i = 0; i < numPrbu; ++i) {
             proto_item *prbHeading;
@@ -2013,6 +2022,9 @@ proto_register_oran(void)
 
     prefs_register_uint_preference(oran_module, "oran.num_bf_weights", "Number of BF Weights per Antenna",
         "Number of BF Weights per Antenna - should be signalled over M-Plane", 10, &num_bf_weights);
+
+    prefs_register_uint_preference(oran_module, "oran.rbs_in_uplane_section", "Total RBs in User-Plane data section",
+        "This is used if numPrbu is signalled as 0", 10, &data_plane_section_total_rbs);
 }
 
 /* Simpler form of proto_reg_handoff_oran which can be used if there are
