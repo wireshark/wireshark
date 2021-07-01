@@ -1993,17 +1993,16 @@ static int dissect_dvb_s2_modeadapt(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "DVB-S2 ");
     col_set_str(pinfo->cinfo, COL_INFO,     "DVB-S2 ");
 
+    /* Add the protocol even if no length (L.1) so we get access to prefs. */
+    ti = proto_tree_add_protocol_format(tree, proto_dvb_s2_modeadapt, tvb, 0, modeadapt_len,
+        "DVB-S2 Mode Adaptation Header L.%d", modeadapt_type);
+    if (ws_count_ones(matched_headers) > 1) {
+        expert_add_info_format(pinfo, ti, &ei_dvb_s2_bb_header_ambiguous,
+            "Mode adaptation header format is ambiguous. Assuming L.%d", modeadapt_type);
+    }
     /* If there's a mode adaptation header, create display subtree for it */
     if (modeadapt_len > 0) {
-        /* ti = proto_tree_add_item(tree, proto_dvb_s2_modeadapt, tvb, 0, modeadapt_len, ENC_NA); */
-        ti = proto_tree_add_protocol_format(tree, proto_dvb_s2_modeadapt, tvb, 0, modeadapt_len,
-            "DVB-S2 Mode Adaptation Header L.%d", modeadapt_type);
         dvb_s2_modeadapt_tree = proto_item_add_subtree(ti, ett_dvb_s2_modeadapt);
-
-        if (ws_count_ones(matched_headers) > 1) {
-            expert_add_info_format(pinfo, ti, &ei_dvb_s2_bb_header_ambiguous,
-                "Mode adaptation header format is ambiguous. Assuming L.%d", modeadapt_type);
-        }
 
         /* SYNC byte if used in this header format; value has already been checked */
         if (modeadapt_type == DVB_S2_MODEADAPT_TYPE_L2 ||
@@ -2046,11 +2045,6 @@ static int dissect_dvb_s2_modeadapt(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
             proto_tree_add_item(dvb_s2_modeadapt_tree, hf_dvb_s2_modeadapt_frameno, tvb, cur_off, 1, ENC_BIG_ENDIAN);
             cur_off++;
-        }
-    } else {
-        /* Warn if ambiguity exists even when no subtree (i.e. L.1 / length 0) */
-        if (ws_count_ones(matched_headers) > 1) {
-            proto_tree_add_expert_format(tree, pinfo, &ei_dvb_s2_bb_header_ambiguous, tvb, 0, 0, "Mode adaptation header format is ambiguous. Assuming L.%d", modeadapt_type);
         }
     }
 
