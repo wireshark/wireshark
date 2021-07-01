@@ -1719,6 +1719,13 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
       expert_add_info(pinfo, object_item, &ei_dnp3_unknown_group0_variation);
     }
   }
+  else if ((AL_OBJ_GROUP(al_obj) == AL_OBJ_GROUP(AL_OBJ_OCT)) || (AL_OBJ_GROUP(al_obj) == AL_OBJ_GROUP(AL_OBJ_OCT_EVT))) {
+    /* For octet strings the variation is the length */
+    object_item = proto_tree_add_uint_format(robj_tree, hf_dnp3_al_obj, tvb, offset, 2, al_obj,
+                                             "Object(s): %s (0x%04x), Length: %d",
+                                             val_to_str_ext_const(al_obj, &dnp3_al_obj_vals_ext, "Unknown Object\\Variation"),
+                                             al_obj, al_oct_len);
+  }
   else {
     object_item = proto_tree_add_uint_format(robj_tree, hf_dnp3_al_obj, tvb, offset, 2, al_obj,
                                              "Object(s): %s (0x%04x)",
