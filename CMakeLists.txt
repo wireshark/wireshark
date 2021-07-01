@@ -1820,8 +1820,8 @@ endif()
 # Should this be part of libui?
 if(WIN32)
 	set(PLATFORM_UI_SRC
-		ui/win32/console_win32.c
-		ui/win32/file_dlg_win32.c
+		ui/win32/console_win32.cpp
+		ui/win32/file_dlg_win32.cpp
 	)
 	set(PLATFORM_UI_RC_FILES
 		image/file_dlg_win32.rc

@@ -183,7 +183,7 @@ win32_open_file (HWND h_wnd, const wchar_t *title, GString *file_name, unsigned 
         g_dfilter_str = NULL;
     }
 
-    ofn = g_malloc0(ofnsize);
+    ofn = new OPENFILENAME();
 
     ofn->lStructSize = ofnsize;
     ofn->hwndOwner = h_wnd;
@@ -220,7 +220,7 @@ win32_open_file (HWND h_wnd, const wchar_t *title, GString *file_name, unsigned 
     }
 
     g_free( (void *) ofn->lpstrFilter);
-    g_free( (void *) ofn);
+    delete ofn;
     g_free(g_dfilter_str);
     g_dfilter_str = NULL;
     return gofn_ok;
@@ -259,7 +259,7 @@ win32_save_as_file(HWND h_wnd, const wchar_t *title, capture_file *cf, GString *
         return FALSE;  /* shouldn't happen - the "Save As..." item should be disabled if we can't save the file */
     g_compressed = FALSE;
 
-    ofn = g_malloc0(ofnsize);
+    ofn = new OPENFILENAME();
 
     ofn->lStructSize = ofnsize;
     ofn->hwndOwner = h_wnd;
@@ -306,7 +306,7 @@ win32_save_as_file(HWND h_wnd, const wchar_t *title, capture_file *cf, GString *
     g_sf_hwnd = NULL;
     g_array_free(savable_file_types, TRUE);
     g_free( (void *) ofn->lpstrFilter);
-    g_free( (void *) ofn);
+    delete ofn;
     return gsfn_ok;
 }
 
@@ -340,7 +340,7 @@ win32_export_specified_packets_file(HWND h_wnd, const wchar_t *title,
     g_cf = cf;
     g_compressed = FALSE;
 
-    ofn = g_malloc0(ofnsize);
+    ofn = new OPENFILENAME();
 
     ofn->lStructSize = ofnsize;
     ofn->hwndOwner = h_wnd;
@@ -389,7 +389,7 @@ win32_export_specified_packets_file(HWND h_wnd, const wchar_t *title,
     g_cf = NULL;
     g_array_free(savable_file_types, TRUE);
     g_free( (void *) ofn->lpstrFilter);
-    g_free( (void *) ofn);
+    delete ofn;
     return gsfn_ok;
 }
 
@@ -415,7 +415,7 @@ win32_merge_file (HWND h_wnd, const wchar_t *title, GString *file_name, GString 
         g_dfilter_str = NULL;
     }
 
-    ofn = g_malloc0(ofnsize);
+    ofn = new OPENFILENAME();
 
     ofn->lStructSize = ofnsize;
     ofn->hwndOwner = h_wnd;
@@ -465,7 +465,7 @@ win32_merge_file (HWND h_wnd, const wchar_t *title, GString *file_name, GString 
     }
 
     g_free( (void *) ofn->lpstrFilter);
-    g_free( (void *) ofn);
+    delete ofn;
     g_free(g_dfilter_str);
     g_dfilter_str = NULL;
     return gofn_ok;
@@ -481,7 +481,7 @@ win32_export_file(HWND h_wnd, const wchar_t *title, capture_file *cf, export_typ
 
     g_cf = cf;
 
-    ofn = g_malloc0(ofnsize);
+    ofn = new OPENFILENAME();
 
     ofn->lStructSize = ofnsize;
     ofn->hwndOwner = h_wnd;
@@ -533,7 +533,7 @@ win32_export_file(HWND h_wnd, const wchar_t *title, capture_file *cf, export_typ
                 print_args.stream = print_stream_text_new(TRUE, print_args.file);
                 if (print_args.stream == NULL) {
                     open_failure_alert_box(print_args.file, errno, TRUE);
-                    g_free( (void *) ofn);
+                    delete ofn;
                     return;
                 }
                 status = cf_print_packets(cf, &print_args, TRUE);
@@ -542,7 +542,7 @@ win32_export_file(HWND h_wnd, const wchar_t *title, capture_file *cf, export_typ
                 print_args.stream = print_stream_ps_new(TRUE, print_args.file);
                 if (print_args.stream == NULL) {
                     open_failure_alert_box(print_args.file, errno, TRUE);
-                    g_free( (void *) ofn);
+                    delete ofn;
                     return;
                 }
                 status = cf_print_packets(cf, &print_args, TRUE);
@@ -563,7 +563,7 @@ win32_export_file(HWND h_wnd, const wchar_t *title, capture_file *cf, export_typ
                 status = cf_write_json_packets(cf, &print_args);
                 break;
             default:
-                g_free( (void *) ofn);
+                delete ofn;
                 return;
         }
 
@@ -583,7 +583,7 @@ win32_export_file(HWND h_wnd, const wchar_t *title, capture_file *cf, export_typ
     }
 
     g_cf = NULL;
-    g_free( (void *) ofn);
+    delete ofn;
 }
 
 
@@ -858,7 +858,6 @@ preview_set_file_info(HWND of_hwnd, gchar *preview_file) {
 
 }
 
-
 static char *
 filter_tb_get(HWND hwnd) {
     TCHAR     *strval = NULL;
@@ -870,9 +869,9 @@ filter_tb_get(HWND hwnd) {
     len = GetWindowTextLength(hwnd);
     if (len > 0) {
         len++;
-        strval = g_malloc(len*sizeof(TCHAR));
+        strval = g_new(TCHAR, len);
         len = GetWindowText(hwnd, strval, len);
-        ret = g_utf16_to_utf8(strval, -1, NULL, NULL, NULL);
+        ret = g_utf16_to_utf8((gunichar2 *) strval, -1, NULL, NULL, NULL);
         g_free(strval);
         return ret;
     } else {
@@ -894,14 +893,14 @@ filter_tb_syntax_check(HWND hwnd, TCHAR *filter_text) {
     /* If filter_text is non-NULL, use it.  Otherwise, grab the text from
      * the window */
     if (filter_text) {
-        len = (lstrlen(filter_text) + 1) * sizeof(TCHAR);
-        strval = g_malloc(len);
+        len = lstrlen(filter_text) + 1;
+        strval = g_new(TCHAR, len);
         memcpy(strval, filter_text, len);
     } else {
         len = GetWindowTextLength(hwnd);
         if (len > 0) {
             len++;
-            strval = g_malloc(len*sizeof(TCHAR));
+            strval = g_new(TCHAR, len);
             len = GetWindowText(hwnd, strval, len);
         }
     }
@@ -936,6 +935,7 @@ open_file_hook_proc(HWND of_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
 
     switch(msg) {
         case WM_INITDIALOG:
+        {
             /* Retain the filter text, and fill it in. */
             if(g_dfilter_str != NULL) {
                 cur_ctrl = GetDlgItem(of_hwnd, EWFD_FILTER_EDIT);
@@ -966,6 +966,7 @@ open_file_hook_proc(HWND of_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
             SendMessage(cur_ctrl, CB_SETCURSEL, 0, 0);
 
             preview_set_file_info(of_hwnd, NULL);
+            }
             break;
         case WM_NOTIFY:
             switch (notify->hdr.code) {
@@ -982,7 +983,7 @@ open_file_hook_proc(HWND of_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
                     guint label_len;
                     label_len = (guint) SendMessage(cur_ctrl, CB_GETLBTEXTLEN, (WPARAM) g_format_type, 0);
                     if (label_len != CB_ERR) {
-                        TCHAR *label = g_malloc((label_len+1)*sizeof(TCHAR));
+                        TCHAR *label = g_new(TCHAR, label_len+1);
                         SendMessage(cur_ctrl, CB_GETLBTEXT, (WPARAM) g_format_type, (LPARAM) label);
                         g_format_type = open_info_name_to_type(utf_16to8(label));
                         g_free(label);
