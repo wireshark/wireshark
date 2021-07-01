@@ -70,6 +70,7 @@ static gint ett_spdu_payload                                = -1;
 static gint ett_spdu_signal                                 = -1;
 static gboolean spdu_derserializer_activated                = FALSE;
 static gboolean spdu_derserializer_show_hidden              = FALSE;
+static gboolean spdu_derserializer_hide_raw_values          = TRUE;
 
 /*** expert info items ***/
 static expert_field ef_spdu_payload_truncated               = EI_INIT;
@@ -1358,7 +1359,9 @@ dissect_spdu_payload_signal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 
     /* hide raw value per default, if effective value is present */
-    proto_item_set_hidden(ti);
+    if (spdu_derserializer_hide_raw_values) {
+        proto_item_set_hidden(ti);
+    }
 
     return (gint)item->bitlength_encoded_type;
 }
@@ -1632,8 +1635,13 @@ proto_register_signal_pdu(void) {
 
     prefs_register_bool_preference(spdu_module, "payload_dissector_show_hidden",
         "Show hidden entries",
-        "Should the payload dissector show hidden entries?",
+        "Should the payload dissector show entries marked as hidden in the configuration?",
         &spdu_derserializer_show_hidden);
+
+    prefs_register_bool_preference(spdu_module, "payload_dissector_hide_raw_values",
+        "Hide raw values",
+        "Should the payload dissector hide raw values?",
+        &spdu_derserializer_hide_raw_values);
 
     spdu_parameter_value_names_uat = uat_new("Signal Value Names",
         sizeof(spdu_signal_value_name_uat_t), DATAFILE_SPDU_VALUE_NAMES, TRUE,
