@@ -103,6 +103,7 @@ static int hf_radiotap_db_antnoise = -1;
 static int hf_radiotap_tx_attenuation = -1;
 static int hf_radiotap_db_tx_attenuation = -1;
 static int hf_radiotap_txpower = -1;
+static int hf_radiotap_data_retries = -1;
 static int hf_radiotap_vendor_ns = -1;
 static int hf_radiotap_ven_oui = -1;
 static int hf_radiotap_ven_subns = -1;
@@ -190,6 +191,7 @@ static int hf_radiotap_present_db_antnoise = -1;
 static int hf_radiotap_present_hdrfcs = -1;
 static int hf_radiotap_present_rxflags = -1;
 static int hf_radiotap_present_txflags = -1;
+static int hf_radiotap_present_data_retries = -1;
 static int hf_radiotap_present_xchannel = -1;
 static int hf_radiotap_present_mcs = -1;
 static int hf_radiotap_present_ampdu = -1;
@@ -2983,6 +2985,9 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 					    hf_radiotap_present_txflags, tvb,
 					    offset + 4, 4, ENC_LITTLE_ENDIAN);
 			proto_tree_add_item(present_word_tree,
+					    hf_radiotap_present_data_retries, tvb,
+					    offset + 4, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(present_word_tree,
 					    hf_radiotap_present_xchannel, tvb,
 					    offset + 4, 4, ENC_LITTLE_ENDIAN);
 
@@ -3177,6 +3182,12 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 		case IEEE80211_RADIOTAP_TX_FLAGS:
 			dissect_radiotap_tx_flags(tvb, pinfo, item_tree,
 						offset);
+			break;
+
+		case IEEE80211_RADIOTAP_DATA_RETRIES:
+			proto_tree_add_item(item_tree,
+				hf_radiotap_data_retries, tvb,
+				offset, 1, ENC_LITTLE_ENDIAN);
 			break;
 
 		case IEEE80211_RADIOTAP_XCHANNEL:
@@ -3983,6 +3994,11 @@ void proto_register_radiotap(void)
 		  FT_BOOLEAN, 32, TFS(&tfs_present_absent), RADIOTAP_MASK(RX_FLAGS),
 		  "Specifies if the FCS field is present", HFILL}},
 
+		{ &hf_radiotap_present_data_retries,
+		 {"data retries", "radiotap.present.data_retries",
+		  FT_BOOLEAN, 32, TFS(&tfs_present_absent), RADIOTAP_MASK(DATA_RETRIES),
+		  "Specifies if the data retries field is present", HFILL}},
+
 		{&hf_radiotap_present_xchannel,
 		 {"Channel+", "radiotap.present.xchannel",
 		  FT_BOOLEAN, 32, TFS(&tfs_present_absent), RADIOTAP_MASK(XCHANNEL),
@@ -4400,6 +4416,11 @@ void proto_register_radiotap(void)
 		  FT_INT8, BASE_DEC|BASE_UNIT_STRING, &units_dbm, 0x0,
 		  "Transmit power at the antenna port expressed as decibels"
 		  " from one milliwatt", HFILL}},
+
+		{ &hf_radiotap_data_retries,
+		 {"data retries", "radiotap.data_retries",
+		  FT_UINT8, BASE_DEC, NULL, 0x0,
+		  "Number of data retries a transmitted frame used", HFILL} },
 
 		{&hf_radiotap_mcs,
 		 {"MCS information", "radiotap.mcs",
