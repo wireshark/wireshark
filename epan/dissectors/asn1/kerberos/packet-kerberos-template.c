@@ -255,6 +255,15 @@ static gint hf_krb_ad_ap_options = -1;
 static gint hf_krb_ad_ap_options_cbt = -1;
 static gint hf_krb_ad_target_principal = -1;
 static gint hf_krb_key_hidden_item = -1;
+static gint hf_kerberos_KERB_TICKET_LOGON = -1;
+static gint hf_kerberos_KERB_TICKET_LOGON_MessageType = -1;
+static gint hf_kerberos_KERB_TICKET_LOGON_Flags = -1;
+static gint hf_kerberos_KERB_TICKET_LOGON_ServiceTicketLength = -1;
+static gint hf_kerberos_KERB_TICKET_LOGON_TicketGrantingTicketLength = -1;
+static gint hf_kerberos_KERB_TICKET_LOGON_ServiceTicket = -1;
+static gint hf_kerberos_KERB_TICKET_LOGON_TicketGrantingTicket = -1;
+static gint hf_kerberos_KERB_TICKET_LOGON_FLAG_ALLOW_EXPIRED_TICKET = -1;
+static gint hf_kerberos_KERB_TICKET_LOGON_FLAG_REDIRECTED = -1;
 #ifdef HAVE_KERBEROS
 static gint hf_kerberos_KrbFastResponse = -1;
 static gint hf_kerberos_strengthen_key = -1;
@@ -280,15 +289,6 @@ static gint hf_kerberos_FastOptions_spare_bit13 = -1;
 static gint hf_kerberos_FastOptions_spare_bit14 = -1;
 static gint hf_kerberos_FastOptions_spare_bit15 = -1;
 static gint hf_kerberos_FastOptions_kdc_follow_referrals = -1;
-static gint hf_kerberos_KERB_TICKET_LOGON = -1;
-static gint hf_kerberos_KERB_TICKET_LOGON_MessageType = -1;
-static gint hf_kerberos_KERB_TICKET_LOGON_Flags = -1;
-static gint hf_kerberos_KERB_TICKET_LOGON_ServiceTicketLength = -1;
-static gint hf_kerberos_KERB_TICKET_LOGON_TicketGrantingTicketLength = -1;
-static gint hf_kerberos_KERB_TICKET_LOGON_ServiceTicket = -1;
-static gint hf_kerberos_KERB_TICKET_LOGON_TicketGrantingTicket = -1;
-static gint hf_kerberos_KERB_TICKET_LOGON_FLAG_ALLOW_EXPIRED_TICKET = -1;
-static gint hf_kerberos_KERB_TICKET_LOGON_FLAG_REDIRECTED = -1;
 
 #endif
 #include "packet-kerberos-hf.c"
