@@ -404,6 +404,7 @@ static const value_string DIS_PDU_Category_AirPlatform_Strings[] =
     {   6, "Electronic Warfare (EW)" },
     {   7, "Reconnaissance" },
     {   8, "Surveillance/C2 (Airborne Early Warning)" },
+    {   9, "Air-Sea Rescue (ASR)" },
     {  20, "Attack Helicopter" },
     {  21, "Utility Helicopter" },
     {  22, "Antisubmarine Warfare/Patrol Helicopter" },
@@ -463,7 +464,7 @@ static const value_string DIS_PDU_Category_SurfacePlatform_Strings[] =
     { 58, "Combat Stores Ship" },
     { 59, "Surveillance Towed Array Sonar System (SURTASS)" },
     { 60, "Fast Combat Support Ship" },
-    { 61, "Non-Combatant Ship" },
+    { 60, "Non-Combatant Ship" },
     { 62, "Coast Guard Cutters" },
     { 63, "Coast Guard Boats" },
     { 64, "Fast Attack Craft" },
@@ -475,6 +476,8 @@ static const value_string DIS_PDU_Category_SurfacePlatform_Strings[] =
     { 85, "Private Sailboat" },
     { 86, "Fishing Vessel" },
     { 87, "Other Vessels" },
+    { 100, "Search and Rescue Vessels" },
+    { 101, "Life-Saving Equipment" },
     {  0, NULL }
 };
 
@@ -490,9 +493,17 @@ static const value_string DIS_PDU_Category_SubsurfacePlatform_Strings[] =
     {  6, "SSAN (Nuclear Auxiliary)" },
     {  7, "SSA (Conventional Auxiliary)" },
     {  8, "Unmanned Underwater Vehicle (UUV)" },
-    { 80, "Submarines" },
-    { 81, "Submersibles" },
-    { 82, "Semi-Submersible Boats" },
+    {  9, "SSB (Submarine Ballistic, Ballistic Missile Submarine)" },
+    {  10, "SSC (Coastal Submarine, over 150 tons)" },
+    {  11, "SSP (Attack Submarine - Diesel Air-Independent Propulsion)" },
+    {  12, "SSM (Midget Submarine, under 150 tons)" },
+    {  13, "SSNR (Special Attack Submarine)" },
+    {  14, "SSNR (Special Attack Submarine)" },
+    {  15, "AGSS (Auxiliary Submarine)" },
+    {  16, "Semi-Submersible Boats" },
+    { 80, "Civilian Submarines" },
+    { 81, "Civilian Submersibles" },
+    { 82, "Civilian Semi-Submersible Boats" },
     {  0, NULL }
 };
 
@@ -612,6 +623,7 @@ typedef enum
     DIS_TDL_TYPE_TCDL                         = 64,
     DIS_TDL_TYPE_LLAPI                        = 65,
     DIS_TDL_TYPE_WEAPONS_DL                   = 66,
+    DIS_TDL_TYPE_AIS                          = 67, 
     DIS_TDL_TYPE_GC3                          = 99,
     DIS_TDL_TYPE_LINK16_STD                   = 100,
     DIS_TDL_TYPE_LINK16_EDR                   = 101,
@@ -625,7 +637,17 @@ typedef enum
     DIS_TDL_TYPE_MADL                         = 109,
     DIS_TDL_TYPE_CURSOR_ON_TARGET             = 110,
     DIS_TDL_TYPE_ASTERIX                      = 111,
-    DIS_TDL_TYPE_VMF_OVER_CNR                 = 112
+    DIS_TDL_TYPE_VMF_OVER_CNR                 = 112,
+    DIS_TDL_TYPE_LINK16_TDL                   = 113,
+    DIS_TDL_TYPE_C_BAND_LOS_UPLINK            = 114,
+    DIS_TDL_TYPE_C_BAND_LOS_DOWNLINK          = 115,
+    DIS_TDL_TYPE_KU_BAND_SAT_UPLINK           = 116,
+    DIS_TDL_TYPE_KU_BAND_SAT_DOWNLINK         = 117,
+    DIS_TDL_TYPE_WEAPONS_SDB_II               = 118,
+    DIS_TDL_TYPE_CIB                          = 120,
+    DIS_TDL_TYPE_JREAP_A                      = 121,
+    DIS_TDL_TYPE_JPALS_DL                     = 125,
+    DIS_TDL_TYPE_IADS_COMM_LINK               = 126
 } DIS_PDU_TDL_Type;
 
 static const value_string DIS_PDU_TDL_Type_Strings[] =
@@ -697,6 +719,7 @@ static const value_string DIS_PDU_TDL_Type_Strings[] =
     {DIS_TDL_TYPE_TCDL,                      "Tactical Common Data Link (TCDL)" },
     {DIS_TDL_TYPE_LLAPI,                     "Low Level Air Picture Interface (LLAPI)" },
     {DIS_TDL_TYPE_WEAPONS_DL,                "Weapons Data Link (AGM-130)" },
+    {DIS_TDL_TYPE_AIS,                       "Sutomatic Identification System (AIS)" },
     {DIS_TDL_TYPE_GC3,                       "GC3" },
     {DIS_TDL_TYPE_LINK16_STD,                "Link 16 Standardized Format (JTIDS/MIDS/TADIL J)" },
     {DIS_TDL_TYPE_LINK16_EDR,                "Link 16 Enhanced Data Rate (EDR JTIDS/MIDS/TADIL-J)" },
@@ -711,6 +734,16 @@ static const value_string DIS_PDU_TDL_Type_Strings[] =
     {DIS_TDL_TYPE_CURSOR_ON_TARGET,          "Cursor on Target" },
     {DIS_TDL_TYPE_ASTERIX,                   "All Purpose Structured Eurocontrol Surveillance Information Exchange (ASTERIX)" },
     {DIS_TDL_TYPE_VMF_OVER_CNR,              "Variable Message Format (VMF) over Combat Net Radio (VMF over CNR)" },
+    {DIS_TDL_TYPE_LINK16_TDL,                "Link 16 Surrogate for Non-NATO TDL" },
+    {DIS_TDL_TYPE_C_BAND_LOS_UPLINK,         "MQ-1/9 C-Band LOS Uplink" },
+    {DIS_TDL_TYPE_C_BAND_LOS_DOWNLINK,       "MQ-1/9 C-Band LOS Downlink" },
+    {DIS_TDL_TYPE_KU_BAND_SAT_UPLINK,        "MQ-1/9 Ku-Band SATCOM Uplink" },
+    {DIS_TDL_TYPE_KU_BAND_SAT_DOWNLINK,      "MQ-1/9 Ku-Band SATCOM Downlink" },
+    {DIS_TDL_TYPE_WEAPONS_SDB_II,            "Weapons Datalink (SDB II)" },
+    {DIS_TDL_TYPE_CIB,                       "Common Interactive Broadcast (CIB)" },
+    {DIS_TDL_TYPE_JREAP_A,                   "Joint Range Extension Application Protocol A (JREAP A)" },
+    {DIS_TDL_TYPE_JPALS_DL,                  "JPALS Data Link" },
+    {DIS_TDL_TYPE_IADS_COMM_LINK,            "OneSAF IADS Communications LInk" },
     { 0,                                     NULL }
 };
 
@@ -752,6 +785,15 @@ static const value_string DIS_PDU_RadioCategory_Strings[] =
     {30,    "GPS" },
     {31,    "Tactical Video" },
     {32,    "Air-to-Air Missile Datalink" },
+    {33,    "Link 16 Surrogate for Non-NATO TDL Terminal" },
+    {34,    "MQ-1/9 C-Band LOS Datalink" },
+    {35,    "MQ-1/9 Ku-Band SATCOM Datalink" },
+    {36,    "MQ-1/9 Ku-Band SATCOM Datalink" },
+    {37,    "Automatic Identification System (AIS)" },
+    {38,    "JPALS Data Link" },
+    {40,    "Combat Search and Rescue (CSAR) Radio" },
+    {41,    "Counter Unmanned Aircraft System (C-UAS) Radio" },
+    {50,    "Electronic Attack Systems" },
     {0,     NULL }
 };
 
@@ -866,7 +908,7 @@ typedef enum
 {
     DIS_PATTERN_OMNI_DIRECTIONAL             = 0,
     DIS_PATTERN_BEAM                         = 1,
-    DIS_PATTERN_SPHERICAL_HARMONIC           = 2
+    DIS_PATTERN_SPHERICAL_HARMONIC           = 2,
 } DIS_PDU_AntennaPattern_Type;
 
 static const value_string DIS_PDU_AntennaPatternType_Strings[] =
@@ -887,7 +929,8 @@ typedef enum
     DIS_MAJOR_MOD_COMBINATION                = 4,
     DIS_MAJOR_MOD_PULSE                      = 5,
     DIS_MAJOR_MOD_UNMODULATED                = 6,
-    DIS_MAJOR_MOD_CPSM                       = 7
+    DIS_MAJOR_MOD_CPSM                       = 7,
+    DIS_MAJOR_MOD_SATCOM                     = 8
 } DIS_PDU_MAJOR_MODULATION_TYPE;
 
 static const value_string DIS_PDU_MajorModulation_Strings[] =
@@ -6630,7 +6673,7 @@ static int dissect_DIS_PARSER_IFF_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_t
     proto_tree_add_bits_item(field_tree, hf_dis_iff_mode_malfunction, tvb, offset*8, 1, ENC_BIG_ENDIAN);
     offset += 2;
 
-    /*ti = */proto_tree_add_item(sub_tree, hf_dis_iff_parameter_6, tvb, offset, 2, ENC_BIG_ENDIAN);
+    /*ti = *proto_tree_add_item(sub_tree, hf_dis_iff_parameter_6, tvb, offset, 2, ENC_BIG_ENDIAN);
     /*field_tree = proto_item_add_subtree(ti, ett_iff_parameter_6);*/
     offset += 2;
 
