@@ -653,6 +653,58 @@ dissect_websocket(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
   return tvb_captured_length(tvb);
 }
 
+static gboolean
+test_websocket(packet_info* pinfo _U_, tvbuff_t* tvb, int offset _U_, void* data _U_)
+{
+  guint buffer_length = tvb_captured_length(tvb);
+
+  // At least 2 bytes are required for a websocket header
+  if (buffer_length < 2)
+  {
+    return FALSE;
+  }
+  guint8 first_byte = tvb_get_guint8(tvb, 0);
+  guint8 second_byte = tvb_get_guint8(tvb, 1);
+
+  // Reserved bits RSV1, RSV2 and RSV3 need to be 0
+  if ((first_byte & 0x70) > 0)
+  {
+    return FALSE;
+  }
+
+  guint8 op_code = first_byte & 0x0F;
+
+  // op_code must be one one of WS_CONTINUE, WS_TEXT, WS_BINARY, WS_CLOSE, WS_PING or WS_PONG
+  if (!(op_code == WS_CONTINUE || op_code == WS_TEXT || op_code == WS_BINARY || op_code == WS_CLOSE || op_code == WS_PING || op_code == WS_PONG))
+  {
+    return FALSE;
+  }
+
+  // It is necessary to prevent that HTTP connection setups are treated as websocket.
+  // If HTTP catches and it upgrades to websocket then HTTP takes care that websocket dissector gets called for this stream.
+  // If first two byte start with printable characters from the alphabet it's likely that it is part of a HTTP connection setup.
+  if (((first_byte >= 'a' && first_byte <= 'z') || (first_byte >= 'A' && first_byte <= 'Z')) &&
+    ((second_byte >= 'a' && second_byte <= 'z') || (second_byte >= 'A' && second_byte <= 'Z')))
+  {
+    return FALSE;
+  }
+
+  return TRUE;
+}
+
+static gboolean
+dissect_websocket_heur_tcp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data)
+{
+  if (!test_websocket(pinfo, tvb, 0, data))
+  {
+    return FALSE;
+  }
+  conversation_t* conversation = find_or_create_conversation(pinfo);
+  conversation_set_dissector(conversation, websocket_handle);
+
+  tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 2, get_websocket_frame_length, dissect_websocket_frame, data);
+  return TRUE;
+}
 
 void
 proto_register_websocket(void)
@@ -804,6 +856,7 @@ proto_register_websocket(void)
         "Dissect websocket text as",
         "Select dissector for websocket text",
         &pref_text_type, text_types, WEBSOCKET_NONE);
+
   prefs_register_bool_preference(websocket_module, "decompress",
         "Try to decompress permessage-deflate payload", NULL, &pref_decompress);
 }
@@ -814,6 +867,8 @@ proto_reg_handoff_websocket(void)
   dissector_add_string("http.upgrade", "websocket", websocket_handle);
 
   dissector_add_for_decode_as("tcp.port", websocket_handle);
+
+  heur_dissector_add("tcp", dissect_websocket_heur_tcp, "WebSocket Heuristic", "websocket_tcp", proto_websocket, HEURISTIC_DISABLE);
 
   text_lines_handle = find_dissector_add_dependency("data-text-lines", proto_websocket);
   json_handle = find_dissector_add_dependency("json", proto_websocket);
