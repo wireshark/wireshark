@@ -507,7 +507,7 @@ mp2t_fragment_free_persistent_key(gpointer ptr)
     g_slice_free(mp2t_fragment_key, key);
 }
 
-const reassembly_table_functions
+static const reassembly_table_functions
 mp2t_reassembly_table_functions = {
     mp2t_fragment_hash,
     mp2t_fragment_equal,
