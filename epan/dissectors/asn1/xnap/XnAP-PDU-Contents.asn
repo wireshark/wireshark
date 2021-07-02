@@ -1,4 +1,4 @@
--- 3GPP TS 38.423 V16.5.0 (2021-04)
+-- 3GPP TS 38.423 V16.6.0 (2021-07)﻿
 -- 9.3.4	PDU Definitions
 -- **************************************************************
 --
@@ -35,6 +35,7 @@ IMPORTS
 	CellAssistanceInfo-NR,
 	CHOinformation-Req,
 	CHOinformation-Ack,
+	CHO-MRDC-EarlyDataForwarding,
 	CHO-MRDC-Indicator,
 	CPTransportLayerInformation,
 	TNLA-To-Add-List,
@@ -87,6 +88,7 @@ IMPORTS
 	NRUESidelinkAggregateMaximumBitRate,
 	NRV2XServicesAuthorized,
 	PagingDRX,
+	PagingeDRXInformation,
 	PagingPriority,
 	PartialListIndicator,
 	PLMN-Identity,
@@ -175,7 +177,9 @@ IMPORTS
 	MobilityParametersModificationRange,
 	RACHReportInformation,
 	IABNodeIndication,
-	SNTriggered
+	SNTriggered,
+	SCGIndicator,
+	UESpecificDRX
 
 
 FROM XnAP-IEs
@@ -240,6 +244,7 @@ FROM XnAP-Containers
 	id-oldNG-RANnodeUEXnAPID,
 	id-OldtoNewNG-RANnodeResumeContainer,
 	id-PagingDRX,
+	id-PagingeDRXInformation,
 	id-PagingPriority,
 	id-PartialListIndicator-EUTRA,
 	id-PartialListIndicator-NR,
@@ -346,6 +351,7 @@ FROM XnAP-Containers
 	id-targetCellsToCancel,
 	id-requestedTargetCellGlobalID,
 	id-DAPSResponseInfo-List,
+	id-CHO-MRDC-EarlyDataForwarding,
 	id-CHO-MRDC-Indicator,
 	id-MobilityInformation,
 	id-InitiatingCondition-FailureIndication,
@@ -373,6 +379,8 @@ FROM XnAP-Containers
 	id-RACHReportInformation,
 	id-IABNodeIndication,
 	id-UERadioCapabilityID,
+	id-SCGIndicator,
+	id-UESpecificDRX,
 
 
 
@@ -655,7 +663,9 @@ RANPaging-IEs XNAP-PROTOCOL-IES ::= {
 	{ ID id-PagingPriority						CRITICALITY ignore		TYPE PagingPriority									PRESENCE optional }|
 	{ ID id-AssistanceDataForRANPaging			CRITICALITY ignore		TYPE AssistanceDataForRANPaging					PRESENCE optional }|
 	{ ID id-UERadioCapabilityForPaging			CRITICALITY ignore		TYPE UERadioCapabilityForPaging					PRESENCE optional }|
-	{ ID id-ExtendedUEIdentityIndexValue		CRITICALITY ignore		TYPE ExtendedUEIdentityIndexValue				PRESENCE optional },
+	{ ID id-ExtendedUEIdentityIndexValue		CRITICALITY ignore		TYPE ExtendedUEIdentityIndexValue				PRESENCE optional }|
+	{ ID id-PagingeDRXInformation				CRITICALITY ignore		TYPE PagingeDRXInformation						PRESENCE optional }|
+	{ ID id-UESpecificDRX						CRITICALITY ignore		TYPE UESpecificDRX									PRESENCE optional },
 	...
 }
 
@@ -747,7 +757,8 @@ XnUAddressIndication-IEs XNAP-PROTOCOL-IES ::= {
 	{ ID id-newNG-RANnodeUEXnAPID					CRITICALITY ignore		TYPE NG-RANnodeUEXnAPID							PRESENCE mandatory}|
 	{ ID id-oldNG-RANnodeUEXnAPID					CRITICALITY ignore		TYPE NG-RANnodeUEXnAPID							PRESENCE mandatory}|
 	{ ID id-XnUAddressInfoperPDUSession-List		CRITICALITY reject		TYPE XnUAddressInfoperPDUSession-List		PRESENCE mandatory}|
-	{ ID id-CHO-MRDC-Indicator						CRITICALITY reject		TYPE CHO-MRDC-Indicator							PRESENCE optional },
+	{ ID id-CHO-MRDC-Indicator						CRITICALITY reject		TYPE CHO-MRDC-Indicator							PRESENCE optional }|
+	{ ID id-CHO-MRDC-EarlyDataForwarding			CRITICALITY ignore		TYPE CHO-MRDC-EarlyDataForwarding				PRESENCE optional },
 	...
 }
 
@@ -1219,7 +1230,8 @@ SNodeModificationRequired-IEs XNAP-PROTOCOL-IES ::= {
 	{ ID id-MR-DC-ResourceCoordinationInfo			CRITICALITY ignore		TYPE MR-DC-ResourceCoordinationInfo			PRESENCE optional }|
 	{ ID id-RRCConfigIndication						CRITICALITY reject		TYPE RRCConfigIndication							PRESENCE optional }|
 	{ ID id-AvailableFastMCGRecoveryViaSRB3			CRITICALITY ignore		TYPE AvailableFastMCGRecoveryViaSRB3			PRESENCE optional }|
-	{ ID id-ReleaseFastMCGRecoveryViaSRB3			CRITICALITY ignore		TYPE ReleaseFastMCGRecoveryViaSRB3				PRESENCE optional },
+	{ ID id-ReleaseFastMCGRecoveryViaSRB3			CRITICALITY ignore		TYPE ReleaseFastMCGRecoveryViaSRB3				PRESENCE optional }|
+	{ ID id-SCGIndicator							CRITICALITY ignore		TYPE SCGIndicator										PRESENCE optional },
 	...
 }
 PDUSessionToBeModifiedSNModRequired::= SEQUENCE (SIZE (1.. maxnoofPDUSessions)) OF 	PDUSessionToBeModifiedSNModRequired-Item

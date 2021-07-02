@@ -1,4 +1,4 @@
--- 3GPP TS 38.423 V16.5.0 (2021-04)
+-- 3GPP TS 38.423 V16.6.0 (2021-07)﻿
 -- 9.3.5	Information Element definitions
 -- **************************************************************
 --
@@ -697,8 +697,8 @@ CellToReport ::= SEQUENCE (SIZE(1..maxnoofCellsinNG-RANnode)) OF CellToReport-It
 
 CellToReport-Item	::= SEQUENCE {
 	cell-ID									GlobalNG-RANCell-ID,
-sSBToReport-List                        SSBToReport-List,
-sliceToReport-List                      SliceToReport-List,
+sSBToReport-List                        SSBToReport-List			OPTIONAL,
+sliceToReport-List                      SliceToReport-List			OPTIONAL,
 	iE-Extensions						ProtocolExtensionContainer { { CellToReport-Item-ExtIEs} }	OPTIONAL,
 	...
 }
@@ -734,7 +734,7 @@ CompositeAvailableCapacityGroup-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
 
 CompositeAvailableCapacity ::= SEQUENCE {
 	cellCapacityClassValue	CellCapacityClassValue             OPTIONAL,
-	capacityValueInfo	     	CapacityValueInfo, -- this IE represents the IE “CapacityValue” in 9.2.2.a, it’s used to distinguish the “CapacityValue”  in 9.2.2.c
+	capacityValueInfo	     	CapacityValueInfo, -- this IE represents the IE "CapacityValue" in 9.2.2.a, it’s used to distinguish the "CapacityValue"  in 9.2.2.c
 	iE-Extensions				ProtocolExtensionContainer { { CompositeAvailableCapacity-ExtIEs} }OPTIONAL,
 	...
 }
@@ -742,6 +742,8 @@ CompositeAvailableCapacity ::= SEQUENCE {
 CompositeAvailableCapacity-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
 	...
 }
+
+CHO-MRDC-EarlyDataForwarding ::= ENUMERATED {stop, ...}
 
 CHO-MRDC-Indicator ::= ENUMERATED {true, ...}
 
@@ -1230,7 +1232,7 @@ E-UTRAPRACHConfiguration ::= SEQUENCE {
 	highSpeedFlag							ENUMERATED {true, false, ...},
 	prach-FreqOffset						INTEGER (0..94),
 	prach-ConfigIndex						INTEGER (0..63)								OPTIONAL,
--- C-ifTDD: This IE shall be present if the EUTRA-Mode-Info IE in the Served Cell Information IE is set to the value “TDD” --
+-- C-ifTDD: This IE shall be present if the EUTRA-Mode-Info IE in the Served Cell Information IE is set to the value "TDD" --
 	iE-Extensions							ProtocolExtensionContainer { {E-UTRAPRACHConfiguration-ExtIEs} }	OPTIONAL,
 	...
 }
@@ -2784,6 +2786,33 @@ PagingDRX	::= ENUMERATED {
 	v512,
 	v1024
 	}
+
+
+PagingeDRXInformation ::= SEQUENCE {
+	paging-eDRX-Cycle		Paging-eDRX-Cycle,
+	paging-Time-Window		Paging-Time-Window											OPTIONAL,
+	iE-Extensions			ProtocolExtensionContainer { {PagingeDRXInformation-ExtIEs} }	OPTIONAL,
+	...
+}
+
+PagingeDRXInformation-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+Paging-eDRX-Cycle ::= ENUMERATED {
+	hfhalf, hf1, hf2, hf4, hf6,
+	hf8, hf10, hf12, hf14, hf16,
+	hf32, hf64, hf128, hf256,
+	...
+}
+
+
+Paging-Time-Window ::= ENUMERATED {
+	s1, s2, s3, s4, s5,
+	s6, s7, s8, s9, s10,
+	s11, s12, s13, s14, s15, s16,
+	...
+}
 
 
 PagingPriority ::= ENUMERATED {
@@ -4361,6 +4390,8 @@ SecondarydataForwardingInfoFromTarget-List ::= SEQUENCE (SIZE(1..maxnoofMultiCon
 
 SCGConfigurationQuery	::= ENUMERATED {true, ...}
 
+SCGIndicator	::=	ENUMERATED{released, ...}
+
 SecondaryRATUsageInformation ::= SEQUENCE {
 	pDUSessionUsageReport		PDUSessionUsageReport				OPTIONAL,
 	qosFlowsUsageReportList		QoSFlowsUsageReportList				OPTIONAL,
@@ -4582,7 +4613,7 @@ ServedCellInformation-NR-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
 
 SFN-Offset ::= SEQUENCE {
 	sFN-Time-Offset					BIT STRING (SIZE(24)),
-	
+
 	iE-Extensions		ProtocolExtensionContainer { {SFN-Offset-ExtIEs} } OPTIONAL,
 	...
 }
@@ -5383,6 +5414,13 @@ UESecurityCapabilities-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+UESpecificDRX ::= ENUMERATED {
+	v32,
+	v64,
+	v128,
+	v256,
+	...
+}
 
 ULConfiguration::= SEQUENCE {
 	uL-PDCP							UL-UE-Configuration,

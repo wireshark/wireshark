@@ -1212,6 +1212,10 @@ id-UL-scheduling-PDCCH-CCE-usage                  ProtocolIE-ID
 id-SFN-Offset                                     ProtocolIE-ID
 id-QoSMonitoringDisabled                          ProtocolIE-ID
 id-ExtendedUEIdentityIndexValue                   ProtocolIE-ID
+id-PagingeDRXInformation                          ProtocolIE-ID
+id-CHO-MRDC-EarlyDataForwarding                   ProtocolIE-ID
+id-SCGIndicator                                   ProtocolIE-ID
+id-UESpecificDRX                                  ProtocolIE-ID
 
 #.REGISTER
 
@@ -1390,6 +1394,10 @@ UERadioCapabilityID                               N xnap.ies id-UERadioCapabilit
 SNTriggered                                       N xnap.ies id-SNTriggered
 CellAssistanceInfo-EUTRA                          N xnap.ies id-cellAssistanceInfo-EUTRA
 ExtendedUEIdentityIndexValue                      N xnap.ies id-ExtendedUEIdentityIndexValue
+PagingeDRXInformation                             N xnap.ies id-PagingeDRXInformation
+CHO-MRDC-EarlyDataForwarding                      N xnap.ies id-CHO-MRDC-EarlyDataForwarding
+SCGIndicator                                      N xnap.ies id-SCGIndicator
+UESpecificDRX                                     N xnap.ies id-UESpecificDRX
 
 #XNAP-PROTOCOL-EXTENSION
 Additional-UL-NG-U-TNLatUPF-List                  N xnap.extension id-Additional-UL-NG-U-TNLatUPF-List

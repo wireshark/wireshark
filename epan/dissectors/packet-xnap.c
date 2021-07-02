@@ -18,7 +18,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * Ref:
- * 3GPP TS 38.423 V16.5.0 (2021-04)
+ * 3GPP TS 38.423 V16.6.0 (2021-07)
  */
 
 #include "config.h"
@@ -411,7 +411,11 @@ typedef enum _ProtocolIE_ID_enum {
   id_UL_scheduling_PDCCH_CCE_usage = 241,
   id_SFN_Offset = 242,
   id_QoSMonitoringDisabled = 243,
-  id_ExtendedUEIdentityIndexValue = 244
+  id_ExtendedUEIdentityIndexValue = 244,
+  id_PagingeDRXInformation = 245,
+  id_CHO_MRDC_EarlyDataForwarding = 246,
+  id_SCGIndicator = 247,
+  id_UESpecificDRX = 248
 } ProtocolIE_ID_enum;
 
 typedef enum _GlobalNG_RANNode_ID_enum {
@@ -472,6 +476,7 @@ static int hf_xnap_CellAndCapacityAssistanceInfo_EUTRA_PDU = -1;  /* CellAndCapa
 static int hf_xnap_CellAssistanceInfo_EUTRA_PDU = -1;  /* CellAssistanceInfo_EUTRA */
 static int hf_xnap_CellMeasurementResult_PDU = -1;  /* CellMeasurementResult */
 static int hf_xnap_CellToReport_PDU = -1;         /* CellToReport */
+static int hf_xnap_CHO_MRDC_EarlyDataForwarding_PDU = -1;  /* CHO_MRDC_EarlyDataForwarding */
 static int hf_xnap_CHO_MRDC_Indicator_PDU = -1;   /* CHO_MRDC_Indicator */
 static int hf_xnap_CHOinformation_Req_PDU = -1;   /* CHOinformation_Req */
 static int hf_xnap_CHOinformation_Ack_PDU = -1;   /* CHOinformation_Ack */
@@ -543,6 +548,7 @@ static int hf_xnap_NRV2XServicesAuthorized_PDU = -1;  /* NRV2XServicesAuthorized
 static int hf_xnap_NRUESidelinkAggregateMaximumBitRate_PDU = -1;  /* NRUESidelinkAggregateMaximumBitRate */
 static int hf_xnap_OffsetOfNbiotChannelNumberToEARFCN_PDU = -1;  /* OffsetOfNbiotChannelNumberToEARFCN */
 static int hf_xnap_PagingDRX_PDU = -1;            /* PagingDRX */
+static int hf_xnap_PagingeDRXInformation_PDU = -1;  /* PagingeDRXInformation */
 static int hf_xnap_PagingPriority_PDU = -1;       /* PagingPriority */
 static int hf_xnap_PartialListIndicator_PDU = -1;  /* PartialListIndicator */
 static int hf_xnap_PC5QoSParameters_PDU = -1;     /* PC5QoSParameters */
@@ -576,6 +582,7 @@ static int hf_xnap_RRCConfigIndication_PDU = -1;  /* RRCConfigIndication */
 static int hf_xnap_RRCResumeCause_PDU = -1;       /* RRCResumeCause */
 static int hf_xnap_SecondarydataForwardingInfoFromTarget_List_PDU = -1;  /* SecondarydataForwardingInfoFromTarget_List */
 static int hf_xnap_SCGConfigurationQuery_PDU = -1;  /* SCGConfigurationQuery */
+static int hf_xnap_SCGIndicator_PDU = -1;         /* SCGIndicator */
 static int hf_xnap_SecurityResult_PDU = -1;       /* SecurityResult */
 static int hf_xnap_ServedCells_E_UTRA_PDU = -1;   /* ServedCells_E_UTRA */
 static int hf_xnap_ServedCellsToUpdate_E_UTRA_PDU = -1;  /* ServedCellsToUpdate_E_UTRA */
@@ -615,6 +622,7 @@ static int hf_xnap_UERadioCapabilityID_PDU = -1;  /* UERadioCapabilityID */
 static int hf_xnap_UERANPagingIdentity_PDU = -1;  /* UERANPagingIdentity */
 static int hf_xnap_UERLFReportContainer_PDU = -1;  /* UERLFReportContainer */
 static int hf_xnap_UESecurityCapabilities_PDU = -1;  /* UESecurityCapabilities */
+static int hf_xnap_UESpecificDRX_PDU = -1;        /* UESpecificDRX */
 static int hf_xnap_ULForwardingProposal_PDU = -1;  /* ULForwardingProposal */
 static int hf_xnap_UPTransportLayerInformation_PDU = -1;  /* UPTransportLayerInformation */
 static int hf_xnap_UPTransportParameters_PDU = -1;  /* UPTransportParameters */
@@ -1155,6 +1163,8 @@ static int hf_xnap_nRSCS = -1;                    /* NRSCS */
 static int hf_xnap_nRNRB = -1;                    /* NRNRB */
 static int hf_xnap_pER_Scalar = -1;               /* PER_Scalar */
 static int hf_xnap_pER_Exponent = -1;             /* PER_Exponent */
+static int hf_xnap_paging_eDRX_Cycle = -1;        /* Paging_eDRX_Cycle */
+static int hf_xnap_paging_Time_Window = -1;       /* Paging_Time_Window */
 static int hf_xnap_pc5QoSFlowList = -1;           /* PC5QoSFlowList */
 static int hf_xnap_pc5LinkAggregateBitRates = -1;  /* BitRate */
 static int hf_xnap_PC5QoSFlowList_item = -1;      /* PC5QoSFlowItem */
@@ -1930,6 +1940,7 @@ static gint ett_xnap_NRTransmissionBandwidth = -1;
 static gint ett_xnap_NRV2XServicesAuthorized = -1;
 static gint ett_xnap_NRUESidelinkAggregateMaximumBitRate = -1;
 static gint ett_xnap_PacketErrorRate = -1;
+static gint ett_xnap_PagingeDRXInformation = -1;
 static gint ett_xnap_PC5QoSParameters = -1;
 static gint ett_xnap_PC5QoSFlowList = -1;
 static gint ett_xnap_PC5QoSFlowItem = -1;
@@ -2822,6 +2833,10 @@ static const value_string xnap_ProtocolIE_ID_vals[] = {
   { id_SFN_Offset, "id-SFN-Offset" },
   { id_QoSMonitoringDisabled, "id-QoSMonitoringDisabled" },
   { id_ExtendedUEIdentityIndexValue, "id-ExtendedUEIdentityIndexValue" },
+  { id_PagingeDRXInformation, "id-PagingeDRXInformation" },
+  { id_CHO_MRDC_EarlyDataForwarding, "id-CHO-MRDC-EarlyDataForwarding" },
+  { id_SCGIndicator, "id-SCGIndicator" },
+  { id_UESpecificDRX, "id-UESpecificDRX" },
   { 0, NULL }
 };
 
@@ -5673,8 +5688,8 @@ dissect_xnap_SliceToReport_List(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
 static const per_sequence_t CellToReport_Item_sequence[] = {
   { &hf_xnap_cell_ID        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_GlobalNG_RANCell_ID },
-  { &hf_xnap_sSBToReport_List, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_SSBToReport_List },
-  { &hf_xnap_sliceToReport_List, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_SliceToReport_List },
+  { &hf_xnap_sSBToReport_List, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_SSBToReport_List },
+  { &hf_xnap_sliceToReport_List, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_SliceToReport_List },
   { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
   { NULL, 0, 0, NULL }
 };
@@ -5723,6 +5738,21 @@ dissect_xnap_Cell_Type_Choice(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_xnap_Cell_Type_Choice, Cell_Type_Choice_choice,
                                  NULL);
+
+  return offset;
+}
+
+
+static const value_string xnap_CHO_MRDC_EarlyDataForwarding_vals[] = {
+  {   0, "stop" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_xnap_CHO_MRDC_EarlyDataForwarding(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -11178,6 +11208,80 @@ dissect_xnap_PagingDRX(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
 }
 
 
+static const value_string xnap_Paging_eDRX_Cycle_vals[] = {
+  {   0, "hfhalf" },
+  {   1, "hf1" },
+  {   2, "hf2" },
+  {   3, "hf4" },
+  {   4, "hf6" },
+  {   5, "hf8" },
+  {   6, "hf10" },
+  {   7, "hf12" },
+  {   8, "hf14" },
+  {   9, "hf16" },
+  {  10, "hf32" },
+  {  11, "hf64" },
+  {  12, "hf128" },
+  {  13, "hf256" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_xnap_Paging_eDRX_Cycle(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     14, NULL, TRUE, 0, NULL);
+
+  return offset;
+}
+
+
+static const value_string xnap_Paging_Time_Window_vals[] = {
+  {   0, "s1" },
+  {   1, "s2" },
+  {   2, "s3" },
+  {   3, "s4" },
+  {   4, "s5" },
+  {   5, "s6" },
+  {   6, "s7" },
+  {   7, "s8" },
+  {   8, "s9" },
+  {   9, "s10" },
+  {  10, "s11" },
+  {  11, "s12" },
+  {  12, "s13" },
+  {  13, "s14" },
+  {  14, "s15" },
+  {  15, "s16" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_xnap_Paging_Time_Window(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     16, NULL, TRUE, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t PagingeDRXInformation_sequence[] = {
+  { &hf_xnap_paging_eDRX_Cycle, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_Paging_eDRX_Cycle },
+  { &hf_xnap_paging_Time_Window, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_Paging_Time_Window },
+  { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_xnap_PagingeDRXInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_PagingeDRXInformation, PagingeDRXInformation_sequence);
+
+  return offset;
+}
+
+
 static const value_string xnap_PagingPriority_vals[] = {
   {   0, "priolevel1" },
   {   1, "priolevel2" },
@@ -13947,6 +14051,21 @@ dissect_xnap_SCGConfigurationQuery(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 }
 
 
+static const value_string xnap_SCGIndicator_vals[] = {
+  {   0, "released" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_xnap_SCGIndicator(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, TRUE, 0, NULL);
+
+  return offset;
+}
+
+
 static const per_sequence_t ServedCellInformation_E_UTRA_perBPLMN_sequence[] = {
   { &hf_xnap_plmn_id        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_PLMN_Identity },
   { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
@@ -15334,6 +15453,24 @@ dissect_xnap_UERANPagingIdentity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_xnap_UERANPagingIdentity, UERANPagingIdentity_choice,
                                  NULL);
+
+  return offset;
+}
+
+
+static const value_string xnap_UESpecificDRX_vals[] = {
+  {   0, "v32" },
+  {   1, "v64" },
+  {   2, "v128" },
+  {   3, "v256" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_xnap_UESpecificDRX(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     4, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -18152,6 +18289,14 @@ static int dissect_CellToReport_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_CHO_MRDC_EarlyDataForwarding_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_xnap_CHO_MRDC_EarlyDataForwarding(tvb, offset, &asn1_ctx, tree, hf_xnap_CHO_MRDC_EarlyDataForwarding_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_CHO_MRDC_Indicator_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -18720,6 +18865,14 @@ static int dissect_PagingDRX_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_PagingeDRXInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_xnap_PagingeDRXInformation(tvb, offset, &asn1_ctx, tree, hf_xnap_PagingeDRXInformation_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_PagingPriority_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -18981,6 +19134,14 @@ static int dissect_SCGConfigurationQuery_PDU(tvbuff_t *tvb _U_, packet_info *pin
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
   offset = dissect_xnap_SCGConfigurationQuery(tvb, offset, &asn1_ctx, tree, hf_xnap_SCGConfigurationQuery_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_SCGIndicator_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_xnap_SCGIndicator(tvb, offset, &asn1_ctx, tree, hf_xnap_SCGIndicator_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -19293,6 +19454,14 @@ static int dissect_UESecurityCapabilities_PDU(tvbuff_t *tvb _U_, packet_info *pi
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
   offset = dissect_xnap_UESecurityCapabilities(tvb, offset, &asn1_ctx, tree, hf_xnap_UESecurityCapabilities_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_UESpecificDRX_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_xnap_UESpecificDRX(tvb, offset, &asn1_ctx, tree, hf_xnap_UESpecificDRX_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -20464,6 +20633,10 @@ void proto_register_xnap(void) {
       { "CellToReport", "xnap.CellToReport",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
+    { &hf_xnap_CHO_MRDC_EarlyDataForwarding_PDU,
+      { "CHO-MRDC-EarlyDataForwarding", "xnap.CHO_MRDC_EarlyDataForwarding",
+        FT_UINT32, BASE_DEC, VALS(xnap_CHO_MRDC_EarlyDataForwarding_vals), 0,
+        NULL, HFILL }},
     { &hf_xnap_CHO_MRDC_Indicator_PDU,
       { "CHO-MRDC-Indicator", "xnap.CHO_MRDC_Indicator",
         FT_UINT32, BASE_DEC, VALS(xnap_CHO_MRDC_Indicator_vals), 0,
@@ -20748,6 +20921,10 @@ void proto_register_xnap(void) {
       { "PagingDRX", "xnap.PagingDRX",
         FT_UINT32, BASE_DEC, VALS(xnap_PagingDRX_vals), 0,
         NULL, HFILL }},
+    { &hf_xnap_PagingeDRXInformation_PDU,
+      { "PagingeDRXInformation", "xnap.PagingeDRXInformation_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_xnap_PagingPriority_PDU,
       { "PagingPriority", "xnap.PagingPriority",
         FT_UINT32, BASE_DEC, VALS(xnap_PagingPriority_vals), 0,
@@ -20879,6 +21056,10 @@ void proto_register_xnap(void) {
     { &hf_xnap_SCGConfigurationQuery_PDU,
       { "SCGConfigurationQuery", "xnap.SCGConfigurationQuery",
         FT_UINT32, BASE_DEC, VALS(xnap_SCGConfigurationQuery_vals), 0,
+        NULL, HFILL }},
+    { &hf_xnap_SCGIndicator_PDU,
+      { "SCGIndicator", "xnap.SCGIndicator",
+        FT_UINT32, BASE_DEC, VALS(xnap_SCGIndicator_vals), 0,
         NULL, HFILL }},
     { &hf_xnap_SecurityResult_PDU,
       { "SecurityResult", "xnap.SecurityResult_element",
@@ -21035,6 +21216,10 @@ void proto_register_xnap(void) {
     { &hf_xnap_UESecurityCapabilities_PDU,
       { "UESecurityCapabilities", "xnap.UESecurityCapabilities_element",
         FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_UESpecificDRX_PDU,
+      { "UESpecificDRX", "xnap.UESpecificDRX",
+        FT_UINT32, BASE_DEC, VALS(xnap_UESpecificDRX_vals), 0,
         NULL, HFILL }},
     { &hf_xnap_ULForwardingProposal_PDU,
       { "ULForwardingProposal", "xnap.ULForwardingProposal",
@@ -23195,6 +23380,14 @@ void proto_register_xnap(void) {
     { &hf_xnap_pER_Exponent,
       { "pER-Exponent", "xnap.pER_Exponent",
         FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_paging_eDRX_Cycle,
+      { "paging-eDRX-Cycle", "xnap.paging_eDRX_Cycle",
+        FT_UINT32, BASE_DEC, VALS(xnap_Paging_eDRX_Cycle_vals), 0,
+        NULL, HFILL }},
+    { &hf_xnap_paging_Time_Window,
+      { "paging-Time-Window", "xnap.paging_Time_Window",
+        FT_UINT32, BASE_DEC, VALS(xnap_Paging_Time_Window_vals), 0,
         NULL, HFILL }},
     { &hf_xnap_pc5QoSFlowList,
       { "pc5QoSFlowList", "xnap.pc5QoSFlowList",
@@ -25472,6 +25665,7 @@ void proto_register_xnap(void) {
     &ett_xnap_NRV2XServicesAuthorized,
     &ett_xnap_NRUESidelinkAggregateMaximumBitRate,
     &ett_xnap_PacketErrorRate,
+    &ett_xnap_PagingeDRXInformation,
     &ett_xnap_PC5QoSParameters,
     &ett_xnap_PC5QoSFlowList,
     &ett_xnap_PC5QoSFlowItem,
@@ -26071,6 +26265,10 @@ proto_reg_handoff_xnap(void)
   dissector_add_uint("xnap.ies", id_SNTriggered, create_dissector_handle(dissect_SNTriggered_PDU, proto_xnap));
   dissector_add_uint("xnap.ies", id_cellAssistanceInfo_EUTRA, create_dissector_handle(dissect_CellAssistanceInfo_EUTRA_PDU, proto_xnap));
   dissector_add_uint("xnap.ies", id_ExtendedUEIdentityIndexValue, create_dissector_handle(dissect_ExtendedUEIdentityIndexValue_PDU, proto_xnap));
+  dissector_add_uint("xnap.ies", id_PagingeDRXInformation, create_dissector_handle(dissect_PagingeDRXInformation_PDU, proto_xnap));
+  dissector_add_uint("xnap.ies", id_CHO_MRDC_EarlyDataForwarding, create_dissector_handle(dissect_CHO_MRDC_EarlyDataForwarding_PDU, proto_xnap));
+  dissector_add_uint("xnap.ies", id_SCGIndicator, create_dissector_handle(dissect_SCGIndicator_PDU, proto_xnap));
+  dissector_add_uint("xnap.ies", id_UESpecificDRX, create_dissector_handle(dissect_UESpecificDRX_PDU, proto_xnap));
   dissector_add_uint("xnap.extension", id_Additional_UL_NG_U_TNLatUPF_List, create_dissector_handle(dissect_Additional_UL_NG_U_TNLatUPF_List_PDU, proto_xnap));
   dissector_add_uint("xnap.extension", id_SecondarydataForwardingInfoFromTarget_List, create_dissector_handle(dissect_SecondarydataForwardingInfoFromTarget_List_PDU, proto_xnap));
   dissector_add_uint("xnap.extension", id_LastE_UTRANPLMNIdentity, create_dissector_handle(dissect_PLMN_Identity_PDU, proto_xnap));
