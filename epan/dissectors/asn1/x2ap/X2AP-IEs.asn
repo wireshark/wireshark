@@ -1,4 +1,4 @@
--- 3GPP TS 36.423 V16.5.0 (2021-04)﻿
+-- 3GPP TS 36.423 V16.6.0 (2021-07)﻿
 -- 9.3.5	Information Element definitions
 -- **************************************************************
 --
@@ -450,7 +450,8 @@ CauseRadioNetwork ::= ENUMERATED {
 	cho-cpc-resources-tobechanged,
 	ue-power-saving,
 	insufficient-ue-capabilities,
-	normal-release
+	normal-release,
+	unknown-E-UTRAN-Node-Measurement-ID
 
 
 }
@@ -513,6 +514,8 @@ CellType ::= SEQUENCE {
 CellType-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 	...
 }
+
+CHO-DC-EarlyDataForwarding ::= ENUMERATED {stop, ...}
 
 CHO-DC-Indicator ::= ENUMERATED {true, ...}
 
@@ -1377,6 +1380,11 @@ HWLoadIndicator-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 
 
 IABNodeIndication ::= ENUMERATED {true,...}
+
+IMSvoiceEPSfallbackfrom5G ::= ENUMERATED {
+	true,
+	...
+}
 
 IntegrityProtectionAlgorithms ::= BIT STRING (SIZE (16, ...))
 

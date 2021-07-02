@@ -1,4 +1,4 @@
--- 3GPP TS 36.423 V16.5.0 (2021-04)﻿
+-- 3GPP TS 36.423 V16.6.0 (2021-07)﻿
 -- 9.3.4	PDU Definitions
 -- **************************************************************
 --
@@ -206,6 +206,7 @@ IMPORTS
 	DAPSRequestInfo,
 	DAPSResponseInfo,
 	CandidateCellsToBeCancelledList,
+	CHO-DC-EarlyDataForwarding,
 	CHO-DC-Indicator,
 	Ethernet-Type,
 	NRV2XServicesAuthorized,
@@ -231,7 +232,8 @@ IMPORTS
 	F1CTrafficContainer,
 	IntendedTDD-DL-ULConfiguration-NR,
 	UERadioCapability,
-	SFN-Offset
+	SFN-Offset,
+	IMSvoiceEPSfallbackfrom5G
 
 
 
@@ -285,6 +287,7 @@ FROM X2AP-Containers
 	id-GUGroupIDToDeleteList,
 	id-GUMMEI-ID,
 	id-Masked-IMEISV,
+	id-IMSvoiceEPSfallbackfrom5G,
 	id-InvokeIndication,
 	id-New-eNB-UE-X2AP-ID,
 	id-Old-eNB-UE-X2AP-ID,
@@ -558,14 +561,15 @@ FROM X2AP-Containers
 	id-CandidateCellsToBeCancelledList,
 	id-DAPSResponseInfo,
 	id-ProcedureStage,
+	id-CHO-DC-EarlyDataForwarding,
 	id-CHO-DC-Indicator,
 	id-Ethernet-Type,
 	id-NRV2XServicesAuthorized,
 	id-NRUESidelinkAggregateMaximumBitRate,
 	id-PC5QoSParameters,
 	id-TargetCellInNGRAN,
-	id-eNB-Measurement-ID-ENDC,
-	id-engNB-Measurement-ID-ENDC,
+	id-E-UTRAN-Node1-Measurement-ID,
+	id-E-UTRAN-Node2-Measurement-ID,
 	id-TDDULDLConfigurationCommonNR,
 	id-CarrierList,
 	id-ULCarrierList,
@@ -662,7 +666,8 @@ UE-ContextInformation-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 { ID id-EPCHandoverRestrictionListContainer CRITICALITY ignore	EXTENSION EPCHandoverRestrictionListContainer		PRESENCE optional }|
 { ID id-AdditionalRRMPriorityIndex			CRITICALITY ignore	EXTENSION AdditionalRRMPriorityIndex					PRESENCE optional}|
 { ID id-NRUESidelinkAggregateMaximumBitRate	CRITICALITY ignore	EXTENSION NRUESidelinkAggregateMaximumBitRate		PRESENCE optional}|
-{ ID id-UERadioCapabilityID					CRITICALITY reject	EXTENSION UERadioCapabilityID							PRESENCE optional },
+{ ID id-UERadioCapabilityID					CRITICALITY reject	EXTENSION UERadioCapabilityID							PRESENCE optional }|
+{ ID id-IMSvoiceEPSfallbackfrom5G					CRITICALITY ignore	EXTENSION IMSvoiceEPSfallbackfrom5G							PRESENCE optional},
 	...
 }
 
@@ -2540,7 +2545,8 @@ UE-ContextInformationRetrieve-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 { ID id-AdditionalRRMPriorityIndex			CRITICALITY ignore	EXTENSION AdditionalRRMPriorityIndex					PRESENCE optional }|
 { ID id-EPCHandoverRestrictionListContainer CRITICALITY ignore	EXTENSION EPCHandoverRestrictionListContainer		PRESENCE optional }|
 { ID id-NRUESidelinkAggregateMaximumBitRate	CRITICALITY ignore	EXTENSION NRUESidelinkAggregateMaximumBitRate		PRESENCE optional}|
-{ ID id-UERadioCapabilityID					CRITICALITY reject	EXTENSION UERadioCapabilityID							PRESENCE optional },
+{ ID id-UERadioCapabilityID					CRITICALITY reject	EXTENSION UERadioCapabilityID							PRESENCE optional }|
+{ ID id-IMSvoiceEPSfallbackfrom5G			CRITICALITY ignore	EXTENSION IMSvoiceEPSfallbackfrom5G					PRESENCE optional },
 	...
 }
 
@@ -3907,10 +3913,10 @@ ServedNRCell-Information ::= SEQUENCE {
 }
 
 ServedNRCell-Information-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
-	{ID id-additionalPLMNs-Item			CRITICALITY ignore	EXTENSION AdditionalPLMNs-Item			PRESENCE optional}|
-	{ ID id-BPLMN-ID-Info-NR				CRITICALITY ignore 	EXTENSION BPLMN-ID-Info-NR				PRESENCE optional}|
-	{ ID id-SSB-PositionsInBurst			CRITICALITY ignore	EXTENSION SSB-PositionsInBurst	PRESENCE optional}|
-	{ ID id-NRCellPRACHConfig				CRITICALITY ignore	EXTENSION NRCellPRACHConfig		PRESENCE optional}|
+	{ ID id-additionalPLMNs-Item			CRITICALITY ignore	EXTENSION AdditionalPLMNs-Item					PRESENCE optional}|
+	{ ID id-BPLMN-ID-Info-NR				CRITICALITY ignore	EXTENSION BPLMN-ID-Info-NR						PRESENCE optional}|
+	{ ID id-SSB-PositionsInBurst			CRITICALITY ignore	EXTENSION SSB-PositionsInBurst					PRESENCE optional}|
+	{ ID id-NRCellPRACHConfig				CRITICALITY ignore	EXTENSION NRCellPRACHConfig						PRESENCE optional}|
 	{ ID id-CSI-RSTransmissionIndication	CRITICALITY ignore	EXTENSION CSI-RSTransmissionIndication		PRESENCE optional}|
 	{ ID id-SFN-Offset						CRITICALITY ignore EXTENSION SFN-Offset								PRESENCE optional},
 	...
@@ -4259,8 +4265,8 @@ ENDCResourceStatusRequest ::= SEQUENCE {
 }
 
 ENDCResourceStatusRequest-IEs X2AP-PROTOCOL-IES ::= {
-	{ ID id-eNB-Measurement-ID-ENDC			CRITICALITY reject	TYPE Measurement-ID-ENDC			PRESENCE mandatory  }|
-	{ ID id-engNB-Measurement-ID-ENDC		CRITICALITY ignore	TYPE Measurement-ID-ENDC		PRESENCE conditional}| -- The IE shall be present if the Registration Request EN-DC IE is set to “Stop” or to “Add”
+	{ ID id-E-UTRAN-Node1-Measurement-ID			CRITICALITY reject	TYPE Measurement-ID-ENDC			PRESENCE mandatory  }|
+	{ ID id-E-UTRAN-Node2-Measurement-ID		CRITICALITY ignore	TYPE Measurement-ID-ENDC		PRESENCE conditional}| -- The IE shall be present if the Registration Request EN-DC IE is set to “Stop” or to “Add”
 	{ ID id-Registration-Request			CRITICALITY reject	TYPE Registration-Request-ENDC		PRESENCE mandatory  }|
 	{ ID id-ReportingPeriodicity			CRITICALITY ignore	TYPE ReportingPeriodicity-ENDC		PRESENCE optional   }|
 	{ ID id-ReportCharacteristics			CRITICALITY ignore	TYPE ReportCharacteristics-ENDC		PRESENCE conditional}| -- The IE shall be present if the Registration Request EN-DC IE is set to “Start”
@@ -4329,8 +4335,8 @@ ENDCResourceStatusResponse ::= SEQUENCE {
 }
 
 ENDCResourceStatusResponse-IEs X2AP-PROTOCOL-IES ::= {
-	{ ID id-eNB-Measurement-ID-ENDC		CRITICALITY reject	TYPE Measurement-ID-ENDC			PRESENCE mandatory}|
-	{ ID id-engNB-Measurement-ID-ENDC	CRITICALITY reject	TYPE Measurement-ID-ENDC			PRESENCE mandatory}|
+	{ ID id-E-UTRAN-Node1-Measurement-ID		CRITICALITY reject	TYPE Measurement-ID-ENDC			PRESENCE mandatory}|
+	{ ID id-E-UTRAN-Node2-Measurement-ID	CRITICALITY reject	TYPE Measurement-ID-ENDC			PRESENCE mandatory}|
 	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics			PRESENCE optional } |
 	{ ID id-InterfaceInstanceIndication	CRITICALITY reject 	TYPE InterfaceInstanceIndication	PRESENCE optional },
 	...
@@ -4348,8 +4354,8 @@ ENDCResourceStatusFailure ::= SEQUENCE {
 }
 
 ENDCResourceStatusFailure-IEs X2AP-PROTOCOL-IES ::= {
-	{ ID id-eNB-Measurement-ID-ENDC		CRITICALITY reject	TYPE Measurement-ID-ENDC			PRESENCE mandatory}|
-	{ ID id-engNB-Measurement-ID-ENDC	CRITICALITY reject	TYPE Measurement-ID-ENDC			PRESENCE mandatory}|
+	{ ID id-E-UTRAN-Node1-Measurement-ID		CRITICALITY reject	TYPE Measurement-ID-ENDC			PRESENCE mandatory}|
+	{ ID id-E-UTRAN-Node2-Measurement-ID	CRITICALITY reject	TYPE Measurement-ID-ENDC			PRESENCE mandatory}|
 	{ ID id-Cause						CRITICALITY ignore	TYPE Cause							PRESENCE mandatory}|
 	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics			PRESENCE optional }|
 	{ ID id-InterfaceInstanceIndication	CRITICALITY reject 	TYPE InterfaceInstanceIndication	PRESENCE optional },
@@ -4368,8 +4374,8 @@ ENDCResourceStatusUpdate ::= SEQUENCE {
 }
 
 ENDCResourceStatusUpdate-IEs X2AP-PROTOCOL-IES ::= {
-	{ ID id-eNB-Measurement-ID-ENDC				CRITICALITY reject	TYPE Measurement-ID-ENDC							PRESENCE mandatory}|
-	{ ID id-engNB-Measurement-ID-ENDC			CRITICALITY reject	TYPE Measurement-ID-ENDC							PRESENCE mandatory}|
+	{ ID id-E-UTRAN-Node1-Measurement-ID				CRITICALITY reject	TYPE Measurement-ID-ENDC							PRESENCE mandatory}|
+	{ ID id-E-UTRAN-Node2-Measurement-ID			CRITICALITY reject	TYPE Measurement-ID-ENDC							PRESENCE mandatory}|
 	{ ID id-CellMeasurementResult-NR-ENDC		CRITICALITY ignore	TYPE CellMeasurementResult-NR-ENDC-List		PRESENCE optional }|
 	{ ID id-InterfaceInstanceIndication			CRITICALITY reject 	TYPE InterfaceInstanceIndication					PRESENCE optional }|
 	{ ID id-CellMeasurementResult-E-UTRA-ENDC	CRITICALITY ignore	TYPE CellMeasurementResult-E-UTRA-ENDC-List	PRESENCE optional},
@@ -4681,7 +4687,8 @@ DataForwardingAddressIndication-IEs X2AP-PROTOCOL-IES ::= {
 	{ ID id-Old-eNB-UE-X2AP-ID					CRITICALITY ignore	TYPE UE-X2AP-ID									PRESENCE mandatory}|
 	{ ID id-Old-eNB-UE-X2AP-ID-Extension		CRITICALITY ignore	TYPE UE-X2AP-ID-Extension						PRESENCE optional }|
 	{ ID id-E-RABs-DataForwardingAddress-List	CRITICALITY ignore	TYPE E-RABs-DataForwardingAddress-List		PRESENCE mandatory}|
-	{ ID id-CHO-DC-Indicator					CRITICALITY reject	TYPE CHO-DC-Indicator							PRESENCE optional},
+	{ ID id-CHO-DC-Indicator					CRITICALITY reject	TYPE CHO-DC-Indicator							PRESENCE optional}|
+	{ ID id-CHO-DC-EarlyDataForwarding			CRITICALITY ignore	TYPE CHO-DC-EarlyDataForwarding				PRESENCE optional},
 	...
 }
 

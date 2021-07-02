@@ -1544,8 +1544,8 @@ id-SNtriggered							ProtocolIE-ID
 id-CSI-RSTransmissionIndication					ProtocolIE-ID
 id-DLCarrierList						ProtocolIE-ID
 id-TargetCellInNGRAN						ProtocolIE-ID
-id-eNB-Measurement-ID-ENDC					ProtocolIE-ID
-id-engNB-Measurement-ID-ENDC					ProtocolIE-ID
+id-E-UTRAN-Node1-Measurement-ID					ProtocolIE-ID
+id-E-UTRAN-Node2-Measurement-ID					ProtocolIE-ID
 id-TDDULDLConfigurationCommonNR					ProtocolIE-ID
 id-CarrierList							ProtocolIE-ID
 id-ULCarrierList						ProtocolIE-ID
@@ -1567,6 +1567,8 @@ id-CellToReport-E-UTRA-ENDC					ProtocolIE-ID
 id-CellToReport-E-UTRA-ENDC-Item				ProtocolIE-ID
 id-TraceCollectionEntityURI					ProtocolIE-ID
 id-SFN-Offset							ProtocolIE-ID
+id-CHO-DC-EarlyDataForwarding					ProtocolIE-ID
+id-IMSvoiceEPSfallbackfrom5G					ProtocolIE-ID
 
 #.REGISTER
 
@@ -1835,8 +1837,8 @@ TransportLayerAddress						N x2ap.ies id-TraceCollectionEntityIPAddress
 UERadioCapabilityID						N x2ap.ies id-UERadioCapabilityID
 SNtriggered							N x2ap.ies id-SNtriggered
 TargetCellInNGRAN						N x2ap.ies id-TargetCellInNGRAN
-Measurement-ID-ENDC						N x2ap.ies id-eNB-Measurement-ID-ENDC
-Measurement-ID-ENDC						N x2ap.ies id-engNB-Measurement-ID-ENDC
+Measurement-ID-ENDC						N x2ap.ies id-E-UTRAN-Node1-Measurement-ID
+Measurement-ID-ENDC						N x2ap.ies id-E-UTRAN-Node2-Measurement-ID
 CellToReport-NR-ENDC-List					N x2ap.ies id-CellToReport-NR-ENDC
 CellToReport-NR-ENDC-Item					N x2ap.ies id-CellToReport-NR-ENDC-Item
 CellMeasurementResult-NR-ENDC-List				N x2ap.ies id-CellMeasurementResult-NR-ENDC
@@ -1848,6 +1850,7 @@ CellMeasurementResult-E-UTRA-ENDC-List				N x2ap.ies id-CellMeasurementResult-E-
 CellMeasurementResult-E-UTRA-ENDC-Item				N x2ap.ies id-CellMeasurementResult-E-UTRA-ENDC-Item
 CellToReport-E-UTRA-ENDC-List					N x2ap.ies id-CellToReport-E-UTRA-ENDC
 CellToReport-E-UTRA-ENDC-Item					N x2ap.ies id-CellToReport-E-UTRA-ENDC-Item
+CHO-DC-EarlyDataForwarding					N x2ap.ies id-CHO-DC-EarlyDataForwarding
 
 #X2AP-PROTOCOL-EXTENSION
 Number-of-Antennaports						N x2ap.extension id-Number-of-Antennaports
@@ -1969,6 +1972,7 @@ QoS-Mapping-Information						N x2ap.extension id-QoS-Mapping-Information
 IntendedTDD-DL-ULConfiguration-NR				N x2ap.extension id-IntendedTDD-DL-ULConfiguration-NR
 URI-Address							N x2ap.extension id-TraceCollectionEntityURI
 SFN-Offset							N x2ap.extension id-SFN-Offset
+IMSvoiceEPSfallbackfrom5G					N x2ap.extension id-IMSvoiceEPSfallbackfrom5G
 
 # X2AP-PDU-Descriptions.asn  Interface Elementary Procedures
 #X2AP-ELEMENTARY-PROCEDURE

@@ -20,7 +20,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * Ref:
- * 3GPP TS 36.423 V16.5.0 (2021-04)
+ * 3GPP TS 36.423 V16.6.0 (2021-07)
  */
 
 #include "config.h"
@@ -564,8 +564,8 @@ typedef enum _ProtocolIE_ID_enum {
   id_CSI_RSTransmissionIndication = 380,
   id_DLCarrierList = 381,
   id_TargetCellInNGRAN = 382,
-  id_eNB_Measurement_ID_ENDC = 383,
-  id_engNB_Measurement_ID_ENDC = 384,
+  id_E_UTRAN_Node1_Measurement_ID = 383,
+  id_E_UTRAN_Node2_Measurement_ID = 384,
   id_TDDULDLConfigurationCommonNR = 385,
   id_CarrierList = 386,
   id_ULCarrierList = 387,
@@ -587,7 +587,9 @@ typedef enum _ProtocolIE_ID_enum {
   id_CellToReport_E_UTRA_ENDC = 403,
   id_CellToReport_E_UTRA_ENDC_Item = 404,
   id_TraceCollectionEntityURI = 405,
-  id_SFN_Offset = 406
+  id_SFN_Offset = 406,
+  id_CHO_DC_EarlyDataForwarding = 407,
+  id_IMSvoiceEPSfallbackfrom5G = 408
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-x2ap-val.h ---*/
@@ -685,6 +687,7 @@ static int hf_x2ap_BPLMN_ID_Info_EUTRA_PDU = -1;  /* BPLMN_ID_Info_EUTRA */
 static int hf_x2ap_BPLMN_ID_Info_NR_PDU = -1;     /* BPLMN_ID_Info_NR */
 static int hf_x2ap_Cause_PDU = -1;                /* Cause */
 static int hf_x2ap_CellReportingIndicator_PDU = -1;  /* CellReportingIndicator */
+static int hf_x2ap_CHO_DC_EarlyDataForwarding_PDU = -1;  /* CHO_DC_EarlyDataForwarding */
 static int hf_x2ap_CHO_DC_Indicator_PDU = -1;     /* CHO_DC_Indicator */
 static int hf_x2ap_CNTypeRestrictions_PDU = -1;   /* CNTypeRestrictions */
 static int hf_x2ap_CoMPInformation_PDU = -1;      /* CoMPInformation */
@@ -739,6 +742,7 @@ static int hf_x2ap_GUMMEI_PDU = -1;               /* GUMMEI */
 static int hf_x2ap_HandoverReportType_PDU = -1;   /* HandoverReportType */
 static int hf_x2ap_HandoverRestrictionList_PDU = -1;  /* HandoverRestrictionList */
 static int hf_x2ap_IABNodeIndication_PDU = -1;    /* IABNodeIndication */
+static int hf_x2ap_IMSvoiceEPSfallbackfrom5G_PDU = -1;  /* IMSvoiceEPSfallbackfrom5G */
 static int hf_x2ap_IntendedTDD_DL_ULConfiguration_NR_PDU = -1;  /* IntendedTDD_DL_ULConfiguration_NR */
 static int hf_x2ap_InterfaceInstanceIndication_PDU = -1;  /* InterfaceInstanceIndication */
 static int hf_x2ap_InvokeIndication_PDU = -1;     /* InvokeIndication */
@@ -3143,8 +3147,8 @@ static const value_string x2ap_ProtocolIE_ID_vals[] = {
   { id_CSI_RSTransmissionIndication, "id-CSI-RSTransmissionIndication" },
   { id_DLCarrierList, "id-DLCarrierList" },
   { id_TargetCellInNGRAN, "id-TargetCellInNGRAN" },
-  { id_eNB_Measurement_ID_ENDC, "id-eNB-Measurement-ID-ENDC" },
-  { id_engNB_Measurement_ID_ENDC, "id-engNB-Measurement-ID-ENDC" },
+  { id_E_UTRAN_Node1_Measurement_ID, "id-E-UTRAN-Node1-Measurement-ID" },
+  { id_E_UTRAN_Node2_Measurement_ID, "id-E-UTRAN-Node2-Measurement-ID" },
   { id_TDDULDLConfigurationCommonNR, "id-TDDULDLConfigurationCommonNR" },
   { id_CarrierList, "id-CarrierList" },
   { id_ULCarrierList, "id-ULCarrierList" },
@@ -3167,6 +3171,8 @@ static const value_string x2ap_ProtocolIE_ID_vals[] = {
   { id_CellToReport_E_UTRA_ENDC_Item, "id-CellToReport-E-UTRA-ENDC-Item" },
   { id_TraceCollectionEntityURI, "id-TraceCollectionEntityURI" },
   { id_SFN_Offset, "id-SFN-Offset" },
+  { id_CHO_DC_EarlyDataForwarding, "id-CHO-DC-EarlyDataForwarding" },
+  { id_IMSvoiceEPSfallbackfrom5G, "id-IMSvoiceEPSfallbackfrom5G" },
   { 0, NULL }
 };
 
@@ -4472,6 +4478,7 @@ static const value_string x2ap_CauseRadioNetwork_vals[] = {
   {  52, "ue-power-saving" },
   {  53, "insufficient-ue-capabilities" },
   {  54, "normal-release" },
+  {  55, "unknown-E-UTRAN-Node-Measurement-ID" },
   { 0, NULL }
 };
 
@@ -4481,7 +4488,7 @@ static value_string_ext x2ap_CauseRadioNetwork_vals_ext = VALUE_STRING_EXT_INIT(
 static int
 dissect_x2ap_CauseRadioNetwork(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     22, NULL, TRUE, 33, NULL);
+                                     22, NULL, TRUE, 34, NULL);
 
   return offset;
 }
@@ -4680,6 +4687,21 @@ static int
 dissect_x2ap_CellType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_x2ap_CellType, CellType_sequence);
+
+  return offset;
+}
+
+
+static const value_string x2ap_CHO_DC_EarlyDataForwarding_vals[] = {
+  {   0, "stop" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_x2ap_CHO_DC_EarlyDataForwarding(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -7908,6 +7930,21 @@ static const value_string x2ap_IABNodeIndication_vals[] = {
 
 static int
 dissect_x2ap_IABNodeIndication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, TRUE, 0, NULL);
+
+  return offset;
+}
+
+
+static const value_string x2ap_IMSvoiceEPSfallbackfrom5G_vals[] = {
+  {   0, "true" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_x2ap_IMSvoiceEPSfallbackfrom5G(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      1, NULL, TRUE, 0, NULL);
 
@@ -18410,6 +18447,14 @@ static int dissect_CellReportingIndicator_PDU(tvbuff_t *tvb _U_, packet_info *pi
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_CHO_DC_EarlyDataForwarding_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_x2ap_CHO_DC_EarlyDataForwarding(tvb, offset, &asn1_ctx, tree, hf_x2ap_CHO_DC_EarlyDataForwarding_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_CHO_DC_Indicator_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -18839,6 +18884,14 @@ static int dissect_IABNodeIndication_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
   offset = dissect_x2ap_IABNodeIndication(tvb, offset, &asn1_ctx, tree, hf_x2ap_IABNodeIndication_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_IMSvoiceEPSfallbackfrom5G_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_x2ap_IMSvoiceEPSfallbackfrom5G(tvb, offset, &asn1_ctx, tree, hf_x2ap_IMSvoiceEPSfallbackfrom5G_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -22228,6 +22281,10 @@ void proto_register_x2ap(void) {
       { "CellReportingIndicator", "x2ap.CellReportingIndicator",
         FT_UINT32, BASE_DEC, VALS(x2ap_CellReportingIndicator_vals), 0,
         NULL, HFILL }},
+    { &hf_x2ap_CHO_DC_EarlyDataForwarding_PDU,
+      { "CHO-DC-EarlyDataForwarding", "x2ap.CHO_DC_EarlyDataForwarding",
+        FT_UINT32, BASE_DEC, VALS(x2ap_CHO_DC_EarlyDataForwarding_vals), 0,
+        NULL, HFILL }},
     { &hf_x2ap_CHO_DC_Indicator_PDU,
       { "CHO-DC-Indicator", "x2ap.CHO_DC_Indicator",
         FT_UINT32, BASE_DEC, VALS(x2ap_CHO_DC_Indicator_vals), 0,
@@ -22443,6 +22500,10 @@ void proto_register_x2ap(void) {
     { &hf_x2ap_IABNodeIndication_PDU,
       { "IABNodeIndication", "x2ap.IABNodeIndication",
         FT_UINT32, BASE_DEC, VALS(x2ap_IABNodeIndication_vals), 0,
+        NULL, HFILL }},
+    { &hf_x2ap_IMSvoiceEPSfallbackfrom5G_PDU,
+      { "IMSvoiceEPSfallbackfrom5G", "x2ap.IMSvoiceEPSfallbackfrom5G",
+        FT_UINT32, BASE_DEC, VALS(x2ap_IMSvoiceEPSfallbackfrom5G_vals), 0,
         NULL, HFILL }},
     { &hf_x2ap_IntendedTDD_DL_ULConfiguration_NR_PDU,
       { "IntendedTDD-DL-ULConfiguration-NR", "x2ap.IntendedTDD_DL_ULConfiguration_NR",
@@ -27883,8 +27944,8 @@ proto_reg_handoff_x2ap(void)
   dissector_add_uint("x2ap.ies", id_UERadioCapabilityID, create_dissector_handle(dissect_UERadioCapabilityID_PDU, proto_x2ap));
   dissector_add_uint("x2ap.ies", id_SNtriggered, create_dissector_handle(dissect_SNtriggered_PDU, proto_x2ap));
   dissector_add_uint("x2ap.ies", id_TargetCellInNGRAN, create_dissector_handle(dissect_TargetCellInNGRAN_PDU, proto_x2ap));
-  dissector_add_uint("x2ap.ies", id_eNB_Measurement_ID_ENDC, create_dissector_handle(dissect_Measurement_ID_ENDC_PDU, proto_x2ap));
-  dissector_add_uint("x2ap.ies", id_engNB_Measurement_ID_ENDC, create_dissector_handle(dissect_Measurement_ID_ENDC_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.ies", id_E_UTRAN_Node1_Measurement_ID, create_dissector_handle(dissect_Measurement_ID_ENDC_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.ies", id_E_UTRAN_Node2_Measurement_ID, create_dissector_handle(dissect_Measurement_ID_ENDC_PDU, proto_x2ap));
   dissector_add_uint("x2ap.ies", id_CellToReport_NR_ENDC, create_dissector_handle(dissect_CellToReport_NR_ENDC_List_PDU, proto_x2ap));
   dissector_add_uint("x2ap.ies", id_CellToReport_NR_ENDC_Item, create_dissector_handle(dissect_CellToReport_NR_ENDC_Item_PDU, proto_x2ap));
   dissector_add_uint("x2ap.ies", id_CellMeasurementResult_NR_ENDC, create_dissector_handle(dissect_CellMeasurementResult_NR_ENDC_List_PDU, proto_x2ap));
@@ -27896,6 +27957,7 @@ proto_reg_handoff_x2ap(void)
   dissector_add_uint("x2ap.ies", id_CellMeasurementResult_E_UTRA_ENDC_Item, create_dissector_handle(dissect_CellMeasurementResult_E_UTRA_ENDC_Item_PDU, proto_x2ap));
   dissector_add_uint("x2ap.ies", id_CellToReport_E_UTRA_ENDC, create_dissector_handle(dissect_CellToReport_E_UTRA_ENDC_List_PDU, proto_x2ap));
   dissector_add_uint("x2ap.ies", id_CellToReport_E_UTRA_ENDC_Item, create_dissector_handle(dissect_CellToReport_E_UTRA_ENDC_Item_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.ies", id_CHO_DC_EarlyDataForwarding, create_dissector_handle(dissect_CHO_DC_EarlyDataForwarding_PDU, proto_x2ap));
   dissector_add_uint("x2ap.extension", id_Number_of_Antennaports, create_dissector_handle(dissect_Number_of_Antennaports_PDU, proto_x2ap));
   dissector_add_uint("x2ap.extension", id_CompositeAvailableCapacityGroup, create_dissector_handle(dissect_CompositeAvailableCapacityGroup_PDU, proto_x2ap));
   dissector_add_uint("x2ap.extension", id_PRACH_Configuration, create_dissector_handle(dissect_PRACH_Configuration_PDU, proto_x2ap));
@@ -28015,6 +28077,7 @@ proto_reg_handoff_x2ap(void)
   dissector_add_uint("x2ap.extension", id_IntendedTDD_DL_ULConfiguration_NR, create_dissector_handle(dissect_IntendedTDD_DL_ULConfiguration_NR_PDU, proto_x2ap));
   dissector_add_uint("x2ap.extension", id_TraceCollectionEntityURI, create_dissector_handle(dissect_URI_Address_PDU, proto_x2ap));
   dissector_add_uint("x2ap.extension", id_SFN_Offset, create_dissector_handle(dissect_SFN_Offset_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.extension", id_IMSvoiceEPSfallbackfrom5G, create_dissector_handle(dissect_IMSvoiceEPSfallbackfrom5G_PDU, proto_x2ap));
   dissector_add_uint("x2ap.proc.imsg", id_handoverPreparation, create_dissector_handle(dissect_HandoverRequest_PDU, proto_x2ap));
   dissector_add_uint("x2ap.proc.sout", id_handoverPreparation, create_dissector_handle(dissect_HandoverRequestAcknowledge_PDU, proto_x2ap));
   dissector_add_uint("x2ap.proc.uout", id_handoverPreparation, create_dissector_handle(dissect_HandoverPreparationFailure_PDU, proto_x2ap));

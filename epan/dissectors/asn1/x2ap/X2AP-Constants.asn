@@ -1,4 +1,4 @@
--- 3GPP TS 36.423 V16.5.0 (2021-04)﻿
+-- 3GPP TS 36.423 V16.6.0 (2021-07)﻿
 -- 9.3.7	Constant definitions
 -- **************************************************************
 --
@@ -539,8 +539,8 @@ id-SNtriggered																ProtocolIE-ID ::= 379
 id-CSI-RSTransmissionIndication												ProtocolIE-ID ::= 380
 id-DLCarrierList															ProtocolIE-ID ::= 381
 id-TargetCellInNGRAN														ProtocolIE-ID ::= 382
-id-eNB-Measurement-ID-ENDC													ProtocolIE-ID ::= 383
-id-engNB-Measurement-ID-ENDC												ProtocolIE-ID ::= 384
+id-E-UTRAN-Node1-Measurement-ID												ProtocolIE-ID ::= 383
+id-E-UTRAN-Node2-Measurement-ID												ProtocolIE-ID ::= 384
 id-TDDULDLConfigurationCommonNR												ProtocolIE-ID ::= 385
 id-CarrierList																ProtocolIE-ID ::= 386
 id-ULCarrierList															ProtocolIE-ID ::= 387
@@ -564,6 +564,8 @@ id-CellToReport-E-UTRA-ENDC													ProtocolIE-ID ::= 403
 id-CellToReport-E-UTRA-ENDC-Item											ProtocolIE-ID ::= 404
 id-TraceCollectionEntityURI													ProtocolIE-ID ::= 405
 id-SFN-Offset																ProtocolIE-ID ::= 406
+id-CHO-DC-EarlyDataForwarding												ProtocolIE-ID ::= 407
+id-IMSvoiceEPSfallbackfrom5G												ProtocolIE-ID ::= 408
 
 
 END
