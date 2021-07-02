@@ -3275,7 +3275,7 @@ dissect_krb5_decrypt_ticket_data (gboolean imp_tag _U_, tvbuff_t *tvb, int offse
 	 * 7.5.1
 	 * All Ticket encrypted parts use usage == 2
 	 */
-	plaintext=decrypt_krb5_data_asn1(tree, actx, 2, next_tvb, NULL);
+	plaintext=decrypt_krb5_data_asn1(tree, actx, 2, next_tvb, &length);
 
 	if(plaintext){
 		tvbuff_t *child_tvb;
@@ -3315,9 +3315,9 @@ dissect_krb5_decrypt_authenticator_data (gboolean imp_tag _U_, tvbuff_t *tvb, in
 	 *     session key (section 5.5.1)
 	 */
 	if (private_data->within_PA_TGS_REQ > 0) {
-		plaintext=decrypt_krb5_data_asn1(tree, actx, 7, next_tvb, NULL);
+		plaintext=decrypt_krb5_data_asn1(tree, actx, 7, next_tvb, &length);
 	} else {
-		plaintext=decrypt_krb5_data_asn1(tree, actx, 11, next_tvb, NULL);
+		plaintext=decrypt_krb5_data_asn1(tree, actx, 11, next_tvb, &length);
 	}
 
 	if(plaintext){
@@ -3356,9 +3356,9 @@ dissect_krb5_decrypt_authorization_data(gboolean imp_tag _U_, tvbuff_t *tvb, int
 	 *    the TGS authenticator subkey (section 5.4.1)
 	 */
 	if (private_data->PA_TGS_REQ_subkey != NULL) {
-		plaintext=decrypt_krb5_data_asn1(tree, actx, 5, next_tvb, NULL);
+		plaintext=decrypt_krb5_data_asn1(tree, actx, 5, next_tvb, &length);
 	} else {
-		plaintext=decrypt_krb5_data_asn1(tree, actx, 4, next_tvb, NULL);
+		plaintext=decrypt_krb5_data_asn1(tree, actx, 4, next_tvb, &length);
 	}
 
 	if(plaintext){
@@ -3418,15 +3418,15 @@ dissect_krb5_decrypt_KDC_REP_data (gboolean imp_tag _U_, tvbuff_t *tvb, int offs
 	 */
 	switch (private_data->msg_type) {
 	case KERBEROS_APPLICATIONS_AS_REP:
-		plaintext=decrypt_krb5_data_asn1(tree, actx, 3, next_tvb, NULL);
+		plaintext=decrypt_krb5_data_asn1(tree, actx, 3, next_tvb, &length);
 		break;
 	case KERBEROS_APPLICATIONS_TGS_REP:
 		if (private_data->fast_strengthen_key != NULL) {
-			plaintext=decrypt_krb5_data_asn1(tree, actx, 9, next_tvb, NULL);
+			plaintext=decrypt_krb5_data_asn1(tree, actx, 9, next_tvb, &length);
 		} else {
-			plaintext=decrypt_krb5_data_asn1(tree, actx, 8, next_tvb, NULL);
+			plaintext=decrypt_krb5_data_asn1(tree, actx, 8, next_tvb, &length);
 			if(!plaintext){
-				plaintext=decrypt_krb5_data_asn1(tree, actx, 9, next_tvb, NULL);
+				plaintext=decrypt_krb5_data_asn1(tree, actx, 9, next_tvb, &length);
 			}
 		}
 		break;
@@ -3460,7 +3460,7 @@ dissect_krb5_decrypt_PA_ENC_TIMESTAMP (gboolean imp_tag _U_, tvbuff_t *tvb, int 
 	 * AS-REQ PA_ENC_TIMESTAMP are encrypted with usage
 	 * == 1
 	 */
-	plaintext=decrypt_krb5_data_asn1(tree, actx, 1, next_tvb, NULL);
+	plaintext=decrypt_krb5_data_asn1(tree, actx, 1, next_tvb, &length);
 
 	if(plaintext){
 		tvbuff_t *child_tvb;
@@ -3489,7 +3489,7 @@ dissect_krb5_decrypt_AP_REP_data (gboolean imp_tag _U_, tvbuff_t *tvb, int offse
 	 * 7.5.1
 	 * AP-REP are encrypted with usage == 12
 	 */
-	plaintext=decrypt_krb5_data_asn1(tree, actx, 12, next_tvb, NULL);
+	plaintext=decrypt_krb5_data_asn1(tree, actx, 12, next_tvb, &length);
 
 	if(plaintext){
 		tvbuff_t *child_tvb;
@@ -3518,7 +3518,7 @@ dissect_krb5_decrypt_PRIV_data (gboolean imp_tag _U_, tvbuff_t *tvb, int offset,
 	 * EncKrbPrivPart encrypted with usage
 	 * == 13
 	 */
-	plaintext=decrypt_krb5_data_asn1(tree, actx, 13, next_tvb, NULL);
+	plaintext=decrypt_krb5_data_asn1(tree, actx, 13, next_tvb, &length);
 
 	if(plaintext){
 		tvbuff_t *child_tvb;
@@ -3547,7 +3547,7 @@ dissect_krb5_decrypt_CRED_data (gboolean imp_tag _U_, tvbuff_t *tvb, int offset,
 	 * EncKrbCredPart encrypted with usage
 	 * == 14
 	 */
-	plaintext=decrypt_krb5_data_asn1(tree, actx, 14, next_tvb, NULL);
+	plaintext=decrypt_krb5_data_asn1(tree, actx, 14, next_tvb, &length);
 
 	if(plaintext){
 		tvbuff_t *child_tvb;
@@ -3610,7 +3610,7 @@ dissect_krb5_decrypt_KrbFastReq(gboolean imp_tag _U_, tvbuff_t *tvb, int offset,
 	 * KEY_USAGE_FAST_ENC 51
 	 */
 	plaintext=decrypt_krb5_data_asn1(tree, actx, KEY_USAGE_FAST_ENC,
-					 next_tvb, NULL);
+					 next_tvb, &length);
 
 	if(plaintext){
 		tvbuff_t *child_tvb;
@@ -3642,7 +3642,7 @@ dissect_krb5_decrypt_KrbFastResponse(gboolean imp_tag _U_, tvbuff_t *tvb, int of
 	 * KEY_USAGE_FAST_REP 52
 	 */
 	plaintext=decrypt_krb5_data_asn1(tree, actx, KEY_USAGE_FAST_REP,
-					 next_tvb, NULL);
+					 next_tvb, &length);
 
 	if(plaintext){
 		tvbuff_t *child_tvb;
@@ -3682,7 +3682,7 @@ dissect_krb5_decrypt_EncryptedChallenge(gboolean imp_tag _U_, tvbuff_t *tvb, int
 		usage = KEY_USAGE_ENC_CHALLENGE_KDC;
 		name = "Krb5 CHALLENGE_KDC";
 	}
-	plaintext=decrypt_krb5_data_asn1(tree, actx, usage, next_tvb, NULL);
+	plaintext=decrypt_krb5_data_asn1(tree, actx, usage, next_tvb, &length);
 
 	if(plaintext){
 		tvbuff_t *child_tvb;
