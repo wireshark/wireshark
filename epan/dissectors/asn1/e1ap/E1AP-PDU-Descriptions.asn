@@ -1,4 +1,4 @@
--- 3GPP TS 38.463 V16.5.0 (2021-04)
+-- 3GPP TS 38.463 V16.6.0 (2021-07)
 -- **************************************************************
 --
 -- Elementary Procedure definitions
@@ -9,7 +9,7 @@ E1AP-PDU-Descriptions {
 itu-t (0) identified-organization (4) etsi (0) mobileDomain (0)
 ngran-access (22) modules (3) e1ap (5) version1 (1) e1ap-PDU-Descriptions (0) }
 
-DEFINITIONS AUTOMATIC TAGS ::= 
+DEFINITIONS AUTOMATIC TAGS ::=
 
 BEGIN
 
@@ -29,10 +29,10 @@ FROM E1AP-CommonDataTypes
 	ErrorIndication,
 	GNB-CU-UP-E1SetupRequest,
 	GNB-CU-UP-E1SetupResponse,
-	GNB-CU-UP-E1SetupFailure, 
+	GNB-CU-UP-E1SetupFailure,
 	GNB-CU-CP-E1SetupRequest,
 	GNB-CU-CP-E1SetupResponse,
-	GNB-CU-CP-E1SetupFailure, 
+	GNB-CU-CP-E1SetupFailure,
 	GNB-CU-UP-ConfigurationUpdate,
 	GNB-CU-UP-ConfigurationUpdateAcknowledge,
 	GNB-CU-UP-ConfigurationUpdateFailure,
@@ -114,7 +114,7 @@ FROM E1AP-Constants;
 E1AP-ELEMENTARY-PROCEDURE ::= CLASS {
 	&InitiatingMessage				,
 	&SuccessfulOutcome							OPTIONAL,
-	
+
 &UnsuccessfulOutcome						OPTIONAL,
 	&procedureCode				ProcedureCode 	UNIQUE,
 	&criticality				Criticality 	DEFAULT ignore
@@ -199,7 +199,6 @@ E1AP-ELEMENTARY-PROCEDURES-CLASS-2 E1AP-ELEMENTARY-PROCEDURE ::= {
 	mRDC-DataUsageReport					|
 	deactivateTrace							|
 	traceStart								|
-	privateMessage							|
 	privateMessage							|
 	cellTrafficTrace						|
 	resourceStatusReporting					|

@@ -283,6 +283,8 @@ id-Extended-GNB-CU-UP-Name                      ProtocolIE-ID
 id-DataForwardingtoE-UTRANInformationList       ProtocolIE-ID
 id-QosMonitoringReportingFrequency              ProtocolIE-ID
 id-QoSMonitoringDisabled                        ProtocolIE-ID
+id-AdditionalHandoverInfo                       ProtocolIE-ID
+id-Extended-NR-CGI-Support-List                 ProtocolIE-ID
 #.END
 
 #.REGISTER
@@ -387,6 +389,7 @@ CHOInitiation                                N e1ap.ies id-CHOInitiation
 DRB-Measurement-Results-Information-List     N e1ap.ies id-DRB-Measurement-Results-Information-List
 Extended-GNB-CU-CP-Name                      N e1ap.ies id-Extended-GNB-CU-CP-Name
 Extended-GNB-CU-UP-Name                      N e1ap.ies id-Extended-GNB-CU-UP-Name
+AdditionalHandoverInfo                       N e1ap.ies id-AdditionalHandoverInfo
 
 #E1AP-PROTOCOL-EXTENSION
 SNSSAI                                       N e1ap.extension id-SNSSAI
@@ -424,6 +427,7 @@ Number-of-tunnels                            N e1ap.extension id-Number-of-tunne
 DataForwardingtoE-UTRANInformationList       N e1ap.extension id-DataForwardingtoE-UTRANInformationList
 QosMonitoringReportingFrequency              N e1ap.extension id-QosMonitoringReportingFrequency
 QosMonitoringDisabled                        N e1ap.extension id-QoSMonitoringDisabled
+Extended-NR-CGI-Support-List                 N e1ap.extension id-Extended-NR-CGI-Support-List
 
 #E1AP-ELEMENTARY-PROCEDURE
 Reset                                    N e1ap.proc.imsg id-reset

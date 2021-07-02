@@ -1,4 +1,4 @@
--- 3GPP TS 38.463 V16.5.0 (2021-04)
+-- 3GPP TS 38.463 V16.6.0 (2021-07)
 -- **************************************************************
 --
 -- Container definitions
@@ -10,7 +10,7 @@ itu-t (0) identified-organization (4) etsi (0) mobileDomain (0)
 ngran-access (22) modules (3) e1ap (5) version1 (1) e1ap-Containers (5) }
 
 
-DEFINITIONS AUTOMATIC TAGS ::= 
+DEFINITIONS AUTOMATIC TAGS ::=
 
 BEGIN
 
@@ -28,7 +28,7 @@ IMPORTS
 	Presence,
 	PrivateIE-ID,
 	ProtocolIE-ID
-	
+
 FROM E1AP-CommonDataTypes;
 
 -- **************************************************************
@@ -94,11 +94,11 @@ WITH SYNTAX {
 --
 -- **************************************************************
 
-ProtocolIE-Container { E1AP-PROTOCOL-IES : IEsSetParam} ::= 
+ProtocolIE-Container { E1AP-PROTOCOL-IES : IEsSetParam} ::=
 	SEQUENCE (SIZE (0..maxProtocolIEs)) OF
 	ProtocolIE-Field {{IEsSetParam}}
 
-ProtocolIE-SingleContainer { E1AP-PROTOCOL-IES : IEsSetParam} ::= 
+ProtocolIE-SingleContainer { E1AP-PROTOCOL-IES : IEsSetParam} ::=
 	ProtocolIE-Field {{IEsSetParam}}
 
 ProtocolIE-Field { E1AP-PROTOCOL-IES : IEsSetParam} ::= SEQUENCE {
@@ -123,7 +123,7 @@ ProtocolIE-ContainerList {INTEGER : lowerBound, INTEGER : upperBound, E1AP-PROTO
 --
 -- **************************************************************
 
-ProtocolExtensionContainer { E1AP-PROTOCOL-EXTENSION : ExtensionSetParam} ::= 
+ProtocolExtensionContainer { E1AP-PROTOCOL-EXTENSION : ExtensionSetParam} ::=
 	SEQUENCE (SIZE (1..maxProtocolExtensions)) OF
 	ProtocolExtensionField {{ExtensionSetParam}}
 
@@ -139,7 +139,7 @@ ProtocolExtensionField { E1AP-PROTOCOL-EXTENSION : ExtensionSetParam} ::= SEQUEN
 --
 -- **************************************************************
 
-PrivateIE-Container { E1AP-PRIVATE-IES : IEsSetParam} ::= 
+PrivateIE-Container { E1AP-PRIVATE-IES : IEsSetParam} ::=
 	SEQUENCE (SIZE (1..maxPrivateIEs)) OF
 	PrivateIE-Field {{IEsSetParam}}
 
