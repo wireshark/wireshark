@@ -18,7 +18,7 @@
  *
  * Based on the RANAP dissector
  *
- * References: 3GPP TS 36.413 V16.5.0 (2021-04)
+ * References: 3GPP TS 36.413 V16.6.0 (2021-07)
  */
 
 #include "config.h"
@@ -4386,6 +4386,7 @@ const value_string s1ap_CauseRadioNetwork_vals[] = {
   {  38, "invalid-CSG-Id" },
   {  39, "release-due-to-pre-emption" },
   {  40, "n26-interface-not-available" },
+  {  41, "insufficient-ue-capabilities" },
   { 0, NULL }
 };
 
@@ -4397,7 +4398,7 @@ dissect_s1ap_CauseRadioNetwork(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 #line 2584 "./asn1/s1ap/s1ap.cnf"
   guint32 value;
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     36, &value, TRUE, 5, NULL);
+                                     36, &value, TRUE, 6, NULL);
 
   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " [RadioNetwork-cause=%s]", val_to_str_const(value, s1ap_CauseRadioNetwork_vals, "Unknown"));
 
