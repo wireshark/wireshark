@@ -12499,7 +12499,7 @@ void proto_register_asterix (void)
         { &hf_010_090_V, { "V", "asterix.010_090_V", FT_UINT16, BASE_DEC, VALS(valstr_010_090_V), 0x8000, NULL, HFILL } },
         { &hf_010_090_G, { "G", "asterix.010_090_G", FT_UINT16, BASE_DEC, VALS(valstr_010_090_G), 0x4000, NULL, HFILL } },
         { &hf_010_090_FL, { "FL", "asterix.010_090_FL", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-        { &hf_010_091, { "110, Measured Height", "asterix.010_091", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_010_091, { "091, Measured Height", "asterix.010_091", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_010_091_MH, { "MH [ft]", "asterix.010_091_MH", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_010_131, { "131, Amplitude of Primary Plot", "asterix.010_131", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_010_131_PAM, { "PAM [dBm]", "asterix.010_131_PAM", FT_INT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
