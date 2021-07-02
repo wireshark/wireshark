@@ -588,6 +588,8 @@ id-F1CTransferPath                                   ProtocolIE-ID
 id-SFN-Offset                                        ProtocolIE-ID
 id-TransmissionStopIndicator                         ProtocolIE-ID
 id-SrsFrequency                                      ProtocolIE-ID
+id-SCGIndicator                                      ProtocolIE-ID
+id-EstimatedArrivalProbability                       ProtocolIE-ID
 #.END
 
 #.REGISTER
@@ -896,7 +898,7 @@ TRPInformationListTRPResp                         N f1ap.ies id-TRPInformationLi
 TRPInformationItem                                N f1ap.ies id-TRPInformationItem
 LMF-MeasurementID                                 N f1ap.ies id-LMF-MeasurementID
 SRSType                                           N f1ap.ies id-SRSType
-SFNInitialisationTime                             N f1ap.ies id-ActivationTime
+RelativeTime1900                                  N f1ap.ies id-ActivationTime
 AbortTransmission                                 N f1ap.ies id-AbortTransmission
 PositioningBroadcastCells                         N f1ap.ies id-PositioningBroadcastCells
 SRSConfiguration                                  N f1ap.ies id-SRSConfiguration
@@ -911,7 +913,7 @@ E-CID-MeasurementQuantities-Item                  N f1ap.ies id-E-CID-Measuremen
 MeasurementPeriodicity                            N f1ap.ies id-E-CID-MeasurementPeriodicity
 E-CID-MeasurementResult                           N f1ap.ies id-E-CID-MeasurementResult
 Cell-Portion-ID                                   N f1ap.ies id-Cell-Portion-ID
-SFNInitialisationTime                             N f1ap.ies id-SFNInitialisationTime
+RelativeTime1900                                  N f1ap.ies id-SFNInitialisationTime
 SystemFrameNumber                                 N f1ap.ies id-SystemFrameNumber
 SlotNumber                                        N f1ap.ies id-SlotNumber
 TRP-MeasurementRequestList                        N f1ap.ies id-TRP-MeasurementRequestList
@@ -920,6 +922,7 @@ E-CID-ReportCharacteristics                       N f1ap.ies id-E-CID-ReportChar
 Extended-GNB-DU-Name                              N f1ap.ies id-Extended-GNB-DU-Name
 Extended-GNB-CU-Name                              N f1ap.ies id-Extended-GNB-CU-Name
 F1CTransferPath                                   N f1ap.ies id-F1CTransferPath
+SCGIndicator                                      N f1ap.ies id-SCGIndicator
 
 #F1AP-PROTOCOL-EXTENSION
 GNB-CUSystemInformation                           N f1ap.extension id-gNB-CUSystemInformation
@@ -1012,6 +1015,7 @@ NRCGI                                             N f1ap.extension id-NRCGI
 SFN-Offset                                        N f1ap.extension id-SFN-Offset
 TransmissionStopIndicator                         N f1ap.extension id-TransmissionStopIndicator
 SrsFrequency                                      N f1ap.extension id-SrsFrequency
+CHO-Probability                                   N f1ap.extension id-EstimatedArrivalProbability
 
 #F1AP-ELEMENTARY-PROCEDURE
 Reset                                    N f1ap.proc.imsg id-Reset
