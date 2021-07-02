@@ -1846,6 +1846,7 @@ QosFlowParametersList                                  N ngap.extension id-QosFl
 QosFlowFeedbackList                                    N ngap.extension id-QosFlowFeedbackList
 BurstArrivalTime                                       N ngap.extension id-BurstArrivalTimeDownlink
 ExtendedUEIdentityIndexValue                           N ngap.extension id-ExtendedUEIdentityIndexValue
+UERadioCapabilityForPaging                             N ngap.extension id-UERadioCapabilityForPaging
 
 #NGAP-ELEMENTARY-PROCEDURE
 

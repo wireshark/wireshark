@@ -1,4 +1,4 @@
--- 3GPP TS 38.413 V16.5.0 (2021-04)﻿
+-- 3GPP TS 38.413 V16.6.0 (2021-07)﻿
 -- 9.4.5	Information Element Definitions
 -- **************************************************************
 --
@@ -98,6 +98,7 @@ IMPORTS
 	id-TraceCollectionEntityURI,
 	id-TSCTrafficCharacteristics,
 	id-UEHistoryInformationFromTheUE,
+	id-UERadioCapabilityForPaging,
 	id-UERadioCapabilityForPagingOfNB-IoT,
 	id-UL-NGU-UP-TNLInformation,
 	id-UL-NGU-UP-TNLModifyList,
@@ -756,7 +757,8 @@ CauseRadioNetwork ::= ENUMERATED {
 	multiple-location-reporting-reference-ID-instances,
 	rsn-not-available-for-the-up,
 	npn-access-denied,
-	cag-only-access-denied
+	cag-only-access-denied,
+	insufficient-ue-capabilities
 }
 
 CauseTransport ::= ENUMERATED {
@@ -975,7 +977,8 @@ CoreNetworkAssistanceInformationForInactive ::= SEQUENCE {
 
 CoreNetworkAssistanceInformationForInactive-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
 	{ ID id-PagingeDRXInformation				CRITICALITY ignore	EXTENSION PagingeDRXInformation					PRESENCE optional	}|
-	{ ID id-ExtendedUEIdentityIndexValue		CRITICALITY reject	EXTENSION ExtendedUEIdentityIndexValue			PRESENCE optional	},
+	{ ID id-ExtendedUEIdentityIndexValue		CRITICALITY ignore	EXTENSION ExtendedUEIdentityIndexValue			PRESENCE optional	}|
+	{ ID id-UERadioCapabilityForPaging			CRITICALITY ignore	EXTENSION UERadioCapabilityForPaging			PRESENCE optional	},
 	...
 }
 
@@ -3283,7 +3286,8 @@ PDUSessionResourceModifyRequestTransferIEs NGAP-PROTOCOL-IES ::= {
 	{ ID id-CommonNetworkInstance						CRITICALITY ignore	TYPE CommonNetworkInstance						PRESENCE optional		}|
 	{ ID id-AdditionalRedundantUL-NGU-UP-TNLInformation	CRITICALITY ignore	TYPE UPTransportLayerInformationList			PRESENCE optional		}|
 	{ ID id-RedundantCommonNetworkInstance				CRITICALITY ignore	TYPE CommonNetworkInstance						PRESENCE optional		}|
-	{ ID id-RedundantUL-NGU-UP-TNLInformation			CRITICALITY ignore	TYPE UPTransportLayerInformation				PRESENCE optional	 	},
+	{ ID id-RedundantUL-NGU-UP-TNLInformation			CRITICALITY ignore	TYPE UPTransportLayerInformation				PRESENCE optional	 	}|
+	{ ID id-SecurityIndication							CRITICALITY ignore	TYPE SecurityIndication							PRESENCE optional		},
 	...
 }	
 
