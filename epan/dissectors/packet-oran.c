@@ -101,10 +101,14 @@ static int hf_oran_numPrbu = -1;
 static int hf_oran_iSample = -1;
 static int hf_oran_qSample = -1;
 
-static  int hf_oran_noncontig_res1 = -1;
+static int hf_oran_blockScaler = -1;
+static int hf_oran_compBitWidth = -1;
+static int hf_oran_compShift = -1;
+
+static  int hf_oran_repetition = -1;
 static int hf_oran_rbgSize = -1;
 static int hf_oran_rbgMask = -1;
-static  int hf_oran_noncontig_res2 = -1;
+static  int hf_oran_noncontig_priority = -1;
 static int hf_oran_symbolMask = -1;
 
 static int hf_oran_rsvd4 = -1;
@@ -142,14 +146,15 @@ static expert_field ei_oran_invalid_num_bfw_weights = EI_INIT;
 static expert_field ei_oran_unsupported_bfw_compression_method = EI_INIT;
 static expert_field ei_oran_invalid_sample_bit_width = EI_INIT;
 
+
 /* These are the message types handled by this dissector */
 #define ECPRI_MT_IQ_DATA            0
 #define ECPRI_MT_RT_CTRL_DATA       2
 
 
 /* Preference settings. */
-static guint sample_bit_width_uplink = 14;
-static guint sample_bit_width_downlink = 14;
+static guint pref_sample_bit_width_uplink = 14;
+static guint pref_sample_bit_width_downlink = 14;
 
 
 #define COMP_NONE               0
@@ -158,14 +163,14 @@ static guint sample_bit_width_downlink = 14;
 #define COMP_U_LAW              3
 #define COMP_MODULATION         4
 
-static gint iqCompressionUplink = COMP_BLOCK_FP;
-static gint iqCompressionDownlink = COMP_BLOCK_FP;
-static gboolean includeUdCompHeaderUplink = FALSE;
-static gboolean includeUdCompHeaderDownlink = FALSE;
+static gint pref_iqCompressionUplink = COMP_BLOCK_FP;
+static gint pref_iqCompressionDownlink = COMP_BLOCK_FP;
+static gboolean pref_includeUdCompHeaderUplink = FALSE;
+static gboolean pref_includeUdCompHeaderDownlink = FALSE;
 
-static guint num_bf_weights = 1;
+static guint pref_num_bf_weights = 1;
 
-static guint data_plane_section_total_rbs = 273;
+static guint pref_data_plane_section_total_rbs = 273;
 
 
 static const enum_val_t compression_options[] = {
@@ -330,6 +335,19 @@ static const value_string exttype_vals[] = {
 static const value_string bfw_comp_headers_iq_width[] = {
     {0,     "I and Q are 16 bits wide"},
     {1,     "I and Q are 1 bit wide"},
+    {2,     "I and Q are 2 bits wide"},
+    {3,     "I and Q are 3 bits wide"},
+    {4,     "I and Q are 4 bits wide"},
+    {5,     "I and Q are 5 bits wide"},
+    {6,     "I and Q are 6 bits wide"},
+    {7,     "I and Q are 7 bits wide"},
+    {8,     "I and Q are 8 bits wide"},
+    {9,     "I and Q are 9 bits wide"},
+    {10,    "I and Q are 10 bits wide"},
+    {11,    "I and Q are 11 bits wide"},
+    {12,    "I and Q are 12 bits wide"},
+    {13,    "I and Q are 13 bits wide"},
+    {14,    "I and Q are 14 bits wide"},
     {15,    "I and Q are 15 bits wide"},
     {0, NULL}
 };
@@ -353,6 +371,15 @@ static const value_string rbg_size_vals[] = {
     {5,     "6"},
     {6,     "8"},
     {7,     "16"},
+    {0, NULL}
+};
+
+/* 5.4.7.6.4 */
+static const value_string priority_vals[] = {
+    {0,     "0"},
+    {1,     "+1"},
+    {2,     "-2 (reserved, should not be used)"},
+    {3,     "-1"},
     {0, NULL}
 };
 
@@ -573,45 +600,25 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
             {
                 /* bfwCompHdr (2 subheaders - bfwIqWidth and bfwCompMeth)*/
                 guint32 bfwcomphdr_iq_width, bfwcomphdr_comp_meth;
-                proto_item *iqwidth_ti = proto_tree_add_item_ret_uint(extension_tree, hf_oran_bfwCompHdr_iqWidth,
-                                                                      tvb, offset, 1, ENC_BIG_ENDIAN,  &bfwcomphdr_iq_width);
+                proto_tree_add_item_ret_uint(extension_tree, hf_oran_bfwCompHdr_iqWidth,
+                                             tvb, offset, 1, ENC_BIG_ENDIAN,  &bfwcomphdr_iq_width);
                 proto_item *comp_meth_ti = proto_tree_add_item_ret_uint(extension_tree, hf_oran_bfwCompHdr_compMeth,
                                                                         tvb, offset, 1, ENC_BIG_ENDIAN, &bfwcomphdr_comp_meth);
                 offset++;
 
                 /* Look up width of samples. */
-                guint8 iq_width = 0;
-                switch (bfwcomphdr_iq_width) {
-                    case 0:
-                        iq_width = 16;
-                        break;
-                    case 1:
-                        iq_width = 1;
-                        break;
-                    case 15:
-                        iq_width = 15;
-                        break;
-                    default:
-                        /* Error! */
-                        break;
-                }
+                guint8 iq_width = !bfwcomphdr_iq_width ? 16 : bfwcomphdr_iq_width;
 
                 /* Show num_bf_weights (from preference) as a generated field */
-                proto_item *num_bf_weights_ti = proto_tree_add_uint(extension_tree, hf_oran_num_bf_weights, tvb, 0, 0, num_bf_weights);
+                proto_item *num_bf_weights_ti = proto_tree_add_uint(extension_tree, hf_oran_num_bf_weights, tvb, 0, 0, pref_num_bf_weights);
                 proto_item_set_generated(num_bf_weights_ti);
 
-                /* Must have valid values for these two... */
-                if (iq_width == 0) {
-                    expert_add_info_format(pinfo, iqwidth_ti, &ei_oran_invalid_bfw_iqwidth,
-                                           "BFW IQ Width (%u) not valid",  bfwcomphdr_iq_width);
-                    break;
-                }
-                if (num_bf_weights == 0) {
+                /* Pref setting must be valid */
+                if (pref_num_bf_weights == 0) {
                     expert_add_info_format(pinfo, num_bf_weights_ti, &ei_oran_invalid_num_bfw_weights,
                                            "Number of BF weights (from preference) must not be 0!");
                     break;
                 }
-
 
                 /* bfwCompParam */
                 gboolean compression_method_supported = FALSE;
@@ -620,9 +627,30 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                         compression_method_supported = TRUE;
                         break;
                     case 1: /* block fl. point */
+                        /* 4 reserved bits +  exponent */
+                        proto_tree_add_item(extension_tree, hf_oran_exponent,
+                                            tvb, offset, 1, ENC_BIG_ENDIAN);
+                        offset++;
+                        break;
                     case 2: /* block scaling */
+                        proto_tree_add_item(extension_tree, hf_oran_blockScaler,
+                                            tvb, offset, 1, ENC_BIG_ENDIAN);
+                        offset++;
+                        break;
                     case 3: /* u-law */
+                        /* compBitWidth, compShift */
+                        proto_tree_add_item(extension_tree, hf_oran_compBitWidth,
+                                            tvb, offset, 1, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(extension_tree, hf_oran_compShift,
+                                            tvb, offset, 1, ENC_BIG_ENDIAN);
+                        offset++;
+                        break;
                     case 4: /* beamspace */
+                        /* TODO: activeBeamspaceCoefficientMask */
+                        /* proto_tree_add_item(extension_tree, hf_oran_blockScaler,
+                                            tvb, offset, 1, ENC_BIG_ENDIAN);
+                        offset++; */
+                        break;
                     default:
                         /* Not handled */
                          break;
@@ -649,7 +677,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                  */
                 guint weights_bytes = (extlen*4)-3;
                 guint num_weights_pairs = (weights_bytes*8) / (iq_width*2);
-                guint num_trx = num_weights_pairs / num_bf_weights;
+                guint num_trx = num_weights_pairs / pref_num_bf_weights;
                 gint bit_offset = offset*8;
                 for (guint n=0; n < num_trx; n++) {
                     /* Create subtree */
@@ -659,7 +687,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                     proto_tree *bfw_tree = proto_item_add_subtree(bfw_ti, ett_oran_bfw);
 
                     /* I values */
-                    for (guint m=0; m < num_bf_weights; m++) {
+                    for (guint m=0; m < pref_num_bf_weights; m++) {
                         /* Get bits, and convert to float. */
                         guint32 bits = tvb_get_bits(tvb, bit_offset, iq_width, ENC_BIG_ENDIAN);
                         gfloat value = scale_to_float(bits);
@@ -673,7 +701,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                     proto_item_append_text(bfw_ti, "   ");
 
                     /* Q values */
-                    for (guint m=0; m < num_bf_weights; m++) {
+                    for (guint m=0; m < pref_num_bf_weights; m++) {
                         /* Get bits, and convert to float. */
                         guint32 bits = tvb_get_bits(tvb, bit_offset, iq_width, ENC_BIG_ENDIAN);
                         gfloat value = scale_to_float(bits);
@@ -692,11 +720,11 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
             }
 
             case 6: /* Non-contiguous PRB allocation in time and frequency domain */
-                proto_tree_add_item(extension_tree, hf_oran_noncontig_res1, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(extension_tree, hf_oran_repetition, tvb, offset, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(extension_tree, hf_oran_rbgSize, tvb, offset, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(extension_tree, hf_oran_rbgMask, tvb, offset, 4, ENC_BIG_ENDIAN);
                 offset += 4;
-                proto_tree_add_item(extension_tree, hf_oran_noncontig_res2, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(extension_tree, hf_oran_noncontig_priority, tvb, offset, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(extension_tree, hf_oran_symbolMask, tvb, offset, 2, ENC_BIG_ENDIAN);
                 /* offset += 2; */
                 break;
@@ -981,13 +1009,13 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     gboolean includeUdCompHeader;
 
     if (direction == DIR_UPLINK) {
-        sample_bit_width = sample_bit_width_uplink;
-        compression = iqCompressionUplink;
-        includeUdCompHeader = includeUdCompHeaderUplink;
+        sample_bit_width = pref_sample_bit_width_uplink;
+        compression = pref_iqCompressionUplink;
+        includeUdCompHeader = pref_includeUdCompHeaderUplink;
     } else {
-        sample_bit_width = sample_bit_width_downlink;
-        compression = iqCompressionDownlink;
-        includeUdCompHeader = includeUdCompHeaderDownlink;
+        sample_bit_width = pref_sample_bit_width_downlink;
+        compression = pref_iqCompressionDownlink;
+        includeUdCompHeader = pref_includeUdCompHeaderDownlink;
     }
 
     /* Need a valid value (e.g. 9, 14).  0 definitely won't work, as won't progress around loop! */
@@ -1034,7 +1062,7 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
         if (numPrbu == 0) {
             /* Special case for all PRBs */
-            numPrbu = data_plane_section_total_rbs;
+            numPrbu = pref_data_plane_section_total_rbs;
             startPrbu = 0;  /* may already be 0... */
         }
 
@@ -1743,7 +1771,6 @@ proto_register_oran(void)
           HFILL}
         },
 
-
 #if 0
     /* FIXME  Section 5.4.7.1.2 */
     { &hf_oran_bfwCompParam.
@@ -1756,12 +1783,35 @@ proto_register_oran(void)
     },
 #endif
 
+        /* Section 5.4.7.1.2 */
+        {&hf_oran_blockScaler,
+         {"blockScaler", "oran_fh_cus.blockScaler",
+          FT_UINT8, BASE_HEX,
+          NULL, 0x0,
+          "unsigned, 1 integer bit, 7 fractional bits",
+          HFILL}
+        },
+        {&hf_oran_compBitWidth,
+         {"compBitWidth", "oran_fh_cus.compBitWidth",
+          FT_UINT8, BASE_DEC,
+          NULL, 0xf0,
+          "Length of I bits and length of Q bits after compression over entire PRB.",
+          HFILL}
+        },
+        {&hf_oran_compShift,
+         {"compShift", "oran_fh_cus.compShift",
+          FT_UINT8, BASE_DEC,
+          NULL, 0x0f,
+          "The shift applied to the entire PRB.",
+          HFILL}
+        },
+
         /* Section 5.4.7.6 */
-        {&hf_oran_noncontig_res1,
-         {"reserved", "oran_fh_cus.reserved",
+        {&hf_oran_repetition,
+         {"repetition", "oran_fh_cus.repetition",
           FT_UINT8, BASE_HEX,
           NULL, 0x80,
-          NULL,
+          "Repetition of a highest priority data section inside a C-Plane message",
           HFILL}
         },
         {&hf_oran_rbgSize,
@@ -1778,10 +1828,10 @@ proto_register_oran(void)
           "Each bit indicates whether a corresponding resource block group is present",
           HFILL}
         },
-        {&hf_oran_noncontig_res2,
-         {"reserved", "oran_fh_cus.reserved",
+        {&hf_oran_noncontig_priority,
+         {"priority", "oran_fh_cus.priority",
           FT_UINT8, BASE_HEX,
-          NULL, 0xc0,
+          VALS(priority_vals), 0xc0,
           NULL,
           HFILL}
         },
@@ -2003,28 +2053,28 @@ proto_register_oran(void)
 
     /* Register bit width/compression preferences separately by direction. */
     prefs_register_uint_preference(oran_module, "oran.iq_bitwidth_up", "IQ Bitwidth Uplink",
-        "The bit width of a sample in the Uplink", 10, &sample_bit_width_uplink);
+        "The bit width of a sample in the Uplink", 10, &pref_sample_bit_width_uplink);
     prefs_register_enum_preference(oran_module, "oran.ud_comp_up", "Uplink User Data Compression",
-        "Uplink User Data Compression", &iqCompressionUplink, compression_options, TRUE);
+        "Uplink User Data Compression", &pref_iqCompressionUplink, compression_options, TRUE);
     prefs_register_bool_preference(oran_module, "oran.ud_comp_hdr_up", "udCompHdr field is present for uplink",
         "The udCompHdr field in U-Plane messages may or may not be present, depending on the "
         "configuration of the O-RU. This preference instructs the dissector to expect "
-        "this field to be present in uplink messages.", &includeUdCompHeaderUplink);
+        "this field to be present in uplink messages.", &pref_includeUdCompHeaderUplink);
 
     prefs_register_uint_preference(oran_module, "oran.iq_bitwidth_down", "IQ Bitwidth Downlink",
-        "The bit width of a sample in the Downlink", 10, &sample_bit_width_downlink);
+        "The bit width of a sample in the Downlink", 10, &pref_sample_bit_width_downlink);
     prefs_register_enum_preference(oran_module, "oran.ud_comp_down", "Downlink User Data Compression",
-        "Downlink User Data Compression", &iqCompressionDownlink, compression_options, TRUE);
+        "Downlink User Data Compression", &pref_iqCompressionDownlink, compression_options, TRUE);
     prefs_register_bool_preference(oran_module, "oran.ud_comp_hdr_down", "udCompHdr field is present for downlink",
         "The udCompHdr field in U-Plane messages may or may not be present, depending on the "
         "configuration of the O-RU. This preference instructs the dissector to expect "
-        "this field to be present in downlink messages.", &includeUdCompHeaderDownlink);
+        "this field to be present in downlink messages.", &pref_includeUdCompHeaderDownlink);
 
     prefs_register_uint_preference(oran_module, "oran.num_bf_weights", "Number of BF Weights per Antenna",
-        "Number of BF Weights per Antenna - should be signalled over M-Plane", 10, &num_bf_weights);
+        "Number of BF Weights per Antenna - should be signalled over M-Plane", 10, &pref_num_bf_weights);
 
     prefs_register_uint_preference(oran_module, "oran.rbs_in_uplane_section", "Total RBs in User-Plane data section",
-        "This is used if numPrbu is signalled as 0", 10, &data_plane_section_total_rbs);
+        "This is used if numPrbu is signalled as 0", 10, &pref_data_plane_section_total_rbs);
 }
 
 /* Simpler form of proto_reg_handoff_oran which can be used if there are
