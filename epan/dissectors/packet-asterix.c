@@ -12522,7 +12522,7 @@ void proto_register_asterix (void)
         { &hf_010_200_TA, { "Track Angle [deg]", "asterix.010_200_TA", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_010_202, { "202, Calculated Track Velocity in Cartesian Coordinates", "asterix.010_202", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_010_202_VX, { "VX [m/s]", "asterix.010_202_VX", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-        { &hf_010_202_VY, { "VX [m/s]", "asterix.010_202_VY", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_010_202_VY, { "VY [m/s]", "asterix.010_202_VY", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_010_210, { "210, Calculated Acceleration", "asterix.010_210", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_010_210_AX, { "AX [m/s^2]", "asterix.010_210_AX", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_010_210_AY, { "AY [m/s^2]", "asterix.010_210_AY", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
