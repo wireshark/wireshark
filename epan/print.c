@@ -29,7 +29,6 @@
 #include <epan/charsets.h>
 #include <wsutil/json_dumper.h>
 #include <wsutil/filesystem.h>
-#include <version_info.h>
 #include <wsutil/utf8_entities.h>
 #include <wsutil/ws_assert.h>
 #include <ftypes/ftypes-int.h>

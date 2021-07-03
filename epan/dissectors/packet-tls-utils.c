@@ -41,7 +41,6 @@
 #include <wsutil/wsgcrypt.h>
 #include <wsutil/rsa.h>
 #include <wsutil/ws_assert.h>
-#include <version_info.h>
 #include "packet-ber.h"
 #include "packet-x509af.h"
 #include "packet-x509if.h"
@@ -6191,7 +6190,6 @@ ssl_set_debug(const gchar* name)
         debug_file_must_be_closed = 0;
 
     ssl_debug_printf("Wireshark SSL debug log \n\n");
-    ssl_debug_printf("Wireshark version: %s\n", get_ws_vcs_version_info());
 #ifdef HAVE_LIBGNUTLS
     ssl_debug_printf("GnuTLS version:    %s\n", gnutls_check_version(NULL));
 #endif

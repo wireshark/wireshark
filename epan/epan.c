@@ -19,7 +19,6 @@
 
 #include <glib.h>
 
-#include <version_info.h>
 #include <wsutil/report_message.h>
 
 #include <epan/exceptions.h>
@@ -128,7 +127,12 @@ epan_get_version(void) {
 void
 epan_get_version_number(int *major, int *minor, int *micro)
 {
-	get_ws_version_number(major, minor, micro);
+	if (major)
+		*major = VERSION_MAJOR;
+	if (minor)
+		*minor = VERSION_MINOR;
+	if (micro)
+		*micro = VERSION_MICRO;
 }
 
 #if defined(_WIN32)
