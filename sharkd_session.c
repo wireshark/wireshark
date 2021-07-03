@@ -53,6 +53,7 @@
 #include <ui/rtp_stream.h>
 #include <ui/tap-rtp-common.h>
 #include <ui/tap-rtp-analysis.h>
+#include <version_info.h>
 #include <epan/to_str.h>
 
 #include <epan/addr_resolv.h>
@@ -987,7 +988,7 @@ sharkd_session_process_info(void)
 		sharkd_json_value_string(NULL, ftype_name((ftenum_t) i));
 	sharkd_json_array_close();
 
-	sharkd_json_value_string("version", sharkd_version());
+	sharkd_json_value_string("version", get_ws_vcs_version_info_short());
 
 	sharkd_json_array_open("nstat");
 	i = 0;

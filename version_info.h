@@ -88,6 +88,11 @@ GString *get_runtime_version_info(void (*additional_info)(GString *));
 const char *get_ws_vcs_version_info(void);
 
 /*
+ * Shorter version of get_ws_vcs_version_info().
+ */
+const char *get_ws_vcs_version_info_short(void);
+
+/*
  * Return version number as integers.
  */
 void get_ws_version_number(int *major, int *minor, int *micro);

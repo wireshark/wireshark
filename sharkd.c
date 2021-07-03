@@ -780,17 +780,6 @@ sharkd_set_user_comment(frame_data *fd, const gchar *new_comment)
   return 0;
 }
 
-#include "version.h"
-const char *sharkd_version(void)
-{
-  /* based on get_ws_vcs_version_info(), but shorter */
-#ifdef VCSVERSION
-  return VCSVERSION;
-#else
-  return VERSION;
-#endif
-}
-
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *

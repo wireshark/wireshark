@@ -491,6 +491,16 @@ get_ws_vcs_version_info(void)
 #endif
 }
 
+const char *
+get_ws_vcs_version_info_short(void)
+{
+#ifdef VCSVERSION
+	return VCSVERSION;
+#else
+	return VERSION;
+#endif
+}
+
 void
 get_ws_version_number(int *major, int *minor, int *micro)
 {

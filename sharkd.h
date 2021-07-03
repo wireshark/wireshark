@@ -37,7 +37,6 @@ int sharkd_dissect_columns(frame_data *fdata, guint32 frame_ref_num, guint32 pre
 int sharkd_dissect_request(guint32 framenum, guint32 frame_ref_num, guint32 prev_dis_num, sharkd_dissect_func_t cb, guint32 dissect_flags, void *data);
 const char *sharkd_get_user_comment(const frame_data *fd);
 int sharkd_set_user_comment(frame_data *fd, const gchar *new_comment);
-const char *sharkd_version(void);
 
 /* sharkd_daemon.c */
 int sharkd_init(int argc, char **argv);
