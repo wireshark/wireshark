@@ -73,7 +73,7 @@
 #include <wsutil/filesystem.h>
 #include <wsutil/privileges.h>
 #include <cli_main.h>
-#include <version_info.h>
+#include <ui/version_info.h>
 #include <wiretap/wtap_opttypes.h>
 
 #ifdef HAVE_PLUGINS

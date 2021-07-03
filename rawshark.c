@@ -91,7 +91,7 @@
 #include <wiretap/pcap-encap.h>
 
 #include <cli_main.h>
-#include <version_info.h>
+#include <ui/version_info.h>
 
 #include "capture/capture-pcap-util.h"
 

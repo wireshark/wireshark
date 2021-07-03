@@ -61,7 +61,7 @@
 #include <wsutil/wslog.h>
 #include <wsutil/ws_assert.h>
 #include <cli_main.h>
-#include <version_info.h>
+#include <ui/version_info.h>
 #include <wiretap/wtap_opttypes.h>
 
 #include "globals.h"

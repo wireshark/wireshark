@@ -33,7 +33,7 @@
 
 #include "wsutil/file_util.h"
 #include "wsutil/str_util.h"
-#include "version_info.h"
+#include "ui/version_info.h"
 
 #include "ws_symbol_export.h"
 

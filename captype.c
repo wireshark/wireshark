@@ -42,7 +42,7 @@
 #include <wsutil/filesystem.h>
 #include <wsutil/privileges.h>
 #include <cli_main.h>
-#include <version_info.h>
+#include <ui/version_info.h>
 
 #ifdef HAVE_PLUGINS
 #include <wsutil/plugins.h>

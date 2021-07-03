@@ -49,7 +49,7 @@
 #include "extcap.h"
 #include "extcap_parser.h"
 
-#include "version_info.h"
+#include "ui/version_info.h"
 
 static void extcap_child_watch_cb(GPid pid, gint status, gpointer user_data);
 

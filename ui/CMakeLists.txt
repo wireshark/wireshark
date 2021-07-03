@@ -78,16 +78,7 @@ set_source_files_properties(
 	COMPILE_FLAGS "${WERROR_COMMON_FLAGS}"
 )
 
-
 add_library(ui STATIC ${UI_SRC})
-
-set_target_properties(ui PROPERTIES
-	LINK_FLAGS "${WS_LINK_FLAGS}"
-	FOLDER "UI"
-)
-if(MSVC)
-	set_target_properties(ui PROPERTIES LINK_FLAGS_DEBUG "${WS_MSVC_DEBUG_LINK_FLAGS}")
-endif()
 
 target_link_libraries(ui wsutil caputils)
 
@@ -95,6 +86,26 @@ target_include_directories(ui SYSTEM
 	PRIVATE
 		${WINSPARKLE_INCLUDE_DIRS}
 )
+
+add_library(version_info STATIC version_info.c)
+
+if(NOT VCSVERSION_OVERRIDE)
+	add_dependencies(version_info version)
+endif()
+
+target_link_libraries(version_info PRIVATE ${ZLIB_LIBRARIES})
+
+target_include_directories(version_info PRIVATE ${ZLIB_INCLUDE_DIRS})
+
+set_target_properties(ui version_info PROPERTIES
+	LINK_FLAGS "${WS_LINK_FLAGS}"
+	FOLDER "UI"
+)
+if(MSVC)
+	set_target_properties(ui version_info PROPERTIES
+		LINK_FLAGS_DEBUG "${WS_MSVC_DEBUG_LINK_FLAGS}"
+	)
+endif()
 
 add_definitions(-DDOC_DIR="${CMAKE_INSTALL_FULL_DOCDIR}")
 

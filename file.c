@@ -24,7 +24,7 @@
 #include <wsutil/json_dumper.h>
 #include <wsutil/wslog.h>
 #include <wsutil/ws_assert.h>
-#include <version_info.h>
+#include <ui/version_info.h>
 
 #include <wiretap/merge.h>
 

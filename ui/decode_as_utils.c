@@ -25,7 +25,7 @@
 #include "wsutil/filesystem.h"
 #include <wsutil/ws_assert.h>
 #include "ui/cmdarg_err.h"
-#include "version_info.h"
+#include "ui/version_info.h"
 
 /* XXX - We might want to switch this to a UAT */
 

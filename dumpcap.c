@@ -45,7 +45,7 @@
 #include <ui/cmdarg_err.h>
 #include <wsutil/strtoi.h>
 #include <cli_main.h>
-#include <version_info.h>
+#include <ui/version_info.h>
 
 #include <wsutil/socket.h>
 #include <wsutil/wslog.h>

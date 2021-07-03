@@ -30,7 +30,7 @@
 #include <wsutil/privileges.h>
 #include <wsutil/report_message.h>
 #include <wsutil/wslog.h>
-#include <version_info.h>
+#include <ui/version_info.h>
 #include <wiretap/wtap_opttypes.h>
 
 #include <epan/decode_as.h>

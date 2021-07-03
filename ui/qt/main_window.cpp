@@ -23,7 +23,7 @@ DIAG_ON(frame-larger-than=)
 #include <wsutil/filesystem.h>
 #include <wsutil/wslog.h>
 #include <wsutil/ws_assert.h>
-#include <version_info.h>
+#include <ui/version_info.h>
 #include <epan/prefs.h>
 #include <epan/stats_tree_priv.h>
 #include <epan/plugin_if.h>

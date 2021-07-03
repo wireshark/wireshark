@@ -26,7 +26,7 @@
 #include <wsutil/privileges.h>
 #include <wsutil/report_message.h>
 #include <wsutil/wslog.h>
-#include <version_info.h>
+#include <ui/version_info.h>
 
 #include <wiretap/wtap.h>
 

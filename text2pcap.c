@@ -101,7 +101,7 @@
 #include <string.h>
 #include <wsutil/file_util.h>
 #include <cli_main.h>
-#include <version_info.h>
+#include <ui/version_info.h>
 #include <wsutil/inet_addr.h>
 #include <wsutil/wslog.h>
 

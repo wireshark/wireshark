@@ -49,7 +49,7 @@
 #endif
 
 #include <wsutil/strtoi.h>
-#include <version_info.h>
+#include <ui/version_info.h>
 
 #include "sharkd.h"
 

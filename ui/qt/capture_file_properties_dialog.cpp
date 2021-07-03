@@ -16,7 +16,7 @@
 
 #include "wsutil/str_util.h"
 #include "wsutil/utf8_entities.h"
-#include "version_info.h"
+#include "ui/version_info.h"
 
 #include <ui/qt/utils/qt_ui_utils.h>
 #include "wireshark_application.h"

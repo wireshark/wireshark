@@ -30,7 +30,7 @@ set(fuzzshark_LIBS
 	ui
 	wiretap
 	epan
-	${VERSION_INFO_LIBS}
+	version_info
 )
 if(OSS_FUZZ)
 	if("$ENV{LIB_FUZZING_ENGINE}" STREQUAL "")
@@ -40,7 +40,6 @@ if(OSS_FUZZ)
 endif()
 set(fuzzshark_FILES
 	fuzzshark.c
-	$<TARGET_OBJECTS:version_info>
 )
 set(FUZZ_LINK_FLAGS "${WS_LINK_FLAGS}")
 if(ENABLE_FUZZER)
