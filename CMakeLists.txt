@@ -1623,16 +1623,16 @@ if(VCSVERSION_OVERRIDE)
 	# Allow distributors to override detection of the Git tag and version.
 	string(CONFIGURE "#define VCSVERSION \"@VCSVERSION_OVERRIDE@\"\n"
 		_version_h_contents ESCAPE_QUOTES)
-	file(WRITE "${CMAKE_BINARY_DIR}/version.h" "${_version_h_contents}")
+	file(WRITE "${CMAKE_BINARY_DIR}/vcs_version.h" "${_version_h_contents}")
 	message(STATUS "VCSVERSION_OVERRIDE: ${VCSVERSION_OVERRIDE}")
 else()
-	add_custom_target(version
-		BYPRODUCTS version.h
+	add_custom_target(vcs_version
+		BYPRODUCTS vcs_version.h
 		COMMAND ${PERL_EXECUTABLE}
 			${CMAKE_SOURCE_DIR}/tools/make-version.pl
 			${CMAKE_SOURCE_DIR}
 	)
-	set_target_properties(version PROPERTIES FOLDER "Auxiliary")
+	set_target_properties(vcs_version PROPERTIES FOLDER "Auxiliary")
 endif()
 
 set( configure_input "Built with CMake ${CMAKE_VERSION}" )

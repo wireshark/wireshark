@@ -3,7 +3,6 @@
 # says that recent CMake versions take care of rpathification.
 
 # To do:
-# - Set version in version.h
 # - Add bcond_with clang
 
 %bcond_with	ninja

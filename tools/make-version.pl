@@ -12,10 +12,10 @@
 #
 # If run with the "-r" or "--set-release" argument the VERSION macro in
 # CMakeLists.txt will have the version_extra template appended to the
-# version number. version.h will _not_ be generated if either argument is
+# version number. vcs_version.h will _not_ be generated if either argument is
 # present.
 #
-# make-version.pl is called during the build to update version.h in the build
+# make-version.pl is called during the build to update vcs_version.h in the build
 # directory. To set a fixed version, use something like:
 #
 #   cmake -DVCSVERSION_OVERRIDE="Git v3.1.0 packaged as 3.1.0-1"
@@ -42,7 +42,7 @@ my $tagged_version_extra = "";
 my $untagged_version_extra = "-{vcsinfo}";
 my $force_extra = undef;
 my $package_string = "";
-my $version_file = 'version.h';
+my $version_file = 'vcs_version.h';
 my $vcs_name = "Git";
 my $tortoise_file = "tortoise_template";
 my $last_change = 0;
@@ -135,7 +135,7 @@ sub read_repo_info {
 		return;
 	}
 
-	# Check whether to include VCS version information in version.h
+	# Check whether to include VCS version information in vcs_version.h
 	if ($is_git_repo) {
 		chomp($git_cdir = qx{git --git-dir="$src_dir/.git" rev-parse --git-common-dir 2> $devnull});
 		if ($git_cdir && -f "$git_cdir/wireshark-disable-versioning") {
@@ -614,7 +614,7 @@ sub new_version_h
 # Don't change the file if it is not needed.
 #
 # XXX - We might want to add VCSVERSION to CMakeLists.txt so that it can
-# generate version.h independently.
+# generate vcs_version.h independently.
 sub print_VCS_REVISION
 {
 	my $VCS_REVISION;
@@ -686,6 +686,7 @@ sub get_config {
 		   "print-vcs", \$print_vcs,
 		   "set-version|v=s", \$set_version,
 		   "set-release|r", \$set_release,
+		   "version-file|f", \$version_file,
 		   "verbose", \$verbose
 		   ) || pod2usage(2);
 

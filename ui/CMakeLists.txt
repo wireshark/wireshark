@@ -90,7 +90,7 @@ target_include_directories(ui SYSTEM
 add_library(version_info STATIC version_info.c)
 
 if(NOT VCSVERSION_OVERRIDE)
-	add_dependencies(version_info version)
+	add_dependencies(version_info vcs_version)
 endif()
 
 target_link_libraries(version_info PRIVATE ${ZLIB_LIBRARIES})

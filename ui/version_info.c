@@ -30,7 +30,7 @@
 #include <zlib.h>
 #endif
 
-#include "version.h"
+#include "vcs_version.h"
 
 #include "version_info.h"
 
