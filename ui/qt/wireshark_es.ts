@@ -1030,8 +1030,7 @@
     </message>
     <message>
         <source>Packet size limit (snaplen)</source>
-        <oldsource>Packet size limit</oldsource>
-        <translation type="unfinished">Límite de tamaño de paquete</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>none</source>

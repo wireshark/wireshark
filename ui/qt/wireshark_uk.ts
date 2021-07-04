@@ -1034,8 +1034,7 @@
     </message>
     <message>
         <source>Packet size limit (snaplen)</source>
-        <oldsource>Packet size limit</oldsource>
-        <translation type="unfinished">Ліміт розміру пакету</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>none</source>
