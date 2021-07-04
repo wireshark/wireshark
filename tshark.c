@@ -1761,9 +1761,10 @@ main(int argc, char *argv[])
           }
           if (!global_capture_opts.has_autostop_filesize &&
               !global_capture_opts.has_file_duration &&
-              !global_capture_opts.has_file_interval) {
+              !global_capture_opts.has_file_interval &&
+              !global_capture_opts.has_file_packets) {
             cmdarg_err("Multiple capture files requested, but "
-              "no maximum capture file size, duration or interval was specified.");
+              "no maximum capture file size, duration, interval or packets were specified.");
             exit_status = INVALID_OPTION;
             goto clean_exit;
           }
