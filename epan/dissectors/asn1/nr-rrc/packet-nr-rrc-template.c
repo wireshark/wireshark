@@ -520,6 +520,14 @@ nr_rrc_SRS_RSRP_r16_fmt(gchar *s, guint32 v)
   }
 }
 
+static void
+nr_rrc_MeasTriggerQuantityOffset_fmt(gchar *s, guint32 v)
+{
+  gint32 d = (gint32)v;
+
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%.1fdB (%d)", (float)d/2, d);
+}
+
 #include "packet-nr-rrc-fn.c"
 
 int
