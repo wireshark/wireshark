@@ -380,6 +380,14 @@ nr_rrc_dl_1024QAM_TotalWeightedLayers_fmt(gchar *s, guint32 v)
   g_snprintf(s, ITEM_LABEL_LENGTH, "%u (%u)", 10+(2*v), v);
 }
 
+static void
+nr_rrc_MeasTriggerQuantityOffset_fmt(gchar *s, guint32 v)
+{
+  gint32 d = (gint32)v;
+
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%.1fdB (%d)", (float)d/2, d);
+}
+
 #include "packet-nr-rrc-fn.c"
 
 void

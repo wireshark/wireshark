@@ -4811,6 +4811,14 @@ nr_rrc_dl_1024QAM_TotalWeightedLayers_fmt(gchar *s, guint32 v)
   g_snprintf(s, ITEM_LABEL_LENGTH, "%u (%u)", 10+(2*v), v);
 }
 
+static void
+nr_rrc_MeasTriggerQuantityOffset_fmt(gchar *s, guint32 v)
+{
+  gint32 d = (gint32)v;
+
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%.1fdB (%d)", (float)d/2, d);
+}
+
 
 /*--- Included file: packet-nr-rrc-fn.c ---*/
 #line 1 "./asn1/nr-rrc/packet-nr-rrc-fn.c"
@@ -44342,7 +44350,7 @@ static int dissect_UECapabilityEnquiry_v1560_IEs_PDU(tvbuff_t *tvb _U_, packet_i
 
 
 /*--- End of included file: packet-nr-rrc-fn.c ---*/
-#line 384 "./asn1/nr-rrc/packet-nr-rrc-template.c"
+#line 392 "./asn1/nr-rrc/packet-nr-rrc-template.c"
 
 void
 proto_register_nr_rrc(void) {
@@ -52111,15 +52119,15 @@ proto_register_nr_rrc(void) {
         "T_reportAmount_03", HFILL }},
     { &hf_nr_rrc_rsrp_02,
       { "rsrp", "nr-rrc.rsrp",
-        FT_INT32, BASE_DEC|BASE_UNIT_STRING, &units_dbm, 0,
+        FT_INT32, BASE_CUSTOM, CF_FUNC(nr_rrc_MeasTriggerQuantityOffset_fmt), 0,
         "INTEGER_M30_30", HFILL }},
     { &hf_nr_rrc_rsrq_02,
       { "rsrq", "nr-rrc.rsrq",
-        FT_INT32, BASE_DEC|BASE_UNIT_STRING, &units_decibels, 0,
+        FT_INT32, BASE_CUSTOM, CF_FUNC(nr_rrc_MeasTriggerQuantityOffset_fmt), 0,
         "INTEGER_M30_30", HFILL }},
     { &hf_nr_rrc_sinr_02,
       { "sinr", "nr-rrc.sinr",
-        FT_INT32, BASE_DEC|BASE_UNIT_STRING, &units_decibels, 0,
+        FT_INT32, BASE_CUSTOM, CF_FUNC(nr_rrc_MeasTriggerQuantityOffset_fmt), 0,
         "INTEGER_M30_30", HFILL }},
     { &hf_nr_rrc_rsrp_03,
       { "rsrp", "nr-rrc.rsrp",
@@ -56343,7 +56351,7 @@ proto_register_nr_rrc(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-nr-rrc-hfarr.c ---*/
-#line 392 "./asn1/nr-rrc/packet-nr-rrc-template.c"
+#line 400 "./asn1/nr-rrc/packet-nr-rrc-template.c"
 
     { &hf_nr_rrc_serialNumber_gs,
       { "Geographical Scope", "nr-rrc.serialNumber.gs",
@@ -57714,7 +57722,7 @@ proto_register_nr_rrc(void) {
     &ett_nr_rrc_OverheatingAssistanceConfig,
 
 /*--- End of included file: packet-nr-rrc-ettarr.c ---*/
-#line 526 "./asn1/nr-rrc/packet-nr-rrc-template.c"
+#line 534 "./asn1/nr-rrc/packet-nr-rrc-template.c"
     &ett_nr_rrc_DedicatedNAS_Message,
     &ett_rr_rrc_targetRAT_MessageContainer,
     &ett_nr_rrc_nas_Container,
@@ -57777,7 +57785,7 @@ proto_register_nr_rrc(void) {
 
 
 /*--- End of included file: packet-nr-rrc-dis-reg.c ---*/
-#line 570 "./asn1/nr-rrc/packet-nr-rrc-template.c"
+#line 578 "./asn1/nr-rrc/packet-nr-rrc-template.c"
 
   nr_rrc_etws_cmas_dcs_hash = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(),
                                                      g_direct_hash, g_direct_equal);

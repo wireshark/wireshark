@@ -817,13 +817,13 @@ RSRQ-RangeEUTRA DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(nr_rrc_RSRQ_RangeEUTRA_fmt)
 SINR-RangeEUTRA DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(nr_rrc_SINR_RangeEUTRA_fmt)
 
 #.TYPE_ATTR
-MeasTriggerQuantityOffset/rsrp DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
+MeasTriggerQuantityOffset/rsrp DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(nr_rrc_MeasTriggerQuantityOffset_fmt)
 
 #.TYPE_ATTR
-MeasTriggerQuantityOffset/rsrq DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_decibels
+MeasTriggerQuantityOffset/rsrq DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(nr_rrc_MeasTriggerQuantityOffset_fmt)
 
 #.TYPE_ATTR
-MeasTriggerQuantityOffset/sinr DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_decibels
+MeasTriggerQuantityOffset/sinr DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(nr_rrc_MeasTriggerQuantityOffset_fmt)
 
 #.TYPE_ATTR
 ReselectionThreshold DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(nr_rrc_ReselectionThreshold_fmt)
