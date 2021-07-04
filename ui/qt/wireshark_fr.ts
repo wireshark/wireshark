@@ -6398,7 +6398,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>&amp;Restart</source>
-        <translation>&amp;Redémarrager</translation>
+        <translation>&amp;Redémarrer</translation>
     </message>
     <message>
         <source>Restart current capture</source>
