@@ -484,6 +484,66 @@ static float scale_to_float(guint32 h)
     return ((float)i16) / 0x7fff;
 }
 
+static int dissect_bfwCompHdr(tvbuff_t *tvb, proto_tree *tree, gint offset,
+                              guint32 *iq_width, guint32 *comp_meth, proto_item **comp_meth_ti)
+{
+    proto_tree_add_item_ret_uint(tree, hf_oran_bfwCompHdr_iqWidth,
+                                 tvb, offset, 1, ENC_BIG_ENDIAN,  iq_width);
+    *comp_meth_ti = proto_tree_add_item_ret_uint(tree, hf_oran_bfwCompHdr_compMeth,
+                                                 tvb, offset, 1, ENC_BIG_ENDIAN, comp_meth);
+    offset++;
+    return offset;
+}
+
+static int dissect_bfwCompParam(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint offset,
+                                proto_item *ti, guint32 bfwcomphdr_comp_method, gboolean *supported)
+{
+    *supported = FALSE;
+    switch (bfwcomphdr_comp_method) {
+        case 0:  /* no compression */
+            *supported = TRUE;
+            break;
+        case 1: /* block fl. point */
+            /* 4 reserved bits +  exponent */
+            proto_tree_add_item(tree, hf_oran_exponent,
+                                tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset++;
+            break;
+        case 2: /* block scaling */
+            proto_tree_add_item(tree, hf_oran_blockScaler,
+                                tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset++;
+            break;
+        case 3: /* u-law */
+            /* compBitWidth, compShift */
+            proto_tree_add_item(tree, hf_oran_compBitWidth,
+                                tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tree, hf_oran_compShift,
+                                tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset++;
+            break;
+        case 4: /* beamspace */
+            /* TODO: activeBeamspaceCoefficientMask */
+            /* proto_tree_add_item(extension_tree, hf_oran_blockScaler,
+                                tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset++; */
+            break;
+        default:
+            /* Not handled */
+             break;
+    }
+
+    /* Can't go on if compression scheme not supported */
+    if (!*supported) {
+        expert_add_info_format(pinfo, ti, &ei_oran_unsupported_bfw_compression_method,
+                               "BFW Compression method %u (%s) not supported",
+                               bfwcomphdr_comp_method,
+                               val_to_str_const(bfwcomphdr_comp_method, bfw_comp_headers_comp_meth, "Unknown"));
+    }
+    return offset;
+}
+
+
 static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 sectionType, proto_item *protocol_item)
 {
     guint offset = 0;
@@ -598,13 +658,12 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
             case 1:  /* Beamforming Weights Extension type */
             {
-                /* bfwCompHdr (2 subheaders - bfwIqWidth and bfwCompMeth)*/
                 guint32 bfwcomphdr_iq_width, bfwcomphdr_comp_meth;
-                proto_tree_add_item_ret_uint(extension_tree, hf_oran_bfwCompHdr_iqWidth,
-                                             tvb, offset, 1, ENC_BIG_ENDIAN,  &bfwcomphdr_iq_width);
-                proto_item *comp_meth_ti = proto_tree_add_item_ret_uint(extension_tree, hf_oran_bfwCompHdr_compMeth,
-                                                                        tvb, offset, 1, ENC_BIG_ENDIAN, &bfwcomphdr_comp_meth);
-                offset++;
+                proto_item *comp_meth_ti = NULL;
+
+                /* bfwCompHdr (2 subheaders - bfwIqWidth and bfwCompMeth)*/
+                offset = dissect_bfwCompHdr(tvb, extension_tree, offset,
+                                            &bfwcomphdr_iq_width, &bfwcomphdr_comp_meth, &comp_meth_ti);
 
                 /* Look up width of samples. */
                 guint8 iq_width = !bfwcomphdr_iq_width ? 16 : bfwcomphdr_iq_width;
@@ -622,48 +681,14 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
                 /* bfwCompParam */
                 gboolean compression_method_supported = FALSE;
-                switch (bfwcomphdr_comp_meth) {
-                    case 0:  /* no compression */
-                        compression_method_supported = TRUE;
-                        break;
-                    case 1: /* block fl. point */
-                        /* 4 reserved bits +  exponent */
-                        proto_tree_add_item(extension_tree, hf_oran_exponent,
-                                            tvb, offset, 1, ENC_BIG_ENDIAN);
-                        offset++;
-                        break;
-                    case 2: /* block scaling */
-                        proto_tree_add_item(extension_tree, hf_oran_blockScaler,
-                                            tvb, offset, 1, ENC_BIG_ENDIAN);
-                        offset++;
-                        break;
-                    case 3: /* u-law */
-                        /* compBitWidth, compShift */
-                        proto_tree_add_item(extension_tree, hf_oran_compBitWidth,
-                                            tvb, offset, 1, ENC_BIG_ENDIAN);
-                        proto_tree_add_item(extension_tree, hf_oran_compShift,
-                                            tvb, offset, 1, ENC_BIG_ENDIAN);
-                        offset++;
-                        break;
-                    case 4: /* beamspace */
-                        /* TODO: activeBeamspaceCoefficientMask */
-                        /* proto_tree_add_item(extension_tree, hf_oran_blockScaler,
-                                            tvb, offset, 1, ENC_BIG_ENDIAN);
-                        offset++; */
-                        break;
-                    default:
-                        /* Not handled */
-                         break;
-                }
+                offset = dissect_bfwCompParam(tvb, extension_tree, pinfo, offset, comp_meth_ti,
+                                              bfwcomphdr_comp_meth, &compression_method_supported);
 
-                /* Can't go on if compression scheme not supported */
+                /* Can't show details of unsupported compression method */
                 if (!compression_method_supported) {
-                    expert_add_info_format(pinfo, comp_meth_ti, &ei_oran_unsupported_bfw_compression_method,
-                                           "BFW Compression method %u (%s) not supported",
-                                           bfwcomphdr_comp_meth,
-                                           val_to_str_const(bfwcomphdr_comp_meth, bfw_comp_headers_comp_meth, "Unknown"));
                     break;
                 }
+
 
                 /* We know:
                    - iq_width (above)
@@ -752,31 +777,27 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                     /* Table 5-36 */
                     /********************************************/
 
-                    /* bfwCompHdr (2 subheaders - bfwIqWidth and bfwCompMeth)*/
                     guint32 bfwcomphdr_iq_width, bfwcomphdr_comp_meth;
-                    /*proto_item *iqwidth_ti =*/ proto_tree_add_item_ret_uint(extension_tree, hf_oran_bfwCompHdr_iqWidth,
-                                                                          tvb, offset, 1, ENC_BIG_ENDIAN,  &bfwcomphdr_iq_width);
-                    /*proto_item *comp_meth_ti =*/  proto_tree_add_item_ret_uint(extension_tree, hf_oran_bfwCompHdr_compMeth,
-                                                                            tvb, offset, 1, ENC_BIG_ENDIAN, &bfwcomphdr_comp_meth);
-                    offset++;
+                    proto_item *comp_meth_ti = NULL;
+
+                    /* bfwCompHdr (2 subheaders - bfwIqWidth and bfwCompMeth)*/
+                    offset = dissect_bfwCompHdr(tvb, extension_tree, offset,
+                                                &bfwcomphdr_iq_width, &bfwcomphdr_comp_meth, &comp_meth_ti);
+
+                    /* TODO: Look up width of samples. */
+                    /* guint8 iq_width = !bfwcomphdr_iq_width ? 16 : bfwcomphdr_iq_width;*/
 
 
                     for (guint n=0; n < numBundPrbs; n++) {
-#if 0
 
                         /* bfwCompParam */
                         gboolean compression_method_supported = FALSE;
-                        switch (bfwcomphdr_comp_meth) {
-                            case 0:  /* no compression */
-                                compression_method_supported = TRUE;
-                                break;
-                            case 1: /* block fl. point */
-                            case 2: /* block scaling */
-                            case 3: /* u-law */
-                            case 4: /* beamspace */
-                            default:
-                                /* Not handled */
-                                 break;
+                        offset = dissect_bfwCompParam(tvb, extension_tree, pinfo, offset, comp_meth_ti,
+                                                      bfwcomphdr_comp_meth, &compression_method_supported);
+
+                        /* Can't show details of unsupported compression method */
+                        if (!compression_method_supported) {
+                            break;
                         }
 
                         /* beamId */
@@ -785,11 +806,11 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                         offset += 2;
 
                         /* TODO: bfwI */
+                        break;
 
                         /* TODO: bfwQ */
 
                         /* TODO: remaining BFWs */
-#endif
                     }
                 }
                 else {
