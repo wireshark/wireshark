@@ -5459,7 +5459,7 @@ proto_register_capwap_control(void)
         { &hf_capwap_fortinet_txpwr,
             { "TX Power", "capwap.control.fortinet.tx_power",
               FT_UINT16, BASE_DEC, NULL, 0x0,
-              "In Pourcentage", HFILL }
+              "In Percentage", HFILL }
         },
         { &hf_capwap_fortinet_wids_enable_rid,
             { "Radio ID", "capwap.control.fortinet.wids_enable.rid",

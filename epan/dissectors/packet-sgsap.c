@@ -1674,7 +1674,7 @@ void proto_register_sgsap(void) {
         NULL, HFILL }
     },
     { &hf_sgsap_sel_cs_dmn_op,
-        { "Selected CS domain operato", "sgsap.sel_cs_dmn_op",
+        { "Selected CS domain operator", "sgsap.sel_cs_dmn_op",
         FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },

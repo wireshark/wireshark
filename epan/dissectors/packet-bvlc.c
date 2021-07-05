@@ -968,7 +968,7 @@ dissect_bscvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 	}
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BSCVLC");
-	col_set_str(pinfo->cinfo, COL_INFO, "BACnet Secure Conect Virtual Link Control");
+	col_set_str(pinfo->cinfo, COL_INFO, "BACnet Secure Connect Virtual Link Control");
 
 	/* Put the BSCVLC Type and Message ID in the info column */
 	col_append_fstr(pinfo->cinfo, COL_INFO, " BSCVLC Function %s Message-ID %u",

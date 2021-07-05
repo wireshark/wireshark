@@ -1528,7 +1528,7 @@ proto_register_obdii(void)
 			{ "Fuel Rail Pressure", "obd-ii.mode01_fuel_rail_pressure", FT_DOUBLE, BASE_NONE | BASE_UNIT_STRING, &units_kilopascal, 0x0, NULL, HFILL }
 		},
 		{ &hf_obdii_mode01_fuel_rail_gauge_pressure,
-			{ "Fuel Rail Gauge Pressure", "obd-ii.mode01_fuel_rail_gaguge_pressure", FT_UINT24, BASE_DEC | BASE_UNIT_STRING, &units_kilopascal, 0x0, NULL, HFILL }
+			{ "Fuel Rail Gauge Pressure", "obd-ii.mode01_fuel_rail_gauge_pressure", FT_UINT24, BASE_DEC | BASE_UNIT_STRING, &units_kilopascal, 0x0, NULL, HFILL }
 		},
 		{ &hf_obdii_mode01_fuel_rail_absolute_pressure,
 			{ "Fuel rail absolute pressure", "obd-ii.mode01_fuel_rail_absolute_pressure", FT_UINT24, BASE_DEC | BASE_UNIT_STRING, &units_kilopascal, 0x0, NULL, HFILL }
@@ -1612,7 +1612,7 @@ proto_register_obdii(void)
 			{ "Ambient air temperature", "obd-ii.mode01_ambient_air_temp", FT_INT16, BASE_DEC | BASE_UNIT_STRING, &units_degree_celsius, 0x0, NULL, HFILL },
 		},
 		{ &hf_obdii_mode01_absolute_throttle_position_B,
-			{ "Absolute throttle position B", "obd-ii.mode01_bsolute_throttle_position_B", FT_DOUBLE, BASE_NONE | BASE_UNIT_STRING, &units_percent, 0x0, NULL, HFILL },
+			{ "Absolute throttle position B", "obd-ii.mode01_absolute_throttle_position_B", FT_DOUBLE, BASE_NONE | BASE_UNIT_STRING, &units_percent, 0x0, NULL, HFILL },
 		},
 		{ &hf_obdii_mode01_absolute_throttle_position_C,
 			{ "Absolute throttle position C", "obd-ii.mode01_absolute_throttle_position_C", FT_DOUBLE, BASE_NONE | BASE_UNIT_STRING, &units_percent, 0x0, NULL, HFILL },

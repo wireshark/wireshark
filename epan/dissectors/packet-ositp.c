@@ -2366,7 +2366,7 @@ void proto_register_cotp(void)
 
   prefs_register_bool_preference(cotp_module, "decode_atn", "Decode ATN TPDUs",
                                  "Whether to decode OSI TPDUs with ATN "
-                                 "(Aereonautical Telecommunications Network) "
+                                 "(Aeronautical Telecommunications Network) "
                                  "extensions. To use this option, you must "
                                  "also enable \"Always try to decode NSDU as "
                                  "transport PDUs\" in the CLNP protocol "

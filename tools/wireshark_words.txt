@@ -14,6 +14,7 @@
 accelerometer
 accessor
 accessors
+accuracies
 acked
 acknack
 acknowledgement
@@ -44,10 +45,13 @@ analyzers
 analyzes
 annexc
 anonsvn
+anonymization
 aperiodic
 appdata
 appid
 appkey
+applicability
+appset
 arbitrated
 arduino
 arfcn
@@ -92,6 +96,7 @@ beamformed
 beamformee
 beamformer
 beamforming
+bibliographic
 bibliography
 bidirectional
 bidirectionally
@@ -121,6 +126,7 @@ btsnoop
 bugzilla
 buildbot
 builtin
+butype
 byte
 byteorder
 cablelabs
@@ -358,6 +364,7 @@ entryid
 enumerations
 epasv
 ericsson
+erldp
 errinf
 errno
 errorcode
@@ -475,6 +482,7 @@ inband
 incits
 incremented
 incrementing
+indirection
 infile
 infiniband
 infolist
@@ -493,6 +501,7 @@ initializes
 initializing
 inline
 inode
+inodes
 interferer
 interleaving
 interruptible
@@ -563,6 +572,7 @@ malloc
 manuf
 mappable
 maybefcs
+mbits
 mcast
 mcsset
 measurability
@@ -595,6 +605,7 @@ mode7
 modepage
 modespecificinfo
 modulo
+motorola
 mpeg4
 mpsse
 mrcpv
@@ -630,6 +641,7 @@ namelen
 namespace
 narrowband
 nbrar
+ndpsm
 netboot
 netfilter
 netflow
@@ -661,6 +673,7 @@ notarized
 notif
 notifier
 notused
+novell
 nowait
 npcap
 nprach
@@ -694,6 +707,7 @@ openstreetmap
 openvpn
 oplock
 opnum
+optimisation
 optimizations
 optimizer
 optiplex
@@ -769,6 +783,7 @@ proxied
 proxying
 pscell
 pseudowire
+ptime
 ptvcursor
 ptype
 pubdir
@@ -789,6 +804,7 @@ radeon
 radiotap
 ralink
 ranap
+randomization
 randomizer
 randpkt
 reachability
@@ -825,6 +841,7 @@ reconfigured
 reconfigures
 reconfirm
 reconfrqst
+recursively
 redelivered
 redelivery
 redirector
@@ -877,6 +894,7 @@ resize
 resized
 resolvable
 resolver
+resubmission
 resynchronization
 resynchronize
 retrans
@@ -994,6 +1012,7 @@ subheaders
 subids
 subidx
 subindex
+subkey
 subm
 submode
 subnet
@@ -1012,6 +1031,7 @@ subslot
 subtlv
 subtree
 subtrees
+superset
 switchinfo
 synchronizing
 synphasor
@@ -1036,6 +1056,7 @@ Teléfonos
 telekom
 telenor
 teletex
+telfonica
 telia
 teredo
 tesla
@@ -1058,9 +1079,11 @@ transcoder
 transifex
 transitioning
 traveler
+traversal
 truncatable
 truncate
 truncates
+truncating
 tshark
 tspec
 tunid
@@ -1074,6 +1097,7 @@ type2
 type3
 typedef
 uarfcn
+uavcan
 uboot
 ubuntu
 udpcp
@@ -1141,6 +1165,7 @@ unmappable
 unmarshal
 unmerged
 unoptimized
+unordered
 unparsable
 unparseable
 unparsed

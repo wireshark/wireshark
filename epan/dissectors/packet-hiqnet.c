@@ -1625,7 +1625,7 @@ proto_register_hiqnet(void)
                 NULL, HFILL }
         },
         { &hf_hiqnet_misc_cat,
-            { "Miscellenaous", "hiqnet.misccat",
+            { "Miscellaneous", "hiqnet.misccat",
                 FT_BOOLEAN, 32,
                 NULL, HIQNET_MISC_CAT,
                 NULL, HFILL }

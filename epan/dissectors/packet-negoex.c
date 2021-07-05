@@ -506,7 +506,7 @@ proto_register_negoex(void)
       { "MessageType", "negoex.message.type", FT_UINT32, BASE_HEX,
          VALS(negoex_message_types), 0x00, NULL, HFILL }},
     { &hf_negoex_sequence_num,
-      { "SequencNum", "negoex.message.seq_num", FT_UINT32, BASE_DEC,
+      { "SequenceNum", "negoex.message.seq_num", FT_UINT32, BASE_DEC,
         NULL, 0x0, NULL, HFILL }},
     { &hf_negoex_header_len,
       { "cbHeaderLength", "negoex.header.len", FT_UINT32, BASE_DEC,
