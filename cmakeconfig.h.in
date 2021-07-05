@@ -91,6 +91,12 @@
 /* Define to 1 if you have the `krb5_c_fx_cf2_simple' function. */
 #cmakedefine HAVE_KRB5_C_FX_CF2_SIMPLE 1
 
+/* Define to 1 if you have the `decode_krb5_enc_tkt_part' function. */
+#cmakedefine HAVE_DECODE_KRB5_ENC_TKT_PART 1
+
+/* Define to 1 if you have the `encode_krb5_enc_tkt_part' function. */
+#cmakedefine HAVE_ENCODE_KRB5_ENC_TKT_PART 1
+
 /* Define to 1 if you have the `inflatePrime' function. */
 #cmakedefine HAVE_INFLATEPRIME 1
 
