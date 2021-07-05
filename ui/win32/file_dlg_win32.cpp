@@ -16,6 +16,8 @@
 #include <stdlib.h>
 #include <fcntl.h>
 
+#include <string>
+
 #include <windows.h>
 #include <commdlg.h>
 #include <richedit.h>
@@ -836,9 +838,7 @@ preview_set_file_info(HWND of_hwnd, gchar *preview_file) {
          * the last one with a time stamp, this may be inaccurate).
          */
         elapsed_time = (unsigned int)(stats.stop_time-stats.start_time);
-        if(status == PREVIEW_TIMED_OUT) {
-            StringCchPrintf(string_buff, PREVIEW_STR_MAX, _T("%s / unknown"), first_buff);
-        } else if(elapsed_time/86400) {
+        if (elapsed_time/86400) {
             StringCchPrintf(string_buff, PREVIEW_STR_MAX, _T("%s / %02u days %02u:%02u:%02u"),
                 first_buff, elapsed_time/86400, elapsed_time%86400/3600, elapsed_time%3600/60, elapsed_time%60);
         } else {
@@ -885,23 +885,22 @@ filter_tb_get(HWND hwnd) {
  * in the "real" filter string in the case of a CBN_SELCHANGE notification message.
  */
 static void
-filter_tb_syntax_check(HWND hwnd, TCHAR *filter_text) {
-    TCHAR     *strval = NULL;
+filter_tb_syntax_check(HWND hwnd, const TCHAR *filter_text) {
+    std::wstring strval;
     gint       len;
     dfilter_t *dfp;
 
     /* If filter_text is non-NULL, use it.  Otherwise, grab the text from
      * the window */
     if (filter_text) {
-        len = lstrlen(filter_text) + 1;
-        strval = g_new(TCHAR, len);
-        memcpy(strval, filter_text, len);
+        strval = filter_text;
     } else {
         len = GetWindowTextLength(hwnd);
         if (len > 0) {
             len++;
-            strval = g_new(TCHAR, len);
-            len = GetWindowText(hwnd, strval, len);
+            strval.resize(len);
+            len = GetWindowText(hwnd, &strval[0], len);
+            strval.resize(len);
         }
     }
 
@@ -909,7 +908,7 @@ filter_tb_syntax_check(HWND hwnd, TCHAR *filter_text) {
         /* Default window background */
         SendMessage(hwnd, EM_SETBKGNDCOLOR, (WPARAM) 1, COLOR_WINDOW);
         return;
-    } else if (dfilter_compile(utf_16to8(strval), &dfp, NULL)) { /* colorize filter string entry */
+    } else if (dfilter_compile(utf_16to8(strval.c_str()), &dfp, NULL)) { /* colorize filter string entry */
         dfilter_free(dfp);
         /* Valid (light green) */
         SendMessage(hwnd, EM_SETBKGNDCOLOR, 0, RGB(0xe4, 0xff, 0xc7)); /* tango_chameleon_1 */
@@ -917,8 +916,6 @@ filter_tb_syntax_check(HWND hwnd, TCHAR *filter_text) {
         /* Invalid (light red) */
         SendMessage(hwnd, EM_SETBKGNDCOLOR, 0, RGB(0xff, 0xcc, 0xcc)); /* tango_scarlet_red_1 */
     }
-
-    g_free(strval);
 }
 
 static gint alpha_sort(gconstpointer a, gconstpointer b)
