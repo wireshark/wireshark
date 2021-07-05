@@ -2777,6 +2777,8 @@
 		<avp name="OC-Supported-Features" code="621" mandatory="may">
 			<grouped>
 				<gavp name="OC-Feature-Vector"/>
+				<gavp name="SourceID"/>
+				<gavp name="OC-Peer-Algo"/>
 			</grouped>
 		</avp>
 		<avp name="OC-Feature-Vector" code="622" mandatory="may">
@@ -2788,6 +2790,7 @@
 				<gavp name="OC-Report-Type"/>
 				<gavp name="OC-Reduction-Percentage"/>
 				<gavp name="OC-Validity-Duration"/>
+				<gavp name="SourceID"/>
 			</grouped>
 		</avp>
 		<avp name="OC-Sequence-Number" code="624" mandatory="may">
@@ -2800,6 +2803,7 @@
 			<type type-name="Enumerated"/>
 			<enum name="HOST_REPORT" code="0"/>
 			<enum name="REALM_REPORT" code="1"/>
+			<enum name="PEER_REPORT" code="2"/>
 		</avp>
 		<avp name="OC-Reduction-Percentage" code="627" mandatory="may">
 			<type type-name="Unsigned32"/>
@@ -2825,6 +2829,70 @@
 		645 Rule-IPv4-Addr-Or-Prefix [RFC7678]
 		646 Rule-IPv6-Prefix [RFC7678]
 		647 EA-Field-Length [RFC7678]
+    -->
+    <avp name="OC-Peer-Algo" code="648" mandatory="may">
+      <type type-name="Unsigned64"/>
+    </avp>
+    <avp name="SourceID" code="649" mandatory="may">
+      <type type-name="DiameterIdentity"/>
+    </avp>
+    <avp name="Load" code="650" mandatory="may">
+      <grouped>
+        <gavp name="Load-Type"/>
+        <gavp name="Load-Value"/>
+        <gavp name="SourceID"/>
+      </grouped>
+    </avp>
+    <avp name="Load-Type" code="651" mandatory="may">
+      <type type-name="Enumerated"/>
+      <enum name="HOST" code="0"/>
+      <enum name="PEER" code="1"/>
+    </avp>
+    <avp name="Load-Value" code="652" mandatory="may">
+      <type type-name="Unsigned64"/>
+    </avp>
+    <avp name="User-Equipment-Info-Extension" code="653" mandatory="may">
+      <grouped>
+        <gavp name="User-Equipment-Info-IMEISV"/>
+        <gavp name="User-Equipment-Info-MAC"/>
+        <gavp name="User-Equipment-Info-EUI64"/>
+        <gavp name="User-Equipment-Info-ModifiedEUI64"/>
+        <gavp name="User-Equipment-Info-IMEI"/>
+      </grouped>
+    </avp>
+    <avp name="User-Equipment-Info-IMEISV" code="654" mandatory="may">
+      <type type-name="OctetString"/>
+    </avp>
+    <avp name="User-Equipment-Info-MAC" code="655" mandatory="may">
+      <type type-name="OctetString"/>
+    </avp>
+    <avp name="User-Equipment-Info-EUI64" code="656" mandatory="may">
+      <type type-name="OctetString"/>
+    </avp>
+    <avp name="User-Equipment-Info-ModifiedEUI64" code="657" mandatory="may">
+      <type type-name="OctetString"/>
+    </avp>
+    <avp name="User-Equipment-Info-IMEI" code="658" mandatory="may">
+      <type type-name="OctetString"/>
+    </avp>
+
+    <!--
+		656	User-Equipment-Info-EUI64	[RFC8506]
+		657	User-Equipment-Info-ModifiedEUI64	[RFC8506]
+		658	User-Equipment-Info-IMEI	[RFC8506]
+		659	Subscription-Id-Extension	[RFC8506]
+		660	Subscription-Id-E164	[RFC8506]
+		661	Subscription-Id-IMSI	[RFC8506]
+		662	Subscription-Id-SIP-URI	[RFC8506]
+		663	Subscription-Id-NAI	[RFC8506]
+		664	Subscription-Id-Private	[RFC8506]
+		665	Redirect-Server-Extension	[RFC8506]
+		666	Redirect-Address-IPAddress	[RFC8506]
+		667	Redirect-Address-URL	[RFC8506]
+		668	Redirect-Address-SIP-URI	[RFC8506]
+		669	QoS-Final-Unit-Indication	[RFC8506]
+		670	OC-Maximum-Rate	[RFC8582]
+		671-16777215	Unassigned	
 		-->
 
 		<!-- **************************************************************************** -->

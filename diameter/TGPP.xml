@@ -1017,6 +1017,10 @@
     <enum name="ExtendedPriority" code="29"/>
     <enum name="CSRN" code="30"/>
     <enum name="ReferenceLocationInformation" code="31"/>
+    <enum name="IMSI" code="32"/>
+    <enum name="IMSPrivateUserIdentity" code="33"/>
+    <enum name="IMEISV" code="34"/>
+    <enum name="UE-5G-SRVCC-Capability" code="35"/>
   </avp>
   <avp name="Service-Indication" code="704" mandatory="must" vendor-bit="mustnot" vendor-id="TGPP" may-encrypt="no">
     <type type-name="OctetStringOrUTF8"/>
