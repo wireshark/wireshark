@@ -82,6 +82,9 @@ void proto_reg_handoff_pim(void);
 #define PIM_ADDR_ET_NATIVE    0  /* RFC7761 */
 #define PIM_ADDR_ET_NATIVE_JA 1  /* RFC5384 */
 
+#define PIM_TRANSPORT_MODE_MULTICAST 0           /*RFC8059*/
+#define PIM_TRANSPORT_MODE_UNICAST_REPLICATION 1 /*RFC8059*/
+
 #define PIM_JOIN_ATTRIBUTE_TYPE_RPF    0 /* RFC5496 */
 #define PIM_JOIN_ATTRIBUTE_TYPE_MVPN   1 /* RFC6513 */
 #define PIM_JOIN_ATTRIBUTE_TYPE_MTID   2 /* RFC6420 */
@@ -160,6 +163,11 @@ static const value_string pim_addr_et_vals[] = {
     { PIM_ADDR_ET_NATIVE_JA, "Native with Join Attribute"},
     { 0, NULL }
 };
+
+static const value_string attribute_transport_mode[] = {
+    {PIM_TRANSPORT_MODE_UNICAST_REPLICATION, "Unicast Replication"},
+    {PIM_TRANSPORT_MODE_MULTICAST, "Multicast"},
+    {0, NULL}};
 
 static const value_string pim_join_attribute_type_vals[] = {
     { PIM_JOIN_ATTRIBUTE_TYPE_RPF,    "RPF Vector TLV"},
@@ -265,6 +273,9 @@ static int hf_pim_addr_af = -1;
 static int hf_pim_addr_et = -1;
 static int hf_pim_unicast_addr_ipv4 = -1;
 static int hf_pim_unicast_addr_ipv6 = -1;
+static int hf_pim_rloc_addr_ipv4 = -1;
+static int hf_pim_rloc_addr_ipv6 = -1;
+static int hf_pim_attribute_transport_mode = -1;
 static int hf_pim_group = -1;
 static int hf_pim_group_addr_flags = -1;
 static int hf_pim_group_addr_flags_b = -1;
@@ -729,11 +740,13 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 static gboolean
 dissect_pim_addr(proto_tree* tree, tvbuff_t *tvb, int offset, enum pimv2_addrtype at,
                  const char* label, proto_item** ret_item, int hf_ip4, int hf_ip6, int *advance) {
-    guint8 af, et, flags, mask_len;
+    guint8 af, et, flags, mask_len, ja_af;
     ws_in6_addr ipv6;
-    guint32 ipv4;
+    guint32 ipv4 = 0;
     proto_item* ti = NULL;
     proto_tree* addr_tree = NULL;
+    proto_item *rloc_tree = NULL;
+    proto_tree *rloc_sub_tree = NULL;
     proto_tree* ja_tree = NULL;
     int len = 0;
     int ja_offset = 0;
@@ -802,6 +815,51 @@ dissect_pim_addr(proto_tree* tree, tvbuff_t *tvb, int offset, enum pimv2_addrtyp
             break;
         case AFNUM_INET6:
             proto_tree_add_item(addr_tree, hf_pim_unicast_addr_ipv6, tvb, offset+2, 16, ENC_NA);
+            break;
+        }
+        if (et == PIM_ADDR_ET_NATIVE_JA){
+            ja_offset = offset + len + 2;
+            while (((ja_eos_type & 0x40) != 0x40) && (tvb_reported_length_remaining(tvb, ja_offset) >= 2)){
+                ja_length = tvb_get_guint8(tvb, ja_offset+1);
+                ti = proto_tree_add_item(addr_tree, hf_pim_source_join_attribute, tvb, ja_offset, ja_length + 2, ENC_NA);
+                ja_tree = proto_item_add_subtree(ti, ett_pim);
+                ja_eos_type = tvb_get_guint8(tvb, ja_offset);
+                proto_tree_add_bitmask(ja_tree, tvb, ja_offset, hf_pim_source_ja_flags,
+                                       ett_pim_addr_flags, pim_source_ja_flags, ENC_BIG_ENDIAN);
+                proto_item_append_text(ti, ": %s", val_to_str(ja_eos_type & 0x3F, pim_join_attribute_type_vals, "Unknown"));
+                ja_offset += 1;
+                proto_tree_add_item(ja_tree, hf_pim_source_ja_length, tvb, ja_offset, 1, ENC_BIG_ENDIAN);
+                ja_offset += 1;
+                switch(ja_eos_type & 0x3F){
+                    case PIM_JOIN_ATTRIBUTE_TYPE_TA:
+                        proto_tree_add_item(ja_tree, hf_pim_attribute_transport_mode, tvb, ja_offset, 1, ENC_NA);
+                        break;
+                    case PIM_JOIN_ATTRIBUTE_TYPE_RLOC:
+                        ja_af = tvb_get_guint8(tvb, offset);
+                        switch(ja_af) {
+                            case AFNUM_INET:
+                                rloc_tree = proto_tree_add_ipv4_format(ja_tree, hf_ip4, tvb, ja_offset, ja_length,
+                                                                       ipv4, "RLOC: %s", tvb_ip_to_str(tvb, ja_offset+ 1));
+                                rloc_sub_tree = proto_item_add_subtree(rloc_tree, ett_pim);
+                                proto_tree_add_item(rloc_sub_tree, hf_pim_addr_af, tvb, ja_offset, 1, ENC_NA);
+                                proto_tree_add_item(rloc_sub_tree, hf_pim_rloc_addr_ipv4, tvb, ja_offset + 1, 4, ENC_BIG_ENDIAN);
+                                break;
+                            case AFNUM_INET6:
+                                rloc_tree = proto_tree_add_ipv6_format(ja_tree, hf_ip6, tvb, ja_offset, ja_length,
+                                                                       &ipv6, "RLOC: %s", tvb_ip_to_str(tvb, ja_offset+ 1));
+                                rloc_sub_tree = proto_item_add_subtree(rloc_tree, ett_pim);
+                                proto_tree_add_item(rloc_sub_tree, hf_pim_addr_af, tvb, ja_offset, 1, ENC_NA);
+                                proto_tree_add_item(rloc_sub_tree, hf_pim_rloc_addr_ipv6, tvb, ja_offset + 1, 16, ENC_NA);
+                                break;
+                        }
+                        break;
+                    default:
+                        break;
+                }
+                ja_offset += ja_length;
+                ja_length_sum += (2 + (int)ja_length);
+            }
+            *advance = 2 + len + ja_length_sum;
             break;
         }
         *advance = 2 + len;
@@ -937,6 +995,25 @@ dissect_pim_addr(proto_tree* tree, tvbuff_t *tvb, int offset, enum pimv2_addrtyp
                                 break;
                         } else {
                             proto_tree_add_item(ja_tree, hf_pim_source_ja_value, tvb, ja_offset, ja_length, ENC_NA);
+                        }
+                        break;
+                    case PIM_JOIN_ATTRIBUTE_TYPE_RLOC:
+                        ja_af = tvb_get_guint8(tvb, offset);
+                        switch(ja_af) {
+                            case AFNUM_INET:
+                                rloc_tree = proto_tree_add_ipv4_format(ja_tree, hf_ip4, tvb, ja_offset, ja_length,
+                                                                       ipv4, "RLOC: %s", tvb_ip_to_str(tvb, ja_offset+ 1));
+                                rloc_sub_tree = proto_item_add_subtree(rloc_tree, ett_pim);
+                                proto_tree_add_item(rloc_sub_tree, hf_pim_addr_af, tvb, ja_offset, 1, ENC_NA);
+                                proto_tree_add_item(rloc_sub_tree, hf_pim_rloc_addr_ipv4, tvb, ja_offset + 1, 4, ENC_BIG_ENDIAN);
+                                break;
+                            case AFNUM_INET6:
+                                rloc_tree = proto_tree_add_ipv6_format(ja_tree, hf_ip6, tvb, ja_offset, ja_length,
+                                                                       &ipv6, "RLOC: %s", tvb_ip_to_str(tvb, ja_offset+ 1));
+                                rloc_sub_tree = proto_item_add_subtree(rloc_tree, ett_pim);
+                                proto_tree_add_item(rloc_sub_tree, hf_pim_addr_af, tvb, ja_offset, 1, ENC_NA);
+                                proto_tree_add_item(rloc_sub_tree, hf_pim_rloc_addr_ipv6, tvb, ja_offset + 1, 16, ENC_NA);
+                                break;
                         }
                         break;
                     default:
@@ -1987,6 +2064,21 @@ proto_register_pim(void)
             },
             { &hf_pim_unicast_addr_ipv6,
               { "Unicast", "pim.unicast_ipv6",
+                FT_IPv6, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_pim_attribute_transport_mode,
+              { "Attribute Transport Mode", "pim.attribute_transport_mode",
+                FT_UINT8, BASE_DEC, VALS(attribute_transport_mode), 0x0,
+                NULL, HFILL }
+            },
+            { &hf_pim_rloc_addr_ipv4,
+              { "RLOC", "pim.rloc",
+                FT_IPv4, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_pim_rloc_addr_ipv6,
+              { "RLOC", "pim.rloc_ipv6",
                 FT_IPv6, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }
             },
