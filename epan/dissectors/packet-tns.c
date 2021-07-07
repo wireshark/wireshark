@@ -511,6 +511,38 @@ static unsigned get_data_func_id(tvbuff_t *tvb, int offset)
 	}
 }
 
+static int get_strtype_custom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+{
+	int ret = 1; // 1st byte contains 254 or length if smaller than 64
+	int len = 0;
+
+	wmem_strbuf_t *strbuf = wmem_strbuf_new(pinfo->pool, "");
+
+	len = tvb_get_uint8(tvb, offset);
+	if (len == 254) {
+		int actual_len = 0;
+		len = 0;
+		do { // walk over the chunks
+			len = tvb_get_uint8(tvb, offset  + ret);
+			ret++; // 1st byte with the chunk size
+			wmem_strbuf_append(strbuf, (const char *)tvb_get_string_enc(pinfo->pool, tvb, offset  + ret, len, ENC_ASCII|ENC_NA));
+			ret += len; // length of the string's chunk
+			actual_len += len;
+		} while (len == 64);
+		ret++; // has to be null-terminated
+		len = actual_len;
+	}
+	else {
+		ret += len;
+		wmem_strbuf_append(strbuf, (const char *)tvb_get_string_enc(pinfo->pool, tvb, offset + 1, len, ENC_ASCII|ENC_NA));
+	}
+
+	proto_tree_add_uint(tree, hf_tns_data_opi_param_length, tvb, offset, 1, len);
+	proto_tree_add_string(tree, hf_tns_data_opi_param_value, tvb, offset+1, ret-1, wmem_strbuf_get_str(strbuf));
+
+	return ret;
+}
+
 static void vsnum_to_vstext_basecustom(char *result, uint32_t vsnum)
 {
 	/*
@@ -857,11 +889,11 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 					/* Value length */
 					if ( opi == OPI_OSESSKEY )
 					{
-						len = tvb_get_uint8(tvb, offset);
+						len = get_strtype_custom(tvb, pinfo, par_tree, offset);
 					}
 					else /* OPI_OAUTH */
 					{
-						len = tvb_get_uint8(tvb, offset_prev) == 0 ? 0 : tvb_get_uint8(tvb, offset);
+						len = tvb_get_uint8(tvb, offset_prev) == 0 ? 0 : get_strtype_custom(tvb, pinfo, par_tree, offset);
 					}
 
 					/*
@@ -873,11 +905,6 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 					  || ((opi == OPI_OAUTH) && !(len == 0 || len == 0x39)) )
 					{
 						proto_tree_add_item(par_tree, hf_tns_data_unused, tvb, offset_prev, offset - offset_prev, ENC_NA);
-
-						proto_tree_add_item(par_tree, hf_tns_data_opi_param_length, tvb, offset, 1, ENC_NA);
-						offset += 1;
-
-						proto_tree_add_item(par_tree, hf_tns_data_opi_param_value, tvb, offset, len, ENC_ASCII);
 						offset += len;
 
 						offset_prev = offset; /* Save offset to calculate rest of unused data */
