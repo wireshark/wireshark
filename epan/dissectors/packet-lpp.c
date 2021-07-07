@@ -16,7 +16,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * Ref 3GPP TS 37.355 version 16.3.0 Release 16
+ * Ref 3GPP TS 37.355 version 16.5.0 Release 16
  * http://www.3gpp.org
  */
 
@@ -437,7 +437,7 @@ static int hf_lpp_beta_r16 = -1;                  /* INTEGER_0_359 */
 static int hf_lpp_beta_fine_r16 = -1;             /* INTEGER_0_9 */
 static int hf_lpp_gamma_r16 = -1;                 /* INTEGER_0_359 */
 static int hf_lpp_gamma_fine_r16 = -1;            /* INTEGER_0_9 */
-static int hf_lpp_nr_DL_PRS_ResourceSetList_r16 = -1;  /* SEQUENCE_SIZE_1_nrMaxSetsPerTrp_r16_OF_NR_DL_PRS_ResourceSet_r16 */
+static int hf_lpp_nr_DL_PRS_ResourceSetList_r16 = -1;  /* SEQUENCE_SIZE_1_nrMaxSetsPerTrpPerFreqLayer_r16_OF_NR_DL_PRS_ResourceSet_r16 */
 static int hf_lpp_nr_DL_PRS_ResourceSetList_r16_item = -1;  /* NR_DL_PRS_ResourceSet_r16 */
 static int hf_lpp_dl_PRS_Periodicity_and_ResourceSetSlotOffset_r16 = -1;  /* NR_DL_PRS_Periodicity_and_ResourceSetSlotOffset_r16 */
 static int hf_lpp_dl_PRS_ResourceRepetitionFactor_r16 = -1;  /* T_dl_PRS_ResourceRepetitionFactor_r16 */
@@ -560,9 +560,9 @@ static int hf_lpp_nr_SelectedDL_PRS_FrequencyLayerIndex_r16 = -1;  /* INTEGER_0_
 static int hf_lpp_nr_SelectedDL_PRS_IndexListPerFreq_r16 = -1;  /* SEQUENCE_SIZE_1_nrMaxTRPsPerFreq_r16_OF_NR_SelectedDL_PRS_IndexPerTRP_r16 */
 static int hf_lpp_nr_SelectedDL_PRS_IndexListPerFreq_r16_item = -1;  /* NR_SelectedDL_PRS_IndexPerTRP_r16 */
 static int hf_lpp_nr_SelectedTRP_Index_r16 = -1;  /* INTEGER_0_nrMaxTRPsPerFreq_1_r16 */
-static int hf_lpp_dl_SelectedPRS_ResourceSetIndexList_r16 = -1;  /* SEQUENCE_SIZE_1_nrMaxSetsPerTrp_r16_OF_DL_SelectedPRS_ResourceSetIndex_r16 */
+static int hf_lpp_dl_SelectedPRS_ResourceSetIndexList_r16 = -1;  /* SEQUENCE_SIZE_1_nrMaxSetsPerTrpPerFreqLayer_r16_OF_DL_SelectedPRS_ResourceSetIndex_r16 */
 static int hf_lpp_dl_SelectedPRS_ResourceSetIndexList_r16_item = -1;  /* DL_SelectedPRS_ResourceSetIndex_r16 */
-static int hf_lpp_nr_DL_SelectedPRS_ResourceSetIndex_r16 = -1;  /* INTEGER_0_nrMaxSetsPerTrp_1_r16 */
+static int hf_lpp_nr_DL_SelectedPRS_ResourceSetIndex_r16 = -1;  /* INTEGER_0_nrMaxSetsPerTrpPerFreqLayer_1_r16 */
 static int hf_lpp_dl_SelectedPRS_ResourceIndexList_r16 = -1;  /* SEQUENCE_SIZE_1_nrMaxResourcesPerSet_r16_OF_DL_SelectedPRS_ResourceIndex_r16 */
 static int hf_lpp_dl_SelectedPRS_ResourceIndexList_r16_item = -1;  /* DL_SelectedPRS_ResourceIndex_r16 */
 static int hf_lpp_nr_DL_SelectedPRS_ResourceIdIndex_r16 = -1;  /* INTEGER_0_nrMaxNumDL_PRS_ResourcesPerSet_1_r16 */
@@ -588,7 +588,7 @@ static int hf_lpp_referencePoint_r16 = -1;        /* ReferencePoint_r16 */
 static int hf_lpp_trp_LocationInfoList_r16 = -1;  /* SEQUENCE_SIZE_1_nrMaxTRPsPerFreq_r16_OF_TRP_LocationInfoElement_r16 */
 static int hf_lpp_trp_LocationInfoList_r16_item = -1;  /* TRP_LocationInfoElement_r16 */
 static int hf_lpp_trp_Location_r16 = -1;          /* RelativeLocation_r16 */
-static int hf_lpp_trp_DL_PRS_ResourceSets_r16 = -1;  /* SEQUENCE_SIZE_1_nrMaxSetsPerTrp_r16_OF_DL_PRS_ResourceSets_TRP_Element_r16 */
+static int hf_lpp_trp_DL_PRS_ResourceSets_r16 = -1;  /* SEQUENCE_SIZE_1_nrMaxSetsPerTrpPerFreqLayer_r16_OF_DL_PRS_ResourceSets_TRP_Element_r16 */
 static int hf_lpp_trp_DL_PRS_ResourceSets_r16_item = -1;  /* DL_PRS_ResourceSets_TRP_Element_r16 */
 static int hf_lpp_dl_PRS_ResourceSetARP_r16 = -1;  /* RelativeLocation_r16 */
 static int hf_lpp_dl_PRS_Resource_ARP_List_r16 = -1;  /* SEQUENCE_SIZE_1_nrMaxResourcesPerSet_r16_OF_DL_PRS_Resource_ARP_Element_r16 */
@@ -2506,7 +2506,7 @@ static gint ett_lpp_DL_PRS_BeamInfoResourceSet_r16 = -1;
 static gint ett_lpp_DL_PRS_BeamInfoElement_r16 = -1;
 static gint ett_lpp_LCS_GCS_TranslationParameter_r16 = -1;
 static gint ett_lpp_NR_DL_PRS_Info_r16 = -1;
-static gint ett_lpp_SEQUENCE_SIZE_1_nrMaxSetsPerTrp_r16_OF_NR_DL_PRS_ResourceSet_r16 = -1;
+static gint ett_lpp_SEQUENCE_SIZE_1_nrMaxSetsPerTrpPerFreqLayer_r16_OF_NR_DL_PRS_ResourceSet_r16 = -1;
 static gint ett_lpp_NR_DL_PRS_ResourceSet_r16 = -1;
 static gint ett_lpp_SEQUENCE_SIZE_1_nrMaxResourcesPerSet_r16_OF_NR_DL_PRS_Resource_r16 = -1;
 static gint ett_lpp_DL_PRS_MutingOption1_r16 = -1;
@@ -2550,7 +2550,7 @@ static gint ett_lpp_NR_SelectedDL_PRS_IndexList_r16 = -1;
 static gint ett_lpp_NR_SelectedDL_PRS_PerFreq_r16 = -1;
 static gint ett_lpp_SEQUENCE_SIZE_1_nrMaxTRPsPerFreq_r16_OF_NR_SelectedDL_PRS_IndexPerTRP_r16 = -1;
 static gint ett_lpp_NR_SelectedDL_PRS_IndexPerTRP_r16 = -1;
-static gint ett_lpp_SEQUENCE_SIZE_1_nrMaxSetsPerTrp_r16_OF_DL_SelectedPRS_ResourceSetIndex_r16 = -1;
+static gint ett_lpp_SEQUENCE_SIZE_1_nrMaxSetsPerTrpPerFreqLayer_r16_OF_DL_SelectedPRS_ResourceSetIndex_r16 = -1;
 static gint ett_lpp_DL_SelectedPRS_ResourceSetIndex_r16 = -1;
 static gint ett_lpp_SEQUENCE_SIZE_1_nrMaxResourcesPerSet_r16_OF_DL_SelectedPRS_ResourceIndex_r16 = -1;
 static gint ett_lpp_DL_SelectedPRS_ResourceIndex_r16 = -1;
@@ -2563,7 +2563,7 @@ static gint ett_lpp_NR_TRP_LocationInfo_r16 = -1;
 static gint ett_lpp_NR_TRP_LocationInfoPerFreqLayer_r16 = -1;
 static gint ett_lpp_SEQUENCE_SIZE_1_nrMaxTRPsPerFreq_r16_OF_TRP_LocationInfoElement_r16 = -1;
 static gint ett_lpp_TRP_LocationInfoElement_r16 = -1;
-static gint ett_lpp_SEQUENCE_SIZE_1_nrMaxSetsPerTrp_r16_OF_DL_PRS_ResourceSets_TRP_Element_r16 = -1;
+static gint ett_lpp_SEQUENCE_SIZE_1_nrMaxSetsPerTrpPerFreqLayer_r16_OF_DL_PRS_ResourceSets_TRP_Element_r16 = -1;
 static gint ett_lpp_DL_PRS_ResourceSets_TRP_Element_r16 = -1;
 static gint ett_lpp_SEQUENCE_SIZE_1_nrMaxResourcesPerSet_r16_OF_DL_PRS_Resource_ARP_Element_r16 = -1;
 static gint ett_lpp_DL_PRS_Resource_ARP_Element_r16 = -1;
@@ -3168,8 +3168,8 @@ static gint ett_lpp_NR_UEB_TRP_RTD_Info_r16 = -1;
 #define nrMaxResourceIDs_r16           64
 #define nrMaxResourceOffsetValue_1_r16 511
 #define nrMaxResourcesPerSet_r16       64
-#define nrMaxSetsPerTrp_r16            2
-#define nrMaxSetsPerTrp_1_r16          1
+#define nrMaxSetsPerTrpPerFreqLayer_r16 2
+#define nrMaxSetsPerTrpPerFreqLayer_1_r16 1
 #define nrMaxTRPs_r16                  256
 #define nrMaxTRPsPerFreq_r16           64
 #define nrMaxTRPsPerFreq_1_r16         63
@@ -19503,22 +19503,22 @@ dissect_lpp_NR_DL_PRS_ResourceSet_r16(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 }
 
 
-static const per_sequence_t SEQUENCE_SIZE_1_nrMaxSetsPerTrp_r16_OF_NR_DL_PRS_ResourceSet_r16_sequence_of[1] = {
+static const per_sequence_t SEQUENCE_SIZE_1_nrMaxSetsPerTrpPerFreqLayer_r16_OF_NR_DL_PRS_ResourceSet_r16_sequence_of[1] = {
   { &hf_lpp_nr_DL_PRS_ResourceSetList_r16_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lpp_NR_DL_PRS_ResourceSet_r16 },
 };
 
 static int
-dissect_lpp_SEQUENCE_SIZE_1_nrMaxSetsPerTrp_r16_OF_NR_DL_PRS_ResourceSet_r16(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lpp_SEQUENCE_SIZE_1_nrMaxSetsPerTrpPerFreqLayer_r16_OF_NR_DL_PRS_ResourceSet_r16(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
-                                                  ett_lpp_SEQUENCE_SIZE_1_nrMaxSetsPerTrp_r16_OF_NR_DL_PRS_ResourceSet_r16, SEQUENCE_SIZE_1_nrMaxSetsPerTrp_r16_OF_NR_DL_PRS_ResourceSet_r16_sequence_of,
-                                                  1, nrMaxSetsPerTrp_r16, FALSE);
+                                                  ett_lpp_SEQUENCE_SIZE_1_nrMaxSetsPerTrpPerFreqLayer_r16_OF_NR_DL_PRS_ResourceSet_r16, SEQUENCE_SIZE_1_nrMaxSetsPerTrpPerFreqLayer_r16_OF_NR_DL_PRS_ResourceSet_r16_sequence_of,
+                                                  1, nrMaxSetsPerTrpPerFreqLayer_r16, FALSE);
 
   return offset;
 }
 
 
 static const per_sequence_t NR_DL_PRS_Info_r16_sequence[] = {
-  { &hf_lpp_nr_DL_PRS_ResourceSetList_r16, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_SEQUENCE_SIZE_1_nrMaxSetsPerTrp_r16_OF_NR_DL_PRS_ResourceSet_r16 },
+  { &hf_lpp_nr_DL_PRS_ResourceSetList_r16, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_SEQUENCE_SIZE_1_nrMaxSetsPerTrpPerFreqLayer_r16_OF_NR_DL_PRS_ResourceSet_r16 },
   { NULL, 0, 0, NULL }
 };
 
@@ -19731,9 +19731,9 @@ dissect_lpp_INTEGER_0_nrMaxTRPsPerFreq_1_r16(tvbuff_t *tvb _U_, int offset _U_, 
 
 
 static int
-dissect_lpp_INTEGER_0_nrMaxSetsPerTrp_1_r16(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lpp_INTEGER_0_nrMaxSetsPerTrpPerFreqLayer_1_r16(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, nrMaxSetsPerTrp_1_r16, NULL, FALSE);
+                                                            0U, nrMaxSetsPerTrpPerFreqLayer_1_r16, NULL, FALSE);
 
   return offset;
 }
@@ -19778,7 +19778,7 @@ dissect_lpp_SEQUENCE_SIZE_1_nrMaxResourcesPerSet_r16_OF_DL_SelectedPRS_ResourceI
 
 
 static const per_sequence_t DL_SelectedPRS_ResourceSetIndex_r16_sequence[] = {
-  { &hf_lpp_nr_DL_SelectedPRS_ResourceSetIndex_r16, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lpp_INTEGER_0_nrMaxSetsPerTrp_1_r16 },
+  { &hf_lpp_nr_DL_SelectedPRS_ResourceSetIndex_r16, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lpp_INTEGER_0_nrMaxSetsPerTrpPerFreqLayer_1_r16 },
   { &hf_lpp_dl_SelectedPRS_ResourceIndexList_r16, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_SEQUENCE_SIZE_1_nrMaxResourcesPerSet_r16_OF_DL_SelectedPRS_ResourceIndex_r16 },
   { NULL, 0, 0, NULL }
 };
@@ -19792,15 +19792,15 @@ dissect_lpp_DL_SelectedPRS_ResourceSetIndex_r16(tvbuff_t *tvb _U_, int offset _U
 }
 
 
-static const per_sequence_t SEQUENCE_SIZE_1_nrMaxSetsPerTrp_r16_OF_DL_SelectedPRS_ResourceSetIndex_r16_sequence_of[1] = {
+static const per_sequence_t SEQUENCE_SIZE_1_nrMaxSetsPerTrpPerFreqLayer_r16_OF_DL_SelectedPRS_ResourceSetIndex_r16_sequence_of[1] = {
   { &hf_lpp_dl_SelectedPRS_ResourceSetIndexList_r16_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lpp_DL_SelectedPRS_ResourceSetIndex_r16 },
 };
 
 static int
-dissect_lpp_SEQUENCE_SIZE_1_nrMaxSetsPerTrp_r16_OF_DL_SelectedPRS_ResourceSetIndex_r16(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lpp_SEQUENCE_SIZE_1_nrMaxSetsPerTrpPerFreqLayer_r16_OF_DL_SelectedPRS_ResourceSetIndex_r16(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
-                                                  ett_lpp_SEQUENCE_SIZE_1_nrMaxSetsPerTrp_r16_OF_DL_SelectedPRS_ResourceSetIndex_r16, SEQUENCE_SIZE_1_nrMaxSetsPerTrp_r16_OF_DL_SelectedPRS_ResourceSetIndex_r16_sequence_of,
-                                                  1, nrMaxSetsPerTrp_r16, FALSE);
+                                                  ett_lpp_SEQUENCE_SIZE_1_nrMaxSetsPerTrpPerFreqLayer_r16_OF_DL_SelectedPRS_ResourceSetIndex_r16, SEQUENCE_SIZE_1_nrMaxSetsPerTrpPerFreqLayer_r16_OF_DL_SelectedPRS_ResourceSetIndex_r16_sequence_of,
+                                                  1, nrMaxSetsPerTrpPerFreqLayer_r16, FALSE);
 
   return offset;
 }
@@ -19808,7 +19808,7 @@ dissect_lpp_SEQUENCE_SIZE_1_nrMaxSetsPerTrp_r16_OF_DL_SelectedPRS_ResourceSetInd
 
 static const per_sequence_t NR_SelectedDL_PRS_IndexPerTRP_r16_sequence[] = {
   { &hf_lpp_nr_SelectedTRP_Index_r16, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_INTEGER_0_nrMaxTRPsPerFreq_1_r16 },
-  { &hf_lpp_dl_SelectedPRS_ResourceSetIndexList_r16, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_SEQUENCE_SIZE_1_nrMaxSetsPerTrp_r16_OF_DL_SelectedPRS_ResourceSetIndex_r16 },
+  { &hf_lpp_dl_SelectedPRS_ResourceSetIndexList_r16, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_SEQUENCE_SIZE_1_nrMaxSetsPerTrpPerFreqLayer_r16_OF_DL_SelectedPRS_ResourceSetIndex_r16 },
   { NULL, 0, 0, NULL }
 };
 
@@ -20194,15 +20194,15 @@ dissect_lpp_DL_PRS_ResourceSets_TRP_Element_r16(tvbuff_t *tvb _U_, int offset _U
 }
 
 
-static const per_sequence_t SEQUENCE_SIZE_1_nrMaxSetsPerTrp_r16_OF_DL_PRS_ResourceSets_TRP_Element_r16_sequence_of[1] = {
+static const per_sequence_t SEQUENCE_SIZE_1_nrMaxSetsPerTrpPerFreqLayer_r16_OF_DL_PRS_ResourceSets_TRP_Element_r16_sequence_of[1] = {
   { &hf_lpp_trp_DL_PRS_ResourceSets_r16_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lpp_DL_PRS_ResourceSets_TRP_Element_r16 },
 };
 
 static int
-dissect_lpp_SEQUENCE_SIZE_1_nrMaxSetsPerTrp_r16_OF_DL_PRS_ResourceSets_TRP_Element_r16(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lpp_SEQUENCE_SIZE_1_nrMaxSetsPerTrpPerFreqLayer_r16_OF_DL_PRS_ResourceSets_TRP_Element_r16(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
-                                                  ett_lpp_SEQUENCE_SIZE_1_nrMaxSetsPerTrp_r16_OF_DL_PRS_ResourceSets_TRP_Element_r16, SEQUENCE_SIZE_1_nrMaxSetsPerTrp_r16_OF_DL_PRS_ResourceSets_TRP_Element_r16_sequence_of,
-                                                  1, nrMaxSetsPerTrp_r16, FALSE);
+                                                  ett_lpp_SEQUENCE_SIZE_1_nrMaxSetsPerTrpPerFreqLayer_r16_OF_DL_PRS_ResourceSets_TRP_Element_r16, SEQUENCE_SIZE_1_nrMaxSetsPerTrpPerFreqLayer_r16_OF_DL_PRS_ResourceSets_TRP_Element_r16_sequence_of,
+                                                  1, nrMaxSetsPerTrpPerFreqLayer_r16, FALSE);
 
   return offset;
 }
@@ -20215,7 +20215,7 @@ static const per_sequence_t TRP_LocationInfoElement_r16_sequence[] = {
   { &hf_lpp_nr_ARFCN_r16    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_ARFCN_ValueNR_r15 },
   { &hf_lpp_associated_DL_PRS_ID_r16, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_INTEGER_0_255 },
   { &hf_lpp_trp_Location_r16, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_RelativeLocation_r16 },
-  { &hf_lpp_trp_DL_PRS_ResourceSets_r16, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_SEQUENCE_SIZE_1_nrMaxSetsPerTrp_r16_OF_DL_PRS_ResourceSets_TRP_Element_r16 },
+  { &hf_lpp_trp_DL_PRS_ResourceSets_r16, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_SEQUENCE_SIZE_1_nrMaxSetsPerTrpPerFreqLayer_r16_OF_DL_PRS_ResourceSets_TRP_Element_r16 },
   { NULL, 0, 0, NULL }
 };
 
@@ -20349,7 +20349,7 @@ static int
 dissect_lpp_DL_PRS_BeamInfoSet_r16(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_lpp_DL_PRS_BeamInfoSet_r16, DL_PRS_BeamInfoSet_r16_sequence_of,
-                                                  1, nrMaxSetsPerTrp_r16, FALSE);
+                                                  1, nrMaxSetsPerTrpPerFreqLayer_r16, FALSE);
 
   return offset;
 }
@@ -28109,7 +28109,7 @@ void proto_register_lpp(void) {
     { &hf_lpp_nr_DL_PRS_ResourceSetList_r16,
       { "nr-DL-PRS-ResourceSetList-r16", "lpp.nr_DL_PRS_ResourceSetList_r16",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "SEQUENCE_SIZE_1_nrMaxSetsPerTrp_r16_OF_NR_DL_PRS_ResourceSet_r16", HFILL }},
+        "SEQUENCE_SIZE_1_nrMaxSetsPerTrpPerFreqLayer_r16_OF_NR_DL_PRS_ResourceSet_r16", HFILL }},
     { &hf_lpp_nr_DL_PRS_ResourceSetList_r16_item,
       { "NR-DL-PRS-ResourceSet-r16", "lpp.NR_DL_PRS_ResourceSet_r16_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -28601,7 +28601,7 @@ void proto_register_lpp(void) {
     { &hf_lpp_dl_SelectedPRS_ResourceSetIndexList_r16,
       { "dl-SelectedPRS-ResourceSetIndexList-r16", "lpp.dl_SelectedPRS_ResourceSetIndexList_r16",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "SEQUENCE_SIZE_1_nrMaxSetsPerTrp_r16_OF_DL_SelectedPRS_ResourceSetIndex_r16", HFILL }},
+        "SEQUENCE_SIZE_1_nrMaxSetsPerTrpPerFreqLayer_r16_OF_DL_SelectedPRS_ResourceSetIndex_r16", HFILL }},
     { &hf_lpp_dl_SelectedPRS_ResourceSetIndexList_r16_item,
       { "DL-SelectedPRS-ResourceSetIndex-r16", "lpp.DL_SelectedPRS_ResourceSetIndex_r16_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -28609,7 +28609,7 @@ void proto_register_lpp(void) {
     { &hf_lpp_nr_DL_SelectedPRS_ResourceSetIndex_r16,
       { "nr-DL-SelectedPRS-ResourceSetIndex-r16", "lpp.nr_DL_SelectedPRS_ResourceSetIndex_r16",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_0_nrMaxSetsPerTrp_1_r16", HFILL }},
+        "INTEGER_0_nrMaxSetsPerTrpPerFreqLayer_1_r16", HFILL }},
     { &hf_lpp_dl_SelectedPRS_ResourceIndexList_r16,
       { "dl-SelectedPRS-ResourceIndexList-r16", "lpp.dl_SelectedPRS_ResourceIndexList_r16",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -28713,7 +28713,7 @@ void proto_register_lpp(void) {
     { &hf_lpp_trp_DL_PRS_ResourceSets_r16,
       { "trp-DL-PRS-ResourceSets-r16", "lpp.trp_DL_PRS_ResourceSets_r16",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "SEQUENCE_SIZE_1_nrMaxSetsPerTrp_r16_OF_DL_PRS_ResourceSets_TRP_Element_r16", HFILL }},
+        "SEQUENCE_SIZE_1_nrMaxSetsPerTrpPerFreqLayer_r16_OF_DL_PRS_ResourceSets_TRP_Element_r16", HFILL }},
     { &hf_lpp_trp_DL_PRS_ResourceSets_r16_item,
       { "DL-PRS-ResourceSets-TRP-Element-r16", "lpp.DL_PRS_ResourceSets_TRP_Element_r16_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -35925,7 +35925,7 @@ void proto_register_lpp(void) {
     &ett_lpp_DL_PRS_BeamInfoElement_r16,
     &ett_lpp_LCS_GCS_TranslationParameter_r16,
     &ett_lpp_NR_DL_PRS_Info_r16,
-    &ett_lpp_SEQUENCE_SIZE_1_nrMaxSetsPerTrp_r16_OF_NR_DL_PRS_ResourceSet_r16,
+    &ett_lpp_SEQUENCE_SIZE_1_nrMaxSetsPerTrpPerFreqLayer_r16_OF_NR_DL_PRS_ResourceSet_r16,
     &ett_lpp_NR_DL_PRS_ResourceSet_r16,
     &ett_lpp_SEQUENCE_SIZE_1_nrMaxResourcesPerSet_r16_OF_NR_DL_PRS_Resource_r16,
     &ett_lpp_DL_PRS_MutingOption1_r16,
@@ -35969,7 +35969,7 @@ void proto_register_lpp(void) {
     &ett_lpp_NR_SelectedDL_PRS_PerFreq_r16,
     &ett_lpp_SEQUENCE_SIZE_1_nrMaxTRPsPerFreq_r16_OF_NR_SelectedDL_PRS_IndexPerTRP_r16,
     &ett_lpp_NR_SelectedDL_PRS_IndexPerTRP_r16,
-    &ett_lpp_SEQUENCE_SIZE_1_nrMaxSetsPerTrp_r16_OF_DL_SelectedPRS_ResourceSetIndex_r16,
+    &ett_lpp_SEQUENCE_SIZE_1_nrMaxSetsPerTrpPerFreqLayer_r16_OF_DL_SelectedPRS_ResourceSetIndex_r16,
     &ett_lpp_DL_SelectedPRS_ResourceSetIndex_r16,
     &ett_lpp_SEQUENCE_SIZE_1_nrMaxResourcesPerSet_r16_OF_DL_SelectedPRS_ResourceIndex_r16,
     &ett_lpp_DL_SelectedPRS_ResourceIndex_r16,
@@ -35982,7 +35982,7 @@ void proto_register_lpp(void) {
     &ett_lpp_NR_TRP_LocationInfoPerFreqLayer_r16,
     &ett_lpp_SEQUENCE_SIZE_1_nrMaxTRPsPerFreq_r16_OF_TRP_LocationInfoElement_r16,
     &ett_lpp_TRP_LocationInfoElement_r16,
-    &ett_lpp_SEQUENCE_SIZE_1_nrMaxSetsPerTrp_r16_OF_DL_PRS_ResourceSets_TRP_Element_r16,
+    &ett_lpp_SEQUENCE_SIZE_1_nrMaxSetsPerTrpPerFreqLayer_r16_OF_DL_PRS_ResourceSets_TRP_Element_r16,
     &ett_lpp_DL_PRS_ResourceSets_TRP_Element_r16,
     &ett_lpp_SEQUENCE_SIZE_1_nrMaxResourcesPerSet_r16_OF_DL_PRS_Resource_ARP_Element_r16,
     &ett_lpp_DL_PRS_Resource_ARP_Element_r16,
