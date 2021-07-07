@@ -2959,7 +2959,7 @@ decode_gtpv2_uli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item
     if (flags & GTPv2_ULI_MACRO_eNB_ID_MASK)
     {
         proto_item_append_text(item, "Macro eNodeB ID ");
-        part_tree = proto_tree_add_subtree(tree, tvb, offset, 7,
+        part_tree = proto_tree_add_subtree(tree, tvb, offset, 6,
             ett_gtpv2_uli_field, NULL, "Macro eNodeB ID");
 
         str = dissect_gtpv2_macro_enodeb_id(tvb, pinfo, part_tree, &offset);
@@ -2972,7 +2972,7 @@ decode_gtpv2_uli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item
     if (flags & GTPv2_ULI_EXT_MACRO_eNB_ID_MASK)
     {
         proto_item_append_text(item, "Ext Macro eNodeB ID ");
-        part_tree = proto_tree_add_subtree(tree, tvb, offset, 7,
+        part_tree = proto_tree_add_subtree(tree, tvb, offset, 6,
             ett_gtpv2_uli_field, NULL, "Extended Macro eNodeB ID");
 
         str = dissect_gtpv2_ext_macro_enodeb_id(tvb, pinfo, part_tree, &offset, hf_gtpv2_ext_macro_enodeb_id);
