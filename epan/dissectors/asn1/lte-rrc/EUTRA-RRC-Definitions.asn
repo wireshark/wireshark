@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V16.4.0 (2021-03)
+-- 3GPP TS 36.331 V16.5.0 (2021-06)
 
 EUTRA-RRC-Definitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -1855,7 +1855,12 @@ RRCConnectionRelease-v1610-IEs ::=	SEQUENCE {
 	t323-r16							ENUMERATED {
 										min5, min10, min20, min30, min60, min120, min180,
 										min720}						OPTIONAL, -- Need OR
-	nonCriticalExtension				SEQUENCE {}					OPTIONAL
+	nonCriticalExtension				RRCConnectionRelease-v1650-IEs		OPTIONAL
+}
+
+RRCConnectionRelease-v1650-IEs ::=	SEQUENCE {
+	mpsPriorityIndication-r16				ENUMERATED {true}	OPTIONAL, -- Cond Redirection2
+	nonCriticalExtension					SEQUENCE {}		OPTIONAL
 }
 
 ReleaseCause ::=				ENUMERATED {loadBalancingTAUrequired,
@@ -3838,8 +3843,8 @@ ULInformationTransfer-r16-IEs ::=	SEQUENCE {
 		dedicatedInfoNAS-r16				DedicatedInfoNAS,
 		dedicatedInfoCDMA2000-1XRTT-r16		DedicatedInfoCDMA2000,
 		dedicatedInfoCDMA2000-HRPD-r16		DedicatedInfoCDMA2000
-	}																		OPTIONAL,	-- Need ON
-	dedicatedInfoF1c-r16				DedicatedInfoF1c-r16				OPTIONAL,	-- Need ON
+	}																		OPTIONAL,
+	dedicatedInfoF1c-r16				DedicatedInfoF1c-r16				OPTIONAL,
 	nonCriticalExtension				ULInformationTransfer-v8a0-IEs	OPTIONAL
 }
 
@@ -5124,7 +5129,7 @@ CarrierFreqNR-r15 ::=				SEQUENCE {
 
 CarrierFreqNR-v1610 ::=		SEQUENCE {
 	smtc2-LP-r16						MTC-SSB2-LP-NR-r16				OPTIONAL,	  -- Need OR
-	ssb-PositionQCL-CommonNR-r16	SSB-PositionQCL-RelationNR-r16	OPTIONAL,	-- Cond SharedSpectrum
+	ssb-PositionQCL-CommonNR-r16	SSB-PositionQCL-RelationNR-r16	OPTIONAL,	-- Cond SharedSpectrum2
 	whiteCellListNR-r16				WhiteCellListNR-r16					OPTIONAL,	-- Cond SharedSpectrum
 	highSpeedCarrierNR-r16			ENUMERATED {true}				OPTIONAL	  -- Need OR
 }
@@ -10947,7 +10952,7 @@ RS-ConfigSSB-NR-r15 ::=			SEQUENCE {
 		}											OPTIONAL	-- Need ON
 	]],
 	[[
-	ssb-PositionQCL-CommonNR-r16	SSB-PositionQCL-RelationNR-r16	OPTIONAL,	-- Cond SharedSpectrum
+	ssb-PositionQCL-CommonNR-r16	SSB-PositionQCL-RelationNR-r16	OPTIONAL,	-- Cond SharedSpectrum2
 	ssb-PositionQCL-CellsToAddModListNR-r16	SSB-PositionQCL-CellsToAddModListNR-r16	OPTIONAL,	-- Cond SharedSpectrum
 	ssb-PositionQCL-CellsToRemoveListNR-r16	SEQUENCE (SIZE (1..maxCellMeas)) OF PhysCellIdNR-r15	OPTIONAL	-- Cond SharedSpectrum
 	]]
@@ -10965,7 +10970,7 @@ SSB-PositionQCL-CellsToAddModListNR-r16 ::=	SEQUENCE (SIZE (1..maxCellMeas)) OF 
 
 SSB-PositionQCL-CellsToAddNR-r16 ::=	SEQUENCE {
 	physCellId-r16							PhysCellIdNR-r15,
-	ssb-PositionQCL-r16						SSB-PositionQCL-RelationNR-r16
+	ssb-PositionQCL-NR-r16					SSB-PositionQCL-RelationNR-r16
 }
 
 RMTC-ConfigNR-r16 ::=	SEQUENCE {
@@ -12710,7 +12715,12 @@ UE-EUTRA-Capability-v1630-IEs ::= SEQUENCE {
 	measParameters-v1630					MeasParameters-v1630						OPTIONAL,
 	fdd-Add-UE-EUTRA-Capabilities-v1630		UE-EUTRA-CapabilityAddXDD-Mode-v1630,
 	tdd-Add-UE-EUTRA-Capabilities-v1630		UE-EUTRA-CapabilityAddXDD-Mode-v1630,
-	nonCriticalExtension					SEQUENCE {}									OPTIONAL
+	nonCriticalExtension					UE-EUTRA-Capability-v1650-IEs		OPTIONAL
+}
+
+UE-EUTRA-Capability-v1650-IEs ::= SEQUENCE {
+	otherParameters-v1650				Other-Parameters-v1650			OPTIONAL,
+	nonCriticalExtension				SEQUENCE {}						OPTIONAL
 }
 
 UE-EUTRA-CapabilityAddXDD-Mode-r9 ::=	SEQUENCE {
@@ -14447,7 +14457,12 @@ Other-Parameters-v1610 ::=		SEQUENCE {
 	resumeWithStoredSCG-r16			ENUMERATED {supported}		OPTIONAL,
 	resumeWithSCG-Config-r16		ENUMERATED {supported}		OPTIONAL,
 	mcgRLF-RecoveryViaSCG-r16		ENUMERATED {supported}		OPTIONAL,
-	overheatingIndForSCG-r16		ENUMERATED {supported}		OPTIONAL}
+	overheatingIndForSCG-r16		ENUMERATED {supported}		OPTIONAL
+}
+
+Other-Parameters-v1650 ::=		SEQUENCE {
+	mpsPriorityIndication-r16			ENUMERATED {supported}		OPTIONAL
+}
 
 MBMS-Parameters-r11 ::=				SEQUENCE {
 	mbms-SCell-r11							ENUMERATED {supported}		OPTIONAL,

@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V16.4.0 (2021-03)
+-- 3GPP TS 36.331 V16.5.0 (2021-06)
 
 NBIOT-RRC-Definitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -2072,7 +2072,12 @@ PUR-Config-NB-r16	::=				SEQUENCE {
 		npusch-CyclicShift-r16				ENUMERATED {n0, n6},
 		npdcch-Config-r16					NPDCCH-ConfigDedicated-NB-r13
 	}	OPTIONAL,	-- Need ON
-	...
+	...,
+	[[
+		pur-PhysicalConfig-v1650			SEQUENCE {
+			ack-NACK-NumRepetitions-r16		ACK-NACK-NumRepetitions-NB-r13
+		}														OPTIONAL	--Need ON
+	]]
 }
 
 PUR-NRSRP-ChangeThreshold-r16 ::=	SEQUENCE {
