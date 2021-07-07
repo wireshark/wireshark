@@ -865,6 +865,9 @@ static const value_string mysql_session_track_type_vals[] = {
 	{0, "SESSION_SYSVARS_TRACKER"},
 	{1, "CURRENT_SCHEMA_TRACKER"},
 	{2, "SESSION_STATE_CHANGE_TRACKER"},
+	{3, "SESSION_TRACK_GTIDS"},
+	{4, "SESSION_TRACK_TRANSACTION_CHARACTERISTICS"},
+	{5, "SESSION_TRACK_TRANSACTION_STATE"},
 	{0, NULL}
 };
 
@@ -979,6 +982,13 @@ static int hf_mysql_session_track_sysvar_value = -1;
 static int hf_mysql_session_track_schema = -1;
 static int hf_mysql_session_track_schema_length = -1;
 static int hf_mysql_session_state_change = -1;
+static int hf_mysql_session_track_gtids = -1;
+static int hf_mysql_session_track_gtids_encoding = -1;
+static int hf_mysql_session_track_gtids_length = -1;
+static int hf_mysql_session_track_transaction_characteristics = -1;
+static int hf_mysql_session_track_transaction_characteristics_length = -1;
+static int hf_mysql_session_track_transaction_state = -1;
+static int hf_mysql_session_track_transaction_state_length = -1;
 static int hf_mysql_protocol = -1;
 static int hf_mysql_version  = -1;
 static int hf_mysql_login_request = -1;
@@ -2377,6 +2387,32 @@ add_session_tracker_entry_to_tree(tvbuff_t *tvb, packet_info *pinfo, proto_item 
 		proto_tree_add_item(session_track_tree, hf_mysql_session_state_change, tvb, offset, 1, ENC_ASCII|ENC_NA);
 		offset++;
 		break;
+	case 3: /* SESSION_TRACK_GTIDS */
+		proto_tree_add_item(session_track_tree, hf_mysql_session_track_gtids_encoding, tvb, offset, 1, ENC_NA);
+		offset++;
+		lenfle = tvb_get_fle(tvb, session_track_tree, offset, &lenstr, NULL);
+		proto_tree_add_uint64(session_track_tree, hf_mysql_session_track_gtids_length, tvb, offset, lenfle, lenstr);
+		offset += lenfle;
+
+		proto_tree_add_item(session_track_tree, hf_mysql_session_track_gtids, tvb, offset, (gint)lenstr, ENC_ASCII|ENC_NA);
+		offset += (int)lenstr;
+		break;
+	case 4: /* SESSION_TRACK_TRANSACTION_CHARACTERISTICS */
+		lenfle = tvb_get_fle(tvb, session_track_tree, offset, &lenstr, NULL);
+		proto_tree_add_uint64(session_track_tree, hf_mysql_session_track_transaction_characteristics_length, tvb, offset, lenfle, lenstr);
+		offset += lenfle;
+
+		proto_tree_add_item(session_track_tree, hf_mysql_session_track_transaction_characteristics, tvb, offset, (gint)lenstr, ENC_ASCII|ENC_NA);
+		offset += (int)lenstr;
+		break;
+	case 5: /* SESSION_TRACK_TRANSACTION_STATE */
+		lenfle = tvb_get_fle(tvb, session_track_tree, offset, &lenstr, NULL);
+		proto_tree_add_uint64(session_track_tree, hf_mysql_session_track_transaction_state_length, tvb, offset, lenfle, lenstr);
+		offset += lenfle;
+
+		proto_tree_add_item(session_track_tree, hf_mysql_session_track_transaction_state, tvb, offset, (gint)lenstr, ENC_ASCII|ENC_NA);
+		offset += (int)lenstr;
+		break;
 	default: /* unsupported types skipped */
 		item = proto_tree_add_item(session_track_tree, hf_mysql_payload, tvb, offset, (gint)length, ENC_NA);
 		expert_add_info_format(pinfo, item, &ei_mysql_dissector_incomplete, "FIXME: unrecognized session tracker data");
@@ -3109,6 +3145,41 @@ void proto_register_mysql(void)
 
 		{ &hf_mysql_session_state_change,
 		{ "State change", "mysql.session_track.state_change",
+		  FT_STRINGZ, BASE_NONE, NULL, 0x0,
+		  NULL, HFILL }},
+
+		{ &hf_mysql_session_track_gtids_encoding,
+		{ "GTIDs encoding", "mysql.session_track.gtids.encoding",
+		  FT_UINT8, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL }},
+
+		{ &hf_mysql_session_track_gtids_length,
+		{ "GTIDs length", "mysql.session_track.gtids.length",
+		  FT_UINT64, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL }},
+
+		{ &hf_mysql_session_track_gtids,
+		{ "GTIDs", "mysql.session_track.gtids",
+		  FT_STRINGZ, BASE_NONE, NULL, 0x0,
+		  NULL, HFILL }},
+
+		{ &hf_mysql_session_track_transaction_characteristics_length,
+		{ "Transaction characteristics length", "mysql.session_track.transaction_characteristics.length",
+		  FT_UINT64, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL }},
+
+		{ &hf_mysql_session_track_transaction_characteristics,
+		{ "Transaction characteristics", "mysql.session_track.transaction_characteristics",
+		  FT_STRINGZ, BASE_NONE, NULL, 0x0,
+		  NULL, HFILL }},
+
+		{ &hf_mysql_session_track_transaction_state_length,
+		{ "Transaction state length", "mysql.session_track.transaction_state.length",
+		  FT_UINT64, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL }},
+
+		{ &hf_mysql_session_track_transaction_state,
+		{ "Transaction state", "mysql.session_track.transaction_state",
 		  FT_STRINGZ, BASE_NONE, NULL, 0x0,
 		  NULL, HFILL }},
 
