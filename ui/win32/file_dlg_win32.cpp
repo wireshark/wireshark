@@ -887,7 +887,6 @@ filter_tb_get(HWND hwnd) {
 static void
 filter_tb_syntax_check(HWND hwnd, const TCHAR *filter_text) {
     std::wstring strval;
-    gint       len;
     dfilter_t *dfp;
 
     /* If filter_text is non-NULL, use it.  Otherwise, grab the text from
@@ -895,7 +894,7 @@ filter_tb_syntax_check(HWND hwnd, const TCHAR *filter_text) {
     if (filter_text) {
         strval = filter_text;
     } else {
-        len = GetWindowTextLength(hwnd);
+        int len = GetWindowTextLength(hwnd);
         if (len > 0) {
             len++;
             strval.resize(len);
@@ -904,7 +903,7 @@ filter_tb_syntax_check(HWND hwnd, const TCHAR *filter_text) {
         }
     }
 
-    if (len == 0) {
+    if (strval.empty()) {
         /* Default window background */
         SendMessage(hwnd, EM_SETBKGNDCOLOR, (WPARAM) 1, COLOR_WINDOW);
         return;
