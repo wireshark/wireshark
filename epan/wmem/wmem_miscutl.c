@@ -29,6 +29,12 @@ wmem_memdup(wmem_allocator_t *allocator, const void *source, const size_t size)
     return dest;
 }
 
+gint
+uint64_compare(gconstpointer a, gconstpointer b)
+{
+    return (guint64)(a) > (guint64)(b) ? 1 : ((guint64)(a) < (guint64)(b) ? -1 : 0);
+}
+
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
