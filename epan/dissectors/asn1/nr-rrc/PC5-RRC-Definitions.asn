@@ -1,4 +1,4 @@
--- 3GPP TS 38.331 V16.4.1 (2021-03)
+-- 3GPP TS 38.331 V16.5.0 (2021-06)
 
 PC5-RRC-Definitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -226,7 +226,7 @@ UECapabilityEnquirySidelink ::=         SEQUENCE {
 
 UECapabilityEnquirySidelink-IEs-r16 ::= SEQUENCE {
     frequencyBandListFilterSidelink-r16     FreqBandList                                                            OPTIONAL, -- Need N
-    ue-CapabilityInformationSidelink-r16    OCTET STRING                                                            OPTIONAL,
+    ue-CapabilityInformationSidelink-r16    OCTET STRING                                                            OPTIONAL, -- Need N
     lateNonCriticalExtension                OCTET STRING                                                            OPTIONAL,
     nonCriticalExtension                    SEQUENCE{}                                                              OPTIONAL
 }

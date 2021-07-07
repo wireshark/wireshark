@@ -1,4 +1,4 @@
--- 3GPP TS 38.331 V16.4.1 (2021-03)
+-- 3GPP TS 38.331 V16.5.0 (2021-06)
 
 NR-InterNodeDefinitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -435,7 +435,7 @@ CG-ConfigInfo-v1610-IEs ::=  SEQUENCE {
                                                          spare4, spare3, spare2, spare1},
         measResultSCG-r16                   OCTET STRING (CONTAINING MeasResultSCG-Failure)
     }                                                                                                 OPTIONAL,
-    scgFailureInfoEUTRA-r16                 SEQUENCE {
+    dummy1                                  SEQUENCE {
         failureTypeEUTRA-r16                    ENUMERATED { scg-lbtFailure-r16, beamFailureRecoveryFailure-r16,
                                                          t312-Expiry-r16, spare5,
                                                                      spare4, spare3, spare2, spare1},
@@ -681,9 +681,18 @@ UERadioPagingInformation ::= SEQUENCE {
 
 UERadioPagingInformation-IEs ::=    SEQUENCE {
     supportedBandListNRForPaging        SEQUENCE (SIZE (1..maxBands)) OF FreqBandIndicatorNR    OPTIONAL,
-    nonCriticalExtension                SEQUENCE {}                                             OPTIONAL
+    nonCriticalExtension                UERadioPagingInformation-v15e0-IEs                      OPTIONAL
 }
 
+UERadioPagingInformation-v15e0-IEs ::= SEQUENCE {
+    dl-SchedulingOffset-PDSCH-TypeA-FDD-FR1     ENUMERATED {supported}          OPTIONAL,
+    dl-SchedulingOffset-PDSCH-TypeA-TDD-FR1     ENUMERATED {supported}          OPTIONAL,
+    dl-SchedulingOffset-PDSCH-TypeA-TDD-FR2     ENUMERATED {supported}          OPTIONAL,
+    dl-SchedulingOffset-PDSCH-TypeB-FDD-FR1     ENUMERATED {supported}          OPTIONAL,
+    dl-SchedulingOffset-PDSCH-TypeB-TDD-FR1     ENUMERATED {supported}          OPTIONAL,
+    dl-SchedulingOffset-PDSCH-TypeB-TDD-FR2     ENUMERATED {supported}          OPTIONAL,
+    nonCriticalExtension                SEQUENCE {}                                 OPTIONAL
+}
 
 -- TAG-UE-RADIO-PAGING-INFORMATION-STOP
 -- TAG-UE-RADIO-ACCESS-CAPABILITY-INFORMATION-START

@@ -1051,7 +1051,7 @@ RLF-Report-r16/nr-RLF-Report-r16/timeConnFailure-r16 DISPLAY=BASE_CUSTOM STRINGS
 TimeSinceFailure-r16 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
 
 #.TYPE_ATTR
-TimeUntilReconnection-16 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+TimeUntilReconnection-r16 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
 
 #.FN_BODY ULInformationTransferIRAT-r16-IEs/ul-DCCH-MessageEUTRA-r16 VAL_PTR = &ul_dcch_msg_eutra_tvb
   tvbuff_t *ul_dcch_msg_eutra_tvb = NULL;
@@ -2037,15 +2037,6 @@ CA-ParametersEUTRA-v1570/dl-1024QAM-TotalWeightedLayers DISPLAY=BASE_CUSTOM STRI
   }
 
 #.FN_BODY CG-ConfigInfo-v1560-IEs/scgFailureInfoEUTRA/measResultSCG-EUTRA VAL_PTR = &meas_result_scg_fail_mrdc_tvb
-  tvbuff_t *meas_result_scg_fail_mrdc_tvb = NULL;
-%(DEFAULT_BODY)s
-  if (meas_result_scg_fail_mrdc_tvb) {
-    proto_tree *subtree;
-    subtree = proto_item_add_subtree(actx->created_item, ett_nr_rrc_measResultSCG_FailureMRDC);
-    dissect_lte_rrc_MeasResultSCG_FailureMRDC_r15_PDU(meas_result_scg_fail_mrdc_tvb, actx->pinfo, subtree, NULL);
-  }
-
-#.FN_BODY CG-ConfigInfo-v1610-IEs/scgFailureInfoEUTRA-r16/measResultSCG-EUTRA-r16 VAL_PTR = &meas_result_scg_fail_mrdc_tvb
   tvbuff_t *meas_result_scg_fail_mrdc_tvb = NULL;
 %(DEFAULT_BODY)s
   if (meas_result_scg_fail_mrdc_tvb) {
