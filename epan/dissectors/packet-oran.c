@@ -191,19 +191,19 @@ static const value_string e_bit[] = {
 #define DIR_UPLINK      0
 #define DIR_DOWNLINK    1
 
-static const value_string data_direction[] = {
+static const value_string data_direction_vals[] = {
     { DIR_UPLINK,   "Uplink" },
     { DIR_DOWNLINK, "Downlink" },
     { 0, NULL}
 };
 
-static const value_string rb[] = {
+static const value_string rb_vals[] = {
     { 0, "Every RB used" },
     { 1, "Every other RB used" },
     { 0, NULL}
 };
 
-static const value_string sym_inc[] = {
+static const value_string sym_inc_vals[] = {
     { 0, "Use the current symbol number" },
     { 1, "Increment the current symbol number" },
     { 0, NULL}
@@ -555,24 +555,29 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
     gboolean extension_flag = FALSE;
 
     /* sectionID */
-    proto_tree_add_item_ret_uint(oran_tree, hf_oran_section_id, tvb, offset, 3, ENC_BIG_ENDIAN, &sectionId);
+    proto_tree_add_item_ret_uint(oran_tree, hf_oran_section_id, tvb, offset, 2, ENC_BIG_ENDIAN, &sectionId);
+    offset++;
+
     /* rb */
-    proto_tree_add_item(oran_tree, hf_oran_rb, tvb, offset, 3, ENC_NA);
+    proto_tree_add_item(oran_tree, hf_oran_rb, tvb, offset, 1, ENC_NA);
     /* symInc */
-    proto_tree_add_item(oran_tree, hf_oran_symInc, tvb, offset, 3, ENC_NA);
+    proto_tree_add_item(oran_tree, hf_oran_symInc, tvb, offset, 1, ENC_NA);
     /* startPrbc */
-    guint32 startPrbc = 0;
-    proto_tree_add_item_ret_uint(oran_tree, hf_oran_startPrbc, tvb, offset, 3, ENC_BIG_ENDIAN, &startPrbc);
-    offset += 3;
+    guint32 startPrbc;
+    proto_tree_add_item_ret_uint(oran_tree, hf_oran_startPrbc, tvb, offset, 2, ENC_BIG_ENDIAN, &startPrbc);
+    offset += 2;
+
     /* numPrbc */
-    guint32 numPrbc = 0;
+    guint32 numPrbc;
     proto_tree_add_item_ret_uint(oran_tree, hf_oran_numPrbc, tvb, offset, 1, ENC_NA, &numPrbc);
     offset += 1;
     /* reMask */
     proto_tree_add_item(oran_tree, hf_oran_reMask, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset++;
     /* numSymbol */
-    guint32 numSymbol = 0;
-    proto_tree_add_item_ret_uint(oran_tree, hf_oran_numSymbol, tvb, offset, 2, ENC_NA, &numSymbol);
+    guint32 numSymbol;
+    proto_tree_add_item_ret_uint(oran_tree, hf_oran_numSymbol, tvb, offset, 1, ENC_NA, &numSymbol);
+    offset++;
     /* skip reserved */
     offset += 2;
 
@@ -591,6 +596,12 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
     write_section_info(sectionHeading, pinfo, protocol_item, sectionId, startPrbc, numPrbc);
     proto_item_append_text(sectionHeading, ", Symbols: %d", numSymbol);
+
+    if (numPrbc == 0) {
+        /* Special case for all PRBs */
+        numPrbc = pref_data_plane_section_total_rbs;
+        startPrbc = 0;  /* may already be 0... */
+    }
 
     switch (sectionType) {
     case SEC_C_UNUSED_RB:
@@ -757,7 +768,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
             case 11: /* Flexible Weights Extension Type */
             {
                 gboolean disableBFWs;
-                guint32  numBundPrbs;
+                guint32  numBundPrb;
 
                 /* disableBFWs */
                 proto_tree_add_item_ret_boolean(extension_tree, hf_oran_disable_bfws,
@@ -770,7 +781,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
                 /* numBundPrb */
                 proto_tree_add_item_ret_uint(extension_tree, hf_oran_num_bund_prbs,
-                                             tvb, offset, 1, ENC_BIG_ENDIAN, &numBundPrbs);
+                                             tvb, offset, 1, ENC_BIG_ENDIAN, &numBundPrb);
 
                 if (!disableBFWs) {
                     /********************************************/
@@ -787,8 +798,10 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                     /* TODO: Look up width of samples. */
                     /* guint8 iq_width = !bfwcomphdr_iq_width ? 16 : bfwcomphdr_iq_width;*/
 
+                    /* */
+                    /* guint32 weights_per_trx = numPrbc / numBundPrb; */
 
-                    for (guint n=0; n < numBundPrbs; n++) {
+                    for (guint n=0; n < numBundPrb; n++) {
 
                         /* bfwCompParam */
                         gboolean compression_method_supported = FALSE;
@@ -818,7 +831,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                     /* Table 5.37 */
                     /********************************************/
 
-                    for (guint n=0; n < numBundPrbs; n++) {
+                    for (guint n=0; n < numBundPrb; n++) {
                         /* beamId */
                         proto_tree_add_item(extension_tree, hf_oran_beam_id,
                                             tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -882,12 +895,13 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     offset += 1;
 
     guint32 subframeId = 0;
-    proto_tree_add_item_ret_uint(section_type_tree, hf_oran_subframe_id, tvb, offset, 2, ENC_NA, &subframeId);
+    proto_tree_add_item_ret_uint(section_type_tree, hf_oran_subframe_id, tvb, offset, 1, ENC_NA, &subframeId);
     guint32 slotId = 0;
     proto_tree_add_item_ret_uint(section_type_tree, hf_oran_slot_id, tvb, offset, 2, ENC_BIG_ENDIAN, &slotId);
+    offset++;
     guint32 startSymbolId = 0;
-    proto_tree_add_item_ret_uint(section_type_tree, hf_oran_start_symbol_id, tvb, offset, 2, ENC_NA, &startSymbolId);
-    offset += 2;
+    proto_tree_add_item_ret_uint(section_type_tree, hf_oran_start_symbol_id, tvb, offset, 1, ENC_NA, &startSymbolId);
+    offset++;
 
     char id[16];
     g_snprintf(id, 16, "%d-%d-%d", frameId, subframeId, slotId);
@@ -966,7 +980,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     proto_item_set_len(section_type_tree, offset - section_tree_offset);
 
     proto_item_append_text(sectionHeading, "%d, %s, Frame: %d, Subframe: %d, Slot: %d, StartSymbol: %d",
-        sectionType, val_to_str(direction, data_direction, "Unknown"), frameId, subframeId, slotId, startSymbolId);
+        sectionType, val_to_str(direction, data_direction_vals, "Unknown"), frameId, subframeId, slotId, startSymbolId);
     write_pdu_label_and_info(protocol_item, NULL, pinfo, ", Type: %d %s", sectionType, rval_to_str(sectionType, section_types_short, "Unknown"));
 
     for (guint32 i = 0; i < nSections; ++i) {
@@ -1010,12 +1024,13 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     offset += 1;
 
     guint32 subframeId = 0;
-    proto_tree_add_item_ret_uint(timing_header_tree, hf_oran_subframe_id, tvb, offset, 2, ENC_NA, &subframeId);
+    proto_tree_add_item_ret_uint(timing_header_tree, hf_oran_subframe_id, tvb, offset, 1, ENC_NA, &subframeId);
     guint32 slotId = 0;
     proto_tree_add_item_ret_uint(timing_header_tree, hf_oran_slot_id, tvb, offset, 2, ENC_BIG_ENDIAN, &slotId);
     guint32 startSymbolId = 0;
-    proto_tree_add_item_ret_uint(timing_header_tree, hf_oran_start_symbol_id, tvb, offset, 2, ENC_NA, &startSymbolId);
-    offset += 2;
+    offset++;
+    proto_tree_add_item_ret_uint(timing_header_tree, hf_oran_start_symbol_id, tvb, offset, 1, ENC_NA, &startSymbolId);
+    offset++;
 
     char id[16];
     g_snprintf(id, 16, "%d-%d-%d", frameId, subframeId, slotId);
@@ -1023,7 +1038,7 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     PROTO_ITEM_SET_GENERATED(pi);
 
     proto_item_append_text(timingHeader, " %s, Frame: %d, Subframe: %d, Slot: %d, StartSymbol: %d",
-        val_to_str(direction, data_direction, "Unknown"), frameId, subframeId, slotId, startSymbolId);
+        val_to_str(direction, data_direction_vals, "Unknown"), frameId, subframeId, slotId, startSymbolId);
 
     guint sample_bit_width;
     gint compression;
@@ -1058,14 +1073,20 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         proto_item *sectionHeading;
         proto_tree *section_tree = proto_tree_add_subtree(oran_tree, tvb, offset, 2, ett_oran_u_section, &sectionHeading, "Section");
 
+        /* sectionId */
         guint32 sectionId = 0;
-        proto_tree_add_item_ret_uint(section_tree, hf_oran_section_id, tvb, offset, 3, ENC_BIG_ENDIAN, &sectionId);
-        proto_tree_add_item(section_tree, hf_oran_rb, tvb, offset, 3, ENC_NA);
-        proto_tree_add_item(section_tree, hf_oran_symInc, tvb, offset, 3, ENC_NA);
+        proto_tree_add_item_ret_uint(section_tree, hf_oran_section_id, tvb, offset, 2, ENC_BIG_ENDIAN, &sectionId);
+        offset++;
+        /* rb */
+        proto_tree_add_item(section_tree, hf_oran_rb, tvb, offset, 1, ENC_NA);
+        /* symInc */
+        proto_tree_add_item(section_tree, hf_oran_symInc, tvb, offset, 1, ENC_NA);
+        /* startPrbu */
         guint32 startPrbu = 0;
-        proto_tree_add_item_ret_uint(section_tree, hf_oran_startPrbu, tvb, offset, 3, ENC_BIG_ENDIAN, &startPrbu);
-        offset += 3;
+        proto_tree_add_item_ret_uint(section_tree, hf_oran_startPrbu, tvb, offset, 2, ENC_BIG_ENDIAN, &startPrbu);
+        offset += 2;
 
+        /* numPrbu */
         guint32 numPrbu = 0;
         proto_tree_add_item_ret_uint(section_tree, hf_oran_numPrbu, tvb, offset, 1, ENC_NA, &numPrbu);
         offset += 1;
@@ -1205,7 +1226,7 @@ proto_register_oran(void)
         { &hf_oran_data_direction,
           { "Data Direction", "oran_fh_cus.data_direction",
             FT_UINT8, BASE_DEC,
-            VALS(data_direction), 0x80,
+            VALS(data_direction_vals), 0x80,
             "This parameter indicates the gNB data direction.",
             HFILL }
         },
@@ -1254,8 +1275,8 @@ proto_register_oran(void)
         /* Section 5.4.4.5 */
         {&hf_oran_subframe_id,
          {"Subframe ID", "oran_fh_cus.subframe_id",
-          FT_UINT16, BASE_DEC,
-          NULL, 0xf000,
+          FT_UINT8, BASE_DEC,
+          NULL, 0xf0,
           "This parameter is a counter for 1 ms sub-frames within 10ms frame.",
           HFILL}
         },
@@ -1285,8 +1306,8 @@ proto_register_oran(void)
         /* Section 5.4.4.7 */
         {&hf_oran_start_symbol_id,
          {"Start Symbol ID", "oran_fh_cus.startSymbolId",
-          FT_UINT16, BASE_DEC,
-          NULL, 0x003f,
+          FT_UINT8, BASE_DEC,
+          NULL, 0x3f,
           "This parameter identifies the first symbol number within slot, to "
           "which the information of this message is applies.",
           HFILL}
@@ -1379,8 +1400,8 @@ proto_register_oran(void)
         /* Section 5.4.5.1 */
         {&hf_oran_section_id,
          {"Section ID", "oran_fh_cus.sectionId",
-          FT_UINT24, BASE_DEC,
-          NULL, 0xfff000,
+          FT_UINT16, BASE_DEC,
+          NULL, 0xfff0,
           "This parameter identifies individual sections within the C-Plane "
           "message. The purpose of section ID is mapping of U-Plane messages "
           "to the corresponding C-Plane message (and Section Type) associated "
@@ -1399,8 +1420,8 @@ proto_register_oran(void)
         /* Section 5.4.5.2 */
         {&hf_oran_rb,
          {"RB Indicator", "oran_fh_cus.rb",
-          FT_UINT24, BASE_DEC,
-          VALS(rb), 0x00800,
+          FT_UINT8, BASE_DEC,
+          VALS(rb_vals), 0x08,
           "This parameter is used to indicate if every RB is used or every "
           "other RB is used. The starting RB is defined by startPrbc and "
           "total number of used RBs is defined by numPrbc.  Example: RB=1, "
@@ -1411,8 +1432,8 @@ proto_register_oran(void)
         /* Section 5.4.5.3 */
         {&hf_oran_symInc,
          {"Symbol Number Increment Command", "oran_fh_cus.symInc",
-          FT_UINT24, BASE_DEC,
-          VALS(sym_inc), 0x00400,
+          FT_UINT8, BASE_DEC,
+          VALS(sym_inc_vals), 0x04,
           "This parameter is used to indicate which symbol number is relevant "
           "to the given sectionId.  It is expected that for each C-Plane "
           "message a symbol number is maintained and starts with the value "
@@ -1429,8 +1450,8 @@ proto_register_oran(void)
         /* Section 5.4.5.4 */
         {&hf_oran_startPrbc,
          {"Starting PRB of Control Plane Section", "oran_fh_cus.startPrbc",
-          FT_UINT24, BASE_DEC,
-          NULL, 0x0003ff,
+          FT_UINT16, BASE_DEC,
+          NULL, 0x03ff,
           "This parameter is the starting PRB of a control section. For one "
           "C-Plane message, there may be multiple U-Plane messages associated "
           "with it and requiring defining from which PRB the control "
@@ -1462,8 +1483,8 @@ proto_register_oran(void)
         /* Section 5.4.5.7 */
         {&hf_oran_numSymbol,
          {"Number of Symbols", "oran_fh_cus.numSymbol",
-          FT_UINT16, BASE_DEC,
-          NULL, 0x000f,
+          FT_UINT8, BASE_DEC,
+          NULL, 0x0f,
           "This parameter defines number of symbols to which the section "
           "control is applicable. At minimum, the section control shall be "
           "applicable to at least one symbol. However, possible optimizations "
@@ -1503,10 +1524,10 @@ proto_register_oran(void)
 
         /* Section 5.4.6.2 */
         {&hf_oran_extension,
-         {"ef", "oran_fh_cus.ef",
+         {"Extension", "oran_fh_cus.extension",
           FT_STRING, BASE_NONE,
           NULL, 0x0,
-          "extension flag.  Set if there is another extension present",
+          "Section extension",
           HFILL}
         },
 
@@ -1859,7 +1880,7 @@ proto_register_oran(void)
         {&hf_oran_symbolMask,
          {"symbolMask", "oran_fh_cus.symbolMask",
           FT_UINT16, BASE_HEX,
-          NULL, 0x03fff,
+          NULL, 0x3fff,
           "Each bit indicates whether the rbgMask applies to a given symbol in the slot",
           HFILL}
         },
@@ -1876,8 +1897,8 @@ proto_register_oran(void)
         /* Section 6.3.3.11 */
         {&hf_oran_startPrbu,
          {"Starting PRB of User Plane Section", "oran_fh_cus.startPrbu",
-          FT_UINT24, BASE_DEC,
-          NULL, 0x0003ff,
+          FT_UINT16, BASE_DEC,
+          NULL, 0x03ff,
           "This parameter is the starting PRB of a user plane section. For "
           "one C-Plane message, there may be multiple U-Plane messages "
           "associated with it and requiring defining from which PRB the contained "
