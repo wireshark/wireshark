@@ -231,11 +231,6 @@ json_string_unescape(tvbparse_elem_t* tok, gboolean keep_outer_parentheses)
 	int i = keep_outer_parentheses == TRUE ? 0 : 1;
 	int length = keep_outer_parentheses == TRUE ? tok->len : tok->len - 1;
 
-	if (keep_outer_parentheses == FALSE)
-	{
-		i = i;
-	}
-
 	char* str = (char*)wmem_alloc(wmem_packet_scope(), (size_t)length);
 
 	for (; i < length; i++) {
