@@ -220,6 +220,9 @@ class Item:
         if check_mask:
             if not mask in { 'NULL', '0x0', '0'}:
                 self.check_contiguous_bits(mask)
+                self.check_mask_too_long(mask)
+                self.check_odd_num_digits(mask)
+
 
     def set_mask_value(self):
         try:
@@ -289,6 +292,23 @@ class Item:
                 print('Warning: ', self.filename, 'filter=', self.filter, ' - mask with non-contiguous bits', mask)
                 return
             n += 1
+
+    def check_mask_too_long(self, mask):
+        if not self.mask_value:
+            return
+        if mask.startswith('0x00') or mask.endswith('00'):
+            # There may be good reasons for having a wider field/mask, e.g. if there are 32 flags, showing them
+            # all lined up as part of the same word may make it clearer.  But some annoying cases have been found
+            # where the grouping does not seem to be natural..
+            print('Warning: ', self.filename, 'filter=', self.filter, ' - mask seems to be wider than necessary', mask)
+            global issues_found
+            issues_found += 1
+
+    def check_odd_num_digits(self, mask):
+        if mask.startswith('0x') and len(mask) % 2:
+            print('Warning: ', self.filename, 'filter=', self.filter, ' - mask has odd number of digits', mask)
+            global issues_found
+            issues_found += 1
 
 
 
@@ -386,11 +406,11 @@ def find_items(filename, check_mask=False, check_label=False, check_consecutive=
         contents = f.read()
         # Remove comments so as not to trip up RE.
         contents = removeComments(contents)
-        matches = re.finditer(r'.*\{\s*\&(hf_.*),\s*{\s*\"(.+)\",\s*\"([a-zA-Z0-9_\-\.]+)\",\s*([A-Z0-9_]*),\s*.*,\s*([A-Za-z0-9x]*)\s*,', contents)
+        matches = re.finditer(r'.*\{\s*\&(hf_.*),\s*{\s*\"(.+)\",\s*\"([a-zA-Z0-9_\-\.]+)\",\s*([A-Z0-9_]*),\s*.*,\s*([A-Za-z0-9x_\(\)]*),\s*([a-z0-9x_]*),', contents)
         for m in matches:
             # Store this item.
             hf = m.group(1)
-            items[hf] = Item(filename, filter=m.group(3), label=m.group(2), item_type=m.group(4), mask=m.group(5),
+            items[hf] = Item(filename, filter=m.group(3), label=m.group(2), item_type=m.group(4), mask=m.group(6),
                              check_mask=check_mask,
                              check_label=check_label,
                              check_consecutive=(not is_generated and check_consecutive))
