@@ -1444,9 +1444,9 @@ sharkd_session_process_frames(const char *buf, const jsmntok_t *tokens, int coun
 
 		sharkd_json_value_anyf("num", "%u", framenum);
 
-		if (fdata->has_user_block || fdata->has_phdr_block)
+		if (fdata->has_modified_block || fdata->has_phdr_block)
 		{
-			if (!fdata->has_user_block || sharkd_get_user_block(fdata) != NULL)
+			if (!fdata->has_modified_block || sharkd_get_modified_block(fdata) != NULL)
 				sharkd_json_value_anyf("ct", "true");
 		}
 
@@ -3355,8 +3355,8 @@ sharkd_session_process_frame_cb(epan_dissect_t *edt, proto_tree *tree, struct ep
 
 	sharkd_json_result_prologue(rpcid);
 
-	if (fdata->has_user_block)
-		pkt_block = sharkd_get_user_block(fdata);
+	if (fdata->has_modified_block)
+		pkt_block = sharkd_get_modified_block(fdata);
 	else if (fdata->has_phdr_block)
 		pkt_block = pi->rec->block;
 
@@ -4241,7 +4241,7 @@ sharkd_session_process_setcomment(char *buf, const jsmntok_t *tokens, int count)
 	}
 	else
 	{
-		sharkd_set_user_block(fdata, pkt_block);
+		sharkd_set_modified_block(fdata, pkt_block);
 		sharkd_json_simple_ok(rpcid);
 	}
 

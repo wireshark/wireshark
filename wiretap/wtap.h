@@ -1331,10 +1331,10 @@ typedef struct {
 } wtap_custom_block_header;
 
 typedef struct {
-    guint     rec_type;         /* what type of record is this? */
-    guint32   presence_flags;   /* what stuff do we have? */
-    nstime_t  ts;               /* time stamp */
-    int       tsprec;           /* WTAP_TSPREC_ value for this record */
+    guint     rec_type;          /* what type of record is this? */
+    guint32   presence_flags;    /* what stuff do we have? */
+    nstime_t  ts;                /* time stamp */
+    int       tsprec;            /* WTAP_TSPREC_ value for this record */
     union {
         wtap_packet_header packet_header;
         wtap_ft_specific_header ft_specific_header;
@@ -1343,14 +1343,14 @@ typedef struct {
         wtap_custom_block_header custom_block_header;
     } rec_header;
 
-    wtap_block_t block;         /* packet block; holds comments and verdicts in its options */
-    gboolean has_block_changed; /* TRUE if ANY aspect of the block has changed */
+    wtap_block_t block ;         /* packet block; holds comments and verdicts in its options */
+    gboolean block_was_modified; /* TRUE if ANY aspect of the block has been modified */
 
     /*
      * We use a Buffer so that we don't have to allocate and free
      * a buffer for the options for each record.
      */
-    Buffer    options_buf;      /* file-type specific data */
+    Buffer    options_buf;       /* file-type specific data */
 } wtap_rec;
 
 /*

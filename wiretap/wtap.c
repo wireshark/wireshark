@@ -1516,7 +1516,7 @@ wtap_init_rec(wtap *wth, wtap_rec *rec)
 	rec->rec_header.packet_header.pkt_encap = wth->file_encap;
 	rec->tsprec = wth->file_tsprec;
 	rec->block = NULL;
-	rec->has_block_changed = FALSE;
+	rec->block_was_modified = FALSE;
 }
 
 gboolean
@@ -1675,7 +1675,7 @@ wtap_rec_cleanup(wtap_rec *rec)
 {
 	wtap_block_unref(rec->block);
 	rec->block = NULL;
-	rec->has_block_changed = FALSE;
+	rec->block_was_modified = FALSE;
 	ws_buffer_free(&rec->options_buf);
 }
 

@@ -583,9 +583,12 @@ dissect_record(epan_dissect_t *edt, int file_type_subtype,
 
 	frame_delta_abs_time(edt->session, fd, fd->frame_ref_num, &edt->pi.rel_ts);
 
-	/* pkt block use first user, later from rec */
-	if (fd->has_user_block) {
-		frame_dissector_data.pkt_block = epan_get_user_block(edt->session, fd);
+	/*
+	 * If the block has been modified, use the modified block,
+	 * otherwise use the block from the file.
+	 */
+	if (fd->has_modified_block) {
+		frame_dissector_data.pkt_block = epan_get_modified_block(edt->session, fd);
 	}
 	else if (fd->has_phdr_block) {
 		frame_dissector_data.pkt_block = rec->block;
@@ -657,9 +660,12 @@ dissect_file(epan_dissect_t *edt, wtap_rec *rec,
 
 
 	TRY {
-		/* pkt block use first user, later from rec */
-		if (fd->has_user_block) {
-			file_dissector_data.pkt_block = epan_get_user_block(edt->session, fd);
+		/*
+		 * If the block has been modified, use the modified block,
+		 * otherwise use the block from the file.
+		 */
+		if (fd->has_modified_block) {
+			file_dissector_data.pkt_block = epan_get_modified_block(edt->session, fd);
 		}
 		else if (fd->has_phdr_block) {
 			file_dissector_data.pkt_block = rec->block;

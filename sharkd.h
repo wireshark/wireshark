@@ -36,9 +36,9 @@ int sharkd_filter(const char *dftext, guint8 **result);
 frame_data *sharkd_get_frame(guint32 framenum);
 int sharkd_dissect_columns(frame_data *fdata, guint32 frame_ref_num, guint32 prev_dis_num, column_info *cinfo, gboolean dissect_color);
 int sharkd_dissect_request(guint32 framenum, guint32 frame_ref_num, guint32 prev_dis_num, sharkd_dissect_func_t cb, guint32 dissect_flags, void *data);
-wtap_block_t sharkd_get_user_block(const frame_data *fd);
+wtap_block_t sharkd_get_modified_block(const frame_data *fd);
 wtap_block_t sharkd_get_packet_block(const frame_data *fd);
-int sharkd_set_user_block(frame_data *fd, wtap_block_t new_block);
+int sharkd_set_modified_block(frame_data *fd, wtap_block_t new_block);
 const char *sharkd_version(void);
 
 /* sharkd_daemon.c */

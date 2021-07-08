@@ -1982,11 +1982,11 @@ static gboolean erf_dump(
    * construct a new header with additional Host ID and Anchor ID
    * and insert a metadata record before that frame */
   /*XXX: The user may have changed the comment to cleared! */
-  if(rec->has_block_changed) {
+  if(rec->block_was_modified) {
     if (encap == WTAP_ENCAP_ERF) {
       /* XXX: What about ERF-in-pcapng with existing comment (that wasn't
        * modified)? */
-      if(rec->has_block_changed) {
+      if(rec->block_was_modified) {
         memmove(&other_phdr, pseudo_header, sizeof(union wtap_pseudo_header));
         if(!erf_write_anchor_meta_update_phdr(wdh, dump_priv, rec, &other_phdr, err)) return FALSE;
         pseudo_header = &other_phdr;

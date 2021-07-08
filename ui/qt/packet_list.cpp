@@ -1415,7 +1415,7 @@ void PacketList::addPacketComment(QString new_comment)
     QByteArray ba = new_comment.toLocal8Bit();
     wtap_block_add_string_option(pkt_block, OPT_COMMENT, ba.data(), ba.size());
 
-    cf_set_user_packet_block(cap_file_, fdata, pkt_block);
+    cf_set_modified_block(cap_file_, fdata, pkt_block);
 
     redrawVisiblePackets();
 }
@@ -1441,7 +1441,7 @@ void PacketList::setPacketComment(guint c_number, QString new_comment)
         wtap_block_set_nth_string_option_value(pkt_block, OPT_COMMENT, c_number, ba.data(), ba.size());
     }
 
-    cf_set_user_packet_block(cap_file_, fdata, pkt_block);
+    cf_set_modified_block(cap_file_, fdata, pkt_block);
 
     redrawVisiblePackets();
 }
@@ -1495,7 +1495,7 @@ void PacketList::deleteAllPacketComments()
         for (i = 0; i < n_comments; i++) {
             wtap_block_remove_nth_option_instance(pkt_block, OPT_COMMENT, 0);
         }
-        cf_set_user_packet_block(cap_file_, fdata, pkt_block);
+        cf_set_modified_block(cap_file_, fdata, pkt_block);
     }
 
     cap_file_->packet_comment_count = 0;

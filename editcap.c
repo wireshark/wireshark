@@ -2186,12 +2186,12 @@ main(int argc, char *argv[])
                     temp_rec = *rec;
                     /* The comment is not modified by dumper, cast away. */
                     wtap_block_add_string_option(rec->block, OPT_COMMENT, (char *)comment, strlen((char *)comment));
-                    temp_rec.has_block_changed = TRUE;
+                    temp_rec.block_was_modified = TRUE;
                     rec = &temp_rec;
                 } else {
                     /* Copy and change rather than modify returned rec */
                     temp_rec = *rec;
-                    temp_rec.has_block_changed = FALSE;
+                    temp_rec.block_was_modified = FALSE;
                     rec = &temp_rec;
                 }
             }

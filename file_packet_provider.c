@@ -70,7 +70,7 @@ cap_file_provider_get_interface_description(struct packet_provider_data *prov, g
 }
 
 wtap_block_t
-cap_file_provider_get_user_block(struct packet_provider_data *prov, const frame_data *fd)
+cap_file_provider_get_modified_block(struct packet_provider_data *prov, const frame_data *fd)
 {
   if (prov->frames_edited_blocks)
      return (wtap_block_t)g_tree_lookup(prov->frames_edited_blocks, fd);
@@ -80,7 +80,7 @@ cap_file_provider_get_user_block(struct packet_provider_data *prov, const frame_
 }
 
 void
-cap_file_provider_set_user_block(struct packet_provider_data *prov, frame_data *fd, wtap_block_t new_block)
+cap_file_provider_set_modified_block(struct packet_provider_data *prov, frame_data *fd, wtap_block_t new_block)
 {
   if (!prov->frames_edited_blocks)
     prov->frames_edited_blocks = g_tree_new_full(frame_cmp, NULL, NULL, (GDestroyNotify)wtap_block_unref);
@@ -88,5 +88,5 @@ cap_file_provider_set_user_block(struct packet_provider_data *prov, frame_data *
   /* insert new packet block */
   g_tree_replace(prov->frames_edited_blocks, fd, (gpointer)new_block);
 
-  fd->has_user_block = TRUE;
+  fd->has_modified_block = TRUE;
 }

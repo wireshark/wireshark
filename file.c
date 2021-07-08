@@ -252,7 +252,7 @@ ws_epan_new(capture_file *cf)
     ws_get_frame_ts,
     cap_file_provider_get_interface_name,
     cap_file_provider_get_interface_description,
-    cap_file_provider_get_user_block
+    cap_file_provider_get_modified_block
   };
 
   return epan_new(&cf->provider, &funcs);
@@ -4003,9 +4003,9 @@ cf_update_section_comment(capture_file *cf, gchar *comment)
 wtap_block_t
 cf_get_packet_block(capture_file *cf, const frame_data *fd)
 {
-  /* fetch user block */
-  if (fd->has_user_block)
-    return wtap_block_ref(cap_file_provider_get_user_block(&cf->provider, fd));
+  /* If this block has been modified, fetch the modified version */
+  if (fd->has_modified_block)
+    return wtap_block_ref(cap_file_provider_get_modified_block(&cf->provider, fd));
 
   /* fetch phdr block */
   if (fd->has_phdr_block) {
@@ -4033,20 +4033,20 @@ cf_get_packet_block(capture_file *cf, const frame_data *fd)
  * Update(replace) the block on a capture from a frame
  */
 gboolean
-cf_set_user_packet_block(capture_file *cf, frame_data *fd, const wtap_block_t new_block)
+cf_set_modified_block(capture_file *cf, frame_data *fd, const wtap_block_t new_block)
 {
   wtap_block_t pkt_block = cf_get_packet_block(cf, fd);
 
-  /* It's possible to edit the user block "in place" by doing a call to
-   * cf_get_packet_block() that returns an already created user block,
-   * editing that, and calling this function.
+  /* It's possible to further modify the modified block "in place" by doing
+   * a call to cf_get_packet_block() that returns an already created modified
+   * block, modifying that, and calling this function.
    * If the caller did that, then the block pointers will be equal.
    */
   if (pkt_block == new_block) {
     /* No need to save anything here, the caller changes went right
      * onto the block.
      * Unfortunately we don't have a way to know how many comments were in the block
-     * before the caller edited it.
+     * before the caller modified it.
      */
   }
   else {
@@ -4056,7 +4056,7 @@ cf_set_user_packet_block(capture_file *cf, frame_data *fd, const wtap_block_t ne
     if (new_block)
       cf->packet_comment_count += wtap_block_count_option(new_block, OPT_COMMENT);
 
-    cap_file_provider_set_user_block(&cf->provider, fd, new_block);
+    cap_file_provider_set_modified_block(&cf->provider, fd, new_block);
 
     expert_update_comment_count(cf->packet_comment_count);
   }
@@ -4147,12 +4147,12 @@ save_record(capture_file *cf, frame_data *fdata, wtap_rec *rec,
 
   /* Make changes based on anything that the user has done but that
      hasn't been saved yet. */
-  if (fdata->has_user_block)
-    pkt_block = cap_file_provider_get_user_block(&cf->provider, fdata);
+  if (fdata->has_modified_block)
+    pkt_block = cap_file_provider_get_modified_block(&cf->provider, fdata);
   else
     pkt_block = rec->block;
   new_rec.block  = pkt_block;
-  new_rec.has_block_changed = fdata->has_user_block ? TRUE : FALSE;
+  new_rec.block_was_modified = fdata->has_modified_block ? TRUE : FALSE;
   /* XXX - what if times have been shifted? */
 
   /* and save the packet */
@@ -4770,7 +4770,7 @@ cf_save_records(capture_file *cf, const char *fname, guint save_format,
 
         // XXX: This also ignores non-comment options like verdict
         fdata->has_phdr_block = FALSE;
-        fdata->has_user_block = FALSE;
+        fdata->has_modified_block = FALSE;
       }
 
       if (cf->provider.frames_edited_blocks) {

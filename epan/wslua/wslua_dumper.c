@@ -541,12 +541,12 @@ WSLUA_METHOD Dumper_dump_current(lua_State* L) {
 
     /*
      * wtap_dump does not modify rec.block, so it should be possible to
-     * pass epan_get_user_block() or lua_pinfo->rec->block directly.
+     * pass epan_get_modified_block() or lua_pinfo->rec->block directly.
      * Temporarily duplicating the memory should not hurt though.
      */
-    if (lua_pinfo->fd->has_user_block) {
-        rec.block = epan_get_user_block(lua_pinfo->epan, lua_pinfo->fd);
-        rec.has_block_changed = TRUE;
+    if (lua_pinfo->fd->has_modified_block) {
+        rec.block = epan_get_modified_block(lua_pinfo->epan, lua_pinfo->fd);
+        rec.block_was_modified = TRUE;
     } else if (lua_pinfo->fd->has_phdr_block) {
         rec.block = lua_pinfo->rec->block;
     }

@@ -241,7 +241,7 @@ sharkd_epan_new(capture_file *cf)
     sharkd_get_frame_ts,
     cap_file_provider_get_interface_name,
     cap_file_provider_get_interface_description,
-    cap_file_provider_get_user_block
+    cap_file_provider_get_modified_block
   };
 
   return epan_new(&cf->provider, &funcs);
@@ -769,25 +769,25 @@ sharkd_filter(const char *dftext, guint8 **result)
 }
 
 /*
- * Get the user block if available, nothing otherwise.
+ * Get the modified block if available, nothing otherwise.
  * Must be cloned if changes desired.
  */
 wtap_block_t
-sharkd_get_user_block(const frame_data *fd)
+sharkd_get_modified_block(const frame_data *fd)
 {
-  return cap_file_provider_get_user_block(&cfile.provider, fd);
+  return cap_file_provider_get_modified_block(&cfile.provider, fd);
 }
 
 /*
- * Gets the user block if available, otherwise the packet's default block,
+ * Gets the modified block if available, otherwise the packet's default block,
  * or a new packet block.
  * User must wtap_block_unref() it when done.
  */
 wtap_block_t
 sharkd_get_packet_block(const frame_data *fd)
 {
-  if (fd->has_user_block)
-    return wtap_block_ref(cap_file_provider_get_user_block(&cfile.provider, fd));
+  if (fd->has_modified_block)
+    return wtap_block_ref(cap_file_provider_get_modified_block(&cfile.provider, fd));
   if (fd->has_phdr_block)
   {
     wtap_rec rec; /* Record metadata */
@@ -814,9 +814,9 @@ sharkd_get_packet_block(const frame_data *fd)
 }
 
 int
-sharkd_set_user_block(frame_data *fd, wtap_block_t new_block)
+sharkd_set_modified_block(frame_data *fd, wtap_block_t new_block)
 {
-  cap_file_provider_set_user_block(&cfile.provider, fd, new_block);
+  cap_file_provider_set_modified_block(&cfile.provider, fd, new_block);
   return 0;
 }
 

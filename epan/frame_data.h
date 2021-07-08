@@ -85,7 +85,7 @@ typedef struct _frame_data {
   unsigned int ignored          : 1; /**< 1 = ignore this frame, 0 = normal */
   unsigned int has_ts           : 1; /**< 1 = has time stamp, 0 = no time stamp */
   unsigned int has_phdr_block   : 1; /** 1 = there's a block (possibly with options) for this packet */
-  unsigned int has_user_block   : 1; /** 1 = user changed block (or its options) for this packet */
+  unsigned int has_modified_block : 1; /** 1 = block for this packet has been modified */
   unsigned int need_colorize    : 1; /**< 1 = need to (re-)calculate packet color */
   unsigned int tsprec           : 4; /**< Time stamp precision -2^tsprec gives up to femtoseconds */
   nstime_t     abs_ts;       /**< Absolute timestamp */

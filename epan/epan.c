@@ -449,10 +449,10 @@ epan_new(struct packet_provider_data *prov,
 }
 
 wtap_block_t
-epan_get_user_block(const epan_t *session, const frame_data *fd)
+epan_get_modified_block(const epan_t *session, const frame_data *fd)
 {
-	if (session->funcs.get_user_block)
-		return session->funcs.get_user_block(session->prov, fd);
+	if (session->funcs.get_modified_block)
+		return session->funcs.get_modified_block(session->prov, fd);
 
 	return NULL;
 }
