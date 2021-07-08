@@ -4878,7 +4878,7 @@ void proto_register_rsl(void)
         },
         { &hf_rsl_emlpp_prio,
           { "eMLPP Priority",           "gsm_abis_rsl.emlpp_prio",
-            FT_UINT8, BASE_DEC, VALS(rsl_emlpp_prio_vals), 0x05,
+            FT_UINT8, BASE_DEC, VALS(rsl_emlpp_prio_vals), 0x07,
             NULL, HFILL }
         },
         { &hf_rsl_speech_mode_s,
