@@ -470,6 +470,23 @@ update_generic_one_identifier_16bit(void *r, char **err) {
     return TRUE;
 }
 
+static gboolean
+update_generic_one_identifier_32bit(void *r, char **err) {
+    generic_one_id_string_t *rec = (generic_one_id_string_t *)r;
+
+    if (rec->id > 0xffffffff) {
+        *err = g_strdup_printf("We currently only support 32 bit identifiers (ID: %i  Name: %s)", rec->id, rec->name);
+        return FALSE;
+    }
+
+    if (rec->name == NULL || rec->name[0] == 0) {
+        *err = g_strdup("Name cannot be empty");
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
 static void
 free_generic_one_id_string_cb(void*r) {
     generic_one_id_string_t* rec = (generic_one_id_string_t*)r;
@@ -510,6 +527,7 @@ ht_lookup_name(GHashTable* ht, unsigned int identifier) {
 
 /*** UAT TECMP_CM_IDs ***/
 #define DATAFILE_TECMP_CM_IDS "TECMP_capture_module_identifiers"
+#define DATAFILE_TECMP_CH_IDS "TECMP_channel_identifiers"
 
 static GHashTable *data_tecmp_cms = NULL;
 static generic_one_id_string_t* tecmp_cms = NULL;
@@ -517,6 +535,13 @@ static guint tecmp_cms_num = 0;
 
 UAT_DEC_CB_DEF(tecmp_cms, id, generic_one_id_string_t)
 UAT_CSTRING_CB_DEF(tecmp_cms, name, generic_one_id_string_t)
+
+static GHashTable *data_tecmp_channels = NULL;
+static generic_one_id_string_t* tecmp_channels = NULL;
+static guint tecmp_channel_num = 0;
+
+UAT_HEX_CB_DEF(tecmp_channels, id, generic_one_id_string_t)
+UAT_CSTRING_CB_DEF(tecmp_channels, name, generic_one_id_string_t)
 
 static void
 post_update_tecmp_cms_cb(void) {
@@ -530,6 +555,20 @@ post_update_tecmp_cms_cb(void) {
     data_tecmp_cms = g_hash_table_new_full(g_int_hash, g_int_equal, &tecmp_free_key, &simple_free);
     post_update_one_id_string_template_cb(tecmp_cms, tecmp_cms_num, data_tecmp_cms);
 }
+
+static void
+post_update_tecmp_channels_cb(void) {
+    /* destroy old hash table, if it exists */
+    if (data_tecmp_channels) {
+        g_hash_table_destroy(data_tecmp_channels);
+        data_tecmp_channels = NULL;
+    }
+
+    /* create new hash table */
+    data_tecmp_channels = g_hash_table_new_full(g_int_hash, g_int_equal, &tecmp_free_key, &simple_free);
+    post_update_one_id_string_template_cb(tecmp_channels, tecmp_channel_num, data_tecmp_channels);
+}
+
 
 static void
 add_cm_id_text(proto_item *ti, guint16 cm_id) {
@@ -548,6 +587,15 @@ add_cm_id_text(proto_item *ti, guint16 cm_id) {
                 proto_item_append_text(ti, " (%s %d)", descr, (cm_id & 0x000f));
             }
         }
+    }
+}
+
+static void
+add_channel_id_text(proto_item *ti, guint32 channel_id) {
+    const gchar *descr = ht_lookup_name(data_tecmp_channels, channel_id);
+
+    if (descr != NULL) {
+        proto_item_append_text(ti, " (%s)", descr);
     }
 }
 
@@ -578,6 +626,7 @@ dissect_tecmp_entry_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     nstime_t timestamp;
     guint64 ns = 0;
     gboolean async = FALSE;
+    guint tmp;
 
     static int * const dataflags_generic[] = {
         &hf_tecmp_payload_data_flags_crc,
@@ -650,7 +699,8 @@ dissect_tecmp_entry_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     }
     col_append_str(pinfo->cinfo, COL_INFO, val_to_str(msg_type, tecmp_msgtype_names, "Unknown (%d)"));
 
-    proto_tree_add_item(tree, hf_tecmp_payload_channelid, tvb, offset, 4, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item_ret_uint(tree, hf_tecmp_payload_channelid, tvb, offset, 4, ENC_BIG_ENDIAN, &tmp);
+    add_channel_id_text(ti, tmp);
 
     ns = tvb_get_guint64(tvb, offset + 4, ENC_BIG_ENDIAN) & 0x3fffffffffffffff;
 
@@ -916,6 +966,7 @@ dissect_tecmp_status_cm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
     guint offset = offset_orig;
     guint i = 0;
     guint tmp = 0;
+    const gchar *descr;
 
     if (tvb_captured_length_remaining(tvb, offset) >= 12) {
         length = tvb_get_guint16(tvb, offset + 12, ENC_BIG_ENDIAN);
@@ -974,9 +1025,16 @@ dissect_tecmp_status_cm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
                 proto_item_append_text(ti_tecmp_bus, " %d", i);
                 tecmp_tree_bus = proto_item_add_subtree(ti_tecmp_bus, ett_tecmp_status_bus_data_entry);
 
-                proto_tree_add_item_ret_uint(tecmp_tree_bus, hf_tecmp_payload_status_bus_channelid, tvb, offset, 4,
-                                             ENC_NA, &tmp);
-                proto_item_append_text(ti_tecmp_bus, ": (Channel ID: 0x%08x)", tmp);
+                ti = proto_tree_add_item_ret_uint(tecmp_tree_bus, hf_tecmp_payload_status_bus_channelid, tvb, offset, 4,
+                                                  ENC_NA, &tmp);
+                descr = ht_lookup_name(data_tecmp_channels, tmp);
+                if (descr != NULL) {
+                    proto_item_append_text(ti, " (%s)", descr);
+                    proto_item_append_text(ti_tecmp_bus, ": (Channel ID: 0x%08x, %s)", tmp, descr);
+                } else {
+                    proto_item_append_text(ti_tecmp_bus, ": (Channel ID: 0x%08x)", tmp);
+                }
+
                 proto_tree_add_item(tecmp_tree_bus, hf_tecmp_payload_status_bus_total, tvb, offset + 4, 4, ENC_NA);
                 proto_tree_add_item(tecmp_tree_bus, hf_tecmp_payload_status_bus_errors, tvb, offset + 8, 4, ENC_NA);
                 offset += 12;
@@ -1622,6 +1680,7 @@ void
 proto_register_tecmp(void) {
     module_t *tecmp_module = NULL;
     uat_t *tecmp_cmid_uat = NULL;
+    uat_t *tecmp_channelid_uat = NULL;
 
     static hf_register_info hf[] = {
         { &hf_tecmp_cm_id,
@@ -1674,6 +1733,12 @@ proto_register_tecmp(void) {
         UAT_END_FIELDS
     };
 
+    static uat_field_t tecmp_channel_id_uat_fields[] = {
+        UAT_FLD_HEX(tecmp_channels, id, "ID", "ID of the Channel (hex uint32 without leading 0x)"),
+        UAT_FLD_CSTRING(tecmp_channels, name, "Channel Name", "Name of the Channel (string)"),
+        UAT_END_FIELDS
+    };
+
     proto_tecmp = proto_register_protocol("Technically Enhanced Capture Module Protocol", "TECMP", "tecmp");
     proto_register_field_array(proto_tecmp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
@@ -1698,6 +1763,25 @@ proto_register_tecmp(void) {
 
     prefs_register_uat_preference(tecmp_module, "_udf_tecmp_cms", "Capture Modules",
         "A table to define names of Capture Modules, which override default names.", tecmp_cmid_uat);
+
+    tecmp_channelid_uat = uat_new("TECMP Channels",
+        sizeof(generic_one_id_string_t),        /* record size           */
+        DATAFILE_TECMP_CH_IDS,                  /* filename              */
+        TRUE,                                   /* from profile          */
+        (void**)&tecmp_channels,                /* data_ptr              */
+        &tecmp_channel_num,                     /* numitems_ptr          */
+        UAT_AFFECTS_DISSECTION,                 /* but not fields        */
+        NULL,                                   /* help                  */
+        copy_generic_one_id_string_cb,          /* copy callback         */
+        update_generic_one_identifier_32bit,    /* update callback       */
+        free_generic_one_id_string_cb,          /* free callback         */
+        post_update_tecmp_channels_cb,          /* post update callback  */
+        NULL,                                   /* reset callback        */
+        tecmp_channel_id_uat_fields             /* UAT field definitions */
+    );
+
+    prefs_register_uat_preference(tecmp_module, "_udf_tecmp_channels", "Channels",
+        "A table to define names of Channels.", tecmp_channelid_uat);
 
     prefs_register_bool_preference(tecmp_module, "try_heuristic_first",
         "Try heuristic sub-dissectors first",
