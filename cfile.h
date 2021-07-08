@@ -54,12 +54,12 @@ typedef enum {
  * Packet provider for programs using a capture file.
  */
 struct packet_provider_data {
-  wtap        *wth;                  /* Wiretap session */
+  wtap        *wth;                    /* Wiretap session */
   const frame_data *ref;
   frame_data  *prev_dis;
   frame_data  *prev_cap;
-  frame_data_sequence *frames;       /* Sequence of frames, if we're keeping that information */
-  GTree       *frames_edited_blocks;   /* BST with changed blocks for frames (key = frame_data) */
+  frame_data_sequence *frames;         /* Sequence of frames, if we're keeping that information */
+  GTree       *frames_modified_blocks; /* BST with modified blocks for frames (key = frame_data) */
 };
 
 typedef struct _capture_file {

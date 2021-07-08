@@ -407,9 +407,9 @@ cf_close(capture_file *cf)
     free_frame_data_sequence(cf->provider.frames);
     cf->provider.frames = NULL;
   }
-  if (cf->provider.frames_edited_blocks) {
-    g_tree_destroy(cf->provider.frames_edited_blocks);
-    cf->provider.frames_edited_blocks = NULL;
+  if (cf->provider.frames_modified_blocks) {
+    g_tree_destroy(cf->provider.frames_modified_blocks);
+    cf->provider.frames_modified_blocks = NULL;
   }
   cf_unselect_packet(cf);   /* nothing to select */
   cf->first_displayed = 0;
@@ -4773,9 +4773,9 @@ cf_save_records(capture_file *cf, const char *fname, guint save_format,
         fdata->has_modified_block = FALSE;
       }
 
-      if (cf->provider.frames_edited_blocks) {
-        g_tree_destroy(cf->provider.frames_edited_blocks);
-        cf->provider.frames_edited_blocks = NULL;
+      if (cf->provider.frames_modified_blocks) {
+        g_tree_destroy(cf->provider.frames_modified_blocks);
+        cf->provider.frames_modified_blocks = NULL;
       }
 
       cf->packet_comment_count = 0;
