@@ -220,8 +220,6 @@ static int hf_gtp_sai_sac = -1;
 static int hf_gtp_rai_rac = -1;
 static int hf_gtp_lac = -1;
 static int hf_gtp_tac = -1;
-static int hf_gtp_eci = -1;
-static int hf_gtp_ncgi_nrci = -1;
 static int hf_gtp_ranap_cause = -1;
 static int hf_gtp_recovery = -1;
 static int hf_gtp_reorder = -1;
@@ -6637,133 +6635,6 @@ decode_gtp_rat_type(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree 
    return 3 + length;
 }
 
-/* GPRS:        ?
- * UMTS:        29.060 v6.11.0, chapter 7.7.51
- * User Location Information
- * Type = 152 (Decimal)
- */
-
-static const
-gchar *dissect_radius_user_loc(proto_tree * tree, tvbuff_t * tvb, packet_info* pinfo)
-{
-
-    int     offset = 0;
-    guint8  geo_loc_type;
-    guint16 length = tvb_reported_length(tvb);
-    proto_item* ti;
-
-    /* Geographic Location Type */
-    geo_loc_type = tvb_get_guint8(tvb, offset);
-    ti = proto_tree_add_uint(tree, hf_gtp_uli_geo_loc_type, tvb, offset, 1, geo_loc_type);
-    offset++;
-
-    switch(geo_loc_type) {
-        case 0:
-            /* Geographic Location field included and it holds the Cell Global
-             * Identification (CGI) of where the user currently is registered.
-             * CGI is defined in sub-clause 4.3.1 of 3GPP TS 23.003 [2].
-             */
-            dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, E212_CGI, TRUE);
-            offset+=3;
-            proto_tree_add_item(tree, hf_gtp_lac, tvb, offset, 2, ENC_BIG_ENDIAN);
-            offset+=2;
-            /* The CI is of fixed length with 2 octets and it can be coded using a full
-             * hexadecimal representation
-             */
-            proto_tree_add_item(tree, hf_gtp_cgi_ci, tvb, offset, 2, ENC_BIG_ENDIAN);
-            break;
-        case 1:
-            /* Geographic Location field included and it holds the Service
-             * Area Identity (SAI) of where the user currently is registered.
-             * SAI is defined in sub-clause 9.2.3.9 of 3GPP TS 25.413 [7].
-             */
-            /* PLMN identity    M   9.2.3.55
-             * 9.2.3.55 PLMN identity    M   OCTET STRING (SIZE (3))
-             */
-            dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, E212_SAI, TRUE);
-            offset+=3;
-            /* LAC  M   OCTET STRING (SIZE(2))  0000 and FFFE not allowed.*/
-            proto_tree_add_item(tree, hf_gtp_lac, tvb, offset, 2, ENC_BIG_ENDIAN);
-            offset+=2;
-            /* SAC  M   OCTET STRING (SIZE(2)) */
-            proto_tree_add_item(tree, hf_gtp_sai_sac, tvb, offset, 2, ENC_BIG_ENDIAN);
-            break;
-        case 2:
-            /* Geographic Location field included and it holds the Routing
-             * Area Identification (RAI) of where the user currently is
-             * registered. RAI is defined in sub-clause 4.2 of 3GPP TS 23.003
-             * [2].
-             */
-            dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, E212_RAI, TRUE);
-            offset+=3;
-            proto_tree_add_item(tree, hf_gtp_lac, tvb, offset, 2, ENC_BIG_ENDIAN);
-            offset+=2;
-            /* Routing Area Code (RAC) which is a fixed length code (of 1 octet)
-             * identifying a routing area within a location area.
-             */
-            proto_tree_add_item(tree, hf_gtp_rai_rac, tvb, offset, 1, ENC_BIG_ENDIAN);
-            break;
-        case 128:
-            /* Geographic Location field included and it holds the Tracking
-             * Area Identity (TAI) of where the user currently is registered.
-             * TAI is defined in sub-clause 8.21.4 of 3GPP TS 29.274.
-             */
-            dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, E212_TAI, TRUE);
-            offset+=3;
-            proto_tree_add_item(tree, hf_gtp_tac, tvb, offset, 2, ENC_BIG_ENDIAN);
-            break;
-        case 129:
-            /* Geographic Location field included and it holds the E-UTRAN Cell
-             * Global Identifier (ECGI) of where the user currently is registered.
-             * ECGI is defined in sub-clause 8.21.5 of 3GPP TS 29.274.
-             */
-            dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, E212_ECGI, TRUE);
-            offset+=3;
-            proto_tree_add_item(tree, hf_gtp_eci, tvb, offset, 4, ENC_BIG_ENDIAN);
-            break;
-        case 130:
-            /* Geographic Location field included and it holds the Tracking
-             * Area Identity (TAI) and E-UTRAN CellGlobal Identifier (ECGI)
-             * of where the user currently is registered.
-             * TAI is defined in sub-clause 8.21.4 of 3GPP TS 29.274.
-             * ECGI is defined in sub-clause 8.21.5 of 3GPP TS 29.274.
-             */
-            dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, E212_TAI, TRUE);
-            offset+=3;
-            proto_tree_add_item(tree, hf_gtp_tac, tvb, offset, 2, ENC_BIG_ENDIAN);
-            offset += 2;
-            dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, E212_ECGI, TRUE);
-            offset+=3;
-            proto_tree_add_item(tree, hf_gtp_eci, tvb, offset, 4, ENC_BIG_ENDIAN);
-            break;
-        case 135:
-            /* NCGI */
-            {
-                proto_tree_add_item(tree, hf_gtp_ncgi_nrci, tvb, offset, 5, ENC_BIG_ENDIAN);
-            }
-            break;
-        case 136:
-            /* 5GS TAI */
-            {
-                dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, E212_TAI, TRUE);
-            }
-            break;
-        case 137:
-            /* 5GS TAI and NCGI */
-            {
-                dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, E212_TAI, TRUE);
-                offset += 3;
-                proto_tree_add_item(tree, hf_gtp_ncgi_nrci, tvb, offset, 5, ENC_BIG_ENDIAN);
-            }
-            break;
-        default:
-            expert_add_info(pinfo, ti, &ei_gtp_ext_geo_loc_type);
-            break;
-    }
-
-    return tvb_bytes_to_str(wmem_packet_scope(), tvb, 0, length);
-}
-
 /*
  * 7.7.51 User Location Information
  */
@@ -10776,16 +10647,6 @@ proto_register_gtp(void)
            FT_UINT16, BASE_DEC, NULL, 0,
            NULL, HFILL}
         },
-        { &hf_gtp_eci,
-          {"ECI", "gtp.eci",
-           FT_UINT32, BASE_DEC, NULL, 0x0FFFFFFF,
-           "E-UTRAN Cell Identifier", HFILL}
-        },
-        {&hf_gtp_ncgi_nrci,
-         {"NR Cell Identifier", "gtp.ncgi_nrci",
-          FT_UINT40, BASE_HEX, NULL, 0xfffffffff0,
-          NULL, HFILL}
-        },
         {&hf_gtp_ranap_cause,
          { "RANAP cause", "gtp.ranap_cause",
            FT_UINT8, BASE_DEC|BASE_EXT_STRING, &ranap_cause_type_ext, 0,
@@ -11870,7 +11731,6 @@ proto_reg_handoff_gtp(void)
 
         radius_register_avp_dissector(VENDOR_THE3GPP, 5, dissect_radius_qos_umts);
         radius_register_avp_dissector(VENDOR_THE3GPP, 12, dissect_radius_selection_mode);
-        radius_register_avp_dissector(VENDOR_THE3GPP, 22, dissect_radius_user_loc);
 
 
 

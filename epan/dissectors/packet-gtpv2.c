@@ -20,6 +20,7 @@
 #include <epan/to_str.h>
 #include <epan/asn1.h>
 #include <epan/expert.h>
+#include <epan/sminmpec.h>
 #include <epan/addr_resolv.h>
 
 #include "packet-gsm_a_common.h"
@@ -31,6 +32,7 @@
 #include "packet-bssgp.h"
 #include "packet-ntp.h"
 #include "packet-gtpv2.h"
+#include "packet-radius.h"
 #include "packet-diameter.h"
 #include "packet-diameter_3gpp.h"
 #include "packet-ip.h"
@@ -3123,15 +3125,18 @@ static const value_string geographic_location_type_vals[] = {
     {0, NULL}
 };
 
-int
-dissect_diameter_3gpp_uli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+static int
+dissect_3gpp_uli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gchar **avp_str)
 {
-    diam_sub_dis_t *diam_sub_dis = (diam_sub_dis_t*)data;
     int   offset = 0;
     guint length;
     guint flags;
     guint32 flags_3gpp;
+    gchar *str_buf = NULL;
     length       = tvb_reported_length(tvb);
+
+    if (!avp_str)
+        avp_str = &str_buf;
 
     proto_tree_add_item_ret_uint(tree, hf_gtpv2_glt, tvb, offset, 1, ENC_BIG_ENDIAN, &flags_3gpp);
     offset++;
@@ -3190,9 +3195,9 @@ dissect_diameter_3gpp_uli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
             mcc_mnc_str = dissect_e212_mcc_mnc_wmem_packet_str(tvb, pinfo, subtree, offset, E212_NRCGI, TRUE);
             offset += 3;
             proto_tree_add_item_ret_uint64(subtree, hf_gtpv2_ncgi_nrci, tvb, offset, 5, ENC_BIG_ENDIAN, &nr_cell_id);
-            diam_sub_dis->avp_str = wmem_strdup_printf(wmem_packet_scope(),
-                                                       "%s, NR Cell Id 0x%" G_GINT64_MODIFIER "x",
-                                                       mcc_mnc_str, nr_cell_id);
+            *avp_str = wmem_strdup_printf(wmem_packet_scope(),
+                                          "%s, NR Cell Id 0x%" G_GINT64_MODIFIER "x",
+                                          mcc_mnc_str, nr_cell_id);
         }
         return length;
     case 136:
@@ -3202,7 +3207,7 @@ dissect_diameter_3gpp_uli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 
             subtree = proto_tree_add_subtree(tree, tvb, offset, 5, ett_gtpv2_uli_field, NULL,
                                              "Tracking Area Identity (TAI)");
-            diam_sub_dis->avp_str = dissect_gtpv2_tai(tvb, pinfo, subtree, &offset);
+            *avp_str = dissect_gtpv2_tai(tvb, pinfo, subtree, &offset);
         }
         return length;
     case 137:
@@ -3214,15 +3219,15 @@ dissect_diameter_3gpp_uli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 
             subtree = proto_tree_add_subtree(tree, tvb, offset, 5, ett_gtpv2_uli_field, NULL,
                                              "Tracking Area Identity (TAI)");
-            diam_sub_dis->avp_str = dissect_gtpv2_tai(tvb, pinfo, subtree, &offset);
+            *avp_str = dissect_gtpv2_tai(tvb, pinfo, subtree, &offset);
             subtree = proto_tree_add_subtree(tree, tvb, offset, 8, ett_gtpv2_uli_field, NULL,
                                              "NR Cell Global Identifier (NCGI)");
             mcc_mnc_str = dissect_e212_mcc_mnc_wmem_packet_str(tvb, pinfo, subtree, offset, E212_NRCGI, TRUE);
             offset += 3;
             proto_tree_add_item_ret_uint64(subtree, hf_gtpv2_ncgi_nrci, tvb, offset, 5, ENC_BIG_ENDIAN, &nr_cell_id);
-            diam_sub_dis->avp_str = wmem_strdup_printf(wmem_packet_scope(),
-                                                       "%s, %s, NR Cell Id 0x%" G_GINT64_MODIFIER "x",
-                                                       diam_sub_dis->avp_str, mcc_mnc_str, nr_cell_id);
+            *avp_str = wmem_strdup_printf(wmem_packet_scope(),
+                                          "%s, %s, NR Cell Id 0x%" G_GINT64_MODIFIER "x",
+                                          *avp_str, mcc_mnc_str, nr_cell_id);
         }
         return length;
     default:
@@ -3230,8 +3235,26 @@ dissect_diameter_3gpp_uli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
         return length;
     }
 
-    diam_sub_dis->avp_str = decode_gtpv2_uli(tvb, pinfo, tree, NULL, length, 0, flags);
+    *avp_str = decode_gtpv2_uli(tvb, pinfo, tree, NULL, length, 0, flags);
     return length;
+}
+
+static const
+gchar *dissect_radius_user_loc(proto_tree * tree, tvbuff_t * tvb, packet_info* pinfo)
+{
+    guint16 length;
+
+    length = dissect_3gpp_uli(tvb, pinfo, tree, NULL);
+    return tvb_bytes_to_str(wmem_packet_scope(), tvb, 0, length);
+
+}
+
+int
+dissect_diameter_3gpp_uli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    diam_sub_dis_t *diam_sub_dis = (diam_sub_dis_t*)data;
+
+    return dissect_3gpp_uli(tvb, pinfo, tree, &diam_sub_dis->avp_str);
 }
 
 /*
@@ -12265,7 +12288,11 @@ void proto_register_gtpv2(void)
 void
 proto_reg_handoff_gtpv2(void)
 {
+    //static gboolean           Initialized = FALSE;
+
     nas_eps_handle = find_dissector_add_dependency("nas-eps", proto_gtpv2);
+
+    radius_register_avp_dissector(VENDOR_THE3GPP, 22, dissect_radius_user_loc);
 }
 
 /*
