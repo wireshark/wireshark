@@ -88,6 +88,7 @@ static int ett_rdp_DaylightDate = -1;
 static int ett_rdp_clientTimeZone = -1;
 static int ett_rdp_mt_req = -1;
 static int ett_rdp_mt_rsp = -1;
+static int ett_rdp_heartbeat = -1;
 
 static expert_field ei_rdp_neg_len_invalid = EI_INIT;
 static expert_field ei_rdp_not_correlation_info = EI_INIT;
@@ -214,6 +215,10 @@ static int hf_rdp_flagsAutodetectResp = -1;
 static int hf_rdp_flagsHeartbeat = -1;
 static int hf_rdp_flagsTransportReq = -1;
 static int hf_rdp_flagsTransportResp = -1;
+static int hf_rdp_heartbeat_reserved = -1;
+static int hf_rdp_heartbeat_period = -1;
+static int hf_rdp_heartbeat_count1 = -1;
+static int hf_rdp_heartbeat_count2 = -1;
 static int hf_rdp_mt_req_requestId = -1;
 static int hf_rdp_mt_req_protocol = -1;
 static int hf_rdp_mt_req_reserved = -1;
@@ -1628,13 +1633,23 @@ dissect_rdp_MessageChannelData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 				ett_rdp_mt_req, NULL, "Autodetect response");
 		dissect_rdp_nyi(tvb, offset, pinfo, next_tree,
 				"bandwidth packets not implemented yet");
+
 	} else if (flags & SEC_HEARTBEAT) {
+		rdp_field_info_t heartbeat_fields[] = {
+			{ &hf_rdp_heartbeat_reserved, 1, NULL, 0, 0, NULL },
+			{ &hf_rdp_heartbeat_period, 1, NULL, 0, 0, NULL },
+			{ &hf_rdp_heartbeat_count1, 1, NULL, 0, 0, NULL },
+			{ &hf_rdp_heartbeat_count2, 1, NULL, 0, 0, NULL },
+			FI_TERMINATOR
+		};
+
 		col_append_sep_str(pinfo->cinfo, COL_INFO, " ", "Heartbeat");
 
 		next_tree = proto_tree_add_subtree(tree, tvb, offset, -1,
-				ett_rdp_mt_req, NULL, "Heartbeat");
-		dissect_rdp_nyi(tvb, offset, pinfo, next_tree,
-				"bandwidth packets not implemented yet");
+				ett_rdp_heartbeat, NULL, "Heartbeat");
+
+		offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree,
+				heartbeat_fields, 0);
 	}
 
 	return tvb_captured_length(tvb);
@@ -3020,6 +3035,22 @@ proto_register_rdp(void) {
       { "length", "rdp.length",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
+	{ &hf_rdp_heartbeat_reserved,
+		{ "reserved", "rdp.heartbeat.reserved",
+		  FT_UINT8, BASE_HEX, NULL, 0,
+		  NULL, HFILL}},
+	{ &hf_rdp_heartbeat_period,
+		{ "Period", "rdp.heartbeat.period",
+		  FT_UINT8, BASE_DEC, NULL, 0,
+		  NULL, HFILL}},
+	{ &hf_rdp_heartbeat_count1,
+		{ "Count1", "rdp.heartbeat.count1",
+		  FT_UINT8, BASE_DEC, NULL, 0,
+		  NULL, HFILL}},
+	{ &hf_rdp_heartbeat_count2,
+		{ "Count1", "rdp.heartbeat.count2",
+		  FT_UINT8, BASE_DEC, NULL, 0,
+		  NULL, HFILL}},
 	{ &hf_rdp_mt_req_requestId,
 	  { "Request id", "rdp.mtreq.requestid",
 		FT_UINT32, BASE_HEX, NULL, 0,
@@ -3639,6 +3670,7 @@ proto_register_rdp(void) {
     &ett_rdp_compressedType,
 	&ett_rdp_mt_req,
 	&ett_rdp_mt_rsp,
+	&ett_rdp_heartbeat,
     &ett_rdp_flags,
     &ett_rdp_mapFlags,
     &ett_rdp_options,
