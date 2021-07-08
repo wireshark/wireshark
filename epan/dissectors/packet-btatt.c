@@ -13860,7 +13860,7 @@ proto_register_btatt(void)
         },
         {&hf_btatt_weight_scale_feature_weight_measurement_resolution,
             {"Mass Measurement Resolution", "btatt.weight_scale_feature.weight_measurement_resolution",
-            FT_UINT32, BASE_HEX, VALS(weight_scale_feature_weight_measurement_resolution_vals), 0x000000078,
+            FT_UINT32, BASE_HEX, VALS(weight_scale_feature_weight_measurement_resolution_vals), 0x00000078,
             NULL, HFILL}
         },
         {&hf_btatt_weight_scale_feature_bmi,

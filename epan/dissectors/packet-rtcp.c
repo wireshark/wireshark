@@ -7712,7 +7712,7 @@ proto_register_rtcp(void)
         },
         { &hf_rtcp_mcptt_ssrc,
             { "SSRC", "rtcp.app_data.mcptt.rtcp",
-            FT_UINT48, BASE_DEC, NULL, 0xffffffff00000,
+            FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_rtcp_mcptt_num_users,

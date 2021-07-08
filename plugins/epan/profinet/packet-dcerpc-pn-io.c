@@ -11854,7 +11854,7 @@ proto_register_pn_io (void)
     },
     { &hf_pn_RedundancyInfo,
       { "RedundancyInfo.EndPoint", "pn_io.srl_data.redundancyInfo",
-        FT_UINT16, BASE_HEX, VALS(pn_io_RedundancyInfo), 0x0000003,
+        FT_UINT16, BASE_HEX, VALS(pn_io_RedundancyInfo), 0x0003,
         NULL, HFILL }
     },
     { &hf_pn_RedundancyInfo_reserved,
@@ -12070,22 +12070,22 @@ proto_register_pn_io (void)
     },
     { &hf_pn_io_SFIOCRProperties_reserved_2,
       { "SFIOCRProperties.reserved_2", "pn_io.SFIOCRProperties.reserved_2",
-        FT_UINT32, BASE_HEX, NULL, 0x010000000,
+        FT_UINT32, BASE_HEX, NULL, 0x10000000,
         NULL, HFILL }
     },
     { &hf_pn_io_SFIOCRProperties_DFPType,
       { "SFIOCRProperties.DFPType", "pn_io.SFIOCRProperties.DFPType",
-        FT_UINT32, BASE_HEX,  VALS(pn_io_SFIOCRProperties_DFPType_vals), 0x020000000,
+        FT_UINT32, BASE_HEX,  VALS(pn_io_SFIOCRProperties_DFPType_vals), 0x20000000,
         NULL, HFILL }
     },
     { &hf_pn_io_SFIOCRProperties_DFPRedundantPathLayout,
       { "SFIOCRProperties.DFPRedundantPathLayout", "pn_io.SFIOCRProperties.DFPRedundantPathLayout",
-        FT_UINT32, BASE_HEX, VALS(pn_io_DFPRedundantPathLayout_decode), 0x040000000,
+        FT_UINT32, BASE_HEX, VALS(pn_io_DFPRedundantPathLayout_decode), 0x40000000,
         NULL, HFILL }
     },
     { &hf_pn_io_SFIOCRProperties_SFCRC16,
       { "SFIOCRProperties.SFCRC16", "pn_io.SFIOCRProperties.SFCRC16",
-        FT_UINT32, BASE_HEX, VALS(pn_io_SFCRC16_Decode), 0x080000000,
+        FT_UINT32, BASE_HEX, VALS(pn_io_SFCRC16_Decode), 0x80000000,
         NULL, HFILL }
     },
     { &hf_pn_io_data_length,

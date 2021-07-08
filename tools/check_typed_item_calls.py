@@ -218,10 +218,10 @@ class Item:
 
         # Optionally check that mask bits are contiguous
         if check_mask:
-            if not mask in { 'NULL', '0x0', '0'}:
+            if not mask in { 'NULL', '0x0', '0', '0x00'}:
                 self.check_contiguous_bits(mask)
                 self.check_mask_too_long(mask)
-                self.check_odd_num_digits(mask)
+                self.check_num_digits(mask)
 
 
     def set_mask_value(self):
@@ -297,18 +297,28 @@ class Item:
         if not self.mask_value:
             return
         if mask.startswith('0x00') or mask.endswith('00'):
-            # There may be good reasons for having a wider field/mask, e.g. if there are 32 flags, showing them
-            # all lined up as part of the same word may make it clearer.  But some annoying cases have been found
+            # There may be good reasons for having a wider field/mask, e.g. if there are 32 related flags, showing them
+            # all lined up as part of the same word may make it clearer.  But some cases have been found
             # where the grouping does not seem to be natural..
-            print('Warning: ', self.filename, 'filter=', self.filter, ' - mask seems to be wider than necessary', mask)
+            print('Warning: ', self.filename, 'filter=', self.filter, ' - mask seems to be wider than necessary?', mask)
             global issues_found
             issues_found += 1
 
-    def check_odd_num_digits(self, mask):
-        if mask.startswith('0x') and len(mask) % 2:
-            print('Warning: ', self.filename, 'filter=', self.filter, ' - mask has odd number of digits', mask)
+    def check_num_digits(self, mask):
+        if mask.startswith('0x'):
             global issues_found
-            issues_found += 1
+            if len(mask) % 2:
+                print('Warning: ', self.filename, 'filter=', self.filter, ' - mask has odd number of digits', mask, int(field_widths[self.item_type]/8))
+                issues_found += 1
+
+            if self.item_type in field_widths:
+                if len(mask)-2 > int(field_widths[self.item_type]/4):
+                    print('Warning: ', self.filename, 'filter=', self.filter, self.mask, "with len is", len(mask)-2, "but type", self.item_type, " indicates max of", int(field_widths[self.item_type]/4))
+                    issues_found += 1
+            else:
+                print('Warning: ', self.filename, 'filter=', self.filter, ' - mask has type', self.item_type, 'but mask set:', mask)
+                issues_found += 1
+
 
 
 

@@ -1743,7 +1743,7 @@ proto_register_pim(void)
             },
             { &hf_pim_propagation_delay,
               { "Propagation Delay", "pim.propagation_delay",
-                FT_UINT16, BASE_DEC, NULL, 0x07fff,
+                FT_UINT16, BASE_DEC, NULL, 0x7fff,
                 "Units are milli-seconds", HFILL }
             },
             { &hf_pim_override_interval,

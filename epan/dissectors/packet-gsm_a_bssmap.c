@@ -7715,7 +7715,7 @@ proto_register_gsm_a_bssmap(void)
     },
         { &hf_gsm_a_bssmap_interference_bands,
         { "Acceptable interference bands","gsm_a.bssmap.interference_bands",
-        FT_UINT8, BASE_HEX, NULL, 0x01f,
+        FT_UINT8, BASE_HEX, NULL, 0x1f,
         NULL, HFILL }
     },
     { &hf_gsm_a_bssmap_lsa_only,

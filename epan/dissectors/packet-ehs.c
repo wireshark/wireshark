@@ -1678,7 +1678,7 @@ proto_register_ehs(void)
 
       { &hf_ehs_sh_tdm_num_major_frame_status_words,
         { "Number of Major Frame Status Words", "ehs2.tdm_num_major_frame_status_words",
-          FT_UINT8, BASE_DEC, NULL, 0x0ff,
+          FT_UINT8, BASE_DEC, NULL, 0xff,
           NULL, HFILL }
       },
 

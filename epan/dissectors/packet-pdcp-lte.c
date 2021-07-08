@@ -2762,7 +2762,7 @@ void proto_register_pdcp(void)
         },
         { &hf_pdcp_lte_fms2,
             { "First Missing Sequence Number",
-              "pdcp-lte.fms", FT_UINT16, BASE_DEC, NULL, 0x07fff,
+              "pdcp-lte.fms", FT_UINT16, BASE_DEC, NULL, 0x7fff,
               "First Missing PDCP Sequence Number", HFILL
             }
         },
