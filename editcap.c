@@ -1972,14 +1972,14 @@ main(int argc, char *argv[])
                 if (snaplen != 0) {
                     /* Limit capture length to snaplen */
                     if (rec->rec_header.packet_header.caplen > snaplen) {
-                        /* Copy and change rather than modify returned wtap_rec */
+                        /* Copy and change rather than modify returned rec */
                         temp_rec = *rec;
                         temp_rec.rec_header.packet_header.caplen = snaplen;
                         rec = &temp_rec;
                     }
                     /* If -L, also set reported length to snaplen */
                     if (adjlen && rec->rec_header.packet_header.len > snaplen) {
-                        /* Copy and change rather than modify returned phdr */
+                        /* Copy and change rather than modify returned rec */
                         temp_rec = *rec;
                         temp_rec.rec_header.packet_header.len = snaplen;
                         rec = &temp_rec;
