@@ -164,7 +164,7 @@ static enum ws_log_level string_to_log_level(const char *str_level)
 WS_RETNONNULL
 static inline const char *domain_to_string(const char *domain)
 {
-    return (domain == NULL) ? "(none)" : domain;
+    return DOMAIN_UNDEFED(domain) ? "(none)" : domain;
 }
 
 
