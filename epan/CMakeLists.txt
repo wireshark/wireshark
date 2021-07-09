@@ -320,15 +320,16 @@ target_link_libraries(epan
 	PUBLIC
 		wiretap
 		wsutil
-		${GLIB2_LIBRARIES}
 	PRIVATE
 		${BROTLI_LIBRARIES}
 		${CARES_LIBRARIES}
 		${GCRYPT_LIBRARIES}
 		${GIO2_LIBRARIES}
-		${GTHREAD2_LIBRARIES}
+		${GLIB2_LIBRARIES}
 		${GNUTLS_LIBRARIES}
+		${GTHREAD2_LIBRARIES}
 		${KERBEROS_LIBRARIES}
+		${LIBXML2_LIBRARIES}
 		${LUA_LIBRARIES}
 		${LZ4_LIBRARIES}
 		${M_LIBRARIES}
@@ -336,7 +337,6 @@ target_link_libraries(epan
 		${SMI_LIBRARIES}
 		${SNAPPY_LIBRARIES}
 		${WIN_PSAPI_LIBRARY}
-		${LIBXML2_LIBRARIES}
 		${ZLIB_LIBRARIES}
 		${ZSTD_LIBRARIES}
 )
@@ -345,11 +345,6 @@ target_include_directories(epan
 	INTERFACE
 		$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}>
 		$<INSTALL_INTERFACE:include/wireshark>
-)
-
-target_include_directories(epan
-	SYSTEM PUBLIC
-		${GLIB2_INCLUDE_DIRS}
 )
 
 target_include_directories(epan
