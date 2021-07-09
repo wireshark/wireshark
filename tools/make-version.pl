@@ -686,7 +686,6 @@ sub get_config {
 		   "print-vcs", \$print_vcs,
 		   "set-version|v=s", \$set_version,
 		   "set-release|r", \$set_release,
-		   "version-file|f", \$version_file,
 		   "verbose", \$verbose
 		   ) || pod2usage(2);
 
