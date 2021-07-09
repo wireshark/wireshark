@@ -12,6 +12,7 @@
 #include <string.h>
 #include <glib.h>
 
+#include "wmem-int.h"
 #include "wmem_core.h"
 #include "wmem_stack.h"
 #include "wmem_list.h"
@@ -25,7 +26,7 @@ wmem_stack_peek(const wmem_stack_t *stack)
 
     frame = wmem_list_head(stack);
 
-    g_assert(frame);
+    ASSERT(frame);
 
     return wmem_list_frame_data(frame);
 }
