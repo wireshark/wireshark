@@ -660,7 +660,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  follow_iterate_followers@Base 2.1.0
  follow_reset_stream@Base 2.1.0
  follow_tvb_tap_listener@Base 2.1.0
- format_size_wmem@Base 3.3.0
  format_text@Base 1.9.1
  format_text_chr@Base 1.12.0~rc1
  format_text_string@Base 3.3.0

@@ -125,24 +125,25 @@ static const char *thousands_grouping_fmt = NULL;
 
 DIAG_OFF(format)
 static void test_printf_thousands_grouping(void) {
-	/* test whether g_printf works with "'" flag character */
-	gchar *str = g_strdup_printf("%'d", 22);
-	if (g_strcmp0(str, "22") == 0) {
+	/* test whether wmem_strbuf works with "'" flag character */
+	wmem_strbuf_t *buf = wmem_strbuf_new(NULL, NULL);
+	wmem_strbuf_append_printf(buf, "%'d", 22);
+	if (g_strcmp0(wmem_strbuf_get_str(buf), "22") == 0) {
 		thousands_grouping_fmt = "%'"G_GINT64_MODIFIER"d";
 	} else {
 		/* Don't use */
 		thousands_grouping_fmt = "%"G_GINT64_MODIFIER"d";
 	}
-	g_free(str);
+	wmem_strbuf_destroy(buf);
 }
 DIAG_ON(format)
 
 /* Given a size, return its value in a human-readable format */
 /* This doesn't handle fractional values. We might want to make size a double. */
 gchar *
-format_size(gint64 size, format_size_flags_e flags)
+format_size_wmem(wmem_allocator_t *allocator, gint64 size, format_size_flags_e flags)
 {
-	GString *human_str = g_string_new("");
+	wmem_strbuf_t *human_str = wmem_strbuf_new(allocator, NULL);
 	int power = 1000;
 	int pfx_off = 0;
 	gboolean is_small = FALSE;
@@ -158,19 +159,19 @@ format_size(gint64 size, format_size_flags_e flags)
 	}
 
 	if (size / power / power / power / power >= 10) {
-		g_string_printf(human_str, thousands_grouping_fmt, size / power / power / power / power);
-		g_string_append(human_str, prefix[pfx_off]);
+		wmem_strbuf_append_printf(human_str, thousands_grouping_fmt, size / power / power / power / power);
+		wmem_strbuf_append(human_str, prefix[pfx_off]);
 	} else if (size / power / power / power >= 10) {
-		g_string_printf(human_str, thousands_grouping_fmt, size / power / power / power);
-		g_string_append(human_str, prefix[pfx_off+1]);
+		wmem_strbuf_append_printf(human_str, thousands_grouping_fmt, size / power / power / power);
+		wmem_strbuf_append(human_str, prefix[pfx_off+1]);
 	} else if (size / power / power >= 10) {
-		g_string_printf(human_str, thousands_grouping_fmt, size / power / power);
-		g_string_append(human_str, prefix[pfx_off+2]);
+		wmem_strbuf_append_printf(human_str, thousands_grouping_fmt, size / power / power);
+		wmem_strbuf_append(human_str, prefix[pfx_off+2]);
 	} else if (size / power >= 10) {
-		g_string_printf(human_str, thousands_grouping_fmt, size / power);
-		g_string_append(human_str, prefix[pfx_off+3]);
+		wmem_strbuf_append_printf(human_str, thousands_grouping_fmt, size / power);
+		wmem_strbuf_append(human_str, prefix[pfx_off+3]);
 	} else {
-		g_string_printf(human_str, thousands_grouping_fmt, size);
+		wmem_strbuf_append_printf(human_str, thousands_grouping_fmt, size);
 		is_small = TRUE;
 	}
 
@@ -178,28 +179,28 @@ format_size(gint64 size, format_size_flags_e flags)
 		case format_size_unit_none:
 			break;
 		case format_size_unit_bytes:
-			g_string_append(human_str, is_small ? " bytes" : "B");
+			wmem_strbuf_append(human_str, is_small ? " bytes" : "B");
 			break;
 		case format_size_unit_bits:
-			g_string_append(human_str, is_small ? " bits" : "b");
+			wmem_strbuf_append(human_str, is_small ? " bits" : "b");
 			break;
 		case format_size_unit_bits_s:
-			g_string_append(human_str, is_small ? " bits/s" : "bps");
+			wmem_strbuf_append(human_str, is_small ? " bits/s" : "bps");
 			break;
 		case format_size_unit_bytes_s:
-			g_string_append(human_str, is_small ? " bytes/s" : "Bps");
+			wmem_strbuf_append(human_str, is_small ? " bytes/s" : "Bps");
 			break;
 		case format_size_unit_packets:
-			g_string_append(human_str, is_small ? " packets" : "packets");
+			wmem_strbuf_append(human_str, is_small ? " packets" : "packets");
 			break;
 		case format_size_unit_packets_s:
-			g_string_append(human_str, is_small ? " packets/s" : "packets/s");
+			wmem_strbuf_append(human_str, is_small ? " packets/s" : "packets/s");
 			break;
 		default:
 			ws_assert_not_reached();
 	}
 
-	ret_val = g_string_free(human_str, FALSE);
+	ret_val = wmem_strbuf_finalize(human_str);
 	return g_strchomp(ret_val);
 }
 

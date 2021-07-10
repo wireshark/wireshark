@@ -14,6 +14,8 @@
 #include <glib.h>
 #include "ws_symbol_export.h"
 
+#include <wsutil/wmem/wmem.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
@@ -105,7 +107,9 @@ typedef enum {
  * @return A newly-allocated string representing the value.
  */
 WS_DLL_PUBLIC
-gchar *format_size(gint64 size, format_size_flags_e flags);
+gchar *format_size_wmem(wmem_allocator_t *allocator, gint64 size, format_size_flags_e flags);
+
+#define format_size(size, flags)    format_size_wmem(NULL, size, flags)
 
 WS_DLL_PUBLIC
 gchar printable_char_or_period(gchar c);

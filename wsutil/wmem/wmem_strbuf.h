@@ -97,6 +97,10 @@ WS_DLL_PUBLIC
 char *
 wmem_strbuf_finalize(wmem_strbuf_t *strbuf);
 
+WS_DLL_PUBLIC
+void
+wmem_strbuf_destroy(wmem_strbuf_t *strbuf);
+
 /**   @}
  *  @} */
 

@@ -294,6 +294,15 @@ wmem_strbuf_finalize(wmem_strbuf_t *strbuf)
     return ret;
 }
 
+void
+wmem_strbuf_destroy(wmem_strbuf_t *strbuf)
+{
+    wmem_allocator_t *allocator = strbuf->allocator;
+
+    wmem_free(allocator, strbuf->str);
+    wmem_free(allocator, strbuf);
+}
+
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *

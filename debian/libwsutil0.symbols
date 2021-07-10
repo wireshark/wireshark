@@ -69,7 +69,7 @@ libwsutil.so.0 libwsutil0 #MINVER#
  filetime_to_nstime@Base 2.0.0
  find_codec@Base 3.1.0
  find_last_pathname_separator@Base 1.12.0~rc1
- format_size@Base 1.10.0
+ format_size_wmem@Base 3.5.0
  free_progdirs@Base 2.3.0
  g_memdup2@Base 3.5.0
  get_basename@Base 1.12.0~rc1
@@ -273,6 +273,7 @@ libwsutil.so.0 libwsutil0 #MINVER#
  wmem_strbuf_append_printf@Base 3.5.0
  wmem_strbuf_append_unichar@Base 3.5.0
  wmem_strbuf_append_vprintf@Base 3.5.0
+ wmem_strbuf_destroy@Base 3.5.0
  wmem_strbuf_finalize@Base 3.5.0
  wmem_strbuf_get_len@Base 3.5.0
  wmem_strbuf_get_str@Base 3.5.0
