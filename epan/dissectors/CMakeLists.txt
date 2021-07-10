@@ -1945,6 +1945,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-wlccp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-wol.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-wow.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-woww.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-wps.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-wreth.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-wsmp.c
