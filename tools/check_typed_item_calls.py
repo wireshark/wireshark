@@ -134,7 +134,7 @@ class ProtoTreeAddItemCheck(APICheck):
             if call.hf_name in items:
                 if call.length and items[call.hf_name].item_type in self.lengths:
                     if self.lengths[items[call.hf_name].item_type] < call.length:
-                        print('Warning:'. self.file + ':' + str(call.line_number),
+                        print('Warning:', self.file + ':' + str(call.line_number),
                               'proto_tree_add_item called for', call.hf_name, ' - ',
                               'item type is', items[call.hf_name].item_type, 'but call has len', call.length)
 
