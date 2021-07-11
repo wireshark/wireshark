@@ -1071,6 +1071,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  prefs_register_module_alias@Base 2.9.0
  prefs_register_obsolete_preference@Base 1.9.1
  prefs_register_protocol@Base 1.9.1
+ prefs_register_protocol_obsolete@Base 3.5.0
  prefs_register_protocol_subtree@Base 1.9.1
  prefs_register_range_preference@Base 1.9.1
  prefs_register_stat@Base 1.9.1

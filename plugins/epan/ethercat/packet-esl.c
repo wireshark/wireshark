@@ -336,7 +336,7 @@ proto_register_esl(void) {
     proto_esl = proto_register_protocol("EtherCAT Switch Link",
                                         "ESL","esl");
 
-    esl_module = prefs_register_protocol(proto_esl, proto_reg_handoff_esl);
+    esl_module = prefs_register_protocol_obsolete(proto_esl);
 
     prefs_register_obsolete_preference(esl_module, "enable");
 

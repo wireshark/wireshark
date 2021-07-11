@@ -2468,7 +2468,7 @@ proto_register_ipsec(void)
   expert_esp = expert_register_protocol(proto_esp);
   expert_register_field_array(expert_esp, ei, array_length(ei));
 
-  ah_module = prefs_register_protocol(proto_ah, NULL);
+  ah_module = prefs_register_protocol_obsolete(proto_ah);
 
   prefs_register_obsolete_preference(ah_module, "place_ah_payload_in_subtree");
 

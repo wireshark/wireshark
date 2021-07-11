@@ -271,7 +271,7 @@ proto_register_rtacser(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     /* Register required preferences for RTAC Serial Payload Protocol */
-    rtacser_module = prefs_register_protocol(proto_rtacser, proto_reg_handoff_rtacser);
+    rtacser_module = prefs_register_protocol_obsolete(proto_rtacser);
 
     /* RTAC Serial Preference - Payload Protocol in use */
     prefs_register_obsolete_preference(rtacser_module, "rtacserial_payload_proto");

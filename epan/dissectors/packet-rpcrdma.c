@@ -1837,7 +1837,7 @@ proto_register_rpcordma(void)
     reassembly_table_register(&rpcordma_reassembly_table, &addresses_ports_reassembly_table_functions);
 
     /* Register preferences */
-    rpcordma_module = prefs_register_protocol(proto_rpcordma, proto_reg_handoff_rpcordma);
+    rpcordma_module = prefs_register_protocol_obsolete(proto_rpcordma);
 
     prefs_register_obsolete_preference(rpcordma_module, "manual_en");
     prefs_register_obsolete_preference(rpcordma_module, "addr_a");

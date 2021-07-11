@@ -331,7 +331,7 @@ proto_register_fcoe(void)
     expert_fcoe = expert_register_protocol(proto_fcoe);
     expert_register_field_array(expert_fcoe, ei, array_length(ei));
 
-    fcoe_module = prefs_register_protocol(proto_fcoe, NULL);
+    fcoe_module = prefs_register_protocol_obsolete(proto_fcoe);
 
     prefs_register_obsolete_preference(fcoe_module, "ethertype");
 }

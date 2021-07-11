@@ -238,7 +238,7 @@ void proto_register_prp(void)
      */
     proto_disable_by_default(proto_prp);
 
-    prp_module = prefs_register_protocol(proto_prp, NULL);
+    prp_module = prefs_register_protocol_obsolete(proto_prp);
 
     prefs_register_obsolete_preference(prp_module, "enable");
 

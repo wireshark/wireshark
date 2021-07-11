@@ -376,7 +376,7 @@ proto_register_hdcp2(void)
             "High bandwidth Digital Content Protection version 2",
             "HDCP2", "hdcp2");
 
-    hdcp2_module = prefs_register_protocol(proto_hdcp2, proto_reg_handoff_hdcp2);
+    hdcp2_module = prefs_register_protocol_obsolete(proto_hdcp2);
     prefs_register_obsolete_preference(hdcp2_module, "enable");
 
     proto_register_field_array(proto_hdcp2, hf, array_length(hf));

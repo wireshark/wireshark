@@ -1692,7 +1692,7 @@ dcerpc_init_uuid(int proto, int ett, e_guid_t *uuid, guint16 ver,
     /* Register the samr.nt_password preference as obsolete */
     /* This should be in packet-dcerpc-samr.c */
     if (strcmp(filter_name, "samr") == 0) {
-        samr_module = prefs_register_protocol(proto, NULL);
+        samr_module = prefs_register_protocol_obsolete(proto);
         prefs_register_obsolete_preference(samr_module, "nt_password");
     }
 }

@@ -318,7 +318,7 @@ WS_DLL_PUBLIC module_t *prefs_register_protocol_subtree(const char *subtree, int
  * Register that a protocol used to have preferences but no longer does,
  * by creating an "obsolete" module for it.
  */
-module_t *prefs_register_protocol_obsolete(int id);
+WS_DLL_PUBLIC module_t *prefs_register_protocol_obsolete(int id);
 
 /*
  * Callback function for module list scanners.
