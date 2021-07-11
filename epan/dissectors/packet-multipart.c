@@ -144,7 +144,9 @@ static dissector_handle_t gssapi_handle;
  */
 static gboolean display_unknown_body_as_text = FALSE;
 static gboolean remove_base64_encoding = FALSE;
-
+#ifdef HAVE_ZLIB
+static gboolean uncompress_data = TRUE;
+#endif
 
 typedef struct {
     const char *type; /* Type of multipart */
@@ -544,6 +546,7 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb,
     gint body_start, boundary_start, boundary_line_len;
 
     gchar *content_type_str = NULL;
+    gchar *content_trans_encoding_str = NULL;
     gchar *content_encoding_str = NULL;
     char *filename = NULL;
     char *mimetypename = NULL;
@@ -683,6 +686,18 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb,
                             }
                         }
                         break;
+                    case POS_CONTENT_ENCODING:
+                        {
+                            /* The Content-Encoding starts at colon_offset + 1 */
+                            char *crp = strchr(value_str, '\r');
+
+                            if (crp != NULL) {
+                                *crp = '\0';
+                            }
+
+                            content_encoding_str = wmem_ascii_strdown(wmem_packet_scope(), value_str, -1);
+                        }
+                        break;
                     case POS_CONTENT_TRANSFER_ENCODING:
                         {
                             /* The Content-Transferring starts at colon_offset + 1 */
@@ -692,7 +707,7 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb,
                                 *crp = '\0';
                             }
 
-                            content_encoding_str = wmem_ascii_strdown(wmem_packet_scope(), value_str, -1);
+                            content_trans_encoding_str = wmem_ascii_strdown(wmem_packet_scope(), value_str, -1);
                         }
                         break;
                     case POS_CONTENT_DISPOSITION:
@@ -765,12 +780,29 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb,
              *
              */
 
-            if(content_encoding_str && remove_base64_encoding) {
+            if(content_trans_encoding_str && remove_base64_encoding) {
 
-                if(!g_ascii_strncasecmp(content_encoding_str, "base64", 6))
+                if(!g_ascii_strncasecmp(content_trans_encoding_str, "base64", 6))
                     tmp_tvb = base64_decode(pinfo, tmp_tvb, filename ? filename : (mimetypename ? mimetypename : content_type_str));
 
             }
+
+#ifdef HAVE_ZLIB
+            if(content_encoding_str && uncompress_data) {
+
+                if(g_ascii_strncasecmp(content_encoding_str,"gzip",4) == 0 ||
+                   g_ascii_strncasecmp(content_encoding_str,"deflate",7) == 0 ||
+                   g_ascii_strncasecmp(content_encoding_str,"x-gzip",6) == 0 ||
+                   g_ascii_strncasecmp(content_encoding_str,"x-deflate",9) == 0){
+                   /* The body is gzip:ed */
+                    tvbuff_t *uncompress_tvb = tvb_uncompress(tmp_tvb, 0, body_len);
+                    if (uncompress_tvb) {
+                        tmp_tvb = uncompress_tvb;
+                        add_new_data_source(pinfo, tmp_tvb, "gunziped data");
+                    }
+                }
+            }
+#endif
 
             /*
              * First try the dedicated multipart dissector table
@@ -1054,6 +1086,15 @@ proto_register_multipart(void)
                                    "Remove any base64 content-transfer encoding from bodies. "
                                    "This supports export of the body and its further dissection.",
                                    &remove_base64_encoding);
+
+#ifdef HAVE_ZLIB
+    prefs_register_bool_preference(multipart_module,
+                                   "uncompress_data",
+                                   "Uncompress parts which are compressed",
+                                   "Uncompress parts which are compressed. GZIP for example. "
+                                   "This supports export of the body and its further dissection.",
+                                   &uncompress_data);
+#endif
 
     /*
      * Dissectors requiring different behavior in cases where the media
