@@ -3220,12 +3220,32 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>Please make sure you have a %1 packet selected.</source>
         <translation>Пожалуйста, удостоверьтесь, что Вы выбрали пакет %1.</translation>
     </message>
+    <message>
+        <source>QUIC streams not found on the selected packet.</source>
+        <translation type="unfinished"></translation>
+    </message>
     <message numerus="yes">
         <source>%Ln total sub stream(s).</source>
         <translation>
             <numerusform>%Ln подпоток(ов).</numerusform>
             <numerusform>%Ln подпоток(ов).</numerusform>
             <numerusform>%Ln подпоток(ов).</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>Total number of QUIC connections: %Ln</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>Max QUIC Stream ID for the selected connection: %Ln</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>
@@ -6362,6 +6382,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>&amp;Редактирование</translation>
     </message>
     <message>
+        <source>Packet Comments</source>
+        <translation type="unfinished">Комментарии к Пакету</translation>
+    </message>
+    <message>
         <source>Main Toolbar</source>
         <translation>Главная Панель Инструментов</translation>
     </message>
@@ -6870,7 +6894,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Add or change a packet comment</source>
-        <translation>Добавить или изменить комментарий к пакету</translation>
+        <translation type="vanished">Добавить или изменить комментарий к пакету</translation>
     </message>
     <message>
         <source>Delete All Packet Comments</source>
@@ -7446,7 +7470,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Packet Comment…</source>
-        <translation>Комментарии к Пакету…</translation>
+        <translation type="vanished">Комментарии к Пакету…</translation>
     </message>
     <message>
         <source>&amp;Preferences…</source>
@@ -8224,6 +8248,20 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Invalid capture filter.</source>
         <translation>Неправильный фильтр захвата.</translation>
+    </message>
+    <message>
+        <source>Add New Comment…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit &quot;%1&quot;</source>
+        <comment>edit packet comment</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete &quot;%1&quot;</source>
+        <comment>delete packet comment</comment>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source> before starting a new capture</source>
