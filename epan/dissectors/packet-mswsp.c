@@ -6452,7 +6452,7 @@ proto_register_mswsp(void)
 			&hf_mswsp_bool_options_cursor,
 			{
 				"Cursor", "mswsp.CPMCreateQuery.RowSetProperties.uBooleanOptions.cursor", FT_UINT32,
-				BASE_HEX, VALS(cursor_vals), 0x0000000007, "Cursor Type", HFILL
+				BASE_HEX, VALS(cursor_vals), 0x00000007, "Cursor Type", HFILL
 			}
 		},
 		{

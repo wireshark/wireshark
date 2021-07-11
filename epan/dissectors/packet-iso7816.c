@@ -840,19 +840,19 @@ proto_register_iso7816(void)
         },
         { &hf_iso7816_atr_next_ta_present,
             { "TA(i+1) present", "iso7816.atr.next_ta_present",
-                FT_BOOLEAN, BASE_HEX, NULL, 0x10, NULL, HFILL }
+                FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL }
         },
         { &hf_iso7816_atr_next_tb_present,
             { "TB(i+1) present", "iso7816.atr.next_tb_present",
-                FT_BOOLEAN, BASE_HEX, NULL, 0x20, NULL, HFILL }
+                FT_BOOLEAN, 8, NULL, 0x20, NULL, HFILL }
         },
         { &hf_iso7816_atr_next_tc_present,
             { "TC(i+1) present", "iso7816.atr.next_tc_present",
-                FT_BOOLEAN, BASE_HEX, NULL, 0x40, NULL, HFILL }
+                FT_BOOLEAN, 8, NULL, 0x40, NULL, HFILL }
         },
         { &hf_iso7816_atr_next_td_present,
             { "TD(i+1) present", "iso7816.atr.next_td_present",
-                FT_BOOLEAN, BASE_HEX, NULL, 0x80, NULL, HFILL }
+                FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL }
         },
         { &hf_iso7816_atr_k,
             { "Number K of historical bytes", "iso7816.atr.k",

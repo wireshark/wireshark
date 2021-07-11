@@ -134,7 +134,7 @@ class ProtoTreeAddItemCheck(APICheck):
             if call.hf_name in items:
                 if call.length and items[call.hf_name].item_type in self.lengths:
                     if self.lengths[items[call.hf_name].item_type] < call.length:
-                        print(self.file + ':' + str(call.line_number),
+                        print('Warning:'. self.file + ':' + str(call.line_number),
                               'proto_tree_add_item called for', call.hf_name, ' - ',
                               'item type is', items[call.hf_name].item_type, 'but call has len', call.length)
 
@@ -156,7 +156,10 @@ known_non_contiguous_fields = { 'wlan.fixed.capabilities.cfpoll.sta',
                                 'zbee_zcl_se.pp.attr.payment_control_configuration.reserved', # matches other fields in same sequence
                                 'zbee_zcl_se.pp.snapshot_payload_cause.reserved',  # matches other fields in same sequence
                                 'ebhscr.eth.rsv',  # matches other fields in same sequence
-                                'v120.lli'  # non-contiguous field (http://www.acacia-net.com/wwwcla/protocol/v120_l2.htm)
+                                'v120.lli',  # non-contiguous field (http://www.acacia-net.com/wwwcla/protocol/v120_l2.htm)
+                                'stun.type.class',
+                                'bssgp.csg_id'
+
                               }
 ##################################################################################################
 
@@ -187,7 +190,7 @@ class Item:
 
     previousItem = None
 
-    def __init__(self, filename, filter, label, item_type, mask=None, check_mask=False, check_label=False, check_consecutive=False):
+    def __init__(self, filename, filter, label, item_type, type_modifier, mask=None, check_mask=False, check_label=False, check_consecutive=False):
         self.filename = filename
         self.filter = filter
         self.label = label
@@ -215,6 +218,7 @@ class Item:
                 print('Warning:  ' + filename + 'filter=' + filter +  ' \"' + label + '\" begins or ends with a space')
 
         self.item_type = item_type
+        self.type_modifier = type_modifier
 
         # Optionally check that mask bits are contiguous
         if check_mask:
@@ -271,7 +275,7 @@ class Item:
             print('unexpected item_type is ', self.item_type)
             field_width = 64
         else:
-            field_width = field_widths[self.item_type]
+            field_width = self.get_field_width_in_bits()
 
 
         # Its a problem is the mask_width is > field_width - some of the bits won't get looked at!?
@@ -284,7 +288,7 @@ class Item:
             issues_found += 1
 
         # Now, any more zero set bits are an error!
-        if self.filter in known_non_contiguous_fields:
+        if self.filter in known_non_contiguous_fields or self.filter.startswith('rtpmidi'):
             # Don't report if we know this one is Ok.
             return
         while n <= 63:
@@ -293,6 +297,17 @@ class Item:
                 return
             n += 1
 
+    def get_field_width_in_bits(self):
+        if self.item_type == 'FT_BOOLEAN':
+            if self.type_modifier == 'NULL':
+                return 8  # i.e. 1 byte
+            elif self.type_modifier == 'BASE_NONE':
+                return 8
+            else:
+                return int(self.type_modifier)
+        else:
+            return field_widths[self.item_type]
+
     def check_mask_too_long(self, mask):
         if not self.mask_value:
             return
@@ -300,23 +315,25 @@ class Item:
             # There may be good reasons for having a wider field/mask, e.g. if there are 32 related flags, showing them
             # all lined up as part of the same word may make it clearer.  But some cases have been found
             # where the grouping does not seem to be natural..
-            print('Warning: ', self.filename, 'filter=', self.filter, ' - mask seems to be wider than necessary?', mask)
+            print('Warning: ', self.filename, 'filter=', self.filter, ' - mask with leading or trailing 0 bytes suggests field', self.item_type, 'may be wider than necessary?', mask)
             global issues_found
             issues_found += 1
 
     def check_num_digits(self, mask):
-        if mask.startswith('0x'):
+        if mask.startswith('0x') and len(mask) > 3:
             global issues_found
             if len(mask) % 2:
-                print('Warning: ', self.filename, 'filter=', self.filter, ' - mask has odd number of digits', mask, int(field_widths[self.item_type]/8))
+                print('Warning: ', self.filename, 'filter=', self.filter, ' - mask has odd number of digits', mask,
+                      'expected max for', self.item_type, 'is', int(self.get_field_width_in_bits()/4))
                 issues_found += 1
 
             if self.item_type in field_widths:
-                if len(mask)-2 > int(field_widths[self.item_type]/4):
-                    print('Warning: ', self.filename, 'filter=', self.filter, self.mask, "with len is", len(mask)-2, "but type", self.item_type, " indicates max of", int(field_widths[self.item_type]/4))
+                if len(mask)-2 > self.get_field_width_in_bits()/4:
+                    print('Warning: ', self.filename, 'filter=', self.filter, self.mask, "with len is", len(mask)-2,
+                          "but type", self.item_type, " indicates max of", int(self.get_field_width_in_bits()/4))
                     issues_found += 1
             else:
-                print('Warning: ', self.filename, 'filter=', self.filter, ' - mask has type', self.item_type, 'but mask set:', mask)
+                print('Warning: ', self.filename, 'filter=', self.filter, ' - item has type', self.item_type, 'but mask set:', mask)
                 issues_found += 1
 
 
@@ -416,11 +433,12 @@ def find_items(filename, check_mask=False, check_label=False, check_consecutive=
         contents = f.read()
         # Remove comments so as not to trip up RE.
         contents = removeComments(contents)
-        matches = re.finditer(r'.*\{\s*\&(hf_.*),\s*{\s*\"(.+)\",\s*\"([a-zA-Z0-9_\-\.]+)\",\s*([A-Z0-9_]*),\s*.*,\s*([A-Za-z0-9x_\(\)]*),\s*([a-z0-9x_]*),', contents)
+        matches = re.finditer(r'.*\{\s*\&(hf_.*),\s*{\s*\"(.+)\",\s*\"([a-zA-Z0-9_\-\.]+)\",\s*([A-Z0-9_]*),\s*(.*),\s*([A-Za-z0-9x_\(\)]*),\s*([a-z0-9x_]*),', contents)
         for m in matches:
             # Store this item.
             hf = m.group(1)
-            items[hf] = Item(filename, filter=m.group(3), label=m.group(2), item_type=m.group(4), mask=m.group(6),
+            items[hf] = Item(filename, filter=m.group(3), label=m.group(2), item_type=m.group(4), mask=m.group(7),
+                             type_modifier=m.group(5),
                              check_mask=check_mask,
                              check_label=check_label,
                              check_consecutive=(not is_generated and check_consecutive))

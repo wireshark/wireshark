@@ -146,7 +146,7 @@ proto_register_pw_oam(void)
 
     {&hf_pw_oam_flags,
       {"Flags", "pw_oam.flags", FT_UINT8,
-        BASE_HEX, NULL, 0x0000, "OAM Flags", HFILL }},
+        BASE_HEX, NULL, 0x0, "OAM Flags", HFILL }},
 
     {&hf_pw_oam_flags_a,
       {"Acknowledgement", "pw_oam.flags_a",

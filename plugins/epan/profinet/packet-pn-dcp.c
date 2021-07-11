@@ -285,8 +285,8 @@ static const value_string pn_dcp_suboption_device[] = {
     { 0, NULL }
 };
 
-static const true_false_string pn_dcp_rsi_properties_value_bit[] =
-    { { "Available", "Not available" } };
+static const true_false_string pn_dcp_rsi_properties_value_bit =
+    { "Available", "Not available" };
 
 #define PNDCP_SUBOPTION_DHCP_CLIENT_ID  61
 #define PNDCP_SUBOPTION_DHCP_CONTROL_FOR_ADDRESS_RES  255
@@ -1622,32 +1622,32 @@ proto_register_pn_dcp (void)
 
         { &hf_pn_dcp_rsi_properties_value_bit0,
           { "IP Stack", "pn_dcp.suboption_device_rsi_properties_value.bit0",
-            FT_BOOLEAN, 16, TFS(pn_dcp_rsi_properties_value_bit), 0x0001,
+            FT_BOOLEAN, 16, TFS(&pn_dcp_rsi_properties_value_bit), 0x0001,
             NULL, HFILL } },
 
         { &hf_pn_dcp_rsi_properties_value_bit1,
           { "CLRPC Interface", "pn_dcp.suboption_device_rsi_properties_value.bit1",
-            FT_BOOLEAN, 16, TFS(pn_dcp_rsi_properties_value_bit), 0x0002,
+            FT_BOOLEAN, 16, TFS(&pn_dcp_rsi_properties_value_bit), 0x0002,
             NULL, HFILL } },
 
         { &hf_pn_dcp_rsi_properties_value_bit2,
           { "RSI AR Interface", "pn_dcp.suboption_device_rsi_properties_value.bit2",
-            FT_BOOLEAN, 16, TFS(pn_dcp_rsi_properties_value_bit), 0x0004,
+            FT_BOOLEAN, 16, TFS(&pn_dcp_rsi_properties_value_bit), 0x0004,
             NULL, HFILL } },
 
         { &hf_pn_dcp_rsi_properties_value_bit3,
           { "RSI AR Read Implicit Interface", "pn_dcp.suboption_device_rsi_properties_value.bit3",
-            FT_BOOLEAN, 16, TFS(pn_dcp_rsi_properties_value_bit), 0x0008,
+            FT_BOOLEAN, 16, TFS(&pn_dcp_rsi_properties_value_bit), 0x0008,
             NULL, HFILL } },
 
         { &hf_pn_dcp_rsi_properties_value_bit4,
           { "RSI CIM Interface", "pn_dcp.suboption_device_rsi_properties_value.bit4",
-            FT_BOOLEAN, 16, TFS(pn_dcp_rsi_properties_value_bit), 0x0010,
+            FT_BOOLEAN, 16, TFS(&pn_dcp_rsi_properties_value_bit), 0x0010,
             NULL, HFILL } },
 
         { &hf_pn_dcp_rsi_properties_value_bit5,
           { "RSI CIM Read Implicit Interface", "pn_dcp.suboption_device_rsi_properties_value.bit5",
-            FT_BOOLEAN, 16, TFS(pn_dcp_rsi_properties_value_bit), 0x0020,
+            FT_BOOLEAN, 16, TFS(&pn_dcp_rsi_properties_value_bit), 0x0020,
             NULL, HFILL } },
 
         { &hf_pn_dcp_rsi_properties_value_otherbits,

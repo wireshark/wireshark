@@ -535,7 +535,7 @@ proto_register_hci_mon(void)
         },
         {  &hf_manufacturer,
             { "Manufacturer",                    "hci_mon.manufacturer",
-            FT_UINT16, BASE_HEX, NULL, 0x000,
+            FT_UINT16, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_system_note,

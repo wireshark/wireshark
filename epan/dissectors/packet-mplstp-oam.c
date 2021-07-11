@@ -298,7 +298,7 @@ proto_register_mplstp_fm(void)
 
     { &hf_mplstp_fm_flags,
       { "FM Flags", "mplstp_oam.flags",
-        FT_UINT8, BASE_HEX, NULL, 0x0000, "MPLS-TP FM Flags", HFILL}
+        FT_UINT8, BASE_HEX, NULL, 0x0, "MPLS-TP FM Flags", HFILL}
     },
 
     { &hf_mplstp_fm_flags_l,

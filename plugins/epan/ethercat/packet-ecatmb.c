@@ -1855,11 +1855,11 @@ void proto_register_ecat_mailbox(void)
       },
       { &hf_ecat_mailbox_soe_header_opcode,
       { "SoE OpCode", "ecat_mailbox.soe_opcode",
-      FT_UINT16, BASE_DEC, VALS(SoeOpcode), 0x00000007, NULL, HFILL }
+      FT_UINT16, BASE_DEC, VALS(SoeOpcode), 0x0007, NULL, HFILL }
       },
       { &hf_ecat_mailbox_soe_header_incomplete,
       { "More Follows...", "ecat_mailbox.soe_header_incomplete",
-      FT_BOOLEAN, 16, TFS(&flags_set_truth), 0x00000008, NULL, HFILL }
+      FT_BOOLEAN, 16, TFS(&flags_set_truth), 0x0008, NULL, HFILL }
       },
       { &hf_ecat_mailbox_soe_header_error,
       { "Error", "ecat_mailbox.soe_header_error",
@@ -1868,7 +1868,7 @@ void proto_register_ecat_mailbox(void)
       },
       { &hf_ecat_mailbox_soe_header_driveno,
       { "Drive No", "ecat_mailbox.soe_header_driveno",
-      FT_UINT16, BASE_DEC, NULL, 0x000000e0, NULL, HFILL }
+      FT_UINT16, BASE_DEC, NULL, 0x00e0, NULL, HFILL }
       },
       { &hf_ecat_mailbox_soe_header_datastate,
       { "Datastate", "ecat_mailbox.soe_header_datastate",
