@@ -34,8 +34,17 @@ int sharkd_load_cap_file(void);
 int sharkd_retap(void);
 int sharkd_filter(const char *dftext, guint8 **result);
 frame_data *sharkd_get_frame(guint32 framenum);
-int sharkd_dissect_columns(frame_data *fdata, guint32 frame_ref_num, guint32 prev_dis_num, column_info *cinfo, gboolean dissect_color);
-int sharkd_dissect_request(guint32 framenum, guint32 frame_ref_num, guint32 prev_dis_num, sharkd_dissect_func_t cb, guint32 dissect_flags, void *data);
+enum dissect_request_status {
+  DISSECT_REQUEST_SUCCESS,
+  DISSECT_REQUEST_NO_SUCH_FRAME,
+  DISSECT_REQUEST_READ_ERROR
+};
+enum dissect_request_status
+sharkd_dissect_request(guint32 framenum, guint32 frame_ref_num,
+                       guint32 prev_dis_num, wtap_rec *rec, Buffer *buf,
+                       column_info *cinfo, guint32 dissect_flags,
+                       sharkd_dissect_func_t cb, void *data,
+                       int *err, gchar **err_info);
 wtap_block_t sharkd_get_modified_block(const frame_data *fd);
 wtap_block_t sharkd_get_packet_block(const frame_data *fd);
 int sharkd_set_modified_block(frame_data *fd, wtap_block_t new_block);

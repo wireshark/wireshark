@@ -502,30 +502,25 @@ sharkd_get_frame(guint32 framenum)
   return frame_data_sequence_find(cfile.provider.frames, framenum);
 }
 
-int
-sharkd_dissect_request(guint32 framenum, guint32 frame_ref_num, guint32 prev_dis_num, sharkd_dissect_func_t cb, guint32 dissect_flags, void *data)
+enum dissect_request_status
+sharkd_dissect_request(guint32 framenum, guint32 frame_ref_num,
+                       guint32 prev_dis_num, wtap_rec *rec, Buffer *buf,
+                       column_info *cinfo, guint32 dissect_flags,
+                       sharkd_dissect_func_t cb, void *data,
+                       int *err, gchar **err_info)
 {
   frame_data *fdata;
-  column_info *cinfo = (dissect_flags & SHARKD_DISSECT_FLAG_COLUMNS) ? &cfile.cinfo : NULL;
   epan_dissect_t edt;
   gboolean create_proto_tree;
-  wtap_rec rec; /* Record metadata */
-  Buffer buf;   /* Record data */
-
-  int err;
-  char *err_info = NULL;
 
   fdata = sharkd_get_frame(framenum);
   if (fdata == NULL)
-    return -1;
+    return DISSECT_REQUEST_NO_SUCH_FRAME;
 
-  wtap_rec_init(&rec);
-  ws_buffer_init(&buf, 1514);
-
-  if (!wtap_seek_read(cfile.provider.wth, fdata->file_off, &rec, &buf, &err, &err_info)) {
-    wtap_rec_cleanup(&rec);
-    ws_buffer_free(&buf);
-    return -1; /* error reading the record */
+  if (!wtap_seek_read(cfile.provider.wth, fdata->file_off, rec, buf, err, err_info)) {
+    if (cinfo != NULL)
+      col_fill_in_error(cinfo, fdata, FALSE, FALSE /* fill_fd_columns */);
+    return DISSECT_REQUEST_READ_ERROR; /* error reading the record */
   }
 
   create_proto_tree = ((dissect_flags & SHARKD_DISSECT_FLAG_PROTO_TREE) ||
@@ -548,8 +543,8 @@ sharkd_dissect_request(guint32 framenum, guint32 frame_ref_num, guint32 prev_dis
   fdata->ref_time = (framenum == frame_ref_num);
   fdata->frame_ref_num = frame_ref_num;
   fdata->prev_dis_num = prev_dis_num;
-  epan_dissect_run(&edt, cfile.cd_t, &rec,
-                   frame_tvbuff_new_buffer(&cfile.provider, fdata, &buf),
+  epan_dissect_run(&edt, cfile.cd_t, rec,
+                   frame_tvbuff_new_buffer(&cfile.provider, fdata, buf),
                    fdata, cinfo);
 
   if (cinfo) {
@@ -562,65 +557,7 @@ sharkd_dissect_request(guint32 framenum, guint32 frame_ref_num, guint32 prev_dis
      data);
 
   epan_dissect_cleanup(&edt);
-  wtap_rec_cleanup(&rec);
-  ws_buffer_free(&buf);
-  return 0;
-}
-
-/* based on packet_list_dissect_and_cache_record */
-int
-sharkd_dissect_columns(frame_data *fdata, guint32 frame_ref_num, guint32 prev_dis_num, column_info *cinfo, gboolean dissect_color)
-{
-  epan_dissect_t edt;
-  gboolean create_proto_tree;
-  wtap_rec rec; /* Record metadata */
-  Buffer buf;   /* Record data */
-
-  int err;
-  char *err_info = NULL;
-
-  wtap_rec_init(&rec);
-  ws_buffer_init(&buf, 1514);
-
-  if (!wtap_seek_read(cfile.provider.wth, fdata->file_off, &rec, &buf, &err, &err_info)) {
-    col_fill_in_error(cinfo, fdata, FALSE, FALSE /* fill_fd_columns */);
-    wtap_rec_cleanup(&rec);
-    ws_buffer_free(&buf);
-    return -1; /* error reading the record */
-  }
-
-  create_proto_tree = (dissect_color && color_filters_used()) || (cinfo && have_custom_cols(cinfo));
-
-  epan_dissect_init(&edt, cfile.epan, create_proto_tree, FALSE /* proto_tree_visible */);
-
-  if (dissect_color) {
-    color_filters_prime_edt(&edt);
-    fdata->need_colorize = 1;
-  }
-
-  if (cinfo)
-    col_custom_prime_edt(&edt, cinfo);
-
-  /*
-   * XXX - need to catch an OutOfMemoryError exception and
-   * attempt to recover from it.
-   */
-  fdata->ref_time = (fdata->num == frame_ref_num);
-  fdata->frame_ref_num = frame_ref_num;
-  fdata->prev_dis_num = prev_dis_num;
-  epan_dissect_run(&edt, cfile.cd_t, &rec,
-                   frame_tvbuff_new_buffer(&cfile.provider, fdata, &buf),
-                   fdata, cinfo);
-
-  if (cinfo) {
-    /* "Stringify" non frame_data vals */
-    epan_dissect_fill_in_columns(&edt, FALSE, TRUE/* fill_fd_columns */);
-  }
-
-  epan_dissect_cleanup(&edt);
-  wtap_rec_cleanup(&rec);
-  ws_buffer_free(&buf);
-  return 0;
+  return DISSECT_REQUEST_SUCCESS;
 }
 
 int
