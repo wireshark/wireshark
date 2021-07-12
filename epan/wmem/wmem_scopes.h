@@ -12,7 +12,7 @@
 #ifndef __WMEM_SCOPES_H__
 #define __WMEM_SCOPES_H__
 
-#include "wmem_core.h"
+#include <wsutil/wmem/wmem.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -54,11 +54,11 @@ wmem_leave_file_scope(void);
 
 /* Scope Management */
 
-WS_DLL_LOCAL
+WS_DLL_PUBLIC
 void
 wmem_init_scopes(void);
 
-WS_DLL_LOCAL
+WS_DLL_PUBLIC
 void
 wmem_cleanup_scopes(void);
 

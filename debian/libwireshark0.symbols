@@ -1913,7 +1913,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  uat_update_record@Base 1.99.3
  udp_dissect_pdus@Base 1.99.3
  udp_port_to_display@Base 1.99.2
- uint64_compare@Base 3.5.0
  uint_to_str_back@Base 2.1.0
  union_of_tap_listener_flags@Base 1.9.1
  unit_name_string_get_value@Base 2.3.0
@@ -2002,108 +2001,11 @@ libwireshark.so.0 libwireshark0 #MINVER#
  value_is_in_range@Base 1.9.1
  value_string_ext_free@Base 1.12.0~rc1
  value_string_ext_new@Base 1.9.1
- wmem_alloc0@Base 1.9.1
- wmem_alloc@Base 1.9.1
- wmem_allocator_new@Base 1.9.1
- wmem_array_append@Base 1.12.0~rc1
- wmem_array_bzero@Base 2.1.0
- wmem_array_get_count@Base 1.12.0~rc1
- wmem_array_get_raw@Base 1.12.0~rc1
- wmem_array_grow@Base 3.3.0
- wmem_array_index@Base 1.12.0~rc1
- wmem_array_new@Base 1.12.0~rc1
- wmem_array_set_null_terminator@Base 2.1.0
- wmem_array_sized_new@Base 1.12.0~rc1
- wmem_array_sort@Base 1.12.0~rc1
- wmem_array_try_index@Base 3.1.0
- wmem_ascii_strdown@Base 1.12.0~rc1
- wmem_cleanup@Base 1.12.0~rc1
- wmem_destroy_allocator@Base 1.9.1
- wmem_destroy_array@Base 3.3.0
- wmem_destroy_list@Base 1.12.0~rc1
- wmem_double_hash@Base 1.12.0~rc1
- wmem_epan_scope@Base 1.9.1
- wmem_file_scope@Base 1.9.1
- wmem_free@Base 1.9.1
- wmem_free_all@Base 1.9.1
- wmem_gc@Base 1.9.1
- wmem_init@Base 1.12.0~rc1
- wmem_int64_hash@Base 1.12.0~rc1
- wmem_itree_find_intervals@Base 2.1.0
- wmem_itree_insert@Base 2.1.0
- wmem_itree_is_empty@Base 2.1.0
- wmem_itree_new@Base 2.1.0
- wmem_list_append@Base 1.12.0~rc1
- wmem_list_count@Base 1.12.0~rc1
- wmem_list_find@Base 2.1.0
- wmem_list_find_custom@Base 2.3.0
- wmem_list_foreach@Base 2.1.0
- wmem_list_frame_data@Base 1.12.0~rc1
- wmem_list_frame_next@Base 1.12.0~rc1
- wmem_list_frame_prev@Base 1.12.0~rc1
- wmem_list_head@Base 1.12.0~rc1
- wmem_list_insert_sorted@Base 2.3.0
- wmem_list_new@Base 1.12.0~rc1
- wmem_list_prepend@Base 1.12.0~rc1
- wmem_list_remove@Base 1.12.0~rc1
- wmem_list_remove_frame@Base 1.12.0~rc1
- wmem_list_tail@Base 1.12.0~rc1
- wmem_map_contains@Base 2.5.1
- wmem_map_foreach@Base 2.1.0
- wmem_map_get_keys@Base 2.3.0
- wmem_map_insert@Base 1.12.0~rc1
- wmem_map_lookup@Base 1.12.0~rc1
- wmem_map_lookup_extended@Base 2.5.1
- wmem_map_new@Base 1.12.0~rc1
- wmem_map_new_autoreset@Base 2.3.0
- wmem_map_remove@Base 1.12.0~rc1
- wmem_map_size@Base 2.1.0
- wmem_map_steal@Base 2.3.0
- wmem_memdup@Base 1.12.0~rc1
- wmem_packet_scope@Base 1.9.1
- wmem_realloc@Base 1.9.1
- wmem_register_callback@Base 1.12.0~rc1
- wmem_stack_peek@Base 1.9.1
- wmem_stack_pop@Base 1.9.1
- wmem_str_hash@Base 1.12.0~rc1
- wmem_strbuf_append@Base 1.9.1
- wmem_strbuf_append_c@Base 1.12.0~rc1
- wmem_strbuf_append_len@Base 3.3.1
- wmem_strbuf_append_printf@Base 1.9.1
- wmem_strbuf_append_unichar@Base 1.12.0~rc1
- wmem_strbuf_append_vprintf@Base 3.1.1
- wmem_strbuf_finalize@Base 1.12.0~rc1
- wmem_strbuf_get_len@Base 1.9.1
- wmem_strbuf_get_str@Base 1.9.1
- wmem_strbuf_new@Base 1.9.1
- wmem_strbuf_sized_new@Base 1.9.1
- wmem_strbuf_truncate@Base 1.12.0~rc1
- wmem_strconcat@Base 1.12.0~rc1
- wmem_strdup@Base 1.9.1
- wmem_strdup_printf@Base 1.9.1
- wmem_strdup_vprintf@Base 1.9.1
- wmem_strjoin@Base 2.5.1
- wmem_strjoinv@Base 2.5.1
- wmem_strndup@Base 1.9.1
- wmem_strong_hash@Base 1.12.0~rc1
- wmem_strsplit@Base 1.12.0~rc1
- wmem_tree_count@Base 2.3.0
- wmem_tree_destroy@Base 2.3.0
- wmem_tree_foreach@Base 1.12.0~rc1
- wmem_tree_insert32@Base 1.12.0~rc1
- wmem_tree_insert32_array@Base 1.12.0~rc1
- wmem_tree_insert_string@Base 1.12.0~rc1
- wmem_tree_is_empty@Base 1.12.0~rc1
- wmem_tree_lookup32@Base 1.12.0~rc1
- wmem_tree_lookup32_array@Base 1.12.0~rc1
- wmem_tree_lookup32_array_le@Base 1.12.0~rc1
- wmem_tree_lookup32_le@Base 1.12.0~rc1
- wmem_tree_lookup_string@Base 1.12.0~rc1
- wmem_tree_new@Base 1.12.0~rc1
- wmem_tree_new_autoreset@Base 1.12.0~rc1
- wmem_tree_remove_string@Base 1.99.9
- wmem_tree_remove32@Base 2.3.0
- wmem_unregister_callback@Base 1.12.0~rc1
+ wmem_cleanup_scopes@Base 3.5.0
+ wmem_epan_scope@Base 3.5.0
+ wmem_init_scopes@Base 3.5.0
+ wmem_packet_scope@Base 3.5.0
+ wmem_file_scope@Base 3.5.0
  word_to_hex@Base 2.1.0
  write_carrays_hex_data@Base 1.99.1
  write_csv_column_titles@Base 1.99.1

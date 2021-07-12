@@ -253,7 +253,7 @@ epan_init(register_cb cb, gpointer client_data, gboolean load_plugins)
 	 * invocation just in case.
 	 */
 	/* initialize memory allocation subsystem */
-	wmem_init();
+	wmem_init_scopes();
 
 	/* initialize the GUID to name mapping table */
 	guids_init();
@@ -425,7 +425,7 @@ epan_cleanup(void)
 		pinfo_pool_cache = NULL;
 	}
 
-	wmem_cleanup();
+	wmem_cleanup_scopes();
 }
 
 struct epan_session {

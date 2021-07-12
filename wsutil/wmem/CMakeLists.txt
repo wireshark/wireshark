@@ -15,7 +15,6 @@ set(WMEM_PUBLIC_HEADERS
 	wmem_map.h
 	wmem_miscutl.h
 	wmem_queue.h
-	wmem_scopes.h
 	wmem_stack.h
 	wmem_strbuf.h
 	wmem_strutl.h
@@ -48,7 +47,6 @@ set(WMEM_FILES
 	wmem_list.c
 	wmem_map.c
 	wmem_miscutl.c
-	wmem_scopes.c
 	wmem_stack.c
 	wmem_strbuf.c
 	wmem_strutl.c
@@ -77,7 +75,7 @@ target_include_directories(wmem
 )
 
 set_target_properties(wmem PROPERTIES
-	FOLDER "Libs/epan/wmem"
+	FOLDER "Libs/wsutil/wmem"
 	COMPILE_DEFINITIONS "WS_BUILD_DLL"
 )
 
@@ -92,7 +90,7 @@ set_target_properties(wmem_test PROPERTIES
 )
 
 install(FILES ${WMEM_PUBLIC_HEADERS}
-	DESTINATION "${PROJECT_INSTALL_INCLUDEDIR}/epan/wmem"
+	DESTINATION "${PROJECT_INSTALL_INCLUDEDIR}/wsutil/wmem"
 )
 
 CHECKAPI(

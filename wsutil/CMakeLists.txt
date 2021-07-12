@@ -11,6 +11,8 @@ add_definitions(-DPLUGIN_DIR=\"${CMAKE_INSTALL_PREFIX}/${PLUGIN_INSTALL_LIBDIR}\
 add_definitions(-DEXTCAP_DIR=\"${CMAKE_INSTALL_PREFIX}/${EXTCAP_INSTALL_LIBDIR}\")
 add_definitions(-DDATA_DIR=\"${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}\")
 
+add_subdirectory(wmem)
+
 set(WSUTIL_PUBLIC_HEADERS
 	802_11-utils.h
 	adler32.h
@@ -248,6 +250,7 @@ endif()
 
 add_library(wsutil
 	${WSUTIL_FILES}
+	$<TARGET_OBJECTS:wmem>
 	${CMAKE_BINARY_DIR}/image/libwsutil.rc
 )
 

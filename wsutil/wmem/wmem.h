@@ -1,5 +1,5 @@
 /* wmem.h
- * Definitions for the EPAN Memory Manager scopes
+ * Definitions for the Wireshark Memory Manager
  * Copyright 2012, Evan Huus <eapache@gmail.com>
  *
  * Wireshark - Network traffic analyzer
@@ -9,12 +9,23 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#ifndef __EPAN_WMEM_H__
-#define __EPAN_WMEM_H__
+#ifndef __WMEM_H__
+#define __WMEM_H__
 
-#include "wmem_scopes.h"
+#include "wmem_array.h"
+#include "wmem_core.h"
+#include "wmem_list.h"
+#include "wmem_map.h"
+#include "wmem_miscutl.h"
+#include "wmem_queue.h"
+#include "wmem_stack.h"
+#include "wmem_strbuf.h"
+#include "wmem_strutl.h"
+#include "wmem_tree.h"
+#include "wmem_interval_tree.h"
+#include "wmem_user_cb.h"
 
-#endif /* __EPAN_WMEM_H__ */
+#endif /* __WMEM_H__ */
 
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html

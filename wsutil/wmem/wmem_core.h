@@ -210,6 +210,18 @@ WS_DLL_PUBLIC
 void
 wmem_cleanup(void);
 
+WS_DLL_PUBLIC
+void
+wmem_enter_scope(wmem_allocator_t *allocator);
+
+WS_DLL_PUBLIC
+void
+wmem_leave_scope(wmem_allocator_t *allocator);
+
+WS_DLL_PUBLIC
+gboolean
+wmem_in_scope(wmem_allocator_t *allocator);
+
 /** @} */
 
 #ifdef __cplusplus

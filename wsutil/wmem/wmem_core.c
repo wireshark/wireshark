@@ -15,7 +15,6 @@
 
 #include "wmem-int.h"
 #include "wmem_core.h"
-#include "wmem_scopes.h"
 #include "wmem_map_int.h"
 #include "wmem_user_cb_int.h"
 #include "wmem_allocator.h"
@@ -199,15 +198,33 @@ wmem_init(void)
         }
     }
 
-    wmem_init_scopes();
     wmem_init_hashing();
 }
 
 void
 wmem_cleanup(void)
 {
-    wmem_cleanup_scopes();
 }
+
+void
+wmem_enter_scope(wmem_allocator_t *allocator)
+{
+    allocator->in_scope = TRUE;
+}
+
+void
+wmem_leave_scope(wmem_allocator_t *allocator)
+{
+    wmem_free_all(allocator);
+    allocator->in_scope = FALSE;
+}
+
+gboolean
+wmem_in_scope(wmem_allocator_t *allocator)
+{
+    return allocator->in_scope;
+}
+
 
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
