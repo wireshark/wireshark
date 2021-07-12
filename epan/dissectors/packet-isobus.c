@@ -15,7 +15,7 @@
 #include <epan/packet.h>
 #include <epan/reassemble.h>
 #include <epan/dissectors/packet-socketcan.h>
-#include <epan/wmem/wmem_map.h>
+#include <epan/wmem/wmem.h>
 
 void proto_register_isobus(void);
 void proto_reg_handoff_isobus(void);

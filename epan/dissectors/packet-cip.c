@@ -39,7 +39,7 @@
 #include <epan/expert.h>
 #include <epan/prefs.h>
 #include <epan/proto_data.h>
-#include <wmem/wmem_list.h>
+#include <epan/wmem/wmem.h>
 #include "packet-cip.h"
 #include "packet-cipmotion.h"
 #include "packet-cipsafety.h"

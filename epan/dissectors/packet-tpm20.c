@@ -15,7 +15,7 @@
 #include <epan/to_str.h>
 #include <epan/tvbuff.h>
 #include <epan/expert.h>
-#include <epan/wmem/wmem_tree.h>
+#include <epan/wmem/wmem.h>
 
 typedef struct {
 	guint32 com_pnum;

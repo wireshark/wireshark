@@ -14,7 +14,6 @@
 
 #include <epan/conversation.h>
 #include <epan/wmem/wmem.h>
-#include <epan/wmem/wmem_interval_tree.h>
 
 #ifdef __cplusplus
 extern "C" {
