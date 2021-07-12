@@ -4173,10 +4173,81 @@ static const value_string DIS_PDU_IffNoYes_Strings[] =
     {  0, NULL }
 };
 
+static const value_string DIS_PDU_IffHeartbeat_Strings[] =
+{
+    {  0, "No Hearbeat" },
+    {  1, "Hearbeat" },
+    {  0, NULL }
+};
+
+static const value_string DIS_PDU_IffTransponder_Interrogator_Strings[] =
+{
+    {  0, "Transponder" },
+    {  1, "Interrogator" },
+    {  0, NULL }
+};
+
+static const value_string DIS_PDU_IffSimulation_Mode_Strings[] =
+{
+    {  0, "Regeneration" },
+    {  1, "Interactive" },
+    {  0, NULL }
+};
+
 static const value_string DIS_PDU_IffOffOn_Strings[] =
 {
     {  0, "Off" },
     {  1, "On" },
+    {  0, NULL }
+};
+
+/* SISO-REF-010 [UID 340] */
+static const value_string DIS_PDU_IffAltitudeIndicator_Strings[] =
+{
+    {  0, "Positive Altitude Above MSL" },
+    {  1, "Negative Altitude Below MSL/Use Alternate Mode C Altitude" },
+    {  0, NULL }
+};
+
+/* SISO-REF-010 [UID 341] */
+static const value_string DIS_PDU_IffBasicAdvanced_Strings[] =
+{
+    {  0, "Basic" },
+    {  1, "Advanced" },
+    {  0, NULL }
+};
+
+/* SISO-REF-010 [UID 342] */
+static const value_string DIS_PDU_IffTCASACASIndicator_Strings[] =
+{
+    {  0, "TCAS" },
+    {  1, "ACAS" },
+    {  0, NULL }
+};
+
+/* SISO-REF-010 [UID 343] */
+static const value_string DIS_PDU_IffSoftwareVersion_Strings[] =
+{
+    {  0, "No Statement" },
+    {  1, "6.0.2" },
+    {  2, "7.0" },
+    {  0, NULL }
+};
+
+/* SISO-REF-010 [UID 344] */
+static const value_string DIS_PDU_IffTCASACASType_Strings[] =
+{
+    {  0, "No Statement" },
+    {  1, "ACAS I" },
+    {  2, "ACAS II" },
+    {  0, NULL }
+};
+
+/* SISO-REF-010 [UID 345] */
+static const value_string DIS_PDU_IffTCASType_Strings[] =
+{
+    {  0, "No Statement" },
+    {  1, "TCAS II" },
     {  0, NULL }
 };
 
@@ -4659,6 +4730,15 @@ static int hf_dis_iff_change_options = -1;
 static int hf_dis_iff_change_indicator = -1;
 static int hf_dis_iff_alternate_mode_4 = -1;
 static int hf_dis_iff_alternate_mode_c = -1;
+static int hf_dis_iff_altitude_indicator = -1;
+static int hf_dis_iff_mode_c_altitude  = -1;
+static int hf_dis_iff_heartbeat_indicator = -1;
+static int hf_dis_iff_transponder_interrogator_indicator = -1;
+static int hf_dis_iff_simulation_mode = -1;
+static int hf_dis_iff_interactive_capable = -1;
+static int hf_dis_iff_test_mode = -1;
+static int hf_dis_iff_system_designator = -1;
+static int hf_dis_iff_system_specific_data = -1;
 static int hf_dis_iff_system_status = -1;
 static int hf_dis_iff_system_status_system_onoff = -1;
 static int hf_dis_iff_system_status_parameter_1 = -1;
@@ -4672,22 +4752,39 @@ static int hf_dis_iff_alternate_parameter_4 = -1;
 static int hf_dis_iff_information_layers = -1;
 static int hf_dis_iff_information_layers_layer_1 = -1;
 static int hf_dis_iff_information_layers_layer_2 = -1;
+static int hf_dis_iff_information_layers_layer_3 = -1;
+static int hf_dis_iff_information_layers_layer_4 = -1;
+static int hf_dis_iff_information_layers_layer_5 = -1;
+static int hf_dis_iff_information_layers_layer_6 = -1;
+static int hf_dis_iff_information_layers_layer_7 = -1;
 static int hf_dis_iff_modifier = -1;
-static int hf_dis_iff_modifier_other = -1;
 static int hf_dis_iff_modifier_emergency = -1;
 static int hf_dis_iff_modifier_ident = -1;
-static int hf_dis_iff_modifier_sti = -1;
+static int hf_dis_iff_modifier_unmanned_aircraft = -1;
 static int hf_dis_iff_parameter_1 = -1;
 static int hf_dis_iff_parameter_2 = -1;
 static int hf_dis_iff_parameter_3 = -1;
 static int hf_dis_iff_parameter_4 = -1;
 static int hf_dis_iff_parameter_5 = -1;
 static int hf_dis_iff_parameter_6 = -1;
-static int hf_dis_iff_mode_1 = -1;
-static int hf_dis_iff_mode_2 = -1;
-static int hf_dis_iff_mode_3 = -1;
+static int hf_dis_iff_mode_1_code_1 = -1;
+static int hf_dis_iff_mode_1_code_2 = -1;
+static int hf_dis_iff_mode_2_code_1 = -1;
+static int hf_dis_iff_mode_2_code_2 = -1;
+static int hf_dis_iff_mode_2_code_3 = -1;
+static int hf_dis_iff_mode_2_code_4 = -1;
+static int hf_dis_iff_mode_3_code_1 = -1;
+static int hf_dis_iff_mode_3_code_2 = -1;
+static int hf_dis_iff_mode_3_code_3 = -1;
+static int hf_dis_iff_mode_3_code_4 = -1;
 static int hf_dis_iff_mode_4 = -1;
 static int hf_dis_iff_mode_c = -1;
+static int hf_dis_iff_basic_advanced_indicator = -1;
+static int hf_dis_iff_tcas = -1;
+static int hf_dis_iff_tcas_acas_indicator = -1;
+static int hf_dis_iff_software_version = -1;
+static int hf_dis_iff_tcas_acas_type = -1;
+static int hf_dis_iff_tcas_type = -1;
 static int hf_dis_iff_mode_status = -1;
 static int hf_dis_iff_mode_damage = -1;
 static int hf_dis_iff_mode_malfunction = -1;
@@ -6550,12 +6647,13 @@ static int dissect_DIS_PARSER_UNDERWATER_ACOUSTIC_PDU(tvbuff_t *tvb, packet_info
 }
 
 /* DIS IFF PDUs
+*  TODO: Add header data to this dissection so we can check for version 7 PDUs
  */
 static int dissect_DIS_PARSER_IFF_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
     proto_item *ti;
     proto_tree *sub_tree,*field_tree;
-    guint16 site, application, entity, parameter_5, mode1, mode2, mode3;
+    guint16 site, application, entity, parameter_5, mode1, mode2, mode3,mode4,modeC;
     gint16 altitude;
 
     site = tvb_get_ntohs(tvb, offset);
@@ -6588,27 +6686,43 @@ static int dissect_DIS_PARSER_IFF_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_t
 
     ti = proto_tree_add_item(sub_tree, hf_dis_iff_change_options, tvb, offset, 1, ENC_BIG_ENDIAN);
     field_tree = proto_item_add_subtree(ti, ett_iff_change_options);
-    proto_tree_add_bits_item(field_tree, hf_dis_iff_change_indicator, tvb, offset*8+7, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_bits_item(field_tree, hf_dis_iff_alternate_mode_4, tvb, offset*8+6, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_bits_item(field_tree, hf_dis_iff_alternate_mode_c, tvb, offset*8+5, 1, ENC_BIG_ENDIAN);
+
+    proto_tree_add_item(field_tree, hf_dis_iff_change_indicator, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_alternate_mode_4, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+    //TODO: Update Mode C Altitude Record
+    proto_tree_add_item(field_tree, hf_dis_iff_alternate_mode_c, tvb, offset, 1, ENC_BIG_ENDIAN);
+    //altitude indicator
+    proto_tree_add_item(field_tree, hf_dis_iff_altitude_indicator, tvb, offset, 1, ENC_BIG_ENDIAN);
+    //mode c altitude
+    proto_tree_add_item(field_tree, hf_dis_iff_mode_c_altitude, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+    proto_tree_add_item(field_tree, hf_dis_iff_heartbeat_indicator, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_transponder_interrogator_indicator, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_simulation_mode, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_interactive_capable, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_test_mode, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
-    proto_tree_add_item(tree, hf_dis_padding, tvb, offset, 2, ENC_NA);
-    offset += 2;
+    proto_tree_add_item(tree, hf_dis_iff_system_designator, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(tree, hf_dis_iff_system_specific_data, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
 
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, 16, ett_iff_fundamental_operational_data, NULL, "Fundamental Operational Data");
 
     ti = proto_tree_add_item(sub_tree, hf_dis_iff_system_status, tvb, offset, 1, ENC_BIG_ENDIAN);
     field_tree = proto_item_add_subtree(ti, ett_iff_system_status);
 
-    proto_tree_add_bits_item(field_tree, hf_dis_iff_system_status_system_onoff, tvb, offset*8+7, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_bits_item(field_tree, hf_dis_iff_system_status_parameter_1, tvb, offset*8+6, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_bits_item(field_tree, hf_dis_iff_system_status_parameter_2, tvb, offset*8+5, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_bits_item(field_tree, hf_dis_iff_system_status_parameter_3, tvb, offset*8+4, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_bits_item(field_tree, hf_dis_iff_system_status_parameter_4, tvb, offset*8+3, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_bits_item(field_tree, hf_dis_iff_system_status_parameter_5, tvb, offset*8+2, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_bits_item(field_tree, hf_dis_iff_system_status_parameter_6, tvb, offset*8+1, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_bits_item(field_tree, hf_dis_iff_system_status_operational, tvb, offset*8, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_system_status_system_onoff, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_system_status_parameter_1, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_system_status_parameter_2, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_system_status_parameter_3, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_system_status_parameter_4, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_system_status_parameter_5, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_system_status_parameter_6, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_system_status_operational, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
     proto_tree_add_item(sub_tree, hf_dis_iff_alternate_parameter_4, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -6616,71 +6730,101 @@ static int dissect_DIS_PARSER_IFF_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_t
 
     ti = proto_tree_add_item(sub_tree, hf_dis_iff_information_layers, tvb, offset, 1, ENC_BIG_ENDIAN);
     field_tree = proto_item_add_subtree(ti, ett_iff_information_layers);
-    proto_tree_add_bits_item(field_tree, hf_dis_iff_information_layers_layer_1, tvb, offset*8+6, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_bits_item(field_tree, hf_dis_iff_information_layers_layer_2, tvb, offset*8+5, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_information_layers_layer_1, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_information_layers_layer_2, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_information_layers_layer_3, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_information_layers_layer_4, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_information_layers_layer_5, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_information_layers_layer_6, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_information_layers_layer_7, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
     ti = proto_tree_add_item(sub_tree, hf_dis_iff_modifier, tvb, offset, 1, ENC_BIG_ENDIAN);
     field_tree = proto_item_add_subtree(ti, ett_iff_modifier);
-    proto_tree_add_bits_item(field_tree, hf_dis_iff_modifier_other, tvb, offset*8+7, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_bits_item(field_tree, hf_dis_iff_modifier_emergency, tvb, offset*8+6, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_bits_item(field_tree, hf_dis_iff_modifier_ident, tvb, offset*8+5, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_bits_item(field_tree, hf_dis_iff_modifier_sti, tvb, offset*8+4, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_modifier_emergency, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_modifier_ident, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_modifier_unmanned_aircraft, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
+    //TODO: Update Code record for each mode
+    //Refer to Appendix B.2.17 and so on
     mode1 = tvb_get_ntohs(tvb, offset) & 0x3f;
     ti = proto_tree_add_item(sub_tree, hf_dis_iff_parameter_1, tvb, offset, 2, ENC_BIG_ENDIAN);
     field_tree = proto_item_add_subtree(ti, ett_iff_parameter_1);
-    proto_tree_add_bits_item(field_tree, hf_dis_iff_mode_1, tvb, offset*8+10, 6, ENC_BIG_ENDIAN);
-    proto_tree_add_bits_item(field_tree, hf_dis_iff_mode_status, tvb, offset*8+2, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_bits_item(field_tree, hf_dis_iff_mode_damage, tvb, offset*8+1, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_bits_item(field_tree, hf_dis_iff_mode_malfunction, tvb, offset*8, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_mode_1_code_1, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_mode_1_code_2, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_mode_status, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_mode_damage, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_mode_malfunction, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     mode2 = tvb_get_ntohs(tvb, offset) & 0xfff;
     ti = proto_tree_add_item(sub_tree, hf_dis_iff_parameter_2, tvb, offset, 2, ENC_BIG_ENDIAN);
     field_tree = proto_item_add_subtree(ti, ett_iff_parameter_2);
-    proto_tree_add_bits_item(field_tree, hf_dis_iff_mode_2, tvb, offset*8+4, 12, ENC_BIG_ENDIAN);
-    proto_tree_add_bits_item(field_tree, hf_dis_iff_mode_status, tvb, offset*8+2, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_bits_item(field_tree, hf_dis_iff_mode_damage, tvb, offset*8+1, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_bits_item(field_tree, hf_dis_iff_mode_malfunction, tvb, offset*8, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_mode_2_code_1, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_mode_2_code_2, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_mode_2_code_3, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_mode_2_code_4, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_mode_status, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_mode_damage, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_mode_malfunction, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     mode3 = tvb_get_ntohs(tvb, offset) & 0xfff;
     ti = proto_tree_add_item(sub_tree, hf_dis_iff_parameter_3, tvb, offset, 2, ENC_BIG_ENDIAN);
     field_tree = proto_item_add_subtree(ti, ett_iff_parameter_3);
-    proto_tree_add_bits_item(field_tree, hf_dis_iff_mode_3, tvb, offset*8+4, 12, ENC_BIG_ENDIAN);
-    proto_tree_add_bits_item(field_tree, hf_dis_iff_mode_status, tvb, offset*8+2, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_bits_item(field_tree, hf_dis_iff_mode_damage, tvb, offset*8+1, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_bits_item(field_tree, hf_dis_iff_mode_malfunction, tvb, offset*8, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_mode_3_code_1, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_mode_3_code_2, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_mode_3_code_3, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_mode_3_code_4, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_mode_status, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_mode_damage, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_mode_malfunction, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
+    mode4 = tvb_get_ntohs(tvb, offset) & 0xfff;
     ti = proto_tree_add_item(sub_tree, hf_dis_iff_parameter_4, tvb, offset, 2, ENC_BIG_ENDIAN);
     field_tree = proto_item_add_subtree(ti, ett_iff_parameter_4);
-    proto_tree_add_bits_item(field_tree, hf_dis_iff_mode_4, tvb, offset*8+4, 12, ENC_BIG_ENDIAN);
-    proto_tree_add_bits_item(field_tree, hf_dis_iff_mode_status, tvb, offset*8+2, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_bits_item(field_tree, hf_dis_iff_mode_damage, tvb, offset*8+1, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_bits_item(field_tree, hf_dis_iff_mode_malfunction, tvb, offset*8, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_mode_4, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_mode_status, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_mode_damage, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_mode_malfunction, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
+    modeC = tvb_get_ntohs(tvb, offset) & 0xfff;
     ti = proto_tree_add_item(sub_tree, hf_dis_iff_parameter_5, tvb, offset, 2, ENC_BIG_ENDIAN);
     field_tree = proto_item_add_subtree(ti, ett_iff_parameter_5);
     parameter_5 = tvb_get_ntohs(tvb, offset);
     altitude = ((parameter_5 >> 1) & 0x7ff) * ((parameter_5 & 1) ? -1: 1);
     proto_tree_add_int(field_tree, hf_dis_iff_mode_c, tvb, offset, 2, altitude);
-    proto_tree_add_bits_item(field_tree, hf_dis_iff_mode_status, tvb, offset*8+2, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_bits_item(field_tree, hf_dis_iff_mode_damage, tvb, offset*8+1, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_bits_item(field_tree, hf_dis_iff_mode_malfunction, tvb, offset*8, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_mode_status, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_mode_damage, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_mode_malfunction, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    /*ti = *proto_tree_add_item(sub_tree, hf_dis_iff_parameter_6, tvb, offset, 2, ENC_BIG_ENDIAN);
-    /*field_tree = proto_item_add_subtree(ti, ett_iff_parameter_6);*/
+    ti = proto_tree_add_item(sub_tree, hf_dis_iff_parameter_6, tvb, offset, 2, ENC_BIG_ENDIAN);
+    field_tree = proto_item_add_subtree(ti, ett_iff_parameter_6);
+    proto_tree_add_item(field_tree, hf_dis_iff_basic_advanced_indicator, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_tcas_acas_indicator, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_software_version, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_tcas_acas_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_tcas_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_mode_status, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_mode_damage, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_mode_malfunction, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
+
+    // Dissect Layer 2
+    // Dissect Layer 3
+    // Dissect Layer 4
+    // Dissect Layer 5
 
     col_append_fstr(pinfo->cinfo, COL_INFO, ", %d-%d-%d", site, application, entity);
     if (mode1) col_append_fstr(pinfo->cinfo, COL_INFO, ", 1=%02o", mode1);
     if (mode2) col_append_fstr(pinfo->cinfo, COL_INFO, ", 2=%04o", mode2);
     if (mode3) col_append_fstr(pinfo->cinfo, COL_INFO, ", 3=%04o", mode3);
+    if (mode4) col_append_fstr(pinfo->cinfo, COL_INFO, ", 4=%04o", mode4);
+    if (modeC) col_append_fstr(pinfo->cinfo, COL_INFO, ", C=%04o", modeC);
     if (altitude || (parameter_5 & 0x2000)) col_append_fstr(pinfo->cinfo, COL_INFO, ", C=FL%d", altitude);
 
     return offset;
@@ -7768,7 +7912,7 @@ static gint alignOffset(gint offset, guint fieldLength)
     return offset;
 }
 
-/* Parse the Timestamp -- defined in spec in microsecods: DIS 1278.1-2012: sec 5.2.5, detailed in sec 6.2.88 */
+/* Parse the Timestamp -- defined in spec in microseconds: DIS 1278.1-2012: sec 5.2.5, detailed in sec 6.2.88 */
 static gint parseField_Timestamp(tvbuff_t *tvb, proto_tree *tree, gint offset, int hf_relative)
 {
    /* some consts */
@@ -10313,67 +10457,112 @@ void proto_register_dis(void)
             },
             { &hf_dis_iff_change_options,
               { "Change/Options",  "dis.iff.change_options",
-                FT_UINT8, BASE_DEC, NULL, 0x0,
+                FT_UINT8, BASE_HEX, NULL, 0x0,
                 NULL, HFILL }
             },
             { &hf_dis_iff_change_indicator,
               { "Change Indicator",  "dis.iff.change_indicator",
-                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffChangeIndicator_Strings), 0x0,
+                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffChangeIndicator_Strings), 0x1,
                 NULL, HFILL }
             },
             { &hf_dis_iff_alternate_mode_4,
               { "Alternate Mode 4",  "dis.iff.alternate_mode_4",
-                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffNoYes_Strings), 0x0,
+                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffNoYes_Strings), 0x2,
                 NULL, HFILL }
             },
             { &hf_dis_iff_alternate_mode_c,
               { "Alternate Mode C",  "dis.iff.alternate_mode_c",
-                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffNoYes_Strings), 0x0,
+               FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffNoYes_Strings), 0x4,
+               NULL, HFILL }
+            },
+            { &hf_dis_iff_altitude_indicator,
+              { "Altitude Indicator",  "dis.iff.altitude.indicator",
+               FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffAltitudeIndicator_Strings), 0x1,
+               NULL, HFILL }
+            },
+            { &hf_dis_iff_mode_c_altitude,
+              { "Mode C Altitude",  "dis.iff.mode.c.altitude",
+               FT_UINT8, BASE_DEC, NULL, 0xFFE,
+               NULL, HFILL }
+            },
+            { &hf_dis_iff_heartbeat_indicator,
+             { "Heartbeat Indicator",  "dis.iff.heartbeat_indicator",
+               FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffHeartbeat_Strings), 0x2,
+               NULL, HFILL }
+            },
+            { &hf_dis_iff_transponder_interrogator_indicator,
+             { "Transponder/Interrogator Indicator",  "dis.iff.transponder_interrogator_indicator",
+              FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffTransponder_Interrogator_Strings), 0x2,
+              NULL, HFILL }
+            },
+            { &hf_dis_iff_simulation_mode,
+             { "Simulation Mode",  "dis.iff.simulation_mode",
+              FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffSimulation_Mode_Strings), 0x2,
+              NULL, HFILL }
+            },
+            { &hf_dis_iff_interactive_capable,
+             { "Interactive Capable",  "dis.iff.interactive_capable",
+              FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffCapable_Strings), 0x2,
+              NULL, HFILL }
+            },
+            { &hf_dis_iff_test_mode,
+              { "Test Mode",  "dis.iff.test_mode",
+                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffOffOn_Strings), 0x4,
                 NULL, HFILL }
+            },
+            { &hf_dis_iff_system_designator,
+               { "System Designator",  "dis.iff.system.designator",
+                  FT_UINT8, BASE_DEC, NULL, 0x0,
+                  NULL, HFILL }
+            },
+            { &hf_dis_iff_system_specific_data,
+               { "System Specific Data",  "dis.iff.system.specific.data",
+                  FT_UINT8, BASE_DEC, NULL, 0x0,
+                  NULL, HFILL }
             },
             { &hf_dis_iff_system_status,
               { "System Status",  "dis.iff.system_status",
-                FT_UINT8, BASE_DEC, NULL, 0x0,
+                FT_UINT8, BASE_HEX, NULL, 0x0,
                 NULL, HFILL }
             },
             { &hf_dis_iff_system_status_system_onoff,
               { "System On/Off",  "dis.iff.system_status.system_onoff",
-                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffOffOn_Strings), 0x0,
+                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffOffOn_Strings), 0x1,
                 NULL, HFILL }
             },
             { &hf_dis_iff_system_status_parameter_1,
               { "Parameter 1",  "dis.iff.system_status.parameter_1",
-                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffCapable_Strings), 0x0,
+                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffCapable_Strings), 0x2,
                 NULL, HFILL }
             },
             { &hf_dis_iff_system_status_parameter_2,
               { "Parameter 2",  "dis.iff.system_status.parameter_2",
-                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffCapable_Strings), 0x0,
+                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffCapable_Strings), 0x4,
                 NULL, HFILL }
             },
             { &hf_dis_iff_system_status_parameter_3,
               { "Parameter 3",  "dis.iff.system_status.parameter_3",
-                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffCapable_Strings), 0x0,
+                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffCapable_Strings), 0x8,
                 NULL, HFILL }
             },
             { &hf_dis_iff_system_status_parameter_4,
               { "Parameter 4",  "dis.iff.system_status.parameter_4",
-                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffCapable_Strings), 0x0,
+                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffCapable_Strings), 0x10,
                 NULL, HFILL }
             },
             { &hf_dis_iff_system_status_parameter_5,
               { "Parameter 5",  "dis.iff.system_status.parameter_5",
-                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffCapable_Strings), 0x0,
+                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffCapable_Strings), 0x20,
                 NULL, HFILL }
             },
             { &hf_dis_iff_system_status_parameter_6,
               { "Parameter 6",  "dis.iff.system_status.parameter_6",
-                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffCapable_Strings), 0x0,
+                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffCapable_Strings), 0x40,
                 NULL, HFILL }
             },
             { &hf_dis_iff_system_status_operational,
               { "Operational",  "dis.iff.system_status.operational",
-                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffOperational_Strings), 0x0,
+                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffOperational_Strings), 0x80,
                 NULL, HFILL }
             },
             { &hf_dis_iff_alternate_parameter_4,
@@ -10388,12 +10577,37 @@ void proto_register_dis(void)
             },
             { &hf_dis_iff_information_layers_layer_1,
               { "Layer 1",  "dis.iff.information_layers.layer_1",
-                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffPresent_Strings), 0x0,
+                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffPresent_Strings), 0x2,
                 NULL, HFILL }
             },
             { &hf_dis_iff_information_layers_layer_2,
               { "Layer 2",  "dis.iff.information_layers.layer_2",
-                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffPresent_Strings), 0x0,
+                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffPresent_Strings), 0x4,
+                NULL, HFILL }
+            },
+            { &hf_dis_iff_information_layers_layer_3,
+              { "Layer 3",  "dis.iff.information_layers.layer_3",
+                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffPresent_Strings), 0x8,
+                NULL, HFILL }
+            },
+            { &hf_dis_iff_information_layers_layer_4,
+              { "Layer 4",  "dis.iff.information_layers.layer_4",
+                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffPresent_Strings), 0x10,
+                NULL, HFILL }
+            },
+            { &hf_dis_iff_information_layers_layer_5,
+              { "Layer 5",  "dis.iff.information_layers.layer_5",
+                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffPresent_Strings), 0x20,
+                NULL, HFILL }
+            },
+            { &hf_dis_iff_information_layers_layer_6,
+              { "Layer 6",  "dis.iff.information_layers.layer_6",
+                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffPresent_Strings), 0x40,
+                NULL, HFILL }
+            },
+            { &hf_dis_iff_information_layers_layer_7,
+              { "Layer 7",  "dis.iff.information_layers.layer_7",
+                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffPresent_Strings), 0x80,
                 NULL, HFILL }
             },
             { &hf_dis_iff_modifier,
@@ -10401,24 +10615,19 @@ void proto_register_dis(void)
                 FT_UINT8, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }
             },
-            { &hf_dis_iff_modifier_other,
-              { "Other",  "dis.iff.modifier.other",
-                FT_UINT8, BASE_DEC, NULL, 0x0,
-                NULL, HFILL }
-            },
             { &hf_dis_iff_modifier_emergency,
-              { "Emergency",  "dis.iff.modifier.emergency",
-                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffOffOn_Strings), 0x0,
+              { "Military Emergency",  "dis.iff.modifier.emergency",
+                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffOffOn_Strings), 0x1,
                 NULL, HFILL }
             },
             { &hf_dis_iff_modifier_ident,
               { "Ident/Squawk Flash",  "dis.iff.modifier.ident",
-                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffOffOn_Strings), 0x0,
+                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffOffOn_Strings), 0x2,
                 NULL, HFILL }
             },
-            { &hf_dis_iff_modifier_sti,
-              { "STI",  "dis.iff.modifier.sti",
-                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffOffOn_Strings), 0x0,
+            { &hf_dis_iff_modifier_unmanned_aircraft,
+              { "Unmanned Aircraft",  "dis.iff.modifier.unmanned.aircraft",
+                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffOffOn_Strings), 0x4,
                 NULL, HFILL }
             },
             { &hf_dis_iff_parameter_1,
@@ -10451,44 +10660,109 @@ void proto_register_dis(void)
                 FT_UINT16, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }
             },
-            { &hf_dis_iff_mode_1,
-              { "IFF Mode 1",  "dis.iff.mode_1",
-                FT_UINT16, BASE_OCT, NULL, 0x0,
+            { &hf_dis_iff_mode_1_code_1,
+              { "Code Element 1",  "dis.iff.mode_1_code_1",
+                FT_UINT16, BASE_OCT, NULL, 0x7F,
                 NULL, HFILL }
             },
-            { &hf_dis_iff_mode_2,
-              { "IFF Mode 2",  "dis.iff.mode_2",
-                FT_UINT16, BASE_OCT, NULL, 0x0,
+            { &hf_dis_iff_mode_1_code_2,
+              { "Code Element 2",  "dis.iff.mode_1_code_2",
+                FT_UINT16, BASE_OCT, NULL, 0x7F,
                 NULL, HFILL }
             },
-            { &hf_dis_iff_mode_3,
-              { "IFF Mode 3",  "dis.iff.mode_3",
-                FT_UINT16, BASE_OCT, NULL, 0x0,
+            { &hf_dis_iff_mode_2_code_1,
+              { "Code Element 1",  "dis.iff.mode_2_code_1",
+                FT_UINT16, BASE_OCT, NULL, 0x7F,
                 NULL, HFILL }
             },
-            { &hf_dis_iff_mode_status,
-              { "Status",  "dis.iff.mode.status",
-                FT_UINT16, BASE_DEC, VALS(DIS_PDU_IffOffOn_Strings), 0x0,
+            { &hf_dis_iff_mode_2_code_2,
+              { "Code Element 2",  "dis.iff.mode_2_code_2",
+                FT_UINT16, BASE_OCT, NULL, 0x7F,
                 NULL, HFILL }
             },
-            { &hf_dis_iff_mode_damage,
-              { "Damage",  "dis.iff.mode.damage",
-                FT_UINT16, BASE_DEC, VALS(DIS_PDU_IffDamaged_Strings), 0x0,
+            { &hf_dis_iff_mode_2_code_3,
+              { "Code Element 3",  "dis.iff.mode_2_code_3",
+                FT_UINT16, BASE_OCT, NULL, 0x7F,
                 NULL, HFILL }
             },
-            { &hf_dis_iff_mode_malfunction,
-              { "Malfunction",  "dis.iff.mode.malfunction",
-                FT_UINT16, BASE_DEC, VALS(DIS_PDU_IffMalfunction_Strings), 0x0,
+            { &hf_dis_iff_mode_2_code_4,
+              { "Code Element 4",  "dis.iff.mode_2_code_4",
+                FT_UINT16, BASE_OCT, NULL, 0x7F,
+                NULL, HFILL }
+            },
+            { &hf_dis_iff_mode_3_code_1,
+              { "Code Element 1",  "dis.iff.mode_3_code_1",
+                FT_UINT16, BASE_OCT, NULL, 0x7F,
+                NULL, HFILL }
+            },
+            { &hf_dis_iff_mode_3_code_2,
+              { "Code Element 2",  "dis.iff.mode_3_code_2",
+                FT_UINT16, BASE_OCT, NULL, 0x7F,
+                NULL, HFILL }
+            },
+            { &hf_dis_iff_mode_3_code_3,
+              { "Code Element 3",  "dis.iff.mode_3_code_3",
+                FT_UINT16, BASE_OCT, NULL, 0x7F,
+                NULL, HFILL }
+            },
+            { &hf_dis_iff_mode_3_code_4,
+              { "Code Element 4",  "dis.iff.mode_3_code_4",
+                FT_UINT16, BASE_OCT, NULL, 0x7F,
                 NULL, HFILL }
             },
             { &hf_dis_iff_mode_4,
-              { "IFF Mode 4 Pseudo Crypto",  "dis.iff.mode_4",
-                FT_UINT16, BASE_DEC, VALS(DIS_PDU_IffMode4_Strings), 0x0,
+              { "Mode 4 Code",  "dis.iff.mode_4",
+                FT_UINT16, BASE_DEC, VALS(DIS_PDU_IffMode4_Strings), 0xFFF,
                 NULL, HFILL }
             },
             { &hf_dis_iff_mode_c,
               { "IFF Mode C (FL)",  "dis.iff.mode_c",
-                FT_INT16, BASE_DEC, NULL, 0x0,
+                FT_INT16, BASE_DEC, NULL, 0x7FF,
+                NULL, HFILL }
+            },
+            { &hf_dis_iff_basic_advanced_indicator,
+              { "Basic/Advanced",  "dis.iff.basic.advanced.indicator",
+                FT_UINT16, BASE_DEC, VALS(DIS_PDU_IffBasicAdvanced_Strings), 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_iff_tcas,
+             { "TCAS",  "dis.iff.tcas",
+             FT_UINT16, BASE_DEC, NULL, 0x0,
+             NULL, HFILL }
+            },
+            { &hf_dis_iff_tcas_acas_indicator,
+              { "TCAS/ACAS",  "dis.iff.tcas.acas.indicator",
+                FT_UINT16, BASE_DEC, VALS(DIS_PDU_IffTCASACASIndicator_Strings), 0x1,
+                NULL, HFILL }
+            },
+            { &hf_dis_iff_software_version,
+              { "Software Version",  "dis.iff.software.version",
+                FT_UINT16, BASE_DEC, VALS(DIS_PDU_IffSoftwareVersion_Strings), 0x4,
+                NULL, HFILL }
+            },
+            { &hf_dis_iff_tcas_acas_type,
+              { "TCAS/ACAS Type",  "dis.iff.tcas.acas.type",
+                FT_UINT16, BASE_DEC, VALS(DIS_PDU_IffTCASACASType_Strings), 0x2,
+                NULL, HFILL }
+            },
+            { &hf_dis_iff_tcas_type,
+              { "TCAS I/II",  "dis.iff.tcas.type",
+                FT_UINT16, BASE_DEC, VALS(DIS_PDU_IffTCASType_Strings), 0x8,
+                NULL, HFILL }
+            },
+            { &hf_dis_iff_mode_status,
+              { "Status",  "dis.iff.mode.status",
+                FT_UINT16, BASE_DEC, VALS(DIS_PDU_IffOffOn_Strings), 0x10,
+                NULL, HFILL }
+            },
+            { &hf_dis_iff_mode_damage,
+              { "Damage",  "dis.iff.mode.damage",
+                FT_UINT16, BASE_DEC, VALS(DIS_PDU_IffDamaged_Strings), 0x20,
+                NULL, HFILL }
+            },
+            { &hf_dis_iff_mode_malfunction,
+              { "Malfunction",  "dis.iff.mode.malfunction",
+                FT_UINT16, BASE_DEC, VALS(DIS_PDU_IffMalfunction_Strings), 0x40,
                 NULL, HFILL }
             },
             { &hf_dis_collision_type,
