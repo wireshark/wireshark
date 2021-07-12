@@ -1601,14 +1601,14 @@ void wtap_opttypes_initialize(void)
         NULL,                         /* copy_mand */
         NULL                          /* options */
     };
-#if 0
-    // We handle these options via a different mechanism
     static const wtap_opttype_t pkt_flags = {
         "flags",
         "Link-layer flags",
         WTAP_OPTTYPE_UINT32,
         0
     };
+#if 0
+    // We handle these options via a different mechanism
     static const wtap_opttype_t pkt_hash = {
         "hash",
         "Hash of packet data",
@@ -1695,9 +1695,9 @@ void wtap_opttypes_initialize(void)
      * of an option.
      */
     wtap_opttype_block_register(&pkt_block);
+    wtap_opttype_option_register(&pkt_block, OPT_PKT_FLAGS, &pkt_flags);
 #if 0
     // We handle these options via a different mechanism
-    wtap_opttype_option_register(&pkt_block, OPT_PKT_FLAGS, &pkt_flags);
     wtap_opttype_option_register(&pkt_block, OPT_PKT_HASH, &pkt_hash);
     wtap_opttype_option_register(&pkt_block, OPT_PKT_DROPCOUNT, &pkt_dropcount);
     wtap_opttype_option_register(&pkt_block, OPT_PKT_PACKETID, &pkt_id);

@@ -202,6 +202,7 @@ iptrace_read_rec_1_0(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf,
 	guint8			pkt_info[IPTRACE_1_0_PINFO_SIZE];
 	if_info			info;
 	guint32			packet_size;
+	guint32			pack_flags = 0;
 	gpointer		result;
 
 	if (!wtap_read_bytes_or_eof(fh, header, IPTRACE_1_0_PHDR_SIZE, err,
@@ -288,15 +289,19 @@ iptrace_read_rec_1_0(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf,
 	}
 
 	rec->rec_type = REC_TYPE_PACKET;
-	rec->presence_flags = WTAP_HAS_TS | WTAP_HAS_INTERFACE_ID | WTAP_HAS_PACK_FLAGS;
+	rec->presence_flags = WTAP_HAS_TS | WTAP_HAS_INTERFACE_ID;
 	rec->rec_header.packet_header.len = packet_size;
 	rec->rec_header.packet_header.caplen = packet_size;
 	rec->ts.secs = pntoh32(&header[IPTRACE_1_0_TV_SEC_OFFSET]);
 	rec->ts.nsecs = 0;
-	rec->rec_header.packet_header.pack_flags =
+	rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
+	pack_flags =
 	    pkt_info[IPTRACE_1_0_TX_FLAGS_OFFSET] ?
 	      (PACK_FLAGS_DIRECTION_OUTBOUND << PACK_FLAGS_DIRECTION_SHIFT) :
 	      (PACK_FLAGS_DIRECTION_INBOUND << PACK_FLAGS_DIRECTION_SHIFT);
+	if (pack_flags != 0) {
+		wtap_block_add_uint32_option(rec->block, OPT_PKT_FLAGS, pack_flags);
+	}
 
 	/* Fill in the pseudo-header. */
 	fill_in_pseudo_header(rec->rec_header.packet_header.pkt_encap,
@@ -455,6 +460,7 @@ iptrace_read_rec_2_0(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf,
 	guint8			pkt_info[IPTRACE_2_0_PINFO_SIZE];
 	if_info			info;
 	guint32			packet_size;
+	guint32			pack_flags = 0;
 	gpointer		result;
 
 	if (!wtap_read_bytes_or_eof(fh, header, IPTRACE_2_0_PHDR_SIZE, err,
@@ -559,15 +565,19 @@ iptrace_read_rec_2_0(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf,
 	}
 
 	rec->rec_type = REC_TYPE_PACKET;
-	rec->presence_flags = WTAP_HAS_TS | WTAP_HAS_INTERFACE_ID | WTAP_HAS_PACK_FLAGS;
+	rec->presence_flags = WTAP_HAS_TS | WTAP_HAS_INTERFACE_ID;
 	rec->rec_header.packet_header.len = packet_size;
 	rec->rec_header.packet_header.caplen = packet_size;
 	rec->ts.secs = pntoh32(&pkt_info[IPTRACE_2_0_TV_SEC_OFFSET]);
 	rec->ts.nsecs = pntoh32(&pkt_info[IPTRACE_2_0_TV_NSEC_OFFSET]);
-	rec->rec_header.packet_header.pack_flags =
+	rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
+	pack_flags =
 	    pkt_info[IPTRACE_2_0_TX_FLAGS_OFFSET] ?
 	      (PACK_FLAGS_DIRECTION_OUTBOUND << PACK_FLAGS_DIRECTION_SHIFT) :
 	      (PACK_FLAGS_DIRECTION_INBOUND << PACK_FLAGS_DIRECTION_SHIFT);
+	if (pack_flags != 0) {
+		wtap_block_add_uint32_option(rec->block, OPT_PKT_FLAGS, pack_flags);
+	}
 
 	/* Fill in the pseudo-header. */
 	fill_in_pseudo_header(rec->rec_header.packet_header.pkt_encap,

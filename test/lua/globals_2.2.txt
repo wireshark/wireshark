@@ -1219,7 +1219,6 @@
         ["CAP_LEN"] = 2,
         ["DROP_COUNT"] = 16,
         ["INTERFACE_ID"] = 4,
-        ["PACK_FLAGS"] = 32,
         ["TS"] = 1
     },
     ["wtap_rec_types"] = {

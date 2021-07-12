@@ -482,6 +482,7 @@ static int
 dissect_lapd_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	guint32 flags = 0;
+	guint32 pack_flags = 0;
 
 	/*
 	 * If we have direction flags, we have a direction;
@@ -489,8 +490,8 @@ dissect_lapd_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 	 * "inbound" packets are presumed to be Network->User.
 	 * Other packets, we have no idea.
 	 */
-	if (pinfo->rec->presence_flags & WTAP_HAS_PACK_FLAGS) {
-		switch (PACK_FLAGS_DIRECTION(pinfo->rec->rec_header.packet_header.pack_flags)) {
+	if (WTAP_OPTTYPE_SUCCESS == wtap_block_get_uint32_option_value(pinfo->rec->block, OPT_PKT_FLAGS, &pack_flags)) {
+		switch (PACK_FLAGS_DIRECTION(pack_flags)) {
 
 		case PACK_FLAGS_DIRECTION_OUTBOUND:
 			flags |= LAPD_HAS_DIRECTION | LAPD_USER_TO_NETWORK;

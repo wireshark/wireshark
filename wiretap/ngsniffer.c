@@ -1159,6 +1159,7 @@ ngsniffer_process_record(wtap *wth, gboolean is_random, guint *padding,
 
 	/* Initialize - we'll be setting some presence flags below. */
 	rec->presence_flags = 0;
+	rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
 
 	ngsniffer = (ngsniffer_t *)wth->priv;
 	switch (rec_type) {
@@ -1370,6 +1371,7 @@ set_metadata_frame2(wtap *wth, wtap_rec *rec, struct frame2_rec *frame2)
 {
 	ngsniffer_t *ngsniffer;
 	union wtap_pseudo_header *pseudo_header;
+	guint32 pack_flags = 0;
 
 	ngsniffer = (ngsniffer_t *)wth->priv;
 
@@ -1418,30 +1420,28 @@ set_metadata_frame2(wtap *wth, wtap_rec *rec, struct frame2_rec *frame2)
 	switch (ngsniffer->network) {
 
 	case NETWORK_ENET:
-		rec->presence_flags |= WTAP_HAS_PACK_FLAGS;
-		rec->rec_header.packet_header.pack_flags = 0;
 		if (frame2->fs & FS_ETH_CRC)
-			rec->rec_header.packet_header.pack_flags |= PACK_FLAGS_CRC_ERROR;
+			pack_flags |= PACK_FLAGS_CRC_ERROR;
 		if (frame2->fs & FS_ETH_ALIGN)
-			rec->rec_header.packet_header.pack_flags |= PACK_FLAGS_UNALIGNED_FRAME;
+			pack_flags |= PACK_FLAGS_UNALIGNED_FRAME;
 		if (frame2->fs & FS_ETH_RUNT)
-			rec->rec_header.packet_header.pack_flags |= PACK_FLAGS_PACKET_TOO_SHORT;;
+			pack_flags |= PACK_FLAGS_PACKET_TOO_SHORT;
 		break;
 
 	case NETWORK_FDDI:
-		rec->presence_flags |= WTAP_HAS_PACK_FLAGS;
-		rec->rec_header.packet_header.pack_flags = 0;
 		if (!(frame2->fs & FS_FDDI_INVALID) &&
 		    (frame2->fs & (FS_FDDI_PCI_CRC|FS_FDDI_ISA_CRC)))
-			rec->rec_header.packet_header.pack_flags |= PACK_FLAGS_CRC_ERROR;
+			pack_flags |= PACK_FLAGS_CRC_ERROR;
 		break;
 
 	case NETWORK_SYNCHRO:
-		rec->presence_flags |= WTAP_HAS_PACK_FLAGS;
-		rec->rec_header.packet_header.pack_flags = 0;
 		if (frame2->fs & FS_SYNC_CRC)
-			rec->rec_header.packet_header.pack_flags |= PACK_FLAGS_CRC_ERROR;
+			pack_flags |= PACK_FLAGS_CRC_ERROR;
 		break;
+	}
+
+	if (pack_flags != 0) {
+		wtap_block_add_uint32_option(rec->block, OPT_PKT_FLAGS, pack_flags);
 	}
 
 	pseudo_header = &rec->rec_header.packet_header.pseudo_header;

@@ -620,8 +620,8 @@ write_current_packet (void)
             if (ts_fmt == NULL) { ts_nsec++; }  /* fake packet counter */
             rec.rec_header.packet_header.caplen = rec.rec_header.packet_header.len = prefix_length + curr_offset + eth_trailer_length;
             rec.rec_header.packet_header.pkt_encap = pcap_link_type;
-            rec.rec_header.packet_header.pack_flags |= direction;
-            rec.presence_flags = WTAP_HAS_CAP_LEN|WTAP_HAS_INTERFACE_ID|WTAP_HAS_TS|WTAP_HAS_PACK_FLAGS;
+            wtap_block_add_uint32_option(rec.block, OPT_PKT_FLAGS, direction);
+            rec.presence_flags = WTAP_HAS_CAP_LEN|WTAP_HAS_INTERFACE_ID|WTAP_HAS_TS;
             if (has_seqno) {
               rec.presence_flags |= WTAP_HAS_PACKET_ID;
               rec.rec_header.packet_header.packet_id = seqno;

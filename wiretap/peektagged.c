@@ -734,11 +734,12 @@ peektagged_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
     rec->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
     rec->rec_header.packet_header.len    = length;
     rec->rec_header.packet_header.caplen = sliceLength;
+    rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
     if (saw_flags_and_status) {
-        rec->presence_flags |= WTAP_HAS_PACK_FLAGS;
-        rec->rec_header.packet_header.pack_flags = 0;
+        guint32 flags = 0;
         if (flags_and_status & FLAGS_HAS_CRC_ERROR)
-            rec->rec_header.packet_header.pack_flags |= PACK_FLAGS_CRC_ERROR;
+            flags |= PACK_FLAGS_CRC_ERROR;
+        wtap_block_add_uint32_option(rec->block, OPT_PKT_FLAGS, flags);
     }
 
     /* calculate and fill in packet time stamp */

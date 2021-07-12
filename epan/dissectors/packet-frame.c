@@ -337,6 +337,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 {
 	proto_item  *volatile ti = NULL;
 	guint	     cap_len = 0, frame_len = 0;
+	guint32      pack_flags = 0;
 	proto_tree  *volatile tree;
 	proto_tree  *comments_tree;
 	proto_tree  *volatile fh_tree = NULL;
@@ -355,8 +356,8 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 
 	case REC_TYPE_PACKET:
 		pinfo->current_proto = "Frame";
-		if (pinfo->rec->presence_flags & WTAP_HAS_PACK_FLAGS) {
-			switch (PACK_FLAGS_DIRECTION(pinfo->rec->rec_header.packet_header.pack_flags)) {
+		if (WTAP_OPTTYPE_SUCCESS == wtap_block_get_uint32_option_value(fr_data->pkt_block, OPT_PKT_FLAGS, &pack_flags)) {
+			switch (PACK_FLAGS_DIRECTION(pack_flags)) {
 
 			case PACK_FLAGS_DIRECTION_UNKNOWN:
 			default:
@@ -505,8 +506,8 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 					    pinfo->rec->rec_header.packet_header.interface_id);
 				}
 			}
-			if (pinfo->rec->presence_flags & WTAP_HAS_PACK_FLAGS) {
-				switch (PACK_FLAGS_DIRECTION(pinfo->rec->rec_header.packet_header.pack_flags)) {
+			if (WTAP_OPTTYPE_SUCCESS == wtap_block_get_uint32_option_value(fr_data->pkt_block, OPT_PKT_FLAGS, &pack_flags)) {
+				switch (PACK_FLAGS_DIRECTION(pack_flags)) {
 
 				case PACK_FLAGS_DIRECTION_INBOUND:
 					proto_item_append_text(ti, " (inbound)");
@@ -620,7 +621,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 			proto_tree_add_uint(fh_tree, hf_frame_interface_queue, tvb, 0, 0,
 					    pinfo->rec->rec_header.packet_header.interface_queue);
 
-		if (pinfo->rec->presence_flags & WTAP_HAS_PACK_FLAGS) {
+		if (WTAP_OPTTYPE_SUCCESS == wtap_block_get_uint32_option_value(fr_data->pkt_block, OPT_PKT_FLAGS, &pack_flags)) {
 			proto_tree *flags_tree;
 			proto_item *flags_item;
 			static int * const flags[] = {
@@ -639,9 +640,9 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 				NULL
 			};
 
-			flags_item = proto_tree_add_uint(fh_tree, hf_frame_pack_flags, tvb, 0, 0, pinfo->rec->rec_header.packet_header.pack_flags);
+			flags_item = proto_tree_add_uint(fh_tree, hf_frame_pack_flags, tvb, 0, 0, pack_flags);
 			flags_tree = proto_item_add_subtree(flags_item, ett_flags);
-			proto_tree_add_bitmask_list_value(flags_tree, tvb, 0, 0, flags, pinfo->rec->rec_header.packet_header.pack_flags);
+			proto_tree_add_bitmask_list_value(flags_tree, tvb, 0, 0, flags, pack_flags);
 		}
 
 		if (pinfo->rec->presence_flags & WTAP_HAS_PACKET_ID)
