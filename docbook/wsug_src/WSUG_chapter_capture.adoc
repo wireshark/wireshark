@@ -323,8 +323,6 @@ To remove a pipe from the list of interfaces, select it and press btn:[-].
 
 On Microsoft Windows, the “Remote Interfaces” tab lets you capture from an interface on a different machine.
 The Remote Packet Capture Protocol service must first be running on the target platform before Wireshark can connect to it.
-The easiest way is to install Npcap from {npcap-download-url} on the target.
-Once installation is completed go to the Services control panel, find the Remote Packet Capture Protocol service and start it.
 
 On Linux or Unix you can capture (and do so more securely) through an SSH tunnel.
 
