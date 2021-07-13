@@ -38,7 +38,11 @@ target_include_directories(g726 PRIVATE ${CMAKE_SOURCE_DIR}/codecs)
 
 target_link_libraries(g726 wsutil ${SPANDSP_LIBRARIES})
 
-target_include_directories(g726 SYSTEM PRIVATE ${SPANDSP_INCLUDE_DIRS})
+target_include_directories(g726
+	SYSTEM PRIVATE
+		${SPANDSP_INCLUDE_DIRS}
+		${TIFF_INCLUDE_DIR}
+	)
 
 install_plugin(g726 codecs)
 

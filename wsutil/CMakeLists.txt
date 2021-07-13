@@ -264,23 +264,24 @@ if(MSVC)
 endif()
 
 target_link_libraries(wsutil
+	# *Lots* of our targets that link with wsutil also link with
+	# GLib and GModule. Mark them PUBLIC so that dependent targets
+	# don't have to link them directly.
 	PUBLIC
-	${CMAKE_DL_LIBS}
-	${APPLE_CORE_FOUNDATION_LIBRARY}
-	${GMODULE2_LIBRARIES}
-	${GLIB2_LIBRARIES}
-	${GCRYPT_LIBRARIES}
-	${WIN_WS2_32_LIBRARY}
-	${GNUTLS_LIBRARIES}
-	${M_LIBRARIES}
+		${GLIB2_LIBRARIES}
+		${GMODULE2_LIBRARIES}
+	PRIVATE
+		${APPLE_CORE_FOUNDATION_LIBRARY}
+		${CMAKE_DL_LIBS}
+		${GCRYPT_LIBRARIES}
+		${GNUTLS_LIBRARIES}
+		${M_LIBRARIES}
+		${WIN_IPHLPAPI_LIBRARY}
+		${WIN_WS2_32_LIBRARY}
 )
 
-if(WIN32)
-	target_link_libraries(wsutil PRIVATE "iphlpapi.lib" "ws2_32.lib")
-endif(WIN32)
-
-target_include_directories(wsutil SYSTEM
-	PUBLIC
+target_include_directories(wsutil
+	SYSTEM PRIVATE
 		${GCRYPT_INCLUDE_DIRS}
 		${GNUTLS_INCLUDE_DIRS}
 )

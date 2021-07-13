@@ -38,7 +38,11 @@ target_include_directories(g722 PRIVATE ${CMAKE_SOURCE_DIR}/codecs)
 
 target_link_libraries(g722 wsutil ${SPANDSP_LIBRARIES})
 
-target_include_directories(g722 SYSTEM PRIVATE ${SPANDSP_INCLUDE_DIRS})
+target_include_directories(g722
+	SYSTEM PRIVATE
+		${SPANDSP_INCLUDE_DIRS}
+		${TIFF_INCLUDE_DIR}
+	)
 
 install_plugin(g722 codecs)
 

@@ -52,16 +52,13 @@ target_link_libraries(caputils
 		$<$<BOOL:${PCAP_FOUND}>:pcap::pcap>
 	PRIVATE
 		${NL_LIBRARIES}
+		${WIN_IPHLPAPI_LIBRARY}
 )
 
 target_include_directories(caputils SYSTEM
 	PRIVATE
 		${NL_INCLUDE_DIRS}
 )
-
-if(WIN32)
-	target_link_libraries(caputils PRIVATE "iphlpapi.lib")
-endif(WIN32)
 
 set_target_properties(caputils PROPERTIES
 	LINK_FLAGS "${WS_LINK_FLAGS}"

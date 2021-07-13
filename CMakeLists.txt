@@ -78,7 +78,7 @@ if (ENABLE_LTO)
 		set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 		message(STATUS "LTO/IPO is enabled")
 	else()
-		message(STATUS "LTO/IPO requested but it is not supported by the compiler: ${lto_output}") 
+		message(STATUS "LTO/IPO requested but it is not supported by the compiler: ${lto_output}")
 	endif()
 else()
 	message(STATUS "LTO/IPO is not enabled")
@@ -1248,6 +1248,8 @@ ws_find_package(NL ENABLE_NETLINK HAVE_LIBNL)
 
 ws_find_package(SBC ENABLE_SBC HAVE_SBC)
 
+# SpanDSP codec
+find_package(TIFF QUIET)
 ws_find_package(SPANDSP ENABLE_SPANDSP HAVE_SPANDSP)
 
 ws_find_package(BCG729 ENABLE_BCG729 HAVE_BCG729)
@@ -1402,10 +1404,11 @@ endif()
 # Platform-specific additional libraries.
 #
 if(WIN32)
+	set(WIN_COMCTL32_LIBRARY comctl32.lib)
+	set(WIN_IPHLPAPI_LIBRARY iphlpapi.lib)
 	set(WIN_PSAPI_LIBRARY    psapi.lib)
-	set(WIN_WS2_32_LIBRARY   ws2_32.lib)
-	set(WIN_COMCTL32_LIBRARY comctl32.lib )
 	set(WIN_VERSION_LIBRARY  version.lib)
+	set(WIN_WS2_32_LIBRARY   ws2_32.lib)
 endif()
 
 if(APPLE)
@@ -2780,6 +2783,7 @@ if(BUILD_capinfos)
 	add_executable(capinfos ${capinfos_FILES})
 	set_extra_executable_properties(capinfos "Executables")
 	target_link_libraries(capinfos ${capinfos_LIBS})
+	target_include_directories(capinfos SYSTEM PRIVATE ${GCRYPT_INCLUDE_DIRS})
 	install(TARGETS capinfos RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
 
@@ -2820,6 +2824,7 @@ if(BUILD_editcap)
 	add_executable(editcap ${editcap_FILES})
 	set_extra_executable_properties(editcap "Executables")
 	target_link_libraries(editcap ${editcap_LIBS})
+	target_include_directories(editcap SYSTEM PRIVATE ${GCRYPT_INCLUDE_DIRS})
 	install(TARGETS editcap RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
 
