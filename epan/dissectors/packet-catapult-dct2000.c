@@ -312,6 +312,8 @@ static dissector_handle_t pdcp_lte_handle;
 static dissector_handle_t catapult_dct2000_handle;
 static dissector_handle_t nrup_handle;
 
+static dissector_handle_t mac_nr_handle;
+
 static dissector_handle_t look_for_dissector(const char *protocol_name);
 static guint parse_outhdr_string(const guchar *outhdr_string, gint outhdr_length, guint *outhdr_values);
 
@@ -2745,6 +2747,85 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                 }
 
 
+                /* Look for logged MAC-NR PDU */
+                /* Example contents would be:
+                    $Debug  - NRMAC PDU: direction=0 rntiType=3 rnti=8495 ueid=1 SN=0 SFN=0 length=22 $40111212121212121212121212121212121212121212
+                */
+                int dir, rntiType, rnti, ueid, sn, sfn, length;
+
+                if ((sscanf(string, "L1_App: NRMAC PDU: direction=%d rntiType=%d rnti=%d ueid=%d SN=%d  SFN=%d length=%d $",
+                            &dir, &rntiType, &rnti, &ueid, &sn, &sfn, &length) == 7) ||
+                    (sscanf(string, "NRMAC PDU: direction=%d rntiType=%d rnti=%d ueid=%d SN=%d  SFN=%d length=%d $",
+                            &dir, &rntiType, &rnti, &ueid, &sn, &sfn, &length) == 7))
+                {
+                    struct mac_nr_info *p_mac_nr_info;
+
+                    /* Only need to set info once per session? */
+                    /* p_mac_nr_info = get_mac_nr_proto_data(pinfo); */
+
+                    /* Allocate & zero struct */
+                    p_mac_nr_info = wmem_new0(wmem_file_scope(), struct mac_nr_info);
+
+                    /* Populate the struct from outhdr values */
+                    p_mac_nr_info->radioType = FDD_RADIO;
+
+                    /* Map internal RNTI type -> Wireshark #defines from packet-mac-nr.h */
+                    switch (rntiType) {
+                        case 2:
+                            p_mac_nr_info->rntiType = P_RNTI;
+                            break;
+                        case 3:
+                            p_mac_nr_info->rntiType = RA_RNTI;
+                            break;
+                        case 4:
+                            p_mac_nr_info->rntiType = C_RNTI; /* temp C-RNTI */
+                            break;
+                        case 5:
+                            p_mac_nr_info->rntiType = C_RNTI;
+                            break;
+                        default:
+                            p_mac_nr_info->rntiType = NO_RNTI;
+                            break;
+                    }
+
+                    p_mac_nr_info->direction = dir;
+                    p_mac_nr_info->rnti = rnti;
+                    // 0xFFFF trumps logged rntiType...
+                    if (rnti == 65535) {
+                        p_mac_nr_info->rntiType = SI_RNTI;
+                    }
+                    p_mac_nr_info->ueid = ueid;
+
+                    p_mac_nr_info->phr_type2_othercell = FALSE;
+
+                    p_mac_nr_info->length = length;
+
+                    /* Store info in packet */
+                    set_mac_nr_proto_data(pinfo, p_mac_nr_info);
+
+                    /* Payload is from $ to end of string */
+                    int data_offset = 0;
+                    for (unsigned int n=0; n < strlen(string); n++) {
+                        if (string[n] == '$') {
+                            data_offset = n;
+                            break;
+                        }
+                    }
+
+                    /* Convert data to hex. */
+                    char *mac_data = (char *)wmem_alloc(wmem_packet_scope(), 2 + (strlen(string)-data_offset)/2);
+                    int idx, m;
+                    for (idx=0, m=data_offset+1; string[m] != '\0'; m+=2, idx++) {
+                        mac_data[idx] = (hex_from_char(string[m]) << 4) + hex_from_char(string[m+1]);
+                    }
+
+                    /* Create tvb */
+                    tvbuff_t *mac_nr_tvb = tvb_new_real_data(mac_data, idx, idx);
+                    add_new_data_source(pinfo, mac_nr_tvb, "MAC-NR Payload");
+                    /* Call the dissector! */
+                    sub_dissector_result = call_dissector_only(mac_nr_handle, mac_nr_tvb, pinfo, tree, NULL);
+                }
+
                 /* Look for logged NRUP PDU */
                 const char *nrup_pattern = "NRUP PDU: ";
                 char *start = strstr(string, nrup_pattern);
@@ -2763,7 +2844,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                     int idx, m;
 
                     /* The rest (or all) is data! */
-                    int length = (int)strlen(payload) / 2;
+                    length = (int)strlen(payload) / 2;
                     for (m=0, idx=0; payload[m] != '\0' && idx < MAX_NRUP_DATA_LENGTH-4; m+=2, idx++) {
                         nrup_data[idx] = (hex_from_char(payload[m]) << 4) + hex_from_char(payload[m+1]);
                     }
@@ -3179,6 +3260,7 @@ void proto_reg_handoff_catapult_dct2000(void)
     rlc_lte_handle = find_dissector("rlc-lte");
     pdcp_lte_handle = find_dissector("pdcp-lte");
 
+    mac_nr_handle = find_dissector("mac-nr");
     nrup_handle = find_dissector("nrup");
 }
 
