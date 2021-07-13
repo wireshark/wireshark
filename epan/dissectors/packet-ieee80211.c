@@ -31151,6 +31151,7 @@ add_he_trigger_user_info(proto_tree *tree, tvbuff_t *tvb, int offset,
   int            length = 0, range_len = 0;
   int            start_offset = offset;
   guint16         aid12_subfield = 0;
+  guint          len_remaining = 0;
 
   /*
    * If the AID12 subfield has the value 4095 it indicates the start of
@@ -31223,7 +31224,8 @@ add_he_trigger_user_info(proto_tree *tree, tvbuff_t *tvb, int offset,
         break;
     }
 
-    if (tvb_reported_length_remaining(tvb, offset) < 5)
+    len_remaining = tvb_reported_length_remaining(tvb, offset);
+    if (len_remaining < 5)
       aid12_subfield = 4095;
     else
       aid12_subfield = tvb_get_letohs(tvb, offset) & 0xFFF;
@@ -31231,7 +31233,7 @@ add_he_trigger_user_info(proto_tree *tree, tvbuff_t *tvb, int offset,
 
 out:
 
-  if (aid12_subfield == 4095) {
+  if (aid12_subfield == 4095 && len_remaining >= 5) {
     /* Show the Start of Padding field. */
     proto_tree_add_item(user_info,
                         hf_ieee80211_he_trigger_user_info_padding_start,
@@ -31243,7 +31245,7 @@ out:
   proto_item_set_len(pi, offset - start_offset);
 
   /* Now, treat all the rest of the frame as padding */
-  if (aid12_subfield == 4095) {
+  if (aid12_subfield == 4095 && len_remaining >= 5) {
     proto_tree_add_item(tree, hf_ieee80211_he_trigger_padding, tvb, offset,
                         tvb_reported_length_remaining(tvb, offset) - fcs_len,
                         ENC_NA);
