@@ -12,7 +12,6 @@
 #include "config.h"
 #include <epan/packet.h>
 #include <epan/address_types.h>
-#include <epan/prefs.h>
 #include "packet-mtp3.h"
 
 #define INVALID_SSN	0xff
@@ -577,7 +576,6 @@ dissect_ppcap_payload_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree * ppcap
 
 void proto_register_ppcap(void)
 {
-module_t *ppcap_module;
 
 	static hf_register_info hf[] = {
 	{ &hf_ppcap_length,
@@ -670,8 +668,6 @@ module_t *ppcap_module;
 	proto_register_field_array(proto_ppcap , hf , array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 	register_dissector("ppcap", dissect_ppcap, proto_ppcap);
-	ppcap_module = prefs_register_protocol(proto_ppcap, proto_reg_handoff_ppcap);
-	prefs_register_obsolete_preference(ppcap_module, "rev_doc");
 
 }
 
