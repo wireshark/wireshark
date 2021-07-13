@@ -451,6 +451,7 @@ static int peekclassic_read_packet_v7(wtap *wth, FILE_T fh,
 
 	/* fill in packet header values */
 	rec->rec_type = REC_TYPE_PACKET;
+	rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
 	rec->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
 	tsecs = (time_t) (timestamp/1000000);
 	tusecs = (guint32) (timestamp - tsecs*1000000);
@@ -458,7 +459,6 @@ static int peekclassic_read_packet_v7(wtap *wth, FILE_T fh,
 	rec->ts.nsecs = tusecs * 1000;
 	rec->rec_header.packet_header.len    = length;
 	rec->rec_header.packet_header.caplen = sliceLength;
-	rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
 	pack_flags = 0;
 	if (flags & FLAGS_HAS_CRC_ERROR)
 		pack_flags |= PACK_FLAGS_CRC_ERROR;
@@ -466,9 +466,7 @@ static int peekclassic_read_packet_v7(wtap *wth, FILE_T fh,
 		pack_flags |= PACK_FLAGS_PACKET_TOO_LONG;
 	if (flags & FLAGS_FRAME_TOO_SHORT)
 		pack_flags |= PACK_FLAGS_PACKET_TOO_SHORT;
-	if (pack_flags != 0) {
-		wtap_block_add_uint32_option(rec->block, OPT_PKT_FLAGS, pack_flags);
-	}
+	wtap_block_add_uint32_option(rec->block, OPT_PKT_FLAGS, pack_flags);
 
 	switch (wth->file_encap) {
 
@@ -616,7 +614,6 @@ static gboolean peekclassic_read_packet_v56(wtap *wth, FILE_T fh,
 	guint16 length;
 	guint16 sliceLength;
 	guint8  flags;
-	guint32 pack_flags;
 #if 0
 	guint8  status;
 #endif
@@ -629,6 +626,7 @@ static gboolean peekclassic_read_packet_v56(wtap *wth, FILE_T fh,
 	guint16 protoNum;
 	char    protoStr[8];
 #endif
+	guint32 pack_flags;
 
 	if (!wtap_read_bytes_or_eof(fh, ep_pkt, sizeof(ep_pkt), err, err_info))
 		return FALSE;
@@ -666,13 +664,13 @@ static gboolean peekclassic_read_packet_v56(wtap *wth, FILE_T fh,
 
 	/* fill in packet header values */
 	rec->rec_type = REC_TYPE_PACKET;
+	rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
 	rec->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
 	/* timestamp is in milliseconds since reference_time */
 	rec->ts.secs  = peekclassic->reference_time + (timestamp / 1000);
 	rec->ts.nsecs = 1000 * (timestamp % 1000) * 1000;
 	rec->rec_header.packet_header.len      = length;
 	rec->rec_header.packet_header.caplen   = sliceLength;
-	rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
 	pack_flags = 0;
 	if (flags & FLAGS_HAS_CRC_ERROR)
 		pack_flags |= PACK_FLAGS_CRC_ERROR;
@@ -680,9 +678,7 @@ static gboolean peekclassic_read_packet_v56(wtap *wth, FILE_T fh,
 		pack_flags |= PACK_FLAGS_PACKET_TOO_LONG;
 	if (flags & FLAGS_FRAME_TOO_SHORT)
 		pack_flags |= PACK_FLAGS_PACKET_TOO_SHORT;
-	if (pack_flags != 0) {
-		wtap_block_add_uint32_option(rec->block, OPT_PKT_FLAGS, pack_flags);
-	}
+	wtap_block_add_uint32_option(rec->block, OPT_PKT_FLAGS, pack_flags);
 
 	switch (wth->file_encap) {
 

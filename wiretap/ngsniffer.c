@@ -1370,8 +1370,8 @@ static void
 set_metadata_frame2(wtap *wth, wtap_rec *rec, struct frame2_rec *frame2)
 {
 	ngsniffer_t *ngsniffer;
+	guint32 pack_flags;
 	union wtap_pseudo_header *pseudo_header;
-	guint32 pack_flags = 0;
 
 	ngsniffer = (ngsniffer_t *)wth->priv;
 
@@ -1420,28 +1420,30 @@ set_metadata_frame2(wtap *wth, wtap_rec *rec, struct frame2_rec *frame2)
 	switch (ngsniffer->network) {
 
 	case NETWORK_ENET:
+		pack_flags = 0;
 		if (frame2->fs & FS_ETH_CRC)
 			pack_flags |= PACK_FLAGS_CRC_ERROR;
 		if (frame2->fs & FS_ETH_ALIGN)
 			pack_flags |= PACK_FLAGS_UNALIGNED_FRAME;
 		if (frame2->fs & FS_ETH_RUNT)
 			pack_flags |= PACK_FLAGS_PACKET_TOO_SHORT;
+		wtap_block_add_uint32_option(rec->block, OPT_PKT_FLAGS, pack_flags);
 		break;
 
 	case NETWORK_FDDI:
+		pack_flags = 0;
 		if (!(frame2->fs & FS_FDDI_INVALID) &&
 		    (frame2->fs & (FS_FDDI_PCI_CRC|FS_FDDI_ISA_CRC)))
 			pack_flags |= PACK_FLAGS_CRC_ERROR;
+		wtap_block_add_uint32_option(rec->block, OPT_PKT_FLAGS, pack_flags);
 		break;
 
 	case NETWORK_SYNCHRO:
+		pack_flags = 0;
 		if (frame2->fs & FS_SYNC_CRC)
 			pack_flags |= PACK_FLAGS_CRC_ERROR;
-		break;
-	}
-
-	if (pack_flags != 0) {
 		wtap_block_add_uint32_option(rec->block, OPT_PKT_FLAGS, pack_flags);
+		break;
 	}
 
 	pseudo_header = &rec->rec_header.packet_header.pseudo_header;
