@@ -765,6 +765,10 @@ pcapng_process_options(FILE_T fh, wtapng_block_t *wblock,
                 /* padding should be ok here, just get out of this */
                 opt_bytes_remaining = 0;
                 break;
+            case(OPT_COMMENT):
+                pcapng_process_string_option(wblock, option_code, option_length,
+                                             option_ptr);
+                break;
             case(OPT_CUSTOM_STR_COPY):
             case(OPT_CUSTOM_BIN_COPY):
             case(OPT_CUSTOM_STR_NO_COPY):
@@ -825,10 +829,6 @@ pcapng_process_section_header_block_option(wtapng_block_t *wblock,
      * in one of those places as standardized option types.
      */
     switch (option_code) {
-        case(OPT_COMMENT):
-            pcapng_process_string_option(wblock, option_code, option_length,
-                                         option_content);
-            break;
         case(OPT_SHB_HARDWARE):
             pcapng_process_string_option(wblock, option_code, option_length,
                                          option_content);
@@ -1034,10 +1034,6 @@ pcapng_process_if_descr_block_option(wtapng_block_t *wblock,
      * in one of those places as standardized option types.
      */
     switch (option_code) {
-        case(OPT_COMMENT):
-            pcapng_process_string_option(wblock, option_code, option_length,
-                                         option_content);
-            break;
         case(OPT_IDB_NAME): /* if_name */
             pcapng_process_string_option(wblock, option_code, option_length,
                                          option_content);
@@ -1439,9 +1435,6 @@ pcapng_process_packet_block_option(wtapng_block_t *wblock,
      * in one of those places as standardized option types.
      */
     switch (option_code) {
-        case(OPT_COMMENT):
-            pcapng_process_string_option(wblock, option_code, option_length, option_content);
-            break;
         case(OPT_EPB_FLAGS):
             if (option_length != 4) {
                 *err = WTAP_ERR_BAD_FILE;
@@ -2041,10 +2034,6 @@ pcapng_process_name_resolution_block_option(wtapng_block_t *wblock,
      * in one of those places as standardized option types.
      */
     switch (option_code) {
-        case(OPT_COMMENT):
-            pcapng_process_string_option(wblock, option_code, option_length,
-                                         option_content);
-            break;
         /* TODO:
          * ns_dnsname     2
          * ns_dnsIP4addr  3
@@ -2324,10 +2313,6 @@ pcapng_process_interface_statistics_block_option(wtapng_block_t *wblock,
      * in one of those places as standardized option types.
      */
     switch (option_code) {
-        case(OPT_COMMENT):
-            pcapng_process_string_option(wblock, option_code, option_length,
-                                         option_content);
-            break;
         case(OPT_ISB_STARTTIME): /* isb_starttime */
             pcapng_process_timestamp_option(wblock, section_info, option_code,
                                             option_length, option_content);
