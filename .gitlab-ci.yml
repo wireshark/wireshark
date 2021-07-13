@@ -530,7 +530,7 @@ Windows Build:
     - wireshark-windows-merge-req
   script:
     - cmake -G "Visual Studio 16 2019" -A x64 -DENABLE_LTO=off ..
-    - msbuild /verbosity:minimal "/consoleloggerparameters:PerformanceSummary;NoSummary" /maxcpucount Wireshark.sln
+    - msbuild /verbosity:minimal /maxcpucount Wireshark.sln
     - msbuild /verbosity:minimal /maxcpucount test-programs.vcxproj
     - ctest -C RelWithDebInfo --parallel 3 --force-new-ctest-process --verbose
 
