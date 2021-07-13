@@ -95,7 +95,7 @@ endif()
 
 target_link_libraries(version_info PRIVATE ${ZLIB_LIBRARIES})
 
-target_include_directories(version_info PRIVATE ${ZLIB_INCLUDE_DIRS})
+target_include_directories(version_info SYSTEM PRIVATE ${ZLIB_INCLUDE_DIRS})
 
 set_target_properties(ui version_info PROPERTIES
 	LINK_FLAGS "${WS_LINK_FLAGS}"
