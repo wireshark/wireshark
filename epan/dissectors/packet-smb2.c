@@ -1245,13 +1245,15 @@ static gboolean seskey_list_update_cb(void *r, char **err)
 		return FALSE;
 	}
 
-	if (has_s2ckey && rec->s2ckey_len != AES_KEY_SIZE) {
-		*err = g_strdup("Server-to-Client key must be a hexadecimal string representing " G_STRINGIFY(AES_KEY_SIZE));
+	if (has_s2ckey && ((rec->s2ckey_len != AES_KEY_SIZE) && (rec->s2ckey_len != AES_KEY_SIZE*2))) {
+		*err = g_strdup("Server-to-Client key must be a hexadecimal string representing "
+				G_STRINGIFY(AES_KEY_SIZE) " or " G_STRINGIFY(AES_KEY_SIZE*2));
 		return FALSE;
 	}
 
-	if (has_c2skey && rec->c2skey_len != AES_KEY_SIZE) {
-		*err = g_strdup("Client-to-Server key must be a hexadecimal string representing " G_STRINGIFY(AES_KEY_SIZE));
+	if (has_c2skey && ((rec->c2skey_len != AES_KEY_SIZE) && (rec->c2skey_len != AES_KEY_SIZE*2))) {
+		*err = g_strdup("Client-to-Server key must be a hexadecimal string representing "
+				G_STRINGIFY(AES_KEY_SIZE) " or " G_STRINGIFY(AES_KEY_SIZE*2));
 		return FALSE;
 	}
 
@@ -1285,7 +1287,11 @@ static void seskey_list_free_cb(void *r)
 	g_free(rec->c2skey);
 }
 
-static gboolean seskey_find_sid_key(guint64 sesid, guint8 *out_seskey, guint8 *out_s2ckey, guint8 *out_c2skey)
+static gboolean seskey_find_sid_key(guint64 sesid, guint8 *out_seskey,
+				    guint8 *out_s2ckey16,
+				    guint8 *out_c2skey16,
+				    guint8 *out_s2ckey32,
+				    guint8 *out_c2skey32)
 {
 	guint i;
 	guint64 sesid_le;
@@ -1310,15 +1316,21 @@ static gboolean seskey_find_sid_key(guint64 sesid, guint8 *out_seskey, guint8 *o
 		const smb2_seskey_field_t *p = &seskey_list[i];
 		if (memcmp(&sesid_le, p->id, SMB_SESSION_ID_SIZE) == 0) {
 			memset(out_seskey, 0, NTLMSSP_KEY_LEN);
-			memset(out_s2ckey, 0, AES_KEY_SIZE);
-			memset(out_c2skey, 0, AES_KEY_SIZE);
+			memset(out_s2ckey16, 0, AES_KEY_SIZE);
+			memset(out_c2skey16, 0, AES_KEY_SIZE);
+			memset(out_s2ckey32, 0, AES_KEY_SIZE*2);
+			memset(out_c2skey32, 0, AES_KEY_SIZE*2);
 
 			if (p->seskey_len != 0)
 				memcpy(out_seskey, p->seskey, p->seskey_len);
-			if (p->s2ckey_len != 0)
-				memcpy(out_s2ckey, p->s2ckey, p->s2ckey_len);
-			if (p->c2skey_len != 0)
-				memcpy(out_c2skey, p->c2skey, p->c2skey_len);
+			if (p->s2ckey_len == AES_KEY_SIZE)
+				memcpy(out_s2ckey16, p->s2ckey, p->s2ckey_len);
+			if (p->s2ckey_len == AES_KEY_SIZE*2)
+				memcpy(out_s2ckey32, p->s2ckey, p->s2ckey_len);
+			if (p->c2skey_len == AES_KEY_SIZE)
+				memcpy(out_c2skey16, p->c2skey, p->c2skey_len);
+			if (p->c2skey_len == AES_KEY_SIZE*2)
+				memcpy(out_c2skey32, p->c2skey, p->c2skey_len);
 
 			return TRUE;
 		}
@@ -1507,7 +1519,11 @@ smb2_get_session(smb2_conv_info_t *conv _U_, guint64 id, packet_info *pinfo, smb
 		ses->fids = wmem_map_new(wmem_file_scope(), smb2_fid_info_hash, smb2_fid_info_equal);
 		ses->files = wmem_map_new(wmem_file_scope(), smb2_eo_files_hash, smb2_eo_files_equal);
 
-		seskey_find_sid_key(id, ses->session_key, ses->client_decryption_key, ses->server_decryption_key);
+		seskey_find_sid_key(id, ses->session_key,
+				    ses->client_decryption_key16,
+				    ses->server_decryption_key16,
+				    ses->client_decryption_key32,
+				    ses->server_decryption_key32);
 		if (pinfo && si) {
 			if (si->flags & SMB2_FLAGS_RESPONSE) {
 				ses->server_port = pinfo->srcport;
@@ -1555,11 +1571,12 @@ smb2_add_session_info(proto_tree *ses_tree, proto_item *ses_item, tvbuff_t *tvb,
 static void smb2_key_derivation(const guint8 *KI, guint32 KI_len,
 			 const guint8 *Label, guint32 Label_len,
 			 const guint8 *Context, guint32 Context_len,
-			 guint8 KO[16])
+			 guint8 KO[16], guint32 KO_len)
 {
 	gcry_md_hd_t  hd     = NULL;
 	guint8        buf[4];
 	guint8       *digest = NULL;
+	guint32       L;
 
 	/*
 	 * a simplified version of
@@ -1575,12 +1592,15 @@ static void smb2_key_derivation(const guint8 *KI, guint32 KI_len,
 	gcry_md_write(hd, Label, Label_len);
 	gcry_md_write(hd, buf, 1);
 	gcry_md_write(hd, Context, Context_len);
-	buf[3] = 128;
+	L = KO_len * 8;
+	memset(buf, 0, sizeof(buf));
+	buf[3] = ((L) >> (0)) & 0xff;
+	buf[2] = ((L) >> (8)) & 0xff;
 	gcry_md_write(hd, buf, sizeof(buf));
 
 	digest = gcry_md_read(hd, GCRY_MD_SHA256);
 
-	memcpy(KO, digest, 16);
+	memcpy(KO, digest, KO_len);
 
 	gcry_md_close(hd);
 }
@@ -3520,8 +3540,8 @@ static void smb2_generate_decryption_keys(smb2_conv_info_t *conv, smb2_sesid_inf
 {
 	gboolean has_seskey = memcmp(ses->session_key, zeros, NTLMSSP_KEY_LEN) != 0;
 	gboolean has_signkey = memcmp(ses->signing_key, zeros, NTLMSSP_KEY_LEN) != 0;
-	gboolean has_client_key = memcmp(ses->client_decryption_key, zeros, AES_KEY_SIZE) != 0;
-	gboolean has_server_key = memcmp(ses->server_decryption_key, zeros, AES_KEY_SIZE) != 0;
+	gboolean has_client_key = memcmp(ses->client_decryption_key16, zeros, AES_KEY_SIZE) != 0;
+	gboolean has_server_key = memcmp(ses->server_decryption_key16, zeros, AES_KEY_SIZE) != 0;
 
 	/* if all decryption keys are provided, nothing to do */
 	if (has_client_key && has_server_key && has_signkey)
@@ -3542,46 +3562,62 @@ static void smb2_generate_decryption_keys(smb2_conv_info_t *conv, smb2_sesid_inf
 					    NTLMSSP_KEY_LEN,
 					    "SMB2AESCCM", 11,
 					    "ServerIn ", 10,
-					    ses->server_decryption_key);
+					    ses->server_decryption_key16, 16);
 		if (!has_client_key)
 			smb2_key_derivation(ses->session_key,
 					    NTLMSSP_KEY_LEN,
 					    "SMB2AESCCM", 11,
 					    "ServerOut", 10,
-					    ses->client_decryption_key);
+					    ses->client_decryption_key16, 16);
 		if (!has_signkey)
 			smb2_key_derivation(ses->session_key,
 					    NTLMSSP_KEY_LEN,
 					    "SMB2AESCMAC", 12,
 					    "SmbSign", 8,
-					    ses->signing_key);
+					    ses->signing_key, 16);
 	} else if (conv->dialect >= SMB2_DIALECT_311) {
-		if (!has_server_key)
+		if (!has_server_key) {
 			smb2_key_derivation(ses->session_key,
 					    NTLMSSP_KEY_LEN,
 					    "SMBC2SCipherKey", 16,
 					    ses->preauth_hash, SMB2_PREAUTH_HASH_SIZE,
-					    ses->server_decryption_key);
-		if (!has_client_key)
+					    ses->server_decryption_key16, 16);
+			smb2_key_derivation(ses->session_key,
+					    NTLMSSP_KEY_LEN,
+					    "SMBC2SCipherKey", 16,
+					    ses->preauth_hash, SMB2_PREAUTH_HASH_SIZE,
+					    ses->server_decryption_key32, 32);
+		}
+		if (!has_client_key) {
 			smb2_key_derivation(ses->session_key,
 					    NTLMSSP_KEY_LEN,
 					    "SMBS2CCipherKey", 16,
 					    ses->preauth_hash, SMB2_PREAUTH_HASH_SIZE,
-					    ses->client_decryption_key);
+					    ses->client_decryption_key16, 16);
+			smb2_key_derivation(ses->session_key,
+					    NTLMSSP_KEY_LEN,
+					    "SMBS2CCipherKey", 16,
+					    ses->preauth_hash, SMB2_PREAUTH_HASH_SIZE,
+					    ses->client_decryption_key32, 32);
+		}
 		if (!has_signkey)
 			smb2_key_derivation(ses->session_key,
 					    NTLMSSP_KEY_LEN,
 					    "SMBSigningKey", 14,
 					    ses->preauth_hash, SMB2_PREAUTH_HASH_SIZE,
-					    ses->signing_key);
+					    ses->signing_key, 16);
 	}
 
 	DEBUG("Generated Sign key");
 	HEXDUMP(ses->signing_key, NTLMSSP_KEY_LEN)
-	DEBUG("Generated S2C key");
-	HEXDUMP(ses->client_decryption_key, AES_KEY_SIZE);
-	DEBUG("Generated C2S key");
-	HEXDUMP(ses->server_decryption_key, AES_KEY_SIZE);
+	DEBUG("Generated S2C key16");
+	HEXDUMP(ses->client_decryption_key16, AES_KEY_SIZE);
+	DEBUG("Generated S2C key32");
+	HEXDUMP(ses->client_decryption_key32, AES_KEY_SIZE*2);
+	DEBUG("Generated C2S key16");
+	HEXDUMP(ses->server_decryption_key16, AES_KEY_SIZE);
+	DEBUG("Generated C2S key32");
+	HEXDUMP(ses->server_decryption_key32, AES_KEY_SIZE*2);
 }
 
 static int
@@ -5211,6 +5247,11 @@ dissect_smb2_negotiate_context(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 			offset += 2;
 
 			for (i = 0; i < signing_count; i++) {
+				/* in SMB3.1.1 the first cipher returned by the server session encryption algorithm */
+				if (i == 0 && si && si->conv && (si->flags & SMB2_FLAGS_RESPONSE)) {
+					guint16 first_sign_alg = tvb_get_letohs(tvb, offset);
+					si->conv->sign_alg = first_sign_alg;
+				}
 				proto_tree_add_item(sub_tree, hf_smb2_signing_alg_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 				offset += 2;
 			}
@@ -5423,6 +5464,18 @@ dissect_smb2_negotiate_protocol_response(tvbuff_t *tvb, packet_info *pinfo, prot
 	offset += 4;
 
 	offset = dissect_smb2_olb_tvb_max_offset(offset, &s_olb);
+
+	if (si->conv->dialect == SMB2_DIALECT_300 || si->conv->dialect == SMB2_DIALECT_302) {
+		/* If we know we are decrypting SMB3.0, it must be CCM */
+		si->conv->enc_alg = SMB2_CIPHER_AES_128_CCM;
+	}
+
+	if (si->conv->dialect >= SMB2_DIALECT_300) {
+		/* If we know we are decrypting SMB3.0, it's CMAC by default */
+		si->conv->sign_alg = SMB2_SIGNING_ALG_AES_CMAC;
+	} else {
+		si->conv->sign_alg = SMB2_SIGNING_ALG_HMAC_SHA256;
+	}
 
 	if (si->conv->dialect < SMB2_DIALECT_310) {
 		ncc = 0;
@@ -10073,16 +10126,34 @@ do_decrypt(guint8 *data,
 {
 	gcry_error_t err;
 	gcry_cipher_hd_t cipher_hd = NULL;
+	int algo;
+	size_t keylen;
 	int mode;
 	int iv_size;
 	guint64 lengths[3];
 
 	switch (alg) {
 	case SMB2_CIPHER_AES_128_CCM:
+		algo = GCRY_CIPHER_AES128;
+		keylen = AES_KEY_SIZE;
 		mode = GCRY_CIPHER_MODE_CCM;
 		iv_size = SMB3_AES128CCM_NONCE;
 		break;
 	case SMB2_CIPHER_AES_128_GCM:
+		algo = GCRY_CIPHER_AES128;
+		keylen = AES_KEY_SIZE;
+		mode = GCRY_CIPHER_MODE_GCM;
+		iv_size = SMB3_AES128GCM_NONCE;
+		break;
+	case SMB2_CIPHER_AES_256_CCM:
+		algo = GCRY_CIPHER_AES256;
+		keylen = AES_KEY_SIZE*2;
+		mode = GCRY_CIPHER_MODE_CCM;
+		iv_size = SMB3_AES128CCM_NONCE;
+		break;
+	case SMB2_CIPHER_AES_256_GCM:
+		algo = GCRY_CIPHER_AES256;
+		keylen = AES_KEY_SIZE*2;
 		mode = GCRY_CIPHER_MODE_GCM;
 		iv_size = SMB3_AES128GCM_NONCE;
 		break;
@@ -10091,13 +10162,13 @@ do_decrypt(guint8 *data,
 	}
 
 	/* Open the cipher */
-	if ((err = gcry_cipher_open(&cipher_hd, GCRY_CIPHER_AES128, mode, 0))) {
+	if ((err = gcry_cipher_open(&cipher_hd, algo, mode, 0))) {
 		DEBUG("GCRY: open %s/%s", gcry_strsource(err), gcry_strerror(err));
 		return FALSE;
 	}
 
 	/* Set the key */
-	if ((err = gcry_cipher_setkey(cipher_hd, key, AES_KEY_SIZE))) {
+	if ((err = gcry_cipher_setkey(cipher_hd, key, keylen))) {
 		DEBUG("GCRY: setkey %s/%s", gcry_strsource(err), gcry_strerror(err));
 		gcry_cipher_close(cipher_hd);
 		return FALSE;
@@ -10147,7 +10218,10 @@ decrypt_smb_payload(packet_info *pinfo,
 {
 	const guint8 *aad = NULL;
 	guint8 *data = NULL;
-	guint8 *keys[2], *key;
+	guint8 *key16 = NULL;
+	guint8 *keys16[2];
+	guint8 *key32 = NULL;
+	guint8 *keys32[2];
 	gboolean ok;
 	int aad_size;
 	int alg;
@@ -10162,11 +10236,15 @@ decrypt_smb_payload(packet_info *pinfo,
 		return NULL;
 
 	if (pinfo->destport == sti->session->server_port) {
-		keys[0] = sti->session->server_decryption_key;
-		keys[1] = sti->session->client_decryption_key;
+		keys16[0] = sti->session->server_decryption_key16;
+		keys16[1] = sti->session->client_decryption_key16;
+		keys32[0] = sti->session->server_decryption_key32;
+		keys32[1] = sti->session->client_decryption_key32;
 	} else {
-		keys[1] = sti->session->server_decryption_key;
-		keys[0] = sti->session->client_decryption_key;
+		keys16[1] = sti->session->server_decryption_key16;
+		keys16[0] = sti->session->client_decryption_key16;
+		keys32[1] = sti->session->server_decryption_key32;
+		keys32[0] = sti->session->client_decryption_key32;
 	}
 
 	aad = tvb_get_ptr(tvb, offset_aad, aad_size);
@@ -10194,45 +10272,74 @@ decrypt_smb_payload(packet_info *pinfo,
 
 	DEBUG("dialect 0x%x alg 0x%x conv alg 0x%x", sti->conv->dialect, sti->alg, sti->conv->enc_alg);
 
-	if (sti->conv->dialect == SMB2_DIALECT_300) {
-		/* If we know we are decrypting SMB3.0, it must be CCM */
-		sti->conv->enc_alg = SMB2_CIPHER_AES_128_CCM;
-	}
+	for (guint i = 0; i < G_N_ELEMENTS(keys16); i++) {
+		gboolean try_ccm16, try_gcm16;
+		gboolean try_ccm32, try_gcm32;
+		try_ccm16 = try_gcm16 = FALSE;
+		try_ccm32 = try_gcm32 = FALSE;
+		ok = FALSE;
 
-	for (guint i = 0; i < G_N_ELEMENTS(keys); i++) {
-		gboolean try_ccm, try_gcm;
-		key = keys[i];
-		ok = try_ccm = try_gcm = FALSE;
+		key16 = keys16[i];
+		key32 = keys32[i];
 
 		switch (sti->conv->enc_alg) {
 		case SMB2_CIPHER_AES_128_CCM:
-			try_ccm = TRUE;
+			try_ccm16 = TRUE;
 			break;
 		case SMB2_CIPHER_AES_128_GCM:
-			try_gcm = TRUE;
+			try_gcm16 = TRUE;
+			break;
+		case SMB2_CIPHER_AES_256_CCM:
+			try_ccm32 = TRUE;
+			break;
+		case SMB2_CIPHER_AES_256_GCM:
+			try_gcm32 = TRUE;
 			break;
 		default:
-			/* we don't know, try both */
-			try_ccm = TRUE;
-			try_gcm = TRUE;
+			/* we don't know, try all */
+			try_gcm16 = TRUE;
+			try_ccm16 = TRUE;
+			try_gcm32 = TRUE;
+			try_ccm32 = TRUE;
 		}
 
-		if (try_ccm) {
-			DEBUG("trying CCM decryption");
-			alg = SMB2_CIPHER_AES_128_CCM;
-			ok = do_decrypt(data, sti->size, key, aad, aad_size, sti->nonce, alg);
-			if (ok)
-				break;
-			DEBUG("bad decrypted buffer with CCM");
-		}
-		if (try_gcm) {
-			DEBUG("trying GCM decryption");
+		if (try_gcm16) {
+			guint8 *key = key16;
+			DEBUG("trying AES-128-GCM decryption");
 			alg = SMB2_CIPHER_AES_128_GCM;
 			tvb_memcpy(tvb, data, offset, sti->size);
 			ok = do_decrypt(data, sti->size, key, aad, aad_size, sti->nonce, alg);
 			if (ok)
 				break;
-			DEBUG("bad decrypted buffer with GCM");
+			DEBUG("bad decrypted buffer with AES-128-GCM");
+		}
+		if (try_ccm16) {
+			guint8 *key = key16;
+			DEBUG("trying AES-128-CCM decryption");
+			alg = SMB2_CIPHER_AES_128_CCM;
+			ok = do_decrypt(data, sti->size, key, aad, aad_size, sti->nonce, alg);
+			if (ok)
+				break;
+			DEBUG("bad decrypted buffer with AES-128-CCM");
+		}
+		if (try_gcm32) {
+			guint8 *key = key32;
+			DEBUG("trying AES-256-GCM decryption");
+			alg = SMB2_CIPHER_AES_256_GCM;
+			tvb_memcpy(tvb, data, offset, sti->size);
+			ok = do_decrypt(data, sti->size, key, aad, aad_size, sti->nonce, alg);
+			if (ok)
+				break;
+			DEBUG("bad decrypted buffer with AES-256-GCM");
+		}
+		if (try_ccm32) {
+			guint8 *key = key32;
+			DEBUG("trying AES-256-CCM decryption");
+			alg = SMB2_CIPHER_AES_256_CCM;
+			ok = do_decrypt(data, sti->size, key, aad, aad_size, sti->nonce, alg);
+			if (ok)
+				break;
+			DEBUG("bad decrypted buffer with AES-256-CCM");
 		}
 		DEBUG("trying to decrypt with swapped client/server keys");
 		tvb_memcpy(tvb, data, offset, sti->size);
@@ -10243,7 +10350,7 @@ decrypt_smb_payload(packet_info *pinfo,
 
 	/* Remember what worked */
 	sti->conv->enc_alg = alg;
-	if (key == sti->session->server_decryption_key)
+	if (key16 == sti->session->server_decryption_key16)
 		sti->session->server_port = pinfo->destport;
 	else
 		sti->session->server_port = pinfo->srcport;
@@ -10724,9 +10831,10 @@ dissect_smb2_signature(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree
 	proto_tree   *stree = NULL;
 	gcry_error_t err;
 	gcry_mac_hd_t md;
-	guint8 mac[NTLMSSP_KEY_LEN];
+	guint8 mac[NTLMSSP_KEY_LEN] = { 0, };
 	size_t len = NTLMSSP_KEY_LEN;
 	int i, remaining;
+	gboolean use_mac = FALSE;
 
 	item = proto_tree_add_item(tree, hf_smb2_signature, tvb, offset, 16, ENC_NA);
 
@@ -10745,23 +10853,26 @@ dissect_smb2_signature(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree
 
 	remaining = tvb_reported_length_remaining(tvb, offset + NTLMSSP_KEY_LEN);
 
-	if (si->conv->dialect < SMB2_DIALECT_300) {
+	if (si->conv->sign_alg == SMB2_SIGNING_ALG_HMAC_SHA256) {
 		err = gcry_mac_open(&md, GCRY_MAC_HMAC_SHA256, 0, NULL);
 		if (err)
 			return;
-	} else {
+		use_mac = TRUE;
+	} else if (si->conv->sign_alg == SMB2_SIGNING_ALG_AES_CMAC) {
 		err = gcry_mac_open(&md, GCRY_MAC_CMAC_AES, 0, NULL);
 		if (err)
 			return;
-
+		use_mac = TRUE;
 	}
 
-	gcry_mac_setkey(md, si->session->signing_key, len);
-	gcry_mac_write(md, tvb_get_ptr(tvb, 0, 48), 48);
-	gcry_mac_write(md, zeros, NTLMSSP_KEY_LEN);
-	gcry_mac_write(md, tvb_get_ptr(tvb, offset + NTLMSSP_KEY_LEN, remaining), remaining);
-	gcry_mac_read(md, &mac[0], &len);
-	gcry_mac_close(md);
+	if (use_mac) {
+		gcry_mac_setkey(md, si->session->signing_key, len);
+		gcry_mac_write(md, tvb_get_ptr(tvb, 0, 48), 48);
+		gcry_mac_write(md, zeros, NTLMSSP_KEY_LEN);
+		gcry_mac_write(md, tvb_get_ptr(tvb, offset + NTLMSSP_KEY_LEN, remaining), remaining);
+		gcry_mac_read(md, &mac[0], &len);
+		gcry_mac_close(md);
+	}
 
 	stree = proto_item_add_subtree(item, ett_smb2_signature);
 

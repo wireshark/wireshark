@@ -1404,7 +1404,7 @@ class case_decrypt_smb2(subprocesstest.SubprocessTestCase):
                         '""', '8be6cc53d4beba29387e69aef035d497','bff985870e81784d533fdc09497b8eab')
 
 
-    # SMB3.1.1 CCM
+    # SMB3.1.1 AES-CCM-128
     def test_smb311_aes128ccm_seskey(self, features, cmd_tshark, capture_file):
         '''Check SMB 3.1.1 AES128CCM decryption with session key.'''
         if not features.have_libgcrypt16:
@@ -1421,7 +1421,7 @@ class case_decrypt_smb2(subprocesstest.SubprocessTestCase):
                         r'\\dfsroot1.foo.test\IPC$', '2900009c003c0000',
                         '""', '763d5552dbc9650b700869467a5857e4', '35e69833c6578e438c8701cb40bf483e')
 
-    # SMB3.1.1 GCM
+    # SMB3.1.1 AES-GCM-128
     def test_smb311_aes128gcm_seskey(self, features, cmd_tshark, capture_file):
         '''Check SMB 3.1.1 AES128GCM decryption with session key.'''
         if not features.have_libgcrypt16:
@@ -1437,6 +1437,48 @@ class case_decrypt_smb2(subprocesstest.SubprocessTestCase):
         self.check_tree(cmd_tshark, capture_file('smb311-aes-128-gcm.pcap.gz'),
                         r'\\dfsroot1.foo.test\IPC$', '3900000000400000',
                         '""', 'b02f5de25e0562075c3dc329fa2aa396', '7201623a31754e6581864581209dd3d2')
+
+    # SMB3.1.1 AES-CCM-256
+    def test_smb311_aes256ccm_seskey(self, features, cmd_tshark, capture_file):
+        '''Check SMB 3.1.1 AES256CCM decryption with session key.'''
+        if not features.have_libgcrypt16:
+            self.skipTest('Requires GCrypt 1.6 or later.')
+        self.check_tree(cmd_tshark, capture_file('smb311-aes-256-ccm.pcap.gz'),
+                        r'\\172.31.9.163\IPC$', 'd6fdb96d00000000',
+                        '6b559c2e60519e344581d086a6d3d050',
+                        '""',
+                        '""')
+
+    def test_smb311_aes256ccm_deckey(self, features, cmd_tshark, capture_file):
+        '''Check SMB 3.1.1 AES256CCM decryption with decryption keys.'''
+        if not features.have_libgcrypt16:
+            self.skipTest('Requires GCrypt 1.6 or later.')
+        self.check_tree(cmd_tshark, capture_file('smb311-aes-256-ccm.pcap.gz'),
+                        r'\\172.31.9.163\IPC$', 'd6fdb96d00000000',
+                        '""',
+                        '014fccd4a53554bf5b54b27a32512b35fca262b90e088a5efa7d6c952418578b',
+                        '1d34170138a77dac4abbe0149253c8b977a71f399081cda6cbaf62359670c1c5')
+
+    # SMB3.1.1 AES-GCM-256
+    def test_smb311_aes256gcm_seskey(self, features, cmd_tshark, capture_file):
+        '''Check SMB 3.1.1 AES256GCM decryption with session key.'''
+        if not features.have_libgcrypt16:
+            self.skipTest('Requires GCrypt 1.6 or later.')
+        self.check_tree(cmd_tshark, capture_file('smb311-aes-256-gcm.pcap.gz'),
+                        r'\\172.31.9.163\IPC$', '56dc03ab00000000',
+                        '6a5004adfbdef1abd5879800675324e5',
+                        '""',
+                        '""')
+
+    def test_smb311_aes256gcm_deckey(self, features, cmd_tshark, capture_file):
+        '''Check SMB 3.1.1 AES256GCM decryption with decryption keys.'''
+        if not features.have_libgcrypt16:
+            self.skipTest('Requires GCrypt 1.6 or later.')
+        self.check_tree(cmd_tshark, capture_file('smb311-aes-256-gcm.pcap.gz'),
+                        r'\\172.31.9.163\IPC$', '56dc03ab00000000',
+                        '""',
+                        '46b64f320a0f856b63b3a0dc2c058a67267830a8cbdd44a088fbf1d0308a981f',
+                        '484c30bf3e17e322e0d217764d4584a325ec0495519c3f1547e0f996ab76c4c4')
 
     def check_partial(self, home_path, cmd_tshark, full_cap, pkt_skip, tree, sesid, s2ckey, c2skey):
         # generate a trace without NegProt and SessionSetup
@@ -1465,3 +1507,23 @@ class case_decrypt_smb2(subprocesstest.SubprocessTestCase):
                            capture_file('smb311-aes-128-gcm.pcap.gz'), 7,
                            r'\\dfsroot1.foo.test\IPC$', '3900000000400000',
                            '7201623a31754e6581864581209dd3d2', 'b02f5de25e0562075c3dc329fa2aa396')
+
+    def test_smb311_aes256gcm_partial(self, features, home_path, cmd_tshark, capture_file):
+        '''Check SMB 3.1.1 AES128GCM decryption in capture missing session setup'''
+        if not features.have_libgcrypt16:
+            self.skipTest('Requires GCrypt 1.6 or later.')
+        self.check_partial(home_path, cmd_tshark,
+                           capture_file('smb311-aes-256-gcm.pcap.gz'), 7,
+                           r'\\172.31.9.163\IPC$', '56dc03ab00000000',
+                           '46b64f320a0f856b63b3a0dc2c058a67267830a8cbdd44a088fbf1d0308a981f',
+                           '484c30bf3e17e322e0d217764d4584a325ec0495519c3f1547e0f996ab76c4c4')
+
+    def test_smb311_aes256gcm_partial_keyswap(self, features, home_path, cmd_tshark, capture_file):
+        '''Check SMB 3.1.1 AES256GCM decryption in capture missing session setup with keys in wrong order'''
+        if not features.have_libgcrypt16:
+            self.skipTest('Requires GCrypt 1.6 or later.')
+        self.check_partial(home_path, cmd_tshark,
+                           capture_file('smb311-aes-256-gcm.pcap.gz'), 7,
+                           r'\\172.31.9.163\IPC$', '56dc03ab00000000',
+                           '484c30bf3e17e322e0d217764d4584a325ec0495519c3f1547e0f996ab76c4c4',
+                           '46b64f320a0f856b63b3a0dc2c058a67267830a8cbdd44a088fbf1d0308a981f')
