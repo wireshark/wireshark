@@ -803,7 +803,7 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
     int status, snaplen;
 
     switch(opt) {
-    case LONGOPT_NUM_CAP_COMMENT:  /* capture comment */
+    case LONGOPT_CAPTURE_COMMENT:  /* capture comment */
         if (!capture_opts->capture_comment) {
             capture_opts->capture_comment = g_ptr_array_new_with_free_func(g_free);
         }

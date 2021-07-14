@@ -44,7 +44,7 @@ extern "C" {
  * In short: we must not use 1 here, which is another reason to use
  * values outside the range of ASCII graphic characters.
  */
-#define LONGOPT_NUM_CAP_COMMENT   LONGOPT_BASE_CAPTURE+1
+#define LONGOPT_CAPTURE_COMMENT   LONGOPT_BASE_CAPTURE+1
 #define LONGOPT_LIST_TSTAMP_TYPES LONGOPT_BASE_CAPTURE+2
 #define LONGOPT_SET_TSTAMP_TYPE   LONGOPT_BASE_CAPTURE+3
 #define LONGOPT_COMPRESS_TYPE     LONGOPT_BASE_CAPTURE+4
@@ -76,7 +76,7 @@ extern "C" {
 #endif
 
 #define LONGOPT_CAPTURE_COMMON \
-    {"capture-comment",       required_argument, NULL, LONGOPT_NUM_CAP_COMMENT}, \
+    {"capture-comment",       required_argument, NULL, LONGOPT_CAPTURE_COMMENT}, \
     {"autostop",              required_argument, NULL, 'a'}, \
     {"ring-buffer",           required_argument, NULL, 'b'}, \
     LONGOPT_BUFFER_SIZE \

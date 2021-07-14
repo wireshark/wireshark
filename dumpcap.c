@@ -5139,7 +5139,7 @@ main(int argc, char *argv[])
         case 's':        /* Set the snapshot (capture) length */
         case 'w':        /* Write to capture file x */
         case 'y':        /* Set the pcap data link type */
-        case  LONGOPT_NUM_CAP_COMMENT: /* add a capture comment */
+        case LONGOPT_CAPTURE_COMMENT: /* add a capture comment */
 #ifdef HAVE_PCAP_REMOTE
         case 'u':        /* Use UDP for data transfer */
         case 'r':        /* Capture own RPCAP traffic too */

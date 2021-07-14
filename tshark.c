@@ -1100,7 +1100,7 @@ main(int argc, char *argv[])
 #endif
     case 's':        /* Set the snapshot (capture) length */
     case 'y':        /* Set the pcap data link type */
-    case  LONGOPT_NUM_CAP_COMMENT: /* add a capture comment */
+    case LONGOPT_CAPTURE_COMMENT: /* add a capture comment */
 #ifdef CAN_SET_CAPTURE_BUFFER_SIZE
     case 'B':        /* Buffer size */
 #endif
