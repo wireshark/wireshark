@@ -345,7 +345,7 @@ Win64 Package:
           aws s3 cp "$package" "$env:S3_DESTINATION_WIN64/"
         }
       }
-    - ctest -C RelWithDebInfo --parallel 3 --force-new-ctest-process --verbose
+    - ctest -C RelWithDebInfo --parallel 3 --force-new-ctest-process --output-on-failure
 
 Win32 Package:
   extends: .build-windows
@@ -392,7 +392,7 @@ Win32 Package:
           aws s3 cp "$package" "$env:S3_DESTINATION_WIN32/"
         }
       }
-    - ctest -C RelWithDebInfo --parallel 3 --force-new-ctest-process --verbose
+    - ctest -C RelWithDebInfo --parallel 3 --force-new-ctest-process --output-on-failure
 
 # Build the User's Guide and Developer's Guide
 Documentation:
@@ -483,7 +483,7 @@ GCC Warnings:
     - ansi2html < ../gcc_report.txt > ../gcc_report.html
     - ninja test-programs
     - chown -R user .
-    - su user -c "ctest --parallel $(getconf _NPROCESSORS_ONLN) --force-new-ctest-process --verbose"
+    - su user -c "ctest --parallel $(getconf _NPROCESSORS_ONLN) --force-new-ctest-process --output-on-failure"
   artifacts:
     paths:
       - gcc_report.html
@@ -532,7 +532,7 @@ Windows Build:
     - cmake -G "Visual Studio 16 2019" -A x64 -DENABLE_LTO=off ..
     - msbuild /verbosity:minimal /maxcpucount Wireshark.sln
     - msbuild /verbosity:minimal /maxcpucount test-programs.vcxproj
-    - ctest -C RelWithDebInfo --parallel 3 --force-new-ctest-process --verbose
+    - ctest -C RelWithDebInfo --parallel 3 --force-new-ctest-process --output-on-failure
 
 # Adapted from https://www.synopsys.com/blogs/software-security/integrating-coverity-scan-with-gitlab-ci/
 # and https://gitlab.gnome.org/GNOME/glib/-/blob/8f57a5b9/.gitlab-ci.yml#L481
