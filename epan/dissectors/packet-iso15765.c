@@ -418,7 +418,7 @@ dissect_iso15765_lin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     return dissect_iso15765(tvb, pinfo, tree, ISO15765_TYPE_LIN, lininfo->id, lininfo->len);
 }
 
-void
+static void
 register_lin_frames(void)
 {
     if (iso15765_handle_lin == NULL) {
