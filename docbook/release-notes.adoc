@@ -106,6 +106,7 @@ Bluetooth Link Manager Protocol (BT LMP)
 Event Tracing for Windows (ETW)
 Kerberos SPAKE
 Linux psample protocol
+Local Interconnect Network (LIN)
 Microsoft Task Scheduler Service
 O-RAN fronthaul UC-plane (O-RAN)
 Opus Interactive Audio Codec (OPUS)

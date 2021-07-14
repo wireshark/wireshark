@@ -19,6 +19,8 @@
 #include <wsutil/bits_ctz.h>
 
 #include "packet-socketcan.h"
+#include "packet-lin.h"
+#include "packet-iso15765.h"
 
 void proto_register_iso15765(void);
 void proto_reg_handoff_iso15765(void);
@@ -84,6 +86,7 @@ static const value_string iso15765_message_types[] = {
 
 static gint addressing = NORMAL_ADDRESSING;
 static guint window = 8;
+static gboolean register_lin_diag_frames = TRUE;
 
 /* Encoding */
 static const enum_val_t enum_addressing[] = {
@@ -92,6 +95,7 @@ static const enum_val_t enum_addressing[] = {
         {NULL, NULL, 0}
 };
 
+static int hf_iso15765_address = -1;
 static int hf_iso15765_message_type = -1;
 static int hf_iso15765_data_length = -1;
 static int hf_iso15765_frame_length = -1;
@@ -106,6 +110,8 @@ static gint ett_iso15765 = -1;
 static expert_field ei_iso15765_message_type_bad = EI_INIT;
 
 static int proto_iso15765 = -1;
+static dissector_handle_t iso15765_handle_can = NULL;
+static dissector_handle_t iso15765_handle_lin = NULL;
 
 static dissector_table_t subdissector_table;
 
@@ -155,7 +161,7 @@ masked_guint16_value(const guint16 value, const guint16 mask)
 }
 
 static int
-dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 bus_type, guint32 frame_id, guint32 frame_length)
 {
     static guint32 msg_seqid = 0;
 
@@ -164,9 +170,9 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     proto_item *message_type_item;
     tvbuff_t*   next_tvb = NULL;
     guint16     pci, message_type;
-    struct can_info can_info;
     iso15765_identifier_t* iso15765_info;
-    guint8      ae = (addressing == NORMAL_ADDRESSING) ? 0 : 1;
+    /* LIN is always extended addressing */
+    guint8      ae = (addressing == NORMAL_ADDRESSING && bus_type != ISO15765_TYPE_LIN) ? 0 : 1;
     guint16     frag_id_low = 0;
     guint8      pci_len = 0;
     guint8      pci_offset = 0;
@@ -176,14 +182,6 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     gboolean    fragmented = FALSE;
     gboolean    complete = FALSE;
 
-    DISSECTOR_ASSERT(data);
-    can_info = *((struct can_info*)data);
-
-    if (can_info.id & (CAN_ERR_FLAG | CAN_RTR_FLAG)) {
-        /* Error and RTR frames are not for us. */
-        return 0;
-    }
-
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISO15765");
     col_clear(pinfo->cinfo, COL_INFO);
 
@@ -191,13 +189,16 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 
     if (!iso15765_info) {
         iso15765_info = wmem_new0(wmem_file_scope(), iso15765_identifier_t);
-        iso15765_info->id = can_info.id;
+        iso15765_info->id = frame_id;
         iso15765_info->last = FALSE;
         p_add_proto_data(wmem_file_scope(), pinfo, proto_iso15765, 0, iso15765_info);
     }
 
     ti = proto_tree_add_item(tree, proto_iso15765, tvb, 0, -1, ENC_NA);
     iso15765_tree = proto_item_add_subtree(ti, ett_iso15765);
+    if (ae != 0) {
+        proto_tree_add_item(iso15765_tree, hf_iso15765_address, tvb, 0, ae, ENC_NA);
+    }
     message_type_item = proto_tree_add_item(iso15765_tree, hf_iso15765_message_type, tvb,
                                             ae + ISO15765_PCI_OFFSET, ISO15765_PCI_LEN, ENC_BIG_ENDIAN);
 
@@ -208,7 +209,7 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 
     switch(message_type) {
         case ISO15765_MESSAGE_TYPES_SINGLE_FRAME: {
-            if (can_info.fd && can_info.len > 8) {
+            if (bus_type == ISO15765_TYPE_CAN_FD && frame_length > 8) {
                 pci = tvb_get_guint16(tvb, ae + ISO15765_PCI_OFFSET, ENC_BIG_ENDIAN);
                 pci_len = ISO15765_PCI_FD_SF_LEN;
                 offset = ae + ISO15765_PCI_OFFSET + ISO15765_PCI_FD_SF_LEN;
@@ -230,7 +231,7 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
         }
         case ISO15765_MESSAGE_TYPES_FIRST_FRAME: {
             pci = tvb_get_guint16(tvb, ae + ISO15765_PCI_OFFSET, ENC_BIG_ENDIAN);
-            if (can_info.fd && pci == 0x1000) {
+            if (bus_type == ISO15765_TYPE_CAN_FD && pci == 0x1000) {
                 pci_len = ISO15765_PCI_FD_FF_LEN - 2;
                 full_len = tvb_get_guint32(tvb, ae + ISO15765_PCI_OFFSET + 2, ENC_BIG_ENDIAN);
                 offset = ae + ISO15765_MESSAGE_FRAME_LENGTH_OFFSET + ISO15765_PCI_FD_FF_LEN - 1;
@@ -374,7 +375,12 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     }
 
     if (next_tvb) {
-        if (!complete || !dissector_try_payload_new(subdissector_table, next_tvb, pinfo, tree, TRUE, data)) {
+        iso15765_info_t iso15765data;
+        iso15765data.bus_type = bus_type;
+        iso15765data.id = frame_id;
+        iso15765data.len = frame_length;
+
+        if (!complete || !dissector_try_payload_new(subdissector_table, next_tvb, pinfo, tree, TRUE, &iso15765data)) {
             call_data_dissector(next_tvb, pinfo, tree);
         }
     }
@@ -382,10 +388,64 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     return tvb_captured_length(tvb);
 }
 
+static int
+dissect_iso15765_can(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+{
+    struct can_info can_info;
+
+    DISSECTOR_ASSERT(data);
+    can_info = *((struct can_info*)data);
+
+    if (can_info.id & (CAN_ERR_FLAG | CAN_RTR_FLAG)) {
+        /* Error and RTR frames are not for us. */
+        return 0;
+    }
+
+    if (can_info.fd) {
+        return dissect_iso15765(tvb, pinfo, tree, ISO15765_TYPE_CAN_FD, can_info.id, can_info.len);
+    } else {
+        return dissect_iso15765(tvb, pinfo, tree, ISO15765_TYPE_CAN, can_info.id, can_info.len);
+    }
+}
+
+static int
+dissect_iso15765_lin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+{
+    DISSECTOR_ASSERT(data);
+
+    lin_info_t *lininfo = (lin_info_t *)data;
+
+    return dissect_iso15765(tvb, pinfo, tree, ISO15765_TYPE_LIN, lininfo->id, lininfo->len);
+}
+
+void
+register_lin_frames(void)
+{
+    if (iso15765_handle_lin == NULL) {
+        return;
+    }
+
+    dissector_delete_all("lin.frame_id", iso15765_handle_lin);
+    if (register_lin_diag_frames) {
+        /* LIN specification states that 0x3c and 0x3d are for diagnostics */
+        dissector_add_uint("lin.frame_id", LIN_DIAG_MASTER_REQUEST_FRAME, iso15765_handle_lin);
+        dissector_add_uint("lin.frame_id", LIN_DIAG_SLAVE_RESPONSE_FRAME, iso15765_handle_lin);
+    }
+}
+
 void
 proto_register_iso15765(void)
 {
     static hf_register_info hf[] = {
+            {
+                    &hf_iso15765_address,
+                    {
+                            "Address",    "iso15765.address",
+                            FT_UINT8,  BASE_HEX,
+                            NULL, 0,
+                            NULL, HFILL
+                    }
+            },
             {
                     &hf_iso15765_message_type,
                     {
@@ -569,7 +629,7 @@ proto_register_iso15765(void)
             "ISO 15765",          /* short name */
             "iso15765"           /* abbrev     */
     );
-    register_dissector("iso15765", dissect_iso15765, proto_iso15765);
+    register_dissector("iso15765", dissect_iso15765_lin, proto_iso15765);
     expert_iso15765 = expert_register_protocol(proto_iso15765);
 
     proto_register_field_array(proto_iso15765, hf, array_length(hf));
@@ -577,7 +637,7 @@ proto_register_iso15765(void)
 
     expert_register_field_array(expert_iso15765, ei, array_length(ei));
 
-    iso15765_module = prefs_register_protocol(proto_iso15765, NULL);
+    iso15765_module = prefs_register_protocol(proto_iso15765, register_lin_frames);
 
     prefs_register_enum_preference(iso15765_module, "addressing",
                                    "Addressing",
@@ -590,6 +650,12 @@ proto_register_iso15765(void)
                                    "Window of ISO 15765 fragments",
                                    10, &window);
 
+    prefs_register_static_text_preference(iso15765_module, "empty2", "", NULL);
+    prefs_register_static_text_preference(iso15765_module, "map", "Protocol Handling:", NULL);
+
+    prefs_register_bool_preference(iso15765_module, "lin_diag", "Handle LIN Diagnostic Frames",
+                                   "Handle LIN Diagnostic Frames", &register_lin_diag_frames);
+
     iso15765_frame_table = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_direct_hash, g_direct_equal);
 
     reassembly_table_register(&iso15765_reassembly_table, &addresses_reassembly_table_functions);
@@ -600,10 +666,10 @@ proto_register_iso15765(void)
 void
 proto_reg_handoff_iso15765(void)
 {
-    static dissector_handle_t iso15765_handle;
-
-    iso15765_handle = create_dissector_handle(dissect_iso15765, proto_iso15765);
-    dissector_add_for_decode_as("can.subdissector", iso15765_handle);
+    iso15765_handle_can = create_dissector_handle(dissect_iso15765_can, proto_iso15765);
+    iso15765_handle_lin = create_dissector_handle(dissect_iso15765_lin, proto_iso15765);
+    dissector_add_for_decode_as("can.subdissector", iso15765_handle_can);
+    register_lin_frames();
 }
 
 /*

@@ -27,6 +27,7 @@
 #include <epan/proto_data.h>
 #include <packet-socketcan.h>
 #include <packet-flexray.h>
+#include <packet-lin.h>
 
 void proto_register_tecmp(void);
 void proto_reg_handoff_tecmp(void);
@@ -48,6 +49,8 @@ static heur_dtbl_entry_t *can_heur_dtbl_entry;
 static dissector_table_t fr_subdissector_table;
 static heur_dissector_list_t fr_heur_subdissector_list;
 static heur_dtbl_entry_t *fr_heur_dtbl_entry;
+
+static dissector_table_t lin_subdissector_table;
 
 
 /* Header fields */
@@ -1098,6 +1101,7 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
     struct can_info can_info;
     flexray_identifier fr_info;
+    lin_info_t lin_info;
 
     static int * const tecmp_payload_id_flags_can_11[] = {
         &hf_tecmp_payload_data_id_type,
@@ -1135,7 +1139,7 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
             switch (msg_type) {
             case TECMP_DATA_TYPE_LIN:
-                proto_tree_add_item(tecmp_tree, hf_tecmp_payload_data_id_field_8bit, sub_tvb, offset2, 1, ENC_NA);
+                proto_tree_add_item_ret_uint(tecmp_tree, hf_tecmp_payload_data_id_field_8bit, sub_tvb, offset2, 1, ENC_NA, &(lin_info.id));
                 ti = proto_tree_add_item_ret_uint(tecmp_tree, hf_tecmp_payload_data_length, sub_tvb, offset2 + 1, 1,
                                                   ENC_NA, &length2);
                 offset2 += 2;
@@ -1146,7 +1150,11 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                 }
 
                 if (length2 > 0) {
-                    proto_tree_add_item(tecmp_tree, hf_tecmp_payload_data_payload, sub_tvb, offset2, (gint)length2, ENC_NA);
+                    lin_info.len = tvb_captured_length_remaining(sub_tvb, offset2);
+                    payload_tvb = tvb_new_subset_length(sub_tvb, offset2, tvb_captured_length_remaining(sub_tvb, offset2));
+                    if (!dissector_try_uint_new(lin_subdissector_table, lin_info.id, payload_tvb, pinfo, tree, FALSE, &lin_info)) {
+                        proto_tree_add_item(tecmp_tree, hf_tecmp_payload_data_payload, payload_tvb, 0, (gint)length2, ENC_NA);
+                    }
                     offset2 += (gint)length2;
                     proto_tree_add_item(tecmp_tree, hf_tecmp_payload_data_checksum_8bit, sub_tvb, offset2, 1, ENC_NA);
                 }
@@ -1802,6 +1810,9 @@ proto_reg_handoff_tecmp(void) {
 
     fr_subdissector_table  = find_dissector_table("flexray.subdissector");
     fr_heur_subdissector_list = find_heur_dissector_list("flexray");
+
+    lin_subdissector_table = find_dissector_table("lin.frame_id");
+
 }
 
 /*

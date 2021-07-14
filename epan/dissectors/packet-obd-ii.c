@@ -19,6 +19,7 @@
 #include <wsutil/utf8_entities.h>
 
 #include "packet-socketcan.h"
+#include "packet-iso15765.h"
 
 void proto_register_obdii(void);
 void proto_reg_handoff_obdii(void);
@@ -1358,8 +1359,8 @@ dissect_obdii_response(tvbuff_t *tvb, struct obdii_packet_info *oinfo, proto_tre
 static int
 dissect_obdii(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-	struct can_info can_info;
-	guint32               can_id_only;
+	iso15765_info_t iso15765_info;
+	guint32         can_id_only;
 	struct obdii_packet_info oinfo;
 
 	proto_tree *obdii_tree;
@@ -1371,11 +1372,16 @@ dissect_obdii(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 	gboolean id_is_response;
 
 	DISSECTOR_ASSERT(data);
-	can_info      = *((struct can_info *) data);
-	can_id_only = can_info.id & CAN_EFF_MASK;
+
+	iso15765_info = *((iso15765_info_t *) data);
+	if (iso15765_info.bus_type != ISO15765_TYPE_CAN && iso15765_info.bus_type != ISO15765_TYPE_CAN_FD) {
+		return 0;
+	}
+
+	can_id_only = iso15765_info.id & CAN_EFF_MASK;
 
 	/* If we're using 29bit extended ID's then use extended ID parameters */
-	if (can_info.id & CAN_EFF_FLAG)
+	if (iso15765_info.id & CAN_EFF_FLAG)
 	{
 		id_is_query = (can_id_only == ODBII_CAN_QUERY_ID_EFF);
 		id_is_response = ((((can_id_only & ~ODBII_CAN_RESPONSE_ID_LOWER_MASK_EFF) ^ ODBII_CAN_RESPONSE_ID_LOWER_MIN_EFF) == 0) ||
@@ -1389,7 +1395,7 @@ dissect_obdii(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 	}
 
 	/* validate */
-	if (can_info.id & (CAN_ERR_FLAG | CAN_RTR_FLAG))
+	if (iso15765_info.id & (CAN_ERR_FLAG | CAN_RTR_FLAG))
 		return 0;
 
 	if (!(id_is_query || id_is_response))
@@ -1401,7 +1407,7 @@ dissect_obdii(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 	/* Mode 7 is a datalength of 1, all other queries either 2 or 3 bytes */
 	if (id_is_query)
 	{
-		if (can_info.len != 8)
+		if (iso15765_info.len != 8)
 			expert_add_info(pinfo, NULL, &ei_obdii_padding);
 		if (data_bytes == 0 || data_bytes > 3)
 			return 0;
