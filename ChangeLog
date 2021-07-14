@@ -1,0 +1,530 @@
+commit 1307804147
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Jul 13 10:21:58 2021 -0700
+
+    Prep for 3.4.7.
+
+commit dac0e6b083
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jul 11 09:53:57 2021 +0000
+
+    [Automatic update for 2021-07-11]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit e479ced643
+Author: Martin Mathieson <martin.r.mathieson@googlemail.com>
+Date:   Fri Jun 25 09:44:35 2021 +0100
+
+    DT2000: Fix buffer length in wiretap code
+    
+    CID: 1477941
+    
+    
+    (cherry picked from commit af57fb94ac664a9f4a4262fdc5e4afa8b8e379bf)
+
+commit aa0f0f65e7
+Author: Martin Mathieson <martin.r.mathieson@googlemail.com>
+Date:   Fri Jun 25 10:04:01 2021 +0100
+
+    Snort config: Avoid leaks when fail to open config file.
+    
+    CID: 1477713
+    CID: 1477850
+    
+    
+    (cherry picked from commit bbcd42be8763b5b91b4f3bca51b169cec5487ff5)
+
+commit bc38bea800
+Author: Clément Notin <clement.notin@gmail.com>
+Date:   Tue Jun 29 00:14:45 2021 +0200
+
+    ldap: Add Active Directory OIDs
+    
+    From [MS-ADTS] specification
+    https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-adts/3c5e87db-4728-4f29-b164-01dd7d7391ea
+    
+    
+    (cherry picked from commit 5b248ac4d03565b903cf85b54956135fb73f8bdb)
+
+commit fb2ed68545
+Author: Taisuke Sasaki <taisasak@cisco.com>
+Date:   Tue Jun 29 19:17:30 2021 +0900
+
+    OSPF: Fixed SRLB and SRMS Preference TLV types (rfc8665)
+    
+    - Fixed TLV types of SRLB and SRMS Preference
+    - Added type/length for unknown Opaque RI TLV
+    
+    
+    (cherry picked from commit d8ee53e078ea8985db207e5d25b1a88913838f8a)
+
+commit 7799b0f577
+Author: Martin Mathieson <martin.r.mathieson@googlemail.com>
+Date:   Thu Jul 8 18:37:32 2021 +0100
+
+    RSL: Fix mask of eMLPP Priority field.
+    
+    9.3.49 in 48.058wq
+    
+    
+    (cherry picked from commit ba0d6f69abac4b381d38308b981a52b490d36a08)
+
+commit cbbe611c7a
+Author: Alexis La Goutte <alexis.lagoutte@gmail.com>
+Date:   Mon May 24 19:18:23 2021 +0000
+
+    dcerpc: Fix warning found by Clang Analyzer
+    
+    packet-dcerpc.c:4381:17: warning: Assigned value is garbage or undefined [core.uninitialized.Assign]
+    
+    
+    (cherry picked from commit 558a32ba863092b5373da6c22fd520c416c72029)
+
+commit 2450e2220b
+Author: ZhongYao Luo <LuoZhongYao@gmail.com>
+Date:   Wed Jun 16 22:05:54 2021 +0800
+
+    Fix null pointer
+    
+    In some cases, the fds parameter of frame_data_sequence_find is invalid,
+    causing the software to crash, For example, this command
+    echo'{"req":"frame","bytes":"yes","proto":"yes","frame":"1" }'|sharkd-
+    
+    
+    (cherry picked from commit 64155132ea001dab7db030df96ce00b90a958277)
+
+commit 60dee56e4c
+Author: João Valverde <j@v6e.pt>
+Date:   Sun Jun 20 19:02:53 2021 +0100
+
+    Change my email address
+    
+    
+    (cherry picked from commit ab37610f0859a1136c89a43c991e48b320bb2bc6)
+
+commit f6362dd30c
+Author: Martin Tschoepe <martin.tschoepe@web.de>
+Date:   Wed Jun 30 08:41:49 2021 +0200
+
+    PROFINET: Ensure multiple submodules are parsed
+    
+    GSML parsing has a bug related to multiple submodules,
+    such that, the first submodule found in the GSDML needs
+    to be the PROFIsafe element, otherwise the description
+    is not parsed.
+    
+    
+    (cherry picked from commit d3ec582c26ffa1d98b7dc863e4452fc42f0399db)
+
+commit 40496f3185
+Author: Thomas Dreibholz <dreibh@simula.no>
+Date:   Sat Jun 26 13:32:22 2021 +0200
+
+    Bugfix for S101 dissector:
+    
+    Make sure that the packet has an S101 header, before setting the protocol name
+    with col_set_str(). Otherwise, all TCP packets on port 9000 may be
+    misidentified as S101 packets.
+    
+    
+    (cherry picked from commit 8e256b7e694d6d39f93d41a788835e85855780eb)
+
+commit 490fe2684b
+Author: Pascal Quantin <pascal@wireshark.org>
+Date:   Sat Jun 26 10:31:59 2021 +0200
+
+    DNP: use the proper free function
+    
+    g618661b22e introduced a free for a so called memory leak (which wasn't
+    a real leak due to the pinfo->pool garbage collector) but used the wrong
+    free function. Let's keep the explicit free but use the right function.
+    
+    Closes #17462
+    
+    
+    (cherry picked from commit 029a7fcec5c6fc9407bd7f50ad6c3ce79f4d393b)
+
+commit be7bb332fe
+Author: Andreas Schultz <andreas.schultz@travelping.com>
+Date:   Wed Jul 7 18:54:22 2021 +0200
+
+    GTPv2: fix decoding of (extended) eNodeB id
+    
+    3GPP TS 29.274, clause 8.21.7 and 8.21.8 clearly specify a total
+    length of 6 bytes for these fields.
+    
+    
+    (cherry picked from commit 4992806dba09e67ec55921f0f8c964b0a9a0e8c5)
+
+commit 3e42a64f6f
+Author: Prince Paul <prince.paul.k@gmail.com>
+Date:   Fri Jul 2 14:45:58 2021 +0530
+
+    ASTERIX: Fix Value of hf_010_202_VY from VX to VY
+    
+    Fix typo VX to VY
+    
+    
+    (cherry picked from commit 79f62acbe785921fb9ac15271351b66ae943923a)
+
+commit 3e836977cd
+Author: Prince Paul <prince.paul.k@gmail.com>
+Date:   Fri Jul 2 21:17:44 2021 +0530
+
+    ASTERIX: Fix Data Item 010/091
+    
+    Fixed Item Number from 110 to 091
+    
+    
+    (cherry picked from commit 30058542e95192e126303f028d12fe11b09835e2)
+
+commit 427cd8fd42
+Author: Joakim Andersson <joakim.andersson@nordicsemi.no>
+Date:   Fri Jun 25 13:02:52 2021 +0200
+
+    nordic_ble: Fix packet times for multiple interfaces
+    
+    Fix packet times calculations when using multiple interfaces.
+    
+    Signed-off-by: Joakim Andersson <joakim.andersson@nordicsemi.no>
+
+commit 3b330cf647
+Author: Joakim Andersson <joakim.andersson@nordicsemi.no>
+Date:   Fri Jun 25 11:42:07 2021 +0200
+
+    Bluetooth: Fix parsing of CTE Info field in extended advertising header
+    
+    Fix parsing of the CTE Info field in the extended advertising header.
+    The bit-mask of the different fields was wrongly placed.
+    The text of the different fields all said "CTE Info".
+    The CTE Time field was added twice.
+    
+    Signed-off-by: Joakim Andersson <joakim.andersson@nordicsemi.no>
+
+commit 4cbec00089
+Author: Joakim Andersson <joakim.andersson@nordicsemi.no>
+Date:   Fri Jun 25 11:40:28 2021 +0200
+
+    Bluetooth: Fix parsing of empty extendend advertising header
+    
+    Fix parsing of extended advertising when the extended advertising header
+    is empty. The flag field is excluded when none of the fields are present
+    and the extended header length field is 0.
+    
+    Signed-off-by: Joakim Andersson <joakim.andersson@nordicsemi.no>
+
+commit de9d5f76ff
+Author: Joakim Andersson <joakim.andersson@nordicsemi.no>
+Date:   Fri Jun 25 11:39:09 2021 +0200
+
+    bluetooth: Fix sync info in extended advertising header
+    
+    Fix the sync info field length in extended advertising header set to the
+    wrong length.
+    
+    Signed-off-by: Joakim Andersson <joakim.andersson@nordicsemi.no>
+
+commit 3afd332455
+Author: Andre Luyer <andre@luyer.nl>
+Date:   Sun Jul 4 17:43:02 2021 +0200
+
+    tshark/wireshark: Fix check ring buffer option for packets
+    
+    tshark and wireshark did not allow only -b packets:value option, while dumpcap does.
+    This change adds the same check in tshark and wireshark as in dumpcap.
+    
+    Quick fix for issue mentioned at https://ask.wireshark.org/question/23437/why-does-tshark-b-packetsvalue-not-work/
+    
+    
+    (cherry picked from commit 9f8e6b1acb83a74c9efda70f97b5fb9f1771d2b8)
+
+commit bf35c11265
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jul 4 09:54:13 2021 +0000
+
+    [Automatic update for 2021-07-04]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 9b21140c8e
+Author: Pascal Quantin <pascal@wireshark.org>
+Date:   Sun Jul 4 12:03:45 2021 +0200
+
+    NR RRC: fix dissection of MeasTriggerQuantityOffset element
+    
+    (cherry picked from commit aa5df68171f021e19bbf9ed4753e451ecf08b1a4)
+    
+    Conflicts:
+            epan/dissectors/packet-nr-rrc.c
+
+commit bb4c32b75e
+Author: Guy Harris <gharris@sonic.net>
+Date:   Mon Jun 28 14:18:41 2021 -0700
+
+    wireless timeline: add a destructor to free the hash table.
+    
+    Destroy the hash table if we're destroying the timeline widget, so that
+    it doesn't leak.
+    
+    
+    (cherry picked from commit ad3e6b1be6490834d90575535d3efb6a8125767d)
+
+commit 5318290a05
+Author: Guy Harris <gharris@sonic.net>
+Date:   Mon Jun 28 02:22:13 2021 -0700
+
+    wireless_timeline: make sure the hash table is always allocated.
+    
+    At least on my Mac, if I start up Wireshark, start a capture
+    (non-monitor-mode) on the Wi-Fi adapter, add a comment to the SHB and
+    the first packet while it's capturing, stop the capture, and try to save
+    it, it warns that the wireless timeline hash table pointer is null.
+    
+    Allocate it in the constructor.
+    
+    
+    (cherry picked from commit 693a02e76068de331c45df191f372ac14e6686d2)
+
+commit c23daa12fe
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jun 27 09:53:30 2021 +0000
+
+    [Automatic update for 2021-06-27]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 9fc3cd04a8
+Author: Guy Harris <gharris@sonic.net>
+Date:   Sun Jun 20 15:39:58 2021 -0700
+
+    mergecap: improve the example.
+    
+    Explain, in detail, exactly what it's trying to do and, for each of the
+    three commands in the example, what each step does, as well as
+    explaining what the calculation using the end time of one capture and
+    start time of another capture is doing.
+    
+    (Where did this example come from?  What is the real-world goal of this
+    exercise?  And why is it an example in which all the fancy stuff is done
+    in commands *other* than mergecap?)
+    
+    
+    (cherry picked from commit 628fe2549a47f4f246dd645d5d15dad3edc35cb7)
+
+commit 2d967ebad1
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jun 20 09:54:06 2021 +0000
+
+    [Automatic update for 2021-06-20]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 69977f3109
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sat Jun 19 17:17:09 2021 -0700
+
+    GitLab CI: Add initial Windows package builds.
+    
+    Manually copy over the Win64 Package and Win32 Package jobs from
+    2d9280089c in master and adapt for the 3.4 release builds.
+
+commit 1afaa65fdd
+Author: Guy Harris <gharris@sonic.net>
+Date:   Fri Jun 18 17:43:36 2021 -0700
+
+    pcap-common: set the time stamp precision correctly for LINKTYPE_ERF.
+    
+    LINKTYPE_ERF pcap files are really ERF files inside a thin pcap wrapper
+    (don't even ask what a pcapng file with some or all interfaces being
+    LINKTYPE_ERF is...), so the time stamp comes from the ERF record, not
+    from the pcap packet header or pcapng block header.
+    
+    The time stamp reslution for the record should reflect that, so set it
+    to WTAP_TSPREC_NSEC (ERF time stamps are fractional-power-of-2, not
+    fractional-power-of-10, so that's the best we can do).
+    
+    
+    (cherry picked from commit 39315979c638b916d76a9dbf8c7ffb089721f01a)
+
+commit 755a470644
+Author: Guy Harris <gharris@sonic.net>
+Date:   Fri Jun 18 16:22:54 2021 -0700
+
+    erf: handle errors in some routines more completely.
+    
+    Have them take error code and error information string arguments and,
+    for various failures, fill them in as "internal error" indications.
+    
+    Check their return codes to see if they got an error.
+    
+    
+    (cherry picked from commit 02cffb51a9fc048defac1085cb71d5567ae3f4fc)
+
+commit 930d8f763c
+Author: Guy Harris <gharris@sonic.net>
+Date:   Fri Jun 18 15:34:49 2021 -0700
+
+    libpcap: don't generate a fake interface for LINKTYPE_ERF files.
+    
+    The ERF code will generate interfaces based on the ERF records in the
+    file, so don't bother adding an additional dummy interface.
+    
+    
+    (cherry picked from commit d69d1271f08fb4e919447dbfb8a36c2cdfe3e48b)
+
+commit 4a34fa38f1
+Author: Guy Harris <gharris@sonic.net>
+Date:   Fri Jun 18 01:24:41 2021 -0700
+
+    erf: set the tsprecision value of a newly-created IDB.
+    
+    Don't assume the default is correct, because there's no guarantee of
+    that - in fact, there's currently a guarantee that it's not, as it's
+    initialized to 0, which is WTAP_TSPREC_SECS.
+    
+    
+    (cherry picked from commit 49ec11f5aad2c6c29b02036ef9744c5680ee88a0)
+
+commit 18c4baa9f3
+Author: Guy Harris <gharris@sonic.net>
+Date:   Wed Jun 16 00:43:07 2021 -0700
+
+    wslua_tvb: fix documentation for reported_length_remaining().
+    
+    In the past, tvb_reported_length_remaining(), and thus
+    Tvb:reported_length_remaining(), may have returned -1 if the offset was
+    invalid.  That's no longer the case; the former returns 0, and, as the
+    latter just returns the former's return value, that's true of the latter
+    as well.
+    
+    
+    (cherry picked from commit 6c043d5c73e3bdbb84f988a82ebdfc18d77489b9)
+
+commit 18e13337ea
+Author: Guy Harris <gharris@sonic.net>
+Date:   Tue Jun 15 23:24:01 2021 -0700
+
+    wslua: a tvbuff doesn't have an "actual length".
+    
+    It has a "reported length", which is the closes thing to an "actual
+    length", as it represents the length the packet, or subset thereof, had
+    on the network, and a "captured length", which is the amount of the
+    packet that the capture process saved.
+    
+    In 99.999999999999999999999999999999% of all cases, a dissector should
+    look at the "reported length", not at the "captured length".
+    
+    Rename the "len" method to "captured_len", leaving "len" around for
+    backwards compatibility.
+    
+    Fix the documentation to reflect reality, to avoid issues such as #15655.
+    
+    
+    (cherry picked from commit bd9ceaebef86a30f5f45a8887fd01883dd0d1993)
+
+commit 9ea88b3ee2
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jun 13 09:53:07 2021 +0000
+
+    [Automatic update for 2021-06-13]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 018ea00ff2
+Author: João Valverde <j@v6e.pt>
+Date:   Thu Jun 10 16:58:54 2021 +0100
+
+    wsutil: argv[] is a NULL terminated array
+    
+    
+    (cherry picked from commit 70cea91c8a3b5c4cea33ec53dab022531b44297b)
+
+commit 64bedfad27
+Author: Alexis La Goutte <alexis.lagoutte@gmail.com>
+Date:   Wed Jun 9 19:43:02 2021 +0000
+
+    wifi-nan: Fix length for availability attribute
+    
+    Issue reported by Behzad Mokhtari
+    
+    Fix #17431
+    
+    
+    (cherry picked from commit b716e2f1a2a1a592aff2c71662f0827527d72f68)
+
+commit ad6a337dde
+Author: Uli Heilmeier <uh@heilmeier.eu>
+Date:   Thu Apr 1 09:17:49 2021 +0200
+
+    QT: Fix printer dialog
+    
+    Fix EXC_BAD_ACCESS error by using printer variable.
+    
+    
+    (cherry picked from commit ea20002a0783dfc1c8912ab297f2eff065edca54)
+
+commit 61c2ba5b16
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jun 6 09:53:22 2021 +0000
+
+    [Automatic update for 2021-06-06]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 9eb1c665c6
+Author: Christian Reusch <creusch@crnetpackets.com>
+Date:   Thu Jun 3 22:45:34 2021 +0200
+
+    tcp: Fix dissection of DSACK
+    
+    DSACK blocks (the first SACK block in a TCP SACK option, with right edge
+    being lower or equal to the ACK filed) are now identified correctly.
+    
+    Closes #17315
+    
+    
+    (cherry picked from commit 7179e1d1fbd7e6fb3d4f8848e432dd7c5ad54dae)
+
+commit 57776c7641
+Author: Guy Harris <gharris@sonic.net>
+Date:   Fri Jun 4 14:48:24 2021 -0700
+
+    file-pcapng: fix name of expert info.
+    
+    The entry was copied and pasted, and the variable name and descriptive
+    text were changed, but the field name wasn't.
+    
+    
+    (cherry picked from commit deb6786ed455fa9433caeb4d3c542be4e5918102)
+
+commit 793d971db2
+Author: Simon Barber <simon.barber@meraki.net>
+Date:   Wed Jun 2 21:47:03 2021 +0000
+
+    ieee80211_radio: Use calculated bitrate if not supplied
+    
+    For 802.11n if the bitrate is not supplied then the calculated bitrate is used. This change does the same for 11ac and 11ax.
+    
+    Sniffer traces taken on recent versions of Macos no longer supply the bitrate for 11ac frames in the RADIOTAP header, this change allows the wireless timeline to work with these traces.
+    
+    Fixes #17419.
+    
+    
+    (cherry picked from commit 5202119239f76af3df20540b35c618d7095c99c6)
+
+commit 17a3789ad8
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Jun 2 12:48:56 2021 -0700
+
+    GitLab CI: Move dfilter list generation.
+    
+    Create the display filter list in the APT Test step.
+
+commit fd6a83dfec
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Jun 2 12:23:39 2021 -0700
+
+    Version: 3.4.6 → 3.4.7
+    
+    [skip ci]

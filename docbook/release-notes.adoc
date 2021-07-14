@@ -13,8 +13,8 @@ It is used for troubleshooting, analysis, development and education.
 
 == What’s New
 
-The Windows installers now ship with Npcap 1.31.
-They previously shipped with Npcap 1.10.
+// The Windows installers now ship with Npcap 1.31.
+// They previously shipped with Npcap 1.10.
 
 // The Windows installers now ship with USBPcap 1.5.X.0.
 // They previously shipped with USBPcap 1.5.4.0.
@@ -29,7 +29,7 @@ The following vulnerabilities have been fixed:
 * wssalink:2021-06[]
 DNP dissector crash.
 wsbuglink:17462[].
-// cveidlink:2021-xxxx[].
+cveidlink:2021-22235[].
 // Fixed in master: 029a7fcec5
 // Fixed in release-3.4: 490fe2684b
 // Fixed in master-3.2: d9497073c4
