@@ -1854,8 +1854,8 @@ dissect_isis_trill_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
 
     case FLEX_ALGO_DEF:
         rt_tree = proto_tree_add_subtree_format(tree, tvb, offset-2, sublen+2,
-                                               ett_isis_lsp_clv_flex_algo_def,
-                                                NULL, "Flexible Alogorithm Definition (t=%u, l=%u)",
+                                                ett_isis_lsp_clv_flex_algo_def,
+                                                NULL, "Flexible Algorithm Definition (t=%u, l=%u)",
                                                 subtype, sublen);
         proto_tree_add_item(rt_tree, hf_isis_lsp_clv_flex_algo_algorithm, tvb, offset, 1, ENC_NA);
         proto_tree_add_item(rt_tree, hf_isis_lsp_clv_flex_algo_metric_type, tvb, offset+1, 1, ENC_NA);
@@ -6316,22 +6316,22 @@ proto_register_isis_lsp(void)
 
         /* draft-ietf-lsr-flex-algo-16 */
         { &hf_isis_lsp_clv_flex_algo_algorithm,
-          { "Flex-Algorithm", "isis.lsp.flex_algorighm.algorithm",
+          { "Flex-Algorithm", "isis.lsp.flex_algorithm.algorithm",
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_isis_lsp_clv_flex_algo_metric_type,
-          { "Metric-Type", "isis.lsp.flex_algorighm.metric_type",
+          { "Metric-Type", "isis.lsp.flex_algorithm.metric_type",
             FT_UINT8, BASE_DEC, VALS(isis_lsp_flex_algo_metric_type_vals), 0x0,
             NULL, HFILL }
         },
         { &hf_isis_lsp_clv_flex_algo_calc_type,
-          { "Calculation-Type", "isis.lsp.flex_algorighm.calculation_type",
+          { "Calculation-Type", "isis.lsp.flex_algorithm.calculation_type",
             FT_UINT8, BASE_DEC, VALS(isis_igp_alg_vals), 0x0,
             NULL, HFILL }
         },
         { &hf_isis_lsp_clv_flex_algo_priority,
-          { "Calculation-Type", "isis.lsp.flex_algorighm.priority",
+          { "Calculation-Type", "isis.lsp.flex_algorithm.priority",
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
