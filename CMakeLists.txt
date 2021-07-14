@@ -429,18 +429,20 @@ set_property(DIRECTORY
 
 if(WIN32)
 	#
-	# Make sure everyone is using the same API and that it's sufficient
-	# for our needs.
-	# This should match the following:
-	# - The <compatibility><application> section in image\wireshark.exe.manifest.in
-	# - The GetWindowsVersion parts of packaging\nsis\wireshark.nsi
-	# - The VersionNT parts of packaging\wix\Prerequisites.wxi
-	#
 	# NOTE: Because of the way Qt moc is including "config.h" (not as the
 	# first header) this *MUST* be defined on the command line to precede
 	# every included header and not trigger symbol redefinition errors.
 	#
 	add_definitions(
+		-DWIN32_LEAN_AND_MEAN
+		#
+		# Make sure everyone is using the same API and that it's sufficient
+		# for our needs.
+		# This should match the following:
+		# - The <compatibility><application> section in image\wireshark.exe.manifest.in
+		# - The GetWindowsVersion parts of packaging\nsis\wireshark.nsi
+		# - The VersionNT parts of packaging\wix\Prerequisites.wxi
+		#
 		-DNTDDI_VERSION=NTDDI_WIN7
 		-D_WIN32_WINNT=_WIN32_WINNT_WIN7
 	)
@@ -452,7 +454,6 @@ if( CMAKE_C_COMPILER_ID MATCHES "MSVC")
 	endif()
 
 	add_definitions(
-		/DWIN32_LEAN_AND_MEAN
 		/D_CRT_SECURE_NO_DEPRECATE
 		# NOMINMAX keeps windows.h from defining "min" and "max" via windef.h.
 		# This avoids conflicts with the C++ standard library.
