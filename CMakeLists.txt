@@ -258,11 +258,11 @@ endif()
 # build directory location). (Requires CMake 3.14)
 set(CMAKE_BUILD_RPATH_USE_ORIGIN ON)
 
-if(WIN32)
+if(MSVC)
     # Linking with wsetargv.obj enables "wildcard expansion" of
     # command-line arguments.
     set(WILDCARD_OBJ wsetargv.obj)
-endif(WIN32)
+endif()
 
 include(CheckSymbolExists)
 
