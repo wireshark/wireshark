@@ -512,20 +512,6 @@ register_pcapng_option_handler(guint block_type, guint option_code,
 }
 
 static void
-pcapng_process_string_option(wtapng_block_t *wblock, guint16 option_code,
-                             guint16 option_length, const guint8 *option_content)
-{
-    wtap_block_add_string_option(wblock->block, option_code, (const char *)option_content, option_length);
-}
-
-static void
-pcapng_process_bytes_option(wtapng_block_t *wblock, guint16 option_code,
-                             guint16 option_length, const guint8 *option_content)
-{
-    wtap_block_add_bytes_option(wblock->block, option_code, (const char *)option_content, option_length);
-}
-
-static void
 pcapng_process_uint8_option(wtapng_block_t *wblock,
                             guint16 option_code, guint16 option_length,
                             const guint8 *option_content)
@@ -610,6 +596,20 @@ pcapng_process_uint64_option(wtapng_block_t *wblock,
          */
         wtap_block_add_uint64_option(wblock->block, option_code, uint64);
     }
+}
+
+static void
+pcapng_process_string_option(wtapng_block_t *wblock, guint16 option_code,
+                             guint16 option_length, const guint8 *option_content)
+{
+    wtap_block_add_string_option(wblock->block, option_code, (const char *)option_content, option_length);
+}
+
+static void
+pcapng_process_bytes_option(wtapng_block_t *wblock, guint16 option_code,
+                             guint16 option_length, const guint8 *option_content)
+{
+    wtap_block_add_bytes_option(wblock->block, option_code, (const char *)option_content, option_length);
 }
 
 static gboolean
@@ -3715,23 +3715,6 @@ static gboolean pcapng_write_uint32_option(wtap_dumper *wdh, guint option_id, wt
     return TRUE;
 }
 
-static gboolean pcapng_write_ipv4_option(wtap_dumper *wdh, guint option_id, wtap_optval_t *optval, int *err)
-{
-    struct pcapng_option_header option_hdr;
-
-    option_hdr.type         = (guint16)option_id;
-    option_hdr.value_length = (guint16)4;
-    if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
-        return FALSE;
-    wdh->bytes_dumped += 4;
-
-    if (!wtap_dump_file_write(wdh, &optval->ipv4val, 1, err))
-        return FALSE;
-    wdh->bytes_dumped += 4;
-
-    return TRUE;
-}
-
 static gboolean pcapng_write_uint64_option(wtap_dumper *wdh, guint option_id, wtap_optval_t *optval, int *err)
 {
     struct pcapng_option_header option_hdr;
@@ -3745,23 +3728,6 @@ static gboolean pcapng_write_uint64_option(wtap_dumper *wdh, guint option_id, wt
     if (!wtap_dump_file_write(wdh, &optval->uint64val, 8, err))
         return FALSE;
     wdh->bytes_dumped += 8;
-
-    return TRUE;
-}
-
-static gboolean pcapng_write_ipv6_option(wtap_dumper *wdh, guint option_id, wtap_optval_t *optval, int *err)
-{
-    struct pcapng_option_header option_hdr;
-
-    option_hdr.type         = (guint16)option_id;
-    option_hdr.value_length = (guint16)IPv6_ADDR_SIZE;
-    if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
-        return FALSE;
-    wdh->bytes_dumped += 4;
-
-    if (!wtap_dump_file_write(wdh, &optval->ipv6val.bytes, IPv6_ADDR_SIZE, err))
-        return FALSE;
-    wdh->bytes_dumped += IPv6_ADDR_SIZE;
 
     return TRUE;
 }
@@ -3879,6 +3845,40 @@ static gboolean pcapng_write_bytes_option(wtap_dumper *wdh, guint option_id, wta
 
         wdh->bytes_dumped += pad;
     }
+
+    return TRUE;
+}
+
+static gboolean pcapng_write_ipv4_option(wtap_dumper *wdh, guint option_id, wtap_optval_t *optval, int *err)
+{
+    struct pcapng_option_header option_hdr;
+
+    option_hdr.type         = (guint16)option_id;
+    option_hdr.value_length = (guint16)4;
+    if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
+        return FALSE;
+    wdh->bytes_dumped += 4;
+
+    if (!wtap_dump_file_write(wdh, &optval->ipv4val, 1, err))
+        return FALSE;
+    wdh->bytes_dumped += 4;
+
+    return TRUE;
+}
+
+static gboolean pcapng_write_ipv6_option(wtap_dumper *wdh, guint option_id, wtap_optval_t *optval, int *err)
+{
+    struct pcapng_option_header option_hdr;
+
+    option_hdr.type         = (guint16)option_id;
+    option_hdr.value_length = (guint16)IPv6_ADDR_SIZE;
+    if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
+        return FALSE;
+    wdh->bytes_dumped += 4;
+
+    if (!wtap_dump_file_write(wdh, &optval->ipv6val.bytes, IPv6_ADDR_SIZE, err))
+        return FALSE;
+    wdh->bytes_dumped += IPv6_ADDR_SIZE;
 
     return TRUE;
 }
