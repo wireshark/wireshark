@@ -1655,7 +1655,7 @@ void wtap_opttypes_initialize(void)
      */
     wtap_opttype_block_register(&idb_block);
     wtap_opttype_option_register(&idb_block, OPT_IDB_NAME, &if_name);
-    wtap_opttype_option_register(&idb_block, OPT_IDB_DESCR, &if_description);
+    wtap_opttype_option_register(&idb_block, OPT_IDB_DESCRIPTION, &if_description);
     wtap_opttype_option_register(&idb_block, OPT_IDB_SPEED, &if_speed);
     wtap_opttype_option_register(&idb_block, OPT_IDB_TSRESOL, &if_tsresol);
     wtap_opttype_option_register(&idb_block, OPT_IDB_FILTER, &if_filter);

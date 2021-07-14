@@ -1038,7 +1038,7 @@ pcapng_process_if_descr_block_option(wtapng_block_t *wblock,
             pcapng_process_string_option(wblock, option_code, option_length,
                                          option_content);
             break;
-        case(OPT_IDB_DESCR): /* if_description */
+        case(OPT_IDB_DESCRIPTION): /* if_description */
             pcapng_process_string_option(wblock, option_code, option_length,
                                          option_content);
             break;
@@ -5258,7 +5258,7 @@ static guint32 compute_idb_option_size(wtap_block_t block _U_, guint option_id, 
     switch(option_id)
     {
     case OPT_IDB_NAME:
-    case OPT_IDB_DESCR:
+    case OPT_IDB_DESCRIPTION:
     case OPT_IDB_OS:
     case OPT_IDB_HARDWARE:
         size = pcapng_compute_string_option_size(optval);
@@ -5288,7 +5288,7 @@ static gboolean write_wtap_idb_option(wtap_dumper *wdh, wtap_block_t block _U_, 
     switch(option_id)
     {
     case OPT_IDB_NAME:
-    case OPT_IDB_DESCR:
+    case OPT_IDB_DESCRIPTION:
     case OPT_IDB_OS:
     case OPT_IDB_HARDWARE:
         if (!pcapng_write_string_option(wdh, option_id, optval, err))
@@ -5633,7 +5633,7 @@ static const struct supported_option_type interface_block_options_supported[] = 
     { OPT_CUSTOM_STR_NO_COPY, MULTIPLE_OPTIONS_SUPPORTED },
     { OPT_CUSTOM_BIN_NO_COPY, MULTIPLE_OPTIONS_SUPPORTED },
     { OPT_IDB_NAME, ONE_OPTION_SUPPORTED },
-    { OPT_IDB_DESCR, ONE_OPTION_SUPPORTED },
+    { OPT_IDB_DESCRIPTION, ONE_OPTION_SUPPORTED },
     { OPT_IDB_IP4ADDR, MULTIPLE_OPTIONS_SUPPORTED },
     { OPT_IDB_IP6ADDR, MULTIPLE_OPTIONS_SUPPORTED },
     { OPT_IDB_MACADDR, ONE_OPTION_SUPPORTED },

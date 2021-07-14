@@ -47,7 +47,7 @@ extern "C" {
                                        *     of the device used to capture data.
                                        *     "eth0" / "\Device\NPF_{AD1CE675-96D0-47C5-ADD0-2504B9126B68}"
                                        */
-#define OPT_IDB_DESCR          3     /**< A UTF-8 string containing the description
+#define OPT_IDB_DESCRIPTION    3     /**< A UTF-8 string containing the description
                                        *     of the device used to capture data.
                                        *     "Wi-Fi" / "Local Area Connection" /
                                        *     "Wireless Network Connection" /
@@ -114,6 +114,15 @@ extern "C" {
                                        *     "NETGEAR WNA1000Mv2 N150 Wireless USB Micro Adapter"
                                        */
 
+/*
+ * These are the flags for an EPB, but we use them for all WTAP_BLOCK_PACKET
+ */
+#define OPT_PKT_FLAGS        2
+#define OPT_PKT_HASH         3
+#define OPT_PKT_DROPCOUNT    4
+#define OPT_PKT_PACKETID     5
+#define OPT_PKT_QUEUE        6
+#define OPT_PKT_VERDICT      7
 
 /* Name Resolution Block (NRB) */
 #define OPT_NS_DNSNAME       2
@@ -128,16 +137,6 @@ extern "C" {
 #define OPT_ISB_FILTERACCEPT 6
 #define OPT_ISB_OSDROP       7
 #define OPT_ISB_USRDELIV     8
-
-/*
- * These are the flags for an EPB, but we use them for all WTAP_BLOCK_PACKET
- */
-#define OPT_PKT_FLAGS        2
-#define OPT_PKT_HASH         3
-#define OPT_PKT_DROPCOUNT    4
-#define OPT_PKT_PACKETID     5
-#define OPT_PKT_QUEUE        6
-#define OPT_PKT_VERDICT      7
 
 struct wtap_block;
 typedef struct wtap_block *wtap_block_t;

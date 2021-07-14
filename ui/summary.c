@@ -185,7 +185,7 @@ summary_fill_in(capture_file *cf, summary_tally *st)
         } else {
             iface.name = NULL;
         }
-        if (wtap_block_get_string_option_value(wtapng_if_descr, OPT_IDB_DESCR, &if_string) == WTAP_OPTTYPE_SUCCESS) {
+        if (wtap_block_get_string_option_value(wtapng_if_descr, OPT_IDB_DESCRIPTION, &if_string) == WTAP_OPTTYPE_SUCCESS) {
             iface.descr = g_strdup(if_string);
         } else {
             iface.descr = NULL;

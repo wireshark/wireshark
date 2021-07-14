@@ -328,7 +328,7 @@ wtap_get_debug_if_descr(const wtap_block_t if_descr,
 				line_end);
 	}
 
-	if (wtap_block_get_string_option_value(if_descr, OPT_IDB_DESCR, &tmp_content) == WTAP_OPTTYPE_SUCCESS) {
+	if (wtap_block_get_string_option_value(if_descr, OPT_IDB_DESCRIPTION, &tmp_content) == WTAP_OPTTYPE_SUCCESS) {
 		g_string_append_printf(info,
 				"%*cDescription = %s%s", indent, ' ',
 				tmp_content ? tmp_content : "NONE",

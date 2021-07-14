@@ -40,7 +40,7 @@ cap_file_provider_get_interface_name(struct packet_provider_data *prov, guint32 
   if (wtapng_if_descr) {
     if (wtap_block_get_string_option_value(wtapng_if_descr, OPT_IDB_NAME, &interface_name) == WTAP_OPTTYPE_SUCCESS)
       return interface_name;
-    if (wtap_block_get_string_option_value(wtapng_if_descr, OPT_IDB_DESCR, &interface_name) == WTAP_OPTTYPE_SUCCESS)
+    if (wtap_block_get_string_option_value(wtapng_if_descr, OPT_IDB_DESCRIPTION, &interface_name) == WTAP_OPTTYPE_SUCCESS)
       return interface_name;
     if (wtap_block_get_string_option_value(wtapng_if_descr, OPT_IDB_HARDWARE, &interface_name) == WTAP_OPTTYPE_SUCCESS)
       return interface_name;
@@ -63,7 +63,7 @@ cap_file_provider_get_interface_description(struct packet_provider_data *prov, g
   g_free(idb_info);
 
   if (wtapng_if_descr) {
-    if (wtap_block_get_string_option_value(wtapng_if_descr, OPT_IDB_DESCR, &interface_name) == WTAP_OPTTYPE_SUCCESS)
+    if (wtap_block_get_string_option_value(wtapng_if_descr, OPT_IDB_DESCRIPTION, &interface_name) == WTAP_OPTTYPE_SUCCESS)
       return interface_name;
   }
   return NULL;

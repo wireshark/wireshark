@@ -576,8 +576,8 @@ is_duplicate_idb(const wtap_block_t idb1, const wtap_block_t idb2)
     }
 
     /* XXX - what do to if we have only one value? */
-    have_idb1_value = (wtap_block_get_string_option_value(idb1, OPT_IDB_DESCR, &idb1_if_description) == WTAP_OPTTYPE_SUCCESS);
-    have_idb2_value = (wtap_block_get_string_option_value(idb2, OPT_IDB_DESCR, &idb2_if_description) == WTAP_OPTTYPE_SUCCESS);
+    have_idb1_value = (wtap_block_get_string_option_value(idb1, OPT_IDB_DESCRIPTION, &idb1_if_description) == WTAP_OPTTYPE_SUCCESS);
+    have_idb2_value = (wtap_block_get_string_option_value(idb2, OPT_IDB_DESCRIPTION, &idb2_if_description) == WTAP_OPTTYPE_SUCCESS);
     if (have_idb1_value && have_idb2_value) {
         ws_debug("g_strcmp0(idb1_if_description, idb2_if_description) == 0: %s",
                      (g_strcmp0(idb1_if_description, idb2_if_description) == 0) ? "TRUE":"FALSE");

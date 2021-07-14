@@ -1084,7 +1084,7 @@ static gboolean erf_write_wtap_option_to_interface_tag(wtap_block_t block _U_,
       tag_ptr->value = (guint8*)g_strdup(optval->stringval);
       tag_ptr->length = (guint16)strlen((char*)tag_ptr->value);
       break;
-    case OPT_IDB_DESCR:
+    case OPT_IDB_DESCRIPTION:
       tag_ptr->type = ERF_META_TAG_descr;
       tag_ptr->value = (guint8*)g_strdup(optval->stringval);
       tag_ptr->length = (guint16)strlen((char*)tag_ptr->value);
@@ -2345,7 +2345,7 @@ static int erf_update_implicit_host_id(erf_t *erf_priv, wtap *wth, guint64 impli
             g_free(oldstr);
 
             erf_set_interface_descr(int_data, OPT_IDB_NAME, implicit_host_id, if_map->source_id, (guint8) i, if_info->name);
-            erf_set_interface_descr(int_data, OPT_IDB_DESCR, implicit_host_id, if_map->source_id, (guint8) i, if_info->descr);
+            erf_set_interface_descr(int_data, OPT_IDB_DESCRIPTION, implicit_host_id, if_map->source_id, (guint8) i, if_info->descr);
           }
         }
       }
@@ -2365,7 +2365,7 @@ static int erf_update_implicit_host_id(erf_t *erf_priv, wtap *wth, guint64 impli
           /* XXX: this is a pointer! */
           int_data = g_array_index(wth->interface_data, wtap_block_t, if_info->if_index);
           erf_set_interface_descr(int_data, OPT_IDB_NAME, implicit_host_id, if_map->source_id, (guint8) i, if_info->name);
-          erf_set_interface_descr(int_data, OPT_IDB_DESCR, implicit_host_id, if_map->source_id, (guint8) i, if_info->descr);
+          erf_set_interface_descr(int_data, OPT_IDB_DESCRIPTION, implicit_host_id, if_map->source_id, (guint8) i, if_info->descr);
         }
       }
 
@@ -2505,7 +2505,7 @@ static int erf_populate_interface(erf_t *erf_priv, wtap *wth, union wtap_pseudo_
   int_data_mand->interface_statistics = NULL;
 
   erf_set_interface_descr(int_data, OPT_IDB_NAME, host_id, source_id, if_num, NULL);
-  erf_set_interface_descr(int_data, OPT_IDB_DESCR, host_id, source_id, if_num, NULL);
+  erf_set_interface_descr(int_data, OPT_IDB_DESCRIPTION, host_id, source_id, if_num, NULL);
 
   if_map->interfaces[if_num].if_index = (int) wth->interface_data->len;
   wtap_add_idb(wth, int_data);
@@ -2880,14 +2880,14 @@ static int populate_interface_info(erf_t *erf_priv, wtap *wth, union wtap_pseudo
 
           /* If we have no description, also copy to wtap if_description */
           if (!if_info->descr) {
-            erf_set_interface_descr(int_data, OPT_IDB_DESCR, state->if_map->host_id, state->if_map->source_id, (guint8) if_num, if_info->name);
+            erf_set_interface_descr(int_data, OPT_IDB_DESCRIPTION, state->if_map->host_id, state->if_map->source_id, (guint8) if_num, if_info->name);
           }
         }
         break;
       case ERF_META_TAG_descr:
         if (!if_info->descr) {
           if_info->descr = g_strndup((gchar*) tag.value, tag.length);
-          erf_set_interface_descr(int_data, OPT_IDB_DESCR, state->if_map->host_id, state->if_map->source_id, (guint8) if_num, if_info->descr);
+          erf_set_interface_descr(int_data, OPT_IDB_DESCRIPTION, state->if_map->host_id, state->if_map->source_id, (guint8) if_num, if_info->descr);
 
           /* If we have no name, also copy to wtap if_name */
           if (!if_info->name) {
@@ -3563,7 +3563,7 @@ static const struct supported_option_type section_block_options_supported[] = {
 static const struct supported_option_type interface_block_options_supported[] = {
   { OPT_COMMENT, ONE_OPTION_SUPPORTED }, /* XXX - multiple? */
   { OPT_IDB_NAME, ONE_OPTION_SUPPORTED },
-  { OPT_IDB_DESCR, ONE_OPTION_SUPPORTED },
+  { OPT_IDB_DESCRIPTION, ONE_OPTION_SUPPORTED },
   { OPT_IDB_OS, ONE_OPTION_SUPPORTED },
   { OPT_IDB_TSOFFSET, ONE_OPTION_SUPPORTED },
   { OPT_IDB_SPEED, ONE_OPTION_SUPPORTED },
