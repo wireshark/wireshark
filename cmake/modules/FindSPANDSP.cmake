@@ -14,6 +14,9 @@ if( NOT WIN32)
   pkg_search_module(SPANDSP spandsp)
 endif()
 
+# spandsp.h includes tiffio.h.
+find_package(TIFF QUIET)
+
 find_path( SPANDSP_INCLUDE_DIR
   NAMES spandsp.h
   HINTS
@@ -35,6 +38,9 @@ find_package_handle_standard_args( SPANDSP DEFAULT_MSG SPANDSP_LIBRARY SPANDSP_I
 
 if( SPANDSP_FOUND )
   set( SPANDSP_INCLUDE_DIRS ${SPANDSP_INCLUDE_DIR} )
+  if( TIFF_FOUND )
+    list(APPEND SPANDSP_INCLUDE_DIRS ${TIFF_INCLUDE_DIR})
+  endif()
   set( SPANDSP_LIBRARIES ${SPANDSP_LIBRARY} )
   if (WIN32)
     set ( SPANDSP_DLL_DIR "${SPANDSP_HINTS}/bin"

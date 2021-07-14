@@ -1249,7 +1249,6 @@ ws_find_package(NL ENABLE_NETLINK HAVE_LIBNL)
 ws_find_package(SBC ENABLE_SBC HAVE_SBC)
 
 # SpanDSP codec
-find_package(TIFF QUIET)
 ws_find_package(SPANDSP ENABLE_SPANDSP HAVE_SPANDSP)
 
 ws_find_package(BCG729 ENABLE_BCG729 HAVE_BCG729)
