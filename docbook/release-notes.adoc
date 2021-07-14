@@ -24,15 +24,15 @@ It is used for troubleshooting, analysis, development and education.
 
 === Bug Fixes
 
-The following vulnerabilities have been fixed:
+// The following vulnerabilities have been fixed:
 
-* wssalink:2021-06[]
-DNP dissector crash.
-wsbuglink:17462[].
-cveidlink:2021-22235[].
-// Fixed in master: 029a7fcec5
-// Fixed in release-3.4: 490fe2684b
-// Fixed in master-3.2: d9497073c4
+// * wssalink:2021-07[]
+// Foo dissector {crash,infinite loop,memory leak}.
+// wsbuglink:xxxxx[].
+// cveidlink:2021-xxxxx[].
+// Fixed in master: xxxxx
+// Fixed in release-3.4: xxxxx
+// Fixed in master-3.2: xxxxx
 // CVSS AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:L
 // CWE-762: Mismatched Memory Management Routines
 
@@ -43,12 +43,6 @@ The following bugs have been fixed:
 //* cveidlink:2014-2486[]
 //* Wireshark exposed details your sordid redneck past, which were subsequently widely disseminated on social media.
 // cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log v3.4.4rc0.. | gsed -e 's/\(close\|fix\|resolv\)[^ ]* #/\nclose #/gI' | grep ^close | sed -e 's/close.*#\([1-9][0-9]*\).*/\1/' | sort -V -u` ; do "$(git rev-parse --show-toplevel)/tools/gen-bugnote" $bugnumber; pbpaste >> /tmp/buglist.txt; done
-
-* TCP dissector - Erroneous DSACK reporting wsbuglink:17315[].
-
-* No wlan_radio.duration calculated for PHY type: 802.11ac (VHT) wsbuglink:17419[].
-
-* NAN Dissector has wrong minimum length for availability attribute wsbuglink:17431[].
 
 === New and Updated Features
 
@@ -71,35 +65,15 @@ There are no new protocols in this release.
 // Add one protocol per line between the -- delimiters.
 [commaize]
 --
-ASTERIX
-BT LE LL
-DCE RPC
-DNP
-GTPv2
-IEEE 802.11 Radio
-LDAP
-NAN
-NORDIC_BLE
-NR RRC
-OSPF
-pcapng
-PNIO
-RSL
-S101
-Snort config
-TCP
 --
 
 === New and Updated Capture File Support
 
-// There is no new or updated capture file support in this release.
+There is no new or updated capture file support in this release.
 // Add one file type per line between the -- delimiters.
-[commaize]
---
-Catapult DCT2000
-ERF
-pcap
---
+// [commaize]
+// --
+// --
 
 // === New and Updated Capture Interfaces support
 
