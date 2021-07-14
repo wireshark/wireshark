@@ -157,7 +157,7 @@ header ::= version ENDL maybe_lines
     state->entry_type        = LOG_ENTRY_HEADER;
     state->header.start_date = S.date;
     state->header.start_time = S.time;
-    state->header.protocol   = (protocol_t)P.v0;
+    state->header.protocol   = (protocol_type_t)P.v0;
     state->header.data_mode  = (data_mode_t)D.v0;
     state->header.time_mode  = (time_mode_t)T.v0;
 }

@@ -10,6 +10,11 @@
 #ifndef __PACKET_SOCKETCAN_H__
 #define __PACKET_SOCKETCAN_H__
 
+#include <epan/tvbuff.h>
+#include <epan/packet_info.h>
+#include <epan/proto.h>
+
+
 /* Structure that gets passed between dissectors. */
 struct can_info
 {
@@ -48,6 +53,9 @@ typedef struct can_info can_info_t;
 #define CAN_ERR_BUSERROR     0x00000080U /* bus error (may flood!) */
 #define CAN_ERR_RESTARTED    0x00000100U /* controller restarted */
 #define CAN_ERR_RESERVED     0x1FFFFE00U /* reserved bits */
+
+
+gboolean socketcan_call_subdissectors(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, struct can_info *can_info, const gboolean use_heuristics_first);
 
 #endif /* __PACKET_SOCKETCAN_H__ */
 

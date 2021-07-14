@@ -35,7 +35,7 @@ typedef enum {
     PROTOCOL_CAN,
     PROTOCOL_LIN,
     PROTOCOL_J1939,
-} protocol_t;
+} protocol_type_t;
 
 typedef enum {
     DATA_MODE_UNKNOWN = 0,
@@ -100,7 +100,7 @@ typedef struct {
 typedef struct {
     gint64      file_start_offset;
     gint64      file_end_offset;
-    protocol_t  protocol;
+    protocol_type_t  protocol;
     data_mode_t data_mode;
     time_mode_t time_mode;
     msg_date_t  start_date;

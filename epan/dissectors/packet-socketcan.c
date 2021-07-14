@@ -102,7 +102,9 @@ static heur_dtbl_entry_t *heur_dtbl_entry;
 #define CANFD_BRS 0x01 /* bit rate switch (second bitrate for payload data) */
 #define CANFD_ESI 0x02 /* error state indicator of the transmitting node */
 
-static dissector_table_t subdissector_table;
+static dissector_table_t can_id_dissector_table = NULL;
+static dissector_table_t can_extended_id_dissector_table = NULL;
+static dissector_table_t subdissector_table = NULL;
 static dissector_handle_t socketcan_bigendian_handle;
 static dissector_handle_t socketcan_hostendian_handle;
 static dissector_handle_t socketcan_fd_handle;
@@ -161,9 +163,41 @@ static const value_string can_err_trx_canl_vals[] =
 	{ 0, NULL }
 };
 
+gboolean
+socketcan_call_subdissectors(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, struct can_info* can_info, const gboolean use_heuristics_first)
+{
+	dissector_table_t effective_can_id_dissector_table = (can_info->id & CAN_EFF_FLAG) ? can_extended_id_dissector_table : can_id_dissector_table;
+	guint32 effective_can_id = (can_info->id & CAN_EFF_FLAG) ? can_info->id & CAN_EFF_MASK : can_info->id & CAN_SFF_MASK;
+
+	if (!dissector_try_uint_new(effective_can_id_dissector_table, effective_can_id, tvb, pinfo, tree, TRUE, can_info))
+	{
+		if (!use_heuristics_first)
+		{
+			if (!dissector_try_payload_new(subdissector_table, tvb, pinfo, tree, TRUE, can_info))
+			{
+				if (!dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, tree, &heur_dtbl_entry, can_info))
+				{
+					return FALSE;
+				}
+			}
+		}
+		else
+		{
+			if (!dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, tree, &heur_dtbl_entry, can_info))
+			{
+				if (!dissector_try_payload_new(subdissector_table, tvb, pinfo, tree, FALSE, can_info))
+				{
+					return FALSE;
+				}
+			}
+		}
+	}
+
+	return TRUE;
+}
+
 static int
-dissect_socketcan_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-						guint encoding)
+dissect_socketcan_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint encoding)
 {
 	proto_tree *can_tree;
 	proto_item *ti;
@@ -317,25 +351,9 @@ dissect_socketcan_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		next_tvb = tvb_new_subset_length(tvb, CAN_DATA_OFFSET, can_info.len);
 
-		if (!heuristic_first)
+		if (!socketcan_call_subdissectors(next_tvb, pinfo, tree, &can_info, heuristic_first))
 		{
-			if (!dissector_try_payload_new(subdissector_table, next_tvb, pinfo, tree, TRUE, &can_info))
-			{
-				if (!dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, &heur_dtbl_entry, &can_info))
-				{
-					call_data_dissector(next_tvb, pinfo, tree);
-				}
-			}
-		}
-		else
-		{
-			if (!dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, &heur_dtbl_entry, &can_info))
-			{
-				if (!dissector_try_payload_new(subdissector_table, next_tvb, pinfo, tree, FALSE, &can_info))
-				{
-					call_data_dissector(next_tvb, pinfo, tree);
-				}
-			}
+			call_data_dissector(next_tvb, pinfo, tree);
 		}
 	}
 
@@ -417,25 +435,9 @@ dissect_socketcanfd_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	next_tvb = tvb_new_subset_length(tvb, CAN_DATA_OFFSET, can_info.len);
 
-	if(!heuristic_first)
+	if (!socketcan_call_subdissectors(next_tvb, pinfo, tree, &can_info, heuristic_first))
 	{
-		if (!dissector_try_payload_new(subdissector_table, next_tvb, pinfo, tree, TRUE, &can_info))
-		{
-			if(!dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, &heur_dtbl_entry, &can_info))
-			{
-				call_data_dissector(next_tvb, pinfo, tree);
-			}
-		}
-	}
-	else
-	{
-		if (!dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, &heur_dtbl_entry, &can_info))
-		{
-			if(!dissector_try_payload_new(subdissector_table, next_tvb, pinfo, tree, FALSE, &can_info))
-			{
-				call_data_dissector(next_tvb, pinfo, tree);
-			}
-		}
+		call_data_dissector(next_tvb, pinfo, tree);
 	}
 
 	if (tvb_captured_length_remaining(tvb, CAN_DATA_OFFSET+can_info.len) > 0)
@@ -462,7 +464,7 @@ proto_register_socketcan(void)
 			&hf_can_infoent_ext,
 			{
 				"Identifier", "can.id",
-				FT_UINT32, BASE_HEX,
+				FT_UINT32, BASE_DEC_HEX,
 				NULL, CAN_EFF_MASK,
 				NULL, HFILL
 			}
@@ -471,7 +473,7 @@ proto_register_socketcan(void)
 			&hf_can_infoent_std,
 			{
 				"Identifier", "can.id",
-				FT_UINT32, BASE_HEX,
+				FT_UINT32, BASE_DEC_HEX,
 				NULL, CAN_SFF_MASK,
 				NULL, HFILL
 			}
@@ -864,6 +866,10 @@ proto_register_socketcan(void)
 		"Try to decode a packet using an heuristic sub-dissector"
 		" before using a sub-dissector registered to \"decode as\"",
 		&heuristic_first);
+
+	can_id_dissector_table = register_dissector_table("can.id", "CAN ID", proto_can, FT_UINT32, BASE_DEC);
+
+	can_extended_id_dissector_table = register_dissector_table("can.extended_id", "CAN Extended ID", proto_can, FT_UINT32, BASE_DEC);
 
 	subdissector_table = register_decode_as_next_proto(proto_can, "can.subdissector", "CAN next level dissector", NULL);
 
