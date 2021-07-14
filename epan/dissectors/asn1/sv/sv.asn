@@ -14,7 +14,7 @@ ASDU ::= SEQUENCE {
 	svID		[0] IMPLICIT VisibleString,
 	datSet		[1] IMPLICIT VisibleString OPTIONAL,
 	smpCnt		[2] IMPLICIT INTEGER(0..65535),
-	confRef		[3] IMPLICIT INTEGER(0..4294967295),
+	confRev		[3] IMPLICIT INTEGER(0..4294967295),
 	refrTm		[4] IMPLICIT UtcTime OPTIONAL,
 	smpSynch	[5] IMPLICIT INTEGER{none(0),local(1),global(2)} OPTIONAL,
 	smpRate		[6] IMPLICIT INTEGER(0..65535) OPTIONAL,
