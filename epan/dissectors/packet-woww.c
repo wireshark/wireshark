@@ -1973,13 +1973,6 @@ dissect_woww(tvbuff_t *tvb,
              proto_tree *tree,
              void *data _U_)
 {
-    /* Set up structures needed to add the protocol subtree and manage it */
-    proto_item *ti;
-    proto_tree *woww_tree;
-    /* Other misc. local variables. */
-    gint offset = 0;
-    gint len = 0;
-    guint32 opcode = 0;
 
     /*** HEURISTICS ***/
 
@@ -2012,9 +2005,9 @@ dissect_woww(tvbuff_t *tvb,
     /*** PROTOCOL TREE ***/
 
     /* create display subtree for the protocol */
-    ti = proto_tree_add_item(tree, proto_woww, tvb, 0, -1, ENC_NA);
+    proto_tree* ti = proto_tree_add_item(tree, proto_woww, tvb, 0, -1, ENC_NA);
 
-    woww_tree = proto_item_add_subtree(ti, ett_woww);
+    proto_tree* woww_tree = proto_item_add_subtree(ti, ett_woww);
 
     // Get conversation data
     conversation_t* conv = find_or_create_conversation(pinfo);
@@ -2041,6 +2034,8 @@ dissect_woww(tvbuff_t *tvb,
     }
 
     guint8* decrypted_header = wmem_tree_lookup32(wowwConversation->decrypted_headers, pinfo->num);
+
+    gint offset = 0;
 
     // First time we see this header, we need to decrypt it
     if (decrypted_header == NULL) {
@@ -2112,11 +2107,12 @@ dissect_woww(tvbuff_t *tvb,
      * information. */
     // We're indexing into another tvb
     offset = 0;
-    len = 2;
+    gint len = 2;
     proto_tree_add_item(woww_tree, hf_woww_size_field, next_tvb,
             offset, len, ENC_BIG_ENDIAN);
     offset += len;
 
+    guint32 opcode = 0;
     if (WOWW_SERVER_TO_CLIENT) {
         len = 2;
         opcode = tvb_get_guint16(next_tvb, offset, ENC_LITTLE_ENDIAN);
