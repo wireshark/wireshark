@@ -746,7 +746,6 @@ main(int argc, char *argv[])
   const gchar         *volatile tls_session_keys_file = NULL;
   exp_pdu_t            exp_pdu_tap_data;
   const gchar*         elastic_mapping_filter = NULL;
-  gboolean             use_pcapng = TRUE;
 
 /*
  * The leading + ensures that getopt_long() does not permute the argv[]
@@ -1508,12 +1507,6 @@ main(int argc, char *argv[])
   /* set the default file type to pcapng */
   if (out_file_type == WTAP_FILE_TYPE_SUBTYPE_UNKNOWN)
     out_file_type = wtap_pcapng_file_type_subtype();
-  if (out_file_type == wtap_pcapng_file_type_subtype()) {
-    use_pcapng = TRUE;
-  }
-  else {
-    use_pcapng = FALSE;
-  }
 
   /*
    * Print packet summary information is the default if neither -V or -x
@@ -1720,26 +1713,6 @@ main(int argc, char *argv[])
         exit_status = INVALID_OPTION;
         goto clean_exit;
       }
-      if (capture_comments != NULL) {
-        if (global_capture_opts.saving_to_file) {
-          /* They specified a "-w" flag, so we'll be saving to a capture file.
-           * This is fine if they're using pcapng.
-           */
-          if (!use_pcapng) {
-            cmdarg_err("A capture comment can only be written to a pcapng file.");
-            exit_status = INVALID_OPTION;
-            goto clean_exit;
-          }
-        }
-        else {
-          cmdarg_err("A capture comment was specified, but "
-              "a capture isn't being done\nand you aren't writing a capture file."
-              "\nThere's no support for adding "
-              "a capture comment to an existing capture file.");
-          exit_status = INVALID_OPTION;
-          goto clean_exit;
-        }
-      }
 
       /* Note: TShark now allows the restriction of a _read_ file by packet count
        * and byte count as well as a write file. Other autostop options remain valid
@@ -1755,6 +1728,8 @@ main(int argc, char *argv[])
       /*
        * "-r" wasn't specified, so we're doing a live capture.
        */
+      gboolean             use_pcapng = TRUE;
+
       if (perform_two_pass_analysis) {
         /* Two-pass analysis doesn't work with live capture since it requires us
          * to buffer packets until we've read all of them, but a live capture
@@ -1848,6 +1823,41 @@ main(int argc, char *argv[])
     }
   }
 #endif
+
+  /*
+   * If capture comments were specified, -w also has to have been specified.
+   */
+  if (capture_comments != NULL) {
+    if (output_file_name) {
+      /* They specified a "-w" flag, so we'll be saving to a capture file.
+       * This is fine if they're writing in a format that supports
+       * section block comments.
+       */
+      if (wtap_file_type_subtype_supports_option(out_file_type,
+                                                 WTAP_BLOCK_SECTION,
+                                                 OPT_COMMENT) == OPTION_NOT_SUPPORTED) {
+        GArray *writable_type_subtypes;
+
+        cmdarg_err("Capture comments can only be written to files of the following types:");
+        writable_type_subtypes = wtap_get_writable_file_types_subtypes(FT_SORT_BY_NAME);
+        for (guint i = 0; i < writable_type_subtypes->len; i++) {
+          int ft = g_array_index(writable_type_subtypes, int, i);
+
+          if (wtap_file_type_subtype_supports_option(ft, WTAP_BLOCK_SECTION,
+                                                     OPT_COMMENT) != OPTION_NOT_SUPPORTED)
+            cmdarg_err_cont("    %s - %s", wtap_file_type_subtype_name(ft),
+                            wtap_file_type_subtype_description(ft));
+        }
+        exit_status = INVALID_OPTION;
+        goto clean_exit;
+      }
+    }
+    else {
+      cmdarg_err("Capture comments were specified, but you aren't writing a capture file.");
+      exit_status = INVALID_OPTION;
+      goto clean_exit;
+    }
+  }
 
   err_msg = ws_init_sockets();
   if (err_msg != NULL)
