@@ -133,6 +133,7 @@ Too many protocols have been updated to list here.
 // Add one file type per line between the -- delimiters.
 [commaize]
 --
+BLF support
 --
 
 // === New and Updated Capture Interfaces support
