@@ -727,9 +727,9 @@ tcp_flags_to_str(wmem_allocator_t *scope, const struct tcpheader *tcph)
     return buf;
 }
 static char *
-tcp_flags_to_str_first_letter(const struct tcpheader *tcph)
+tcp_flags_to_str_first_letter(wmem_allocator_t *scope, const struct tcpheader *tcph)
 {
-    wmem_strbuf_t *buf = wmem_strbuf_new(wmem_packet_scope(), "");
+    wmem_strbuf_t *buf = wmem_strbuf_new(scope, "");
     unsigned i;
     const unsigned flags_count = 12;
     const char first_letters[] = "RRRNCEUAPRSF";
@@ -2825,13 +2825,13 @@ mptcp_cryptodata_sha256(const guint64 key, guint32 *token, guint64 *idsn)
 
 /* Print formatted list of tcp stream ids that are part of the connection */
 static void
-mptcp_analysis_add_subflows(packet_info *pinfo _U_,  tvbuff_t *tvb,
+mptcp_analysis_add_subflows(packet_info *pinfo,  tvbuff_t *tvb,
     proto_tree *parent_tree, struct mptcp_analysis* mptcpd)
 {
     wmem_list_frame_t *it;
     proto_item *item;
 
-    wmem_strbuf_t *val = wmem_strbuf_new(wmem_packet_scope(), "");
+    wmem_strbuf_t *val = wmem_strbuf_new(pinfo->pool, "");
 
     /* for the analysis, we set each subflow tcp stream id */
     for(it = wmem_list_head(mptcpd->subflows); it != NULL; it = wmem_list_frame_next(it)) {
@@ -2858,7 +2858,7 @@ mptcp_map_relssn_to_rawdsn(mptcp_dss_mapping_t *mapping, guint32 relssn, guint64
 
 /* Add duplicated data */
 static mptcp_dsn2packet_mapping_t *
-mptcp_add_duplicated_dsn(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, struct mptcp_subflow *subflow,
+mptcp_add_duplicated_dsn(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, struct mptcp_subflow *subflow,
 guint64 rawdsn64low, guint64 rawdsn64high
 )
 {
@@ -2868,7 +2868,7 @@ guint64 rawdsn64low, guint64 rawdsn64high
     proto_item *item = NULL;
 
     results = wmem_itree_find_intervals(subflow->dsn2packet_map,
-                    wmem_packet_scope(),
+                    pinfo->pool,
                     rawdsn64low,
                     rawdsn64high
                     );
@@ -2947,7 +2947,7 @@ mptcp_analysis_dsn_lookup(packet_info *pinfo , tvbuff_t *tvb,
         guint32 seglen = tcph->th_seglen;
 
         results = wmem_itree_find_intervals(tcpd->fwd->mptcp_subflow->ssn2dsn_mappings,
-                    wmem_packet_scope(),
+                    pinfo->pool,
                     ssn_low,
                     (seglen) ? ssn_low + seglen - 1 : ssn_low
                     );
@@ -4804,7 +4804,7 @@ dissect_tcpopt_mptcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     struct mptcpheader* mph = tcph->th_mptcp;
 
     if(!mph) {
-        mph = wmem_new0(wmem_packet_scope(), struct mptcpheader);
+        mph = wmem_new0(pinfo->pool, struct mptcpheader);
         tcph->th_mptcp = mph;
     }
 
@@ -6100,7 +6100,7 @@ tcp_dissect_options(tvbuff_t *tvb, int offset, guint length, int eol,
         } else {
             option_dissector = dissector_get_uint_handle(tcp_option_table, opt);
             if (option_dissector == NULL) {
-                name = wmem_strdup_printf(wmem_packet_scope(), "Unknown (0x%02x)", opt);
+                name = wmem_strdup_printf(pinfo->pool, "Unknown (0x%02x)", opt);
                 option_dissector = tcp_opt_unknown_handle;
             } else {
                 name = dissector_handle_get_short_name(option_dissector);
@@ -6483,7 +6483,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     guint8     conversation_completeness = 0;
     gboolean   conversation_is_new = FALSE;
 
-    tcph = wmem_new0(wmem_packet_scope(), struct tcpheader);
+    tcph = wmem_new0(pinfo->pool, struct tcpheader);
     tcph->th_sport = tvb_get_ntohs(tvb, offset);
     tcph->th_dport = tvb_get_ntohs(tvb, offset + 2);
     copy_address_shallow(&tcph->ip_src, &pinfo->src);
@@ -6497,8 +6497,8 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         ti = proto_tree_add_item(tree, proto_tcp, tvb, 0, -1, ENC_NA);
         if (tcp_summary_in_tree) {
             proto_item_append_text(ti, ", Src Port: %s, Dst Port: %s",
-                    port_with_resolution_to_str(wmem_packet_scope(), PT_TCP, tcph->th_sport),
-                    port_with_resolution_to_str(wmem_packet_scope(), PT_TCP, tcph->th_dport));
+                    port_with_resolution_to_str(pinfo->pool, PT_TCP, tcph->th_sport),
+                    port_with_resolution_to_str(pinfo->pool, PT_TCP, tcph->th_dport));
         }
         tcp_tree = proto_item_add_subtree(ti, ett_tcp);
         p_add_proto_data(pinfo->pool, pinfo, proto_tcp, pinfo->curr_layer_num, tcp_tree);
@@ -6727,8 +6727,8 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     } else
         tcph->th_have_seglen = FALSE;
 
-    flags_str = tcp_flags_to_str(wmem_packet_scope(), tcph);
-    flags_str_first_letter = tcp_flags_to_str_first_letter(tcph);
+    flags_str = tcp_flags_to_str(pinfo->pool, tcph);
+    flags_str_first_letter = tcp_flags_to_str_first_letter(pinfo->pool, tcph);
 
     col_append_lstr(pinfo->cinfo, COL_INFO,
         " [", flags_str, "]",
@@ -7225,7 +7225,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
     if (tcph->th_have_seglen) {
         if(have_tap_listener(tcp_follow_tap)) {
-            tcp_follow_tap_data_t* follow_data = wmem_new0(wmem_packet_scope(), tcp_follow_tap_data_t);
+            tcp_follow_tap_data_t* follow_data = wmem_new0(pinfo->pool, tcp_follow_tap_data_t);
 
             follow_data->tvb = tvb_new_subset_remaining(tvb, offset);
             follow_data->tcph = tcph;
