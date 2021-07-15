@@ -262,6 +262,32 @@ void proto_register_signal_pdu(void);
 void proto_reg_handoff_signal_pdu(void);
 
 void
+proto_reg_handoff_signal_pdu_can(void) {
+    if (signal_pdu_handle_can == NULL) {
+        return;
+    }
+
+    dissector_delete_all("can.id", signal_pdu_handle_can);
+    dissector_delete_all("can.extended_id", signal_pdu_handle_can);
+
+    /* CAN: loop over all frame IDs in HT */
+    if (data_spdu_can_mappings != NULL) {
+        GList *keys = g_hash_table_get_keys(data_spdu_can_mappings);
+
+        GList *tmp;
+        for (tmp = keys; tmp != NULL; tmp = tmp->next) {
+            gint32 *id = ((gint32*)tmp->data);
+
+            *id &= CAN_EFF_MASK;
+            dissector_add_uint("can.extended_id", *id, signal_pdu_handle_can);
+            if (*id <= CAN_SFF_MASK) {
+                dissector_add_uint("can.id", *id, signal_pdu_handle_can);
+            }
+        }
+    }
+}
+
+void
 proto_reg_handoff_signal_pdu_lin(void) {
     if (signal_pdu_handle_lin == NULL) {
         return;
@@ -1041,6 +1067,9 @@ post_update_spdu_can_mapping_cb(void) {
             g_hash_table_insert(data_spdu_can_mappings, key, &spdu_can_mapping[i]);
         }
     }
+
+    /* we need to make sure we register again */
+    proto_reg_handoff_signal_pdu_can();
 }
 
 static spdu_can_mapping_t*
