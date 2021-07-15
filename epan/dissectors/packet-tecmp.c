@@ -42,10 +42,6 @@ static int proto_vlan;
 
 static gboolean heuristic_first = FALSE;
 
-static dissector_table_t can_subdissector_table;
-static heur_dissector_list_t can_heur_subdissector_list;
-static heur_dtbl_entry_t *can_heur_dtbl_entry;
-
 static dissector_table_t fr_subdissector_table;
 static heur_dissector_list_t fr_heur_subdissector_list;
 static heur_dtbl_entry_t *fr_heur_dtbl_entry;
@@ -1197,19 +1193,10 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         can_info.id |= CAN_ERR_FLAG;
                     }
 
-                    if (!heuristic_first) {
-                        if (!dissector_try_payload_new(can_subdissector_table, payload_tvb, pinfo, tree, TRUE, &can_info)) {
-                            if (!dissector_try_heuristic(can_heur_subdissector_list, payload_tvb, pinfo, tree, &can_heur_dtbl_entry, &can_info)) {
-                                proto_tree_add_item(tecmp_tree, hf_tecmp_payload_data_payload, payload_tvb, 0, (gint)length2, ENC_NA);
-                            }
-                        }
-                    } else {
-                        if (!dissector_try_heuristic(can_heur_subdissector_list, payload_tvb, pinfo, tree, &can_heur_dtbl_entry, &can_info)) {
-                            if (!dissector_try_payload_new(can_subdissector_table, payload_tvb, pinfo, tree, FALSE, &can_info)) {
-                                proto_tree_add_item(tecmp_tree, hf_tecmp_payload_data_payload, payload_tvb, 0, (gint)length2, ENC_NA);
-                            }
-                        }
+                    if (!socketcan_call_subdissectors(payload_tvb, pinfo, tree, &can_info, heuristic_first)) {
+                        proto_tree_add_item(tecmp_tree, hf_tecmp_payload_data_payload, payload_tvb, 0, (gint)length2, ENC_NA);
                     }
+
                 }
                 break;
 
@@ -1804,9 +1791,6 @@ proto_reg_handoff_tecmp(void) {
 
     tecmp_handle = create_dissector_handle(dissect_tecmp, proto_tecmp);
     dissector_add_uint("ethertype", ETHERTYPE_TECMP, tecmp_handle);
-
-    can_subdissector_table = find_dissector_table("can.subdissector");
-    can_heur_subdissector_list = find_heur_dissector_list("can");
 
     fr_subdissector_table  = find_dissector_table("flexray.subdissector");
     fr_heur_subdissector_list = find_heur_dissector_list("flexray");
