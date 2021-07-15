@@ -86,6 +86,8 @@ static const value_string iso15765_message_types[] = {
 
 static gint addressing = NORMAL_ADDRESSING;
 static guint window = 8;
+static range_t *configured_can_ids= NULL;
+static range_t *configured_ext_can_ids = NULL;
 static gboolean register_lin_diag_frames = TRUE;
 
 /* Encoding */
@@ -419,7 +421,7 @@ dissect_iso15765_lin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 }
 
 static void
-register_lin_frames(void)
+update_config(void)
 {
     if (iso15765_handle_lin == NULL) {
         return;
@@ -431,6 +433,14 @@ register_lin_frames(void)
         dissector_add_uint("lin.frame_id", LIN_DIAG_MASTER_REQUEST_FRAME, iso15765_handle_lin);
         dissector_add_uint("lin.frame_id", LIN_DIAG_SLAVE_RESPONSE_FRAME, iso15765_handle_lin);
     }
+
+    dissector_delete_all("can.id", iso15765_handle_can);
+    dissector_delete_all("can.extended_id", iso15765_handle_can);
+    if (register_lin_diag_frames) {
+        dissector_add_uint_range("can.id", configured_can_ids, iso15765_handle_can);
+        dissector_add_uint_range("can.extended_id", configured_ext_can_ids, iso15765_handle_can);
+    }
+
 }
 
 void
@@ -637,7 +647,7 @@ proto_register_iso15765(void)
 
     expert_register_field_array(expert_iso15765, ei, array_length(ei));
 
-    iso15765_module = prefs_register_protocol(proto_iso15765, register_lin_frames);
+    iso15765_module = prefs_register_protocol(proto_iso15765, update_config);
 
     prefs_register_enum_preference(iso15765_module, "addressing",
                                    "Addressing",
@@ -653,8 +663,22 @@ proto_register_iso15765(void)
     prefs_register_static_text_preference(iso15765_module, "empty2", "", NULL);
     prefs_register_static_text_preference(iso15765_module, "map", "Protocol Handling:", NULL);
 
-    prefs_register_bool_preference(iso15765_module, "lin_diag", "Handle LIN Diagnostic Frames",
-                                   "Handle LIN Diagnostic Frames", &register_lin_diag_frames);
+    range_convert_str(wmem_epan_scope(), &configured_can_ids, "", 0x7ff);
+    prefs_register_range_preference(iso15765_module, "can.ids",
+                                    "CAN IDs (standard)",
+                                    "ISO15765 bound standard CAN IDs",
+                                    &configured_can_ids, 0x7ff);
+
+    range_convert_str(wmem_epan_scope(), &configured_ext_can_ids, "", 0x1fffffff);
+    prefs_register_range_preference(iso15765_module, "can.extended_ids",
+                                    "CAN IDs (extended)",
+                                    "ISO15765 bound extended CAN IDs",
+                                    &configured_ext_can_ids, 0x1fffffff);
+
+    prefs_register_bool_preference(iso15765_module, "lin_diag",
+                                   "Handle LIN Diagnostic Frames",
+                                   "Handle LIN Diagnostic Frames",
+                                   &register_lin_diag_frames);
 
     iso15765_frame_table = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_direct_hash, g_direct_equal);
 
@@ -669,7 +693,7 @@ proto_reg_handoff_iso15765(void)
     iso15765_handle_can = create_dissector_handle(dissect_iso15765_can, proto_iso15765);
     iso15765_handle_lin = create_dissector_handle(dissect_iso15765_lin, proto_iso15765);
     dissector_add_for_decode_as("can.subdissector", iso15765_handle_can);
-    register_lin_frames();
+    update_config();
 }
 
 /*
