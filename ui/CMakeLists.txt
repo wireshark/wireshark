@@ -83,6 +83,7 @@ add_library(ui STATIC ${UI_SRC})
 target_link_libraries(ui
 	PRIVATE
 		caputils
+		wiretap
 		wsutil
 		${GCRYPT_LIBRARIES}
 	)
