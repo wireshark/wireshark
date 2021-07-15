@@ -1034,7 +1034,9 @@ int main(int argc, char *qt_argv[])
             if (global_capture_opts.ifaces->len == 0)
                 collect_ifaces(&global_capture_opts);
             CaptureFile::globalCapFile()->window = main_w;
-            if (capture_start(&global_capture_opts, main_w->captureSession(), main_w->captureInfoData(), main_window_update)) {
+            if (capture_start(&global_capture_opts, global_commandline_info.capture_comments,
+                              main_w->captureSession(), main_w->captureInfoData(),
+                              main_window_update)) {
                 /* The capture started.  Open stat windows; we do so after creating
                    the main window, to avoid GTK warnings, and after successfully
                    opening the capture file, so we know we have something to compute

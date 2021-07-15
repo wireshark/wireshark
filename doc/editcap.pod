@@ -375,12 +375,12 @@ the same command line.
 
 =item --capture-comment E<lt>commentE<gt>
 
-Adds the given comment to the Section Header Block (SHB) of the pcapng
-output file. New comments will be added I<after> any comments present in the
-input file unless B<--discard-capture-comment> is also specified.
+Adds the given comment to the output file, if supported by the output
+file format.  New comments will be added I<after> any comments present
+in the input file unless B<--discard-capture-comment> is also specified.
 
-This option may be specified multiple times. Note that Wireshark currently only
-recognizes the first comment of a capture file.
+This option may be specified multiple times.  Note that Wireshark
+currently only displays the first comment of a capture file.
 
 =item --discard-capture-comment
 

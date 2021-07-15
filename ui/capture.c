@@ -117,7 +117,9 @@ capture_callback_remove(capture_callback_t func, gpointer user_data)
  * @return TRUE if the capture starts successfully, FALSE otherwise.
  */
 gboolean
-capture_start(capture_options *capture_opts, capture_session *cap_session, info_data_t* cap_data, void(*update_cb)(void))
+capture_start(capture_options *capture_opts, GPtrArray *capture_comments,
+              capture_session *cap_session, info_data_t* cap_data,
+              void(*update_cb)(void))
 {
     GString *source;
 
@@ -128,7 +130,8 @@ capture_start(capture_options *capture_opts, capture_session *cap_session, info_
     cf_set_tempfile_source((capture_file *)cap_session->cf, source->str);
     g_string_free(source, TRUE);
     /* try to start the capture child process */
-    if (!sync_pipe_start(capture_opts, cap_session, cap_data, update_cb)) {
+    if (!sync_pipe_start(capture_opts, capture_comments, cap_session,
+                         cap_data, update_cb)) {
         /* We failed to start the capture child. */
         if(capture_opts->save_file != NULL) {
             g_free(capture_opts->save_file);

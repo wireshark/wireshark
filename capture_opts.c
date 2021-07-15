@@ -115,7 +115,6 @@ capture_opts_init(capture_options *capture_opts)
     capture_opts->autostop_filesize               = 1000;             /* 1 MB */
     capture_opts->has_autostop_duration           = FALSE;
     capture_opts->autostop_duration               = 60.0;             /* 1 min */
-    capture_opts->capture_comment                 = NULL;
 
     capture_opts->output_to_pipe                  = FALSE;
     capture_opts->capture_child                   = FALSE;
@@ -147,10 +146,6 @@ capture_opts_cleanup(capture_options *capture_opts)
         capture_opts->all_ifaces = NULL;
     }
     g_free(capture_opts->save_file);
-    if (capture_opts->capture_comment != NULL) {
-        g_ptr_array_free(capture_opts->capture_comment, TRUE);
-        capture_opts->capture_comment = NULL;
-    }
 }
 
 /* log content of capture_opts */
@@ -803,12 +798,6 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
     int status, snaplen;
 
     switch(opt) {
-    case LONGOPT_CAPTURE_COMMENT:  /* capture comment */
-        if (!capture_opts->capture_comment) {
-            capture_opts->capture_comment = g_ptr_array_new_with_free_func(g_free);
-        }
-        g_ptr_array_add(capture_opts->capture_comment, g_strdup(optarg_str_p));
-        break;
     case 'a':        /* autostop criteria */
         if (set_autostop_criterion(capture_opts, optarg_str_p) == FALSE) {
             cmdarg_err("Invalid or unknown -a flag \"%s\"", optarg_str_p);

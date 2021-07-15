@@ -868,7 +868,8 @@ void MainWindow::startCapture() {
 
     CaptureFile::globalCapFile()->window = this;
     info_data_.ui.ui = this;
-    if (capture_start(&global_capture_opts, &cap_session_, &info_data_, main_window_update)) {
+    if (capture_start(&global_capture_opts, NULL, &cap_session_, &info_data_,
+                      main_window_update)) {
         capture_options *capture_opts = cap_session_.capture_opts;
         GString *interface_names;
 

@@ -319,7 +319,12 @@ Start with the given configuration profile.
 
 =item --capture-comment E<lt>commentE<gt>
 
-Set the capture file comment, if supported by the capture format.
+When performing a capture file from the command line, with the B<-k>
+flag, add a capture comment to the output file, if supported by the
+capture format.
+
+This option may be specified multiple times.  Note that Wireshark
+currently only displays the first comment of a capture file.
 
 =item -d  E<lt>layer typeE<gt>==E<lt>selectorE<gt>,E<lt>decode-as protocolE<gt>
 

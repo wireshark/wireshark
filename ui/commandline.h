@@ -27,6 +27,13 @@ typedef struct commandline_param_info
     gboolean list_timestamp_types;
     gboolean start_capture;
     gboolean quit_after_cap;
+
+    /*
+     * We currently don't support this as a way to add file comments
+     * to an existing capture file in Wireshark; we only support it
+     * for adding comments to live captures.
+     */
+    GPtrArray *capture_comments;
 #endif
     e_prefs *prefs_p;
     search_direction jump_backwards;

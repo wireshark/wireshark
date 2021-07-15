@@ -35,13 +35,17 @@ struct _info_data;
  *  Most of the parameters are passed through the global capture_opts.
  *
  *  @param capture_opts the options
+ *  @param capture_comments if not NULL, a GPtrArray * to a set of comments
+ *   to put in the capture file's Section Header Block if it's a pcapng file
  *  @param cap_session a handle for the capture session
  *  @param cap_data a struct with capture info data
  *  @param update_cb update screen
  *  @return             TRUE if a capture could be started, FALSE if not
  */
 extern gboolean
-sync_pipe_start(capture_options *capture_opts, capture_session *cap_session, struct _info_data* cap_data, void(*update_cb)(void));
+sync_pipe_start(capture_options *capture_opts, GPtrArray *capture_comments,
+                capture_session *cap_session, struct _info_data* cap_data,
+                void(*update_cb)(void));
 
 /** User wants to stop capturing, gracefully close the capture child */
 extern void

@@ -44,8 +44,8 @@ pcapng_write_block(FILE* pfile,
  */
 extern gboolean
 pcapng_write_section_header_block(FILE* pfile,  /**< Write information */
-                                  const char *comment,  /**< Comment on the section, Optinon 1 opt_comment
-                                                         * A UTF-8 string containing a comment that is associated to the current block.
+                                  GPtrArray *comments,  /**< Comments on the section, Optinon 1 opt_comment
+                                                         * UTF-8 strings containing comments that areassociated to the current block.
                                                          */
                                   const char *hw,       /**< HW, Optinon 2 shb_hardware
                                                          * An UTF-8 string containing the description of the hardware  used to create this section.

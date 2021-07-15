@@ -883,17 +883,20 @@ write_file_header (void)
 
     if (use_pcapng) {
         char *comment;
+        GPtrArray *comments;
 
         comment = g_strdup_printf("Generated from input file %s.", input_filename);
+        comments = g_ptr_array_new_with_free_func(g_free);
+        g_ptr_array_add(comments, comment);
         success = pcapng_write_section_header_block(output_file,
-                                                    comment,
+                                                    comments,
                                                     NULL,    /* HW */
                                                     NULL,    /* OS */
                                                     get_appname_and_version(),
                                                     -1,      /* section_length */
                                                     &bytes_written,
                                                     &err);
-        g_free(comment);
+        g_ptr_array_free(comments, TRUE);
         if (success) {
             success = pcapng_write_interface_description_block(output_file,
                                                                NULL,

@@ -307,7 +307,7 @@ pcapng_write_block(FILE* pfile,
 
 gboolean
 pcapng_write_section_header_block(FILE* pfile,
-                                  const char *comment,
+                                  GPtrArray *comments,
                                   const char *hw,
                                   const char *os,
                                   const char *appname,
@@ -324,13 +324,17 @@ pcapng_write_section_header_block(FILE* pfile,
         block_total_length = sizeof(struct shb) +
                              sizeof(guint32);
         options_length = 0;
-        options_length += pcapng_count_string_option(comment);
+        if (comments != NULL) {
+          for (guint i = 0; i < comments->len; i++) {
+            options_length += pcapng_count_string_option((char *)g_ptr_array_index(comments, i));
+          }
+        }
         options_length += pcapng_count_string_option(hw);
         options_length += pcapng_count_string_option(os);
         options_length += pcapng_count_string_option(appname);
         /* If we have options add size of end-of-options */
         if (options_length != 0) {
-                options_length += (guint32)sizeof(struct option);
+          options_length += (guint32)sizeof(struct option);
         }
         block_total_length += options_length;
 
@@ -345,9 +349,14 @@ pcapng_write_section_header_block(FILE* pfile,
         if (!write_to_file(pfile, (const guint8*)&shb, sizeof(struct shb), bytes_written, err))
                 return FALSE;
 
-        if (!pcapng_write_string_option(pfile, OPT_COMMENT, comment,
-                                        bytes_written, err))
-                return FALSE;
+        if (comments != NULL) {
+          for (guint i = 0; i < comments->len; i++) {
+            if (!pcapng_write_string_option(pfile, OPT_COMMENT,
+                                            (char *)g_ptr_array_index(comments, i),
+                                            bytes_written, err))
+                    return FALSE;
+          }
+        }
         if (!pcapng_write_string_option(pfile, SHB_HARDWARE, hw,
                                         bytes_written, err))
                 return FALSE;

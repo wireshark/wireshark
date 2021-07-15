@@ -173,8 +173,10 @@ commandline_print_usage(gboolean for_help_option) {
     fprintf(output, "\n");
     fprintf(output, "Output:\n");
     fprintf(output, "  -w <outfile|->           set the output filename (or '-' for stdout)\n");
+#ifdef HAVE_LIBPCAP
     fprintf(output, "  --capture-comment <comment>\n");
-    fprintf(output, "                           set the capture file comment, if supported\n");
+    fprintf(output, "                           add a capture file comment, if supported\n");
+#endif
 
     ws_log_print_usage(output);
 
@@ -197,6 +199,7 @@ commandline_print_usage(gboolean for_help_option) {
 }
 
 #define LONGOPT_FULL_SCREEN     LONGOPT_BASE_GUI+1
+#define LONGOPT_CAPTURE_COMMENT LONGOPT_BASE_GUI+2
 
 #define OPTSTRING OPTSTRING_CAPTURE_COMMON OPTSTRING_DISSECT_COMMON "C:g:HhjJ:klm:o:P:r:R:Svw:X:Y:z:"
 static const struct option long_options[] = {
@@ -206,6 +209,7 @@ static const struct option long_options[] = {
         {"display-filter", required_argument, NULL, 'Y' },
         {"version", no_argument, NULL, 'v'},
         {"fullscreen", no_argument, NULL, LONGOPT_FULL_SCREEN },
+        {"capture-comment", required_argument, NULL, LONGOPT_CAPTURE_COMMENT},
         LONGOPT_CAPTURE_COMMON
         LONGOPT_DISSECT_COMMON
         {0, 0, 0, 0 }
@@ -407,6 +411,7 @@ void commandline_other_options(int argc, char *argv[], gboolean opt_reset)
     global_commandline_info.list_link_layer_types = FALSE;
     global_commandline_info.list_timestamp_types = FALSE;
     global_commandline_info.quit_after_cap = getenv("WIRESHARK_QUIT_AFTER_CAPTURE") ? TRUE : FALSE;
+    global_commandline_info.capture_comments = NULL;
 #endif
     global_commandline_info.full_screen = FALSE;
 
@@ -586,6 +591,17 @@ void commandline_other_options(int argc, char *argv[], gboolean opt_reset)
                 break;
             case LONGOPT_FULL_SCREEN:
                 global_commandline_info.full_screen = TRUE;
+                break;
+#ifdef HAVE_LIBPCAP
+            case LONGOPT_CAPTURE_COMMENT:  /* capture comment */
+                if (global_commandline_info.capture_comments == NULL) {
+                    global_commandline_info.capture_comments = g_ptr_array_new_with_free_func(g_free);
+                }
+                g_ptr_array_add(global_commandline_info.capture_comments, g_strdup(optarg));
+#else
+                capture_option_specified = TRUE;
+                arg_error = TRUE;
+#endif
                 break;
             default:
             case '?':        /* Bad flag - print usage message */

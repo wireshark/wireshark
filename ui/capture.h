@@ -60,13 +60,17 @@ capture_input_init(capture_session *cap_session, capture_file *cf);
  * Start a capture session.
  *
  * @param capture_opts the numerous capture options
+ * @param capture_comments if not NULL, a GPtrArray * to a set of comments
+ *  to put in the capture file's Section Header Block if it's a pcapng file
  * @param cap_session the handle for the capture session
  * @param cap_data a struct with capture info data
  * @param update_cb update screen
  * @return TRUE if the capture starts successfully, FALSE otherwise.
  */
 extern gboolean
-capture_start(capture_options *capture_opts, capture_session *cap_session, info_data_t* cap_data, void(*update_cb)(void));
+capture_start(capture_options *capture_opts, GPtrArray *capture_comments,
+              capture_session *cap_session, info_data_t* cap_data,
+              void(*update_cb)(void));
 
 /** Stop a capture session (usually from a menu item). */
 extern void

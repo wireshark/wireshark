@@ -44,10 +44,9 @@ extern "C" {
  * In short: we must not use 1 here, which is another reason to use
  * values outside the range of ASCII graphic characters.
  */
-#define LONGOPT_CAPTURE_COMMENT   LONGOPT_BASE_CAPTURE+1
-#define LONGOPT_LIST_TSTAMP_TYPES LONGOPT_BASE_CAPTURE+2
-#define LONGOPT_SET_TSTAMP_TYPE   LONGOPT_BASE_CAPTURE+3
-#define LONGOPT_COMPRESS_TYPE     LONGOPT_BASE_CAPTURE+4
+#define LONGOPT_LIST_TSTAMP_TYPES LONGOPT_BASE_CAPTURE+1
+#define LONGOPT_SET_TSTAMP_TYPE   LONGOPT_BASE_CAPTURE+2
+#define LONGOPT_COMPRESS_TYPE     LONGOPT_BASE_CAPTURE+3
 
 /*
  * Options for capturing common to all capturing programs.
@@ -76,7 +75,6 @@ extern "C" {
 #endif
 
 #define LONGOPT_CAPTURE_COMMON \
-    {"capture-comment",       required_argument, NULL, LONGOPT_CAPTURE_COMMENT}, \
     {"autostop",              required_argument, NULL, 'a'}, \
     {"ring-buffer",           required_argument, NULL, 'b'}, \
     LONGOPT_BUFFER_SIZE \
@@ -313,8 +311,6 @@ typedef struct capture_options_tag {
                                                    is specified */
     gdouble            autostop_duration;     /**< Maximum capture duration */
 
-    GPtrArray         *capture_comment;       /** capture comment to write to the
-                                                  output file */
     gboolean           print_file_names;      /**< TRUE if printing names of completed
                                                    files as we close them */
     gchar             *print_name_to;         /**< output file name */

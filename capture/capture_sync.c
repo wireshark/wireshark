@@ -204,7 +204,9 @@ init_pipe_args(int *argc) {
 #define ARGV_NUMBER_LEN 24
 /* a new capture run: start a new dumpcap task and hand over parameters through command line */
 gboolean
-sync_pipe_start(capture_options *capture_opts, capture_session *cap_session, info_data_t* cap_data, void (*update_cb)(void))
+sync_pipe_start(capture_options *capture_opts, GPtrArray *capture_comments,
+                capture_session *cap_session, info_data_t* cap_data,
+                void (*update_cb)(void))
 {
 #ifdef _WIN32
     HANDLE sync_pipe_read;                  /* pipe used to send messages from child to parent */
@@ -257,10 +259,10 @@ sync_pipe_start(capture_options *capture_opts, capture_session *cap_session, inf
     else
         argv = sync_pipe_add_arg(argv, &argc, "-P");
 
-    if (capture_opts->capture_comment) {
-        for (j = 0; j < capture_opts->capture_comment->len; j++) {
+    if (capture_comments != NULL) {
+        for (j = 0; j < capture_comments->len; j++) {
             argv = sync_pipe_add_arg(argv, &argc, "--capture-comment");
-            argv = sync_pipe_add_arg(argv, &argc, (char*)g_ptr_array_index(capture_opts->capture_comment, j));
+            argv = sync_pipe_add_arg(argv, &argc, (char*)g_ptr_array_index(capture_comments, j));
         }
     }
 
