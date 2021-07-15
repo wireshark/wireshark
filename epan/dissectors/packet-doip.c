@@ -24,6 +24,7 @@
 #include <epan/packet.h>
 #include <epan/uat.h>
 #include <epan/dissectors/packet-tcp.h>
+#include <epan/dissectors/packet-tls.h>
 
 void proto_register_doip(void);
 void proto_reg_handoff_doip(void);
@@ -31,7 +32,7 @@ void proto_reg_handoff_doip(void);
 
 
 #define DOIP_PORT                                  13400
-
+#define DOIP_TLS_PORT                               3496
 
 #define DOIP_GENERIC_NACK                          0x0000
 #define DOIP_VEHICLE_IDENTIFICATION_REQ            0x0001
@@ -235,7 +236,7 @@ static const value_string activation_codes[] = {
     { 0x04, "Routing activation denied due to missing authentication." },
     { 0x05, "Routing activation denied due to rejected confirmation." },
     { 0x06, "Routing activation denied due to unsupported routing activation type." },
-    { 0x07, "Reserved by ISO 13400." },
+    { 0x07, "Routing activation denied due to request for encrypted connection via TLS." },
     { 0x08, "Reserved by ISO 13400." },
     { 0x09, "Reserved by ISO 13400." },
     { 0x0A, "Reserved by ISO 13400." },
@@ -1150,6 +1151,8 @@ proto_reg_handoff_doip(void)
 {
     dissector_add_uint("udp.port", DOIP_PORT, doip_handle);
     dissector_add_uint("tcp.port", DOIP_PORT, doip_handle);
+
+    ssl_dissector_add( DOIP_TLS_PORT, doip_handle);
 
     uds_handle = find_dissector("uds");
 }
