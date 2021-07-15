@@ -151,11 +151,6 @@ if(WIN32)
 	set(EXTRA_INSTALLER_DIR ${_ws_lib_dir})
 
 	# XXX Add a dependency on ${_ws_lib_dir}/current_tag.txt?
-
-	# Prepopulate some ConfigureChecks values. Compilation checks
-	# on Windows can be slow.
-	set(HAVE_FCNTL_H TRUE)
-	set(HAVE_FLOORL TRUE)
 endif(WIN32)
 
 include(UseCustomIncludes)

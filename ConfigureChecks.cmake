@@ -13,7 +13,6 @@ include(CMakePushCheckState)
 include(CheckIncludeFile)
 include(CheckIncludeFiles)
 check_include_file("arpa/inet.h"            HAVE_ARPA_INET_H)
-check_include_file("fcntl.h"                HAVE_FCNTL_H)
 check_include_file("getopt.h"               HAVE_GETOPT_H)
 check_include_file("grp.h"                  HAVE_GRP_H)
 #
@@ -83,16 +82,6 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "SunOS" AND CMAKE_SYSTEM_VERSION MATCHES "5[.]
 	#
 	check_function_exists("getexecname"     HAVE_GETEXECNAME)
 endif()
-
-#
-# Use check_symbol_exists just in case math.h does something magic
-# and there's not actually a function named floorl()
-#
-cmake_push_check_state()
-set(CMAKE_REQUIRED_INCLUDES ${M_INCLUDE_DIRS})
-set(CMAKE_REQUIRED_LIBRARIES ${M_LIBRARIES})
-check_symbol_exists("floorl" "math.h"    HAVE_FLOORL)
-cmake_pop_check_state()
 
 #
 # Check whether we have clock_gettime().
