@@ -4,6 +4,15 @@
 ; ============================================================================
 
 Unicode true
+; This improves the installer's appearance considerably here on a display scaled
+; to 225%, but checkboxes are comically small. We might be able to fix this
+; using the SysCompImg extension:
+; http://forums.winamp.com/showthread.php?t=443754
+ManifestDPIAware true
+; These might be correct in the future, but are currently undocumented:
+; http://forums.winamp.com/showthread.php?t=452632
+; ManifestDPIAware System
+; ManifestDPIAwareness "PerMonitorV2,System"
 
 !ifdef NSIS_INCLUDE_DIR
 !addincludedir ${NSIS_INCLUDE_DIR}
