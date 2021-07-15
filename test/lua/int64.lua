@@ -337,6 +337,11 @@ test("min3",z==Int64.min())
 
 test("minmax",Int64.min()== - Int64.max() - 1)
 
+--Because of g_ascii_strtoll() usage without errno check, "invalid" strings are converted to 0
+testing("invalid string values")
+test("invalid",Int64.new("invalid")== Int64.new(0,0))
+test("invalid2",UInt64.new("invalid")== UInt64.new(0,0))
+
 testing("error conditions")
 
 local function divtest(f,s)

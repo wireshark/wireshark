@@ -118,7 +118,7 @@ typedef struct _wslua_field_t {
     enum ftenum type;
     unsigned base;
     const void* vs;
-    guint32 mask;
+    guint64 mask;
 } wslua_field_t;
 
 typedef struct _wslua_expert_field_t {
@@ -771,6 +771,7 @@ extern void Int64_pack(lua_State* L, luaL_Buffer *b, gint idx, gboolean asLittle
 extern int Int64_unpack(lua_State* L, const gchar *buff, gboolean asLittleEndian);
 extern void UInt64_pack(lua_State* L, luaL_Buffer *b, gint idx, gboolean asLittleEndian);
 extern int UInt64_unpack(lua_State* L, const gchar *buff, gboolean asLittleEndian);
+extern guint64 getUInt64(lua_State *L, int i);
 
 extern Tvb* push_Tvb(lua_State* L, tvbuff_t* tvb);
 extern int push_wsluaTvb(lua_State* L, Tvb t);

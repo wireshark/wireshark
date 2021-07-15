@@ -30,7 +30,7 @@ local function setFailed(name)
 end
 
 -- expected number of runs
-local taptests = { [OTHER]=38 }
+local taptests = { [OTHER]=66 }
 local function getResults()
     print("\n-----------------------------\n")
     for k,v in pairs(taptests) do
@@ -90,6 +90,92 @@ test("ProtoField-char-unit-string", not success)
 
 success = pcall(ProtoField.new, "char base RANGE_STRING", "test.char5", ftypes.CHAR, {{1, 2, "Value"}}, base.RANGE_STRING)
 test("ProtoField-char-range-string", success)
+
+-- Field type: BOOLEAN/UINT64 with (64 bit) mask
+success = pcall(ProtoField.new, "boolean", "test.boolean0", ftypes.BOOLEAN, nil, base.HEX, 0x1)
+test("ProtoField-new-bool-mask-trivial", success)
+
+success = pcall(ProtoField.new, "boolean", "test.boolean1", ftypes.BOOLEAN, nil, base.HEX, "1")
+test("ProtoField-new-bool-mask-string", success)
+
+success = pcall(ProtoField.new, "boolean", "test.boolean2", ftypes.BOOLEAN, nil, base.HEX, UInt64(0x00000001, 0x0))
+test("ProtoField-new-bool-mask-uint64", success)
+
+success = pcall(ProtoField.new, "boolean", "test.boolean3", ftypes.BOOLEAN, nil, base.NONE, "invalid") -- 0
+test("ProtoField-new-bool-mask-string-invalid", success)
+
+success = pcall(ProtoField.new, "boolean", "test.boolean4", ftypes.BOOLEAN, nil, base.HEX, "-1") -- 0xFFFFFFFFFFFFFFFF
+test("ProtoField-new-bool-mask-negative", success)
+
+success = pcall(ProtoField.new, "boolean", "test.boolean5", ftypes.BOOLEAN, nil, base.NONE)
+test("ProtoField-new-bool-mask-none", success)
+
+success = pcall(ProtoField.new, "boolean", "test.boolean6", ftypes.BOOLEAN, nil, base.NONE, nil)
+test("ProtoField-new-bool-mask-nil", success)
+
+success = pcall(ProtoField.bool, "test.boolean10", nil, 64, nil, 0x1)
+test("ProtoField-bool-mask-trivial", success)
+
+success = pcall(ProtoField.bool, "test.boolean11", nil, 64, nil, "1")
+test("ProtoField-bool-mask-string", success)
+
+success = pcall(ProtoField.bool, "test.boolean12", nil, 64, nil, UInt64(0x00000001, 0x0))
+test("ProtoField-bool-mask-uint64", success)
+
+success = pcall(ProtoField.bool, "test.boolean13", nil, base.NONE, nil, "invalid") -- 0
+test("ProtoField-bool-mask-string-invalid", success)
+
+success = pcall(ProtoField.bool, "test.boolean14", nil, 64, nil, "-1") -- 0xFFFFFFFFFFFFFFFF
+test("ProtoField-bool-mask-negative", success)
+
+success = pcall(ProtoField.bool, "test.boolean15", nil, base.NONE, nil)
+test("ProtoField-bool-mask-none", success)
+
+success = pcall(ProtoField.bool, "test.boolean16", nil, base.NONE, nil, nil)
+test("ProtoField-bool-mask-nil", success)
+
+success = pcall(ProtoField.new, "uint64", "test.uint64_0", ftypes.UINT64, nil, base.HEX, 0x1)
+test("ProtoField-new-uint64-mask-trivial", success)
+
+success = pcall(ProtoField.new, "uint64", "test.uint64_1", ftypes.UINT64, nil, base.HEX, "1")
+test("ProtoField-new-uint64-mask-string", success)
+
+success = pcall(ProtoField.new, "uint64", "test.uint64_2", ftypes.UINT64, nil, base.HEX, UInt64(0x00000001, 0x0))
+test("ProtoField-new-uint64-mask-uint64", success)
+
+success = pcall(ProtoField.new, "uint64", "test.uint64_3", ftypes.UINT64, nil, base.NONE, "invalid") -- 0
+test("ProtoField-new-uint64-mask-string-invalid", success)
+
+success = pcall(ProtoField.new, "uint64", "test.uint64_4", ftypes.UINT64, nil, base.HEX, "-1") -- 0xFFFFFFFFFFFFFFFF
+test("ProtoField-new-uint64-mask-negative", success)
+
+success = pcall(ProtoField.new, "uint64", "test.uint64_5", ftypes.UINT64, nil, base.NONE)
+test("ProtoField-new-uint64-mask-none", success)
+
+success = pcall(ProtoField.new, "uint64", "test.uint64_6", ftypes.UINT64, nil, base.NONE, nil)
+test("ProtoField-new-uint64-mask-nil", success)
+
+success = pcall(ProtoField.uint64, "test.uint64_10", nil, base.HEX, nil, 0x1)
+test("ProtoField-uint64-mask-trivial", success)
+
+success = pcall(ProtoField.uint64, "test.uint64_11", nil, base.HEX, nil, "1")
+test("ProtoField-uint64-mask-string", success)
+
+success = pcall(ProtoField.uint64, "test.uint64_12", nil, base.HEX, nil, UInt64(0x00000001, 0x0))
+test("ProtoField-uint64-mask-uint64", success)
+
+success = pcall(ProtoField.uint64, "test.uint64_13", nil, base.DEC, nil, "invalid") -- 0
+test("ProtoField-uint64-mask-string-invalid", success)
+
+success = pcall(ProtoField.uint64, "test.uint64_14", nil, base.DEC, nil, "-1") -- 0xFFFFFFFFFFFFFFFF
+test("ProtoField-uint64-mask-negative", success)
+
+success = pcall(ProtoField.uint64, "test.uint64_15", nil, base.DEC, nil)
+test("ProtoField-uint64-mask-none", success)
+
+success = pcall(ProtoField.uint64, "test.uint64_16", nil, base.DEC, nil, nil)
+test("ProtoField-uint64-mask-nil", success)
+
 
 -- Field name: empty, illegal, incompatible
 success = pcall(ProtoField.int8, nil, "empty field name 1")

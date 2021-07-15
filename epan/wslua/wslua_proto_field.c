@@ -415,6 +415,27 @@ static true_false_string* true_false_string_from_table(lua_State* L, int idx) {
     return tfs;
 }
 
+static guint64 get_mask(lua_State* L, int idx, guint64 default_value) {
+    guint64 mask = default_value;
+
+    switch(lua_type(L, idx)) {
+        case LUA_TNUMBER:
+            mask = (guint64)wslua_optguint32(L, idx, default_value);
+            break;
+        case LUA_TSTRING:
+        case LUA_TUSERDATA:
+            mask = getUInt64(L,idx);
+            break;
+        case LUA_TNIL:
+        case LUA_TNONE:
+            break;
+        default:
+            luaL_argerror(L,idx,"MASK field must be a number, UInt64 or string");
+            break;
+    }
+    return mask;
+}
+
 static unit_name_string* unit_name_string_from_table(lua_State* L, int idx) {
     unit_name_string* units;
 
@@ -541,7 +562,7 @@ WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) {
     true_false_string *tfs = NULL;
     unit_name_string *uns = NULL;
     unsigned base;
-    guint32 mask = wslua_optguint32(L, WSLUA_OPTARG_ProtoField_new_MASK, 0x0);
+    guint64 mask = get_mask(L,WSLUA_OPTARG_ProtoField_new_MASK, 0x0);
     const gchar *blob = luaL_optstring(L,WSLUA_OPTARG_ProtoField_new_DESCR,NULL);
     gboolean base_unit_string = FALSE;
     gboolean base_range_string = FALSE;
@@ -808,7 +829,7 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
     range_string* rs32 = NULL;
     val64_string* vs64 = NULL;
     unit_name_string* uns = NULL;
-    guint32 mask = wslua_optguint32(L,5,0);
+    guint64 mask = get_mask(L,5,0);
     const gchar* blob = luaL_optstring(L,6,NULL);
     gboolean base_unit_string = FALSE;
     gboolean base_range_string = FALSE;
@@ -948,7 +969,7 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
 /* WSLUA_OPTARG_ProtoField_uint8_NAME Actual name of the field (the string that appears in the tree). */
 /* WSLUA_OPTARG_ProtoField_uint8_BASE One of `base.DEC`, `base.HEX` or `base.OCT`, `base.DEC_HEX`, `base.HEX_DEC`, `base.UNIT_STRING` or `base.RANGE_STRING`. */
 /* WSLUA_OPTARG_ProtoField_uint8_VALUESTRING A table containing the text that corresponds to the values, or a table containing tables of range string values that correspond to the values ({min, max, "string"}) if the base is `base.RANGE_STRING`, or a table containing the unit name for the values if base is `base.UNIT_STRING`. */
-/* WSLUA_OPTARG_ProtoField_uint8_MASK Integer mask of this field. */
+/* WSLUA_OPTARG_ProtoField_uint8_MASK Integer, String or UInt64 mask of this field. */
 /* WSLUA_OPTARG_ProtoField_uint8_DESC Description of the field. */
 /* _WSLUA_RETURNS_ A <<lua_class_ProtoField,`ProtoField`>> object to be added to a table set to the <<lua_class_attrib_proto_fields,`Proto.fields`>> attribute. */
 
@@ -957,7 +978,7 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
 /* WSLUA_OPTARG_ProtoField_uint16_NAME Actual name of the field (the string that appears in the tree). */
 /* WSLUA_OPTARG_ProtoField_uint16_BASE One of `base.DEC`, `base.HEX`, `base.OCT`, `base.DEC_HEX`, `base.HEX_DEC`, `base.UNIT_STRING` or `base.RANGE_STRING`. */
 /* WSLUA_OPTARG_ProtoField_uint16_VALUESTRING A table containing the text that corresponds to the values, or a table containing tables of range string values that correspond to the values ({min, max, "string"}) if the base is `base.RANGE_STRING`, or a table containing unit name for the values if base is `base.UNIT_STRING`. */
-/* WSLUA_OPTARG_ProtoField_uint16_MASK Integer mask of this field. */
+/* WSLUA_OPTARG_ProtoField_uint16_MASK Integer, String or UInt64 mask of this field. */
 /* WSLUA_OPTARG_ProtoField_uint16_DESC Description of the field. */
 /* _WSLUA_RETURNS_ A <<lua_class_ProtoField,`ProtoField`>> object to be added to a table set to the <<lua_class_attrib_proto_fields,`Proto.fields`>> attribute. */
 
@@ -966,7 +987,7 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
 /* WSLUA_OPTARG_ProtoField_uint24_NAME Actual name of the field (the string that appears in the tree). */
 /* WSLUA_OPTARG_ProtoField_uint24_BASE One of `base.DEC`, `base.HEX`, `base.OCT`, `base.DEC_HEX`, `base.HEX_DEC`, `base.UNIT_STRING`, or `base.RANGE_STRING`. */
 /* WSLUA_OPTARG_ProtoField_uint24_VALUESTRING A table containing the text that corresponds to the values, or a table containing tables of range string values that correspond to the values ({min, max, "string"}) if the base is `base.RANGE_STRING`, or a table containing the unit name for the values if base is `base.UNIT_STRING`. */
-/* WSLUA_OPTARG_ProtoField_uint24_MASK Integer mask of this field. */
+/* WSLUA_OPTARG_ProtoField_uint24_MASK Integer, String or UInt64 mask of this field. */
 /* WSLUA_OPTARG_ProtoField_uint24_DESC Description of the field. */
 /* _WSLUA_RETURNS_ A <<lua_class_ProtoField,`ProtoField`>> object to be added to a table set to the <<lua_class_attrib_proto_fields,`Proto.fields`>> attribute. */
 
@@ -975,7 +996,7 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
 /* WSLUA_OPTARG_ProtoField_uint32_NAME Actual name of the field (the string that appears in the tree). */
 /* WSLUA_OPTARG_ProtoField_uint32_BASE One of `base.DEC`, `base.HEX`, `base.OCT`, `base.DEC_HEX`, `base.HEX_DEC`, `base.UNIT_STRING`, or `base.RANGE_STRING`. */
 /* WSLUA_OPTARG_ProtoField_uint32_VALUESTRING A table containing the text that corresponds to the values, or a table containing tables of range string values that correspond to the values ({min, max, "string"}) if the base is `base.RANGE_STRING`, or a table containing the unit name for the values if base is `base.UNIT_STRING`. */
-/* WSLUA_OPTARG_ProtoField_uint32_MASK Integer mask of this field. */
+/* WSLUA_OPTARG_ProtoField_uint32_MASK Integer, String or UInt64 mask of this field. */
 /* WSLUA_OPTARG_ProtoField_uint32_DESC Description of the field. */
 /* _WSLUA_RETURNS_ A <<lua_class_ProtoField,`ProtoField`>> object to be added to a table set to the <<lua_class_attrib_proto_fields,`Proto.fields`>> attribute. */
 
@@ -984,7 +1005,7 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
 /* WSLUA_OPTARG_ProtoField_uint64_NAME Actual name of the field (the string that appears in the tree). */
 /* WSLUA_OPTARG_ProtoField_uint64_BASE One of `base.DEC`, `base.HEX`, `base.OCT`, `base.DEC_HEX`, `base.HEX_DEC`, `base.UNIT_STRING`, or `base.RANGE_STRING`. */
 /* WSLUA_OPTARG_ProtoField_uint64_VALUESTRING A table containing the text that corresponds to the values, or a table containing tables of range string values that correspond to the values ({min, max, "string"}) if the base is `base.RANGE_STRING`, or a table containing the unit name for the values if base is `base.UNIT_STRING`. */
-/* WSLUA_OPTARG_ProtoField_uint64_MASK Integer mask of this field. */
+/* WSLUA_OPTARG_ProtoField_uint64_MASK Integer, String or UInt64 mask of this field. */
 /* WSLUA_OPTARG_ProtoField_uint64_DESC Description of the field. */
 /* _WSLUA_RETURNS_ A <<lua_class_ProtoField,`ProtoField`>> object to be added to a table set to the <<lua_class_attrib_proto_fields,`Proto.fields`>> attribute. */
 
@@ -993,7 +1014,7 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
 /* WSLUA_OPTARG_ProtoField_int8_NAME Actual name of the field (the string that appears in the tree). */
 /* WSLUA_OPTARG_ProtoField_int8_BASE One of `base.DEC`, `base.UNIT_STRING`, or `base.RANGE_STRING`. */
 /* WSLUA_OPTARG_ProtoField_int8_VALUESTRING A table containing the text that corresponds to the values, or a table containing tables of range string values that correspond to the values ({min, max, "string"}) if the base is `base.RANGE_STRING`, or a table containing unit name for the values if base is `base.UNIT_STRING`. */
-/* WSLUA_OPTARG_ProtoField_int8_MASK Integer mask of this field. */
+/* WSLUA_OPTARG_ProtoField_int8_MASK Integer, String or UInt64 mask of this field. */
 /* WSLUA_OPTARG_ProtoField_int8_DESC Description of the field. */
 /* _WSLUA_RETURNS_ A <<lua_class_ProtoField,`ProtoField`>> object to be added to a table set to the <<lua_class_attrib_proto_fields,`Proto.fields`>> attribute. */
 
@@ -1002,7 +1023,7 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
 /* WSLUA_OPTARG_ProtoField_int16_NAME Actual name of the field (the string that appears in the tree). */
 /* WSLUA_OPTARG_ProtoField_int16_BASE One of `base.DEC`, `base.UNIT_STRING`, or `base.RANGE_STRING`. */
 /* WSLUA_OPTARG_ProtoField_int16_VALUESTRING A table containing the text that corresponds to the values, or a table containing tables of range string values that correspond to the values ({min, max, "string"}) if the base is `base.RANGE_STRING`, or a table containing unit name for the values if base is `base.UNIT_STRING`. */
-/* WSLUA_OPTARG_ProtoField_int16_MASK Integer mask of this field. */
+/* WSLUA_OPTARG_ProtoField_int16_MASK Integer, String or UInt64 mask of this field. */
 /* WSLUA_OPTARG_ProtoField_int16_DESC Description of the field. */
 /* _WSLUA_RETURNS_ A <<lua_class_ProtoField,`ProtoField`>> object to be added to a table set to the <<lua_class_attrib_proto_fields,`Proto.fields`>> attribute. */
 
@@ -1011,7 +1032,7 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
 /* WSLUA_OPTARG_ProtoField_int24_NAME Actual name of the field (the string that appears in the tree). */
 /* WSLUA_OPTARG_ProtoField_int24_BASE One of `base.DEC`, `base.UNIT_STRING`, or `base.RANGE_STRING`. */
 /* WSLUA_OPTARG_ProtoField_int24_VALUESTRING A table containing the text that corresponds to the values, or a table containing tables of range string values that correspond to the values ({min, max, "string"}) if the base is `base.RANGE_STRING`, or a table containing unit name for the values if base is `base.UNIT_STRING`. */
-/* WSLUA_OPTARG_ProtoField_int24_MASK Integer mask of this field. */
+/* WSLUA_OPTARG_ProtoField_int24_MASK Integer, String or UInt64 mask of this field. */
 /* WSLUA_OPTARG_ProtoField_int24_DESC Description of the field. */
 /* _WSLUA_RETURNS_ A <<lua_class_ProtoField,`ProtoField`>> object to be added to a table set to the <<lua_class_attrib_proto_fields,`Proto.fields`>> attribute. */
 
@@ -1020,7 +1041,7 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
 /* WSLUA_OPTARG_ProtoField_int32_NAME Actual name of the field (the string that appears in the tree). */
 /* WSLUA_OPTARG_ProtoField_int32_BASE One of `base.DEC`, `base.UNIT_STRING`, or `base.RANGE_STRING`. */
 /* WSLUA_OPTARG_ProtoField_int32_VALUESTRING A table containing the text that corresponds to the values, or a table containing tables of range string values that correspond to the values ({min, max, "string"}) if the base is `base.RANGE_STRING`, or a table containing unit name for the values if base is `base.UNIT_STRING`. */
-/* WSLUA_OPTARG_ProtoField_int32_MASK Integer mask of this field. */
+/* WSLUA_OPTARG_ProtoField_int32_MASK Integer, String or UInt64 mask of this field. */
 /* WSLUA_OPTARG_ProtoField_int32_DESC Description of the field. */
 /* _WSLUA_RETURNS_ A <<lua_class_ProtoField,`ProtoField`>> object to be added to a table set to the <<lua_class_attrib_proto_fields,`Proto.fields`>> attribute. */
 
@@ -1029,7 +1050,7 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
 /* WSLUA_OPTARG_ProtoField_int64_NAME Actual name of the field (the string that appears in the tree). */
 /* WSLUA_OPTARG_ProtoField_int64_BASE One of `base.DEC`, `base.UNIT_STRING`, or `base.RANGE_STRING`. */
 /* WSLUA_OPTARG_ProtoField_int64_VALUESTRING A table containing the text that corresponds to the values, or a table containing tables of range string values that correspond to the values ({min, max, "string"}) if the base is `base.RANGE_STRING`, or a table containing unit name for the values if base is `base.UNIT_STRING`. */
-/* WSLUA_OPTARG_ProtoField_int64_MASK Integer mask of this field. */
+/* WSLUA_OPTARG_ProtoField_int64_MASK Integer, String or UInt64 mask of this field. */
 /* WSLUA_OPTARG_ProtoField_int64_DESC Description of the field. */
 /* _WSLUA_RETURNS_ A <<lua_class_ProtoField,`ProtoField`>> object to be added to a table set to the <<lua_class_attrib_proto_fields,`Proto.fields`>> attribute. */
 
@@ -1038,7 +1059,7 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
 /* WSLUA_OPTARG_ProtoField_framenum_NAME Actual name of the field (the string that appears in the tree). */
 /* WSLUA_OPTARG_ProtoField_framenum_BASE Only `base.NONE` is supported for framenum. */
 /* WSLUA_OPTARG_ProtoField_framenum_FRAMETYPE One of `frametype.NONE`, `frametype.REQUEST`, `frametype.RESPONSE`, `frametype.ACK` or `frametype.DUP_ACK`. */
-/* WSLUA_OPTARG_ProtoField_framenum_MASK Integer mask of this field, which must be 0 for framenum. */
+/* WSLUA_OPTARG_ProtoField_framenum_MASK Integer, String or UInt64 mask of this field, which must be 0 for framenum. */
 /* WSLUA_OPTARG_ProtoField_framenum_DESC Description of the field. */
 /* _WSLUA_RETURNS_ A <<lua_class_ProtoField,`ProtoField`>> object to be added to a table set to the <<lua_class_attrib_proto_fields,`Proto.fields`>> attribute. */
 
@@ -1061,7 +1082,7 @@ static int ProtoField_boolean(lua_State* L, enum ftenum type) {
     const gchar* name = luaL_optstring(L,2,abbr);
     unsigned base = (unsigned)luaL_optinteger(L, 3, BASE_NONE);
     true_false_string* tfs = NULL;
-    guint32 mask = wslua_optguint32(L,5,0);
+    guint64 mask = get_mask(L,5,0);
     const gchar* blob = luaL_optstring(L,6,NULL);
 
     if (!name[0]) {
@@ -1112,7 +1133,7 @@ static int ProtoField_boolean(lua_State* L, enum ftenum type) {
 /* WSLUA_OPTARG_ProtoField_bool_NAME Actual name of the field (the string that appears in the tree). */
 /* WSLUA_OPTARG_ProtoField_bool_DISPLAY How wide the parent bitfield is (`base.NONE` is used for NULL-value). */
 /* WSLUA_OPTARG_ProtoField_bool_VALUESTRING A table containing the text that corresponds to the values. */
-/* WSLUA_OPTARG_ProtoField_bool_MASK Integer mask of this field. */
+/* WSLUA_OPTARG_ProtoField_bool_MASK Integer, String or UInt64 mask of this field. */
 /* WSLUA_OPTARG_ProtoField_bool_DESC Description of the field. */
 /* _WSLUA_RETURNS_ A <<lua_class_ProtoField,`ProtoField`>> object to be added to a table set to the <<lua_class_attrib_proto_fields,`Proto.fields`>> attribute. */
 
@@ -1434,7 +1455,7 @@ PROTOFIELD_OTHER(eui64,FT_EUI64)
 WSLUA_METAMETHOD ProtoField__tostring(lua_State* L) {
     /* Returns a string with info about a protofield (for debugging purposes). */
     ProtoField f = checkProtoField(L,1);
-    gchar* s = ws_strdup_printf("ProtoField(%i): %s %s %s %s %p %.8x %s",
+    gchar* s = ws_strdup_printf("ProtoField(%i): %s %s %s %s %p %.16lx %s",
                                          f->hfid,f->name,f->abbrev,
                                          ftenum_to_string(f->type),
                                          base_to_string(f->base),

@@ -647,7 +647,7 @@ WSLUA_CLASS_DEFINE_BASE(UInt64,NOP,0);
     */
 
 /* A checkUInt64 but that also auto-converts numbers, strings, and <<lua_class_Int64,`Int64`>> to a guint64. */
-static guint64 getUInt64(lua_State *L, int i)
+guint64 getUInt64(lua_State *L, int i)
 {
     gchar *end = NULL;
     (void) end;
