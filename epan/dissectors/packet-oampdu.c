@@ -590,6 +590,7 @@ static const value_string vendor_specific_opcode_vals[] = {
 
 /* DPoE Leaf-Branch codes */
 #define DPOE_LB_ONU_OBJ                 0xD60000
+#define DPOE_LB_NETWORK_PORT_OBJ        0xD60001
 #define DPOE_LB_LINK_OBJ                0xD60002
 #define DPOE_LB_USER_PORT_OBJ           0xD60003
 #define DPOE_LB_ONU_ID                  0xD70002
@@ -605,7 +606,7 @@ static const value_string vendor_specific_opcode_vals[] = {
 /* As messages get implmented and verified, replace with defined codes from above. */
 static const value_string dpoe_variable_descriptor_vals[] = {
     { DPOE_LB_ONU_OBJ,              "DPoE ONU Object" },
-    { 0xD60001,                     "Network Port Object" },
+    { DPOE_LB_NETWORK_PORT_OBJ,     "Network Port Object" },
     { DPOE_LB_LINK_OBJ,             "Link Object" },
     { DPOE_LB_USER_PORT_OBJ,        "User Port Object" },
     { 0XD60004,                     "Queue Object" },
@@ -639,6 +640,10 @@ static const value_string dpoe_variable_descriptor_vals[] = {
     { 0xD7010C,                     "Local Switching" },
     { DPOE_LB_QUEUE_CONFIG,         "Queue Configuration" },
     { 0xD7010E,                     "Firmware Filename" },
+    { 0xD70110,                     "Multicast LLID" },
+    { 0xD70111,                     "UNI MAC Learned" },
+    { 0xD70112,                     "ONU Max Frame Size Capability" },
+    { 0xD70113,                     "UNI Max Frame Size Limit" },
     { 0xD90101,                     "Clear Dynamic MAC Table" },
     { 0xD90102,                     "Add Dynamic MAC Address" },
     { 0xD90103,                     "Delete Dynamic MAC Address" },
@@ -1696,7 +1701,8 @@ dissect_oampdu_vendor_specific(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
                 case DPOE_OPCODE_GET_REQUEST:
                     leaf_branch = tvb_get_ntoh24(tvb, offset);
                     variable_length = 0;
-                    if (leaf_branch == DPOE_LB_ONU_OBJ || leaf_branch == DPOE_LB_LINK_OBJ || leaf_branch == DPOE_LB_USER_PORT_OBJ) {
+                    if (leaf_branch == DPOE_LB_ONU_OBJ || leaf_branch == DPOE_LB_LINK_OBJ || \
+                        leaf_branch == DPOE_LB_USER_PORT_OBJ || leaf_branch == DPOE_LB_NETWORK_PORT_OBJ) {
                         dpoe_opcode_request_item = proto_tree_add_item(dpoe_opcode_tree, hf_dpoe_variable_descriptor, tvb, offset, 3, ENC_BIG_ENDIAN);
                         offset += 3;
                         variable_length = tvb_get_guint8(tvb, offset);
