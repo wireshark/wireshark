@@ -67,6 +67,7 @@ static int hf_tecmp_cmflags_cm_overflow = -1;
 
 /* TECMP Payload */
 static int hf_tecmp_payload_channelid = -1;
+static int hf_tecmp_payload_channelname = -1;
 static int hf_tecmp_payload_timestamp = -1;
 static int hf_tecmp_payload_timestamp_ns = -1;
 static int hf_tecmp_payload_timestamp_async = -1;
@@ -199,6 +200,7 @@ static gint ett_tecmp = -1;
 static gint ett_tecmp_cm_flags = -1;
 
 static gint ett_tecmp_payload = -1;
+static gint ett_tecmp_payload_channel_id = -1;
 static gint ett_tecmp_payload_data = -1;
 static gint ett_tecmp_payload_timestamp = -1;
 static gint ett_tecmp_payload_dataflags = -1;
@@ -590,11 +592,13 @@ add_cm_id_text(proto_item *ti, guint16 cm_id) {
 }
 
 static void
-add_channel_id_text(proto_item *ti, guint32 channel_id) {
+add_channel_id_text_and_name(proto_item *ti, guint32 channel_id, tvbuff_t *tvb, gint offset) {
     const gchar *descr = ht_lookup_name(data_tecmp_channels, channel_id);
 
     if (descr != NULL) {
         proto_item_append_text(ti, " (%s)", descr);
+        proto_tree *subtree = proto_item_add_subtree(ti, ett_tecmp_payload_channel_id);
+        proto_tree_add_string(subtree, hf_tecmp_payload_channelname, tvb, offset, 4, descr);
     }
 }
 
@@ -699,7 +703,7 @@ dissect_tecmp_entry_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     col_append_str(pinfo->cinfo, COL_INFO, val_to_str(msg_type, tecmp_msgtype_names, "Unknown (%d)"));
 
     ti = proto_tree_add_item_ret_uint(tree, hf_tecmp_payload_channelid, tvb, offset, 4, ENC_BIG_ENDIAN, &tmp);
-    add_channel_id_text(ti, tmp);
+    add_channel_id_text_and_name(ti, tmp, tvb, offset);
 
     ns = tvb_get_guint64(tvb, offset + 4, ENC_BIG_ENDIAN) & 0x3fffffffffffffff;
 
@@ -1363,6 +1367,9 @@ proto_register_tecmp_payload(void) {
         { &hf_tecmp_payload_channelid,
             { "Channel ID", "tecmp.payload.channel_id",
             FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        { &hf_tecmp_payload_channelname,
+            { "Channel Name", "tecmp.payload.channel_name",
+            FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_tecmp_payload_timestamp,
             { "Timestamp", "tecmp.payload.timestamp",
             FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0, NULL, HFILL }},
@@ -1642,6 +1649,7 @@ proto_register_tecmp_payload(void) {
 
     static gint *ett[] = {
         &ett_tecmp_payload,
+        &ett_tecmp_payload_channel_id,
         &ett_tecmp_payload_data,
         &ett_tecmp_payload_timestamp,
         &ett_tecmp_payload_dataflags,
