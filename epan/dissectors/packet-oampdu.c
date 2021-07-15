@@ -1711,8 +1711,8 @@ dissect_oampdu_vendor_specific(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
                             }
                         }
                     }
-                    next_byte = tvb_get_guint8(tvb, offset);
                     offset += variable_length;
+                    next_byte = tvb_get_guint8(tvb, offset);
                     while (next_byte != 0x00) {
                         proto_tree_add_item(dpoe_opcode_tree, hf_dpoe_variable_descriptor, tvb, offset, 3, ENC_BIG_ENDIAN);
                         offset += 3;
