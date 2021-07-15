@@ -1281,13 +1281,6 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 	find_package(SETCAP)
 endif()
 
-# Include minizip include directories
-if(MINIZIP_FOUND)
-	include_directories(SYSTEM ${MINIZIP_INCLUDE_DIRS})
-else()
-	set(MINIZIP_LIBRARY "")
-endif()
-
 # Windows version updates
 ws_find_package(WinSparkle ENABLE_WINSPARKLE HAVE_SOFTWARE_UPDATE)
 
@@ -2854,6 +2847,7 @@ if(BUILD_dumpcap AND PCAP_FOUND)
 	add_executable(dumpcap ${dumpcap_FILES})
 	set_extra_executable_properties(dumpcap "Executables")
 	target_link_libraries(dumpcap ${dumpcap_LIBS})
+	target_include_directories(dumpcap SYSTEM PRIVATE ${ZLIB_INCLUDE_DIRS})
 	install(TARGETS dumpcap
 			RUNTIME	DESTINATION ${CMAKE_INSTALL_BINDIR}
 			PERMISSIONS ${DUMPCAP_SETUID}

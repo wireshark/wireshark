@@ -705,18 +705,13 @@ add_library(qtui OBJECT
 )
 
 target_include_directories(qtui
-	SYSTEM PUBLIC
-		${QT_INCLUDE_DIRS}
-		${WINSPARKLE_INCLUDE_DIRS}
-		${SPEEXDSP_INCLUDE_DIRS}
-)
-
-target_include_directories(qtui
 	SYSTEM PRIVATE
-		# Can't use imported target, linking object libraries for usage requirements
-		# requires CMake 3.12
-		${PCAP_INCLUDE_DIRS}
 		${GCRYPT_INCLUDE_DIRS}
+		${MINIZIP_INCLUDE_DIRS}
+		${PCAP_INCLUDE_DIRS}
+		${QT_INCLUDE_DIRS}
+		${SPEEXDSP_INCLUDE_DIRS}
+		${WINSPARKLE_INCLUDE_DIRS}
 	PRIVATE
 		${CMAKE_CURRENT_BINARY_DIR}
 		${CMAKE_CURRENT_SOURCE_DIR}
