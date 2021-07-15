@@ -109,14 +109,6 @@ static dissector_handle_t socketcan_bigendian_handle;
 static dissector_handle_t socketcan_hostendian_handle;
 static dissector_handle_t socketcan_fd_handle;
 
-static const value_string frame_type_vals[] =
-{
-	{ LINUX_CAN_STD, "STD" },
-	{ LINUX_CAN_EXT, "XTD" },
-	{ LINUX_CAN_ERR, "ERR" },
-	{ 0, NULL }
-};
-
 static const value_string can_err_prot_error_location_vals[] =
 {
 	{ 0x00, "unspecified" },
@@ -260,8 +252,14 @@ dissect_socketcan_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "CAN");
 	col_clear(pinfo->cinfo, COL_INFO);
 
+	guint32 effective_can_id = (can_info.id & CAN_EFF_FLAG) ? can_info.id & CAN_EFF_MASK : can_info.id & CAN_SFF_MASK;
+	char* id_name = (can_info.id & CAN_EFF_FLAG) ? "Ext. ID" : "ID";
+	col_add_fstr(pinfo->cinfo, COL_INFO, "%s: %d (0x%" G_GINT32_MODIFIER "x), Length: %d", id_name, effective_can_id, effective_can_id, can_info.len);
+
 	ti = proto_tree_add_item(tree, proto_can, tvb, 0, -1, ENC_NA);
 	can_tree = proto_item_add_subtree(ti, ett_can);
+
+	proto_item_append_text(can_tree, ", %s: %d (0x%" G_GINT32_MODIFIER "x), Length: %d", id_name, effective_can_id, effective_can_id, can_info.len);
 
 	proto_tree_add_bitmask_list(can_tree, tvb, 0, 4, can_flags, encoding);
 	proto_tree_add_item(can_tree, hf_can_len, tvb, CAN_LEN_OFFSET, 1, ENC_NA);
@@ -337,16 +335,9 @@ dissect_socketcan_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
 	{
 		tvbuff_t   *next_tvb;
 
-		col_add_fstr(pinfo->cinfo, COL_INFO, "%s: 0x%08x   ",
-			     val_to_str(frame_type, frame_type_vals, "Unknown (0x%02x)"), (can_info.id & ~CAN_FLAG_MASK));
-
 		if (can_info.id & CAN_RTR_FLAG)
 		{
 			col_append_str(pinfo->cinfo, COL_INFO, "(Remote Transmission Request)");
-		}
-		else
-		{
-			col_append_str(pinfo->cinfo, COL_INFO, tvb_bytes_to_str_punct(wmem_packet_scope(), tvb, CAN_DATA_OFFSET, can_info.len, ' '));
 		}
 
 		next_tvb = tvb_new_subset_length(tvb, CAN_DATA_OFFSET, can_info.len);
@@ -387,7 +378,6 @@ dissect_socketcanfd_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
 	proto_tree *can_tree;
 	proto_item *ti;
-	guint8      frame_type;
 	struct can_info can_info;
 	tvbuff_t*   next_tvb;
 	int * can_flags_fd[] = {
@@ -407,12 +397,10 @@ dissect_socketcanfd_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	if (can_info.id & CAN_EFF_FLAG)
 	{
-		frame_type = LINUX_CAN_EXT;
 		can_info.id &= (CAN_EFF_MASK | CAN_FLAG_MASK);
 	}
 	else
 	{
-		frame_type = LINUX_CAN_STD;
 		can_info.id &= (CAN_SFF_MASK | CAN_FLAG_MASK);
 		can_flags_fd[0] = &hf_can_infoent_std;
 	}
@@ -420,12 +408,14 @@ dissect_socketcanfd_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "CANFD");
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	col_add_fstr(pinfo->cinfo, COL_INFO, "%s: 0x%08x   %s",
-		     val_to_str(frame_type, frame_type_vals, "Unknown (0x%02x)"), (can_info.id & ~CAN_FLAG_MASK),
-		     tvb_bytes_to_str_punct(wmem_packet_scope(), tvb, CAN_DATA_OFFSET, can_info.len, ' '));
+	guint32 effective_can_id = (can_info.id & CAN_EFF_FLAG) ? can_info.id & CAN_EFF_MASK : can_info.id & CAN_SFF_MASK;
+	char* id_name = (can_info.id & CAN_EFF_FLAG) ? "Ext. ID" : "ID";
+	col_add_fstr(pinfo->cinfo, COL_INFO, "%s: %d (0x%" G_GINT32_MODIFIER "x), Length: %d", id_name, effective_can_id, effective_can_id, can_info.len);
 
 	ti = proto_tree_add_item(tree, proto_canfd, tvb, 0, -1, ENC_NA);
 	can_tree = proto_item_add_subtree(ti, ett_can_fd);
+
+	proto_item_append_text(can_tree, ", %s: %d (0x%" G_GINT32_MODIFIER "x), Length: %d", id_name, effective_can_id, effective_can_id, can_info.len);
 
 	proto_tree_add_bitmask_list(can_tree, tvb, 0, 4, can_flags_fd, encoding);
 
@@ -463,7 +453,7 @@ proto_register_socketcan(void)
 		{
 			&hf_can_infoent_ext,
 			{
-				"Identifier", "can.id",
+				"ID", "can.id",
 				FT_UINT32, BASE_DEC_HEX,
 				NULL, CAN_EFF_MASK,
 				NULL, HFILL
@@ -472,7 +462,7 @@ proto_register_socketcan(void)
 		{
 			&hf_can_infoent_std,
 			{
-				"Identifier", "can.id",
+				"ID", "can.id",
 				FT_UINT32, BASE_DEC_HEX,
 				NULL, CAN_SFF_MASK,
 				NULL, HFILL
