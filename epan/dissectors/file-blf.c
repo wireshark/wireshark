@@ -376,7 +376,7 @@ dissect_blf_next_object(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gin
     gint offset_orig = offset;
 
     while (tvb_captured_length_remaining(tvb, offset) >= 16) {
-        if (!tvb_memeql(tvb, offset, blf_lobj_magic, MAGIC_NUMBER_SIZE) == 0) {
+        if (tvb_memeql(tvb, offset, blf_lobj_magic, MAGIC_NUMBER_SIZE) != 0) {
             offset += 1;
         } else {
             int bytes_parsed = dissect_blf_lobj(tvb, pinfo, tree, offset);
@@ -400,7 +400,7 @@ dissect_blf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     proto_item      *ti;
     guint            length;
 
-    if (tvb_captured_length(tvb) < 8 || !tvb_memeql(tvb, 0, blf_file_magic, MAGIC_NUMBER_SIZE) == 0) {
+    if (tvb_captured_length(tvb) < 8 || tvb_memeql(tvb, 0, blf_file_magic, MAGIC_NUMBER_SIZE) != 0) {
         /* does not start with LOGG, so this is not BLF it seems */
         return 0;
     }
