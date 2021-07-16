@@ -138,8 +138,8 @@ dissect_lin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
         ti = proto_tree_add_item(lin_tree, hf_lin_pid, tvb, 5, 1, ENC_BIG_ENDIAN);
         lin_id_tree = proto_item_add_subtree(ti, ett_lin_pid);
-        proto_tree_add_item_ret_uint(lin_id_tree, hf_lin_id, tvb, 5, 1, ENC_BIG_ENDIAN, &(lininfo.id));
         proto_tree_add_item(lin_id_tree, hf_lin_parity, tvb, 5, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint(lin_id_tree, hf_lin_id, tvb, 5, 1, ENC_BIG_ENDIAN, &(lininfo.id));
 
         proto_tree_add_item(lin_tree, hf_lin_checksum, tvb, 6, 1, ENC_BIG_ENDIAN);
     }
@@ -206,10 +206,10 @@ proto_register_lin(void) {
             FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL }},
         { &hf_lin_id,
             { "Frame ID", "lin.frame_id",
-            FT_UINT8, BASE_HEX_DEC, NULL, 0xfc, NULL, HFILL }},
+            FT_UINT8, BASE_HEX_DEC, NULL, 0x3f, NULL, HFILL }},
         { &hf_lin_parity,
             { "Parity", "lin.frame_parity",
-            FT_UINT8, BASE_HEX_DEC, NULL, 0x03, NULL, HFILL }},
+            FT_UINT8, BASE_HEX_DEC, NULL, 0xc0, NULL, HFILL }},
         { &hf_lin_checksum,
             { "Checksum", "lin.checksum",
             FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL }},
