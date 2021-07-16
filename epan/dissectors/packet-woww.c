@@ -19,6 +19,8 @@
  * https://wowdev.wiki/World_Packet
  * https://wowdev.wiki/Login_Packet
  *
+ * Currently this dissector is valid for 1.12.x, the most popular Vanilla version.
+ *
  * All World packets contain a header with:
  * * A 16 bit big endian size field.
  * * A (32 or 16 bit) little endian opcode field.
@@ -71,29 +73,47 @@ static int hf_woww_opcode_field = -1;
 #define WOWW_CLIENT_TO_SERVER pinfo->destport == WOWW_TCP_PORT
 #define WOWW_SERVER_TO_CLIENT pinfo->srcport  == WOWW_TCP_PORT
 
+// Allocate 8 because tree wants 32 bit aligned data
 #define WOWW_HEADER_ARRAY_ALLOC_SIZE 8
+
+// The session key is the result of two SHA-1 hashes appended, so it is
+// _always_ 40 bytes.
 #define WOWW_SESSION_KEY_LENGTH 40
 
 static gint ett_woww = -1;
 
-/* Packets that do not have at least a u16 size field and a u16 opcode field are not valid. */
+// Packets that do not have at least a u16 size field and a u16 opcode field are not valid.
 #define WOWW_MIN_LENGTH 4
 
+// A participant can either be the server or a client.
 typedef struct WowwParticipant {
+    // The previous encrypted value sent. Persists through headers.
     guint8 last_encrypted_value;
+    // Index into the session key. Must always be in [0; WOWW_SESSION_KEY_LENGTH - 1].
     guint8 index;
+    // The first header is unencrypted. Tracks if that header has been encountered.
     gboolean unencrypted_packet_encountered;
 } WowwParticipant_t;
 
 typedef struct WowwConversation {
+    // Secret session key known to the client and host.
     guint8 session_key[WOWW_SESSION_KEY_LENGTH];
+    // Which values of the session key have been deduced.
     bool known_indices[WOWW_SESSION_KEY_LENGTH];
+    // Cache headers that have already been decrypted to save time
+    // as well as reduce headaches from out of order packets.
     wmem_tree_t* decrypted_headers;
+    // Packets that are not fully decryptable when received will need
+    // to be decrypted later.
     wmem_tree_t* headers_need_decryption;
+    // The client and server will have different indices/last values
+    // because they send different amounts of packets and with different
+    // header lengths.
     WowwParticipant_t client;
     WowwParticipant_t server;
 } WowwConversation_t;
 
+// All existing opcodes for 1.12.x
 typedef enum
 {
     MSG_NULL_ACTION                                 = 0x000,
@@ -1003,7 +1023,6 @@ typedef enum
     SMSG_REFER_A_FRIEND_FAILURE                     = 0x420,
     SMSG_SUMMON_CANCEL                              = 0x423
 } world_packets;
-
 
 static const value_string world_packet_strings[] = {
     { MSG_NULL_ACTION, "MSG_NULL_ACTION" },
@@ -1915,6 +1934,7 @@ static const value_string world_packet_strings[] = {
     { 0, NULL }
 };
 
+/*! Decrypts the header after the session key has been deducted as described in the top level comment. */
 static guint8*
 get_decrypted_header(const guint8 session_key[WOWW_SESSION_KEY_LENGTH],
                      WowwParticipant_t* participant,
@@ -1924,6 +1944,7 @@ get_decrypted_header(const guint8 session_key[WOWW_SESSION_KEY_LENGTH],
 
     for (guint8 i = 0; i < header_size; i++) {
 
+        // x = (E - L) ^ S as described in top level comment
         decrypted_header[i] = (header[i] - participant->last_encrypted_value) ^ session_key[participant->index];
 
         participant->last_encrypted_value = header[i];
@@ -1933,6 +1954,7 @@ get_decrypted_header(const guint8 session_key[WOWW_SESSION_KEY_LENGTH],
     return decrypted_header;
 }
 
+/*! Deduces the session key values as described in the top level comment. */
 static void
 deduce_header(guint8 session_key[WOWW_SESSION_KEY_LENGTH],
               bool known_indices[WOWW_SESSION_KEY_LENGTH],
@@ -1943,6 +1965,7 @@ deduce_header(guint8 session_key[WOWW_SESSION_KEY_LENGTH],
     // Set last encrypted value to what it's supposed to be
     participant->last_encrypted_value = header[3];
 
+    // 0 ^ (E - L) as described in top level comment
     session_key[participant->index] = 0 ^ (header[4] - participant->last_encrypted_value);
     known_indices[participant->index] = true;
     participant->index = (participant->index + 1) % WOWW_SESSION_KEY_LENGTH;
@@ -1954,6 +1977,7 @@ deduce_header(guint8 session_key[WOWW_SESSION_KEY_LENGTH],
     participant->last_encrypted_value = header[5];
 }
 
+/*! Returns true if all necessary values of the session key are fully known. */
 static gboolean
 session_key_is_fully_deduced(const bool known_indices[WOWW_SESSION_KEY_LENGTH],
                              guint8 header_length,
@@ -1967,6 +1991,7 @@ session_key_is_fully_deduced(const bool known_indices[WOWW_SESSION_KEY_LENGTH],
     return fully_deduced;
 }
 
+/*! Returns either a pointer to a valid decrypted header, or NULL if no such header exists yet. */
 static guint8*
 handle_packet_header(packet_info* pinfo,
                      tvbuff_t* tvb,
@@ -2052,6 +2077,7 @@ handle_packet_header(packet_info* pinfo,
 
     decrypted_header = get_decrypted_header(wowwConversation->session_key, participant, header, headerSize);
 
+    // Restore original state
     if (original_header_values) {
         participant->index = new_index;
         participant->last_encrypted_value = new_last_encrypted;
@@ -2059,7 +2085,7 @@ handle_packet_header(packet_info* pinfo,
         wmem_tree_remove32(wowwConversation->headers_need_decryption, pinfo->num);
     }
 
-    // The header has been fully decrypted
+    // The header has been fully decrypted, cache it for future use
     wmem_tree_insert32(wowwConversation->decrypted_headers, pinfo->num, decrypted_header);
 
     return decrypted_header;
@@ -2090,13 +2116,8 @@ dissect_woww(tvbuff_t *tvb,
 
     /*** COLUMN DATA ***/
 
-    /* Set the Protocol column to the constant string of WOWW */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "WOWW");
 
-    /* If you will be fetching any data from the packet before filling in
-     * the Info column, clear that column first in case the calls to fetch
-     * data from the packet throw an exception so that the Info column doesn't
-     * contain data left over from the previous dissector: */
     col_clear(pinfo->cinfo, COL_INFO);
     col_set_str(pinfo->cinfo, COL_INFO, "Session Key Not Known Yet");
 
@@ -2170,11 +2191,6 @@ dissect_woww(tvbuff_t *tvb,
     return tvb_captured_length(tvb);
 }
 
-/* Register the protocol with Wireshark.
- *
- * This format is required because a script is used to build the C function that
- * calls all the protocol registration.
- */
 void
 proto_register_woww(void)
 {
@@ -2211,20 +2227,10 @@ proto_register_woww(void)
 
 }
 
-
-
-/* Simpler form of proto_reg_handoff_woww which can be used if there are
- * no prefs-dependent registration function calls. */
 void
 proto_reg_handoff_woww(void)
 {
-    dissector_handle_t woww_handle;
-
-    /* Use create_dissector_handle() to indicate that dissect_woww()
-     * returns the number of bytes it dissected (or 0 if it thinks the packet
-     * does not belong to World of Warcraft World).
-     */
-    woww_handle = create_dissector_handle(dissect_woww, proto_woww);
+    dissector_handle_t woww_handle = create_dissector_handle(dissect_woww, proto_woww);
     dissector_add_uint_with_preference("tcp.port", WOWW_TCP_PORT, woww_handle);
 }
 
