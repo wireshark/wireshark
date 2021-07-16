@@ -559,7 +559,7 @@ dissect_mle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     }
     original_packet = (ieee802154_packet *)ieee_hints->packet;
 
-    packet = wmem_new0(wmem_packet_scope(), ieee802154_packet);
+    packet = wmem_new0(pinfo->pool, ieee802154_packet);
 
     /* Copy IEEE 802.15.4 Source Address */
     packet->src_addr_mode = original_packet->src_addr_mode;
@@ -782,13 +782,13 @@ dissect_mle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
             case MLE_TLV_CHALLENGE:
                 proto_tree_add_item(tlv_tree, hf_mle_tlv_challenge, payload_tvb, offset, tlv_len, ENC_NA);
-                proto_item_append_text(ti, " = %s)", tvb_bytes_to_str(wmem_packet_scope(), payload_tvb, offset, tlv_len));
+                proto_item_append_text(ti, " = %s)", tvb_bytes_to_str(pinfo->pool, payload_tvb, offset, tlv_len));
                 offset += tlv_len;
                 break;
 
             case MLE_TLV_RESPONSE:
                 proto_tree_add_item(tlv_tree, hf_mle_tlv_response, payload_tvb, offset, tlv_len, ENC_NA);
-                proto_item_append_text(ti, " = %s)", tvb_bytes_to_str(wmem_packet_scope(), payload_tvb, offset, tlv_len));
+                proto_item_append_text(ti, " = %s)", tvb_bytes_to_str(pinfo->pool, payload_tvb, offset, tlv_len));
                 offset += tlv_len;
                 break;
 

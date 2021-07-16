@@ -116,7 +116,7 @@ dissect_ssprotocol_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree
   guint16     info_length;
   guint       total_length;
 
-  tap_ssprotocol_rec_t* tap_rec = wmem_new0(wmem_packet_scope(), tap_ssprotocol_rec_t);
+  tap_ssprotocol_rec_t* tap_rec = wmem_new0(pinfo->pool, tap_ssprotocol_rec_t);
   tap_rec->type        = tvb_get_guint8(message_tvb, MESSAGE_TYPE_OFFSET);
   tap_rec->size        = tvb_get_ntohs(message_tvb,  MESSAGE_LENGTH_OFFSET);
   tap_rec->type_string = val_to_str_const(tap_rec->type, message_type_values, "Unknown SSP message type");

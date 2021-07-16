@@ -315,11 +315,11 @@ add_string_param_update_parent(tvbuff_t *tvb, int offset, int count, packet_info
 
 	DISSECTOR_ASSERT(hf_index != -1);
 	ti = proto_tree_add_item_ret_string(tree, hf_index, tvb, offset,
-	    count, ENC_ASCII|ENC_NA, wmem_packet_scope(), &str);
+	    count, ENC_ASCII|ENC_NA, pinfo->pool, &str);
 	    /* XXX - code page? */
 	parent_ti = proto_item_get_parent(ti);
 	proto_item_append_text(parent_ti, ": %s",
-	    format_text(wmem_packet_scope(), str, strlen(str)));
+	    format_text(pinfo->pool, str, strlen(str)));
 	offset += count;
 	return offset;
 }
@@ -516,7 +516,7 @@ add_reltime(tvbuff_t *tvb, int offset, int count _U_, packet_info *pinfo _U_,
 	nstime.nsecs = 0;
 	proto_tree_add_time_format_value(tree, hf_index, tvb, offset, 4,
 	    &nstime, "%s",
-	    signed_time_secs_to_str(wmem_packet_scope(),  (gint32) nstime.secs));
+	    signed_time_secs_to_str(pinfo->pool,  (gint32) nstime.secs));
 	offset += 4;
 	return offset;
 }
@@ -638,7 +638,7 @@ add_logon_hours(tvbuff_t *tvb, int offset, int count, packet_info *pinfo _U_,
 			proto_tree_add_bytes_format_value(tree, hf_index, tvb,
 			    cptr, count, NULL,
 			    "%s (wrong length, should be 21, is %d",
-			    tvb_bytes_to_str(wmem_packet_scope(), tvb, cptr, count), count);
+			    tvb_bytes_to_str(pinfo->pool, tvb, cptr, count), count);
 		}
 	} else {
 		proto_tree_add_bytes_format_value(tree, hf_index, tvb, 0, 0,
@@ -658,11 +658,11 @@ add_tzoffset(tvbuff_t *tvb, int offset, int count _U_, packet_info *pinfo _U_,
 	if (tzoffset < 0) {
 		proto_tree_add_int_format_value(tree, hf_tzoffset, tvb, offset, 2,
 		    tzoffset, "%s east of UTC",
-		    signed_time_secs_to_str(wmem_packet_scope(), -tzoffset*60));
+		    signed_time_secs_to_str(pinfo->pool, -tzoffset*60));
 	} else if (tzoffset > 0) {
 		proto_tree_add_int_format_value(tree, hf_tzoffset, tvb, offset, 2,
 		    tzoffset, "%s west of UTC",
-		    signed_time_secs_to_str(wmem_packet_scope(), tzoffset*60));
+		    signed_time_secs_to_str(pinfo->pool, tzoffset*60));
 	} else {
 		proto_tree_add_int_format_value(tree, hf_tzoffset, tvb, offset, 2,
 		    tzoffset, "at UTC");
@@ -1711,7 +1711,7 @@ dissect_request_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				    "%s: Value is %s, type is wrong (b)",
 				    proto_registrar_get_name((*items->hf_index == -1) ?
 				      hf_smb_pipe_bytes_param : *items->hf_index),
-				    tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, count));
+				    tvb_bytes_to_str(pinfo->pool, tvb, offset, count));
 				offset += count;
 				items++;
 			} else {
@@ -1864,7 +1864,7 @@ dissect_response_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				    "%s: Value is %s, type is wrong (g)",
 				    proto_registrar_get_name((*items->hf_index == -1) ?
 				      hf_smb_pipe_bytes_param : *items->hf_index),
-				    tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, count));
+				    tvb_bytes_to_str(pinfo->pool, tvb, offset, count));
 				offset += count;
 				items++;
 			} else {
@@ -2061,7 +2061,7 @@ dissect_transact_data(tvbuff_t *tvb, int offset, int convert,
 				    "%s: Value is %s, type is wrong (B)",
 				    proto_registrar_get_name((*items->hf_index == -1) ?
 				      hf_smb_pipe_bytes_param : *items->hf_index),
-				    tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, count));
+				    tvb_bytes_to_str(pinfo->pool, tvb, offset, count));
 				offset += count;
 				items++;
 			} else {
@@ -2153,7 +2153,7 @@ dissect_transact_data(tvbuff_t *tvb, int offset, int convert,
 				    "%s: Value is %s, type is wrong (b)",
 				    proto_registrar_get_name((*items->hf_index == -1) ?
 				      hf_smb_pipe_bytes_param : *items->hf_index),
-				    tvb_bytes_to_str(wmem_packet_scope(), tvb, cptr, count));
+				    tvb_bytes_to_str(pinfo->pool, tvb, cptr, count));
 				items++;
 			} else {
 				offset = (*items->func)(tvb, offset, count,

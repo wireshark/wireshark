@@ -237,7 +237,7 @@ dissect_netanalyzer_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
           proto_tree_add_bitmask(netanalyzer_header_tree, tvb, 0, hf_netanalyzer_status, ett_netanalyzer_status, hfx_netanalyzer_status, ENC_LITTLE_ENDIAN);
 
-          strbuf = wmem_strbuf_new_label(wmem_packet_scope());
+          strbuf = wmem_strbuf_new_label(pinfo->pool);
           for (idx = 0; idx < 8; idx++)
           {
             if (packet_status & (1 << idx))

@@ -92,7 +92,7 @@ dissect_ros_connection_header_field(tvbuff_t *tvb, proto_tree *tree, packet_info
 		if( sep > 0 ) {
 			const guint8* field;
 			field_tree = proto_item_add_subtree(ti, ett_tcpros);
-			proto_tree_add_item_ret_string(field_tree, hf_tcpros_connection_header_field_name, tvb, offset, sep, ENC_UTF_8|ENC_NA, wmem_packet_scope(), &field);
+			proto_tree_add_item_ret_string(field_tree, hf_tcpros_connection_header_field_name, tvb, offset, sep, ENC_UTF_8|ENC_NA, pinfo->pool, &field);
 			proto_tree_add_item(field_tree, hf_tcpros_connection_header_field_value, tvb, offset+sep+1, fLen - sep - 1, ENC_UTF_8|ENC_NA);
 
 			col_append_str(pinfo->cinfo, COL_INFO, field);
@@ -228,7 +228,7 @@ dissect_ros_message_header(tvbuff_t *tvb, proto_tree *root_tree, packet_info *pi
 	proto_tree_add_item(sub_tree, hf_tcpros_message_header_frame_length, tvb, offset + consumed_len, SIZE_OF_LENGTH_FIELD, ENC_LITTLE_ENDIAN);
 	consumed_len += SIZE_OF_LENGTH_FIELD;
 
-	proto_tree_add_item_ret_string(sub_tree, hf_tcpros_message_header_frame_value, tvb, offset + consumed_len, frame_id_len, ENC_UTF_8|ENC_NA, wmem_packet_scope(), &frame_str);
+	proto_tree_add_item_ret_string(sub_tree, hf_tcpros_message_header_frame_value, tvb, offset + consumed_len, frame_id_len, ENC_UTF_8|ENC_NA, pinfo->pool, &frame_str);
 	col_append_fstr(pinfo->cinfo, COL_INFO, "Frame ID: '%s' ", frame_str);
 	consumed_len += frame_id_len;
 

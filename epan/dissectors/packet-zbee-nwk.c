@@ -557,7 +557,7 @@ dissect_zbee_nwk_full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 
         set_address_tvb(&pinfo->net_dst, zbee_nwk_address_type, 2, tvb, offset);
         copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
-        dst_addr = address_to_str(wmem_packet_scope(), &pinfo->dst);
+        dst_addr = address_to_str(pinfo->pool, &pinfo->dst);
 
         proto_tree_add_uint(nwk_tree, hf_zbee_nwk_dst, tvb, offset, 2, packet.dst);
         ti = proto_tree_add_uint(nwk_tree, hf_zbee_nwk_addr, tvb, offset, 2, packet.dst);
@@ -573,7 +573,7 @@ dissect_zbee_nwk_full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 
         set_address_tvb(&pinfo->net_src, zbee_nwk_address_type, 2, tvb, offset);
         copy_address_shallow(&pinfo->src, &pinfo->net_src);
-        src_addr = address_to_str(wmem_packet_scope(), &pinfo->src);
+        src_addr = address_to_str(pinfo->pool, &pinfo->src);
 
         if (nwk_hints)
             nwk_hints->src = packet.src;
@@ -1557,9 +1557,9 @@ static int dissect_zbee_beacon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     if (version >= ZBEE_VERSION_2007) {
         /* In ZigBee 2006 and later, the beacon contains an extended PAN ID. */
         proto_tree_add_item(beacon_tree, hf_zbee_beacon_epid, tvb, offset, 8, ENC_LITTLE_ENDIAN);
-        col_append_fstr(pinfo->cinfo, COL_INFO, ", EPID: %s", eui64_to_display(wmem_packet_scope(),
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", EPID: %s", eui64_to_display(pinfo->pool,
                 tvb_get_guint64(tvb, offset, ENC_LITTLE_ENDIAN)));
-        proto_item_append_text(beacon_root, ", EPID: %s", eui64_to_display(wmem_packet_scope(),
+        proto_item_append_text(beacon_root, ", EPID: %s", eui64_to_display(pinfo->pool,
                 tvb_get_guint64(tvb, offset, ENC_LITTLE_ENDIAN)));
         offset += 8;
 
@@ -1659,7 +1659,7 @@ static int dissect_zbip_beacon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     /* Get and display the network ID. */
     proto_tree_add_item(beacon_tree, hf_zbip_beacon_network_id, tvb, offset, 16, ENC_ASCII|ENC_NA);
 
-    ssid = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 16, ENC_ASCII|ENC_NA);
+    ssid = tvb_get_string_enc(pinfo->pool, tvb, offset, 16, ENC_ASCII|ENC_NA);
     col_append_fstr(pinfo->cinfo, COL_INFO, ", SSID: %s", ssid);
     offset += 16;
 
@@ -1786,7 +1786,7 @@ dissect_ieee802154_zigbee_rejoin(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
     subtree = proto_tree_add_subtree(tree, tvb, *offset, 10, ett_zbee_nwk_ie_rejoin, NULL, "ZigBee Rejoin");
 
     proto_tree_add_item(subtree, hf_ieee802154_zigbee_rejoin_epid, tvb, *offset, 8, ENC_LITTLE_ENDIAN);
-    proto_item_append_text(tree, ", EPID %s", eui64_to_display(wmem_packet_scope(),
+    proto_item_append_text(tree, ", EPID %s", eui64_to_display(pinfo->pool,
             tvb_get_guint64(tvb, *offset, ENC_LITTLE_ENDIAN)));
     *offset += 8;
 

@@ -384,7 +384,7 @@ static int dissect_mac_mgmt_msg_dcd_decoder(tvbuff_t *tvb, packet_info *pinfo, p
 					dl_burst_diuc = (tvb_get_guint8(tvb, offset) & 0x0F);
 					/* display TLV info */
 					/* add TLV subtree */
-					proto_str = wmem_strdup_printf(wmem_packet_scope(), "Downlink_Burst_Profile (DIUC=%u)", dl_burst_diuc);
+					proto_str = wmem_strdup_printf(pinfo->pool, "Downlink_Burst_Profile (DIUC=%u)", dl_burst_diuc);
 					tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_dcd_decoder, dcd_tree, proto_mac_mgmt_msg_dcd_decoder, tvb, offset-tlv_value_offset, tlv_len, proto_str);
 					/* detail display */
 					proto_tree_add_item(tlv_tree, hf_dcd_dl_burst_profile_rsv, tvb, offset, 1, ENC_BIG_ENDIAN);

@@ -372,11 +372,11 @@ dissect_rpcap_error (tvbuff_t *tvb, packet_info *pinfo,
     return;
 
   col_append_fstr (pinfo->cinfo, COL_INFO, ": %s",
-                   tvb_format_text_wsp (wmem_packet_scope(), tvb, offset, len));
+                   tvb_format_text_wsp (pinfo->pool, tvb, offset, len));
 
   ti = proto_tree_add_item (parent_tree, hf_error, tvb, offset, len, ENC_ASCII|ENC_NA);
   expert_add_info_format(pinfo, ti, &ei_error,
-                         "Error: %s", tvb_format_text_wsp (wmem_packet_scope(), tvb, offset, len));
+                         "Error: %s", tvb_format_text_wsp (pinfo->pool, tvb, offset, len));
 }
 
 
@@ -480,7 +480,7 @@ dissect_rpcap_findalldevs_if (tvbuff_t *tvb, packet_info *pinfo _U_,
 
   if (namelen) {
     const guint8* name;
-    proto_tree_add_item_ret_string(tree, hf_if_name, tvb, offset, namelen, ENC_ASCII|ENC_NA, wmem_packet_scope(), &name);
+    proto_tree_add_item_ret_string(tree, hf_if_name, tvb, offset, namelen, ENC_ASCII|ENC_NA, pinfo->pool, &name);
     proto_item_append_text (ti, ": %s", name);
     offset += namelen;
   }
@@ -647,10 +647,10 @@ dissect_rpcap_auth_request (tvbuff_t *tvb, packet_info *pinfo _U_,
   } else if (type == RPCAP_RMTAUTH_PWD) {
     const guint8 *username, *password;
 
-    proto_tree_add_item_ret_string(tree, hf_auth_username, tvb, offset, slen1, ENC_ASCII|ENC_NA, wmem_packet_scope(), &username);
+    proto_tree_add_item_ret_string(tree, hf_auth_username, tvb, offset, slen1, ENC_ASCII|ENC_NA, pinfo->pool, &username);
     offset += slen1;
 
-    proto_tree_add_item_ret_string(tree, hf_auth_password, tvb, offset, slen2, ENC_ASCII|ENC_NA, wmem_packet_scope(), &password);
+    proto_tree_add_item_ret_string(tree, hf_auth_password, tvb, offset, slen2, ENC_ASCII|ENC_NA, pinfo->pool, &password);
     offset += slen2;
 
     proto_item_append_text (ti, " (%s/%s)", username, password);
@@ -742,7 +742,7 @@ dissect_rpcap_startcap_request (tvbuff_t *tvb, packet_info *pinfo,
   proto_tree_add_item (field_tree, hf_flags_outbound, tvb, offset, 2, ENC_BIG_ENDIAN);
 
   if (flags & 0x1F) {
-    gchar *flagstr = wmem_strdup_printf (wmem_packet_scope(), "%s%s%s%s%s",
+    gchar *flagstr = wmem_strdup_printf (pinfo->pool, "%s%s%s%s%s",
           (flags & FLAG_PROMISC)    ? ", Promiscuous" : "",
           (flags & FLAG_DGRAM)      ? ", Datagram"    : "",
           (flags & FLAG_SERVEROPEN) ? ", ServerOpen"  : "",

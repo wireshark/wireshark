@@ -704,7 +704,7 @@ static int dissect_pbb_addressblock(tvbuff_t *tvb, packet_info *pinfo, proto_tre
       case 3:
         addrValue_item = proto_tree_add_bytes_format_value(addr_tree, hf_packetbb_addr_value[addressType],
             tvb, mid_index, block_index + block_length - mid_index, NULL,
-            "%s", bytes_to_str(wmem_packet_scope(), addr, head_length + midSize));
+            "%s", bytes_to_str(pinfo->pool, addr, head_length + midSize));
         break;
       default:
         break;

@@ -315,7 +315,7 @@ static void dissect_simple_status(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     proto_tree_add_item(tree, hf_simple_status_word_count, tvb, offset, 1, ENC_NA);
     offset++;
 
-    name = tvb_get_stringzpad(wmem_packet_scope(), tvb, offset, SIMPLE_STATUS_NAME_LEN, ENC_ASCII|ENC_NA);
+    name = tvb_get_stringzpad(pinfo->pool, tvb, offset, SIMPLE_STATUS_NAME_LEN, ENC_ASCII|ENC_NA);
     col_append_fstr(pinfo->cinfo, COL_INFO, ", Name: %s", name);
     proto_tree_add_item(tree, hf_simple_status_name, tvb, offset, SIMPLE_STATUS_NAME_LEN, ENC_ASCII|ENC_NA);
     offset += SIMPLE_STATUS_NAME_LEN;

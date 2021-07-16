@@ -154,12 +154,12 @@ dissect_mount_dirpath_call(tvbuff_t *tvb, packet_info *pinfo,
 				gchar *name, *ptr;
 				int addr_len, name_len;
 
-				name = address_to_str(wmem_packet_scope(), &pinfo->dst);
+				name = address_to_str(pinfo->pool, &pinfo->dst);
 				addr_len = (int)strlen(name);
 				/* IP address, colon, path, terminating 0 */
 				name_len = addr_len + 1 + len_field + 1;
 
-				name = (gchar *)wmem_realloc(wmem_packet_scope(),
+				name = (gchar *)wmem_realloc(pinfo->pool,
 						(void *)name, name_len);
 				ptr = name + addr_len;
 				*ptr++ = ':';
@@ -276,7 +276,7 @@ dissect_exportlist(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 	groups_item = proto_tree_add_item(exportlist_tree, hf_mount_groups, tvb, offset, -1, ENC_NA);
 	groups_tree = proto_item_add_subtree(groups_item, ett_mount_groups);
 
-	group_name_list_strbuf = wmem_strbuf_new(wmem_packet_scope(), "");
+	group_name_list_strbuf = wmem_strbuf_new(pinfo->pool, "");
 	offset = dissect_rpc_list(tvb, pinfo, groups_tree, offset,
 		dissect_group, (void *)group_name_list_strbuf);
 	if (groups_item) {
@@ -295,8 +295,8 @@ dissect_exportlist(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 		/* now we have a nicer string */
 		proto_item_set_text(exportlist_item,
 		    "Export List Entry: %s -> %s",
-		    format_text(wmem_packet_scope(), directory, strlen(directory)),
-		    format_text(wmem_packet_scope(), group_name_list, strlen(group_name_list)));
+		    format_text(pinfo->pool, directory, strlen(directory)),
+		    format_text(pinfo->pool, group_name_list, strlen(group_name_list)));
 		/* now we know, that exportlist is shorter */
 		proto_item_set_len(exportlist_item, offset - old_offset);
 	}

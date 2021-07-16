@@ -1277,8 +1277,8 @@ dissect_rtcp_rtpfb_transport_cc( tvbuff_t *tvb, int offset, packet_info *pinfo, 
     proto_tree_add_item_ret_uint( fci_tree, hf_rtcp_rtpfb_transport_cc_fci_pkt_stats_cnt, tvb, offset, 2, ENC_BIG_ENDIAN, &pkt_count );
     offset += 2;
 
-    delta_array   = wmem_alloc0_array( wmem_packet_scope(), gint8, pkt_count );
-    pkt_seq_array = wmem_alloc0_array( wmem_packet_scope(), gint16, pkt_count );
+    delta_array   = wmem_alloc0_array( pinfo->pool, gint8, pkt_count );
+    pkt_seq_array = wmem_alloc0_array( pinfo->pool, gint16, pkt_count );
 
     /* reference time */
     proto_tree_add_item( fci_tree, hf_rtcp_rtpfb_transport_cc_fci_ref_time, tvb, offset, 3, ENC_BIG_ENDIAN );
@@ -1353,7 +1353,7 @@ dissect_rtcp_rtpfb_transport_cc( tvbuff_t *tvb, int offset, packet_info *pinfo, 
         }
         else
         {
-            wmem_strbuf_t* status = wmem_strbuf_new(wmem_packet_scope(), "|");
+            wmem_strbuf_t* status = wmem_strbuf_new(pinfo->pool, "|");
 
             /* Status Vector Chunk, first bit is one */
             if ( !(chunk & 0x4000) )
@@ -1870,7 +1870,7 @@ dissect_rtcp_app_poc1(tvbuff_t* tvb, packet_info* pinfo, int offset, proto_tree*
             if (item_len != 8) /* SHALL be 8 */
                 return offset;
 
-            proto_tree_add_item_ret_time_string(PoC1_tree, hf_rtcp_app_poc1_request_ts, tvb, offset, 8, ENC_TIME_NTP | ENC_BIG_ENDIAN, wmem_packet_scope(), &buff);
+            proto_tree_add_item_ret_time_string(PoC1_tree, hf_rtcp_app_poc1_request_ts, tvb, offset, 8, ENC_TIME_NTP | ENC_BIG_ENDIAN, pinfo->pool, &buff);
 
             offset += 8;
 
@@ -1983,7 +1983,7 @@ dissect_rtcp_app_poc1(tvbuff_t* tvb, packet_info* pinfo, int offset, proto_tree*
         offset++;
 
         col_append_fstr(pinfo->cinfo, COL_INFO, " CNAME=\"%s\"",
-            tvb_get_string_enc(wmem_packet_scope(), tvb, offset, item_len, ENC_ASCII));
+            tvb_get_string_enc(pinfo->pool, tvb, offset, item_len, ENC_ASCII));
 
         offset += item_len;
         packet_len = packet_len - item_len - 1;
@@ -2014,7 +2014,7 @@ dissect_rtcp_app_poc1(tvbuff_t* tvb, packet_info* pinfo, int offset, proto_tree*
             offset++;
 
             col_append_fstr(pinfo->cinfo, COL_INFO, " DISPLAY-NAME=\"%s\"",
-                tvb_get_string_enc(wmem_packet_scope(), tvb, offset, item_len, ENC_ASCII));
+                tvb_get_string_enc(pinfo->pool, tvb, offset, item_len, ENC_ASCII));
 
             offset += item_len;
             packet_len = packet_len - item_len - 1;
@@ -2860,7 +2860,7 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
     /* Application Name (ASCII) */
     is_ascii = tvb_ascii_isprint(tvb, offset, 4);
     if (is_ascii) {
-        proto_tree_add_item_ret_string(tree, hf_rtcp_name_ascii, tvb, offset, 4, ENC_ASCII | ENC_NA, wmem_packet_scope(), &ascii_name);
+        proto_tree_add_item_ret_string(tree, hf_rtcp_name_ascii, tvb, offset, 4, ENC_ASCII | ENC_NA, pinfo->pool, &ascii_name);
     } else {
         proto_tree_add_expert(tree, pinfo, &ei_rtcp_appl_not_ascii, tvb, offset, 4);
     }
@@ -4272,7 +4272,7 @@ static void add_roundtrip_delay_info(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     /* Report delay in INFO column */
     col_append_fstr(pinfo->cinfo, COL_INFO,
                     " (roundtrip delay <-> %s = %dms, using frame %u)  ",
-                    address_to_str(wmem_packet_scope(), &pinfo->net_src), delay, frame);
+                    address_to_str(pinfo->pool, &pinfo->net_src), delay, frame);
 }
 
 static int

@@ -92,7 +92,7 @@ dissect_tali_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
   proto_item *tali_item = NULL;
   proto_tree *tali_tree = NULL;
 
-  opcode = (char *) tvb_get_string_enc(wmem_packet_scope(), tvb, TALI_SYNC_LENGTH, TALI_OPCODE_LENGTH, ENC_ASCII|ENC_NA);
+  opcode = (char *) tvb_get_string_enc(pinfo->pool, tvb, TALI_SYNC_LENGTH, TALI_OPCODE_LENGTH, ENC_ASCII|ENC_NA);
   length = tvb_get_letohs(tvb, TALI_SYNC_LENGTH + TALI_OPCODE_LENGTH);
 
   /* Make entries in Protocol column on summary display */

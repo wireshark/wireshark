@@ -725,7 +725,7 @@ static int dissect_otrxc(tvbuff_t *tvb, packet_info *pinfo,
 	col_clear(pinfo->cinfo, COL_INFO);
 
 	msg_len = tvb_reported_length(tvb);
-	msg_str = tvb_get_string_enc(wmem_packet_scope(), tvb, 0, msg_len, ENC_ASCII);
+	msg_str = tvb_get_string_enc(pinfo->pool, tvb, 0, msg_len, ENC_ASCII);
 	col_add_str(pinfo->cinfo, COL_INFO, msg_str);
 
 	ti = proto_tree_add_item(tree, proto_otrxc, tvb, 0, msg_len, ENC_ASCII);
@@ -749,7 +749,7 @@ static int dissect_otrxc(tvbuff_t *tvb, packet_info *pinfo,
 
 	/* First 3 bytes define a type of the message ("IND", "CMD", "RSP") */
 	proto_tree_add_item_ret_string(otrxc_tree, hf_otrxc_type, tvb, offset, 3,
-				       ENC_NA | ENC_ASCII, wmem_packet_scope(),
+				       ENC_NA | ENC_ASCII, pinfo->pool,
 				       &msg_type_str);
 	offset += 3;
 

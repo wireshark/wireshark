@@ -371,7 +371,7 @@ dissect_pktc_ap_reply(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int o
     proto_tree_add_uint_format(tree, hf_pktc_sec_param_lifetime, tvb, offset, 4,
                                tvb_get_ntohl(tvb, offset), "%s: %s",
                                proto_registrar_get_name(hf_pktc_sec_param_lifetime),
-                               signed_time_secs_to_str(wmem_packet_scope(), tvb_get_ntohl(tvb, offset)));
+                               signed_time_secs_to_str(pinfo->pool, tvb_get_ntohl(tvb, offset)));
     offset+=4;
 
     /* grace period */
@@ -422,7 +422,7 @@ dissect_pktc_rekey(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offs
 
     /* Timestamp: YYMMDDhhmmssZ */
     /* They really came up with a two-digit year in late 1990s! =8o */
-    timestr=tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 13, ENC_ASCII);
+    timestr=tvb_get_string_enc(pinfo->pool, tvb, offset, 13, ENC_ASCII);
     proto_tree_add_string_format_value(tree, hf_pktc_timestamp, tvb, offset, 13, timestr,
                                 "%.2s-%.2s-%.2s %.2s:%.2s:%.2s",
                                  timestr, timestr+2, timestr+4, timestr+6, timestr+8, timestr+10);

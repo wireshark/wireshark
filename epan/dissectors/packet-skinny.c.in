@@ -274,8 +274,8 @@ dissect_skinny_displayLabel(ptvcursor_t *cursor, int hfindex, gint length)
 
   item = proto_tree_add_item(tree, hfindex, tvb, offset, length, ENC_ASCII | ENC_NA);
 
-  wmem_new = wmem_strbuf_sized_new(wmem_packet_scope(), length + 1, 0);
-  disp_string = (gchar*) wmem_alloc(wmem_packet_scope(), length + 1);
+  wmem_new = wmem_strbuf_sized_new(pinfo->pool, length + 1, 0);
+  disp_string = (gchar*) wmem_alloc(pinfo->pool, length + 1);
   disp_string[length] = '\0';
   tvb_memcpy(tvb, (void*)disp_string, offset, length);
 

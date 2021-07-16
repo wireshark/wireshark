@@ -101,7 +101,7 @@ dissect_wol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
     /* So far so good.  Now get the next 6 bytes, which we'll assume is the
      * target's MAC address, and do 15 memory chunk comparisons, since if this
      * is a real MagicPacket, the target's MAC will be duplicated 16 times. */
-    mac = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, 6, 6);
+    mac = (guint8 *)tvb_memdup(pinfo->pool, tvb, 6, 6);
     for ( offset = 12; offset < 102; offset += 6 )
         if ( tvb_memeql(tvb, offset, mac, 6) != 0 )
             return (0);
@@ -157,7 +157,7 @@ dissect_wol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
     set_address(&mac_addr, AT_ETHER, 6, mac);
 
     col_add_fstr(pinfo->cinfo, COL_INFO, "MagicPacket for %s",
-        address_with_resolution_to_str(wmem_packet_scope(), &mac_addr));
+        address_with_resolution_to_str(pinfo->pool, &mac_addr));
 
     /* NOTE: ether-wake uses a dotted-decimal format for specifying a
         * 4-byte password or an Ethernet mac address format for specifying
@@ -217,7 +217,7 @@ dissect_wol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
 /* create display subtree for the protocol */
         ti = proto_tree_add_item(tree, proto_wol, tvb, 0, len, ENC_NA);
         proto_item_append_text(ti, ", MAC: %s",
-            address_with_resolution_to_str(wmem_packet_scope(), &mac_addr));
+            address_with_resolution_to_str(pinfo->pool, &mac_addr));
         if ( passwd )
             proto_item_append_text(ti, ", password: %s", passwd);
         wol_tree = proto_item_add_subtree(ti, ett_wol);
@@ -228,7 +228,7 @@ dissect_wol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
 /* Continue adding tree items to process the packet here */
         mac_tree = proto_tree_add_subtree_format(wol_tree, tvb, 6, 96,
             ett_wol_macblock, NULL, "MAC: %s",
-            address_with_resolution_to_str(wmem_packet_scope(), &mac_addr));
+            address_with_resolution_to_str(pinfo->pool, &mac_addr));
         for ( offset = 6; offset < 102; offset += 6 )
             proto_tree_add_ether(mac_tree, hf_wol_mac, tvb, offset, 6, mac);
 

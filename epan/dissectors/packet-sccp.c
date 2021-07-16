@@ -1461,8 +1461,8 @@ get_sccp_assoc(packet_info *pinfo, guint offset, sccp_decode_context_t* value)
   if (value->assoc)
     return value->assoc;
 
-  opck = opc->type == ss7pc_address_type ? mtp3_pc_hash((const mtp3_addr_pc_t *)opc->data) : g_str_hash(address_to_str(wmem_packet_scope(), opc));
-  dpck = dpc->type == ss7pc_address_type ? mtp3_pc_hash((const mtp3_addr_pc_t *)dpc->data) : g_str_hash(address_to_str(wmem_packet_scope(), dpc));
+  opck = opc->type == ss7pc_address_type ? mtp3_pc_hash((const mtp3_addr_pc_t *)opc->data) : g_str_hash(address_to_str(pinfo->pool, opc));
+  dpck = dpc->type == ss7pc_address_type ? mtp3_pc_hash((const mtp3_addr_pc_t *)dpc->data) : g_str_hash(address_to_str(pinfo->pool, dpc));
 
 
   switch (value->message_type) {
@@ -1770,7 +1770,7 @@ dissect_sccp_gt_address_information(tvbuff_t *tvb, packet_info *pinfo,
   if (is_connectionless(sccp_info->message_type) && sccp_info->sccp_msg) {
     guint8 **gt_ptr = called ? &(sccp_info->sccp_msg->data.ud.called_gt) : &(sccp_info->sccp_msg->data.ud.calling_gt);
 
-    *gt_ptr  = (guint8 *)wmem_strdup(wmem_packet_scope(), gt_digits);
+    *gt_ptr  = (guint8 *)wmem_strdup(pinfo->pool, gt_digits);
   }
 
   digits_item = proto_tree_add_string(tree, called ? hf_sccp_called_gt_digits
@@ -2810,7 +2810,7 @@ dissect_sccp_optional_parameters(tvbuff_t *tvb, packet_info *pinfo,
 static sccp_msg_info_t *
 new_ud_msg(packet_info *pinfo, guint32 msg_type _U_)
 {
-  sccp_msg_info_t *m = wmem_new0(wmem_packet_scope(), sccp_msg_info_t);
+  sccp_msg_info_t *m = wmem_new0(pinfo->pool, sccp_msg_info_t);
   m->framenum = pinfo->num;
   m->data.ud.calling_gt = NULL;
   m->data.ud.called_gt = NULL;

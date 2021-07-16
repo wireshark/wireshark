@@ -118,16 +118,16 @@ dissect_lithionics(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 	lithionics_tree = proto_item_add_subtree(ti, ett_lithionics);
 
 	//just put the whole packet string (minus newlines) in the Info column
-	col_set_str(pinfo->cinfo, COL_INFO, (const gchar*)tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tvb_reported_length_remaining(tvb, offset)-2, ENC_ASCII));
+	col_set_str(pinfo->cinfo, COL_INFO, (const gchar*)tvb_get_string_enc(pinfo->pool, tvb, offset, tvb_reported_length_remaining(tvb, offset)-2, ENC_ASCII));
 
-	str = (char*)tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1, 1, ENC_ASCII);
+	str = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset + 1, 1, ENC_ASCII);
 	if (!ws_strtou32(str, NULL, &value))
 		proto_tree_add_uint_format_value(lithionics_tree, hf_lithionics_battery_address, tvb, offset, 2, 0, "<Invalid value \"%s\">", str);
 	else
 		proto_tree_add_uint(lithionics_tree, hf_lithionics_battery_address, tvb, offset, 2, value);
 	offset += 2;
 
-	str = (char*)tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1, 5, ENC_ASCII);
+	str = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset + 1, 5, ENC_ASCII);
 	if (!ws_strtou32(str, NULL, &value))
 		proto_tree_add_float_format_value(lithionics_tree, hf_lithionics_amp_hours_remain, tvb, offset, 6, 0.0, "<Invalid value \"%s\">", str);
 	else {
@@ -136,7 +136,7 @@ dissect_lithionics(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 	}
 	offset += 6;
 
-	str = (char*)tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1, 4, ENC_ASCII);
+	str = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset + 1, 4, ENC_ASCII);
 	if (!ws_strtou32(str, NULL, &value))
 		proto_tree_add_float_format_value(lithionics_tree, hf_lithionics_volts, tvb, offset, 5, 0.0, "<Invalid value \"%s\">", str);
 	else {
@@ -145,28 +145,28 @@ dissect_lithionics(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 	}
 	offset += 5;
 
-	str = (char*)tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1, 3, ENC_ASCII);
+	str = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset + 1, 3, ENC_ASCII);
 	if (!ws_strtou32(str, NULL, &value))
 		proto_tree_add_uint_format_value(lithionics_tree, hf_lithionics_bat_gauge, tvb, offset, 4, 0, "<Invalid value \"%s\">", str);
 	else
 		proto_tree_add_uint(lithionics_tree, hf_lithionics_bat_gauge, tvb, offset, 4, value);
 	offset += 4;
 
-	str = (char*)tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1, 3, ENC_ASCII);
+	str = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset + 1, 3, ENC_ASCII);
 	if (!ws_strtou32(str, NULL, &value))
 		proto_tree_add_uint_format_value(lithionics_tree, hf_lithionics_soc, tvb, offset, 4, 0, "<Invalid value \"%s\">", str);
 	else
 		proto_tree_add_uint(lithionics_tree, hf_lithionics_soc, tvb, offset, 4, value);
 	offset += 4;
 
-	str = (char*)tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1, 1, ENC_ASCII);
+	str = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset + 1, 1, ENC_ASCII);
 	if (!ws_strtou32(str, NULL, &value))
 		proto_tree_add_uint_format_value(lithionics_tree, hf_lithionics_direction, tvb, offset, 2, 0, "<Invalid value \"%s\">", str);
 	else
 		proto_tree_add_uint(lithionics_tree, hf_lithionics_direction, tvb, offset, 2, value);
 	offset += 2;
 
-	str = (char*)tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1, 5, ENC_ASCII);
+	str = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset + 1, 5, ENC_ASCII);
 	if (!ws_strtou32(str, NULL, &value))
 		proto_tree_add_float_format_value(lithionics_tree, hf_lithionics_amps, tvb, offset, 6, 0.0, "<Invalid value \"%s\">", str);
 	else {
@@ -175,21 +175,21 @@ dissect_lithionics(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 	}
 	offset += 6;
 
-	str = (char*)tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1, 6, ENC_ASCII);
+	str = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset + 1, 6, ENC_ASCII);
 	if (!ws_strtou32(str, NULL, &value))
 		proto_tree_add_uint_format_value(lithionics_tree, hf_lithionics_watts, tvb, offset, 7, 0, "<Invalid value \"%s\">", str);
 	else
 		proto_tree_add_uint(lithionics_tree, hf_lithionics_watts, tvb, offset, 7, value);
 	offset += 7;
 
-	str = (char*)tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1, 3, ENC_ASCII);
+	str = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset + 1, 3, ENC_ASCII);
 	if (!ws_strtou32(str, NULL, &value))
 		proto_tree_add_uint_format_value(lithionics_tree, hf_lithionics_temperature, tvb, offset, 4, 0, "<Invalid value \"%s\">", str);
 	else
 		proto_tree_add_uint(lithionics_tree, hf_lithionics_temperature, tvb, offset, 4, value);
 	offset += 4;
 
-	str = (char*)tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1, 6, ENC_ASCII);
+	str = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset + 1, 6, ENC_ASCII);
 	//do this over proto_tree_add_bitmask_value to get better field highlighting
 	if (!ws_hexstrtou32(str, NULL, &value))
 		proto_tree_add_uint_format_value(lithionics_tree, hf_lithionics_system_status, tvb, offset, 7, 0, "<Invalid value \"%s\">", str);

@@ -599,7 +599,7 @@ dissect_thrift_common(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void 
     str_len = tvb_get_ntohl(tvb, 4);
 
     seq_id = tvb_get_ntohl(tvb, str_len + 8);
-    method_str = tvb_get_string_enc(wmem_packet_scope(), tvb, 8, str_len, ENC_UTF_8);
+    method_str = tvb_get_string_enc(pinfo->pool, tvb, 8, str_len, ENC_UTF_8);
 
     proto_tree_add_item(tree, proto_thrift, tvb, 0, -1, ENC_NA);
     sub_tree = proto_tree_add_subtree_format(tree, tvb, 0, -1, ett_thrift, NULL, "%s[ version:0x%x, seqid:%d, method:%s]",

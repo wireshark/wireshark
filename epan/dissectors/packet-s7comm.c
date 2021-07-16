@@ -3157,7 +3157,7 @@ s7comm_decode_pistart_parameters(tvbuff_t *tvb,
     guint8 i;
     guint8 len;
     wmem_strbuf_t *args_buf;
-    args_buf = wmem_strbuf_new_label(wmem_packet_scope());
+    args_buf = wmem_strbuf_new_label(pinfo->pool);
 
     for (i = 0; i < nfields; i++) {
         len = tvb_get_guint8(tvb, offset);
@@ -3237,7 +3237,7 @@ s7comm_decode_pi_service(tvbuff_t *tvb,
     len = tvb_get_guint8(tvb, offset);
     proto_tree_add_uint(tree, hf_s7comm_piservice_string_len, tvb, offset, 1, len);
     offset += 1;
-    item = proto_tree_add_item_ret_string(tree, hf_s7comm_piservice_servicename, tvb, offset, len, ENC_ASCII|ENC_NA, wmem_packet_scope(), &servicename);
+    item = proto_tree_add_item_ret_string(tree, hf_s7comm_piservice_servicename, tvb, offset, len, ENC_ASCII|ENC_NA, pinfo->pool, &servicename);
     offset += len;
 
     /* get the index position in pi_service_names, and add infotext with description to the item */
@@ -3267,7 +3267,7 @@ s7comm_decode_pi_service(tvbuff_t *tvb,
                 itemadd = proto_tree_add_item(file_tree, hf_s7comm_data_blockcontrol_block_type, tvb, paramoffset, 2, ENC_ASCII|ENC_NA);
                 proto_item_append_text(itemadd, " (%s)", val_to_str(blocktype, blocktype_names, "Unknown Block type: 0x%04x"));
                 paramoffset += 2;
-                proto_tree_add_item_ret_string(file_tree, hf_s7comm_data_blockcontrol_block_num, tvb, paramoffset, 5, ENC_ASCII|ENC_NA, wmem_packet_scope(), &str);
+                proto_tree_add_item_ret_string(file_tree, hf_s7comm_data_blockcontrol_block_num, tvb, paramoffset, 5, ENC_ASCII|ENC_NA, pinfo->pool, &str);
                 paramoffset += 5;
                 num_valid = ws_strtoi32((const char*)str, NULL, &num);
                 proto_item_append_text(file_tree, " [%s ",
@@ -3299,7 +3299,7 @@ s7comm_decode_pi_service(tvbuff_t *tvb,
                 proto_item_append_text(tree, " -> %s()", servicename);
                 col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s()", servicename);
             } else {
-                proto_tree_add_item_ret_string(param_tree, hf_s7comm_data_plccontrol_argument, tvb, paramoffset, paramlen, ENC_ASCII|ENC_NA, wmem_packet_scope(), &str1);
+                proto_tree_add_item_ret_string(param_tree, hf_s7comm_data_plccontrol_argument, tvb, paramoffset, paramlen, ENC_ASCII|ENC_NA, pinfo->pool, &str1);
                 proto_item_append_text(param_tree, ": (\"%s\")", str1);
                 proto_item_append_text(tree, " -> %s(\"%s\")", servicename, str1);
                 col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s(\"%s\")", servicename, str1);
@@ -3629,7 +3629,7 @@ s7comm_decode_plc_controls_filename(tvbuff_t *tvb,
             itemadd = proto_tree_add_item(file_tree, hf_s7comm_data_blockcontrol_block_type, tvb, offset, 2, ENC_ASCII|ENC_NA);
             proto_item_append_text(itemadd, " (%s)", val_to_str(blocktype, blocktype_names, "Unknown Block type: 0x%04x"));
             offset += 2;
-            proto_tree_add_item_ret_string(file_tree, hf_s7comm_data_blockcontrol_block_num, tvb, offset, 5, ENC_ASCII|ENC_NA, wmem_packet_scope(), &str);
+            proto_tree_add_item_ret_string(file_tree, hf_s7comm_data_blockcontrol_block_num, tvb, offset, 5, ENC_ASCII|ENC_NA, pinfo->pool, &str);
             offset += 5;
             num_valid = ws_strtoi32((const gchar*)str, NULL, &num);
             proto_item_append_text(file_tree, " [%s",
@@ -3650,7 +3650,7 @@ s7comm_decode_plc_controls_filename(tvbuff_t *tvb,
         }
     }
     if (is_plcfilename == FALSE) {
-        str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, len, ENC_ASCII);
+        str = tvb_get_string_enc(pinfo->pool, tvb, offset, len, ENC_ASCII);
         col_append_fstr(pinfo->cinfo, COL_INFO, " File:[%s]", str);
         offset += len;
     }
@@ -5302,7 +5302,7 @@ s7comm_decode_ud_ncprg_subfunc(tvbuff_t *tvb,
     if (dlength >= 2) {
         if (type == S7COMM_UD_TYPE_NCREQ && subfunc == S7COMM_NCPRG_FUNCREQUESTDOWNLOAD) {
             proto_tree_add_item_ret_string(data_tree, hf_s7comm_data_blockcontrol_filename, tvb, offset, dlength,
-                                           ENC_ASCII|ENC_NA, wmem_packet_scope(), &str_filename);
+                                           ENC_ASCII|ENC_NA, pinfo->pool, &str_filename);
             col_append_fstr(pinfo->cinfo, COL_INFO, " File:[%s]", str_filename);
             offset += dlength;
         } else if (type == S7COMM_UD_TYPE_NCREQ && subfunc == S7COMM_NCPRG_FUNCSTARTUPLOAD) {
@@ -5313,7 +5313,7 @@ s7comm_decode_ud_ncprg_subfunc(tvbuff_t *tvb,
             offset += 1;
             dlength -= 1;
             proto_tree_add_item_ret_string(data_tree, hf_s7comm_data_blockcontrol_filename, tvb, offset, dlength,
-                                           ENC_ASCII|ENC_NA, wmem_packet_scope(), &str_filename);
+                                           ENC_ASCII|ENC_NA, pinfo->pool, &str_filename);
             col_append_fstr(pinfo->cinfo, COL_INFO, " File:[%s]", str_filename);
             offset += dlength;
         } else if (type == S7COMM_UD_TYPE_NCRES && subfunc == S7COMM_NCPRG_FUNCREQUESTDOWNLOAD) {
@@ -5968,7 +5968,7 @@ s7comm_decode_ud_block_subfunc(tvbuff_t *tvb,
                     itemadd = proto_tree_add_item(data_tree, hf_s7comm_ud_blockinfo_block_type, tvb, offset, 2, ENC_ASCII|ENC_NA);
                     proto_item_append_text(itemadd, " (%s)", val_to_str(blocktype16, blocktype_names, "Unknown Block type: 0x%04x"));
                     offset += 2;
-                    proto_tree_add_item_ret_string(data_tree, hf_s7comm_ud_blockinfo_block_num_ascii, tvb, offset, 5, ENC_ASCII|ENC_NA, wmem_packet_scope(), &pBlocknumber);
+                    proto_tree_add_item_ret_string(data_tree, hf_s7comm_ud_blockinfo_block_num_ascii, tvb, offset, 5, ENC_ASCII|ENC_NA, pinfo->pool, &pBlocknumber);
                     num_valid = ws_strtoi32((const gchar*)pBlocknumber, NULL, &num);
                     proto_item_append_text(data_tree, " [%s ",
                         val_to_str(blocktype16, blocktype_names, "Unknown Block type: 0x%04x"));

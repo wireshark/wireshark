@@ -123,7 +123,7 @@ set_address_tvb(address *addr, int addr_type, int addr_len, tvbuff_t *tvb, int o
 /** Initialize an address with the given values, allocating a new buffer
  * for the address data using wmem-scoped memory.
  *
- * @param scope [in] The lifetime of the allocated memory, e.g., wmem_packet_scope()
+ * @param scope [in] The lifetime of the allocated memory, e.g., pinfo->pool
  * @param addr [in,out] The address to initialize.
  * @param addr_type [in] Address type.
  * @param addr_len [in] The length in bytes of the address data. For example, 4 for
@@ -154,7 +154,7 @@ alloc_address_wmem(wmem_allocator_t *scope, address *addr,
  *
  * Same as alloc_address_wmem but it takes a TVB and an offset.
  *
- * @param scope [in] The lifetime of the allocated memory, e.g., wmem_packet_scope()
+ * @param scope [in] The lifetime of the allocated memory, e.g., pinfo->pool
  * @param addr [in,out] The address to initialize.
  * @param addr_type [in] Address type.
  * @param addr_len [in] The length in bytes of the address data. For example, 4 for
@@ -258,7 +258,7 @@ copy_address_shallow(address *to, const address *from) {
 /** Copy an address, allocating a new buffer for the address data
  *  using wmem-scoped memory.
  *
- * @param scope [in] The lifetime of the allocated memory, e.g., wmem_packet_scope()
+ * @param scope [in] The lifetime of the allocated memory, e.g., pinfo->pool
  * @param to [in,out] The destination address.
  * @param from [in] The source address.
  */
@@ -279,7 +279,7 @@ copy_address(address *to, const address *from) {
 
 /** Free an address allocated with wmem-scoped memory.
  *
- * @param scope [in] The lifetime of the allocated memory, e.g., wmem_packet_scope()
+ * @param scope [in] The lifetime of the allocated memory, e.g., pinfo->pool
  * @param addr [in,out] The address whose data to free.
  */
 static inline void

@@ -3136,7 +3136,7 @@ h248_calls_packet_common(voip_calls_tapinfo_t *tapinfo, packet_info *pinfo, epan
     }
 
     add_to_graph(tapinfo, pinfo, edt, cmd->str ? cmd->str : "unknown Msg",
-            wmem_strdup_printf(wmem_packet_scope(), "TrxId = %u, CtxId = %.8x",cmd->trx->id,cmd->ctx->id),
+            wmem_strdup_printf(pinfo->pool, "TrxId = %u, CtxId = %.8x",cmd->trx->id,cmd->ctx->id),
             callsinfo->call_num, &(pinfo->src), &(pinfo->dst), 1);
 
     ++(tapinfo->npackets);

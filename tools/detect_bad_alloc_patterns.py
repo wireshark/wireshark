@@ -79,7 +79,7 @@ def test_replacements():
 (dcerpc_bind_value *)wmem_alloc(wmem_file_scope(), sizeof (dcerpc_bind_value))
 (dcerpc_matched_key *)wmem_alloc(wmem_file_scope(), sizeof (dcerpc_matched_key));
 (struct smtp_session_state *)wmem_alloc0(wmem_file_scope(), sizeof(struct smtp_session_state))
-(struct batman_packet_v5 *)wmem_alloc(wmem_packet_scope(), sizeof(struct batman_packet_v5))
+(struct batman_packet_v5 *)wmem_alloc(pinfo->pool, sizeof(struct batman_packet_v5))
 (struct knx_keyring_mca_keys*) wmem_alloc( wmem_epan_scope(), sizeof( struct knx_keyring_mca_keys ) )
 """
     expected_output = """\
@@ -95,7 +95,7 @@ wmem_new0(pinfo->pool, mtp3_addr_pc_t)
 wmem_new(wmem_file_scope(), dcerpc_bind_value)
 wmem_new(wmem_file_scope(), dcerpc_matched_key);
 wmem_new0(wmem_file_scope(), struct smtp_session_state)
-wmem_new(wmem_packet_scope(), struct batman_packet_v5)
+wmem_new(pinfo->pool, struct batman_packet_v5)
 wmem_new(wmem_epan_scope(), struct knx_keyring_mca_keys)
 """
     output = test_string

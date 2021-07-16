@@ -1583,7 +1583,7 @@ dissect_attr_availability(proto_tree* attr_tree, tvbuff_t* tvb, gint offset, gui
                 proto_tree_add_item(op_class_tree, hf_nan_attr_availability_entry_entries_start_freq, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                 proto_tree_add_item(op_class_tree, hf_nan_attr_availability_entry_entries_bandwidth, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                 wmem_strbuf_t* str;
-                str = wmem_strbuf_new(wmem_packet_scope(), "");
+                str = wmem_strbuf_new(pinfo->pool, "");
                 for(unsigned i_bitmap = 0; i_bitmap < 16; ++i_bitmap)
                 {
                     if (bitmap & (1u << i_bitmap))

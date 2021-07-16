@@ -167,7 +167,7 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
    * Find the end of the first line.
    */
   linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
-  line = (guchar*)wmem_alloc(wmem_packet_scope(), linelen+1);
+  line = (guchar*)wmem_alloc(pinfo->pool, linelen+1);
   tvb_memcpy(tvb, line, offset, linelen);
   line[linelen] = '\0';
 
@@ -192,7 +192,7 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   }
   else
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s: %s", is_request ? "C" : "S",
-                   format_text(wmem_packet_scope(), line, linelen));
+                   format_text(pinfo->pool, line, linelen));
 
   ti = proto_tree_add_item(tree, proto_pop, tvb, offset, -1, ENC_NA);
   pop_tree = proto_item_add_subtree(ti, ett_pop);
@@ -344,13 +344,13 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         }
         break;
       case pop_arg_type_password:
-        auth = wmem_new0(wmem_packet_scope(), tap_credential_t);
+        auth = wmem_new0(pinfo->pool, tap_credential_t);
         auth->num = pinfo->num;
         auth->username_num = data_val->username_num;
         auth->password_hf_id = hf_pop_request_parameter;
         auth->username = data_val->username;
         auth->proto = "POP3";
-        auth->info = wmem_strdup_printf(wmem_packet_scope(), "Username in packet %u", data_val->username_num);
+        auth->info = wmem_strdup_printf(pinfo->pool, "Username in packet %u", data_val->username_num);
         tap_queue_packet(credentials_tap, pinfo, auth);
         break;
       default:

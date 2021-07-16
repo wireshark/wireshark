@@ -125,7 +125,7 @@ dissect_manolito(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* diss
 
 		/* 2-byte field name */
 		field_name = tvb_get_ntohs(tvb, offset);
-		field_name_str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 2, ENC_ASCII);
+		field_name_str = tvb_get_string_enc(pinfo->pool, tvb, offset, 2, ENC_ASCII);
 		if (!packet_type) {
 			/* Identify the packet based on existing fields */
 			/* Maybe using the options fields is a better idea...*/
@@ -153,7 +153,7 @@ dissect_manolito(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* diss
 		if (dtype == MANOLITO_STRING) {
 			guint8 *str;
 
-			str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_ASCII);
+			str = tvb_get_string_enc(pinfo->pool, tvb, offset, length, ENC_ASCII);
 			proto_tree_add_string_format(manolito_tree, hf_manolito_string, tvb, start,
 					4+length, str, "%s (%s): %s",
 					field_name_str,

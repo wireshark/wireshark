@@ -492,7 +492,7 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 			linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
 
 			/* Include new-line in line */
-			line = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, linelen, ENC_ASCII);
+			line = tvb_get_string_enc(pinfo->pool, tvb, offset, linelen, ENC_ASCII);
 
 			line_tree = proto_tree_add_subtree(ldss_tree, tvb, offset, linelen,
 							 ett_ldss_transfer_req, NULL,

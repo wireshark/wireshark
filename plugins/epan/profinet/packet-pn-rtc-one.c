@@ -604,10 +604,10 @@ dissect_PNIO_C_SDU_RTC1(tvbuff_t *tvb, int offset,
                         /* ModuleIdentNr appears not only once in GSD-file -> set module name more generally */
                         if (io_data_object->amountInGSDML > 1) {    /* if ModuleIdentNr only appears once in GSD-file, use the found GSD-file-ModuleName, else ... */
                             if (io_data_object->slotNr == 0) {
-                                moduleName = wmem_strbuf_new(wmem_packet_scope(), "Headstation");
+                                moduleName = wmem_strbuf_new(pinfo->pool, "Headstation");
                             }
                             else {
-                                moduleName = wmem_strbuf_new(wmem_packet_scope(), "Module");
+                                moduleName = wmem_strbuf_new(pinfo->pool, "Module");
                             }
 
                             if (io_data_object->profisafeSupported == TRUE) {
@@ -798,10 +798,10 @@ dissect_PNIO_C_SDU_RTC1(tvbuff_t *tvb, int offset,
                         /* ModuleIdentNr appears not only once in GSD-file -> set module name more generally */
                         if (io_data_object->amountInGSDML > 1) {    /* if ModuleIdentNr only appears once in GSD-file, use the found GSD-file-ModuleName, else ... */
                             if (io_data_object->slotNr == 0) {
-                                moduleName = wmem_strbuf_new(wmem_packet_scope(), "Headstation");
+                                moduleName = wmem_strbuf_new(pinfo->pool, "Headstation");
                             }
                             else {
-                                moduleName = wmem_strbuf_new(wmem_packet_scope(), "Module");
+                                moduleName = wmem_strbuf_new(pinfo->pool, "Module");
                             }
 
                             if (io_data_object->profisafeSupported == TRUE) {

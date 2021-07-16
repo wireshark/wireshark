@@ -1148,7 +1148,7 @@ dissect_rohc_feedback_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
     if(!rohc_cid_context){
         if (cid_context) {
             /* Reuse info coming from private data */
-            rohc_cid_context = wmem_new(wmem_packet_scope(), rohc_cid_context_t);
+            rohc_cid_context = wmem_new(pinfo->pool, rohc_cid_context_t);
             /*rohc_cid_context->d_mode;*/
             rohc_cid_context->rnd = p_rohc_info->rnd;
             rohc_cid_context->udp_checksum_present = p_rohc_info->udp_checksum_present;

@@ -76,7 +76,7 @@ dissect_msnms(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
      * Put the first line from the buffer into the summary.
      */
     col_add_str(pinfo->cinfo, COL_INFO,
-                format_text(wmem_packet_scope(), line, linelen));
+                format_text(pinfo->pool, line, linelen));
 
     if (tree) {
         ti = proto_tree_add_item(tree, proto_msnms, tvb, offset, -1,

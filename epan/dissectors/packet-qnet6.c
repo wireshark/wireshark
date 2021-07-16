@@ -1577,7 +1577,7 @@ dissect_qnet6_lr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint * 
            */
           if (i != 2 && i != 5)
             {
-            name[i] = tvb_get_string_enc(wmem_packet_scope(),
+            name[i] = tvb_get_string_enc(pinfo->pool,
                                          tvb,
                                          addr_data_offset,
                                          len,

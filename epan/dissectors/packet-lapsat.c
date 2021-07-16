@@ -247,7 +247,7 @@ dissect_control(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int is_
 	const char *frame_type;
 	char *info;
 
-	info = (char *)wmem_alloc(wmem_packet_scope(), 80);
+	info = (char *)wmem_alloc(pinfo->pool, 80);
 
 	/* Grab complete control field */
 	ctl = tvb_get_ntohs(tvb, 1) >> 4;

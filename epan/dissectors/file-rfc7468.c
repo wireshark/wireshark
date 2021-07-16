@@ -198,7 +198,7 @@ dissect_rfc7468(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
     /*
      * Extract the label, and put it in that subtree.
      */
-    label = wmem_strndup(wmem_packet_scope(), labelp, labellen);
+    label = wmem_strndup(pinfo->pool, labelp, labellen);
     proto_tree_add_item(preeb_tree, hf_rfc7468_preeb_label, tvb,
                         offset + (int)preeb_prefix_len, labellen,  ENC_ASCII|ENC_NA);
 

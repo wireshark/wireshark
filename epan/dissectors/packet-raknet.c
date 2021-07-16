@@ -282,7 +282,7 @@ raknet_dissect_system_address(proto_tree *tree, int hf,
          */
         v4_addr = ~tvb_get_ipv4(tvb, *offset);
         set_address(&addr, AT_IPv4, sizeof(v4_addr), &v4_addr);
-        addr_str = address_to_display(wmem_packet_scope(), &addr);
+        addr_str = address_to_display(pinfo->pool, &addr);
         proto_tree_add_ipv4(sub_tree, hf_raknet_ipv4_address, tvb, *offset + 1, 4, v4_addr);
         *offset += 4;
         port = tvb_get_ntohs(tvb, *offset);
@@ -1028,7 +1028,7 @@ raknet_dissect_common_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *rak
              */
             wmem_strbuf_t *strbuf;
 
-            strbuf = wmem_strbuf_new(wmem_packet_scope(), "");
+            strbuf = wmem_strbuf_new(pinfo->pool, "");
             wmem_strbuf_append_printf(strbuf,
                                       "{Message fragment %" G_GUINT32_FORMAT "/%" G_GUINT32_FORMAT "; Reassembled} ",
                                       split_packet_index + 1, split_packet_count);
@@ -1042,7 +1042,7 @@ raknet_dissect_common_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *rak
         else {
             wmem_strbuf_t *strbuf;
 
-            strbuf = wmem_strbuf_new(wmem_packet_scope(), "");
+            strbuf = wmem_strbuf_new(pinfo->pool, "");
             wmem_strbuf_append_printf(strbuf,
                                       "{Message fragment %" G_GUINT32_FORMAT "/%" G_GUINT32_FORMAT "}",
                                       split_packet_index + 1, split_packet_count);

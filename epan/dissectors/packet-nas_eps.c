@@ -2832,7 +2832,7 @@ de_emm_ciph_key_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint3
         tv.secs = mktime(&tm);
         tv.nsecs = 0;
         proto_tree_add_time_format_value(sub_tree, hf_nas_eps_emm_ciph_key_data_validity_start_time, tvb, curr_offset, 5, &tv,
-                                         "%s", abs_time_to_str(wmem_packet_scope(), &tv, ABSOLUTE_TIME_LOCAL, FALSE));
+                                         "%s", abs_time_to_str(pinfo->pool, &tv, ABSOLUTE_TIME_LOCAL, FALSE));
         curr_offset += 5;
         proto_tree_add_item(sub_tree, hf_nas_eps_emm_ciph_key_data_validity_duration, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
         curr_offset += 2;

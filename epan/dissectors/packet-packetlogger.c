@@ -120,7 +120,7 @@ static void dissect_syslog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     len = tvb_strsize (tvb, offset);
     proto_tree_add_item (sub_tree, hf_syslog_message, tvb, offset, len, ENC_ASCII|ENC_NA);
-    col_add_fstr (pinfo->cinfo, COL_INFO, "%s", tvb_format_stringzpad_wsp (wmem_packet_scope(), tvb, offset, len));
+    col_add_fstr (pinfo->cinfo, COL_INFO, "%s", tvb_format_stringzpad_wsp (pinfo->pool, tvb, offset, len));
 }
 
 static int dissect_packetlogger(tvbuff_t *tvb, packet_info *pinfo,
@@ -200,7 +200,7 @@ static int dissect_packetlogger(tvbuff_t *tvb, packet_info *pinfo,
     case PKT_CONFIG:
     case PKT_NEW_CONTROLLER:
       proto_tree_add_item (packetlogger_tree, hf_info, next_tvb, 0, len, ENC_ASCII|ENC_NA);
-      col_add_fstr (pinfo->cinfo, COL_INFO, "%s", tvb_format_stringzpad_wsp (wmem_packet_scope(), next_tvb, 0, len));
+      col_add_fstr (pinfo->cinfo, COL_INFO, "%s", tvb_format_stringzpad_wsp (pinfo->pool, next_tvb, 0, len));
       break;
     default:
       call_data_dissector(next_tvb, pinfo, tree);

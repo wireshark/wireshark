@@ -1219,7 +1219,7 @@ dissect_vines_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 		if (packet_type == VARP_ASSIGNMENT_RESP) {
 			col_append_fstr(pinfo->cinfo, COL_INFO,
 					    ", Address = %s",
-					    tvb_address_to_str(wmem_packet_scope(), tvb, AT_VINES, 2));
+					    tvb_address_to_str(pinfo->pool, tvb, AT_VINES, 2));
 			proto_tree_add_item(vines_arp_tree, hf_vines_arp_address, tvb, 2, VINES_ADDR_LEN, ENC_NA);
 		}
 		proto_tree_add_item(vines_arp_tree, hf_vines_arp_sequence_number, tvb, 2+VINES_ADDR_LEN, 4, ENC_BIG_ENDIAN);
@@ -1241,7 +1241,7 @@ dissect_vines_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 		if (packet_type == VARP_ASSIGNMENT_RESP) {
 			col_append_fstr(pinfo->cinfo, COL_INFO,
 					    ", Address = %s",
-					    tvb_address_to_str(wmem_packet_scope(), tvb, AT_VINES, 2));
+					    tvb_address_to_str(pinfo->pool, tvb, AT_VINES, 2));
 
 			proto_tree_add_item(vines_arp_tree, hf_vines_arp_address, tvb, 2, VINES_ADDR_LEN, ENC_NA);
 		}

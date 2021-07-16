@@ -264,7 +264,7 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
   if (!reload_frame) {
     /* create a "fake" pana_trans structure */
-    reload_frame = wmem_new(wmem_packet_scope(), reload_frame_t);
+    reload_frame = wmem_new(pinfo->pool, reload_frame_t);
     reload_frame->data_frame = (type==DATA) ? pinfo->num : 0;
     reload_frame->ack_frame  = (type!=DATA) ? pinfo->num : 0;
     reload_frame->req_time   = pinfo->abs_ts;

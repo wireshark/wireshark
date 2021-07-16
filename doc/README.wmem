@@ -54,17 +54,18 @@ changed without warning.
 2.2 Wireshark Global Pools
 
 Dissectors that include the wmem header file will have three pools available
-to them automatically: wmem_packet_scope(), wmem_file_scope() and
-wmem_epan_scope();
+to them automatically: pinfo->pool, wmem_file_scope() and
+wmem_epan_scope(); there is also a wmem_packet_scope() for cases when the
+`pinfo` argument is not accessible, but pinfo->pool should be preferred.
 
-The packet pool is scoped to the dissection of each packet, meaning that any
+The pinfo pool is scoped to the dissection of each packet, meaning that any
 memory allocated in it will be automatically freed at the end of the current
 packet. The file pool is similarly scoped to the dissection of each file,
 meaning that any memory allocated in it will be automatically freed when the
 current capture file is closed.
 
-NB: Using these pools outside of the appropriate scope (e.g. using the packet
-    pool when there isn't a packet being dissected) will throw an assertion.
+NB: Using these pools outside of the appropriate scope (e.g. using the file
+    pool when there isn't a file open) will throw an assertion.
     See the comment in epan/wmem/wmem_scopes.c for details.
 
 The epan pool is scoped to the library's lifetime - memory allocated in it is

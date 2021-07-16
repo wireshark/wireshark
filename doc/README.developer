@@ -452,7 +452,7 @@ instead allocate a buffer dynamically using the string-specific or plain wmem
 routines (see README.wmem) such as
 
    wmem_strbuf_t *strbuf;
-   strbuf = wmem_strbuf_new(wmem_packet_scope(), "");
+   strbuf = wmem_strbuf_new(pinfo->pool, "");
    wmem_strbuf_append_printf(strbuf, ...
 
 or
@@ -460,7 +460,7 @@ or
    char *buffer=NULL;
    ...
    #define MAX_BUFFER 1024
-   buffer=wmem_alloc(wmem_packet_scope(), MAX_BUFFER);
+   buffer=wmem_alloc(pinfo->pool, MAX_BUFFER);
    buffer[0]='\0';
    ...
    snprintf(buffer, MAX_BUFFER, ...
@@ -491,7 +491,7 @@ instead write the code as
   static void
   foo_to_str(char **buffer, ...
     #define MAX_BUFFER x
-    *buffer=wmem_alloc(wmem_packet_scope(), MAX_BUFFER);
+    *buffer=wmem_alloc(pinfo->pool, MAX_BUFFER);
     <fill in *buffer>
   }
   ...

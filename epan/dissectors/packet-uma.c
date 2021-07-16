@@ -1427,7 +1427,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 	case 98:
 		/* UNC Fully Qualified Domain/Host Name */
 		if ( ie_len > 0){
-			proto_tree_add_item_ret_string(urr_ie_tree, hf_uma_unc_FQDN, tvb, ie_offset, ie_len, ENC_ASCII|ENC_NA, wmem_packet_scope(), &string);
+			proto_tree_add_item_ret_string(urr_ie_tree, hf_uma_unc_FQDN, tvb, ie_offset, ie_len, ENC_ASCII|ENC_NA, pinfo->pool, &string);
 		}else{
 			proto_tree_add_expert(urr_ie_tree, pinfo, &ei_uma_fqdn_not_present, tvb, offset, 1);
 		}

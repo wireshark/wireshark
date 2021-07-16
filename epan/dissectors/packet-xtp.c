@@ -935,7 +935,7 @@ dissect_xtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 	xtph->seq += tvb_get_ntohl(tvb, offset+4);
 
 #define MAX_OPTIONS_LEN	128
-	options=(gchar *)wmem_alloc(wmem_packet_scope(), MAX_OPTIONS_LEN);
+	options=(gchar *)wmem_alloc(pinfo->pool, MAX_OPTIONS_LEN);
 	options[0]=0;
 	cmd_options = xtph->cmd_options >> 8;
 	for (i = 0; i < 16; i++) {

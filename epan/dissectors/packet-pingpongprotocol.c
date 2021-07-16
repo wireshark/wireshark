@@ -115,7 +115,7 @@ dissect_pingpongprotocol_pong_message(tvbuff_t *message_tvb, proto_tree *message
 static void
 dissect_pingpongprotocol_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *pingpongprotocol_tree)
 {
-  tap_pingpongprotocol_rec_t* tap_rec = wmem_new0(wmem_packet_scope(), tap_pingpongprotocol_rec_t);
+  tap_pingpongprotocol_rec_t* tap_rec = wmem_new0(pinfo->pool, tap_pingpongprotocol_rec_t);
   tap_rec->type        = tvb_get_guint8(message_tvb, MESSAGE_TYPE_OFFSET);
   tap_rec->size        = tvb_get_ntohs(message_tvb,  MESSAGE_LENGTH_OFFSET);
   tap_rec->type_string = val_to_str_const(tap_rec->type, message_type_values, "Unknown PingPongProtocol message type");

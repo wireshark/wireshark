@@ -182,8 +182,8 @@ dissect_rx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 			"Destination Port: %s  ",
 			(unsigned long)seq,
 			(unsigned long)callnumber,
-			udp_port_to_display(wmem_packet_scope(), pinfo->srcport),
-			udp_port_to_display(wmem_packet_scope(), pinfo->destport)
+			udp_port_to_display(pinfo->pool, pinfo->srcport),
+			udp_port_to_display(pinfo->pool, pinfo->destport)
 		);
 
 	item = proto_tree_add_item(parent_tree, hf_rx_response, tvb, offset, -1, ENC_NA);
@@ -234,8 +234,8 @@ dissect_rx_abort(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int
 			"Destination Port: %s  ",
 			(unsigned long)seq,
 			(unsigned long)callnumber,
-			udp_port_to_display(wmem_packet_scope(), pinfo->srcport),
-			udp_port_to_display(wmem_packet_scope(), pinfo->destport)
+			udp_port_to_display(pinfo->pool, pinfo->srcport),
+			udp_port_to_display(pinfo->pool, pinfo->destport)
 		);
 
 	item = proto_tree_add_item(parent_tree, hf_rx_abort, tvb, offset, -1, ENC_NA);
@@ -266,8 +266,8 @@ dissect_rx_challenge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 			"Destination Port: %s  ",
 			(unsigned long)seq,
 			(unsigned long)callnumber,
-			udp_port_to_display(wmem_packet_scope(), pinfo->srcport),
-			udp_port_to_display(wmem_packet_scope(), pinfo->destport)
+			udp_port_to_display(pinfo->pool, pinfo->srcport),
+			udp_port_to_display(pinfo->pool, pinfo->destport)
 		);
 
 	item = proto_tree_add_item(parent_tree, hf_rx_challenge, tvb, offset, -1, ENC_NA);
@@ -383,8 +383,8 @@ dissect_rx_acks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int 
 			val_to_str(reason, rx_reason, "%d"),
 			(unsigned long)seq,
 			(unsigned long)callnumber,
-			udp_port_to_display(wmem_packet_scope(), pinfo->srcport),
-			udp_port_to_display(wmem_packet_scope(), pinfo->destport)
+			udp_port_to_display(pinfo->pool, pinfo->srcport),
+			udp_port_to_display(pinfo->pool, pinfo->destport)
 		);
 
 	proto_item_set_len(item, offset-old_offset);
@@ -524,8 +524,8 @@ dissect_rx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *dat
 				"Destination Port: %s  ",
 				(unsigned long)seq,
 				(unsigned long)callnumber,
-				udp_port_to_display(wmem_packet_scope(), pinfo->srcport),
-				udp_port_to_display(wmem_packet_scope(), pinfo->destport)
+				udp_port_to_display(pinfo->pool, pinfo->srcport),
+				udp_port_to_display(pinfo->pool, pinfo->destport)
 			);
 		break;
 	case RX_PACKET_TYPE_VERSION:
@@ -544,8 +544,8 @@ dissect_rx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *dat
 				version_type,
 				(unsigned long)seq,
 				(unsigned long)callnumber,
-				udp_port_to_display(wmem_packet_scope(), pinfo->srcport),
-				udp_port_to_display(wmem_packet_scope(), pinfo->destport)
+				udp_port_to_display(pinfo->pool, pinfo->srcport),
+				udp_port_to_display(pinfo->pool, pinfo->destport)
 			);
 		break;
 	case RX_PACKET_TYPE_CHALLENGE:

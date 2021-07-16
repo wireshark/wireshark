@@ -305,7 +305,7 @@ dissect_zbee_zdp_req_mgmt_leave(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
         offset += 1;
     }
 
-    zbee_append_info(tree, pinfo, ", Device: %s", eui64_to_display(wmem_packet_scope(), ext_addr));
+    zbee_append_info(tree, pinfo, ", Device: %s", eui64_to_display(pinfo->pool, ext_addr));
 
     /* Dump any leftover bytes. */
     zdp_dump_excess(tvb, offset, pinfo, tree);
@@ -328,7 +328,7 @@ dissect_zbee_zdp_req_mgmt_direct_join(tvbuff_t *tvb, packet_info *pinfo, proto_t
     ext_addr = zbee_parse_eui64(tree, hf_zbee_zdp_ext_addr, tvb, &offset, 8, NULL);
     /*cinfo    =*/ zdp_parse_cinfo(tree, ett_zbee_zdp_cinfo, tvb, &offset);
 
-    zbee_append_info(tree, pinfo, ", Device: %s", eui64_to_display(wmem_packet_scope(), ext_addr));
+    zbee_append_info(tree, pinfo, ", Device: %s", eui64_to_display(pinfo->pool, ext_addr));
 
     /* Dump any leftover bytes. */
     zdp_dump_excess(tvb, offset, pinfo, tree);

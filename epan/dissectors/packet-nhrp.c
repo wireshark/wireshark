@@ -884,7 +884,7 @@ static void dissect_nhrp_ext(tvbuff_t    *tvb,
 
                     auth_tree = proto_tree_add_subtree_format(nhrp_tree, tvb, offset, len,
                         ett_nhrp_auth_ext, NULL, "Extension Data: SPI=%u: Data=%s", tvb_get_ntohs(tvb, offset + 2),
-                        tvb_bytes_to_str(wmem_packet_scope(), tvb, offset + 4 + srcLen, len - (4 + srcLen)));
+                        tvb_bytes_to_str(pinfo->pool, tvb, offset + 4 + srcLen, len - (4 + srcLen)));
                     proto_tree_add_item(auth_tree, hf_nhrp_auth_ext_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
                     proto_tree_add_item(auth_tree, hf_nhrp_auth_ext_spi, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
                     if (srcLen == 4)
@@ -920,7 +920,7 @@ static void dissect_nhrp_ext(tvbuff_t    *tvb,
                     }
                     if (len > 3) {
                         proto_tree_add_item(vendor_tree, hf_nhrp_vendor_ext_data, tvb, offset + 3, len - 3, ENC_NA);
-                        proto_item_append_text(vendor_item, ", Data=%s", tvb_bytes_to_str(wmem_packet_scope(), tvb, offset + 3, len - 3));
+                        proto_item_append_text(vendor_item, ", Data=%s", tvb_bytes_to_str(pinfo->pool, tvb, offset + 3, len - 3));
                     } else {
                         proto_item_append_text(vendor_item, ", Data=<none>");
                     }

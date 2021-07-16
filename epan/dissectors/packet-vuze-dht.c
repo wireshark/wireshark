@@ -336,7 +336,7 @@ dissect_vuze_dht_address(tvbuff_t *tvb, packet_info _U_*pinfo, proto_tree *tree,
   offset += ip_length;
 
   proto_tree_add_item(sub_tree, hf_vuze_dht_address_port, tvb, offset, TL_SHORT, ENC_BIG_ENDIAN);
-  proto_item_append_text( ti, "%s:%d", address_to_str(wmem_packet_scope(), &addr ), tvb_get_ntohs(tvb,offset) );
+  proto_item_append_text( ti, "%s:%d", address_to_str(pinfo->pool, &addr ), tvb_get_ntohs(tvb,offset) );
   offset += TL_SHORT;
 
   return offset;
@@ -407,7 +407,7 @@ dissect_vuze_dht_key(tvbuff_t *tvb, packet_info _U_*pinfo, proto_tree *tree, int
   offset += TL_BYTE;
 
   proto_tree_add_item( sub_tree, hf_vuze_dht_key_data, tvb, offset, key_len, ENC_NA );
-  proto_item_append_text( ti, ": %d bytes ( %s )", key_len, tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, key_len ) );
+  proto_item_append_text( ti, ": %d bytes ( %s )", key_len, tvb_bytes_to_str(pinfo->pool, tvb, offset, key_len ) );
   offset += key_len;
 
   return offset;
@@ -493,7 +493,7 @@ dissect_vuze_dht_value(tvbuff_t *tvb, packet_info _U_*pinfo, proto_tree *tree, i
     offset += TL_SHORT;
 
     proto_tree_add_item(sub_tree, hf_vuze_dht_value_bytes, tvb, offset, value_bytes_count, ENC_NA);
-    proto_item_append_text( ti, ": %d bytes ( %s )", value_bytes_count, tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, value_bytes_count ) );
+    proto_item_append_text( ti, ": %d bytes ( %s )", value_bytes_count, tvb_bytes_to_str(pinfo->pool, tvb, offset, value_bytes_count ) );
     offset += value_bytes_count;
 
     offset = dissect_vuze_dht_contact( tvb, pinfo, sub_tree, offset );
@@ -583,7 +583,7 @@ dissect_vuze_dht_network_coordinate(tvbuff_t *tvb, packet_info _U_*pinfo, proto_
         tvb_get_ntohieee_float(tvb, offset+TL_BYTE+TL_BYTE+TL_FLOAT+TL_FLOAT+TL_FLOAT) );
   } else {
     proto_item_append_text( ti, " ( %s )",
-        tvb_bytes_to_str(wmem_packet_scope(), tvb, offset+TL_BYTE+TL_BYTE, coordinate_size ) );
+        tvb_bytes_to_str(pinfo->pool, tvb, offset+TL_BYTE+TL_BYTE, coordinate_size ) );
   }
 
   proto_tree_add_item( sub_tree, hf_vuze_dht_network_coordinate_type, tvb, offset, TL_BYTE, ENC_BIG_ENDIAN );

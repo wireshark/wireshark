@@ -729,7 +729,7 @@ getFrameInformation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *field_tree,
                     int offset, guint32 length_info){
 
     /*Get the data from information field as string*/
-    char *information_field = tvb_get_string_enc(wmem_packet_scope(), tvb,offset,length_info, ENC_ASCII);
+    char *information_field = tvb_get_string_enc(pinfo->pool, tvb,offset,length_info, ENC_ASCII);
 
     /*delete unneeded signs out of info field -> for info column: CR (0x0d) and LF (0x0a)*/
     information_field = g_strdelimit(information_field, "\r\n", ' ');

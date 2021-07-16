@@ -266,7 +266,7 @@ dissect_nbd_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 
 	if(!nbd_trans){
 		/* create a "fake" nbd_trans structure */
-		nbd_trans=wmem_new(wmem_packet_scope(), nbd_transaction_t);
+		nbd_trans=wmem_new(pinfo->pool, nbd_transaction_t);
 		nbd_trans->req_frame=0;
 		nbd_trans->rep_frame=0;
 		nbd_trans->req_time=pinfo->abs_ts;

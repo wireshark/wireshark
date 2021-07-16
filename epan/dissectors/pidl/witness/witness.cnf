@@ -57,7 +57,7 @@ witness_dissect_struct_notifyResponse(tvbuff_t *tvb _U_, int offset _U_, packet_
 		tree = proto_item_add_subtree(item, ett_witness_witness_notifyResponse);
 	}
 
-	type = wmem_new0(wmem_packet_scope(), guint32);
+	type = wmem_new0(pinfo->pool, guint32);
 
 	offset = witness_dissect_element_notifyResponse_type(tvb, offset, pinfo, tree, di, drep, type);
 
@@ -173,7 +173,7 @@ witness_dissect_element_interfaceInfo_group_name(tvbuff_t *tvb, int offset, pack
 	pi = proto_tree_add_item_ret_display_string(parent_tree,
 	    hf_witness_witness_interfaceInfo_group_name, tvb, offset, stringlen,
 	    ENC_UTF_16|ENC_LITTLE_ENDIAN,
-	    wmem_packet_scope(), &str);
+	    pinfo->pool, &str);
 	proto_item_append_text(pi, " [%d]", totlen);
 	proto_item_append_text(parent_tree, ": %s", str);
 

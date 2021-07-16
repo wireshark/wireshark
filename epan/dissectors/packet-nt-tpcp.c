@@ -129,7 +129,7 @@ dissect_tpcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
 	cport = tvb_get_ntohs(tvb, 6);
 	proto_tree_add_uint_format_value(tpcp_tree, hf_tpcp_cport, tvb, 6, 2, cport,
-					 "%s", udp_port_to_display(wmem_packet_scope(), cport));
+					 "%s", udp_port_to_display(pinfo->pool, cport));
 
 	proto_tree_add_item(tpcp_tree, hf_tpcp_caddr, tvb, 8, 4, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tpcp_tree, hf_tpcp_saddr, tvb, 12, 4, ENC_BIG_ENDIAN);
@@ -143,7 +143,7 @@ dissect_tpcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 	col_add_fstr(pinfo->cinfo, COL_INFO,"%s id %d CPort %s CIP %s SIP %s",
 			val_to_str_const(type, type_vals, "Unknown"),
 			id,
-			udp_port_to_display(wmem_packet_scope(), cport),
+			udp_port_to_display(pinfo->pool, cport),
 			tvb_ip_to_str(tvb, 8),
 			tvb_ip_to_str(tvb, 12));
 

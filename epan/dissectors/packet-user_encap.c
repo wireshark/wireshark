@@ -118,7 +118,7 @@ static int dissect_user(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, voi
         encap = &user2_encap;
     }
     if (!encap) {
-        char* msg = wmem_strdup_printf(wmem_packet_scope(),
+        char* msg = wmem_strdup_printf(pinfo->pool,
                                      "User encapsulation not handled: DLT=%d, "
                                      "check your Preferences->Protocols->DLT_USER",
                          pinfo->match_uint + 147 - WTAP_ENCAP_USER0);
@@ -129,7 +129,7 @@ static int dissect_user(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, voi
         return tvb_captured_length(tvb);
     }
     if (encap->payload_proto == NULL) {
-        char* msg = wmem_strdup_printf(wmem_packet_scope(),
+        char* msg = wmem_strdup_printf(pinfo->pool,
                                      "User encapsulation's protocol %s not found: "
                                      "DLT=%d, check your Preferences->Protocols->DLT_USER",
                                      encap->payload_proto_name,

@@ -195,7 +195,7 @@ dissect_ubdp(tvbuff_t *ubdp_tvb, packet_info *pinfo, proto_tree *tree, void *dat
             proto_tree_add_item(tlv_tree, hf_ubdp_hostname, ubdp_tvb, offset, ubdp_length, ENC_ASCII|ENC_NA);
             break;
           case UB_PRODUCT:
-            uValue = tvb_get_string_enc(wmem_packet_scope(), ubdp_tvb, offset, ubdp_length, ENC_ASCII);
+            uValue = tvb_get_string_enc(pinfo->pool, ubdp_tvb, offset, ubdp_length, ENC_ASCII);
             uModel = try_str_to_str(uValue, ubiquiti_vals);
             proto_tree_add_string(tlv_tree, hf_ubdp_product, ubdp_tvb, offset, ubdp_length, uModel ? uModel : uValue);
             break;
@@ -227,12 +227,12 @@ dissect_ubdp(tvbuff_t *ubdp_tvb, packet_info *pinfo, proto_tree *tree, void *dat
             }
             break;
           case UB_TYPE:
-            uValue = tvb_get_string_enc(wmem_packet_scope(), ubdp_tvb, offset, ubdp_length, ENC_ASCII);
+            uValue = tvb_get_string_enc(pinfo->pool, ubdp_tvb, offset, ubdp_length, ENC_ASCII);
             uModel = try_str_to_str(uValue, ubiquiti_vals);
             proto_tree_add_string(tlv_tree, hf_ubdp_model, ubdp_tvb, offset, ubdp_length, uModel ? uModel : uValue);
             break;
           case UB_MODEL:
-            uValue = tvb_get_string_enc(wmem_packet_scope(), ubdp_tvb, offset, ubdp_length, ENC_ASCII);
+            uValue = tvb_get_string_enc(pinfo->pool, ubdp_tvb, offset, ubdp_length, ENC_ASCII);
             uModel = try_str_to_str(uValue, ubiquiti_vals);
             proto_tree_add_string(tlv_tree, hf_ubdp_model, ubdp_tvb, offset, ubdp_length, uModel ? uModel : uValue);
             break;

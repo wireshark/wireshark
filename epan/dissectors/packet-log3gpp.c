@@ -263,7 +263,7 @@ lte_mac_pseudo_hdr(char* option_str, packet_info* pinfo, guint16 length, packet_
     }
 
     /* Allocate & zero struct */
-    p_mac_lte_info = (struct mac_lte_info*) wmem_new0(wmem_packet_scope(), mac_lte_info);
+    p_mac_lte_info = (struct mac_lte_info*) wmem_new0(pinfo->pool, mac_lte_info);
 
     /* First mandatory parameter */
     par_opt_field = strtok(option, " ");
@@ -378,7 +378,7 @@ lte_rlc_pseudo_hdr(char* option_str, packet_info* pinfo, guint16 length, packet_
     }
 
     /* Allocate & zero struct */
-    p_rlc_lte_info = (struct rlc_lte_info*) wmem_new0(wmem_packet_scope(), rlc_lte_info);
+    p_rlc_lte_info = (struct rlc_lte_info*) wmem_new0(pinfo->pool, rlc_lte_info);
     /* First mandatory parameter */
     par_opt_field = strtok(option, " ");
     if (par_opt_field == NULL)
@@ -483,7 +483,7 @@ lte_pdcp_pseudo_hdr(char* option_str, packet_info* pinfo, guint16 length _U_, pa
     }
 
     /* Allocate & zero struct */
-    p_pdcp_lte_info = (struct pdcp_lte_info*) wmem_new0(wmem_packet_scope(), pdcp_lte_info);
+    p_pdcp_lte_info = (struct pdcp_lte_info*) wmem_new0(pinfo->pool, pdcp_lte_info);
     /* First mandatory parameter */
     par_opt_field = strtok(option, " ");
     if (par_opt_field == NULL)
@@ -614,7 +614,7 @@ dissect_log3gpp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data 
     is_hex_data = strcmp(protocol_name, "TXT");
 
     proto_item_append_text(ti, " t=%s   %c   prot=%s",
-        tvb_get_string_enc(wmem_packet_scope(), tvb, timestamp_start, timestamp_length, ENC_UTF_8 | ENC_NA),
+        tvb_get_string_enc(pinfo->pool, tvb, timestamp_start, timestamp_length, ENC_UTF_8 | ENC_NA),
         (direction == 0) ? 'U' : 'D',
         protocol_name);
 
@@ -624,7 +624,7 @@ dissect_log3gpp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data 
         pseudo_hdr_func_ptr_t func_ptr = NULL;
 
         /* Look up for the optional information */
-        protocol_option = (char*)tvb_get_string_enc(wmem_packet_scope(), tvb, protocol_option_start, protocol_option_length, ENC_UTF_8 | ENC_NA);
+        protocol_option = (char*)tvb_get_string_enc(pinfo->pool, tvb, protocol_option_start, protocol_option_length, ENC_UTF_8 | ENC_NA);
 
         /* look up for the right dissector handle */
         protocol_handle = look_for_dissector(protocol_name, direction, &func_ptr);
@@ -663,15 +663,15 @@ dissect_log3gpp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data 
         {
             col_add_fstr(pinfo->cinfo, COL_INFO,
                 "%s",
-                tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tvb_reported_length(tvb) - offset, ENC_UTF_8 | ENC_NA));
+                tvb_get_string_enc(pinfo->pool, tvb, offset, tvb_reported_length(tvb) - offset, ENC_UTF_8 | ENC_NA));
         }
         else
         {
             col_add_fstr(pinfo->cinfo, COL_INFO,
                 "Not dissected  ( t=%s   %c   prot=%s)",
-                tvb_get_string_enc(wmem_packet_scope(), tvb, timestamp_start, timestamp_length, ENC_UTF_8 | ENC_NA),
+                tvb_get_string_enc(pinfo->pool, tvb, timestamp_start, timestamp_length, ENC_UTF_8 | ENC_NA),
                 (direction == 0) ? 'U' : 'D',
-                tvb_get_string_enc(wmem_packet_scope(), tvb, protocol_name_start, protocol_name_length, ENC_UTF_8 | ENC_NA));
+                tvb_get_string_enc(pinfo->pool, tvb, protocol_name_start, protocol_name_length, ENC_UTF_8 | ENC_NA));
         }
     }
     else

@@ -204,7 +204,7 @@ add_ipv4_src_address(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int of
 
 		memcpy(&addr, pinfo->net_src.data, 4);
 		src_host = get_hostname(addr);
-		proto_item_append_text(parent_item, ", Src: %s", address_with_resolution_to_str(wmem_packet_scope(), &pinfo->net_src));
+		proto_item_append_text(parent_item, ", Src: %s", address_with_resolution_to_str(pinfo->pool, &pinfo->net_src));
 
 		proto_tree_add_ipv4(tree, hf_ip_src, tvb, offset, 4, addr);
 		item = proto_tree_add_ipv4(tree, hf_ip_addr, tvb, offset, 4, addr);
@@ -234,7 +234,7 @@ add_ipv4_dst_address(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int of
 
 		memcpy(&addr, pinfo->net_dst.data, 4);
 		dst_host = get_hostname(addr);
-		proto_item_append_text(parent_item, ", Dst: %s", address_with_resolution_to_str(wmem_packet_scope(), &pinfo->net_dst));
+		proto_item_append_text(parent_item, ", Dst: %s", address_with_resolution_to_str(pinfo->pool, &pinfo->net_dst));
 
 		proto_tree_add_ipv4(tree, hf_ip_dst, tvb, offset, 4, addr);
 		item = proto_tree_add_ipv4(tree, hf_ip_addr, tvb, offset, 4, addr);
@@ -261,7 +261,7 @@ add_ipv6_src_address(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int of
 	if (tree) {
 		const char *src_host;
 
-		src_host = address_to_display(wmem_packet_scope(), &pinfo->net_src);
+		src_host = address_to_display(pinfo->pool, &pinfo->net_src);
 
 		proto_tree_add_item(tree, hf_ipv6_src, tvb, offset, IPv6_ADDR_SIZE, ENC_NA);
 		item = proto_tree_add_item(tree, hf_ipv6_addr, tvb, offset, IPv6_ADDR_SIZE, ENC_NA);
@@ -288,7 +288,7 @@ add_ipv6_dst_address(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int of
 	if (tree) {
 		const char *dst_host;
 
-		dst_host = address_to_display(wmem_packet_scope(), &pinfo->net_dst);
+		dst_host = address_to_display(pinfo->pool, &pinfo->net_dst);
 
 		proto_tree_add_item(tree, hf_ipv6_dst, tvb, offset, IPv6_ADDR_SIZE, ENC_NA);
 		item = proto_tree_add_item(tree, hf_ipv6_addr, tvb, offset, IPv6_ADDR_SIZE, ENC_NA);

@@ -2595,9 +2595,9 @@ pnio_ar_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pnio_ar_t *ar)
 
         sub_tree = proto_tree_add_subtree_format(tree, tvb, 0, 0, ett_pn_io_ar_info, &sub_item,
             "ARUUID:%s ContrMAC:%s ContrAlRef:0x%x DevMAC:%s DevAlRef:0x%x InCR:0x%x OutCR=0x%x",
-            guid_to_str(wmem_packet_scope(), (const e_guid_t*) &ar->aruuid),
-            address_to_str(wmem_packet_scope(), &controllermac_addr), ar->controlleralarmref,
-            address_to_str(wmem_packet_scope(), &devicemac_addr), ar->devicealarmref,
+            guid_to_str(pinfo->pool, (const e_guid_t*) &ar->aruuid),
+            address_to_str(pinfo->pool, &controllermac_addr), ar->controlleralarmref,
+            address_to_str(pinfo->pool, &devicemac_addr), ar->devicealarmref,
             ar->inputframeid, ar->outputframeid);
         proto_item_set_generated(sub_item);
 
@@ -3455,11 +3455,11 @@ dissect_IandM1_block(tvbuff_t *tvb, int offset,
     }
 
     /* IM_Tag_Function [32] */
-    proto_tree_add_item_ret_display_string (tree, hf_pn_io_im_tag_function, tvb, offset, 32, ENC_ASCII|ENC_NA, wmem_packet_scope(), &pTagFunction);
+    proto_tree_add_item_ret_display_string (tree, hf_pn_io_im_tag_function, tvb, offset, 32, ENC_ASCII|ENC_NA, pinfo->pool, &pTagFunction);
     offset += 32;
 
     /* IM_Tag_Location [22] */
-    proto_tree_add_item_ret_display_string (tree, hf_pn_io_im_tag_location, tvb, offset, 22, ENC_ASCII|ENC_NA, wmem_packet_scope(), &pTagLocation);
+    proto_tree_add_item_ret_display_string (tree, hf_pn_io_im_tag_location, tvb, offset, 22, ENC_ASCII|ENC_NA, pinfo->pool, &pTagLocation);
     offset += 22;
 
     proto_item_append_text(item, ": TagFunction:\"%s\", TagLocation:\"%s\"", pTagFunction, pTagLocation);
@@ -3481,7 +3481,7 @@ dissect_IandM2_block(tvbuff_t *tvb, int offset,
     }
 
     /* IM_Date [16] */
-    proto_tree_add_item_ret_display_string (tree, hf_pn_io_im_date, tvb, offset, 16, ENC_ASCII|ENC_NA, wmem_packet_scope(), &pDate);
+    proto_tree_add_item_ret_display_string (tree, hf_pn_io_im_date, tvb, offset, 16, ENC_ASCII|ENC_NA, pinfo->pool, &pDate);
     offset += 16;
 
     proto_item_append_text(item, ": Date:\"%s\"", pDate);
@@ -3503,7 +3503,7 @@ dissect_IandM3_block(tvbuff_t *tvb, int offset,
     }
 
     /* IM_Descriptor [54] */
-    proto_tree_add_item_ret_display_string (tree, hf_pn_io_im_descriptor, tvb, offset, 54, ENC_ASCII|ENC_NA, wmem_packet_scope(), &pDescriptor);
+    proto_tree_add_item_ret_display_string (tree, hf_pn_io_im_descriptor, tvb, offset, 54, ENC_ASCII|ENC_NA, pinfo->pool, &pDescriptor);
     offset += 54;
 
     proto_item_append_text(item, ": Descriptor:\"%s\"", pDescriptor);
@@ -5005,7 +5005,7 @@ dissect_PDPortDataReal_block(tvbuff_t *tvb, int offset,
     offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep,
                         hf_pn_io_length_own_port_id, &u8LengthOwnPortID);
     /* OwnPortID */
-    proto_tree_add_item_ret_display_string (tree, hf_pn_io_own_port_id, tvb, offset, u8LengthOwnPortID, ENC_ASCII|ENC_NA, wmem_packet_scope(), &pOwnPortID);
+    proto_tree_add_item_ret_display_string (tree, hf_pn_io_own_port_id, tvb, offset, u8LengthOwnPortID, ENC_ASCII|ENC_NA, pinfo->pool, &pOwnPortID);
     offset += u8LengthOwnPortID;
 
     /* NumberOfPeers */
@@ -7150,7 +7150,7 @@ dissect_ARData_block(tvbuff_t *tvb, int offset,
                 pn_init_append_aruuid_frame_setup_list(aruuid, pinfo->num);
             }
 
-            proto_item_append_text(ar_item, "ARUUID:%s", guid_to_str(wmem_packet_scope(), (const e_guid_t*) &aruuid));
+            proto_item_append_text(ar_item, "ARUUID:%s", guid_to_str(pinfo->pool, (const e_guid_t*) &aruuid));
             offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ar_tree, drep,
                         hf_pn_io_ar_type, &u16ARType);
             offset = dissect_ARProperties(tvb, offset, pinfo, ar_tree, item, drep);
@@ -7267,7 +7267,7 @@ dissect_ARData_block(tvbuff_t *tvb, int offset,
                 pn_init_append_aruuid_frame_setup_list(aruuid, pinfo->num);
             }
 
-            proto_item_append_text(ar_item, "ARUUID:%s", guid_to_str(wmem_packet_scope(), (const e_guid_t*) &aruuid));
+            proto_item_append_text(ar_item, "ARUUID:%s", guid_to_str(pinfo->pool, (const e_guid_t*) &aruuid));
             /* CMInitiatorObjectUUID */
             offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, ar_tree, drep, hf_pn_io_cminitiator_objectuuid, &uuid);
             /* ParameterServerObjectUUID */
@@ -7978,7 +7978,7 @@ dissect_ARBlockReq_block(tvbuff_t *tvb, int offset,
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
                         hf_pn_io_station_name_length, &u16NameLength);
 
-    proto_tree_add_item_ret_display_string (tree, hf_pn_io_cminitiator_station_name, tvb, offset, u16NameLength, ENC_ASCII|ENC_NA, wmem_packet_scope(), &pStationName);
+    proto_tree_add_item_ret_display_string (tree, hf_pn_io_cminitiator_station_name, tvb, offset, u16NameLength, ENC_ASCII|ENC_NA, pinfo->pool, &pStationName);
     offset += u16NameLength;
 
     proto_item_append_text(item, ": %s, Session:%u, MAC:%02x:%02x:%02x:%02x:%02x:%02x, Port:0x%x, Station:%s",
@@ -8583,7 +8583,7 @@ dissect_MCRBlockReq_block(tvbuff_t *tvb, int offset,
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
                         hf_pn_io_station_name_length, &u16NameLength);
 
-    proto_tree_add_item_ret_display_string (tree, hf_pn_io_provider_station_name, tvb, offset, u16NameLength, ENC_ASCII|ENC_NA, wmem_packet_scope(), &pStationName);
+    proto_tree_add_item_ret_display_string (tree, hf_pn_io_provider_station_name, tvb, offset, u16NameLength, ENC_ASCII|ENC_NA, pinfo->pool, &pStationName);
     offset += u16NameLength;
 
     proto_item_append_text(item, ", CRRef:%u, Properties:0x%x, TFactor:%u, Station:%s",
@@ -9083,13 +9083,13 @@ dissect_ExpectedSubmoduleBlockReq_block(tvbuff_t *tvb, int offset,
     guint32            current_aruuid = 0;
 
     /* Helppointer initial */
-    convertStr = (gchar*)wmem_alloc(wmem_packet_scope(), MAX_NAMELENGTH);
+    convertStr = (gchar*)wmem_alloc(pinfo->pool, MAX_NAMELENGTH);
     convertStr[0] = '\0';
-    pch = (gchar*)wmem_alloc(wmem_packet_scope(), MAX_LINE_LENGTH);
+    pch = (gchar*)wmem_alloc(pinfo->pool, MAX_LINE_LENGTH);
     pch[0] = '\0';
-    puffer = (gchar*)wmem_alloc(wmem_packet_scope(), MAX_LINE_LENGTH);
+    puffer = (gchar*)wmem_alloc(pinfo->pool, MAX_LINE_LENGTH);
     puffer[0] = '\0';
-    temp = (gchar*)wmem_alloc(wmem_packet_scope(), MAX_LINE_LENGTH);
+    temp = (gchar*)wmem_alloc(pinfo->pool, MAX_LINE_LENGTH);
     temp[0] = '\0';
 
     /* Initial */
@@ -9150,7 +9150,7 @@ dissect_ExpectedSubmoduleBlockReq_block(tvbuff_t *tvb, int offset,
                 while ((filename = g_dir_read_name(dir)) != NULL) {
 
                     /* ---- complete the path to open a GSD-file ---- */
-                    diropen = wmem_strdup_printf(wmem_packet_scope(), "%s" G_DIR_SEPARATOR_S "%s", pnio_ps_networkpath, filename);
+                    diropen = wmem_strdup_printf(pinfo->pool, "%s" G_DIR_SEPARATOR_S "%s", pnio_ps_networkpath, filename);
 
                     /* ---- Open the found GSD-file  ---- */
                     fp = ws_fopen(diropen, "r");

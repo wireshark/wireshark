@@ -1322,7 +1322,7 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     file_size = ehsize + (guint32)phnum * (guint32)phentsize + (guint32)shnum * (guint32)shentsize;
 
     /* Collect infos for blackholes */
-    segment_info = (segment_info_t *) wmem_alloc(wmem_packet_scope(), sizeof(segment_info_t) * (shnum + phnum + 3));
+    segment_info = (segment_info_t *) wmem_alloc(pinfo->pool, sizeof(segment_info_t) * (shnum + phnum + 3));
 
     segment_info[area_counter].offset = 0;
     segment_info[area_counter].size = ehsize;
@@ -1436,7 +1436,7 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         if (segment_size) {
             gchar  *name;
 
-            name = wmem_strdup_printf(wmem_packet_scope(), "ProgramHeaderEntry #%u", phnum - i_16 - 1);
+            name = wmem_strdup_printf(pinfo->pool, "ProgramHeaderEntry #%u", phnum - i_16 - 1);
 
             proto_tree_add_bytes_format(ph_entry_tree, hf_elf_segment, tvb, value_guard(p_offset), value_guard(segment_size), NULL, "Segment");
 

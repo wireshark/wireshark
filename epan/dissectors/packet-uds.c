@@ -611,7 +611,7 @@ dissect_uds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void* data 
                 proto_tree_add_item(subtree, hf_uds_dsc_parameter_record, tvb,
                                     UDS_DSC_PARAMETER_RECORD_OFFSET, parameter_record_length, ENC_NA);
                 col_append_fstr(pinfo->cinfo, COL_INFO, "   %s",
-                                tvb_bytes_to_str_punct(wmem_packet_scope(), tvb, UDS_DSC_PARAMETER_RECORD_OFFSET,
+                                tvb_bytes_to_str_punct(pinfo->pool, tvb, UDS_DSC_PARAMETER_RECORD_OFFSET,
                                                        parameter_record_length, ' '));
             }
             break;
@@ -631,7 +631,7 @@ dissect_uds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void* data 
             proto_tree_add_item(subtree, hf_uds_rdtci_record, tvb,
                                 UDS_RDTCI_RECORD_OFFSET, record_length, ENC_NA);
             col_append_fstr(pinfo->cinfo, COL_INFO, "   %s    %s", val_to_str(enum_val, uds_rdtci_types, "Unknown (0x%02x)"),
-                            tvb_bytes_to_str_punct(wmem_packet_scope(), tvb, UDS_RDTCI_RECORD_OFFSET, record_length, ' '));
+                            tvb_bytes_to_str_punct(pinfo->pool, tvb, UDS_RDTCI_RECORD_OFFSET, record_length, ' '));
             break;
         }
         case UDS_SERVICES_RDBI:
@@ -650,7 +650,7 @@ dissect_uds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void* data 
                 col_append_fstr(pinfo->cinfo, COL_INFO, "   0x%04x", data_identifier);
                 infocol_append_data_name(pinfo, data_identifier);
                 col_append_fstr(pinfo->cinfo, COL_INFO, "   %s",
-                                tvb_bytes_to_str_punct(wmem_packet_scope(), tvb, UDS_RDBI_DATA_RECORD_OFFSET,
+                                tvb_bytes_to_str_punct(pinfo->pool, tvb, UDS_RDBI_DATA_RECORD_OFFSET,
                                                        record_length, ' '));
             } else {
                 guint32 identifier_length = data_length - UDS_RDBI_DATA_IDENTIFIER_OFFSET;
@@ -681,7 +681,7 @@ dissect_uds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void* data 
                 if (seed_length > 0) {
                     proto_tree_add_item(subtree, hf_uds_sa_seed, tvb, UDS_SA_SEED_OFFSET, seed_length, ENC_NA);
                     col_append_fstr(pinfo->cinfo, COL_INFO, "   %s",
-                                    tvb_bytes_to_str_punct(wmem_packet_scope(), tvb, UDS_SA_SEED_OFFSET, seed_length,
+                                    tvb_bytes_to_str_punct(pinfo->pool, tvb, UDS_SA_SEED_OFFSET, seed_length,
                                                            ' '));
                 }
             } else {
@@ -689,7 +689,7 @@ dissect_uds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void* data 
                 if (key_length > 0) {
                     proto_tree_add_item(subtree, hf_uds_sa_key, tvb, UDS_SA_KEY_OFFSET, key_length, ENC_NA);
                     col_append_fstr(pinfo->cinfo, COL_INFO, "   %s",
-                                    tvb_bytes_to_str_punct(wmem_packet_scope(), tvb, UDS_SA_KEY_OFFSET, key_length,
+                                    tvb_bytes_to_str_punct(pinfo->pool, tvb, UDS_SA_KEY_OFFSET, key_length,
                                                            ' '));
                 }
             }
@@ -711,7 +711,7 @@ dissect_uds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void* data 
                 col_append_fstr(pinfo->cinfo, COL_INFO, "   0x%04x", enum_val);
                 infocol_append_data_name(pinfo, enum_val);
                 col_append_fstr(pinfo->cinfo, COL_INFO, "   %s",
-                                tvb_bytes_to_str_punct(wmem_packet_scope(), tvb, UDS_WDBI_DATA_RECORD_OFFSET,
+                                tvb_bytes_to_str_punct(pinfo->pool, tvb, UDS_WDBI_DATA_RECORD_OFFSET,
                                                        record_length, ' '));
             }
             break;
@@ -735,7 +735,7 @@ dissect_uds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void* data 
             infocol_append_data_name(pinfo, data_identifier);
             col_append_fstr(pinfo->cinfo, COL_INFO, "  %s %s",
                             val_to_str(enum_val, uds_iocbi_parameters, "Unknown (0x%02x)"),
-                            tvb_bytes_to_str_punct(wmem_packet_scope(), tvb, UDS_IOCBI_STATE_OFFSET,
+                            tvb_bytes_to_str_punct(pinfo->pool, tvb, UDS_IOCBI_STATE_OFFSET,
                                                    state_length, ' '));
             break;
         }
@@ -765,7 +765,7 @@ dissect_uds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void* data 
                         proto_tree_add_item(subtree, hf_uds_rc_status_record, tvb,
                                             UDS_RC_STATUS_RECORD_OFFSET, status_record_len, ENC_NA);
                         col_append_fstr(pinfo->cinfo, COL_INFO, "   %s",
-                                        tvb_bytes_to_str_punct(wmem_packet_scope(), tvb,
+                                        tvb_bytes_to_str_punct(pinfo->pool, tvb,
                                                                UDS_RC_STATUS_RECORD_OFFSET, status_record_len, ' '));
                     }
                 }
@@ -775,7 +775,7 @@ dissect_uds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void* data 
                     proto_tree_add_item(subtree, hf_uds_rc_option_record, tvb,
                                         UDS_RC_OPTION_RECORD_OFFSET, option_record_len, ENC_NA);
                     col_append_fstr(pinfo->cinfo, COL_INFO, "   %s",
-                                    tvb_bytes_to_str_punct(wmem_packet_scope(), tvb,
+                                    tvb_bytes_to_str_punct(pinfo->pool, tvb,
                                                            UDS_RC_OPTION_RECORD_OFFSET, option_record_len, ' '));
                 }
             }

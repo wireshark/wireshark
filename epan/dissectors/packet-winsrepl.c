@@ -342,7 +342,7 @@ dissect_winsrepl_wins_address_list(tvbuff_t *winsrepl_tvb, packet_info *pinfo,
 							   winsrepl_offset, addr_list_tree,
 							   &ip, addr_list_tree, i);
 		set_address(&addr, AT_IPv4, 4, &ip);
-		addr_str = address_to_str(wmem_packet_scope(), &addr);
+		addr_str = address_to_str(pinfo->pool, &addr);
 		if (i == 0) {
 			proto_item_append_text(parent_item, ": %s", addr_str);
 			proto_item_append_text(addr_list_item, ": %s", addr_str);

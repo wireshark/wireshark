@@ -3210,7 +3210,7 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
                         gint offset, mac_lte_info *p_mac_lte_info, mac_lte_tap_info *tap_info)
 {
     guint       number_of_rars         = 0; /* No of RAR bodies expected following headers */
-    guint8     *rapids                 = (guint8 *)wmem_alloc(wmem_packet_scope(), MAX_RAR_PDUS * sizeof(guint8));
+    guint8     *rapids                 = (guint8 *)wmem_alloc(pinfo->pool, MAX_RAR_PDUS * sizeof(guint8));
     gboolean    backoff_indicator_seen = FALSE;
     guint8      backoff_indicator      = 0;
     guint8      extension;
@@ -4778,7 +4778,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             lcid_str = val_to_str_const(initial_lcid, (p_mac_lte_info->direction == DIRECTION_UPLINK) ?
                                         ulsch_lcid_vals : dlsch_lcid_vals, "Unknown");
         } else {
-            lcid_str = wmem_strdup_printf(wmem_packet_scope(), "%u", elcids[number_of_headers]);
+            lcid_str = wmem_strdup_printf(pinfo->pool, "%u", elcids[number_of_headers]);
         }
 
         /* Append summary to subheader root */
@@ -6229,12 +6229,12 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         if (!rlc_called_for_sdu) {
             if (pdu_lengths[n] >= 30)
             {
-                proto_item_append_text(sdu_ti, "%s", tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, 30));
+                proto_item_append_text(sdu_ti, "%s", tvb_bytes_to_str(pinfo->pool, tvb, offset, 30));
                 proto_item_append_text(sdu_ti, "...");
             }
             else
             {
-                proto_item_append_text(sdu_ti, "%s", tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, data_length));
+                proto_item_append_text(sdu_ti, "%s", tvb_bytes_to_str(pinfo->pool, tvb, offset, data_length));
             }
         }
 
@@ -6691,12 +6691,12 @@ static void dissect_mch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
                                                  data_length);
             if (pdu_lengths[n] >= 30)
             {
-                proto_item_append_text(sdu_ti, "%s", tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, 30));
+                proto_item_append_text(sdu_ti, "%s", tvb_bytes_to_str(pinfo->pool, tvb, offset, 30));
                 proto_item_append_text(sdu_ti, "...");
             }
             else
             {
-                proto_item_append_text(sdu_ti, "%s", tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, data_length));
+                proto_item_append_text(sdu_ti, "%s", tvb_bytes_to_str(pinfo->pool, tvb, offset, data_length));
             }
         }
 
@@ -7050,10 +7050,10 @@ static void dissect_slsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         /* Show bytes too, if won't be hidden (slow). There must be a nicer way of doing this! */
         if (pdu_lengths[n] >= 30) {
-            proto_item_append_text(sdu_ti, "%s", tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, 30));
+            proto_item_append_text(sdu_ti, "%s", tvb_bytes_to_str(pinfo->pool, tvb, offset, 30));
             proto_item_append_text(sdu_ti, "...");
         } else {
-            proto_item_append_text(sdu_ti, "%s", tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, data_length));
+            proto_item_append_text(sdu_ti, "%s", tvb_bytes_to_str(pinfo->pool, tvb, offset, data_length));
         }
 
         offset += data_length;

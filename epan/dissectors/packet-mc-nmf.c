@@ -297,7 +297,7 @@ dissect_mc_nmf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                     return tvb_reported_length(tvb);
                 proto_tree_add_uint(rec_tree, hf_mc_nmf_upgrade_length, tvb, offset - len_length, len_length, size);
                 proto_tree_add_item(rec_tree, hf_mc_nmf_upgrade, tvb, offset, size, ENC_UTF_8|ENC_NA);
-                upgrade_protocol = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, size, ENC_UTF_8|ENC_NA);
+                upgrade_protocol = tvb_get_string_enc(pinfo->pool, tvb, offset, size, ENC_UTF_8|ENC_NA);
                 offset += size;
                 if (strcmp((char*)upgrade_protocol, "application/negotiate") == 0) {
                     session_state->negotiate = TRUE;

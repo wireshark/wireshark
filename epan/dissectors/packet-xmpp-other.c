@@ -840,7 +840,7 @@ xmpp_x_event(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t
 
     xmpp_element_t *cond, *id;
 
-    gchar *cond_value = wmem_strdup(wmem_packet_scope(), "");
+    gchar *cond_value = wmem_strdup(pinfo->pool, "");
 
     x_item =  proto_tree_add_item(tree, hf_xmpp_x_event, tvb, element->offset, element->length, ENC_BIG_ENDIAN);
     x_tree = proto_item_add_subtree(x_item, ett_xmpp_x_event);
@@ -854,9 +854,9 @@ xmpp_x_event(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t
     while((cond = xmpp_steal_element_by_names(element, cond_names, array_length(cond_names))) != NULL)
     {
         if(strcmp(cond_value,"") != 0)
-            cond_value = wmem_strdup_printf(wmem_packet_scope(), "%s/%s",cond_value, cond->name);
+            cond_value = wmem_strdup_printf(pinfo->pool, "%s/%s",cond_value, cond->name);
         else
-            cond_value = wmem_strdup(wmem_packet_scope(), cond->name);
+            cond_value = wmem_strdup(pinfo->pool, cond->name);
     }
 
     fake_cond = xmpp_ep_init_attr_t(cond_value, element->offset, element->length);

@@ -120,7 +120,7 @@ static int dissect_miop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 
   guint32 unique_id_len;
 
-  wmem_strbuf_t *flags_strbuf = wmem_strbuf_new_label(wmem_packet_scope());
+  wmem_strbuf_t *flags_strbuf = wmem_strbuf_new_label(pinfo->pool);
   wmem_strbuf_append(flags_strbuf, "none");
 
   if (!dissect_miop_heur_check(tvb, pinfo, tree, data))

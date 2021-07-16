@@ -1509,7 +1509,7 @@ add_connattrs_entry_to_tree(tvbuff_t *tvb, packet_info *pinfo _U_, proto_item *t
 	proto_tree_add_uint64(connattrs_tree, hf_mysql_connattrs_name_length, tvb, offset, lenfle, lenstr);
 	offset += lenfle;
 
-	proto_tree_add_item_ret_string(connattrs_tree, hf_mysql_connattrs_name, tvb, offset, (gint)lenstr, ENC_ASCII|ENC_NA, wmem_packet_scope(), &str);
+	proto_tree_add_item_ret_string(connattrs_tree, hf_mysql_connattrs_name, tvb, offset, (gint)lenstr, ENC_ASCII|ENC_NA, pinfo->pool, &str);
 	proto_item_append_text(ti, " - %s", str);
 	offset += (int)lenstr;
 
@@ -1517,7 +1517,7 @@ add_connattrs_entry_to_tree(tvbuff_t *tvb, packet_info *pinfo _U_, proto_item *t
 	proto_tree_add_uint64(connattrs_tree, hf_mysql_connattrs_value_length, tvb, offset, lenfle, lenstr);
 	offset += lenfle;
 
-	proto_tree_add_item_ret_string(connattrs_tree, hf_mysql_connattrs_value, tvb, offset, (gint)lenstr, ENC_ASCII|ENC_NA, wmem_packet_scope(), &str);
+	proto_tree_add_item_ret_string(connattrs_tree, hf_mysql_connattrs_value, tvb, offset, (gint)lenstr, ENC_ASCII|ENC_NA, pinfo->pool, &str);
 	proto_item_append_text(ti, ": %s", str);
 	offset += (int)lenstr;
 

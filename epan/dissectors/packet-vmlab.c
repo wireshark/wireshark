@@ -111,8 +111,8 @@ dissect_vmlab(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     offset += 6;
 
     proto_item_append_text(ti, ", Src: %s, Dst: %s",
-                           tvb_address_with_resolution_to_str(wmem_packet_scope(), tvb, AT_ETHER, offset-6),
-                           tvb_address_with_resolution_to_str(wmem_packet_scope(), tvb, AT_ETHER, offset-12));
+                           tvb_address_with_resolution_to_str(pinfo->pool, tvb, AT_ETHER, offset-6),
+                           tvb_address_with_resolution_to_str(pinfo->pool, tvb, AT_ETHER, offset-12));
 
     /* Encapsulated Ethertype is also part of the block*/
     encap_proto = tvb_get_ntohs(tvb, offset);

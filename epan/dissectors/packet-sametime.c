@@ -516,7 +516,7 @@ dissect_sametime_content(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
    col_append_str(pinfo->cinfo, COL_INFO, " ");
 
    /* message type statistic */
-   sinfo = wmem_new(wmem_packet_scope(), struct SametimeTap);
+   sinfo = wmem_new(pinfo->pool, struct SametimeTap);
    sinfo->message_type = message_type;
    sinfo->send_type = -1;
    sinfo->user_status = -1;

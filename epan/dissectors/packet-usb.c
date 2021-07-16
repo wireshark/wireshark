@@ -2491,7 +2491,7 @@ dissect_usb_endpoint_descriptor(packet_info *pinfo, proto_tree *parent_tree,
     if ((!pinfo->fd->visited) && usb_trans_info && usb_trans_info->interface_info) {
         if (pinfo->destport == NO_ENDPOINT) {
             address tmp_addr;
-            usb_address_t *usb_addr = wmem_new0(wmem_packet_scope(), usb_address_t);
+            usb_address_t *usb_addr = wmem_new0(pinfo->pool, usb_address_t);
 
             /* packet is sent from a USB device's endpoint 0 to the host
              * replace endpoint 0 with the endpoint of this descriptor
@@ -2919,7 +2919,7 @@ dissect_usb_setup_get_descriptor_response(packet_info *pinfo, proto_tree *tree,
                 proto_tree_add_bytes_format(tree, hf_usb_get_descriptor_resp_generic, tvb, offset, len, NULL,
                                             "GET DESCRIPTOR Response data (unknown descriptor type %u): %s",
                                             usb_trans_info->u.get_descriptor.type,
-                                            tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, len));
+                                            tvb_bytes_to_str(pinfo->pool, tvb, offset, len));
                 offset = offset + len;
             }
             break;
@@ -3444,7 +3444,7 @@ usb_tap_queue_packet(packet_info *pinfo, guint8 urb_type,
 {
     usb_tap_data_t *tap_data;
 
-    tap_data                = wmem_new(wmem_packet_scope(), usb_tap_data_t);
+    tap_data                = wmem_new(pinfo->pool, usb_tap_data_t);
     tap_data->urb_type      = urb_type;
     tap_data->transfer_type = (guint8)(usb_conv_info->transfer_type);
     tap_data->conv_info     = usb_conv_info;
@@ -3610,7 +3610,7 @@ try_dissect_next_protocol(proto_tree *tree, tvbuff_t *next_tvb, packet_info *pin
                 endpoint = usb_trans_info->setup.wIndex & 0x0f;
 
                 if (usb_conv_info->is_request) {
-                    usb_address_t *dst_addr = wmem_new0(wmem_packet_scope(), usb_address_t);
+                    usb_address_t *dst_addr = wmem_new0(pinfo->pool, usb_address_t);
                     dst_addr->bus_id = usb_conv_info->bus_id;
                     dst_addr->device = usb_conv_info->device_address;
                     dst_addr->endpoint = dst_endpoint = GUINT32_TO_LE(endpoint);
@@ -3619,7 +3619,7 @@ try_dissect_next_protocol(proto_tree *tree, tvbuff_t *next_tvb, packet_info *pin
                     conversation = get_usb_conversation(pinfo, &pinfo->src, &endpoint_addr, pinfo->srcport, dst_endpoint);
                 }
                 else {
-                    usb_address_t *src_addr = wmem_new0(wmem_packet_scope(), usb_address_t);
+                    usb_address_t *src_addr = wmem_new0(pinfo->pool, usb_address_t);
                     src_addr->bus_id = usb_conv_info->bus_id;
                     src_addr->device = usb_conv_info->device_address;
                     src_addr->endpoint = src_endpoint = GUINT32_TO_LE(endpoint);
@@ -4146,8 +4146,8 @@ usb_set_addr(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, guint16 bus_id
     /* sent/received is from the perspective of the USB host */
     pinfo->p2p_dir = req ? P2P_DIR_SENT : P2P_DIR_RECV;
 
-    str_src_addr = address_to_str(wmem_packet_scope(), &pinfo->src);
-    str_dst_addr = address_to_str(wmem_packet_scope(), &pinfo->dst);
+    str_src_addr = address_to_str(pinfo->pool, &pinfo->src);
+    str_dst_addr = address_to_str(pinfo->pool, &pinfo->dst);
 
     sub_item = proto_tree_add_string(tree, hf_usb_src, tvb, 0, 0, str_src_addr);
     proto_item_set_generated(sub_item);

@@ -224,7 +224,7 @@ de_sgsap_imeisv(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
 
     curr_offset = offset;
 
-    proto_tree_add_item_ret_display_string(tree, hf_sgsap_imeisv, tvb, curr_offset, len, ENC_BCD_DIGITS_0_9, wmem_packet_scope(), &imeisv_str);
+    proto_tree_add_item_ret_display_string(tree, hf_sgsap_imeisv, tvb, curr_offset, len, ENC_BCD_DIGITS_0_9, pinfo->pool, &imeisv_str);
     if (add_string) {
         /* (len<<2)+4 = the maximum number of bytes to produce (including the terminating nul character). */
         g_snprintf(add_string, (len<<2)+4, " - %s", imeisv_str);
@@ -363,7 +363,7 @@ de_sgsap_mme_name(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
         name_len = tvb_get_guint8(tvb, offset);
 
         if (name_len < 0x20) {
-            fqdn = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1, len - 1, ENC_ASCII);
+            fqdn = tvb_get_string_enc(pinfo->pool, tvb, offset + 1, len - 1, ENC_ASCII);
             for (;;) {
                 if (name_len >= len - 1)
                     break;
@@ -372,7 +372,7 @@ de_sgsap_mme_name(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
                 fqdn[tmp] = '.';
             }
         } else{
-            fqdn = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, len, ENC_ASCII);
+            fqdn = tvb_get_string_enc(pinfo->pool, tvb, offset, len, ENC_ASCII);
         }
         proto_tree_add_string(tree, hf_sgsap_mme_name, tvb, offset, len, fqdn);
         if (add_string)
@@ -564,7 +564,7 @@ de_sgsap_vlr_name(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
         name_len = tvb_get_guint8(tvb, offset);
 
         if (name_len < 0x20) {
-            fqdn = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1, len - 1, ENC_ASCII);
+            fqdn = tvb_get_string_enc(pinfo->pool, tvb, offset + 1, len - 1, ENC_ASCII);
             for (;;) {
                 if (name_len >= len - 1)
                     break;
@@ -573,7 +573,7 @@ de_sgsap_vlr_name(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
                 fqdn[tmp] = '.';
             }
         } else{
-            fqdn = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, len, ENC_ASCII);
+            fqdn = tvb_get_string_enc(pinfo->pool, tvb, offset, len, ENC_ASCII);
         }
         proto_tree_add_string(tree, hf_sgsap_vlr_name, tvb, offset, len, fqdn);
         if (add_string)

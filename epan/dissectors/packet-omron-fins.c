@@ -1236,7 +1236,7 @@ dissect_omron_fins_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *omron_t
 
     cmd_str = try_val_to_str_idx(command_code, command_code_cv, &cmd_str_idx);
     if (cmd_str_idx == -1)
-        cmd_str = wmem_strdup_printf(wmem_packet_scope(), "Unknown (%d)", command_code);
+        cmd_str = wmem_strdup_printf(pinfo->pool, "Unknown (%d)", command_code);
 
     /* Setup and fill in the INFO column if it's there */
     icf_flags = tvb_get_guint8(tvb, offset);

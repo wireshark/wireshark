@@ -1807,7 +1807,7 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
                 default:
                     proto_tree_add_item(hdr_tree, hf_hdr_val_unicode, tvb, offset, value_length, ENC_UCS_2 | ENC_BIG_ENDIAN);
                 }
-                str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, value_length, ENC_UCS_2 | ENC_BIG_ENDIAN);
+                str = tvb_get_string_enc(pinfo->pool, tvb, offset, value_length, ENC_UCS_2 | ENC_BIG_ENDIAN);
                 proto_item_append_text(hdr_tree, ": \"%s\"", str);
 
                 col_append_fstr(pinfo->cinfo, COL_INFO, " \"%s\"", str);
@@ -1922,7 +1922,7 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
                     break;
                 case 0x42: /* Type */
                     proto_tree_add_item(hdr_tree, hf_type, tvb, offset, value_length, ENC_ASCII | ENC_NA);
-                    proto_item_append_text(hdr_tree, ": \"%s\"", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, value_length, ENC_ASCII));
+                    proto_item_append_text(hdr_tree, ": \"%s\"", tvb_get_string_enc(pinfo->pool, tvb, offset, value_length, ENC_ASCII));
                     if (!pinfo->fd->visited && obex_last_opcode_data && (obex_last_opcode_data->code == OBEX_CODE_VALS_GET || obex_last_opcode_data->code == OBEX_CODE_VALS_PUT)) {
                         obex_last_opcode_data->data.get_put.type = tvb_get_string_enc(wmem_file_scope(), tvb, offset, value_length, ENC_ASCII | ENC_NA);
                     }
@@ -1939,7 +1939,7 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
                 case 0x44: /* Time (ISO8601) */
                     {
                     const guint8* time_str;
-                    proto_tree_add_item_ret_string(hdr_tree, hf_time_iso8601, tvb, offset, value_length, ENC_ASCII | ENC_NA, wmem_packet_scope(), &time_str);
+                    proto_tree_add_item_ret_string(hdr_tree, hf_time_iso8601, tvb, offset, value_length, ENC_ASCII | ENC_NA, pinfo->pool, &time_str);
                     proto_item_append_text(hdr_tree, ": \"%s\"", time_str);
 
                     offset += value_length;
@@ -1969,8 +1969,8 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
                         {
                             call_dissector(xml_handle, next_tvb, pinfo, tree);
                         } else if (is_ascii_str(tvb_get_ptr(tvb, offset, value_length), value_length)) {
-                            proto_item_append_text(hdr_tree, ": \"%s\"", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, value_length, ENC_ASCII));
-                            col_append_fstr(pinfo->cinfo, COL_INFO, " \"%s\"", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, value_length, ENC_ASCII));
+                            proto_item_append_text(hdr_tree, ": \"%s\"", tvb_get_string_enc(pinfo->pool, tvb, offset, value_length, ENC_ASCII));
+                            col_append_fstr(pinfo->cinfo, COL_INFO, " \"%s\"", tvb_get_string_enc(pinfo->pool, tvb, offset, value_length, ENC_ASCII));
                         }
                         offset += value_length;
                     }
@@ -2039,7 +2039,7 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
                 case 0x51: /* Object Class */
                     {
                     const guint8* obj_str;
-                    proto_tree_add_item_ret_string(hdr_tree, hf_object_class, tvb, offset, value_length, ENC_ASCII | ENC_NA, wmem_packet_scope(), &obj_str);
+                    proto_tree_add_item_ret_string(hdr_tree, hf_object_class, tvb, offset, value_length, ENC_ASCII | ENC_NA, pinfo->pool, &obj_str);
                     proto_item_append_text(hdr_tree, ": \"%s\"", obj_str);
 
                     offset += value_length;

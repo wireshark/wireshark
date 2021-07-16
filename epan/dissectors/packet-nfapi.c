@@ -6934,7 +6934,7 @@ static void dissect_rx_cqi_indication_body_value(ptvcursor_t * ptvc, packet_info
 
 	if (num_pdu > 0)
 	{
-		lengths = (guint16*)wmem_alloc0(wmem_packet_scope(), num_pdu * 2);
+		lengths = (guint16*)wmem_alloc0(pinfo->pool, num_pdu * 2);
 	}
 
 	for (i = 0; i < num_pdu; ++i)
@@ -8066,7 +8066,7 @@ static void dissect_rx_indication_body_value(ptvcursor_t * ptvc, packet_info* pi
 {
 	guint32 i = 0, count;
 	guint number_of_pdu_addr = ptvcursor_current_offset(ptvc); // *offset;
-	wmem_array_t *lengths = wmem_array_new(wmem_packet_scope(), sizeof(guint16));
+	wmem_array_t *lengths = wmem_array_new(pinfo->pool, sizeof(guint16));
 
 	ptvcursor_add_ret_uint(ptvc, hf_nfapi_number_pdus, 2, ENC_BIG_ENDIAN, &count);
 

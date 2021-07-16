@@ -1153,7 +1153,7 @@ dissect_rdp_clientNetworkData(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 		if (rdp_info) {
 			rdp_channel_def_t *channel = &rdp_info->staticChannels[i];
 			channel->value = -1; /* unset */
-			channel->strptr = tvb_get_string_enc(wmem_packet_scope(), tvb,
+			channel->strptr = tvb_get_string_enc(pinfo->pool, tvb,
 					offset, 8, ENC_ASCII);
 			channel->channelType = find_known_channel_by_name(
 					channel->strptr);
@@ -2396,9 +2396,9 @@ dissect_rdp_cr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void*
     linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, TRUE);
     proto_tree_add_item_ret_string(tree, hf_rdp_rt_cookie, tvb, offset,
                                    linelen, ENC_ASCII|ENC_NA,
-                                   wmem_packet_scope(), &stringval);
+                                   pinfo->pool, &stringval);
     offset = (linelen == -1) ? (gint)tvb_captured_length(tvb) : next_offset;
-    col_append_str(pinfo->cinfo, COL_INFO, format_text(wmem_packet_scope(), stringval, strlen(stringval)));
+    col_append_str(pinfo->cinfo, COL_INFO, format_text(pinfo->pool, stringval, strlen(stringval)));
     sep = ", ";
   }
   /*

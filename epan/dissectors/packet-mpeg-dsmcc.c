@@ -977,7 +977,7 @@ dissect_dsmcc_un_session_id(
     offset_start = offset;
 
     sub_sub_tree = proto_tree_add_subtree(sub_tree, tvb, offset, 10, ett_dsmcc_heading, NULL, "Session ID");
-    proto_item_set_text(sub_sub_tree, "Session ID: 0x%s", tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, 10));
+    proto_item_set_text(sub_sub_tree, "Session ID: 0x%s", tvb_bytes_to_str(pinfo->pool, tvb, offset, 10));
     proto_tree_add_item(sub_sub_tree, hf_dsmcc_un_sess_session_id_device_id, tvb, offset, 6, ENC_NA);
     offset += 6;
     proto_tree_add_item(sub_sub_tree, hf_dsmcc_un_sess_session_id_session_number, tvb, offset, 4, ENC_BIG_ENDIAN);

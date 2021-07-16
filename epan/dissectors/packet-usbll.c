@@ -701,8 +701,8 @@ usbll_set_address(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
     set_address(&pinfo->net_dst, usbll_address_type, sizeof(usbll_address_t), (char *)dst_addr);
     copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
 
-    str_src_addr = address_to_str(wmem_packet_scope(), &pinfo->src);
-    str_dst_addr = address_to_str(wmem_packet_scope(), &pinfo->dst);
+    str_src_addr = address_to_str(pinfo->pool, &pinfo->src);
+    str_dst_addr = address_to_str(pinfo->pool, &pinfo->dst);
 
     sub_item = proto_tree_add_string(tree, hf_usbll_src, tvb, 0, 0, str_src_addr);
     proto_item_set_generated(sub_item);

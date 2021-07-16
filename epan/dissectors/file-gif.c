@@ -338,7 +338,7 @@ dissect_gif(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
     /* GIF signature */
     proto_tree_add_item_ret_string(gif_tree, &hfi_version,
-            tvb, offset, 6, ENC_ASCII|ENC_NA, wmem_packet_scope(), &ver_str);
+            tvb, offset, 6, ENC_ASCII|ENC_NA, pinfo->pool, &ver_str);
     proto_item_append_text(ti, ", Version: %s", ver_str);
     col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", ver_str);
     offset += 6;

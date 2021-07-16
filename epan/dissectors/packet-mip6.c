@@ -1998,13 +1998,13 @@ dissect_mip6_opt_vsm_3gpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
         break;
     /* 11, Mobile Equipment Identity (MEI) */
     case 11:
-        proto_tree_add_item_ret_display_string(tree, hf_mip6_opt_3gpp_mei, tvb, offset, len, ENC_BCD_DIGITS_0_9, wmem_packet_scope(), &mei_str);
+        proto_tree_add_item_ret_display_string(tree, hf_mip6_opt_3gpp_mei, tvb, offset, len, ENC_BCD_DIGITS_0_9, pinfo->pool, &mei_str);
         proto_item_append_text(hdr_item, " %s", mei_str);
         break;
     /* 12, MSISDN */
     case 12:
         dissect_e164_cc(tvb, tree, offset, E164_ENC_BCD);
-        proto_tree_add_item_ret_display_string(tree, hf_mip6_opt_3gpp_msisdn, tvb, offset, len, ENC_BCD_DIGITS_0_9, wmem_packet_scope(), &digit_str);
+        proto_tree_add_item_ret_display_string(tree, hf_mip6_opt_3gpp_msisdn, tvb, offset, len, ENC_BCD_DIGITS_0_9, pinfo->pool, &digit_str);
         proto_item_append_text(hdr_item, " %s", digit_str);
         break;
     /* 13, Serving Network */
@@ -2022,7 +2022,7 @@ dissect_mip6_opt_vsm_3gpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
          break;
     /* 16, Unauthenticated IMSI */
     case 16:
-        proto_tree_add_item_ret_display_string(tree, hf_mip6_opt_3gpp_imsi, tvb, offset, len, ENC_BCD_DIGITS_0_9, wmem_packet_scope(), &imsi_str);
+        proto_tree_add_item_ret_display_string(tree, hf_mip6_opt_3gpp_imsi, tvb, offset, len, ENC_BCD_DIGITS_0_9, pinfo->pool, &imsi_str);
         proto_item_append_text(hdr_item," %s", imsi_str);
         break;
     /* 17, PDN Connection ID */
@@ -2267,7 +2267,7 @@ dissect_mip6_opt_mnid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
     offset++;
 
     if (option_len - offset > 0) {
-        proto_tree_add_item_ret_string(opt_tree, hf_mip6_mnid_identifier, tvb, offset, option_len - 1, ENC_UTF_8|ENC_NA, wmem_packet_scope(), &str);
+        proto_tree_add_item_ret_string(opt_tree, hf_mip6_mnid_identifier, tvb, offset, option_len - 1, ENC_UTF_8|ENC_NA, pinfo->pool, &str);
         proto_item_append_text(ti, ": %s", str);
     }
 
@@ -2544,7 +2544,7 @@ dissect_mip6_opt_ssm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
         name_len = tvb_get_guint8(tvb, offset);
 
         if (name_len < 0x20) {
-            apn = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1, option_len - 1, ENC_ASCII);
+            apn = tvb_get_string_enc(pinfo->pool, tvb, offset + 1, option_len - 1, ENC_ASCII);
             for (;;) {
                 if (name_len >= option_len - 1)
                     break;
@@ -2554,7 +2554,7 @@ dissect_mip6_opt_ssm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
             }
         }
         else {
-            apn = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, option_len, ENC_ASCII);
+            apn = tvb_get_string_enc(pinfo->pool, tvb, offset, option_len, ENC_ASCII);
         }
         proto_tree_add_string(opt_tree, hf_mip6_opt_ss_identifier, tvb, offset, option_len, apn);
     }
@@ -2748,7 +2748,7 @@ dissect_pmip6_opt_ts(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 
     opt_tree = mip6_fixed_option_header(tree, pinfo, tvb, proto_mip6_option_ts, ett_pmip6_opt_ts, &ti, option_len, PMIP6_TS_LEN);
 
-    proto_tree_add_item_ret_time_string(opt_tree, hf_pmip6_timestamp, tvb, offset, 8, ENC_TIME_MIP6|ENC_BIG_ENDIAN, wmem_packet_scope(), &str);
+    proto_tree_add_item_ret_time_string(opt_tree, hf_pmip6_timestamp, tvb, offset, 8, ENC_TIME_MIP6|ENC_BIG_ENDIAN, pinfo->pool, &str);
     proto_item_append_text(ti, ": %s", str);
 
     return tvb_captured_length(tvb);
@@ -3557,7 +3557,7 @@ dissect_pmip6_opt_acc_net_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
             if(e_bit == 0x80){
                 const guint8* name;
-                proto_tree_add_item_ret_string(subopt_tree, hf_mip6_opt_acc_net_id_sub_opt_net_name, tvb, offset, net_name_len, ENC_BIG_ENDIAN|ENC_UTF_8, wmem_packet_scope(), &name);
+                proto_tree_add_item_ret_string(subopt_tree, hf_mip6_opt_acc_net_id_sub_opt_net_name, tvb, offset, net_name_len, ENC_BIG_ENDIAN|ENC_UTF_8, pinfo->pool, &name);
                 proto_item_append_text(ti, " Network Name: %s", name);
             }else{
                 proto_tree_add_item(subopt_tree, hf_mip6_opt_acc_net_id_sub_opt_net_name_data, tvb, offset, net_name_len, ENC_BIG_ENDIAN|ENC_UTF_8);
@@ -3568,7 +3568,7 @@ dissect_pmip6_opt_acc_net_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             proto_tree_add_item(subopt_tree, hf_mip6_opt_acc_net_id_sub_opt_ap_name_len, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
 
-            proto_tree_add_item_ret_string(subopt_tree, hf_mip6_opt_acc_net_id_sub_opt_ap_name, tvb, offset, ap_name_len, ENC_BIG_ENDIAN|ENC_UTF_8, wmem_packet_scope(), &ap_name);
+            proto_tree_add_item_ret_string(subopt_tree, hf_mip6_opt_acc_net_id_sub_opt_ap_name, tvb, offset, ap_name_len, ENC_BIG_ENDIAN|ENC_UTF_8, pinfo->pool, &ap_name);
             proto_item_append_text(ti, " AP Name: %s", ap_name);
 
             offset = offset+ap_name_len;
@@ -3715,7 +3715,7 @@ dissect_mipv6_options(tvbuff_t *tvb, int offset, guint length,
         } else {
             option_dissector = dissector_get_uint_handle(mip6_option_table, opt);
             if (option_dissector == NULL) {
-                name = wmem_strdup_printf(wmem_packet_scope(), "Unknown (0x%02x)", opt);
+                name = wmem_strdup_printf(pinfo->pool, "Unknown (0x%02x)", opt);
             } else {
                 name = dissector_handle_get_short_name(option_dissector);
             }

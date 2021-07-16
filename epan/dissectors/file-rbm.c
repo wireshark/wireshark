@@ -143,7 +143,7 @@ static void dissect_rbm_integer(tvbuff_t* tvb, packet_info* pinfo, proto_tree* t
 	proto_tree_add_int_format_value(tree, hf_rbm_integer, tvb, *offset, len, value, "%d", value);
 	*offset += len;
 	if (value_str)
-		*value_str = wmem_strdup_printf(wmem_packet_scope(), "%d", value);
+		*value_str = wmem_strdup_printf(pinfo->pool, "%d", value);
 }
 
 static void dissect_rbm_basic(tvbuff_t* tvb _U_, packet_info* pinfo, proto_tree* tree _U_, guint* offset _U_, const guint8 subtype,
@@ -179,10 +179,10 @@ static void dissect_rbm_string_data_trailer(tvbuff_t* tvb, packet_info* pinfo, p
 	get_rbm_integer(tvb, *offset, &value, &len);
 	proto_tree_add_int_format_value(tree, hf_rbm_length, tvb, *offset, len, value, "%d", value);
 	*offset += len;
-	s = (const char*)tvb_get_string_enc(wmem_packet_scope(), tvb, *offset, value, ENC_NA);
+	s = (const char*)tvb_get_string_enc(pinfo->pool, tvb, *offset, value, ENC_NA);
 	proto_tree_add_string_format_value(tree, hf_rbm_string, tvb, *offset, value, s, "%s%s%s", prefix, s, trailer);
 	*offset += value;
-	*value_str = wmem_strdup_printf(wmem_packet_scope(), "%s%s%s", prefix, s, trailer);
+	*value_str = wmem_strdup_printf(pinfo->pool, "%s%s%s", prefix, s, trailer);
 }
 
 static void dissect_rbm_string_data(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, guint* offset, const gchar* label,
@@ -214,7 +214,7 @@ static void dissect_rbm_array(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tre
 	proto_item_set_len(array_tree, *offset - offset_start);
 
 	if (value_str)
-		*value_str = wmem_strdup_printf(wmem_packet_scope(), "%d", value);
+		*value_str = wmem_strdup_printf(pinfo->pool, "%d", value);
 }
 
 static void dissect_rbm_hash(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, guint* offset, gchar** value_str)
@@ -248,7 +248,7 @@ static void dissect_rbm_hash(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree
 	proto_item_set_len(hash_tree, *offset - offset_start);
 
 	if (value_str)
-		*value_str = wmem_strdup_printf(wmem_packet_scope(), "%d", value);
+		*value_str = wmem_strdup_printf(pinfo->pool, "%d", value);
 }
 
 static void dissect_rbm_link(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, guint* offset, guint8 subtype,
@@ -269,14 +269,14 @@ static void dissect_rbm_link(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree
 			DISSECTOR_ASSERT_NOT_REACHED();
 	}
 
-	rbm_set_info(pinfo, wmem_strdup_printf(wmem_packet_scope(), "%s Link", label));
+	rbm_set_info(pinfo, wmem_strdup_printf(pinfo->pool, "%s Link", label));
 	get_rbm_integer(tvb, *offset, &value, &len);
 	proto_tree_add_int_format_value(tree, hf_rbm_link, tvb, *offset, len, value, "%d", value);
 	*offset += len;
 	if (type)
 		*type = label;
 	if (value_str)
-		*value_str = wmem_strdup_printf(wmem_packet_scope(), "%d", value);
+		*value_str = wmem_strdup_printf(pinfo->pool, "%d", value);
 }
 
 static void dissect_rbm_double(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, guint* offset, gchar** value_str)
@@ -291,12 +291,12 @@ static void dissect_rbm_double(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tr
 	get_rbm_integer(tvb, *offset, &value, &len);
 	proto_tree_add_int_format_value(tree, hf_rbm_length, tvb, *offset, len, value, "%d", value);
 	*offset += len;
-	s = (const char*)tvb_get_string_enc(wmem_packet_scope(), tvb, *offset, value, ENC_NA);
+	s = (const char*)tvb_get_string_enc(pinfo->pool, tvb, *offset, value, ENC_NA);
 	valued = g_ascii_strtod(s, NULL);
 	proto_tree_add_double(tree, hf_rbm_double, tvb, *offset, value, valued);
 	*offset += value;
 	if (value_str)
-		*value_str = wmem_strdup_printf(wmem_packet_scope(), "%f", valued);
+		*value_str = wmem_strdup_printf(pinfo->pool, "%f", valued);
 }
 
 static void dissect_rbm_struct_data(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, guint* offset, gchar** value_str)
@@ -313,7 +313,7 @@ static void dissect_rbm_struct_data(tvbuff_t* tvb, packet_info* pinfo, proto_tre
 	proto_tree_add_item(tree, hf_rbm_struct, tvb, *offset + 1, value, ENC_ASCII|ENC_NA);
 	*offset += 1 + value;
 	if (value_str)
-		*value_str = wmem_strdup_printf(wmem_packet_scope(), "%d", value);
+		*value_str = wmem_strdup_printf(pinfo->pool, "%d", value);
 }
 
 static void dissect_rbm_string(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, guint* offset, gchar** value)
@@ -518,7 +518,7 @@ static gboolean dissect_rbm_header(tvbuff_t* tvb, packet_info* pinfo, proto_tree
 	major = tvb_get_guint8(tvb, *offset);
 	minor = tvb_get_guint8(tvb, *offset + 1);
 
-	version = wmem_strdup_printf(wmem_packet_scope(), "%u.%u", major, minor);
+	version = wmem_strdup_printf(pinfo->pool, "%u.%u", major, minor);
 	proto_tree_add_string_format(tree, hf_rbm_version, tvb, *offset, 2, version, "Version: %s", version);
 	*offset += 2;
 

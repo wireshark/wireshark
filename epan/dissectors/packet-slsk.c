@@ -845,10 +845,10 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           proto_tree_add_item_ret_length(slsk_tree, hf_slsk_username, tvb, offset, 4, ENC_ASCII|ENC_LITTLE_ENDIAN, &str_len);
           offset += str_len;
           len = tvb_get_letohl(tvb, offset);
-          str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset+4, len, ENC_ASCII);
+          str = tvb_get_string_enc(pinfo->pool, tvb, offset+4, len, ENC_ASCII);
           proto_tree_add_string_format_value(slsk_tree, hf_slsk_connection_type, tvb, offset, 4+len, str,
             "%s (Char: %s)", connection_type(str),
-            format_text(wmem_packet_scope(), str, len));
+            format_text(pinfo->pool, str, len));
           offset += 4+len;
         }
         else if (check_slsk_format(tvb, offset, "issiii")) {
@@ -861,10 +861,10 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           proto_tree_add_item_ret_length(slsk_tree, hf_slsk_username, tvb, offset, 4, ENC_ASCII|ENC_LITTLE_ENDIAN, &str_len);
           offset += str_len;
           len = tvb_get_letohl(tvb, offset);
-          str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset+4, len, ENC_ASCII);
+          str = tvb_get_string_enc(pinfo->pool, tvb, offset+4, len, ENC_ASCII);
           proto_tree_add_string_format_value(slsk_tree, hf_slsk_connection_type, tvb, offset, 4+len, str,
             "%s (Char: %s)", connection_type(str),
-            format_text(wmem_packet_scope(), str, len));
+            format_text(pinfo->pool, str, len));
           offset += 4+len;
           proto_tree_add_item(slsk_tree, hf_slsk_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
           offset += 4;
@@ -1998,10 +1998,10 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             proto_tree_add_item_ret_length(slsk_tree, hf_slsk_username, tvb, offset, 4, ENC_ASCII|ENC_LITTLE_ENDIAN, &str_len);
             offset += str_len;
             len = tvb_get_letohl(tvb, offset);
-            str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset+4, len, ENC_ASCII);
+            str = tvb_get_string_enc(pinfo->pool, tvb, offset+4, len, ENC_ASCII);
             proto_tree_add_string_format_value(slsk_tree, hf_slsk_connection_type, tvb, offset, 4+len, str,
               "%s (Char: %s)", connection_type(str),
-              format_text(wmem_packet_scope(), str, len));
+              format_text(pinfo->pool, str, len));
             offset += 4+len;
             proto_tree_add_item(slsk_tree, hf_slsk_token, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;

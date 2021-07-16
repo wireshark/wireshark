@@ -1952,7 +1952,7 @@ dissect_thread_nwd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
                         tvb_memcpy(tvb, (guint8 *)&prefix.bytes, offset, prefix_byte_len);
                     proto_tree_add_ipv6(tlv_tree, hf_thread_nwd_tlv_prefix, tvb, offset, prefix_byte_len, &prefix);
                     set_address(&prefix_addr, AT_IPv6, 16, prefix.bytes);
-                    proto_item_append_text(ti, " = %s/%d", address_to_str(wmem_packet_scope(), &prefix_addr), prefix_len);
+                    proto_item_append_text(ti, " = %s/%d", address_to_str(pinfo->pool, &prefix_addr), prefix_len);
                     offset += prefix_byte_len;
                     tlv_offset += prefix_byte_len;
 
@@ -2111,7 +2111,7 @@ dissect_thread_coap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 
     uri = wmem_strbuf_get_str(coinfo->uri_str_strbuf);
 
-    tokens = wmem_strsplit(wmem_packet_scope(), uri, "/", 3);
+    tokens = wmem_strsplit(pinfo->pool, uri, "/", 3);
     if (g_strv_length(tokens) == 3) {
         /* No need to create a subset as we are dissecting the tvb as it is. */
         dissector_try_string(thread_coap_namespace, tokens[THREAD_URI_NAMESPACE_IDX], tvb, pinfo, tree, NULL);
@@ -2155,7 +2155,7 @@ static int dissect_thread_bcn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     offset += 1;
 
     /* Get and display the network ID. */
-    proto_tree_add_item_ret_string(beacon_tree, hf_thread_bcn_network_id, tvb, offset, 16, ENC_ASCII|ENC_NA, wmem_packet_scope(), &ssid);
+    proto_tree_add_item_ret_string(beacon_tree, hf_thread_bcn_network_id, tvb, offset, 16, ENC_ASCII|ENC_NA, pinfo->pool, &ssid);
     col_append_fstr(pinfo->cinfo, COL_INFO, ", Network ID: %s", ssid);
     offset += 16;
 

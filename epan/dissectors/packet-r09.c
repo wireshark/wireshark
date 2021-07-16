@@ -82,7 +82,7 @@ dissect_r09(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     ib2 = tvb_get_guint8(tvb, 1);
     tl = ib2 & 0x0F;
 
-    r09x_str = wmem_strdup_printf(wmem_packet_scope(), "R09.%u%u", ty, tl);
+    r09x_str = wmem_strdup_printf(pinfo->pool, "R09.%u%u", ty, tl);
     col_append_fstr(pinfo->cinfo, COL_INFO, " %s", r09x_str);
 
     ti = proto_tree_add_protocol_format(tree, proto_r09, tvb, 0, -1, "%s", r09x_str);
@@ -116,19 +116,19 @@ dissect_r09(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
     if (tl >= 3) {
         /* Zusatzbyte 2, 3 */
-        ln_str = tvb_get_bcd_string(wmem_packet_scope(), tvb, 4, 2, &Dgt1_9_bcd, TRUE, FALSE, TRUE);
+        ln_str = tvb_get_bcd_string(pinfo->pool, tvb, 4, 2, &Dgt1_9_bcd, TRUE, FALSE, TRUE);
         proto_tree_add_string(r09_tree, hf_r09_ln, tvb, 4, 2, ln_str);
     }
 
     if (tl >= 4) {
         /* Zusatzbyte 4 */
-        kn_str = tvb_get_bcd_string(wmem_packet_scope(), tvb, 6, 1, &Dgt1_9_bcd, FALSE, FALSE, TRUE);
+        kn_str = tvb_get_bcd_string(pinfo->pool, tvb, 6, 1, &Dgt1_9_bcd, FALSE, FALSE, TRUE);
         proto_tree_add_string(r09_tree, hf_r09_kn, tvb, 6, 1, kn_str);
     }
 
     if (tl >= 6) {
         /* Zusatzbyte 5, 6 */
-        zn_str = tvb_get_bcd_string(wmem_packet_scope(), tvb, 7, 2, &Dgt1_9_bcd, FALSE, TRUE, TRUE);
+        zn_str = tvb_get_bcd_string(pinfo->pool, tvb, 7, 2, &Dgt1_9_bcd, FALSE, TRUE, TRUE);
         proto_tree_add_string(r09_tree, hf_r09_zn, tvb, 7, 2, zn_str);
     }
 
@@ -139,9 +139,9 @@ dissect_r09(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
     if (tl == 8) {
         /* Zusatzbyte 6, 7, 8 */
-        fn_str = tvb_get_bcd_string(wmem_packet_scope(), tvb, 8, 2, &Dgt1_9_bcd, TRUE, FALSE, TRUE);
+        fn_str = tvb_get_bcd_string(pinfo->pool, tvb, 8, 2, &Dgt1_9_bcd, TRUE, FALSE, TRUE);
         proto_tree_add_string(r09_tree, hf_r09_fn, tvb, 8, 2, fn_str);
-        un_str = tvb_get_bcd_string(wmem_packet_scope(), tvb, 10, 1, &Dgt1_9_bcd, FALSE, FALSE, TRUE);
+        un_str = tvb_get_bcd_string(pinfo->pool, tvb, 10, 1, &Dgt1_9_bcd, FALSE, FALSE, TRUE);
         proto_tree_add_string(r09_tree, hf_r09_un, tvb, 10, 1, un_str);
     }
 

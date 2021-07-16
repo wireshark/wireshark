@@ -156,7 +156,7 @@ dissect_quake3_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo _U_,
 	 * XXX - are non-ASCII characters supported and, if so, what
 	 * encoding is used for them?
 	 */
-	text = tvb_get_stringz_enc(wmem_packet_scope(), tvb, offset, &len, ENC_ASCII|ENC_NA);
+	text = tvb_get_stringz_enc(pinfo->pool, tvb, offset, &len, ENC_ASCII|ENC_NA);
 	if (cl_tree) {
 		text_item = proto_tree_add_string(cl_tree,
 				hf_quake3_connectionless_text,

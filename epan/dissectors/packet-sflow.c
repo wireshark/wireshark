@@ -2497,7 +2497,7 @@ dissect_sflow_245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             break;
         case ADDR_TYPE_IPV4:
         case ADDR_TYPE_IPV6:
-            col_append_fstr(pinfo->cinfo, COL_INFO, ", agent %s", address_to_str(wmem_packet_scope(), &addr_details));
+            col_append_fstr(pinfo->cinfo, COL_INFO, ", agent %s", address_to_str(pinfo->pool, &addr_details));
             break;
     }
 
@@ -2513,7 +2513,7 @@ dissect_sflow_245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     offset += 4;
     uptime = tvb_get_ntohl(tvb, offset);
     proto_tree_add_uint_format_value(sflow_245_tree, hf_sflow_245_sysuptime, tvb, offset, 4, uptime, "%s (%ums)",
-        unsigned_time_secs_to_str(wmem_packet_scope(), uptime / 1000), uptime);
+        unsigned_time_secs_to_str(pinfo->pool, uptime / 1000), uptime);
     offset += 4;
     numsamples = tvb_get_ntohl(tvb, offset);
     col_append_fstr(pinfo->cinfo, COL_INFO, ", %u samples", numsamples);

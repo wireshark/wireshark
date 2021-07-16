@@ -258,7 +258,7 @@ tap_packet_status BluetoothAttServerAttributesDialog::tapPacket(void *tapinfo_pt
         const char  *interface_name;
 
         interface_name = epan_get_interface_name(pinfo->epan, pinfo->rec->rec_header.packet_header.interface_id);
-        interface = wmem_strdup_printf(wmem_packet_scope(), "%u: %s", pinfo->rec->rec_header.packet_header.interface_id, interface_name);
+        interface = wmem_strdup_printf(pinfo->pool, "%u: %s", pinfo->rec->rec_header.packet_header.interface_id, interface_name);
 
         if (dialog->ui->interfaceComboBox->findText(interface) == -1)
             dialog->ui->interfaceComboBox->addItem(interface);
@@ -270,7 +270,7 @@ tap_packet_status BluetoothAttServerAttributesDialog::tapPacket(void *tapinfo_pt
     }
 
     if (pinfo->p2p_dir == P2P_DIR_SENT || pinfo->p2p_dir == P2P_DIR_RECV)
-        addr = address_to_str(wmem_packet_scope(), &pinfo->src);
+        addr = address_to_str(pinfo->pool, &pinfo->src);
 
     if (addr && dialog->ui->deviceComboBox->findText(addr) == -1) {
         dialog->ui->deviceComboBox->addItem(addr);

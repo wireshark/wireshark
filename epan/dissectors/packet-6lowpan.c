@@ -1797,7 +1797,7 @@ dissect_6lowpan_hc1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint dg
         /* Construct the next header for the UDP datagram. */
         offset = BITS_TO_BYTE_LEN(0, bit_offset);
         length = tvb_captured_length_remaining(tvb, offset);
-        nhdr_list = (struct lowpan_nhdr *)wmem_alloc(wmem_packet_scope(), sizeof(struct lowpan_nhdr) + sizeof(struct udp_hdr) + length);
+        nhdr_list = (struct lowpan_nhdr *)wmem_alloc(pinfo->pool, sizeof(struct lowpan_nhdr) + sizeof(struct udp_hdr) + length);
         nhdr_list->next = NULL;
         nhdr_list->proto = IP_PROTO_UDP;
         nhdr_list->length = length + (int)sizeof(struct udp_hdr);
@@ -1815,7 +1815,7 @@ dissect_6lowpan_hc1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint dg
         gint length;
         offset = BITS_TO_BYTE_LEN(0, bit_offset);
         length = tvb_captured_length_remaining(tvb, offset);
-        nhdr_list = (struct lowpan_nhdr *)wmem_alloc(wmem_packet_scope(), sizeof(struct lowpan_nhdr) + length);
+        nhdr_list = (struct lowpan_nhdr *)wmem_alloc(pinfo->pool, sizeof(struct lowpan_nhdr) + length);
         nhdr_list->next = NULL;
         nhdr_list->proto = ipv6.ip6h_nxt;
         nhdr_list->length = length;
@@ -2086,7 +2086,7 @@ dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint d
     }
     if (ipv6_summary_in_tree) {
         address src_addr = ADDRESS_INIT(AT_IPv6, sizeof(ipv6.ip6h_src), &ipv6.ip6h_src);
-        proto_item_append_text(tree, ", Src: %s", address_with_resolution_to_str(wmem_packet_scope(), &src_addr));
+        proto_item_append_text(tree, ", Src: %s", address_with_resolution_to_str(pinfo->pool, &src_addr));
     }
 
     /* Add information about where the context came from. */
@@ -2218,7 +2218,7 @@ dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint d
     }
     if (ipv6_summary_in_tree) {
         address dst_addr = ADDRESS_INIT(AT_IPv6, sizeof(ipv6.ip6h_dst), &ipv6.ip6h_dst);
-        proto_item_append_text(tree, ", Dest: %s", address_with_resolution_to_str(wmem_packet_scope(), &dst_addr));
+        proto_item_append_text(tree, ", Dest: %s", address_with_resolution_to_str(pinfo->pool, &dst_addr));
     }
 
     /* Add information about where the context came from. */
@@ -2253,7 +2253,7 @@ dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint d
     /* Create an extension header for the remaining payload. */
     else {
         length = tvb_captured_length_remaining(tvb, offset);
-        nhdr_list = (struct lowpan_nhdr *)wmem_alloc(wmem_packet_scope(), sizeof(struct lowpan_nhdr) + length);
+        nhdr_list = (struct lowpan_nhdr *)wmem_alloc(pinfo->pool, sizeof(struct lowpan_nhdr) + length);
         nhdr_list->next = NULL;
         nhdr_list->proto = ipv6.ip6h_nxt;
         nhdr_list->length = length;
@@ -2331,7 +2331,7 @@ dissect_6lowpan_iphc_nhc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
         if (!iphc_tvb) return NULL;
 
         /* Create the next header structure for the tunneled IPv6 header. */
-        nhdr = (struct lowpan_nhdr *)wmem_alloc0(wmem_packet_scope(), sizeof(struct lowpan_nhdr) + tvb_captured_length(iphc_tvb));
+        nhdr = (struct lowpan_nhdr *)wmem_alloc0(pinfo->pool, sizeof(struct lowpan_nhdr) + tvb_captured_length(iphc_tvb));
         nhdr->next = NULL;
         nhdr->proto = IP_PROTO_IPV6;
         nhdr->length = tvb_captured_length(iphc_tvb);
@@ -2397,7 +2397,7 @@ dissect_6lowpan_iphc_nhc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
        }
 
         /* Create the next header structure for the IPv6 extension header. */
-        nhdr = (struct lowpan_nhdr *)wmem_alloc0(wmem_packet_scope(), sizeof(struct lowpan_nhdr) + length);
+        nhdr = (struct lowpan_nhdr *)wmem_alloc0(pinfo->pool, sizeof(struct lowpan_nhdr) + length);
         nhdr->next = NULL;
         nhdr->proto = ext_proto;
         nhdr->length = length;
@@ -2463,7 +2463,7 @@ dissect_6lowpan_iphc_nhc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
         else if (ipv6_ext.ip6e_nxt != IP_PROTO_NONE) {
             /* Create another next header structure for the remaining payload. */
             length = tvb_captured_length_remaining(tvb, offset);
-            nhdr->next = (struct lowpan_nhdr *)wmem_alloc(wmem_packet_scope(), sizeof(struct lowpan_nhdr) + length);
+            nhdr->next = (struct lowpan_nhdr *)wmem_alloc(pinfo->pool, sizeof(struct lowpan_nhdr) + length);
             nhdr->next->next = NULL;
             nhdr->next->proto = ipv6_ext.ip6e_nxt;
             nhdr->next->length = length;
@@ -2610,7 +2610,7 @@ dissect_6lowpan_iphc_nhc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
 
         /* Create the next header structure for the UDP datagram. */
         length = tvb_captured_length_remaining(tvb, offset);
-        nhdr = (struct lowpan_nhdr *)wmem_alloc(wmem_packet_scope(), sizeof(struct lowpan_nhdr) + sizeof(struct udp_hdr) + length);
+        nhdr = (struct lowpan_nhdr *)wmem_alloc(pinfo->pool, sizeof(struct lowpan_nhdr) + sizeof(struct udp_hdr) + length);
         nhdr->next = NULL;
         nhdr->proto = IP_PROTO_UDP;
         nhdr->length = length + (int)sizeof(struct udp_hdr);

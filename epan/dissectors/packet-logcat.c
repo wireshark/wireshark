@@ -153,7 +153,7 @@ dissect_logcat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     check_length += string_length;
 
     string_length = length - string_length - 1;
-    log = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, string_length, ENC_UTF_8);
+    log = tvb_get_string_enc(pinfo->pool, tvb, offset, string_length, ENC_UTF_8);
 
     /* New line characters convert to spaces to ensure column Info display one line */
     if (pref_one_line_info_column) {

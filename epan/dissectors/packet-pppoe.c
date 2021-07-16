@@ -474,7 +474,7 @@ dissect_pppoe_tags(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tr
 					{
 					const guint8* str;
 					proto_tree_add_item_ret_string(pppoe_tree, hf_pppoed_tag_ac_name, tvb,
-					                    tagstart+4, poe_tag_length, ENC_ASCII|ENC_NA, wmem_packet_scope(), &str);
+					                    tagstart+4, poe_tag_length, ENC_ASCII|ENC_NA, pinfo->pool, &str);
 					/* Show AC-Name in info column */
 					col_append_fstr(pinfo->cinfo, COL_INFO, " AC-Name='%s'", str);
 					}

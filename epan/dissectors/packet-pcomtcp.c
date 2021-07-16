@@ -310,7 +310,7 @@ dissect_pcomascii(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         }
     }
     if ( cc_len > 0 ){
-        cc_str2 = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, cc_len, ENC_ASCII);
+        cc_str2 = tvb_get_string_enc(pinfo->pool, tvb, offset, cc_len, ENC_ASCII);
         proto_tree_add_string_format_value(pcomascii_tree,
                 hf_pcomascii_command_code, tvb, offset, cc_len,
                 cc_str2, "%s (%s)", cc_str, cc_str2);

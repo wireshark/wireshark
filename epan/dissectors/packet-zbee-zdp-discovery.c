@@ -43,7 +43,7 @@ dissect_zbee_zdp_req_nwk_addr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     proto_tree_add_item(tree, hf_zbee_zdp_index, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
 
-    zbee_append_info(tree, pinfo, ", Address: %s", eui64_to_display(wmem_packet_scope(), ext_addr));
+    zbee_append_info(tree, pinfo, ", Address: %s", eui64_to_display(pinfo->pool, ext_addr));
 
     /* Dump any leftover bytes. */
     zdp_dump_excess(tvb, offset, pinfo, tree);
@@ -280,7 +280,7 @@ dissect_zbee_zdp_req_discovery_cache(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     offset += 2;
     ext_addr = zbee_parse_eui64(tree, hf_zbee_zdp_ext_addr, tvb, &offset, (int)sizeof(guint64), NULL);
 
-    zbee_append_info(tree, pinfo, ", Ext Addr: %s", eui64_to_display(wmem_packet_scope(), ext_addr));
+    zbee_append_info(tree, pinfo, ", Ext Addr: %s", eui64_to_display(pinfo->pool, ext_addr));
 
     /* Dump any leftover bytes. */
     zdp_dump_excess(tvb, offset, pinfo, tree);
@@ -306,7 +306,7 @@ dissect_zbee_zdp_device_annce(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     ext_addr    = zbee_parse_eui64(tree, hf_zbee_zdp_ext_addr, tvb, &offset, (int)sizeof(guint64), NULL);
     /*capability  =*/ zdp_parse_cinfo(tree, ett_zbee_zdp_cinfo, tvb, &offset);
 
-    zbee_append_info(tree, pinfo, ", Nwk Addr: 0x%04x, Ext Addr: %s", short_addr, eui64_to_display(wmem_packet_scope(), ext_addr));
+    zbee_append_info(tree, pinfo, ", Nwk Addr: 0x%04x, Ext Addr: %s", short_addr, eui64_to_display(pinfo->pool, ext_addr));
 
     /* Dump any leftover bytes. */
     zdp_dump_excess(tvb, offset, pinfo, tree);
@@ -336,7 +336,7 @@ dissect_zbee_zdp_parent_annce(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         ext_addr = zbee_parse_eui64(tree, hf_zbee_zdp_ext_addr, tvb, &offset, (int)sizeof(guint64), NULL);
         if (i == 0)
         {
-            zbee_append_info(tree, pinfo, n_children == 1 ? " %s" : " %s ...", eui64_to_display(wmem_packet_scope(), ext_addr));
+            zbee_append_info(tree, pinfo, n_children == 1 ? " %s" : " %s ...", eui64_to_display(pinfo->pool, ext_addr));
         }
     }
 
@@ -371,7 +371,7 @@ dissect_zbee_zdp_rsp_parent_annce(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
         ext_addr = zbee_parse_eui64(tree, hf_zbee_zdp_ext_addr, tvb, &offset, (int)sizeof(guint64), NULL);
         if (i == 0)
         {
-            zbee_append_info(tree, pinfo, n_children == 1 ? " %s" : " %s ...", eui64_to_display(wmem_packet_scope(), ext_addr));
+            zbee_append_info(tree, pinfo, n_children == 1 ? " %s" : " %s ...", eui64_to_display(pinfo->pool, ext_addr));
         }
     }
 
@@ -403,7 +403,7 @@ dissect_zbee_zdp_req_set_user_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         /* No Length field in ZigBee 2003 & earlier, uses a fixed length of 16. */
         user_length = 16;
     }
-    proto_tree_add_item_ret_string(tree, hf_zbee_zdp_user, tvb, offset, user_length, ENC_ASCII, wmem_packet_scope(), &user);
+    proto_tree_add_item_ret_string(tree, hf_zbee_zdp_user, tvb, offset, user_length, ENC_ASCII, pinfo->pool, &user);
     offset += user_length;
 
     zbee_append_info(tree, pinfo, ", Nwk Addr: 0x%04x, Desc: \'%s\'", device, user);
@@ -467,7 +467,7 @@ dissect_zbee_zdp_req_store_discovery(tvbuff_t *tvb, packet_info *pinfo, proto_tr
         offset += 1;
     }
 
-    zbee_append_info(tree, pinfo, ", Ext Addr: %s", eui64_to_display(wmem_packet_scope(), ext_addr));
+    zbee_append_info(tree, pinfo, ", Ext Addr: %s", eui64_to_display(pinfo->pool, ext_addr));
 
     /* Dump any leftover bytes. */
     zdp_dump_excess(tvb, offset, pinfo, tree);
@@ -491,7 +491,7 @@ dissect_zbee_zdp_req_store_node_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     ext_addr = zbee_parse_eui64(tree, hf_zbee_zdp_ext_addr, tvb, &offset, (int)sizeof(guint64), NULL);
     zdp_parse_node_desc(tree, pinfo, FALSE, ett_zbee_zdp_node, tvb, &offset, version);
 
-    zbee_append_info(tree, pinfo, ", Address: %s", eui64_to_display(wmem_packet_scope(), ext_addr));
+    zbee_append_info(tree, pinfo, ", Address: %s", eui64_to_display(pinfo->pool, ext_addr));
 
     /* Dump any leftover bytes. */
     zdp_dump_excess(tvb, offset, pinfo, tree);
@@ -515,7 +515,7 @@ dissect_zbee_zdp_req_store_power_desc(tvbuff_t *tvb, packet_info *pinfo, proto_t
     ext_addr = zbee_parse_eui64(tree, hf_zbee_zdp_ext_addr, tvb, &offset, (int)sizeof(guint64), NULL);
     zdp_parse_power_desc(tree, ett_zbee_zdp_power, tvb, &offset);
 
-    zbee_append_info(tree, pinfo, ", Address: %s", eui64_to_display(wmem_packet_scope(), ext_addr));
+    zbee_append_info(tree, pinfo, ", Address: %s", eui64_to_display(pinfo->pool, ext_addr));
 
     /* Dump any leftover bytes. */
     zdp_dump_excess(tvb, offset, pinfo, tree);
@@ -551,7 +551,7 @@ dissect_zbee_zdp_req_store_active_ep(tvbuff_t *tvb, packet_info *pinfo, proto_tr
         offset += 1;
     }
 
-    zbee_append_info(tree, pinfo, ", Device: %s", eui64_to_display(wmem_packet_scope(), ext_addr));
+    zbee_append_info(tree, pinfo, ", Device: %s", eui64_to_display(pinfo->pool, ext_addr));
 
     /* Dump any leftover bytes. */
     zdp_dump_excess(tvb, offset, pinfo, tree);
@@ -577,7 +577,7 @@ dissect_zbee_zdp_req_store_simple_desc(tvbuff_t *tvb, packet_info *pinfo, proto_
     offset += 1;
     zdp_parse_simple_desc(tree, ett_zbee_zdp_simple, tvb, &offset, version);
 
-    zbee_append_info(tree, pinfo, ", Address: %s", eui64_to_display(wmem_packet_scope(), ext_addr));
+    zbee_append_info(tree, pinfo, ", Address: %s", eui64_to_display(pinfo->pool, ext_addr));
 
     /* Dump any leftover bytes. */
     zdp_dump_excess(tvb, offset, pinfo, tree);
@@ -600,7 +600,7 @@ dissect_zbee_zdp_req_remove_node_cache(tvbuff_t *tvb, packet_info *pinfo, proto_
     offset += 2;
     ext_addr = zbee_parse_eui64(tree, hf_zbee_zdp_ext_addr, tvb, &offset, (int)sizeof(guint64), NULL);
 
-    zbee_append_info(tree, pinfo, ", Device: %s", eui64_to_display(wmem_packet_scope(), ext_addr));
+    zbee_append_info(tree, pinfo, ", Device: %s", eui64_to_display(pinfo->pool, ext_addr));
 
     /* Dump any leftover bytes. */
     zdp_dump_excess(tvb, offset, pinfo, tree);
@@ -623,7 +623,7 @@ dissect_zbee_zdp_req_find_node_cache(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     offset += 2;
     ext_addr = zbee_parse_eui64(tree, hf_zbee_zdp_ext_addr, tvb, &offset, (int)sizeof(guint64), NULL);
 
-    zbee_append_info(tree, pinfo, ", Address: %s", eui64_to_display(wmem_packet_scope(), ext_addr));
+    zbee_append_info(tree, pinfo, ", Address: %s", eui64_to_display(pinfo->pool, ext_addr));
 
     /* Dump any leftover bytes. */
     zdp_dump_excess(tvb, offset, pinfo, tree);
@@ -726,7 +726,7 @@ dissect_zbee_zdp_rsp_nwk_addr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
     zbee_append_info(tree, pinfo, ", Status: %s", zdp_status_name(status));
     if (status == ZBEE_ZDP_STATUS_SUCCESS) {
-        zbee_append_info(tree, pinfo, ", Address: %s = 0x%04x", eui64_to_display(wmem_packet_scope(), ext_addr), device);
+        zbee_append_info(tree, pinfo, ", Address: %s = 0x%04x", eui64_to_display(pinfo->pool, ext_addr), device);
     }
 
     /* Dump any leftover bytes. */
@@ -775,7 +775,7 @@ dissect_zbee_zdp_rsp_ext_addr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
     zbee_append_info(tree, pinfo, ", Status: %s", zdp_status_name(status));
     if (status == ZBEE_ZDP_STATUS_SUCCESS) {
-        zbee_append_info(tree, pinfo, ", Nwk Addr: 0x%04x = %s", device, eui64_to_display(wmem_packet_scope(), ext_addr));
+        zbee_append_info(tree, pinfo, ", Nwk Addr: 0x%04x = %s", device, eui64_to_display(pinfo->pool, ext_addr));
     }
 
     /* Dump any leftover bytes. */
@@ -1018,7 +1018,7 @@ dissect_zbee_zdp_rsp_user_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     }
     else user_length = 0;
 
-    user = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, user_length, ENC_ASCII);
+    user = tvb_get_string_enc(pinfo->pool, tvb, offset, user_length, ENC_ASCII);
     if (tree) {
         proto_tree_add_string(tree, hf_zbee_zdp_user, tvb, offset, user_length, user);
     }

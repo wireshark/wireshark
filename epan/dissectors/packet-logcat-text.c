@@ -179,7 +179,7 @@ static int dissect_logcat_text(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
         const dissect_info_t *dinfo) {
     gchar **tokens;
     guint i;
-    gchar *frame = tvb_get_string_enc(wmem_packet_scope(), tvb, 0, tvb_captured_length(tvb),
+    gchar *frame = tvb_get_string_enc(pinfo->pool, tvb, 0, tvb_captured_length(tvb),
             ENC_UTF_8);
     proto_item *mainitem = proto_tree_add_item(tree, proto_logcat_text, tvb, 0, -1, ENC_NA);
     proto_tree *maintree = proto_item_add_subtree(mainitem, ett_logcat);

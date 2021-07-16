@@ -713,24 +713,24 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
             proto_item_set_len(option_item, option_length + 2 * 2);
             break;
         } else if (option_code == 1) {
-            proto_tree_add_item_ret_display_string(option_tree, hf_pcapng_option_data_comment, tvb, offset, option_length, ENC_NA | ENC_UTF_8, wmem_packet_scope(), &str);
+            proto_tree_add_item_ret_display_string(option_tree, hf_pcapng_option_data_comment, tvb, offset, option_length, ENC_NA | ENC_UTF_8, pinfo->pool, &str);
             proto_item_append_text(option_item, " = %s", str);
             offset += option_length;
         } else switch (block_type) {
         case BLOCK_SECTION_HEADER:
             switch (option_code) {
             case 2:
-                proto_tree_add_item_ret_display_string(option_tree, hf_pcapng_option_data_section_header_hardware, tvb, offset, option_length, ENC_NA | ENC_UTF_8, wmem_packet_scope(), &str);
+                proto_tree_add_item_ret_display_string(option_tree, hf_pcapng_option_data_section_header_hardware, tvb, offset, option_length, ENC_NA | ENC_UTF_8, pinfo->pool, &str);
                 proto_item_append_text(option_item, " = %s", str);
                 offset += option_length;
                 break;
             case 3:
-                proto_tree_add_item_ret_display_string(option_tree, hf_pcapng_option_data_section_header_os, tvb, offset, option_length, ENC_NA | ENC_UTF_8, wmem_packet_scope(), &str);
+                proto_tree_add_item_ret_display_string(option_tree, hf_pcapng_option_data_section_header_os, tvb, offset, option_length, ENC_NA | ENC_UTF_8, pinfo->pool, &str);
                 proto_item_append_text(option_item, " = %s", str);
                 offset += option_length;
                 break;
             case 4:
-                proto_tree_add_item_ret_display_string(option_tree, hf_pcapng_option_data_section_header_user_application, tvb, offset, option_length, ENC_NA | ENC_UTF_8, wmem_packet_scope(), &str);
+                proto_tree_add_item_ret_display_string(option_tree, hf_pcapng_option_data_section_header_user_application, tvb, offset, option_length, ENC_NA | ENC_UTF_8, pinfo->pool, &str);
                 proto_item_append_text(option_item, " = %s", str);
                 offset += option_length;
                 break;
@@ -744,12 +744,12 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
 
             switch (option_code) {
             case 2:
-                proto_tree_add_item_ret_display_string(option_tree, hf_pcapng_option_data_interface_description_name, tvb, offset, option_length, ENC_NA | ENC_UTF_8, wmem_packet_scope(), &str);
+                proto_tree_add_item_ret_display_string(option_tree, hf_pcapng_option_data_interface_description_name, tvb, offset, option_length, ENC_NA | ENC_UTF_8, pinfo->pool, &str);
                 proto_item_append_text(option_item, " = %s", str);
                 offset += option_length;
                 break;
             case 3:
-                proto_tree_add_item_ret_display_string(option_tree, hf_pcapng_option_data_interface_description_description, tvb, offset, option_length, ENC_NA | ENC_UTF_8, wmem_packet_scope(), &str);
+                proto_tree_add_item_ret_display_string(option_tree, hf_pcapng_option_data_interface_description_description, tvb, offset, option_length, ENC_NA | ENC_UTF_8, pinfo->pool, &str);
                 proto_item_append_text(option_item, " = %s", str);
                 offset += option_length;
                 break;
@@ -768,8 +768,8 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 offset += 4;
 
                 proto_item_append_text(option_item, " = %s/%s",
-                        address_to_display(wmem_packet_scope(),  &addr),
-                        address_to_display(wmem_packet_scope(),  &addr_mask));
+                        address_to_display(pinfo->pool,  &addr),
+                        address_to_display(pinfo->pool,  &addr_mask));
                 break;
             case 5:
                 if (option_length != 17) {
@@ -786,7 +786,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 offset += 1;
 
                 proto_item_append_text(option_item, " = %s/%u",
-                    address_to_display(wmem_packet_scope(),  &addr), value_u32);
+                    address_to_display(pinfo->pool,  &addr), value_u32);
 
                 break;;
             case 6:
@@ -814,7 +814,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 offset += 8;
 
                 proto_item_append_text(option_item, " = %s",
-                    address_to_display(wmem_packet_scope(),  &addr));
+                    address_to_display(pinfo->pool,  &addr));
 
                 break;
             case 8:
@@ -833,7 +833,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 } else if (value_u64 == 1000000000) {
                     const_str = "1 Gbps";
                 } else {
-                    const_str = wmem_strdup_printf(wmem_packet_scope(), "%"G_GUINT64_FORMAT, value_u64);
+                    const_str = wmem_strdup_printf(pinfo->pool, "%"G_GUINT64_FORMAT, value_u64);
                 }
                 proto_item_append_text(p_item, "%s", const_str);
                 proto_item_append_text(option_item, " = %s", const_str);
@@ -864,7 +864,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 }
                 exponent = value_u8 & 0x7F;
 
-                strbuf = wmem_strbuf_new(wmem_packet_scope(), "");
+                strbuf = wmem_strbuf_new(pinfo->pool, "");
                 wmem_strbuf_append_printf(strbuf, "%u^-%u", base, exponent);
                 resolution = 1;
                 for (i = 0; i < exponent; i += 1)
@@ -970,7 +970,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 switch (if_filter_type) {
 
                 case 0:
-                    proto_tree_add_item_ret_display_string(option_tree, hf_pcapng_option_data_interface_filter_string, tvb, offset, option_length - 1, ENC_NA | ENC_UTF_8, wmem_packet_scope(), &str);
+                    proto_tree_add_item_ret_display_string(option_tree, hf_pcapng_option_data_interface_filter_string, tvb, offset, option_length - 1, ENC_NA | ENC_UTF_8, pinfo->pool, &str);
                     proto_item_append_text(option_item, " = %s", str);
                     break;
 
@@ -988,7 +988,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
 
                 break;
             case 12:
-                proto_tree_add_item_ret_display_string(option_tree, hf_pcapng_option_data_interface_os, tvb, offset, option_length, ENC_NA | ENC_UTF_8, wmem_packet_scope(), &str);
+                proto_tree_add_item_ret_display_string(option_tree, hf_pcapng_option_data_interface_os, tvb, offset, option_length, ENC_NA | ENC_UTF_8, pinfo->pool, &str);
                 proto_item_append_text(option_item, " = %s", str);
                 offset += option_length;
 
@@ -1022,7 +1022,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
 
                 break;
             case 15:
-                proto_tree_add_item_ret_display_string(option_tree, hf_pcapng_option_data_interface_hardware, tvb, offset, option_length, ENC_NA | ENC_UTF_8, wmem_packet_scope(), &str);
+                proto_tree_add_item_ret_display_string(option_tree, hf_pcapng_option_data_interface_hardware, tvb, offset, option_length, ENC_NA | ENC_UTF_8, pinfo->pool, &str);
                 proto_item_append_text(option_item, " = %s", str);
                 offset += option_length;
 
@@ -1074,7 +1074,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
         case BLOCK_NAME_RESOLUTION:
             switch (option_code) {
             case 2:
-                proto_tree_add_item_ret_display_string(option_tree, hf_pcapng_option_data_dns_name, tvb, offset, option_length, ENC_NA | ENC_UTF_8, wmem_packet_scope(), &str);
+                proto_tree_add_item_ret_display_string(option_tree, hf_pcapng_option_data_dns_name, tvb, offset, option_length, ENC_NA | ENC_UTF_8, pinfo->pool, &str);
                 proto_item_append_text(option_item, " = %s", str);
                 offset += option_length;
 
@@ -1091,7 +1091,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 offset += 4;
 
                 proto_item_append_text(option_item, " = %s",
-                    address_to_display(wmem_packet_scope(), &addr));
+                    address_to_display(pinfo->pool, &addr));
 
                 break;
             case 4:
@@ -1106,7 +1106,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 offset += 16;
 
                 proto_item_append_text(option_item, " = %s",
-                    address_to_display(wmem_packet_scope(),  &addr));
+                    address_to_display(pinfo->pool,  &addr));
 
                 break;
             default:
@@ -1331,7 +1331,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
         case BLOCK_DARWIN_PROCESS:
             switch (option_code) {
             case 2: /* Darwin Process Name */
-                proto_tree_add_item_ret_display_string(option_tree, hf_pcapng_option_darwin_process_name, tvb, offset, option_length, ENC_NA | ENC_UTF_8, wmem_packet_scope(), &str);
+                proto_tree_add_item_ret_display_string(option_tree, hf_pcapng_option_darwin_process_name, tvb, offset, option_length, ENC_NA | ENC_UTF_8, pinfo->pool, &str);
                 offset += option_length;
                 break;
 
@@ -1341,7 +1341,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 offset += option_length;
 
                 proto_item_append_text(option_item, " = %s",
-                    guid_to_str(wmem_packet_scope(), &uuid));
+                    guid_to_str(pinfo->pool, &uuid));
 
                 break;
             default:
@@ -1709,7 +1709,7 @@ dissect_nrb_data(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                 }
             }
 
-            str = address_to_display(wmem_packet_scope(), &addr);
+            str = address_to_display(pinfo->pool, &addr);
             break;
         case 0x0002: /* IPv6 Record */
             if (record_length < 17) {
@@ -1740,7 +1740,7 @@ dissect_nrb_data(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                 }
             }
 
-            str = address_to_display(wmem_packet_scope(), &addr);
+            str = address_to_display(pinfo->pool, &addr);
 
             break;
         default:
@@ -1917,9 +1917,9 @@ static gint dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
         info->darwin_process_event_number = 0;
         info->frame_number = 1;
         if (info->interfaces != NULL) {
-            wmem_free(wmem_packet_scope(), info->interfaces);
+            wmem_free(pinfo->pool, info->interfaces);
         }
-        info->interfaces = wmem_array_new(wmem_packet_scope(), sizeof(struct interface_description));
+        info->interfaces = wmem_array_new(pinfo->pool, sizeof(struct interface_description));
 
         if (tvb_memeql(tvb, 8, pcapng_big_endian_magic, BYTE_ORDER_MAGIC_SIZE) == 0) {
             info->encoding = ENC_BIG_ENDIAN;
@@ -2077,8 +2077,8 @@ dissect_pcapng(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     info.darwin_process_event_number = 0;
     info.frame_number = 1;
     info.encoding = encoding;
-    info.interfaces = wmem_array_new(wmem_packet_scope(), sizeof(struct interface_description));
-    info.darwin_process_events = wmem_array_new(wmem_packet_scope(), sizeof(struct darwin_process_event_description));
+    info.interfaces = wmem_array_new(pinfo->pool, sizeof(struct interface_description));
+    info.darwin_process_events = wmem_array_new(pinfo->pool, sizeof(struct darwin_process_event_description));
 
     main_item = proto_tree_add_item(tree, proto_pcapng, tvb, offset, -1, ENC_NA);
     main_tree = proto_item_add_subtree(main_item, ett_pcapng);

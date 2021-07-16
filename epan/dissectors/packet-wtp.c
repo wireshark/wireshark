@@ -323,7 +323,7 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gint           dataLen;
 
 #define SZINFO_SIZE 256
-    szInfo=(char *)wmem_alloc(wmem_packet_scope(), SZINFO_SIZE);
+    szInfo=(char *)wmem_alloc(pinfo->pool, SZINFO_SIZE);
 
     b0 = tvb_get_guint8 (tvb, offCur + 0);
     /* Discover Concatenated PDUs */

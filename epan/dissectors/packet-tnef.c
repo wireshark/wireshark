@@ -382,7 +382,7 @@ static void dissect_mapiprops(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         offset += 4;
 
         proto_tree_add_item_ret_string(tag_tree, hf_tnef_property_tag_name_string, tvb, offset, tag_length,
-          ENC_UTF_16|ENC_LITTLE_ENDIAN, wmem_packet_scope(), &name_string);
+          ENC_UTF_16|ENC_LITTLE_ENDIAN, pinfo->pool, &name_string);
         offset += tag_length;
 
         if((padding = (4 - tag_length % 4)) != 4) {
@@ -603,7 +603,7 @@ static int dissect_tnef(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
       case ATP_STRING:
         {
         const guint8* atp;
-        proto_tree_add_item_ret_string(attr_tree, hf_tnef_attribute_string, tvb, offset, length, oem_encoding, wmem_packet_scope(), &atp);
+        proto_tree_add_item_ret_string(attr_tree, hf_tnef_attribute_string, tvb, offset, length, oem_encoding, pinfo->pool, &atp);
         proto_item_append_text(attr_item, " %s", atp);
         }
         break;

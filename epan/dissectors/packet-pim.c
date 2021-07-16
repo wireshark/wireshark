@@ -1368,7 +1368,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             tigroup=proto_tree_add_string_format(pimopt_tree, hf_pim_group, tvb, offset, -1, "", "Group %d", i);
             grouptree = proto_item_add_subtree(tigroup, ett_pim);
             if (!dissect_pim_addr(grouptree, tvb, offset, pimv2_group,
-                                   wmem_strdup_printf(wmem_packet_scope(), "Group %d", i), NULL,
+                                   wmem_strdup_printf(pinfo->pool, "Group %d", i), NULL,
                                    hf_pim_group_ip4, hf_pim_group_ip6, &advance))
                 goto breakbreak3;
 
@@ -1428,7 +1428,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
         for (i = 0; tvb_reported_length_remaining(tvb, offset) > 0; i++) {
             if (!dissect_pim_addr(pimopt_tree, tvb, offset, pimv2_group,
-                                   wmem_strdup_printf(wmem_packet_scope(), "Group %d", i), &tigroup,
+                                   wmem_strdup_printf(pinfo->pool, "Group %d", i), &tigroup,
                                    hf_pim_group_ip4, hf_pim_group_ip6, &advance))
                 goto breakbreak4;
 
@@ -1443,7 +1443,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
             for (j = 0; j < frpcnt; j++) {
                 if (!dissect_pim_addr(pimopt_tree, tvb, offset, pimv2_unicast,
-                                       wmem_strdup_printf(wmem_packet_scope(), "RP %d", j), NULL,
+                                       wmem_strdup_printf(pinfo->pool, "RP %d", j), NULL,
                                        hf_pim_rp_ip4, hf_pim_rp_ip6, &advance))
 
                     goto breakbreak4;
@@ -1513,7 +1513,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
         for (i = 0; i < pfxcnt; i++) {
             if (!dissect_pim_addr(pimopt_tree, tvb, offset, pimv2_group,
-                                   wmem_strdup_printf(wmem_packet_scope(), "Group %d", i), NULL,
+                                   wmem_strdup_printf(pinfo->pool, "Group %d", i), NULL,
                                    hf_pim_group_ip4, hf_pim_group_ip6, &advance))
                 goto breakbreak8;
             offset += advance;

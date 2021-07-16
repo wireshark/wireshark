@@ -153,7 +153,7 @@ dissect_udt(tvbuff_t *tvb, packet_info* pinfo, proto_tree *parent_tree,
 			col_add_fstr(pinfo->cinfo, COL_INFO, "UDT type: ack2");
 			break;
 		case UDT_PACKET_TYPE_NAK: {
-			wmem_strbuf_t *nakstr = wmem_strbuf_new(wmem_packet_scope(), "");
+			wmem_strbuf_t *nakstr = wmem_strbuf_new(pinfo->pool, "");
 			guint max = tvb_reported_length(tvb);
 			if (max > UDT_MAX_NAK_LENGTH)
 			    max = UDT_MAX_NAK_LENGTH;

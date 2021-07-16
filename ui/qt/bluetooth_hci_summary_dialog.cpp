@@ -364,7 +364,7 @@ tap_packet_status BluetoothHciSummaryDialog::tapPacket(void *tapinfo_ptr, packet
         const char  *interface_name;
 
         interface_name = epan_get_interface_name(pinfo->epan, pinfo->rec->rec_header.packet_header.interface_id);
-        interface = wmem_strdup_printf(wmem_packet_scope(), "%u: %s", pinfo->rec->rec_header.packet_header.interface_id, interface_name);
+        interface = wmem_strdup_printf(pinfo->pool, "%u: %s", pinfo->rec->rec_header.packet_header.interface_id, interface_name);
 
         if (dialog->ui->interfaceComboBox->findText(interface) == -1)
             dialog->ui->interfaceComboBox->addItem(interface);

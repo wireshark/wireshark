@@ -122,7 +122,7 @@ dissect_rsync_version_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *rsyn
     offset += 1; /* skip the space */
     proto_tree_add_item(rsync_tree, &hfi_rsync_hdr_version, tvb, offset, -1, ENC_ASCII|ENC_NA);
     len = tvb_reported_length_remaining(tvb, offset);
-    version = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, len, ENC_ASCII|ENC_NA);
+    version = tvb_get_string_enc(pinfo->pool, tvb, offset, len, ENC_ASCII|ENC_NA);
 
     /* VERSION string can contain undesirable char (like \n) at the end. Trim it. */
     if (len > 0 && version[len - 1] == '\n')

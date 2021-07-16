@@ -1413,7 +1413,7 @@ translate_hex_key(gchar * char_key){
     int i,j;
     guint8 * key_in;
 
-    key_in = wmem_alloc0(wmem_packet_scope(), sizeof(guint8)*16);
+    key_in = wmem_alloc0(pinfo->pool, sizeof(guint8)*16);
     j= (int)(strlen(char_key)/2)-1;
     /*Translate "hex-string" into a byte aligned block */
     for(i = (int)strlen(char_key); i> 0; i-=2 ){
@@ -1456,7 +1456,7 @@ rlc_decipher_tvb(tvbuff_t *tvb, packet_info *pinfo, guint32 counter, guint8 rbid
 
     /*Fix the key into a byte block*/
     /*TODO: This should be done in a preferences callback function*/
-    out = wmem_alloc0(wmem_packet_scope(), strlen(global_rlc_kasumi_key)+1);
+    out = wmem_alloc0(pinfo->pool, strlen(global_rlc_kasumi_key)+1);
     memcpy(out,global_rlc_kasumi_key,strlen(global_rlc_kasumi_key));    /*Copy from prefrence const pointer*/
     key_in = translate_hex_key(out);    /*Translation*/
 
@@ -2090,7 +2090,7 @@ dissect_rlc_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guin
                 bitmap_tree = proto_tree_add_subtree(sufi_tree, tvb, bit_offset/8, (gint)len, ett_rlc_bitmap, &ti, "Decoded bitmap:");
                 col_append_str(pinfo->cinfo, COL_INFO, " BITMAP=(");
 
-                buff = (gchar *)wmem_alloc(wmem_packet_scope(), BUFF_SIZE);
+                buff = (gchar *)wmem_alloc(pinfo->pool, BUFF_SIZE);
                 for (i=0; i<len; i++) {
                     bits = tvb_get_bits8(tvb, bit_offset, 8);
                     for (l=0, j=0; l<8; l++) {

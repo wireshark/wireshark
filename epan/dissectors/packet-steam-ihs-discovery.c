@@ -520,7 +520,7 @@ steamdiscover_dissect_body_status(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
                 value = get_varint64(pb.tvb, pb.offset, pb.bytes_left, &len);
                 proto_tree_add_item(tree, hf_steam_ihs_discovery_body_status_hostname, pb.tvb,
                         pb.offset+len, (gint)value, ENC_UTF_8|ENC_NA);
-                hostname = tvb_get_string_enc(wmem_packet_scope(), pb.tvb, pb.offset+len, (gint)value, ENC_UTF_8);
+                hostname = tvb_get_string_enc(pinfo->pool, pb.tvb, pb.offset+len, (gint)value, ENC_UTF_8);
                 if(hostname && strlen(hostname)) {
                     col_add_fstr(pinfo->cinfo, COL_INFO, "%s from %s", hf_steam_ihs_discovery_header_msgtype_strings[STEAMDISCOVER_MSGTYPE_CLIENTBROADCASTMSGSTATUS].strptr, hostname);
                 }
@@ -660,7 +660,7 @@ steamdiscover_dissect_body_authrequest(tvbuff_t *tvb, packet_info *pinfo, proto_
                 value = get_varint64(pb.tvb, pb.offset, pb.bytes_left, &len);
                 proto_tree_add_item(tree, hf_steam_ihs_discovery_body_authrequest_devicename, pb.tvb,
                         pb.offset+len, (gint)value, ENC_UTF_8|ENC_NA);
-                devicename = tvb_get_string_enc(wmem_packet_scope(), pb.tvb, pb.offset+len, (gint)value, ENC_UTF_8);
+                devicename = tvb_get_string_enc(pinfo->pool, pb.tvb, pb.offset+len, (gint)value, ENC_UTF_8);
                 if (devicename && strlen(devicename)) {
                     col_append_fstr(pinfo->cinfo, COL_INFO, " from %s", devicename);
                 }

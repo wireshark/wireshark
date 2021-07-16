@@ -459,7 +459,7 @@ static void dissect_usb_i1d3_response(
             const guint8 *information;
             proto_tree_add_item_ret_string(
                     tree, hf_usb_i1d3_information, tvb, 2, -1,
-                    ENC_ASCII | ENC_NA, wmem_packet_scope(), &information);
+                    ENC_ASCII | ENC_NA, pinfo->pool, &information);
             col_add_fstr(
                     pinfo->cinfo, COL_INFO, "Information: %s", information);
             break;
@@ -482,7 +482,7 @@ static void dissect_usb_i1d3_response(
             const guint8 *prodname;
             proto_tree_add_item_ret_string(
                     tree, hf_usb_i1d3_prodname, tvb, 2, -1,
-                    ENC_ASCII | ENC_NA, wmem_packet_scope(), &prodname);
+                    ENC_ASCII | ENC_NA, pinfo->pool, &prodname);
             col_add_fstr(pinfo->cinfo, COL_INFO, "Product name: %s", prodname);
             break;
         }
@@ -500,7 +500,7 @@ static void dissect_usb_i1d3_response(
             const guint8 *firmver;
             proto_tree_add_item_ret_string(
                     tree, hf_usb_i1d3_firmver, tvb, 2, -1,
-                    ENC_ASCII | ENC_NA, wmem_packet_scope(), &firmver);
+                    ENC_ASCII | ENC_NA, pinfo->pool, &firmver);
             col_add_fstr(
                     pinfo->cinfo, COL_INFO, "Firmware version: %s", firmver);
             break;
@@ -509,7 +509,7 @@ static void dissect_usb_i1d3_response(
             const guint8 *firmdate;
             proto_tree_add_item_ret_string(
                     tree, hf_usb_i1d3_firmdate, tvb, 2, -1,
-                    ENC_ASCII | ENC_NA, wmem_packet_scope(), &firmdate);
+                    ENC_ASCII | ENC_NA, pinfo->pool, &firmdate);
             col_add_fstr(pinfo->cinfo, COL_INFO, "Firmware date: %s", firmdate);
             break;
         }

@@ -1067,7 +1067,7 @@ srtp_add_address(packet_info *pinfo, const port_type ptype, address *addr, int p
     }
 
     DPRINT(("#%u: %srtp_add_address(%d, %s, %u, %u, %s, %u)",
-            pinfo->num, (srtp_info)?"s":"", ptype, address_to_str(wmem_packet_scope(), addr), port,
+            pinfo->num, (srtp_info)?"s":"", ptype, address_to_str(pinfo->pool, addr), port,
             other_port, setup_method, setup_frame_number));
     DINDENT();
 
@@ -1612,7 +1612,7 @@ dissect_rtp_rfc2198(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
         payload_type_str = NULL;
 
         /* Allocate and fill in header */
-        hdr_new = wmem_new(wmem_packet_scope(), rfc2198_hdr);
+        hdr_new = wmem_new(pinfo->pool, rfc2198_hdr);
         hdr_new->next = NULL;
         octet1 = tvb_get_guint8(tvb, offset);
         hdr_new->pt = RTP_PAYLOAD_TYPE(octet1);

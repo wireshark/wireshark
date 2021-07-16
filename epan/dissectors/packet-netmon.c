@@ -418,7 +418,7 @@ dissect_netmon_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
 		 */
 
 		/* Ensure string termination */
-		comment = wmem_strndup(wmem_packet_scope(), pinfo->pseudo_header->netmon.description, pinfo->pseudo_header->netmon.descLength);
+		comment = wmem_strndup(pinfo->pool, pinfo->pseudo_header->netmon.description, pinfo->pseudo_header->netmon.descLength);
 
 		ti = proto_tree_add_string(header_tree, hf_netmon_header_description_comment, tvb, 0, 0, comment);
 		proto_item_set_generated(ti);
@@ -517,7 +517,7 @@ dissect_netmon_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 	offset += 16;
 
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Thread ID: %d, Process ID: %d, Provider ID: %s",
-										thread_id, process_id, guid_to_str(wmem_packet_scope(), &provider_guid.guid));
+										thread_id, process_id, guid_to_str(pinfo->pool, &provider_guid.guid));
 
 	event_desc_tree = proto_tree_add_subtree(event_tree, tvb, offset, 16, ett_netmon_event_desc, NULL, "Event Descriptor");
 	proto_tree_add_item_ret_uint(event_desc_tree, hf_netmon_event_event_desc_id, tvb, offset, 2, ENC_LITTLE_ENDIAN, &provider_id_data.event_id);
@@ -627,7 +627,7 @@ dissect_netmon_filter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
 	offset += length;
 	length = tvb_unicode_strsize(tvb, offset);
 	proto_tree_add_item_ret_string(filter_tree, hf_netmon_filter_filter, tvb, offset, length, ENC_LITTLE_ENDIAN|ENC_UTF_16,
-									wmem_packet_scope(), &filter);
+									pinfo->pool, &filter);
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Filter: %s", filter);
 
 	return tvb_captured_length(tvb);
@@ -949,7 +949,7 @@ dissect_netmon_system_config(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 			offset += 4;
 			proto_tree_add_item(system_tree, hf_netmon_system_config_scsi_lun, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			offset += 4;
-			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_manufacturer, tvb, offset, 512, ENC_LITTLE_ENDIAN|ENC_UTF_16, wmem_packet_scope(), &str_field1);
+			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_manufacturer, tvb, offset, 512, ENC_LITTLE_ENDIAN|ENC_UTF_16, pinfo->pool, &str_field1);
 			offset += 512;
 			proto_tree_add_item(system_tree, hf_netmon_system_config_partition_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			offset += 4;
@@ -957,7 +957,7 @@ dissect_netmon_system_config(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 			offset += 1;
 			proto_tree_add_item(system_tree, hf_netmon_system_config_pad, tvb, offset, 1, ENC_NA);
 			offset += 1;
-			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_boot_drive_letter, tvb, offset, 6, ENC_LITTLE_ENDIAN|ENC_UTF_16, wmem_packet_scope(), &str_field2);
+			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_boot_drive_letter, tvb, offset, 6, ENC_LITTLE_ENDIAN|ENC_UTF_16, pinfo->pool, &str_field2);
 			offset += 6;
 			proto_tree_add_item(system_tree, hf_netmon_system_config_spare, tvb, offset, 4, ENC_LITTLE_ENDIAN|ENC_UTF_16);
 			offset += 4;
@@ -975,7 +975,7 @@ dissect_netmon_system_config(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 			offset += 4;
 			proto_tree_add_item(system_tree, hf_netmon_system_config_drive_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			offset += 4;
-			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_drive_letter, tvb, offset, 8, ENC_LITTLE_ENDIAN|ENC_UTF_16, wmem_packet_scope(), &str_field1);
+			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_drive_letter, tvb, offset, 8, ENC_LITTLE_ENDIAN|ENC_UTF_16, pinfo->pool, &str_field1);
 			offset += 8;
 			proto_tree_add_item(system_tree, hf_netmon_system_config_pad, tvb, offset, 4, ENC_NA);
 			offset += 4;
@@ -991,14 +991,14 @@ dissect_netmon_system_config(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 			offset += 8;
 			proto_tree_add_item(system_tree, hf_netmon_system_config_total_num_clusters, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 			offset += 8;
-			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_file_system, tvb, offset, 32, ENC_LITTLE_ENDIAN|ENC_UTF_16, wmem_packet_scope(), &str_field2);
+			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_file_system, tvb, offset, 32, ENC_LITTLE_ENDIAN|ENC_UTF_16, pinfo->pool, &str_field2);
 			offset += 32;
 			col_add_fstr(pinfo->cinfo, COL_INFO, "Drive: %s, FileSystem: %s", str_field1, str_field2);
 			proto_tree_add_item(system_tree, hf_netmon_system_config_volume_ext, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			offset += 4;
 			break;
 		case 13:
-			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_nic_name, tvb, offset, 512, ENC_LITTLE_ENDIAN|ENC_UTF_16, wmem_packet_scope(), &str_field1);
+			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_nic_name, tvb, offset, 512, ENC_LITTLE_ENDIAN|ENC_UTF_16, pinfo->pool, &str_field1);
 			offset += 512;
 			proto_tree_add_item(system_tree, hf_netmon_system_config_index, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			offset += 4;
@@ -1043,13 +1043,13 @@ dissect_netmon_system_config(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 			offset += 4;
 			proto_tree_add_item(system_tree, hf_netmon_system_config_vrefresh, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			offset += 4;
-			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_chip_type, tvb, offset, 512, ENC_LITTLE_ENDIAN|ENC_UTF_16, wmem_packet_scope(), &str_field1);
+			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_chip_type, tvb, offset, 512, ENC_LITTLE_ENDIAN|ENC_UTF_16, pinfo->pool, &str_field1);
 			offset += 512;
 			proto_tree_add_item(system_tree, hf_netmon_system_config_dac_type, tvb, offset, 512, ENC_LITTLE_ENDIAN|ENC_UTF_16);
 			offset += 512;
-			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_adapter_string, tvb, offset, 512, ENC_LITTLE_ENDIAN|ENC_UTF_16, wmem_packet_scope(), &str_field2);
+			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_adapter_string, tvb, offset, 512, ENC_LITTLE_ENDIAN|ENC_UTF_16, pinfo->pool, &str_field2);
 			offset += 512;
-			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_bios_string, tvb, offset, 512, ENC_LITTLE_ENDIAN|ENC_UTF_16, wmem_packet_scope(), &str_field3);
+			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_bios_string, tvb, offset, 512, ENC_LITTLE_ENDIAN|ENC_UTF_16, pinfo->pool, &str_field3);
 			offset += 512;
 			col_add_fstr(pinfo->cinfo, COL_INFO, "Chip: %s, Adapter: %s, Bios: %s", str_field1, str_field2, str_field3);
 			proto_tree_add_item(system_tree, hf_netmon_system_config_device_id, tvb, offset, 512, ENC_LITTLE_ENDIAN|ENC_UTF_16);
@@ -1058,11 +1058,11 @@ dissect_netmon_system_config(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 			offset += 4;
 			break;
 		case 15:
-			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_service_name, tvb, offset, 68, ENC_LITTLE_ENDIAN|ENC_UTF_16, wmem_packet_scope(), &str_field1);
+			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_service_name, tvb, offset, 68, ENC_LITTLE_ENDIAN|ENC_UTF_16, pinfo->pool, &str_field1);
 			offset += 68;
 			proto_tree_add_item(system_tree, hf_netmon_system_config_display_name, tvb, offset, 512, ENC_LITTLE_ENDIAN|ENC_UTF_16);
 			offset += 512;
-			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_process_name, tvb, offset, 68, ENC_LITTLE_ENDIAN|ENC_UTF_16, wmem_packet_scope(), &str_field2);
+			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_process_name, tvb, offset, 68, ENC_LITTLE_ENDIAN|ENC_UTF_16, pinfo->pool, &str_field2);
 			offset += 68;
 			col_add_fstr(pinfo->cinfo, COL_INFO, "Service: %s, Process: %s", str_field1, str_field2);
 			proto_tree_add_item_ret_uint(system_tree, hf_netmon_system_config_process_id, tvb, offset, 4, ENC_LITTLE_ENDIAN, &field1);
@@ -1104,13 +1104,13 @@ dissect_netmon_system_config(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 			offset += 4;
 			/* XXX - can we trust sizes above? */
 			length = tvb_unicode_strsize(tvb, offset);
-			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_device_id, tvb, offset, length, ENC_LITTLE_ENDIAN|ENC_UTF_16, wmem_packet_scope(), &str_field1);
+			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_device_id, tvb, offset, length, ENC_LITTLE_ENDIAN|ENC_UTF_16, pinfo->pool, &str_field1);
 			offset += length;
 			length = tvb_unicode_strsize(tvb, offset);
 			proto_tree_add_item(system_tree, hf_netmon_system_config_device_desc, tvb, offset, length, ENC_LITTLE_ENDIAN|ENC_UTF_16);
 			offset += length;
 			length = tvb_unicode_strsize(tvb, offset);
-			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_friendly_name, tvb, offset, length, ENC_LITTLE_ENDIAN|ENC_UTF_16, wmem_packet_scope(), &str_field2);
+			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_friendly_name, tvb, offset, length, ENC_LITTLE_ENDIAN|ENC_UTF_16, pinfo->pool, &str_field2);
 			offset += length;
 			col_add_fstr(pinfo->cinfo, COL_INFO, "ID: %s, Name: %s", str_field1, str_field2);
 			length = tvb_unicode_strsize(tvb, offset);
@@ -1161,7 +1161,7 @@ dissect_netmon_system_config(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 			offset += 4;
 			proto_tree_add_item(system_tree, hf_netmon_system_config_scsi_lun, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			offset += 4;
-			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_manufacturer, tvb, offset, 512, ENC_LITTLE_ENDIAN|ENC_UTF_16, wmem_packet_scope(), &str_field1);
+			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_manufacturer, tvb, offset, 512, ENC_LITTLE_ENDIAN|ENC_UTF_16, pinfo->pool, &str_field1);
 			offset += 512;
 			proto_tree_add_item(system_tree, hf_netmon_system_config_partition_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			offset += 4;
@@ -1169,7 +1169,7 @@ dissect_netmon_system_config(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 			offset += 1;
 			proto_tree_add_item(system_tree, hf_netmon_system_config_pad, tvb, offset, 1, ENC_NA);
 			offset += 1;
-			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_boot_drive_letter, tvb, offset, 6, ENC_LITTLE_ENDIAN|ENC_UTF_16, wmem_packet_scope(), &str_field2);
+			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_boot_drive_letter, tvb, offset, 6, ENC_LITTLE_ENDIAN|ENC_UTF_16, pinfo->pool, &str_field2);
 			offset += 6;
 			proto_tree_add_item(system_tree, hf_netmon_system_config_spare, tvb, offset, 4, ENC_LITTLE_ENDIAN|ENC_UTF_16);
 			offset += 4;
@@ -1187,7 +1187,7 @@ dissect_netmon_system_config(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 			offset += 4;
 			proto_tree_add_item(system_tree, hf_netmon_system_config_drive_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			offset += 4;
-			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_drive_letter, tvb, offset, 8, ENC_LITTLE_ENDIAN|ENC_UTF_16, wmem_packet_scope(), &str_field1);
+			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_drive_letter, tvb, offset, 8, ENC_LITTLE_ENDIAN|ENC_UTF_16, pinfo->pool, &str_field1);
 			offset += 8;
 			proto_tree_add_item(system_tree, hf_netmon_system_config_pad, tvb, offset, 4, ENC_NA);
 			offset += 4;
@@ -1203,14 +1203,14 @@ dissect_netmon_system_config(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 			offset += 8;
 			proto_tree_add_item(system_tree, hf_netmon_system_config_total_num_clusters, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 			offset += 8;
-			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_file_system, tvb, offset, 32, ENC_LITTLE_ENDIAN|ENC_UTF_16, wmem_packet_scope(), &str_field2);
+			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_file_system, tvb, offset, 32, ENC_LITTLE_ENDIAN|ENC_UTF_16, pinfo->pool, &str_field2);
 			offset += 32;
 			col_add_fstr(pinfo->cinfo, COL_INFO, "Drive: %s, FileSystem: %s", str_field1, str_field2);
 			proto_tree_add_item(system_tree, hf_netmon_system_config_volume_ext, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			offset += 4;
 			break;
 		case 13:
-			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_nic_name, tvb, offset, 512, ENC_LITTLE_ENDIAN|ENC_UTF_16, wmem_packet_scope(), &str_field1);
+			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_nic_name, tvb, offset, 512, ENC_LITTLE_ENDIAN|ENC_UTF_16, pinfo->pool, &str_field1);
 			offset += 512;
 			proto_tree_add_item(system_tree, hf_netmon_system_config_index, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			offset += 4;
@@ -1255,13 +1255,13 @@ dissect_netmon_system_config(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 			offset += 4;
 			proto_tree_add_item(system_tree, hf_netmon_system_config_vrefresh, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			offset += 4;
-			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_chip_type, tvb, offset, 512, ENC_LITTLE_ENDIAN|ENC_UTF_16, wmem_packet_scope(), &str_field1);
+			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_chip_type, tvb, offset, 512, ENC_LITTLE_ENDIAN|ENC_UTF_16, pinfo->pool, &str_field1);
 			offset += 512;
 			proto_tree_add_item(system_tree, hf_netmon_system_config_dac_type, tvb, offset, 512, ENC_LITTLE_ENDIAN|ENC_UTF_16);
 			offset += 512;
-			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_adapter_string, tvb, offset, 512, ENC_LITTLE_ENDIAN|ENC_UTF_16, wmem_packet_scope(), &str_field2);
+			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_adapter_string, tvb, offset, 512, ENC_LITTLE_ENDIAN|ENC_UTF_16, pinfo->pool, &str_field2);
 			offset += 512;
-			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_bios_string, tvb, offset, 512, ENC_LITTLE_ENDIAN|ENC_UTF_16, wmem_packet_scope(), &str_field3);
+			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_bios_string, tvb, offset, 512, ENC_LITTLE_ENDIAN|ENC_UTF_16, pinfo->pool, &str_field3);
 			offset += 512;
 			col_add_fstr(pinfo->cinfo, COL_INFO, "Chip: %s, Adapter: %s, Bios: %s", str_field1, str_field2, str_field3);
 			proto_tree_add_item(system_tree, hf_netmon_system_config_device_id, tvb, offset, 512, ENC_LITTLE_ENDIAN|ENC_UTF_16);
@@ -1270,11 +1270,11 @@ dissect_netmon_system_config(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 			offset += 4;
 			break;
 		case 15:
-			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_service_name, tvb, offset, 68, ENC_LITTLE_ENDIAN|ENC_UTF_16, wmem_packet_scope(), &str_field1);
+			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_service_name, tvb, offset, 68, ENC_LITTLE_ENDIAN|ENC_UTF_16, pinfo->pool, &str_field1);
 			offset += 68;
 			proto_tree_add_item(system_tree, hf_netmon_system_config_display_name, tvb, offset, 512, ENC_LITTLE_ENDIAN|ENC_UTF_16);
 			offset += 512;
-			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_process_name, tvb, offset, 68, ENC_LITTLE_ENDIAN|ENC_UTF_16, wmem_packet_scope(), &str_field2);
+			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_process_name, tvb, offset, 68, ENC_LITTLE_ENDIAN|ENC_UTF_16, pinfo->pool, &str_field2);
 			offset += 68;
 			col_add_fstr(pinfo->cinfo, COL_INFO, "Service: %s, Process: %s", str_field1, str_field2);
 			proto_tree_add_item_ret_uint(system_tree, hf_netmon_system_config_process_id, tvb, offset, 4, ENC_LITTLE_ENDIAN, &field1);
@@ -1316,13 +1316,13 @@ dissect_netmon_system_config(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 			offset += 4;
 			/* XXX - can we trust sizes above? */
 			length = tvb_unicode_strsize(tvb, offset);
-			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_device_id, tvb, offset, length, ENC_LITTLE_ENDIAN|ENC_UTF_16, wmem_packet_scope(), &str_field1);
+			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_device_id, tvb, offset, length, ENC_LITTLE_ENDIAN|ENC_UTF_16, pinfo->pool, &str_field1);
 			offset += length;
 			length = tvb_unicode_strsize(tvb, offset);
 			proto_tree_add_item(system_tree, hf_netmon_system_config_device_desc, tvb, offset, length, ENC_LITTLE_ENDIAN|ENC_UTF_16);
 			offset += length;
 			length = tvb_unicode_strsize(tvb, offset);
-			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_friendly_name, tvb, offset, length, ENC_LITTLE_ENDIAN|ENC_UTF_16, wmem_packet_scope(), &str_field2);
+			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_friendly_name, tvb, offset, length, ENC_LITTLE_ENDIAN|ENC_UTF_16, pinfo->pool, &str_field2);
 			offset += length;
 			col_add_fstr(pinfo->cinfo, COL_INFO, "ID: %s, Name: %s", str_field1, str_field2);
 			length = tvb_unicode_strsize(tvb, offset);
@@ -1373,7 +1373,7 @@ dissect_netmon_system_config(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 			offset += 4;
 			proto_tree_add_item(system_tree, hf_netmon_system_config_scsi_lun, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			offset += 4;
-			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_manufacturer, tvb, offset, 512, ENC_LITTLE_ENDIAN|ENC_UTF_16, wmem_packet_scope(), &str_field1);
+			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_manufacturer, tvb, offset, 512, ENC_LITTLE_ENDIAN|ENC_UTF_16, pinfo->pool, &str_field1);
 			offset += 512;
 			proto_tree_add_item(system_tree, hf_netmon_system_config_partition_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			offset += 4;
@@ -1381,7 +1381,7 @@ dissect_netmon_system_config(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 			offset += 1;
 			proto_tree_add_item(system_tree, hf_netmon_system_config_pad, tvb, offset, 1, ENC_NA);
 			offset += 1;
-			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_boot_drive_letter, tvb, offset, 6, ENC_LITTLE_ENDIAN|ENC_UTF_16, wmem_packet_scope(), &str_field2);
+			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_boot_drive_letter, tvb, offset, 6, ENC_LITTLE_ENDIAN|ENC_UTF_16, pinfo->pool, &str_field2);
 			offset += 6;
 			proto_tree_add_item(system_tree, hf_netmon_system_config_spare, tvb, offset, 4, ENC_LITTLE_ENDIAN|ENC_UTF_16);
 			offset += 4;
@@ -1399,7 +1399,7 @@ dissect_netmon_system_config(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 			offset += 4;
 			proto_tree_add_item(system_tree, hf_netmon_system_config_drive_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			offset += 4;
-			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_drive_letter, tvb, offset, 8, ENC_LITTLE_ENDIAN|ENC_UTF_16, wmem_packet_scope(), &str_field1);
+			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_drive_letter, tvb, offset, 8, ENC_LITTLE_ENDIAN|ENC_UTF_16, pinfo->pool, &str_field1);
 			offset += 8;
 			proto_tree_add_item(system_tree, hf_netmon_system_config_pad, tvb, offset, 4, ENC_NA);
 			offset += 4;
@@ -1415,7 +1415,7 @@ dissect_netmon_system_config(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 			offset += 8;
 			proto_tree_add_item(system_tree, hf_netmon_system_config_total_num_clusters, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 			offset += 8;
-			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_file_system, tvb, offset, 32, ENC_LITTLE_ENDIAN|ENC_UTF_16, wmem_packet_scope(), &str_field2);
+			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_file_system, tvb, offset, 32, ENC_LITTLE_ENDIAN|ENC_UTF_16, pinfo->pool, &str_field2);
 			offset += 32;
 			col_add_fstr(pinfo->cinfo, COL_INFO, "Drive: %s, FileSystem: %s", str_field1, str_field2);
 			proto_tree_add_item(system_tree, hf_netmon_system_config_volume_ext, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -1436,7 +1436,7 @@ dissect_netmon_system_config(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 			proto_tree_add_item(system_tree, hf_netmon_system_config_nic_description, tvb, offset, length, ENC_LITTLE_ENDIAN|ENC_UTF_16);
 			offset += length;
 			length = tvb_unicode_strsize(tvb, offset);
-			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_ipaddresses, tvb, offset, length, ENC_LITTLE_ENDIAN|ENC_UTF_16, wmem_packet_scope(), &str_field1);
+			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_ipaddresses, tvb, offset, length, ENC_LITTLE_ENDIAN|ENC_UTF_16, pinfo->pool, &str_field1);
 			offset += length;
 			col_add_fstr(pinfo->cinfo, COL_INFO, "IP Addresses: %s", str_field1);
 			length = tvb_unicode_strsize(tvb, offset);
@@ -1454,13 +1454,13 @@ dissect_netmon_system_config(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 			offset += 4;
 			proto_tree_add_item(system_tree, hf_netmon_system_config_vrefresh, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			offset += 4;
-			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_chip_type, tvb, offset, 512, ENC_LITTLE_ENDIAN|ENC_UTF_16, wmem_packet_scope(), &str_field1);
+			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_chip_type, tvb, offset, 512, ENC_LITTLE_ENDIAN|ENC_UTF_16, pinfo->pool, &str_field1);
 			offset += 512;
 			proto_tree_add_item(system_tree, hf_netmon_system_config_dac_type, tvb, offset, 512, ENC_LITTLE_ENDIAN|ENC_UTF_16);
 			offset += 512;
-			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_adapter_string, tvb, offset, 512, ENC_LITTLE_ENDIAN|ENC_UTF_16, wmem_packet_scope(), &str_field2);
+			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_adapter_string, tvb, offset, 512, ENC_LITTLE_ENDIAN|ENC_UTF_16, pinfo->pool, &str_field2);
 			offset += 512;
-			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_bios_string, tvb, offset, 512, ENC_LITTLE_ENDIAN|ENC_UTF_16, wmem_packet_scope(), &str_field3);
+			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_bios_string, tvb, offset, 512, ENC_LITTLE_ENDIAN|ENC_UTF_16, pinfo->pool, &str_field3);
 			offset += 512;
 			col_add_fstr(pinfo->cinfo, COL_INFO, "Chip: %s, Adapter: %s, Bios: %s", str_field1, str_field2, str_field3);
 			proto_tree_add_item(system_tree, hf_netmon_system_config_device_id, tvb, offset, 512, ENC_LITTLE_ENDIAN|ENC_UTF_16);
@@ -1476,13 +1476,13 @@ dissect_netmon_system_config(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 			proto_tree_add_item(system_tree, hf_netmon_system_config_sub_process_tag, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			offset += 4;
 			length = tvb_unicode_strsize(tvb, offset);
-			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_service_name, tvb, offset, length, ENC_LITTLE_ENDIAN|ENC_UTF_16, wmem_packet_scope(), &str_field1);
+			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_service_name, tvb, offset, length, ENC_LITTLE_ENDIAN|ENC_UTF_16, pinfo->pool, &str_field1);
 			offset += length;
 			length = tvb_unicode_strsize(tvb, offset);
 			proto_tree_add_item(system_tree, hf_netmon_system_config_display_name, tvb, offset, length, ENC_LITTLE_ENDIAN|ENC_UTF_16);
 			offset += length;
 			length = tvb_unicode_strsize(tvb, offset);
-			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_process_name, tvb, offset, length, ENC_LITTLE_ENDIAN|ENC_UTF_16, wmem_packet_scope(), &str_field2);
+			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_process_name, tvb, offset, length, ENC_LITTLE_ENDIAN|ENC_UTF_16, pinfo->pool, &str_field2);
 			offset += length;
 			col_add_fstr(pinfo->cinfo, COL_INFO, "Service: %s, Process: %s", str_field1, str_field2);
 			break;
@@ -1533,13 +1533,13 @@ dissect_netmon_system_config(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 			offset += 4;
 			/* XXX - can we trust sizes above? */
 			length = tvb_unicode_strsize(tvb, offset);
-			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_device_id, tvb, offset, length, ENC_LITTLE_ENDIAN|ENC_UTF_16, wmem_packet_scope(), &str_field1);
+			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_device_id, tvb, offset, length, ENC_LITTLE_ENDIAN|ENC_UTF_16, pinfo->pool, &str_field1);
 			offset += length;
 			length = tvb_unicode_strsize(tvb, offset);
 			proto_tree_add_item(system_tree, hf_netmon_system_config_device_desc, tvb, offset, length, ENC_LITTLE_ENDIAN|ENC_UTF_16);
 			offset += length;
 			length = tvb_unicode_strsize(tvb, offset);
-			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_friendly_name, tvb, offset, length, ENC_LITTLE_ENDIAN|ENC_UTF_16, wmem_packet_scope(), &str_field2);
+			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_friendly_name, tvb, offset, length, ENC_LITTLE_ENDIAN|ENC_UTF_16, pinfo->pool, &str_field2);
 			offset += length;
 			col_add_fstr(pinfo->cinfo, COL_INFO, "ID: %s, Name: %s", str_field1, str_field2);
 			break;
@@ -1553,22 +1553,22 @@ dissect_netmon_system_config(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 			proto_tree_add_item(system_tree, hf_netmon_system_config_location_information_len, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			offset += 4;
 			length = tvb_unicode_strsize(tvb, offset);
-			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_location_information, tvb, offset, length, ENC_LITTLE_ENDIAN|ENC_UTF_16, wmem_packet_scope(), &str_field1);
+			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_location_information, tvb, offset, length, ENC_LITTLE_ENDIAN|ENC_UTF_16, pinfo->pool, &str_field1);
 			offset += length;
 			col_add_fstr(pinfo->cinfo, COL_INFO, "Location: %s", str_field1);
 			break;
 		case 25:
 			length = tvb_unicode_strsize(tvb, offset);
-			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_system_manufacturer, tvb, offset, length, ENC_LITTLE_ENDIAN|ENC_UTF_16, wmem_packet_scope(), &str_field1);
+			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_system_manufacturer, tvb, offset, length, ENC_LITTLE_ENDIAN|ENC_UTF_16, pinfo->pool, &str_field1);
 			offset += length;
 			length = tvb_unicode_strsize(tvb, offset);
-			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_system_product_name, tvb, offset, length, ENC_LITTLE_ENDIAN|ENC_UTF_16, wmem_packet_scope(), &str_field2);
+			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_system_product_name, tvb, offset, length, ENC_LITTLE_ENDIAN|ENC_UTF_16, pinfo->pool, &str_field2);
 			offset += length;
 			length = tvb_unicode_strsize(tvb, offset);
-			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_bios_date, tvb, offset, length, ENC_LITTLE_ENDIAN|ENC_UTF_16, wmem_packet_scope(), &str_field3);
+			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_bios_date, tvb, offset, length, ENC_LITTLE_ENDIAN|ENC_UTF_16, pinfo->pool, &str_field3);
 			offset += length;
 			length = tvb_unicode_strsize(tvb, offset);
-			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_bios_version, tvb, offset, length, ENC_LITTLE_ENDIAN|ENC_UTF_16, wmem_packet_scope(), &str_field4);
+			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_bios_version, tvb, offset, length, ENC_LITTLE_ENDIAN|ENC_UTF_16, pinfo->pool, &str_field4);
 			offset += length;
 			col_add_fstr(pinfo->cinfo, COL_INFO, "Manufacturer: %s, ProductName: %s, BiosDate: %s, BiosVersion: %s", str_field1, str_field2, str_field3, str_field4);
 			break;
@@ -1586,7 +1586,7 @@ dissect_netmon_system_config(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 			proto_tree_add_item(system_tree, hf_netmon_system_config_sub_process_tag, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			offset += 4;
 			length = tvb_unicode_strsize(tvb, offset);
-			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_service_name, tvb, offset, length, ENC_LITTLE_ENDIAN|ENC_UTF_16, wmem_packet_scope(), &str_field1);
+			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_service_name, tvb, offset, length, ENC_LITTLE_ENDIAN|ENC_UTF_16, pinfo->pool, &str_field1);
 			offset += length;
 			col_add_fstr(pinfo->cinfo, COL_INFO, "Service: %s, (PID=%d)", str_field1, field1);
 			length = tvb_unicode_strsize(tvb, offset);
@@ -1628,13 +1628,13 @@ dissect_netmon_system_config(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 			offset += 4;
 			/* XXX - can we trust sizes above? */
 			length = tvb_unicode_strsize(tvb, offset);
-			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_device_id, tvb, offset, length, ENC_LITTLE_ENDIAN|ENC_UTF_16, wmem_packet_scope(), &str_field1);
+			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_device_id, tvb, offset, length, ENC_LITTLE_ENDIAN|ENC_UTF_16, pinfo->pool, &str_field1);
 			offset += length;
 			length = tvb_unicode_strsize(tvb, offset);
 			proto_tree_add_item(system_tree, hf_netmon_system_config_device_desc, tvb, offset, length, ENC_LITTLE_ENDIAN|ENC_UTF_16);
 			offset += length;
 			length = tvb_unicode_strsize(tvb, offset);
-			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_friendly_name, tvb, offset, length, ENC_LITTLE_ENDIAN|ENC_UTF_16, wmem_packet_scope(), &str_field2);
+			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_friendly_name, tvb, offset, length, ENC_LITTLE_ENDIAN|ENC_UTF_16, pinfo->pool, &str_field2);
 			offset += length;
 			col_add_fstr(pinfo->cinfo, COL_INFO, "ID: %s, Name: %s", str_field1, str_field2);
 			length = tvb_unicode_strsize(tvb, offset);
@@ -1684,7 +1684,7 @@ dissect_netmon_process(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 							&ei_netmon_process_user_sid, FALSE);
 			length = tvb_strsize(tvb, offset);
 			proto_tree_add_item_ret_string(process_tree, hf_netmon_process_image_file_name, tvb, offset, length, ENC_NA|ENC_ASCII,
-							wmem_packet_scope(), &filename);
+							pinfo->pool, &filename);
 			col_add_fstr(pinfo->cinfo, COL_INFO, "Filename: %s", filename);
 			offset += length;
 			break;
@@ -1712,7 +1712,7 @@ dissect_netmon_process(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 							&ei_netmon_process_user_sid, FALSE);
 			length = tvb_strsize(tvb, offset);
 			proto_tree_add_item_ret_string(process_tree, hf_netmon_process_image_file_name, tvb, offset, length, ENC_NA|ENC_ASCII,
-							wmem_packet_scope(), &filename);
+							pinfo->pool, &filename);
 			col_add_fstr(pinfo->cinfo, COL_INFO, "Filename: %s", filename);
 			offset += length;
 			break;
@@ -1750,7 +1750,7 @@ dissect_netmon_process(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 							&ei_netmon_process_user_sid, FALSE);
 			length = tvb_strsize(tvb, offset);
 			proto_tree_add_item_ret_string(process_tree, hf_netmon_process_image_file_name, tvb, offset, length, ENC_NA|ENC_ASCII,
-							wmem_packet_scope(), &filename);
+							pinfo->pool, &filename);
 			col_add_fstr(pinfo->cinfo, COL_INFO, "Filename: %s", filename);
 			offset += length;
 
@@ -1833,7 +1833,7 @@ dissect_netmon_process(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 							&ei_netmon_process_user_sid, FALSE);
 			length = tvb_strsize(tvb, offset);
 			proto_tree_add_item_ret_string(process_tree, hf_netmon_process_image_file_name, tvb, offset, length, ENC_NA|ENC_ASCII,
-							wmem_packet_scope(), &filename);
+							pinfo->pool, &filename);
 			col_add_fstr(pinfo->cinfo, COL_INFO, "Filename: %s", filename);
 			offset += length;
 

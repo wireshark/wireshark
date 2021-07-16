@@ -459,7 +459,7 @@ static p_mul_seq_val *register_p_mul_id (packet_info *pinfo, address *addr, guin
       if (pdu_type == Ack_PDU) {
         /* Data is just copied to the structure and never stored,
              so keep a "more temporary" structure */
-        p_mul_data = wmem_new0(wmem_packet_scope(), p_mul_seq_val);
+        p_mul_data = wmem_new0(pinfo->pool, p_mul_seq_val);
       } else {
         p_mul_data = wmem_new0(wmem_file_scope(), p_mul_seq_val);
       }
@@ -891,7 +891,7 @@ static int dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
   en = proto_tree_add_item (p_mul_tree, hf_checksum, tvb, offset, 2, ENC_BIG_ENDIAN);
   checksum_tree = proto_item_add_subtree (en, ett_checksum);
   len = tvb_captured_length (tvb);
-  value = (guint8 *)tvb_memdup (wmem_packet_scope(), tvb, 0, len);
+  value = (guint8 *)tvb_memdup (pinfo->pool, tvb, 0, len);
   if (len >= offset+2) {
     value[offset] = 0;
     value[offset+1] = 0;
@@ -1054,7 +1054,7 @@ static int dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     break;
 
   case Ack_PDU:
-    message_id_list = wmem_strbuf_new_label(wmem_packet_scope());
+    message_id_list = wmem_strbuf_new_label(pinfo->pool);
 
     for (i = 0; i < count; i++) {
       /* Ack Info Entry */

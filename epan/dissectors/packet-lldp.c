@@ -1455,7 +1455,7 @@ dissect_lldp_chassis_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 		idType="MA";
 		strPtr = tvb_ether_to_str(tvb, offset);
 		proto_tree_add_item(chassis_tree, hf_chassis_id_mac, tvb, offset, 6, ENC_NA);
-		pn_lldp_column_info->chassis_id_mac = wmem_strdup(wmem_packet_scope(), strPtr);
+		pn_lldp_column_info->chassis_id_mac = wmem_strdup(pinfo->pool, strPtr);
 		offset += (dataLen - 1);
 		break;
 	}
@@ -1496,7 +1496,7 @@ dissect_lldp_chassis_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 
 			break;
 		default:
-			strPtr = tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, (dataLen-2));
+			strPtr = tvb_bytes_to_str(pinfo->pool, tvb, offset, (dataLen-2));
 			proto_tree_add_item(chassis_tree, hf_chassis_id, tvb, offset, (dataLen-2), ENC_NA);
 
 			break;
@@ -1532,7 +1532,7 @@ dissect_lldp_chassis_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 		case 7: /* Locally assigned */
 			idType="LA";
 			strPtr = tvb_format_stringzpad(tvb, offset, (dataLen-1));
-			pn_lldp_column_info->chassis_id_locally_assigned = wmem_strdup(wmem_packet_scope(), strPtr);
+			pn_lldp_column_info->chassis_id_locally_assigned = wmem_strdup(pinfo->pool, strPtr);
 			break;
 		case 1: /* Chassis component */
 			idType="CC";
@@ -1540,7 +1540,7 @@ dissect_lldp_chassis_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 			break;
 		case 3: /* Port component */
 			idType="PC";
-			strPtr = tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, (dataLen-1));
+			strPtr = tvb_bytes_to_str(pinfo->pool, tvb, offset, (dataLen-1));
 
 			break;
 		default:
@@ -1669,7 +1669,7 @@ dissect_lldp_port_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
 
 			break;
 		default:
-			strPtr = tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, (dataLen-2));
+			strPtr = tvb_bytes_to_str(pinfo->pool, tvb, offset, (dataLen-2));
 			proto_tree_add_item(port_tree, hf_port_id, tvb, offset, (dataLen-2), ENC_ASCII|ENC_NA);
 
 			break;
@@ -1698,7 +1698,7 @@ dissect_lldp_port_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
 			break;
 		case 2: /* Port component */
 			idType = "PC";
-			strPtr = tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, (dataLen-1));
+			strPtr = tvb_bytes_to_str(pinfo->pool, tvb, offset, (dataLen-1));
 			break;
 		case 5: /* Interface name */
 			idType = "IN";
@@ -1711,7 +1711,7 @@ dissect_lldp_port_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
 		case 7: /* Locally assigned */
 			idType = "LA";
 			strPtr = tvb_format_stringzpad(tvb, offset, (dataLen-1));
-			pn_lldp_column_info->port_id_locally_assigned = wmem_strdup(wmem_packet_scope(), strPtr);
+			pn_lldp_column_info->port_id_locally_assigned = wmem_strdup(pinfo->pool, strPtr);
 			break;
 		default:
 			idType = "Rs";
@@ -3511,7 +3511,7 @@ set_name_of_station_for_profinet_specialized_column_info
 			{
 				pn_lldp_column_info->is_nos_assigned = TRUE;
 				pn_lldp_column_info->is_port_id_assigned = TRUE;
-				lldpPortIdCombinedWithNameOfStation = wmem_strdup(wmem_packet_scope(), pn_lldp_column_info->port_id_locally_assigned);
+				lldpPortIdCombinedWithNameOfStation = wmem_strdup(pinfo->pool, pn_lldp_column_info->port_id_locally_assigned);
 				tokenPortId = strtok(lldpPortIdCombinedWithNameOfStation, delimForProfinetv23);
 				tokenNameOfStation = strtok(NULL, delimForProfinetv23);
 				col_append_fstr(pinfo->cinfo, COL_INFO, "NoS = %s ", tokenNameOfStation);
@@ -3717,37 +3717,37 @@ dissect_cisco_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	/* ACI */
 	case 0xc9: // 201 port-state, uint8
 		tf = proto_tree_add_item(tree, hf_cisco_aci_portstate, tvb, offset, length, ENC_NA);
-		proto_item_append_text(parent_item, ": %s", proto_item_get_display_repr(wmem_packet_scope(), tf));
+		proto_item_append_text(parent_item, ": %s", proto_item_get_display_repr(pinfo->pool, tf));
 		offset++;
 		length--;
 		break;
 	case 0xca: // 202 node-role, uint8
 		tf = proto_tree_add_item(tree, hf_cisco_aci_noderole, tvb, offset, length, ENC_NA);
-		proto_item_append_text(parent_item, ": %s", proto_item_get_display_repr(wmem_packet_scope(), tf));
+		proto_item_append_text(parent_item, ": %s", proto_item_get_display_repr(pinfo->pool, tf));
 		offset++;
 		length--;
 		break;
 	case 0xcb: // 203 node-id, uint32
 		tf = proto_tree_add_item(tree, hf_cisco_aci_nodeid, tvb, offset, length, ENC_BIG_ENDIAN);
-		proto_item_append_text(parent_item, ": %s", proto_item_get_display_repr(wmem_packet_scope(), tf));
+		proto_item_append_text(parent_item, ": %s", proto_item_get_display_repr(pinfo->pool, tf));
 		offset += 4;
 		length -= 4;
 		break;
 	case 0xcc: // 204 spine-level, uint8
 		tf = proto_tree_add_item(tree, hf_cisco_aci_spinelevel, tvb, offset, length, ENC_NA);
-		proto_item_append_text(parent_item, ": %s", proto_item_get_display_repr(wmem_packet_scope(), tf));
+		proto_item_append_text(parent_item, ": %s", proto_item_get_display_repr(pinfo->pool, tf));
 		offset++;
 		length--;
 		break;
 	case 0xcd: // 205 pod-id, uint16
 		tf = proto_tree_add_item(tree, hf_cisco_aci_podid, tvb, offset, 2, ENC_BIG_ENDIAN);
-		proto_item_append_text(parent_item, ": %s", proto_item_get_display_repr(wmem_packet_scope(), tf));
+		proto_item_append_text(parent_item, ": %s", proto_item_get_display_repr(pinfo->pool, tf));
 		offset += 2;
 		length -= 2;
 		break;
 	case 0xce: // 206 fabric-name, string
 		tf = proto_tree_add_item(tree, hf_cisco_aci_fabricname, tvb, offset, length, ENC_ASCII|ENC_NA);
-		proto_item_append_text(parent_item, ": %s", proto_item_get_display_repr(wmem_packet_scope(), tf));
+		proto_item_append_text(parent_item, ": %s", proto_item_get_display_repr(pinfo->pool, tf));
 		offset += length;
 		length -= length;
 		break;
@@ -3755,7 +3755,7 @@ dissect_cisco_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 		proto_tree_add_item(tree, hf_cisco_aci_apiclist, tvb, offset, length, ENC_NA);
 		while (length > 0) {
 			tf = proto_tree_add_item(tree, hf_cisco_aci_apicid, tvb, offset, 1, ENC_NA);
-			proto_item_append_text(parent_item, ": %s", proto_item_get_display_repr(wmem_packet_scope(), tf));
+			proto_item_append_text(parent_item, ": %s", proto_item_get_display_repr(pinfo->pool, tf));
 			offset++;
 			length--;
 			proto_tree_add_item(tree, hf_cisco_aci_apicipv4, tvb, offset, 4, ENC_NA);
@@ -3768,31 +3768,31 @@ dissect_cisco_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 		break;
 	case 0xd0: // 208 node-ip, ipv4
 		tf = proto_tree_add_item(tree, hf_cisco_aci_nodeip, tvb, offset, length, ENC_NA);
-		proto_item_append_text(parent_item, ": %s", proto_item_get_display_repr(wmem_packet_scope(), tf));
+		proto_item_append_text(parent_item, ": %s", proto_item_get_display_repr(pinfo->pool, tf));
 		offset += 4;
 		length -= 4;
 		break;
 	case 0xd1: // 209 port-role, uint8
 		tf = proto_tree_add_item(tree, hf_cisco_aci_portrole, tvb, offset, length, ENC_NA);
-		proto_item_append_text(parent_item, ": %s", proto_item_get_display_repr(wmem_packet_scope(), tf));
+		proto_item_append_text(parent_item, ": %s", proto_item_get_display_repr(pinfo->pool, tf));
 		offset++;
 		length--;
 		break;
 	case 0xd2: // 210 fw-ver, string
 		tf = proto_tree_add_item(tree, hf_cisco_aci_version, tvb, offset, length, ENC_ASCII|ENC_NA);
-		proto_item_append_text(parent_item, ": %s", proto_item_get_display_repr(wmem_packet_scope(), tf));
+		proto_item_append_text(parent_item, ": %s", proto_item_get_display_repr(pinfo->pool, tf));
 		offset += length;
 		length -= length;
 		break;
 	case 0xd3: // 211 infra-vlan, uint16
 		tf = proto_tree_add_item(tree, hf_cisco_aci_fabricvlan, tvb, offset, 2, ENC_BIG_ENDIAN);
-		proto_item_append_text(parent_item, ": %s", proto_item_get_display_repr(wmem_packet_scope(), tf));
+		proto_item_append_text(parent_item, ": %s", proto_item_get_display_repr(pinfo->pool, tf));
 		offset += 2;
 		length -= 2;
 		break;
 	case 0xd4: // 212 serial-number, string
 		tf = proto_tree_add_item(tree, hf_cisco_aci_serialno, tvb, offset, length, ENC_ASCII|ENC_NA);
-		proto_item_append_text(parent_item, ": %s", proto_item_get_display_repr(wmem_packet_scope(), tf));
+		proto_item_append_text(parent_item, ": %s", proto_item_get_display_repr(pinfo->pool, tf));
 		offset += length;
 		length -= length;
 		break;
@@ -3802,37 +3802,37 @@ dissect_cisco_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 #endif
 	case 0xd6: // 214 model, string
 		tf = proto_tree_add_item(tree, hf_cisco_aci_model, tvb, offset, length, ENC_ASCII|ENC_NA);
-		proto_item_append_text(parent_item, ": %s", proto_item_get_display_repr(wmem_packet_scope(), tf));
+		proto_item_append_text(parent_item, ": %s", proto_item_get_display_repr(pinfo->pool, tf));
 		offset += length;
 		length -= length;
 		break;
 	case 0xd7: // 215 name, string
 		tf = proto_tree_add_item(tree, hf_cisco_aci_nodename, tvb, offset, length, ENC_ASCII|ENC_NA);
-		proto_item_append_text(parent_item, ": %s", proto_item_get_display_repr(wmem_packet_scope(), tf));
+		proto_item_append_text(parent_item, ": %s", proto_item_get_display_repr(pinfo->pool, tf));
 		offset += length;
 		length -= length;
 		break;
 	case 0xd8: // 216 port-mode, uint16
 		tf = proto_tree_add_item(tree, hf_cisco_aci_portmode, tvb, offset, length, ENC_BIG_ENDIAN);
-		proto_item_append_text(parent_item, ": %s", proto_item_get_display_repr(wmem_packet_scope(), tf));
+		proto_item_append_text(parent_item, ": %s", proto_item_get_display_repr(pinfo->pool, tf));
 		offset += 2;
 		length -= 2;
 		break;
 	case 0xd9: // 217 authenticate-cookie, bytes
 		tf = proto_tree_add_item(tree, hf_cisco_aci_authcookie, tvb, offset, length, ENC_NA);
-		proto_item_append_text(parent_item, ": %s", proto_item_get_display_repr(wmem_packet_scope(), tf));
+		proto_item_append_text(parent_item, ": %s", proto_item_get_display_repr(pinfo->pool, tf));
 		offset += length;
 		length -= length;
 		break;
 	case 0xda: // 218 standby-apic, uint8
 		tf = proto_tree_add_item(tree, hf_cisco_aci_apicmode, tvb, offset, length, ENC_NA);
-		proto_item_append_text(parent_item, ": %s", proto_item_get_display_repr(wmem_packet_scope(), tf));
+		proto_item_append_text(parent_item, ": %s", proto_item_get_display_repr(pinfo->pool, tf));
 		offset++;
 		length--;
 		break;
 	case 0xdb: // 219 fabric-id, uint16
 		tf = proto_tree_add_item(tree, hf_cisco_aci_fabricid, tvb, offset, length, ENC_BIG_ENDIAN);
-		proto_item_append_text(parent_item, ": %s", proto_item_get_display_repr(wmem_packet_scope(), tf));
+		proto_item_append_text(parent_item, ": %s", proto_item_get_display_repr(pinfo->pool, tf));
 		offset += 2;
 		length -= 2;
 		break;
@@ -4440,7 +4440,7 @@ dissect_organizational_specific_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 		subTypeStr = val_to_str(subType, onos_subtypes, "Unknown subtype (0x%x)");
 		break;
 	default:
-		subTypeStr = wmem_strdup_printf(wmem_packet_scope(), "Unknown (%d)",subType);
+		subTypeStr = wmem_strdup_printf(pinfo->pool, "Unknown (%d)",subType);
 		break;
 	}
 
@@ -4563,7 +4563,7 @@ dissect_lldp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 	new_tvb = tvb_new_subset_length(tvb, offset, TLV_INFO_LEN(tempShort)+2);
 
 	/* allocation */
-	pn_lldp_column_info = wmem_new0(wmem_packet_scope(), profinet_lldp_column_info);
+	pn_lldp_column_info = wmem_new0(pinfo->pool, profinet_lldp_column_info);
 
 	rtnValue = dissect_lldp_chassis_id(new_tvb, pinfo, lldp_tree, 0, pn_lldp_column_info);
 	if (rtnValue < 0)

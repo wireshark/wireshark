@@ -554,7 +554,7 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
             reqresp_tree = proto_item_add_subtree(th, ett_msrp_reqresp);
             proto_tree_add_item(reqresp_tree,hf_msrp_transactionID,tvb,token_2_start,token_2_len,ENC_UTF_8|ENC_NA);
             msrp_status_code_valid = ws_strtou32(
-                tvb_get_string_enc(wmem_packet_scope(), tvb, token_3_start, token_3_len, ENC_UTF_8|ENC_NA),
+                tvb_get_string_enc(pinfo->pool, tvb, token_3_start, token_3_len, ENC_UTF_8|ENC_NA),
                 NULL, & msrp_status_code);
             pi = proto_tree_add_uint(reqresp_tree,hf_msrp_status_code,tvb,token_3_start,token_3_len,msrp_status_code);
             if (!msrp_status_code_valid)
@@ -621,7 +621,7 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                      * Fetch the value.
                      */
                     value_len = line_end_offset - value_offset;
-                    value = tvb_get_string_enc(wmem_packet_scope(), tvb, value_offset,
+                    value = tvb_get_string_enc(pinfo->pool, tvb, value_offset,
                                        value_len, ENC_UTF_8|ENC_NA);
 
                     /*
@@ -650,11 +650,11 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                     parameter_offset++;
                                 content_type_len = semi_colon_offset - value_offset;
                                 content_type_parameter_str_len = line_end_offset - parameter_offset;
-                                message_info.media_str = tvb_get_string_enc(wmem_packet_scope(), tvb,
+                                message_info.media_str = tvb_get_string_enc(pinfo->pool, tvb,
                                              parameter_offset, content_type_parameter_str_len, ENC_UTF_8|ENC_NA);
                             }
                             media_type_str_lower_case = ascii_strdown_inplace(
-                                                            (gchar *)tvb_get_string_enc(wmem_packet_scope(), tvb, value_offset, content_type_len, ENC_UTF_8|ENC_NA));
+                                                            (gchar *)tvb_get_string_enc(pinfo->pool, tvb, value_offset, content_type_len, ENC_UTF_8|ENC_NA));
                             break;
 
                         default:

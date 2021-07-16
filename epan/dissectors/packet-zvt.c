@@ -630,7 +630,7 @@ dissect_zvt_tlv_seq(tvbuff_t *tvb, gint offset, guint16 seq_max_len,
     gint            ret;
 
     if (!seq_info) {
-        seq_info = wmem_new(wmem_packet_scope(), tlv_seq_info_t);
+        seq_info = wmem_new(pinfo->pool, tlv_seq_info_t);
 
         /* by default, text lines are using the CP437 charset
            there's an object to change the encoding
@@ -749,7 +749,7 @@ static inline gint dissect_zvt_time(
         tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, proto_tree *tree)
 {
     const gchar *str = tvb_bcd_dig_to_wmem_packet_str_be(tvb, offset, 3, NULL, FALSE);
-    gchar  *fstr = (char *)wmem_alloc(wmem_packet_scope(), 9);
+    gchar  *fstr = (char *)wmem_alloc(pinfo->pool, 9);
     fstr[0] = str[0];
     fstr[1] = str[1];
     fstr[2] = ':';
@@ -768,7 +768,7 @@ static inline gint dissect_zvt_date(
         tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, proto_tree *tree)
 {
     const gchar *str = tvb_bcd_dig_to_wmem_packet_str_be(tvb, offset, 2, NULL, FALSE);
-    gchar  *fstr = (char *)wmem_alloc(wmem_packet_scope(), 6);
+    gchar  *fstr = (char *)wmem_alloc(pinfo->pool, 6);
     fstr[0] = str[0];
     fstr[1] = str[1];
     fstr[2] = '/';
@@ -784,7 +784,7 @@ static inline gint dissect_zvt_expiry_date(
         tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, proto_tree *tree)
 {
     const gchar *str = tvb_bcd_dig_to_wmem_packet_str_be(tvb, offset, 2, NULL, FALSE);
-    gchar  *fstr = (char *)wmem_alloc(wmem_packet_scope(), 6);
+    gchar  *fstr = (char *)wmem_alloc(pinfo->pool, 6);
     fstr[0] = str[0];
     fstr[1] = str[1];
     fstr[2] = '/';
@@ -824,7 +824,7 @@ static inline gint dissect_zvt_card_name(
     guint8 ones = tvb_get_guint8(tvb, offset + 1) & 0x0f;
     guint8 length = tens * 10 + ones;
     const guint8 * str = NULL;
-    proto_tree_add_item_ret_string(tree, hf_zvt_card_name, tvb, offset + 2, length, ENC_ASCII, wmem_packet_scope(), &str);
+    proto_tree_add_item_ret_string(tree, hf_zvt_card_name, tvb, offset + 2, length, ENC_ASCII, pinfo->pool, &str);
     return 2 + length;
 }
 
@@ -837,7 +837,7 @@ static inline gint dissect_zvt_additional_data(
     guint8 ones = tvb_get_guint8(tvb, offset + 2) & 0x0f;
     guint16 length = hundrets * 100 + tens * 10 + ones;
     const guint8 * str = NULL;
-    proto_tree_add_item_ret_string(tree, hf_zvt_additional_data, tvb, offset + 3, length, ENC_ASCII, wmem_packet_scope(), &str);
+    proto_tree_add_item_ret_string(tree, hf_zvt_additional_data, tvb, offset + 3, length, ENC_ASCII, pinfo->pool, &str);
     return 3 + length;
 }
 

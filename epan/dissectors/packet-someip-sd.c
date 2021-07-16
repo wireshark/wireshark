@@ -238,7 +238,7 @@ dissect_someip_sd_pdu_option_configuration(tvbuff_t *tvb, packet_info *pinfo, pr
     offset += 1;
 
     gint config_string_length = length - offset + offset_orig;
-    ti = proto_tree_add_item_ret_string(tree, hf_someip_sd_option_config_string, tvb, offset, config_string_length, ENC_ASCII | ENC_NA, wmem_packet_scope(), &config_string);
+    ti = proto_tree_add_item_ret_string(tree, hf_someip_sd_option_config_string, tvb, offset, config_string_length, ENC_ASCII | ENC_NA, pinfo->pool, &config_string);
     subtree = proto_item_add_subtree(ti, ett_someip_sd_config_string);
 
     guint8 pos = 0;

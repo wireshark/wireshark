@@ -412,7 +412,7 @@ dissect_packed_repeated_field_values(tvbuff_t *tvb, guint start, guint length, p
     case PROTOBUF_TYPE_SINT64:
     case PROTOBUF_TYPE_BOOL:
     case PROTOBUF_TYPE_ENUM:
-        varint_list = wmem_list_new(wmem_packet_scope());
+        varint_list = wmem_list_new(pinfo->pool);
 
         /* try to test all can parsed as varint */
         while (offset < max_offset) {
@@ -424,7 +424,7 @@ dissect_packed_repeated_field_values(tvbuff_t *tvb, guint start, guint length, p
             }
 
             /* temporarily store varint info in the list */
-            info = wmem_new(wmem_packet_scope(), protobuf_varint_tvb_info_t);
+            info = wmem_new(pinfo->pool, protobuf_varint_tvb_info_t);
             info->offset = offset;
             info->length = sub_value_length;
             info->value = sub_value;
@@ -652,13 +652,13 @@ protobuf_dissect_field_value(proto_tree *value_tree, tvbuff_t *tvb, guint offset
         proto_item_append_text(ti_field, " =");
         /* FALLTHROUGH */
     case PROTOBUF_TYPE_STRING:
-        proto_tree_add_item_ret_display_string(value_tree, hf_protobuf_value_string, tvb, offset, length, ENC_UTF_8|ENC_NA, wmem_packet_scope(), &buf);
+        proto_tree_add_item_ret_display_string(value_tree, hf_protobuf_value_string, tvb, offset, length, ENC_UTF_8|ENC_NA, pinfo->pool, &buf);
         proto_item_append_text(ti_field, "%s %s", prepend_text, buf);
         if (is_top_level) {
             col_append_fstr(pinfo->cinfo, COL_INFO, "=%s", buf);
         }
         if (hf_id_ptr) {
-            ti = proto_tree_add_item_ret_display_string(pbf_tree, *hf_id_ptr, tvb, offset, length, ENC_UTF_8|ENC_NA, wmem_packet_scope(), &buf);
+            ti = proto_tree_add_item_ret_display_string(pbf_tree, *hf_id_ptr, tvb, offset, length, ENC_UTF_8|ENC_NA, pinfo->pool, &buf);
         }
         break;
 
@@ -1243,7 +1243,7 @@ dissect_protobuf_message(tvbuff_t *tvb, guint offset, guint length, packet_info 
         message_name = pbw_Descriptor_full_name(message_desc);
         field_count = pbw_Descriptor_field_count(message_desc);
         if (add_default_value && field_count > 0) {
-            parsed_fields = wmem_alloc0_array(wmem_packet_scope(), int, field_count);
+            parsed_fields = wmem_alloc0_array(pinfo->pool, int, field_count);
         }
     }
 
@@ -1302,7 +1302,7 @@ dissect_protobuf_message(tvbuff_t *tvb, guint offset, guint length, packet_info 
     }
 
     if (parsed_fields) {
-        wmem_free(wmem_packet_scope(), parsed_fields);
+        wmem_free(pinfo->pool, parsed_fields);
     }
 }
 
@@ -1388,7 +1388,7 @@ dissect_protobuf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
                     message_info++; /* ignore first '/' */
                 }
 
-                gchar** tmp_names = wmem_strsplit(wmem_packet_scope(), message_info, ",", 2);
+                gchar** tmp_names = wmem_strsplit(pinfo->pool, message_info, ",", 2);
                 gchar* method_name = (tmp_names[0]) ? tmp_names[0] : NULL;
                 gchar* direction_type = (method_name && tmp_names[1]) ? tmp_names[1] : NULL;
 

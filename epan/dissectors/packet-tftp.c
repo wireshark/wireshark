@@ -613,7 +613,7 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
         tftp_eo_t        *eo_info;
 
         /* Create the eo_info to pass to the listener */
-        eo_info = wmem_new(wmem_packet_scope(), tftp_eo_t);
+        eo_info = wmem_new(pinfo->pool, tftp_eo_t);
 
         /* Set filename */
         eo_info->filename = g_strdup(filename);

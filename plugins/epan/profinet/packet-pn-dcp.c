@@ -468,7 +468,7 @@ dissect_PNDCP_Suboption_IP(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
         offset = dissect_pn_mac(tvb, offset, pinfo, tree, hf_pn_dcp_suboption_ip_mac_address, mac);
         set_address(&addr, AT_ETHER, 6, mac);
-        proto_item_append_text(block_item, ", MACAddress: %s", address_to_str(wmem_packet_scope(), &addr));
+        proto_item_append_text(block_item, ", MACAddress: %s", address_to_str(pinfo->pool, &addr));
         break;
     case PNDCP_SUBOPTION_IP_IP:
         pn_append_info(pinfo, dcp_item, ", IP");
@@ -504,17 +504,17 @@ dissect_PNDCP_Suboption_IP(tvbuff_t *tvb, int offset, packet_info *pinfo,
         /* IPAddress */
         offset = dissect_pn_ipv4(tvb, offset, pinfo, tree, hf_pn_dcp_suboption_ip_ip, &ip);
         set_address(&addr, AT_IPv4, 4, &ip);
-        proto_item_append_text(block_item, ", IP: %s", address_to_str(wmem_packet_scope(), &addr));
+        proto_item_append_text(block_item, ", IP: %s", address_to_str(pinfo->pool, &addr));
 
         /* Subnetmask */
         offset = dissect_pn_ipv4(tvb, offset, pinfo, tree, hf_pn_dcp_suboption_ip_subnetmask, &ip);
         set_address(&addr, AT_IPv4, 4, &ip);
-        proto_item_append_text(block_item, ", Subnet: %s", address_to_str(wmem_packet_scope(), &addr));
+        proto_item_append_text(block_item, ", Subnet: %s", address_to_str(pinfo->pool, &addr));
 
         /* StandardGateway */
         offset = dissect_pn_ipv4(tvb, offset, pinfo, tree, hf_pn_dcp_suboption_ip_standard_gateway, &ip);
         set_address(&addr, AT_IPv4, 4, &ip);
-        proto_item_append_text(block_item, ", Gateway: %s", address_to_str(wmem_packet_scope(), &addr));
+        proto_item_append_text(block_item, ", Gateway: %s", address_to_str(pinfo->pool, &addr));
         break;
     case PNDCP_SUBOPTION_IP_FULL_IP_SUITE:
         pn_append_info(pinfo, dcp_item, ", MAC");
@@ -548,37 +548,37 @@ dissect_PNDCP_Suboption_IP(tvbuff_t *tvb, int offset, packet_info *pinfo,
         /* IPAddress */
         offset = dissect_pn_ipv4(tvb, offset, pinfo, tree, hf_pn_dcp_suboption_ip_ip, &ip);
         set_address(&addr, AT_IPv4, 4, &ip);
-        proto_item_append_text(block_item, ", IP: %s", address_to_str(wmem_packet_scope(), &addr));
+        proto_item_append_text(block_item, ", IP: %s", address_to_str(pinfo->pool, &addr));
 
         /* Subnetmask */
         offset = dissect_pn_ipv4(tvb, offset, pinfo, tree, hf_pn_dcp_suboption_ip_subnetmask, &ip);
         set_address(&addr, AT_IPv4, 4, &ip);
-        proto_item_append_text(block_item, ", Subnet: %s", address_to_str(wmem_packet_scope(), &addr));
+        proto_item_append_text(block_item, ", Subnet: %s", address_to_str(pinfo->pool, &addr));
 
         /* StandardGateway */
         offset = dissect_pn_ipv4(tvb, offset, pinfo, tree, hf_pn_dcp_suboption_ip_standard_gateway, &ip);
         set_address(&addr, AT_IPv4, 4, &ip);
-        proto_item_append_text(block_item, ", Gateway: %s", address_to_str(wmem_packet_scope(), &addr));
+        proto_item_append_text(block_item, ", Gateway: %s", address_to_str(pinfo->pool, &addr));
 
         /* IPAddress_1 */
         offset = dissect_pn_ipv4(tvb, offset, pinfo, tree, hf_pn_dcp_suboption_ip_ip, &ip);
         set_address(&addr, AT_IPv4, 4, &ip);
-        proto_item_append_text(block_item, ", DNSServerIP1: %s", address_to_str(wmem_packet_scope(), &addr));
+        proto_item_append_text(block_item, ", DNSServerIP1: %s", address_to_str(pinfo->pool, &addr));
 
         /* IPAddress_2 */
         offset = dissect_pn_ipv4(tvb, offset, pinfo, tree, hf_pn_dcp_suboption_ip_subnetmask, &ip);
         set_address(&addr, AT_IPv4, 4, &ip);
-        proto_item_append_text(block_item, ", DNSServerIP2: %s", address_to_str(wmem_packet_scope(), &addr));
+        proto_item_append_text(block_item, ", DNSServerIP2: %s", address_to_str(pinfo->pool, &addr));
 
         /* IPAddress_3 */
         offset = dissect_pn_ipv4(tvb, offset, pinfo, tree, hf_pn_dcp_suboption_ip_standard_gateway, &ip);
         set_address(&addr, AT_IPv4, 4, &ip);
-        proto_item_append_text(block_item, ", DNSServerIP3: %s", address_to_str(wmem_packet_scope(), &addr));
+        proto_item_append_text(block_item, ", DNSServerIP3: %s", address_to_str(pinfo->pool, &addr));
 
         /* IPAddress_4 */
         offset = dissect_pn_ipv4(tvb, offset, pinfo, tree, hf_pn_dcp_suboption_ip_standard_gateway, &ip);
         set_address(&addr, AT_IPv4, 4, &ip);
-        proto_item_append_text(block_item, ", DNSServerIP4: %s", address_to_str(wmem_packet_scope(), &addr));
+        proto_item_append_text(block_item, ", DNSServerIP4: %s", address_to_str(pinfo->pool, &addr));
 
         break;
     default:
@@ -653,7 +653,7 @@ dissect_PNDCP_Suboption_Device(tvbuff_t *tvb, int offset, packet_info *pinfo,
          * part, not realizing that they should have done "(R)" or something
          * such as that.
          */
-        proto_tree_add_item_ret_display_string (tree, hf_pn_dcp_suboption_device_typeofstation, tvb, offset, block_length, ENC_ASCII|ENC_NA, wmem_packet_scope(), &typeofstation);
+        proto_tree_add_item_ret_display_string (tree, hf_pn_dcp_suboption_device_typeofstation, tvb, offset, block_length, ENC_ASCII|ENC_NA, pinfo->pool, &typeofstation);
         pn_append_info(pinfo, dcp_item, ", DeviceVendorValue");
         proto_item_append_text(block_item, "Device/Manufacturer specific");
         if (have_block_qualifier) {
@@ -710,8 +710,8 @@ dissect_PNDCP_Suboption_Device(tvbuff_t *tvb, int offset, packet_info *pinfo,
          * is just an ASCII string to be interpreted as a Punycode Unicode
          * domain name?
          */
-        proto_tree_add_item_ret_display_string (tree, hf_pn_dcp_suboption_device_nameofstation, tvb, offset, block_length, ENC_ASCII|ENC_NA, wmem_packet_scope(), &nameofstation);
-        pn_append_info(pinfo, dcp_item, wmem_strdup_printf(wmem_packet_scope(), ", NameOfStation:\"%s\"", nameofstation));
+        proto_tree_add_item_ret_display_string (tree, hf_pn_dcp_suboption_device_nameofstation, tvb, offset, block_length, ENC_ASCII|ENC_NA, pinfo->pool, &nameofstation);
+        pn_append_info(pinfo, dcp_item, wmem_strdup_printf(pinfo->pool, ", NameOfStation:\"%s\"", nameofstation));
         proto_item_append_text(block_item, "Device/NameOfStation");
         if (have_block_qualifier) {
             proto_item_append_text(block_item, ", BlockQualifier: %s",
@@ -814,7 +814,7 @@ dissect_PNDCP_Suboption_Device(tvbuff_t *tvb, int offset, packet_info *pinfo,
             proto_item_append_text(block_item, ", PN-Supervisor");
         break;
     case PNDCP_SUBOPTION_DEVICE_DEV_OPTIONS:
-        info_str = wmem_strdup_printf(wmem_packet_scope(), ", Dev-Options(%u)", block_length/2);
+        info_str = wmem_strdup_printf(pinfo->pool, ", Dev-Options(%u)", block_length/2);
         pn_append_info(pinfo, dcp_item, info_str);
         proto_item_append_text(block_item, "Device/Device Options");
         if (have_block_qualifier) {
@@ -858,8 +858,8 @@ dissect_PNDCP_Suboption_Device(tvbuff_t *tvb, int offset, packet_info *pinfo,
          *   NameOfStationValue" that it's a domain name, complete with
          *   RFC 5890 Punycode.
          */
-        proto_tree_add_item_ret_display_string (tree, hf_pn_dcp_suboption_device_aliasname, tvb, offset, block_length, ENC_ASCII|ENC_NA, wmem_packet_scope(), &aliasname);
-        pn_append_info(pinfo, dcp_item, wmem_strdup_printf(wmem_packet_scope(), ", AliasName:\"%s\"", aliasname));
+        proto_tree_add_item_ret_display_string (tree, hf_pn_dcp_suboption_device_aliasname, tvb, offset, block_length, ENC_ASCII|ENC_NA, pinfo->pool, &aliasname);
+        pn_append_info(pinfo, dcp_item, wmem_strdup_printf(pinfo->pool, ", AliasName:\"%s\"", aliasname));
         proto_item_append_text(block_item, "Device/AliasName");
         if (have_block_qualifier) {
             proto_item_append_text(block_item, ", BlockQualifier: %s",
@@ -1120,7 +1120,7 @@ dissect_PNDCP_Suboption_Control(tvbuff_t *tvb, int offset, packet_info *pinfo,
                 expert_add_info_format(pinfo, item, &ei_pn_dcp_block_error_unknown, "%s",
                     val_to_str(block_error, pn_dcp_block_error, "Unknown"));
             }
-            info_str = wmem_strdup_printf(wmem_packet_scope(), ", Response(%s)",
+            info_str = wmem_strdup_printf(pinfo->pool, ", Response(%s)",
                 val_to_str(block_error, pn_dcp_block_error, "Unknown"));
             pn_append_info(pinfo, dcp_item, info_str);
             proto_item_append_text(block_item, ", BlockError: %s",
@@ -1380,7 +1380,7 @@ dissect_PNDCP_PDU(tvbuff_t *tvb,
         return;
     }
 
-    xid_str = wmem_strdup_printf(wmem_packet_scope(), ", Xid:0x%x", xid);
+    xid_str = wmem_strdup_printf(pinfo->pool, ", Xid:0x%x", xid);
     pn_append_info(pinfo, dcp_item, xid_str);
 
     /* dissect a number of blocks (depending on the remaining length) */

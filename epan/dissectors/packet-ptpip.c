@@ -987,7 +987,7 @@ static void dissect_ptpIP_unicode_name(tvbuff_t *tvb, packet_info *pinfo, proto_
     gint          nameLen;
 
     nameLen = tvb_unicode_strsize(tvb, *offset);
-    proto_tree_add_item_ret_string(tree, hf_ptpIP_name, tvb, *offset, nameLen, ENC_UTF_16|ENC_LITTLE_ENDIAN, wmem_packet_scope(), &name);
+    proto_tree_add_item_ret_string(tree, hf_ptpIP_name, tvb, *offset, nameLen, ENC_UTF_16|ENC_LITTLE_ENDIAN, pinfo->pool, &name);
     *offset += nameLen;
     col_append_fstr(pinfo->cinfo, COL_INFO, " Name: %s", name);
 }
@@ -1018,7 +1018,7 @@ static void dissect_ptpIP_guid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 {
     guint8 *guid;
 
-    guid = tvb_bytes_to_str(wmem_packet_scope(), tvb, *offset, PTPIP_GUID_SIZE);
+    guid = tvb_bytes_to_str(pinfo->pool, tvb, *offset, PTPIP_GUID_SIZE);
     proto_tree_add_item(tree, hf_ptpIP_guid, tvb, *offset, PTPIP_GUID_SIZE, ENC_NA);
     *offset += PTPIP_GUID_SIZE;
     col_append_fstr(

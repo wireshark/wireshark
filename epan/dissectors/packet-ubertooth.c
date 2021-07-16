@@ -1324,7 +1324,7 @@ dissect_usb_rx_packet(proto_tree *main_tree, proto_tree *tree, packet_info *pinf
             else
                 length += tvb_get_guint8(tvb, offset + 5) & 0x1f;
 
-            ubertooth_data = wmem_new(wmem_packet_scope(), ubertooth_data_t);
+            ubertooth_data = wmem_new(pinfo->pool, ubertooth_data_t);
             ubertooth_data->bus_id = usb_conv_info->bus_id;
             ubertooth_data->device_address = usb_conv_info->device_address;
             ubertooth_data->clock_100ns = clock_100ns;
@@ -1677,7 +1677,7 @@ dissect_ubertooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
                 break;
             case 51: /* Set AFH Map */
                 proto_tree_add_item(main_tree, hf_afh_map, tvb, offset, 10, ENC_NA);
-                col_append_fstr(pinfo->cinfo, COL_INFO, " - %s", tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, 10));
+                col_append_fstr(pinfo->cinfo, COL_INFO, " - %s", tvb_bytes_to_str(pinfo->pool, tvb, offset, 10));
 
                 offset += 10;
                 break;
@@ -1829,7 +1829,7 @@ dissect_ubertooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
         if (status) break;
 
-        serial = (guint32 *) wmem_alloc(wmem_packet_scope(), 16);
+        serial = (guint32 *) wmem_alloc(pinfo->pool, 16);
         serial[0] = tvb_get_ntohl(tvb, offset);
         serial[1] = tvb_get_ntohl(tvb, offset + 4);
         serial[2] = tvb_get_ntohl(tvb, offset + 8);
@@ -1838,7 +1838,7 @@ dissect_ubertooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         proto_tree_add_bytes(main_tree, hf_serial_number, tvb,
                 offset, 16, (guint8 *) serial);
         col_append_fstr(pinfo->cinfo, COL_INFO, " = %s",
-                bytes_to_str(wmem_packet_scope(), (guint8 *) serial, 16));
+                bytes_to_str(pinfo->pool, (guint8 *) serial, 16));
         offset += 16;
 
         break;
@@ -1906,7 +1906,7 @@ dissect_ubertooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         length = tvb_get_guint8(tvb, offset);
         offset += 1;
 
-        proto_tree_add_item_ret_string(main_tree, hf_firmware_revision, tvb, offset, length, ENC_NA | ENC_ASCII, wmem_packet_scope(), &firmware);
+        proto_tree_add_item_ret_string(main_tree, hf_firmware_revision, tvb, offset, length, ENC_NA | ENC_ASCII, pinfo->pool, &firmware);
         col_append_fstr(pinfo->cinfo, COL_INFO, " = %s", firmware);
         offset += length;
         }
@@ -1982,7 +1982,7 @@ dissect_ubertooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         length = tvb_get_guint8(tvb, offset);
         offset += 1;
 
-        proto_tree_add_item_ret_string(main_tree, hf_firmware_compile_info, tvb, offset, length, ENC_NA | ENC_ASCII, wmem_packet_scope(), &compile);
+        proto_tree_add_item_ret_string(main_tree, hf_firmware_compile_info, tvb, offset, length, ENC_NA | ENC_ASCII, pinfo->pool, &compile);
         col_append_fstr(pinfo->cinfo, COL_INFO, " = %s", compile);
         offset += length;
         }

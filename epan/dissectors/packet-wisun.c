@@ -823,7 +823,7 @@ dissect_wisun_netnameie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     proto_tree_add_item(subtree, hf_wisun_netnameie_name, tvb, 2, tvb_reported_length_remaining(tvb, 2), ENC_ASCII|ENC_NA);
 
     col_append_sep_fstr(pinfo->cinfo, COL_INFO, ", ", "Netname: %s",
-                        tvb_get_string_enc(wmem_packet_scope(), tvb, 2, tvb_reported_length_remaining(tvb, 2), ENC_ASCII));
+                        tvb_get_string_enc(pinfo->pool, tvb, 2, tvb_reported_length_remaining(tvb, 2), ENC_ASCII));
     return tvb_reported_length(tvb);
 }
 

@@ -628,7 +628,7 @@ decode_sse(proto_tree *ext_tree, packet_info *pinfo, tvbuff_t *tvb, int offset, 
         return;
     }
 
-    msid_digits = (char *)wmem_alloc(wmem_packet_scope(), A11_MSG_MSID_LEN_MAX+2);
+    msid_digits = (char *)wmem_alloc(pinfo->pool, A11_MSG_MSID_LEN_MAX+2);
     msid_start_offset = offset;
 
     if (msid_len > A11_MSG_MSID_ELEM_LEN_MAX) {

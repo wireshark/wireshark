@@ -2958,7 +2958,7 @@ dissect_openflow_port_v6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
     /* char name[OFP_MAX_PORT_NAME_LEN]; Null-terminated */
     proto_tree_add_item(port_tree, hf_openflow_v6_port_name, tvb, offset, OFP_MAX_PORT_NAME_LEN, ENC_ASCII|ENC_NA);
 
-    proto_item_append_text(port_tree, " (%s)", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, OFP_ETH_ALEN, ENC_ASCII));
+    proto_item_append_text(port_tree, " (%s)", tvb_get_string_enc(pinfo->pool, tvb, offset, OFP_ETH_ALEN, ENC_ASCII));
     offset+=OFP_MAX_PORT_NAME_LEN;
 
     /* uint32_t config; */

@@ -2654,7 +2654,7 @@ dissect_someip_payload_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         str_encoding = ENC_ASCII | ENC_NA;
     }
 
-    buf = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, str_encoding);
+    buf = tvb_get_string_enc(pinfo->pool, tvb, offset, length, str_encoding);
 
     /* sanitizing buffer */
     if (str_encoding & ENC_ASCII || str_encoding & ENC_UTF_8) {

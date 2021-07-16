@@ -632,7 +632,7 @@ proto_item* parseString(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_,
     else
     {
         item = proto_tree_add_item(tree, hfIndex, tvb, *pOffset, 0, ENC_NA);
-        szValue = wmem_strdup_printf(wmem_packet_scope(), "[Invalid String] Invalid length: %d", iLen);
+        szValue = wmem_strdup_printf(pinfo->pool, "[Invalid String] Invalid length: %d", iLen);
         proto_item_append_text(item, "%s", szValue);
         proto_item_set_end(item, tvb, *pOffset + 4);
     }
@@ -758,7 +758,7 @@ proto_item* parseByteString(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo 
     else
     {
         item = proto_tree_add_item(tree, hfIndex, tvb, *pOffset, 0, ENC_NA);
-        szValue = wmem_strdup_printf(wmem_packet_scope(), "[Invalid ByteString] Invalid length: %d", iLen);
+        szValue = wmem_strdup_printf(pinfo->pool, "[Invalid ByteString] Invalid length: %d", iLen);
         proto_item_append_text(item, "%s", szValue);
         proto_item_set_end(item, tvb, *pOffset + 4);
     }

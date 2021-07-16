@@ -3774,7 +3774,7 @@ extern gint dissect_reload_messagecontents(tvbuff_t *tvb, packet_info *pinfo, pr
       if (error_code <= 19) {
         guint16 info_length = tvb_get_ntohs(tvb,offset+2);
         if (info_length>0) {
-          proto_item_append_text(ti_error, " (%s)", tvb_get_string_enc(wmem_packet_scope(), tvb, offset+4, info_length, ENC_ASCII));
+          proto_item_append_text(ti_error, " (%s)", tvb_get_string_enc(pinfo->pool, tvb, offset+4, info_length, ENC_ASCII));
         }
       }
       break;
@@ -4146,7 +4146,7 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
   if (!reload_trans) {
     /* create a "fake" pana_trans structure */
-    reload_trans = wmem_new(wmem_packet_scope(), reload_transaction_t);
+    reload_trans = wmem_new(pinfo->pool, reload_transaction_t);
     reload_trans->req_frame = 0;
     reload_trans->rep_frame = 0;
     reload_trans->req_time = pinfo->abs_ts;

@@ -1171,7 +1171,7 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             while (fd_head) {
                 if (fd_head->tvb_data && fd_head->len) {
                     mpdu_count++;
-                    mpdu_str = wmem_strdup_printf(wmem_packet_scope(), "MPDU #%d", mpdu_count);
+                    mpdu_str = wmem_strdup_printf(pinfo->pool, "MPDU #%d", mpdu_count);
 
                     next_tvb = tvb_new_chain(tvb, fd_head->tvb_data);
                     add_new_data_source(pinfo, next_tvb, mpdu_str);

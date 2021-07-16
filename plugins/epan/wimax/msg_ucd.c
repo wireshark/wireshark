@@ -331,7 +331,7 @@ static int dissect_mac_mgmt_msg_ucd_decoder(tvbuff_t *tvb, packet_info *pinfo, p
 					/* get the UIUC */
 					ul_burst_uiuc = tvb_get_guint8(tvb, offset) & 0x0F;
 					/* add TLV subtree */
-					proto_str = wmem_strdup_printf(wmem_packet_scope(), "Uplink Burst Profile (UIUC = %u)", ul_burst_uiuc);
+					proto_str = wmem_strdup_printf(pinfo->pool, "Uplink Burst Profile (UIUC = %u)", ul_burst_uiuc);
 					tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_ucd_decoder, ucd_tree, proto_mac_mgmt_msg_ucd_decoder, tvb, offset-tlv_value_offset, tlv_len, proto_str);
 					proto_tree_add_item(tlv_tree, hf_ucd_ul_burst_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
 					proto_tree_add_item(tlv_tree, hf_ucd_ul_burst_uiuc, tvb, offset, 1, ENC_BIG_ENDIAN);

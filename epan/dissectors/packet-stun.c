@@ -952,7 +952,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
 
     if (!stun_trans) {
         /* create a "fake" pana_trans structure */
-        stun_trans=wmem_new(wmem_packet_scope(), stun_transaction_t);
+        stun_trans=wmem_new(pinfo->pool, stun_transaction_t);
         stun_trans->req_frame=0;
         stun_trans->rep_frame=0;
         stun_trans->req_time=pinfo->abs_ts;
@@ -1209,7 +1209,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                 if (network_version >  NET_VER_3489) {
                     const guint8 *user_name_str;
 
-                    proto_tree_add_item_ret_string(att_tree, hf_stun_att_username, tvb, offset, att_length, ENC_UTF_8|ENC_NA, wmem_packet_scope(), &user_name_str);
+                    proto_tree_add_item_ret_string(att_tree, hf_stun_att_username, tvb, offset, att_length, ENC_UTF_8|ENC_NA, pinfo->pool, &user_name_str);
                     proto_item_append_text(att_tree, ": %s", user_name_str);
                     col_append_fstr( pinfo->cinfo, COL_INFO, " user: %s", user_name_str);
                 } else {
@@ -1253,7 +1253,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                     break;
                 {
                 const guint8 *error_reas_str;
-                proto_tree_add_item_ret_string(att_tree, hf_stun_att_error_reason, tvb, offset + 4, att_length - 4, ENC_UTF_8 | ENC_NA, wmem_packet_scope(), &error_reas_str);
+                proto_tree_add_item_ret_string(att_tree, hf_stun_att_error_reason, tvb, offset + 4, att_length - 4, ENC_UTF_8 | ENC_NA, pinfo->pool, &error_reas_str);
 
                 proto_item_append_text(att_tree, ": %s", error_reas_str);
                 col_append_fstr(pinfo->cinfo, COL_INFO, " %s", error_reas_str);
@@ -1268,7 +1268,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
             case REALM:
             {
                 const guint8 *realm_str;
-                proto_tree_add_item_ret_string(att_tree, hf_stun_att_realm, tvb, offset, att_length, ENC_UTF_8|ENC_NA, wmem_packet_scope(), &realm_str);
+                proto_tree_add_item_ret_string(att_tree, hf_stun_att_realm, tvb, offset, att_length, ENC_UTF_8|ENC_NA, pinfo->pool, &realm_str);
                 proto_item_append_text(att_tree, ": %s", realm_str);
                 col_append_fstr(pinfo->cinfo, COL_INFO, " realm: %s", realm_str);
                 break;
@@ -1276,7 +1276,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
             case NONCE:
             {
                 const guint8 *nonce_str;
-                proto_tree_add_item_ret_string(att_tree, hf_stun_att_nonce, tvb, offset, att_length, ENC_UTF_8|ENC_NA, wmem_packet_scope(), &nonce_str);
+                proto_tree_add_item_ret_string(att_tree, hf_stun_att_nonce, tvb, offset, att_length, ENC_UTF_8|ENC_NA, pinfo->pool, &nonce_str);
                 proto_item_append_text(att_tree, ": %s", nonce_str);
                 col_append_str(pinfo->cinfo, COL_INFO, " with nonce");
                 break;
@@ -1388,7 +1388,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                 }
 
                 if (addr.type != AT_NONE) {
-                    const gchar *ipstr = address_to_str(wmem_packet_scope(), &addr);
+                    const gchar *ipstr = address_to_str(pinfo->pool, &addr);
                     proto_item_append_text(att_tree, ": %s:%d", ipstr, clear_port);
                     col_append_fstr(pinfo->cinfo, COL_INFO, " %s: %s:%d",
                                     attribute_name_str, ipstr, clear_port);

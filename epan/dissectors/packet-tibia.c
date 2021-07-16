@@ -846,7 +846,7 @@ dissect_loginserv_packet(struct tibia_convo *convo, tvbuff_t *tvb, int offset, i
 
                                 ptvcursor_add(ptvc, hf_tibia_worldlist_entry_name, 2, convo->has.string_enc | ENC_LITTLE_ENDIAN);
                                 guint ipv4addr_len = tvb_get_letohs(tvb, ptvcursor_current_offset(ptvc));
-                                char *ipv4addr_str = (char*)tvb_get_string_enc(wmem_packet_scope(), tvb, ptvcursor_current_offset(ptvc) + 2, ipv4addr_len, ENC_LITTLE_ENDIAN | convo->has.string_enc);
+                                char *ipv4addr_str = (char*)tvb_get_string_enc(pinfo->pool, tvb, ptvcursor_current_offset(ptvc) + 2, ipv4addr_len, ENC_LITTLE_ENDIAN | convo->has.string_enc);
                                 guint32 ipv4addr = ipv4tonl(ipv4addr_str);
                                 ptvcursor_add(ptvc, hf_tibia_worldlist_entry_ip, 2, ENC_LITTLE_ENDIAN | convo->has.string_enc);
                                 guint16 port = tvb_get_letohs(tvb, ptvcursor_current_offset(ptvc));
@@ -1487,7 +1487,7 @@ dissect_tibia(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *fragmen
         }
         offset += len;
     } else /* account number */ {
-        char *accnum = wmem_strdup_printf(wmem_packet_scope(), "%" G_GUINT32_FORMAT, tvb_get_letohl(tvb_decrypted, offset));
+        char *accnum = wmem_strdup_printf(pinfo->pool, "%" G_GUINT32_FORMAT, tvb_get_letohl(tvb_decrypted, offset));
         proto_tree_add_string(tibia_tree, hf_tibia_acc_number, tvb_decrypted, offset, 4, accnum);
         if (!convo->acc)
             convo->acc = (guint8*)wmem_strdup(wmem_file_scope(), accnum);
@@ -1529,7 +1529,7 @@ dissect_tibia(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *fragmen
         proto_tree_add_item_ret_uint(subtree, hf_tibia_client_locale_id, tvb_decrypted, offset, 1, ENC_NA, &locale_id);
         offset += 1;
 
-        proto_tree_add_item_ret_string(subtree, hf_tibia_client_locale_name, tvb_decrypted, offset, 3, convo->has.string_enc|ENC_NA, wmem_packet_scope(), &locale_name);
+        proto_tree_add_item_ret_string(subtree, hf_tibia_client_locale_name, tvb_decrypted, offset, 3, convo->has.string_enc|ENC_NA, pinfo->pool, &locale_name);
         offset += 3;
         proto_item_set_text(item, "Locale: %s (0x%X)", locale_name, locale_id);
         /* } */
@@ -1547,7 +1547,7 @@ dissect_tibia(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *fragmen
         item = proto_tree_add_item(infotree, hf_tibia_client_cpu, tvb_decrypted, offset, 15, ENC_NA);
         subtree = proto_item_add_subtree(item, ett_cpu);
 
-        proto_tree_add_item_ret_string(subtree, hf_tibia_client_cpu_name, tvb_decrypted, offset, 9, convo->has.string_enc|ENC_NA, wmem_packet_scope(), &cpu);
+        proto_tree_add_item_ret_string(subtree, hf_tibia_client_cpu_name, tvb_decrypted, offset, 9, convo->has.string_enc|ENC_NA, pinfo->pool, &cpu);
         offset += 9;
 
         proto_tree_add_item(subtree, hf_tibia_unknown, tvb_decrypted, offset, 2, ENC_NA);

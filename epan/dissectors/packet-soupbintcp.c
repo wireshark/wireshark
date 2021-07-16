@@ -192,7 +192,7 @@ dissect_soupbintcp_common(
 
     /* If first dissection of Login Accept, save sequence number */
     if (pkt_type == 'A' && !PINFO_FD_VISITED(pinfo)) {
-        ws_strtou32(tvb_get_string_enc(wmem_packet_scope(), tvb, 13, 20, ENC_ASCII),
+        ws_strtou32(tvb_get_string_enc(pinfo->pool, tvb, 13, 20, ENC_ASCII),
             NULL, &next_seq);
 
         /* Create new conversation for this session */
@@ -278,7 +278,7 @@ dissect_soupbintcp_common(
                                 tvb, offset, 10, ENC_ASCII|ENC_NA);
             offset += 10;
 
-            seq_num_valid = ws_strtoi32(tvb_get_string_enc(wmem_packet_scope(),
+            seq_num_valid = ws_strtoi32(tvb_get_string_enc(pinfo->pool,
                 tvb, offset, 20, ENC_ASCII), NULL, &seq_num);
             pi = proto_tree_add_string_format_value(soupbintcp_tree,
                                                hf_soupbintcp_next_seq_num,
@@ -327,7 +327,7 @@ dissect_soupbintcp_common(
                                 tvb, offset, 10, ENC_ASCII|ENC_NA);
             offset += 10;
 
-            seq_num_valid = ws_strtoi32(tvb_get_string_enc(wmem_packet_scope(),
+            seq_num_valid = ws_strtoi32(tvb_get_string_enc(pinfo->pool,
                 tvb, offset, 20, ENC_ASCII), NULL, &seq_num);
             pi = proto_tree_add_string_format_value(soupbintcp_tree,
                                                hf_soupbintcp_req_seq_num,

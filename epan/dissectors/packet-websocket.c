@@ -233,12 +233,12 @@ websocket_uncompress(tvbuff_t *tvb, packet_info *pinfo, z_streamp z_strm, tvbuff
   gint      err;
 
   compr_len = tvb_captured_length(tvb) + 4;
-  compr_payload = (guint8 *)wmem_alloc(wmem_packet_scope(), compr_len);
+  compr_payload = (guint8 *)wmem_alloc(pinfo->pool, compr_len);
   tvb_memcpy(tvb, compr_payload, 0, compr_len-4);
   compr_payload[compr_len-4] = compr_payload[compr_len-3] = 0x00;
   compr_payload[compr_len-2] = compr_payload[compr_len-1] = 0xff;
   decompr_buf_len = 2*compr_len;
-  decompr_buf = (guint8 *)wmem_alloc(wmem_packet_scope(), decompr_buf_len);
+  decompr_buf = (guint8 *)wmem_alloc(pinfo->pool, decompr_buf_len);
 
   z_strm->next_in = compr_payload;
   z_strm->avail_in = compr_len;
@@ -349,7 +349,7 @@ dissect_websocket_data_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         uncompress_ok = websocket_uncompress(tvb, pinfo, z_strm, &uncompressed, raw_offset);
       } else {
         /* no context take over, initialize a new context */
-        z_strm = wmem_new0(wmem_packet_scope(), z_stream);
+        z_strm = wmem_new0(pinfo->pool, z_stream);
         if (inflateInit2(z_strm, wbits) == Z_OK) {
           uncompress_ok = websocket_uncompress(tvb, pinfo, z_strm, &uncompressed, raw_offset);
         }

@@ -836,7 +836,7 @@ dissect_mp4_box(guint32 parent_box_type _U_, guint depth,
         return -1;
 
     box_type = tvb_get_ntohl(tvb, offset+4);
-    box_type_str = tvb_get_string_enc(wmem_packet_scope(), tvb,
+    box_type_str = tvb_get_string_enc(pinfo->pool, tvb,
             offset+4, 4, ENC_ASCII|ENC_NA);
 
     box_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1, ett_mp4_box, &type_pi, "%s (%s)",

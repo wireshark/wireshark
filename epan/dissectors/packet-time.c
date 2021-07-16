@@ -65,7 +65,7 @@ dissect_time(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         guint32 delta_seconds = tvb_get_ntohl(tvb, 0);
         proto_tree_add_uint_format(time_tree, hf_time_time, tvb, 0, 4,
                 delta_seconds, "%s",
-                abs_time_secs_to_str(wmem_packet_scope(), delta_seconds-EPOCH_DELTA_1900_01_01_00_00_00_UTC,
+                abs_time_secs_to_str(pinfo->pool, delta_seconds-EPOCH_DELTA_1900_01_01_00_00_00_UTC,
                     (absolute_time_display_e)time_display_type, TRUE));
     }
     return tvb_captured_length(tvb);

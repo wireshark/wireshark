@@ -547,7 +547,7 @@ usbip_dissect_urb(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree,
     }
 
     if (!usbip_trans) {
-        usbip_trans = wmem_new(wmem_packet_scope(), usbip_transaction_t);
+        usbip_trans = wmem_new(pinfo->pool, usbip_transaction_t);
         usbip_trans->cmd_frame = 0;
         usbip_trans->ret_frame = 0;
         usbip_trans->devid = 0;
