@@ -2045,6 +2045,7 @@ static int erf_dump_open(wtap_dumper *wdh, int *err _U_, gchar **err_info _U_)
   erf_dump_t *dump_priv;
   gchar *s;
   guint64 host_id;
+  char *first_shb_comment;
 
   dump_priv = erf_dump_priv_create();
 
@@ -2052,8 +2053,10 @@ static int erf_dump_open(wtap_dumper *wdh, int *err _U_, gchar **err_info _U_)
   wdh->priv = dump_priv;
   wdh->subtype_finish = erf_dump_finish;
 
-  /* Get the capture comment string */
-  get_user_comment_string(wdh, &dump_priv->user_comment_ptr);
+  /* Get the first capture comment string */
+  get_user_comment_string(wdh, &first_shb_comment);
+  /* Save a copy of it */
+  dump_priv->user_comment_ptr = g_strdup(first_shb_comment);
   /* XXX: If we have a capture comment or a non-ERF file assume we need to
    * write metadata unless we see existing metadata in the first second. */
   if (dump_priv->user_comment_ptr || wdh->encap != WTAP_ENCAP_ERF)
