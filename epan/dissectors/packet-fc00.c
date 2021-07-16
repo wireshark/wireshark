@@ -125,9 +125,9 @@ dissect_cryptoauth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
         gsize digest_len = g_checksum_type_get_length(G_CHECKSUM_SHA512);
         proto_tree *key_tree;
 
-        guint8 *raw_key    = (guint8*)wmem_alloc(wmem_packet_scope(), PUBLIC_KEY_LEN);
-        char *encoded_key = (char*)wmem_alloc(wmem_packet_scope(), 53);
-        guint8 *ip_buf    = (guint8*)wmem_alloc(wmem_packet_scope(), digest_len);
+        guint8 *raw_key    = (guint8*)wmem_alloc(pinfo->pool, PUBLIC_KEY_LEN);
+        char *encoded_key = (char*)wmem_alloc(pinfo->pool, 53);
+        guint8 *ip_buf    = (guint8*)wmem_alloc(pinfo->pool, digest_len);
 
         tvb_memcpy(tvb, raw_key, PUBLIC_KEY_OFF, PUBLIC_KEY_LEN);
 

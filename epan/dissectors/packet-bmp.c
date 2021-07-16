@@ -926,11 +926,11 @@ dissect_bmp_route_policy_event(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
                     proto_item_append_text(policy_tree, ": (t=%d,l=%d)", policy_name_length, policy_item_id_length);
                     proto_item_set_len(policy_tree, 2 + 2 + policy_name_length + policy_item_id_length );
 
-                    proto_tree_add_item_ret_string(policy_tree, hf_route_policy_tlv_policy_name, tvb, offset, policy_name_length, ENC_ASCII|ENC_NA, wmem_packet_scope(), &policy_name);
+                    proto_tree_add_item_ret_string(policy_tree, hf_route_policy_tlv_policy_name, tvb, offset, policy_name_length, ENC_ASCII|ENC_NA, pinfo->pool, &policy_name);
                     proto_item_append_text(policy_tree, " name: %s", policy_name);
                     offset += policy_name_length;
 
-                    proto_tree_add_item_ret_string(policy_tree, hf_route_policy_tlv_policy_item_id, tvb, offset, policy_item_id_length, ENC_ASCII|ENC_NA, wmem_packet_scope(), &policy_id);
+                    proto_tree_add_item_ret_string(policy_tree, hf_route_policy_tlv_policy_item_id, tvb, offset, policy_item_id_length, ENC_ASCII|ENC_NA, pinfo->pool, &policy_id);
                     proto_item_append_text(policy_tree, " id: %s", policy_id);
                     offset += policy_item_id_length;
 

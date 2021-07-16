@@ -710,7 +710,7 @@ static void dissect_ndr_lm_nt_byte_array(packet_info *pinfo,
     }
     len = (guint16)tmp;
     cb_ref->response->length = len;
-    cb_ref->response->contents = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, offset, len);
+    cb_ref->response->contents = (guint8 *)tvb_memdup(pinfo->pool, tvb, offset, len);
     if (len > 24) {
         dissect_ntlmv2_response(tvb, pinfo, tree, offset, len);
     }
@@ -1266,7 +1266,7 @@ netlogon_dissect_NETWORK_INFO(tvbuff_t *tvb, int offset,
     struct LOGON_INFO_STATE_CB *lm_cb = NULL;
 
     if (state == NULL) {
-        state = wmem_new0(wmem_packet_scope(), struct LOGON_INFO_STATE);
+        state = wmem_new0(pinfo->pool, struct LOGON_INFO_STATE);
         state->ntlmssph = (ntlmssp_header_t) { .type = NTLMSSP_AUTH, };
         state->domain_cb.state = state;
         state->domain_cb.name_ptr = &state->ntlmssph.domain_name;

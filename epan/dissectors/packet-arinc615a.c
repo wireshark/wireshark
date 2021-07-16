@@ -140,7 +140,7 @@ static void dissect_a615a_LUS(ptvcursor_t *ptvc, packet_info *pinfo)
     ptvcursor_add(ptvc, hf_a615a_counter, 2, ENC_BIG_ENDIAN);
     ptvcursor_add(ptvc, hf_a615a_exception_timer, 2, ENC_BIG_ENDIAN);
     ptvcursor_add(ptvc, hf_a615a_estimated_time, 2, ENC_BIG_ENDIAN);
-    ptvcursor_add_ret_string(ptvc, hf_a615a_load_ratio, 3, ENC_ASCII | ENC_NA, wmem_packet_scope(),
+    ptvcursor_add_ret_string(ptvc, hf_a615a_load_ratio, 3, ENC_ASCII | ENC_NA, pinfo->pool,
                              &ratio);
     col_append_fstr(pinfo->cinfo, COL_INFO, ", Load Ratio: %s %%", ratio);
     pi = ptvcursor_add_ret_uint(ptvc, hf_a615a_file_count, 2, ENC_BIG_ENDIAN, &file_count);

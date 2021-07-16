@@ -181,7 +181,7 @@ dissect_netrix(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *da
 
 	/* Read header */
 	header_offset = tvb_find_guint8(tvb, current_offset, -1, INDIGOCARE_NETRIX_STX);
-	if(!ws_strtoi32(tvb_get_string_enc(wmem_packet_scope(), tvb, current_offset, header_offset - current_offset, ENC_ASCII|ENC_NA), NULL, &header)) {
+	if(!ws_strtoi32(tvb_get_string_enc(pinfo->pool, tvb, current_offset, header_offset - current_offset, ENC_ASCII|ENC_NA), NULL, &header)) {
 		/* Warn about invalid header? */
 		return 0;
 	}
@@ -250,12 +250,12 @@ dissect_netrix(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *da
 	while (tvb_get_guint8(tvb, current_offset) != INDIGOCARE_NETRIX_ETX) {
 		identifier_start = current_offset;
 		identifier_offset = tvb_find_guint8(tvb, current_offset, -1, INDIGOCARE_NETRIX_US);
-		ws_strtoi32(tvb_get_string_enc(wmem_packet_scope(), tvb, current_offset, identifier_offset - current_offset, ENC_ASCII|ENC_NA), NULL, &record_identifier);
+		ws_strtoi32(tvb_get_string_enc(pinfo->pool, tvb, current_offset, identifier_offset - current_offset, ENC_ASCII|ENC_NA), NULL, &record_identifier);
 		current_offset = identifier_offset + 1;
 
 		data_start = current_offset;
 		data_offset = tvb_find_guint8(tvb, current_offset, -1, INDIGOCARE_NETRIX_RS);
-		record_data = tvb_get_string_enc(wmem_packet_scope(), tvb, current_offset, data_offset - current_offset, ENC_ASCII|ENC_NA);
+		record_data = tvb_get_string_enc(pinfo->pool, tvb, current_offset, data_offset - current_offset, ENC_ASCII|ENC_NA);
 
 		current_offset = data_offset + 1;
 

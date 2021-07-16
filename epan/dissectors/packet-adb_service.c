@@ -519,11 +519,11 @@ dissect_adb_service(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
         } else if (g_str_has_prefix(service, "shell:")) {
             if (adb_service_data->direction == P2P_DIR_SENT) {
                 proto_tree_add_item(main_tree, hf_stdin, tvb, offset, -1, ENC_NA | ENC_ASCII);
-                col_append_fstr(pinfo->cinfo, COL_INFO, " Stdin=<%s>", tvb_format_text_wsp(wmem_packet_scope(), tvb, offset, tvb_captured_length_remaining(tvb, offset)));
+                col_append_fstr(pinfo->cinfo, COL_INFO, " Stdin=<%s>", tvb_format_text_wsp(pinfo->pool, tvb, offset, tvb_captured_length_remaining(tvb, offset)));
 
             } else {
                 proto_tree_add_item(main_tree, hf_stdout, tvb, offset, -1, ENC_NA | ENC_ASCII);
-                col_append_fstr(pinfo->cinfo, COL_INFO, " Stdout=<%s>", tvb_format_text_wsp(wmem_packet_scope(), tvb, offset, tvb_captured_length_remaining(tvb, offset)));
+                col_append_fstr(pinfo->cinfo, COL_INFO, " Stdout=<%s>", tvb_format_text_wsp(pinfo->pool, tvb, offset, tvb_captured_length_remaining(tvb, offset)));
             }
             offset = tvb_captured_length(tvb);
         } else if (g_str_has_prefix(service, "jdwp:")) {
@@ -541,7 +541,7 @@ dissect_adb_service(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
                 g_str_has_prefix(service, "usb:")) {
             if (tvb_reported_length_remaining(tvb, offset)) {
                 proto_tree_add_item(main_tree, hf_result, tvb, offset, -1, ENC_NA | ENC_ASCII);
-                col_append_fstr(pinfo->cinfo, COL_INFO, " Result=<%s>", tvb_format_text_wsp(wmem_packet_scope(), tvb, offset, tvb_captured_length_remaining(tvb, offset)));
+                col_append_fstr(pinfo->cinfo, COL_INFO, " Result=<%s>", tvb_format_text_wsp(pinfo->pool, tvb, offset, tvb_captured_length_remaining(tvb, offset)));
 
                 offset = tvb_captured_length(tvb);
             }

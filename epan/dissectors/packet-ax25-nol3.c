@@ -145,7 +145,7 @@ dissect_ax25_nol3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, vo
 	guint8      dti      = 0;
 	gboolean    dissected;
 
-	info_buffer = (char *)wmem_alloc( wmem_packet_scope(), STRLEN );
+	info_buffer = (char *)wmem_alloc( pinfo->pool, STRLEN );
 	info_buffer[0] = '\0';
 
 	col_set_str( pinfo->cinfo, COL_PROTOCOL, "AX.25-NoL3");

@@ -409,7 +409,7 @@ dissect_cbsp_content_ie(tvbuff_t *tvb, packet_info *pinfo, guint offset, gint le
 		guint captured_len = tvb_captured_length(unpacked_tvb);
 		proto_tree *cbs_page_subtree = proto_item_add_subtree(cbs_page_item, ett_cbsp_cbs_page_content);
 		proto_tree_add_item_ret_string(cbs_page_subtree, hf_cbsp_cbs_page_content, unpacked_tvb,
-						0, captured_len, ENC_UTF_8|ENC_NA, wmem_packet_scope(),
+						0, captured_len, ENC_UTF_8|ENC_NA, pinfo->pool,
 						&pstr);
 		proto_item_append_text(ti, ": '%s'", pstr);
 	}

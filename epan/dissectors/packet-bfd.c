@@ -337,7 +337,7 @@ dissect_bfd_authentication(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     switch (auth_type) {
         case BFD_AUTH_SIMPLE:
             proto_tree_add_item_ret_string(auth_tree, hf_bfd_auth_password, tvb, offset+3,
-                                    auth_len-3, ENC_ASCII|ENC_NA, wmem_packet_scope(), &password);
+                                    auth_len-3, ENC_ASCII|ENC_NA, pinfo->pool, &password);
             proto_item_append_text(auth_item, ": %s", password);
             break;
         case BFD_AUTH_MD5:

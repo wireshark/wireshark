@@ -596,7 +596,7 @@ pr_loc_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint len, 
 		fl_value = (float)(0.5f * (1 << (value >> 1)));
 		if (value & 0x01)
 			fl_value *= 1.5f;
-		str = wmem_strdup_printf(wmem_packet_scope(), "%.2f meters", fl_value);
+		str = wmem_strdup_printf(pinfo->pool, "%.2f meters", fl_value);
 	}
 	proto_tree_add_uint_bits_format_value(tree, hf_ansi_801_loc_uncrtnty_a, tvb, bit_offset, 5, value,
 					      "%s (0x%02x)", str, value);
@@ -612,7 +612,7 @@ pr_loc_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint len, 
 		fl_value = (float)(0.5f * (1 << (value >> 1)));
 		if (value & 0x01)
 			fl_value *= 1.5f;
-		str = wmem_strdup_printf(wmem_packet_scope(), "%.2f meters", fl_value);
+		str = wmem_strdup_printf(pinfo->pool, "%.2f meters", fl_value);
 	}
 	proto_tree_add_uint_bits_format_value(tree, hf_ansi_801_loc_uncrtnty_p, tvb, bit_offset, 5, value,
 					      "%s (0x%02x)", str, value);
@@ -691,7 +691,7 @@ pr_loc_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint len, 
 			fl_value = (float)(0.5f * (1 << (value >> 1)));
 			if (value & 0x01)
 				fl_value *= 1.5f;
-			str = wmem_strdup_printf(wmem_packet_scope(), "%.2f meters", fl_value);
+			str = wmem_strdup_printf(pinfo->pool, "%.2f meters", fl_value);
 		}
 		proto_tree_add_uint_bits_format_value(tree, hf_ansi_801_loc_uncrtnty_v, tvb, bit_offset, 5, value,
 						      "%s (0x%02x)", str, value);

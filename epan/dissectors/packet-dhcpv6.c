@@ -1565,7 +1565,7 @@ dissect_cablelabs_specific_opts(proto_tree *v_tree, proto_item *v_item, packet_i
                 opt_len = tlv_len;
                 field_len = tlv_len;
 
-                device_type = tvb_get_string_enc(wmem_packet_scope(), tvb, sub_off, field_len, ENC_ASCII);
+                device_type = tvb_get_string_enc(pinfo->pool, tvb, sub_off, field_len, ENC_ASCII);
 
                 if ((device_type == NULL) || (strlen(device_type) == 0)) {
                     proto_item_append_text(ti, "Packet does not contain Device Type.");
@@ -1592,7 +1592,7 @@ dissect_cablelabs_specific_opts(proto_tree *v_tree, proto_item *v_item, packet_i
                 opt_len = tlv_len;
                 if (tlv_len == 3) {
                     proto_item_append_text(ti, "%s",
-                        tvb_bytes_to_str_punct(wmem_packet_scope(), tvb, sub_off, 3, ':'));
+                        tvb_bytes_to_str_punct(pinfo->pool, tvb, sub_off, 3, ':'));
                 } else if (tlv_len == 6) {
                     proto_item_append_text(ti, "\"%s\"", tvb_format_stringzpad(tvb, sub_off, tlv_len));
                 } else {
@@ -1635,7 +1635,7 @@ dissect_cablelabs_specific_opts(proto_tree *v_tree, proto_item *v_item, packet_i
                 }
                 else {
                     proto_item_append_text(ti, "%s",
-                                           tvb_bytes_to_str(wmem_packet_scope(), tvb, sub_off, field_len));
+                                           tvb_bytes_to_str(pinfo->pool, tvb, sub_off, field_len));
                 }
                 break;
             case CL_OPTION_TLV5:
@@ -1740,14 +1740,14 @@ dissect_cablelabs_specific_opts(proto_tree *v_tree, proto_item *v_item, packet_i
                 }
                 else {
                     /*proto_item_append_text(ti, "CM MAC Address Option = %s", */
-                    proto_item_append_text(ti, "%s", tvb_bytes_to_str_punct(wmem_packet_scope(), tvb, sub_off, opt_len, ':'));
-                    /* tvb_bytes_to_str(wmem_packet_scope(), tvb, sub_off, opt_len)); */
+                    proto_item_append_text(ti, "%s", tvb_bytes_to_str_punct(pinfo->pool, tvb, sub_off, opt_len, ':'));
+                    /* tvb_bytes_to_str(pinfo->pool, tvb, sub_off, opt_len)); */
                 }
                 break;
             case CL_EROUTER_CONTAINER_OPTION:
                 opt_len = tlv_len;
                 proto_item_append_text(ti, " %s (len=%d)",
-                                       tvb_bytes_to_str(wmem_packet_scope(), tvb, sub_off, opt_len), tlv_len);
+                                       tvb_bytes_to_str(pinfo->pool, tvb, sub_off, opt_len), tlv_len);
                 break;
             case CL_OPTION_CCC:
                 opt_len = tlv_len;
@@ -1847,7 +1847,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
 
     switch (opttype) {
     case OPTION_CLIENTID:
-        col_append_fstr(pinfo->cinfo, COL_INFO, "CID: %s ", tvb_bytes_to_str(wmem_packet_scope(), tvb, off, optlen));
+        col_append_fstr(pinfo->cinfo, COL_INFO, "CID: %s ", tvb_bytes_to_str(pinfo->pool, tvb, off, optlen));
         /* Fall through */
     case OPTION_SERVERID:
     case OPTION_RELAYID:
@@ -2753,7 +2753,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         gint dns_name_len;
 
         get_dns_name(tvb, off, optlen, off, &dns_name, &dns_name_len);
-        proto_tree_add_string(subtree, hf_option_failover_dns_hostname, tvb, off, optlen, format_text(wmem_packet_scope(), dns_name, dns_name_len));
+        proto_tree_add_string(subtree, hf_option_failover_dns_hostname, tvb, off, optlen, format_text(pinfo->pool, dns_name, dns_name_len));
         break;
         }
     case OPTION_F_DNS_ZONE_NAME:
@@ -2762,7 +2762,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         gint dns_name_len;
 
         get_dns_name(tvb, off, optlen, off, &dns_name, &dns_name_len);
-        proto_tree_add_string(subtree, hf_option_failover_dns_zonename, tvb, off, optlen, format_text(wmem_packet_scope(), dns_name, dns_name_len));
+        proto_tree_add_string(subtree, hf_option_failover_dns_zonename, tvb, off, optlen, format_text(pinfo->pool, dns_name, dns_name_len));
         break;
         }
     case OPTION_F_DNS_FLAGS:

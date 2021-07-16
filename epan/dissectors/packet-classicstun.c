@@ -300,7 +300,7 @@ dissect_classicstun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     }
     if(!classicstun_trans){
         /* create a "fake" pana_trans structure */
-        classicstun_trans=wmem_new(wmem_packet_scope(), classicstun_transaction_t);
+        classicstun_trans=wmem_new(pinfo->pool, classicstun_transaction_t);
         classicstun_trans->req_frame=0;
         classicstun_trans->rep_frame=0;
         classicstun_trans->req_time=pinfo->abs_ts;

@@ -739,7 +739,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 			cp = tvb_get_ptr(tvb, 0, cap_len);
 
 			gcry_md_hash_buffer(GCRY_MD_MD5, digest, cp, cap_len);
-			digest_string = bytestring_to_str(wmem_packet_scope(), digest, HASH_MD5_LENGTH, '\0');
+			digest_string = bytestring_to_str(pinfo->pool, digest, HASH_MD5_LENGTH, '\0');
 			ti = proto_tree_add_string(fh_tree, hf_frame_md5_hash, tvb, 0, 0, digest_string);
 			proto_item_set_generated(ti);
 		}
@@ -921,7 +921,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 	ENDTRY;
 
 	if (proto_field_is_referenced(tree, hf_frame_protocols)) {
-		wmem_strbuf_t *val = wmem_strbuf_sized_new(wmem_packet_scope(), 128, 0);
+		wmem_strbuf_t *val = wmem_strbuf_sized_new(pinfo->pool, 128, 0);
 		wmem_list_frame_t *frame;
 		/* skip the first entry, it's always the "frame" protocol */
 		frame = wmem_list_frame_next(wmem_list_head(pinfo->layers));

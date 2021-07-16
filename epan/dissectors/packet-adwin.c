@@ -547,7 +547,7 @@ adwin_request_response_handling(tvbuff_t *tvb, packet_info *pinfo,
 	}
 	if (!adwin_trans) {
 		/* create a "fake" adwin_trans structure */
-		adwin_trans = wmem_new(wmem_packet_scope(), adwin_transaction_t);
+		adwin_trans = wmem_new(pinfo->pool, adwin_transaction_t);
 		adwin_trans->req_frame = 0;
 		adwin_trans->rep_frame = 0;
 		adwin_trans->req_time = pinfo->abs_ts;
@@ -587,14 +587,14 @@ dissect_UDPH1_generic(tvbuff_t *tvb, packet_info *pinfo,
 	guint32 i3plus1code =  0, instructionID, seq_num;
 
 	instructionID = tvb_get_letohl(tvb, 0);
-	*info_string = wmem_strdup_printf(wmem_packet_scope(), "%s: %s", packet_name,
+	*info_string = wmem_strdup_printf(pinfo->pool, "%s: %s", packet_name,
 				        val_to_str_ext(instructionID, &instruction_mapping_ext, "unknown instruction: %d"));
 
 	if (instructionID == I_3PLUS1) {
 		gchar *tmp = *info_string;
 
 		i3plus1code = tvb_get_letohl(tvb, 20);
-		*info_string = wmem_strdup_printf(wmem_packet_scope(), "%s: %s", tmp, val_to_str_ext(i3plus1code, &instruction_3plus1_mapping_ext, "unknown 3+1 code: %d"));
+		*info_string = wmem_strdup_printf(pinfo->pool, "%s: %s", tmp, val_to_str_ext(i3plus1code, &instruction_3plus1_mapping_ext, "unknown 3+1 code: %d"));
 	}
 
 	/* Get the transaction identifier */
@@ -767,7 +767,7 @@ dissect_UDPH1_new(tvbuff_t *tvb, packet_info *pinfo,
 
 	SET_PACKET_TYPE(adwin_tree, APT_UDPH1_new);
 	dll_i = tvb_get_letohl(tvb, 52);
-	dll_version_s = wmem_strdup_printf(wmem_packet_scope(), "%d.%d.%d",
+	dll_version_s = wmem_strdup_printf(pinfo->pool, "%d.%d.%d",
 					dll_i / 1000000,
 					(dll_i - dll_i / 1000000 * 1000000) / 1000,
 					dll_i % 1000);
@@ -787,9 +787,9 @@ dissect_UDPR1(tvbuff_t *tvb, packet_info *pinfo,
 	status = tvb_get_letohl(tvb, 0);
 	status_string = try_val_to_str_ext(status, &error_code_mapping_ext);
 	if (status_string) {
-		*info_string = wmem_strdup_printf(wmem_packet_scope(), "UDPR1 Status: %s", status_string);
+		*info_string = wmem_strdup_printf(pinfo->pool, "UDPR1 Status: %s", status_string);
 	} else {
-		*info_string = wmem_strdup_printf(wmem_packet_scope(), "UDPR1 Undefined error code %d", status);
+		*info_string = wmem_strdup_printf(pinfo->pool, "UDPR1 Undefined error code %d", status);
 	}
 
 	/* Get the transaction identifier */
@@ -821,9 +821,9 @@ dissect_UDPR2(tvbuff_t *tvb, packet_info *pinfo,
 	status = tvb_get_letohl(tvb, 0);
 	status_string = try_val_to_str_ext(status, &error_code_mapping_ext);
 	if (status_string) {
-	        *info_string = wmem_strdup_printf(wmem_packet_scope(), "UDPR2 Status: %s", status_string);
+	        *info_string = wmem_strdup_printf(pinfo->pool, "UDPR2 Status: %s", status_string);
 	} else {
-		*info_string = wmem_strdup_printf(wmem_packet_scope(), "UDPR2 Undefined error code %d", status);
+		*info_string = wmem_strdup_printf(pinfo->pool, "UDPR2 Undefined error code %d", status);
 	}
 
 	/* Get the transaction identifier */
@@ -908,9 +908,9 @@ dissect_UDPR4(tvbuff_t *tvb, packet_info *pinfo,
 	status = tvb_get_letohl(tvb, 0);
 	status_string = try_val_to_str_ext(status, &error_code_mapping_ext);
 	if (status_string) {
-		*info_string = wmem_strdup_printf(wmem_packet_scope(), "UDPR4 Status: %s", status_string);
+		*info_string = wmem_strdup_printf(pinfo->pool, "UDPR4 Status: %s", status_string);
 	} else {
-		*info_string = wmem_strdup_printf(wmem_packet_scope(), "UDPR4 Undefined error code %d", status);
+		*info_string = wmem_strdup_printf(pinfo->pool, "UDPR4 Undefined error code %d", status);
 	}
 
 	/* Get the transaction identifier */
@@ -1109,28 +1109,28 @@ dissect_adwin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 	case UDPH2_LENGTH: /* to the best of my knowledge, this struct
 			    * has never been used publically! */
 		/* dissect_UDPH2(tvb, pinfo, adwin_tree, adwin_debug_tree); */
-		info_string = wmem_strdup(wmem_packet_scope(), "UDPH2 - UNUSED");
+		info_string = wmem_strdup(pinfo->pool, "UDPH2 - UNUSED");
 		break;
 	case UDPR2_LENGTH:
 		dissect_UDPR2(tvb, pinfo, adwin_tree, adwin_debug_tree, &info_string);
 		break;
 	case UDPR3_LENGTH:
 		dissect_UDPR3(tvb, pinfo, adwin_tree, adwin_debug_tree);
-		info_string = wmem_strdup(wmem_packet_scope(), "UDPR3");
+		info_string = wmem_strdup(pinfo->pool, "UDPR3");
 		break;
 	case UDPR4_LENGTH:
 		dissect_UDPR4(tvb, pinfo, adwin_tree, adwin_debug_tree, &info_string);
 		break;
 	case GetDataSHPacket_LENGTH:
 		dissect_GDSHP(tvb, pinfo, adwin_tree, adwin_debug_tree);
-		info_string = wmem_strdup(wmem_packet_scope(), "GDSHP");
+		info_string = wmem_strdup(pinfo->pool, "GDSHP");
 		break;
 	case GetDataSHRequest_LENGTH:
 		dissect_GDSHR(tvb, pinfo, adwin_tree, adwin_debug_tree);
-		info_string = wmem_strdup(wmem_packet_scope(), "GDSHR");
+		info_string = wmem_strdup(pinfo->pool, "GDSHR");
 		break;
 	default:
-		info_string = wmem_strdup_printf(wmem_packet_scope(), "Unknown ADwin packet, length: %d", length);
+		info_string = wmem_strdup_printf(pinfo->pool, "Unknown ADwin packet, length: %d", length);
 		break;
 	}
 

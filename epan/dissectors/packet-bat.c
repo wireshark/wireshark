@@ -221,7 +221,7 @@ static int dissect_bat_batman_v5(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 
 	tvbuff_t *next_tvb;
 
-	batman_packeth = wmem_new(wmem_packet_scope(), struct batman_packet_v5);
+	batman_packeth = wmem_new(pinfo->pool, struct batman_packet_v5);
 
 	batman_packeth->version = tvb_get_guint8(tvb, offset+0);
 	batman_packeth->flags = tvb_get_guint8(tvb, offset+1);
@@ -245,7 +245,7 @@ static int dissect_bat_batman_v5(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 
 		ti = proto_tree_add_protocol_format(tree, proto_bat_plugin, tvb, offset, BATMAN_PACKET_V5_SIZE,
 							    "B.A.T.M.A.N., Orig: %s",
-							    address_with_resolution_to_str(wmem_packet_scope(), &batman_packeth->orig));
+							    address_with_resolution_to_str(pinfo->pool, &batman_packeth->orig));
 		bat_batman_tree = proto_item_add_subtree(ti, ett_bat_batman);
 	}
 
@@ -337,7 +337,7 @@ static int dissect_bat_gw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 	gint length_remaining;
 	int offset = 0;
 
-	gw_packeth = wmem_new(wmem_packet_scope(), struct gw_packet);
+	gw_packeth = wmem_new(pinfo->pool, struct gw_packet);
 	gw_packeth->type = tvb_get_guint8(tvb, 0);
 
 	switch (gw_packeth->type) {
@@ -357,7 +357,7 @@ static int dissect_bat_gw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 		     val_to_str(gw_packeth->type, gw_packettypenames, "Unknown (0x%02x)"));
 	if (ip != 0) {
 		col_append_fstr(pinfo->cinfo, COL_INFO, " IP: %s",
-				tvb_address_with_resolution_to_str(wmem_packet_scope(), tvb, AT_IPv4, ip_pos));
+				tvb_address_with_resolution_to_str(pinfo->pool, tvb, AT_IPv4, ip_pos));
 	}
 
 
@@ -435,7 +435,7 @@ static void dissect_bat_vis_v22(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	gint length_remaining, i;
 	int offset = 0;
 
-	vis_packeth = wmem_new(wmem_packet_scope(), struct vis_packet_v22);
+	vis_packeth = wmem_new(pinfo->pool, struct vis_packet_v22);
 
 	sender_ip = tvb_get_ipv4(tvb, 0);
 	set_address_tvb(&vis_packeth->sender_ip, AT_IPv4, 4, tvb, 0);
@@ -448,7 +448,7 @@ static void dissect_bat_vis_v22(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 	/* Set info column */
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Src: %s",
-		     address_with_resolution_to_str(wmem_packet_scope(), &vis_packeth->sender_ip));
+		     address_with_resolution_to_str(pinfo->pool, &vis_packeth->sender_ip));
 
 	/* Set tree info */
 	if (tree) {
@@ -456,7 +456,7 @@ static void dissect_bat_vis_v22(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 		ti = proto_tree_add_protocol_format(tree, proto_bat_vis, tvb, 0, VIS_PACKET_V22_SIZE,
 							    "B.A.T.M.A.N. Vis, Src: %s",
-							    address_with_resolution_to_str(wmem_packet_scope(), &vis_packeth->sender_ip));
+							    address_with_resolution_to_str(pinfo->pool, &vis_packeth->sender_ip));
 		bat_vis_tree = proto_item_add_subtree(ti, ett_bat_vis);
 
 		/* items */
@@ -511,7 +511,7 @@ static void dissect_vis_entry_v22(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 	struct vis_data_v22 *vis_datah;
 	guint32 ip;
 
-	vis_datah = wmem_new(wmem_packet_scope(), struct vis_data_v22);
+	vis_datah = wmem_new(pinfo->pool, struct vis_data_v22);
 	vis_datah->type = tvb_get_guint8(tvb, 0);
 	vis_datah->data = tvb_get_ntohs(tvb, 1);
 	ip = tvb_get_ipv4(tvb, 3);
@@ -526,7 +526,7 @@ static void dissect_vis_entry_v22(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 		ti = proto_tree_add_protocol_format(tree, proto_bat_plugin, tvb, 0, 7,
 							    "VIS Entry: [%s] %s",
 							    val_to_str(vis_datah->type, vis_packettypenames, "Unknown (0x%02x)"),
-							    address_with_resolution_to_str(wmem_packet_scope(), &vis_datah->ip));
+							    address_with_resolution_to_str(pinfo->pool, &vis_datah->ip));
 		bat_vis_entry_tree = proto_item_add_subtree(ti, ett_bat_vis_entry);
 
 		proto_tree_add_item(bat_vis_entry_tree, hf_bat_vis_data_type, tvb, 0, 1, ENC_BIG_ENDIAN);
@@ -556,7 +556,7 @@ static void dissect_bat_vis_v23(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	gint length_remaining, i;
 	int offset = 0;
 
-	vis_packeth = wmem_new(wmem_packet_scope(), struct vis_packet_v23);
+	vis_packeth = wmem_new(pinfo->pool, struct vis_packet_v23);
 
 	sender_ip = tvb_get_ipv4(tvb, 0);
 	set_address_tvb(&vis_packeth->sender_ip, AT_IPv4, 4, tvb, 0);
@@ -569,7 +569,7 @@ static void dissect_bat_vis_v23(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 	/* Set info column */
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Src: %s",
-		     address_with_resolution_to_str(wmem_packet_scope(), &vis_packeth->sender_ip));
+		     address_with_resolution_to_str(pinfo->pool, &vis_packeth->sender_ip));
 
 	/* Set tree info */
 	if (tree) {
@@ -577,7 +577,7 @@ static void dissect_bat_vis_v23(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 		ti = proto_tree_add_protocol_format(tree, proto_bat_vis, tvb, 0, VIS_PACKET_V23_SIZE,
 							    "B.A.T.M.A.N. Vis, Src: %s",
-							    address_with_resolution_to_str(wmem_packet_scope(), &vis_packeth->sender_ip));
+							    address_with_resolution_to_str(pinfo->pool, &vis_packeth->sender_ip));
 		bat_vis_tree = proto_item_add_subtree(ti, ett_bat_vis);
 
 		/* items */
@@ -632,7 +632,7 @@ static void dissect_vis_entry_v23(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 	struct vis_data_v23 *vis_datah;
 	guint32 ip;
 
-	vis_datah = wmem_new(wmem_packet_scope(), struct vis_data_v23);
+	vis_datah = wmem_new(pinfo->pool, struct vis_data_v23);
 	vis_datah->type = tvb_get_guint8(tvb, 0);
 	vis_datah->data = tvb_get_guint8(tvb, 1);
 	ip = tvb_get_ipv4(tvb, 2);
@@ -647,7 +647,7 @@ static void dissect_vis_entry_v23(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 		ti = proto_tree_add_protocol_format(tree, proto_bat_plugin, tvb, 0, 7,
 							    "VIS Entry: [%s] %s",
 							    val_to_str(vis_datah->type, vis_packettypenames, "Unknown (0x%02x)"),
-							    address_with_resolution_to_str(wmem_packet_scope(), &vis_datah->ip));
+							    address_with_resolution_to_str(pinfo->pool, &vis_datah->ip));
 		bat_vis_entry_tree = proto_item_add_subtree(ti, ett_bat_vis_entry);
 
 		proto_tree_add_item(bat_vis_entry_tree, hf_bat_vis_data_type, tvb, 0, 1, ENC_BIG_ENDIAN);

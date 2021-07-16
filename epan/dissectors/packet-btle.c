@@ -1452,7 +1452,7 @@ control_proc_invalid_collision(packet_info const *pinfo,
 static void
 dissect_ad_eir(tvbuff_t *tvb, guint32 interface_id, guint32 adapter_id, guint32 frame_number, guint8 *src_bd_addr, packet_info *pinfo, proto_tree *tree)
 {
-    bluetooth_eir_ad_data_t *ad_data = wmem_new0(wmem_packet_scope(), bluetooth_eir_ad_data_t);
+    bluetooth_eir_ad_data_t *ad_data = wmem_new0(pinfo->pool, bluetooth_eir_ad_data_t);
     ad_data->interface_id = interface_id;
     ad_data->adapter_id = adapter_id;
     call_dissector_with_data(btcommon_ad_handle, tvb, pinfo, tree, ad_data);
@@ -2563,7 +2563,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
                     col_set_str(pinfo->cinfo, COL_INFO, "L2CAP Data");
 
-                    acl_data = wmem_new(wmem_packet_scope(), bthci_acl_data_t);
+                    acl_data = wmem_new(pinfo->pool, bthci_acl_data_t);
                     acl_data->interface_id = interface_id;
                     acl_data->adapter_id = adapter_id;
                     acl_data->chandle = 0; /* No connection handle at this layer */
@@ -2646,7 +2646,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
                     col_set_str(pinfo->cinfo, COL_INFO, "L2CAP Data");
 
-                    acl_data = wmem_new(wmem_packet_scope(), bthci_acl_data_t);
+                    acl_data = wmem_new(pinfo->pool, bthci_acl_data_t);
                     acl_data->interface_id = interface_id;
                     acl_data->adapter_id   = adapter_id;
                     acl_data->chandle      = 0; /* No connection handle at this layer */

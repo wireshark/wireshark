@@ -578,42 +578,42 @@ static void dissect_actrace_cas(tvbuff_t *tvb, packet_info *pinfo, proto_tree *a
 	if (source == ACTRACE_CAS_SOURCE_DSP) {
 		direction = 1;
 		if ( (event >= ACTRACE_CAS_EV_11) && (event <= ACTRACE_CAS_EV_00 ) ) {
-			frame_label = wmem_strdup_printf(wmem_packet_scope(), "AB: %s", val_to_str_const(event, actrace_cas_event_ab_vals, "ERROR") );
+			frame_label = wmem_strdup_printf(pinfo->pool, "AB: %s", val_to_str_const(event, actrace_cas_event_ab_vals, "ERROR") );
 		} else if ( (event >= 32) && (event <= 46 ) ) { /* is an MF tone */
-			frame_label = wmem_strdup_printf(wmem_packet_scope(), "MF: %s", val_to_str_ext_const(event, &actrace_cas_mf_vals_ext, "ERROR") );
+			frame_label = wmem_strdup_printf(pinfo->pool, "MF: %s", val_to_str_ext_const(event, &actrace_cas_mf_vals_ext, "ERROR") );
 		} else if ( (event == ACTRACE_CAS_EV_DTMF ) || (event == ACTRACE_CAS_EV_FIRST_DIGIT ) ) { /* DTMF digit */
-			frame_label = wmem_strdup_printf(wmem_packet_scope(), "DTMF: %u", par0 );
+			frame_label = wmem_strdup_printf(pinfo->pool, "DTMF: %u", par0 );
 		}
 	} else if (source == ACTRACE_CAS_SOURCE_TABLE) {
 		direction = 0;
 		if (function == SEND_MF) {
 			if (par0 == SEND_TYPE_SPECIFIC ) {
-				frame_label = wmem_strdup_printf(wmem_packet_scope(), "MF: %u", par1);
+				frame_label = wmem_strdup_printf(pinfo->pool, "MF: %u", par1);
 			} else if (par0 == SEND_TYPE_ADDRESS ) {
-				frame_label = wmem_strdup(wmem_packet_scope(), "MF: DNIS digit");
+				frame_label = wmem_strdup(pinfo->pool, "MF: DNIS digit");
 			} else if (par0 == SEND_TYPE_ANI  ) {
-				frame_label = wmem_strdup(wmem_packet_scope(), "MF: ANI digit");
+				frame_label = wmem_strdup(pinfo->pool, "MF: ANI digit");
 			} else if (par0 == SEND_TYPE_SOURCE_CATEGORY ) {
-				frame_label = wmem_strdup(wmem_packet_scope(), "MF: src_category");
+				frame_label = wmem_strdup(pinfo->pool, "MF: src_category");
 			} else if (par0 == SEND_TYPE_TRANSFER_CAPABILITY ) {
-				frame_label = wmem_strdup(wmem_packet_scope(), "MF: trf_capability");
+				frame_label = wmem_strdup(pinfo->pool, "MF: trf_capability");
 			} else if (par0 == SEND_TYPE_INTER_EXCHANGE_SWITCH ) {
-				frame_label = wmem_strdup(wmem_packet_scope(), "MF: inter_exch_sw");
+				frame_label = wmem_strdup(pinfo->pool, "MF: inter_exch_sw");
 			}
 		} else if (function == SEND_CAS) {
-			frame_label = wmem_strdup_printf(wmem_packet_scope(), "AB: %s", val_to_str_const(ACTRACE_CAS_EV_00-par0, actrace_cas_event_ab_vals, "ERROR"));
+			frame_label = wmem_strdup_printf(pinfo->pool, "AB: %s", val_to_str_const(ACTRACE_CAS_EV_00-par0, actrace_cas_event_ab_vals, "ERROR"));
 		} else if (function == SEND_DEST_NUM) {
 			if (par0 == SEND_TYPE_ADDRESS ) {
-				frame_label = wmem_strdup(wmem_packet_scope(), "DTMF/MF: sending DNIS");
+				frame_label = wmem_strdup(pinfo->pool, "DTMF/MF: sending DNIS");
 			} else if (par0 == SEND_TYPE_ANI ) {
-				frame_label = wmem_strdup(wmem_packet_scope(), "DTMF/MF: sending ANI");
+				frame_label = wmem_strdup(pinfo->pool, "DTMF/MF: sending ANI");
 			}
 		}
 	}
 
 	if (frame_label != NULL) {
 		/* Initialise packet info for passing to tap */
-		actrace_pi = wmem_new(wmem_packet_scope(), actrace_info_t);
+		actrace_pi = wmem_new(pinfo->pool, actrace_info_t);
 
 		actrace_pi->type = ACTRACE_CAS;
 		actrace_pi->direction = direction;
@@ -657,7 +657,7 @@ static void dissect_actrace_isdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	/* if it is a q931 packet (we don't want LAPD packets for Voip Graph) add tap info */
 	if (len > 4) {
 		/* Initialise packet info for passing to tap */
-		actrace_pi = wmem_new(wmem_packet_scope(), actrace_info_t);
+		actrace_pi = wmem_new(pinfo->pool, actrace_info_t);
 
 		actrace_pi->type = ACTRACE_ISDN;
 		actrace_pi->direction = (value==PSTN_TO_BLADE?1:0);

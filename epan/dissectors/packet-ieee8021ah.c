@@ -261,8 +261,8 @@ dissect_ieee8021ah_common(tvbuff_t *tvb, packet_info *pinfo,
         if (parent) {
             proto_item_append_text(tree, ", I-SID: %d, C-Src: %s, C-Dst: %s",
                                    tci & IEEE8021AH_ISIDMASK,
-                                   tvb_address_with_resolution_to_str(wmem_packet_scope(), tvb, AT_ETHER, 10),
-                                   tvb_address_with_resolution_to_str(wmem_packet_scope(), tvb, AT_ETHER, 4));
+                                   tvb_address_with_resolution_to_str(pinfo->pool, tvb, AT_ETHER, 10),
+                                   tvb_address_with_resolution_to_str(pinfo->pool, tvb, AT_ETHER, 4));
         }
     }
 

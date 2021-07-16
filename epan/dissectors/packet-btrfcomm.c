@@ -728,7 +728,7 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
                 service_info->channel == (dlci >> 1)) {
 
         } else {
-            service_info = wmem_new0(wmem_packet_scope(), service_info_t);
+            service_info = wmem_new0(pinfo->pool, service_info_t);
         }
     }
 
@@ -831,7 +831,7 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
         next_tvb = tvb_new_subset_length(tvb, offset, frame_len);
 
-        rfcomm_data = (btrfcomm_data_t *) wmem_new(wmem_packet_scope(), btrfcomm_data_t);
+        rfcomm_data = (btrfcomm_data_t *) wmem_new(pinfo->pool, btrfcomm_data_t);
         rfcomm_data->interface_id       = l2cap_data->interface_id;
         rfcomm_data->adapter_id         = l2cap_data->adapter_id;
         rfcomm_data->chandle            = l2cap_data->chandle;

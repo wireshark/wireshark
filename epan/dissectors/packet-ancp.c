@@ -633,7 +633,7 @@ dissect_ancp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ANCP");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    ancp_info = wmem_new(wmem_packet_scope(), struct ancp_tap_t);
+    ancp_info = wmem_new(pinfo->pool, struct ancp_tap_t);
     ancp_info->ancp_mtype   = 0;
     ancp_info->ancp_adjcode = 0;
 

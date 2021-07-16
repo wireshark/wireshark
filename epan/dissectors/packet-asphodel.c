@@ -455,7 +455,7 @@ dissect_asphodel_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 
     len = tvb_strsize(tvb, offset);
     proto_tree_add_item(asphodel_tree, hf_asphodel_serial_number, tvb, offset, len, ENC_UTF_8 | ENC_NA);
-    serial_number = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, len, ENC_UTF_8);
+    serial_number = tvb_get_string_enc(pinfo->pool, tvb, offset, len, ENC_UTF_8);
     col_add_fstr(pinfo->cinfo, COL_INFO, "Asphodel Response (%s)", serial_number);
     offset += len;
 

@@ -1625,7 +1625,7 @@ static int dissect_dvb_s2_bb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
      * including in their reassembly functions.
      */
 
-    pdata = wmem_new0(wmem_packet_scope(), dvbs2_bb_data);
+    pdata = wmem_new0(pinfo->pool, dvbs2_bb_data);
     copy_address_shallow(&pdata->src, &pinfo->src);
     copy_address_shallow(&pdata->dst, &pinfo->dst);
     pdata->ptype = pinfo->ptype;

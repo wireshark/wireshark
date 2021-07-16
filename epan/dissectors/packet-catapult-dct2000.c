@@ -2085,7 +2085,7 @@ static void dissect_tty_lines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         int linelen = tvb_find_line_end_unquoted(tvb, offset, -1, &next_offset);
 
         /* Extract & add the string. */
-        char *string = (char*)tvb_get_string_enc(wmem_packet_scope(), tvb, offset, linelen, ENC_ASCII);
+        char *string = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, linelen, ENC_ASCII);
         if (g_ascii_isprint(string[0])) {
             /* If the first byte of the string is printable ASCII treat as string... */
             proto_tree_add_string_format(tty_tree, hf_catapult_dct2000_tty_line,
@@ -2099,7 +2099,7 @@ static void dissect_tty_lines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
             char *hex_string;
             int tty_string_length = tvb_reported_length_remaining(tvb, offset);
             int hex_string_length = 1+(2*tty_string_length)+1;
-            hex_string = (char *)wmem_alloc(wmem_packet_scope(), hex_string_length);
+            hex_string = (char *)wmem_alloc(pinfo->pool, hex_string_length);
 
             idx = g_snprintf(hex_string, hex_string_length, "$");
 
@@ -2729,7 +2729,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 
                 /* Show comment string */
                 string_ti = proto_tree_add_item_ret_string(dct2000_tree, hf_catapult_dct2000_comment, tvb,
-                                                offset, tvb_reported_length_remaining(tvb, offset), ENC_ASCII|ENC_NA, wmem_packet_scope(), &string);
+                                                offset, tvb_reported_length_remaining(tvb, offset), ENC_ASCII|ENC_NA, pinfo->pool, &string);
                 col_append_str(pinfo->cinfo, COL_INFO, string);
 
                 if (catapult_dct2000_dissect_mac_lte_oob_messages) {
@@ -2813,7 +2813,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                     }
 
                     /* Convert data to hex. */
-                    char *mac_data = (char *)wmem_alloc(wmem_packet_scope(), 2 + (strlen(string)-data_offset)/2);
+                    char *mac_data = (char *)wmem_alloc(pinfo->pool, 2 + (strlen(string)-data_offset)/2);
                     int idx, m;
                     for (idx=0, m=data_offset+1; string[m] != '\0'; m+=2, idx++) {
                         mac_data[idx] = (hex_from_char(string[m]) << 4) + hex_from_char(string[m+1]);
@@ -2873,7 +2873,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 
                 /* Show sprint string */
                 proto_tree_add_item_ret_string(dct2000_tree, hf_catapult_dct2000_sprint, tvb,
-                                                offset, tvb_reported_length_remaining(tvb, offset), ENC_ASCII|ENC_NA, wmem_packet_scope(), &string);
+                                                offset, tvb_reported_length_remaining(tvb, offset), ENC_ASCII|ENC_NA, pinfo->pool, &string);
                 col_append_str(pinfo->cinfo, COL_INFO, string);
 
                 return tvb_captured_length(tvb);

@@ -245,7 +245,7 @@ void dcom_interface_dump(void) {
 
 	for(machines = dcom_machines; machines != NULL; machines = g_list_next(machines)) {
 		machine = (dcom_machine_t *)machines->data;
-		/*ws_warning("Machine(#%4u): IP:%s", machine->first_packet, address_to_str(wmem_packet_scope(), &machine->ip));*/
+		/*ws_warning("Machine(#%4u): IP:%s", machine->first_packet, address_to_str(pinfo->pool, &machine->ip));*/
 
 		for(objects = machine->objects; objects != NULL; objects = g_list_next(objects)) {
 			object = (dcom_object_t *)objects->data;
@@ -1830,7 +1830,7 @@ dissect_dcom_DUALSTRINGARRAY(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 						set_address(&curr_ip_addr, AT_IPv4, 4, &curr_ip);
 						expert_add_info_format(pinfo, pi, &ei_dcom_dualstringarray_mult_ip,
 								       "DUALSTRINGARRAY: multiple IP's %s %s",
-								       address_to_str(wmem_packet_scope(), &first_ip_addr), address_to_str(wmem_packet_scope(), &curr_ip_addr));
+								       address_to_str(pinfo->pool, &first_ip_addr), address_to_str(pinfo->pool, &curr_ip_addr));
 					}
 				}
 			}

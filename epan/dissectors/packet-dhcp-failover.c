@@ -381,7 +381,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 		timex.nsecs = 0;
 		proto_tree_add_time_format_value(dhcpfo_tree, hf_dhcpfo_time, tvb,
 		    offset, 4, &timex, "%s",
-		    abs_time_secs_to_str(wmem_packet_scope(), timex.secs, ABSOLUTE_TIME_LOCAL, TRUE));
+		    abs_time_secs_to_str(pinfo->pool, timex.secs, ABSOLUTE_TIME_LOCAL, TRUE));
 	}
 	offset += 4;
 
@@ -500,7 +500,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 			 */
 			proto_tree_add_item_ret_string(option_tree,
 			    hf_dhcpfo_client_identifier, tvb, offset,
-			    option_length, ENC_ASCII|ENC_NA, wmem_packet_scope(), &identifier);
+			    option_length, ENC_ASCII|ENC_NA, pinfo->pool, &identifier);
 
 			proto_item_append_text(oi,", \"%s\"", identifier);
 			}
@@ -570,9 +570,9 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 		case DHCP_FO_PD_VENDOR_CLASS:
 			proto_tree_add_item_ret_string(option_tree,
 			    hf_dhcpfo_vendor_class, tvb, offset,
-			    option_length, ENC_ASCII, wmem_packet_scope(), &vendor_class_str);
+			    option_length, ENC_ASCII, pinfo->pool, &vendor_class_str);
 			proto_item_append_text(oi,", \"%s\"",
-			    format_text(wmem_packet_scope(), vendor_class_str, option_length));
+			    format_text(pinfo->pool, vendor_class_str, option_length));
 			break;
 
 		case DHCP_FO_PD_LEASE_EXPIRATION_TIME:
@@ -583,7 +583,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 			lease_expiration_time =
 			    tvb_get_ntohl(tvb, offset);
 			lease_expiration_time_str =
-			    abs_time_secs_to_str(wmem_packet_scope(), lease_expiration_time, ABSOLUTE_TIME_LOCAL, TRUE);
+			    abs_time_secs_to_str(pinfo->pool, lease_expiration_time, ABSOLUTE_TIME_LOCAL, TRUE);
 
 			proto_item_append_text(oi, ", %s",
 			    lease_expiration_time_str);
@@ -605,7 +605,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 			    tvb_get_ntohl(tvb, offset);
 
 			potential_expiration_time_str =
-			    abs_time_secs_to_str(wmem_packet_scope(), potential_expiration_time, ABSOLUTE_TIME_LOCAL, TRUE);
+			    abs_time_secs_to_str(pinfo->pool, potential_expiration_time, ABSOLUTE_TIME_LOCAL, TRUE);
 
 			proto_item_append_text(oi, ", %s",
 			    potential_expiration_time_str);
@@ -626,7 +626,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 			client_last_transaction_time =
 			    tvb_get_ntohl(tvb, offset);
 			client_last_transaction_time_str =
-			    abs_time_secs_to_str(wmem_packet_scope(), client_last_transaction_time, ABSOLUTE_TIME_LOCAL, TRUE);
+			    abs_time_secs_to_str(pinfo->pool, client_last_transaction_time, ABSOLUTE_TIME_LOCAL, TRUE);
 
 			proto_item_append_text(oi, ", %s",
 			    client_last_transaction_time_str);
@@ -636,7 +636,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 			    offset, option_length,
 			    client_last_transaction_time,
 			    "%s",
-			    abs_time_secs_to_str(wmem_packet_scope(), client_last_transaction_time, ABSOLUTE_TIME_LOCAL, TRUE));
+			    abs_time_secs_to_str(pinfo->pool, client_last_transaction_time, ABSOLUTE_TIME_LOCAL, TRUE));
 			break;
 
 		case DHCP_FO_PD_START_TIME_OF_STATE:
@@ -647,7 +647,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 			start_time_of_state =
 			    tvb_get_ntohl(tvb, offset);
 			start_time_of_state_str =
-			    abs_time_secs_to_str(wmem_packet_scope(), start_time_of_state, ABSOLUTE_TIME_LOCAL, TRUE);
+			    abs_time_secs_to_str(pinfo->pool, start_time_of_state, ABSOLUTE_TIME_LOCAL, TRUE);
 
 			proto_item_append_text(oi, ", %s",
 			    start_time_of_state_str);
@@ -657,7 +657,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 			    offset, option_length,
 			    start_time_of_state,
 			    "%s",
-			    abs_time_secs_to_str(wmem_packet_scope(), start_time_of_state, ABSOLUTE_TIME_LOCAL, TRUE));
+			    abs_time_secs_to_str(pinfo->pool, start_time_of_state, ABSOLUTE_TIME_LOCAL, TRUE));
 			break;
 
 		case DHCP_FO_PD_SERVERSTATE:

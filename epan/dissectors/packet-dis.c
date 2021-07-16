@@ -6050,7 +6050,7 @@ static int dissect_DIS_PARSER_ENTITY_STATE_PDU(tvbuff_t *tvb, packet_info *pinfo
         case 0:/* Unused */
             break;/* Don't translate it, nothing to be translated */
         case 1:/* ASCII */
-            proto_tree_add_item_ret_string(sub_tree, hf_dis_entity_marking, tvb, offset, 11, ENC_ASCII|ENC_NA, wmem_packet_scope(), &entity_marking_text);
+            proto_tree_add_item_ret_string(sub_tree, hf_dis_entity_marking, tvb, offset, 11, ENC_ASCII|ENC_NA, pinfo->pool, &entity_marking_text);
             col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", entity_marking_text);
         case 2:/* Army Marking (CCTT) */
             /* TODO: Complete this */
@@ -7230,7 +7230,7 @@ static int dissect_DIS_PARSER_AGGREGATE_STATE_PDU(tvbuff_t *tvb, packet_info *pi
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, 12, ett_aggregate_marking_text, NULL, "Aggregate Marking");
     proto_tree_add_item(sub_tree, hf_dis_aggregate_marking_character_set, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
-    proto_tree_add_item_ret_string(sub_tree, hf_dis_aggregate_marking, tvb, offset, 31, ENC_ASCII|ENC_NA, wmem_packet_scope(), &marking_text);
+    proto_tree_add_item_ret_string(sub_tree, hf_dis_aggregate_marking, tvb, offset, 31, ENC_ASCII|ENC_NA, pinfo->pool, &marking_text);
     col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", marking_text);
     offset += 31;
 

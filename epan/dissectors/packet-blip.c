@@ -180,7 +180,7 @@ message_hash_key_convo(packet_info *pinfo,
 	// msgtype:srcport:destport:messagenum
 
 	const gchar *msg_type = get_message_type(value_frame_flags);
-	gchar *hash_key = wmem_strdup_printf(wmem_packet_scope(), "%s:%u:%u:%" G_GINT64_MODIFIER "u",
+	gchar *hash_key = wmem_strdup_printf(pinfo->pool, "%s:%u:%u:%" G_GINT64_MODIFIER "u",
 			msg_type, pinfo->srcport, pinfo->destport, value_message_num);
 
 	return hash_key;
@@ -330,7 +330,7 @@ decompress(packet_info* pinfo, proto_tree* tree, tvbuff_t* tvb, gint offset, gin
 	// Create a temporary buffer of the maximum size, which will get cleaned up later
 	// when the packet scope is freed
 	uInt buffer_size = max_uncompressed_size * 1024;
-	Bytef* decompress_buffer = (Bytef*)wmem_alloc(wmem_packet_scope(), buffer_size);
+	Bytef* decompress_buffer = (Bytef*)wmem_alloc(pinfo->pool, buffer_size);
 	decompress_stream->next_in = (Bytef*)buf;
 	decompress_stream->avail_in = length;
 	decompress_stream->next_out = decompress_buffer;
@@ -444,8 +444,8 @@ dissect_blip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, _U_ void *data
 	offset += varint_frame_flags_length;
 
 	const gchar* msg_type = get_message_type(value_frame_flags);
-	gchar* msg_num = wmem_strdup_printf(wmem_packet_scope(), "#%" G_GUINT64_FORMAT, value_message_num);
-	gchar* col_info = wmem_strconcat(wmem_packet_scope(), msg_type, msg_num, NULL);
+	gchar* msg_num = wmem_strdup_printf(pinfo->pool, "#%" G_GUINT64_FORMAT, value_message_num);
+	gchar* col_info = wmem_strconcat(pinfo->pool, msg_type, msg_num, NULL);
 	col_add_str(pinfo->cinfo, COL_INFO, col_info);
 
 	// If it's an ACK message, handle that separately, since there are no properties etc.
@@ -510,7 +510,7 @@ dissect_blip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, _U_ void *data
 
 		// At this point, the length of the properties is known and is stored in value_properties_length.
 		// This reads the entire properties out of the tvb and into a buffer (buf).
-		guint8* buf = tvb_get_string_enc(wmem_packet_scope(), tvb_to_use, offset, (gint) value_properties_length, ENC_UTF_8);
+		guint8* buf = tvb_get_string_enc(pinfo->pool, tvb_to_use, offset, (gint) value_properties_length, ENC_UTF_8);
 
 		// "Profile\0subChanges\0continuous\0true\0foo\0bar" -> "Profile:subChanges:continuous:true:foo:bar"
 		// Iterate over buf and change all the \0 null characters to ':', since otherwise trying to set a header

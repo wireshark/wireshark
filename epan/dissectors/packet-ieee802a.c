@@ -86,7 +86,7 @@ dissect_ieee802a(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 	pid = tvb_get_ntohs(tvb, 3);
 
 	col_add_fstr(pinfo->cinfo, COL_INFO, "OUI %s (%s), PID 0x%04X",
-		tvb_bytes_to_str_punct(wmem_packet_scope(), tvb, 0, 3, ':'),
+		tvb_bytes_to_str_punct(pinfo->pool, tvb, 0, 3, ':'),
 		manuf ? manuf : "Unknown", pid);
 
 	/*

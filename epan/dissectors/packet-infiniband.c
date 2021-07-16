@@ -3476,21 +3476,21 @@ static void parse_CM_Req(proto_tree *top_tree, packet_info *pinfo, tvbuff_t *tvb
     local_offset += 2;
 
     if (pinfo->dst.type == AT_IPv4) {
-        local_gid  = (guint8 *)wmem_alloc(wmem_packet_scope(), 4);
+        local_gid  = (guint8 *)wmem_alloc(pinfo->pool, 4);
         proto_tree_add_item(CM_header_tree, hf_cm_req_primary_local_gid_ipv4, tvb, local_offset + 12, 4, ENC_NA);
         (*(guint32*)local_gid) = tvb_get_ipv4(tvb, local_offset + 12);
         local_offset += 16;
 
-        remote_gid = (guint8 *)wmem_alloc(wmem_packet_scope(), 4);
+        remote_gid = (guint8 *)wmem_alloc(pinfo->pool, 4);
         proto_tree_add_item(CM_header_tree, hf_cm_req_primary_remote_gid_ipv4, tvb, local_offset + 12, 4, ENC_NA);
         (*(guint32*)remote_gid) = tvb_get_ipv4(tvb, local_offset + 12);
     } else {
-        local_gid = (guint8 *)wmem_alloc(wmem_packet_scope(), GID_SIZE);
+        local_gid = (guint8 *)wmem_alloc(pinfo->pool, GID_SIZE);
         proto_tree_add_item(CM_header_tree, hf_cm_req_primary_local_gid, tvb, local_offset, 16, ENC_NA);
         tvb_get_ipv6(tvb, local_offset, (ws_in6_addr*)local_gid);
         local_offset += 16;
 
-        remote_gid = (guint8 *)wmem_alloc(wmem_packet_scope(), GID_SIZE);
+        remote_gid = (guint8 *)wmem_alloc(pinfo->pool, GID_SIZE);
         proto_tree_add_item(CM_header_tree, hf_cm_req_primary_remote_gid, tvb, local_offset, 16, ENC_NA);
         tvb_get_ipv6(tvb, local_offset, (ws_in6_addr*)remote_gid);
     }

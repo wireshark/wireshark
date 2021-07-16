@@ -3558,23 +3558,23 @@ dissect_serialnumber (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, p
   sn_item = proto_tree_add_item (tree, hf_index, tvb, start_offset, 16, ENC_ASCII|ENC_NA);
   sn_tree = proto_item_add_subtree (sn_item, ett_r3serialnumber);
 
-  s = tvb_get_string_enc (wmem_packet_scope(), tvb, start_offset +  0, 2, ENC_ASCII|ENC_NA);
+  s = tvb_get_string_enc (pinfo->pool, tvb, start_offset +  0, 2, ENC_ASCII|ENC_NA);
   proto_tree_add_string_format_value(sn_tree, hf_r3_sn_manufacturer, tvb, start_offset +  0, 2, s, "%s (%s)", s, str_to_str (s, r3_snmanufacturernames, "[Unknown]"));
-  s = tvb_get_string_enc (wmem_packet_scope(), tvb, start_offset +  2, 1, ENC_ASCII|ENC_NA);
+  s = tvb_get_string_enc (pinfo->pool, tvb, start_offset +  2, 1, ENC_ASCII|ENC_NA);
   proto_tree_add_string_format_value(sn_tree, hf_r3_sn_year, tvb, start_offset +  2, 1, s, "%s (%s)", s, str_to_str (s, r3_snyearnames, "[Unknown]"));
   proto_tree_add_item(sn_tree, hf_r3_sn_week, tvb, start_offset +  3, 2, ENC_ASCII|ENC_NA);
-  s = tvb_get_string_enc (wmem_packet_scope(), tvb, start_offset +  5, 1, ENC_ASCII|ENC_NA);
+  s = tvb_get_string_enc (pinfo->pool, tvb, start_offset +  5, 1, ENC_ASCII|ENC_NA);
   proto_tree_add_string_format_value(sn_tree, hf_r3_sn_model, tvb, start_offset +  5, 1, s, "%s (%s)", s, str_to_str (s, r3_snmodelnames, "[Unknown]"));
   proto_tree_add_item(sn_tree, hf_r3_sn_sequence, tvb, start_offset +  6, 4, ENC_ASCII|ENC_NA);
-  s = tvb_get_string_enc (wmem_packet_scope(), tvb, start_offset + 10, 1, ENC_ASCII|ENC_NA);
+  s = tvb_get_string_enc (pinfo->pool, tvb, start_offset + 10, 1, ENC_ASCII|ENC_NA);
   proto_tree_add_string_format_value(sn_tree, hf_r3_sn_group, tvb, start_offset + 10, 1, s, "%s (%s)", s, str_to_str (s, r3_sngroupnames, "[Unknown]"));
-  s = tvb_get_string_enc (wmem_packet_scope(), tvb, start_offset + 11, 1, ENC_ASCII|ENC_NA);
+  s = tvb_get_string_enc (pinfo->pool, tvb, start_offset + 11, 1, ENC_ASCII|ENC_NA);
   proto_tree_add_string_format_value(sn_tree, hf_r3_sn_nid, tvb, start_offset + 11, 1, s, "%s (%s)", s, str_to_str (s, r3_snnidnames, "[Unknown]"));
-  s = tvb_get_string_enc (wmem_packet_scope(), tvb, start_offset + 12, 2, ENC_ASCII|ENC_NA);
+  s = tvb_get_string_enc (pinfo->pool, tvb, start_offset + 12, 2, ENC_ASCII|ENC_NA);
   proto_tree_add_string_format_value(sn_tree, hf_r3_sn_hid, tvb, start_offset + 12, 2, s, "%s (%s)", s, str_to_str (s, r3_snhidnames, "[Unknown]"));
-  s = tvb_get_string_enc (wmem_packet_scope(), tvb, start_offset + 14, 1, ENC_ASCII|ENC_NA);
+  s = tvb_get_string_enc (pinfo->pool, tvb, start_offset + 14, 1, ENC_ASCII|ENC_NA);
   proto_tree_add_string_format_value(sn_tree, hf_r3_sn_power_supply, tvb, start_offset + 14, 1, s, "%s (%s)", s, str_to_str (s, r3_snpowersupplynames, "[Unknown]"));
-  s = tvb_get_string_enc (wmem_packet_scope(), tvb, start_offset + 15, 1, ENC_ASCII|ENC_NA);
+  s = tvb_get_string_enc (pinfo->pool, tvb, start_offset + 15, 1, ENC_ASCII|ENC_NA);
   proto_tree_add_string_format_value(sn_tree, hf_r3_sn_mortise, tvb, start_offset + 15, 1, s, "%s (%s)", s, str_to_str (s, r3_snmortisenames, "[Unknown]"));
 }
 

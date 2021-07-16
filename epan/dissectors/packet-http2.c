@@ -1800,7 +1800,7 @@ inflate_http2_header_block(tvbuff_t *tvb, packet_info *pinfo, guint offset, prot
 
         /* Make sure the length isn't too large. */
         tvb_ensure_bytes_exist(tvb, offset, headlen);
-        headbuf = (guint8*)wmem_alloc(wmem_packet_scope(), headlen);
+        headbuf = (guint8*)wmem_alloc(pinfo->pool, headlen);
         tvb_memcpy(tvb, headbuf, offset, headlen);
 
         flow_index = select_http2_flow_index(pinfo, h2session);
@@ -1988,7 +1988,7 @@ inflate_http2_header_block(tvbuff_t *tvb, packet_info *pinfo, guint offset, prot
         hoffset += 4;
 
         /* Add header name. */
-        proto_tree_add_item_ret_string(header_tree, hf_http2_header_name, header_tvb, hoffset, header_name_length, ENC_ASCII|ENC_NA, wmem_packet_scope(), &header_name);
+        proto_tree_add_item_ret_string(header_tree, hf_http2_header_name, header_tvb, hoffset, header_name_length, ENC_ASCII|ENC_NA, pinfo->pool, &header_name);
         hoffset += header_name_length;
 
         /* header value length */
@@ -1996,7 +1996,7 @@ inflate_http2_header_block(tvbuff_t *tvb, packet_info *pinfo, guint offset, prot
         hoffset += 4;
 
         /* Add header value. */
-        proto_tree_add_item_ret_string(header_tree, hf_http2_header_value, header_tvb, hoffset, header_value_length, ENC_ASCII|ENC_NA, wmem_packet_scope(), &header_value);
+        proto_tree_add_item_ret_string(header_tree, hf_http2_header_value, header_tvb, hoffset, header_value_length, ENC_ASCII|ENC_NA, pinfo->pool, &header_value);
         // check if field is http2 header https://tools.ietf.org/html/rfc7541#appendix-A
         try_add_named_header_field(header_tree, header_tvb, hoffset, header_value_length, header_name, header_value);
 
@@ -2891,7 +2891,7 @@ http2_get_header_value(packet_info *pinfo, const gchar* name, gboolean the_other
                 value_len = pntoh32(data + 4 + name_len);
                 if (4 + name_len + 4 + value_len == hdr->table.data.datalen) {
                     /* return value */
-                    return wmem_strndup(wmem_packet_scope(), data + 4 + name_len + 4, value_len);
+                    return wmem_strndup(pinfo->pool, data + 4 + name_len + 4, value_len);
                 }
                 else {
                     return NULL; /* unexpected error */
@@ -3381,7 +3381,7 @@ dissect_http2_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     gint type_idx;
     const gchar *type_str = try_val_to_str_idx(type, http2_type_vals, &type_idx);
     if (type_str == NULL) {
-        type_str = wmem_strdup_printf(wmem_packet_scope(), "Unknown type (%d)", type);
+        type_str = wmem_strdup_printf(pinfo->pool, "Unknown type (%d)", type);
     }
 
     offset += 1;
@@ -3415,7 +3415,7 @@ dissect_http2_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     http2_session->current_stream_id = streamid;
 
     /* Collect stats */
-    http2_stats = wmem_new0(wmem_packet_scope(), struct HTTP2Tap);
+    http2_stats = wmem_new0(pinfo->pool, struct HTTP2Tap);
     http2_stats->type = type;
 
     switch(type){

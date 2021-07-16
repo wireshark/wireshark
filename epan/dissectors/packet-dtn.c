@@ -574,9 +574,9 @@ dissect_dictionary(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offs
             proto_tree_add_string(dict_tree, hf_bundle_dest_scheme, tvb, 0, 0, IPN_SCHEME_STR);
             proto_tree_add_string(dict_tree, hf_bundle_dest_ssp, tvb, dict_data->dst_scheme_pos,
                             dict_data->dst_scheme_len + dict_data->dst_ssp_len,
-                            wmem_strdup_printf(wmem_packet_scope(), "%d.%d",dict_data->dest_scheme_offset,dict_data->dest_ssp_offset));
+                            wmem_strdup_printf(pinfo->pool, "%d.%d",dict_data->dest_scheme_offset,dict_data->dest_ssp_offset));
 
-            dst_node = wmem_strdup_printf(wmem_packet_scope(), "%s:%d.%d", IPN_SCHEME_STR,
+            dst_node = wmem_strdup_printf(pinfo->pool, "%s:%d.%d", IPN_SCHEME_STR,
                                           dict_data->dest_scheme_offset, dict_data->dest_ssp_offset);
         }
 
@@ -596,9 +596,9 @@ dissect_dictionary(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offs
             proto_tree_add_string(dict_tree, hf_bundle_source_scheme, tvb, 0, 0, IPN_SCHEME_STR);
             proto_tree_add_string(dict_tree, hf_bundle_source_ssp, tvb, dict_data->src_scheme_pos,
                             dict_data->src_scheme_len + dict_data->src_ssp_len,
-                            wmem_strdup_printf(wmem_packet_scope(), "%d.%d", dict_data->source_scheme_offset, dict_data->source_ssp_offset));
+                            wmem_strdup_printf(pinfo->pool, "%d.%d", dict_data->source_scheme_offset, dict_data->source_ssp_offset));
 
-            src_node = wmem_strdup_printf(wmem_packet_scope(), "%s:%d.%d", IPN_SCHEME_STR,
+            src_node = wmem_strdup_printf(pinfo->pool, "%s:%d.%d", IPN_SCHEME_STR,
                                           dict_data->source_scheme_offset, dict_data->source_ssp_offset);
         }
 
@@ -616,7 +616,7 @@ dissect_dictionary(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offs
             proto_tree_add_string(dict_tree, hf_bundle_report_scheme, tvb, 0, 0, IPN_SCHEME_STR);
             proto_tree_add_string(dict_tree, hf_bundle_report_ssp, tvb, dict_data->rpt_scheme_pos,
                             dict_data->rpt_scheme_len + dict_data->rpt_ssp_len,
-                            wmem_strdup_printf(wmem_packet_scope(), "%d.%d", dict_data->report_scheme_offset, dict_data->report_ssp_offset));
+                            wmem_strdup_printf(pinfo->pool, "%d.%d", dict_data->report_scheme_offset, dict_data->report_ssp_offset));
         }
 
         /*
@@ -633,7 +633,7 @@ dissect_dictionary(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offs
             proto_tree_add_string(dict_tree, hf_bundle_custodian_scheme, tvb, 0, 0, IPN_SCHEME_STR);
             proto_tree_add_string(dict_tree, hf_bundle_custodian_ssp, tvb, dict_data->cust_scheme_pos,
                             dict_data->cust_scheme_len + dict_data->cust_ssp_len,
-                            wmem_strdup_printf(wmem_packet_scope(), "%d.%d", dict_data->cust_scheme_offset, dict_data->cust_ssp_offset));
+                            wmem_strdup_printf(pinfo->pool, "%d.%d", dict_data->cust_scheme_offset, dict_data->cust_ssp_offset));
         }
 
         /* remember custodian, for use in checking cteb validity */
@@ -649,7 +649,7 @@ dissect_dictionary(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offs
         }
         col_set_fence(pinfo->cinfo, COL_INFO);
 
-        *bundle_custodian = wmem_strdup_printf(wmem_packet_scope(), "%s:%d.%d", IPN_SCHEME_STR,
+        *bundle_custodian = wmem_strdup_printf(pinfo->pool, "%s:%d.%d", IPN_SCHEME_STR,
                                                dict_data->cust_scheme_offset, dict_data->cust_ssp_offset);
     }
 
@@ -705,22 +705,22 @@ dissect_dictionary(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offs
         else {
             col_clear(pinfo->cinfo, COL_INFO);
             col_add_fstr(pinfo->cinfo, COL_INFO, "%s:%s > %s:%s %d.%d",
-                         tvb_get_stringz_enc(wmem_packet_scope(), tvb, offset + dict_data->source_scheme_offset, NULL, ENC_ASCII),
-                         tvb_get_stringz_enc(wmem_packet_scope(), tvb, offset + dict_data->source_ssp_offset, NULL, ENC_ASCII),
-                         tvb_get_stringz_enc(wmem_packet_scope(), tvb, offset + dict_data->dest_scheme_offset, NULL, ENC_ASCII),
-                         tvb_get_stringz_enc(wmem_packet_scope(), tvb, offset + dict_data->dest_ssp_offset, NULL, ENC_ASCII),
+                         tvb_get_stringz_enc(pinfo->pool, tvb, offset + dict_data->source_scheme_offset, NULL, ENC_ASCII),
+                         tvb_get_stringz_enc(pinfo->pool, tvb, offset + dict_data->source_ssp_offset, NULL, ENC_ASCII),
+                         tvb_get_stringz_enc(pinfo->pool, tvb, offset + dict_data->dest_scheme_offset, NULL, ENC_ASCII),
+                         tvb_get_stringz_enc(pinfo->pool, tvb, offset + dict_data->dest_ssp_offset, NULL, ENC_ASCII),
                          creation_timestamp, timestamp_sequence);
         }
         col_set_fence(pinfo->cinfo, COL_INFO);
 
 
         /* remember custodian, for use in checking cteb validity */
-        *bundle_custodian = wmem_strdup_printf(wmem_packet_scope(),
+        *bundle_custodian = wmem_strdup_printf(pinfo->pool,
                                                "%s:%s",
-                                               tvb_get_stringz_enc(wmem_packet_scope(),
+                                               tvb_get_stringz_enc(pinfo->pool,
                                                                tvb, offset + dict_data->cust_scheme_offset,
                                                                NULL, ENC_ASCII),
-                                               tvb_get_stringz_enc(wmem_packet_scope(),
+                                               tvb_get_stringz_enc(pinfo->pool,
                                                                tvb, offset + dict_data->cust_ssp_offset,
                                                                NULL, ENC_ASCII));
     }
@@ -1271,7 +1271,7 @@ dissect_payload_header(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int 
         else
           {
             proto_tree_add_string(payload_block_tree, hf_bundle_payload_data, tvb, offset, payload_length,
-                                  wmem_strdup_printf(wmem_packet_scope(), "<%d bytes>",payload_length));
+                                  wmem_strdup_printf(pinfo->pool, "<%d bytes>",payload_length));
           }
 
         offset += payload_length;
@@ -1836,7 +1836,7 @@ display_extension_block(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int
         /* and second is the creator custodian EID */
         cteb_creator_custodian_eid_length = block_length - sdnv_length;
         ti = proto_tree_add_item_ret_string(block_tree, hf_block_control_block_cteb_creator_custodian_eid, tvb, offset,
-                                cteb_creator_custodian_eid_length, ENC_ASCII, wmem_packet_scope(), &cteb_creator_custodian_eid);
+                                cteb_creator_custodian_eid_length, ENC_ASCII, pinfo->pool, &cteb_creator_custodian_eid);
 
         /* also check if CTEB is valid, i.e. custodians match */
         if (bundle_custodian == NULL) {

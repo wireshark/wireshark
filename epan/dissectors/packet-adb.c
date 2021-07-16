@@ -657,7 +657,7 @@ dissect_adb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 adb_service_data.direction = direction;
 
                 adb_service_data.session_key_length = 3;
-                adb_service_data.session_key = (guint32 *) wmem_alloc(wmem_packet_scope(), adb_service_data.session_key_length * sizeof(guint32));
+                adb_service_data.session_key = (guint32 *) wmem_alloc(pinfo->pool, adb_service_data.session_key_length * sizeof(guint32));
                 adb_service_data.session_key[0] = interface_id;
 
                 if (proto == proto_usb) {
@@ -687,7 +687,7 @@ dissect_adb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 if (!pinfo->fd->visited && service_data) {
                     service_data->service = (gchar *) tvb_get_stringz_enc(wmem_file_scope(), tvb, offset, NULL, ENC_ASCII);
                 }
-                col_append_fstr(pinfo->cinfo, COL_INFO, "Service: %s", tvb_get_stringz_enc(wmem_packet_scope(), tvb, offset, NULL, ENC_ASCII));
+                col_append_fstr(pinfo->cinfo, COL_INFO, "Service: %s", tvb_get_stringz_enc(pinfo->pool, tvb, offset, NULL, ENC_ASCII));
                 offset = tvb_captured_length(tvb);
             } else if (command_data && command_data->command == A_CNXN) {
                 const guint8    *info;
@@ -699,7 +699,7 @@ dissect_adb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                  * 1792c23cb8 (2015-05-18) it is a ";"-separated feature list.
                  */
 
-                proto_tree_add_item_ret_string(main_tree, hf_connection_info, tvb, offset, -1, ENC_ASCII | ENC_NA, wmem_packet_scope(), &info);
+                proto_tree_add_item_ret_string(main_tree, hf_connection_info, tvb, offset, -1, ENC_ASCII | ENC_NA, pinfo->pool, &info);
                 col_append_fstr(pinfo->cinfo, COL_INFO, "Connection Info: %s", info);
                 offset = tvb_captured_length(tvb);
             } else {
@@ -714,7 +714,7 @@ dissect_adb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     adb_service_data.direction = direction;
 
                     adb_service_data.session_key_length = 3;
-                    adb_service_data.session_key = (guint32 *) wmem_alloc(wmem_packet_scope(), adb_service_data.session_key_length * sizeof(guint32));
+                    adb_service_data.session_key = (guint32 *) wmem_alloc(pinfo->pool, adb_service_data.session_key_length * sizeof(guint32));
                     adb_service_data.session_key[0] = interface_id;
 
                     if (proto == proto_usb) {

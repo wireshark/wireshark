@@ -1407,7 +1407,7 @@ dissect_gquic_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tree, gui
 
         ti_tag = proto_tree_add_item(gquic_tree, hf_gquic_tags, tvb, offset, 8, ENC_NA);
         tag_tree = proto_item_add_subtree(ti_tag, ett_gquic_tag_value);
-        ti_type = proto_tree_add_item_ret_string(tag_tree, hf_gquic_tag_type, tvb, offset, 4, ENC_ASCII|ENC_NA, wmem_packet_scope(), &tag_str);
+        ti_type = proto_tree_add_item_ret_string(tag_tree, hf_gquic_tag_type, tvb, offset, 4, ENC_ASCII|ENC_NA, pinfo->pool, &tag_str);
         tag = tvb_get_ntohl(tvb, offset);
         proto_item_append_text(ti_type, " (%s)", val_to_str(tag, tag_vals, "Unknown"));
         proto_item_append_text(ti_tag, ": %s (%s)", tag_str, val_to_str(tag, tag_vals, "Unknown"));
@@ -1439,14 +1439,14 @@ dissect_gquic_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tree, gui
                 tag_offset += tag_len;
             break;
             case TAG_SNI:
-                proto_tree_add_item_ret_string(tag_tree, hf_gquic_tag_sni, tvb, tag_offset_start + tag_offset, tag_len, ENC_ASCII|ENC_NA, wmem_packet_scope(), &tag_str);
+                proto_tree_add_item_ret_string(tag_tree, hf_gquic_tag_sni, tvb, tag_offset_start + tag_offset, tag_len, ENC_ASCII|ENC_NA, pinfo->pool, &tag_str);
                 proto_item_append_text(ti_tag, ": %s", tag_str);
                 tag_offset += tag_len;
             break;
             case TAG_VER:
                 num_iter = 1;
                 while(offset_end - tag_offset >= 4){
-                    proto_tree_add_item_ret_string(tag_tree, hf_gquic_tag_ver, tvb, tag_offset_start + tag_offset, 4, ENC_ASCII|ENC_NA, wmem_packet_scope(), &tag_str);
+                    proto_tree_add_item_ret_string(tag_tree, hf_gquic_tag_ver, tvb, tag_offset_start + tag_offset, 4, ENC_ASCII|ENC_NA, pinfo->pool, &tag_str);
                     proto_item_append_text(ti_tag, "%s %s", num_iter == 1 ? ":" : ",", tag_str);
                     tag_offset += 4;
                     num_iter++;
@@ -1459,12 +1459,12 @@ dissect_gquic_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tree, gui
                 }
             break;
             case TAG_PDMD:
-                proto_tree_add_item_ret_string(tag_tree, hf_gquic_tag_pdmd, tvb, tag_offset_start + tag_offset, tag_len, ENC_ASCII|ENC_NA, wmem_packet_scope(), &tag_str);
+                proto_tree_add_item_ret_string(tag_tree, hf_gquic_tag_pdmd, tvb, tag_offset_start + tag_offset, tag_len, ENC_ASCII|ENC_NA, pinfo->pool, &tag_str);
                 proto_item_append_text(ti_tag, ": %s", tag_str);
                 tag_offset += tag_len;
             break;
             case TAG_UAID:
-                proto_tree_add_item_ret_string(tag_tree, hf_gquic_tag_uaid, tvb, tag_offset_start + tag_offset, tag_len, ENC_ASCII|ENC_NA, wmem_packet_scope(), &tag_str);
+                proto_tree_add_item_ret_string(tag_tree, hf_gquic_tag_uaid, tvb, tag_offset_start + tag_offset, tag_len, ENC_ASCII|ENC_NA, pinfo->pool, &tag_str);
                 proto_item_append_text(ti_tag, ": %s", tag_str);
                 tag_offset += tag_len;
             break;
@@ -1664,7 +1664,7 @@ dissect_gquic_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tree, gui
                 tag_offset += 4;
             break;
             case TAG_TBKP:
-                proto_tree_add_item_ret_string(tag_tree, hf_gquic_tag_tbkp, tvb, tag_offset_start + tag_offset, 4, ENC_ASCII|ENC_NA, wmem_packet_scope(), &tag_str);
+                proto_tree_add_item_ret_string(tag_tree, hf_gquic_tag_tbkp, tvb, tag_offset_start + tag_offset, 4, ENC_ASCII|ENC_NA, pinfo->pool, &tag_str);
                 proto_item_append_text(ti_tag, ": %s", tag_str);
                 tag_offset += 4;
             break;
@@ -1690,7 +1690,7 @@ dissect_gquic_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tree, gui
                 tag_offset += tag_len;
             break;
             case TAG_EPID:
-                proto_tree_add_item_ret_string(tag_tree, hf_gquic_tag_epid, tvb, tag_offset_start + tag_offset, tag_len, ENC_ASCII|ENC_NA, wmem_packet_scope(), &tag_str);
+                proto_tree_add_item_ret_string(tag_tree, hf_gquic_tag_epid, tvb, tag_offset_start + tag_offset, tag_len, ENC_ASCII|ENC_NA, pinfo->pool, &tag_str);
                 proto_item_append_text(ti_tag, ": %s", tag_str);
                 tag_offset += tag_len;
             break;
@@ -1703,7 +1703,7 @@ dissect_gquic_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tree, gui
                 expert_add_info_format(pinfo, ti_tag, &ei_gquic_tag_undecoded,
                                  "Dissector for (Google) QUIC Tag"
                                  " %s (%s) code not implemented, Contact"
-                                 " Wireshark developers if you want this supported", tvb_get_string_enc(wmem_packet_scope(), tvb, offset-8, 4, ENC_ASCII|ENC_NA), val_to_str(tag, tag_vals, "Unknown"));
+                                 " Wireshark developers if you want this supported", tvb_get_string_enc(pinfo->pool, tvb, offset-8, 4, ENC_ASCII|ENC_NA), val_to_str(tag, tag_vals, "Unknown"));
                 tag_offset += tag_len;
             break;
         }
@@ -1876,7 +1876,7 @@ dissect_gquic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tr
 
             if (gquic_info->version == 50) {
 	        message_tag = tvb_get_ntohl(tvb, offset);
-                ti = proto_tree_add_item_ret_string(ft_tree, hf_gquic_tag, tvb, offset, 4, ENC_ASCII|ENC_NA, wmem_packet_scope(), &message_tag_str);
+                ti = proto_tree_add_item_ret_string(ft_tree, hf_gquic_tag, tvb, offset, 4, ENC_ASCII|ENC_NA, pinfo->pool, &message_tag_str);
                 proto_item_append_text(ti, " (%s)", val_to_str(message_tag, message_tag_vals, "Unknown Tag"));
                 col_add_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str(message_tag, message_tag_vals, "Unknown"));
                 offset += 4;
@@ -1924,7 +1924,7 @@ dissect_gquic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tr
             switch(stream_id) {
                 case 1: { /* Reserved (G)QUIC (handshake, crypto, config updates...) */
                     message_tag = tvb_get_ntohl(tvb, offset);
-                    ti = proto_tree_add_item_ret_string(ft_tree, hf_gquic_tag, tvb, offset, 4, ENC_ASCII|ENC_NA, wmem_packet_scope(), &message_tag_str);
+                    ti = proto_tree_add_item_ret_string(ft_tree, hf_gquic_tag, tvb, offset, 4, ENC_ASCII|ENC_NA, pinfo->pool, &message_tag_str);
 
                     proto_item_append_text(ti_stream, " (Reserved for (G)QUIC handshake, crypto, config updates...)");
                     proto_item_append_text(ti, " (%s)", val_to_str(message_tag, message_tag_vals, "Unknown Tag"));
@@ -2184,7 +2184,7 @@ dissect_gquic_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
     /* check and get (and store) version */
     if(puflags & PUFLAGS_VRSN){
-        gquic_info->version_valid = ws_strtou8(tvb_get_string_enc(wmem_packet_scope(), tvb,
+        gquic_info->version_valid = ws_strtou8(tvb_get_string_enc(pinfo->pool, tvb,
             offset + 1 + len_cid + 1, 3, ENC_ASCII), NULL, &gquic_info->version);
         if (!gquic_info->version_valid)
             expert_add_info(pinfo, gquic_tree, &ei_gquic_version_invalid);
@@ -2334,7 +2334,7 @@ dissect_gquic_q046(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if((first_byte & PUFLAGS_MPTH) && (first_byte & PUFLAGS_RSV)) {
         /* Long Header. We handle only Q046 */
 
-	gquic_info->version_valid = ws_strtou8(tvb_get_string_enc(wmem_packet_scope(), tvb,
+	gquic_info->version_valid = ws_strtou8(tvb_get_string_enc(pinfo->pool, tvb,
             offset + 2, 3, ENC_ASCII), NULL, &gquic_info->version);
         if (!gquic_info->version_valid) {
             expert_add_info(pinfo, gquic_tree, &ei_gquic_version_invalid);

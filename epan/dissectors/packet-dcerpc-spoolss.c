@@ -529,7 +529,7 @@ dissect_spoolss_string_parm_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 				hf_string_parm_size, &buffer_len);
 
-	s = tvb_get_stringz_enc(wmem_packet_scope(), tvb, offset, &len, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+	s = tvb_get_stringz_enc(pinfo->pool, tvb, offset, &len, ENC_UTF_16|ENC_LITTLE_ENDIAN);
 
 	if (tree && buffer_len) {
 		tvb_ensure_bytes_exist(tvb, offset, buffer_len);
@@ -617,7 +617,7 @@ dissect_SYSTEM_TIME(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_ndr_uint16(
 		tvb, offset, pinfo, subtree, di, drep, hf_time_msec, &millisecond);
 
-	str = wmem_strdup_printf(wmem_packet_scope(),
+	str = wmem_strdup_printf(pinfo->pool,
 			      "%d/%02d/%02d %02d:%02d:%02d.%03d",
 			      year, month, day, hour, minute, second,
 			      millisecond);
@@ -726,7 +726,7 @@ dissect_printerdata_data(tvbuff_t *tvb, int offset,
 
 			hidden_item = proto_tree_add_item_ret_string(
 				tree, hf_printerdata_data_sz, tvb,
-				offset - size, size, ENC_UTF_16|ENC_LITTLE_ENDIAN, wmem_packet_scope(), &data);
+				offset - size, size, ENC_UTF_16|ENC_LITTLE_ENDIAN, pinfo->pool, &data);
 			proto_item_set_hidden(hidden_item);
 
 			proto_item_append_text(item, ": %s", data);
@@ -1101,11 +1101,11 @@ dissect_spoolss_uint16uni(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	remaining = tvb_reported_length_remaining(tvb, offset);
 	if (remaining <= 0) {
 		if (data)
-			*data = wmem_strdup(wmem_packet_scope(), "");
+			*data = wmem_strdup(pinfo->pool, "");
 		return offset;
 	}
 
-	text = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, remaining, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+	text = tvb_get_string_enc(pinfo->pool, tvb, offset, remaining, ENC_UTF_16|ENC_LITTLE_ENDIAN);
 	len = (int)strlen(text);
 
 	proto_tree_add_string(tree, hf_name, tvb, offset, len * 2, text);
@@ -1687,7 +1687,7 @@ dissect_spoolss_relstr(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		relstr_end = dissect_spoolss_uint16uni(
 			tvb, relstr_start, pinfo, NULL, drep, &text, hf_relative_string);
 	} else { 			/* relstr_offset == 0 is a NULL string */
-		text = wmem_strdup(wmem_packet_scope(), "");
+		text = wmem_strdup(pinfo->pool, "");
 		relstr_end = relstr_start;
 	}
 
@@ -1740,7 +1740,7 @@ dissect_spoolss_relstrarray(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		/*relstr_end = */dissect_spoolss_uint16uni(
 			tvb, relstr_start, pinfo, subtree, drep, &text, hf_relative_string);
 	else {
-		text = wmem_strdup(wmem_packet_scope(), "NULL");
+		text = wmem_strdup(pinfo->pool, "NULL");
 		/*relstr_end = offset;*/
 	}
 
@@ -2661,7 +2661,7 @@ SpoolssOpenPrinterEx_r(tvbuff_t *tvb, int offset,
 		const char *pol_name;
 
 		if (dcv->se_data){
-			pol_name = wmem_strdup_printf(wmem_packet_scope(),
+			pol_name = wmem_strdup_printf(pinfo->pool,
 				"OpenPrinterEx(%s)", (char *)dcv->se_data);
 		} else {
 			pol_name = "Unknown OpenPrinterEx() handle";
@@ -3198,7 +3198,7 @@ SpoolssReplyOpenPrinter_r(tvbuff_t *tvb, int offset,
 		const char *pol_name;
 
 		if (dcv->se_data){
-			pol_name = wmem_strdup_printf(wmem_packet_scope(),
+			pol_name = wmem_strdup_printf(pinfo->pool,
 				"ReplyOpenPrinter(%s)", (char *)dcv->se_data);
 		} else {
 			pol_name = "Unknown ReplyOpenPrinter() handle";
@@ -3689,7 +3689,7 @@ SpoolssAddPrinterEx_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		const char *pol_name;
 
 		if (dcv->se_data){
-			pol_name = wmem_strdup_printf(wmem_packet_scope(),
+			pol_name = wmem_strdup_printf(pinfo->pool,
 				"AddPrinterEx(%s)", (char *)dcv->se_data);
 		} else {
 			pol_name = "Unknown AddPrinterEx() handle";
@@ -5807,7 +5807,7 @@ cb_notify_str_postprocess(packet_info *pinfo _U_,
 
 	len = tvb_get_letohl(tvb, start_offset);
 
-	s = tvb_get_string_enc(wmem_packet_scope(),
+	s = tvb_get_string_enc(pinfo->pool,
 		tvb, start_offset + 4, (end_offset - start_offset - 4), ENC_UTF_16|ENC_LITTLE_ENDIAN);
 
 	/* Append string to upper-level proto_items */

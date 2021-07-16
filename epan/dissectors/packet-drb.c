@@ -63,7 +63,7 @@ static void dissect_drb_request(tvbuff_t* tvb, packet_info* pinfo, proto_tree* t
 	get_rbm_integer(tvb, *offset + 4 + 3, &nargs, &len);
 	dissect_drb_object(tvb, pinfo, tree, offset, "Arg length");
 	for (i = 0; i < nargs; i++) {
-		loop_label = wmem_strdup_printf(wmem_packet_scope(), "Arg %d", i + 1);
+		loop_label = wmem_strdup_printf(pinfo->pool, "Arg %d", i + 1);
 		dissect_drb_object(tvb, pinfo, tree, offset, loop_label);
 	}
 	dissect_drb_object(tvb, pinfo, tree, offset, "Block");

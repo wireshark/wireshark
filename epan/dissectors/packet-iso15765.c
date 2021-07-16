@@ -305,7 +305,7 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 bu
     /* Show data */
     if (data_length > 0) {
         col_append_fstr(pinfo->cinfo, COL_INFO, "   %s",
-                        tvb_bytes_to_str_punct(wmem_packet_scope(), tvb, offset, data_length, ' '));
+                        tvb_bytes_to_str_punct(pinfo->pool, tvb, offset, data_length, ' '));
     }
 
     if (fragmented) {

@@ -582,7 +582,7 @@ dissect_asap_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *asap
   type = tvb_get_guint8(message_tvb, MESSAGE_TYPE_OFFSET);
   /* pinfo is NULL only if dissect_asap_message is called via dissect_error_cause */
   if (pinfo) {
-    tap_rec = wmem_new0(wmem_packet_scope(), asap_tap_rec_t);
+    tap_rec = wmem_new0(pinfo->pool, asap_tap_rec_t);
     tap_rec->type        = type;
     tap_rec->size        = tvb_get_ntohs(message_tvb, MESSAGE_LENGTH_OFFSET);
     tap_rec->type_string = val_to_str_const(tap_rec->type, message_type_values, "Unknown ASAP type");

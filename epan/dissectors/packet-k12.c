@@ -202,7 +202,7 @@ dissect_k12(tvbuff_t* tvb,packet_info* pinfo,proto_tree* tree, void* data _U_)
 			break;
 		case K12_PORT_ATMPVC:
 		{
-		gchar* circuit_str = wmem_strdup_printf(wmem_packet_scope(), "%u:%u:%u",
+		gchar* circuit_str = wmem_strdup_printf(pinfo->pool, "%u:%u:%u",
 						      (guint)pinfo->pseudo_header->k12.input_info.atm.vp,
 						      (guint)pinfo->pseudo_header->k12.input_info.atm.vc,
 						      (guint)pinfo->pseudo_header->k12.input_info.atm.cid);

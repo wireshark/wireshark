@@ -2580,7 +2580,7 @@ static int dissect_1722_acf_can_common(tvbuff_t *tvb, packet_info *pinfo, proto_
     parsed.datalen = (guint)payload_length;
     proto_tree_add_uint(tree_acf_can, hf_1722_can_len, tvb, offset, 1, parsed.datalen);
 
-    col_append_str(pinfo->cinfo, COL_INFO, tvb_bytes_to_str_punct(wmem_packet_scope(), tvb, offset, payload_length, ' '));
+    col_append_str(pinfo->cinfo, COL_INFO, tvb_bytes_to_str_punct(pinfo->pool, tvb, offset, payload_length, ' '));
 
     if (parsed.is_fd && !is_valid_canfd_payload_length(payload_length))
     {
@@ -2820,7 +2820,7 @@ static int dissect_1722_acf_lin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     {
         tvbuff_t*   next_tvb = tvb_new_subset_length(tvb, offset, payload_length);
 
-        col_append_str(pinfo->cinfo, COL_INFO, tvb_bytes_to_str_punct(wmem_packet_scope(), tvb, offset, payload_length, ' '));
+        col_append_str(pinfo->cinfo, COL_INFO, tvb_bytes_to_str_punct(pinfo->pool, tvb, offset, payload_length, ' '));
 
         /* at the moment, there's no global LIN sub-protocols support. Use our own. */
         if (dissector_try_payload_new(avb1722_acf_lin_dissector_table, next_tvb, pinfo, tree, TRUE, &lin_id) <= 0)

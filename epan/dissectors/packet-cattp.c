@@ -144,7 +144,7 @@ dissect_cattp_synpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cattp_tree, 
             wmem_strbuf_t *buf;
             int i;
 
-            buf = wmem_strbuf_new(wmem_packet_scope(), "");
+            buf = wmem_strbuf_new(pinfo->pool, "");
 
             /* switch nibbles */
             for (i = 0; i < idlen; i++) {

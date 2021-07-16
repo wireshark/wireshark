@@ -2325,7 +2325,7 @@ ieee802154_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
     proto_item              *hidden_item;
     proto_item              *ti;
     guint                   offset = 0;
-    ieee802154_packet      *packet = wmem_new0(wmem_packet_scope(), ieee802154_packet);
+    ieee802154_packet      *packet = wmem_new0(pinfo->pool, ieee802154_packet);
     ieee802154_short_addr   addr16;
     ieee802154_hints_t     *ieee_hints;
 
@@ -2635,7 +2635,7 @@ ieee802154_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 
         set_address_tvb(&pinfo->dl_dst, ieee802_15_4_short_address_type, 2, tvb, offset);
         copy_address_shallow(&pinfo->dst, &pinfo->dl_dst);
-        dst_addr = address_to_str(wmem_packet_scope(), &pinfo->dst);
+        dst_addr = address_to_str(pinfo->pool, &pinfo->dst);
 
         proto_tree_add_uint(ieee802154_tree, hf_ieee802154_dst16, tvb, offset, 2, packet->dst16);
         proto_item_append_text(proto_root, ", Dst: %s", dst_addr);
@@ -2664,12 +2664,12 @@ ieee802154_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         copy_address_shallow(&pinfo->dst, &pinfo->dl_dst);
         if (tree) {
             proto_tree_add_item(ieee802154_tree, hf_ieee802154_dst64, tvb, offset, 8, ENC_LITTLE_ENDIAN);
-            proto_item_append_text(proto_root, ", Dst: %s", eui64_to_display(wmem_packet_scope(), packet->dst64));
+            proto_item_append_text(proto_root, ", Dst: %s", eui64_to_display(pinfo->pool, packet->dst64));
             ti = proto_tree_add_item(ieee802154_tree, hf_ieee802154_addr64, tvb, offset, 8, ENC_LITTLE_ENDIAN);
             proto_item_set_generated(ti);
             proto_item_set_hidden(ti);
         }
-        col_append_fstr(pinfo->cinfo, COL_INFO, ", Dst: %s", eui64_to_display(wmem_packet_scope(), packet->dst64));
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", Dst: %s", eui64_to_display(pinfo->pool, packet->dst64));
         offset += 8;
     }
 
@@ -2713,7 +2713,7 @@ ieee802154_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 
         set_address_tvb(&pinfo->dl_src, ieee802_15_4_short_address_type, 2, tvb, offset);
         copy_address_shallow(&pinfo->src, &pinfo->dl_src);
-        src_addr = address_to_str(wmem_packet_scope(), &pinfo->src);
+        src_addr = address_to_str(pinfo->pool, &pinfo->src);
 
         /* Add the addressing info to the tree. */
         if (tree) {
@@ -2766,13 +2766,13 @@ ieee802154_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         copy_address_shallow(&pinfo->src, &pinfo->dl_src);
         if (tree) {
             proto_tree_add_item(ieee802154_tree, hf_ieee802154_src64, tvb, offset, 8, ENC_LITTLE_ENDIAN);
-            proto_item_append_text(proto_root, ", Src: %s", eui64_to_display(wmem_packet_scope(), packet->src64));
+            proto_item_append_text(proto_root, ", Src: %s", eui64_to_display(pinfo->pool, packet->src64));
             ti = proto_tree_add_item(ieee802154_tree, hf_ieee802154_addr64, tvb, offset, 8, ENC_LITTLE_ENDIAN);
             proto_item_set_generated(ti);
             proto_item_set_hidden(ti);
         }
 
-        col_append_fstr(pinfo->cinfo, COL_INFO, ", Src: %s", eui64_to_display(wmem_packet_scope(), packet->src64));
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", Src: %s", eui64_to_display(pinfo->pool, packet->src64));
         offset += 8;
     }
 
@@ -3262,14 +3262,14 @@ dissect_ieee802154_tap_tlvs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                                ENC_LITTLE_ENDIAN, &frame_start_ts);
                 nstime.secs = (time_t)frame_start_ts / 1000000000L;
                 nstime.nsecs = frame_start_ts % 1000000000UL;
-                proto_item_append_text(proto_tree_get_parent(tlvtree), ": %s s", rel_time_to_secs_str(wmem_packet_scope(), &nstime));
+                proto_item_append_text(proto_tree_get_parent(tlvtree), ": %s s", rel_time_to_secs_str(pinfo->pool, &nstime));
                 break;
             case IEEE802154_TAP_END_OF_FRAME_TS:
                 proto_tree_add_item_ret_uint64(tlvtree, hf_ieee802154_eof_ts, tvb, offset, 8,
                                     ENC_LITTLE_ENDIAN, &frame_end_ts);
                 nstime.secs = (time_t)frame_end_ts / 1000000000L;
                 nstime.nsecs = frame_end_ts % 1000000000UL;
-                proto_item_append_text(proto_tree_get_parent(tlvtree), ": %s s", rel_time_to_secs_str(wmem_packet_scope(), &nstime));
+                proto_item_append_text(proto_tree_get_parent(tlvtree), ": %s s", rel_time_to_secs_str(pinfo->pool, &nstime));
                 break;
             case IEEE802154_TAP_ASN:
                 proto_tree_add_item_ret_uint64(tlvtree, hf_ieee802154_asn, tvb, offset, 8, ENC_LITTLE_ENDIAN, &ieee802154_tsch_asn);
@@ -3280,7 +3280,7 @@ dissect_ieee802154_tap_tlvs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                     ENC_LITTLE_ENDIAN, &slot_start_ts);
                 nstime.secs = (time_t)slot_start_ts / 1000000000L;
                 nstime.nsecs = slot_start_ts % 1000000000UL;
-                proto_item_append_text(proto_tree_get_parent(tlvtree), ": %s s", rel_time_to_secs_str(wmem_packet_scope(), &nstime));
+                proto_item_append_text(proto_tree_get_parent(tlvtree), ": %s s", rel_time_to_secs_str(pinfo->pool, &nstime));
                 break;
             case IEEE802154_TAP_TIMESLOT_LENGTH:
                 proto_tree_add_item_ret_uint(tlvtree, hf_ieee802154_tap_timeslot_length, tvb, offset, 4,
@@ -5065,7 +5065,7 @@ dissect_ieee802154_decrypt(tvbuff_t *tvb,
          * decryption phase.
          */
         memset(dec_mic, 0, sizeof(dec_mic));
-        if (!ccm_cbc_mac(decrypt_info->key, tmp, (const gchar *)tvb_memdup(wmem_packet_scope(), tvb, 0, l_a), l_a, tvb_get_ptr(ptext_tvb, 0, l_m), l_m, dec_mic)) {
+        if (!ccm_cbc_mac(decrypt_info->key, tmp, (const gchar *)tvb_memdup(pinfo->pool, tvb, 0, l_a), l_a, tvb_get_ptr(ptext_tvb, 0, l_m), l_m, dec_mic)) {
             *decrypt_info->status = DECRYPT_PACKET_MIC_CHECK_FAILED;
         }
         /* Compare the received MIC with the one we generated. */

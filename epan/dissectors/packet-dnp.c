@@ -1915,7 +1915,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
                 proto_tree_add_item(point_tree, hf_dnp3_al_da_length, tvb, data_pos, 1, ENC_LITTLE_ENDIAN);
                 data_pos++;
                 const guint8* da_value;
-                proto_tree_add_item_ret_string(point_tree, hf_dnp3_al_da_value, tvb, data_pos, da_len, ENC_ASCII|ENC_NA, wmem_packet_scope(), &da_value);
+                proto_tree_add_item_ret_string(point_tree, hf_dnp3_al_da_value, tvb, data_pos, da_len, ENC_ASCII|ENC_NA, pinfo->pool, &da_value);
                 proto_item_append_text(object_item, ", Value: %s", da_value);
                 data_pos += da_len;
                 break;
@@ -2152,7 +2152,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
               al_bit = (al_ptflags & AL_OBJ_BI_FLAG7) >> 7; /* bit shift 1xxxxxxx -> xxxxxxx1 */
               proto_item_append_text(point_item, ", Value: %u, Timestamp: %s",
-                                     al_bit, abs_time_to_str(wmem_packet_scope(), &al_abstime, ABSOLUTE_TIME_UTC, FALSE));
+                                     al_bit, abs_time_to_str(pinfo->pool, &al_abstime, ABSOLUTE_TIME_UTC, FALSE));
               proto_item_set_len(point_item, data_pos - offset);
 
               offset = data_pos;
@@ -2173,7 +2173,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
               al_2bit = (al_ptflags >> 6) & 3; /* bit shift 11xxxxxx -> 00000011 */
               proto_item_append_text(point_item, ", Value: %u, Timestamp: %s",
-                                     al_2bit, abs_time_to_str(wmem_packet_scope(), &al_abstime, ABSOLUTE_TIME_UTC, FALSE));
+                                     al_2bit, abs_time_to_str(pinfo->pool, &al_abstime, ABSOLUTE_TIME_UTC, FALSE));
               proto_item_set_len(point_item, data_pos - offset);
 
               offset = data_pos;
@@ -2197,7 +2197,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
               al_bit = (al_ptflags & AL_OBJ_BI_FLAG7) >> 7; /* bit shift 1xxxxxxx -> xxxxxxx1 */
               proto_item_append_text(point_item, ", Value: %u, Timestamp: %s",
-                                     al_bit, abs_time_to_str(wmem_packet_scope(), &al_abstime, ABSOLUTE_TIME_UTC, FALSE));
+                                     al_bit, abs_time_to_str(pinfo->pool, &al_abstime, ABSOLUTE_TIME_UTC, FALSE));
               proto_item_set_len(point_item, data_pos - offset);
 
               offset = data_pos;
@@ -2324,7 +2324,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
                 case AL_OBJ_AOC_FLTEVTT:   /* 32-bit Floating Point Analog Command Event with time (Obj:43, Var:07) */
                 case AL_OBJ_AOC_DBLEVTT:   /* 64-bit Floating Point Analog Command Event with time (Obj:43, Var:08) */
                   dnp3_al_get_timestamp(&al_abstime, tvb, data_pos);
-                  proto_item_append_text(point_item, ", Timestamp: %s", abs_time_to_str(wmem_packet_scope(), &al_abstime, ABSOLUTE_TIME_UTC, FALSE));
+                  proto_item_append_text(point_item, ", Timestamp: %s", abs_time_to_str(pinfo->pool, &al_abstime, ABSOLUTE_TIME_UTC, FALSE));
                   proto_tree_add_time(point_tree, hf_dnp3_al_timestamp, tvb, data_pos, 6, &al_abstime);
                   data_pos += 6;
                 break;
@@ -2507,7 +2507,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
                 case AL_OBJ_FDCTRC_32T:
                 case AL_OBJ_FDCTRC_16T:
                   dnp3_al_get_timestamp(&al_abstime, tvb, data_pos);
-                  proto_item_append_text(point_item, ", Timestamp: %s", abs_time_to_str(wmem_packet_scope(), &al_abstime, ABSOLUTE_TIME_UTC, FALSE));
+                  proto_item_append_text(point_item, ", Timestamp: %s", abs_time_to_str(pinfo->pool, &al_abstime, ABSOLUTE_TIME_UTC, FALSE));
                   proto_tree_add_time(point_tree, hf_dnp3_al_timestamp, tvb, data_pos, 6, &al_abstime);
                   data_pos += 6;
                   break;
@@ -2622,7 +2622,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
                 case AL_OBJ_AIFC_FLTT:
                 case AL_OBJ_AIFC_DBLT:
                   dnp3_al_get_timestamp(&al_abstime, tvb, data_pos);
-                  proto_item_append_text(point_item, ", Timestamp: %s", abs_time_to_str(wmem_packet_scope(), &al_abstime, ABSOLUTE_TIME_UTC, FALSE));
+                  proto_item_append_text(point_item, ", Timestamp: %s", abs_time_to_str(pinfo->pool, &al_abstime, ABSOLUTE_TIME_UTC, FALSE));
                   proto_tree_add_time(point_tree, hf_dnp3_al_timestamp, tvb, data_pos, 6, &al_abstime);
                   data_pos += 6;
                   break;
@@ -2702,7 +2702,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
                 case AL_OBJ_AOC_FLTT:
                 case AL_OBJ_AOC_DBLT:
                   dnp3_al_get_timestamp(&al_abstime, tvb, data_pos);
-                  proto_item_append_text(point_item, ", Timestamp: %s", abs_time_to_str(wmem_packet_scope(), &al_abstime, ABSOLUTE_TIME_UTC, FALSE));
+                  proto_item_append_text(point_item, ", Timestamp: %s", abs_time_to_str(pinfo->pool, &al_abstime, ABSOLUTE_TIME_UTC, FALSE));
                   proto_tree_add_time(point_tree, hf_dnp3_al_timestamp, tvb, data_pos, 6, &al_abstime);
                   data_pos += 6;
                   break;

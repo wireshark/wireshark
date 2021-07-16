@@ -411,8 +411,8 @@ dissect_btsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     proto_tree_add_item(btsap_tree, hf_btsap_header_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    parameters = (guint8 *) wmem_alloc(wmem_packet_scope(), number_of_parameters * sizeof(guint8));
-    parameter_offsets = (gint *) wmem_alloc0(wmem_packet_scope(), number_of_parameters * sizeof(guint));
+    parameters = (guint8 *) wmem_alloc(pinfo->pool, number_of_parameters * sizeof(guint8));
+    parameter_offsets = (gint *) wmem_alloc0(pinfo->pool, number_of_parameters * sizeof(guint));
 
     for (i_parameter = 0; i_parameter < number_of_parameters; ++i_parameter) {
         offset = dissect_parameter(tvb, pinfo, tree, btsap_tree, offset, &parameters[i_parameter], &parameter_offsets[i_parameter]);

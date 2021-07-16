@@ -901,7 +901,7 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     conversation_t *conv = NULL;
     struct dccp_analysis *dccpd;
 
-    dccph = wmem_new0(wmem_packet_scope(), e_dccphdr);
+    dccph = wmem_new0(pinfo->pool, e_dccphdr);
     dccph->sport = tvb_get_ntohs(tvb, offset);
     dccph->dport = tvb_get_ntohs(tvb, offset + 2);
     copy_address_shallow(&dccph->ip_src, &pinfo->src);
@@ -914,8 +914,8 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     dccp_item = proto_tree_add_item(tree, proto_dccp, tvb, offset, -1, ENC_NA);
     if (dccp_summary_in_tree) {
         proto_item_append_text(dccp_item, ", Src Port: %s, Dst Port: %s",
-                               port_with_resolution_to_str(wmem_packet_scope(), PT_DCCP, dccph->sport),
-                               port_with_resolution_to_str(wmem_packet_scope(), PT_DCCP, dccph->dport));
+                               port_with_resolution_to_str(pinfo->pool, PT_DCCP, dccph->sport),
+                               port_with_resolution_to_str(pinfo->pool, PT_DCCP, dccph->dport));
     }
     dccp_tree = proto_item_add_subtree(dccp_item, ett_dccp);
 

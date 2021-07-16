@@ -400,7 +400,7 @@ text_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
     case 0x00: /* Octet, unspecified */
 
         proto_tree_add_string(tree, hf_index, tvb_out, 0, required_octs,
-            tvb_bytes_to_str(wmem_packet_scope(), tvb_out, 0, required_octs));
+            tvb_bytes_to_str(pinfo->pool, tvb_out, 0, required_octs));
         break;
 
     case 0x02: /* 7-bit ASCII */
@@ -416,7 +416,7 @@ text_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
         offset = 0;
         bit = 0;
 
-        ustr = tvb_get_ascii_7bits_string(wmem_packet_scope(), tvb_out, (offset << 3) + bit, num_fields);
+        ustr = tvb_get_ascii_7bits_string(pinfo->pool, tvb_out, (offset << 3) + bit, num_fields);
         IA5_7BIT_decode(ansi_637_bigbuf, ustr, num_fields);
 
         proto_tree_add_string(tree, hf_index, tvb_out, 0,
@@ -456,7 +456,7 @@ text_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
 
         offset = 0;
 
-        proto_tree_add_item_ret_string(tree, hf_index, tvb_out, offset, required_octs, ENC_EUC_KR|ENC_NA, wmem_packet_scope(), &ustr);
+        proto_tree_add_item_ret_string(tree, hf_index, tvb_out, offset, required_octs, ENC_EUC_KR|ENC_NA, pinfo->pool, &ustr);
         if (ustr == NULL)
             proto_tree_add_expert_format(tree, pinfo, &ei_ansi_637_failed_conversion, tvb_out, offset, required_octs,
                 "Failed iconv conversion on EUC-KR - (report to wireshark.org)");
@@ -1353,12 +1353,12 @@ tele_param_cb_num(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint len
 
         offset += 1;
 
-        poctets = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, num_fields, ENC_ASCII|ENC_NA);
+        poctets = tvb_get_string_enc(pinfo->pool, tvb, offset, num_fields, ENC_ASCII|ENC_NA);
 
         proto_tree_add_string_format(tree, hf_ansi_637_tele_cb_num_number, tvb, offset, num_fields,
             (gchar *) poctets,
             "Number: %s",
-            (gchar *) format_text(wmem_packet_scope(), poctets, num_fields));
+            (gchar *) format_text(pinfo->pool, poctets, num_fields));
     }
     else
     {
@@ -2573,7 +2573,7 @@ dissect_ansi_637_trans_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         {
             gchar       *ansi_637_add_string;
 
-            ansi_637_add_string = (gchar *) wmem_alloc(wmem_packet_scope(), 1024);
+            ansi_637_add_string = (gchar *) wmem_alloc(pinfo->pool, 1024);
             ansi_637_add_string[0] = '\0';
             (*param_fcn)(tvb, pinfo, subtree, len, curr_offset, ansi_637_add_string, 1024);
 

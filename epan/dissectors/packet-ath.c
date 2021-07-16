@@ -159,7 +159,7 @@ dissect_ath(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
        */
       proto_tree_add_item(ath_tree, hf_ath_comm, tvb, offset, clen, ENC_ASCII|ENC_NA);
       if (clen != -1)
-        info_command = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, clen, ENC_ASCII);
+        info_command = tvb_get_string_enc(pinfo->pool, tvb, offset, clen, ENC_ASCII);
       offset += clen;
 
       /* DOMAIN LENGTH
@@ -171,7 +171,7 @@ dissect_ath(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
        */
       proto_tree_add_item(ath_tree, hf_ath_domain, tvb, offset, dlen, ENC_ASCII|ENC_NA);
       if (dlen != 0)
-        info_domain = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, dlen, ENC_ASCII);
+        info_domain = tvb_get_string_enc(pinfo->pool, tvb, offset, dlen, ENC_ASCII);
       offset += dlen;
 
       /* UNIQUEID
@@ -259,7 +259,7 @@ dissect_ath(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
        */
       proto_tree_add_item(ath_tree, hf_ath_comm, tvb, offset, clen, ENC_ASCII|ENC_NA);
       if (clen != -1)
-        info_command = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, clen, ENC_ASCII);
+        info_command = tvb_get_string_enc(pinfo->pool, tvb, offset, clen, ENC_ASCII);
       offset += clen;
 
       /* DOMAIN LENGTH
@@ -271,7 +271,7 @@ dissect_ath(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
        */
       proto_tree_add_item(ath_tree, hf_ath_domain, tvb, offset, dlen, ENC_ASCII|ENC_NA);
       if (dlen != 0)
-        info_domain = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, dlen, ENC_ASCII);
+        info_domain = tvb_get_string_enc(pinfo->pool, tvb, offset, dlen, ENC_ASCII);
       offset += dlen;
 
       /* UNIQUEID

@@ -1083,7 +1083,7 @@ de_time_zone_time(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
     tv.nsecs = 0;
 
     proto_tree_add_time_format_value(tree, hf_gsm_a_dtap_time_zone_time, tvb, curr_offset, 6,
-                                     &tv, "%s", abs_time_to_str(wmem_packet_scope(), &tv, ABSOLUTE_TIME_LOCAL, FALSE));
+                                     &tv, "%s", abs_time_to_str(pinfo->pool, &tv, ABSOLUTE_TIME_LOCAL, FALSE));
     curr_offset += 6;
 
     /* 3GPP TS 23.040 version 6.6.0 Release 6
@@ -1207,7 +1207,7 @@ de_emerg_num_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 o
         curr_offset++;
         en_len--;
 
-        item = proto_tree_add_item_ret_display_string(subtree, hf_gsm_a_dtap_emergency_bcd_num, tvb, curr_offset, en_len, ENC_BCD_DIGITS_0_9, wmem_packet_scope(), &digit_str);
+        item = proto_tree_add_item_ret_display_string(subtree, hf_gsm_a_dtap_emergency_bcd_num, tvb, curr_offset, en_len, ENC_BCD_DIGITS_0_9, pinfo->pool, &digit_str);
 
         /* Check for values that aren't digits; they get mapped to '?' */
         if(strchr(digit_str,'?')){
@@ -2267,7 +2267,7 @@ de_bcd_num(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 
     num_string_len = len - (curr_offset - offset);
 
-    item = proto_tree_add_item_ret_display_string(tree, header_field, tvb, curr_offset, num_string_len, ENC_KEYPAD_ABC_TBCD, wmem_packet_scope(), extracted_address);
+    item = proto_tree_add_item_ret_display_string(tree, header_field, tvb, curr_offset, num_string_len, ENC_KEYPAD_ABC_TBCD, pinfo->pool, extracted_address);
 
     /* Check for an end mark, which gets mapped to '?' */
     if(strchr(*extracted_address,'?')){
@@ -2325,8 +2325,8 @@ de_sub_addr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset,
         if (afi == 0x50)
         {
             ia5_string_len = len - (curr_offset - offset);
-            ia5_string = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, curr_offset, ia5_string_len);
-            *extracted_address = (gchar *)wmem_alloc(wmem_packet_scope(), ia5_string_len + 1);
+            ia5_string = (guint8 *)tvb_memdup(pinfo->pool, tvb, curr_offset, ia5_string_len);
+            *extracted_address = (gchar *)wmem_alloc(pinfo->pool, ia5_string_len + 1);
 
             invalid_ia5_char = FALSE;
             for(i = 0; i < ia5_string_len; i++)

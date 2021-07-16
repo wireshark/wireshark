@@ -450,11 +450,11 @@ dissect_papi_license_manager(tvbuff_t *tvb, packet_info *pinfo, guint offset, pr
             break;
             case 2: /* Serial Number */
                 proto_tree_add_item(licmgr_subtree, hf_papi_licmgr_serial_number, tvb, offset, 32, ENC_ASCII|ENC_NA);
-                proto_item_append_text(tlv_item, ": %s", tvb_get_string_enc(wmem_packet_scope(),tvb, offset, optlen, ENC_ASCII));
+                proto_item_append_text(tlv_item, ": %s", tvb_get_string_enc(pinfo->pool,tvb, offset, optlen, ENC_ASCII));
             break;
             case 3: /* Hostname */
                 proto_tree_add_item(licmgr_subtree, hf_papi_licmgr_hostname, tvb, offset, optlen, ENC_ASCII|ENC_NA);
-                proto_item_append_text(tlv_item, ": %s", tvb_get_string_enc(wmem_packet_scope(),tvb, offset, optlen, ENC_ASCII));
+                proto_item_append_text(tlv_item, ": %s", tvb_get_string_enc(pinfo->pool,tvb, offset, optlen, ENC_ASCII));
             break;
             case 5: /* MAC Address */
                 proto_tree_add_item(licmgr_subtree, hf_papi_licmgr_mac_address, tvb, offset, optlen, ENC_NA);

@@ -427,7 +427,7 @@ display_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree, ajp13_con
 
         proto_tree_add_string_format(ajp13_tree, *rsp_headers[hcd],
                                 tvb, hpos, hname_len+2+hval_len+2,
-                                wmem_strdup_printf(wmem_packet_scope(), "%s: %s", hname, hval),
+                                wmem_strdup_printf(pinfo->pool, "%s: %s", hname, hval),
                                 "%s: %s", hname, hval);
         pos+=hval_len+2;
       }
@@ -678,7 +678,7 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
 
       proto_tree_add_string_format(ajp13_tree, *req_headers[hcd],
                                      tvb, hpos, hname_len+2+hval_len+2,
-                                     wmem_strdup_printf(wmem_packet_scope(), "%s: %s", hname, hval),
+                                     wmem_strdup_printf(pinfo->pool, "%s: %s", hname, hval),
                                      "%s: %s", hname, hval);
       pos+=hval_len+2;
     }
@@ -714,7 +714,7 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
 
       proto_tree_add_string_format(ajp13_tree, hf_ajp13_req_attribute,
                                      tvb, apos, 1+aname_len+2+aval_len+2,
-                                     wmem_strdup_printf(wmem_packet_scope(), "%s: %s", aname, aval),
+                                     wmem_strdup_printf(pinfo->pool, "%s: %s", aname, aval),
                                      "%s: %s", aname, aval);
     } else if (aid == 0x0B ) {
       /* ssl_key_length */

@@ -838,7 +838,7 @@ dissect_eigrp_seq_tlv (proto_tree *tree, tvbuff_t *tvb,
         case 10:
             /* IPX */
             proto_tree_add_bytes_format_value(tree, hf_eigrp_ipx_address, tvb, offset, addr_len, NULL,
-                                "IPX Address: %s", tvb_address_to_str(wmem_packet_scope(), tvb, AT_IPX, 1));
+                                "IPX Address: %s", tvb_address_to_str(pinfo->pool, tvb, AT_IPX, 1));
             break;
         case 16:
             /* IPv6 */
@@ -1121,7 +1121,7 @@ dissect_eigrp_ipv4_addrs (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
 
             /* add it to the top level line */
             proto_item_append_text(ti,"  %c   %s/%u", first ? '=':',',
-                                   address_to_str(wmem_packet_scope(), &addr), length);
+                                   address_to_str(pinfo->pool, &addr), length);
 
             if (unreachable) {
                 expert_add_info(pinfo, ti_dst, &ei_eigrp_unreachable);
@@ -1178,7 +1178,7 @@ dissect_eigrp_ipv6_addrs (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
 
             /* add it to the top level line */
             proto_item_append_text(ti,"  %c   %s/%u", first ? '=':',',
-                                   address_to_str(wmem_packet_scope(), &addr_str), length);
+                                   address_to_str(pinfo->pool, &addr_str), length);
 
             if (unreachable) {
                 expert_add_info(pinfo, ti_dst, &ei_eigrp_unreachable);
@@ -1212,7 +1212,7 @@ dissect_eigrp_ipx_addrs (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
                                  ENC_NA);
 
     /* add it to the top level line */
-    proto_item_append_text(ti,"  =   %s", ipxnet_to_str_punct(wmem_packet_scope(), tvb_get_ntohl(tvb, offset), ' '));
+    proto_item_append_text(ti,"  =   %s", ipxnet_to_str_punct(pinfo->pool, tvb_get_ntohl(tvb, offset), ' '));
 
     if (unreachable) {
         expert_add_info(pinfo, ti_dst, &ei_eigrp_unreachable);
@@ -1359,7 +1359,7 @@ dissect_eigrp_services (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
              * followed by a '<'), try XML. Otherwise, try plain-text.
              */
             xml_tvb = tvb_new_subset_length(sub_tvb, sub_offset, length);
-            test_string = tvb_get_string_enc(wmem_packet_scope(), xml_tvb, 0, (length < 32 ?
+            test_string = tvb_get_string_enc(pinfo->pool, xml_tvb, 0, (length < 32 ?
                                                                 length : 32), ENC_ASCII);
             tok = strtok(test_string, " \t\r\n");
 

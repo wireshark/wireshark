@@ -355,7 +355,7 @@ dissect_ipa(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_udp
 						next_tvb, 0, len, ENC_ASCII|ENC_NA);
 			if (global_ipa_in_info == TRUE)
 				col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
-						tvb_get_stringz_enc(wmem_packet_scope(), next_tvb, 0, NULL, ENC_ASCII));
+						tvb_get_stringz_enc(pinfo->pool, next_tvb, 0, NULL, ENC_ASCII));
 			break;
 		default:
 			if (msg_type < ABISIP_RSL_MAX) {

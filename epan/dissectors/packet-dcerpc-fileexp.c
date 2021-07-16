@@ -554,7 +554,7 @@ typedef [string] byte   NameString_t[AFS_NAMEMAX];
   col_append_fstr (pinfo->cinfo, COL_INFO, " String_size:%u", string_size);
   if (string_size < AFS_NAMEMAX)
     {
-      proto_tree_add_item_ret_string(tree, hf_fileexp_afsNameString_t_principalName_string, tvb, offset, string_size, ENC_ASCII|ENC_NA, wmem_packet_scope(), &namestring);
+      proto_tree_add_item_ret_string(tree, hf_fileexp_afsNameString_t_principalName_string, tvb, offset, string_size, ENC_ASCII|ENC_NA, pinfo->pool, &namestring);
       offset += string_size;
       col_append_fstr (pinfo->cinfo, COL_INFO, " Principal:%s", namestring);
     }
@@ -722,7 +722,7 @@ dissect_afsTaggedPath (tvbuff_t *tvb, int offset,
                         hf_fileexp_afsTaggedPath_tp_length, &tp_length);
   proto_tree_add_item (tree, hf_fileexp_afsTaggedPath_tp_chars, tvb, offset,
                        tp_length, ENC_ASCII|ENC_NA);
-  tp_chars = tvb_get_string_enc (wmem_packet_scope(), tvb, offset, 1025, ENC_ASCII);
+  tp_chars = tvb_get_string_enc (pinfo->pool, tvb, offset, 1025, ENC_ASCII);
   offset += 1025;
   col_append_fstr (pinfo->cinfo, COL_INFO, " :tp_chars %s", tp_chars);
 
@@ -1264,7 +1264,7 @@ dissect_afstaggedname (tvbuff_t *tvb, int offset,
     {
       proto_tree_add_item (tree, hf_fileexp_tn_string, tvb, offset,
                              tn_length, ENC_ASCII|ENC_NA);
-      tn_string = tvb_get_string_enc (wmem_packet_scope(), tvb, offset, 257, ENC_ASCII);
+      tn_string = tvb_get_string_enc (pinfo->pool, tvb, offset, 257, ENC_ASCII);
       offset += 257;
         col_append_fstr (pinfo->cinfo, COL_INFO, " :tn_tag: %s", tn_string);
     }

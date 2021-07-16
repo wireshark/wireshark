@@ -220,7 +220,7 @@ dissect_imap_fetch(tvbuff_t *tvb, packet_info *pinfo,
         {
           //Have a size field, convert it to an integer to see how long the contents are
           guint32 size = 0;
-          const gchar* size_str = (const gchar *)tvb_get_string_enc(wmem_packet_scope(), tvb, size_start + 1, size_end - size_start - 1, ENC_ASCII);
+          const gchar* size_str = (const gchar *)tvb_get_string_enc(pinfo->pool, tvb, size_start + 1, size_end - size_start - 1, ENC_ASCII);
           if (ws_strtou32(size_str, NULL, &size))
           {
             int remaining = tvb_reported_length_remaining(tvb, size_end + size);
@@ -407,7 +407,7 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         next_pattern = tvb_ws_mempbrk_pattern_guint8(tvb, start_offset, next_offset - start_offset, &pbrk_whitespace, NULL);
         if (next_pattern > start_offset)
         {
-          tokens[token_count].token = tvb_get_string_enc(wmem_packet_scope(), tvb, start_offset, next_pattern-start_offset, ENC_ASCII);
+          tokens[token_count].token = tvb_get_string_enc(pinfo->pool, tvb, start_offset, next_pattern-start_offset, ENC_ASCII);
           tokens[token_count].token_start_offset = start_offset;
           tokens[token_count].token_end_offset = next_pattern;
           token_count++;
@@ -471,8 +471,8 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
        */
       tokenlen = tvb_get_token_len(tvb, offset, linelen, &next_token, FALSE);
       if (tokenlen != 0) {
-        const char* tag = (const char*)tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tokenlen, ENC_ASCII);
-        request_key.tag = wmem_ascii_strdown(wmem_packet_scope(), tag, strlen(tag));
+        const char* tag = (const char*)tvb_get_string_enc(pinfo->pool, tvb, offset, tokenlen, ENC_ASCII);
+        request_key.tag = wmem_ascii_strdown(pinfo->pool, tag, strlen(tag));
 
         proto_tree_add_string(reqresp_tree, (is_request) ? hf_imap_request_tag : hf_imap_response_tag, tvb, offset, tokenlen, tag);
         hidden_item = proto_tree_add_string(reqresp_tree, hf_imap_tag, tvb, offset, tokenlen, tag);
@@ -489,8 +489,8 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
       tokenlen = tvb_get_token_len(tvb, offset, linelen, &next_token, FALSE);
       if (tokenlen != 0) {
 
-        tokenbuf = (const char*)tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tokenlen, ENC_ASCII);
-        tokenbuf = wmem_ascii_strdown(wmem_packet_scope(), tokenbuf, tokenlen);
+        tokenbuf = (const char*)tvb_get_string_enc(pinfo->pool, tvb, offset, tokenlen, ENC_ASCII);
+        tokenbuf = wmem_ascii_strdown(pinfo->pool, tokenbuf, tokenlen);
 
         if (is_request && !tvb_strncaseeql(tvb, offset, "UID", tokenlen)) {
           proto_tree_add_item(reqresp_tree, hf_imap_request_uid, tvb, offset, tokenlen, ENC_ASCII|ENC_NA);
@@ -510,8 +510,8 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
              * Save command string to do specialized processing.
              */
             commandlen = uid_tokenlen;
-            command_token = (const char*)tvb_get_string_enc(wmem_packet_scope(), tvb, next_token, commandlen, ENC_ASCII);
-            command_token = wmem_ascii_strdown(wmem_packet_scope(), command_token, commandlen);
+            command_token = (const char*)tvb_get_string_enc(pinfo->pool, tvb, next_token, commandlen, ENC_ASCII);
+            command_token = wmem_ascii_strdown(pinfo->pool, command_token, commandlen);
 
             folderlen = linelen - (uid_next_token - offset);
             folder_offset = uid_next_token;
@@ -530,8 +530,8 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
              * Save command string to do specialized processing.
              */
             commandlen = tokenlen;
-            command_token = (const char*)tvb_get_string_enc(wmem_packet_scope(), tvb, offset, commandlen, ENC_ASCII);
-            command_token = wmem_ascii_strdown(wmem_packet_scope(), command_token, commandlen);
+            command_token = (const char*)tvb_get_string_enc(pinfo->pool, tvb, offset, commandlen, ENC_ASCII);
+            command_token = wmem_ascii_strdown(pinfo->pool, command_token, commandlen);
 
             folderlen = linelen - (next_token - offset);
             folder_offset = next_token;
@@ -579,16 +579,16 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
             int username_offset = next_token;
             int username_next_token;
             int username_tokenlen = tvb_get_token_len(tvb, next_token, usernamelen, &username_next_token, FALSE);
-            char *username = (char*)tvb_get_string_enc(wmem_packet_scope(), tvb, username_offset, username_tokenlen, ENC_ASCII | ENC_NA);
+            char *username = (char*)tvb_get_string_enc(pinfo->pool, tvb, username_offset, username_tokenlen, ENC_ASCII | ENC_NA);
             proto_tree_add_string(reqresp_tree, hf_imap_request_username, tvb, username_offset, username_tokenlen, username);
 
             int passwordlen = linelen - (username_next_token - offset);
             int password_offset = username_next_token;
             int password_tokenlen = tvb_get_token_len(tvb, username_next_token, passwordlen, NULL, FALSE);
-            const char* password = tvb_get_string_enc(wmem_packet_scope(), tvb, password_offset + 1, password_tokenlen - 2, ENC_ASCII | ENC_NA);
+            const char* password = tvb_get_string_enc(pinfo->pool, tvb, password_offset + 1, password_tokenlen - 2, ENC_ASCII | ENC_NA);
             proto_tree_add_string(reqresp_tree, hf_imap_request_password, tvb, password_offset, password_tokenlen, password);
 
-            tap_credential_t* auth = wmem_new0(wmem_packet_scope(), tap_credential_t);
+            tap_credential_t* auth = wmem_new0(pinfo->pool, tap_credential_t);
             auth->num = auth->username_num = pinfo->num;
             auth->password_hf_id = hf_imap_request_password;
             auth->username = username;

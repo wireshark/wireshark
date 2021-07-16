@@ -1080,7 +1080,7 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 		ti = proto_tree_add_bytes_format(cat_tree, hf_cat_tlv, tvb, pos,
 					    len, ptr, "%s: %s",
 					    val_to_str_ext(tag, &comp_tlv_tag_vals_ext, "%02x"),
-					    (len > 0) ? tvb_bytes_to_str(wmem_packet_scope(), tvb, pos, len) : "");
+					    (len > 0) ? tvb_bytes_to_str(pinfo->pool, tvb, pos, len) : "");
 #else
 		ti = proto_tree_add_bytes_format(cat_tree, hf_cat_tlv, tvb, pos,
 					    len, ptr, "%s:   ",
@@ -1507,7 +1507,7 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 			break;
 		case 0x78:	/* NMEA sentence / IMS Status-Code */
 			if (ims_event) {
-				guint8 *status_code = tvb_get_string_enc(wmem_packet_scope(), tvb, pos, len, ENC_ASCII);
+				guint8 *status_code = tvb_get_string_enc(pinfo->pool, tvb, pos, len, ENC_ASCII);
 				proto_tree_add_string_format_value(elem_tree, hf_ctlv_ims_status_code, tvb, pos, len,
 					status_code, "%s (%s)", status_code, str_to_str(status_code, ims_status_code, "Unknown"));
 			}

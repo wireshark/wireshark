@@ -324,12 +324,12 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 		ipx_tree = proto_item_add_subtree(ti, ett_ipx);
 	}
 
-	str=address_to_str(wmem_packet_scope(), &pinfo->net_src);
+	str=address_to_str(pinfo->pool, &pinfo->net_src);
 	hidden_item = proto_tree_add_string(ipx_tree, hf_ipx_src, tvb, 0, 0, str);
 	proto_item_set_hidden(hidden_item);
 	hidden_item = proto_tree_add_string(ipx_tree, hf_ipx_addr, tvb, 0, 0, str);
 	proto_item_set_hidden(hidden_item);
-	str=address_to_str(wmem_packet_scope(), &pinfo->net_dst);
+	str=address_to_str(pinfo->pool, &pinfo->net_dst);
 	hidden_item = proto_tree_add_string(ipx_tree, hf_ipx_dst, tvb, 0, 0, str);
 	proto_item_set_hidden(hidden_item);
 	hidden_item = proto_tree_add_string(ipx_tree, hf_ipx_addr, tvb, 0, 0, str);
@@ -944,7 +944,7 @@ dissect_serialization(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
 	}
 
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Serial number %s",
-		    tvb_bytes_to_str(wmem_packet_scope(), tvb, 0, 6));
+		    tvb_bytes_to_str(pinfo->pool, tvb, 0, 6));
 
 	proto_tree_add_item(ser_tree, hf_serial_number, tvb, 0, 6, ENC_NA);
 	return tvb_captured_length(tvb);
@@ -1247,7 +1247,7 @@ dissect_ipxsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 				s_tree = proto_item_add_subtree(ti, ett_ipxsap_server);
 
 				proto_tree_add_item(s_tree, hf_sap_server_type, tvb, cursor, 2, ENC_BIG_ENDIAN);
-				proto_tree_add_item_ret_string(s_tree, hf_sap_server_name, tvb, cursor+2, 48, ENC_ASCII|ENC_NA, wmem_packet_scope(), &server_name);
+				proto_tree_add_item_ret_string(s_tree, hf_sap_server_name, tvb, cursor+2, 48, ENC_ASCII|ENC_NA, pinfo->pool, &server_name);
 				proto_item_append_text(ti, ": %s", server_name);
 				proto_tree_add_item(s_tree, hf_sap_server_network, tvb, cursor+50, 4, ENC_NA);
 				proto_tree_add_item(s_tree, hf_sap_server_node, tvb, cursor+54, 6, ENC_NA);

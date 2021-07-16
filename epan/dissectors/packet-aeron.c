@@ -872,22 +872,22 @@ static aeron_conversation_info_t * aeron_setup_conversation_info(const packet_in
     aeron_conversation_info_t * cinfo;
     int addr_len = pinfo->dst.len;
 
-    cinfo = wmem_new0(wmem_packet_scope(), aeron_conversation_info_t);
+    cinfo = wmem_new0(pinfo->pool, aeron_conversation_info_t);
     switch (pinfo->dst.type)
     {
         case AT_IPv4:
             {
                 const guint8 * dst_addr = (const guint8 *) pinfo->dst.data;
 
-                cinfo->addr1 = wmem_new0(wmem_packet_scope(), address);
-                cinfo->addr2 = wmem_new0(wmem_packet_scope(), address);
+                cinfo->addr1 = wmem_new0(pinfo->pool, address);
+                cinfo->addr2 = wmem_new0(pinfo->pool, address);
                 if (aeron_is_address_multicast(&(pinfo->dst)))
                 {
                     guint8 * addr1;
                     guint8 * addr2;
 
-                    addr1 = (guint8 *) wmem_memdup(wmem_packet_scope(), (const void *) dst_addr, (size_t) addr_len);
-                    addr2 = (guint8 *) wmem_memdup(wmem_packet_scope(), (const void *) dst_addr, (size_t) addr_len);
+                    addr1 = (guint8 *) wmem_memdup(pinfo->pool, (const void *) dst_addr, (size_t) addr_len);
+                    addr2 = (guint8 *) wmem_memdup(pinfo->pool, (const void *) dst_addr, (size_t) addr_len);
                     if ((dst_addr[addr_len - 1] & 0x1) != 0)
                     {
                         /* Address is odd, so it's the data group (in addr2). Increment the last byte of addr1 for the control group. */
@@ -912,17 +912,17 @@ static aeron_conversation_info_t * aeron_setup_conversation_info(const packet_in
                         case HDR_TYPE_SETUP:
                         case HDR_TYPE_RTT:
                             /* Destination is a receiver */
-                            copy_address_wmem(wmem_packet_scope(), cinfo->addr1, &(pinfo->src));
+                            copy_address_wmem(pinfo->pool, cinfo->addr1, &(pinfo->src));
                             cinfo->port1 = pinfo->srcport;
-                            copy_address_wmem(wmem_packet_scope(), cinfo->addr2, &(pinfo->dst));
+                            copy_address_wmem(pinfo->pool, cinfo->addr2, &(pinfo->dst));
                             cinfo->port2 = pinfo->destport;
                             break;
                         case HDR_TYPE_NAK:
                         case HDR_TYPE_SM:
                             /* Destination is the source */
-                            copy_address_wmem(wmem_packet_scope(), cinfo->addr1, &(pinfo->dst));
+                            copy_address_wmem(pinfo->pool, cinfo->addr1, &(pinfo->dst));
                             cinfo->port1 = pinfo->destport;
-                            copy_address_wmem(wmem_packet_scope(), cinfo->addr2, &(pinfo->src));
+                            copy_address_wmem(pinfo->pool, cinfo->addr2, &(pinfo->src));
                             cinfo->port2 = pinfo->srcport;
                             break;
                         default:
@@ -935,15 +935,15 @@ static aeron_conversation_info_t * aeron_setup_conversation_info(const packet_in
             {
                 const guint8 * dst_addr = (const guint8 *) pinfo->dst.data;
 
-                cinfo->addr1 = wmem_new0(wmem_packet_scope(), address);
-                cinfo->addr2 = wmem_new0(wmem_packet_scope(), address);
+                cinfo->addr1 = wmem_new0(pinfo->pool, address);
+                cinfo->addr2 = wmem_new0(pinfo->pool, address);
                 if (aeron_is_address_multicast(&(pinfo->dst)))
                 {
                     guint8 * addr1;
                     guint8 * addr2;
 
-                    addr1 = (guint8 *) wmem_memdup(wmem_packet_scope(), (const void *) dst_addr, (size_t) addr_len);
-                    addr2 = (guint8 *) wmem_memdup(wmem_packet_scope(), (const void *) dst_addr, (size_t) addr_len);
+                    addr1 = (guint8 *) wmem_memdup(pinfo->pool, (const void *) dst_addr, (size_t) addr_len);
+                    addr2 = (guint8 *) wmem_memdup(pinfo->pool, (const void *) dst_addr, (size_t) addr_len);
                     if ((dst_addr[addr_len - 1] & 0x1) != 0)
                     {
                         /* Address is odd, so it's the data group (in addr2). Increment the last byte of addr1 for the control group. */
@@ -968,17 +968,17 @@ static aeron_conversation_info_t * aeron_setup_conversation_info(const packet_in
                         case HDR_TYPE_SETUP:
                         case HDR_TYPE_RTT:
                             /* Destination is a receiver */
-                            copy_address_wmem(wmem_packet_scope(), cinfo->addr1, &(pinfo->src));
+                            copy_address_wmem(pinfo->pool, cinfo->addr1, &(pinfo->src));
                             cinfo->port1 = pinfo->srcport;
-                            copy_address_wmem(wmem_packet_scope(), cinfo->addr2, &(pinfo->dst));
+                            copy_address_wmem(pinfo->pool, cinfo->addr2, &(pinfo->dst));
                             cinfo->port2 = pinfo->destport;
                             break;
                         case HDR_TYPE_NAK:
                         case HDR_TYPE_SM:
                             /* Destination is the source */
-                            copy_address_wmem(wmem_packet_scope(), cinfo->addr1, &(pinfo->dst));
+                            copy_address_wmem(pinfo->pool, cinfo->addr1, &(pinfo->dst));
                             cinfo->port1 = pinfo->destport;
-                            copy_address_wmem(wmem_packet_scope(), cinfo->addr2, &(pinfo->src));
+                            copy_address_wmem(pinfo->pool, cinfo->addr2, &(pinfo->src));
                             cinfo->port2 = pinfo->srcport;
                             break;
                         default:

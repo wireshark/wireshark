@@ -647,14 +647,14 @@ GMR1_IE_FUNC(gmr1_ie_rr_pos_display)
 	/* Do not use tvb_new_octet_aligned(), GSM 7bit packing bit parsing
 	   goes from LSB to MSB so a trick is applied here for the last byte */
 	txt_raw = tvb_get_ptr(tvb, offset, 11);
-	txt_packed = (gchar*)wmem_alloc(wmem_packet_scope(), 11);
+	txt_packed = (gchar*)wmem_alloc(pinfo->pool, 11);
 	for (i=0; i<10; i++)
 		txt_packed[i] = (txt_raw[i] << 4) | (txt_raw[i+1] >> 4);
 	txt_packed[10] = txt_raw[10];
 	txt_packed_tvb = tvb_new_real_data(txt_packed, 11, 11);
 
 	/* Unpack text */
-	txt_unpacked = tvb_get_ts_23_038_7bits_string_packed(wmem_packet_scope(), txt_packed_tvb, 0, 12);
+	txt_unpacked = tvb_get_ts_23_038_7bits_string_packed(pinfo->pool, txt_packed_tvb, 0, 12);
 	tvb_free(txt_packed_tvb);
 
 	/* Display it */

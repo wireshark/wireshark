@@ -289,7 +289,7 @@ dissect_osmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
         guint8 i;
         guint32 size, temp;
 
-        osmuxh = wmem_new0(wmem_packet_scope(), struct osmux_hdr);
+        osmuxh = wmem_new0(pinfo->pool, struct osmux_hdr);
 
         ft_ctr = tvb_get_guint8(tvb, offset);
 

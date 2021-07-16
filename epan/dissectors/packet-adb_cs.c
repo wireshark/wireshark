@@ -158,7 +158,7 @@ dissect_adb_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
             adb_service_data.direction = direction;
 
             adb_service_data.session_key_length = 3;
-            adb_service_data.session_key = (guint32 *) wmem_alloc(wmem_packet_scope(), adb_service_data.session_key_length * sizeof(guint32));
+            adb_service_data.session_key = (guint32 *) wmem_alloc(pinfo->pool, adb_service_data.session_key_length * sizeof(guint32));
             adb_service_data.session_key[0] = wireshark_interface_id;
             adb_service_data.session_key[1] = pinfo->destport;
             adb_service_data.session_key[2] = pinfo->srcport;
@@ -238,7 +238,7 @@ dissect_adb_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         } else if (tvb_reported_length_remaining(tvb, offset) > 0) {
             proto_tree_add_item(main_tree, hf_service, tvb, offset, -1, ENC_NA | ENC_ASCII);
 
-            service = (gchar *) tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_ASCII);
+            service = (gchar *) tvb_get_string_enc(pinfo->pool, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_ASCII);
             col_append_fstr(pinfo->cinfo, COL_INFO, " Service=<%s>", service);
         }
 
@@ -319,7 +319,7 @@ dissect_adb_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         if (status == STATUS_FAIL) {
             const guint8* str;
             sub_item = proto_tree_add_item_ret_string(main_tree, hf_fail_reason, tvb, offset,
-                            tvb_reported_length_remaining(tvb, offset), ENC_NA | ENC_ASCII, wmem_packet_scope(), &str);
+                            tvb_reported_length_remaining(tvb, offset), ENC_NA | ENC_ASCII, pinfo->pool, &str);
             if (length < tvb_reported_length_remaining(tvb, offset)) {
                 expert_add_info(pinfo, sub_item, &ei_incomplete_message);
             }
@@ -333,7 +333,7 @@ dissect_adb_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         adb_service_data.direction = direction;
 
         adb_service_data.session_key_length = 3;
-        adb_service_data.session_key = (guint32 *) wmem_alloc(wmem_packet_scope(), adb_service_data.session_key_length * sizeof(guint32));
+        adb_service_data.session_key = (guint32 *) wmem_alloc(pinfo->pool, adb_service_data.session_key_length * sizeof(guint32));
         adb_service_data.session_key[0] = wireshark_interface_id;
         adb_service_data.session_key[1] = pinfo->destport;
         adb_service_data.session_key[2] = pinfo->srcport;

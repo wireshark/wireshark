@@ -126,7 +126,7 @@ dissect_distcc_argv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
      * it being some flavor of "extended ASCII"; these days, it's
      * *probably* UTF-8, but it could conceivably be something else.
      */
-    ti = proto_tree_add_item_ret_display_string(tree, hf_distcc_argv, tvb, offset, len, ENC_ASCII|ENC_NA, wmem_packet_scope(), &argv);
+    ti = proto_tree_add_item_ret_display_string(tree, hf_distcc_argv, tvb, offset, len, ENC_ASCII|ENC_NA, pinfo->pool, &argv);
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", argv);
 
@@ -153,7 +153,7 @@ dissect_distcc_serr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
      * it being some flavor of "extended ASCII"; these days, it's
      * *probably* UTF-8, but it could conceivably be something else.
      */
-    ti = proto_tree_add_item_ret_display_string(tree, hf_distcc_serr, tvb, offset, len, ENC_ASCII|ENC_NA, wmem_packet_scope(), &serr);
+    ti = proto_tree_add_item_ret_display_string(tree, hf_distcc_serr, tvb, offset, len, ENC_ASCII|ENC_NA, pinfo->pool, &serr);
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "SERR:%s ", serr);
 
@@ -180,7 +180,7 @@ dissect_distcc_sout(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
      * it being some flavor of "extended ASCII"; these days, it's
      * *probably* UTF-8, but it could conceivably be something else.
      */
-    ti = proto_tree_add_item_ret_display_string(tree, hf_distcc_sout, tvb, offset, len, ENC_ASCII|ENC_NA, wmem_packet_scope(), &sout);
+    ti = proto_tree_add_item_ret_display_string(tree, hf_distcc_sout, tvb, offset, len, ENC_ASCII|ENC_NA, pinfo->pool, &sout);
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "SOUT:%s ", sout);
 

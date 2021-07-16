@@ -827,7 +827,7 @@ dissect_hl7_segment(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_,
         /* process the field (the 1st one generate a node in the tree view) */
         if (field_num == 1) {
             char *segment_type_id = NULL;
-            segment_type_id = tvb_get_string_enc(wmem_packet_scope(),
+            segment_type_id = tvb_get_string_enc(pinfo->pool,
                                                  tvb, offset, 3, ENC_ASCII);
             ti = proto_tree_add_item(tree, hf_hl7_segment,
                                      tvb, offset, segment_len_crlf,
@@ -841,7 +841,7 @@ dissect_hl7_segment(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_,
                                     segment_len_crlf, ENC_ASCII|ENC_NA);
             }
         }
-        field_str = tvb_get_string_enc(wmem_packet_scope(),
+        field_str = tvb_get_string_enc(pinfo->pool,
                                        tvb, offset, field_len, ENC_ASCII);
         ti = proto_tree_add_item(segment_tree, hf_hl7_field,
                                  tvb, offset, field_len, ENC_ASCII|ENC_NA);

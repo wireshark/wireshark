@@ -1262,7 +1262,7 @@ dissect_lsp_ext_ip_reachability_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tre
                             ett_isis_lsp_part_of_clv_ext_ip_reachability, &ti_subtree, "Ext. IP Reachability");
 
         set_address(&prefix_addr, AT_IPv4, 4, &prefix);
-        prefix_str = address_to_str(wmem_packet_scope(), &prefix_addr);
+        prefix_str = address_to_str(pinfo->pool, &prefix_addr);
         proto_item_append_text(ti_subtree, ": %s/%u", prefix_str, bit_length);
 
         proto_tree_add_item(subtree, hf_isis_lsp_ext_ip_reachability_metric, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -2006,7 +2006,7 @@ dissect_lsp_ipv6_reachability_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree 
             ett_isis_lsp_part_of_clv_ipv6_reachability, &ti_subtree, "IPv6 Reachability");
 
         set_address(&prefix_addr, AT_IPv6, 16, prefix.bytes);
-        prefix_str = address_to_str(wmem_packet_scope(), &prefix_addr);
+        prefix_str = address_to_str(pinfo->pool, &prefix_addr);
         proto_item_append_text(ti_subtree, ": %s/%u", prefix_str, bit_length);
 
         proto_tree_add_item(subtree, hf_isis_lsp_ipv6_reachability_metric, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -4148,8 +4148,8 @@ dissect_lsp_avaya_ipvpn(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *tree,
                 offset += 4;
                 ti_pfxlen = proto_tree_add_item(subtlvtree, hf_isis_lsp_avaya_ipvpn_ipv4_mask, tvb, offset, 4, ENC_BIG_ENDIAN);
                 offset += 4;
-                proto_item_append_text(ti, ": %s/%s", proto_item_get_display_repr(wmem_packet_scope(), ti_prefix),
-                                                  proto_item_get_display_repr(wmem_packet_scope(), ti_pfxlen));
+                proto_item_append_text(ti, ": %s/%s", proto_item_get_display_repr(pinfo->pool, ti_prefix),
+                                                  proto_item_get_display_repr(pinfo->pool, ti_pfxlen));
             }
             break;
         case 236: /* IPv6 */
@@ -4164,8 +4164,8 @@ dissect_lsp_avaya_ipvpn(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *tree,
                 offset += 2;
                 ti_prefix = proto_tree_add_item(subtlvtree, hf_isis_lsp_avaya_ipvpn_ipv6_prefix, tvb, offset, 16, ENC_NA);
                 offset += 16;
-                proto_item_append_text(ti, ": %s/%s", proto_item_get_display_repr(wmem_packet_scope(), ti_prefix),
-                                                  proto_item_get_display_repr(wmem_packet_scope(), ti_pfxlen));
+                proto_item_append_text(ti, ": %s/%s", proto_item_get_display_repr(pinfo->pool, ti_prefix),
+                                                  proto_item_get_display_repr(pinfo->pool, ti_pfxlen));
             }
             break;
         default:

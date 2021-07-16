@@ -2860,7 +2860,7 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 		return tvb_captured_length(tvb);
 	}
 
-	data = tvb_memdup(wmem_packet_scope(), tvb, 0, length);
+	data = tvb_memdup(pinfo->pool, tvb, 0, length);
 
 	if (ieee80211_radiotap_iterator_init(&iter, (struct ieee80211_radiotap_header *)data, length, NULL)) {
 		if (tree)

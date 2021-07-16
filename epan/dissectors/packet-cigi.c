@@ -2625,14 +2625,14 @@ dissect_cigi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     /* Format the Info String */
-    src_str = address_to_str(wmem_packet_scope(), &pinfo->src);
+    src_str = address_to_str(pinfo->pool, &pinfo->src);
     if ( !g_ascii_strcasecmp(global_host_ip, src_str) ) {
         src_str = "Host";
     } else if ( !g_ascii_strcasecmp(global_ig_ip, src_str) ) {
         src_str = "IG";
     }
 
-    dest_str = address_to_str(wmem_packet_scope(), &pinfo->dst);
+    dest_str = address_to_str(pinfo->pool, &pinfo->dst);
     if ( !g_ascii_strcasecmp(global_host_ip, dest_str) ) {
         dest_str = "Host";
     } else if ( !g_ascii_strcasecmp(global_ig_ip, dest_str) ) {

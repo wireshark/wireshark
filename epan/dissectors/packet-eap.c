@@ -669,7 +669,7 @@ dissect_exteap(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
   guint32    vendor_type;
   eap_vendor_context *vendor_context;
 
-  vendor_context = wmem_new(wmem_packet_scope(), eap_vendor_context);
+  vendor_context = wmem_new(pinfo->pool, eap_vendor_context);
 
   proto_tree_add_item_ret_uint(eap_tree, hf_eap_ext_vendor_id, tvb, offset, 3, ENC_BIG_ENDIAN, &vendor_id);
   offset += 3;
@@ -815,7 +815,7 @@ dissect_eap_identity_wlan(tvbuff_t *tvb, packet_info* pinfo, proto_tree* tree, i
   int         hf_eap_identity_mcc_mnc;
   proto_item* item;
 
-  identity = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, size, ENC_ASCII);
+  identity = tvb_get_string_enc(pinfo->pool, tvb, offset, size, ENC_ASCII);
 
   /* Split the Identity and the NAI Realm first */
   tokens = g_strsplit_set(identity, "@", -1);

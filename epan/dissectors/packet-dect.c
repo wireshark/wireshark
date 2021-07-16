@@ -1347,7 +1347,7 @@ dissect_bfield(gboolean dect_packet_type _U_, guint8 ba,
 				 * the range of all possible descramblings. (a.schuler)
 				 */
 				wmem_strbuf_t *string;
-				string = wmem_strbuf_new(wmem_packet_scope(), NULL);
+				string = wmem_strbuf_new(pinfo->pool, NULL);
 				for(y=0;y<16;y++)
 				{
 					if((x+y)>=blen)
@@ -1405,7 +1405,7 @@ dissect_afield(gboolean dect_packet_type, guint8 *ba,
 	guint8	header, tail_0, tail_1, tail_2, tail_3, tail_4;
 	guint16	rcrc;
 
-	afield_str = wmem_strbuf_new(wmem_packet_scope(), NULL);
+	afield_str = wmem_strbuf_new(pinfo->pool, NULL);
 
 	/************************** A-Field ***********************************/
 
@@ -1465,9 +1465,9 @@ dissect_afield(gboolean dect_packet_type, guint8 *ba,
 		proto_tree_add_string(ColumnsTree, hf_dect_cc_TA, tvb, offset, 1, "[Ct]");
 
 		if(ta==DECT_TA_CT0)
-			wmem_strbuf_append_printf(afield_str,"C-Channel Next  Data: %s",tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, 5));
+			wmem_strbuf_append_printf(afield_str,"C-Channel Next  Data: %s",tvb_bytes_to_str(pinfo->pool, tvb, offset, 5));
 		else
-			wmem_strbuf_append_printf(afield_str,"C-Channel First Data: %s",tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, 5));
+			wmem_strbuf_append_printf(afield_str,"C-Channel First Data: %s",tvb_bytes_to_str(pinfo->pool, tvb, offset, 5));
 
 		proto_tree_add_string(ColumnsTree, hf_dect_cc_AField, tvb, offset, 1, wmem_strbuf_get_str(afield_str));
 	}
@@ -1476,7 +1476,7 @@ dissect_afield(gboolean dect_packet_type, guint8 *ba,
 		/* ETSI EN 300 175-3 V2.3.0  7.2.2 */
 		proto_tree_add_string(ColumnsTree, hf_dect_cc_TA, tvb, offset, 1, "[Nt]");
 
-		wmem_strbuf_append_printf(afield_str,"RFPI: %s",tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, 5));
+		wmem_strbuf_append_printf(afield_str,"RFPI: %s",tvb_bytes_to_str(pinfo->pool, tvb, offset, 5));
 		proto_tree_add_string(ColumnsTree, hf_dect_cc_AField, tvb, offset, 1, wmem_strbuf_get_str(afield_str));
 
 		proto_tree_add_item(atailti, hf_dect_A_Tail_Nt, tvb, offset, 5, ENC_NA);
@@ -1659,7 +1659,7 @@ dissect_afield(gboolean dect_packet_type, guint8 *ba,
 			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_6_Spare, tvb, offset, 2, ENC_BIG_ENDIAN);
 			offset+=2;
 
-			wmem_strbuf_append_printf(afield_str,"Multi-Frame No.: %s",tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, 3));
+			wmem_strbuf_append_printf(afield_str,"Multi-Frame No.: %s",tvb_bytes_to_str(pinfo->pool, tvb, offset, 3));
 			proto_tree_add_string(ColumnsTree, hf_dect_cc_AField, tvb, offset, 1, wmem_strbuf_get_str(afield_str));
 
 			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_6_Mfn, tvb, offset, 3, ENC_NA);
@@ -1670,7 +1670,7 @@ dissect_afield(gboolean dect_packet_type, guint8 *ba,
 			break;
 		case 7:		/* Escape */
 			/* ETSI EN 300 175-3 V2.3.0  7.2.3.8 */
-			wmem_strbuf_append_printf(afield_str,"Escape Data: %s",tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, 5));
+			wmem_strbuf_append_printf(afield_str,"Escape Data: %s",tvb_bytes_to_str(pinfo->pool, tvb, offset, 5));
 			proto_tree_add_string(ColumnsTree, hf_dect_cc_AField, tvb, offset, 1, wmem_strbuf_get_str(afield_str));
 			break;
 		case 8:		/* Obsolete */

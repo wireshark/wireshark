@@ -553,7 +553,7 @@ static offset_struct* dissect_auheader( tvbuff_t *tvb, offset_struct *poffset, p
 		ismacryp_item = proto_tree_add_item(ismacryp_header_tree, hf_ismacryp_iv, tvb, poffset->offset_bytes, iv_length, ENC_NA);
 		proto_item_append_text(ismacryp_item, ": Length=%d bytes", iv_length); /* add IV info */
 		col_append_fstr( pinfo->cinfo, COL_INFO,
-			", IV=0x%s", tvb_bytes_to_str_punct(wmem_packet_scope(), tvb, poffset->offset_bytes, iv_length, ' '));
+			", IV=0x%s", tvb_bytes_to_str_punct(pinfo->pool, tvb, poffset->offset_bytes, iv_length, ' '));
 
 		poffset->offset_bytes += iv_length; /* add IV length to offset_bytes */
 	}
@@ -564,7 +564,7 @@ static offset_struct* dissect_auheader( tvbuff_t *tvb, offset_struct *poffset, p
 						    tvb, poffset->offset_bytes, delta_iv_length, ENC_NA);
 		proto_item_append_text(ismacryp_item, ": Length=%d bytes", delta_iv_length); /* add delta IV info */
 		col_append_fstr( pinfo->cinfo, COL_INFO,
-			", Delta IV=0x%s", tvb_bytes_to_str_punct(wmem_packet_scope(), tvb, poffset->offset_bytes, delta_iv_length, ' '));
+			", Delta IV=0x%s", tvb_bytes_to_str_punct(pinfo->pool, tvb, poffset->offset_bytes, delta_iv_length, ' '));
 		poffset->offset_bytes += delta_iv_length; /* add IV length to offset_bytes */
 	}
 	/* Key Indicator */
@@ -575,7 +575,7 @@ static offset_struct* dissect_auheader( tvbuff_t *tvb, offset_struct *poffset, p
 						    tvb, poffset->offset_bytes, key_indicator_length, ENC_NA);
 		proto_item_append_text(ismacryp_item, ": Length=%d bytes", key_indicator_length); /* add KI info */
 		col_append_fstr( pinfo->cinfo, COL_INFO,
-					 ", KI=0x%s", tvb_bytes_to_str_punct(wmem_packet_scope(), tvb, poffset->offset_bytes, key_indicator_length, ' '));
+					 ", KI=0x%s", tvb_bytes_to_str_punct(pinfo->pool, tvb, poffset->offset_bytes, key_indicator_length, ' '));
 		poffset->offset_bytes += key_indicator_length; /* add KI length to offset_bytes */
 	}
 	/* AU size */

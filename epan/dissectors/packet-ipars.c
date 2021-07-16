@@ -42,7 +42,7 @@ dissect_ipars(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree, void* da
     int       offset = 0;
     gchar    *eom_msg;
 
-    eom_msg    = (gchar *)wmem_alloc(wmem_packet_scope(), MAX_EOM_MSG_SIZE);
+    eom_msg    = (gchar *)wmem_alloc(pinfo->pool, MAX_EOM_MSG_SIZE);
     eom_msg[0] = 0;
 
     col_clear(pinfo->cinfo, COL_INFO);

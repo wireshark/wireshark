@@ -3200,7 +3200,7 @@ dissect_e212_mcc_mnc_wmem_packet_str(tvbuff_t *tvb, packet_info *pinfo, proto_tr
         /* Prepare a string with the MCC and MNC including the country and Operator if
          * known, do NOT print unknown.
          */
-        mcc_mnc_str = wmem_strdup_printf(wmem_packet_scope(), "MCC %u %s, MNC %03u %s",
+        mcc_mnc_str = wmem_strdup_printf(pinfo->pool, "MCC %u %s, MNC %03u %s",
             mcc,
             val_to_str_ext_const(mcc,&E212_codes_ext,""),
             mnc,
@@ -3213,7 +3213,7 @@ dissect_e212_mcc_mnc_wmem_packet_str(tvbuff_t *tvb, packet_info *pinfo, proto_tr
         /* Prepare a string with the MCC and MNC including the country and Operator if
          * known, do NOT print unknown.
          */
-        mcc_mnc_str = wmem_strdup_printf(wmem_packet_scope(), "MCC %u %s, MNC %02u %s",
+        mcc_mnc_str = wmem_strdup_printf(pinfo->pool, "MCC %u %s, MNC %02u %s",
             mcc,
             val_to_str_ext_const(mcc,&E212_codes_ext,""),
             mnc,
@@ -3428,15 +3428,15 @@ dissect_e212_mcc_mnc_in_utf8_address(tvbuff_t *tvb, packet_info *pinfo _U_, prot
     guint16 mcc = 0, mnc = 0;
     gboolean    long_mnc = FALSE;
 
-    ws_strtou16(tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 3, ENC_UTF_8),
+    ws_strtou16(tvb_get_string_enc(pinfo->pool, tvb, offset, 3, ENC_UTF_8),
         NULL, &mcc);
-    ws_strtou16(tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 3, 2, ENC_UTF_8),
+    ws_strtou16(tvb_get_string_enc(pinfo->pool, tvb, offset + 3, 2, ENC_UTF_8),
         NULL, &mnc);
 
     /* Try to match the MCC and 2 digits MNC with an entry in our list of operators */
     if (!try_val_to_str_ext(mcc * 100 + mnc, &mcc_mnc_2digits_codes_ext)) {
         if (tvb_reported_length_remaining(tvb, offset + 3) > 2) {
-            ws_strtou16(tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 3, 3, ENC_UTF_8),
+            ws_strtou16(tvb_get_string_enc(pinfo->pool, tvb, offset + 3, 3, ENC_UTF_8),
                 NULL, &mnc);
             long_mnc = TRUE;
         }
@@ -3493,9 +3493,9 @@ dissect_e212_imsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offse
      * allocated string will be returned.
      */
     if (skip_first) {
-        item = proto_tree_add_item_ret_string(tree, hf_E212_imsi, tvb, offset, length, ENC_BCD_DIGITS_0_9 | ENC_BCD_SKIP_FIRST, wmem_packet_scope(), &imsi_str);
+        item = proto_tree_add_item_ret_string(tree, hf_E212_imsi, tvb, offset, length, ENC_BCD_DIGITS_0_9 | ENC_BCD_SKIP_FIRST, pinfo->pool, &imsi_str);
     } else {
-        item = proto_tree_add_item_ret_string(tree, hf_E212_imsi, tvb, offset, length, ENC_BCD_DIGITS_0_9, wmem_packet_scope(), &imsi_str);
+        item = proto_tree_add_item_ret_string(tree, hf_E212_imsi, tvb, offset, length, ENC_BCD_DIGITS_0_9, pinfo->pool, &imsi_str);
     }
     if (!is_imsi_string_valid(imsi_str)) {
         expert_add_info(pinfo, item, &ei_E212_imsi_malformed);
@@ -3521,7 +3521,7 @@ dissect_e212_utf8_imsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
     const gchar *imsi_str;
 
     /* Fetch the UTF8-encoded IMSI */
-    imsi_str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_UTF_8);
+    imsi_str = tvb_get_string_enc(pinfo->pool, tvb, offset, length, ENC_UTF_8);
     item = proto_tree_add_string(tree, hf_E212_imsi, tvb, offset, length, imsi_str);
     if (!is_imsi_string_valid(imsi_str)) {
         expert_add_info(pinfo, item, &ei_E212_imsi_malformed);

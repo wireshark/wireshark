@@ -1532,7 +1532,7 @@ dissect_cfdp_as_subtree(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tree, in
 
     if ( cfdp_data_end>(guint)offset ) {
         proto_tree_add_string(cfdp_header_tree, hf_cfdp_file_data_pdu, tvb, offset, cfdp_data_len,
-                              wmem_strdup_printf(wmem_packet_scope(), "<%d bytes>", cfdp_data_len));
+                              wmem_strdup_printf(pinfo->pool, "<%d bytes>", cfdp_data_len));
     }
     return;
 }

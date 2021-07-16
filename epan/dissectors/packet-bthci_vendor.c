@@ -424,7 +424,7 @@ dissect_bthci_vendor_broadcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         if (have_tap_listener(bluetooth_hci_summary_tap)) {
             bluetooth_hci_summary_tap_t  *tap_hci_summary;
 
-            tap_hci_summary = wmem_new(wmem_packet_scope(), bluetooth_hci_summary_tap_t);
+            tap_hci_summary = wmem_new(pinfo->pool, bluetooth_hci_summary_tap_t);
             tap_hci_summary->interface_id  = interface_id;
             tap_hci_summary->adapter_id    = adapter_id;
 
@@ -806,7 +806,7 @@ dissect_bthci_vendor_broadcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         if (have_tap_listener(bluetooth_hci_summary_tap)) {
             bluetooth_hci_summary_tap_t  *tap_hci_summary;
 
-            tap_hci_summary = wmem_new(wmem_packet_scope(), bluetooth_hci_summary_tap_t);
+            tap_hci_summary = wmem_new(pinfo->pool, bluetooth_hci_summary_tap_t);
             tap_hci_summary->interface_id  = interface_id;
             tap_hci_summary->adapter_id    = adapter_id;
 
@@ -846,7 +846,7 @@ dissect_bthci_vendor_broadcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
             if (have_tap_listener(bluetooth_hci_summary_tap)) {
                 bluetooth_hci_summary_tap_t  *tap_hci_summary;
 
-                tap_hci_summary = wmem_new(wmem_packet_scope(), bluetooth_hci_summary_tap_t);
+                tap_hci_summary = wmem_new(pinfo->pool, bluetooth_hci_summary_tap_t);
                 tap_hci_summary->interface_id  = interface_id;
                 tap_hci_summary->adapter_id    = adapter_id;
 
@@ -1915,7 +1915,7 @@ dissect_bthci_vendor_intel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         if (have_tap_listener(bluetooth_hci_summary_tap)) {
             bluetooth_hci_summary_tap_t  *tap_hci_summary;
 
-            tap_hci_summary = wmem_new(wmem_packet_scope(), bluetooth_hci_summary_tap_t);
+            tap_hci_summary = wmem_new(pinfo->pool, bluetooth_hci_summary_tap_t);
             tap_hci_summary->interface_id  = interface_id;
             tap_hci_summary->adapter_id    = adapter_id;
 
@@ -2116,7 +2116,7 @@ dissect_bthci_vendor_intel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         if (have_tap_listener(bluetooth_hci_summary_tap)) {
             bluetooth_hci_summary_tap_t  *tap_hci_summary;
 
-            tap_hci_summary = wmem_new(wmem_packet_scope(), bluetooth_hci_summary_tap_t);
+            tap_hci_summary = wmem_new(pinfo->pool, bluetooth_hci_summary_tap_t);
             tap_hci_summary->interface_id  = interface_id;
             tap_hci_summary->adapter_id    = adapter_id;
 
@@ -2158,7 +2158,7 @@ dissect_bthci_vendor_intel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
             if (have_tap_listener(bluetooth_hci_summary_tap)) {
                 bluetooth_hci_summary_tap_t  *tap_hci_summary;
 
-                tap_hci_summary = wmem_new(wmem_packet_scope(), bluetooth_hci_summary_tap_t);
+                tap_hci_summary = wmem_new(pinfo->pool, bluetooth_hci_summary_tap_t);
                 tap_hci_summary->interface_id  = interface_id;
                 tap_hci_summary->adapter_id    = adapter_id;
 

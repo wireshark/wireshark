@@ -171,7 +171,7 @@ dissect_btmesh_proxy_configuration_msg(tvbuff_t *tvb, packet_info *pinfo, proto_
 
     proto_tree_add_item(tree, hf_btmesh_proxy_data, tvb, 0, tvb_reported_length(tvb), ENC_NA);
 
-    dec_ctx = wmem_new(wmem_packet_scope(), network_decryption_ctx_t);
+    dec_ctx = wmem_new(pinfo->pool, network_decryption_ctx_t);
     dec_ctx->net_nonce_type = BTMESH_NONCE_TYPE_PROXY;
 
     de_obf_tvb = btmesh_network_find_key_and_decrypt(tvb, pinfo, &decrypted_data, &enc_data_len, dec_ctx);

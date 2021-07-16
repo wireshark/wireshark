@@ -100,7 +100,7 @@ static int dissect_bjnp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
   proto_tree_add_item (bjnp_tree, hf_cmd_code, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset++;
 
-  info = wmem_strdup_printf(wmem_packet_scope(), "%s: %s",
+  info = wmem_strdup_printf(pinfo->pool, "%s: %s",
                             val_to_str (dev_type, dev_type_vals, "Unknown type (%d)"),
                             val_to_str (cmd_code, cmd_code_vals, "Unknown code (%d)"));
 

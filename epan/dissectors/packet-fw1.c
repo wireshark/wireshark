@@ -132,7 +132,7 @@ dissect_fw1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   static const char     fw1_header[] = "FW1 Monitor";
   ethertype_data_t ethertype_data;
 
-  header = wmem_strbuf_new_label(wmem_packet_scope());
+  header = wmem_strbuf_new_label(pinfo->pool);
   wmem_strbuf_append(header, fw1_header);
 
   /* Make entries in Protocol column and Info column on summary display */
@@ -150,7 +150,7 @@ dissect_fw1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   if (fw1_with_uuid)
     iface_len = 6;
 
-  interface_name=tvb_get_stringzpad(wmem_packet_scope(), tvb, 2, iface_len, ENC_ASCII|ENC_NA);
+  interface_name=tvb_get_stringzpad(pinfo->pool, tvb, 2, iface_len, ENC_ASCII|ENC_NA);
 
   /* Known interface name - if not, remember it */
   found=FALSE;

@@ -2713,7 +2713,7 @@ static void dissect_item_unconnected_message_over_udp(packet_info* pinfo, tvbuff
        * Attach that information to the conversation, and add
        * it to the list of information structures later before dissection.
        */
-      enip_request_key_t* request_key = wmem_new0(wmem_packet_scope(), enip_request_key_t);
+      enip_request_key_t* request_key = wmem_new0(pinfo->pool, enip_request_key_t);
       request_key->requesttype = ucmm_request ? ENIP_RESPONSE_PACKET : ENIP_REQUEST_PACKET;
       request_key->type = EPDT_UNKNOWN;
 

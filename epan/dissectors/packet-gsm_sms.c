@@ -642,11 +642,11 @@ dis_field_addr(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, guint32 *off
     {
     case 0x05: /* "Alphanumeric (coded according to 3GPP TS 23.038 GSM 7-bit default alphabet)" */
         addrlength = (addrlength << 2) / 7;
-        addrstr = tvb_get_ts_23_038_7bits_string_packed(wmem_packet_scope(), tvb, offset << 3,
+        addrstr = tvb_get_ts_23_038_7bits_string_packed(pinfo->pool, tvb, offset << 3,
                                                  (addrlength > MAX_ADDR_SIZE) ? MAX_ADDR_SIZE : addrlength);
         break;
     default:
-        addrstr = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, numdigocts, ENC_KEYPAD_ABC_TBCD|ENC_NA);
+        addrstr = tvb_get_string_enc(pinfo->pool, tvb, offset, numdigocts, ENC_KEYPAD_ABC_TBCD|ENC_NA);
         break;
     }
 
@@ -1992,7 +1992,7 @@ dis_field_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
         addr = "";
     /* check if lower layers provide additional info */
     if (reassemble_sms_with_lower_layers_info) {
-        wmem_strbuf_t *addr_info_strbuf = wmem_strbuf_new(wmem_packet_scope(), addr);
+        wmem_strbuf_t *addr_info_strbuf = wmem_strbuf_new(pinfo->pool, addr);
         if (proto_is_frame_protocol(pinfo->layers, "gsm_map")) {
             gsm_map_packet_info_t *gsm_map_packet_info;
             wmem_strbuf_append(addr_info_strbuf, "MAP");

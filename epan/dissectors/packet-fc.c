@@ -682,7 +682,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
     guint16 real_seqcnt;
     guint8 ftype;
 
-    fc_hdr* fchdr = wmem_new(wmem_packet_scope(), fc_hdr); /* Needed by conversations, not just tap */
+    fc_hdr* fchdr = wmem_new(pinfo->pool, fc_hdr); /* Needed by conversations, not just tap */
     fc_exchange_t *fc_ex;
     fc_conv_data_t *fc_conv_data=NULL;
 

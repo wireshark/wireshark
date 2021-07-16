@@ -663,7 +663,7 @@ dissect_dlt_verbose_parameter_raw_data(tvbuff_t *tvb, packet_info *pinfo, proto_
 
     proto_tree_add_item(tree, hf_dlt_rawd, tvb, offset, len, ENC_NA);
 
-    buf = (guint8 *) tvb_memdup(wmem_packet_scope(), tvb, offset, len);
+    buf = (guint8 *) tvb_memdup(pinfo->pool, tvb, offset, len);
     offset += len;
 
     for (i=0; i<len; i++) {
@@ -709,10 +709,10 @@ dissect_dlt_verbose_parameter_string(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     subtvb = tvb_new_subset_length_caplen(tvb, offset, str_len, str_len);
 
     if (encoding == DLT_MSG_VERB_PARAM_SCOD_ASCII) {
-        buf = tvb_get_stringz_enc(wmem_packet_scope(), subtvb, 0, &tmp_length, ENC_ASCII);
+        buf = tvb_get_stringz_enc(pinfo->pool, subtvb, 0, &tmp_length, ENC_ASCII);
     }
     else {
-        buf = tvb_get_stringz_enc(wmem_packet_scope(), subtvb, 0, &tmp_length, ENC_UTF_8);
+        buf = tvb_get_stringz_enc(pinfo->pool, subtvb, 0, &tmp_length, ENC_UTF_8);
     }
 
     if ( buf != NULL && tmp_length > 0) {

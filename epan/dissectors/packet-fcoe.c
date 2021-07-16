@@ -154,7 +154,7 @@ dissect_fcoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         version = len_sof >> 14;
         ver = "pre-T11 ";
         if (version != 0)
-            ver = wmem_strdup_printf(wmem_packet_scope(), ver, "pre-T11 ver %d ", version);
+            ver = wmem_strdup_printf(pinfo->pool, ver, "pre-T11 ver %d ", version);
         eof_offset = header_len + frame_len + 4;
         eof_str = "none";
         if (tvb_bytes_exist(tvb, eof_offset, 1)) {
@@ -176,7 +176,7 @@ dissect_fcoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         ver = "";
         version = tvb_get_guint8(tvb, 0) >> 4;
         if (version != 0)
-            ver = wmem_strdup_printf(wmem_packet_scope(), ver, "ver %d ", version);
+            ver = wmem_strdup_printf(pinfo->pool, ver, "ver %d ", version);
 
         eof_offset = header_len + frame_len + 4;
         if (NULL == (eof_str = fcoe_get_eof(tvb, eof_offset))) {
@@ -191,7 +191,7 @@ dissect_fcoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                     /* Hmm, we have enough bytes to look for the EOF
                      * but it's an unexpected value. */
                     eof = tvb_get_guint8(tvb, eof_offset);
-                    eof_str = wmem_strdup_printf(wmem_packet_scope(), "0x%x", eof);
+                    eof_str = wmem_strdup_printf(pinfo->pool, "0x%x", eof);
                 } else {
                     /* We just didn't capture enough to get the EOF */
                     eof_str = "none";

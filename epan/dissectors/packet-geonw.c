@@ -324,7 +324,7 @@ dissect_btpa(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     proto_item *hidden_item;
     struct btpaheader *btpah;
 
-    btpah = wmem_new0(wmem_packet_scope(), struct btpaheader);
+    btpah = wmem_new0(pinfo->pool, struct btpaheader);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "BTPA");
     /* Clear out stuff in the info column */
@@ -390,7 +390,7 @@ dissect_btpb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     guint32 dst_info;
     struct btpbheader *btpbh;
 
-    btpbh = wmem_new0(wmem_packet_scope(), struct btpbheader);
+    btpbh = wmem_new0(pinfo->pool, struct btpbheader);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "BTPB");
     /* Clear out stuff in the info column */
@@ -2140,7 +2140,7 @@ dissect_geonw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     struct geonwheader *geonwh;
     gint32 latlon;
 
-    geonwh = wmem_new0(wmem_packet_scope(), struct geonwheader);
+    geonwh = wmem_new0(pinfo->pool, struct geonwheader);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "GEONW");
     /* Clear out stuff in the info column */

@@ -58,15 +58,15 @@ dissect_gsmtap_log(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * d
 
 	proto_tree_add_item(log_tree, hf_log_ts, tvb, offset, 8, ENC_TIME_SECS_USECS|ENC_BIG_ENDIAN);
 	offset += 8;
-	proto_tree_add_item_ret_string(log_tree, hf_log_ident, tvb, offset, 16, ENC_NA, wmem_packet_scope(), &log_ident);
+	proto_tree_add_item_ret_string(log_tree, hf_log_ident, tvb, offset, 16, ENC_NA, pinfo->pool, &log_ident);
 	offset += 16;
 	proto_tree_add_item_ret_uint(log_tree, hf_log_pid, tvb, offset, 4, ENC_BIG_ENDIAN, &log_pid);
 	offset += 4;
 	proto_tree_add_item_ret_uint(log_tree, hf_log_level, tvb, offset++, 1, ENC_NA, &log_level);
 	offset += 3; /* pad octets */
-	proto_tree_add_item_ret_string(log_tree, hf_log_subsys, tvb, offset, 16, ENC_NA, wmem_packet_scope(), &log_subsys);
+	proto_tree_add_item_ret_string(log_tree, hf_log_subsys, tvb, offset, 16, ENC_NA, pinfo->pool, &log_subsys);
 	offset += 16;
-	proto_tree_add_item_ret_string(log_tree, hf_log_file_name, tvb, offset, 32, ENC_NA, wmem_packet_scope(), &log_src_fname);
+	proto_tree_add_item_ret_string(log_tree, hf_log_file_name, tvb, offset, 32, ENC_NA, pinfo->pool, &log_src_fname);
 	offset += 32;
 	proto_tree_add_item_ret_uint(log_tree, hf_log_file_line, tvb, offset, 4, ENC_BIG_ENDIAN, &log_src_line);
 	offset += 4;
@@ -75,7 +75,7 @@ dissect_gsmtap_log(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * d
 	log_str_len = tvb_captured_length_remaining(tvb, offset);
 	proto_tree_add_item(log_tree, hf_log_string, tvb, offset, log_str_len, ENC_ASCII|ENC_NA);
 
-	log_str = tvb_format_stringzpad_wsp(wmem_packet_scope(), tvb, offset, log_str_len);
+	log_str = tvb_format_stringzpad_wsp(pinfo->pool, tvb, offset, log_str_len);
 	col_append_str(pinfo->cinfo, COL_INFO, log_str);
 
 	proto_item_append_text(ti, " %s(%u): %s/%d: %s:%u %s",

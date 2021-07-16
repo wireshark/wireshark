@@ -1624,7 +1624,7 @@ dissect_btbredr_rf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
                                // FHS
                                next_tvb = tvb_new_subset_length(tvb, offset + data_header, data_length - data_header);
                                if (next_tvb) {
-                                   btbredr_fhs_data_t *fhs_data = wmem_new0(wmem_packet_scope(), btbredr_fhs_data_t);
+                                   btbredr_fhs_data_t *fhs_data = wmem_new0(pinfo->pool, btbredr_fhs_data_t);
                                    fhs_data->bluetooth_data  = bluetooth_data;
                                    fhs_data->device_info     = device_info;
                                    fhs_data->connection_info = connection_info;
@@ -1650,7 +1650,7 @@ dissect_btbredr_rf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
                                    guint pdu_len = data_length - data_header;
                                    guint l2cap_len = tvb_get_letohs(tvb, offset + data_header);
                                    if (l2cap_len + 4 <= pdu_len) {
-                                       bthci_acl_data_t *acl_data = wmem_new(wmem_packet_scope(), bthci_acl_data_t);
+                                       bthci_acl_data_t *acl_data = wmem_new(pinfo->pool, bthci_acl_data_t);
                                        acl_data->interface_id = interface_id;
                                        acl_data->adapter_id   = adapter_id;
                                        acl_data->chandle      = 0; /* No connection handle at this layer */
@@ -1749,7 +1749,7 @@ dissect_btbredr_rf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
                                                                        btbredr_rf_tree);
                                }
                                if (next_tvb) {
-                                   bthci_acl_data_t *acl_data = wmem_new(wmem_packet_scope(), bthci_acl_data_t);
+                                   bthci_acl_data_t *acl_data = wmem_new(pinfo->pool, bthci_acl_data_t);
                                    acl_data->interface_id = interface_id;
                                    acl_data->adapter_id   = adapter_id;
                                    acl_data->chandle      = 0; /* No connection handle at this layer */

@@ -187,7 +187,7 @@ dissect_body_data(proto_tree *grpc_tree, packet_info *pinfo, tvbuff_t *tvb, cons
     * For example:
     *   application/grpc,/helloworld.Greeter/SayHello,request
     */
-    grpc_message_info = wmem_strconcat(wmem_packet_scope(), http2_content_type, ",",
+    grpc_message_info = wmem_strconcat(pinfo->pool, http2_content_type, ",",
         http2_path, ",", (is_request ? "request" : "response"), NULL);
 
     parent_tree = proto_tree_get_parent_tree(grpc_tree);

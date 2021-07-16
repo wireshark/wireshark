@@ -137,9 +137,9 @@ dissect_string_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, pr
 	length -= 4;
 
 	proto_tree_add_item(string_tree, hf_fdp_string_data, tvb, offset, length, ENC_NA);
-	proto_tree_add_item_ret_string(string_tree, hf_fdp_string_text, tvb, offset, length, ENC_ASCII|ENC_NA, wmem_packet_scope(), &string_value);
+	proto_tree_add_item_ret_string(string_tree, hf_fdp_string_text, tvb, offset, length, ENC_ASCII|ENC_NA, pinfo->pool, &string_value);
 	proto_item_append_text(string_item, ": \"%s\"",
-		format_text(wmem_packet_scope(), string_value, strlen(string_value)));
+		format_text(pinfo->pool, string_value, strlen(string_value)));
 
 	return offset;
 }

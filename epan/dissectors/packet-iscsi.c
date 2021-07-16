@@ -518,7 +518,7 @@ iscsi_dissect_TargetAddress(packet_info *pinfo, tvbuff_t* tvb, proto_tree *tree,
 {
     address *addr = NULL;
     guint16 port;
-    char *value = wmem_strdup(wmem_packet_scope(), val);
+    char *value = wmem_strdup(pinfo->pool, val);
     char *p = NULL, *pgt = NULL;
 
     if (value[0] == '[') {
@@ -551,13 +551,13 @@ iscsi_dissect_TargetAddress(packet_info *pinfo, tvbuff_t* tvb, proto_tree *tree,
                     *pgt++ = 0;
                 }
 
-                addr_data = (char *) wmem_alloc(wmem_packet_scope(), 4);
+                addr_data = (char *) wmem_alloc(pinfo->pool, 4);
                 addr_data[0] = i0;
                 addr_data[1] = i1;
                 addr_data[2] = i2;
                 addr_data[3] = i3;
 
-                addr = wmem_new(wmem_packet_scope(), address);
+                addr = wmem_new(pinfo->pool, address);
                 addr->type = AT_IPv4;
                 addr->len  = 4;
                 addr->data = addr_data;
@@ -599,7 +599,7 @@ addTextKeys(packet_info *pinfo, proto_tree *tt, tvbuff_t *tvb, gint offset, guin
             len = len + 1;
         }
 
-        key = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, len, ENC_ASCII);
+        key = tvb_get_string_enc(pinfo->pool, tvb, offset, len, ENC_ASCII);
         if (key == NULL) {
             break;
         }
@@ -778,7 +778,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 
     if(!cdata) {
         /* Create a fake temporary structure */
-        cdata = wmem_new(wmem_packet_scope(), iscsi_conv_data_t);
+        cdata = wmem_new(pinfo->pool, iscsi_conv_data_t);
         cdata->itlq.lun = 0xffff;
         cdata->itlq.scsi_opcode = 0xffff;
         cdata->itlq.task_flags = 0;

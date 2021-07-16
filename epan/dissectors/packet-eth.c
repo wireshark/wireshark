@@ -489,8 +489,8 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
         ehdr->type, ehdr->type);
     ti = proto_tree_add_protocol_format(tree, proto_eth, tvb, 0, ETH_HEADER_SIZE,
         "Ethernet Unknown, Src: %s, Dst: %s",
-        address_with_resolution_to_str(wmem_packet_scope(), &pinfo->src),
-        address_with_resolution_to_str(wmem_packet_scope(), &pinfo->dst));
+        address_with_resolution_to_str(pinfo->pool, &pinfo->src),
+        address_with_resolution_to_str(pinfo->pool, &pinfo->dst));
     fh_tree = proto_item_add_subtree(ti, ett_ether);
 
     dissect_address_data(tvb, pinfo, fh_tree, FALSE);
@@ -546,8 +546,8 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
         if (PTREE_DATA(parent_tree)->visible) {
             ti = proto_tree_add_protocol_format(parent_tree, proto_eth, tvb, 0, ETH_HEADER_SIZE,
                 "Ethernet II, Src: %s, Dst: %s",
-                address_with_resolution_to_str(wmem_packet_scope(), &pinfo->src),
-                address_with_resolution_to_str(wmem_packet_scope(), &pinfo->dst));
+                address_with_resolution_to_str(pinfo->pool, &pinfo->src),
+                address_with_resolution_to_str(pinfo->pool, &pinfo->dst));
       }
       else {
             ti = proto_tree_add_item(parent_tree, proto_eth, tvb, 0, ETH_HEADER_SIZE, ENC_NA);

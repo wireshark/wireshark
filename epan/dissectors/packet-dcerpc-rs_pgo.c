@@ -176,7 +176,7 @@ dissect    sec_rgy_pname const signed32        sec_rgy_pname_t_size  = 257; * In
 /* proto_tree_add_string(tree, id, tvb, start, length, value_ptr); */
 
       proto_tree_add_item_ret_string(tree, hf_sec_rgy_pname_t_principalName_string,
-                           tvb, offset, string_size, ENC_ASCII|ENC_NA, wmem_packet_scope(), &principal);
+                           tvb, offset, string_size, ENC_ASCII|ENC_NA, pinfo->pool, &principal);
       if (string_size > 1)
         {
           col_append_fstr (pinfo->cinfo, COL_INFO, " Principal:%s", principal);
@@ -381,7 +381,7 @@ dissect_sec_rgy_name_t (tvbuff_t * tvb, int offset,
 /* proto_tree_add_string(tree, id, tvb, start, length, value_ptr); */
 
       proto_tree_add_item_ret_string(tree, hf_sec_rgy_name_t_principalName_string,
-                           tvb, offset, string_size, ENC_ASCII|ENC_NA, wmem_packet_scope(), &principal);
+                           tvb, offset, string_size, ENC_ASCII|ENC_NA, pinfo->pool, &principal);
       if (string_size > 1)
         {
           col_append_fstr (pinfo->cinfo, COL_INFO, " Principal:%s", principal);

@@ -132,8 +132,8 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
         if (offset < master_offset)
             return master_offset;
 
-        command = tvb_get_string_enc(wmem_packet_scope(), tvb, master_offset, offset-master_offset, ENC_ASCII|ENC_NA);
-        complete_str = tvb_get_string_enc(wmem_packet_scope(), tvb, master_offset+3, offset-master_offset-3, ENC_ASCII|ENC_NA);
+        command = tvb_get_string_enc(pinfo->pool, tvb, master_offset, offset-master_offset, ENC_ASCII|ENC_NA);
+        complete_str = tvb_get_string_enc(pinfo->pool, tvb, master_offset+3, offset-master_offset-3, ENC_ASCII|ENC_NA);
         sub_item = proto_tree_add_string(ar_tree, hf_command, tvb, master_offset, -1, complete_str);
 
         if (!strncmp(command, "AT*PCMD", 7))
@@ -527,7 +527,7 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
                 expert_add_info(pinfo, sub_item, &ei_NO_COMMA);
                 return offset;
             }
-            ti = proto_tree_add_item_ret_string(sub_tree, hf_CTRL_mode, tvb, offset, length, ENC_ASCII|ENC_NA, wmem_packet_scope(), &CTRL_mode_str);
+            ti = proto_tree_add_item_ret_string(sub_tree, hf_CTRL_mode, tvb, offset, length, ENC_ASCII|ENC_NA, pinfo->pool, &CTRL_mode_str);
             proto_item_append_text(ti, "%s", str_to_str(CTRL_mode_str, CTRL_mode_vs, " (Unknown Mode)"));
             offset += (length + 1);
 

@@ -2226,7 +2226,7 @@ dissect_gtpv2_apn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto
 {
     const guint8 *apn    = NULL;
 
-    proto_tree_add_item_ret_string(tree, hf_gtpv2_apn, tvb, 0, length, ENC_APN_STR | ENC_NA, wmem_packet_scope(), &apn);
+    proto_tree_add_item_ret_string(tree, hf_gtpv2_apn, tvb, 0, length, ENC_APN_STR | ENC_NA, pinfo->pool, &apn);
     if (apn) {
         proto_item_append_text(item, "%s", apn);
     }
@@ -2305,7 +2305,7 @@ dissect_gtpv2_mei(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto
      * a default digit set of 0-9 returning "?" for overdecadic digits a pointer to the EP
      * allocated string will be returned.
      */
-    proto_tree_add_item_ret_display_string(tree, hf_gtpv2_mei, tvb, offset, length, ENC_BCD_DIGITS_0_9, wmem_packet_scope(), &mei_str);
+    proto_tree_add_item_ret_display_string(tree, hf_gtpv2_mei, tvb, offset, length, ENC_BCD_DIGITS_0_9, pinfo->pool, &mei_str);
     proto_item_append_text(item, "%s", mei_str);
 }
 
@@ -2787,7 +2787,7 @@ dissect_gtpv2_tai(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offs
     tac = tvb_get_ntohs(tvb, *offset);
     proto_tree_add_item(tree, hf_gtpv2_tai_tac, tvb, *offset, 2, ENC_BIG_ENDIAN);
     *offset += 2;
-    str = wmem_strdup_printf(wmem_packet_scope(), "%s, TAC 0x%x",
+    str = wmem_strdup_printf(pinfo->pool, "%s, TAC 0x%x",
         mcc_mnc_str,
         tac);
 
@@ -2826,7 +2826,7 @@ dissect_gtpv2_ecgi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *off
      */
     proto_tree_add_bitmask(tree, tvb, *offset, hf_gtpv2_ecgi_eci, ett_gtpv2_eci, ECGI_flags, ENC_BIG_ENDIAN);
     *offset += 4;
-    str = wmem_strdup_printf(wmem_packet_scope(), "%s, ECGI 0x%x",
+    str = wmem_strdup_printf(pinfo->pool, "%s, ECGI 0x%x",
         mcc_mnc_str,
         ECGI);
 
@@ -2849,7 +2849,7 @@ dissect_gtpv2_rai(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offs
     rac = tvb_get_ntohs(tvb, *offset);
     proto_tree_add_item(tree, hf_gtpv2_rai_rac, tvb, *offset, 2, ENC_BIG_ENDIAN);
     *offset += 2;
-    str = wmem_strdup_printf(wmem_packet_scope(), "%s, LAC 0x%x, RAC 0x%x",
+    str = wmem_strdup_printf(pinfo->pool, "%s, LAC 0x%x, RAC 0x%x",
         mcc_mnc_str,
         lac,
         rac);
@@ -2872,7 +2872,7 @@ dissect_gtpv2_sai_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
     sac = tvb_get_ntohs(tvb, *offset);
     proto_tree_add_item(tree, hf_gtpv2_sai_sac, tvb, *offset, 2, ENC_BIG_ENDIAN);
     *offset += 2;
-    str = wmem_strdup_printf(wmem_packet_scope(), "%s, LAC 0x%x, SAC 0x%x",
+    str = wmem_strdup_printf(pinfo->pool, "%s, LAC 0x%x, SAC 0x%x",
         mcc_mnc_str,
         lac,
         sac);
@@ -2895,7 +2895,7 @@ dissect_gtpv2_cgi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offs
     ci = tvb_get_ntohs(tvb, *offset);
     proto_tree_add_item(tree, hf_gtpv2_uli_cgi_ci, tvb, *offset, 2, ENC_BIG_ENDIAN);
     *offset += 2;
-    str = wmem_strdup_printf(wmem_packet_scope(), "%s, LAC 0x%x, CI 0x%x",
+    str = wmem_strdup_printf(pinfo->pool, "%s, LAC 0x%x, CI 0x%x",
         mcc_mnc_str,
         lac,
         ci);
@@ -2918,7 +2918,7 @@ dissect_gtpv2_macro_enodeb_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     proto_tree_add_item_ret_uint(tree, hf_gtpv2_macro_enodeb_id, tvb, *offset, 3, ENC_BIG_ENDIAN, &macro_enodeb_id);
     *offset += 3;
 
-    str = wmem_strdup_printf(wmem_packet_scope(), "%s, Macro eNodeB ID 0x%x",
+    str = wmem_strdup_printf(pinfo->pool, "%s, Macro eNodeB ID 0x%x",
         mcc_mnc_str,
         macro_enodeb_id);
 
@@ -2944,7 +2944,7 @@ dissect_gtpv2_ext_macro_enodeb_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     proto_tree_add_item_ret_uint(tree, hfindex, tvb, *offset, 3, ENC_BIG_ENDIAN, &ext_macro_enodeb_id);
     *offset += 3;
 
-    str = wmem_strdup_printf(wmem_packet_scope(), "%s, Extended Macro %seNodeB ID 0x%x",
+    str = wmem_strdup_printf(pinfo->pool, "%s, Extended Macro %seNodeB ID 0x%x",
         mcc_mnc_str,
         hfindex == hf_gtpv2_ext_macro_ng_enodeb_id ? "ng-" : "",
         ext_macro_enodeb_id);
@@ -3040,7 +3040,7 @@ decode_gtpv2_uli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item
          */
         proto_tree_add_item(part_tree, hf_gtpv2_uli_lai_lac, tvb, offset, 2, ENC_BIG_ENDIAN);
         lac = tvb_get_ntohs(tvb, offset);
-        str = wmem_strdup_printf(wmem_packet_scope(), "%s, LAC 0x%x",
+        str = wmem_strdup_printf(pinfo->pool, "%s, LAC 0x%x",
             mcc_mnc_str,
             lac);
 
@@ -3197,7 +3197,7 @@ dissect_3gpp_uli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gchar **av
             mcc_mnc_str = dissect_e212_mcc_mnc_wmem_packet_str(tvb, pinfo, subtree, offset, E212_NRCGI, TRUE);
             offset += 3;
             proto_tree_add_item_ret_uint64(subtree, hf_gtpv2_ncgi_nrci, tvb, offset, 5, ENC_BIG_ENDIAN, &nr_cell_id);
-            *avp_str = wmem_strdup_printf(wmem_packet_scope(),
+            *avp_str = wmem_strdup_printf(pinfo->pool,
                                           "%s, NR Cell Id 0x%" G_GINT64_MODIFIER "x",
                                           mcc_mnc_str, nr_cell_id);
         }
@@ -3227,7 +3227,7 @@ dissect_3gpp_uli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gchar **av
             mcc_mnc_str = dissect_e212_mcc_mnc_wmem_packet_str(tvb, pinfo, subtree, offset, E212_NRCGI, TRUE);
             offset += 3;
             proto_tree_add_item_ret_uint64(subtree, hf_gtpv2_ncgi_nrci, tvb, offset, 5, ENC_BIG_ENDIAN, &nr_cell_id);
-            *avp_str = wmem_strdup_printf(wmem_packet_scope(),
+            *avp_str = wmem_strdup_printf(pinfo->pool,
                                           "%s, %s, NR Cell Id 0x%" G_GINT64_MODIFIER "x",
                                           *avp_str, mcc_mnc_str, nr_cell_id);
         }
@@ -3247,7 +3247,7 @@ gchar *dissect_radius_user_loc(proto_tree * tree, tvbuff_t * tvb, packet_info* p
     guint16 length;
 
     length = dissect_3gpp_uli(tvb, pinfo, tree, NULL);
-    return tvb_bytes_to_str(wmem_packet_scope(), tvb, 0, length);
+    return tvb_bytes_to_str(pinfo->pool, tvb, 0, length);
 
 }
 
@@ -3341,12 +3341,12 @@ dissect_gtpv2_f_teid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_
     proto_tree_add_item_ret_uint(tree, hf_gtpv2_f_teid_gre_key, tvb, offset, 4, ENC_BIG_ENDIAN, &teid_cp);
     proto_item_append_text(item, "%s, TEID/GRE Key: 0x%s",
                            val_to_str_ext_const((flags & 0x3f), &gtpv2_f_teid_interface_type_vals_ext, "Unknown"),
-                           tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, 4));
+                           tvb_bytes_to_str(pinfo->pool, tvb, offset, 4));
 
     offset += 4;
     if (flags & 0x80)
     {
-        ipv4 = wmem_new0(wmem_packet_scope(), address);
+        ipv4 = wmem_new0(pinfo->pool, address);
         proto_tree_add_item(tree, hf_gtpv2_f_teid_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
         proto_item_append_text(item, ", IPv4 %s", tvb_ip_to_str(tvb, offset));
         set_address_tvb(ipv4, AT_IPv4, 4, tvb, offset);
@@ -3354,7 +3354,7 @@ dissect_gtpv2_f_teid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_
     }
     if (flags & 0x40)
     {
-        ipv6 = wmem_new0(wmem_packet_scope(), address);
+        ipv6 = wmem_new0(pinfo->pool, address);
         proto_tree_add_item(tree, hf_gtpv2_f_teid_ipv6, tvb, offset, 16, ENC_NA);
         proto_item_append_text(item, ", IPv6 %s", tvb_ip6_to_str(tvb, offset));
         set_address_tvb(ipv6, AT_IPv6, 16, tvb, offset);
@@ -3366,16 +3366,16 @@ dissect_gtpv2_f_teid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_
             /* We save the teid so that we could assignate its corresponding session ID later */
             args->last_teid = teid_cp;
             if (!teid_exists(teid_cp, args->teid_list)) {
-                teid = wmem_new(wmem_packet_scope(), guint32);
+                teid = wmem_new(pinfo->pool, guint32);
                 *teid = teid_cp;
                 wmem_list_prepend(args->teid_list, teid);
             }
             if (ipv4 != NULL && !ip_exists(*ipv4, args->ip_list)) {
-                copy_address_wmem(wmem_packet_scope(), &args->last_ip, ipv4);
+                copy_address_wmem(pinfo->pool, &args->last_ip, ipv4);
                 wmem_list_prepend(args->ip_list, ipv4);
             }
             if (ipv6 != NULL && !ip_exists(*ipv6, args->ip_list)) {
-                copy_address_wmem(wmem_packet_scope(), &args->last_ip, ipv6);
+                copy_address_wmem(pinfo->pool, &args->last_ip, ipv6);
                 wmem_list_prepend(args->ip_list, ipv6);
             }
         }
@@ -5033,7 +5033,7 @@ dissect_gtpv2_p_tmsi(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, pr
     proto_tree_add_item(tree, hf_gtpv2_p_tmsi, tvb, offset, 4, ENC_BIG_ENDIAN);
     ti = proto_tree_add_item(tree, hf_3gpp_tmsi, tvb, offset, 4, ENC_BIG_ENDIAN);
     proto_item_set_hidden(ti);
-    proto_item_append_text(item, "%s", tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, 4));
+    proto_item_append_text(item, "%s", tvb_bytes_to_str(pinfo->pool, tvb, offset, 4));
 }
 
 /*
@@ -5046,7 +5046,7 @@ dissect_gtpv2_p_tmsi_sig(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 
     /* The P-TMSI Signature consists of 3 octets and may be allocated by the SGSN. */
     proto_tree_add_item(tree, hf_gtpv2_p_tmsi_sig, tvb, offset, 3, ENC_BIG_ENDIAN);
-    proto_item_append_text(item, "%s", tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, 3));
+    proto_item_append_text(item, "%s", tvb_bytes_to_str(pinfo->pool, tvb, offset, 3));
 
 }
 
@@ -5503,7 +5503,7 @@ dissect_gtpv2_home_enodeb_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     proto_tree_add_item(tree, hf_gtpv2_home_enodeb_id, tvb, *offset, 4 , ENC_BIG_ENDIAN);
     *offset += 4;
 
-    str = wmem_strdup_printf(wmem_packet_scope(), "%s, Home eNodeB ID 0x%x",
+    str = wmem_strdup_printf(pinfo->pool, "%s, Home eNodeB ID 0x%x",
         mcc_mnc_str,
         home_enodeb_id);
 
@@ -5530,7 +5530,7 @@ dissect_gtpv2_gnodeb_id(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int
     proto_tree_add_item_ret_uint(tree, hf_gtpv2_gnodeb_id, tvb, *offset, 4, ENC_BIG_ENDIAN, &gnodeb_id);
     *offset += 4;
 
-    str = wmem_strdup_printf(wmem_packet_scope(), "%s, gNodeB ID 0x%x",
+    str = wmem_strdup_printf(pinfo->pool, "%s, gNodeB ID 0x%x",
         mcc_mnc_str,
         gnodeb_id);
 
@@ -5550,7 +5550,7 @@ dissect_gtpv2_macro_ng_enodeb_id(tvbuff_t* tvb, packet_info* pinfo, proto_tree* 
     proto_tree_add_item_ret_uint(tree, hf_gtpv2_macro_ng_enodeb_id, tvb, *offset, 3, ENC_BIG_ENDIAN, &ng_enodeb_id);
     *offset += 3;
 
-    str = wmem_strdup_printf(wmem_packet_scope(), "%s, Macro ng-eNodeB ID 0x%x",
+    str = wmem_strdup_printf(pinfo->pool, "%s, Macro ng-eNodeB ID 0x%x",
         mcc_mnc_str,
         ng_enodeb_id);
 
@@ -6039,7 +6039,7 @@ dissect_gtpv2_fqdn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, prot
         name_len = tvb_get_guint8(tvb, offset);
 
         if (name_len < 0x20) {
-            fqdn = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1, length - 1, ENC_ASCII);
+            fqdn = tvb_get_string_enc(pinfo->pool, tvb, offset + 1, length - 1, ENC_ASCII);
             for (;;) {
                 if (name_len >= length - 1)
                     break;
@@ -6048,7 +6048,7 @@ dissect_gtpv2_fqdn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, prot
                 fqdn[tmp] = '.';
             }
         } else {
-            fqdn = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_ASCII);
+            fqdn = tvb_get_string_enc(pinfo->pool, tvb, offset, length, ENC_ASCII);
         }
         proto_tree_add_string(tree, hf_gtpv2_fqdn, tvb, offset, length, fqdn);
         proto_item_append_text(item, "%s", fqdn);
@@ -6203,7 +6203,7 @@ dissect_gtpv2_mbms_flow_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
     int offset = 0;
     /* Two octets OctetString. */
     proto_tree_add_item(tree, hf_gtpv2_mbms_flow_id, tvb, offset, 2, ENC_NA);
-    proto_item_append_text(item, " %s", tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, 2));
+    proto_item_append_text(item, " %s", tvb_bytes_to_str(pinfo->pool, tvb, offset, 2));
 
     offset += 2;
     if (length > 2)
@@ -6702,7 +6702,7 @@ dissect_gtpv2_abs_mbms_data_tf_time(tvbuff_t *tvb, packet_info *pinfo _U_, proto
     int          offset = 0;
     char        *time_str;
 
-    proto_tree_add_item_ret_time_string(tree, hf_gtpv2_abs_time_mbms_data, tvb, offset, 8, ENC_TIME_NTP | ENC_BIG_ENDIAN, wmem_packet_scope(), &time_str);
+    proto_tree_add_item_ret_time_string(tree, hf_gtpv2_abs_time_mbms_data, tvb, offset, 8, ENC_TIME_NTP | ENC_BIG_ENDIAN, pinfo->pool, &time_str);
     proto_item_append_text(item, "%s", time_str);
 
     offset += 8;
@@ -6917,7 +6917,7 @@ dissect_gtpv2_uli_timestamp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
      * format as defined in section 6 of IETF RFC 5905
      */
 
-    proto_tree_add_item_ret_time_string(tree, hf_gtpv2_uli_timestamp, tvb, 0, 4, ENC_TIME_NTP|ENC_BIG_ENDIAN, wmem_packet_scope(), &time_str);
+    proto_tree_add_item_ret_time_string(tree, hf_gtpv2_uli_timestamp, tvb, 0, 4, ENC_TIME_NTP|ENC_BIG_ENDIAN, pinfo->pool, &time_str);
     proto_item_append_text(item, "%s", time_str);
 
 }
@@ -7333,7 +7333,7 @@ dissect_gtpv2_twan_identifier_timestamp(tvbuff_t *tvb, packet_info *pinfo _U_, p
     * format as defined in section 6 of IETF RFC 5905
     */
 
-    proto_tree_add_item_ret_time_string(tree, hf_gtpv2_twan_id_ts, tvb, 0, 4, ENC_TIME_NTP | ENC_BIG_ENDIAN, wmem_packet_scope(), &time_str);
+    proto_tree_add_item_ret_time_string(tree, hf_gtpv2_twan_id_ts, tvb, 0, 4, ENC_TIME_NTP | ENC_BIG_ENDIAN, pinfo->pool, &time_str);
     proto_item_append_text(item, "%s", time_str);
 
 }
@@ -7418,7 +7418,7 @@ dissect_gtpv2_apn_and_relative_capacity(tvbuff_t *tvb, packet_info *pinfo _U_, p
 
     if (apn_length > 0) {
         proto_item* pi;
-        pi = proto_tree_add_item_ret_string(tree, hf_gtpv2_apn, tvb, offset, apn_length, ENC_APN_STR | ENC_NA, wmem_packet_scope(), &apn);
+        pi = proto_tree_add_item_ret_string(tree, hf_gtpv2_apn, tvb, offset, apn_length, ENC_APN_STR | ENC_NA, pinfo->pool, &apn);
         if (apn_length > 100)
             expert_add_info(pinfo, pi, &ei_gtpv2_apn_too_long);
     }
@@ -8759,7 +8759,7 @@ dissect_gtpv2(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data
         NULL
     };
 
-    gtpv2_hdr = wmem_new0(wmem_packet_scope(), gtpv2_hdr_t);
+    gtpv2_hdr = wmem_new0(pinfo->pool, gtpv2_hdr_t);
 
     /* Setting the TEID to -1 to say that the TEID is not valid for this packet */
     gtpv2_hdr->teid = -1;
@@ -8778,11 +8778,11 @@ dissect_gtpv2(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data
     gtpv2_tree = proto_item_add_subtree(ti, ett_gtpv2);
 
     if (g_gtp_session) {
-        args = wmem_new0(wmem_packet_scope(), session_args_t);
+        args = wmem_new0(pinfo->pool, session_args_t);
         args->last_cause = 16;                                         /* It stores the last cause decoded. Cause accepted by default */
         /* We create the auxiliary lists */
-        args->teid_list = wmem_list_new(wmem_packet_scope());
-        args->ip_list = wmem_list_new(wmem_packet_scope());
+        args->teid_list = wmem_list_new(pinfo->pool);
+        args->ip_list = wmem_list_new(pinfo->pool);
     }
 
     /*

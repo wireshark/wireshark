@@ -851,7 +851,7 @@ static void dissect_h248_annexc_SDP_M(proto_tree* tree, tvbuff_t* tvb, packet_in
 			next_offset = tvb_find_guint8(param_tvb, offset, -1, ' ');
 			if (next_offset > 0){
 				tokenlen = next_offset - offset;
-				port_str = tvb_get_string_enc(wmem_packet_scope(), param_tvb, offset, tokenlen, ENC_UTF_8 | ENC_NA);
+				port_str = tvb_get_string_enc(pinfo->pool, param_tvb, offset, tokenlen, ENC_UTF_8 | ENC_NA);
 				if (g_ascii_isdigit(port_str[0])) {
 					gint32 port = -1;
 					gboolean port_valid;

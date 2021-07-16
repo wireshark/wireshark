@@ -1555,7 +1555,7 @@ dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
 		proto_tree_add_item_ret_uint(icmp_tree, hf_icmp_num_addrs, tvb, 4, 1, ENC_BIG_ENDIAN, &num_addrs);
 		proto_tree_add_item_ret_uint(icmp_tree, hf_icmp_addr_entry_size, tvb, 5, 1, ENC_BIG_ENDIAN, &addr_entry_size);
 		ti = proto_tree_add_item(icmp_tree, hf_icmp_lifetime, tvb, 6, 2, ENC_BIG_ENDIAN);
-		proto_item_append_text(ti, " (%s)", signed_time_secs_to_str(wmem_packet_scope(), tvb_get_ntohs(tvb, 6)));
+		proto_item_append_text(ti, " (%s)", signed_time_secs_to_str(pinfo->pool, tvb_get_ntohs(tvb, 6)));
 		break;
 
 	case ICMP_PARAMPROB:
@@ -1790,13 +1790,13 @@ dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
 
 			orig_ts = get_best_guess_mstimeofday(tvb, 8, frame_ts);
 			ti = proto_tree_add_item(icmp_tree, hf_icmp_originate_timestamp, tvb, 8, 4, ENC_BIG_ENDIAN);
-			proto_item_append_text(ti, " (%s after midnight UTC)", signed_time_msecs_to_str(wmem_packet_scope(), orig_ts));
+			proto_item_append_text(ti, " (%s after midnight UTC)", signed_time_msecs_to_str(pinfo->pool, orig_ts));
 
 			ti = proto_tree_add_item(icmp_tree, hf_icmp_receive_timestamp, tvb, 12, 4, ENC_BIG_ENDIAN);
-			proto_item_append_text(ti, " (%s after midnight UTC)", signed_time_msecs_to_str(wmem_packet_scope(), get_best_guess_mstimeofday(tvb, 12, frame_ts)));
+			proto_item_append_text(ti, " (%s after midnight UTC)", signed_time_msecs_to_str(pinfo->pool, get_best_guess_mstimeofday(tvb, 12, frame_ts)));
 
 			ti = proto_tree_add_item(icmp_tree, hf_icmp_transmit_timestamp, tvb, 16, 4, ENC_BIG_ENDIAN);
-			proto_item_append_text(ti, " (%s after midnight UTC)", signed_time_msecs_to_str(wmem_packet_scope(), get_best_guess_mstimeofday(tvb, 16, frame_ts)));
+			proto_item_append_text(ti, " (%s after midnight UTC)", signed_time_msecs_to_str(pinfo->pool, get_best_guess_mstimeofday(tvb, 16, frame_ts)));
 
 		}
 		break;

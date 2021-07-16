@@ -323,7 +323,7 @@ dissect_TCPFlashUpdate(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tree, voi
 	proto_tree_add_item(adwin_tree, hf_adwin_config_stream_length, tvb, 0, 4, ENC_BIG_ENDIAN);
 	offset = 4;
 	length = tvb_strnlen(tvb, offset, -1) + 1;
-	filename = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_ASCII|ENC_NA);
+	filename = tvb_get_string_enc(pinfo->pool, tvb, offset, length, ENC_ASCII|ENC_NA);
 	if (strncmp(filename, "eeprom_on", length) == 0) {
 		proto_tree_add_boolean(adwin_tree, hf_adwin_config_eeprom_support, tvb, offset, length, TRUE);
 		return offset+length;

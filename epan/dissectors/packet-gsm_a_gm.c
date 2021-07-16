@@ -4830,7 +4830,7 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 							break;
 						case 2:
 							{
-								guint8 *str = tvb_get_string_enc(wmem_packet_scope(), tvb, curr_offset+1, e_len-1, ENC_ASCII|ENC_NA);
+								guint8 *str = tvb_get_string_enc(pinfo->pool, tvb, curr_offset+1, e_len-1, ENC_ASCII|ENC_NA);
 								guint str_offset = 0;
 
 								while (str_offset < (e_len-1))
@@ -5251,7 +5251,7 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 	{
 		case 0x00: str = "Subscribed maximum bit rate for uplink/reserved"; break;
 		case 0xff: str = "0 kbps"; break;
-		default:   str = wmem_strdup_printf(wmem_packet_scope(), "%u kbps", qos_calc_bitrate(oct));
+		default:   str = wmem_strdup_printf(pinfo->pool, "%u kbps", qos_calc_bitrate(oct));
 	}
 
 	proto_tree_add_uint_format_value(tree, hf_gsm_a_sm_qos_max_bitrate_upl, tvb,
@@ -5267,7 +5267,7 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 	{
 		case 0x00: str = "Subscribed maximum bit rate for downlink/reserved"; break;
 		case 0xff: str = "0 kbps"; break;
-		default:   str = wmem_strdup_printf(wmem_packet_scope(), "%u kbps", qos_calc_bitrate(oct));
+		default:   str = wmem_strdup_printf(pinfo->pool, "%u kbps", qos_calc_bitrate(oct));
 	}
 
 	proto_tree_add_uint_format_value(tree, hf_gsm_a_sm_qos_max_bitrate_downl, tvb,
@@ -5298,7 +5298,7 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 				temp32 = (tmp_oct - 0x10) * 50 + 200;
 			else
 				temp32 = (tmp_oct - 0x20) * 100 + 1000;
-			str = wmem_strdup_printf(wmem_packet_scope(), "%u ms", temp32);
+			str = wmem_strdup_printf(pinfo->pool, "%u ms", temp32);
 	}
 
 	proto_tree_add_uint_format_value(tree, hf_gsm_a_sm_qos_trans_delay, tvb,
@@ -5316,7 +5316,7 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 	{
 		case 0x00: str = "Subscribed guaranteed bit rate for uplink/reserved"; break;
 		case 0xff: str = "0 kbps"; break;
-		default:   str = wmem_strdup_printf(wmem_packet_scope(), "%u kbps", qos_calc_bitrate(oct));
+		default:   str = wmem_strdup_printf(pinfo->pool, "%u kbps", qos_calc_bitrate(oct));
 	}
 
 	proto_tree_add_uint_format_value(tree, hf_gsm_a_sm_qos_guar_bitrate_upl, tvb,
@@ -5332,7 +5332,7 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 	{
 		case 0x00: str = "Subscribed guaranteed bit rate for downlink/reserved"; break;
 		case 0xff: str = "0 kbps"; break;
-		default:   str = wmem_strdup_printf(wmem_packet_scope(), "%u kbps", qos_calc_bitrate(oct));
+		default:   str = wmem_strdup_printf(pinfo->pool, "%u kbps", qos_calc_bitrate(oct));
 	}
 
 	proto_tree_add_uint_format_value(tree, hf_gsm_a_sm_qos_guar_bitrate_downl, tvb,
@@ -5367,9 +5367,9 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 	{
 		temp32 = qos_calc_ext_bitrate(oct);
 		if (temp32 % 1000 == 0)
-			str = wmem_strdup_printf(wmem_packet_scope(), "%u Mbps", temp32 / 1000);
+			str = wmem_strdup_printf(pinfo->pool, "%u Mbps", temp32 / 1000);
 		else
-			str = wmem_strdup_printf(wmem_packet_scope(), "%u kbps", temp32);
+			str = wmem_strdup_printf(pinfo->pool, "%u kbps", temp32);
 	}
 	proto_tree_add_uint_format_value(tree, hf_gsm_a_sm_qos_max_bitrate_downl_ext, tvb,
 		curr_offset, 1, oct, "%s (%u)", str, oct);
@@ -5386,9 +5386,9 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 	{
 		temp32 = qos_calc_ext_bitrate(oct);
 		if (temp32 % 1000 == 0)
-			str = wmem_strdup_printf(wmem_packet_scope(), "%u Mbps", temp32 / 1000);
+			str = wmem_strdup_printf(pinfo->pool, "%u Mbps", temp32 / 1000);
 		else
-			str = wmem_strdup_printf(wmem_packet_scope(), "%u kbps", temp32);
+			str = wmem_strdup_printf(pinfo->pool, "%u kbps", temp32);
 	}
 	proto_tree_add_uint_format_value(tree, hf_gsm_a_sm_qos_guar_bitrate_downl_ext, tvb,
 		curr_offset, 1, oct, "%s (%u)", str, oct);
@@ -5405,9 +5405,9 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 	{
 		temp32 = qos_calc_ext_bitrate(oct);
 		if (temp32 % 1000 == 0)
-			str = wmem_strdup_printf(wmem_packet_scope(), "%u Mbps", temp32 / 1000);
+			str = wmem_strdup_printf(pinfo->pool, "%u Mbps", temp32 / 1000);
 		else
-			str = wmem_strdup_printf(wmem_packet_scope(), "%u kbps", temp32);
+			str = wmem_strdup_printf(pinfo->pool, "%u kbps", temp32);
 	}
 	proto_tree_add_uint_format_value(tree, hf_gsm_a_sm_qos_max_bitrate_upl_ext, tvb,
 		curr_offset, 1, oct, "%s (%u)", str, oct);
@@ -5424,9 +5424,9 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 	{
 		temp32 = qos_calc_ext_bitrate(oct);
 		if (temp32 % 1000 == 0)
-			str = wmem_strdup_printf(wmem_packet_scope(), "%u Mbps", temp32 / 1000);
+			str = wmem_strdup_printf(pinfo->pool, "%u Mbps", temp32 / 1000);
 		else
-			str = wmem_strdup_printf(wmem_packet_scope(), "%u kbps", temp32);
+			str = wmem_strdup_printf(pinfo->pool, "%u kbps", temp32);
 	}
 	proto_tree_add_uint_format_value(tree, hf_gsm_a_sm_qos_guar_bitrate_upl_ext, tvb,
 		curr_offset, 1, oct, "%s (%u)", str, oct);
@@ -5442,7 +5442,7 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 	else
 	{
 		temp32 = qos_calc_ext2_bitrate(oct);
-		str = wmem_strdup_printf(wmem_packet_scope(), "%u Mbps", temp32);
+		str = wmem_strdup_printf(pinfo->pool, "%u Mbps", temp32);
 	}
 	proto_tree_add_uint_format_value(tree, hf_gsm_a_sm_qos_max_bitrate_downl_ext2, tvb,
 		curr_offset, 1, oct, "%s (%u)", str, oct);
@@ -5458,7 +5458,7 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 	else
 	{
 		temp32 = qos_calc_ext2_bitrate(oct);
-		str = wmem_strdup_printf(wmem_packet_scope(), "%u Mbps", temp32);
+		str = wmem_strdup_printf(pinfo->pool, "%u Mbps", temp32);
 	}
 	proto_tree_add_uint_format_value(tree, hf_gsm_a_sm_qos_guar_bitrate_downl_ext2, tvb,
 		curr_offset, 1, oct, "%s (%u)", str, oct);
@@ -5474,7 +5474,7 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 	else
 	{
 		temp32 = qos_calc_ext2_bitrate(oct);
-		str = wmem_strdup_printf(wmem_packet_scope(), "%u Mbps", temp32);
+		str = wmem_strdup_printf(pinfo->pool, "%u Mbps", temp32);
 	}
 	proto_tree_add_uint_format_value(tree, hf_gsm_a_sm_qos_max_bitrate_upl_ext2, tvb,
 		curr_offset, 1, oct, "%s (%u)", str, oct);
@@ -5490,7 +5490,7 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 	else
 	{
 		temp32 = qos_calc_ext2_bitrate(oct);
-		str = wmem_strdup_printf(wmem_packet_scope(), "%u Mbps", temp32);
+		str = wmem_strdup_printf(pinfo->pool, "%u Mbps", temp32);
 	}
 	proto_tree_add_uint_format_value(tree, hf_gsm_a_sm_qos_guar_bitrate_upl_ext2, tvb,
 		curr_offset, 1, oct, "%s (%u)", str, oct);
@@ -6179,7 +6179,7 @@ de_sm_mbms_bearer_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint
 	{
 		case 0x00: str = "Subscribed maximum bit rate for downlink/reserved"; break;
 		case 0xff: str = "0 kbps"; break;
-		default:   str = wmem_strdup_printf(wmem_packet_scope(), "%u kbps", qos_calc_bitrate(oct));
+		default:   str = wmem_strdup_printf(pinfo->pool, "%u kbps", qos_calc_bitrate(oct));
 	}
 
 	proto_tree_add_uint_format_value(tree, hf_gsm_a_sm_qos_max_bitrate_downl, tvb,
@@ -6196,9 +6196,9 @@ de_sm_mbms_bearer_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint
 	{
 		temp32 = qos_calc_ext_bitrate(oct);
 		if (temp32 % 1000 == 0)
-			str = wmem_strdup_printf(wmem_packet_scope(), "%u Mbps", temp32 / 1000);
+			str = wmem_strdup_printf(pinfo->pool, "%u Mbps", temp32 / 1000);
 		else
-			str = wmem_strdup_printf(wmem_packet_scope(), "%u kbps", temp32);
+			str = wmem_strdup_printf(pinfo->pool, "%u kbps", temp32);
 	}
 	proto_tree_add_uint_format_value(tree, hf_gsm_a_sm_qos_max_bitrate_downl_ext, tvb,
 		curr_offset, 1, oct, "%s (%u)", str, oct);
@@ -6241,7 +6241,7 @@ de_sm_enh_nsapi(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
 	if(oct < 0x80)
 		str = "Reserved";
 	else if (oct < 0xff)
-			str = wmem_strdup_printf(wmem_packet_scope(), "NSAPI %u for Multimedia Broadcast/Multicast Service (MBMS) Multicast mode", oct);
+			str = wmem_strdup_printf(pinfo->pool, "NSAPI %u for Multimedia Broadcast/Multicast Service (MBMS) Multicast mode", oct);
 		else
 			str = "Reserved for use by lower layers in the p2p radio bearer allocation message for MBMS Broadcast mode";
 

@@ -78,7 +78,7 @@ dissect_hpteam(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "HP NIC Team");
 	col_add_fstr(pinfo->cinfo, COL_INFO, "HP NIC Teaming Heartbeat; Port MAC = %s",
-	    address_to_str(wmem_packet_scope(), &pinfo->dl_src));
+	    address_to_str(pinfo->pool, &pinfo->dl_src));
 
 	if (tree) { /* we are being asked for details */
 		proto_item *hpteam_item;

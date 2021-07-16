@@ -3831,7 +3831,7 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
             {
             bluetooth_eir_ad_data_t *eir_data;
 
-            eir_data = wmem_new0(wmem_packet_scope(), bluetooth_eir_ad_data_t);
+            eir_data = wmem_new0(pinfo->pool, bluetooth_eir_ad_data_t);
             eir_data->interface_id = bluetooth_data->interface_id;
             eir_data->adapter_id = bluetooth_data->adapter_id;
             eir_data->bd_addr = NULL;
@@ -4465,7 +4465,7 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
             {
             bluetooth_eir_ad_data_t *ad_data;
 
-            ad_data = wmem_new0(wmem_packet_scope(), bluetooth_eir_ad_data_t);
+            ad_data = wmem_new0(pinfo->pool, bluetooth_eir_ad_data_t);
             ad_data->interface_id = bluetooth_data->interface_id;
             ad_data->adapter_id = bluetooth_data->adapter_id;
             ad_data->bd_addr = NULL;
@@ -4817,7 +4817,7 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
             offset+=1;
 
             bluetooth_eir_ad_data_t *ad_data;
-            ad_data = wmem_new0(wmem_packet_scope(), bluetooth_eir_ad_data_t);
+            ad_data = wmem_new0(pinfo->pool, bluetooth_eir_ad_data_t);
             ad_data->interface_id = bluetooth_data->interface_id;
             ad_data->adapter_id = bluetooth_data->adapter_id;
             ad_data->bd_addr = NULL;
@@ -4881,7 +4881,7 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
             offset+=1;
 
             bluetooth_eir_ad_data_t *ad_data;
-            ad_data = wmem_new0(wmem_packet_scope(), bluetooth_eir_ad_data_t);
+            ad_data = wmem_new0(pinfo->pool, bluetooth_eir_ad_data_t);
             ad_data->interface_id = bluetooth_data->interface_id;
             ad_data->adapter_id = bluetooth_data->adapter_id;
             ad_data->bd_addr = NULL;
@@ -5683,7 +5683,7 @@ dissect_bthci_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     if (have_tap_listener(bluetooth_hci_summary_tap)) {
         bluetooth_hci_summary_tap_t  *tap_hci_summary;
 
-        tap_hci_summary = wmem_new(wmem_packet_scope(), bluetooth_hci_summary_tap_t);
+        tap_hci_summary = wmem_new(pinfo->pool, bluetooth_hci_summary_tap_t);
 
         tap_hci_summary->interface_id  = bluetooth_data->interface_id;
         tap_hci_summary->adapter_id    = bluetooth_data->adapter_id;
@@ -8966,7 +8966,7 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bluetoo
             proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_name, tvb, offset, length, ENC_UTF_8 | ENC_NA);
             proto_item_append_text(entry_item, ": %s", tvb_format_text(tvb, offset, length));
             if (!name || type == 0x09)
-                name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_UTF_8);
+                name = tvb_get_string_enc(pinfo->pool, tvb, offset, length, ENC_UTF_8);
             offset += length;
 
             break;
@@ -9451,7 +9451,7 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bluetoo
     if  (bluetooth_eir_ad_data && bluetooth_eir_ad_data->bd_addr && name && have_tap_listener(bluetooth_device_tap)) {
         bluetooth_device_tap_t  *tap_device;
 
-        tap_device = wmem_new(wmem_packet_scope(), bluetooth_device_tap_t);
+        tap_device = wmem_new(pinfo->pool, bluetooth_device_tap_t);
         tap_device->interface_id  = bluetooth_eir_ad_data->interface_id;
         tap_device->adapter_id    = bluetooth_eir_ad_data->adapter_id;
         memcpy(tap_device->bd_addr, bluetooth_eir_ad_data->bd_addr, 6);
@@ -9465,7 +9465,7 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bluetoo
     if (has_bd_addr && name && have_tap_listener(bluetooth_device_tap)) {
         bluetooth_device_tap_t  *tap_device;
 
-        tap_device = wmem_new(wmem_packet_scope(), bluetooth_device_tap_t);
+        tap_device = wmem_new(pinfo->pool, bluetooth_device_tap_t);
         if (bluetooth_eir_ad_data) {
             tap_device->interface_id  = bluetooth_eir_ad_data->interface_id;
             tap_device->adapter_id    = bluetooth_eir_ad_data->adapter_id;

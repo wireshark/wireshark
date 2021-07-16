@@ -3107,7 +3107,7 @@ dissect_magic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       offset += 2;
 
       offset -= 7;
-      buffer = wmem_strdup_printf(wmem_packet_scope(), "%d.%d.%d.%d.%d.%d", major, minor, patch, aud, crit, build);
+      buffer = wmem_strdup_printf(pinfo->pool, "%d.%d.%d.%d.%d.%d", major, minor, patch, aud, crit, build);
       proto_tree_add_string(magic_tree, hf_magic_reply_version, tvb, offset, 7, buffer);
       offset += 7;
 
@@ -3151,7 +3151,7 @@ dissect_magic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       offset += 2;
 
       offset -= 7;
-      buffer = wmem_strdup_printf(wmem_packet_scope(), "%d.%d.%d.%d.%d.%d", major, minor, patch, aud, crit, build);
+      buffer = wmem_strdup_printf(pinfo->pool, "%d.%d.%d.%d.%d.%d", major, minor, patch, aud, crit, build);
       proto_tree_add_string(magic_tree, hf_magic_reply_version, tvb, offset, 7, buffer);
       offset += 7;
 
@@ -3482,7 +3482,7 @@ acn_add_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int off
       /* Add Address */
       proto_tree_add_item(addr_tree, hf_acn_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
       /* Append port and address to tree item */
-      proto_item_append_text(pi, " %s, Port %d", tvb_address_to_str(wmem_packet_scope(), tvb, AT_IPv4, offset), port);
+      proto_item_append_text(pi, " %s, Port %d", tvb_address_to_str(pinfo->pool, tvb, AT_IPv4, offset), port);
       offset    += 4;
       break;
     case ACN_ADDR_IPV6:
@@ -3497,7 +3497,7 @@ acn_add_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int off
       /* Add Address */
       proto_tree_add_item(addr_tree, hf_acn_ipv6, tvb, offset, 16, ENC_NA);
       /* Append port and address to tree item */
-      proto_item_append_text(pi, " %s, Port %d", tvb_address_to_str(wmem_packet_scope(), tvb, AT_IPv6, offset), port);
+      proto_item_append_text(pi, " %s, Port %d", tvb_address_to_str(pinfo->pool, tvb, AT_IPv6, offset), port);
       offset    += 16;
       break;
     case ACN_ADDR_IPPORT:
@@ -3792,13 +3792,13 @@ acn_add_dmp_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int of
 
       switch (A) {
         case ACN_DMP_ADT_A_1: /* One octet address, (range: one octet address, increment, and count). */
-          buffer = wmem_strdup_printf(wmem_packet_scope(), "Addr 0x%2.2X ->", data_address);
+          buffer = wmem_strdup_printf(pinfo->pool, "Addr 0x%2.2X ->", data_address);
           break;
         case ACN_DMP_ADT_A_2: /* Two octet address, (range: two octet address, increment, and count). */
-          buffer = wmem_strdup_printf(wmem_packet_scope(), "Addr 0x%4.4X ->", data_address);
+          buffer = wmem_strdup_printf(pinfo->pool, "Addr 0x%4.4X ->", data_address);
           break;
         case ACN_DMP_ADT_A_4: /* Four octet address, (range: four octet address, increment, and count). */
-          buffer = wmem_strdup_printf(wmem_packet_scope(), "Addr 0x%8.8X ->", data_address);
+          buffer = wmem_strdup_printf(pinfo->pool, "Addr 0x%8.8X ->", data_address);
           break;
         default: /* and ACN_DMP_ADT_A_R, this reserved....so it has no meaning yet */
           offset += data_size;
@@ -3823,7 +3823,7 @@ acn_add_dmp_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int of
           proto_tree_add_uint_format(tree, hf_acn_data32, tvb, offset, 4, data_value, "%s %8.8X", buffer, data_value);
           break;
         default:
-          default_buffer = wmem_strbuf_new(wmem_packet_scope(), "");
+          default_buffer = wmem_strbuf_new(pinfo->pool, "");
           /* build string of values */
           for (y=0; y<20 && y<data_size; y++) {
             data_value = tvb_get_guint8(tvb, offset+y);
@@ -3847,13 +3847,13 @@ acn_add_dmp_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int of
       for (x=0; x<adt->count; x++) {
         switch (A) {
           case ACN_DMP_ADT_A_1: /* One octet address, (range: one octet address, increment, and count). */
-            buffer = wmem_strdup_printf(wmem_packet_scope(), "Addr 0x%2.2X ->", data_address);
+            buffer = wmem_strdup_printf(pinfo->pool, "Addr 0x%2.2X ->", data_address);
             break;
           case ACN_DMP_ADT_A_2: /* Two octet address, (range: two octet address, increment, and count). */
-            buffer = wmem_strdup_printf(wmem_packet_scope(), "Addr 0x%4.4X ->", data_address);
+            buffer = wmem_strdup_printf(pinfo->pool, "Addr 0x%4.4X ->", data_address);
             break;
           case ACN_DMP_ADT_A_4: /* Four octet address, (range: four octet address, increment, and count). */
-            buffer = wmem_strdup_printf(wmem_packet_scope(), "Addr 0x%8.8X ->", data_address);
+            buffer = wmem_strdup_printf(pinfo->pool, "Addr 0x%8.8X ->", data_address);
             break;
           default: /* and ACN_DMP_ADT_A_R, this reserved....so it has no meaning yet */
             return offset;
@@ -3878,7 +3878,7 @@ acn_add_dmp_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int of
             break;
           default:
             /* build string of values */
-            default_buffer = wmem_strbuf_new(wmem_packet_scope(), "");
+            default_buffer = wmem_strbuf_new(pinfo->pool, "");
             for (y=0; y<20 && y<data_size; y++) {
               data_value = tvb_get_guint8(tvb, offset+y);
               wmem_strbuf_append_printf(default_buffer, " %2.2X", data_value);
@@ -3902,13 +3902,13 @@ acn_add_dmp_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int of
       for (x=0; x<adt->count; x++) {
         switch (A) {
           case ACN_DMP_ADT_A_1: /* One octet address, (range: one octet address, increment, and count). */
-            buffer = wmem_strdup_printf(wmem_packet_scope(), "Addr 0x%2.2X ->", data_address);
+            buffer = wmem_strdup_printf(pinfo->pool, "Addr 0x%2.2X ->", data_address);
             break;
           case ACN_DMP_ADT_A_2: /* Two octet address, (range: two octet address, increment, and count). */
-            buffer = wmem_strdup_printf(wmem_packet_scope(), "Addr 0x%4.4X ->", data_address);
+            buffer = wmem_strdup_printf(pinfo->pool, "Addr 0x%4.4X ->", data_address);
             break;
           case ACN_DMP_ADT_A_4: /* Four octet address, (range: four octet address, increment, and count). */
-            buffer = wmem_strdup_printf(wmem_packet_scope(), "Addr 0x%8.8X ->", data_address);
+            buffer = wmem_strdup_printf(pinfo->pool, "Addr 0x%8.8X ->", data_address);
             break;
           default: /* and ACN_DMP_ADT_A_R, this reserved....so it has no meaning yet */
             return offset;
@@ -3933,7 +3933,7 @@ acn_add_dmp_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int of
             break;
           default:
             /* build string of values */
-            default_buffer = wmem_strbuf_new(wmem_packet_scope(), "");
+            default_buffer = wmem_strbuf_new(pinfo->pool, "");
             for (y=0; y<20 && y<data_size; y++) {
               data_value = tvb_get_guint8(tvb, offset+y);
               wmem_strbuf_append_printf(default_buffer, " %2.2X", data_value);
@@ -3981,13 +3981,13 @@ acn_add_dmp_reason_codes(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
       data_address = adt->address;
       switch (A) {
         case ACN_DMP_ADT_A_1: /* One octet address, (range: one octet address, increment, and count). */
-          buffer = wmem_strdup_printf(wmem_packet_scope(), "Addr 0x%2.2X ->", data_address);
+          buffer = wmem_strdup_printf(pinfo->pool, "Addr 0x%2.2X ->", data_address);
           break;
         case ACN_DMP_ADT_A_2: /* Two octet address, (range: two octet address, increment, and count). */
-          buffer = wmem_strdup_printf(wmem_packet_scope(), "Addr 0x%4.4X ->", data_address);
+          buffer = wmem_strdup_printf(pinfo->pool, "Addr 0x%4.4X ->", data_address);
           break;
         case ACN_DMP_ADT_A_4: /* Four octet address, (range: four octet address, increment, and count). */
-          buffer = wmem_strdup_printf(wmem_packet_scope(), "Addr 0x%8.8X ->", data_address);
+          buffer = wmem_strdup_printf(pinfo->pool, "Addr 0x%8.8X ->", data_address);
           break;
         default: /* and ACN_DMP_ADT_A_R, this reserved....so it has no meaning yet */
           return offset;
@@ -4005,13 +4005,13 @@ acn_add_dmp_reason_codes(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
       for (x=0; x<adt->count; x++) {
         switch (A) {
           case ACN_DMP_ADT_A_1: /* One octet address, (range: one octet address, increment, and count). */
-            buffer = wmem_strdup_printf(wmem_packet_scope(), "Addr 0x%2.2X ->", data_address);
+            buffer = wmem_strdup_printf(pinfo->pool, "Addr 0x%2.2X ->", data_address);
             break;
           case ACN_DMP_ADT_A_2: /* Two octet address, (range: two octet address, increment, and count). */
-            buffer = wmem_strdup_printf(wmem_packet_scope(), "Addr 0x%4.4X ->", data_address);
+            buffer = wmem_strdup_printf(pinfo->pool, "Addr 0x%4.4X ->", data_address);
             break;
           case ACN_DMP_ADT_A_4: /* Four octet address, (range: four octet address, increment, and count). */
-            buffer = wmem_strdup_printf(wmem_packet_scope(), "Addr 0x%8.8X ->", data_address);
+            buffer = wmem_strdup_printf(pinfo->pool, "Addr 0x%8.8X ->", data_address);
             break;
           default: /* and ACN_DMP_ADT_A_R, this reserved....so it has no meaning yet */
             return offset;
@@ -4033,13 +4033,13 @@ acn_add_dmp_reason_codes(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
       for (x=0; x<adt->count; x++) {
         switch (A) {
           case ACN_DMP_ADT_A_1: /* One octet address, (range: one octet address, increment, and count). */
-            buffer = wmem_strdup_printf(wmem_packet_scope(), "Addr 0x%2.2X ->", data_address);
+            buffer = wmem_strdup_printf(pinfo->pool, "Addr 0x%2.2X ->", data_address);
             break;
           case ACN_DMP_ADT_A_2: /* Two octet address, (range: two octet address, increment, and count). */
-            buffer = wmem_strdup_printf(wmem_packet_scope(), "Addr 0x%4.4X ->", data_address);
+            buffer = wmem_strdup_printf(pinfo->pool, "Addr 0x%4.4X ->", data_address);
             break;
           case ACN_DMP_ADT_A_4: /* Four octet address, (range: four octet address, increment, and count). */
-            buffer = wmem_strdup_printf(wmem_packet_scope(), "Addr 0x%8.8X ->", data_address);
+            buffer = wmem_strdup_printf(pinfo->pool, "Addr 0x%8.8X ->", data_address);
             break;
           default: /* and ACN_DMP_ADT_A_R, this reserved....so it has no meaning yet */
             return offset;
@@ -5419,7 +5419,7 @@ dissect_acn_dmx_data_pdu(guint32 protocol_id, tvbuff_t *tvb, packet_info *pinfo,
   guint16           info_start_code;
   guint8            dmx_2_start_code;
 
-  buffer = (gchar*)wmem_alloc(wmem_packet_scope(), BUFFER_SIZE);
+  buffer = (gchar*)wmem_alloc(pinfo->pool, BUFFER_SIZE);
   buffer[0] = '\0';
 
   begin_dissect_acn_pdu(&pdu_tree, tvb, &ti, tree, &pdu_start, &offset, &pdu_flags, &pdu_length, &pdu_flvh_length, ett_acn_dmx_data_pdu, 1);
@@ -6088,7 +6088,7 @@ dissect_acn_llrp_base_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
   /* get destination (CID) 16 bytes */
   proto_tree_add_item(pdu_tree, hf_rdmnet_llrp_destination_cid, tvb, data_offset, 16, ENC_BIG_ENDIAN);
   tvb_get_guid(tvb, data_offset, &guid, ENC_BIG_ENDIAN);
-  proto_item_append_text(ti, ", Dest: %s", guid_to_str(wmem_packet_scope(), &guid));
+  proto_item_append_text(ti, ", Dest: %s", guid_to_str(pinfo->pool, &guid));
   data_offset += 16;
 
   /* transaction number (4 bytes) */
@@ -6974,11 +6974,11 @@ dissect_acn_root_pdu_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdu_t
 
   /* get Header (CID) 16 bytes */
   tvb_get_guid(tvb, header_offset, &guid, ENC_BIG_ENDIAN);
-  proto_item_append_text(ti, ", Src: %s", guid_to_str(wmem_packet_scope(), &guid));
+  proto_item_append_text(ti, ", Src: %s", guid_to_str(pinfo->pool, &guid));
 
   if (add_cid_to_info) {
     /* add cid to info */
-    col_add_fstr(pinfo->cinfo, COL_INFO, "CID %s", guid_to_str(wmem_packet_scope(), &guid));
+    col_add_fstr(pinfo->cinfo, COL_INFO, "CID %s", guid_to_str(pinfo->pool, &guid));
   }
 
   if (is_acn) {

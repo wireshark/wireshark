@@ -2473,8 +2473,8 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     if (tree) {
         if (ipv6_summary_in_tree) {
             proto_item_append_text(ipv6_item, ", Src: %s, Dst: %s",
-                    address_with_resolution_to_str(wmem_packet_scope(), &pinfo->src),
-                    address_with_resolution_to_str(wmem_packet_scope(), &pinfo->dst));
+                    address_with_resolution_to_str(pinfo->pool, &pinfo->src),
+                    address_with_resolution_to_str(pinfo->pool, &pinfo->dst));
         }
 
         /* Add the different items for the address */
@@ -2526,15 +2526,15 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     }
 
     /* Fill in IP header fields for subdissectors */
-    iph = wmem_new0(wmem_packet_scope(), ws_ip6);
+    iph = wmem_new0(pinfo->pool, ws_ip6);
     iph->ip6_ver = 6;
     iph->ip6_tc = ip6_tcls;
     iph->ip6_flw = ip6_flow;
     iph->ip6_len = plen;
     iph->ip6_nxt = ip6_nxt;
     iph->ip6_hop = ip6_hlim;
-    alloc_address_wmem_ipv6(wmem_packet_scope(), &iph->ip6_src, ip6_src);
-    alloc_address_wmem_ipv6(wmem_packet_scope(), &iph->ip6_dst, ip6_dst);
+    alloc_address_wmem_ipv6(pinfo->pool, &iph->ip6_src, ip6_src);
+    alloc_address_wmem_ipv6(pinfo->pool, &iph->ip6_dst, ip6_dst);
 
     /* Shared state between IPv6 header and extensions. */
     ipv6_pinfo_t  *ipv6_pinfo = wmem_new0(pinfo->pool, ipv6_pinfo_t);

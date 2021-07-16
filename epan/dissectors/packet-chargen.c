@@ -47,7 +47,7 @@ dissect_chargen(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* disse
 	chargen_tree = proto_item_add_subtree(ti, ett_chargen);
 
 	len = tvb_reported_length(tvb);
-	data = tvb_get_string_enc(wmem_packet_scope(), tvb, 0, len, ENC_ASCII);
+	data = tvb_get_string_enc(pinfo->pool, tvb, 0, len, ENC_ASCII);
 
 	proto_tree_add_string_format(chargen_tree, hf_chargen_data, tvb, 0,
 		len, "Data", "Data (%u): %s", len, data);

@@ -412,7 +412,7 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                         offset++;
                         proto_tree_add_item(hsrp_tree, hf_hsrp_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
                         offset++;
-                        auth = (gchar *) tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 8, ENC_ASCII|ENC_NA);
+                        auth = (gchar *) tvb_get_string_enc(pinfo->pool, tvb, offset, 8, ENC_ASCII|ENC_NA);
                         proto_tree_add_string_format_value(hsrp_tree, hf_hsrp_auth_data, tvb, offset, 8, auth,
                                              "%sDefault (%s)",
                                              (strcmp(auth, "cisco") == 0) ? "" : "Non-",
@@ -576,7 +576,7 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                         /* Making Text Authentication TLV subtree */
                                         text_auth_tlv = proto_item_add_subtree(ti, ett_hsrp2_text_auth_tlv);
 
-                                        auth = (gchar *) tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 8, ENC_ASCII|ENC_NA);
+                                        auth = (gchar *) tvb_get_string_enc(pinfo->pool, tvb, offset, 8, ENC_ASCII|ENC_NA);
                                         proto_tree_add_string_format_value(text_auth_tlv, hf_hsrp2_auth_data, tvb, offset, 8, auth,
                                                              "%sDefault (%s)",
                                                              (strcmp(auth, "cisco") == 0) ? "" : "Non-",

@@ -130,7 +130,7 @@ dissect_gopher(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         if (line_len == 0) {
             request = "[Directory list]";
         } else if (line_len > 0) {
-            request = tvb_get_string_enc(wmem_packet_scope(), tvb, 0, line_len, ENC_ASCII);
+            request = tvb_get_string_enc(pinfo->pool, tvb, 0, line_len, ENC_ASCII);
         }
         col_add_fstr(pinfo->cinfo, COL_INFO, "Request: %s", request);
     } else {
@@ -155,7 +155,7 @@ dissect_gopher(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                     col_append_str(pinfo->cinfo, COL_INFO, ": [Directory list]");
                 }
 
-                name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1, sel_start - offset - 2, ENC_ASCII);
+                name = tvb_get_string_enc(pinfo->pool, tvb, offset + 1, sel_start - offset - 2, ENC_ASCII);
                 ti = proto_tree_add_string(gopher_tree, hf_gopher_dir_item, tvb,
                                 offset, line_len + 1, name);
                 dir_tree = proto_item_add_subtree(ti, ett_dir_item);

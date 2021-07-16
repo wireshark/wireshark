@@ -51,7 +51,7 @@ dissect_ttag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     timestamp.secs = (time_t) (timestamp_value / G_GUINT64_CONSTANT(1000000000));
     timestamp.nsecs = (guint32)(timestamp_value - (timestamp.secs * G_GUINT64_CONSTANT(1000000000)));
 
-    proto_item_append_text(ti, ", Timestamp: %s", rel_time_to_secs_str(wmem_packet_scope(), &timestamp));
+    proto_item_append_text(ti, ", Timestamp: %s", rel_time_to_secs_str(pinfo->pool, &timestamp));
 
     proto_tree_add_time(ttag_tree, hf_ttag_time_stamp, tvb, offset, 6, &timestamp);
     offset += 6;

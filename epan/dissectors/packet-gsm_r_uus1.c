@@ -553,7 +553,7 @@ de_gsm_r_uus1_alert_controller(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
     proto_tree_add_item(sub_tree, hf_gsm_r_uus1_elem_len, tvb, curr_offset+1, 1, ENC_NA);
     curr_offset += 2;
 
-    proto_tree_add_item_ret_display_string(sub_tree, hf_gsm_r_uus1_alert_controller_gref, tvb, curr_offset, 4, ENC_BCD_DIGITS_0_9, wmem_packet_scope(), &gref_str);
+    proto_tree_add_item_ret_display_string(sub_tree, hf_gsm_r_uus1_alert_controller_gref, tvb, curr_offset, 4, ENC_BCD_DIGITS_0_9, pinfo->pool, &gref_str);
     proto_item_append_text(item, ": %s", gref_str);
     curr_offset += 4;
 

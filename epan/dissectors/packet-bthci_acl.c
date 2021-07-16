@@ -190,7 +190,7 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     direction         = pinfo->p2p_dir;
     frame_number      = pinfo->num;
 
-    acl_data = wmem_new(wmem_packet_scope(), bthci_acl_data_t);
+    acl_data = wmem_new(pinfo->pool, bthci_acl_data_t);
     acl_data->interface_id                = interface_id;
     acl_data->adapter_id                  = adapter_id;
     acl_data->adapter_disconnect_in_frame = bluetooth_data->adapter_disconnect_in_frame;

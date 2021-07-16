@@ -2447,7 +2447,7 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     }
     offset += 2;
 
-    l2cap_data = wmem_new(wmem_packet_scope(), btl2cap_data_t);
+    l2cap_data = wmem_new(pinfo->pool, btl2cap_data_t);
 
     if (pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID)
         l2cap_data->interface_id = pinfo->rec->rec_header.packet_header.interface_id;

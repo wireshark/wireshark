@@ -1973,13 +1973,13 @@ dissect_conn_desc(tvbuff_t *tvb, gint offset, conversation_t *conv,
                     tvb, offset, 1, ENC_BIG_ENDIAN);
         offset ++;
         if (port_item) {
-            if (ip_proto==LSC_TCP && tcp_port_to_display(wmem_packet_scope(), port)) {
+            if (ip_proto==LSC_TCP && tcp_port_to_display(pinfo->pool, port)) {
                 proto_item_append_text(port_item, " (%s)",
-                        tcp_port_to_display(wmem_packet_scope(), port));
+                        tcp_port_to_display(pinfo->pool, port));
             }
-            else if (ip_proto==LSC_UDP && udp_port_to_display(wmem_packet_scope(), port)) {
+            else if (ip_proto==LSC_UDP && udp_port_to_display(pinfo->pool, port)) {
                 proto_item_append_text(port_item, " (%s)",
-                        udp_port_to_display(wmem_packet_scope(), port));
+                        udp_port_to_display(pinfo->pool, port));
             }
         }
         store_lsc_msg_dissector(conv, ip_proto, port);
@@ -2000,13 +2000,13 @@ dissect_conn_desc(tvbuff_t *tvb, gint offset, conversation_t *conv,
                 hf_dvbci_lsc_dst_port, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset +=2;
         if (port_item) {
-            if (ip_proto==LSC_TCP && tcp_port_to_display(wmem_packet_scope(), port)) {
+            if (ip_proto==LSC_TCP && tcp_port_to_display(pinfo->pool, port)) {
                 proto_item_append_text(port_item, " (%s)",
-                        tcp_port_to_display(wmem_packet_scope(), port));
+                        tcp_port_to_display(pinfo->pool, port));
             }
-            else if (ip_proto==LSC_UDP && udp_port_to_display(wmem_packet_scope(), port)) {
+            else if (ip_proto==LSC_UDP && udp_port_to_display(pinfo->pool, port)) {
                 proto_item_append_text(port_item, " (%s)",
-                        udp_port_to_display(wmem_packet_scope(), port));
+                        udp_port_to_display(pinfo->pool, port));
             }
         }
         store_lsc_msg_dissector(conv, ip_proto, port);
@@ -2465,7 +2465,7 @@ decrypt_sac_msg_body(packet_info *pinfo,
     clear_data = (unsigned char *)wmem_alloc(pinfo->pool, clear_len);
 
     err = gcry_cipher_decrypt (cipher, clear_data, clear_len,
-            tvb_memdup(wmem_packet_scope(), encrypted_tvb, offset, len), len);
+            tvb_memdup(pinfo->pool, encrypted_tvb, offset, len), len);
     if (gcry_err_code (err))
         goto end;
 
@@ -2501,7 +2501,7 @@ dissect_si_string(tvbuff_t *tvb, gint offset, gint str_len,
     offset += enc_len;
     str_len -= enc_len;
 
-    si_str = tvb_get_string_enc(wmem_packet_scope(),
+    si_str = tvb_get_string_enc(pinfo->pool,
             tvb, offset, str_len, dvb_enc_to_item_enc(encoding));
     if (!si_str)
         return;
@@ -2769,7 +2769,7 @@ dissect_dvbci_payload_ap(guint32 tag, gint len_field _U_,
             menu_str_len -= enc_len;
             proto_tree_add_item_ret_string(tree, hf_dvbci_menu_str,
                     tvb, offset, menu_str_len, dvb_enc_to_item_enc(encoding),
-                    wmem_packet_scope(), &menu_string);
+                    pinfo->pool, &menu_string);
             col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL,
                     "Module name %s", menu_string);
         }
@@ -3049,7 +3049,7 @@ dissect_dvbci_payload_dt(guint32 tag, gint len_field,
         }
         else {
             col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL,
-                    "update every %s", rel_time_to_str(wmem_packet_scope(), &resp_intv));
+                    "update every %s", rel_time_to_str(pinfo->pool, &resp_intv));
         }
     }
     else if (tag==T_DATE_TIME) {
@@ -3069,7 +3069,7 @@ dissect_dvbci_payload_dt(guint32 tag, gint len_field,
         proto_tree_add_time(tree, hf_dvbci_utc_time,
                 tvb, offset, time_field_len, &utc_time);
         col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ", "%s UTC",
-                abs_time_to_str(wmem_packet_scope(), &utc_time, ABSOLUTE_TIME_UTC, FALSE));
+                abs_time_to_str(pinfo->pool, &utc_time, ABSOLUTE_TIME_UTC, FALSE));
         offset += time_field_len;
 
         if (len_field==7) {
@@ -3283,7 +3283,7 @@ dissect_dvbci_payload_hlc(guint32 tag, gint len_field _U_,
   }
 
   /* both apdus' body is only a country code, this can be shared */
-  str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset,
+  str = tvb_get_string_enc(pinfo->pool, tvb, offset,
               tvb_reported_length_remaining(tvb, offset),
               ENC_ISO_8859_1|ENC_NA);
   if (str)
@@ -3646,7 +3646,7 @@ dissect_dvbci_ami_file_req(tvbuff_t *tvb, gint offset,
     if (req_type==REQ_TYPE_FILE || req_type==REQ_TYPE_FILE_HASH) {
         proto_tree_add_item_ret_string(tree, hf_dvbci_file_name,
                 tvb, offset, tvb_reported_length_remaining(tvb, offset),
-                ENC_ASCII, wmem_packet_scope(), &req_str);
+                ENC_ASCII, pinfo->pool, &req_str);
         col_append_sep_str(pinfo->cinfo, COL_INFO, " ", req_str);
     }
     else if (req_type==REQ_TYPE_DATA) {
@@ -3685,7 +3685,7 @@ dissect_dvbci_ami_file_ack(tvbuff_t *tvb, gint offset,
         proto_tree_add_item(tree, hf_dvbci_file_name_len,
                 tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
-        file_name_str = tvb_get_string_enc(wmem_packet_scope(),
+        file_name_str = tvb_get_string_enc(pinfo->pool,
                 tvb, offset, file_name_len, ENC_ASCII);
         if (!file_name_str)
             return;
@@ -3755,7 +3755,7 @@ dissect_dvbci_payload_ami(guint32 tag, gint len_field _U_,
                     tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
             proto_tree_add_item_ret_string(tree, hf_dvbci_app_dom_id,
-                    tvb, offset, app_dom_id_len, ENC_ASCII|ENC_NA, wmem_packet_scope(), &app_dom_id);
+                    tvb, offset, app_dom_id_len, ENC_ASCII|ENC_NA, pinfo->pool, &app_dom_id);
             if (app_dom_id) {
                 col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ",
                         "for %s", app_dom_id);
@@ -4164,7 +4164,7 @@ dissect_dvbci_payload_afs(guint32 tag, gint len_field _U_,
         case T_AFS_FILE_SYSTEM_OFFER:
             proto_tree_add_item_ret_string(tree, hf_dvbci_afs_dom_id,
                     tvb, offset, 1, ENC_UTF_8|ENC_BIG_ENDIAN,
-                    wmem_packet_scope(), &dom_id_str);
+                    pinfo->pool, &dom_id_str);
             if (dom_id_str) {
                 col_append_sep_fstr(pinfo->cinfo,
                         COL_INFO, ": ", "%s", dom_id_str);

@@ -63,7 +63,7 @@ PIDL_dissect_uint8_val(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
         hf_info = proto_registrar_get_nth(hfindex);
 
-        valstr = (char *)wmem_alloc(wmem_packet_scope(), 64);
+        valstr = (char *)wmem_alloc(pinfo->pool, 64);
         valstr[0]=0;
 
         switch (hf_info->display) {
@@ -151,7 +151,7 @@ PIDL_dissect_uint16_val(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
         hf_info = proto_registrar_get_nth(hfindex);
 
-        valstr = (char *)wmem_alloc(wmem_packet_scope(), 64);
+        valstr = (char *)wmem_alloc(pinfo->pool, 64);
         valstr[0]=0;
 
         switch (hf_info->display) {
@@ -278,7 +278,7 @@ PIDL_dissect_uint32_val(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
         hf_info = proto_registrar_get_nth(hfindex);
 
-        valstr = (char *)wmem_alloc(wmem_packet_scope(), 64);
+        valstr = (char *)wmem_alloc(pinfo->pool, 64);
         valstr[0]=0;
 
         switch (hf_info->display) {
@@ -394,7 +394,7 @@ PIDL_dissect_uint64_val(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
         hf_info = proto_registrar_get_nth(hfindex);
 
-        valstr = (char *)wmem_alloc(wmem_packet_scope(), 64);
+        valstr = (char *)wmem_alloc(pinfo->pool, 64);
         valstr[0]=0;
 
         switch (hf_info->display) {

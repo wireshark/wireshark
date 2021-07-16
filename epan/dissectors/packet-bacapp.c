@@ -7659,7 +7659,7 @@ fOctetString(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, 
     offset += fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
 
     if (lvt > 0) {
-        tmp = tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, lvt);
+        tmp = tvb_bytes_to_str(pinfo->pool, tvb, offset, lvt);
         subtree = proto_tree_add_subtree_format(tree, tvb, offset, lvt,
                     ett_bacapp_tag, NULL, "%s %s", label, tmp);
         offset += lvt;
@@ -7690,7 +7690,7 @@ fMacAddress(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, c
         proto_tree_add_item(tree, hf_bacapp_tag_PORT, tvb, offset+16, 2, ENC_BIG_ENDIAN);
     } else { /* we have 1 Byte MS/TP Address or anything else interpreted as an address */
         subtree = proto_tree_add_subtree(tree, tvb, offset, lvt,
-                ett_bacapp_tag, NULL, tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, lvt));
+                ett_bacapp_tag, NULL, tvb_bytes_to_str(pinfo->pool, tvb, offset, lvt));
     }
     offset += lvt;
 
@@ -7755,12 +7755,12 @@ fObjectIdentifier(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 
     /* update BACnet Statistics */
     updateBacnetInfoValue(BACINFO_OBJECTID,
-                  wmem_strdup(wmem_packet_scope(),
+                  wmem_strdup(pinfo->pool,
                     val_to_split_str(object_type, 128,
                     BACnetObjectType, ASHRAE_Reserved_Fmt,
                     Vendor_Proprietary_Fmt)));
     updateBacnetInfoValue(BACINFO_INSTANCEID,
-                  wmem_strdup_printf(wmem_packet_scope(),
+                  wmem_strdup_printf(pinfo->pool,
                     "Instance ID: %u",
                     object_id_instance(object_id)));
 
@@ -8225,32 +8225,32 @@ fCharacterStringBase(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
             /** this decoding may be not correct for multi-byte characters, Lka */
             switch (character_set) {
             case ANSI_X3_4:
-                out = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, l, ENC_UTF_8);
+                out = tvb_get_string_enc(pinfo->pool, tvb, offset, l, ENC_UTF_8);
                 coding = "UTF-8";
                 break;
             case IBM_MS_DBCS:
-                out = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, l, ENC_ASCII);
+                out = tvb_get_string_enc(pinfo->pool, tvb, offset, l, ENC_ASCII);
                 coding = "IBM MS DBCS";
                 break;
             case JIS_C_6226:
-                out = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, l, ENC_ASCII);
+                out = tvb_get_string_enc(pinfo->pool, tvb, offset, l, ENC_ASCII);
                 coding = "JIS C 6226";
                 break;
             case ISO_10646_UCS4:
-                out = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, l, ENC_UCS_4|ENC_BIG_ENDIAN);
+                out = tvb_get_string_enc(pinfo->pool, tvb, offset, l, ENC_UCS_4|ENC_BIG_ENDIAN);
                 coding = "ISO 10646 UCS-4";
                 break;
             case ISO_10646_UCS2:
-                out = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, l, ENC_UCS_2|ENC_BIG_ENDIAN);
+                out = tvb_get_string_enc(pinfo->pool, tvb, offset, l, ENC_UCS_2|ENC_BIG_ENDIAN);
                 coding = "ISO 10646 UCS-2";
                 break;
             case ISO_8859_1:
-                out = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, l, ENC_ISO_8859_1);
+                out = tvb_get_string_enc(pinfo->pool, tvb, offset, l, ENC_ISO_8859_1);
                 coding = "ISO 8859-1";
                 break;
             default:
                 /* Assume this is some form of extended ASCII, with one-byte code points for ASCII characters */
-                out = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, l, ENC_ASCII);
+                out = tvb_get_string_enc(pinfo->pool, tvb, offset, l, ENC_ASCII);
                 coding = "unknown";
                 break;
             }
@@ -10212,7 +10212,7 @@ fBACnetPropertyStates(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
     const value_string_enum* valstrenum;
 
     fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
-    label = wmem_strdup_printf(wmem_packet_scope(), "%s: ",
+    label = wmem_strdup_printf(pinfo->pool, "%s: ",
                                val_to_str_const( tag_no, VALS(BACnetPropertyStates), "Unknown State" ));
 
     switch (tag_no) {
@@ -15649,10 +15649,10 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                         bacapp_invoke_id);
 
         updateBacnetInfoValue(BACINFO_INVOKEID,
-                              wmem_strdup_printf(wmem_packet_scope(), "Invoke ID: %d", bacapp_invoke_id));
+                              wmem_strdup_printf(pinfo->pool, "Invoke ID: %d", bacapp_invoke_id));
 
         updateBacnetInfoValue(BACINFO_SERVICE,
-                              wmem_strconcat(wmem_packet_scope(),
+                              wmem_strconcat(pinfo->pool,
                                              val_to_str_const(bacapp_service,
                                                               BACnetConfirmedServiceChoice,
                                                               bacapp_unknown_service_str),
@@ -15666,7 +15666,7 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                                          bacapp_unknown_service_str));
 
         updateBacnetInfoValue(BACINFO_SERVICE,
-                              wmem_strconcat(wmem_packet_scope(),
+                              wmem_strconcat(pinfo->pool,
                                              val_to_str_const(bacapp_service,
                                                               BACnetUnconfirmedServiceChoice,
                                                               bacapp_unknown_service_str),
@@ -15682,11 +15682,11 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                         bacapp_invoke_id);
 
         updateBacnetInfoValue(BACINFO_INVOKEID,
-                              wmem_strdup_printf(wmem_packet_scope(),
+                              wmem_strdup_printf(pinfo->pool,
                                                  "Invoke ID: %d", bacapp_invoke_id));
 
         updateBacnetInfoValue(BACINFO_SERVICE,
-                              wmem_strconcat(wmem_packet_scope(),
+                              wmem_strconcat(pinfo->pool,
                                              val_to_str_const(bacapp_service,
                                                               BACnetConfirmedServiceChoice,
                                                               bacapp_unknown_service_str),
@@ -15714,10 +15714,10 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                         bacapp_invoke_id);
 
         updateBacnetInfoValue(BACINFO_INVOKEID,
-                              wmem_strdup_printf(wmem_packet_scope(), "Invoke ID: %d", bacapp_invoke_id));
+                              wmem_strdup_printf(pinfo->pool, "Invoke ID: %d", bacapp_invoke_id));
 
         updateBacnetInfoValue(BACINFO_SERVICE,
-                              wmem_strconcat(wmem_packet_scope(),
+                              wmem_strconcat(pinfo->pool,
                                              val_to_str_const(bacapp_service,
                                                               BACnetConfirmedServiceChoice,
                                                               bacapp_unknown_service_str),
@@ -15736,10 +15736,10 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                         bacapp_invoke_id);
 
         updateBacnetInfoValue(BACINFO_INVOKEID,
-                              wmem_strdup_printf(wmem_packet_scope(), "Invoke ID: %d", bacapp_invoke_id));
+                              wmem_strdup_printf(pinfo->pool, "Invoke ID: %d", bacapp_invoke_id));
 
         updateBacnetInfoValue(BACINFO_SERVICE,
-                              wmem_strconcat(wmem_packet_scope(),
+                              wmem_strconcat(pinfo->pool,
                                              errstr,
                                              val_to_str_const(bacapp_service,
                                                               BACnetConfirmedServiceChoice,
@@ -15757,10 +15757,10 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                                          Vendor_Proprietary_Fmt), bacapp_invoke_id);
 
         updateBacnetInfoValue(BACINFO_INVOKEID,
-                              wmem_strdup_printf(wmem_packet_scope(), "Invoke ID: %d", bacapp_invoke_id));
+                              wmem_strdup_printf(pinfo->pool, "Invoke ID: %d", bacapp_invoke_id));
 
         updateBacnetInfoValue(BACINFO_SERVICE,
-                              wmem_strconcat(wmem_packet_scope(), rejstr,
+                              wmem_strconcat(pinfo->pool, rejstr,
                                              val_to_split_str(bacapp_reason, 64,
                                                               BACnetRejectReason,
                                                               ASHRAE_Reserved_Fmt,
@@ -15778,10 +15778,10 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                                          Vendor_Proprietary_Fmt), bacapp_invoke_id);
 
         updateBacnetInfoValue(BACINFO_INVOKEID,
-                              wmem_strdup_printf(wmem_packet_scope(), "Invoke ID: %d", bacapp_invoke_id));
+                              wmem_strdup_printf(pinfo->pool, "Invoke ID: %d", bacapp_invoke_id));
 
         updateBacnetInfoValue(BACINFO_SERVICE,
-                              wmem_strconcat(wmem_packet_scope(), abortstr,
+                              wmem_strconcat(pinfo->pool, abortstr,
                                              val_to_split_str(bacapp_reason,
                                                               64,
                                                               BACnetAbortReason,

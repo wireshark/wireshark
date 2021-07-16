@@ -394,7 +394,7 @@ decode_dataitem_status(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree *pt
   offset+=1;
 
   proto_tree_add_item(pt, hf_dlep_dataitem_status_text, tvb, offset, len-1, ENC_UTF_8|ENC_NA);
-  proto_item_append_text(pi, ", Text: %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, len-1, ENC_UTF_8));
+  proto_item_append_text(pi, ", Text: %s", tvb_get_string_enc(pinfo->pool, tvb, offset, len-1, ENC_UTF_8));
   offset+=len-1;
 
   return offset;
@@ -485,7 +485,7 @@ decode_dataitem_peertype(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree *
   offset+=DLEP_DIT_PEERTYPE_FLAGS_LEN;
 
   proto_tree_add_item(pt, hf_dlep_dataitem_peertype_description, tvb, offset, len-DLEP_DIT_PEERTYPE_FLAGS_LEN, ENC_UTF_8|ENC_NA);
-  proto_item_append_text(pi, ", Description: %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, len-DLEP_DIT_PEERTYPE_FLAGS_LEN, ENC_UTF_8));
+  proto_item_append_text(pi, ", Description: %s", tvb_get_string_enc(pinfo->pool, tvb, offset, len-DLEP_DIT_PEERTYPE_FLAGS_LEN, ENC_UTF_8));
   offset+=len-DLEP_DIT_PEERTYPE_FLAGS_LEN;
 
   return offset;
@@ -822,7 +822,7 @@ decode_dataitem_hop_cnt(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree *p
   proto_tree_add_bitmask(pt, tvb, offset, hf_dlep_dataitem_hop_count_flags, ett_dlep_flags, hop_cnt_flags, ENC_BIG_ENDIAN);
   offset+=1;
   pi_field = proto_tree_add_item(pt, hf_dlep_dataitem_hop_count, tvb, offset, 1, ENC_NA);
-  proto_item_append_text(pi, ": %s Hops", proto_item_get_display_repr(wmem_packet_scope(), pi_field));
+  proto_item_append_text(pi, ": %s Hops", proto_item_get_display_repr(pinfo->pool, pi_field));
   offset+=1;
 
   if (len != DLEP_DIT_HOP_CNT_LEN)
@@ -838,7 +838,7 @@ decode_dataitem_hop_cntrl(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree 
   proto_item *pi_field = NULL;
 
   pi_field = proto_tree_add_item(pt, hf_dlep_dataitem_hop_control, tvb, offset, DLEP_DIT_HOP_CNTRL_LEN, ENC_BIG_ENDIAN);
-  proto_item_append_text(pi, ": %s", proto_item_get_display_repr(wmem_packet_scope(), pi_field));
+  proto_item_append_text(pi, ": %s", proto_item_get_display_repr(pinfo->pool, pi_field));
   offset+=DLEP_DIT_HOP_CNTRL_LEN;
 
   if (len != DLEP_DIT_HOP_CNTRL_LEN)
@@ -854,7 +854,7 @@ decode_dataitem_li_length(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree 
   proto_item *pi_field = NULL;
 
   pi_field = proto_tree_add_item(pt, hf_dlep_dataitem_li_length, tvb, offset, DLEP_DIT_LI_LENGTH_LEN, ENC_BIG_ENDIAN);
-  proto_item_append_text(pi, ": %s Bytes", proto_item_get_display_repr(wmem_packet_scope(), pi_field));
+  proto_item_append_text(pi, ": %s Bytes", proto_item_get_display_repr(pinfo->pool, pi_field));
   offset+=DLEP_DIT_LI_LENGTH_LEN;
 
   if (len != DLEP_DIT_LI_LENGTH_LEN)
@@ -868,7 +868,7 @@ decode_dataitem_li_length(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree 
 decode_dataitem_li(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree *pt, int len, packet_info *pinfo _U_)
 {
   proto_tree_add_item(pt, hf_dlep_dataitem_li, tvb, offset, len, ENC_NA);
-  proto_item_append_text(pi, ": %s", tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, len));
+  proto_item_append_text(pi, ": %s", tvb_bytes_to_str(pinfo->pool, tvb, offset, len));
   offset+=len;
 
   return offset;
@@ -884,7 +884,7 @@ decode_dataitem_lat_range(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree 
   max_lat = proto_tree_add_item(pt, hf_dlep_dataitem_max_lat, tvb, offset, 8, ENC_BIG_ENDIAN);
   offset+=8;
   min_lat = proto_tree_add_item(pt, hf_dlep_dataitem_min_lat, tvb, offset, 8, ENC_BIG_ENDIAN);
-  proto_item_append_text(pi, ": %s - %s (us)", proto_item_get_display_repr(wmem_packet_scope(), min_lat), proto_item_get_display_repr(wmem_packet_scope(), max_lat));
+  proto_item_append_text(pi, ": %s - %s (us)", proto_item_get_display_repr(pinfo->pool, min_lat), proto_item_get_display_repr(pinfo->pool, max_lat));
   offset+=8;
 
   if (len != DLEP_DIT_LAT_RANGE_LEN)

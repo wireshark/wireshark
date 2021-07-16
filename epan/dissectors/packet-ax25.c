@@ -129,7 +129,7 @@ dissect_ax25( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 	tvbuff_t *next_tvb = NULL;
 
 
-	info_buffer = (char *)wmem_alloc( wmem_packet_scope(), STRLEN );
+	info_buffer = (char *)wmem_alloc( pinfo->pool, STRLEN );
 	info_buffer[0] = '\0';
 
 	col_set_str( pinfo->cinfo, COL_PROTOCOL, "AX.25" );
@@ -158,8 +158,8 @@ dissect_ax25( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 	offset += AX25_ADDR_LEN;
 
 	proto_item_append_text( ti, ", Src: %s, Dst: %s",
-		address_to_str(wmem_packet_scope(), &pinfo->src),
-		address_to_str(wmem_packet_scope(), &pinfo->dst));
+		address_to_str(pinfo->pool, &pinfo->src),
+		address_to_str(pinfo->pool, &pinfo->dst));
 
 	/* decode the cmd/resp field */
 	/* v2cmdresp = '.'; */

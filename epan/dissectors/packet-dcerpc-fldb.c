@@ -316,7 +316,7 @@ dissect_vlconf_cell (tvbuff_t *tvb, int offset,
 
   /* byte name[MAXVLCELLCHARS];          Cell name */
   proto_tree_add_item (tree, hf_fldb_vlconf_cell_name, tvb, offset, 114, ENC_ASCII|ENC_NA);
-  name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, MAXVLCELLCHARS, ENC_ASCII); /* XXX why 114 above and 128 here?? */
+  name = tvb_get_string_enc(pinfo->pool, tvb, offset, MAXVLCELLCHARS, ENC_ASCII); /* XXX why 114 above and 128 here?? */
   offset += MAXVLCELLCHARS;     /* some reason this 114 seems to be incorrect... cutting 4 short to compensate.... */
   col_append_fstr (pinfo->cinfo, COL_INFO, " Name: %s", name);
 
@@ -348,7 +348,7 @@ dissect_vlconf_cell (tvbuff_t *tvb, int offset,
   for (i = 0; i < MAXVLHOSTSPERCELL; i++)
     {
       proto_tree_add_item_ret_string(tree, hf_fldb_vlconf_cell_hostname, tvb, offset,
-                             64, ENC_ASCII|ENC_NA, wmem_packet_scope(), &hostname);
+                             64, ENC_ASCII|ENC_NA, pinfo->pool, &hostname);
       offset += 64;             /* some reason this 114 seems to be incorrect... cutting 4 short to compensate.... */
       col_append_fstr (pinfo->cinfo, COL_INFO, " hostName: %s", hostname);
     }
@@ -423,7 +423,7 @@ typedef [string] byte   NameString_t[AFS_NAMEMAX];
     {
 /* proto_tree_add_string(tree, id, tvb, start, length, value_ptr); */
       proto_tree_add_item_ret_string(tree, hf_fldb_afsNameString_t_principalName_string,
-                             tvb, offset, string_size, ENC_ASCII|ENC_NA, wmem_packet_scope(), &namestring);
+                             tvb, offset, string_size, ENC_ASCII|ENC_NA, pinfo->pool, &namestring);
       offset += string_size;
         col_append_fstr (pinfo->cinfo, COL_INFO, " Principal:%s", namestring);
     }
@@ -637,7 +637,7 @@ dissect_vldbentry (tvbuff_t *tvb, int offset,
 /*    byte            name[114];      Volume name  */
 
   proto_tree_add_item_ret_string(tree, hf_fldb_vldbentry_volumename, tvb, offset, 114,
-                       ENC_ASCII|ENC_NA, wmem_packet_scope(), &volumename);
+                       ENC_ASCII|ENC_NA, pinfo->pool, &volumename);
   offset += 110;                /* some reason this 114 seems to be incorrect... cutting 4 short to compensate.... */
   col_append_fstr (pinfo->cinfo, COL_INFO, " Name: %s", volumename);
 
@@ -697,7 +697,7 @@ dissect_vldbentry (tvbuff_t *tvb, int offset,
   for (i = 0; i < MAXNSERVERS; i++)
     {
       proto_tree_add_item_ret_string(tree, hf_fldb_vldbentry_siteprincipal, tvb,
-                           offset, 64, ENC_ASCII|ENC_NA, wmem_packet_scope(), &siteprincipal);
+                           offset, 64, ENC_ASCII|ENC_NA, pinfo->pool, &siteprincipal);
       offset += 64;
         col_append_fstr (pinfo->cinfo, COL_INFO, " Princ: %s", siteprincipal);
     }
@@ -845,13 +845,13 @@ dissect_vldbentry (tvbuff_t *tvb, int offset,
 
   /* byte            LockerName[MAXLOCKNAMELEN]; */
   proto_tree_add_item_ret_string(tree, hf_fldb_vldbentry_lockername, tvb, offset,
-                       MAXLOCKNAMELEN, ENC_ASCII|ENC_NA, wmem_packet_scope(), &lockername);
+                       MAXLOCKNAMELEN, ENC_ASCII|ENC_NA, pinfo->pool, &lockername);
   offset += MAXLOCKNAMELEN;     /* some reason this 114 seems to be incorrect... cutting 4 short to compensate.... */
   col_append_fstr (pinfo->cinfo, COL_INFO, " LockerName: %s", lockername);
 
   /*     byte            charSpares[50]; */
   proto_tree_add_item_ret_string(tree, hf_fldb_vldbentry_charspares, tvb, offset, 50,
-                       ENC_ASCII|ENC_NA, wmem_packet_scope(), &charspares);
+                       ENC_ASCII|ENC_NA, pinfo->pool, &charspares);
   offset += 50;                 /* some reason this 114 seems to be incorrect... cutting 4 short to compensate.... */
   col_append_fstr (pinfo->cinfo, COL_INFO, " charSpares:%s", charspares);
 
@@ -983,7 +983,7 @@ fldb_dissect_getsiteinfo_resp (tvbuff_t *tvb, int offset,
 
   offset += 48;                 /* part of kerbprin before name... */
 
-  proto_tree_add_item_ret_string(tree, hf_fldb_namestring, tvb, offset, 64, ENC_ASCII|ENC_NA, wmem_packet_scope(), &namestring);
+  proto_tree_add_item_ret_string(tree, hf_fldb_namestring, tvb, offset, 64, ENC_ASCII|ENC_NA, pinfo->pool, &namestring);
   offset += 64;
   col_append_fstr (pinfo->cinfo, COL_INFO, " %s", namestring);
 

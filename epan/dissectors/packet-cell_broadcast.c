@@ -386,7 +386,7 @@ int dissect_umts_cell_broadcast_message(tvbuff_t *tvb, packet_info *pinfo, proto
    msg_len = tvb_reported_length(cbs_msg_tvb);
    cbs_subtree = proto_tree_add_subtree_format(cbs_tree, tvb, offset, -1,
                     ett_cbs_msg, NULL, "Cell Broadcast Message Contents (length: %d)", msg_len);
-   msg = tvb_get_string_enc(wmem_packet_scope(), cbs_msg_tvb, 0, msg_len, ENC_UTF_8|ENC_NA);
+   msg = tvb_get_string_enc(pinfo->pool, cbs_msg_tvb, 0, msg_len, ENC_UTF_8|ENC_NA);
    proto_tree_add_string_format(cbs_subtree, hf_gsm_cbs_message_content, cbs_msg_tvb, 0, -1, msg, "%s", msg);
    return tvb_captured_length(tvb);
 }

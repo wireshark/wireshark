@@ -178,7 +178,7 @@ dissect_fcct (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
                              sizeof (guint8), ENC_BIG_ENDIAN);
         set_address(&addr, AT_FC, 3, &in_id);
         proto_tree_add_string (fcct_tree, hf_fcct_inid, tvb, offset, 3,
-                               address_to_str(wmem_packet_scope(), &addr));
+                               address_to_str(pinfo->pool, &addr));
         offset += 3; /* sizeof FC address */
 
         proto_tree_add_item (fcct_tree, hf_fcct_gstype, tvb, offset++,

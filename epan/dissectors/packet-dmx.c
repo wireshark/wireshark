@@ -125,7 +125,7 @@ dissect_dmx_chan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 			"0x%03x: %s",
 			"%3u: %s"
 		};
-		wmem_strbuf_t *chan_str = wmem_strbuf_new_label(wmem_packet_scope());
+		wmem_strbuf_t *chan_str = wmem_strbuf_new_label(pinfo->pool);
 		proto_item    *item;
 		guint16        length,r,c,row_count;
 		guint8         v;

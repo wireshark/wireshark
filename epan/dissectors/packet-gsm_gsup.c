@@ -645,7 +645,7 @@ static void dissect_name_ie(tvbuff_t *tvb, packet_info *pinfo _U_, guint offset,
 
 	if (show_name_as_text) {
 		guint8 *str;
-		str = tvb_get_stringzpad(wmem_packet_scope(), tvb, offset, ie_len,  ENC_ASCII|ENC_NA);
+		str = tvb_get_stringzpad(pinfo->pool, tvb, offset, ie_len,  ENC_ASCII|ENC_NA);
 		proto_item_append_text(parent_ti, ": %s", (char *)str);
 	}
 

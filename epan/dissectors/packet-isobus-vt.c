@@ -1114,7 +1114,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
 
             proto_tree_add_item_ret_string(tree,
                 hf_isobus_vt_vtchgstrval_value, tvb, offset + bomOffset, str_length - bomOffset, encoding,
-                wmem_packet_scope(), &value);
+                pinfo->pool, &value);
 
             col_append_fstr(pinfo->cinfo, COL_INFO, "VT String value of %s should change to %s",
                 get_object_id_string(object_id), value);
@@ -2705,7 +2705,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             }
 
             proto_tree_add_item_ret_string(tree,
-                hf_isobus_vt_chgstrval_value, tvb, offset + bomOffset, str_length - bomOffset, encoding, wmem_packet_scope(), &value);
+                hf_isobus_vt_chgstrval_value, tvb, offset + bomOffset, str_length - bomOffset, encoding, pinfo->pool, &value);
 
             col_append_fstr(pinfo->cinfo, COL_INFO, "String value of %s should change to %s",
                 get_object_id_string(object_id), value);
@@ -3218,7 +3218,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                 }
 
                 proto_tree_add_item_ret_string(tree,
-                    hf_isobus_vt_graphicscontext_drawtext_textstring, tvb, offset + bomOffset, number_of_bytes - bomOffset, encoding, wmem_packet_scope(), &value);
+                    hf_isobus_vt_graphicscontext_drawtext_textstring, tvb, offset + bomOffset, number_of_bytes - bomOffset, encoding, pinfo->pool, &value);
 
                 col_append_fstr(pinfo->cinfo, COL_INFO, "Draw string \"%s\" at cursor with a %s background",
                     value, val_to_str(background, draw_text_background, "unknown"));
@@ -3945,7 +3945,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             const guint8 *version_label;
 
             proto_tree_add_item_ret_string(tree,
-                hf_isobus_vt_storeversion_versionlabel, tvb, offset, 7, ENC_ASCII|ENC_NA, wmem_packet_scope(), &version_label);
+                hf_isobus_vt_storeversion_versionlabel, tvb, offset, 7, ENC_ASCII|ENC_NA, pinfo->pool, &version_label);
 
             col_append_fstr(pinfo->cinfo, COL_INFO, "Store version under label %s", version_label);
         }
@@ -3982,7 +3982,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             const guint8* version_label;
 
             proto_tree_add_item_ret_string(tree,
-                hf_isobus_vt_loadversion_versionlabel, tvb, offset, 7, ENC_ASCII|ENC_NA, wmem_packet_scope(), &version_label);
+                hf_isobus_vt_loadversion_versionlabel, tvb, offset, 7, ENC_ASCII|ENC_NA, pinfo->pool, &version_label);
 
             col_append_fstr(pinfo->cinfo, COL_INFO, "Load version stored under label \"%s\"", version_label);
         }
@@ -4021,7 +4021,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             const guint8* version_label;
 
             proto_tree_add_item_ret_string(tree,
-                hf_isobus_vt_deleteversion_versionlabel, tvb, offset, 7, ENC_ASCII|ENC_NA, wmem_packet_scope(), &version_label);
+                hf_isobus_vt_deleteversion_versionlabel, tvb, offset, 7, ENC_ASCII|ENC_NA, pinfo->pool, &version_label);
 
             col_append_fstr(pinfo->cinfo, COL_INFO, "Delete version stored under label \"%s\"", version_label);
         }
@@ -4081,7 +4081,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             const guint8* version_label;
 
             proto_tree_add_item_ret_string(tree,
-                hf_isobus_vt_extendedstoreversion_versionlabel, tvb, offset, 32, ENC_ASCII|ENC_NA, wmem_packet_scope(), &version_label);
+                hf_isobus_vt_extendedstoreversion_versionlabel, tvb, offset, 32, ENC_ASCII|ENC_NA, pinfo->pool, &version_label);
 
             col_append_fstr(pinfo->cinfo, COL_INFO, "Store extended version under label \"%s\"", version_label);
         }
@@ -4118,7 +4118,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             const guint8* version_label;
 
             proto_tree_add_item_ret_string(tree,
-                hf_isobus_vt_extendedloadversion_versionlabel, tvb, offset, 32, ENC_ASCII|ENC_NA, wmem_packet_scope(), &version_label);
+                hf_isobus_vt_extendedloadversion_versionlabel, tvb, offset, 32, ENC_ASCII|ENC_NA, pinfo->pool, &version_label);
 
             col_append_fstr(pinfo->cinfo, COL_INFO, "Store extended version under label \"%s\"", version_label);
         }
@@ -4157,7 +4157,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             const guint8* version_label;
 
             proto_tree_add_item_ret_string(tree,
-                hf_isobus_vt_extendeddeleteversion_versionlabel, tvb, offset, 32, ENC_ASCII|ENC_NA, wmem_packet_scope(), &version_label);
+                hf_isobus_vt_extendeddeleteversion_versionlabel, tvb, offset, 32, ENC_ASCII|ENC_NA, pinfo->pool, &version_label);
 
             col_append_fstr(pinfo->cinfo, COL_INFO, "Delete version stored under label %s", version_label);
         }

@@ -632,8 +632,8 @@ static int dissect_jxta_stream(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
         }
 
         /* ws_message("%d Tpt %s:%d -> %s:%d tvb len=%d\n\t%s %d", pinfo->num,
-                  address_to_str(wmem_packet_scope(), &pinfo->src), pinfo->srcport,
-                  address_to_str(wmem_packet_scope(), &pinfo->dst), pinfo->destport,
+                  address_to_str(pinfo->pool, &pinfo->src), pinfo->srcport,
+                  address_to_str(pinfo->pool, &pinfo->dst), pinfo->destport,
                   tvb_reported_length_remaining(tvb, 0),
                   content_type ? content_type : "[unknown content type]", (gint) content_length); */
 
@@ -660,14 +660,14 @@ static int dissect_jxta_stream(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
             /* Use our source and destination addresses if we have them */
             if (NULL != peer_conversation) {
                 /* ws_message("%d Tpt %s:%d -> %s:%d", pinfo->num,
-                          address_to_str(wmem_packet_scope(), &tpt_conv_data->initiator_tpt_address), tpt_conv_data->initiator_tpt_port,
-                          address_to_str(wmem_packet_scope(), &tpt_conv_data->receiver_tpt_address), tpt_conv_data->receiver_tpt_port); */
+                          address_to_str(pinfo->pool, &tpt_conv_data->initiator_tpt_address), tpt_conv_data->initiator_tpt_port,
+                          address_to_str(pinfo->pool, &tpt_conv_data->receiver_tpt_address), tpt_conv_data->receiver_tpt_port); */
 
                 if (addresses_equal(&pinfo->src, &tpt_conv_data->initiator_tpt_address)
                     && tpt_conv_data->initiator_tpt_port == pinfo->srcport) {
                     /* ws_message("%d From initiator : %s -> %s ", pinfo->num,
-                              address_to_str(wmem_packet_scope(), &tpt_conv_data->initiator_address),
-                              address_to_str(wmem_packet_scope(), &tpt_conv_data->receiver_address)); */
+                              address_to_str(pinfo->pool, &tpt_conv_data->initiator_address),
+                              address_to_str(pinfo->pool, &tpt_conv_data->receiver_address)); */
                     copy_address_shallow(&pinfo->src, &tpt_conv_data->initiator_address);
                     pinfo->srcport = 0;
                     copy_address_shallow(&pinfo->dst, &tpt_conv_data->receiver_address);
@@ -676,8 +676,8 @@ static int dissect_jxta_stream(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
                 } else if (addresses_equal(&pinfo->src, &tpt_conv_data->receiver_tpt_address) &&
                            tpt_conv_data->receiver_tpt_port == pinfo->srcport) {
                     /* ws_message("%d From receiver : %s -> %s ", pinfo->num,
-                              address_to_str(wmem_packet_scope(), &tpt_conv_data->receiver_address),
-                              address_to_str(wmem_packet_scope(), &tpt_conv_data->initiator_address)); */
+                              address_to_str(pinfo->pool, &tpt_conv_data->receiver_address),
+                              address_to_str(pinfo->pool, &tpt_conv_data->initiator_address)); */
                     copy_address_shallow(&pinfo->src, &tpt_conv_data->receiver_address);
                     pinfo->srcport = 0;
                     copy_address_shallow(&pinfo->dst, &tpt_conv_data->initiator_address);
@@ -685,8 +685,8 @@ static int dissect_jxta_stream(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
                     pinfo->ptype = PT_NONE;
                 } else {
                     /* ws_message("%d Nothing matches %s:%d -> %s:%d", pinfo->num,
-                              address_to_str(wmem_packet_scope(), &pinfo->src), pinfo->srcport,
-                              address_to_str(wmem_packet_scope(), &pinfo->dst), pinfo->destport); */
+                              address_to_str(pinfo->pool, &pinfo->src), pinfo->srcport,
+                              address_to_str(pinfo->pool, &pinfo->dst), pinfo->destport); */
                 }
             }
 
@@ -822,13 +822,13 @@ static int dissect_jxta_welcome(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
     col_set_str(pinfo->cinfo, COL_INFO, "Welcome");
 
     {
-        gchar *welcomeline = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, first_linelen, ENC_ASCII);
+        gchar *welcomeline = tvb_get_string_enc(pinfo->pool, tvb, offset, first_linelen, ENC_ASCII);
         gchar **current_token;
         guint token_offset = offset;
         proto_item *jxta_welcome_tree_item = NULL;
         proto_tree *jxta_welcome_tree = NULL;
 
-        tokens = wmem_strsplit(wmem_packet_scope(), welcomeline, " ", 255);
+        tokens = wmem_strsplit(pinfo->pool, welcomeline, " ", 255);
         current_token = tokens;
 
         if (tree) {
@@ -1047,7 +1047,7 @@ static int dissect_jxta_message_framing(tvbuff_t * tvb, packet_info * pinfo, pro
 
         if (content_type && (sizeof("content-type") - 1) == headername_len) {
             if (0 == tvb_strncaseeql(tvb, headername_offset, "content-type", sizeof("content-type") - 1)) {
-                *content_type = tvb_get_string_enc(wmem_packet_scope(), tvb, headervalue_offset, headervalue_len, ENC_ASCII);
+                *content_type = tvb_get_string_enc(pinfo->pool, tvb, headervalue_offset, headervalue_len, ENC_ASCII);
             }
         }
 
@@ -1304,10 +1304,10 @@ static int dissect_jxta_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
         return -needed;
     }
 
-    src_addr = wmem_strbuf_new_label(wmem_packet_scope());
-    wmem_strbuf_append(src_addr, address_to_str(wmem_packet_scope(), &pinfo->src));
-    dst_addr = wmem_strbuf_new_label(wmem_packet_scope());
-    wmem_strbuf_append(dst_addr, address_to_str(wmem_packet_scope(), &pinfo->dst));
+    src_addr = wmem_strbuf_new_label(pinfo->pool);
+    wmem_strbuf_append(src_addr, address_to_str(pinfo->pool, &pinfo->src));
+    dst_addr = wmem_strbuf_new_label(pinfo->pool);
+    wmem_strbuf_append(dst_addr, address_to_str(pinfo->pool, &pinfo->dst));
 
     /* append the port if appropriate */
     if (PT_NONE != pinfo->ptype) {
@@ -1398,7 +1398,7 @@ static int dissect_jxta_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
         proto_tree_add_uint(jxta_msg_tree, hf_jxta_message_names_count, tvb, tree_offset, 2, msg_names_count);
         tree_offset += 2;
 
-        names_table = (const gchar **)wmem_alloc(wmem_packet_scope(), (msg_names_count + 2) * sizeof(const gchar *));
+        names_table = (const gchar **)wmem_alloc(pinfo->pool, (msg_names_count + 2) * sizeof(const gchar *));
         names_table[0] = "";
         names_table[1] = "jxta";
 
@@ -1406,7 +1406,7 @@ static int dissect_jxta_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
         for (each_name = 0; each_name < msg_names_count; each_name++) {
             guint16 name_len = tvb_get_ntohs(tvb, tree_offset);
 
-            names_table[2 + each_name] = tvb_get_string_enc(wmem_packet_scope(), tvb, tree_offset + 2, name_len, ENC_ASCII);
+            names_table[2 + each_name] = tvb_get_string_enc(pinfo->pool, tvb, tree_offset + 2, name_len, ENC_ASCII);
             proto_tree_add_item(jxta_msg_tree, hf_jxta_message_names_name, tvb, tree_offset, 2, ENC_ASCII|ENC_BIG_ENDIAN);
             tree_offset += 2 + name_len;
         }
@@ -1656,7 +1656,7 @@ static int dissect_jxta_message_element_1(tvbuff_t * tvb, packet_info * pinfo, p
         proto_tree_add_item(jxta_elem_tree, hf_jxta_element_type, tvb, tree_offset, 2, ENC_ASCII|ENC_BIG_ENDIAN);
         tree_offset += 2;
 
-        mediatype = tvb_get_string_enc(wmem_packet_scope(), tvb, tree_offset, type_len, ENC_ASCII);
+        mediatype = tvb_get_string_enc(pinfo->pool, tvb, tree_offset, type_len, ENC_ASCII);
 
         tree_offset += type_len;
     }
@@ -1934,7 +1934,7 @@ static int dissect_jxta_message_element_2(tvbuff_t * tvb, packet_info * pinfo, p
 
         if (mimeID < names_count) {
             proto_item_append_text(mime_ti, " (%s)", names_table[mimeID]);
-            mediatype = wmem_strdup( wmem_packet_scope(), names_table[mimeID] );
+            mediatype = wmem_strdup( pinfo->pool, names_table[mimeID] );
         } else {
             proto_item_append_text(mime_ti, " * BAD *");
         }
@@ -2014,19 +2014,19 @@ static int dissect_media( const gchar* fullmediatype, tvbuff_t * tvb, packet_inf
     int dissected = 0;
 
     if (fullmediatype) {
-        gchar *mediatype = wmem_strdup(wmem_packet_scope(), fullmediatype);
+        gchar *mediatype = wmem_strdup(pinfo->pool, fullmediatype);
         gchar *parms_at = strchr(mediatype, ';');
         const char *save_match_string = pinfo->match_string;
         http_message_info_t message_info = { HTTP_OTHERS, NULL, NULL, NULL };
 
         /* Based upon what is done in packet-media.c we set up type and params */
         if (NULL != parms_at) {
-            message_info.media_str = wmem_strdup( wmem_packet_scope(), parms_at + 1 );
+            message_info.media_str = wmem_strdup( pinfo->pool, parms_at + 1 );
             *parms_at = '\0';
         }
 
         /* Set the version that goes to packet-media.c before converting case */
-        pinfo->match_string = wmem_strdup(wmem_packet_scope(), mediatype);
+        pinfo->match_string = wmem_strdup(pinfo->pool, mediatype);
 
         /* force to lower case */
         ascii_strdown_inplace(mediatype);

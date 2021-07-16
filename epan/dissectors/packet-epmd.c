@@ -134,7 +134,7 @@ dissect_epmd_request(packet_info *pinfo, tvbuff_t *tvb, gint offset, proto_tree 
             offset += 2;
             name_length = tvb_get_ntohs(tvb, offset);
             proto_tree_add_item(tree, hf_epmd_name_len, tvb, offset, 2, ENC_BIG_ENDIAN);
-            proto_tree_add_item_ret_string(tree, hf_epmd_name, tvb, offset + 2, name_length, ENC_ASCII|ENC_NA, wmem_packet_scope(), &name);
+            proto_tree_add_item_ret_string(tree, hf_epmd_name, tvb, offset + 2, name_length, ENC_ASCII|ENC_NA, pinfo->pool, &name);
             offset += 2 + name_length;
             if (tvb_reported_length_remaining(tvb, offset) >= 2) {
                 guint16 elen=0;
@@ -149,14 +149,14 @@ dissect_epmd_request(packet_info *pinfo, tvbuff_t *tvb, gint offset, proto_tree 
         case EPMD_PORT_REQ:
         case EPMD_PORT2_REQ:
             name_length = tvb_captured_length_remaining(tvb, offset);
-            proto_tree_add_item_ret_string(tree, hf_epmd_name, tvb, offset, name_length, ENC_ASCII|ENC_NA, wmem_packet_scope(), &name);
+            proto_tree_add_item_ret_string(tree, hf_epmd_name, tvb, offset, name_length, ENC_ASCII|ENC_NA, pinfo->pool, &name);
             break;
 
         case EPMD_ALIVE_REQ:
             proto_tree_add_item(tree, hf_epmd_port_no, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
             name_length = tvb_captured_length_remaining(tvb, offset);
-            proto_tree_add_item_ret_string(tree, hf_epmd_name, tvb, offset, name_length, ENC_ASCII|ENC_NA, wmem_packet_scope(), &name);
+            proto_tree_add_item_ret_string(tree, hf_epmd_name, tvb, offset, name_length, ENC_ASCII|ENC_NA, pinfo->pool, &name);
             break;
 
         case EPMD_NAMES_REQ:
@@ -234,7 +234,7 @@ dissect_epmd_response(packet_info *pinfo, tvbuff_t *tvb, gint offset, proto_tree
             offset += 2;
             name_length = tvb_get_ntohs(tvb, offset);
             proto_tree_add_item(tree, hf_epmd_name_len, tvb, offset, 2, ENC_BIG_ENDIAN);
-            proto_tree_add_item_ret_string(tree, hf_epmd_name, tvb, offset + 2, name_length, ENC_ASCII|ENC_NA, wmem_packet_scope(), &name);
+            proto_tree_add_item_ret_string(tree, hf_epmd_name, tvb, offset + 2, name_length, ENC_ASCII|ENC_NA, pinfo->pool, &name);
             offset += 2 + name_length;
             if (tvb_reported_length_remaining(tvb, offset) >= 2) {
                 guint16 elen=0;

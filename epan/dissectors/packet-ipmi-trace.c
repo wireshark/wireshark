@@ -307,7 +307,7 @@ dissect_ipmi_trace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 
 		if (str_len) {
 			/* copy string */
-			str = (gchar *) tvb_get_string_enc(wmem_packet_scope(), tvb, 11, str_len, ENC_ASCII|ENC_NA);
+			str = (gchar *) tvb_get_string_enc(pinfo->pool, tvb, 11, str_len, ENC_ASCII|ENC_NA);
 
 			/* print the string right inside the column */
 			col_add_str(pinfo->cinfo, COL_INFO, str);

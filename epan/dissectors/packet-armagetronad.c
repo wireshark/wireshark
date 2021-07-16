@@ -218,7 +218,7 @@ dissect_armagetronad(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, voi
 	if (!is_armagetronad_packet(tvb))
 		return 0;
 
-	info = wmem_strbuf_new(wmem_packet_scope(), "");
+	info = wmem_strbuf_new(pinfo->pool, "");
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Armagetronad");
 
@@ -240,7 +240,7 @@ dissect_armagetronad(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, voi
 	if (new_len > 0)
 		wmem_strbuf_truncate(info, new_len);
 	else
-		info = wmem_strbuf_new(wmem_packet_scope(), "No message");
+		info = wmem_strbuf_new(pinfo->pool, "No message");
 
 	col_add_fstr(pinfo->cinfo, COL_INFO, "[%s] from 0x%04x",
 		     wmem_strbuf_get_str(info), sender);

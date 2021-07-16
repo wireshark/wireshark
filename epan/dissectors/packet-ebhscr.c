@@ -388,7 +388,7 @@ static int dissect_ebhscr_nmea(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
 	next_tvb = tvb_new_subset_length(tvb, 32, ebhscr_current_payload_length);
 	call_data_dissector(next_tvb, pinfo, tree);
-	nmea_str = tvb_get_string_enc(wmem_packet_scope(), tvb, 32, ebhscr_length, ENC_UTF_8);
+	nmea_str = tvb_get_string_enc(pinfo->pool, tvb, 32, ebhscr_length, ENC_UTF_8);
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s", "NMEA:", nmea_str);
 	return tvb_captured_length(tvb);
 }
@@ -525,7 +525,7 @@ dissect_ebhscr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 			proto_tree_add_item(ebhscr_packet_header_tree, hf_ebhscr_mjr_hdr, tvb, 24, 8, ENC_BIG_ENDIAN);
 			next_tvb = tvb_new_subset_length(tvb, 32, ebhscr_current_payload_length);
 			call_data_dissector(next_tvb, pinfo, tree);
-			col_append_fstr(pinfo->cinfo, COL_INFO, "  %s", tvb_bytes_to_str_punct(wmem_packet_scope(), tvb, 32,
+			col_append_fstr(pinfo->cinfo, COL_INFO, "  %s", tvb_bytes_to_str_punct(pinfo->pool, tvb, 32,
 							ebhscr_current_payload_length, ' '));
 		}
 		return tvb_captured_length(tvb);

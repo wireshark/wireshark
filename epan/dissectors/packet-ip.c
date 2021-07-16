@@ -1848,7 +1848,7 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
   guint16 ttl_valid;
 
   tree = parent_tree;
-  iph = wmem_new0(wmem_packet_scope(), ws_ip4);
+  iph = wmem_new0(pinfo->pool, ws_ip4);
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPv4");
   col_clear(pinfo->cinfo, COL_INFO);
@@ -2102,7 +2102,7 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
     memcpy(&addr, iph->ip_src.data, 4);
     src_host = get_hostname(addr);
     if (ip_summary_in_tree) {
-      proto_item_append_text(ti, ", Src: %s", address_with_resolution_to_str(wmem_packet_scope(), &iph->ip_src));
+      proto_item_append_text(ti, ", Src: %s", address_with_resolution_to_str(pinfo->pool, &iph->ip_src));
     }
     proto_tree_add_ipv4(ip_tree, hf_ip_src, tvb, offset + 12, 4, addr);
     item = proto_tree_add_ipv4(ip_tree, hf_ip_addr, tvb, offset + 12, 4, addr);
@@ -2169,7 +2169,7 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
     memcpy(&addr, iph->ip_dst.data, 4);
     dst_host = get_hostname(addr);
     if (ip_summary_in_tree) {
-      proto_item_append_text(ti, ", Dst: %s", address_with_resolution_to_str(wmem_packet_scope(), &iph->ip_dst));
+      proto_item_append_text(ti, ", Dst: %s", address_with_resolution_to_str(pinfo->pool, &iph->ip_dst));
     }
 
     if (dst_off) {
@@ -2178,7 +2178,7 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
       cur_rt = tvb_get_ipv4(tvb, offset + 16);
       if (ip_summary_in_tree) {
         proto_item_append_text(ti, ", Via: %s",
-            tvb_address_with_resolution_to_str(wmem_packet_scope(), tvb, AT_IPv4, offset + 16));
+            tvb_address_with_resolution_to_str(pinfo->pool, tvb, AT_IPv4, offset + 16));
       }
       proto_tree_add_ipv4(ip_tree, hf_ip_cur_rt, tvb, offset + 16, 4, cur_rt);
       item = proto_tree_add_string(ip_tree, hf_ip_cur_rt_host, tvb,

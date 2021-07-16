@@ -708,7 +708,7 @@ dissect_diameter_3gpp_ms_timezone(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
     proto_tree_add_item(tree, hf_diameter_3gpp_timezone_adjustment, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    diam_sub_dis->avp_str = wmem_strdup_printf(wmem_packet_scope(), "Timezone: GMT %c %d hours %d minutes %s",
+    diam_sub_dis->avp_str = wmem_strdup_printf(pinfo->pool, "Timezone: GMT %c %d hours %d minutes %s",
         sign,
         hours,
         minutes,
@@ -746,7 +746,7 @@ dissect_diameter_3gpp_codec_data(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tr
     if (linelen < 1) {
         return tvb_reported_length(tvb);
     }
-    str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, linelen, ENC_ASCII | ENC_NA);
+    str = tvb_get_string_enc(pinfo->pool, tvb, offset, linelen, ENC_ASCII | ENC_NA);
     proto_tree_add_string_format(tree, hf_diameter_3gpp_codec_data_dir, tvb, offset, linelen, str, "%s", str);
     if (next_offset > length) {
         return tvb_reported_length(tvb);
@@ -760,7 +760,7 @@ dissect_diameter_3gpp_codec_data(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tr
     if (linelen < 1) {
         return tvb_reported_length(tvb);
     }
-    str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, linelen, ENC_ASCII | ENC_NA);
+    str = tvb_get_string_enc(pinfo->pool, tvb, offset, linelen, ENC_ASCII | ENC_NA);
     proto_tree_add_string_format(tree, hf_diameter_3gpp_codec_sdp_type, tvb, offset, linelen, str, "%s", str);
     if (next_offset >= length) {
         return tvb_reported_length(tvb);
@@ -1350,18 +1350,18 @@ dissect_diameter_3gpp_rai(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
     length = tvb_reported_length(tvb);
 
     if(length==12) {
-        diam_sub_dis->avp_str = wmem_strdup_printf(wmem_packet_scope(), "MCC %s, MNC %s, LAC 0x%s, RAC 0x%s",
-            tvb_get_string_enc(wmem_packet_scope(), tvb,  0, 3, ENC_UTF_8|ENC_NA), /* MCC 3 digits */
-            tvb_get_string_enc(wmem_packet_scope(), tvb,  3, 3, ENC_UTF_8|ENC_NA), /* MNC 3 digits */
-            tvb_get_string_enc(wmem_packet_scope(), tvb,  6, 4, ENC_UTF_8|ENC_NA), /* LCC 4 digits */
-            tvb_get_string_enc(wmem_packet_scope(), tvb, 10, 2, ENC_UTF_8|ENC_NA)  /* RAC 2 digits */
+        diam_sub_dis->avp_str = wmem_strdup_printf(pinfo->pool, "MCC %s, MNC %s, LAC 0x%s, RAC 0x%s",
+            tvb_get_string_enc(pinfo->pool, tvb,  0, 3, ENC_UTF_8|ENC_NA), /* MCC 3 digits */
+            tvb_get_string_enc(pinfo->pool, tvb,  3, 3, ENC_UTF_8|ENC_NA), /* MNC 3 digits */
+            tvb_get_string_enc(pinfo->pool, tvb,  6, 4, ENC_UTF_8|ENC_NA), /* LCC 4 digits */
+            tvb_get_string_enc(pinfo->pool, tvb, 10, 2, ENC_UTF_8|ENC_NA)  /* RAC 2 digits */
             );
     } else {
-        diam_sub_dis->avp_str = wmem_strdup_printf(wmem_packet_scope(), "MCC %s, MNC %s, LAC 0x%s, RAC 0x%s",
-            tvb_get_string_enc(wmem_packet_scope(), tvb,  0, 3, ENC_UTF_8|ENC_NA), /* MCC 3 digits */
-            tvb_get_string_enc(wmem_packet_scope(), tvb,  3, 2, ENC_UTF_8|ENC_NA), /* MNC 2 digits */
-            tvb_get_string_enc(wmem_packet_scope(), tvb,  5, 4, ENC_UTF_8|ENC_NA), /* LCC 4 digits */
-            tvb_get_string_enc(wmem_packet_scope(), tvb,  9, 2, ENC_UTF_8|ENC_NA)  /* RAC 2 digits */
+        diam_sub_dis->avp_str = wmem_strdup_printf(pinfo->pool, "MCC %s, MNC %s, LAC 0x%s, RAC 0x%s",
+            tvb_get_string_enc(pinfo->pool, tvb,  0, 3, ENC_UTF_8|ENC_NA), /* MCC 3 digits */
+            tvb_get_string_enc(pinfo->pool, tvb,  3, 2, ENC_UTF_8|ENC_NA), /* MNC 2 digits */
+            tvb_get_string_enc(pinfo->pool, tvb,  5, 4, ENC_UTF_8|ENC_NA), /* LCC 4 digits */
+            tvb_get_string_enc(pinfo->pool, tvb,  9, 2, ENC_UTF_8|ENC_NA)  /* RAC 2 digits */
             );
     }
 
@@ -1598,7 +1598,7 @@ dissect_diameter_3ggp_qos_susbscribed(tvbuff_t *tvb, packet_info *pinfo _U_, pro
             case 0x00: str = "Subscribed maximum bit rate for uplink (MS to net); Reserved (net to MS)"; break;
             case 0xfe: str = "8640 kbps; Check extended"; break;
             case 0xff: str = "0 kbps"; break;
-            default:   str = wmem_strdup_printf(wmem_packet_scope(), "%u kbps", qos_calc_bitrate(oct));
+            default:   str = wmem_strdup_printf(pinfo->pool, "%u kbps", qos_calc_bitrate(oct));
         }
 
         proto_tree_add_uint_format_value(subtree, hf_diameter_3gpp_qos_max_bitrate_upl, tvb, offset, 1, oct, "%s (%u)", str, oct);
@@ -1612,7 +1612,7 @@ dissect_diameter_3ggp_qos_susbscribed(tvbuff_t *tvb, packet_info *pinfo _U_, pro
             case 0x00: str = "Subscribed maximum bit rate for downlink (MS to net); Reserved (net to MS)"; break;
             case 0xfe: str = "8640 kbps; Check extended"; break;
             case 0xff: str = "0 kbps"; break;
-            default:   str = wmem_strdup_printf(wmem_packet_scope(), "%u kbps", qos_calc_bitrate(oct));
+            default:   str = wmem_strdup_printf(pinfo->pool, "%u kbps", qos_calc_bitrate(oct));
         }
 
         proto_tree_add_uint_format_value(subtree, hf_diameter_3gpp_qos_max_bitrate_downl, tvb, offset, 1, oct, "%s (%u)", str, oct);
@@ -1640,7 +1640,7 @@ dissect_diameter_3ggp_qos_susbscribed(tvbuff_t *tvb, packet_info *pinfo _U_, pro
                     tmp32 = (tmp_oct - 0x10) * 50 + 200;
                 else
                     tmp32 = (tmp_oct - 0x20) * 100 + 1000;
-                str = wmem_strdup_printf(wmem_packet_scope(), "%u ms", tmp32);
+                str = wmem_strdup_printf(pinfo->pool, "%u ms", tmp32);
         }
         proto_tree_add_uint_format_value(subtree, hf_diameter_3gpp_qos_trans_delay, tvb, offset, 1, oct, "%s (%u)", str, tmp_oct);
         offset += 1;
@@ -1653,7 +1653,7 @@ dissect_diameter_3ggp_qos_susbscribed(tvbuff_t *tvb, packet_info *pinfo _U_, pro
         case 0x00: str = "Subscribed guaranteed bit rate for uplink (MS to net); Reserved (net to MS)"; break;
         case 0xfe: str = "8640 kbps; Check extended"; break;
         case 0xff: str = "0 kbps"; break;
-        default:   str = wmem_strdup_printf(wmem_packet_scope(), "%u kbps", qos_calc_bitrate(oct));
+        default:   str = wmem_strdup_printf(pinfo->pool, "%u kbps", qos_calc_bitrate(oct));
         }
 
         proto_tree_add_uint_format_value(subtree, hf_diameter_3gpp_qos_guar_bitrate_upl, tvb, offset, 1, oct, "%s (%u)", str, oct);
@@ -1667,7 +1667,7 @@ dissect_diameter_3ggp_qos_susbscribed(tvbuff_t *tvb, packet_info *pinfo _U_, pro
         case 0x00: str = "Subscribed guaranteed bit rate for downlink (MS to net); Reserved (net to MS)"; break;
         case 0xfe: str = "8640 kbps; Check extended"; break;
         case 0xff: str = "0 kbps"; break;
-        default:   str = wmem_strdup_printf(wmem_packet_scope(), "%u kbps", qos_calc_bitrate(oct));
+        default:   str = wmem_strdup_printf(pinfo->pool, "%u kbps", qos_calc_bitrate(oct));
         }
 
         proto_tree_add_uint_format_value(subtree, hf_diameter_3gpp_qos_guar_bitrate_downl, tvb, offset, 1, oct, "%s (%u)", str, oct);
@@ -1703,9 +1703,9 @@ dissect_diameter_3ggp_qos_susbscribed(tvbuff_t *tvb, packet_info *pinfo _U_, pro
         else {
             tmp32 = qos_calc_ext_bitrate(oct);
             if (oct >= 0x4a)
-                str = wmem_strdup_printf(wmem_packet_scope(), "%u Mbps", tmp32 / 1000);
+                str = wmem_strdup_printf(pinfo->pool, "%u Mbps", tmp32 / 1000);
             else
-                str = wmem_strdup_printf(wmem_packet_scope(), "%u kbps", tmp32);
+                str = wmem_strdup_printf(pinfo->pool, "%u kbps", tmp32);
         }
         proto_tree_add_uint_format_value(subtree, hf_diameter_3gpp_qos_max_bitrate_downl_ext, tvb, offset, 1, oct, "%s (%u)", str, oct);
         offset += 1;
@@ -1723,9 +1723,9 @@ dissect_diameter_3ggp_qos_susbscribed(tvbuff_t *tvb, packet_info *pinfo _U_, pro
         else {
             tmp32 = qos_calc_ext_bitrate(oct);
             if (oct >= 0x4a)
-                str = wmem_strdup_printf(wmem_packet_scope(), "%u Mbps", tmp32 / 1000);
+                str = wmem_strdup_printf(pinfo->pool, "%u Mbps", tmp32 / 1000);
             else
-                str = wmem_strdup_printf(wmem_packet_scope(), "%u kbps", tmp32);
+                str = wmem_strdup_printf(pinfo->pool, "%u kbps", tmp32);
         }
         proto_tree_add_uint_format_value(subtree, hf_diameter_3gpp_qos_guar_bitrate_downl_ext, tvb, offset, 1, oct, "%s (%u)", str, oct);
         offset += 1;
@@ -1746,9 +1746,9 @@ dissect_diameter_3ggp_qos_susbscribed(tvbuff_t *tvb, packet_info *pinfo _U_, pro
         else {
             tmp32 = qos_calc_ext_bitrate(oct);
             if (oct >= 0x4a)
-                str = wmem_strdup_printf(wmem_packet_scope(), "%u Mbps", tmp32 / 1000);
+                str = wmem_strdup_printf(pinfo->pool, "%u Mbps", tmp32 / 1000);
             else
-                str = wmem_strdup_printf(wmem_packet_scope(), "%u kbps", tmp32);
+                str = wmem_strdup_printf(pinfo->pool, "%u kbps", tmp32);
         }
         proto_tree_add_uint_format_value(subtree, hf_diameter_3gpp_qos_max_bitrate_upl_ext, tvb, offset, 1, oct, "%s (%u)", str, oct);
         offset += 1;
@@ -1766,9 +1766,9 @@ dissect_diameter_3ggp_qos_susbscribed(tvbuff_t *tvb, packet_info *pinfo _U_, pro
         else {
             tmp32 = qos_calc_ext_bitrate(oct);
             if (oct >= 0x4a)
-                str = wmem_strdup_printf(wmem_packet_scope(), "%u Mbps", tmp32 / 1000);
+                str = wmem_strdup_printf(pinfo->pool, "%u Mbps", tmp32 / 1000);
             else
-                str = wmem_strdup_printf(wmem_packet_scope(), "%u kbps", tmp32);
+                str = wmem_strdup_printf(pinfo->pool, "%u kbps", tmp32);
         }
         proto_tree_add_uint_format_value(subtree, hf_diameter_3gpp_qos_guar_bitrate_upl_ext, tvb, offset, 1, oct, "%s (%u)", str, oct);
         offset += 1;

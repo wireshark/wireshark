@@ -112,7 +112,7 @@ dissect_acap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
      */
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s: %s",
         is_request ? "Request" : "Response",
-        format_text(wmem_packet_scope(), line, linelen));
+        format_text(pinfo->pool, line, linelen));
 
     if (tree) {
         ti = proto_tree_add_item(tree, hfi_acap, tvb, offset, -1,
@@ -147,10 +147,10 @@ dissect_acap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         if (tokenlen != 0) {
             if (is_request) {
                 proto_tree_add_string(reqresp_tree, &hfi_acap_request_tag, tvb, offset,
-                    tokenlen, format_text(wmem_packet_scope(), line, tokenlen));
+                    tokenlen, format_text(pinfo->pool, line, tokenlen));
             } else {
                 proto_tree_add_string(reqresp_tree, &hfi_acap_response_tag, tvb, offset,
-                    tokenlen, format_text(wmem_packet_scope(), line, tokenlen));
+                    tokenlen, format_text(pinfo->pool, line, tokenlen));
             }
             offset += (int)(next_token - line);
             linelen -= (int)(next_token - line);
@@ -163,10 +163,10 @@ dissect_acap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         if (linelen != 0) {
             if (is_request) {
                 proto_tree_add_string(reqresp_tree, &hfi_acap_request_data, tvb, offset,
-                    linelen, format_text(wmem_packet_scope(), line, linelen));
+                    linelen, format_text(pinfo->pool, line, linelen));
             } else {
                 proto_tree_add_string(reqresp_tree, &hfi_acap_response_data, tvb, offset,
-                    linelen, format_text(wmem_packet_scope(), line, linelen));
+                    linelen, format_text(pinfo->pool, line, linelen));
             }
         }
 

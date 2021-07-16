@@ -151,7 +151,7 @@ dissect_irc_request(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int off
     if (eoc_offset == -1)
     {
         const guint8* col_str;
-        proto_tree_add_item_ret_string(request_tree, hf_irc_request_command, tvb, offset, end_offset-offset, ENC_ASCII|ENC_NA, wmem_packet_scope(), &col_str);
+        proto_tree_add_item_ret_string(request_tree, hf_irc_request_command, tvb, offset, end_offset-offset, ENC_ASCII|ENC_NA, pinfo->pool, &col_str);
         col_append_fstr( pinfo->cinfo, COL_INFO, " (%s)", col_str);
 
         /* Warn if there is a "numeric" command */
@@ -165,7 +165,7 @@ dissect_irc_request(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int off
         return;
     }
 
-    proto_tree_add_item_ret_string(request_tree, hf_irc_request_command, tvb, offset, eoc_offset-offset, ENC_ASCII|ENC_NA, wmem_packet_scope(), &str_command);
+    proto_tree_add_item_ret_string(request_tree, hf_irc_request_command, tvb, offset, eoc_offset-offset, ENC_ASCII|ENC_NA, pinfo->pool, &str_command);
     col_append_fstr( pinfo->cinfo, COL_INFO, " (%s)", str_command);
 
     /* Warn if there is a "numeric" command */
@@ -315,7 +315,7 @@ dissect_irc_response(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int of
     if (eoc_offset == -1)
     {
         const guint8* col_str;
-        proto_tree_add_item_ret_string(response_tree, hf_irc_response_command, tvb, offset, end_offset-offset, ENC_ASCII|ENC_NA, wmem_packet_scope(), &col_str);
+        proto_tree_add_item_ret_string(response_tree, hf_irc_response_command, tvb, offset, end_offset-offset, ENC_ASCII|ENC_NA, pinfo->pool, &col_str);
         col_append_fstr( pinfo->cinfo, COL_INFO, " (%s)", col_str);
 
         /* if response command is numeric, allow it to be filtered as an integer */
@@ -331,7 +331,7 @@ dissect_irc_response(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int of
         return;
     }
 
-    proto_tree_add_item_ret_string(response_tree, hf_irc_response_command, tvb, offset, eoc_offset-offset, ENC_ASCII|ENC_NA, wmem_packet_scope(), &str_command);
+    proto_tree_add_item_ret_string(response_tree, hf_irc_response_command, tvb, offset, eoc_offset-offset, ENC_ASCII|ENC_NA, pinfo->pool, &str_command);
     col_append_fstr( pinfo->cinfo, COL_INFO, " (%s)", str_command);
 
     /* if response command is numeric, allow it to be filtered as an integer */

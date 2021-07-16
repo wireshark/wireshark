@@ -1704,7 +1704,7 @@ dissect_channelised_ex_header(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tr
   guint8             vc_size          = (guint8)((hdr >> 16) & 0xFF);
   guint8             line_rate        = (guint8)((hdr >> 8) & 0xFF);
   sdh_g707_format_t  g707_format;
-  wmem_strbuf_t     *vc_id_string = wmem_strbuf_new_label(wmem_packet_scope());
+  wmem_strbuf_t     *vc_id_string = wmem_strbuf_new_label(pinfo->pool);
 
   channelised_fill_sdh_g707_format(&g707_format, vc_id, vc_size, line_rate);
   channelised_fill_vc_id_string(vc_id_string, &g707_format);
@@ -2866,7 +2866,7 @@ dissect_meta_record_tags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
           /* Set top level label e.g IPv4 Name: hostname Address: 1.2.3.4 */
           /* TODO: Name is unescaped here but escaped in actual field */
           proto_item_append_text(tag_pi, ": %s, %s",
-              tvb_get_stringzpad(wmem_packet_scope(), tvb, offset + 4 + addr_len, taglength - addr_len, ENC_UTF_8), pi_label /* Includes ": " */);
+              tvb_get_stringzpad(pinfo->pool, tvb, offset + 4 + addr_len, taglength - addr_len, ENC_UTF_8), pi_label /* Includes ": " */);
         }
 
         break;

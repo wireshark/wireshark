@@ -198,7 +198,7 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             return offset;
     }
 
-    avctp_data = wmem_new(wmem_packet_scope(), btavctp_data_t);
+    avctp_data = wmem_new(pinfo->pool, btavctp_data_t);
     avctp_data->cr           = cr;
     avctp_data->interface_id = interface_id;
     avctp_data->adapter_id   = adapter_id;

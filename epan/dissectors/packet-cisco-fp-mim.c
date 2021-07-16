@@ -273,7 +273,7 @@ dissect_fp_common ( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int hea
       ti = proto_tree_add_protocol_format(tree, proto_fp, tvb, 0, header_size,
                                           "Cisco FabricPath, Src: %03x.%02x.%04x, Dst: %s",
                                           sswid, ssswid, slid,
-                                          address_with_resolution_to_str(wmem_packet_scope(), &ether_addr));
+                                          address_with_resolution_to_str(pinfo->pool, &ether_addr));
     } else {
       ti = proto_tree_add_protocol_format(tree, proto_fp, tvb, 0, header_size,
                                           "Cisco FabricPath, Src: %03x.%02x.%04x, Dst: %03x.%02x.%04x",

@@ -447,7 +447,7 @@ static const gchar* dissect_fields_cau(packet_info* pinfo, tvbuff_t *tvb, proto_
         ret_str = val_to_str(msg_info->release_cause, cause_values_itu, "Unknown(%u)");
     } else {
         proto_tree_add_item(tree, hf_alcap_cau_value_non_itu, tvb, offset+1 , 1, ENC_BIG_ENDIAN);
-        ret_str = wmem_strdup_printf(wmem_packet_scope(), "%u", msg_info->release_cause);
+        ret_str = wmem_strdup_printf(pinfo->pool, "%u", msg_info->release_cause);
     }
 
     if (!tree) return ret_str;
@@ -508,9 +508,9 @@ static const gchar* dissect_fields_ceid(packet_info* pinfo, tvbuff_t *tvb, proto
     proto_tree_add_item(tree,hf_alcap_ceid_cid,tvb,offset+4,1,ENC_BIG_ENDIAN);
 
     if (msg_info->cid == 0) {
-        return wmem_strdup_printf(wmem_packet_scope(), "Path: %u CID: 0 (Every CID)",msg_info->pathid);
+        return wmem_strdup_printf(pinfo->pool, "Path: %u CID: 0 (Every CID)",msg_info->pathid);
     } else {
-        return wmem_strdup_printf(wmem_packet_scope(), "Path: %u CID: %u",msg_info->pathid,msg_info->cid);
+        return wmem_strdup_printf(pinfo->pool, "Path: %u CID: %u",msg_info->pathid,msg_info->cid);
     }
 }
 
@@ -528,7 +528,7 @@ static const gchar* dissect_fields_desea(packet_info* pinfo, tvbuff_t *tvb, prot
         return NULL;
     }
 
-    e164 = wmem_new(wmem_packet_scope(), e164_info_t);
+    e164 = wmem_new(pinfo->pool, e164_info_t);
 
     e164->e164_number_type = CALLED_PARTY_NUMBER;
     e164->nature_of_address = tvb_get_guint8(tvb,offset) & 0x7f;
@@ -536,7 +536,7 @@ static const gchar* dissect_fields_desea(packet_info* pinfo, tvbuff_t *tvb, prot
      * XXX - section 7.4.14 "E.164 address" of Q.2630.3 seems to
      * indicate that this is BCD, not ASCII.
      */
-    e164->E164_number_str = (gchar*)tvb_get_string_enc(wmem_packet_scope(),tvb,offset+1,len,ENC_ASCII|ENC_NA);
+    e164->E164_number_str = (gchar*)tvb_get_string_enc(pinfo->pool,tvb,offset+1,len,ENC_ASCII|ENC_NA);
     e164->E164_number_length = len-1;
 
     dissect_e164_number(tvb, tree, offset-1, len, *e164);
@@ -558,7 +558,7 @@ static const gchar* dissect_fields_oesea(packet_info* pinfo, tvbuff_t *tvb, prot
         return NULL;
     }
 
-    e164 = wmem_new(wmem_packet_scope(), e164_info_t);
+    e164 = wmem_new(pinfo->pool, e164_info_t);
 
     e164->e164_number_type = CALLING_PARTY_NUMBER;
     e164->nature_of_address = tvb_get_guint8(tvb,offset) & 0x7f;
@@ -566,7 +566,7 @@ static const gchar* dissect_fields_oesea(packet_info* pinfo, tvbuff_t *tvb, prot
      * XXX - section 7.4.14 "E.164 address" of Q.2630.3 seems to
      * indicate that this is BCD, not ASCII.
      */
-    e164->E164_number_str = (gchar*)tvb_get_string_enc(wmem_packet_scope(),tvb,offset+1,len,ENC_ASCII|ENC_NA);
+    e164->E164_number_str = (gchar*)tvb_get_string_enc(pinfo->pool,tvb,offset+1,len,ENC_ASCII|ENC_NA);
     e164->E164_number_length = len-1;
 
     dissect_e164_number(tvb, tree, offset-1, len, *e164);
@@ -586,7 +586,7 @@ static const gchar* dissect_fields_dnsea(packet_info* pinfo, tvbuff_t *tvb, prot
         return NULL;
     }
 
-    msg_info->dest_nsap = tvb_bytes_to_str(wmem_packet_scope(), tvb,offset,20);
+    msg_info->dest_nsap = tvb_bytes_to_str(pinfo->pool, tvb,offset,20);
 
     proto_tree_add_item(tree, hf_alcap_dnsea, tvb, offset, 20, ENC_NA);
     dissect_nsap(tvb, offset,20, tree);
@@ -606,7 +606,7 @@ static const gchar* dissect_fields_onsea(packet_info* pinfo, tvbuff_t *tvb, prot
         return NULL;
     }
 
-    msg_info->orig_nsap = tvb_bytes_to_str(wmem_packet_scope(), tvb,offset,20);
+    msg_info->orig_nsap = tvb_bytes_to_str(pinfo->pool, tvb,offset,20);
 
     proto_tree_add_item(tree, hf_alcap_onsea, tvb, offset, 20, ENC_NA);
     dissect_nsap(tvb, offset,20, tree);
@@ -1314,7 +1314,7 @@ extern void alcap_tree_from_bearer_key(proto_tree* tree, tvbuff_t* tvb, packet_i
 
 static int dissect_alcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
     proto_tree *alcap_tree = NULL;
-    alcap_message_info_t* msg_info = wmem_new0(wmem_packet_scope(), alcap_message_info_t);
+    alcap_message_info_t* msg_info = wmem_new0(pinfo->pool, alcap_message_info_t);
     int len = tvb_reported_length(tvb);
     int offset;
     proto_item* pi;

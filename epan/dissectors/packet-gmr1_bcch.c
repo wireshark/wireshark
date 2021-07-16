@@ -1071,7 +1071,7 @@ dissect_gmr1_bcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dis
 	/* SI1 or SI2 */
 	if (is_si1) {
 		SystemInformation1_t *data;
-		data = wmem_new(wmem_packet_scope(), SystemInformation1_t);
+		data = wmem_new(pinfo->pool, SystemInformation1_t);
 		/* Initialize the type to the last element, which is an
 		 * "Unknown", in case the dissector bails before getting this
 		 * far. */
@@ -1084,7 +1084,7 @@ dissect_gmr1_bcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dis
 		);
 	} else {
 		SystemInformation2_t *data;
-		data = wmem_new(wmem_packet_scope(), SystemInformation2_t);
+		data = wmem_new(pinfo->pool, SystemInformation2_t);
 		/* Initialize the type to the last element, which is an
 		 * "Unknown", in case the dissector bails before getting this
 		 * far. */

@@ -126,7 +126,7 @@ dissect_sta_ack(tvbuff_t * const tvb, packet_info * const pinfo, proto_tree * co
     if (ssid_len > SSID_MAX_LENGTH) {
       expert_add_info(pinfo, ti, &ei_cl3dcw_ssid_too_big);
     }
-    ssidbuf = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 6 + 1, ssid_len, ENC_ASCII); /* +6+1 = skip over mac address and length field */
+    ssidbuf = tvb_get_string_enc(pinfo->pool, tvb, offset + 6 + 1, ssid_len, ENC_ASCII); /* +6+1 = skip over mac address and length field */
 
     /* add the data channel bond sub-tree item */
     bond_item = proto_tree_add_item(tree, hf_cl3dcw_dcbond, tvb, offset, 6, ENC_NA);
@@ -190,7 +190,7 @@ dissect_ap_accept_sta(tvbuff_t * const tvb, packet_info * const pinfo, proto_tre
     if (ssid_len > SSID_MAX_LENGTH) {
       expert_add_info(pinfo, ti, &ei_cl3dcw_ssid_too_big);
     }
-    ssidbuf = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1, ssid_len, ENC_ASCII); /* +1 = skip over length field */
+    ssidbuf = tvb_get_string_enc(pinfo->pool, tvb, offset + 1, ssid_len, ENC_ASCII); /* +1 = skip over length field */
 
     /* add the SSID string
      * XXX the intent here is to highlight the leading length byte in the hex dump

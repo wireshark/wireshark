@@ -405,7 +405,7 @@ dissect_dcom_ActivationProperties(tvbuff_t *tvb, gint offset, packet_info *pinfo
             hf_sysact_res, &u32Res);
 
     old_pg = (property_guids_t*)di->private_data;
-    di->private_data = wmem_new0(wmem_packet_scope(), property_guids_t);
+    di->private_data = wmem_new0(pinfo->pool, property_guids_t);
 
     offset = dissect_dcom_ActivationPropertiesCustomerHdr(tvb, offset, pinfo, sub_tree, di, drep);
     offset = dissect_dcom_ActivationPropertiesBody(tvb, offset, pinfo, sub_tree, di, drep);
