@@ -1957,10 +1957,10 @@ deduce_header(guint8 session_key[WOWW_SESSION_KEY_LENGTH],
 static gboolean
 session_key_is_fully_deduced(const bool known_indices[WOWW_SESSION_KEY_LENGTH],
                              guint8 header_length,
-                             WowwParticipant_t* participant) {
+                             guint8 start_index) {
     gboolean fully_deduced = true;
     for (guint8 i = 0; i < header_length; i++) {
-        if (!known_indices[(participant->index + i) % WOWW_SESSION_KEY_LENGTH]) {
+        if (!known_indices[(start_index + i) % WOWW_SESSION_KEY_LENGTH]) {
             fully_deduced = false;
         }
     }
@@ -2002,39 +2002,57 @@ handle_packet_header(packet_info* pinfo,
         return decrypted_header;
     }
 
-    // If we aren't ready to fully decrypt this header yet
-    if (!session_key_is_fully_deduced(wowwConversation->known_indices, headerSize, participant)) {
-        // Packet isn't decrypted, make sure to do it later
-        guint8 *array_index = wmem_alloc(wmem_file_scope(), 2);
-        array_index[0] = participant->index;
-        array_index[1] = participant->last_encrypted_value;
-        wmem_tree_insert32(wowwConversation->headers_need_decryption, pinfo->num, array_index);
+    guint8* original_header_values = wmem_tree_lookup32(wowwConversation->headers_need_decryption, pinfo->num);
 
-        if (WOWW_CLIENT_TO_SERVER) {
-            deduce_header(wowwConversation->session_key, wowwConversation->known_indices, header, participant);
-        } else {
-            // Skip the packet, but remember to acknowledge that values changed
-            participant->index = (participant->index + headerSize) % WOWW_SESSION_KEY_LENGTH;
-            participant->last_encrypted_value = header[headerSize - 1];
+    if (original_header_values) {
+        // Header has been seen before
+
+        // Original value will need to be used
+        if (!session_key_is_fully_deduced(wowwConversation->known_indices, headerSize, original_header_values[0])) {
+            // Not ready yet
+            return NULL;
         }
 
-        return NULL;
-    }
+        // Header can be decrypted and added to map
 
-    guint8* old_index = wmem_tree_lookup32(wowwConversation->headers_need_decryption, pinfo->num);
+    }
+    else {
+        // Header has not been seen before
+        if (!session_key_is_fully_deduced(wowwConversation->known_indices, headerSize, participant->index)) {
+            // Packet isn't decrypted, make sure to do it later
+            guint8 *array_index = wmem_alloc(wmem_file_scope(), 2);
+            array_index[0] = participant->index;
+            array_index[1] = participant->last_encrypted_value;
+            wmem_tree_insert32(wowwConversation->headers_need_decryption, pinfo->num, array_index);
+
+            if (WOWW_CLIENT_TO_SERVER) {
+                deduce_header(wowwConversation->session_key, wowwConversation->known_indices, header, participant);
+            } else {
+                // Skip the packet, but remember to acknowledge that values changed
+                participant->index = (participant->index + headerSize) % WOWW_SESSION_KEY_LENGTH;
+                participant->last_encrypted_value = header[headerSize - 1];
+            }
+
+            return NULL;
+        }
+        else {
+            // Header can be decrypted and added to map
+
+        }
+    }
 
     guint8 new_index = participant->index;
     guint8 new_last_encrypted = participant->last_encrypted_value;
 
     // If this is an out of order packet we must use the original state
-    if (old_index) {
-        participant->index = old_index[0];
-        participant->last_encrypted_value = old_index[1];
+    if (original_header_values) {
+        participant->index = original_header_values[0];
+        participant->last_encrypted_value = original_header_values[1];
     }
 
     decrypted_header = get_decrypted_header(wowwConversation->session_key, participant, header, headerSize);
 
-    if (old_index) {
+    if (original_header_values) {
         participant->index = new_index;
         participant->last_encrypted_value = new_last_encrypted;
 
