@@ -1967,6 +1967,86 @@ session_key_is_fully_deduced(const bool known_indices[WOWW_SESSION_KEY_LENGTH],
     return fully_deduced;
 }
 
+static guint8*
+handle_packet_header(packet_info* pinfo,
+                     tvbuff_t* tvb,
+                     WowwParticipant_t* participant,
+                     WowwConversation_t* wowwConversation,
+                     guint8 headerSize) {
+
+    guint8* decrypted_header = wmem_tree_lookup32(wowwConversation->decrypted_headers, pinfo->num);
+
+    if (decrypted_header) {
+        // Header has already been decrypted
+        return decrypted_header;
+    }
+
+    // First time we see this header, we need to decrypt it
+    guint8* header = wmem_alloc0(wmem_packet_scope(), WOWW_HEADER_ARRAY_ALLOC_SIZE);
+    for (int i = 0; i < headerSize; i++) {
+        header[i] = tvb_get_guint8(tvb, i);
+    }
+
+    // If we're seeing the first header
+    if (!participant->unencrypted_packet_encountered) {
+        // Packet is unencrypted, no need to do anything
+
+        // There is only one unencrypted header each for server and client
+        participant->unencrypted_packet_encountered = true;
+
+        decrypted_header = wmem_alloc0(wmem_file_scope(), WOWW_HEADER_ARRAY_ALLOC_SIZE);
+        memcpy(decrypted_header, header, headerSize);
+
+        wmem_tree_insert32(wowwConversation->decrypted_headers, pinfo->num, decrypted_header);
+
+        return decrypted_header;
+    }
+
+    // If we aren't ready to fully decrypt this header yet
+    if (!session_key_is_fully_deduced(wowwConversation->known_indices, headerSize, participant)) {
+        // Packet isn't decrypted, make sure to do it later
+        guint8 *array_index = wmem_alloc(wmem_file_scope(), 2);
+        array_index[0] = participant->index;
+        array_index[1] = participant->last_encrypted_value;
+        wmem_tree_insert32(wowwConversation->headers_need_decryption, pinfo->num, array_index);
+
+        if (WOWW_CLIENT_TO_SERVER) {
+            deduce_header(wowwConversation->session_key, wowwConversation->known_indices, header, participant);
+        } else {
+            // Skip the packet, but remember to acknowledge that values changed
+            participant->index = (participant->index + headerSize) % WOWW_SESSION_KEY_LENGTH;
+            participant->last_encrypted_value = header[headerSize - 1];
+        }
+
+        return NULL;
+    }
+
+    guint8* old_index = wmem_tree_lookup32(wowwConversation->headers_need_decryption, pinfo->num);
+
+    guint8 new_index = participant->index;
+    guint8 new_last_encrypted = participant->last_encrypted_value;
+
+    // If this is an out of order packet we must use the original state
+    if (old_index) {
+        participant->index = old_index[0];
+        participant->last_encrypted_value = old_index[1];
+    }
+
+    decrypted_header = get_decrypted_header(wowwConversation->session_key, participant, header, headerSize);
+
+    if (old_index) {
+        participant->index = new_index;
+        participant->last_encrypted_value = new_last_encrypted;
+
+        wmem_tree_remove32(wowwConversation->headers_need_decryption, pinfo->num);
+    }
+
+    // The header has been fully decrypted
+    wmem_tree_insert32(wowwConversation->decrypted_headers, pinfo->num, decrypted_header);
+
+    return decrypted_header;
+}
+
 static int
 dissect_woww(tvbuff_t *tvb,
              packet_info *pinfo,
@@ -2033,70 +2113,9 @@ dissect_woww(tvbuff_t *tvb,
         headerSize = 6;
     }
 
-    guint8* decrypted_header = wmem_tree_lookup32(wowwConversation->decrypted_headers, pinfo->num);
-
-    gint offset = 0;
-
-    // First time we see this header, we need to decrypt it
-    if (decrypted_header == NULL) {
-        guint8* header = wmem_alloc0(wmem_packet_scope(), WOWW_HEADER_ARRAY_ALLOC_SIZE);
-        for (int i = 0; i < headerSize; i++) {
-            header[i] = tvb_get_guint8(tvb, offset);
-            offset += 1;
-        }
-
-        // Only first packet is unencrypted, all the rest are encrypted
-        if (participant->unencrypted_packet_encountered) {
-            if (session_key_is_fully_deduced(wowwConversation->known_indices, headerSize, participant)) {
-                guint8* old_index = wmem_tree_lookup32(wowwConversation->headers_need_decryption, pinfo->num);
-
-                guint8 new_index = participant->index;
-                guint8 new_last_encrypted = participant->last_encrypted_value;
-
-                if (old_index) {
-                    // Set Index
-                    participant->index = old_index[0];
-                    participant->last_encrypted_value = old_index[1];
-                }
-
-                decrypted_header = get_decrypted_header(wowwConversation->session_key, participant, header, headerSize);
-
-                if (old_index) {
-                    participant->index = new_index;
-                    participant->last_encrypted_value = new_last_encrypted;
-                    wmem_tree_remove32(wowwConversation->headers_need_decryption, pinfo->num);
-                }
-
-                wmem_tree_insert32(wowwConversation->decrypted_headers, pinfo->num, decrypted_header);
-            }
-            else {
-                // Packet isn't decrypted, make sure to do it later
-
-                // Add to kept packets with index
-                guint8 *array_index = wmem_alloc(wmem_file_scope(), 2);
-                array_index[0] = participant->index;
-                array_index[1] = participant->last_encrypted_value;
-                wmem_tree_insert32(wowwConversation->headers_need_decryption, pinfo->num, array_index);
-
-                if (WOWW_CLIENT_TO_SERVER) {
-                    deduce_header(wowwConversation->session_key, wowwConversation->known_indices, header, participant);
-                    return tvb_captured_length(tvb);
-                } else {
-                    participant->index = (participant->index + headerSize) % WOWW_SESSION_KEY_LENGTH;
-                    participant->last_encrypted_value = header[headerSize - 1];
-
-                    return tvb_captured_length(tvb);
-                }
-            }
-        } else {
-            // Packet is unencrypted, no need to do anything other than copy
-            participant->unencrypted_packet_encountered = true;
-
-            decrypted_header = wmem_alloc0(wmem_file_scope(), WOWW_HEADER_ARRAY_ALLOC_SIZE);
-            memcpy(decrypted_header, header, headerSize);
-
-            wmem_tree_insert32(wowwConversation->decrypted_headers, pinfo->num, decrypted_header);
-        }
+    guint8* decrypted_header = handle_packet_header(pinfo, tvb, participant, wowwConversation, headerSize);
+    if (!decrypted_header) {
+        return tvb_captured_length(tvb);
     }
 
     // Add to tree
@@ -2106,7 +2125,7 @@ dissect_woww(tvbuff_t *tvb,
     /* Add an item to the subtree, see section 1.5 of README.dissector for more
      * information. */
     // We're indexing into another tvb
-    offset = 0;
+    gint offset = 0;
     gint len = 2;
     proto_tree_add_item(woww_tree, hf_woww_size_field, next_tvb,
             offset, len, ENC_BIG_ENDIAN);
