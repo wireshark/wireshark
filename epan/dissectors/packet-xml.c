@@ -234,7 +234,6 @@ dissect_xml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     const char       *colinfo_str;
     tvbuff_t         *decoded;
     guint16           try_bom;
-    int               start_offset   = 0;
 
     if (stack != NULL)
         g_ptr_array_free(stack, TRUE);
@@ -250,7 +249,7 @@ dissect_xml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     g_ptr_array_add(stack, current_frame);
 
     /* Detect and act on possible byte-order mark (BOM) */
-    try_bom = tvb_get_ntohs(tvb, start_offset);
+    try_bom = tvb_get_ntohs(tvb, 0);
     if (try_bom == 0xFEFF) {
         /* UTF-16BE */
         const guint8 *data_str = tvb_get_string_enc(pinfo->pool, tvb, 0, tvb_captured_length(tvb), ENC_UTF_16|ENC_BIG_ENDIAN);
@@ -266,19 +265,14 @@ dissect_xml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         add_new_data_source(pinfo, decoded, "Decoded UTF-16LE text");
     }
     /* Could also test if try_bom is 0xnn00 or 0x00nn to guess endianness if we wanted */
-    else if(tvb_get_ntoh24(tvb, start_offset) == 0xEFBBBF) {
-        /* UTF-8 BOM; just skip over it */
-        decoded = tvb;
-        start_offset += 3;
-    }
     else {
-        /* Assume it's UTF-8 */
+        /* Assume it's UTF-8, either with or without BOM */
         decoded = tvb;
     }
 
-    tt = tvbparse_init(decoded, start_offset, -1, stack, want_ignore);
+    tt = tvbparse_init(decoded, 0, -1, stack, want_ignore);
     current_frame->start_offset = 0;
-    current_frame->length = tvb_captured_length(decoded) - start_offset;
+    current_frame->length = tvb_captured_length(decoded);
 
     root_ns = NULL;
 
@@ -299,7 +293,7 @@ dissect_xml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
     current_frame->ns = root_ns;
 
-    current_frame->item = proto_tree_add_item(tree, current_frame->ns->hf_tag, decoded, start_offset, -1, ENC_UTF_8|ENC_NA);
+    current_frame->item = proto_tree_add_item(tree, current_frame->ns->hf_tag, decoded, 0, -1, ENC_UTF_8|ENC_NA);
     current_frame->tree = proto_item_add_subtree(current_frame->item, current_frame->ns->ett);
     current_frame->last_item = current_frame->item;
 
