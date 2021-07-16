@@ -40,7 +40,7 @@ macro(set_extcap_executable_properties _executable)
 
 	set(PROGLIST ${PROGLIST} ${_executable})
 
-	if(WIN32)
+	if(MSVC)
 		set_target_properties(${_executable} PROPERTIES
 			RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/run/extcap
 			RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}/run/Debug/extcap
