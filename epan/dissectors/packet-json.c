@@ -33,7 +33,7 @@
 
 void proto_register_json(void);
 void proto_reg_handoff_json(void);
-static char* json_string_unescape(tvbparse_elem_t *tok, gboolean keep_outer_parentheses);
+static char* json_string_unescape(tvbparse_elem_t *tok, gboolean enclose_in_quotation_marks);
 
 
 static dissector_handle_t json_handle;
@@ -200,164 +200,293 @@ json_object_add_key(json_parser_data_t *data)
 	wmem_stack_push(data->array_idx, GINT_TO_POINTER(JSON_COMPACT_OBJECT_WITH_KEY));
 }
 
-static int
-json_tvb_memcpy_utf8(char* buf, tvbuff_t* tvb, int offset, int offset_max)
-{
-	int len = ws_utf8_char_len((guint8)*buf);
-
-	/* XXX, before moving to core API check if it's off-by-one safe.
-	 * For JSON analyzer it's not a problem
-	 * (string always terminated by ", which is not valid UTF-8 continuation character) */
-	if (len == -1 || ((guint)(offset + len)) >= (guint)offset_max) {
-		*buf = '?';
-		return 1;
-	}
-
-	/* assume it's valid UTF-8 */
-	tvb_memcpy(tvb, buf + 1, offset + 1, (size_t)len - 1);
-
-	if (!g_utf8_validate(buf, len, NULL)) {
-		*buf = '?';
-		return 1;
-	}
-
-	return len;
-}
-
 static char*
-json_string_unescape(tvbparse_elem_t* tok, gboolean keep_outer_parentheses)
+json_string_unescape(tvbparse_elem_t* tok, gboolean enclose_in_quotation_marks)
 {
-	int j = 0;
-	int i = keep_outer_parentheses == TRUE ? 0 : 1;
-	int length = keep_outer_parentheses == TRUE ? tok->len : tok->len - 1;
+	int read_index = 0;
 
-	char* str = (char*)wmem_alloc(wmem_packet_scope(), (size_t)length);
+	wmem_strbuf_t* output_string_buffer = wmem_strbuf_sized_new(wmem_packet_scope(), tok->len, tok->len + 2);
 
-	for (; i < length; i++) {
-		guint8 ch = tvb_get_guint8(tok->tvb, tok->offset + i);
-		int bin;
+	if (enclose_in_quotation_marks == TRUE)
+	{
+		wmem_strbuf_append_c(output_string_buffer, '\"');
+	}
 
-		if (ch == '\\') {
-			i++;
+	while (true)
+	{
+		// Do not overflow TVB
+		if (!tvb_offset_exists(tok->tvb, tok->offset + read_index))
+		{
+			break;
+		}
+		// Do not overflow input string
+		if (!(read_index < tok->len))
+		{
+			break;
+		}
 
-			ch = tvb_get_guint8(tok->tvb, tok->offset + i);
-			switch (ch) {
-			case '\"':
-			case '\\':
-			case '/':
-				str[j++] = ch;
-				break;
+		guint8 current_character = tvb_get_guint8(tok->tvb, tok->offset + read_index);
 
-			case 'b':
-				str[j++] = '\b';
-				break;
-			case 'f':
-				str[j++] = '\f';
-				break;
-			case 'n':
-				str[j++] = '\n';
-				break;
-			case 'r':
-				str[j++] = '\r';
-				break;
-			case 't':
-				str[j++] = '\t';
-				break;
+		// character that IS NOT escaped
+		if (current_character != '\\')
+		{
+			// A single UTF-8 character can cover more than one byte.
+			// Copy all bytes that belong to that character and forward currend_index by that amount of bytes
+			int utf8_character_length = ws_utf8_char_len(current_character);
 
-			case 'u':
+			if (utf8_character_length <= 0)
 			{
-				guint32 unicode_hex = 0;
-				gboolean valid = TRUE;
-				int k;
+				break;
+			}
 
-				for (k = 0; k < 4; k++) {
-					i++;
-					unicode_hex <<= 4;
+			for (int i = 0; i < utf8_character_length; i++)
+			{
+				// If it is a character of length 1 these checks are redundant.
+				// But it avoids a seperate code path since this loop works for lengths from 1 to 6
+				// Do not overflow TVB
+				if (!tvb_offset_exists(tok->tvb, tok->offset + read_index))
+				{
+					break;
+				}
+				// Do not overflow input string
+				if (!(read_index < tok->len ))
+				{
+					break;
+				}
 
-					ch = tvb_get_guint8(tok->tvb, tok->offset + i);
-					bin = ws_xton(ch);
-					if (bin == -1) {
-						valid = FALSE;
+				current_character = tvb_get_guint8(tok->tvb, tok->offset + read_index);
+				read_index++;
+				wmem_strbuf_append_c(output_string_buffer, current_character);
+			}
+		}
+		// character that IS escaped
+		else
+		{
+			read_index++;
+
+			// Do not overflow TVB
+			if (!tvb_offset_exists(tok->tvb, tok->offset + read_index))
+			{
+				break;
+			}
+			// Do not overflow input string
+			if (!(read_index < tok->len))
+			{
+				break;
+			}
+
+			current_character = tvb_get_guint8(tok->tvb, tok->offset + read_index);
+
+			if (current_character == '\"' || current_character == '\\' || current_character == '/')
+			{
+				read_index++;
+				wmem_strbuf_append_c(output_string_buffer, current_character);
+			}
+			else if (current_character == 'b')
+			{
+				read_index++;
+				wmem_strbuf_append_c(output_string_buffer, '\b');
+			}
+			else if (current_character == 'f')
+			{
+				read_index++;
+				wmem_strbuf_append_c(output_string_buffer, '\f');
+			}
+			else if (current_character == 'n')
+			{
+				read_index++;
+				wmem_strbuf_append_c(output_string_buffer, '\n');
+			}
+			else if (current_character == 'r')
+			{
+				read_index++;
+				wmem_strbuf_append_c(output_string_buffer, '\r');
+			}
+			else if (current_character == 't')
+			{
+				read_index++;
+				wmem_strbuf_append_c(output_string_buffer, '\t');
+			}
+			else if (current_character == 'u')
+			{
+				read_index++;
+
+				guint32 code_point = 0;
+				gboolean is_valid_unicode_character = TRUE;
+
+				for (int i = 0; i < 4; i++)
+				{
+					// Do not overflow TVB
+					if (!tvb_offset_exists(tok->tvb, tok->offset + read_index))
+					{
+						is_valid_unicode_character = FALSE;
 						break;
 					}
-					unicode_hex |= bin;
+					// Do not overflow input string
+					if (!(read_index < tok->len))
+					{
+						is_valid_unicode_character = FALSE;
+						break;
+					}
+
+					current_character = tvb_get_guint8(tok->tvb, tok->offset + read_index);
+					read_index++;
+
+					int nibble = ws_xton(current_character);
+
+					if(nibble < 0)
+					{
+						is_valid_unicode_character = FALSE;
+						break;
+					}
+
+					code_point <<= 4;
+					code_point |= nibble;
 				}
 
-				if ((IS_LEAD_SURROGATE(unicode_hex))) {
-					ch = tvb_get_guint8(tok->tvb, tok->offset + i + 1);
+				if ((IS_LEAD_SURROGATE(code_point)))
+				{
+					// Do not overflow TVB
+					if (!tvb_offset_exists(tok->tvb, tok->offset + read_index))
+					{
+						is_valid_unicode_character = FALSE;
+						break;
+					}
+					// Do not overflow input string
+					if (!(read_index < tok->len))
+					{
+						is_valid_unicode_character = FALSE;
+						break;
+					}
+					current_character = tvb_get_guint8(tok->tvb, tok->offset + read_index);
 
-					if (ch == '\\') {
-						i++;
-						ch = tvb_get_guint8(tok->tvb, tok->offset + i + 1);
-						if (ch == 'u') {
-							guint16 lead_surrogate = unicode_hex;
+					if (current_character == '\\')
+					{
+						read_index++;
+
+						// Do not overflow TVB
+						if (!tvb_offset_exists(tok->tvb, tok->offset + read_index))
+						{
+							is_valid_unicode_character = FALSE;
+							break;
+						}
+						// Do not overflow input string
+						if (!(read_index < tok->len))
+						{
+							is_valid_unicode_character = FALSE;
+							break;
+						}
+
+						current_character = tvb_get_guint8(tok->tvb, tok->offset + read_index);
+						if (current_character == 'u') {
+							guint16 lead_surrogate = code_point;
 							guint16 trail_surrogate = 0;
-							i++;
 
-							for (k = 0; k < 4; k++) {
-								i++;
-								trail_surrogate <<= 4;
+							read_index++;
 
-								ch = tvb_get_guint8(tok->tvb, tok->offset + i);
-								bin = ws_xton(ch);
-								if (bin == -1) {
-									valid = FALSE;
+							for (int i = 0; i < 4; i++)
+							{
+								// Do not overflow TVB
+								if (!tvb_offset_exists(tok->tvb, tok->offset + read_index))
+								{
+									is_valid_unicode_character = FALSE;
 									break;
 								}
-								trail_surrogate |= bin;
+								// Do not overflow input string
+								if (!(read_index < tok->len))
+								{
+									is_valid_unicode_character = FALSE;
+									break;
+								}
+
+								current_character = tvb_get_guint8(tok->tvb, tok->offset + read_index);
+								read_index++;
+
+								int nibble = ws_xton(current_character);
+
+								if (nibble < 0)
+								{
+									is_valid_unicode_character = FALSE;
+									break;
+								}
+
+								trail_surrogate <<= 4;
+								trail_surrogate |= nibble;
 							}
 
-							if ((IS_TRAIL_SURROGATE(trail_surrogate))) {
-								unicode_hex = SURROGATE_VALUE(lead_surrogate, trail_surrogate);
+							if ((IS_TRAIL_SURROGATE(trail_surrogate)))
+							{
+								code_point = SURROGATE_VALUE(lead_surrogate, trail_surrogate);
 							}
-							else {
-								valid = FALSE;
+							else
+							{
+								is_valid_unicode_character = FALSE;
 							}
 						}
-						else {
-							valid = FALSE;
+						else
+						{
+							read_index++;
+							is_valid_unicode_character = FALSE;
 						}
 					}
-					else {
-						valid = FALSE;
+					else
+					{
+						read_index++;
+						is_valid_unicode_character = FALSE;
 					}
 				}
-				else if ((IS_TRAIL_SURROGATE(unicode_hex))) {
-					i++;
-					valid = FALSE;
+				else if ((IS_TRAIL_SURROGATE(code_point)))
+				{
+					is_valid_unicode_character = FALSE;
 				}
 
-				if (valid && g_unichar_validate(unicode_hex) && g_unichar_isprint(unicode_hex)) {
-					/* \uXXXX => 6 bytes */
-					int charlen = g_unichar_to_utf8(unicode_hex, &str[j]);
-					j += charlen;
+				if (is_valid_unicode_character)
+				{
+					if (g_unichar_validate(code_point) && g_unichar_isprint(code_point))
+					{
+						gchar length_test_buffer[6];
+						int utf8_character_length = (int)g_unichar_to_utf8(code_point, length_test_buffer);
+
+						for (int i = 0; i < utf8_character_length; i++)
+						{
+							// Do not overflow TVB
+							if (!tvb_offset_exists(tok->tvb, tok->offset + read_index))
+							{
+								break;
+							}
+							// Do not overflow input string
+							if (!(read_index < tok->len))
+							{
+								break;
+							}
+
+							current_character = length_test_buffer[i];
+							wmem_strbuf_append_c(output_string_buffer, current_character);
+
+						}
+					}
 				}
 				else
 				{
-					str[j++] = '?';
+					wmem_strbuf_append_unichar(output_string_buffer, 0xFFFD);
 				}
-				break;
 			}
-			default:
-				/* not valid by JSON grammar (also tvbparse rules should not allow it) */
+			else
+			{
+				/* not valid by JSON grammar (tvbparse rules should not allow it) */
 				DISSECTOR_ASSERT_NOT_REACHED();
-				break;
 			}
-		}
-		else
-		{
-			int utf_len;
-
-			str[j] = ch;
-			/* XXX if it's not valid UTF-8 character, add some expert info? (it violates JSON grammar) */
-			utf_len = json_tvb_memcpy_utf8(&str[j], tok->tvb, tok->offset + i, tok->offset + length + 1);
-			j += utf_len;
-			i += (utf_len - 1);
 		}
 	}
-	str[j] = '\0';
 
-	return str;
+	if (enclose_in_quotation_marks == TRUE)
+	{
+		wmem_strbuf_append_c(output_string_buffer, '\"');
+	}
+
+	char* output_string = wmem_strbuf_finalize(output_string_buffer);
+
+	return output_string;
 }
 
 static GHashTable* header_fields_hash = NULL;
@@ -389,42 +518,28 @@ json_key_lookup(proto_tree* tree, tvbparse_elem_t* tok, char* key_str, packet_in
 }
 
 static char*
-join_strings(char* a, char* b, char separator)
+join_strings(char* string_a, char* string_b, char separator)
 {
-	size_t joined_string_length = separator == '\0' ? 1 : 2;
-	joined_string_length += strlen(a);
-	joined_string_length += strlen(b);
-
-	char* joined_string = (char*)wmem_alloc(wmem_packet_scope(), joined_string_length);
-
-	if (joined_string == NULL)
+	if (string_a == NULL)
+	{
+		return NULL;
+	}
+	if (string_b == NULL)
 	{
 		return NULL;
 	}
 
-	int i = 0;
-	while (a[i] != '\0')
+	wmem_strbuf_t* output_string_buffer = wmem_strbuf_new(wmem_packet_scope(), string_a);
+
+	if (separator != '\0')
 	{
-		joined_string[i] = a[i];
-		i++;
+		wmem_strbuf_append_c(output_string_buffer, separator);
 	}
 
-	if (separator != '\n')
-	{
-		joined_string[i++] = separator;
-	}
+	wmem_strbuf_append(output_string_buffer, string_b);
 
-	int offset = i;
-	i = 0;
-	while (b[i] != '\0')
-	{
-		joined_string[offset + i] = b[i];
-		i++;
-	}
-
-	joined_string[joined_string_length - 1] = '\0';
-
-	return joined_string;
+	char* output_string = wmem_strbuf_finalize(output_string_buffer);
+	return output_string;
 }
 
 static int
@@ -627,8 +742,15 @@ before_member(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t 
 	proto_tree *subtree;
 	proto_item *ti;
 
-	char* key_string = json_string_unescape(tok->sub, FALSE);
-	ti = proto_tree_add_string(tree, &hfi_json_member, tok->tvb, tok->offset, tok->len, key_string);
+	// tvb parse element covers the qutation marks which we don't want
+	tvbparse_elem_t key_parse_element = tok->sub[0];
+	key_parse_element.offset += 1;
+	key_parse_element.len -= 2;
+	char* key_string_without_quotation_marks = json_string_unescape(&key_parse_element, FALSE);
+
+	char* key_string_with_quotation_marks = json_string_unescape(tok->sub, FALSE);
+
+	ti = proto_tree_add_string(tree, &hfi_json_member, tok->tvb, tok->offset, tok->len, key_string_without_quotation_marks);
 
 	subtree = proto_item_add_subtree(ti, ett_json_member);
 	wmem_stack_push(data->stack, subtree);
@@ -639,9 +761,9 @@ before_member(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t 
 	wmem_stack_push(data->stack_path, base_path);
 	wmem_stack_push(data->stack_path, last_key_string);
 
-	char* path = join_strings(base_path, key_string, '/');
+	char* path = join_strings(base_path, key_string_without_quotation_marks, '/');
 	wmem_stack_push(data->stack_path, path);
-	wmem_stack_push(data->stack_path, key_string);
+	wmem_stack_push(data->stack_path, key_string_without_quotation_marks);
 
 	if (json_compact) {
 		proto_tree *tree_compact = (proto_tree *)wmem_stack_peek(data->stack_compact);
@@ -651,9 +773,9 @@ before_member(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t 
 		tvbparse_elem_t *key_tok = tok->sub;
 
 		if (key_tok && key_tok->id == JSON_TOKEN_STRING) {
-			ti_compact = json_key_lookup(tree_compact, tok, key_string, data->pinfo);
+			ti_compact = json_key_lookup(tree_compact, tok, key_string_with_quotation_marks, data->pinfo);
 			if (!ti_compact) {
-				ti_compact = proto_tree_add_none_format(tree_compact, &hfi_json_member_compact, tok->tvb, tok->offset, tok->len, "%s:", key_string);
+				ti_compact = proto_tree_add_none_format(tree_compact, &hfi_json_member_compact, tok->tvb, tok->offset, tok->len, "%s:", key_string_with_quotation_marks);
 			}
 		} else {
 			ti_compact = proto_tree_add_item(tree_compact, &hfi_json_member_compact, tok->tvb, tok->offset, tok->len, ENC_NA);
@@ -670,14 +792,15 @@ after_member(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t *
 
 	proto_tree *tree = (proto_tree *)wmem_stack_pop(data->stack);
 
-	if (tree) {
-		tvbparse_elem_t* key_tok = tok->sub;
+	tvbparse_elem_t* key_tok = tok->sub;
+	if (tree && key_tok && key_tok->id == JSON_TOKEN_STRING) {
 
-		if (key_tok && key_tok->id == JSON_TOKEN_STRING) {
-			char* key = json_string_unescape(key_tok, FALSE);
+		tvbparse_elem_t key_parse_element = key_tok[0];
+		key_parse_element.offset += 1;
+		key_parse_element.len -= 2;
+		char* key_string_without_quotation_marks = json_string_unescape(&key_parse_element, FALSE);
 
-			proto_tree_add_string(tree, &hfi_json_key, key_tok->tvb, key_tok->offset, key_tok->len, key);
-		}
+		proto_tree_add_string(tree, &hfi_json_key, key_tok->tvb, key_tok->offset, key_tok->len, key_string_without_quotation_marks);
 	}
 
 	// extended path based filtering
@@ -769,7 +892,21 @@ after_value(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t *t
 	char* key_string = (char*)wmem_stack_pop(data->stack_path);
 	char* path = (char*)wmem_stack_pop(data->stack_path);
 
-	char* value_str = json_string_unescape(tok, TRUE);
+	char* value_str = NULL;
+	if (value_id == JSON_TOKEN_STRING && tok->len >= 2)
+	{
+		// tvb parse element covers the qutation marks which we don't want
+		tvbparse_elem_t key_parse_element = tok[0];
+		key_parse_element.offset += 1;
+		key_parse_element.len -= 2;
+
+		value_str = json_string_unescape(&key_parse_element, FALSE);
+	}
+	else
+	{
+		value_str = json_string_unescape(tok, FALSE);
+	}
+
 	char* path_with_value = join_strings(path, value_str, ':');
 	char* memeber_with_value = join_strings(key_string, value_str, ':');
 	proto_item* path_with_value_item = proto_tree_add_string(tree, &hfi_json_path_with_value, tok->tvb, tok->offset, tok->len, path_with_value);
@@ -791,8 +928,7 @@ after_value(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t *t
 		case JSON_TOKEN_STRING:
 			if (tok->len >= 2)
 			{
-				char* value_string_without_quotation_marks = json_string_unescape(tok, FALSE);
-				proto_tree_add_string(tree, &hfi_json_value_string, tok->tvb, tok->offset, tok->len, value_string_without_quotation_marks);
+				proto_tree_add_string(tree, &hfi_json_value_string, tok->tvb, tok->offset, tok->len, value_str);
 			}
 			else
 			{
