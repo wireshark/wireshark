@@ -1365,7 +1365,8 @@ ek_write_field_value(field_info *fi, write_json_data* pdata)
             tm = gmtime_r(&t->secs, &tm_time);
 #endif
             if (tm != NULL) {
-                strftime(time_string, sizeof(time_string), "%FT%T", tm);
+                /* Some platforms (MinGW-w64) do not support %F or %T. */
+                strftime(time_string, sizeof(time_string), "%Y-%m-%dT%H:%M:%S", tm);
                 json_dumper_value_anyf(pdata->dumper, "\"%s.%09uZ\"", time_string, t->nsecs);
             } else {
                 json_dumper_value_anyf(pdata->dumper, "\"Not representable\"");
