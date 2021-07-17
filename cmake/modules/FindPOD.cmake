@@ -47,7 +47,7 @@ macro(pod2manhtml _sourcefile _manext)
 			${PERL_EXECUTABLE} ${POD2MAN_EXECUTABLE}
 			--section=${_manext}
 			--center=\"The Wireshark Network Analyzer\"
-			--release=${CPACK_PACKAGE_VERSION}
+			--release=${PROJECT_VERSION}
 			${_sourcefile}.pod
 			> ${_outman}
 		DEPENDS
