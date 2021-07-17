@@ -252,7 +252,6 @@ static int hf_zvt_terminal_id = -1;
 static int hf_zvt_time = -1;
 static int hf_zvt_date = -1;
 static int hf_zvt_card_type = -1;
-static int hf_zvt_reg_svc_byte = -1;
 static int hf_zvt_bmp = -1;
 static int hf_zvt_tlv_total_len = -1;
 static int hf_zvt_tlv_tag = -1;
@@ -1338,9 +1337,6 @@ proto_register_zvt(void)
         { &hf_zvt_date,
             { "Date", "zvt.date", FT_STRING,
                 BASE_NONE, NULL, 0, NULL, HFILL } },
-        { &hf_zvt_reg_svc_byte,
-            { "Service byte", "zvt.reg.service_byte",
-                FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL } },
         { &hf_zvt_bmp,
             { "BMP", "zvt.bmp", FT_UINT8,
                 BASE_HEX|BASE_EXT_STRING, &bitmap_ext, 0, NULL, HFILL } },

@@ -170,7 +170,6 @@ static int hf_ajp13_nhdr   = -1;
 
 /* response headers */
 static int hf_ajp13_unknown_header    = -1;
-static int hf_ajp13_additional_header = -1;
 static int hf_ajp13_content_type      = -1;
 static int hf_ajp13_content_language  = -1;
 static int hf_ajp13_content_length    = -1;
@@ -921,10 +920,6 @@ proto_register_ajp13(void)
 /* response headers */
     { &hf_ajp13_unknown_header,
       { "unknown_header",  "ajp13.unknown_header", FT_STRING, BASE_NONE, NULL, 0x0, "Unknown Header Type",
-        HFILL }
-    },
-    { &hf_ajp13_additional_header,
-      { "additional_header",  "ajp13.additional_header", FT_STRING, BASE_NONE, NULL, 0x0, "Additional Header Type",
         HFILL }
     },
     { &hf_ajp13_content_type,

@@ -1068,7 +1068,6 @@ static int hf_dvbci_file_data_len = -1;
 static int hf_dvbci_ami_priv_data = -1;
 static int hf_dvbci_req_ok = -1;
 static int hf_dvbci_file_ok = -1;
-static int hf_dvbci_file_data = -1;
 static int hf_dvbci_abort_req_code = -1;
 static int hf_dvbci_abort_ack_code = -1;
 static int hf_dvbci_phase_id = -1;
@@ -5999,10 +5998,6 @@ proto_register_dvbci(void)
         { &hf_dvbci_file_ok,
           { "FileOK", "dvb-ci.ami.file_ok",
             FT_UINT8, BASE_HEX, NULL, 0x01, NULL, HFILL }
-        },
-        { &hf_dvbci_file_data,
-          { "File data", "dvb-ci.ami.file_data",
-            FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }
         },
         { &hf_dvbci_abort_req_code,
           { "Abort request code", "dvb-ci.ami.abort_req_code",

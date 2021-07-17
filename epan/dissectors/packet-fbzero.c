@@ -73,7 +73,6 @@ static gint ett_fb_zero_tag_value = -1;
 
 static expert_field ei_fb_zero_tag_undecoded = EI_INIT;
 static expert_field ei_fb_zero_tag_offset_end_invalid = EI_INIT;
-static expert_field ei_fb_zero_tag_unknown = EI_INIT;
 static expert_field ei_fb_zero_length_invalid = EI_INIT;
 
 #define FBZERO_MIN_LENGTH 3
@@ -669,7 +668,6 @@ proto_register_fb_zero(void)
     static ei_register_info ei[] = {
         { &ei_fb_zero_tag_undecoded, { "fb_zero.tag.undecoded", PI_UNDECODED, PI_NOTE, "Dissector for FB Zero Tag code not implemented, Contact Wireshark developers if you want this supported", EXPFILL }},
         { &ei_fb_zero_tag_offset_end_invalid, { "fb_zero.offset_end.invalid", PI_PROTOCOL, PI_ERROR, "Invalid tag end offset", EXPFILL }},
-        { &ei_fb_zero_tag_unknown, { "fb_zero.tag.unknown.data", PI_UNDECODED, PI_NOTE, "Unknown Data", EXPFILL }},
         { &ei_fb_zero_length_invalid, { "fb_zero.length.invalid", PI_PROTOCOL, PI_WARN, "Invalid length", EXPFILL }},
     };
 

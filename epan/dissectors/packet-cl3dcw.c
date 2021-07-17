@@ -29,7 +29,6 @@ static int           hf_cl3dcw_type             = -1;
 static int           hf_cl3dcw_dccount          = -1;
 static int           hf_cl3dcw_datamacaddrcount = -1;
 static int           hf_cl3dcw_datassidcount    = -1;
-static int           hf_cl3dcw_pcmacaddr        = -1;
 static int           hf_cl3dcw_dcmacaddr        = -1;
 static int           hf_cl3dcw_dcssid           = -1;
 static int           hf_cl3dcw_dcbond           = -1;
@@ -294,10 +293,6 @@ proto_register_cl3dcw(void) {
     { &hf_cl3dcw_datassidcount,
       { "Data SSID Count",                 "cl3dcw.datassidcount",
         FT_UINT8,      BASE_DEC,           NULL, 0x0,
-        NULL, HFILL }},
-    { &hf_cl3dcw_pcmacaddr,
-      { "Primary Channel MAC Address",     "cl3dcw.pcmacaddr",
-        FT_ETHER,      BASE_NONE,          NULL, 0x0,
         NULL, HFILL }},
     { &hf_cl3dcw_dcmacaddr,
       { "Data Channel MAC Address",        "cl3dcw.dcmacaddr",

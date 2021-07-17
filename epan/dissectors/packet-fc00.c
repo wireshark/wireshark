@@ -41,8 +41,6 @@ static int hf_fc00_authenticator    = -1;
 static int hf_fc00_temp_publicy_key = -1;
 static int hf_fc00_payload          = -1;
 
-static expert_field ei_fc00_chksum_unsupported = EI_INIT;
-
 /* Cjdns constants */
 #define SESSION_STATE_OFF 0
 #define SESSION_STATE_LEN 4
@@ -257,27 +255,16 @@ proto_register_fc00(void)
         }
     };
 
-    static ei_register_info ei[] = {
-        { &ei_fc00_chksum_unsupported,
-            { "fc00.chksum_unsupported", PI_DECRYPTION, PI_NOTE,
-                "checksum calculation is not supported",
-                EXPFILL }}
-    };
-
     static gint *ett[] = {
         &ett_fc00,
         &ett_fc00_auth,
         &ett_fc00_key
     };
 
-    expert_module_t *expert_fc00;
-
     proto_fc00 = proto_register_protocol("Fc00 CryptoAuth", "Fc00", "fc00");
 
     proto_register_field_array(proto_fc00, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-    expert_fc00 = expert_register_protocol(proto_fc00);
-    expert_register_field_array(expert_fc00, ei, array_length(ei));
 }
 
 void

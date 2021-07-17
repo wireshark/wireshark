@@ -113,13 +113,6 @@ static int hf_pn_dcp_suboption_all = -1;
 
 static int hf_pn_dcp_suboption_manuf = -1;
 
-static int hf_pn_dcp_vendor_id_high = -1;
-static int hf_pn_dcp_vendor_id_low = -1;
-static int hf_pn_dcp_device_id_high = -1;
-static int hf_pn_dcp_device_id_low = -1;
-static int hf_pn_dcp_instance_id_high = -1;
-static int hf_pn_dcp_instance_id_low = -1;
-
 static gint ett_pn_dcp = -1;
 static gint ett_pn_dcp_block = -1;
 
@@ -1653,36 +1646,6 @@ proto_register_pn_dcp (void)
         { &hf_pn_dcp_rsi_properties_value_otherbits,
           { "RsiPropertiesValue.Bit6-15", "pn_dcp.suboption_device_rsi_properties_value.otherbits",
             FT_UINT16, BASE_HEX, NULL, 0xFFC0,
-            NULL, HFILL } },
-
-        { &hf_pn_dcp_vendor_id_high,
-          { "VendorIDHigh", "pn_dcp.vendor_id_high",
-            FT_UINT16, BASE_HEX, NULL, 0xFF00,
-            NULL, HFILL } },
-
-        { &hf_pn_dcp_vendor_id_low,
-          { "VendorIDLow", "pn_dcp.vendor_id_low",
-            FT_UINT16, BASE_HEX, NULL, 0x00FF,
-            NULL, HFILL } },
-
-        { &hf_pn_dcp_device_id_high,
-          { "DeviceIDHigh", "pn_dcp.device_id_high",
-            FT_UINT16, BASE_HEX, NULL, 0xFF00,
-            NULL, HFILL } },
-
-        { &hf_pn_dcp_device_id_low,
-          { "DeviceIDLow", "pn_dcp.device_id_low",
-            FT_UINT16, BASE_HEX, NULL, 0x00FF,
-            NULL, HFILL } },
-
-        { &hf_pn_dcp_instance_id_high,
-          { "InstanceHigh", "pn_dcp.instance_id_high",
-            FT_UINT8, BASE_HEX, NULL, 0x0,
-            NULL, HFILL } },
-
-        { &hf_pn_dcp_instance_id_low,
-          { "InstanceLow", "pn_dcp.instance_id_low",
-            FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL } },
 
         { &hf_pn_dcp_suboption_dhcp,

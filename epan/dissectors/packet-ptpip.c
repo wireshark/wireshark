@@ -51,7 +51,6 @@ static int hf_ptpIP_dataPhaseInfo = -1;
 static int hf_ptp_opCode = -1;
 static int hf_ptp_vendor_opCode = -1;
 static int hf_ptp_respCode = -1;
-static int hf_ptp_vendor_respCode = -1;
 static int hf_ptp_eventCode = -1;
 static int hf_ptp_transactionID = -1;
 static int hf_ptp_totalDataLength = -1;
@@ -1065,9 +1064,6 @@ void proto_register_ptpip( void )
         { &hf_ptp_respCode, {
             "Response Code", "ptpip.respcode", FT_UINT16, BASE_HEX,
             VALS(ptp_respcode_names), 0, NULL, HFILL }},
-        { &hf_ptp_vendor_respCode, {
-            "Response Code", "ptpip.respcode", FT_UINT16, BASE_HEX,
-            NULL, 0, NULL, HFILL }},
         { &hf_ptp_eventCode, {
             "Event Code", "ptpip.eventcode", FT_UINT16, BASE_HEX,
             NULL, 0, NULL, HFILL }},
