@@ -1,4 +1,4 @@
-TShark (Wireshark) 3.5.0 (v3.5.0rc0-2343-gfa21433c35b1)
+TShark (Wireshark) 3.5.0 (v3.5.0rc0-2522-gf54493278f27)
 Dump and analyze network traffic.
 See https://www.wireshark.org for more information.
 
@@ -71,7 +71,7 @@ Output:
   -w <outfile|->           write packets to a pcapng-format file named "outfile"
                            (or '-' for stdout)
   --capture-comment <comment>
-                           set the capture file comment, if supported
+                           add a capture file comment, if supported
   -C <config profile>      start with specified configuration profile
   -F <output file type>    set the output file type, default is pcapng
                            an empty "-F" option will list the file types

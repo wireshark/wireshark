@@ -6893,10 +6893,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Сдвинуть или  изменить временные маркеры пакета</translation>
     </message>
     <message>
-        <source>Add or change a packet comment</source>
-        <translation type="vanished">Добавить или изменить комментарий к пакету</translation>
-    </message>
-    <message>
         <source>Delete All Packet Comments</source>
         <translation>Удалить Все Комментарии к Пакету</translation>
     </message>
@@ -7467,10 +7463,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Time Shift…</source>
         <translation>Временной Сдвиг…</translation>
-    </message>
-    <message>
-        <source>Packet Comment…</source>
-        <translation type="vanished">Комментарии к Пакету…</translation>
     </message>
     <message>
         <source>&amp;Preferences…</source>
@@ -8248,6 +8240,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Invalid capture filter.</source>
         <translation>Неправильный фильтр захвата.</translation>
+    </message>
+    <message>
+        <source>(empty comment)</source>
+        <comment>placeholder for empty comment</comment>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Add New Comment…</source>

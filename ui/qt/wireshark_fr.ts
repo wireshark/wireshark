@@ -6848,10 +6848,6 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation>Décalager ou changer le temps des paquets</translation>
     </message>
     <message>
-        <source>Add or change a packet comment</source>
-        <translation type="vanished">Ajouter ou changer le commentaire d&apos;un paquet</translation>
-    </message>
-    <message>
         <source>Delete All Packet Comments</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7422,10 +7418,6 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <source>Time Shift…</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Packet Comment…</source>
-        <translation type="vanished">Commentaire Paquet...</translation>
     </message>
     <message>
         <source>&amp;Preferences…</source>
@@ -8193,6 +8185,11 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>Invalid capture filter.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>(empty comment)</source>
+        <comment>placeholder for empty comment</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>

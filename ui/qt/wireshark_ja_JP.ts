@@ -6854,10 +6854,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>パケットのタイムスタンプをずらすもしくは変更します</translation>
     </message>
     <message>
-        <source>Add or change a packet comment</source>
-        <translation type="vanished">パケットのコメントを追加または変更します</translation>
-    </message>
-    <message>
         <source>Delete All Packet Comments</source>
         <translation>すべてのパケットコメントを削除</translation>
     </message>
@@ -7428,10 +7424,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Time Shift…</source>
         <translation>時間調整…</translation>
-    </message>
-    <message>
-        <source>Packet Comment…</source>
-        <translation type="vanished">パケットコメント…</translation>
     </message>
     <message>
         <source>&amp;Preferences…</source>
@@ -8207,6 +8199,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Invalid capture filter.</source>
         <translation>無効なキャプチャフィルタ</translation>
+    </message>
+    <message>
+        <source>(empty comment)</source>
+        <comment>placeholder for empty comment</comment>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Add New Comment…</source>

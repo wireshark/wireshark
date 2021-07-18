@@ -6872,10 +6872,6 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Paketzeitstempel verschieben oder ändern</translation>
     </message>
     <message>
-        <source>Add or change a packet comment</source>
-        <translation type="vanished">Paketkommentar hinzufügen oder ändern</translation>
-    </message>
-    <message>
         <source>Delete All Packet Comments</source>
         <translation>Alle Paketkommentare löschen</translation>
     </message>
@@ -7446,10 +7442,6 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>Time Shift…</source>
         <translation>Zeitverschieben...</translation>
-    </message>
-    <message>
-        <source>Packet Comment…</source>
-        <translation type="vanished">Paketkommentar...</translation>
     </message>
     <message>
         <source>&amp;Preferences…</source>
@@ -8226,6 +8218,11 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>Invalid capture filter.</source>
         <translation>Ungültiger Mitschnittfilter</translation>
+    </message>
+    <message>
+        <source>(empty comment)</source>
+        <comment>placeholder for empty comment</comment>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Add New Comment…</source>

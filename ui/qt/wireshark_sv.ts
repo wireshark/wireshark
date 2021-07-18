@@ -6872,10 +6872,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Skifta eller ändra pakettidsstämplar</translation>
     </message>
     <message>
-        <source>Add or change a packet comment</source>
-        <translation type="vanished">Lägg till eller ändra en paketkommentar</translation>
-    </message>
-    <message>
         <source>Delete All Packet Comments</source>
         <translation>Ta bort alla paketkommentarer</translation>
     </message>
@@ -7446,10 +7442,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Time Shift…</source>
         <translation>Tidsförskjutning …</translation>
-    </message>
-    <message>
-        <source>Packet Comment…</source>
-        <translation type="vanished">Paketkommentar …</translation>
     </message>
     <message>
         <source>&amp;Preferences…</source>
@@ -8226,6 +8218,11 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Invalid capture filter.</source>
         <translation>Felaktigt fångstfilter.</translation>
+    </message>
+    <message>
+        <source>(empty comment)</source>
+        <comment>placeholder for empty comment</comment>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Add New Comment…</source>

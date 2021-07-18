@@ -7380,10 +7380,6 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation>Modificar horario…</translation>
     </message>
     <message>
-        <source>Packet Comment…</source>
-        <translation type="vanished">Comentario de paquete…</translation>
-    </message>
-    <message>
         <source>&amp;Preferences…</source>
         <translation>&amp;Preferencias…</translation>
     </message>
@@ -8149,6 +8145,11 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Invalid capture filter.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>(empty comment)</source>
+        <comment>placeholder for empty comment</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>

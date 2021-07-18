@@ -3209,7 +3209,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>QUIC streams not found on the selected packet.</source>
-        <translation type="unfinished"></translation>
+        <translation>Flussi QUIC non trovati nel pacchetto selezionato.</translation>
     </message>
     <message numerus="yes">
         <source>%Ln total sub stream(s).</source>
@@ -3220,16 +3220,16 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message numerus="yes">
         <source>Total number of QUIC connections: %Ln</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Numero totale di connessioni QUIC: %Ln</numerusform>
+            <numerusform>Numero totale di connessioni QUIC: %Ln</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>Max QUIC Stream ID for the selected connection: %Ln</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>ID massimo del flusso QUIC per la connessione selezionata: %Ln</numerusform>
+            <numerusform>ID massimo del flusso QUIC per la connessione selezionata: %Ln</numerusform>
         </translation>
     </message>
     <message>
@@ -6362,7 +6362,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Packet Comments</source>
-        <translation type="unfinished">Commenti pacchetto</translation>
+        <translation>Commenti pacchetto</translation>
     </message>
     <message>
         <source>Main Toolbar</source>
@@ -6870,10 +6870,6 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>Shift or change packet timestamps</source>
         <translation>Scorri o cambia la marca temporale del pacchetto</translation>
-    </message>
-    <message>
-        <source>Add or change a packet comment</source>
-        <translation type="vanished">Aggiungi o modifica un commento al pacchetto</translation>
     </message>
     <message>
         <source>Delete All Packet Comments</source>
@@ -7446,10 +7442,6 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>Time Shift…</source>
         <translation>Spostamento temporale...</translation>
-    </message>
-    <message>
-        <source>Packet Comment…</source>
-        <translation type="vanished">Commento del pacchetto...</translation>
     </message>
     <message>
         <source>&amp;Preferences…</source>
@@ -8228,18 +8220,23 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Filtro di cattura invalido.</translation>
     </message>
     <message>
-        <source>Add New Comment…</source>
+        <source>(empty comment)</source>
+        <comment>placeholder for empty comment</comment>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add New Comment…</source>
+        <translation>Aggiungi nuovo commento...</translation>
     </message>
     <message>
         <source>Edit &quot;%1&quot;</source>
         <comment>edit packet comment</comment>
-        <translation type="unfinished"></translation>
+        <translation>Modifica &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Delete &quot;%1&quot;</source>
         <comment>delete packet comment</comment>
-        <translation type="unfinished"></translation>
+        <translation>Elimina &quot;%1&quot;</translation>
     </message>
     <message>
         <source> before starting a new capture</source>

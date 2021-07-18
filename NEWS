@@ -106,20 +106,22 @@ Wireshark 3.5.0 Release Notes
   New Protocol Support
 
    Bluetooth Link Manager Protocol (BT LMP), Event Tracing for Windows
-   (ETW), Kerberos SPAKE, Linux psample protocol, Microsoft Task
-   Scheduler Service, O-RAN E2AP, O-RAN fronthaul UC-plane (O-RAN), Opus
-   Interactive Audio Codec (OPUS), PDU Transport Protocol, R09.x (R09),
-   Real-Time Publish-Subscribe Virtual Transport (RTPS-VT), Real-Time
-   Publish-Subscribe Wire Protocol (processed) (RTPS-PROC), Shared
-   Memory Communications (SMC), Signal PDU, SparkplugB, State
-   Synchronization Protocol (SSyncP), Tagged Image File Format (TIFF),
-   and TP-Link Smart Home Protocol
+   (ETW), Kerberos SPAKE, Linux psample protocol, Local Interconnect
+   Network (LIN), Microsoft Task Scheduler Service, O-RAN E2AP, O-RAN
+   fronthaul UC-plane (O-RAN), Opus Interactive Audio Codec (OPUS), PDU
+   Transport Protocol, R09.x (R09), Real-Time Publish-Subscribe Virtual
+   Transport (RTPS-VT), Real-Time Publish-Subscribe Wire Protocol
+   (processed) (RTPS-PROC), Shared Memory Communications (SMC), Signal
+   PDU, SparkplugB, State Synchronization Protocol (SSyncP), Tagged
+   Image File Format (TIFF), and TP-Link Smart Home Protocol
 
   Updated Protocol Support
 
    Too many protocols have been updated to list here.
 
   New and Updated Capture File Support
+
+   BLF support
 
  Getting Wireshark
 
@@ -155,7 +157,7 @@ Wireshark 3.5.0 Release Notes
 
   A complete FAQ is available on the Wireshark web site[8].
 
-  Last updated 2021-07-11 09:05:31 UTC
+  Last updated 2021-07-18 09:05:34 UTC
 
  References
 
