@@ -365,14 +365,14 @@ blf_pull_logcontainer_into_memory(blf_params_t *params, guint index_log_containe
         }
 
         /* pull compressed data into buffer */
-        unsigned char *compressed_data = g_try_malloc0(tmp.infile_length);
+        unsigned char *compressed_data = g_try_malloc0((gsize)tmp.infile_length);
         guint64 data_length = (unsigned int)tmp.infile_length - (tmp.infile_data_start - tmp.infile_start_pos);
         if (!wtap_read_bytes_or_eof(params->fh, compressed_data, (unsigned int)data_length, &err, &err_info)) {
             ws_debug("blf_pull_logcontainer_into_memory: cannot read compressed data");
             return FALSE;
         }
 
-        unsigned char *buf = g_try_malloc0(tmp.real_length);
+        unsigned char *buf = g_try_malloc0((gsize)tmp.real_length);
         z_stream infstream;
         infstream.zalloc = Z_NULL;
         infstream.zfree = Z_NULL;
@@ -635,7 +635,7 @@ blf_init_rec(blf_params_t *params, guint64 object_timestamp, int pkt_encap, guin
 }
 
 gboolean
-blf_read_ethernetframe(blf_params_t *params, int *err, gchar **err_info, gint64 block_start, gint64 header2_start, gint64 data_start, guint64 object_length) {
+blf_read_ethernetframe(blf_params_t *params, int *err, gchar **err_info, gint64 block_start, gint64 header2_start, gint64 data_start, gint64 object_length) {
     blf_logobjectheader_t logheader;
     blf_ethernetframeheader_t ethheader;
     guint8 tmpbuf[18];
@@ -651,7 +651,7 @@ blf_read_ethernetframe(blf_params_t *params, int *err, gchar **err_info, gint64 
     }
     fix_endianness_blf_logobjectheader(&logheader);
 
-    if (object_length < (data_start - block_start) + sizeof(blf_ethernetframeheader_t)) {
+    if (object_length < (data_start - block_start) + (int) sizeof(blf_ethernetframeheader_t)) {
         ws_debug("blf_read_ethernetframe: not enough bytes for ethernet frame header in object");
         return FALSE;
     }
@@ -715,7 +715,7 @@ blf_read_ethernetframe(blf_params_t *params, int *err, gchar **err_info, gint64 
 }
 
 gboolean
-blf_read_ethernetframe_ext(blf_params_t *params, int *err, gchar **err_info, gint64 block_start, gint64 header2_start, gint64 data_start, guint64 object_length) {
+blf_read_ethernetframe_ext(blf_params_t *params, int *err, gchar **err_info, gint64 block_start, gint64 header2_start, gint64 data_start, gint64 object_length) {
     blf_logobjectheader_t logheader;
     blf_ethernetframeheader_ex_t ethheader;
 
@@ -730,7 +730,7 @@ blf_read_ethernetframe_ext(blf_params_t *params, int *err, gchar **err_info, gin
     }
     fix_endianness_blf_logobjectheader(&logheader);
 
-    if (object_length < (data_start - block_start) + sizeof(blf_ethernetframeheader_ex_t)) {
+    if (object_length < (data_start - block_start) + (int) sizeof(blf_ethernetframeheader_ex_t)) {
         ws_debug("blf_read_ethernetframe_ex: not enough bytes for ethernet frame header in object");
         return FALSE;
     }
@@ -795,7 +795,7 @@ blf_can_fill_buf_and_rec(blf_params_t *params, int *err, gchar **err_info, guint
 }
 
 gboolean
-blf_read_canmessage(blf_params_t *params, int *err, gchar **err_info, gint64 block_start, gint64 header2_start, gint64 data_start, guint64 object_length, gboolean can_message2) {
+blf_read_canmessage(blf_params_t *params, int *err, gchar **err_info, gint64 block_start, gint64 header2_start, gint64 data_start, gint64 object_length, gboolean can_message2) {
     blf_logobjectheader_t logheader;
     blf_canmessage_t canheader;
     blf_canmessage2_trailer_t can2trailer;
@@ -815,7 +815,7 @@ blf_read_canmessage(blf_params_t *params, int *err, gchar **err_info, gint64 blo
     }
     fix_endianness_blf_logobjectheader(&logheader);
 
-    if (object_length < (data_start - block_start) + sizeof(canheader)) {
+    if (object_length < (data_start - block_start) + (int) sizeof(canheader)) {
         ws_debug("blf_read_canmessage: not enough bytes for canfd header in object");
         return FALSE;
     }
@@ -856,7 +856,7 @@ blf_read_canmessage(blf_params_t *params, int *err, gchar **err_info, gint64 blo
 
     /* actually, we do not really need the data, right now.... */
     if (can_message2) {
-        if (object_length < (data_start - block_start) + sizeof(canheader) + payload_length_valid + sizeof(can2trailer)) {
+        if (object_length < (data_start - block_start) + (int) sizeof(canheader) + payload_length_valid + (int) sizeof(can2trailer)) {
             ws_debug("blf_read_canmessage2: not enough bytes for can message 2 trailer");
             return FALSE;
         }
@@ -871,7 +871,7 @@ blf_read_canmessage(blf_params_t *params, int *err, gchar **err_info, gint64 blo
 }
 
 gboolean
-blf_read_canfdmessage(blf_params_t *params, int *err, gchar **err_info, gint64 block_start, gint64 header2_start, gint64 data_start, guint64 object_length) {
+blf_read_canfdmessage(blf_params_t *params, int *err, gchar **err_info, gint64 block_start, gint64 header2_start, gint64 data_start, gint64 object_length) {
     blf_logobjectheader_t logheader;
     blf_canfdmessage_t canheader;
 
@@ -891,7 +891,7 @@ blf_read_canfdmessage(blf_params_t *params, int *err, gchar **err_info, gint64 b
     }
     fix_endianness_blf_logobjectheader(&logheader);
 
-    if (object_length < (data_start - block_start) + sizeof(canheader)) {
+    if (object_length < (data_start - block_start) + (int) sizeof(canheader)) {
         ws_debug("blf_read_canfdmessage64: not enough bytes for canfd header in object");
         return FALSE;
     }
@@ -943,7 +943,7 @@ blf_read_canfdmessage(blf_params_t *params, int *err, gchar **err_info, gint64 b
 }
 
 gboolean
-blf_read_canfdmessage64(blf_params_t *params, int *err, gchar **err_info, gint64 block_start, gint64 header2_start, gint64 data_start, guint64 object_length) {
+blf_read_canfdmessage64(blf_params_t *params, int *err, gchar **err_info, gint64 block_start, gint64 header2_start, gint64 data_start, gint64 object_length) {
     blf_logobjectheader_t logheader;
     blf_canfdmessage64_t canheader;
 
@@ -963,7 +963,7 @@ blf_read_canfdmessage64(blf_params_t *params, int *err, gchar **err_info, gint64
     }
     fix_endianness_blf_logobjectheader(&logheader);
 
-    if (object_length < (data_start - block_start) + sizeof(canheader)) {
+    if (object_length < (data_start - block_start) + (int) sizeof(canheader)) {
         ws_debug("blf_read_canfdmessage64: not enough bytes for canfd header in object");
         return FALSE;
     }
@@ -1023,7 +1023,7 @@ blf_read_canfdmessage64(blf_params_t *params, int *err, gchar **err_info, gint64
 }
 
 gboolean
-blf_read_flexraydata(blf_params_t *params, int *err, gchar **err_info, gint64 block_start, gint64 header2_start, gint64 data_start, guint64 object_length) {
+blf_read_flexraydata(blf_params_t *params, int *err, gchar **err_info, gint64 block_start, gint64 header2_start, gint64 data_start, gint64 object_length) {
     blf_logobjectheader_t logheader;
     blf_flexraydata_t frheader;
 
@@ -1042,7 +1042,7 @@ blf_read_flexraydata(blf_params_t *params, int *err, gchar **err_info, gint64 bl
     }
     fix_endianness_blf_logobjectheader(&logheader);
 
-    if (object_length < (data_start - block_start) + sizeof(frheader)) {
+    if (object_length < (data_start - block_start) + (int) sizeof(frheader)) {
         ws_debug("blf_read_flexraydata: not enough bytes for flexrayheader in object");
         return FALSE;
     }
@@ -1104,7 +1104,7 @@ blf_read_flexraydata(blf_params_t *params, int *err, gchar **err_info, gint64 bl
 }
 
 gboolean
-blf_read_flexraymessage(blf_params_t *params, int *err, gchar **err_info, gint64 block_start, gint64 header2_start, gint64 data_start, guint64 object_length) {
+blf_read_flexraymessage(blf_params_t *params, int *err, gchar **err_info, gint64 block_start, gint64 header2_start, gint64 data_start, gint64 object_length) {
     blf_logobjectheader_t logheader;
     blf_flexraymessage_t frheader;
 
@@ -1123,7 +1123,7 @@ blf_read_flexraymessage(blf_params_t *params, int *err, gchar **err_info, gint64
     }
     fix_endianness_blf_logobjectheader(&logheader);
 
-    if (object_length < (data_start - block_start) + sizeof(frheader)) {
+    if (object_length < (data_start - block_start) + (int) sizeof(frheader)) {
         ws_debug("blf_read_flexraymessage: not enough bytes for flexrayheader in object");
         return FALSE;
     }
@@ -1202,7 +1202,7 @@ blf_read_flexraymessage(blf_params_t *params, int *err, gchar **err_info, gint64
 }
 
 gboolean
-blf_read_flexrayrcvmessageex(blf_params_t *params, int *err, gchar **err_info, gint64 block_start, gint64 header2_start, gint64 data_start, guint64 object_length, gboolean ext) {
+blf_read_flexrayrcvmessageex(blf_params_t *params, int *err, gchar **err_info, gint64 block_start, gint64 header2_start, gint64 data_start, gint64 object_length, gboolean ext) {
     blf_logobjectheader_t logheader;
     blf_flexrayrcvmessage_t frheader;
 
