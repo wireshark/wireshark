@@ -1,4 +1,4 @@
-Wireshark 3.4.7 Release Notes
+Wireshark 3.4.8 Release Notes
 
  What is Wireshark?
 
@@ -9,20 +9,7 @@ Wireshark 3.4.7 Release Notes
 
   Bug Fixes
 
-   The following vulnerabilities have been fixed:
-
-     • wnpa-sec-2021-06[1] DNP dissector crash. Issue 17462[2].
-       CVE-2021-22235[3].
-
    The following bugs have been fixed:
-
-     • TCP dissector - Erroneous DSACK reporting Issue 17315[4].
-
-     • No wlan_radio.duration calculated for PHY type: 802.11ac (VHT)
-       Issue 17419[5].
-
-     • NAN Dissector has wrong minimum length for availability attribute
-       Issue 17431[6].
 
   New and Updated Features
 
@@ -32,13 +19,9 @@ Wireshark 3.4.7 Release Notes
 
   Updated Protocol Support
 
-   ASTERIX, BT LE LL, DCE RPC, DNP, GTPv2, IEEE 802.11 Radio, LDAP, NAN,
-   NORDIC_BLE, NR RRC, OSPF, pcapng, PNIO, RSL, S101, Snort config, and
-   TCP
-
   New and Updated Capture File Support
 
-   Catapult DCT2000, ERF, and pcap
+   There is no new or updated capture file support in this release.
 
  Getting Wireshark
 
@@ -50,7 +33,7 @@ Wireshark 3.4.7 Release Notes
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[7] on the Wireshark web site.
+   be found on the download page[1] on the Wireshark web site.
 
  File Locations
 
@@ -64,28 +47,22 @@ Wireshark 3.4.7 Release Notes
   The User’s Guide, manual pages and various other documentation can be
   found at https://www.wireshark.org/docs/
 
-  Community support is available on Wireshark’s Q&A site[8] and on the
+  Community support is available on Wireshark’s Q&A site[2] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[9].
+  for all of Wireshark’s mailing lists can be found on the web site[3].
 
-  Issues and feature requests can be reported on the issue tracker[10].
+  Issues and feature requests can be reported on the issue tracker[4].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[11].
+  A complete FAQ is available on the Wireshark web site[5].
 
-  Last updated 2021-07-14 16:36:15 UTC
+  Last updated 2021-07-18 09:31:43 UTC
 
  References
 
-   1. https://www.wireshark.org/security/wnpa-sec-2021-06
-   2. https://gitlab.com/wireshark/wireshark/-/issues/17462
-   3. https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-22235
-   4. https://gitlab.com/wireshark/wireshark/-/issues/17315
-   5. https://gitlab.com/wireshark/wireshark/-/issues/17419
-   6. https://gitlab.com/wireshark/wireshark/-/issues/17431
-   7. https://www.wireshark.org/download.html#thirdparty
-   8. https://ask.wireshark.org/
-   9. https://www.wireshark.org/lists/
-  10. https://gitlab.com/wireshark/wireshark/-/issues
-  11. https://www.wireshark.org/faq.html
+   1. https://www.wireshark.org/download.html#thirdparty
+   2. https://ask.wireshark.org/
+   3. https://www.wireshark.org/lists/
+   4. https://gitlab.com/wireshark/wireshark/-/issues
+   5. https://www.wireshark.org/faq.html
