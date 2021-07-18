@@ -4513,6 +4513,7 @@ fcp-cics-gw1	5504/tcp/udp
 checkoutdb	5505/tcp/udp	# Checkout Database
 amc		5506/tcp/udp	# Amcom Mobile Connect
 psl-management	5507/tcp	# PowerSysLab Electrical Management
+matter		5540/tcp/udp	# Matter Operational Discovery and Communi
 cbus		5550/tcp	# Model Railway control using the CBUS message protocol
 sgi-eventmond	5553/tcp/udp	# SGI Eventmond Port
 sgi-esphttp	5554/tcp/udp	# SGI ESP HTTP
