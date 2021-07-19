@@ -113,6 +113,11 @@ typedef struct WowwConversation {
     WowwParticipant_t server;
 } WowwConversation_t;
 
+typedef struct {
+    guint8 index;
+    guint8 last_encrypted_value;
+} WowwPreviousValues_t;
+
 // All existing opcodes for 1.12.x
 typedef enum
 {
@@ -2027,27 +2032,26 @@ handle_packet_header(packet_info* pinfo,
         return decrypted_header;
     }
 
-    guint8* original_header_values = wmem_tree_lookup32(wowwConversation->headers_need_decryption, pinfo->num);
+    WowwPreviousValues_t * original_header_values = wmem_tree_lookup32(wowwConversation->headers_need_decryption, pinfo->num);
 
     if (original_header_values) {
         // Header has been seen before
 
-        // Original value will need to be used
-        if (!session_key_is_fully_deduced(wowwConversation->known_indices, headerSize, original_header_values[0])) {
+        // Original value will need to be used for deduction
+        if (!session_key_is_fully_deduced(wowwConversation->known_indices, headerSize, original_header_values->index)) {
             // Not ready yet
             return NULL;
         }
 
         // Header can be decrypted and added to map
-
     }
     else {
         // Header has not been seen before
         if (!session_key_is_fully_deduced(wowwConversation->known_indices, headerSize, participant->index)) {
-            // Packet isn't decrypted, make sure to do it later
-            guint8 *array_index = wmem_alloc(wmem_file_scope(), 2);
-            array_index[0] = participant->index;
-            array_index[1] = participant->last_encrypted_value;
+            // Packet isn't decryptable, make sure to do it later
+            WowwPreviousValues_t* array_index = wmem_alloc(wmem_file_scope(), 2);
+            array_index->index = participant->index;
+            array_index->last_encrypted_value = participant->last_encrypted_value;
             wmem_tree_insert32(wowwConversation->headers_need_decryption, pinfo->num, array_index);
 
             if (WOWW_CLIENT_TO_SERVER) {
@@ -2062,7 +2066,6 @@ handle_packet_header(packet_info* pinfo,
         }
         else {
             // Header can be decrypted and added to map
-
         }
     }
 
@@ -2071,8 +2074,8 @@ handle_packet_header(packet_info* pinfo,
 
     // If this is an out of order packet we must use the original state
     if (original_header_values) {
-        participant->index = original_header_values[0];
-        participant->last_encrypted_value = original_header_values[1];
+        participant->index = original_header_values->index;
+        participant->last_encrypted_value = original_header_values->last_encrypted_value;
     }
 
     decrypted_header = get_decrypted_header(wowwConversation->session_key, participant, header, headerSize);
