@@ -1404,8 +1404,7 @@ sharkd_session_process_frames(const char *buf, const jsmntok_t *tokens, int coun
 
 	const guint8 *filter_data = NULL;
 
-	guint32 prev_dis_num = 0;
-	guint32 current_ref_frame = 0, next_ref_frame = G_MAXUINT32;
+	guint32 next_ref_frame = G_MAXUINT32;
 	guint32 skip;
 	guint32 limit;
 
@@ -1473,7 +1472,6 @@ sharkd_session_process_frames(const char *buf, const jsmntok_t *tokens, int coun
 	for (guint32 framenum = 1; framenum <= cfile.count; framenum++)
 	{
 		frame_data *fdata;
-		guint32 ref_frame = (framenum != 1) ? 1 : 0;
 		enum dissect_request_status status;
 		int err;
 		gchar *err_info;
@@ -1484,7 +1482,6 @@ sharkd_session_process_frames(const char *buf, const jsmntok_t *tokens, int coun
 		if (skip)
 		{
 			skip--;
-			prev_dis_num = framenum;
 			continue;
 		}
 
@@ -1492,15 +1489,11 @@ sharkd_session_process_frames(const char *buf, const jsmntok_t *tokens, int coun
 		{
 			if (framenum >= next_ref_frame)
 			{
-				current_ref_frame = next_ref_frame;
-
 				if (*tok_refs != ',')
 					next_ref_frame = G_MAXUINT32;
 
 				while (*tok_refs == ',' && framenum >= next_ref_frame)
 				{
-					current_ref_frame = next_ref_frame;
-
 					if (!ws_strtou32(tok_refs + 1, &tok_refs, &next_ref_frame))
 					{
 						fprintf(stderr, "sharkd_session_process_frames() wrong format for refs: %s\n", tok_refs);
@@ -1510,13 +1503,9 @@ sharkd_session_process_frames(const char *buf, const jsmntok_t *tokens, int coun
 
 				if (*tok_refs == '\0' && framenum >= next_ref_frame)
 				{
-					current_ref_frame = next_ref_frame;
 					next_ref_frame = G_MAXUINT32;
 				}
 			}
-
-			if (current_ref_frame)
-				ref_frame = current_ref_frame;
 		}
 
 		fdata = sharkd_get_frame(framenum);
@@ -1543,8 +1532,6 @@ sharkd_session_process_frames(const char *buf, const jsmntok_t *tokens, int coun
 			g_free(err_info);
 			break;
 		}
-
-		prev_dis_num = framenum;
 
 		if (limit && --limit == 0)
 			break;
