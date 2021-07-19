@@ -357,8 +357,6 @@
    /* Use Unicode in Windows runtime functions. */
 #  define UNICODE 1
 #  define _UNICODE 1
-
-#  define NEED_STRPTIME_H 1
 #endif
 
 #include <ws_diag_control.h>
