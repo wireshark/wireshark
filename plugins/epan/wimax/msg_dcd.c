@@ -869,7 +869,7 @@ void proto_register_mac_mgmt_msg_dcd(void)
 			{
 			&hf_dcd_tlv_t_153_downlink_burst_profile_for_mutiple_fec_types,
 			{
-				"Downlink Burst Profile for Multiple FEC Types","wimax.dcd.dl_burst_profile_multiple_fec_types",
+				"Downlink Burst Profile for Multiple FEC Types","wmx.dcd.dl_burst_profile_multiple_fec_types",
 				FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL
 			}
 		},
