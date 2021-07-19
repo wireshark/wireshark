@@ -175,6 +175,7 @@ UAVCAN/CAN
 UAVCAN DSDL
 Van Jacobson PPP compression (VJC)
 World of Warcraft World (WOWW)
+Secure Host IP Configuration Protocol (SHICP)
 --
 
 === Updated Protocol Support
