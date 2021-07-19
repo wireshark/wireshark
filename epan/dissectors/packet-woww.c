@@ -53,15 +53,13 @@
  */
 
 #include <config.h>
-#include <epan/packet.h>   /* Should be first Wireshark include (other than config.h) */
-#include <epan/conversation.h>   /* Should be first Wireshark include (other than config.h) */
-#include <epan/wmem/wmem.h>   /* Should be first Wireshark include (other than config.h) */
+#include <epan/packet.h>
+#include <epan/conversation.h>
+#include <epan/wmem/wmem.h>
 
-/* Prototypes */
 void proto_reg_handoff_woww(void);
 void proto_register_woww(void);
 
-/* Initialize the protocol and registered fields */
 static int proto_woww = -1;
 
 /* Fields that all packets have */
@@ -2100,33 +2098,17 @@ dissect_woww(tvbuff_t *tvb,
              proto_tree *tree,
              void *data _U_)
 {
-
-    /*** HEURISTICS ***/
-
-    /* Check that the packet is long enough for it to belong to us. */
     if (tvb_reported_length(tvb) < WOWW_MIN_LENGTH)
         return 0;
 
-    /* Check that there's enough data present to run the heuristics. If there
-     * isn't, reject the packet; it will probably be dissected as data and if
-     * the user wants it dissected despite it being short they can use the
-     * "Decode-As" functionality. If your heuristic needs to look very deep into
-     * the packet you may not want to require *all* data to be present, but you
-     * should ensure that the heuristic does not access beyond the captured
-     * length of the packet regardless. */
     if (tvb_captured_length(tvb) < 1)
         return 0;
-
-    /*** COLUMN DATA ***/
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "WOWW");
 
     col_clear(pinfo->cinfo, COL_INFO);
     col_set_str(pinfo->cinfo, COL_INFO, "Session Key Not Known Yet");
 
-    /*** PROTOCOL TREE ***/
-
-    /* create display subtree for the protocol */
     proto_tree* ti = proto_tree_add_item(tree, proto_woww, tvb, 0, -1, ENC_NA);
 
     proto_tree* woww_tree = proto_item_add_subtree(ti, ett_woww);
@@ -2164,8 +2146,6 @@ dissect_woww(tvbuff_t *tvb,
     tvbuff_t *next_tvb = tvb_new_child_real_data(tvb, decrypted_header, headerSize, headerSize);
     add_new_data_source(pinfo, next_tvb, "Decrypted Header");
 
-    /* Add an item to the subtree, see section 1.5 of README.dissector for more
-     * information. */
     // We're indexing into another tvb
     gint offset = 0;
     gint len = 2;
@@ -2197,8 +2177,6 @@ dissect_woww(tvbuff_t *tvb,
 void
 proto_register_woww(void)
 {
-    /* Setup list of header fields  See Section 1.5 of README.dissector for
-     * details. */
     static hf_register_info hf[] = {
         { &hf_woww_size_field,
           { "Size", "woww.size",
@@ -2212,16 +2190,13 @@ proto_register_woww(void)
 	}
     };
 
-	/* Setup protocol subtree array */
     static gint *ett[] = {
         &ett_woww
     };
 
-    /* Register the protocol name and description */
     proto_woww = proto_register_protocol("World of Warcraft World",
             "WOWW", "woww");
 
-    /* Required function calls to register the header fields and subtrees */
     proto_register_field_array(proto_woww, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
