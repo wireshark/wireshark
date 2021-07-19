@@ -1217,7 +1217,6 @@
     },
     ["wtap_presence_flags"] = {
         ["CAP_LEN"] = 2,
-        ["DROP_COUNT"] = 16,
         ["INTERFACE_ID"] = 4,
         ["TS"] = 1
     },

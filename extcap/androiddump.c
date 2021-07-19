@@ -504,7 +504,6 @@ static gboolean extcap_dumper_dump(struct extcap_dumper extcap_dumper,
     rec.ts.nsecs = (int) nanoseconds;
 
     rec.block = NULL;
-    rec.rec_header.packet_header.drop_count = 0;
 
 /*  NOTE: Try to handle pseudoheaders manually */
     if (extcap_dumper.encap == EXTCAP_ENCAP_BLUETOOTH_H4_WITH_PHDR) {

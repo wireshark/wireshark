@@ -1221,10 +1221,6 @@ typedef struct {
                                 /* pcapng variables */
     guint32   interface_id;     /* identifier of the interface. */
                                 /* options */
-    guint64   drop_count;       /* number of packets lost (by the interface and the
-                                   operating system) between this packet and the preceding one. */
-    guint32   interface_queue;  /* queue of the interface the packet was received on. */
-    guint64   packet_id;        /* unique packet identifier */
 
     union wtap_pseudo_header  pseudo_header;
 } wtap_packet_header;
@@ -1377,9 +1373,6 @@ typedef struct {
 #define WTAP_HAS_TS            0x00000001  /**< time stamp */
 #define WTAP_HAS_CAP_LEN       0x00000002  /**< captured length separate from on-the-network length */
 #define WTAP_HAS_INTERFACE_ID  0x00000004  /**< interface ID */
-#define WTAP_HAS_DROP_COUNT    0x00000010  /**< drop count */
-#define WTAP_HAS_PACKET_ID     0x00000040  /**< packet id */
-#define WTAP_HAS_INT_QUEUE     0x00000080  /**< interface queue */
 
 #ifndef MAXNAMELEN
 #define MAXNAMELEN  	64	/* max name length (hostname and port name) */

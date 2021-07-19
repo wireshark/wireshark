@@ -623,8 +623,7 @@ write_current_packet (void)
             wtap_block_add_uint32_option(rec.block, OPT_PKT_FLAGS, direction);
             rec.presence_flags = WTAP_HAS_CAP_LEN|WTAP_HAS_INTERFACE_ID|WTAP_HAS_TS;
             if (has_seqno) {
-              rec.presence_flags |= WTAP_HAS_PACKET_ID;
-              rec.rec_header.packet_header.packet_id = seqno;
+                wtap_block_add_uint64_option(rec.block, OPT_PKT_PACKETID, (guint64)seqno);
             }
 
             /* XXX - report errors! */

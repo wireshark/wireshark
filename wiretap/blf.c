@@ -627,9 +627,6 @@ blf_init_rec(blf_params_t *params, guint64 object_timestamp, int pkt_encap, guin
 
     params->rec->rec_header.packet_header.pkt_encap = pkt_encap;
     params->rec->rec_header.packet_header.interface_id = channel;
-    params->rec->rec_header.packet_header.drop_count = 0;
-    params->rec->rec_header.packet_header.packet_id = 0;
-    params->rec->rec_header.packet_header.interface_queue = 0;
 
     /* TODO: before we had to remove comments and verdict here to not leak memory but APIs have changed ... */
 }
@@ -754,8 +751,9 @@ blf_read_ethernetframe_ext(blf_params_t *params, int *err, gchar **err_info, gin
     }
 
     blf_init_rec(params, logheader.object_timestamp, WTAP_ENCAP_ETHERNET, ethheader.channel);
-    params->rec->presence_flags = WTAP_HAS_TS | WTAP_HAS_CAP_LEN | WTAP_HAS_INTERFACE_ID | WTAP_HAS_INT_QUEUE;
-    params->rec->rec_header.packet_header.interface_queue = ethheader.hw_channel;
+    params->rec->presence_flags = WTAP_HAS_TS | WTAP_HAS_CAP_LEN | WTAP_HAS_INTERFACE_ID;
+    params->rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
+    wtap_block_add_uint32_option(params->rec->block, OPT_PKT_QUEUE, ethheader.hw_channel);
     params->rec->rec_header.packet_header.caplen = ethheader.frame_length;
     params->rec->rec_header.packet_header.len = ethheader.frame_length;
     return TRUE;
