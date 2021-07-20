@@ -88,7 +88,8 @@ typedef struct WowwParticipant {
     // The previous encrypted value sent. Persists through headers.
     guint8 last_encrypted_value;
     // Index into the session key. Must always be in [0; WOWW_SESSION_KEY_LENGTH - 1].
-    guint8 index;
+    // Named idx because there's a check for 'index'
+    guint8 idx;
     // The first header is unencrypted. Tracks if that header has been encountered.
     gboolean unencrypted_packet_encountered;
 } WowwParticipant_t;
@@ -112,7 +113,8 @@ typedef struct WowwConversation {
 } WowwConversation_t;
 
 typedef struct {
-    guint8 index;
+    // Index into the session key, named idx because there's a check for 'index'
+    guint8 idx;
     guint8 last_encrypted_value;
 } WowwPreviousValues_t;
 
@@ -1948,10 +1950,10 @@ get_decrypted_header(const guint8 session_key[WOWW_SESSION_KEY_LENGTH],
     for (guint8 i = 0; i < header_size; i++) {
 
         // x = (E - L) ^ S as described in top level comment
-        decrypted_header[i] = (header[i] - participant->last_encrypted_value) ^ session_key[participant->index];
+        decrypted_header[i] = (header[i] - participant->last_encrypted_value) ^ session_key[participant->idx];
 
         participant->last_encrypted_value = header[i];
-        participant->index = (participant->index + 1) % WOWW_SESSION_KEY_LENGTH;
+        participant->idx = (participant->idx + 1) % WOWW_SESSION_KEY_LENGTH;
     }
 
     return decrypted_header;
@@ -1964,19 +1966,19 @@ deduce_header(guint8 session_key[WOWW_SESSION_KEY_LENGTH],
               const guint8* header,
               WowwParticipant_t* participant) {
     // Skip size field (2 bytes) and 2 least significant bytes of opcode field
-    participant->index = (participant->index + 2 + 2) % WOWW_SESSION_KEY_LENGTH;
+    participant->idx = (participant->idx + 2 + 2) % WOWW_SESSION_KEY_LENGTH;
     // Set last encrypted value to what it's supposed to be
     participant->last_encrypted_value = header[3];
 
     // 0 ^ (E - L) as described in top level comment
-    session_key[participant->index] = 0 ^ (header[4] - participant->last_encrypted_value);
-    known_indices[participant->index] = true;
-    participant->index = (participant->index + 1) % WOWW_SESSION_KEY_LENGTH;
+    session_key[participant->idx] = 0 ^ (header[4] - participant->last_encrypted_value);
+    known_indices[participant->idx] = true;
+    participant->idx = (participant->idx + 1) % WOWW_SESSION_KEY_LENGTH;
     participant->last_encrypted_value = header[4];
 
-    session_key[participant->index] = 0 ^ (header[5] - participant->last_encrypted_value);
-    known_indices[participant->index] = true;
-    participant->index = (participant->index + 1) % WOWW_SESSION_KEY_LENGTH;
+    session_key[participant->idx] = 0 ^ (header[5] - participant->last_encrypted_value);
+    known_indices[participant->idx] = true;
+    participant->idx = (participant->idx + 1) % WOWW_SESSION_KEY_LENGTH;
     participant->last_encrypted_value = header[5];
 }
 
@@ -2036,7 +2038,7 @@ handle_packet_header(packet_info* pinfo,
         // Header has been seen before
 
         // Original value will need to be used for deduction
-        if (!session_key_is_fully_deduced(wowwConversation->known_indices, headerSize, original_header_values->index)) {
+        if (!session_key_is_fully_deduced(wowwConversation->known_indices, headerSize, original_header_values->idx)) {
             // Not ready yet
             return NULL;
         }
@@ -2045,10 +2047,10 @@ handle_packet_header(packet_info* pinfo,
     }
     else {
         // Header has not been seen before
-        if (!session_key_is_fully_deduced(wowwConversation->known_indices, headerSize, participant->index)) {
+        if (!session_key_is_fully_deduced(wowwConversation->known_indices, headerSize, participant->idx)) {
             // Packet isn't decryptable, make sure to do it later
             WowwPreviousValues_t* array_index = wmem_alloc(wmem_file_scope(), 2);
-            array_index->index = participant->index;
+            array_index->idx = participant->idx;
             array_index->last_encrypted_value = participant->last_encrypted_value;
             wmem_tree_insert32(wowwConversation->headers_need_decryption, pinfo->num, array_index);
 
@@ -2056,7 +2058,7 @@ handle_packet_header(packet_info* pinfo,
                 deduce_header(wowwConversation->session_key, wowwConversation->known_indices, header, participant);
             } else {
                 // Skip the packet, but remember to acknowledge that values changed
-                participant->index = (participant->index + headerSize) % WOWW_SESSION_KEY_LENGTH;
+                participant->idx = (participant->idx + headerSize) % WOWW_SESSION_KEY_LENGTH;
                 participant->last_encrypted_value = header[headerSize - 1];
             }
 
@@ -2067,12 +2069,12 @@ handle_packet_header(packet_info* pinfo,
         }
     }
 
-    guint8 new_index = participant->index;
+    guint8 new_index = participant->idx;
     guint8 new_last_encrypted = participant->last_encrypted_value;
 
     // If this is an out of order packet we must use the original state
     if (original_header_values) {
-        participant->index = original_header_values->index;
+        participant->idx = original_header_values->idx;
         participant->last_encrypted_value = original_header_values->last_encrypted_value;
     }
 
@@ -2080,7 +2082,7 @@ handle_packet_header(packet_info* pinfo,
 
     // Restore original state
     if (original_header_values) {
-        participant->index = new_index;
+        participant->idx = new_index;
         participant->last_encrypted_value = new_last_encrypted;
 
         wmem_tree_remove32(wowwConversation->headers_need_decryption, pinfo->num);
