@@ -287,6 +287,7 @@ if(BUILD_sdjournal AND SYSTEMD_FOUND)
 		${ZLIB_LIBRARIES}
 		${CMAKE_DL_LIBS}
 		${SYSTEMD_LIBRARIES}
+		${GCRYPT_LIBRARIES}
 	)
 	set(sdjournal_FILES
 		$<TARGET_OBJECTS:extcap-base>
