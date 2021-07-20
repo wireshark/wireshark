@@ -83,7 +83,7 @@ set_target_properties(wmem PROPERTIES
 
 add_executable(wmem_test EXCLUDE_FROM_ALL wmem_test.c $<TARGET_OBJECTS:wmem>)
 
-target_link_libraries(wmem_test ${GLIB2_LIBRARIES} wsutil)
+target_link_libraries(wmem_test wsutil)
 
 set_target_properties(wmem_test PROPERTIES
 	FOLDER "Tests"

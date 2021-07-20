@@ -93,7 +93,6 @@ if(BUILD_androiddump)
 				ui
 				wiretap
 				wsutil
-				${GLIB2_LIBRARIES}
 				${WIN_WS2_32_LIBRARY}
 				$<$<BOOL:${PCAP_FOUND}>:pcap::pcap>
 			)
@@ -105,7 +104,6 @@ if(BUILD_androiddump)
 			ui
 			wiretap
 			wsutil
-			${GLIB2_LIBRARIES}
 			${ZLIB_LIBRARIES}
 			${CMAKE_DL_LIBS}
 			${WIN_WS2_32_LIBRARY}
@@ -128,7 +126,6 @@ endif()
 if(BUILD_sshdump AND LIBSSH_FOUND)
 	set(sshdump_LIBS
 		wsutil
-		${GLIB2_LIBRARIES}
 		${CMAKE_DL_LIBS}
 		${WIN_WS2_32_LIBRARY}
 		${LIBSSH_LIBRARIES}
@@ -155,7 +152,6 @@ if(BUILD_ciscodump AND LIBSSH_FOUND)
 	set(ciscodump_LIBS
 		writecap
 		wsutil
-		${GLIB2_LIBRARIES}
 		${CMAKE_DL_LIBS}
 		${WIN_WS2_32_LIBRARY}
 		${LIBSSH_LIBRARIES}
@@ -180,10 +176,9 @@ endif()
 
 if(BUILD_dpauxmon AND HAVE_LIBNL3)
 	set(dpauxmon_LIBS
-		${GLIB2_LIBRARIES}
-		${CMAKE_DL_LIBS}
 		wsutil
 		writecap
+		${CMAKE_DL_LIBS}
 		${NL_LIBRARIES}
 	)
 	set(dpauxmon_FILES
@@ -205,7 +200,6 @@ endif()
 if(BUILD_udpdump)
 	set(udpdump_LIBS
 		wsutil
-		${GLIB2_LIBRARIES}
 		${CMAKE_DL_LIBS}
 		${WIN_WS2_32_LIBRARY}
 		wsutil
@@ -230,7 +224,6 @@ if(BUILD_randpktdump)
 		randpkt_core
 		wiretap
 		wsutil
-		${GLIB2_LIBRARIES}
 		${ZLIB_LIBRARIES}
 		${CMAKE_DL_LIBS}
 		${WIN_WS2_32_LIBRARY}
@@ -257,7 +250,6 @@ if(BUILD_etwdump AND WIN32)
 		tdh
 		wevtapi
 		rpcrt4
-		${GLIB2_LIBRARIES}
 		${ZLIB_LIBRARIES}
 		${CMAKE_DL_LIBS}
 		${WIN_WS2_32_LIBRARY}
@@ -283,7 +275,6 @@ if(BUILD_sdjournal AND SYSTEMD_FOUND)
 		wiretap
 		writecap
 		wsutil
-		${GLIB2_LIBRARIES}
 		${ZLIB_LIBRARIES}
 		${CMAKE_DL_LIBS}
 		${SYSTEMD_LIBRARIES}

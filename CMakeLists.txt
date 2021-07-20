@@ -2824,7 +2824,6 @@ if(BUILD_dumpcap AND PCAP_FOUND)
 		version_info
 		pcap::pcap
 		${CAP_LIBRARIES}
-		${GLIB2_LIBRARIES}
 		${GTHREAD2_LIBRARIES}
 		${ZLIB_LIBRARIES}
 		${APPLE_CORE_FOUNDATION_LIBRARY}
@@ -2876,7 +2875,6 @@ endif()
 # We probably shouldn't do that.
 if(BUILD_dcerpcidl2wrs)
 	set(idl2wrs_LIBS
-		${GLIB2_LIBRARIES}
 		wsutil
 	)
 	set(idl2wrs_FILES
