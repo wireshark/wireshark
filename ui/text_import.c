@@ -620,10 +620,12 @@ write_current_packet (void)
             if (ts_fmt == NULL) { ts_nsec++; }  /* fake packet counter */
             rec.rec_header.packet_header.caplen = rec.rec_header.packet_header.len = prefix_length + curr_offset + eth_trailer_length;
             rec.rec_header.packet_header.pkt_encap = pcap_link_type;
-            wtap_block_add_uint32_option(rec.block, OPT_PKT_FLAGS, direction);
             rec.presence_flags = WTAP_HAS_CAP_LEN|WTAP_HAS_INTERFACE_ID|WTAP_HAS_TS;
+            if (has_direction) {
+                wtap_block_add_uint32_option(rec.block, OPT_PKT_FLAGS, direction);
+            }
             if (has_seqno) {
-                wtap_block_add_uint64_option(rec.block, OPT_PKT_PACKETID, (guint64)seqno);
+                wtap_block_add_uint64_option(rec.block, OPT_PKT_PACKETID, seqno);
             }
 
             /* XXX - report errors! */
