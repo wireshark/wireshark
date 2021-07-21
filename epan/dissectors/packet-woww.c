@@ -2096,7 +2096,11 @@ add_header_to_tree(guint8 decrypted_header[],
                    packet_info* pinfo,
                    guint8 headerSize)
 {
-    proto_tree* ti = proto_tree_add_item(tree, proto_woww, tvb, 0, -1, ENC_NA);
+    const guint16 size_field_width = 2;
+    // Size field does not count in the reported size, so we need to add it.
+    const guint16 packet_size = (decrypted_header[0] << 8 | decrypted_header[1]) + size_field_width;
+
+    proto_tree* ti = proto_tree_add_item(tree, proto_woww, tvb, 0, packet_size, ENC_NA);
 
     proto_tree* woww_tree = proto_item_add_subtree(ti, ett_woww);
 
@@ -2106,7 +2110,7 @@ add_header_to_tree(guint8 decrypted_header[],
 
     // We're indexing into another tvb
     gint offset = 0;
-    gint len = 2;
+    gint len = size_field_width;
     proto_tree_add_item(woww_tree, hf_woww_size_field, next_tvb,
                         offset, len, ENC_BIG_ENDIAN);
     offset += len;
