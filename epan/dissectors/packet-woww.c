@@ -2089,6 +2089,48 @@ handle_packet_header(packet_info* pinfo,
     return decrypted_header;
 }
 
+static void
+add_header_to_tree(guint8 decrypted_header[],
+                   proto_tree* tree,
+                   tvbuff_t* tvb,
+                   packet_info* pinfo,
+                   guint8 headerSize)
+{
+    proto_tree* ti = proto_tree_add_item(tree, proto_woww, tvb, 0, -1, ENC_NA);
+
+    proto_tree* woww_tree = proto_item_add_subtree(ti, ett_woww);
+
+    // Add to tree
+    tvbuff_t *next_tvb = tvb_new_child_real_data(tvb, decrypted_header, headerSize, headerSize);
+    add_new_data_source(pinfo, next_tvb, "Decrypted Header");
+
+    // We're indexing into another tvb
+    gint offset = 0;
+    gint len = 2;
+    proto_tree_add_item(woww_tree, hf_woww_size_field, next_tvb,
+                        offset, len, ENC_BIG_ENDIAN);
+    offset += len;
+
+    guint32 opcode = 0;
+    if (WOWW_SERVER_TO_CLIENT) {
+        len = 2;
+        opcode = tvb_get_guint16(next_tvb, offset, ENC_LITTLE_ENDIAN);
+    } else if (WOWW_CLIENT_TO_SERVER) {
+        len = 4;
+        opcode = tvb_get_guint32(next_tvb, offset, ENC_LITTLE_ENDIAN);
+    }
+
+    proto_tree_add_item(woww_tree, hf_woww_opcode_field, next_tvb,
+                        offset, len, ENC_LITTLE_ENDIAN);
+
+    col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(opcode,
+                                                         world_packet_strings,
+                                                         "Encrypted Header"));
+
+    // Remember to go back to original tvb
+
+}
+
 static int
 dissect_woww(tvbuff_t *tvb,
              packet_info *pinfo,
@@ -2134,38 +2176,7 @@ dissect_woww(tvbuff_t *tvb,
         return tvb_captured_length(tvb);
     }
 
-    proto_tree* ti = proto_tree_add_item(tree, proto_woww, tvb, 0, -1, ENC_NA);
-
-    proto_tree* woww_tree = proto_item_add_subtree(ti, ett_woww);
-
-    // Add to tree
-    tvbuff_t *next_tvb = tvb_new_child_real_data(tvb, decrypted_header, headerSize, headerSize);
-    add_new_data_source(pinfo, next_tvb, "Decrypted Header");
-
-    // We're indexing into another tvb
-    gint offset = 0;
-    gint len = 2;
-    proto_tree_add_item(woww_tree, hf_woww_size_field, next_tvb,
-            offset, len, ENC_BIG_ENDIAN);
-    offset += len;
-
-    guint32 opcode = 0;
-    if (WOWW_SERVER_TO_CLIENT) {
-        len = 2;
-        opcode = tvb_get_guint16(next_tvb, offset, ENC_LITTLE_ENDIAN);
-    } else if (WOWW_CLIENT_TO_SERVER) {
-        len = 4;
-        opcode = tvb_get_guint32(next_tvb, offset, ENC_LITTLE_ENDIAN);
-    }
-
-    proto_tree_add_item(woww_tree, hf_woww_opcode_field, next_tvb,
-                        offset, len, ENC_LITTLE_ENDIAN);
-
-    col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(opcode,
-                                                         world_packet_strings,
-                                                         "Encrypted Header"));
-
-    // Remember to go back to original tvb
+    add_header_to_tree(decrypted_header, tree, tvb, pinfo, headerSize);
 
     return tvb_captured_length(tvb);
 }
