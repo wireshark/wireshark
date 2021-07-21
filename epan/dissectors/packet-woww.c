@@ -2103,12 +2103,7 @@ dissect_woww(tvbuff_t *tvb,
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "WOWW");
 
-    col_clear(pinfo->cinfo, COL_INFO);
     col_set_str(pinfo->cinfo, COL_INFO, "Session Key Not Known Yet");
-
-    proto_tree* ti = proto_tree_add_item(tree, proto_woww, tvb, 0, -1, ENC_NA);
-
-    proto_tree* woww_tree = proto_item_add_subtree(ti, ett_woww);
 
     // Get conversation data
     conversation_t* conv = find_or_create_conversation(pinfo);
@@ -2138,6 +2133,10 @@ dissect_woww(tvbuff_t *tvb,
     if (!decrypted_header) {
         return tvb_captured_length(tvb);
     }
+
+    proto_tree* ti = proto_tree_add_item(tree, proto_woww, tvb, 0, -1, ENC_NA);
+
+    proto_tree* woww_tree = proto_item_add_subtree(ti, ett_woww);
 
     // Add to tree
     tvbuff_t *next_tvb = tvb_new_child_real_data(tvb, decrypted_header, headerSize, headerSize);
