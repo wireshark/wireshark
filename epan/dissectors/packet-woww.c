@@ -1946,7 +1946,7 @@ get_decrypted_header(const guint8 session_key[WOWW_SESSION_KEY_LENGTH],
                      guint8* last_encrypted_value,
                      const guint8* header,
                      guint8 header_size) {
-    guint8* decrypted_header = wmem_alloc0(wmem_file_scope(), 8);
+    guint8* decrypted_header = wmem_alloc0(wmem_file_scope(), WOWW_HEADER_ARRAY_ALLOC_SIZE);
 
     for (guint8 i = 0; i < header_size; i++) {
 
@@ -2046,7 +2046,7 @@ handle_packet_header(packet_info* pinfo,
         // If we haven't seen the header before AND
         // we can't decrypt it now
         // we make sure it gets decrypted later
-        WowwPreviousValues_t* array_index = wmem_alloc(wmem_file_scope(), 2);
+        WowwPreviousValues_t* array_index = wmem_alloc0(wmem_file_scope(), sizeof(WowwPreviousValues_t));
         array_index->idx = participant->idx;
         array_index->last_encrypted_value = participant->last_encrypted_value;
         wmem_tree_insert32(wowwConversation->headers_need_decryption, pinfo->num, array_index);
