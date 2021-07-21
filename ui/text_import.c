@@ -615,6 +615,7 @@ write_current_packet (void)
             memset(&rec, 0, sizeof rec);
 
             rec.rec_type = REC_TYPE_PACKET;
+            rec.block = wtap_block_create(WTAP_BLOCK_PACKET);
             rec.ts.secs = ts_sec;
             rec.ts.nsecs = ts_nsec;
             if (ts_fmt == NULL) { ts_nsec++; }  /* fake packet counter */
@@ -640,6 +641,7 @@ write_current_packet (void)
                     break;
                 }
             }
+            wtap_block_unref(rec.block);
         }
     }
 
