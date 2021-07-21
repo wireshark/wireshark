@@ -139,7 +139,7 @@ static int hf_data                   = -1;
 /**************************************************************************************************/
 /* Preference to use the eCPRI Specification 1.2 encoding                                         */
 /**************************************************************************************************/
-static gboolean message_type_decoding    = TRUE;
+static gboolean pref_message_type_decoding    = TRUE;
 
 /**************************************************************************************************/
 /* eCPRI Handle                                                                                   */
@@ -322,6 +322,11 @@ static const range_string fault_notif_coding[] = {
         { 0,        0,        NULL                                            }
 };
 
+const true_false_string tfs_c_bit =
+{ "Another eCPRI message follows this one with eCPRI PDU",
+  "This eCPRI message is last one inside eCPRI PDU"
+};
+
 static dissector_handle_t oran_handle;
 
 /**************************************************************************************************/
@@ -359,7 +364,7 @@ static int dissect_ecpri(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     int offset;
     guint32 msg_type;
     guint32 event_type;
-    guint8 concatenation;
+    guint32 concatenation;
     guint32 num_faults_notif;
     guint32 action_type;
     guint32 fault_notif;
@@ -393,12 +398,12 @@ static int dissect_ecpri(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     {
         /* 4-byte boundary check for concatenation */
         if (offset % 4 != 0)
+        {
             offset = offset + 4 - (offset % 4);
+        }
 
         /* Read Payload Size */
-        payload_size = tvb_get_ntohs(tvb, offset + 2);
-        /* Read C-Bit (Concatenation) */
-        concatenation = tvb_get_guint8(tvb, offset) & 0x01;
+        payload_size = tvb_get_ntohs(tvb, offset+2);
 
         /* eCPRI tree */
         if (payload_size + ECPRI_HEADER_LENGTH <= reported_length)
@@ -408,23 +413,30 @@ static int dissect_ecpri(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
         else
         {
             ecpri_item = proto_tree_add_item(tree, proto_ecpri, tvb, offset, -1, ENC_NA);
-            expert_add_info_format(pinfo, ecpri_item, &ei_ecpri_frame_length, "eCPRI frame length %d is too small, should be min. %d", reported_length, payload_size + ECPRI_HEADER_LENGTH);
+            expert_add_info_format(pinfo, ecpri_item, &ei_ecpri_frame_length, "eCPRI frame length %u is too small, should be min. %u", reported_length, payload_size + ECPRI_HEADER_LENGTH);
         }
         ecpri_tree = proto_item_add_subtree(ecpri_item, ett_ecpri);
 
-        /* eCPRI header-subtree */
+        /* eCPRI header subtree */
         header_item = proto_tree_add_item(ecpri_tree, hf_header, tvb, offset, ECPRI_HEADER_LENGTH, ENC_BIG_ENDIAN);
         header_tree = proto_item_add_subtree(header_item, ett_ecpri_header);
 
+        /* eCPRI Protocol Revision */
         proto_tree_add_item(header_tree, hf_proto_rev, tvb, offset, 1, ENC_NA);
+        /* Reserved */
         proto_tree_add_item(header_tree, hf_reserved, tvb, offset, 1, ENC_NA);
-        ti_c_bit = proto_tree_add_item(header_tree, hf_c_bit, tvb, offset, 1, ENC_NA);
+        /* C(oncatenated */
+        ti_c_bit = proto_tree_add_item_ret_boolean(header_tree, hf_c_bit, tvb, offset, 1, ENC_NA, &concatenation);
         offset += 1;
+
+        /* eCPRI Message Type */
         proto_tree_add_item_ret_uint(header_tree, hf_msg_type, tvb, offset, 1, ENC_NA, &msg_type);
         /* Append Message Type into info column & header item */
         col_append_sep_fstr(pinfo->cinfo, COL_INFO, ",", "Message Type: %s", try_rval_to_str(msg_type, ecpri_msg_types));
         proto_item_append_text(header_item, "   MessageType: %s", try_rval_to_str(msg_type, ecpri_msg_types));
         offset += 1;
+
+        /* eCPRI Payload Size */
         ti_payload_size = proto_tree_add_item(header_tree, hf_payload_size, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
 
@@ -432,6 +444,7 @@ static int dissect_ecpri(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
         /* Length Check */
         if (reported_length >= ECPRI_HEADER_LENGTH + payload_size)
         {
+            /* OK, add undecoded payload */
             payload_item = proto_tree_add_item(ecpri_tree, hf_payload, tvb, offset, payload_size, ENC_NA);
         }
         else
@@ -442,10 +455,17 @@ static int dissect_ecpri(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 
         payload_tree = proto_item_add_subtree(payload_item, ett_ecpri_payload);
         remaining_length = reported_length - offset;
-        if (message_type_decoding)
-        {
+
+        /* Call the FH CUS dissector if preference set */
+        if (pref_message_type_decoding) {
+
             tvbuff_t *fh_tvb = tvb_new_subset_length_caplen(tvb, offset, payload_size, payload_size);
-            /* See whether we have an O-RAN fronthaul sub-dissector that handles this, otherwise decode vanilla eCPRI */
+            /***********************************************************************************************/
+            /* See whether O-RAN fronthaul sub-dissector that handles this, otherwise decode vanilla eCPRI */
+            /* N.B. FH CUS dissector only handles:                                                         */
+            /* - message type 0 (IQ DATA)                                                                  */
+            /* - message type 2 (RT CTRL DATA)                                                             */
+            /***********************************************************************************************/
             if (call_dissector_only(oran_handle, fh_tvb, pinfo, tree, &msg_type)) {
                 /* Assume that it has claimed the entire tvb */
                 offset = tvb_reported_length(tvb);
@@ -455,6 +475,7 @@ static int dissect_ecpri(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                 {
                 case ECPRI_MT_IQ_DATA:
                     /* 3.2.4.1 IQ Data */
+                    /* N.B. if ORAN dissector is enabled, it will handle this type instead! */
                 case ECPRI_MT_BIT_SEQ:
                     /* 3.2.4.2 Bit Sequence */
                     if (payload_size >= ECPRI_MSG_TYPE_0_1_PAYLOAD_MIN_LENGTH)
@@ -758,8 +779,9 @@ static int dissect_ecpri(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
             }
         }
     } while (concatenation != 0 && reported_length - offset >= ECPRI_HEADER_LENGTH);
-    if (concatenation != 0)
+    if (concatenation != 0) {
         expert_add_info_format(pinfo, ti_c_bit, &ei_c_bit, "Concatenation Bit is 1, should be 0");
+    }
 
     /* Not dissected buffer */
     if (offset != 0)
@@ -778,9 +800,9 @@ void proto_register_ecpri(void)
             { &hf_header,    { "eCPRI Common Header", "ecpri.header",   FT_UINT32, BASE_HEX,                   NULL,                   0x00, NULL, HFILL } },
             { &hf_proto_rev, { "Protocol Revision",   "ecpri.revision", FT_UINT8,  BASE_DEC,                   NULL,                   0xF0, NULL, HFILL } },
             { &hf_reserved,  { "Reserved",            "ecpri.reserved", FT_UINT8,  BASE_DEC,                   NULL,                   0x0E, NULL, HFILL } },
-            { &hf_c_bit,     { "C-Bit",               "ecpri.cbit",     FT_UINT8,  BASE_DEC,                   NULL,                   0x01, NULL, HFILL } },
+            { &hf_c_bit,     { "C-Bit",               "ecpri.cbit",     FT_BOOLEAN,  8,                        TFS(&tfs_c_bit),        0x01, "Concatenation indicator", HFILL } },
             { &hf_msg_type,  { "Message Type",        "ecpri.type",     FT_UINT8,  BASE_HEX|BASE_RANGE_STRING, RVALS(ecpri_msg_types), 0x00, NULL, HFILL } },
-            { &hf_payload_size, { "Payload Size",     "ecpri.size",     FT_UINT16, BASE_DEC,                   NULL,                   0x00, NULL, HFILL } },
+            { &hf_payload_size, { "Payload Size",     "ecpri.size",     FT_UINT16, BASE_DEC,                   NULL,                   0x00, "Size of eCPRI message payload in bytes", HFILL } },
         /* eCPRI Payload */
             { &hf_payload,   { "eCPRI Payload",       "ecpri.payload",  FT_BYTES,  SEP_COLON, NULL, 0x00, NULL, HFILL } },
             /* Message Type 0 and 1: IQ Data and Bit Sequence */
@@ -867,7 +889,7 @@ void proto_register_ecpri(void)
             "ecpripref.msg.decoding",
             "Decode Message Type",
             "Decode the Message Types according to eCPRI Specification V1.2",
-    &message_type_decoding);
+    &pref_message_type_decoding);
 }
 
 void proto_reg_handoff_ecpri(void)

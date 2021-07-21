@@ -1169,9 +1169,10 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 /*****************************/
 /* Main dissection function. */
 static int
-dissect_oran(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_oran(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     guint32 ecpri_message_type = *(guint32 *)data;
+
     switch (ecpri_message_type) {
         case ECPRI_MT_IQ_DATA:
             return dissect_oran_u(tvb, pinfo, tree, data);
