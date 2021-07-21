@@ -1,5 +1,6 @@
 /* packet-mka.c
- * Routines for EAPOL-MKA IEEE 802.1X-2010 / IEEE 802.1bx-2014 MKPDU dissection
+ * Routines for EAPOL-MKA IEEE 802.1X-2010 / IEEE 802.1bx-2014 /
+ * IEEE Std 802.1Xck-2018 / IEEE 802.1X-2020 MKPDU dissection
  * Copyright 2014, Hitesh K Maisheri <maisheri.hitesh@gmail.com>
  *
  * Wireshark - Network traffic analyzer
@@ -57,6 +58,7 @@ static int hf_mka_cak_name = -1;
 
 static int hf_mka_padding = -1;
 
+static int hf_mka_key_server_ssci = -1;
 static int hf_mka_peer_mi = -1;
 static int hf_mka_peer_mn = -1;
 
@@ -222,7 +224,7 @@ dissect_basic_paramset(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, 
 }
 
 static void
-dissect_peer_list(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, int *offset_ptr)
+dissect_peer_list(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, int *offset_ptr, gboolean key_server_ssci_flag)
 {
   int offset = *offset_ptr;
   proto_tree *peer_list_set_tree;
@@ -242,7 +244,23 @@ dissect_peer_list(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, int *
 
   proto_tree_add_item(peer_list_set_tree, hf_mka_param_set_type,
                       tvb, offset, 1, ENC_BIG_ENDIAN);
-  offset += 2;
+  offset += 1;
+
+  if (key_server_ssci_flag && (hf_peer == hf_mka_live_peer_list_set))
+  {
+    /* XXX - The presence of this field is non-trivial to find out. See IEEE 802.1X-2020, Section 11.11.3
+     * Only present in MKPDU's with:
+     * - MKA version 3 (that's covered), and
+     * - In Live Peer list parameter set (that's covered), and
+     * - A Distributed SAK parameter set present (which could be before or after this parameter set), but only
+     * - A Distributed SAK parameter set with XPN Cipher suites (requires to look into the contents),
+     * otherwise 0.
+     */
+    proto_tree_add_item(peer_list_set_tree, hf_mka_key_server_ssci,
+                        tvb, offset, 1, ENC_BIG_ENDIAN);
+  }
+
+  offset += 1;
 
   proto_tree_add_uint(peer_list_set_tree, hf_mka_param_body_length,
                       tvb, offset, 2, peer_list_len);
@@ -623,7 +641,7 @@ dissect_mka(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   /*
    * The 802.1X-2010 spec specifies support for MKA version 1 only.
    * The 802.1Xbx-2014 spec specifies support for MKA version 2.
-   * The 802.1X-2020 spec specifies support for MKA version 3.
+   * The 802.1Xck-2018 spec specifies support for MKA version 3.
    */
   mka_version_type = tvb_get_guint8(tvb, offset);
   if ((mka_version_type < 1) || (mka_version_type > 3)) {
@@ -641,7 +659,7 @@ dissect_mka(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     switch (tvb_get_guint8(tvb, offset)) {
     case LIVE_PEER_LIST_TYPE:
     case POTENTIAL_PEER_LIST_TYPE:
-      dissect_peer_list(mka_tree, pinfo, tvb, &offset);
+      dissect_peer_list(mka_tree, pinfo, tvb, &offset, (mka_version_type == 3));
       break;
 
     case MACSEC_SAK_USE_TYPE:
@@ -823,6 +841,11 @@ proto_register_mka(void)
         "Padding", "mka.padding",
         FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
+
+    { &hf_mka_key_server_ssci, {
+        "Key Server SSCI (LSB)", "mka.key_server_ssci",
+        FT_UINT8, BASE_HEX, NULL, 0x0,
+        "Only present combined with Distributed SAK parameter set with XPN cipher suite", HFILL }},
 
     { &hf_mka_peer_mi, {
         "Peer Member Identifier", "mka.peer_mi",
