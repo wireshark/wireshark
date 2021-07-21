@@ -839,6 +839,8 @@ static gint ett_gtpv2_supp_codec_list = -1;
 static gint ett_gtpv2_bss_con = -1;
 static gint ett_gtpv2_utran_con = -1;
 static gint ett_gtpv2_eutran_con = -1;
+static gint ett_gtpv2_son_con = -1;
+static gint ett_gtpv2_endc_son_con = -1;
 static gint ett_gtpv2_mm_context_auth_qua = -1;
 static gint ett_gtpv2_mm_context_auth_qui = -1;
 static gint ett_gtpv2_mm_context_auth_tri = -1;
@@ -5294,9 +5296,18 @@ dissect_gtpv2_F_container(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, p
              * This IE shall be included to contain the "SON Configuration Transfer" as specified in 3GPP TS 36.413 [10].
              * The Container Type shall be set to 3.
              */
-            sub_tree = proto_tree_add_subtree(tree, tvb, offset, length, ett_gtpv2_eutran_con, NULL, "SON Configuration Transfer");
+            sub_tree = proto_tree_add_subtree(tree, tvb, offset, length, ett_gtpv2_son_con, NULL, "SON Configuration Transfer");
             new_tvb = tvb_new_subset_length(tvb, offset, length);
             dissect_s1ap_SONConfigurationTransfer_PDU(new_tvb, pinfo, sub_tree, NULL);
+            return;
+        case 5:
+            /* EN-DC SON Configuration Transfer
+             * This IE shall be included to contain the "EN-DC SON Configuration Transfer" as specified in 3GPP TS 36.413 [10].
+             * The Container Type shall be set to 5.
+             */
+            sub_tree = proto_tree_add_subtree(tree, tvb, offset, length, ett_gtpv2_endc_son_con, NULL, "EN-DC SON Configuration Transfer");
+            new_tvb = tvb_new_subset_length(tvb, offset, length);
+            dissect_s1ap_EN_DCSONConfigurationTransfer_PDU(new_tvb, pinfo, sub_tree, NULL);
             return;
         default:
             break;
@@ -12145,7 +12156,7 @@ void proto_register_gtpv2(void)
     };
 
     /* Setup protocol subtree array */
-#define GTPV2_NUM_INDIVIDUAL_ELEMS    81
+#define GTPV2_NUM_INDIVIDUAL_ELEMS    83
     static gint *ett_gtpv2_array[GTPV2_NUM_INDIVIDUAL_ELEMS + NUM_GTPV2_IES];
 
     ett_gtpv2_array[0] = &ett_gtpv2;
@@ -12185,50 +12196,52 @@ void proto_register_gtpv2(void)
     ett_gtpv2_array[34] = &ett_gtpv2_bss_con;
     ett_gtpv2_array[35] = &ett_gtpv2_utran_con;
     ett_gtpv2_array[36] = &ett_gtpv2_eutran_con;
-    ett_gtpv2_array[37] = &ett_gtpv2_mm_context_auth_qua;
-    ett_gtpv2_array[38] = &ett_gtpv2_mm_context_auth_qui;
-    ett_gtpv2_array[39] = &ett_gtpv2_mm_context_auth_tri;
-    ett_gtpv2_array[40] = &ett_gtpv2_mm_context_net_cap;
-    ett_gtpv2_array[41] = &ett_gtpv2_ms_network_capability;
-    ett_gtpv2_array[42] = &ett_gtpv2_mm_context_sc;
-    ett_gtpv2_array[43] = &ett_gtpv2_vd_pref;
-    ett_gtpv2_array[44] = &ett_gtpv2_access_rest_data;
-    ett_gtpv2_array[45] = &ett_gtpv2_qua;
-    ett_gtpv2_array[46] = &ett_gtpv2_qui;
-    ett_gtpv2_array[47] = &ett_gtpv2_preaa_tais;
-    ett_gtpv2_array[48] = &ett_gtpv2_preaa_menbs;
-    ett_gtpv2_array[49] = &ett_gtpv2_preaa_henbs;
-    ett_gtpv2_array[50] = &ett_gtpv2_preaa_ecgis;
-    ett_gtpv2_array[51] = &ett_gtpv2_preaa_rais;
-    ett_gtpv2_array[52] = &ett_gtpv2_preaa_sais;
-    ett_gtpv2_array[53] = &ett_gtpv2_preaa_cgis;
-    ett_gtpv2_array[54] = &ett_gtpv2_load_control_inf;
-    ett_gtpv2_array[55] = &ett_gtpv2_eci;
-    ett_gtpv2_array[56] = &ett_gtpv2_twan_flags;
-    ett_gtpv2_array[57] = &ett_gtpv2_ciot_support_ind;
-    ett_gtpv2_array[58] = &ett_gtpv2_rohc_profile_flags;
-    ett_gtpv2_array[59] = &ett_gtpv2_secondary_rat_usage_data_report;
-    ett_gtpv2_array[60] = &ett_gtpv2_pres_rep_area_info;
-    ett_gtpv2_array[61] = &ett_gtpv2_preaa_ext_menbs;
-    ett_gtpv2_array[62] = &ett_gtpv2_ue_nr_sec_cap_len;
-    ett_gtpv2_array[63] = &ett_gtpv2_apn_rte_ctrl_sts_len;
-    ett_gtpv2_array[64] = &ett_gtpv2_if_mgcs;
-    ett_gtpv2_array[65] = &ett_gtpv2_if_mgw;
-    ett_gtpv2_array[66] = &ett_gtpv2_if_sgsn;
-    ett_gtpv2_array[67] = &ett_gtpv2_if_ggsn;
-    ett_gtpv2_array[68] = &ett_gtpv2_if_rnc;
-    ett_gtpv2_array[69] = &ett_gtpv2_if_bm_sc;
-    ett_gtpv2_array[70] = &ett_gtpv2_if_mme;
-    ett_gtpv2_array[71] = &ett_gtpv2_if_sgw;
-    ett_gtpv2_array[72] = &ett_gtpv2_if_pdn_gw;
-    ett_gtpv2_array[73] = &ett_gtpv2_if_enb;
-    ett_gtpv2_array[74] = &ett_gtpv2_if_hss;
-    ett_gtpv2_array[75] = &ett_gtpv2_if_eir;
-    ett_gtpv2_array[76] = &ett_gtpv2_if_amf;
-    ett_gtpv2_array[77] = &ett_gtpv2_if_pcf;
-    ett_gtpv2_array[78] = &ett_gtpv2_if_smf;
-    ett_gtpv2_array[79] = &ett_gtpv2_if_upf;
-    ett_gtpv2_array[80] = &ett_gtpv2_if_ng_ran_node;
+    ett_gtpv2_array[37] = &ett_gtpv2_son_con;
+    ett_gtpv2_array[38] = &ett_gtpv2_endc_son_con;
+    ett_gtpv2_array[39] = &ett_gtpv2_mm_context_auth_qua;
+    ett_gtpv2_array[40] = &ett_gtpv2_mm_context_auth_qui;
+    ett_gtpv2_array[41] = &ett_gtpv2_mm_context_auth_tri;
+    ett_gtpv2_array[42] = &ett_gtpv2_mm_context_net_cap;
+    ett_gtpv2_array[43] = &ett_gtpv2_ms_network_capability;
+    ett_gtpv2_array[44] = &ett_gtpv2_mm_context_sc;
+    ett_gtpv2_array[45] = &ett_gtpv2_vd_pref;
+    ett_gtpv2_array[46] = &ett_gtpv2_access_rest_data;
+    ett_gtpv2_array[47] = &ett_gtpv2_qua;
+    ett_gtpv2_array[48] = &ett_gtpv2_qui;
+    ett_gtpv2_array[49] = &ett_gtpv2_preaa_tais;
+    ett_gtpv2_array[50] = &ett_gtpv2_preaa_menbs;
+    ett_gtpv2_array[51] = &ett_gtpv2_preaa_henbs;
+    ett_gtpv2_array[52] = &ett_gtpv2_preaa_ecgis;
+    ett_gtpv2_array[53] = &ett_gtpv2_preaa_rais;
+    ett_gtpv2_array[54] = &ett_gtpv2_preaa_sais;
+    ett_gtpv2_array[55] = &ett_gtpv2_preaa_cgis;
+    ett_gtpv2_array[56] = &ett_gtpv2_load_control_inf;
+    ett_gtpv2_array[57] = &ett_gtpv2_eci;
+    ett_gtpv2_array[58] = &ett_gtpv2_twan_flags;
+    ett_gtpv2_array[59] = &ett_gtpv2_ciot_support_ind;
+    ett_gtpv2_array[60] = &ett_gtpv2_rohc_profile_flags;
+    ett_gtpv2_array[61] = &ett_gtpv2_secondary_rat_usage_data_report;
+    ett_gtpv2_array[62] = &ett_gtpv2_pres_rep_area_info;
+    ett_gtpv2_array[63] = &ett_gtpv2_preaa_ext_menbs;
+    ett_gtpv2_array[64] = &ett_gtpv2_ue_nr_sec_cap_len;
+    ett_gtpv2_array[65] = &ett_gtpv2_apn_rte_ctrl_sts_len;
+    ett_gtpv2_array[66] = &ett_gtpv2_if_mgcs;
+    ett_gtpv2_array[67] = &ett_gtpv2_if_mgw;
+    ett_gtpv2_array[68] = &ett_gtpv2_if_sgsn;
+    ett_gtpv2_array[69] = &ett_gtpv2_if_ggsn;
+    ett_gtpv2_array[70] = &ett_gtpv2_if_rnc;
+    ett_gtpv2_array[71] = &ett_gtpv2_if_bm_sc;
+    ett_gtpv2_array[72] = &ett_gtpv2_if_mme;
+    ett_gtpv2_array[73] = &ett_gtpv2_if_sgw;
+    ett_gtpv2_array[74] = &ett_gtpv2_if_pdn_gw;
+    ett_gtpv2_array[75] = &ett_gtpv2_if_enb;
+    ett_gtpv2_array[76] = &ett_gtpv2_if_hss;
+    ett_gtpv2_array[77] = &ett_gtpv2_if_eir;
+    ett_gtpv2_array[78] = &ett_gtpv2_if_amf;
+    ett_gtpv2_array[79] = &ett_gtpv2_if_pcf;
+    ett_gtpv2_array[80] = &ett_gtpv2_if_smf;
+    ett_gtpv2_array[81] = &ett_gtpv2_if_upf;
+    ett_gtpv2_array[82] = &ett_gtpv2_if_ng_ran_node;
     last_offset = GTPV2_NUM_INDIVIDUAL_ELEMS;
 
     for (i=0; i < NUM_GTPV2_IES; i++, last_offset++)
