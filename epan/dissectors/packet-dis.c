@@ -4742,6 +4742,8 @@ static int hf_dis_iff_transponder_interrogator_indicator = -1;
 static int hf_dis_iff_simulation_mode = -1;
 static int hf_dis_iff_interactive_capable = -1;
 static int hf_dis_iff_test_mode = -1;
+static int hf_dis_iff_system_designator = -1;
+static int hf_dis_iff_system_specific_data = -1;
 static int hf_dis_iff_system_status = -1;
 static int hf_dis_iff_system_status_system_onoff = -1;
 static int hf_dis_iff_system_status_parameter_1 = -1;
@@ -4877,8 +4879,13 @@ static gint ett_iff_parameter_6 = -1;
 
 static dissector_handle_t link16_handle;
 
-typedef int DIS_Parser_func(tvbuff_t *, packet_info *, proto_tree *, int);
-
+typedef struct dis_header
+{
+    guint8 version;
+    guint8 pduType;
+    guint8 family;
+}
+dis_header_t;
 
 /* Forward declarations */
 static gint parseField_Entity(tvbuff_t *tvb, proto_tree *tree, gint offset, const char* entity_name);
@@ -6645,7 +6652,7 @@ static int dissect_DIS_PARSER_UNDERWATER_ACOUSTIC_PDU(tvbuff_t *tvb, packet_info
     return offset;
 }
 
-static int dissect_DIS_PARSER_IFF_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+static int dissect_DIS_PARSER_IFF_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, dis_header_t* header)
 {
     proto_item *ti;
     proto_tree *sub_tree,*field_tree;
@@ -6655,8 +6662,8 @@ static int dissect_DIS_PARSER_IFF_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_t
     guint16 mode3, mode3_element1, mode3_element2, mode3_element3, mode3_element4;
     guint16 mode4;
     guint16 parameter_5;
-    guint16 parameter_6, tcas_acas_indicator, tcas_acas_type, tcas_I_II_type;
     gint16 altitude;
+    guint16 parameter_6, tcas_acas_indicator, tcas_acas_type, tcas_I_II_type;
 
     site = tvb_get_ntohs(tvb, offset);
     application = tvb_get_ntohs(tvb, offset+2);
@@ -6699,8 +6706,18 @@ static int dissect_DIS_PARSER_IFF_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_t
     proto_tree_add_item(field_tree, hf_dis_iff_test_mode, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
-    proto_tree_add_item(tree, hf_dis_padding, tvb, offset, 2, ENC_NA);
-    offset += 2;
+    if (header->version < DIS_VERSION_IEEE_1278_1_2012)
+    {
+        proto_tree_add_item(tree, hf_dis_padding, tvb, offset, 2, ENC_NA);
+        offset += 2;
+    }
+    else
+    {
+        proto_tree_add_item(tree, hf_dis_iff_system_designator, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+        proto_tree_add_item(tree, hf_dis_iff_system_specific_data, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+    }
 
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, 16, ett_iff_fundamental_operational_data, NULL, "Fundamental Operational Data");
 
@@ -6825,7 +6842,7 @@ static int dissect_DIS_PARSER_IFF_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_t
     if (mode3) col_append_fstr(pinfo->cinfo, COL_INFO, ", 3=%o%o%o%o", mode3_element1, mode3_element2, mode3_element3, mode3_element4);
     if (mode4) col_append_fstr(pinfo->cinfo, COL_INFO, ", 4=%d", mode4);
     if (altitude || (parameter_5 & 0x2000)) col_append_fstr(pinfo->cinfo, COL_INFO, ", C=FL%d", altitude);
-
+   
     if (parameter_6)
     {
         if (tcas_acas_indicator == 0)
@@ -8124,14 +8141,6 @@ static const true_false_string dis_time_hopping_value = {
     "Time hopping modulation not used"
 };
 
-typedef struct dis_header
-{
-    guint8 version;
-    guint8 pduType;
-    guint8 family;
-}
-dis_header_t;
-
 static int parsePDUStatus(tvbuff_t *tvb, proto_tree *tree, int offset, dis_header_t* header)
 {
     if ((header->pduType == DIS_PDUTYPE_ENTITY_STATE)
@@ -8274,6 +8283,124 @@ static int parsePOHeader(tvbuff_t *tvb, proto_tree *tree, int offset, guint8* pd
 }
 
 
+static gint parse_persistent_pdu_payload(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, gint offset, guint8 persistentObjectPduType)
+{
+    switch (persistentObjectPduType)
+    {
+    case DIS_PERSISTENT_OBJECT_TYPE_SIMULATOR_PRESENT:
+        return dissect_DIS_PARSER_SIMULATOR_PRESENT_PO_PDU(tvb, pinfo, tree, offset);
+    case DIS_PERSISTENT_OBJECT_TYPE_DESCRIBE_OBJECT:
+        return dissect_DIS_PARSER_DESCRIBE_OBJECT_PO_PDU(tvb, pinfo, tree, offset);
+    case DIS_PERSISTENT_OBJECT_TYPE_OBJECTS_PRESENT:
+        return dissect_DIS_PARSER_OBJECTS_PRESENT_PO_PDU(tvb, pinfo, tree, offset);
+    case DIS_PERSISTENT_OBJECT_TYPE_OBJECT_REQUEST:
+        return dissect_DIS_PARSER_OBJECT_REQUEST_PO_PDU(tvb, pinfo, tree, offset);
+    case DIS_PERSISTENT_OBJECT_TYPE_DELETE_OBJECTS:
+        return dissect_DIS_PARSER_DELETE_OBJECTS_PO_PDU(tvb, pinfo, tree, offset);
+    case DIS_PERSISTENT_OBJECT_TYPE_SET_WORLD_STATE:
+        return dissect_DIS_PARSER_SET_WORLD_STATE_PO_PDU(tvb, pinfo, tree, offset);
+    case DIS_PERSISTENT_OBJECT_TYPE_NOMINATION:
+        return dissect_DIS_PARSER_NOMINATION_PO_PDU(tvb, pinfo, tree, offset);
+    default:
+        return offset;
+    }
+}
+
+static gint parse_pdu_payload(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, gint offset, guint8 pduType)
+{
+    switch (pduType)
+    {
+    /* DIS Entity Information / Interaction PDUs */
+    case DIS_PDUTYPE_ENTITY_STATE:
+        return dissect_DIS_PARSER_ENTITY_STATE_PDU(tvb, pinfo, tree, offset);
+    case DIS_PDUTYPE_COLLISION:
+        return dissect_DIS_PARSER_COLLISION_PDU(tvb, pinfo, tree, offset);
+    /* DIS Distributed Emission Regeneration PDUs */
+    case DIS_PDUTYPE_ELECTROMAGNETIC_EMISSION:
+        return dissect_DIS_PARSER_ELECTROMAGNETIC_EMISSION_PDU(tvb, pinfo, tree, offset);
+    case DIS_PDUTYPE_UNDERWATER_ACOUSTIC:
+        return dissect_DIS_PARSER_UNDERWATER_ACOUSTIC_PDU(tvb, pinfo, tree, offset);
+    
+    /* IFF PDU needs the header information to be parsed, so it is handled separately. 
+     *    case DIS_PDUTYPE_IFF:
+     */
+
+    case DIS_PDUTYPE_DESIGNATOR:
+        return dissect_DIS_PARSER_DESIGNATOR_PDU(tvb, pinfo, tree, offset);
+    /* DIS Radio Communications protocol (RCP) family PDUs */
+    case DIS_PDUTYPE_TRANSMITTER:
+        return dissect_DIS_PARSER_TRANSMITTER_PDU(tvb, pinfo, tree, offset);
+    case DIS_PDUTYPE_SIGNAL:
+    case DIS_PDUTYPE_INTERCOM_SIGNAL:
+        return dissect_DIS_PARSER_SIGNAL_PDU(tvb, pinfo, tree, offset);
+    case DIS_PDUTYPE_INTERCOM_CONTROL:
+        return dissect_DIS_PARSER_INTERCOM_CONTROL_PDU(tvb, pinfo, tree, offset);
+    /* DIS Warfare PDUs */
+    case DIS_PDUTYPE_FIRE:
+        return dissect_DIS_PARSER_FIRE_PDU(tvb, pinfo, tree, offset);
+    case DIS_PDUTYPE_DETONATION:
+        /* TODO: Version 7 (header.version >= DIS_VERSION_IEEE_1278_1_2012)
+         *       changed the Detonation PDU format
+         *       Need a different parser
+         */
+        return dissect_DIS_PARSER_DETONATION_PDU(tvb, pinfo, tree, offset);
+    /* DIS Simulation Management PDUs */
+    case DIS_PDUTYPE_START_RESUME:
+        return dissect_DIS_PARSER_START_RESUME_PDU(tvb, pinfo, tree, offset);
+    case DIS_PDUTYPE_STOP_FREEZE:
+        return dissect_DIS_PARSER_STOP_FREEZE_PDU(tvb, pinfo, tree, offset);
+    case DIS_PDUTYPE_ACKNOWLEDGE:
+        return dissect_DIS_PARSER_ACKNOWLEDGE_PDU(tvb, pinfo, tree, offset);
+    case DIS_PDUTYPE_ACTION_REQUEST:
+        return dissect_DIS_PARSER_ACTION_REQUEST_PDU(tvb, pinfo, tree, offset);
+    case DIS_PDUTYPE_ACTION_RESPONSE:
+        return dissect_DIS_PARSER_ACTION_RESPONSE_PDU(tvb, pinfo, tree, offset);
+    case DIS_PDUTYPE_DATA:
+    case DIS_PDUTYPE_SET_DATA:
+        return dissect_DIS_PARSER_DATA_PDU(tvb, pinfo, tree, offset);
+    case DIS_PDUTYPE_EVENT_REPORT:
+        return dissect_DIS_PARSER_EVENT_REPORT_PDU(tvb, pinfo, tree, offset);
+    case DIS_PDUTYPE_DATA_QUERY:
+        return dissect_DIS_PARSER_DATA_QUERY_PDU(tvb, pinfo, tree, offset);
+    case DIS_PDUTYPE_COMMENT:
+        return dissect_DIS_PARSER_COMMENT_PDU(tvb, pinfo, tree, offset);
+    case DIS_PDUTYPE_CREATE_ENTITY:
+    case DIS_PDUTYPE_REMOVE_ENTITY:
+        return dissect_DIS_PARSER_SIMAN_ENTITY_PDU(tvb, pinfo, tree, offset);
+    /* DIS Simulation Management with Reliability PDUs */
+    case DIS_PDUTYPE_START_RESUME_R:
+        return dissect_DIS_PARSER_START_RESUME_R_PDU(tvb, pinfo, tree, offset);
+    case DIS_PDUTYPE_STOP_FREEZE_R:
+        return dissect_DIS_PARSER_STOP_FREEZE_R_PDU(tvb, pinfo, tree, offset);
+    case DIS_PDUTYPE_ACKNOWLEDGE_R:
+        return dissect_DIS_PARSER_ACKNOWLEDGE_PDU(tvb, pinfo, tree, offset);
+    case DIS_PDUTYPE_ACTION_REQUEST_R:
+        return dissect_DIS_PARSER_ACTION_REQUEST_R_PDU(tvb, pinfo, tree, offset);
+    case DIS_PDUTYPE_ACTION_RESPONSE_R:
+        return dissect_DIS_PARSER_ACTION_RESPONSE_PDU(tvb, pinfo, tree, offset);
+    case DIS_PDUTYPE_DATA_R:
+    case DIS_PDUTYPE_SET_DATA_R:
+        return dissect_DIS_PARSER_DATA_R_PDU(tvb, pinfo, tree, offset);
+    case DIS_PDUTYPE_DATA_QUERY_R:
+        return dissect_DIS_PARSER_DATA_QUERY_R_PDU(tvb, pinfo, tree, offset);
+    case DIS_PDUTYPE_COMMENT_R:
+        return dissect_DIS_PARSER_COMMENT_PDU(tvb, pinfo, tree, offset);
+    case DIS_PDUTYPE_CREATE_ENTITY_R:
+    case DIS_PDUTYPE_REMOVE_ENTITY_R:
+        return dissect_DIS_PARSER_SIMAN_ENTITY_R_PDU(tvb, pinfo, tree, offset);
+    case DIS_PDUTYPE_ENTITY_STATE_UPDATE:
+        return dissect_DIS_PARSER_ENTITY_STATE_UPDATE_PDU(tvb, pinfo, tree, offset);
+    /* DIS Experimental V-DIS PDUs */
+    case DIS_PDUTYPE_APPLICATION_CONTROL:
+        return dissect_DIS_PARSER_APPLICATION_CONTROL_PDU(tvb, pinfo, tree, offset);
+    case DIS_PDUTYPE_ENVIRONMENTAL_PROCESS:
+        return dissect_DIS_PARSER_ENVIRONMENTAL_PROCESS_PDU(tvb, pinfo, tree, offset);
+    case DIS_PDUTYPE_AGGREGATE_STATE:
+        return dissect_DIS_PARSER_AGGREGATE_STATE_PDU(tvb, pinfo, tree, offset);
+    default:
+        return offset;
+    }
+}
 
 /* Main dissector routine to be invoked for a DIS PDU.
  */
@@ -8283,12 +8410,14 @@ static gint dissect_dis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     proto_item *dis_node;
     proto_tree *dis_payload_tree = NULL;
     proto_item *dis_payload_node = NULL;
+
     gint offset = 0;
+    gint offsetBeforePayloadParse = 0;
+
     const gchar *pduString = 0;
-    DIS_Parser_func* pduFunc = NULL;
+
     dis_header_t header;
     guint8 persistentObjectPduType;
-
 
     /* DIS packets must be at least 12 bytes long.  DIS uses port 3000, by
      * default, but the Cisco Redundant Link Management protocol can also use
@@ -8317,215 +8446,64 @@ static gint dissect_dis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
     /* Locate the string name for the PDU type enumeration,
      * or default to "Unknown".
-    */
+      */
     pduString = val_to_str_ext_const(header.pduType, &DIS_PDU_Type_Strings_Ext, "Unknown");
+    
+    /* set the basic info column (pdu type) */
+    col_add_fstr(pinfo->cinfo, COL_INFO, "PDUType: %d \t ", header.pduType);
 
     /* Locate the appropriate PDU parser, if type is known.
      */
-    switch (header.family)
+    if (header.family == DIS_PROTOCOLFAMILY_PERSISTENT_OBJECT)
     {
-    case DIS_PROTOCOLFAMILY_PERSISTENT_OBJECT:
-        {
-            proto_item *dis_po_header_tree;
+        proto_item *dis_po_header_tree;
 
-            dis_po_header_tree = proto_tree_add_subtree(dis_header_tree, tvb, offset, 8, ett_dis_po_header, NULL, "PO Header");
-            offset = parsePOHeader(tvb, dis_po_header_tree, offset, &persistentObjectPduType);
+        dis_po_header_tree = proto_tree_add_subtree(dis_header_tree, tvb, offset, 8, ett_dis_po_header, NULL, "PO Header");
+        offset = parsePOHeader(tvb, dis_po_header_tree, offset, &persistentObjectPduType);
+        /* Locate the string name for the PO PDU type enumeration,
+         * or default to "Unknown".
+         */
+        pduString = val_to_str(persistentObjectPduType, DIS_PDU_PersistentObjectType_Strings, "Unknown");
 
-            /* Locate the appropriate PO PDU parser, if type is known.
-             */
-            switch (persistentObjectPduType)
-            {
-            case DIS_PERSISTENT_OBJECT_TYPE_SIMULATOR_PRESENT:
-                pduFunc = &dissect_DIS_PARSER_SIMULATOR_PRESENT_PO_PDU;
-                break;
-            case DIS_PERSISTENT_OBJECT_TYPE_DESCRIBE_OBJECT:
-                pduFunc = &dissect_DIS_PARSER_DESCRIBE_OBJECT_PO_PDU;
-                break;
-            case DIS_PERSISTENT_OBJECT_TYPE_OBJECTS_PRESENT:
-                pduFunc = &dissect_DIS_PARSER_OBJECTS_PRESENT_PO_PDU;
-                break;
-            case DIS_PERSISTENT_OBJECT_TYPE_OBJECT_REQUEST:
-                pduFunc = &dissect_DIS_PARSER_OBJECT_REQUEST_PO_PDU;
-                break;
-            case DIS_PERSISTENT_OBJECT_TYPE_DELETE_OBJECTS:
-                pduFunc = &dissect_DIS_PARSER_DELETE_OBJECTS_PO_PDU;
-                break;
-            case DIS_PERSISTENT_OBJECT_TYPE_SET_WORLD_STATE:
-                pduFunc = &dissect_DIS_PARSER_SET_WORLD_STATE_PO_PDU;
-                break;
-            case DIS_PERSISTENT_OBJECT_TYPE_NOMINATION:
-                pduFunc = &dissect_DIS_PARSER_NOMINATION_PO_PDU;
-                break;
-            default:
-                pduFunc = NULL;
-                break;
-            }
+        /* Append name of persistent PDU to the basic info column */
+        col_append_str(pinfo->cinfo, COL_INFO, pduString);
 
-            /* Locate the string name for the PO PDU type enumeration,
-             * or default to "Unknown".
-             */
-            pduString = val_to_str
-                (persistentObjectPduType,
-                 DIS_PDU_PersistentObjectType_Strings, "Unknown");
+        /* Add a node to contain the DIS PDU fields.
+         */
+        dis_payload_tree = proto_tree_add_subtree_format(dis_tree, tvb, offset, -1,
+            ett_dis_payload, &dis_payload_node, "%s PO PDU", pduString);
 
-            /* Add a node to contain the DIS PDU fields.
-             */
-            dis_payload_tree = proto_tree_add_subtree_format(dis_tree, tvb, offset, -1,
-                ett_dis_payload, &dis_payload_node, "%s PO PDU", pduString);
-        }
-        break;
-    default:
+        offsetBeforePayloadParse = offset;
+        /* Parse using the appropriate PO PDU parser, if type is known.
+         */
+        offset = parse_persistent_pdu_payload(tvb, pinfo, dis_payload_tree, offset, persistentObjectPduType);
+    }
+    else
+    {
+        /* Append name of persistent PDU to the basic info column */
+        col_append_str(pinfo->cinfo, COL_INFO, pduString);
 
         /* Add a node to contain the DIS PDU fields.
          */
         dis_payload_tree = proto_tree_add_subtree_format(dis_tree, tvb, offset, -1,
             ett_dis_payload, &dis_payload_node, "%s PDU", pduString);
 
-        switch (header.pduType)
+        offsetBeforePayloadParse = offset;
+
+        if (header.pduType == DIS_PDUTYPE_IFF)
         {
-        /* DIS Entity Information / Interaction PDUs */
-        case DIS_PDUTYPE_ENTITY_STATE:
-            pduFunc = &dissect_DIS_PARSER_ENTITY_STATE_PDU;
-            break;
-        case DIS_PDUTYPE_COLLISION:
-            pduFunc = &dissect_DIS_PARSER_COLLISION_PDU;
-            break;
-
-        /* DIS Distributed Emission Regeneration PDUs */
-        case DIS_PDUTYPE_ELECTROMAGNETIC_EMISSION:
-            pduFunc = &dissect_DIS_PARSER_ELECTROMAGNETIC_EMISSION_PDU;
-            break;
-
-        case DIS_PDUTYPE_UNDERWATER_ACOUSTIC:
-            pduFunc = &dissect_DIS_PARSER_UNDERWATER_ACOUSTIC_PDU;
-            break;
-
-        case DIS_PDUTYPE_IFF:
-            pduFunc = &dissect_DIS_PARSER_IFF_PDU;
-            break;
-
-        case DIS_PDUTYPE_DESIGNATOR:
-            pduFunc = &dissect_DIS_PARSER_DESIGNATOR_PDU;
-            break;
-
-        /* DIS Radio Communications protocol (RCP) family PDUs */
-        case DIS_PDUTYPE_TRANSMITTER:
-            pduFunc = &dissect_DIS_PARSER_TRANSMITTER_PDU;
-            break;
-        case DIS_PDUTYPE_SIGNAL:
-        case DIS_PDUTYPE_INTERCOM_SIGNAL:
-            pduFunc = &dissect_DIS_PARSER_SIGNAL_PDU;
-            break;
-
-        case DIS_PDUTYPE_INTERCOM_CONTROL:
-            pduFunc = &dissect_DIS_PARSER_INTERCOM_CONTROL_PDU;
-            break;
-
-
-        /* DIS Warfare PDUs */
-        case DIS_PDUTYPE_FIRE:
-            pduFunc = &dissect_DIS_PARSER_FIRE_PDU;
-            break;
-        case DIS_PDUTYPE_DETONATION:
-            /* TODO: Version 7 (header.version >= DIS_VERSION_IEEE_1278_1_2012)
-             *       changed the Detonation PDU format
-             *       Need a different parser
-             */
-            pduFunc = &dissect_DIS_PARSER_DETONATION_PDU;
-
-            break;
-
-        /* DIS Simulation Management PDUs */
-        case DIS_PDUTYPE_START_RESUME:
-            pduFunc = &dissect_DIS_PARSER_START_RESUME_PDU;
-            break;
-        case DIS_PDUTYPE_STOP_FREEZE:
-            pduFunc = &dissect_DIS_PARSER_STOP_FREEZE_PDU;
-            break;
-        case DIS_PDUTYPE_ACKNOWLEDGE:
-            pduFunc = &dissect_DIS_PARSER_ACKNOWLEDGE_PDU;
-            break;
-        case DIS_PDUTYPE_ACTION_REQUEST:
-            pduFunc = &dissect_DIS_PARSER_ACTION_REQUEST_PDU;
-            break;
-        case DIS_PDUTYPE_ACTION_RESPONSE:
-            pduFunc = &dissect_DIS_PARSER_ACTION_RESPONSE_PDU;
-            break;
-        case DIS_PDUTYPE_DATA:
-        case DIS_PDUTYPE_SET_DATA:
-            pduFunc = &dissect_DIS_PARSER_DATA_PDU;
-            break;
-        case DIS_PDUTYPE_EVENT_REPORT:
-            pduFunc = &dissect_DIS_PARSER_EVENT_REPORT_PDU;
-            break;
-        case DIS_PDUTYPE_DATA_QUERY:
-            pduFunc = &dissect_DIS_PARSER_DATA_QUERY_PDU;
-            break;
-        case DIS_PDUTYPE_COMMENT:
-            pduFunc = &dissect_DIS_PARSER_COMMENT_PDU;
-            break;
-        case DIS_PDUTYPE_CREATE_ENTITY:
-        case DIS_PDUTYPE_REMOVE_ENTITY:
-            pduFunc = &dissect_DIS_PARSER_SIMAN_ENTITY_PDU;
-            break;
-
-        /* DIS Simulation Management with Reliability PDUs */
-        case DIS_PDUTYPE_START_RESUME_R:
-            pduFunc = &dissect_DIS_PARSER_START_RESUME_R_PDU;
-            break;
-        case DIS_PDUTYPE_STOP_FREEZE_R:
-            pduFunc = &dissect_DIS_PARSER_STOP_FREEZE_R_PDU;
-            break;
-        case DIS_PDUTYPE_ACKNOWLEDGE_R:
-            pduFunc = &dissect_DIS_PARSER_ACKNOWLEDGE_PDU;
-            break;
-        case DIS_PDUTYPE_ACTION_REQUEST_R:
-            pduFunc = &dissect_DIS_PARSER_ACTION_REQUEST_R_PDU;
-            break;
-        case DIS_PDUTYPE_ACTION_RESPONSE_R:
-            pduFunc = &dissect_DIS_PARSER_ACTION_RESPONSE_PDU;
-            break;
-        case DIS_PDUTYPE_DATA_R:
-        case DIS_PDUTYPE_SET_DATA_R:
-            pduFunc = &dissect_DIS_PARSER_DATA_R_PDU;
-            break;
-        case DIS_PDUTYPE_DATA_QUERY_R:
-            pduFunc = &dissect_DIS_PARSER_DATA_QUERY_R_PDU;
-            break;
-        case DIS_PDUTYPE_COMMENT_R:
-            pduFunc = &dissect_DIS_PARSER_COMMENT_PDU;
-            break;
-        case DIS_PDUTYPE_CREATE_ENTITY_R:
-        case DIS_PDUTYPE_REMOVE_ENTITY_R:
-            pduFunc = &dissect_DIS_PARSER_SIMAN_ENTITY_R_PDU;
-            break;
-        case DIS_PDUTYPE_ENTITY_STATE_UPDATE:
-            pduFunc = &dissect_DIS_PARSER_ENTITY_STATE_UPDATE_PDU;
-            break;
-        /* DIS Experimental V-DIS PDUs */
-        case DIS_PDUTYPE_APPLICATION_CONTROL:
-            pduFunc = &dissect_DIS_PARSER_APPLICATION_CONTROL_PDU;
-            break;
-        case DIS_PDUTYPE_ENVIRONMENTAL_PROCESS:
-            pduFunc = &dissect_DIS_PARSER_ENVIRONMENTAL_PROCESS_PDU;
-            break;
-        case DIS_PDUTYPE_AGGREGATE_STATE:
-            pduFunc = &dissect_DIS_PARSER_AGGREGATE_STATE_PDU;
-            break;
-        default:
-            pduFunc = NULL;
-            break;
+            offset = dissect_DIS_PARSER_IFF_PDU(tvb, pinfo, dis_payload_tree, offset, &header);
         }
-        break;
+        else
+        {
+            offset = parse_pdu_payload(tvb, pinfo, dis_payload_tree, offset, header.pduType);
+        }
     }
 
-    /* set the basic info column (pdu type) */
-    col_add_fstr(pinfo->cinfo, COL_INFO, "PDUType: %d \t %s", header.pduType , pduString );
-    /* If a parser was located, invoke it on the data packet.
+    /* If pdu parsing moved the offset, then set the length.
      */
-    if (pduFunc != NULL)
+    if (offset != offsetBeforePayloadParse)
     {
-        offset = (*pduFunc)(tvb, pinfo, dis_payload_tree, offset);
         proto_item_set_end(dis_payload_node, tvb, offset);
     }
 
@@ -10526,6 +10504,16 @@ void proto_register_dis(void)
             { &hf_dis_iff_test_mode,
               { "Test Mode",  "dis.iff.test_mode",
                 FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffOffOn_Strings), 0x80,
+                NULL, HFILL }
+            },
+            { &hf_dis_iff_system_designator,
+              { "System Designator",  "dis.iff.system_designator",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_iff_system_specific_data,
+              { "System Specific Data",  "dis.iff.system_specific_data",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }
             },
             { &hf_dis_iff_system_status,
