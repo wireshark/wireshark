@@ -3321,7 +3321,7 @@ static const true_false_string gtpv2_f_teid_v6_vals = {
 };
 
 static void
-dissect_gtpv2_f_teid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_, session_args_t *args)
+dissect_gtpv2_f_teid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_, session_args_t *args)
 {
     int    offset = 0;
     guint8 flags;
@@ -3360,7 +3360,7 @@ dissect_gtpv2_f_teid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, pr
         set_address_tvb(ipv6, AT_IPv6, 16, tvb, offset);
     }
 
-    if (g_gtp_session) {
+    if (g_gtp_session && args) {
         session = (guint32 *)g_hash_table_lookup(session_table, &pinfo->num);
         if (!session) {
             /* We save the teid so that we could assignate its corresponding session ID later */

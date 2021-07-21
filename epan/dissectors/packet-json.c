@@ -773,7 +773,7 @@ before_member(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t 
 		tvbparse_elem_t *key_tok = tok->sub;
 
 		if (key_tok && key_tok->id == JSON_TOKEN_STRING) {
-			ti_compact = json_key_lookup(tree_compact, tok, key_string_with_quotation_marks, data->pinfo);
+			ti_compact = json_key_lookup(tree_compact, tok, key_string_without_quotation_marks, data->pinfo);
 			if (!ti_compact) {
 				ti_compact = proto_tree_add_none_format(tree_compact, &hfi_json_member_compact, tok->tvb, tok->offset, tok->len, "%s:", key_string_with_quotation_marks);
 			}
@@ -1157,7 +1157,7 @@ dissect_ueepspdnconnection(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo, 
 	add_new_data_source(pinfo, bin_tvb, "Base64 decoded");
 	ti = proto_tree_add_item(tree, &hfi_json_binary_data_compact, bin_tvb, 0, -1, ENC_NA);
 	sub_tree = proto_item_add_subtree(ti, ett_json_ueepspdnconnection);
-	dissect_gtpv2_ie_common(bin_tvb, NULL, sub_tree, 0, 0/* Message type 0, Reserved */, NULL);
+	dissect_gtpv2_ie_common(bin_tvb, pinfo, sub_tree, 0, 0/* Message type 0, Reserved */, NULL);
 }
 
 static void
