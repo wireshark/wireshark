@@ -2035,39 +2035,32 @@ handle_packet_header(packet_info* pinfo,
 
     WowwPreviousValues_t * original_header_values = wmem_tree_lookup32(wowwConversation->headers_need_decryption, pinfo->num);
 
-    if (original_header_values) {
-        // Header has been seen before
-
-        // Original value will need to be used for deduction
-        if (!session_key_is_fully_deduced(wowwConversation->known_indices, headerSize, original_header_values->idx)) {
-            // Not ready yet
-            return NULL;
-        }
-
-        // Header can be decrypted and added to map
+    if (original_header_values && !session_key_is_fully_deduced(wowwConversation->known_indices, headerSize, original_header_values->idx)) {
+        // If we have seen the header before AND
+        // we still can't decrypt it
+        // there's nothing to do but wait until we get more information
+        return NULL;
     }
-    else {
-        // Header has not been seen before
-        if (!session_key_is_fully_deduced(wowwConversation->known_indices, headerSize, participant->idx)) {
-            // Packet isn't decryptable, make sure to do it later
-            WowwPreviousValues_t* array_index = wmem_alloc(wmem_file_scope(), 2);
-            array_index->idx = participant->idx;
-            array_index->last_encrypted_value = participant->last_encrypted_value;
-            wmem_tree_insert32(wowwConversation->headers_need_decryption, pinfo->num, array_index);
 
-            if (WOWW_CLIENT_TO_SERVER) {
-                deduce_header(wowwConversation->session_key, wowwConversation->known_indices, header, participant);
-            } else {
-                // Skip the packet, but remember to acknowledge that values changed
-                participant->idx = (participant->idx + headerSize) % WOWW_SESSION_KEY_LENGTH;
-                participant->last_encrypted_value = header[headerSize - 1];
-            }
+    if (!original_header_values && !session_key_is_fully_deduced(wowwConversation->known_indices, headerSize, participant->idx)) {
+        // If we haven't seen the header before AND
+        // we can't decrypt it now
+        // we make sure it gets decrypted later
+        WowwPreviousValues_t* array_index = wmem_alloc(wmem_file_scope(), 2);
+        array_index->idx = participant->idx;
+        array_index->last_encrypted_value = participant->last_encrypted_value;
+        wmem_tree_insert32(wowwConversation->headers_need_decryption, pinfo->num, array_index);
 
-            return NULL;
+        // If it's a server header we can use it to deduce the session key
+        if (WOWW_CLIENT_TO_SERVER) {
+            deduce_header(wowwConversation->session_key, wowwConversation->known_indices, header, participant);
+        } else {
+            // Skip the packet, but remember to acknowledge that values changed
+            participant->idx = (participant->idx + headerSize) % WOWW_SESSION_KEY_LENGTH;
+            participant->last_encrypted_value = header[headerSize - 1];
         }
-        else {
-            // Header can be decrypted and added to map
-        }
+
+        return NULL;
     }
 
     guint8* idx = &participant->idx;
