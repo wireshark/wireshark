@@ -1942,7 +1942,8 @@ static const value_string world_packet_strings[] = {
 /*! Decrypts the header after the session key has been deducted as described in the top level comment. */
 static guint8*
 get_decrypted_header(const guint8 session_key[WOWW_SESSION_KEY_LENGTH],
-                     WowwParticipant_t* participant,
+                     guint8* idx,
+                     guint8* last_encrypted_value,
                      const guint8* header,
                      guint8 header_size) {
     guint8* decrypted_header = wmem_alloc0(wmem_file_scope(), 8);
@@ -1950,10 +1951,10 @@ get_decrypted_header(const guint8 session_key[WOWW_SESSION_KEY_LENGTH],
     for (guint8 i = 0; i < header_size; i++) {
 
         // x = (E - L) ^ S as described in top level comment
-        decrypted_header[i] = (header[i] - participant->last_encrypted_value) ^ session_key[participant->idx];
+        decrypted_header[i] = (header[i] - *last_encrypted_value) ^ session_key[*idx];
 
-        participant->last_encrypted_value = header[i];
-        participant->idx = (participant->idx + 1) % WOWW_SESSION_KEY_LENGTH;
+        *last_encrypted_value = header[i];
+        *idx = (*idx + 1) % WOWW_SESSION_KEY_LENGTH;
     }
 
     return decrypted_header;
@@ -2069,24 +2070,25 @@ handle_packet_header(packet_info* pinfo,
         }
     }
 
-    guint8 new_index = participant->idx;
-    guint8 new_last_encrypted = participant->last_encrypted_value;
+    guint8* idx = &participant->idx;
+    guint8* last_encrypted_value = &participant->last_encrypted_value;
 
     // If this is an out of order packet we must use the original state
     if (original_header_values) {
-        participant->idx = original_header_values->idx;
-        participant->last_encrypted_value = original_header_values->last_encrypted_value;
-    }
+        // We do not care about how these values are mutated since
+        // they are never going to be used again.
+        idx = &original_header_values->idx;
+        last_encrypted_value = &original_header_values->last_encrypted_value;
 
-    decrypted_header = get_decrypted_header(wowwConversation->session_key, participant, header, headerSize);
-
-    // Restore original state
-    if (original_header_values) {
-        participant->idx = new_index;
-        participant->last_encrypted_value = new_last_encrypted;
-
+        // No need to decrypt it again
         wmem_tree_remove32(wowwConversation->headers_need_decryption, pinfo->num);
     }
+
+    decrypted_header = get_decrypted_header(wowwConversation->session_key,
+                                            idx,
+                                            last_encrypted_value,
+                                            header,
+                                            headerSize);
 
     // The header has been fully decrypted, cache it for future use
     wmem_tree_insert32(wowwConversation->decrypted_headers, pinfo->num, decrypted_header);
