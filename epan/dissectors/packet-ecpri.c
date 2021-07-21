@@ -418,7 +418,7 @@ static int dissect_ecpri(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
         ecpri_tree = proto_item_add_subtree(ecpri_item, ett_ecpri);
 
         /* eCPRI header subtree */
-        header_item = proto_tree_add_item(ecpri_tree, hf_header, tvb, offset, ECPRI_HEADER_LENGTH, ENC_BIG_ENDIAN);
+        header_item = proto_tree_add_string_format(ecpri_tree, hf_header, tvb, offset, ECPRI_HEADER_LENGTH, "", "eCPRI Common Header");
         header_tree = proto_item_add_subtree(header_item, ett_ecpri_header);
 
         /* eCPRI Protocol Revision */
@@ -457,7 +457,8 @@ static int dissect_ecpri(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
         remaining_length = reported_length - offset;
 
         /* Call the FH CUS dissector if preference set */
-        if (pref_message_type_decoding) {
+        if (pref_message_type_decoding)
+        {
 
             tvbuff_t *fh_tvb = tvb_new_subset_length_caplen(tvb, offset, payload_size, payload_size);
             /***********************************************************************************************/
@@ -466,7 +467,8 @@ static int dissect_ecpri(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
             /* - message type 0 (IQ DATA)                                                                  */
             /* - message type 2 (RT CTRL DATA)                                                             */
             /***********************************************************************************************/
-            if (call_dissector_only(oran_handle, fh_tvb, pinfo, tree, &msg_type)) {
+            if (call_dissector_only(oran_handle, fh_tvb, pinfo, tree, &msg_type))
+            {
                 /* Assume that it has claimed the entire tvb */
                 offset = tvb_reported_length(tvb);
             }
@@ -797,7 +799,7 @@ void proto_register_ecpri(void)
 {
     static hf_register_info hf[] = {
         /* eCPRI Common Header */
-            { &hf_header,    { "eCPRI Common Header", "ecpri.header",   FT_UINT32, BASE_HEX,                   NULL,                   0x00, NULL, HFILL } },
+            { &hf_header,    { "eCPRI Common Header", "ecpri.header",   FT_STRING, BASE_NONE,                  NULL,                   0x00, NULL, HFILL } },
             { &hf_proto_rev, { "Protocol Revision",   "ecpri.revision", FT_UINT8,  BASE_DEC,                   NULL,                   0xF0, NULL, HFILL } },
             { &hf_reserved,  { "Reserved",            "ecpri.reserved", FT_UINT8,  BASE_DEC,                   NULL,                   0x0E, NULL, HFILL } },
             { &hf_c_bit,     { "C-Bit",               "ecpri.cbit",     FT_BOOLEAN,  8,                        TFS(&tfs_c_bit),        0x01, "Concatenation indicator", HFILL } },
