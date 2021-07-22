@@ -23,6 +23,7 @@
 #include "config.h"
 #include <epan/packet.h>
 #include <epan/uat.h>
+#include <epan/expert.h>
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/dissectors/packet-tls.h>
 
@@ -422,6 +423,9 @@ static dissector_handle_t uds_handle;
 static gint proto_doip    = -1;
 
 
+/* expert info items */
+static expert_field ef_doip_illegal_length_field = EI_INIT;
+
 
 /*
  * UATs
@@ -550,13 +554,19 @@ doip_prototree_add_with_resolv(proto_tree* doip_tree, int hfindex, tvbuff_t* tvb
 
 
 static void
-add_header(proto_tree *doip_tree, tvbuff_t *tvb)
+add_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *doip_tree)
 {
+    guint32 len;
     proto_tree *subtree = proto_tree_add_subtree(doip_tree, tvb, DOIP_VERSION_OFFSET, DOIP_HEADER_LEN, ett_header, NULL, "Header");
     proto_tree_add_item(subtree, hf_doip_version, tvb, DOIP_VERSION_OFFSET, DOIP_VERSION_LEN, ENC_BIG_ENDIAN);
     proto_tree_add_item(subtree, hf_doip_inv_version, tvb, DOIP_INV_VERSION_OFFSET, DOIP_INV_VERSION_LEN, ENC_BIG_ENDIAN);
     proto_tree_add_item(subtree, hf_doip_type, tvb, DOIP_TYPE_OFFSET, DOIP_TYPE_LEN, ENC_BIG_ENDIAN);
-    proto_tree_add_item(subtree, hf_doip_length, tvb, DOIP_LENGTH_OFFSET, DOIP_LENGTH_LEN, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(subtree, hf_doip_length, tvb, DOIP_LENGTH_OFFSET, DOIP_LENGTH_LEN, ENC_BIG_ENDIAN, &len);
+
+    if (tvb_captured_length(tvb) < len) {
+        proto_tree_add_expert(doip_tree, pinfo, &ef_doip_illegal_length_field, tvb, DOIP_LENGTH_OFFSET, DOIP_LENGTH_LEN);
+        col_append_str(pinfo->cinfo, COL_INFO, " [DoIP Length Field: Illegal Value]");
+    }
 }
 
 
@@ -731,7 +741,7 @@ dissect_doip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         ti = proto_tree_add_item(tree, proto_doip, tvb, 0, -1, ENC_NA);
         doip_tree = proto_item_add_subtree(ti, ett_doip);
 
-        add_header(doip_tree, tvb);
+        add_header(tvb, pinfo, tree);
 
         switch (payload_type) {
         case DOIP_GENERIC_NACK:
@@ -817,7 +827,14 @@ get_doip_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *p 
     }
 
     /* PDU Length = length field value + header length */
-    return (guint)tvb_get_ntohl(tvb, offset + DOIP_LENGTH_OFFSET) + DOIP_HEADER_LEN;
+    guint32 ret = tvb_get_ntohl(tvb, offset + DOIP_LENGTH_OFFSET) + DOIP_HEADER_LEN;
+
+    if (ret < DOIP_HEADER_LEN || ret > 0x7fffffff) {
+        /* catch illegal length fields (overflow or too big) */
+        return DOIP_HEADER_LEN;
+    }
+
+    return ret;
 }
 
 
@@ -841,8 +858,9 @@ dissect_doip(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, void* 
 void
 proto_register_doip(void)
 {
-    module_t *doip_module = NULL;
-    uat_t    *doip_diag_addr_uat = NULL;
+    module_t        *doip_module = NULL;
+    expert_module_t *expert_module_doip = NULL;
+    uat_t           *doip_diag_addr_uat = NULL;
 
     static hf_register_info hf[] = {
         /* Header */
@@ -1144,6 +1162,14 @@ proto_register_doip(void)
 
     prefs_register_uat_preference(doip_module, "_udf_doip_diag_addresses", "Diagnostics Addresses",
         "A table to define names of Diagnostics Addresses.", doip_diag_addr_uat);
+
+    static ei_register_info ei[] = {
+     { &ef_doip_illegal_length_field, { "doip.illegal_length_field",
+       PI_MALFORMED, PI_ERROR, "DoIP illegal length field", EXPFILL } },
+    };
+
+    expert_module_doip = expert_register_protocol(proto_doip);
+    expert_register_field_array(expert_module_doip, ei, array_length(ei));
 }
 
 void
