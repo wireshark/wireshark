@@ -3,7 +3,7 @@
  * CIP Motion Home: www.odva.org
  *
  * This dissector includes items from:
- *    CIP Volume 9: CIP Motion, Edition 1.5
+ *    CIP Volume 9: CIP Motion, Edition 1.7
  *
  * Copyright 2006-2007
  * Benjamin M. Stocks <bmstocks@ra.rockwell.com>
@@ -278,6 +278,7 @@ static gint ett_node_status         = -1;
 static gint ett_time_data_set       = -1;
 static gint ett_inst_data_header    = -1;
 static gint ett_cyclic_data_block   = -1;
+static gint ett_cyclic_command_data = -1;
 static gint ett_feedback_mode       = -1;
 static gint ett_connection_configuration_bits = -1;
 static gint ett_control_mode        = -1;
@@ -819,15 +820,26 @@ attribute_info_t cip_motion_attribute_vals[] = {
 /*
  * Function name: dissect_cmd_data_set
  *
- * Purpose: Dissect the command data set field of the cyclic data block header and if any
- * of the command value bits are set to retrieve and display those command values
+ * Purpose: Dissect the "Cyclic Command Data" of a Controller-to-Device format message
+ *
+ * Based on the Command Data Set bits of the Cyclic Command Data Block header, display
+ * any of those command values.
  *
  * Returns: The number of bytes in the cyclic data used
  */
 static guint32
-dissect_cmd_data_set(guint32 cmd_data_set, proto_tree* tree, tvbuff_t* tvb, guint32 offset, gboolean lreal_pos)
+dissect_cmd_data_set(guint32 cmd_data_set, proto_tree* parent_tree, tvbuff_t* tvb, guint32 offset, gboolean lreal_pos)
 {
+   // If no Command Data Set bits are set, then we don't need to display any additional data.
+   if (cmd_data_set == 0)
+   {
+      return 0;
+   }
+
    guint32 bytes_used = 0;
+
+   proto_item* item;
+   proto_tree* tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0, ett_cyclic_command_data, &item, "Cyclic Command Data");
 
    /* The order of these if statements is VERY important, this is the order the values will
     * appear in the cyclic data */
@@ -870,6 +882,8 @@ dissect_cmd_data_set(guint32 cmd_data_set, proto_tree* tree, tvbuff_t* tvb, guin
       bytes_used += 4;
    }
 
+   proto_item_set_len(item, bytes_used);
+
    return bytes_used;
 }
 
@@ -877,15 +891,26 @@ dissect_cmd_data_set(guint32 cmd_data_set, proto_tree* tree, tvbuff_t* tvb, guin
 /*
  * Function name: dissect_act_data_set
  *
- * Purpose: Dissect the actual data set field of the cyclic data block header and if any
- * of the actual value bits are set to retrieve and display those feedback values
+ * Purpose: Dissect the "Cyclic Actual Data" of a Device-to-Controller format message
+ *
+ * Based on the Actual Data Set bits of the "Cyclic Actual Data Block" header, display
+ * any of those those feedback values.
  *
  * Returns: The number of bytes in the cyclic data used
  */
 static guint32
-dissect_act_data_set(guint32 act_data_set, proto_tree* tree, tvbuff_t* tvb, guint32 offset, guint8 feedback_mode)
+dissect_act_data_set(guint32 act_data_set, proto_tree* parent_tree, tvbuff_t* tvb, guint32 offset, guint8 feedback_mode)
 {
+   // If no Actual Data Set bits are set, then we don't need to display any additional data.
+   if (act_data_set == 0)
+   {
+      return 0;
+   }
+
    guint32 bytes_used = 0;
+
+   proto_item* item;
+   proto_tree* tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0, ett_cyclic_command_data, &item, "Cyclic Actual Data");
 
    /* The order of these if statements is VERY important, this is the order the values will
    * appear in the cyclic data */
@@ -919,21 +944,35 @@ dissect_act_data_set(guint32 act_data_set, proto_tree* tree, tvbuff_t* tvb, guin
       bytes_used += 4;
    }
 
+
+   proto_item_set_len(item, bytes_used);
+
    return bytes_used;
 }
 
 /*
  * Function name: dissect_status_data_set
  *
- * Purpose: Dissect the status data set field of the cyclic data block header and if any
- * of the status value bits are set to retrieve and display those status values
+ * Purpose: Dissect the "Cyclic Status Data" of a Device-to-Controller format message
+ *
+ * Based on the Status Data Set bits of the "Cyclic Actual Data Block" header, display
+ * any of those status values.
  *
  * Returns: The number of bytes in the cyclic data used
  */
 static guint32
-dissect_status_data_set(guint32 status_data_set, proto_tree* tree, tvbuff_t* tvb, guint32 offset)
+dissect_status_data_set(guint32 status_data_set, proto_tree* parent_tree, tvbuff_t* tvb, guint32 offset)
 {
+   // If no Status Data Set bits are set, then we don't need to display any additional data.
+   if (status_data_set == 0)
+   {
+      return 0;
+   }
+
    guint32 bytes_used = 0;
+
+   proto_item* item;
+   proto_tree* tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0, ett_cyclic_command_data, &item, "Cyclic Status Data");
 
    /* The order of these if statements is VERY important, this is the order the values will
     * appear in the cyclic data */
@@ -1003,13 +1042,15 @@ dissect_status_data_set(guint32 status_data_set, proto_tree* tree, tvbuff_t* tvb
       bytes_used += 4;
    }
 
+   proto_item_set_len(item, bytes_used);
+
    return bytes_used;
 }
 
 /*
  * Function name: dissect_cntr_cyclic
  *
- * Purpose: Dissect the cyclic data block of a controller to device format message
+ * Purpose: Dissect the "Cyclic Command Data Block" of a Controller-to-Device format message
  *
  * Returns: The new offset into the message that follow on dissections should use
  * as their starting offset
@@ -1017,51 +1058,39 @@ dissect_status_data_set(guint32 status_data_set, proto_tree* tree, tvbuff_t* tvb
 static guint32
 dissect_cntr_cyclic(tvbuff_t* tvb, proto_tree* tree, guint32 offset, guint32 size)
 {
-   proto_tree *header_tree;
-   guint32     temp_data;
-   gboolean    lreal_pos;
-   guint32     bytes_used = 0;
-
    /* Create the tree for the entire instance data header */
-   header_tree = proto_tree_add_subtree(tree, tvb, offset, size, ett_cyclic_data_block, NULL, "Cyclic Data Block");
+   proto_tree* header_tree = proto_tree_add_subtree(tree, tvb, offset, size, ett_cyclic_data_block, NULL, "Cyclic Command Data Block");
 
-   /* Add the control mode header field to the tree */
    proto_tree_add_item(header_tree, hf_cip_motor_cntrl, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-
    dissect_feedback_mode(NULL, header_tree, NULL, tvb, offset + 1, 1);
-
-   /* Add the axis control field to the tree */
    proto_tree_add_item(header_tree, hf_cip_axis_control, tvb, offset + 2, 1, ENC_LITTLE_ENDIAN);
-
    dissect_control_status(NULL, header_tree, NULL, tvb, offset + 3, 1);
 
-   /* Read the command control header field from the packet into memory and determine if the dissector
-   * should be using an LREAL or DINT for position */
-   temp_data = tvb_get_guint8(tvb, offset + 7);
-   lreal_pos = ( (temp_data & COMMAND_CONTROL_POSITION_DATA_TYPE) == POSITION_DATA_LREAL );
-
-   /* Read the command data set header field from the packet into memory */
-   temp_data = tvb_get_guint8(tvb, offset + 4);
-
    dissect_command_data_set_bits(NULL, header_tree, NULL, tvb, offset + 4, 1);
-
-   /* Display the command data values from the cyclic data payload, the
-   * cyclic data starts immediately after the interpolation control field in the controller to device
-   * direction */
-   bytes_used += dissect_cmd_data_set(temp_data, header_tree, tvb, offset + 8 + bytes_used, lreal_pos);
-
    dissect_actual_data_set_bits(NULL, header_tree, NULL, tvb, offset + 5, 1);
    dissect_status_data_set_bits(NULL, header_tree, NULL, tvb, offset + 6, 1);
    dissect_command_control(NULL, header_tree, NULL, tvb, offset + 7, 1);
 
+   guint32 bytes_used = 8;
+
+   /* Determine if the dissector should be using an LREAL or DINT for position */
+   guint8 command_control = tvb_get_guint8(tvb, offset + 7);
+   gboolean lreal_pos = ((command_control & COMMAND_CONTROL_POSITION_DATA_TYPE) == POSITION_DATA_LREAL);
+
+   /* Cyclic Command Data: Display the command data values from the cyclic data payload, the
+    * cyclic data starts immediately after the interpolation control field in the controller to device
+    * direction */
+   guint32 command_data_set = tvb_get_guint8(tvb, offset + 4);
+   bytes_used += dissect_cmd_data_set(command_data_set, header_tree, tvb, offset + bytes_used, lreal_pos);
+
    /* Return the offset to the next byte in the message */
-   return offset + 8 + bytes_used;
+   return offset + bytes_used;
 }
 
 /*
  * Function name: dissect_device_cyclic
  *
- * Purpose: Dissect the cyclic data block of a device to controller format message
+ * Purpose: Dissect the "Cyclic Actual Data Block" of a Device-to-Controller format message
  *
  * Returns: The new offset into the message that follow on dissections should use
  * as their starting offset
@@ -1069,56 +1098,37 @@ dissect_cntr_cyclic(tvbuff_t* tvb, proto_tree* tree, guint32 offset, guint32 siz
 static guint32
 dissect_device_cyclic(tvbuff_t* tvb, proto_tree* tree, guint32 offset, guint32 size)
 {
-   proto_tree *header_tree;
-   guint32 temp_data;
-   guint32 bytes_used = 0;
-
    /* Create the tree for the entire instance data header */
-   header_tree = proto_tree_add_subtree(tree, tvb, offset, size, ett_cyclic_data_block, NULL, "Cyclic Data Block");
+   proto_tree* header_tree = proto_tree_add_subtree(tree, tvb, offset, size, ett_cyclic_data_block, NULL, "Cyclic Actual Data Block");
 
-   /* Add the control mode header field to the tree */
    proto_tree_add_item(header_tree, hf_cip_motor_cntrl, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-
    dissect_feedback_mode(NULL, header_tree, NULL, tvb, offset + 1, 1);
-
-   /* Add the axis response field to the tree */
    proto_tree_add_item(header_tree, hf_cip_axis_response, tvb, offset + 2, 1, ENC_LITTLE_ENDIAN);
-
-   /* Add the axis response status to the tree */
    proto_tree_add_item(header_tree, hf_cip_axis_resp_stat, tvb, offset + 3, 1, ENC_LITTLE_ENDIAN);
 
-   /* Read the actual data set header field from the packet into memory */
-   temp_data = tvb_get_guint8(tvb, offset + 5);
-
    dissect_actual_data_set_bits(NULL, header_tree, NULL, tvb, offset + 5, 1);
-
-   /* Display the actual data values from the cyclic data payload, the
-   * cyclic data starts immediately after the interpolation control field in the controller to device
-   * direction and the actual data starts immediately after the cyclic data */
-   guint8 feedback_mode = tvb_get_guint8(tvb, offset + 1);
-   bytes_used += dissect_act_data_set(temp_data, header_tree, tvb, offset + 8 + bytes_used, feedback_mode);
-
-   /* Read the status data set header field from the packet into memory */
-   temp_data = tvb_get_guint8(tvb, offset + 6);
-
    dissect_status_data_set_bits(NULL, header_tree, NULL, tvb, offset + 6, 1);
-
-   /* Display the status data values from the cyclic data payload, the
-   * cyclic data starts immediately after the axis state field in the device to controller
-   * direction and the status data starts immediately after the cyclic data */
-   bytes_used += dissect_status_data_set(temp_data, header_tree, tvb, offset + 8 + bytes_used);
-
-   /* Display the axis state control field */
    proto_tree_add_item(header_tree, hf_cip_axis_state, tvb, offset + 7, 1, ENC_LITTLE_ENDIAN);
 
+   guint32 bytes_used = 8;
+
+   /* Display the "Cyclic Actual Data" values from the cyclic data payload. */
+   guint8 feedback_mode = tvb_get_guint8(tvb, offset + 1);
+   guint8 actual_data_set = tvb_get_guint8(tvb, offset + 5);
+   bytes_used += dissect_act_data_set(actual_data_set, header_tree, tvb, offset + bytes_used, feedback_mode);
+
+   /* Display the "Cyclic Status Data" values from the cyclic data payload. */
+   guint8 status_data_set = tvb_get_guint8(tvb, offset + 6);
+   bytes_used += dissect_status_data_set(status_data_set, header_tree, tvb, offset + bytes_used);
+
    /* Return the offset to the next byte in the message */
-   return offset + 8 + bytes_used;
+   return offset + bytes_used;
 }
 
 /*
  * Function name: dissect_cyclic_wt
  *
- * Purpose: Dissect the cyclic write data block in a controller to device message
+ * Purpose: Dissect the "Cyclic Write Data Block" in a Controller-to-Device message
  *
  * Returns: The new offset into the message that follow on dissections should use
  * as their starting offset
@@ -1149,7 +1159,7 @@ dissect_cyclic_wt(tvbuff_t* tvb, proto_tree* tree, guint32 offset, guint32 size)
 /*
  * Function name: dissect_cyclic_rd
  *
- * Purpose: Dissect the cyclic read data block in a device to controller message
+ * Purpose: Dissect the "Cyclic Read Data Block" in a Device-to-Controller message
  *
  * Returns: The new offset into the message that follow on dissections should use
  * as their starting offset
@@ -1186,7 +1196,7 @@ dissect_cyclic_rd(tvbuff_t* tvb, proto_tree* tree, guint32 offset, guint32 size)
 /*
  * Function name: dissect_cntr_event
  *
- * Purpose: Dissect the event data block in a controller to device message
+ * Purpose: Dissect the "Event Data Block" in a Controller-to-Device message
  *
  * Returns: The new offset into the message that follow on dissections should use
  * as their starting offset
@@ -1195,23 +1205,20 @@ static guint32
 dissect_cntr_event(tvbuff_t* tvb, proto_tree* tree, guint32 offset, guint32 size)
 {
    proto_tree *header_tree;
-   guint32 temp_data;
    guint32 acks, cur_ack;
    guint32 bytes_used = 0;
 
    /* Create the tree for the entire cyclic write data block */
    header_tree = proto_tree_add_subtree(tree, tvb, offset, size, ett_event, NULL, "Event Data Block");
 
-   /* Read the event checking control header field from the packet into memory */
-   temp_data = tvb_get_letohl(tvb, offset);
-
+   guint32 event_checking_control = tvb_get_letohl(tvb, offset);
    dissect_event_checking_control(NULL, header_tree, NULL, tvb, offset, 4);
 
    /* The event checking control value is 4 bytes long */
    bytes_used = 4;
 
    /* The final 4 bits of the event checking control value are the number of acknowledgements in the message */
-   acks = (temp_data >> 28) & 0x0F;
+   acks = (event_checking_control >> 28) & 0x0F;
 
    /* Each acknowledgement contains and id and a status value */
    for (cur_ack = 0; cur_ack < acks; cur_ack++)
@@ -1231,7 +1238,7 @@ dissect_cntr_event(tvbuff_t* tvb, proto_tree* tree, guint32 offset, guint32 size
 /*
  * Function name: dissect_devce_event
  *
- * Purpose: Dissect the event data block in a device to controller message
+ * Purpose: Dissect the "Event Data Block" in a Device-to-Controller message
  *
  * Returns: The new offset into the message that follow on dissections should use
  * as their starting offset
@@ -1240,23 +1247,20 @@ static guint32
 dissect_devce_event(tvbuff_t* tvb, proto_tree* tree, guint32 offset, guint32 size)
 {
    proto_tree *header_tree;
-   guint64     temp_data;
    guint64     nots, cur_not;
    guint32     bytes_used = 0;
 
    /* Create the tree for the entire cyclic write data block */
    header_tree = proto_tree_add_subtree(tree, tvb, offset, size, ett_event, NULL, "Event Data Block");
 
-   /* Read the event checking control header field from the packet into memory */
-   temp_data = tvb_get_letohl(tvb, offset);
-
+   guint32 event_checking_status = tvb_get_letohl(tvb, offset);
    dissect_event_checking_status(NULL, header_tree, NULL, tvb, offset, 4);
 
    /* The event status control value is 4 bytes long */
    bytes_used = 4;
 
    /* The final 4 bits of the event status control value are the number of notifications in the message */
-   nots = (temp_data >> 28) & 0x0F;
+   nots = (event_checking_status >> 28) & 0x0F;
 
    /* Each notification contains and id, status value, event type, position and time stamp */
    for (cur_not = 0; cur_not < nots; cur_not++)
@@ -1529,7 +1533,7 @@ static void dissect_set_cyclic_list_respone(tvbuff_t* tvb, proto_tree* tree, gui
 /*
  * Function name: dissect_cntr_service
  *
- * Purpose: Dissect the service data block in a controller to device message
+ * Purpose: Dissect the "Service Data Block" in a Controller-to-Device message
  *
  * Returns: The new offset into the message that follow on dissections should use
  * as their starting offset
@@ -1757,7 +1761,7 @@ dissect_group_sync_response (tvbuff_t* tvb, proto_tree* tree, guint32 offset)
 /*
  * Function name: dissect_devce_service
  *
- * Purpose: Dissect the service data block in a device to controller message
+ * Purpose: Dissect the "Service Data Block" in a Device-to-Controller message
  *
  * Returns: The new offset into the message that follow on dissections should use
  * as their starting offset
@@ -2469,6 +2473,8 @@ proto_register_cipmotion(void)
           FT_UINT8, BASE_HEX, NULL, 0,
           NULL, HFILL}
       },
+
+      // Command Data Set
       { &hf_cip_cmd_data_pos_cmd,
         { "Command Position", "cipm.cmd.pos",
           FT_BOOLEAN, 8, TFS(&tfs_true_false), COMMAND_DATA_SET_POSITION,
@@ -3384,6 +3390,7 @@ proto_register_cipmotion(void)
       &ett_time_data_set,
       &ett_inst_data_header,
       &ett_cyclic_data_block,
+      &ett_cyclic_command_data,
       &ett_feedback_mode,
       &ett_connection_configuration_bits,
       &ett_control_mode,
