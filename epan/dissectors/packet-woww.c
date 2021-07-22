@@ -101,7 +101,7 @@ typedef struct WowwConversation {
     bool known_indices[WOWW_SESSION_KEY_LENGTH];
     // Cache headers that have already been decrypted to save time
     // as well as reduce headaches from out of order packets.
-    wmem_tree_t* decrypted_headers;
+    wmem_map_t* decrypted_headers;
     // Packets that are not fully decryptable when received will need
     // to be decrypted later.
     wmem_tree_t* headers_need_decryption;
@@ -2008,9 +2008,11 @@ handle_packet_header(packet_info* pinfo,
                      tvbuff_t* tvb,
                      WowwParticipant_t* participant,
                      WowwConversation_t* wowwConversation,
-                     guint8 headerSize) {
+                     guint8 headerSize,
+                     guint8 index_in_pdu) {
+    guint64 key = ((guint64)index_in_pdu << 32) | pinfo->num;
 
-    guint8* decrypted_header = wmem_tree_lookup32(wowwConversation->decrypted_headers, pinfo->num);
+    guint8* decrypted_header = wmem_map_lookup(wowwConversation->decrypted_headers, &key);
 
     if (decrypted_header) {
         // Header has already been decrypted
@@ -2033,7 +2035,10 @@ handle_packet_header(packet_info* pinfo,
         decrypted_header = wmem_alloc0(wmem_file_scope(), WOWW_HEADER_ARRAY_ALLOC_SIZE);
         memcpy(decrypted_header, header, headerSize);
 
-        wmem_tree_insert32(wowwConversation->decrypted_headers, pinfo->num, decrypted_header);
+        guint64* allocated_key = wmem_alloc0(wmem_file_scope(), sizeof(guint64));
+        *allocated_key = key;
+
+        wmem_map_insert(wowwConversation->decrypted_headers, allocated_key, decrypted_header);
 
         return (WowwDecryptedHeader_t*)decrypted_header;
     }
@@ -2088,8 +2093,11 @@ handle_packet_header(packet_info* pinfo,
                                             header,
                                             headerSize);
 
+    guint64* allocated_key = wmem_alloc0(wmem_file_scope(), sizeof(guint64));
+    *allocated_key = key;
+
     // The header has been fully decrypted, cache it for future use
-    wmem_tree_insert32(wowwConversation->decrypted_headers, pinfo->num, decrypted_header);
+    wmem_map_insert(wowwConversation->decrypted_headers, allocated_key, decrypted_header);
 
     return (WowwDecryptedHeader_t*)decrypted_header;
 }
@@ -2164,7 +2172,7 @@ dissect_woww(tvbuff_t *tvb,
         // Assume that file scope means for the lifetime of the dissection
         wowwConversation = (WowwConversation_t*) wmem_new0(wmem_file_scope(), WowwConversation_t);
         conversation_add_proto_data(conv, proto_woww, wowwConversation);
-        wowwConversation->decrypted_headers = wmem_tree_new(wmem_file_scope());
+        wowwConversation->decrypted_headers = wmem_map_new(wmem_file_scope(), g_int64_hash, g_int64_equal);
         wowwConversation->headers_need_decryption = wmem_tree_new(wmem_file_scope());
     }
 
@@ -2180,7 +2188,7 @@ dissect_woww(tvbuff_t *tvb,
         headerSize = 6;
     }
 
-    WowwDecryptedHeader_t* decrypted_header = handle_packet_header(pinfo, tvb, participant, wowwConversation, headerSize);
+    WowwDecryptedHeader_t* decrypted_header = handle_packet_header(pinfo, tvb, participant, wowwConversation, headerSize, 0);
     if (!decrypted_header) {
         return tvb_captured_length(tvb);
     }
