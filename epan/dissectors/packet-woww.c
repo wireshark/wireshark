@@ -2009,7 +2009,8 @@ handle_packet_header(packet_info* pinfo,
                      WowwParticipant_t* participant,
                      WowwConversation_t* wowwConversation,
                      guint8 headerSize,
-                     guint8 index_in_pdu) {
+                     guint8 index_in_pdu,
+                     gint tvb_offset) {
     guint64 key = ((guint64)index_in_pdu << 32) | pinfo->num;
 
     guint8* decrypted_header = wmem_map_lookup(wowwConversation->decrypted_headers, &key);
@@ -2022,7 +2023,7 @@ handle_packet_header(packet_info* pinfo,
     // First time we see this header, we need to decrypt it
     guint8* header = wmem_alloc0(wmem_packet_scope(), WOWW_HEADER_ARRAY_ALLOC_SIZE);
     for (int i = 0; i < headerSize; i++) {
-        header[i] = tvb_get_guint8(tvb, i);
+        header[i] = tvb_get_guint8(tvb, tvb_offset + i);
     }
 
     // If we're seeing the first header
@@ -2106,18 +2107,19 @@ handle_packet_header(packet_info* pinfo,
     return (WowwDecryptedHeader_t*)decrypted_header;
 }
 
-static void
+static gint
 add_header_to_tree(WowwDecryptedHeader_t* decrypted_header,
                    proto_tree* tree,
                    tvbuff_t* tvb,
                    packet_info* pinfo,
-                   guint8 headerSize)
+                   guint8 headerSize,
+                   gint start_offset)
 {
     const guint16 size_field_width = 2;
     // Size field does not count in the reported size, so we need to add it.
     const guint16 packet_size = (decrypted_header->size[0] << 8 | decrypted_header->size[1]) + size_field_width;
 
-    proto_tree* ti = proto_tree_add_item(tree, proto_woww, tvb, 0, packet_size, ENC_NA);
+    proto_tree* ti = proto_tree_add_item(tree, proto_woww, tvb, start_offset, packet_size, ENC_NA);
 
     proto_tree* woww_tree = proto_item_add_subtree(ti, ett_woww);
 
@@ -2150,6 +2152,7 @@ add_header_to_tree(WowwDecryptedHeader_t* decrypted_header,
 
     // Remember to go back to original tvb
 
+    return start_offset + (gint)packet_size;
 }
 
 static int
@@ -2192,12 +2195,19 @@ dissect_woww(tvbuff_t *tvb,
         headerSize = 6;
     }
 
-    WowwDecryptedHeader_t* decrypted_header = handle_packet_header(pinfo, tvb, participant, wowwConversation, headerSize, 0);
-    if (!decrypted_header) {
-        return tvb_captured_length(tvb);
-    }
+    gint pdu_offset = 0;
+    gint reported_length = (gint)tvb_reported_length(tvb);
+    guint8 header_index = 0;
+    do {
+        WowwDecryptedHeader_t* decrypted_header = handle_packet_header(pinfo, tvb, participant, wowwConversation, headerSize, header_index, pdu_offset);
+        if (!decrypted_header) {
+            return tvb_captured_length(tvb);
+        }
 
-    add_header_to_tree(decrypted_header, tree, tvb, pinfo, headerSize);
+        pdu_offset = add_header_to_tree(decrypted_header, tree, tvb, pinfo, headerSize, pdu_offset);
+
+        header_index++;
+    } while (pdu_offset < reported_length);
 
     return tvb_captured_length(tvb);
 }
