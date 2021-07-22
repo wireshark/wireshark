@@ -706,10 +706,14 @@ add_library(qtui OBJECT
 
 target_include_directories(qtui
 	SYSTEM PRIVATE
+		# Include Qt before anything else, see the comment about
+		# QT_INCLUDE_DIRS in the top-level CMakeLists.txt
+		# Basically, qt@5 headers should be prioritized over qt@6 which
+		# would be found due to GCRYPT_INCLUDE_DIRS=/usr/local/include
+		${QT_INCLUDE_DIRS}
 		${GCRYPT_INCLUDE_DIRS}
 		${MINIZIP_INCLUDE_DIRS}
 		${PCAP_INCLUDE_DIRS}
-		${QT_INCLUDE_DIRS}
 		${SPEEXDSP_INCLUDE_DIRS}
 		${WINSPARKLE_INCLUDE_DIRS}
 	PRIVATE
