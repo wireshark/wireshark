@@ -104,7 +104,7 @@ typedef struct WowwConversation {
     wmem_map_t* decrypted_headers;
     // Packets that are not fully decryptable when received will need
     // to be decrypted later.
-    wmem_tree_t* headers_need_decryption;
+    wmem_map_t* headers_need_decryption;
     // The client and server will have different indices/last values
     // because they send different amounts of packets and with different
     // header lengths.
@@ -2043,7 +2043,7 @@ handle_packet_header(packet_info* pinfo,
         return (WowwDecryptedHeader_t*)decrypted_header;
     }
 
-    WowwPreviousValues_t * original_header_values = wmem_tree_lookup32(wowwConversation->headers_need_decryption, pinfo->num);
+    WowwPreviousValues_t * original_header_values = wmem_map_lookup(wowwConversation->headers_need_decryption, &key);
 
     if (original_header_values && !session_key_is_fully_deduced(wowwConversation->known_indices, headerSize, original_header_values->idx)) {
         // If we have seen the header before AND
@@ -2059,7 +2059,11 @@ handle_packet_header(packet_info* pinfo,
         WowwPreviousValues_t* array_index = wmem_alloc0(wmem_file_scope(), sizeof(WowwPreviousValues_t));
         array_index->idx = participant->idx;
         array_index->last_encrypted_value = participant->last_encrypted_value;
-        wmem_tree_insert32(wowwConversation->headers_need_decryption, pinfo->num, array_index);
+
+        guint64* allocated_key = wmem_alloc0(wmem_file_scope(), sizeof(guint64));
+        *allocated_key = key;
+
+        wmem_map_insert(wowwConversation->headers_need_decryption, allocated_key, array_index);
 
         // If it's a server header we can use it to deduce the session key
         if (WOWW_CLIENT_TO_SERVER) {
@@ -2084,7 +2088,7 @@ handle_packet_header(packet_info* pinfo,
         last_encrypted_value = &original_header_values->last_encrypted_value;
 
         // No need to decrypt it again
-        wmem_tree_remove32(wowwConversation->headers_need_decryption, pinfo->num);
+        wmem_map_remove(wowwConversation->headers_need_decryption, &key);
     }
 
     decrypted_header = get_decrypted_header(wowwConversation->session_key,
@@ -2173,7 +2177,7 @@ dissect_woww(tvbuff_t *tvb,
         wowwConversation = (WowwConversation_t*) wmem_new0(wmem_file_scope(), WowwConversation_t);
         conversation_add_proto_data(conv, proto_woww, wowwConversation);
         wowwConversation->decrypted_headers = wmem_map_new(wmem_file_scope(), g_int64_hash, g_int64_equal);
-        wowwConversation->headers_need_decryption = wmem_tree_new(wmem_file_scope());
+        wowwConversation->headers_need_decryption = wmem_map_new(wmem_file_scope(), g_int64_hash, g_int64_equal);
     }
 
     // Isolate session key for packet
