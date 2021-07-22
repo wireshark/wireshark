@@ -63,10 +63,8 @@ else()
 	option(ENABLE_COMPILER_COLOR_DIAGNOSTICS "Always enable the compiler's color diagnostic output" OFF)
 endif()
 
-if(WIN32)
-	option(ENABLE_LTO "Improves performance using Link Time Optimization" ON)
-elseif(CMAKE_VERSION VERSION_GREATER "3.8.99")
-	option(ENABLE_LTO "Improves performance using Link Time Optimization" OFF)
+if(CMAKE_VERSION VERSION_GREATER "3.8.99")
+	option(ENABLE_LTO "Use Link Time Optimization (release configuration only)" OFF)
 endif()
 
 if(WIN32)
