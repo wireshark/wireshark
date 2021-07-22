@@ -174,7 +174,10 @@ static int hf_if_broadaddr = -1;
 static int hf_if_dstaddr = -1;
 static int hf_if_af = -1;
 static int hf_if_port = -1;
-static int hf_if_ip = -1;
+static int hf_if_ipv4 = -1;
+static int hf_if_flowinfo = -1;
+static int hf_if_ipv6 = -1;
+static int hf_if_scopeid = -1;
 static int hf_if_padding = -1;
 static int hf_if_unknown = -1;
 
@@ -277,12 +280,6 @@ static const value_string auth_type[] = {
   { 0,   NULL }
 };
 
-static const value_string address_family[] = {
-  { COMMON_AF_UNSPEC,   "AF_UNSPEC" },
-  { COMMON_AF_INET,     "AF_INET"   },
-  { 0,   NULL }
-};
-
 static const value_string bpf_class[] = {
   { 0x00, "ld"   },
   { 0x01, "ldx"  },
@@ -379,6 +376,102 @@ dissect_rpcap_error (tvbuff_t *tvb, packet_info *pinfo,
                          "Error: %s", tvb_format_text_wsp (pinfo->pool, tvb, offset, len));
 }
 
+/*
+ * There's some painful history with this part of a findalldevs reply.
+ *
+ * Older RPCAPDs sent the addresses over the wire in the OS's native
+ * structure format.  For most OSes, this looks like the over-the-wire
+ * format, but might have a different value for AF_INET6 than the value
+ * on the machine receiving the reply.  For OSes with the newer BSD-style
+ * sockaddr structures, this has, instead of a 2-byte address family,
+ * a 1-byte structure length followed by a 1-byte address family.  The
+ * RPCAPD code would put the address family in network byte order before
+ * sending it; that would set it to 0 on a little-endian machine, as
+ * htons() of any value between 1 and 255 would result in a value > 255,
+ * with its lower 8 bits zero, so putting that back into a 1-byte field
+ * would set it to 0.
+ *
+ * Therefore, for older RPCAPDs running on an OS with newer BSD-style
+ * sockaddr structures, the family field, if treated as a big-endian
+ * (network byte order) 16-bit field, would be:
+ *
+ *	(length << 8) | family if sent by a big-endian machine
+ *	(length << 8) if sent by a little-endian machine
+ *
+ * For current RPCAPDs, and for older RPCAPDs running on an OS with
+ * older BSD-style sockaddr structures, the family field, if treated
+ * as a big-endian 16-bit field, would just contain the family.
+ *
+ * (An additional bit of pain was that the structure was sent over the
+ * wire as a network-byte-order struct sockaddr_storage, which does
+ * *not* have the same size on all platforms.  On most platforms, the
+ * structure is 128 bytes long; on Solaris, however, it's 256 bytes
+ * long.  Neither the rpcap client code in libpcap, nor we, try to
+ * detect Solaris addresses and deal with them.)
+ *
+ * The current rpcapd serializes the socket addresses as 128-byte
+ * structures, containing:
+ *
+ *	a 2-octet address family value, in network byte order;
+ *
+ *	a 4-octet IPv4 address, if the address family value is 2
+ *	(the AF_INET value on all supported platforms);
+ *
+ *	a 16-octet IPv6 address, if the address family value is
+ *	23 (the Windows AF_INET6 value, chosen because Windows
+ *	was, before rpcap was changed to standardize the format,
+ *	the only platform for which precompiled binaries for
+ *	rpcapd were generally available);
+ *
+ *	padding up to 128 bytes.
+ *
+ * The rpcap client code, and we, check for those address family values,
+ * as well as other values that might have been produced by the old
+ * code on various platforms.
+ */
+
+/*
+ * Possible IPv4 family values other than the designated over-the-wire value,
+ * which is 2 (because everybody uses 2 for AF_INET4).
+ */
+#define SOCKADDR_IN_LEN		16	/* length of struct sockaddr_in */
+#define NEW_BSD_AF_INET_BE	((SOCKADDR_IN_LEN << 8) | BSD_AF_INET)
+#define NEW_BSD_AF_INET_LE	(SOCKADDR_IN_LEN << 8)
+
+/*
+ * Possible IPv6 family values other than the designated over-the-wire value,
+ * which is 23 (because that's what Windows uses, and most RPCAP servers
+ * out there are probably running Windows, as WinPcap includes the server
+ * but few if any UN*Xes build and ship it).  Some are defined in
+ * <epan/aftypes.h>.
+ *
+ * The new BSD sockaddr structure format was in place before 4.4-Lite, so
+ * all the free-software BSDs use it.
+ */
+#define SOCKADDR_IN6_LEN	28	/* length of struct sockaddr_in6 */
+#define NEW_BSD_AF_INET6_BSD_BE		((SOCKADDR_IN6_LEN << 8) | BSD_AF_INET6_BSD)	/* NetBSD, OpenBSD, BSD/OS */
+#define NEW_BSD_AF_INET6_FREEBSD_BE	((SOCKADDR_IN6_LEN << 8) | BSD_AF_INET6_FREEBSD)	/* FreeBSD, DragonFly BSD */
+#define NEW_BSD_AF_INET6_DARWIN_BE	((SOCKADDR_IN6_LEN << 8) | BSD_AF_INET6_DARWIN)	/* macOS, iOS, anything else Darwin-based */
+#define NEW_BSD_AF_INET6_LE		(SOCKADDR_IN6_LEN << 8)
+#define HPUX_AF_INET6			22
+#define AIX_AF_INET6			24
+
+static const value_string address_family[] = {
+  { COMMON_AF_UNSPEC,            "AF_UNSPEC" },
+  { COMMON_AF_INET,              "AF_INET"   },
+  { NEW_BSD_AF_INET_BE,          "AF_INET (old server code on big-endian 4.4-Lite-based OS)" },
+  { NEW_BSD_AF_INET_LE,          "AF_INET (old server code on little-endian 4.4-Lite-based OS)" },
+  { WINSOCK_AF_INET6,            "AF_INET6"  },
+  { NEW_BSD_AF_INET6_BSD_BE,     "AF_INET6 (old server code on big-endian NetBSD, OpenBSD, BSD/OS)"  },
+  { NEW_BSD_AF_INET6_FREEBSD_BE, "AF_INET6 (old server code on big-endian FreeBSD)"  },
+  { NEW_BSD_AF_INET6_DARWIN_BE,  "AF_INET6 (old server code on big-endian Mac OS X)"  },
+  { NEW_BSD_AF_INET6_LE,         "AF_INET6 (old server code on little-endian 4.4-Lite-based OS)" },
+  { LINUX_AF_INET6,              "AF_INET6 (old server code on Linux)"  },
+  { HPUX_AF_INET6,               "AF_INET6 (old server code on HP-UX)"  },
+  { AIX_AF_INET6,                "AF_INET6 (old server code on AIX)"  },
+  { SOLARIS_AF_INET6,            "AF_INET6 (old server code on Solaris)"  },
+  { 0,   NULL }
+};
 
 static gint
 dissect_rpcap_ifaddr (tvbuff_t *tvb, packet_info *pinfo,
@@ -387,9 +480,10 @@ dissect_rpcap_ifaddr (tvbuff_t *tvb, packet_info *pinfo,
 {
   proto_tree *tree;
   proto_item *ti;
-  gchar ipaddr[MAX_ADDR_STR_LEN];
-  guint32 ipv4;
   guint16 af;
+  guint32 ipv4;
+  ws_in6_addr ipv6;
+  gchar ipaddr[MAX_ADDR_STR_LEN];
 
   ti = proto_tree_add_item (parent_tree, hf_id, tvb, offset, 128, ENC_BIG_ENDIAN);
   tree = proto_item_add_subtree (ti, ett_ifaddr);
@@ -398,7 +492,11 @@ dissect_rpcap_ifaddr (tvbuff_t *tvb, packet_info *pinfo,
   proto_tree_add_item (tree, hf_if_af, tvb, offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
 
-  if (af == COMMON_AF_INET) {
+  switch (af) {
+
+  case COMMON_AF_INET:
+  case NEW_BSD_AF_INET_BE:
+  case NEW_BSD_AF_INET_LE:
     proto_tree_add_item (tree, hf_if_port, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
@@ -408,18 +506,52 @@ dissect_rpcap_ifaddr (tvbuff_t *tvb, packet_info *pinfo,
     if (parent_item) {
       proto_item_append_text (parent_item, ": %s", ipaddr);
     }
-    proto_tree_add_item (tree, hf_if_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item (tree, hf_if_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
     proto_tree_add_item (tree, hf_if_padding, tvb, offset, 120, ENC_NA);
     offset += 120;
-  } else {
+    break;
+
+  case WINSOCK_AF_INET6:
+  case NEW_BSD_AF_INET6_BSD_BE:
+  case NEW_BSD_AF_INET6_FREEBSD_BE:
+  case NEW_BSD_AF_INET6_DARWIN_BE:
+  case NEW_BSD_AF_INET6_LE:
+  case LINUX_AF_INET6:
+  case HPUX_AF_INET6:
+  case AIX_AF_INET6:
+  case SOLARIS_AF_INET6:
+    proto_tree_add_item (tree, hf_if_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item (tree, hf_if_flowinfo, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    tvb_get_ipv6 (tvb, offset, &ipv6);
+    ip6_to_str_buf(&ipv6, ipaddr, MAX_ADDR_STR_LEN);
+    proto_item_append_text (ti, ": %s", ipaddr);
+    if (parent_item) {
+      proto_item_append_text (parent_item, ": %s", ipaddr);
+    }
+    proto_tree_add_item (tree, hf_if_ipv6, tvb, offset, 16, ENC_NA);
+    offset += 16;
+
+    proto_tree_add_item (tree, hf_if_scopeid, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    proto_tree_add_item (tree, hf_if_padding, tvb, offset, 108, ENC_NA);
+    offset += 100;
+    break;
+
+  default:
     ti = proto_tree_add_item (tree, hf_if_unknown, tvb, offset, 126, ENC_NA);
     if (af != COMMON_AF_UNSPEC) {
       expert_add_info_format(pinfo, ti, &ei_if_unknown,
                              "Unknown address family: %d", af);
     }
     offset += 126;
+    break;
   }
 
   return offset;
@@ -1433,8 +1565,17 @@ proto_register_rpcap (void)
     { &hf_if_port,
       { "Port", "rpcap.if.port", FT_UINT16, BASE_DEC,
         NULL, 0x0, "Port number", HFILL } },
-    { &hf_if_ip,
-      { "IP address", "rpcap.if.ip", FT_IPv4, BASE_NONE,
+    { &hf_if_ipv4,
+      { "IPv4 address", "rpcap.if.ipv4", FT_IPv4, BASE_NONE,
+        NULL, 0x0, NULL, HFILL } },
+    { &hf_if_flowinfo,
+      { "Flow information", "rpcap.if.flowinfo", FT_UINT32, BASE_HEX,
+        NULL, 0x0, NULL, HFILL } },
+    { &hf_if_ipv6,
+      { "IPv6 address", "rpcap.if.ipv6", FT_IPv6, BASE_NONE,
+        NULL, 0x0, NULL, HFILL } },
+    { &hf_if_scopeid,
+      { "Scope ID", "rpcap.if.scopeid", FT_UINT32, BASE_HEX,
         NULL, 0x0, NULL, HFILL } },
     { &hf_if_padding,
       { "Padding", "rpcap.if.padding", FT_BYTES, BASE_NONE,
