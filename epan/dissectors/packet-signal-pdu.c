@@ -222,6 +222,7 @@ typedef spdu_flexray_mapping_t spdu_flexray_mapping_uat_t;
 
 typedef struct _spdu_lin_mapping {
     guint32     frame_id;
+    guint32     bus_id;
     guint32     message_id;
 } spdu_lin_mapping_t;
 typedef spdu_lin_mapping_t spdu_lin_mapping_uat_t;
@@ -302,9 +303,8 @@ proto_reg_handoff_signal_pdu_lin(void) {
         GList *tmp;
         for (tmp = keys; tmp != NULL; tmp = tmp->next) {
             gint32 *id = (gint32*)tmp->data;
-            /* LIN Frame IDs are only 6 bit long */
-            guint8 frame_id = (guint8)((guint32)(*id)) & 0xcf;
-            dissector_add_uint("lin.frame_id", frame_id, signal_pdu_handle_lin);
+            /* we register the combination of bus and frame id */
+            dissector_add_uint("lin.frame_id", *id, signal_pdu_handle_lin);
         }
     }
 }
@@ -1169,6 +1169,7 @@ get_flexray_mapping(guint8 channel, guint8 cycle, guint16 flexray_id) {
 
 /* UAT: LIN Mapping */
 UAT_HEX_CB_DEF(spdu_lin_mapping, frame_id, spdu_lin_mapping_uat_t)
+UAT_HEX_CB_DEF(spdu_lin_mapping, bus_id, spdu_lin_mapping_uat_t)
 UAT_HEX_CB_DEF(spdu_lin_mapping, message_id, spdu_lin_mapping_uat_t)
 
 static void *
@@ -1177,6 +1178,7 @@ copy_spdu_lin_mapping_cb(void *n, const void *o, size_t size _U_) {
     const spdu_lin_mapping_uat_t *old_rec = (const spdu_lin_mapping_uat_t*)o;
 
     new_rec->frame_id = old_rec->frame_id;
+    new_rec->bus_id = old_rec->bus_id;
     new_rec->message_id = old_rec->message_id;
 
     return new_rec;
@@ -1186,8 +1188,13 @@ static gboolean
 update_spdu_lin_mapping(void *r, char **err) {
     spdu_lin_mapping_uat_t *rec = (spdu_lin_mapping_uat_t *)r;
 
-    if (rec->frame_id > 0xcf) {
+    if (rec->frame_id > LIN_ID_MASK) {
         *err = g_strdup_printf("LIN Frame IDs are only uint with 6 bits (ID: %i)", rec->frame_id);
+        return FALSE;
+    }
+
+    if (rec->bus_id > 0xffff) {
+        *err = g_strdup_printf("LIN Bus IDs are only uint with 16 bits (ID: 0x%x, Bus ID: 0x%x)", rec->frame_id, rec->bus_id);
         return FALSE;
     }
 
@@ -1213,7 +1220,8 @@ post_update_spdu_lin_mapping_cb(void) {
         guint i;
         for (i = 0; i < spdu_lin_mapping_num; i++) {
             gint *key = wmem_new(wmem_epan_scope(), gint);
-            *key = spdu_lin_mapping[i].frame_id;
+            *key = (spdu_lin_mapping[i].frame_id)&LIN_ID_MASK;
+            *key |= ((spdu_lin_mapping[i].bus_id) & 0xffff) << 16;
 
             g_hash_table_insert(data_spdu_lin_mappings, key, &spdu_lin_mapping[i]);
         }
@@ -1224,15 +1232,23 @@ post_update_spdu_lin_mapping_cb(void) {
 }
 
 static spdu_lin_mapping_t*
-get_lin_mapping(guint32 lin_id) {
+get_lin_mapping(lin_info_t *lininfo) {
     if (data_spdu_lin_mappings == NULL) {
         return NULL;
     }
 
     gint32 *key = wmem_new(wmem_epan_scope(), gint32);
-    *key = lin_id;
+    *key = (lininfo->id)&LIN_ID_MASK;
+    *key |= ((lininfo->bus_id) & 0xffff) << 16;
 
     spdu_lin_mapping_uat_t *tmp = (spdu_lin_mapping_uat_t*)g_hash_table_lookup(data_spdu_lin_mappings, key);
+
+    if (tmp == NULL) {
+        /* try again without Bus ID set */
+        *key = (lininfo->id) & LIN_ID_MASK;
+        tmp = (spdu_lin_mapping_uat_t*)g_hash_table_lookup(data_spdu_lin_mappings, key);
+    }
+
     wmem_free(wmem_epan_scope(), key);
 
     return tmp;
@@ -1615,7 +1631,7 @@ dissect_spdu_message_lin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 
     DISSECTOR_ASSERT(lininfo);
 
-    spdu_lin_mapping_t *lin_mapping = get_lin_mapping(lininfo->id);
+    spdu_lin_mapping_t *lin_mapping = get_lin_mapping(lininfo);
 
     if (lin_mapping == NULL) {
         return 0;
@@ -1736,6 +1752,7 @@ proto_register_signal_pdu(void) {
 
     static uat_field_t spdu_lin_mapping_uat_fields[] = {
         UAT_FLD_HEX(spdu_lin_mapping, frame_id,                         "Frame ID",              "LIN Frame ID (6bit hex without leading 0x)"),
+        UAT_FLD_HEX(spdu_lin_mapping, bus_id  ,                         "Bus ID",                "Bus ID on which frame was recorded with 0=any (16bit hex without leading 0x)"),
         UAT_FLD_HEX(spdu_lin_mapping, message_id,                       "Signal PDU ID",         "ID of the Signal PDU (32bit hex without leading 0x)"),
         UAT_END_FIELDS
     };

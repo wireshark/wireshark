@@ -75,8 +75,6 @@ static int hf_tecmp_payload_timestamp_res = -1;
 static int hf_tecmp_payload_length = -1;
 static int hf_tecmp_payload_data = -1;
 static int hf_tecmp_payload_data_length = -1;
-static int hf_tecmp_payload_data_payload = -1;
-static int hf_tecmp_payload_data_payload_ascii = -1;
 
 /* TECMP Payload flags */
 /* Generic */
@@ -432,6 +430,32 @@ typedef struct _generic_one_id_string {
     gchar  *name;
 } generic_one_id_string_t;
 
+/* Channel UAT */
+typedef struct _channel_config {
+    guint     id;
+    guint     bus_id;
+    gchar    *name;
+} channel_config_t;
+
+#define DATAFILE_TECMP_CM_IDS "TECMP_capture_module_identifiers"
+#define DATAFILE_TECMP_CH_IDS "TECMP_channel_identifiers"
+
+static GHashTable *data_tecmp_cms = NULL;
+static generic_one_id_string_t* tecmp_cms = NULL;
+static guint tecmp_cms_num = 0;
+
+UAT_DEC_CB_DEF(tecmp_cms, id, generic_one_id_string_t)
+UAT_CSTRING_CB_DEF(tecmp_cms, name, generic_one_id_string_t)
+
+static GHashTable *data_tecmp_channels = NULL;
+static channel_config_t* tecmp_channels = NULL;
+static guint tecmp_channel_num = 0;
+
+UAT_HEX_CB_DEF(tecmp_channels, id, channel_config_t)
+UAT_CSTRING_CB_DEF(tecmp_channels, name, channel_config_t)
+UAT_HEX_CB_DEF(tecmp_channels, bus_id, channel_config_t)
+
+/* generic UAT */
 static void
 tecmp_free_key(gpointer key) {
     wmem_free(wmem_epan_scope(), key);
@@ -445,9 +469,9 @@ simple_free(gpointer data) {
 
 /* ID -> Name */
 static void *
-copy_generic_one_id_string_cb(void* n, const void* o, size_t size _U_) {
-    generic_one_id_string_t* new_rec = (generic_one_id_string_t*)n;
-    const generic_one_id_string_t* old_rec = (const generic_one_id_string_t*)o;
+copy_generic_one_id_string_cb(void *n, const void *o, size_t size _U_) {
+    generic_one_id_string_t *new_rec = (generic_one_id_string_t *)n;
+    const generic_one_id_string_t *old_rec = (const generic_one_id_string_t *)o;
 
     new_rec->name = g_strdup(old_rec->name);
     new_rec->id = old_rec->id;
@@ -471,26 +495,9 @@ update_generic_one_identifier_16bit(void *r, char **err) {
     return TRUE;
 }
 
-static gboolean
-update_generic_one_identifier_32bit(void *r, char **err) {
-    generic_one_id_string_t *rec = (generic_one_id_string_t *)r;
-
-    if (rec->id > 0xffffffff) {
-        *err = g_strdup_printf("We currently only support 32 bit identifiers (ID: %i  Name: %s)", rec->id, rec->name);
-        return FALSE;
-    }
-
-    if (rec->name == NULL || rec->name[0] == 0) {
-        *err = g_strdup("Name cannot be empty");
-        return FALSE;
-    }
-
-    return TRUE;
-}
-
 static void
-free_generic_one_id_string_cb(void*r) {
-    generic_one_id_string_t* rec = (generic_one_id_string_t*)r;
+free_generic_one_id_string_cb(void* r) {
+    generic_one_id_string_t *rec = (generic_one_id_string_t *)r;
     /* freeing result of g_strdup */
     g_free(rec->name);
     rec->name = NULL;
@@ -509,8 +516,8 @@ post_update_one_id_string_template_cb(generic_one_id_string_t *data, guint data_
     }
 }
 
-static char*
-ht_lookup_name(GHashTable* ht, unsigned int identifier) {
+static char *
+ht_lookup_name(GHashTable *ht, unsigned int identifier) {
     char           *tmp = NULL;
     unsigned int   *id = NULL;
 
@@ -526,23 +533,87 @@ ht_lookup_name(GHashTable* ht, unsigned int identifier) {
     return tmp;
 }
 
+/* ID -> ID, Name */
+static void *
+copy_channel_config_cb(void *n, const void *o, size_t size _U_) {
+    channel_config_t *new_rec = (channel_config_t *)n;
+    const channel_config_t *old_rec = (const channel_config_t *)o;
+
+    new_rec->id = old_rec->id;
+    new_rec->name = g_strdup(old_rec->name);
+    new_rec->bus_id = old_rec->bus_id;
+    return new_rec;
+}
+
+static gboolean
+update_channel_config(void *r, char **err) {
+    channel_config_t *rec = (channel_config_t *)r;
+
+    if (rec->id > 0xffffffff) {
+        *err = g_strdup_printf("We currently only support 32 bit identifiers (ID: %i  Name: %s)", rec->id, rec->name);
+        return FALSE;
+    }
+
+    if (rec->name == NULL || rec->name[0] == 0) {
+        *err = g_strdup("Name cannot be empty");
+        return FALSE;
+    }
+
+    if (rec->bus_id > 0xffff) {
+        *err = g_strdup_printf("We currently only support 16 bit bus identifiers (ID: %i  Name: %s  Bus-ID: %i)", rec->id, rec->name, rec->bus_id);
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+static void
+free_channel_config_cb(void *r) {
+    channel_config_t *rec = (channel_config_t *)r;
+    /* freeing result of g_strdup */
+    g_free(rec->name);
+    rec->name = NULL;
+}
+
+static channel_config_t *
+ht_lookup_channel_config(unsigned int identifier) {
+    channel_config_t   *tmp = NULL;
+    unsigned int       *id = NULL;
+
+    if (data_tecmp_channels == NULL) {
+        return NULL;
+    }
+
+    id = wmem_new(wmem_epan_scope(), unsigned int);
+    *id = (unsigned int)identifier;
+    tmp = (channel_config_t *)g_hash_table_lookup(data_tecmp_channels, id);
+    wmem_free(wmem_epan_scope(), id);
+
+    return tmp;
+}
+
+static gchar *
+ht_channel_config_to_string(unsigned int identifier) {
+    channel_config_t   *tmp = ht_lookup_channel_config(identifier);
+    if (tmp == NULL) {
+        return NULL;
+    }
+
+    return tmp->name;
+}
+
+static guint16
+ht_channel_config_to_bus_id(unsigned int identifier) {
+    channel_config_t   *tmp = ht_lookup_channel_config(identifier);
+    if (tmp == NULL) {
+        /* 0 means basically any or none */
+        return 0;
+    }
+
+    return tmp->bus_id;
+}
+
 /*** UAT TECMP_CM_IDs ***/
-#define DATAFILE_TECMP_CM_IDS "TECMP_capture_module_identifiers"
-#define DATAFILE_TECMP_CH_IDS "TECMP_channel_identifiers"
-
-static GHashTable *data_tecmp_cms = NULL;
-static generic_one_id_string_t* tecmp_cms = NULL;
-static guint tecmp_cms_num = 0;
-
-UAT_DEC_CB_DEF(tecmp_cms, id, generic_one_id_string_t)
-UAT_CSTRING_CB_DEF(tecmp_cms, name, generic_one_id_string_t)
-
-static GHashTable *data_tecmp_channels = NULL;
-static generic_one_id_string_t* tecmp_channels = NULL;
-static guint tecmp_channel_num = 0;
-
-UAT_HEX_CB_DEF(tecmp_channels, id, generic_one_id_string_t)
-UAT_CSTRING_CB_DEF(tecmp_channels, name, generic_one_id_string_t)
 
 static void
 post_update_tecmp_cms_cb(void) {
@@ -559,6 +630,9 @@ post_update_tecmp_cms_cb(void) {
 
 static void
 post_update_tecmp_channels_cb(void) {
+    guint  i;
+    int   *key = NULL;
+
     /* destroy old hash table, if it exists */
     if (data_tecmp_channels) {
         g_hash_table_destroy(data_tecmp_channels);
@@ -566,10 +640,18 @@ post_update_tecmp_channels_cb(void) {
     }
 
     /* create new hash table */
-    data_tecmp_channels = g_hash_table_new_full(g_int_hash, g_int_equal, &tecmp_free_key, &simple_free);
-    post_update_one_id_string_template_cb(tecmp_channels, tecmp_channel_num, data_tecmp_channels);
-}
+    data_tecmp_channels = g_hash_table_new_full(g_int_hash, g_int_equal, &tecmp_free_key, NULL);
 
+    if (data_tecmp_channels == NULL || tecmp_channels == NULL || tecmp_channel_num == 0) {
+        return;
+    }
+
+    for (i = 0; i < tecmp_channel_num; i++) {
+        key = wmem_new(wmem_epan_scope(), int);
+        *key = tecmp_channels[i].id;
+        g_hash_table_insert(data_tecmp_channels, key, &tecmp_channels[i]);
+    }
+}
 
 static void
 add_cm_id_text(proto_item *ti, guint16 cm_id) {
@@ -592,8 +674,9 @@ add_cm_id_text(proto_item *ti, guint16 cm_id) {
 }
 
 static void
+
 add_channel_id_text_and_name(proto_item *ti, guint32 channel_id, tvbuff_t *tvb, gint offset) {
-    const gchar *descr = ht_lookup_name(data_tecmp_channels, channel_id);
+    const gchar *descr = ht_channel_config_to_string(channel_id);
 
     if (descr != NULL) {
         proto_item_append_text(ti, " (%s)", descr);
@@ -621,7 +704,7 @@ tecmp_entry_header_present(tvbuff_t *tvb, guint offset) {
 
 static guint
 dissect_tecmp_entry_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset_orig, guint16 msg_type,
-                           gboolean first, guint16 *dataflags) {
+                           gboolean first, guint16 *dataflags, guint32 *channel_id) {
     proto_item *ti;
     proto_tree *subtree = NULL;
     guint offset = offset_orig;
@@ -704,6 +787,9 @@ dissect_tecmp_entry_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
     ti = proto_tree_add_item_ret_uint(tree, hf_tecmp_payload_channelid, tvb, offset, 4, ENC_BIG_ENDIAN, &tmp);
     add_channel_id_text_and_name(ti, tmp, tvb, offset);
+    if (channel_id != NULL) {
+        *channel_id = tmp;
+    }
 
     ns = tvb_get_guint64(tvb, offset + 4, ENC_BIG_ENDIAN) & 0x3fffffffffffffff;
 
@@ -939,7 +1025,7 @@ dissect_tecmp_control_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         proto_item_append_text(ti, " Control Message");
         tecmp_tree = proto_item_add_subtree(ti, ett_tecmp_payload);
 
-        offset += dissect_tecmp_entry_header(tvb, pinfo, tecmp_tree, offset, msg_type, TRUE, NULL);
+        offset += dissect_tecmp_entry_header(tvb, pinfo, tecmp_tree, offset, msg_type, TRUE, NULL, NULL);
 
         col_set_str(pinfo->cinfo, COL_INFO, "TECMP Control Message");
 
@@ -976,7 +1062,7 @@ dissect_tecmp_status_cm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
         ti_tecmp_payload = proto_tree_add_item(tree, proto_tecmp_payload, tvb, offset, (gint)length + 16, ENC_NA);
         tecmp_tree = proto_item_add_subtree(ti_tecmp_payload, ett_tecmp_payload);
 
-        offset += dissect_tecmp_entry_header(tvb, pinfo, tecmp_tree, offset, msg_type, TRUE, NULL);
+        offset += dissect_tecmp_entry_header(tvb, pinfo, tecmp_tree, offset, msg_type, TRUE, NULL, NULL);
 
         proto_tree_add_item_ret_uint(tecmp_tree, hf_tecmp_payload_status_vendor_id, tvb, offset, 1, ENC_NA,
                                      &vendor_id);
@@ -1030,7 +1116,7 @@ dissect_tecmp_status_cm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 
                 ti = proto_tree_add_item_ret_uint(tecmp_tree_bus, hf_tecmp_payload_status_bus_channelid, tvb, offset, 4,
                                                   ENC_NA, &tmp);
-                descr = ht_lookup_name(data_tecmp_channels, tmp);
+                descr = ht_channel_config_to_string(tmp);
                 if (descr != NULL) {
                     proto_item_append_text(ti, " (%s)", descr);
                     proto_item_append_text(ti_tecmp_bus, ": (Channel ID: 0x%08x, %s)", tmp, descr);
@@ -1096,6 +1182,7 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     tvbuff_t *sub_tvb;
     tvbuff_t *payload_tvb;
     gboolean first = TRUE;
+    guint32 channel_id = 0;
 
     gdouble analog_value_scale_factor;
 
@@ -1129,7 +1216,7 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         proto_item_append_text(ti_tecmp, " (%s)", val_to_str(msg_type, tecmp_msgtype_names, "Unknown (%d)"));
         tecmp_tree = proto_item_add_subtree(ti_tecmp, ett_tecmp_payload);
 
-        offset += dissect_tecmp_entry_header(tvb, pinfo, tecmp_tree, offset, msg_type, first, &dataflags);
+        offset += dissect_tecmp_entry_header(tvb, pinfo, tecmp_tree, offset, msg_type, first, &dataflags, &channel_id);
 
         first = FALSE;
 
@@ -1140,6 +1227,7 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             switch (msg_type) {
             case TECMP_DATA_TYPE_LIN:
                 proto_tree_add_item_ret_uint(tecmp_tree, hf_tecmp_payload_data_id_field_8bit, sub_tvb, offset2, 1, ENC_NA, &(lin_info.id));
+                lin_info.bus_id = ht_channel_config_to_bus_id(channel_id);
                 ti = proto_tree_add_item_ret_uint(tecmp_tree, hf_tecmp_payload_data_length, sub_tvb, offset2 + 1, 1,
                                                   ENC_NA, &length2);
                 offset2 += 2;
@@ -1151,9 +1239,12 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
                 if (length2 > 0) {
                     lin_info.len = tvb_captured_length_remaining(sub_tvb, offset2);
-                    payload_tvb = tvb_new_subset_length(sub_tvb, offset2, tvb_captured_length_remaining(sub_tvb, offset2));
-                    if (!dissector_try_uint_new(lin_subdissector_table, lin_info.id, payload_tvb, pinfo, tree, FALSE, &lin_info)) {
-                        proto_tree_add_item(tecmp_tree, hf_tecmp_payload_data_payload, payload_tvb, 0, (gint)length2, ENC_NA);
+                    payload_tvb = tvb_new_subset_length(sub_tvb, offset2, tvb_captured_length_remaining(sub_tvb, offset2) - 1);
+                    guint32 bus_frame_id = lin_info.id | (lin_info.bus_id << 16);
+                    if (!dissector_try_uint_new(lin_subdissector_table, bus_frame_id, payload_tvb, pinfo, tree, FALSE, &lin_info)) {
+                        if (!dissector_try_uint_new(lin_subdissector_table, lin_info.id, payload_tvb, pinfo, tree, FALSE, &lin_info)) {
+                            call_data_dissector(payload_tvb, pinfo, tree);
+                        }
                     }
                     offset2 += (gint)length2;
                     proto_tree_add_item(tecmp_tree, hf_tecmp_payload_data_checksum_8bit, sub_tvb, offset2, 1, ENC_NA);
@@ -1198,7 +1289,7 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                     }
 
                     if (!socketcan_call_subdissectors(payload_tvb, pinfo, tree, &can_info, heuristic_first)) {
-                        proto_tree_add_item(tecmp_tree, hf_tecmp_payload_data_payload, payload_tvb, 0, (gint)length2, ENC_NA);
+                        call_data_dissector(payload_tvb, pinfo, tree);
                     }
 
                 }
@@ -1228,13 +1319,13 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                     if (!heuristic_first) {
                         if (!dissector_try_payload_new(fr_subdissector_table, payload_tvb, pinfo, tree, TRUE, &fr_info)) {
                             if (!dissector_try_heuristic(fr_heur_subdissector_list, payload_tvb, pinfo, tree, &fr_heur_dtbl_entry, &fr_info)) {
-                                proto_tree_add_item(tecmp_tree, hf_tecmp_payload_data_payload, payload_tvb, 0, (gint)length2, ENC_NA);
+                                call_data_dissector(payload_tvb, pinfo, tree);
                             }
                         }
                     } else {
                         if (!dissector_try_heuristic(fr_heur_subdissector_list, payload_tvb, pinfo, tree, &fr_heur_dtbl_entry, &fr_info)) {
                             if (!dissector_try_payload_new(fr_subdissector_table, payload_tvb, pinfo, tree, FALSE, &fr_info)) {
-                                proto_tree_add_item(tecmp_tree, hf_tecmp_payload_data_payload, payload_tvb, 0, (gint)length2, ENC_NA);
+                                call_data_dissector(payload_tvb, pinfo, tree);
                             }
                         }
                     }
@@ -1242,7 +1333,7 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                 break;
 
             case TECMP_DATA_TYPE_RS232_ASCII:
-                proto_tree_add_item(tecmp_tree, hf_tecmp_payload_data_payload_ascii, sub_tvb, offset2, length, ENC_ASCII|ENC_NA);
+                call_data_dissector(sub_tvb, pinfo, tree);
                 break;
 
             case TECMP_DATA_TYPE_ANALOG:
@@ -1420,12 +1511,6 @@ proto_register_tecmp_payload(void) {
         { &hf_tecmp_payload_data_length,
             { "Payload Length", "tecmp.payload.data.payload_length",
             FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-        { &hf_tecmp_payload_data_payload,
-            { "Payload", "tecmp.payload.data.payload",
-            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-        { &hf_tecmp_payload_data_payload_ascii,
-            { "Payload", "tecmp.payload.data.payload_ascii",
-            FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
         { &hf_tecmp_payload_data_flags,
             { "Data Flags", "tecmp.payload.data_flags",
@@ -1739,6 +1824,7 @@ proto_register_tecmp(void) {
     static uat_field_t tecmp_channel_id_uat_fields[] = {
         UAT_FLD_HEX(tecmp_channels, id, "ID", "ID of the Channel (hex uint32 without leading 0x)"),
         UAT_FLD_CSTRING(tecmp_channels, name, "Channel Name", "Name of the Channel (string)"),
+        UAT_FLD_HEX(tecmp_channels, bus_id, "Bus ID", "Bus ID of the Channel (hex uint16 without leading 0x)"),
         UAT_END_FIELDS
     };
 
@@ -1768,16 +1854,16 @@ proto_register_tecmp(void) {
         "A table to define names of Capture Modules, which override default names.", tecmp_cmid_uat);
 
     tecmp_channelid_uat = uat_new("TECMP Channels",
-        sizeof(generic_one_id_string_t),        /* record size           */
+        sizeof(channel_config_t),               /* record size           */
         DATAFILE_TECMP_CH_IDS,                  /* filename              */
         TRUE,                                   /* from profile          */
         (void**)&tecmp_channels,                /* data_ptr              */
         &tecmp_channel_num,                     /* numitems_ptr          */
         UAT_AFFECTS_DISSECTION,                 /* but not fields        */
         NULL,                                   /* help                  */
-        copy_generic_one_id_string_cb,          /* copy callback         */
-        update_generic_one_identifier_32bit,    /* update callback       */
-        free_generic_one_id_string_cb,          /* free callback         */
+        copy_channel_config_cb,                 /* copy callback         */
+        update_channel_config,                  /* update callback       */
+        free_channel_config_cb,                 /* free callback         */
         post_update_tecmp_channels_cb,          /* post update callback  */
         NULL,                                   /* reset callback        */
         tecmp_channel_id_uat_fields             /* UAT field definitions */

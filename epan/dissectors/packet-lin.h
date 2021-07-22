@@ -16,10 +16,13 @@
 
 #define LIN_DIAG_MASTER_REQUEST_FRAME 0x3c
 #define LIN_DIAG_SLAVE_RESPONSE_FRAME 0x3d
+#define LIN_ID_MASK                   0x3f
 
+/* bus_id 0 means ANY Bus */
 struct lin_info {
     guint32 id;
-    guint32 len;
+    guint16 bus_id;
+    guint16 len;
 };
 
 typedef struct lin_info lin_info_t;
