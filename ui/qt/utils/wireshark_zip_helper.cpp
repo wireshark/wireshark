@@ -67,7 +67,17 @@ bool WiresharkZipHelper::unzip(QString zipFile, QString directory, bool (*fileCh
 
             /* Sanity check for the file */
             if (fileInZip.length() == 0 || (fileCheck && ! fileCheck(fileInZip, fileSize)) )
+            {
+                if ((cnt + 1) < nmbr)
+                {
+                    err = unzGoToNextFile(uf);
+                    if (err != UNZ_OK)
+                    {
+                        break;
+                    }
+                }
                 continue;
+            }
 
             if (di.exists())
             {
