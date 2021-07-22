@@ -10,7 +10,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * Ref 3GPP TS 29.244 V16.6.0 (2020-12-11)
+ * Ref 3GPP TS 29.244 V16.7.0 (2021-03-30)
  */
 #include "config.h"
 
@@ -173,6 +173,7 @@ static int hf_pfcp_fq_csid_node_id_ipv6 = -1;
 static int hf_pfcp_fq_csid_node_id_mcc_mnc = -1;
 static int hf_pfcp_fq_csid_node_id_int = -1;
 static int hf_pfcp_fq_csid = -1;
+static int hf_pfcp_fq_csid_node_type = -1;
 static int hf_pfcp_measurement_period = -1;
 static int hf_pfcp_duration_measurement = -1;
 static int hf_pfcp_time_of_first_packet = -1;
@@ -1089,7 +1090,7 @@ static void dissect_pfcp_qos_monitoring_report(tvbuff_t *tvb, packet_info *pinfo
 static void dissect_pfcp_packet_rate_status_report_ie_within_pfcp_session_deletion_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
 static void dissect_pfcp_ethernet_context_information_within_pfcp_session_modification_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
 static void dissect_pfcp_redundant_transmission_detection_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
-static void dissect_pfcp_updated_pdr_ie_within_pfcp_session_report_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
+static void dissect_pfcp_updated_pdr_ie_within_pfcp_session_modification_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
 static void dissect_pfcp_provide_rds_configuration_information_ie_within_pfcp_session_modification_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
 static void dissect_pfcp_query_packet_rate_status_ie_within_pfcp_session_modification_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
 static void dissect_pfcp_query_packet_rate_status_report_ie_within_pfcp_session_modification_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
@@ -1249,7 +1250,7 @@ static value_string_ext pfcp_message_type_ext = VALUE_STRING_EXT_INIT(pfcp_messa
 #define PFCP_IE_PACKET_RATE_STATUS_REPORT_IE_WITHIN_PFCP_SESSION_DELETION_RESPONSE 252
 #define PCFP_IE_ETHERNET_CONTEXT_INFORMATION_WITHIN_PFCP_SESSION_MODIFICATION_REQUEST 254
 #define PFCP_IE_REDUNDANT_TRANSMISSION_DETECTION_PARAMETERS_IE_IN_PDI 255
-#define PFCP_IE_UPDATED_PDR_IE_WITHIN_PFCP_SESSION_REPORT_RESPONSE 256
+#define PFCP_IE_UPDATED_PDR_IE_WITHIN_PFCP_SESSION_MODIFICATION_RESPONSE 256
 #define PFCP_IE_PROVIDE_RDS_CONFIGURATION_INFORMATION_IE_WITHIN_PCFP_SESSION_ESTABLISHMENT_REQUEST 261
 #define PFCP_IE_QUERY_PACKET_RATE_STATUS_IE_WITHIN_PCFP_SESSION_ESTABLISHMENT_REQUEST 263
 #define PFCP_IE_QUERY_PACKET_RATE_STATUS_REPORT_IE_WITHIN_PCFP_SESSION_ESTABLISHMENT_RESPONSE 264
@@ -3744,6 +3745,17 @@ static const value_string pfcp_fq_csid_node_id_type_vals[] = {
     { 0, NULL }
 };
 
+static const value_string pfcp_fq_csid_node_type_vals[] = {
+
+    { 0, "MME" },
+    { 1, "SGW-C" },
+    { 2, "PGW-C" },
+    { 3, "ePDG" },
+    { 4, "TWAN" },
+    { 5, "PGW-U/SGW-U" },
+    { 0, NULL }
+};
+
 static void
 dissect_pfcp_fq_csid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
 {
@@ -3786,6 +3798,13 @@ dissect_pfcp_fq_csid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_
         offset += 2;
         num_csid--;
     }
+
+    if (offset < length) {
+        proto_tree_add_item(tree, hf_pfcp_spare_b7_b4, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_pfcp_fq_csid_node_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset++;
+    }
+
     if (offset < length) {
         proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
     }
@@ -5045,8 +5064,42 @@ static const value_string pfcp_failed_rule_id_type_vals[] = {
     { 2, "QER" },
     { 3, "URR" },
     { 4, "BAR" },
+    { 5, "MAR" },
+    { 6, "SRR" },
     { 0, NULL }
 };
+
+/*
+ * 8.2.123   MAR ID
+ */
+static int
+decode_pfcp_mar_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item, gint offset)
+{
+    guint32 mar_id;
+    /* Octet 5 to 6 MAR ID*/
+    proto_tree_add_item_ret_uint(tree, hf_pfcp_mar_id, tvb, offset, 2, ENC_BIG_ENDIAN, &mar_id);
+    offset += 2;
+
+    proto_item_append_text(item, "%u", mar_id);
+
+    return offset;
+}
+/*
+ * 8.2.151   SRR ID
+ */
+static int
+decode_pfcp_srr_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item, gint offset)
+{
+    guint32 srr_id;
+
+    /* Oct 5 The SRR ID value shall be encoded as a binary integer value. */
+    proto_tree_add_item_ret_uint(tree, hf_pfcp_srr_id, tvb, offset, 1, ENC_BIG_ENDIAN, &srr_id);
+    offset += 1;
+
+    proto_item_append_text(item, "%u", srr_id);
+
+    return offset;
+}
 
 static void
 dissect_pfcp_failed_rule_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
@@ -5062,7 +5115,7 @@ dissect_pfcp_failed_rule_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 
     /* 6 to p  Rule ID value
     * The length and the value of the Rule ID value field shall be set as specified for the
-    * PDR ID, FAR ID, QER ID, URR ID and BAR ID IE types respectively.
+    * PDR ID, FAR ID, QER ID, URR ID, BAR ID, MAR ID and SRR ID IE types respectively.
     */
     switch (rule_type) {
         case 0:
@@ -5084,6 +5137,14 @@ dissect_pfcp_failed_rule_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
         case 4:
             /* BAR ID */
             offset = decode_pfcp_bar_id(tvb, pinfo, tree, item, offset);
+            break;
+        case 5:
+            /* MAR ID */
+            offset = decode_pfcp_mar_id(tvb, pinfo, tree, item, offset);
+            break;
+        case 6:
+            /* SRR ID */
+            offset = decode_pfcp_srr_id(tvb, pinfo, tree, item, offset);
             break;
         default:
             break;
@@ -6122,7 +6183,7 @@ static const value_string pfcp_tgpp_interface_type_vals[] = {
     { 1, "S5/S8-U" },
     { 2, "S4-U" },
     { 3, "S11-U" },
-    { 4, "S12-U" },
+    { 4, "S12" },
     { 5, "Gn/Gp-U" },
     { 6, "S2a-U" },
     { 7, "S2b-U" },
@@ -6133,12 +6194,20 @@ static const value_string pfcp_tgpp_interface_type_vals[] = {
     { 12, "N3 Trusted Non-3GPP Access" },
     { 13, "N3 Untrusted Non-3GPP Access" },
     { 14, "N3 for data forwarding" },
-    { 15, "N9" },
+    { 15, "N9 (or N9 for non-roaming)" },
     { 16, "SGi" },
     { 17, "N6" },
     { 18, "N19" },
     { 19, "S8-U" },
     { 20, "Gp-U" },
+    { 21, "N9 for roaming" },
+    { 22, "Iu-U" },
+    { 23, "N9 for data forwarding" },
+    { 24, "Sxa-U" },
+    { 25, "Sxb-U" },
+    { 26, "Sxc-U" },
+    { 27, "N4-U" },
+    { 28, "SGW/UPF GTP-U interface for UL data forwarding" },
     { 0, NULL }
 };
 
@@ -6255,18 +6324,6 @@ dissect_pfcp_deactivation_time(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 /*
  * 8.2.123   MAR ID
  */
-static int
-decode_pfcp_mar_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item, gint offset)
-{
-    guint32 mar_id;
-    /* Octet 5 to 6 MAR ID*/
-    proto_tree_add_item_ret_uint(tree, hf_pfcp_mar_id, tvb, offset, 2, ENC_BIG_ENDIAN, &mar_id);
-    offset += 2;
-
-    proto_item_append_text(item, "%u", mar_id);
-
-    return offset;
-}
 
 static void
 dissect_pfcp_mar_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
@@ -6965,20 +7022,16 @@ dissect_pfcp_cumulative_rate_ratio_measurement(tvbuff_t *tvb, packet_info *pinfo
 /*
  * 8.2.151   SRR ID
  */
+
 static void
-dissect_pfcp_srr_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+dissect_pfcp_srr_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
 {
     int offset = 0;
-    guint value;
 
-    /* Oct 5 The SRR ID value shall be encoded as a binary integer value. */
-    proto_tree_add_item_ret_uint(tree, hf_pfcp_srr_id, tvb, offset, 1, ENC_BIG_ENDIAN, &value);
-    offset++;
-
-    proto_item_append_text(item, "%u", value);
+    offset = decode_pfcp_srr_id(tvb, pinfo, tree, item, offset);
 
     if (offset < length) {
-        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, length);
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
     }
 }
 
@@ -8099,7 +8152,7 @@ static const pfcp_ie_t pfcp_ies[] = {
 /*    253 */    { dissect_pfcp_nf_instance_id },                                /* NF Instance ID                                  Extendable / Clause 8.2.175  */
 /*    254 */    { dissect_pfcp_ethernet_context_information_within_pfcp_session_modification_request }, /* Ethernet Context Information within PFCP Session Modification Request     Extendable / Table 7.5.4.21-1  */
 /*    255 */    { dissect_pfcp_redundant_transmission_detection_parameters },   /* Redundant Transmission Detection Parameters               Extendable / Table 7.5.2.2-5  */
-/*    256 */    { dissect_pfcp_updated_pdr_ie_within_pfcp_session_report_response }, /* Updated PDR IE within PFCP Session Report Response     Extendable / Table 7.5.9.3-1  */
+/*    256 */    { dissect_pfcp_updated_pdr_ie_within_pfcp_session_modification_response }, /* Updated PDR IE within PFCP Session Modification Response     Extendable / Table 7.5.5.5-1  */
 /*    257 */    { dissect_pfcp_s_nssai },                                       /* S-NSSAI                                         Fixed Length / Clause 8.2.176 */
 /*    258 */    { dissect_pfcp_ip_version },                                    /* IP version                                      Extendable / Clause 8.2.177 */
 /*    259 */    { dissect_pfcp_pfcpasreq_flags },                               /* PFCPASReq-Flags                                 Extendable / Clause 8.2.178 */
@@ -8775,9 +8828,9 @@ dissect_pfcp_redundant_transmission_detection_parameters(tvbuff_t *tvb, packet_i
 }
 
 static void
-dissect_pfcp_updated_pdr_ie_within_pfcp_session_report_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
+dissect_pfcp_updated_pdr_ie_within_pfcp_session_modification_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_UPDATED_PDR_IE_WITHIN_PFCP_SESSION_REPORT_RESPONSE], args);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_UPDATED_PDR_IE_WITHIN_PFCP_SESSION_MODIFICATION_RESPONSE], args);
 }
 
 static void
@@ -10426,6 +10479,11 @@ proto_register_pfcp(void)
         { &hf_pfcp_fq_csid,
         { "PDN Connection Set Identifier (CSID)", "pfcp.csid",
             FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_fq_csid_node_type,
+        { "Node Type", "pfcp.fq_csid_node_type",
+            FT_UINT8, BASE_DEC, VALS(pfcp_fq_csid_node_type_vals), 0x0f,
             NULL, HFILL }
         },
         { &hf_pfcp_measurement_period,
