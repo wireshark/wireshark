@@ -118,6 +118,11 @@ typedef struct {
     guint8 last_encrypted_value;
 } WowwPreviousValues_t;
 
+typedef struct {
+    guint8 size[2];
+    guint8 opcode[];
+} WowwDecryptedHeader_t;
+
 // All existing opcodes for 1.12.x
 typedef enum
 {
@@ -1998,7 +2003,7 @@ session_key_is_fully_deduced(const bool known_indices[WOWW_SESSION_KEY_LENGTH],
 }
 
 /*! Returns either a pointer to a valid decrypted header, or NULL if no such header exists yet. */
-static guint8*
+static WowwDecryptedHeader_t*
 handle_packet_header(packet_info* pinfo,
                      tvbuff_t* tvb,
                      WowwParticipant_t* participant,
@@ -2009,7 +2014,7 @@ handle_packet_header(packet_info* pinfo,
 
     if (decrypted_header) {
         // Header has already been decrypted
-        return decrypted_header;
+        return (WowwDecryptedHeader_t*)decrypted_header;
     }
 
     // First time we see this header, we need to decrypt it
@@ -2030,7 +2035,7 @@ handle_packet_header(packet_info* pinfo,
 
         wmem_tree_insert32(wowwConversation->decrypted_headers, pinfo->num, decrypted_header);
 
-        return decrypted_header;
+        return (WowwDecryptedHeader_t*)decrypted_header;
     }
 
     WowwPreviousValues_t * original_header_values = wmem_tree_lookup32(wowwConversation->headers_need_decryption, pinfo->num);
@@ -2086,11 +2091,11 @@ handle_packet_header(packet_info* pinfo,
     // The header has been fully decrypted, cache it for future use
     wmem_tree_insert32(wowwConversation->decrypted_headers, pinfo->num, decrypted_header);
 
-    return decrypted_header;
+    return (WowwDecryptedHeader_t*)decrypted_header;
 }
 
 static void
-add_header_to_tree(guint8 decrypted_header[],
+add_header_to_tree(WowwDecryptedHeader_t* decrypted_header,
                    proto_tree* tree,
                    tvbuff_t* tvb,
                    packet_info* pinfo,
@@ -2098,14 +2103,14 @@ add_header_to_tree(guint8 decrypted_header[],
 {
     const guint16 size_field_width = 2;
     // Size field does not count in the reported size, so we need to add it.
-    const guint16 packet_size = (decrypted_header[0] << 8 | decrypted_header[1]) + size_field_width;
+    const guint16 packet_size = (decrypted_header->size[0] << 8 | decrypted_header->size[1]) + size_field_width;
 
     proto_tree* ti = proto_tree_add_item(tree, proto_woww, tvb, 0, packet_size, ENC_NA);
 
     proto_tree* woww_tree = proto_item_add_subtree(ti, ett_woww);
 
     // Add to tree
-    tvbuff_t *next_tvb = tvb_new_child_real_data(tvb, decrypted_header, headerSize, headerSize);
+    tvbuff_t *next_tvb = tvb_new_child_real_data(tvb, (guint8*)decrypted_header, headerSize, headerSize);
     add_new_data_source(pinfo, next_tvb, "Decrypted Header");
 
     // We're indexing into another tvb
@@ -2175,7 +2180,7 @@ dissect_woww(tvbuff_t *tvb,
         headerSize = 6;
     }
 
-    guint8* decrypted_header = handle_packet_header(pinfo, tvb, participant, wowwConversation, headerSize);
+    WowwDecryptedHeader_t* decrypted_header = handle_packet_header(pinfo, tvb, participant, wowwConversation, headerSize);
     if (!decrypted_header) {
         return tvb_captured_length(tvb);
     }
