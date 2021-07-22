@@ -4100,6 +4100,25 @@ static const value_string DIS_PDU_Country_Strings[] =
     {   0, NULL }
 };
 
+typedef enum
+{
+    DIS_PDU_IFFSystemType_NOT_USED = 0,
+    DIS_PDU_IFFSystemType_MARK_X_XII_ATCRBS_TRANSPONDER = 1,
+    DIS_PDU_IFFSystemType_MARK_X_XII_ATCRBS_INTERROGATOR = 2,
+    DIS_PDU_IFFSystemType_SOVIET_TRANSPONDER = 3,
+    DIS_PDU_IFFSystemType_SOVIET_INTERROGATOR = 4,
+    DIS_PDU_IFFSystemType_RRB_TRANSPONDER = 5,
+    DIS_PDU_IFFSystemType_MARK_XIIA_INTERROGATOR = 6,
+    DIS_PDU_IFFSystemType_MODE_5_INTERROGATOR = 7,
+    DIS_PDU_IFFSystemType_MODE_S_INTERROGATOR = 8,
+    DIS_PDU_IFFSystemType_MARK_XIIA_TRANSPONDER = 9,
+    DIS_PDU_IFFSystemType_MODE_5_TRANSPONDER = 10,
+    DIS_PDU_IFFSystemType_MODE_S_TRANSPONDER = 11,
+    DIS_PDU_IFFSystemType_MARK_XIIA_COMBINED_INTERROGATOR_TRANSPONDER_CIT = 12,
+    DIS_PDU_IFFSystemType_MARK_XII_COMBINED_INTERROGATOR_TRANSPONDER_CIT = 13,
+    DIS_PDU_IFFSystemType_TCAS_ACAS_TRANSCEIVER = 14
+} DIS_PDU_IFFSystemType;
+
 /* SISO-REF-010 [UID 82] */
 static const value_string DIS_PDU_IffSystemType_Strings[] =
 {
@@ -4777,6 +4796,10 @@ static int hf_dis_iff_mode_code_element_1 = -1;
 static int hf_dis_iff_mode_code_element_2 = -1;
 static int hf_dis_iff_mode_code_element_3 = -1;
 static int hf_dis_iff_mode_code_element_4 = -1;
+static int hf_dis_iff_rrb = -1;
+static int hf_dis_iff_rrb_rrb_code = -1;
+static int hf_dis_iff_rrb_power_reduction_indicator = -1;
+static int hf_dis_iff_rrb_radar_enhancement_indicator = -1;
 static int hf_dis_iff_mode_4 = -1;
 static int hf_dis_iff_mode_c_altitude_indicator = -1;
 static int hf_dis_iff_mode_c_altitude = -1;
@@ -4871,6 +4894,7 @@ static gint ett_iff_system_status = -1;
 static gint ett_iff_information_layers = -1;
 static gint ett_iff_modifier = -1;
 static gint ett_iff_parameter_1 = -1;
+static gint ett_iff_rrb = -1;
 static gint ett_iff_parameter_2 = -1;
 static gint ett_iff_parameter_3 = -1;
 static gint ett_iff_parameter_4 = -1;
@@ -6654,16 +6678,18 @@ static int dissect_DIS_PARSER_UNDERWATER_ACOUSTIC_PDU(tvbuff_t *tvb, packet_info
 
 static int dissect_DIS_PARSER_IFF_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, dis_header_t* header)
 {
-    proto_item *ti;
-    proto_tree *sub_tree,*field_tree;
-    guint16 site, application, entity;
-    guint16 mode1, mode1_element1, mode1_element2;
-    guint16 mode2, mode2_element1, mode2_element2, mode2_element3, mode2_element4;
-    guint16 mode3, mode3_element1, mode3_element2, mode3_element3, mode3_element4;
-    guint16 mode4;
-    guint16 parameter_5;
-    gint16 altitude;
-    guint16 parameter_6, tcas_acas_indicator, tcas_acas_type, tcas_I_II_type;
+    proto_item *ti = NULL;
+    proto_tree *sub_tree = NULL,*field_tree = NULL;
+    guint16 site = 0, application = 0, entity = 0;
+    guint16 systemType = 0;
+    guint16 mode1 = 0, mode1_element1 = 0, mode1_element2 = 0;
+    guint16 rrb = 0, rrb_code = 0;
+    guint16 mode2 = 0, mode2_element1 = 0, mode2_element2 = 0, mode2_element3 = 0, mode2_element4 = 0;
+    guint16 mode3 = 0, mode3_element1 = 0, mode3_element2 = 0, mode3_element3 = 0, mode3_element4 = 0;
+    guint16 mode4 = 0;
+    guint16 parameter_5 = 0;
+    gint16 altitude = 0;
+    guint16 parameter_6 = 0, tcas_acas_indicator = 0, tcas_acas_type = 0, tcas_I_II_type = 0;
 
     site = tvb_get_ntohs(tvb, offset);
     application = tvb_get_ntohs(tvb, offset+2);
@@ -6684,6 +6710,7 @@ static int dissect_DIS_PARSER_IFF_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_t
 
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, 6, ett_iff_system_id, NULL, "System ID");
 
+    systemType = tvb_get_ntohs(tvb, offset);
     proto_tree_add_item(sub_tree, hf_dis_iff_system_type, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
@@ -6756,13 +6783,26 @@ static int dissect_DIS_PARSER_IFF_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_t
     proto_tree_add_item(field_tree, hf_dis_iff_modifier_unmanned_aircraft, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
-    mode1 = tvb_get_ntohs(tvb, offset) & 0x3f;
-    mode1_element1 = (mode1) & 0x7;
-    mode1_element2 = ((mode1) >> 3) & 0x7;  
-    ti = proto_tree_add_item(sub_tree, hf_dis_iff_parameter_1, tvb, offset, 2, ENC_BIG_ENDIAN);
-    field_tree = proto_item_add_subtree(ti, ett_iff_parameter_1);
-    proto_tree_add_item(field_tree, hf_dis_iff_mode_code_element_1, tvb, offset, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(field_tree, hf_dis_iff_mode_code_element_2, tvb, offset, 2, ENC_BIG_ENDIAN);
+    if (systemType == DIS_PDU_IFFSystemType_RRB_TRANSPONDER)
+    {
+        rrb = tvb_get_ntohs(tvb, offset);
+        rrb_code = rrb & 0x1f;
+        ti = proto_tree_add_item(sub_tree, hf_dis_iff_rrb, tvb, offset, 2, ENC_BIG_ENDIAN);
+        field_tree = proto_item_add_subtree(ti, ett_iff_rrb);
+        proto_tree_add_item(field_tree, hf_dis_iff_rrb_rrb_code, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(field_tree, hf_dis_iff_rrb_power_reduction_indicator, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(field_tree, hf_dis_iff_rrb_radar_enhancement_indicator, tvb, offset, 2, ENC_BIG_ENDIAN);
+    }
+    else
+    {
+        mode1 = tvb_get_ntohs(tvb, offset) & 0x3f;
+        mode1_element1 = (mode1) & 0x7;
+        mode1_element2 = ((mode1) >> 3) & 0x7;
+        ti = proto_tree_add_item(sub_tree, hf_dis_iff_parameter_1, tvb, offset, 2, ENC_BIG_ENDIAN);
+        field_tree = proto_item_add_subtree(ti, ett_iff_parameter_1);
+        proto_tree_add_item(field_tree, hf_dis_iff_mode_code_element_1, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(field_tree, hf_dis_iff_mode_code_element_2, tvb, offset, 2, ENC_BIG_ENDIAN);
+    }
     proto_tree_add_item(field_tree, hf_dis_iff_mode_status, tvb, offset, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(field_tree, hf_dis_iff_mode_damage, tvb, offset, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(field_tree, hf_dis_iff_mode_malfunction, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -6838,6 +6878,7 @@ static int dissect_DIS_PARSER_IFF_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_t
 
     col_append_fstr(pinfo->cinfo, COL_INFO, ", %d-%d-%d", site, application, entity);
     if (mode1) col_append_fstr(pinfo->cinfo, COL_INFO, ", 1=%o%o", mode1_element1, mode1_element2);
+    if (rrb) col_append_fstr(pinfo->cinfo, COL_INFO, ", RRB=%d", rrb_code);
     if (mode2) col_append_fstr(pinfo->cinfo, COL_INFO, ", 2=%o%o%o%o", mode2_element1, mode2_element2, mode2_element3, mode2_element4);
     if (mode3) col_append_fstr(pinfo->cinfo, COL_INFO, ", 3=%o%o%o%o", mode3_element1, mode3_element2, mode3_element3, mode3_element4);
     if (mode4) col_append_fstr(pinfo->cinfo, COL_INFO, ", 4=%d", mode4);
@@ -10681,6 +10722,26 @@ void proto_register_dis(void)
                 FT_UINT16, BASE_OCT, NULL, 0xE00,
                 NULL, HFILL }
             },
+            { &hf_dis_iff_rrb,
+              { "RRB Transponder",  "dis.iff.rrb",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_iff_rrb_rrb_code,
+              { "RRB Code",  "dis.iff.rrb.rrb_code",
+                FT_UINT16, BASE_DEC, NULL, 0x1F,
+                NULL, HFILL }
+            },
+            { &hf_dis_iff_rrb_power_reduction_indicator,
+              { "Power Reduction Indicator",  "dis.iff.rrb.power_reduction_indicator",
+                FT_UINT16, BASE_DEC, VALS(DIS_PDU_IffOffOn_Strings), 0x800,
+                NULL, HFILL }
+            },
+            { &hf_dis_iff_rrb_radar_enhancement_indicator,
+              { "Radar Enhancement Indicator",  "dis.iff.rrb.radar_enhancement_indicator",
+                FT_UINT16, BASE_DEC, VALS(DIS_PDU_IffOffOn_Strings), 0x1000,
+                NULL, HFILL }
+            },
             { &hf_dis_iff_mode_4,
               { "Mode 4 Code",  "dis.iff.mode_4",
                 FT_UINT16, BASE_DEC, VALS(DIS_PDU_IffMode4_Strings), 0xFFF,
@@ -10842,6 +10903,7 @@ void proto_register_dis(void)
         &ett_iff_information_layers,
         &ett_iff_modifier,
         &ett_iff_parameter_1,
+        &ett_iff_rrb,
         &ett_iff_parameter_2,
         &ett_iff_parameter_3,
         &ett_iff_parameter_4,
