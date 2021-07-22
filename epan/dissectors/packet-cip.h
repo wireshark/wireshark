@@ -432,10 +432,13 @@ enum cip_datatype {
    cip_ulint,
    cip_real,
    cip_lreal,
+   cip_stime,
+   cip_utime,
    cip_itime,
    cip_time,
    cip_ftime,
    cip_ltime,
+   cip_ntime,
    cip_short_string,
    cip_string,
    cip_string2,
@@ -564,6 +567,7 @@ extern void cip_rpi_api_fmt(gchar *s, guint32 value);
 extern int  dissect_cip_attribute(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb, attribute_info_t* attr, int offset, int total_len);
 extern void dissect_cip_data(proto_tree *item_tree, tvbuff_t *tvb, int offset, packet_info *pinfo, cip_req_info_t *preq_info, proto_item* msp_item, gboolean is_msp_item);
 extern void dissect_cip_date_and_time(proto_tree *tree, tvbuff_t *tvb, int offset, int hf_datetime);
+extern int dissect_cip_utime(proto_tree* tree, tvbuff_t* tvb, int offset, int hf_datetime);
 extern int  dissect_cip_get_attribute_list_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item * item,
    int offset, cip_simple_request_info_t* req_data);
 extern int  dissect_cip_multiple_service_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item * item, int offset, gboolean request);
