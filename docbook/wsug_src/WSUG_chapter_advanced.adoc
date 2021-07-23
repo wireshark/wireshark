@@ -1128,7 +1128,7 @@ However, this isn’t possible while a capture is in progress.
 
 ==== Ethernet Name Resolution (MAC Layer)
 
-Try to resolve an Ethernet MAC address (e.g. 00:09:5b:01:02:03) to to a human readable name.
+Try to resolve an Ethernet MAC address (e.g. 00:09:5b:01:02:03) to a human readable name.
 
 __ARP name resolution (system service)__: Wireshark will ask the operating
 system to convert an Ethernet address to the corresponding IP address (e.g.
@@ -1166,7 +1166,7 @@ You can also edit your system __hosts__ file, but that isn’t generally recomme
 
 ==== TCP/UDP Port Name Resolution (Transport Layer)
 
-Try to resolve a TCP/UDP port (e.g. 80) to to a human readable name.
+Try to resolve a TCP/UDP port (e.g. 80) to a human readable name.
 
 __TCP/UDP port conversion (system service)__: Wireshark will ask the operating
 system to convert a TCP or UDP port to its well known name (e.g. 80 -> http).
