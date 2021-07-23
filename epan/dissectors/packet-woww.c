@@ -93,6 +93,10 @@ typedef struct WowwParticipant {
     guint8 idx;
     // The first header is unencrypted. Tracks if that header has been encountered.
     gboolean unencrypted_packet_encountered;
+    // If a server message is unable to be fully decrypted we stop decrypting any
+    // any more, since it's impossible to know if the PDU contains multiple messages
+    // and thus how many times the session key index should be incremented.
+    guint64 stopped_at;
 } WowwParticipant_t;
 
 typedef struct WowwConversation {
@@ -2021,6 +2025,13 @@ handle_packet_header(packet_info* pinfo,
         return (WowwDecryptedHeader_t*)decrypted_header;
     }
 
+    if (participant->stopped_at != 0 && participant->stopped_at != key) {
+        // We can't continue decrypt further server messages since we
+        // don't know the status of the session key index for any message
+        // except the last one we couldn't decrypt.
+        return NULL;
+    }
+
     // First time we see this header, we need to decrypt it
     guint8* header = wmem_alloc0(wmem_packet_scope(), WOWW_HEADER_ARRAY_ALLOC_SIZE);
     for (int i = 0; i < headerSize; i++) {
@@ -2071,6 +2082,9 @@ handle_packet_header(packet_info* pinfo,
         if (WOWW_CLIENT_TO_SERVER) {
             deduce_header(wowwConversation->session_key, wowwConversation->known_indices, header, participant);
         } else {
+            // We don't know if this PDU contains several messages or just one, so we need
+            // to stop parsing server messages until we have fully decrypted this one.
+            participant->stopped_at = key;
             // Skip the packet, but remember to acknowledge that values changed
             participant->idx = (participant->idx + headerSize) % WOWW_SESSION_KEY_LENGTH;
             participant->last_encrypted_value = header[headerSize - 1];
@@ -2084,6 +2098,9 @@ handle_packet_header(packet_info* pinfo,
 
     // If this is an out of order packet we must use the original state
     if (original_header_values) {
+        // We can now (as best as possible) assume that decryption
+        // is in the right place.
+        participant->stopped_at = 0;
         // We do not care about how these values are mutated since
         // they are never going to be used again.
         idx = &original_header_values->idx;
