@@ -664,11 +664,11 @@ dissect_t38_T_field_data(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
     if (primary_part){
         if(value_len < 8){
             col_append_fstr(actx->pinfo->cinfo, COL_INFO, "[%s]",
-               tvb_bytes_to_str(wmem_packet_scope(), value_tvb,0,value_len));
+               tvb_bytes_to_str(actx->pinfo->pool, value_tvb,0,value_len));
         }
         else {
             col_append_fstr(actx->pinfo->cinfo, COL_INFO, "[%s...]",
-               tvb_bytes_to_str(wmem_packet_scope(), value_tvb,0,7));
+               tvb_bytes_to_str(actx->pinfo->pool, value_tvb,0,7));
         }
     }
 

@@ -1457,7 +1457,7 @@ dissect_x509sat_SyntaxUTCTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
   /* the 2-digit year can only be in the range 1950..2049 https://tools.ietf.org/html/rfc5280#section-4.1.2.5.1 */
   offset = dissect_ber_UTCTime(implicit_tag, actx, tree, tvb, offset, hf_index, &outstr, &tvblen);
   if (hf_index >= 0 && outstr) {
-    newstr = wmem_strconcat(wmem_packet_scope(), outstr[0] < '5' ? "20": "19", outstr, NULL);
+    newstr = wmem_strconcat(actx->pinfo->pool, outstr[0] < '5' ? "20": "19", outstr, NULL);
     proto_tree_add_string(tree, hf_index, tvb, offset - tvblen, tvblen, newstr);
   }
 

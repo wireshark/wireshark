@@ -232,7 +232,7 @@ IpnSecurityResponse			B	"2.6.1.18.1"	"id-sec-security-common-fields"
 
   %(DEFAULT_BODY)s
 
-  name = oid_resolved_from_string(wmem_packet_scope(), actx->external.direct_reference);
+  name = oid_resolved_from_string(actx->pinfo->pool, actx->external.direct_reference);
   proto_item_append_text(tree, " (%%s)", name ? name : actx->external.direct_reference);
 
 #.FN_BODY IPMSExtension/value
@@ -261,7 +261,7 @@ IpnSecurityResponse			B	"2.6.1.18.1"	"id-sec-security-common-fields"
   %(DEFAULT_BODY)s
 
   if(subject)
-   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%%s)", tvb_get_string_enc(wmem_packet_scope(), subject, 0,
+   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%%s)", tvb_get_string_enc(actx->pinfo->pool, subject, 0,
                                                                              tvb_reported_length(subject), ENC_T61));
 
 #.TYPE_ATTR

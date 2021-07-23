@@ -22,11 +22,11 @@
   if (!res_handle ||
       !proto_is_protocol_enabled(find_protocol_by_id(dissector_handle_get_protocol_index(res_handle)))) {
     if (actx->rose_ctx->d.code == 0)
-      descr = wmem_strdup_printf(wmem_packet_scope(), "RES: %d", actx->rose_ctx->d.code_local);
+      descr = wmem_strdup_printf(actx->pinfo->pool, "RES: %d", actx->rose_ctx->d.code_local);
     else if (actx->rose_ctx->d.code == 1)
-      descr = wmem_strdup_printf(wmem_packet_scope(), "RES: %s", actx->rose_ctx->d.code_global);
+      descr = wmem_strdup_printf(actx->pinfo->pool, "RES: %s", actx->rose_ctx->d.code_global);
   } else {
-    descr = wmem_strdup(wmem_packet_scope(), "RES:");
+    descr = wmem_strdup(actx->pinfo->pool, "RES:");
   }
 
   if (actx->rose_ctx->apdu_depth >= 0)

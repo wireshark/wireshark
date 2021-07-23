@@ -568,7 +568,7 @@ dissect_t124_T_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 
 	if(next_tvb && t124NSIdentifier) {
 
-	ns = tvb_get_string_enc(wmem_packet_scope(), t124NSIdentifier, 0, tvb_reported_length(t124NSIdentifier), ENC_ASCII|ENC_NA);
+	ns = tvb_get_string_enc(actx->pinfo->pool, t124NSIdentifier, 0, tvb_reported_length(t124NSIdentifier), ENC_ASCII|ENC_NA);
 	if(ns != NULL) {
 		dissector_try_string_new(t124_ns_dissector_table, ns, next_tvb, actx->pinfo, top_tree, FALSE, NULL);
 	}

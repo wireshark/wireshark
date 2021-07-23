@@ -447,7 +447,7 @@ EPS-TAC TYPE = FT_UINT16 DISPLAY = BASE_DEC_HEX
 #.FN_BODY TAI
   struct ngap_private_data *ngap_data = ngap_get_private_data(actx->pinfo);
   ngap_data->number_type = E212_5GSTAI;
-  ngap_data->tai = wmem_new0(wmem_packet_scope(), struct ngap_tai);
+  ngap_data->tai = wmem_new0(actx->pinfo->pool, struct ngap_tai);
 %(DEFAULT_BODY)s
   if (!PINFO_FD_VISITED(actx->pinfo) && ngap_data->ngap_conv &&
       (ngap_data->message_type == INITIATING_MESSAGE) &&
@@ -514,8 +514,8 @@ TAC TYPE = FT_UINT24 DISPLAY = BASE_DEC_HEX
       (ngap_data->message_type == INITIATING_MESSAGE) &&
       ((ngap_data->procedure_code == id_NGSetup) ||
        (ngap_data->procedure_code == id_RANConfigurationUpdate))) {
-    ngap_data->supported_ta = wmem_new0(wmem_packet_scope(), struct ngap_supported_ta);
-    ngap_data->supported_ta->plmn = wmem_array_new(wmem_packet_scope(), sizeof(guint32));
+    ngap_data->supported_ta = wmem_new0(actx->pinfo->pool, struct ngap_supported_ta);
+    ngap_data->supported_ta->plmn = wmem_array_new(actx->pinfo->pool, sizeof(guint32));
   }
 
 #.FN_FTR SupportedTAItem

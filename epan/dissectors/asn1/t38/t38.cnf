@@ -158,11 +158,11 @@ VAL_PTR=&Data_Field_field_type_value
     if (primary_part){
         if(value_len < 8){
             col_append_fstr(actx->pinfo->cinfo, COL_INFO, "[%s]",
-               tvb_bytes_to_str(wmem_packet_scope(), value_tvb,0,value_len));
+               tvb_bytes_to_str(actx->pinfo->pool, value_tvb,0,value_len));
         }
         else {
             col_append_fstr(actx->pinfo->cinfo, COL_INFO, "[%s...]",
-               tvb_bytes_to_str(wmem_packet_scope(), value_tvb,0,7));
+               tvb_bytes_to_str(actx->pinfo->pool, value_tvb,0,7));
         }
     }
 

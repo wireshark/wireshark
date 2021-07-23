@@ -1399,8 +1399,8 @@ M-TMSI TYPE = FT_UINT32 DISPLAY = BASE_DEC_HEX
       (s1ap_data->message_type == INITIATING_MESSAGE) &&
       ((s1ap_data->procedure_code == id_S1Setup) ||
        (s1ap_data->procedure_code == id_ENBConfigurationUpdate))) {
-    s1ap_data->supported_ta = wmem_new0(wmem_packet_scope(), struct s1ap_supported_ta);
-    s1ap_data->supported_ta->plmn = wmem_array_new(wmem_packet_scope(), sizeof(guint32));
+    s1ap_data->supported_ta = wmem_new0(actx->pinfo->pool, struct s1ap_supported_ta);
+    s1ap_data->supported_ta->plmn = wmem_array_new(actx->pinfo->pool, sizeof(guint32));
   }
 
 #.FN_FTR SupportedTAs-Item
@@ -1445,7 +1445,7 @@ M-TMSI TYPE = FT_UINT32 DISPLAY = BASE_DEC_HEX
 #.FN_BODY TAI
   struct s1ap_private_data *s1ap_data = s1ap_get_private_data(actx->pinfo);
   s1ap_data->number_type = E212_TAI;
-  s1ap_data->tai = wmem_new0(wmem_packet_scope(), struct s1ap_tai);
+  s1ap_data->tai = wmem_new0(actx->pinfo->pool, struct s1ap_tai);
 %(DEFAULT_BODY)s
   if (!PINFO_FD_VISITED(actx->pinfo) && s1ap_data->s1ap_conv &&
       (s1ap_data->message_type == INITIATING_MESSAGE) &&

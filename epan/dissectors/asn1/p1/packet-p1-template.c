@@ -85,7 +85,7 @@ static void set_do_address(asn1_ctx_t* actx, gboolean do_address)
     p1_address_ctx_t* ctx;
 
     if (actx->subtree.tree_ctx == NULL) {
-        actx->subtree.tree_ctx = wmem_new0(wmem_packet_scope(), p1_address_ctx_t);
+        actx->subtree.tree_ctx = wmem_new0(actx->pinfo->pool, p1_address_ctx_t);
     }
 
     ctx = (p1_address_ctx_t*)actx->subtree.tree_ctx;
@@ -165,7 +165,7 @@ void p1_initialize_content_globals (asn1_ctx_t* actx, proto_tree *tree, gboolean
     p1_address_ctx_t* ctx;
 
     if (actx->subtree.tree_ctx == NULL) {
-        actx->subtree.tree_ctx = wmem_new0(wmem_packet_scope(), p1_address_ctx_t);
+        actx->subtree.tree_ctx = wmem_new0(actx->pinfo->pool, p1_address_ctx_t);
     }
 
     ctx = (p1_address_ctx_t*)actx->subtree.tree_ctx;

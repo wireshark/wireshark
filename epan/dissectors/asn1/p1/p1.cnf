@@ -574,7 +574,7 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
 		}
 	} else if (actx->external.direct_ref_present) {
 		offset = call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, actx->private_data);
-		name = oid_resolved_from_string(wmem_packet_scope(), actx->external.direct_reference);
+		name = oid_resolved_from_string(actx->pinfo->pool, actx->external.direct_reference);
 		proto_item_append_text(tree, " (%%s)", name ? name : actx->external.direct_reference);
 	}
 
@@ -587,7 +587,7 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
 
 	if (actx->external.direct_reference) {
 		offset = call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, actx->private_data);
-		name = oid_resolved_from_string(wmem_packet_scope(), actx->external.direct_reference);
+		name = oid_resolved_from_string(actx->pinfo->pool, actx->external.direct_reference);
 		proto_item_append_text(tree, " (%%s)", name ? name : actx->external.direct_reference);
 	} else {
 		offset = dissect_unknown_ber(actx->pinfo, tvb, offset, tree);
@@ -648,14 +648,14 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
 	p1_address_ctx_t* ctx;
 
 	if (actx->subtree.tree_ctx == NULL)
-		actx->subtree.tree_ctx = wmem_new0(wmem_packet_scope(), p1_address_ctx_t);
+		actx->subtree.tree_ctx = wmem_new0(actx->pinfo->pool, p1_address_ctx_t);
 
 	ctx = (p1_address_ctx_t*)actx->subtree.tree_ctx;
 
 	%(DEFAULT_BODY)s
 
 	if(ctx->content_type_id) {
-		name = oid_resolved_from_string(wmem_packet_scope(), ctx->content_type_id);
+		name = oid_resolved_from_string(actx->pinfo->pool, ctx->content_type_id);
 
 		if(!name) name = ctx->content_type_id;
 
@@ -669,7 +669,7 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
 	p1_address_ctx_t* ctx;
 
 	if (actx->subtree.tree_ctx == NULL)
-		actx->subtree.tree_ctx = wmem_new0(wmem_packet_scope(), p1_address_ctx_t);
+		actx->subtree.tree_ctx = wmem_new0(actx->pinfo->pool, p1_address_ctx_t);
 
 	ctx = (p1_address_ctx_t*)actx->subtree.tree_ctx;
 
@@ -678,10 +678,10 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
 	/* convert integer content type to oid for dispatch when the content is found */
 	switch(ict) {
 	case 2:
-		ctx->content_type_id = wmem_strdup(wmem_packet_scope(), "2.6.1.10.0");
+		ctx->content_type_id = wmem_strdup(actx->pinfo->pool, "2.6.1.10.0");
 		break;
 	case 22:
-		ctx->content_type_id = wmem_strdup(wmem_packet_scope(), "2.6.1.10.1");
+		ctx->content_type_id = wmem_strdup(actx->pinfo->pool, "2.6.1.10.1");
 		break;
 	default:
 		ctx->content_type_id = NULL;
@@ -921,7 +921,7 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
 	do_address_str_tree("=", tstring, actx, tree);
 
 #.FN_BODY TeletexDomainDefinedAttribute
-	actx->value_ptr = wmem_strbuf_new(wmem_packet_scope(), "");
+	actx->value_ptr = wmem_strbuf_new(actx->pinfo->pool, "");
 
 	%(DEFAULT_BODY)s
 
@@ -996,7 +996,7 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
 	do_address_str_tree("=", pstring, actx, tree);
 
 #.FN_BODY BuiltInDomainDefinedAttribute
-	actx->value_ptr = wmem_strbuf_new(wmem_packet_scope(), "");
+	actx->value_ptr = wmem_strbuf_new(actx->pinfo->pool, "");
 
 	%(DEFAULT_BODY)s
 
@@ -1004,11 +1004,11 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
 	p1_address_ctx_t* ctx;
 
 	if (actx->subtree.tree_ctx == NULL) {
-		actx->subtree.tree_ctx = wmem_new0(wmem_packet_scope(), p1_address_ctx_t);
+		actx->subtree.tree_ctx = wmem_new0(actx->pinfo->pool, p1_address_ctx_t);
 	}
 
 	ctx = (p1_address_ctx_t*)actx->subtree.tree_ctx;
-	ctx->oraddress = wmem_strbuf_new(wmem_packet_scope(), "");
+	ctx->oraddress = wmem_strbuf_new(actx->pinfo->pool, "");
 
 	actx->subtree.tree = NULL;
 	set_do_address(actx, TRUE);
@@ -1025,11 +1025,11 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
 	p1_address_ctx_t* ctx;
 
 	if (actx->subtree.tree_ctx == NULL) {
-		actx->subtree.tree_ctx = wmem_new0(wmem_packet_scope(), p1_address_ctx_t);
+		actx->subtree.tree_ctx = wmem_new0(actx->pinfo->pool, p1_address_ctx_t);
 	}
 
 	ctx = (p1_address_ctx_t*)actx->subtree.tree_ctx;
-	ctx->oraddress = wmem_strbuf_new(wmem_packet_scope(), "");
+	ctx->oraddress = wmem_strbuf_new(actx->pinfo->pool, "");
 
 	actx->subtree.tree = NULL;
 	set_do_address(actx, TRUE);
@@ -1049,11 +1049,11 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
 	p1_address_ctx_t* ctx;
 
 	if (actx->subtree.tree_ctx == NULL) {
-		actx->subtree.tree_ctx = wmem_new0(wmem_packet_scope(), p1_address_ctx_t);
+		actx->subtree.tree_ctx = wmem_new0(actx->pinfo->pool, p1_address_ctx_t);
 	}
 
 	ctx = (p1_address_ctx_t*)actx->subtree.tree_ctx;
-	ctx->oraddress = wmem_strbuf_new(wmem_packet_scope(), "");
+	ctx->oraddress = wmem_strbuf_new(actx->pinfo->pool, "");
 
 	actx->subtree.tree = tree;
 

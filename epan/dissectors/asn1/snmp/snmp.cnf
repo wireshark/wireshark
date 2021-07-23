@@ -90,7 +90,7 @@ BulkPDU/request-id bulkPDU_request-id
 %(DEFAULT_BODY)s
 
 	if (display_oid && enterprise_oid) {
-		name = oid_resolved_from_string(wmem_packet_scope(), enterprise_oid);
+		name = oid_resolved_from_string(actx->pinfo->pool, enterprise_oid);
 		if (name) {
 		col_append_fstr (actx->pinfo->cinfo, COL_INFO, " %%s", name);
 		}
@@ -221,7 +221,7 @@ BulkPDU/request-id bulkPDU_request-id
 			if (usm_p.authOK) {
 				expert = &ei_snmp_authentication_ok;
 			} else {
-				const gchar* calc_auth_str = bytestring_to_str(wmem_packet_scope(), calc_auth,calc_auth_len,' ');
+				const gchar* calc_auth_str = bytestring_to_str(actx->pinfo->pool, calc_auth,calc_auth_len,' ');
 				proto_item_append_text(authen_item, " calculated = %s", calc_auth_str);
 				expert = &ei_snmp_authentication_error;
 			}

@@ -418,7 +418,7 @@ dissect_pres_Presentation_context_identifier(gboolean implicit_tag _U_, tvbuff_t
 
   oid = find_oid_by_pres_ctx_id(actx->pinfo, presentation_context_identifier);
 
-  if(oid && (name = oid_resolved_from_string(wmem_packet_scope(), oid))) {
+  if(oid && (name = oid_resolved_from_string(actx->pinfo->pool, oid))) {
 	proto_item_append_text(actx->created_item, " (%s)", name);
   }
 

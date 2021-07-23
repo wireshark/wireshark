@@ -280,11 +280,11 @@ dissect_q932_ros_Invoke(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
   if (!arg_handle ||
       !proto_is_protocol_enabled(find_protocol_by_id(dissector_handle_get_protocol_index(arg_handle)))) {
     if (actx->rose_ctx->d.code == 0)
-      descr = wmem_strdup_printf(wmem_packet_scope(), "INV: %d", actx->rose_ctx->d.code_local);
+      descr = wmem_strdup_printf(actx->pinfo->pool, "INV: %d", actx->rose_ctx->d.code_local);
     else if (actx->rose_ctx->d.code == 1)
-      descr = wmem_strdup_printf(wmem_packet_scope(), "INV: %s", actx->rose_ctx->d.code_global);
+      descr = wmem_strdup_printf(actx->pinfo->pool, "INV: %s", actx->rose_ctx->d.code_global);
   } else {
-    descr = wmem_strdup(wmem_packet_scope(), "INV:");
+    descr = wmem_strdup(actx->pinfo->pool, "INV:");
   }
 
   if (actx->rose_ctx->apdu_depth >= 0)
@@ -373,11 +373,11 @@ dissect_q932_ros_ReturnResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
   if (!res_handle ||
       !proto_is_protocol_enabled(find_protocol_by_id(dissector_handle_get_protocol_index(res_handle)))) {
     if (actx->rose_ctx->d.code == 0)
-      descr = wmem_strdup_printf(wmem_packet_scope(), "RES: %d", actx->rose_ctx->d.code_local);
+      descr = wmem_strdup_printf(actx->pinfo->pool, "RES: %d", actx->rose_ctx->d.code_local);
     else if (actx->rose_ctx->d.code == 1)
-      descr = wmem_strdup_printf(wmem_packet_scope(), "RES: %s", actx->rose_ctx->d.code_global);
+      descr = wmem_strdup_printf(actx->pinfo->pool, "RES: %s", actx->rose_ctx->d.code_global);
   } else {
-    descr = wmem_strdup(wmem_packet_scope(), "RES:");
+    descr = wmem_strdup(actx->pinfo->pool, "RES:");
   }
 
   if (actx->rose_ctx->apdu_depth >= 0)
@@ -453,11 +453,11 @@ dissect_q932_ros_ReturnError(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
   if (!err_handle ||
       !proto_is_protocol_enabled(find_protocol_by_id(dissector_handle_get_protocol_index(err_handle)))) {
     if (actx->rose_ctx->d.code == 0)
-      descr = wmem_strdup_printf(wmem_packet_scope(), "ERR: %d", actx->rose_ctx->d.code_local);
+      descr = wmem_strdup_printf(actx->pinfo->pool, "ERR: %d", actx->rose_ctx->d.code_local);
     else if (actx->rose_ctx->d.code == 1)
-      descr = wmem_strdup_printf(wmem_packet_scope(), "ERR: %s", actx->rose_ctx->d.code_global);
+      descr = wmem_strdup_printf(actx->pinfo->pool, "ERR: %s", actx->rose_ctx->d.code_global);
   } else {
-    descr = wmem_strdup(wmem_packet_scope(), "ERR:");
+    descr = wmem_strdup(actx->pinfo->pool, "ERR:");
   }
 
   if (actx->rose_ctx->apdu_depth >= 0)
@@ -610,7 +610,7 @@ dissect_q932_ros_Reject(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
                                    Reject_sequence, hf_index, ett_q932_ros_Reject);
 
 #line 10 "./asn1/ros/ros-rej.cnf"
-  descr = wmem_strdup_printf(wmem_packet_scope(), "REJ: %s", problem_str);
+  descr = wmem_strdup_printf(actx->pinfo->pool, "REJ: %s", problem_str);
 
   if (actx->rose_ctx->apdu_depth >= 0)
     proto_item_append_text(proto_item_get_parent_nth(proto_tree_get_parent(tree), actx->rose_ctx->apdu_depth), "  %s", descr);

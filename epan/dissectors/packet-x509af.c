@@ -217,7 +217,7 @@ dissect_x509af_T_algorithmId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
   if(actx->external.direct_reference) {
     algorithm_id = (const char *)wmem_strdup(wmem_file_scope(), actx->external.direct_reference);
 
-    name = oid_resolved_from_string(wmem_packet_scope(), actx->external.direct_reference);
+    name = oid_resolved_from_string(actx->pinfo->pool, actx->external.direct_reference);
 
     proto_item_append_text(tree, " (%s)", name ? name : actx->external.direct_reference);
   } else {
@@ -267,7 +267,7 @@ dissect_x509af_T_utcTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
   /* the 2-digit year can only be in the range 1950..2049 https://tools.ietf.org/html/rfc5280#section-4.1.2.5.1 */
   offset = dissect_ber_UTCTime(implicit_tag, actx, tree, tvb, offset, hf_index, &outstr, &tvblen);
   if (hf_index >= 0 && outstr) {
-    newstr = wmem_strconcat(wmem_packet_scope(), outstr[0] < '5' ? "20": "19", outstr, NULL);
+    newstr = wmem_strconcat(actx->pinfo->pool, outstr[0] < '5' ? "20": "19", outstr, NULL);
     proto_tree_add_string(tree, hf_index, tvb, offset - tvblen, tvblen, newstr);
   }
 
@@ -408,7 +408,7 @@ dissect_x509af_T_extnId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 
   if(actx->external.direct_reference) {
-    name = oid_resolved_from_string(wmem_packet_scope(), actx->external.direct_reference);
+    name = oid_resolved_from_string(actx->pinfo->pool, actx->external.direct_reference);
 
     proto_item_append_text(tree, " (%s)", name ? name : actx->external.direct_reference);
   }

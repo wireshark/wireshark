@@ -182,7 +182,7 @@ static nr_rrc_private_data_t*
 nr_rrc_get_private_data(asn1_ctx_t *actx)
 {
   if (actx->private_data == NULL) {
-    actx->private_data = wmem_new0(wmem_packet_scope(), nr_rrc_private_data_t);
+    actx->private_data = wmem_new0(actx->pinfo->pool, nr_rrc_private_data_t);
   }
   return (nr_rrc_private_data_t*)actx->private_data;
 }
@@ -280,7 +280,7 @@ dissect_nr_rrc_warningMessageSegment(tvbuff_t *warning_msg_seg_tvb, proto_tree *
     cb_data_page_tvb = tvb_new_subset_length(warning_msg_seg_tvb, offset, length);
     cb_data_tvb = dissect_cbs_data(dataCodingScheme, cb_data_page_tvb, tree, pinfo, 0);
     if (cb_data_tvb) {
-      str = tvb_get_string_enc(wmem_packet_scope(), cb_data_tvb, 0, tvb_reported_length(cb_data_tvb), ENC_UTF_8|ENC_NA);
+      str = tvb_get_string_enc(pinfo->pool, cb_data_tvb, 0, tvb_reported_length(cb_data_tvb), ENC_UTF_8|ENC_NA);
       proto_tree_add_string_format(tree, hf_nr_rrc_warningMessageSegment_decoded_page, warning_msg_seg_tvb, offset, 83,
                                    str, "Decoded Page %u: %s", i+1, str);
     }

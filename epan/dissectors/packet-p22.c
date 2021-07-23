@@ -1023,7 +1023,7 @@ dissect_p22_T_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
     offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &actx->external.direct_reference);
 
 
-  name = oid_resolved_from_string(wmem_packet_scope(), actx->external.direct_reference);
+  name = oid_resolved_from_string(actx->pinfo->pool, actx->external.direct_reference);
   proto_item_append_text(tree, " (%s)", name ? name : actx->external.direct_reference);
 
 
@@ -1221,7 +1221,7 @@ dissect_p22_SubjectField(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 
   if(subject)
-   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%s)", tvb_get_string_enc(wmem_packet_scope(), subject, 0,
+   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%s)", tvb_get_string_enc(actx->pinfo->pool, subject, 0,
                                                                              tvb_reported_length(subject), ENC_T61));
 
 

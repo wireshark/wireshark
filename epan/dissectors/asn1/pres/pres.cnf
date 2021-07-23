@@ -79,7 +79,7 @@ CPR-PPDU/normal-mode-parameters/provider-reason cPR_PPDU__provider-reason
 
   oid = find_oid_by_pres_ctx_id(actx->pinfo, presentation_context_identifier);
 
-  if(oid && (name = oid_resolved_from_string(wmem_packet_scope(), oid))) {
+  if(oid && (name = oid_resolved_from_string(actx->pinfo->pool, oid))) {
 	proto_item_append_text(actx->created_item, " (%%s)", name);
   }
 

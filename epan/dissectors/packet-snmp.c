@@ -832,22 +832,22 @@ dissect_snmp_VarBind(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
 	/* Now, we know where everithing is */
 
 	/* fetch ObjectName and its relative oid_info */
-	oid_bytes = (guint8*)tvb_memdup(wmem_packet_scope(), tvb, name_offset, name_len);
-	oid_info = oid_get_from_encoded(wmem_packet_scope(), oid_bytes, name_len, &subids, &oid_matched, &oid_left);
+	oid_bytes = (guint8*)tvb_memdup(actx->pinfo->pool, tvb, name_offset, name_len);
+	oid_info = oid_get_from_encoded(actx->pinfo->pool, oid_bytes, name_len, &subids, &oid_matched, &oid_left);
 
 	add_oid_debug_subtree(oid_info,pt_name);
 
 	if (!subids) {
 		proto_item* pi;
 
-		repr = oid_encoded2string(wmem_packet_scope(), oid_bytes, name_len);
+		repr = oid_encoded2string(actx->pinfo->pool, oid_bytes, name_len);
 		pt = proto_tree_add_subtree_format(pt_name,tvb, 0, 0, ett_decoding_error, &pi, "invalid oid: %s", repr);
 		expert_add_info_format(actx->pinfo, pi, &ei_snmp_invalid_oid, "invalid oid: %s", repr);
 		return dissect_unknown_ber(actx->pinfo, tvb, name_offset, pt);
 	}
 
 	if (oid_matched+oid_left) {
-		oid_string = oid_subid2string(wmem_packet_scope(), subids,oid_matched+oid_left);
+		oid_string = oid_subid2string(actx->pinfo->pool, subids,oid_matched+oid_left);
 	}
 
 	if (ber_class == BER_CLASS_CON) {
@@ -978,7 +978,7 @@ show_oid_index:
 									goto indexing_done;
 								}
 
-								suboid_buf_len = oid_subid2encoded(wmem_packet_scope(), suboid_len, suboid, &suboid_buf);
+								suboid_buf_len = oid_subid2encoded(actx->pinfo->pool, suboid_len, suboid, &suboid_buf);
 
 								DISSECTOR_ASSERT(suboid_buf_len);
 
@@ -1024,7 +1024,7 @@ show_oid_index:
 									goto indexing_done;
 								}
 
-								buf = (guint8*)wmem_alloc(wmem_packet_scope(), buf_len+1);
+								buf = (guint8*)wmem_alloc(actx->pinfo->pool, buf_len+1);
 								for (i = 0; i < buf_len; i++)
 									buf[i] = (guint8)suboid[i];
 								buf[i] = '\0';
@@ -1245,21 +1245,21 @@ set_label:
 
 	if (oid_info && oid_info->name) {
 		if (oid_left >= 1) {
-			repr = wmem_strdup_printf(wmem_packet_scope(), "%s.%s (%s)", oid_info->name,
-						oid_subid2string(wmem_packet_scope(), &(subids[oid_matched]),oid_left),
-						oid_subid2string(wmem_packet_scope(), subids,oid_matched+oid_left));
-			info_oid = wmem_strdup_printf(wmem_packet_scope(), "%s.%s", oid_info->name,
-						oid_subid2string(wmem_packet_scope(), &(subids[oid_matched]),oid_left));
+			repr = wmem_strdup_printf(actx->pinfo->pool, "%s.%s (%s)", oid_info->name,
+						oid_subid2string(actx->pinfo->pool, &(subids[oid_matched]),oid_left),
+						oid_subid2string(actx->pinfo->pool, subids,oid_matched+oid_left));
+			info_oid = wmem_strdup_printf(actx->pinfo->pool, "%s.%s", oid_info->name,
+						oid_subid2string(actx->pinfo->pool, &(subids[oid_matched]),oid_left));
 		} else {
-			repr = wmem_strdup_printf(wmem_packet_scope(), "%s (%s)", oid_info->name,
-						oid_subid2string(wmem_packet_scope(), subids,oid_matched));
+			repr = wmem_strdup_printf(actx->pinfo->pool, "%s (%s)", oid_info->name,
+						oid_subid2string(actx->pinfo->pool, subids,oid_matched));
 			info_oid = oid_info->name;
 		}
 	} else if (oid_string) {
-		repr = wmem_strdup(wmem_packet_scope(), oid_string);
+		repr = wmem_strdup(actx->pinfo->pool, oid_string);
 		info_oid = oid_string;
 	} else {
-		repr = wmem_strdup(wmem_packet_scope(), "[Bad OID]");
+		repr = wmem_strdup(actx->pinfo->pool, "[Bad OID]");
 	}
 
 	valstr = strstr(label,": ");
@@ -1439,7 +1439,7 @@ dissect_snmp_engineid(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int o
 					ts.nsecs = 0;
 					proto_tree_add_time_format_value(tree, hf_snmp_engineid_time, tvb, offset + 4, len_remain - 4,
 									 &ts, "%s",
-									 abs_time_secs_to_str(wmem_packet_scope(), seconds, ABSOLUTE_TIME_LOCAL, TRUE));
+									 abs_time_secs_to_str(pinfo->pool, seconds, ABSOLUTE_TIME_LOCAL, TRUE));
 					offset+=len_remain;
 					len_remain=0;
 				}
@@ -1857,7 +1857,7 @@ snmp_usm_priv_des(snmp_usm_params_t* p, tvbuff_t* encryptedData, packet_info *pi
 		return NULL;
 	}
 
-	salt = (guint8*)tvb_memdup(wmem_packet_scope(),p->priv_tvb,0,salt_len);
+	salt = (guint8*)tvb_memdup(pinfo->pool,p->priv_tvb,0,salt_len);
 
 	/*
 	 The resulting "salt" is XOR-ed with the pre-IV to obtain the IV.
@@ -1873,7 +1873,7 @@ snmp_usm_priv_des(snmp_usm_params_t* p, tvbuff_t* encryptedData, packet_info *pi
 		return NULL;
 	}
 
-	cryptgrm = (guint8*)tvb_memdup(wmem_packet_scope(),encryptedData,0,-1);
+	cryptgrm = (guint8*)tvb_memdup(pinfo->pool,encryptedData,0,-1);
 
 	cleartext = (guint8*)wmem_alloc(pinfo->pool, cryptgrm_len);
 
@@ -1938,7 +1938,7 @@ snmp_usm_priv_aes_common(snmp_usm_params_t* p, tvbuff_t* encryptedData, packet_i
 		*error = "Not enough data remaining";
 		return NULL;
 	}
-	cryptgrm = (guint8*)tvb_memdup(wmem_packet_scope(),encryptedData,0,-1);
+	cryptgrm = (guint8*)tvb_memdup(pinfo->pool,encryptedData,0,-1);
 
 	cleartext = (guint8*)wmem_alloc(pinfo->pool, cryptgrm_len);
 
@@ -2036,7 +2036,7 @@ dissect_snmp_EnterpriseOID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 
 	if (display_oid && enterprise_oid) {
-		name = oid_resolved_from_string(wmem_packet_scope(), enterprise_oid);
+		name = oid_resolved_from_string(actx->pinfo->pool, enterprise_oid);
 		if (name) {
 		col_append_fstr (actx->pinfo->cinfo, COL_INFO, " %s", name);
 		}
@@ -2869,7 +2869,7 @@ dissect_snmp_SNMPv3Message(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 			if (usm_p.authOK) {
 				expert = &ei_snmp_authentication_ok;
 			} else {
-				const gchar* calc_auth_str = bytestring_to_str(wmem_packet_scope(), calc_auth,calc_auth_len,' ');
+				const gchar* calc_auth_str = bytestring_to_str(actx->pinfo->pool, calc_auth,calc_auth_len,' ');
 				proto_item_append_text(authen_item, " calculated = %s", calc_auth_str);
 				expert = &ei_snmp_authentication_error;
 			}

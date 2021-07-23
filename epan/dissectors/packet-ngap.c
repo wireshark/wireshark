@@ -2505,7 +2505,7 @@ dissect_ngap_warningMessageContents(tvbuff_t *warning_msg_tvb, proto_tree *tree,
     cb_data_page_tvb = tvb_new_subset_length(warning_msg_tvb, offset, length);
     cb_data_tvb = dissect_cbs_data(dcs, cb_data_page_tvb, tree, pinfo, 0);
     if (cb_data_tvb) {
-      str = tvb_get_string_enc(wmem_packet_scope(), cb_data_tvb, 0, tvb_reported_length(cb_data_tvb), ENC_UTF_8|ENC_NA);
+      str = tvb_get_string_enc(pinfo->pool, cb_data_tvb, 0, tvb_reported_length(cb_data_tvb), ENC_UTF_8|ENC_NA);
       proto_tree_add_string_format(tree, hf_decoded_page, warning_msg_tvb, offset, 83,
                                    str, "Decoded Page %u: %s", i+1, str);
     }
@@ -4047,7 +4047,7 @@ dissect_ngap_TAI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_
 #line 448 "./asn1/ngap/ngap.cnf"
   struct ngap_private_data *ngap_data = ngap_get_private_data(actx->pinfo);
   ngap_data->number_type = E212_5GSTAI;
-  ngap_data->tai = wmem_new0(wmem_packet_scope(), struct ngap_tai);
+  ngap_data->tai = wmem_new0(actx->pinfo->pool, struct ngap_tai);
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_ngap_TAI, TAI_sequence);
 
@@ -15179,8 +15179,8 @@ dissect_ngap_SupportedTAItem(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
       (ngap_data->message_type == INITIATING_MESSAGE) &&
       ((ngap_data->procedure_code == id_NGSetup) ||
        (ngap_data->procedure_code == id_RANConfigurationUpdate))) {
-    ngap_data->supported_ta = wmem_new0(wmem_packet_scope(), struct ngap_supported_ta);
-    ngap_data->supported_ta->plmn = wmem_array_new(wmem_packet_scope(), sizeof(guint32));
+    ngap_data->supported_ta = wmem_new0(actx->pinfo->pool, struct ngap_supported_ta);
+    ngap_data->supported_ta->plmn = wmem_array_new(actx->pinfo->pool, sizeof(guint32));
   }
 
 
@@ -21666,11 +21666,11 @@ dissect_ngap_media_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
   if (!json_tvb || !message_info || !message_info->content_id)
     return 0;
 
-  json_data = tvb_get_string_enc(wmem_packet_scope(), json_tvb, 0, tvb_reported_length(json_tvb), ENC_UTF_8|ENC_NA);
+  json_data = tvb_get_string_enc(pinfo->pool, json_tvb, 0, tvb_reported_length(json_tvb), ENC_UTF_8|ENC_NA);
   ret = json_parse(json_data, NULL, 0);
   if (ret <= 0)
     return 0;
-  tokens = wmem_alloc_array(wmem_packet_scope(), jsmntok_t, ret);
+  tokens = wmem_alloc_array(pinfo->pool, jsmntok_t, ret);
   if (json_parse(json_data, tokens, ret) <= 0)
     return 0;
   cur_tok = json_get_object(json_data, tokens, "n2InfoContainer");
