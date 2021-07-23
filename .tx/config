@@ -14,6 +14,7 @@ trans.pl = ui/qt/wireshark_pl.ts
 trans.ru = ui/qt/wireshark_ru.ts
 trans.sv = ui/qt/wireshark_sv.ts
 trans.uk = ui/qt/wireshark_uk.ts
+trans.tr = ui/qt/wireshark_tr.ts
 trans.zh_CN = ui/qt/wireshark_zh_CN.ts
 type = QT
 
