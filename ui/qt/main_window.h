@@ -706,6 +706,7 @@ private slots:
     void on_actionTelephonyRTSPPacketCounter_triggered();
     void on_actionTelephonySMPPOperations_triggered();
     void on_actionTelephonyUCPMessages_triggered();
+    void on_actionTelephonyF1APMessages_triggered();
     void on_actionTelephonySipFlows_triggered();
 
     void on_actionBluetoothATT_Server_Attributes_triggered();

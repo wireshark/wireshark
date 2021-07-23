@@ -26,6 +26,7 @@
 #include <epan/asn1.h>
 #include <epan/sctpppids.h>
 #include <epan/proto_data.h>
+#include <epan/stats_tree.h>
 
 #include "packet-per.h"
 #include "packet-f1ap.h"
@@ -637,7 +638,7 @@ typedef enum _ProtocolIE_ID_enum {
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-f1ap-val.h ---*/
-#line 41 "./asn1/f1ap/packet-f1ap-template.c"
+#line 42 "./asn1/f1ap/packet-f1ap-template.c"
 
 /* Initialize the protocol and registered fields */
 static int proto_f1ap = -1;
@@ -2105,7 +2106,7 @@ static int hf_f1ap_successfulOutcome_value = -1;  /* SuccessfulOutcome_value */
 static int hf_f1ap_unsuccessfulOutcome_value = -1;  /* UnsuccessfulOutcome_value */
 
 /*--- End of included file: packet-f1ap-hf.c ---*/
-#line 70 "./asn1/f1ap/packet-f1ap-template.c"
+#line 71 "./asn1/f1ap/packet-f1ap-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_f1ap = -1;
@@ -2854,13 +2855,232 @@ static gint ett_f1ap_SuccessfulOutcome = -1;
 static gint ett_f1ap_UnsuccessfulOutcome = -1;
 
 /*--- End of included file: packet-f1ap-ett.c ---*/
-#line 129 "./asn1/f1ap/packet-f1ap-template.c"
+#line 130 "./asn1/f1ap/packet-f1ap-template.c"
 
 enum{
   INITIATING_MESSAGE,
   SUCCESSFUL_OUTCOME,
   UNSUCCESSFUL_OUTCOME
 };
+
+/* F1AP stats - Tap interface */
+
+static void set_stats_message_type(packet_info *pinfo, int type);
+
+static const guint8 *st_str_packets        = "Total Packets";
+static const guint8 *st_str_packet_types   = "F1AP Packet Types";
+
+static int st_node_packets = -1;
+static int st_node_packet_types = -1;
+static int f1ap_tap = -1;
+
+struct f1ap_tap_t {
+    gint f1ap_mtype;
+};
+
+#define MTYPE_RESET                                       1
+#define MTYPE_RESET_ACK                                   2
+#define MTYPE_F1_SETUP_REQUEST                            3
+#define MTYPE_F1_SETUP_RESPONSE                           4
+#define MTYPE_F1_SETUP_FAILURE                            5
+#define MTYPE_GNB_DU_CONFIGURATION_UPDATE                 6
+#define MTYPE_GNB_DU_CONFIGURATION_UPDATE_ACKNOWLEDGE     7
+#define MTYPE_GNB_DU_CONFIGURATION_UPDATE_FAILURE         8
+#define MTYPE_GNB_CU_CONFIGURATION_UPDATE                 9
+#define MTYPE_GNB_CU_CONFIGURATION_UPDATE_ACKNOWLEDGE     10
+#define MTYPE_GNB_CU_CONFIGURATION_UPDATE_FAILURE         11
+#define MTYPE_UE_CONTEXT_SETUP_REQUEST                    12
+#define MTYPE_UE_CONTEXT_SETUP_RESPONSE                   13
+#define MTYPE_UE_CONTEXT_SETUP_FAILURE                    14
+#define MTYPE_UE_CONTEXT_RELEASE_COMMAND                  15
+#define MTYPE_UE_CONTEXT_RELEASE_COMPLETE                 16
+#define MTYPE_UE_CONTEXT_MODIFICATION_REQUEST             17
+#define MTYPE_UE_CONTEXT_MODIFICATION_RESPONSE            18
+#define MTYPE_UE_CONTEXT_MODIFICATION_FAILURE             19
+#define MTYPE_UE_CONTEXT_MODIFICATION_REQUIRED            20
+#define MTYPE_UE_CONTEXT_MODIFICATION_CONFIRM             21
+#define MTYPE_UE_CONTEXT_MODIFICATION_REFUSE              22
+#define MTYPE_WRITE_REPLACE_WARNING_REQUEST               23
+#define MTYPE_WRITE_REPLACE_WARNING_RESPONSE              24
+#define MTYPE_PWS_CANCEL_REQUEST                          25
+#define MTYPE_PWS_CANCEL_RESPONSE                         25
+#define MTYPE_ERROR_INDICATION                            26
+#define MTYPE_UE_CONTEXT_RELEASE_REQUEST                  27
+#define MTYPE_INITIAL_UL_RRC_MESSAGE_TRANSFER             28
+#define MTYPE_DL_RRC_MESSAGE_TRANSFER                     29
+#define MTYPE_UL_RRC_MESSAGE_TRANSFER                     30
+#define MTYPE_UE_INACTIVITY_NOTIFICATION                  31
+#define MTYPE_GNB_DU_RESOURCE_COORDINATION_REQUEST        32
+#define MTYPE_GNB_DU_RESOURCE_COORDINATION_RESPONSE       33
+#define MTYPE_PRIVATE_MESSAGE                             34
+#define MTYPE_SYSTEM_INFORMATION_DELIVERY_COMMAND         35
+#define MTYPE_PAGING                                      36
+#define MTYPE_NOTIFY                                      37
+#define MTYPE_NETWORK_ACCESS_RATE_REDUCTION               38
+#define MTYPE_PWS_RESTART_INDICATION                      39
+#define MTYPE_PWS_FAILURE_INDICATION                      40
+#define MTYPE_GNB_DU_STATUS_INDICATION                    41
+#define MTYPE_RRC_DELIVERY_REPORT                         42
+#define MTYPE_F1_REMOVAL_REQUEST                          43
+#define MTYPE_F1_REMOVAL_RESPONSE                         44
+#define MTYPE_F1_REMOVAL_FAILURE                          45
+#define MTYPE_TRACE_START                                 46
+#define MTYPE_DEACTIVATE_TRACE                            47
+#define MTYPE_DU_CU_RADIO_INFORMATION_TRANSFER            48
+#define MTYPE_CU_DU_RADIO_INFORMATION_TRANSFER            49
+#define MTYPE_BAP_MAPPING_CONFIGURATION                   50
+#define MTYPE_BAP_MAPPING_CONFIGURATION_ACKNOWLEDGE       51
+#define MTYPE_BAP_MAPPING_CONFIGURATION_FAILURE           52
+#define MTYPE_GNB_DU_RESOURCE_CONFIGURATION               53
+#define MTYPE_GNB_DU_RESOURCE_CONFIGURATION_ACKNOWLEDGE   54
+#define MTYPE_GNB_DU_RESOURCE_CONFIGURATION_FAILURE       55
+#define MTYPE_IAB_TNL_ADDRESS_REQUEST                     56
+#define MTYPE_IAB_TNL_ADDRESS_RESPONSE                    57
+#define MTYPE_IAB_TNL_ADDRESS_FAILURE                     58
+#define MTYPE_IAB_UP_CONFIGURATION_UPDATE_REQUEST         59
+#define MTYPE_IAB_UP_CONFIGURATION_UPDATE_RESPONSE        60
+#define MTYPE_IAB_UP_CONFIGURATION_UPDATE_FAILURE         61
+#define MTYPE_RESOURCE_STATUS_REQUEST                     62
+#define MTYPE_RESOURCE_STATUS_RESPONSE                    63
+#define MTYPE_RESOURCE_STATUS_FAILURE                     64
+#define MTYPE_RESOURCE_STATUS_UPDATE                      65
+#define MTYPE_ACCESS_AND_MOBILITY_INDICATION              66
+#define MTYPE_REFERENCE_TIME_INFORMATION_REPORTING_CONTROL 67
+#define MTYPE_REFERENCE_TIME_INFORMATION_REPORT           68
+#define MTYPE_ACCESS_SUCCESS                              69
+#define MTYPE_CELL_TRAFFIC_TRACE                          70
+#define MTYPE_POSITIONING_ASSISTANCE_INFORMATION_CONTROL  71
+#define MTYPE_POSITIONING_ASSISTANCE_INFORMATION_FEEDBACK 72
+#define MTYPE_POSITIONING_MEASUREMENT_REQUEST             73
+#define MTYPE_POSITIONING_MEASUREMENT_RESPONSE            74
+#define MTYPE_POSITIONING_MEASUREMENT_FAILURE             75
+#define MTYPE_POSITIONING_MEASUREMENT_REPORT              76
+#define MTYPE_POSITIONING_MEASUREMENT_ABORT               77
+#define MTYPE_POSITIONING_MEASUREMENT_FAILURE_INDICATION  78
+#define MTYPE_POSITIONING_MEASUREMENT_UPDATE              79
+#define MTYPE_TRP_INFORMATION_REQUEST                     80
+#define MTYPE_TRP_INFORMATION_RESPONSE                    81
+#define MTYPE_TRP_INFORMATION_FAILURE                     82
+#define MTYPE_POSITIONING_INFORMATION_REQUEST             83
+#define MTYPE_POSITIONING_INFORMATION_RESPONSE            84
+#define MTYPE_POSITIONING_INFORMATION_FAILURE             85
+#define MTYPE_POSITIONING_ACTIVATION_REQUEST              86
+#define MTYPE_POSITIONING_ACTIVATION_RESPONSE             87
+#define MTYPE_POSITIONING_ACTIVATION_FAILURE              88
+#define MTYPE_POSITIONING_DEACTIVATION                    89
+#define MTYPE_E_CID_MEASUREMENT_INITIATION_REQUEST        90
+#define MTYPE_E_CID_MEASUREMENT_INITIATION_RESPONSE       91
+#define MTYPE_E_CID_MEASUREMENT_INITIATION_FAILURE        92
+#define MTYPE_E_CID_MEASUREMENT_FAILURE_INDICATION        93
+#define MTYPE_E_CID_MEASUREMENT_REPORT                    94
+#define MTYPE_E_CID_MEASUREMENT_TERMINATION_COMMAND       95
+#define MTYPE_POSITIONING_INFORMATION_UPDATE              96
+
+
+
+/* Value Strings. TODO: ext? */
+static const value_string mtype_names[] = {
+    { MTYPE_RESET,     "Reset" },
+    { MTYPE_RESET_ACK, "ResetAcknowledge" },
+    { MTYPE_F1_SETUP_REQUEST,  "F1SetupRequest" },
+    { MTYPE_F1_SETUP_RESPONSE, "F1SetupResponse" },
+    { MTYPE_F1_SETUP_FAILURE,  "F1SetupFailure" },
+    { MTYPE_GNB_DU_CONFIGURATION_UPDATE,             "GNBDUConfigurationUpdate" },
+    { MTYPE_GNB_DU_CONFIGURATION_UPDATE_ACKNOWLEDGE, "GNBDUConfigurationUpdateAcknowledge" },
+    { MTYPE_GNB_DU_CONFIGURATION_UPDATE_FAILURE,     "GNBDUConfigurationUpdateFailure" },
+    { MTYPE_GNB_CU_CONFIGURATION_UPDATE,             "GNBCUConfigurationUpdate" },
+    { MTYPE_GNB_CU_CONFIGURATION_UPDATE_ACKNOWLEDGE, "GNBCUConfigurationUpdateAcknowledge" },
+    { MTYPE_GNB_CU_CONFIGURATION_UPDATE_FAILURE,     "GNBCUConfigurationUpdateFailure" },
+    { MTYPE_UE_CONTEXT_SETUP_REQUEST,    "UEContextSetupRequest" },
+    { MTYPE_UE_CONTEXT_SETUP_RESPONSE,   "UEContextSetupResponse" },
+    { MTYPE_UE_CONTEXT_SETUP_FAILURE,    "UEContextSetupFailure" },
+    { MTYPE_UE_CONTEXT_RELEASE_COMMAND,      "UEContextReleaseCommand"},
+    { MTYPE_UE_CONTEXT_RELEASE_COMPLETE,     "UEContextReleaseComplete"},
+    { MTYPE_UE_CONTEXT_MODIFICATION_REQUEST,   "UEContextModificationRequest" },
+    { MTYPE_UE_CONTEXT_MODIFICATION_RESPONSE,  "UEContextModificationResponse" },
+    { MTYPE_UE_CONTEXT_MODIFICATION_FAILURE,   "UEContextModificationFailure" },
+    { MTYPE_UE_CONTEXT_MODIFICATION_REQUIRED,  "UEContextModificationRequired" },
+    { MTYPE_UE_CONTEXT_MODIFICATION_CONFIRM,   "UEContextModificationConfirm" },
+    { MTYPE_UE_CONTEXT_MODIFICATION_REFUSE,   "UEContextModificationRefuse" },
+    { MTYPE_WRITE_REPLACE_WARNING_REQUEST,  "WriteReplaceWarningRequest" },
+    { MTYPE_WRITE_REPLACE_WARNING_RESPONSE, "WriteReplaceWarningResponse" },
+    { MTYPE_PWS_CANCEL_REQUEST,   "PWSCancelRequest" },
+    { MTYPE_PWS_CANCEL_RESPONSE,  "PWSCancelResponse" },
+    { MTYPE_ERROR_INDICATION, "ErrorIndication" },
+    { MTYPE_UE_CONTEXT_RELEASE_REQUEST, "UEContextReleaseRequest" },
+    { MTYPE_INITIAL_UL_RRC_MESSAGE_TRANSFER, "InitialULRRCMessageTransfer" },
+    { MTYPE_DL_RRC_MESSAGE_TRANSFER,  "DLRRCMessageTransfer" },
+    { MTYPE_UL_RRC_MESSAGE_TRANSFER,  "ULRRCMessageTransfer" },
+    { MTYPE_UE_INACTIVITY_NOTIFICATION, "UEInactivityNotification" },
+    { MTYPE_GNB_DU_RESOURCE_COORDINATION_REQUEST,  "GNBDUResourceCoordinationRequest" },
+    { MTYPE_GNB_DU_RESOURCE_COORDINATION_RESPONSE, "GNBDUResourceCoordinationResponse" },
+    { MTYPE_PRIVATE_MESSAGE, "PrivateMessage" },
+    { MTYPE_SYSTEM_INFORMATION_DELIVERY_COMMAND, "SystemInformationDeliveryCommand" },
+    { MTYPE_PAGING, "Paging" },
+    { MTYPE_NOTIFY, "Notify" },
+    { MTYPE_NETWORK_ACCESS_RATE_REDUCTION, "NetworkAccessRateReduction" },
+    { MTYPE_PWS_RESTART_INDICATION, "PWSRestartIndication" },
+    { MTYPE_PWS_FAILURE_INDICATION, "PWSFailureIndication" },
+    { MTYPE_GNB_DU_STATUS_INDICATION, "GNBDUStatusIndication" },
+    { MTYPE_RRC_DELIVERY_REPORT, "RRCDeliveryReport" },
+    { MTYPE_F1_REMOVAL_REQUEST,  "F1RemovalRequest" },
+    { MTYPE_F1_REMOVAL_RESPONSE, "F1RemovalResponse" },
+    { MTYPE_F1_REMOVAL_FAILURE,  "F1RemovalFailure" },
+    { MTYPE_TRACE_START, "TraceStart" },
+    { MTYPE_DEACTIVATE_TRACE, "DeactivateTrace" },
+    { MTYPE_DU_CU_RADIO_INFORMATION_TRANSFER, "DUCURadioInformationTransfer" },
+    { MTYPE_CU_DU_RADIO_INFORMATION_TRANSFER, "CUDURadioInformationTransfer" },
+    { MTYPE_BAP_MAPPING_CONFIGURATION,             "BAPMappingConfiguration" },
+    { MTYPE_BAP_MAPPING_CONFIGURATION_ACKNOWLEDGE, "BAPMappingConfigurationAcknowledge" },
+    { MTYPE_BAP_MAPPING_CONFIGURATION_FAILURE,     "BAPMappingConfigurationFailure" },
+    { MTYPE_GNB_DU_RESOURCE_CONFIGURATION,             "GNBDUResourceConfiguration" },
+    { MTYPE_GNB_DU_RESOURCE_CONFIGURATION_ACKNOWLEDGE, "GNBDUResourceConfigurationAcknowledge" },
+    { MTYPE_GNB_DU_RESOURCE_CONFIGURATION_FAILURE,     "GNBDUResourceConfigurationFailure" },
+    { MTYPE_IAB_TNL_ADDRESS_REQUEST,  "IABTNLAddressRequest" },
+    { MTYPE_IAB_TNL_ADDRESS_RESPONSE, "IABTNLAddressResponse" },
+    { MTYPE_IAB_TNL_ADDRESS_FAILURE,  "IABTNLAddressFailure" },
+    { MTYPE_IAB_UP_CONFIGURATION_UPDATE_REQUEST,  "IABUPConfigurationUpdateRequest" },
+    { MTYPE_IAB_UP_CONFIGURATION_UPDATE_RESPONSE, "IABUPConfigurationUpdateResponse" },
+    { MTYPE_IAB_UP_CONFIGURATION_UPDATE_FAILURE,  "IABUPConfigurationUpdateFailure" },
+    { MTYPE_RESOURCE_STATUS_REQUEST,   "ResourceStatusRequest" },
+    { MTYPE_RESOURCE_STATUS_RESPONSE,  "ResourceStatusResponse" },
+    { MTYPE_RESOURCE_STATUS_FAILURE,   "ResourceStatusFailure" },
+    { MTYPE_RESOURCE_STATUS_UPDATE,    "ResourceStatusUpdate" },
+    { MTYPE_ACCESS_AND_MOBILITY_INDICATION, "AccessAndMobilityIndication" },
+    { MTYPE_REFERENCE_TIME_INFORMATION_REPORTING_CONTROL, "ReferenceTimeInformationReportingControl" },
+    { MTYPE_REFERENCE_TIME_INFORMATION_REPORT,            "ReferenceTimeInformationReport" },
+    { MTYPE_ACCESS_SUCCESS, "AccessSuccess" },
+    { MTYPE_CELL_TRAFFIC_TRACE, "CellTrafficTrace" },
+    { MTYPE_POSITIONING_ASSISTANCE_INFORMATION_CONTROL,  "PositioningAssistanceInformationControl" },
+    { MTYPE_POSITIONING_ASSISTANCE_INFORMATION_FEEDBACK, "PositioningAssistanceInformationFeedback" },
+    { MTYPE_POSITIONING_MEASUREMENT_REQUEST,            "PositioningMeasurementRequest" },
+    { MTYPE_POSITIONING_MEASUREMENT_RESPONSE,           "PositioningMeasurementResponse" },
+    { MTYPE_POSITIONING_MEASUREMENT_FAILURE,            "PositioningMeasurementFailure" },
+    { MTYPE_POSITIONING_MEASUREMENT_REPORT,             "PositioningMeasurementReport" },
+    { MTYPE_POSITIONING_MEASUREMENT_ABORT,              "PositioningMeasurementAbort" },
+    { MTYPE_POSITIONING_MEASUREMENT_FAILURE_INDICATION, "PositioningMeasurementFailureIndication" },
+    { MTYPE_POSITIONING_MEASUREMENT_UPDATE,             "PositioningMeasurementUpdate" },
+    { MTYPE_TRP_INFORMATION_REQUEST,  "TRPInformationRequest" },
+    { MTYPE_TRP_INFORMATION_RESPONSE, "TRPInformationResponse" },
+    { MTYPE_TRP_INFORMATION_FAILURE,  "TRPInformationFailure" },
+    { MTYPE_POSITIONING_INFORMATION_REQUEST,  "PositioningInformationRequest" },
+    { MTYPE_POSITIONING_INFORMATION_RESPONSE, "PositioningInformationResponse" },
+    { MTYPE_POSITIONING_INFORMATION_FAILURE,  "PositioningInformationFailure" },
+    { MTYPE_POSITIONING_ACTIVATION_REQUEST,   "PositioningActivationRequest" },
+    { MTYPE_POSITIONING_ACTIVATION_RESPONSE,  "PositioningActivationResponse" },
+    { MTYPE_POSITIONING_ACTIVATION_FAILURE,   "PositioningActivationFailure" },
+    { MTYPE_POSITIONING_DEACTIVATION, "PositioningDeactivation" },
+    { MTYPE_E_CID_MEASUREMENT_INITIATION_REQUEST,  "E-CIDMeasurementInitiationRequest" },
+    { MTYPE_E_CID_MEASUREMENT_INITIATION_RESPONSE, "E-CIDMeasurementInitiationResponse" },
+    { MTYPE_E_CID_MEASUREMENT_INITIATION_FAILURE,  "E-CIDMeasurementInitiationFailure" },
+    { MTYPE_E_CID_MEASUREMENT_FAILURE_INDICATION,  "E-CIDMeasurementFailureIndication" },
+    { MTYPE_E_CID_MEASUREMENT_REPORT,              "E-CIDMeasurementReport" },
+    { MTYPE_E_CID_MEASUREMENT_TERMINATION_COMMAND, "E-CIDMeasurementTerminationCommand" },
+    { MTYPE_POSITIONING_INFORMATION_UPDATE, "PositioningInformationUpdate" },
+    { 0,  NULL }
+};
+
+
 
 typedef struct {
   guint32 message_type;
@@ -2871,6 +3091,7 @@ typedef struct {
   guint32 sib_type;
   guint32 srb_id;
   e212_number_type_t number_type;
+  struct f1ap_tap_t  *stats_tap;
 } f1ap_private_data_t;
 
 typedef struct {
@@ -2905,6 +3126,19 @@ static const true_false_string f1ap_tfs_interfacesToTrace = {
   "Should be traced",
   "Should not be traced"
 };
+
+
+static proto_tree *top_tree = NULL;
+
+static void set_message_label(asn1_ctx_t *actx, int type)
+{
+  const char *label = val_to_str_const(type, mtype_names, "Unknkown");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, label);
+  /* N.B. would like to be able to use actx->subTree.top_tree, but not easy to set.. */
+  proto_item_append_text(top_tree, " (%s)", label);
+}
+
+
 
 static void
 f1ap_MaxPacketLossRate_fmt(gchar *s, guint32 v)
@@ -3897,7 +4131,7 @@ dissect_f1ap_AccessPointPosition(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 
 static int
 dissect_f1ap_PLMN_Identity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1344 "./asn1/f1ap/f1ap.cnf"
+#line 1349 "./asn1/f1ap/f1ap.cnf"
   tvbuff_t *param_tvb = NULL;
   f1ap_private_data_t *f1ap_data = f1ap_get_private_data(actx->pinfo);
   e212_number_type_t number_type = f1ap_data->number_type;
@@ -3935,7 +4169,7 @@ static const per_sequence_t NRCGI_sequence[] = {
 
 static int
 dissect_f1ap_NRCGI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1355 "./asn1/f1ap/f1ap.cnf"
+#line 1360 "./asn1/f1ap/f1ap.cnf"
   f1ap_private_data_t *f1ap_data = f1ap_get_private_data(actx->pinfo);
   f1ap_data->number_type = E212_NRCGI;
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -5835,7 +6069,7 @@ dissect_f1ap_AdditionalPath_List(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 
 static int
 dissect_f1ap_TransportLayerAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1603 "./asn1/f1ap/f1ap.cnf"
+#line 1608 "./asn1/f1ap/f1ap.cnf"
   tvbuff_t *param_tvb = NULL;
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
                                      1, 160, TRUE, NULL, 0, &param_tvb, NULL);
@@ -7125,7 +7359,7 @@ dissect_f1ap_RLCMode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 
 static int
 dissect_f1ap_T_iPv4Address(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1748 "./asn1/f1ap/f1ap.cnf"
+#line 1753 "./asn1/f1ap/f1ap.cnf"
   tvbuff_t *param_tvb = NULL;
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
                                      32, 32, FALSE, NULL, 0, &param_tvb, NULL);
@@ -7144,7 +7378,7 @@ dissect_f1ap_T_iPv4Address(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
 static int
 dissect_f1ap_T_iPv6Address(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1756 "./asn1/f1ap/f1ap.cnf"
+#line 1761 "./asn1/f1ap/f1ap.cnf"
   tvbuff_t *param_tvb = NULL;
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
                                      128, 128, FALSE, NULL, 0, &param_tvb, NULL);
@@ -7163,7 +7397,7 @@ dissect_f1ap_T_iPv6Address(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
 static int
 dissect_f1ap_T_iPv6Prefix(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1764 "./asn1/f1ap/f1ap.cnf"
+#line 1769 "./asn1/f1ap/f1ap.cnf"
   tvbuff_t *param_tvb = NULL;
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
                                      64, 64, FALSE, NULL, 0, &param_tvb, NULL);
@@ -7508,7 +7742,7 @@ dissect_f1ap_ExtendedAvailablePLMN_List(tvbuff_t *tvb _U_, int offset _U_, asn1_
 
 static int
 dissect_f1ap_FiveGS_TAC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1471 "./asn1/f1ap/f1ap.cnf"
+#line 1476 "./asn1/f1ap/f1ap.cnf"
   tvbuff_t *parameter_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, -1,
                                        3, 3, FALSE, &parameter_tvb);
@@ -7682,7 +7916,7 @@ dissect_f1ap_BroadcastPNI_NPN_ID_List(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 
 static int
 dissect_f1ap_BurstArrivalTime(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1705 "./asn1/f1ap/f1ap.cnf"
+#line 1710 "./asn1/f1ap/f1ap.cnf"
   tvbuff_t *param_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &param_tvb);
@@ -7777,7 +8011,7 @@ dissect_f1ap_CapacityValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
 static int
 dissect_f1ap_CellGroupConfig(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1429 "./asn1/f1ap/f1ap.cnf"
+#line 1434 "./asn1/f1ap/f1ap.cnf"
   tvbuff_t *param_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &param_tvb);
@@ -8620,7 +8854,7 @@ dissect_f1ap_IAB_STC_Info(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 static int
 dissect_f1ap_RACH_Config_Common(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1824 "./asn1/f1ap/f1ap.cnf"
+#line 1829 "./asn1/f1ap/f1ap.cnf"
   tvbuff_t *param_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &param_tvb);
@@ -8639,7 +8873,7 @@ dissect_f1ap_RACH_Config_Common(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
 static int
 dissect_f1ap_RACH_Config_Common_IAB(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1832 "./asn1/f1ap/f1ap.cnf"
+#line 1837 "./asn1/f1ap/f1ap.cnf"
   tvbuff_t *param_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &param_tvb);
@@ -8658,7 +8892,7 @@ dissect_f1ap_RACH_Config_Common_IAB(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 
 static int
 dissect_f1ap_T_cSI_RS_Configuration(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1713 "./asn1/f1ap/f1ap.cnf"
+#line 1718 "./asn1/f1ap/f1ap.cnf"
   tvbuff_t *param_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &param_tvb);
@@ -8677,7 +8911,7 @@ dissect_f1ap_T_cSI_RS_Configuration(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 
 static int
 dissect_f1ap_T_sR_Configuration(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1721 "./asn1/f1ap/f1ap.cnf"
+#line 1726 "./asn1/f1ap/f1ap.cnf"
   tvbuff_t *param_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &param_tvb);
@@ -8696,7 +8930,7 @@ dissect_f1ap_T_sR_Configuration(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
 static int
 dissect_f1ap_T_pDCCH_ConfigSIB1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1729 "./asn1/f1ap/f1ap.cnf"
+#line 1734 "./asn1/f1ap/f1ap.cnf"
   tvbuff_t *param_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &param_tvb);
@@ -8715,7 +8949,7 @@ dissect_f1ap_T_pDCCH_ConfigSIB1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
 static int
 dissect_f1ap_T_sCS_Common(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1737 "./asn1/f1ap/f1ap.cnf"
+#line 1742 "./asn1/f1ap/f1ap.cnf"
   tvbuff_t *param_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &param_tvb);
@@ -9275,7 +9509,7 @@ dissect_f1ap_CUDURadioInformationType(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 
 static int
 dissect_f1ap_CG_ConfigInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1397 "./asn1/f1ap/f1ap.cnf"
+#line 1402 "./asn1/f1ap/f1ap.cnf"
   tvbuff_t *param_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &param_tvb);
@@ -9294,7 +9528,7 @@ dissect_f1ap_CG_ConfigInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
 static int
 dissect_f1ap_UE_CapabilityRAT_ContainerList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1405 "./asn1/f1ap/f1ap.cnf"
+#line 1410 "./asn1/f1ap/f1ap.cnf"
   tvbuff_t *param_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &param_tvb);
@@ -9313,7 +9547,7 @@ dissect_f1ap_UE_CapabilityRAT_ContainerList(tvbuff_t *tvb _U_, int offset _U_, a
 
 static int
 dissect_f1ap_MeasConfig(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1413 "./asn1/f1ap/f1ap.cnf"
+#line 1418 "./asn1/f1ap/f1ap.cnf"
   tvbuff_t *param_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &param_tvb);
@@ -10375,7 +10609,7 @@ dissect_f1ap_DRXCycle(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
 
 static int
 dissect_f1ap_DRX_Config(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1629 "./asn1/f1ap/f1ap.cnf"
+#line 1634 "./asn1/f1ap/f1ap.cnf"
   tvbuff_t *param_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &param_tvb);
@@ -10419,7 +10653,7 @@ dissect_f1ap_DRX_LongCycleStartOffset(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 
 static int
 dissect_f1ap_DUtoCURRCContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1328 "./asn1/f1ap/f1ap.cnf"
+#line 1333 "./asn1/f1ap/f1ap.cnf"
   tvbuff_t *param_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &param_tvb);
@@ -10477,7 +10711,7 @@ dissect_f1ap_DUCURadioInformationType(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 
 static int
 dissect_f1ap_MeasGapConfig(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1445 "./asn1/f1ap/f1ap.cnf"
+#line 1450 "./asn1/f1ap/f1ap.cnf"
   tvbuff_t *param_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &param_tvb);
@@ -10496,7 +10730,7 @@ dissect_f1ap_MeasGapConfig(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
 static int
 dissect_f1ap_T_requestedP_MaxFR1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1461 "./asn1/f1ap/f1ap.cnf"
+#line 1466 "./asn1/f1ap/f1ap.cnf"
   tvbuff_t *param_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &param_tvb);
@@ -11129,7 +11363,7 @@ dissect_f1ap_EUTRA_Mode_Info(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 
 static int
 dissect_f1ap_ProtectedEUTRAResourceIndication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1579 "./asn1/f1ap/f1ap.cnf"
+#line 1584 "./asn1/f1ap/f1ap.cnf"
   tvbuff_t *param_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &param_tvb);
@@ -11917,7 +12151,7 @@ dissect_f1ap_FlowsMappedToSLDRB_List(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
 static int
 dissect_f1ap_CG_Config(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1389 "./asn1/f1ap/f1ap.cnf"
+#line 1394 "./asn1/f1ap/f1ap.cnf"
   tvbuff_t *param_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &param_tvb);
@@ -11956,7 +12190,7 @@ dissect_f1ap_GNBDUMeasurementID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
 static int
 dissect_f1ap_T_sIBtype(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1487 "./asn1/f1ap/f1ap.cnf"
+#line 1492 "./asn1/f1ap/f1ap.cnf"
   f1ap_private_data_t *f1ap_data = f1ap_get_private_data(actx->pinfo);
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             2U, 32U, &f1ap_data->sib_type, TRUE);
@@ -11971,7 +12205,7 @@ dissect_f1ap_T_sIBtype(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
 
 static int
 dissect_f1ap_T_sIBmessage_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1491 "./asn1/f1ap/f1ap.cnf"
+#line 1496 "./asn1/f1ap/f1ap.cnf"
   tvbuff_t *param_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &param_tvb);
@@ -12286,7 +12520,7 @@ dissect_f1ap_Extended_GNB_DU_Name(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 
 static int
 dissect_f1ap_Configured_EPS_TAC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1480 "./asn1/f1ap/f1ap.cnf"
+#line 1485 "./asn1/f1ap/f1ap.cnf"
   tvbuff_t *parameter_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, -1,
                                        2, 2, FALSE, &parameter_tvb);
@@ -12344,7 +12578,7 @@ dissect_f1ap_NR_Mode_Info(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 static int
 dissect_f1ap_T_measurementTimingConfiguration(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1336 "./asn1/f1ap/f1ap.cnf"
+#line 1341 "./asn1/f1ap/f1ap.cnf"
   tvbuff_t *param_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &param_tvb);
@@ -12384,7 +12618,7 @@ dissect_f1ap_Served_Cell_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
 static int
 dissect_f1ap_MIB_message(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1370 "./asn1/f1ap/f1ap.cnf"
+#line 1375 "./asn1/f1ap/f1ap.cnf"
   tvbuff_t *param_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &param_tvb);
@@ -12403,7 +12637,7 @@ dissect_f1ap_MIB_message(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
 static int
 dissect_f1ap_SIB1_message(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1378 "./asn1/f1ap/f1ap.cnf"
+#line 1383 "./asn1/f1ap/f1ap.cnf"
   tvbuff_t *param_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &param_tvb);
@@ -12638,7 +12872,7 @@ dissect_f1ap_GTPTLAs(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 
 static int
 dissect_f1ap_HandoverPreparationInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1421 "./asn1/f1ap/f1ap.cnf"
+#line 1426 "./asn1/f1ap/f1ap.cnf"
   tvbuff_t *param_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &param_tvb);
@@ -12905,7 +13139,7 @@ dissect_f1ap_InactivityMonitoringResponse(tvbuff_t *tvb _U_, int offset _U_, asn
 
 static int
 dissect_f1ap_InterfacesToTrace(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1772 "./asn1/f1ap/f1ap.cnf"
+#line 1777 "./asn1/f1ap/f1ap.cnf"
   tvbuff_t *param_tvb = NULL;
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
                                      8, 8, FALSE, NULL, 0, &param_tvb, NULL);
@@ -13272,7 +13506,7 @@ dissect_f1ap_MaskedIMEISV(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 static int
 dissect_f1ap_MeasGapSharingConfig(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1453 "./asn1/f1ap/f1ap.cnf"
+#line 1458 "./asn1/f1ap/f1ap.cnf"
   tvbuff_t *param_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &param_tvb);
@@ -13323,7 +13557,7 @@ dissect_f1ap_MeasurementBeamInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 
 static int
 dissect_f1ap_MeasurementTimingConfiguration(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1437 "./asn1/f1ap/f1ap.cnf"
+#line 1442 "./asn1/f1ap/f1ap.cnf"
   tvbuff_t *param_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &param_tvb);
@@ -13536,7 +13770,7 @@ dissect_f1ap_MDT_Activation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 
 static int
 dissect_f1ap_MeasurementsToActivate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1792 "./asn1/f1ap/f1ap.cnf"
+#line 1797 "./asn1/f1ap/f1ap.cnf"
   tvbuff_t *param_tvb = NULL;
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
                                      8, 8, FALSE, NULL, 0, &param_tvb, NULL);
@@ -14109,7 +14343,7 @@ dissect_f1ap_NRPRACHConfig(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
 static int
 dissect_f1ap_NRUERLFReportContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1810 "./asn1/f1ap/f1ap.cnf"
+#line 1815 "./asn1/f1ap/f1ap.cnf"
   tvbuff_t *param_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &param_tvb);
@@ -14393,7 +14627,7 @@ dissect_f1ap_PC5QoSParameters(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 
 static int
 dissect_f1ap_PDCCH_BlindDetectionSCG(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1637 "./asn1/f1ap/f1ap.cnf"
+#line 1642 "./asn1/f1ap/f1ap.cnf"
   tvbuff_t *parameter_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, -1,
                                        NO_BOUND, NO_BOUND, FALSE, &parameter_tvb);
@@ -14535,7 +14769,7 @@ dissect_f1ap_PeriodicityList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 
 static int
 dissect_f1ap_Ph_InfoMCG(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1657 "./asn1/f1ap/f1ap.cnf"
+#line 1662 "./asn1/f1ap/f1ap.cnf"
   tvbuff_t *param_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &param_tvb);
@@ -14554,7 +14788,7 @@ dissect_f1ap_Ph_InfoMCG(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 
 static int
 dissect_f1ap_Ph_InfoSCG(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1665 "./asn1/f1ap/f1ap.cnf"
+#line 1670 "./asn1/f1ap/f1ap.cnf"
   tvbuff_t *param_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &param_tvb);
@@ -14573,7 +14807,7 @@ dissect_f1ap_Ph_InfoSCG(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 
 static int
 dissect_f1ap_PortNumber(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1363 "./asn1/f1ap/f1ap.cnf"
+#line 1368 "./asn1/f1ap/f1ap.cnf"
   tvbuff_t *parameter_tvb = NULL;
   offset = dissect_per_bit_string(tvb, offset, actx, tree, -1,
                                      16, 16, FALSE, NULL, 0, &parameter_tvb, NULL);
@@ -14591,7 +14825,7 @@ dissect_f1ap_PortNumber(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 
 static int
 dissect_f1ap_PosAssistance_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1939 "./asn1/f1ap/f1ap.cnf"
+#line 1944 "./asn1/f1ap/f1ap.cnf"
   tvbuff_t *param_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &param_tvb);
@@ -14610,7 +14844,7 @@ dissect_f1ap_PosAssistance_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 
 static int
 dissect_f1ap_PosAssistanceInformationFailureList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1947 "./asn1/f1ap/f1ap.cnf"
+#line 1952 "./asn1/f1ap/f1ap.cnf"
   tvbuff_t *param_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &param_tvb);
@@ -15429,7 +15663,7 @@ dissect_f1ap_PWS_Failed_NR_CGI_Item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 
 static int
 dissect_f1ap_SIBType_PWS(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1542 "./asn1/f1ap/f1ap.cnf"
+#line 1547 "./asn1/f1ap/f1ap.cnf"
   f1ap_private_data_t *f1ap_data = f1ap_get_private_data(actx->pinfo);
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             6U, 8U, &f1ap_data->sib_type, TRUE);
@@ -15444,7 +15678,7 @@ dissect_f1ap_SIBType_PWS(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
 static int
 dissect_f1ap_T_sIBmessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1546 "./asn1/f1ap/f1ap.cnf"
+#line 1551 "./asn1/f1ap/f1ap.cnf"
   tvbuff_t *param_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &param_tvb);
@@ -15552,7 +15786,7 @@ dissect_f1ap_QoSParaSetNotifyIndex(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 
 static int
 dissect_f1ap_RACHReportContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1840 "./asn1/f1ap/f1ap.cnf"
+#line 1845 "./asn1/f1ap/f1ap.cnf"
   tvbuff_t *param_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &param_tvb);
@@ -15730,7 +15964,7 @@ dissect_f1ap_ReferenceSignal(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 
 static int
 dissect_f1ap_ReferenceTime(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1848 "./asn1/f1ap/f1ap.cnf"
+#line 1853 "./asn1/f1ap/f1ap.cnf"
   tvbuff_t *param_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &param_tvb);
@@ -15766,7 +16000,7 @@ dissect_f1ap_RegistrationRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 
 static int
 dissect_f1ap_ReportCharacteristics(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1856 "./asn1/f1ap/f1ap.cnf"
+#line 1861 "./asn1/f1ap/f1ap.cnf"
   tvbuff_t *parameter_tvb = NULL;
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
                                      32, 32, FALSE, NULL, 0, &parameter_tvb, NULL);
@@ -15813,7 +16047,7 @@ dissect_f1ap_ReportingPeriodicity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 
 static int
 dissect_f1ap_RequestedBandCombinationIndex(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1673 "./asn1/f1ap/f1ap.cnf"
+#line 1678 "./asn1/f1ap/f1ap.cnf"
   tvbuff_t *param_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &param_tvb);
@@ -15832,7 +16066,7 @@ dissect_f1ap_RequestedBandCombinationIndex(tvbuff_t *tvb _U_, int offset _U_, as
 
 static int
 dissect_f1ap_RequestedFeatureSetEntryIndex(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1681 "./asn1/f1ap/f1ap.cnf"
+#line 1686 "./asn1/f1ap/f1ap.cnf"
   tvbuff_t *param_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &param_tvb);
@@ -15851,7 +16085,7 @@ dissect_f1ap_RequestedFeatureSetEntryIndex(tvbuff_t *tvb _U_, int offset _U_, as
 
 static int
 dissect_f1ap_RequestedP_MaxFR2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1689 "./asn1/f1ap/f1ap.cnf"
+#line 1694 "./asn1/f1ap/f1ap.cnf"
   tvbuff_t *param_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &param_tvb);
@@ -15870,7 +16104,7 @@ dissect_f1ap_RequestedP_MaxFR2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 static int
 dissect_f1ap_Requested_PDCCH_BlindDetectionSCG(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1647 "./asn1/f1ap/f1ap.cnf"
+#line 1652 "./asn1/f1ap/f1ap.cnf"
   tvbuff_t *parameter_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, -1,
                                        NO_BOUND, NO_BOUND, FALSE, &parameter_tvb);
@@ -16398,6 +16632,7 @@ dissect_f1ap_RRCContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
       case id_InitialULRRCMessageTransfer:
         col_append_str(actx->pinfo->cinfo, COL_PROTOCOL, "/");
         col_set_fence(actx->pinfo->cinfo, COL_PROTOCOL);
+        col_set_fence(actx->pinfo->cinfo, COL_INFO);
         call_dissector(nr_rrc_ul_ccch_handle, param_tvb, actx->pinfo, subtree);
         break;
       case id_ULRRCMessageTransfer:
@@ -16407,6 +16642,7 @@ dissect_f1ap_RRCContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
         case 3:
           col_append_str(actx->pinfo->cinfo, COL_PROTOCOL, "/");
           col_set_fence(actx->pinfo->cinfo, COL_PROTOCOL);
+          col_set_fence(actx->pinfo->cinfo, COL_INFO);
           add_nr_pdcp_meta_data(actx->pinfo, PDCP_NR_DIRECTION_UPLINK, f1ap_data->srb_id);
           call_dissector(nr_pdcp_handle, param_tvb, actx->pinfo, subtree);
           break;
@@ -16420,6 +16656,7 @@ dissect_f1ap_RRCContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
         case 0:
           col_append_str(actx->pinfo->cinfo, COL_PROTOCOL, "/");
           col_set_fence(actx->pinfo->cinfo, COL_PROTOCOL);
+          col_set_fence(actx->pinfo->cinfo, COL_INFO);
           call_dissector(nr_rrc_dl_ccch_handle, param_tvb, actx->pinfo, subtree);
           break;
         case 1:
@@ -16427,6 +16664,7 @@ dissect_f1ap_RRCContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
         case 3:
           col_append_str(actx->pinfo->cinfo, COL_PROTOCOL, "/");
           col_set_fence(actx->pinfo->cinfo, COL_PROTOCOL);
+          col_set_fence(actx->pinfo->cinfo, COL_INFO);
           add_nr_pdcp_meta_data(actx->pinfo, PDCP_NR_DIRECTION_DOWNLINK, f1ap_data->srb_id);
           call_dissector(nr_pdcp_handle, param_tvb, actx->pinfo, subtree);
           break;
@@ -16452,7 +16690,7 @@ dissect_f1ap_RRCContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 static int
 dissect_f1ap_RRCContainer_RRCSetupComplete(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1317 "./asn1/f1ap/f1ap.cnf"
+#line 1321 "./asn1/f1ap/f1ap.cnf"
   tvbuff_t *param_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &param_tvb);
@@ -16462,6 +16700,7 @@ dissect_f1ap_RRCContainer_RRCSetupComplete(tvbuff_t *tvb _U_, int offset _U_, as
     subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_RRCContainer_RRCSetupComplete);
     col_append_str(actx->pinfo->cinfo, COL_PROTOCOL, "/");
     col_set_fence(actx->pinfo->cinfo, COL_PROTOCOL);
+    col_set_fence(actx->pinfo->cinfo, COL_INFO);
     call_dissector(nr_rrc_ul_dcch_handle, param_tvb, actx->pinfo, subtree);
   }
 
@@ -16546,14 +16785,14 @@ dissect_f1ap_RRC_Version(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
 static int
 dissect_f1ap_Latest_RRC_Version_Enhanced(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1595 "./asn1/f1ap/f1ap.cnf"
+#line 1600 "./asn1/f1ap/f1ap.cnf"
   tvbuff_t *param_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        3, 3, FALSE, &param_tvb);
 
 
 
-#line 1598 "./asn1/f1ap/f1ap.cnf"
+#line 1603 "./asn1/f1ap/f1ap.cnf"
   if (param_tvb) {
     proto_item_set_text(actx->created_item, "%u.%u.%u", tvb_get_guint8(param_tvb, 0), tvb_get_guint8(param_tvb, 1), tvb_get_guint8(param_tvb, 2));
   }
@@ -16876,7 +17115,7 @@ dissect_f1ap_Served_Cells_To_Modify_Item(tvbuff_t *tvb _U_, int offset _U_, asn1
 
 static int
 dissect_f1ap_SIB10_message(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1873 "./asn1/f1ap/f1ap.cnf"
+#line 1878 "./asn1/f1ap/f1ap.cnf"
   tvbuff_t *param_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &param_tvb);
@@ -16895,7 +17134,7 @@ dissect_f1ap_SIB10_message(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
 static int
 dissect_f1ap_SIB12_message(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1881 "./asn1/f1ap/f1ap.cnf"
+#line 1886 "./asn1/f1ap/f1ap.cnf"
   tvbuff_t *param_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &param_tvb);
@@ -16914,7 +17153,7 @@ dissect_f1ap_SIB12_message(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
 static int
 dissect_f1ap_SIB13_message(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1889 "./asn1/f1ap/f1ap.cnf"
+#line 1894 "./asn1/f1ap/f1ap.cnf"
   tvbuff_t *param_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &param_tvb);
@@ -16933,7 +17172,7 @@ dissect_f1ap_SIB13_message(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
 static int
 dissect_f1ap_SIB14_message(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1897 "./asn1/f1ap/f1ap.cnf"
+#line 1902 "./asn1/f1ap/f1ap.cnf"
   tvbuff_t *param_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &param_tvb);
@@ -17220,7 +17459,7 @@ dissect_f1ap_SLDRBs_ToBeSetupMod_Item(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 
 static int
 dissect_f1ap_SL_PHY_MAC_RLC_Config(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1905 "./asn1/f1ap/f1ap.cnf"
+#line 1910 "./asn1/f1ap/f1ap.cnf"
   tvbuff_t *param_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &param_tvb);
@@ -17239,7 +17478,7 @@ dissect_f1ap_SL_PHY_MAC_RLC_Config(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 
 static int
 dissect_f1ap_SL_ConfigDedicatedEUTRA_Info(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1913 "./asn1/f1ap/f1ap.cnf"
+#line 1918 "./asn1/f1ap/f1ap.cnf"
   tvbuff_t *param_tvb = NULL;
   proto_tree *subtree;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
@@ -17284,7 +17523,7 @@ dissect_f1ap_SpatialDirectionInformation(tvbuff_t *tvb _U_, int offset _U_, asn1
 
 static int
 dissect_f1ap_SRBID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1313 "./asn1/f1ap/f1ap.cnf"
+#line 1317 "./asn1/f1ap/f1ap.cnf"
   f1ap_private_data_t *f1ap_data = f1ap_get_private_data(actx->pinfo);
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 3U, &f1ap_data->srb_id, TRUE);
@@ -17552,7 +17791,7 @@ dissect_f1ap_SystemInformationAreaID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
 static int
 dissect_f1ap_TDD_UL_DLConfigCommonNR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1922 "./asn1/f1ap/f1ap.cnf"
+#line 1927 "./asn1/f1ap/f1ap.cnf"
   tvbuff_t *param_tvb = NULL;
   proto_tree *subtree;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
@@ -18191,7 +18430,7 @@ dissect_f1ap_UE_associatedLogicalF1_ConnectionItem(tvbuff_t *tvb _U_, int offset
 
 static int
 dissect_f1ap_UEAssistanceInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1697 "./asn1/f1ap/f1ap.cnf"
+#line 1702 "./asn1/f1ap/f1ap.cnf"
   tvbuff_t *param_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &param_tvb);
@@ -18210,7 +18449,7 @@ dissect_f1ap_UEAssistanceInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
 static int
 dissect_f1ap_UEAssistanceInformationEUTRA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1931 "./asn1/f1ap/f1ap.cnf"
+#line 1936 "./asn1/f1ap/f1ap.cnf"
   tvbuff_t *param_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &param_tvb);
@@ -18354,7 +18593,7 @@ dissect_f1ap_UL_UP_TNL_Address_to_Update_List_Item(tvbuff_t *tvb _U_, int offset
 
 static int
 dissect_f1ap_UplinkTxDirectCurrentListInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1587 "./asn1/f1ap/f1ap.cnf"
+#line 1592 "./asn1/f1ap/f1ap.cnf"
   tvbuff_t *param_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &param_tvb);
@@ -18402,8 +18641,9 @@ static const per_sequence_t Reset_sequence[] = {
 
 static int
 dissect_f1ap_Reset(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1955 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Reset");
+#line 1960 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_RESET);
+  set_stats_message_type(actx->pinfo, MTYPE_RESET);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_Reset, Reset_sequence);
@@ -18472,8 +18712,9 @@ static const per_sequence_t ResetAcknowledge_sequence[] = {
 
 static int
 dissect_f1ap_ResetAcknowledge(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1957 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ResetAcknowledge");
+#line 1963 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_RESET_ACK);
+  set_stats_message_type(actx->pinfo, MTYPE_RESET_ACK);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_ResetAcknowledge, ResetAcknowledge_sequence);
@@ -18503,8 +18744,9 @@ static const per_sequence_t ErrorIndication_sequence[] = {
 
 static int
 dissect_f1ap_ErrorIndication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2007 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ErrorIndication");
+#line 2038 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_ERROR_INDICATION);
+  set_stats_message_type(actx->pinfo, MTYPE_ERROR_INDICATION);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_ErrorIndication, ErrorIndication_sequence);
@@ -18520,8 +18762,9 @@ static const per_sequence_t F1SetupRequest_sequence[] = {
 
 static int
 dissect_f1ap_F1SetupRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1959 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "F1SetupRequest");
+#line 1966 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_F1_SETUP_REQUEST);
+  set_stats_message_type(actx->pinfo, MTYPE_F1_SETUP_REQUEST);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_F1SetupRequest, F1SetupRequest_sequence);
@@ -18551,8 +18794,9 @@ static const per_sequence_t F1SetupResponse_sequence[] = {
 
 static int
 dissect_f1ap_F1SetupResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1961 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "F1SetupResponse");
+#line 1969 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_F1_SETUP_RESPONSE);
+  set_stats_message_type(actx->pinfo, MTYPE_F1_SETUP_RESPONSE);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_F1SetupResponse, F1SetupResponse_sequence);
@@ -18582,8 +18826,9 @@ static const per_sequence_t F1SetupFailure_sequence[] = {
 
 static int
 dissect_f1ap_F1SetupFailure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1963 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "F1SetupFailure");
+#line 1972 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_F1_SETUP_FAILURE);
+  set_stats_message_type(actx->pinfo, MTYPE_F1_SETUP_FAILURE);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_F1SetupFailure, F1SetupFailure_sequence);
@@ -18599,8 +18844,9 @@ static const per_sequence_t GNBDUConfigurationUpdate_sequence[] = {
 
 static int
 dissect_f1ap_GNBDUConfigurationUpdate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1965 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "GNBDUConfigurationUpdate");
+#line 1975 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_GNB_DU_CONFIGURATION_UPDATE);
+  set_stats_message_type(actx->pinfo, MTYPE_GNB_DU_CONFIGURATION_UPDATE);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_GNBDUConfigurationUpdate, GNBDUConfigurationUpdate_sequence);
@@ -18700,8 +18946,9 @@ static const per_sequence_t GNBDUConfigurationUpdateAcknowledge_sequence[] = {
 
 static int
 dissect_f1ap_GNBDUConfigurationUpdateAcknowledge(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1967 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "GNBDUConfigurationUpdateAcknowledge");
+#line 1978 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_GNB_DU_CONFIGURATION_UPDATE_ACKNOWLEDGE);
+  set_stats_message_type(actx->pinfo, MTYPE_GNB_DU_CONFIGURATION_UPDATE_ACKNOWLEDGE);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_GNBDUConfigurationUpdateAcknowledge, GNBDUConfigurationUpdateAcknowledge_sequence);
@@ -18717,8 +18964,9 @@ static const per_sequence_t GNBDUConfigurationUpdateFailure_sequence[] = {
 
 static int
 dissect_f1ap_GNBDUConfigurationUpdateFailure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1969 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "GNBDUConfigurationUpdateFailure");
+#line 1981 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_GNB_DU_CONFIGURATION_UPDATE_FAILURE);
+  set_stats_message_type(actx->pinfo, MTYPE_GNB_DU_CONFIGURATION_UPDATE_FAILURE);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_GNBDUConfigurationUpdateFailure, GNBDUConfigurationUpdateFailure_sequence);
@@ -18734,8 +18982,9 @@ static const per_sequence_t GNBCUConfigurationUpdate_sequence[] = {
 
 static int
 dissect_f1ap_GNBCUConfigurationUpdate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1971 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "GNBCUConfigurationUpdate");
+#line 1984 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_GNB_CU_CONFIGURATION_UPDATE);
+  set_stats_message_type(actx->pinfo, MTYPE_GNB_CU_CONFIGURATION_UPDATE);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_GNBCUConfigurationUpdate, GNBCUConfigurationUpdate_sequence);
@@ -18849,8 +19098,9 @@ static const per_sequence_t GNBCUConfigurationUpdateAcknowledge_sequence[] = {
 
 static int
 dissect_f1ap_GNBCUConfigurationUpdateAcknowledge(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1973 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "GNBCUConfigurationUpdateAcknowledge");
+#line 1987 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_GNB_CU_CONFIGURATION_UPDATE_ACKNOWLEDGE);
+  set_stats_message_type(actx->pinfo, MTYPE_GNB_CU_CONFIGURATION_UPDATE_ACKNOWLEDGE);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_GNBCUConfigurationUpdateAcknowledge, GNBCUConfigurationUpdateAcknowledge_sequence);
@@ -18908,8 +19158,9 @@ static const per_sequence_t GNBCUConfigurationUpdateFailure_sequence[] = {
 
 static int
 dissect_f1ap_GNBCUConfigurationUpdateFailure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1975 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "GNBCUConfigurationUpdateFailure");
+#line 1990 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_GNB_CU_CONFIGURATION_UPDATE_FAILURE);
+  set_stats_message_type(actx->pinfo, MTYPE_GNB_CU_CONFIGURATION_UPDATE_FAILURE);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_GNBCUConfigurationUpdateFailure, GNBCUConfigurationUpdateFailure_sequence);
@@ -18925,8 +19176,9 @@ static const per_sequence_t GNBDUResourceCoordinationRequest_sequence[] = {
 
 static int
 dissect_f1ap_GNBDUResourceCoordinationRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2019 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "GNBDUResourceCoordinationRequest");
+#line 2056 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_GNB_DU_RESOURCE_COORDINATION_REQUEST);
+  set_stats_message_type(actx->pinfo, MTYPE_GNB_DU_RESOURCE_COORDINATION_REQUEST);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_GNBDUResourceCoordinationRequest, GNBDUResourceCoordinationRequest_sequence);
@@ -18942,8 +19194,9 @@ static const per_sequence_t GNBDUResourceCoordinationResponse_sequence[] = {
 
 static int
 dissect_f1ap_GNBDUResourceCoordinationResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2021 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "GNBDUResourceCoordinationResponse");
+#line 2059 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_GNB_DU_RESOURCE_COORDINATION_RESPONSE);
+  set_stats_message_type(actx->pinfo, MTYPE_GNB_DU_RESOURCE_COORDINATION_RESPONSE);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_GNBDUResourceCoordinationResponse, GNBDUResourceCoordinationResponse_sequence);
@@ -18959,8 +19212,9 @@ static const per_sequence_t UEContextSetupRequest_sequence[] = {
 
 static int
 dissect_f1ap_UEContextSetupRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1977 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UEContextSetupRequest");
+#line 1993 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_UE_CONTEXT_SETUP_REQUEST);
+  set_stats_message_type(actx->pinfo, MTYPE_UE_CONTEXT_SETUP_REQUEST);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_UEContextSetupRequest, UEContextSetupRequest_sequence);
@@ -19060,8 +19314,9 @@ static const per_sequence_t UEContextSetupResponse_sequence[] = {
 
 static int
 dissect_f1ap_UEContextSetupResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1979 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UEContextSetupResponse");
+#line 1996 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_UE_CONTEXT_SETUP_RESPONSE);
+  set_stats_message_type(actx->pinfo, MTYPE_UE_CONTEXT_SETUP_RESPONSE);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_UEContextSetupResponse, UEContextSetupResponse_sequence);
@@ -19203,8 +19458,9 @@ static const per_sequence_t UEContextSetupFailure_sequence[] = {
 
 static int
 dissect_f1ap_UEContextSetupFailure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1981 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UEContextSetupFailure");
+#line 1999 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_UE_CONTEXT_SETUP_FAILURE);
+  set_stats_message_type(actx->pinfo, MTYPE_UE_CONTEXT_SETUP_FAILURE);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_UEContextSetupFailure, UEContextSetupFailure_sequence);
@@ -19234,8 +19490,9 @@ static const per_sequence_t UEContextReleaseRequest_sequence[] = {
 
 static int
 dissect_f1ap_UEContextReleaseRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2009 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UEContextReleaseRequest");
+#line 2041 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_UE_CONTEXT_RELEASE_REQUEST);
+  set_stats_message_type(actx->pinfo, MTYPE_UE_CONTEXT_RELEASE_REQUEST);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_UEContextReleaseRequest, UEContextReleaseRequest_sequence);
@@ -19251,8 +19508,9 @@ static const per_sequence_t UEContextReleaseCommand_sequence[] = {
 
 static int
 dissect_f1ap_UEContextReleaseCommand(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1983 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UEContextReleaseCommand");
+#line 2002 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_UE_CONTEXT_RELEASE_COMMAND);
+  set_stats_message_type(actx->pinfo, MTYPE_UE_CONTEXT_RELEASE_COMMAND);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_UEContextReleaseCommand, UEContextReleaseCommand_sequence);
@@ -19268,8 +19526,9 @@ static const per_sequence_t UEContextReleaseComplete_sequence[] = {
 
 static int
 dissect_f1ap_UEContextReleaseComplete(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1985 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UEContextReleaseComplete");
+#line 2005 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_UE_CONTEXT_RELEASE_COMPLETE);
+  set_stats_message_type(actx->pinfo, MTYPE_UE_CONTEXT_RELEASE_COMPLETE);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_UEContextReleaseComplete, UEContextReleaseComplete_sequence);
@@ -19285,8 +19544,9 @@ static const per_sequence_t UEContextModificationRequest_sequence[] = {
 
 static int
 dissect_f1ap_UEContextModificationRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1987 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UEContextModificationRequest");
+#line 2008 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_UE_CONTEXT_MODIFICATION_REQUEST);
+  set_stats_message_type(actx->pinfo, MTYPE_UE_CONTEXT_MODIFICATION_REQUEST);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_UEContextModificationRequest, UEContextModificationRequest_sequence);
@@ -19484,8 +19744,9 @@ static const per_sequence_t UEContextModificationResponse_sequence[] = {
 
 static int
 dissect_f1ap_UEContextModificationResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1989 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UEContextModificationResponse");
+#line 2011 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_UE_CONTEXT_MODIFICATION_RESPONSE);
+  set_stats_message_type(actx->pinfo, MTYPE_UE_CONTEXT_MODIFICATION_RESPONSE);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_UEContextModificationResponse, UEContextModificationResponse_sequence);
@@ -19739,8 +20000,9 @@ static const per_sequence_t UEContextModificationFailure_sequence[] = {
 
 static int
 dissect_f1ap_UEContextModificationFailure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1991 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UEContextModificationFailure");
+#line 2014 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_UE_CONTEXT_MODIFICATION_FAILURE);
+  set_stats_message_type(actx->pinfo, MTYPE_UE_CONTEXT_MODIFICATION_FAILURE);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_UEContextModificationFailure, UEContextModificationFailure_sequence);
@@ -19756,8 +20018,9 @@ static const per_sequence_t UEContextModificationRequired_sequence[] = {
 
 static int
 dissect_f1ap_UEContextModificationRequired(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1993 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UEContextModificationRequired");
+#line 2017 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_UE_CONTEXT_MODIFICATION_REQUIRED);
+  set_stats_message_type(actx->pinfo, MTYPE_UE_CONTEXT_MODIFICATION_REQUIRED);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_UEContextModificationRequired, UEContextModificationRequired_sequence);
@@ -19857,8 +20120,9 @@ static const per_sequence_t UEContextModificationConfirm_sequence[] = {
 
 static int
 dissect_f1ap_UEContextModificationConfirm(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1995 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UEContextModificationConfirm");
+#line 2020 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_UE_CONTEXT_MODIFICATION_CONFIRM);
+  set_stats_message_type(actx->pinfo, MTYPE_UE_CONTEXT_MODIFICATION_CONFIRM);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_UEContextModificationConfirm, UEContextModificationConfirm_sequence);
@@ -19902,8 +20166,9 @@ static const per_sequence_t UEContextModificationRefuse_sequence[] = {
 
 static int
 dissect_f1ap_UEContextModificationRefuse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1997 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UEContextModificationRefuse");
+#line 2023 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_UE_CONTEXT_MODIFICATION_REFUSE);
+  set_stats_message_type(actx->pinfo, MTYPE_UE_CONTEXT_MODIFICATION_REFUSE);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_UEContextModificationRefuse, UEContextModificationRefuse_sequence);
@@ -19919,8 +20184,9 @@ static const per_sequence_t WriteReplaceWarningRequest_sequence[] = {
 
 static int
 dissect_f1ap_WriteReplaceWarningRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1999 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "WriteReplaceWarningRequest");
+#line 2026 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_WRITE_REPLACE_WARNING_REQUEST);
+  set_stats_message_type(actx->pinfo, MTYPE_WRITE_REPLACE_WARNING_REQUEST);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_WriteReplaceWarningRequest, WriteReplaceWarningRequest_sequence);
@@ -19950,8 +20216,9 @@ static const per_sequence_t WriteReplaceWarningResponse_sequence[] = {
 
 static int
 dissect_f1ap_WriteReplaceWarningResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2001 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "WriteReplaceWarningResponse");
+#line 2029 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_WRITE_REPLACE_WARNING_RESPONSE);
+  set_stats_message_type(actx->pinfo, MTYPE_WRITE_REPLACE_WARNING_RESPONSE);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_WriteReplaceWarningResponse, WriteReplaceWarningResponse_sequence);
@@ -19981,8 +20248,9 @@ static const per_sequence_t PWSCancelRequest_sequence[] = {
 
 static int
 dissect_f1ap_PWSCancelRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2003 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PWSCancelRequest");
+#line 2032 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_PWS_CANCEL_REQUEST);
+  set_stats_message_type(actx->pinfo, MTYPE_PWS_CANCEL_REQUEST);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_PWSCancelRequest, PWSCancelRequest_sequence);
@@ -20012,8 +20280,9 @@ static const per_sequence_t PWSCancelResponse_sequence[] = {
 
 static int
 dissect_f1ap_PWSCancelResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2005 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PWSCancelResponse");
+#line 2035 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_PWS_CANCEL_RESPONSE);
+  set_stats_message_type(actx->pinfo, MTYPE_PWS_CANCEL_RESPONSE);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_PWSCancelResponse, PWSCancelResponse_sequence);
@@ -20043,8 +20312,9 @@ static const per_sequence_t UEInactivityNotification_sequence[] = {
 
 static int
 dissect_f1ap_UEInactivityNotification(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2017 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UEInactivityNotification");
+#line 2053 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_UE_INACTIVITY_NOTIFICATION);
+  set_stats_message_type(actx->pinfo, MTYPE_UE_INACTIVITY_NOTIFICATION);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_UEInactivityNotification, UEInactivityNotification_sequence);
@@ -20074,8 +20344,9 @@ static const per_sequence_t InitialULRRCMessageTransfer_sequence[] = {
 
 static int
 dissect_f1ap_InitialULRRCMessageTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2011 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "InitialULRRCMessageTransfer");
+#line 2044 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_INITIAL_UL_RRC_MESSAGE_TRANSFER);
+  set_stats_message_type(actx->pinfo, MTYPE_INITIAL_UL_RRC_MESSAGE_TRANSFER);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_InitialULRRCMessageTransfer, InitialULRRCMessageTransfer_sequence);
@@ -20091,8 +20362,9 @@ static const per_sequence_t DLRRCMessageTransfer_sequence[] = {
 
 static int
 dissect_f1ap_DLRRCMessageTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2013 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "DLRRCMessageTransfer");
+#line 2047 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_DL_RRC_MESSAGE_TRANSFER);
+  set_stats_message_type(actx->pinfo, MTYPE_DL_RRC_MESSAGE_TRANSFER);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_DLRRCMessageTransfer, DLRRCMessageTransfer_sequence);
@@ -20118,8 +20390,9 @@ static const per_sequence_t ULRRCMessageTransfer_sequence[] = {
 
 static int
 dissect_f1ap_ULRRCMessageTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2015 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ULRRCMessageTransfer");
+#line 2050 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_UL_RRC_MESSAGE_TRANSFER);
+  set_stats_message_type(actx->pinfo, MTYPE_UL_RRC_MESSAGE_TRANSFER);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_ULRRCMessageTransfer, ULRRCMessageTransfer_sequence);
@@ -20135,8 +20408,9 @@ static const per_sequence_t PrivateMessage_sequence[] = {
 
 static int
 dissect_f1ap_PrivateMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2023 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PrivateMessage");
+#line 2062 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_PRIVATE_MESSAGE);
+  set_stats_message_type(actx->pinfo, MTYPE_PRIVATE_MESSAGE);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_PrivateMessage, PrivateMessage_sequence);
@@ -20152,8 +20426,9 @@ static const per_sequence_t SystemInformationDeliveryCommand_sequence[] = {
 
 static int
 dissect_f1ap_SystemInformationDeliveryCommand(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2025 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "SystemInformationDeliveryCommand");
+#line 2065 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_SYSTEM_INFORMATION_DELIVERY_COMMAND);
+  set_stats_message_type(actx->pinfo, MTYPE_SYSTEM_INFORMATION_DELIVERY_COMMAND);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_SystemInformationDeliveryCommand, SystemInformationDeliveryCommand_sequence);
@@ -20169,8 +20444,9 @@ static const per_sequence_t Paging_sequence[] = {
 
 static int
 dissect_f1ap_Paging(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2027 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Paging");
+#line 2068 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_PAGING);
+  set_stats_message_type(actx->pinfo, MTYPE_PAGING);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_Paging, Paging_sequence);
@@ -20200,8 +20476,9 @@ static const per_sequence_t Notify_sequence[] = {
 
 static int
 dissect_f1ap_Notify(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2029 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Notify");
+#line 2071 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_NOTIFY);
+  set_stats_message_type(actx->pinfo, MTYPE_NOTIFY);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_Notify, Notify_sequence);
@@ -20231,8 +20508,9 @@ static const per_sequence_t NetworkAccessRateReduction_sequence[] = {
 
 static int
 dissect_f1ap_NetworkAccessRateReduction(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2031 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "NetworkAccessRateReduction");
+#line 2074 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_NETWORK_ACCESS_RATE_REDUCTION);
+  set_stats_message_type(actx->pinfo, MTYPE_NETWORK_ACCESS_RATE_REDUCTION);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_NetworkAccessRateReduction, NetworkAccessRateReduction_sequence);
@@ -20248,8 +20526,9 @@ static const per_sequence_t PWSRestartIndication_sequence[] = {
 
 static int
 dissect_f1ap_PWSRestartIndication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2033 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PWSRestartIndication");
+#line 2077 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_PWS_RESTART_INDICATION);
+  set_stats_message_type(actx->pinfo, MTYPE_PWS_RESTART_INDICATION);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_PWSRestartIndication, PWSRestartIndication_sequence);
@@ -20279,8 +20558,9 @@ static const per_sequence_t PWSFailureIndication_sequence[] = {
 
 static int
 dissect_f1ap_PWSFailureIndication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2035 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PWSFailureIndication");
+#line 2080 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_PWS_FAILURE_INDICATION);
+  set_stats_message_type(actx->pinfo, MTYPE_PWS_FAILURE_INDICATION);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_PWSFailureIndication, PWSFailureIndication_sequence);
@@ -20310,8 +20590,9 @@ static const per_sequence_t GNBDUStatusIndication_sequence[] = {
 
 static int
 dissect_f1ap_GNBDUStatusIndication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2037 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "GNBDUStatusIndication");
+#line 2083 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_GNB_DU_STATUS_INDICATION);
+  set_stats_message_type(actx->pinfo, MTYPE_GNB_DU_STATUS_INDICATION);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_GNBDUStatusIndication, GNBDUStatusIndication_sequence);
@@ -20327,8 +20608,9 @@ static const per_sequence_t RRCDeliveryReport_sequence[] = {
 
 static int
 dissect_f1ap_RRCDeliveryReport(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2039 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRCDeliveryReport");
+#line 2086 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_RRC_DELIVERY_REPORT);
+  set_stats_message_type(actx->pinfo, MTYPE_RRC_DELIVERY_REPORT);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_RRCDeliveryReport, RRCDeliveryReport_sequence);
@@ -20344,8 +20626,9 @@ static const per_sequence_t F1RemovalRequest_sequence[] = {
 
 static int
 dissect_f1ap_F1RemovalRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2042 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "F1RemovalRequest");
+#line 2090 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_F1_REMOVAL_REQUEST);
+  set_stats_message_type(actx->pinfo, MTYPE_F1_REMOVAL_REQUEST);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_F1RemovalRequest, F1RemovalRequest_sequence);
@@ -20361,8 +20644,9 @@ static const per_sequence_t F1RemovalResponse_sequence[] = {
 
 static int
 dissect_f1ap_F1RemovalResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2045 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "F1RemovalResponse");
+#line 2094 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_F1_REMOVAL_RESPONSE);
+  set_stats_message_type(actx->pinfo, MTYPE_F1_REMOVAL_RESPONSE);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_F1RemovalResponse, F1RemovalResponse_sequence);
@@ -20378,8 +20662,9 @@ static const per_sequence_t F1RemovalFailure_sequence[] = {
 
 static int
 dissect_f1ap_F1RemovalFailure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2048 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "F1RemovalFailure");
+#line 2098 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_F1_REMOVAL_FAILURE);
+  set_stats_message_type(actx->pinfo, MTYPE_F1_REMOVAL_FAILURE);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_F1RemovalFailure, F1RemovalFailure_sequence);
@@ -20395,8 +20680,9 @@ static const per_sequence_t TraceStart_sequence[] = {
 
 static int
 dissect_f1ap_TraceStart(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2051 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "TraceStart");
+#line 2102 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_TRACE_START);
+  set_stats_message_type(actx->pinfo, MTYPE_TRACE_START);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_TraceStart, TraceStart_sequence);
@@ -20412,8 +20698,9 @@ static const per_sequence_t DeactivateTrace_sequence[] = {
 
 static int
 dissect_f1ap_DeactivateTrace(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2054 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "DeactivateTrace");
+#line 2106 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_DEACTIVATE_TRACE);
+  set_stats_message_type(actx->pinfo, MTYPE_DEACTIVATE_TRACE);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_DeactivateTrace, DeactivateTrace_sequence);
@@ -20429,8 +20716,9 @@ static const per_sequence_t CellTrafficTrace_sequence[] = {
 
 static int
 dissect_f1ap_CellTrafficTrace(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2123 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "CellTrafficTrace");
+#line 2198 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_CELL_TRAFFIC_TRACE);
+  set_stats_message_type(actx->pinfo, MTYPE_CELL_TRAFFIC_TRACE);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_CellTrafficTrace, CellTrafficTrace_sequence);
@@ -20446,8 +20734,9 @@ static const per_sequence_t DUCURadioInformationTransfer_sequence[] = {
 
 static int
 dissect_f1ap_DUCURadioInformationTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2057 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "DUCURadioInformationTransfer");
+#line 2110 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_DU_CU_RADIO_INFORMATION_TRANSFER);
+  set_stats_message_type(actx->pinfo, MTYPE_DU_CU_RADIO_INFORMATION_TRANSFER);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_DUCURadioInformationTransfer, DUCURadioInformationTransfer_sequence);
@@ -20463,8 +20752,9 @@ static const per_sequence_t CUDURadioInformationTransfer_sequence[] = {
 
 static int
 dissect_f1ap_CUDURadioInformationTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2060 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "CUDURadioInformationTransfer");
+#line 2114 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_CU_DU_RADIO_INFORMATION_TRANSFER);
+  set_stats_message_type(actx->pinfo, MTYPE_CU_DU_RADIO_INFORMATION_TRANSFER);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_CUDURadioInformationTransfer, CUDURadioInformationTransfer_sequence);
@@ -20480,8 +20770,9 @@ static const per_sequence_t BAPMappingConfiguration_sequence[] = {
 
 static int
 dissect_f1ap_BAPMappingConfiguration(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2063 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "BAPMappingConfiguration");
+#line 2118 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_BAP_MAPPING_CONFIGURATION);
+  set_stats_message_type(actx->pinfo, MTYPE_BAP_MAPPING_CONFIGURATION);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_BAPMappingConfiguration, BAPMappingConfiguration_sequence);
@@ -20525,8 +20816,9 @@ static const per_sequence_t BAPMappingConfigurationAcknowledge_sequence[] = {
 
 static int
 dissect_f1ap_BAPMappingConfigurationAcknowledge(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2066 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "BAPMappingConfigurationAcknowledge");
+#line 2122 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_BAP_MAPPING_CONFIGURATION_ACKNOWLEDGE);
+  set_stats_message_type(actx->pinfo, MTYPE_BAP_MAPPING_CONFIGURATION_ACKNOWLEDGE);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_BAPMappingConfigurationAcknowledge, BAPMappingConfigurationAcknowledge_sequence);
@@ -20542,8 +20834,9 @@ static const per_sequence_t BAPMappingConfigurationFailure_sequence[] = {
 
 static int
 dissect_f1ap_BAPMappingConfigurationFailure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2069 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "BAPMappingConfigurationFailure");
+#line 2126 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_BAP_MAPPING_CONFIGURATION_FAILURE);
+  set_stats_message_type(actx->pinfo, MTYPE_BAP_MAPPING_CONFIGURATION_FAILURE);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_BAPMappingConfigurationFailure, BAPMappingConfigurationFailure_sequence);
@@ -20559,8 +20852,9 @@ static const per_sequence_t GNBDUResourceConfiguration_sequence[] = {
 
 static int
 dissect_f1ap_GNBDUResourceConfiguration(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2072 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "GNBDUResourceConfiguration");
+#line 2130 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_GNB_DU_RESOURCE_CONFIGURATION);
+  set_stats_message_type(actx->pinfo, MTYPE_GNB_DU_RESOURCE_CONFIGURATION);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_GNBDUResourceConfiguration, GNBDUResourceConfiguration_sequence);
@@ -20576,8 +20870,9 @@ static const per_sequence_t GNBDUResourceConfigurationAcknowledge_sequence[] = {
 
 static int
 dissect_f1ap_GNBDUResourceConfigurationAcknowledge(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2075 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "GNBDUResourceConfigurationAcknowledge");
+#line 2134 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_GNB_DU_RESOURCE_CONFIGURATION_ACKNOWLEDGE);
+  set_stats_message_type(actx->pinfo, MTYPE_GNB_DU_RESOURCE_CONFIGURATION_ACKNOWLEDGE);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_GNBDUResourceConfigurationAcknowledge, GNBDUResourceConfigurationAcknowledge_sequence);
@@ -20593,8 +20888,9 @@ static const per_sequence_t GNBDUResourceConfigurationFailure_sequence[] = {
 
 static int
 dissect_f1ap_GNBDUResourceConfigurationFailure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2078 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "GNBDUResourceConfigurationFailure");
+#line 2138 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_GNB_DU_RESOURCE_CONFIGURATION_FAILURE);
+  set_stats_message_type(actx->pinfo, MTYPE_GNB_DU_RESOURCE_CONFIGURATION_FAILURE);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_GNBDUResourceConfigurationFailure, GNBDUResourceConfigurationFailure_sequence);
@@ -20610,8 +20906,9 @@ static const per_sequence_t IABTNLAddressRequest_sequence[] = {
 
 static int
 dissect_f1ap_IABTNLAddressRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2081 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "IABTNLAddressRequest");
+#line 2142 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_IAB_TNL_ADDRESS_REQUEST);
+  set_stats_message_type(actx->pinfo, MTYPE_IAB_TNL_ADDRESS_REQUEST);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_IABTNLAddressRequest, IABTNLAddressRequest_sequence);
@@ -20641,8 +20938,9 @@ static const per_sequence_t IABTNLAddressResponse_sequence[] = {
 
 static int
 dissect_f1ap_IABTNLAddressResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2084 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "IABTNLAddressResponse");
+#line 2146 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_IAB_TNL_ADDRESS_RESPONSE);
+  set_stats_message_type(actx->pinfo, MTYPE_IAB_TNL_ADDRESS_RESPONSE);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_IABTNLAddressResponse, IABTNLAddressResponse_sequence);
@@ -20672,8 +20970,9 @@ static const per_sequence_t IABTNLAddressFailure_sequence[] = {
 
 static int
 dissect_f1ap_IABTNLAddressFailure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2087 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "IABTNLAddressFailure");
+#line 2150 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_IAB_TNL_ADDRESS_FAILURE);
+  set_stats_message_type(actx->pinfo, MTYPE_IAB_TNL_ADDRESS_FAILURE);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_IABTNLAddressFailure, IABTNLAddressFailure_sequence);
@@ -20689,8 +20988,9 @@ static const per_sequence_t IABUPConfigurationUpdateRequest_sequence[] = {
 
 static int
 dissect_f1ap_IABUPConfigurationUpdateRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2090 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "IABUPConfigurationUpdateRequest");
+#line 2154 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_IAB_UP_CONFIGURATION_UPDATE_REQUEST);
+  set_stats_message_type(actx->pinfo, MTYPE_IAB_UP_CONFIGURATION_UPDATE_REQUEST);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_IABUPConfigurationUpdateRequest, IABUPConfigurationUpdateRequest_sequence);
@@ -20734,8 +21034,9 @@ static const per_sequence_t IABUPConfigurationUpdateResponse_sequence[] = {
 
 static int
 dissect_f1ap_IABUPConfigurationUpdateResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2093 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "IABUPConfigurationUpdateResponse");
+#line 2158 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_IAB_UP_CONFIGURATION_UPDATE_RESPONSE);
+  set_stats_message_type(actx->pinfo, MTYPE_IAB_UP_CONFIGURATION_UPDATE_RESPONSE);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_IABUPConfigurationUpdateResponse, IABUPConfigurationUpdateResponse_sequence);
@@ -20765,8 +21066,9 @@ static const per_sequence_t IABUPConfigurationUpdateFailure_sequence[] = {
 
 static int
 dissect_f1ap_IABUPConfigurationUpdateFailure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2096 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "IABUPConfigurationUpdateFailure");
+#line 2162 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_IAB_UP_CONFIGURATION_UPDATE_FAILURE);
+  set_stats_message_type(actx->pinfo, MTYPE_IAB_UP_CONFIGURATION_UPDATE_FAILURE);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_IABUPConfigurationUpdateFailure, IABUPConfigurationUpdateFailure_sequence);
@@ -20782,8 +21084,9 @@ static const per_sequence_t ResourceStatusRequest_sequence[] = {
 
 static int
 dissect_f1ap_ResourceStatusRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2099 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ResourceStatusRequest");
+#line 2166 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_RESOURCE_STATUS_REQUEST);
+  set_stats_message_type(actx->pinfo, MTYPE_RESOURCE_STATUS_REQUEST);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_ResourceStatusRequest, ResourceStatusRequest_sequence);
@@ -20799,8 +21102,9 @@ static const per_sequence_t ResourceStatusResponse_sequence[] = {
 
 static int
 dissect_f1ap_ResourceStatusResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2102 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ResourceStatusResponse");
+#line 2170 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_RESOURCE_STATUS_RESPONSE);
+  set_stats_message_type(actx->pinfo, MTYPE_RESOURCE_STATUS_RESPONSE);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_ResourceStatusResponse, ResourceStatusResponse_sequence);
@@ -20816,8 +21120,9 @@ static const per_sequence_t ResourceStatusFailure_sequence[] = {
 
 static int
 dissect_f1ap_ResourceStatusFailure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2105 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ResourceStatusFailure");
+#line 2174 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_RESOURCE_STATUS_FAILURE);
+  set_stats_message_type(actx->pinfo, MTYPE_RESOURCE_STATUS_FAILURE);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_ResourceStatusFailure, ResourceStatusFailure_sequence);
@@ -20833,8 +21138,9 @@ static const per_sequence_t ResourceStatusUpdate_sequence[] = {
 
 static int
 dissect_f1ap_ResourceStatusUpdate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2108 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ResourceStatusUpdate");
+#line 2178 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_RESOURCE_STATUS_UPDATE);
+  set_stats_message_type(actx->pinfo, MTYPE_RESOURCE_STATUS_UPDATE);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_ResourceStatusUpdate, ResourceStatusUpdate_sequence);
@@ -20850,8 +21156,9 @@ static const per_sequence_t AccessAndMobilityIndication_sequence[] = {
 
 static int
 dissect_f1ap_AccessAndMobilityIndication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2111 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "AccessAndMobilityIndication");
+#line 2182 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_ACCESS_AND_MOBILITY_INDICATION);
+  set_stats_message_type(actx->pinfo, MTYPE_ACCESS_AND_MOBILITY_INDICATION);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_AccessAndMobilityIndication, AccessAndMobilityIndication_sequence);
@@ -20867,8 +21174,9 @@ static const per_sequence_t ReferenceTimeInformationReportingControl_sequence[] 
 
 static int
 dissect_f1ap_ReferenceTimeInformationReportingControl(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2114 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ReferenceTimeInformationReportingControl");
+#line 2186 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_REFERENCE_TIME_INFORMATION_REPORTING_CONTROL);
+  set_stats_message_type(actx->pinfo, MTYPE_REFERENCE_TIME_INFORMATION_REPORTING_CONTROL);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_ReferenceTimeInformationReportingControl, ReferenceTimeInformationReportingControl_sequence);
@@ -20884,8 +21192,9 @@ static const per_sequence_t ReferenceTimeInformationReport_sequence[] = {
 
 static int
 dissect_f1ap_ReferenceTimeInformationReport(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2117 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ReferenceTimeInformationReport");
+#line 2190 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_REFERENCE_TIME_INFORMATION_REPORT);
+  set_stats_message_type(actx->pinfo, MTYPE_REFERENCE_TIME_INFORMATION_REPORT);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_ReferenceTimeInformationReport, ReferenceTimeInformationReport_sequence);
@@ -20901,8 +21210,9 @@ static const per_sequence_t AccessSuccess_sequence[] = {
 
 static int
 dissect_f1ap_AccessSuccess(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2120 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "AccessSuccess");
+#line 2194 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_ACCESS_SUCCESS);
+  set_stats_message_type(actx->pinfo, MTYPE_ACCESS_SUCCESS);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_AccessSuccess, AccessSuccess_sequence);
@@ -20918,8 +21228,9 @@ static const per_sequence_t PositioningAssistanceInformationControl_sequence[] =
 
 static int
 dissect_f1ap_PositioningAssistanceInformationControl(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2126 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PositioningAssistanceInformationControl");
+#line 2202 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_POSITIONING_ASSISTANCE_INFORMATION_CONTROL);
+  set_stats_message_type(actx->pinfo, MTYPE_POSITIONING_ASSISTANCE_INFORMATION_CONTROL);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_PositioningAssistanceInformationControl, PositioningAssistanceInformationControl_sequence);
@@ -20935,8 +21246,9 @@ static const per_sequence_t PositioningAssistanceInformationFeedback_sequence[] 
 
 static int
 dissect_f1ap_PositioningAssistanceInformationFeedback(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2129 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PositioningAssistanceInformationFeedback");
+#line 2206 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_POSITIONING_ASSISTANCE_INFORMATION_FEEDBACK);
+  set_stats_message_type(actx->pinfo, MTYPE_POSITIONING_ASSISTANCE_INFORMATION_FEEDBACK);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_PositioningAssistanceInformationFeedback, PositioningAssistanceInformationFeedback_sequence);
@@ -20952,8 +21264,9 @@ static const per_sequence_t PositioningMeasurementRequest_sequence[] = {
 
 static int
 dissect_f1ap_PositioningMeasurementRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2132 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PositioningMeasurementRequest");
+#line 2210 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_POSITIONING_MEASUREMENT_REQUEST);
+  set_stats_message_type(actx->pinfo, MTYPE_POSITIONING_MEASUREMENT_REQUEST);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_PositioningMeasurementRequest, PositioningMeasurementRequest_sequence);
@@ -20969,8 +21282,9 @@ static const per_sequence_t PositioningMeasurementResponse_sequence[] = {
 
 static int
 dissect_f1ap_PositioningMeasurementResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2135 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PositioningMeasurementResponse");
+#line 2214 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_POSITIONING_MEASUREMENT_RESPONSE);
+  set_stats_message_type(actx->pinfo, MTYPE_POSITIONING_MEASUREMENT_RESPONSE);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_PositioningMeasurementResponse, PositioningMeasurementResponse_sequence);
@@ -20986,8 +21300,9 @@ static const per_sequence_t PositioningMeasurementFailure_sequence[] = {
 
 static int
 dissect_f1ap_PositioningMeasurementFailure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2138 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PositioningMeasurementFailure");
+#line 2218 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_POSITIONING_MEASUREMENT_FAILURE);
+  set_stats_message_type(actx->pinfo, MTYPE_POSITIONING_MEASUREMENT_FAILURE);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_PositioningMeasurementFailure, PositioningMeasurementFailure_sequence);
@@ -21003,8 +21318,9 @@ static const per_sequence_t PositioningMeasurementReport_sequence[] = {
 
 static int
 dissect_f1ap_PositioningMeasurementReport(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2141 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PositioningMeasurementReport");
+#line 2222 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_POSITIONING_MEASUREMENT_REPORT);
+  set_stats_message_type(actx->pinfo, MTYPE_POSITIONING_MEASUREMENT_REPORT);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_PositioningMeasurementReport, PositioningMeasurementReport_sequence);
@@ -21020,8 +21336,9 @@ static const per_sequence_t PositioningMeasurementAbort_sequence[] = {
 
 static int
 dissect_f1ap_PositioningMeasurementAbort(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2144 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PositioningMeasurementAbort");
+#line 2226 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_POSITIONING_MEASUREMENT_ABORT);
+  set_stats_message_type(actx->pinfo, MTYPE_POSITIONING_MEASUREMENT_ABORT);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_PositioningMeasurementAbort, PositioningMeasurementAbort_sequence);
@@ -21037,8 +21354,9 @@ static const per_sequence_t PositioningMeasurementFailureIndication_sequence[] =
 
 static int
 dissect_f1ap_PositioningMeasurementFailureIndication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2147 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PositioningMeasurementFailureIndication");
+#line 2230 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_POSITIONING_MEASUREMENT_FAILURE_INDICATION);
+  set_stats_message_type(actx->pinfo, MTYPE_POSITIONING_MEASUREMENT_FAILURE_INDICATION);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_PositioningMeasurementFailureIndication, PositioningMeasurementFailureIndication_sequence);
@@ -21054,8 +21372,9 @@ static const per_sequence_t PositioningMeasurementUpdate_sequence[] = {
 
 static int
 dissect_f1ap_PositioningMeasurementUpdate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2150 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PositioningMeasurementUpdate");
+#line 2234 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_POSITIONING_MEASUREMENT_UPDATE);
+  set_stats_message_type(actx->pinfo, MTYPE_POSITIONING_MEASUREMENT_UPDATE);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_PositioningMeasurementUpdate, PositioningMeasurementUpdate_sequence);
@@ -21071,8 +21390,9 @@ static const per_sequence_t TRPInformationRequest_sequence[] = {
 
 static int
 dissect_f1ap_TRPInformationRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2153 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "TRPInformationRequest");
+#line 2238 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_TRP_INFORMATION_REQUEST);
+  set_stats_message_type(actx->pinfo, MTYPE_TRP_INFORMATION_REQUEST);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_TRPInformationRequest, TRPInformationRequest_sequence);
@@ -21102,8 +21422,9 @@ static const per_sequence_t TRPInformationResponse_sequence[] = {
 
 static int
 dissect_f1ap_TRPInformationResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2156 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "TRPInformationResponse");
+#line 2242 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_TRP_INFORMATION_RESPONSE);
+  set_stats_message_type(actx->pinfo, MTYPE_TRP_INFORMATION_RESPONSE);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_TRPInformationResponse, TRPInformationResponse_sequence);
@@ -21133,8 +21454,9 @@ static const per_sequence_t TRPInformationFailure_sequence[] = {
 
 static int
 dissect_f1ap_TRPInformationFailure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2159 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "TRPInformationFailure");
+#line 2246 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_TRP_INFORMATION_FAILURE);
+  set_stats_message_type(actx->pinfo, MTYPE_TRP_INFORMATION_FAILURE);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_TRPInformationFailure, TRPInformationFailure_sequence);
@@ -21150,8 +21472,9 @@ static const per_sequence_t PositioningInformationRequest_sequence[] = {
 
 static int
 dissect_f1ap_PositioningInformationRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2162 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PositioningInformationRequest");
+#line 2250 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_POSITIONING_INFORMATION_REQUEST);
+  set_stats_message_type(actx->pinfo, MTYPE_POSITIONING_INFORMATION_REQUEST);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_PositioningInformationRequest, PositioningInformationRequest_sequence);
@@ -21167,8 +21490,9 @@ static const per_sequence_t PositioningInformationResponse_sequence[] = {
 
 static int
 dissect_f1ap_PositioningInformationResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2165 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PositioningInformationResponse");
+#line 2254 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_POSITIONING_INFORMATION_RESPONSE);
+  set_stats_message_type(actx->pinfo, MTYPE_POSITIONING_INFORMATION_RESPONSE);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_PositioningInformationResponse, PositioningInformationResponse_sequence);
@@ -21184,8 +21508,9 @@ static const per_sequence_t PositioningInformationFailure_sequence[] = {
 
 static int
 dissect_f1ap_PositioningInformationFailure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2168 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PositioningInformationFailure");
+#line 2258 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_POSITIONING_INFORMATION_FAILURE);
+  set_stats_message_type(actx->pinfo, MTYPE_POSITIONING_INFORMATION_FAILURE);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_PositioningInformationFailure, PositioningInformationFailure_sequence);
@@ -21201,8 +21526,9 @@ static const per_sequence_t PositioningActivationRequest_sequence[] = {
 
 static int
 dissect_f1ap_PositioningActivationRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2171 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PositioningActivationRequest");
+#line 2262 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_POSITIONING_ACTIVATION_REQUEST);
+  set_stats_message_type(actx->pinfo, MTYPE_POSITIONING_ACTIVATION_REQUEST);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_PositioningActivationRequest, PositioningActivationRequest_sequence);
@@ -21289,8 +21615,9 @@ static const per_sequence_t PositioningActivationResponse_sequence[] = {
 
 static int
 dissect_f1ap_PositioningActivationResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2174 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PositioningActivationResponse");
+#line 2266 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_POSITIONING_ACTIVATION_RESPONSE);
+  set_stats_message_type(actx->pinfo, MTYPE_POSITIONING_ACTIVATION_RESPONSE);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_PositioningActivationResponse, PositioningActivationResponse_sequence);
@@ -21306,8 +21633,9 @@ static const per_sequence_t PositioningActivationFailure_sequence[] = {
 
 static int
 dissect_f1ap_PositioningActivationFailure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2177 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PositioningActivationFailure");
+#line 2270 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_POSITIONING_ACTIVATION_FAILURE);
+  set_stats_message_type(actx->pinfo, MTYPE_POSITIONING_ACTIVATION_FAILURE);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_PositioningActivationFailure, PositioningActivationFailure_sequence);
@@ -21323,8 +21651,9 @@ static const per_sequence_t PositioningDeactivation_sequence[] = {
 
 static int
 dissect_f1ap_PositioningDeactivation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2180 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PositioningDeactivation");
+#line 2274 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_POSITIONING_DEACTIVATION);
+  set_stats_message_type(actx->pinfo, MTYPE_POSITIONING_DEACTIVATION);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_PositioningDeactivation, PositioningDeactivation_sequence);
@@ -21340,8 +21669,9 @@ static const per_sequence_t PositioningInformationUpdate_sequence[] = {
 
 static int
 dissect_f1ap_PositioningInformationUpdate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2201 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PositioningInformationUpdate");
+#line 2302 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_POSITIONING_INFORMATION_UPDATE);
+  set_stats_message_type(actx->pinfo, MTYPE_POSITIONING_INFORMATION_UPDATE);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_PositioningInformationUpdate, PositioningInformationUpdate_sequence);
@@ -21357,8 +21687,9 @@ static const per_sequence_t E_CIDMeasurementInitiationRequest_sequence[] = {
 
 static int
 dissect_f1ap_E_CIDMeasurementInitiationRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2183 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "E-CIDMeasurementInitiationRequest");
+#line 2278 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_E_CID_MEASUREMENT_INITIATION_REQUEST);
+  set_stats_message_type(actx->pinfo, MTYPE_E_CID_MEASUREMENT_INITIATION_REQUEST);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_E_CIDMeasurementInitiationRequest, E_CIDMeasurementInitiationRequest_sequence);
@@ -21374,8 +21705,9 @@ static const per_sequence_t E_CIDMeasurementInitiationResponse_sequence[] = {
 
 static int
 dissect_f1ap_E_CIDMeasurementInitiationResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2186 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "E-CIDMeasurementInitiationResponse");
+#line 2282 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_E_CID_MEASUREMENT_INITIATION_RESPONSE);
+  set_stats_message_type(actx->pinfo, MTYPE_E_CID_MEASUREMENT_INITIATION_RESPONSE);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_E_CIDMeasurementInitiationResponse, E_CIDMeasurementInitiationResponse_sequence);
@@ -21391,8 +21723,9 @@ static const per_sequence_t E_CIDMeasurementInitiationFailure_sequence[] = {
 
 static int
 dissect_f1ap_E_CIDMeasurementInitiationFailure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2189 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "E-CIDMeasurementInitiationFailure");
+#line 2286 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_E_CID_MEASUREMENT_INITIATION_FAILURE);
+  set_stats_message_type(actx->pinfo, MTYPE_E_CID_MEASUREMENT_INITIATION_FAILURE);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_E_CIDMeasurementInitiationFailure, E_CIDMeasurementInitiationFailure_sequence);
@@ -21408,8 +21741,9 @@ static const per_sequence_t E_CIDMeasurementFailureIndication_sequence[] = {
 
 static int
 dissect_f1ap_E_CIDMeasurementFailureIndication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2192 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "E-CIDMeasurementFailureIndication");
+#line 2290 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_E_CID_MEASUREMENT_FAILURE_INDICATION);
+  set_stats_message_type(actx->pinfo, MTYPE_E_CID_MEASUREMENT_FAILURE_INDICATION);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_E_CIDMeasurementFailureIndication, E_CIDMeasurementFailureIndication_sequence);
@@ -21425,8 +21759,9 @@ static const per_sequence_t E_CIDMeasurementReport_sequence[] = {
 
 static int
 dissect_f1ap_E_CIDMeasurementReport(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2195 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "E-CIDMeasurementReport");
+#line 2294 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_E_CID_MEASUREMENT_REPORT);
+  set_stats_message_type(actx->pinfo, MTYPE_E_CID_MEASUREMENT_REPORT);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_E_CIDMeasurementReport, E_CIDMeasurementReport_sequence);
@@ -21442,8 +21777,9 @@ static const per_sequence_t E_CIDMeasurementTerminationCommand_sequence[] = {
 
 static int
 dissect_f1ap_E_CIDMeasurementTerminationCommand(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2198 "./asn1/f1ap/f1ap.cnf"
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "E-CIDMeasurementTerminationCommand");
+#line 2298 "./asn1/f1ap/f1ap.cnf"
+  set_message_label(actx, MTYPE_E_CID_MEASUREMENT_TERMINATION_COMMAND);
+  set_stats_message_type(actx->pinfo, MTYPE_E_CID_MEASUREMENT_TERMINATION_COMMAND);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_f1ap_E_CIDMeasurementTerminationCommand, E_CIDMeasurementTerminationCommand_sequence);
@@ -25513,7 +25849,7 @@ static int dissect_F1AP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
 
 /*--- End of included file: packet-f1ap-fn.c ---*/
-#line 231 "./asn1/f1ap/packet-f1ap-template.c"
+#line 465 "./asn1/f1ap/packet-f1ap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -25563,21 +25899,62 @@ static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, p
 }
 
 
+static void
+f1ap_stats_tree_init(stats_tree *st)
+{
+    st_node_packets = stats_tree_create_node(st, st_str_packets, 0, STAT_DT_INT, TRUE);
+    st_node_packet_types = stats_tree_create_pivot(st, st_str_packet_types, st_node_packets);
+}
+
+static tap_packet_status
+f1ap_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_,
+                       epan_dissect_t* edt _U_ , const void* p)
+{
+    const struct f1ap_tap_t *pi = (const struct f1ap_tap_t *) p;
+
+    tick_stat_node(st, st_str_packets, 0, FALSE);
+    stats_tree_tick_pivot(st, st_node_packet_types,
+                          val_to_str(pi->f1ap_mtype, mtype_names,
+                                     "Unknown packet type (%d)"));
+    return TAP_PACKET_REDRAW;
+}
+
+static void set_stats_message_type(packet_info *pinfo, int type)
+{
+    f1ap_private_data_t* priv_data = f1ap_get_private_data(pinfo);
+    priv_data->stats_tap->f1ap_mtype = type;
+}
+
 static int
 dissect_f1ap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   proto_item *f1ap_item = NULL;
   proto_tree *f1ap_tree = NULL;
 
+  struct f1ap_tap_t *f1ap_info;
+
   /* make entry in the Protocol column on summary display */
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "F1AP");
   col_clear(pinfo->cinfo, COL_INFO);
+
+  f1ap_info = wmem_new(pinfo->pool, struct f1ap_tap_t);
+  f1ap_info->f1ap_mtype   = 0;  /* unknown/invalid */
 
   /* create the f1ap protocol tree */
   f1ap_item = proto_tree_add_item(tree, proto_f1ap, tvb, 0, -1, ENC_NA);
   f1ap_tree = proto_item_add_subtree(f1ap_item, ett_f1ap);
 
+  /* Store top-level tree */
+  top_tree = f1ap_tree;
+
+  /* Add stats tap to private struct */
+  f1ap_private_data_t *priv_data = f1ap_get_private_data(pinfo);
+  priv_data->stats_tap = f1ap_info;
+
+
   dissect_F1AP_PDU_PDU(tvb, pinfo, f1ap_tree, NULL);
+
+  tap_queue_packet(f1ap_tap, pinfo, f1ap_info);
   return tvb_captured_length(tvb);
 }
 
@@ -31423,7 +31800,7 @@ void proto_register_f1ap(void) {
         "UnsuccessfulOutcome_value", HFILL }},
 
 /*--- End of included file: packet-f1ap-hfarr.c ---*/
-#line 400 "./asn1/f1ap/packet-f1ap-template.c"
+#line 675 "./asn1/f1ap/packet-f1ap-template.c"
   };
 
   /* List of subtrees */
@@ -32174,7 +32551,7 @@ void proto_register_f1ap(void) {
     &ett_f1ap_UnsuccessfulOutcome,
 
 /*--- End of included file: packet-f1ap-ettarr.c ---*/
-#line 461 "./asn1/f1ap/packet-f1ap-template.c"
+#line 736 "./asn1/f1ap/packet-f1ap-template.c"
   };
 
   /* Register protocol */
@@ -32192,6 +32569,8 @@ void proto_register_f1ap(void) {
   f1ap_proc_imsg_dissector_table = register_dissector_table("f1ap.proc.imsg", "F1AP-ELEMENTARY-PROCEDURE InitiatingMessage", proto_f1ap, FT_UINT32, BASE_DEC);
   f1ap_proc_sout_dissector_table = register_dissector_table("f1ap.proc.sout", "F1AP-ELEMENTARY-PROCEDURE SuccessfulOutcome", proto_f1ap, FT_UINT32, BASE_DEC);
   f1ap_proc_uout_dissector_table = register_dissector_table("f1ap.proc.uout", "F1AP-ELEMENTARY-PROCEDURE UnsuccessfulOutcome", proto_f1ap, FT_UINT32, BASE_DEC);
+
+  f1ap_tap = register_tap("f1ap");
 }
 
 void
@@ -32204,6 +32583,10 @@ proto_reg_handoff_f1ap(void)
   nr_rrc_ul_dcch_handle = find_dissector_add_dependency("nr-rrc.ul.dcch", proto_f1ap);
   nr_pdcp_handle = find_dissector_add_dependency("pdcp-nr", proto_f1ap);
   lte_rrc_conn_reconf_handle = find_dissector_add_dependency("lte-rrc.rrc_conn_reconf", proto_f1ap);
+
+  stats_tree_register("f1ap", "f1ap", "F1AP", 0,
+                       f1ap_stats_tree_packet, f1ap_stats_tree_init, NULL);
+
 
 /*--- Included file: packet-f1ap-dis-tab.c ---*/
 #line 1 "./asn1/f1ap/packet-f1ap-dis-tab.c"
@@ -32726,7 +33109,7 @@ proto_reg_handoff_f1ap(void)
 
 
 /*--- End of included file: packet-f1ap-dis-tab.c ---*/
-#line 491 "./asn1/f1ap/packet-f1ap-template.c"
+#line 772 "./asn1/f1ap/packet-f1ap-template.c"
 }
 
 /*

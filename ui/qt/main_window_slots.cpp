@@ -3213,6 +3213,7 @@ void MainWindow::on_actionStatisticsANCP_triggered()
     openStatisticsTreeDialog("ancp");
 }
 
+
 void MainWindow::on_actionStatisticsBACappInstanceId_triggered()
 {
     openStatisticsTreeDialog("bacapp_instanceid");
@@ -3553,6 +3554,11 @@ void MainWindow::on_actionTelephonySMPPOperations_triggered()
 void MainWindow::on_actionTelephonyUCPMessages_triggered()
 {
     openStatisticsTreeDialog("ucp_messages");
+}
+
+void MainWindow::on_actionTelephonyF1APMessages_triggered()
+{
+	openStatisticsTreeDialog("f1ap");
 }
 
 void MainWindow::on_actionTelephonySipFlows_triggered()

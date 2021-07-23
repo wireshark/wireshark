@@ -622,6 +622,7 @@
     <addaction name="menuTelephonySCTP"/>
     <addaction name="actionTelephonySMPPOperations"/>
     <addaction name="actionTelephonyUCPMessages"/>
+    <addaction name="actionTelephonyF1APMessages"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
@@ -1964,6 +1965,14 @@
    </property>
    <property name="toolTip">
     <string>UCP message statistics</string>
+   </property>
+  </action>
+  <action name="actionTelephonyF1APMessages">
+   <property name="text">
+    <string>F1AP</string>
+   </property>
+   <property name="toolTip">
+    <string>F1AP Messages</string>
    </property>
   </action>
   <action name="actionAnalyzeDecodeAs">
