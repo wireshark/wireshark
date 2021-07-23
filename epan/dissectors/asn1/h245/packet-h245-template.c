@@ -421,7 +421,7 @@ dissect_h245_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, vo
 	/* assume that whilst there is more tvb data, there are more h245 commands */
 	while ( tvb_reported_length_remaining( tvb, offset>>3 )>0 ){
 		CLEANUP_PUSH(reset_h245_pi, NULL);
-		h245_pi=wmem_new(wmem_packet_scope(), h245_packet_info);
+		h245_pi=wmem_new(pinfo->pool, h245_packet_info);
 		init_h245_packet_info(h245_pi);
 		asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
 		offset = dissect_h245_MultimediaSystemControlMessage(tvb, offset, &asn1_ctx, tr, hf_h245_pdu_type);

@@ -1927,7 +1927,7 @@ dissect_gprscdr_TimeStamp(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
                          tvb_get_guint8(parameter_tvb,3),                        /* Hour */
                          tvb_get_guint8(parameter_tvb,4),                        /* Minute */
                          tvb_get_guint8(parameter_tvb,5),                        /* Second */
-                         tvb_get_string_enc(wmem_packet_scope(), parameter_tvb,6,1,ENC_ASCII|ENC_NA), /* Sign */
+                         tvb_get_string_enc(actx->pinfo->pool, parameter_tvb,6,1,ENC_ASCII|ENC_NA), /* Sign */
                          tvb_get_guint8(parameter_tvb,7),                        /* Hour */
                          tvb_get_guint8(parameter_tvb,8)                         /* Minute */
                         );

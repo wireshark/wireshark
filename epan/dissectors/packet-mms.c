@@ -1016,7 +1016,7 @@ private_data_add_moreCinfo_id(asn1_ctx_t *actx, tvbuff_t *tvb)
 {
 	mms_private_data_t *private_data = (mms_private_data_t*)mms_get_private_data(actx);
 	(void) g_strlcat(private_data->moreCinfo, " ", BUFFER_SIZE_MORE);
-	(void) g_strlcat(private_data->moreCinfo, tvb_get_string_enc(wmem_packet_scope(),
+	(void) g_strlcat(private_data->moreCinfo, tvb_get_string_enc(actx->pinfo->pool,
 				tvb, 2, tvb_get_guint8(tvb, 1), ENC_STRING), BUFFER_SIZE_MORE);
 }
 
@@ -1957,7 +1957,7 @@ dissect_mms_TimeOfDay(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 	if(len == 4)
 	{
 		milliseconds = tvb_get_ntohl(tvb, offset);
-		ptime = signed_time_msecs_to_str(wmem_packet_scope(), milliseconds);
+		ptime = signed_time_msecs_to_str(actx->pinfo->pool, milliseconds);
 
 		if(hf_index >= 0)
 		{
@@ -1977,7 +1977,7 @@ dissect_mms_TimeOfDay(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 		ts.secs = (days + 5113) * 86400 + milliseconds / 1000;
 		ts.nsecs = (milliseconds % 1000) * 1000000U;
 
-		ptime = abs_time_to_str(wmem_packet_scope(), &ts, ABSOLUTE_TIME_UTC, TRUE);
+		ptime = abs_time_to_str(actx->pinfo->pool, &ts, ABSOLUTE_TIME_UTC, TRUE);
 		if(hf_index >= 0)
 		{
 			proto_tree_add_string(tree, hf_index, tvb, offset, len, ptime);
@@ -2053,7 +2053,7 @@ dissect_mms_UtcTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 	ts.secs = seconds;
 	ts.nsecs = nanoseconds;
 
-	ptime = abs_time_to_str(wmem_packet_scope(), &ts, ABSOLUTE_TIME_UTC, TRUE);
+	ptime = abs_time_to_str(actx->pinfo->pool, &ts, ABSOLUTE_TIME_UTC, TRUE);
 
 	if(hf_index >= 0)
 	{

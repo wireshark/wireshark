@@ -548,7 +548,7 @@ dissect_goose_UtcTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 	ts.secs = seconds;
 	ts.nsecs = nanoseconds;
 
-	ptime = abs_time_to_str(wmem_packet_scope(), &ts, ABSOLUTE_TIME_UTC, TRUE);
+	ptime = abs_time_to_str(actx->pinfo->pool, &ts, ABSOLUTE_TIME_UTC, TRUE);
 
 	if(hf_index >= 0)
 	{
@@ -840,7 +840,7 @@ dissect_goose(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 		NULL
 	};
 
-	asn1_ctx.private_data = wmem_alloc(wmem_packet_scope(), GOOSE_CHK_DATA_LEN);
+	asn1_ctx.private_data = wmem_alloc(pinfo->pool, GOOSE_CHK_DATA_LEN);
 	data_chk = (goose_chk_data_t *)asn1_ctx.private_data;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, GOOSE_PNAME);
@@ -906,7 +906,7 @@ dissect_rgoose(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	asn1_ctx_t asn1_ctx;
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
-	asn1_ctx.private_data = wmem_alloc(wmem_packet_scope(), GOOSE_CHK_DATA_LEN);
+	asn1_ctx.private_data = wmem_alloc(pinfo->pool, GOOSE_CHK_DATA_LEN);
 	data_chk = (goose_chk_data_t *)asn1_ctx.private_data;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, R_GOOSE_PNAME);

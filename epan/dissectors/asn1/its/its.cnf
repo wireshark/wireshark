@@ -334,55 +334,55 @@ RegionId
 CauseCodeType
 
 #.FN_HDR CoopAwareness
-  actx->private_data = (void*)wmem_new0(wmem_packet_scope(), its_private_data_t);
+  actx->private_data = (void*)wmem_new0(actx->pinfo->pool, its_private_data_t);
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "CAM");
   col_set_str(actx->pinfo->cinfo, COL_INFO, "CAM");
 #.END
 
 #.FN_HDR CoopAwarenessV1
-  actx->private_data = (void*)wmem_new0(wmem_packet_scope(), its_private_data_t);
+  actx->private_data = (void*)wmem_new0(actx->pinfo->pool, its_private_data_t);
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "CAMv1");
   col_set_str(actx->pinfo->cinfo, COL_INFO, "CAMv1");
 #.END
 
 #.FN_HDR DecentralizedEnvironmentalNotificationMessage
-  actx->private_data = (void*)wmem_new0(wmem_packet_scope(), its_private_data_t);
+  actx->private_data = (void*)wmem_new0(actx->pinfo->pool, its_private_data_t);
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "DENM");
   col_set_str(actx->pinfo->cinfo, COL_INFO, "DENM");
 #.END
 
 #.FN_HDR DecentralizedEnvironmentalNotificationMessageV1
-  actx->private_data = (void*)wmem_new0(wmem_packet_scope(), its_private_data_t);
+  actx->private_data = (void*)wmem_new0(actx->pinfo->pool, its_private_data_t);
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "DENMv1");
   col_set_str(actx->pinfo->cinfo, COL_INFO, "DENMv1");
 #.END
 
 #.FN_HDR EVChargingSpotNotificationPOIMessage
-  actx->private_data = (void*)wmem_new0(wmem_packet_scope(), its_private_data_t);
+  actx->private_data = (void*)wmem_new0(actx->pinfo->pool, its_private_data_t);
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "EVCSN");
   col_set_str(actx->pinfo->cinfo, COL_INFO, "EVCSN");
 #.END
 
 #.FN_HDR EV-RSR-MessageBody
-  actx->private_data = (void*)wmem_new0(wmem_packet_scope(), its_private_data_t);
+  actx->private_data = (void*)wmem_new0(actx->pinfo->pool, its_private_data_t);
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "EV-RSR");
   col_set_str(actx->pinfo->cinfo, COL_INFO, "EV-RSR");
 #.END
 
 #.FN_HDR TisTpgTransaction
-  actx->private_data = (void*)wmem_new0(wmem_packet_scope(), its_private_data_t);
+  actx->private_data = (void*)wmem_new0(actx->pinfo->pool, its_private_data_t);
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "TISTPG");
   col_set_str(actx->pinfo->cinfo, COL_INFO, "TISTPG");
 #.END
 
 #.FN_HDR IviStructure
-  actx->private_data = (void*)wmem_new0(wmem_packet_scope(), its_private_data_t);
+  actx->private_data = (void*)wmem_new0(actx->pinfo->pool, its_private_data_t);
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "IVIM");
   col_set_str(actx->pinfo->cinfo, COL_INFO, "IVIM");
 #.END
 
 #.FN_HDR SignalStatusMessage
-  its_private_data_t *regext = wmem_new0(wmem_packet_scope(), its_private_data_t);
+  its_private_data_t *regext = wmem_new0(actx->pinfo->pool, its_private_data_t);
   actx->private_data = (void*)regext;
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "SSEM");
   col_set_str(actx->pinfo->cinfo, COL_INFO, "SSEM");
@@ -390,7 +390,7 @@ CauseCodeType
 #.END
 
 #.FN_HDR SignalRequestMessage
-  its_private_data_t *regext = wmem_new0(wmem_packet_scope(), its_private_data_t);
+  its_private_data_t *regext = wmem_new0(actx->pinfo->pool, its_private_data_t);
   actx->private_data = (void*)regext;
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "SREM");
   col_set_str(actx->pinfo->cinfo, COL_INFO, "SREM");
@@ -398,7 +398,7 @@ CauseCodeType
 #.END
 
 #.FN_HDR MapData
-  its_private_data_t *regext = wmem_new0(wmem_packet_scope(), its_private_data_t);
+  its_private_data_t *regext = wmem_new0(actx->pinfo->pool, its_private_data_t);
   actx->private_data = (void*)regext;
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "MAPEM");
   col_set_str(actx->pinfo->cinfo, COL_INFO, "MAPEM");
@@ -406,7 +406,7 @@ CauseCodeType
 #.END
 
 #.FN_HDR SPAT
-  its_private_data_t *regext = wmem_new0(wmem_packet_scope(), its_private_data_t);
+  its_private_data_t *regext = wmem_new0(actx->pinfo->pool, its_private_data_t);
   actx->private_data = (void*)regext;
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "SPATEM");
   col_set_str(actx->pinfo->cinfo, COL_INFO, "SPATEM");
@@ -415,7 +415,7 @@ CauseCodeType
 
 
 #.FN_HDR RTCMcorrections
-  its_private_data_t *regext = wmem_new0(wmem_packet_scope(), its_private_data_t);
+  its_private_data_t *regext = wmem_new0(actx->pinfo->pool, its_private_data_t);
   actx->private_data = (void*)regext;
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "RTCMEM");
   col_set_str(actx->pinfo->cinfo, COL_INFO, "RTCMEM");
@@ -423,64 +423,64 @@ CauseCodeType
 #.END
 
 #.FN_HDR CollectivePerceptionMessage
-  actx->private_data = (void*)wmem_new0(wmem_packet_scope(), its_private_data_t);
+  actx->private_data = (void*)wmem_new0(actx->pinfo->pool, its_private_data_t);
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "CPM");
   col_set_str(actx->pinfo->cinfo, COL_INFO, "CPM");
 #.END
 
 
 #.FN_HDR ConnectionManeuverAssist-addGrpC
-  actx->private_data = wmem_new0(wmem_packet_scope(), its_private_data_t);
+  actx->private_data = wmem_new0(actx->pinfo->pool, its_private_data_t);
 #.END
 
 
 #.FN_HDR ConnectionTrajectory-addGrpC
-  actx->private_data = wmem_new0(wmem_packet_scope(), its_private_data_t);
+  actx->private_data = wmem_new0(actx->pinfo->pool, its_private_data_t);
 #.END
 
 
 #.FN_HDR NodeAttributeSet-addGrpC
-  actx->private_data = wmem_new0(wmem_packet_scope(), its_private_data_t);
+  actx->private_data = wmem_new0(actx->pinfo->pool, its_private_data_t);
 #.END
 
 
 #.FN_HDR IntersectionState-addGrpC
-  actx->private_data = wmem_new0(wmem_packet_scope(), its_private_data_t);
+  actx->private_data = wmem_new0(actx->pinfo->pool, its_private_data_t);
 #.END
 
 
 #.FN_HDR MapData-addGrpC
-  actx->private_data = wmem_new0(wmem_packet_scope(), its_private_data_t);
+  actx->private_data = wmem_new0(actx->pinfo->pool, its_private_data_t);
 #.END
 
 
 #.FN_HDR Position3D-addGrpC
-  actx->private_data = wmem_new0(wmem_packet_scope(), its_private_data_t);
+  actx->private_data = wmem_new0(actx->pinfo->pool, its_private_data_t);
 #.END
 
 
 #.FN_HDR RestrictionUserType-addGrpC
-  actx->private_data = wmem_new0(wmem_packet_scope(), its_private_data_t);
+  actx->private_data = wmem_new0(actx->pinfo->pool, its_private_data_t);
 #.END
 
 
 #.FN_HDR SignalStatusPackage-addGrpC
-  actx->private_data = wmem_new0(wmem_packet_scope(), its_private_data_t);
+  actx->private_data = wmem_new0(actx->pinfo->pool, its_private_data_t);
 #.END
 
 
 #.FN_HDR LaneAttributes-addGrpC
-  actx->private_data = wmem_new0(wmem_packet_scope(), its_private_data_t);
+  actx->private_data = wmem_new0(actx->pinfo->pool, its_private_data_t);
 #.END
 
 
 #.FN_HDR MovementEvent-addGrpC
-  actx->private_data = wmem_new0(wmem_packet_scope(), its_private_data_t);
+  actx->private_data = wmem_new0(actx->pinfo->pool, its_private_data_t);
 #.END
 
 
 #.FN_HDR RequestorDescription-addGrpC
-  actx->private_data = wmem_new0(wmem_packet_scope(), its_private_data_t);
+  actx->private_data = wmem_new0(actx->pinfo->pool, its_private_data_t);
 #.END
 
 
@@ -694,7 +694,7 @@ CauseCodeType
     return test_offset;
   }
   // Lets try it that way, regarless of version value...
-  its_header_t *hdr = wmem_new0(wmem_packet_scope(), its_header_t);
+  its_header_t *hdr = wmem_new0(actx->pinfo->pool, its_header_t);
   actx->private_data = (void*)hdr;
 %(DEFAULT_BODY)s
   tap_queue_packet(its_tap, actx->pinfo, actx->private_data);
@@ -846,7 +846,7 @@ TrafficConditionSubCauseCode
   void *priv_data = actx->private_data;
   its_pt_activation_data_t *pta;
 
-  pta = wmem_new0(wmem_packet_scope(), its_pt_activation_data_t);
+  pta = wmem_new0(actx->pinfo->pool, its_pt_activation_data_t);
   actx->private_data = pta;
 #.FN_FTR
   dissector_try_uint_new(cam_pt_activation_table, pta->type, pta->data, actx->pinfo, tree, TRUE, NULL);

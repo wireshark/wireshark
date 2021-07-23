@@ -326,7 +326,7 @@ typedef struct
 static ulp_private_data_t* ulp_get_private_data(asn1_ctx_t *actx)
 {
   if (actx->private_data == NULL) {
-    actx->private_data = wmem_new0(wmem_packet_scope(), ulp_private_data_t);
+    actx->private_data = wmem_new0(actx->pinfo->pool, ulp_private_data_t);
   }
   return (ulp_private_data_t*)actx->private_data;
 }

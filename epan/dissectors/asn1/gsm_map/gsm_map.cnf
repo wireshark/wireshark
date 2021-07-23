@@ -1090,7 +1090,7 @@ MAP interfaces
                 return offset;
 
 	subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_apn_str);
-	proto_tree_add_item_ret_string(subtree, hf_gsm_apn_str, parameter_tvb, 0, -1, ENC_APN_STR | ENC_NA, wmem_packet_scope(), &apn_str);
+	proto_tree_add_item_ret_string(subtree, hf_gsm_apn_str, parameter_tvb, 0, -1, ENC_APN_STR | ENC_NA, actx->pinfo->pool, &apn_str);
 	proto_item_append_text(actx->created_item, " - %%s", apn_str);
 
 

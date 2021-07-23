@@ -232,8 +232,8 @@ save_invoke_data(packet_info *pinfo, proto_tree *tree _U_, tvbuff_t *tvb _U_){
   gchar *src, *dst;
   char *buf;
 
-  src = address_to_str(wmem_packet_scope(), &(pinfo->src));
-  dst = address_to_str(wmem_packet_scope(), &(pinfo->dst));
+  src = address_to_str(pinfo->pool, &(pinfo->src));
+  dst = address_to_str(pinfo->pool, &(pinfo->dst));
 
   if ((!pinfo->fd->visited)&&(ansi_tcap_private.TransactionID_str)){
 
@@ -241,14 +241,14 @@ save_invoke_data(packet_info *pinfo, proto_tree *tree _U_, tvbuff_t *tvb _U_){
           /* The hash string needs to contain src and dest to distiguish differnt flows */
           switch(ansi_tcap_response_matching_type){
                         case ANSI_TCAP_TID_ONLY:
-                                buf = wmem_strdup(wmem_packet_scope(), ansi_tcap_private.TransactionID_str);
+                                buf = wmem_strdup(pinfo->pool, ansi_tcap_private.TransactionID_str);
                                 break;
                         case ANSI_TCAP_TID_AND_SOURCE:
-                                buf = wmem_strdup_printf(wmem_packet_scope(), "%s%s",ansi_tcap_private.TransactionID_str,src);
+                                buf = wmem_strdup_printf(pinfo->pool, "%s%s",ansi_tcap_private.TransactionID_str,src);
                                 break;
                         case ANSI_TCAP_TID_SOURCE_AND_DEST:
                         default:
-                                buf = wmem_strdup_printf(wmem_packet_scope(), "%s%s%s",ansi_tcap_private.TransactionID_str,src,dst);
+                                buf = wmem_strdup_printf(pinfo->pool, "%s%s%s",ansi_tcap_private.TransactionID_str,src,dst);
                                 break;
                 }
 
@@ -281,11 +281,11 @@ find_saved_invokedata(packet_info *pinfo, proto_tree *tree _U_, tvbuff_t *tvb _U
     return FALSE;
   }
 
-  src = address_to_str(wmem_packet_scope(), &(pinfo->src));
-  dst = address_to_str(wmem_packet_scope(), &(pinfo->dst));
+  src = address_to_str(pinfo->pool, &(pinfo->src));
+  dst = address_to_str(pinfo->pool, &(pinfo->dst));
 
   /* The hash string needs to contain src and dest to distiguish differnt flows */
-  buf = (char *)wmem_alloc(wmem_packet_scope(), MAX_TID_STR_LEN);
+  buf = (char *)wmem_alloc(pinfo->pool, MAX_TID_STR_LEN);
   buf[0] = '\0';
   /* Reverse order to invoke */
   switch(ansi_tcap_response_matching_type){
@@ -589,9 +589,9 @@ if(next_tvb) {
 		 * in the 8 octets case.
 		 */
 		if (len > 4){
-			ansi_tcap_private.TransactionID_str = tvb_bytes_to_str(wmem_packet_scope(), next_tvb, 4,len-4);
+			ansi_tcap_private.TransactionID_str = tvb_bytes_to_str(actx->pinfo->pool, next_tvb, 4,len-4);
 		}else{
-			ansi_tcap_private.TransactionID_str = tvb_bytes_to_str(wmem_packet_scope(), next_tvb, 0,len);
+			ansi_tcap_private.TransactionID_str = tvb_bytes_to_str(actx->pinfo->pool, next_tvb, 0,len);
 		}
 	}
 	switch(len) {

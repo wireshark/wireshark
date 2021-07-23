@@ -293,7 +293,7 @@ KrbFastArmorTypes PROT_PREFIX UPPER_CASE
     int netbios_name_len = (NETBIOS_NAME_LEN - 1)*4 + 1;
 
     netbios_name_type = process_netbios_name(tvb_get_ptr(tvb, offset, 16), netbios_name, netbios_name_len);
-    address_str = wmem_strdup_printf(wmem_packet_scope(), "%s<%02x>", netbios_name, netbios_name_type);
+    address_str = wmem_strdup_printf(actx->pinfo->pool, "%s<%02x>", netbios_name, netbios_name_type);
     it=proto_tree_add_string_format(tree, hf_krb_address_netbios, tvb, offset, 16, netbios_name, "NetBIOS Name: %s (%s)", address_str, netbios_name_type_descr(netbios_name_type));
     }
     break;

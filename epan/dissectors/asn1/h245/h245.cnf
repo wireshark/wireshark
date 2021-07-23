@@ -221,7 +221,7 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
   const gchar *olc_key;
   olc_info_t *olc_req;
 
-  upcoming_olc = (!actx->pinfo->fd->visited) ? wmem_new0(wmem_packet_scope(), olc_info_t) : NULL;
+  upcoming_olc = (!actx->pinfo->fd->visited) ? wmem_new0(actx->pinfo->pool, olc_info_t) : NULL;
 
   h223_fw_lc_num = 0;
   h223_rev_lc_num = 0;
@@ -594,7 +594,7 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 
 %(DEFAULT_BODY)s
   if (gefx) {
-    gefx->subid = wmem_strdup_printf(wmem_packet_scope(), "%%u", subMessageIdentifier);
+    gefx->subid = wmem_strdup_printf(actx->pinfo->pool, "%%u", subMessageIdentifier);
     gef_ctx_update_key(gef_ctx_get(actx->private_data));
   }
   if (hf_index == hf_h245_subMessageIdentifier_standard)
@@ -726,7 +726,7 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 
 %(DEFAULT_BODY)s
   gefx = gef_ctx_get(actx->private_data);
-  if (gefx) gefx->id = wmem_strdup_printf(wmem_packet_scope(), "%%d", value_int);
+  if (gefx) gefx->id = wmem_strdup_printf(actx->pinfo->pool, "%%d", value_int);
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY ParameterValue/booleanArray  VAL_PTR = &value

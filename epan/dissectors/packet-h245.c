@@ -3637,7 +3637,7 @@ dissect_h245_T_standard(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
                                                             0U, 127U, &value_int, FALSE);
 
   gefx = gef_ctx_get(actx->private_data);
-  if (gefx) gefx->id = wmem_strdup_printf(wmem_packet_scope(), "%d", value_int);
+  if (gefx) gefx->id = wmem_strdup_printf(actx->pinfo->pool, "%d", value_int);
 
 
   return offset;
@@ -6653,7 +6653,7 @@ dissect_h245_T_subMessageIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
                                                             0U, 127U, &subMessageIdentifier, FALSE);
 
   if (gefx) {
-    gefx->subid = wmem_strdup_printf(wmem_packet_scope(), "%u", subMessageIdentifier);
+    gefx->subid = wmem_strdup_printf(actx->pinfo->pool, "%u", subMessageIdentifier);
     gef_ctx_update_key(gef_ctx_get(actx->private_data));
   }
   if (hf_index == hf_h245_subMessageIdentifier_standard)
@@ -11081,7 +11081,7 @@ dissect_h245_OpenLogicalChannelAck(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
   const gchar *olc_key;
   olc_info_t *olc_req;
 
-  upcoming_olc = (!actx->pinfo->fd->visited) ? wmem_new0(wmem_packet_scope(), olc_info_t) : NULL;
+  upcoming_olc = (!actx->pinfo->fd->visited) ? wmem_new0(actx->pinfo->pool, olc_info_t) : NULL;
 
   h223_fw_lc_num = 0;
   h223_rev_lc_num = 0;
@@ -14533,7 +14533,7 @@ dissect_h245_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, vo
 	/* assume that whilst there is more tvb data, there are more h245 commands */
 	while ( tvb_reported_length_remaining( tvb, offset>>3 )>0 ){
 		CLEANUP_PUSH(reset_h245_pi, NULL);
-		h245_pi=wmem_new(wmem_packet_scope(), h245_packet_info);
+		h245_pi=wmem_new(pinfo->pool, h245_packet_info);
 		init_h245_packet_info(h245_pi);
 		asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
 		offset = dissect_h245_MultimediaSystemControlMessage(tvb, offset, &asn1_ctx, tr, hf_h245_pdu_type);

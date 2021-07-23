@@ -3027,7 +3027,7 @@ dissect_h225_T_guid(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pro
   offset = dissect_h225_GloballyUniqueID(tvb, offset, actx, tree, hf_index);
 
   if (guid_tvb)
-    tvb_get_ntohguid(guid_tvb, 0, call_id_guid = wmem_new(wmem_packet_scope(), e_guid_t));
+    tvb_get_ntohguid(guid_tvb, 0, call_id_guid = wmem_new(actx->pinfo->pool, e_guid_t));
   actx->value_ptr = NULL;
 
 
@@ -3836,7 +3836,7 @@ dissect_h225_T_standard(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
                                                             0U, 16383U, &value_int, TRUE);
 
   gefx = gef_ctx_get(actx->private_data);
-  if (gefx) gefx->id = wmem_strdup_printf(wmem_packet_scope(), "%u", value_int);
+  if (gefx) gefx->id = wmem_strdup_printf(actx->pinfo->pool, "%u", value_int);
 
 
   return offset;

@@ -99,7 +99,7 @@ private_data_add_moreCinfo_id(asn1_ctx_t *actx, tvbuff_t *tvb)
 {
 	mms_private_data_t *private_data = (mms_private_data_t*)mms_get_private_data(actx);
 	(void) g_strlcat(private_data->moreCinfo, " ", BUFFER_SIZE_MORE);
-	(void) g_strlcat(private_data->moreCinfo, tvb_get_string_enc(wmem_packet_scope(),
+	(void) g_strlcat(private_data->moreCinfo, tvb_get_string_enc(actx->pinfo->pool,
 				tvb, 2, tvb_get_guint8(tvb, 1), ENC_STRING), BUFFER_SIZE_MORE);
 }
 

@@ -154,12 +154,12 @@ OCLC-UserInformation B "1.2.840.10003.10.1000.17.1" "OCLC-UserInfo-1"
 #.FN_PARS AttributeSetId VAL_PTR=&oid_tvb
 #.FN_FTR AttributeSetId
   if (oid_tvb) {
+    packet_info *pinfo = actx->pinfo;
     guint len = tvb_reported_length_remaining(oid_tvb, 0);
-    gchar *oid_str = oid_encoded2string(wmem_packet_scope(),
+    gchar *oid_str = oid_encoded2string(pinfo->pool,
                                         tvb_get_ptr(oid_tvb, 0, len), len);
     gint attribute_set_idx = Z3950_ATSET_UNKNOWN;
     z3950_atinfo_t *atinfo_data;
-    packet_info *pinfo = actx->pinfo;
 
     if (g_strcmp0(oid_str, Z3950_ATSET_BIB1_OID) == 0) {
       attribute_set_idx = Z3950_ATSET_BIB1;
@@ -230,12 +230,12 @@ OCLC-UserInformation B "1.2.840.10003.10.1000.17.1" "OCLC-UserInfo-1"
 #.FN_PARS DefaultDiagFormat/diagnosticSetId VAL_PTR=&oid_tvb
 #.FN_FTR DefaultDiagFormat/diagnosticSetId
   if (oid_tvb) {
+    packet_info *pinfo = actx->pinfo;
     guint len = tvb_reported_length_remaining(oid_tvb, 0);
-    gchar *oid_str = oid_encoded2string(wmem_packet_scope(),
+    gchar *oid_str = oid_encoded2string(pinfo->pool,
                                         tvb_get_ptr(oid_tvb, 0, len), len);
     gint diagset_idx = Z3950_DIAGSET_UNKNOWN;
     z3950_diaginfo_t *diaginfo_data;
-    packet_info *pinfo = actx->pinfo;
 
     if (g_strcmp0(oid_str, Z3950_DIAGSET_BIB1_OID) == 0) {
       diagset_idx = Z3950_DIAGSET_BIB1;

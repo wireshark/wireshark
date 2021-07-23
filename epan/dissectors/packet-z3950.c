@@ -2522,12 +2522,12 @@ dissect_z3950_AttributeSetId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
 #line 156 "./asn1/z3950/z3950.cnf"
   if (oid_tvb) {
+    packet_info *pinfo = actx->pinfo;
     guint len = tvb_reported_length_remaining(oid_tvb, 0);
-    gchar *oid_str = oid_encoded2string(wmem_packet_scope(),
+    gchar *oid_str = oid_encoded2string(pinfo->pool,
                                         tvb_get_ptr(oid_tvb, 0, len), len);
     gint attribute_set_idx = Z3950_ATSET_UNKNOWN;
     z3950_atinfo_t *atinfo_data;
-    packet_info *pinfo = actx->pinfo;
 
     if (g_strcmp0(oid_str, Z3950_ATSET_BIB1_OID) == 0) {
       attribute_set_idx = Z3950_ATSET_BIB1;
@@ -3204,12 +3204,12 @@ dissect_z3950_T_diagnosticSetId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 #line 232 "./asn1/z3950/z3950.cnf"
   if (oid_tvb) {
+    packet_info *pinfo = actx->pinfo;
     guint len = tvb_reported_length_remaining(oid_tvb, 0);
-    gchar *oid_str = oid_encoded2string(wmem_packet_scope(),
+    gchar *oid_str = oid_encoded2string(pinfo->pool,
                                         tvb_get_ptr(oid_tvb, 0, len), len);
     gint diagset_idx = Z3950_DIAGSET_UNKNOWN;
     z3950_diaginfo_t *diaginfo_data;
-    packet_info *pinfo = actx->pinfo;
 
     if (g_strcmp0(oid_str, Z3950_DIAGSET_BIB1_OID) == 0) {
       diagset_idx = Z3950_DIAGSET_BIB1;
@@ -12735,7 +12735,7 @@ dissect_marc_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * 
     marc_value_str = NULL;
     item = proto_tree_add_item_ret_string(leader_tree,
                       hf_marc_leader_length, tvb, offset, 5, ENC_ASCII|ENC_NA,
-                      wmem_packet_scope(),&marc_value_str);
+                      pinfo->pool,&marc_value_str);
     offset += 5;
 
     if (marc_value_str) {
@@ -12804,7 +12804,7 @@ dissect_marc_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * 
 
     item = proto_tree_add_item_ret_string(leader_tree, hf_marc_leader_data_offset,
                tvb, offset, 5, ENC_ASCII|ENC_NA,
-               wmem_packet_scope(),&marc_value_str);
+               pinfo->pool,&marc_value_str);
     offset += 5;
     if (marc_value_str) {
         if (isdigit_string(marc_value_str)) {
@@ -12881,7 +12881,7 @@ dissect_marc_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * 
                             + starting_character_position_size;
     directory_entry_count = ((data_offset - 1) - MARC_LEADER_LENGTH) / directory_entry_len;
 
-    marc_directory = (marc_directory_entry *)wmem_alloc0(wmem_packet_scope(),
+    marc_directory = (marc_directory_entry *)wmem_alloc0(pinfo->pool,
                                  directory_entry_count * sizeof(marc_directory_entry));
 
     directory_item = proto_tree_add_item(marc_tree, hf_marc_directory,
@@ -12905,7 +12905,7 @@ dissect_marc_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * 
         marc_value_str = NULL;
         item = proto_tree_add_item_ret_string(directory_entry_tree, hf_marc_directory_entry_tag,
                    tvb, offset, 3, ENC_ASCII,
-                   wmem_packet_scope(), &marc_value_str);
+                   pinfo->pool, &marc_value_str);
         offset += 3;
         if (marc_value_str) {
             if (isdigit_string(marc_value_str)) {
@@ -12922,7 +12922,7 @@ dissect_marc_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * 
         length_item = proto_tree_add_item_ret_string(directory_entry_tree,
             hf_marc_directory_entry_length,
             tvb, offset, length_of_field_size, ENC_ASCII,
-            wmem_packet_scope(), &marc_value_str);
+            pinfo->pool, &marc_value_str);
         offset += length_of_field_size;
         if (marc_value_str) {
             if (isdigit_string(marc_value_str)) {
@@ -12938,7 +12938,7 @@ dissect_marc_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * 
         marc_value_str = NULL;
         item = proto_tree_add_item_ret_string(directory_entry_tree, hf_marc_directory_entry_starting_position,
             tvb, offset, starting_character_position_size, ENC_ASCII,
-            wmem_packet_scope(), &marc_value_str);
+            pinfo->pool, &marc_value_str);
         offset += starting_character_position_size;
         if (marc_value_str) {
             if (isdigit_string(marc_value_str)) {

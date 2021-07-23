@@ -1283,7 +1283,7 @@ typedef struct
 static ulp_private_data_t* ulp_get_private_data(asn1_ctx_t *actx)
 {
   if (actx->private_data == NULL) {
-    actx->private_data = wmem_new0(wmem_packet_scope(), ulp_private_data_t);
+    actx->private_data = wmem_new0(actx->pinfo->pool, ulp_private_data_t);
   }
   return (ulp_private_data_t*)actx->private_data;
 }
@@ -1677,7 +1677,7 @@ dissect_ulp_T_requestorId(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
       default:
         actx->created_item = proto_tree_add_string(tree, hf_index, val_tvb, 0,
                                                    tvb_reported_length(val_tvb),
-                                                   tvb_bytes_to_str(wmem_packet_scope(), val_tvb, 0,
+                                                   tvb_bytes_to_str(actx->pinfo->pool, val_tvb, 0,
                                                                     tvb_reported_length(val_tvb)));
         break;
     }
@@ -1739,7 +1739,7 @@ dissect_ulp_T_clientName(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
       default:
         actx->created_item = proto_tree_add_string(tree, hf_index, val_tvb, 0,
                                                    tvb_reported_length(val_tvb),
-                                                   tvb_bytes_to_str(wmem_packet_scope(), val_tvb, 0,
+                                                   tvb_bytes_to_str(actx->pinfo->pool, val_tvb, 0,
                                                                     tvb_reported_length(val_tvb)));
         break;
     }

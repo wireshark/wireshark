@@ -678,7 +678,7 @@ add_encryption_key(packet_info *pinfo,
 		 * We already processed this,
 		 * we can use a shortterm scope
 		 */
-		key_scope = wmem_packet_scope();
+		key_scope = pinfo->pool;
 	} else {
 		/*
 		 * As long as we have enc_key_list, we need to
@@ -925,7 +925,7 @@ static void missing_encryption_key(proto_tree *tree, packet_info *pinfo,
 	proto_item *item = NULL;
 	enc_key_t *mek = NULL;
 
-	mek = wmem_new0(wmem_packet_scope(), enc_key_t);
+	mek = wmem_new0(pinfo->pool, enc_key_t);
 	g_snprintf(mek->key_origin, KRB_MAX_ORIG_LEN,
 		   "keytype %d usage %d missing in frame %u",
 		   keytype, usage, pinfo->num);
@@ -1001,7 +1001,7 @@ static void missing_signing_key(proto_tree *tree, packet_info *pinfo,
 	proto_item *item = NULL;
 	enc_key_t *mek = NULL;
 
-	mek = wmem_new0(wmem_packet_scope(), enc_key_t);
+	mek = wmem_new0(pinfo->pool, enc_key_t);
 	g_snprintf(mek->key_origin, KRB_MAX_ORIG_LEN,
 		   "checksum %d keytype %d missing in frame %u",
 		   checksum, keytype, pinfo->num);
@@ -2419,7 +2419,7 @@ decrypt_krb5_data(proto_tree *tree _U_, packet_info *pinfo,
 		   keys. So just give it a copy of the crypto data instead.
 		   This has been seen for RC4-HMAC blobs.
 		*/
-		cryptocopy = (guint8 *)wmem_memdup(wmem_packet_scope(), cryptotext, length);
+		cryptocopy = (guint8 *)wmem_memdup(pinfo->pool, cryptotext, length);
 		ret = krb5_decrypt_ivec(krb5_ctx, crypto, usage,
 								cryptocopy, length,
 								&data,
@@ -2659,7 +2659,7 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 		return NULL;
 	}
 
-	decrypted_data = wmem_alloc(wmem_packet_scope(), length);
+	decrypted_data = wmem_alloc(pinfo->pool, length);
 	for(ske = service_key_list; ske != NULL; ske = g_slist_next(ske)){
 		gboolean do_continue = FALSE;
 		gboolean digest_ok;

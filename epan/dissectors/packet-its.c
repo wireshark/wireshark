@@ -2638,7 +2638,7 @@ dissect_its_ItsPduHeader(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
     return test_offset;
   }
   // Lets try it that way, regarless of version value...
-  its_header_t *hdr = wmem_new0(wmem_packet_scope(), its_header_t);
+  its_header_t *hdr = wmem_new0(actx->pinfo->pool, its_header_t);
   actx->private_data = (void*)hdr;
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_its_ItsPduHeader, its_ItsPduHeader_sequence);
@@ -2930,7 +2930,7 @@ dissect_its_PtActivation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
   void *priv_data = actx->private_data;
   its_pt_activation_data_t *pta;
 
-  pta = wmem_new0(wmem_packet_scope(), its_pt_activation_data_t);
+  pta = wmem_new0(actx->pinfo->pool, its_pt_activation_data_t);
   actx->private_data = pta;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -4995,7 +4995,7 @@ dissect_itsv1_PtActivation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
   void *priv_data = actx->private_data;
   its_pt_activation_data_t *pta;
 
-  pta = wmem_new0(wmem_packet_scope(), its_pt_activation_data_t);
+  pta = wmem_new0(actx->pinfo->pool, its_pt_activation_data_t);
   actx->private_data = pta;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -8756,7 +8756,7 @@ static const per_sequence_t dsrc_MapData_sequence[] = {
 static int
 dissect_dsrc_MapData(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 401 "./asn1/its/its.cnf"
-  its_private_data_t *regext = wmem_new0(wmem_packet_scope(), its_private_data_t);
+  its_private_data_t *regext = wmem_new0(actx->pinfo->pool, its_private_data_t);
   actx->private_data = (void*)regext;
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "MAPEM");
   col_set_str(actx->pinfo->cinfo, COL_INFO, "MAPEM");
@@ -9314,7 +9314,7 @@ static const per_sequence_t dsrc_RTCMcorrections_sequence[] = {
 static int
 dissect_dsrc_RTCMcorrections(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 418 "./asn1/its/its.cnf"
-  its_private_data_t *regext = wmem_new0(wmem_packet_scope(), its_private_data_t);
+  its_private_data_t *regext = wmem_new0(actx->pinfo->pool, its_private_data_t);
   actx->private_data = (void*)regext;
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "RTCMEM");
   col_set_str(actx->pinfo->cinfo, COL_INFO, "RTCMEM");
@@ -9783,7 +9783,7 @@ static const per_sequence_t dsrc_SPAT_sequence[] = {
 static int
 dissect_dsrc_SPAT(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 409 "./asn1/its/its.cnf"
-  its_private_data_t *regext = wmem_new0(wmem_packet_scope(), its_private_data_t);
+  its_private_data_t *regext = wmem_new0(actx->pinfo->pool, its_private_data_t);
   actx->private_data = (void*)regext;
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "SPATEM");
   col_set_str(actx->pinfo->cinfo, COL_INFO, "SPATEM");
@@ -10263,7 +10263,7 @@ static const per_sequence_t dsrc_SignalRequestMessage_sequence[] = {
 static int
 dissect_dsrc_SignalRequestMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 393 "./asn1/its/its.cnf"
-  its_private_data_t *regext = wmem_new0(wmem_packet_scope(), its_private_data_t);
+  its_private_data_t *regext = wmem_new0(actx->pinfo->pool, its_private_data_t);
   actx->private_data = (void*)regext;
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "SREM");
   col_set_str(actx->pinfo->cinfo, COL_INFO, "SREM");
@@ -10450,7 +10450,7 @@ static const per_sequence_t dsrc_SignalStatusMessage_sequence[] = {
 static int
 dissect_dsrc_SignalStatusMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 385 "./asn1/its/its.cnf"
-  its_private_data_t *regext = wmem_new0(wmem_packet_scope(), its_private_data_t);
+  its_private_data_t *regext = wmem_new0(actx->pinfo->pool, its_private_data_t);
   actx->private_data = (void*)regext;
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "SSEM");
   col_set_str(actx->pinfo->cinfo, COL_INFO, "SSEM");
@@ -10597,7 +10597,7 @@ static const per_sequence_t AddGrpC_ConnectionManeuverAssist_addGrpC_sequence[] 
 static int
 dissect_AddGrpC_ConnectionManeuverAssist_addGrpC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 433 "./asn1/its/its.cnf"
-  actx->private_data = wmem_new0(wmem_packet_scope(), its_private_data_t);
+  actx->private_data = wmem_new0(actx->pinfo->pool, its_private_data_t);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_AddGrpC_ConnectionManeuverAssist_addGrpC, AddGrpC_ConnectionManeuverAssist_addGrpC_sequence);
@@ -10615,7 +10615,7 @@ static const per_sequence_t AddGrpC_ConnectionTrajectory_addGrpC_sequence[] = {
 static int
 dissect_AddGrpC_ConnectionTrajectory_addGrpC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 438 "./asn1/its/its.cnf"
-  actx->private_data = wmem_new0(wmem_packet_scope(), its_private_data_t);
+  actx->private_data = wmem_new0(actx->pinfo->pool, its_private_data_t);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_AddGrpC_ConnectionTrajectory_addGrpC, AddGrpC_ConnectionTrajectory_addGrpC_sequence);
@@ -10662,7 +10662,7 @@ static const per_sequence_t AddGrpC_IntersectionState_addGrpC_sequence[] = {
 static int
 dissect_AddGrpC_IntersectionState_addGrpC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 448 "./asn1/its/its.cnf"
-  actx->private_data = wmem_new0(wmem_packet_scope(), its_private_data_t);
+  actx->private_data = wmem_new0(actx->pinfo->pool, its_private_data_t);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_AddGrpC_IntersectionState_addGrpC, AddGrpC_IntersectionState_addGrpC_sequence);
@@ -10680,7 +10680,7 @@ static const per_sequence_t AddGrpC_LaneAttributes_addGrpC_sequence[] = {
 static int
 dissect_AddGrpC_LaneAttributes_addGrpC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 473 "./asn1/its/its.cnf"
-  actx->private_data = wmem_new0(wmem_packet_scope(), its_private_data_t);
+  actx->private_data = wmem_new0(actx->pinfo->pool, its_private_data_t);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_AddGrpC_LaneAttributes_addGrpC, AddGrpC_LaneAttributes_addGrpC_sequence);
@@ -10727,7 +10727,7 @@ static const per_sequence_t AddGrpC_MapData_addGrpC_sequence[] = {
 static int
 dissect_AddGrpC_MapData_addGrpC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 453 "./asn1/its/its.cnf"
-  actx->private_data = wmem_new0(wmem_packet_scope(), its_private_data_t);
+  actx->private_data = wmem_new0(actx->pinfo->pool, its_private_data_t);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_AddGrpC_MapData_addGrpC, AddGrpC_MapData_addGrpC_sequence);
@@ -10771,7 +10771,7 @@ static const per_sequence_t AddGrpC_MovementEvent_addGrpC_sequence[] = {
 static int
 dissect_AddGrpC_MovementEvent_addGrpC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 478 "./asn1/its/its.cnf"
-  actx->private_data = wmem_new0(wmem_packet_scope(), its_private_data_t);
+  actx->private_data = wmem_new0(actx->pinfo->pool, its_private_data_t);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_AddGrpC_MovementEvent_addGrpC, AddGrpC_MovementEvent_addGrpC_sequence);
@@ -10849,7 +10849,7 @@ static const per_sequence_t AddGrpC_NodeAttributeSet_addGrpC_sequence[] = {
 static int
 dissect_AddGrpC_NodeAttributeSet_addGrpC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 443 "./asn1/its/its.cnf"
-  actx->private_data = wmem_new0(wmem_packet_scope(), its_private_data_t);
+  actx->private_data = wmem_new0(actx->pinfo->pool, its_private_data_t);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_AddGrpC_NodeAttributeSet_addGrpC, AddGrpC_NodeAttributeSet_addGrpC_sequence);
@@ -10866,7 +10866,7 @@ static const per_sequence_t AddGrpC_Position3D_addGrpC_sequence[] = {
 static int
 dissect_AddGrpC_Position3D_addGrpC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 458 "./asn1/its/its.cnf"
-  actx->private_data = wmem_new0(wmem_packet_scope(), its_private_data_t);
+  actx->private_data = wmem_new0(actx->pinfo->pool, its_private_data_t);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_AddGrpC_Position3D_addGrpC, AddGrpC_Position3D_addGrpC_sequence);
@@ -10904,7 +10904,7 @@ static const per_sequence_t AddGrpC_RestrictionUserType_addGrpC_sequence[] = {
 static int
 dissect_AddGrpC_RestrictionUserType_addGrpC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 463 "./asn1/its/its.cnf"
-  actx->private_data = wmem_new0(wmem_packet_scope(), its_private_data_t);
+  actx->private_data = wmem_new0(actx->pinfo->pool, its_private_data_t);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_AddGrpC_RestrictionUserType_addGrpC, AddGrpC_RestrictionUserType_addGrpC_sequence);
@@ -10940,7 +10940,7 @@ static const per_sequence_t AddGrpC_RequestorDescription_addGrpC_sequence[] = {
 static int
 dissect_AddGrpC_RequestorDescription_addGrpC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 483 "./asn1/its/its.cnf"
-  actx->private_data = wmem_new0(wmem_packet_scope(), its_private_data_t);
+  actx->private_data = wmem_new0(actx->pinfo->pool, its_private_data_t);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_AddGrpC_RequestorDescription_addGrpC, AddGrpC_RequestorDescription_addGrpC_sequence);
@@ -10978,7 +10978,7 @@ static const per_sequence_t AddGrpC_SignalStatusPackage_addGrpC_sequence[] = {
 static int
 dissect_AddGrpC_SignalStatusPackage_addGrpC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 468 "./asn1/its/its.cnf"
-  actx->private_data = wmem_new0(wmem_packet_scope(), its_private_data_t);
+  actx->private_data = wmem_new0(actx->pinfo->pool, its_private_data_t);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_AddGrpC_SignalStatusPackage_addGrpC, AddGrpC_SignalStatusPackage_addGrpC_sequence);
@@ -14295,7 +14295,7 @@ static const per_sequence_t ivi_IviStructure_sequence[] = {
 static int
 dissect_ivi_IviStructure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 379 "./asn1/its/its.cnf"
-  actx->private_data = (void*)wmem_new0(wmem_packet_scope(), its_private_data_t);
+  actx->private_data = (void*)wmem_new0(actx->pinfo->pool, its_private_data_t);
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "IVIM");
   col_set_str(actx->pinfo->cinfo, COL_INFO, "IVIM");
 
@@ -14629,7 +14629,7 @@ static const per_sequence_t camv1_CoopAwarenessV1_sequence[] = {
 static int
 dissect_camv1_CoopAwarenessV1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 343 "./asn1/its/its.cnf"
-  actx->private_data = (void*)wmem_new0(wmem_packet_scope(), its_private_data_t);
+  actx->private_data = (void*)wmem_new0(actx->pinfo->pool, its_private_data_t);
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "CAMv1");
   col_set_str(actx->pinfo->cinfo, COL_INFO, "CAMv1");
 
@@ -14945,7 +14945,7 @@ static const per_sequence_t cam_CoopAwareness_sequence[] = {
 static int
 dissect_cam_CoopAwareness(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 337 "./asn1/its/its.cnf"
-  actx->private_data = (void*)wmem_new0(wmem_packet_scope(), its_private_data_t);
+  actx->private_data = (void*)wmem_new0(actx->pinfo->pool, its_private_data_t);
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "CAM");
   col_set_str(actx->pinfo->cinfo, COL_INFO, "CAM");
 
@@ -15153,7 +15153,7 @@ static const per_sequence_t denmv1_DecentralizedEnvironmentalNotificationMessage
 static int
 dissect_denmv1_DecentralizedEnvironmentalNotificationMessageV1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 355 "./asn1/its/its.cnf"
-  actx->private_data = (void*)wmem_new0(wmem_packet_scope(), its_private_data_t);
+  actx->private_data = (void*)wmem_new0(actx->pinfo->pool, its_private_data_t);
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "DENMv1");
   col_set_str(actx->pinfo->cinfo, COL_INFO, "DENMv1");
 
@@ -15361,7 +15361,7 @@ static const per_sequence_t denm_DecentralizedEnvironmentalNotificationMessage_s
 static int
 dissect_denm_DecentralizedEnvironmentalNotificationMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 349 "./asn1/its/its.cnf"
-  actx->private_data = (void*)wmem_new0(wmem_packet_scope(), its_private_data_t);
+  actx->private_data = (void*)wmem_new0(actx->pinfo->pool, its_private_data_t);
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "DENM");
   col_set_str(actx->pinfo->cinfo, COL_INFO, "DENM");
 
@@ -16465,7 +16465,7 @@ static const per_choice_t tistpg_TisTpgTransaction_choice[] = {
 static int
 dissect_tistpg_TisTpgTransaction(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 373 "./asn1/its/its.cnf"
-  actx->private_data = (void*)wmem_new0(wmem_packet_scope(), its_private_data_t);
+  actx->private_data = (void*)wmem_new0(actx->pinfo->pool, its_private_data_t);
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "TISTPG");
   col_set_str(actx->pinfo->cinfo, COL_INFO, "TISTPG");
 
@@ -16772,7 +16772,7 @@ static const per_sequence_t evcsn_EVChargingSpotNotificationPOIMessage_sequence[
 static int
 dissect_evcsn_EVChargingSpotNotificationPOIMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 361 "./asn1/its/its.cnf"
-  actx->private_data = (void*)wmem_new0(wmem_packet_scope(), its_private_data_t);
+  actx->private_data = (void*)wmem_new0(actx->pinfo->pool, its_private_data_t);
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "EVCSN");
   col_set_str(actx->pinfo->cinfo, COL_INFO, "EVCSN");
 
@@ -17276,7 +17276,7 @@ static const per_choice_t evrsr_EV_RSR_MessageBody_choice[] = {
 static int
 dissect_evrsr_EV_RSR_MessageBody(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 367 "./asn1/its/its.cnf"
-  actx->private_data = (void*)wmem_new0(wmem_packet_scope(), its_private_data_t);
+  actx->private_data = (void*)wmem_new0(actx->pinfo->pool, its_private_data_t);
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "EV-RSR");
   col_set_str(actx->pinfo->cinfo, COL_INFO, "EV-RSR");
 
@@ -18668,7 +18668,7 @@ static const per_sequence_t cpm_CollectivePerceptionMessage_sequence[] = {
 static int
 dissect_cpm_CollectivePerceptionMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 426 "./asn1/its/its.cnf"
-  actx->private_data = (void*)wmem_new0(wmem_packet_scope(), its_private_data_t);
+  actx->private_data = (void*)wmem_new0(actx->pinfo->pool, its_private_data_t);
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "CPM");
   col_set_str(actx->pinfo->cinfo, COL_INFO, "CPM");
 

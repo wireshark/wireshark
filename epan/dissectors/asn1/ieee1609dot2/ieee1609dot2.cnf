@@ -70,7 +70,7 @@ EncryptedDataEncryptionKey/eciesBrainpoolP256r1 edekEciesBrainpoolP256r1
 SspRange/opaque                      ABBREV=srRange.opaque
 
 #.FN_HDR Ieee1609Dot2Data
-  actx->private_data = (void*)wmem_new0(wmem_packet_scope(), ieee1609_private_data_t);
+  actx->private_data = (void*)wmem_new0(actx->pinfo->pool, ieee1609_private_data_t);
 #.END
 
 #.FN_BODY Ieee1609Dot2Content/unsecuredData

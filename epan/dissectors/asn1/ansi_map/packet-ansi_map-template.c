@@ -387,8 +387,8 @@ update_saved_invokedata(packet_info *pinfo, struct ansi_tcap_private_t *p_privat
     guint8 *dst_str;
     const char *buf = NULL;
 
-    src_str = address_to_str(wmem_packet_scope(), src);
-    dst_str = address_to_str(wmem_packet_scope(), dst);
+    src_str = address_to_str(pinfo->pool, src);
+    dst_str = address_to_str(pinfo->pool, dst);
 
     /* Data from the TCAP dissector */
     if ((!pinfo->fd->visited)&&(p_private_tcap->TransactionID_str)){
@@ -396,14 +396,14 @@ update_saved_invokedata(packet_info *pinfo, struct ansi_tcap_private_t *p_privat
         /* The hash string needs to contain src and dest to distiguish differnt flows */
         switch(ansi_map_response_matching_type){
             case ANSI_MAP_TID_ONLY:
-                buf = wmem_strdup(wmem_packet_scope(), p_private_tcap->TransactionID_str);
+                buf = wmem_strdup(pinfo->pool, p_private_tcap->TransactionID_str);
                 break;
             case ANSI_MAP_TID_AND_SOURCE:
-                buf = wmem_strdup_printf(wmem_packet_scope(), "%s%s",p_private_tcap->TransactionID_str,src_str);
+                buf = wmem_strdup_printf(pinfo->pool, "%s%s",p_private_tcap->TransactionID_str,src_str);
                 break;
             case ANSI_MAP_TID_SOURCE_AND_DEST:
             default:
-                buf = wmem_strdup_printf(wmem_packet_scope(), "%s%s%s",p_private_tcap->TransactionID_str,src_str,dst_str);
+                buf = wmem_strdup_printf(pinfo->pool, "%s%s%s",p_private_tcap->TransactionID_str,src_str,dst_str);
                 break;
         }
         /* If the entry allready exists don't owervrite it */
@@ -617,7 +617,7 @@ dissect_ansi_map_min_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 
     subtree = proto_item_add_subtree(actx->created_item, ett_mintype);
 
-    proto_tree_add_item_ret_display_string(subtree, hf_ansi_map_bcd_digits, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_BCD_DIGITS_0_9, wmem_packet_scope(), &digit_str);
+    proto_tree_add_item_ret_display_string(subtree, hf_ansi_map_bcd_digits, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_BCD_DIGITS_0_9, pinfo->pool, &digit_str);
     proto_item_append_text(actx->created_item, " - %s", digit_str);
 }
 
@@ -661,7 +661,7 @@ dissect_ansi_map_digits_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             if(octet_len == 0)
                 return;
             offset++;
-            proto_tree_add_item_ret_display_string(subtree, hf_ansi_map_bcd_digits, tvb, offset, -1, ENC_KEYPAD_BC_TBCD, wmem_packet_scope(), &digit_str);
+            proto_tree_add_item_ret_display_string(subtree, hf_ansi_map_bcd_digits, tvb, offset, -1, ENC_KEYPAD_BC_TBCD, pinfo->pool, &digit_str);
             proto_item_append_text(actx->created_item, " - %s", digit_str);
             break;
         case 2:
@@ -674,7 +674,7 @@ dissect_ansi_map_digits_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                 return;
             offset++;
             proto_tree_add_item_ret_string(subtree, hf_ansi_map_ia5_digits, tvb, offset, tvb_reported_length_remaining(tvb,offset),
-                                            ENC_ASCII|ENC_NA, wmem_packet_scope(), &digits);
+                                            ENC_ASCII|ENC_NA, pinfo->pool, &digits);
             proto_item_append_text(actx->created_item, " - %s", digits);
             }
             break;
@@ -702,7 +702,7 @@ dissect_ansi_map_digits_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         switch ((octet&0xf)){
         case 1:
             /* BCD Coding */
-            proto_tree_add_item_ret_display_string(subtree, hf_ansi_map_bcd_digits, tvb, offset, -1, ENC_KEYPAD_BC_TBCD, wmem_packet_scope(), &digit_str);
+            proto_tree_add_item_ret_display_string(subtree, hf_ansi_map_bcd_digits, tvb, offset, -1, ENC_KEYPAD_BC_TBCD, pinfo->pool, &digit_str);
             proto_item_append_text(actx->created_item, " - %s", digit_str);
             break;
         case 2:
@@ -710,7 +710,7 @@ dissect_ansi_map_digits_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             const guint8* digits;
             /* IA5 Coding */
             proto_tree_add_item_ret_string(subtree, hf_ansi_map_ia5_digits, tvb, offset, tvb_reported_length_remaining(tvb,offset),
-                                            ENC_ASCII|ENC_NA, wmem_packet_scope(), &digits);
+                                            ENC_ASCII|ENC_NA, pinfo->pool, &digits);
             proto_item_append_text(actx->created_item, " - %s", digits);
             }
             break;
@@ -4307,12 +4307,12 @@ find_saved_invokedata(asn1_ctx_t *actx, struct ansi_tcap_private_t *p_private_tc
     guint8 *dst_str;
     char *buf;
 
-    buf=(char *)wmem_alloc(wmem_packet_scope(), 1024);
+    buf=(char *)wmem_alloc(actx->pinfo->pool, 1024);
 
     /* Data from the TCAP dissector */
     /* The hash string needs to contain src and dest to distiguish differnt flows */
-    src_str = address_to_str(wmem_packet_scope(), src);
-    dst_str = address_to_str(wmem_packet_scope(), dst);
+    src_str = address_to_str(actx->pinfo->pool, src);
+    dst_str = address_to_str(actx->pinfo->pool, dst);
     /* Reverse order to invoke */
     switch(ansi_map_response_matching_type){
         case ANSI_MAP_TID_ONLY:

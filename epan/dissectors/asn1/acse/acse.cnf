@@ -88,7 +88,7 @@ PDV-list/presentation-data-values/octet-aligned		pDVList_octet_aligned
 
   /* look up the indirect reference */
   if((oid = find_oid_by_pres_ctx_id(actx->pinfo, indir_ref)) != NULL) {
-    actx->external.direct_reference = wmem_strdup(wmem_packet_scope(), oid);
+    actx->external.direct_reference = wmem_strdup(actx->pinfo->pool, oid);
     actx->external.direct_ref_present = TRUE;
   }
 

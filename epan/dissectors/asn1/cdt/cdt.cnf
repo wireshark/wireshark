@@ -49,7 +49,7 @@ CompressedData    B "1.3.26.0.4406.0.4.2"  "cdt"
 
   %(DEFAULT_BODY)s
   if (obj_id) {
-    const char *name = oid_resolved_from_string (wmem_packet_scope(), obj_id);
+    const char *name = oid_resolved_from_string (actx->pinfo->pool, obj_id);
 
     if (!name) {
       name = obj_id;

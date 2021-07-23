@@ -350,11 +350,11 @@ static uat_t *c1222_uat;
 #define FILL_START int length, start_offset = offset;
 #define FILL_TABLE(fieldname)  \
   length = offset - start_offset; \
-  fieldname = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, start_offset, length); \
+  fieldname = (guint8 *)tvb_memdup(actx->pinfo->pool, tvb, start_offset, length); \
   fieldname##_len = length;
 #define FILL_TABLE_TRUNCATE(fieldname, len)  \
   length = 1 + 2*(offset - start_offset); \
-  fieldname = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, start_offset, length); \
+  fieldname = (guint8 *)tvb_memdup(actx->pinfo->pool, tvb, start_offset, length); \
   fieldname##_len = len;
 #define FILL_TABLE_APTITLE(fieldname) \
   length = offset - start_offset; \
@@ -362,7 +362,7 @@ static uat_t *c1222_uat;
     case 0x80: /* relative OID */ \
       tvb_ensure_bytes_exist(tvb, start_offset, length); \
       fieldname##_len = length + c1222_baseoid_len; \
-      fieldname = (guint8 *)wmem_alloc(wmem_packet_scope(), fieldname##_len); \
+      fieldname = (guint8 *)wmem_alloc(actx->pinfo->pool, fieldname##_len); \
       fieldname[0] = 0x06;  /* create absolute OID tag */ \
       fieldname[1] = (fieldname##_len - 2) & 0xff;  \
       memcpy(&(fieldname[2]), c1222_baseoid, c1222_baseoid_len); \
@@ -370,7 +370,7 @@ static uat_t *c1222_uat;
       break; \
     case 0x06:  /* absolute OID */ \
     default: \
-      fieldname = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, start_offset, length); \
+      fieldname = (guint8 *)tvb_memdup(actx->pinfo->pool, tvb, start_offset, length); \
       fieldname##_len = length; \
       break; \
   }
@@ -449,7 +449,7 @@ parse_c1222_detailed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int cm
         user_id = tvb_get_ntohs(tvb, *offset);
         proto_tree_add_uint(tree, hf_c1222_logon_id, tvb, *offset, 2, user_id);
         *offset += 2;
-        proto_tree_add_item_ret_string(tree, hf_c1222_logon_user, tvb, *offset, 10, ENC_ASCII|ENC_NA, wmem_packet_scope(), &user_name);
+        proto_tree_add_item_ret_string(tree, hf_c1222_logon_user, tvb, *offset, 10, ENC_ASCII|ENC_NA, pinfo->pool, &user_name);
         *offset += 10;
         *length -= 12;
         proto_item_set_text(tree, "C12.22 EPSEM: %s (id %d, user \"%s\")",
@@ -460,7 +460,7 @@ parse_c1222_detailed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int cm
       break;
     case C1222_CMD_SECURITY:
       if (*length >= 20) {
-        proto_tree_add_item_ret_string(tree, hf_c1222_security_password, tvb, *offset, 20, ENC_ASCII|ENC_NA, wmem_packet_scope(), &password);
+        proto_tree_add_item_ret_string(tree, hf_c1222_security_password, tvb, *offset, 20, ENC_ASCII|ENC_NA, pinfo->pool, &password);
         *offset += 20;
         *length -= 20;
         if (*length >= 2) {
@@ -484,7 +484,7 @@ parse_c1222_detailed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int cm
         proto_tree_add_uint(tree, hf_c1222_auth_len, tvb, *offset, 1, auth_len);
         *offset += 1;
         if (*length >= auth_len) {
-          auth_req = tvb_bytes_to_str(wmem_packet_scope(), tvb, *offset, auth_len);
+          auth_req = tvb_bytes_to_str(pinfo->pool, tvb, *offset, auth_len);
           proto_tree_add_item(tree, hf_c1222_auth_data, tvb, *offset, auth_len, ENC_NA);
           *offset += auth_len;
           *length -= auth_len + 1;
@@ -1024,7 +1024,7 @@ dissect_epsem(tvbuff_t *tvb, int offset, guint32 len, packet_info *pinfo, proto_
       if (len2 <= 0)
         return offset;
       epsem_buffer = tvb_new_subset_remaining(tvb, offset);
-      buffer = (guchar *)tvb_memdup(wmem_packet_scope(), tvb, offset, len2);
+      buffer = (guchar *)tvb_memdup(pinfo->pool, tvb, offset, len2);
       if (c1222_decrypt) {
         if (!decrypt_packet(buffer, len2, FALSE)) {
           crypto_bad = TRUE;

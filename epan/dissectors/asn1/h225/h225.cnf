@@ -748,7 +748,7 @@ IsupNumber/nationalStandardPartyNumber isupNationalStandardPartyNumber
   actx->value_ptr = &guid_tvb;
 %(DEFAULT_BODY)s
   if (guid_tvb)
-    tvb_get_ntohguid(guid_tvb, 0, call_id_guid = wmem_new(wmem_packet_scope(), e_guid_t));
+    tvb_get_ntohguid(guid_tvb, 0, call_id_guid = wmem_new(actx->pinfo->pool, e_guid_t));
   actx->value_ptr = NULL;
 #.END
 #----------------------------------------------------------------------------------------
@@ -898,7 +898,7 @@ H221NonStandard/manufacturerCode  VAL_PTR = &manufacturerCode
 
 %(DEFAULT_BODY)s
   gefx = gef_ctx_get(actx->private_data);
-  if (gefx) gefx->id = wmem_strdup_printf(wmem_packet_scope(), "%%u", value_int);
+  if (gefx) gefx->id = wmem_strdup_printf(actx->pinfo->pool, "%%u", value_int);
 #.END
 
 #.FN_BODY GenericIdentifier/oid  FN_VARIANT = _str  VAL_PTR = &oid_str

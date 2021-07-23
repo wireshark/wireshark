@@ -3172,9 +3172,9 @@ dissect_gsm_map_ext2_qos_subscribed(tvbuff_t *tvb, packet_info *pinfo _U_, proto
     {
         temp32 = qos_calc_ext_bitrate(oct);
         if (temp32 % 1000 == 0)
-            str = wmem_strdup_printf(wmem_packet_scope(), "%u Mbps", temp32 / 1000);
+            str = wmem_strdup_printf(pinfo->pool, "%u Mbps", temp32 / 1000);
         else
-            str = wmem_strdup_printf(wmem_packet_scope(), "%u kbps", temp32);
+            str = wmem_strdup_printf(pinfo->pool, "%u kbps", temp32);
     }
     proto_tree_add_uint_format_value(subtree, hf_gsm_map_qos_max_bitrate_downl_ext, tvb,
         offset, 1, oct, "%s (%u)", str, oct);
@@ -3193,9 +3193,9 @@ dissect_gsm_map_ext2_qos_subscribed(tvbuff_t *tvb, packet_info *pinfo _U_, proto
     {
         temp32 = qos_calc_ext_bitrate(oct);
         if (temp32 % 1000 == 0)
-            str = wmem_strdup_printf(wmem_packet_scope(), "%u Mbps", temp32 / 1000);
+            str = wmem_strdup_printf(pinfo->pool, "%u Mbps", temp32 / 1000);
         else
-            str = wmem_strdup_printf(wmem_packet_scope(), "%u kbps", temp32);
+            str = wmem_strdup_printf(pinfo->pool, "%u kbps", temp32);
     }
     proto_tree_add_uint_format_value(subtree, hf_gsm_map_qos_guar_bitrate_downl_ext, tvb,
         offset, 1, oct, "%s (%u)", str, oct);
@@ -3228,9 +3228,9 @@ dissect_gsm_map_ext3_qos_subscribed(tvbuff_t *tvb, packet_info *pinfo _U_, proto
     {
         temp32 = qos_calc_ext_bitrate(oct);
         if (temp32 % 1000 == 0)
-            str = wmem_strdup_printf(wmem_packet_scope(), "%u Mbps", temp32 / 1000);
+            str = wmem_strdup_printf(pinfo->pool, "%u Mbps", temp32 / 1000);
         else
-            str = wmem_strdup_printf(wmem_packet_scope(), "%u kbps", temp32);
+            str = wmem_strdup_printf(pinfo->pool, "%u kbps", temp32);
     }
     proto_tree_add_uint_format_value(subtree, hf_gsm_map_qos_max_bitrate_upl_ext, tvb,
         offset, 1, oct, "%s (%u)", str, oct);
@@ -3249,9 +3249,9 @@ dissect_gsm_map_ext3_qos_subscribed(tvbuff_t *tvb, packet_info *pinfo _U_, proto
     {
         temp32 = qos_calc_ext_bitrate(oct);
         if (temp32 % 1000 == 0)
-            str = wmem_strdup_printf(wmem_packet_scope(), "%u Mbps", temp32 / 1000);
+            str = wmem_strdup_printf(pinfo->pool, "%u Mbps", temp32 / 1000);
         else
-            str = wmem_strdup_printf(wmem_packet_scope(), "%u kbps", temp32);
+            str = wmem_strdup_printf(pinfo->pool, "%u kbps", temp32);
     }
     proto_tree_add_uint_format_value(subtree, hf_gsm_map_qos_guar_bitrate_upl_ext, tvb,
         offset, 1, oct, "%s (%u)", str, oct);
@@ -9542,7 +9542,7 @@ dissect_gsm_map_ms_APN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
                 return offset;
 
 	subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_apn_str);
-	proto_tree_add_item_ret_string(subtree, hf_gsm_apn_str, parameter_tvb, 0, -1, ENC_APN_STR | ENC_NA, wmem_packet_scope(), &apn_str);
+	proto_tree_add_item_ret_string(subtree, hf_gsm_apn_str, parameter_tvb, 0, -1, ENC_APN_STR | ENC_NA, actx->pinfo->pool, &apn_str);
 	proto_item_append_text(actx->created_item, " - %s", apn_str);
 
 
@@ -23707,7 +23707,7 @@ dissect_gsm_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void
 
   asn1_ctx.subtree.top_tree = parent_tree;
 
-  gsm_map_priv = wmem_new0(wmem_packet_scope(), gsm_map_private_info_t);
+  gsm_map_priv = wmem_new0(pinfo->pool, gsm_map_private_info_t);
   gsm_map_priv->tcap_private = (struct tcap_private_t *)data;
   asn1_ctx.value_ptr = gsm_map_priv;
 
@@ -23746,7 +23746,7 @@ dissect_gsm_map_sccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 
   asn1_ctx.subtree.top_tree = parent_tree;
 
-  gsm_map_priv = wmem_new0(wmem_packet_scope(), gsm_map_private_info_t);
+  gsm_map_priv = wmem_new0(pinfo->pool, gsm_map_private_info_t);
   gsm_map_priv->sccp_msg_info = (sccp_msg_info_t *)data;
   asn1_ctx.value_ptr = gsm_map_priv;
 

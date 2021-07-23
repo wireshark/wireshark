@@ -109,7 +109,7 @@ AlterEventEnrollment-Response/currentState/state    ABBREV=alterEventEnrollment-
 	if(len == 4)
 	{
 		milliseconds = tvb_get_ntohl(tvb, offset);
-		ptime = signed_time_msecs_to_str(wmem_packet_scope(), milliseconds);
+		ptime = signed_time_msecs_to_str(actx->pinfo->pool, milliseconds);
 
 		if(hf_index >= 0)
 		{
@@ -129,7 +129,7 @@ AlterEventEnrollment-Response/currentState/state    ABBREV=alterEventEnrollment-
 		ts.secs = (days + 5113) * 86400 + milliseconds / 1000;
 		ts.nsecs = (milliseconds %% 1000) * 1000000U;
 
-		ptime = abs_time_to_str(wmem_packet_scope(), &ts, ABSOLUTE_TIME_UTC, TRUE);
+		ptime = abs_time_to_str(actx->pinfo->pool, &ts, ABSOLUTE_TIME_UTC, TRUE);
 		if(hf_index >= 0)
 		{
 			proto_tree_add_string(tree, hf_index, tvb, offset, len, ptime);
@@ -176,7 +176,7 @@ AlterEventEnrollment-Response/currentState/state    ABBREV=alterEventEnrollment-
 	ts.secs = seconds;
 	ts.nsecs = nanoseconds;
 
-	ptime = abs_time_to_str(wmem_packet_scope(), &ts, ABSOLUTE_TIME_UTC, TRUE);
+	ptime = abs_time_to_str(actx->pinfo->pool, &ts, ABSOLUTE_TIME_UTC, TRUE);
 
 	if(hf_index >= 0)
 	{

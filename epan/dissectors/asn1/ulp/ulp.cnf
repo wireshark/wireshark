@@ -87,7 +87,7 @@ guint32 UlpMessage;
       default:
         actx->created_item = proto_tree_add_string(tree, hf_index, val_tvb, 0,
                                                    tvb_reported_length(val_tvb),
-                                                   tvb_bytes_to_str(wmem_packet_scope(), val_tvb, 0,
+                                                   tvb_bytes_to_str(actx->pinfo->pool, val_tvb, 0,
                                                                     tvb_reported_length(val_tvb)));
         break;
     }
@@ -119,7 +119,7 @@ Notification/requestorId TYPE=FT_STRING DISPLAY=STR_UNICODE
       default:
         actx->created_item = proto_tree_add_string(tree, hf_index, val_tvb, 0,
                                                    tvb_reported_length(val_tvb),
-                                                   tvb_bytes_to_str(wmem_packet_scope(), val_tvb, 0,
+                                                   tvb_bytes_to_str(actx->pinfo->pool, val_tvb, 0,
                                                                     tvb_reported_length(val_tvb)));
         break;
     }

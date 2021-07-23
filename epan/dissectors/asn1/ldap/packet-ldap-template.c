@@ -676,7 +676,7 @@ dissect_ldap_AssertionValue(gboolean implicit_tag, tvbuff_t *tvb, int offset, as
     /* This octet string contained a GUID */
     dissect_dcerpc_uuid_t(tvb, offset, actx->pinfo, tree, drep, hf_ldap_guid, &uuid);
 
-    ldapvalue_string=(char*)wmem_alloc(wmem_packet_scope(), 1024);
+    ldapvalue_string=(char*)wmem_alloc(actx->pinfo->pool, 1024);
     g_snprintf(ldapvalue_string, 1023, "%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
                uuid.data1, uuid.data2, uuid.data3, uuid.data4[0], uuid.data4[1],
                uuid.data4[2], uuid.data4[3], uuid.data4[4], uuid.data4[5],
@@ -690,7 +690,7 @@ dissect_ldap_AssertionValue(gboolean implicit_tag, tvbuff_t *tvb, int offset, as
     /* get flag value to populate ldapvalue_string */
     flags=tvb_get_letohl(tvb, offset);
 
-    ldapvalue_string=(char*)wmem_alloc(wmem_packet_scope(), 1024);
+    ldapvalue_string=(char*)wmem_alloc(actx->pinfo->pool, 1024);
     g_snprintf(ldapvalue_string, 1023, "0x%08x",flags);
 
     /* populate bitmask subtree */
@@ -717,9 +717,9 @@ dissect_ldap_AssertionValue(gboolean implicit_tag, tvbuff_t *tvb, int offset, as
 
   /* convert the string into a printable string */
   if(is_ascii){
-    ldapvalue_string= tvb_get_string_enc(wmem_packet_scope(), tvb, offset, len, ENC_UTF_8|ENC_NA);
+    ldapvalue_string= tvb_get_string_enc(actx->pinfo->pool, tvb, offset, len, ENC_UTF_8|ENC_NA);
   } else {
-    ldapvalue_string= tvb_bytes_to_str_punct(wmem_packet_scope(), tvb, offset, len, ':');
+    ldapvalue_string= tvb_bytes_to_str_punct(actx->pinfo->pool, tvb, offset, len, ':');
   }
 
   proto_tree_add_string(tree, hf_index, tvb, offset, len, ldapvalue_string);
@@ -1654,12 +1654,12 @@ dissect_ldap_oid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* 
    *       proto_tree_add_oid() instead.
    */
 
-  oid=tvb_get_string_enc(wmem_packet_scope(), tvb, 0, tvb_reported_length(tvb), ENC_UTF_8|ENC_NA);
+  oid=tvb_get_string_enc(pinfo->pool, tvb, 0, tvb_reported_length(tvb), ENC_UTF_8|ENC_NA);
   if(!oid){
     return tvb_captured_length(tvb);
   }
 
-  oidname=oid_resolved_from_string(wmem_packet_scope(), oid);
+  oidname=oid_resolved_from_string(pinfo->pool, oid);
 
   if(oidname){
     proto_tree_add_string_format_value(tree, hf_ldap_oid, tvb, 0, tvb_reported_length(tvb), oid, "%s (%s)",oid,oidname);
@@ -1731,7 +1731,7 @@ dissect_ldap_guid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
   /* This octet string contained a GUID */
   dissect_dcerpc_uuid_t(tvb, 0, pinfo, tree, drep, hf_ldap_guid, &uuid);
 
-  ldapvalue_string=(char*)wmem_alloc(wmem_packet_scope(), 1024);
+  ldapvalue_string=(char*)wmem_alloc(pinfo->pool, 1024);
   g_snprintf(ldapvalue_string, 1023, "%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
              uuid.data1, uuid.data2, uuid.data3, uuid.data4[0], uuid.data4[1],
              uuid.data4[2], uuid.data4[3], uuid.data4[4], uuid.data4[5],

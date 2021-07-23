@@ -68,8 +68,8 @@ PasswordPolicyResponseValue     B "1.3.6.1.4.1.42.2.27.8.5.1"  "passwordPolicy"
   if (!parameter_tvb)
     return offset;
 
-  object_identifier_id = tvb_get_string_enc(wmem_packet_scope(), parameter_tvb, 0, tvb_reported_length_remaining(parameter_tvb,0), ENC_UTF_8|ENC_NA);
-  name = oid_resolved_from_string(wmem_packet_scope(), object_identifier_id);
+  object_identifier_id = tvb_get_string_enc(actx->pinfo->pool, parameter_tvb, 0, tvb_reported_length_remaining(parameter_tvb,0), ENC_UTF_8|ENC_NA);
+  name = oid_resolved_from_string(actx->pinfo->pool, object_identifier_id);
 
   if(name){
     proto_item_append_text(actx->created_item, " (%s)", name);
@@ -310,14 +310,14 @@ ldap_conv_info_t *ldap_info;
   ldap_do_protocolop(actx->pinfo);
 
   if(parameter_tvb)
-    ldapstring = tvb_get_string_enc(wmem_packet_scope(), parameter_tvb, 0, tvb_reported_length_remaining(parameter_tvb, 0), ENC_UTF_8|ENC_NA);
+    ldapstring = tvb_get_string_enc(actx->pinfo->pool, parameter_tvb, 0, tvb_reported_length_remaining(parameter_tvb, 0), ENC_UTF_8|ENC_NA);
 
   if(hf_index == hf_ldap_baseObject) {
     /* this is search - put it on the scanline */
     if(!ldapstring || !*ldapstring)
       ldapstring = "<ROOT>";
 
-    col_append_fstr(actx->pinfo->cinfo, COL_INFO, "\"%%s\" ", format_text(wmem_packet_scope(), ldapstring, strlen(ldapstring)));
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, "\"%%s\" ", format_text(actx->pinfo->pool, ldapstring, strlen(ldapstring)));
 
     if(ldm_tree)
       proto_item_append_text(ldm_tree, " \"%%s\"", ldapstring);
@@ -329,7 +329,7 @@ ldap_conv_info_t *ldap_info;
     }
 
   } else if ((hf_index == hf_ldap_errorMessage) && ldapstring && *ldapstring) { /* only show message if not success */
-    col_append_fstr(actx->pinfo->cinfo, COL_INFO, "(%%s) ", format_text(wmem_packet_scope(), ldapstring, strlen(ldapstring)));
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, "(%%s) ", format_text(actx->pinfo->pool, ldapstring, strlen(ldapstring)));
 
     if(ldm_tree)
       proto_item_append_text(ldm_tree, " (%%s)", ldapstring);
@@ -343,7 +343,7 @@ ldap_conv_info_t *ldap_info;
       if(!ldapstring || !*ldapstring)
         ldapstring = "<ROOT>";
 
-      col_append_fstr(actx->pinfo->cinfo, COL_INFO, "\"%%s\" ", format_text(wmem_packet_scope(), ldapstring, strlen(ldapstring)));
+      col_append_fstr(actx->pinfo->cinfo, COL_INFO, "\"%%s\" ", format_text(actx->pinfo->pool, ldapstring, strlen(ldapstring)));
 
       if(ldm_tree)
         proto_item_append_text(ldm_tree, " \"%%s\"", ldapstring);
@@ -367,7 +367,7 @@ ldap_conv_info_t *ldap_info;
         Filter_string=ldapstring;
       } else if (hf_index == hf_ldap_type) {
         /* remember attribute type name */
-        attr_type = wmem_strdup(wmem_packet_scope(), ldapstring);
+        attr_type = wmem_strdup(actx->pinfo->pool, ldapstring);
 
         /* append it to the parent entry */
         proto_item_append_text(tree, " %%s", attr_type);
@@ -471,7 +471,7 @@ ldap_conv_info_t *ldap_info;
   %(DEFAULT_BODY)s
 
     if(tvb_ascii_isprint(next_tvb, 0, tvb_reported_length(next_tvb))) {
-      string = tvb_get_string_enc(wmem_packet_scope(), next_tvb, 0, tvb_reported_length_remaining(next_tvb, 0), ENC_UTF_8|ENC_NA);
+      string = tvb_get_string_enc(actx->pinfo->pool, next_tvb, 0, tvb_reported_length_remaining(next_tvb, 0), ENC_UTF_8|ENC_NA);
       proto_item_set_text(actx->created_item, "AttributeValue: %%s", string);
     }
   }
@@ -522,31 +522,31 @@ ldap_conv_info_t *ldap_info;
   Filter_length = 0;
 
 #.FN_FTR Filter/equalityMatch
-  Filter_string=wmem_strdup_printf(wmem_packet_scope(), "(%s=%s)",
+  Filter_string=wmem_strdup_printf(actx->pinfo->pool, "(%s=%s)",
                                    string_or_null(attributedesc_string),
                                    string_or_null(ldapvalue_string));
 
 
 #.FN_FTR Filter/greaterOrEqual
-  Filter_string=wmem_strdup_printf(wmem_packet_scope(), "(%s>=%s)",
+  Filter_string=wmem_strdup_printf(actx->pinfo->pool, "(%s>=%s)",
                                    string_or_null(attributedesc_string),
                                    string_or_null(ldapvalue_string));
 
 
 #.FN_FTR Filter/lessOrEqual
-  Filter_string=wmem_strdup_printf(wmem_packet_scope(), "(%s<=%s)",
+  Filter_string=wmem_strdup_printf(actx->pinfo->pool, "(%s<=%s)",
                                    string_or_null(attributedesc_string),
                                    string_or_null(ldapvalue_string));
 
 
 #.FN_FTR Filter/approxMatch
-  Filter_string=wmem_strdup_printf(wmem_packet_scope(), "(%s~=%s)",
+  Filter_string=wmem_strdup_printf(actx->pinfo->pool, "(%s~=%s)",
                                    string_or_null(attributedesc_string),
                                    string_or_null(ldapvalue_string));
 
 #.FN_FTR Filter/and/_item
   if(and_filter_string){
-    and_filter_string=wmem_strdup_printf(wmem_packet_scope(), "(&%s%s)",and_filter_string,Filter_string);
+    and_filter_string=wmem_strdup_printf(actx->pinfo->pool, "(&%s%s)",and_filter_string,Filter_string);
   } else {
     and_filter_string=Filter_string;
   }
@@ -565,13 +565,13 @@ ldap_conv_info_t *ldap_info;
 
   if(and_filter_string) {
     proto_item_append_text(it, "%%s", and_filter_string);
-    Filter_string=wmem_strdup(wmem_packet_scope(), and_filter_string);
+    Filter_string=wmem_strdup(actx->pinfo->pool, and_filter_string);
   }
   and_filter_string=old_and_filter_string;
 
 #.FN_FTR Filter/or/_item
   if(or_filter_string){
-    or_filter_string=wmem_strdup_printf(wmem_packet_scope(), "(|%s%s)",or_filter_string,Filter_string);
+    or_filter_string=wmem_strdup_printf(actx->pinfo->pool, "(|%s%s)",or_filter_string,Filter_string);
   } else {
     or_filter_string=Filter_string;
   }
@@ -589,15 +589,15 @@ ldap_conv_info_t *ldap_info;
 %(DEFAULT_BODY)s
   if(or_filter_string) {
     proto_item_append_text(it, "%%s", or_filter_string);
-    Filter_string=wmem_strdup(wmem_packet_scope(), or_filter_string);
+    Filter_string=wmem_strdup(actx->pinfo->pool, or_filter_string);
   }
   or_filter_string=old_or_filter_string;
 
 #.FN_FTR Filter/present
-  Filter_string=wmem_strdup_printf(wmem_packet_scope(), "(%s=*)",string_or_null(Filter_string));
+  Filter_string=wmem_strdup_printf(actx->pinfo->pool, "(%s=*)",string_or_null(Filter_string));
 
 #.FN_FTR Filter/not
-  Filter_string=wmem_strdup_printf(wmem_packet_scope(), "(!%s)",string_or_null(Filter_string));
+  Filter_string=wmem_strdup_printf(actx->pinfo->pool, "(!%s)",string_or_null(Filter_string));
 
 #.FN_BODY MatchingRuleAssertion/dnAttributes
   gboolean val;
@@ -615,7 +615,7 @@ ldap_conv_info_t *ldap_info;
   matching_rule_dnattr=FALSE;
 
 #.FN_FTR Filter/extensibleMatch
-  Filter_string=wmem_strdup_printf(wmem_packet_scope(), "(%s:%s%s%s=%s)",
+  Filter_string=wmem_strdup_printf(actx->pinfo->pool, "(%s:%s%s%s=%s)",
                                   (attr_type?attr_type:""),
                                   (matching_rule_dnattr?"dn:":""),
                                   (matching_rule_string?matching_rule_string:""),
@@ -624,15 +624,15 @@ ldap_conv_info_t *ldap_info;
 
 #.FN_FTR SubstringFilter/substrings/_item
   if (substring_item_final) {
-    substring_value=wmem_strdup_printf(wmem_packet_scope(), "%s%s",
+    substring_value=wmem_strdup_printf(actx->pinfo->pool, "%s%s",
                                       (substring_value?substring_value:"*"),
                                        substring_item_final);
   } else if (substring_item_any) {
-    substring_value=wmem_strdup_printf(wmem_packet_scope(), "%s%s*",
+    substring_value=wmem_strdup_printf(actx->pinfo->pool, "%s%s*",
                                       (substring_value?substring_value:"*"),
                                        substring_item_any);
   } else if (substring_item_init) {
-    substring_value=wmem_strdup_printf(wmem_packet_scope(), "%s*",
+    substring_value=wmem_strdup_printf(actx->pinfo->pool, "%s*",
                                        substring_item_init);
   }
 
@@ -651,7 +651,7 @@ ldap_conv_info_t *ldap_info;
   tree = tr;
 
 %(DEFAULT_BODY)s
-  Filter_string=wmem_strdup_printf(wmem_packet_scope(), "(%%s=%%s)",
+  Filter_string=wmem_strdup_printf(actx->pinfo->pool, "(%%s=%%s)",
                                    string_or_null(attr_type),
                                    string_or_null(substring_value));
   proto_item_append_text(it, "%%s", Filter_string);
@@ -742,7 +742,7 @@ ldap_conv_info_t *ldap_info;
 #.FN_BODY IntermediateResponse/_untag/responseValue
   if(ldm_tree && object_identifier_id) {
     proto_item_set_text(ldm_tree, "%%s %%s", "IntermediateResponse", object_identifier_id);
-    name = oid_resolved_from_string(wmem_packet_scope(), object_identifier_id);
+    name = oid_resolved_from_string(actx->pinfo->pool, object_identifier_id);
     if(name)
       proto_item_append_text(ldm_tree, " (%%s)", name);
   }

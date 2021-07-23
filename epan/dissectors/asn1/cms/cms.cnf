@@ -134,7 +134,7 @@ FirmwarePackageLoadError/version		fwErrorVersion
 	%(DEFAULT_BODY)s
 
 	if(object_identifier_id) {
-		name = oid_resolved_from_string(wmem_packet_scope(), object_identifier_id);
+		name = oid_resolved_from_string(actx->pinfo->pool, object_identifier_id);
 		proto_item_append_text(tree, " (%%s)", name ? name : object_identifier_id);
 	}
 
@@ -178,7 +178,7 @@ FirmwarePackageLoadError/version		fwErrorVersion
   %(DEFAULT_BODY)s
 
   if(object_identifier_id) {
-    name = oid_resolved_from_string(wmem_packet_scope(), object_identifier_id);
+    name = oid_resolved_from_string(actx->pinfo->pool, object_identifier_id);
     proto_item_append_text(tree, " (%%s)", name ? name : object_identifier_id);
   }
 
@@ -210,7 +210,7 @@ FirmwarePackageLoadError/version		fwErrorVersion
   %(DEFAULT_BODY)s
 
   if(object_identifier_id) {
-    name = oid_resolved_from_string(wmem_packet_scope(), object_identifier_id);
+    name = oid_resolved_from_string(actx->pinfo->pool, object_identifier_id);
     proto_item_append_text(tree, " %%s", name ? name : object_identifier_id);
     cap_tree = tree;
   }

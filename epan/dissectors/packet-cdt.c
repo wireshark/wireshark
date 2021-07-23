@@ -187,7 +187,7 @@ dissect_cdt_T_contentType_OID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
     offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &obj_id);
 
   if (obj_id) {
-    const char *name = oid_resolved_from_string (wmem_packet_scope(), obj_id);
+    const char *name = oid_resolved_from_string (actx->pinfo->pool, obj_id);
 
     if (!name) {
       name = obj_id;

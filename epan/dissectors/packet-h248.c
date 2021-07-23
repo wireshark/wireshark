@@ -2978,13 +2978,13 @@ dissect_h248_T_terminationId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 		}
 
 		if (curr_info.term->len) {
-			curr_info.term->buffer = (guint8 *)tvb_memdup(wmem_packet_scope(),new_tvb,0,curr_info.term->len);
+			curr_info.term->buffer = (guint8 *)tvb_memdup(actx->pinfo->pool,new_tvb,0,curr_info.term->len);
 			if(term_info.str){
-				curr_info.term->str = wmem_strdup_printf(wmem_packet_scope(), "%s %s",
-											bytestring_to_str(wmem_packet_scope(),curr_info.term->buffer,curr_info.term->len, 0),
+				curr_info.term->str = wmem_strdup_printf(actx->pinfo->pool, "%s %s",
+											bytestring_to_str(actx->pinfo->pool,curr_info.term->buffer,curr_info.term->len, 0),
 											term_info.str);
 			}else{
-				curr_info.term->str = bytestring_to_str(wmem_packet_scope(),curr_info.term->buffer,curr_info.term->len, 0);
+				curr_info.term->str = bytestring_to_str(actx->pinfo->pool,curr_info.term->buffer,curr_info.term->len, 0);
 			}
 		}
 
@@ -2993,8 +2993,8 @@ dissect_h248_T_terminationId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
 	} else {
 		curr_info.term->len = 0;
-		curr_info.term->buffer = (guint8*)wmem_strdup(wmem_packet_scope(), "");
-		curr_info.term->str = wmem_strdup(wmem_packet_scope(), "?");
+		curr_info.term->buffer = (guint8*)wmem_strdup(actx->pinfo->pool, "");
+		curr_info.term->str = wmem_strdup(actx->pinfo->pool, "?");
 	}
 
 
@@ -3011,7 +3011,7 @@ static const ber_sequence_t TerminationID_sequence[] = {
 static int
 dissect_h248_TerminationID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 325 "./asn1/h248/h248.cnf"
-    curr_info.term = wmem_new0(wmem_packet_scope(), gcp_term_t);
+    curr_info.term = wmem_new0(actx->pinfo->pool, gcp_term_t);
     wild_term = GCP_WILDCARD_NONE;
 
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
