@@ -115,7 +115,7 @@ proto_register_ieee8021cb(void)
     static hf_register_info hf_1cb[] = {
         { &hf_ieee8021cb_res, {
                 "Reserved", "ieee8021cb.reserved", FT_UINT16, BASE_HEX,
-                NULL, 0x0000, NULL, HFILL }},
+                NULL, 0x0, NULL, HFILL }},
         { &hf_ieee8021cb_seq, {
                 "SEQ", "ieee8021cb.seq", FT_UINT16, BASE_HEX_DEC,
                 NULL, 0x0, NULL, HFILL }},

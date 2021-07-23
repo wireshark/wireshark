@@ -279,7 +279,7 @@ void proto_register_turbocell(void)
     static hf_register_info aggregate_fields[] = {
         { &hf_turbocell_aggregate_msdu_header_text,
           {"MAC Service Data Unit (MSDU)", "turbocell_aggregate.msduheader",
-           FT_UINT16, BASE_DEC, 0, 0x0000, NULL, HFILL }
+           FT_UINT16, BASE_DEC, 0, 0x0, NULL, HFILL }
         },
         { &hf_turbocell_aggregate_msdu_len,
           {"MSDU length", "turbocell_aggregate.msdulen",

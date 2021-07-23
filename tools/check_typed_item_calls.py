@@ -226,6 +226,7 @@ class Item:
                 self.check_contiguous_bits(mask)
                 self.check_mask_too_long(mask)
                 self.check_num_digits(mask)
+                self.check_digits_all_zeros(mask)
 
 
     def set_mask_value(self):
@@ -334,6 +335,13 @@ class Item:
                     issues_found += 1
             else:
                 print('Warning: ', self.filename, 'filter=', self.filter, ' - item has type', self.item_type, 'but mask set:', mask)
+                issues_found += 1
+
+    def check_digits_all_zeros(self, mask):
+        if mask.startswith('0x') and len(mask) > 3:
+            if mask[2:] == '0'*(len(mask)-2):
+                print('Warning: ', self.filename, 'filter=', self.filter, ' - item has all zeros - this is confusing! :', mask)
+                global issues_found
                 issues_found += 1
 
 

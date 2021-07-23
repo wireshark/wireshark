@@ -6039,7 +6039,7 @@ proto_register_homeplug_av(void)
         },
         { &hf_homeplug_av_mmhdr_fmi,
           { "Fragmentation Info", "homeplug_av.mmhdr.fmi",
-            FT_UINT16, BASE_HEX, NULL, 0x0000, "Reserved", HFILL },
+            FT_UINT16, BASE_HEX, NULL, 0x0, "Reserved", HFILL },
         },
         /* Public MME */
         { &hf_homeplug_av_public,

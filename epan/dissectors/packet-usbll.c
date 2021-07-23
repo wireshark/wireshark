@@ -1386,7 +1386,7 @@ proto_register_usbll(void)
               NULL, HFILL }},
         { &hf_usbll_data_crc,
             { "CRC", "usbll.crc16",
-              FT_UINT16, BASE_HEX, NULL, 0x0000,
+              FT_UINT16, BASE_HEX, NULL, 0x0,
               NULL, HFILL }},
         { &hf_usbll_data_crc_status,
             { "CRC Status", "usbll.crc16.status",

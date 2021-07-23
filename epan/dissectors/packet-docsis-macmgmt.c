@@ -8120,12 +8120,12 @@ proto_register_docsis_mgmt (void)
     },
     {&hf_docsis_rngrsp_trans_eq_enc_coef_real,
      {"Coefficient (real)", "docsis_rngrsp.tlv.trans_eq_enc_coef_real",
-      FT_INT16, BASE_CUSTOM, CF_FUNC(two_compl_frac), 0x000,
+      FT_INT16, BASE_CUSTOM, CF_FUNC(two_compl_frac), 0x0,
       NULL, HFILL}
     },
     {&hf_docsis_rngrsp_trans_eq_enc_coef_imag,
      {"Coefficient (imag)", "docsis_rngrsp.tlv.trans_eq_enc_coef_imag",
-      FT_INT16, BASE_CUSTOM, CF_FUNC(two_compl_frac), 0x000,
+      FT_INT16, BASE_CUSTOM, CF_FUNC(two_compl_frac), 0x0,
       NULL, HFILL}
     },
     {&hf_docsis_rngrsp_commanded_power_data,
