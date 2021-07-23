@@ -79,6 +79,7 @@ static int hf_woww_opcode_field = -1;
 #define WOWW_SESSION_KEY_LENGTH 40
 
 static gint ett_woww = -1;
+static gint ett_message = -1;
 
 // Packets that do not have at least a u16 size field and a u16 opcode field are not valid.
 #define WOWW_MIN_LENGTH 4
@@ -2121,7 +2122,7 @@ add_header_to_tree(WowwDecryptedHeader_t* decrypted_header,
 
     proto_tree* ti = proto_tree_add_item(tree, proto_woww, tvb, start_offset, packet_size, ENC_NA);
 
-    proto_tree* woww_tree = proto_item_add_subtree(ti, ett_woww);
+    proto_tree* woww_tree = proto_item_add_subtree(ti, ett_message);
 
     // Add to tree
     tvbuff_t *next_tvb = tvb_new_child_real_data(tvb, (guint8*)decrypted_header, headerSize, headerSize);
@@ -2146,9 +2147,22 @@ add_header_to_tree(WowwDecryptedHeader_t* decrypted_header,
     proto_tree_add_item(woww_tree, hf_woww_opcode_field, next_tvb,
                         offset, len, ENC_LITTLE_ENDIAN);
 
-    col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(opcode,
-                                                         world_packet_strings,
-                                                         "Encrypted Header"));
+    if (start_offset == 0) {
+        // First message
+        col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(opcode,
+                                                             world_packet_strings,
+                                                             "Encrypted Header"));
+    }
+    else {
+        col_append_str(pinfo->cinfo, COL_INFO, " | ");
+        col_append_str(pinfo->cinfo, COL_INFO, val_to_str_const(opcode,
+                                                                world_packet_strings,
+                                                                "Encrypted Header"));
+    }
+
+    proto_item_set_text(woww_tree, "%s", val_to_str_const(opcode,
+                                                    world_packet_strings,
+                                                    "Encrypted Header"));
 
     // Remember to go back to original tvb
 
@@ -2195,6 +2209,10 @@ dissect_woww(tvbuff_t *tvb,
         headerSize = 6;
     }
 
+    proto_tree* ti = proto_tree_add_item(tree, proto_woww, tvb, 0, -1, ENC_NA);
+
+    proto_tree* woww_tree = proto_item_add_subtree(ti, ett_woww);
+
     gint pdu_offset = 0;
     gint reported_length = (gint)tvb_reported_length(tvb);
     guint8 header_index = 0;
@@ -2204,7 +2222,7 @@ dissect_woww(tvbuff_t *tvb,
             return tvb_captured_length(tvb);
         }
 
-        pdu_offset = add_header_to_tree(decrypted_header, tree, tvb, pinfo, headerSize, pdu_offset);
+        pdu_offset = add_header_to_tree(decrypted_header, woww_tree, tvb, pinfo, headerSize, pdu_offset);
 
         header_index++;
     } while (pdu_offset < reported_length);
@@ -2229,7 +2247,8 @@ proto_register_woww(void)
     };
 
     static gint *ett[] = {
-        &ett_woww
+        &ett_woww,
+        &ett_message
     };
 
     proto_woww = proto_register_protocol("World of Warcraft World",
