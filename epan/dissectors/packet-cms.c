@@ -3381,19 +3381,19 @@ void proto_reg_handoff_cms(void) {
   register_ber_oid_dissector("1.2.840.113549.3.7", dissect_IV_PDU, proto_cms, "des-ede3-cbc");
   register_ber_oid_dissector("1.2.840.113549.3.2", dissect_RC2CBCParameters_PDU, proto_cms, "rc2-cbc");
   register_ber_oid_dissector("2.16.840.1.113730.3.1.40", dissect_SignedData_PDU, proto_cms, "userSMIMECertificate");
-  register_ber_oid_dissector("1.2.840.113549.1.9.9.16.1.16", dissect_FirmwarePkgData_PDU, proto_cms, "id-ct-firmwarePackage");
-  register_ber_oid_dissector("1.2.840.113549.1.9.9.16.2.35", dissect_FirmwarePackageIdentifier_PDU, proto_cms, "id-aa-firmwarePackageID");
-  register_ber_oid_dissector("1.2.840.113549.1.9.9.16.2.36", dissect_TargetHardwareIdentifiers_PDU, proto_cms, "id-aa-targetHardwareIDs");
-  register_ber_oid_dissector("1.2.840.113549.1.9.9.16.2.37", dissect_DecryptKeyIdentifier_PDU, proto_cms, "id-aa-decryptKeyID");
-  register_ber_oid_dissector("1.2.840.113549.1.9.9.16.2.38", dissect_ImplementedCryptoAlgorithms_PDU, proto_cms, "id-aa-implCryptoAlgs");
-  register_ber_oid_dissector("1.2.840.113549.1.9.9.16.2.43", dissect_ImplementedCompressAlgorithms_PDU, proto_cms, "id-aa-implCompressAlgs");
-  register_ber_oid_dissector("1.2.840.113549.1.9.9.16.2.40", dissect_CommunityIdentifiers_PDU, proto_cms, "id-aa-communityIdentifiers");
-  register_ber_oid_dissector("1.2.840.113549.1.9.9.16.2.42", dissect_FirmwarePackageInfo_PDU, proto_cms, "id-aa-firmwarePackageInfo");
-  register_ber_oid_dissector("1.2.840.113549.1.9.9.16.2.39", dissect_WrappedFirmwareKey_PDU, proto_cms, "id-aa-wrappedFirmwareKey");
-  register_ber_oid_dissector("1.2.840.113549.1.9.9.16.1.17", dissect_FirmwarePackageLoadReceipt_PDU, proto_cms, "id-ct-firmwareLoadReceipt");
-  register_ber_oid_dissector("1.2.840.113549.1.9.9.16.1.18", dissect_FirmwarePackageLoadError_PDU, proto_cms, "id-ct-firmwareLoadError");
+  register_ber_oid_dissector("1.2.840.113549.1.9.16.1.16", dissect_FirmwarePkgData_PDU, proto_cms, "id-ct-firmwarePackage");
+  register_ber_oid_dissector("1.2.840.113549.1.9.16.2.35", dissect_FirmwarePackageIdentifier_PDU, proto_cms, "id-aa-firmwarePackageID");
+  register_ber_oid_dissector("1.2.840.113549.1.9.16.2.36", dissect_TargetHardwareIdentifiers_PDU, proto_cms, "id-aa-targetHardwareIDs");
+  register_ber_oid_dissector("1.2.840.113549.1.9.16.2.37", dissect_DecryptKeyIdentifier_PDU, proto_cms, "id-aa-decryptKeyID");
+  register_ber_oid_dissector("1.2.840.113549.1.9.16.2.38", dissect_ImplementedCryptoAlgorithms_PDU, proto_cms, "id-aa-implCryptoAlgs");
+  register_ber_oid_dissector("1.2.840.113549.1.9.16.2.43", dissect_ImplementedCompressAlgorithms_PDU, proto_cms, "id-aa-implCompressAlgs");
+  register_ber_oid_dissector("1.2.840.113549.1.9.16.2.40", dissect_CommunityIdentifiers_PDU, proto_cms, "id-aa-communityIdentifiers");
+  register_ber_oid_dissector("1.2.840.113549.1.9.16.2.42", dissect_FirmwarePackageInfo_PDU, proto_cms, "id-aa-firmwarePackageInfo");
+  register_ber_oid_dissector("1.2.840.113549.1.9.16.2.39", dissect_WrappedFirmwareKey_PDU, proto_cms, "id-aa-wrappedFirmwareKey");
+  register_ber_oid_dissector("1.2.840.113549.1.9.16.1.17", dissect_FirmwarePackageLoadReceipt_PDU, proto_cms, "id-ct-firmwareLoadReceipt");
+  register_ber_oid_dissector("1.2.840.113549.1.9.16.1.18", dissect_FirmwarePackageLoadError_PDU, proto_cms, "id-ct-firmwareLoadError");
   register_ber_oid_dissector("1.3.6.1.5.5.7.8.4", dissect_HardwareModuleName_PDU, proto_cms, "id-on-hardwareModuleName");
-  register_ber_oid_dissector("1.2.840.113549.1.9.9.16.2.41", dissect_FirmwarePackageMessageDigest_PDU, proto_cms, "id-aa-fwPkgMessageDigest");
+  register_ber_oid_dissector("1.2.840.113549.1.9.16.2.41", dissect_FirmwarePackageMessageDigest_PDU, proto_cms, "id-aa-fwPkgMessageDigest");
 
 
 /*--- End of included file: packet-cms-dis-tab.c ---*/
