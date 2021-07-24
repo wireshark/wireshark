@@ -63,11 +63,20 @@ void proto_register_woww(void);
 static int proto_woww = -1;
 
 /* Fields that all packets have */
-static int hf_woww_size_field = -1;
-static int hf_woww_opcode_field = -1;
+static int hf_woww_size = -1;
+static int hf_woww_opcode = -1;
 
 /* SMSG_AUTH_CHALLENGE */
-static int hf_woww_challenge_seed_field = -1;
+static int hf_woww_challenge_seed = -1;
+
+/* CMSG_AUTH_SESSION */
+static int hf_woww_build = -1;
+static int hf_woww_server_id = -1;
+static int hf_woww_account_name = -1;
+static int hf_woww_client_proof = -1;
+static int hf_woww_decompressed_addon_size = -1;
+static int hf_woww_addon_info = -1;
+
 
 #define WOWW_TCP_PORT 8085
 
@@ -2128,17 +2137,70 @@ handle_packet_header(packet_info* pinfo,
     return (WowwDecryptedHeader_t*)decrypted_header;
 }
 
+static gint32
+get_null_terminated_string_length( tvbuff_t* tvb,
+                                   gint32 offset)
+{
+    const gint32 maximum_length = 255;
+    for (gint32 length = 0; length < maximum_length; length++) {
+        guint8 character = tvb_get_guint8(tvb, offset + length);
+        if (character == 0) {
+            // Include the null character in the length
+            return length + 1;
+        }
+    }
+
+    return 0;
+}
+
 static void
 add_body_fields(guint32 opcode,
                 proto_tree* tree,
                 tvbuff_t* tvb,
-                gint32 offset)
+                gint32 offset,
+                gint32 offset_packet_end)
 {
-    gint32 len = 4;
+    gint32 len = 0;
     switch (opcode) {
         case SMSG_AUTH_CHALLENGE:
-            proto_tree_add_item(tree, hf_woww_challenge_seed_field, tvb,
+            len = 4;
+            proto_tree_add_item(tree, hf_woww_challenge_seed, tvb,
                                 offset, len, ENC_LITTLE_ENDIAN);
+            offset += len;
+            break;
+        case CMSG_AUTH_SESSION:
+            len = 4;
+            proto_tree_add_item(tree, hf_woww_build, tvb,
+                                offset, len, ENC_LITTLE_ENDIAN);
+            offset += len;
+
+            proto_tree_add_item(tree, hf_woww_server_id, tvb,
+                                offset, len, ENC_LITTLE_ENDIAN);
+            offset += len;
+
+            len = get_null_terminated_string_length(tvb, offset);
+            proto_tree_add_item(tree, hf_woww_account_name, tvb,
+                                offset, len, ENC_UTF_8|ENC_NA);
+            offset += len;
+
+            len = 4;
+            proto_tree_add_item(tree, hf_woww_challenge_seed, tvb,
+                                offset, len, ENC_LITTLE_ENDIAN);
+            offset += len;
+
+            len = 20;
+            proto_tree_add_item(tree, hf_woww_client_proof, tvb,
+                                offset, len, ENC_NA);
+            offset += len;
+
+            len = 4;
+            proto_tree_add_item(tree, hf_woww_decompressed_addon_size, tvb,
+                                offset, len, ENC_LITTLE_ENDIAN);
+            offset += len;
+
+            len = offset_packet_end - offset;
+            proto_tree_add_item(tree, hf_woww_addon_info, tvb,
+                                offset, len, ENC_NA);
             offset += len;
             break;
         default:
@@ -2169,7 +2231,7 @@ add_header_to_tree(WowwDecryptedHeader_t* decrypted_header,
     // We're indexing into another tvb
     gint offset = 0;
     gint len = size_field_width;
-    proto_tree_add_item(woww_tree, hf_woww_size_field, next_tvb,
+    proto_tree_add_item(woww_tree, hf_woww_size, next_tvb,
                         offset, len, ENC_BIG_ENDIAN);
     offset += len;
 
@@ -2182,7 +2244,7 @@ add_header_to_tree(WowwDecryptedHeader_t* decrypted_header,
         opcode = tvb_get_guint32(next_tvb, offset, ENC_LITTLE_ENDIAN);
     }
 
-    proto_tree_add_item(woww_tree, hf_woww_opcode_field, next_tvb,
+    proto_tree_add_item(woww_tree, hf_woww_opcode, next_tvb,
                         offset, len, ENC_LITTLE_ENDIAN);
     offset += len;
 
@@ -2203,10 +2265,12 @@ add_header_to_tree(WowwDecryptedHeader_t* decrypted_header,
                                                     world_packet_strings,
                                                     "Encrypted Header"));
 
-    // Remember to go back to original tvb
-    add_body_fields(opcode, woww_tree, tvb, offset);
+    gint offset_packet_end = start_offset + (gint)packet_size;
 
-    return start_offset + (gint)packet_size;
+    // Remember to go back to original tvb
+    add_body_fields(opcode, woww_tree, tvb, offset, offset_packet_end);
+
+    return offset_packet_end;
 }
 
 static int
@@ -2274,20 +2338,50 @@ void
 proto_register_woww(void)
 {
     static hf_register_info hf[] = {
-        { &hf_woww_size_field,
+        { &hf_woww_size,
           { "Size", "woww.size",
             FT_UINT16, BASE_HEX_DEC, NULL, 0,
             "Size of the packet including opcode field but not including size field", HFILL }
         },
-        { &hf_woww_opcode_field,
+        { &hf_woww_opcode,
           { "Opcode", "woww.opcode",
             FT_UINT32, BASE_HEX, VALS(world_packet_strings), 0,
             "Opcode of the packet", HFILL }
         },
-        { &hf_woww_challenge_seed_field,
+        { &hf_woww_challenge_seed,
           { "Challenge Seed", "woww.challenge_seed",
             FT_UINT32, BASE_HEX, NULL, 0,
             "Seed used to verify session key", HFILL }
+        },
+        { &hf_woww_server_id,
+          { "Server Id", "woww.server_id",
+            FT_UINT32, BASE_DEC, NULL, 0,
+            "Id of the server the client is connecting to", HFILL }
+        },
+        { &hf_woww_build,
+          { "Client Build", "woww.client_build",
+            FT_UINT32, BASE_DEC, NULL, 0,
+            "Client build/revision", HFILL }
+        },
+        { &hf_woww_client_proof,
+          { "Client Proof", "woww.client_proof",
+            FT_BYTES, BASE_NONE, NULL, 0,
+            "Client proof calculated using seeds and session key", HFILL }
+        },
+        { &hf_woww_decompressed_addon_size,
+          { "Decompressed Addon Size", "woww.decompressed_addon_size",
+            FT_UINT32, BASE_DEC, NULL, 0,
+            "Size of the Addon Info after decompression", HFILL }
+        },
+        { &hf_woww_addon_info,
+          { "Compressed Addon Info", "woww.addon_info",
+            FT_BYTES, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_woww_account_name,
+          { "Account Name", "woww.account_name",
+            FT_STRING, BASE_NONE, NULL, 0,
+            NULL, HFILL }
         }
     };
 
