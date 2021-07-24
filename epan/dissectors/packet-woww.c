@@ -96,6 +96,10 @@ static int hf_woww_character_zone = -1;
 static int hf_woww_character_map = -1;
 static int hf_woww_character_guild_id = -1;
 static int hf_woww_character_flags = -1;
+static int hf_woww_character_first_login = -1;
+static int hf_woww_character_pet_display_id = -1;
+static int hf_woww_character_pet_level = -1;
+static int hf_woww_character_pet_family = -1;
 
 /* Multiple */
 static int hf_woww_character_level = -1;
@@ -2521,7 +2525,25 @@ parse_SMSG_CHAR_ENUM(proto_tree* tree,
                             offset, len, ENC_LITTLE_ENDIAN);
         offset += len;
 
-        offset += 113;
+        len = 1;
+        proto_tree_add_item(char_tree, hf_woww_character_first_login, tvb,
+                            offset, len, ENC_NA);
+        offset += len;
+
+        len = 4;
+        proto_tree_add_item(char_tree, hf_woww_character_pet_display_id, tvb,
+                            offset, len, ENC_NA);
+        offset += len;
+
+        proto_tree_add_item(char_tree, hf_woww_character_pet_level, tvb,
+                            offset, len, ENC_NA);
+        offset += len;
+
+        proto_tree_add_item(char_tree, hf_woww_character_pet_family, tvb,
+                            offset, len, ENC_NA);
+        offset += len;
+
+        offset += 100;
     }
 }
 
@@ -2860,6 +2882,26 @@ proto_register_woww(void)
         },
         { &hf_woww_character_flags,
             { "Character Flags", "woww.character_flags",
+              FT_UINT32, BASE_HEX_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_woww_character_first_login,
+            { "First Login", "woww.first_login",
+              FT_UINT32, BASE_HEX_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_woww_character_pet_display_id,
+            { "Pet Display Id", "woww.pet_display_id",
+              FT_UINT32, BASE_HEX_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_woww_character_pet_level,
+            { "Pet Level", "woww.pet_level",
+              FT_UINT32, BASE_HEX_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_woww_character_pet_family,
+            { "Pet Family", "woww.pet_family",
               FT_UINT32, BASE_HEX_DEC, NULL, 0,
               NULL, HFILL }
         },
