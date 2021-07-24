@@ -100,6 +100,8 @@ static int hf_woww_character_first_login = -1;
 static int hf_woww_character_pet_display_id = -1;
 static int hf_woww_character_pet_level = -1;
 static int hf_woww_character_pet_family = -1;
+static int hf_woww_character_equipment_display_id = -1;
+static int hf_woww_character_equipment_inventory_type = -1;
 
 /* Multiple */
 static int hf_woww_character_level = -1;
@@ -2543,7 +2545,25 @@ parse_SMSG_CHAR_ENUM(proto_tree* tree,
                             offset, len, ENC_NA);
         offset += len;
 
-        offset += 100;
+        proto_tree* equipment_tree = proto_tree_add_subtree(char_tree,
+                                                            tvb,
+                                                            offset,
+                                                            19 * 5,
+                                                            ett_character,
+                                                            NULL,
+                                                            "Equipment");
+
+        for (gint equipment_slot = 0; equipment_slot < 20; equipment_slot++) {
+            len = 4;
+            proto_tree_add_item(equipment_tree, hf_woww_character_equipment_display_id, tvb,
+                                offset, len, ENC_LITTLE_ENDIAN);
+            offset += len;
+
+            len = 1;
+            proto_tree_add_item(equipment_tree, hf_woww_character_equipment_inventory_type, tvb,
+                                offset, len, ENC_NA);
+            offset += len;
+        }
     }
 }
 
@@ -2903,6 +2923,16 @@ proto_register_woww(void)
         { &hf_woww_character_pet_family,
             { "Pet Family", "woww.pet_family",
               FT_UINT32, BASE_HEX_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_woww_character_equipment_display_id,
+            { "Display ID", "woww.equipment_display_id",
+              FT_UINT32, BASE_HEX_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_woww_character_equipment_inventory_type,
+            { "Inventory Type", "woww.equipment_inventory_type",
+              FT_UINT8, BASE_HEX_DEC, NULL, 0,
               NULL, HFILL }
         },
     };
