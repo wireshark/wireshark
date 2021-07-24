@@ -97,6 +97,9 @@ static int hf_woww_character_map = -1;
 
 /* Multiple */
 static int hf_woww_character_level = -1;
+static int hf_woww_character_position_x = -1;
+static int hf_woww_character_position_y = -1;
+static int hf_woww_character_position_z = -1;
 
 #define WOWW_TCP_PORT 8085
 
@@ -2496,7 +2499,19 @@ parse_SMSG_CHAR_ENUM(proto_tree* tree,
                             offset, len, ENC_LITTLE_ENDIAN);
         offset += len;
 
-        offset += 133;
+        proto_tree_add_item(char_tree, hf_woww_character_position_x, tvb,
+                            offset, len, ENC_LITTLE_ENDIAN);
+        offset += len;
+
+        proto_tree_add_item(char_tree, hf_woww_character_position_y, tvb,
+                            offset, len, ENC_LITTLE_ENDIAN);
+        offset += len;
+
+        proto_tree_add_item(char_tree, hf_woww_character_position_z, tvb,
+                            offset, len, ENC_LITTLE_ENDIAN);
+        offset += len;
+
+        offset += 121;
     }
 }
 
@@ -2811,6 +2826,21 @@ proto_register_woww(void)
         { &hf_woww_character_map,
             { "Map", "woww.map",
               FT_UINT32, BASE_DEC_HEX, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_woww_character_position_x,
+            { "Position X", "woww.position_x",
+              FT_FLOAT, BASE_FLOAT, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_woww_character_position_y,
+            { "Position Y", "woww.position_y",
+              FT_FLOAT, BASE_FLOAT, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_woww_character_position_z,
+            { "Position Z", "woww.position_z",
+              FT_FLOAT, BASE_FLOAT, NULL, 0,
               NULL, HFILL }
         },
     };
