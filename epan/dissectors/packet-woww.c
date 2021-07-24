@@ -92,6 +92,8 @@ static int hf_woww_character_face = -1;
 static int hf_woww_character_hairstyle = -1;
 static int hf_woww_character_haircolor = -1;
 static int hf_woww_character_facialhair = -1;
+static int hf_woww_character_zone = -1;
+static int hf_woww_character_map = -1;
 
 /* Multiple */
 static int hf_woww_character_level = -1;
@@ -2485,7 +2487,16 @@ parse_SMSG_CHAR_ENUM(proto_tree* tree,
                                val_to_str_const(race, races_strings, "Unknown"),
                                val_to_str_const(class, classes_strings, "Unknown"));
 
-        offset += 141;
+        len = 4;
+        proto_tree_add_item(char_tree, hf_woww_character_zone, tvb,
+                            offset, len, ENC_LITTLE_ENDIAN);
+        offset += len;
+
+        proto_tree_add_item(char_tree, hf_woww_character_map, tvb,
+                            offset, len, ENC_LITTLE_ENDIAN);
+        offset += len;
+
+        offset += 133;
     }
 }
 
@@ -2790,6 +2801,16 @@ proto_register_woww(void)
         { &hf_woww_character_level,
             { "Level", "woww.level",
               FT_UINT8, BASE_DEC_HEX, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_woww_character_zone,
+            { "Zone", "woww.zone",
+              FT_UINT32, BASE_DEC_HEX, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_woww_character_map,
+            { "Map", "woww.map",
+              FT_UINT32, BASE_DEC_HEX, NULL, 0,
               NULL, HFILL }
         },
     };
