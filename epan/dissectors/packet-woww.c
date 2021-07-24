@@ -93,6 +93,9 @@ static int hf_woww_character_hairstyle = -1;
 static int hf_woww_character_haircolor = -1;
 static int hf_woww_character_facialhair = -1;
 
+/* Multiple */
+static int hf_woww_character_level = -1;
+
 #define WOWW_TCP_PORT 8085
 
 #define WOWW_CLIENT_TO_SERVER pinfo->destport == WOWW_TCP_PORT
@@ -2471,8 +2474,18 @@ parse_SMSG_CHAR_ENUM(proto_tree* tree,
                             offset, len, ENC_NA);
         offset += len;
 
-        (void)race; (void)class;
-        offset += 142;
+        guint8 level = tvb_get_guint8(tvb, offset);
+        proto_tree_add_item(char_tree, hf_woww_character_level, tvb,
+                            offset, len, ENC_NA);
+        offset += len;
+
+        proto_item_append_text(char_tree,
+                               " (%i %s %s)",
+                               level,
+                               val_to_str_const(race, races_strings, "Unknown"),
+                               val_to_str_const(class, classes_strings, "Unknown"));
+
+        offset += 141;
     }
 }
 
@@ -2772,6 +2785,11 @@ proto_register_woww(void)
         { &hf_woww_character_facialhair,
             { "Facial Hair/Accessory", "woww.facialhair",
               FT_UINT8, BASE_HEX, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_woww_character_level,
+            { "Level", "woww.level",
+              FT_UINT8, BASE_DEC_HEX, NULL, 0,
               NULL, HFILL }
         },
     };
