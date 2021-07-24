@@ -84,6 +84,7 @@ static int hf_woww_login_result = -1;
 static int hf_woww_amount_of_characters = -1;
 static int hf_woww_character_guid = -1;
 static int hf_woww_character_name = -1;
+static int hf_woww_character_race = -1;
 
 #define WOWW_TCP_PORT 8085
 
@@ -147,6 +148,31 @@ typedef struct {
     guint8 size[2];
     guint8 opcode[];
 } WowwDecryptedHeader_t;
+
+typedef enum {
+    HUMAN = 1,
+    ORC = 2,
+    DWARF = 3,
+    NIGHT_ELF = 4,
+    UNDEAD = 5,
+    TAUREN = 6,
+    GNOME = 7,
+    TROLL = 8,
+    GOBLIN = 9,
+} races;
+
+static const value_string races_strings[] = {
+    { HUMAN, "Human" },
+    { ORC, "Orc" },
+    { DWARF, "Dwarf" },
+    { NIGHT_ELF, "Night Elf" },
+    { UNDEAD, "Undead" },
+    { TAUREN, "Tauren" },
+    { GNOME, "Gnome" },
+    { TROLL, "Troll" },
+    { GOBLIN, "Goblin" },
+    { 0, NULL }
+};
 
 typedef enum {
     RESPONSE_SUCCESS = 0x00,
@@ -2367,7 +2393,13 @@ parse_SMSG_CHAR_ENUM(proto_tree* tree,
                             offset, len, ENC_UTF_8|ENC_NA);
         offset += len;
 
-        offset += length_of_fields_after_name;
+        len = 1;
+        guint8 race = tvb_get_guint8(tvb, offset);
+        proto_tree_add_item(char_tree, hf_woww_character_race, tvb,
+                            offset, len, ENC_NA);
+        offset += len;
+
+        offset += 149;
     }
 }
 
@@ -2627,6 +2659,11 @@ proto_register_woww(void)
         { &hf_woww_character_name,
             { "Character Name", "woww.character_name",
               FT_STRINGZ, BASE_NONE, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_woww_character_race,
+            { "Race", "woww.race",
+              FT_UINT8, BASE_HEX, VALS(races_strings), 0,
               NULL, HFILL }
         },
     };
