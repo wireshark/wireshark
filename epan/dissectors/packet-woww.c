@@ -85,6 +85,8 @@ static int hf_woww_amount_of_characters = -1;
 static int hf_woww_character_guid = -1;
 static int hf_woww_character_name = -1;
 static int hf_woww_character_race = -1;
+static int hf_woww_character_class = -1;
+static int hf_woww_character_gender = -1;
 
 #define WOWW_TCP_PORT 8085
 
@@ -172,6 +174,42 @@ static const value_string races_strings[] = {
     { TROLL, "Troll" },
     { GOBLIN, "Goblin" },
     { 0, NULL }
+};
+
+typedef enum {
+    WARRIOR = 1,
+    PALADIN = 2,
+    HUNTER = 3,
+    ROGUE = 4,
+    PRIEST = 5,
+    SHAMAN = 6,
+    MAGE = 7,
+    WARLOCK = 8,
+    DRUID = 9,
+} classes;
+
+static const value_string classes_strings[] = {
+        { WARRIOR, "Warrior" },
+        { PALADIN, "Paladin" },
+        { HUNTER, "Hunter" },
+        { ROGUE, "Rogue" },
+        { PRIEST, "Priest" },
+        { SHAMAN, "Shaman" },
+        { MAGE, "Mage" },
+        { WARLOCK, "Warlock" },
+        { DRUID, "Druid" },
+        { 0, NULL }
+};
+
+typedef enum {
+    MALE = 0,
+    FEMALE = 1,
+} genders;
+
+static const value_string genders_strings[] = {
+        { MALE, "Male" },
+        { FEMALE, "Female" },
+        { 0, NULL }
 };
 
 typedef enum {
@@ -2399,7 +2437,17 @@ parse_SMSG_CHAR_ENUM(proto_tree* tree,
                             offset, len, ENC_NA);
         offset += len;
 
-        offset += 149;
+        guint8 class = tvb_get_guint8(tvb, offset);
+        proto_tree_add_item(char_tree, hf_woww_character_class, tvb,
+                            offset, len, ENC_NA);
+        offset += len;
+
+        proto_tree_add_item(char_tree, hf_woww_character_gender, tvb,
+                            offset, len, ENC_NA);
+        offset += len;
+
+        (void)race; (void)class;
+        offset += 147;
     }
 }
 
@@ -2664,6 +2712,16 @@ proto_register_woww(void)
         { &hf_woww_character_race,
             { "Race", "woww.race",
               FT_UINT8, BASE_HEX, VALS(races_strings), 0,
+              NULL, HFILL }
+        },
+        { &hf_woww_character_class,
+            { "Class", "woww.class",
+              FT_UINT8, BASE_HEX, VALS(classes_strings), 0,
+              NULL, HFILL }
+        },
+        { &hf_woww_character_gender,
+            { "Gender", "woww.gender",
+              FT_UINT8, BASE_HEX, VALS(genders_strings), 0,
               NULL, HFILL }
         },
     };
