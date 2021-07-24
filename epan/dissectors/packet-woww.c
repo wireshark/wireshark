@@ -94,6 +94,8 @@ static int hf_woww_character_haircolor = -1;
 static int hf_woww_character_facialhair = -1;
 static int hf_woww_character_zone = -1;
 static int hf_woww_character_map = -1;
+static int hf_woww_character_guild_id = -1;
+static int hf_woww_character_flags = -1;
 
 /* Multiple */
 static int hf_woww_character_level = -1;
@@ -2511,7 +2513,15 @@ parse_SMSG_CHAR_ENUM(proto_tree* tree,
                             offset, len, ENC_LITTLE_ENDIAN);
         offset += len;
 
-        offset += 121;
+        proto_tree_add_item(char_tree, hf_woww_character_guild_id, tvb,
+                            offset, len, ENC_LITTLE_ENDIAN);
+        offset += len;
+
+        proto_tree_add_item(char_tree, hf_woww_character_flags, tvb,
+                            offset, len, ENC_LITTLE_ENDIAN);
+        offset += len;
+
+        offset += 113;
     }
 }
 
@@ -2841,6 +2851,16 @@ proto_register_woww(void)
         { &hf_woww_character_position_z,
             { "Position Z", "woww.position_z",
               FT_FLOAT, BASE_FLOAT, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_woww_character_guild_id,
+            { "Guild ID", "woww.guild_id",
+              FT_UINT32, BASE_HEX_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_woww_character_flags,
+            { "Character Flags", "woww.character_flags",
+              FT_UINT32, BASE_HEX_DEC, NULL, 0,
               NULL, HFILL }
         },
     };
