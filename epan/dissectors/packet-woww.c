@@ -80,6 +80,10 @@ static int hf_woww_addon_info = -1;
 /* SMSG_AUTH_RESPONSE */
 static int hf_woww_login_result = -1;
 
+/* SMSG_CHAR_ENUM */
+static int hf_woww_amount_of_characters = -1;
+static int hf_woww_character_guid = -1;
+static int hf_woww_character_name = -1;
 
 #define WOWW_TCP_PORT 8085
 
@@ -95,6 +99,7 @@ static int hf_woww_login_result = -1;
 
 static gint ett_woww = -1;
 static gint ett_message = -1;
+static gint ett_character = -1;
 
 // Packets that do not have at least a u16 size field and a u16 opcode field are not valid.
 #define WOWW_MIN_LENGTH 4
@@ -2328,6 +2333,45 @@ get_null_terminated_string_length( tvbuff_t* tvb,
 }
 
 static void
+parse_SMSG_CHAR_ENUM(proto_tree* tree,
+                     tvbuff_t* tvb,
+                     gint32 offset)
+{
+    gint32 len = 1;
+    guint8 amount_of_characters = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(tree, hf_woww_amount_of_characters, tvb,
+                        offset, len, ENC_NA);
+    offset += len;
+    for (guint8 i = 0; i < amount_of_characters; i++) {
+        const gint length_of_id = 8;
+        const gint length_of_fields_after_name = 150;
+        // Set the tree name now and append extra info to it later when we get it
+        guint8* character_name = tvb_get_stringz_enc(wmem_packet_scope(), tvb,
+                                                     offset + length_of_id,
+                                                     &len, ENC_UTF_8);
+        proto_tree* char_tree = proto_tree_add_subtree(tree,
+                                                       tvb,
+                                                       offset,
+                                                       length_of_id + len + length_of_fields_after_name,
+                                                       ett_character,
+                                                       NULL,
+                                                       character_name);
+
+        len = length_of_id;
+        proto_tree_add_item(char_tree, hf_woww_character_guid, tvb,
+                            offset, len, ENC_LITTLE_ENDIAN);
+        offset += len;
+
+        len = get_null_terminated_string_length(tvb, offset);
+        proto_tree_add_item(char_tree, hf_woww_character_name, tvb,
+                            offset, len, ENC_UTF_8|ENC_NA);
+        offset += len;
+
+        offset += length_of_fields_after_name;
+    }
+}
+
+static void
 add_body_fields(guint32 opcode,
                 proto_tree* tree,
                 tvbuff_t* tvb,
@@ -2381,6 +2425,9 @@ add_body_fields(guint32 opcode,
                                 offset, len, ENC_LITTLE_ENDIAN);
             // There might more fields depending on the value in login_result.
             // Not implemented currently because they aren't that important.
+            break;
+        case SMSG_CHAR_ENUM:
+            parse_SMSG_CHAR_ENUM(tree, tvb, offset);
             break;
         default:
             break;
@@ -2559,7 +2606,7 @@ proto_register_woww(void)
         },
         { &hf_woww_account_name,
           { "Account Name", "woww.account_name",
-            FT_STRING, BASE_NONE, NULL, 0,
+            FT_STRINGZ, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
         { &hf_woww_login_result,
@@ -2567,11 +2614,27 @@ proto_register_woww(void)
             FT_UINT32, BASE_HEX, VALS(account_result_strings), 0,
             NULL, HFILL }
         },
+        { &hf_woww_amount_of_characters,
+          { "Amount of Characters", "woww.amount_of_characters",
+            FT_UINT8, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_woww_character_guid,
+            { "Character GUID", "woww.character_guid",
+              FT_UINT64, BASE_HEX_DEC, NULL, 0,
+              "Globally Unique Identifier of character", HFILL }
+        },
+        { &hf_woww_character_name,
+            { "Character Name", "woww.character_name",
+              FT_STRINGZ, BASE_NONE, NULL, 0,
+              NULL, HFILL }
+        },
     };
 
     static gint *ett[] = {
         &ett_woww,
-        &ett_message
+        &ett_message,
+        &ett_character
     };
 
     proto_woww = proto_register_protocol("World of Warcraft World",
