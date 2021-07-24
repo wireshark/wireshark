@@ -66,6 +66,9 @@ static int proto_woww = -1;
 static int hf_woww_size_field = -1;
 static int hf_woww_opcode_field = -1;
 
+/* SMSG_AUTH_CHALLENGE */
+static int hf_woww_challenge_seed_field = -1;
+
 #define WOWW_TCP_PORT 8085
 
 #define WOWW_CLIENT_TO_SERVER pinfo->destport == WOWW_TCP_PORT
@@ -2125,6 +2128,24 @@ handle_packet_header(packet_info* pinfo,
     return (WowwDecryptedHeader_t*)decrypted_header;
 }
 
+static void
+add_body_fields(guint32 opcode,
+                proto_tree* tree,
+                tvbuff_t* tvb,
+                gint32 offset)
+{
+    gint32 len = 4;
+    switch (opcode) {
+        case SMSG_AUTH_CHALLENGE:
+            proto_tree_add_item(tree, hf_woww_challenge_seed_field, tvb,
+                                offset, len, ENC_LITTLE_ENDIAN);
+            offset += len;
+            break;
+        default:
+            break;
+    }
+}
+
 static gint
 add_header_to_tree(WowwDecryptedHeader_t* decrypted_header,
                    proto_tree* tree,
@@ -2163,6 +2184,7 @@ add_header_to_tree(WowwDecryptedHeader_t* decrypted_header,
 
     proto_tree_add_item(woww_tree, hf_woww_opcode_field, next_tvb,
                         offset, len, ENC_LITTLE_ENDIAN);
+    offset += len;
 
     if (start_offset == 0) {
         // First message
@@ -2182,6 +2204,7 @@ add_header_to_tree(WowwDecryptedHeader_t* decrypted_header,
                                                     "Encrypted Header"));
 
     // Remember to go back to original tvb
+    add_body_fields(opcode, woww_tree, tvb, offset);
 
     return start_offset + (gint)packet_size;
 }
@@ -2256,11 +2279,16 @@ proto_register_woww(void)
             FT_UINT16, BASE_HEX_DEC, NULL, 0,
             "Size of the packet including opcode field but not including size field", HFILL }
         },
-	{ &hf_woww_opcode_field,
-	  { "Opcode", "woww.opcode",
-	    FT_UINT32, BASE_HEX, VALS(world_packet_strings), 0,
-	    "Opcode of the packet", HFILL }
-	}
+        { &hf_woww_opcode_field,
+          { "Opcode", "woww.opcode",
+            FT_UINT32, BASE_HEX, VALS(world_packet_strings), 0,
+            "Opcode of the packet", HFILL }
+        },
+        { &hf_woww_challenge_seed_field,
+          { "Challenge Seed", "woww.challenge_seed",
+            FT_UINT32, BASE_HEX, NULL, 0,
+            "Seed used to verify session key", HFILL }
+        }
     };
 
     static gint *ett[] = {
