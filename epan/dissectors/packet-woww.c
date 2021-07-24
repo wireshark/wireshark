@@ -87,6 +87,11 @@ static int hf_woww_character_name = -1;
 static int hf_woww_character_race = -1;
 static int hf_woww_character_class = -1;
 static int hf_woww_character_gender = -1;
+static int hf_woww_character_skin = -1;
+static int hf_woww_character_face = -1;
+static int hf_woww_character_hairstyle = -1;
+static int hf_woww_character_haircolor = -1;
+static int hf_woww_character_facialhair = -1;
 
 #define WOWW_TCP_PORT 8085
 
@@ -2446,8 +2451,28 @@ parse_SMSG_CHAR_ENUM(proto_tree* tree,
                             offset, len, ENC_NA);
         offset += len;
 
+        proto_tree_add_item(char_tree, hf_woww_character_skin, tvb,
+                            offset, len, ENC_NA);
+        offset += len;
+
+        proto_tree_add_item(char_tree, hf_woww_character_face, tvb,
+                            offset, len, ENC_NA);
+        offset += len;
+
+        proto_tree_add_item(char_tree, hf_woww_character_hairstyle, tvb,
+                            offset, len, ENC_NA);
+        offset += len;
+
+        proto_tree_add_item(char_tree, hf_woww_character_haircolor, tvb,
+                            offset, len, ENC_NA);
+        offset += len;
+
+        proto_tree_add_item(char_tree, hf_woww_character_facialhair, tvb,
+                            offset, len, ENC_NA);
+        offset += len;
+
         (void)race; (void)class;
-        offset += 147;
+        offset += 142;
     }
 }
 
@@ -2722,6 +2747,31 @@ proto_register_woww(void)
         { &hf_woww_character_gender,
             { "Gender", "woww.gender",
               FT_UINT8, BASE_HEX, VALS(genders_strings), 0,
+              NULL, HFILL }
+        },
+        { &hf_woww_character_skin,
+            { "Skin Color", "woww.skin",
+              FT_UINT8, BASE_HEX, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_woww_character_face,
+            { "Face", "woww.face",
+              FT_UINT8, BASE_HEX, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_woww_character_hairstyle,
+            { "Hair Style", "woww.hairstyle",
+              FT_UINT8, BASE_HEX, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_woww_character_haircolor,
+            { "Hair Color", "woww.haircolor",
+              FT_UINT8, BASE_HEX, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_woww_character_facialhair,
+            { "Facial Hair/Accessory", "woww.facialhair",
+              FT_UINT8, BASE_HEX, NULL, 0,
               NULL, HFILL }
         },
     };
