@@ -77,9 +77,6 @@ static int hf_woww_client_proof = -1;
 static int hf_woww_decompressed_addon_size = -1;
 static int hf_woww_addon_info = -1;
 
-/* SMSG_AUTH_RESPONSE */
-static int hf_woww_login_result = -1;
-
 /* SMSG_CHAR_ENUM */
 static int hf_woww_amount_of_characters = -1;
 static int hf_woww_character_guid = -1;
@@ -117,6 +114,7 @@ static int hf_woww_character_position_x = -1;
 static int hf_woww_character_position_y = -1;
 static int hf_woww_character_position_z = -1;
 static int hf_woww_character_orientation = -1;
+static int hf_woww_result = -1;
 
 #define WOWW_TCP_PORT 8085
 
@@ -2626,7 +2624,7 @@ add_body_fields(guint32 opcode,
             break;
         case SMSG_AUTH_RESPONSE:
             len = 4;
-            proto_tree_add_item(tree, hf_woww_login_result, tvb,
+            proto_tree_add_item(tree, hf_woww_result, tvb,
                                 offset, len, ENC_LITTLE_ENDIAN);
             // There might more fields depending on the value in login_result.
             // Not implemented currently because they aren't that important.
@@ -2686,6 +2684,14 @@ add_body_fields(guint32 opcode,
             proto_tree_add_item(tree, hf_woww_sequence_id, tvb,
                                 offset, len, ENC_LITTLE_ENDIAN);
             break;
+        case SMSG_CHARACTER_LOGIN_FAILED:
+            /* Fallthrough */
+        case SMSG_CHAR_DELETE:
+            /* Fallthrough */
+        case SMSG_CHAR_CREATE:
+            len = 1;
+            proto_tree_add_item(tree, hf_woww_result, tvb,
+                                offset, len, ENC_LITTLE_ENDIAN);
         default:
             break;
     }
@@ -2866,8 +2872,8 @@ proto_register_woww(void)
             FT_STRINGZ, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
-        { &hf_woww_login_result,
-          { "Login Result", "woww.login_result",
+        { &hf_woww_result,
+          { "Result", "woww.result",
             FT_UINT32, BASE_HEX, VALS(account_result_strings), 0,
             NULL, HFILL }
         },
