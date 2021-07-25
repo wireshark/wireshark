@@ -10,7 +10,7 @@
 
 #include <ftypes-int.h>
 #include <epan/strutil.h>
-#include <epan/to_str-int.h>
+#include <wsutil/to_str.h>
 #include <string.h>
 #include <wsutil/glib-compat.h>
 

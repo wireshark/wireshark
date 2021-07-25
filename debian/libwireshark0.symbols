@@ -75,11 +75,8 @@ libwireshark.so.0 libwireshark0 #MINVER#
  build_column_format_array@Base 1.9.1
  byte_array_dup@Base 1.9.1
  byte_array_equal@Base 1.9.1
- bytes_to_hexstr@Base 2.1.0
- bytes_to_str@Base 1.99.2
  bytesprefix_to_str@Base 2.3.0
  bytesval_to_str@Base 2.3.0
- bytestring_to_str@Base 1.9.1
  call_ber_oid_callback@Base 1.9.1
  call_capture_dissector@Base 2.3.0
  call_data_dissector@Base 2.1.0

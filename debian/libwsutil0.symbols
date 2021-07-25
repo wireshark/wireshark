@@ -8,6 +8,10 @@ libwsutil.so.0 libwsutil0 #MINVER#
  ascii_strdown_inplace@Base 1.10.0
  ascii_strup_inplace@Base 1.10.0
  bitswap_buf_inplace@Base 1.12.0~rc1
+ bytes_to_hexstr@Base 3.5.0
+ bytes_to_hexstr_punct@Base 3.5.0
+ bytes_to_str@Base 3.5.0
+ bytestring_to_str@Base 3.5.0
  codec_decode@Base 3.1.0
  codec_get_channels@Base 3.1.0
  codec_get_frequency@Base 3.1.0

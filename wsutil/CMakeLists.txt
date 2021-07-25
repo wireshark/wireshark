@@ -64,6 +64,7 @@ set(WSUTIL_PUBLIC_HEADERS
 	strtoi.h
 	tempfile.h
 	time_util.h
+	to_str.h
 	type_util.h
 	unicode-utils.h
 	utf8_entities.h
@@ -121,6 +122,7 @@ set(WSUTIL_COMMON_FILES
 	report_message.c
 	tempfile.c
 	time_util.c
+	to_str.c
 	type_util.c
 	unicode-utils.c
 	glib-compat.c

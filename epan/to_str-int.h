@@ -72,18 +72,6 @@ char *qword_to_hex(char *out, guint64 qword);
 char *qword_to_hex_punct(char *out, guint64 qword, char punct);
 
 /**
- * bytes_to_hexstr_punct()
- *
- * Output hex represetation of guint8 ad array, and return pointer after last character.
- * Each byte will be separated with punct character (cannot be NUL).
- * It always output full representation (padded with 0).
- *
- * String is not NUL terminated by this routine.
- * There needs to be at least len * 3 - 1 bytes in the buffer.
- */
-char *bytes_to_hexstr_punct(char *out, const guint8 *ad, size_t len, char punct);
-
-/**
  * oct_to_str_back()
  *
  * Output guint32 octal representation backward (last character will be written on ptr - 1),
