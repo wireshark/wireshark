@@ -106,6 +106,11 @@ static int hf_woww_character_equipment_inventory_type = -1;
 /* SMSG_TUTORIAL_FLAGS */
 static int hf_woww_tutorial_flag = -1;
 
+/* CMSG_PING */
+static int hf_woww_latency = -1;
+/* CMSG_PING and SMSG_PONG */
+static int hf_woww_sequence_id = -1;
+
 /* Multiple */
 static int hf_woww_character_level = -1;
 static int hf_woww_character_position_x = -1;
@@ -2668,6 +2673,19 @@ add_body_fields(guint32 opcode,
                 offset += len;
             }
             break;
+        case CMSG_PING:
+            len = 4;
+            proto_tree_add_item(tree, hf_woww_sequence_id, tvb,
+                                offset, len, ENC_LITTLE_ENDIAN);
+            offset += len;
+            proto_tree_add_item(tree, hf_woww_latency, tvb,
+                                offset, len, ENC_LITTLE_ENDIAN);
+            break;
+        case SMSG_PONG:
+            len = 4;
+            proto_tree_add_item(tree, hf_woww_sequence_id, tvb,
+                                offset, len, ENC_LITTLE_ENDIAN);
+            break;
         default:
             break;
     }
@@ -2987,6 +3005,16 @@ proto_register_woww(void)
             { "Tutorial Flag", "woww.tutorial_flag",
               FT_UINT32, BASE_HEX_DEC, NULL, 0,
               NULL, HFILL }
+        },
+        { &hf_woww_sequence_id,
+            { "Sequence Id", "woww.sequence_id",
+              FT_UINT32, BASE_HEX_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_woww_latency,
+            { "Latency", "woww.latency",
+              FT_UINT32, BASE_HEX_DEC, NULL, 0,
+              "Round time in milliseconds", HFILL }
         },
     };
 
