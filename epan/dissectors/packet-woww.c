@@ -2625,6 +2625,11 @@ add_body_fields(guint32 opcode,
         case SMSG_CHAR_ENUM:
             parse_SMSG_CHAR_ENUM(tree, tvb, offset);
             break;
+        case CMSG_PLAYER_LOGIN:
+            len = 8;
+            proto_tree_add_item(tree, hf_woww_character_guid, tvb,
+                                offset, len, ENC_LITTLE_ENDIAN);
+            break;
         default:
             break;
     }
