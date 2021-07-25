@@ -2695,7 +2695,7 @@ add_header_to_tree(WowwDecryptedHeader_t* decrypted_header,
     gint offset_packet_end = start_offset + (gint)packet_size;
 
     // Remember to go back to original tvb
-    add_body_fields(opcode, woww_tree, tvb, offset, offset_packet_end);
+    add_body_fields(opcode, woww_tree, tvb, start_offset + headerSize, offset_packet_end);
 
     return offset_packet_end;
 }
