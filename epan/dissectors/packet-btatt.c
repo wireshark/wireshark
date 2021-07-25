@@ -14905,7 +14905,7 @@ proto_register_btatt(void)
         },
         {&hf_btatt_cycling_power_measurement_extreme_angles,
             {"Extreme Angles", "btatt.cycling_power_measurement.extreme_angles",
-            FT_NONE, BASE_NONE, NULL, 0x0,
+            FT_UINT24, BASE_HEX, NULL, 0x0,
             NULL, HFILL}
         },
         {&hf_btatt_cycling_power_measurement_extreme_angles_maximum,
