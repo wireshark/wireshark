@@ -103,6 +103,9 @@ static int hf_woww_character_pet_family = -1;
 static int hf_woww_character_equipment_display_id = -1;
 static int hf_woww_character_equipment_inventory_type = -1;
 
+/* SMSG_TUTORIAL_FLAGS */
+static int hf_woww_tutorial_flag = -1;
+
 /* Multiple */
 static int hf_woww_character_level = -1;
 static int hf_woww_character_position_x = -1;
@@ -2657,6 +2660,14 @@ add_body_fields(guint32 opcode,
                                 offset, len, ENC_LITTLE_ENDIAN);
             offset += len;
             break;
+        case SMSG_TUTORIAL_FLAGS:
+            len = 4;
+            for (gint i = 0; i < 8; i++) {
+                proto_tree_add_item(tree, hf_woww_tutorial_flag, tvb,
+                                    offset, len, ENC_LITTLE_ENDIAN);
+                offset += len;
+            }
+            break;
         default:
             break;
     }
@@ -2970,6 +2981,11 @@ proto_register_woww(void)
         { &hf_woww_character_equipment_inventory_type,
             { "Inventory Type", "woww.equipment_inventory_type",
               FT_UINT8, BASE_HEX_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_woww_tutorial_flag,
+            { "Tutorial Flag", "woww.tutorial_flag",
+              FT_UINT32, BASE_HEX_DEC, NULL, 0,
               NULL, HFILL }
         },
     };
