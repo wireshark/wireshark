@@ -34,12 +34,13 @@ if [ ! -x "$dmgbuild" ] ; then
 	exit 1
 fi
 
-if lipo Wireshark.app/Contents/MacOS/Wireshark -verify_arch arm64e ; then
+if lipo Wireshark.app/Contents/MacOS/Wireshark -verify_arch arm64 ; then
 	architecture="Arm 64"
 elif lipo Wireshark.app/Contents/MacOS/Wireshark -verify_arch x86_64 ; then
 	architecture="Intel 64"
 else
 	echo "Error: Wireshark.app missing or has unknown architecture."
+	lipo Wireshark.app/Contents/MacOS/Wireshark -detailed_info
 	exit 1
 fi
 

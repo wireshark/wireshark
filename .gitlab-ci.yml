@@ -403,6 +403,45 @@ Win32 Package:
       }
     - ctest -C RelWithDebInfo --parallel 3 --force-new-ctest-process --output-on-failure
 
+# To do:
+# - Notarization
+macOS Arm Package:
+  stage: build
+  # Production builds
+  rules: !reference [.if-w-w-only-merged]
+  # Testing builds
+  # rules: !reference [.if-w-w-only-merge-request]
+  tags:
+    - wireshark-macos-arm-package
+  retry: 1
+  before_script:
+    - mkdir build
+    - cd build
+  script:
+    - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
+    # XXX - Move this to a separate DENABLE_PCAP=OFF job?
+    - arch -arch arm64 cmake -DENABLE_CCACHE=ON -DENABLE_PCAP=OFF -DCMAKE_APPLE_SILICON_PROCESSOR=arm64 -DCMAKE_OSX_ARCHITECTURES=arm64 -G Ninja ..
+    - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
+    - arch -arch arm64 ninja
+    - cd ..
+    - git clean -d --force --force -x
+    - perl tools/make-version.pl --set-release
+    - mkdir build
+    - cd build
+    - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
+    - arch -arch arm64 cmake -DENABLE_CCACHE=ON -DCMAKE_APPLE_SILICON_PROCESSOR=arm64 -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0 -DCMAKE_OSX_SYSROOT=macosx11.3 -DCMAKE_OSX_ARCHITECTURES=arm64 -DTEST_EXTRA_ARGS=--enable-release -G Ninja ..
+    - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
+    - arch -arch arm64 ninja
+    # - package-prep
+    - arch -arch arm64 ninja dmg_package
+    # - notarize-build
+    - |
+      if [ -n "$AWS_ACCESS_KEY_ID" ] && [ -n "$AWS_SECRET_ACCESS_KEY" ] && [ -n "$S3_DESTINATION_MACOS" ] ; then
+        aws s3 cp run/Wireshark-*.dmg "$S3_DESTINATION_MACOS/"
+      fi
+    - arch -arch arm64 ninja test-programs
+    - arch -arch arm64 ctest --parallel 4 --output-on-failure
+
 # Build the User's Guide and Developer's Guide
 Documentation:
   extends: .build-linux
