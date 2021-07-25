@@ -152,6 +152,7 @@ variables:
 
 .build-windows:
   stage: build
+  retry: 1
   before_script:
     - if (-Not (Test-Path C:\Development)) { New-Item -Path C:\Development -ItemType "directory" }
     - $env:WIRESHARK_BASE_DIR = "C:\Development"
