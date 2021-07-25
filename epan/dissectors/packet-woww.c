@@ -108,6 +108,7 @@ static int hf_woww_character_level = -1;
 static int hf_woww_character_position_x = -1;
 static int hf_woww_character_position_y = -1;
 static int hf_woww_character_position_z = -1;
+static int hf_woww_character_orientation = -1;
 
 #define WOWW_TCP_PORT 8085
 
@@ -2630,6 +2631,24 @@ add_body_fields(guint32 opcode,
             proto_tree_add_item(tree, hf_woww_character_guid, tvb,
                                 offset, len, ENC_LITTLE_ENDIAN);
             break;
+        case SMSG_LOGIN_VERIFY_WORLD:
+            len = 4;
+            proto_tree_add_item(tree, hf_woww_character_map, tvb,
+                                offset, len, ENC_LITTLE_ENDIAN);
+            offset += len;
+            proto_tree_add_item(tree, hf_woww_character_position_x, tvb,
+                                offset, len, ENC_LITTLE_ENDIAN);
+            offset += len;
+            proto_tree_add_item(tree, hf_woww_character_position_y, tvb,
+                                offset, len, ENC_LITTLE_ENDIAN);
+            offset += len;
+            proto_tree_add_item(tree, hf_woww_character_position_z, tvb,
+                                offset, len, ENC_LITTLE_ENDIAN);
+            offset += len;
+            proto_tree_add_item(tree, hf_woww_character_orientation, tvb,
+                                offset, len, ENC_LITTLE_ENDIAN);
+            offset += len;
+            break;
         default:
             break;
     }
@@ -2899,6 +2918,11 @@ proto_register_woww(void)
             { "Position Z", "woww.position_z",
               FT_FLOAT, BASE_FLOAT, NULL, 0,
               NULL, HFILL }
+        },
+        { &hf_woww_character_orientation,
+            { "Orientation", "woww.orientation",
+              FT_FLOAT, BASE_FLOAT, NULL, 0,
+              "Heading in degrees, with 0 being north", HFILL }
         },
         { &hf_woww_character_guild_id,
             { "Guild ID", "woww.guild_id",
