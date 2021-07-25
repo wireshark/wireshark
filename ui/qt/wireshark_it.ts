@@ -8222,7 +8222,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>(empty comment)</source>
         <comment>placeholder for empty comment</comment>
-        <translation type="unfinished"></translation>
+        <translation>(commento vuoto)</translation>
     </message>
     <message>
         <source>Add New Comment…</source>

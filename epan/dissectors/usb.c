@@ -123,7 +123,7 @@ static const value_string usb_vendors_vals[] = {
     { 0x042d, "Micronics" },
     { 0x042e, "Acer, Inc." },
     { 0x042f, "Molex, Inc." },
-    { 0x0430, "Sun Microsystems, Inc." },
+    { 0x0430, "Fujitsu Component Limited" },
     { 0x0431, "Itac Systems, Inc." },
     { 0x0432, "Unisys Corp." },
     { 0x0433, "Alps Electric, Inc." },
