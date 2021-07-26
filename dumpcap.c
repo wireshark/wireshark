@@ -653,7 +653,7 @@ get_capture_device_open_failure_messages(cap_device_open_status open_status,
                                          size_t secondary_errmsg_len)
 {
     g_snprintf(errmsg, (gulong) errmsg_len,
-               "The capture session could not be initiated on interface '%s' (%s).",
+               "The capture session could not be initiated on capture device \"%s\" (%s).",
                iface, open_status_str);
     g_snprintf(secondary_errmsg, (gulong) secondary_errmsg_len, "%s",
                get_pcap_failure_secondary_error_message(open_status, open_status_str));
@@ -5447,15 +5447,15 @@ main(int argc, char *argv[])
             caps = get_if_capabilities(interface_opts, &open_status, &open_status_str);
             if (caps == NULL) {
                 if (capture_child) {
-                    char *error_msg = g_strdup_printf("The capabilities of the capture device"
-                                                " \"%s\" could not be obtained (%s)",
+                    char *error_msg = g_strdup_printf("The capabilities of the capture device "
+                                                "\"%s\" could not be obtained (%s)",
                                                 interface_opts->name, open_status_str);
                     sync_pipe_errmsg_to_parent(2, error_msg,
                             get_pcap_failure_secondary_error_message(open_status, open_status_str));
                     g_free(error_msg);
                 }
                 else {
-                    cmdarg_err("The capabilities of the capture device"
+                    cmdarg_err("The capabilities of the capture device "
                                 "\"%s\" could not be obtained (%s).\n%s",
                                 interface_opts->name, open_status_str,
                                 get_pcap_failure_secondary_error_message(open_status, open_status_str));
