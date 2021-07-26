@@ -30,6 +30,7 @@
 #endif
 
 #include "file_util.h"
+#include "to_str.h"
 
 
 /* Runtime log level. */
@@ -905,6 +906,28 @@ void ws_log_write_always_full(const char *domain, enum ws_log_level level,
     va_start(ap, format);
     log_write_dispatch(domain, level, file, line, func, format, ap);
     va_end(ap);
+}
+
+
+void ws_log_buffer_full(const char *domain, enum ws_log_level level,
+                    const char *file, int line, const char *func,
+                    const guint8 *ptr, size_t size,  size_t max_len,
+                    const char *msg)
+{
+    if (!ws_log_msg_is_active(domain, level))
+        return;
+
+    char *bufstr = bytes_to_str_max(NULL, ptr, size, max_len);
+
+    if (G_UNLIKELY(msg == NULL))
+        ws_log_write_always_full(domain, level, file, line, func,
+                                "<buffer:%p>: %s (%zu bytes)",
+                                ptr, bufstr, size);
+    else
+        ws_log_write_always_full(domain, level, file, line, func,
+                                "%s: %s (%zu bytes)",
+                                msg, bufstr, size);
+    wmem_free(NULL, bufstr);
 }
 
 

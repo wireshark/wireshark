@@ -330,6 +330,32 @@ void ws_logv_full(const char *domain, enum ws_log_level level,
         } while (0)
 
 
+/** This function is called to log a buffer (bytes array).
+ *
+ * Accepts an optional 'msg' argument to provide a description.
+ */
+WS_DLL_PUBLIC
+void ws_log_buffer_full(const char *domain, enum ws_log_level level,
+                    const char *file, int line, const char *func,
+                    const guint8 *buffer, size_t size, size_t max_len,
+                    const char *msg);
+
+
+#define _LOG_BUFFER(buf, size) \
+    ws_log_buffer_full(_LOG_DOMAIN, LOG_LEVEL_DEBUG, \
+                        __FILE__, __LINE__, __func__, \
+                        buf, size, 72, #buf)
+
+#ifdef WS_DISABLE_DEBUG
+#define ws_log_buffer(buf, size) \
+          G_STMT_START { \
+               if (0) _LOG_BUFFER(buf, size); \
+          } G_STMT_END
+#else
+#define ws_log_buffer(buf, size) _LOG_BUFFER(buf, size)
+#endif
+
+
 /** Auxiliary function to write custom logging functions.
  *
  * This function is the same as ws_log_full() but does not perform any
