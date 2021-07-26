@@ -562,9 +562,10 @@ static dissector_table_t rtps_type_name_table;
 #define SUBMESSAGE_SEC_POSTFIX                          (0x32)
 #define SUBMESSAGE_SRTPS_PREFIX                         (0x33)
 #define SUBMESSAGE_SRTPS_POSTFIX                        (0x34)
-#define SUBMESSAGE_RTI_UDP_WAN_BINDING_PING                 (0x82)
-
 #define SUBMESSAGE_RTI_CRC                              (0x80)
+#define SUBMESSAGE_RTI_DATA_FRAG_SESSION                (0x81)  /* Vendor Specific */
+#define SUBMESSAGE_RTI_UDP_WAN_BINDING_PING             (0x82)
+
 
 /* An invalid IP Address:
  * Make sure the _STRING macro is bigger than a normal IP
@@ -1420,6 +1421,7 @@ static const value_string submessage_id_valsv2[] = {
   { SUBMESSAGE_PAD,                     "PAD" },
   { SUBMESSAGE_RTPS_DATA,               "DATA" },
   { SUBMESSAGE_RTPS_DATA_FRAG,          "DATA_FRAG" },
+  { SUBMESSAGE_RTI_DATA_FRAG_SESSION,   "DATA_FRAG_SESSION" },
   { SUBMESSAGE_RTPS_DATA_BATCH,         "DATA_BATCH" },
   { SUBMESSAGE_ACKNACK,                 "ACKNACK" },
   { SUBMESSAGE_HEARTBEAT,               "HEARTBEAT" },
@@ -1455,6 +1457,7 @@ static const value_string submessage_id_valsv2[] = {
 static const value_string submessage_id_rti[] = {
   { SUBMESSAGE_RTI_CRC,                  "RTI_CRC" },
   { SUBMESSAGE_RTI_UDP_WAN_BINDING_PING, "RTI_BINDING_PING" },
+  { SUBMESSAGE_RTI_DATA_FRAG_SESSION,    "DATA_FRAG_SESSION" },
   { 0, NULL }
 };
 
@@ -2942,7 +2945,7 @@ static void append_status_info(packet_info *pinfo,
  *   -seqNumber == RTPS_SEQUENCENUMBER_UNKNOWN
  * - A DATA packet sent with the consecutive writerSeqNumber of the last coherent set packet.
  * - PID_END_COHERENT_SET received. That condition is not handled here. Check PID_END_COHERENT_SET dissection.
- * Empty Data condition is not handled here. rtps_util_detect_coherent_set_end_empty_data_case called at the end of dissect_RTPS_DATA and dissect_RTPS_DATA_FRAG
+ * Empty Data condition is not handled here. rtps_util_detect_coherent_set_end_empty_data_case called at the end of dissect_RTPS_DATA and dissect_RTPS_DATA_FRAG_kind
  */
 static void rtps_util_add_coherent_set_general_cases_case(
   proto_tree *tree,
@@ -3036,7 +3039,7 @@ static void rtps_util_add_coherent_set_general_cases_case(
 /*
  * Handles the coherent set termination case where the coherent set finishes by sending a DATA or DATA_FRAG with no parameters.
  * For the other cases, check rtps_util_add_coherent_set_general_cases_case.
- * this function must be called at the end of dissect_RTPS_DATA and dissect_RTPS_DATA_FRAG
+ * this function must be called at the end of dissect_RTPS_DATA and dissect_RTPS_DATA_FRAG_kind
  */
 static void rtps_util_detect_coherent_set_end_empty_data_case(
 
@@ -10565,13 +10568,17 @@ static void dissect_RTPS_DATA(tvbuff_t *tvb, packet_info *pinfo, gint offset, gu
 }
 
 /* *********************************************************************** */
-/* *                 R T P S _ D A T A _ F R A G                         * */
+/* *                 R T P S _ D A T A _ F R A G _ [SESSION]             * */
 /* *********************************************************************** */
-static void dissect_RTPS_DATA_FRAG(tvbuff_t *tvb, packet_info *pinfo, gint offset, guint8 flags,
+static void dissect_RTPS_DATA_FRAG_kind(tvbuff_t *tvb, packet_info *pinfo, gint offset, guint8 flags,
                 const guint encoding, int octets_to_next_header, proto_tree *tree,
-                guint16 vendor_id, endpoint_guid *guid) {
+                guint16 vendor_id, gboolean is_session, endpoint_guid *guid) {
   /*
+   * There are two kinds of DATA_FRAG, RTPS_DATA_FRAG and RTPS_DATA_FRAG_SESSION
+   * the only difference is that RTPS_DATA_FRAG_SESSION has an extra sequence number after
+   * writerSeqNum.
    *
+   * RTPS_DATA_FRAG:
    * 0...2...........7...............15.............23...............31
    * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    * |RTPS_DATA_FRAG |X|X|X|X|X|K|Q|E|      octetsToNextHeader       |
@@ -10600,6 +10607,43 @@ static void dissect_RTPS_DATA_FRAG(tvbuff_t *tvb, packet_info *pinfo, gint offse
    * ~ SerializedData serializedData                                 ~
    * |                                                               |
    * +---------------+---------------+---------------+---------------+
+   *
+   *
+   * RTPS_DATA_FRAG_SESSION:
+   * 0...2...........7...............15.............23...............31
+   * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   * |RTPS.._SESSION |X|X|X|X|X|K|Q|E|      octetsToNextHeader       |
+   * +---------------+---------------+---------------+---------------+
+   * | Flags extraFlags              |      octetsToInlineQos        |
+   * +---------------+---------------+---------------+---------------+
+   * | EntityId readerEntityId                                       |
+   * +---------------+---------------+---------------+---------------+
+   * | EntityId writerEntityId                                       |
+   * +---------------+---------------+---------------+---------------+
+   * |                                                               |
+   * + SequenceNumber writerSeqNum                                   +
+   * |                                                               |
+   * +---------------+---------------+---------------+---------------+
+   * |                                                               |
+   * + SequenceNumber virtualSeqNum                                  +
+   * |                                                               |
+   * +---------------+---------------+---------------+---------------+
+   * | FragmentNumber fragmentStartingNum                            |
+   * +---------------+---------------+---------------+---------------+
+   * | ushort fragmentsInSubmessage  | ushort fragmentSize           |
+   * +---------------+---------------+---------------+---------------+
+   * | unsigned long sampleSize                                      |
+   * +---------------+---------------+---------------+---------------+
+   * |                                                               |
+   * ~ ParameterList inlineQos [only if Q==1]                        ~
+   * |                                                               |
+   * +---------------+---------------+---------------+---------------+
+   * |                                                               |
+   * ~ SerializedData serializedData                                 ~
+   * |                                                               |
+   * +---------------+---------------+---------------+---------------+
+
+
    */
   int min_len;
   gint old_offset = offset;
@@ -10616,8 +10660,12 @@ static void dissect_RTPS_DATA_FRAG(tvbuff_t *tvb, packet_info *pinfo, gint offse
   octet_item = proto_tree_add_item(tree, hf_rtps_sm_octets_to_next_header, tvb,
                         offset + 2, 2, encoding);
 
-  /* Calculates the minimum length for this submessage */
-  min_len = 36;
+  /* Calculates the minimum length for this submessage
+   * RTPS_DATA_FRAG_SESSION len = RTPS_DATA_FRAG len + 8 (extra virtualSequenceNum field).
+   */
+  min_len = (is_session)
+        ? 44
+        : 36;
   if ((flags & FLAG_RTPS_DATA_FRAG_Q) != 0) min_len += 4;
 
   if (octets_to_next_header < min_len) {
@@ -10655,6 +10703,11 @@ static void dissect_RTPS_DATA_FRAG(tvbuff_t *tvb, packet_info *pinfo, gint offse
   coherent_set_entity_info_object.guid = *guid;
   offset += 8;
 
+  /* virtual Sequence Number (Only in RTPS_DATA_FRAG_SESSION)*/
+  if (is_session) {
+      rtps_util_add_seq_number(tree, tvb, offset, encoding, "virtualSeqNumber");
+      offset += 8;
+  }
   /* Fragment number */
   proto_tree_add_item_ret_uint(tree, hf_rtps_data_frag_number, tvb, offset, 4, encoding, &frag_number);
   offset += 4;
@@ -11749,9 +11802,10 @@ static gboolean dissect_rtps_submessage_v2(tvbuff_t *tvb, packet_info *pinfo, gi
               rtps_submessage_tree, vendor_id, (submessageId == SUBMESSAGE_RTPS_DATA_SESSION), guid);
       break;
 
+    case SUBMESSAGE_RTI_DATA_FRAG_SESSION:
     case SUBMESSAGE_RTPS_DATA_FRAG:
-      dissect_RTPS_DATA_FRAG(tvb, pinfo, offset, flags, encoding, octets_to_next_header,
-                                rtps_submessage_tree, vendor_id, guid);
+      dissect_RTPS_DATA_FRAG_kind(tvb, pinfo, offset, flags, encoding, octets_to_next_header,
+                                rtps_submessage_tree, vendor_id, (submessageId == SUBMESSAGE_RTI_DATA_FRAG_SESSION), guid);
       break;
 
     case SUBMESSAGE_RTPS_DATA_BATCH:
