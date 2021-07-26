@@ -94,9 +94,6 @@ bytes_to_hexstr_punct(char *out, const guint8 *ad, size_t len, char punct)
 	return out;
 }
 
-/* Max string length for displaying byte string.  */
-#define	MAX_BYTE_STR_LEN	72
-
 /* Routine to convert a sequence of bytes to a hex string, one byte/two hex
  * digits at at a time, with a specified punctuation character between
  * the bytes.
@@ -105,7 +102,7 @@ bytes_to_hexstr_punct(char *out, const guint8 *ad, size_t len, char punct)
  * the resulting string is (len-1) bytes shorter)
  */
 gchar *
-bytestring_to_str(wmem_allocator_t *scope, const guint8 *ad, size_t len, const char punct)
+bytestring_to_str_max(wmem_allocator_t *scope, const guint8 *ad, size_t len, const char punct, size_t max)
 {
 	gchar *buf;
 	size_t buflen = len;
@@ -123,15 +120,18 @@ bytestring_to_str(wmem_allocator_t *scope, const guint8 *ad, size_t len, const c
 	}
 
 	if (!punct)
-		return bytes_to_str(scope, ad, len);
+		return bytes_to_str_max(scope, ad, len, max);
 
-	buf=(gchar *)wmem_alloc(scope, MAX_BYTE_STR_LEN+3+1);
-	if (buflen > MAX_BYTE_STR_LEN/3) {	/* bd_len > 16 */
+	if (max > len * 3)
+		max = len * 3;
+
+	buf=(gchar *)wmem_alloc(scope, max+3+1);
+	if (buflen > max/3) {
 		truncated = 1;
-		buflen = MAX_BYTE_STR_LEN/3;
+		buflen = max/3;
 	}
 
-	buf_ptr = bytes_to_hexstr_punct(buf, ad, buflen, punct); /* max MAX_BYTE_STR_LEN-1 bytes */
+	buf_ptr = bytes_to_hexstr_punct(buf, ad, buflen, punct); /* maximum max-1 bytes */
 
 	if (truncated) {
 		*buf_ptr++ = punct;			/* 1 byte */
@@ -143,7 +143,7 @@ bytestring_to_str(wmem_allocator_t *scope, const guint8 *ad, size_t len, const c
 }
 
 char *
-bytes_to_str(wmem_allocator_t *scope, const guint8 *bd, size_t bd_len)
+bytes_to_str_max(wmem_allocator_t *scope, const guint8 *bd, size_t bd_len, size_t max)
 {
 	gchar *cur;
 	gchar *cur_ptr;
@@ -159,10 +159,13 @@ bytes_to_str(wmem_allocator_t *scope, const guint8 *bd, size_t bd_len)
 		return wmem_strdup(scope, "(null pointer)");
 	}
 
-	cur=(gchar *)wmem_alloc(scope, MAX_BYTE_STR_LEN+3+1);
-	if (bd_len > MAX_BYTE_STR_LEN/2) {	/* bd_len > 24 */
+	if (max > bd_len * 2)
+		max = bd_len * 2;
+
+	cur=(gchar *)wmem_alloc(scope, max+3+1);
+	if (bd_len > max/2) {
 		truncated = 1;
-		bd_len = MAX_BYTE_STR_LEN/2;
+		bd_len = max/2;
 	}
 
 	cur_ptr = bytes_to_hexstr(cur, bd, bd_len);	/* max MAX_BYTE_STR_LEN bytes */
