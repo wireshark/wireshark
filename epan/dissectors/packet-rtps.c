@@ -3264,7 +3264,7 @@ static gint rtps_util_add_locator_t(proto_tree *tree, packet_info *pinfo, tvbuff
                 locator_port_size,
                 encoding,
                 &port);
-        flags = tvb_get_bits8(tvb, flags_offset, 4);
+        flags = tvb_get_gint8(tvb, flags_offset);
         proto_tree_add_bitmask_value(
                 locator_tree,
                 tvb,
