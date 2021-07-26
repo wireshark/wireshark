@@ -2598,8 +2598,8 @@ int main(int argc, char *argv[]) {
     extcap_help_add_option(extcap_conf, "--bt-local-ip <IP>", "the bluetooth local IP");
     extcap_help_add_option(extcap_conf, "--bt-local-tcp-port <port>", "the bluetooth local TCP port");
 
-    opterr = 0;
-    optind = 0;
+    ws_opterr = 0;
+    ws_optind = 0;
 
     if (argc == 1) {
         extcap_help_print(extcap_conf);
@@ -2607,7 +2607,7 @@ int main(int argc, char *argv[]) {
         goto end;
     }
 
-    while ((result = getopt_long(argc, argv, "", longopts, &option_idx)) != -1) {
+    while ((result = ws_getopt_long(argc, argv, "", longopts, &option_idx)) != -1) {
         switch (result) {
 
         case OPT_VERSION:
@@ -2619,77 +2619,77 @@ int main(int argc, char *argv[]) {
             ret = EXIT_CODE_SUCCESS;
             goto end;
         case OPT_CONFIG_ADB_SERVER_IP:
-            adb_server_ip = optarg;
+            adb_server_ip = ws_optarg;
             break;
         case OPT_CONFIG_ADB_SERVER_TCP_PORT:
             adb_server_tcp_port = &local_adb_server_tcp_port;
-            if (!optarg){
+            if (!ws_optarg){
                 ws_warning("Impossible exception. Parameter required argument, but there is no it right now.");
                 goto end;
             }
-            if (!ws_strtou16(optarg, NULL, adb_server_tcp_port)) {
-                ws_warning("Invalid adb server TCP port: %s", optarg);
+            if (!ws_strtou16(ws_optarg, NULL, adb_server_tcp_port)) {
+                ws_warning("Invalid adb server TCP port: %s", ws_optarg);
                 goto end;
             }
             break;
         case OPT_CONFIG_LOGCAT_TEXT:
-            if (optarg && !*optarg)
+            if (ws_optarg && !*ws_optarg)
                 logcat_text = TRUE;
             else
-                logcat_text = (g_ascii_strncasecmp(optarg, "TRUE", 4) == 0);
+                logcat_text = (g_ascii_strncasecmp(ws_optarg, "TRUE", 4) == 0);
             break;
         case OPT_CONFIG_LOGCAT_IGNORE_LOG_BUFFER:
-            if (optarg == NULL || (optarg && !*optarg))
+            if (ws_optarg == NULL || (ws_optarg && !*ws_optarg))
                 logcat_ignore_log_buffer = TRUE;
             else
-                logcat_ignore_log_buffer = (g_ascii_strncasecmp(optarg, "TRUE", 4) == 0);
+                logcat_ignore_log_buffer = (g_ascii_strncasecmp(ws_optarg, "TRUE", 4) == 0);
             break;
         case OPT_CONFIG_LOGCAT_CUSTOM_OPTIONS:
-            if (optarg == NULL || (optarg && *optarg == '\0')) {
+            if (ws_optarg == NULL || (ws_optarg && *ws_optarg == '\0')) {
                 logcat_custom_parameter = NULL;
                 break;
             }
 
-            if (g_regex_match_simple("(^|\\s)-[bBcDfgLnpPrv]", optarg, G_REGEX_RAW, (GRegexMatchFlags)0)) {
+            if (g_regex_match_simple("(^|\\s)-[bBcDfgLnpPrv]", ws_optarg, G_REGEX_RAW, (GRegexMatchFlags)0)) {
                 ws_error("Found prohibited option in logcat-custom-options");
                 return EXIT_CODE_GENERIC;
             }
 
-            logcat_custom_parameter = optarg;
+            logcat_custom_parameter = ws_optarg;
 
             break;
         case OPT_CONFIG_BT_SERVER_TCP_PORT:
             bt_server_tcp_port = &local_bt_server_tcp_port;
-            if (!optarg){
+            if (!ws_optarg){
                 ws_warning("Impossible exception. Parameter required argument, but there is no it right now.");
                 goto end;
             }
-            if (!ws_strtou16(optarg, NULL, bt_server_tcp_port)) {
-                ws_warning("Invalid bluetooth server TCP port: %s", optarg);
+            if (!ws_strtou16(ws_optarg, NULL, bt_server_tcp_port)) {
+                ws_warning("Invalid bluetooth server TCP port: %s", ws_optarg);
                 goto end;
             }
             break;
         case OPT_CONFIG_BT_FORWARD_SOCKET:
-            bt_forward_socket = (g_ascii_strncasecmp(optarg, "TRUE", 4) == 0);
+            bt_forward_socket = (g_ascii_strncasecmp(ws_optarg, "TRUE", 4) == 0);
             break;
         case OPT_CONFIG_BT_LOCAL_IP:
-            bt_local_ip = optarg;
+            bt_local_ip = ws_optarg;
             break;
         case OPT_CONFIG_BT_LOCAL_TCP_PORT:
             bt_local_tcp_port = &local_bt_local_tcp_port;
-            if (!optarg){
+            if (!ws_optarg){
                 ws_warning("Impossible exception. Parameter required argument, but there is no it right now.");
                 goto end;
             }
-            if (!ws_strtou16(optarg, NULL, bt_local_tcp_port)) {
-                ws_warning("Invalid bluetooth local tcp port: %s", optarg);
+            if (!ws_strtou16(ws_optarg, NULL, bt_local_tcp_port)) {
+                ws_warning("Invalid bluetooth local tcp port: %s", ws_optarg);
                 goto end;
             }
             break;
         default:
-            if (!extcap_base_parse_options(extcap_conf, result - EXTCAP_OPT_LIST_INTERFACES, optarg))
+            if (!extcap_base_parse_options(extcap_conf, result - EXTCAP_OPT_LIST_INTERFACES, ws_optarg))
             {
-                ws_warning("Invalid argument <%s>. Try --help.\n", argv[optind - 1]);
+                ws_warning("Invalid argument <%s>. Try --help.\n", argv[ws_optind - 1]);
                 goto end;
             }
         }

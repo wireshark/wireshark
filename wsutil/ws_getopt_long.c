@@ -1,13 +1,39 @@
-#define _GNU_SOURCE
+/*
+ * musl as a whole is licensed under the following standard MIT license:
+ *
+ * ----------------------------------------------------------------------
+ * Copyright © 2005-2020 Rich Felker, et al.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining
+ * a copy of this software and associated documentation files (the
+ * "Software"), to deal in the Software without restriction, including
+ * without limitation the rights to use, copy, modify, merge, publish,
+ * distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to
+ * the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+ * CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+ * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * ----------------------------------------------------------------------
+ */
+
+//#define _GNU_SOURCE
 #include <stddef.h>
 #include <stdlib.h>
 #include <limits.h>
-#include <getopt.h>
 #include <stdio.h>
 #include <string.h>
-#include "stdio_impl.h"
+#include <stdio.h>
 
-extern int __optpos, __optreset;
+#include <wsutil/ws_getopt.h>
 
 static void permute(char *const *argv, int dest, int src)
 {
@@ -24,42 +50,42 @@ static int __getopt_long_core(int argc, char *const *argv, const char *optstring
 static int __getopt_long(int argc, char *const *argv, const char *optstring, const struct option *longopts, int *idx, int longonly)
 {
 	int ret, skipped, resumed;
-	if (!optind || __optreset) {
-		__optreset = 0;
-		__optpos = 0;
-		optind = 1;
+	if (!ws_optind || ws_optreset) {
+		ws_optreset = 0;
+		ws_optpos = 0;
+		ws_optind = 1;
 	}
-	if (optind >= argc || !argv[optind]) return -1;
-	skipped = optind;
+	if (ws_optind >= argc || !argv[ws_optind]) return -1;
+	skipped = ws_optind;
 	if (optstring[0] != '+' && optstring[0] != '-') {
 		int i;
-		for (i=optind; ; i++) {
+		for (i=ws_optind; ; i++) {
 			if (i >= argc || !argv[i]) return -1;
 			if (argv[i][0] == '-' && argv[i][1]) break;
 		}
-		optind = i;
+		ws_optind = i;
 	}
-	resumed = optind;
+	resumed = ws_optind;
 	ret = __getopt_long_core(argc, argv, optstring, longopts, idx, longonly);
 	if (resumed > skipped) {
-		int i, cnt = optind-resumed;
+		int i, cnt = ws_optind-resumed;
 		for (i=0; i<cnt; i++)
-			permute(argv, skipped, optind-1);
-		optind = skipped + cnt;
+			permute(argv, skipped, ws_optind-1);
+		ws_optind = skipped + cnt;
 	}
 	return ret;
 }
 
 static int __getopt_long_core(int argc, char *const *argv, const char *optstring, const struct option *longopts, int *idx, int longonly)
 {
-	optarg = 0;
-	if (longopts && argv[optind][0] == '-' &&
-		((longonly && argv[optind][1] && argv[optind][1] != '-') ||
-		 (argv[optind][1] == '-' && argv[optind][2])))
+	ws_optarg = 0;
+	if (longopts && argv[ws_optind][0] == '-' &&
+		((longonly && argv[ws_optind][1] && argv[ws_optind][1] != '-') ||
+		 (argv[ws_optind][1] == '-' && argv[ws_optind][2])))
 	{
 		int colon = optstring[optstring[0]=='+'||optstring[0]=='-']==':';
-		int i, cnt, match;
-		char *arg, *opt, *start = argv[optind]+1;
+		int i, cnt, match = -1;
+		char *arg = NULL, *opt, *start = argv[ws_optind]+1;
 		for (cnt=i=0; longopts[i].name; i++) {
 			const char *name = longopts[i].name;
 			opt = start;
@@ -89,11 +115,11 @@ static int __getopt_long_core(int argc, char *const *argv, const char *optstring
 		if (cnt==1) {
 			i = match;
 			opt = arg;
-			optind++;
+			ws_optind++;
 			if (*opt == '=') {
 				if (!longopts[i].has_arg) {
-					optopt = longopts[i].val;
-					if (colon || !opterr)
+					ws_optopt = longopts[i].val;
+					if (colon || !ws_opterr)
 						return '?';
 					__getopt_msg(argv[0],
 						": option does not take an argument: ",
@@ -101,19 +127,19 @@ static int __getopt_long_core(int argc, char *const *argv, const char *optstring
 						strlen(longopts[i].name));
 					return '?';
 				}
-				optarg = opt+1;
+				ws_optarg = opt+1;
 			} else if (longopts[i].has_arg == required_argument) {
-				if (!(optarg = argv[optind])) {
-					optopt = longopts[i].val;
+				if (!(ws_optarg = argv[ws_optind])) {
+					ws_optopt = longopts[i].val;
 					if (colon) return ':';
-					if (!opterr) return '?';
+					if (!ws_opterr) return '?';
 					__getopt_msg(argv[0],
 						": option requires an argument: ",
 						longopts[i].name,
 						strlen(longopts[i].name));
 					return '?';
 				}
-				optind++;
+				ws_optind++;
 			}
 			if (idx) *idx = i;
 			if (longopts[i].flag) {
@@ -122,27 +148,27 @@ static int __getopt_long_core(int argc, char *const *argv, const char *optstring
 			}
 			return longopts[i].val;
 		}
-		if (argv[optind][1] == '-') {
-			optopt = 0;
-			if (!colon && opterr)
+		if (argv[ws_optind][1] == '-') {
+			ws_optopt = 0;
+			if (!colon && ws_opterr)
 				__getopt_msg(argv[0], cnt ?
 					": option is ambiguous: " :
 					": unrecognized option: ",
-					argv[optind]+2,
-					strlen(argv[optind]+2));
-			optind++;
+					argv[ws_optind]+2,
+					strlen(argv[ws_optind]+2));
+			ws_optind++;
 			return '?';
 		}
 	}
-	return getopt(argc, argv, optstring);
+	return ws_getopt(argc, argv, optstring);
 }
 
-int getopt_long(int argc, char *const *argv, const char *optstring, const struct option *longopts, int *idx)
+int ws_getopt_long(int argc, char *const *argv, const char *optstring, const struct option *longopts, int *idx)
 {
 	return __getopt_long(argc, argv, optstring, longopts, idx, 0);
 }
 
-int getopt_long_only(int argc, char *const *argv, const char *optstring, const struct option *longopts, int *idx)
+int ws_getopt_long_only(int argc, char *const *argv, const char *optstring, const struct option *longopts, int *idx)
 {
 	return __getopt_long(argc, argv, optstring, longopts, idx, 1);
 }

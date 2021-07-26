@@ -113,18 +113,7 @@
 #include <time.h>
 #include <glib.h>
 
-/*
- * If we have getopt_long() in the system library, include <getopt.h>.
- * Otherwise, we're using our own getopt_long() (either because the
- * system has getopt() but not getopt_long(), as with some UN*Xes,
- * or because it doesn't even have getopt(), as with Windows), so
- * include our getopt_long()'s header.
- */
-#ifdef HAVE_GETOPT_LONG
-#include <getopt.h>
-#else
-#include <wsutil/wsgetopt.h>
-#endif
+#include <wsutil/ws_getopt.h>
 
 #include <errno.h>
 #include <assert.h>
@@ -1467,7 +1456,7 @@ parse_options (int argc, char *argv[])
     ws_init_version_info("Text2pcap (Wireshark)", NULL, NULL, NULL);
 
     /* Scan CLI parameters */
-    while ((c = getopt_long(argc, argv, "aDdhqe:i:l:m:nN:o:u:s:S:t:T:v4:6:", long_options, NULL)) != -1) {
+    while ((c = ws_getopt_long(argc, argv, "aDdhqe:i:l:m:nN:o:u:s:S:t:T:v4:6:", long_options, NULL)) != -1) {
         switch (c) {
         case 'h':
             show_help_header("Generate a capture file from an ASCII hexdump of packets.");
@@ -1477,17 +1466,17 @@ parse_options (int argc, char *argv[])
         case 'd': if (!quiet) debug++; break;
         case 'D': has_direction = TRUE; break;
         case 'q': quiet = TRUE; debug = 0; break;
-        case 'l': pcap_link_type = (guint32)strtol(optarg, NULL, 0); break;
-        case 'm': max_offset = (guint32)strtol(optarg, NULL, 0); break;
+        case 'l': pcap_link_type = (guint32)strtol(ws_optarg, NULL, 0); break;
+        case 'm': max_offset = (guint32)strtol(ws_optarg, NULL, 0); break;
         case 'n': use_pcapng = TRUE; break;
-        case 'N': interface_name = optarg; break;
+        case 'N': interface_name = ws_optarg; break;
         case 'o':
-            if (optarg[0] != 'h' && optarg[0] != 'o' && optarg[0] != 'd') {
-                fprintf(stderr, "Bad argument for '-o': %s\n", optarg);
+            if (ws_optarg[0] != 'h' && ws_optarg[0] != 'o' && ws_optarg[0] != 'd') {
+                fprintf(stderr, "Bad argument for '-o': %s\n", ws_optarg);
                 print_usage(stderr);
                 return EXIT_FAILURE;
             }
-            switch (optarg[0]) {
+            switch (ws_optarg[0]) {
             case 'o': offset_base =  8; break;
             case 'h': offset_base = 16; break;
             case 'd': offset_base = 10; break;
@@ -1495,18 +1484,18 @@ parse_options (int argc, char *argv[])
             break;
         case 'e':
             hdr_ethernet = TRUE;
-            if (sscanf(optarg, "%x", &hdr_ethernet_proto) < 1) {
-                fprintf(stderr, "Bad argument for '-e': %s\n", optarg);
+            if (sscanf(ws_optarg, "%x", &hdr_ethernet_proto) < 1) {
+                fprintf(stderr, "Bad argument for '-e': %s\n", ws_optarg);
                 print_usage(stderr);
                 return EXIT_FAILURE;
             }
             break;
 
         case 'i':
-            hdr_ip_proto = strtol(optarg, &p, 10);
-            if (p == optarg || *p != '\0' || hdr_ip_proto < 0 ||
+            hdr_ip_proto = strtol(ws_optarg, &p, 10);
+            if (p == ws_optarg || *p != '\0' || hdr_ip_proto < 0 ||
                   hdr_ip_proto > 255) {
-                fprintf(stderr, "Bad argument for '-i': %s\n", optarg);
+                fprintf(stderr, "Bad argument for '-i': %s\n", ws_optarg);
                 print_usage(stderr);
                 return EXIT_FAILURE;
             }
@@ -1518,8 +1507,8 @@ parse_options (int argc, char *argv[])
             hdr_data_chunk = FALSE;
             hdr_tcp = FALSE;
             hdr_udp = FALSE;
-            hdr_sctp_src   = (guint32)strtol(optarg, &p, 10);
-            if (p == optarg || (*p != ',' && *p != '\0')) {
+            hdr_sctp_src   = (guint32)strtol(ws_optarg, &p, 10);
+            if (p == ws_optarg || (*p != ',' && *p != '\0')) {
                 fprintf(stderr, "Bad src port for '-%c'\n", c);
                 print_usage(stderr);
                 return EXIT_FAILURE;
@@ -1530,9 +1519,9 @@ parse_options (int argc, char *argv[])
                 return EXIT_FAILURE;
             }
             p++;
-            optarg = p;
-            hdr_sctp_dest = (guint32)strtol(optarg, &p, 10);
-            if (p == optarg || (*p != ',' && *p != '\0')) {
+            ws_optarg = p;
+            hdr_sctp_dest = (guint32)strtol(ws_optarg, &p, 10);
+            if (p == ws_optarg || (*p != ',' && *p != '\0')) {
                 fprintf(stderr, "Bad dest port for '-s'\n");
                 print_usage(stderr);
                 return EXIT_FAILURE;
@@ -1543,9 +1532,9 @@ parse_options (int argc, char *argv[])
                 return EXIT_FAILURE;
             }
             p++;
-            optarg = p;
-            hdr_sctp_tag = (guint32)strtol(optarg, &p, 10);
-            if (p == optarg || *p != '\0') {
+            ws_optarg = p;
+            hdr_sctp_tag = (guint32)strtol(ws_optarg, &p, 10);
+            if (p == ws_optarg || *p != '\0') {
                 fprintf(stderr, "Bad tag for '-%c'\n", c);
                 print_usage(stderr);
                 return EXIT_FAILURE;
@@ -1559,8 +1548,8 @@ parse_options (int argc, char *argv[])
             hdr_data_chunk = TRUE;
             hdr_tcp = FALSE;
             hdr_udp = FALSE;
-            hdr_sctp_src   = (guint32)strtol(optarg, &p, 10);
-            if (p == optarg || (*p != ',' && *p != '\0')) {
+            hdr_sctp_src   = (guint32)strtol(ws_optarg, &p, 10);
+            if (p == ws_optarg || (*p != ',' && *p != '\0')) {
                 fprintf(stderr, "Bad src port for '-%c'\n", c);
                 print_usage(stderr);
                 return EXIT_FAILURE;
@@ -1571,9 +1560,9 @@ parse_options (int argc, char *argv[])
                 return EXIT_FAILURE;
             }
             p++;
-            optarg = p;
-            hdr_sctp_dest = (guint32)strtol(optarg, &p, 10);
-            if (p == optarg || (*p != ',' && *p != '\0')) {
+            ws_optarg = p;
+            hdr_sctp_dest = (guint32)strtol(ws_optarg, &p, 10);
+            if (p == ws_optarg || (*p != ',' && *p != '\0')) {
                 fprintf(stderr, "Bad dest port for '-s'\n");
                 print_usage(stderr);
                 return EXIT_FAILURE;
@@ -1584,9 +1573,9 @@ parse_options (int argc, char *argv[])
                 return EXIT_FAILURE;
             }
             p++;
-            optarg = p;
-            hdr_data_chunk_ppid = (guint32)strtoul(optarg, &p, 10);
-            if (p == optarg || *p != '\0') {
+            ws_optarg = p;
+            hdr_data_chunk_ppid = (guint32)strtoul(ws_optarg, &p, 10);
+            if (p == ws_optarg || *p != '\0') {
                 fprintf(stderr, "Bad ppi for '-%c'\n", c);
                 print_usage(stderr);
                 return EXIT_FAILURE;
@@ -1597,7 +1586,7 @@ parse_options (int argc, char *argv[])
             break;
 
         case 't':
-            ts_fmt = optarg;
+            ts_fmt = ws_optarg;
             break;
 
         case 'u':
@@ -1605,8 +1594,8 @@ parse_options (int argc, char *argv[])
             hdr_tcp = FALSE;
             hdr_sctp = FALSE;
             hdr_data_chunk = FALSE;
-            hdr_src_port = (guint32)strtol(optarg, &p, 10);
-            if (p == optarg || (*p != ',' && *p != '\0')) {
+            hdr_src_port = (guint32)strtol(ws_optarg, &p, 10);
+            if (p == ws_optarg || (*p != ',' && *p != '\0')) {
                 fprintf(stderr, "Bad src port for '-u'\n");
                 print_usage(stderr);
                 return EXIT_FAILURE;
@@ -1617,9 +1606,9 @@ parse_options (int argc, char *argv[])
                 return EXIT_FAILURE;
             }
             p++;
-            optarg = p;
-            hdr_dest_port = (guint32)strtol(optarg, &p, 10);
-            if (p == optarg || *p != '\0') {
+            ws_optarg = p;
+            hdr_dest_port = (guint32)strtol(ws_optarg, &p, 10);
+            if (p == ws_optarg || *p != '\0') {
                 fprintf(stderr, "Bad dest port for '-u'\n");
                 print_usage(stderr);
                 return EXIT_FAILURE;
@@ -1633,8 +1622,8 @@ parse_options (int argc, char *argv[])
             hdr_udp = FALSE;
             hdr_sctp = FALSE;
             hdr_data_chunk = FALSE;
-            hdr_src_port = (guint32)strtol(optarg, &p, 10);
-            if (p == optarg || (*p != ',' && *p != '\0')) {
+            hdr_src_port = (guint32)strtol(ws_optarg, &p, 10);
+            if (p == ws_optarg || (*p != ',' && *p != '\0')) {
                 fprintf(stderr, "Bad src port for '-T'\n");
                 print_usage(stderr);
                 return EXIT_FAILURE;
@@ -1645,9 +1634,9 @@ parse_options (int argc, char *argv[])
                 return EXIT_FAILURE;
             }
             p++;
-            optarg = p;
-            hdr_dest_port = (guint32)strtol(optarg, &p, 10);
-            if (p == optarg || *p != '\0') {
+            ws_optarg = p;
+            hdr_dest_port = (guint32)strtol(ws_optarg, &p, 10);
+            if (p == ws_optarg || *p != '\0') {
                 fprintf(stderr, "Bad dest port for '-T'\n");
                 print_usage(stderr);
                 return EXIT_FAILURE;
@@ -1667,7 +1656,7 @@ parse_options (int argc, char *argv[])
 
         case '4':
         case '6':
-            p = strchr(optarg, ',');
+            p = strchr(ws_optarg, ',');
 
             if (!p) {
                 fprintf(stderr, "Bad source param addr for '-%c'\n", c);
@@ -1689,13 +1678,13 @@ parse_options (int argc, char *argv[])
             hdr_ethernet = TRUE;
 
             if (hdr_ipv6 == TRUE) {
-                if (!ws_inet_pton6(optarg, &hdr_ipv6_src_addr)) {
+                if (!ws_inet_pton6(ws_optarg, &hdr_ipv6_src_addr)) {
                         fprintf(stderr, "Bad src addr -%c '%s'\n", c, p);
                         print_usage(stderr);
                         return EXIT_FAILURE;
                 }
             } else {
-                if (!ws_inet_pton4(optarg, &hdr_ip_src_addr)) {
+                if (!ws_inet_pton4(ws_optarg, &hdr_ip_src_addr)) {
                         fprintf(stderr, "Bad src addr -%c '%s'\n", c, p);
                         print_usage(stderr);
                         return EXIT_FAILURE;
@@ -1732,7 +1721,7 @@ parse_options (int argc, char *argv[])
         }
     }
 
-    if (optind >= argc || argc-optind < 2) {
+    if (ws_optind >= argc || argc-ws_optind < 2) {
         fprintf(stderr, "Must specify input and output filename\n");
         print_usage(stderr);
         return EXIT_FAILURE;
@@ -1744,8 +1733,8 @@ parse_options (int argc, char *argv[])
         return EXIT_FAILURE;
     }
 
-    if (strcmp(argv[optind], "-") != 0) {
-        input_filename = argv[optind];
+    if (strcmp(argv[ws_optind], "-") != 0) {
+        input_filename = argv[ws_optind];
         input_file = ws_fopen(input_filename, "rb");
         if (!input_file) {
             fprintf(stderr, "Cannot open file [%s] for reading: %s\n",
@@ -1757,9 +1746,9 @@ parse_options (int argc, char *argv[])
         input_file = stdin;
     }
 
-    if (strcmp(argv[optind+1], "-") != 0) {
+    if (strcmp(argv[ws_optind+1], "-") != 0) {
         /* Write to a file.  Open the file, in binary mode. */
-        output_filename = argv[optind+1];
+        output_filename = argv[ws_optind+1];
         output_file = ws_fopen(output_filename, "wb");
         if (!output_file) {
             fprintf(stderr, "Cannot open file [%s] for writing: %s\n",

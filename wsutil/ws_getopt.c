@@ -1,71 +1,93 @@
-#define _BSD_SOURCE
-#include <unistd.h>
+/*
+ * musl as a whole is licensed under the following standard MIT license:
+ *
+ * ----------------------------------------------------------------------
+ * Copyright © 2005-2020 Rich Felker, et al.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining
+ * a copy of this software and associated documentation files (the
+ * "Software"), to deal in the Software without restriction, including
+ * without limitation the rights to use, copy, modify, merge, publish,
+ * distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to
+ * the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+ * CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+ * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * ----------------------------------------------------------------------
+ */
+
+//#define _BSD_SOURCE
+//#include <unistd.h>
 #include <wchar.h>
 #include <string.h>
 #include <limits.h>
 #include <stdlib.h>
-#include "locale_impl.h"
-#include "stdio_impl.h"
+#include <stdio.h>
 
-char *optarg;
-int optind=1, opterr=1, optopt, __optpos, __optreset=0;
+#include <wsutil/ws_getopt.h>
 
-#define optpos __optpos
-weak_alias(__optreset, optreset);
+char *ws_optarg;
+int ws_optind=1, ws_opterr=1, ws_optopt, ws_optpos, ws_optreset=0;
 
 void __getopt_msg(const char *a, const char *b, const char *c, size_t l)
 {
 	FILE *f = stderr;
-	b = __lctrans_cur(b);
-	FLOCK(f);
-	fputs(a, f)>=0
-	&& fwrite(b, strlen(b), 1, f)
-	&& fwrite(c, 1, l, f)==l
-	&& putc('\n', f);
-	FUNLOCK(f);
+	fputs(a, f);
+	fwrite(b, strlen(b), 1, f);
+	fwrite(c, 1, l, f);
+	putc('\n', f);
 }
 
-int getopt(int argc, char * const argv[], const char *optstring)
+int ws_getopt(int argc, char * const argv[], const char *optstring)
 {
 	int i;
 	wchar_t c, d;
 	int k, l;
 	char *optchar;
 
-	if (!optind || __optreset) {
-		__optreset = 0;
-		__optpos = 0;
-		optind = 1;
+	if (!ws_optind || ws_optreset) {
+		ws_optreset = 0;
+		ws_optpos = 0;
+		ws_optind = 1;
 	}
 
-	if (optind >= argc || !argv[optind])
+	if (ws_optind >= argc || !argv[ws_optind])
 		return -1;
 
-	if (argv[optind][0] != '-') {
+	if (argv[ws_optind][0] != '-') {
 		if (optstring[0] == '-') {
-			optarg = argv[optind++];
+			ws_optarg = argv[ws_optind++];
 			return 1;
 		}
 		return -1;
 	}
 
-	if (!argv[optind][1])
+	if (!argv[ws_optind][1])
 		return -1;
 
-	if (argv[optind][1] == '-' && !argv[optind][2])
-		return optind++, -1;
+	if (argv[ws_optind][1] == '-' && !argv[ws_optind][2])
+		return ws_optind++, -1;
 
-	if (!optpos) optpos++;
-	if ((k = mbtowc(&c, argv[optind]+optpos, MB_LEN_MAX)) < 0) {
+	if (!ws_optpos) ws_optpos++;
+	if ((k = mbtowc(&c, argv[ws_optind]+ws_optpos, MB_LEN_MAX)) < 0) {
 		k = 1;
 		c = 0xfffd; /* replacement char */
 	}
-	optchar = argv[optind]+optpos;
-	optpos += k;
+	optchar = argv[ws_optind]+ws_optpos;
+	ws_optpos += k;
 
-	if (!argv[optind][optpos]) {
-		optind++;
-		optpos = 0;
+	if (!argv[ws_optind][ws_optpos]) {
+		ws_optind++;
+		ws_optpos = 0;
 	}
 
 	if (optstring[0] == '-' || optstring[0] == '+')
@@ -79,21 +101,21 @@ int getopt(int argc, char * const argv[], const char *optstring)
 	} while (l && d != c);
 
 	if (d != c || c == ':') {
-		optopt = c;
-		if (optstring[0] != ':' && opterr)
+		ws_optopt = c;
+		if (optstring[0] != ':' && ws_opterr)
 			__getopt_msg(argv[0], ": unrecognized option: ", optchar, k);
 		return '?';
 	}
 	if (optstring[i] == ':') {
-		optarg = 0;
-		if (optstring[i+1] != ':' || optpos) {
-			optarg = argv[optind++] + optpos;
-			optpos = 0;
+		ws_optarg = 0;
+		if (optstring[i+1] != ':' || ws_optpos) {
+			ws_optarg = argv[ws_optind++] + ws_optpos;
+			ws_optpos = 0;
 		}
-		if (optind > argc) {
-			optopt = c;
+		if (ws_optind > argc) {
+			ws_optopt = c;
 			if (optstring[0] == ':') return ':';
-			if (opterr) __getopt_msg(argv[0],
+			if (ws_opterr) __getopt_msg(argv[0],
 				": option requires an argument: ",
 				optchar, k);
 			return '?';
@@ -101,5 +123,3 @@ int getopt(int argc, char * const argv[], const char *optstring)
 	}
 	return c;
 }
-
-weak_alias(getopt, __posix_getopt);

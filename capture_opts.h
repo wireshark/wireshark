@@ -332,7 +332,7 @@ capture_opts_cleanup(capture_options *capture_opts);
 
 /* set a command line option value */
 extern int
-capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg);
+capture_opts_add_opt(capture_options *capture_opts, int opt, const char *ws_optarg);
 
 /* log content of capture_opts */
 extern void

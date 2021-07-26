@@ -19,13 +19,13 @@
 
 static GHashTable* ex_opts = NULL;
 
-gboolean ex_opt_add(const gchar* optarg) {
+gboolean ex_opt_add(const gchar* ws_optarg) {
     gchar** splitted;
 
     if (!ex_opts)
         ex_opts = g_hash_table_new(g_str_hash,g_str_equal);
 
-    splitted = g_strsplit(optarg,":",2);
+    splitted = g_strsplit(ws_optarg,":",2);
 
     if (splitted[0] && splitted[1]) {
         GPtrArray* this_opts = (GPtrArray *)g_hash_table_lookup(ex_opts,splitted[0]);

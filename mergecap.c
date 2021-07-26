@@ -18,18 +18,7 @@
 #include <errno.h>
 #include <glib.h>
 
-/*
- * If we have getopt_long() in the system library, include <getopt.h>.
- * Otherwise, we're using our own getopt_long() (either because the
- * system has getopt() but not getopt_long(), as with some UN*Xes,
- * or because it doesn't even have getopt(), as with Windows), so
- * include our getopt_long()'s header.
- */
-#ifdef HAVE_GETOPT_LONG
-#include <getopt.h>
-#else
-#include <wsutil/wsgetopt.h>
-#endif
+#include <wsutil/ws_getopt.h>
 
 #include <string.h>
 
@@ -265,7 +254,7 @@ main(int argc, char *argv[])
   wtap_init(TRUE);
 
   /* Process the options first */
-  while ((opt = getopt_long(argc, argv, "aF:hI:s:vVw:", long_options, NULL)) != -1) {
+  while ((opt = ws_getopt_long(argc, argv, "aF:hI:s:vVw:", long_options, NULL)) != -1) {
 
     switch (opt) {
     case 'a':
@@ -273,10 +262,10 @@ main(int argc, char *argv[])
       break;
 
     case 'F':
-      file_type = wtap_name_to_file_type_subtype(optarg);
+      file_type = wtap_name_to_file_type_subtype(ws_optarg);
       if (file_type < 0) {
         fprintf(stderr, "mergecap: \"%s\" isn't a valid capture file type\n",
-                optarg);
+                ws_optarg);
         list_capture_types();
         status = MERGE_ERR_INVALID_OPTION;
         goto clean_exit;
@@ -290,10 +279,10 @@ main(int argc, char *argv[])
       break;
 
     case 'I':
-      mode = merge_string_to_idb_merge_mode(optarg);
+      mode = merge_string_to_idb_merge_mode(ws_optarg);
       if (mode == IDB_MERGE_MODE_MAX) {
         fprintf(stderr, "mergecap: \"%s\" isn't a valid IDB merge mode\n",
-                optarg);
+                ws_optarg);
         list_idb_merge_modes();
         status = MERGE_ERR_INVALID_OPTION;
         goto clean_exit;
@@ -301,7 +290,7 @@ main(int argc, char *argv[])
       break;
 
     case 's':
-      snaplen = get_nonzero_guint32(optarg, "snapshot length");
+      snaplen = get_nonzero_guint32(ws_optarg, "snapshot length");
       break;
 
     case 'v':
@@ -314,11 +303,11 @@ main(int argc, char *argv[])
       break;
 
     case 'w':
-      out_filename = optarg;
+      out_filename = ws_optarg;
       break;
 
     case '?':              /* Bad options if GNU getopt */
-      switch(optopt) {
+      switch(ws_optopt) {
       case'F':
         list_capture_types();
         break;
@@ -344,7 +333,7 @@ main(int argc, char *argv[])
   /* check for proper args; at a minimum, must have an output
    * filename and one input file
    */
-  in_file_count = argc - optind;
+  in_file_count = argc - ws_optind;
   if (!out_filename) {
     fprintf(stderr, "mergecap: an output filename must be set with -w\n");
     fprintf(stderr, "          run with -h for help\n");
@@ -376,7 +365,7 @@ main(int argc, char *argv[])
   if (strcmp(out_filename, "-") == 0) {
     /* merge the files to the standard output */
     status = merge_files_to_stdout(file_type,
-                                   (const char *const *) &argv[optind],
+                                   (const char *const *) &argv[ws_optind],
                                    in_file_count, do_append, mode, snaplen,
                                    get_appname_and_version(),
                                    verbose ? &cb : NULL,
@@ -384,7 +373,7 @@ main(int argc, char *argv[])
   } else {
     /* merge the files to the outfile */
     status = merge_files(out_filename, file_type,
-                         (const char *const *) &argv[optind], in_file_count,
+                         (const char *const *) &argv[ws_optind], in_file_count,
                          do_append, mode, snaplen, get_appname_and_version(),
                          verbose ? &cb : NULL,
                          &err, &err_info, &err_fileno, &err_framenum);
@@ -400,7 +389,7 @@ main(int argc, char *argv[])
       break;
 
     case MERGE_ERR_CANT_OPEN_INFILE:
-      cfile_open_failure_message(argv[optind + err_fileno], err, err_info);
+      cfile_open_failure_message(argv[ws_optind + err_fileno], err, err_info);
       break;
 
     case MERGE_ERR_CANT_OPEN_OUTFILE:
@@ -408,16 +397,16 @@ main(int argc, char *argv[])
       break;
 
     case MERGE_ERR_CANT_READ_INFILE:
-      cfile_read_failure_message(argv[optind + err_fileno], err, err_info);
+      cfile_read_failure_message(argv[ws_optind + err_fileno], err, err_info);
       break;
 
     case MERGE_ERR_BAD_PHDR_INTERFACE_ID:
       cmdarg_err("Record %u of \"%s\" has an interface ID that does not match any IDB in its file.",
-                 err_framenum, argv[optind + err_fileno]);
+                 err_framenum, argv[ws_optind + err_fileno]);
       break;
 
     case MERGE_ERR_CANT_WRITE_OUTFILE:
-       cfile_write_failure_message(argv[optind + err_fileno], out_filename,
+       cfile_write_failure_message(argv[ws_optind + err_fileno], out_filename,
                                    err, err_info, err_framenum, file_type);
        break;
 

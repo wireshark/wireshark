@@ -530,15 +530,15 @@ int main(int argc, char *argv[])
 	extcap_help_add_option(extcap_conf, "--version", "print the version");
 	extcap_help_add_option(extcap_conf, "--port <port> ", "the dpauxmon interface index");
 
-	opterr = 0;
-	optind = 0;
+	ws_opterr = 0;
+	ws_optind = 0;
 
 	if (argc == 1) {
 		extcap_help_print(extcap_conf);
 		goto end;
 	}
 
-	while ((result = getopt_long(argc, argv, ":", longopts, &option_idx)) != -1) {
+	while ((result = ws_getopt_long(argc, argv, ":", longopts, &option_idx)) != -1) {
 		switch (result) {
 
 		case OPT_HELP:
@@ -551,20 +551,20 @@ int main(int argc, char *argv[])
 			goto end;
 
 		case OPT_INTERFACE_ID:
-			if (!ws_strtou32(optarg, NULL, &interface_id)) {
-				ws_warning("Invalid interface id: %s", optarg);
+			if (!ws_strtou32(ws_optarg, NULL, &interface_id)) {
+				ws_warning("Invalid interface id: %s", ws_optarg);
 				goto end;
 			}
 			break;
 
 		case ':':
 			/* missing option argument */
-			ws_warning("Option '%s' requires an argument", argv[optind - 1]);
+			ws_warning("Option '%s' requires an argument", argv[ws_optind - 1]);
 			break;
 
 		default:
-			if (!extcap_base_parse_options(extcap_conf, result - EXTCAP_OPT_LIST_INTERFACES, optarg)) {
-				ws_warning("Invalid option: %s", argv[optind - 1]);
+			if (!extcap_base_parse_options(extcap_conf, result - EXTCAP_OPT_LIST_INTERFACES, ws_optarg)) {
+				ws_warning("Invalid option: %s", argv[ws_optind - 1]);
 				goto end;
 			}
 		}
@@ -572,8 +572,8 @@ int main(int argc, char *argv[])
 
 	extcap_cmdline_debug(argv, argc);
 
-	if (optind != argc) {
-		ws_warning("Unexpected extra option: %s", argv[optind]);
+	if (ws_optind != argc) {
+		ws_warning("Unexpected extra option: %s", argv[ws_optind]);
 		goto end;
 	}
 

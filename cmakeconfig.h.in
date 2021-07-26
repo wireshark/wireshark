@@ -67,9 +67,6 @@
 /* Define if you have the 'getexecname' function. */
 #cmakedefine HAVE_GETEXECNAME 1
 
-/* Define to 1 if you have the getopt_long function. */
-#cmakedefine HAVE_GETOPT_LONG 1
-
 /* Define to 1 if you have the <grp.h> header file. */
 #cmakedefine HAVE_GRP_H 1
 
@@ -216,9 +213,6 @@
 
 /* Define to 1 if you have the <pwd.h> header file. */
 #cmakedefine HAVE_PWD_H 1
-
-/* Define to 1 if you have the optreset variable */
-#cmakedefine HAVE_OPTRESET 1
 
 /* Define to 1 if you want to playing SBC by standalone BlueZ SBC library */
 #cmakedefine HAVE_SBC 1

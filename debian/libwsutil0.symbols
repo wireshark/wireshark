@@ -351,6 +351,9 @@ libwsutil.so.0 libwsutil0 #MINVER#
  ws_buffer_remove_start@Base 1.99.0
  ws_cleanup_sockets@Base 3.1.0
  ws_cmac_buffer@Base 3.1.0
+ ws_getopt@Base 3.5.1
+ ws_getopt_long@Base 3.5.1
+ ws_getopt_long_only@Base 3.5.1
  ws_buffer_cleanup@Base 2.3.0
  ws_hexstrtou16@Base 2.3.0
  ws_hexstrtou32@Base 2.3.0
@@ -387,6 +390,12 @@ libwsutil.so.0 libwsutil0 #MINVER#
  ws_logv_full@Base 3.5.0
  ws_mempbrk_compile@Base 1.99.4
  ws_mempbrk_exec@Base 1.99.4
+ ws_optarg@Base 3.5.1
+ ws_opterr@Base 3.5.1
+ ws_optind@Base 3.5.1
+ ws_optopt@Base 3.5.1
+ ws_optpos@Base 3.5.1
+ ws_optreset@Base 3.5.1
  ws_pipe_close@Base 2.6.5
  ws_pipe_data_available@Base 2.5.0
  ws_pipe_init@Base 2.5.1

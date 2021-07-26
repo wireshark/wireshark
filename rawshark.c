@@ -35,18 +35,7 @@
 
 #include <errno.h>
 
-/*
- * If we have getopt_long() in the system library, include <getopt.h>.
- * Otherwise, we're using our own getopt_long() (either because the
- * system has getopt() but not getopt_long(), as with some UN*Xes,
- * or because it doesn't even have getopt(), as with Windows), so
- * include our getopt_long()'s header.
- */
-#ifdef HAVE_GETOPT_LONG
-#include <getopt.h>
-#else
-#include <wsutil/wsgetopt.h>
-#endif
+#include <wsutil/ws_getopt.h>
 
 #include <glib.h>
 #include <epan/epan.h>
@@ -540,17 +529,17 @@ main(int argc, char *argv[])
 
     /* Now get our args */
     /* XXX - We should probably have an option to dump libpcap link types */
-    while ((opt = getopt_long(argc, argv, optstring, long_options, NULL)) != -1) {
+    while ((opt = ws_getopt_long(argc, argv, optstring, long_options, NULL)) != -1) {
         switch (opt) {
             case 'd':        /* Payload type */
-                if (!set_link_type(optarg)) {
-                    cmdarg_err("Invalid link type or protocol \"%s\"", optarg);
+                if (!set_link_type(ws_optarg)) {
+                    cmdarg_err("Invalid link type or protocol \"%s\"", ws_optarg);
                     ret = INVALID_OPTION;
                     goto clean_exit;
                 }
                 break;
             case 'F':        /* Read field to display */
-                g_ptr_array_add(disp_fields, g_strdup(optarg));
+                g_ptr_array_add(disp_fields, g_strdup(ws_optarg));
                 break;
             case 'h':        /* Print help and exit */
                 show_help_header("Dump and analyze network traffic.");
@@ -574,8 +563,8 @@ main(int argc, char *argv[])
                 break;
 #ifndef _WIN32
             case 'm':
-                limit.rlim_cur = get_positive_int(optarg, "memory limit");
-                limit.rlim_max = get_positive_int(optarg, "memory limit");
+                limit.rlim_cur = get_positive_int(ws_optarg, "memory limit");
+                limit.rlim_max = get_positive_int(ws_optarg, "memory limit");
 
                 if(setrlimit(RLIMIT_AS, &limit) != 0) {
                     cmdarg_err("setrlimit() returned error");
@@ -588,7 +577,7 @@ main(int argc, char *argv[])
                 disable_name_resolution();
                 break;
             case 'N':        /* Select what types of addresses/port #s to resolve */
-                badopt = string_to_name_resolve(optarg, &gbl_resolv_flags);
+                badopt = string_to_name_resolve(ws_optarg, &gbl_resolv_flags);
                 if (badopt != '\0') {
                     cmdarg_err("-N specifies unknown resolving option '%c'; valid options are 'd', m', 'n', 'N', and 't'",
                                badopt);
@@ -600,13 +589,13 @@ main(int argc, char *argv[])
             {
                 char *errmsg = NULL;
 
-                switch (prefs_set_pref(optarg, &errmsg)) {
+                switch (prefs_set_pref(ws_optarg, &errmsg)) {
 
                     case PREFS_SET_OK:
                         break;
 
                     case PREFS_SET_SYNTAX_ERR:
-                        cmdarg_err("Invalid -o flag \"%s\"%s%s", optarg,
+                        cmdarg_err("Invalid -o flag \"%s\"%s%s", ws_optarg,
                                 errmsg ? ": " : "", errmsg ? errmsg : "");
                         g_free(errmsg);
                         ret = INVALID_OPTION;
@@ -615,7 +604,7 @@ main(int argc, char *argv[])
 
                     case PREFS_SET_NO_SUCH_PREF:
                     case PREFS_SET_OBSOLETE:
-                        cmdarg_err("-o flag \"%s\" specifies unknown preference", optarg);
+                        cmdarg_err("-o flag \"%s\" specifies unknown preference", ws_optarg);
                         ret = INVALID_OPTION;
                         goto clean_exit;
                         break;
@@ -626,11 +615,11 @@ main(int argc, char *argv[])
                 want_pcap_pkthdr = TRUE;
                 break;
             case 'r':        /* Read capture file xxx */
-                pipe_name = g_strdup(optarg);
+                pipe_name = g_strdup(ws_optarg);
                 break;
             case 'R':        /* Read file filter */
                 if(n_rfilters < (int) sizeof(rfilters) / (int) sizeof(rfilters[0])) {
-                    rfilters[n_rfilters++] = optarg;
+                    rfilters[n_rfilters++] = ws_optarg;
                 }
                 else {
                     cmdarg_err("Too many display filters");
@@ -642,36 +631,36 @@ main(int argc, char *argv[])
                 skip_pcap_header = TRUE;
                 break;
             case 'S':        /* Print string representations */
-                if (!parse_field_string_format(optarg)) {
+                if (!parse_field_string_format(ws_optarg)) {
                     cmdarg_err("Invalid field string format");
                     ret = INVALID_OPTION;
                     goto clean_exit;
                 }
                 break;
             case 't':        /* Time stamp type */
-                if (strcmp(optarg, "r") == 0)
+                if (strcmp(ws_optarg, "r") == 0)
                     timestamp_set_type(TS_RELATIVE);
-                else if (strcmp(optarg, "a") == 0)
+                else if (strcmp(ws_optarg, "a") == 0)
                     timestamp_set_type(TS_ABSOLUTE);
-                else if (strcmp(optarg, "ad") == 0)
+                else if (strcmp(ws_optarg, "ad") == 0)
                     timestamp_set_type(TS_ABSOLUTE_WITH_YMD);
-                else if (strcmp(optarg, "adoy") == 0)
+                else if (strcmp(ws_optarg, "adoy") == 0)
                     timestamp_set_type(TS_ABSOLUTE_WITH_YDOY);
-                else if (strcmp(optarg, "d") == 0)
+                else if (strcmp(ws_optarg, "d") == 0)
                     timestamp_set_type(TS_DELTA);
-                else if (strcmp(optarg, "dd") == 0)
+                else if (strcmp(ws_optarg, "dd") == 0)
                     timestamp_set_type(TS_DELTA_DIS);
-                else if (strcmp(optarg, "e") == 0)
+                else if (strcmp(ws_optarg, "e") == 0)
                     timestamp_set_type(TS_EPOCH);
-                else if (strcmp(optarg, "u") == 0)
+                else if (strcmp(ws_optarg, "u") == 0)
                     timestamp_set_type(TS_UTC);
-                else if (strcmp(optarg, "ud") == 0)
+                else if (strcmp(ws_optarg, "ud") == 0)
                     timestamp_set_type(TS_UTC_WITH_YMD);
-                else if (strcmp(optarg, "udoy") == 0)
+                else if (strcmp(ws_optarg, "udoy") == 0)
                     timestamp_set_type(TS_UTC_WITH_YDOY);
                 else {
                     cmdarg_err("Invalid time stamp type \"%s\"",
-                               optarg);
+                               ws_optarg);
                     cmdarg_err_cont(
 "It must be \"a\" for absolute, \"ad\" for absolute with YYYY-MM-DD date,");
                     cmdarg_err_cont(
@@ -718,7 +707,7 @@ main(int argc, char *argv[])
        still command-line arguments, treat them as the tokens of a capture
        filter (if no "-r" flag was specified) or a read filter (if a "-r"
        flag was specified. */
-    if (optind < argc) {
+    if (ws_optind < argc) {
         if (pipe_name != NULL) {
             if (n_rfilters != 0) {
                 cmdarg_err("Read filters were specified both with \"-R\" "
@@ -726,7 +715,7 @@ main(int argc, char *argv[])
                 ret = INVALID_OPTION;
                 goto clean_exit;
             }
-            rfilters[n_rfilters] = get_args_as_string(argc, argv, optind);
+            rfilters[n_rfilters] = get_args_as_string(argc, argv, ws_optind);
         }
     }
 

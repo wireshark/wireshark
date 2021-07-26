@@ -31,18 +31,7 @@
 #include <wsutil/report_message.h>
 #include <wsutil/wslog.h>
 
-/*
- * If we have getopt_long() in the system library, include <getopt.h>.
- * Otherwise, we're using our own getopt_long() (either because the
- * system has getopt() but not getopt_long(), as with some UN*Xes,
- * or because it doesn't even have getopt(), as with Windows), so
- * include our getopt_long()'s header.
- */
-#ifdef HAVE_GETOPT_LONG
-#include <getopt.h>
-#else
-#include <wsutil/wsgetopt.h>
-#endif
+#include <wsutil/ws_getopt.h>
 
 #include "randpkt_core/randpkt_core.h"
 
@@ -171,10 +160,10 @@ main(int argc, char *argv[])
 	create_app_running_mutex();
 #endif /* _WIN32 */
 
-	while ((opt = getopt_long(argc, argv, "b:c:ht:r", long_options, NULL)) != -1) {
+	while ((opt = ws_getopt_long(argc, argv, "b:c:ht:r", long_options, NULL)) != -1) {
 		switch (opt) {
 			case 'b':	/* max bytes */
-				produce_max_bytes = get_positive_int(optarg, "max bytes");
+				produce_max_bytes = get_positive_int(ws_optarg, "max bytes");
 				if (produce_max_bytes > 65536) {
 					cmdarg_err("max bytes is > 65536");
 					ret = INVALID_OPTION;
@@ -183,11 +172,11 @@ main(int argc, char *argv[])
 				break;
 
 			case 'c':	/* count */
-				produce_count = get_positive_int(optarg, "count");
+				produce_count = get_positive_int(ws_optarg, "count");
 				break;
 
 			case 't':	/* type of packet to produce */
-				type = g_strdup(optarg);
+				type = g_strdup(ws_optarg);
 				break;
 
 			case 'h':
@@ -208,8 +197,8 @@ main(int argc, char *argv[])
 	}
 
 	/* any more command line parameters? */
-	if (argc > optind) {
-		produce_filename = argv[optind];
+	if (argc > ws_optind) {
+		produce_filename = argv[ws_optind];
 	} else {
 		usage(TRUE);
 		ret = INVALID_OPTION;

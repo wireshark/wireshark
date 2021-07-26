@@ -426,15 +426,15 @@ int main(int argc, char *argv[])
 		"listen on local interfaces IPs)");
 	extcap_help_add_option(extcap_conf, "--remote-count <count>", "the number of packets to capture");
 
-	opterr = 0;
-	optind = 0;
+	ws_opterr = 0;
+	ws_optind = 0;
 
 	if (argc == 1) {
 		extcap_help_print(extcap_conf);
 		goto end;
 	}
 
-	while ((result = getopt_long(argc, argv, ":", longopts, &option_idx)) != -1) {
+	while ((result = ws_getopt_long(argc, argv, ":", longopts, &option_idx)) != -1) {
 
 		switch (result) {
 
@@ -450,51 +450,51 @@ int main(int argc, char *argv[])
 
 		case OPT_REMOTE_HOST:
 			g_free(ssh_params->host);
-			ssh_params->host = g_strdup(optarg);
+			ssh_params->host = g_strdup(ws_optarg);
 			break;
 
 		case OPT_REMOTE_PORT:
-			if (!ws_strtou16(optarg, NULL, &ssh_params->port) || ssh_params->port == 0) {
-				ws_warning("Invalid port: %s", optarg);
+			if (!ws_strtou16(ws_optarg, NULL, &ssh_params->port) || ssh_params->port == 0) {
+				ws_warning("Invalid port: %s", ws_optarg);
 				goto end;
 			}
 			break;
 
 		case OPT_REMOTE_USERNAME:
 			g_free(ssh_params->username);
-			ssh_params->username = g_strdup(optarg);
+			ssh_params->username = g_strdup(ws_optarg);
 			break;
 
 		case OPT_REMOTE_PASSWORD:
 			g_free(ssh_params->password);
-			ssh_params->password = g_strdup(optarg);
-			memset(optarg, 'X', strlen(optarg));
+			ssh_params->password = g_strdup(ws_optarg);
+			memset(ws_optarg, 'X', strlen(ws_optarg));
 			break;
 
 		case OPT_SSHKEY:
 			g_free(ssh_params->sshkey_path);
-			ssh_params->sshkey_path = g_strdup(optarg);
+			ssh_params->sshkey_path = g_strdup(ws_optarg);
 			break;
 
 		case OPT_SSHKEY_PASSPHRASE:
 			g_free(ssh_params->sshkey_passphrase);
-			ssh_params->sshkey_passphrase = g_strdup(optarg);
-			memset(optarg, 'X', strlen(optarg));
+			ssh_params->sshkey_passphrase = g_strdup(ws_optarg);
+			memset(ws_optarg, 'X', strlen(ws_optarg));
 			break;
 
 		case OPT_PROXYCOMMAND:
 			g_free(ssh_params->proxycommand);
-			ssh_params->proxycommand = g_strdup(optarg);
+			ssh_params->proxycommand = g_strdup(ws_optarg);
 			break;
 
 		case OPT_REMOTE_INTERFACE:
 			g_free(remote_interface);
-			remote_interface = g_strdup(optarg);
+			remote_interface = g_strdup(ws_optarg);
 			break;
 
 		case OPT_REMOTE_CAPTURE_COMMAND:
 			g_free(remote_capture_command);
-			remote_capture_command = g_strdup(optarg);
+			remote_capture_command = g_strdup(ws_optarg);
 			break;
 
 		case OPT_REMOTE_SUDO:
@@ -503,12 +503,12 @@ int main(int argc, char *argv[])
 
 		case OPT_REMOTE_FILTER:
 			g_free(remote_filter);
-			remote_filter = g_strdup(optarg);
+			remote_filter = g_strdup(ws_optarg);
 			break;
 
 		case OPT_REMOTE_COUNT:
-			if (!ws_strtou32(optarg, NULL, &count)) {
-				ws_warning("Invalid value for count: %s", optarg);
+			if (!ws_strtou32(ws_optarg, NULL, &count)) {
+				ws_warning("Invalid value for count: %s", ws_optarg);
 				goto end;
 			}
 			break;
@@ -519,12 +519,12 @@ int main(int argc, char *argv[])
 
 		case ':':
 			/* missing option argument */
-			ws_warning("Option '%s' requires an argument", argv[optind - 1]);
+			ws_warning("Option '%s' requires an argument", argv[ws_optind - 1]);
 			break;
 
 		default:
-			if (!extcap_base_parse_options(extcap_conf, result - EXTCAP_OPT_LIST_INTERFACES, optarg)) {
-				ws_warning("Invalid option: %s", argv[optind - 1]);
+			if (!extcap_base_parse_options(extcap_conf, result - EXTCAP_OPT_LIST_INTERFACES, ws_optarg)) {
+				ws_warning("Invalid option: %s", argv[ws_optind - 1]);
 				goto end;
 			}
 		}

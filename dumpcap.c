@@ -22,18 +22,7 @@
 #include <netinet/in.h>
 #endif
 
-/*
- * If we have getopt_long() in the system library, include <getopt.h>.
- * Otherwise, we're using our own getopt_long() (either because the
- * system has getopt() but not getopt_long(), as with some UN*Xes,
- * or because it doesn't even have getopt(), as with Windows), so
- * include our getopt_long()'s header.
- */
-#ifdef HAVE_GETOPT_LONG
-#include <getopt.h>
-#else
-#include <wsutil/wsgetopt.h>
-#endif
+#include <wsutil/ws_getopt.h>
 
 #if defined(__APPLE__) && defined(__LP64__)
 #include <sys/utsname.h>
@@ -5126,7 +5115,7 @@ main(int argc, char *argv[])
     global_capture_opts.capture_child = capture_child;
 
     /* Now get our args */
-    while ((opt = getopt_long(argc, argv, OPTSTRING, long_options, NULL)) != -1) {
+    while ((opt = ws_getopt_long(argc, argv, OPTSTRING, long_options, NULL)) != -1) {
         switch (opt) {
         case 'h':        /* Print help and exit */
             show_help_header("Capture network packets and dump them into a pcapng or pcap file.");
@@ -5166,7 +5155,7 @@ main(int argc, char *argv[])
         case 'I':        /* Monitor mode */
 #endif
         case LONGOPT_COMPRESS_TYPE:        /* compress type */
-            status = capture_opts_add_opt(&global_capture_opts, opt, optarg);
+            status = capture_opts_add_opt(&global_capture_opts, opt, ws_optarg);
             if (status != 0) {
                 exit_main(status);
             }
@@ -5177,7 +5166,7 @@ main(int argc, char *argv[])
                 interface_options *interface_opts;
 
                 interface_opts = &g_array_index(global_capture_opts.ifaces, interface_options, global_capture_opts.ifaces->len - 1);
-                interface_opts->ifname = g_strdup(optarg);
+                interface_opts->ifname = g_strdup(ws_optarg);
             } else {
                 cmdarg_err("--ifname must be specified after a -i option");
                 exit_main(1);
@@ -5188,7 +5177,7 @@ main(int argc, char *argv[])
                 interface_options *interface_opts;
 
                 interface_opts = &g_array_index(global_capture_opts.ifaces, interface_options, global_capture_opts.ifaces->len - 1);
-                interface_opts->descr = g_strdup(optarg);
+                interface_opts->descr = g_strdup(ws_optarg);
             } else {
                 cmdarg_err("--ifdescr must be specified after a -i option");
                 exit_main(1);
@@ -5198,7 +5187,7 @@ main(int argc, char *argv[])
             if (capture_comments == NULL) {
                 capture_comments = g_ptr_array_new_with_free_func(g_free);
             }
-            g_ptr_array_add(capture_comments, g_strdup(optarg));
+            g_ptr_array_add(capture_comments, g_strdup(ws_optarg));
             break;
         case 'Z':
             capture_child = TRUE;
@@ -5206,11 +5195,11 @@ main(int argc, char *argv[])
             /* set output pipe to binary mode, to avoid ugly text conversions */
             _setmode(2, O_BINARY);
             /*
-             * optarg = the control ID, aka the PPID, currently used for the
+             * ws_optarg = the control ID, aka the PPID, currently used for the
              * signal pipe name.
              */
-            if (strcmp(optarg, SIGNAL_PIPE_CTRL_ID_NONE) != 0) {
-                sig_pipe_name = g_strdup_printf(SIGNAL_PIPE_FORMAT, optarg);
+            if (strcmp(ws_optarg, SIGNAL_PIPE_CTRL_ID_NONE) != 0) {
+                sig_pipe_name = g_strdup_printf(SIGNAL_PIPE_FORMAT, ws_optarg);
                 sig_pipe_handle = CreateFile(utf_8to16(sig_pipe_name),
                                              GENERIC_READ, 0, NULL, OPEN_EXISTING, 0, NULL);
 
@@ -5260,7 +5249,7 @@ main(int argc, char *argv[])
         case 'k':        /* Set wireless channel */
             if (!set_chan) {
                 set_chan = TRUE;
-                set_chan_arg = optarg;
+                set_chan_arg = ws_optarg;
                 run_once_args++;
             } else {
                 cmdarg_err("Only one -k flag may be specified");
@@ -5271,13 +5260,13 @@ main(int argc, char *argv[])
             machine_readable = TRUE;
             break;
         case 'C':
-            pcap_queue_byte_limit = get_positive_int(optarg, "byte_limit");
+            pcap_queue_byte_limit = get_positive_int(ws_optarg, "byte_limit");
             break;
         case 'N':
-            pcap_queue_packet_limit = get_positive_int(optarg, "packet_limit");
+            pcap_queue_packet_limit = get_positive_int(ws_optarg, "packet_limit");
             break;
         default:
-            cmdarg_err("Invalid Option: %s", argv[optind-1]);
+            cmdarg_err("Invalid Option: %s", argv[ws_optind-1]);
             /* FALLTHROUGH */
         case '?':        /* Bad flag - print usage message */
             arg_error = TRUE;
@@ -5285,8 +5274,8 @@ main(int argc, char *argv[])
         }
     }
     if (!arg_error) {
-        argc -= optind;
-        argv += optind;
+        argc -= ws_optind;
+        argv += ws_optind;
         if (argc >= 1) {
             /* user specified file name as regular command-line argument */
             /* XXX - use it as the capture file name (or something else)? */

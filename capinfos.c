@@ -51,18 +51,7 @@
 #include <locale.h>
 #include <errno.h>
 
-/*
- * If we have getopt_long() in the system library, include <getopt.h>.
- * Otherwise, we're using our own getopt_long() (either because the
- * system has getopt() but not getopt_long(), as with some UN*Xes,
- * or because it doesn't even have getopt(), as with Windows), so
- * include our getopt_long()'s header.
- */
-#ifdef HAVE_GETOPT_LONG
-#include <getopt.h>
-#else
-#include <wsutil/wsgetopt.h>
-#endif
+#include <wsutil/ws_getopt.h>
 
 #include <glib.h>
 
@@ -1620,7 +1609,7 @@ main(int argc, char *argv[])
   wtap_init(TRUE);
 
   /* Process the options */
-  while ((opt = getopt_long(argc, argv, "abcdehiklmnoqrstuvxyzABCDEFHIKLMNQRST", long_options, NULL)) !=-1) {
+  while ((opt = ws_getopt_long(argc, argv, "abcdehiklmnoqrstuvxyzABCDEFHIKLMNQRST", long_options, NULL)) !=-1) {
 
     switch (opt) {
 
@@ -1803,7 +1792,7 @@ main(int argc, char *argv[])
     }
   }
 
-  if ((argc - optind) < 1) {
+  if ((argc - ws_optind) < 1) {
     print_usage(stderr);
     overall_error_status = INVALID_OPTION;
     goto exit;
@@ -1825,7 +1814,7 @@ main(int argc, char *argv[])
 
   overall_error_status = 0;
 
-  for (opt = optind; opt < argc; opt++) {
+  for (opt = ws_optind; opt < argc; opt++) {
 
     (void) g_strlcpy(file_sha256, "<unknown>", HASH_STR_SIZE);
     (void) g_strlcpy(file_rmd160, "<unknown>", HASH_STR_SIZE);

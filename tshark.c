@@ -20,18 +20,7 @@
 #include <locale.h>
 #include <limits.h>
 
-/*
- * If we have getopt_long() in the system library, include <getopt.h>.
- * Otherwise, we're using our own getopt_long() (either because the
- * system has getopt() but not getopt_long(), as with some UN*Xes,
- * or because it doesn't even have getopt(), as with Windows), so
- * include our getopt_long()'s header.
- */
-#ifdef HAVE_GETOPT_LONG
-#include <getopt.h>
-#else
-#include <wsutil/wsgetopt.h>
-#endif
+#include <wsutil/ws_getopt.h>
 
 #include <errno.h>
 
@@ -852,21 +841,21 @@ main(int argc, char *argv[])
    * arguments we can't handle until after initializing libwireshark,
    * and then process them after initializing libwireshark?
    */
-  opterr = 0;
+  ws_opterr = 0;
 
-  while ((opt = getopt_long(argc, argv, optstring, long_options, NULL)) != -1) {
+  while ((opt = ws_getopt_long(argc, argv, optstring, long_options, NULL)) != -1) {
     switch (opt) {
     case 'C':        /* Configuration Profile */
-      if (profile_exists (optarg, FALSE)) {
-        set_profile_name (optarg);
+      if (profile_exists (ws_optarg, FALSE)) {
+        set_profile_name (ws_optarg);
       } else {
-        cmdarg_err("Configuration Profile \"%s\" does not exist", optarg);
+        cmdarg_err("Configuration Profile \"%s\" does not exist", ws_optarg);
         exit_status = INVALID_OPTION;
         goto clean_exit;
       }
       break;
     case 'G':
-      if (g_str_has_suffix(optarg, "prefs") || strcmp(optarg, "folders") == 0) {
+      if (g_str_has_suffix(ws_optarg, "prefs") || strcmp(ws_optarg, "folders") == 0) {
         has_extcap_options = TRUE;
       }
       break;
@@ -874,7 +863,7 @@ main(int argc, char *argv[])
       has_extcap_options = TRUE;
       break;
     case 'o':
-      if (g_str_has_prefix(optarg, "extcap.")) {
+      if (g_str_has_prefix(ws_optarg, "extcap.")) {
         has_extcap_options = TRUE;
       }
       break;
@@ -883,10 +872,10 @@ main(int argc, char *argv[])
       print_summary = TRUE;
       break;
     case 'r':        /* Read capture file x */
-      cf_name = g_strdup(optarg);
+      cf_name = g_strdup(ws_optarg);
       break;
     case 'O':        /* Only output these protocols */
-      output_only = g_strdup(optarg);
+      output_only = g_strdup(ws_optarg);
       /* FALLTHROUGH */
     case 'V':        /* Verbose */
       print_details = TRUE;
@@ -900,10 +889,10 @@ main(int argc, char *argv[])
       print_packet_info = TRUE;
       break;
     case 'X':
-      ex_opt_add(optarg);
+      ex_opt_add(ws_optarg);
       break;
     case LONGOPT_ELASTIC_MAPPING_FILTER:
-      elastic_mapping_filter = optarg;
+      elastic_mapping_filter = ws_optarg;
       break;
     default:
       break;
@@ -1058,29 +1047,17 @@ main(int argc, char *argv[])
   output_fields = output_fields_new();
 
   /*
-   * To reset the options parser, set optreset to 1 on platforms that
-   * have optreset (documented in *BSD and macOS, apparently present but
-   * not documented in Solaris - the Illumos repository seems to
-   * suggest that the first Solaris getopt_long(), at least as of 2004,
-   * was based on the NetBSD one, it had optreset) and set optind to 1,
-   * and set optind to 0 otherwise (documented as working in the GNU
-   * getopt_long().  Setting optind to 0 didn't originally work in the
-   * NetBSD one, but that was added later - we don't want to depend on
-   * it if we have optreset).
+   * To reset the options parser, set ws_optreset to 1 and set ws_optind to 1.
    *
-   * Also reset opterr to 1, so that error messages are printed by
+   * Also reset ws_opterr to 1, so that error messages are printed by
    * getopt_long().
    */
-#ifdef HAVE_OPTRESET
-  optreset = 1;
-  optind = 1;
-#else
-  optind = 0;
-#endif
-  opterr = 1;
+  ws_optreset = 1;
+  ws_optind = 1;
+  ws_opterr = 1;
 
   /* Now get our args */
-  while ((opt = getopt_long(argc, argv, optstring, long_options, NULL)) != -1) {
+  while ((opt = ws_getopt_long(argc, argv, optstring, long_options, NULL)) != -1) {
     switch (opt) {
     case '2':        /* Perform two pass analysis */
       if(epan_auto_reset){
@@ -1094,7 +1071,7 @@ main(int argc, char *argv[])
         cmdarg_err("-M does not support two pass analysis.");
         arg_error=TRUE;
       }
-      epan_auto_reset_count = get_positive_int(optarg, "epan reset count");
+      epan_auto_reset_count = get_positive_int(ws_optarg, "epan reset count");
       epan_auto_reset = TRUE;
       break;
     case 'a':        /* autostop criteria */
@@ -1118,7 +1095,7 @@ main(int argc, char *argv[])
     case LONGOPT_COMPRESS_TYPE:        /* compress type */
       /* These are options only for packet capture. */
 #ifdef HAVE_LIBPCAP
-      exit_status = capture_opts_add_opt(&global_capture_opts, opt, optarg);
+      exit_status = capture_opts_add_opt(&global_capture_opts, opt, ws_optarg);
       if (exit_status != 0) {
         goto clean_exit;
       }
@@ -1129,18 +1106,18 @@ main(int argc, char *argv[])
       break;
     case 'c':        /* Stop after x packets */
 #ifdef HAVE_LIBPCAP
-      exit_status = capture_opts_add_opt(&global_capture_opts, opt, optarg);
+      exit_status = capture_opts_add_opt(&global_capture_opts, opt, ws_optarg);
       if (exit_status != 0) {
         goto clean_exit;
       }
 #else
-      max_packet_count = get_positive_int(optarg, "packet count");
+      max_packet_count = get_positive_int(ws_optarg, "packet count");
 #endif
       break;
     case 'w':        /* Write to file x */
-      output_file_name = g_strdup(optarg);
+      output_file_name = g_strdup(ws_optarg);
 #ifdef HAVE_LIBPCAP
-      exit_status = capture_opts_add_opt(&global_capture_opts, opt, optarg);
+      exit_status = capture_opts_add_opt(&global_capture_opts, opt, ws_optarg);
       if (exit_status != 0) {
         goto clean_exit;
       }
@@ -1173,21 +1150,21 @@ main(int argc, char *argv[])
       break;
     case 'e':
       /* Field entry */
-      output_fields_add(output_fields, optarg);
+      output_fields_add(output_fields, ws_optarg);
       break;
     case 'E':
       /* Field option */
-      if (!output_fields_set_option(output_fields, optarg)) {
-        cmdarg_err("\"%s\" is not a valid field output option=value pair.", optarg);
+      if (!output_fields_set_option(output_fields, ws_optarg)) {
+        cmdarg_err("\"%s\" is not a valid field output option=value pair.", ws_optarg);
         output_fields_list_options(stderr);
         exit_status = INVALID_OPTION;
         goto clean_exit;
       }
       break;
     case 'F':
-      out_file_type = wtap_name_to_file_type_subtype(optarg);
+      out_file_type = wtap_name_to_file_type_subtype(ws_optarg);
       if (out_file_type < 0) {
-        cmdarg_err("\"%s\" isn't a valid capture file type", optarg);
+        cmdarg_err("\"%s\" isn't a valid capture file type", ws_optarg);
         list_capture_types();
         exit_status = INVALID_OPTION;
         goto clean_exit;
@@ -1197,30 +1174,30 @@ main(int argc, char *argv[])
       if (protocolfilter) {
         cmdarg_err("-j or -J was already specified! Overwriting previous protocol filter");
       }
-      protocolfilter = wmem_strsplit(wmem_epan_scope(), optarg, " ", -1);
+      protocolfilter = wmem_strsplit(wmem_epan_scope(), ws_optarg, " ", -1);
       break;
     case 'J':
       if (protocolfilter) {
         cmdarg_err("-j or -J was already specified! Overwriting previous protocol filter");
       }
       protocolfilter_flags = PF_INCLUDE_CHILDREN;
-      protocolfilter = wmem_strsplit(wmem_epan_scope(), optarg, " ", -1);
+      protocolfilter = wmem_strsplit(wmem_epan_scope(), ws_optarg, " ", -1);
       break;
     case 'W':        /* Select extra information to save in our capture file */
       /* This is patterned after the -N flag which may not be the best idea. */
-      if (strchr(optarg, 'n')) {
+      if (strchr(ws_optarg, 'n')) {
         out_file_name_res = TRUE;
       } else {
-        cmdarg_err("Invalid -W argument \"%s\"; it must be one of:", optarg);
+        cmdarg_err("Invalid -W argument \"%s\"; it must be one of:", ws_optarg);
         cmdarg_err_cont("\t'n' write network address resolution information (pcapng only)");
         exit_status = INVALID_OPTION;
         goto clean_exit;
       }
       break;
     case 'H':        /* Read address to name mappings from a hosts file */
-      if (! add_hosts_file(optarg))
+      if (! add_hosts_file(ws_optarg))
       {
-        cmdarg_err("Can't read host entries from \"%s\"", optarg);
+        cmdarg_err("Can't read host entries from \"%s\"", ws_optarg);
         exit_status = INVALID_OPTION;
         goto clean_exit;
       }
@@ -1279,13 +1256,13 @@ main(int argc, char *argv[])
     {
       char *errmsg = NULL;
 
-      switch (prefs_set_pref(optarg, &errmsg)) {
+      switch (prefs_set_pref(ws_optarg, &errmsg)) {
 
       case PREFS_SET_OK:
         break;
 
       case PREFS_SET_SYNTAX_ERR:
-        cmdarg_err("Invalid -o flag \"%s\"%s%s", optarg,
+        cmdarg_err("Invalid -o flag \"%s\"%s%s", ws_optarg,
             errmsg ? ": " : "", errmsg ? errmsg : "");
         g_free(errmsg);
         exit_status = INVALID_OPTION;
@@ -1294,7 +1271,7 @@ main(int argc, char *argv[])
 
       case PREFS_SET_NO_SUCH_PREF:
       case PREFS_SET_OBSOLETE:
-        cmdarg_err("-o flag \"%s\" specifies unknown preference", optarg);
+        cmdarg_err("-o flag \"%s\" specifies unknown preference", ws_optarg);
         exit_status = INVALID_OPTION;
         goto clean_exit;
         break;
@@ -1312,13 +1289,13 @@ main(int argc, char *argv[])
       /* already processed; just ignore it now */
       break;
     case 'R':        /* Read file filter */
-      rfilter = optarg;
+      rfilter = ws_optarg;
       break;
     case 'P':
         /* already processed; just ignore it now */
         break;
     case 'S':        /* Set the line Separator to be printed between packets */
-      separator = optarg;
+      separator = ws_optarg;
       break;
     case 'T':        /* printing Type */
       /* output_action has been already set. It means multiple -T. */
@@ -1328,43 +1305,43 @@ main(int argc, char *argv[])
         goto clean_exit;
       }
       print_packet_info = TRUE;
-      if (strcmp(optarg, "text") == 0) {
+      if (strcmp(ws_optarg, "text") == 0) {
         output_action = WRITE_TEXT;
         print_format = PR_FMT_TEXT;
-      } else if (strcmp(optarg, "tabs") == 0) {
+      } else if (strcmp(ws_optarg, "tabs") == 0) {
         output_action = WRITE_TEXT;
         print_format = PR_FMT_TEXT;
         delimiter_char = "\t";
-      } else if (strcmp(optarg, "ps") == 0) {
+      } else if (strcmp(ws_optarg, "ps") == 0) {
         output_action = WRITE_TEXT;
         print_format = PR_FMT_PS;
-      } else if (strcmp(optarg, "pdml") == 0) {
+      } else if (strcmp(ws_optarg, "pdml") == 0) {
         output_action = WRITE_XML;
         print_details = TRUE;   /* Need details */
         print_summary = FALSE;  /* Don't allow summary */
-      } else if (strcmp(optarg, "psml") == 0) {
+      } else if (strcmp(ws_optarg, "psml") == 0) {
         output_action = WRITE_XML;
         print_details = FALSE;  /* Don't allow details */
         print_summary = TRUE;   /* Need summary */
-      } else if (strcmp(optarg, "fields") == 0) {
+      } else if (strcmp(ws_optarg, "fields") == 0) {
         output_action = WRITE_FIELDS;
         print_details = TRUE;   /* Need full tree info */
         print_summary = FALSE;  /* Don't allow summary */
-      } else if (strcmp(optarg, "json") == 0) {
+      } else if (strcmp(ws_optarg, "json") == 0) {
         output_action = WRITE_JSON;
         print_details = TRUE;   /* Need details */
         print_summary = FALSE;  /* Don't allow summary */
-      } else if (strcmp(optarg, "ek") == 0) {
+      } else if (strcmp(ws_optarg, "ek") == 0) {
         output_action = WRITE_EK;
         if (!print_summary)
           print_details = TRUE;
-      } else if (strcmp(optarg, "jsonraw") == 0) {
+      } else if (strcmp(ws_optarg, "jsonraw") == 0) {
         output_action = WRITE_JSON_RAW;
         print_details = TRUE;   /* Need details */
         print_summary = FALSE;  /* Don't allow summary */
       }
       else {
-        cmdarg_err("Invalid -T parameter \"%s\"; it must be one of:", optarg);                   /* x */
+        cmdarg_err("Invalid -T parameter \"%s\"; it must be one of:", ws_optarg);                   /* x */
         cmdarg_err_cont("\t\"fields\"  The values of fields specified with the -e option, in a form\n"
                         "\t          specified by the -E option.\n"
                         "\t\"pdml\"    Packet Details Markup Language, an XML-based format for the\n"
@@ -1398,12 +1375,12 @@ main(int argc, char *argv[])
       }
       break;
     case 'U':        /* Export PDUs to file */
-        if (strcmp(optarg, "") == 0 || strcmp(optarg, "?") == 0) {
+        if (strcmp(ws_optarg, "") == 0 || strcmp(ws_optarg, "?") == 0) {
             list_export_pdu_taps();
             exit_status = INVALID_OPTION;
             goto clean_exit;
         }
-        pdu_export_arg = g_strdup(optarg);
+        pdu_export_arg = g_strdup(ws_optarg);
         break;
     case 'v':         /* Show version and exit */
       show_version();
@@ -1429,7 +1406,7 @@ main(int argc, char *argv[])
       /* already processed; just ignore it now */
       break;
     case 'Y':
-      dfilter = g_strdup(optarg);
+      dfilter = g_strdup(ws_optarg);
       break;
     case 'z':
       /* We won't call the init function for the stat this soon
@@ -1437,14 +1414,14 @@ main(int argc, char *argv[])
          by the preferences set callback) from being used as
          part of a tap filter.  Instead, we just add the argument
          to a list of stat arguments. */
-      if (strcmp("help", optarg) == 0) {
+      if (strcmp("help", ws_optarg) == 0) {
         fprintf(stderr, "tshark: The available statistics for the \"-z\" option are:\n");
         list_stat_cmd_args();
         exit_status = EXIT_SUCCESS;
         goto clean_exit;
       }
-      if (!process_stat_cmd_arg(optarg)) {
-        cmdarg_err("Invalid -z argument \"%s\"; it must be one of:", optarg);
+      if (!process_stat_cmd_arg(ws_optarg)) {
+        cmdarg_err("Invalid -z argument \"%s\"; it must be one of:", ws_optarg);
         list_stat_cmd_args();
         exit_status = INVALID_OPTION;
         goto clean_exit;
@@ -1460,25 +1437,25 @@ main(int argc, char *argv[])
     case LONGOPT_ENABLE_HEURISTIC: /* enable heuristic dissection of protocol */
     case LONGOPT_DISABLE_HEURISTIC: /* disable heuristic dissection of protocol */
     case LONGOPT_ENABLE_PROTOCOL: /* enable dissection of protocol (that is disabled by default) */
-      if (!dissect_opts_handle_opt(opt, optarg)) {
+      if (!dissect_opts_handle_opt(opt, ws_optarg)) {
         exit_status = INVALID_OPTION;
         goto clean_exit;
       }
       break;
     case LONGOPT_EXPORT_OBJECTS:   /* --export-objects */
-      if (strcmp("help", optarg) == 0) {
+      if (strcmp("help", ws_optarg) == 0) {
         fprintf(stderr, "tshark: The available export object types for the \"--export-objects\" option are:\n");
         eo_list_object_types();
         exit_status = EXIT_SUCCESS;
         goto clean_exit;
       }
-      if (!eo_tap_opt_add(optarg)) {
+      if (!eo_tap_opt_add(ws_optarg)) {
         exit_status = INVALID_OPTION;
         goto clean_exit;
       }
       break;
     case LONGOPT_EXPORT_TLS_SESSION_KEYS:   /* --export-tls-session-keys */
-      tls_session_keys_file = optarg;
+      tls_session_keys_file = ws_optarg;
       break;
     case LONGOPT_COLOR: /* print in color where appropriate */
       dissect_color = TRUE;
@@ -1491,11 +1468,11 @@ main(int argc, char *argv[])
       if (capture_comments == NULL) {
         capture_comments = g_ptr_array_new_with_free_func(g_free);
       }
-      g_ptr_array_add(capture_comments, g_strdup(optarg));
+      g_ptr_array_add(capture_comments, g_strdup(ws_optarg));
       break;
     default:
     case '?':        /* Bad flag - print usage message */
-      switch(optopt) {
+      switch(ws_optopt) {
       case 'F':
         list_capture_types();
         break;
@@ -1556,7 +1533,7 @@ main(int argc, char *argv[])
      still command-line arguments, treat them as the tokens of a capture
      filter (if no "-r" flag was specified) or a display filter (if a "-r"
      flag was specified. */
-  if (optind < argc) {
+  if (ws_optind < argc) {
     if (cf_name != NULL) {
       if (dfilter != NULL) {
         cmdarg_err("Display filters were specified both with \"-Y\" "
@@ -1564,7 +1541,7 @@ main(int argc, char *argv[])
         exit_status = INVALID_OPTION;
         goto clean_exit;
       }
-      dfilter = get_args_as_string(argc, argv, optind);
+      dfilter = get_args_as_string(argc, argv, ws_optind);
     } else {
 #ifdef HAVE_LIBPCAP
       guint i;
@@ -1579,7 +1556,7 @@ main(int argc, char *argv[])
         interface_options *interface_opts;
         interface_opts = &g_array_index(global_capture_opts.ifaces, interface_options, i);
         if (interface_opts->cfilter == NULL) {
-          interface_opts->cfilter = get_args_as_string(argc, argv, optind);
+          interface_opts->cfilter = get_args_as_string(argc, argv, ws_optind);
         } else {
           cmdarg_err("A capture filter was specified both with \"-f\""
               " and with additional command-line arguments.");
@@ -1587,7 +1564,7 @@ main(int argc, char *argv[])
           goto clean_exit;
         }
       }
-      global_capture_opts.default_options.cfilter = get_args_as_string(argc, argv, optind);
+      global_capture_opts.default_options.cfilter = get_args_as_string(argc, argv, ws_optind);
 #else
       capture_option_specified = TRUE;
 #endif

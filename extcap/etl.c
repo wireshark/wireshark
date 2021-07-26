@@ -17,7 +17,7 @@
 
 #include "config.h"
 #include "etl.h"
-#include "wsutil/wsgetopt.h"
+#include "wsutil/ws_getopt.h"
 #include "wsutil/strtoi.h"
 #include "etw_message.h"
 
@@ -179,11 +179,11 @@ wtap_open_return_val etw_dump(const char* etl_filename, const char* pcapng_filen
             params_array_num++;
         }
 
-        optind = 0;
-        while ((opt_result = getopt_long(params_array_num, params_array, ":", longopts, &option_idx)) != -1) {
+        ws_optind = 0;
+        while ((opt_result = ws_getopt_long(params_array_num, params_array, ":", longopts, &option_idx)) != -1) {
             switch (opt_result) {
             case OPT_PROVIDER:
-                mbstowcs(provider_id, optarg, FILENAME_MAX);
+                mbstowcs(provider_id, ws_optarg, FILENAME_MAX);
                 if (UuidFromString(provider_id, &g_provider_filters[provider_idx].ProviderId) == RPC_S_INVALID_STRING_UUID)
                 {
                     PEVT_VARIANT value = NULL;
@@ -209,7 +209,7 @@ wtap_open_return_val etw_dump(const char* etl_filename, const char* pcapng_filen
                     }
                     else
                     {
-                        *err_info = g_strdup_printf("Cannot convert provider %s to a GUID, err is 0x%x", optarg, *err);
+                        *err_info = g_strdup_printf("Cannot convert provider %s to a GUID, err is 0x%x", ws_optarg, *err);
                         return WTAP_OPEN_ERROR;
                     }
 
@@ -219,7 +219,7 @@ wtap_open_return_val etw_dump(const char* etl_filename, const char* pcapng_filen
                 if (IsEqualGUID(&g_provider_filters[0].ProviderId, &ZeroGuid))
                 {
                     *err = ERROR_INVALID_PARAMETER;
-                    *err_info = g_strdup_printf("Provider %s is zero, err is 0x%x", optarg, *err);
+                    *err_info = g_strdup_printf("Provider %s is zero, err is 0x%x", ws_optarg, *err);
                     return WTAP_OPEN_ERROR;
                 }
                 provider_idx++;
@@ -232,11 +232,11 @@ wtap_open_return_val etw_dump(const char* etl_filename, const char* pcapng_filen
                     return WTAP_OPEN_ERROR;
                 }
 
-                g_provider_filters[provider_idx - 1].Keyword = _strtoui64(optarg, NULL, 0);
+                g_provider_filters[provider_idx - 1].Keyword = _strtoui64(ws_optarg, NULL, 0);
                 if (!g_provider_filters[provider_idx - 1].Keyword)
                 {
                     *err = ERROR_INVALID_PARAMETER;
-                    *err_info = g_strdup_printf("Keyword %s cannot be converted, err is 0x%x", optarg, *err);
+                    *err_info = g_strdup_printf("Keyword %s cannot be converted, err is 0x%x", ws_optarg, *err);
                     return WTAP_OPEN_ERROR;
                 }
                 break;
@@ -248,17 +248,17 @@ wtap_open_return_val etw_dump(const char* etl_filename, const char* pcapng_filen
                     return WTAP_OPEN_ERROR;
                 }
 
-                convert_level = strtoul(optarg, NULL, 0);
+                convert_level = strtoul(ws_optarg, NULL, 0);
                 if (convert_level > UCHAR_MAX)
                 {
                     *err = ERROR_INVALID_PARAMETER;
-                    *err_info = g_strdup_printf("Level %s is bigger than 0xff, err is 0x%x", optarg, *err);
+                    *err_info = g_strdup_printf("Level %s is bigger than 0xff, err is 0x%x", ws_optarg, *err);
                     return WTAP_OPEN_ERROR;
                 }
                 if (!convert_level)
                 {
                     *err = ERROR_INVALID_PARAMETER;
-                    *err_info = g_strdup_printf("Level %s cannot be converted, err is 0x%x", optarg, *err);
+                    *err_info = g_strdup_printf("Level %s cannot be converted, err is 0x%x", ws_optarg, *err);
                     return WTAP_OPEN_ERROR;
                 }
 

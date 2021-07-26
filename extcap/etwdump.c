@@ -170,7 +170,7 @@ int main(int argc, char* argv[])
         goto end;
     }
 
-    while ((result = getopt_long(argc, argv, ":", longopts, &option_idx)) != -1) {
+    while ((result = ws_getopt_long(argc, argv, ":", longopts, &option_idx)) != -1) {
         switch (result) {
         case OPT_VERSION:
             extcap_version_print(extcap_conf);
@@ -183,12 +183,12 @@ int main(int argc, char* argv[])
             goto end;
 
         case OPT_ETLFILE:
-            etlfile = g_strdup(optarg);
+            etlfile = g_strdup(ws_optarg);
             break;
 
         case OPT_PARAMS:
             /* Add params as the prefix since getopt_long will ignore the first argument always */
-            params = g_strdup_printf("params %s", optarg);
+            params = g_strdup_printf("params %s", ws_optarg);
             break;
 
         case OPT_INCLUDE_UNDECIDABLE_EVENT:
@@ -197,14 +197,14 @@ int main(int argc, char* argv[])
 
         case ':':
             /* missing option argument */
-            ws_warning("Option '%s' requires an argument", argv[optind - 1]);
+            ws_warning("Option '%s' requires an argument", argv[ws_optind - 1]);
             break;
 
         default:
             /* Handle extcap specific options */
-            if (!extcap_base_parse_options(extcap_conf, result - EXTCAP_OPT_LIST_INTERFACES, optarg))
+            if (!extcap_base_parse_options(extcap_conf, result - EXTCAP_OPT_LIST_INTERFACES, ws_optarg))
             {
-                ws_warning("Invalid option: %s", argv[optind - 1]);
+                ws_warning("Invalid option: %s", argv[ws_optind - 1]);
                 goto end;
             }
         }

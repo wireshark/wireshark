@@ -72,6 +72,7 @@ set(WSUTIL_PUBLIC_HEADERS
 	ws_assert.h
 	ws_cpuid.h
 	glib-compat.h
+	ws_getopt.h
 	ws_mempbrk.h
 	ws_mempbrk_int.h
 	ws_pipe.h
@@ -128,6 +129,8 @@ set(WSUTIL_COMMON_FILES
 	unicode-utils.c
 	glib-compat.c
 	ws_assert.c
+	ws_getopt.c
+	ws_getopt_long.c
 	ws_mempbrk.c
 	ws_pipe.c
 	wsgcrypt.c
@@ -218,10 +221,6 @@ if(COMPILER_CAN_HANDLE_SSE4_2)
 endif()
 if(HAVE_SSE4_2)
 	list(APPEND WSUTIL_FILES ws_mempbrk_sse42.c)
-endif()
-
-if(NOT HAVE_GETOPT_LONG)
-	list(APPEND WSUTIL_FILES getopt_long.c)
 endif()
 
 if(NOT HAVE_STRPTIME)

@@ -385,15 +385,15 @@ int main(int argc, char **argv)
 	extcap_help_add_option(extcap_conf, "--version", "print the version");
 	extcap_help_add_option(extcap_conf, "--start-from <entry count>", "starting position");
 
-	opterr = 0;
-	optind = 0;
+	ws_opterr = 0;
+	ws_optind = 0;
 
 	if (argc == 1) {
 		extcap_help_print(extcap_conf);
 		goto end;
 	}
 
-	while ((result = getopt_long(argc, argv, ":", longopts, &option_idx)) != -1) {
+	while ((result = ws_getopt_long(argc, argv, ":", longopts, &option_idx)) != -1) {
 
 		switch (result) {
 
@@ -408,12 +408,12 @@ int main(int argc, char **argv)
 				goto end;
 
 			case OPT_START_FROM:
-				start_from_entries = (int) strtol(optarg, NULL, 10);
+				start_from_entries = (int) strtol(ws_optarg, NULL, 10);
 				if (errno == EINVAL) {
-					ws_warning("Invalid entry count: %s", optarg);
+					ws_warning("Invalid entry count: %s", ws_optarg);
 					goto end;
 				}
-				if (strlen(optarg) > 0 && optarg[0] == '+') {
+				if (strlen(ws_optarg) > 0 && ws_optarg[0] == '+') {
 					start_from_end = FALSE;
 				}
 				if (start_from_entries < 0) {
@@ -425,12 +425,12 @@ int main(int argc, char **argv)
 
 			case ':':
 				/* missing option argument */
-				ws_warning("Option '%s' requires an argument", argv[optind - 1]);
+				ws_warning("Option '%s' requires an argument", argv[ws_optind - 1]);
 				break;
 
 			default:
-				if (!extcap_base_parse_options(extcap_conf, result - EXTCAP_OPT_LIST_INTERFACES, optarg)) {
-					ws_warning("Invalid option: %s", argv[optind - 1]);
+				if (!extcap_base_parse_options(extcap_conf, result - EXTCAP_OPT_LIST_INTERFACES, ws_optarg)) {
+					ws_warning("Invalid option: %s", argv[ws_optind - 1]);
 					goto end;
 				}
 		}

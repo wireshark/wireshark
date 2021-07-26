@@ -205,7 +205,7 @@ int main(int argc, char *argv[])
 		goto end;
 	}
 
-	while ((result = getopt_long(argc, argv, ":", longopts, &option_idx)) != -1) {
+	while ((result = ws_getopt_long(argc, argv, ":", longopts, &option_idx)) != -1) {
 		switch (result) {
 		case OPT_VERSION:
 			extcap_version_print(extcap_conf);
@@ -218,23 +218,23 @@ int main(int argc, char *argv[])
 			goto end;
 
 		case OPT_MAXBYTES:
-			if (!ws_strtou16(optarg, NULL, &maxbytes)) {
+			if (!ws_strtou16(ws_optarg, NULL, &maxbytes)) {
 				ws_warning("Invalid parameter maxbytes: %s (max value is %u)",
-					optarg, G_MAXUINT16);
+					ws_optarg, G_MAXUINT16);
 				goto end;
 			}
 			break;
 
 		case OPT_COUNT:
-			if (!ws_strtou64(optarg, NULL, &count)) {
-				ws_warning("Invalid packet count: %s", optarg);
+			if (!ws_strtou64(ws_optarg, NULL, &count)) {
+				ws_warning("Invalid packet count: %s", ws_optarg);
 				goto end;
 			}
 			break;
 
 		case OPT_DELAY:
-			if (!ws_strtou64(optarg, NULL, &packet_delay_ms)) {
-				ws_warning("Invalid packet delay: %s", optarg);
+			if (!ws_strtou64(ws_optarg, NULL, &packet_delay_ms)) {
+				ws_warning("Invalid packet delay: %s", ws_optarg);
 				goto end;
 			}
 			break;
@@ -249,19 +249,19 @@ int main(int argc, char *argv[])
 
 		case OPT_TYPE:
 			g_free(type);
-			type = g_strdup(optarg);
+			type = g_strdup(ws_optarg);
 			break;
 
 		case ':':
 			/* missing option argument */
-			ws_warning("Option '%s' requires an argument", argv[optind - 1]);
+			ws_warning("Option '%s' requires an argument", argv[ws_optind - 1]);
 			break;
 
 		default:
 			/* Handle extcap specific options */
-			if (!extcap_base_parse_options(extcap_conf, result - EXTCAP_OPT_LIST_INTERFACES, optarg))
+			if (!extcap_base_parse_options(extcap_conf, result - EXTCAP_OPT_LIST_INTERFACES, ws_optarg))
 			{
-				ws_warning("Invalid option: %s", argv[optind - 1]);
+				ws_warning("Invalid option: %s", argv[ws_optind - 1]);
 				goto end;
 			}
 		}

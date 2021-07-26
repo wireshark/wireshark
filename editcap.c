@@ -40,18 +40,7 @@
 #include <unistd.h>
 #endif
 
-/*
- * If we have getopt_long() in the system library, include <getopt.h>.
- * Otherwise, we're using our own getopt_long() (either because the
- * system has getopt() but not getopt_long(), as with some UN*Xes,
- * or because it doesn't even have getopt(), as with Windows), so
- * include our getopt_long()'s header.
- */
-#ifdef HAVE_GETOPT_LONG
-#include <getopt.h>
-#else
-#include <wsutil/wsgetopt.h>
-#endif
+#include <wsutil/ws_getopt.h>
 
 #include <wiretap/secrets-types.h>
 #include <wiretap/wtap.h>
@@ -1240,7 +1229,7 @@ main(int argc, char *argv[])
     wtap_init(TRUE);
 
     /* Process the options */
-    while ((opt = getopt_long(argc, argv, ":a:A:B:c:C:dD:E:F:hi:I:Lo:rs:S:t:T:vVw:", long_options, NULL)) != -1) {
+    while ((opt = ws_getopt_long(argc, argv, ":a:A:B:c:C:dD:E:F:hi:I:Lo:rs:S:t:T:vVw:", long_options, NULL)) != -1) {
         switch (opt) {
         case LONGOPT_NO_VLAN:
         {
@@ -1256,9 +1245,9 @@ main(int argc, char *argv[])
 
         case LONGOPT_SEED:
         {
-            if (sscanf(optarg, "%u", &seed) != 1) {
+            if (sscanf(ws_optarg, "%u", &seed) != 1) {
                 fprintf(stderr, "editcap: \"%s\" isn't a valid seed\n\n",
-                        optarg);
+                        ws_optarg);
                 ret = INVALID_OPTION;
                 goto clean_exit;
             }
@@ -1270,11 +1259,11 @@ main(int argc, char *argv[])
         {
             guint32 secrets_type_id = 0;
             const char *secrets_filename = NULL;
-            if (strcmp("help", optarg) == 0) {
+            if (strcmp("help", ws_optarg) == 0) {
                 list_secrets_types(stdout);
                 goto clean_exit;
             }
-            gchar **splitted = g_strsplit(optarg, ",", 2);
+            gchar **splitted = g_strsplit(ws_optarg, ",", 2);
             if (splitted[0] && splitted[0][0] != '\0') {
                 secrets_type_id = lookup_secrets_type(splitted[0]);
                 if (secrets_type_id == 0) {
@@ -1313,7 +1302,7 @@ main(int argc, char *argv[])
             if (!capture_comments) {
                 capture_comments = g_ptr_array_new_with_free_func(g_free);
             }
-            g_ptr_array_add(capture_comments, g_strdup(optarg));
+            g_ptr_array_add(capture_comments, g_strdup(ws_optarg));
             break;
         }
 
@@ -1328,9 +1317,9 @@ main(int argc, char *argv[])
             guint frame_number;
             gint string_start_index = 0;
 
-            if ((sscanf(optarg, "%u:%n", &frame_number, &string_start_index) < 1) || (string_start_index == 0)) {
+            if ((sscanf(ws_optarg, "%u:%n", &frame_number, &string_start_index) < 1) || (string_start_index == 0)) {
                 fprintf(stderr, "editcap: \"%s\" isn't a valid <frame>:<comment>\n\n",
-                        optarg);
+                        ws_optarg);
                 ret = INVALID_OPTION;
                 goto clean_exit;
             }
@@ -1341,7 +1330,7 @@ main(int argc, char *argv[])
             }
 
             /* Insert this entry (framenum -> comment) */
-            g_tree_replace(frames_user_comments, GUINT_TO_POINTER(frame_number), g_strdup(optarg+string_start_index));
+            g_tree_replace(frames_user_comments, GUINT_TO_POINTER(frame_number), g_strdup(ws_optarg+string_start_index));
             break;
         }
 
@@ -1351,7 +1340,7 @@ main(int argc, char *argv[])
             nstime_t in_time;
 
             check_startstop = TRUE;
-            if ((0 < iso8601_to_nstime(&in_time, optarg)) || (0 < unix_epoch_to_nstime(&in_time, optarg))) {
+            if ((0 < iso8601_to_nstime(&in_time, ws_optarg)) || (0 < unix_epoch_to_nstime(&in_time, ws_optarg))) {
                 if (opt == 'A') {
                     nstime_copy(&starttime, &in_time);
                     have_starttime = TRUE;
@@ -1363,21 +1352,21 @@ main(int argc, char *argv[])
             }
             else {
                 fprintf(stderr, "editcap: \"%s\" isn't a valid date and time\n\n",
-                        optarg);
+                        ws_optarg);
                 ret = INVALID_OPTION;
                 goto clean_exit;
             }
         }
 
         case 'c':
-            split_packet_count = get_nonzero_guint32(optarg, "packet count");
+            split_packet_count = get_nonzero_guint32(ws_optarg, "packet count");
             break;
 
         case 'C':
         {
             int choplen = 0, chopoff = 0;
 
-            switch (sscanf(optarg, "%d:%d", &chopoff, &choplen)) {
+            switch (sscanf(ws_optarg, "%d:%d", &chopoff, &choplen)) {
             case 1: /* only the chop length was specififed */
                 choplen = chopoff;
                 chopoff = 0;
@@ -1388,7 +1377,7 @@ main(int argc, char *argv[])
 
             default:
                 fprintf(stderr, "editcap: \"%s\" isn't a valid chop length or offset:length\n",
-                        optarg);
+                        ws_optarg);
                 ret = INVALID_OPTION;
                 goto clean_exit;
                 break;
@@ -1419,7 +1408,7 @@ main(int argc, char *argv[])
         case 'D':
             dup_detect = TRUE;
             dup_detect_by_time = FALSE;
-            dup_window = get_guint32(optarg, "duplicate window");
+            dup_window = get_guint32(ws_optarg, "duplicate window");
             if (dup_window > MAX_DUP_DEPTH) {
                 fprintf(stderr, "editcap: \"%d\" duplicate window value must be between 0 and %d inclusive.\n",
                         dup_window, MAX_DUP_DEPTH);
@@ -1429,20 +1418,20 @@ main(int argc, char *argv[])
             break;
 
         case 'E':
-            err_prob = g_ascii_strtod(optarg, &p);
-            if (p == optarg || err_prob < 0.0 || err_prob > 1.0) {
+            err_prob = g_ascii_strtod(ws_optarg, &p);
+            if (p == ws_optarg || err_prob < 0.0 || err_prob > 1.0) {
                 fprintf(stderr, "editcap: probability \"%s\" must be between 0.0 and 1.0\n",
-                        optarg);
+                        ws_optarg);
                 ret = INVALID_OPTION;
                 goto clean_exit;
             }
             break;
 
         case 'F':
-            out_file_type_subtype = wtap_name_to_file_type_subtype(optarg);
+            out_file_type_subtype = wtap_name_to_file_type_subtype(ws_optarg);
             if (out_file_type_subtype < 0) {
                 fprintf(stderr, "editcap: \"%s\" isn't a valid capture file type\n\n",
-                        optarg);
+                        ws_optarg);
                 list_capture_types(stderr);
                 ret = INVALID_OPTION;
                 goto clean_exit;
@@ -1457,7 +1446,7 @@ main(int argc, char *argv[])
 
         case 'i': /* break capture file based on time interval */
         {
-            double spb = get_positive_double(optarg, "time interval");
+            double spb = get_positive_double(ws_optarg, "time interval");
             if (spb == 0.0) {
               cmdarg_err("The specified interval is zero");
               ret = INVALID_OPTION;
@@ -1472,7 +1461,7 @@ main(int argc, char *argv[])
             break;
 
         case 'I': /* ignored_bytes at the beginning of the frame for duplications removal */
-            ignored_bytes = get_guint32(optarg, "number of bytes to ignore");
+            ignored_bytes = get_guint32(ws_optarg, "number of bytes to ignore");
             break;
 
         case 'L':
@@ -1480,7 +1469,7 @@ main(int argc, char *argv[])
             break;
 
         case 'o':
-            change_offset = get_guint32(optarg, "change offset");
+            change_offset = get_guint32(ws_optarg, "change offset");
             break;
 
         case 'r':
@@ -1493,11 +1482,11 @@ main(int argc, char *argv[])
             break;
 
         case 's':
-            snaplen = get_nonzero_guint32(optarg, "snapshot length");
+            snaplen = get_nonzero_guint32(ws_optarg, "snapshot length");
             break;
 
         case 'S':
-            if (!set_strict_time_adj(optarg)) {
+            if (!set_strict_time_adj(ws_optarg)) {
                 ret = INVALID_OPTION;
                 goto clean_exit;
             }
@@ -1505,17 +1494,17 @@ main(int argc, char *argv[])
             break;
 
         case 't':
-            if (!set_time_adjustment(optarg)) {
+            if (!set_time_adjustment(ws_optarg)) {
                 ret = INVALID_OPTION;
                 goto clean_exit;
             }
             break;
 
         case 'T':
-            out_frame_type = wtap_name_to_encap(optarg);
+            out_frame_type = wtap_name_to_encap(ws_optarg);
             if (out_frame_type < 0) {
                 fprintf(stderr, "editcap: \"%s\" isn't a valid encapsulation type\n\n",
-                        optarg);
+                        ws_optarg);
                 list_encap_types(stderr);
                 ret = INVALID_OPTION;
                 goto clean_exit;
@@ -1540,7 +1529,7 @@ main(int argc, char *argv[])
             dup_detect = FALSE;
             dup_detect_by_time = TRUE;
             dup_window = MAX_DUP_DEPTH;
-            if (!set_rel_time(optarg)) {
+            if (!set_rel_time(ws_optarg)) {
                 ret = INVALID_OPTION;
                 goto clean_exit;
             }
@@ -1548,7 +1537,7 @@ main(int argc, char *argv[])
 
         case '?':              /* Bad options if GNU getopt */
         case ':':              /* missing option argument */
-            switch(optopt) {
+            switch(ws_optopt) {
             case'F':
                 list_capture_types(stdout);
                 break;
@@ -1557,9 +1546,9 @@ main(int argc, char *argv[])
                 break;
             default:
                 if (opt == '?') {
-                    fprintf(stderr, "editcap: invalid option -- '%c'\n", optopt);
+                    fprintf(stderr, "editcap: invalid option -- '%c'\n", ws_optopt);
                 } else {
-                    fprintf(stderr, "editcap: option requires an argument -- '%c'\n", optopt);
+                    fprintf(stderr, "editcap: option requires an argument -- '%c'\n", ws_optopt);
                 }
                 print_usage(stderr);
                 ret = INVALID_OPTION;
@@ -1571,10 +1560,10 @@ main(int argc, char *argv[])
     } /* processing commmand-line options */
 
 #ifdef DEBUG
-    fprintf(stderr, "Optind = %i, argc = %i\n", optind, argc);
+    fprintf(stderr, "Optind = %i, argc = %i\n", ws_optind, argc);
 #endif
 
-    if ((argc - optind) < 2) {
+    if ((argc - ws_optind) < 2) {
         print_usage(stderr);
         ret = INVALID_OPTION;
         goto clean_exit;
@@ -1609,16 +1598,16 @@ main(int argc, char *argv[])
         goto clean_exit;
     }
 
-    wth = wtap_open_offline(argv[optind], WTAP_TYPE_AUTO, &read_err, &read_err_info, FALSE);
+    wth = wtap_open_offline(argv[ws_optind], WTAP_TYPE_AUTO, &read_err, &read_err_info, FALSE);
 
     if (!wth) {
-        cfile_open_failure_message(argv[optind], read_err, read_err_info);
+        cfile_open_failure_message(argv[ws_optind], read_err, read_err_info);
         ret = INVALID_FILE;
         goto clean_exit;
     }
 
     if (verbose) {
-        fprintf(stderr, "File %s is a %s capture file.\n", argv[optind],
+        fprintf(stderr, "File %s is a %s capture file.\n", argv[ws_optind],
                 wtap_file_type_subtype_description(wtap_file_type_subtype(wth)));
     }
 
@@ -1740,7 +1729,7 @@ main(int argc, char *argv[])
      * Now process the arguments following the input and output file
      * names, if any; they specify packets to include/exclude.
      */
-    for (i = optind + 2; i < argc; i++)
+    for (i = ws_optind + 2; i < argc; i++)
         if (add_selection(argv[i], &max_packet_number) == FALSE)
             break;
 
@@ -1778,14 +1767,14 @@ main(int argc, char *argv[])
         /* Extra actions for the first packet */
         if (read_count == 1) {
             if (split_packet_count != 0 || !nstime_is_unset(&secs_per_block)) {
-                if (!fileset_extract_prefix_suffix(argv[optind+1], &fprefix, &fsuffix)) {
+                if (!fileset_extract_prefix_suffix(argv[ws_optind+1], &fprefix, &fsuffix)) {
                     ret = CANT_EXTRACT_PREFIX;
                     goto clean_exit;
                 }
 
                 filename = fileset_get_filename_by_pattern(block_cnt++, rec, fprefix, fsuffix);
             } else {
-                filename = g_strdup(argv[optind+1]);
+                filename = g_strdup(argv[ws_optind+1]);
             }
             ws_assert(filename);
 
@@ -1810,7 +1799,7 @@ main(int argc, char *argv[])
          * Process whatever IDBs we haven't seen yet.
          */
         if (!process_new_idbs(wth, pdh, idbs_seen, &write_err, &write_err_info)) {
-            cfile_write_failure_message(argv[optind], filename,
+            cfile_write_failure_message(argv[ws_optind], filename,
                                         write_err, write_err_info,
                                         read_count,
                                         out_file_type_subtype);
@@ -2255,7 +2244,7 @@ main(int argc, char *argv[])
 
             /* Attempt to dump out current frame to the output file */
             if (!wtap_dump(pdh, rec, buf, &write_err, &write_err_info)) {
-                cfile_write_failure_message(argv[optind], filename,
+                cfile_write_failure_message(argv[ws_optind], filename,
                                             write_err, write_err_info,
                                             read_count,
                                             out_file_type_subtype);
@@ -2276,14 +2265,14 @@ main(int argc, char *argv[])
     if (read_err != 0) {
         /* Print a message noting that the read failed somewhere along the
          * line. */
-        cfile_read_failure_message(argv[optind], read_err, read_err_info);
+        cfile_read_failure_message(argv[ws_optind], read_err, read_err_info);
     }
 
     if (!pdh) {
         /* No valid packages found, open the outfile so we can write an
          * empty header */
         g_free (filename);
-        filename = g_strdup(argv[optind+1]);
+        filename = g_strdup(argv[ws_optind+1]);
 
         pdh = editcap_dump_open(filename, &params, idbs_seen, &write_err,
                                 &write_err_info);
