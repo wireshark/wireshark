@@ -10,6 +10,7 @@
 
 #include <stdio.h>
 #include <glib.h>
+#include <wsutil/utf8_entities.h>
 
 #include "str_util.h"
 
@@ -31,6 +32,42 @@ void test_str_util_format_size(void)
     g_free(str);
 }
 
+#include "to_str.h"
+
+void test_bytes_to_str(void)
+{
+    char *str;
+
+    const guint8 buf_bytes[] = { 1, 2, 3};
+
+    str = bytes_to_str(NULL, buf_bytes, sizeof(buf_bytes));
+    g_assert_cmpstr(str, ==, "010203");
+    g_free(str);
+
+    str = bytestring_to_str(NULL, buf_bytes, sizeof(buf_bytes), ':');
+    g_assert_cmpstr(str, ==, "01:02:03");
+    g_free(str);
+
+    const guint8 buf_trunc[] = {
+        0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0xAA,
+        0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0xAA,
+        0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0xAA,
+        0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0xAA,
+        0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0xAA,
+        0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0xAA,
+        0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0xAA
+    };
+    const char *exp_trunc =
+        "112233445566778899aa"
+        "112233445566778899aa"
+        "112233445566778899aa"
+        "112233445566" UTF8_HORIZONTAL_ELLIPSIS;
+
+    str = bytes_to_str(NULL, buf_trunc, sizeof(buf_trunc));
+    g_assert_cmpstr(str, ==, exp_trunc);
+    g_free(str);
+}
+
 int main(int argc, char **argv)
 {
     int ret;
@@ -38,6 +75,7 @@ int main(int argc, char **argv)
     g_test_init(&argc, &argv, NULL);
 
     g_test_add_func("/wsutil/str_util/format_size", test_str_util_format_size);
+    g_test_add_func("/wsutil/to_str/bytes_to_str", test_bytes_to_str);
 
     ret = g_test_run();
 
