@@ -79,12 +79,6 @@ static int hf_woww_addon_info = -1;
 
 /* SMSG_CHAR_ENUM */
 static int hf_woww_amount_of_characters = -1;
-static int hf_woww_character_guid = -1;
-static int hf_woww_character_skin = -1;
-static int hf_woww_character_face = -1;
-static int hf_woww_character_hairstyle = -1;
-static int hf_woww_character_haircolor = -1;
-static int hf_woww_character_facialhair = -1;
 static int hf_woww_character_zone = -1;
 static int hf_woww_character_map = -1;
 static int hf_woww_character_guild_id = -1;
@@ -104,6 +98,9 @@ static int hf_woww_latency = -1;
 /* CMSG_PING and SMSG_PONG */
 static int hf_woww_sequence_id = -1;
 
+/* CMSG_CHAR_CREATE */
+static int hf_woww_starting_outfit = -1;
+
 /* Multiple */
 static int hf_woww_character_level = -1;
 static int hf_woww_character_position_x = -1;
@@ -116,6 +113,12 @@ static int hf_woww_realm_name = -1;
 static int hf_woww_character_race = -1;
 static int hf_woww_character_class = -1;
 static int hf_woww_character_gender = -1;
+static int hf_woww_character_guid = -1;
+static int hf_woww_character_skin = -1;
+static int hf_woww_character_face = -1;
+static int hf_woww_character_hairstyle = -1;
+static int hf_woww_character_haircolor = -1;
+static int hf_woww_character_facialhair = -1;
 
 #define WOWW_TCP_PORT 8085
 
@@ -2733,6 +2736,49 @@ add_body_fields(guint32 opcode,
                                 offset, len, ENC_UTF_8|ENC_NA);
             offset += len;
             break;
+        case CMSG_CHAR_CREATE:
+            len = get_null_terminated_string_length(tvb, offset);
+            proto_tree_add_item(tree, hf_woww_realm_name, tvb,
+                                offset, len, ENC_UTF_8|ENC_NA);
+            offset += len;
+
+            len = 1;
+            proto_tree_add_item(tree, hf_woww_character_race, tvb,
+                                offset, len, ENC_NA);
+            offset += len;
+
+            proto_tree_add_item(tree, hf_woww_character_class, tvb,
+                                offset, len, ENC_NA);
+            offset += len;
+
+            proto_tree_add_item(tree, hf_woww_character_gender, tvb,
+                                offset, len, ENC_NA);
+            offset += len;
+
+            proto_tree_add_item(tree, hf_woww_character_skin, tvb,
+                                offset, len, ENC_NA);
+            offset += len;
+
+            proto_tree_add_item(tree, hf_woww_character_face, tvb,
+                                offset, len, ENC_NA);
+            offset += len;
+
+            proto_tree_add_item(tree, hf_woww_character_hairstyle, tvb,
+                                offset, len, ENC_NA);
+            offset += len;
+
+            proto_tree_add_item(tree, hf_woww_character_haircolor, tvb,
+                                offset, len, ENC_NA);
+            offset += len;
+
+            proto_tree_add_item(tree, hf_woww_character_facialhair, tvb,
+                                offset, len, ENC_NA);
+            offset += len;
+
+            proto_tree_add_item(tree, hf_woww_starting_outfit, tvb,
+                                offset, len, ENC_NA);
+            break;
+
         default:
             break;
     }
@@ -3067,6 +3113,11 @@ proto_register_woww(void)
             { "Latency", "woww.latency",
               FT_UINT32, BASE_HEX_DEC, NULL, 0,
               "Round time in milliseconds", HFILL }
+        },
+        { &hf_woww_starting_outfit,
+            { "Starting Outfit", "woww.starting_outfit",
+              FT_UINT8, BASE_HEX_DEC, NULL, 0,
+              NULL, HFILL }
         },
     };
 
