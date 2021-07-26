@@ -80,10 +80,6 @@ static int hf_woww_addon_info = -1;
 /* SMSG_CHAR_ENUM */
 static int hf_woww_amount_of_characters = -1;
 static int hf_woww_character_guid = -1;
-static int hf_woww_character_name = -1;
-static int hf_woww_character_race = -1;
-static int hf_woww_character_class = -1;
-static int hf_woww_character_gender = -1;
 static int hf_woww_character_skin = -1;
 static int hf_woww_character_face = -1;
 static int hf_woww_character_hairstyle = -1;
@@ -115,6 +111,11 @@ static int hf_woww_character_position_y = -1;
 static int hf_woww_character_position_z = -1;
 static int hf_woww_character_orientation = -1;
 static int hf_woww_result = -1;
+static int hf_woww_character_name = -1;
+static int hf_woww_realm_name = -1;
+static int hf_woww_character_race = -1;
+static int hf_woww_character_class = -1;
+static int hf_woww_character_gender = -1;
 
 #define WOWW_TCP_PORT 8085
 
@@ -2692,6 +2693,35 @@ add_body_fields(guint32 opcode,
             len = 1;
             proto_tree_add_item(tree, hf_woww_result, tvb,
                                 offset, len, ENC_LITTLE_ENDIAN);
+            break;
+        case SMSG_NAME_QUERY_RESPONSE:
+            len = 8;
+            proto_tree_add_item(tree, hf_woww_character_guid, tvb,
+                                offset, len, ENC_LITTLE_ENDIAN);
+            offset += len;
+
+            len = get_null_terminated_string_length(tvb, offset);
+            proto_tree_add_item(tree, hf_woww_character_name, tvb,
+                                offset, len, ENC_UTF_8|ENC_NA);
+            offset += len;
+
+            len = get_null_terminated_string_length(tvb, offset);
+            proto_tree_add_item(tree, hf_woww_realm_name, tvb,
+                                offset, len, ENC_UTF_8|ENC_NA);
+            offset += len;
+
+            len = 4;
+            proto_tree_add_item(tree, hf_woww_character_race, tvb,
+                                offset, len, ENC_LITTLE_ENDIAN);
+            offset += len;
+
+            proto_tree_add_item(tree, hf_woww_character_gender, tvb,
+                                offset, len, ENC_LITTLE_ENDIAN);
+            offset += len;
+
+            proto_tree_add_item(tree, hf_woww_character_class, tvb,
+                                offset, len, ENC_LITTLE_ENDIAN);
+            break;
         default:
             break;
     }
@@ -2891,6 +2921,11 @@ proto_register_woww(void)
             { "Character Name", "woww.character_name",
               FT_STRINGZ, BASE_NONE, NULL, 0,
               NULL, HFILL }
+        },
+        { &hf_woww_realm_name,
+            { "Realm Name", "woww.realm_name",
+              FT_STRINGZ, BASE_NONE, NULL, 0,
+              "Optional realm name shown after the character name", HFILL }
         },
         { &hf_woww_character_race,
             { "Race", "woww.race",
