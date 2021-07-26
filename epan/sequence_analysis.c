@@ -19,7 +19,7 @@
 #include "color_filters.h"
 #include "column-info.h"
 #include "tap.h"
-#include "wmem/wmem.h"
+#include <epan/wmem_scopes.h>
 
 #define NODE_OVERFLOW MAX_NUM_NODES+1
 

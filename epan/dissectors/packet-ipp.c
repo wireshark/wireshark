@@ -19,7 +19,7 @@
 #include <epan/strutil.h>
 #include <epan/to_str.h>
 #include <epan/conversation.h>
-#include <epan/wmem/wmem.h>
+#include <epan/wmem_scopes.h>
 #include "packet-http.h"
 #include <stdio.h>
 

@@ -16,7 +16,7 @@
 #ifndef __MEDIA_PARAMS_H__
 #define __MEDIA_PARAMS_H__
 
-#include <epan/wmem/wmem.h>
+#include <epan/wmem_scopes.h>
 
 #include "ws_symbol_export.h"
 

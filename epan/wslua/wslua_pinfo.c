@@ -16,7 +16,7 @@
 
 #include "wslua_pinfo_common.h"
 
-#include <epan/wmem/wmem.h>
+#include <epan/wmem_scopes.h>
 #include <epan/conversation.h>
 #include <string.h>
 

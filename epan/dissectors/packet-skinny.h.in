@@ -37,7 +37,7 @@ cog.out(' */\n')
 /*]]]*/
 /*[[[end]]]*/
 
-#include <epan/wmem/wmem.h>
+#include <epan/wmem_scopes.h>
 
 /* request response tracking */
 typedef struct _skinny_req_resp_t {

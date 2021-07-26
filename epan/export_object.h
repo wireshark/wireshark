@@ -12,7 +12,7 @@
 #define __EXPORT_OBJECT_H__
 
 #include "tap.h"
-#include "wmem/wmem.h"
+#include <epan/wmem_scopes.h>
 
 #ifdef __cplusplus
 extern "C" {

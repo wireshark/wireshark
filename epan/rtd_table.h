@@ -15,7 +15,7 @@
 #include "tap.h"
 #include "timestats.h"
 #include "value_string.h"
-#include "wmem/wmem.h"
+#include <epan/wmem_scopes.h>
 
 #ifdef __cplusplus
 extern "C" {

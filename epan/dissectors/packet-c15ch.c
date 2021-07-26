@@ -13,7 +13,7 @@
 
 #include <epan/packet.h>
 #include <epan/etypes.h>
-#include <epan/wmem/wmem.h>
+#include <epan/wmem_scopes.h>
 
 void proto_register_c15ch_hbeat(void);
 void proto_register_c15ch(void);

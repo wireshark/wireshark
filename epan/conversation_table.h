@@ -15,7 +15,7 @@
 #include "conv_id.h"
 #include "tap.h"
 #include "conversation.h"
-#include "wmem/wmem.h"
+#include <epan/wmem_scopes.h>
 
 #ifdef __cplusplus
 extern "C" {

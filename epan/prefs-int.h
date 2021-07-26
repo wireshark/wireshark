@@ -14,7 +14,7 @@
 
 #include <stdio.h>
 #include "ws_symbol_export.h"
-#include <epan/wmem/wmem.h>
+#include <epan/wmem_scopes.h>
 
 #ifdef __cplusplus
 extern "C" {

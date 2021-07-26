@@ -25,7 +25,7 @@
  *   cog.py -D xmlfile=tools/SkinnyProtocolOptimized.xml -d -c -o epan/dissectors/packet-skinny.h epan/dissectors/packet-skinny.h.in
  */
 
-#include <epan/wmem/wmem.h>
+#include <epan/wmem_scopes.h>
 
 /* request response tracking */
 typedef struct _skinny_req_resp_t {

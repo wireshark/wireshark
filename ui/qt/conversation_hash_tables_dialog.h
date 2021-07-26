@@ -11,7 +11,7 @@
 #define CONVERSATION_HASH_TABLES_DIALOG_H
 
 #include "geometry_state_dialog.h"
-#include <epan/wmem/wmem.h>
+#include <epan/wmem_scopes.h>
 
 namespace Ui {
 class ConversationHashTablesDialog;

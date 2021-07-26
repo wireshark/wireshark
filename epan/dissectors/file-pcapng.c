@@ -19,7 +19,7 @@
 #include <epan/exceptions.h>
 #include <epan/show_exception.h>
 #include <epan/addr_resolv.h>
-#include <epan/wmem/wmem.h>
+#include <epan/wmem_scopes.h>
 #include <wiretap/secrets-types.h>
 
 #include <epan/dissectors/packet-pcap_pktdata.h>

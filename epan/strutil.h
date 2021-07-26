@@ -13,7 +13,7 @@
 
 #include "ws_symbol_export.h"
 
-#include <epan/wmem/wmem.h>
+#include <epan/wmem_scopes.h>
 #include <wsutil/str_util.h>
 
 #ifdef __cplusplus

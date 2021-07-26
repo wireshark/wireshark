@@ -30,7 +30,7 @@
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <epan/to_str.h>
-#include <epan/wmem/wmem.h>
+#include <epan/wmem_scopes.h>
 #include <epan/dissectors/packet-dcerpc.h>
 #include <epan/expert.h>
 #include <epan/conversation_filter.h>

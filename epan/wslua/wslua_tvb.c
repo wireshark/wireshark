@@ -18,7 +18,7 @@
 #include "config.h"
 
 #include "wslua.h"
-#include <epan/wmem/wmem.h>
+#include <epan/wmem_scopes.h>
 
 
 /* WSLUA_MODULE Tvb Functions For Handling Packet Data */

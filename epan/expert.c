@@ -20,7 +20,7 @@
 #include "expert.h"
 #include "uat.h"
 #include "prefs.h"
-#include "wmem/wmem.h"
+#include <epan/wmem_scopes.h>
 #include "tap.h"
 
 #include <wsutil/wslog.h>

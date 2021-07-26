@@ -55,7 +55,7 @@
 #include <config.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
-#include <epan/wmem/wmem.h>
+#include <epan/wmem_scopes.h>
 
 void proto_reg_handoff_woww(void);
 void proto_register_woww(void);

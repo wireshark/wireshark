@@ -27,7 +27,7 @@
 
 #include <glib.h>
 
-#include <epan/wmem/wmem.h>
+#include <epan/wmem_scopes.h>
 
 #include "ipv4.h"
 #include "wsutil/nstime.h"

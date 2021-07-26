@@ -32,7 +32,7 @@
 
 #include <epan/packet.h>   /* Should be first Wireshark include (other than config.h) */
 #include <epan/conversation.h>
-#include <epan/wmem/wmem.h>
+#include <epan/wmem_scopes.h>
 #include <epan/proto_data.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>

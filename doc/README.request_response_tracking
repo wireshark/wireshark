@@ -27,11 +27,9 @@ The example below shows how simple this is to add to the dissector IF:
 
 The example is taken from the PANA dissector:
 
-First we need to include the definitions for conversations and memory
-management.
+First we need to include the definitions for conversations.
 
 	#include <epan/conversation.h>
-	#include <epan/wmem/wmem.h>
 
 Then we also need a few header fields to show the relations between request
 and response as well as the response time.

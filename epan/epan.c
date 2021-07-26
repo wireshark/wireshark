@@ -41,7 +41,7 @@
 #include "tap.h"
 #include "addr_resolv.h"
 #include "oids.h"
-#include "wmem/wmem.h"
+#include <epan/wmem_scopes.h>
 #include "expert.h"
 #include "print.h"
 #include "capture_dissectors.h"

@@ -14,7 +14,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "wmem/wmem.h"
+#include <epan/wmem_scopes.h>
 #include "proto.h"
 #include "to_str.h"
 #include "value_string.h"

@@ -23,7 +23,7 @@ static mmdb_lookup_t mmdb_not_found;
 #include <stdio.h>
 #include <errno.h>
 
-#include <epan/wmem/wmem.h>
+#include <epan/wmem_scopes.h>
 
 #include <epan/addr_resolv.h>
 #include <epan/uat.h>

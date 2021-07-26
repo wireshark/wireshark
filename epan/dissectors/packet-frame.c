@@ -33,7 +33,7 @@
 #include <wsutil/ws_assert.h>
 #include <epan/proto_data.h>
 #include <epan/addr_resolv.h>
-#include <wmem/wmem.h>
+#include <epan/wmem_scopes.h>
 
 #include "packet-frame.h"
 #include "packet-icmp.h"

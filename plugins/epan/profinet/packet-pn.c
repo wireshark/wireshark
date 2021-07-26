@@ -15,7 +15,7 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
-#include <epan/wmem/wmem.h>
+#include <epan/wmem_scopes.h>
 #include <epan/dissectors/packet-dcerpc.h>
 
 #include "packet-pn.h"

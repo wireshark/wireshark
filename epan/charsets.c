@@ -14,7 +14,7 @@
 #include <glib.h>
 
 #include <epan/proto.h>
-#include <epan/wmem/wmem.h>
+#include <epan/wmem_scopes.h>
 
 #include <wsutil/pint.h>
 #include <wsutil/unicode-utils.h>

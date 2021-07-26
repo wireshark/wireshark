@@ -32,7 +32,7 @@
 #include <config.h>
 #include <epan/packet.h>
 #include <epan/address.h>
-#include <epan/wmem/wmem.h>
+#include <epan/wmem_scopes.h>
 #include "packet-tcp.h"
 
 #define TPLINK_SMARTHOME_PORT	9999			/* TP-Link Smart Home devices use this port on both TCP and UDP */

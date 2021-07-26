@@ -42,7 +42,7 @@
 
 #include "epan/filter_expressions.h"
 
-#include "epan/wmem/wmem.h"
+#include "epan/wmem_scopes.h"
 #include <epan/stats_tree.h>
 
 /*

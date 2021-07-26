@@ -15,7 +15,7 @@
 
 #include <glib.h>
 #include <epan/address.h>
-#include <epan/wmem/wmem.h>
+#include <epan/wmem_scopes.h>
 #include <epan/range.h>
 
 struct epl_datatype;

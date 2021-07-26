@@ -12,7 +12,7 @@
 
 #include <glib.h>
 
-#include <epan/wmem/wmem.h>
+#include <epan/wmem_scopes.h>
 #include <epan/packet_info.h>
 #include <epan/proto_data.h>
 #include <epan/proto.h>

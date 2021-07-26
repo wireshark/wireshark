@@ -21,7 +21,7 @@
 #include <stdlib.h> /* qsort */
 #include <epan/exceptions.h>
 #include <epan/tvbuff.h>
-#include <epan/wmem/wmem.h>
+#include <epan/wmem_scopes.h>
 
 #define MAX_INPUT_SIZE (16*1024*1024) /* 16MB */
 

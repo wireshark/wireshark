@@ -22,7 +22,7 @@
 #include <epan/packet.h>
 #include <epan/reassemble.h>
 #include <epan/to_str.h>
-#include <epan/wmem/wmem.h>
+#include <epan/wmem_scopes.h>
 
 #include "packet-raknet.h"
 

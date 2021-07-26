@@ -12,7 +12,7 @@
 
 #include "config.h"
 
-#include <epan/wmem/wmem.h>
+#include <epan/wmem_scopes.h>
 
 #include "wslua.h"
 

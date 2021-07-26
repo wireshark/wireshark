@@ -13,7 +13,7 @@
 #define __FTYPES_H__
 
 #include <glib.h>
-#include "../wmem/wmem.h"
+#include <epan/wmem_scopes.h>
 #include "ws_symbol_export.h"
 
 #ifdef __cplusplus

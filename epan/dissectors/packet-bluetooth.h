@@ -10,7 +10,7 @@
 #ifndef __PACKET_BLUETOOTH_H__
 #define __PACKET_BLUETOOTH_H__
 
-#include <epan/wmem/wmem.h>
+#include <epan/wmem_scopes.h>
 
 #include "packet-usb.h"
 #include "packet-ubertooth.h"

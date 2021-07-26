@@ -25,7 +25,7 @@
 #include <epan/expert.h>
 #include <epan/exceptions.h>
 #include <epan/show_exception.h>
-#include <epan/wmem/wmem.h>
+#include <epan/wmem_scopes.h>
 #include <wiretap/blf.h>
 
 static int proto_blf = -1;

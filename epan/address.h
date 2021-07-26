@@ -15,7 +15,7 @@
 #include <string.h>     /* for memcmp */
 
 #include "tvbuff.h"
-#include "wmem/wmem.h"
+#include <epan/wmem_scopes.h>
 #include <wsutil/ws_assert.h>
 
 #ifdef __cplusplus

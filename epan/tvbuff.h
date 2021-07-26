@@ -23,7 +23,7 @@
 
 #include <glib.h>
 #include <epan/guid-utils.h>
-#include <epan/wmem/wmem.h>
+#include <epan/wmem_scopes.h>
 #include <epan/ipv6.h>
 
 #include <wsutil/nstime.h>

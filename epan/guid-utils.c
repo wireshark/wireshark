@@ -16,7 +16,7 @@
 #include <glib.h>
 #include <epan/epan.h>
 #include <wsutil/unicode-utils.h>
-#include <epan/wmem/wmem.h>
+#include <epan/wmem_scopes.h>
 #include "guid-utils.h"
 
 #ifdef _WIN32

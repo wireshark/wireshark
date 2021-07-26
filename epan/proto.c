@@ -37,7 +37,7 @@
 #include "proto.h"
 #include "epan_dissect.h"
 #include "tvbuff.h"
-#include "wmem/wmem.h"
+#include <epan/wmem_scopes.h>
 #include "charsets.h"
 #include "column-utils.h"
 #include "to_str-int.h"

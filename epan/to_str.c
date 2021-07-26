@@ -15,7 +15,7 @@
 #include <time.h>
 #include <glib.h>
 
-#include "wmem/wmem.h"
+#include <epan/wmem_scopes.h>
 #include "proto.h"
 #include "to_str.h"
 #include "to_str-int.h"

@@ -19,7 +19,7 @@
 #include <epan/exceptions.h>
 #include <epan/expert.h>
 #include <epan/reassemble.h>
-#include <epan/wmem/wmem.h>
+#include <epan/wmem_scopes.h>
 
 #include <ptvcursor.h>
 

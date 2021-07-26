@@ -7,4 +7,3 @@ epan/crypt/*.h usr/include/wireshark/epan/crypt
 epan/dfilter/*.h usr/include/wireshark/epan/dfilter
 epan/dissectors/*.h usr/include/wireshark/epan/dissectors
 epan/ftypes/*.h usr/include/wireshark/epan/ftypes
-epan/wmem/*.h usr/include/wireshark/epan/wmem

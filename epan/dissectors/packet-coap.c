@@ -28,7 +28,7 @@
 #include <epan/reassemble.h>
 #include <epan/proto_data.h>
 #include <epan/expert.h>
-#include <epan/wmem/wmem.h>
+#include <epan/wmem_scopes.h>
 #include <epan/to_str.h>
 #include "packet-dtls.h"
 #include "packet-coap.h"

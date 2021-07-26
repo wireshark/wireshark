@@ -160,8 +160,7 @@ set(LIBWIRESHARK_PUBLIC_HEADERS
 	uat-int.h
 	unit_strings.h
 	value_string.h
-	wmem/wmem.h
-	wmem/wmem_scopes.h
+	wmem_scopes.h
 	x264_prt_id.h
 	xdlc.h
 )
@@ -259,7 +258,7 @@ set(LIBWIRESHARK_NONGENERATED_FILES
 	uat.c
 	value_string.c
 	unit_strings.c
-	wmem/wmem_scopes.c
+	wmem_scopes.c
 	xdlc.c
 	protobuf-helper.c
 	protobuf_lang_tree.c

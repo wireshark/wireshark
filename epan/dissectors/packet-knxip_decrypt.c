@@ -14,7 +14,7 @@
 #include <wsutil/file_util.h>
 #include "proto.h"
 #include "packet-knxip_decrypt.h"
-#include <epan/wmem/wmem.h>
+#include <epan/wmem_scopes.h>
 #include <wsutil/wsgcrypt.h>
 #include <wsutil/strtoi.h>
 #include <wsutil/wslog.h>

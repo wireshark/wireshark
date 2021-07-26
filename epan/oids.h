@@ -15,7 +15,7 @@
 
 #include <epan/ftypes/ftypes.h>
 #include <epan/prefs.h>
-#include <epan/wmem/wmem.h>
+#include <epan/wmem_scopes.h>
 #include "ws_symbol_export.h"
 
 #ifdef __cplusplus

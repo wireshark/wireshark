@@ -17,7 +17,7 @@
 #include <glib.h>
 
 #include "oids.h"
-#include "wmem/wmem.h"
+#include <epan/wmem_scopes.h>
 
 #include <ws_diag_control.h>
 

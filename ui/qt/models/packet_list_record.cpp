@@ -15,7 +15,7 @@
 #include <epan/column-info.h>
 #include <epan/column.h>
 #include <epan/conversation.h>
-#include <epan/wmem/wmem.h>
+#include <epan/wmem_scopes.h>
 
 #include <epan/color_filters.h>
 

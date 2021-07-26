@@ -18,7 +18,7 @@
 
 #include <wsutil/report_message.h>
 
-#include "wmem/wmem.h"
+#include <epan/wmem_scopes.h>
 #include "uat.h"
 #include "prefs.h"
 #include "proto.h"

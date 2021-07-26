@@ -19,7 +19,7 @@
 #include <epan/packet_info.h>
 #include <epan/ipv6.h>
 #include "ws_symbol_export.h"
-#include "wmem/wmem.h"
+#include <epan/wmem_scopes.h>
 
 #define GUID_STR_LEN     37
 #define MAX_ADDR_STR_LEN 256

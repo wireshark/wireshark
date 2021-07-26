@@ -17,7 +17,7 @@
 #include <epan/stat_groups.h>
 #include <epan/packet_info.h>
 #include <epan/tap.h>
-#include <epan/wmem/wmem.h>
+#include <epan/wmem_scopes.h>
 
 #ifdef __cplusplus
 extern "C" {

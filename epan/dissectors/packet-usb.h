@@ -11,7 +11,7 @@
 #define __PACKET_USB_H__
 
 #include <epan/value_string.h>
-#include <epan/wmem/wmem.h>
+#include <epan/wmem_scopes.h>
 #include <epan/conversation.h>
 
 typedef struct _usb_address_t {

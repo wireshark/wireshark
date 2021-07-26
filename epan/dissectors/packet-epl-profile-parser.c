@@ -30,7 +30,7 @@
 #include <wsutil/strtoi.h>
 #include <wsutil/str_util.h>
 #include <wsutil/wslog.h>
-#include <epan/wmem/wmem.h>
+#include <epan/wmem_scopes.h>
 
 #if defined HAVE_LIBXML2
 #include <libxml/xmlversion.h>

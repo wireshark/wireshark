@@ -15,7 +15,7 @@
 #include "config.h"
 
 #include <wiretap/wtap_opttypes.h>
-#include <epan/wmem/wmem.h>
+#include <epan/wmem_scopes.h>
 
 /* WSLUA_MODULE Dumper Saving Capture Files
 

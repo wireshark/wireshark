@@ -23,7 +23,7 @@
 #include <wsutil/file_util.h>
 #include <wsutil/report_message.h>
 #include <wsutil/strtoi.h>
-#include <epan/wmem/wmem.h>
+#include <epan/wmem_scopes.h>
 #include "packet-acdr.h"
 #include "packet-tcp.h"
 

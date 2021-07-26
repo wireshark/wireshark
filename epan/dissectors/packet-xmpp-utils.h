@@ -15,7 +15,7 @@
 #include "ws_symbol_export.h"
 #include "tvbuff.h"
 #include "dissectors/packet-xml.h"
-#include <epan/wmem/wmem.h>
+#include <epan/wmem_scopes.h>
 
 #define xmpp_elem_cdata(elem) \
 elem->data?elem->data->value:""

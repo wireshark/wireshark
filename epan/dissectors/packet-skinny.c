@@ -36,7 +36,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/conversation.h>
-#include <epan/wmem/wmem.h>
+#include <epan/wmem_scopes.h>
 #include <epan/to_str.h>
 #include <epan/reassemble.h>
 #include <epan/tap.h>

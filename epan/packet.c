@@ -30,7 +30,7 @@
 #include "tvbuff.h"
 #include "epan_dissect.h"
 
-#include "wmem/wmem.h"
+#include <epan/wmem_scopes.h>
 
 #include <epan/exceptions.h>
 #include <epan/reassemble.h>
