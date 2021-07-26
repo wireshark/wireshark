@@ -2722,6 +2722,17 @@ add_body_fields(guint32 opcode,
             proto_tree_add_item(tree, hf_woww_character_class, tvb,
                                 offset, len, ENC_LITTLE_ENDIAN);
             break;
+        case CMSG_CHAR_RENAME:
+            len = 8;
+            proto_tree_add_item(tree, hf_woww_character_guid, tvb,
+                                offset, len, ENC_LITTLE_ENDIAN);
+            offset += len;
+
+            len = get_null_terminated_string_length(tvb, offset);
+            proto_tree_add_item(tree, hf_woww_realm_name, tvb,
+                                offset, len, ENC_UTF_8|ENC_NA);
+            offset += len;
+            break;
         default:
             break;
     }
