@@ -1073,7 +1073,7 @@ decrypt_gssapi_krb_arcfour_wrap(proto_tree *tree _U_, packet_info *pinfo, tvbuff
   /* XXX we should only do this for first time, then store somewhere */
   /* XXX We also need to re-read the keytab when the preference changes */
 
-  cryptocopy=(guint8 *)wmem_alloc(pinfo->pool, length);
+  cryptocopy=(guint8 *)wmem_alloc(wmem_packet_scope(), length);
   output_message_buffer=(guint8 *)wmem_alloc(pinfo->pool, length);
 
   for(ek=enc_key_list;ek;ek=ek->next){
