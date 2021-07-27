@@ -192,17 +192,24 @@ static int
 dissect_http3_settings(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* http3_tree, guint offset)
 {
     guint64 settingsid;
-    proto_item *ti_settings;
+    proto_item *ti_settings, *pi;
     int lenvar;
     proto_tree *settings_tree;
     while(tvb_reported_length_remaining(tvb, offset) > 0){
 
         ti_settings = proto_tree_add_item(http3_tree, hf_http3_settings, tvb, offset, 2, ENC_NA);
         settings_tree = proto_item_add_subtree(ti_settings, ett_http3_settings);
-        proto_tree_add_item_ret_varint(settings_tree, hf_http3_settings_identifier, tvb, offset, -1, ENC_VARINT_QUIC, &settingsid, &lenvar);
+        pi = proto_tree_add_item_ret_varint(settings_tree, hf_http3_settings_identifier, tvb, offset, -1, ENC_VARINT_QUIC, &settingsid, &lenvar);
+        /* Check if it is a GREASE Settings ID */
+        if (http3_is_reserved_code(settingsid)) {
+            proto_item_set_text(pi, "Type: GREASE (%#" G_GINT64_MODIFIER "x)", settingsid);
+            proto_item_append_text(ti_settings, " - GREASE" );
+        } else {
+            proto_item_append_text(ti_settings, " - %s",
+                                   val64_to_str_const(settingsid, http3_settings_vals, "Unknown") );
+        }
         offset += lenvar;
-        proto_item_append_text(ti_settings, " - %s",
-                               val64_to_str_const(settingsid, http3_settings_vals, "Unknown") );
+
 
         proto_tree_add_item_ret_varint(settings_tree, hf_http3_settings_value, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
         switch(settingsid){
