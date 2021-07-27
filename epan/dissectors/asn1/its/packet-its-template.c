@@ -638,6 +638,11 @@ dsrc_velocity_fmt(gchar *s, guint32 v)
   }
 }
 
+static void
+dsrc_angle_fmt(gchar *s, guint32 v)
+{
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%.2f° (%d)", v * 0.0125, v);
+}
 
 static int
 dissect_its_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)

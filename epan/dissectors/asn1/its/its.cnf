@@ -313,6 +313,8 @@ DSecond         DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(dsrc_dsecond_fmt)
 TimeMark        DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(dsrc_time_mark_fmt)
 TimeIntervalConfidence              STRINGS=VALS(dsrc_TimeIntervalConfidence_vals)
 Velocity        DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(dsrc_velocity_fmt)
+Angle           DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(dsrc_angle_fmt)
+HeadingDSRC     DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(dsrc_angle_fmt)
 #.END
 
 #.FIELD_ATTR
