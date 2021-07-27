@@ -412,7 +412,7 @@ iso8601_to_nstime(nstime_t *nstime, const char *ptr)
     if (*ptr == '-' || *ptr == '+' || *ptr == 'Z') {
         /* We have a UTC-relative offset */
         if (*ptr == 'Z') {
-            off_hr = off_min = n_scanned = 0;
+            off_hr = off_min = 0;
             have_offset = TRUE;
             ptr++;
         }
@@ -438,7 +438,7 @@ iso8601_to_nstime(nstime_t *nstime, const char *ptr)
             }
             else {
                 /* Didn't get a valid offset, treat as if there's none at all */
-                off_hr = off_min = n_scanned = 0;
+                off_hr = off_min =  0;
                 have_offset = FALSE;
             }
         }
