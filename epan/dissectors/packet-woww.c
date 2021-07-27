@@ -56,6 +56,7 @@
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/wmem_scopes.h>
+#include <ptvcursor.h>
 
 void proto_reg_handoff_woww(void);
 void proto_register_woww(void);
@@ -2586,56 +2587,37 @@ add_body_fields(guint32 opcode,
                 gint32 offset_packet_end)
 {
     gint32 len = 0;
+    ptvcursor_t* ptv = ptvcursor_new(tree, tvb, offset);
     switch (opcode) {
         case SMSG_AUTH_CHALLENGE:
-            len = 4;
-            proto_tree_add_item(tree, hf_woww_challenge_seed, tvb,
-                                offset, len, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_challenge_seed, 4, ENC_LITTLE_ENDIAN);
             break;
+
         case CMSG_AUTH_SESSION:
-            len = 4;
-            proto_tree_add_item(tree, hf_woww_build, tvb,
-                                offset, len, ENC_LITTLE_ENDIAN);
-            offset += len;
+            ptvcursor_add(ptv, hf_woww_build, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_server_id, 4, ENC_LITTLE_ENDIAN);
 
-            proto_tree_add_item(tree, hf_woww_server_id, tvb,
-                                offset, len, ENC_LITTLE_ENDIAN);
-            offset += len;
+            len = get_null_terminated_string_length(tvb, ptvcursor_current_offset(ptv));
+            ptvcursor_add(ptv, hf_woww_account_name, len, ENC_UTF_8|ENC_NA);
 
-            len = get_null_terminated_string_length(tvb, offset);
-            proto_tree_add_item(tree, hf_woww_account_name, tvb,
-                                offset, len, ENC_UTF_8|ENC_NA);
-            offset += len;
+            ptvcursor_add(ptv, hf_woww_challenge_seed, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_client_proof, 20, ENC_NA);
+            ptvcursor_add(ptv, hf_woww_decompressed_addon_size, 4, ENC_LITTLE_ENDIAN);
 
-            len = 4;
-            proto_tree_add_item(tree, hf_woww_challenge_seed, tvb,
-                                offset, len, ENC_LITTLE_ENDIAN);
-            offset += len;
-
-            len = 20;
-            proto_tree_add_item(tree, hf_woww_client_proof, tvb,
-                                offset, len, ENC_NA);
-            offset += len;
-
-            len = 4;
-            proto_tree_add_item(tree, hf_woww_decompressed_addon_size, tvb,
-                                offset, len, ENC_LITTLE_ENDIAN);
-            offset += len;
-
-            len = offset_packet_end - offset;
-            proto_tree_add_item(tree, hf_woww_addon_info, tvb,
-                                offset, len, ENC_NA);
+            len = offset_packet_end - ptvcursor_current_offset(ptv);
+            ptvcursor_add(ptv, hf_woww_addon_info, len, ENC_NA);
             break;
+
         case SMSG_AUTH_RESPONSE:
-            len = 4;
-            proto_tree_add_item(tree, hf_woww_result, tvb,
-                                offset, len, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_result, 4, ENC_LITTLE_ENDIAN);
             // There might more fields depending on the value in login_result.
             // Not implemented currently because they aren't that important.
             break;
+
         case SMSG_CHAR_ENUM:
             parse_SMSG_CHAR_ENUM(tree, tvb, offset);
             break;
+
         case CMSG_SET_SELECTION:
             /* Fallthrough */
         case CMSG_CHAR_DELETE:
@@ -2645,143 +2627,81 @@ add_body_fields(guint32 opcode,
         case CMSG_NAME_QUERY:
             /* Fallthrough */
         case CMSG_PLAYER_LOGIN:
-            len = 8;
-            proto_tree_add_item(tree, hf_woww_character_guid, tvb,
-                                offset, len, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_character_guid, 8, ENC_LITTLE_ENDIAN);
             break;
+
         case SMSG_LOGIN_VERIFY_WORLD:
-            len = 4;
-            proto_tree_add_item(tree, hf_woww_character_map, tvb,
-                                offset, len, ENC_LITTLE_ENDIAN);
-            offset += len;
-            proto_tree_add_item(tree, hf_woww_character_position_x, tvb,
-                                offset, len, ENC_LITTLE_ENDIAN);
-            offset += len;
-            proto_tree_add_item(tree, hf_woww_character_position_y, tvb,
-                                offset, len, ENC_LITTLE_ENDIAN);
-            offset += len;
-            proto_tree_add_item(tree, hf_woww_character_position_z, tvb,
-                                offset, len, ENC_LITTLE_ENDIAN);
-            offset += len;
-            proto_tree_add_item(tree, hf_woww_character_orientation, tvb,
-                                offset, len, ENC_LITTLE_ENDIAN);
-            offset += len;
+            ptvcursor_add(ptv, hf_woww_character_map, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_character_position_x, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_character_position_y, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_character_position_z, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_character_orientation, 4, ENC_LITTLE_ENDIAN);
             break;
+
         case SMSG_TUTORIAL_FLAGS:
-            len = 4;
             for (gint i = 0; i < 8; i++) {
-                proto_tree_add_item(tree, hf_woww_tutorial_flag, tvb,
-                                    offset, len, ENC_LITTLE_ENDIAN);
-                offset += len;
+                ptvcursor_add(ptv, hf_woww_tutorial_flag, 4, ENC_LITTLE_ENDIAN);
             }
             break;
+
         case CMSG_PING:
-            len = 4;
-            proto_tree_add_item(tree, hf_woww_sequence_id, tvb,
-                                offset, len, ENC_LITTLE_ENDIAN);
-            offset += len;
-            proto_tree_add_item(tree, hf_woww_latency, tvb,
-                                offset, len, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_sequence_id, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_latency, 4, ENC_LITTLE_ENDIAN);
             break;
+
         case SMSG_PONG:
-            len = 4;
-            proto_tree_add_item(tree, hf_woww_sequence_id, tvb,
-                                offset, len, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_sequence_id, 4, ENC_LITTLE_ENDIAN);
             break;
+
         case SMSG_CHARACTER_LOGIN_FAILED:
             /* Fallthrough */
         case SMSG_CHAR_DELETE:
             /* Fallthrough */
         case SMSG_CHAR_CREATE:
-            len = 1;
-            proto_tree_add_item(tree, hf_woww_result, tvb,
-                                offset, len, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_result, 1, ENC_NA);
             break;
+
         case SMSG_NAME_QUERY_RESPONSE:
-            len = 8;
-            proto_tree_add_item(tree, hf_woww_character_guid, tvb,
-                                offset, len, ENC_LITTLE_ENDIAN);
-            offset += len;
+            ptvcursor_add(ptv, hf_woww_character_guid, 8, ENC_LITTLE_ENDIAN);
 
-            len = get_null_terminated_string_length(tvb, offset);
-            proto_tree_add_item(tree, hf_woww_character_name, tvb,
-                                offset, len, ENC_UTF_8|ENC_NA);
-            offset += len;
+            len = get_null_terminated_string_length(tvb, ptvcursor_current_offset(ptv));
+            ptvcursor_add(ptv, hf_woww_character_name, len, ENC_UTF_8|ENC_NA);
 
-            len = get_null_terminated_string_length(tvb, offset);
-            proto_tree_add_item(tree, hf_woww_realm_name, tvb,
-                                offset, len, ENC_UTF_8|ENC_NA);
-            offset += len;
+            len = get_null_terminated_string_length(tvb, ptvcursor_current_offset(ptv));
+            ptvcursor_add(ptv, hf_woww_realm_name, len, ENC_UTF_8|ENC_NA);
 
-            len = 4;
-            proto_tree_add_item(tree, hf_woww_character_race, tvb,
-                                offset, len, ENC_LITTLE_ENDIAN);
-            offset += len;
-
-            proto_tree_add_item(tree, hf_woww_character_gender, tvb,
-                                offset, len, ENC_LITTLE_ENDIAN);
-            offset += len;
-
-            proto_tree_add_item(tree, hf_woww_character_class, tvb,
-                                offset, len, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_character_race, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_character_gender, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_character_class, 4, ENC_LITTLE_ENDIAN);
             break;
+
         case CMSG_CHAR_RENAME:
-            len = 8;
-            proto_tree_add_item(tree, hf_woww_character_guid, tvb,
-                                offset, len, ENC_LITTLE_ENDIAN);
-            offset += len;
+            ptvcursor_add(ptv, hf_woww_character_guid, 8, ENC_LITTLE_ENDIAN);
 
-            len = get_null_terminated_string_length(tvb, offset);
-            proto_tree_add_item(tree, hf_woww_realm_name, tvb,
-                                offset, len, ENC_UTF_8|ENC_NA);
-            offset += len;
+            len = get_null_terminated_string_length(tvb, ptvcursor_current_offset(ptv));
+            ptvcursor_add(ptv, hf_woww_character_name, len, ENC_UTF_8|ENC_NA);
             break;
+
         case CMSG_CHAR_CREATE:
-            len = get_null_terminated_string_length(tvb, offset);
-            proto_tree_add_item(tree, hf_woww_realm_name, tvb,
-                                offset, len, ENC_UTF_8|ENC_NA);
-            offset += len;
+            len = get_null_terminated_string_length(tvb, ptvcursor_current_offset(ptv));
+            ptvcursor_add(ptv, hf_woww_character_name, len, ENC_UTF_8|ENC_NA);
 
-            len = 1;
-            proto_tree_add_item(tree, hf_woww_character_race, tvb,
-                                offset, len, ENC_NA);
-            offset += len;
-
-            proto_tree_add_item(tree, hf_woww_character_class, tvb,
-                                offset, len, ENC_NA);
-            offset += len;
-
-            proto_tree_add_item(tree, hf_woww_character_gender, tvb,
-                                offset, len, ENC_NA);
-            offset += len;
-
-            proto_tree_add_item(tree, hf_woww_character_skin, tvb,
-                                offset, len, ENC_NA);
-            offset += len;
-
-            proto_tree_add_item(tree, hf_woww_character_face, tvb,
-                                offset, len, ENC_NA);
-            offset += len;
-
-            proto_tree_add_item(tree, hf_woww_character_hairstyle, tvb,
-                                offset, len, ENC_NA);
-            offset += len;
-
-            proto_tree_add_item(tree, hf_woww_character_haircolor, tvb,
-                                offset, len, ENC_NA);
-            offset += len;
-
-            proto_tree_add_item(tree, hf_woww_character_facialhair, tvb,
-                                offset, len, ENC_NA);
-            offset += len;
-
-            proto_tree_add_item(tree, hf_woww_starting_outfit, tvb,
-                                offset, len, ENC_NA);
+            ptvcursor_add(ptv, hf_woww_character_race, 1, ENC_NA);
+            ptvcursor_add(ptv, hf_woww_character_class, 1, ENC_NA);
+            ptvcursor_add(ptv, hf_woww_character_gender, 1, ENC_NA);
+            ptvcursor_add(ptv, hf_woww_character_skin, 1, ENC_NA);
+            ptvcursor_add(ptv, hf_woww_character_face, 1, ENC_NA);
+            ptvcursor_add(ptv, hf_woww_character_hairstyle, 1, ENC_NA);
+            ptvcursor_add(ptv, hf_woww_character_haircolor, 1, ENC_NA);
+            ptvcursor_add(ptv, hf_woww_character_facialhair, 1, ENC_NA);
+            ptvcursor_add(ptv, hf_woww_starting_outfit, 1, ENC_NA);
             break;
 
         default:
             break;
     }
+
+    ptvcursor_free(ptv);
 }
 
 static gint
