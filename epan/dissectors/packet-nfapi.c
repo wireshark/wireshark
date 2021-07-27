@@ -168,7 +168,7 @@ static const value_string nfapi_laa_carrier_type_vals[] = {
 	{ 0, NULL }
 };
 
-static const value_string nfapi_mutli_carrier_lbt_support_vals[] = {
+static const value_string nfapi_multi_carrier_lbt_support_vals[] = {
 	{ 0, "Multi carrier Mode A1" },
 	{ 1, "Multi carrier Mode A2" },
 	{ 2, "Multi carrier Mode B1" },
@@ -2429,7 +2429,7 @@ static void dissect_laa_multi_carrier_type_value(ptvcursor_t * ptvc, packet_info
 
 	if (test_value > 4)
 	{
-		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid mutli carrier type [0..4]");
+		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid multi carrier type [0..4]");
 	}
 }
 static void dissect_laa_multi_carrier_tx_value(ptvcursor_t * ptvc, packet_info* pinfo)
@@ -2439,7 +2439,7 @@ static void dissect_laa_multi_carrier_tx_value(ptvcursor_t * ptvc, packet_info* 
 
 	if (test_value > 1)
 	{
-		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid mutli carrier tx value [0..1]");
+		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid multi carrier tx value [0..1]");
 	}
 }
 static void dissect_laa_multi_carrier_freeze_value(ptvcursor_t * ptvc, packet_info* pinfo)
@@ -2449,7 +2449,7 @@ static void dissect_laa_multi_carrier_freeze_value(ptvcursor_t * ptvc, packet_in
 
 	if (test_value > 1)
 	{
-		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid mutli carrier freeze value [0..1]");
+		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid multi carrier freeze value [0..1]");
 	}
 }
 static void dissect_laa_tx_antenna_port_for_drs_value(ptvcursor_t * ptvc, packet_info* pinfo)
@@ -8951,7 +8951,7 @@ void proto_register_nfapi(void)
 		},
 		{ &hf_nfapi_multi_carrier_lbt_support,
 			{ "Multi carrier LBT support", "nfapi.multi.carrier.lbt.support",
-			FT_UINT16, BASE_DEC, VALS(nfapi_mutli_carrier_lbt_support_vals), 0x0,
+			FT_UINT16, BASE_DEC, VALS(nfapi_multi_carrier_lbt_support_vals), 0x0,
 			NULL, HFILL }
 		},
 		{ &hf_nfapi_partial_sf_support,
@@ -9612,7 +9612,7 @@ void proto_register_nfapi(void)
 			"Indicates if PHY supports Enhanced PDCCH", HFILL }
 		},
 		{ &hi_nfapi_multi_ack_csi_reporting,
-			{ "Multi ACK CSI reporting", "nfapi.pnf.phy_rel11.mutli_ack_csi_reporting",
+			{ "Multi ACK CSI reporting", "nfapi.pnf.phy_rel11.multi_ack_csi_reporting",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
 			"Indicates if PHY supports the multi ACK and CSI reporting required with CA and mixed FDD/TDD carriers. Equivalent to multiACK-CSI-Reporting-r11 in TS36.306", HFILL }
 		},
@@ -10199,7 +10199,7 @@ void proto_register_nfapi(void)
 			"Indicates if 'Antenna ports and scrambling identity' field is present.", HFILL }
 		},
 		{ &hf_nfapi_antenna_ports_and_scrambling_identity,
-			{ "Antenna ports and scrambling identity", "nfapi.antenna.ports.and.scrambling.identit",
+			{ "Antenna ports and scrambling identity", "nfapi.antenna.ports.and.scrambling.identity",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
 			"Indicates the Antenna port and, scrambling identity value", HFILL }
 		},
@@ -11066,22 +11066,22 @@ void proto_register_nfapi(void)
 		{ &hf_nfapi_timing_info_dl_config_earliest_arrival,
 			{ "DL Config Earliest Arrival", "nfapi.timing.info.dl.config.earliest.arrival",
 			FT_INT32, BASE_DEC, NULL, 0x0,
-			"The earlierst arrival offset in microseconds from the latest time acceptable for the DL Config as defined in the Timing Window in the PARAM.Response since the last transmission of the Timing Info Message.", HFILL }
+			"The earliest arrival offset in microseconds from the latest time acceptable for the DL Config as defined in the Timing Window in the PARAM.Response since the last transmission of the Timing Info Message.", HFILL }
 		},
 		{ &hf_nfapi_timing_info_tx_request_earliest_arrival,
 			{ "Tx Request Earliest Arrival", "nfapi.timing.info.tx.request.earliest.arrival",
 			FT_INT32, BASE_DEC, NULL, 0x0,
-			"The earlierst arrival offset in microseconds from the latest time acceptable for the Tx Request as defined in the Timing Window in the PARAM.Response since the last transmission of the Timing Info Message.", HFILL }
+			"The earliest arrival offset in microseconds from the latest time acceptable for the Tx Request as defined in the Timing Window in the PARAM.Response since the last transmission of the Timing Info Message.", HFILL }
 		},
 		{ &hf_nfapi_timing_info_ul_config_earliest_arrival,
 			{ "UL Config Earliest Arrival", "nfapi.timing.info.ul.config.earliest.arrival",
 			FT_INT32, BASE_DEC, NULL, 0x0,
-			"The earlierst arrival offset in microseconds from the latest time acceptable for the UL Config as defined in the Timing Window in the PARAM.Response since the last transmission of the Timing Info Message.", HFILL }
+			"The earliest arrival offset in microseconds from the latest time acceptable for the UL Config as defined in the Timing Window in the PARAM.Response since the last transmission of the Timing Info Message.", HFILL }
 		},
 		{ &hf_nfapi_timing_info_hi_dci0_earliest_arrival,
 			{ "HI_DCI0 Earliest Arrival", "nfapi.timing.info.hi.dci0.earliest.arrival",
 			FT_INT32, BASE_DEC, NULL, 0x0,
-			"The earlierst arrival offset in microseconds from the latest time acceptable for the HI_DCI0 as defined in the Timing Window in the PARAM.Response since the last transmission of the Timing Info Message.", HFILL }
+			"The earliest arrival offset in microseconds from the latest time acceptable for the HI_DCI0 as defined in the Timing Window in the PARAM.Response since the last transmission of the Timing Info Message.", HFILL }
 		},
 		{ &hf_nfapi_pcfich_power_offset,
 			{ "PCFICH Power Offset", "nfapi.pcfich.power.offset",
