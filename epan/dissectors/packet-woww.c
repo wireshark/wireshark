@@ -2434,148 +2434,72 @@ parse_SMSG_CHAR_ENUM(proto_tree* tree,
                      tvbuff_t* tvb,
                      gint32 offset)
 {
-    gint32 len = 1;
-    guint8 amount_of_characters = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(tree, hf_woww_amount_of_characters, tvb,
-                        offset, len, ENC_NA);
-    offset += len;
-    for (guint8 i = 0; i < amount_of_characters; i++) {
-        const gint length_of_id = 8;
-        const gint length_of_fields_after_name = 150;
-        // Set the tree name now and append extra info to it later when we get it
+    ptvcursor_t* ptv = ptvcursor_new(tree, tvb, offset);
+
+    guint32 amount_of_characters = 0;
+    ptvcursor_add_ret_uint(ptv, hf_woww_amount_of_characters, 1, ENC_NA, &amount_of_characters);
+    for (guint32 i = 0; i < amount_of_characters; i++) {
+        proto_tree* char_tree = ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH,
+                                                                ett_character, "Character");
+
+        ptvcursor_add(ptv, hf_woww_character_guid, 8, ENC_LITTLE_ENDIAN);
+
+        gint32 character_name_length = 0;
+
+        // Use the character_name later for the tree text
         guint8* character_name = tvb_get_stringz_enc(wmem_packet_scope(), tvb,
-                                                     offset + length_of_id,
-                                                     &len, ENC_UTF_8);
-        proto_tree* char_tree = proto_tree_add_subtree(tree,
-                                                       tvb,
-                                                       offset,
-                                                       length_of_id + len + length_of_fields_after_name,
-                                                       ett_character,
-                                                       NULL,
-                                                       character_name);
+                                                     ptvcursor_current_offset(ptv),
+                                                     &character_name_length, ENC_UTF_8);
 
-        len = length_of_id;
-        proto_tree_add_item(char_tree, hf_woww_character_guid, tvb,
-                            offset, len, ENC_LITTLE_ENDIAN);
-        offset += len;
+        ptvcursor_add(ptv, hf_woww_character_name, character_name_length, ENC_UTF_8|ENC_NA);
 
-        len = get_null_terminated_string_length(tvb, offset);
-        proto_tree_add_item(char_tree, hf_woww_character_name, tvb,
-                            offset, len, ENC_UTF_8|ENC_NA);
-        offset += len;
+        guint32 race = 0;
+        ptvcursor_add_ret_uint(ptv, hf_woww_character_race, 1, ENC_NA, &race);
+        guint32 class = 0;
+        ptvcursor_add_ret_uint(ptv, hf_woww_character_class, 1, ENC_NA, &class);
+        ptvcursor_add(ptv, hf_woww_character_gender, 1, ENC_NA);
+        ptvcursor_add(ptv, hf_woww_character_skin, 1, ENC_NA);
+        ptvcursor_add(ptv, hf_woww_character_face, 1, ENC_NA);
+        ptvcursor_add(ptv, hf_woww_character_hairstyle, 1, ENC_NA);
+        ptvcursor_add(ptv, hf_woww_character_haircolor, 1, ENC_NA);
+        ptvcursor_add(ptv, hf_woww_character_facialhair, 1, ENC_NA);
 
-        len = 1;
-        guint8 race = tvb_get_guint8(tvb, offset);
-        proto_tree_add_item(char_tree, hf_woww_character_race, tvb,
-                            offset, len, ENC_NA);
-        offset += len;
+        guint32 level = 0;
+        ptvcursor_add_ret_uint(ptv, hf_woww_character_level, 1, ENC_NA, &level);
 
-        guint8 class = tvb_get_guint8(tvb, offset);
-        proto_tree_add_item(char_tree, hf_woww_character_class, tvb,
-                            offset, len, ENC_NA);
-        offset += len;
-
-        proto_tree_add_item(char_tree, hf_woww_character_gender, tvb,
-                            offset, len, ENC_NA);
-        offset += len;
-
-        proto_tree_add_item(char_tree, hf_woww_character_skin, tvb,
-                            offset, len, ENC_NA);
-        offset += len;
-
-        proto_tree_add_item(char_tree, hf_woww_character_face, tvb,
-                            offset, len, ENC_NA);
-        offset += len;
-
-        proto_tree_add_item(char_tree, hf_woww_character_hairstyle, tvb,
-                            offset, len, ENC_NA);
-        offset += len;
-
-        proto_tree_add_item(char_tree, hf_woww_character_haircolor, tvb,
-                            offset, len, ENC_NA);
-        offset += len;
-
-        proto_tree_add_item(char_tree, hf_woww_character_facialhair, tvb,
-                            offset, len, ENC_NA);
-        offset += len;
-
-        guint8 level = tvb_get_guint8(tvb, offset);
-        proto_tree_add_item(char_tree, hf_woww_character_level, tvb,
-                            offset, len, ENC_NA);
-        offset += len;
-
-        proto_item_append_text(char_tree,
-                               " (%i %s %s)",
+        proto_item_set_text(char_tree,
+                               "%s (%i %s %s)",
+                               character_name,
                                level,
                                val_to_str_const(race, races_strings, "Unknown"),
                                val_to_str_const(class, classes_strings, "Unknown"));
 
-        len = 4;
-        proto_tree_add_item(char_tree, hf_woww_character_zone, tvb,
-                            offset, len, ENC_LITTLE_ENDIAN);
-        offset += len;
+        ptvcursor_add(ptv, hf_woww_character_zone, 4, ENC_LITTLE_ENDIAN);
+        ptvcursor_add(ptv, hf_woww_character_map, 4, ENC_LITTLE_ENDIAN);
 
-        proto_tree_add_item(char_tree, hf_woww_character_map, tvb,
-                            offset, len, ENC_LITTLE_ENDIAN);
-        offset += len;
+        ptvcursor_add(ptv, hf_woww_character_position_x, 4, ENC_LITTLE_ENDIAN);
+        ptvcursor_add(ptv, hf_woww_character_position_y, 4, ENC_LITTLE_ENDIAN);
+        ptvcursor_add(ptv, hf_woww_character_position_z, 4, ENC_LITTLE_ENDIAN);
 
-        proto_tree_add_item(char_tree, hf_woww_character_position_x, tvb,
-                            offset, len, ENC_LITTLE_ENDIAN);
-        offset += len;
+        ptvcursor_add(ptv, hf_woww_character_guild_id, 4, ENC_LITTLE_ENDIAN);
 
-        proto_tree_add_item(char_tree, hf_woww_character_position_y, tvb,
-                            offset, len, ENC_LITTLE_ENDIAN);
-        offset += len;
+        ptvcursor_add(ptv, hf_woww_character_flags, 4, ENC_LITTLE_ENDIAN);
 
-        proto_tree_add_item(char_tree, hf_woww_character_position_z, tvb,
-                            offset, len, ENC_LITTLE_ENDIAN);
-        offset += len;
+        ptvcursor_add(ptv, hf_woww_character_first_login, 1, ENC_NA);
 
-        proto_tree_add_item(char_tree, hf_woww_character_guild_id, tvb,
-                            offset, len, ENC_LITTLE_ENDIAN);
-        offset += len;
+        ptvcursor_add(ptv, hf_woww_character_pet_display_id, 4, ENC_LITTLE_ENDIAN);
+        ptvcursor_add(ptv, hf_woww_character_pet_level, 4, ENC_LITTLE_ENDIAN);
+        ptvcursor_add(ptv, hf_woww_character_pet_family, 4, ENC_LITTLE_ENDIAN);
 
-        proto_tree_add_item(char_tree, hf_woww_character_flags, tvb,
-                            offset, len, ENC_LITTLE_ENDIAN);
-        offset += len;
-
-        len = 1;
-        proto_tree_add_item(char_tree, hf_woww_character_first_login, tvb,
-                            offset, len, ENC_NA);
-        offset += len;
-
-        len = 4;
-        proto_tree_add_item(char_tree, hf_woww_character_pet_display_id, tvb,
-                            offset, len, ENC_NA);
-        offset += len;
-
-        proto_tree_add_item(char_tree, hf_woww_character_pet_level, tvb,
-                            offset, len, ENC_NA);
-        offset += len;
-
-        proto_tree_add_item(char_tree, hf_woww_character_pet_family, tvb,
-                            offset, len, ENC_NA);
-        offset += len;
-
-        proto_tree* equipment_tree = proto_tree_add_subtree(char_tree,
-                                                            tvb,
-                                                            offset,
-                                                            19 * 5,
-                                                            ett_character,
-                                                            NULL,
-                                                            "Equipment");
+        ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_character, "Equipment");
 
         for (gint equipment_slot = 0; equipment_slot < 20; equipment_slot++) {
-            len = 4;
-            proto_tree_add_item(equipment_tree, hf_woww_character_equipment_display_id, tvb,
-                                offset, len, ENC_LITTLE_ENDIAN);
-            offset += len;
-
-            len = 1;
-            proto_tree_add_item(equipment_tree, hf_woww_character_equipment_inventory_type, tvb,
-                                offset, len, ENC_NA);
-            offset += len;
+            ptvcursor_add(ptv, hf_woww_character_equipment_display_id, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_character_equipment_inventory_type, 1, ENC_NA);
         }
+
+        ptvcursor_pop_subtree(ptv); // Equipment subtree
+        ptvcursor_pop_subtree(ptv); // Character subtree
     }
 }
 
