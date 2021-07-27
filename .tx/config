@@ -13,6 +13,7 @@ trans.ja_JP = ui/qt/wireshark_ja_JP.ts
 trans.pl = ui/qt/wireshark_pl.ts
 trans.ru = ui/qt/wireshark_ru.ts
 trans.sv = ui/qt/wireshark_sv.ts
+trans.tr_TR = ui/qt/wireshark_tr_TR.ts
 trans.uk = ui/qt/wireshark_uk.ts
 trans.zh_CN = ui/qt/wireshark_zh_CN.ts
 type = QT

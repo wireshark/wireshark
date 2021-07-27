@@ -86,9 +86,13 @@ The following features are new (or have been significantly updated) since versio
 
 * tshark can now export TLS session keys with the --export-tls-session-keys option.
 
+<<<<<<< HEAD
 * Wireshark participated in the Google Season of Docs 2020 and the User’s Guide has been extensively updated.
 
 * Format of export to CSV in RTP Stream Analysis dialog was slightly changed. First line of export contains names of columns as in other CSV exports.
+=======
+* Wireshark now supports the Turkish language.
+>>>>>>> Qt: Add Turkey translation
 
 // === Removed Features and Support
 
