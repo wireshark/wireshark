@@ -318,7 +318,7 @@ void rtp_write_header(rtpstream_info_t *strinfo, FILE *file)
     wmem_free(NULL, addr_str);
 
     start_sec = g_htonl(strinfo->start_fd->abs_ts.secs);
-    start_usec = g_htonl(strinfo->start_fd->abs_ts.nsecs / 1000000);
+    start_usec = g_htonl(strinfo->start_fd->abs_ts.nsecs / 1000);
     /* rtpdump only accepts guint32 as source, will be fake for IPv6 */
     memset(&source, 0, sizeof source);
     sourcelen = strinfo->id.src_addr.len;
