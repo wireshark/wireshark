@@ -3351,7 +3351,7 @@ static int populate_summary_info(erf_t *erf_priv, wtap *wth, union wtap_pseudo_h
     state.tag_ptr += tagtotallength;
     state.remaining_len -= tagtotallength;
 
-    if ((tagtotallength = erf_meta_read_tag(&tag, state.tag_ptr, state.remaining_len))) {
+    if (erf_meta_read_tag(&tag, state.tag_ptr, state.remaining_len)) {
       /*
        * Process parent section tag if present (which must be the first tag in
        * the section).
