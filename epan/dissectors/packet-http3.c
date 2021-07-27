@@ -78,20 +78,28 @@ static const val64_string http3_stream_types[] = {
  * Frame type codes (62-bit code space).
  * https://tools.ietf.org/html/draft-ietf-quic-http-29#section-11.2.1
  */
+#define HTTP3_DATA            0x0
+#define HTTP3_HEADERS         0x1
+#define HTTP3_CANCEL_PUSH     0x3
+#define HTTP3_SETTINGS        0x4
+#define HTTP3_PUSH_PROMISE    0x5
+#define HTTP3_GOAWAY          0x7
+#define HTTP3_MAX_PUSH_ID     0xD
+
 static const val64_string http3_frame_types[] = {
     /* 0x00 - 0x3f Assigned via Standards Action or IESG Approval. */
-    { 0x00, "DATA" },
-    { 0x01, "HEADERS" },
+    { HTTP3_DATA, "DATA" },
+    { HTTP3_HEADERS, "HEADERS" },
     { 0x02, "Reserved" },       // "PRIORITY" in draft-22 and before
-    { 0x03, "CANCEL_PUSH" },
-    { 0x04, "SETTINGS" },
-    { 0x05, "PUSH_PROMISE" },
+    { HTTP3_CANCEL_PUSH, "CANCEL_PUSH" },
+    { HTTP3_SETTINGS, "SETTINGS" },
+    { HTTP3_PUSH_PROMISE, "PUSH_PROMISE" },
     { 0x06, "Reserved" },
-    { 0x07, "GOAWAY" },
+    { HTTP3_GOAWAY, "GOAWAY" },
     { 0x08, "Reserved" },
     { 0x09, "Reserved" },
-    { 0x0d, "MAX_PUSH_ID" },
-    { 0x0e, "DUPLICATE_PUSH" }, // Removed in draft-26
+    { HTTP3_MAX_PUSH_ID, "MAX_PUSH_ID" },
+    { 0x0e, "Reserved" }, // "DUPLICATE_PUSH" in draft-26 and before
     { 0xF0700, "PRIORITY_UPDATE" }, // draft-ietf-httpbis-priority-03
     { 0xF0701, "PRIORITY_UPDATE" }, // draft-ietf-httpbis-priority-03
     /* 0x40 - 0x3FFFFFFFFFFFFFFF Assigned via Specification Required policy */
@@ -256,10 +264,12 @@ dissect_http3_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
     if (frame_length) {
         proto_tree_add_item(tree, hf_http3_frame_payload, tvb, offset, (int)frame_length, ENC_NA);
 
-        /* Settings Frame */
-        if (frame_type == 0x04) {
-            tvbuff_t *next_tvb = tvb_new_subset_length(tvb, offset, (int)frame_length);
-            dissect_http3_settings(next_tvb, pinfo,tree, 0);
+        switch (frame_type) {
+            case HTTP3_SETTINGS: { /* Settings Frame */
+                tvbuff_t *next_tvb = tvb_new_subset_length(tvb, offset, (int)frame_length);
+                dissect_http3_settings(next_tvb, pinfo,tree, 0);
+            }
+            break;
         }
 
         offset += (int)frame_length;
