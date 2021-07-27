@@ -191,7 +191,7 @@ http3_check_frame_size(tvbuff_t *tvb, packet_info *pinfo, int offset)
 static int
 dissect_http3_settings(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* http3_tree, guint offset)
 {
-    guint64 settingsid;
+    guint64 settingsid, value;
     proto_item *ti_settings, *pi;
     int lenvar;
     proto_tree *settings_tree;
@@ -214,13 +214,16 @@ dissect_http3_settings(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* http3_
         proto_tree_add_item_ret_varint(settings_tree, hf_http3_settings_value, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
         switch(settingsid){
             case HTTP3_QPACK_MAX_TABLE_CAPACITY:
-                proto_tree_add_item_ret_varint(settings_tree, hf_http3_settings_qpack_max_table_capacity, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
+                proto_tree_add_item_ret_varint(settings_tree, hf_http3_settings_qpack_max_table_capacity, tvb, offset, -1, ENC_VARINT_QUIC, &value, &lenvar);
+                proto_item_append_text(ti_settings, ": %" G_GINT64_MODIFIER "u", value );
             break;
             case HTTP3_SETTINGS_MAX_FIELD_SECTION_SIZE:
-                proto_tree_add_item_ret_varint(settings_tree, hf_http3_settings_max_field_section_size, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
+                proto_tree_add_item_ret_varint(settings_tree, hf_http3_settings_max_field_section_size, tvb, offset, -1, ENC_VARINT_QUIC, &value, &lenvar);
+                proto_item_append_text(ti_settings, ": %" G_GINT64_MODIFIER "u", value );
             break;
             case HTTP3_QPACK_BLOCKED_STREAMS:
-                proto_tree_add_item_ret_varint(settings_tree, hf_http3_settings_qpack_blocked_streams, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
+                proto_tree_add_item_ret_varint(settings_tree, hf_http3_settings_qpack_blocked_streams, tvb, offset, -1, ENC_VARINT_QUIC, &value, &lenvar);
+                proto_item_append_text(ti_settings, ": %" G_GINT64_MODIFIER "u", value );
             break;
             default:
                 /* No Default */
