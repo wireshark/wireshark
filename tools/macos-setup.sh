@@ -97,7 +97,7 @@ fi
 # claimed to build faster than make.
 # Comment it out if you don't want it.
 #
-NINJA_VERSION=${NINJA_VERSION-1.8.2}
+NINJA_VERSION=${NINJA_VERSION-1.10.2}
 
 #
 # The following libraries and tools are required even to build only TShark.
