@@ -78,5 +78,5 @@ extern const value_string fc_lctl_proto_val[];
 
 /* Function definitions */
 const gchar *fclctl_get_typestr (guint8 linkctl_type, guint8 type);
-const gchar *fclctl_get_paramstr (guint32 linkctl_type, guint32 param);
+const gchar *fclctl_get_paramstr (wmem_allocator_t *pool, guint32 linkctl_type, guint32 param);
 #endif

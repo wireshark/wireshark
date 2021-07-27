@@ -2784,7 +2784,7 @@ typedef struct _cmdset_t {
     scsi_cdb_table_t   *cdb_table;
 } cmdset_t;
 
-static cmdset_t *get_cmdset_data(itlq_nexus_t *itlq, itl_nexus_t *itl);
+static cmdset_t *get_cmdset_data(wmem_allocator_t *pool, itlq_nexus_t *itlq, itl_nexus_t *itl);
 
 static void
 dissect_naa_designator(proto_tree *tree, tvbuff_t *tvb, guint offset, guint len)
@@ -5384,7 +5384,7 @@ dissect_spc_mgmt_protocol_in(tvbuff_t *tvb_a, packet_info *pinfo _U_,
             return;
         }
 
-        csdata = get_cmdset_data(cdata->itlq, cdata->itl);
+        csdata = get_cmdset_data(pinfo->pool, cdata->itlq, cdata->itl);
 
         it = proto_tree_add_uint(tree, hf_scsi_mpi_service_action, tvb_a, 0, 0, cdata->itlq->flags & 0x7f);
         proto_item_set_generated(it);
@@ -5761,13 +5761,13 @@ dissect_scsi_rsp(tvbuff_t *tvb, packet_info *pinfo,
     cmdset_t         *csdata;
     scsi_task_data_t *cdata;
 
-    cdata = wmem_new(wmem_packet_scope(), scsi_task_data_t);
+    cdata = wmem_new(pinfo->pool, scsi_task_data_t);
     cdata->itl = itl;
     cdata->itlq = itlq;
     cdata->type = SCSI_PDU_TYPE_RSP;
     tap_queue_packet(scsi_tap, pinfo, cdata);
 
-    csdata = get_cmdset_data(itlq, itl);
+    csdata = get_cmdset_data(pinfo->pool, itlq, itl);
 
     /* Nothing really to do here, just print some stuff passed to us
      */
@@ -5821,7 +5821,7 @@ dissect_scsi_snsinfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     const char       *old_proto;
     scsi_task_data_t *cdata;
 
-    cdata = wmem_new(wmem_packet_scope(), scsi_task_data_t);
+    cdata = wmem_new(pinfo->pool, scsi_task_data_t);
     cdata->itl = itl;
     cdata->itlq = itlq;
     cdata->type = SCSI_PDU_TYPE_SNS;
@@ -6140,7 +6140,7 @@ dissect_scsi_cdb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     opcode = tvb_get_guint8(tvb, offset);
     itlq->scsi_opcode = opcode;
-    csdata = get_cmdset_data(itlq, itl);
+    csdata = get_cmdset_data(pinfo->pool, itlq, itl);
 
 #if 0 /* XXX: devtype never actually used ?? */
     if (devtype_arg != SCSI_DEV_UNKNOWN) {
@@ -6166,7 +6166,7 @@ dissect_scsi_cdb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* make sure no one will overwrite this in the info column */
     col_set_fence(pinfo->cinfo, COL_INFO);
 
-    cdata = wmem_new(wmem_packet_scope(), scsi_task_data_t);
+    cdata = wmem_new(pinfo->pool, scsi_task_data_t);
     cdata->itl = itl;
     cdata->itlq = itlq;
     cdata->type = SCSI_PDU_TYPE_CDB;
@@ -6247,13 +6247,13 @@ dissect_scsi_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 
     payload_len = tvb_reported_length(tvb);
-    cdata = wmem_new(wmem_packet_scope(), scsi_task_data_t);
+    cdata = wmem_new(pinfo->pool, scsi_task_data_t);
     cdata->itl = itl;
     cdata->itlq = itlq;
     cdata->type = SCSI_PDU_TYPE_CDB;
     tap_queue_packet(scsi_tap, pinfo, cdata);
 
-    csdata = get_cmdset_data(itlq, itl);
+    csdata = get_cmdset_data(pinfo->pool, itlq, itl);
 
     old_proto = pinfo->current_proto;
     pinfo->current_proto="SCSI";
@@ -6425,7 +6425,7 @@ end_of_payload:
 }
 
 static cmdset_t *
-get_cmdset_data(itlq_nexus_t *itlq, itl_nexus_t *itl)
+get_cmdset_data(wmem_allocator_t *pool, itlq_nexus_t *itlq, itl_nexus_t *itl)
 {
     cmdset_t *csdata;
     guint8    cmdset;
@@ -6444,7 +6444,7 @@ get_cmdset_data(itlq_nexus_t *itlq, itl_nexus_t *itl)
         cmdset = scsi_def_devtype;
     }
 
-    csdata = wmem_new(wmem_packet_scope(), cmdset_t);
+    csdata = wmem_new(pool, cmdset_t);
 
     switch(cmdset&SCSI_CMDSET_MASK) {
     case SCSI_DEV_SBC:

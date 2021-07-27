@@ -3605,7 +3605,7 @@ get_usage_page_string(guint32 usage_page)
 
 /* Returns usage page item string */
 static gchar*
-get_usage_page_item_string(guint32 usage_page, guint32 id)
+get_usage_page_item_string(wmem_allocator_t *pool, guint32 usage_page, guint32 id)
 {
     const char *str = NULL;
 
@@ -3726,7 +3726,7 @@ get_usage_page_item_string(guint32 usage_page, guint32 id)
     if (!str)
         str = "Reserved";
 
-    return wmem_strdup_printf(wmem_packet_scope(), str, id);
+    return wmem_strdup_printf(pool, str, id);
 }
 
 /* Dissector for the data in a HID main report. */
@@ -3885,7 +3885,7 @@ dissect_usb_hid_report_globalitem_data(packet_info *pinfo _U_, proto_tree *tree,
 
 /* Dissector for the data in a HID main report. */
 static int
-dissect_usb_hid_report_localitem_data(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, unsigned int bSize, unsigned int bTag, struct usb_hid_global_state *global)
+dissect_usb_hid_report_localitem_data(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, unsigned int bSize, unsigned int bTag, struct usb_hid_global_state *global)
 {
     guint32 id = 0xffff;
     proto_item *ti = proto_tree_get_parent(tree);
@@ -3903,7 +3903,7 @@ dissect_usb_hid_report_localitem_data(packet_info *pinfo _U_, proto_tree *tree, 
                     id = tvb_get_guint8(tvb, offset);
                 else if (bSize == 2)
                     id = tvb_get_ntohs(tvb, offset);
-                str = get_usage_page_item_string(global->usage_page, id);
+                str = get_usage_page_item_string(pinfo->pool, global->usage_page, id);
                 proto_tree_add_uint_format(tree, hf_usb_hid_localitem_usage, tvb, offset, bSize, id, "Usage: %s (0x%02x)", str, id);
                 proto_item_append_text(ti, " (%s)", str);
             }
@@ -4967,7 +4967,7 @@ dissect_usb_hid_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                         for(unsigned int j = 0; j < wmem_array_get_count(field->usages); j++) {
                             guint32 usage = *((guint32*) wmem_array_index(field->usages, j));
                             proto_tree_add_uint_bits_format_value(unk_tree, hf_usb_hid_localitem_usage, tvb, hid_bit_offset, data_size,
-                                    usage, "%s", get_usage_page_item_string(field->usage_page, usage));
+                                    usage, "%s", get_usage_page_item_string(pinfo->pool, field->usage_page, usage));
                         }
                         hid_bit_offset += data_size;
                     }

@@ -928,7 +928,7 @@ zdp_parse_simple_desc(proto_tree *tree, gint ettindex, tvbuff_t *tvb, guint *off
  *@param length length of the complex descriptor.
 */
 void
-zdp_parse_complex_desc(proto_tree *tree, gint ettindex, tvbuff_t *tvb, guint *offset, guint length)
+zdp_parse_complex_desc(packet_info *pinfo, proto_tree *tree, gint ettindex, tvbuff_t *tvb, guint *offset, guint length)
 {
     enum {
         tag_charset = 1,
@@ -955,7 +955,7 @@ zdp_parse_complex_desc(proto_tree *tree, gint ettindex, tvbuff_t *tvb, guint *of
 
     proto_tree  *field_tree;
 
-    gchar   *complex = (gchar *)wmem_alloc(wmem_packet_scope(), max_len);
+    gchar   *complex = (gchar *)wmem_alloc(pinfo->pool, max_len);
     guint8  tag;
 
     if ((tree) && (ettindex != -1)) {
@@ -986,7 +986,7 @@ zdp_parse_complex_desc(proto_tree *tree, gint ettindex, tvbuff_t *tvb, guint *of
     else {
         gchar *str;
 
-        str = (gchar *) tvb_get_string_enc(wmem_packet_scope(), tvb, *offset+1, length-1, ENC_ASCII|ENC_NA);
+        str = (gchar *) tvb_get_string_enc(pinfo->pool, tvb, *offset+1, length-1, ENC_ASCII|ENC_NA);
         /* Handles all string type XML tags. */
         if (tag <= tag_icon_url) {
             g_snprintf(complex, max_len, "<%s>%s</%s>", tag_name[tag], str, tag_name[tag]);

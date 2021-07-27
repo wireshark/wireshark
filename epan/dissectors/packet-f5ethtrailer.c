@@ -1735,7 +1735,7 @@ dissect_high_trailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
  * @return                  Number of btyes consumed
  */
 static guint
-dissect_med_trailer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset,
+dissect_med_trailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset,
     guint8 trailer_length, guint8 trailer_ver, f5eth_tap_data_t *tdata)
 {
     proto_item *pi = NULL;
@@ -1767,7 +1767,7 @@ dissect_med_trailer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gui
             if (rstcausever == 0x00) {
                 col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "[F5RST%s: %s]",
                     tvb_get_guint8(tvb, offset + F5_MEDV1_LENMIN) & 0x01 ? "(peer)" : "",
-                    tvb_get_string_enc(wmem_packet_scope(), tvb, offset + F5_MEDV1_LENMIN + 9,
+                    tvb_get_string_enc(pinfo->pool, tvb, offset + F5_MEDV1_LENMIN + 9,
                         rstcauselen - 9, ENC_ASCII));
             }
         }
@@ -1789,7 +1789,7 @@ dissect_med_trailer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gui
             if (rstcausever == 0x00) {
             col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "[F5RST%s: %s]",
                 tvb_get_guint8(tvb, offset + F5_MEDV2_LENMIN) & 0x01 ? "(peer)" : "",
-                    tvb_get_string_enc(wmem_packet_scope(), tvb, offset + F5_MEDV2_LENMIN + 9,
+                    tvb_get_string_enc(pinfo->pool, tvb, offset + F5_MEDV2_LENMIN + 9,
                         rstcauselen - 9, ENC_ASCII));
             }
         }
@@ -1811,7 +1811,7 @@ dissect_med_trailer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gui
             if (rstcausever == 0x00) {
             col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "[F5RST%s: %s]",
                 tvb_get_gint8(tvb, offset + F5_MEDV3_LENMIN) & 0x01 ? "(peer)" : "",
-                    tvb_get_string_enc(wmem_packet_scope(), tvb, offset + F5_MEDV3_LENMIN + 9,
+                    tvb_get_string_enc(pinfo->pool, tvb, offset + F5_MEDV3_LENMIN + 9,
                         rstcauselen - 9, ENC_ASCII));
             }
         }
@@ -1913,7 +1913,7 @@ dissect_med_trailer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gui
                 proto_item_append_text(rc_item,
                     ": [%" G_GINT64_MODIFIER "x:%" G_GINT64_MODIFIER "u]%s %s", rstcauseval,
                     rstcauseline, rstcausepeer ? " {peer}" : "",
-                        tvb_get_string_enc(wmem_packet_scope(), tvb, o,
+                        tvb_get_string_enc(pinfo->pool, tvb, o,
                         rstcauselen - (o - startcause), ENC_ASCII));
                 proto_tree_add_item(rc_tree, hf_rstcause_txt, tvb, o,
                     rstcauselen - (o - startcause), ENC_ASCII | ENC_NA);
@@ -1965,7 +1965,7 @@ dissect_low_trailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint o
              * active */
             if (have_tap_listener(tap_f5ethtrailer)
                 && tvb_get_guint8(tvb, offset + (F5_LOWV94_LEN - 16)) != 0) {
-                tdata->virtual_name = tvb_get_string_enc(wmem_packet_scope(), tvb,
+                tdata->virtual_name = tvb_get_string_enc(pinfo->pool, tvb,
                     offset + (F5_LOWV94_LEN - 16), 16, ENC_ASCII);
             }
         } else {
@@ -1975,7 +1975,7 @@ dissect_low_trailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint o
              * active */
             if (have_tap_listener(tap_f5ethtrailer)
                 && tvb_get_guint8(tvb, offset + (F5_LOWV10_LEN - 16)) != 0) {
-                tdata->virtual_name = tvb_get_string_enc(wmem_packet_scope(), tvb,
+                tdata->virtual_name = tvb_get_string_enc(pinfo->pool, tvb,
                     offset + (F5_LOWV10_LEN - 16), 16, ENC_ASCII);
             }
         }
@@ -1994,7 +1994,7 @@ dissect_low_trailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint o
         /* Analysis doesn't care about the virtual name, only populate if there is a tap active
          */
         if (vipnamelen > 0 && have_tap_listener(tap_f5ethtrailer)) {
-            tdata->virtual_name = tvb_get_string_enc(wmem_packet_scope(), tvb,
+            tdata->virtual_name = tvb_get_string_enc(pinfo->pool, tvb,
                 offset + F5_LOWV1_LENMIN, vipnamelen, ENC_ASCII);
         }
         break;
@@ -2280,7 +2280,7 @@ dissect_dpt_trailer_noise_med(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
             col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "[F5RST%s: %s]",
                 tvb_get_guint8(tvb, o + F5_MEDV4_LENMIN) & 0x01 ? "(peer)" : "",
                 tvb_get_string_enc(
-                    wmem_packet_scope(), tvb, o + F5_MEDV4_LENMIN + 9, rstcauselen - 9, ENC_ASCII));
+                    pinfo->pool, tvb, o + F5_MEDV4_LENMIN + 9, rstcauselen - 9, ENC_ASCII));
         }
     }
 
@@ -2360,7 +2360,7 @@ dissect_dpt_trailer_noise_med(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
                 ": [%" G_GINT64_MODIFIER "x:%" G_GINT64_MODIFIER "u]%s %s", rstcauseval,
                 rstcauseline, rstcausepeer ? " {peer}" : "",
                 tvb_get_string_enc(
-                    wmem_packet_scope(), tvb, o, rstcauselen - (o - startcause), ENC_ASCII));
+                    pinfo->pool, tvb, o, rstcauselen - (o - startcause), ENC_ASCII));
             proto_tree_add_item(rc_tree, hf_rstcause_txt, tvb, o,
                 rstcauselen - (o - startcause), ENC_ASCII | ENC_NA);
             /*o = startcause + rstcauselen;*/
@@ -2930,7 +2930,7 @@ found_trailer:
     proto_item *trailer_item = NULL;
 
     /* Initialize data structure for taps and analysis */
-    tdata = wmem_new0(wmem_packet_scope(), f5eth_tap_data_t);
+    tdata = wmem_new0(pinfo->pool, f5eth_tap_data_t);
 
     tdata->magic = F5ETH_TAP_MAGIC;
     tdata->slot = F5ETH_TAP_SLOT_MAX;
@@ -3142,13 +3142,13 @@ f5eth_bytes_to_hexstrnz(wmem_allocator_t *scope, const guchar *ba, gint ba_len)
  * @return             Null terminated keylog record wmem allocated with file scope
  */
 static gchar *
-f5eth_add_tls_keylog(keylog_t keylog_type, f5tls_element_t *xxxx, f5tls_element_t *yyyy)
+f5eth_add_tls_keylog(packet_info *pinfo, keylog_t keylog_type, f5tls_element_t *xxxx, f5tls_element_t *yyyy)
 {
     gchar *xxxx_hex;
     gchar *yyyy_hex;
 
-    xxxx_hex = f5eth_bytes_to_hexstrnz(wmem_packet_scope(), xxxx->data, xxxx->len);
-    yyyy_hex = f5eth_bytes_to_hexstrnz(wmem_packet_scope(), yyyy->data, yyyy->len);
+    xxxx_hex = f5eth_bytes_to_hexstrnz(pinfo->pool, xxxx->data, xxxx->len);
+    yyyy_hex = f5eth_bytes_to_hexstrnz(pinfo->pool, yyyy->data, yyyy->len);
 
     switch (keylog_type) {
     case CLIENT_RANDOM:
@@ -3265,7 +3265,7 @@ dissect_dpt_trailer_tls_type0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
                 F5_DPT_V1_TLV_HDR_LEN + F5TLS_SECRET_LEN, F5TLS_RANDOM_LEN);
 
             if (conv_data->client_random.len != 0 && ms_changed) {
-                pdata->cr_ms = f5eth_add_tls_keylog(
+                pdata->cr_ms = f5eth_add_tls_keylog(pinfo,
                     CLIENT_RANDOM, &conv_data->client_random, &conv_data->master_secret);
             }
         }
@@ -3387,23 +3387,23 @@ dissect_dpt_trailer_tls_type2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
             if (conv_data->client_random.len != 0) {
                 if (ver == 1 && ets_changed) {
-                    pdata->cr_erly_traff = f5eth_add_tls_keylog(EARLY_TRAFFIC_SECRET,
+                    pdata->cr_erly_traff = f5eth_add_tls_keylog(pinfo, EARLY_TRAFFIC_SECRET,
                         &conv_data->client_random, &conv_data->erly_traf_sec);
                 }
                 if (cap_changed) {
-                    pdata->cr_clnt_app = f5eth_add_tls_keylog(CLIENT_TRAFFIC_SECRET_0,
+                    pdata->cr_clnt_app = f5eth_add_tls_keylog(pinfo, CLIENT_TRAFFIC_SECRET_0,
                         &conv_data->client_random, &conv_data->clnt_ap_sec);
                 }
                 if (sap_changed) {
-                    pdata->cr_srvr_app = f5eth_add_tls_keylog(SERVER_TRAFFIC_SECRET_0,
+                    pdata->cr_srvr_app = f5eth_add_tls_keylog(pinfo, SERVER_TRAFFIC_SECRET_0,
                         &conv_data->client_random, &conv_data->srvr_ap_sec);
                 }
                 if (chs_changed) {
-                    pdata->cr_clnt_hs = f5eth_add_tls_keylog(CLIENT_HANDSHAKE_TRAFFIC_SECRET,
+                    pdata->cr_clnt_hs = f5eth_add_tls_keylog(pinfo, CLIENT_HANDSHAKE_TRAFFIC_SECRET,
                         &conv_data->client_random, &conv_data->clnt_hs_sec);
                 }
                 if (shs_changed) {
-                    pdata->cr_srvr_hs = f5eth_add_tls_keylog(SERVER_HANDSHAKE_TRAFFIC_SECRET,
+                    pdata->cr_srvr_hs = f5eth_add_tls_keylog(pinfo, SERVER_HANDSHAKE_TRAFFIC_SECRET,
                         &conv_data->client_random, &conv_data->srvr_hs_sec);
                 }
             }
@@ -3493,7 +3493,7 @@ dissect_dpt_trailer_tls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
        different frames.  After the first pass, the keylog entries are stored
        on the individual packet's data */
     if (pref_generate_keylog) {
-        tls_data = wmem_new0(wmem_packet_scope(), f5tls_data_t);
+        tls_data = wmem_new0(pinfo->pool, f5tls_data_t);
         if (!pinfo->fd->visited) {
             conv           = find_or_create_conversation(pinfo);
             tls_data->conv = (f5tls_conversation_data_t *)conversation_get_proto_data(
@@ -4272,7 +4272,7 @@ dissect_f5fileinfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "FILEINFO");
 
-    tap_data        = wmem_new0(wmem_packet_scope(), struct f5fileinfo_tap_data);
+    tap_data        = wmem_new0(pinfo->pool, struct f5fileinfo_tap_data);
     tap_data->magic = F5FILEINFO_TAP_MAGIC;
 
     while (tvb_captured_length_remaining(tvb, offset)) {
@@ -4305,7 +4305,7 @@ dissect_f5fileinfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
             proto_tree_add_item(
                 tree, hf_fi_platform, tvb, offset + 6, objlen - 6, ENC_ASCII | ENC_NA);
             platform =
-                tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 6, objlen - 6, ENC_ASCII);
+                tvb_get_string_enc(pinfo->pool, tvb, offset + 6, objlen - 6, ENC_ASCII);
             proto_tree_add_string_format(tree, hf_fi_platformname, tvb, offset + 6, objlen - 6, "",
                 "%s: %s", platform,
                 str_to_str(platform, f5info_platform_strings, "Unknown, please report"));

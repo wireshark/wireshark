@@ -2672,13 +2672,13 @@ dissect_ndr_cvstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
      */
     tvb_ensure_bytes_exist(tvb, offset, buffer_len);
     if (size_is == sizeof(guint16)) {
-        s = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, buffer_len,
+        s = tvb_get_string_enc(pinfo->pool, tvb, offset, buffer_len,
                                ENC_UTF_16|DREP_ENC_INTEGER(drep));
     } else {
         /*
          * XXX - what if size_is is neither 1 nor 2?
          */
-        s = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, buffer_len,
+        s = tvb_get_string_enc(pinfo->pool, tvb, offset, buffer_len,
                                DREP_ENC_CHAR(drep));
     }
     if (tree && buffer_len)
@@ -2847,13 +2847,13 @@ dissect_ndr_vstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
      */
     tvb_ensure_bytes_exist(tvb, offset, buffer_len);
     if (size_is == sizeof(guint16)) {
-        s = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, buffer_len,
+        s = tvb_get_string_enc(pinfo->pool, tvb, offset, buffer_len,
                                ENC_UTF_16|DREP_ENC_INTEGER(drep));
     } else {
         /*
          * XXX - what if size_is is neither 1 nor 2?
          */
-        s = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, buffer_len,
+        s = tvb_get_string_enc(pinfo->pool, tvb, offset, buffer_len,
                                DREP_ENC_CHAR(drep));
     }
     if (tree && buffer_len)
@@ -3491,7 +3491,7 @@ dissect_sec_vt_bitmask(proto_tree *tree, tvbuff_t *tvb)
 }
 
 static void
-dissect_sec_vt_pcontext(proto_tree *tree, tvbuff_t *tvb)
+dissect_sec_vt_pcontext(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb)
 {
     int offset = 0;
     proto_item *ti = NULL;
@@ -3504,7 +3504,7 @@ dissect_sec_vt_pcontext(proto_tree *tree, tvbuff_t *tvb)
     tvb_get_letohguid(tvb, offset, &uuid);
     uuid_name = guids_get_uuid_name(&uuid);
     if (!uuid_name) {
-            uuid_name = guid_to_str(wmem_packet_scope(), &uuid);
+            uuid_name = guid_to_str(pinfo->pool, &uuid);
     }
 
     proto_tree_add_guid_format(tr, hf_dcerpc_sec_vt_pcontext_uuid, tvb,
@@ -3518,7 +3518,7 @@ dissect_sec_vt_pcontext(proto_tree *tree, tvbuff_t *tvb)
     tvb_get_letohguid(tvb, offset, &uuid);
     uuid_name = guids_get_uuid_name(&uuid);
     if (!uuid_name) {
-            uuid_name = guid_to_str(wmem_packet_scope(), &uuid);
+            uuid_name = guid_to_str(pinfo->pool, &uuid);
     }
 
     proto_tree_add_guid_format(tr, hf_dcerpc_sec_vt_pcontext_uuid, tvb,
@@ -3676,7 +3676,7 @@ dissect_verification_trailer_impl(packet_info *pinfo, tvbuff_t *tvb, int stub_of
             dissect_sec_vt_bitmask(tr, cmd_tvb);
             break;
         case SEC_VT_COMMAND_PCONTEXT:
-            dissect_sec_vt_pcontext(tr, cmd_tvb);
+            dissect_sec_vt_pcontext(pinfo, tr, cmd_tvb);
             break;
         case SEC_VT_COMMAND_HEADER2:
             dissect_sec_vt_header(pinfo, tr, cmd_tvb);
@@ -4062,7 +4062,7 @@ dissect_dcerpc_cn_bind(tvbuff_t *tvb, gint offset, packet_info *pinfo,
             iface_item = proto_tree_add_item(ctx_tree, hf_dcerpc_cn_bind_abstract_syntax, tvb, offset, 0, ENC_NA);
             iface_tree = proto_item_add_subtree(iface_item, ett_dcerpc_cn_iface);
 
-            uuid_str = guid_to_str(wmem_packet_scope(), (e_guid_t*)&if_id);
+            uuid_str = guid_to_str(pinfo->pool, (e_guid_t*)&if_id);
             uuid_name = guids_get_uuid_name(&if_id);
             if (uuid_name) {
                 proto_tree_add_guid_format(iface_tree, hf_dcerpc_cn_bind_if_id, tvb,
@@ -4106,7 +4106,7 @@ dissect_dcerpc_cn_bind(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                 trans_item = proto_tree_add_item(ctx_tree, hf_dcerpc_cn_bind_trans_syntax, tvb, offset, 0, ENC_NA);
                 trans_tree = proto_item_add_subtree(trans_item, ett_dcerpc_cn_trans_syntax);
 
-                uuid_str = guid_to_str(wmem_packet_scope(), (e_guid_t *) &trans_id);
+                uuid_str = guid_to_str(pinfo->pool, (e_guid_t *) &trans_id);
                 uuid_name = guids_get_uuid_name(&trans_id);
 
                 /* check for [MS-RPCE] 3.3.1.5.3 Bind Time Feature Negotiation */
@@ -4273,7 +4273,7 @@ dissect_dcerpc_cn_bind_ack(tvbuff_t *tvb, gint offset, packet_info *pinfo,
             dcerpc_tvb_get_uuid(tvb, offset, hdr->drep, &trans_id);
             uuid_name = guids_get_uuid_name(&trans_id);
             if (! uuid_name) {
-                uuid_name = guid_to_str(wmem_packet_scope(), (e_guid_t *) &trans_id);
+                uuid_name = guid_to_str(pinfo->pool, (e_guid_t *) &trans_id);
             }
             proto_tree_add_guid_format(ctx_tree, hf_dcerpc_cn_ack_trans_id, tvb,
                                        offset, 16, (e_guid_t *) &trans_id, "Transfer Syntax: %s",
@@ -4594,7 +4594,7 @@ dissect_dcerpc_cn_rqst(tvbuff_t *tvb, gint offset, packet_info *pinfo,
         if (dcerpc_tree) {
             proto_tree_add_guid_format(dcerpc_tree, hf_dcerpc_obj_id, tvb,
                                        offset, 16, (e_guid_t *) &obj_id, "Object UUID: %s",
-                                       guid_to_str(wmem_packet_scope(), (e_guid_t *) &obj_id));
+                                       guid_to_str(pinfo->pool, (e_guid_t *) &obj_id));
         }
         offset += 16;
     }
@@ -4692,7 +4692,7 @@ dissect_dcerpc_cn_rqst(tvbuff_t *tvb, gint offset, packet_info *pinfo,
         if (value) {
             dcerpc_info *di;
 
-            di = wmem_new0(wmem_packet_scope(), dcerpc_info);
+            di = wmem_new0(pinfo->pool, dcerpc_info);
             /* handoff this call */
             di->dcerpc_procedure_name = "";
             di->conv = conv;
@@ -4811,7 +4811,7 @@ dissect_dcerpc_cn_resp(tvbuff_t *tvb, gint offset, packet_info *pinfo,
         if (value) {
             dcerpc_info *di;
 
-            di = wmem_new0(wmem_packet_scope(), dcerpc_info);
+            di = wmem_new0(pinfo->pool, dcerpc_info);
             /* handoff this call */
             di->dcerpc_procedure_name = "";
             di->conv = conv;
@@ -4827,7 +4827,7 @@ dissect_dcerpc_cn_resp(tvbuff_t *tvb, gint offset, packet_info *pinfo,
             if (dcerpc_tree && (memcmp(&value->object_uuid, &obj_id_null, sizeof(obj_id_null)) != 0)) {
                 pi = proto_tree_add_guid_format(dcerpc_tree, hf_dcerpc_obj_id, tvb,
                                                 offset, 0, (e_guid_t *) &value->object_uuid, "Object UUID: %s",
-                                                guid_to_str(wmem_packet_scope(), (e_guid_t *) &value->object_uuid));
+                                                guid_to_str(pinfo->pool, (e_guid_t *) &value->object_uuid));
                 proto_item_set_generated(pi);
             }
 
@@ -4979,7 +4979,7 @@ dissect_dcerpc_cn_fault(tvbuff_t *tvb, gint offset, packet_info *pinfo,
             dcerpc_info *di;
             proto_item *parent_pi;
 
-            di = wmem_new0(wmem_packet_scope(), dcerpc_info);
+            di = wmem_new0(pinfo->pool, dcerpc_info);
             /* handoff this call */
             di->dcerpc_procedure_name = "";
             di->conv = conv;
@@ -5157,7 +5157,7 @@ dissect_dcerpc_cn_rts(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     /* Create the RTS PDU tree - we do not yet know its name */
     cn_rts_pdu_tree = proto_tree_add_subtree_format(dcerpc_tree, tvb, offset, -1, ett_dcerpc_cn_rts_pdu, &tf, "RTS PDU: %u commands", commands_nb);
 
-    cmd = (guint32 *)wmem_alloc(wmem_packet_scope(), sizeof (guint32) * (commands_nb + 1));
+    cmd = (guint32 *)wmem_alloc(pinfo->pool, sizeof (guint32) * (commands_nb + 1));
 
     /* Dissect commands */
     for (i = 0; i < commands_nb; ++i) {
@@ -5198,7 +5198,7 @@ dissect_dcerpc_cn_rts(tvbuff_t *tvb, gint offset, packet_info *pinfo,
             const guint32 conformance_count = dcerpc_tvb_get_ntohl(tvb, offset, hdr->drep);
             proto_tree_add_uint(cn_rts_command_tree, hf_dcerpc_cn_rts_command_conformancecount, tvb, offset, 4, conformance_count);
             offset += 4;
-            padding = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, offset, conformance_count);
+            padding = (guint8 *)tvb_memdup(pinfo->pool, tvb, offset, conformance_count);
             proto_tree_add_bytes(cn_rts_command_tree, hf_dcerpc_cn_rts_command_padding, tvb, offset, conformance_count, padding);
             offset += conformance_count;
         } break;
@@ -5224,7 +5224,7 @@ dissect_dcerpc_cn_rts(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                offset += 16;
             } break;
             }
-            padding = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, offset, 12);
+            padding = (guint8 *)tvb_memdup(pinfo->pool, tvb, offset, 12);
             proto_tree_add_bytes(cn_rts_command_tree, hf_dcerpc_cn_rts_command_padding, tvb, offset, 12, padding);
             offset += 12;
         } break;
@@ -6240,7 +6240,7 @@ dissect_dcerpc_dg_rqst(tvbuff_t *tvb, int offset, packet_info *pinfo,
     matched_key.call_id = hdr->seqnum;
     value = (dcerpc_call_value *)wmem_map_lookup(dcerpc_matched, &matched_key);
     if (!value) {
-        value = wmem_new(wmem_packet_scope(), dcerpc_call_value);
+        value = wmem_new(pinfo->pool, dcerpc_call_value);
         value->uuid = hdr->if_id;
         value->ver = hdr->if_ver;
         value->object_uuid = hdr->obj_id;
@@ -6252,7 +6252,7 @@ dissect_dcerpc_dg_rqst(tvbuff_t *tvb, int offset, packet_info *pinfo,
         value->private_data = NULL;
     }
 
-    di = wmem_new0(wmem_packet_scope(), dcerpc_info);
+    di = wmem_new0(pinfo->pool, dcerpc_info);
     di->dcerpc_procedure_name = "";
     di->conv = conv;
     di->call_id = hdr->seqnum;
@@ -6306,7 +6306,7 @@ dissect_dcerpc_dg_resp(tvbuff_t *tvb, int offset, packet_info *pinfo,
     matched_key.call_id = hdr->seqnum;
     value = (dcerpc_call_value *)wmem_map_lookup(dcerpc_matched, &matched_key);
     if (!value) {
-        value = wmem_new0(wmem_packet_scope(), dcerpc_call_value);
+        value = wmem_new0(pinfo->pool, dcerpc_call_value);
         value->uuid = hdr->if_id;
         value->ver = hdr->if_ver;
         value->object_uuid = hdr->obj_id;
@@ -6314,7 +6314,7 @@ dissect_dcerpc_dg_resp(tvbuff_t *tvb, int offset, packet_info *pinfo,
         value->rep_frame = pinfo->num;
     }
 
-    di = wmem_new0(wmem_packet_scope(), dcerpc_info);
+    di = wmem_new0(pinfo->pool, dcerpc_info);
     di->dcerpc_procedure_name = "";
     di->conv = conv;
     di->transport_salt = -1;
@@ -6519,12 +6519,12 @@ dissect_dcerpc_dg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     if (tree) {
         proto_tree_add_guid_format(dcerpc_tree, hf_dcerpc_obj_id, tvb,
                                    offset, 16, (e_guid_t *) &hdr.obj_id, "Object UUID: %s",
-                                   guid_to_str(wmem_packet_scope(), (e_guid_t *) &hdr.obj_id));
+                                   guid_to_str(pinfo->pool, (e_guid_t *) &hdr.obj_id));
     }
     offset += 16;
 
     if (tree) {
-        uuid_str = guid_to_str(wmem_packet_scope(), (e_guid_t*)&hdr.if_id);
+        uuid_str = guid_to_str(pinfo->pool, (e_guid_t*)&hdr.if_id);
         uuid_name = guids_get_uuid_name(&hdr.if_id);
         if (uuid_name) {
             proto_tree_add_guid_format(dcerpc_tree, hf_dcerpc_dg_if_id, tvb,
@@ -6539,7 +6539,7 @@ dissect_dcerpc_dg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     if (tree) {
         proto_tree_add_guid_format(dcerpc_tree, hf_dcerpc_dg_act_id, tvb,
                                    offset, 16, (e_guid_t *) &hdr.act_id, "Activity: %s",
-                                   guid_to_str(wmem_packet_scope(), (e_guid_t *) &hdr.act_id));
+                                   guid_to_str(pinfo->pool, (e_guid_t *) &hdr.act_id));
     }
     offset += 16;
 

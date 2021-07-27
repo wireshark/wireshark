@@ -2599,7 +2599,7 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree 
                 case OIF_TNA_NSAP_ADDRESS:
                     stlv_tree = proto_tree_add_subtree_format(tlv_tree, tvb, stlv_offset, stlv_len+4,
                                              ett_ospf_lsa_oif_tna_stlv, NULL, "%s (NSAP): %s", stlv_name,
-                                             tvb_bytes_to_str(wmem_packet_scope(), tvb, stlv_offset + 8, stlv_len - 4));
+                                             tvb_bytes_to_str(pinfo->pool, tvb, stlv_offset + 8, stlv_len - 4));
                     proto_tree_add_uint_format_value(stlv_tree, hf_ospf_tlv_type, tvb, stlv_offset, 2,
                                         stlv_type, "%u: %s (NSAP)", stlv_type, stlv_name);
                     proto_tree_add_item(stlv_tree, hf_ospf_tlv_length, tvb, stlv_offset+2, 2, ENC_BIG_ENDIAN);
@@ -2634,7 +2634,7 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree 
 /*
  * Dissect the TLVs within a Grace-LSA as defined by RFC 3623
  */
-static void dissect_ospf_lsa_grace_tlv (tvbuff_t *tvb, int offset,
+static void dissect_ospf_lsa_grace_tlv (tvbuff_t *tvb, packet_info *pinfo, int offset,
                                         proto_tree *tree, guint32 length)
 {
     guint16 tlv_type;
@@ -2684,8 +2684,8 @@ static void dissect_ospf_lsa_grace_tlv (tvbuff_t *tvb, int offset,
         case GRACE_TLV_IP:
             proto_tree_add_item(tlv_tree, hf_ospf_v2_grace_ip, tvb, offset + 4,
                                 tlv_length, ENC_BIG_ENDIAN);
-            proto_item_set_text(tree_item, "Restart IP: %s",
-                                tvb_address_with_resolution_to_str(wmem_packet_scope(), tvb, AT_IPv4, offset + 4));
+
+            proto_item_set_text(tree_item, "Restart IP: %s", tvb_address_with_resolution_to_str(pinfo->pool, tvb, AT_IPv4, offset + 4));
             break;
         default:
             proto_item_set_text(tree_item, "Unknown grace-LSA TLV");
@@ -3243,7 +3243,7 @@ dissect_ospf_lsa_opaque(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tre
         dissect_ospf_lsa_opaque_ri(tvb, pinfo, offset, tree, length);
         break;
     case OSPF_LSA_GRACE:
-        dissect_ospf_lsa_grace_tlv(tvb, offset, tree, length);
+        dissect_ospf_lsa_grace_tlv(tvb, pinfo, offset, tree, length);
         break;
     case OSPF_LSA_EXT_PREFIX:
         dissect_ospf_lsa_ext_prefix(tvb, pinfo, offset, tree, length);

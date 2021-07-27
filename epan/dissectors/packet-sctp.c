@@ -944,17 +944,17 @@ typedef struct _sctp_tsn_t {
 
 
 static wmem_tree_key_t*
-make_address_key(guint32 spt, guint32 dpt, address *addr)
+make_address_key(wmem_allocator_t *pool, guint32 spt, guint32 dpt, address *addr)
 {
-  wmem_tree_key_t *k = (wmem_tree_key_t *)wmem_alloc(wmem_packet_scope(), sizeof(wmem_tree_key_t)*6);
+  wmem_tree_key_t *k = (wmem_tree_key_t *)wmem_alloc(pool, sizeof(wmem_tree_key_t)*6);
 
-  k[0].length = 1;    k[0].key = (guint32*)wmem_memdup(wmem_packet_scope(), &spt,sizeof(spt));
-  k[1].length = 1;    k[1].key = (guint32*)wmem_memdup(wmem_packet_scope(), &dpt,sizeof(dpt));
+  k[0].length = 1;    k[0].key = (guint32*)wmem_memdup(pool, &spt,sizeof(spt));
+  k[1].length = 1;    k[1].key = (guint32*)wmem_memdup(pool, &dpt,sizeof(dpt));
   k[2].length = 1;    k[2].key = (guint32*)(void *)&(addr->type);
   k[3].length = 1;    k[3].key = (guint32*)(void *)&(addr->len);
 
   k[4].length = ((addr->len/4)+1);
-  k[4].key = (guint32*)wmem_alloc0(wmem_packet_scope(), ((addr->len/4)+1)*4);
+  k[4].key = (guint32*)wmem_alloc0(pool, ((addr->len/4)+1)*4);
   if (addr->len) memcpy(k[4].key, addr->data, addr->len);
 
   k[5].length = 0;    k[5].key = NULL;
@@ -963,13 +963,13 @@ make_address_key(guint32 spt, guint32 dpt, address *addr)
 }
 
 static wmem_tree_key_t *
-make_dir_key(guint32 spt, guint32 dpt, guint32 vtag)
+make_dir_key(wmem_allocator_t *pool, guint32 spt, guint32 dpt, guint32 vtag)
 {
-  wmem_tree_key_t *k =  (wmem_tree_key_t *)wmem_alloc(wmem_packet_scope(), sizeof(wmem_tree_key_t)*4);
+  wmem_tree_key_t *k =  (wmem_tree_key_t *)wmem_alloc(pool, sizeof(wmem_tree_key_t)*4);
 
-  k[0].length = 1;    k[0].key = (guint32*)wmem_memdup(wmem_packet_scope(), &spt,sizeof(spt));
-  k[1].length = 1;    k[1].key = (guint32*)wmem_memdup(wmem_packet_scope(), &dpt,sizeof(dpt));
-  k[2].length = 1;    k[2].key = (guint32*)wmem_memdup(wmem_packet_scope(), &vtag,sizeof(vtag));
+  k[0].length = 1;    k[0].key = (guint32*)wmem_memdup(pool, &spt,sizeof(spt));
+  k[1].length = 1;    k[1].key = (guint32*)wmem_memdup(pool, &dpt,sizeof(dpt));
+  k[2].length = 1;    k[2].key = (guint32*)wmem_memdup(pool, &vtag,sizeof(vtag));
   k[3].length = 0;    k[3].key = NULL;
 
   return k;
@@ -992,7 +992,7 @@ get_half_assoc(packet_info *pinfo, guint32 spt, guint32 dpt, guint32 vtag)
 
   /* look for the current half_assoc by spt, dpt and vtag */
 
-  k = make_dir_key(spt, dpt, vtag);
+  k = make_dir_key(pinfo->pool, spt, dpt, vtag);
   if (( ha = (sctp_half_assoc_t *)wmem_tree_lookup32_array(dirs_by_ptvtag, k)  )) {
     /* found, if it has been already matched we're done */
     if (ha->peer) return ha;
@@ -1013,7 +1013,7 @@ get_half_assoc(packet_info *pinfo, guint32 spt, guint32 dpt, guint32 vtag)
   }
 
   /* at this point we have an unmatched half, look for its other half using the ports and IP address */
-  k = make_address_key(dpt, spt, &(pinfo->dst));
+  k = make_address_key(pinfo->pool, dpt, spt, &(pinfo->dst));
 
   if (( hb = (sctp_half_assoc_t **)wmem_tree_lookup32_array(dirs_by_ptaddr, k) )) {
     /*the table contains a pointer to a pointer to a half */
@@ -1029,7 +1029,7 @@ get_half_assoc(packet_info *pinfo, guint32 spt, guint32 dpt, guint32 vtag)
   } else {
     /* we found no entry in the table: add one (using reversed ports and src addresss) so that it can be matched later */
     *(hb = (sctp_half_assoc_t **)wmem_alloc(wmem_file_scope(), sizeof(void*))) = ha;
-    k = make_address_key(spt, dpt, &(pinfo->src));
+    k = make_address_key(pinfo->pool, spt, dpt, &(pinfo->src));
     wmem_tree_insert32_array(dirs_by_ptaddr, k, hb);
   }
 
@@ -1104,7 +1104,7 @@ tsn_tree(sctp_tsn_t *t, proto_item *tsn_item, packet_info *pinfo,
                                       (*r)->framenum,
                                       "This TSN was retransmitted in frame %u (%s seconds after this frame)",
                                       (*r)->framenum,
-                                      rel_time_to_secs_str(wmem_packet_scope(), &rto));
+                                      rel_time_to_secs_str(pinfo->pool, &rto));
       proto_item_set_generated(pi);
       r = &(*r)->next;
     }
@@ -4681,8 +4681,8 @@ dissect_sctp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
     if (show_port_numbers)
       sctp_item = proto_tree_add_protocol_format(tree, proto_sctp, tvb, 0, -1,
                                                  "Stream Control Transmission Protocol, Src Port: %s (%u), Dst Port: %s (%u)",
-                                                 sctp_port_to_display(wmem_packet_scope(), source_port), source_port,
-                                                 sctp_port_to_display(wmem_packet_scope(), destination_port), destination_port);
+                                                 sctp_port_to_display(pinfo->pool, source_port), source_port,
+                                                 sctp_port_to_display(pinfo->pool, destination_port), destination_port);
     else
       sctp_item = proto_tree_add_item(tree, proto_sctp, tvb, 0, -1, ENC_NA);
 

@@ -1117,7 +1117,7 @@ dissect_relaydef_frame(tvbuff_t *tvb, proto_tree *tree, int offset)
 /* Code to dissect Fast Meter Configuration Frames */
 /******************************************************************************************************/
 static int
-dissect_fmconfig_frame(tvbuff_t *tvb, proto_tree *tree, int offset)
+dissect_fmconfig_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
     proto_tree    *fmconfig_tree, *fmconfig_ai_tree=NULL, *fmconfig_calc_tree=NULL;
@@ -1159,7 +1159,7 @@ dissect_fmconfig_frame(tvbuff_t *tvb, proto_tree *tree, int offset)
 
     /* Get AI Channel Details */
     for (count = 0; count < num_ai; count++) {
-        ai_name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 6, ENC_ASCII);
+        ai_name = tvb_get_string_enc(pinfo->pool, tvb, offset, 6, ENC_ASCII);
 
         fmconfig_ai_tree = proto_tree_add_subtree_format(fmconfig_tree, tvb, offset, 10,
                     ett_selfm_fmconfig_ai, NULL, "Analog Channel: %s", ai_name);
@@ -2060,7 +2060,7 @@ dissect_fastmsg_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
             proto_tree_add_item(fastmsg_tree, hf_selfm_fastmsg_unsresp_doy, tvb, offset, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item(fastmsg_tree, hf_selfm_fastmsg_unsresp_year, tvb, offset+2, 2, ENC_BIG_ENDIAN);
             proto_tree_add_uint_format_value(fastmsg_tree, hf_selfm_fastmsg_unsresp_todms, tvb, offset+4, 4,
-                                        tod_ms, "%s", signed_time_msecs_to_str(wmem_packet_scope(), tod_ms));
+                                        tod_ms, "%s", signed_time_msecs_to_str(pinfo->pool, tod_ms));
             offset += 8;
 
             /* Build element tree */
@@ -2101,7 +2101,7 @@ dissect_fastmsg_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
                 proto_tree_add_item(fastmsg_element_tree, hf_selfm_fastmsg_unsresp_elmt_idx, tvb, offset, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(fastmsg_element_tree, hf_selfm_fastmsg_unsresp_elmt_ts_ofs, tvb, offset+1, 3, ENC_BIG_ENDIAN);
                 proto_tree_add_uint_format_value(fastmsg_element_tree, hf_selfm_fastmsg_unsresp_elmt_ts_ofs_decoded, tvb, offset+1, 3,
-                                     tod_ms + (elmt_ts_offset/1000), "%s", signed_time_msecs_to_str(wmem_packet_scope(), tod_ms + (elmt_ts_offset/1000)));
+                                     tod_ms + (elmt_ts_offset/1000), "%s", signed_time_msecs_to_str(pinfo->pool, tod_ms + (elmt_ts_offset/1000)));
                 proto_tree_add_uint(fastmsg_element_tree, hf_selfm_fastmsg_unsresp_elmt_status, tvb, elmt_status32_ofs, 4, elmt_status);
 
                 offset += 4;
@@ -2338,7 +2338,7 @@ dissect_fastmsg_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
 
             while ((tvb_reported_length_remaining(tvb, offset)) > 2) {
                 /* Data Item record name 10 bytes */
-                tag_name_ptr = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 10, ENC_ASCII);
+                tag_name_ptr = tvb_get_string_enc(pinfo->pool, tvb, offset, 10, ENC_ASCII);
                 fastmsg_tag_tree = proto_tree_add_subtree_format(fastmsg_tree, tvb, offset, 14, ett_selfm_fastmsg_tag, NULL, "Data Item Record Name: %s", tag_name_ptr);
 
                 /* Data item qty and type */
@@ -2436,7 +2436,7 @@ dissect_selfm(tvbuff_t *selfm_tvb, packet_info *pinfo, proto_tree *tree, void* d
             fm_conv_data->fastser_uns_wordbits = wmem_tree_new(wmem_file_scope());
             conversation_add_proto_data(conversation, proto_selfm, (void *)fm_conv_data);
 
-            uns_ser_split_str = wmem_strsplit(wmem_packet_scope(), selfm_ser_list, ",", -1);
+            uns_ser_split_str = wmem_strsplit(pinfo->pool, selfm_ser_list, ",", -1);
 
             for (cnt = 0; (uns_ser_split_str[cnt] != NULL); cnt++) {
                 fastser_uns_wordbit *wordbit_ptr = fastser_uns_wordbit_save(cnt, uns_ser_split_str[cnt]);
@@ -2574,7 +2574,7 @@ dissect_selfm(tvbuff_t *selfm_tvb, packet_info *pinfo, proto_tree *tree, void* d
                     case CMD_FM_CONFIG:
                     case CMD_DFM_CONFIG:
                     case CMD_PDFM_CONFIG:
-                        consumed_bytes = dissect_fmconfig_frame(selfm_tvb, selfm_tree, offset);
+                        consumed_bytes = dissect_fmconfig_frame(selfm_tvb, selfm_tree, pinfo, offset);
                         break;
                     case CMD_FM_DATA:
                         consumed_bytes = dissect_fmdata_frame(selfm_tvb, selfm_tree, pinfo, offset, CMD_FM_CONFIG);

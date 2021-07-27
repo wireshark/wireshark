@@ -327,7 +327,7 @@ extern void     zbee_append_info           (proto_item *item, packet_info *pinfo
 extern void     zdp_parse_node_desc        (proto_tree *tree, packet_info *pinfo, gboolean show_ver_flags, gint ettindex, tvbuff_t *tvb, guint *offset, guint8 version);
 extern void     zdp_parse_power_desc       (proto_tree *tree, gint ettindex, tvbuff_t *tvb, guint *offset);
 extern void     zdp_parse_simple_desc      (proto_tree *tree, gint ettindex, tvbuff_t *tvb, guint *offset, guint8 version);
-extern void     zdp_parse_complex_desc     (proto_tree *tree, gint ettindex, tvbuff_t *tvb, guint *offset, guint length);
+extern void     zdp_parse_complex_desc     (packet_info *pinfo, proto_tree *tree, gint ettindex, tvbuff_t *tvb, guint *offset, guint length);
 extern void     zdp_parse_bind_table_entry (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint8 version);
 
 extern guint8   zdp_parse_status           (proto_tree *tree, tvbuff_t *tvb, guint *offset);

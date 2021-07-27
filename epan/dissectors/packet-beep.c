@@ -357,14 +357,14 @@ dissect_beep_mime_header(tvbuff_t *tvb, packet_info *pinfo, int offset,
 }
 
 static int
-dissect_beep_int(tvbuff_t *tvb, int offset,
+dissect_beep_int(tvbuff_t *tvb, packet_info *pinfo, int offset,
                     proto_tree *tree, int hf, int *val, int *hfa[])
 {
   proto_item  *hidden_item;
   int ival, ind = 0;
   unsigned int len = num_len(tvb, offset);
 
-  ival = (int)strtol(tvb_get_string_enc(wmem_packet_scope(), tvb, offset, len, ENC_ASCII), NULL, 10);
+  ival = (int)strtol(tvb_get_string_enc(pinfo->pool, tvb, offset, len, ENC_ASCII), NULL, 10);
   proto_tree_add_uint(tree, hf, tvb, offset, len, ival);
 
   while (hfa[ind]) {
@@ -478,11 +478,11 @@ dissect_beep_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
     offset += 4;
 
     /* Get the channel */
-    offset += dissect_beep_int(tvb, offset, hdr, hf_beep_channel, &channel, req_chan_hfa);
+    offset += dissect_beep_int(tvb, pinfo, offset, hdr, hf_beep_channel, &channel, req_chan_hfa);
     offset += 1; /* Skip the space */
 
     /* Dissect the message number */
-    offset += dissect_beep_int(tvb, offset, hdr, hf_beep_msgno, &msgno, req_msgno_hfa);
+    offset += dissect_beep_int(tvb, pinfo, offset, hdr, hf_beep_msgno, &msgno, req_msgno_hfa);
     offset += 1; /* skip the space */
 
     /* Insert the more elements ... */
@@ -504,10 +504,10 @@ dissect_beep_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
     offset += 2; /* Skip the flag and the space ... */
 
     /* now for the seqno */
-    offset += dissect_beep_int(tvb, offset, hdr, hf_beep_seqno, &seqno, req_seqno_hfa);
+    offset += dissect_beep_int(tvb, pinfo, offset, hdr, hf_beep_seqno, &seqno, req_seqno_hfa);
     offset += 1; /* skip the space */
 
-    offset += dissect_beep_int(tvb, offset, hdr, hf_beep_size, &size, req_size_hfa);
+    offset += dissect_beep_int(tvb, pinfo, offset, hdr, hf_beep_size, &size, req_size_hfa);
     if (request_val)   /* FIXME, is this the right order ... */
       request_val -> size = size;  /* Stash this away */
     else if (beep_frame_data) {
@@ -519,7 +519,7 @@ dissect_beep_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
     if (is_ANS) { /* We need to put in the ansno */
         offset += 1; /* skip the space */
         /* Dissect the message number */
-        offset += dissect_beep_int(tvb, offset, hdr, hf_beep_ansno, &ansno, req_ansno_hfa);
+        offset += dissect_beep_int(tvb, pinfo, offset, hdr, hf_beep_ansno, &ansno, req_ansno_hfa);
     }
 
     if ((cc = check_term(tvb, pinfo, offset, hdr)) <= 0) {
@@ -590,19 +590,19 @@ dissect_beep_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
     offset += 1;
 
-    offset += dissect_beep_int(tvb, offset, tree, hf_beep_channel, &channel, seq_chan_hfa);
+    offset += dissect_beep_int(tvb, pinfo, offset, tree, hf_beep_channel, &channel, seq_chan_hfa);
 
     /* Check the space: FIXME */
 
     offset += 1;
 
-    offset += dissect_beep_int(tvb, offset, tree, hf_beep_ackno, &ackno, seq_ackno_hfa);
+    offset += dissect_beep_int(tvb, pinfo, offset, tree, hf_beep_ackno, &ackno, seq_ackno_hfa);
 
     /* Check the space: FIXME */
 
     offset += 1;
 
-    offset += dissect_beep_int(tvb, offset, tree, hf_beep_window, &window, seq_window_hfa);
+    offset += dissect_beep_int(tvb, pinfo, offset, tree, hf_beep_window, &window, seq_window_hfa);
 
     if ((cc = check_term(tvb, pinfo, offset, tree)) <= 0) {
 

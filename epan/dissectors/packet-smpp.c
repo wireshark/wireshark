@@ -1276,14 +1276,14 @@ smpp_handle_string_z(proto_tree *tree, tvbuff_t *tvb, int field, int *offset,
 }
 
 static void
-smpp_handle_time(proto_tree *tree, tvbuff_t *tvb,
+smpp_handle_time(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
                  int field, int field_R, int *offset)
 {
     char     *strval;
     gint      len;
     nstime_t  tmptime;
 
-    strval = (char *) tvb_get_stringz_enc(wmem_packet_scope(), tvb, *offset, &len, ENC_ASCII);
+    strval = (char *) tvb_get_stringz_enc(pinfo->pool, tvb, *offset, &len, ENC_ASCII);
     if (*strval)
     {
         if (len >= 16)
@@ -1389,7 +1389,7 @@ smpp_handle_dlist_resp(proto_tree *tree, tvbuff_t *tvb, int *offset)
  *                      next field
  */
 static void
-smpp_handle_tlv(proto_tree *tree, tvbuff_t *tvb, int *offset)
+smpp_handle_tlv(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *offset)
 {
     proto_tree *tlvs_tree = NULL;
     proto_item *pi;
@@ -1655,7 +1655,7 @@ smpp_handle_tlv(proto_tree *tree, tvbuff_t *tvb, int *offset)
                 (*offset) += 1;
                 break;
             case 0x0609:        /* broadcast_end_time */
-                smpp_handle_time(sub_tree, tvb, hf_smpp_broadcast_end_time,
+                smpp_handle_time(sub_tree, tvb, pinfo, hf_smpp_broadcast_end_time,
                                 hf_smpp_broadcast_end_time_r, offset);
                 break;
             case 0x060A:        /* broadcast_service_group */
@@ -1765,8 +1765,12 @@ smpp_handle_tlv(proto_tree *tree, tvbuff_t *tvb, int *offset)
                                         *offset, length, ENC_NA);
                 }
 
-                if (length > 0)
-                    proto_item_append_text(sub_tree,": %s", tvb_bytes_to_str(wmem_packet_scope(), tvb,*offset,length));
+                if (length > 0) {
+                    char *str;
+                    str = tvb_bytes_to_str(NULL, tvb,*offset,length);
+                    proto_item_append_text(sub_tree,": %s", str);
+                    wmem_free(NULL, str);
+                }
 
                 (*offset) += length;
                 break;
@@ -1994,13 +1998,13 @@ submit_sm(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
     proto_tree_add_item(tree, hf_smpp_priority_flag, tvb, offset, 1, ENC_NA);
     offset += 1;
     if (tvb_get_guint8(tvb,offset)) {
-        smpp_handle_time(tree, tvb, hf_smpp_schedule_delivery_time,
+        smpp_handle_time(tree, tvb, pinfo, hf_smpp_schedule_delivery_time,
                          hf_smpp_schedule_delivery_time_r, &offset);
     } else { /* Time = NULL means Immediate delivery */
         proto_tree_add_time_format_value(tree, hf_smpp_schedule_delivery_time_r, tvb, offset++, 1, &zero_time, "Immediate delivery");
     }
     if (tvb_get_guint8(tvb,offset)) {
-        smpp_handle_time(tree, tvb, hf_smpp_validity_period,
+        smpp_handle_time(tree, tvb, pinfo, hf_smpp_validity_period,
                          hf_smpp_validity_period_r, &offset);
     } else { /* Time = NULL means SMSC default validity */
         proto_tree_add_time_format_value(tree, hf_smpp_validity_period_r, tvb, offset++, 1, &zero_time, "SMSC default validity period");
@@ -2035,11 +2039,11 @@ submit_sm(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
         offset += length;
     }
     /* Get rid of SMPP text string addresses */
-    smpp_handle_tlv(tree, tvb, &offset);
+    smpp_handle_tlv(tree, tvb, pinfo, &offset);
 }
 
 static void
-replace_sm(proto_tree *tree, tvbuff_t *tvb, int offset)
+replace_sm(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
 {
     guint32      length;
     nstime_t  zero_time = NSTIME_INIT_ZERO;
@@ -2051,13 +2055,13 @@ replace_sm(proto_tree *tree, tvbuff_t *tvb, int offset)
     offset += 1;
     smpp_handle_string(tree, tvb, hf_smpp_source_addr, &offset);
     if (tvb_get_guint8(tvb,offset)) {
-        smpp_handle_time(tree, tvb, hf_smpp_schedule_delivery_time,
+        smpp_handle_time(tree, tvb, pinfo, hf_smpp_schedule_delivery_time,
                                 hf_smpp_schedule_delivery_time_r, &offset);
     } else { /* Time = NULL */
         proto_tree_add_time_format_value(tree, hf_smpp_schedule_delivery_time_r, tvb, offset++, 1, &zero_time, "Keep initial delivery time setting");
     }
     if (tvb_get_guint8(tvb,offset)) {
-        smpp_handle_time(tree, tvb, hf_smpp_validity_period,
+        smpp_handle_time(tree, tvb, pinfo, hf_smpp_validity_period,
                                 hf_smpp_validity_period_r, &offset);
     } else { /* Time = NULL */
         proto_tree_add_time_format_value(tree, hf_smpp_validity_period_r, tvb, offset++, 1,&zero_time, "Keep initial validity period setting");
@@ -2089,7 +2093,7 @@ cancel_sm(proto_tree *tree, tvbuff_t *tvb, int offset)
 }
 
 static void
-submit_multi(proto_tree *tree, tvbuff_t *tvb, int offset)
+submit_multi(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
 {
     guint32      length;
     nstime_t     zero_time = NSTIME_INIT_ZERO;
@@ -2111,13 +2115,13 @@ submit_multi(proto_tree *tree, tvbuff_t *tvb, int offset)
     proto_tree_add_item(tree, hf_smpp_priority_flag, tvb, offset, 1, ENC_NA);
     offset += 1;
     if (tvb_get_guint8(tvb,offset)) {
-        smpp_handle_time(tree, tvb, hf_smpp_schedule_delivery_time,
+        smpp_handle_time(tree, tvb, pinfo, hf_smpp_schedule_delivery_time,
                 hf_smpp_schedule_delivery_time_r, &offset);
     } else { /* Time = NULL means Immediate delivery */
         proto_tree_add_time_format_value(tree, hf_smpp_schedule_delivery_time_r, tvb, offset++, 1, &zero_time, "Immediate delivery");
     }
     if (tvb_get_guint8(tvb,offset)) {
-        smpp_handle_time(tree, tvb, hf_smpp_validity_period, hf_smpp_validity_period_r, &offset);
+        smpp_handle_time(tree, tvb, pinfo, hf_smpp_validity_period, hf_smpp_validity_period_r, &offset);
     } else { /* Time = NULL means SMSC default validity */
         proto_tree_add_time_format_value(tree, hf_smpp_schedule_delivery_time_r, tvb, offset++, 1, &zero_time, "SMSC default validity period");
     }
@@ -2132,11 +2136,11 @@ submit_multi(proto_tree *tree, tvbuff_t *tvb, int offset)
     if (length)
         smpp_handle_msg(tree, tvb, offset, length, dataCoding);
     offset += length;
-    smpp_handle_tlv(tree, tvb, &offset);
+    smpp_handle_tlv(tree, tvb, pinfo, &offset);
 }
 
 static void
-alert_notification(proto_tree *tree, tvbuff_t *tvb, int offset)
+alert_notification(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
 {
     proto_tree_add_item(tree, hf_smpp_source_addr_ton, tvb, offset, 1, ENC_NA);
     offset += 1;
@@ -2148,11 +2152,11 @@ alert_notification(proto_tree *tree, tvbuff_t *tvb, int offset)
     proto_tree_add_item(tree, hf_smpp_esme_addr_npi, tvb, offset, 1, ENC_NA);
     offset += 1;
     smpp_handle_string(tree, tvb, hf_smpp_esme_addr, &offset);
-    smpp_handle_tlv(tree, tvb, &offset);
+    smpp_handle_tlv(tree, tvb, pinfo, &offset);
 }
 
 static void
-data_sm(proto_tree *tree, tvbuff_t *tvb, int offset)
+data_sm(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
 {
     guint8 dataCoding;
 
@@ -2172,14 +2176,14 @@ data_sm(proto_tree *tree, tvbuff_t *tvb, int offset)
     proto_tree_add_bitmask_list(tree, tvb, offset, 1, regdel_fields, ENC_NA);
     offset++;
     smpp_handle_dcs(tree, tvb, &offset, &dataCoding);
-    smpp_handle_tlv(tree, tvb, &offset);
+    smpp_handle_tlv(tree, tvb, pinfo, &offset);
 }
 
 /*
  * Request operations introduced in the SMPP 5.0
  */
 static void
-broadcast_sm(proto_tree *tree, tvbuff_t *tvb, int offset)
+broadcast_sm(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
 {
     nstime_t     zero_time = NSTIME_INIT_ZERO;
     guint8 dataCoding;
@@ -2194,13 +2198,13 @@ broadcast_sm(proto_tree *tree, tvbuff_t *tvb, int offset)
     proto_tree_add_item(tree, hf_smpp_priority_flag, tvb, offset, 1, ENC_NA);
     offset += 1;
     if (tvb_get_guint8(tvb,offset)) {
-        smpp_handle_time(tree, tvb, hf_smpp_schedule_delivery_time,
+        smpp_handle_time(tree, tvb, pinfo, hf_smpp_schedule_delivery_time,
                 hf_smpp_schedule_delivery_time_r, &offset);
     } else { /* Time = NULL means Immediate delivery */
         proto_tree_add_time_format_value(tree, hf_smpp_schedule_delivery_time_r, tvb, offset++, 1, &zero_time, "Immediate delivery");
     }
     if (tvb_get_guint8(tvb,offset)) {
-        smpp_handle_time(tree, tvb, hf_smpp_validity_period, hf_smpp_validity_period_r, &offset);
+        smpp_handle_time(tree, tvb, pinfo, hf_smpp_validity_period, hf_smpp_validity_period_r, &offset);
     } else { /* Time = NULL means SMSC default validity */
         proto_tree_add_time_format_value(tree, hf_smpp_validity_period_r, tvb, offset++, 1, &zero_time, "SMSC default validity period");
     }
@@ -2209,11 +2213,11 @@ broadcast_sm(proto_tree *tree, tvbuff_t *tvb, int offset)
     smpp_handle_dcs(tree, tvb, &offset, &dataCoding);
     proto_tree_add_item(tree, hf_smpp_sm_default_msg_id, tvb, offset, 1, ENC_NA);
     offset += 1;
-    smpp_handle_tlv(tree, tvb, &offset);
+    smpp_handle_tlv(tree, tvb, pinfo, &offset);
 }
 
 static void
-query_broadcast_sm(proto_tree *tree, tvbuff_t *tvb, int offset)
+query_broadcast_sm(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
 {
     smpp_handle_string(tree, tvb, hf_smpp_message_id, &offset);
     proto_tree_add_item(tree, hf_smpp_source_addr_ton, tvb, offset, 1, ENC_NA);
@@ -2221,11 +2225,11 @@ query_broadcast_sm(proto_tree *tree, tvbuff_t *tvb, int offset)
     proto_tree_add_item(tree, hf_smpp_source_addr_npi, tvb, offset, 1, ENC_NA);
     offset += 1;
     smpp_handle_string(tree, tvb, hf_smpp_source_addr, &offset);
-    smpp_handle_tlv(tree, tvb, &offset);
+    smpp_handle_tlv(tree, tvb, pinfo, &offset);
 }
 
 static void
-cancel_broadcast_sm(proto_tree *tree, tvbuff_t *tvb, int offset)
+cancel_broadcast_sm(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
 {
     smpp_handle_string_z(tree, tvb, hf_smpp_service_type, &offset, "(Default)");
     smpp_handle_string(tree, tvb, hf_smpp_message_id, &offset);
@@ -2234,7 +2238,7 @@ cancel_broadcast_sm(proto_tree *tree, tvbuff_t *tvb, int offset)
     proto_tree_add_item(tree, hf_smpp_source_addr_npi, tvb, offset, 1, ENC_NA);
     offset += 1;
     smpp_handle_string(tree, tvb, hf_smpp_source_addr, &offset);
-    smpp_handle_tlv(tree, tvb, &offset);
+    smpp_handle_tlv(tree, tvb, pinfo, &offset);
 }
 
 /*!
@@ -2242,17 +2246,17 @@ cancel_broadcast_sm(proto_tree *tree, tvbuff_t *tvb, int offset)
  * associated with SMPP.
  */
 static void
-bind_receiver_resp(proto_tree *tree, tvbuff_t *tvb, int offset)
+bind_receiver_resp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
 {
     smpp_handle_string(tree, tvb, hf_smpp_system_id, &offset);
-    smpp_handle_tlv(tree, tvb, &offset);
+    smpp_handle_tlv(tree, tvb, pinfo, &offset);
 }
 
 static void
-query_sm_resp(proto_tree *tree, tvbuff_t *tvb, int offset)
+query_sm_resp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
 {
     smpp_handle_string(tree, tvb, hf_smpp_message_id, &offset);
-    smpp_handle_time(tree, tvb, hf_smpp_final_date,
+    smpp_handle_time(tree, tvb, pinfo, hf_smpp_final_date,
                                 hf_smpp_final_date_r, &offset);
     proto_tree_add_item(tree, hf_smpp_message_state, tvb, offset, 1, ENC_NA);
     offset += 1;
@@ -2261,32 +2265,32 @@ query_sm_resp(proto_tree *tree, tvbuff_t *tvb, int offset)
 }
 
 static void
-submit_sm_resp(proto_tree *tree, tvbuff_t *tvb, int offset)
+submit_sm_resp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
 {
     smpp_handle_string(tree, tvb, hf_smpp_message_id, &offset);
-    smpp_handle_tlv(tree, tvb, &offset);
+    smpp_handle_tlv(tree, tvb, pinfo, &offset);
 }
 
 static void
-submit_multi_resp(proto_tree *tree, tvbuff_t *tvb, int offset)
+submit_multi_resp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
 {
     smpp_handle_string(tree, tvb, hf_smpp_message_id, &offset);
     smpp_handle_dlist_resp(tree, tvb, &offset);
-    smpp_handle_tlv(tree, tvb, &offset);
+    smpp_handle_tlv(tree, tvb, pinfo, &offset);
 }
 
 static void
-data_sm_resp(proto_tree *tree, tvbuff_t *tvb, int offset)
+data_sm_resp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
 {
     smpp_handle_string(tree, tvb, hf_smpp_message_id, &offset);
-    smpp_handle_tlv(tree, tvb, &offset);
+    smpp_handle_tlv(tree, tvb, pinfo, &offset);
 }
 
 static void
-query_broadcast_sm_resp(proto_tree *tree, tvbuff_t *tvb, int offset)
+query_broadcast_sm_resp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
 {
     smpp_handle_string(tree, tvb, hf_smpp_message_id, &offset);
-    smpp_handle_tlv(tree, tvb, &offset);
+    smpp_handle_tlv(tree, tvb, pinfo, &offset);
 }
 
 /* Huawei SMPP+ extensions */
@@ -2493,29 +2497,29 @@ dissect_smpp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
                 case SMPP_COMMAND_ID_BIND_TRANSMITTER:
                 case SMPP_COMMAND_ID_BIND_TRANSCEIVER:
                     if (!command_status)
-                        bind_receiver_resp(smpp_tree, tvb, SMPP_FIXED_HEADER_LENGTH);
+                        bind_receiver_resp(smpp_tree, tvb, pinfo, SMPP_FIXED_HEADER_LENGTH);
                     break;
                 case SMPP_COMMAND_ID_QUERY_SM:
                     if (!command_status)
-                        query_sm_resp(smpp_tree, tvb, SMPP_FIXED_HEADER_LENGTH);
+                        query_sm_resp(smpp_tree, tvb, pinfo, SMPP_FIXED_HEADER_LENGTH);
                     break;
                 case SMPP_COMMAND_ID_SUBMIT_SM:
                 case SMPP_COMMAND_ID_DELIVER_SM:
                 case SMPP_COMMAND_ID_BROADCAST_SM:
                     if (!command_status)
-                        submit_sm_resp(smpp_tree, tvb, SMPP_FIXED_HEADER_LENGTH);
+                        submit_sm_resp(smpp_tree, tvb, pinfo, SMPP_FIXED_HEADER_LENGTH);
                     break;
                 case SMPP_COMMAND_ID_SUBMIT_MULTI:
                     if (!command_status)
-                        submit_multi_resp(smpp_tree, tvb, SMPP_FIXED_HEADER_LENGTH);
+                        submit_multi_resp(smpp_tree, tvb, pinfo, SMPP_FIXED_HEADER_LENGTH);
                     break;
                 case SMPP_COMMAND_ID_DATA_SM:
                     if (!command_status)
-                        data_sm_resp(smpp_tree, tvb, SMPP_FIXED_HEADER_LENGTH);
+                        data_sm_resp(smpp_tree, tvb, pinfo, SMPP_FIXED_HEADER_LENGTH);
                     break;
                 case SMPP_COMMAND_ID_QUERY_BROADCAST_SM:
                     if (!command_status)
-                        query_broadcast_sm_resp(smpp_tree, tvb, SMPP_FIXED_HEADER_LENGTH);
+                        query_broadcast_sm_resp(smpp_tree, tvb, pinfo, SMPP_FIXED_HEADER_LENGTH);
                     break;
                 case SMPP_COMMAND_ID_HUAWEI_AUTH_ACC:
                     if (!command_status)
@@ -2548,7 +2552,7 @@ dissect_smpp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
                 case SMPP_COMMAND_ID_ENQUIRE_LINK:
                     break;
                 case SMPP_COMMAND_ID_REPLACE_SM:
-                    replace_sm(smpp_tree, tvb, SMPP_FIXED_HEADER_LENGTH);
+                    replace_sm(smpp_tree, tvb, pinfo, SMPP_FIXED_HEADER_LENGTH);
                     break;
                 case SMPP_COMMAND_ID_CANCEL_SM:
                     cancel_sm(smpp_tree, tvb, SMPP_FIXED_HEADER_LENGTH);
@@ -2557,22 +2561,22 @@ dissect_smpp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
                     outbind(smpp_tree, tvb, SMPP_FIXED_HEADER_LENGTH);
                     break;
                 case SMPP_COMMAND_ID_SUBMIT_MULTI:
-                    submit_multi(smpp_tree, tvb, SMPP_FIXED_HEADER_LENGTH);
+                    submit_multi(smpp_tree, tvb, pinfo, SMPP_FIXED_HEADER_LENGTH);
                     break;
                 case SMPP_COMMAND_ID_ALERT_NOTIFICATION:
-                    alert_notification(smpp_tree, tvb, SMPP_FIXED_HEADER_LENGTH);
+                    alert_notification(smpp_tree, tvb, pinfo, SMPP_FIXED_HEADER_LENGTH);
                     break;
                 case SMPP_COMMAND_ID_DATA_SM:
-                    data_sm(smpp_tree, tvb, SMPP_FIXED_HEADER_LENGTH);
+                    data_sm(smpp_tree, tvb, pinfo, SMPP_FIXED_HEADER_LENGTH);
                     break;
                 case SMPP_COMMAND_ID_BROADCAST_SM:
-                    broadcast_sm(smpp_tree, tvb, SMPP_FIXED_HEADER_LENGTH);
+                    broadcast_sm(smpp_tree, tvb, pinfo, SMPP_FIXED_HEADER_LENGTH);
                     break;
                 case SMPP_COMMAND_ID_QUERY_BROADCAST_SM:
-                    query_broadcast_sm(smpp_tree, tvb, SMPP_FIXED_HEADER_LENGTH);
+                    query_broadcast_sm(smpp_tree, tvb, pinfo, SMPP_FIXED_HEADER_LENGTH);
                     break;
                 case SMPP_COMMAND_ID_CANCEL_BROADCAST_SM:
-                    cancel_broadcast_sm(smpp_tree, tvb, SMPP_FIXED_HEADER_LENGTH);
+                    cancel_broadcast_sm(smpp_tree, tvb, pinfo, SMPP_FIXED_HEADER_LENGTH);
                     break;
                 case SMPP_COMMAND_ID_HUAWEI_AUTH_ACC:
                     huawei_auth_acc(smpp_tree, tvb, SMPP_FIXED_HEADER_LENGTH);
@@ -2588,7 +2592,7 @@ dissect_smpp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     }
 
     /* Queue packet for Tap */
-    tap_rec = wmem_new0(wmem_packet_scope(), smpp_tap_rec_t);
+    tap_rec = wmem_new0(pinfo->pool, smpp_tap_rec_t);
     tap_rec->command_id = command_id;
     tap_rec->command_status = command_status;
     tap_queue_packet(smpp_tap, pinfo, tap_rec);

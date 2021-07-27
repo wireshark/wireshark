@@ -828,7 +828,7 @@ static int dissect_spdy_data_payload(tvbuff_t *tvb,
         wmem_list_frame_t *frame_item;
         spdy_data_frame_t *df;
         guint32 framenum = 0;
-        wmem_strbuf_t *str_frames = wmem_strbuf_new(wmem_packet_scope(), "");
+        wmem_strbuf_t *str_frames = wmem_strbuf_new(pinfo->pool, "");
 
         frame_item = wmem_list_frame_next(wmem_list_head(dflist));
         while (frame_item != NULL) {
@@ -893,7 +893,7 @@ static int dissect_spdy_data_payload(tvbuff_t *tvb,
        * for that content type?
        */
       if (si->content_type_parameters) {
-        media_str = wmem_strdup(wmem_packet_scope(), si->content_type_parameters);
+        media_str = wmem_strdup(pinfo->pool, si->content_type_parameters);
       }
       /*
        * Calling the string handle for the media type
@@ -948,6 +948,7 @@ body_dissected:
 #define DECOMPRESS_BUFSIZE   16384
 
 static guint8* spdy_decompress_header_block(tvbuff_t *tvb,
+                                            packet_info *pinfo,
                                             z_streamp decomp,
                                             uLong dictionary_id,
                                             int offset,
@@ -955,7 +956,7 @@ static guint8* spdy_decompress_header_block(tvbuff_t *tvb,
                                             guint *uncomp_length) {
   int retcode;
   const guint8 *hptr = tvb_get_ptr(tvb, offset, length);
-  guint8 *uncomp_block = (guint8 *)wmem_alloc(wmem_packet_scope(), DECOMPRESS_BUFSIZE);
+  guint8 *uncomp_block = (guint8 *)wmem_alloc(pinfo->pool, DECOMPRESS_BUFSIZE);
 
 #ifdef z_const
   decomp->next_in = (z_const Bytef *)hptr;
@@ -1173,6 +1174,7 @@ static int dissect_spdy_header_payload(
 
       /* Decompress. */
       uncomp_ptr = spdy_decompress_header_block(tvb,
+                                                pinfo,
                                                 decomp,
                                                 conv_data->dictionary_id,
                                                 offset,
@@ -1239,7 +1241,7 @@ static int dissect_spdy_header_payload(
                              "Not enough frame data for header name.");
       break;
     }
-    header_name = (gchar *)tvb_get_string_enc(wmem_packet_scope(), header_tvb,
+    header_name = (gchar *)tvb_get_string_enc(pinfo->pool, header_tvb,
                                                     hdr_offset,
                                                     header_name_length, ENC_ASCII|ENC_NA);
     hdr_offset += header_name_length;
@@ -1258,7 +1260,7 @@ static int dissect_spdy_header_payload(
                              "Not enough frame data for header value.");
       break;
     }
-    header_value = (gchar *)tvb_get_string_enc(wmem_packet_scope(),header_tvb,
+    header_value = (gchar *)tvb_get_string_enc(pinfo->pool,header_tvb,
                                                      hdr_offset,
                                                      header_value_length, ENC_ASCII|ENC_NA);
     hdr_offset += header_value_length;

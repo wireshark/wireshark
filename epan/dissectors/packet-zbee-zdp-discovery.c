@@ -978,7 +978,7 @@ dissect_zbee_zdp_rsp_complex_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
         offset += 1;
 
         if (length) {
-            zdp_parse_complex_desc(tree, -1, tvb, &offset, length);
+            zdp_parse_complex_desc(pinfo, tree, -1, tvb, &offset, length);
         }
 
 

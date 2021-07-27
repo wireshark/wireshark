@@ -684,7 +684,7 @@ dissect_bmp_peer_header(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int
     offset += 1;
 
     item = proto_tree_add_item(subtree, hf_peer_distinguisher, tvb, offset, 8, ENC_NA);
-    proto_item_set_text(item, "Peer Distinguisher: %s", decode_bgp_rd(tvb, offset));
+    proto_item_set_text(item, "Peer Distinguisher: %s", decode_bgp_rd(pinfo->pool, tvb, offset));
     offset += 8;
 
     if (flags & BMP_PEER_FLAG_IPV6) {

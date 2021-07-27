@@ -730,12 +730,12 @@ capture_ipv6_exthdr(const guchar *pd, int offset, int len, capture_packet_info_t
 }
 
 static void
-add_geoip_info_entry(proto_tree *tree, tvbuff_t *tvb, gint offset, const ws_in6_addr *ip6, int isdst)
+add_geoip_info_entry(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, gint offset, const ws_in6_addr *ip6, int isdst)
 {
     const mmdb_lookup_t *lookup = maxmind_db_lookup_ipv6(ip6);
     if (!lookup->found) return;
 
-    wmem_strbuf_t *summary = wmem_strbuf_new(wmem_packet_scope(), "");
+    wmem_strbuf_t *summary = wmem_strbuf_new(pinfo->pool, "");
     if (lookup->city) {
         wmem_strbuf_append(summary, lookup->city);
     }
@@ -821,10 +821,10 @@ add_geoip_info_entry(proto_tree *tree, tvbuff_t *tvb, gint offset, const ws_in6_
 }
 
 static void
-add_geoip_info(proto_tree *tree, tvbuff_t *tvb, gint offset, const ws_in6_addr *src, const ws_in6_addr *dst)
+add_geoip_info(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, gint offset, const ws_in6_addr *src, const ws_in6_addr *dst)
 {
-    add_geoip_info_entry(tree, tvb, offset, src, FALSE);
-    add_geoip_info_entry(tree, tvb, offset, dst, TRUE);
+    add_geoip_info_entry(tree, pinfo, tvb, offset, src, FALSE);
+    add_geoip_info_entry(tree, pinfo, tvb, offset, dst, TRUE);
 }
 
 /* Returns TRUE if reassembled */
@@ -868,14 +868,14 @@ ipv6_reassemble_do(tvbuff_t **tvb_ptr, gint *offset_ptr, packet_info *pinfo, pro
 }
 
 static proto_item *
-_proto_tree_add_ipv6_vector_address(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
+_proto_tree_add_ipv6_vector_address(proto_tree *tree, packet_info *pinfo, int hfindex, tvbuff_t *tvb, gint start,
                             gint length, const ws_in6_addr *value_ptr, int idx)
 {
     address addr;
     gchar *str;
 
     set_address_ipv6(&addr, value_ptr);
-    str = address_with_resolution_to_str(wmem_packet_scope(), &addr);
+    str = address_with_resolution_to_str(pinfo->pool, &addr);
     return proto_tree_add_ipv6_format(tree, hfindex, tvb, start, length,
                         value_ptr, "Address[%d]: %s", idx, str);
 }
@@ -906,7 +906,7 @@ dissect_routing6_rt0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 
     for (idx = 1; idx <= rt0_addr_count; idx++) {
         addr = tvb_get_ptr_ipv6(tvb, offset);
-        ti = _proto_tree_add_ipv6_vector_address(tree, hf_ipv6_routing_src_addr, tvb,
+        ti = _proto_tree_add_ipv6_vector_address(tree, pinfo, hf_ipv6_routing_src_addr, tvb,
                             offset, IPv6_ADDR_SIZE, addr, idx);
         offset += IPv6_ADDR_SIZE;
         if (in6_addr_is_multicast(addr)) {
@@ -944,7 +944,7 @@ dissect_routing6_mipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     }
 
     addr = tvb_get_ptr_ipv6(tvb, offset);
-    ti = _proto_tree_add_ipv6_vector_address(tree, hf_ipv6_routing_mipv6_home_address, tvb,
+    ti = _proto_tree_add_ipv6_vector_address(tree, pinfo, hf_ipv6_routing_mipv6_home_address, tvb,
                         offset, IPv6_ADDR_SIZE, addr, 1);
     if (in6_addr_is_multicast(addr)) {
         expert_add_info(pinfo, ti, &ei_ipv6_src_route_list_multicast_addr);
@@ -1033,7 +1033,7 @@ dissect_routing6_rpl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
         offset += 4;
 
         if (g_ipv6_rpl_srh_strict_rfc_checking)
-            rpl_addr_vector = wmem_array_sized_new(wmem_packet_scope(), IPv6_ADDR_SIZE, rpl_addr_count);
+            rpl_addr_vector = wmem_array_sized_new(pinfo->pool, IPv6_ADDR_SIZE, rpl_addr_count);
 
         /* We use cmprI for internal (e.g.: not last) address for how many bytes to elide, so actual bytes present = 16-CmprI */
         for (idx = 1; idx <= rpl_addr_count; idx++) {
@@ -1045,7 +1045,7 @@ dissect_routing6_rpl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
             /* Display Full Address */
             memcpy(&rpl_fulladdr, ip6_dst_addr, IPv6_ADDR_SIZE);
             tvb_memcpy(tvb, &rpl_fulladdr.bytes[16-cmprX], offset, cmprX);
-            ti = _proto_tree_add_ipv6_vector_address(tree, hf_ipv6_routing_rpl_fulladdr, tvb,
+            ti = _proto_tree_add_ipv6_vector_address(tree, pinfo, hf_ipv6_routing_rpl_fulladdr, tvb,
                                 offset, cmprX, &rpl_fulladdr, idx);
             proto_item_set_generated(ti);
             offset += cmprX;
@@ -1119,7 +1119,7 @@ dissect_routing6_srh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 
     for (unsigned i = 0; i < addr_count; i++) {
         addr_offset = offset + i * IPv6_ADDR_SIZE;
-        _proto_tree_add_ipv6_vector_address(tree, hf_ipv6_routing_srh_addr, tvb,
+        _proto_tree_add_ipv6_vector_address(tree, pinfo, hf_ipv6_routing_srh_addr, tvb,
                 addr_offset, IPv6_ADDR_SIZE, tvb_get_ptr_ipv6(tvb, addr_offset), i);
     }
 
@@ -2217,7 +2217,7 @@ ipv6_get_jumbo_plen(tvbuff_t *tvb, gint offset)
 }
 
 static void
-add_ipv6_address(proto_tree *tree, tvbuff_t *tvb, int offset,
+add_ipv6_address(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset,
                         gint hf_addr, gint hf_host)
 {
     address addr;
@@ -2229,7 +2229,7 @@ add_ipv6_address(proto_tree *tree, tvbuff_t *tvb, int offset,
     proto_item_set_hidden(ti);
 
     set_address_ipv6_tvb(&addr, tvb, offset);
-    name = address_to_display(wmem_packet_scope(), &addr);
+    name = address_to_display(pinfo->pool, &addr);
 
     ti = proto_tree_add_string(tree, hf_host, tvb, offset, IPv6_ADDR_SIZE, name);
     proto_item_set_generated(ti);
@@ -2294,14 +2294,14 @@ add_ipv6_address_teredo(proto_tree *tree, tvbuff_t *tvb, int offset,
 
 /* RFC 4291 appendix A */
 static void
-add_ipv6_address_slaac(proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_slaac)
+add_ipv6_address_slaac(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_slaac)
 {
     if (!(tvb_get_guint8(tvb, offset + 8) & 0x02) ||
                             !(tvb_get_ntohs(tvb, offset + 11) == 0xfffe)) {
         return;
     }
 
-    guint8 *mac_addr = (guint8 *)wmem_alloc(wmem_packet_scope(), 6);
+    guint8 *mac_addr = (guint8 *)wmem_alloc(pinfo->pool, 6);
     tvb_memcpy(tvb, mac_addr, offset + 8, 3);
     tvb_memcpy(tvb, mac_addr+3, offset + 13, 3);
     mac_addr[0] &= ~0x02;
@@ -2459,13 +2459,13 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     ip6_hlim = tvb_get_guint8(tvb, offset + IP6H_CTL_HLIM);
 
     /* Source address */
-    add_ipv6_address(ipv6_tree, tvb, offset + IP6H_SRC, hf_ipv6_src, hf_ipv6_src_host);
+    add_ipv6_address(pinfo, ipv6_tree, tvb, offset + IP6H_SRC, hf_ipv6_src, hf_ipv6_src_host);
     ip6_src = tvb_get_ptr_ipv6(tvb, offset + IP6H_SRC);
     alloc_address_wmem_ipv6(pinfo->pool, &pinfo->net_src, ip6_src);
     copy_address_shallow(&pinfo->src, &pinfo->net_src);
 
     /* Destination address */
-    add_ipv6_address(ipv6_tree, tvb, offset + IP6H_DST, hf_ipv6_dst, hf_ipv6_dst_host);
+    add_ipv6_address(pinfo, ipv6_tree, tvb, offset + IP6H_DST, hf_ipv6_dst, hf_ipv6_dst_host);
     ip6_dst = tvb_get_ptr_ipv6(tvb, offset + IP6H_DST);
     alloc_address_wmem_ipv6(pinfo->pool, &pinfo->net_dst, ip6_dst);
     copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
@@ -2488,8 +2488,8 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         add_ipv6_address_teredo(ipv6_tree, tvb, offset + IP6H_DST,
                 hf_ipv6_dst_teredo_server_ipv4, hf_ipv6_dst_teredo_port, hf_ipv6_dst_teredo_client_ipv4);
 
-        add_ipv6_address_slaac(ipv6_tree, tvb, offset + IP6H_SRC, hf_ipv6_src_sa_mac);
-        add_ipv6_address_slaac(ipv6_tree, tvb, offset + IP6H_DST, hf_ipv6_dst_sa_mac);
+        add_ipv6_address_slaac(pinfo, ipv6_tree, tvb, offset + IP6H_SRC, hf_ipv6_src_sa_mac);
+        add_ipv6_address_slaac(pinfo, ipv6_tree, tvb, offset + IP6H_DST, hf_ipv6_dst_sa_mac);
 
         add_ipv6_address_isatap(ipv6_tree, tvb, offset + IP6H_SRC, hf_ipv6_src_isatap_ipv4);
         add_ipv6_address_isatap(ipv6_tree, tvb, offset + IP6H_DST, hf_ipv6_dst_isatap_ipv4);
@@ -2498,7 +2498,7 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         add_ipv6_address_embed_ipv4(ipv6_tree, tvb, offset + IP6H_DST, hf_ipv6_dst_embed_ipv4);
 
         if (ipv6_use_geoip) {
-            add_geoip_info(ipv6_tree, tvb, offset, ip6_src, ip6_dst);
+            add_geoip_info(ipv6_tree, pinfo, tvb, offset, ip6_src, ip6_dst);
         }
     }
 

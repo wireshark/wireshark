@@ -2983,7 +2983,7 @@ decode_path_prefix4(proto_tree *tree, packet_info *pinfo, int hf_path_id, int hf
     set_address(&addr, AT_IPv4, 4, &ip_addr);
     prefix_tree = proto_tree_add_subtree_format(tree, tvb, offset,  4 + 1 + length,
                             ett_bgp_prefix, NULL, "%s/%u PathId %u ",
-                            address_to_str(wmem_packet_scope(), &addr), plen, path_identifier);
+                            address_to_str(pinfo->pool, &addr), plen, path_identifier);
     proto_tree_add_item(prefix_tree, hf_path_id, tvb, offset, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(prefix_tree, hf_bgp_prefix_length, tvb, offset + 4, 1, ENC_BIG_ENDIAN);
     proto_tree_add_ipv4(prefix_tree, hf_addr, tvb, offset + 4 + 1, length, ip_addr);
@@ -3016,10 +3016,10 @@ decode_prefix4(proto_tree *tree, packet_info *pinfo, proto_item *parent_item, in
     set_address(&addr, AT_IPv4, 4, &ip_addr);
     prefix_tree = proto_tree_add_subtree_format(tree, tvb, offset,
             1 + length, ett_bgp_prefix, NULL,
-            "%s/%u", address_to_str(wmem_packet_scope(), &addr), plen);
+            "%s/%u", address_to_str(pinfo->pool, &addr), plen);
 
     proto_item_append_text(parent_item, " (%s/%u)",
-                             address_to_str(wmem_packet_scope(), &addr), plen);
+                             address_to_str(pinfo->pool, &addr), plen);
 
     proto_tree_add_uint_format(prefix_tree, hf_bgp_prefix_length, tvb, offset, 1, plen, "%s prefix length: %u",
         tag, plen);
@@ -3055,7 +3055,7 @@ decode_path_prefix6(proto_tree *tree, packet_info *pinfo, int hf_path_id, int hf
     set_address(&addr_str, AT_IPv6, 16, addr.bytes);
     prefix_tree = proto_tree_add_subtree_format(tree, tvb, offset,  4 + 1 + length,
                             ett_bgp_prefix, NULL, "%s/%u PathId %u ",
-                            address_to_str(wmem_packet_scope(), &addr_str), plen, path_identifier);
+                            address_to_str(pinfo->pool, &addr_str), plen, path_identifier);
 
     proto_tree_add_item(prefix_tree, hf_path_id, tvb, offset, 4, ENC_BIG_ENDIAN);
     proto_tree_add_uint_format(prefix_tree, hf_bgp_prefix_length, tvb, offset + 4, 1, plen, "%s prefix length: %u",
@@ -3091,7 +3091,7 @@ decode_prefix6(proto_tree *tree, packet_info *pinfo, int hf_addr, tvbuff_t *tvb,
     set_address(&addr_str, AT_IPv6, 16, addr.bytes);
     prefix_tree = proto_tree_add_subtree_format(tree, tvb, offset,
             tlen != 0 ? tlen : 1 + length, ett_bgp_prefix, NULL, "%s/%u",
-            address_to_str(wmem_packet_scope(), &addr_str), plen);
+            address_to_str(pinfo->pool, &addr_str), plen);
     proto_tree_add_uint_format(prefix_tree, hf_bgp_prefix_length, tvb, offset, 1, plen, "%s prefix length: %u",
         tag, plen);
     proto_tree_add_ipv6(prefix_tree, hf_addr, tvb, offset + 1, length, &addr);
@@ -3128,24 +3128,24 @@ decode_fspec_match_prefix6(proto_tree *tree, proto_item *parent_item, int hf_add
     set_address(&addr_str, AT_IPv6, 16, addr.bytes);
     prefix_tree = proto_tree_add_subtree_format(tree, tvb, offset,
             tlen != 0 ? tlen : 1 + length, ett_bgp_prefix, NULL, "%s/%u",
-            address_to_str(wmem_packet_scope(), &addr_str), plen);
+            address_to_str(pinfo->pool, &addr_str), plen);
     proto_tree_add_item(prefix_tree, hf_bgp_flowspec_nlri_ipv6_pref_len, tvb, offset + plength_place, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(prefix_tree, hf_bgp_flowspec_nlri_ipv6_pref_offset, tvb, offset + poffset_place, 1, ENC_BIG_ENDIAN);
     proto_tree_add_ipv6(prefix_tree, hf_addr, tvb, offset + 2, length, &addr);
     if (parent_item != NULL)
       proto_item_append_text(parent_item, " (%s/%u)",
-                             address_to_str(wmem_packet_scope(), &addr_str), plen);
+                             address_to_str(pinfo->pool, &addr_str), plen);
     return(2 + length);
 }
 
 const char*
-decode_bgp_rd(tvbuff_t *tvb, gint offset)
+decode_bgp_rd(wmem_allocator_t *pool, tvbuff_t *tvb, gint offset)
 {
     guint16 rd_type;
     wmem_strbuf_t *strbuf;
 
     rd_type = tvb_get_ntohs(tvb,offset);
-    strbuf = wmem_strbuf_new_label(wmem_packet_scope());
+    strbuf = wmem_strbuf_new_label(pool);
 
     switch (rd_type) {
         case FORMAT_AS2_LOC:
@@ -3699,7 +3699,7 @@ decode_flowspec_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, guint16 afi, 
  * Decode an MCAST-VPN nlri as defined in draft-ietf-l3vpn-2547bis-mcast-bgp-08.txt .
  */
 static int
-decode_mcast_vpn_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, guint16 afi)
+decode_mcast_vpn_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, guint16 afi, packet_info *pinfo)
 {
     guint8 route_type, length, ip_length;
     proto_item *item;
@@ -3736,7 +3736,7 @@ decode_mcast_vpn_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, guint16 afi)
                                        offset, BGP_ROUTE_DISTINGUISHER_SIZE,
                                        ENC_NA);
             proto_item_set_text(item, "Route Distinguisher: %s",
-                                decode_bgp_rd(tvb, offset));
+                                decode_bgp_rd(pinfo->pool, tvb, offset));
             offset += BGP_ROUTE_DISTINGUISHER_SIZE;
 
             if (afi == AFNUM_INET)
@@ -3754,7 +3754,7 @@ decode_mcast_vpn_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, guint16 afi)
                                        offset, BGP_ROUTE_DISTINGUISHER_SIZE,
                                        ENC_NA);
             proto_item_set_text(item, "Route Distinguisher: %s",
-                                decode_bgp_rd(tvb, offset));
+                                decode_bgp_rd(pinfo->pool, tvb, offset));
             offset += BGP_ROUTE_DISTINGUISHER_SIZE;
 
             proto_tree_add_item(nlri_tree, hf_bgp_mcast_vpn_nlri_source_as, tvb,
@@ -3766,7 +3766,7 @@ decode_mcast_vpn_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, guint16 afi)
                                        offset, BGP_ROUTE_DISTINGUISHER_SIZE,
                                        ENC_NA);
             proto_item_set_text(item, "Route Distinguisher: %s",
-                                decode_bgp_rd(tvb, offset));
+                                decode_bgp_rd(pinfo->pool, tvb, offset));
             offset += BGP_ROUTE_DISTINGUISHER_SIZE;
 
             ret = decode_mcast_vpn_nlri_addresses(nlri_tree, tvb, offset);
@@ -3809,7 +3809,7 @@ decode_mcast_vpn_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, guint16 afi)
                                        offset, BGP_ROUTE_DISTINGUISHER_SIZE,
                                        ENC_NA);
             proto_item_set_text(item, "Route Distinguisher: %s",
-                                decode_bgp_rd(tvb, offset));
+                                decode_bgp_rd(pinfo->pool, tvb, offset));
             offset += BGP_ROUTE_DISTINGUISHER_SIZE;
 
             ret = decode_mcast_vpn_nlri_addresses(nlri_tree, tvb, offset);
@@ -3823,7 +3823,7 @@ decode_mcast_vpn_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, guint16 afi)
                                        offset, BGP_ROUTE_DISTINGUISHER_SIZE,
                                        ENC_NA);
             proto_item_set_text(item, "Route Distinguisher: %s",
-                                decode_bgp_rd(tvb, offset));
+                                decode_bgp_rd(pinfo->pool, tvb, offset));
             offset += BGP_ROUTE_DISTINGUISHER_SIZE;
 
             proto_tree_add_item(nlri_tree, hf_bgp_mcast_vpn_nlri_source_as, tvb,
@@ -3865,7 +3865,7 @@ decode_sr_policy_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, guint16 afi)
  * Decodes an MDT-SAFI message.
  */
 static guint
-decode_mdt_safi(proto_tree *tree, tvbuff_t *tvb, gint offset)
+decode_mdt_safi(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, gint offset)
 {
     const guint ip_length = 4;
     const guint mdt_safi_nlri_length_bits = 128;
@@ -3881,7 +3881,7 @@ decode_mdt_safi(proto_tree *tree, tvbuff_t *tvb, gint offset)
     item = proto_tree_add_item(tree, hf_bgp_mdt_nlri_safi_rd, tvb,
                                offset, BGP_ROUTE_DISTINGUISHER_SIZE, ENC_NA);
     proto_item_set_text(item, "Route Distinguisher: %s",
-                        decode_bgp_rd(tvb, offset));
+                        decode_bgp_rd(pinfo->pool, tvb, offset));
     offset += BGP_ROUTE_DISTINGUISHER_SIZE;
 
     proto_tree_add_item(tree, hf_bgp_mdt_nlri_safi_ipv4_addr, tvb,
@@ -4004,7 +4004,7 @@ decode_mp_next_hop_vpn_ipv4(tvbuff_t *tvb, proto_tree *tree, gint offset, packet
 
     switch (nhlen) {
         case (BGP_ROUTE_DISTINGUISHER_SIZE + FT_IPv4_LEN):
-            rd_string = decode_bgp_rd(tvb, offset);
+            rd_string = decode_bgp_rd(pinfo->pool, tvb, offset);
             ti = proto_tree_add_string(tree, hf_bgp_update_path_attribute_mp_reach_nlri_next_hop_rd, tvb, offset, BGP_ROUTE_DISTINGUISHER_SIZE, rd_string);
             if (tvb_memeql(tvb, offset, rd_zero, BGP_ROUTE_DISTINGUISHER_SIZE) != 0) {
                 expert_add_info(pinfo, ti, &ei_bgp_next_hop_rd_nonzero);
@@ -4073,7 +4073,7 @@ decode_mp_next_hop_vpn_ipv6(tvbuff_t *tvb, proto_tree *tree, gint offset, packet
 
     switch (nhlen) {
         case (BGP_ROUTE_DISTINGUISHER_SIZE + FT_IPv6_LEN):
-            rd_string = decode_bgp_rd(tvb, offset);
+            rd_string = decode_bgp_rd(pinfo->pool, tvb, offset);
             ti = proto_tree_add_string(tree, hf_bgp_update_path_attribute_mp_reach_nlri_next_hop_rd, tvb, offset, BGP_ROUTE_DISTINGUISHER_SIZE, rd_string);
             if (tvb_memeql(tvb, offset, rd_zero, BGP_ROUTE_DISTINGUISHER_SIZE) != 0) {
                 expert_add_info(pinfo, ti, &ei_bgp_next_hop_rd_nonzero);
@@ -4084,7 +4084,7 @@ decode_mp_next_hop_vpn_ipv6(tvbuff_t *tvb, proto_tree *tree, gint offset, packet
             wmem_strbuf_append_printf(strbuf, " IPv6=%s", tvb_ip6_to_str(tvb, offset));
             break;
         case (2*(BGP_ROUTE_DISTINGUISHER_SIZE + FT_IPv6_LEN)):
-            rd_string = decode_bgp_rd(tvb, offset);
+            rd_string = decode_bgp_rd(pinfo->pool, tvb, offset);
             ti = proto_tree_add_string(tree, hf_bgp_update_path_attribute_mp_reach_nlri_next_hop_rd, tvb, offset, BGP_ROUTE_DISTINGUISHER_SIZE, rd_string);
             if (tvb_memeql(tvb, offset, rd_zero, BGP_ROUTE_DISTINGUISHER_SIZE) != 0) {
                 expert_add_info(pinfo, ti, &ei_bgp_next_hop_rd_nonzero);
@@ -4094,7 +4094,7 @@ decode_mp_next_hop_vpn_ipv6(tvbuff_t *tvb, proto_tree *tree, gint offset, packet
             proto_tree_add_item(tree, hf_bgp_update_path_attribute_mp_reach_nlri_next_hop_ipv6, tvb, offset, FT_IPv6_LEN, ENC_NA);
             wmem_strbuf_append_printf(strbuf, " IPv6=%s", tvb_ip6_to_str(tvb, offset));
             offset += FT_IPv6_LEN;
-            rd_string = decode_bgp_rd(tvb, offset);
+            rd_string = decode_bgp_rd(pinfo->pool, tvb, offset);
             ti = proto_tree_add_string(tree, hf_bgp_update_path_attribute_mp_reach_nlri_next_hop_rd, tvb, offset, BGP_ROUTE_DISTINGUISHER_SIZE, rd_string);
             if (tvb_memeql(tvb, offset, rd_zero, BGP_ROUTE_DISTINGUISHER_SIZE) != 0) {
                 expert_add_info(pinfo, ti, &ei_bgp_next_hop_rd_nonzero);
@@ -4126,7 +4126,7 @@ decode_mp_next_hop(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint16 
     int            length, offset = 0;
     wmem_strbuf_t *strbuf;
 
-    strbuf = wmem_strbuf_new_label(wmem_packet_scope());
+    strbuf = wmem_strbuf_new_label(pinfo->pool);
 
     /* BGP Multiprotocol Next Hop Principles
      *
@@ -4335,7 +4335,7 @@ decode_mp_next_hop(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint16 
         proto_item_append_text(ti, ": %s", wmem_strbuf_get_str(strbuf));
     } else {
         expert_add_info_format(pinfo, ti, &ei_bgp_length_invalid, "Unknown Next Hop length (%u byte%s)", nhlen, plurality(nhlen, "", "s"));
-        proto_item_append_text(ti, ": %s", tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, nhlen));
+        proto_item_append_text(ti, ": %s", tvb_bytes_to_str(pinfo->pool, tvb, offset, nhlen));
     }
 
     return length;
@@ -5589,7 +5589,7 @@ static int decode_evpn_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, packet
         }
         item = proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_rd, tvb, reader_offset,
                                    8, ENC_NA);
-        proto_item_append_text(item, " (%s)", decode_bgp_rd(tvb, reader_offset));
+        proto_item_append_text(item, " (%s)", decode_bgp_rd(pinfo->pool, tvb, reader_offset));
         reader_offset += 8;
 
         decode_evpn_nlri_esi(prefix_tree, tvb, reader_offset, pinfo);
@@ -5640,7 +5640,7 @@ static int decode_evpn_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, packet
         }
         item = proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_rd, tvb, reader_offset,
                                    8, ENC_NA);
-        proto_item_append_text(item, " (%s)", decode_bgp_rd(tvb, reader_offset));
+        proto_item_append_text(item, " (%s)", decode_bgp_rd(pinfo->pool, tvb, reader_offset));
         reader_offset += 8;
 
         decode_evpn_nlri_esi(prefix_tree, tvb, reader_offset, pinfo);
@@ -5732,7 +5732,7 @@ static int decode_evpn_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, packet
         }
         item = proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_rd, tvb, reader_offset,
                                    8, ENC_NA);
-        proto_item_append_text(item, " (%s)", decode_bgp_rd(tvb, reader_offset));
+        proto_item_append_text(item, " (%s)", decode_bgp_rd(pinfo->pool, tvb, reader_offset));
         reader_offset += 8;
 
         proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_etag, tvb, reader_offset,
@@ -5794,7 +5794,7 @@ static int decode_evpn_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, packet
         }
         item = proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_rd, tvb, reader_offset,
                                    8, ENC_NA);
-        proto_item_append_text(item, " (%s)", decode_bgp_rd(tvb, reader_offset));
+        proto_item_append_text(item, " (%s)", decode_bgp_rd(pinfo->pool, tvb, reader_offset));
         reader_offset += 8;
 
         decode_evpn_nlri_esi(prefix_tree, tvb, reader_offset, pinfo);
@@ -5861,7 +5861,7 @@ static int decode_evpn_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, packet
         }
         item = proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_rd, tvb, reader_offset,
                                    8, ENC_NA);
-        proto_item_append_text(item, " (%s)", decode_bgp_rd(tvb, reader_offset));
+        proto_item_append_text(item, " (%s)", decode_bgp_rd(pinfo->pool, tvb, reader_offset));
         reader_offset += 8;
 
         decode_evpn_nlri_esi(prefix_tree, tvb, reader_offset, pinfo);
@@ -5976,7 +5976,7 @@ static int decode_evpn_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, packet
         }
         item = proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_rd, tvb, reader_offset,
                                    8, ENC_NA);
-        proto_item_append_text(item, " (%s)", decode_bgp_rd(tvb, reader_offset));
+        proto_item_append_text(item, " (%s)", decode_bgp_rd(pinfo->pool, tvb, reader_offset));
         reader_offset += 8;
 
         if (route_type == EVPN_IGMP_JOIN_ROUTE || route_type == EVPN_IGMP_LEAVE_ROUTE) {
@@ -6094,7 +6094,7 @@ decode_prefix_MP(proto_tree *tree, int hf_path_id, int hf_addr4, int hf_addr6,
                 }
                 /* snarf length */
                 plen =  tvb_get_guint8(tvb, offset);
-                stack_strbuf = wmem_strbuf_new_label(wmem_packet_scope());
+                stack_strbuf = wmem_strbuf_new_label(pinfo->pool);
                 labnum = decode_MPLS_stack(tvb, offset + 1, stack_strbuf);
 
                 offset += (1 + labnum * 3);
@@ -6120,7 +6120,7 @@ decode_prefix_MP(proto_tree *tree, int hf_path_id, int hf_addr4, int hf_addr6,
                                          ett_bgp_prefix, NULL,
                                          "Label Stack=%s IPv4=%s/%u PathID %u",
                                          wmem_strbuf_get_str(stack_strbuf),
-                                         address_to_str(wmem_packet_scope(), &addr), plen, path_identifier);
+                                         address_to_str(pinfo->pool, &addr), plen, path_identifier);
                     proto_tree_add_item(prefix_tree, hf_path_id, tvb, start_offset, 4, ENC_BIG_ENDIAN);
                     start_offset += 4;
                 } else {
@@ -6129,7 +6129,7 @@ decode_prefix_MP(proto_tree *tree, int hf_path_id, int hf_addr4, int hf_addr6,
                                         ett_bgp_prefix, NULL,
                                         "Label Stack=%s IPv4=%s/%u",
                                         wmem_strbuf_get_str(stack_strbuf),
-                                        address_to_str(wmem_packet_scope(), &addr), plen);
+                                        address_to_str(pinfo->pool, &addr), plen);
                 }
                 proto_tree_add_uint_format(prefix_tree, hf_bgp_prefix_length, tvb, start_offset, 1, plen + labnum * 3 * 8,
                                         "%s Prefix length: %u", tag, plen + labnum * 3 * 8);
@@ -6139,12 +6139,12 @@ decode_prefix_MP(proto_tree *tree, int hf_path_id, int hf_addr4, int hf_addr6,
                 proto_tree_add_ipv4(prefix_tree, hf_addr4, tvb, offset, length, ip4addr);
                 break;
             case SAFNUM_MCAST_VPN:
-                total_length = decode_mcast_vpn_nlri(tree, tvb, offset, afi);
+                total_length = decode_mcast_vpn_nlri(tree, tvb, offset, afi, pinfo);
                 if (total_length < 0)
                     return -1;
                 break;
             case SAFNUM_MDT:
-                total_length = decode_mdt_safi(tree, tvb, offset);
+                total_length = decode_mdt_safi(pinfo, tree, tvb, offset);
                 if (total_length < 0)
                     return -1;
                 break;
@@ -6165,7 +6165,7 @@ decode_prefix_MP(proto_tree *tree, int hf_path_id, int hf_addr4, int hf_addr6,
                 }
 
                 length = (plen + 7)/8;
-                comm_strbuf = wmem_strbuf_new_label(wmem_packet_scope());
+                comm_strbuf = wmem_strbuf_new_label(pinfo->pool);
 
                 switch (tvb_get_ntohs(tvb, offset + 1 + 4)) {
                 case BGP_EXT_COM_RT_AS2:
@@ -6234,7 +6234,7 @@ decode_prefix_MP(proto_tree *tree, int hf_path_id, int hf_addr4, int hf_addr6,
                                          (offset + length) - start_offset,
                                          ett_bgp_prefix, NULL,
                                          "Tunnel Identifier=0x%x IPv4=%s/%u",
-                                         tnl_id, address_to_str(wmem_packet_scope(), &addr), plen);
+                                         tnl_id, address_to_str(pinfo->pool, &addr), plen);
 
                 proto_tree_add_item(prefix_tree, hf_bgp_prefix_length, tvb, start_offset, 1, ENC_BIG_ENDIAN);
 
@@ -6252,7 +6252,7 @@ decode_prefix_MP(proto_tree *tree, int hf_path_id, int hf_addr4, int hf_addr6,
             case SAFNUM_LAB_VPNMULCAST:
             case SAFNUM_LAB_VPNUNIMULC:
                 plen =  tvb_get_guint8(tvb, offset);
-                stack_strbuf = wmem_strbuf_new_label(wmem_packet_scope());
+                stack_strbuf = wmem_strbuf_new_label(pinfo->pool);
                 labnum = decode_MPLS_stack(tvb, offset + 1, stack_strbuf);
 
                 offset += (1 + labnum * 3);
@@ -6286,7 +6286,7 @@ decode_prefix_MP(proto_tree *tree, int hf_path_id, int hf_addr4, int hf_addr6,
 
                 proto_tree_add_item(prefix_tree, hf_bgp_prefix_length, tvb, start_offset, 1, ENC_NA);
                 proto_tree_add_string(prefix_tree, hf_bgp_label_stack, tvb, start_offset + 1, 3 * labnum, wmem_strbuf_get_str(stack_strbuf));
-                proto_tree_add_string(prefix_tree, hf_bgp_rd, tvb, start_offset + 1 + 3 * labnum, 8, decode_bgp_rd(tvb, offset));
+                proto_tree_add_string(prefix_tree, hf_bgp_rd, tvb, start_offset + 1 + 3 * labnum, 8, decode_bgp_rd(pinfo->pool, tvb, offset));
 
                 proto_tree_add_ipv4(prefix_tree, hf_addr4, tvb, offset + 8, length, ip4addr);
 
@@ -6339,7 +6339,7 @@ decode_prefix_MP(proto_tree *tree, int hf_path_id, int hf_addr4, int hf_addr6,
                 }
                 /* snarf length */
                 plen =  tvb_get_guint8(tvb, offset);
-                stack_strbuf = wmem_strbuf_new_label(wmem_packet_scope());
+                stack_strbuf = wmem_strbuf_new_label(pinfo->pool);
                 labnum = decode_MPLS_stack(tvb, offset + 1, stack_strbuf);
 
                 offset += (1 + labnum * 3);
@@ -6365,7 +6365,7 @@ decode_prefix_MP(proto_tree *tree, int hf_path_id, int hf_addr4, int hf_addr6,
                                     ett_bgp_prefix, NULL,
                                     "Label Stack=%s, IPv6=%s/%u PathId %u",
                                     wmem_strbuf_get_str(stack_strbuf),
-                                    address_to_str(wmem_packet_scope(), &addr), plen, path_identifier);
+                                    address_to_str(pinfo->pool, &addr), plen, path_identifier);
                     proto_tree_add_item(prefix_tree, hf_path_id, tvb, start_offset, 4, ENC_BIG_ENDIAN);
                     start_offset += 4;
                 } else {
@@ -6374,7 +6374,7 @@ decode_prefix_MP(proto_tree *tree, int hf_path_id, int hf_addr4, int hf_addr6,
                                     ett_bgp_prefix, NULL,
                                     "Label Stack=%s, IPv6=%s/%u",
                                     wmem_strbuf_get_str(stack_strbuf),
-                                    address_to_str(wmem_packet_scope(), &addr), plen);
+                                    address_to_str(pinfo->pool, &addr), plen);
                 }
                 proto_tree_add_uint_format(prefix_tree, hf_bgp_prefix_length, tvb, start_offset, 1, plen + labnum * 3 * 8,
                                         "%s Prefix length: %u", tag, plen + labnum * 3 * 8);
@@ -6384,7 +6384,7 @@ decode_prefix_MP(proto_tree *tree, int hf_path_id, int hf_addr4, int hf_addr6,
                 proto_tree_add_ipv6(prefix_tree, hf_addr6, tvb, offset, length, &ip6addr);
                 break;
             case SAFNUM_MCAST_VPN:
-                total_length = decode_mcast_vpn_nlri(tree, tvb, offset, afi);
+                total_length = decode_mcast_vpn_nlri(tree, tvb, offset, afi, pinfo);
                 if (total_length < 0)
                     return -1;
                 break;
@@ -6425,7 +6425,7 @@ decode_prefix_MP(proto_tree *tree, int hf_path_id, int hf_addr4, int hf_addr6,
                                     (offset + length) - start_offset,
                                     ett_bgp_prefix, NULL,
                                     "Tunnel Identifier=0x%x IPv6=%s/%u",
-                                    tnl_id, address_to_str(wmem_packet_scope(), &addr), plen);
+                                    tnl_id, address_to_str(pinfo->pool, &addr), plen);
                 proto_tree_add_item(prefix_tree, hf_bgp_prefix_length, tvb, start_offset, 1, ENC_BIG_ENDIAN);
 
                 proto_tree_add_item(prefix_tree, hf_bgp_mp_nlri_tnl_id, tvb,
@@ -6445,7 +6445,7 @@ decode_prefix_MP(proto_tree *tree, int hf_path_id, int hf_addr4, int hf_addr6,
             case SAFNUM_LAB_VPNMULCAST:
             case SAFNUM_LAB_VPNUNIMULC:
                 plen =  tvb_get_guint8(tvb, offset);
-                stack_strbuf = wmem_strbuf_new_label(wmem_packet_scope());
+                stack_strbuf = wmem_strbuf_new_label(pinfo->pool);
                 labnum = decode_MPLS_stack(tvb, offset + 1, stack_strbuf);
 
                 offset += (1 + labnum * 3);
@@ -6484,7 +6484,7 @@ decode_prefix_MP(proto_tree *tree, int hf_path_id, int hf_addr4, int hf_addr6,
                                             wmem_strbuf_get_str(stack_strbuf),
                                             tvb_get_ntohs(tvb, offset + 2),
                                             tvb_get_ntohl(tvb, offset + 4),
-                                            address_to_str(wmem_packet_scope(), &addr), plen);
+                                            address_to_str(pinfo->pool, &addr), plen);
                         total_length = (1 + labnum * 3 + 8) + length;
                         break;
 
@@ -6505,7 +6505,7 @@ decode_prefix_MP(proto_tree *tree, int hf_path_id, int hf_addr4, int hf_addr6,
                                             wmem_strbuf_get_str(stack_strbuf),
                                             tvb_ip_to_str(tvb, offset + 2),
                                             tvb_get_ntohs(tvb, offset + 6),
-                                            address_to_str(wmem_packet_scope(), &addr), plen);
+                                            address_to_str(pinfo->pool, &addr), plen);
                         total_length = (1 + labnum * 3 + 8) + length;
                         break;
 
@@ -6527,7 +6527,7 @@ decode_prefix_MP(proto_tree *tree, int hf_path_id, int hf_addr4, int hf_addr6,
                                             tvb_get_ntohs(tvb, offset + 2),
                                             tvb_get_ntohs(tvb, offset + 4),
                                             tvb_get_ntohs(tvb, offset + 6),
-                                            address_to_str(wmem_packet_scope(), &addr), plen);
+                                            address_to_str(pinfo->pool, &addr), plen);
                         total_length = (1 + labnum * 3 + 8) + length;
                         break;
                     default:
@@ -6561,7 +6561,7 @@ decode_prefix_MP(proto_tree *tree, int hf_path_id, int hf_addr4, int hf_addr6,
                 plen =  tvb_get_ntohs(tvb,offset);
                 proto_tree_add_item(tree, hf_bgp_vplsad_length, tvb, offset, 2, ENC_BIG_ENDIAN);
 
-                proto_tree_add_string(tree, hf_bgp_vplsad_rd, tvb, offset+2, 8, decode_bgp_rd(tvb, offset+2));
+                proto_tree_add_string(tree, hf_bgp_vplsad_rd, tvb, offset+2, 8, decode_bgp_rd(pinfo->pool, tvb, offset+2));
                 /* RFC6074 Section 7 BGP-AD and VPLS-BGP Interoperability
                    Both BGP-AD and VPLS-BGP [RFC4761] use the same AFI/SAFI.  In order
                    for both BGP-AD and VPLS-BGP to co-exist, the NLRI length must be
@@ -6581,7 +6581,7 @@ decode_prefix_MP(proto_tree *tree, int hf_path_id, int hf_addr4, int hf_addr6,
 
                     proto_tree_add_item(tree, hf_bgp_vplsbgp_labelblock_offset, tvb, offset+12, 2, ENC_BIG_ENDIAN);
                     proto_tree_add_item(tree, hf_bgp_vplsbgp_labelblock_size, tvb, offset+14, 2, ENC_BIG_ENDIAN);
-                    stack_strbuf = wmem_strbuf_new_label(wmem_packet_scope());
+                    stack_strbuf = wmem_strbuf_new_label(pinfo->pool);
                     decode_MPLS_stack(tvb, offset + 16, stack_strbuf);
                     proto_tree_add_string(tree, hf_bgp_vplsbgp_labelblock_base, tvb, offset+16, plen-14, wmem_strbuf_get_str(stack_strbuf));
 
@@ -9005,7 +9005,7 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, guint16 path_attr_len,
                 q = o + i + aoff;
                 end = q + tlen;
                 wmem_strbuf_t *comm_strbuf;
-                comm_strbuf = wmem_strbuf_new_label(wmem_packet_scope());
+                comm_strbuf = wmem_strbuf_new_label(pinfo->pool);
                 while (q < end) {
                     guint32 ga, ldp1, ldp2;
                     ga = tvb_get_ntohl(tvb, q);
@@ -9410,7 +9410,7 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, guint16 path_attr_len,
                 q = o + i + aoff;
                 end = q + tlen;
                 wmem_strbuf_t *dpath_strbuf;
-                dpath_strbuf = wmem_strbuf_new_label(wmem_packet_scope());
+                dpath_strbuf = wmem_strbuf_new_label(pinfo->pool);
                 guint8 dpath_len;
                 dpath_len = tvb_get_guint8(tvb, q);
                 proto_tree_add_item(subtree2, hf_bgp_d_path_length, tvb,

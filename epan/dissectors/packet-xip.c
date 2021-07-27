@@ -397,7 +397,7 @@ xia_ntop(const struct xia_addr *src, wmem_strbuf_t *buf)
 #define XIPH_DSTD		8
 
 static void
-construct_dag(tvbuff_t *tvb, proto_tree *xip_tree,
+construct_dag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *xip_tree,
 	const gint ett, const gint hf, const gint hf_entry,
 	const guint8 num_nodes, guint8 offset)
 {
@@ -412,7 +412,7 @@ construct_dag(tvbuff_t *tvb, proto_tree *xip_tree,
 	ti = proto_tree_add_item(xip_tree, hf, tvb, offset,
 		num_nodes * XIA_NODE_SIZE, ENC_BIG_ENDIAN);
 
-	buf = wmem_strbuf_sized_new(wmem_packet_scope(),
+	buf = wmem_strbuf_sized_new(pinfo->pool,
 		XIA_MAX_STRADDR_SIZE, XIA_MAX_STRADDR_SIZE);
 
 	dag_tree = proto_item_add_subtree(ti, ett);
@@ -552,13 +552,13 @@ display_xip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* Construct Destination DAG subtree. */
 	if (num_dst_nodes > 0)
-		construct_dag(tvb, xip_tree, ett_xip_ddag,
+		construct_dag(tvb, pinfo, xip_tree, ett_xip_ddag,
 			hf_xip_dst_dag, hf_xip_dst_dag_entry,
 			num_dst_nodes, XIPH_DSTD);
 
 	/* Construct Source DAG subtree. */
 	if (num_src_nodes > 0)
-		construct_dag(tvb, xip_tree, ett_xip_sdag,
+		construct_dag(tvb, pinfo, xip_tree, ett_xip_sdag,
 			hf_xip_src_dag, hf_xip_src_dag_entry,
 			num_src_nodes,
 			XIPH_DSTD + num_dst_nodes * XIA_NODE_SIZE);

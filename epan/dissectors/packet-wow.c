@@ -316,7 +316,7 @@ parse_logon_proof_server_to_client(tvbuff_t *tvb, proto_tree *wow_tree, guint32 
 	}
 }
 static void
-parse_realm_list_server_to_client(tvbuff_t *tvb, proto_tree *wow_tree, guint32 offset) {
+parse_realm_list_server_to_client(packet_info *pinfo, tvbuff_t *tvb, proto_tree *wow_tree, guint32 offset) {
 	guint8 num_realms, ii, number_of_realms_field_size, realm_name_offset, realm_type_field_size, realm_flags;
 	gchar *string, *realm_name;
 	gint len;
@@ -345,7 +345,7 @@ parse_realm_list_server_to_client(tvbuff_t *tvb, proto_tree *wow_tree, guint32 o
 	offset += number_of_realms_field_size;
 
 	for(ii = 0; ii < num_realms; ii++) {
-		realm_name = tvb_get_stringz_enc(wmem_packet_scope(), tvb,
+		realm_name = tvb_get_stringz_enc(pinfo->pool, tvb,
 						 offset + realm_name_offset,
 						 &len, ENC_UTF_8);
 
@@ -370,7 +370,7 @@ parse_realm_list_server_to_client(tvbuff_t *tvb, proto_tree *wow_tree, guint32 o
 		proto_tree_add_string(wow_realms_tree, hf_wow_realm_name, tvb, offset, len, realm_name);
 		offset += len;
 
-		string = tvb_get_stringz_enc(wmem_packet_scope(), tvb, offset,
+		string = tvb_get_stringz_enc(pinfo->pool, tvb, offset,
 					     &len, ENC_UTF_8);
 		proto_tree_add_string(wow_realms_tree, hf_wow_realm_socket, tvb, offset, len, string);
 		offset += len;
@@ -455,7 +455,7 @@ parse_logon_reconnect_challenge_server_to_client(tvbuff_t *tvb, proto_tree *wow_
 }
 
 static void
-parse_logon_challenge_client_to_server(tvbuff_t *tvb, proto_tree *wow_tree, guint32 offset) {
+parse_logon_challenge_client_to_server(packet_info *pinfo, tvbuff_t *tvb, proto_tree *wow_tree, guint32 offset) {
 	guint8 srp_i_len;
 	gchar *string;
 
@@ -467,7 +467,7 @@ parse_logon_challenge_client_to_server(tvbuff_t *tvb, proto_tree *wow_tree, guin
 			tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
-	string = g_strreverse(tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 4, ENC_ASCII));
+	string = g_strreverse(tvb_get_string_enc(pinfo->pool, tvb, offset, 4, ENC_ASCII));
 	proto_tree_add_string(wow_tree, hf_wow_gamename,
 			tvb, offset, 4, string);
 	offset += 4;
@@ -494,17 +494,17 @@ parse_logon_challenge_client_to_server(tvbuff_t *tvb, proto_tree *wow_tree, guin
 			offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
-	string = g_strreverse(tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 4, ENC_ASCII));
+	string = g_strreverse(tvb_get_string_enc(pinfo->pool, tvb, offset, 4, ENC_ASCII));
 	proto_tree_add_string(wow_tree, hf_wow_platform,
 			tvb, offset, 4, string);
 	offset += 4;
 
-	string = g_strreverse(tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 4, ENC_ASCII));
+	string = g_strreverse(tvb_get_string_enc(pinfo->pool, tvb, offset, 4, ENC_ASCII));
 	proto_tree_add_string(wow_tree, hf_wow_os, tvb,
 			offset, 4, string);
 	offset += 4;
 
-	string = g_strreverse(tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 4, ENC_ASCII));
+	string = g_strreverse(tvb_get_string_enc(pinfo->pool, tvb, offset, 4, ENC_ASCII));
 	proto_tree_add_string(wow_tree, hf_wow_country,
 			tvb, offset, 4, string);
 	offset += 4;
@@ -658,14 +658,14 @@ dissect_wow_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 			if (WOW_SERVER_TO_CLIENT) {
 				parse_logon_reconnect_challenge_server_to_client(tvb, wow_tree, offset);
 			} else if (WOW_CLIENT_TO_SERVER) {
-				parse_logon_challenge_client_to_server(tvb, wow_tree, offset);
+				parse_logon_challenge_client_to_server(pinfo, tvb, wow_tree, offset);
 			}
 
 			break;
 
 		case AUTH_LOGON_CHALLENGE :
 			if(WOW_CLIENT_TO_SERVER) {
-				parse_logon_challenge_client_to_server(tvb, wow_tree, offset);
+				parse_logon_challenge_client_to_server(pinfo, tvb, wow_tree, offset);
 			} else if(WOW_SERVER_TO_CLIENT) {
 				parse_logon_challenge_server_to_client(tvb, wow_tree, offset);
 			}
@@ -685,7 +685,7 @@ dissect_wow_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 			if(WOW_CLIENT_TO_SERVER) {
 
 			} else if(WOW_SERVER_TO_CLIENT) {
-				parse_realm_list_server_to_client(tvb, wow_tree, offset);
+				parse_realm_list_server_to_client(pinfo, tvb, wow_tree, offset);
 
 			}
 

@@ -12928,7 +12928,7 @@ static void asterix_build_subtree (tvbuff_t *tvb, packet_info *pinfo, guint offs
                         break;
                     case FIELD_PART_CALLSIGN:
                         str_buffer = wmem_strdup_printf(
-                            wmem_packet_scope (),
+                            pinfo->pool,
                             "%c%c%c%c%c%c%c%c",
                             AISCode[(value >> 42) & 63],
                             AISCode[(value >> 36) & 63],
@@ -12942,7 +12942,7 @@ static void asterix_build_subtree (tvbuff_t *tvb, packet_info *pinfo, guint offs
                         break;
                     case FIELD_PART_IAS_IM:
                         /* special processing for I021/150 and I062/380#4 because Air Speed depends on IM subfield */
-                        air_speed_im_bit = wmem_new (wmem_packet_scope (), guint8);
+                        air_speed_im_bit = wmem_new (pinfo->pool, guint8);
                         *air_speed_im_bit = (tvb_get_guint8 (tvb, offset_in_tvb) & 0x80) >> 7;
                         /* Save IM info for the packet. key = 21150. */
                         p_add_proto_data (pinfo->pool, pinfo, proto_asterix, 21150, air_speed_im_bit);

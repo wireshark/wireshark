@@ -3346,7 +3346,7 @@ dissect_isup_transmission_medium_requirement_parameter(tvbuff_t *parameter_tvb, 
 }
 
 static char *
-dissect_isup_digits_common(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, proto_tree *tree, proto_item *item,
+dissect_isup_digits_common(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree, proto_item *item,
                            const char *param_name, gint hf_number, gint hf_odd_digit, gint hf_even_digit,
                            gboolean even_indicator, e164_number_type_t number_type, guint nature_of_address)
 {
@@ -3367,7 +3367,7 @@ dissect_isup_digits_common(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, p
     return NULL;
   }
 
-  strbuf_number = wmem_strbuf_sized_new(wmem_packet_scope(), MAXDIGITS+1, 0);
+  strbuf_number = wmem_strbuf_sized_new(pinfo->pool, MAXDIGITS+1, 0);
 
   /* Make the digit string, looping on captured length (in case a snaplen was set) */
   captured_length = tvb_captured_length_remaining(tvb, offset);
@@ -6663,7 +6663,7 @@ dissect_isup_jurisdiction_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo,
   Dissector Parameter Generic name
  */
 static void
-dissect_isup_generic_name_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
+dissect_isup_generic_name_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   gint    gen_name_length;
   char   *gen_name = NULL;
@@ -6674,13 +6674,13 @@ dissect_isup_generic_name_parameter(tvbuff_t *parameter_tvb, proto_tree *paramet
     NULL
   };
 
-  gen_name = (char *)wmem_alloc(wmem_packet_scope(), MAXGNAME + 1);
+  gen_name = (char *)wmem_alloc(pinfo->pool, MAXGNAME + 1);
   gen_name[0] = '\0';
   gen_name_length = tvb_reported_length(parameter_tvb) - 1;
 
   proto_tree_add_bitmask_list(parameter_tree, parameter_tvb, 0, 1, indicators, ENC_NA);
 
-  gen_name = tvb_get_string_enc(wmem_packet_scope(), parameter_tvb, 1, gen_name_length, ENC_ASCII);
+  gen_name = tvb_get_string_enc(pinfo->pool, parameter_tvb, 1, gen_name_length, ENC_ASCII);
   gen_name[gen_name_length] = '\0';
   proto_tree_add_string(parameter_tree, hf_isup_generic_name_ia5, parameter_tvb, 1, gen_name_length, gen_name);
   proto_item_append_text(parameter_item, " : %s", gen_name);
@@ -7045,7 +7045,7 @@ dissect_japan_isup_network_poi_cad(tvbuff_t *parameter_tvb, packet_info *pinfo, 
   guint8         carrier_info_length;
   gint           num_octets_with_digits = 0;
   gint           digit_index = 0;
-  wmem_strbuf_t *ca_number = wmem_strbuf_sized_new(wmem_packet_scope(), MAXDIGITS+1, 0);
+  wmem_strbuf_t *ca_number = wmem_strbuf_sized_new(pinfo->pool, MAXDIGITS+1, 0);
 
   /* POI Hierarchy information
 
@@ -7239,7 +7239,7 @@ dissect_japan_isup_reason_for_clip_fail(tvbuff_t *parameter_tvb, proto_tree *par
 }
 
 static void
-dissect_japan_isup_contractor_number(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
+dissect_japan_isup_contractor_number(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   int         offset = 0;
   int         parameter_length;
@@ -7254,7 +7254,7 @@ dissect_japan_isup_contractor_number(tvbuff_t *parameter_tvb, proto_tree *parame
   proto_tree_add_item(parameter_tree, hf_isup_numbering_plan_indicator, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
   offset += 1;
 
-  proto_tree_add_item_ret_display_string(parameter_tree, hf_japan_isup_contractor_number,  parameter_tvb, offset, parameter_length-2, ENC_BCD_DIGITS_0_9, wmem_packet_scope(), &digit_str);
+  proto_tree_add_item_ret_display_string(parameter_tree, hf_japan_isup_contractor_number,  parameter_tvb, offset, parameter_length-2, ENC_BCD_DIGITS_0_9, pinfo->pool, &digit_str);
 
   proto_item_append_text(parameter_item, " %s", digit_str);
 
@@ -7412,7 +7412,7 @@ dissect_japan_isup_carrier_information(tvbuff_t *parameter_tvb, packet_info *pin
         /* Lets now load up the digits.*/
         /* If the odd indicator is set... drop the Filler from the last octet.*/
         /* This loop also loads up ca_number with the digits for display*/
-        ca_number = wmem_strbuf_sized_new(wmem_packet_scope(), MAXDIGITS+1, 0);
+        ca_number = wmem_strbuf_sized_new(pinfo->pool, MAXDIGITS+1, 0);
         digit_index = 0;
         while (num_octets_with_digits > 0) {
           offset += 1;
@@ -7482,7 +7482,7 @@ dissect_japan_isup_carrier_information(tvbuff_t *parameter_tvb, packet_info *pin
         /* Lets now load up the digits.*/
         /* If the odd indicator is set... drop the Filler from the last octet.*/
         /* This loop also loads up cid_number with the digits for display*/
-        cid_number = wmem_strbuf_sized_new(wmem_packet_scope(), MAXDIGITS+1, 0);
+        cid_number = wmem_strbuf_sized_new(pinfo->pool, MAXDIGITS+1, 0);
         digit_index = 0;
         while (num_octets_with_digits > 0) {
           offset += 1;
@@ -7612,7 +7612,7 @@ dissect_japan_isup_charge_area_info(tvbuff_t *parameter_tvb, packet_info *pinfo,
   gint odd_even;
   gint digit_index = 0;
 
-  wmem_strbuf_t *ca_number = wmem_strbuf_sized_new(wmem_packet_scope(), MAXDIGITS+1, 0);
+  wmem_strbuf_t *ca_number = wmem_strbuf_sized_new(pinfo->pool, MAXDIGITS+1, 0);
 
   /*Octet 1 : Indicator*/
   octet = tvb_get_guint8(parameter_tvb, 0);
@@ -8261,7 +8261,7 @@ dissect_isup_optional_parameter(tvbuff_t *optional_parameters_tvb, packet_info *
                     dissect_japan_isup_reason_for_clip_fail(parameter_tvb, parameter_tree, parameter_item);
                     break;
                   case JAPAN_ISUP_PARAM_TYPE_CONTRACTOR_NUMBER: /* F9 */
-                    dissect_japan_isup_contractor_number(parameter_tvb, parameter_tree, parameter_item);
+                    dissect_japan_isup_contractor_number(parameter_tvb, pinfo, parameter_tree, parameter_item);
                     break;
                   case JAPAN_ISUP_PARAM_TYPE_CHARGE_INF_TYPE: /* FA */
                     chg_inf_type = dissect_japan_chg_inf_type(parameter_tvb, parameter_tree, parameter_item);
@@ -8584,7 +8584,7 @@ dissect_ansi_isup_optional_parameter(tvbuff_t *optional_parameters_tvb, packet_i
             dissect_isup_jurisdiction_parameter(parameter_tvb, pinfo, parameter_tree, parameter_item);
             break;
           case PARAM_TYPE_GENERIC_NAME:
-            dissect_isup_generic_name_parameter(parameter_tvb, parameter_tree, parameter_item);
+            dissect_isup_generic_name_parameter(parameter_tvb, pinfo, parameter_tree, parameter_item);
             break;
           case PARAM_TYPE_GENERIC_DIGITS:
             dissect_isup_generic_digits_parameter(parameter_tvb, parameter_tree, parameter_item);
@@ -9644,7 +9644,7 @@ dissect_ansi_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree 
 
   offset +=  MESSAGE_TYPE_LENGTH;
 
-  tap_rec = wmem_new(wmem_packet_scope(), isup_tap_rec_t);
+  tap_rec = wmem_new(pinfo->pool, isup_tap_rec_t);
   tap_rec->message_type   = message_type;
   tap_rec->calling_number = NULL;
   tap_rec->called_number  = NULL;
@@ -9883,7 +9883,7 @@ dissect_ansi_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree 
     expert_add_info(pinfo, type_item, &ei_isup_message_type_no_optional_parameters);
 
   /* if there are calling/called number, we'll get them for the tap */
-  tap_rec->calling_number = tap_calling_number ? tap_calling_number : wmem_strdup(wmem_packet_scope(), "");
+  tap_rec->calling_number = tap_calling_number ? tap_calling_number : wmem_strdup(pinfo->pool, "");
   tap_rec->called_number  = tap_called_number;
   tap_rec->cause_value    = tap_cause_value;
   tap_queue_packet(isup_tap, pinfo, tap_rec);
@@ -9945,7 +9945,7 @@ dissect_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup
 
   offset +=  MESSAGE_TYPE_LENGTH;
 
-  tap_rec = wmem_new(wmem_packet_scope(), isup_tap_rec_t);
+  tap_rec = wmem_new(pinfo->pool, isup_tap_rec_t);
   tap_rec->message_type   = message_type;
   tap_rec->calling_number = NULL;
   tap_rec->called_number  = NULL;
@@ -10251,7 +10251,7 @@ dissect_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup
     expert_add_info(pinfo, type_item, &ei_isup_message_type_no_optional_parameters);
 
   /* if there are calling/called number, we'll get them for the tap */
-  tap_rec->calling_number = tap_calling_number ? tap_calling_number : wmem_strdup(wmem_packet_scope(), "");
+  tap_rec->calling_number = tap_calling_number ? tap_calling_number : wmem_strdup(pinfo->pool, "");
   tap_rec->called_number  = tap_called_number;
   tap_rec->cause_value    = tap_cause_value;
   tap_queue_packet(isup_tap, pinfo, tap_rec);
@@ -10444,8 +10444,8 @@ dissect_application_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
   if (data) {
     http_message_info_t *message_info = (http_message_info_t *)data;
     if (message_info->media_str) {
-      version = ws_find_media_type_parameter(wmem_packet_scope(), message_info->media_str, "version");
-      base = ws_find_media_type_parameter(wmem_packet_scope(), message_info->media_str, "base");
+      version = ws_find_media_type_parameter(pinfo->pool, message_info->media_str, "version");
+      base = ws_find_media_type_parameter(pinfo->pool, message_info->media_str, "base");
       if ((version && g_ascii_strncasecmp(version, "ansi", 4) == 0) ||
           (base && g_ascii_strncasecmp(base, "ansi", 4) == 0) ||
           (version && g_ascii_strncasecmp(version, "gr", 2) == 0) ||

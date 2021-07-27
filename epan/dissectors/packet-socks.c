@@ -235,7 +235,7 @@ static const char *get_auth_method_name( guint Number){
     return "Bad method number (not 0-0xff)";
 }
 
-static int display_address(tvbuff_t *tvb, int offset, proto_tree *tree) {
+static int display_address(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree) {
 
 /* decode and display the v5 address, return offset of next byte */
 
@@ -256,7 +256,7 @@ static int display_address(tvbuff_t *tvb, int offset, proto_tree *tree) {
         gchar* str;
 
         len = tvb_get_guint8(tvb, offset);
-        str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset+1, len, ENC_ASCII);
+        str = tvb_get_string_enc(pinfo->pool, tvb, offset+1, len, ENC_ASCII);
         proto_tree_add_string(tree, hf_socks_remote_name, tvb, offset, len+1, str);
         offset += (len+1);
         }
@@ -344,7 +344,7 @@ socks_udp_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
         proto_tree_add_item(socks_tree, hf_socks_fragment_number, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
-        offset = display_address( tvb, offset, socks_tree);
+        offset = display_address(pinfo, tvb, offset, socks_tree);
         hash_info->udp_remote_port = tvb_get_ntohs(tvb, offset);
 
         proto_tree_add_uint( socks_tree, hf_socks_dstport, tvb,
@@ -548,7 +548,7 @@ client_display_socks_v5(tvbuff_t *tvb, int offset, packet_info *pinfo,
         proto_tree_add_item( tree, hf_socks_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
-        offset = display_address(tvb, offset, tree);
+        offset = display_address(pinfo, tvb, offset, tree);
         proto_tree_add_item( tree, hf_client_port, tvb, offset, 2, ENC_BIG_ENDIAN);
     }
     else if ((state_info->client == clientWaitForAuthReply) &&
@@ -571,12 +571,12 @@ client_display_socks_v5(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
             /* process user name */
             len = tvb_get_guint8(tvb, offset);
-            str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset+1, len, ENC_ASCII);
+            str = tvb_get_string_enc(pinfo->pool, tvb, offset+1, len, ENC_ASCII);
             proto_tree_add_string(tree, hf_socks_username, tvb, offset, len+1, str);
             offset += (len+1);
 
             len = tvb_get_guint8(tvb, offset);
-            str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset+1, len, ENC_ASCII);
+            str = tvb_get_string_enc(pinfo->pool, tvb, offset+1, len, ENC_ASCII);
             proto_tree_add_string(tree, hf_socks_password, tvb, offset, len+1, str);
             /* offset += (len+1); */
             break;
@@ -601,7 +601,7 @@ client_display_socks_v5(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 static void
-server_display_socks_v5(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
+server_display_socks_v5(tvbuff_t *tvb, int offset, packet_info *pinfo,
     proto_tree *tree, socks_hash_entry_t *hash_info _U_, sock_state_t* state_info) {
 
 /* Display the protocol tree for the version. This routine uses the */
@@ -685,7 +685,7 @@ server_display_socks_v5(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
         proto_tree_add_item( tree, hf_socks_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
-        offset = display_address(tvb, offset, tree);
+        offset = display_address(pinfo, tvb, offset, tree);
         proto_tree_add_item( tree, hf_client_port, tvb, offset, 2, ENC_BIG_ENDIAN);
         break;
 
@@ -701,7 +701,7 @@ server_display_socks_v5(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
         proto_tree_add_item( tree, hf_socks_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
-        offset = display_address(tvb, offset, tree);
+        offset = display_address(pinfo, tvb, offset, tree);
         proto_tree_add_item( tree, hf_server_remote_host_port, tvb, offset, 2, ENC_BIG_ENDIAN);
         break;
 
@@ -885,7 +885,7 @@ server_state_machine_v5( socks_hash_entry_t *hash_info, tvbuff_t *tvb,
             hash_info->serverState = serverBindReply;
             if ((tvb_get_guint8(tvb, offset + 2) == 0) &&
                 (tvb_reported_length_remaining(tvb, offset) > 5)) {
-                    offset = display_address(tvb, offset, NULL);
+                    offset = display_address(pinfo, tvb, offset, NULL);
                     client_state_machine_v5(hash_info, tvb, offset, pinfo, FALSE);
             }
             break;

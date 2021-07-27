@@ -253,7 +253,7 @@ static value_string_ext ccsds_secondary_header_format_id_ext = VALUE_STRING_EXT_
 
 
 /* convert ccsds embedded time to a human readable string - NOT THREAD SAFE */
-static const char* embedded_time_to_string ( int coarse_time, int fine_time )
+static const char* embedded_time_to_string ( wmem_allocator_t *pool, int coarse_time, int fine_time )
 {
     static int utcdiff    = 0;
     nstime_t   t;
@@ -279,7 +279,7 @@ static const char* embedded_time_to_string ( int coarse_time, int fine_time )
     fraction = ( multiplier * ( (int)fine_time & 0xff ) ) / 256;
     t.nsecs = fraction*1000000; /* msecs to nsecs */
 
-    return abs_time_to_str(wmem_packet_scope(), &t, ABSOLUTE_TIME_DOY_UTC, TRUE);
+    return abs_time_to_str(pool, &t, ABSOLUTE_TIME_DOY_UTC, TRUE);
 }
 
 
@@ -376,7 +376,7 @@ dissect_ccsds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
         proto_tree_add_item(secondary_header_tree, hf_ccsds_fine_time, tvb, offset, 1, ENC_BIG_ENDIAN);
         ++offset;
 
-        time_string = embedded_time_to_string ( coarse_time, fine_time );
+        time_string = embedded_time_to_string ( pinfo->pool, coarse_time, fine_time );
         proto_tree_add_string(secondary_header_tree, hf_ccsds_embedded_time, tvb, offset-5, 5, time_string);
 
         proto_tree_add_item(secondary_header_tree, hf_ccsds_timeid, tvb, offset, 1, ENC_BIG_ENDIAN);

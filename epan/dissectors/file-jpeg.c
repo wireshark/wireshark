@@ -497,7 +497,7 @@ process_comment_header(proto_tree *tree, tvbuff_t *tvb, guint32 len,
  * XXX - This code only works on US-ASCII systems!!!
  */
 static int
-process_app0_segment(proto_tree *tree, tvbuff_t *tvb, guint32 len,
+process_app0_segment(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, guint32 len,
         guint16 marker, const char *marker_name)
 {
     proto_item *ti;
@@ -520,7 +520,7 @@ process_app0_segment(proto_tree *tree, tvbuff_t *tvb, guint32 len,
 
     proto_tree_add_item(subtree, hf_len, tvb, 2, 2, ENC_BIG_ENDIAN);
 
-    str = (char *)tvb_get_stringz_enc(wmem_packet_scope(), tvb, 4, &str_size, ENC_ASCII);
+    str = (char *)tvb_get_stringz_enc(pinfo->pool, tvb, 4, &str_size, ENC_ASCII);
     ti = proto_tree_add_item(subtree, hf_identifier, tvb, 4, str_size, ENC_ASCII|ENC_NA);
     if (strcmp(str, "JFIF") == 0) {
         /* Version */
@@ -599,7 +599,7 @@ process_app1_segment(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, guint3
     proto_tree_add_item(subtree, hf_len, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    str = (char*)tvb_get_stringz_enc(wmem_packet_scope(), tvb, offset, &str_size, ENC_ASCII);
+    str = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, offset, &str_size, ENC_ASCII);
     ti = proto_tree_add_item(subtree, hf_identifier, tvb, offset, str_size, ENC_ASCII|ENC_NA);
     offset += str_size;
 
@@ -703,7 +703,7 @@ process_app1_segment(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, guint3
  * XXX - This code only works on US-ASCII systems!!!
  */
 static void
-process_app2_segment(proto_tree *tree, tvbuff_t *tvb, guint32 len,
+process_app2_segment(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, guint32 len,
         guint16 marker, const char *marker_name)
 {
     proto_item *ti;
@@ -723,7 +723,7 @@ process_app2_segment(proto_tree *tree, tvbuff_t *tvb, guint32 len,
 
     proto_tree_add_item(subtree, hf_len, tvb, 2, 2, ENC_BIG_ENDIAN);
 
-    str = (char*)tvb_get_stringz_enc(wmem_packet_scope(), tvb, 4, &str_size, ENC_ASCII);
+    str = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, 4, &str_size, ENC_ASCII);
     ti = proto_tree_add_item(subtree, hf_identifier, tvb, 4, str_size, ENC_ASCII|ENC_NA);
     if (strcmp(str, "FPXR") == 0) {
         proto_tree_add_item(tree, hf_exif_flashpix_marker, tvb, 0, -1, ENC_NA);
@@ -731,6 +731,7 @@ process_app2_segment(proto_tree *tree, tvbuff_t *tvb, guint32 len,
         proto_tree_add_bytes_format_value(subtree, hf_remain_seg_data, tvb, 4 + str_size, -1, NULL, "%u bytes", len - 2 - str_size);
         proto_item_append_text(ti, " (Unknown identifier)");
     }
+    wmem_free(NULL, str);
 }
 
 static gint
@@ -805,14 +806,14 @@ dissect_jfif(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                 tvbuff_t *tmp_tvb = tvb_new_subset_length(tvb, start_marker, 2 + len);
                 switch (marker) {
                     case MARKER_APP0:
-                        process_app0_segment(subtree, tmp_tvb, len, marker, str);
+                        process_app0_segment(subtree, tmp_tvb, pinfo, len, marker, str);
                         break;
                     case MARKER_APP1:
                         process_app1_segment(subtree, tmp_tvb, pinfo, len, marker, str, show_first_identifier_not_jfif);
                         show_first_identifier_not_jfif = FALSE;
                         break;
                     case MARKER_APP2:
-                        process_app2_segment(subtree, tmp_tvb, len, marker, str);
+                        process_app2_segment(subtree, tmp_tvb, pinfo, len, marker, str);
                         break;
                     case MARKER_SOF0:
                     case MARKER_SOF1:

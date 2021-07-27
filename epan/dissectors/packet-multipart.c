@@ -186,7 +186,7 @@ base64_decode(packet_info *pinfo, tvbuff_t *b64_tvb, char *name)
 {
     char *data;
     tvbuff_t *tvb;
-    data = tvb_get_string_enc(wmem_packet_scope(), b64_tvb, 0, tvb_reported_length(b64_tvb), ENC_ASCII);
+    data = tvb_get_string_enc(pinfo->pool, b64_tvb, 0, tvb_reported_length(b64_tvb), ENC_ASCII);
 
     tvb = base64_to_tvb(b64_tvb, data);
     add_new_data_source(pinfo, tvb, name);
@@ -204,7 +204,7 @@ base64_decode(packet_info *pinfo, tvbuff_t *b64_tvb, char *name)
  * Return the cleaned-up RFC2822 header (buffer must be freed).
  */
 static char *
-unfold_and_compact_mime_header(const char *lines, gint *first_colon_offset)
+unfold_and_compact_mime_header(wmem_allocator_t *pool, const char *lines, gint *first_colon_offset)
 {
     const char *p = lines;
     char c;
@@ -216,7 +216,7 @@ unfold_and_compact_mime_header(const char *lines, gint *first_colon_offset)
     if (! lines) return NULL;
 
     c = *p;
-    ret = (char *)wmem_alloc(wmem_packet_scope(), strlen(lines) + 1);
+    ret = (char *)wmem_alloc(pool, strlen(lines) + 1);
     q = ret;
 
     while (c) {
@@ -338,15 +338,15 @@ get_multipart_info(packet_info *pinfo, http_message_info_t *message_info)
     }
 
     /* Clean up the parameters */
-    parameters = unfold_and_compact_mime_header(message_info->media_str, &dummy);
+    parameters = unfold_and_compact_mime_header(pinfo->pool, message_info->media_str, &dummy);
 
-    start_boundary = ws_find_media_type_parameter(wmem_packet_scope(), parameters, "boundary");
+    start_boundary = ws_find_media_type_parameter(pinfo->pool, parameters, "boundary");
     if (!start_boundary) {
         return NULL;
     }
 
     if (strncmp(type, "multipart/encrypted", sizeof("multipart/encrypted") - 1) == 0) {
-        start_protocol = ws_find_media_type_parameter(wmem_packet_scope(), parameters, "protocol");
+        start_protocol = ws_find_media_type_parameter(pinfo->pool, parameters, "protocol");
         if (!start_protocol) {
             return NULL;
         }
@@ -355,7 +355,7 @@ get_multipart_info(packet_info *pinfo, http_message_info_t *message_info)
     /*
      * There is a value for the boundary string
      */
-    m_info = wmem_new(wmem_packet_scope(), multipart_info_t);
+    m_info = wmem_new(pinfo->pool, multipart_info_t);
     m_info->type = type;
     m_info->boundary = start_boundary;
     m_info->boundary_length = (guint)strlen(start_boundary);
@@ -601,10 +601,10 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb,
             next_offset = boundary_start;
         }
 
-        hdr_str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, next_offset - offset, ENC_ASCII);
+        hdr_str = tvb_get_string_enc(pinfo->pool, tvb, offset, next_offset - offset, ENC_ASCII);
 
         colon_offset = 0;
-        header_str = unfold_and_compact_mime_header(hdr_str, &colon_offset);
+        header_str = unfold_and_compact_mime_header(pinfo->pool, hdr_str, &colon_offset);
         if (colon_offset <= 0) {
             /* if there is no colon it's no header, so break and add complete line to the body */
             next_offset = offset;
@@ -623,7 +623,7 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb,
                     break;
                 }
             } else {
-                char *value_str = wmem_strdup(wmem_packet_scope(), header_str + colon_offset + 1);
+                char *value_str = wmem_strdup(pinfo->pool, header_str + colon_offset + 1);
 
                 proto_tree_add_string_format(subtree,
                       hf_header_array[hf_index], tvb,
@@ -636,7 +636,7 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb,
                         {
                             char *semicolonp;
                             /* The Content-Type starts at colon_offset + 1 or after the type parameter */
-                            char* type_str = ws_find_media_type_parameter(wmem_packet_scope(), value_str, "type");
+                            char* type_str = ws_find_media_type_parameter(pinfo->pool, value_str, "type");
                             if(type_str != NULL) {
                                 value_str = type_str;
                             }
@@ -645,11 +645,11 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb,
 
                             if (semicolonp != NULL) {
                                 *semicolonp = '\0';
-                                m_info->orig_parameters = wmem_strdup(wmem_packet_scope(),
+                                m_info->orig_parameters = wmem_strdup(pinfo->pool,
                                                              semicolonp + 1);
                             }
 
-                            m_info->orig_content_type = wmem_ascii_strdown(wmem_packet_scope(), value_str, -1);
+                            m_info->orig_content_type = wmem_ascii_strdown(pinfo->pool, value_str, -1);
                         }
                         break;
                     case POS_CONTENT_TYPE:
@@ -659,18 +659,18 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb,
 
                             if (semicolonp != NULL) {
                                 *semicolonp = '\0';
-                                message_info.media_str = wmem_strdup(wmem_packet_scope(), semicolonp + 1);
+                                message_info.media_str = wmem_strdup(pinfo->pool, semicolonp + 1);
                             } else {
                                 message_info.media_str = NULL;
                             }
 
-                            content_type_str = wmem_ascii_strdown(wmem_packet_scope(), value_str, -1);
+                            content_type_str = wmem_ascii_strdown(pinfo->pool, value_str, -1);
 
                             /* Show content-type in root 'part' label */
                             proto_item_append_text(ti, " (%s)", content_type_str);
 
                             /* find the "name" parameter in case we don't find a content disposition "filename" */
-                            mimetypename = ws_find_media_type_parameter(wmem_packet_scope(), message_info.media_str, "name");
+                            mimetypename = ws_find_media_type_parameter(pinfo->pool, message_info.media_str, "name");
 
                             if(strncmp(content_type_str, "application/octet-stream",
                                     sizeof("application/octet-stream")-1) == 0) {
@@ -695,7 +695,7 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb,
                                 *crp = '\0';
                             }
 
-                            content_encoding_str = wmem_ascii_strdown(wmem_packet_scope(), value_str, -1);
+                            content_encoding_str = wmem_ascii_strdown(pinfo->pool, value_str, -1);
                         }
                         break;
                     case POS_CONTENT_TRANSFER_ENCODING:
@@ -707,17 +707,17 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb,
                                 *crp = '\0';
                             }
 
-                            content_trans_encoding_str = wmem_ascii_strdown(wmem_packet_scope(), value_str, -1);
+                            content_trans_encoding_str = wmem_ascii_strdown(pinfo->pool, value_str, -1);
                         }
                         break;
                     case POS_CONTENT_DISPOSITION:
                         {
                             /* find the "filename" parameter */
-                            filename = ws_find_media_type_parameter(wmem_packet_scope(), value_str, "filename");
+                            filename = ws_find_media_type_parameter(pinfo->pool, value_str, "filename");
                         }
                         break;
                     case POS_CONTENT_ID:
-                        message_info.content_id = wmem_strdup(wmem_packet_scope(), value_str);
+                        message_info.content_id = wmem_strdup(pinfo->pool, value_str);
                         break;
                     default:
                         break;

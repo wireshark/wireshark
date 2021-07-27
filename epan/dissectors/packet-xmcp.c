@@ -383,27 +383,23 @@ get_xmcp_attr_max_len(guint16 xmcp_attr) {
 }
 
 static void
-add_xmcp_port_name (void)
+add_xmcp_port_name (packet_info *pinfo)
 {
   if (!xmcp_it_service_port || xmcp_service_port == -1)
     return;
 
   switch(xmcp_service_protocol) {
   case IP_PROTO_TCP:
-    proto_item_append_text(xmcp_it_service_port, " (TCP: %s)",
-                           tcp_port_to_display(wmem_packet_scope(), xmcp_service_port));
+    proto_item_append_text(xmcp_it_service_port, " (TCP: %s)", tcp_port_to_display(pinfo->pool, xmcp_service_port));
     break;
   case IP_PROTO_UDP:
-    proto_item_append_text(xmcp_it_service_port, " (UDP: %s)",
-                           udp_port_to_display(wmem_packet_scope(), xmcp_service_port));
+    proto_item_append_text(xmcp_it_service_port, " (UDP: %s)", udp_port_to_display(pinfo->pool, xmcp_service_port));
     break;
   case IP_PROTO_DCCP:
-    proto_item_append_text(xmcp_it_service_port, " (DCCP: %s)",
-                           dccp_port_to_display(wmem_packet_scope(), xmcp_service_port));
+    proto_item_append_text(xmcp_it_service_port, " (DCCP: %s)", dccp_port_to_display(pinfo->pool, xmcp_service_port));
     break;
   case IP_PROTO_SCTP:
-    proto_item_append_text(xmcp_it_service_port, " (SCTP: %s)",
-                           sctp_port_to_display(wmem_packet_scope(), xmcp_service_port));
+    proto_item_append_text(xmcp_it_service_port, " (SCTP: %s)", sctp_port_to_display(pinfo->pool, xmcp_service_port));
     break;
   default:
     break;
@@ -422,14 +418,14 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
     proto_tree_add_item(attr_tree, xmcp_attr_username, tvb, offset,
                         attr_length, ENC_ASCII|ENC_NA);
     proto_item_append_text(attr_tree, ": %s",
-                           tvb_get_string_enc(wmem_packet_scope(), tvb, offset, attr_length, ENC_ASCII));
+                           tvb_get_string_enc(pinfo->pool, tvb, offset, attr_length, ENC_ASCII));
     /*
      * Many message methods may include this attribute,
      * but it's only interesting when Registering at first
      */
     if (xmcp_msg_type_method == XMCP_METHOD_REGISTER) {
       col_append_fstr(pinfo->cinfo, COL_INFO, ", user \"%s\"",
-                      tvb_get_string_enc(wmem_packet_scope(), tvb, offset, attr_length, ENC_ASCII));
+                      tvb_get_string_enc(pinfo->pool, tvb, offset, attr_length, ENC_ASCII));
     }
     break;
   case XMCP_MESSAGE_INTEGRITY:
@@ -492,7 +488,7 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
     proto_tree_add_item(attr_tree, xmcp_attr_error_reason, tvb, (offset+4),
                         (attr_length - 4), ENC_ASCII|ENC_NA);
     proto_item_append_text(attr_tree, " (%s)",
-                           tvb_get_string_enc(wmem_packet_scope(), tvb, (offset+4),
+                           tvb_get_string_enc(pinfo->pool, tvb, (offset+4),
                                                     (attr_length-4), ENC_ASCII));
     break;
   case XMCP_REALM:
@@ -500,7 +496,7 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
                         attr_length, ENC_ASCII|ENC_NA);
     {
       guint8 *realm;
-      realm = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, attr_length, ENC_ASCII);
+      realm = tvb_get_string_enc(pinfo->pool, tvb, offset, attr_length, ENC_ASCII);
       proto_item_append_text(attr_tree, ": %s", realm);
       /* In XMCP the REALM string should always be "SAF" including the quotes */
       if (attr_length != 5 || strncmp(realm, "\"SAF\"", attr_length)) {
@@ -512,15 +508,15 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
     proto_tree_add_item(attr_tree, xmcp_attr_nonce, tvb, offset,
                         attr_length, ENC_ASCII|ENC_NA);
     proto_item_append_text(attr_tree, ": %s",
-                           tvb_get_string_enc(wmem_packet_scope(), tvb, offset, attr_length, ENC_ASCII));
+                           tvb_get_string_enc(pinfo->pool, tvb, offset, attr_length, ENC_ASCII));
     break;
   case XMCP_CLIENT_NAME:
     proto_tree_add_item(attr_tree, xmcp_attr_client_name, tvb, offset,
                         attr_length, ENC_ASCII|ENC_NA);
     proto_item_append_text(attr_tree, ": %s",
-                           tvb_get_string_enc(wmem_packet_scope(), tvb, offset, attr_length, ENC_ASCII));
+                           tvb_get_string_enc(pinfo->pool, tvb, offset, attr_length, ENC_ASCII));
     col_append_fstr(pinfo->cinfo, COL_INFO, ", name \"%s\"",
-                      tvb_get_string_enc(wmem_packet_scope(), tvb, offset, attr_length, ENC_ASCII));
+                      tvb_get_string_enc(pinfo->pool, tvb, offset, attr_length, ENC_ASCII));
     break;
   case XMCP_CLIENT_HANDLE:
     if (attr_length < 4)
@@ -561,9 +557,9 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
     proto_tree_add_item(attr_tree, xmcp_attr_client_label, tvb, offset,
                         attr_length, ENC_ASCII|ENC_NA);
     proto_item_append_text(attr_tree, ": %s",
-                           tvb_get_string_enc(wmem_packet_scope(), tvb, offset, attr_length, ENC_ASCII));
+                           tvb_get_string_enc(pinfo->pool, tvb, offset, attr_length, ENC_ASCII));
     col_append_fstr(pinfo->cinfo, COL_INFO, ", label \"%s\"",
-                      tvb_get_string_enc(wmem_packet_scope(), tvb, offset, attr_length, ENC_ASCII));
+                      tvb_get_string_enc(pinfo->pool, tvb, offset, attr_length, ENC_ASCII));
     break;
   case XMCP_KEEPALIVE:
     if (attr_length < 4)
@@ -617,7 +613,7 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
                                                tvb, (offset+2), 2, ENC_BIG_ENDIAN);
     /* If we now know both port and protocol number, fill in the port name */
     if (xmcp_service_protocol != -1) {
-      add_xmcp_port_name();
+      add_xmcp_port_name(pinfo);
     }
     switch (tvb_get_guint8(tvb, (offset+1))) {
     case 0x01: /* IPv4 */
@@ -658,7 +654,7 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
                                                 &ipproto_val_ext, "Unknown"));
     /* If we now know both port and protocol number, fill in the port name */
     if (xmcp_service_port != -1 && xmcp_it_service_port != NULL) {
-      add_xmcp_port_name();
+      add_xmcp_port_name(pinfo);
     }
     break;
   case XMCP_FLAGS:
@@ -749,7 +745,7 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
        * a '<'), try XML.
        * Otherwise, try plain-text.
        */
-      test_string = tvb_get_string_enc(wmem_packet_scope(), next_tvb, 0, (attr_length < 32 ?
+      test_string = tvb_get_string_enc(pinfo->pool, next_tvb, 0, (attr_length < 32 ?
                                                            attr_length : 32), ENC_ASCII);
       tok = strtok(test_string, " \t\r\n");
       if (tok && tok[0] == '<') {

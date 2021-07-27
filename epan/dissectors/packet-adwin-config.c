@@ -174,7 +174,7 @@ dissect_UDPStatus(tvbuff_t *tvb, proto_tree *adwin_tree)
 }
 
 static void
-dissect_UDPExtStatus(tvbuff_t *tvb, proto_tree *adwin_tree)
+dissect_UDPExtStatus(packet_info *pinfo, tvbuff_t *tvb, proto_tree *adwin_tree)
 {
 	const gchar *processor_type, *system_type;
 
@@ -196,13 +196,13 @@ dissect_UDPExtStatus(tvbuff_t *tvb, proto_tree *adwin_tree)
 	/* add the processor type raw values to the tree, to allow filtering */
 	proto_tree_add_item(adwin_tree, hf_adwin_config_processor_type_raw, tvb, 64, 2, ENC_ASCII|ENC_NA);
 	/* add the processor type as a pretty printed string */
-	processor_type = tvb_get_string_enc(wmem_packet_scope(), tvb, 64, 2, ENC_ASCII|ENC_NA);
+	processor_type = tvb_get_string_enc(pinfo->pool, tvb, 64, 2, ENC_ASCII|ENC_NA);
 	processor_type = str_to_str(processor_type, processor_type_mapping, "Unknown (%s)");
 	proto_tree_add_string(adwin_tree, hf_adwin_config_processor_type, tvb, 64, 2, processor_type);
 
 	/* add system type as raw value and pretty printed string */
 	proto_tree_add_item(adwin_tree, hf_adwin_config_system_type_raw, tvb, 66, 2, ENC_ASCII|ENC_NA);
-	system_type = tvb_get_string_enc(wmem_packet_scope(), tvb, 66, 2, ENC_ASCII|ENC_NA);
+	system_type = tvb_get_string_enc(pinfo->pool, tvb, 66, 2, ENC_ASCII|ENC_NA);
 	system_type = str_to_str(system_type, system_type_mapping, "Unknown (%s)");
 	proto_tree_add_string(adwin_tree, hf_adwin_config_system_type, tvb, 66, 2, system_type);
 
@@ -210,7 +210,7 @@ dissect_UDPExtStatus(tvbuff_t *tvb, proto_tree *adwin_tree)
 }
 
 static void
-dissect_UDPMessage(tvbuff_t *tvb, proto_tree *adwin_tree)
+dissect_UDPMessage(packet_info *pinfo, tvbuff_t *tvb, proto_tree *adwin_tree)
 {
 	const gchar *processor_type, *system_type;
 
@@ -239,13 +239,13 @@ dissect_UDPMessage(tvbuff_t *tvb, proto_tree *adwin_tree)
 	/* add the processor type raw values to the tree, to allow filtering */
 	proto_tree_add_item(adwin_tree, hf_adwin_config_processor_type_raw, tvb, 96,  2, ENC_ASCII|ENC_NA);
 	/* add the processor type as a pretty printed string */
-	processor_type = tvb_get_string_enc(wmem_packet_scope(), tvb, 96, 2, ENC_ASCII|ENC_NA);
+	processor_type = tvb_get_string_enc(pinfo->pool, tvb, 96, 2, ENC_ASCII|ENC_NA);
 	processor_type = str_to_str(processor_type, processor_type_mapping, "Unknown");
 	proto_tree_add_string(adwin_tree, hf_adwin_config_processor_type, tvb, 96, 2, processor_type);
 
 	/* add system type as raw value and pretty printed string */
 	proto_tree_add_item(adwin_tree, hf_adwin_config_system_type_raw, tvb, 98,  2, ENC_ASCII|ENC_NA);
-	system_type = tvb_get_string_enc(wmem_packet_scope(), tvb, 98, 2, ENC_ASCII|ENC_NA);
+	system_type = tvb_get_string_enc(pinfo->pool, tvb, 98, 2, ENC_ASCII|ENC_NA);
 	system_type = str_to_str(system_type, system_type_mapping, "Unknown");
 	proto_tree_add_string(adwin_tree, hf_adwin_config_system_type, tvb, 98, 2, system_type);
 }
@@ -438,14 +438,14 @@ dissect_adwin_config_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 		dissect_UDPStatus(tvb, adwin_config_tree);
 		break;
 	case UDPExtStatusLENGTH:
-		dissect_UDPExtStatus(tvb, adwin_config_tree);
+		dissect_UDPExtStatus(pinfo, tvb, adwin_config_tree);
 		break;
 	case UDPMessageLENGTH:
-		dissect_UDPMessage(tvb, adwin_config_tree);
+		dissect_UDPMessage(pinfo, tvb, adwin_config_tree);
 		break;
 	case UDPMessageLENGTH_wrong: /* incorrect packet length */
 		/* formerly used by adconfig */
-		dissect_UDPMessage(tvb, adwin_config_tree);
+		dissect_UDPMessage(pinfo, tvb, adwin_config_tree);
 		break;
 	case UDPInitAckLENGTH:
 		dissect_UDPInitAck(tvb, adwin_config_tree);

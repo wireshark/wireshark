@@ -298,7 +298,7 @@ static reassembly_table msg_reassembly_table;
 /* forward reference */
 static void ts2_add_checked_crc32(proto_tree *tree, int hf_item, int hf_item_status, expert_field* ei_item, tvbuff_t *tvb, packet_info *pinfo, guint16 offset);
 static void ts2_parse_playerlist(tvbuff_t *tvb, proto_tree *ts2_tree);
-static void ts2_parse_channellist(tvbuff_t *tvb, proto_tree *ts2_tree);
+static void ts2_parse_channellist(tvbuff_t *tvb, proto_tree *ts2_tree, wmem_allocator_t *pool);
 static void ts2_parse_newplayerjoined(tvbuff_t *tvb, proto_tree *ts2_tree);
 static void ts2_parse_knownplayerupdate(tvbuff_t *tvb, proto_tree *ts2_tree);
 static void ts2_parse_playerleft(tvbuff_t *tvb, proto_tree *ts2_tree);
@@ -451,7 +451,7 @@ static void ts2_standard_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
                 ts2_parse_loginpart2(next_tvb, ts2_tree);
                 break;
             case TS2T_CHANNELLIST:
-                ts2_parse_channellist(next_tvb, ts2_tree);
+                ts2_parse_channellist(next_tvb, ts2_tree, pinfo->pool);
                 break;
             case TS2T_PLAYERLIST:
                 ts2_parse_playerlist(next_tvb, ts2_tree);
@@ -587,7 +587,7 @@ static void ts2_parse_loginpart2(tvbuff_t *tvb, proto_tree *ts2_tree)
 
 }
 /* Parses a ts2 channel list (TS2T_CHANNELLIST) and adds it to the tree */
-static void ts2_parse_channellist(tvbuff_t *tvb, proto_tree *ts2_tree)
+static void ts2_parse_channellist(tvbuff_t *tvb, proto_tree *ts2_tree, wmem_allocator_t *pool)
 {
     gint32 offset;
     guint32 string_len;
@@ -622,13 +622,13 @@ static void ts2_parse_channellist(tvbuff_t *tvb, proto_tree *ts2_tree)
         offset+=2;
         proto_tree_add_item(ts2_tree, hf_ts2_max_users, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         offset+=2;
-        tvb_get_stringz_enc(wmem_packet_scope(), tvb, offset, &string_len, ENC_ASCII);
+        tvb_get_stringz_enc(pool, tvb, offset, &string_len, ENC_ASCII);
         proto_tree_add_item(ts2_tree, hf_ts2_channel_name, tvb, offset, string_len, ENC_ASCII|ENC_NA);
         offset+=string_len;
-        tvb_get_stringz_enc(wmem_packet_scope(), tvb, offset, &string_len, ENC_ASCII);
+        tvb_get_stringz_enc(pool, tvb, offset, &string_len, ENC_ASCII);
         proto_tree_add_item(ts2_tree, hf_ts2_channel_topic, tvb, offset, string_len, ENC_ASCII|ENC_NA);
         offset+=string_len;
-        tvb_get_stringz_enc(wmem_packet_scope(), tvb, offset, &string_len, ENC_ASCII);
+        tvb_get_stringz_enc(pool, tvb, offset, &string_len, ENC_ASCII);
         proto_tree_add_item(ts2_tree, hf_ts2_channel_description, tvb, offset, string_len, ENC_ASCII|ENC_NA);
         offset+=string_len;
     }

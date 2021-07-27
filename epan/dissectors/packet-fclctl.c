@@ -106,16 +106,16 @@ fclctl_get_typestr (guint8 linkctl_type, guint8 type)
 }
 
 const gchar *
-fclctl_get_paramstr (guint32 linkctl_type, guint32 param)
+fclctl_get_paramstr (wmem_allocator_t *pool, guint32 linkctl_type, guint32 param)
 {
     if (linkctl_type == FC_LCTL_PBSY) {
-      return wmem_strdup_printf(wmem_packet_scope(), "%s, %s",
+      return wmem_strdup_printf(pool, "%s, %s",
                  val_to_str (((param & 0xFF000000) >> 24), fc_lctl_pbsy_acode_val, "0x%x"),
                  val_to_str (((param & 0x00FF0000) >> 16), fc_lctl_pbsy_rjt_val, "0x%x"));
     }
     if ((linkctl_type == FC_LCTL_FRJT) ||
              (linkctl_type == FC_LCTL_PRJT)) {
-      return wmem_strdup_printf(wmem_packet_scope(), "%s, %s",
+      return wmem_strdup_printf(pool, "%s, %s",
                  val_to_str (((param & 0xFF000000) >> 24), fc_lctl_rjt_acode_val, "0x%x"),
                  val_to_str_ext (((param & 0x00FF0000) >> 16), &fc_lctl_rjt_val_ext, "%x"));
     }

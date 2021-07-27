@@ -1123,7 +1123,7 @@ static void dissect_smb2_error_data(tvbuff_t *, packet_info *, proto_tree *, int
 static guint smb2_eo_files_hash(gconstpointer k);
 static gint smb2_eo_files_equal(gconstpointer k1, gconstpointer k2);
 
-static void update_preauth_hash(void *buf, tvbuff_t *tvb)
+static void update_preauth_hash(void *buf, packet_info *pinfo, tvbuff_t *tvb)
 {
 	gcry_error_t err;
 	gcry_md_hd_t md;
@@ -1134,7 +1134,7 @@ static void update_preauth_hash(void *buf, tvbuff_t *tvb)
 		return;
 
 	/* we dup in case of non-contiguous packet */
-	pkt = tvb_memdup(wmem_packet_scope(), tvb, 0, tvb_captured_length(tvb));
+	pkt = tvb_memdup(pinfo->pool, tvb, 0, tvb_captured_length(tvb));
 	gcry_md_write(md, buf, SMB2_PREAUTH_HASH_SIZE);
 	gcry_md_write(md, pkt, tvb_captured_length(tvb));
 	gcry_md_final(md);
@@ -1586,25 +1586,11 @@ static void smb2_key_derivation(const guint8 *KI, guint32 KI_len,
 }
 
 /* for export-object-smb2 */
-static gchar *policy_hnd_to_file_id(const e_ctx_hnd *hnd) {
-gchar *file_id;
-	file_id = wmem_strdup_printf(wmem_packet_scope(),
-			"%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
-			hnd->uuid.data1,
-			hnd->uuid.data2,
-			hnd->uuid.data3,
-			hnd->uuid.data4[0],
-			hnd->uuid.data4[1],
-			hnd->uuid.data4[2],
-			hnd->uuid.data4[3],
-			hnd->uuid.data4[4],
-			hnd->uuid.data4[5],
-			hnd->uuid.data4[6],
-			hnd->uuid.data4[7]);
-	return file_id;
+static gchar *policy_hnd_to_file_id(wmem_allocator_t *pool, const e_ctx_hnd *hnd) {
+	return guid_to_str(pool, &hnd->uuid);
 }
 static guint smb2_eo_files_hash(gconstpointer k) {
-	return g_str_hash(policy_hnd_to_file_id((const e_ctx_hnd *)k));
+	return g_str_hash(policy_hnd_to_file_id(wmem_packet_scope(), (const e_ctx_hnd *)k));
 }
 static gint smb2_eo_files_equal(gconstpointer k1, gconstpointer k2) {
 int	are_equal;
@@ -1640,7 +1626,7 @@ feed_eo_smb2(tvbuff_t * tvb,packet_info *pinfo,smb2_info_t * si, guint16 dataoff
 	/* Create a new tvb to point to the payload data */
 	data_tvb = tvb_new_subset_length(tvb, dataoffset, length);
 	/* Create the eo_info to pass to the listener */
-	eo_info = wmem_new(wmem_packet_scope(), smb_eo_t);
+	eo_info = wmem_new(pinfo->pool, smb_eo_t);
 	/* Fill in eo_info */
 	eo_info->smbversion=2;
 	/* cmd == opcode */
@@ -1649,24 +1635,24 @@ feed_eo_smb2(tvbuff_t * tvb,packet_info *pinfo,smb2_info_t * si, guint16 dataoff
 	eo_info->uid=0;
 
 	/* Try to get file id and filename */
-	file_id=policy_hnd_to_file_id(&si->saved->policy_hnd);
+	file_id=policy_hnd_to_file_id(pinfo->pool, &si->saved->policy_hnd);
 	dcerpc_fetch_polhnd_data(&si->saved->policy_hnd, &fid_name, NULL, &open_frame, &close_frame, pinfo->num);
 	if (fid_name && g_strcmp0(fid_name,"File: ")!=0) {
 		auxstring=fid_name;
 		/* Remove "File: " from filename */
 		if (g_str_has_prefix(auxstring, "File: ")) {
 			aux_string_v = g_strsplit(auxstring, "File: ", -1);
-			eo_info->filename = wmem_strdup_printf(wmem_packet_scope(), "\\%s",aux_string_v[g_strv_length(aux_string_v)-1]);
+			eo_info->filename = wmem_strdup_printf(pinfo->pool, "\\%s",aux_string_v[g_strv_length(aux_string_v)-1]);
 			g_strfreev(aux_string_v);
 		} else {
 			if (g_str_has_prefix(auxstring, "\\")) {
-				eo_info->filename = wmem_strdup(wmem_packet_scope(), auxstring);
+				eo_info->filename = wmem_strdup(pinfo->pool, auxstring);
 			} else {
-				eo_info->filename = wmem_strdup_printf(wmem_packet_scope(), "\\%s",auxstring);
+				eo_info->filename = wmem_strdup_printf(pinfo->pool, "\\%s",auxstring);
 			}
 		}
 	} else {
-		auxstring=wmem_strdup_printf(wmem_packet_scope(), "File_Id_%s", file_id);
+		auxstring=wmem_strdup_printf(pinfo->pool, "File_Id_%s", file_id);
 		eo_info->filename=auxstring;
 	}
 
@@ -1682,13 +1668,13 @@ feed_eo_smb2(tvbuff_t * tvb,packet_info *pinfo,smb2_info_t * si, guint16 dataoff
 	if (si->tree) {
 		eo_info->tid=si->tree->tid;
 		if (strlen(si->tree->name)>0 && strlen(si->tree->name)<=256) {
-			eo_info->hostname = wmem_strdup(wmem_packet_scope(), si->tree->name);
+			eo_info->hostname = wmem_strdup(pinfo->pool, si->tree->name);
 		} else {
-			eo_info->hostname = wmem_strdup_printf(wmem_packet_scope(), "\\\\%s\\TREEID_%i",tree_ip_str(pinfo,si->opcode),si->tree->tid);
+			eo_info->hostname = wmem_strdup_printf(pinfo->pool, "\\\\%s\\TREEID_%i",tree_ip_str(pinfo,si->opcode),si->tree->tid);
 		}
 	} else {
 		eo_info->tid=0;
-		eo_info->hostname = wmem_strdup_printf(wmem_packet_scope(), "\\\\%s\\TREEID_UNKNOWN",tree_ip_str(pinfo,si->opcode));
+		eo_info->hostname = wmem_strdup_printf(pinfo->pool, "\\\\%s\\TREEID_UNKNOWN",tree_ip_str(pinfo,si->opcode));
 	}
 
 	/* packet number */
@@ -1846,13 +1832,13 @@ dissect_smb2_olb_off_string(packet_info *pinfo, proto_tree *parent_tree, tvbuff_
 	case OLB_TYPE_UNICODE_STRING:
 		item = proto_tree_add_item_ret_string(parent_tree,
 		    olb->hfindex, tvb, off, len, ENC_UTF_16|ENC_LITTLE_ENDIAN,
-		    wmem_packet_scope(), &name);
+		    pinfo->pool, &name);
 		tree = proto_item_add_subtree(item, ett_smb2_olb);
 		break;
 	case OLB_TYPE_ASCII_STRING:
 		item = proto_tree_add_item_ret_string(parent_tree,
 		    olb->hfindex, tvb, off, len, ENC_ASCII|ENC_NA,
-		    wmem_packet_scope(), &name);
+		    pinfo->pool, &name);
 		tree = proto_item_add_subtree(item, ett_smb2_olb);
 		break;
 	}
@@ -3015,7 +3001,7 @@ dissect_smb2_file_disposition_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 }
 
 static int
-dissect_smb2_file_full_ea_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, int offset, smb2_info_t *si _U_)
+dissect_smb2_file_full_ea_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset, smb2_info_t *si _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -3060,7 +3046,7 @@ dissect_smb2_file_full_ea_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 		if (ea_name_len) {
 			proto_tree_add_item_ret_display_string(ea_tree, hf_smb2_ea_name,
 				tvb, offset, ea_name_len, ENC_ASCII|ENC_NA,
-				wmem_packet_scope(), &name);
+				pinfo->pool, &name);
 		}
 
 		/* The name is terminated with a NULL */
@@ -3070,7 +3056,7 @@ dissect_smb2_file_full_ea_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 		if (ea_data_len) {
 			proto_tree_add_item_ret_display_string(ea_tree, hf_smb2_ea_data,
 				tvb, offset, ea_data_len, ENC_NA,
-				wmem_packet_scope(), &data);
+				pinfo->pool, &data);
 		}
 		offset += ea_data_len;
 
@@ -3099,7 +3085,7 @@ static const true_false_string tfs_replace_if_exists = {
 };
 
 static int
-dissect_smb2_file_rename_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, int offset, smb2_info_t *si _U_)
+dissect_smb2_file_rename_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset, smb2_info_t *si _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -3134,7 +3120,7 @@ dissect_smb2_file_rename_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 
 		proto_tree_add_item_ret_display_string(tree, hf_smb2_filename,
 		    tvb, offset, length, ENC_UTF_16|ENC_LITTLE_ENDIAN,
-		    wmem_packet_scope(), &display_string);
+		    pinfo->pool, &display_string);
 		col_append_fstr(pinfo->cinfo, COL_INFO, " NewName:%s",
 		    display_string);
 		offset += length;
@@ -3632,7 +3618,7 @@ dissect_smb2_session_setup_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 			memcpy(si->conv->preauth_hash_ses, si->conv->preauth_hash_con, SMB2_PREAUTH_HASH_SIZE);
 
 		ssi->preauth_hash_req = (guint8*)wmem_alloc0(wmem_file_scope(), SMB2_PREAUTH_HASH_SIZE);
-		update_preauth_hash(si->conv->preauth_hash_current, tvb);
+		update_preauth_hash(si->conv->preauth_hash_current, pinfo, tvb);
 		memcpy(ssi->preauth_hash_req, si->conv->preauth_hash_current, SMB2_PREAUTH_HASH_SIZE);
 	}
 
@@ -3947,7 +3933,7 @@ dissect_smb2_session_setup_response(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 			 * processing is required or we reached an
 			 * error, so update hash.
 			 */
-			update_preauth_hash(si->conv->preauth_hash_current, tvb);
+			update_preauth_hash(si->conv->preauth_hash_current, pinfo, tvb);
 		} else {
 			/*
 			 * Session is established, we can generate the keys
@@ -4057,7 +4043,7 @@ dissect_smb2_tree_connect_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 	if (buf) {
 		col_append_fstr(pinfo->cinfo, COL_INFO, " Tree: %s",
-		    format_text(wmem_packet_scope(), buf, strlen(buf)));
+		    format_text(pinfo->pool, buf, strlen(buf)));
 	}
 
 	return offset;
@@ -4392,7 +4378,7 @@ dissect_smb2_find_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	return offset;
 }
 
-static void dissect_smb2_file_directory_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, smb2_info_t *si _U_)
+static void dissect_smb2_file_directory_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, smb2_info_t *si _U_)
 {
 	int         offset = 0;
 	proto_item *item   = NULL;
@@ -4451,7 +4437,7 @@ static void dissect_smb2_file_directory_info(tvbuff_t *tvb, packet_info *pinfo _
 
 			proto_tree_add_item_ret_display_string(tree, hf_smb2_filename,
 			    tvb, offset, file_name_len, ENC_UTF_16|ENC_LITTLE_ENDIAN,
-			    wmem_packet_scope(), &display_string);
+			    pinfo->pool, &display_string);
 			proto_item_append_text(item, ": %s", display_string);
 			offset += file_name_len;
 		}
@@ -4471,7 +4457,7 @@ static void dissect_smb2_file_directory_info(tvbuff_t *tvb, packet_info *pinfo _
 	}
 }
 
-static void dissect_smb2_full_directory_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, smb2_info_t *si _U_)
+static void dissect_smb2_full_directory_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, smb2_info_t *si _U_)
 {
 	int         offset = 0;
 	proto_item *item   = NULL;
@@ -4538,7 +4524,7 @@ static void dissect_smb2_full_directory_info(tvbuff_t *tvb, packet_info *pinfo _
 
 			proto_tree_add_item_ret_display_string(tree, hf_smb2_filename,
 			    tvb, offset, file_name_len, ENC_UTF_16|ENC_LITTLE_ENDIAN,
-			    wmem_packet_scope(), &display_string);
+			    pinfo->pool, &display_string);
 			proto_item_append_text(item, ": %s", display_string);
 			offset += file_name_len;
 		}
@@ -4558,7 +4544,7 @@ static void dissect_smb2_full_directory_info(tvbuff_t *tvb, packet_info *pinfo _
 	}
 }
 
-static void dissect_smb2_both_directory_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, smb2_info_t *si _U_)
+static void dissect_smb2_both_directory_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, smb2_info_t *si _U_)
 {
 	int         offset = 0;
 	proto_item *item   = NULL;
@@ -4642,7 +4628,7 @@ static void dissect_smb2_both_directory_info(tvbuff_t *tvb, packet_info *pinfo _
 
 			proto_tree_add_item_ret_display_string(tree, hf_smb2_filename,
 			    tvb, offset, file_name_len, ENC_UTF_16|ENC_LITTLE_ENDIAN,
-			    wmem_packet_scope(), &display_string);
+			    pinfo->pool, &display_string);
 			proto_item_append_text(item, ": %s", display_string);
 			offset += file_name_len;
 		}
@@ -4662,7 +4648,7 @@ static void dissect_smb2_both_directory_info(tvbuff_t *tvb, packet_info *pinfo _
 	}
 }
 
-static void dissect_smb2_file_name_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, smb2_info_t *si _U_)
+static void dissect_smb2_file_name_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, smb2_info_t *si _U_)
 {
 	int         offset = 0;
 	proto_item *item   = NULL;
@@ -4698,7 +4684,7 @@ static void dissect_smb2_file_name_info(tvbuff_t *tvb, packet_info *pinfo _U_, p
 
 			proto_tree_add_item_ret_display_string(tree, hf_smb2_filename,
 			    tvb, offset, file_name_len, ENC_UTF_16|ENC_LITTLE_ENDIAN,
-			    wmem_packet_scope(), &display_string);
+			    pinfo->pool, &display_string);
 			proto_item_append_text(item, ": %s", display_string);
 			offset += file_name_len;
 		}
@@ -4718,7 +4704,7 @@ static void dissect_smb2_file_name_info(tvbuff_t *tvb, packet_info *pinfo _U_, p
 	}
 }
 
-static void dissect_smb2_id_both_directory_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, smb2_info_t *si _U_)
+static void dissect_smb2_id_both_directory_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, smb2_info_t *si _U_)
 {
 	int         offset = 0;
 	proto_item *item   = NULL;
@@ -4810,7 +4796,7 @@ static void dissect_smb2_id_both_directory_info(tvbuff_t *tvb, packet_info *pinf
 
 			proto_tree_add_item_ret_display_string(tree, hf_smb2_filename,
 			    tvb, offset, file_name_len, ENC_UTF_16|ENC_LITTLE_ENDIAN,
-			    wmem_packet_scope(), &display_string);
+			    pinfo->pool, &display_string);
 			proto_item_append_text(item, ": %s", display_string);
 			offset += file_name_len;
 		}
@@ -4831,7 +4817,7 @@ static void dissect_smb2_id_both_directory_info(tvbuff_t *tvb, packet_info *pinf
 }
 
 
-static void dissect_smb2_id_full_directory_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, smb2_info_t *si _U_)
+static void dissect_smb2_id_full_directory_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, smb2_info_t *si _U_)
 {
 	int         offset = 0;
 	proto_item *item   = NULL;
@@ -4906,7 +4892,7 @@ static void dissect_smb2_id_full_directory_info(tvbuff_t *tvb, packet_info *pinf
 
 			proto_tree_add_item_ret_display_string(tree, hf_smb2_filename,
 			    tvb, offset, file_name_len, ENC_UTF_16|ENC_LITTLE_ENDIAN,
-			    wmem_packet_scope(), &display_string);
+			    pinfo->pool, &display_string);
 			proto_item_append_text(item, ": %s", display_string);
 			offset += file_name_len;
 		}
@@ -5261,7 +5247,7 @@ dissect_smb2_negotiate_protocol_request(tvbuff_t *tvb, packet_info *pinfo, proto
 		memset(si->conv->preauth_hash_ses, 0, SMB2_PREAUTH_HASH_SIZE);
 		memset(si->conv->preauth_hash_con, 0, SMB2_PREAUTH_HASH_SIZE);
 		si->conv->preauth_hash_current = si->conv->preauth_hash_con;
-		update_preauth_hash(si->conv->preauth_hash_current, tvb);
+		update_preauth_hash(si->conv->preauth_hash_current, pinfo, tvb);
 		memcpy(ssi->preauth_hash_req, si->conv->preauth_hash_current, SMB2_PREAUTH_HASH_SIZE);
 	}
 
@@ -5357,7 +5343,7 @@ dissect_smb2_negotiate_protocol_response(tvbuff_t *tvb, packet_info *pinfo, prot
 	/* compute preauth hash on first pass */
 	if (!pinfo->fd->visited && ssi) {
 		ssi->preauth_hash_res = (guint8*)wmem_alloc0(wmem_file_scope(), SMB2_PREAUTH_HASH_SIZE);
-		update_preauth_hash(si->conv->preauth_hash_current, tvb);
+		update_preauth_hash(si->conv->preauth_hash_current, pinfo, tvb);
 		memcpy(ssi->preauth_hash_res, si->conv->preauth_hash_current, SMB2_PREAUTH_HASH_SIZE);
 
 		/*
@@ -6781,7 +6767,7 @@ dissect_smb2_FSCTL_PIPE_WAIT(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	/* Name */
 	proto_tree_add_item_ret_display_string(top_tree, hf_smb2_fsctl_pipe_wait_name,
 	    tvb, offset, name_len, ENC_UTF_16|ENC_LITTLE_ENDIAN,
-	    wmem_packet_scope(), &display_string);
+	    pinfo->pool, &display_string);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, " Pipe: %s", display_string);
 }
@@ -8167,7 +8153,7 @@ add_timestamp_to_info_col(tvbuff_t *tvb, packet_info *pinfo, smb2_info_t *si,
 	}
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, "@%s",
-            abs_time_to_str(wmem_packet_scope(), &ts, ABSOLUTE_TIME_UTC,
+            abs_time_to_str(pinfo->pool, &ts, ABSOLUTE_TIME_UTC,
 		            FALSE));
 
 	/* Append the timestamp */
@@ -8179,7 +8165,7 @@ add_timestamp_to_info_col(tvbuff_t *tvb, packet_info *pinfo, smb2_info_t *si,
 			si->saved->extra_info = (gchar *)wmem_alloc(wmem_file_scope(), len + 32 + 1);
 			g_snprintf((gchar *)si->saved->extra_info,
 				   len + 32 + 1 , "%s@%s", (char *)saved_name,
-				   abs_time_to_str(wmem_packet_scope(), &ts,
+				   abs_time_to_str(pinfo->pool, &ts,
 					           ABSOLUTE_TIME_UTC, FALSE));
 			wmem_free(wmem_file_scope(), saved_name);
 		}
@@ -9042,7 +9028,7 @@ dissect_smb2_create_extra_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pa
 		proto_tree *tag_tree;
 
 		tvb_get_letohguid(tvb, tag_olb.off, &tag_guid);
-		tag = guid_to_str(wmem_packet_scope(), &tag_guid);
+		tag = guid_to_str(pinfo->pool, &tag_guid);
 
 		tag_item = proto_tree_add_string(sub_tree, tag_olb.hfindex, tvb, tag_olb.off, tag_olb.len, tag);
 		tag_tree = proto_item_add_subtree(tag_item, ett_smb2_olb);
@@ -9127,7 +9113,7 @@ dissect_smb2_create_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/* filename string */
 	fname = dissect_smb2_olb_string(pinfo, tree, tvb, &f_olb, OLB_TYPE_UNICODE_STRING);
 	col_append_fstr(pinfo->cinfo, COL_INFO, " File: %s",
-	    format_text(wmem_packet_scope(), fname, strlen(fname)));
+	    format_text(pinfo->pool, fname, strlen(fname)));
 
 	/* save the name if it looks sane */
 	if (!pinfo->fd->visited) {
@@ -10817,9 +10803,9 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 	e_ctx_hnd	    *policy_hnd_hashtablekey;
 	const char	    *packet_title;
 
-	sti = wmem_new(wmem_packet_scope(), smb2_transform_info_t);
-	scti = wmem_new(wmem_packet_scope(), smb2_comp_transform_info_t);
-	si  = wmem_new0(wmem_packet_scope(), smb2_info_t);
+	sti = wmem_new(pinfo->pool, smb2_transform_info_t);
+	scti = wmem_new(pinfo->pool, smb2_comp_transform_info_t);
+	si  = wmem_new0(pinfo->pool, smb2_info_t);
 	si->top_tree = parent_tree;
 
 	msg_type = tvb_get_guint8(tvb, 0);

@@ -69,7 +69,7 @@ static gint ett_whoent = -1;
 
 #define UDP_PORT_WHO    513
 
-static void dissect_whoent(tvbuff_t *tvb, int offset, proto_tree *tree);
+static void dissect_whoent(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree);
 
 static int
 dissect_who(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
@@ -108,7 +108,7 @@ dissect_who(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 	}
 	offset += 4;
 
-	server_name = tvb_get_stringzpad(wmem_packet_scope(), tvb, offset, 32, ENC_ASCII|ENC_NA);
+	server_name = tvb_get_stringzpad(pinfo->pool, tvb, offset, 32, ENC_ASCII|ENC_NA);
 	proto_tree_add_string(who_tree, hf_who_hostname, tvb, offset, 32, server_name);
 	offset += 32;
 
@@ -136,7 +136,7 @@ dissect_who(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 		    ENC_TIME_SECS|ENC_BIG_ENDIAN);
 		offset += 4;
 
-		dissect_whoent(tvb, offset, who_tree);
+		dissect_whoent(pinfo, tvb, offset, who_tree);
 	}
 
 	return tvb_captured_length(tvb);
@@ -148,7 +148,7 @@ dissect_who(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 #define MAX_NUM_WHOENTS	(1024 / SIZE_OF_WHOENT)
 
 static void
-dissect_whoent(tvbuff_t *tvb, int offset, proto_tree *tree)
+dissect_whoent(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree)
 {
 	proto_tree	*whoent_tree = NULL;
 	proto_item	*whoent_ti = NULL;
@@ -164,12 +164,12 @@ dissect_whoent(tvbuff_t *tvb, int offset, proto_tree *tree)
 		    line_offset, SIZE_OF_WHOENT, ENC_NA);
 		whoent_tree = proto_item_add_subtree(whoent_ti, ett_whoent);
 
-		out_line = tvb_get_stringzpad(wmem_packet_scope(), tvb, line_offset, 8, ENC_ASCII|ENC_NA);
+		out_line = tvb_get_stringzpad(pinfo->pool, tvb, line_offset, 8, ENC_ASCII|ENC_NA);
 		proto_tree_add_string(whoent_tree, hf_who_tty, tvb, line_offset,
 		    8, out_line);
 		line_offset += 8;
 
-		out_name = tvb_get_stringzpad(wmem_packet_scope(), tvb, line_offset, 8, ENC_ASCII|ENC_NA);
+		out_name = tvb_get_stringzpad(pinfo->pool, tvb, line_offset, 8, ENC_ASCII|ENC_NA);
 		proto_tree_add_string(whoent_tree, hf_who_uid, tvb, line_offset,
 		    8, out_name);
 		line_offset += 8;
@@ -181,7 +181,7 @@ dissect_whoent(tvbuff_t *tvb, int offset, proto_tree *tree)
 		idle_secs = tvb_get_ntohl(tvb, line_offset);
 		proto_tree_add_uint_format(whoent_tree, hf_who_idle, tvb,
 		    line_offset, 4, idle_secs, "Idle: %s",
-		    signed_time_secs_to_str(wmem_packet_scope(), idle_secs));
+		    signed_time_secs_to_str(pinfo->pool, idle_secs));
 		line_offset += 4;
 
 		whoent_num++;
