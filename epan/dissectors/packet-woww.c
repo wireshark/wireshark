@@ -2935,7 +2935,7 @@ proto_register_woww(void)
             "Id of the server the client is connecting to", HFILL }
         },
         { &hf_woww_build,
-          { "Client Build", "woww.client_build",
+          { "Client Build", "woww.build",
             FT_UINT32, BASE_DEC, NULL, 0,
             "Client build/revision", HFILL }
         },
@@ -2985,82 +2985,82 @@ proto_register_woww(void)
               "Optional realm name shown after the character name", HFILL }
         },
         { &hf_woww_character_race,
-            { "Race", "woww.race",
+            { "Race", "woww.character_race",
               FT_UINT8, BASE_HEX, VALS(races_strings), 0,
               NULL, HFILL }
         },
         { &hf_woww_character_class,
-            { "Class", "woww.class",
+            { "Class", "woww.character_class",
               FT_UINT8, BASE_HEX, VALS(classes_strings), 0,
               NULL, HFILL }
         },
         { &hf_woww_character_gender,
-            { "Gender", "woww.gender",
+            { "Gender", "woww.character_gender",
               FT_UINT8, BASE_HEX, VALS(genders_strings), 0,
               NULL, HFILL }
         },
         { &hf_woww_character_skin,
-            { "Skin Color", "woww.skin",
+            { "Skin Color", "woww.character_skin",
               FT_UINT8, BASE_HEX, NULL, 0,
               NULL, HFILL }
         },
         { &hf_woww_character_face,
-            { "Face", "woww.face",
+            { "Face", "woww.character_face",
               FT_UINT8, BASE_HEX, NULL, 0,
               NULL, HFILL }
         },
         { &hf_woww_character_hairstyle,
-            { "Hair Style", "woww.hairstyle",
+            { "Hair Style", "woww.character_hairstyle",
               FT_UINT8, BASE_HEX, NULL, 0,
               NULL, HFILL }
         },
         { &hf_woww_character_haircolor,
-            { "Hair Color", "woww.haircolor",
+            { "Hair Color", "woww.character_haircolor",
               FT_UINT8, BASE_HEX, NULL, 0,
               NULL, HFILL }
         },
         { &hf_woww_character_facialhair,
-            { "Facial Hair/Accessory", "woww.facialhair",
+            { "Facial Hair/Accessory", "woww.character_facialhair",
               FT_UINT8, BASE_HEX, NULL, 0,
               NULL, HFILL }
         },
         { &hf_woww_character_level,
-            { "Level", "woww.level",
+            { "Level", "woww.character_level",
               FT_UINT8, BASE_DEC_HEX, NULL, 0,
               NULL, HFILL }
         },
         { &hf_woww_character_zone,
-            { "Zone", "woww.zone",
+            { "Zone", "woww.character_zone",
               FT_UINT32, BASE_DEC_HEX, NULL, 0,
               NULL, HFILL }
         },
         { &hf_woww_character_map,
-            { "Map", "woww.map",
+            { "Map", "woww.character_map",
               FT_UINT32, BASE_DEC_HEX, NULL, 0,
               NULL, HFILL }
         },
         { &hf_woww_character_position_x,
-            { "Position X", "woww.position_x",
+            { "Position X", "woww.character_position_x",
               FT_FLOAT, BASE_FLOAT, NULL, 0,
               NULL, HFILL }
         },
         { &hf_woww_character_position_y,
-            { "Position Y", "woww.position_y",
+            { "Position Y", "woww.character_position_y",
               FT_FLOAT, BASE_FLOAT, NULL, 0,
               NULL, HFILL }
         },
         { &hf_woww_character_position_z,
-            { "Position Z", "woww.position_z",
+            { "Position Z", "woww.character_position_z",
               FT_FLOAT, BASE_FLOAT, NULL, 0,
               NULL, HFILL }
         },
         { &hf_woww_character_orientation,
-            { "Orientation", "woww.orientation",
+            { "Orientation", "woww.character_orientation",
               FT_FLOAT, BASE_FLOAT, NULL, 0,
               "Heading in degrees, with 0 being north", HFILL }
         },
         { &hf_woww_character_guild_id,
-            { "Guild ID", "woww.guild_id",
+            { "Guild ID", "woww.character_guild_id",
               FT_UINT32, BASE_HEX_DEC, NULL, 0,
               NULL, HFILL }
         },
@@ -3070,32 +3070,32 @@ proto_register_woww(void)
               NULL, HFILL }
         },
         { &hf_woww_character_first_login,
-            { "First Login", "woww.first_login",
+            { "First Login", "woww.character_first_login",
               FT_UINT32, BASE_HEX_DEC, NULL, 0,
               NULL, HFILL }
         },
         { &hf_woww_character_pet_display_id,
-            { "Pet Display Id", "woww.pet_display_id",
+            { "Pet Display Id", "woww.character_pet_display_id",
               FT_UINT32, BASE_HEX_DEC, NULL, 0,
               NULL, HFILL }
         },
         { &hf_woww_character_pet_level,
-            { "Pet Level", "woww.pet_level",
+            { "Pet Level", "woww.character_pet_level",
               FT_UINT32, BASE_HEX_DEC, NULL, 0,
               NULL, HFILL }
         },
         { &hf_woww_character_pet_family,
-            { "Pet Family", "woww.pet_family",
+            { "Pet Family", "woww.character_pet_family",
               FT_UINT32, BASE_HEX_DEC, NULL, 0,
               NULL, HFILL }
         },
         { &hf_woww_character_equipment_display_id,
-            { "Display ID", "woww.equipment_display_id",
+            { "Display ID", "woww.character_equipment_display_id",
               FT_UINT32, BASE_HEX_DEC, NULL, 0,
               NULL, HFILL }
         },
         { &hf_woww_character_equipment_inventory_type,
-            { "Inventory Type", "woww.equipment_inventory_type",
+            { "Inventory Type", "woww.character_equipment_inventory_type",
               FT_UINT8, BASE_HEX_DEC, NULL, 0,
               NULL, HFILL }
         },
