@@ -36,7 +36,7 @@ static void prefInsertPrefPtr(void * pref_ptr, pref_t * pref)
     gpointer val = (gpointer) pref;
 
     /* Already existing entries will be ignored */
-    if ((pref = (pref_t *)g_hash_table_lookup(pref_ptr_to_pref_, key)) == NULL)
+    if ((void *)g_hash_table_lookup(pref_ptr_to_pref_, key) == NULL)
         g_hash_table_insert(pref_ptr_to_pref_, key, val);
 }
 
