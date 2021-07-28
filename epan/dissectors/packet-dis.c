@@ -4272,6 +4272,20 @@ static const value_string DIS_PDU_IffTCASType_Strings[] =
     {  0, NULL }
 };
 
+typedef enum
+{
+    DIS_MODE_S_INTERROGATOR_IDENTIFIER_IC_TYPE_II = 0,
+    DIS_MODE_S_INTERROGATOR_IDENTIFIER_IC_TYPE_SI = 1
+} DIS_PDU_IFFModeSInterrogatorIdentifierICType;
+
+/* SISO-REF-010 [UID 348] */
+static const value_string DIS_PDU_IffModeSInterrogatorIdentifierICType_Strings[] =
+{
+    {  0, "Interrogator Identifier (II)" },
+    {  1, "Surveillance Identifier (SI)" },
+    {  0, NULL }
+};
+
 static const value_string DIS_PDU_IffCapable_Strings[] =
 {
     {  0, "Capable" },
@@ -4800,6 +4814,11 @@ static int hf_dis_iff_rrb = -1;
 static int hf_dis_iff_rrb_rrb_code = -1;
 static int hf_dis_iff_rrb_power_reduction_indicator = -1;
 static int hf_dis_iff_rrb_radar_enhancement_indicator = -1;
+static int hf_dis_iff_mode_s_interrogator_identifier = -1;
+static int hf_dis_iff_mode_s_interrogator_identifier_primary_ic_type;
+static int hf_dis_iff_mode_s_interrogator_identifier_primary_ic_code;
+static int hf_dis_iff_mode_s_interrogator_identifier_secondary_ic_type;
+static int hf_dis_iff_mode_s_interrogator_identifier_secondary_ic_code;
 static int hf_dis_iff_mode_4 = -1;
 static int hf_dis_iff_mode_c_altitude_indicator = -1;
 static int hf_dis_iff_mode_c_altitude = -1;
@@ -4898,6 +4917,7 @@ static gint ett_iff_rrb = -1;
 static gint ett_iff_parameter_2 = -1;
 static gint ett_iff_parameter_3 = -1;
 static gint ett_iff_parameter_4 = -1;
+static gint ett_iff_mode_s_interrogator_identifier = -1;
 static gint ett_iff_parameter_5 = -1;
 static gint ett_iff_parameter_6 = -1;
 
@@ -6840,13 +6860,25 @@ static int dissect_DIS_PARSER_IFF_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_t
     proto_tree_add_item(field_tree, hf_dis_iff_mode_malfunction, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    mode4 = tvb_get_ntohs(tvb, offset) & 0xfff;
-    ti = proto_tree_add_item(sub_tree, hf_dis_iff_parameter_4, tvb, offset, 2, ENC_BIG_ENDIAN);
-    field_tree = proto_item_add_subtree(ti, ett_iff_parameter_4);
-    proto_tree_add_item(field_tree, hf_dis_iff_mode_4, tvb, offset, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(field_tree, hf_dis_iff_mode_status, tvb, offset, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(field_tree, hf_dis_iff_mode_damage, tvb, offset, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(field_tree, hf_dis_iff_mode_malfunction, tvb, offset, 2, ENC_BIG_ENDIAN);
+    if (systemType == DIS_PDU_IFFSystemType_MODE_S_INTERROGATOR)
+    {
+        ti = proto_tree_add_item(sub_tree, hf_dis_iff_mode_s_interrogator_identifier, tvb, offset, 2, ENC_BIG_ENDIAN);
+        field_tree = proto_item_add_subtree(ti, ett_iff_mode_s_interrogator_identifier);
+        proto_tree_add_item(field_tree, hf_dis_iff_mode_s_interrogator_identifier_primary_ic_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(field_tree, hf_dis_iff_mode_s_interrogator_identifier_primary_ic_code, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(field_tree, hf_dis_iff_mode_s_interrogator_identifier_secondary_ic_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(field_tree, hf_dis_iff_mode_s_interrogator_identifier_secondary_ic_code, tvb, offset, 2, ENC_BIG_ENDIAN);
+    }
+    else
+    {
+        mode4 = tvb_get_ntohs(tvb, offset) & 0xfff;
+        ti = proto_tree_add_item(sub_tree, hf_dis_iff_parameter_4, tvb, offset, 2, ENC_BIG_ENDIAN);
+        field_tree = proto_item_add_subtree(ti, ett_iff_parameter_4);
+        proto_tree_add_item(field_tree, hf_dis_iff_mode_4, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(field_tree, hf_dis_iff_mode_status, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(field_tree, hf_dis_iff_mode_damage, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(field_tree, hf_dis_iff_mode_malfunction, tvb, offset, 2, ENC_BIG_ENDIAN);
+    }
     offset += 2;
 
     ti = proto_tree_add_item(sub_tree, hf_dis_iff_parameter_5, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -10742,6 +10774,31 @@ void proto_register_dis(void)
                 FT_UINT16, BASE_DEC, VALS(DIS_PDU_IffOffOn_Strings), 0x1000,
                 NULL, HFILL }
             },
+            { &hf_dis_iff_mode_s_interrogator_identifier,
+              { "Mode S Interrogator Identifier",  "dis.iff.mode_s_interrogator_identifier",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_iff_mode_s_interrogator_identifier_primary_ic_type,
+              { "Primary IC Type",  "dis.iff.mode_s_interrogator_identifier.primary_ic_type",
+                FT_UINT16, BASE_DEC, VALS(DIS_PDU_IffModeSInterrogatorIdentifierICType_Strings), 0x1,
+                NULL, HFILL }
+            },
+            { &hf_dis_iff_mode_s_interrogator_identifier_primary_ic_code,
+              { "Primary IC Code",  "ddis.iff.mode_s_interrogator_identifier.primary_ic_code",
+                 FT_UINT16, BASE_DEC, NULL, 0xFE,
+                 NULL, HFILL }
+            },
+            { &hf_dis_iff_mode_s_interrogator_identifier_secondary_ic_type,
+              { "Secondary IC Type",  "dis.iff.mode_s_interrogator_identifier.secondary_ic_type",
+                FT_UINT16, BASE_DEC, VALS(DIS_PDU_IffModeSInterrogatorIdentifierICType_Strings), 0x100,
+                NULL, HFILL }
+            },
+            { &hf_dis_iff_mode_s_interrogator_identifier_secondary_ic_code,
+              { "Secondary IC Code",  "ddis.iff.mode_s_interrogator_identifier.secondary_ic_code",
+                 FT_UINT16, BASE_DEC, NULL, 0xFE00,
+                 NULL, HFILL }
+            },
             { &hf_dis_iff_mode_4,
               { "Mode 4 Code",  "dis.iff.mode_4",
                 FT_UINT16, BASE_DEC, VALS(DIS_PDU_IffMode4_Strings), 0xFFF,
@@ -10907,6 +10964,7 @@ void proto_register_dis(void)
         &ett_iff_parameter_2,
         &ett_iff_parameter_3,
         &ett_iff_parameter_4,
+        & ett_iff_mode_s_interrogator_identifier,
         &ett_iff_parameter_5,
         &ett_iff_parameter_6,
     };
