@@ -2430,12 +2430,8 @@ get_null_terminated_string_length( tvbuff_t* tvb,
 }
 
 static void
-parse_SMSG_CHAR_ENUM(proto_tree* tree,
-                     tvbuff_t* tvb,
-                     gint32 offset)
+parse_SMSG_CHAR_ENUM(ptvcursor_t* ptv)
 {
-    ptvcursor_t* ptv = ptvcursor_new(tree, tvb, offset);
-
     guint32 amount_of_characters = 0;
     ptvcursor_add_ret_uint(ptv, hf_woww_amount_of_characters, 1, ENC_NA, &amount_of_characters);
     for (guint32 i = 0; i < amount_of_characters; i++) {
@@ -2447,7 +2443,7 @@ parse_SMSG_CHAR_ENUM(proto_tree* tree,
         gint32 character_name_length = 0;
 
         // Use the character_name later for the tree text
-        guint8* character_name = tvb_get_stringz_enc(wmem_packet_scope(), tvb,
+        guint8* character_name = tvb_get_stringz_enc(wmem_packet_scope(), ptvcursor_tvbuff(ptv),
                                                      ptvcursor_current_offset(ptv),
                                                      &character_name_length, ENC_UTF_8);
 
@@ -2539,7 +2535,7 @@ add_body_fields(guint32 opcode,
             break;
 
         case SMSG_CHAR_ENUM:
-            parse_SMSG_CHAR_ENUM(tree, tvb, offset);
+            parse_SMSG_CHAR_ENUM(ptv);
             break;
 
         case CMSG_SET_SELECTION:
