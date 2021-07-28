@@ -221,8 +221,6 @@ libwsutil.so.0 libwsutil0 #MINVER#
  wmem_destroy_list@Base 3.5.0
  wmem_double_hash@Base 3.5.0
  wmem_enter_scope@Base 3.5.0
- wmem_epan_scope@Base 3.5.0
- wmem_file_scope@Base 3.5.0
  wmem_free@Base 3.5.0
  wmem_free_all@Base 3.5.0
  wmem_gc@Base 3.5.0
@@ -261,7 +259,6 @@ libwsutil.so.0 libwsutil0 #MINVER#
  wmem_map_size@Base 3.5.0
  wmem_map_steal@Base 3.5.0
  wmem_memdup@Base 3.5.0
- wmem_packet_scope@Base 3.5.0
  wmem_realloc@Base 3.5.0
  wmem_register_callback@Base 3.5.0
  wmem_stack_peek@Base 3.5.0
