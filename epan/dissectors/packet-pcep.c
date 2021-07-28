@@ -53,7 +53,7 @@
  * Updated support of "PCEP Extensions for Segment Routing" (draft-ietf-pce-segment-routing-08)
  * (c) Copyright 2017 Simon Zhong <szhong[AT]juniper.net>
  * Updated support from draft-ietf-pce-segment-routing-08 to RFC 8664  "PCEP Extensions for Segment Routing"
- 
+ *  2021 Oscar Gonzalez de Dios <oscar.gonzalezdedios[AT]telefonica.com>
  */
 
 #include "config.h"
@@ -1491,13 +1491,13 @@ dissect_pcep_path_setup_capabilities_sub_tlvs(proto_tree *pcep_tlv, tvbuff_t *tv
     guint16     sub_tlv_length, sub_tlv_type;
     int         j;
     int         padding = 0;
-    
+
     static int * const sr_pce_capability_sub_tlv_flags[] = {
         &hf_pcep_sr_pce_capability_sub_tlv_flags_n,
         &hf_pcep_sr_pce_capability_sub_tlv_flags_x,
         NULL
     };
-    
+
     for (j = 0; j < length; j += 4 + sub_tlv_length + padding) {
         sub_tlv_type = tvb_get_ntohs(tvb, offset+j);
         sub_tlv_length = tvb_get_ntohs(tvb, offset + j + 2);
@@ -1508,9 +1508,9 @@ dissect_pcep_path_setup_capabilities_sub_tlvs(proto_tree *pcep_tlv, tvbuff_t *tv
         switch (sub_tlv_type)
         {
             case 1:    /* PCECC-CAPABILITY */
-            
+               //TODO
                break;
-            
+
             case 26:  /* SR PCE CAPABILITY */
                proto_tree_add_item(sub_tlv, hf_pcep_sr_pce_capability_sub_tlv_reserved, tvb, offset + 4 + j, 2, ENC_NA);
                proto_tree_add_bitmask(sub_tlv, tvb, offset+4+j+2, hf_pcep_sr_pce_capability_sub_tlv_flags, ett_pcep_obj, sr_pce_capability_sub_tlv_flags, ENC_NA);
@@ -1679,7 +1679,6 @@ dissect_pcep_tlvs(proto_tree *pcep_obj, tvbuff_t *tvb, int offset, gint length, 
                      //obj_length -= OBJ_HDR_LEN+RP_OBJ_MIN_LEN;
                      if (tlv_length>8+psts+padding) {
                        //There are sub-TLVs to decode
-                     
                      dissect_pcep_path_setup_capabilities_sub_tlvs(tlv, tvb, offset+j+8+psts+padding, tlv_length -psts- padding-4, ett_pcep_obj);
                      }
                 }
@@ -1998,7 +1997,7 @@ dissect_subobj_sr(proto_tree *pcep_subobj_tree, packet_info *pinfo, tvbuff_t *tv
                     proto_tree_add_item(pcep_subobj_sr_tree, hf_pcep_subobj_sr_nai_remote_node_id,      tvb, offset+j+12, 4, ENC_BIG_ENDIAN);
                     proto_tree_add_item(pcep_subobj_sr_tree, hf_pcep_subobj_sr_nai_remote_interface_id, tvb, offset+j+16, 4, ENC_BIG_ENDIAN);
                     break;
-                    
+
                 case 6: /* IPv6 Adjacency with link-local IPv6 addresses */
                  proto_tree_add_item(pcep_subobj_sr_tree, hf_pcep_subobj_sr_nai_local_ipv6_addr,  tvb, offset+j+4,  16, ENC_NA);
                  proto_tree_add_item(pcep_subobj_sr_tree, hf_pcep_subobj_sr_nai_local_interface_id,  tvb, offset+j+20,  4, ENC_BIG_ENDIAN);
@@ -4862,18 +4861,17 @@ proto_register_pcep(void)
             FT_BOOLEAN, 32, TFS(&tfs_true_false), PCEP_TLV_STATEFUL_PCE_CAPABILITY_F,
             NULL, HFILL }
         },
-        //DEPRECATED
         { &hf_pcep_sr_pce_capability_reserved,
           { "Reserved", "pcep.tlv.sr-pce-capability.reserved",
             FT_UINT16, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_pcep_sr_pce_capability_sub_tlv_reserved,        
+        { &hf_pcep_sr_pce_capability_sub_tlv_reserved,
            { "Reserved", "pcep.sub-tlv.sr-pce-capability.reserved",
             FT_UINT16, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
-        // DEPRECATED 
+        // DEPRECATED
         { &hf_pcep_sr_pce_capability_flags,
           { "Flags", "pcep.tlv.sr-pce-capability.flags",
             FT_UINT8, BASE_HEX, NULL, 0x0,
