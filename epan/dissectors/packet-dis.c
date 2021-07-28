@@ -4272,13 +4272,13 @@ static const value_string DIS_PDU_IffTCASType_Strings[] =
     {  0, NULL }
 };
 
+/* SISO-REF-010 [UID 348] */
 typedef enum
 {
     DIS_MODE_S_INTERROGATOR_IDENTIFIER_IC_TYPE_II = 0,
     DIS_MODE_S_INTERROGATOR_IDENTIFIER_IC_TYPE_SI = 1
 } DIS_PDU_IFFModeSInterrogatorIdentifierICType;
 
-/* SISO-REF-010 [UID 348] */
 static const value_string DIS_PDU_IffModeSInterrogatorIdentifierICType_Strings[] =
 {
     {  0, "Interrogator Identifier (II)" },
@@ -6707,6 +6707,7 @@ static int dissect_DIS_PARSER_IFF_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_t
     guint16 mode2 = 0, mode2_element1 = 0, mode2_element2 = 0, mode2_element3 = 0, mode2_element4 = 0;
     guint16 mode3 = 0, mode3_element1 = 0, mode3_element2 = 0, mode3_element3 = 0, mode3_element4 = 0;
     guint16 mode4 = 0;
+    guint16 modeS = 0, modeS_primary_type = 0, modeS_primary_code = 0, modeS_secondary_type = 0, modeS_secondary_code = 0;
     guint16 parameter_5 = 0;
     gint16 altitude = 0;
     guint16 parameter_6 = 0, tcas_acas_indicator = 0, tcas_acas_type = 0, tcas_I_II_type = 0;
@@ -6862,6 +6863,11 @@ static int dissect_DIS_PARSER_IFF_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_t
 
     if (systemType == DIS_PDU_IFFSystemType_MODE_S_INTERROGATOR)
     {
+        modeS = tvb_get_ntohs(tvb, offset) & 0xffff;
+        modeS_primary_type = (modeS) & 0x1;
+        modeS_primary_code = ((modeS) >> 1) & 0x7f;
+        modeS_secondary_type = ((modeS) >> 8)& 0x1;
+        modeS_secondary_code = ((modeS) >> 9) & 0x7f;
         ti = proto_tree_add_item(sub_tree, hf_dis_iff_mode_s_interrogator_identifier, tvb, offset, 2, ENC_BIG_ENDIAN);
         field_tree = proto_item_add_subtree(ti, ett_iff_mode_s_interrogator_identifier);
         proto_tree_add_item(field_tree, hf_dis_iff_mode_s_interrogator_identifier_primary_ic_type, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -6909,11 +6915,45 @@ static int dissect_DIS_PARSER_IFF_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_t
     offset += 2;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, ", %d-%d-%d", site, application, entity);
-    if (mode1) col_append_fstr(pinfo->cinfo, COL_INFO, ", 1=%o%o", mode1_element1, mode1_element2);
-    if (rrb) col_append_fstr(pinfo->cinfo, COL_INFO, ", RRB=%d", rrb_code);
+
+    if (mode1)
+    {
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", 1=%o%o", mode1_element1, mode1_element2);
+    }
+    else if (rrb)
+    {
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", RRB=%d", rrb_code);
+    }
+
     if (mode2) col_append_fstr(pinfo->cinfo, COL_INFO, ", 2=%o%o%o%o", mode2_element1, mode2_element2, mode2_element3, mode2_element4);
     if (mode3) col_append_fstr(pinfo->cinfo, COL_INFO, ", 3=%o%o%o%o", mode3_element1, mode3_element2, mode3_element3, mode3_element4);
-    if (mode4) col_append_fstr(pinfo->cinfo, COL_INFO, ", 4=%d", mode4);
+
+    if (systemType == DIS_PDU_IFFSystemType_MODE_S_INTERROGATOR)
+    {
+        if (modeS_primary_code == 0)
+        {
+            col_append_str(pinfo->cinfo, COL_INFO, ", P=II ");
+        }
+        else
+        {
+            col_append_str(pinfo->cinfo, COL_INFO, ", P=SI");
+        }
+            col_append_fstr(pinfo->cinfo, COL_INFO, " %d", modeS_primary_code);
+        if (modeS_secondary_code == 0)
+        {
+            col_append_str(pinfo->cinfo, COL_INFO, ", S=II");
+        }
+        else
+        {
+            col_append_str(pinfo->cinfo, COL_INFO, ", S=SI");
+        }
+        col_append_fstr(pinfo->cinfo, COL_INFO, " %d", modeS_secondary_code);
+    }
+    else if (mode4)
+    {
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", 4=%d", mode4);
+    }
+
     if (altitude || (parameter_5 & 0x2000)) col_append_fstr(pinfo->cinfo, COL_INFO, ", C=FL%d", altitude);
    
     if (parameter_6)
