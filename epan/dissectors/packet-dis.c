@@ -4100,6 +4100,7 @@ static const value_string DIS_PDU_Country_Strings[] =
     {   0, NULL }
 };
 
+/* SISO-REF-010 [UID 82] */
 typedef enum
 {
     DIS_PDU_IFFSystemType_NOT_USED = 0,
@@ -4119,7 +4120,6 @@ typedef enum
     DIS_PDU_IFFSystemType_TCAS_ACAS_TRANSCEIVER = 14
 } DIS_PDU_IFFSystemType;
 
-/* SISO-REF-010 [UID 82] */
 static const value_string DIS_PDU_IffSystemType_Strings[] =
 {
     {  0, "Not Used (Invalid Value)" },
@@ -4222,6 +4222,20 @@ static const value_string DIS_PDU_IffOffOn_Strings[] =
     {  0, NULL }
 };
 
+/* SISO-REF-010 [UID 348] */
+typedef enum
+{
+    DIS_MODE_S_INTERROGATOR_IDENTIFIER_IC_TYPE_II = 0,
+    DIS_MODE_S_INTERROGATOR_IDENTIFIER_IC_TYPE_SI = 1
+} DIS_PDU_IFFModeSInterrogatorIdentifierICType;
+
+static const value_string DIS_PDU_IffModeSInterrogatorIdentifierICType_Strings[] =
+{
+    {  0, "Interrogator Identifier (II)" },
+    {  1, "Surveillance Identifier (SI)" },
+    {  0, NULL }
+};
+
 /* SISO-REF-010 [UID 340] */
 static const value_string DIS_PDU_IffModeCAltitudeIndicator_Strings[] =
 {
@@ -4269,20 +4283,6 @@ static const value_string DIS_PDU_IffTCASType_Strings[] =
 {
     {  0, "TCAS I" },
     {  1, "TCAS II" },
-    {  0, NULL }
-};
-
-/* SISO-REF-010 [UID 348] */
-typedef enum
-{
-    DIS_MODE_S_INTERROGATOR_IDENTIFIER_IC_TYPE_II = 0,
-    DIS_MODE_S_INTERROGATOR_IDENTIFIER_IC_TYPE_SI = 1
-} DIS_PDU_IFFModeSInterrogatorIdentifierICType;
-
-static const value_string DIS_PDU_IffModeSInterrogatorIdentifierICType_Strings[] =
-{
-    {  0, "Interrogator Identifier (II)" },
-    {  1, "Surveillance Identifier (SI)" },
     {  0, NULL }
 };
 
@@ -4814,12 +4814,12 @@ static int hf_dis_iff_rrb = -1;
 static int hf_dis_iff_rrb_rrb_code = -1;
 static int hf_dis_iff_rrb_power_reduction_indicator = -1;
 static int hf_dis_iff_rrb_radar_enhancement_indicator = -1;
+static int hf_dis_iff_mode_4 = -1;
 static int hf_dis_iff_mode_s_interrogator_identifier = -1;
 static int hf_dis_iff_mode_s_interrogator_identifier_primary_ic_type;
 static int hf_dis_iff_mode_s_interrogator_identifier_primary_ic_code;
 static int hf_dis_iff_mode_s_interrogator_identifier_secondary_ic_type;
 static int hf_dis_iff_mode_s_interrogator_identifier_secondary_ic_code;
-static int hf_dis_iff_mode_4 = -1;
 static int hf_dis_iff_mode_c_altitude_indicator = -1;
 static int hf_dis_iff_mode_c_altitude = -1;
 static int hf_dis_iff_tcas_acas = -1;
@@ -6938,7 +6938,8 @@ static int dissect_DIS_PARSER_IFF_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_t
         {
             col_append_str(pinfo->cinfo, COL_INFO, ", P=SI");
         }
-            col_append_fstr(pinfo->cinfo, COL_INFO, " %d", modeS_primary_code);
+        col_append_fstr(pinfo->cinfo, COL_INFO, " %d", modeS_primary_code);
+
         if (modeS_secondary_code == 0)
         {
             col_append_str(pinfo->cinfo, COL_INFO, ", S=II");
@@ -6949,6 +6950,7 @@ static int dissect_DIS_PARSER_IFF_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_t
         }
         col_append_fstr(pinfo->cinfo, COL_INFO, " %d", modeS_secondary_code);
     }
+
     else if (mode4)
     {
         col_append_fstr(pinfo->cinfo, COL_INFO, ", 4=%d", mode4);
