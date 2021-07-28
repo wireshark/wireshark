@@ -615,10 +615,10 @@ static const range_string restart_code_rvals[] = {
 };
 
 static char *
-dte_address_util(tvbuff_t *tvb, int offset, guint8 len)
+dte_address_util(wmem_allocator_t *pool, tvbuff_t *tvb, int offset, guint8 len)
 {
     int i;
-    char *tmpbuf = (char *)wmem_alloc(wmem_packet_scope(), 258);
+    char *tmpbuf = (char *)wmem_alloc(pool, 258);
 
     for (i = 0; (i<len)&&(i<256); i++) {
         if (i % 2 == 0) {
@@ -835,7 +835,7 @@ dump_facilities(proto_tree *tree, int *offset, tvbuff_t *tvb, packet_info *pinfo
                     }
                     byte3 = tvb_get_guint8(tvb, *offset+3);
                     proto_tree_add_uint(facility_tree, hf_x25_facility_call_transfer_num_semi_octets, tvb, *offset+4, 1, byte3);
-                    tmpbuf = dte_address_util(tvb, *offset + 4, byte3);
+                    tmpbuf = dte_address_util(pinfo->pool, tvb, *offset + 4, byte3);
 
                     proto_tree_add_string(facility_tree, hf_x25_dte_address, tvb, *offset+4, byte1 - 2, tmpbuf);
                 }
@@ -863,7 +863,7 @@ dump_facilities(proto_tree *tree, int *offset, tvbuff_t *tvb, packet_info *pinfo
                     }
                     byte2 = tvb_get_guint8(tvb, *offset+2) & 0x3F;
                     proto_tree_add_uint(facility_tree, hf_x25_facility_calling_addr_ext_num_semi_octets, tvb, *offset+2, 1, byte2);
-                    tmpbuf = dte_address_util(tvb, *offset + 3, byte2);
+                    tmpbuf = dte_address_util(pinfo->pool, tvb, *offset + 3, byte2);
                     proto_tree_add_string(facility_tree, hf_x25_dte_address, tvb, *offset+3, byte1 - 1, tmpbuf);
                 }
                 break;
@@ -883,7 +883,7 @@ dump_facilities(proto_tree *tree, int *offset, tvbuff_t *tvb, packet_info *pinfo
                     }
                     byte2 = tvb_get_guint8(tvb, *offset+2) & 0x3F;
                     proto_tree_add_uint(facility_tree, hf_x25_facility_called_addr_ext_num_semi_octets, tvb, *offset+2, 1, byte2);
-                    tmpbuf = dte_address_util(tvb, *offset+3, byte2);
+                    tmpbuf = dte_address_util(pinfo->pool, tvb, *offset+3, byte2);
 
                     proto_tree_add_string(facility_tree, hf_x25_dte_address, tvb, *offset+3, byte1 - 1, tmpbuf);
                 }
@@ -916,7 +916,7 @@ dump_facilities(proto_tree *tree, int *offset, tvbuff_t *tvb, packet_info *pinfo
                                             byte2, "unknown");
                     byte3 = tvb_get_guint8(tvb, *offset+3);
                     proto_tree_add_uint(facility_tree, hf_x25_facility_call_deflect_num_semi_octets, tvb, *offset+3, 1, byte3);
-                    tmpbuf = dte_address_util(tvb, *offset+4, byte3);
+                    tmpbuf = dte_address_util(pinfo->pool, tvb, *offset+4, byte3);
 
                     proto_tree_add_string(facility_tree, hf_x25_alternative_dte_address, tvb, *offset+4, byte1 - 2, tmpbuf);
                 }
@@ -964,8 +964,8 @@ x25_ntoa(proto_tree *tree, int *offset, tvbuff_t *tvb,
     guint8 byte;
     int localoffset;
 
-    addr1=(char *)wmem_alloc(wmem_packet_scope(), 16);
-    addr2=(char *)wmem_alloc(wmem_packet_scope(), 16);
+    addr1=(char *)wmem_alloc(pinfo->pool, 16);
+    addr2=(char *)wmem_alloc(pinfo->pool, 16);
 
     byte = tvb_get_guint8(tvb, *offset);
     len1 = (byte >> 0) & 0x0F;
@@ -1035,8 +1035,8 @@ x25_toa(proto_tree *tree, int *offset, tvbuff_t *tvb,
     guint8 byte;
     int localoffset;
 
-    addr1=(char *)wmem_alloc(wmem_packet_scope(), 256);
-    addr2=(char *)wmem_alloc(wmem_packet_scope(), 256);
+    addr1=(char *)wmem_alloc(pinfo->pool, 256);
+    addr2=(char *)wmem_alloc(pinfo->pool, 256);
 
     len1 = tvb_get_guint8(tvb, *offset);
     proto_tree_add_item(tree, hf_x25_called_address_length, tvb, *offset, 1, ENC_NA);

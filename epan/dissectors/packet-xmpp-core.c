@@ -36,7 +36,7 @@ static void xmpp_message_thread(proto_tree *tree, tvbuff_t *tvb, packet_info *pi
 static void xmpp_message_body(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t *element);
 static void xmpp_message_subject(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t *element);
 
-static void xmpp_failure_text(proto_tree *tree, tvbuff_t *tvb, xmpp_element_t *element);
+static void xmpp_failure_text(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t *element);
 
 static void xmpp_features_mechanisms(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t *packet);
 
@@ -90,35 +90,35 @@ xmpp_iq(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t *pac
     xmpp_transaction_t *reqresp_trans;
 
     xmpp_elem_info elems_info [] = {
-        {NAME_AND_ATTR, xmpp_name_attr_struct("query", "xmlns","http://jabber.org/protocol/disco#items"), xmpp_disco_items_query, ONE},
-        {NAME_AND_ATTR, xmpp_name_attr_struct("query", "xmlns", "jabber:iq:roster"), xmpp_roster_query, ONE},
-        {NAME_AND_ATTR, xmpp_name_attr_struct("query", "xmlns", "http://jabber.org/protocol/disco#info"), xmpp_disco_info_query, ONE},
-        {NAME_AND_ATTR, xmpp_name_attr_struct("query", "xmlns", "http://jabber.org/protocol/bytestreams"), xmpp_bytestreams_query, ONE},
-        {NAME_AND_ATTR, xmpp_name_attr_struct("query", "xmlns", "http://jabber.org/protocol/muc#owner"), xmpp_muc_owner_query, ONE},
-        {NAME_AND_ATTR, xmpp_name_attr_struct("query", "xmlns", "http://jabber.org/protocol/muc#admin"), xmpp_muc_admin_query, ONE},
+        {NAME_AND_ATTR, xmpp_name_attr_struct(pinfo->pool, "query", "xmlns","http://jabber.org/protocol/disco#items"), xmpp_disco_items_query, ONE},
+        {NAME_AND_ATTR, xmpp_name_attr_struct(pinfo->pool, "query", "xmlns", "jabber:iq:roster"), xmpp_roster_query, ONE},
+        {NAME_AND_ATTR, xmpp_name_attr_struct(pinfo->pool, "query", "xmlns", "http://jabber.org/protocol/disco#info"), xmpp_disco_info_query, ONE},
+        {NAME_AND_ATTR, xmpp_name_attr_struct(pinfo->pool, "query", "xmlns", "http://jabber.org/protocol/bytestreams"), xmpp_bytestreams_query, ONE},
+        {NAME_AND_ATTR, xmpp_name_attr_struct(pinfo->pool, "query", "xmlns", "http://jabber.org/protocol/muc#owner"), xmpp_muc_owner_query, ONE},
+        {NAME_AND_ATTR, xmpp_name_attr_struct(pinfo->pool, "query", "xmlns", "http://jabber.org/protocol/muc#admin"), xmpp_muc_admin_query, ONE},
         {NAME, "bind", xmpp_iq_bind, ONE},
-        {NAME_AND_ATTR, xmpp_name_attr_struct("session", "xmlns", "urn:ietf:params:xml:ns:xmpp-session"), xmpp_session, ONE},
+        {NAME_AND_ATTR, xmpp_name_attr_struct(pinfo->pool, "session", "xmlns", "urn:ietf:params:xml:ns:xmpp-session"), xmpp_session, ONE},
         {NAME, "vCard", xmpp_vcard, ONE},
         {NAME, "jingle", xmpp_jingle, ONE},
-        {NAME_AND_ATTR, xmpp_name_attr_struct("services", "xmlns", "http://jabber.org/protocol/jinglenodes"), xmpp_jinglenodes_services, ONE},
-        {NAME_AND_ATTR, xmpp_name_attr_struct("channel", "xmlns", "http://jabber.org/protocol/jinglenodes#channel"), xmpp_jinglenodes_channel, ONE},
-        {NAME_AND_ATTR, xmpp_name_attr_struct("open", "xmlns", "http://jabber.org/protocol/ibb"), xmpp_ibb_open, ONE},
-        {NAME_AND_ATTR, xmpp_name_attr_struct("close", "xmlns", "http://jabber.org/protocol/ibb"), xmpp_ibb_close, ONE},
-        {NAME_AND_ATTR, xmpp_name_attr_struct("data", "xmlns", "http://jabber.org/protocol/ibb"), xmpp_ibb_data, ONE},
+        {NAME_AND_ATTR, xmpp_name_attr_struct(pinfo->pool, "services", "xmlns", "http://jabber.org/protocol/jinglenodes"), xmpp_jinglenodes_services, ONE},
+        {NAME_AND_ATTR, xmpp_name_attr_struct(pinfo->pool, "channel", "xmlns", "http://jabber.org/protocol/jinglenodes#channel"), xmpp_jinglenodes_channel, ONE},
+        {NAME_AND_ATTR, xmpp_name_attr_struct(pinfo->pool, "open", "xmlns", "http://jabber.org/protocol/ibb"), xmpp_ibb_open, ONE},
+        {NAME_AND_ATTR, xmpp_name_attr_struct(pinfo->pool, "close", "xmlns", "http://jabber.org/protocol/ibb"), xmpp_ibb_close, ONE},
+        {NAME_AND_ATTR, xmpp_name_attr_struct(pinfo->pool, "data", "xmlns", "http://jabber.org/protocol/ibb"), xmpp_ibb_data, ONE},
         {NAME, "si", xmpp_si, ONE},
         {NAME, "error", xmpp_error, ONE},
-        {NAME_AND_ATTR, xmpp_name_attr_struct("session", "xmlns", "http://www.google.com/session"), xmpp_gtalk_session, ONE},
-        {NAME_AND_ATTR, xmpp_name_attr_struct("query", "xmlns","google:jingleinfo"), xmpp_gtalk_jingleinfo_query, ONE},
-        {NAME_AND_ATTR, xmpp_name_attr_struct("usersetting", "xmlns","google:setting"), xmpp_gtalk_usersetting, ONE},
-        {NAME_AND_ATTR, xmpp_name_attr_struct("query", "xmlns","jabber:iq:last"), xmpp_last_query, ONE},
-        {NAME_AND_ATTR, xmpp_name_attr_struct("query", "xmlns","jabber:iq:version"), xmpp_version_query, ONE},
-        {NAME_AND_ATTR, xmpp_name_attr_struct("query", "xmlns","google:mail:notify"), xmpp_gtalk_mail_query, ONE},
+        {NAME_AND_ATTR, xmpp_name_attr_struct(pinfo->pool, "session", "xmlns", "http://www.google.com/session"), xmpp_gtalk_session, ONE},
+        {NAME_AND_ATTR, xmpp_name_attr_struct(pinfo->pool, "query", "xmlns","google:jingleinfo"), xmpp_gtalk_jingleinfo_query, ONE},
+        {NAME_AND_ATTR, xmpp_name_attr_struct(pinfo->pool, "usersetting", "xmlns","google:setting"), xmpp_gtalk_usersetting, ONE},
+        {NAME_AND_ATTR, xmpp_name_attr_struct(pinfo->pool, "query", "xmlns","jabber:iq:last"), xmpp_last_query, ONE},
+        {NAME_AND_ATTR, xmpp_name_attr_struct(pinfo->pool, "query", "xmlns","jabber:iq:version"), xmpp_version_query, ONE},
+        {NAME_AND_ATTR, xmpp_name_attr_struct(pinfo->pool, "query", "xmlns","google:mail:notify"), xmpp_gtalk_mail_query, ONE},
         {NAME, "mailbox", xmpp_gtalk_mail_mailbox, ONE},
         {NAME, "new-mail", xmpp_gtalk_mail_new_mail, ONE},
-        {NAME_AND_ATTR, xmpp_name_attr_struct("query", "xmlns","google:shared-status"), xmpp_gtalk_status_query, ONE},
+        {NAME_AND_ATTR, xmpp_name_attr_struct(pinfo->pool, "query", "xmlns","google:shared-status"), xmpp_gtalk_status_query, ONE},
         {NAME, "conference-info", xmpp_conference_info, ONE},
-        {NAME_AND_ATTR, xmpp_name_attr_struct("ping", "xmlns","urn:xmpp:ping"), xmpp_ping, ONE},
-        {NAME_AND_ATTR, xmpp_name_attr_struct("inputevt", "xmlns","http://jitsi.org/protocol/inputevt"), xmpp_jitsi_inputevt, ONE},
+        {NAME_AND_ATTR, xmpp_name_attr_struct(pinfo->pool, "ping", "xmlns","urn:xmpp:ping"), xmpp_ping, ONE},
+        {NAME_AND_ATTR, xmpp_name_attr_struct(pinfo->pool, "inputevt", "xmlns","http://jitsi.org/protocol/inputevt"), xmpp_jitsi_inputevt, ONE},
     };
 
     attr_id      = xmpp_get_attr(packet, "id");
@@ -209,7 +209,7 @@ xmpp_error(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t *
 
     xmpp_attr_t *fake_condition = NULL;
 
-    error_info = wmem_strdup(wmem_packet_scope(), "Stanza error");
+    error_info = wmem_strdup(pinfo->pool, "Stanza error");
 
     error_item = proto_tree_add_item(tree, hf_xmpp_error, tvb, element->offset, element->length, ENC_BIG_ENDIAN);
     error_tree = proto_item_add_subtree(error_item, ett_xmpp_query_item);
@@ -217,10 +217,10 @@ xmpp_error(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t *
     cond_element = xmpp_steal_element_by_attr(element, "xmlns", "urn:ietf:params:xml:ns:xmpp-stanzas");
     if(cond_element)
     {
-        fake_condition = xmpp_ep_init_attr_t(cond_element->name, cond_element->offset, cond_element->length);
+        fake_condition = xmpp_ep_init_attr_t(pinfo->pool, cond_element->name, cond_element->offset, cond_element->length);
         g_hash_table_insert(element->attrs, (gpointer)"condition", fake_condition);
 
-        error_info = wmem_strdup_printf(wmem_packet_scope(), "%s: %s;", error_info, cond_element->name);
+        error_info = wmem_strdup_printf(pinfo->pool, "%s: %s;", error_info, cond_element->name);
     }
 
 
@@ -230,7 +230,7 @@ xmpp_error(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t *
     {
         xmpp_error_text(error_tree, tvb, text_element);
 
-        error_info = wmem_strdup_printf(wmem_packet_scope(), "%s Text: %s", error_info, text_element->data?text_element->data->value:"");
+        error_info = wmem_strdup_printf(pinfo->pool, "%s Text: %s", error_info, text_element->data?text_element->data->value:"");
     }
 
     expert_add_info_format(pinfo, error_item, &ei_xmpp_response, "%s", error_info);
@@ -253,10 +253,10 @@ xmpp_presence(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_
 
     static const gchar *type_enums[] = {"error", "probe", "subscribe", "subscribed",
                                  "unavailable", "unsubscribe", "unsubscribed"};
-    xmpp_array_t *type_array = xmpp_ep_init_array_t(type_enums, array_length(type_enums));
+    xmpp_array_t *type_array = xmpp_ep_init_array_t(pinfo->pool, type_enums, array_length(type_enums));
 
     static const gchar *show_enums[] = {"away", "chat", "dnd", "xa"};
-    xmpp_array_t *show_array = xmpp_ep_init_array_t(show_enums, array_length(show_enums));
+    xmpp_array_t *show_array = xmpp_ep_init_array_t(pinfo->pool, show_enums, array_length(show_enums));
 
     xmpp_attr_info attrs_info[] = {
         {"from", &hf_xmpp_from, FALSE, FALSE, NULL, NULL},
@@ -270,14 +270,14 @@ xmpp_presence(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_
 
     xmpp_elem_info elems_info[] = {
         {NAME, "status", xmpp_presence_status, MANY},
-        {NAME_AND_ATTR, xmpp_name_attr_struct("c","xmlns","http://jabber.org/protocol/caps"), xmpp_presence_caps, ONE},
+        {NAME_AND_ATTR, xmpp_name_attr_struct(pinfo->pool, "c","xmlns","http://jabber.org/protocol/caps"), xmpp_presence_caps, ONE},
         {NAME, "delay", xmpp_delay, ONE},
-        {NAME_AND_ATTR, xmpp_name_attr_struct("x","xmlns", "jabber:x:delay"), xmpp_delay, ONE},
-        {NAME_AND_ATTR, xmpp_name_attr_struct("x","xmlns", "vcard-temp:x:update"), xmpp_vcard_x_update, ONE},
-        {NAME_AND_ATTR, xmpp_name_attr_struct("x","xmlns","http://jabber.org/protocol/muc"), xmpp_muc_x, ONE},
-        {NAME_AND_ATTR, xmpp_name_attr_struct("x","xmlns","http://jabber.org/protocol/muc#user"), xmpp_muc_user_x, ONE},
+        {NAME_AND_ATTR, xmpp_name_attr_struct(pinfo->pool, "x","xmlns", "jabber:x:delay"), xmpp_delay, ONE},
+        {NAME_AND_ATTR, xmpp_name_attr_struct(pinfo->pool, "x","xmlns", "vcard-temp:x:update"), xmpp_vcard_x_update, ONE},
+        {NAME_AND_ATTR, xmpp_name_attr_struct(pinfo->pool, "x","xmlns","http://jabber.org/protocol/muc"), xmpp_muc_x, ONE},
+        {NAME_AND_ATTR, xmpp_name_attr_struct(pinfo->pool, "x","xmlns","http://jabber.org/protocol/muc#user"), xmpp_muc_user_x, ONE},
         {NAME, "error", xmpp_error, ONE},
-        {NAME_AND_ATTR, xmpp_name_attr_struct("query", "xmlns","jabber:iq:last"), xmpp_last_query, ONE}
+        {NAME_AND_ATTR, xmpp_name_attr_struct(pinfo->pool, "query", "xmlns","jabber:iq:last"), xmpp_last_query, ONE}
     };
 
 
@@ -290,13 +290,13 @@ xmpp_presence(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_
 
     if((show = xmpp_steal_element_by_name(packet, "show"))!=NULL)
     {
-        xmpp_attr_t *fake_show = xmpp_ep_init_attr_t(show->data?show->data->value:"",show->offset, show->length);
+        xmpp_attr_t *fake_show = xmpp_ep_init_attr_t(pinfo->pool, show->data?show->data->value:"",show->offset, show->length);
         g_hash_table_insert(packet->attrs, (gpointer)"show", fake_show);
     }
 
     if((priority = xmpp_steal_element_by_name(packet, "priority"))!=NULL)
     {
-        xmpp_attr_t *fake_priority = xmpp_ep_init_attr_t(priority->data?priority->data->value:"",priority->offset, priority->length);
+        xmpp_attr_t *fake_priority = xmpp_ep_init_attr_t(pinfo->pool, priority->data?priority->data->value:"",priority->offset, priority->length);
         g_hash_table_insert(packet->attrs, (gpointer)"priority", fake_priority);
     }
     xmpp_display_attrs(presence_tree, packet, pinfo, tvb, attrs_info, array_length(attrs_info));
@@ -321,9 +321,9 @@ xmpp_presence_status(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_e
     status_tree = proto_item_add_subtree(status_item, ett_xmpp_presence_status);
 
     if(element->data)
-        fake_value = xmpp_ep_init_attr_t(element->data->value, element->offset, element->length);
+        fake_value = xmpp_ep_init_attr_t(pinfo->pool, element->data->value, element->offset, element->length);
     else
-        fake_value = xmpp_ep_init_attr_t("(empty)", element->offset, element->length);
+        fake_value = xmpp_ep_init_attr_t(pinfo->pool, "(empty)", element->offset, element->length);
 
 
     g_hash_table_insert(element->attrs, (gpointer)"value", fake_value);
@@ -341,7 +341,7 @@ xmpp_message(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t
     proto_tree *message_tree;
 
     static const gchar  *type_enums[] = {"chat", "error", "groupchat", "headline", "normal"};
-    xmpp_array_t *type_array = xmpp_ep_init_array_t(type_enums, array_length(type_enums));
+    xmpp_array_t *type_array = xmpp_ep_init_array_t(pinfo->pool, type_enums, array_length(type_enums));
 
     xmpp_attr_info attrs_info[] = {
         {"from", &hf_xmpp_from, FALSE, FALSE, NULL, NULL},
@@ -353,14 +353,14 @@ xmpp_message(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t
     };
 
     xmpp_elem_info elems_info [] = {
-        {NAME_AND_ATTR, xmpp_name_attr_struct("data", "xmlns", "http://jabber.org/protocol/ibb"), xmpp_ibb_data, ONE},
+        {NAME_AND_ATTR, xmpp_name_attr_struct(pinfo->pool, "data", "xmlns", "http://jabber.org/protocol/ibb"), xmpp_ibb_data, ONE},
         {NAME, "thread", xmpp_message_thread, ONE},
         {NAME, "body", xmpp_message_body, MANY},
         {NAME, "subject", xmpp_message_subject, MANY},
         {NAME, "delay", xmpp_delay, ONE},
-        {NAME_AND_ATTR, xmpp_name_attr_struct("x","xmlns","jabber:x:event"), xmpp_x_event, ONE},
-        {NAME_AND_ATTR, xmpp_name_attr_struct("x","xmlns","http://jabber.org/protocol/muc#user"), xmpp_muc_user_x, ONE},
-        {NAME_AND_ATTR, xmpp_name_attr_struct("x","xmlns","google:nosave"), xmpp_gtalk_nosave_x, ONE},
+        {NAME_AND_ATTR, xmpp_name_attr_struct(pinfo->pool, "x","xmlns","jabber:x:event"), xmpp_x_event, ONE},
+        {NAME_AND_ATTR, xmpp_name_attr_struct(pinfo->pool, "x","xmlns","http://jabber.org/protocol/muc#user"), xmpp_muc_user_x, ONE},
+        {NAME_AND_ATTR, xmpp_name_attr_struct(pinfo->pool, "x","xmlns","google:nosave"), xmpp_gtalk_nosave_x, ONE},
         {NAME, "error", xmpp_error, ONE}
     };
 
@@ -383,7 +383,7 @@ xmpp_message(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t
 
     if((chatstate = xmpp_steal_element_by_attr(packet, "xmlns", "http://jabber.org/protocol/chatstates"))!=NULL)
     {
-        xmpp_attr_t *fake_chatstate_attr = xmpp_ep_init_attr_t(chatstate->name, chatstate->offset, chatstate->length);
+        xmpp_attr_t *fake_chatstate_attr = xmpp_ep_init_attr_t(pinfo->pool, chatstate->name, chatstate->offset, chatstate->length);
         g_hash_table_insert(packet->attrs, (gpointer)"chatstate", fake_chatstate_attr);
     }
 
@@ -422,7 +422,7 @@ xmpp_message_body(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_elem
     body_item = proto_tree_add_item(tree, hf_xmpp_message_body, tvb, element->offset, element->length, ENC_BIG_ENDIAN);
     body_tree = proto_item_add_subtree(body_item, ett_xmpp_message_body);
 
-    fake_data_attr = xmpp_ep_init_attr_t(element->data?element->data->value:"", element->offset, element->length);
+    fake_data_attr = xmpp_ep_init_attr_t(pinfo->pool, element->data?element->data->value:"", element->offset, element->length);
     g_hash_table_insert(element->attrs, (gpointer)"value", fake_data_attr);
 
 
@@ -446,7 +446,7 @@ xmpp_message_subject(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_e
     subject_item = proto_tree_add_item(tree, hf_xmpp_message_subject, tvb, element->offset, element->length, ENC_BIG_ENDIAN);
     subject_tree = proto_item_add_subtree(subject_item, ett_xmpp_message_subject);
 
-    fake_data_attr = xmpp_ep_init_attr_t(element->data?element->data->value:"", element->offset, element->length);
+    fake_data_attr = xmpp_ep_init_attr_t(pinfo->pool, element->data?element->data->value:"", element->offset, element->length);
     g_hash_table_insert(element->attrs, (gpointer)"value", fake_data_attr);
 
 
@@ -471,7 +471,7 @@ xmpp_message_thread(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_el
     thread_item = proto_tree_add_item(tree, hf_xmpp_message_thread, tvb, element->offset, element->length, ENC_BIG_ENDIAN);
     thread_tree = proto_item_add_subtree(thread_item, ett_xmpp_message_thread);
 
-    fake_value = xmpp_ep_init_attr_t(element->data?element->data->value:"", element->offset, element->length);
+    fake_value = xmpp_ep_init_attr_t(pinfo->pool, element->data?element->data->value:"", element->offset, element->length);
     g_hash_table_insert(element->attrs, (gpointer)"value", fake_value);
 
 
@@ -553,13 +553,13 @@ xmpp_failure(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t
 
     if((fail_condition = xmpp_steal_element_by_names(packet, fail_names, array_length(fail_names)))!=NULL)
     {
-        xmpp_attr_t *fake_cond = xmpp_ep_init_attr_t(fail_condition->name, fail_condition->offset, fail_condition->length);
+        xmpp_attr_t *fake_cond = xmpp_ep_init_attr_t(pinfo->pool, fail_condition->name, fail_condition->offset, fail_condition->length);
         g_hash_table_insert(packet->attrs, (gpointer)"condition", fake_cond);
     }
 
     if((text = xmpp_steal_element_by_name(packet, "text"))!=NULL)
     {
-        xmpp_failure_text(fail_tree, tvb, text);
+        xmpp_failure_text(fail_tree, tvb, pinfo, text);
     }
 
     xmpp_display_attrs(fail_tree, packet, pinfo, tvb, attrs_info, array_length(attrs_info));
@@ -568,13 +568,13 @@ xmpp_failure(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t
 }
 
 static void
-xmpp_failure_text(proto_tree *tree, tvbuff_t *tvb, xmpp_element_t *element)
+xmpp_failure_text(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t *element)
 {
     xmpp_attr_t *lang = xmpp_get_attr(element,"xml:lang");
 
     proto_tree_add_string_format(tree, hf_xmpp_failure_text, tvb, element->offset, element->length,
             element->data?element->data->value:"", "TEXT%s: %s",
-            lang?wmem_strdup_printf(wmem_packet_scope(), "(%s)",lang->value):"",
+            lang?wmem_strdup_printf(pinfo->pool, "(%s)",lang->value):"",
             element->data?element->data->value:"");
 }
 

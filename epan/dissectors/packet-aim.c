@@ -578,13 +578,13 @@ static const aim_family
 }
 
 static int
-aim_get_buddyname( guint8 **name, tvbuff_t *tvb, int offset)
+aim_get_buddyname(wmem_allocator_t *pool, guint8 **name, tvbuff_t *tvb, int offset)
 {
 	guint8 buddyname_length;
 
 	buddyname_length = tvb_get_guint8(tvb, offset);
 
-	*name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1, buddyname_length, ENC_UTF_8|ENC_NA);
+	*name = tvb_get_string_enc(pool, tvb, offset + 1, buddyname_length, ENC_UTF_8|ENC_NA);
 
 	return buddyname_length;
 }
@@ -1180,14 +1180,14 @@ dissect_aim_tlv_value_dcinfo(proto_item *ti, guint16 valueid _U_, tvbuff_t *tvb,
 }
 
 static int
-dissect_aim_tlv_value_string (proto_item *ti, guint16 valueid _U_, tvbuff_t *tvb, packet_info *pinfo _U_)
+dissect_aim_tlv_value_string (proto_item *ti, guint16 valueid _U_, tvbuff_t *tvb, packet_info *pinfo)
 {
 	guint8 *buf;
 	gint string_len;
 
 	string_len = tvb_reported_length(tvb);
-	buf = tvb_get_string_enc(wmem_packet_scope(), tvb, 0, string_len, ENC_UTF_8|ENC_NA);
-	proto_item_set_text(ti, "Value: %s", format_text(wmem_packet_scope(), buf, string_len));
+	buf = tvb_get_string_enc(pinfo->pool, tvb, 0, string_len, ENC_UTF_8|ENC_NA);
+	proto_item_set_text(ti, "Value: %s", format_text(pinfo->pool, buf, string_len));
 
 	return string_len;
 }
@@ -1304,9 +1304,9 @@ dissect_aim_tlv_value_messageblock (proto_item *ti, guint16 valueid _U_, tvbuff_
 		offset += 2;
 
 		/* The actual message */
-		buf = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, blocklen - 4, ENC_ASCII|ENC_NA);
+		buf = tvb_get_string_enc(pinfo->pool, tvb, offset, blocklen - 4, ENC_ASCII|ENC_NA);
 		proto_item_append_text(ti, "Message: %s ",
-				    format_text(wmem_packet_scope(), buf, blocklen - 4));
+				    format_text(pinfo->pool, buf, blocklen - 4));
 		proto_tree_add_item(entry, hf_aim_messageblock_message, tvb,
 				    offset, blocklen-4, ENC_ASCII|ENC_NA);
 
@@ -1867,11 +1867,11 @@ static int dissect_aim_buddylist_oncoming(tvbuff_t *tvb, packet_info *pinfo, pro
 {
 	guint8 *buddyname;
 	int    offset           = 0;
-	int    buddyname_length = aim_get_buddyname( &buddyname, tvb, offset );
+	int    buddyname_length = aim_get_buddyname( pinfo->pool, &buddyname, tvb, offset );
 
 	col_set_str(pinfo->cinfo, COL_INFO, "Oncoming Buddy");
 	col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
-					format_text(wmem_packet_scope(), buddyname, buddyname_length));
+					format_text(pinfo->pool, buddyname, buddyname_length));
 
 	offset += dissect_aim_buddyname(tvb, pinfo, offset, buddy_tree);
 
@@ -1890,11 +1890,11 @@ static int dissect_aim_buddylist_offgoing(tvbuff_t *tvb, packet_info *pinfo, pro
 
 	guint8 *buddyname;
 	int    offset           = 0;
-	int    buddyname_length = aim_get_buddyname( &buddyname, tvb, offset );
+	int    buddyname_length = aim_get_buddyname( pinfo->pool, &buddyname, tvb, offset );
 
 	col_set_str(pinfo->cinfo, COL_INFO, "Offgoing Buddy");
 	col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
-					format_text(wmem_packet_scope(), buddyname, buddyname_length));
+					format_text(pinfo->pool, buddyname, buddyname_length));
 
 	offset += dissect_aim_buddyname(tvb, pinfo, offset, buddy_tree);
 
@@ -1968,8 +1968,8 @@ static int dissect_aim_chat_outgoing_msg(tvbuff_t *tvb, packet_info *pinfo, prot
 	guchar *msg;
 	int buddyname_length;
 
-	msg=(guchar *)wmem_alloc(wmem_packet_scope(), 1000);
-	buddyname_length = aim_get_buddyname( &buddyname, tvb, 30 );
+	msg=(guchar *)wmem_alloc(pinfo->pool, 1000);
+	buddyname_length = aim_get_buddyname( pinfo->pool, &buddyname, tvb, 30 );
 
 	/* channel message from client */
 	aim_get_message( msg, tvb, 40 + buddyname_length, tvb_reported_length(tvb)
@@ -1988,8 +1988,8 @@ static int dissect_aim_chat_incoming_msg(tvbuff_t *tvb, packet_info *pinfo, prot
 	/* channel message to client */
 	int buddyname_length;
 
-	msg=(guchar *)wmem_alloc(wmem_packet_scope(), 1000);
-	buddyname_length = aim_get_buddyname( &buddyname, tvb, 30 );
+	msg=(guchar *)wmem_alloc(pinfo->pool, 1000);
+	buddyname_length = aim_get_buddyname( pinfo->pool, &buddyname, tvb, 30 );
 
 	aim_get_message( msg, tvb, 36 + buddyname_length, tvb_reported_length(tvb)
 					 - 36 - buddyname_length );
@@ -3018,9 +3018,9 @@ dissect_aim_msg_outgoing(tvbuff_t *tvb, packet_info *pinfo, proto_tree *msg_tree
 	offset += 2;
 
 	/* Add the outgoing username to the info column */
-	buddyname_length = aim_get_buddyname(&buddyname, tvb, offset);
+	buddyname_length = aim_get_buddyname(pinfo->pool, &buddyname, tvb, offset);
 	col_append_fstr(pinfo->cinfo, COL_INFO, " to: %s",
-			format_text(wmem_packet_scope(), buddyname, buddyname_length));
+			format_text(pinfo->pool, buddyname, buddyname_length));
 
 	offset = dissect_aim_buddyname(tvb, pinfo, offset, msg_tree);
 
@@ -3388,10 +3388,10 @@ static int dissect_aim_snac_signon_signon(tvbuff_t *tvb, packet_info *pinfo,
 	offset += 1;
 
 	/* Buddy Name */
-	buddyname_length = aim_get_buddyname( &buddyname, tvb, offset );
+	buddyname_length = aim_get_buddyname( pinfo->pool, &buddyname, tvb, offset );
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, " Username: %s",
-			format_text(wmem_packet_scope(), buddyname, buddyname_length));
+			format_text(pinfo->pool, buddyname, buddyname_length));
 
 	if(tree) {
 		offset+=dissect_aim_buddyname(tvb, pinfo, offset, tree);

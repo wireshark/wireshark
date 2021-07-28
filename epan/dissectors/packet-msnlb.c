@@ -270,7 +270,7 @@ dissect_msnlb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
             offset += 2;
             proto_tree_add_item(hb_tree, hf_msnlb_reserved, tvb, offset, 4, ENC_NA);
             offset += 4;
-            offset = display_unicode_string(tvb, hb_tree, offset, hf_msnlb_host_name, &fqdn);
+            offset = display_unicode_string(tvb, pinfo, hb_tree, offset, hf_msnlb_host_name, &fqdn);
             offset += 6;
             proto_item_append_text(ti, ": %s", fqdn);
             }

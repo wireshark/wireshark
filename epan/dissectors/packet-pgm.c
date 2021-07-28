@@ -229,7 +229,7 @@ static heur_dissector_list_t heur_subdissector_list;
 
 
 static const char *
-optsstr(guint8 opts)
+optsstr(wmem_allocator_t *pool, guint8 opts)
 {
 	char *msg;
 	gint  returned_length, idx = 0;
@@ -238,7 +238,7 @@ optsstr(guint8 opts)
 	if (opts == 0)
 		return("");
 
-	msg=(char *)wmem_alloc(wmem_packet_scope(), MAX_STR_LEN);
+	msg=(char *)wmem_alloc(pool, MAX_STR_LEN);
 	if (opts & PGM_OPT){
 		returned_length = g_snprintf(&msg[idx], MAX_STR_LEN-idx, "Present");
 		idx += MIN(returned_length, MAX_STR_LEN-idx);
@@ -261,7 +261,7 @@ optsstr(guint8 opts)
 	return(msg);
 }
 static const char *
-paritystr(guint8 parity)
+paritystr(wmem_allocator_t *pool, guint8 parity)
 {
 	char *msg;
 	gint returned_length, idx = 0;
@@ -270,7 +270,7 @@ paritystr(guint8 parity)
 	if (parity == 0)
 		return("");
 
-	msg=(char *)wmem_alloc(wmem_packet_scope(), MAX_STR_LEN);
+	msg=(char *)wmem_alloc(pool, MAX_STR_LEN);
 	if (parity & PGM_OPT_PARITY_PRM_PRO){
 		returned_length = g_snprintf(&msg[idx], MAX_STR_LEN-idx, "Pro-active");
 		idx += MIN(returned_length, MAX_STR_LEN-idx);
@@ -428,7 +428,7 @@ dissect_pgmopts(ptvcursor_t* cursor, packet_info *pinfo, const char *pktname)
 			optdata_po = tvb_get_guint8(tvb, ptvcursor_current_offset(cursor));
 			proto_tree_add_uint_format_value(opt_tree, hf_pgm_opt_parity_prm_po, tvb,
 				ptvcursor_current_offset(cursor), 1, optdata_po, "%s (0x%x)",
-				paritystr(optdata_po), optdata_po);
+				paritystr(pinfo->pool, optdata_po), optdata_po);
 			ptvcursor_advance(cursor, 1);
 
 			ptvcursor_add(cursor, hf_pgm_opt_parity_prm_prmtgsz, 4, ENC_BIG_ENDIAN);
@@ -479,7 +479,7 @@ dissect_pgmopts(ptvcursor_t* cursor, packet_info *pinfo, const char *pktname)
 			firsttime = TRUE;
 			soffset = 0;
 			naks = (int)(optdata_len/sizeof(guint32));
-			nakbuf = (unsigned char *)wmem_alloc(wmem_packet_scope(), 8192);
+			nakbuf = (unsigned char *)wmem_alloc(pinfo->pool, 8192);
 			j = 0;
 			/*
 			 * Print out 8 per line
@@ -809,7 +809,7 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
 	pgmhdr_opts = tvb_get_guint8(tvb, 5);
 	pgmhdr_cksum = tvb_get_ntohs(tvb, 6);
-	gsi = tvb_bytes_to_str(wmem_packet_scope(), tvb, 8, 6);
+	gsi = tvb_bytes_to_str(pinfo->pool, tvb, 8, 6);
 	pgmhdr_tsdulen = tvb_get_ntohs(tvb, 14);
 	sqn = tvb_get_ntohl(tvb, 16);
 
@@ -871,7 +871,7 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
 		tf = proto_tree_add_uint_format_value(pgm_tree, hf_pgm_main_opts, tvb,
 			ptvcursor_current_offset(cursor), 1, pgmhdr_opts, "%s (0x%x)",
-			optsstr(pgmhdr_opts), pgmhdr_opts);
+			optsstr(pinfo->pool, pgmhdr_opts), pgmhdr_opts);
 		opt_tree = proto_item_add_subtree(tf, ett_pgm_optbits);
 		ptvcursor_set_tree(cursor, opt_tree);
 

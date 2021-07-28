@@ -470,7 +470,7 @@ dissect_xmpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
     while(xml_frame)
     {
-        packet = xmpp_xml_frame_to_element_t(xml_frame, NULL, tvb);
+        packet = xmpp_xml_frame_to_element_t(pinfo->pool, xml_frame, NULL, tvb);
         DISSECTOR_ASSERT(packet);
 
         if (strcmp(packet->name, "iq") == 0) {

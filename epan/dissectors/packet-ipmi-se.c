@@ -2356,9 +2356,9 @@ static const value_string cc14[] = {
 /* Get Last Processed Event ID Command.
  */
 static void
-rs15(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+rs15(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	ipmi_add_timestamp(tree, hf_ipmi_se_15_tstamp, tvb, 0);
+	ipmi_add_timestamp(pinfo, tree, hf_ipmi_se_15_tstamp, tvb, 0);
 	proto_tree_add_item(tree, hf_ipmi_se_15_lastrec, tvb, 4, 2, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_se_15_proc_sw, tvb, 6, 2, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_se_15_proc_bmc, tvb, 8, 2, ENC_LITTLE_ENDIAN);
@@ -2416,10 +2416,10 @@ static const value_string cc16[] = {
 /* PET Acknowledge.
  */
 static void
-rq17(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+rq17(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_se_17_seq, tvb, 0, 2, ENC_LITTLE_ENDIAN);
-	ipmi_add_timestamp(tree, hf_ipmi_se_17_tstamp, tvb, 2);
+	ipmi_add_timestamp(pinfo, tree, hf_ipmi_se_17_tstamp, tvb, 2);
 	proto_tree_add_item(tree, hf_ipmi_se_17_evsrc, tvb, 6, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_se_17_sensor_dev, tvb, 7, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_se_17_sensor_num, tvb, 8, 1, ENC_LITTLE_ENDIAN);

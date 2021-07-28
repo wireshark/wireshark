@@ -546,7 +546,7 @@ dissect_imf_siolabel(tvbuff_t *tvb, int offset, int length, proto_item *item, pa
   int         end_offset;
   tvbuff_t   *label_tvb;
   gchar      *type = NULL;
-  wmem_strbuf_t  *label_string = wmem_strbuf_new(wmem_packet_scope(), "");
+  wmem_strbuf_t  *label_string = wmem_strbuf_new(pinfo->pool, "");
 
   /* a semicolon separated list of attributes */
   tree = proto_item_add_subtree(item, ett_imf_siolabel);
@@ -579,7 +579,7 @@ dissect_imf_siolabel(tvbuff_t *tvb, int offset, int length, proto_item *item, pa
 
     if (tvb_strneql(tvb, item_offset, "marking", 7) == 0) {
       const guint8* marking;
-      proto_tree_add_item_ret_string(tree, hf_imf_siolabel_marking, tvb, value_offset, value_length, ENC_ASCII|ENC_NA, wmem_packet_scope(), &marking);
+      proto_tree_add_item_ret_string(tree, hf_imf_siolabel_marking, tvb, value_offset, value_length, ENC_ASCII|ENC_NA, pinfo->pool, &marking);
       proto_item_append_text(item, ": %s", marking);
 
     } else if (tvb_strneql(tvb, item_offset, "fgcolor", 7) == 0) {
@@ -589,15 +589,15 @@ dissect_imf_siolabel(tvbuff_t *tvb, int offset, int length, proto_item *item, pa
       proto_tree_add_item(tree, hf_imf_siolabel_bgcolor, tvb, value_offset, value_length, ENC_ASCII|ENC_NA);
 
     } else if (tvb_strneql(tvb, item_offset, "type", 4) == 0) {
-      type = tvb_get_string_enc(wmem_packet_scope(), tvb, value_offset + 1, value_length - 2, ENC_ASCII); /* quoted */
+      type = tvb_get_string_enc(pinfo->pool, tvb, value_offset + 1, value_length - 2, ENC_ASCII); /* quoted */
       proto_tree_add_item(tree, hf_imf_siolabel_type, tvb, value_offset, value_length, ENC_ASCII|ENC_NA);
 
     } else if (tvb_strneql(tvb, item_offset, "label", 5) == 0) {
-      gchar *label = tvb_get_string_enc(wmem_packet_scope(), tvb, value_offset + 1, value_length - 2, ENC_ASCII); /* quoted */
+      gchar *label = tvb_get_string_enc(pinfo->pool, tvb, value_offset + 1, value_length - 2, ENC_ASCII); /* quoted */
       wmem_strbuf_append(label_string, label);
 
       if (tvb_get_guint8(tvb, item_offset + 5) == '*') { /* continuations */
-        int num = (int)strtol(tvb_get_string_enc(wmem_packet_scope(), tvb, item_offset + 6, value_offset - item_offset + 6, ENC_ASCII), NULL, 10);
+        int num = (int)strtol(tvb_get_string_enc(pinfo->pool, tvb, item_offset + 6, value_offset - item_offset + 6, ENC_ASCII), NULL, 10);
         proto_tree_add_string_format(tree, hf_imf_siolabel_label, tvb, value_offset, value_length,
                                      label, "Label[%d]: \"%s\"", num, label);
       } else {
@@ -628,7 +628,7 @@ dissect_imf_siolabel(tvbuff_t *tvb, int offset, int length, proto_item *item, pa
 }
 
 static void
-dissect_imf_content_type(tvbuff_t *tvb, int offset, int length, proto_item *item,
+dissect_imf_content_type(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto_item *item,
                          const guint8 **type, const guint8 **parameters)
 {
   int first_colon;
@@ -652,14 +652,14 @@ dissect_imf_content_type(tvbuff_t *tvb, int offset, int length, proto_item *item
     ct_tree = proto_item_add_subtree(item, ett_imf_content_type);
 
     len = first_colon - offset;
-    proto_tree_add_item_ret_string(ct_tree, hf_imf_content_type_type, tvb, offset, len, ENC_ASCII|ENC_NA, wmem_packet_scope(), type);
+    proto_tree_add_item_ret_string(ct_tree, hf_imf_content_type_type, tvb, offset, len, ENC_ASCII|ENC_NA, pinfo->pool, type);
     end_offset = imf_find_field_end (tvb, first_colon + 1, offset + length, NULL);
     if (end_offset == -1) {
        /* No end found */
        return;
     }
     len = end_offset - (first_colon + 1) - 2;  /* Do not include the last CRLF */
-    proto_tree_add_item_ret_string(ct_tree, hf_imf_content_type_parameters, tvb, first_colon + 1, len, ENC_ASCII|ENC_NA, wmem_packet_scope(), parameters);
+    proto_tree_add_item_ret_string(ct_tree, hf_imf_content_type_parameters, tvb, first_colon + 1, len, ENC_ASCII|ENC_NA, pinfo->pool, parameters);
   }
 }
 
@@ -736,7 +736,7 @@ dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   imf_eo_t *eo_info = NULL;
 
   if (have_tap_listener(imf_eo_tap)) {
-    eo_info = wmem_new(wmem_packet_scope(), imf_eo_t);
+    eo_info = wmem_new(pinfo->pool, imf_eo_t);
     /* initialize the eo_info fields in case they are missing later */
     eo_info->sender_data = "";
     eo_info->subject_data = "";
@@ -769,7 +769,7 @@ dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
       /* XXX: flag an error */
       break;
     } else {
-      key = tvb_get_string_enc(wmem_packet_scope(), tvb, start_offset, end_offset - start_offset, ENC_ASCII);
+      key = tvb_get_string_enc(pinfo->pool, tvb, start_offset, end_offset - start_offset, ENC_ASCII);
 
       /* convert to lower case */
       ascii_strdown_inplace (key);
@@ -836,9 +836,9 @@ dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         /* if sender or subject, store for sending to the tap */
         if (eo_info && have_tap_listener(imf_eo_tap)) {
           if (*f_info->hf_id == hf_imf_from) {
-            eo_info->sender_data = tvb_get_string_enc(wmem_packet_scope(), tvb, value_offset, end_offset - value_offset - 2, ENC_ASCII|ENC_NA);
+            eo_info->sender_data = tvb_get_string_enc(pinfo->pool, tvb, value_offset, end_offset - value_offset - 2, ENC_ASCII|ENC_NA);
           } else if(*f_info->hf_id == hf_imf_subject) {
-            eo_info->subject_data = tvb_get_string_enc(wmem_packet_scope(), tvb, value_offset, end_offset - value_offset - 2, ENC_ASCII|ENC_NA);
+            eo_info->subject_data = tvb_get_string_enc(pinfo->pool, tvb, value_offset, end_offset - value_offset - 2, ENC_ASCII|ENC_NA);
           }
         }
       }
@@ -846,11 +846,11 @@ dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
       if(hf_id == hf_imf_content_type) {
         /* we need some additional processing to extract the content type and parameters */
 
-        dissect_imf_content_type(tvb, start_offset, end_offset - start_offset, item,
+        dissect_imf_content_type(tvb, pinfo, start_offset, end_offset - start_offset, item,
                                  &content_type_str, &parameters);
 
       } else if (hf_id == hf_imf_content_transfer_encoding) {
-        content_encoding_str = tvb_get_string_enc (wmem_packet_scope(), tvb, value_offset, end_offset - value_offset - 2, ENC_ASCII);
+        content_encoding_str = tvb_get_string_enc (pinfo->pool, tvb, value_offset, end_offset - value_offset - 2, ENC_ASCII);
       } else if(f_info->subdissector) {
 
         /* we have a subdissector */
@@ -881,7 +881,7 @@ dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     col_set_fence(pinfo->cinfo, COL_INFO);
 
     if(content_encoding_str && !g_ascii_strncasecmp(content_encoding_str, "base64", 6)) {
-      char *string_data = tvb_get_string_enc(wmem_packet_scope(), tvb, end_offset, tvb_reported_length(tvb) - end_offset, ENC_ASCII);
+      char *string_data = tvb_get_string_enc(pinfo->pool, tvb, end_offset, tvb_reported_length(tvb) - end_offset, ENC_ASCII);
       next_tvb = base64_to_tvb(tvb, string_data);
       add_new_data_source(pinfo, next_tvb, content_encoding_str);
     } else {
@@ -912,7 +912,7 @@ dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
        */
       proto_tree_add_format_wsp_text(text_tree, tvb, start_offset, end_offset - start_offset);
       col_append_sep_str(pinfo->cinfo, COL_INFO, ", ",
-                         tvb_format_text_wsp(wmem_packet_scope(), tvb, start_offset, end_offset - start_offset));
+                         tvb_format_text_wsp(pinfo->pool, tvb, start_offset, end_offset - start_offset));
 
       /*
        * Step to the next line.
@@ -924,7 +924,7 @@ dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   if (eo_info && have_tap_listener(imf_eo_tap)) {
     /* Set payload info */
     eo_info->payload_len = max_length;
-    eo_info->payload_data = (gchar *) tvb_memdup(wmem_packet_scope(), tvb, 0, max_length);
+    eo_info->payload_data = (gchar *) tvb_memdup(pinfo->pool, tvb, 0, max_length);
 
     /* Send to tap */
     tap_queue_packet(imf_eo_tap, pinfo, eo_info);

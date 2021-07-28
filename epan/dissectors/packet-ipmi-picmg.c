@@ -733,17 +733,17 @@ rs01(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 /* Get Shelf Address Info
  */
 static void
-rs02(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+rs02(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	ipmi_add_typelen(tree, hf_ipmi_picmg_02_shelf_address, hf_ipmi_picmg_02_shelf_type, hf_ipmi_picmg_02_shelf_length, tvb, 0, TRUE);
+	ipmi_add_typelen(pinfo, tree, hf_ipmi_picmg_02_shelf_address, hf_ipmi_picmg_02_shelf_type, hf_ipmi_picmg_02_shelf_length, tvb, 0, TRUE);
 }
 
 /* Set Shelf Address Info
  */
 static void
-rq03(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+rq03(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	ipmi_add_typelen(tree, hf_ipmi_picmg_03_shelf_address, hf_ipmi_picmg_03_shelf_type, hf_ipmi_picmg_03_shelf_length, tvb, 0, TRUE);
+	ipmi_add_typelen(pinfo, tree, hf_ipmi_picmg_03_shelf_address, hf_ipmi_picmg_03_shelf_type, hf_ipmi_picmg_03_shelf_length, tvb, 0, TRUE);
 }
 
 /* FRU Control.
@@ -1416,10 +1416,10 @@ rq1f(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 }
 
 static void
-rs1f(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+rs1f(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_picmg_1f_rs_lockid, tvb, 0, 2, ENC_LITTLE_ENDIAN);
-	ipmi_add_timestamp(tree, hf_ipmi_picmg_1f_rs_tstamp, tvb, 2);
+	ipmi_add_timestamp(pinfo, tree, hf_ipmi_picmg_1f_rs_tstamp, tvb, 2);
 }
 
 static const value_string cc1f[] = {
@@ -1459,12 +1459,12 @@ rq21(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 }
 
 static void
-rs21(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+rs21(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	static int * const byte9[] = { &hf_ipmi_picmg_21_is_shm, &hf_ipmi_picmg_21_addr_type, NULL };
 	guint8 addrtype;
 
-	ipmi_add_timestamp(tree, hf_ipmi_picmg_21_tstamp, tvb, 0);
+	ipmi_add_timestamp(pinfo, tree, hf_ipmi_picmg_21_tstamp, tvb, 0);
 	proto_tree_add_item(tree, hf_ipmi_picmg_21_addr_count, tvb, 4, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_picmg_21_site_type, tvb, 5, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_picmg_21_site_num, tvb, 6, 1, ENC_LITTLE_ENDIAN);

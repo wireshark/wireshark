@@ -1510,7 +1510,7 @@ dissect_rtcp_rtpfb_transport_cc( tvbuff_t *tvb, int offset, packet_info *pinfo, 
         offset += padding_length;
     }
 
-    /* delta_array / pkt_seq_array will be freed out of wmem_packet_scope*/
+    /* delta_array / pkt_seq_array will be freed out of pinfo->pool */
     delta_array = NULL;
     pkt_seq_array = NULL;
 

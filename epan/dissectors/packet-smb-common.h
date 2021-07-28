@@ -18,11 +18,11 @@
  * when packet dissection completes.
  * You do NOT need to g_free() that string.
  */
-int display_unicode_string(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_index, char **data);
+int display_unicode_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int hf_index, char **data);
 
-int display_ms_string(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_index, char **data);
+int display_ms_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int hf_index, char **data);
 
-int dissect_ms_compressed_string(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_index,
+int dissect_ms_compressed_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int hf_index,
 				 const char **data);
 
 extern const value_string share_type_vals[];

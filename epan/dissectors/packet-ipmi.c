@@ -625,7 +625,7 @@ dissect_ipmi_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		}
 
 		/* get NetFn string */
-		netfn_str = ipmi_getnetfnname(ctx->hdr.netfn, cmd_list);
+		netfn_str = ipmi_getnetfnname(pinfo->pool, ctx->hdr.netfn, cmd_list);
 
 		/* Network function + target LUN */
 		tmp_tree = proto_tree_add_subtree_format(cmd_tree, tvb, offset, 1,
@@ -1001,7 +1001,7 @@ static struct ipmi_parse_typelen ptl_unicode = {
 };
 
 void
-ipmi_add_typelen(proto_tree *tree, int hf_string, int hf_type, int hf_length, tvbuff_t *tvb,
+ipmi_add_typelen(packet_info *pinfo, proto_tree *tree, int hf_string, int hf_type, int hf_length, tvbuff_t *tvb,
 		guint offs, gboolean is_fru)
 {
 	static struct ipmi_parse_typelen *fru_eng[4] = {
@@ -1035,7 +1035,7 @@ ipmi_add_typelen(proto_tree *tree, int hf_string, int hf_type, int hf_length, tv
 	len = typelen & msk;
 	ptr->get_len(&clen, &blen, tvb, offs + 1, len, is_fru);
 
-	str = (char *)wmem_alloc(wmem_packet_scope(), clen + 1);
+	str = (char *)wmem_alloc(pinfo->pool, clen + 1);
 	ptr->parse(str, tvb, offs + 1, clen);
 	str[clen] = '\0';
 
@@ -1054,7 +1054,7 @@ ipmi_add_typelen(proto_tree *tree, int hf_string, int hf_type, int hf_length, tv
    Timestamp, IPMI-style.
 ---------------------------------------------------------------- */
 void
-ipmi_add_timestamp(proto_tree *tree, gint hf, tvbuff_t *tvb, guint offset)
+ipmi_add_timestamp(packet_info *pinfo, proto_tree *tree, gint hf, tvbuff_t *tvb, guint offset)
 {
 	guint32 ts = tvb_get_letohl(tvb, offset);
 
@@ -1064,10 +1064,10 @@ ipmi_add_timestamp(proto_tree *tree, gint hf, tvbuff_t *tvb, guint offset)
 	} else if (ts <= 0x20000000) {
 		proto_tree_add_uint_format_value(tree, hf, tvb, offset, 4,
 				ts, "%s since SEL device's initialization",
-				unsigned_time_secs_to_str(wmem_packet_scope(), ts));
+				unsigned_time_secs_to_str(pinfo->pool, ts));
 	} else {
 		proto_tree_add_uint_format_value(tree, hf, tvb, offset, 4,
-				ts, "%s", abs_time_secs_to_str(wmem_packet_scope(), ts, ABSOLUTE_TIME_UTC, TRUE));
+				ts, "%s", abs_time_secs_to_str(pinfo->pool, ts, ABSOLUTE_TIME_UTC, TRUE));
 	}
 }
 
@@ -1140,7 +1140,7 @@ ipmi_getsiglen(guint32 netfn)
 }
 
 const char *
-ipmi_getnetfnname(guint32 netfn, ipmi_netfn_t *nf)
+ipmi_getnetfnname(wmem_allocator_t *pool, guint32 netfn, ipmi_netfn_t *nf)
 {
 	const char *dn, *db;
 
@@ -1148,7 +1148,7 @@ ipmi_getnetfnname(guint32 netfn, ipmi_netfn_t *nf)
 		ipmi_cmd_tab[netfn >> 1].desc : "Reserved";
 	db = nf ? nf->desc : NULL;
 	if (db) {
-		return wmem_strdup_printf(wmem_packet_scope(), "%s (%s)", db, dn);
+		return wmem_strdup_printf(pool, "%s (%s)", db, dn);
 	} else {
 		return dn;
 	}

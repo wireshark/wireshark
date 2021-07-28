@@ -1535,7 +1535,7 @@ static value_string_ext pfcp_ie_type_ext = VALUE_STRING_EXT_INIT(pfcp_ie_type);
 
 /* PFCP Session funcs*/
 static guint32
-pfcp_get_frame(address ip, guint64 seid, guint32 *frame) {
+pfcp_get_frame(packet_info *pinfo, address ip, guint64 seid, guint32 *frame) {
     gboolean found = FALSE;
     wmem_list_frame_t *elem;
     pfcp_info_t *info;
@@ -1543,7 +1543,7 @@ pfcp_get_frame(address ip, guint64 seid, guint32 *frame) {
     gchar *ip_str;
 
     /* First we get the seid list*/
-    ip_str = address_to_str(wmem_packet_scope(), &ip);
+    ip_str = address_to_str(pinfo->pool, &ip);
     info_list = (wmem_list_t*)wmem_tree_lookup_string(pfcp_frame_tree, ip_str, 0);
     if (info_list != NULL) {
         elem = wmem_list_head(info_list);
@@ -1809,7 +1809,7 @@ pfcp_track_session(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, pfcp_
             else if (pfcp_hdr->message != PFCP_MSG_SESSION_ESTABLISHMENT_RESPONSE) {
                 /* We have to check if its seid == seid_cp and ip.dst == gsn_ipv4 from the lists, if that is the case then we have to assign
                 the corresponding session ID */
-                if ((pfcp_get_frame(pinfo->dst, (guint32)pfcp_hdr->seid, &frame_seid_cp) == 1)) {
+                if ((pfcp_get_frame(pinfo, pinfo->dst, (guint32)pfcp_hdr->seid, &frame_seid_cp) == 1)) {
                     /* Then we have to set its session ID */
                     session = (guint32*)g_hash_table_lookup(pfcp_session_table, &frame_seid_cp);
                     if (session != NULL) {
@@ -2037,7 +2037,7 @@ dissect_pfcp_f_teid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_i
 
         /* Octet 6 to 9    TEID */
         proto_tree_add_item(tree, hf_pfcp_f_teid_teid, tvb, offset, 4, ENC_BIG_ENDIAN);
-        proto_item_append_text(item, "TEID: 0x%s", tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, 4));
+        proto_item_append_text(item, "TEID: 0x%s", tvb_bytes_to_str(pinfo->pool, tvb, offset, 4));
         offset += 4;
 
         if ((fteid_flags_val & 0x1) == 1) {
@@ -2081,7 +2081,7 @@ decode_pfcp_network_instance(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
             name_len = tvb_get_guint8(tvb, offset);
 
             if (name_len < 0x20) {
-                apn = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1, length - 1, ENC_ASCII);
+                apn = tvb_get_string_enc(pinfo->pool, tvb, offset + 1, length - 1, ENC_ASCII);
                 for (;;) {
                     if (name_len >= length - 1)
                         break;
@@ -2090,7 +2090,7 @@ decode_pfcp_network_instance(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
                     apn[tmp] = '.';
                 }
             } else {
-                apn = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_ASCII);
+                apn = tvb_get_string_enc(pinfo->pool, tvb, offset, length, ENC_ASCII);
             }
             proto_tree_add_string(tree, hf_pfcp_network_instance, tvb, offset, length, apn);
             proto_item_append_text(item, "%s", apn);
@@ -2098,7 +2098,7 @@ decode_pfcp_network_instance(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
         } else {
             /* Domain name*/
             const guint8* string_value;
-            proto_tree_add_item_ret_string(tree, hf_pfcp_network_instance, tvb, offset, length, ENC_ASCII | ENC_NA, wmem_packet_scope(), &string_value);
+            proto_tree_add_item_ret_string(tree, hf_pfcp_network_instance, tvb, offset, length, ENC_ASCII | ENC_NA, pinfo->pool, &string_value);
             proto_item_append_text(item, "%s", string_value);
         }
     }
@@ -2211,7 +2211,7 @@ dissect_pfcp_sdf_filter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
  * 8.2.6    Application ID
  */
 static void
-dissect_pfcp_application_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+dissect_pfcp_application_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
 {
     int offset = 0;
 
@@ -2221,7 +2221,7 @@ dissect_pfcp_application_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
     if (tvb_ascii_isprint(tvb, offset, length))
     {
         const guint8* string_value;
-        proto_tree_add_item_ret_string(tree, hf_pfcp_application_id_str, tvb, offset, length, ENC_ASCII | ENC_NA, wmem_packet_scope(), &string_value);
+        proto_tree_add_item_ret_string(tree, hf_pfcp_application_id_str, tvb, offset, length, ENC_ASCII | ENC_NA, pinfo->pool, &string_value);
         proto_item_append_text(item, "%s", string_value);
     }
     else
@@ -2477,7 +2477,7 @@ dissect_pfcp_monitoring_time(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     * Octets 5 to 8 shall be encoded in the same format as the first four octets
     * of the 64-bit timestamp format as defined in section 6 of IETF RFC 5905.
     */
-    proto_tree_add_item_ret_time_string(tree, hf_pfcp_monitoring_time, tvb, offset, 4, ENC_TIME_NTP | ENC_BIG_ENDIAN, wmem_packet_scope(), &time_str);
+    proto_tree_add_item_ret_time_string(tree, hf_pfcp_monitoring_time, tvb, offset, 4, ENC_TIME_NTP | ENC_BIG_ENDIAN, pinfo->pool, &time_str);
     proto_item_append_text(item, "%s", time_str);
     offset += 4;
 
@@ -3290,11 +3290,11 @@ dissect_pfcp_f_seid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_i
     /* Octet 6 to 13    SEID  */
     //proto_tree_add_item(tree, hf_pfcp_seid, tvb, offset, 8, ENC_BIG_ENDIAN);
     proto_tree_add_item_ret_uint64(tree, hf_pfcp_seid, tvb, offset, 8, ENC_BIG_ENDIAN, &seid_cp);
-    proto_item_append_text(item, "SEID: 0x%s", tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, 8));
+    proto_item_append_text(item, "SEID: 0x%s", tvb_bytes_to_str(pinfo->pool, tvb, offset, 8));
     offset += 8;
     /* IPv4 address (if present)*/
     if ((f_seid_flags & 0x2) == 2) {
-        ipv4 = wmem_new0(wmem_packet_scope(), address);
+        ipv4 = wmem_new0(pinfo->pool, address);
         proto_tree_add_item(tree, hf_pfcp_f_seid_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
         proto_item_append_text(item, ", IPv4 %s", tvb_ip_to_str(tvb, offset));
         set_address_tvb(ipv4, AT_IPv4, 4, tvb, offset);
@@ -3302,7 +3302,7 @@ dissect_pfcp_f_seid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_i
     }
     /* IPv6 address (if present)*/
     if ((f_seid_flags & 0x1) == 1) {
-        ipv6 = wmem_new0(wmem_packet_scope(), address);
+        ipv6 = wmem_new0(pinfo->pool, address);
         proto_tree_add_item(tree, hf_pfcp_f_seid_ipv6, tvb, offset, 16, ENC_NA);
         proto_item_append_text(item, ", IPv6 %s", tvb_ip6_to_str(tvb, offset));
         set_address_tvb(ipv6, AT_IPv6, 16, tvb, offset);
@@ -3315,16 +3315,16 @@ dissect_pfcp_f_seid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_i
             /* We save the seid so that we could assignate its corresponding session ID later */
             args->last_seid = seid_cp;
             if (!pfcp_seid_exists(seid_cp, args->seid_list)) {
-                seid = wmem_new(wmem_packet_scope(), guint64);
+                seid = wmem_new(pinfo->pool, guint64);
                 *seid = seid_cp;
                 wmem_list_prepend(args->seid_list, seid);
             }
             if (ipv4 != NULL && !pfcp_ip_exists(*ipv4, args->ip_list)) {
-                copy_address_wmem(wmem_packet_scope(), &args->last_ip, ipv4);
+                copy_address_wmem(pinfo->pool, &args->last_ip, ipv4);
                 wmem_list_prepend(args->ip_list, ipv4);
             }
             if (ipv6 != NULL && !pfcp_ip_exists(*ipv6, args->ip_list)) {
-                copy_address_wmem(wmem_packet_scope(), &args->last_ip, ipv6);
+                copy_address_wmem(pinfo->pool, &args->last_ip, ipv6);
                 wmem_list_prepend(args->ip_list, ipv6);
             }
         }
@@ -3348,7 +3348,7 @@ static const value_string pfcp_node_id_type_vals[] = {
 };
 
 static int
-decode_pfcp_fqdn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item, gint offset, guint16 length)
+decode_pfcp_fqdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, gint offset, guint16 length)
 {
     int name_len, tmp;
     guint8 *fqdn = NULL;
@@ -3361,7 +3361,7 @@ decode_pfcp_fqdn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_
         name_len = tvb_get_guint8(tvb, offset);
         /* NOTE 1: The FQDN field in the IE is not encoded as a dotted string as commonly used in DNS master zone files. */
         if (name_len < 0x40) {
-            fqdn = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1, length - 2, ENC_ASCII);
+            fqdn = tvb_get_string_enc(pinfo->pool, tvb, offset + 1, length - 2, ENC_ASCII);
             for (;;) {
                 if (name_len >= length - 2)
                     break;
@@ -3372,7 +3372,7 @@ decode_pfcp_fqdn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_
         }
         /* In case the FQDN field is incorrectly in dotted string form.*/
         else {
-            fqdn = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length - 1, ENC_ASCII);
+            fqdn = tvb_get_string_enc(pinfo->pool, tvb, offset, length - 1, ENC_ASCII);
             proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_encoding_error, tvb, offset, length - 1);
         }
         proto_tree_add_string(tree, hf_pfcp_node_id_fqdn, tvb, offset, length - 1, fqdn);
@@ -3888,7 +3888,7 @@ dissect_pfcp_time_of_first_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
      * format as defined in section 6 of IETF RFC 5905
      */
 
-    proto_tree_add_item_ret_time_string(tree, hf_pfcp_time_of_first_packet, tvb, offset, 4, ENC_TIME_NTP | ENC_BIG_ENDIAN, wmem_packet_scope(), &time_str);
+    proto_tree_add_item_ret_time_string(tree, hf_pfcp_time_of_first_packet, tvb, offset, 4, ENC_TIME_NTP | ENC_BIG_ENDIAN, pinfo->pool, &time_str);
     proto_item_append_text(item, "%s", time_str);
     offset += 4;
 
@@ -3909,7 +3909,7 @@ dissect_pfcp_time_of_last_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     * format as defined in section 6 of IETF RFC 5905
     */
 
-    proto_tree_add_item_ret_time_string(tree, hf_pfcp_time_of_last_packet, tvb, offset, 4, ENC_TIME_NTP | ENC_BIG_ENDIAN, wmem_packet_scope(), &time_str);
+    proto_tree_add_item_ret_time_string(tree, hf_pfcp_time_of_last_packet, tvb, offset, 4, ENC_TIME_NTP | ENC_BIG_ENDIAN, pinfo->pool, &time_str);
     proto_item_append_text(item, "%s", time_str);
     offset += 4;
 
@@ -4061,7 +4061,7 @@ dissect_pfcp_start_time(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
     /* The Start Time field shall contain a UTC time. Octets 5 to 8 are encoded in the same format as
     * the first four octets of the 64-bit timestamp format as defined in section 6 of IETF RFC 5905 [26].
     */
-    proto_tree_add_item_ret_time_string(tree, hf_pfcp_start_time, tvb, offset, 4, ENC_TIME_NTP | ENC_BIG_ENDIAN, wmem_packet_scope(), &time_str);
+    proto_tree_add_item_ret_time_string(tree, hf_pfcp_start_time, tvb, offset, 4, ENC_TIME_NTP | ENC_BIG_ENDIAN, pinfo->pool, &time_str);
     proto_item_append_text(item, "%s", time_str);
     offset += 4;
 
@@ -4082,7 +4082,7 @@ dissect_pfcp_end_time(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto
     /* The End Time field shall contain a UTC time. Octets 5 to 8 are encoded in the same format as
     * the first four octets of the 64-bit timestamp format as defined in section 6 of IETF RFC 5905 [26].
     */
-    proto_tree_add_item_ret_time_string(tree, hf_pfcp_end_time, tvb, offset, 4, ENC_TIME_NTP | ENC_BIG_ENDIAN, wmem_packet_scope(), &time_str);
+    proto_tree_add_item_ret_time_string(tree, hf_pfcp_end_time, tvb, offset, 4, ENC_TIME_NTP | ENC_BIG_ENDIAN, pinfo->pool, &time_str);
     proto_item_append_text(item, "%s", time_str);
     offset += 4;
 
@@ -4327,7 +4327,7 @@ dissect_pfcp_usage_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
  * 8.2.60   Application Instance ID
  */
 static void
-dissect_pfcp_application_instance_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+dissect_pfcp_application_instance_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
 {
     int offset = 0;
 
@@ -4337,7 +4337,7 @@ dissect_pfcp_application_instance_id(tvbuff_t *tvb, packet_info *pinfo _U_, prot
     if (tvb_ascii_isprint(tvb, offset, length))
     {
         const guint8* string_value;
-        proto_tree_add_item_ret_string(tree, hf_pfcp_application_instance_id_str, tvb, offset, length, ENC_ASCII | ENC_NA, wmem_packet_scope(), &string_value);
+        proto_tree_add_item_ret_string(tree, hf_pfcp_application_instance_id_str, tvb, offset, length, ENC_ASCII | ENC_NA, pinfo->pool, &string_value);
         proto_item_append_text(item, "%s", string_value);
     }
     else
@@ -4575,7 +4575,7 @@ dissect_pfcp_recovery_time_stamp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     /* indicates the UTC time when the node started. Octets 5 to 8 are encoded in the same format as
     * the first four octets of the 64-bit timestamp format as defined in section 6 of IETF RFC 5905 [26].
     */
-    proto_tree_add_item_ret_time_string(tree, hf_pfcp_recovery_time_stamp, tvb, offset, 4, ENC_TIME_NTP | ENC_BIG_ENDIAN, wmem_packet_scope(), &time_str);
+    proto_tree_add_item_ret_time_string(tree, hf_pfcp_recovery_time_stamp, tvb, offset, 4, ENC_TIME_NTP | ENC_BIG_ENDIAN, pinfo->pool, &time_str);
     proto_item_append_text(item, "%s", time_str);
     offset += 4;
 
@@ -6038,7 +6038,7 @@ dissect_pfcp_time_stamp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
     * Octets 5 to 8 shall be encoded in the same format as the first four octets
     * of the 64-bit timestamp format as defined in section 6 of IETF RFC 5905.
     */
-    proto_tree_add_item_ret_time_string(tree, hf_pfcp_time_stamp, tvb, offset, 4, ENC_TIME_NTP | ENC_BIG_ENDIAN, wmem_packet_scope(), &time_str);
+    proto_tree_add_item_ret_time_string(tree, hf_pfcp_time_stamp, tvb, offset, 4, ENC_TIME_NTP | ENC_BIG_ENDIAN, pinfo->pool, &time_str);
     proto_item_append_text(item, "%s", time_str);
     offset += 4;
 
@@ -6095,7 +6095,7 @@ dissect_pfcp_paging_policy_indicator(tvbuff_t *tvb, packet_info *pinfo _U_, prot
  * 8.2.117    APN/DNN
  */
 static void
-dissect_pfcp_apn_dnn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item , guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+dissect_pfcp_apn_dnn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item , guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
 {
     int      offset = 0;
 
@@ -6107,7 +6107,7 @@ dissect_pfcp_apn_dnn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, pr
      /* NOTE: The APN/DNN field is not encoded as a dotted string as commonly used in documentation. */
 
     const guint8* string_value;
-    proto_tree_add_item_ret_string(tree, hf_pfcp_apn_dnn, tvb, offset, length, ENC_APN_STR | ENC_NA, wmem_packet_scope(), &string_value);
+    proto_tree_add_item_ret_string(tree, hf_pfcp_apn_dnn, tvb, offset, length, ENC_APN_STR | ENC_NA, pinfo->pool, &string_value);
     proto_item_append_text(item, "%s", string_value);
 
 }
@@ -6221,7 +6221,7 @@ dissect_pfcp_activation_time(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
      * format as defined in section 6 of IETF RFC 5905
      */
 
-    proto_tree_add_item_ret_time_string(tree, hf_pfcp_activation_time, tvb, offset, 4, ENC_TIME_NTP | ENC_BIG_ENDIAN, wmem_packet_scope(), &time_str);
+    proto_tree_add_item_ret_time_string(tree, hf_pfcp_activation_time, tvb, offset, 4, ENC_TIME_NTP | ENC_BIG_ENDIAN, pinfo->pool, &time_str);
     proto_item_append_text(item, "%s", time_str);
     offset += 4;
 
@@ -6243,7 +6243,7 @@ dissect_pfcp_deactivation_time(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
      * format as defined in section 6 of IETF RFC 5905
      */
 
-    proto_tree_add_item_ret_time_string(tree, hf_pfcp_deactivation_time, tvb, offset, 4, ENC_TIME_NTP | ENC_BIG_ENDIAN, wmem_packet_scope(), &time_str);
+    proto_tree_add_item_ret_time_string(tree, hf_pfcp_deactivation_time, tvb, offset, 4, ENC_TIME_NTP | ENC_BIG_ENDIAN, pinfo->pool, &time_str);
     proto_item_append_text(item, "%s", time_str);
     offset += 4;
 
@@ -8824,7 +8824,7 @@ dissect_pfcp_ies_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
     tvbuff_t   *ie_tvb;
     guint16 type, length_ie;
     guint16 enterprise_id;
-    pfcp_sub_dis_t *pfcp_sub_dis_inf = wmem_new0(wmem_packet_scope(), pfcp_sub_dis_t);
+    pfcp_sub_dis_t *pfcp_sub_dis_inf = wmem_new0(pinfo->pool, pfcp_sub_dis_t);
 
     pfcp_sub_dis_inf->message_type = message_type;
     pfcp_sub_dis_inf->args = args;
@@ -9013,7 +9013,7 @@ dissect_pfcp_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
         NULL
     };
 
-    pfcp_hdr = wmem_new0(wmem_packet_scope(), pfcp_hdr_t);
+    pfcp_hdr = wmem_new0(pinfo->pool, pfcp_hdr_t);
 
     /* Setting the SEID to -1 to say that the SEID is not valid for this packet */
     pfcp_hdr->seid = -1;
@@ -9024,11 +9024,11 @@ dissect_pfcp_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     message_type = tvb_get_guint8(tvb, 1);
     col_set_str(pinfo->cinfo, COL_INFO, val_to_str_ext_const(message_type, &pfcp_message_type_ext, "Unknown"));
     if (g_pfcp_session) {
-        args = wmem_new0(wmem_packet_scope(), pfcp_session_args_t);
+        args = wmem_new0(pinfo->pool, pfcp_session_args_t);
         args->last_cause = 1;                                         /* It stores the last cause decoded. Cause accepted by default */
         /* We create the auxiliary lists */
-        args->seid_list = wmem_list_new(wmem_packet_scope());
-        args->ip_list = wmem_list_new(wmem_packet_scope());
+        args->seid_list = wmem_list_new(pinfo->pool);
+        args->ip_list = wmem_list_new(pinfo->pool);
     }
 
     /* Do we have a conversation for this connection? */
@@ -9277,13 +9277,13 @@ dissect_pfcp_enterprise_bbf_up_function_features(tvbuff_t *tvb, packet_info *pin
  * TR-459: 6.6.2 Logical Port
  */
 static void
-dissect_pfcp_enterprise_bbf_logical_port(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+dissect_pfcp_enterprise_bbf_logical_port(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
 {
     /* Octet 7 to (n+4) logical-port-id */
     if (tvb_ascii_isprint(tvb, 0, length))
     {
         const guint8* string_value;
-        proto_tree_add_item_ret_string(tree, hf_pfcp_bbf_logical_port_id_str, tvb, 0, length, ENC_ASCII | ENC_NA, wmem_packet_scope(), &string_value);
+        proto_tree_add_item_ret_string(tree, hf_pfcp_bbf_logical_port_id_str, tvb, 0, length, ENC_ASCII | ENC_NA, pinfo->pool, &string_value);
         proto_item_append_text(item, "%s", string_value);
     }
     else
@@ -9620,13 +9620,13 @@ static const value_string pfcp_ie_enterprise_travelping_type[] = {
 static value_string_ext pfcp_ie_enterprise_travelping_type_ext = VALUE_STRING_EXT_INIT(pfcp_ie_enterprise_travelping_type);
 
 static void
-dissect_pfcp_enterprise_travelping_build_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+dissect_pfcp_enterprise_travelping_build_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
 {
     /* Octet 7 to (n+4) Travelping Build Id */
     if (tvb_ascii_isprint(tvb, 0, length))
     {
         const guint8* string_value;
-        proto_tree_add_item_ret_string(tree, hf_pfcp_travelping_build_id_str, tvb, 0, length, ENC_ASCII | ENC_NA, wmem_packet_scope(), &string_value);
+        proto_tree_add_item_ret_string(tree, hf_pfcp_travelping_build_id_str, tvb, 0, length, ENC_ASCII | ENC_NA, pinfo->pool, &string_value);
         proto_item_append_text(item, "%s", string_value);
     }
     else
@@ -9641,7 +9641,7 @@ dissect_pfcp_enterprise_travelping_now(tvbuff_t *tvb, packet_info *pinfo, proto_
     int offset = 0;
     char *time_str;
 
-    proto_tree_add_item_ret_time_string(tree, hf_pfcp_travelping_now, tvb, 0, 8, ENC_TIME_NTP | ENC_BIG_ENDIAN, wmem_packet_scope(), &time_str);
+    proto_tree_add_item_ret_time_string(tree, hf_pfcp_travelping_now, tvb, 0, 8, ENC_TIME_NTP | ENC_BIG_ENDIAN, pinfo->pool, &time_str);
     offset += 8;
 
     proto_item_append_text(item, "%s", time_str);
@@ -9657,7 +9657,7 @@ dissect_pfcp_enterprise_travelping_start(tvbuff_t *tvb, packet_info *pinfo, prot
     int offset = 0;
     char *time_str;
 
-    proto_tree_add_item_ret_time_string(tree, hf_pfcp_travelping_now, tvb, 0, 8, ENC_TIME_NTP | ENC_BIG_ENDIAN, wmem_packet_scope(), &time_str);
+    proto_tree_add_item_ret_time_string(tree, hf_pfcp_travelping_now, tvb, 0, 8, ENC_TIME_NTP | ENC_BIG_ENDIAN, pinfo->pool, &time_str);
     offset += 8;
 
     proto_item_append_text(item, "%s", time_str);
@@ -9673,7 +9673,7 @@ dissect_pfcp_enterprise_travelping_stop(tvbuff_t *tvb, packet_info *pinfo, proto
     int offset = 0;
     char *time_str;
 
-    proto_tree_add_item_ret_time_string(tree, hf_pfcp_travelping_now, tvb, offset, 8, ENC_TIME_NTP | ENC_BIG_ENDIAN, wmem_packet_scope(), &time_str);
+    proto_tree_add_item_ret_time_string(tree, hf_pfcp_travelping_now, tvb, offset, 8, ENC_TIME_NTP | ENC_BIG_ENDIAN, pinfo->pool, &time_str);
     offset += 8;
 
     proto_item_append_text(item, "%s", time_str);
@@ -9684,13 +9684,13 @@ dissect_pfcp_enterprise_travelping_stop(tvbuff_t *tvb, packet_info *pinfo, proto
 }
 
 static void
-dissect_pfcp_enterprise_travelping_error_message(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+dissect_pfcp_enterprise_travelping_error_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
 {
     /* Octet 7 to (n+4) Travelping Error Message */
     if (tvb_ascii_isprint(tvb, 0, length))
     {
         const guint8* string_value;
-        proto_tree_add_item_ret_string(tree, hf_pfcp_travelping_error_message_str, tvb, 0, length, ENC_ASCII | ENC_NA, wmem_packet_scope(), &string_value);
+        proto_tree_add_item_ret_string(tree, hf_pfcp_travelping_error_message_str, tvb, 0, length, ENC_ASCII | ENC_NA, pinfo->pool, &string_value);
         proto_item_append_text(item, "%s", string_value);
     }
     else
@@ -9700,13 +9700,13 @@ dissect_pfcp_enterprise_travelping_error_message(tvbuff_t *tvb, packet_info *pin
 }
 
 static void
-dissect_pfcp_enterprise_travelping_file_name(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+dissect_pfcp_enterprise_travelping_file_name(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
 {
     /* Octet 7 to (n+4) Travelping Error Message */
     if (tvb_ascii_isprint(tvb, 0, length))
     {
         const guint8* string_value;
-        proto_tree_add_item_ret_string(tree, hf_pfcp_travelping_file_name_str, tvb, 0, length, ENC_ASCII | ENC_NA, wmem_packet_scope(), &string_value);
+        proto_tree_add_item_ret_string(tree, hf_pfcp_travelping_file_name_str, tvb, 0, length, ENC_ASCII | ENC_NA, pinfo->pool, &string_value);
         proto_item_append_text(item, "%s", string_value);
     }
     else

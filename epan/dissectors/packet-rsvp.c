@@ -2527,18 +2527,18 @@ static const value_string rsvp_c_type_s2l_sub_lsp_vals[] = {
 };
 
 static char *
-summary_session(tvbuff_t *tvb, int offset)
+summary_session(wmem_allocator_t *pool, tvbuff_t *tvb, int offset)
 {
     switch(tvb_get_guint8(tvb, offset+3)) {
     case RSVP_SESSION_TYPE_IPV4:
-        return wmem_strdup_printf(wmem_packet_scope(),
+        return wmem_strdup_printf(pool,
                                   "SESSION: IPv4, Destination %s, Protocol %d, Port %d. ",
                                   tvb_ip_to_str(tvb, offset+4),
                                   tvb_get_guint8(tvb, offset+8),
                                   tvb_get_ntohs(tvb, offset+10));
         break;
     case RSVP_SESSION_TYPE_IPV4_LSP:
-        return wmem_strdup_printf(wmem_packet_scope(),
+        return wmem_strdup_printf(pool,
                                   "SESSION: IPv4-LSP, Destination %s, Short Call ID %d, Tunnel ID %d, Ext ID %0x. ",
                                   tvb_ip_to_str(tvb, offset+4),
                                   tvb_get_ntohs(tvb, offset+8),
@@ -2546,7 +2546,7 @@ summary_session(tvbuff_t *tvb, int offset)
                                   tvb_get_ntohl(tvb, offset+12));
         break;
     case RSVP_SESSION_TYPE_IPV6_LSP:
-        return wmem_strdup_printf(wmem_packet_scope(),
+        return wmem_strdup_printf(pool,
                                   "SESSION: IPv6-LSP, Destination %s, Short Call ID %d, Tunnel ID %d, Ext ID %0x%0x%0x%0x. ",
                                   tvb_ip6_to_str(tvb, offset+4),
                                   tvb_get_ntohs(tvb, offset+20),
@@ -2556,41 +2556,41 @@ summary_session(tvbuff_t *tvb, int offset)
                                   tvb_get_ntohl(tvb, offset+32),
                                   tvb_get_ntohl(tvb, offset+36));
     case RSVP_SESSION_TYPE_AGGREGATE_IPV4:
-        return wmem_strdup_printf(wmem_packet_scope(),
+        return wmem_strdup_printf(pool,
                                   "SESSION: IPv4-Aggregate, Destination %s, DSCP %d. ",
                                   tvb_ip_to_str(tvb, offset+4),
                                   tvb_get_guint8(tvb, offset+11));
         break;
     case RSVP_SESSION_TYPE_IPV4_UNI:
-        return wmem_strdup_printf(wmem_packet_scope(),
+        return wmem_strdup_printf(pool,
                                   "SESSION: IPv4-UNI, Destination %s, Tunnel ID %d, Ext Address %s. ",
                                   tvb_ip_to_str(tvb, offset+4),
                                   tvb_get_ntohs(tvb, offset+10),
                                   tvb_ip_to_str(tvb, offset+12));
         break;
     case RSVP_SESSION_TYPE_P2MP_LSP_TUNNEL_IPV4:
-        return wmem_strdup_printf(wmem_packet_scope(),
+        return wmem_strdup_printf(pool,
                                   "SESSION: IPv4-P2MP LSP TUNNEL, PSMP ID %d, Tunnel ID %d, Ext Tunnel %s. ",
                                   tvb_get_ntohl(tvb, offset+4),
                                   tvb_get_ntohs(tvb, offset+10),
                                   tvb_ip_to_str(tvb, offset+12));
         break;
     case RSVP_SESSION_TYPE_P2MP_LSP_TUNNEL_IPV6:
-        return wmem_strdup_printf(wmem_packet_scope(),
+        return wmem_strdup_printf(pool,
                                   "SESSION: IPv6-P2MP LSP TUNNEL, PSMP ID %d, Tunnel ID %d, Ext Tunnel %s. ",
                                   tvb_get_ntohl(tvb, offset+4),
                                   tvb_get_ntohs(tvb, offset+10),
                                   tvb_ip6_to_str(tvb, offset+12));
         break;
     case RSVP_SESSION_TYPE_IPV4_E_NNI:
-        return wmem_strdup_printf(wmem_packet_scope(),
+        return wmem_strdup_printf(pool,
                                   "SESSION: IPv4-E-NNI, Destination %s, Tunnel ID %d, Ext Address %s. ",
                                   tvb_ip_to_str(tvb, offset+4),
                                   tvb_get_ntohs(tvb, offset+10),
                                   tvb_ip_to_str(tvb, offset+12));
         break;
     default:
-        return wmem_strdup_printf(wmem_packet_scope(),
+        return wmem_strdup_printf(pool,
                                   "SESSION: Type %d. ", tvb_get_guint8(tvb, offset+3));
         break;
     }
@@ -2598,7 +2598,7 @@ summary_session(tvbuff_t *tvb, int offset)
 }
 
 static char *
-summary_template(tvbuff_t *tvb, int offset)
+summary_template(wmem_allocator_t *pool, tvbuff_t *tvb, int offset)
 {
     const char *objtype;
 
@@ -2609,46 +2609,46 @@ summary_template(tvbuff_t *tvb, int offset)
 
     switch(tvb_get_guint8(tvb, offset+3)) {
     case 1:
-        return wmem_strdup_printf(wmem_packet_scope(),
+        return wmem_strdup_printf(pool,
                                   "%s: IPv4, Sender %s, Port %d. ", objtype,
                                   tvb_ip_to_str(tvb, offset+4),
                                   tvb_get_ntohs(tvb, offset+10));
         break;
     case 7:
-        return wmem_strdup_printf(wmem_packet_scope(),
+        return wmem_strdup_printf(pool,
                                   "%s: IPv4-LSP, Tunnel Source: %s, Short Call ID: %d, LSP ID: %d. ", objtype,
                                   tvb_ip_to_str(tvb, offset+4),
                                   tvb_get_ntohs(tvb, offset+8),
                                   tvb_get_ntohs(tvb, offset+10));
         break;
     case 8:
-        return wmem_strdup_printf(wmem_packet_scope(),
+        return wmem_strdup_printf(pool,
                                   "%s: IPv6-LSP, Tunnel Source: %s, Short Call ID: %d, LSP ID: %d. ", objtype,
                                   tvb_ip6_to_str(tvb, offset+4),
                                   tvb_get_ntohs(tvb, offset+20),
                                   tvb_get_ntohs(tvb, offset+22));
         break;
     case 9:
-        return wmem_strdup_printf(wmem_packet_scope(),
+        return wmem_strdup_printf(pool,
                                   "%s: IPv4-Aggregate, Aggregator %s. ", objtype,
                                   tvb_ip_to_str(tvb, offset+4));
         break;
     case 12:
-        return wmem_strdup_printf(wmem_packet_scope(),
+        return wmem_strdup_printf(pool,
                                   "%s: P2MP_LSP_TUNNEL_IPv4, IPv4 tunnel sender address %s, LSP ID: %d, Sub-Group ID %d. ", objtype,
                                   tvb_ip_to_str(tvb, offset+4),
                                   tvb_get_ntohs(tvb, offset+10),
                                   tvb_get_ntohs(tvb, offset+18));
         break;
     case 13:
-        return wmem_strdup_printf(wmem_packet_scope(),
+        return wmem_strdup_printf(pool,
                                   "%s: P2MP_LSP_TUNNEL_IPv6, IPv6 tunnel sender address %s, LSP ID: %d, Sub-Group ID %d. ", objtype,
                                   tvb_ip_to_str(tvb, offset+4),
                                   tvb_get_ntohs(tvb, offset+22),
                                   tvb_get_ntohs(tvb, offset+40));
         break;
     default:
-        return wmem_strdup_printf(wmem_packet_scope(),
+        return wmem_strdup_printf(pool,
                                   "%s: Type %d. ", objtype, tvb_get_guint8(tvb, offset+3));
         break;
     }
@@ -2659,7 +2659,7 @@ summary_template(tvbuff_t *tvb, int offset)
  * SESSION
  *------------------------------------------------------------------------------*/
 static void
-dissect_rsvp_session(proto_item *ti, proto_tree *rsvp_object_tree,
+dissect_rsvp_session(packet_info *pinfo, proto_item *ti, proto_tree *rsvp_object_tree,
                      tvbuff_t *tvb,
                      int offset, int obj_length,
                      int rsvp_class _U_, int type,
@@ -2668,7 +2668,7 @@ dissect_rsvp_session(proto_item *ti, proto_tree *rsvp_object_tree,
     proto_item *hidden_item;
     int         offset2 = offset + 4;
 
-    proto_item_set_text(ti, "%s", summary_session(tvb, offset));
+    proto_item_set_text(ti, "%s", summary_session(pinfo->pool, tvb, offset));
 
     hidden_item = proto_tree_add_item(rsvp_object_tree, hf_rsvp_ctype, tvb, offset+3, 1, ENC_BIG_ENDIAN);
     proto_item_set_hidden(hidden_item);
@@ -3572,7 +3572,7 @@ dissect_rsvp_confirm(proto_item *ti, proto_tree *rsvp_object_tree,
  * SENDER TEMPLATE and FILTERSPEC
  *------------------------------------------------------------------------------*/
 static void
-dissect_rsvp_template_filter(proto_item *ti, proto_tree *rsvp_object_tree,
+dissect_rsvp_template_filter(packet_info *pinfo, proto_item *ti, proto_tree *rsvp_object_tree,
                              tvbuff_t *tvb,
                              int offset, int obj_length,
                              int rsvp_class, int type,
@@ -3584,7 +3584,7 @@ dissect_rsvp_template_filter(proto_item *ti, proto_tree *rsvp_object_tree,
     hidden_item = proto_tree_add_item(rsvp_object_tree, hf_rsvp_ctype, tvb, offset+3, 1, ENC_BIG_ENDIAN);
     proto_item_set_hidden(hidden_item);
 
-    proto_item_set_text(ti, "%s", summary_template(tvb, offset));
+    proto_item_set_text(ti, "%s", summary_template(pinfo->pool, tvb, offset));
     switch(type) {
     case 1:
          proto_tree_add_item(rsvp_object_tree, hf_rsvp_ctype_template, tvb, offset+3, 1, ENC_BIG_ENDIAN);
@@ -6167,7 +6167,7 @@ dissect_rsvp_gen_uni(proto_tree *ti, packet_info* pinfo, proto_tree *rsvp_object
                     }
                     proto_tree_add_uint(rsvp_session_subtree, hf_rsvp_filter[RSVPF_OBJECT], tvb,
                                 offset2+8+l+10, 1, s_class);
-                    dissect_rsvp_session(ti2, rsvp_session_subtree, tvb, offset2+l+8,
+                    dissect_rsvp_session(pinfo, ti2, rsvp_session_subtree, tvb, offset2+l+8,
                                          s_len, s_class, s_type, rsvph);
                     offset3 = offset2 + s_len;
                     s_len = tvb_get_ntohs(tvb, offset3+l+8);
@@ -6184,7 +6184,7 @@ dissect_rsvp_gen_uni(proto_tree *ti, packet_info* pinfo, proto_tree *rsvp_object
                     }
                     proto_tree_add_uint(rsvp_template_subtree, hf_rsvp_filter[RSVPF_OBJECT], tvb,
                                 offset3+8+l+10, 1, s_class);
-                    dissect_rsvp_template_filter(ti2, rsvp_template_subtree, tvb, offset3+l+8,
+                    dissect_rsvp_template_filter(pinfo, ti2, rsvp_template_subtree, tvb, offset3+l+8,
                                                  s_len, s_class, s_type, rsvph);
 
                     if (i < 4) {
@@ -6342,10 +6342,10 @@ dissect_rsvp_call_id(proto_tree *ti, packet_info* pinfo, proto_tree *rsvp_object
             len = obj_length - 28;
             proto_tree_add_item(rsvp_object_tree, hf_rsvp_ctype_call_id, tvb, offset+3, 1, ENC_BIG_ENDIAN);
             ti2 = proto_tree_add_item(rsvp_object_tree, hf_rsvp_call_id_address_type, tvb, offset2, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item_ret_string(rsvp_object_tree, hf_rsvp_call_id_international_segment, tvb, offset2 + 1, 3, ENC_NA|ENC_ASCII, wmem_packet_scope(), &str);
+            proto_tree_add_item_ret_string(rsvp_object_tree, hf_rsvp_call_id_international_segment, tvb, offset2 + 1, 3, ENC_NA|ENC_ASCII, pinfo->pool, &str);
             proto_item_append_text(ti, "Globally-Unique. Addr Type: %s. Intl Segment: %s. ",
                                    val_to_str(type, address_type_vals, "Unknown (%u)"), str);
-            proto_tree_add_item_ret_string(rsvp_object_tree, hf_rsvp_call_id_national_segment, tvb, offset2 + 4, 12, ENC_NA|ENC_ASCII, wmem_packet_scope(), &str);
+            proto_tree_add_item_ret_string(rsvp_object_tree, hf_rsvp_call_id_national_segment, tvb, offset2 + 4, 12, ENC_NA|ENC_ASCII, pinfo->pool, &str);
             proto_item_append_text(ti, "Natl Segment: %s. ", str);
         }
 
@@ -6378,7 +6378,7 @@ dissect_rsvp_call_id(proto_tree *ti, packet_info* pinfo, proto_tree *rsvp_object
 
         case 0x7F:
             offset4 = offset3 + len;
-            str = tvb_bytes_to_str(wmem_packet_scope(), tvb, offset3, len);
+            str = tvb_bytes_to_str(pinfo->pool, tvb, offset3, len);
             proto_tree_add_item(rsvp_object_tree, hf_rsvp_callid_srcaddr_bytes, tvb, offset3, len, ENC_NA);
             break;
 
@@ -6391,7 +6391,7 @@ dissect_rsvp_call_id(proto_tree *ti, packet_info* pinfo, proto_tree *rsvp_object
 
         proto_item_append_text(ti, "Src: %s. ", str);
         proto_tree_add_item(rsvp_object_tree, hf_rsvp_call_id_local_identifier, tvb, offset4, 8, ENC_NA);
-        proto_item_append_text(ti, "Local ID: %s. ", tvb_bytes_to_str(wmem_packet_scope(), tvb, offset4, 8));
+        proto_item_append_text(ti, "Local ID: %s. ", tvb_bytes_to_str(pinfo->pool, tvb, offset4, 8));
         break;
 
     default:
@@ -7519,9 +7519,9 @@ dissect_rsvp_msg_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                                  "Unknown (%u). "));
     find_rsvp_session_tempfilt(tvb, 0, &session_off, &tempfilt_off);
     if (session_off)
-        proto_item_append_text(rsvp_tree, "%s", summary_session(tvb, session_off));
+        proto_item_append_text(rsvp_tree, "%s", summary_session(pinfo->pool, tvb, session_off));
     if (tempfilt_off)
-        proto_item_append_text(rsvp_tree, "%s", summary_template(tvb, tempfilt_off));
+        proto_item_append_text(rsvp_tree, "%s", summary_template(pinfo->pool, tvb, tempfilt_off));
 
     rsvp_header_tree = proto_tree_add_subtree_format(rsvp_tree, tvb, offset, 8,
                              TREE(TT_HDR), &ti, "RSVP Header. %s",
@@ -7604,7 +7604,7 @@ dissect_rsvp_msg_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         switch(rsvp_class) {
 
         case RSVP_CLASS_SESSION:
-            dissect_rsvp_session(ti, rsvp_object_tree, tvb, offset, obj_length, rsvp_class, type, rsvph);
+            dissect_rsvp_session(pinfo, ti, rsvp_object_tree, tvb, offset, obj_length, rsvp_class, type, rsvph);
             break;
 
         case RSVP_CLASS_HOP:
@@ -7633,7 +7633,7 @@ dissect_rsvp_msg_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         case RSVP_CLASS_SENDER_TEMPLATE:
         case RSVP_CLASS_FILTER_SPEC:
-            dissect_rsvp_template_filter(ti, rsvp_object_tree, tvb, offset, obj_length, rsvp_class, type, rsvph);
+            dissect_rsvp_template_filter(pinfo, ti, rsvp_object_tree, tvb, offset, obj_length, rsvp_class, type, rsvph);
             break;
 
         case RSVP_CLASS_SENDER_TSPEC:
@@ -7869,7 +7869,7 @@ dissect_rsvp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
 
     message_type = tvb_get_guint8(tvb, 1);
 
-    rsvph = wmem_new0(wmem_packet_scope(), rsvp_conversation_info);
+    rsvph = wmem_new0(pinfo->pool, rsvp_conversation_info);
 
     /* Copy over the source and destination addresses from the pinfo strucutre */
     set_address(&rsvph->source, pinfo->src.type, pinfo->src.len, pinfo->src.data);
@@ -7886,9 +7886,9 @@ dissect_rsvp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
     } else {
         find_rsvp_session_tempfilt(tvb, 0, &session_off, &tempfilt_off);
         if (session_off)
-            col_append_str(pinfo->cinfo, COL_INFO, summary_session(tvb, session_off));
+            col_append_str(pinfo->cinfo, COL_INFO, summary_session(pinfo->pool, tvb, session_off));
         if (tempfilt_off)
-            col_append_str(pinfo->cinfo, COL_INFO, summary_template(tvb, tempfilt_off));
+            col_append_str(pinfo->cinfo, COL_INFO, summary_template(pinfo->pool, tvb, tempfilt_off));
     }
 
     dissect_rsvp_msg_tree(tvb, pinfo, tree, TREE(TT_RSVP), rsvph, e2ei);

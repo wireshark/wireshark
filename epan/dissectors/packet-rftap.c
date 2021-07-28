@@ -122,7 +122,7 @@ struct rftap_hdr {
  * returns Data Link Type (dlt) and subdissector name
  */
 static void
-dissect_rftap_header(tvbuff_t *tvb, proto_tree *tree, guint32 *dlt, const guint8 **subdissector_name)
+dissect_rftap_header(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 *dlt, const guint8 **subdissector_name)
 {
     proto_item *ti_header;
     proto_tree *header_tree;
@@ -262,7 +262,7 @@ dissect_rftap_header(tvbuff_t *tvb, proto_tree *tree, guint32 *dlt, const guint8
         return;  /* we've hit a tagged parameter we can't decode, abort */
 
     proto_tree_add_item_ret_string(tree, hf_rftap_subdissector_name, tvb,
-        offset+4, tag_len, ENC_ASCII, wmem_packet_scope(), subdissector_name);
+        offset+4, tag_len, ENC_ASCII, pinfo->pool, subdissector_name);
 }
 
 /* Main entry point to dissect the packets.
@@ -310,7 +310,7 @@ dissect_rftap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         "RFtap Protocol (%d bytes)", rftap_len);
     rftap_tree = proto_item_add_subtree(ti, ett_rftap);
 
-    dissect_rftap_header(rftap_tvb, rftap_tree, &subdissector_dlt, &subdissector_name);
+    dissect_rftap_header(rftap_tvb, rftap_tree, pinfo, &subdissector_dlt, &subdissector_name);
 
     /* dissect part 2: data packet */
 

@@ -90,7 +90,7 @@ static const char list_str[] = "List...";
 
 
 static inline int
-bencoded_string_length(tvbuff_t *tvb, guint *offset_ptr)
+bencoded_string_length(packet_info *pinfo, tvbuff_t *tvb, guint *offset_ptr)
 {
   guint offset, start, len;
   guint remaining = tvb_captured_length_remaining(tvb, *offset_ptr);
@@ -101,7 +101,7 @@ bencoded_string_length(tvbuff_t *tvb, guint *offset_ptr)
   while(tvb_get_guint8(tvb, offset) != ':' && remaining--)
     ++offset;
 
-  if (remaining && ws_strtou32(tvb_get_string_enc(wmem_packet_scope(), tvb, start, offset-start, ENC_ASCII),
+  if (remaining && ws_strtou32(tvb_get_string_enc(pinfo->pool, tvb, start, offset-start, ENC_ASCII),
       NULL, &len)) {
     ++offset; /* skip the ':' */
     *offset_ptr = offset;
@@ -117,19 +117,19 @@ bencoded_string_length(tvbuff_t *tvb, guint *offset_ptr)
  */
 
 static int
-dissect_bencoded_string(tvbuff_t *tvb, packet_info _U_*pinfo, proto_tree *tree, guint offset, const char **result, gboolean tohex, const char *label )
+dissect_bencoded_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, const char **result, gboolean tohex, const char *label )
 {
   gint string_len;
-  string_len = bencoded_string_length(tvb, &offset);
+  string_len = bencoded_string_length(pinfo, tvb, &offset);
 
   if (string_len == 0)
     return 0;
 
   /* fill the return data */
   if( tohex )
-    *result = tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, string_len );
+    *result = tvb_bytes_to_str(pinfo->pool, tvb, offset, string_len );
   else
-    *result = tvb_get_string_enc( wmem_packet_scope(), tvb, offset, string_len , ENC_ASCII);
+    *result = tvb_get_string_enc( pinfo->pool, tvb, offset, string_len , ENC_ASCII);
 
   proto_tree_add_string_format( tree, hf_bencoded_string, tvb, offset, string_len, *result, "%s: %s", label, *result );
   offset += string_len;
@@ -141,7 +141,7 @@ dissect_bencoded_string(tvbuff_t *tvb, packet_info _U_*pinfo, proto_tree *tree, 
  * *result will be the decoded value
  */
 static int
-dissect_bencoded_int(tvbuff_t *tvb, packet_info _U_*pinfo, proto_tree *tree, guint offset, const char **result, const char *label )
+dissect_bencoded_int(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, const char **result, const char *label )
 {
   guint start_offset;
 
@@ -154,7 +154,7 @@ dissect_bencoded_int(tvbuff_t *tvb, packet_info _U_*pinfo, proto_tree *tree, gui
 
   proto_tree_add_item(tree, hf_bencoded_list_terminator, tvb, offset, 1, ENC_ASCII|ENC_NA);
 
-  *result = tvb_get_string_enc( wmem_packet_scope(), tvb, start_offset, offset-start_offset, ENC_ASCII);
+  *result = tvb_get_string_enc( pinfo->pool, tvb, start_offset, offset-start_offset, ENC_ASCII);
   proto_tree_add_string_format( tree, hf_bencoded_int, tvb, start_offset, offset-start_offset, *result,
     "%s: %s", label, *result );
 
@@ -235,7 +235,7 @@ dissect_bt_dht_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
 
   proto_item_set_text( ti, "%s: error %s, %s", label, error_no, error_msg );
   col_append_fstr( pinfo->cinfo, COL_INFO, "error_no=%s error_msg=%s ", error_no, error_msg );
-  *result = wmem_strdup_printf(wmem_packet_scope(), "error %s, %s", error_no, error_msg );
+  *result = wmem_strdup_printf(pinfo->pool, "error %s, %s", error_no, error_msg );
 
   return offset;
 }
@@ -262,7 +262,7 @@ dissect_bt_dht_values(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
   /* dissect bt-dht values */
   while( tvb_get_guint8(tvb,offset)!='e' )
   {
-    string_len = bencoded_string_length(tvb, &offset);
+    string_len = bencoded_string_length(pinfo, tvb, &offset);
 
     if (string_len == 6)
     {
@@ -308,7 +308,7 @@ dissect_bt_dht_values(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
 
   proto_item_set_text( ti, "%s: %d peers", label, peer_index );
   col_append_fstr( pinfo->cinfo, COL_INFO, " reply=%d peers", peer_index );
-  *result = wmem_strdup_printf(wmem_packet_scope(), "%d peers", peer_index);
+  *result = wmem_strdup_printf(pinfo->pool, "%d peers", peer_index);
 
   return offset;
 }
@@ -325,7 +325,7 @@ dissect_bt_dht_nodes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
   guint       string_len;
   guint       node_byte_length;
 
-  string_len = bencoded_string_length(tvb, &offset);
+  string_len = bencoded_string_length(pinfo, tvb, &offset);
 
   ti = proto_tree_add_item( tree, hf_bt_dht_nodes, tvb, offset, string_len, ENC_NA );
   sub_tree = proto_item_add_subtree( ti, ett_bt_dht_nodes);
@@ -349,7 +349,7 @@ dissect_bt_dht_nodes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
     node_tree = proto_item_add_subtree( node_ti, ett_bt_dht_peers);
 
     proto_tree_add_item( node_tree, hf_bt_dht_id, tvb, offset, 20, ENC_NA);
-    proto_item_append_text(node_ti, " (id: %s", tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, 20));
+    proto_item_append_text(node_ti, " (id: %s", tvb_bytes_to_str(pinfo->pool, tvb, offset, 20));
 
     if ( is_ipv6 )
     {
@@ -376,7 +376,7 @@ dissect_bt_dht_nodes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
   }
   proto_item_set_text( ti, "%s: %d nodes", label, node_index );
   col_append_fstr( pinfo->cinfo, COL_INFO, " reply=%d nodes", node_index );
-  *result = wmem_strdup_printf(wmem_packet_scope(), "%d", node_index);
+  *result = wmem_strdup_printf(pinfo->pool, "%d", node_index);
 
   return offset;
 }
@@ -447,7 +447,7 @@ dissect_bencoded_dict_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
       int len, old_offset;
       old_offset = offset;
-      len = bencoded_string_length(tvb, &offset);
+      len = bencoded_string_length(pinfo, tvb, &offset);
 
       if(len == 4) {
         proto_tree_add_item(sub_tree, hf_ip, tvb, offset, len, ENC_BIG_ENDIAN);

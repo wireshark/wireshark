@@ -53,7 +53,7 @@ xmpp_conference_info(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_e
     proto_tree *cinfo_tree;
 
     static const gchar *state_enums[] = {"full", "partial", "deleted"};
-    xmpp_array_t *state_array = xmpp_ep_init_array_t(state_enums, array_length(state_enums));
+    xmpp_array_t *state_array = xmpp_ep_init_array_t(pinfo->pool, state_enums, array_length(state_enums));
 
     xmpp_attr_info attrs_info [] = {
         {"xmlns", &hf_xmpp_xmlns, TRUE, TRUE, NULL, NULL},
@@ -105,10 +105,10 @@ xmpp_conf_desc(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element
 
     desc_tree = proto_tree_add_subtree(tree, tvb, element->offset, element->length, ett_xmpp_conf_desc, NULL, "CONFERENCE DESCRIPTION");
 
-    xmpp_change_elem_to_attrib("subject", "subject", element, xmpp_transform_func_cdata);
-    xmpp_change_elem_to_attrib("display-text", "display-text", element, xmpp_transform_func_cdata);
-    xmpp_change_elem_to_attrib("free-text", "free-text", element, xmpp_transform_func_cdata);
-    xmpp_change_elem_to_attrib("maximum-user-count", "max-user-count", element, xmpp_transform_func_cdata);
+    xmpp_change_elem_to_attrib(pinfo->pool, "subject", "subject", element, xmpp_transform_func_cdata);
+    xmpp_change_elem_to_attrib(pinfo->pool, "display-text", "display-text", element, xmpp_transform_func_cdata);
+    xmpp_change_elem_to_attrib(pinfo->pool, "free-text", "free-text", element, xmpp_transform_func_cdata);
+    xmpp_change_elem_to_attrib(pinfo->pool, "maximum-user-count", "max-user-count", element, xmpp_transform_func_cdata);
 
     xmpp_display_attrs(desc_tree, element, pinfo, tvb, attrs_info, array_length(attrs_info));
     xmpp_display_elems(desc_tree, element, pinfo, tvb, NULL,0);
@@ -128,9 +128,9 @@ xmpp_conf_state(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_elemen
     state_tree = proto_tree_add_subtree(tree, tvb, element->offset, element->length,
                                         ett_xmpp_conf_state, NULL, "CONFERENCE STATE");
 
-    xmpp_change_elem_to_attrib("user-count", "user-count", element, xmpp_transform_func_cdata);
-    xmpp_change_elem_to_attrib("active", "active", element, xmpp_transform_func_cdata);
-    xmpp_change_elem_to_attrib("locked", "locked", element, xmpp_transform_func_cdata);
+    xmpp_change_elem_to_attrib(pinfo->pool, "user-count", "user-count", element, xmpp_transform_func_cdata);
+    xmpp_change_elem_to_attrib(pinfo->pool, "active", "active", element, xmpp_transform_func_cdata);
+    xmpp_change_elem_to_attrib(pinfo->pool, "locked", "locked", element, xmpp_transform_func_cdata);
 
     xmpp_display_attrs(state_tree, element, pinfo, tvb, attrs_info, array_length(attrs_info));
     xmpp_display_elems(state_tree, element, pinfo, tvb, NULL,0);
@@ -176,8 +176,8 @@ xmpp_conf_user(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element
 
     user_tree = proto_tree_add_subtree(tree, tvb, element->offset, element->length, ett_xmpp_conf_user, NULL, "USERS");
 
-    xmpp_change_elem_to_attrib("display-text", "display-text", element, xmpp_transform_func_cdata);
-    xmpp_change_elem_to_attrib("cascaded-focus", "cascaded-focus", element, xmpp_transform_func_cdata);
+    xmpp_change_elem_to_attrib(pinfo->pool, "display-text", "display-text", element, xmpp_transform_func_cdata);
+    xmpp_change_elem_to_attrib(pinfo->pool, "cascaded-focus", "cascaded-focus", element, xmpp_transform_func_cdata);
 
     xmpp_display_attrs(user_tree, element, pinfo, tvb, attrs_info, array_length(attrs_info));
     xmpp_display_elems(user_tree, element, pinfo, tvb, elems_info, array_length(elems_info));
@@ -208,10 +208,10 @@ xmpp_conf_endpoint(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_ele
 
     endpoint_tree = proto_tree_add_subtree(tree, tvb, element->offset, element->length, ett_xmpp_conf_endpoint, NULL, "ENDPOINT");
 
-    xmpp_change_elem_to_attrib("display-text", "display-text", element, xmpp_transform_func_cdata);
-    xmpp_change_elem_to_attrib("status", "status", element, xmpp_transform_func_cdata);
-    xmpp_change_elem_to_attrib("joining-method", "joining-method", element, xmpp_transform_func_cdata);
-    xmpp_change_elem_to_attrib("disconnection-method", "disconnection-method", element, xmpp_transform_func_cdata);
+    xmpp_change_elem_to_attrib(pinfo->pool, "display-text", "display-text", element, xmpp_transform_func_cdata);
+    xmpp_change_elem_to_attrib(pinfo->pool, "status", "status", element, xmpp_transform_func_cdata);
+    xmpp_change_elem_to_attrib(pinfo->pool, "joining-method", "joining-method", element, xmpp_transform_func_cdata);
+    xmpp_change_elem_to_attrib(pinfo->pool, "disconnection-method", "disconnection-method", element, xmpp_transform_func_cdata);
 
 
     xmpp_display_attrs(endpoint_tree, element, pinfo, tvb, attrs_info, array_length(attrs_info));
@@ -234,11 +234,11 @@ xmpp_conf_media(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_elemen
 
     media_tree = proto_tree_add_subtree(tree, tvb, element->offset, element->length, ett_xmpp_conf_media, NULL, "MEDIA");
 
-    xmpp_change_elem_to_attrib("display-text", "display-text", element, xmpp_transform_func_cdata);
-    xmpp_change_elem_to_attrib("type", "type", element, xmpp_transform_func_cdata);
-    xmpp_change_elem_to_attrib("label", "label", element, xmpp_transform_func_cdata);
-    xmpp_change_elem_to_attrib("src-id", "src-id", element, xmpp_transform_func_cdata);
-    xmpp_change_elem_to_attrib("status", "status", element, xmpp_transform_func_cdata);
+    xmpp_change_elem_to_attrib(pinfo->pool, "display-text", "display-text", element, xmpp_transform_func_cdata);
+    xmpp_change_elem_to_attrib(pinfo->pool, "type", "type", element, xmpp_transform_func_cdata);
+    xmpp_change_elem_to_attrib(pinfo->pool, "label", "label", element, xmpp_transform_func_cdata);
+    xmpp_change_elem_to_attrib(pinfo->pool, "src-id", "src-id", element, xmpp_transform_func_cdata);
+    xmpp_change_elem_to_attrib(pinfo->pool, "status", "status", element, xmpp_transform_func_cdata);
 
     xmpp_display_attrs(media_tree, element, pinfo, tvb, attrs_info, array_length(attrs_info));
     xmpp_display_elems(media_tree, element, pinfo, tvb, NULL, 0);

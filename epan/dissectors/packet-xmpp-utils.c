@@ -32,7 +32,7 @@ static void xmpp_copy_hash_table(GHashTable *src, GHashTable *dst)
 }
 
 static GList* xmpp_find_element_by_name(xmpp_element_t *packet,const gchar *name);
-static gchar* xmpp_ep_string_upcase(const gchar* string);
+static gchar* xmpp_ep_string_upcase(wmem_allocator_t *pool, const gchar* string);
 static void xmpp_unknown_attrs(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, xmpp_element_t *element, gboolean displ_short_list);
 
 
@@ -50,7 +50,7 @@ xmpp_iq_reqresp_track(packet_info *pinfo, xmpp_element_t *packet, xmpp_conv_info
         return;
     }
 
-    id = wmem_strdup(wmem_packet_scope(), attr_id->value);
+    id = wmem_strdup(pinfo->pool, attr_id->value);
 
     if (!pinfo->fd->visited) {
         xmpp_trans = (xmpp_transaction_t *)wmem_tree_lookup_string(xmpp_info->req_resp, id, WMEM_TREE_STRING_NOCASE);
@@ -206,7 +206,7 @@ xmpp_unknown_items(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_ele
         xmpp_element_t *child = (xmpp_element_t *)childs->data;
         proto_item *child_item;
         proto_tree *child_tree = proto_tree_add_subtree(tree, tvb, child->offset, child->length,
-            ett_unknown[level], &child_item, xmpp_ep_string_upcase(child->name));
+            ett_unknown[level], &child_item, xmpp_ep_string_upcase(pinfo->pool, child->name));
 
         if(child->default_ns_abbrev)
             proto_item_append_text(child_item, "(%s)", child->default_ns_abbrev);
@@ -233,13 +233,13 @@ xmpp_unknown(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t
 
             unknown_item = proto_tree_add_string_format(tree,
                     hf_xmpp_unknown, tvb, child->offset, child->length, child->name,
-                    "%s", xmpp_ep_string_upcase(child->name));
+                    "%s", xmpp_ep_string_upcase(pinfo->pool, child->name));
 
             unknown_tree = proto_item_add_subtree(unknown_item, ett_unknown[0]);
 
             /*Add COL_INFO only if root element is IQ*/
             if(strcmp(element->name,"iq")==0)
-                col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", xmpp_ep_string_upcase(child->name));
+                col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", xmpp_ep_string_upcase(pinfo->pool, child->name));
 
             if(child->default_ns_abbrev)
                 proto_item_append_text(unknown_item,"(%s)",child->default_ns_abbrev);
@@ -335,15 +335,15 @@ void
 xmpp_simple_cdata_elem(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, xmpp_element_t *element)
 {
     proto_tree_add_string_format(tree, hf_xmpp_cdata, tvb, element->offset, element->length, xmpp_elem_cdata(element),
-                                    "%s: %s", xmpp_ep_string_upcase(element->name), xmpp_elem_cdata(element));
+                                    "%s: %s", xmpp_ep_string_upcase(pinfo->pool, element->name), xmpp_elem_cdata(element));
 }
 
 xmpp_array_t*
-xmpp_ep_init_array_t(const gchar** array, gint len)
+xmpp_ep_init_array_t(wmem_allocator_t *pool, const gchar** array, gint len)
 {
     xmpp_array_t *result;
 
-    result = wmem_new(wmem_packet_scope(), xmpp_array_t);
+    result = wmem_new(pool, xmpp_array_t);
     result->data = (gpointer) array;
     result->length = len;
 
@@ -351,10 +351,10 @@ xmpp_ep_init_array_t(const gchar** array, gint len)
 }
 
 xmpp_attr_t*
-xmpp_ep_init_attr_t(const gchar *value, gint offset, gint length)
+xmpp_ep_init_attr_t(wmem_allocator_t *pool, const gchar *value, gint offset, gint length)
 {
     xmpp_attr_t *result;
-    result = wmem_new(wmem_packet_scope(), xmpp_attr_t);
+    result = wmem_new(pool, xmpp_attr_t);
     result->value = value;
     result->offset = offset;
     result->length = length;
@@ -364,11 +364,11 @@ xmpp_ep_init_attr_t(const gchar *value, gint offset, gint length)
 }
 
 static gchar*
-xmpp_ep_string_upcase(const gchar* string)
+xmpp_ep_string_upcase(wmem_allocator_t *pool, const gchar* string)
 {
     gint len = (int)strlen(string);
     gint i;
-    gchar* result = (gchar *)wmem_alloc0(wmem_packet_scope(), len+1);
+    gchar* result = (gchar *)wmem_alloc0(pool, len+1);
     for(i=0; i<len; i++)
     {
         result[i] = string[i];
@@ -513,10 +513,10 @@ xmpp_get_first_element(xmpp_element_t *packet)
 Function converts xml_frame_t structure to xmpp_element_t (simpler representation)
 */
 xmpp_element_t*
-xmpp_xml_frame_to_element_t(xml_frame_t *xml_frame, xmpp_element_t *parent, tvbuff_t *tvb)
+xmpp_xml_frame_to_element_t(wmem_allocator_t *pool, xml_frame_t *xml_frame, xmpp_element_t *parent, tvbuff_t *tvb)
 {
     xml_frame_t *child;
-    xmpp_element_t *node = wmem_new0(wmem_packet_scope(), xmpp_element_t);
+    xmpp_element_t *node = wmem_new0(pool, xmpp_element_t);
 
     tvbparse_t* tt;
     tvbparse_elem_t* elem;
@@ -527,7 +527,7 @@ xmpp_xml_frame_to_element_t(xml_frame_t *xml_frame, xmpp_element_t *parent, tvbu
     node->was_read = FALSE;
     node->default_ns_abbrev = NULL;
 
-    node->name = wmem_strdup(wmem_packet_scope(), xml_frame->name_orig_case);
+    node->name = wmem_strdup(pool, xml_frame->name_orig_case);
     node->offset = 0;
     node->length = 0;
 
@@ -547,7 +547,7 @@ xmpp_xml_frame_to_element_t(xml_frame_t *xml_frame, xmpp_element_t *parent, tvbu
 
     if((elem = tvbparse_get(tt,want_stream_end_with_ns))!=NULL)
     {
-        node->default_ns_abbrev = tvb_get_string_enc(wmem_packet_scope(), elem->sub->tvb, elem->sub->offset, elem->sub->len, ENC_ASCII);
+        node->default_ns_abbrev = tvb_get_string_enc(pool, elem->sub->tvb, elem->sub->offset, elem->sub->len, ENC_ASCII);
     }
 
     child = xml_frame->first_child;
@@ -562,21 +562,21 @@ xmpp_xml_frame_to_element_t(xml_frame_t *xml_frame, xmpp_element_t *parent, tvbu
                 gchar *value = NULL;
                 const gchar *xmlns_needle = NULL;
 
-                xmpp_attr_t *attr = wmem_new(wmem_packet_scope(), xmpp_attr_t);
+                xmpp_attr_t *attr = wmem_new(pool, xmpp_attr_t);
                 attr->length = 0;
                 attr->offset = 0;
                 attr->was_read = FALSE;
 
                 if (child->value != NULL) {
                     l = tvb_reported_length(child->value);
-                    value = (gchar *)wmem_alloc0(wmem_packet_scope(), l + 1);
+                    value = (gchar *)wmem_alloc0(pool, l + 1);
                     tvb_memcpy(child->value, value, 0, l);
                 }
 
                 attr->offset = child->start_offset;
                 attr->length = child->length;
                 attr->value = value;
-                attr->name = wmem_strdup(wmem_packet_scope(), child->name_orig_case);
+                attr->name = wmem_strdup(pool, child->name_orig_case);
 
                 g_hash_table_insert(node->attrs,(gpointer)attr->name,(gpointer)attr);
 
@@ -587,10 +587,10 @@ xmpp_xml_frame_to_element_t(xml_frame_t *xml_frame, xmpp_element_t *parent, tvbu
                 {
                     if(attr->name[5] == ':' && strlen(attr->name) > 6)
                     {
-                        g_hash_table_insert(node->namespaces, (gpointer)wmem_strdup(wmem_packet_scope(), &attr->name[6]), (gpointer)wmem_strdup(wmem_packet_scope(), attr->value));
+                        g_hash_table_insert(node->namespaces, (gpointer)wmem_strdup(pool, &attr->name[6]), (gpointer)wmem_strdup(pool, attr->value));
                     } else if(attr->name[5] == '\0')
                     {
-                        g_hash_table_insert(node->namespaces, (gpointer)"", (gpointer)wmem_strdup(wmem_packet_scope(), attr->value));
+                        g_hash_table_insert(node->namespaces, (gpointer)"", (gpointer)wmem_strdup(pool, attr->value));
                     }
                 }
 
@@ -602,13 +602,13 @@ xmpp_xml_frame_to_element_t(xml_frame_t *xml_frame, xmpp_element_t *parent, tvbu
                 gint l;
                 gchar* value = NULL;
 
-                data =  wmem_new(wmem_packet_scope(), xmpp_data_t);
+                data =  wmem_new(pool, xmpp_data_t);
                 data->length = 0;
                 data->offset = 0;
 
                 if (child->value != NULL) {
                     l = tvb_reported_length(child->value);
-                    value = (gchar *)wmem_alloc0(wmem_packet_scope(), l + 1);
+                    value = (gchar *)wmem_alloc0(pool, l + 1);
                     tvb_memcpy(child->value, value, 0, l);
                 }
 
@@ -620,7 +620,7 @@ xmpp_xml_frame_to_element_t(xml_frame_t *xml_frame, xmpp_element_t *parent, tvbu
             }
         } else
         {
-            node->elements = g_list_append(node->elements,(gpointer)xmpp_xml_frame_to_element_t(child, node,tvb));
+            node->elements = g_list_append(node->elements,(gpointer)xmpp_xml_frame_to_element_t(pool, child, node,tvb));
         }
 
         child = child->next_sibling;
@@ -682,17 +682,17 @@ xmpp_get_attr(xmpp_element_t *element, const gchar* attr_name)
 
 /*Functions returns element's attribute by name and namespace abbrev*/
 static xmpp_attr_t*
-xmpp_get_attr_ext(xmpp_element_t *element, const gchar* attr_name, const gchar* ns_abbrev)
+xmpp_get_attr_ext(packet_info *pinfo, xmpp_element_t *element, const gchar* attr_name, const gchar* ns_abbrev)
 {
     gchar* search_phrase;
     xmpp_attr_t *result;
 
     if(strcmp(ns_abbrev,"")==0)
-        search_phrase = wmem_strdup(wmem_packet_scope(), attr_name);
+        search_phrase = wmem_strdup(pinfo->pool, attr_name);
     else if(strcmp(attr_name, "xmlns") == 0)
-        search_phrase = wmem_strdup_printf(wmem_packet_scope(), "%s:%s",attr_name, ns_abbrev);
+        search_phrase = wmem_strdup_printf(pinfo->pool, "%s:%s",attr_name, ns_abbrev);
     else
-        search_phrase = wmem_strdup_printf(wmem_packet_scope(), "%s:%s", ns_abbrev, attr_name);
+        search_phrase = wmem_strdup_printf(pinfo->pool, "%s:%s", ns_abbrev, attr_name);
 
     result = (xmpp_attr_t *)g_hash_table_lookup(element->attrs, search_phrase);
 
@@ -710,13 +710,13 @@ xmpp_get_attr_ext(xmpp_element_t *element, const gchar* attr_name, const gchar* 
 
 
 gchar*
-xmpp_element_to_string(tvbuff_t *tvb, xmpp_element_t *element)
+xmpp_element_to_string(wmem_allocator_t *pool, tvbuff_t *tvb, xmpp_element_t *element)
 {
     gchar *buff = NULL;
 
     if(tvb_offset_exists(tvb, element->offset+element->length-1))
     {
-        buff = tvb_get_string_enc(wmem_packet_scope(), tvb, element->offset, element->length, ENC_ASCII);
+        buff = tvb_get_string_enc(pool, tvb, element->offset, element->length, ENC_ASCII);
     }
     return buff;
 }
@@ -754,7 +754,7 @@ xmpp_proto_tree_show_first_child(proto_tree *tree)
 }
 
 gchar*
-proto_item_get_text(proto_item *item)
+proto_item_get_text(wmem_allocator_t *pool, proto_item *item)
 {
     field_info *fi = NULL;
     gchar *result;
@@ -771,7 +771,7 @@ proto_item_get_text(proto_item *item)
         return NULL;
 
 
-    result = wmem_strdup(wmem_packet_scope(), fi->rep->representation);
+    result = wmem_strdup(pool, fi->rep->representation);
     return result;
 }
 
@@ -857,9 +857,9 @@ xmpp_display_attrs_ext(proto_tree *tree, xmpp_element_t *element, packet_info *p
         for (i = 0; i < n && attrs != NULL; i++) {
             if(strcmp((const char *)(ns_fullnames->data), attrs[i].ns) == 0)
             {
-                attr = xmpp_get_attr_ext(element, attrs[i].info.name, (const gchar *)(ns_abbrevs->data));
+                attr = xmpp_get_attr_ext(pinfo, element, attrs[i].info.name, (const gchar *)(ns_abbrevs->data));
                 if(!attr && element->default_ns_abbrev && strcmp((const char *)ns_abbrevs->data, element->default_ns_abbrev)==0)
-                    attr = xmpp_get_attr_ext(element, attrs[i].info.name, "");
+                    attr = xmpp_get_attr_ext(pinfo, element, attrs[i].info.name, "");
 
                 if (attr) {
                     if (attrs[i].info.phf != NULL) {
@@ -915,11 +915,11 @@ typedef struct _name_attr_t
 returns pointer to the struct that contains 3 strings(element name, attribute name, attribute value)
 */
 gpointer
-xmpp_name_attr_struct(const gchar *name, const gchar *attr_name, const gchar *attr_value)
+xmpp_name_attr_struct(wmem_allocator_t *pool, const gchar *name, const gchar *attr_name, const gchar *attr_value)
 {
     name_attr_t *result;
 
-    result =  wmem_new(wmem_packet_scope(), name_attr_t);
+    result =  wmem_new(pool, name_attr_t);
     result->name = name;
     result->attr_name = attr_name;
     result->attr_value = attr_value;
@@ -1016,23 +1016,23 @@ xmpp_val_enum_list(packet_info *pinfo, proto_item *item, const gchar *name, cons
 
 
 void
-xmpp_change_elem_to_attrib(const gchar *elem_name, const gchar *attr_name, xmpp_element_t *parent, xmpp_attr_t* (*transform_func)(xmpp_element_t *element))
+xmpp_change_elem_to_attrib(wmem_allocator_t *pool, const gchar *elem_name, const gchar *attr_name, xmpp_element_t *parent, xmpp_attr_t* (*transform_func)(wmem_allocator_t *pool, xmpp_element_t *element))
 {
     xmpp_element_t *element = NULL;
     xmpp_attr_t *fake_attr = NULL;
 
     element = xmpp_steal_element_by_name(parent, elem_name);
     if(element)
-        fake_attr = transform_func(element);
+        fake_attr = transform_func(pool, element);
 
     if(fake_attr)
         g_hash_table_insert(parent->attrs, (gpointer)attr_name, fake_attr);
 }
 
 xmpp_attr_t*
-xmpp_transform_func_cdata(xmpp_element_t *elem)
+xmpp_transform_func_cdata(wmem_allocator_t *pool, xmpp_element_t *elem)
 {
-    xmpp_attr_t *result = xmpp_ep_init_attr_t(elem->data?elem->data->value:"", elem->offset, elem->length);
+    xmpp_attr_t *result = xmpp_ep_init_attr_t(pool, elem->data?elem->data->value:"", elem->offset, elem->length);
     return result;
 }
 

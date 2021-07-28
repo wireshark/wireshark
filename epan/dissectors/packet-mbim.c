@@ -2780,7 +2780,7 @@ static const value_string mbim_uicc_file_structure_vals[] = {
 };
 
 static guint8
-mbim_dissect_service_id_uuid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint hf,
+mbim_dissect_service_id_uuid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint hf,
                              gint *offset, struct mbim_uuid_ext **uuid_ext_info, gboolean is_net_guid)
 {
     e_guid_t uuid;
@@ -2811,7 +2811,7 @@ mbim_dissect_service_id_uuid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
         *uuid_ext_info = (struct mbim_uuid_ext *)wmem_map_lookup(mbim_uuid_ext_hash, uuid_ext);
         if (*uuid_ext_info) {
             proto_tree_add_guid_format_value(tree, hf, tvb, *offset, 16, &uuid, "%s (%s)",
-                                             (*uuid_ext_info)->uuid_name, guid_to_str(wmem_packet_scope(), &uuid));
+                                             (*uuid_ext_info)->uuid_name, guid_to_str(pinfo->pool, &uuid));
             *offset += 16;
             return UUID_EXT_IDX;
         }
@@ -2819,7 +2819,7 @@ mbim_dissect_service_id_uuid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 
     proto_tree_add_guid_format_value(tree, hf, tvb, *offset, 16, &uuid, "%s (%s)",
                                      val_to_str_ext_const(i, &mbim_service_id_vals_ext, "Unknown"),
-                                     guid_to_str(wmem_packet_scope(), &uuid));
+                                     guid_to_str(pinfo->pool, &uuid));
     *offset += 16;
 
     return i;
@@ -3102,7 +3102,7 @@ mbim_dissect_device_caps_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 }
 
 static void
-mbim_dissect_subscriber_ready_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset,
+mbim_dissect_subscriber_ready_status(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset,
                                      struct mbim_conv_info *mbim_conv)
 {
     proto_tree *subtree;
@@ -3133,7 +3133,7 @@ mbim_dissect_subscriber_ready_status(tvbuff_t *tvb, packet_info *pinfo _U_, prot
     proto_tree_add_item_ret_uint(tree, hf_mbim_subscr_ready_status_elem_count, tvb, offset, 4, ENC_LITTLE_ENDIAN, &elem_count);
     offset += 4;
     if (elem_count) {
-        pair_list = wmem_array_new(wmem_packet_scope(), sizeof(struct mbim_pair_list));
+        pair_list = wmem_array_new(pinfo->pool, sizeof(struct mbim_pair_list));
         subtree = proto_tree_add_subtree(tree, tvb, offset, 8*elem_count, ett_mbim_pair_list, NULL, "Telephone Numbers Ref List");
         for (i = 0; i < elem_count; i++) {
             proto_tree_add_item_ret_uint(subtree, hf_mbim_subscr_ready_status_tel_nb_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN, &pair_list_item.offset);
@@ -3296,7 +3296,7 @@ mbim_dissect_providers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint
     proto_tree_add_item_ret_uint(tree, hf_mbim_providers_elem_count, tvb, offset, 4, ENC_LITTLE_ENDIAN, &elem_count);
     offset += 4;
     if (elem_count) {
-        pair_list = wmem_array_new(wmem_packet_scope(), sizeof(struct mbim_pair_list));
+        pair_list = wmem_array_new(pinfo->pool, sizeof(struct mbim_pair_list));
         subtree = proto_tree_add_subtree(tree, tvb, offset, 8*elem_count, ett_mbim_pair_list, NULL, "Providers Ref List");
         for (i = 0; i < elem_count; i++) {
             proto_tree_add_item_ret_uint(subtree, hf_mbim_providers_provider_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN, &pair_list_item.offset);
@@ -3528,7 +3528,7 @@ mbim_dissect_signal_state_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 }
 
 static guint8
-mbim_dissect_context_type_uuid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint *offset)
+mbim_dissect_context_type_uuid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint *offset)
 {
     e_guid_t uuid;
     guint i;
@@ -3541,7 +3541,7 @@ mbim_dissect_context_type_uuid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
         }
     }
     proto_tree_add_guid_format_value(tree, hf_mbim_context_type, tvb, *offset, 16, &uuid, "%s (%s)",
-                                     val_to_str_const(i, mbim_context_type_vals, "Unknown"), guid_to_str(wmem_packet_scope(), &uuid));
+                                     val_to_str_const(i, mbim_context_type_vals, "Unknown"), guid_to_str(pinfo->pool, &uuid));
     *offset += 16;
 
     return i;
@@ -3743,7 +3743,7 @@ mbim_dissect_provisioned_contexts_info(tvbuff_t *tvb, packet_info *pinfo, proto_
     proto_tree_add_item_ret_uint(tree, hf_mbim_provisioned_contexts_info_elem_count, tvb, offset, 4, ENC_LITTLE_ENDIAN, &elem_count);
     offset += 4;
     if (elem_count) {
-        pair_list = wmem_array_new(wmem_packet_scope(), sizeof(struct mbim_pair_list));
+        pair_list = wmem_array_new(pinfo->pool, sizeof(struct mbim_pair_list));
         subtree = proto_tree_add_subtree(tree, tvb, offset, 8*elem_count, ett_mbim_pair_list, NULL, "Provisioned Context Ref List");
         for (i = 0; i < elem_count; i++) {
             proto_tree_add_item_ret_uint(subtree, hf_mbim_provisioned_contexts_info_provisioned_context_offset,
@@ -3928,7 +3928,7 @@ mbim_dissect_device_services_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     proto_tree_add_item(tree, hf_mbim_device_services_info_max_dss_sessions, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
     if (device_services_count) {
-        pair_list = wmem_array_new(wmem_packet_scope(), sizeof(struct mbim_pair_list));
+        pair_list = wmem_array_new(pinfo->pool, sizeof(struct mbim_pair_list));
         subtree = proto_tree_add_subtree(tree, tvb, offset, 8*device_services_count, ett_mbim_pair_list, NULL, "Device Services Ref List");
         for (i = 0; i < device_services_count; i++) {
             proto_tree_add_item_ret_uint(subtree, hf_mbim_device_services_info_device_services_offset,
@@ -3993,7 +3993,7 @@ mbim_dissect_device_service_subscribe_list(tvbuff_t *tvb, packet_info *pinfo, pr
     proto_tree_add_item_ret_uint(tree, hf_mbim_device_service_subscribe_element_count, tvb, offset, 4, ENC_LITTLE_ENDIAN, &element_count);
     offset += 4;
     if (element_count) {
-        pair_list = wmem_array_new(wmem_packet_scope(), sizeof(struct mbim_pair_list));
+        pair_list = wmem_array_new(pinfo->pool, sizeof(struct mbim_pair_list));
         subtree = proto_tree_add_subtree(tree, tvb, offset, 8*element_count, ett_mbim_pair_list, NULL, "Device Service Subscribe Ref List");
         for (i = 0; i < element_count; i++) {
             proto_tree_add_item_ret_uint(subtree, hf_mbim_device_service_subscribe_device_service_offset,
@@ -4079,7 +4079,7 @@ mbim_dissect_packet_filters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree_add_item_ret_uint(tree, hf_mbim_packet_filters_packet_filters_count, tvb, offset, 4, ENC_LITTLE_ENDIAN, &packet_filters_count);
     offset += 4;
     if (packet_filters_count) {
-        pair_list = wmem_array_new(wmem_packet_scope(), sizeof(struct mbim_pair_list));
+        pair_list = wmem_array_new(pinfo->pool, sizeof(struct mbim_pair_list));
         subtree = proto_tree_add_subtree(tree, tvb, offset, 8*packet_filters_count, ett_mbim_pair_list, NULL, "Packet Filter Ref List");
         for (i = 0; i < packet_filters_count; i++) {
             proto_tree_add_item_ret_uint(subtree, hf_mbim_packet_filters_packet_filters_packet_filter_offset,
@@ -4214,7 +4214,7 @@ mbim_dissect_sms_pdu_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 }
 
-static void mbim_decode_sms_cdma_text(tvbuff_t *tvb, proto_tree *tree, const int hfindex, gint offset,
+static void mbim_decode_sms_cdma_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, const int hfindex, gint offset,
                                       guint32 encoding_id, guint32 size_in_bytes, guint32 size_in_chars)
 {
     unsigned char *src, *dest;
@@ -4224,8 +4224,8 @@ static void mbim_decode_sms_cdma_text(tvbuff_t *tvb, proto_tree *tree, const int
             proto_tree_add_ascii_7bits_item(tree, hfindex, tvb, (offset << 3), size_in_chars);
             break;
         case MBIM_ENCODING_IA5:
-            src = (unsigned char*)tvb_get_ascii_7bits_string(wmem_packet_scope(), tvb, (offset << 3), size_in_chars);
-            dest = (unsigned char*)wmem_alloc(wmem_packet_scope(), (const size_t)size_in_chars + 1);
+            src = (unsigned char*)tvb_get_ascii_7bits_string(pinfo->pool, tvb, (offset << 3), size_in_chars);
+            dest = (unsigned char*)wmem_alloc(pinfo->pool, (const size_t)size_in_chars + 1);
             IA5_7BIT_decode(dest, src, size_in_chars);
             proto_tree_add_string(tree, hfindex, tvb, offset, size_in_bytes, (const char*)dest);
             break;
@@ -4301,7 +4301,7 @@ mbim_dissect_sms_cdma_record(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
             expert_add_info(pinfo, ti, &ei_mbim_oversized_pdu);
         }
         subtree = proto_item_add_subtree(ti, ett_mbim_buffer);
-        mbim_decode_sms_cdma_text(tvb, subtree, hf_mbim_sms_cdma_record_encoded_message_text,
+        mbim_decode_sms_cdma_text(tvb, pinfo, subtree, hf_mbim_sms_cdma_record_encoded_message_text,
                                   (base_offset + encoded_message_offset), encoding_id, size_in_bytes, size_in_chars);
     }
 }
@@ -4332,7 +4332,7 @@ mbim_dissect_sms_read_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     proto_tree_add_item_ret_uint(tree, hf_mbim_sms_read_info_element_count, tvb, offset, 4, ENC_LITTLE_ENDIAN, &element_count);
     offset += 4;
     if (element_count) {
-        pair_list = wmem_array_new(wmem_packet_scope(), sizeof(struct mbim_pair_list));
+        pair_list = wmem_array_new(pinfo->pool, sizeof(struct mbim_pair_list));
         subtree = proto_tree_add_subtree(tree, tvb, offset, 8*element_count, ett_mbim_pair_list, NULL, "SMS Ref List");
         for (i = 0; i < element_count; i++) {
             proto_tree_add_item_ret_uint(subtree, hf_mbim_sms_read_info_sms_offset,
@@ -4419,7 +4419,7 @@ mbim_dissect_sms_send_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 }
 
 static void
-mbim_dissect_sms_send_cdma(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
+mbim_dissect_sms_send_cdma(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
 {
     gint base_offset;
     guint32 encoding_id, address_offset, address_size, encoded_message_offset,
@@ -4457,7 +4457,7 @@ mbim_dissect_sms_send_cdma(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
             expert_add_info(pinfo, ti, &ei_mbim_oversized_pdu);
         }
         subtree = proto_item_add_subtree(ti, ett_mbim_buffer);
-        mbim_decode_sms_cdma_text(tvb, subtree, hf_mbim_sms_send_cdma_encoded_message_text,
+        mbim_decode_sms_cdma_text(tvb, pinfo, subtree, hf_mbim_sms_send_cdma_encoded_message_text,
                                   (base_offset + encoded_message_offset), encoding_id, size_in_bytes, size_in_chars);
     }
 }
@@ -4637,7 +4637,7 @@ mbim_dissect_phonebook_read_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     proto_tree_add_item_ret_uint(tree, hf_mbim_phonebook_read_info_element_count, tvb, offset, 4, ENC_LITTLE_ENDIAN, &element_count);
     offset += 4;
     if (element_count) {
-        pair_list = wmem_array_new(wmem_packet_scope(), sizeof(struct mbim_pair_list));
+        pair_list = wmem_array_new(pinfo->pool, sizeof(struct mbim_pair_list));
         subtree = proto_tree_add_subtree(tree, tvb, offset, 8*element_count, ett_mbim_pair_list, NULL, "Phonebook Ref List");
         for (i = 0; i < element_count; i++) {
             proto_tree_add_item_ret_uint(subtree, hf_mbim_phonebook_read_info_phonebook_offset,
@@ -5052,7 +5052,7 @@ mbim_dissect_adpclk_freq_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     proto_tree_add_item_ret_uint(tree, hf_mbim_adpclk_freq_info_elem_count, tvb, offset, 4, ENC_LITTLE_ENDIAN, &elem_count);
     offset += 4;
     if (elem_count) {
-        pair_list = wmem_array_new(wmem_packet_scope(), sizeof(struct mbim_pair_list));
+        pair_list = wmem_array_new(pinfo->pool, sizeof(struct mbim_pair_list));
         subtree = proto_tree_add_subtree(tree, tvb, offset, 8*elem_count, ett_mbim_pair_list, NULL, "Element Offset Length Pair");
         for (i = 0; i < elem_count; i++) {
             proto_tree_add_item_ret_uint(subtree, hf_mbim_adpclk_freq_info_adpclk_freq_value_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN, &pair_list_item.offset);
@@ -5181,7 +5181,7 @@ mbim_dissect_atds_operators(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree_add_item_ret_uint(tree, hf_mbim_atds_operators_elem_count, tvb, offset, 4, ENC_LITTLE_ENDIAN, &elem_count);
     offset += 4;
     if (elem_count) {
-        pair_list = wmem_array_new(wmem_packet_scope(), sizeof(struct mbim_pair_list));
+        pair_list = wmem_array_new(pinfo->pool, sizeof(struct mbim_pair_list));
         subtree = proto_tree_add_subtree(tree, tvb, offset, 8*elem_count, ett_mbim_pair_list, NULL, "Operators List");
         for (i = 0; i < elem_count; i++) {
             proto_tree_add_item_ret_uint(subtree, hf_mbim_atds_operators_operator_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN, &pair_list_item.offset);
@@ -5256,7 +5256,7 @@ mbim_dissect_atds_projection_tables(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     proto_tree_add_item_ret_uint(tree, hf_mbim_atds_projection_tables_elem_count, tvb, offset, 4, ENC_LITTLE_ENDIAN, &elem_count);
     offset += 4;
     if (elem_count) {
-        pair_list = wmem_array_new(wmem_packet_scope(), sizeof(struct mbim_pair_list));
+        pair_list = wmem_array_new(pinfo->pool, sizeof(struct mbim_pair_list));
         subtree = proto_tree_add_subtree(tree, tvb, offset, 8*elem_count, ett_mbim_pair_list, NULL, "Projection Tables List");
         for (i = 0; i < elem_count; i++) {
             proto_tree_add_item_ret_uint(subtree, hf_mbim_atds_projection_tables_projection_table_offset,
@@ -5293,7 +5293,7 @@ mbim_dissect_multiflow_tft_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     proto_tree_add_item_ret_uint(tree, hf_mbim_multiflow_tft_info_elem_count, tvb, offset, 4, ENC_LITTLE_ENDIAN, &elem_count);
     offset += 4;
     if (elem_count) {
-        pair_list = wmem_array_new(wmem_packet_scope(), sizeof(struct mbim_pair_list));
+        pair_list = wmem_array_new(pinfo->pool, sizeof(struct mbim_pair_list));
         subtree = proto_tree_add_subtree(tree, tvb, offset, 8*elem_count, ett_mbim_pair_list, NULL, "TFT List");
         for (i = 0; i < elem_count; i++) {
             proto_tree_add_item_ret_uint(subtree, hf_mbim_multiflow_tft_info_tft_list_offset,
@@ -5395,7 +5395,7 @@ mbim_dissect_ms_provisioned_context_info_v2(tvbuff_t *tvb, packet_info *pinfo, p
     proto_tree_add_item_ret_uint(tree, hf_mbim_ms_provisioned_context_info_v2_elem_count, tvb, offset, 4, ENC_LITTLE_ENDIAN, &elem_count);
     offset += 4;
     if (elem_count) {
-        pair_list = wmem_array_new(wmem_packet_scope(), sizeof(struct mbim_pair_list));
+        pair_list = wmem_array_new(pinfo->pool, sizeof(struct mbim_pair_list));
         subtree = proto_tree_add_subtree(tree, tvb, offset, 8*elem_count, ett_mbim_pair_list, NULL, "Provisioned Contexts Ref List");
         for (i = 0; i < elem_count; i++) {
             proto_tree_add_item_ret_uint(subtree, hf_mbim_ms_provisioned_context_info_v2_list_offset,
@@ -5422,7 +5422,7 @@ mbim_dissect_ms_provisioned_context_info_v2(tvbuff_t *tvb, packet_info *pinfo, p
 }
 
 static void
-mbim_dissect_ms_network_blacklist_info(tvbuff_t *tvb, proto_tree *tree, gint offset)
+mbim_dissect_ms_network_blacklist_info(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
     proto_tree *subtree;
     gint base_offset, item_offset;
@@ -5437,7 +5437,7 @@ mbim_dissect_ms_network_blacklist_info(tvbuff_t *tvb, proto_tree *tree, gint off
     proto_tree_add_item_ret_uint(tree, hf_mbim_ms_network_blacklist_info_elem_count, tvb, offset, 4, ENC_LITTLE_ENDIAN, &elem_count);
     offset += 4;
     if (elem_count) {
-        pair_list = wmem_array_new(wmem_packet_scope(), sizeof(struct mbim_pair_list));
+        pair_list = wmem_array_new(pinfo->pool, sizeof(struct mbim_pair_list));
         subtree = proto_tree_add_subtree(tree, tvb, offset, 8*elem_count, ett_mbim_pair_list, NULL, "Provider Blacklist Ref List");
         for (i = 0; i < elem_count; i++) {
             proto_tree_add_item_ret_uint(subtree, hf_mbim_ms_network_blacklist_info_list_offset,
@@ -5611,7 +5611,7 @@ mbim_dissect_device_caps_v3_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 }
 
 static void
-mbim_dissect_ms_device_slot_mapping_info(tvbuff_t *tvb, proto_tree *tree, gint offset)
+mbim_dissect_ms_device_slot_mapping_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
 {
     proto_tree_add_item(tree, hf_mbim_ms_device_slot_mapping_info_map_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
@@ -5626,7 +5626,7 @@ mbim_dissect_ms_device_slot_mapping_info(tvbuff_t *tvb, proto_tree *tree, gint o
     proto_tree_add_item_ret_uint(tree, hf_mbim_ms_device_slot_mapping_info_map_count, tvb, offset, 4, ENC_LITTLE_ENDIAN, &elem_count);
     offset += 4;
     if (elem_count) {
-        pair_list = wmem_array_new(wmem_packet_scope(), sizeof(struct mbim_pair_list));
+        pair_list = wmem_array_new(pinfo->pool, sizeof(struct mbim_pair_list));
         subtree = proto_tree_add_subtree(tree, tvb, offset, 8*elem_count, ett_mbim_pair_list, NULL, "Slot Map List");
         for (i = 0; i < elem_count; i++) {
             proto_tree_add_item_ret_uint(subtree, hf_mbim_ms_device_slot_mapping_info_map_offset,
@@ -6749,7 +6749,7 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                                 break;
                             case MBIM_CID_MS_NETWORK_BLACKLIST:
                                 if (cmd_type == MBIM_COMMAND_SET) {
-                                    mbim_dissect_ms_network_blacklist_info(frag_tvb, subtree, offset);
+                                    mbim_dissect_ms_network_blacklist_info(pinfo, frag_tvb, subtree, offset);
                                 } else if (info_buff_len) {
                                     proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_info_buffer, frag_tvb, offset, info_buff_len);
                                 }
@@ -6770,7 +6770,7 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                                 break;
                             case MBIM_CID_MS_DEVICE_SLOT_MAPPINGS:
                                 if (cmd_type == MBIM_COMMAND_SET) {
-                                    mbim_dissect_ms_device_slot_mapping_info(frag_tvb, subtree, offset);
+                                    mbim_dissect_ms_device_slot_mapping_info(frag_tvb, pinfo, subtree, offset);
                                 } else if (info_buff_len) {
                                     proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_info_buffer, frag_tvb, offset, info_buff_len);
                                 }
@@ -7650,7 +7650,7 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                                 mbim_dissect_ms_provisioned_context_info_v2(frag_tvb, pinfo, subtree, offset);
                                 break;
                             case MBIM_CID_MS_NETWORK_BLACKLIST:
-                                mbim_dissect_ms_network_blacklist_info(frag_tvb, subtree, offset);
+                                mbim_dissect_ms_network_blacklist_info(pinfo, frag_tvb, subtree, offset);
                                 break;
                             case MBIM_CID_MS_LTE_ATTACH_CONFIG:
                             case MBIM_CID_MS_LTE_ATTACH_STATUS:
@@ -7684,7 +7684,7 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                                 break;
                             case MBIM_CID_MS_DEVICE_SLOT_MAPPINGS:
                                 if (msg_type == MBIM_COMMAND_DONE) {
-                                    mbim_dissect_ms_device_slot_mapping_info(frag_tvb, subtree, offset);
+                                    mbim_dissect_ms_device_slot_mapping_info(frag_tvb, pinfo, subtree, offset);
                                 } else {
                                     proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, frag_tvb, offset, -1);
                                 }
@@ -7948,7 +7948,7 @@ dissect_mbim_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         base_offset = offset = next_index;
         nb = 0;
         subtree = proto_tree_add_subtree(mbim_tree, tvb, offset, 0, ett_mbim_msg_header, NULL, "NCM Datagram Pointer");
-        signature = (const char*)tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 4, ENC_ASCII);
+        signature = (const char*)tvb_get_string_enc(pinfo->pool, tvb, offset, 4, ENC_ASCII);
         if ((!is_32bits && !strncmp(signature, "IPS", 3)) ||
             (is_32bits && !strncmp(signature, "ips", 3))) {
             sig_ti = proto_tree_add_uint_format_value(subtree, hf_mbim_bulk_ndp_signature, tvb, offset,

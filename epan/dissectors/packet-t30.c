@@ -492,7 +492,7 @@ reverse_byte(guint8 val)
 
 #define LENGTH_T30_NUM  20
 static gchar *
-t30_get_string_numbers(tvbuff_t *tvb, int offset, int len)
+t30_get_string_numbers(wmem_allocator_t *pool, tvbuff_t *tvb, int offset, int len)
 {
     gchar *buf;
     int    i;
@@ -501,7 +501,7 @@ t30_get_string_numbers(tvbuff_t *tvb, int offset, int len)
     if (len != LENGTH_T30_NUM)
         return NULL;
 
-    buf=(gchar *)wmem_alloc(wmem_packet_scope(), LENGTH_T30_NUM+1);
+    buf=(gchar *)wmem_alloc(pool, LENGTH_T30_NUM+1);
 
     for (i=0; i<LENGTH_T30_NUM; i++)
         buf[LENGTH_T30_NUM-i-1] = reverse_byte(tvb_get_guint8(tvb, offset+i));
@@ -518,7 +518,7 @@ dissect_t30_numbers(tvbuff_t *tvb, int offset, packet_info *pinfo, int len, prot
 {
     gchar *str_num;
 
-    str_num = t30_get_string_numbers(tvb, offset, len);
+    str_num = t30_get_string_numbers(pinfo->pool, tvb, offset, len);
     if (str_num) {
         proto_tree_add_string_format_value(tree, hf_t30_fif_number, tvb, offset, LENGTH_T30_NUM, str_num,
                                      "%s", str_num);
@@ -622,7 +622,7 @@ dissect_t30_partial_page_request(tvbuff_t *tvb, int offset, packet_info *pinfo, 
     int frame_count = 0;
     int frame;
 #define BUF_SIZE  (10*1 + 90*2 + 156*3 + 256*2 + 1) /* 0..9 + 10..99 + 100..255 + 256*', ' + \0 */
-    gchar *buf = (gchar *)wmem_alloc(wmem_packet_scope(), BUF_SIZE);
+    gchar *buf = (gchar *)wmem_alloc(pinfo->pool, BUF_SIZE);
     gchar *buf_top = buf;
 
     if (len != 32) {

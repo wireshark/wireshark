@@ -117,11 +117,11 @@ void ipmi_notimpl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 #define IPMI_TBD  ipmi_notimpl, ipmi_notimpl
 
 /* Add a Type/Length field to tree */
-void ipmi_add_typelen(proto_tree *tree, int hf_string, int hf_type, int hf_length, tvbuff_t *tvb,
+void ipmi_add_typelen(packet_info *pinfo, proto_tree *tree, int hf_string, int hf_type, int hf_length, tvbuff_t *tvb,
 		guint offs, gboolean is_fru);
 
 /* Add Timestamp in IPMI format */
-void ipmi_add_timestamp(proto_tree *tree, gint hf, tvbuff_t *tvb, guint offset);
+void ipmi_add_timestamp(packet_info *pinfo, proto_tree *tree, gint hf, tvbuff_t *tvb, guint offset);
 
 /* GUID, IPMI style (fields reversed, little-endian) */
 void ipmi_add_guid(proto_tree *tree, gint hf, tvbuff_t *tvb, guint offset);
@@ -146,7 +146,7 @@ void ipmi_register_netfn_cmdtab(guint32 netfn, guint oem_selector,
 
 /* Lookup routines */
 guint32 ipmi_getsiglen(guint32 netfn);
-const char *ipmi_getnetfnname(guint32 netfn, ipmi_netfn_t *nf);
+const char *ipmi_getnetfnname(wmem_allocator_t *pool, guint32 netfn, ipmi_netfn_t *nf);
 ipmi_netfn_t *ipmi_getnetfn(guint32 netfn, const guint8 *sig);
 ipmi_cmd_t *ipmi_getcmd(ipmi_netfn_t *nf, guint32 cmd);
 const char *ipmi_get_completion_code(guint8 completion, ipmi_cmd_t *cmd);

@@ -658,7 +658,7 @@ dissect_rtp_hdr_ext_ed137(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     nstime.nsecs = (usecs % 1000000) * 1000;
 
 /* Decodes and calculates relative/absolute time item */
-static void process_time_value(tvbuff_t *tvb, proto_tree *tree, int time_item, unsigned int hdrext_offset, gboolean time_relative _U_, unsigned int time_value)
+static void process_time_value(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, int time_item, unsigned int hdrext_offset, gboolean time_relative _U_, unsigned int time_value)
 {
     /* Note: even there is relative/absolute flag, value is shown same way because it is relative value derived from relative/absolute start point */
     unsigned int time_calc;
@@ -668,7 +668,7 @@ static void process_time_value(tvbuff_t *tvb, proto_tree *tree, int time_item, u
     /* Value is stored as count of 125 us ticks */
     time_calc = time_value * 125;
     NSTIME_INIT_USEC(tmp_time, time_calc);
-    tmp = rel_time_to_secs_str(wmem_packet_scope(), &tmp_time);
+    tmp = rel_time_to_secs_str(pinfo->pool, &tmp_time);
 
     proto_tree_add_uint_format_value( tree, time_item, tvb, hdrext_offset, 3, time_value, "%s s", tmp);
 }
@@ -770,7 +770,7 @@ dissect_rtp_hdr_ext_ed137b_feature_rrc_single(tvbuff_t *tvb, packet_info *pinfo 
 }
 
 static int
-dissect_rtp_hdr_ext_ed137b_feature_climax_ddc_rmm(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+dissect_rtp_hdr_ext_ed137b_feature_climax_ddc_rmm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     guint32 ext_value;
     proto_tree *item;
@@ -786,13 +786,13 @@ dissect_rtp_hdr_ext_ed137b_feature_climax_ddc_rmm(tvbuff_t *tvb, packet_info *pi
     climax_ddc_rmm_t1 = RTP_ED137B_feature_climax_ddc_rmm_t1(ext_value);
 
     proto_tree_add_item( tree, hf_rtp_hdr_ed137b_ft_climax_ddc_rmm_tqv, tvb, 0, 3, ENC_BIG_ENDIAN);
-    process_time_value(tvb, tree, hf_rtp_hdr_ed137b_ft_climax_ddc_rmm_t1, 0, (RTP_ED137B_feature_climax_ddc_rmm_tqv_relative == climax_ddc_rmm_tqv), climax_ddc_rmm_t1);
+    process_time_value(pinfo, tvb, tree, hf_rtp_hdr_ed137b_ft_climax_ddc_rmm_t1, 0, (RTP_ED137B_feature_climax_ddc_rmm_tqv_relative == climax_ddc_rmm_tqv), climax_ddc_rmm_t1);
 
     return tvb_captured_length(tvb);
 }
 
 static int
-dissect_rtp_hdr_ext_ed137b_feature_climax_ddc_mam(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+dissect_rtp_hdr_ext_ed137b_feature_climax_ddc_mam(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     guint32 ext_value;
     proto_tree *item;
@@ -809,13 +809,13 @@ dissect_rtp_hdr_ext_ed137b_feature_climax_ddc_mam(tvbuff_t *tvb, packet_info *pi
     climax_ddc_mam_t1 = RTP_ED137B_feature_climax_ddc_mam_t1(ext_value);
 
     proto_tree_add_item( tree, hf_rtp_hdr_ed137b_ft_climax_ddc_mam_tqg, tvb, 0, 3, ENC_BIG_ENDIAN);
-    process_time_value(tvb, tree, hf_rtp_hdr_ed137b_ft_climax_ddc_mam_t1, 0, (RTP_ED137B_feature_climax_ddc_mam_tqg_relative == climax_ddc_mam_tqg), climax_ddc_mam_t1);
+    process_time_value(pinfo, tvb, tree, hf_rtp_hdr_ed137b_ft_climax_ddc_mam_t1, 0, (RTP_ED137B_feature_climax_ddc_mam_tqg_relative == climax_ddc_mam_tqg), climax_ddc_mam_t1);
 
     ext_value = tvb_get_ntoh24( tvb, 0 + 3 );
     climax_ddc_mam_t2 = RTP_ED137B_feature_climax_ddc_mam_t2(ext_value);
 
     proto_tree_add_item( tree, hf_rtp_hdr_ed137b_ft_climax_ddc_mam_nmr, tvb, 0 + 3, 3, ENC_BIG_ENDIAN);
-    process_time_value(tvb, tree, hf_rtp_hdr_ed137b_ft_climax_ddc_mam_t2, 0 + 3, (RTP_ED137B_feature_climax_ddc_mam_tqg_relative == climax_ddc_mam_tqg), climax_ddc_mam_t2);
+    process_time_value(pinfo, tvb, tree, hf_rtp_hdr_ed137b_ft_climax_ddc_mam_t2, 0 + 3, (RTP_ED137B_feature_climax_ddc_mam_tqg_relative == climax_ddc_mam_tqg), climax_ddc_mam_t2);
 
     process_125us_based_value( tvb, tree, hf_rtp_hdr_ed137b_ft_climax_ddc_mam_tsd, 0 + 6);
     process_125us_based_value( tvb, tree, hf_rtp_hdr_ed137b_ft_climax_ddc_mam_tj1, 0 + 8);
@@ -825,7 +825,7 @@ dissect_rtp_hdr_ext_ed137b_feature_climax_ddc_mam(tvbuff_t *tvb, packet_info *pi
 }
 
 static int
-dissect_rtp_hdr_ext_ed137c_feature_climax_ddc_mam(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+dissect_rtp_hdr_ext_ed137c_feature_climax_ddc_mam(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     guint32 ext_value;
     proto_tree *item;
@@ -842,13 +842,13 @@ dissect_rtp_hdr_ext_ed137c_feature_climax_ddc_mam(tvbuff_t *tvb, packet_info *pi
     climax_ddc_mam_t1 = RTP_ED137C_feature_climax_ddc_mam_t1(ext_value);
 
     proto_tree_add_item( tree, hf_rtp_hdr_ed137c_ft_climax_ddc_mam_tqg, tvb, 0, 3, ENC_BIG_ENDIAN);
-    process_time_value(tvb, tree, hf_rtp_hdr_ed137c_ft_climax_ddc_mam_t1, 0, (RTP_ED137C_feature_climax_ddc_mam_tqg_relative == climax_ddc_mam_tqg), climax_ddc_mam_t1);
+    process_time_value(pinfo, tvb, tree, hf_rtp_hdr_ed137c_ft_climax_ddc_mam_t1, 0, (RTP_ED137C_feature_climax_ddc_mam_tqg_relative == climax_ddc_mam_tqg), climax_ddc_mam_t1);
 
     ext_value = tvb_get_ntoh24( tvb, 0 + 3 );
     climax_ddc_mam_t2 = RTP_ED137C_feature_climax_ddc_mam_t2(ext_value);
 
     proto_tree_add_item( tree, hf_rtp_hdr_ed137c_ft_climax_ddc_mam_nmr, tvb, 0 + 3, 3, ENC_BIG_ENDIAN);
-    process_time_value(tvb, tree, hf_rtp_hdr_ed137c_ft_climax_ddc_mam_t2, 0 + 3, (RTP_ED137C_feature_climax_ddc_mam_tqg_relative == climax_ddc_mam_tqg), climax_ddc_mam_t2);
+    process_time_value(pinfo, tvb, tree, hf_rtp_hdr_ed137c_ft_climax_ddc_mam_t2, 0 + 3, (RTP_ED137C_feature_climax_ddc_mam_tqg_relative == climax_ddc_mam_tqg), climax_ddc_mam_t2);
 
     process_125us_based_value( tvb, tree, hf_rtp_hdr_ed137c_ft_climax_ddc_mam_tsd, 0 + 6);
     process_125us_based_value( tvb, tree, hf_rtp_hdr_ed137c_ft_climax_ddc_mam_tj1, 0 + 8);

@@ -6797,7 +6797,7 @@ netlogon_dissect_netrserverauthenticate023_reply(tvbuff_t *tvb, int offset,
 
             vars->flags = flags;
             vars->can_decrypt = FALSE;
-            list_size = get_md4pass_list(&pass_list);
+            list_size = get_md4pass_list(pinfo->pool, &pass_list);
             debugprintf("Found %d passwords \n",list_size);
             if( flags & NETLOGON_FLAG_AES )
             {

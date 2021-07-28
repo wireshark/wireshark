@@ -267,7 +267,7 @@ default_opaque_binary_tag(tvbuff_t *tvb, guint32 offset,
 			  guint8 token _U_, guint8 codepage _U_, guint32 *length, packet_info *pinfo)
 {
 	guint32 data_len = tvb_get_guintvar(tvb, offset, length, pinfo, &ei_wbxml_oversized_uintvar);
-	char *str = wmem_strdup_printf(wmem_packet_scope(), "(%u bytes of opaque data)", data_len);
+	char *str = wmem_strdup_printf(pinfo->pool, "(%u bytes of opaque data)", data_len);
 	*length += data_len;
 	return str;
 }
@@ -277,7 +277,7 @@ default_opaque_literal_tag(tvbuff_t *tvb, guint32 offset,
 			   const char *token _U_, guint8 codepage _U_, guint32 *length, packet_info *pinfo)
 {
 	guint32 data_len = tvb_get_guintvar(tvb, offset, length, pinfo, &ei_wbxml_oversized_uintvar);
-	char *str = wmem_strdup_printf(wmem_packet_scope(), "(%u bytes of opaque data)", data_len);
+	char *str = wmem_strdup_printf(pinfo->pool, "(%u bytes of opaque data)", data_len);
 	*length += data_len;
 	return str;
 }
@@ -287,7 +287,7 @@ default_opaque_binary_attr(tvbuff_t *tvb, guint32 offset,
 			   guint8 token _U_, guint8 codepage _U_, guint32 *length, packet_info *pinfo)
 {
 	guint32 data_len = tvb_get_guintvar(tvb, offset, length, pinfo, &ei_wbxml_oversized_uintvar);
-	char *str = wmem_strdup_printf(wmem_packet_scope(), "(%u bytes of opaque data)", data_len);
+	char *str = wmem_strdup_printf(pinfo->pool, "(%u bytes of opaque data)", data_len);
 	*length += data_len;
 	return str;
 }
@@ -297,7 +297,7 @@ default_opaque_literal_attr(tvbuff_t *tvb, guint32 offset,
 			    const char *token _U_, guint8 codepage _U_, guint32 *length, packet_info *pinfo)
 {
 	guint32 data_len = tvb_get_guintvar(tvb, offset, length, pinfo, &ei_wbxml_oversized_uintvar);
-	char *str = wmem_strdup_printf(wmem_packet_scope(), "(%u bytes of opaque data)", data_len);
+	char *str = wmem_strdup_printf(pinfo->pool, "(%u bytes of opaque data)", data_len);
 	*length += data_len;
 	return str;
 }
@@ -305,13 +305,13 @@ default_opaque_literal_attr(tvbuff_t *tvb, guint32 offset,
 /* Render a hex %dateTime encoded timestamp as a string.
  * 0x20011231123456 becomes "2001-12-31T12:34:56Z" */
 static char *
-date_time_from_opaque(tvbuff_t *tvb, guint32 offset, guint32 data_len)
+date_time_from_opaque(wmem_allocator_t *pool, tvbuff_t *tvb, guint32 offset, guint32 data_len)
 {
 	char *str;
 
 	switch (data_len) {
 	case 4: /* YYYY-MM-DD[T00:00:00Z] */
-		str = wmem_strdup_printf(wmem_packet_scope(), "%%DateTime: "
+		str = wmem_strdup_printf(pool, "%%DateTime: "
 				      "%02x%02x-%02x-%02xT00:00:00Z",
 				      tvb_get_guint8(tvb, offset),
 				      tvb_get_guint8(tvb, offset + 1),
@@ -319,7 +319,7 @@ date_time_from_opaque(tvbuff_t *tvb, guint32 offset, guint32 data_len)
 				      tvb_get_guint8(tvb, offset + 3));
 		break;
 	case 5: /* YYYY-MM-DDThh[:00:00Z] */
-		str = wmem_strdup_printf(wmem_packet_scope(), "%%DateTime: "
+		str = wmem_strdup_printf(pool, "%%DateTime: "
 				      "%02x%02x-%02x-%02xT%02x:00:00Z",
 				      tvb_get_guint8(tvb, offset),
 				      tvb_get_guint8(tvb, offset + 1),
@@ -328,7 +328,7 @@ date_time_from_opaque(tvbuff_t *tvb, guint32 offset, guint32 data_len)
 				      tvb_get_guint8(tvb, offset + 4));
 		break;
 	case 6: /* YYYY-MM-DDThh:mm[:00Z] */
-		str = wmem_strdup_printf(wmem_packet_scope(), "%%DateTime: "
+		str = wmem_strdup_printf(pool, "%%DateTime: "
 				      "%02x%02x-%02x-%02xT%02x:%02x:00Z",
 				      tvb_get_guint8(tvb, offset),
 				      tvb_get_guint8(tvb, offset + 1),
@@ -338,7 +338,7 @@ date_time_from_opaque(tvbuff_t *tvb, guint32 offset, guint32 data_len)
 				      tvb_get_guint8(tvb, offset + 5));
 		break;
 	case 7: /* YYYY-MM-DDThh:mm[:00Z] */
-		str = wmem_strdup_printf(wmem_packet_scope(), "%%DateTime: "
+		str = wmem_strdup_printf(pool, "%%DateTime: "
 				      "%02x%02x-%02x-%02xT%02x:%02x:%02xZ",
 				      tvb_get_guint8(tvb, offset),
 				      tvb_get_guint8(tvb, offset + 1),
@@ -349,7 +349,7 @@ date_time_from_opaque(tvbuff_t *tvb, guint32 offset, guint32 data_len)
 				      tvb_get_guint8(tvb, offset + 6));
 		break;
 	default:
-		str = wmem_strdup_printf(wmem_packet_scope(), "<Error: invalid binary %%DateTime "
+		str = wmem_strdup_printf(pool, "<Error: invalid binary %%DateTime "
 				      "(%u bytes of opaque data)>", data_len);
 		break;
 	}
@@ -360,7 +360,7 @@ date_time_from_opaque(tvbuff_t *tvb, guint32 offset, guint32 data_len)
 /* Is ALWAYS 6 bytes long:
  * 00YY YYYY  YYYY YYMM  MMDD DDDh  hhhh mmmm  mmss ssss  ZZZZ ZZZZ */
 static char *
-wv_datetime_from_opaque(tvbuff_t *tvb, guint32 offset, guint32 data_len)
+wv_datetime_from_opaque(wmem_allocator_t *pool, tvbuff_t *tvb, guint32 offset, guint32 data_len)
 {
 	char *str;
 	guint16 year;
@@ -392,11 +392,11 @@ wv_datetime_from_opaque(tvbuff_t *tvb, guint32 offset, guint32 data_len)
 		/* octet 6: ZZZZZZZZ */
 		time_zone = tvb_get_guint8(tvb, offset + 5);
 		/* Now construct the string */
-		str = wmem_strdup_printf(wmem_packet_scope(), "WV-CSP DateTime: "
+		str = wmem_strdup_printf(pool, "WV-CSP DateTime: "
 				      "%04d-%02d-%02dT%02d:%02d:%02d%c",
 				      year, month, day, hour, minute, second, time_zone);
 	} else { /* Invalid length for a WV-CSP DateTime tag value */
-		str = wmem_strdup_printf(wmem_packet_scope(), "<Error: invalid binary WV-CSP DateTime value "
+		str = wmem_strdup_printf(pool, "<Error: invalid binary WV-CSP DateTime value "
 				      "(%u bytes of opaque data)>", data_len);
 	}
 	return str;
@@ -405,29 +405,29 @@ wv_datetime_from_opaque(tvbuff_t *tvb, guint32 offset, guint32 data_len)
 /* WV-CSP integer values for tag content is encoded in a fashion similar
  * to a Long-Integer in WSP */
 static char *
-wv_integer_from_opaque(tvbuff_t *tvb, guint32 offset, guint32 data_len)
+wv_integer_from_opaque(wmem_allocator_t *pool, tvbuff_t *tvb, guint32 offset, guint32 data_len)
 {
 	char *str;
 
 	switch (data_len) {
 	case 1:
-		str = wmem_strdup_printf(wmem_packet_scope(), "WV-CSP Integer: %d",
+		str = wmem_strdup_printf(pool, "WV-CSP Integer: %d",
 				      tvb_get_guint8(tvb, offset));
 		break;
 	case 2:
-		str = wmem_strdup_printf(wmem_packet_scope(), "WV-CSP Integer: %d",
+		str = wmem_strdup_printf(pool, "WV-CSP Integer: %d",
 				      tvb_get_ntohs(tvb, offset));
 		break;
 	case 3:
-		str = wmem_strdup_printf(wmem_packet_scope(), "WV-CSP Integer: %d",
+		str = wmem_strdup_printf(pool, "WV-CSP Integer: %d",
 				      tvb_get_ntoh24(tvb, offset));
 		break;
 	case 4:
-		str = wmem_strdup_printf(wmem_packet_scope(), "WV-CSP Integer: %d",
+		str = wmem_strdup_printf(pool, "WV-CSP Integer: %d",
 				      tvb_get_ntohl(tvb, offset));
 		break;
 	default:
-		str = wmem_strdup_printf(wmem_packet_scope(), "<Error: invalid binary WV-CSP Integer value "
+		str = wmem_strdup_printf(pool, "<Error: invalid binary WV-CSP Integer value "
 				      "(%u bytes of opaque data)>", data_len);
 		break;
 	}
@@ -449,11 +449,11 @@ wv_csp10_opaque_binary_tag(tvbuff_t *tvb, guint32 offset,
 		case 0x0F: /* <ContentSize> */
 		case 0x1A: /* <MessageCount> */
 		case 0x3C: /* <Validity> */
-			str = wv_integer_from_opaque(tvb,
+			str = wv_integer_from_opaque(pinfo->pool, tvb,
 						     offset + *length, data_len);
 			break;
 		case 0x11: /* <DateTime> */
-			str = wv_datetime_from_opaque(tvb,
+			str = wv_datetime_from_opaque(pinfo->pool, tvb,
 						      offset + *length, data_len);
 			break;
 		default:
@@ -464,7 +464,7 @@ wv_csp10_opaque_binary_tag(tvbuff_t *tvb, guint32 offset,
 		switch (token) {
 		case 0x1C: /* <KeepAliveTime> */
 		case 0x32: /* <TimeToLive> */
-			str = wv_integer_from_opaque(tvb,
+			str = wv_integer_from_opaque(pinfo->pool, tvb,
 						     offset + *length, data_len);
 			break;
 		default:
@@ -480,7 +480,7 @@ wv_csp10_opaque_binary_tag(tvbuff_t *tvb, guint32 offset,
 		case 0x11: /* <TCPAddress> */
 		case 0x12: /* <TCPPort> */
 		case 0x13: /* <UDPPort> */
-			str = wv_integer_from_opaque(tvb,
+			str = wv_integer_from_opaque(pinfo->pool, tvb,
 						     offset + *length, data_len);
 			break;
 		default:
@@ -491,7 +491,7 @@ wv_csp10_opaque_binary_tag(tvbuff_t *tvb, guint32 offset,
 		break;
 	}
 	if (str == NULL) { /* Error, or not parsed */
-		str = wmem_strdup_printf(wmem_packet_scope(), "(%u bytes of unparsed opaque data)", data_len);
+		str = wmem_strdup_printf(pinfo->pool, "(%u bytes of unparsed opaque data)", data_len);
 	}
 	*length += data_len;
 
@@ -519,15 +519,15 @@ wv_csp10_opaque_literal_tag(tvbuff_t *tvb, guint32 offset,
 			|| (strcmp(token, "TCPPort") == 0)
 			|| (strcmp(token, "UDPPort") == 0) ) )
 		{
-			str = wv_integer_from_opaque(tvb, offset + *length, data_len);
+			str = wv_integer_from_opaque(pinfo->pool, tvb, offset + *length, data_len);
 		}
 	else if ( token && ( strcmp(token, "DateTime") == 0) )
 		{
-			str = wv_datetime_from_opaque(tvb, offset + *length, data_len);
+			str = wv_datetime_from_opaque(pinfo->pool, tvb, offset + *length, data_len);
 		}
 
 	if (str == NULL) { /* Error, or not parsed */
-		str = wmem_strdup_printf(wmem_packet_scope(), "(%d bytes of unparsed opaque data)", data_len);
+		str = wmem_strdup_printf(pinfo->pool, "(%d bytes of unparsed opaque data)", data_len);
 	}
 	*length += data_len;
 	return str;
@@ -547,11 +547,11 @@ wv_csp11_opaque_binary_tag(tvbuff_t *tvb, guint32 offset,
 		case 0x0F: /* <ContentSize> */
 		case 0x1A: /* <MessageCount> */
 		case 0x3C: /* <Validity> */
-			str = wv_integer_from_opaque(tvb,
+			str = wv_integer_from_opaque(pinfo->pool, tvb,
 						     offset + *length, data_len);
 			break;
 		case 0x11: /* <DateTime> */
-			str = wv_datetime_from_opaque(tvb,
+			str = wv_datetime_from_opaque(pinfo->pool, tvb,
 						      offset + *length, data_len);
 			break;
 		default:
@@ -562,7 +562,7 @@ wv_csp11_opaque_binary_tag(tvbuff_t *tvb, guint32 offset,
 		switch (token) {
 		case 0x1C: /* <KeepAliveTime> */
 		case 0x32: /* <TimeToLive> */
-			str = wv_integer_from_opaque(tvb,
+			str = wv_integer_from_opaque(pinfo->pool, tvb,
 						     offset + *length, data_len);
 			break;
 		default:
@@ -577,7 +577,7 @@ wv_csp11_opaque_binary_tag(tvbuff_t *tvb, guint32 offset,
 		case 0x0E: /* <ServerPollMin> */
 		case 0x12: /* <TCPPort> */
 		case 0x13: /* <UDPPort> */
-			str = wv_integer_from_opaque(tvb,
+			str = wv_integer_from_opaque(pinfo->pool, tvb,
 						     offset + *length, data_len);
 			break;
 		default:
@@ -587,7 +587,7 @@ wv_csp11_opaque_binary_tag(tvbuff_t *tvb, guint32 offset,
 	case 6: /* Messaging code page */
 		switch (token) {
 		case 0x1A: /* <DeliveryTime> - not in 1.0 */
-			str = wv_datetime_from_opaque(tvb,
+			str = wv_datetime_from_opaque(pinfo->pool, tvb,
 						      offset + *length, data_len);
 			break;
 		default:
@@ -598,7 +598,7 @@ wv_csp11_opaque_binary_tag(tvbuff_t *tvb, guint32 offset,
 		break;
 	}
 	if (str == NULL) { /* Error, or not parsed */
-		str = wmem_strdup_printf(wmem_packet_scope(), "(%d bytes of unparsed opaque data)", data_len);
+		str = wmem_strdup_printf(pinfo->pool, "(%d bytes of unparsed opaque data)", data_len);
 	}
 	*length += data_len;
 
@@ -625,17 +625,17 @@ wv_csp11_opaque_literal_tag(tvbuff_t *tvb, guint32 offset,
 			|| (strcmp(token, "TCPPort") == 0)
 			|| (strcmp(token, "UDPPort") == 0) ) )
 		{
-			str = wv_integer_from_opaque(tvb, offset + *length, data_len);
+			str = wv_integer_from_opaque(pinfo->pool, tvb, offset + *length, data_len);
 		}
 	else
 		if ( token && ( (strcmp(token, "DateTime") == 0)
 				|| (strcmp(token, "DeliveryTime") == 0) ) )
 			{
-				str = wv_datetime_from_opaque(tvb, offset + *length, data_len);
+				str = wv_datetime_from_opaque(pinfo->pool, tvb, offset + *length, data_len);
 			}
 
 	if (str == NULL) { /* Error, or not parsed */
-		str = wmem_strdup_printf(wmem_packet_scope(), "(%d bytes of unparsed opaque data)", data_len);
+		str = wmem_strdup_printf(pinfo->pool, "(%d bytes of unparsed opaque data)", data_len);
 	}
 	*length += data_len;
 	return str;
@@ -656,11 +656,11 @@ wv_csp12_opaque_binary_tag(tvbuff_t *tvb, guint32 offset,
 		case 0x0F: /* <ContentSize> */
 		case 0x1A: /* <MessageCount> */
 		case 0x3C: /* <Validity> */
-			str = wv_integer_from_opaque(tvb,
+			str = wv_integer_from_opaque(pinfo->pool, tvb,
 						     offset + *length, data_len);
 			break;
 		case 0x11: /* <DateTime> */
-			str = wv_datetime_from_opaque(tvb,
+			str = wv_datetime_from_opaque(pinfo->pool, tvb,
 						      offset + *length, data_len);
 			break;
 		default:
@@ -671,7 +671,7 @@ wv_csp12_opaque_binary_tag(tvbuff_t *tvb, guint32 offset,
 		switch (token) {
 		case 0x1C: /* <KeepAliveTime> */
 		case 0x32: /* <TimeToLive> */
-			str = wv_integer_from_opaque(tvb,
+			str = wv_integer_from_opaque(pinfo->pool, tvb,
 						     offset + *length, data_len);
 			break;
 		default:
@@ -686,7 +686,7 @@ wv_csp12_opaque_binary_tag(tvbuff_t *tvb, guint32 offset,
 		case 0x0E: /* <ServerPollMin> */
 		case 0x12: /* <TCPPort> */
 		case 0x13: /* <UDPPort> */
-			str = wv_integer_from_opaque(tvb,
+			str = wv_integer_from_opaque(pinfo->pool, tvb,
 						     offset + *length, data_len);
 			break;
 		default:
@@ -696,7 +696,7 @@ wv_csp12_opaque_binary_tag(tvbuff_t *tvb, guint32 offset,
 	case 6: /* Messaging code page */
 		switch (token) {
 		case 0x1A: /* <DeliveryTime> - not in 1.0 */
-			str = wv_datetime_from_opaque(tvb,
+			str = wv_datetime_from_opaque(pinfo->pool, tvb,
 						      offset + *length, data_len);
 			break;
 		default:
@@ -707,7 +707,7 @@ wv_csp12_opaque_binary_tag(tvbuff_t *tvb, guint32 offset,
 		switch (token) {
 		case 0x08: /* <HistoryPeriod> - 1.2 only */
 		case 0x0A: /* <MaxWatcherList> - 1.2 only */
-			str = wv_integer_from_opaque(tvb,
+			str = wv_integer_from_opaque(pinfo->pool, tvb,
 						     offset + *length, data_len);
 			break;
 		default:
@@ -718,7 +718,7 @@ wv_csp12_opaque_binary_tag(tvbuff_t *tvb, guint32 offset,
 		break;
 	}
 	if (str == NULL) { /* Error, or not parsed */
-		str = wmem_strdup_printf(wmem_packet_scope(), "(%d bytes of unparsed opaque data)", data_len);
+		str = wmem_strdup_printf(pinfo->pool, "(%d bytes of unparsed opaque data)", data_len);
 	}
 	*length += data_len;
 
@@ -747,17 +747,17 @@ wv_csp12_opaque_literal_tag(tvbuff_t *tvb, guint32 offset,
 			|| (strcmp(token, "HistoryPeriod") == 0)
 			|| (strcmp(token, "MaxWatcherList") == 0) ) )
 		{
-			str = wv_integer_from_opaque(tvb, offset + *length, data_len);
+			str = wv_integer_from_opaque(pinfo->pool, tvb, offset + *length, data_len);
 		}
 	else
 		if ( token && ( (strcmp(token, "DateTime") == 0)
 				|| (strcmp(token, "DeliveryTime") == 0) ) )
 			{
-				str = wv_datetime_from_opaque(tvb, offset + *length, data_len);
+				str = wv_datetime_from_opaque(pinfo->pool, tvb, offset + *length, data_len);
 			}
 
 	if (str == NULL) { /* Error, or not parsed */
-		str = wmem_strdup_printf(wmem_packet_scope(), "(%d bytes of unparsed opaque data)", data_len);
+		str = wmem_strdup_printf(pinfo->pool, "(%d bytes of unparsed opaque data)", data_len);
 	}
 	*length += data_len;
 	return str;
@@ -779,10 +779,10 @@ wv_csp13_opaque_binary_tag(tvbuff_t *tvb, guint32 offset,
 				case 0x0F: /* <ContentSize> */
 				case 0x1A: /* <MessageCount> */
 				case 0x3C: /* <Validity> */
-					str = wv_integer_from_opaque(tvb, offset + *length, data_len);
+					str = wv_integer_from_opaque(pinfo->pool, tvb, offset + *length, data_len);
 					break;
 				case 0x11: /* <DateTime> */
-					str = wv_datetime_from_opaque(tvb, offset + *length, data_len);
+					str = wv_datetime_from_opaque(pinfo->pool, tvb, offset + *length, data_len);
 					break;
 				default:
 					break;
@@ -798,7 +798,7 @@ wv_csp13_opaque_binary_tag(tvbuff_t *tvb, guint32 offset,
 				case 0x27: /* <SearchIndex> */
 				case 0x28: /* <SearchLimit> */
 				case 0x32: /* <TimeToLive> */
-					str = wv_integer_from_opaque(tvb, offset + *length, data_len);
+					str = wv_integer_from_opaque(pinfo->pool, tvb, offset + *length, data_len);
 					break;
 				default:
 					break;
@@ -824,7 +824,7 @@ wv_csp13_opaque_binary_tag(tvbuff_t *tvb, guint32 offset,
 				case 0x1F: /* <UserSessionLimit> */
 				case 0x21: /* <MultiTransPerMessage> */
 				case 0x24: /* <ContentPolicyLimit> */
-					str = wv_integer_from_opaque(tvb, offset + *length, data_len);
+					str = wv_integer_from_opaque(pinfo->pool, tvb, offset + *length, data_len);
 					break;
 				default:
 					break;
@@ -839,7 +839,7 @@ wv_csp13_opaque_binary_tag(tvbuff_t *tvb, guint32 offset,
 				case 0x3C: /* <ClientIMPriority> */
 				case 0x3D: /* <MaxPullLength> */
 				case 0x3E: /* <MaxPushLength> */
-					str = wv_integer_from_opaque(tvb, offset + *length, data_len);
+					str = wv_integer_from_opaque(pinfo->pool, tvb, offset + *length, data_len);
 					break;
 				default:
 					break;
@@ -852,7 +852,7 @@ wv_csp13_opaque_binary_tag(tvbuff_t *tvb, guint32 offset,
 				case 0x1A: /* <DeliveryTime> - not in 1.0 */
 					/* New in WV-CSP 1.3*/
 				case 0x1C: /* <AnswerOptionID> */
-					str = wv_datetime_from_opaque(tvb, offset + *length, data_len);
+					str = wv_datetime_from_opaque(pinfo->pool, tvb, offset + *length, data_len);
 					break;
 				default:
 					break;
@@ -870,7 +870,7 @@ wv_csp13_opaque_binary_tag(tvbuff_t *tvb, guint32 offset,
 				case 0x30: /* <TryAgainTimeout> */
 				case 0x3A: /* <GroupContentLimit> */
 				case 0x3B: /* <MessageTotalCount> */
-					str = wv_integer_from_opaque(tvb, offset + *length, data_len);
+					str = wv_integer_from_opaque(pinfo->pool, tvb, offset + *length, data_len);
 					break;
 				default:
 					break;
@@ -882,7 +882,7 @@ wv_csp13_opaque_binary_tag(tvbuff_t *tvb, guint32 offset,
 				{
 					/* New in WV-CSP 1.3*/
 				case 0x0C: /* <PairID> */
-					str = wv_integer_from_opaque(tvb, offset + *length, data_len);
+					str = wv_integer_from_opaque(pinfo->pool, tvb, offset + *length, data_len);
 					break;
 				default:
 					break;
@@ -894,7 +894,7 @@ wv_csp13_opaque_binary_tag(tvbuff_t *tvb, guint32 offset,
 
 	if (str == NULL)
 		{ /* Error, or not parsed */
-			str = wmem_strdup_printf(wmem_packet_scope(), "(%d bytes of unparsed opaque data)", data_len);
+			str = wmem_strdup_printf(pinfo->pool, "(%d bytes of unparsed opaque data)", data_len);
 		}
 	*length += data_len;
 
@@ -944,17 +944,17 @@ wv_csp13_opaque_literal_tag(tvbuff_t *tvb, guint32 offset,
 			|| (strcmp(token, "MessageTotalCount") == 0)
 			|| (strcmp(token, "PairID") == 0) ) )
 		{
-			str = wv_integer_from_opaque(tvb, offset + *length, data_len);
+			str = wv_integer_from_opaque(pinfo->pool, tvb, offset + *length, data_len);
 		}
 	else
 		if ( token && ( (strcmp(token, "DateTime") == 0)
 				|| (strcmp(token, "DeliveryTime") == 0) ) )
 			{
-				str = wv_datetime_from_opaque(tvb, offset + *length, data_len);
+				str = wv_datetime_from_opaque(pinfo->pool, tvb, offset + *length, data_len);
 			}
 
 	if (str == NULL) { /* Error, or not parsed */
-		str = wmem_strdup_printf(wmem_packet_scope(), "(%d bytes of unparsed opaque data)", data_len);
+		str = wmem_strdup_printf(pinfo->pool, "(%d bytes of unparsed opaque data)", data_len);
 	}
 	*length += data_len;
 	return str;
@@ -970,10 +970,10 @@ sic10_opaque_literal_attr(tvbuff_t *tvb, guint32 offset,
 	if ( token && ( (strcmp(token, "created") == 0)
 			|| (strcmp(token, "si-expires") == 0) ) )
 		{
-			str = date_time_from_opaque(tvb, offset + *length, data_len);
+			str = date_time_from_opaque(pinfo->pool, tvb, offset + *length, data_len);
 		}
 	if (str == NULL) { /* Error, or not parsed */
-		str = wmem_strdup_printf(wmem_packet_scope(), "(%d bytes of unparsed opaque data)", data_len);
+		str = wmem_strdup_printf(pinfo->pool, "(%d bytes of unparsed opaque data)", data_len);
 	}
 	*length += data_len;
 
@@ -992,7 +992,7 @@ sic10_opaque_binary_attr(tvbuff_t *tvb, guint32 offset,
 		switch (token) {
 		case 0x0A: /* created= */
 		case 0x10: /* si-expires= */
-			str = date_time_from_opaque(tvb,
+			str = date_time_from_opaque(pinfo->pool, tvb,
 						    offset + *length, data_len);
 			break;
 		default:
@@ -1003,7 +1003,7 @@ sic10_opaque_binary_attr(tvbuff_t *tvb, guint32 offset,
 		break;
 	}
 	if (str == NULL) { /* Error, or not parsed */
-		str = wmem_strdup_printf(wmem_packet_scope(), "(%d bytes of unparsed opaque data)", data_len);
+		str = wmem_strdup_printf(pinfo->pool, "(%d bytes of unparsed opaque data)", data_len);
 	}
 	*length += data_len;
 
@@ -1019,10 +1019,10 @@ emnc10_opaque_literal_attr(tvbuff_t *tvb, guint32 offset,
 
 	if ( token && (strcmp(token, "timestamp") == 0) )
 		{
-			str = date_time_from_opaque(tvb, offset + *length, data_len);
+			str = date_time_from_opaque(pinfo->pool, tvb, offset + *length, data_len);
 		}
 	if (str == NULL) { /* Error, or not parsed */
-		str = wmem_strdup_printf(wmem_packet_scope(), "(%d bytes of unparsed opaque data)", data_len);
+		str = wmem_strdup_printf(pinfo->pool, "(%d bytes of unparsed opaque data)", data_len);
 	}
 	*length += data_len;
 
@@ -1040,7 +1040,7 @@ emnc10_opaque_binary_attr(tvbuff_t *tvb, guint32 offset,
 	case 0: /* Only valid codepage for EMN */
 		switch (token) {
 		case 0x05: /* timestamp= */
-			str = date_time_from_opaque(tvb,
+			str = date_time_from_opaque(pinfo->pool, tvb,
 						    offset + *length, data_len);
 			break;
 		default:
@@ -1051,7 +1051,7 @@ emnc10_opaque_binary_attr(tvbuff_t *tvb, guint32 offset,
 		break;
 	}
 	if (str == NULL) { /* Error, or not parsed */
-		str = wmem_strdup_printf(wmem_packet_scope(), "(%d bytes of unparsed opaque data)", data_len);
+		str = wmem_strdup_printf(pinfo->pool, "(%d bytes of unparsed opaque data)", data_len);
 	}
 	*length += data_len;
 

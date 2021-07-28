@@ -325,23 +325,23 @@ static lbm_transport_frame_t * lbtrm_transport_frame_add(lbtrm_transport_t * tra
     return (frame_entry);
 }
 
-static char * lbtrm_transport_source_string_format(const address * source_address, guint16 source_port, guint32 session_id, const address * multicast_group, guint16 dest_port)
+static char * lbtrm_transport_source_string_format(wmem_allocator_t *pool, const address * source_address, guint16 source_port, guint32 session_id, const address * multicast_group, guint16 dest_port)
 {
     /* Returns a packet-scoped string. */
-    return (wmem_strdup_printf(wmem_packet_scope(), "LBTRM:%s:%" G_GUINT16_FORMAT ":%08x:%s:%" G_GUINT16_FORMAT, address_to_str(wmem_packet_scope(), source_address), source_port, session_id,
-            address_to_str(wmem_packet_scope(), multicast_group), dest_port));
+    return (wmem_strdup_printf(pool, "LBTRM:%s:%" G_GUINT16_FORMAT ":%08x:%s:%" G_GUINT16_FORMAT, address_to_str(pool, source_address), source_port, session_id,
+            address_to_str(pool, multicast_group), dest_port));
 }
 
 char * lbtrm_transport_source_string(const address * source_address, guint16 source_port, guint32 session_id, const address * multicast_group, guint16 dest_port)
 {
     /* Returns a file-scoped string. */
-    return (wmem_strdup(wmem_file_scope(), lbtrm_transport_source_string_format(source_address, source_port, session_id, multicast_group, dest_port)));
+    return lbtrm_transport_source_string_format(wmem_file_scope(), source_address, source_port, session_id, multicast_group, dest_port);
 }
 
-static char * lbtrm_transport_source_string_transport(lbtrm_transport_t * transport)
+static char * lbtrm_transport_source_string_transport(wmem_allocator_t *pool, lbtrm_transport_t * transport)
 {
-    /* Returns a packet-scoped string. */
-    return (lbtrm_transport_source_string_format(&(transport->source_address), transport->source_port, transport->session_id, &(transport->multicast_group), transport->dest_port));
+    /* Returns a pool-scoped string. */
+    return (lbtrm_transport_source_string_format(pool, &(transport->source_address), transport->source_port, transport->session_id, &(transport->multicast_group), transport->dest_port));
 }
 
 /*----------------------------------------------------------------------------*/
@@ -924,7 +924,7 @@ static int dissect_lbtrm_ncf(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
     }
     tap_info->ncf_reason = LBTRM_NCF_HDR_REASON(reason);
     tap_info->num_sqns = num_ncfs;
-    tap_info->sqns = wmem_alloc_array(wmem_packet_scope(), guint32, num_ncfs);
+    tap_info->sqns = wmem_alloc_array(pinfo->pool, guint32, num_ncfs);
     len += dissect_lbtrm_ncf_list(tvb, offset + len, pinfo, ncf_tree, num_ncfs, LBTRM_NCF_HDR_REASON(reason), tap_info);
     proto_item_set_len(ncf_item, len);
     return (len);
@@ -978,7 +978,7 @@ static int dissect_lbtrm_nak(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
         expert_add_info(pinfo, nak_item, &ei_lbtrm_analysis_nak);
     }
     tap_info->num_sqns = num_naks;
-    tap_info->sqns = wmem_alloc_array(wmem_packet_scope(), guint32, num_naks);
+    tap_info->sqns = wmem_alloc_array(pinfo->pool, guint32, num_naks);
     len += dissect_lbtrm_nak_list(tvb, offset + len, pinfo, nak_tree, num_naks, tap_info);
     proto_item_set_len(nak_item, len);
     return (len);
@@ -1194,10 +1194,10 @@ static int dissect_lbtrm(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
         item = proto_tree_add_string(lbtrm_tree, hf_lbtrm_tag, tvb, 0, 0, tag_name);
         proto_item_set_generated(item);
     }
-    tapinfo = wmem_new0(wmem_packet_scope(), lbm_lbtrm_tap_info_t);
+    tapinfo = wmem_new0(pinfo->pool, lbm_lbtrm_tap_info_t);
     if (transport != NULL)
     {
-        tapinfo->transport = lbtrm_transport_source_string_transport(transport);
+        tapinfo->transport = lbtrm_transport_source_string_transport(pinfo->pool, transport);
     }
     tapinfo->type = packet_type;
 

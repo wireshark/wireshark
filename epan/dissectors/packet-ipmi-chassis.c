@@ -310,7 +310,7 @@ static const struct true_false_string tfs_09_valid = {
 /* Boot options - common for Get/Set Boot Options commands
  */
 static void
-bootopt_00(tvbuff_t *tvb, proto_tree *tree)
+bootopt_00(packet_info *pinfo _U_, tvbuff_t *tvb, proto_tree *tree)
 {
 	static int * const byte1[] = { &hf_ipmi_chs_bo00_sip, NULL };
 
@@ -319,13 +319,13 @@ bootopt_00(tvbuff_t *tvb, proto_tree *tree)
 }
 
 static void
-bootopt_01(tvbuff_t *tvb, proto_tree *tree)
+bootopt_01(packet_info *pinfo _U_, tvbuff_t *tvb, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_chs_bo01_spsel, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 }
 
 static void
-bootopt_02(tvbuff_t *tvb, proto_tree *tree)
+bootopt_02(packet_info *pinfo _U_, tvbuff_t *tvb, proto_tree *tree)
 {
 	static int * const byte1[] = { &hf_ipmi_chs_bo02_request, &hf_ipmi_chs_bo02_discovered, NULL };
 
@@ -334,7 +334,7 @@ bootopt_02(tvbuff_t *tvb, proto_tree *tree)
 }
 
 static void
-bootopt_03(tvbuff_t *tvb, proto_tree *tree)
+bootopt_03(packet_info *pinfo _U_, tvbuff_t *tvb, proto_tree *tree)
 {
 	static int * const byte1[] = { &hf_ipmi_chs_bo03_pef, &hf_ipmi_chs_bo03_cctrl_timeout,
 		&hf_ipmi_chs_bo03_wd_timeout, &hf_ipmi_chs_bo03_softreset, &hf_ipmi_chs_bo03_powerup, NULL };
@@ -344,7 +344,7 @@ bootopt_03(tvbuff_t *tvb, proto_tree *tree)
 }
 
 static void
-bootopt_04(tvbuff_t *tvb, proto_tree *tree)
+bootopt_04(packet_info *pinfo _U_, tvbuff_t *tvb, proto_tree *tree)
 {
 	static int * const byte2[] = { &hf_ipmi_chs_bo04_bootinit_ack_oem, &hf_ipmi_chs_bo04_bootinit_ack_sms,
 		&hf_ipmi_chs_bo04_bootinit_ack_os, &hf_ipmi_chs_bo04_bootinit_ack_osloader,
@@ -356,7 +356,7 @@ bootopt_04(tvbuff_t *tvb, proto_tree *tree)
 }
 
 static void
-bootopt_05(tvbuff_t *tvb, proto_tree *tree)
+bootopt_05(packet_info *pinfo _U_, tvbuff_t *tvb, proto_tree *tree)
 {
 	static int * const byte1[] = { &hf_ipmi_chs_bo05_bootflags_valid,
 		&hf_ipmi_chs_bo05_permanent, &hf_ipmi_chs_bo05_boottype, NULL };
@@ -380,18 +380,18 @@ bootopt_05(tvbuff_t *tvb, proto_tree *tree)
 }
 
 static void
-bootopt_06(tvbuff_t *tvb, proto_tree *tree)
+bootopt_06(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree)
 {
 	static int * const byte1[] = { &hf_ipmi_chs_bo06_chan_num, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL,
 			ett_ipmi_chs_bo06_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
 	proto_tree_add_item(tree, hf_ipmi_chs_bo06_session_id, tvb, 1, 4, ENC_LITTLE_ENDIAN);
-	ipmi_add_timestamp(tree, hf_ipmi_chs_bo06_bootinfo_timestamp, tvb, 5);
+	ipmi_add_timestamp(pinfo, tree, hf_ipmi_chs_bo06_bootinfo_timestamp, tvb, 5);
 }
 
 static void
-bootopt_07(tvbuff_t *tvb, proto_tree *tree)
+bootopt_07(packet_info *pinfo _U_, tvbuff_t *tvb, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_chs_bo07_block_selector, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_chs_bo07_block_data, tvb, 1, -1, ENC_NA);
@@ -399,7 +399,7 @@ bootopt_07(tvbuff_t *tvb, proto_tree *tree)
 
 
 static struct {
-	void (*intrp)(tvbuff_t *tvb, proto_tree *tree);
+	void (*intrp)(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree);
 	const char *name;
 } boot_options[] = {
 	{ bootopt_00, "Set In Progress" },
@@ -551,7 +551,7 @@ rs07(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 /* Set System Boot Options
  */
 static void
-rq08(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+rq08(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree *s_tree;
 	tvbuff_t *sub;
@@ -579,7 +579,7 @@ rq08(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	if (tvb_captured_length(tvb) > 1) {
 		if (pno < array_length(boot_options)) {
 			sub = tvb_new_subset_remaining(tvb, 1);
-			boot_options[pno].intrp(sub, tree);
+			boot_options[pno].intrp(pinfo, sub, tree);
 		} else {
 			proto_tree_add_none_format(tree, hf_ipmi_chs_08_data, tvb, 1,
 					-1, "Parameter data: %s", desc);
@@ -625,7 +625,7 @@ rq09(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 }
 
 static void
-rs09(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+rs09(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	static int * const byte1[] = { &hf_ipmi_chs_09_rs_param_version, NULL };
 	proto_tree *s_tree;
@@ -655,7 +655,7 @@ rs09(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 
 	if (pno < array_length(boot_options)) {
 		sub = tvb_new_subset_remaining(tvb, 2);
-		boot_options[pno].intrp(sub, tree);
+		boot_options[pno].intrp(pinfo, sub, tree);
 	} else {
 		proto_tree_add_item(tree, hf_ipmi_chs_09_rs_param_data, tvb, 2, -1, ENC_NA);
 	}

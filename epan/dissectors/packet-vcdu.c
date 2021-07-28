@@ -202,7 +202,7 @@ vcdu_prefs_apply_cb(void)
  * note:  this is not true PB5 time either, but a tsi specific version, although it is similar
  */
 static const char *
-smex_time_to_string (int pb5_days_since_midnight_9_10_oct_1995, int pb5_seconds, int pb5_milliseconds)
+smex_time_to_string (wmem_allocator_t *pool, int pb5_days_since_midnight_9_10_oct_1995, int pb5_seconds, int pb5_milliseconds)
 {
     static int utcdiff = 0;
     nstime_t t;
@@ -243,7 +243,7 @@ smex_time_to_string (int pb5_days_since_midnight_9_10_oct_1995, int pb5_seconds,
     t.secs = (pb5_days_since_midnight_9_10_oct_1995 * 86400) + pb5_seconds + utcdiff;
     t.nsecs = pb5_milliseconds*1000000; /* msecs to nsecs */
 
-    return abs_time_to_str(wmem_packet_scope(), &t, ABSOLUTE_TIME_DOY_UTC, TRUE);
+    return abs_time_to_str(pool, &t, ABSOLUTE_TIME_DOY_UTC, TRUE);
 }
 
 
@@ -314,7 +314,7 @@ dissect_vcdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     offset += 2;
 
     /* format ground receipt time into human readable time format for display */
-    time_string = smex_time_to_string(pb5_days, pb5_seconds, pb5_milliseconds);
+    time_string = smex_time_to_string(pinfo->pool, pb5_days, pb5_seconds, pb5_milliseconds);
     proto_tree_add_string(smex_tree, hf_vcdu_ground_receipt_time, tvb, offset-6, 6, time_string);
 
     proto_item_set_end(smex_header, tvb, offset);

@@ -190,7 +190,7 @@ static const value_string format_vals[] = {
 };
 
 static void dissect_pgsql_fe_msg(guchar type, guint length, tvbuff_t *tvb,
-                                 gint n, proto_tree *tree,
+                                 gint n, proto_tree *tree, packet_info *pinfo,
                                  pgsql_conn_data_t *conv_data)
 {
     guchar c;
@@ -319,7 +319,7 @@ static void dissect_pgsql_fe_msg(guchar type, guint length, tvbuff_t *tvb,
             i = hf_statement;
 
         n += 1;
-        s = tvb_get_stringz_enc(wmem_packet_scope(), tvb, n, &siz, ENC_ASCII);
+        s = tvb_get_stringz_enc(pinfo->pool, tvb, n, &siz, ENC_ASCII);
         proto_tree_add_string(tree, i, tvb, n, siz, s);
         break;
 
@@ -408,7 +408,7 @@ static void dissect_pgsql_fe_msg(guchar type, guint length, tvbuff_t *tvb,
 
 
 static void dissect_pgsql_be_msg(guchar type, guint length, tvbuff_t *tvb,
-                                 gint n, proto_tree *tree,
+                                 gint n, proto_tree *tree, packet_info *pinfo,
                                  pgsql_conn_data_t *conv_data)
 {
     guchar c;
@@ -462,10 +462,10 @@ static void dissect_pgsql_be_msg(guchar type, guint length, tvbuff_t *tvb,
 
     /* Parameter status */
     case 'S':
-        s = tvb_get_stringz_enc(wmem_packet_scope(), tvb, n, &siz, ENC_ASCII);
+        s = tvb_get_stringz_enc(pinfo->pool, tvb, n, &siz, ENC_ASCII);
         proto_tree_add_string(tree, hf_parameter_name, tvb, n, siz, s);
         n += siz;
-        t = tvb_get_stringz_enc(wmem_packet_scope(), tvb, n, &i, ENC_ASCII);
+        t = tvb_get_stringz_enc(pinfo->pool, tvb, n, &i, ENC_ASCII);
         proto_tree_add_string(tree, hf_parameter_value, tvb, n, i, t);
         break;
 
@@ -543,7 +543,7 @@ static void dissect_pgsql_be_msg(guchar type, guint length, tvbuff_t *tvb,
             c = tvb_get_guint8(tvb, n);
             if (c == '\0')
                 break;
-            s = tvb_get_stringz_enc(wmem_packet_scope(), tvb, n+1, &siz, ENC_ASCII);
+            s = tvb_get_stringz_enc(pinfo->pool, tvb, n+1, &siz, ENC_ASCII);
             i = hf_text;
             switch (c) {
             case 'S': i = hf_severity;          break;
@@ -738,9 +738,9 @@ dissect_pgsql_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
         n += 4;
 
         if (fe)
-            dissect_pgsql_fe_msg(type, length, tvb, n, ptree, conn_data);
+            dissect_pgsql_fe_msg(type, length, tvb, n, ptree, pinfo, conn_data);
         else
-            dissect_pgsql_be_msg(type, length, tvb, n, ptree, conn_data);
+            dissect_pgsql_be_msg(type, length, tvb, n, ptree, pinfo, conn_data);
     }
 
     return tvb_captured_length(tvb);

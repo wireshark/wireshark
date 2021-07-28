@@ -449,7 +449,7 @@ dissect_varbind(tvbuff_t *tvb, proto_tree *tree, int offset, int len, guint8 fla
 }
 
 static void
-dissect_response_pdu(tvbuff_t *tvb, proto_tree *tree, int offset, int len, guint8 flags)
+dissect_response_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int len, guint8 flags)
 {
 	proto_tree* subtree;
 	guint encoding = (flags & NETWORK_BYTE_ORDER) ? ENC_BIG_ENDIAN : ENC_LITTLE_ENDIAN;
@@ -459,7 +459,7 @@ dissect_response_pdu(tvbuff_t *tvb, proto_tree *tree, int offset, int len, guint
 
 	NORLEL(flags, r_uptime, tvb, offset);
 	proto_tree_add_uint_format(subtree, hf_resp_uptime, tvb, offset, 4, r_uptime,
-			"sysUptime: %s", signed_time_msecs_to_str(wmem_packet_scope(), r_uptime));
+			"sysUptime: %s", signed_time_msecs_to_str(pinfo->pool, r_uptime));
 	proto_tree_add_item(subtree, hf_resp_error,  tvb, offset + 4, 2, encoding);
 	proto_tree_add_item(subtree, hf_resp_index,  tvb, offset + 6, 2, encoding);
 	offset += 8;
@@ -899,7 +899,7 @@ dissect_agentx_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 		break;
 
 		case AGENTX_RESPONSE_PDU:
-		dissect_response_pdu(tvb, agentx_tree, offset, payload_len, flags);
+		dissect_response_pdu(tvb, pinfo, agentx_tree, offset, payload_len, flags);
 		break;
 	}
 

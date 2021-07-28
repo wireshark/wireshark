@@ -89,7 +89,7 @@ match_strextval_idx(guint32 val, const ext_value_string *vs, gint *idx) {
 }
 
 static const gchar*
-extval_to_str_idx(guint32 val, const ext_value_string *vs, gint *idx, const char *fmt) {
+extval_to_str_idx(wmem_allocator_t *pool, guint32 val, const ext_value_string *vs, gint *idx, const char *fmt) {
 	const gchar *ret;
 
 	if (!fmt)
@@ -99,7 +99,7 @@ extval_to_str_idx(guint32 val, const ext_value_string *vs, gint *idx, const char
 	if (ret != NULL)
 		return ret;
 
-	return wmem_strdup_printf(wmem_packet_scope(), fmt, val);
+	return wmem_strdup_printf(pool, fmt, val);
 }
 /* ============= end copy/paste/modify  ============== */
 
@@ -149,12 +149,12 @@ dissect_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mndp_tree,
 		"T %d, L %d: %s",
 		tlv_type,
 		tlv_length,
-		extval_to_str_idx(tlv_type, value_array, NULL, "Unknown"));
+		extval_to_str_idx(pinfo->pool, tlv_type, value_array, NULL, "Unknown"));
 
 	type_item = proto_tree_add_item(tlv_tree, hf_mndp_tlv_type,
 		tvb, offset, 2, ENC_BIG_ENDIAN);
 	proto_item_append_text(type_item, " = %s",
-		extval_to_str_idx(tlv_type, value_array,
+		extval_to_str_idx(pinfo->pool, tlv_type, value_array,
 			&type_index, "Unknown"));
 	offset += 2;
 	proto_tree_add_item(tlv_tree, hf_mndp_tlv_length,

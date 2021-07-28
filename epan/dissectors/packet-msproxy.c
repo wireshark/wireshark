@@ -548,7 +548,7 @@ static void dissect_bind_info_ack(tvbuff_t *tvb, int offset, proto_tree *tree) {
 
 
 static void dissect_request_resolve(tvbuff_t *tvb, int offset,
-	proto_tree *tree) {
+	proto_tree *tree, packet_info *pinfo) {
 
 /* dissect the request resolve structure */
 /* display a string with a length, characters encoding */
@@ -562,7 +562,7 @@ static void dissect_request_resolve(tvbuff_t *tvb, int offset,
 	if ( tree){
 		name_tree = proto_tree_add_subtree_format(tree, tvb, offset, length + 1,
 			ett_msproxy_name, NULL, "Host Name: %.*s", length,
-			tvb_get_string_enc( wmem_packet_scope(),  tvb, offset + 18, length, ENC_ASCII));
+			tvb_get_string_enc( pinfo->pool,  tvb, offset + 18, length, ENC_ASCII));
 
 		proto_tree_add_item(name_tree, hf_msproxy_req_resolve_length, tvb, offset, 1, ENC_NA);
 
@@ -684,7 +684,7 @@ static void dissect_msproxy_request(tvbuff_t *tvb, packet_info *pinfo,
 			break;
 
 		case MSPROXY_RESOLVE:
-			dissect_request_resolve( tvb, offset, tree);
+			dissect_request_resolve( tvb, offset, tree, pinfo);
 			break;
 
 		case MSPROXY_CONNECT:

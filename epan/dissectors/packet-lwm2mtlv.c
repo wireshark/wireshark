@@ -28,7 +28,7 @@
 void proto_register_lwm2mtlv(void);
 void proto_reg_handoff_lwm2mtlv(void);
 
-static void parseArrayOfElements(tvbuff_t *tvb, proto_tree *tlv_tree, const char *uri_path);
+static void parseArrayOfElements(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tlv_tree, const char *uri_path);
 
 static int proto_lwm2mtlv = -1;
 
@@ -663,16 +663,16 @@ addTlvHeaderTree(tvbuff_t *tvb, proto_tree *tlv_tree, lwm2mElement_t *element)
 }
 
 static proto_tree*
-addElementTree(tvbuff_t *tvb, proto_tree *tlv_tree, lwm2mElement_t *element, const lwm2m_resource_t *resource)
+addElementTree(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tlv_tree, lwm2mElement_t *element, const lwm2m_resource_t *resource)
 {
 	proto_item *item = NULL;
 	gchar *identifier = NULL;
 	gint ett_id;
 
 	if (resource) {
-		identifier = wmem_strdup_printf(wmem_packet_scope(), "[%02u] %s", element->identifier, resource->name);
+		identifier = wmem_strdup_printf(pinfo->pool, "[%02u] %s", element->identifier, resource->name);
 	} else {
-		identifier = wmem_strdup_printf(wmem_packet_scope(), "[%02u]", element->identifier);
+		identifier = wmem_strdup_printf(pinfo->pool, "[%02u]", element->identifier);
 	}
 
 	switch ( element->type )
@@ -703,7 +703,7 @@ addElementTree(tvbuff_t *tvb, proto_tree *tlv_tree, lwm2mElement_t *element, con
 }
 
 static void
-addValueInterpretations(tvbuff_t *tvb, proto_tree *tlv_tree, lwm2mElement_t *element, const lwm2m_resource_t *resource)
+addValueInterpretations(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tlv_tree, lwm2mElement_t *element, const lwm2m_resource_t *resource)
 {
 	guint valueOffset;
 	if ( element->length_of_value == 0 ) return;
@@ -716,8 +716,8 @@ addValueInterpretations(tvbuff_t *tvb, proto_tree *tlv_tree, lwm2mElement_t *ele
 		case DATA_TYPE_CORELNK:
 		{
 			const guint8 *strval;
-			proto_tree_add_item_ret_string(tlv_tree, *resource->hf_id, tvb, valueOffset, element->length_of_value, ENC_UTF_8, wmem_packet_scope(), &strval);
-			proto_item_append_text(tlv_tree, ": %s", format_text(wmem_packet_scope(), strval, strlen(strval)));
+			proto_tree_add_item_ret_string(tlv_tree, *resource->hf_id, tvb, valueOffset, element->length_of_value, ENC_UTF_8, pinfo->pool, &strval);
+			proto_item_append_text(tlv_tree, ": %s", format_text(pinfo->pool, strval, strlen(strval)));
 			break;
 		}
 		case DATA_TYPE_INTEGER:
@@ -752,7 +752,7 @@ addValueInterpretations(tvbuff_t *tvb, proto_tree *tlv_tree, lwm2mElement_t *ele
 			ts.secs = (time_t)decodeVariableInt(tvb, valueOffset, element->length_of_value);
 			ts.nsecs = 0;
 			proto_tree_add_time(tlv_tree, *resource->hf_id, tvb, valueOffset, element->length_of_value, &ts);
-			proto_item_append_text(tlv_tree, ": %s", abs_time_to_str(wmem_packet_scope(), &ts, ABSOLUTE_TIME_LOCAL, FALSE));
+			proto_item_append_text(tlv_tree, ": %s", abs_time_to_str(pinfo->pool, &ts, ABSOLUTE_TIME_LOCAL, FALSE));
 			break;
 		}
 		case DATA_TYPE_OBJLNK:
@@ -766,15 +766,15 @@ addValueInterpretations(tvbuff_t *tvb, proto_tree *tlv_tree, lwm2mElement_t *ele
 		case DATA_TYPE_OPAQUE:
 		default:
 			proto_tree_add_item(tlv_tree, *resource->hf_id, tvb, valueOffset, element->length_of_value, ENC_BIG_ENDIAN);
-			proto_item_append_text(tlv_tree, ": %s", tvb_bytes_to_str(wmem_packet_scope(), tvb, valueOffset, element->length_of_value));
+			proto_item_append_text(tlv_tree, ": %s", tvb_bytes_to_str(pinfo->pool, tvb, valueOffset, element->length_of_value));
 			break;
 		}
 	} else {
-		guint8 *str = tvb_get_string_enc(wmem_packet_scope(), tvb, valueOffset, element->length_of_value, ENC_UTF_8);
+		guint8 *str = tvb_get_string_enc(pinfo->pool, tvb, valueOffset, element->length_of_value, ENC_UTF_8);
 		if (isprint_utf8_string(str, element->length_of_value)) {
 			proto_tree_add_item(tlv_tree, hf_lwm2mtlv_value_string, tvb, valueOffset, element->length_of_value, ENC_UTF_8|ENC_NA);
 		} else {
-			str = tvb_bytes_to_str(wmem_packet_scope(), tvb, valueOffset, element->length_of_value);
+			str = tvb_bytes_to_str(pinfo->pool, tvb, valueOffset, element->length_of_value);
 		}
 		proto_item_append_text(tlv_tree, ": %s", str);
 
@@ -808,7 +808,7 @@ addValueInterpretations(tvbuff_t *tvb, proto_tree *tlv_tree, lwm2mElement_t *ele
 }
 
 static void
-addValueTree(tvbuff_t *tvb, proto_tree *tlv_tree, lwm2mElement_t *element, const char *uri_path, const lwm2m_resource_t *resource)
+addValueTree(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tlv_tree, lwm2mElement_t *element, const char *uri_path, const lwm2m_resource_t *resource)
 {
 	guint valueOffset = 1 + element->length_of_identifier + element->length_of_length;
 
@@ -819,20 +819,20 @@ addValueTree(tvbuff_t *tvb, proto_tree *tlv_tree, lwm2mElement_t *element, const
 
 	if ( element->type == RESOURCE || element->type == RESOURCE_INSTANCE ) {
 		proto_tree_add_item(tlv_tree, hf_lwm2mtlv_value, tvb, valueOffset, element->length_of_value, ENC_NA);
-		addValueInterpretations(tvb, tlv_tree, element, resource);
+		addValueInterpretations(pinfo, tvb, tlv_tree, element, resource);
 	} else {
 		tvbuff_t* sub = tvb_new_subset_length(tvb, valueOffset, element->length_of_value);
-		parseArrayOfElements(sub, tlv_tree, uri_path);
+		parseArrayOfElements(pinfo, sub, tlv_tree, uri_path);
 	}
 }
 
 static void
-addTlvElement(tvbuff_t *tvb, proto_tree *tlv_tree, lwm2mElement_t *element, const char *uri_path)
+addTlvElement(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tlv_tree, lwm2mElement_t *element, const char *uri_path)
 {
 	proto_tree *element_tree = NULL;
 	const lwm2m_resource_t *resource = NULL;
 
-	gchar **ids = wmem_strsplit(wmem_packet_scope(), uri_path, "/", 5);
+	gchar **ids = wmem_strsplit(pinfo->pool, uri_path, "/", 5);
 	if (ids && ids[0] && ids[1] && ids[2] && ids[3]) {
 		/* URI path is defined as:
 		 *  ids[1] = Object ID
@@ -854,9 +854,9 @@ addTlvElement(tvbuff_t *tvb, proto_tree *tlv_tree, lwm2mElement_t *element, cons
 		}
 	}
 
-	element_tree = addElementTree(tvb, tlv_tree, element, resource);
+	element_tree = addElementTree(pinfo, tvb, tlv_tree, element, resource);
 	addTlvHeaderTree(tvb, element_tree, element);
-	addValueTree(tvb, element_tree, element, uri_path, resource);
+	addValueTree(pinfo, tvb, element_tree, element, uri_path, resource);
 }
 
 static guint64
@@ -904,7 +904,7 @@ static guint parseTLVHeader(tvbuff_t *tvb, lwm2mElement_t *element)
 	return element->totalLength;
 }
 
-static void parseArrayOfElements(tvbuff_t *tvb, proto_tree *tlv_tree, const char *uri_path)
+static void parseArrayOfElements(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tlv_tree, const char *uri_path)
 {
 	guint length;
 	guint offset = 0;
@@ -919,9 +919,9 @@ static void parseArrayOfElements(tvbuff_t *tvb, proto_tree *tlv_tree, const char
 		tvbuff_t* sub = tvb_new_subset_length(tvb, offset, length);
 		elementLength = parseTLVHeader(sub, &element);
 		if (uri_path) {
-			next_uri_path = wmem_strdup_printf(wmem_packet_scope(), "%s/%d", uri_path, element.identifier);
+			next_uri_path = wmem_strdup_printf(pinfo->pool, "%s/%d", uri_path, element.identifier);
 		}
-		addTlvElement(sub, tlv_tree, &element, next_uri_path);
+		addTlvElement(pinfo, sub, tlv_tree, &element, next_uri_path);
 		element_count++;
 
 		length -= elementLength;
@@ -936,7 +936,7 @@ static void parseArrayOfElements(tvbuff_t *tvb, proto_tree *tlv_tree, const char
 }
 
 static int
-dissect_lwm2mtlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data)
+dissect_lwm2mtlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	proto_tree* lwm2mtlv_tree;
 	proto_item* lwm2mtlv_item;
@@ -951,7 +951,7 @@ dissect_lwm2mtlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *
 		lwm2mtlv_item = proto_tree_add_item(tree, proto_lwm2mtlv, tvb, 0, -1, ENC_NA);
 		lwm2mtlv_tree = proto_item_add_subtree(lwm2mtlv_item, ett_lwm2mtlv);
 
-		gchar **ids = wmem_strsplit(wmem_packet_scope(), uri_path, "/", 3);
+		gchar **ids = wmem_strsplit(pinfo->pool, uri_path, "/", 3);
 		if (ids && ids[0] && ids[1]) {
 			/* ids[1] = Object ID */
 			guint object_id = (guint)strtol(ids[1], NULL, 10);
@@ -975,7 +975,7 @@ dissect_lwm2mtlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *
 			}
 		}
 
-		parseArrayOfElements(tvb, lwm2mtlv_tree, uri_path);
+		parseArrayOfElements(pinfo, tvb, lwm2mtlv_tree, uri_path);
 	}
 	return tvb_captured_length(tvb);
 }

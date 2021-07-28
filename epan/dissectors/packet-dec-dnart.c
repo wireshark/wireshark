@@ -320,11 +320,11 @@ handle_disc_init_contents(
     guint offset);
 
 static char *
-dnet_ntoa(const guint8 *data)
+dnet_ntoa(wmem_allocator_t *pool, const guint8 *data)
 {
     if (data[0] == 0xAA && data[1] == 0x00 && data[2] == 0x04 && data[3] == 0x00) {
         guint16 dnet_addr = data[4] | (data[5] << 8);
-        return wmem_strdup_printf(wmem_packet_scope(), "%d.%d", dnet_addr >> 10, dnet_addr & 0x03FF);
+        return wmem_strdup_printf(pool, "%d.%d", dnet_addr >> 10, dnet_addr & 0x03FF);
     }
     return NULL;
 }
@@ -333,7 +333,7 @@ static void
 set_dnet_address(packet_info *pinfo, address *paddr_src, address *paddr_tgt)
 {
     if (paddr_tgt->type != AT_STRINGZ && paddr_src->type == AT_ETHER) {
-        char *addr = dnet_ntoa((const guint8 *)paddr_src->data);
+        char *addr = dnet_ntoa(pinfo->pool, (const guint8 *)paddr_src->data);
         if (addr != NULL)
             set_address(paddr_tgt, AT_STRINGZ, 1,
                     wmem_strdup(pinfo->pool, addr));
@@ -441,7 +441,7 @@ dissect_dec_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
         offset += 3;
         ti = proto_tree_add_item(rt_tree, hf_dec_rt_dst_addr, tvb,
                 offset, 6, ENC_NA);
-        addr = dnet_ntoa((const guint8 *)tvb_memdup(wmem_packet_scope(), tvb, offset, 6));
+        addr = dnet_ntoa(pinfo->pool, (const guint8 *)tvb_memdup(pinfo->pool, tvb, offset, 6));
         if (addr != NULL) {
             proto_item_append_text(ti, " (%s)", addr);
         }
@@ -452,7 +452,7 @@ dissect_dec_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
         offset += 8;
         ti = proto_tree_add_item(rt_tree, hf_dec_rt_src_addr, tvb,
             offset, 6, ENC_NA);
-        addr = dnet_ntoa((const guint8 *)tvb_memdup(wmem_packet_scope(), tvb, offset, 6));
+        addr = dnet_ntoa(pinfo->pool, (const guint8 *)tvb_memdup(pinfo->pool, tvb, offset, 6));
         if (addr != NULL) {
             proto_item_append_text(ti, " (%s)", addr);
         }
@@ -697,7 +697,7 @@ do_hello_msg(
     my_offset +=3;
     ti = proto_tree_add_item(tree, hf_dec_rt_id, tvb,
         my_offset, 6, ENC_NA);
-    addr = dnet_ntoa((const guint8 *)tvb_memdup(wmem_packet_scope(), tvb, my_offset, 6));
+    addr = dnet_ntoa(pinfo->pool, (const guint8 *)tvb_memdup(pinfo->pool, tvb, my_offset, 6));
     if (addr != NULL) {
         proto_item_append_text(ti, " (%s)", addr);
     }
@@ -727,7 +727,7 @@ do_hello_msg(
         my_offset += 8;
         ti = proto_tree_add_item(tree, hf_dec_rt_neighbor, tvb,
                 my_offset, 6, ENC_NA);
-        addr = dnet_ntoa((const guint8 *)tvb_memdup(wmem_packet_scope(), tvb, my_offset, 6));
+        addr = dnet_ntoa(pinfo->pool, (const guint8 *)tvb_memdup(pinfo->pool, tvb, my_offset, 6));
         if (addr != NULL) {
             proto_item_append_text(ti, " (%s)", addr);
         }
@@ -776,7 +776,7 @@ do_hello_msg(
 
                 ti_localb = proto_tree_add_item(list_ether, hf_dec_rt_router_id,
                     tvb, my_offset, 6, ENC_NA);
-                addr = dnet_ntoa((const guint8 *)tvb_memdup(wmem_packet_scope(), tvb, my_offset, 6));
+                addr = dnet_ntoa(pinfo->pool, (const guint8 *)tvb_memdup(pinfo->pool, tvb, my_offset, 6));
                 if (addr != NULL) {
                     proto_item_append_text(ti_localb, " (%s)", addr);
                 }

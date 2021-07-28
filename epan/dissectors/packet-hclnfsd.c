@@ -160,12 +160,12 @@ static const value_string names_request_type[] = {
 };
 
 static char *
-hclnfsd_decode_obscure(const char *ident, int ident_len)
+hclnfsd_decode_obscure(wmem_allocator_t *pool, const char *ident, int ident_len)
 {
 	char *ident_decoded, *ident_out;
 	int j, x, y;
 
-	ident_decoded = (char *)wmem_alloc(wmem_packet_scope(), ident_len);
+	ident_decoded = (char *)wmem_alloc(pool, ident_len);
 	ident_out = ident_decoded;
 	for (x = -1, j = 0; j < ident_len; j++)
 	{
@@ -181,7 +181,7 @@ hclnfsd_decode_obscure(const char *ident, int ident_len)
 
 
 static int
-dissect_hclnfsd_authorize_call(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+dissect_hclnfsd_authorize_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	guint32 request_type;
 	const char *ident = NULL;
@@ -219,7 +219,7 @@ dissect_hclnfsd_authorize_call(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 
 			proto_item_set_len(ident_item, ident_len);
 
-			ident_decoded = hclnfsd_decode_obscure(ident, ident_len);
+			ident_decoded = hclnfsd_decode_obscure(pinfo->pool, ident, ident_len);
 
 			username = ident_decoded + 2;
 			password = username + strlen(username) + 1;

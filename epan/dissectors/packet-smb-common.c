@@ -41,14 +41,14 @@ const value_string share_type_vals[] = {
 	{0, NULL}
 };
 
-int display_ms_string(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_index, char **data)
+int display_ms_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int hf_index, char **data)
 {
 	char *str;
 	gint  len;
 
 	/* display a string from the tree and return the new offset */
 
-	str = tvb_get_stringz_enc(wmem_packet_scope(), tvb, offset, &len, ENC_ASCII);
+	str = tvb_get_stringz_enc(pinfo->pool, tvb, offset, &len, ENC_ASCII);
 	proto_tree_add_string(tree, hf_index, tvb, offset, len, str);
 
 	/* Return a copy of the string if requested */
@@ -60,7 +60,7 @@ int display_ms_string(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_index,
 }
 
 
-int display_unicode_string(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_index, char **data)
+int display_unicode_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int hf_index, char **data)
 {
 	char    *str, *p;
 	int      len;
@@ -83,7 +83,7 @@ int display_unicode_string(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_i
 	 * Allocate a buffer for the string; "len" is the length in
 	 * bytes, not the length in characters.
 	 */
-	str = (char *)wmem_alloc(wmem_packet_scope(), len/2);
+	str = (char *)wmem_alloc(pinfo->pool, len/2);
 
 	/*
 	 * XXX - this assumes the string is just ISO 8859-1; we need
@@ -110,7 +110,7 @@ int display_unicode_string(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_i
 /* Max string length for displaying Unicode strings.  */
 #define	MAX_UNICODE_STR_LEN	256
 
-int dissect_ms_compressed_string(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_index,
+int dissect_ms_compressed_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int hf_index,
 				 const char **data)
 {
 	int           compr_len;
@@ -119,7 +119,7 @@ int dissect_ms_compressed_string(tvbuff_t *tvb, proto_tree *tree, int offset, in
 
 	/* The name data MUST start at offset 0 of the tvb */
 	compr_len = get_dns_name(tvb, offset, MAX_UNICODE_STR_LEN+3+1, 0, &str, &str_len);
-	proto_tree_add_string(tree, hf_index, tvb, offset, compr_len, format_text(wmem_packet_scope(), str, str_len));
+	proto_tree_add_string(tree, hf_index, tvb, offset, compr_len, format_text(pinfo->pool, str, str_len));
 
 	if (data)
 		*data = str;

@@ -23,7 +23,7 @@ void proto_register_sasp(void);
 void proto_reg_handoff_sasp(void);
 
 static void dissect_reg_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset);
-static void dissect_dereg_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset);
+static void dissect_dereg_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset);
 static void dissect_reg_rep(tvbuff_t *tvb, proto_tree *tree, guint32 offset);
 static void dissect_dereg_rep(tvbuff_t *tvb, proto_tree *tree, guint32 offset);
 static void dissect_sendwt(tvbuff_t *tvb, proto_tree *tree, guint32 offset);
@@ -391,7 +391,7 @@ dissect_sasp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
         case 0x1020:
             /* Deregistration Request */
             col_set_str(pinfo->cinfo, COL_INFO, "Deregistration Request");
-            dissect_dereg_req(tvb, pay_load, offset);
+            dissect_dereg_req(tvb, pinfo, pay_load, offset);
             break;
 
         case 0x1025:
@@ -504,7 +504,7 @@ static void dissect_reg_rep(tvbuff_t *tvb, proto_tree *pay_load, guint32 offset)
 }
 
 
-static void dissect_dereg_req(tvbuff_t *tvb, proto_tree *pay_load, guint32 offset)
+static void dissect_dereg_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pay_load, guint32 offset)
 {
     /*proto_item *dereg_req_reason_flag;*/
     /*proto_tree *dereg_req_reason_flag_tree;*/
@@ -512,7 +512,7 @@ static void dissect_dereg_req(tvbuff_t *tvb, proto_tree *pay_load, guint32 offse
     proto_tree      *dereg_req_data;
     guint8           reason_flag;
     static gboolean  first_flag         = TRUE;
-    wmem_strbuf_t   *reasonflags_strbuf = wmem_strbuf_new_label(wmem_packet_scope());
+    wmem_strbuf_t   *reasonflags_strbuf = wmem_strbuf_new_label(pinfo->pool);
     static const gchar *fstr[] = {"No Reason", "Learned & Purposeful" };
 
     dereg_req_data = proto_tree_add_subtree(pay_load, tvb, offset, -1, ett_sasp_dereg_req_sz, NULL, "DeReg Request");

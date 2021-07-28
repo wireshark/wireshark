@@ -351,7 +351,7 @@ static int dissect_nano_vote(tvbuff_t *tvb, proto_tree *nano_tree, int offset)
 
 // dissect a Nano protocol header, fills in the values
 // for nano_packet_type, nano_block_type
-static int dissect_nano_header(tvbuff_t *tvb, proto_tree *nano_tree, int offset, guint *nano_packet_type, guint64 *extensions)
+static int dissect_nano_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *nano_tree, int offset, guint *nano_packet_type, guint64 *extensions)
 {
     proto_tree *header_tree;
     char *nano_magic_number;
@@ -362,7 +362,7 @@ static int dissect_nano_header(tvbuff_t *tvb, proto_tree *nano_tree, int offset,
 
     header_tree = proto_tree_add_subtree(nano_tree, tvb, offset, NANO_HEADER_LENGTH, ett_nano_header, NULL, "Nano Protocol Header");
 
-    nano_magic_number = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 2, ENC_ASCII);
+    nano_magic_number = tvb_get_string_enc(pinfo->pool, tvb, offset, 2, ENC_ASCII);
     proto_tree_add_string_format_value(header_tree, hf_nano_magic_number, tvb, 0,
             2, nano_magic_number, "%s (%s)", str_to_str(nano_magic_number, nano_magic_numbers, "Unknown"), nano_magic_number);
     offset += 2;
@@ -403,7 +403,7 @@ static int dissect_nano(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     ti = proto_tree_add_item(tree, proto_nano, tvb, 0, -1, ENC_NA);
     nano_tree = proto_item_add_subtree(ti, ett_nano);
 
-    offset = dissect_nano_header(tvb, nano_tree, 0, &nano_packet_type, &extensions);
+    offset = dissect_nano_header(tvb, pinfo, nano_tree, 0, &nano_packet_type, &extensions);
 
     // call specific dissectors for specific packet types
     switch (nano_packet_type) {
@@ -562,7 +562,7 @@ static int dissect_nano_bulk_pull_blocks(tvbuff_t *tvb, proto_tree *nano_tree, i
 }
 
 // dissect a single nano bootstrap message (client)
-static int dissect_nano_tcp_client_message(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_)
+static int dissect_nano_tcp_client_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *data _U_)
 {
     int offset, nano_packet_type, nano_block_type;
     guint64 extensions;
@@ -598,7 +598,7 @@ static int dissect_nano_tcp_client_message(tvbuff_t *tvb, packet_info *pinfo _U_
     }
 
     // a bootstrap client command starts with a Nano header
-    offset = dissect_nano_header(tvb, tree, 0, &nano_packet_type, &extensions);
+    offset = dissect_nano_header(tvb, pinfo, tree, 0, &nano_packet_type, &extensions);
     session_state->client_packet_type = nano_packet_type;
 
     switch (nano_packet_type) {

@@ -175,7 +175,7 @@ align_4(tvbuff_t *tvb, int aoffset)
 #endif
 
 static int
-nmas_string(tvbuff_t* tvb, int hfinfo, proto_tree *nmas_tree, int offset, gboolean little)
+nmas_string(packet_info *pinfo, tvbuff_t* tvb, int hfinfo, proto_tree *nmas_tree, int offset, gboolean little)
 {
     int     foffset = offset;
     guint32 str_length;
@@ -184,7 +184,7 @@ nmas_string(tvbuff_t* tvb, int hfinfo, proto_tree *nmas_tree, int offset, gboole
     guint16 c_char;
     guint32 length_remaining = 0;
 
-    buffer = (char *)wmem_alloc(wmem_packet_scope(), ITEM_LABEL_LENGTH+1);
+    buffer = (char *)wmem_alloc(pinfo->pool, ITEM_LABEL_LENGTH+1);
     if (little) {
         str_length = tvb_get_letohl(tvb, foffset);
     } else {
@@ -342,8 +342,8 @@ dissect_nmas_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, nc
             foffset += 4;
             /* The next two GUINT32 values are reserved and always 0 */
             foffset += 8;
-            foffset = nmas_string(tvb, hf_tree, atree, foffset, TRUE);
-            /*foffset = */nmas_string(tvb, hf_user, atree, foffset, TRUE);
+            foffset = nmas_string(pinfo, tvb, hf_tree, atree, foffset, TRUE);
+            /*foffset = */nmas_string(pinfo, tvb, hf_user, atree, foffset, TRUE);
             break;
         case 1242:          /* Message Handler */
             foffset += 4;
@@ -381,16 +381,16 @@ dissect_nmas_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, nc
                     cur_string_len=tvb_get_ntohl(tvb, foffset);
                     switch (attribute) {
                     case 1:
-                        foffset = nmas_string(tvb, hf_user, atree, foffset, FALSE);
+                        foffset = nmas_string(pinfo, tvb, hf_user, atree, foffset, FALSE);
                         break;
                     case 2:
-                        foffset = nmas_string(tvb, hf_tree, atree, foffset, FALSE);
+                        foffset = nmas_string(pinfo, tvb, hf_tree, atree, foffset, FALSE);
                         break;
                     case 4:
-                        foffset = nmas_string(tvb, hf_clearance, atree, foffset, FALSE);
+                        foffset = nmas_string(pinfo, tvb, hf_clearance, atree, foffset, FALSE);
                         break;
                     case 11:
-                        foffset = nmas_string(tvb, hf_login_sequence, atree, foffset, FALSE);
+                        foffset = nmas_string(pinfo, tvb, hf_login_sequence, atree, foffset, FALSE);
                         break;
                     default:
                         break;

@@ -961,7 +961,7 @@ static const gchar* get_pid_name( gint ot, gint pid )
 
 /* Decrypt data security APDU with a specific key.
 */
-static const guint8* decrypt_data_security_data_with_key( const guint8* key, const guint8* encrypted, gint encrypted_size, const guint8* cemi, gint cemi_size )
+static const guint8* decrypt_data_security_data_with_key( wmem_allocator_t *pool, const guint8* key, const guint8* encrypted, gint encrypted_size, const guint8* cemi, gint cemi_size )
 {
   guint8 ctr_0[ KNX_KEY_LENGTH ];
   guint8 b_0[ KNX_KEY_LENGTH ];
@@ -1029,7 +1029,7 @@ static const guint8* decrypt_data_security_data_with_key( const guint8* key, con
 
         decrypted = knx_ccm_encrypt( 0, key, p_bytes, p_length, encrypted + encrypted_size - 4, 4, ctr_0, 4 );
 
-        a_bytes = (guint8*) wmem_alloc( wmem_packet_scope(), encrypted_size );
+        a_bytes = (guint8*) wmem_alloc( pool, encrypted_size );
         if( (scf & 0x30) == 0x10 ) // A+C
         {
           a_bytes[ 0 ] = scf;
@@ -1045,12 +1045,12 @@ static const guint8* decrypt_data_security_data_with_key( const guint8* key, con
         }
 
         knx_ccm_calc_cbc_mac( mac, key, a_bytes, a_length, p_bytes, p_length, b_0 );
-        wmem_free( wmem_packet_scope(), a_bytes );
+        wmem_free( pool, a_bytes );
 
         if( memcmp( mac, decrypted + p_length, 4 ) != 0 )
         {
           // Wrong mac. Return 0.
-          wmem_free( wmem_packet_scope(), decrypted );
+          wmem_free( pool, decrypted );
           decrypted = NULL;
         }
       }
@@ -1073,7 +1073,7 @@ struct data_security_info
 
 /* Decrypt data security APDU.
 */
-static const guint8* decrypt_data_security_data( const guint8* encrypted, gint encrypted_size, const guint8* cemi, gint cemi_size, struct data_security_info* info )
+static const guint8* decrypt_data_security_data( wmem_allocator_t *pool, const guint8* encrypted, gint encrypted_size, const guint8* cemi, gint cemi_size, struct data_security_info* info )
 {
   const guint8* key = NULL;
   const guint8* decrypted = NULL;
@@ -1101,7 +1101,7 @@ static const guint8* decrypt_data_security_data( const guint8* encrypted, gint e
       {
         keys_found = 1;
         key = ga_key->key;
-        decrypted = decrypt_data_security_data_with_key( key, encrypted, encrypted_size, cemi, cemi_size );
+        decrypted = decrypt_data_security_data_with_key( pool, key, encrypted, encrypted_size, cemi, cemi_size );
 
         if( decrypted )
         {
@@ -1123,7 +1123,7 @@ static const guint8* decrypt_data_security_data( const guint8* encrypted, gint e
       {
         keys_found = 1;
         key = ia_key->key;
-        decrypted = decrypt_data_security_data_with_key( key, encrypted, encrypted_size, cemi, cemi_size );
+        decrypted = decrypt_data_security_data_with_key( pool, key, encrypted, encrypted_size, cemi, cemi_size );
 
         if( decrypted )
         {
@@ -1146,7 +1146,7 @@ static const guint8* decrypt_data_security_data( const guint8* encrypted, gint e
       {
         keys_found = 1;
         key = ia_key->key;
-        decrypted = decrypt_data_security_data_with_key( key, encrypted, encrypted_size, cemi, cemi_size );
+        decrypted = decrypt_data_security_data_with_key( pool, key, encrypted, encrypted_size, cemi, cemi_size );
 
         if( decrypted )
         {
@@ -1167,7 +1167,7 @@ static const guint8* decrypt_data_security_data( const guint8* encrypted, gint e
     {
       keys_found = 1;
       key = knx_decryption_keys[ key_index ];
-      decrypted = decrypt_data_security_data_with_key( key, encrypted, encrypted_size, cemi, cemi_size );
+      decrypted = decrypt_data_security_data_with_key( pool, key, encrypted, encrypted_size, cemi, cemi_size );
 
       if( decrypted )
       {
@@ -2365,7 +2365,7 @@ static void dissect_data_security_service( tvbuff_t* tvb, packet_info* pinfo, pr
       encrypted_size = size - offset;
 
       // Decrypt.
-      decrypted = decrypt_data_security_data( encrypted, encrypted_size, cemi, size, &info );
+      decrypted = decrypt_data_security_data( pinfo->pool, encrypted, encrypted_size, cemi, size, &info );
 
       if( decrypted )
       {
@@ -2399,7 +2399,7 @@ static void dissect_data_security_service( tvbuff_t* tvb, packet_info* pinfo, pr
           {
             if( offsetToApci + size2 <= innerTelegramSize )
             {
-              guint8* innerTelegram = (guint8*) wmem_alloc( wmem_packet_scope(), innerTelegramSize );
+              guint8* innerTelegram = (guint8*) wmem_alloc( pinfo->pool, innerTelegramSize );
 
               memcpy( innerTelegram, cemi, offsetToApci );
               memcpy( innerTelegram + offsetToApci, decrypted, size2 );

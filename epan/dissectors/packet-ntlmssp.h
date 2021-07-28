@@ -29,7 +29,7 @@ typedef struct _md4_pass {
 } md4_pass;
 
 guint32
-get_md4pass_list(md4_pass** p_pass_list);
+get_md4pass_list(wmem_allocator_t *pool, md4_pass** p_pass_list);
 
 /* Dissect a ntlmv2 response */
 

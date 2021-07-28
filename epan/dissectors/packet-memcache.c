@@ -598,7 +598,7 @@ dissect_memcache (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 /* Obtain the content length by peeping into the header.
  */
 static gboolean
-get_payload_length (tvbuff_t *tvb, const int token_number, int offset,
+get_payload_length (tvbuff_t *tvb, packet_info *pinfo, const int token_number, int offset,
                     guint32 *bytes, gboolean *content_length_found)
 {
   const guchar *next_token;
@@ -632,7 +632,7 @@ get_payload_length (tvbuff_t *tvb, const int token_number, int offset,
     return FALSE;
   }
 
-  bytes_val = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tokenlen, ENC_ASCII);
+  bytes_val = tvb_get_string_enc(pinfo->pool, tvb, offset, tokenlen, ENC_ASCII);
   if (bytes_val) {
     if (sscanf (bytes_val, "%u", bytes) == 1) {
       *content_length_found = TRUE;
@@ -747,7 +747,7 @@ memcache_req_resp_hdrs_do_reassembly (
 
       case MEMCACHE_REQUEST:
         /* Get the fifth token in the header.*/
-        ret = get_payload_length (tvb, 5 , offset, &content_length, &content_length_found);
+        ret = get_payload_length (tvb, pinfo, 5 , offset, &content_length, &content_length_found);
         if (!ret) {
           return FALSE;
         }
@@ -755,7 +755,7 @@ memcache_req_resp_hdrs_do_reassembly (
 
       case MEMCACHE_RESPONSE:
         /* Get the fourth token in the header.*/
-        ret =  get_payload_length (tvb, 4 , offset, &content_length, &content_length_found);
+        ret =  get_payload_length (tvb, pinfo, 4 , offset, &content_length, &content_length_found);
         if (!ret) {
           return FALSE;
         }
@@ -847,7 +847,7 @@ dissect_memcache_message (tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
   if (is_request_or_reply) {
     line = tvb_get_ptr (tvb, offset, first_linelen);
     col_add_fstr (pinfo->cinfo, COL_INFO, "%s ",
-                 format_text(wmem_packet_scope(), line, first_linelen));
+                 format_text(pinfo->pool, line, first_linelen));
   } else {
     col_set_str (pinfo->cinfo, COL_INFO, "MEMCACHE Continuation");
   }

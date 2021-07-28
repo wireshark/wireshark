@@ -2110,7 +2110,7 @@ static const value_string q931_redirection_reason_vals[] = {
 };
 
 static void
-dissect_q931_number_ie(tvbuff_t *tvb, int offset, int len,
+dissect_q931_number_ie(packet_info *pinfo, tvbuff_t *tvb, int offset, int len,
     proto_tree *tree, int hfindex, e164_info_t e164_info, q931_packet_info *q931_pi)
 {
     guint8 octet;
@@ -2158,7 +2158,7 @@ dissect_q931_number_ie(tvbuff_t *tvb, int offset, int len,
     if ( number_plan == 1 ) {
         if ( e164_info.e164_number_type != NONE ){
 
-            e164_info.E164_number_str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, len, ENC_ASCII|ENC_NA);
+            e164_info.E164_number_str = tvb_get_string_enc(pinfo->pool, tvb, offset, len, ENC_ASCII|ENC_NA);
             e164_info.E164_number_length = len;
             dissect_e164_number(tvb, tree, offset, len, e164_info);
         }
@@ -2166,9 +2166,9 @@ dissect_q931_number_ie(tvbuff_t *tvb, int offset, int len,
 
     /* Collect q931_packet_info */
     if ( e164_info.e164_number_type == CALLING_PARTY_NUMBER && q931_pi)
-        q931_pi->calling_number = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, len, ENC_ASCII|ENC_NA);
+        q931_pi->calling_number = tvb_get_string_enc(pinfo->pool, tvb, offset, len, ENC_ASCII|ENC_NA);
     if ( e164_info.e164_number_type == CALLED_PARTY_NUMBER && q931_pi)
-        q931_pi->called_number = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, len, ENC_ASCII|ENC_NA);
+        q931_pi->called_number = tvb_get_string_enc(pinfo->pool, tvb, offset, len, ENC_ASCII|ENC_NA);
 }
 
 /*
@@ -2474,7 +2474,7 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     tvbuff_t *next_tvb = NULL;
     q931_packet_info *q931_pi = NULL;
 
-    q931_pi=wmem_new(wmem_packet_scope(), q931_packet_info);
+    q931_pi=wmem_new(pinfo->pool, q931_packet_info);
 
     /* Init struct for collecting q931_packet_info */
     reset_q931_packet_info(q931_pi);
@@ -2956,7 +2956,7 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
 
                 case CS0 | Q931_IE_CONNECTED_NUMBER_DEFAULT:
                     if (q931_tree != NULL) {
-                        dissect_q931_number_ie(tvb,
+                        dissect_q931_number_ie(pinfo, tvb,
                             offset + 2, info_element_len,
                             ie_tree,
                             hf_q931_connected_number, e164_info, q931_pi);
@@ -2966,7 +2966,7 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
 
                 case CS0 | Q931_IE_CALLING_PARTY_NUMBER:
                     e164_info.e164_number_type = CALLING_PARTY_NUMBER;
-                    dissect_q931_number_ie(tvb,
+                    dissect_q931_number_ie(pinfo, tvb,
                         offset + 2, info_element_len,
                         ie_tree,
                         hf_q931_calling_party_number, e164_info, q931_pi);
@@ -2974,7 +2974,7 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
 
                 case CS0 | Q931_IE_CALLED_PARTY_NUMBER:
                     e164_info.e164_number_type = CALLED_PARTY_NUMBER;
-                    dissect_q931_number_ie(tvb,
+                    dissect_q931_number_ie(pinfo, tvb,
                         offset + 2, info_element_len,
                         ie_tree,
                         hf_q931_called_party_number, e164_info, q931_pi);
@@ -2991,7 +2991,7 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
 
                 case CS0 | Q931_IE_REDIRECTING_NUMBER:
                     if (q931_tree != NULL) {
-                        dissect_q931_number_ie(tvb,
+                        dissect_q931_number_ie(pinfo, tvb,
                             offset + 2, info_element_len,
                             ie_tree,
                             hf_q931_redirecting_number, e164_info, q931_pi);

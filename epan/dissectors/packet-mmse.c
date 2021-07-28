@@ -438,6 +438,8 @@ static const value_string vals_reply_charging[] = {
  *
  * \param       tvb     The buffer with PDU-data
  * \param       offset  Offset within that buffer
+ * \param       pool    wmem allocation pool from which to allocate
+ *                      memory for strval
  * \param       strval  Pointer to variable into which to put pointer to
  *                      buffer allocated to hold the text; must be freed
  *                      when no longer used
@@ -445,7 +447,7 @@ static const value_string vals_reply_charging[] = {
  * \return              The length in bytes of the entire field
  */
 static guint
-get_text_string(tvbuff_t *tvb, guint offset, const char **strval)
+get_text_string(tvbuff_t *tvb, guint offset, wmem_allocator_t *pool, const char **strval)
 {
     guint        len;
 
@@ -454,9 +456,9 @@ get_text_string(tvbuff_t *tvb, guint offset, const char **strval)
     len = tvb_strsize(tvb, offset);
     DebugLog((" [1] tvb_strsize(tvb, offset) == %u\n", len));
     if (tvb_get_guint8(tvb, offset) == MM_QUOTE)
-        *strval = (const char *)tvb_memdup(wmem_packet_scope(), tvb, offset+1, len-1);
+        *strval = (const char *)tvb_memdup(pool, tvb, offset+1, len-1);
     else
-        *strval = (const char *)tvb_memdup(wmem_packet_scope(), tvb, offset, len);
+        *strval = (const char *)tvb_memdup(pool, tvb, offset, len);
     DebugLog((" [3] Return(len) == %u\n", len));
     return len;
 }
@@ -526,11 +528,11 @@ get_encoded_strval(tvbuff_t *tvb, guint offset, const char **strval, packet_info
             *strval = "";
         } else {
             /* \todo    Something with "Char-set", skip for now */
-            *strval = (char *)tvb_get_string_enc(wmem_packet_scope(), tvb, offset + count + 1, length - 1, ENC_ASCII);
+            *strval = (char *)tvb_get_string_enc(pinfo->pool, tvb, offset + count + 1, length - 1, ENC_ASCII);
         }
         return count + length;
     } else
-        return get_text_string(tvb, offset, strval);
+        return get_text_string(tvb, offset, pinfo->pool, strval);
 }
 
 /*!
@@ -743,7 +745,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
         switch (field)
         {
             case MM_TID_HDR:                /* Text-string  */
-                length = get_text_string(tvb, offset, &strval);
+                length = get_text_string(tvb, offset, pinfo->pool, &strval);
                 proto_tree_add_string(mmse_tree, hf_mmse_transaction_id,
                         tvb, offset - 1, length + 1,strval);
                 offset += length;
@@ -757,9 +759,9 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
                     major = (version & 0x70) >> 4;
                     minor = version & 0x0F;
                     if (minor == 0x0F)
-                        vers_string = wmem_strdup_printf(wmem_packet_scope(), "%u", major);
+                        vers_string = wmem_strdup_printf(pinfo->pool, "%u", major);
                     else
-                        vers_string = wmem_strdup_printf(wmem_packet_scope(), "%u.%u", major, minor);
+                        vers_string = wmem_strdup_printf(pinfo->pool, "%u.%u", major, minor);
                     proto_tree_add_string(mmse_tree, hf_mmse_mms_version,
                             tvb, offset - 2, 2, vers_string);
                 }
@@ -793,7 +795,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
                             tvb, offset - 1, length + 1,
                             "<Undecoded value for m-mbox-delete-conf>");
                 } else {
-                    length = get_text_string(tvb, offset, &strval);
+                    length = get_text_string(tvb, offset, pinfo->pool, &strval);
                     proto_tree_add_string(mmse_tree,
                             hf_mmse_content_location,
                             tvb, offset - 1, length + 1, strval);
@@ -907,7 +909,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
                             hf_mmse_message_class_id,
                             tvb, offset - 2, 2, field);
                 } else {
-                    length = get_text_string(tvb, offset, &strval);
+                    length = get_text_string(tvb, offset, pinfo->pool, &strval);
                     proto_tree_add_string(mmse_tree,
                             hf_mmse_message_class_str,
                             tvb, offset - 1, length + 1,
@@ -916,7 +918,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
                 }
                 break;
             case MM_MID_HDR:                /* Text-string          */
-                length = get_text_string(tvb, offset, &strval);
+                length = get_text_string(tvb, offset, pinfo->pool, &strval);
                 proto_tree_add_string(mmse_tree, hf_mmse_message_id,
                         tvb, offset - 1, length + 1, strval);
                 offset += length;
@@ -1073,7 +1075,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
                 offset += length + count;
                 break;
             case MM_REPLY_CHARGING_ID_HDR:  /* Text-string */
-                length = get_text_string(tvb, offset, &strval);
+                length = get_text_string(tvb, offset, pinfo->pool, &strval);
                 proto_tree_add_string(mmse_tree,
                         hf_mmse_reply_charging_id,
                         tvb, offset - 1, length + 1, strval);
@@ -1106,7 +1108,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
                             hf_mmse_prev_sent_by,
                             tvb, offset - 1, 1 + count + length,
                             strval, "%s (Forwarded-count=%u)",
-                            format_text(wmem_packet_scope(), strval, strlen(strval)),
+                            format_text(pinfo->pool, strval, strlen(strval)),
                             fwd_count);
                     subtree = proto_item_add_subtree(tii,
                             ett_mmse_hdr_details);
@@ -1136,14 +1138,14 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
                             &count2);
                     tmptime.secs = tval;
                     tmptime.nsecs = 0;
-                    strval = abs_time_to_str(wmem_packet_scope(), &tmptime, ABSOLUTE_TIME_LOCAL,
+                    strval = abs_time_to_str(pinfo->pool, &tmptime, ABSOLUTE_TIME_LOCAL,
                             TRUE);
                     /* Now render the fields */
                     tii = proto_tree_add_string_format(mmse_tree,
                             hf_mmse_prev_sent_date,
                             tvb, offset - 1, 1 + count + length,
                             strval, "%s (Forwarded-count=%u)",
-                            format_text(wmem_packet_scope(), strval, strlen(strval)),
+                            format_text(pinfo->pool, strval, strlen(strval)),
                             fwd_count);
                     subtree = proto_item_add_subtree(tii,
                             ett_mmse_hdr_details);
@@ -1176,8 +1178,8 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
                                 " (not decoded)",
                                 hdr_name, peek);
                     } else if ((peek == 0) || (peek >= 0x20)) { /* Text */
-                        length = get_text_string(tvb, offset, &strval);
-                        str = format_text(wmem_packet_scope(), strval, strlen(strval));
+                        length = get_text_string(tvb, offset, pinfo->pool, &strval);
+                        str = format_text(pinfo->pool, strval, strlen(strval));
                         proto_tree_add_string_format(mmse_tree, hf_mmse_header_string, tvb, offset - 1,
                                 length + 1, str, "%s: %s (Not decoded)", hdr_name, str);
                     } else { /* General form with length */
@@ -1200,19 +1202,19 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
                     const char       *strval2;
 
                     --offset;
-                    length = get_text_string(tvb, offset, &strval);
+                    length = get_text_string(tvb, offset, pinfo->pool, &strval);
                     DebugLog(("\t\tUndecoded literal header: %s\n",
                                 strval));
-                    length2= get_text_string(tvb, offset+length, &strval2);
+                    length2= get_text_string(tvb, offset+length, pinfo->pool, &strval2);
 
                     proto_tree_add_string_format(mmse_tree,
                             hf_mmse_ffheader, tvb, offset,
                             length + length2,
-                            tvb_get_string_enc(wmem_packet_scope(), tvb, offset,
+                            tvb_get_string_enc(pinfo->pool, tvb, offset,
                                 length + length2, ENC_ASCII),
                             "%s: %s",
-                            format_text(wmem_packet_scope(), strval, strlen(strval)),
-                            format_text(wmem_packet_scope(), strval2, strlen(strval2)));
+                            format_text(pinfo->pool, strval, strlen(strval)),
+                            format_text(pinfo->pool, strval2, strlen(strval2)));
 
                     offset += length + length2;
                 }
