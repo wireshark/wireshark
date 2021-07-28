@@ -396,6 +396,18 @@ if(ASCIIDOCTOR_FOUND AND ASCIIDOCTOR_PDF_EXECUTABLE)
 	add_dependencies(user_guides user_guide_pdf)
 endif()
 
+if(ASCIIDOCTOR_FOUND AND ASCIIDOCTOR_EPUB_EXECUTABLE)
+	ASCIIDOCTOR2EPUB(user-guide.adoc ${WSUG_SOURCE} ${WSUG_BUILT_DEPS})
+
+	add_custom_target(
+		user_guide_epub
+		DEPENDS
+			user-guide.epub
+	)
+	set_docbook_target_properties(user_guide_epub)
+	add_dependencies(user_guides user_guide_epub)
+endif()
+
 # Developer's Guide chain.
 if(ASCIIDOCTOR_FOUND AND XSLTPROC_EXECUTABLE)
 	XML2HTML(
@@ -434,6 +446,18 @@ if(ASCIIDOCTOR_FOUND AND ASCIIDOCTOR_PDF_EXECUTABLE)
 	)
 	set_docbook_target_properties(developer_guide_pdf)
 	add_dependencies(developer_guides developer_guide_pdf)
+endif()
+
+if(ASCIIDOCTOR_FOUND AND ASCIIDOCTOR_EPUB_EXECUTABLE)
+	ASCIIDOCTOR2EPUB(developer-guide.adoc ${WSDG_SOURCE} ${WSDG_BUILT_DEPS})
+
+	add_custom_target(
+		developer_guide_epub
+		DEPENDS
+			developer-guide.epub
+	)
+	set_docbook_target_properties(developer_guide_epub)
+	add_dependencies(developer_guides developer_guide_epub)
 endif()
 
 if (GUIDE_INSTALL_DIRS)

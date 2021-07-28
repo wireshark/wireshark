@@ -414,6 +414,7 @@ Documentation:
     # XXX We might want to move this to wireshark-ubuntu-dev or debian-setup.sh.
     - DEBIAN_FRONTEND=noninteractive apt-get update
     - DEBIAN_FRONTEND=noninteractive apt-get --yes install ruby-coderay ruby-asciidoctor-pdf
+    - NOKOGIRI_USE_SYSTEM_LIBRARIES=1 gem install asciidoctor-epub3
     - mkdir build
     - cd build
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
@@ -425,9 +426,10 @@ Documentation:
   after_script:
     - mv -v build/docbook/ws[ud]g_html{,_chunked}.zip .
     - mv -v build/docbook/{user,developer}-guide.pdf .
+    - mv -v build/docbook/{user,developer}-guide.epub .
     - |
       if [ -n "$AWS_ACCESS_KEY_ID" ] && [ -n "$AWS_SECRET_ACCESS_KEY" ] && [ -n "$S3_DESTINATION_DOCS" ] ; then
-        for DOC_FILE in ws[ud]g_html{,_chunked}.zip {user,developer}-guide.pdf ; do
+        for DOC_FILE in ws[ud]g_html{,_chunked}.zip {user,developer}-guide.pdf {user,developer}-guide.epub ; do
           aws s3 cp "$DOC_FILE" "$S3_DESTINATION_DOCS/"
         done
       fi
@@ -439,6 +441,8 @@ Documentation:
       - wsdg_html_chunked.zip
       - user-guide.pdf
       - developer-guide.pdf
+      - user-guide.epub
+      - developer-guide.epub
   needs: []
 
 

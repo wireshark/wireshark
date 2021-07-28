@@ -177,6 +177,53 @@ if(ASCIIDOCTOR_EXECUTABLE)
 
     endif(ASCIIDOCTOR_PDF_EXECUTABLE)
 
+    FIND_PROGRAM(ASCIIDOCTOR_EPUB_EXECUTABLE
+        NAMES
+            asciidoctorj
+            asciidoctor-epub3
+        PATHS
+            /bin
+            /usr/bin
+            /usr/local/bin
+            ${CHOCOLATEY_BIN_PATH}
+        DOC "Path to Asciidoctor EPUB3 or AsciidoctorJ"
+    )
+
+    if(ASCIIDOCTOR_EPUB_EXECUTABLE)
+
+        set(_asciidoctor_epub_common_command
+            ${CMAKE_COMMAND} -E env TZ=UTC ASCIIDOCTORJ_OPTS="${_asciidoctorj_opts}"
+            ${ASCIIDOCTOR_EPUB_EXECUTABLE}
+            --backend epub3
+            ${_asciidoctor_common_args}
+        )
+
+        MACRO(ASCIIDOCTOR2EPUB _asciidocsource)
+            GET_FILENAME_COMPONENT(_source_base_name ${_asciidocsource} NAME_WE )
+            set(_output_epub ${_source_base_name}.epub)
+
+            ADD_CUSTOM_COMMAND(
+            OUTPUT
+                    ${_output_epub}
+            COMMAND ${_asciidoctor_epub_common_command}
+                    --out-file ${_output_epub}
+                    ${CMAKE_CURRENT_SOURCE_DIR}/${_asciidocsource}
+            DEPENDS
+                    ${CMAKE_CURRENT_SOURCE_DIR}/${_asciidocsource}
+                    ${ARGN}
+            )
+            add_custom_target(generate_${_output_epub} DEPENDS ${_output_epub})
+            set_asciidoctor_target_properties(generate_${_output_epub})
+            unset(_output_epub)
+        ENDMACRO()
+
+    else(ASCIIDOCTOR_EPUB_EXECUTABLE)
+
+        MACRO(ASCIIDOCTOR2EPUB _asciidocsource)
+        ENDMACRO()
+
+    endif(ASCIIDOCTOR_EPUB_EXECUTABLE)
+
 endif(ASCIIDOCTOR_EXECUTABLE)
 
 include( FindPackageHandleStandardArgs )
