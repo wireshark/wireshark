@@ -283,7 +283,7 @@ raknet_dissect_system_address(proto_tree *tree, int hf,
         v4_addr = ~tvb_get_ipv4(tvb, *offset);
         set_address(&addr, AT_IPv4, sizeof(v4_addr), &v4_addr);
         addr_str = address_to_display(wmem_packet_scope(), &addr);
-        proto_tree_add_ipv4(sub_tree, hf_raknet_ipv4_address, tvb, *offset + 1, 4, v4_addr);
+        proto_tree_add_ipv4(sub_tree, hf_raknet_ipv4_address, tvb, *offset, 4, v4_addr);
         *offset += 4;
         port = tvb_get_ntohs(tvb, *offset);
         proto_tree_add_item(sub_tree, hf_raknet_port, tvb, *offset, 2, ENC_BIG_ENDIAN);
@@ -293,7 +293,7 @@ raknet_dissect_system_address(proto_tree *tree, int hf,
         break;
     case 6:
         addr_str = tvb_ip6_to_str(tvb, *offset);
-        proto_tree_add_item(sub_tree, hf_raknet_ipv6_address, tvb, *offset + 1, 16, ENC_NA);
+        proto_tree_add_item(sub_tree, hf_raknet_ipv6_address, tvb, *offset, 16, ENC_NA);
         *offset += 16;
         port = tvb_get_ntohs(tvb, *offset);
         proto_tree_add_item(sub_tree, hf_raknet_port, tvb, *offset, 2, ENC_BIG_ENDIAN);
