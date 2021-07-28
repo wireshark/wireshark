@@ -120,6 +120,22 @@ static int hf_woww_character_face = -1;
 static int hf_woww_character_hairstyle = -1;
 static int hf_woww_character_haircolor = -1;
 static int hf_woww_character_facialhair = -1;
+static int hf_woww_timestamp = -1;
+
+/* Movement */
+static int hf_woww_movement_flags = -1;
+static int hf_woww_movement_swim_pitch = -1;
+static int hf_woww_movement_fallen_time = -1;
+static int hf_woww_movement_jump_velocity = -1;
+static int hf_woww_movement_jump_cos_anchor_pitch = -1;
+static int hf_woww_movement_jump_sin_anchor_pitch = -1;
+static int hf_woww_movement_jump_current_speed = -1;
+static int hf_woww_movement_fall_start_elevation = -1;
+
+#define WOWW_MOVEMENT_FALLING 0x00002000
+#define WOWW_MOVEMENT_SWIMMING 0x00200000
+#define WOWW_MOVEMENT_ON_TRANSPORT 0x02000000
+#define WOWW_MOVEMENT_FALL_START_ELEVATION 0x04000000
 
 #define WOWW_TCP_PORT 8085
 
@@ -2430,6 +2446,62 @@ get_null_terminated_string_length( tvbuff_t* tvb,
 }
 
 static void
+parse_move_messages(ptvcursor_t* ptv)
+{
+    guint32 movement_flags = 0;
+    ptvcursor_add_ret_uint(ptv, hf_woww_movement_flags, 4, ENC_LITTLE_ENDIAN, &movement_flags);
+
+    ptvcursor_add(ptv, hf_woww_timestamp, 4, ENC_LITTLE_ENDIAN);
+
+    ptvcursor_add(ptv, hf_woww_character_position_x, 4, ENC_LITTLE_ENDIAN);
+    ptvcursor_add(ptv, hf_woww_character_position_y, 4, ENC_LITTLE_ENDIAN);
+    ptvcursor_add(ptv, hf_woww_character_position_z, 4, ENC_LITTLE_ENDIAN);
+    ptvcursor_add(ptv, hf_woww_character_orientation, 4, ENC_LITTLE_ENDIAN);
+
+    if (movement_flags & WOWW_MOVEMENT_ON_TRANSPORT) {
+        ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "On Transport");
+
+        ptvcursor_add(ptv, hf_woww_character_guid, 8, ENC_LITTLE_ENDIAN);
+
+        ptvcursor_add(ptv, hf_woww_character_position_x, 4, ENC_LITTLE_ENDIAN);
+        ptvcursor_add(ptv, hf_woww_character_position_y, 4, ENC_LITTLE_ENDIAN);
+        ptvcursor_add(ptv, hf_woww_character_position_z, 4, ENC_LITTLE_ENDIAN);
+        ptvcursor_add(ptv, hf_woww_character_orientation, 4, ENC_LITTLE_ENDIAN);
+
+        ptvcursor_pop_subtree(ptv);
+    }
+
+    if (movement_flags & WOWW_MOVEMENT_SWIMMING) {
+        ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "Swimming");
+
+        ptvcursor_add(ptv, hf_woww_movement_swim_pitch, 4, ENC_LITTLE_ENDIAN);
+
+        ptvcursor_pop_subtree(ptv);
+    }
+
+    ptvcursor_add(ptv, hf_woww_movement_fallen_time, 4, ENC_LITTLE_ENDIAN);
+
+    if (movement_flags & WOWW_MOVEMENT_FALLING) {
+        ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "Falling");
+
+        ptvcursor_add(ptv, hf_woww_movement_jump_velocity, 4, ENC_LITTLE_ENDIAN);
+        ptvcursor_add(ptv, hf_woww_movement_jump_cos_anchor_pitch, 4, ENC_LITTLE_ENDIAN);
+        ptvcursor_add(ptv, hf_woww_movement_jump_sin_anchor_pitch, 4, ENC_LITTLE_ENDIAN);
+        ptvcursor_add(ptv, hf_woww_movement_jump_current_speed, 4, ENC_LITTLE_ENDIAN);
+
+        ptvcursor_pop_subtree(ptv);
+    }
+
+    if (movement_flags & WOWW_MOVEMENT_FALL_START_ELEVATION) {
+        ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "Fall Start Elevation");
+
+        ptvcursor_add(ptv, hf_woww_movement_fall_start_elevation, 4, ENC_LITTLE_ENDIAN);
+
+        ptvcursor_pop_subtree(ptv);
+    }
+}
+
+static void
 parse_SMSG_CHAR_ENUM(ptvcursor_t* ptv)
 {
     guint32 amount_of_characters = 0;
@@ -2615,6 +2687,98 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_character_haircolor, 1, ENC_NA);
             ptvcursor_add(ptv, hf_woww_character_facialhair, 1, ENC_NA);
             ptvcursor_add(ptv, hf_woww_starting_outfit, 1, ENC_NA);
+            break;
+
+        case MSG_MOVE_START_FORWARD:
+            /* Fallthrough */
+        case MSG_MOVE_START_BACKWARD:
+            /* Fallthrough */
+        case MSG_MOVE_STOP:
+            /* Fallthrough */
+        case MSG_MOVE_START_STRAFE_LEFT:
+            /* Fallthrough */
+        case MSG_MOVE_START_STRAFE_RIGHT:
+            /* Fallthrough */
+        case MSG_MOVE_STOP_STRAFE:
+            /* Fallthrough */
+        case MSG_MOVE_JUMP:
+            /* Fallthrough */
+        case MSG_MOVE_START_TURN_LEFT:
+            /* Fallthrough */
+        case MSG_MOVE_START_TURN_RIGHT:
+            /* Fallthrough */
+        case MSG_MOVE_STOP_TURN:
+            /* Fallthrough */
+        case MSG_MOVE_START_PITCH_UP:
+            /* Fallthrough */
+        case MSG_MOVE_START_PITCH_DOWN:
+            /* Fallthrough */
+        case MSG_MOVE_STOP_PITCH:
+            /* Fallthrough */
+        case MSG_MOVE_SET_RUN_MODE:
+            /* Fallthrough */
+        case MSG_MOVE_SET_WALK_MODE:
+            /* Fallthrough */
+        case MSG_MOVE_TOGGLE_LOGGING:
+            /* Fallthrough */
+        case MSG_MOVE_TELEPORT:
+            /* Fallthrough */
+        case MSG_MOVE_TELEPORT_CHEAT:
+            /* Fallthrough */
+        case MSG_MOVE_TELEPORT_ACK:
+            /* Fallthrough */
+        case MSG_MOVE_TOGGLE_FALL_LOGGING:
+            /* Fallthrough */
+        case MSG_MOVE_FALL_LAND:
+            /* Fallthrough */
+        case MSG_MOVE_START_SWIM:
+            /* Fallthrough */
+        case MSG_MOVE_STOP_SWIM:
+            /* Fallthrough */
+        case MSG_MOVE_SET_RUN_SPEED_CHEAT:
+            /* Fallthrough */
+        case MSG_MOVE_SET_RUN_SPEED:
+            /* Fallthrough */
+        case MSG_MOVE_SET_RUN_BACK_SPEED_CHEAT:
+            /* Fallthrough */
+        case MSG_MOVE_SET_RUN_BACK_SPEED:
+            /* Fallthrough */
+        case MSG_MOVE_SET_WALK_SPEED_CHEAT:
+            /* Fallthrough */
+        case MSG_MOVE_SET_WALK_SPEED:
+            /* Fallthrough */
+        case MSG_MOVE_SET_SWIM_SPEED_CHEAT:
+            /* Fallthrough */
+        case MSG_MOVE_SET_SWIM_SPEED:
+            /* Fallthrough */
+        case MSG_MOVE_SET_SWIM_BACK_SPEED_CHEAT:
+            /* Fallthrough */
+        case MSG_MOVE_SET_SWIM_BACK_SPEED:
+            /* Fallthrough */
+        case MSG_MOVE_SET_ALL_SPEED_CHEAT:
+            /* Fallthrough */
+        case MSG_MOVE_SET_TURN_RATE_CHEAT:
+            /* Fallthrough */
+        case MSG_MOVE_SET_TURN_RATE:
+            /* Fallthrough */
+        case MSG_MOVE_TOGGLE_COLLISION_CHEAT:
+            /* Fallthrough */
+        case MSG_MOVE_SET_FACING:
+            /* Fallthrough */
+        case MSG_MOVE_SET_PITCH:
+            /* Fallthrough */
+        case MSG_MOVE_WORLDPORT_ACK:
+            /* Fallthrough */
+        case SMSG_MONSTER_MOVE:
+            /* Fallthrough */
+        case SMSG_MOVE_WATER_WALK:
+            /* Fallthrough */
+        case SMSG_MOVE_LAND_WALK:
+            /* Fallthrough */
+        case MSG_MOVE_SET_RAW_POSITION_ACK:
+            /* Fallthrough */
+        case MSG_MOVE_HEARTBEAT:
+            parse_move_messages(ptv);
             break;
 
         default:
@@ -2957,6 +3121,51 @@ proto_register_woww(void)
         { &hf_woww_starting_outfit,
             { "Starting Outfit", "woww.starting_outfit",
               FT_UINT8, BASE_HEX_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_woww_movement_flags,
+            { "Movement Flags", "woww.movement.flags",
+              FT_UINT32, BASE_HEX_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_woww_movement_swim_pitch,
+            { "Swim Pitch", "woww.movement.flags",
+              FT_FLOAT, BASE_FLOAT, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_woww_movement_fallen_time,
+            { "Fallen Time", "woww.movement.fallen_time",
+              FT_FLOAT, BASE_FLOAT, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_woww_movement_jump_velocity,
+            { "Jump Velocity", "woww.movement.jump.velocity",
+              FT_FLOAT, BASE_FLOAT, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_woww_movement_jump_cos_anchor_pitch,
+            { "Jump Cos Anchor", "woww.movement.jump.cos_anchor",
+              FT_FLOAT, BASE_FLOAT, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_woww_movement_jump_sin_anchor_pitch,
+            { "Jump Sin Anchor", "woww.movement.jump.sin_anchor",
+              FT_FLOAT, BASE_FLOAT, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_woww_movement_jump_current_speed,
+            { "Jump Current Speed", "woww.movement.jump.current_speed",
+              FT_FLOAT, BASE_FLOAT, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_woww_movement_fall_start_elevation,
+            { "Fall Start Elevation", "woww.movement.fall.start_elevation",
+              FT_FLOAT, BASE_FLOAT, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_woww_timestamp,
+            { "Timestamp", "woww.timestamp",
+              FT_UINT32, BASE_DEC_HEX, NULL, 0,
               NULL, HFILL }
         },
     };
