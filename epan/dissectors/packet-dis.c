@@ -6930,7 +6930,7 @@ static int dissect_DIS_PARSER_IFF_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_t
 
     if (systemType == DIS_PDU_IFFSystemType_MODE_S_INTERROGATOR)
     {
-        if (modeS_primary_code == 0)
+        if (modeS_primary_type == 0)
         {
             col_append_str(pinfo->cinfo, COL_INFO, ", P=II ");
         }
@@ -6940,7 +6940,7 @@ static int dissect_DIS_PARSER_IFF_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_t
         }
         col_append_fstr(pinfo->cinfo, COL_INFO, " %d", modeS_primary_code);
 
-        if (modeS_secondary_code == 0)
+        if (modeS_secondary_type == 0)
         {
             col_append_str(pinfo->cinfo, COL_INFO, ", S=II");
         }
@@ -6950,7 +6950,6 @@ static int dissect_DIS_PARSER_IFF_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_t
         }
         col_append_fstr(pinfo->cinfo, COL_INFO, " %d", modeS_secondary_code);
     }
-
     else if (mode4)
     {
         col_append_fstr(pinfo->cinfo, COL_INFO, ", 4=%d", mode4);
