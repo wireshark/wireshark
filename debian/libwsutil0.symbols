@@ -356,6 +356,7 @@ libwsutil.so.0 libwsutil0 #MINVER#
  ws_log_set_fatal_str@Base 3.5.0
  ws_log_set_level@Base 3.5.0
  ws_log_set_level_str@Base 3.5.0
+ ws_log_write_always_full@Base 3.5.0
  ws_logv@Base 3.5.0
  ws_logv_full@Base 3.5.0
  ws_mempbrk_compile@Base 1.99.4

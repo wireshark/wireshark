@@ -27,7 +27,7 @@ debug_dump(const char *file, int line, const char* func,
     if (!ws_log_msg_is_active(WS_LOG_DOMAIN, level))
         return;
     char* tmp_str = bytes_to_str(NULL, y, (z));
-    ws_log_full(WS_LOG_DOMAIN, level, file, line, func, "%s: %s", x, tmp_str);
+    ws_log_write_always_full(WS_LOG_DOMAIN, level, file, line, func, "%s: %s", x, tmp_str);
     wmem_free(NULL, tmp_str);
 }
 

@@ -296,6 +296,19 @@ void ws_logv_full(const char *domain, enum ws_log_level level,
 #define ws_noisy(...)    _LOG_DEBUG(LOG_LEVEL_NOISY, __VA_ARGS__)
 
 
+/** Auxiliary function to write custom logging functions.
+ *
+ * This function is the same as ws_log_full() but does not perform any
+ * domain/level filtering to avoid a useless double activation check.
+ * It should only be used in conjunction with a pre-check using
+ * ws_log_msg_is_active().
+ */
+WS_DLL_PUBLIC
+void ws_log_write_always_full(const char *domain, enum ws_log_level level,
+                    const char *file, int line, const char *func,
+                    const char *format, ...) G_GNUC_PRINTF(6,7);
+
+
 /** Define an auxiliary file pointer where messages should be written.
  *
  * This file, if set, functions in addition to the registered or
