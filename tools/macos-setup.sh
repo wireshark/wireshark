@@ -201,7 +201,7 @@ OPUS_VERSION=1.3.1
 # Is /usr/bin/python3 a working version of Python?  It may be, as it
 # might be a wrapper that runs the Python 3 that's part of Xcode.
 #
-if python3 --version >/dev/null 2>&1
+if /usr/bin/python3 --version >/dev/null 2>&1
 then
     #
     # Yes - don't bother installing Python 3 from elsewhere
