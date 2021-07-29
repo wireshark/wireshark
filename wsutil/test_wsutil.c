@@ -15,7 +15,7 @@
 #include "str_util.h"
 
 
-void test_str_util_format_size(void)
+void test_format_size(void)
 {
     char *str;
 
@@ -38,17 +38,29 @@ void test_bytes_to_str(void)
 {
     char *str;
 
-    const guint8 buf_bytes[] = { 1, 2, 3};
+    const guint8 buf[] = { 1, 2, 3};
 
-    str = bytes_to_str(NULL, buf_bytes, sizeof(buf_bytes));
+    str = bytes_to_str(NULL, buf, sizeof(buf));
     g_assert_cmpstr(str, ==, "010203");
     g_free(str);
+}
 
-    str = bytestring_to_str(NULL, buf_bytes, sizeof(buf_bytes), ':');
+void test_bytestring_to_str(void)
+{
+    char *str;
+
+    const guint8 buf[] = { 1, 2, 3};
+
+    str = bytestring_to_str(NULL, buf, sizeof(buf), ':');
     g_assert_cmpstr(str, ==, "01:02:03");
     g_free(str);
+}
 
-    const guint8 buf_trunc[] = {
+void test_bytes_to_string_trunc1(void)
+{
+    char *str;
+
+    const guint8 buf[] = {
         0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0xAA,
         0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0xAA,
         0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0xAA,
@@ -57,14 +69,14 @@ void test_bytes_to_str(void)
         0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0xAA,
         0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0xAA
     };
-    const char *exp_trunc =
+    const char *expect =
         "112233445566778899aa"
         "112233445566778899aa"
         "112233445566778899aa"
         "112233445566" UTF8_HORIZONTAL_ELLIPSIS;
 
-    str = bytes_to_str(NULL, buf_trunc, sizeof(buf_trunc));
-    g_assert_cmpstr(str, ==, exp_trunc);
+    str = bytes_to_str(NULL, buf, sizeof(buf));
+    g_assert_cmpstr(str, ==, expect);
     g_free(str);
 }
 
@@ -74,8 +86,11 @@ int main(int argc, char **argv)
 
     g_test_init(&argc, &argv, NULL);
 
-    g_test_add_func("/wsutil/str_util/format_size", test_str_util_format_size);
-    g_test_add_func("/wsutil/to_str/bytes_to_str", test_bytes_to_str);
+    g_test_add_func("/str_util/format_size", test_format_size);
+
+    g_test_add_func("/to_str/bytes_to_str", test_bytes_to_str);
+    g_test_add_func("/to_str/bytestring_to_str", test_bytestring_to_str);
+    g_test_add_func("/to_str/bytes_to_str_trunc1", test_bytes_to_string_trunc1);
 
     ret = g_test_run();
 
