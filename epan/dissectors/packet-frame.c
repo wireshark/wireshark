@@ -739,7 +739,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 			cp = tvb_get_ptr(tvb, 0, cap_len);
 
 			gcry_md_hash_buffer(GCRY_MD_MD5, digest, cp, cap_len);
-			digest_string = bytestring_to_str(pinfo->pool, digest, HASH_MD5_LENGTH, '\0');
+			digest_string = bytes_to_str_punct(pinfo->pool, digest, HASH_MD5_LENGTH, '\0');
 			ti = proto_tree_add_string(fh_tree, hf_frame_md5_hash, tvb, 0, 0, digest_string);
 			proto_item_set_generated(ti);
 		}

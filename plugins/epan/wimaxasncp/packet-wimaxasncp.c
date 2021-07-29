@@ -1043,7 +1043,7 @@ static void wimaxasncp_dissect_tlv_value(
             const gchar  *format1;
             const gchar  *format2;
             const guint8 *p = tvb_get_ptr(tvb, offset, length);
-            const gchar  *s = bytestring_to_str(wmem_packet_scope(), p, MIN(length, max_show_bytes), 0);
+            const gchar  *s = bytes_to_str_punct(wmem_packet_scope(), p, MIN(length, max_show_bytes), 0);
 
             if (length <= max_show_bytes)
             {
@@ -1223,7 +1223,7 @@ static void wimaxasncp_dissect_tlv_value(
         {
             const gchar  *format;
             const guint8 *p = tvb_get_ptr(tvb, offset, length);
-            const gchar  *s = bytestring_to_str(wmem_packet_scope(), p, MIN(length, max_show_bytes), 0);
+            const gchar  *s = bytes_to_str_punct(wmem_packet_scope(), p, MIN(length, max_show_bytes), 0);
 
             if (length <= max_show_bytes)
             {
@@ -1712,7 +1712,7 @@ static void wimaxasncp_dissect_tlv_value(
             const gchar *format2;
             const guint8 *p = tvb_get_ptr(tvb, offset, length);
             const gchar *s =
-                bytestring_to_str(wmem_packet_scope(), p, MIN(length, max_show_bytes), 0);
+                bytes_to_str_punct(wmem_packet_scope(), p, MIN(length, max_show_bytes), 0);
 
             if (length <= max_show_bytes)
             {
@@ -1752,7 +1752,7 @@ static void wimaxasncp_dissect_tlv_value(
     {
         const gchar *format;
         const guint8 *p = tvb_get_ptr(tvb, offset, length);
-        const gchar *s = bytestring_to_str(wmem_packet_scope(), p, MIN(length, max_show_bytes), 0);
+        const gchar *s = bytes_to_str_punct(wmem_packet_scope(), p, MIN(length, max_show_bytes), 0);
 
         if (length <= max_show_bytes)
         {

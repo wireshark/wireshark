@@ -45,13 +45,13 @@ void test_bytes_to_str(void)
     g_free(str);
 }
 
-void test_bytestring_to_str(void)
+void test_bytes_to_str_punct(void)
 {
     char *str;
 
     const guint8 buf[] = { 1, 2, 3};
 
-    str = bytestring_to_str(NULL, buf, sizeof(buf), ':');
+    str = bytes_to_str_punct(NULL, buf, sizeof(buf), ':');
     g_assert_cmpstr(str, ==, "01:02:03");
     g_free(str);
 }
@@ -89,7 +89,7 @@ int main(int argc, char **argv)
     g_test_add_func("/str_util/format_size", test_format_size);
 
     g_test_add_func("/to_str/bytes_to_str", test_bytes_to_str);
-    g_test_add_func("/to_str/bytestring_to_str", test_bytestring_to_str);
+    g_test_add_func("/to_str/bytes_to_str_punct", test_bytes_to_str_punct);
     g_test_add_func("/to_str/bytes_to_str_trunc1", test_bytes_to_string_trunc1);
 
     ret = g_test_run();

@@ -2981,10 +2981,10 @@ dissect_h248_T_terminationId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 			curr_info.term->buffer = (guint8 *)tvb_memdup(actx->pinfo->pool,new_tvb,0,curr_info.term->len);
 			if(term_info.str){
 				curr_info.term->str = wmem_strdup_printf(actx->pinfo->pool, "%s %s",
-											bytestring_to_str(actx->pinfo->pool,curr_info.term->buffer,curr_info.term->len, 0),
+											bytes_to_str_punct(actx->pinfo->pool,curr_info.term->buffer,curr_info.term->len, 0),
 											term_info.str);
 			}else{
-				curr_info.term->str = bytestring_to_str(actx->pinfo->pool,curr_info.term->buffer,curr_info.term->len, 0);
+				curr_info.term->str = bytes_to_str_punct(actx->pinfo->pool,curr_info.term->buffer,curr_info.term->len, 0);
 			}
 		}
 

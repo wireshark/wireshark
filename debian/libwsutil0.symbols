@@ -11,7 +11,7 @@ libwsutil.so.0 libwsutil0 #MINVER#
  bytes_to_hexstr@Base 3.5.0
  bytes_to_hexstr_punct@Base 3.5.0
  bytes_to_str_max@Base 3.5.0
- bytestring_to_str_max@Base 3.5.0
+ bytes_to_str_punct_max@Base 3.5.0
  codec_decode@Base 3.1.0
  codec_get_channels@Base 3.1.0
  codec_get_frequency@Base 3.1.0

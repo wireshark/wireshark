@@ -494,7 +494,7 @@ static gint dissect_parameter_transport_rtps_type(
                         tvb,
                         OFFSET_TO_VAL,
                         param_length);
-                const gchar *guid_string = bytestring_to_str(
+                const gchar *guid_string = bytes_to_str_punct(
                         pinfo->pool,
                         guid_bytes,
                         MIN(param_length, 12),

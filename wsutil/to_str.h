@@ -58,9 +58,9 @@ WS_DLL_PUBLIC char *bytes_to_hexstr_punct(char *out, const guint8 *ad, size_t le
  *
  * @see bytes_to_str()
  */
-WS_DLL_PUBLIC gchar *bytestring_to_str_max(wmem_allocator_t *scope, const guint8 *ad, size_t len, const char punct, size_t max);
+WS_DLL_PUBLIC gchar *bytes_to_str_punct_max(wmem_allocator_t *scope, const guint8 *ad, size_t len, const char punct, size_t max);
 
-#define bytestring_to_str(scope, ad, len, punct) bytestring_to_str_max(scope, ad, len, punct, MAX_BYTE_STR_LEN)
+#define bytes_to_str_punct(scope, ad, len, punct) bytes_to_str_punct_max(scope, ad, len, punct, MAX_BYTE_STR_LEN)
 
 /** Turn an array of bytes into a string showing the bytes in hex.
  *

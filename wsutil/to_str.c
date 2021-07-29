@@ -102,7 +102,7 @@ bytes_to_hexstr_punct(char *out, const guint8 *ad, size_t len, char punct)
  * the resulting string is (len-1) bytes shorter)
  */
 gchar *
-bytestring_to_str_max(wmem_allocator_t *scope, const guint8 *ad, size_t len, const char punct, size_t max)
+bytes_to_str_punct_max(wmem_allocator_t *scope, const guint8 *ad, size_t len, const char punct, size_t max)
 {
 	gchar *buf;
 	size_t buflen = len;
@@ -110,12 +110,12 @@ bytestring_to_str_max(wmem_allocator_t *scope, const guint8 *ad, size_t len, con
 	int truncated = 0;
 
 	if (len == 0) {
-		ws_warning("Zero length passed to bytestring_to_str()");
+		ws_warning("Zero length passed to bytes_to_str_punct()");
 		return wmem_strdup(scope, "(zero length)");
 	}
 
 	if (!ad) {
-		ws_warning("Null pointer passed to bytestring_to_str()");
+		ws_warning("Null pointer passed to bytes_to_str_punct()");
 		return wmem_strdup(scope, "(null pointer)");
 	}
 

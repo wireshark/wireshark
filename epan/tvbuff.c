@@ -4214,7 +4214,7 @@ int tvb_get_token_len(tvbuff_t *tvb, const gint offset, int len, gint *next_offs
 gchar *
 tvb_bytes_to_str_punct(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, const gint len, const gchar punct)
 {
-	return bytestring_to_str(scope, ensure_contiguous(tvb, offset, len), len, punct);
+	return bytes_to_str_punct(scope, ensure_contiguous(tvb, offset, len), len, punct);
 }
 
 /*
