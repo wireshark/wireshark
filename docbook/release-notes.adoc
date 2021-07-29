@@ -86,6 +86,8 @@ The following features are new (or have been significantly updated) since versio
 
 * tshark can now export TLS session keys with the --export-tls-session-keys option.
 
+* Wireshark participated in the Google Season of Docs 2020 and the User’s Guide has been extensively updated.
+
 // === Removed Features and Support
 
 // === Removed Dissectors
