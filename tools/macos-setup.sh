@@ -104,6 +104,13 @@ NINJA_VERSION=${NINJA_VERSION-1.10.2}
 #
 GETTEXT_VERSION=0.21
 GLIB_VERSION=2.58.3
+if [ "$GLIB_VERSION" ]; then
+    GLIB_MAJOR_VERSION="`expr $GLIB_VERSION : '\([0-9][0-9]*\).*'`"
+    GLIB_MINOR_VERSION="`expr $GLIB_VERSION : '[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
+    GLIB_DOTDOT_VERSION="`expr $GLIB_VERSION : '[0-9][0-9]*\.[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
+    GLIB_MAJOR_MINOR_VERSION=$GLIB_MAJOR_VERSION.$GLIB_MINOR_VERSION
+    GLIB_MAJOR_MINOR_DOTDOT_VERSION=$GLIB_MAJOR_VERSION.$GLIB_MINOR_VERSION.$GLIB_DOTDOT_VERSION
+fi
 PKG_CONFIG_VERSION=0.29.2
 #
 # libgpg-error is required for libgcrypt.
@@ -694,6 +701,26 @@ uninstall_cmake() {
     fi
 }
 
+install_meson() {
+    #
+    # Install Meson with pip3 if we don't have it already.
+    #
+    if meson --version >/dev/null 2>&1
+    then
+        # Have it.
+        :
+    else
+        sudo pip3 install meson
+    fi
+}
+
+uninstall_meson() {
+    #
+    # Unnstall Meson with pip3
+    #
+    sudo pip3 uninstall meson
+}
+
 install_gettext() {
     if [ ! -f gettext-$GETTEXT_VERSION-done ] ; then
         echo "Downloading, building, and installing GNU gettext:"
@@ -783,17 +810,6 @@ install_glib() {
         xzcat glib-$GLIB_VERSION.tar.xz | tar xf - || exit 1
         cd glib-$GLIB_VERSION
         #
-        # macOS ships with libffi, but doesn't provide its pkg-config file;
-        # explicitly specify LIBFFI_CFLAGS and LIBFFI_LIBS, so the configure
-        # script doesn't try to use pkg-config to get the appropriate
-        # C flags and loader flags.
-        #
-        # And, what's worse, at least with the version of Xcode that comes
-        # with Leopard, /usr/include/ffi/fficonfig.h doesn't define MACOSX,
-        # which causes the build of GLib to fail.  If we don't find
-        # "#define.*MACOSX" in /usr/include/ffi/fficonfig.h, explicitly
-        # define it.
-        #
         # While we're at it, suppress -Wformat-nonliteral to avoid a case
         # where clang's stricter rules on when not to complain about
         # non-literal format arguments cause it to complain about code
@@ -810,19 +826,66 @@ install_glib() {
         # developer tools, there is a /usr/include directory).
         #
         includedir=`SDKROOT="$SDKPATH" xcrun --show-sdk-path 2>/dev/null`/usr/include
-        if [ ! -f ./configure ]; then
-            LIBTOOLIZE=glibtoolize ./autogen.sh
-        fi
-        if grep -qs '#define.*MACOSX' $includedir/ffi/fficonfig.h
-        then
-            # It's defined, nothing to do
-            LIBFFI_CFLAGS="-I $includedir/ffi" LIBFFI_LIBS="-lffi" CFLAGS="$CFLAGS -Wno-format-nonliteral $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS -Wno-format-nonliteral $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure || exit 1
-        else
-            LIBFFI_CFLAGS="-I $includedir/ffi" LIBFFI_LIBS="-lffi" CFLAGS="$CFLAGS -DMACOSX -Wno-format-nonliteral $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS -DMACOSX -Wno-format-nonliteral $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure || exit 1
-        fi
+        #
+        # GLib 2.59.1 and later use Meson+Ninja as the build system.
+        #
+        case $GLIB_MAJOR_VERSION in
 
-        make $MAKE_BUILD_OPTS || exit 1
-        $DO_MAKE_INSTALL || exit 1
+        1)
+            echo "GLib $GLIB_VERSION" is too old 1>&2
+            ;;
+
+        *)
+            case $GLIB_MINOR_VERSION in
+
+            [0-9]|1[0-9]|2[0-9]|3[0-7])
+                echo "GLib $GLIB_VERSION" is too old 1>&2
+                ;;
+
+            3[8-9]|4[0-9]|5[0-8])
+                if [ ! -f ./configure ]; then
+                    LIBTOOLIZE=glibtoolize ./autogen.sh
+                fi
+                #
+                # macOS ships with libffi, but doesn't provide its
+                # pkg-config file; explicitly specify LIBFFI_CFLAGS
+                # and LIBFFI_LIBS, so the configure script doesn't
+                # try to use pkg-config to get the appropriate
+                # C flags and loader flags.
+                #
+                # And, what's worse, at least with the version of Xcode
+                # that comes with Leopard, /usr/include/ffi/fficonfig.h
+                # doesn't define MACOSX, which causes the build of GLib
+                # to fail.  If we don't find "#define.*MACOSX"
+                # in /usr/include/ffi/fficonfig.h, explicitly define it.
+                #
+                if grep -qs '#define.*MACOSX' $includedir/ffi/fficonfig.h
+                then
+                    # It's defined, nothing to do
+                    LIBFFI_CFLAGS="-I $includedir/ffi" LIBFFI_LIBS="-lffi" CFLAGS="$CFLAGS -Wno-format-nonliteral $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS -Wno-format-nonliteral $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure || exit 1
+                else
+                    LIBFFI_CFLAGS="-I $includedir/ffi" LIBFFI_LIBS="-lffi" CFLAGS="$CFLAGS -DMACOSX -Wno-format-nonliteral $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS -DMACOSX -Wno-format-nonliteral $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure || exit 1
+                fi
+                make $MAKE_BUILD_OPTS || exit 1
+                $DO_MAKE_INSTALL || exit 1
+                ;;
+
+            59|[6-9][0-9]|[1-9][0-9][0-9])
+                #
+                # 2.59.0 doesn't require Meson and Ninja, but it
+                # supports it, and I'm too lazy to add a dot-dot
+                # version check.
+                #
+                meson _build || exit 1
+                ninja $MAKE_BUILD_OPTS -C _build || exit 1
+                $DO_NINJA_INSTALL || exit 1
+                ;;
+            *)
+                echo "Glib's put out 1000 2.x releases?" 1>&2
+                ;;
+
+            esac
+        esac
         cd ..
         touch glib-$GLIB_VERSION-done
     fi
@@ -832,15 +895,63 @@ uninstall_glib() {
     if [ ! -z "$installed_glib_version" ] ; then
         echo "Uninstalling GLib:"
         cd glib-$installed_glib_version
-        $DO_MAKE_UNINSTALL || exit 1
+        installed_glib_major_version="`expr $installed_glib_version : '\([0-9][0-9]*\).*'`"
+        installed_glib_minor_version="`expr $installed_glib_version : '[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
+        installed_glib_dotdot_version="`expr $installed_glib_version : '[0-9][0-9]*\.[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
+        installed_glib_major_minor_version=$installed_glib_major_version.$installed_glib_minor_version
+        installed_glib_major_minor_dotdot_version=$installed_glib_major_version.$installed_glib_minor_version.$installed_glib_dotdot_version
         #
-        # This appears to delete dependencies out from under other
-        # Makefiles in the tree, causing it to fail.  At least until
-        # that gets fixed, if it ever gets fixed, we just ignore the
-        # exit status of "make distclean"
+        # GLib 2.59.1 and later use Meson+Ninja as the build system.
         #
-        # make distclean || exit 1
-        make distclean || echo "Ignoring make distclean failure" 1>&2
+        case $installed_glib_major_version in
+
+        1)
+            $DO_MAKE_UNINSTALL || exit 1
+            #
+            # This appears to delete dependencies out from under other
+            # Makefiles in the tree, causing it to fail.  At least until
+            # that gets fixed, if it ever gets fixed, we just ignore the
+            # exit status of "make distclean"
+            #
+            # make distclean || exit 1
+            make distclean || echo "Ignoring make distclean failure" 1>&2
+            ;;
+
+        *)
+            case $installed_glib_minor_version in
+
+            [0-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|5[0-8])
+                $DO_MAKE_UNINSTALL || exit 1
+                #
+                # This appears to delete dependencies out from under other
+                # Makefiles in the tree, causing it to fail.  At least until
+                # that gets fixed, if it ever gets fixed, we just ignore the
+                # exit status of "make distclean"
+                #
+                # make distclean || exit 1
+                make distclean || echo "Ignoring make distclean failure" 1>&2
+                ;;
+
+            59|[6-9][0-9]|[1-9][0-9][0-9])
+                #
+                # 2.59.0 doesn't require Meson and Ninja, but it
+                # supports it, and I'm too lazy to add a dot-dot
+                # version check.
+                #
+                $DO_NINJA_UNINSTALL || exit 1
+                #
+                # For Meson+Ninja, we do the build in an _build
+                # subdirectory, so the equivalent of "make distclean"
+                # is just to remove the directory tree.
+                #
+                rm -rf _build
+                ;;
+
+            *)
+                echo "Glib's put out 1000 2.x releases?" 1>&2
+                ;;
+            esac
+        esac
         cd ..
         rm glib-$installed_glib_version-done
 
@@ -2709,6 +2820,18 @@ install_all() {
 
     install_cmake
 
+    #
+    # Install Python 3 now; not only is it needed for the Wireshark
+    # build process, it's also needed for the Meson build system,
+    # which newer versions of GLib use as their build system.
+    #
+    install_python3
+
+    #
+    # Now install Meson.
+    #
+    install_meson
+
     install_ninja
 
     install_asciidoctor
@@ -2801,8 +2924,6 @@ install_all() {
 
     install_opus
 
-    install_python3
-
     install_brotli
 
     install_minizip
@@ -2829,8 +2950,6 @@ uninstall_all() {
         uninstall_minizip
 
         uninstall_brotli
-
-        uninstall_python3
 
         uninstall_opus
 
@@ -2899,6 +3018,10 @@ uninstall_all() {
 
         uninstall_asciidoctor
 
+        uninstall_meson
+
+        uninstall_python3
+
         uninstall_cmake
 
         uninstall_libtool
@@ -2932,11 +3055,15 @@ if [ -w /usr/local ]
 then
     DO_MAKE_INSTALL="make install"
     DO_MAKE_UNINSTALL="make uninstall"
+    DO_NINJA_INSTALL="ninja -C _build install"
+    DO_NINJA_UNINSTALL="ninja -C _build uninstall"
     DO_RM="rm"
     DO_MV="mv"
 else
     DO_MAKE_INSTALL="sudo make install"
     DO_MAKE_UNINSTALL="sudo make uninstall"
+    DO_NINJA_INSTALL="sudo ninja -C _build install"
+    DO_NINJA_UNINSTALL="sudo ninja -C _build uninstall"
     DO_RM="sudo rm"
     DO_MV="sudo mv"
 fi
