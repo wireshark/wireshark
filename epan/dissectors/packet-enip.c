@@ -4,8 +4,8 @@
  *
  * This dissector includes items from:
  *    CIP Volume 1: Common Industrial Protocol, Edition 3.24
- *    CIP Volume 2: EtherNet/IP Adaptation of CIP, Edition 1.26
- *    CIP Volume 8: CIP Security, Edition 1.6
+ *    CIP Volume 2: EtherNet/IP Adaptation of CIP, Edition 1.27
+ *    CIP Volume 8: CIP Security, Edition 1.11
  *
  * Copyright 2003-2004
  * Magnus Hansson <mah@hms.se>
@@ -62,6 +62,7 @@ void proto_reg_handoff_enip(void);
 #define UNREGISTER_SESSION 0x0066
 #define SEND_RR_DATA       0x006F
 #define SEND_UNIT_DATA     0x0070
+#define START_DTLS         0x00C8
 
 /* EtherNet/IP status codes */
 #define SUCCESS               0x0000
@@ -77,6 +78,8 @@ void proto_reg_handoff_enip(void);
 #define CPF_ITEM_NULL                 0x0000
 #define CPF_ITEM_CIP_IDENTITY         0x000C
 #define CPF_ITEM_CIP_SECURITY         0x0086
+#define CPF_ITEM_ENIP_CAPABILITY      0x0087
+#define CPF_ITEM_ENIP_USAGE           0x0088
 #define CPF_ITEM_CONNECTED_ADDRESS    0x00A1
 #define CPF_ITEM_CONNECTED_DATA       0x00B1
 #define CPF_ITEM_UNCONNECTED_DATA     0x00B2
@@ -128,7 +131,8 @@ static int hf_enip_security_profiles = -1;
 static int hf_enip_security_profiles_eip_integrity = -1;
 static int hf_enip_security_profiles_eip_confidentiality = -1;
 static int hf_enip_security_profiles_cip_authorization = -1;
-static int hf_enip_security_profiles_cip_integrity = -1;
+static int hf_enip_security_profiles_cip_user_authentication = -1;
+static int hf_enip_security_profiles_resource_constrained = -1;
 static int hf_enip_security_profiles_reserved = -1;
 static int hf_enip_cip_security_state = -1;
 static int hf_enip_eip_security_state = -1;
@@ -219,6 +223,9 @@ static int hf_tcpip_port_number = -1;
 static int hf_tcpip_port_protocol = -1;
 static int hf_tcpip_port_admin_state = -1;
 static int hf_tcpip_port_admin_capability = -1;
+static int hf_tcpip_admin_capability_configurable = -1;
+static int hf_tcpip_admin_capability_reset_required = -1;
+static int hf_tcpip_admin_capability_reserved = -1;
 
 static int hf_elink_interface_flags = -1;
 static int hf_elink_iflags_link_status = -1;
@@ -331,6 +338,7 @@ static int hf_dlr_aga_ip_addr = -1;
 static int hf_dlr_aga_physical_address = -1;
 static int hf_dlr_active_gateway_precedence = -1;
 
+static int hf_cip_security_state = -1;
 static int hf_eip_security_state = -1;
 static int hf_eip_security_verify_client_cert = -1;
 static int hf_eip_security_send_cert_chain = -1;
@@ -351,6 +359,7 @@ static int hf_eip_security_num_active_certs = -1;
 static int hf_eip_security_num_trusted_auths = -1;
 static int hf_eip_cert_name = -1;
 static int hf_eip_cert_state = -1;
+static int hf_eip_cert_encoding = -1;
 static int hf_eip_cert_device_cert_status = -1;
 static int hf_eip_cert_ca_cert_status = -1;
 static int hf_eip_cert_capflags_push = -1;
@@ -369,6 +378,7 @@ static gint ett_command_tree = -1;
 static gint ett_sockadd = -1;
 static gint ett_lsrcf = -1;
 static gint ett_tcpip_status = -1;
+static gint ett_tcpip_admin_capability = -1;
 static gint ett_tcpip_config_cap = -1;
 static gint ett_tcpip_config_control = -1;
 static gint ett_elink_interface_flags = -1;
@@ -497,6 +507,7 @@ static const value_string encap_cmd_vals[] = {
    { UNREGISTER_SESSION,"Unregister Session" },
    { SEND_RR_DATA,      "Send RR Data"       },
    { SEND_UNIT_DATA,    "Send Unit Data"     },
+   { START_DTLS,        "StartDTLS"          },
 
    { 0,                 NULL                 }
 };
@@ -520,6 +531,8 @@ static const value_string cpf_type_vals[] = {
    { CPF_ITEM_NULL,                 "Null Address Item"        },
    { CPF_ITEM_CIP_IDENTITY,         "CIP Identity"             },
    { CPF_ITEM_CIP_SECURITY,         "CIP Security Information" },
+   { CPF_ITEM_ENIP_CAPABILITY,      "EtherNet/IP Capability"   },
+   { CPF_ITEM_ENIP_USAGE,           "EtherNet/IP Usage"        },
    { CPF_ITEM_CONNECTED_ADDRESS,    "Connected Address Item"   },
    { CPF_ITEM_CONNECTED_DATA,       "Connected Data Item"      },
    { CPF_ITEM_UNCONNECTED_DATA,     "Unconnected Data Item"    },
@@ -1068,6 +1081,8 @@ static gchar* cip_connection_conv_filter(packet_info *pinfo)
 /*
  * Connection management
  */
+
+// Key: (triad, connection IDs), Value: cip_conn_info_t
 static wmem_map_t *enip_conn_hashtable = NULL;
 static guint32 enip_unique_connid;
 
@@ -1881,6 +1896,24 @@ dissect_dlr_active_gateway_address(packet_info *pinfo, proto_tree *tree, proto_i
    return 10;
 }
 
+static int dissect_cip_security_profiles(packet_info* pinfo _U_, proto_tree* tree, proto_item* item _U_, tvbuff_t* tvb,
+   int offset, int total_len _U_)
+{
+   static int* const security_profiles[] = {
+      &hf_enip_security_profiles_eip_integrity,
+      &hf_enip_security_profiles_eip_confidentiality,
+      &hf_enip_security_profiles_cip_authorization,
+      &hf_enip_security_profiles_cip_user_authentication,
+      &hf_enip_security_profiles_resource_constrained,
+      &hf_enip_security_profiles_reserved,
+      NULL
+   };
+
+   proto_tree_add_bitmask(tree, tvb, offset, hf_enip_security_profiles, ett_security_profiles, security_profiles, ENC_LITTLE_ENDIAN);
+
+   return 2;
+}
+
 static int
 dissect_eip_security_cap(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
                                    int offset, int total_len)
@@ -2149,12 +2182,14 @@ static int dissect_tcpip_port_information(packet_info *pinfo, proto_tree *tree, 
    for (guint32 i = 0; i < port_count; ++i)
    {
       proto_item *port_item;
-      proto_tree *port_tree = proto_tree_add_subtree(tree, tvb, offset, 0, ett_cmd_data, &port_item, "Port");
+      proto_tree *port_tree = proto_tree_add_subtree(tree, tvb, offset, 0, ett_cmd_data, &port_item, "Port: ");
 
       offset += dissect_cip_string_type(pinfo, port_tree, item, tvb, offset, hf_tcpip_port_name, CIP_SHORT_STRING_TYPE);
 
-      proto_tree_add_item(port_tree, hf_tcpip_port_number, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+      guint32 port_number;
+      proto_tree_add_item_ret_uint(port_tree, hf_tcpip_port_number, tvb, offset, 2, ENC_LITTLE_ENDIAN, &port_number);
       offset += 2;
+      proto_item_append_text(port_item, "Number: %d", port_number);
 
       proto_tree_add_item(port_tree, hf_tcpip_port_protocol, tvb, offset, 1, ENC_LITTLE_ENDIAN);
       offset++;
@@ -2162,7 +2197,14 @@ static int dissect_tcpip_port_information(packet_info *pinfo, proto_tree *tree, 
       proto_tree_add_item(port_tree, hf_tcpip_port_admin_state, tvb, offset, 1, ENC_LITTLE_ENDIAN);
       offset++;
 
-      proto_tree_add_item(port_tree, hf_tcpip_port_admin_capability, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+      static int* const capability[] = {
+         &hf_tcpip_admin_capability_configurable,
+         &hf_tcpip_admin_capability_reset_required,
+         &hf_tcpip_admin_capability_reserved,
+         NULL
+      };
+
+      proto_tree_add_bitmask(port_tree, tvb, offset, hf_tcpip_port_admin_capability, ett_tcpip_admin_capability, capability, ENC_LITTLE_ENDIAN);
       offset++;
    }
 
@@ -2273,6 +2315,10 @@ attribute_info_t enip_attribute_vals[] = {
    {0x47, FALSE, 15, -1, "Active Gateway Address",          cip_dissector_func, NULL, dissect_dlr_active_gateway_address},
    {0x47, FALSE, 16, -1, "Active Gateway Precedence",       cip_usint, &hf_dlr_active_gateway_precedence, NULL},
 
+   /* CIP Security Object (instance attributes) */
+   {0x5D, CIP_ATTR_INSTANCE, 1, 0, "State", cip_usint, &hf_cip_security_state, NULL},
+   {0x5D, CIP_ATTR_INSTANCE, 2, 1, "Security Profiles", cip_dissector_func, NULL, dissect_cip_security_profiles },
+
    /* EtherNet/IP Security object (instance attributes) */
    {0x5E, FALSE, 1, 0, "State", cip_usint, &hf_eip_security_state, NULL},
    {0x5E, FALSE, 2, 1, "Capability Flags",  cip_dissector_func,   NULL, dissect_eip_security_cap},
@@ -2302,6 +2348,7 @@ attribute_info_t enip_attribute_vals[] = {
    {0x5F, FALSE, 2, 1, "State", cip_usint, &hf_eip_cert_state, NULL},
    {0x5F, FALSE, 3, 2, "Device Certificate",  cip_dissector_func,   NULL, dissect_eip_cert_device_cert},
    {0x5F, FALSE, 4, 3, "CA Certificate",  cip_dissector_func,   NULL, dissect_eip_cert_ca_cert},
+   {0x5F, FALSE, 5, 4, "Certificate Encoding", cip_usint, &hf_eip_cert_encoding, NULL },
 };
 
 static void enip_init_protocol(void)
@@ -2365,14 +2412,6 @@ static void dissect_item_list_identity(packet_info* pinfo, tvbuff_t* tvb, int of
 // offset - Starts at the "Security Profiles" field.
 static void dissect_item_cip_security_information(tvbuff_t* tvb, int offset, proto_tree* item_tree)
 {
-   static int * const security_profiles[] = {
-      &hf_enip_security_profiles_eip_integrity,
-      &hf_enip_security_profiles_eip_confidentiality,
-      &hf_enip_security_profiles_cip_authorization,
-      &hf_enip_security_profiles_cip_integrity,
-      &hf_enip_security_profiles_reserved,
-      NULL
-   };
    static int * const iana_flags[] = {
       &hf_enip_iana_port_state_flags_tcp_44818,
       &hf_enip_iana_port_state_flags_udp_44818,
@@ -2383,8 +2422,7 @@ static void dissect_item_cip_security_information(tvbuff_t* tvb, int offset, pro
       NULL
    };
 
-   /* Security profiles */
-   proto_tree_add_bitmask(item_tree, tvb, offset, hf_enip_security_profiles, ett_security_profiles, security_profiles, ENC_LITTLE_ENDIAN);
+   dissect_cip_security_profiles(NULL, item_tree, NULL, tvb, offset, tvb_reported_length_remaining(tvb, offset));
 
    /* CIP Security object state */
    proto_tree_add_item(item_tree, hf_enip_cip_security_state, tvb, offset + 2, 1, ENC_LITTLE_ENDIAN);
@@ -2429,7 +2467,7 @@ static void display_fwd_open_connection_path(cip_conn_info_t* conn_info, proto_t
    if (tvbIOI)
    {
       proto_item* pi = NULL;
-      proto_tree* epath_tree = proto_tree_add_subtree(tree, tvb, 0, 0, ett_connection_path_info, &pi, "Connection Path: ");
+      proto_tree* epath_tree = proto_tree_add_subtree(tree, tvb, 0, 0, ett_connection_path_info, &pi, "Forward Open Connection Path: ");
       proto_item_set_generated(pi);
 
       dissect_epath(tvbIOI, pinfo, epath_tree, pi, 0, conn_info->FwdOpenPathLenBytes, TRUE, FALSE, NULL, NULL, NO_DISPLAY, NULL, FALSE);
@@ -3395,7 +3433,7 @@ proto_register_enip(void)
 
       { &hf_enip_listid_delay,
         { "Max Response Delay", "enip.listid_delay",
-          FT_UINT16, BASE_DEC, NULL, 0,
+          FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_milliseconds, 0,
           "Maximum random delay allowed by target", HFILL }},
 
       { &hf_enip_options,
@@ -3548,14 +3586,19 @@ proto_register_enip(void)
           FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x0004,
           NULL, HFILL }},
 
-      { &hf_enip_security_profiles_cip_integrity,
-        { "CIP Integrity Profile", "enip.security_profiles.cip_integrity",
+      { &hf_enip_security_profiles_cip_user_authentication,
+        { "CIP User Authentication Profile", "enip.security_profiles.cip_user_authentication",
           FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x0008,
           NULL, HFILL }},
 
+      { &hf_enip_security_profiles_resource_constrained,
+        { "Resource-Constrained CIP Security Profile", "enip.security_profiles.resource_constrained",
+          FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x0010,
+          NULL, HFILL } },
+
       { &hf_enip_security_profiles_reserved,
         { "Reserved", "enip.security_profiles.reserved",
-          FT_UINT16, BASE_HEX, NULL, 0xFFF0,
+          FT_UINT16, BASE_HEX, NULL, 0xFFE0,
           NULL, HFILL }},
 
       { &hf_enip_cip_security_state,
@@ -3929,7 +3972,11 @@ proto_register_enip(void)
       { &hf_tcpip_port_number, { "Port Number", "cip.tcpip.port_number", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
       { &hf_tcpip_port_protocol, { "Protocol", "cip.tcpip.protocol", FT_UINT8, BASE_DEC | BASE_EXT_STRING, &ipproto_val_ext, 0, NULL, HFILL } },
       { &hf_tcpip_port_admin_state, { "Admin State", "cip.tcpip.admin_state", FT_BOOLEAN, BASE_NONE, TFS(&tfs_open_closed), 0, NULL, HFILL } },
-      { &hf_tcpip_port_admin_capability, { "Admin Capability", "cip.tcpip.admin_capability", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
+
+      { &hf_tcpip_port_admin_capability, { "Admin Capability", "cip.tcpip.admin_capability", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL } },
+      { &hf_tcpip_admin_capability_configurable, { "Configurable", "cip.tcpip.admin_capability.configurable", FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x01, NULL, HFILL } },
+      { &hf_tcpip_admin_capability_reset_required, { "Reset Required", "cip.tcpip.admin_capability.reset_required", FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x02, NULL, HFILL } },
+      { &hf_tcpip_admin_capability_reserved, { "Reserved", "cip.tcpip.admin_capability", FT_UINT8, BASE_HEX, NULL, 0xFC, NULL, HFILL } },
 
       { &hf_elink_interface_speed,
         { "Interface Speed", "cip.elink.interface_speed",
@@ -4466,6 +4513,8 @@ proto_register_enip(void)
           FT_UINT8, BASE_DEC, NULL, 0,
           NULL, HFILL }},
 
+      { &hf_cip_security_state, { "State", "cip.security.state", FT_UINT8, BASE_DEC, VALS(cip_security_state_vals), 0, NULL, HFILL } },
+
       { &hf_eip_security_state,
         { "State", "cip.eip_security.state",
           FT_UINT8, BASE_DEC, VALS(eip_security_state_vals), 0,
@@ -4566,6 +4615,11 @@ proto_register_enip(void)
           FT_UINT8, BASE_DEC, VALS(eip_cert_state_vals), 0,
           NULL, HFILL }},
 
+      { &hf_eip_cert_encoding,
+        { "Certificate Encoding", "cip.eip_cert.encoding",
+          FT_UINT8, BASE_DEC, NULL, 0,
+          NULL, HFILL } },
+
       { &hf_eip_cert_device_cert_status,
         { "Certificate Status", "cip.eip_cert.device_cert.status",
           FT_UINT8, BASE_DEC, VALS(eip_cert_status_vals), 0,
@@ -4613,6 +4667,7 @@ proto_register_enip(void)
       &ett_sockadd,
       &ett_lsrcf,
       &ett_tcpip_status,
+      &ett_tcpip_admin_capability,
       &ett_tcpip_config_cap,
       &ett_tcpip_config_control,
       &ett_elink_interface_flags,
@@ -4724,7 +4779,7 @@ proto_register_enip(void)
       /* Beacon Timeout */
       { &hf_dlr_beacontimeout,
         { "Beacon Timeout", "enip.dlr.beacontimeout",
-          FT_UINT32, BASE_DEC, NULL, 0,
+          FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_microseconds, 0,
           NULL, HFILL }
       },
       /* Beacon Reserved */

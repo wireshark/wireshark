@@ -105,6 +105,6 @@ typedef struct cip_io_data_input {
 void enip_close_cip_connection(packet_info *pinfo, const cip_connection_triad_t* triad);
 void enip_mark_connection_triad(packet_info *pinfo, const cip_connection_triad_t* triad);
 
-extern attribute_info_t enip_attribute_vals[103];
+extern attribute_info_t enip_attribute_vals[106];
 
 #endif /* PACKET_ENIP_H */

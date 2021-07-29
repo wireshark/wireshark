@@ -505,7 +505,6 @@ static int hf_time_sync_port_proto_addr_info_port_proto_addr = -1;
 static int hf_time_sync_steps_removed = -1;
 static int hf_time_sync_sys_time_and_offset_time = -1;
 static int hf_time_sync_sys_time_and_offset_offset = -1;
-static int hf_cip_security_state = -1;
 static int hf_port_entry_port = -1;
 static int hf_port_type = -1;
 static int hf_port_number = -1;
@@ -931,14 +930,6 @@ static const value_string cip_time_sync_network_protocol_vals[] = {
    { 4,      "DeviceNet"    },
    { 5,      "ControlNet"   },
    { 0xFFFF, "Local or Unknown protocol"   },
-   { 0,      NULL           }
-};
-
-static const value_string cip_security_state_vals[] = {
-   { 0,      "Factory Default Configuration"     },
-   { 1,      "Initial Commissioning In Progress" },
-   { 2,      "Configured"   },
-   { 3,      "Incomplete Configuration"    },
    { 0,      NULL           }
 };
 
@@ -3817,8 +3808,6 @@ static attribute_info_t cip_attribute_vals[] = {
    {0x43, FALSE, 27, -1, "Steps Removed", cip_uint, &hf_time_sync_steps_removed, NULL},
    {0x43, FALSE, 28, -1, "System Time and Offset", cip_dissector_func, NULL, dissect_time_sync_sys_time_and_offset},
 
-    /* CIP Security Object (instance attributes) */
-   {0x5D, FALSE, 1, 0, "State", cip_usint, &hf_cip_security_state, NULL},
 
    /* Connection Configuration Object (class attributes) */
    /* Data sizes are different than common class attributes for some items. */
@@ -6271,8 +6260,8 @@ dissect_cip_find_next_object_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
    for (i = 0; i < num_instances; i++)
    {
-      proto_tree_add_item(tree, hf_cip_find_next_object_instance_item, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-      offset += 2;
+      proto_tree_add_item(tree, hf_cip_find_next_object_instance_item, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+      offset += 1;
 
       if ((tvb_reported_length_remaining(tvb, offset) < 2) && (i < num_instances-1))
       {
@@ -8557,7 +8546,6 @@ proto_register_cip(void)
       { &hf_time_sync_steps_removed, { "Steps Removed", "cip.time_sync.steps_removed", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
       { &hf_time_sync_sys_time_and_offset_time, { "System Time (Microseconds)", "cip.time_sync.sys_time_and_offset.time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0, NULL, HFILL }},
       { &hf_time_sync_sys_time_and_offset_offset, { "System Offset (Microseconds)", "cip.time_sync.sys_time_and_offset.offset", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
-      { &hf_cip_security_state, { "State", "cip.security.state", FT_UINT8, BASE_DEC, VALS(cip_security_state_vals), 0, NULL, HFILL }},
       { &hf_port_entry_port, { "Entry Port", "cip.port.entry_port", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
       { &hf_port_type, { "Port Type", "cip.port.type", FT_UINT16, BASE_DEC | BASE_RANGE_STRING, RVALS(cip_port_type_vals), 0, NULL, HFILL } },
       { &hf_port_number, { "Port Number", "cip.port.number", FT_UINT16, BASE_DEC, VALS(cip_port_number_vals), 0, NULL, HFILL } },
