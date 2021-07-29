@@ -190,17 +190,33 @@ BCG729_VERSION=1.0.2
 ILBC_VERSION=2.0.2
 OPUS_VERSION=1.3.1
 
-# 3.7.6 is the final version of Python to have official packages for the
-# 64-bit/32-bit variant that supports 10.6 (Snow Leopard) through 10.8
-# (Mountain Lion), and 3.9.1 is the first version of Python to support
-# macOS 11 Big Sur and Apple Silicon (Arm-based Macs).
-
-# So on Mountain Lion, choose 3.7.6, otherwise get the latest stable version
-# (3.9.5).
-if [[ $DARWIN_MAJOR_VERSION -gt 12 ]]; then
-    PYTHON3_VERSION=3.9.5
+#
+# Is /usr/bin/python3 a working version of Python?  It may be, as it
+# might be a wrapper that runs the Python 3 that's part of Xcode.
+#
+if python3 --version >/dev/null 2>&1
+then
+    #
+    # Yes - don't bother installing Python 3 from elsewhere
+    #
+    :
 else
-    PYTHON3_VERSION=3.7.6
+    #
+    # No - install a Python package.
+    #
+    # 3.7.6 is the final version of Python to have official packages for the
+    # 64-bit/32-bit variant that supports 10.6 (Snow Leopard) through 10.8
+    # (Mountain Lion), and 3.9.1 is the first version of Python to support
+    # macOS 11 Big Sur and Apple Silicon (Arm-based Macs).
+    #
+    # So on Mountain Lion, choose 3.7.6, otherwise get the latest stable
+    # version (3.9.5).
+    #
+    if [[ $DARWIN_MAJOR_VERSION -gt 12 ]]; then
+        PYTHON3_VERSION=3.9.5
+    else
+        PYTHON3_VERSION=3.7.6
+    fi
 fi
 BROTLI_VERSION=1.0.9
 # minizip
