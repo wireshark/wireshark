@@ -869,7 +869,7 @@ quic_connection_hash(gconstpointer key)
 {
     const quic_cid_t *cid = (const quic_cid_t *)key;
 
-    return wmem_strong_hash((const guint8 *)cid, cid->len);
+    return wmem_strong_hash((const guint8 *)cid, sizeof(quic_cid_t) - sizeof(cid->cid) + cid->len);
 }
 
 static gboolean
