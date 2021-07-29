@@ -2781,6 +2781,10 @@ add_body_fields(guint32 opcode,
             parse_move_messages(ptv);
             break;
 
+        case CMSG_CHAR_ENUM:
+            /* Fallthrough */
+        case CMSG_QUERY_TIME:
+            /* Fallthrough */
         default:
             break;
     }
