@@ -10827,7 +10827,7 @@ void proto_register_dis(void)
                 NULL, HFILL }
             },
             { &hf_dis_iff_mode_s_interrogator_identifier_primary_ic_code,
-              { "Primary IC Code",  "ddis.iff.mode_s_interrogator_identifier.primary_ic_code",
+              { "Primary IC Code",  "dis.iff.mode_s_interrogator_identifier.primary_ic_code",
                  FT_UINT16, BASE_DEC, NULL, 0xFE,
                  NULL, HFILL }
             },
@@ -10837,7 +10837,7 @@ void proto_register_dis(void)
                 NULL, HFILL }
             },
             { &hf_dis_iff_mode_s_interrogator_identifier_secondary_ic_code,
-              { "Secondary IC Code",  "ddis.iff.mode_s_interrogator_identifier.secondary_ic_code",
+              { "Secondary IC Code",  "dis.iff.mode_s_interrogator_identifier.secondary_ic_code",
                  FT_UINT16, BASE_DEC, NULL, 0xFE00,
                  NULL, HFILL }
             },
