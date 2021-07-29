@@ -36593,7 +36593,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_ff_alloc_type,
      {"Allocation Type", "wlan.dynamic_allocation.alloc_type",
-      FT_UINT40, BASE_DEC, NULL, 0x000000070,
+      FT_UINT40, BASE_DEC, NULL, 0x0000000070,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_src_aid,
@@ -36890,7 +36890,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_ff_bic_NBI_abft,
      {"Number of Beacon Intervals that are needed to allocate A-BFT", "wlan.bic.NBI_abft",
-      FT_UINT48, BASE_DEC, NULL, 0x00078000000,
+      FT_UINT48, BASE_DEC, NULL, 0x000078000000,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_bic_abft_count,
@@ -41272,7 +41272,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_tclas_class_mask7_address_2_match_spec,
      {"Address 2 Spec", "wlan.tclas.class7.address_2_spec",
-      FT_UINT24, BASE_HEX, VALS(address_2_mask_vals), 0x00030, NULL, HFILL }},
+      FT_UINT24, BASE_HEX, VALS(address_2_mask_vals), 0x000030, NULL, HFILL }},
 
     {&hf_ieee80211_tclas_class_mask7_sequence_control_spec,
      {"Sequence Control Spec", "wlan.tclas.class7.sequence_control_spec",
@@ -45624,7 +45624,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_tag_neighbor_report_bssid_info_capability_dback,
      {"Delayed Block Ack", "wlan.nreport.bssid.info.capability.dback",
-      FT_BOOLEAN, 32, NULL, 0x000000100,
+      FT_BOOLEAN, 32, NULL, 0x00000100,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_neighbor_report_bssid_info_capability_iback,
@@ -49070,12 +49070,12 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_he_multi_tid_aggregation_tx_support,
      {"Multi-TID Aggregation Tx Support", "wlan.ext_tag.he_mac_cap.multi_tid_agg_tx_support",
-       FT_UINT48, BASE_DEC, NULL, 0x38000000000, NULL, HFILL }},
+       FT_UINT48, BASE_DEC, NULL, 0x038000000000, NULL, HFILL }},
 
     {&hf_ieee80211_he_subchannel_selective_trans_support,
      {"HE Subchannel Selective Transmission Support", "wlan.ext_tag.he_mac_cap.subchannel_selective_xmit_support",
       FT_BOOLEAN, 48, TFS(&tfs_supported_not_supported),
-      0x40000000000, NULL, HFILL }},
+      0x040000000000, NULL, HFILL }},
 
     {&hf_ieee80211_he_2_996_tone_ru_support,
      {"UL 2x996-tone RU Support", "wlan.ext_tag.he_mac_cap.ul_2_996_tone_ru_support",

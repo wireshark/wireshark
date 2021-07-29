@@ -11918,7 +11918,7 @@ proto_register_nfs(void)
 			NULL, 0xfffc, "major file system ID", HFILL }},
 		{ &hf_nfs_fh_fsid_minor32, {
 			"minor", "nfs.fh.fsid.minor", FT_UINT32, BASE_DEC,
-			NULL, 0x3ffff, "minor file system ID", HFILL }},
+			NULL, 0x03ffff, "minor file system ID", HFILL }},
 		{ &hf_nfs_fh_fsid_inode, {
 			"inode", "nfs.fh.fsid.inode", FT_UINT32, BASE_DEC,
 			NULL, 0, "file system inode", HFILL }},

@@ -171,6 +171,7 @@ known_non_contiguous_fields = { 'wlan.fixed.capabilities.cfpoll.sta',
 
 field_widths = {
     'FT_BOOLEAN' : 64,   # TODO: Width depends upon 'display' field, not checked.
+    'FT_CHAR'    : 8,
     'FT_UINT8'   : 8,
     'FT_INT8'    : 8,
     'FT_UINT16'  : 16,

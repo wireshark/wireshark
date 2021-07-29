@@ -2598,7 +2598,7 @@ void proto_register_pdcp_nr(void)
         },
         { &hf_pdcp_nr_seq_num_18,
             { "Seq Num",
-              "pdcp-nr.seq-num", FT_UINT24, BASE_DEC, NULL, 0x3ffff,
+              "pdcp-nr.seq-num", FT_UINT24, BASE_DEC, NULL, 0x03ffff,
               "PDCP Seq num", HFILL
             }
         },

@@ -11706,7 +11706,7 @@ proto_register_bgp(void)
           BASE_NONE, NULL, 0x0, NULL, HFILL}},
       { &hf_bgp_ls_nlri_multi_topology_id,
         { "Multi Topology ID", "bgp.ls.nlri_multi_topology_id", FT_UINT16,
-          BASE_DEC_HEX, NULL, 0xfff, NULL, HFILL}},
+          BASE_DEC_HEX, NULL, 0x0fff, NULL, HFILL}},
       { &hf_bgp_ls_nlri_ospf_route_type,
         { "OSPF Route Type", "bgp.ls.nlri_ospf_route_type", FT_UINT8,
           BASE_DEC, VALS(link_state_prefix_descriptors_ospf_route_type), 0x0, NULL, HFILL}},

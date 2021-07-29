@@ -5669,19 +5669,19 @@ proto_register_epl(void)
 		},
 		{ &hf_epl_asnd_identresponse_feat_bit10,
 			{ "Multiple-ASend Support", "epl.asnd.ires.features.bit10",
-				FT_BOOLEAN, 32, NULL, 0x10000, NULL, HFILL }
+				FT_BOOLEAN, 32, NULL, 0x010000, NULL, HFILL }
 		},
 		{ &hf_epl_asnd_identresponse_feat_bit11,
 			{ "Ring Redundancy", "epl.asnd.ires.features.bit11",
-				FT_BOOLEAN, 32, NULL, 0x20000, NULL, HFILL }
+				FT_BOOLEAN, 32, NULL, 0x020000, NULL, HFILL }
 		},
 		{ &hf_epl_asnd_identresponse_feat_bit12,
 			{ "PResChaining", "epl.asnd.ires.features.bit12",
-				FT_BOOLEAN, 32, NULL, 0x40000, NULL, HFILL }
+				FT_BOOLEAN, 32, NULL, 0x040000, NULL, HFILL }
 		},
 		{ &hf_epl_asnd_identresponse_feat_bit13,
 			{ "Multiple PReq/PRes", "epl.asnd.ires.features.bit13",
-				FT_BOOLEAN, 32, NULL, 0x80000, NULL, HFILL }
+				FT_BOOLEAN, 32, NULL, 0x080000, NULL, HFILL }
 		},
 		{ &hf_epl_asnd_identresponse_feat_bit14,
 			{ "Dynamic Node Allocation", "epl.asnd.ires.features.bit14",
