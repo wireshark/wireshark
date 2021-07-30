@@ -39087,12 +39087,12 @@ proto_register_ieee80211(void)
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_ext_channel_switch_announcement_switch_count,
-     {"Channel Switch Count", "wlan.extchanswitch.switchcount",
+     {"Channel Switch Count", "wlan.extchansw.switchcount",
       FT_UINT32, BASE_HEX, NULL, 0xFF000000,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_ht_info,
-     {"HT Information", "wlan.fixed.extchansw",
+     {"HT Information", "wlan.fixed.mimo",
       FT_UINT8, BASE_HEX, 0, 0,
       "HT Information Fixed Field", HFILL }},
 
@@ -39112,7 +39112,7 @@ proto_register_ieee80211(void)
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_ht_info_reserved,
-     {"Reserved", "wlan.fixed.extchansw",
+     {"Reserved", "wlan.fixed.reserved",
       FT_UINT8, BASE_HEX, 0, 0xF8,
       "Reserved Field", HFILL }},
 

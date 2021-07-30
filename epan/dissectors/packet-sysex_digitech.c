@@ -1268,7 +1268,7 @@ proto_register_sysex_digitech(void)
             { "Parameter data", "sysex_digitech.parameter_data", FT_UINT8, BASE_DEC,
               NULL, 0, NULL, HFILL }},
         { &hf_digitech_parameter_data_count,
-            { "Parameter value count", "sysex_digitech.parameter_data_count", FT_UINT8, BASE_DEC,
+            { "Parameter value count", "sysex_digitech.parameter_value_count", FT_UINT8, BASE_DEC,
               NULL, 0, NULL, HFILL }},
         { &hf_digitech_parameter_data_two_byte_count,
             { "Parameter data count", "sysex_digitech.parameter_data_count", FT_UINT24, BASE_DEC,

@@ -1344,7 +1344,7 @@ proto_register_bmp(void)
             { "Number of routes in pre-policy Adj-RIBs-Out", "bmp.stats.data.routes_pre_adj_rib_out", FT_UINT64, BASE_DEC,
                 NULL, 0x0, NULL, HFILL }},
         { &hf_stat_data_routes_post_adj_rib_out,
-            { "Number of routes in post-policy Adj-RIBs-Out", "bmp.stats.data.routes_pre_adj_rib_out", FT_UINT64, BASE_DEC,
+            { "Number of routes in post-policy Adj-RIBs-Out", "bmp.stats.data.routes_post_adj_rib_out", FT_UINT64, BASE_DEC,
                 NULL, 0x0, NULL, HFILL }},
         { &hf_stat_data_routes_pre_per_adj_rib_out_afi,
             { "AFI", "bmp.stats.data.routes_pre_per_adj_rib_out.afi", FT_UINT16, BASE_DEC,

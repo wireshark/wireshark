@@ -2462,7 +2462,7 @@ void proto_register_pcp(void)
           }
         },
         { &hf_pcp_units_scaletime,
-          { "Scale Time", "pcp.units.scalespace",
+          { "Scale Time", "pcp.units.scaletime",
             FT_UINT8, BASE_DEC,
             VALS(packettypenames_pm_units_time), 0x0,
             NULL, HFILL

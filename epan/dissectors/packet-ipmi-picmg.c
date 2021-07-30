@@ -3492,7 +3492,7 @@ proto_register_ipmi_picmg(void)
 				"ipmi.picmg.hpm.base.chn", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
 		{ &hf_ipmi_picmg_hpm_fabric_channels,
 			{ "Fabric Interface Channels",
-				"ipmi.picmg.hpm.base.chn", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
+				"ipmi.picmg.hpm.fabric.chn", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
 		{ &hf_ipmi_picmg_hpm_update_channels,
 			{ "Update Channels",
 				"ipmi.picmg.hpm.upd.chn", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},

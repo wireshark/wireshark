@@ -6223,7 +6223,7 @@ proto_register_lldp(void)
 			NULL, 0xfff, NULL, HFILL }
 		},
 		{ &hf_ex_avaya_vlan,
-			{ "VLAN", "lldp.extreme_avaya_ap.mgnt_vlan", FT_UINT16, BASE_DEC,
+			{ "VLAN", "lldp.extreme_avaya_ap.vlan", FT_UINT16, BASE_DEC,
 			NULL, 0xfff, NULL, HFILL }
 		},
 		{ &hf_ex_avaya_rsvd,

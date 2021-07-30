@@ -953,7 +953,7 @@ proto_register_mojito(void)
 		    NULL, HFILL }
 		},
 		{ &hf_mojito_storestatuscode_code,
-		  { "StatusCode", "mojito.statuscodecount",
+		  { "StatusCode", "mojito.statuscodecode",
 		    FT_UINT16, BASE_DEC,
 		    VALS(statuscodeflags), 0x0,
 		    NULL, HFILL }
