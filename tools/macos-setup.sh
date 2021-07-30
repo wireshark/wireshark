@@ -705,20 +705,24 @@ install_meson() {
     #
     # Install Meson with pip3 if we don't have it already.
     #
-    if meson --version >/dev/null 2>&1
+    if $MESON --version >/dev/null 2>&1
     then
-        # Have it.
+        # We have it.
         :
     else
         sudo pip3 install meson
+        touch meson-done
     fi
 }
 
 uninstall_meson() {
     #
-    # Unnstall Meson with pip3
+    # If we installed Meson, uninstal it with pip3.
     #
-    sudo pip3 uninstall meson
+    if [ -f meson-done ] ; then
+        sudo pip3 uninstall meson
+        rm -f meson-done
+    fi
 }
 
 install_gettext() {
@@ -876,7 +880,7 @@ install_glib() {
                 # supports it, and I'm too lazy to add a dot-dot
                 # version check.
                 #
-                meson _build || exit 1
+                $MESON _build || exit 1
                 ninja $MAKE_BUILD_OPTS -C _build || exit 1
                 $DO_NINJA_INSTALL || exit 1
                 ;;
@@ -2158,6 +2162,27 @@ install_python3() {
         $no_build && echo "Skipping installation" && return
         sudo installer -target / -pkg python-$PYTHON3_VERSION-macos$macver.pkg || exit 1
         touch python3-$PYTHON3_VERSION-done
+
+        #
+        # On macOS, the pip3 installed from Python packages appears to
+        # install scripts /Library/Frameworks/Python.framework/Versions/M.N/bin,
+        # where M.N is the major and minor version of Python (the dot-dot
+        # release is irrelevant).
+        #
+        # Strip off any dot-dot component in $PYTHON3_VERSION.
+        #
+        python_version=`echo $PYTHON3_VERSION | sed 's/\([1-9][0-9]*\.[1-9][0-9]*\).*/\1/'`
+        #
+        # Now treat Meson as being in the directory in question.
+        #
+        MESON="/Library/Frameworks/Python.framework/Versions/$python_version/bin/meson"
+    else
+        #
+        # We're using the Python 3 that's in /usr/bin, the pip3 for
+        # which installs scripts in /usr/local/bin, so, when we
+        # install Meson, look for it there.
+        #
+        MESON=/usr/local/bin/meson
     fi
 }
 
