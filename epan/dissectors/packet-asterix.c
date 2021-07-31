@@ -13723,7 +13723,7 @@ void proto_register_asterix (void)
         { &hf_010_310, { "310, Pre-programmed Message", "asterix.010_310", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_010_310_TRB, { "TRB", "asterix.010_310_TRB", FT_UINT8, BASE_DEC, VALS(valstr_010_310_TRB), 0x80, NULL, HFILL } },
         { &hf_010_310_MSG, { "MSG", "asterix.010_310_MSG", FT_UINT8, BASE_DEC, VALS(valstr_010_310_MSG), 0x7f, NULL, HFILL } },
-        { &hf_010_500, { "Standard Deviation of Position", "asterix.010_500", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_010_500, { "500, Standard Deviation of Position", "asterix.010_500", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_010_500_SDPx, { "SDPx [m]", "asterix.010_500_SDPx", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_010_500_SDPy, { "SDPy [m]", "asterix.010_500_SDPy", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_010_500_SDPxy, { "SDPxy", "asterix.010_500_SDPxy", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
