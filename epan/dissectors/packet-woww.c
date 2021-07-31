@@ -231,10 +231,10 @@ typedef enum {
     HUNTER = 3,
     ROGUE = 4,
     PRIEST = 5,
-    SHAMAN = 6,
-    MAGE = 7,
-    WARLOCK = 8,
-    DRUID = 9,
+    SHAMAN = 7,
+    MAGE = 8,
+    WARLOCK = 9,
+    DRUID = 11,
 } classes;
 
 static const value_string classes_strings[] = {
