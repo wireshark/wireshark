@@ -34,7 +34,8 @@ def signal_handler(sig, frame):
 signal.signal(signal.SIGINT, signal_handler)
 
 
-issues_found = 0
+warnings_found = 0
+errors_found = 0
 
 # A call is an individual call to an API we are interested in.
 # Internal to APICheck below.
@@ -84,8 +85,8 @@ class APICheck:
                           ' with type ' + items[call.hf_name].item_type)
                     print('    (allowed types are', self.allowed_types, ')\n')
                     # Inc global count of issues found.
-                    global issues_found
-                    issues_found += 1
+                    global errors_found
+                    errors_found += 1
 
 
 class ProtoTreeAddItemCheck(APICheck):
@@ -143,8 +144,8 @@ class ProtoTreeAddItemCheck(APICheck):
                               'proto_tree_add_item called for', call.hf_name, ' - ',
                               'item type is', items[call.hf_name].item_type, 'but call has len', call.length)
 
-                        global issues_found
-                        issues_found += 1
+                        global warnings_found
+                        warnings_found += 1
 
 
 
@@ -208,11 +209,11 @@ class Item:
         if check_consecutive:
             if Item.previousItem and Item.previousItem.filter == filter:
                 if label != Item.previousItem.label:
-                    print('Warn: ' + filename + ': - filter "' + filter +
+                    print('Warning: ' + filename + ': - filter "' + filter +
                           '" appears consecutively - labels are "' + Item.previousItem.label + '" and "' + label + '"')
             if Item.previousItem and self.mask_value and (Item.previousItem.mask_value == self.mask_value):
                 if label != Item.previousItem.label:
-                    print('Warn: ' + filename + ': - mask ' + self.mask +
+                    print('Warning: ' + filename + ': - mask ' + self.mask +
                           ' appears consecutively - labels are "' + Item.previousItem.label + '" and "' + label + '"')
 
             Item.previousItem = self
@@ -291,8 +292,8 @@ class Item:
             # N.B. No call, so no line number.
             print(self.filename + ':', 'filter=', self.filter, self.item_type, 'so field_width=', field_width,
                   'but mask is', mask, 'which is', mask_width, 'bits wide!')
-            global issues_found
-            issues_found += 1
+            global warnings_found
+            warnings_found += 1
 
         # Now, any more zero set bits are an error!
         if self.filter in known_non_contiguous_fields or self.filter.startswith('rtpmidi'):
@@ -323,32 +324,32 @@ class Item:
             # all lined up as part of the same word may make it clearer.  But some cases have been found
             # where the grouping does not seem to be natural..
             print('Warning: ', self.filename, 'filter=', self.filter, ' - mask with leading or trailing 0 bytes suggests field', self.item_type, 'may be wider than necessary?', mask)
-            global issues_found
-            issues_found += 1
+            global warnings_found
+            warnings_found += 1
 
     def check_num_digits(self, mask):
         if mask.startswith('0x') and len(mask) > 3:
-            global issues_found
+            global warnings_found
             if len(mask) % 2:
                 print('Warning: ', self.filename, 'filter=', self.filter, ' - mask has odd number of digits', mask,
                       'expected max for', self.item_type, 'is', int(self.get_field_width_in_bits()/4))
-                issues_found += 1
+                warnings_found += 1
 
             if self.item_type in field_widths:
                 if len(mask)-2 > self.get_field_width_in_bits()/4:
                     print('Warning: ', self.filename, 'filter=', self.filter, self.mask, "with len is", len(mask)-2,
                           "but type", self.item_type, " indicates max of", int(self.get_field_width_in_bits()/4))
-                    issues_found += 1
+                    warnings_found += 1
             else:
                 print('Warning: ', self.filename, 'filter=', self.filter, ' - item has type', self.item_type, 'but mask set:', mask)
-                issues_found += 1
+                warnings_found += 1
 
     def check_digits_all_zeros(self, mask):
         if mask.startswith('0x') and len(mask) > 3:
             if mask[2:] == '0'*(len(mask)-2):
                 print('Warning: ', self.filename, 'filter=', self.filter, ' - item has all zeros - this is confusing! :', mask)
-                global issues_found
-                issues_found += 1
+                global warnings_found
+                warnings_found += 1
 
 
 # These are APIs in proto.c that check a set of types at runtime and can print '.. is not of type ..' to the console
@@ -596,4 +597,7 @@ for f in files:
     checkFile(f, check_mask=args.mask, check_label=args.label, check_consecutive=args.consecutive)
 
 # Show summary.
-print(issues_found, 'issues found')
+print(warnings_found, 'warnings')
+if errors_found:
+    print(errors_found, 'errors')
+    exit(1)

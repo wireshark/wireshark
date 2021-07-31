@@ -104,11 +104,13 @@ def findDissectorFilesInFolder(folder):
             files.append(filename)
     return files
 
-issues_found = 0
+warnings_found = 0
+errors_found = 0
 
 # Check the given dissector file.
 def checkFile(filename, tfs_items, look_for_common=False):
-    global issues_found
+    global warnings_found
+    global errors_found
 
     # Check file exists - e.g. may have been deleted in a recent commit.
     if not os.path.exists(filename):
@@ -132,7 +134,10 @@ def checkFile(filename, tfs_items, look_for_common=False):
             if found:
                 print(filename, i, "- could have used", t, 'from tfs.c instead: ', tfs_items[t],
                       '' if exact_case else '  (capitalisation differs)')
-                issues_found += 1
+                if exact_case:
+                    errors_found += 1
+                else:
+                    warnings_found += 1
                 break
         if not found:
             if look_for_common:
@@ -216,7 +221,10 @@ for f in files:
 
 
 # Show summary.
-print(issues_found, 'issues found')
+print(warnings_found, 'warnings found')
+if errors_found:
+    print(errors_found, 'errors found')
+    exit(1)
 
 if args.common:
     # Looking for items that could potentially be moved to tfs.c
