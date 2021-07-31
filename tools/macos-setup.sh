@@ -814,22 +814,93 @@ install_glib() {
         xzcat glib-$GLIB_VERSION.tar.xz | tar xf - || exit 1
         cd glib-$GLIB_VERSION
         #
-        # While we're at it, suppress -Wformat-nonliteral to avoid a case
-        # where clang's stricter rules on when not to complain about
-        # non-literal format arguments cause it to complain about code
-        # that's safe but it wasn't told that.  See my comment #25 in
-        # GNOME bug 691608:
+        # First, determine where the system include files are. 
+        # (It's not necessarily /usr/include.)  There's a bit of a
+        # greasy hack here; pre-5.x versions of the developer tools
+        # don't support the --show-sdk-path option, and will produce
+        # no output, so includedir will be set to /usr/include
+        # (in those older versions of the developer tools, there is
+        # a /usr/include directory).
         #
-        #    https://bugzilla.gnome.org/show_bug.cgi?id=691608#c25
-        #
-        # First, determine where the system include files are.  (It's not
-        # necessarily /usr/include.)  There's a bit of a greasy hack here;
-        # pre-5.x versions of the developer tools don't support the
-        # --show-sdk-path option, and will produce no output, so includedir
-        # will be set to /usr/include (in those older versions of the
-        # developer tools, there is a /usr/include directory).
+        # We need this for several things we do later.
         #
         includedir=`SDKROOT="$SDKPATH" xcrun --show-sdk-path 2>/dev/null`/usr/include
+        #
+        # GLib's configuration procedure, whether autotools-based or
+        # Meson-based, really likes to use pkg-config to find libraries,
+        # including libffi.
+        #
+        # At least some versions of macOS provide libffi, but, as macOS
+        # doesn't provide pkg-config, they don't provide a .pc file for
+        # it, so the autotools-based configuration needs some trickery
+        # to get it to find the OS-supplied libffi, and the Meson-based
+        # configuration simply won't find it at all.
+        #
+        # So, if we have a system-provided libffi, but pkg-config
+        # doesn't find libffi, we construct a .pc file for that libffi,
+        # and install it in /usr/local/lib/pkgconfig.
+        #
+        if pkg-config libffi ; then
+            # It found libffi; no need to install a .pc file, and we
+            # don't want to overwrite what's there already.
+            :
+        elif [ ! -e $includedir/ffi/ffi.h ] ; then
+            # We don't appear to have libffi as part of the system, so
+            # let the configuration process figure out what to do.
+            #
+            # We test for the header file, not the library, because, in
+            # Big Sur and later, there's no guarantee that, for a system
+            # shared library, there's a corresponding dylib file in
+            # /usr/lib.
+            :
+        else
+            #
+            # We have libffi, but pkg-config didn't find it; generate
+            # and install the .pc file.
+            #
+
+            #
+            # Now generate the .pc file.
+            #
+            # We generate the contents of the .pc file by using cat with
+            # a here document containing a template for the file and
+            # piping that to a sed command that replaces @INCLUDEDIR@ in
+            # the template with the include directory we discovered
+            # above, so that the .pc file gives the compiler flags
+            # necessary to find the libffi headers (which are *not*
+            # necessarily in /usr/include, as per the above).
+            #
+            # The EOF marker for the here document is in quotes, to tell
+            # the shell not to do shell expansion, as .pc files use a
+            # syntax to refer to .pc file variables that looks like the
+            # syntax to refer to shell variables.
+            #
+            # The writing of the libffi.pc file is a greasy hack - the
+            # process of generating the contents of the .pc file writes
+            # to the standard output, but running the last process in
+            # the pipeline as root won't allow the shell that's
+            # *running* it to open the .pc file if we don't have write
+            # permission on /usr/local/lib/pkgconfig, so we need a
+            # program that creates a file and then reads from the
+            # standard input and writes to that file.  UN*Xes have a
+            # program that does that; it's called "tee". :-)
+            #
+            # However, it *also* writes the file to the standard output,
+            # so we redirect that to /dev/null when we run it.
+            #
+            cat <<"EOF" | sed "s;@INCLUDEDIR@;$includedir;" | $DO_TEE_TO_PC_FILE /usr/local/lib/pkgconfig/libffi.pc >/dev/null
+prefix=/usr
+libdir=${prefix}/lib
+includedir=@INCLUDEDIR@
+
+Name: ffi
+Description: Library supporting Foreign Function Interfaces
+Version: 3.2.9999
+Libs: -L${libdir} -lffi
+Cflags: -I${includedir}/ffi
+EOF
+        fi
+
         #
         # GLib 2.59.1 and later use Meson+Ninja as the build system.
         #
@@ -851,24 +922,27 @@ install_glib() {
                     LIBTOOLIZE=glibtoolize ./autogen.sh
                 fi
                 #
-                # macOS ships with libffi, but doesn't provide its
-                # pkg-config file; explicitly specify LIBFFI_CFLAGS
-                # and LIBFFI_LIBS, so the configure script doesn't
-                # try to use pkg-config to get the appropriate
-                # C flags and loader flags.
+                # At least with the version of Xcode that comes with
+                # Leopard, /usr/include/ffi/fficonfig.h doesn't define
+                # MACOSX, which causes the build of GLib to fail for at
+                # least some versions of GLib.  If we don't find
+                # "#define.*MACOSX" in /usr/include/ffi/fficonfig.h,
+                # explicitly define it.
                 #
-                # And, what's worse, at least with the version of Xcode
-                # that comes with Leopard, /usr/include/ffi/fficonfig.h
-                # doesn't define MACOSX, which causes the build of GLib
-                # to fail.  If we don't find "#define.*MACOSX"
-                # in /usr/include/ffi/fficonfig.h, explicitly define it.
+                # While we're at it, suppress -Wformat-nonliteral to
+                # avoid a case where clang's stricter rules on when not
+                # to complain about non-literal format arguments cause
+                # it to complain about code that's safe but it wasn't
+                # told that.  See my comment #25 in GNOME bug 691608:
+                #
+                #    https://bugzilla.gnome.org/show_bug.cgi?id=691608#c25
                 #
                 if grep -qs '#define.*MACOSX' $includedir/ffi/fficonfig.h
                 then
                     # It's defined, nothing to do
-                    LIBFFI_CFLAGS="-I $includedir/ffi" LIBFFI_LIBS="-lffi" CFLAGS="$CFLAGS -Wno-format-nonliteral $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS -Wno-format-nonliteral $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure || exit 1
+                    CFLAGS="$CFLAGS -Wno-format-nonliteral $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS -Wno-format-nonliteral $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure || exit 1
                 else
-                    LIBFFI_CFLAGS="-I $includedir/ffi" LIBFFI_LIBS="-lffi" CFLAGS="$CFLAGS -DMACOSX -Wno-format-nonliteral $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS -DMACOSX -Wno-format-nonliteral $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure || exit 1
+                    CFLAGS="$CFLAGS -DMACOSX -Wno-format-nonliteral $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS -DMACOSX -Wno-format-nonliteral $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure || exit 1
                 fi
                 make $MAKE_BUILD_OPTS || exit 1
                 $DO_MAKE_INSTALL || exit 1
@@ -3072,9 +3146,10 @@ uninstall_all() {
 # (If that's not the case, this test needs to check the subdirectories
 # as well.)
 #
-# If not, do "make install", "make uninstall", the removes for
-# dependencies that don't support "make uninstall", and the renames
-# of [g]libtool* with sudo.
+# If not, do "make install", "make uninstall", "ninja install",
+# "ninja uninstall", the removes for dependencies that don't support
+# "make uninstall" or "ninja uninstall", the renames of [g]libtool*,
+# and the writing of a libffi .pc file with sudo.
 #
 if [ -w /usr/local ]
 then
@@ -3082,6 +3157,7 @@ then
     DO_MAKE_UNINSTALL="make uninstall"
     DO_NINJA_INSTALL="ninja -C _build install"
     DO_NINJA_UNINSTALL="ninja -C _build uninstall"
+    DO_TEE_TO_PC_FILE="tee"
     DO_RM="rm"
     DO_MV="mv"
 else
@@ -3089,6 +3165,7 @@ else
     DO_MAKE_UNINSTALL="sudo make uninstall"
     DO_NINJA_INSTALL="sudo ninja -C _build install"
     DO_NINJA_UNINSTALL="sudo ninja -C _build uninstall"
+    DO_TEE_TO_PC_FILE="sudo tee"
     DO_RM="sudo rm"
     DO_MV="sudo mv"
 fi
