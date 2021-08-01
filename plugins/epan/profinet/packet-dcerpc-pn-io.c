@@ -644,6 +644,9 @@ static int hf_pn_io_profidrive_param_value_word = -1;
 static int hf_pn_io_profidrive_param_value_dword = -1;
 static int hf_pn_io_profidrive_param_value_float = -1;
 static int hf_pn_io_profidrive_param_value_string = -1;
+static int hf_pn_io_profidrive_param_value_error = -1;
+static int hf_pn_io_profidrive_param_value_error_sub = -1;
+
 
 /* Sequence of Events - Reporting System Alarm/Event Information */
 static int hf_pn_io_rs_alarm_info_reserved_0_7 = -1;
@@ -2355,6 +2358,7 @@ static const value_string pn_io_profidrive_attribute_vals[] = {
 };
 
 static const value_string pn_io_profidrive_format_vals[] = {
+	{0x0, "Zero"},
     {0x01, "Boolean" },
     {0x02, "Integer8" },
     {0x03, "Integer16" },
@@ -2365,15 +2369,121 @@ static const value_string pn_io_profidrive_format_vals[] = {
     {0x08, "Float32" },
     {0x09, "VisibleString" },
     {0x0A, "OctetString" },
+	{0x0B, "Binary Date"},
     {0x0C, "TimeOfDay" },
     {0x0D, "TimeDifference" },
-    {0x32, "Date" },
-    {0x34, "TimeOfDay" },
-    {0x35, "TimeDifference" },
-    {0x36, "TimeDifference" },
+	{0x0E, "BitString"},
+	{0x0F, "Float64"},
+	{0x10, "UniversalTime"},
+	{0x11, "FieldbusTime"},
+	{0x15, "Time Value"},
+	{0x16, "Bitstring8"},
+	{0x17, "Bitstring16"},
+	{0x18, "Bitstring32"},
+	{0x19, "VisibleString1"},
+	{0x1A, "VisibleString2"},
+	{0x1B, "VisibleString4"},
+	{0x1C, "VisibleString8"},
+	{0x1D, "VisibleString16"},
+	{0x1E, "OctetString1"},
+	{0x1F, "OctetString2"},
+	{0x20, "OctetString4"},
+	{0x21, "OctetString8"},
+	{0x22, "OctetString16"},
+	{0x23, "BCD"},
+	{0x24, "UNICODE char"},
+	{0x25, "CompactBoolean-Array"},
+	{0x26, "CompactBCDArray"},
+	{0x27, "UNICODEString"},
+	{0x28, "BinaryTime0"},
+	{0x29, "BinaryTime1"},
+	{0x2A, "BinaryTime2"},
+	{0x2B, "BinaryTime3"},
+	{0x2C, "BinaryTime4"},
+	{0x2D, "BinaryTime5"},
+	{0x2E, "BinaryTime6"},
+	{0x2F, "BinaryTime7"},
+	{0x30, "BinaryTime8"},
+	{0x31, "BinaryTime9"},
+	{0x32, "Date"},
+	{0x33, "BinaryDate2000"},
+	{0x34, "TimeOfDay without date indication"},
+	{0x35, "TimeDifference with date indication"},
+	{0x36, "TimeDifference without date indication"},
+	{0x37, "Integer64"},
+	{0x38, "Unsigned64"},
+	{0x39, "BitString64"},
+	{0x3A, "NetworkTime"},
+	{0x3B, "NetworkTime-Difference"},
+
+    {0x40, "Zero" },
+	{0x41, "Byte" },
+	{0x42, "Word" },
+	{0x43, "Dword" },
+	{0x44, "Error Type" },
+	{0x65, "Float32+Unsigned8"},
+	{0x66, "Unsigned8+Unsigned8"},
+	{0x67, "OctetString2+Unsigned8"},
+	{0x68, "Unsigned16_S"},
+	{0x69, "Interger16_S"},
+	{0x6A, "Unsigned8_S"},
+	{0x6B, "OctetString_S"},
+	{0x6E, "F message trailer with 4 octets"},
+	{0x6F, "F message trailer with 5 octets"},
+	{0x70, "F message trailer with 6 octets"},
+	{0x71, "N2 Normalized value (16 bit)"},
+	{0x72, "N4 Normalized value (32 bit)"},
+		
+	{0x73, "V2 Bit sequence" },
+	{0x74, "L2 Nibble"},
+	{0x75, "R2 Reciprocal time constant"},
+	{0x76, "T2 Time constant (16 bit)"},
+	{0x77, "T4 Time constant (32 bit)"},
+	{0x78, "D2 Time constant"},
+	{0x79, "E2 Fixed point value (16 bit)"},
+	{0x7A, "C4 Fixed point value (32 bit)"},
+	{0x7B, "X2 Normalized value, variable (16bit)"},
+	{0x7C, "X4 Normalized value, variables (32bit)"},
+		
+		
     { 0, NULL }
 };
 
+static const value_string pn_io_profidrive_parameter_resp_errors[] = 
+{
+	{0x0, "Disallowed parameter number" },
+	{0x1, "The parameter value cannot be changed" },
+	{0x2, "Exceed the upper or lower limit" },
+	{0x3, "Sub-index error" },
+	{0x4, "Non-array" },
+	{0x5, "Incorrect data type" },
+	{0x6, "Setting is not allowed (can only be reset)" },
+	{0x7, "The description element cannot be modified" },
+	{0x8, "Reserved" },
+	{0x9, "Descriptive data does not exist" },
+	{0xA, "Reserved" },
+	{0xB, "No operation priority" },
+	{0xC, "Reserved" },
+	{0xD, "Reserved" },
+	{0xE, "Reserved" },
+	{0xF, "The text array does not save right" },
+	{0x11, "The request cannot be executed because of the working status" },
+	{0x12, "Reserved" },
+	{0x13, "Reserved" },
+	{0x14, "Value is not allowed" },
+	{0x15, 
+"Response timeout" },
+	{0x16, "Illegal parameter address" },
+	{0x17, "Illegal parameter format" },
+	{0x18, "The number of values is inconsistent" },
+	{0x19, "Axis/DO does not exist" },
+	{0x20, "The parameter text element cannot be changed" },
+	{0x21, "No support service" },
+	{0x22, "Too many parameter requests" },
+	{0x23, "Only support single parameter access" },
+	{ 0, NULL }	
+		
+};
 static const range_string pn_io_rs_block_type[] = {
     /* Following ranges are used for events */
     { 0x0000, 0x0000, "reserved" },
@@ -2523,16 +2633,21 @@ dissect_profidrive_value(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     case 1:
     case 2:
     case 5:
+	case 0x0A:
+	case 0x41:
         offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep,
             hf_pn_io_profidrive_param_value_byte, &value8);
         break;
     case 3:
     case 6:
+	case 0x42:
+	case 0x73:
         offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
             hf_pn_io_profidrive_param_value_word, &value16);
         break;
     case 4:
     case 7:
+	case 0x43:
         offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
             hf_pn_io_profidrive_param_value_dword, &value32);
         break;
@@ -2541,7 +2656,6 @@ dissect_profidrive_value(tvbuff_t *tvb, gint offset, packet_info *pinfo,
             hf_pn_io_profidrive_param_value_float, &value32);
         break;
     case 9:
-    case 0x0A:
         {
             gint sLen;
             sLen = (gint)tvb_strnlen( tvb, offset, -1);
@@ -10656,8 +10770,10 @@ dissect_ProfiDriveParameterResponse(tvbuff_t *tvb, int offset,
     guint8      response_id;
     guint8      do_id;
     guint8      no_of_parameters;
-    proto_item *profidrive_item;
+	guint8      addr_idx;	
+	proto_item *profidrive_item;
     proto_tree *profidrive_tree;
+	
 
     profidrive_item = proto_tree_add_item(tree, hf_pn_io_block, tvb, offset, 0, ENC_NA);
     profidrive_tree = proto_item_add_subtree(profidrive_item, ett_pn_io_profidrive_parameter_response);
@@ -10679,6 +10795,159 @@ dissect_ProfiDriveParameterResponse(tvbuff_t *tvb, int offset,
     col_add_fstr(pinfo->cinfo, COL_INFO, "PROFIDrive Read Response, ReqRef:0x%02x, RspId:%s",
                            request_reference,
                            val_to_str(response_id, pn_io_profidrive_response_id_vals, "Unknown response"));
+	/* in case of  parameter response value list */
+    if (response_id == 0x01) {
+        for(addr_idx=0; addr_idx<no_of_parameters; addr_idx++) {
+            guint8 format;
+            guint8 no_of_vals;
+            proto_item *sub_item;
+            proto_tree *sub_tree;
+
+            sub_item = proto_tree_add_item(profidrive_tree, hf_pn_io_block, tvb, offset, 0, ENC_NA);
+            sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_profidrive_parameter_value);
+            proto_item_set_text(sub_item, "Parameter Value %u: ", addr_idx+1);
+
+            offset = dissect_dcerpc_uint8(tvb, offset, pinfo, sub_tree, drep,
+                                hf_pn_io_profidrive_param_format, &format);
+            offset = dissect_dcerpc_uint8(tvb, offset, pinfo, sub_tree, drep,
+                                hf_pn_io_profidrive_param_no_of_values, &no_of_vals);
+
+            proto_item_append_text(sub_item, "Format:%s, NoOfVals:%u",
+                val_to_str(format, pn_io_profidrive_format_vals, "Unknown"), no_of_vals);
+
+            while (no_of_vals--)
+            {
+                offset = dissect_profidrive_value(tvb, offset, pinfo, sub_tree, drep, format);
+            }
+        }
+    }
+
+	if(response_id == 0x02){
+		// change parameter response ok, no data
+	}
+	
+	if(response_id == 0x81){
+		 for(addr_idx=0; addr_idx<no_of_parameters; addr_idx++) {
+            guint8 format;
+            guint8 no_of_vals;
+		 	guint16 value16;
+            proto_item *sub_item;
+            proto_tree *sub_tree;
+
+            sub_item = proto_tree_add_item(profidrive_tree, hf_pn_io_block, tvb, offset, 0, ENC_NA);
+            sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_profidrive_parameter_value);
+            proto_item_set_text(sub_item, "Parameter Value %u: ", addr_idx+1);
+
+            offset = dissect_dcerpc_uint8(tvb, offset, pinfo, sub_tree, drep,
+                                hf_pn_io_profidrive_param_format, &format);
+            offset = dissect_dcerpc_uint8(tvb, offset, pinfo, sub_tree, drep,
+                                hf_pn_io_profidrive_param_no_of_values, &no_of_vals);
+
+            proto_item_append_text(sub_item, "Format:%s, NoOfVals:%u",
+                val_to_str(format, pn_io_profidrive_format_vals, "Unknown"), no_of_vals);
+
+			if(format == 0x44){
+				
+				offset = dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
+		   						hf_pn_io_profidrive_param_value_error, &value16);	
+
+
+				if(value16 == 0x23){
+
+					addr_idx = no_of_parameters;
+				}
+				
+				while (--no_of_vals)
+		        {
+		        	switch(value16)
+					{
+						case 0x1:
+						case 0x2:
+						case 0x3:
+						case 0x6:
+						case 0x7:
+						case 0x14:
+						case 0x20:
+							
+							offset = dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
+									hf_pn_io_profidrive_param_value_error_sub, &value16);
+							break;
+						default:
+							offset = dissect_profidrive_value(tvb, offset, pinfo, sub_tree, drep, 0x42);
+							break;
+					}
+
+		        }
+
+			}
+			else{
+				
+				while (no_of_vals--){
+					
+					offset = dissect_profidrive_value(tvb, offset, pinfo, sub_tree, drep, format);
+				}
+			}
+
+        }
+	}
+	
+	if(response_id == 0x82){
+
+		for(addr_idx=0; addr_idx<no_of_parameters; addr_idx++) {
+            guint8 format;
+            guint8 no_of_vals;
+		 	guint16 value16;
+            proto_item *sub_item;
+            proto_tree *sub_tree;
+
+            sub_item = proto_tree_add_item(profidrive_tree, hf_pn_io_block, tvb, offset, 0, ENC_NA);
+            sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_profidrive_parameter_value);
+            proto_item_set_text(sub_item, "Parameter Change Result %u: ", addr_idx+1);
+
+            offset = dissect_dcerpc_uint8(tvb, offset, pinfo, sub_tree, drep,
+                                hf_pn_io_profidrive_param_format, &format);
+            offset = dissect_dcerpc_uint8(tvb, offset, pinfo, sub_tree, drep,
+                                hf_pn_io_profidrive_param_no_of_values, &no_of_vals);
+
+            proto_item_append_text(sub_item, "Format:%s, NoOfVals:%u",
+                val_to_str(format, pn_io_profidrive_format_vals, "Unknown"), no_of_vals);
+
+			if(format == 0x44){
+				
+				offset = dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
+		   						hf_pn_io_profidrive_param_value_error, &value16);	
+
+
+				if(value16 == 0x23){
+
+					addr_idx = no_of_parameters;
+				}
+				
+				while (--no_of_vals)
+		        {
+		        	switch(value16)
+					{
+						case 0x1:
+						case 0x2:
+						case 0x3:
+						case 0x6:
+						case 0x7:
+						case 0x14:
+						case 0x20:
+							
+							offset = dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
+									hf_pn_io_profidrive_param_value_error_sub, &value16);
+							break;
+						default:
+							offset = dissect_profidrive_value(tvb, offset, pinfo, sub_tree, drep, 0x42);
+							break;
+					}
+
+		        }
+
+			}
+        }
+	}
     return offset;
 }
 
@@ -10689,16 +10958,17 @@ dissect_RecordDataRead(tvbuff_t *tvb, int offset,
     const gchar *userProfile;
     pnio_ar_t   *ar = NULL;
 
+    /* profidrive parameter access response */
+    if (u16Index == 0xb02e || u16Index == 0xb02f || u16Index == 0x002f) {
+        return dissect_ProfiDriveParameterResponse(tvb, offset, pinfo, tree, drep);
+    }
 
     /* user specified format? */
     if (u16Index < 0x8000) {
         return dissect_pn_user_data(tvb, offset, pinfo, tree, u32RecDataLen, "User Specified Data");
     }
 
-    /* profidrive parameter access response */
-    if (u16Index == 0xb02e || u16Index == 0xb02f) {
-        return dissect_ProfiDriveParameterResponse(tvb, offset, pinfo, tree, drep);
-    }
+
 
     /* "reserved for profiles"? */
     userProfile = indexReservedForProfiles(u16Index);
@@ -11150,16 +11420,17 @@ dissect_RecordDataWrite(tvbuff_t *tvb, int offset,
             }
         }
     }
+    /* profidrive parameter request */
+    if (u16Index == 0xb02e || u16Index == 0xb02f || u16Index == 0x002f) {
+        return dissect_ProfiDriveParameterRequest(tvb, offset, pinfo, tree, drep);
+    }
 
     /* user specified format? */
     if (u16Index < 0x8000) {
         return dissect_pn_user_data(tvb, offset, pinfo, tree, u32RecDataLen, "User Specified Data");
     }
 
-    /* profidrive parameter request */
-    if (u16Index == 0xb02e || u16Index == 0xb02f) {
-        return dissect_ProfiDriveParameterRequest(tvb, offset, pinfo, tree, drep);
-    }
+
 
     /* "reserved for profiles"? */
     userProfile = indexReservedForProfiles(u16Index);
@@ -14107,6 +14378,19 @@ proto_register_pn_io (void)
     { &hf_pn_io_profidrive_param_format,
       { "Format", "pn_io.profidrive.parameter.format",
         FT_UINT8, BASE_HEX, VALS(pn_io_profidrive_format_vals), 0x0,
+        NULL, HFILL }
+    },
+	{
+	  &hf_pn_io_profidrive_param_value_error,
+	  { "Error Number", "pn_io.profidrive.parameter.error_num",
+        FT_UINT16, BASE_HEX, VALS(pn_io_profidrive_parameter_resp_errors), 0x0,
+        NULL, HFILL }
+			
+	},
+  	{
+	  &hf_pn_io_profidrive_param_value_error_sub,
+  	  { "Error Subindex", "pn_io.profidrive.parameter.error_subindex",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_pn_io_profidrive_param_no_of_values,
