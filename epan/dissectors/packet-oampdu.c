@@ -796,6 +796,18 @@ static const value_string user_port_object_result_rr_vals[] = {
     { 0, NULL }
 };
 
+static const value_string user_queue_object_rr_vals[] = {
+    { 0x0000, "D-ONU" },
+    { 0x0001, "Network PON Port" },
+    { 0x0002, "Unicast Logical Link" },
+    { 0x0003, "User Port" },
+    { 0x0004, "Queue" },
+    { 0x0005, "MEP" },
+    { 0x0006, "Multicast Logical Link" },
+    { 0x0007, "Reserved" },
+    { 0, NULL }
+};
+
 static const unit_name_string units_pdus_100ms = { " (PDUs/100ms)", NULL };
 static const unit_name_string units_num_100ms = { " (Number of 100ms)", NULL };
 
@@ -902,7 +914,9 @@ static int hf_oam_dpoe_user_port_object_clause_operator = -1;
 static int hf_oam_dpoe_user_port_object_clause_mvl = -1;
 static int hf_oam_dpoe_user_port_object_clause_mv = -1;
 static int hf_oam_dpoe_user_port_object_result_rr = -1;
-static int hf_oam_dpoe_user_port_object_result_rr_queue = -1;
+static int hf_oam_dpoe_user_port_object_result_rr_queue_obj_type = -1;
+static int hf_oam_dpoe_user_port_object_result_rr_queue_obj_inst = -1;
+static int hf_oam_dpoe_user_port_object_result_rr_queue_queue_index = -1;
 static int hf_oam_dpoe_user_port_object_result_rr_set_fc = -1;
 static int hf_oam_dpoe_user_port_object_result_rr_set_fi = -1;
 static int hf_oam_dpoe_user_port_object_result_rr_copy = -1;
@@ -1822,7 +1836,9 @@ dissect_oampdu_vendor_specific(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
                                                 break;
                                             case 0x03:
                                                 proto_item_append_text(dpoe_opcode_response, " Set destination queue for frame");
-                                                proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_result_rr_queue, tvb, offset+2, 3, ENC_BIG_ENDIAN);
+                                                proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_result_rr_queue_obj_type, tvb, offset+2, 2, ENC_BIG_ENDIAN);
+                                                proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_result_rr_queue_obj_inst, tvb, offset+4, 1, ENC_BIG_ENDIAN);
+                                                proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_result_rr_queue_queue_index, tvb, offset+5, 1, ENC_BIG_ENDIAN);
                                                 break;
                                             case 0x04:
                                                 proto_item_append_text(dpoe_opcode_response, " Set output field");
@@ -2423,8 +2439,18 @@ proto_register_oampdu(void)
                 FT_UINT8, BASE_HEX, VALS(user_port_object_result_rr_vals), 0x0,
                 NULL, HFILL } },
 
-        { &hf_oam_dpoe_user_port_object_result_rr_queue,
-            { "{port type, port instance, link, queue}", "oampdu.user.port.object.result.rr.queue",
+        { &hf_oam_dpoe_user_port_object_result_rr_queue_obj_type,
+            { "Object Type", "oampdu.user.port.object.result.rr.queue.object_type",
+                FT_UINT8, BASE_HEX, VALS(user_queue_object_rr_vals), 0x0,
+                NULL, HFILL } },
+
+        { &hf_oam_dpoe_user_port_object_result_rr_queue_obj_inst,
+            { "Object Instance", "oampdu.user.port.object.result.rr.queue.object_instance",
+                FT_UINT8, BASE_HEX, NULL, 0x0,
+                NULL, HFILL } },
+
+        { &hf_oam_dpoe_user_port_object_result_rr_queue_queue_index,
+            { "Queue Number", "oampdu.user.port.object.result.rr.queue.queue_index",
                 FT_UINT8, BASE_HEX, NULL, 0x0,
                 NULL, HFILL } },
 
