@@ -1,6 +1,16 @@
 //v1.0, February 2014: Finished conversion from DocBook to AsciiDoc
 :doctype: book
 include::attributes.adoc[]
+
+// Electronic book attributes
+:author: Richard Sharpe, Ed Warnicke, Ulf Lamping
+:description: Wireshark User’s Guide
+:keywords: Wireshark User Guide
+ifdef::ebook-format-epub3[]
+:front-cover-image: wsug_graphics/ws-user-guide-cover.png
+:toc:
+endif::[]
+
 = Wireshark User’s Guide: Version {wireshark-version}
 
 :source-highlighter: coderay

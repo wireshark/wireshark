@@ -1,6 +1,16 @@
 //v1.0, February 2014: Finished conversion from DocBook to AsciiDoc
 :doctype: book
 include::attributes.adoc[]
+
+// Electronic book attributes
+:author: Ulf Lamping, Graham Bloice
+:description: Wireshark Developer’s Guide
+:keywords: Wireshark Developer Guide
+ifdef::ebook-format-epub3[]
+:front-cover-image: wsdg_graphics/ws-dev-guide-cover.png
+:toc:
+endif::[]
+
 = Wireshark Developer’s Guide: Version {wireshark-version}
 
 // Attributes
