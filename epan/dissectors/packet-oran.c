@@ -146,6 +146,7 @@ static expert_field ei_oran_invalid_bfw_iqwidth = EI_INIT;
 static expert_field ei_oran_invalid_num_bfw_weights = EI_INIT;
 static expert_field ei_oran_unsupported_bfw_compression_method = EI_INIT;
 static expert_field ei_oran_invalid_sample_bit_width = EI_INIT;
+static expert_field ei_oran_reserved_numBundPrb = EI_INIT;
 
 
 /* These are the message types handled by this dissector */
@@ -887,9 +888,15 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 offset++;
 
                 /* numBundPrb */
-                proto_tree_add_item_ret_uint(extension_tree, hf_oran_num_bund_prbs,
-                                             tvb, offset, 1, ENC_BIG_ENDIAN, &numBundPrb);
+                proto_item *num_bund_prb_ti = proto_tree_add_item_ret_uint(extension_tree, hf_oran_num_bund_prbs,
+                                                                           tvb, offset, 1, ENC_BIG_ENDIAN, &numBundPrb);
                 offset++;
+                /* value zero is reserved.. */
+                if (numBundPrb == 0) {
+                    expert_add_info_format(pinfo, num_bund_prb_ti, &ei_oran_reserved_numBundPrb,
+                                           "Reserved value of numBundPrb seen - not valid for use");
+                }
+
 
                 if (!disableBFWs) {
                     /********************************************/
@@ -907,7 +914,10 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                     guint8 iq_width = !bfwcomphdr_iq_width ? 16 : bfwcomphdr_iq_width;
 
 
-                    /* Work out number of bundles */
+                    /* Work out number of bundles, but take care not to divide by zero. */
+                    if (numBundPrb == 0) {
+                        break;
+                    }
                     guint32 num_bundles = numPrbc / numBundPrb;
 
                     /* Add (complete) bundles */
@@ -2209,7 +2219,8 @@ proto_register_oran(void)
         { &ei_oran_invalid_bfw_iqwidth, { "oran_fh_cus.bfw_iqwidth_invalid", PI_MALFORMED, PI_ERROR, "Invalid IQ Width", EXPFILL }},
         { &ei_oran_invalid_num_bfw_weights, { "oran_fh_cus.num_bf_weights_invalid", PI_MALFORMED, PI_ERROR, "Invalid number of BF Weights", EXPFILL }},
         { &ei_oran_unsupported_bfw_compression_method, { "oran_fh_cus.unsupported_bfw_compression_method", PI_UNDECODED, PI_WARN, "Unsupported BFW Compression Method", EXPFILL }},
-        { &ei_oran_invalid_sample_bit_width, { "oran_fh_cus.invalid_sample_bit_width", PI_UNDECODED, PI_ERROR, "Unsupported sample bit width", EXPFILL }}
+        { &ei_oran_invalid_sample_bit_width, { "oran_fh_cus.invalid_sample_bit_width", PI_UNDECODED, PI_ERROR, "Unsupported sample bit width", EXPFILL }},
+        { &ei_oran_reserved_numBundPrb, { "oran_fh_cus.reserved_numBundPrb", PI_MALFORMED, PI_ERROR, "Reserved value of numBundPrb", EXPFILL }}
     };
 
     /* Register the protocol name and description */
