@@ -21,6 +21,7 @@ struct can_info
 	guint32 id;
 	guint32 len;
 	gboolean fd;
+	guint16 bus_id;
 };
 
 typedef struct can_info can_info_t;

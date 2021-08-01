@@ -19,6 +19,7 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/decode_as.h>
+#include <epan/uat.h>
 #include <wiretap/wtap.h>
 
 #include "packet-sll.h"
@@ -155,6 +156,176 @@ static const value_string can_err_trx_canl_vals[] =
 	{ 0, NULL }
 };
 
+/********* UATs *********/
+
+/* Interface Config UAT */
+typedef struct _interface_config {
+	guint     interface_id;
+	gchar    *interface_name;
+	guint     bus_id;
+} interface_config_t;
+
+#define DATAFILE_CAN_INTERFACE_MAPPING "CAN_interface_mapping"
+
+static GHashTable *data_can_interfaces_by_id = NULL;
+static GHashTable *data_can_interfaces_by_name = NULL;
+static interface_config_t* interface_configs = NULL;
+static guint interface_config_num = 0;
+
+UAT_HEX_CB_DEF(interface_configs, interface_id, interface_config_t)
+UAT_CSTRING_CB_DEF(interface_configs, interface_name, interface_config_t)
+UAT_HEX_CB_DEF(interface_configs, bus_id, interface_config_t)
+
+static void *
+copy_interface_config_cb(void *n, const void *o, size_t size _U_) {
+	interface_config_t *new_rec = (interface_config_t *)n;
+	const interface_config_t *old_rec = (const interface_config_t *)o;
+
+	new_rec->interface_id = old_rec->interface_id;
+	new_rec->interface_name = g_strdup(old_rec->interface_name);
+	new_rec->bus_id = old_rec->bus_id;
+	return new_rec;
+}
+
+static gboolean
+update_interface_config(void *r, char **err) {
+	interface_config_t *rec = (interface_config_t *)r;
+
+	if (rec->interface_id > 0xffffffff) {
+		*err = g_strdup_printf("We currently only support 32 bit identifiers (ID: %i  Name: %s)",
+			rec->interface_id, rec->interface_name);
+		return FALSE;
+	}
+
+	if (rec->bus_id > 0xffff) {
+		*err = g_strdup_printf("We currently only support 16 bit bus identifiers (ID: %i  Name: %s  Bus-ID: %i)",
+			rec->interface_id, rec->interface_name, rec->bus_id);
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+static void
+free_interface_config_cb(void *r) {
+	interface_config_t *rec = (interface_config_t *)r;
+	/* freeing result of g_strdup */
+	g_free(rec->interface_name);
+	rec->interface_name = NULL;
+}
+
+static interface_config_t *
+ht_lookup_interface_config_by_id(unsigned int identifier) {
+	interface_config_t *tmp = NULL;
+	unsigned int       *id = NULL;
+
+	if (interface_configs == NULL) {
+		return NULL;
+	}
+
+	id = wmem_new(wmem_epan_scope(), unsigned int);
+	*id = (unsigned int)identifier;
+	tmp = (interface_config_t *)g_hash_table_lookup(data_can_interfaces_by_id, id);
+	wmem_free(wmem_epan_scope(), id);
+
+	return tmp;
+}
+
+static interface_config_t *
+ht_lookup_interface_config_by_name(const gchar *name) {
+	interface_config_t *tmp = NULL;
+	gchar              *key = NULL;
+
+	if (interface_configs == NULL) {
+		return NULL;
+	}
+
+	key = wmem_strdup(wmem_epan_scope(), name);
+	tmp = (interface_config_t *)g_hash_table_lookup(data_can_interfaces_by_name, key);
+	wmem_free(wmem_epan_scope(), key);
+
+	return tmp;
+}
+
+static void
+can_free_key(gpointer key) {
+	wmem_free(wmem_epan_scope(), key);
+}
+
+static void
+post_update_can_interfaces_cb(void) {
+	guint  i;
+	int   *key_id = NULL;
+	gchar *key_name = NULL;
+
+	/* destroy old hash tables, if they exist */
+	if (data_can_interfaces_by_id) {
+		g_hash_table_destroy(data_can_interfaces_by_id);
+		data_can_interfaces_by_id = NULL;
+	}
+	if (data_can_interfaces_by_name) {
+		g_hash_table_destroy(data_can_interfaces_by_name);
+		data_can_interfaces_by_name = NULL;
+	}
+
+	/* create new hash table */
+	data_can_interfaces_by_id = g_hash_table_new_full(g_int_hash, g_int_equal, &can_free_key, NULL);
+	data_can_interfaces_by_name = g_hash_table_new_full(g_str_hash, g_str_equal, &can_free_key, NULL);
+
+	if (data_can_interfaces_by_id == NULL || data_can_interfaces_by_name == NULL || interface_configs == NULL || interface_config_num == 0) {
+		return;
+	}
+
+	for (i = 0; i < interface_config_num; i++) {
+		if (interface_configs[i].interface_id != 0xfffffff) {
+			key_id = wmem_new(wmem_epan_scope(), int);
+			*key_id = interface_configs[i].interface_id;
+			g_hash_table_insert(data_can_interfaces_by_id, key_id, &interface_configs[i]);
+		}
+
+		if (interface_configs[i].interface_name != NULL && interface_configs[i].interface_name[0] != 0) {
+			key_name = wmem_strdup(wmem_epan_scope(), interface_configs[i].interface_name);
+			g_hash_table_insert(data_can_interfaces_by_name, key_name, &interface_configs[i]);
+		}
+	}
+}
+
+/* We match based on the config in the following order:
+ * - interface_name matches and interface_id matches
+ * - interface_name matches and interface_id = 0xffffffff
+ * - interface_name = ""    and interface_id matches
+ */
+
+static guint
+get_bus_id(packet_info *pinfo) {
+	guint32             interface_id = pinfo->rec->rec_header.packet_header.interface_id;
+	const char         *interface_name = epan_get_interface_name(pinfo->epan, interface_id);
+	interface_config_t *tmp = NULL;
+
+	if (!(pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID)) {
+		return 0;
+	}
+
+	if (interface_name != NULL && interface_name[0] != 0) {
+		tmp = ht_lookup_interface_config_by_name(interface_name);
+
+		if (tmp != NULL && (tmp->interface_id == 0xffffffff || tmp->interface_id == interface_id)) {
+			/* name + id match or name match and id = any */
+			return tmp->bus_id;
+		}
+
+		tmp = ht_lookup_interface_config_by_id(interface_id);
+
+		if (tmp != NULL && (tmp->interface_name == NULL || tmp->interface_name[0] == 0)) {
+			/* id matches and name is any */
+			return tmp->bus_id;
+		}
+	}
+
+	/* we found nothing */
+	return 0;
+}
+
 gboolean
 socketcan_call_subdissectors(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, struct can_info* can_info, const gboolean use_heuristics_first)
 {
@@ -229,6 +400,7 @@ dissect_socketcan_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
 	can_info.id = tvb_get_guint32(tvb, 0, encoding);
 	can_info.len = tvb_get_guint8(tvb, CAN_LEN_OFFSET);
 	can_info.fd = FALSE;
+	can_info.bus_id = get_bus_id(pinfo);
 
 	/* Error Message Frames are only encapsulated in Classic CAN frames */
 	if (can_info.id & CAN_ERR_FLAG)
@@ -394,6 +566,7 @@ dissect_socketcanfd_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	can_info.id = tvb_get_guint32(tvb, 0, encoding);
 	can_info.len = tvb_get_guint8(tvb, CAN_LEN_OFFSET);
 	can_info.fd = TRUE;
+	can_info.bus_id = get_bus_id(pinfo);
 
 	if (can_info.id & CAN_EFF_FLAG)
 	{
@@ -811,6 +984,7 @@ proto_register_socketcan(void)
 			}
 		},
 	};
+	uat_t  *can_interface_uat = NULL;
 
 	/* Setup protocol subtree array */
 	static gint *ett[] =
@@ -864,6 +1038,32 @@ proto_register_socketcan(void)
 	subdissector_table = register_decode_as_next_proto(proto_can, "can.subdissector", "CAN next level dissector", NULL);
 
 	heur_subdissector_list = register_heur_dissector_list("can", proto_can);
+
+	static uat_field_t can_interface_mapping_uat_fields[] = {
+		UAT_FLD_HEX(interface_configs,      interface_id,   "Interface ID",   "ID of the Interface with 0xffffffff = any (hex uint32 without leading 0x)"),
+		UAT_FLD_CSTRING(interface_configs,  interface_name, "Interface Name", "Name of the Interface, empty = any (string)"),
+		UAT_FLD_HEX(interface_configs,      bus_id,         "Bus ID",         "Bus ID of the Interface (hex uint16 without leading 0x)"),
+		UAT_END_FIELDS
+	};
+
+	can_interface_uat = uat_new("CAN Interface Mapping",
+		sizeof(interface_config_t),             /* record size           */
+		DATAFILE_CAN_INTERFACE_MAPPING,         /* filename              */
+		TRUE,                                   /* from profile          */
+		(void**)&interface_configs,             /* data_ptr              */
+		&interface_config_num,                  /* numitems_ptr          */
+		UAT_AFFECTS_DISSECTION,                 /* but not fields        */
+		NULL,                                   /* help                  */
+		copy_interface_config_cb,               /* copy callback         */
+		update_interface_config,                /* update callback       */
+		free_interface_config_cb,               /* free callback         */
+		post_update_can_interfaces_cb,          /* post update callback  */
+		NULL,                                   /* reset callback        */
+		can_interface_mapping_uat_fields        /* UAT field definitions */
+	);
+
+	prefs_register_uat_preference(can_module, "_can_interface_mapping", "Interface Mapping",
+		"A table to define the mapping between interface and Bus ID.", can_interface_uat);
 }
 
 void

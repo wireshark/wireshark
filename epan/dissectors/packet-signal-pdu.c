@@ -206,6 +206,7 @@ typedef spdu_someip_mapping_t spdu_someip_mapping_uat_t;
 
 typedef struct _spdu_can_mapping {
     guint32     can_id;
+    guint32     bus_id;
     guint32     message_id;
 } spdu_can_mapping_t;
 typedef spdu_can_mapping_t spdu_can_mapping_uat_t;
@@ -1030,6 +1031,7 @@ get_someip_mapping(guint16 service_id, guint16 method_id, guint8 major_version, 
 
 /* UAT: CAN Mapping */
 UAT_HEX_CB_DEF(spdu_can_mapping, can_id, spdu_can_mapping_uat_t)
+UAT_HEX_CB_DEF(spdu_can_mapping, bus_id, spdu_can_mapping_uat_t)
 UAT_HEX_CB_DEF(spdu_can_mapping, message_id, spdu_can_mapping_uat_t)
 
 static void *
@@ -1038,6 +1040,7 @@ copy_spdu_can_mapping_cb(void *n, const void *o, size_t size _U_) {
     const spdu_can_mapping_uat_t *old_rec = (const spdu_can_mapping_uat_t *)o;
 
     new_rec->can_id = old_rec->can_id;
+    new_rec->bus_id = old_rec->bus_id;
     new_rec->message_id = old_rec->message_id;
 
     return new_rec;
@@ -1063,6 +1066,7 @@ post_update_spdu_can_mapping_cb(void) {
         for (i = 0; i < spdu_can_mapping_num; i++) {
             gint64 *key = wmem_new(wmem_epan_scope(), gint64);
             *key = spdu_can_mapping[i].can_id;
+            *key |= ((gint64)(spdu_can_mapping[i].bus_id & 0xffff)) << 32;
 
             g_hash_table_insert(data_spdu_can_mappings, key, &spdu_can_mapping[i]);
         }
@@ -1073,14 +1077,21 @@ post_update_spdu_can_mapping_cb(void) {
 }
 
 static spdu_can_mapping_t*
-get_can_mapping(guint32 id) {
+get_can_mapping(guint32 id, guint16 bus_id) {
     if (data_spdu_can_mappings == NULL) {
         return NULL;
     }
 
     gint64 *key = wmem_new(wmem_epan_scope(), gint64);
     *key = id & CAN_EFF_MASK;
+    *key |= ((gint64)bus_id << 32);
     spdu_can_mapping_t *tmp = (spdu_can_mapping_t*)g_hash_table_lookup(data_spdu_can_mappings, key);
+    if (tmp == NULL) {
+        /* try again without Bus ID set */
+        *key = id & CAN_EFF_MASK;
+        tmp = (spdu_can_mapping_t*)g_hash_table_lookup(data_spdu_can_mappings, key);
+    }
+
     wmem_free(wmem_epan_scope(), key);
 
     return tmp;
@@ -1593,7 +1604,7 @@ dissect_spdu_message_can(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
         return 0;
     }
 
-    spdu_can_mapping_t *can_mapping = get_can_mapping(can_info->id);
+    spdu_can_mapping_t *can_mapping = get_can_mapping(can_info->id, can_info->bus_id);
     if (can_mapping == NULL) {
         return 0;
     }
@@ -1738,6 +1749,7 @@ proto_register_signal_pdu(void) {
 
     static uat_field_t spdu_can_mapping_uat_fields[] = {
         UAT_FLD_HEX(spdu_can_mapping, can_id,                           "CAN ID",                "CAN ID (32bit hex without leading 0x)"),
+        UAT_FLD_HEX(spdu_can_mapping, bus_id,                           "Bus ID",                "Bus ID on which frame was recorded with 0=any (16bit hex without leading 0x)"),
         UAT_FLD_HEX(spdu_can_mapping, message_id,                       "Signal PDU ID",         "ID of the Signal PDU (32bit hex without leading 0x)"),
         UAT_END_FIELDS
     };
@@ -1752,7 +1764,7 @@ proto_register_signal_pdu(void) {
 
     static uat_field_t spdu_lin_mapping_uat_fields[] = {
         UAT_FLD_HEX(spdu_lin_mapping, frame_id,                         "Frame ID",              "LIN Frame ID (6bit hex without leading 0x)"),
-        UAT_FLD_HEX(spdu_lin_mapping, bus_id  ,                         "Bus ID",                "Bus ID on which frame was recorded with 0=any (16bit hex without leading 0x)"),
+        UAT_FLD_HEX(spdu_lin_mapping, bus_id,                           "Bus ID",                "Bus ID on which frame was recorded with 0=any (16bit hex without leading 0x)"),
         UAT_FLD_HEX(spdu_lin_mapping, message_id,                       "Signal PDU ID",         "ID of the Signal PDU (32bit hex without leading 0x)"),
         UAT_END_FIELDS
     };
