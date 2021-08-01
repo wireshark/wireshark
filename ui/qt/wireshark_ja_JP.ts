@@ -3195,7 +3195,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>QUIC streams not found on the selected packet.</source>
-        <translation type="unfinished"></translation>
+        <translation>選択したパケットにQUICストリームは見つかりませんでした</translation>
     </message>
     <message numerus="yes">
         <source>%Ln total sub stream(s).</source>
@@ -3205,14 +3205,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message numerus="yes">
         <source>Total number of QUIC connections: %Ln</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>QUIC接続の総数: %Ln</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>Max QUIC Stream ID for the selected connection: %Ln</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>選択した接続の最大のQUICストリームID: %Ln</numerusform>
         </translation>
     </message>
     <message>
@@ -6344,7 +6344,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Packet Comments</source>
-        <translation type="unfinished">パケットコメント</translation>
+        <translation>パケットコメント</translation>
     </message>
     <message>
         <source>Main Toolbar</source>
@@ -8203,21 +8203,21 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>(empty comment)</source>
         <comment>placeholder for empty comment</comment>
-        <translation type="unfinished"></translation>
+        <translation>(コメント空)</translation>
     </message>
     <message>
         <source>Add New Comment…</source>
-        <translation type="unfinished"></translation>
+        <translation>新規コメントを追加…</translation>
     </message>
     <message>
         <source>Edit &quot;%1&quot;</source>
         <comment>edit packet comment</comment>
-        <translation type="unfinished"></translation>
+        <translation>編集 &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Delete &quot;%1&quot;</source>
         <comment>delete packet comment</comment>
-        <translation type="unfinished"></translation>
+        <translation>削除 &quot;%1&quot;</translation>
     </message>
     <message>
         <source> before starting a new capture</source>
