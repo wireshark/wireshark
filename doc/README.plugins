@@ -199,7 +199,7 @@ See doc/plugins.example for an example.
 The plugin registration has changed with the extension of the build
 scripts. These now generate the additional code needed for plugin
 encapsulation in plugin.c. When using the new style build scripts,
-stips the parts outlined below:
+strips the parts outlined below:
 
     o Remove the following include statements:
 

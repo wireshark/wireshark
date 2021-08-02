@@ -161,7 +161,7 @@ The following file formats from other capture tools can be opened by Wireshark:
 
 * Linux Bluez Bluetooth stack hcidump -w traces
 
-* Catapult DCT2000 .out files
+* Catapult (now Ixia/Keysight) DCT2000 .out files
 
 * Gammu generated text output from Nokia DCT3 phones in Netmonitor mode
 
@@ -173,9 +173,9 @@ The following file formats from other capture tools can be opened by Wireshark:
 
 * Tamosoft CommView captures
 
-* Textronix K12xx 32bit .rf5 format captures
+* Tektronix K12xx 32bit .rf5 format captures
 
-* Textronix K12 text file format captures
+* Tektronix K12 text file format captures
 
 * Apple PacketLogger captures
 
@@ -328,7 +328,7 @@ The following file formats can be saved by Wireshark (with the known file extens
 
 * Tamosoft CommView captures ({asterisk}.ncf)
 
-* Catapult DCT2000 .out files ({asterisk}.out)
+* Catapult (now Ixia/Keysight) DCT2000 .out files ({asterisk}.out)
 
 * Endace Measurement Systems’ ERF format capture({asterisk}.erf)
 
@@ -607,7 +607,7 @@ image::wsug_graphics/ws-file-import-regex.png[{medium-screenshot-attrs}]
 
 Packet format regular expression::
 This is the regex used for searching packets and metadata inside the input file.
-Named capuring subgroups are used to find the individual fields. Anchors `^` and
+Named capturing subgroups are used to find the individual fields. Anchors `^` and
 `$` are set to match directly before and after newlines `\n` or `\r\n`. See
 https://developer.gnome.org/glib/stable/glib-regex-syntax.html[GRegex] for a full
 documentation.
@@ -633,7 +633,7 @@ are only available when the regex contains a `(?<dir>...)` group.
 Timestamp Format::
 This is the format specifier used to parse the timestamps in the text file to
 import. It uses the same format as `strptime(3)` with the addition of `%f` for
-zero padded fractions of seconds. The percision of `%f` is determined from it's
+zero padded fractions of seconds. The precision of `%f` is determined from it's
 length. The most common fields are `%H`, `%M` and `%S` for hours, minutes and
 seconds. The straightforward HH:MM:SS format is covered by %T. For a full
 definition of the syntax look for `strptime(3)`,

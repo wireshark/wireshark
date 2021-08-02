@@ -200,6 +200,7 @@ colorizing
 combiner
 combiners
 communication
+compilers
 computable
 concatenate
 concatenated
@@ -221,6 +222,7 @@ couchbase
 coverity
 cpdlc
 cpich
+cppcheck
 cpuregisters
 credential
 credentials
@@ -253,6 +255,7 @@ deauthentication
 deauthentications
 debian
 debug
+decapsulation
 dechunk
 decompressing
 decompressor
@@ -274,6 +277,7 @@ dehumidification
 deinterleaved
 delimited
 delimiters
+delimiting
 demodulator
 demultiplexer
 demultiplexers
@@ -373,15 +377,19 @@ errorportinfo
 erspan
 España
 etheraddr
+ethers
 ethertype
 ettarr
+etwdump
 etype
 eutra
 eutran
 eventlog
+executables
 extattr
 extcap
 extensibility
+extensible
 exthdr
 extrainformation
 failover
@@ -436,6 +444,7 @@ gnutls
 goaway
 google
 gprscdr
+greyed
 groupa
 groupb
 groupcast
@@ -447,6 +456,7 @@ hangup
 harqid
 hartip
 hashed
+hashes
 hazelcast
 heuristic
 hfarr
@@ -461,6 +471,8 @@ hsdpa
 hsdsch
 hspdsch
 hsupa
+htonl
+htons
 http2
 https
 huffman
@@ -476,6 +488,7 @@ ifconfig
 ikev2
 illuminance
 immersive
+implementations
 implementer
 implementor
 inband
@@ -724,6 +737,7 @@ params
 parlay
 parms
 parser
+parses
 passcode
 passkey
 passthrough
@@ -757,6 +771,7 @@ portnumber
 portstatus
 posix
 powercontrol
+pppdump
 prach
 preconfiguration
 preconfigured
@@ -774,6 +789,7 @@ privkey
 procid
 profidrive
 profinet
+promiscuously
 protected
 protoabbrev
 protobuf
@@ -855,6 +871,7 @@ reestablishment
 referer
 referrer
 regex
+regexp
 reimplemented
 reinitialization
 reinitialize
@@ -973,6 +990,7 @@ spare7
 spare8
 spare9
 spcell
+specifiers
 spectrograph
 speex
 spnego
@@ -981,6 +999,7 @@ spooled
 srbid
 srcport
 srvcc
+sshdump
 sshkey
 ssupervisor
 stanag
@@ -1050,6 +1069,7 @@ tdd128
 tdd384
 tdd768
 technica
+Tektronix
 Telecomunicaciones
 Telefónica
 Teléfonos
@@ -1101,6 +1121,7 @@ uavcan
 uboot
 ubuntu
 udpcp
+udpdump
 uint16
 uint32
 uint8

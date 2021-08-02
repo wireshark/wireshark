@@ -231,8 +231,8 @@ captures
 * Juniper Netscreen snoop files
 * Symbian OS btsnoop files
 * TamoSoft CommView files
-* Textronix K12xx 32bit .rf5 format files
-* Textronix K12 text file format captures
+* Tektronix K12xx 32bit .rf5 format files
+* Tektronix K12 text file format captures
 * Apple PacketLogger files
 * Files from Aethra Telecommunications' PC108 software for their test
 instruments

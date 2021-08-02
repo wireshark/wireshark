@@ -129,10 +129,10 @@ Symbian OS btsnoop files
 TamoSoft CommView files
 
 =item *
-Textronix K12xx 32bit .rf5 format files
+Tektronix K12xx 32bit .rf5 format files
 
 =item *
-Textronix K12 text file format captures
+Tektronix K12 text file format captures
 
 =item *
 Apple PacketLogger files
