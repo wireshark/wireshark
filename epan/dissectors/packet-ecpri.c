@@ -322,7 +322,7 @@ static const range_string fault_notif_coding[] = {
         { 0,        0,        NULL                                            }
 };
 
-const true_false_string tfs_c_bit =
+static const true_false_string tfs_c_bit =
 { "Another eCPRI message follows this one with eCPRI PDU",
   "This eCPRI message is last one inside eCPRI PDU"
 };

@@ -343,7 +343,7 @@ static const value_string diag_nack_codes[] = {
  * Config
  */
 
-gboolean doip_hide_address_names = TRUE;
+static gboolean doip_hide_address_names = TRUE;
 
  /*
  * Fields
