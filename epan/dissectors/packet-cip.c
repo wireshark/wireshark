@@ -105,6 +105,7 @@ static int hf_cip_cm_timeout_tick = -1;
 static int hf_cip_cm_timeout = -1;
 static int hf_cip_cm_ot_connid = -1;
 static int hf_cip_cm_to_connid = -1;
+static int hf_cip_connid = -1;
 static int hf_cip_cm_conn_serial_num = -1;
 static int hf_cip_cm_orig_serial_num = -1;
 static int hf_cip_cm_vendor = -1;
@@ -6469,6 +6470,12 @@ dissect_cip_cm_fwd_open_req(cip_req_info_t *preq_info, proto_tree *cmd_tree, tvb
    proto_tree_add_item_ret_uint( cmd_tree, hf_cip_cm_ot_connid, tvb, offset+2, 4, ENC_LITTLE_ENDIAN, &O2T_info.connID);
    proto_tree_add_item_ret_uint( cmd_tree, hf_cip_cm_to_connid, tvb, offset+6, 4, ENC_LITTLE_ENDIAN, &T2O_info.connID);
 
+   // Add Connection IDs as hidden items so that it's easy to find all Connection IDs in different fields.
+   pi = proto_tree_add_item(cmd_tree, hf_cip_connid, tvb, offset + 2, 4, ENC_LITTLE_ENDIAN);
+   proto_item_set_hidden(pi);
+   pi = proto_tree_add_item(cmd_tree, hf_cip_connid, tvb, offset + 6, 4, ENC_LITTLE_ENDIAN);
+   proto_item_set_hidden(pi);
+
    cip_connection_triad_t conn_triad;
    dissect_connection_triad(tvb, offset + 10, cmd_tree,
       hf_cip_cm_conn_serial_num, hf_cip_cm_vendor, hf_cip_cm_orig_serial_num,
@@ -6597,6 +6604,12 @@ dissect_cip_cm_fwd_open_rsp_success(cip_req_info_t *preq_info, proto_tree *tree,
    /* Display target to originator connection ID */
    T2OConnID = tvb_get_letohl( tvb, offset+4 );
    proto_tree_add_item( tree, hf_cip_cm_to_connid, tvb, offset+4, 4, ENC_LITTLE_ENDIAN);
+
+   // Add Connection IDs as hidden items so that it's easy to find all Connection IDs in different fields.
+   proto_item* pi = proto_tree_add_item(tree, hf_cip_connid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+   proto_item_set_hidden(pi);
+   pi = proto_tree_add_item(tree, hf_cip_connid, tvb, offset + 4, 4, ENC_LITTLE_ENDIAN);
+   proto_item_set_hidden(pi);
 
    cip_connection_triad_t conn_triad;
    dissect_connection_triad(tvb, offset + 8, tree,
@@ -8576,6 +8589,7 @@ proto_register_cip(void)
       { &hf_cip_cm_timeout, { "Actual Time Out", "cip.cm.timeout", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_milliseconds, 0, NULL, HFILL }},
       { &hf_cip_cm_ot_connid, { "O->T Network Connection ID", "cip.cm.ot_connid", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
       { &hf_cip_cm_to_connid, { "T->O Network Connection ID", "cip.cm.to_connid", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
+      { &hf_cip_connid, { "Connection ID", "cip.connid", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
       { &hf_cip_cm_conn_serial_num, { "Connection Serial Number", "cip.cm.conn_serial_num", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
       { &hf_cip_cm_vendor, { "Originator Vendor ID", "cip.cm.vendor", FT_UINT16, BASE_HEX|BASE_EXT_STRING, &cip_vendor_vals_ext, 0, NULL, HFILL }},
       { &hf_cip_cm_timeout_multiplier, { "Connection Timeout Multiplier", "cip.cm.timeout_multiplier", FT_UINT8, BASE_DEC, VALS(cip_con_time_mult_vals), 0, NULL, HFILL }},

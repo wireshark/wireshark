@@ -156,6 +156,7 @@ static int hf_cip_cm_ot_api = -1;
 static int hf_cip_cm_to_api = -1;
 static int hf_enip_cpf_cai_connid = -1;
 static int hf_enip_cpf_sai_connid = -1;
+static int hf_cip_connid = -1;
 static int hf_enip_cpf_sai_seqnum = -1;
 static int hf_enip_cpf_ucmm_request = -1;
 static int hf_enip_cpf_ucmm_msg_type = -1;
@@ -2683,13 +2684,15 @@ static void dissect_item_sequenced_address(packet_info* pinfo, tvbuff_t* tvb, in
 {
    guint32 connection_id;
    proto_tree_add_item_ret_uint(tree, hf_enip_cpf_sai_connid, tvb, offset, 4, ENC_LITTLE_ENDIAN, &connection_id);
+   proto_item* pi = proto_tree_add_item(tree, hf_cip_connid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+   proto_item_set_hidden(pi);
 
    guint32 sequence_num;
    proto_tree_add_item_ret_uint(tree, hf_enip_cpf_sai_seqnum, tvb, offset + 4, 4, ENC_LITTLE_ENDIAN, &sequence_num);
 
    *conn_info = enip_get_io_connid(pinfo, connection_id, connid_type);
 
-   col_add_fstr(pinfo->cinfo, COL_INFO, "Connection: ID=0x%08X, SEQ=%010d", connection_id, sequence_num);
+   col_add_fstr(pinfo->cinfo, COL_INFO, "Connection: ID=0x%08X, SEQ=%010u", connection_id, sequence_num);
    if (*connid_type == ECIDT_O2T)
    {
        col_append_str(pinfo->cinfo, COL_INFO, ", O->T");
@@ -2708,6 +2711,8 @@ static void dissect_item_connected_address(packet_info* pinfo, tvbuff_t* tvb, in
 {
    guint32 connection_id;
    proto_tree_add_item_ret_uint(item_tree, hf_enip_cpf_cai_connid, tvb, offset, 4, ENC_LITTLE_ENDIAN, &connection_id);
+   proto_item* pi = proto_tree_add_item(item_tree, hf_cip_connid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+   proto_item_set_hidden(pi);
 
    *conn_info = enip_get_explicit_connid(pinfo, request_key, connection_id);
    if (request_key)
@@ -3699,6 +3704,7 @@ proto_register_enip(void)
         { "Connection ID", "enip.cpf.sai.connid",
           FT_UINT32, BASE_HEX, NULL, 0,
           "Common Packet Format: Sequenced Address Item, Connection Identifier", HFILL }},
+      { &hf_cip_connid, { "Connection ID", "cip.connid", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL } },
 
       { &hf_enip_cpf_sai_seqnum,
         { "Encapsulation Sequence Number", "enip.cpf.sai.seq",
