@@ -2432,7 +2432,7 @@ static const value_string pn_io_profidrive_format_vals[] = {
     {0x6F, "F message trailer with 5 octets"},
     {0x70, "F message trailer with 6 octets"},
     {0x71, "N2 Normalized value (16 bit)"},
-    {0x72, "N4 Normalized value (32 bit)"},    
+    {0x72, "N4 Normalized value (32 bit)"},
     {0x73, "V2 Bit sequence" },
     {0x74, "L2 Nibble"},
     {0x75, "R2 Reciprocal time constant"},
@@ -2442,7 +2442,7 @@ static const value_string pn_io_profidrive_format_vals[] = {
     {0x79, "E2 Fixed point value (16 bit)"},
     {0x7A, "C4 Fixed point value (32 bit)"},
     {0x7B, "X2 Normalized value, variable (16bit)"},
-    {0x7C, "X4 Normalized value, variables (32bit)"},     
+    {0x7C, "X4 Normalized value, variables (32bit)"},
     { 0, NULL }
 };
 
@@ -10845,7 +10845,6 @@ dissect_ProfiDriveParameterResponse(tvbuff_t *tvb, int offset,
 
                     addr_idx = no_of_parameters;
                 }
-               
                 while (--no_of_vals)
                 {
                     switch(value16)
@@ -10856,7 +10855,7 @@ dissect_ProfiDriveParameterResponse(tvbuff_t *tvb, int offset,
                         case 0x6:
                         case 0x7:
                         case 0x14:
-                        case 0x20:   
+                        case 0x20:
                             offset = dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
                                     hf_pn_io_profidrive_param_value_error_sub, &value16);
                             break;
@@ -14363,7 +14362,7 @@ proto_register_pn_io (void)
     { &hf_pn_io_profidrive_param_value_error,
       { "Error Number", "pn_io.profidrive.parameter.error_num",
         FT_UINT16, BASE_HEX, VALS(pn_io_profidrive_parameter_resp_errors), 0x0,
-        NULL, HFILL } 
+        NULL, HFILL }
     },
     { &hf_pn_io_profidrive_param_value_error_sub,
       { "Error Subindex", "pn_io.profidrive.parameter.error_subindex",
