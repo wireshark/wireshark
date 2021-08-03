@@ -78,16 +78,25 @@ variables:
   - if: '$CI_PIPELINE_SOURCE == "schedule" && $SCHEDULE_TYPE == "fuzz"'
     when: always
 
-.build:
+.build-linux:
   stage: build
+  tags:
+    - docker
   after_script:
     - for builddir in build/packaging/rpm/BUILD/wireshark-*/build build/packaging/rpm/BUILD/wireshark-* build obj-*; do [ ! -d "$builddir/run" ] || break; done
     - if [[ "$CI_JOB_NAME" == "build:rpm-opensuse-"* ]]; then export LD_LIBRARY_PATH=$builddir/run; fi
     - if [ -f $builddir/run/tshark ]; then $builddir/run/tshark --version; fi
   needs: []
 
+.test-linux:
+  stage: test
+  tags:
+    - docker
+  variables:
+    GIT_STRATEGY: none
+
 .build-ubuntu:
-  extends: .build
+  extends: .build-linux
   image: wireshark/wireshark-ubuntu-dev
   retry: 1
   # https://gould.cx/ted/blog/2017/06/10/ccache-for-Gitlab-CI/
@@ -126,7 +135,7 @@ variables:
     - su user -c pytest-3
 
 .build-rpm:
-  extends: .build
+  extends: .build-linux
   rules: !reference [.if-merged]
   before_script:
     # It might make sense to set "GIT_STRATEGY: none" and build from
@@ -145,10 +154,8 @@ variables:
     - 'Source Package'
 
 .test-rpm:
+  extends: .test-linux
   rules: !reference [.if-merged]
-  stage: test
-  variables:
-    GIT_STRATEGY: none
 
 .build-windows:
   stage: build
@@ -275,7 +282,7 @@ Fedora RPM Package:
 
 # Job to generate packages for Debian stable
 Debian Stable APT Package:
-  extends: .build
+  extends: .build-linux
   rules: !reference [.if-merged]
   image: wireshark/wireshark-debian-stable-dev
   script:
@@ -292,6 +299,7 @@ Debian Stable APT Package:
       - debian-packages/*.deb
     expire_in: 3 days
 Debian Stable APT Test:
+  extends: .test-linux
   rules: !reference [.if-merged]
   image: wireshark/wireshark-debian-stable-dev
   stage: test
@@ -397,7 +405,7 @@ Win32 Package:
 
 # Build the User's Guide and Developer's Guide
 Documentation:
-  stage: build
+  extends: .build-linux
   image: wireshark/wireshark-ubuntu-dev
   rules:
     - if: '$CI_PIPELINE_SOURCE == "push" && $CI_PROJECT_URL =~ /.*gitlab.com\/wireshark\/wireshark/'
@@ -451,8 +459,6 @@ Documentation:
 Commit Check:
   extends: .build-ubuntu
   rules: !reference [.if-merge-request]
-  tags:
-    - docker
   script:
     # build-ubuntu puts us in `build`.
     - cd ..
@@ -462,8 +468,6 @@ Commit Check:
 Ubuntu .dpkg:
   extends: .build-ubuntu
   rules: !reference [.if-merge-request]
-  tags:
-    - docker
   script:
     # build-ubuntu puts us in `build`.
     - cd ..
@@ -477,8 +481,6 @@ Ubuntu .dpkg:
 GCC Warnings:
   extends: .build-ubuntu
   rules: !reference [.if-merge-request]
-  tags:
-    - docker
   script:
     # build-ubuntu puts us in `build`.
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
@@ -496,8 +498,6 @@ GCC Warnings:
 Code Checks + Clang Warnings:
   extends: .build-ubuntu
   rules: !reference [.if-merge-request]
-  tags:
-    - docker
   variables:
     CC: "clang-$CLANG_VERSION"
     CXX: "clang++-$CLANG_VERSION"
@@ -569,6 +569,7 @@ Coverity GCC Scan:
     paths:
       - cov-int.tar.gz
       - job_environment_variables.sh
+
 Coverity GCC Submit:
   image: curlimages/curl
   rules:
@@ -621,7 +622,7 @@ Coverity Visual C++ Submit:
   needs: [ 'Coverity Visual C++ Scan' ]
 
 Clang Static Analyzer:
-  image: wireshark/wireshark-ubuntu-dev
+  extends: .build-ubuntu
   rules: !reference [.if-daily-schedule]
   stage: analysis
   needs: []
@@ -659,9 +660,8 @@ Visual Studio Code Analysis:
 
 # Build all doxygen docs
 API Reference:
-  image: wireshark/wireshark-ubuntu-dev
+  extends: .build-ubuntu
   rules: !reference [.if-daily-schedule]
-  stage: build
   script:
     - mkdir build
     - cd build
