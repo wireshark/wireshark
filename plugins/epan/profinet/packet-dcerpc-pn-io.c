@@ -2432,8 +2432,7 @@ static const value_string pn_io_profidrive_format_vals[] = {
     {0x6F, "F message trailer with 5 octets"},
     {0x70, "F message trailer with 6 octets"},
     {0x71, "N2 Normalized value (16 bit)"},
-    {0x72, "N4 Normalized value (32 bit)"},
-        
+    {0x72, "N4 Normalized value (32 bit)"},    
     {0x73, "V2 Bit sequence" },
     {0x74, "L2 Nibble"},
     {0x75, "R2 Reciprocal time constant"},
@@ -2443,9 +2442,7 @@ static const value_string pn_io_profidrive_format_vals[] = {
     {0x79, "E2 Fixed point value (16 bit)"},
     {0x7A, "C4 Fixed point value (32 bit)"},
     {0x7B, "X2 Normalized value, variable (16bit)"},
-    {0x7C, "X4 Normalized value, variables (32bit)"},
-        
-        
+    {0x7C, "X4 Normalized value, variables (32bit)"},     
     { 0, NULL }
 };
 
@@ -2471,8 +2468,7 @@ static const value_string pn_io_profidrive_parameter_resp_errors[] =
     {0x12, "Reserved" },
     {0x13, "Reserved" },
     {0x14, "Value is not allowed" },
-    {0x15, 
-"Response timeout" },
+    {0x15, "Response timeout" },
     {0x16, "Illegal parameter address" },
     {0x17, "Illegal parameter format" },
     {0x18, "The number of values is inconsistent" },
@@ -2481,8 +2477,7 @@ static const value_string pn_io_profidrive_parameter_resp_errors[] =
     {0x21, "No support service" },
     {0x22, "Too many parameter requests" },
     {0x23, "Only support single parameter access" },
-    { 0, NULL }    
-        
+    { 0, NULL }
 };
 static const range_string pn_io_rs_block_type[] = {
     /* Following ranges are used for events */
@@ -10770,15 +10765,13 @@ dissect_ProfiDriveParameterResponse(tvbuff_t *tvb, int offset,
     guint8      response_id;
     guint8      do_id;
     guint8      no_of_parameters;
-    guint8      addr_idx;    
+    guint8      addr_idx;
     proto_item *profidrive_item;
     proto_tree *profidrive_tree;
     
-
     profidrive_item = proto_tree_add_item(tree, hf_pn_io_block, tvb, offset, 0, ENC_NA);
     profidrive_tree = proto_item_add_subtree(profidrive_item, ett_pn_io_profidrive_parameter_response);
     proto_item_set_text(profidrive_item, "PROFIDrive Parameter Response: ");
-
     offset = dissect_dcerpc_uint8(tvb, offset, pinfo, profidrive_tree, drep,
                         hf_pn_io_profidrive_request_reference, &request_reference);
     offset = dissect_dcerpc_uint8(tvb, offset, pinfo, profidrive_tree, drep,
@@ -10787,11 +10780,9 @@ dissect_ProfiDriveParameterResponse(tvbuff_t *tvb, int offset,
                         hf_pn_io_profidrive_do_id, &do_id);
     offset = dissect_dcerpc_uint8(tvb, offset, pinfo, profidrive_tree, drep,
                         hf_pn_io_profidrive_no_of_parameters, &no_of_parameters);
-
     proto_item_append_text(profidrive_item, "ReqRef:0x%02x, RspId:%s, DO:%u, NoOfParameters:%u",
         request_reference, val_to_str(response_id, pn_io_profidrive_response_id_vals, "Unknown"),
         do_id, no_of_parameters);
-
     col_add_fstr(pinfo->cinfo, COL_INFO, "PROFIDrive Read Response, ReqRef:0x%02x, RspId:%s",
                            request_reference,
                            val_to_str(response_id, pn_io_profidrive_response_id_vals, "Unknown response"));
@@ -10830,7 +10821,7 @@ dissect_ProfiDriveParameterResponse(tvbuff_t *tvb, int offset,
          for(addr_idx=0; addr_idx<no_of_parameters; addr_idx++) {
             guint8 format;
             guint8 no_of_vals;
-             guint16 value16;
+            guint16 value16;
             proto_item *sub_item;
             proto_tree *sub_tree;
 
@@ -10850,13 +10841,11 @@ dissect_ProfiDriveParameterResponse(tvbuff_t *tvb, int offset,
                 
                 offset = dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
                                    hf_pn_io_profidrive_param_value_error, &value16);    
-
-
                 if(value16 == 0x23){
 
                     addr_idx = no_of_parameters;
                 }
-                
+               
                 while (--no_of_vals)
                 {
                     switch(value16)
@@ -10867,8 +10856,7 @@ dissect_ProfiDriveParameterResponse(tvbuff_t *tvb, int offset,
                         case 0x6:
                         case 0x7:
                         case 0x14:
-                        case 0x20:
-                            
+                        case 0x20:   
                             offset = dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
                                     hf_pn_io_profidrive_param_value_error_sub, &value16);
                             break;
@@ -10876,18 +10864,12 @@ dissect_ProfiDriveParameterResponse(tvbuff_t *tvb, int offset,
                             offset = dissect_profidrive_value(tvb, offset, pinfo, sub_tree, drep, 0x42);
                             break;
                     }
-
                 }
-
-            }
-            else{
-                
+            }else{
                 while (no_of_vals--){
-                    
                     offset = dissect_profidrive_value(tvb, offset, pinfo, sub_tree, drep, format);
                 }
             }
-
         }
     }
     
@@ -10917,9 +10899,7 @@ dissect_ProfiDriveParameterResponse(tvbuff_t *tvb, int offset,
                 offset = dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
                                    hf_pn_io_profidrive_param_value_error, &value16);    
 
-
                 if(value16 == 0x23){
-
                     addr_idx = no_of_parameters;
                 }
                 
@@ -14380,16 +14360,13 @@ proto_register_pn_io (void)
         FT_UINT8, BASE_HEX, VALS(pn_io_profidrive_format_vals), 0x0,
         NULL, HFILL }
     },
-    {
-      &hf_pn_io_profidrive_param_value_error,
+    { &hf_pn_io_profidrive_param_value_error,
       { "Error Number", "pn_io.profidrive.parameter.error_num",
         FT_UINT16, BASE_HEX, VALS(pn_io_profidrive_parameter_resp_errors), 0x0,
-        NULL, HFILL }
-            
+        NULL, HFILL } 
     },
-      {
-      &hf_pn_io_profidrive_param_value_error_sub,
-        { "Error Subindex", "pn_io.profidrive.parameter.error_subindex",
+    { &hf_pn_io_profidrive_param_value_error_sub,
+      { "Error Subindex", "pn_io.profidrive.parameter.error_subindex",
         FT_UINT16, BASE_HEX, NULL, 0x0,
         NULL, HFILL }
     },
