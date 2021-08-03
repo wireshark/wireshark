@@ -43,6 +43,8 @@ add_custom_target(update_tools_help
 )
 set_docbook_target_properties(update_tools_help)
 
+set(WSUG_TITLE "Wireshark User’s Guide")
+
 set(WSUG_FILES
 	wsug_src/WSUG_app_files.adoc
 	wsug_src/WSUG_app_howitworks.adoc
@@ -221,6 +223,8 @@ set(WSUG_GRAPHICS
 	${COMMON_GRAPHICS}
 )
 
+set(WSDG_TITLE "Wireshark Developer’s Guide")
+
 set(WSDG_FILES
 	wsdg_src/WSDG_chapter_asn2wrs.adoc
 	wsdg_src/WSDG_chapter_build_intro.adoc
@@ -385,24 +389,24 @@ if(ASCIIDOCTOR_FOUND AND XSLTPROC_EXECUTABLE)
 endif()
 
 if(ASCIIDOCTOR_FOUND AND ASCIIDOCTOR_PDF_EXECUTABLE)
-	ASCIIDOCTOR2PDF(user-guide.adoc ${WSUG_SOURCE} ${WSUG_BUILT_DEPS})
+	ASCIIDOCTOR2PDF(${WSUG_TITLE} user-guide.adoc ${WSUG_SOURCE} ${WSUG_BUILT_DEPS})
 
 	add_custom_target(
 		user_guide_pdf
 		DEPENDS
-			user-guide.pdf
+			"${WSUG_TITLE}.pdf"
 	)
 	set_docbook_target_properties(user_guide_pdf)
 	add_dependencies(user_guides user_guide_pdf)
 endif()
 
 if(ASCIIDOCTOR_FOUND AND ASCIIDOCTOR_EPUB_EXECUTABLE)
-	ASCIIDOCTOR2EPUB(user-guide.adoc ${WSUG_SOURCE} ${WSUG_BUILT_DEPS})
+	ASCIIDOCTOR2EPUB(${WSUG_TITLE} user-guide.adoc ${WSUG_SOURCE} ${WSUG_BUILT_DEPS})
 
 	add_custom_target(
 		user_guide_epub
 		DEPENDS
-			user-guide.epub
+			"${WSUG_TITLE}.epub"
 	)
 	set_docbook_target_properties(user_guide_epub)
 	add_dependencies(user_guides user_guide_epub)
@@ -437,24 +441,24 @@ if(ASCIIDOCTOR_FOUND AND XSLTPROC_EXECUTABLE)
 endif()
 
 if(ASCIIDOCTOR_FOUND AND ASCIIDOCTOR_PDF_EXECUTABLE)
-	ASCIIDOCTOR2PDF(developer-guide.adoc ${WSDG_SOURCE} ${WSDG_BUILT_DEPS})
+	ASCIIDOCTOR2PDF(${WSDG_TITLE} developer-guide.adoc ${WSDG_SOURCE} ${WSDG_BUILT_DEPS})
 
 	add_custom_target(
 		developer_guide_pdf
 		DEPENDS
-			developer-guide.pdf
+			"${WSDG_TITLE}.pdf"
 	)
 	set_docbook_target_properties(developer_guide_pdf)
 	add_dependencies(developer_guides developer_guide_pdf)
 endif()
 
 if(ASCIIDOCTOR_FOUND AND ASCIIDOCTOR_EPUB_EXECUTABLE)
-	ASCIIDOCTOR2EPUB(developer-guide.adoc ${WSDG_SOURCE} ${WSDG_BUILT_DEPS})
+	ASCIIDOCTOR2EPUB(${WSDG_TITLE} developer-guide.adoc ${WSDG_SOURCE} ${WSDG_BUILT_DEPS})
 
 	add_custom_target(
 		developer_guide_epub
 		DEPENDS
-			developer-guide.epub
+			"${WSDG_TITLE}.epub"
 	)
 	set_docbook_target_properties(developer_guide_epub)
 	add_dependencies(developer_guides developer_guide_epub)

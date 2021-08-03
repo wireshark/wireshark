@@ -433,11 +433,10 @@ Documentation:
     - for HTML_DIR in wsug_html wsug_html_chunked wsdg_html wsdg_html_chunked ; do zip -9 -r "$HTML_DIR.zip" "$HTML_DIR" ; done
   after_script:
     - mv -v build/docbook/ws[ud]g_html{,_chunked}.zip .
-    - mv -v build/docbook/{user,developer}-guide.pdf .
-    - mv -v build/docbook/{user,developer}-guide.epub .
+    - mv -v build/docbook/Wireshark*Guide.{epub,pdf} .
     - |
       if [ -n "$AWS_ACCESS_KEY_ID" ] && [ -n "$AWS_SECRET_ACCESS_KEY" ] && [ -n "$S3_DESTINATION_DOCS" ] ; then
-        for DOC_FILE in ws[ud]g_html{,_chunked}.zip {user,developer}-guide.pdf {user,developer}-guide.epub ; do
+        for DOC_FILE in ws[ud]g_html{,_chunked}.zip Wireshark*Guide.{epub,pdf} ; do
           aws s3 cp "$DOC_FILE" "$S3_DESTINATION_DOCS/"
         done
       fi
@@ -447,10 +446,10 @@ Documentation:
       - wsug_html_chunked.zip
       - wsdg_html.zip
       - wsdg_html_chunked.zip
-      - user-guide.pdf
-      - developer-guide.pdf
-      - user-guide.epub
-      - developer-guide.epub
+      - "Wireshark User’s Guide.pdf"
+      - "Wireshark Developer’s Guide.pdf"
+      - "Wireshark User’s Guide.epub"
+      - "Wireshark Developer’s Guide.epub"
   needs: []
 
 
