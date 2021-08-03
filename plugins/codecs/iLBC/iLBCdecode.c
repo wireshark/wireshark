@@ -9,6 +9,7 @@
  */
 
 #include "config.h"
+
 #include <stdio.h>
 
 #include <glib.h>
@@ -24,7 +25,11 @@
 #define SAMPLE_SIZE 2
 
 typedef struct {
+#ifdef LIBILBC_VERSION_MAJOR
+    IlbcDecoderInstance *ilbc_ctx;  /* Real iLBC context */
+#else
     iLBC_decinst_t *ilbc_ctx;  /* Real iLBC context */
+#endif
     guint8 payload_len; /* Remember last payload_len */
 } ilbc_ctx_t;
 
@@ -63,7 +68,11 @@ codec_iLBC_decode(void *ctx, const void *inputBytes, size_t inputBytesSize,
         void *outputSamples, size_t *outputSamplesSize)
 {
     int16_t speechType; // Not used in Wireshark code
+#ifdef LIBILBC_VERSION_MAJOR
+    int8_t *dataIn  = (int8_t *)inputBytes;
+#else
     int16_t *dataIn  = (int16_t *)inputBytes;
+#endif
     int16_t *dataOut = (int16_t *)outputSamples;
     ilbc_ctx_t *dataCtx = (ilbc_ctx_t *)ctx;
     size_t outputSamplesCount;
