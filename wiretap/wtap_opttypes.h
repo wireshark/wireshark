@@ -368,7 +368,8 @@ typedef void (*wtap_mand_copy_func)(wtap_block_t dest_block, wtap_block_t src_bl
  * initialized yet.  Should handle "registration" when code is
  * refactored to do so.
  */
-WS_DLL_PUBLIC void wtap_opttypes_initialize(void);
+WS_DLL_PUBLIC void
+wtap_opttypes_initialize(void);
 
 /** Create a block by type
  *
@@ -377,7 +378,8 @@ WS_DLL_PUBLIC void wtap_opttypes_initialize(void);
  * @param[in] block_type Block type to be created
  * @return Newly allocated block
  */
-WS_DLL_PUBLIC wtap_block_t wtap_block_create(wtap_block_type_t block_type);
+WS_DLL_PUBLIC wtap_block_t
+wtap_block_create(wtap_block_type_t block_type);
 
 /** Increase reference count of a block
  *
@@ -386,7 +388,8 @@ WS_DLL_PUBLIC wtap_block_t wtap_block_create(wtap_block_type_t block_type);
  * @param[in] block Block add ref to
  * @return The block
  */
-WS_DLL_PUBLIC wtap_block_t wtap_block_ref(wtap_block_t block);
+WS_DLL_PUBLIC wtap_block_t
+wtap_block_ref(wtap_block_t block);
 
 /** Decrease reference count of a block
  *
@@ -394,7 +397,8 @@ WS_DLL_PUBLIC wtap_block_t wtap_block_ref(wtap_block_t block);
  *
  * @param[in] block Block to be deref'd
  */
-WS_DLL_PUBLIC void wtap_block_unref(wtap_block_t block);
+WS_DLL_PUBLIC void
+wtap_block_unref(wtap_block_t block);
 
 /** Free an array of blocks
  *
@@ -404,21 +408,24 @@ WS_DLL_PUBLIC void wtap_block_unref(wtap_block_t block);
  *
  * @param[in] block_array Array of blocks to be freed
  */
-WS_DLL_PUBLIC void wtap_block_array_free(GArray* block_array);
+WS_DLL_PUBLIC void
+wtap_block_array_free(GArray* block_array);
 
 /** Provide type of a block
  *
  * @param[in] block Block from which to retrieve mandatory data
  * @return Block type.
  */
-WS_DLL_PUBLIC wtap_block_type_t wtap_block_get_type(wtap_block_t block);
+WS_DLL_PUBLIC wtap_block_type_t
+wtap_block_get_type(wtap_block_t block);
 
 /** Provide mandatory data of a block
  *
  * @param[in] block Block from which to retrieve mandatory data
  * @return Block mandatory data.  Structure varies based on block type
  */
-WS_DLL_PUBLIC void* wtap_block_get_mandatory_data(wtap_block_t block);
+WS_DLL_PUBLIC void*
+wtap_block_get_mandatory_data(wtap_block_t block);
 
 /** Count the number of times the given option appears in the block
  *
@@ -735,7 +742,6 @@ wtap_block_set_bytes_option_value(wtap_block_t block, guint option_id, const gui
  * @param[in] option_id Identifier value for option
  * @param[in] idx Instance number of option with that ID
  * @param[in] value New value of option
- * @param[in] value_length Number of bytes to copy.
  * @return wtap_opttype_return_val - WTAP_OPTTYPE_SUCCESS if successful,
  * error code otherwise
  */
@@ -834,8 +840,7 @@ wtap_block_remove_option(wtap_block_t block, guint option_id);
  * error code otherwise
  */
 WS_DLL_PUBLIC wtap_opttype_return_val
-wtap_block_remove_nth_option_instance(wtap_block_t block, guint option_id,
-                                      guint idx);
+wtap_block_remove_nth_option_instance(wtap_block_t block, guint option_id, guint idx);
 
 /**
  * Get the original (unpadded) length of an option's value
@@ -850,8 +855,6 @@ wtap_block_option_get_value_size(wtap_opttype_e option_type, wtap_optval_t *opti
 /** Get the padded length of all options in the block
  *
  * @param[in] block Block from which to remove the option instance
- * @param[in] option_id Identifier value for option
- * @param[in] idx Instance number of option with that ID
  * @return gsize - size in bytes of all options, each padded to 32 bits
  * @note The size of any options with values larger than can be held in an option
  * is NOT included, because pcapng.c skips over such option values.
@@ -867,21 +870,24 @@ wtap_block_get_options_size_padded(wtap_block_t block);
  * @param[in] dest_block Block to be copied to
  * @param[in] src_block Block to be copied from
  */
-WS_DLL_PUBLIC void wtap_block_copy(wtap_block_t dest_block, wtap_block_t src_block);
+WS_DLL_PUBLIC void
+wtap_block_copy(wtap_block_t dest_block, wtap_block_t src_block);
 
 /** Make a copy of a block.
  *
  * @param[in] block Block to be copied from
  * @return Newly allocated copy of that block
  */
-WS_DLL_PUBLIC wtap_block_t wtap_block_make_copy(wtap_block_t block);
+WS_DLL_PUBLIC wtap_block_t
+wtap_block_make_copy(wtap_block_t block);
 
 typedef gboolean (*wtap_block_foreach_func)(wtap_block_t block, guint option_id, wtap_opttype_e option_type, wtap_optval_t *option, void *user_data);
 WS_DLL_PUBLIC gboolean wtap_block_foreach_option(wtap_block_t block, wtap_block_foreach_func func, void* user_data);
 
 /** Cleanup the internal structures
  */
-WS_DLL_PUBLIC void wtap_opttypes_cleanup(void);
+WS_DLL_PUBLIC void
+wtap_opttypes_cleanup(void);
 
 #ifdef __cplusplus
 }
