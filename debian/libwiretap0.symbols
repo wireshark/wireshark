@@ -28,6 +28,7 @@ libwiretap.so.0 libwiretap0 #MINVER#
  wtap_block_add_if_filter_option@Base 3.5.0
  wtap_block_add_ipv4_option@Base 2.1.2
  wtap_block_add_ipv6_option@Base 2.1.2
+ wtap_block_add_nflx_custom_option@Base 3.5.0
  wtap_block_add_string_option@Base 2.1.2
  wtap_block_add_string_option_format@Base 2.1.2
  wtap_block_add_uint32_option@Base 3.5.0
@@ -43,6 +44,7 @@ libwiretap.so.0 libwiretap0 #MINVER#
  wtap_block_get_ipv4_option_value@Base 2.1.2
  wtap_block_get_ipv6_option_value@Base 2.1.2
  wtap_block_get_mandatory_data@Base 2.1.2
+ wtap_block_get_nflx_custom_option@Base 3.5.0
  wtap_block_get_nth_bytes_option_value@Base 3.5.0
  wtap_block_get_nth_string_option_value@Base 2.1.2
  wtap_block_get_options_size_padded@Base 3.5.0

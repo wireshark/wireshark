@@ -323,15 +323,39 @@ typedef struct if_filter_opt_s {
     }                      data;
 } if_filter_opt_t;
 
+/* https://www.iana.org/assignments/enterprise-numbers/enterprise-numbers */
+#define PEN_NFLX 10949
+
 /*
  * Structure describing a custom option.
  */
 
 typedef struct custom_opt_s {
     guint32 pen;
-    gsize custom_data_len;
-    gchar *custom_data;
+    union {
+        struct generic_custom_opt_data {
+            gsize custom_data_len;
+            gchar *custom_data;
+        } generic_data;
+        struct nflx_custom_opt_data {
+            guint32 type;
+            gsize custom_data_len;
+            gchar *custom_data;
+            gboolean use_little_endian;
+        } nflx_data;
+    } data;
 } custom_opt_t;
+
+/*
+ * Structure describing a NFLX custom option.
+ */
+
+typedef struct nflx_custom_opt_s {
+    gboolean nflx_use_little_endian;
+    guint32 nflx_type;
+    gsize nflx_custom_data_len;
+    gchar *nflx_custom_data;
+} nflx_custom_opt_t;
 
 /*
  * Structure describing a value of an option.
@@ -355,6 +379,114 @@ typedef struct {
     guint option_id;     /**< option code for the option */
     wtap_optval_t value; /**< value */
 } wtap_option_t;
+
+#define NFLX_OPT_TYPE_VERSION    1
+#define NFLX_OPT_TYPE_TCPINFO    2
+#define NFLX_OPT_TYPE_DUMPINFO   4
+#define NFLX_OPT_TYPE_DUMPTIME   5
+#define NFLX_OPT_TYPE_STACKNAME  6
+
+struct nflx_dumpinfo {
+    guint32 tlh_version;
+    guint32 tlh_type;
+    guint64 tlh_length;
+    guint16 tlh_ie_fport;
+    guint16 tlh_ie_lport;
+    guint32 tlh_ie_faddr_addr32[4];
+    guint32 tlh_ie_laddr_addr32[4];
+    guint32 tlh_ie_zoneid;
+    guint64 tlh_offset_tv_sec;
+    guint64 tlh_offset_tv_usec;
+    char    tlh_id[64];
+    char    tlh_reason[32];
+    char    tlh_tag[32];
+    guint8  tlh_af;
+    guint8  _pad[7];
+};
+
+/* Flags used in tlb_eventflags */
+#define NFLX_TLB_FLAG_RXBUF     0x0001 /* Includes receive buffer info */
+#define NFLX_TLB_FLAG_TXBUF     0x0002 /* Includes send buffer info */
+#define NFLX_TLB_FLAG_HDR       0x0004 /* Includes a TCP header */
+#define NFLX_TLB_FLAG_VERBOSE   0x0008 /* Includes function/line numbers */
+#define NFLX_TLB_FLAG_STACKINFO 0x0010 /* Includes stack-specific info */
+
+struct nflx_tcpinfo {
+    guint64 tlb_tv_sec;
+    guint64 tlb_tv_usec;
+    guint32 tlb_ticks;
+    guint32 tlb_sn;
+    guint8  tlb_stackid;
+    guint8  tlb_eventid;
+    guint16 tlb_eventflags;
+    gint32  tlb_errno;
+    guint32 tlb_rxbuf_tls_sb_acc;
+    guint32 tlb_rxbuf_tls_sb_ccc;
+    guint32 tlb_rxbuf_tls_sb_spare;
+    guint32 tlb_txbuf_tls_sb_acc;
+    guint32 tlb_txbuf_tls_sb_ccc;
+    guint32 tlb_txbuf_tls_sb_spare;
+    gint32  tlb_state;
+    guint32 tlb_starttime;
+    guint32 tlb_iss;
+    guint32 tlb_flags;
+    guint32 tlb_snd_una;
+    guint32 tlb_snd_max;
+    guint32 tlb_snd_cwnd;
+    guint32 tlb_snd_nxt;
+    guint32 tlb_snd_recover;
+    guint32 tlb_snd_wnd;
+    guint32 tlb_snd_ssthresh;
+    guint32 tlb_srtt;
+    guint32 tlb_rttvar;
+    guint32 tlb_rcv_up;
+    guint32 tlb_rcv_adv;
+    guint32 tlb_flags2;
+    guint32 tlb_rcv_nxt;
+    guint32 tlb_rcv_wnd;
+    guint32 tlb_dupacks;
+    gint32  tlb_segqlen;
+    gint32  tlb_snd_numholes;
+    guint32 tlb_flex1;
+    guint32 tlb_flex2;
+    guint32 tlb_fbyte_in;
+    guint32 tlb_fbyte_out;
+    guint8  tlb_snd_scale:4,
+            tlb_rcv_scale:4;
+    guint8  _pad[3];
+
+    /* The following fields might become part of a union */
+    guint64 tlb_stackinfo_bbr_cur_del_rate;
+    guint64 tlb_stackinfo_bbr_delRate;
+    guint64 tlb_stackinfo_bbr_rttProp;
+    guint64 tlb_stackinfo_bbr_bw_inuse;
+    guint32 tlb_stackinfo_bbr_inflight;
+    guint32 tlb_stackinfo_bbr_applimited;
+    guint32 tlb_stackinfo_bbr_delivered;
+    guint32 tlb_stackinfo_bbr_timeStamp;
+    guint32 tlb_stackinfo_bbr_epoch;
+    guint32 tlb_stackinfo_bbr_lt_epoch;
+    guint32 tlb_stackinfo_bbr_pkts_out;
+    guint32 tlb_stackinfo_bbr_flex1;
+    guint32 tlb_stackinfo_bbr_flex2;
+    guint32 tlb_stackinfo_bbr_flex3;
+    guint32 tlb_stackinfo_bbr_flex4;
+    guint32 tlb_stackinfo_bbr_flex5;
+    guint32 tlb_stackinfo_bbr_flex6;
+    guint32 tlb_stackinfo_bbr_lost;
+    guint16 tlb_stackinfo_bbr_pacing_gain;
+    guint16 tlb_stackinfo_bbr_cwnd_gain;
+    guint16 tlb_stackinfo_bbr_flex7;
+    guint8  tlb_stackinfo_bbr_bbr_state;
+    guint8  tlb_stackinfo_bbr_bbr_substate;
+    guint8  tlb_stackinfo_bbr_inhpts;
+    guint8  tlb_stackinfo_bbr_ininput;
+    guint8  tlb_stackinfo_bbr_use_lt_bw;
+    guint8  tlb_stackinfo_bbr_flex8;
+    guint32 tlb_stackinfo_bbr_pkt_epoch;
+
+    guint32 tlb_len;
+};
 
 struct wtap_dumper;
 
@@ -807,6 +939,30 @@ wtap_block_set_if_filter_option_value(wtap_block_t block, guint option_id, if_fi
  */
 WS_DLL_PUBLIC wtap_opttype_return_val
 wtap_block_get_if_filter_option_value(wtap_block_t block, guint option_id, if_filter_opt_t* value) G_GNUC_WARN_UNUSED_RESULT;
+
+/** Add an NFLX custom option to a block
+ *
+ * @param[in] block Block to which to add the option
+ * @param[in] nflx_type NFLX option type
+ * @param[in] nflx_custom_data pointer to the data
+ * @param[in] nflx_custom_data_len length of custom_data
+ * @return wtap_opttype_return_val - WTAP_OPTTYPE_SUCCESS if successful,
+ * error code otherwise
+ */
+WS_DLL_PUBLIC wtap_opttype_return_val
+wtap_block_add_nflx_custom_option(wtap_block_t block, guint32 nflx_type, const char *nflx_custom_data, gsize nflx_custom_data_len);
+
+/** Get an if_filter option value from a block
+ *
+ * @param[in] block Block from which to get the option value
+ * @param[in] nflx_type type of the option
+ * @param[out] nflx_custom_data Returned value of NFLX custom option value
+ * @param[in] nflx_custom_data_len size of buffer provided in nflx_custom_data
+ * @return wtap_opttype_return_val - WTAP_OPTTYPE_SUCCESS if successful,
+ * error code otherwise
+ */
+WS_DLL_PUBLIC wtap_opttype_return_val
+wtap_block_get_nflx_custom_option(wtap_block_t block, guint32 nflx_type, char *nflx_custom_data, gsize nflx_custom_data_len);
 
 /** Add an custom option to a block
  *

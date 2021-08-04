@@ -233,11 +233,14 @@ typedef struct wtapng_simple_packet_s {
 
 /* Section data in private struct */
 typedef struct section_info_t {
-    gboolean byte_swapped; /**< TRUE if this section is not in our byte order */
-    guint16 version_major; /**< Major version number of this section */
-    guint16 version_minor; /**< Minor version number of this section */
-    GArray *interfaces;    /**< Interfaces found in this section */
-    gint64 shb_off;        /**< File offset of the SHB for this section */
+    gboolean byte_swapped;        /**< TRUE if this section is not in our byte order */
+    guint16 version_major;        /**< Major version number of this section */
+    guint16 version_minor;        /**< Minor version number of this section */
+    GArray *interfaces;           /**< Interfaces found in this section */
+    gint64 shb_off;               /**< File offset of the SHB for this section */
+    guint32 bblog_version;        /**< BBLog: version used */
+    guint64 bblog_offset_tv_sec;  /**< BBLog: UTC offset */
+    guint64 bblog_offset_tv_usec;
 } section_info_t;
 
 /* Interface data in private struct */
@@ -613,13 +616,97 @@ pcapng_process_bytes_option(wtapng_block_t *wblock, guint16 option_code,
 }
 
 static gboolean
+pcapng_process_nflx_custom_option(wtapng_block_t *wblock,
+                                  section_info_t *section_info,
+                                  const guint8 *value, guint16 length)
+{
+    struct nflx_dumpinfo dumpinfo;
+    guint32 type, version;
+    gint64 dumptime, temp;
+
+    if (length < 4) {
+        ws_debug("Length = %u too small", length);
+        return FALSE;
+    }
+    memcpy(&type, value, sizeof(guint32));
+    type = GUINT32_FROM_LE(type);
+    value += 4;
+    length -= 4;
+    ws_debug("Handling type = %u, payload of length = %u", type, length);
+    switch (type) {
+    case NFLX_OPT_TYPE_VERSION:
+        if (length == sizeof(guint32)) {
+            memcpy(&version, value, sizeof(guint32));
+            version = GUINT32_FROM_LE(version);
+            ws_debug("BBLog version: %u", version);
+            section_info->bblog_version = version;
+        } else {
+            ws_debug("BBLog version parameter has strange length: %u", length);
+        }
+        break;
+    case NFLX_OPT_TYPE_TCPINFO:
+        ws_debug("BBLog tcpinfo of length: %u", length);
+        if (wblock->type == BLOCK_TYPE_CB_COPY) {
+            ws_buffer_assure_space(wblock->frame_buffer, length);
+            wblock->rec->rec_header.custom_block_header.length = length + 4;
+            memcpy(ws_buffer_start_ptr(wblock->frame_buffer), value, length);
+            memcpy(&temp, value, sizeof(guint64));
+            temp = GUINT64_FROM_LE(temp);
+            wblock->rec->ts.secs = section_info->bblog_offset_tv_sec + temp;
+            memcpy(&temp, value + sizeof(guint64), sizeof(guint64));
+            temp = GUINT64_FROM_LE(temp);
+            wblock->rec->ts.nsecs = (guint32)(section_info->bblog_offset_tv_usec + temp) * 1000;
+            if (wblock->rec->ts.nsecs >= 1000000000) {
+                wblock->rec->ts.secs += 1;
+                wblock->rec->ts.nsecs -= 1000000000;
+            }
+            wblock->rec->presence_flags = WTAP_HAS_TS;
+            wblock->internal = FALSE;
+        }
+        break;
+    case NFLX_OPT_TYPE_DUMPINFO:
+        if (length == sizeof(struct nflx_dumpinfo)) {
+            memcpy(&dumpinfo, value, sizeof(struct nflx_dumpinfo));
+            section_info->bblog_offset_tv_sec = GUINT64_FROM_LE(dumpinfo.tlh_offset_tv_sec);
+            section_info->bblog_offset_tv_usec = GUINT64_FROM_LE(dumpinfo.tlh_offset_tv_usec);
+            ws_debug("BBLog dumpinfo time offset: %" G_GUINT64_FORMAT, section_info->bblog_offset_tv_sec);
+        } else {
+            ws_debug("BBLog dumpinfo parameter has strange length: %u", length);
+        }
+        break;
+    case NFLX_OPT_TYPE_DUMPTIME:
+        if (length == sizeof(gint64)) {
+            memcpy(&dumptime, value, sizeof(gint64));
+            dumptime = GINT64_FROM_LE(dumptime);
+            ws_debug("BBLog dumpinfo time offset: %" G_GUINT64_FORMAT, dumptime);
+        } else {
+            ws_debug("BBLog dumptime parameter has strange length: %u", length);
+        }
+        break;
+    case NFLX_OPT_TYPE_STACKNAME:
+        if (length >= 2) {
+            ws_debug("BBLog stack name: %.*s(%u)", length - 1, value + 1, *(guint8 *)value);
+        } else {
+            ws_debug("BBLog stack name has strange length: %u)", length);
+        }
+        break;
+    default:
+        ws_debug("Unknown type: %u, length: %u", type, length);
+        break;
+    }
+    return wtap_block_add_nflx_custom_option(wblock->block, type, value, length) == WTAP_OPTTYPE_SUCCESS;
+}
+
+static gboolean
 pcapng_process_custom_option(wtapng_block_t *wblock,
-                             const section_info_t *section_info,
+                             section_info_t *section_info,
                              guint16 option_code, guint16 option_length,
                              const guint8 *option_content,
+                             gboolean little_endian,
                              int *err, gchar **err_info)
 {
     guint32 pen;
+    gboolean ret;
 
     if (option_length < 4) {
         *err = WTAP_ERR_BAD_FILE;
@@ -628,18 +715,22 @@ pcapng_process_custom_option(wtapng_block_t *wblock,
         return FALSE;
     }
     memcpy(&pen, option_content, sizeof(guint32));
-    if (section_info->byte_swapped) {
+    if (little_endian) {
+        pen = GUINT32_FROM_LE(pen);
+    } else if (section_info->byte_swapped) {
         pen = GUINT32_SWAP_LE_BE(pen);
     }
     switch (pen) {
+    case PEN_NFLX:
+        ret = pcapng_process_nflx_custom_option(wblock, section_info, option_content + 4, option_length - 4);
+        break;
     default:
+        ret = wtap_block_add_custom_option(wblock->block, option_code, pen, option_content + 4, option_length - 4) == WTAP_OPTTYPE_SUCCESS;
         ws_debug("Custom option type 0x%04x with unknown pen %u with custom data of length %u", option_code, pen, option_length - 4);
-        if (wtap_block_add_custom_option(wblock->block, option_code, pen, option_content + 4, option_length - 4) != WTAP_OPTTYPE_SUCCESS) {
-            return FALSE;
-        }
         break;
     }
-    return TRUE;
+    ws_debug("returning %d", ret);
+    return ret;
 }
 
 #ifdef HAVE_PLUGINS
@@ -682,13 +773,14 @@ pcapng_process_unhandled_option(wtapng_block_t *wblock _U_,
 
 static gboolean
 pcapng_process_options(FILE_T fh, wtapng_block_t *wblock,
-                       const section_info_t *section_info,
+                       section_info_t *section_info,
                        guint opt_cont_buf_len,
                        gboolean (*process_option)(wtapng_block_t *,
                                                   const section_info_t *,
                                                   guint16, guint16,
                                                   const guint8 *,
                                                   int *, gchar **),
+                       gboolean little_endian,
                        int *err, gchar **err_info)
 {
     guint8 *option_content; /* Allocate as large as the options block */
@@ -738,7 +830,10 @@ pcapng_process_options(FILE_T fh, wtapng_block_t *wblock,
         }
         option_code = oh->option_code;
         option_length = oh->option_length;
-        if (section_info->byte_swapped) {
+        if (little_endian) {
+            option_code = GUINT16_FROM_LE(option_code);
+            option_length = GUINT16_FROM_LE(option_length);
+        } else if (section_info->byte_swapped) {
             option_code = GUINT16_SWAP_LE_BE(option_code);
             option_length = GUINT16_SWAP_LE_BE(option_length);
         }
@@ -776,6 +871,7 @@ pcapng_process_options(FILE_T fh, wtapng_block_t *wblock,
                 if (!pcapng_process_custom_option(wblock, section_info,
                                                   option_code, option_length,
                                                   option_ptr,
+                                                  little_endian,
                                                   err, err_info)) {
                     g_free(option_content);
                     return FALSE;
@@ -783,7 +879,8 @@ pcapng_process_options(FILE_T fh, wtapng_block_t *wblock,
                 break;
 
             default:
-                if (!(*process_option)(wblock, section_info, option_code,
+                if (process_option == NULL ||
+                    !(*process_option)(wblock, (const section_info_t *)section_info, option_code,
                                        option_length, option_ptr,
                                        err, err_info)) {
                     g_free(option_content);
@@ -995,7 +1092,7 @@ pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh,
     opt_cont_buf_len = bh->block_total_length - MIN_SHB_SIZE;
     if (!pcapng_process_options(fh, wblock, section_info, opt_cont_buf_len,
                                 pcapng_process_section_header_block_option,
-                                err, err_info))
+                                FALSE, err, err_info))
         return PCAPNG_BLOCK_ERROR;
 
     /*
@@ -1190,7 +1287,7 @@ pcapng_process_if_descr_block_option(wtapng_block_t *wblock,
 /* "Interface Description Block" */
 static gboolean
 pcapng_read_if_descr_block(wtap *wth, FILE_T fh, pcapng_block_header_t *bh,
-                           const section_info_t *section_info,
+                           section_info_t *section_info,
                            wtapng_block_t *wblock, int *err, gchar **err_info)
 {
     guint64 time_units_per_second = 1000000; /* default = 10^6 */
@@ -1258,7 +1355,7 @@ pcapng_read_if_descr_block(wtap *wth, FILE_T fh, pcapng_block_header_t *bh,
     opt_cont_buf_len = bh->block_total_length - MIN_IDB_SIZE;
     if (!pcapng_process_options(fh, wblock, section_info, opt_cont_buf_len,
                                 pcapng_process_if_descr_block_option,
-                                err, err_info))
+                                FALSE, err, err_info))
         return FALSE;
 
     /*
@@ -1557,7 +1654,7 @@ pcapng_process_packet_block_option(wtapng_block_t *wblock,
 
 static gboolean
 pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh,
-                         const section_info_t *section_info,
+                         section_info_t *section_info,
                          wtapng_block_t *wblock,
                          int *err, gchar **err_info, gboolean enhanced)
 {
@@ -1763,7 +1860,7 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh,
         (int)sizeof(bh->block_total_length);
     if (!pcapng_process_options(fh, wblock, section_info, opt_cont_buf_len,
                                 pcapng_process_packet_block_option,
-                                err, err_info))
+                                FALSE, err, err_info))
         return FALSE;
 
     /*
@@ -2033,7 +2130,7 @@ pcapng_process_name_resolution_block_option(wtapng_block_t *wblock,
 static gboolean
 pcapng_read_name_resolution_block(FILE_T fh, pcapng_block_header_t *bh,
                                   pcapng_t *pn,
-                                  const section_info_t *section_info,
+                                  section_info_t *section_info,
                                   wtapng_block_t *wblock,
                                   int *err, gchar **err_info)
 {
@@ -2254,7 +2351,7 @@ read_options:
     opt_cont_buf_len = to_read;
     if (!pcapng_process_options(fh, wblock, section_info, opt_cont_buf_len,
                                 pcapng_process_name_resolution_block_option,
-                                err, err_info))
+                                FALSE, err, err_info))
         return FALSE;
 
     ws_buffer_free(&nrb_rec);
@@ -2334,7 +2431,7 @@ pcapng_process_interface_statistics_block_option(wtapng_block_t *wblock,
 
 static gboolean
 pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh,
-                                       const section_info_t *section_info,
+                                       section_info_t *section_info,
                                        wtapng_block_t *wblock,
                                        int *err, gchar **err_info)
 {
@@ -2386,13 +2483,78 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh,
         (MIN_BLOCK_SIZE + (guint)sizeof isb);    /* fixed and variable part, including padding */
     if (!pcapng_process_options(fh, wblock, section_info, opt_cont_buf_len,
                                 pcapng_process_interface_statistics_block_option,
-                                err, err_info))
+                                FALSE, err, err_info))
         return FALSE;
 
     /*
      * We don't return these to the caller in pcapng_read().
      */
     wblock->internal = TRUE;
+
+    return TRUE;
+}
+
+#define NFLX_BLOCK_TYPE_EVENT   1
+#define NFLX_BLOCK_TYPE_SKIP    2
+
+typedef struct pcapng_nflx_custom_block_s {
+    guint32 nflx_type;
+} pcapng_nflx_custom_block_t;
+
+#define MIN_NFLX_CB_SIZE ((guint32)(MIN_CB_SIZE + sizeof(pcapng_nflx_custom_block_t)))
+
+static gboolean
+pcapng_read_nflx_custom_block(FILE_T fh, pcapng_block_header_t *bh,
+                              section_info_t *section_info,
+                              wtapng_block_t *wblock,
+                              int *err, gchar **err_info)
+{
+    pcapng_nflx_custom_block_t nflx_cb;
+    guint opt_cont_buf_len;
+    guint32 type, skipped;
+
+    if (bh->block_total_length < MIN_NFLX_CB_SIZE) {
+        *err = WTAP_ERR_BAD_FILE;
+        *err_info = g_strdup_printf("pcapng_read_nflx_custom_block: total block length %u is too small (< %u)",
+                                    bh->block_total_length, MIN_NFLX_CB_SIZE);
+        return FALSE;
+    }
+
+    opt_cont_buf_len = bh->block_total_length - MIN_NFLX_CB_SIZE;
+    wblock->rec->rec_type = REC_TYPE_CUSTOM_BLOCK;
+    wblock->rec->rec_header.custom_block_header.pen = PEN_NFLX;
+    /* "NFLX Custom Block" read fixed part */
+    if (!wtap_read_bytes(fh, &nflx_cb, sizeof nflx_cb, err, err_info)) {
+        ws_debug("Failed to read nflx type");
+        return FALSE;
+    }
+    type = GUINT32_FROM_LE(nflx_cb.nflx_type);
+    ws_debug("BBLog type: %u", type);
+    switch (type) {
+        case NFLX_BLOCK_TYPE_EVENT:
+            wblock->rec->rec_header.custom_block_header.custom_data_header.nflx_custom_data_header.type = BBLOG_TYPE_EVENT_BLOCK;
+            opt_cont_buf_len = bh->block_total_length - MIN_NFLX_CB_SIZE;
+            ws_debug("event");
+            break;
+        case NFLX_BLOCK_TYPE_SKIP:
+            wblock->rec->rec_header.custom_block_header.custom_data_header.nflx_custom_data_header.type = BBLOG_TYPE_SKIPPED_BLOCK;
+            if (!wtap_read_bytes(fh, &skipped, sizeof(guint32), err, err_info)) {
+                ws_debug("Failed to read skipped");
+                return FALSE;
+            }
+            wblock->rec->rec_header.custom_block_header.custom_data_header.nflx_custom_data_header.skipped = GUINT32_FROM_LE(skipped);
+            ws_debug("skipped: %u", wblock->rec->rec_header.custom_block_header.custom_data_header.nflx_custom_data_header.skipped);
+            opt_cont_buf_len = bh->block_total_length - MIN_NFLX_CB_SIZE - sizeof(guint32);
+            break;
+        default:
+            ws_debug("Unknown type %u", type);
+            return FALSE;
+    }
+
+    /* Options */
+    if (!pcapng_process_options(fh, wblock, section_info, opt_cont_buf_len,
+                                NULL, TRUE, err, err_info))
+        return FALSE;
 
     return TRUE;
 }
@@ -2425,9 +2587,10 @@ pcapng_handle_generic_custom_block(FILE_T fh, pcapng_block_header_t *bh,
     wblock->internal = FALSE;
     return TRUE;
 }
+
 static gboolean
 pcapng_read_custom_block(FILE_T fh, pcapng_block_header_t *bh,
-                         const section_info_t *section_info,
+                         section_info_t *section_info,
                          wtapng_block_t *wblock,
                          int *err, gchar **err_info)
 {
@@ -2445,6 +2608,8 @@ pcapng_read_custom_block(FILE_T fh, pcapng_block_header_t *bh,
         return FALSE;
     }
 
+    wblock->block = wtap_block_create(WTAP_BLOCK_CUSTOM);
+
     /* Custom block read fixed part */
     if (!wtap_read_bytes(fh, &cb, sizeof cb, err, err_info)) {
         ws_debug("failed to read pen");
@@ -2458,12 +2623,19 @@ pcapng_read_custom_block(FILE_T fh, pcapng_block_header_t *bh,
     ws_debug("pen %u, custom data and option length %u", pen, bh->block_total_length - MIN_CB_SIZE);
 
     switch (pen) {
+        case PEN_NFLX:
+            if (!pcapng_read_nflx_custom_block(fh, bh, section_info, wblock, err, err_info))
+                return FALSE;
+            break;
         default:
             if (!pcapng_handle_generic_custom_block(fh, bh, pen, wblock, err, err_info)) {
                 return FALSE;
             }
             break;
     }
+
+    wblock->rec->block = wblock->block;
+    wblock->block = NULL;
 
     return TRUE;
 }
@@ -3521,7 +3693,18 @@ static guint32 pcapng_compute_custom_option_size(wtap_optval_t *optval)
 {
     size_t size, pad;
 
-    size = optval->custom_opt.custom_data_len + sizeof(guint32);
+    /* PEN */
+    size = sizeof(guint32);
+    switch (optval->custom_opt.pen) {
+    case PEN_NFLX:
+        /* PEN */
+        size += sizeof(guint32);
+        size += optval->custom_opt.data.nflx_data.custom_data_len;
+        break;
+    default:
+        size += optval->custom_opt.data.generic_data.custom_data_len;
+        break;
+    }
     if (size > 65535) {
         size = 65535;
     }
@@ -3957,13 +4140,28 @@ static gboolean pcapng_write_if_filter_option(wtap_dumper *wdh, guint option_id,
 static gboolean pcapng_write_custom_option(wtap_dumper *wdh, guint option_id, wtap_optval_t *optval, int *err)
 {
     struct pcapng_option_header option_hdr;
+    gsize pad;
+    gsize size;
     const guint32 zero_pad = 0;
-    size_t pad;
+    guint32 pen, type;
+    gboolean use_little_endian;
 
     if ((option_id == OPT_CUSTOM_STR_NO_COPY) ||
         (option_id == OPT_CUSTOM_BIN_NO_COPY))
         return TRUE;
-    if (optval->custom_opt.custom_data_len + sizeof(guint32) > 65535) {
+    ws_debug("PEN %d", optval->custom_opt.pen);
+    switch (optval->custom_opt.pen) {
+    case PEN_NFLX:
+        size = sizeof(guint32) + sizeof(guint32) + optval->custom_opt.data.nflx_data.custom_data_len;
+        use_little_endian = optval->custom_opt.data.nflx_data.use_little_endian;
+        break;
+    default:
+        size = sizeof(guint32) + optval->custom_opt.data.generic_data.custom_data_len;
+        use_little_endian = false;
+        break;
+    }
+    ws_debug("use_little_endian %d", use_little_endian);
+    if (size > 65535) {
         /*
          * Too big to fit in the option.
          * Don't write anything.
@@ -3975,30 +4173,57 @@ static gboolean pcapng_write_custom_option(wtap_dumper *wdh, guint option_id, wt
 
     /* write option header */
     option_hdr.type         = (guint16)option_id;
-    option_hdr.value_length = (guint16)(optval->custom_opt.custom_data_len + sizeof(guint32));
+    option_hdr.value_length = (guint16)size;
+    if (use_little_endian) {
+        option_hdr.type = GUINT16_TO_LE(option_hdr.type);
+        option_hdr.value_length = GUINT16_TO_LE(option_hdr.value_length);
+    }
     if (!wtap_dump_file_write(wdh, &option_hdr, sizeof(struct pcapng_option_header), err))
         return FALSE;
     wdh->bytes_dumped += sizeof(struct pcapng_option_header);
 
     /* write PEN */
-    if (!wtap_dump_file_write(wdh, &optval->custom_opt.pen, sizeof(guint32), err))
+    pen = optval->custom_opt.pen;
+    if (use_little_endian) {
+        pen = GUINT32_TO_LE(pen);
+    }
+    if (!wtap_dump_file_write(wdh, &pen, sizeof(guint32), err))
         return FALSE;
     wdh->bytes_dumped += sizeof(guint32);
 
-    /* write custom data */
-    if (!wtap_dump_file_write(wdh, optval->custom_opt.custom_data, optval->custom_opt.custom_data_len, err))
-        return FALSE;
-    wdh->bytes_dumped += optval->custom_opt.custom_data_len;
+    switch (optval->custom_opt.pen) {
+    case PEN_NFLX:
+        /* write NFLX type */
+        type = GUINT32_TO_LE(optval->custom_opt.data.nflx_data.type);
+        ws_debug("type=%d", type);
+        if (!wtap_dump_file_write(wdh, &type, sizeof(guint32), err))
+            return FALSE;
+        wdh->bytes_dumped += sizeof(guint32);
+        /* write custom data */
+        if (!wtap_dump_file_write(wdh, optval->custom_opt.data.nflx_data.custom_data, optval->custom_opt.data.nflx_data.custom_data_len, err)) {
+            return FALSE;
+        }
+        wdh->bytes_dumped += optval->custom_opt.data.nflx_data.custom_data_len;
+        break;
+    default:
+        /* write custom data */
+        if (!wtap_dump_file_write(wdh, optval->custom_opt.data.generic_data.custom_data, optval->custom_opt.data.generic_data.custom_data_len, err)) {
+            return FALSE;
+        }
+        wdh->bytes_dumped += optval->custom_opt.data.generic_data.custom_data_len;
+        break;
+    }
 
     /* write padding (if any) */
-    if ((optval->custom_opt.custom_data_len % 4)) {
-        pad = 4 - (optval->custom_opt.custom_data_len % 4);
+    if (size % 4 != 0) {
+        pad = 4 - (size % 4);
     } else {
         pad = 0;
     }
     if (pad != 0) {
-        if (!wtap_dump_file_write(wdh, &zero_pad, pad, err))
+        if (!wtap_dump_file_write(wdh, &zero_pad, pad, err)) {
             return FALSE;
+        }
         wdh->bytes_dumped += pad;
     }
     ws_debug("Wrote custom option: type %u, length %u", option_hdr.type, option_hdr.value_length);
@@ -4591,9 +4816,9 @@ pcapng_write_custom_block(wtap_dumper *wdh, const wtap_rec *rec,
     /* write block header */
     bh.block_type = BLOCK_TYPE_CB_COPY;
     bh.block_total_length = (guint32)sizeof(bh) + (guint32)sizeof(cb) + rec->rec_header.custom_block_header.length + pad_len + 4;
-    ws_debug("writing %u bytes, %u padded",
+    ws_debug("writing %u bytes, %u padded, PEN %u",
              rec->rec_header.custom_block_header.length,
-             bh.block_total_length);
+             bh.block_total_length, rec->rec_header.custom_block_header.pen);
     if (!wtap_dump_file_write(wdh, &bh, sizeof bh, err)) {
         return FALSE;
     }
@@ -4605,6 +4830,7 @@ pcapng_write_custom_block(wtap_dumper *wdh, const wtap_rec *rec,
         return FALSE;
     }
     wdh->bytes_dumped += sizeof cb;
+    ws_debug("wrote PEN = %u", cb.pen);
 
     /* write custom data */
     if (!wtap_dump_file_write(wdh, pd, rec->rec_header.custom_block_header.length, err)) {
@@ -4625,6 +4851,76 @@ pcapng_write_custom_block(wtap_dumper *wdh, const wtap_rec *rec,
                               sizeof bh.block_total_length, err)) {
         return FALSE;
     }
+    wdh->bytes_dumped += sizeof bh.block_total_length;
+
+    return TRUE;
+}
+
+static gboolean
+pcapng_write_bblog_block(wtap_dumper *wdh, const wtap_rec *rec,
+                         const guint8 *pd _U_, int *err)
+{
+    pcapng_block_header_t bh;
+    pcapng_write_block_t block_data;
+    gsize options_len;
+    guint32 pen, skipped, type;
+
+    options_len = wtap_block_get_options_size_padded(rec->block) + 4;
+
+    /* write block header */
+    bh.block_type = BLOCK_TYPE_CB_COPY;
+    bh.block_total_length = (guint32)(sizeof(bh) + sizeof(guint32) + sizeof(guint32) + options_len + 4);
+    if (rec->rec_header.custom_block_header.custom_data_header.nflx_custom_data_header.type == BBLOG_TYPE_SKIPPED_BLOCK) {
+        bh.block_total_length += (guint32)sizeof(guint32);
+    }
+    ws_debug("writing %u bytes, type %u",
+             bh.block_total_length, rec->rec_header.custom_block_header.custom_data_header.nflx_custom_data_header.type);
+    if (!wtap_dump_file_write(wdh, &bh, sizeof(bh), err)) {
+        return FALSE;
+    }
+    wdh->bytes_dumped += sizeof bh;
+
+    /* write PEN */
+    pen = PEN_NFLX;
+    if (!wtap_dump_file_write(wdh, &pen, sizeof(guint32), err)) {
+        return FALSE;
+    }
+    wdh->bytes_dumped += sizeof(guint32);
+    ws_debug("wrote PEN = %u", pen);
+
+    /* write type */
+    type = GUINT32_TO_LE(rec->rec_header.custom_block_header.custom_data_header.nflx_custom_data_header.type);
+    if (!wtap_dump_file_write(wdh, &type, sizeof(guint32), err)) {
+        return FALSE;
+    }
+    wdh->bytes_dumped += sizeof(guint32);
+    ws_debug("wrote type = %u", rec->rec_header.custom_block_header.custom_data_header.nflx_custom_data_header.type);
+
+    if (rec->rec_header.custom_block_header.custom_data_header.nflx_custom_data_header.type == BBLOG_TYPE_SKIPPED_BLOCK) {
+        skipped = GUINT32_TO_LE(rec->rec_header.custom_block_header.custom_data_header.nflx_custom_data_header.skipped);
+        if (!wtap_dump_file_write(wdh, &skipped, sizeof(guint32), err)) {
+            return FALSE;
+        }
+        wdh->bytes_dumped += sizeof(guint32);
+        ws_debug("wrote skipped = %u", rec->rec_header.custom_block_header.custom_data_header.nflx_custom_data_header.skipped);
+    }
+
+    block_data.wdh = wdh;
+    block_data.err = err;
+    if (!wtap_block_foreach_option(rec->block, pcapng_write_option_cb, &block_data)) {
+        return FALSE;
+    }
+    /* Write end of options if we have options */
+    if (!pcapng_write_option_eofopt(wdh, err)) {
+        return FALSE;
+    }
+
+    /* write block footer */
+    if (!wtap_dump_file_write(wdh, &bh.block_total_length,
+                              sizeof bh.block_total_length, err)) {
+        return FALSE;
+    }
+    wdh->bytes_dumped += sizeof bh.block_total_length;
 
     return TRUE;
 }
@@ -4752,7 +5048,7 @@ put_nrb_option(wtap_block_t block _U_, guint option_id, wtap_opttype_e option_ty
     case OPT_CUSTOM_STR_COPY:
     case OPT_CUSTOM_BIN_COPY:
         /* Custom options don't consider pad bytes part of the length */
-        size = (guint32)(optval->custom_opt.custom_data_len + sizeof(guint32)) & 0xffff;
+        size = (guint32)(optval->custom_opt.data.generic_data.custom_data_len + sizeof(guint32)) & 0xffff;
         option_hdr.type         = (guint16)option_id;
         option_hdr.value_length = (guint16)size;
         memcpy(*opt_ptrp, &option_hdr, 4);
@@ -4761,8 +5057,8 @@ put_nrb_option(wtap_block_t block _U_, guint option_id, wtap_opttype_e option_ty
         memcpy(*opt_ptrp, &optval->custom_opt.pen, sizeof(guint32));
         *opt_ptrp += sizeof(guint32);
 
-        memcpy(*opt_ptrp, optval->custom_opt.custom_data, size);
-        *opt_ptrp += size;
+        memcpy(*opt_ptrp, optval->custom_opt.data.generic_data.custom_data, optval->custom_opt.data.generic_data.custom_data_len);
+        *opt_ptrp += optval->custom_opt.data.generic_data.custom_data_len;
 
         if ((size % 4)) {
             pad = 4 - (size % 4);
@@ -5398,8 +5694,17 @@ static gboolean pcapng_dump(wtap_dumper *wdh,
             break;
 
         case REC_TYPE_CUSTOM_BLOCK:
-            if (!pcapng_write_custom_block(wdh, rec, pd, err)) {
-                return FALSE;
+            switch (rec->rec_header.custom_block_header.pen) {
+            case PEN_NFLX:
+                if (!pcapng_write_bblog_block(wdh, rec, pd, err)) {
+                    return FALSE;
+                }
+                break;
+            default:
+                if (!pcapng_write_custom_block(wdh, rec, pd, err)) {
+                    return FALSE;
+                }
+                break;
             }
             break;
 

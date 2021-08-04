@@ -1323,7 +1323,16 @@ typedef struct {
     guint32   length;           /* length of the record */
     guint32   pen;              /* private enterprise number */
     gboolean  copy_allowed;     /* CB can be written */
+    union {
+        struct nflx {
+            guint32   type;             /* block type */
+            guint32   skipped;          /* Used if type == BBLOG_TYPE_SKIPPED_BLOCK */
+        } nflx_custom_data_header;
+    } custom_data_header;
 } wtap_custom_block_header;
+
+#define BBLOG_TYPE_EVENT_BLOCK   1
+#define BBLOG_TYPE_SKIPPED_BLOCK 2
 
 typedef struct {
     guint     rec_type;          /* what type of record is this? */

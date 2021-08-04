@@ -299,7 +299,14 @@ static void wtap_block_free_option(wtap_block_t block, wtap_option_t *opt)
         break;
 
     case WTAP_OPTTYPE_CUSTOM:
-        g_free(opt->value.custom_opt.custom_data);
+        switch (opt->value.custom_opt.pen) {
+        case PEN_NFLX:
+            g_free(opt->value.custom_opt.data.nflx_data.custom_data);
+            break;
+        default:
+            g_free(opt->value.custom_opt.data.generic_data.custom_data);
+            break;
+        }
         break;
 
     default:
@@ -433,7 +440,14 @@ wtap_block_copy(wtap_block_t dest_block, wtap_block_t src_block)
             break;
 
         case WTAP_OPTTYPE_CUSTOM:
-            wtap_block_add_custom_option(dest_block, src_opt->option_id, src_opt->value.custom_opt.pen, src_opt->value.custom_opt.custom_data, src_opt->value.custom_opt.custom_data_len);
+            switch (src_opt->value.custom_opt.pen) {
+            case PEN_NFLX:
+                wtap_block_add_nflx_custom_option(dest_block, src_opt->value.custom_opt.data.nflx_data.type, src_opt->value.custom_opt.data.nflx_data.custom_data, src_opt->value.custom_opt.data.nflx_data.custom_data_len);
+                break;
+            default:
+                wtap_block_add_custom_option(dest_block, src_opt->option_id, src_opt->value.custom_opt.pen, src_opt->value.custom_opt.data.generic_data.custom_data, src_opt->value.custom_opt.data.generic_data.custom_data_len);
+                break;
+            }
             break;
         }
     }
@@ -500,7 +514,18 @@ wtap_block_option_get_value_size(wtap_opttype_e option_type, wtap_optval_t *opti
         break;
 
     case WTAP_OPTTYPE_CUSTOM:
-        ret_val += sizeof(guint32) + option->custom_opt.custom_data_len;
+        /* PEN */
+        ret_val += sizeof(guint32);
+        switch (option->custom_opt.pen) {
+        case PEN_NFLX:
+            /* NFLX type */
+            ret_val += sizeof(guint32);
+            ret_val += option->custom_opt.data.nflx_data.custom_data_len;
+            break;
+        default:
+            ret_val += option->custom_opt.data.generic_data.custom_data_len;
+            break;
+        }
         break;
     }
     return ret_val;
@@ -1205,6 +1230,190 @@ wtap_block_get_if_filter_option_value(wtap_block_t block, guint option_id, if_fi
 }
 
 wtap_opttype_return_val
+wtap_block_add_nflx_custom_option(wtap_block_t block, guint32 type, const char *custom_data, gsize custom_data_len)
+{
+    wtap_opttype_return_val ret;
+    wtap_option_t *opt;
+
+    ret = wtap_block_add_option_common(block, OPT_CUSTOM_BIN_COPY, WTAP_OPTTYPE_CUSTOM, &opt);
+    if (ret != WTAP_OPTTYPE_SUCCESS)
+        return ret;
+    opt->value.custom_opt.pen = PEN_NFLX;
+    opt->value.custom_opt.data.nflx_data.type = type;
+    opt->value.custom_opt.data.nflx_data.custom_data_len = custom_data_len;
+    opt->value.custom_opt.data.nflx_data.custom_data = g_memdup2(custom_data, custom_data_len);
+    opt->value.custom_opt.data.nflx_data.use_little_endian = (block->info->block_type == WTAP_BLOCK_CUSTOM);
+    return WTAP_OPTTYPE_SUCCESS;
+}
+
+wtap_opttype_return_val
+wtap_block_get_nflx_custom_option(wtap_block_t block, guint32 nflx_type, char *nflx_custom_data _U_, gsize nflx_custom_data_len)
+{
+    const wtap_opttype_t *opttype;
+    wtap_option_t *opt;
+    guint i;
+
+    if (block == NULL) {
+        return WTAP_OPTTYPE_BAD_BLOCK;
+    }
+    opttype = GET_OPTION_TYPE(block->info->options, OPT_CUSTOM_BIN_COPY);
+    if (opttype == NULL) {
+        return WTAP_OPTTYPE_NO_SUCH_OPTION;
+    }
+    if (opttype->data_type != WTAP_OPTTYPE_CUSTOM) {
+        return WTAP_OPTTYPE_TYPE_MISMATCH;
+    }
+
+    for (i = 0; i < block->options->len; i++) {
+        opt = &g_array_index(block->options, wtap_option_t, i);
+        if ((opt->option_id == OPT_CUSTOM_BIN_COPY) &&
+            (opt->value.custom_opt.pen == PEN_NFLX) &&
+            (opt->value.custom_opt.data.nflx_data.type == nflx_type)) {
+            break;
+        }
+    }
+    if (i == block->options->len) {
+        return WTAP_OPTTYPE_NOT_FOUND;
+    }
+    if (nflx_custom_data_len < opt->value.custom_opt.data.nflx_data.custom_data_len) {
+        return WTAP_OPTTYPE_TYPE_MISMATCH;
+    }
+    switch (nflx_type) {
+    case NFLX_OPT_TYPE_VERSION: {
+        guint32 *src, *dst;
+
+        ws_assert(nflx_custom_data_len == sizeof(guint32));
+        src = (guint32 *)opt->value.custom_opt.data.nflx_data.custom_data;
+        dst = (guint32 *)nflx_custom_data;
+        *dst = GUINT32_FROM_LE(*src);
+        break;
+    }
+    case NFLX_OPT_TYPE_TCPINFO: {
+        struct nflx_tcpinfo *src, *dst;
+
+        ws_assert(nflx_custom_data_len == sizeof(struct nflx_tcpinfo));
+        src = (struct nflx_tcpinfo *)opt->value.custom_opt.data.nflx_data.custom_data;
+        dst = (struct nflx_tcpinfo *)nflx_custom_data;
+        dst->tlb_tv_sec = GUINT64_FROM_LE(src->tlb_tv_sec);
+        dst->tlb_tv_usec = GUINT64_FROM_LE(src->tlb_tv_usec);
+        dst->tlb_ticks = GUINT32_FROM_LE(src->tlb_ticks);
+        dst->tlb_sn = GUINT32_FROM_LE(src->tlb_sn);
+        dst->tlb_stackid = src->tlb_stackid;
+        dst->tlb_eventid = src->tlb_eventid;
+        dst->tlb_eventflags = GUINT16_FROM_LE(src->tlb_eventflags);
+        dst->tlb_errno = GINT32_FROM_LE(src->tlb_errno);
+        dst->tlb_rxbuf_tls_sb_acc = GUINT32_FROM_LE(src->tlb_rxbuf_tls_sb_acc);
+        dst->tlb_rxbuf_tls_sb_ccc = GUINT32_FROM_LE(src->tlb_rxbuf_tls_sb_ccc);
+        dst->tlb_rxbuf_tls_sb_spare = GUINT32_FROM_LE(src->tlb_rxbuf_tls_sb_spare);
+        dst->tlb_txbuf_tls_sb_acc = GUINT32_FROM_LE(src->tlb_txbuf_tls_sb_acc);
+        dst->tlb_txbuf_tls_sb_ccc = GUINT32_FROM_LE(src->tlb_txbuf_tls_sb_ccc);
+        dst->tlb_txbuf_tls_sb_spare = GUINT32_FROM_LE(src->tlb_txbuf_tls_sb_spare);
+        dst->tlb_state = GINT32_FROM_LE(src->tlb_state);
+        dst->tlb_starttime = GUINT32_FROM_LE(src->tlb_starttime);
+        dst->tlb_iss = GUINT32_FROM_LE(src->tlb_iss);
+        dst->tlb_flags = GUINT32_FROM_LE(src->tlb_flags);
+        dst->tlb_snd_una = GUINT32_FROM_LE(src->tlb_snd_una);
+        dst->tlb_snd_max = GUINT32_FROM_LE(src->tlb_snd_max);
+        dst->tlb_snd_cwnd = GUINT32_FROM_LE(src->tlb_snd_cwnd);
+        dst->tlb_snd_nxt = GUINT32_FROM_LE(src->tlb_snd_nxt);
+        dst->tlb_snd_recover = GUINT32_FROM_LE(src->tlb_snd_recover);
+        dst->tlb_snd_wnd = GUINT32_FROM_LE(src->tlb_snd_wnd);
+        dst->tlb_snd_ssthresh = GUINT32_FROM_LE(src->tlb_snd_ssthresh);
+        dst->tlb_srtt = GUINT32_FROM_LE(src->tlb_srtt);
+        dst->tlb_rttvar = GUINT32_FROM_LE(src->tlb_rttvar);
+        dst->tlb_rcv_up = GUINT32_FROM_LE(src->tlb_rcv_up);
+        dst->tlb_rcv_adv = GUINT32_FROM_LE(src->tlb_rcv_adv);
+        dst->tlb_flags2 = GUINT32_FROM_LE(src->tlb_flags2);
+        dst->tlb_rcv_nxt = GUINT32_FROM_LE(src->tlb_rcv_nxt);
+        dst->tlb_rcv_wnd = GUINT32_FROM_LE(src->tlb_rcv_wnd);
+        dst->tlb_dupacks = GUINT32_FROM_LE(src->tlb_dupacks);
+        dst->tlb_segqlen = GINT32_FROM_LE(src->tlb_segqlen);
+        dst->tlb_snd_numholes = GINT32_FROM_LE(src->tlb_snd_numholes);
+        dst->tlb_flex1 = GUINT32_FROM_LE(src->tlb_flex1);
+        dst->tlb_flex2 = GUINT32_FROM_LE(src->tlb_flex2);
+        dst->tlb_fbyte_in = GUINT32_FROM_LE(src->tlb_fbyte_in);
+        dst->tlb_fbyte_out = GUINT32_FROM_LE(src->tlb_fbyte_out);
+        dst->tlb_snd_scale = src->tlb_snd_scale;
+        dst->tlb_rcv_scale = src->tlb_rcv_scale;
+        for (i = 0; i < 3; i++) {
+            dst->_pad[i] = src->_pad[i];
+        }
+        dst->tlb_stackinfo_bbr_cur_del_rate = GUINT64_FROM_LE(src->tlb_stackinfo_bbr_cur_del_rate);
+        dst->tlb_stackinfo_bbr_delRate = GUINT64_FROM_LE(src->tlb_stackinfo_bbr_delRate);
+        dst->tlb_stackinfo_bbr_rttProp = GUINT64_FROM_LE(src->tlb_stackinfo_bbr_rttProp);
+        dst->tlb_stackinfo_bbr_bw_inuse = GUINT64_FROM_LE(src->tlb_stackinfo_bbr_bw_inuse);
+        dst->tlb_stackinfo_bbr_inflight = GUINT32_FROM_LE(src->tlb_stackinfo_bbr_inflight);
+        dst->tlb_stackinfo_bbr_applimited = GUINT32_FROM_LE(src->tlb_stackinfo_bbr_applimited);
+        dst->tlb_stackinfo_bbr_delivered = GUINT32_FROM_LE(src->tlb_stackinfo_bbr_delivered);
+        dst->tlb_stackinfo_bbr_timeStamp = GUINT32_FROM_LE(src->tlb_stackinfo_bbr_timeStamp);
+        dst->tlb_stackinfo_bbr_epoch = GUINT32_FROM_LE(src->tlb_stackinfo_bbr_epoch);
+        dst->tlb_stackinfo_bbr_lt_epoch = GUINT32_FROM_LE(src->tlb_stackinfo_bbr_lt_epoch);
+        dst->tlb_stackinfo_bbr_pkts_out = GUINT32_FROM_LE(src->tlb_stackinfo_bbr_pkts_out);
+        dst->tlb_stackinfo_bbr_flex1 = GUINT32_FROM_LE(src->tlb_stackinfo_bbr_flex1);
+        dst->tlb_stackinfo_bbr_flex2 = GUINT32_FROM_LE(src->tlb_stackinfo_bbr_flex2);
+        dst->tlb_stackinfo_bbr_flex3 = GUINT32_FROM_LE(src->tlb_stackinfo_bbr_flex3);
+        dst->tlb_stackinfo_bbr_flex4 = GUINT32_FROM_LE(src->tlb_stackinfo_bbr_flex4);
+        dst->tlb_stackinfo_bbr_flex5 = GUINT32_FROM_LE(src->tlb_stackinfo_bbr_flex5);
+        dst->tlb_stackinfo_bbr_flex6 = GUINT32_FROM_LE(src->tlb_stackinfo_bbr_flex6);
+        dst->tlb_stackinfo_bbr_lost = GUINT32_FROM_LE(src->tlb_stackinfo_bbr_lost);
+        dst->tlb_stackinfo_bbr_pacing_gain = GUINT16_FROM_LE(src->tlb_stackinfo_bbr_lost);
+        dst->tlb_stackinfo_bbr_cwnd_gain = GUINT16_FROM_LE(src->tlb_stackinfo_bbr_lost);
+        dst->tlb_stackinfo_bbr_flex7 = GUINT16_FROM_LE(src->tlb_stackinfo_bbr_flex7);
+        dst->tlb_stackinfo_bbr_bbr_state = src->tlb_stackinfo_bbr_bbr_state;
+        dst->tlb_stackinfo_bbr_bbr_substate = src->tlb_stackinfo_bbr_bbr_substate;
+        dst->tlb_stackinfo_bbr_inhpts = src->tlb_stackinfo_bbr_inhpts;
+        dst->tlb_stackinfo_bbr_ininput = src->tlb_stackinfo_bbr_ininput;
+        dst->tlb_stackinfo_bbr_use_lt_bw = src->tlb_stackinfo_bbr_use_lt_bw;
+        dst->tlb_stackinfo_bbr_flex8 = src->tlb_stackinfo_bbr_flex8;
+        dst->tlb_stackinfo_bbr_pkt_epoch = GUINT32_FROM_LE(src->tlb_stackinfo_bbr_pkt_epoch);
+        dst->tlb_len = GUINT32_FROM_LE(src->tlb_len);
+        break;
+    }
+    case NFLX_OPT_TYPE_DUMPINFO: {
+        struct nflx_dumpinfo *src, *dst;
+
+        ws_assert(nflx_custom_data_len == sizeof(struct nflx_dumpinfo));
+        src = (struct nflx_dumpinfo *)opt->value.custom_opt.data.nflx_data.custom_data;
+        dst = (struct nflx_dumpinfo *)nflx_custom_data;
+        dst->tlh_version = GUINT32_FROM_LE(src->tlh_version);
+        dst->tlh_type = GUINT32_FROM_LE(src->tlh_type);
+        dst->tlh_length = GUINT64_FROM_LE(src->tlh_length);
+        dst->tlh_ie_fport = src->tlh_ie_fport;
+        dst->tlh_ie_lport = src->tlh_ie_lport;
+        for (i = 0; i < 4; i++) {
+            dst->tlh_ie_faddr_addr32[i] = src->tlh_ie_faddr_addr32[i];
+            dst->tlh_ie_laddr_addr32[i] = src->tlh_ie_laddr_addr32[i];
+        }
+        dst->tlh_ie_zoneid = src->tlh_ie_zoneid;
+        dst->tlh_offset_tv_sec = GUINT64_FROM_LE(src->tlh_offset_tv_sec);
+        dst->tlh_offset_tv_usec = GUINT64_FROM_LE(src->tlh_offset_tv_usec);
+        memcpy(dst->tlh_id, src->tlh_id, 64);
+        memcpy(dst->tlh_reason, src->tlh_reason, 32);
+        memcpy(dst->tlh_tag, src->tlh_tag, 32);
+        dst->tlh_af = src->tlh_af;
+        memcpy(dst->_pad, src->_pad, 7);
+        break;
+    }
+    case NFLX_OPT_TYPE_DUMPTIME: {
+        guint64 *src, *dst;
+
+        ws_assert(nflx_custom_data_len == sizeof(guint64));
+        src = (guint64 *)opt->value.custom_opt.data.nflx_data.custom_data;
+        dst = (guint64 *)nflx_custom_data;
+        *dst = GUINT64_FROM_LE(*src);
+        break;
+    }
+    case NFLX_OPT_TYPE_STACKNAME:
+        ws_assert(nflx_custom_data_len >= 2);
+        memcpy(nflx_custom_data, opt->value.custom_opt.data.nflx_data.custom_data, nflx_custom_data_len);
+        break;
+    default:
+        return WTAP_OPTTYPE_NOT_FOUND;
+    }
+    return WTAP_OPTTYPE_SUCCESS;
+}
+
+wtap_opttype_return_val
 wtap_block_add_custom_option(wtap_block_t block, guint option_id, guint32 pen, const char *custom_data, gsize custom_data_len)
 {
     wtap_opttype_return_val ret;
@@ -1214,8 +1423,8 @@ wtap_block_add_custom_option(wtap_block_t block, guint option_id, guint32 pen, c
     if (ret != WTAP_OPTTYPE_SUCCESS)
         return ret;
     opt->value.custom_opt.pen = pen;
-    opt->value.custom_opt.custom_data_len = custom_data_len;
-    opt->value.custom_opt.custom_data = g_memdup2(custom_data, custom_data_len);
+    opt->value.custom_opt.data.generic_data.custom_data_len = custom_data_len;
+    opt->value.custom_opt.data.generic_data.custom_data = g_memdup2(custom_data, custom_data_len);
     return WTAP_OPTTYPE_SUCCESS;
 }
 
@@ -1410,6 +1619,12 @@ static void pkt_create(wtap_block_t block)
      */
     //block->mandatory_data = g_new0(wtapng_packet_mandatory_t, 1);
 
+    /* Ensure this is null, so when g_free is called on it, it simply returns */
+    block->mandatory_data = NULL;
+}
+
+static void cb_create(wtap_block_t block)
+{
     /* Ensure this is null, so when g_free is called on it, it simply returns */
     block->mandatory_data = NULL;
 }
@@ -1639,6 +1854,16 @@ void wtap_opttypes_initialize(void)
         WTAP_OPTTYPE_FLAG_MULTIPLE_ALLOWED
     };
 
+    static wtap_blocktype_t cb_block = {
+        WTAP_BLOCK_CUSTOM,            /* block_type */
+        "CB",                         /* name */
+        "Packet Block",               /* description */
+        cb_create,                    /* create */
+        NULL,                         /* free_mand */
+        NULL,                         /* copy_mand */
+        NULL                          /* options */
+    };
+
     /*
      * Register the SHB and the options that can appear in it.
      */
@@ -1698,6 +1923,11 @@ void wtap_opttypes_initialize(void)
     wtap_opttype_option_register(&pkt_block, OPT_PKT_QUEUE, &pkt_queue);
     wtap_opttype_option_register(&pkt_block, OPT_PKT_HASH, &pkt_hash);
     wtap_opttype_option_register(&pkt_block, OPT_PKT_VERDICT, &pkt_verdict);
+
+    /*
+     * Register the CB and the options that can appear in it.
+     */
+    wtap_opttype_block_register(&cb_block);
 
 #ifdef DEBUG_COUNT_REFS
     memset(blocks_active, 0, sizeof(blocks_active));

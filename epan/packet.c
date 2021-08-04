@@ -508,7 +508,14 @@ dissect_record(epan_dissect_t *edt, int file_type_subtype,
 		break;
 
 	case REC_TYPE_CUSTOM_BLOCK:
-		record_type = "PCAPNG Custom Block";
+		switch (rec->rec_header.custom_block_header.pen) {
+		case PEN_NFLX:
+			record_type = "Black Box Log Block";
+			break;
+		default:
+			record_type = "PCAPNG Custom Block";
+			break;
+		}
 		break;
 
 	default:
@@ -560,8 +567,16 @@ dissect_record(epan_dissect_t *edt, int file_type_subtype,
 		break;
 
 	case REC_TYPE_CUSTOM_BLOCK:
-		edt->pi.pseudo_header = NULL;
+		switch (rec->rec_header.custom_block_header.pen) {
+		case PEN_NFLX:
+			edt->pi.pseudo_header = NULL;
+			break;
+		default:
+			edt->pi.pseudo_header = NULL;
+			break;
+		}
 		break;
+
 	}
 
 	edt->pi.fd            = fd;
