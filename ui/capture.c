@@ -504,6 +504,7 @@ capture_info_new_packets(int to_read, wtap *wth, info_data_t* cap_info)
                 /*ws_warning("new packet");*/
                 to_read--;
             }
+            wtap_rec_reset(&rec);
         }
     }
     wtap_rec_cleanup(&rec);

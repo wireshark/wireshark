@@ -653,6 +653,7 @@ cf_read(capture_file *cf, gboolean reloading)
         break;
       }
       read_record(cf, &rec, &buf, dfcode, &edt, cinfo, data_offset);
+      wtap_rec_reset(&rec);
     }
   }
   CATCH(OutOfMemoryError) {
@@ -842,6 +843,7 @@ cf_continue_tail(capture_file *cf, volatile int to_read, wtap_rec *rec,
       }
       to_read--;
     }
+    wtap_rec_reset(rec);
   }
   CATCH(OutOfMemoryError) {
     simple_message_box(ESD_TYPE_ERROR, NULL,
@@ -968,6 +970,7 @@ cf_finish_tail(capture_file *cf, wtap_rec *rec, Buffer *buf, int *err)
       break;
     }
     read_record(cf, rec, buf, dfcode, &edt, cinfo, data_offset);
+    wtap_rec_reset(rec);
   }
 
   /* Cleanup and release all dfilter resources */
@@ -1895,6 +1898,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
        on the next pass through the loop. */
     prev_frame_num = fdata->num;
     prev_frame = fdata;
+    wtap_rec_reset(&rec);
   }
 
   epan_dissect_cleanup(&edt);
@@ -2212,6 +2216,7 @@ process_specified_records(capture_file *cf, packet_range_t *range,
       ret = PSP_FAILED;
       break;
     }
+    wtap_rec_reset(&rec);
   }
 
   /* We're done printing the packets; destroy the progress bar if

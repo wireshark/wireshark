@@ -1324,6 +1324,7 @@ process_cap_file(const char *filename, gboolean need_separator)
       }
     }
 
+    wtap_rec_reset(&rec);
   } /* while */
   wtap_rec_cleanup(&rec);
   ws_buffer_free(&buf);

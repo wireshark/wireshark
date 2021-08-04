@@ -1752,6 +1752,10 @@ gboolean wtap_seek_read(wtap *wth, gint64 seek_off, wtap_rec *rec,
 WS_DLL_PUBLIC
 void wtap_rec_init(wtap_rec *rec);
 
+/*** Re-initialize a wtap_rec structure ***/
+WS_DLL_PUBLIC
+void wtap_rec_reset(wtap_rec *rec);
+
 /*** clean up a wtap_rec structure, freeing what wtap_rec_init() allocated */
 WS_DLL_PUBLIC
 void wtap_rec_cleanup(wtap_rec *rec);

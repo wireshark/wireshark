@@ -1155,6 +1155,7 @@ main(int argc, char *argv[])
     unsigned int                 seed = 0;
 
     cmdarg_err_init(editcap_cmdarg_err, editcap_cmdarg_err_cont);
+    memset(&read_rec, 0, sizeof *rec);
 
     /* Initialize log handler early so we can have proper logging during startup. */
     ws_log_init("editcap", vcmdarg_err);
@@ -2216,6 +2217,7 @@ main(int argc, char *argv[])
             written_count++;
         }
         count++;
+        wtap_rec_reset(&read_rec);
     }
     wtap_rec_cleanup(&read_rec);
     ws_buffer_free(&read_buf);
@@ -2285,6 +2287,7 @@ clean_exit:
     wtap_dump_params_cleanup(&params);
     if (wth != NULL)
         wtap_close(wth);
+    wtap_rec_reset(&read_rec);
     wtap_cleanup();
     free_progdirs();
     if (capture_comments != NULL) {

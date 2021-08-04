@@ -154,6 +154,7 @@ libwiretap.so.0 libwiretap0 #MINVER#
  wtap_read_so_far@Base 1.9.1
  wtap_rec_cleanup@Base 2.5.1
  wtap_rec_init@Base 2.5.1
+ wtap_rec_reset@Base 3.5.0
  wtap_register_encap_type@Base 1.9.1
  wtap_register_file_type_extension@Base 1.12.0~rc1
  wtap_register_file_type_subtype@Base 3.5.0

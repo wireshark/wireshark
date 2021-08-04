@@ -2831,6 +2831,7 @@ capture_input_new_packets(capture_session *cap_session, int to_read)
         /* packet successfully read and gone through the "Read Filter" */
         packet_count++;
       }
+      wtap_rec_reset(&rec);
     }
 
     epan_dissect_free(edt);
@@ -3184,6 +3185,7 @@ process_cap_file_first_pass(capture_file *cf, int max_packet_count,
         break;
       }
     }
+    wtap_rec_reset(&rec);
   }
   if (*err != 0)
     status = PASS_READ_ERROR;
@@ -3413,6 +3415,7 @@ process_cap_file_second_pass(capture_file *cf, wtap_dumper *pdh,
         }
       }
     }
+    wtap_rec_reset(&rec);
   }
 
   if (edt)
@@ -3540,6 +3543,7 @@ process_cap_file_single_pass(capture_file *cf, wtap_dumper *pdh,
       *err = 0; /* This is not an error */
       break;
     }
+    wtap_rec_reset(&rec);
   }
   if (*err != 0 && status == PASS_SUCCEEDED) {
     /* Error reading from the input file. */

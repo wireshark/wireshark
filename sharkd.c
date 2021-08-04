@@ -371,6 +371,7 @@ load_cap_file(capture_file *cf, int max_packet_count, gint64 max_byte_count)
 
     while (wtap_read(cf->provider.wth, &rec, &buf, &err, &err_info, &data_offset)) {
       if (process_packet(cf, edt, data_offset, &rec, &buf)) {
+        wtap_rec_reset(&rec);
         /* Stop reading if we have the maximum number of packets;
          * When the -c option has not been used, max_packet_count
          * starts at 0, which practically means, never stop reading.
@@ -556,6 +557,7 @@ sharkd_dissect_request(guint32 framenum, guint32 frame_ref_num,
      cinfo, (dissect_flags & SHARKD_DISSECT_FLAG_BYTES) ? edt.pi.data_src : NULL,
      data);
 
+  wtap_rec_reset(rec);
   epan_dissect_cleanup(&edt);
   return DISSECT_REQUEST_SUCCESS;
 }
@@ -610,6 +612,7 @@ sharkd_retap(void)
     epan_dissect_run_with_taps(&edt, cfile.cd_t, &rec,
                                frame_tvbuff_new_buffer(&cfile.provider, fdata, &buf),
                                fdata, cinfo);
+    wtap_rec_reset(&rec);
     epan_dissect_reset(&edt);
   }
 
@@ -687,6 +690,7 @@ sharkd_filter(const char *dftext, guint8 **result)
 
     /* if passed or ref -> frame_data_set_after_dissect */
 
+    wtap_rec_reset(&rec);
     epan_dissect_reset(&edt);
   }
 

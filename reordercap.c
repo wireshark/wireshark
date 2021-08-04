@@ -122,6 +122,7 @@ frame_write(FrameRecord_t *frame, wtap *wth, wtap_dumper *pdh,
                                     wtap_file_type_subtype(wth));
         exit(1);
     }
+    wtap_rec_reset(rec);
 }
 
 /* Comparing timestamps between 2 frames.
@@ -328,6 +329,7 @@ main(int argc, char *argv[])
 
         g_ptr_array_add(frames, newFrameRecord);
         prevFrame = newFrameRecord;
+        wtap_rec_reset(&rec);
     }
     wtap_rec_cleanup(&rec);
     ws_buffer_free(&buf);

@@ -1669,13 +1669,20 @@ wtap_rec_init(wtap_rec *rec)
 	 */
 }
 
-/* clean up record metadata */
+/* re-initialize record */
 void
-wtap_rec_cleanup(wtap_rec *rec)
+wtap_rec_reset(wtap_rec *rec)
 {
 	wtap_block_unref(rec->block);
 	rec->block = NULL;
 	rec->block_was_modified = FALSE;
+}
+
+/* clean up record metadata */
+void
+wtap_rec_cleanup(wtap_rec *rec)
+{
+	wtap_rec_reset(rec);
 	ws_buffer_free(&rec->options_buf);
 }
 
