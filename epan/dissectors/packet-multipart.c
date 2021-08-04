@@ -547,7 +547,9 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb,
 
     gchar *content_type_str = NULL;
     gchar *content_trans_encoding_str = NULL;
+#ifdef HAVE_ZLIB
     gchar *content_encoding_str = NULL;
+#endif
     char *filename = NULL;
     char *mimetypename = NULL;
     gboolean last_field = FALSE;
@@ -694,8 +696,9 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb,
                             if (crp != NULL) {
                                 *crp = '\0';
                             }
-
+#ifdef HAVE_ZLIB
                             content_encoding_str = wmem_ascii_strdown(pinfo->pool, value_str, -1);
+#endif
                         }
                         break;
                     case POS_CONTENT_TRANSFER_ENCODING:

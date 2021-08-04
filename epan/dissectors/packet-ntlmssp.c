@@ -479,7 +479,11 @@ get_keyexchange_key(unsigned char keyexchangekey[NTLMSSP_KEY_LEN], const unsigne
 }
 
 guint32
-get_md4pass_list(wmem_allocator_t *pool, md4_pass** p_pass_list)
+get_md4pass_list(wmem_allocator_t *pool
+#if !defined(HAVE_HEIMDAL_KERBEROS) && !defined(HAVE_MIT_KERBEROS)
+  _U_
+#endif
+  , md4_pass** p_pass_list)
 {
 #if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
   guint32        nb_pass = 0;
