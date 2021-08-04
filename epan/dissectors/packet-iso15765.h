@@ -14,6 +14,7 @@
 #define ISO15765_TYPE_CAN     1
 #define ISO15765_TYPE_CAN_FD  2
 #define ISO15765_TYPE_LIN     3
+#define ISO15765_TYPE_FLEXRAY 4
 
 struct iso15765_info {
     guint32 bus_type;
