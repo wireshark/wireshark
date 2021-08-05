@@ -19,7 +19,7 @@
   - Things seen in traces
    Flags in the EDP Vlan field (value 0x01)
   - TLV type 0x0e (ESL) shared link managemnt
-   TLV type 0x15 (XOS only?)
+   TLV type 0x15 (XOS only?) Link bit details (eth autoneg)
    EAPS type 0x10 (ESL?)
    ESRP state 0x03
 
@@ -233,6 +233,13 @@ static int hf_edp_elsm_magic = -1;
 /* ELRP (Extreme Loop Recognition Protocol)*/
 static int hf_edp_elrp = -1;
 static int hf_edp_elrp_unknown = -1;
+/* Link properties */
+static int hf_edp_link = -1;
+static int hf_edp_link_flags = -1;
+static int hf_edp_link_conf = -1;
+static int hf_edp_link_actual = -1;
+static int hf_edp_link_zero = -1;
+static int hf_edp_link_unknown = -1;
 /* Unknown element */
 static int hf_edp_unknown = -1;
 static int hf_edp_unknown_data = -1;
@@ -252,8 +259,9 @@ static gint ett_edp_vlan_flags = -1;
 static gint ett_edp_esrp = -1;
 static gint ett_edp_eaps = -1;
 static gint ett_edp_esl = -1;
-static gint ett_edp_elrp = -1;
 static gint ett_edp_elsm = -1;
+static gint ett_edp_elrp = -1;
+static gint ett_edp_link = -1;
 static gint ett_edp_unknown = -1;
 static gint ett_edp_null = -1;
 
@@ -283,15 +291,16 @@ static const value_string esrp_state_vals[] = {
 };
 
 typedef enum {
-	EDP_TYPE_NULL = 0,
+	EDP_TYPE_NULL = 0x00,
 	EDP_TYPE_DISPLAY,
 	EDP_TYPE_INFO,
-	EDP_TYPE_VLAN = 5,
-	EDP_TYPE_ESRP = 8,
-	EDP_TYPE_EAPS = 0xb,
-	EDP_TYPE_ELRP = 0xd,
+	EDP_TYPE_VLAN = 0x05,
+	EDP_TYPE_ESRP = 0x08,
+	EDP_TYPE_EAPS = 0x0b,
+	EDP_TYPE_ELRP = 0x0d,
 	EDP_TYPE_ESL,
-	EDP_TYPE_ELSM
+	EDP_TYPE_ELSM,
+	EDP_TYPE_LINK = 0x15
 } edp_type_t;
 
 static const value_string edp_type_vals[] = {
@@ -304,6 +313,7 @@ static const value_string edp_type_vals[] = {
 	{ EDP_TYPE_ELRP,	"ELRP"},
 	{ EDP_TYPE_ESL,		"ESL"},
 	{ EDP_TYPE_ELSM,	"ELSM"},
+	{ EDP_TYPE_LINK,	"Link"},
 
 	{ 0,	NULL }
 };
@@ -363,6 +373,15 @@ static const value_string elsm_type_vals[] = {
 static const value_string elsm_subtype_vals[] = {
 	{ 0x00,		"-" },
 	{ 0x01,		"+" },
+
+	{ 0,		NULL }
+};
+
+static const value_string link_speed_vals[] = {
+	{ 0x00,		"Autoneg" },
+	{ 0x01,		"10M" },
+	{ 0x02,		"100M" },
+	{ 0x03,		"1G" },
 
 	{ 0,		NULL }
 };
@@ -911,6 +930,35 @@ dissect_elrp_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, prot
 }
 
 static void
+dissect_link_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto_tree *tree)
+{
+	proto_item	*link_item;
+	proto_tree	*link_tree;
+
+	link_item = proto_tree_add_protocol_format(tree, hf_edp_link,
+		tvb, offset, length, "Linkinfo");
+
+	link_tree = proto_item_add_subtree(link_item, ett_edp_link);
+
+	dissect_tlv_header(tvb, pinfo, offset, 4, link_tree);
+	offset += 4;
+	length -= 4;
+
+	/* TODO: Find out and decode the individual bits */
+	if ( length == 4 ) {
+		/* 0x80: Autonegotiation: 1: on, 0: off */
+		/* 0x40: Other side does EDP ??? */
+		/* 0x08: Flow Control:    1: Symmetric/on, 0: None/off */
+		proto_tree_add_item(link_tree, hf_edp_link_flags, tvb, offset, 1, ENC_NA);
+		proto_tree_add_item(link_tree, hf_edp_link_conf, tvb, offset+1, 1, ENC_NA);
+		proto_tree_add_item(link_tree, hf_edp_link_actual, tvb, offset+2, 1, ENC_NA);
+		proto_tree_add_item(link_tree, hf_edp_link_zero, tvb, offset+3, 1, ENC_NA);
+	} else {
+		proto_tree_add_item(link_tree, hf_edp_link_unknown, tvb, offset, length, ENC_NA);
+	}
+}
+
+static void
 dissect_unknown_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto_tree *tree)
 {
 	proto_item	*unknown_item;
@@ -1042,6 +1090,9 @@ dissect_edp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 			break;
 		case EDP_TYPE_ELRP: /* Extreme Loop Recognition Protocol */
 			dissect_elrp_tlv(tvb, pinfo, offset, tlv_length, edp_tree);
+			break;
+		case EDP_TYPE_LINK: /* Extreme Link Properties */
+			dissect_link_tlv(tvb, pinfo, offset, tlv_length, edp_tree);
 			break;
 		default:
 			dissect_unknown_tlv(tvb, pinfo, offset, tlv_length, edp_tree);
@@ -1388,6 +1439,31 @@ proto_register_edp(void)
 		{ "Unknown",	"edp.elrp.unknown", FT_BYTES, BASE_NONE, NULL,
 			0x0, NULL, HFILL }},
 
+	/* Link element */
+		{ &hf_edp_link,
+		{ "Link",	"edp.link", FT_PROTOCOL, BASE_NONE, NULL,
+			0x0, "Link properties (pysical)", HFILL }},
+
+		{ &hf_edp_link_flags,
+		{ "Flags",	"edp.link.flags", FT_UINT8, BASE_HEX, NULL,
+			0x0, NULL, HFILL }},
+
+		{ &hf_edp_link_conf,
+		{ "Configured",	"edp.link.conf", FT_UINT8, BASE_HEX, VALS(link_speed_vals),
+			0x0, NULL, HFILL }},
+
+		{ &hf_edp_link_actual,
+		{ "Actual",	"edp.link.actual", FT_UINT8, BASE_HEX, VALS(link_speed_vals),
+			0x0, NULL, HFILL }},
+
+		{ &hf_edp_link_zero,
+		{ "Zero",	"edp.link.zero", FT_UINT8, BASE_DEC, NULL,
+			0x0, NULL, HFILL }},
+
+		{ &hf_edp_link_unknown,
+		{ "Unknown",	"edp.link.unknown", FT_BYTES, BASE_NONE, NULL,
+			0x0, NULL, HFILL }},
+
 	/* Unknown element */
 		{ &hf_edp_unknown,
 		{ "Unknown",	"edp.unknown", FT_PROTOCOL, BASE_NONE, NULL,
@@ -1421,8 +1497,9 @@ proto_register_edp(void)
 		&ett_edp_esrp,
 		&ett_edp_eaps,
 		&ett_edp_esl,
-		&ett_edp_elrp,
 		&ett_edp_elsm,
+		&ett_edp_elrp,
+		&ett_edp_link,
 		&ett_edp_unknown,
 		&ett_edp_null,
 	};
