@@ -897,6 +897,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                                            "Reserved value of numBundPrb seen - not valid for use");
                 }
 
+                guint32 num_bundles;
 
                 if (!disableBFWs) {
                     /********************************************/
@@ -918,7 +919,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                     if (numBundPrb == 0) {
                         break;
                     }
-                    guint32 num_bundles = numPrbc / numBundPrb;
+                    num_bundles = numPrbc / numBundPrb;
 
                     /* Add (complete) bundles */
                     for (guint b=0; b < num_bundles; b++) {
@@ -951,7 +952,13 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                     /* No weights in this case */
                     /********************************************/
 
-                    for (guint n=0; n < numBundPrb; n++) {
+                    /* Work out number of bundles, but take care not to divide by zero. */
+                    if (numBundPrb == 0) {
+                        break;
+                    }
+                    num_bundles = numPrbc / numBundPrb;
+
+                    for (guint n=0; n < num_bundles; n++) {
                         /* beamId */
                         proto_tree_add_item(extension_tree, hf_oran_beam_id,
                                             tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -1265,7 +1272,7 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         }
         bytesLeft = tvb_captured_length(tvb) - offset;
         number_of_sections++;
-    } while (bytesLeft > 4 + nBytesPerPrb);     /* FIXME: bad heuristic */
+    } while (bytesLeft >= (4 + nBytesPerPrb));     /* FIXME: bad heuristic */
 
     proto_item *ti = proto_tree_add_uint(oran_tree, hf_oran_numberOfSections, tvb, 0, 0, number_of_sections);
     proto_item_set_generated(ti);
