@@ -108,7 +108,8 @@ const char *pci_id_str(guint16 vid, guint16 did, guint16 svid, guint16 ssid)
            return ids_ptr->name;
     return  not_found;
 
-}"""
+}
+"""
 
 
 id_list=[]
