@@ -15,6 +15,7 @@
 
 /*Network Service Header (NSH) Next Protocol field values */
 
+#define NSH_NONE            0
 #define NSH_IPV4            1
 #define NSH_IPV6            2
 #define NSH_ETHERNET        3
