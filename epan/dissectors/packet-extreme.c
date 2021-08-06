@@ -236,6 +236,9 @@ static int hf_edp_elrp_unknown = -1;
 /* Link properties */
 static int hf_edp_link = -1;
 static int hf_edp_link_flags = -1;
+static int hf_edp_link_flags_autoneg = -1;
+static int hf_edp_link_flags_flowcontrol = -1;
+static int hf_edp_link_flags_unknown = -1;
 static int hf_edp_link_conf = -1;
 static int hf_edp_link_actual = -1;
 static int hf_edp_link_zero = -1;
@@ -262,6 +265,7 @@ static gint ett_edp_esl = -1;
 static gint ett_edp_elsm = -1;
 static gint ett_edp_elrp = -1;
 static gint ett_edp_link = -1;
+static gint ett_edp_link_flags = -1;
 static gint ett_edp_unknown = -1;
 static gint ett_edp_null = -1;
 
@@ -437,7 +441,7 @@ dissect_display_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, p
 	proto_tree_add_item_ret_string(display_tree, hf_edp_display_string, tvb, offset, length,
 		ENC_ASCII, pinfo->pool, &display_name);
 	proto_item_append_text(display_item, ": \"%s\"",
-	        format_text(pinfo->pool, display_name, strlen(display_name)));
+		format_text(pinfo->pool, display_name, strlen((const char *)display_name)));
 }
 
 static int
@@ -616,7 +620,7 @@ dissect_vlan_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, prot
 	proto_tree_add_item_ret_string(vlan_tree, hf_edp_vlan_name, tvb, offset, length,
 		ENC_ASCII, pinfo->pool, &vlan_name);
 	proto_item_append_text(vlan_item, ", Name \"%s\"",
-	        format_text(pinfo->pool, vlan_name, strlen(vlan_name)));
+		format_text(pinfo->pool, vlan_name, strlen((const char *)vlan_name)));
 	offset += length;
 
 
@@ -946,10 +950,19 @@ dissect_link_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, prot
 
 	/* TODO: Find out and decode the individual bits */
 	if ( length == 4 ) {
+		proto_item	*flags_item;
+		proto_tree	*flags_tree;
+
 		/* 0x80: Autonegotiation: 1: on, 0: off */
 		/* 0x40: Other side does EDP ??? */
 		/* 0x08: Flow Control:    1: Symmetric/on, 0: None/off */
-		proto_tree_add_item(link_tree, hf_edp_link_flags, tvb, offset, 1, ENC_NA);
+		flags_item = proto_tree_add_item(link_tree, hf_edp_link_flags, tvb, offset, 1, ENC_NA);
+		flags_tree = proto_item_add_subtree(flags_item, ett_edp_link_flags);
+		tree_expanded_set(ett_edp_link_flags, TRUE);
+		proto_tree_add_item(flags_tree, hf_edp_link_flags_autoneg, tvb, offset, 1, ENC_NA);
+		proto_tree_add_item(flags_tree, hf_edp_link_flags_flowcontrol, tvb, offset, 1, ENC_NA);
+		proto_tree_add_item(flags_tree, hf_edp_link_flags_unknown, tvb, offset, 1, ENC_NA);
+
 		proto_tree_add_item(link_tree, hf_edp_link_conf, tvb, offset+1, 1, ENC_NA);
 		proto_tree_add_item(link_tree, hf_edp_link_actual, tvb, offset+2, 1, ENC_NA);
 		proto_tree_add_item(link_tree, hf_edp_link_zero, tvb, offset+3, 1, ENC_NA);
@@ -1448,12 +1461,24 @@ proto_register_edp(void)
 		{ "Flags",	"edp.link.flags", FT_UINT8, BASE_HEX, NULL,
 			0x0, NULL, HFILL }},
 
+		{ &hf_edp_link_flags_autoneg,
+		{ "Autonegotiation",	"edp.link.flags.autoneg", FT_BOOLEAN, 8, TFS(&tfs_set_notset),
+			0x80, NULL, HFILL }},
+
+		{ &hf_edp_link_flags_flowcontrol,
+		{ "Flow Control",	"edp.link.flags.flowcontrol", FT_BOOLEAN, 8, TFS(&tfs_set_notset),
+			0x08, NULL, HFILL }},
+
+		{ &hf_edp_link_flags_unknown,
+		{ "Unknown",	"edp.link.flags.unknown", FT_UINT8, BASE_HEX, NULL,
+			0x77, NULL, HFILL }},
+
 		{ &hf_edp_link_conf,
-		{ "Configured",	"edp.link.conf", FT_UINT8, BASE_HEX, VALS(link_speed_vals),
+		{ "Configured Speed",	"edp.link.conf", FT_UINT8, BASE_HEX, VALS(link_speed_vals),
 			0x0, NULL, HFILL }},
 
 		{ &hf_edp_link_actual,
-		{ "Actual",	"edp.link.actual", FT_UINT8, BASE_HEX, VALS(link_speed_vals),
+		{ "Actual Speed",	"edp.link.actual", FT_UINT8, BASE_HEX, VALS(link_speed_vals),
 			0x0, NULL, HFILL }},
 
 		{ &hf_edp_link_zero,
@@ -1482,7 +1507,7 @@ proto_register_edp(void)
 	static hf_register_info extreme_hf[] = {
 		{ &hf_llc_extreme_pid,
 		  { "PID",	"llc.extreme_pid",  FT_UINT16, BASE_HEX,
-		    VALS(extreme_pid_vals), 0x0, NULL, HFILL }
+			VALS(extreme_pid_vals), 0x0, NULL, HFILL }
 		}
 	};
 
@@ -1500,6 +1525,7 @@ proto_register_edp(void)
 		&ett_edp_elsm,
 		&ett_edp_elrp,
 		&ett_edp_link,
+		&ett_edp_link_flags,
 		&ett_edp_unknown,
 		&ett_edp_null,
 	};
@@ -1517,7 +1543,7 @@ proto_register_edp(void)
 	expert_edp = expert_register_protocol(proto_edp);
 	expert_register_field_array(expert_edp, ei, array_length(ei));
 
-    llc_add_oui(OUI_EXTREME, "llc.extreme_pid", "LLC Extreme OUI PID", extreme_hf, proto_edp);
+	llc_add_oui(OUI_EXTREME, "llc.extreme_pid", "LLC Extreme OUI PID", extreme_hf, proto_edp);
 
 }
 
