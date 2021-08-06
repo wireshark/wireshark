@@ -2134,7 +2134,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 sub_tree = proto_item_add_subtree(sub_item, ett_channel_map);
 
                 call_dissector_with_data(btcommon_le_channel_map_handle, tvb_new_subset_length(tvb, offset, 5), pinfo, sub_tree, &reserved_offset);
-                proto_tree_add_item(sync_info_tree, hf_extended_advertising_sync_info_sleep_clock_accuracy, tvb, reserved_offset, 1, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(sync_info_tree, hf_extended_advertising_sync_info_sleep_clock_accuracy, tvb, offset + reserved_offset, 1, ENC_LITTLE_ENDIAN);
                 offset += 5;
 
                 proto_tree_add_item(sync_info_tree, hf_extended_advertising_sync_info_access_address, tvb, offset, 4, ENC_LITTLE_ENDIAN);
