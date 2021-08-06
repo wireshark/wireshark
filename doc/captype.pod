@@ -10,23 +10,23 @@ captype - Prints the types of capture files
 
 =head1 SYNOPSIS
 
-B<capinfos>
+B<captype>
 E<lt>I<infile>E<gt>
 I<...>
 
 =head1 DESCRIPTION
 
-B<Captypes> is a program that opens one or more capture files and
+B<Captype> is a program that opens one or more capture files and
 prints the capture file type of each E<lt>I<infile>E<gt>.
 
-B<Capinfos> is able to detect and read the same capture files that are
+B<Captype> is able to detect and read the same capture files that are
 supported by B<Wireshark>.
 The input files don't need a specific filename extension; the file
 format and an optional gzip compression will be automatically detected.
 Near the beginning of the DESCRIPTION section of wireshark(1) or
 L<https://www.wireshark.org/docs/man-pages/wireshark.html>
 is a detailed description of the way B<Wireshark> handles this, which is
-the same way B<Capinfos> handles this.
+the same way B<Captype> handles this.
 
 =head1 SEE ALSO
 
