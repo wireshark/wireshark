@@ -308,7 +308,7 @@ configure_plugin(char* filename, bridge_info* bi, char* config)
     /*
      * Get the plugin fields and convert them into dissector fields.
      * get_fields() returns a JSON-encoded string with an array of entries that look like this:
-     *   {type: "string", ID: 1, name: "testname", desc: "test description"}
+     *   {type: "string", name: "testname", desc: "test description"}
      * where type can currently be "string" or "uint64".
      * We use wsutil/wsjson.h to perform the JSON parsing.
      */
@@ -362,13 +362,11 @@ configure_plugin(char* filename, bridge_info* bi, char* config)
 
         bi->hf = (hf_register_info*)wmem_alloc(wmem_epan_scope(), bi->n_fields * sizeof(hf_register_info));
         bi->hf_ids = (int*)wmem_alloc(wmem_epan_scope(), bi->n_fields * sizeof(int));
-        bi->field_ids = (guint64*)wmem_alloc(wmem_epan_scope(), bi->n_fields * sizeof(guint64));
         bi->field_flags = (guint32*)wmem_alloc(wmem_epan_scope(), bi->n_fields * sizeof(guint32));
 
         for (guint j = 0; j < bi->n_fields; j++)
         {
             bi->hf_ids[j] = -1;
-            bi->field_ids[j] = -1;
             bi->field_flags[j] = 0;
         }
 
@@ -394,13 +392,6 @@ configure_plugin(char* filename, bridge_info* bi, char* config)
                 char* name = json_get_string(sfields, tok, "name");
                 char* display = json_get_string(sfields, tok, "display");
                 char* desc = json_get_string(sfields, tok, "desc");
-                double did;
-                /*
-                 * wsjson doesn't seem to have support for integer numbers, so we
-                 * go through a floating point conversion.
-                 */
-                json_get_double(sfields, tok, "ID", &did);
-                guint id = (guint)did;
 
                 enum ftenum wstype;
                 field_display_e disp;
@@ -427,8 +418,6 @@ configure_plugin(char* filename, bridge_info* bi, char* config)
                     }
                 };
                 *ri = finfo;
-
-                bi->field_ids[fld_cnt] = id;
 
                 if (strstr(properties, "info") != NULL) {
                     bi->field_flags[fld_cnt] |= FLD_FLAG_USE_IN_INFO;
@@ -649,7 +638,7 @@ dissect_plg_bridge(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree _U_, 
 
         if (plugin_info->is_async_extractor_present) {
             plugin_info->async_extractor_info.evtnum = pinfo->num;
-            plugin_info->async_extractor_info.id = (guint32)bi->field_ids[j];
+            plugin_info->async_extractor_info.field = hfinfo->abbrev;
             plugin_info->async_extractor_info.arg = NULL;
             plugin_info->async_extractor_info.data = payload;
             plugin_info->async_extractor_info.datalen = plen;
@@ -677,7 +666,7 @@ dissect_plg_bridge(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree _U_, 
             else
             {
                 pret = si->extract_str(si->state,
-                                       pinfo->num, bi->field_ids[j],
+                                       pinfo->num, hfinfo->abbrev,
                                        NULL, payload, plen);
             }
 
@@ -725,17 +714,17 @@ dissect_plg_bridge(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree _U_, 
                 }
             } else {
                 val = si->extract_u64(si->state,
-                    pinfo->num, bi->field_ids[j],
+                    pinfo->num, hfinfo->abbrev,
                     NULL, payload, plen, &field_present);
             }
-            
+
             if (field_present) {
                 proto_tree_add_uint64(sdplugin_tree, bi->hf_ids[j], tvb, 0, plen, val);
             }
         }
         else {
             REPORT_DISSECTOR_BUG("field %s has an unrecognized type %u",
-                hfinfo->name, (unsigned)hfinfo->type);
+                hfinfo->abbrev, (unsigned)hfinfo->type);
         }
     }
 

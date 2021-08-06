@@ -80,9 +80,9 @@ typedef gboolean (*cb_wait_t)(void* wait_ctx);
 typedef struct async_extractor_info
 {
     guint64 evtnum;
-    guint32 id;
     guint32 ftype;
-    char* arg;
+    const char *field;
+    const char* arg;
     char* data;
     guint32 datalen;
     guint32 field_present;
@@ -112,6 +112,23 @@ typedef void ss_plugin_t;
  */
 typedef void ss_instance_t;
 
+// This struct represents an event returned by the plugin, and is used
+// below in next()/next_batch().
+// - data: pointer to a memory buffer pointer. The plugin will set it
+//   to point to the memory containing the next event. Once returned,
+//   the memory is owned by the plugin framework and will be freed via
+//   a call to free().
+// - datalen: pointer to a 32bit integer. The plugin will set it the size of the
+//   buffer pointed by data.
+// - ts: the event timestamp. Can be (uint64_t)-1, in which case the engine will
+//   automatically fill the event time with the current time.
+typedef struct ss_plugin_event
+{
+	uint8_t *data;
+	uint32_t datalen;
+	uint64_t ts;
+} ss_plugin_event;
+
 /*
  * Interface of a sinsp/scap plugin
  */
@@ -129,12 +146,12 @@ typedef struct
     char* (*get_fields)(void);
     ss_instance_t* (*open)(ss_plugin_t* s, char* params, gint32* rc);
     void (*close)(ss_plugin_t* s, ss_instance_t* h);
-    gint32 (*next)(ss_plugin_t* s, ss_instance_t* h, guint8** data, guint64* datalen, guint64* ts);
+    gint32 (*next)(ss_plugin_t* s, ss_instance_t* h, ss_plugin_event **evt);
     char* (*get_progress)(ss_plugin_t* s, ss_instance_t* h, guint64* progress_pct);
     char *(*event_to_string)(ss_plugin_t *s, guint8 *data, guint64 datalen);
-    char *(*extract_str)(ss_plugin_t *s, guint64 evtnum, guint64 id, char *arg, guint8 *data, guint64 datalen);
-    guint64 (*extract_u64)(ss_plugin_t *s, guint64 evtnum, guint64 id, char *arg, guint8 *data, guint64 datalen, guint64 *field_present);
-    gint32 (*next_batch)(ss_plugin_t* s, ss_instance_t* h, guint8** data, guint64* datalen);
+    char *(*extract_str)(ss_plugin_t *s, guint64 evtnum, const char *field, const char *arg, guint8 *data, guint64 datalen);
+    guint64 (*extract_u64)(ss_plugin_t *s, guint64 evtnum, const char *field, const char *arg, guint8 *data, guint64 datalen, guint64 *field_present);
+    gint32 (*next_batch)(ss_plugin_t* s, ss_instance_t* h, uint32_t *nevts, ss_plugin_event **evts);
     gint32 (*register_async_extractor)(ss_plugin_t *s, async_extractor_info *info);
 
     //
@@ -155,7 +172,6 @@ typedef struct bridge_info {
     int proto;
     hf_register_info* hf;
     int* hf_ids;
-    guint64* field_ids;
     guint32* field_flags;
     guint32 n_fields;
 }bridge_info;
