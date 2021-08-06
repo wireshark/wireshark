@@ -30,7 +30,6 @@
 void proto_register_iso15765(void);
 void proto_reg_handoff_iso15765(void);
 
-#define ISO15765_PCI_OFFSET 0
 #define ISO15765_PCI_LEN 1
 #define ISO15765_PCI_FD_SF_LEN 2
 #define ISO15765_PCI_FD_FF_LEN 6
@@ -48,12 +47,12 @@ void proto_reg_handoff_iso15765(void);
 #define ISO15765_MESSAGE_DATA_LENGTH_MASK 0x0F
 #define ISO15765_FD_MESSAGE_DATA_LENGTH_MASK 0x00FF
 #define ISO15765_MESSAGE_EXTENDED_FRAME_LENGTH_MASK 0x0F
-#define ISO15765_MESSAGE_FRAME_LENGTH_OFFSET (ISO15765_PCI_OFFSET + ISO15765_PCI_LEN)
+#define ISO15765_MESSAGE_FRAME_LENGTH_OFFSET (ISO15765_PCI_LEN)
 #define ISO15765_MESSAGE_FRAME_LENGTH_LEN 1
 #define ISO15765_MESSAGE_SEQUENCE_NUMBER_MASK 0x0F
 #define ISO15765_MESSAGE_FLOW_STATUS_MASK 0x0F
 
-#define ISO15765_FC_BS_OFFSET (ISO15765_PCI_OFFSET + ISO15765_PCI_LEN)
+#define ISO15765_FC_BS_OFFSET (ISO15765_PCI_LEN)
 #define ISO15765_FC_BS_LEN 1
 #define ISO15765_FC_STMIN_OFFSET (ISO15765_FC_BS_OFFSET + ISO15765_FC_BS_LEN)
 #define ISO15765_FC_STMIN_LEN 1
@@ -205,8 +204,6 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 bu
     /* LIN is always extended addressing */
     guint8      ae = (addressing == NORMAL_ADDRESSING && bus_type != ISO15765_TYPE_LIN) ? 0 : 1;
     guint16     frag_id_low = 0;
-    guint8      pci_len = 0;
-    guint8      pci_offset = 0;
     guint32     offset;
     gint32      data_length;
     guint32     full_len;
@@ -239,47 +236,42 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 bu
     }
 
     message_type_item = proto_tree_add_item(iso15765_tree, hf_iso15765_message_type, tvb,
-                                            ae + ISO15765_PCI_OFFSET, ISO15765_PCI_LEN, ENC_BIG_ENDIAN);
+                                            ae, ISO15765_PCI_LEN, ENC_BIG_ENDIAN);
 
-    pci = tvb_get_guint8(tvb, ae + ISO15765_PCI_OFFSET);
+    pci = tvb_get_guint8(tvb, ae);
     message_type = masked_guint16_value(pci, ISO15765_MESSAGE_TYPE_MASK);
 
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str(message_type, iso15765_message_types, "Unknown (0x%02x)"));
 
     switch(message_type) {
         case ISO15765_MESSAGE_TYPES_SINGLE_FRAME: {
-            if (bus_type == ISO15765_TYPE_CAN_FD && frame_length > 8) {
-                pci = tvb_get_guint16(tvb, ae + ISO15765_PCI_OFFSET, ENC_BIG_ENDIAN);
-                pci_len = ISO15765_PCI_FD_SF_LEN;
-                offset = ae + ISO15765_PCI_OFFSET + ISO15765_PCI_FD_SF_LEN;
-                data_length = masked_guint16_value(pci, ISO15765_FD_MESSAGE_DATA_LENGTH_MASK);
+            if (frame_length > 8 && (pci & ISO15765_MESSAGE_DATA_LENGTH_MASK) == 0) {
+                offset = ae + ISO15765_PCI_FD_SF_LEN;
+                data_length = tvb_get_guint8(tvb, ae + 1);
+                proto_tree_add_item(iso15765_tree, hf_iso15765_data_length, tvb, ae + 1, 1, ENC_BIG_ENDIAN);
             } else {
-                pci_len = ISO15765_PCI_LEN;
-                offset = ae + ISO15765_PCI_OFFSET + ISO15765_PCI_LEN;
+                offset = ae + ISO15765_PCI_LEN;
                 data_length = masked_guint16_value(pci, ISO15765_MESSAGE_DATA_LENGTH_MASK);
+                proto_tree_add_uint(iso15765_tree, hf_iso15765_data_length, tvb, ae, 1, data_length);
             }
 
             next_tvb = tvb_new_subset_length_caplen(tvb, offset, data_length, data_length);
             complete = TRUE;
 
             /* Show some info */
-            proto_tree_add_item(iso15765_tree, hf_iso15765_data_length, tvb,
-                                ae + ISO15765_PCI_OFFSET, pci_len, ENC_BIG_ENDIAN);
             col_append_fstr(pinfo->cinfo, COL_INFO, "(Len: %d)", data_length);
             break;
         }
         case ISO15765_MESSAGE_TYPES_FIRST_FRAME: {
-            pci = tvb_get_guint16(tvb, ae + ISO15765_PCI_OFFSET, ENC_BIG_ENDIAN);
-            if (bus_type == ISO15765_TYPE_CAN_FD && pci == 0x1000) {
-                pci_len = ISO15765_PCI_FD_FF_LEN - 2;
-                full_len = tvb_get_guint32(tvb, ae + ISO15765_PCI_OFFSET + 2, ENC_BIG_ENDIAN);
-                offset = ae + ISO15765_MESSAGE_FRAME_LENGTH_OFFSET + ISO15765_PCI_FD_FF_LEN - 1;
-                pci_offset = ae + ISO15765_MESSAGE_FRAME_LENGTH_OFFSET + 1;
+            pci = tvb_get_guint16(tvb, ae, ENC_BIG_ENDIAN);
+            if (pci == 0x1000) {
+                full_len = tvb_get_guint32(tvb, ae + 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(iso15765_tree, hf_iso15765_frame_length, tvb, ae + 2, 4, ENC_BIG_ENDIAN);
+                offset = ae + 2 + 4;
             } else {
-                pci_len = ISO15765_PCI_LEN;
-                full_len = tvb_get_guint16(tvb, ae + ISO15765_PCI_OFFSET, ENC_BIG_ENDIAN) & 0xFFF;
-                offset = ae + ISO15765_MESSAGE_FRAME_LENGTH_OFFSET + ISO15765_MESSAGE_FRAME_LENGTH_LEN;
-                pci_offset = ae + ISO15765_MESSAGE_FRAME_LENGTH_OFFSET;
+                full_len = tvb_get_guint16(tvb, ae, ENC_BIG_ENDIAN) & 0xFFF;
+                proto_tree_add_uint(iso15765_tree, hf_iso15765_frame_length, tvb, ae, 2, full_len);
+                offset = ae + 2;
             }
 
             data_length = tvb_reported_length(tvb) - offset;
@@ -301,13 +293,11 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 bu
             }
 
             /* Show some info */
-            proto_tree_add_item(iso15765_tree, hf_iso15765_frame_length, tvb,
-                                pci_offset, pci_len, ENC_BIG_ENDIAN);
             col_append_fstr(pinfo->cinfo, COL_INFO, "(Frame Len: %d)", full_len);
             break;
         }
         case ISO15765_MESSAGE_TYPES_CONSECUTIVE_FRAME: {
-            offset = ae + ISO15765_PCI_OFFSET + ISO15765_PCI_LEN;
+            offset = ae + ISO15765_PCI_LEN;
             data_length = tvb_reported_length(tvb) - offset;
             frag_id_low = masked_guint16_value(pci, ISO15765_MESSAGE_SEQUENCE_NUMBER_MASK);
             fragmented = TRUE;
@@ -324,29 +314,29 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 bu
 
             /* Show some info */
             proto_tree_add_item(iso15765_tree, hf_iso15765_sequence_number,
-                                tvb, ae + ISO15765_PCI_OFFSET, ISO15765_PCI_LEN, ENC_BIG_ENDIAN);
+                                tvb, ae, ISO15765_PCI_LEN, ENC_BIG_ENDIAN);
             col_append_fstr(pinfo->cinfo, COL_INFO, "(Seq: %d)", (pci & ISO15765_MESSAGE_DATA_LENGTH_MASK));
             break;
         }
         case ISO15765_MESSAGE_TYPES_FLOW_CONTROL: {
-            guint16 status = masked_guint16_value(pci, ISO15765_MESSAGE_DATA_LENGTH_MASK);
-            guint8 bs = tvb_get_guint8(tvb, ae + ISO15765_FC_BS_OFFSET);
-            guint8 stmin = tvb_get_guint8(tvb, ae + ISO15765_FC_STMIN_OFFSET);
+            guint32 status = 0;
+            guint32 bs = 0;
+            guint32 stmin = 0;
             data_length = 0;
-            proto_tree_add_item(iso15765_tree, hf_iso15765_flow_status, tvb,
-                                ae + ISO15765_PCI_OFFSET, ISO15765_PCI_LEN, ENC_BIG_ENDIAN);
-            proto_tree_add_item(iso15765_tree, hf_iso15765_fc_bs, tvb,
-                                ae + ISO15765_FC_BS_OFFSET, ISO15765_FC_BS_LEN, ENC_BIG_ENDIAN);
-            proto_tree_add_item(iso15765_tree, hf_iso15765_fc_stmin, tvb,
-                                ae + ISO15765_FC_STMIN_OFFSET, ISO15765_FC_STMIN_LEN, ENC_BIG_ENDIAN);
-            col_append_fstr(pinfo->cinfo, COL_INFO, "(Status: %d, Block size:0x%x, Separation time minimum: %d ms)",
+            proto_tree_add_item_ret_uint(iso15765_tree, hf_iso15765_flow_status, tvb, ae,
+                                         ISO15765_PCI_LEN, ENC_BIG_ENDIAN, &status);
+            proto_tree_add_item_ret_uint(iso15765_tree, hf_iso15765_fc_bs, tvb, ae + ISO15765_FC_BS_OFFSET,
+                                         ISO15765_FC_BS_LEN, ENC_BIG_ENDIAN, &bs);
+            proto_tree_add_item_ret_uint(iso15765_tree, hf_iso15765_fc_stmin, tvb, ae + ISO15765_FC_STMIN_OFFSET,
+                                         ISO15765_FC_STMIN_LEN, ENC_BIG_ENDIAN, &stmin);
+            col_append_fstr(pinfo->cinfo, COL_INFO, "(Status: %d, Block size: 0x%x, Separation time minimum: %d ms)",
                             status, bs, stmin);
             break;
         }
         default:
             expert_add_info_format(pinfo, message_type_item, &ei_iso15765_message_type_bad,
                                    "Bad Message Type value %u <= 3", message_type);
-            return ae + ISO15765_PCI_OFFSET;
+            return ae;
     }
 
     /* Show data */
@@ -362,7 +352,7 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 bu
 
         /* Get frame information */
         iso15765_frame = (iso15765_frame_t *)wmem_map_lookup(iso15765_frame_table,
-                                                                  GUINT_TO_POINTER(iso15765_info->seq));
+                                                             GUINT_TO_POINTER(iso15765_info->seq));
 
         if (iso15765_frame != NULL) {
             if (!(pinfo->fd->visited)) {
@@ -546,7 +536,7 @@ proto_register_iso15765(void)
                     &hf_iso15765_data_length,
                     {
                             "Data length",    "iso15765.data_length",
-                            FT_UINT16,  BASE_DEC,
+                            FT_UINT32,  BASE_DEC,
                             NULL, 0,
                             NULL, HFILL
                     }
