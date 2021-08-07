@@ -57,6 +57,9 @@ void proto_reg_handoff_iso15765(void);
 #define ISO15765_FC_STMIN_OFFSET (ISO15765_FC_BS_OFFSET + ISO15765_FC_BS_LEN)
 #define ISO15765_FC_STMIN_LEN 1
 
+#define ISO15765_MESSAGE_AUTOSAR_ACK_MASK 0xF0
+#define ISO15765_AUTOSAR_ACK_OFFSET 3
+
 struct iso15765_identifier
 {
     guint32 id;
@@ -86,10 +89,17 @@ static const value_string iso15765_message_types[] = {
         {ISO15765_MESSAGE_TYPES_FIRST_FRAME, "First Frame"},
         {ISO15765_MESSAGE_TYPES_CONSECUTIVE_FRAME, "Consecutive Frame"},
         {ISO15765_MESSAGE_TYPES_FLOW_CONTROL, "Flow control"},
-        {ISO15765_MESSAGE_TYPES_FR_SINGLE_FRAME_EXT, "Single Frame Ext (FlexRay only)"},
-        {ISO15765_MESSAGE_TYPES_FR_FIRST_FRAME_EXT, "First Frame Ext (FlexRay only)"},
-        {ISO15765_MESSAGE_TYPES_FR_CONSECUTIVE_FRAME_2, "Consecutive Frame 2 (FlexRay only)"},
-        {ISO15765_MESSAGE_TYPES_FR_ACK_FRAME, "Ack Frame (FlexRay only)"},
+        {ISO15765_MESSAGE_TYPES_FR_SINGLE_FRAME_EXT, "Single Frame Ext"},
+        {ISO15765_MESSAGE_TYPES_FR_FIRST_FRAME_EXT, "First Frame Ext"},
+        {ISO15765_MESSAGE_TYPES_FR_CONSECUTIVE_FRAME_2, "Consecutive Frame 2"},
+        {ISO15765_MESSAGE_TYPES_FR_ACK_FRAME, "Ack Frame"},
+        {0, NULL}
+};
+
+static const value_string iso15765_flow_status_types[] = {
+        {0, "Continue to Send"},
+        {1, "Wait"},
+        {2, "Overflow"},
         {0, NULL}
 };
 
@@ -133,6 +143,8 @@ static int hf_iso15765_flow_status = -1;
 
 static int hf_iso15765_fc_bs = -1;
 static int hf_iso15765_fc_stmin = -1;
+
+static int hf_iso15765_autosar_ack = -1;
 
 static gint ett_iso15765 = -1;
 
@@ -258,7 +270,6 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 bu
             next_tvb = tvb_new_subset_length_caplen(tvb, offset, data_length, data_length);
             complete = TRUE;
 
-            /* Show some info */
             col_append_fstr(pinfo->cinfo, COL_INFO, "(Len: %d)", data_length);
             break;
         }
@@ -292,10 +303,10 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 bu
                 wmem_map_insert(iso15765_frame_table, GUINT_TO_POINTER(iso15765_info->seq), iso15765_frame);
             }
 
-            /* Show some info */
             col_append_fstr(pinfo->cinfo, COL_INFO, "(Frame Len: %d)", full_len);
             break;
         }
+        case ISO15765_MESSAGE_TYPES_FR_CONSECUTIVE_FRAME_2:
         case ISO15765_MESSAGE_TYPES_CONSECUTIVE_FRAME: {
             offset = ae + ISO15765_PCI_LEN;
             data_length = tvb_reported_length(tvb) - offset;
@@ -312,17 +323,18 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 bu
                 iso15765_info->seq = msg_seqid;
             }
 
-            /* Show some info */
             proto_tree_add_item(iso15765_tree, hf_iso15765_sequence_number,
                                 tvb, ae, ISO15765_PCI_LEN, ENC_BIG_ENDIAN);
             col_append_fstr(pinfo->cinfo, COL_INFO, "(Seq: %d)", (pci & ISO15765_MESSAGE_DATA_LENGTH_MASK));
             break;
         }
+        case ISO15765_MESSAGE_TYPES_FR_ACK_FRAME:
         case ISO15765_MESSAGE_TYPES_FLOW_CONTROL: {
             guint32 status = 0;
             guint32 bs = 0;
             guint32 stmin = 0;
             data_length = 0;
+
             proto_tree_add_item_ret_uint(iso15765_tree, hf_iso15765_flow_status, tvb, ae,
                                          ISO15765_PCI_LEN, ENC_BIG_ENDIAN, &status);
             proto_tree_add_item_ret_uint(iso15765_tree, hf_iso15765_fc_bs, tvb, ae + ISO15765_FC_BS_OFFSET,
@@ -331,11 +343,67 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 bu
                                          ISO15765_FC_STMIN_LEN, ENC_BIG_ENDIAN, &stmin);
             col_append_fstr(pinfo->cinfo, COL_INFO, "(Status: %d, Block size: 0x%x, Separation time minimum: %d ms)",
                             status, bs, stmin);
+
+            if (message_type == ISO15765_MESSAGE_TYPES_FR_ACK_FRAME) {
+                guint32 ack = 0;
+                guint32 sn = 0;
+                offset = ae + ISO15765_FC_STMIN_OFFSET + ISO15765_FC_STMIN_LEN;
+
+                proto_tree_add_item_ret_uint(iso15765_tree, hf_iso15765_autosar_ack, tvb, offset, 1, ENC_BIG_ENDIAN, &ack);
+                proto_tree_add_item_ret_uint(iso15765_tree, hf_iso15765_sequence_number, tvb, offset, 1, ENC_BIG_ENDIAN, &sn);
+
+                col_append_fstr(pinfo->cinfo, COL_INFO, "(Status: %d, Block size: 0x%x, Separation time minimum: %d ms, Ack: %d, Seq: %d)",
+                                status, bs, stmin, ack, sn);
+            } else {
+                col_append_fstr(pinfo->cinfo, COL_INFO, "(Status: %d, Block size: 0x%x, Separation time minimum: %d ms)",
+                                status, bs, stmin);
+            }
+            break;
+        }
+        /* And now the AUTOSAR FlexRay TP Types... */
+        case ISO15765_MESSAGE_TYPES_FR_SINGLE_FRAME_EXT: {
+            offset = ae + ISO15765_PCI_FD_SF_LEN;
+            data_length = tvb_get_guint8(tvb, ae + 1);
+            proto_tree_add_item(iso15765_tree, hf_iso15765_data_length, tvb, ae + 1, 1, ENC_BIG_ENDIAN);
+
+            next_tvb = tvb_new_subset_length_caplen(tvb, offset, data_length, data_length);
+            complete = TRUE;
+
+            /* Show some info */
+            col_append_fstr(pinfo->cinfo, COL_INFO, "(Len: %d)", data_length);
+            break;
+        }
+        case ISO15765_MESSAGE_TYPES_FR_FIRST_FRAME_EXT: {
+            pci = tvb_get_guint8(tvb, ae);
+            full_len = tvb_get_guint32(tvb, ae + 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(iso15765_tree, hf_iso15765_frame_length, tvb, ae + 1, 4, ENC_BIG_ENDIAN);
+            offset = ae + 1 + 4;
+
+            data_length = tvb_reported_length(tvb) - offset;
+            if (bus_type == ISO15765_TYPE_FLEXRAY && flexray_segment_size_limit != 0
+                && (guint32)data_length > flexray_segment_size_limit - (offset - ae)) {
+                data_length = flexray_segment_size_limit - (offset - ae);
+            }
+
+            fragmented = TRUE;
+            frag_id_low = 0;
+
+            /* Save information */
+            if (!(pinfo->fd->visited)) {
+                iso15765_frame_t *iso15765_frame = wmem_new0(wmem_file_scope(), iso15765_frame_t);
+                iso15765_frame->seq = iso15765_info->seq = ++msg_seqid;
+                iso15765_frame->len = full_len;
+
+                wmem_map_insert(iso15765_frame_table, GUINT_TO_POINTER(iso15765_info->seq), iso15765_frame);
+            }
+
+            /* Show some info */
+            col_append_fstr(pinfo->cinfo, COL_INFO, "(Frame Len: %d)", full_len);
             break;
         }
         default:
             expert_add_info_format(pinfo, message_type_item, &ei_iso15765_message_type_bad,
-                                   "Bad Message Type value %u <= 3", message_type);
+                                   "Bad Message Type value %u <= 7", message_type);
             return ae;
     }
 
@@ -564,7 +632,7 @@ proto_register_iso15765(void)
                     {
                             "Flow status",    "iso15765.flow_status",
                             FT_UINT8,  BASE_HEX,
-                            NULL, ISO15765_MESSAGE_FLOW_STATUS_MASK,
+                            VALS(iso15765_flow_status_types), ISO15765_MESSAGE_FLOW_STATUS_MASK,
                             NULL, HFILL
                     }
             },
@@ -578,13 +646,21 @@ proto_register_iso15765(void)
                             NULL, HFILL
                     }
             },
-
             {
                     &hf_iso15765_fc_stmin,
                     {
                             "Separation time minimum (ms)",    "iso15765.flow_control.stmin",
                             FT_UINT8,  BASE_DEC,
                             NULL, 0x00,
+                            NULL, HFILL
+                    }
+            },
+            {
+                    &hf_iso15765_autosar_ack,
+                    {
+                            "Acknowledgement",    "iso15765.autosar_ack.ack",
+                            FT_UINT8,  BASE_HEX,
+                            NULL, ISO15765_MESSAGE_AUTOSAR_ACK_MASK,
                             NULL, HFILL
                     }
             },
