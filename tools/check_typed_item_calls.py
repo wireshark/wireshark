@@ -57,7 +57,11 @@ class APICheck:
         self.fun_name = fun_name
         self.allowed_types = allowed_types
         self.calls = []
-        if fun_name.find('add_bitmask') == -1:
+
+        if fun_name.startswith('ptvcursor'):
+            # RE captures function name + 1st 2 args (always ptvc + hfindex)
+            self.p = re.compile('.*' +  self.fun_name + '\(([a-zA-Z0-9_]+),\s*([a-zA-Z0-9_]+)')
+        elif fun_name.find('add_bitmask') == -1:
             # RE captures function name + 1st 2 args (always tree + hfindex)
             self.p = re.compile('.*' +  self.fun_name + '\(([a-zA-Z0-9_]+),\s*([a-zA-Z0-9_]+)')
         else:
@@ -90,12 +94,23 @@ class APICheck:
 
 
 class ProtoTreeAddItemCheck(APICheck):
-    def __init__(self):
-        # proto_item *
-        # proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
-        #                     const gint start, gint length, const guint encoding)
+    def __init__(self, ptv=None):
+
         # RE will capture whole call.  N.B. only looking at calls with literal numerical length field.
-        self.p = re.compile('.*proto_tree_add_item\(([a-zA-Z0-9_]+),\s*([a-zA-Z0-9_]+),\s*([a-zA-Z0-9_]+),\s*([a-zA-Z0-9_]+),\s*([0-9]+),\s*([a-zA-Z0-9_]+)')
+
+        if not ptv:
+            # proto_item *
+            # proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
+            #                     const gint start, gint length, const guint encoding)
+            self.fun_name = 'proto_tree_add_item'
+            self.p = re.compile('.*' + self.fun_name + '\([a-zA-Z0-9_]+,\s*([a-zA-Z0-9_]+),\s*[a-zA-Z0-9_]+,\s*[a-zA-Z0-9_]+,\s*([0-9]+),\s*([a-zA-Z0-9_]+)')
+        else:
+            # proto_item *
+            # ptvcursor_add(ptvcursor_t *ptvc, int hfindex, gint length,
+            #               const guint encoding)
+            self.fun_name = 'ptvcursor_add'
+            self.p = re.compile('.*' + self.fun_name + '\([a-zA-Z0-9_]+,\s*([a-zA-Z0-9_]+),\s*([0-9]+),\s*([a-zA-Z0-9_]+)')
+
 
         self.lengths = {}
         self.lengths['FT_CHAR']  = 1
@@ -128,7 +143,7 @@ class ProtoTreeAddItemCheck(APICheck):
             for line_number, line in enumerate(f, start=1):
                 m = self.p.match(line)
                 if m:
-                    self.calls.append(Call(m.group(2), line_number=line_number, length=m.group(5)))
+                    self.calls.append(Call(m.group(1), line_number=line_number, length=m.group(2)))
 
     def check_against_items(self, items):
         # For now, only complaining if length if call is longer than the item type implies.
@@ -141,7 +156,7 @@ class ProtoTreeAddItemCheck(APICheck):
                 if call.length and items[call.hf_name].item_type in self.lengths:
                     if self.lengths[items[call.hf_name].item_type] < call.length:
                         print('Warning:', self.file + ':' + str(call.line_number),
-                              'proto_tree_add_item called for', call.hf_name, ' - ',
+                              self.fun_name + ' called for', call.hf_name, ' - ',
                               'item type is', items[call.hf_name].item_type, 'but call has len', call.length)
 
                         global warnings_found
@@ -417,9 +432,16 @@ apiChecks.append(APICheck('proto_tree_add_bitmask_value_with_flags', bitmask_typ
 apiChecks.append(APICheck('proto_tree_add_bitmask_len', bitmask_types))
 apiChecks.append(APICheck('proto_tree_add_bitmask_text', bitmask_types))
 
+# Check some ptvcuror calls too.
+apiChecks.append(APICheck('ptvcursor_add_ret_uint', { 'FT_CHAR', 'FT_UINT8', 'FT_UINT16', 'FT_UINT24', 'FT_UINT32'}))
+apiChecks.append(APICheck('ptvcursor_add_ret_int', { 'FT_INT8', 'FT_INT16', 'FT_INT24', 'FT_INT32'}))
+apiChecks.append(APICheck('ptvcursor_add_ret_boolean', { 'FT_BOOLEAN'}))
+
 
 # Also try to check proto_tree_add_item() calls (for length)
 apiChecks.append(ProtoTreeAddItemCheck())
+apiChecks.append(ProtoTreeAddItemCheck(True)) # for ptvcursor_add()
+
 
 
 def removeComments(code_string):
@@ -463,7 +485,7 @@ def find_items(filename, check_mask=False, check_label=False, check_consecutive=
         contents = f.read()
         # Remove comments so as not to trip up RE.
         contents = removeComments(contents)
-        matches = re.finditer(r'.*\{\s*\&(hf_.*),\s*{\s*\"(.+)\",\s*\"([a-zA-Z0-9_\-\.]+)\",\s*([A-Z0-9_]*),\s*(.*),\s*([A-Za-z0-9x_\(\)]*),\s*([a-z0-9x_]*),', contents)
+        matches = re.finditer(r'.*\{\s*\&(hf_.*),\s*{\s*\"(.+)\",\s*\"([a-zA-Z0-9_\-\.]+)\",\s*([A-Z0-9_]*),\s*(.*),\s*([&A-Za-z0-9x_\(\)]*),\s*([a-z0-9x_]*),', contents)
         for m in matches:
             # Store this item.
             hf = m.group(1)

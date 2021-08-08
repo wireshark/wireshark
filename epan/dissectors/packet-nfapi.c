@@ -9979,12 +9979,12 @@ void proto_register_nfapi(void)
 		},
 		{ &hf_nfapi_csi_rs_zero_tx_power_resource_config_bitmap_r10,
 			{ "CSI-RS Number of NZP configuration", "nfapi.csi.rs.num.of.nzp.configurations",
-			FT_UINT8, BASE_DEC, NULL, 0x0,
+			FT_UINT16, BASE_DEC, NULL, 0x0,
 			"Bitmap of 16 bits. Encoding format of bitmap follows section 6.10.5.2 of 36.211", HFILL }
 		},
 		{ &hf_nfapi_csi_rs_number_of_nzp_configurations,
 			{ "CSI RS zero Tx Power Resource config bitmap R10", "nfapi.csi.rs.zero.tx.power.resource.config.bitmap.r10",
-			FT_UINT16, BASE_DEC, NULL, 0x0,
+			FT_UINT8, BASE_DEC, NULL, 0x0,
 			"Indicates the number of Non-Zero power CSI-RS configurations.", HFILL }
 		},
 		{ &hf_nfapi_pdsch_start,
@@ -10640,7 +10640,7 @@ void proto_register_nfapi(void)
 		},
 		{ &hf_nfapi_harq_size_2,
 			{ "HARQ Size 2", "nfapi.harq.size2",
-			FT_UINT8, BASE_DEC, NULL, 0x0,
+			FT_UINT16, BASE_DEC, NULL, 0x0,
 			"The size of the ACK/NACK in bits.", HFILL }
 		},
 		{ &hf_nfapi_delta_offset_harq_2,
@@ -10930,7 +10930,7 @@ void proto_register_nfapi(void)
 		},
 		{ &hf_nfapi_tpc_bitmap,
 			{ "TPC bitmap", "nfapi.tpc_bitmap",
-			FT_UINT8, BASE_DEC, NULL, 0x0,
+			FT_UINT32, BASE_DEC, NULL, 0x0,
 			"TPC commands for PUCCH and PUSCH", HFILL }
 		},
 		{ &hf_nfapi_number_of_antenna_ports,
