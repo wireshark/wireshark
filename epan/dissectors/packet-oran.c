@@ -758,6 +758,8 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
         proto_tree_add_item_ret_uint(extension_tree, hf_oran_exttype, tvb, offset, 1, ENC_BIG_ENDIAN, &exttype);
         offset++;
 
+        proto_item_append_text(extension_ti, " (%s)", val_to_str_const(exttype, exttype_vals, "Unknown"));
+
         /* extLen (number of 32-bit words).
            TODO: expert_info for value 0, which is reserved!
          */
@@ -881,6 +883,10 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 /* disableBFWs */
                 proto_tree_add_item_ret_boolean(extension_tree, hf_oran_disable_bfws,
                                                 tvb, offset, 1, ENC_BIG_ENDIAN, &disableBFWs);
+                if (disableBFWs) {
+                    proto_item_append_text(extension_ti, " (disableBFWs)");
+                }
+
                 /* RAD */
                 proto_tree_add_item(extension_tree, hf_oran_rad,
                                     tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -898,6 +904,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 }
 
                 guint32 num_bundles;
+                guint32 orphaned_prbs;
 
                 if (!disableBFWs) {
                     /********************************************/
@@ -937,7 +944,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
 
                     /* Any remaining BFWs will be added into an 'orphan bundle'. */
-                    guint32 orphaned_prbs = numPrbc % numBundPrb;
+                    orphaned_prbs = numPrbc % numBundPrb;
                     if (orphaned_prbs) {
                         offset = dissect_bfw_bundle(tvb, extension_tree, pinfo, offset,
                                                     comp_meth_ti, bfwcomphdr_comp_meth,
@@ -960,10 +967,28 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
                     for (guint n=0; n < num_bundles; n++) {
                         /* beamId */
-                        proto_tree_add_item(extension_tree, hf_oran_beam_id,
-                                            tvb, offset, 2, ENC_BIG_ENDIAN);
+                        proto_item *ti = proto_tree_add_item(extension_tree, hf_oran_beam_id,
+                                                             tvb, offset, 2, ENC_BIG_ENDIAN);
+                        proto_item_append_text(ti, " (Bundle %u)", n);
                         offset += 2;
                     }
+
+                    /* Any remaining BFWs would be added into an 'orphan bundle', so beamId would be here. */
+                    orphaned_prbs = numPrbc % numBundPrb;
+                    if (orphaned_prbs) {
+                        proto_item *ti = proto_tree_add_item(extension_tree, hf_oran_beam_id,
+                                                             tvb, offset, 2, ENC_BIG_ENDIAN);
+                        proto_item_append_text(ti, " (Orphaned PRBs)");
+                    }
+
+                }
+
+                /* Add summary to extension root */
+                if (orphaned_prbs) {
+                    proto_item_append_text(extension_ti, " (%u bundles + orphaned)", num_bundles);
+                }
+                else {
+                    proto_item_append_text(extension_ti, " (%u bundles)", num_bundles);
                 }
             }
                 break;
@@ -978,7 +1003,6 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
         /* Set length of extension header. */
         proto_item_set_len(extension_ti, extlen*4);
-        proto_item_append_text(extension_ti, " (%s)", val_to_str_const(exttype, exttype_vals, "Unknown"));
     }
 
     /* Set extent of overall section */
