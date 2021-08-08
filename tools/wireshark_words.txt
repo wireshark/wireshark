@@ -66,9 +66,11 @@ asynchronously
 asyncmap
 atheros
 atomically
+atsss
 attendee
 attrib
 attrs
+authen
 authenticates
 authenticator
 authenticators
@@ -283,6 +285,7 @@ demultiplexer
 demultiplexers
 deobfuscated
 deprecated
+deprotection
 dequeue
 dequeued
 dereference
@@ -367,6 +370,7 @@ entityid
 entryid
 enumerations
 epasv
+epdcch
 ericsson
 erldp
 errinf
@@ -401,6 +405,7 @@ firewall
 flag1
 flag2
 flavored
+flexray
 flowid
 flowmod
 flowspec
@@ -582,8 +587,10 @@ macaddr
 macaddress
 mailto
 malloc
+mantissa
 manuf
 mappable
+maxlen
 maybefcs
 mbits
 mcast
@@ -621,6 +628,7 @@ modulo
 motorola
 mpeg4
 mpsse
+mptcp
 mrcpv
 msbuild
 msgid
@@ -811,6 +819,7 @@ qam16
 qam64
 qnet6
 qosinfo
+quadrature
 quadro
 quiescing
 quintuplet
@@ -1092,6 +1101,7 @@ toggling
 toolbar
 toolongfragment
 tooltip
+toshiba
 touchlink
 touchpad
 traceroute
@@ -1238,6 +1248,7 @@ v1410
 v1530
 v1610
 validator
+verifier
 verizon
 version2
 version3

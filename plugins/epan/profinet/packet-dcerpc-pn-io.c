@@ -2425,7 +2425,7 @@ static const value_string pn_io_profidrive_format_vals[] = {
     {0x66, "Unsigned8+Unsigned8"},
     {0x67, "OctetString2+Unsigned8"},
     {0x68, "Unsigned16_S"},
-    {0x69, "Interger16_S"},
+    {0x69, "Integer16_S"},
     {0x6A, "Unsigned8_S"},
     {0x6B, "OctetString_S"},
     {0x6E, "F message trailer with 4 octets"},

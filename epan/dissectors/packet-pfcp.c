@@ -1604,7 +1604,7 @@ static const value_string pfcp_ie_type[] = {
     { 270, "Redundant Transmission Forwarding Parameters"},         /* Extendable / Table 7.5.2.3-4 */
     { 271, "Transport Delay Reporting"},                            /* Extendable / Table 7.5.2.2-6 */
     { 272, "Partial Failure Information within PFCP Session Establishment Response"}, /* Extendable / Table 7.5.3.1-2 */
-    { 273, "Partial Failure Information within PFCP Session Modificaton Response"},   /* Extendable / Table 7.5.5.1-2 */
+    { 273, "Partial Failure Information within PFCP Session Modification Response"},   /* Extendable / Table 7.5.5.1-2 */
     { 274, "Offending IE Information"},                             /* Extendable / Clause 8.2.185 */
     { 275, "RAT Type"},                                             /* Extendable / Clause 8.2.186 */
     { 276, "L2TP Tunnel Information"},                              /* Extendable / Table 7.5.2.1-2 */
@@ -11821,7 +11821,7 @@ proto_register_pfcp(void)
         { &hf_pfcp_up_function_features_o10_b4_upber,
         { "UPBER", "pfcp.up_function_features.upber",
             FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x10,
-            "UP function supports the uplink packet bufffering during EAS relocation", HFILL }
+            "UP function supports the uplink packet buffering during EAS relocation", HFILL }
         },
         { &hf_pfcp_up_function_features_o10_b5_resps,
         { "RESPS", "pfcp.up_function_features.resps",

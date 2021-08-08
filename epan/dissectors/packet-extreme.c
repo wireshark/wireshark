@@ -1442,7 +1442,7 @@ proto_register_edp(void)
 	/* Link element */
 		{ &hf_edp_link,
 		{ "Link",	"edp.link", FT_PROTOCOL, BASE_NONE, NULL,
-			0x0, "Link properties (pysical)", HFILL }},
+			0x0, "Link properties (physical)", HFILL }},
 
 		{ &hf_edp_link_flags,
 		{ "Flags",	"edp.link.flags", FT_UINT8, BASE_HEX, NULL,

@@ -670,7 +670,7 @@ static const value_string csi_mode_vals[] = {
 static const value_string hi_dci0_pdu_type_vals[] = {
 	{ 0, "HI" },
 	{ 1, "DCI UL" },
-	{ 2, "EDPCCH DCI UL" },
+	{ 2, "EPDCCH DCI UL" },
 	{ 3, "MDPCCH DCI UL" },
 	{ 0, NULL }
 };
@@ -1133,7 +1133,7 @@ static int hf_prs_muting = -1;
 static int hf_nfapi_csi_rs_resource_index = -1;
 static int hf_nfapi_csi_rs_class = -1;
 static int hf_nfapi_cdm_type = -1;
-static int hf_nfapi_edpcch_prb_index = -1;
+static int hf_nfapi_epdcch_prb_index = -1;
 static int hf_nfapi_epdcch_resource_assignment_flag = -1;
 static int hf_nfapi_epdcch_id = -1;
 static int hf_nfapi_epdcch_start_symbol = -1;
@@ -1778,7 +1778,7 @@ static void dissect_pnf_phy_rel11_instance_value(ptvcursor_t * ptvc, packet_info
 	item = ptvcursor_add_ret_uint(ptvc, hf_nfapi_epdcch_supported, 2, ENC_BIG_ENDIAN, &test_value);
 	if (test_value > 1)
 	{
-		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid edpcch supported value [0..1]");
+		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid epdcch supported value [0..1]");
 	}
 
 	// Multi ACK CSI reporting
@@ -4098,13 +4098,13 @@ static void dissect_epdcch_prb_index_value(ptvcursor_t * ptvc, packet_info* pinf
 	guint32 test_value;
 
 	// EPDCCH PRB index
-	proto_item* item = ptvcursor_add_ret_uint(ptvc, hf_nfapi_edpcch_prb_index, 1, ENC_BIG_ENDIAN, &test_value);
+	proto_item* item = ptvcursor_add_ret_uint(ptvc, hf_nfapi_epdcch_prb_index, 1, ENC_BIG_ENDIAN, &test_value);
 	if (test_value > 99)
 	{
 		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid epdcch prb_index value [0..99]");
 	}
 }
-static void dissect_dl_config_request_edpcch_params_rel11_value(ptvcursor_t * ptvc, packet_info* pinfo)
+static void dissect_dl_config_request_depdcch_params_rel11_value(ptvcursor_t * ptvc, packet_info* pinfo)
 {
 	proto_item* item;
 	guint32 test_value, count;
@@ -4141,7 +4141,7 @@ static void dissect_dl_config_request_edpcch_params_rel11_value(ptvcursor_t * pt
 
 	dissect_bf_vector_type_value(ptvc, pinfo);
 }
-static void dissect_dl_config_request_edpcch_params_rel13_value(ptvcursor_t * ptvc, packet_info* pinfo)
+static void dissect_dl_config_request_depdcch_params_rel13_value(ptvcursor_t * ptvc, packet_info* pinfo)
 {
 	proto_item* item;
 	guint32 test_value;
@@ -7903,8 +7903,8 @@ static const tlv_t p7_tags[] =
 	{ 0x203E, "DLSCH PDU Release 13", dissect_dl_config_request_dlsch_pdu_rel13_value },
 	{ 0x203F, "PCH PDU Release 13", dissect_dl_config_request_pch_pdu_rel13_value },
 	{ 0x2040, "CSI-RS PDU Release 13", dissect_dl_config_request_csi_rs_pdu_rel13_value },
-	{ 0x2041, "EDPCCH PDU Release 11 Parameters", dissect_dl_config_request_edpcch_params_rel11_value },
-	{ 0x2042, "EDPCCH PDU Release 13 Parameters", dissect_dl_config_request_edpcch_params_rel13_value },
+	{ 0x2041, "depdcch PDU Release 11 Parameters", dissect_dl_config_request_depdcch_params_rel11_value },
+	{ 0x2042, "depdcch PDU Release 13 Parameters", dissect_dl_config_request_depdcch_params_rel13_value },
 	{ 0x2043, "ULSCH PDU Release 11", dissect_ul_config_ulsch_pdu_rel11_value },
 	{ 0x2044, "ULSCH PDU Release 13", dissect_ul_config_ulsch_pdu_rel13_value },
 	{ 0x2045, "CQI RI Information Release 13", dissect_ul_config_cqi_ri_info_rel13_value },
@@ -10088,8 +10088,8 @@ void proto_register_nfapi(void)
 			FT_UINT8, BASE_DEC, VALS(csi_rs_cdm_type_vals), 0x0,
 			"Indicates CDM type for CSI-RS. See [36.211] section 6.10.5.2. Valid for Class A", HFILL }
 		},
-		{ &hf_nfapi_edpcch_prb_index,
-			{ "EPDCCH PRB Index", "nfapi.edpcch.prb.index",
+		{ &hf_nfapi_epdcch_prb_index,
+			{ "EPDCCH PRB Index", "nfapi.epdcch.prb.index",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
 			"PRB Index", HFILL }
 		},

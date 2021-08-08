@@ -403,7 +403,7 @@ static proto_tree *top_tree = NULL;
 
 static void set_message_label(asn1_ctx_t *actx, int type)
 {
-  const char *label = val_to_str_const(type, mtype_names, "Unknkown");
+  const char *label = val_to_str_const(type, mtype_names, "Unknown");
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, label);
   /* N.B. would like to be able to use actx->subTree.top_tree, but not easy to set.. */
   proto_item_append_text(top_tree, " (%s)", label);
