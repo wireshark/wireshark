@@ -896,7 +896,7 @@ proto_register_nordic_ble(void)
                 "Reserved for Future Use", HFILL }
         },
         { &hf_nordic_ble_channel,
-            { "Channel", "nordic_ble.channel",
+            { "Channel Index", "nordic_ble.channel",
                 FT_UINT8, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }
         },
