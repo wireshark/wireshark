@@ -1057,10 +1057,6 @@ print_stats_table(const gchar *filename, capture_info *cf_info)
        section_number++) {
     wtap_block_t shb;
 
-    // If we have more than one section, add headers for each section.
-    if (wtap_file_get_num_shbs(cf_info->wth) > 1)
-      printf("Section %u: \n", section_number);
-
     shb = wtap_file_get_shb(cf_info->wth, section_number);
     if (cap_file_more_info) {
       char *str;
@@ -1102,10 +1098,6 @@ print_stats_table(const gchar *filename, capture_info *cf_info)
       unsigned int i;
       char *opt_comment;
       gboolean have_cap = FALSE;
-
-      // If we have more than one section, add headers for each section.
-      if (wtap_file_get_num_shbs(cf_info->wth) > 1)
-        printf("Section %u: \n", section_number);
 
       for (i = 0; wtap_block_get_nth_string_option_value(shb, OPT_COMMENT, i, &opt_comment) == WTAP_OPTTYPE_SUCCESS; i++) {
         have_cap = TRUE;
