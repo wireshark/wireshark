@@ -49,6 +49,7 @@
 #include <epan/prefs.h>
 #include "packet-rtps.h"
 #include <epan/addr_resolv.h>
+#include <epan/proto_data.h>
 #include <epan/reassemble.h>
 #include "zlib.h"
 
@@ -2379,6 +2380,7 @@ static int* const ENDPOINT_SECURITY_ATTRIBUTES[] = {
 #define RTPS_UNKNOWN_DOMAIN_ID_STR "Unknown"
 #define RTPS_UNKNOWN_DOMAIN_ID_STR_LEN sizeof(RTPS_UNKNOWN_DOMAIN_ID_STR)
 #define RTPS_TCPMAP_DOMAIN_ID_KEY_STR "ParticipantGuid"
+#define RTPS_TCPMAP_DOMAIN_ID_PROTODATA_KEY 0
 
 /* End of TCP get DomainId feature constants */
 
@@ -6491,8 +6493,7 @@ static gboolean dissect_parameter_sequence_rti_dds(proto_tree *rtps_parameter_tr
         /* If using TCP we need to store the information of the domainId for that participant guid */
         if (pinfo->ptype == PT_TCP) {
           /* Each packet stores its participant guid in the private table. This is done in dissect_rtps */
-          endpoint_guid *participant_guid = (endpoint_guid*)g_hash_table_lookup(pinfo->private_table,
-              (gconstpointer)RTPS_TCPMAP_DOMAIN_ID_KEY_STR);
+          endpoint_guid *participant_guid = (endpoint_guid*)p_get_proto_data(pinfo->pool, pinfo, proto_rtps, RTPS_TCPMAP_DOMAIN_ID_PROTODATA_KEY);
           if (participant_guid != NULL) {
             /* Since this information is fixed there is no need to update in a second pass */
             if (!wmem_map_contains(discovered_tcp_participants, participant_guid)) {
@@ -11942,6 +11943,7 @@ static gboolean dissect_rtps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
   guint16      version, vendor_id;
   gboolean     is_ping;
   endpoint_guid guid;
+  endpoint_guid *guid_copy;
   guint32 magic_number;
   gchar domain_id_str[RTPS_UNKNOWN_DOMAIN_ID_STR_LEN] = RTPS_UNKNOWN_DOMAIN_ID_STR;
   /* Check 'RTPS' signature:
@@ -11998,15 +12000,10 @@ static gboolean dissect_rtps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
      * For that operation the member fields_present is not required and is not affected by
      * its changes.
      */
-    if (pinfo->private_table == NULL && pinfo->ptype == PT_TCP) {
-      pinfo->private_table = g_hash_table_new(g_str_hash, g_str_equal);
-    }
-    if (pinfo->private_table != NULL) {
-      gchar* key = wmem_strdup(wmem_packet_scope() , RTPS_TCPMAP_DOMAIN_ID_KEY_STR);
-      endpoint_guid *guid_copy = (endpoint_guid*)wmem_memdup(wmem_packet_scope(),
+    guid_copy = (endpoint_guid*)wmem_memdup(pinfo->pool,
         (const void*)&guid, sizeof(endpoint_guid));
-      g_hash_table_insert(pinfo->private_table, (gpointer)key, (gpointer)guid_copy);
-    }
+    p_add_proto_data(pinfo->pool, pinfo, proto_rtps,
+        RTPS_TCPMAP_DOMAIN_ID_PROTODATA_KEY, (gpointer)guid_copy);
 #ifdef RTI_BUILD
     pinfo->guid_prefix_host = tvb_get_ntohl(tvb, offset + 8);
     pinfo->guid_prefix_app  = tvb_get_ntohl(tvb, offset + 12);
