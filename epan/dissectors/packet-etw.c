@@ -67,7 +67,7 @@ dissect_etw(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree _U_, void* data 
 {
     proto_tree* etw_header, * etw_descriptor, * etw_buffer_context;
     tvbuff_t* mbim_tvb;
-    guint32 message_offset, message_length, provider_name_offset, provider_name_length, user_data_offset, user_data_length, pack_flags;
+    guint32 message_offset, message_length, provider_name_offset, provider_name_length, user_data_offset, user_data_length;
     e_guid_t provider_id;
     gint offset = 0;
 
@@ -137,8 +137,10 @@ dissect_etw(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree _U_, void* data 
     col_set_str(pinfo->cinfo, COL_DEF_SRC, "windows");
     col_set_str(pinfo->cinfo, COL_DEF_DST, "windows");
     if (memcmp(&mbim_net_providerid, &provider_id, sizeof(e_guid_t)) == 0) {
-	if (WTAP_OPTTYPE_SUCCESS == wtap_block_get_uint32_option_value(pinfo->rec->block, OPT_PKT_FLAGS, &pack_flags)) {
-            switch(pack_flags & PACK_FLAGS_DIRECTION_MASK) {
+        guint32 pack_flags;
+
+        if (WTAP_OPTTYPE_SUCCESS == wtap_block_get_uint32_option_value(pinfo->rec->block, OPT_PKT_FLAGS, &pack_flags)) {
+            switch(PACK_FLAGS_DIRECTION(pack_flags)) {
                 case PACK_FLAGS_DIRECTION_INBOUND:
                     col_set_str(pinfo->cinfo, COL_DEF_SRC, "device");
                     col_set_str(pinfo->cinfo, COL_DEF_DST, "host");
