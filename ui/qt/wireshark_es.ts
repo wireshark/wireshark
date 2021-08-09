@@ -7084,6 +7084,14 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>F1AP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>F1AP Messages</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Change the way packets are dissected</source>
         <translation type="unfinished"></translation>
     </message>

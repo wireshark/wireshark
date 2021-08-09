@@ -7130,6 +7130,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>UCPメッセージ統計</translation>
     </message>
     <message>
+        <source>F1AP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>F1AP Messages</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Change the way packets are dissected</source>
         <translation>パケットが解析される方法を変更します</translation>
     </message>

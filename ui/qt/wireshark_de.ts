@@ -7148,6 +7148,14 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>UCP Nachrichten Statistik</translation>
     </message>
     <message>
+        <source>F1AP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>F1AP Messages</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Change the way packets are dissected</source>
         <translation>Verändert die Dekodierung der Pakete</translation>
     </message>

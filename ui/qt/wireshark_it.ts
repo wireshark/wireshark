@@ -7148,6 +7148,14 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Statistiche dei messaggi UCP</translation>
     </message>
     <message>
+        <source>F1AP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>F1AP Messages</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Change the way packets are dissected</source>
         <translation>Modifica come i pacchetti vengono decodificati</translation>
     </message>

@@ -7148,6 +7148,14 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>UCP-meddelandestatistik</translation>
     </message>
     <message>
+        <source>F1AP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>F1AP Messages</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Change the way packets are dissected</source>
         <translation>Ändra det sätt på vilket paket dissekeras</translation>
     </message>
