@@ -4097,7 +4097,7 @@ proto_register_btle(void)
             NULL, HFILL }
         },
         { &hf_extended_advertising_aux_ptr_channel,
-            { "Channel",                         "btle.extended_advertising_header.aux_pointer.channel",
+            { "Channel Index",                   "btle.extended_advertising_header.aux_pointer.channel",
             FT_UINT8, BASE_DEC, NULL, 0x3F,
             NULL, HFILL }
         },
