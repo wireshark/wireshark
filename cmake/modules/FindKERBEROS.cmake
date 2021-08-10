@@ -84,6 +84,7 @@ endif()
 # Try to detect the installed Kerberos vendor, assume MIT if it was not Heimdal.
 if(KERBEROS_FOUND)
   include(CheckSymbolExists)
+  include(CheckFunctionExists)
   set(CMAKE_REQUIRED_INCLUDES ${KERBEROS_INCLUDE_DIRS})
   set(CMAKE_REQUIRED_LIBRARIES ${KERBEROS_LIBRARIES})
   #see also HAVE_HEIMDAL_KERBEROS in cmakeconfig.h.in
