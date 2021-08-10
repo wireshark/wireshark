@@ -110,10 +110,17 @@ The time is given in the following format YYYY-MM-DD HH:MM:SS[.nnnnnnnnn]
 =item -c  E<lt>packets per fileE<gt>
 
 Splits the packet output to different files based on uniform packet counts
-with a maximum of <packets per file> each. Each output file will
-be created with a suffix -nnnnn, starting with 00000. If the specified
-number of packets is written to the output file, the next output file is
-opened. The default is to use a single output file.
+with a maximum of <packets per file> each.
+
+Each output file will be created with an infix _nnnnn[_YYYYmmddHHMMSS] inserted
+before the file extension (which may be null) of I<outfile>.  The infix
+consists of the ordinal number of the output file, starting with 00000,
+followed by the timestamp of its first packet.  The timestamp is omitted if
+the input file does not contain timestamp information.
+
+After the specified number of packets is written to the output file, the next
+output file is opened.  The default is to use a single output file.
+This option conflicts with B<-i>.
 
 =item -C  [offset:]E<lt>choplenE<gt>
 
@@ -183,11 +190,18 @@ Prints the version and options and exits.
 =item -i  E<lt>seconds per fileE<gt>
 
 Splits the packet output to different files based on uniform time
-intervals using a maximum interval of <seconds per file> each. Floating
-point values (e.g. 0.5) are allowed. Each output file will be created
-with a suffix -nnnnn, starting with 00000. If packets for the specified
-time interval are written to the output file, the next output file is
-opened. The default is to use a single output file.
+intervals using a maximum interval of <seconds per file> each.  Floating
+point values (e.g. 0.5) are allowed.
+
+Each output file will be created with an infix _nnnnn[_YYYYmmddHHMMSS] inserted
+before the file extension (which may be null) of I<outfile>.  The infix
+consists of the ordinal number of the output file, starting with 00000,
+followed by the timestamp of its first packet.  The timestamp is omitted if
+the input file does not contain timestamp information.
+
+After packets for the specified time interval are written to the output file,
+the next output file is opened.  The default is to use a single output file.
+This option conflicts with B<-c>.
 
 =item -I  E<lt>bytes to ignoreE<gt>
 
