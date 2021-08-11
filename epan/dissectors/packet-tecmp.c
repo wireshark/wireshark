@@ -1281,7 +1281,7 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                     /* luckely TECMP and SocketCAN share the first bit as indicator for 11 vs 29bit Identifiers */
                     can_info.id = tmp;
 
-                    if ((dataflags & DATA_FLAG_CAN_RTR) == DATA_FLAG_CAN_RTR) {
+                    if (msg_type == TECMP_DATA_TYPE_CAN_DATA && (dataflags & DATA_FLAG_CAN_RTR) == DATA_FLAG_CAN_RTR) {
                         can_info.id |= CAN_RTR_FLAG;
                     }
 
