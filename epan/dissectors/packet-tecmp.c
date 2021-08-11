@@ -442,7 +442,7 @@ static GHashTable *data_tecmp_cms = NULL;
 static generic_one_id_string_t* tecmp_cms = NULL;
 static guint tecmp_cms_num = 0;
 
-UAT_DEC_CB_DEF(tecmp_cms, id, generic_one_id_string_t)
+UAT_HEX_CB_DEF(tecmp_cms, id, generic_one_id_string_t)
 UAT_CSTRING_CB_DEF(tecmp_cms, name, generic_one_id_string_t)
 
 static GHashTable *data_tecmp_channels = NULL;
@@ -1808,7 +1808,7 @@ proto_register_tecmp(void) {
 
     /* UATs for user_data fields */
     static uat_field_t tecmp_cm_id_uat_fields[] = {
-        UAT_FLD_DEC(tecmp_cms, id, "ID", "ID of the Capture Module (decimal uint16)"),
+        UAT_FLD_HEX(tecmp_cms, id, "ID", "ID of the Capture Module (hex uint16 without leading 0x)"),
         UAT_FLD_CSTRING(tecmp_cms, name, "Capture Module Name", "Name of the Capture Module (string)"),
         UAT_END_FIELDS
     };
