@@ -12,13 +12,14 @@
 
 #include "wireshark_application.h"
 
-PacketCommentDialog::PacketCommentDialog(guint32 frame, QWidget *parent, QString comment) :
+PacketCommentDialog::PacketCommentDialog(bool isEdit, QWidget *parent, QString comment) :
     GeometryStateDialog(parent),
     pc_ui_(new Ui::PacketCommentDialog)
 {
 
-    QString title = QString(tr("Packet %1 Comment"))
-                              .arg(frame);
+    QString title = isEdit
+        ? tr("Edit Packet Comment")
+        : tr("Add Packet Comment");
 
     pc_ui_->setupUi(this);
     loadGeometry();

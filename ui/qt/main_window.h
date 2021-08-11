@@ -397,6 +397,7 @@ private slots:
     void actionAddPacketComment();
     void actionEditPacketComment();
     void actionDeletePacketComment();
+    void actionDeleteCommentsFromPackets();
     QString commentToMenuText(QString text, int max_len = 40);
     void setEditCommentsMenu();
     void setMenusForSelectedPacket();

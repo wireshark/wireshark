@@ -1400,22 +1400,26 @@ QString PacketList::getPacketComment(guint c_number)
 
 void PacketList::addPacketComment(QString new_comment)
 {
-    int row = currentIndex().row();
     frame_data *fdata;
 
     if (!cap_file_ || !packet_list_model_) return;
     if (new_comment.isEmpty()) return;
 
-    fdata = packet_list_model_->getRowFdata(row);
-
-    if (!fdata) return;
-
-    wtap_block_t pkt_block = cf_get_packet_block(cap_file_, fdata);
-
     QByteArray ba = new_comment.toLocal8Bit();
-    wtap_block_add_string_option(pkt_block, OPT_COMMENT, ba.data(), ba.size());
 
-    cf_set_modified_block(cap_file_, fdata, pkt_block);
+    for (int i = 0; i < selectedRows().size(); i++) {
+        int row = selectedRows().at(i);
+
+        fdata = packet_list_model_->getRowFdata(row);
+
+        if (!fdata) continue;
+
+        wtap_block_t pkt_block = cf_get_packet_block(cap_file_, fdata);
+
+        wtap_block_add_string_option(pkt_block, OPT_COMMENT, ba.data(), ba.size());
+
+        cf_set_modified_block(cap_file_, fdata, pkt_block);
+    }
 
     redrawVisiblePackets();
 }
@@ -1475,6 +1479,32 @@ QString PacketList::allPacketComments()
         }
     }
     return buf_str;
+}
+
+void PacketList::deleteCommentsFromPackets()
+{
+    frame_data *fdata;
+
+    if (!cap_file_ || !packet_list_model_) return;
+
+    for (int i = 0; i < selectedRows().size(); i++) {
+        int row = selectedRows().at(i);
+
+        fdata = packet_list_model_->getRowFdata(row);
+
+        if (!fdata) continue;
+
+        wtap_block_t pkt_block = cf_get_packet_block(cap_file_, fdata);
+        guint n_comments = wtap_block_count_option(pkt_block, OPT_COMMENT);
+
+        for (guint j = 0; j < n_comments; j++) {
+            wtap_block_remove_nth_option_instance(pkt_block, OPT_COMMENT, 0);
+        }
+
+        cf_set_modified_block(cap_file_, fdata, pkt_block);
+    }
+
+    redrawVisiblePackets();
 }
 
 void PacketList::deleteAllPacketComments()
