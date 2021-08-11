@@ -438,9 +438,11 @@ websocket_parse_extensions(websocket_conv_t *websocket_conv, const char *str)
 
   /*
    * RFC 7692 permessage-deflate parsing.
+   * "x-webkit-deflate-frame" is an alias used by some versions of Safari browser
    */
 
-  websocket_conv->permessage_deflate = !!strstr(str, "permessage-deflate");
+  websocket_conv->permessage_deflate = !!strstr(str, "permessage-deflate")
+      || !!strstr(str, "x-webkit-deflate-frame");
 #ifdef HAVE_ZLIB
   websocket_conv->permessage_deflate_ok = pref_decompress &&
        websocket_conv->permessage_deflate;
