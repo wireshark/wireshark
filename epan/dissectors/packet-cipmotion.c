@@ -87,9 +87,13 @@ static int hf_cip_cmd_data_pos_cmd          = -1;
 static int hf_cip_cmd_data_vel_cmd          = -1;
 static int hf_cip_cmd_data_acc_cmd          = -1;
 static int hf_cip_cmd_data_trq_cmd          = -1;
+static int hf_cip_cmd_data_unwind_cycle_count = -1;
+static int hf_cip_cmd_data_pos_displacement = -1;
 static int hf_cip_act_data_pos              = -1;
 static int hf_cip_act_data_vel              = -1;
 static int hf_cip_act_data_acc              = -1;
+static int hf_cip_act_unwind_cycle_count    = -1;
+static int hf_cip_act_pos_displacement      = -1;
 static int hf_cip_sts_flt                   = -1;
 static int hf_cip_sts_alrm                  = -1;
 static int hf_cip_sts_sts                   = -1;
@@ -320,11 +324,15 @@ static gboolean display_full_attribute_data = FALSE;
 #define COMMAND_DATA_SET_VELOCITY           0x02
 #define COMMAND_DATA_SET_ACCELERATION       0x04
 #define COMMAND_DATA_SET_TORQUE             0x08
+#define COMMAND_DATA_SET_UNWIND_CYCLE_COUNT 0x40
+#define COMMAND_DATA_SET_POSITION_DISPLACE  0x80
 
 /* These are the BITMASKS for the Actual Data Set cyclic field */
 #define ACTUAL_DATA_SET_POSITION        0x01
 #define ACTUAL_DATA_SET_VELOCITY        0x02
 #define ACTUAL_DATA_SET_ACCELERATION    0x04
+#define ACTUAL_DATA_SET_UNWIND_CYCLE_COUNT 0x40
+#define ACTUAL_DATA_SET_POSITION_DISPLACE  0x80
 
 /* These are the BITMASKS for the Status Data Set cyclic field */
 #define STATUS_DATA_SET_AXIS_FAULT              0x01
@@ -646,6 +654,8 @@ static int dissect_actual_data_set_bits(packet_info *pinfo _U_, proto_tree *tree
       &hf_cip_act_data_pos,
       &hf_cip_act_data_vel,
       &hf_cip_act_data_acc,
+      &hf_cip_act_unwind_cycle_count,
+      &hf_cip_act_pos_displacement,
       NULL
    };
 
@@ -662,6 +672,8 @@ static int dissect_command_data_set_bits(packet_info *pinfo _U_, proto_tree *tre
       &hf_cip_cmd_data_vel_cmd,
       &hf_cip_cmd_data_acc_cmd,
       &hf_cip_cmd_data_trq_cmd,
+      &hf_cip_cmd_data_unwind_cycle_count,
+      &hf_cip_cmd_data_pos_displacement,
       NULL
    };
 
@@ -2495,6 +2507,18 @@ proto_register_cipmotion(void)
           FT_BOOLEAN, 8, TFS(&tfs_true_false), COMMAND_DATA_SET_TORQUE,
           "Command Data Set: Command Torque", HFILL}
       },
+      { &hf_cip_cmd_data_unwind_cycle_count,
+        { "Unwind Cycle Count", "cipm.cmd.unwind",
+          FT_BOOLEAN, 8, TFS(&tfs_true_false), COMMAND_DATA_SET_UNWIND_CYCLE_COUNT,
+          "Command Data Set: Unwind Cycle Count", HFILL}
+      },
+      { &hf_cip_cmd_data_pos_displacement,
+        { "Position Displacement", "cipm.cmd.pos_displacement",
+          FT_BOOLEAN, 8, TFS(&tfs_true_false), COMMAND_DATA_SET_POSITION_DISPLACE,
+          "Command Data Set: Position Displacement", HFILL}
+      },
+
+      // Actual Data Set
       { &hf_cip_act_data_pos,
         { "Actual Position", "cipm.act.pos",
           FT_BOOLEAN, 8, TFS(&tfs_true_false), ACTUAL_DATA_SET_POSITION,
@@ -2510,6 +2534,17 @@ proto_register_cipmotion(void)
           FT_BOOLEAN, 8, TFS(&tfs_true_false), ACTUAL_DATA_SET_ACCELERATION,
           "Actual Data Set: Actual Acceleration", HFILL}
       },
+      { &hf_cip_act_unwind_cycle_count,
+        { "Unwind Cycle Count", "cipm.act.unwind",
+          FT_BOOLEAN, 8, TFS(&tfs_true_false), ACTUAL_DATA_SET_UNWIND_CYCLE_COUNT,
+          "Actual Data Set: Unwind Cycle Count", HFILL}
+      },
+      { &hf_cip_act_pos_displacement,
+        { "Position Displacement", "cipm.act.pos_displacement",
+          FT_BOOLEAN, 8, TFS(&tfs_true_false), ACTUAL_DATA_SET_POSITION_DISPLACE,
+          "Actual Data Set: Position Displacement", HFILL}
+      },
+
       { &hf_cip_axis_fault,
         { "Axis Fault Code", "cipm.fault.code",
           FT_UINT8, BASE_DEC, NULL, 0,
