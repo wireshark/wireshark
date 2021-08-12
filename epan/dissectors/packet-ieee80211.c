@@ -699,6 +699,7 @@ static value_string_ext tag_num_vals_ext = VALUE_STRING_EXT_INIT(ie_tag_num_vals
 #define ETAG_OPS                               46
 #define ETAG_HE_BSS_LOAD                       47
 #define ETAG_MULTIPLE_BSSID_CONFIGURATION      55
+#define ETAG_NON_INHERITANCE                   56
 #define ETAG_KNOWN_BSSID                       57
 #define ETAG_SHORT_SSID                        58
 #define ETAG_HE_6GHZ_BAND_CAPABILITIES         59
@@ -751,6 +752,7 @@ static const value_string tag_num_vals_eid_ext[] = {
   { ETAG_OPS,                                 "OPS" },
   { ETAG_HE_BSS_LOAD,                         "HE BSS Load" },
   { ETAG_MULTIPLE_BSSID_CONFIGURATION,        "Multiple BSSID Configuration" },
+  { ETAG_NON_INHERITANCE,                     "Non-Inheritance"},
   { ETAG_KNOWN_BSSID,                         "Known BSSID" },
   { ETAG_SHORT_SSID,                          "Short SSID" },
   { ETAG_HE_6GHZ_BAND_CAPABILITIES,           "HE 6 GHz Band Capabilities" },
@@ -7190,6 +7192,11 @@ static int hf_ieee80211_multiple_bssid_configuration_full_set_rx_periodicity = -
 static int hf_ieee80211_known_bssid_bitmap = -1;
 static int hf_ieee80211_short_ssid = -1;
 
+static int hf_ieee80211_non_inheritance_element_id_list_length = -1;
+static int hf_ieee80211_non_inheritance_element_id_list_element_id = -1;
+static int hf_ieee80211_non_inheritance_element_id_ext_list_length = -1;
+static int hf_ieee80211_non_inheritance_element_id_ext_list_element_id_ext = -1;
+
 static int hf_ieee80211_rejected_groups_group = -1;
 
 static int hf_ieee80211_twt_bcast_flow = -1;
@@ -7726,6 +7733,8 @@ static gint ett_he_ndp_annc = -1;
 static gint ett_he_ndp_annc_sta_list = -1;
 static gint ett_he_ndp_annc_sta_item = -1;
 static gint ett_he_ndp_annc_sta_info = -1;
+static gint ett_non_inheritance_element_id_list = -1;
+static gint ett_non_inheritance_element_id_ext_list = -1;
 
 /* 802.11ai trees */
 static gint ett_fils_indication_realm_list = -1;
@@ -27971,6 +27980,48 @@ dissect_multiple_bssid_configuration(tvbuff_t *tvb, packet_info *pinfo _U_,
 }
 
 static void
+dissect_non_inheritance(tvbuff_t *tvb, packet_info *pinfo _U_,
+  proto_tree *tree, int offset, int len _U_)
+{
+  proto_tree *element_id_list = NULL;
+  proto_tree *element_id_ext_list = NULL;
+
+  guint8 element_id_list_length = tvb_get_guint8(tvb, offset);
+
+  element_id_list = proto_tree_add_subtree(tree, tvb, offset, element_id_list_length + 1,
+                                           ett_non_inheritance_element_id_list,
+                                           NULL, "Element ID List");
+
+  proto_tree_add_item(element_id_list, hf_ieee80211_non_inheritance_element_id_list_length,
+    tvb, offset, 1, ENC_NA);
+  offset += 1;
+
+  while (element_id_list_length > 0) {
+    proto_tree_add_item(element_id_list, hf_ieee80211_non_inheritance_element_id_list_element_id,
+      tvb, offset, 1, ENC_NA);
+    element_id_list_length--;
+    offset++;
+  }
+
+  guint8 element_id_ext_list_length = tvb_get_guint8(tvb, offset);
+
+  element_id_ext_list = proto_tree_add_subtree(tree, tvb, offset, element_id_ext_list_length + 1,
+                                           ett_non_inheritance_element_id_ext_list,
+                                           NULL, "Element ID Extension List");
+
+  proto_tree_add_item(element_id_ext_list, hf_ieee80211_non_inheritance_element_id_ext_list_length,
+    tvb, offset, 1, ENC_NA);
+  offset += 1;
+
+  while (element_id_ext_list_length > 0) {
+    proto_tree_add_item(element_id_ext_list, hf_ieee80211_non_inheritance_element_id_ext_list_element_id_ext,
+      tvb, offset, 1, ENC_NA);
+    element_id_ext_list_length--;
+    offset++;
+  }
+}
+
+static void
 dissect_known_bssid(tvbuff_t *tvb, packet_info *pinfo _U_,
   proto_tree *tree, int offset, int len)
 {
@@ -28668,6 +28719,9 @@ ieee80211_tag_element_id_extension(tvbuff_t *tvb, packet_info *pinfo, proto_tree
       break;
     case ETAG_MULTIPLE_BSSID_CONFIGURATION:
       dissect_multiple_bssid_configuration(tvb, pinfo, tree, offset, ext_tag_len);
+      break;
+    case ETAG_NON_INHERITANCE:
+      dissect_non_inheritance(tvb, pinfo, tree, offset, ext_tag_len);
       break;
     case ETAG_KNOWN_BSSID:
       dissect_known_bssid(tvb, pinfo, tree, offset, ext_tag_len);
@@ -49953,6 +50007,22 @@ proto_register_ieee80211(void)
      {"BSSID Count", "wlan.ext_tag.multiple_bssid_configuration.bssid_count",
      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
+    {&hf_ieee80211_non_inheritance_element_id_list_length,
+     {"Length", "wlan.ext_tag.non_inheritance.element_id_list.length",
+     FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_non_inheritance_element_id_list_element_id,
+     {"Element ID", "wlan.ext_tag.non_inheritance.element_id_list.element_id",
+     FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_non_inheritance_element_id_ext_list_length,
+     {"Length", "wlan.ext_tag.non_inheritance.element_id_ext_list.length",
+     FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_non_inheritance_element_id_ext_list_element_id_ext,
+     {"Element ID Extension", "wlan.ext_tag.non_inheritance.element_id_ext_list.element_id_ext",
+     FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
     {&hf_ieee80211_multiple_bssid_configuration_full_set_rx_periodicity,
      {"Full Set Rx Periodicity", "wlan.ext_tag.multiple_bssid_configuration.full_set_rx_periodicity",
      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
@@ -50736,6 +50806,8 @@ proto_register_ieee80211(void)
     &ett_he_ndp_annc_sta_list,
     &ett_he_ndp_annc_sta_item,
     &ett_he_ndp_annc_sta_info,
+    &ett_non_inheritance_element_id_list,
+    &ett_non_inheritance_element_id_ext_list,
     &ett_mscs_user_prio,
     &ett_ieee80211_user_prio_bitmap,
     &ett_ieee80211_intra_access_prio,
