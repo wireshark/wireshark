@@ -9472,11 +9472,11 @@ dissect_pfcp_ies_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
                                                         try_enterprises_lookup(enterprise_id),
                                                         type);
 
-                proto_tree_add_item(ie_tree, hf_pfcp2_enterprise_ie, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
-                proto_tree_add_item(ie_tree, hf_pfcp2_ie_len, tvb, offset + 4, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(ie_tree, hf_pfcp2_enterprise_ie, tvb, offset, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(ie_tree, hf_pfcp2_ie_len, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
 
                 /* Bit 8 of Octet 1 is set, this indicates that the IE is defined by a vendor and the Enterprise ID is present */
-                proto_tree_add_item(ie_tree, hf_pfcp_enterprise_id, tvb, offset + 6, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(ie_tree, hf_pfcp_enterprise_id, tvb, offset + 4, 2, ENC_BIG_ENDIAN);
 
                 /*
                  * 5.6.3    Modifying the Rules of an Existing PFCP Session
