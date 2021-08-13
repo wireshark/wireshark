@@ -536,7 +536,7 @@ proto_register_lwapp(void)
     lwapp_module = prefs_register_protocol(proto_lwapp, NULL);
 
     prefs_register_bool_preference(lwapp_module,"swap_fc","Swap Frame Control",
-                                   "Swap frame control bytes (needed for some APs",
+                                   "Swap frame control bytes (needed for some APs).",
                                    &swap_frame_control);
 
 }
