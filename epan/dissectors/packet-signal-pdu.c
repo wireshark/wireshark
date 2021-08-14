@@ -1550,16 +1550,24 @@ dissect_spdu_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree, g
         }
     }
 
-    if (!spdu_derserializer_activated) {
+    spdu_signal_list_t *paramlist = get_parameter_config(id);
+
+    if (name == NULL && paramlist == NULL) {
+        /* unknown message, lets skip */
         return 0;
+    }
+
+    if (root_tree == NULL && !proto_field_is_referenced(root_tree, proto_signal_pdu)) {
+        /* we only receive subtvbs with nothing behind us */
+        return tvb_captured_length(tvb);
+    }
+
+    if (paramlist == NULL || !spdu_derserializer_activated) {
+        /* we only receive subtvbs with nothing behind us */
+        return tvb_captured_length(tvb);
     }
 
     gint length = tvb_captured_length_remaining(tvb, 0);
-    spdu_signal_list_t *paramlist = get_parameter_config(id);
-
-    if (paramlist == NULL) {
-        return 0;
-    }
 
     guint i;
     for (i = 0; i < paramlist->num_of_items; i++) {
