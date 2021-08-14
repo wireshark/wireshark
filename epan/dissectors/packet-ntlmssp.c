@@ -507,7 +507,8 @@ get_md4pass_list(wmem_allocator_t *pool
   }
   memset(nt_password_unicode, 0, sizeof(nt_password_unicode));
   memset(nt_password_hash, 0, NTLMSSP_KEY_LEN);
-  if ((nt_password[0] != '\0') && (strlen(nt_password) < 129)) {
+  /* Compute the NT hash of the provided password, even if empty */
+  if (strlen(nt_password) < 129) {
     int password_len;
     nb_pass++;
     password_len = (int)strlen(nt_password);
@@ -515,7 +516,7 @@ get_md4pass_list(wmem_allocator_t *pool
     gcry_md_hash_buffer(GCRY_MD_MD4, nt_password_hash, nt_password_unicode, password_len*2);
   }
   if (nb_pass == 0) {
-    /* Unable to calculate the session key without a password or if password is more than 128 char ......*/
+    /* Unable to calculate the session key without a valid password (128 chars or less) ......*/
     return 0;
   }
   i = 0;
@@ -756,26 +757,18 @@ create_ntlmssp_v1_key(const guint8 *serverchallenge, const guint8 *clientchallen
   memset(sessionkey, 0, NTLMSSP_KEY_LEN);
   memset(lm_password_upper, 0, sizeof(lm_password_upper));
   /* lm auth/lm session == (!NTLM_NEGOTIATE_NT_ONLY && NTLMSSP_NEGOTIATE_LM_KEY) || ! (EXTENDED_SECURITY) || ! NTLMSSP_NEGOTIATE_NTLM*/
-  /* Create a Lan Manager hash of the input password */
-  if (nt_password[0] != '\0') {
-    password_len = strlen(nt_password);
-    /*Do not forget to free nt_password_nt*/
-    str_to_unicode(nt_password, nt_password_unicode);
-    gcry_md_hash_buffer(GCRY_MD_MD4, nt_password_hash, nt_password_unicode, password_len*2);
-    /* Truncate password if too long */
-    if (password_len > NTLMSSP_KEY_LEN)
-      password_len = NTLMSSP_KEY_LEN;
-    for (i = 0; i < password_len; i++) {
-      lm_password_upper[i] = g_ascii_toupper(nt_password[i]);
-    }
+  /* Create a Lan Manager hash of the input password, even if empty */
+  password_len = strlen(nt_password);
+  /*Do not forget to free nt_password_nt*/
+  str_to_unicode(nt_password, nt_password_unicode);
+  gcry_md_hash_buffer(GCRY_MD_MD4, nt_password_hash, nt_password_unicode, password_len*2);
+  /* Truncate password if too long */
+  if (password_len > NTLMSSP_KEY_LEN)
+  password_len = NTLMSSP_KEY_LEN;
+  for (i = 0; i < password_len; i++) {
+    lm_password_upper[i] = g_ascii_toupper(nt_password[i]);
   }
-  else
-  {
-    /* Unable to calculate the session key without a password ... and we will not use one for a keytab*/
-    if (!(flags & NTLMSSP_NEGOTIATE_EXTENDED_SECURITY)) {
-      return;
-    }
-  }
+
   if ((flags & NTLMSSP_NEGOTIATE_LM_KEY && !(flags & NTLMSSP_NEGOTIATE_NT_ONLY)) || !(flags & NTLMSSP_NEGOTIATE_EXTENDED_SECURITY)  || !(flags & NTLMSSP_NEGOTIATE_NTLM)) {
     crypt_des_ecb(lm_password_hash, lmhash_key, lm_password_upper);
     crypt_des_ecb(lm_password_hash+8, lmhash_key, lm_password_upper+7);
