@@ -237,7 +237,11 @@ class Item:
         # Optionally check label.
         if check_label:
             if label.startswith(' ') or label.endswith(' '):
-                print('Warning:  ' + filename + 'filter=' + filter +  ' \"' + label + '\" begins or ends with a space')
+                print('Warning: ' + filename + ' filter "' + filter +  '" label' + label + '" begins or ends with a space')
+            if (label.count('(') != label.count(')') or
+                label.count('[') != label.count(']') or
+                label.count('{') != label.count('}')):
+                print('Warning: ' + filename + ': - filter "' + filter + '" label', '"' + label + '"', 'has unbalanced parens/braces/brackets')
 
         self.item_type = item_type
         self.type_modifier = type_modifier

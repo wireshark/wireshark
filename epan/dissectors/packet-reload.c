@@ -5565,7 +5565,7 @@ proto_register_reload(void)
       }
     },
     { &hf_reload_diagnosticinfo_instancesstored_info,
-      { "InstancesStoredInfo)",  "reload.diagnostic.info.instancesstored_info",  FT_NONE,
+      { "InstancesStoredInfo",  "reload.diagnostic.info.instancesstored_info",  FT_NONE,
         BASE_NONE,  NULL, 0x0,  NULL, HFILL
       }
     },

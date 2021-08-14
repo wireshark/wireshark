@@ -9275,7 +9275,7 @@ void proto_register_gtpv2(void)
           FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL}
         },
         {&hf_gtpv2_sqci,
-         {"SQCI (Subscribed QoS Change Indication", "gtpv2.sqci",
+         {"SQCI (Subscribed QoS Change Indication)", "gtpv2.sqci",
           FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL}
         },
         {&hf_gtpv2_uimsi,
@@ -9287,11 +9287,11 @@ void proto_register_gtpv2(void)
           FT_BOOLEAN, 8, NULL, 0x20, NULL, HFILL}
         },
         {&hf_gtpv2_crsi,
-         {"CRSI (Change Reporting support indication):", "gtpv2.crsi",
+         {"CRSI (Change Reporting support indication)", "gtpv2.crsi",
           FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL}
         },
         {&hf_gtpv2_ps,
-         {"PS (Piggybacking Supported).)", "gtpv2.ps",
+         {"PS (Piggybacking Supported)", "gtpv2.ps",
           FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL}
         },
         {&hf_gtpv2_pt,
@@ -9323,7 +9323,7 @@ void proto_register_gtpv2(void)
           FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL}
         },
         {&hf_gtpv2_s4af,
-         {"S4AF (Static IPv4 Address Flag))", "gtpv2.s4af",
+         {"S4AF (Static IPv4 Address Flag)", "gtpv2.s4af",
           FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL}
         },
         {&hf_gtpv2_mbmdt,
@@ -10601,7 +10601,7 @@ void proto_register_gtpv2(void)
            "Unlicensed Spectrum in the form of LAA or LWA/LWIP as Secondary RAT Not Allowed", HFILL}
         },
         { &hf_gtpv2_mm_context_nrsrna,
-          {"NRSRNA((NR as Secondary RAT Not Allowed)", "gtpv2.mm_context_nrsrna",
+          {"NRSRNA(NR as Secondary RAT Not Allowed)", "gtpv2.mm_context_nrsrna",
            FT_BOOLEAN, 8, NULL, 0x01,
            NULL, HFILL}
         },
@@ -11329,7 +11329,7 @@ void proto_register_gtpv2(void)
           NULL, HFILL }
       },
       { &hf_gtpv2_ciot_support_ind_bit1,
-          { "SGNIPDN (SGi Non-IP PDN Support", "gtpv2.ciot_support_ind.sgnipdn",
+          { "SGNIPDN (SGi Non-IP PDN Support)", "gtpv2.ciot_support_ind.sgnipdn",
           FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x01,
           NULL, HFILL }
       },

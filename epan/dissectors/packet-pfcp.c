@@ -12134,7 +12134,7 @@ proto_register_pfcp(void)
             NULL, HFILL }
         },
         { &hf_pfcp_pfcpsmreq_flags_b4_rumuc,
-        { "RUMUC (Resume of Usage Measurement to Un-pause of Charging", "pfcp.smreq_flags.rumuc",
+        { "RUMUC (Resume of Usage Measurement to Un-pause of Charging)", "pfcp.smreq_flags.rumuc",
             FT_BOOLEAN, 8, NULL, 0x10,
             NULL, HFILL }
         },
