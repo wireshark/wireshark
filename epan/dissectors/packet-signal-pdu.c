@@ -1648,7 +1648,7 @@ dissect_spdu_message_lin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
         return 0;
     }
 
-    return dissect_spdu_payload(tvb, pinfo, tree, lin_mapping->message_id, FALSE);
+    return dissect_spdu_payload(tvb, pinfo, tree, lin_mapping->message_id, TRUE);
 }
 
 static int
