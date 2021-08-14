@@ -495,9 +495,6 @@ get_md4pass_list(wmem_allocator_t *pool
   int            i;
 
   *p_pass_list = NULL;
-  if (!krb_decrypt) {
-    return 0;
-  }
   read_keytab_file_from_preferences();
 
   for (ek=enc_key_list; ek; ek=ek->next) {
