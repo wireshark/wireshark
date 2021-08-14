@@ -69,15 +69,15 @@ Param(
 # trouble instead of trying to catch exceptions everywhere.
 $ErrorActionPreference = "Stop"
 
-$Win64CurrentTag = "2021-06-26"
-$Win32CurrentTag = "2021-06-26"
+$Win64CurrentTag = "2021-08-14"
+$Win32CurrentTag = "2021-08-14"
 
 # Archive file / SHA256
 $Win64Archives = @{
     "AirPcap_Devpack_4_1_0_1622.zip" = "09d637f28a79b1d2ecb09f35436271a90c0f69bd0a1ee82b803abaaf63c18a69";
     "bcg729-1.0.4-win64ws.zip" = "9a095fda4c39860d96f0c568830faa6651cd17635f68e27aa6de46c689aa0ee2";
     "brotli-1.0.9-1-win64ws.zip" = "3f8d24aec8668201994327ff8d8542fe507d1d468a500a1aec50d0415f695aab";
-    "c-ares-1.17.1-1-win64ws.zip" = "7b344f78ac4a0de8e4da64fe7e50c503dcde44138eade1172d6888e02dc39851";
+    "c-ares-1.17.2-1-win64ws.zip" = "6572a9dac4317b7a84544f3f85b1028a715c73e4f063c0e1f36ca59168d04070";
     "gnutls-3.6.3-1-win64ws.zip" = "994ac2578e7b4ca01e589ab2598927d53f7370bc3ff679f3006b0e6bb7a06df4";
     "krb5-1.17-1-win64ws.zip" = "1f4a7ab86ae331ea9e58c9776a60def81ae9fe622882b2e8da2ad6ce6f6fb1d8";
     "libgcrypt-1.8.3-win64ws.zip" = "53b1c636cb89de308ca4ea01b4990cf1deca7f6c2446189c7ff6e971137ffd76";
@@ -103,7 +103,7 @@ $Win32Archives = @{
     "AirPcap_Devpack_4_1_0_1622.zip" = "09d637f28a79b1d2ecb09f35436271a90c0f69bd0a1ee82b803abaaf63c18a69";
     "bcg729-1.0.4-win32ws.zip" = "b785ec78dec6bca8252130eb884bfa28c1140001dd7369a535579176de9e4271";
     "brotli-1.0.9-1-win32ws.zip" = "37ce13b3d41f025b8f6ca962e7fbacca6421d9b3b58f2ebaa81b1262d0a972ba";
-    "c-ares-1.17.1-1-win32ws.zip" = "910f816efbded9b4c361f80ec4c9babb2436a063cfdbe8470c84ad97fdd118c7";
+    "c-ares-1.17.2-1-win32ws.zip" = "ce901f69b46697a52bf239a5a77d6d389c06d637ad2d1bebfaf1333fc4f89e46";
     "gnutls-3.6.3-1-win32ws.zip" = "42d8313ffb888f525d6c39330c39bcc2182e68ee8433a09dd85e1f1e1474f592";
     "krb5-1.17-1-win32ws.zip" = "f90cac08355ccfe624652d3e05f8e2e077b8830382315d4ea0a6fa52af08260b";
     "libgcrypt-1.8.3-win32ws.zip" = "409b72f2809019050cca91b9e670047c50a0752ff52999089178da54ef926393";
