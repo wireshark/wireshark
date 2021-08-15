@@ -7149,11 +7149,11 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>F1AP</source>
-        <translation type="unfinished"></translation>
+        <translation>F1AP</translation>
     </message>
     <message>
         <source>F1AP Messages</source>
-        <translation type="unfinished"></translation>
+        <translation>Messaggi F1AP</translation>
     </message>
     <message>
         <source>Change the way packets are dissected</source>

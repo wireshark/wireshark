@@ -10933,7 +10933,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>Stop</source>
-        <translation type="unfinished"></translation>
+        <translation>Arrêter</translation>
     </message>
     <message>
         <source>Stop playing</source>

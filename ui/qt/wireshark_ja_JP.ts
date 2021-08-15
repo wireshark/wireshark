@@ -7131,11 +7131,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>F1AP</source>
-        <translation type="unfinished"></translation>
+        <translation>F1AP</translation>
     </message>
     <message>
         <source>F1AP Messages</source>
-        <translation type="unfinished"></translation>
+        <translation>F1AP メッセージ</translation>
     </message>
     <message>
         <source>Change the way packets are dissected</source>
