@@ -315,6 +315,7 @@ TimeIntervalConfidence              STRINGS=VALS(dsrc_TimeIntervalConfidence_val
 Velocity        DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(dsrc_velocity_fmt)
 Angle           DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(dsrc_angle_fmt)
 HeadingDSRC     DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(dsrc_angle_fmt)
+DeltaTime       DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(dsrc_delta_time_fmt)
 #.END
 
 #.FIELD_ATTR

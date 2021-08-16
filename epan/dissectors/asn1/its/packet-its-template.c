@@ -644,6 +644,22 @@ dsrc_angle_fmt(gchar *s, guint32 v)
   g_snprintf(s, ITEM_LABEL_LENGTH, "%.2f° (%d)", v * 0.0125, v);
 }
 
+static void
+dsrc_delta_time_fmt(gchar *s, guint32 v)
+{
+  gint32 dt = (gint32)v;
+  if (dt == -122) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "unknown(%d)", dt);
+  } else if (dt == -121) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "moreThanMinus20Minutes(%d)", dt);
+  } else if (dt == 121) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "moreThanPlus20Minutes(%d)", dt);
+  } else {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "%s%d:%02u (%d)",
+            (dt < 0) ? "-" : "", abs(dt) / 6, abs(dt) % 6 * 10, dt);
+  }
+}
+
 static int
 dissect_its_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
