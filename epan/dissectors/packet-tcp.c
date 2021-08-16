@@ -271,6 +271,7 @@ static int hf_tcp_option_mptcp_flags = -1;
 static int hf_tcp_option_mptcp_backup_flag = -1;
 static int hf_tcp_option_mptcp_checksum_flag = -1;
 static int hf_tcp_option_mptcp_B_flag = -1;
+static int hf_tcp_option_mptcp_C_flag = -1;
 static int hf_tcp_option_mptcp_H_v0_flag = -1;
 static int hf_tcp_option_mptcp_H_v1_flag = -1;
 static int hf_tcp_option_mptcp_F_flag = -1;
@@ -283,7 +284,8 @@ static int hf_tcp_option_mptcp_V_flag = -1;
 static int hf_tcp_option_mptcp_W_flag = -1;
 static int hf_tcp_option_mptcp_T_flag = -1;
 static int hf_tcp_option_mptcp_tcprst_reason = -1;
-static int hf_tcp_option_mptcp_reserved_flag = -1;
+static int hf_tcp_option_mptcp_reserved_v0_flag = -1;
+static int hf_tcp_option_mptcp_reserved_v1_flag = -1;
 static int hf_tcp_option_mptcp_subtype = -1;
 static int hf_tcp_option_mptcp_version = -1;
 static int hf_tcp_option_mptcp_reserved = -1;
@@ -656,15 +658,16 @@ static int * const tcp_option_mptcp_capable_v0_flags[] = {
   &hf_tcp_option_mptcp_checksum_flag,
   &hf_tcp_option_mptcp_B_flag,
   &hf_tcp_option_mptcp_H_v0_flag,
-  &hf_tcp_option_mptcp_reserved_flag,
+  &hf_tcp_option_mptcp_reserved_v0_flag,
   NULL
 };
 
 static int * const tcp_option_mptcp_capable_v1_flags[] = {
   &hf_tcp_option_mptcp_checksum_flag,
   &hf_tcp_option_mptcp_B_flag,
+  &hf_tcp_option_mptcp_C_flag,
   &hf_tcp_option_mptcp_H_v1_flag,
-  &hf_tcp_option_mptcp_reserved_flag,
+  &hf_tcp_option_mptcp_reserved_v1_flag,
   NULL
 };
 
@@ -7698,6 +7701,10 @@ proto_register_tcp(void)
           { "Extensibility", "tcp.options.mptcp.extensibility.flag", FT_UINT8,
             BASE_DEC, NULL, 0x40, NULL, HFILL}},
 
+        { &hf_tcp_option_mptcp_C_flag,
+          { "Do not attempt to establish new subflows to this address and port", "tcp.options.mptcp.nomoresubflows.flag", FT_UINT8,
+            BASE_DEC, NULL, 0x20, NULL, HFILL}},
+
         { &hf_tcp_option_mptcp_H_v0_flag,
           { "Use HMAC-SHA1", "tcp.options.mptcp.sha1.flag", FT_UINT8,
             BASE_DEC, NULL, 0x01, NULL, HFILL}},
@@ -7726,9 +7733,13 @@ proto_register_tcp(void)
           { "Data ACK is present", "tcp.options.mptcp.dataackpresent.flag", FT_UINT8,
             BASE_DEC, NULL, MPTCP_DSS_FLAG_DATA_ACK_PRESENT, NULL, HFILL}},
 
-        { &hf_tcp_option_mptcp_reserved_flag,
+        { &hf_tcp_option_mptcp_reserved_v0_flag,
           { "Reserved", "tcp.options.mptcp.reserved.flag", FT_UINT8,
             BASE_HEX, NULL, 0x3E, NULL, HFILL}},
+
+        { &hf_tcp_option_mptcp_reserved_v1_flag,
+          { "Reserved", "tcp.options.mptcp.reserved.flag", FT_UINT8,
+            BASE_HEX, NULL, 0x1E, NULL, HFILL}},
 
         { &hf_tcp_option_mptcp_U_flag,
           { "Flag U", "tcp.options.mptcp.flag_U.flag", FT_BOOLEAN,
