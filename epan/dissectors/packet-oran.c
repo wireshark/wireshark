@@ -105,10 +105,10 @@ static int hf_oran_blockScaler = -1;
 static int hf_oran_compBitWidth = -1;
 static int hf_oran_compShift = -1;
 
-static  int hf_oran_repetition = -1;
+static int hf_oran_repetition = -1;
 static int hf_oran_rbgSize = -1;
 static int hf_oran_rbgMask = -1;
-static  int hf_oran_noncontig_priority = -1;
+static int hf_oran_noncontig_priority = -1;
 static int hf_oran_symbolMask = -1;
 
 static int hf_oran_rsvd4 = -1;
@@ -122,6 +122,9 @@ static int hf_oran_rad = -1;
 static int hf_oran_num_bund_prbs = -1;
 static int hf_oran_beam_id = -1;
 static int hf_oran_num_weights_per_bundle = -1;
+
+static int hf_oran_off_start_prb = -1;
+static int hf_oran_num_prb = -1;
 
 /* Computed fields */
 static int hf_oran_c_eAxC_ID = -1;
@@ -992,6 +995,33 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 }
             }
                 break;
+
+            case 12: /* Non-Contiguous PRB Allocation with Frequency Ranges */
+            {
+                proto_item *pi;
+                proto_tree_add_item(extension_tree, hf_oran_noncontig_priority, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(extension_tree, hf_oran_symbolMask, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
+                guint32 extlen_remaining_byte = extlen * 4 - 4;
+                guint8 prb_index = 0;
+
+                for(prb_index = 1; extlen_remaining_byte > 0; prb_index++)
+                {
+                    guint8 off_start_prb = tvb_get_guint8(tvb, offset);
+                    pi = proto_tree_add_item(extension_tree, hf_oran_off_start_prb, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    proto_item_set_text(pi,"offStartPrb(%u):%u",prb_index,off_start_prb);
+
+                    offset += 1;
+
+                    guint8 num_prb = tvb_get_guint8(tvb, offset);
+                    pi = proto_tree_add_item(extension_tree, hf_oran_num_prb, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    proto_item_set_text(pi,"numPrb(%u):%u",prb_index,num_prb);
+                    offset += 1;
+
+                    extlen_remaining_byte -= 2;
+                }
+                break;
+            }
 
             default:
                 /* TODO: Support remaining extension types. */
@@ -2050,6 +2080,22 @@ proto_register_oran(void)
           FT_UINT16, BASE_HEX,
           NULL, 0x3fff,
           "Each bit indicates whether the rbgMask applies to a given symbol in the slot",
+          HFILL}
+        },
+
+        /* Section 5.4.7.12 */
+        {&hf_oran_off_start_prb,
+         {"offStartPrb", "oran_fh_cus.offStartPrb",
+          FT_UINT8, BASE_DEC,
+          NULL, 0x00,
+          "Offset of PRB range start.",
+          HFILL}
+        },
+        {&hf_oran_num_prb,
+         {"numPrb", "oran_fh_cus.numPrb",
+          FT_UINT8, BASE_DEC,
+          NULL, 0x00,
+          "Number of PRBs in PRB range.",
           HFILL}
         },
 
