@@ -1036,8 +1036,10 @@ static int hf_rtps_pl_cdr_member_length_ext                     = -1;
 static int hf_rtps_dcps_publication_data_frame_number           = -1;
 static int hf_rtps_udpv4_wan_locator_flags                      = -1;
 static int hf_rtps_uuid                                         = -1;
-static int hf_rtps_udpv4_wan_locator_ip                         = -1;
+static int hf_rtps_udpv4_wan_locator_public_ip                  = -1;
 static int hf_rtps_udpv4_wan_locator_public_port                = -1;
+static int hf_rtps_udpv4_wan_locator_local_ip                   = -1;
+static int hf_rtps_udpv4_wan_locator_local_port                 = -1;
 static int hf_rtps_udpv4_wan_binding_ping_port                  = -1;
 static int hf_rtps_udpv4_wan_binding_ping_flags                 = -1;
 static int hf_rtps_long_address                                 = -1;
@@ -3249,6 +3251,7 @@ static gint rtps_util_add_locator_t(proto_tree *tree, packet_info *pinfo, tvbuff
      */
     case LOCATOR_KIND_UDPV4_WAN: {
         guint8 flags = 0;
+        ws_in4_addr locator_ip = 0;
         const guint32 uuid_size = 9;
         const guint32 locator_port_size = 4;
         const guint32 locator_port_offset = offset + 4;
@@ -3256,8 +3259,11 @@ static gint rtps_util_add_locator_t(proto_tree *tree, packet_info *pinfo, tvbuff
         const guint32 uuid_offset = flags_offset + 1;
         const guint32 port_offset = uuid_offset + uuid_size;
         const guint32 ip_offset = port_offset + 2;
+        int hf_port = 0;
+        int hf_ip = 0;
         gchar* ip_str = NULL;
         guint32 public_port = 0;
+        gboolean is_public = FALSE;
 
         ti = proto_tree_add_item_ret_uint(
                 locator_tree,
@@ -3276,46 +3282,57 @@ static gint rtps_util_add_locator_t(proto_tree *tree, packet_info *pinfo, tvbuff
                 ett_rtps_flags,
                 UDPV4_WAN_LOCATOR_FLAGS,
                 (guint64)flags);
-        /*
-        * The U flag indicates if the locator contains a UUID.
-        * Locators with the U flag set are called UUID locators.
-        */
-        if (flags & FLAG_UDPV4_WAN_LOCATOR_U) {
-            proto_tree_add_item(locator_tree, hf_rtps_uuid, tvb, uuid_offset, UUID_SIZE, encoding);
-        }
-        /*
-        * The P flag indicates that the locator contains a globally public IP address
-        * and public port where a transport instance can be reached. public_ip_address
-        * contains the public IP address and public_port contains the public UDP port.
-        * Locators with the P flag set are called PUBLIC locators.
-        */
-        if (flags & FLAG_UDPV4_WAN_LOCATOR_P) {
-            ws_in4_addr locator_ip = 0;
 
-            ip_str = tvb_ip_to_str(tvb, ip_offset);
-            locator_ip = tvb_get_ipv4(tvb, ip_offset);
+        /* UUID */
+        proto_tree_add_item(locator_tree, hf_rtps_uuid, tvb, uuid_offset, UUID_SIZE, encoding);
+
+        /*
+         * The P flag indicates that the locator contains a globally public IP address
+         * and public port where a transport instance can be reached. public_ip_address
+         * contains the public IP address and public_port contains the public UDP port.
+         * Locators with the P flag set are called PUBLIC locators.
+         */
+        is_public = ((flags & FLAG_UDPV4_WAN_LOCATOR_P) != 0);
+        if (is_public) {
+            hf_ip = hf_rtps_udpv4_wan_locator_public_ip;
+            hf_port = hf_rtps_udpv4_wan_locator_public_port;
+        } else {
+            hf_ip = hf_rtps_udpv4_wan_locator_local_ip;
+            hf_port = hf_rtps_udpv4_wan_locator_local_port;
+        }
+
+        /* Port & IP */
+        ip_str = tvb_ip_to_str(tvb, ip_offset);
+        locator_ip = tvb_get_ipv4(tvb, ip_offset);
+        if (locator_ip != 0) {
+            proto_tree_add_item_ret_uint(
+                locator_tree,
+                hf_port,
+                tvb,
+                port_offset,
+                2,
+                ENC_NA,
+                &public_port);
             proto_tree_add_ipv4(
-                    locator_tree,
-                    hf_rtps_udpv4_wan_locator_ip,
-                    tvb,
-                    ip_offset,
-                    4,
-                    locator_ip);
-            proto_tree_add_item_ret_uint (
-                    locator_tree,
-                    hf_rtps_udpv4_wan_locator_public_port,
-                    tvb,
-                    port_offset,
-                    2,
-                    encoding,
-                    &public_port);
+                locator_tree,
+                hf_ip,
+                tvb,
+                ip_offset,
+                4,
+                locator_ip);
         }
         if (port == 0)
             expert_add_info(pinfo, ti, &ei_rtps_locator_port);
-        if (ip_str != NULL) {
-            proto_item_append_text(tree, " (%s, %s:%u)",
-                val_to_str(kind, rtps_locator_kind_vals, "%02x"),
-                ip_str, port);
+        if (ip_str != NULL && locator_ip != 0) {
+            if (is_public) {
+                proto_item_append_text(tree, " (%s, public: %s:%u, rtps port:%u)",
+                    val_to_str(kind, rtps_locator_kind_vals, "%02x"),
+                    ip_str, public_port, port);
+            } else {
+                proto_item_append_text(tree, " (%s, local: %s:%u)",
+                    val_to_str(kind, rtps_locator_kind_vals, "%02x"),
+                    ip_str, port);
+            }
         }
     }
     /* Default case, we already have the locator kind so don't do anything */
@@ -14709,12 +14726,20 @@ void proto_register_rtps(void) {
         "UUID", "rtps.uuid",
         FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }
     },
-    { &hf_rtps_udpv4_wan_locator_ip, {
-        "WAN locator IP", "rtps.udpv4_wan_locator.ip",
+    { &hf_rtps_udpv4_wan_locator_public_ip, {
+        "WAN locator public IP", "rtps.udpv4_wan_locator.public_ip",
         FT_IPv4, BASE_NONE, NULL, 0, NULL, HFILL }
     },
     { &hf_rtps_udpv4_wan_locator_public_port, {
         "WAN locator public port", "rtps.udpv4_wan_locator.public_port",
+        FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }
+    },
+    { &hf_rtps_udpv4_wan_locator_local_ip,{
+        "WAN locator local IP", "rtps.udpv4_wan_locator.local_ip",
+        FT_IPv4, BASE_NONE, NULL, 0, NULL, HFILL }
+    },
+    { &hf_rtps_udpv4_wan_locator_local_port,{
+        "WAN locator local port", "rtps.udpv4_wan_locator.local_port",
         FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }
     },
     { &hf_rtps_flag_udpv4_wan_binding_ping_e, {
