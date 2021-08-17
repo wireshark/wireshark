@@ -53,6 +53,8 @@ void proto_reg_handoff_gsm_a_rr(void);
 static dissector_handle_t rrc_irat_ho_info_handle;
 static dissector_handle_t rrc_irat_ho_to_utran_cmd_handle;
 
+static guint gsm_a_rr_nri_length = 0;
+
 #define PADDING_BYTE 0x2B
 
 /* 3GPP TS 44.018 version 11.2.0 Release 11 */
@@ -517,6 +519,7 @@ static int hf_gsm_a_rr_start_mode = -1;
 static int hf_gsm_a_rr_timing_adv = -1;
 static int hf_gsm_a_rr_time_diff = -1;
 static int hf_gsm_a_rr_tlli = -1;
+static int hf_gsm_a_rr_nri = -1;
 static int hf_gsm_a_rr_target_mode = -1;
 static int hf_gsm_a_rr_wait_indication = -1;
 static int hf_gsm_a_rr_seq_code = -1;
@@ -8629,6 +8632,12 @@ de_rr_tlli(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offs
 
     tlli = tvb_get_ntohl(tvb, curr_offset);
     proto_tree_add_item(tree, hf_gsm_a_rr_tlli, tvb, curr_offset, 4, ENC_BIG_ENDIAN);
+
+    if(gsm_a_rr_nri_length > 0) {
+        /* NRI is in second byte of TLLI */
+        proto_tree_add_bits_item(tree, hf_gsm_a_rr_nri, tvb, (curr_offset+1)*8, gsm_a_rr_nri_length, ENC_BIG_ENDIAN);
+    }
+
     curr_offset = curr_offset + 4;
     if(add_string)
         g_snprintf(add_string, string_len, " - 0x%x", tlli);
@@ -12556,6 +12565,11 @@ proto_register_gsm_a_rr(void)
                 FT_UINT32,BASE_HEX,  NULL, 0x0,
                 NULL, HFILL }
             },
+            { &hf_gsm_a_rr_nri,
+              { "NRI","gsm_a.rr.nri",
+                FT_UINT8,BASE_DEC,  NULL, 0x0,
+                NULL, HFILL }
+            },
             { &hf_gsm_a_rr_target_mode,
               { "Target mode","gsm_a.rr.target_mode",
                 FT_UINT8,BASE_DEC,  NULL, 0xc0,
@@ -14817,6 +14831,7 @@ proto_register_gsm_a_rr(void)
         { &ei_gsm_a_rr_missing_mandatory_element, { "gsm_a.rr.missing_mandatory_element", PI_PROTOCOL, PI_ERROR, "Missing Mandatory element, rest of dissection is suspect", EXPFILL }},
     };
 
+    module_t *gsm_a_rr_module;
     expert_module_t* expert_a_rr;
 
     ett[0] = &ett_ccch_msg;
@@ -14883,6 +14898,12 @@ proto_register_gsm_a_rr(void)
 
     /* subtree array (for both sub-dissectors) */
     proto_register_subtree_array(ett, array_length(ett));
+
+    /* Register configuration options */
+    gsm_a_rr_module = prefs_register_protocol(proto_a_rr, NULL);
+    prefs_register_uint_preference(gsm_a_rr_module, "nri_length", "NRI length",
+                                   "Whether to decode NRI in TLLI. NRI is not used if length is zero",
+                                   10, &gsm_a_rr_nri_length);
 }
 
 void

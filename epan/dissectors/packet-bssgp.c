@@ -62,9 +62,6 @@
 void proto_register_bssgp(void);
 void proto_reg_handoff_bssgp(void);
 
-static int bssgp_decode_nri = 0;
-static guint bssgp_nri_length = 4;
-
 static guint8 g_pdu_type, g_rim_application_identity;
 static guint32 g_bssgp_ran_inf_pdu_t_ext_c;
 static proto_tree *gparent_tree;
@@ -7605,13 +7602,8 @@ proto_register_bssgp(void)
 
     /* Register configuration options */
     bssgp_module = prefs_register_protocol(proto_bssgp, NULL);
-    prefs_register_bool_preference(bssgp_module, "decode_nri",
-                                   "Decode NRI",
-                                   "Decode NRI (for use with SGSN in Pool)",
-                                   &bssgp_decode_nri);
-    prefs_register_uint_preference(bssgp_module, "nri_length", "NRI length",
-                                   "NRI length, in bits",
-                                   10, &bssgp_nri_length);
+    prefs_register_obsolete_preference(bssgp_module, "decode_nri");
+    prefs_register_obsolete_preference(bssgp_module, "nri_length");
 }
 
 /* If this dissector uses sub-dissector registration add a registration routine.
