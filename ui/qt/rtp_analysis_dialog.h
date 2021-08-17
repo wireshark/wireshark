@@ -156,6 +156,7 @@ private:
     void updateStatistics();
     void updateGraph();
 
+    void saveCsvHeader(QFile *save_file, QTreeWidget *tree);
     void saveCsvData(QFile *save_file, QTreeWidget *tree);
     void saveCsv(StreamDirection direction);
 
