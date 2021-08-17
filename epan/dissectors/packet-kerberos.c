@@ -802,18 +802,18 @@ call_kerberos_callbacks(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int
 }
 
 static kerberos_private_data_t*
-kerberos_new_private_data(void)
+kerberos_new_private_data(packet_info *pinfo)
 {
 	kerberos_private_data_t *p;
 
-	p = wmem_new0(wmem_packet_scope(), kerberos_private_data_t);
+	p = wmem_new0(pinfo->pool, kerberos_private_data_t);
 	if (p == NULL) {
 		return NULL;
 	}
 
-	p->decryption_keys = wmem_list_new(wmem_packet_scope());
-	p->learnt_keys = wmem_list_new(wmem_packet_scope());
-	p->missing_keys = wmem_list_new(wmem_packet_scope());
+	p->decryption_keys = wmem_list_new(pinfo->pool);
+	p->learnt_keys = wmem_list_new(pinfo->pool);
+	p->missing_keys = wmem_list_new(pinfo->pool);
 
 	return p;
 }
@@ -822,7 +822,7 @@ static kerberos_private_data_t*
 kerberos_get_private_data(asn1_ctx_t *actx)
 {
 	if (!actx->private_data) {
-		actx->private_data = kerberos_new_private_data();
+		actx->private_data = kerberos_new_private_data(actx->pinfo);
 	}
 	return (kerberos_private_data_t *)(actx->private_data);
 }
@@ -1998,7 +1998,7 @@ decrypt_krb5_data(proto_tree *tree _U_, packet_info *pinfo,
 					int keytype,
 					int *datalen)
 {
-	kerberos_private_data_t *zero_private = kerberos_new_private_data();
+	kerberos_private_data_t *zero_private = kerberos_new_private_data(pinfo);
 	return decrypt_krb5_data_private(tree, pinfo, zero_private,
 					 usage, cryptotvb, keytype,
 					 datalen);
@@ -2148,7 +2148,7 @@ decrypt_krb5_krb_cfx_dce(proto_tree *tree,
 			 tvbuff_t *checksum_tvb)
 {
 	struct decrypt_krb5_krb_cfx_dce_state state;
-	kerberos_private_data_t *zero_private = kerberos_new_private_data();
+	kerberos_private_data_t *zero_private = kerberos_new_private_data(pinfo);
 	tvbuff_t *gssapi_decrypted_tvb = NULL;
 	krb5_error_code ret;
 

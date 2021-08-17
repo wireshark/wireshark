@@ -571,7 +571,7 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
   /* check if not inherited from GenericInformation */
   gefx = gef_ctx_get(actx->private_data);
   if (!gefx) {
-    gefx = gef_ctx_alloc(NULL, "GenericMessage");
+    gefx = gef_ctx_alloc(actx->pinfo->pool, NULL, "GenericMessage");
     actx->private_data = gefx;
   }
 #.FN_FTR
@@ -595,7 +595,7 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 %(DEFAULT_BODY)s
   if (gefx) {
     gefx->subid = wmem_strdup_printf(actx->pinfo->pool, "%%u", subMessageIdentifier);
-    gef_ctx_update_key(gef_ctx_get(actx->private_data));
+    gef_ctx_update_key(actx->pinfo->pool, gef_ctx_get(actx->private_data));
   }
   if (hf_index == hf_h245_subMessageIdentifier_standard)
   {
@@ -608,7 +608,7 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
   gef_ctx_t *parent_gefx;
 
   parent_gefx = gef_ctx_get(actx->private_data);
-  actx->private_data = gef_ctx_alloc(parent_gefx, NULL);
+  actx->private_data = gef_ctx_alloc(actx->pinfo->pool, parent_gefx, NULL);
 #.FN_FTR
   actx->private_data = parent_gefx;
 #.END
@@ -616,7 +616,7 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 #----------------------------------------------------------------------------------------
 #.FN_HDR GenericInformation
   void *priv_data = actx->private_data;
-  actx->private_data = gef_ctx_alloc(NULL, "GenericInformation");
+  actx->private_data = gef_ctx_alloc(actx->pinfo->pool, NULL, "GenericInformation");
 #.FN_FTR
   actx->private_data = priv_data;
 #.END
@@ -624,7 +624,7 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 #--- GenericCapability ------------------------------------------------------------------
 #.FN_HDR GenericCapability
   void *priv_data = actx->private_data;
-  actx->private_data = gef_ctx_alloc(NULL, "GenericCapability");
+  actx->private_data = gef_ctx_alloc(actx->pinfo->pool, NULL, "GenericCapability");
 #.FN_FTR
   actx->private_data = priv_data;
 #.END
@@ -633,7 +633,7 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
   gef_ctx_t *parent_gefx;
 
   parent_gefx = gef_ctx_get(actx->private_data);
-  actx->private_data = gef_ctx_alloc(parent_gefx, "collapsing");
+  actx->private_data = gef_ctx_alloc(actx->pinfo->pool, parent_gefx, "collapsing");
 #.FN_FTR
   actx->private_data = parent_gefx;
 #.END
@@ -642,7 +642,7 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
   gef_ctx_t *parent_gefx;
 
   parent_gefx = gef_ctx_get(actx->private_data);
-  actx->private_data = gef_ctx_alloc(parent_gefx, "nonCollapsing");
+  actx->private_data = gef_ctx_alloc(actx->pinfo->pool, parent_gefx, "nonCollapsing");
 #.FN_FTR
   actx->private_data = parent_gefx;
 #.END
@@ -654,7 +654,7 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
   proto_item* ti;
 
   parent_gefx = gef_ctx_get(actx->private_data);
-  actx->private_data = gef_ctx_alloc(parent_gefx, "nonCollapsingRaw");
+  actx->private_data = gef_ctx_alloc(actx->pinfo->pool, parent_gefx, "nonCollapsingRaw");
 %(DEFAULT_BODY)s
   gefx = gef_ctx_get(actx->private_data);
   if (gefx) {
@@ -668,7 +668,7 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 #--- EncryptionSync ---------------------------------------------------------------------
 #.FN_HDR EncryptionSync
   void *priv_data = actx->private_data;
-  actx->private_data = gef_ctx_alloc(NULL, "EncryptionSync");
+  actx->private_data = gef_ctx_alloc(actx->pinfo->pool, NULL, "EncryptionSync");
 #.FN_FTR
   actx->private_data = priv_data;
 #.END
@@ -679,7 +679,7 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
   proto_item* ti;
 
 #.FN_FTR
-  gef_ctx_update_key(gef_ctx_get(actx->private_data));
+  gef_ctx_update_key(actx->pinfo->pool, gef_ctx_get(actx->private_data));
   gefx = gef_ctx_get(actx->private_data);
   if (gefx) {
     ti = proto_tree_add_string(tree, hf_h245_debug_dissector_try_string, tvb, offset>>3, 0, gefx->key);
@@ -710,7 +710,7 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
   gef_ctx_t *gefx;
   proto_item* ti;
 #.FN_FTR
-  gef_ctx_update_key(gef_ctx_get(actx->private_data));
+  gef_ctx_update_key(actx->pinfo->pool, gef_ctx_get(actx->private_data));
   gefx = gef_ctx_get(actx->private_data);
   if (gefx) {
     ti = proto_tree_add_string(tree, hf_h245_debug_dissector_try_string, tvb, offset>>3, 0, gefx->key);

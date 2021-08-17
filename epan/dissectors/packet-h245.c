@@ -3603,7 +3603,7 @@ dissect_h245_CapabilityIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
                                  NULL);
 
 #line 682 "./asn1/h245/h245.cnf"
-  gef_ctx_update_key(gef_ctx_get(actx->private_data));
+  gef_ctx_update_key(actx->pinfo->pool, gef_ctx_get(actx->private_data));
   gefx = gef_ctx_get(actx->private_data);
   if (gefx) {
     ti = proto_tree_add_string(tree, hf_h245_debug_dissector_try_string, tvb, offset>>3, 0, gefx->key);
@@ -3671,7 +3671,7 @@ dissect_h245_ParameterIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
                                  NULL);
 
 #line 713 "./asn1/h245/h245.cnf"
-  gef_ctx_update_key(gef_ctx_get(actx->private_data));
+  gef_ctx_update_key(actx->pinfo->pool, gef_ctx_get(actx->private_data));
   gefx = gef_ctx_get(actx->private_data);
   if (gefx) {
     ti = proto_tree_add_string(tree, hf_h245_debug_dissector_try_string, tvb, offset>>3, 0, gefx->key);
@@ -3935,7 +3935,7 @@ dissect_h245_T_collapsing_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
   gef_ctx_t *parent_gefx;
 
   parent_gefx = gef_ctx_get(actx->private_data);
-  actx->private_data = gef_ctx_alloc(parent_gefx, "collapsing");
+  actx->private_data = gef_ctx_alloc(actx->pinfo->pool, parent_gefx, "collapsing");
 
   offset = dissect_h245_GenericParameter(tvb, offset, actx, tree, hf_index);
 
@@ -3966,7 +3966,7 @@ dissect_h245_T_nonCollapsing_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
   gef_ctx_t *parent_gefx;
 
   parent_gefx = gef_ctx_get(actx->private_data);
-  actx->private_data = gef_ctx_alloc(parent_gefx, "nonCollapsing");
+  actx->private_data = gef_ctx_alloc(actx->pinfo->pool, parent_gefx, "nonCollapsing");
 
   offset = dissect_h245_GenericParameter(tvb, offset, actx, tree, hf_index);
 
@@ -4000,7 +4000,7 @@ dissect_h245_T_nonCollapsingRaw(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
   proto_item* ti;
 
   parent_gefx = gef_ctx_get(actx->private_data);
-  actx->private_data = gef_ctx_alloc(parent_gefx, "nonCollapsingRaw");
+  actx->private_data = gef_ctx_alloc(actx->pinfo->pool, parent_gefx, "nonCollapsingRaw");
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &value_tvb);
 
@@ -4031,7 +4031,7 @@ static int
 dissect_h245_GenericCapability(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 626 "./asn1/h245/h245.cnf"
   void *priv_data = actx->private_data;
-  actx->private_data = gef_ctx_alloc(NULL, "GenericCapability");
+  actx->private_data = gef_ctx_alloc(actx->pinfo->pool, NULL, "GenericCapability");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h245_GenericCapability, GenericCapability_sequence);
@@ -6654,7 +6654,7 @@ dissect_h245_T_subMessageIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 
   if (gefx) {
     gefx->subid = wmem_strdup_printf(actx->pinfo->pool, "%u", subMessageIdentifier);
-    gef_ctx_update_key(gef_ctx_get(actx->private_data));
+    gef_ctx_update_key(actx->pinfo->pool, gef_ctx_get(actx->private_data));
   }
   if (hf_index == hf_h245_subMessageIdentifier_standard)
   {
@@ -6674,7 +6674,7 @@ dissect_h245_T_messageContent_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
   gef_ctx_t *parent_gefx;
 
   parent_gefx = gef_ctx_get(actx->private_data);
-  actx->private_data = gef_ctx_alloc(parent_gefx, NULL);
+  actx->private_data = gef_ctx_alloc(actx->pinfo->pool, parent_gefx, NULL);
 
   offset = dissect_h245_GenericParameter(tvb, offset, actx, tree, hf_index);
 
@@ -6714,7 +6714,7 @@ dissect_h245_GenericMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
   /* check if not inherited from GenericInformation */
   gefx = gef_ctx_get(actx->private_data);
   if (!gefx) {
-    gefx = gef_ctx_alloc(NULL, "GenericMessage");
+    gefx = gef_ctx_alloc(actx->pinfo->pool, NULL, "GenericMessage");
     actx->private_data = gefx;
   }
 
@@ -6733,7 +6733,7 @@ static int
 dissect_h245_GenericInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 618 "./asn1/h245/h245.cnf"
   void *priv_data = actx->private_data;
-  actx->private_data = gef_ctx_alloc(NULL, "GenericInformation");
+  actx->private_data = gef_ctx_alloc(actx->pinfo->pool, NULL, "GenericInformation");
 
   offset = dissect_h245_GenericMessage(tvb, offset, actx, tree, hf_index);
 
@@ -8707,7 +8707,7 @@ static int
 dissect_h245_EncryptionSync(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 670 "./asn1/h245/h245.cnf"
   void *priv_data = actx->private_data;
-  actx->private_data = gef_ctx_alloc(NULL, "EncryptionSync");
+  actx->private_data = gef_ctx_alloc(actx->pinfo->pool, NULL, "EncryptionSync");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h245_EncryptionSync, EncryptionSync_sequence);

@@ -81,27 +81,27 @@ PrivateKeyInfo
 
 #.FN_PARS SafeBag/bagId 	FN_VARIANT = _str VAL_PTR = &object_identifier_id
 #.FN_FTR SafeBag/bagId
-  append_oid(tree, object_identifier_id);
+  append_oid(actx->pinfo->pool, tree, object_identifier_id);
 #.END
 
 #.FN_PARS CertBag/certId 	FN_VARIANT = _str VAL_PTR = &object_identifier_id
 #.FN_FTR CertBag/certId
-  append_oid(tree, object_identifier_id);
+  append_oid(actx->pinfo->pool, tree, object_identifier_id);
 #.END
 
 #.FN_PARS CRLBag/crlId 	FN_VARIANT = _str VAL_PTR = &object_identifier_id
 #.FN_FTR CRLBag/crlId
-  append_oid(tree, object_identifier_id);
+  append_oid(actx->pinfo->pool, tree, object_identifier_id);
 #.END
 
 #.FN_PARS SecretBag/secretTypeId 	FN_VARIANT = _str VAL_PTR = &object_identifier_id
 #.FN_FTR SecretBag/secretTypeId
-  append_oid(tree, object_identifier_id);
+  append_oid(actx->pinfo->pool, tree, object_identifier_id);
 #.END
 
 #.FN_PARS PKCS12Attribute/attrId 	FN_VARIANT = _str VAL_PTR = &object_identifier_id
 #.FN_FTR PKCS12Attribute/attrId
-  append_oid(tree, object_identifier_id);
+  append_oid(actx->pinfo->pool, tree, object_identifier_id);
 #.END
 
 #.FN_BODY SafeBag/bagValue
