@@ -2217,8 +2217,12 @@ mysql_dissect_response(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
 		/* pre-4.1 packet ends here */
 		if (tvb_reported_length_remaining(tvb, offset)) {
-			proto_tree_add_item(tree, hf_mysql_num_warn, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-			offset = mysql_dissect_server_status(tvb, offset+2, tree, &server_status);
+			if (conn_data->clnt_caps_ext & MYSQL_CAPS_DE) {
+				offset = mysql_dissect_ok_packet(tvb, pinfo, offset, tree, conn_data);
+			} else {
+				proto_tree_add_item(tree, hf_mysql_num_warn, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+				offset = mysql_dissect_server_status(tvb, offset, tree, &server_status);
+			}
 		}
 
 		switch (current_state) {
