@@ -129,8 +129,7 @@ create_dynlib_source(const char* libname, ss_plugin_info* info)
     *(void**)(&(info->next_batch)) = getsym(handle, "plugin_next_batch");
     *(void**)(&(info->event_to_string)) = getsym(handle, "plugin_event_to_string");
     *(void**)(&(info->get_progress)) = getsym(handle, "plugin_get_progress");
-    *(void**)(&(info->extract_str)) = getsym(handle, "plugin_extract_str");
-    *(void**)(&(info->extract_u64)) = getsym(handle, "plugin_extract_u64");
+    *(void**)(&(info->extract_fields)) = getsym(handle, "plugin_extract_fields");
     *(void**)(&(info->register_async_extractor)) = getsym(handle, "plugin_register_async_extractor");
 
     return TRUE;
@@ -632,53 +631,56 @@ dissect_plg_bridge(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree _U_, 
     guint8* payload = (guint8*)tvb_get_ptr(tvb, 0, plen);
     ss_plugin_info* si = &bi->si;
 
+    ss_plugin_event evt;
+
+    evt.evtnum = pinfo->num;
+    evt.data = payload;
+    evt.datalen = plen;
+
     for (guint j = 0; j < bi->n_fields; j++) {
         header_field_info* hfinfo = &(bi->hf[j].hfinfo);
         ss_plugin_info* plugin_info = &(bi->si);
 
-        if (plugin_info->is_async_extractor_present) {
-            plugin_info->async_extractor_info.evtnum = pinfo->num;
-            plugin_info->async_extractor_info.field = hfinfo->abbrev;
-            plugin_info->async_extractor_info.arg = NULL;
-            plugin_info->async_extractor_info.data = payload;
-            plugin_info->async_extractor_info.datalen = plen;
+        if (plugin_info->extract_fields == NULL) {
+            REPORT_DISSECTOR_BUG("sysdig plugin %s is missing the extract_fields export", bi->si.name);
         }
 
+        guint32 num_fields = 1;
+	ss_plugin_extract_field field;
+	field.field = hfinfo->abbrev;
+	field.arg = NULL;
+	field.ftype = (hfinfo->type == FT_STRINGZ ? PLG_PARAM_TYPE_CHARBUF : PLG_PARAM_TYPE_UINT64);
+
+	guint32 rc;
+	if (plugin_info->is_async_extractor_present) {
+            plugin_info->async_extractor_info.evt = &evt;
+            plugin_info->async_extractor_info.field = &field;
+            async_plugin_notify((void *)&plugin_info->lock);
+            rc = plugin_info->async_extractor_info.rc;
+	}
+	else
+	{
+            rc = si->extract_fields(si->state, &evt, num_fields, &field);
+	}
+
+	if (rc != SCAP_SUCCESS) {
+            if (rc == SCAP_NOT_SUPPORTED) {
+		REPORT_DISSECTOR_BUG("sysdig plugin %s is missing the extract_fields export", bi->si.name);
+            } else {
+		REPORT_DISSECTOR_BUG("sysdig plugin %s extract error %d", bi->si.name, (int)rc);
+            }
+	}
+
         if (hfinfo->type == FT_STRINGZ) {
-            if (plugin_info->extract_str == NULL) {
-                REPORT_DISSECTOR_BUG("sysdig plugin %s is missing the extract_str export", bi->si.name);
-            }
-
-            gchar *pret;
-            if (plugin_info->is_async_extractor_present) {
-                plugin_info->async_extractor_info.ftype = PLG_PARAM_TYPE_CHARBUF;
-                async_plugin_notify((void *)&plugin_info->lock);
-                pret = plugin_info->async_extractor_info.res_str;
-                guint32 rc = plugin_info->async_extractor_info.rc;
-                if (rc != SCAP_SUCCESS) {
-                    if (rc == SCAP_NOT_SUPPORTED) {
-                        REPORT_DISSECTOR_BUG("sysdig plugin %s is missing the extract_str export", bi->si.name);
-                    } else {
-                        REPORT_DISSECTOR_BUG("sysdig plugin %s extract error %d", bi->si.name, (int)rc);
-                    }
-                }
-            }
-            else
-            {
-                pret = si->extract_str(si->state,
-                                       pinfo->num, hfinfo->abbrev,
-                                       NULL, payload, plen);
-            }
-
-            if (pret != NULL && strlen(pret) != 0) {
-                proto_tree_add_string(sdplugin_tree, bi->hf_ids[j], tvb, 0, plen, pret);
+            if (field.field_present && field.res_str != NULL && strlen(field.res_str) != 0) {
+                proto_tree_add_string(sdplugin_tree, bi->hf_ids[j], tvb, 0, plen, field.res_str);
                 if ((bi->field_flags[j] & FLD_FLAG_USE_IN_INFO) != 0) {
-                    col_append_sep_fstr(pinfo->cinfo, COL_INFO, ", ", "%s", pret);
+                    col_append_sep_fstr(pinfo->cinfo, COL_INFO, ", ", "%s", field.res_str);
                 }
 
                 if ((bi->field_flags[j] & FLD_FLAG_USE_IN_CONVERSATIONS) != 0) {
                     char* cvalptr = conv_flt_vals[conv_vals_cnt];
-                    sprintf(cvalptr, "%s", pret);
+                    sprintf(cvalptr, "%s", field.res_str);
                     p_add_proto_data(pinfo->pool,
                         pinfo,
                         proto_sdplugin,
@@ -691,35 +693,8 @@ dissect_plg_bridge(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree _U_, 
             }
         }
         else if (hfinfo->type == FT_UINT64) {
-            if (plugin_info->extract_u64 == NULL)
-            {
-                REPORT_DISSECTOR_BUG("sysdig plugin %s is missing the extract_u64 export", bi->si.name);
-            }
-
-            guint64 field_present;
-            guint64 val;
-
-            if (plugin_info->is_async_extractor_present) {
-                plugin_info->async_extractor_info.ftype = PLG_PARAM_TYPE_UINT64;
-                async_plugin_notify((void*)&plugin_info->lock);
-                field_present = plugin_info->async_extractor_info.field_present;
-                val = plugin_info->async_extractor_info.res_u64;
-                guint32 rc = plugin_info->async_extractor_info.rc;
-                if (rc != SCAP_SUCCESS) {
-                    if (rc == SCAP_NOT_SUPPORTED) {
-                        REPORT_DISSECTOR_BUG("sysdig plugin %s is missing the extract_str export", bi->si.name);
-                    } else {
-                        REPORT_DISSECTOR_BUG("sysdig plugin %s extract error %d", bi->si.name, (int)rc);
-                    }
-                }
-            } else {
-                val = si->extract_u64(si->state,
-                    pinfo->num, hfinfo->abbrev,
-                    NULL, payload, plen, &field_present);
-            }
-
-            if (field_present) {
-                proto_tree_add_uint64(sdplugin_tree, bi->hf_ids[j], tvb, 0, plen, val);
+            if (field.field_present) {
+                proto_tree_add_uint64(sdplugin_tree, bi->hf_ids[j], tvb, 0, plen, field.res_u64);
             }
         }
         else {

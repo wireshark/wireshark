@@ -77,22 +77,6 @@ typedef enum async_extractor_lock_state
 
 typedef gboolean (*cb_wait_t)(void* wait_ctx);
 
-typedef struct async_extractor_info
-{
-    guint64 evtnum;
-    guint32 ftype;
-    const char *field;
-    const char* arg;
-    char* data;
-    guint32 datalen;
-    guint32 field_present;
-    char* res_str;
-    guint64 res_u64;
-    gint32 rc;
-    cb_wait_t cb_wait;
-    void* wait_ctx;
-} async_extractor_info;
-
 /*
  * This is the opaque pointer to the state of a source plugin.
  * It points to any data that might be needed plugin-wise. It is 
@@ -114,6 +98,7 @@ typedef void ss_instance_t;
 
 // This struct represents an event returned by the plugin, and is used
 // below in next()/next_batch().
+// - evtnum: incremented for each event returned. Might not be contiguous.
 // - data: pointer to a memory buffer pointer. The plugin will set it
 //   to point to the memory containing the next event. Once returned,
 //   the memory is owned by the plugin framework and will be freed via
@@ -124,10 +109,54 @@ typedef void ss_instance_t;
 //   automatically fill the event time with the current time.
 typedef struct ss_plugin_event
 {
+	uint64_t evtnum;
 	uint8_t *data;
 	uint32_t datalen;
 	uint64_t ts;
 } ss_plugin_event;
+
+// Used in extract_fields functions below to receive a field/arg
+// pair and return an extracted value.
+// field: the field name.
+// arg: the field argument, if an argument has been specified
+//      for the field, otherwise it's NULL.
+//      For example:
+//         * if the field specified by the user is foo.bar[pippo], arg will be the
+//           string "pippo"
+//         * if the field specified by the user is foo.bar, arg will be NULL
+// ftype: the type of the field. Could be derived from the field name alone,
+//   but including here can prevent a second lookup of field names.
+// The following should be filled in by the extraction function:
+// - field_present: set to true if the event has a meaningful
+//   extracted value for the provided field, false otherwise
+// - res_str: if the corresponding field was type==string, this should be
+//   filled in with the string value. The string should be allocated by
+//   the plugin using malloc() and will be free()d by the plugin framework.
+// - res_u64: if the corresponding field was type==uint64, this should be
+//   filled in with the uint64 value.
+
+typedef struct ss_plugin_extract_field
+{
+	const char *field;
+	const char *arg;
+	uint32_t ftype;
+
+	bool field_present;
+	char *res_str;
+	uint64_t res_u64;
+} ss_plugin_extract_field;
+
+typedef struct async_extractor_info
+{
+    // Pointer as this allows swapping out events from other
+    // structs.
+    const ss_plugin_event *evt;
+    ss_plugin_extract_field *field;
+    gint32 rc;
+    cb_wait_t cb_wait;
+    void* wait_ctx;
+} async_extractor_info;
+
 
 /*
  * Interface of a sinsp/scap plugin
@@ -149,8 +178,7 @@ typedef struct
     gint32 (*next)(ss_plugin_t* s, ss_instance_t* h, ss_plugin_event **evt);
     char* (*get_progress)(ss_plugin_t* s, ss_instance_t* h, guint64* progress_pct);
     char *(*event_to_string)(ss_plugin_t *s, guint8 *data, guint64 datalen);
-    char *(*extract_str)(ss_plugin_t *s, guint64 evtnum, const char *field, const char *arg, guint8 *data, guint64 datalen);
-    guint64 (*extract_u64)(ss_plugin_t *s, guint64 evtnum, const char *field, const char *arg, guint8 *data, guint64 datalen, guint64 *field_present);
+    int32_t (*extract_fields)(ss_plugin_t *s, const ss_plugin_event *evt, uint32_t num_fields, ss_plugin_extract_field *fields);
     gint32 (*next_batch)(ss_plugin_t* s, ss_instance_t* h, uint32_t *nevts, ss_plugin_event **evts);
     gint32 (*register_async_extractor)(ss_plugin_t *s, async_extractor_info *info);
 
