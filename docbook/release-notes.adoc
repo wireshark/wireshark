@@ -88,6 +88,8 @@ The following features are new (or have been significantly updated) since versio
 
 * Wireshark participated in the Google Season of Docs 2020 and the User’s Guide has been extensively updated.
 
+* Format of export to CSV in RTP Stream Analysis dialog was slightly changed. First line of export contains names of columns as in other CSV exports.
+
 // === Removed Features and Support
 
 // === Removed Dissectors
