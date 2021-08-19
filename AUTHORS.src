@@ -3738,6 +3738,10 @@ Jeffrey Nichols		<jsnichols[AT]suprocktech.com> {
 	Asphodel dissector
 }
 
+Erik Rigtorp		<erik[AT]rigtorp.se> {
+	Support for reading ZSTD and LZ4 compressed files
+}
+
 and by:
 
 Georgi Guninski		<guninski[AT]guninski.com>

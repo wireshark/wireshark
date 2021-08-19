@@ -82,10 +82,15 @@ Wireshark can read packets from a number of different file types.  See
 the Wireshark man page or the Wireshark User's Guide for a list of
 supported file formats.
 
-Wireshark can transparently read gzipped versions of any of those files if
-zlib was available when Wireshark was compiled.  CMake will automatically
-use zlib if it is found on your system.  You can disable zlib support by
-running `cmake -DENABLE_ZLIB=OFF`.
+Wireshark can transparently read compressed versions of any of those files if
+the required compression library was available when Wireshark was compiled.
+Currently supported compression formats are:
+
+- GZIP
+- ZSTD
+- LZ4
+
+You can disable zlib support by running `cmake -DENABLE_ZLIB=OFF`.
 
 Although Wireshark can read AIX iptrace files, the documentation on
 AIX's iptrace packet-trace command is sparse.  The `iptrace` command

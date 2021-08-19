@@ -42,7 +42,7 @@ from the file and displaying a summary line on the standard output for
 each packet read.  B<TShark> is able to detect, read and write the same
 capture files that are supported by B<Wireshark>.  The input file
 doesn't need a specific filename extension; the file format and an
-optional gzip compression will be automatically detected.  Near the
+optional gzip, zstd or lz4 compression will be automatically detected.  Near the
 beginning of the DESCRIPTION section of wireshark(1) or
 L<https://www.wireshark.org/docs/man-pages/wireshark.html> is a detailed
 description of the way B<Wireshark> handles this, which is the same way
@@ -2086,7 +2086,7 @@ active.
 
 Sets the fatal log level. Fatal log levels cause the progeam to abort.
 The fatal log level be set to C<critical> or C<warning>. C<Error> is
-always fatal. 
+always fatal.
 
 =item WIRESHARK_LOG_DOMAINS
 

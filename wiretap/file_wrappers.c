@@ -16,6 +16,7 @@
 
 #include <config.h>
 
+#include <assert.h>
 #include <errno.h>
 #include <string.h>
 #include "wtap-int.h"
@@ -27,6 +28,14 @@
 #define ZLIB_CONST
 #include <zlib.h>
 #endif /* HAVE_ZLIB */
+
+#ifdef HAVE_ZSTD
+#include <zstd.h>
+#endif
+
+#ifdef HAVE_LZ4
+#include <lz4frame.h>
+#endif
 
 /*
  * See RFC 1952:
@@ -112,7 +121,13 @@ typedef enum {
     UNCOMPRESSED,  /* uncompressed - copy input directly */
 #ifdef HAVE_ZLIB
     ZLIB,          /* decompress a zlib stream */
-    GZIP_AFTER_HEADER
+    GZIP_AFTER_HEADER,
+#endif
+#ifdef HAVE_ZSTD
+    ZSTD,
+#endif
+#ifdef HAVE_LZ4
+    LZ4,
 #endif
 } compression_t;
 
@@ -153,6 +168,12 @@ struct wtap_reader {
     /* fast seeking */
     GPtrArray *fast_seek;
     void *fast_seek_cur;
+#ifdef HAVE_ZSTD
+    ZSTD_DCtx *zstd_dctx;
+#endif
+#ifdef HAVE_LZ4
+    LZ4F_dctx *lz4_dctx;
+#endif
 };
 
 /* Current read offset within a buffer. */
@@ -810,6 +831,42 @@ gz_head(FILE_T state)
     /* FD 37 7A 58 5A 00 */
 #endif
 
+    if (state->in.avail >= 4
+        && state->in.buf[0] == 0x28 && state->in.buf[1] == 0xb5
+        && state->in.buf[2] == 0x2f && state->in.buf[3] == 0xfd) {
+#ifdef HAVE_ZSTD
+        const size_t ret = ZSTD_DCtx_reset(state->zstd_dctx, ZSTD_reset_session_and_parameters);
+        if (ZSTD_isError(ret)) {
+            state->err = WTAP_ERR_DECOMPRESS;
+            state->err_info = ZSTD_getErrorName(ret);
+            return -1;
+        }
+
+        state->compression = ZSTD;
+        state->is_compressed = TRUE;
+        return 0;
+#else
+        state->err = WTAP_ERR_DECOMPRESSION_NOT_SUPPORTED;
+        state->err_info = "reading zstd-compressed files isn't supported";
+        return -1;
+#endif
+    }
+
+    if (state->in.avail >= 4
+        && state->in.buf[0] == 0x04 && state->in.buf[1] == 0x22
+        && state->in.buf[2] == 0x4d && state->in.buf[3] == 0x18) {
+#ifdef HAVE_LZ4
+        LZ4F_resetDecompressionContext(state->lz4_dctx);
+        state->compression = LZ4;
+        state->is_compressed = TRUE;
+        return 0;
+#else
+        state->err = WTAP_ERR_DECOMPRESSION_NOT_SUPPORTED;
+        state->err_info = "reading lz4-compressed files isn't supported";
+        return -1;
+#endif
+    }
+
     if (state->fast_seek)
         fast_seek_header(state, state->raw_pos - state->in.avail - state->out.avail, state->pos, UNCOMPRESSED);
 
@@ -848,6 +905,60 @@ fill_out_buffer(FILE_T state)
 #ifdef HAVE_ZLIB
     else if (state->compression == ZLIB) {      /* decompress */
         zlib_read(state, state->out.buf, state->size << 1);
+    }
+#endif
+#ifdef HAVE_ZSTD
+    else if (state->compression == ZSTD) {
+        assert(state->out.avail == 0);
+
+        if (state->in.avail == 0 && fill_in_buffer(state) == -1)
+            return -1;
+
+        ZSTD_outBuffer output = {state->out.buf, state->size << 1, 0};
+        ZSTD_inBuffer input = {state->in.next, state->in.avail, 0};
+        const size_t ret = ZSTD_decompressStream(state->zstd_dctx, &output, &input);
+        if (ZSTD_isError(ret)) {
+            state->err = WTAP_ERR_DECOMPRESS;
+            state->err_info = ZSTD_getErrorName(ret);
+            return -1;
+        }
+
+        state->in.next = state->in.next + input.pos;
+        state->in.avail -= input.pos;
+
+        state->out.next = output.dst;
+        state->out.avail = output.pos;
+
+        if (ret == 0) {
+            state->compression = UNKNOWN;
+        }
+    }
+#endif
+#ifdef HAVE_LZ4
+    else if (state->compression == LZ4) {
+        assert(state->out.avail == 0);
+
+        if (state->in.avail == 0 && fill_in_buffer(state) == -1)
+            return -1;
+
+        size_t outBufSize = state->size << 1;
+        size_t inBufSize = state->in.avail;
+        const size_t ret = LZ4F_decompress(state->lz4_dctx, state->out.buf, &outBufSize, state->in.next, &inBufSize, NULL);
+        if (LZ4F_isError(ret)) {
+            state->err = WTAP_ERR_DECOMPRESS;
+            state->err_info = LZ4F_getErrorName(ret);
+            return -1;
+        }
+
+        state->in.next = state->in.next + inBufSize;
+        state->in.avail -= inBufSize;
+
+        state->out.next = state->out.buf;
+        state->out.avail = outBufSize;
+
+        if (ret == 0) {
+            state->compression = UNKNOWN;
+        }
     }
 #endif
     return 0;
@@ -929,6 +1040,7 @@ file_fdopen(int fd)
 #endif
     int want = GZBUFSIZE;
     FILE_T state;
+    size_t ret;
 
     if (fd == -1)
         return NULL;
@@ -969,6 +1081,11 @@ file_fdopen(int fd)
         /* XXX, verify result? */
     }
 #endif
+#ifdef HAVE_ZSTD
+    /* we should have separate input and output buf sizes */
+    want = MAX(want, ZSTD_DStreamInSize());
+    want = MAX(want, ZSTD_DStreamOutSize());
+#endif
 
     /* allocate buffers */
     state->in.buf = (unsigned char *)g_try_malloc((gsize)want);
@@ -979,11 +1096,7 @@ file_fdopen(int fd)
     state->out.avail = 0;
     state->size = want;
     if (state->in.buf == NULL || state->out.buf == NULL) {
-        g_free(state->out.buf);
-        g_free(state->in.buf);
-        g_free(state);
-        errno = ENOMEM;
-        return NULL;
+       goto err;
     }
 
 #ifdef HAVE_ZLIB
@@ -994,18 +1107,45 @@ file_fdopen(int fd)
     state->strm.avail_in = 0;
     state->strm.next_in = Z_NULL;
     if (inflateInit2(&(state->strm), -15) != Z_OK) {    /* raw inflate */
-        g_free(state->out.buf);
-        g_free(state->in.buf);
-        g_free(state);
-        errno = ENOMEM;
-        return NULL;
+        goto err;
     }
 
     /* for now, assume we should check the crc */
     state->dont_check_crc = FALSE;
 #endif
+
+#ifdef HAVE_ZSTD
+    state->zstd_dctx = ZSTD_createDCtx();
+    if (state->zstd_dctx == NULL) {
+        goto err;
+    }
+#endif
+
+#ifdef HAVE_LZ4
+    ret = LZ4F_createDecompressionContext(&state->lz4_dctx, LZ4F_VERSION);
+    if (LZ4F_isError(ret)) {
+        goto err;
+    }
+#endif
+
     /* return stream */
     return state;
+
+err:
+#ifdef HAVE_ZLIB
+    inflateEnd(&state->strm);
+#endif
+#ifdef HAVE_ZSTD
+    ZSTD_freeDCtx(state->zstd_dctx);
+#endif
+#ifdef HAVE_LZ4
+    LZ4F_freeDecompressionContext(state->lz4_dctx);
+#endif
+    g_free(state->out.buf);
+    g_free(state->in.buf);
+    g_free(state);
+    errno = ENOMEM;
+    return NULL;
 }
 
 FILE_T

@@ -31,7 +31,7 @@ capture file.
 B<Reordercap> is able to detect, read and write the same capture files that
 are supported by B<Wireshark>.
 The input file doesn't need a specific filename extension; the file
-format and an optional gzip compression will be detected automatically.
+format and an optional gzip, zstd or lz4 compression will be automatically detected.
 Near the beginning of the DESCRIPTION section of wireshark(1) or
 L<https://www.wireshark.org/docs/man-pages/wireshark.html>
 is a detailed description of the way B<Wireshark> handles this, which is

@@ -43,6 +43,8 @@
     </magic>
     <glob pattern="*.pcap"/>
     <glob pattern="*.pcap.gz"/>
+    <glob pattern="*.pcap.zst"/>
+    <glob pattern="*.pcap.lz4"/>
   </mime-type>
 
   <mime-type type="application/x-pcapng">
@@ -60,6 +62,10 @@
     <glob pattern="*.ntar"/>
     <glob pattern="*.pcapng.gz"/>
     <glob pattern="*.ntar.gz"/>
+    <glob pattern="*.pcapng.zst"/>
+    <glob pattern="*.ntar.zst"/>
+    <glob pattern="*.pcapng.lz4"/>
+    <glob pattern="*.ntar.lz4"/>
   </mime-type>
 
   <mime-type type="application/x-snoop">
@@ -70,6 +76,8 @@
     </magic>
     <glob pattern="*.snoop"/>
     <glob pattern="*.snoop.gz"/>
+    <glob pattern="*.snoop.zst"/>
+    <glob pattern="*.snoop.lz4"/>
   </mime-type>
 
   <mime-type type="application/x-iptrace">
@@ -90,6 +98,8 @@
     </magic>
     <glob pattern="*.tr1"/>
     <glob pattern="*.tr1.gz"/>
+    <glob pattern="*.tr1.zst"/>
+    <glob pattern="*.tr1.lz4"/>
   </mime-type>
 
   <mime-type type="application/x-nettl">
@@ -102,6 +112,10 @@
     <glob pattern="*.trc1"/>
     <glob pattern="*.trc0.gz"/>
     <glob pattern="*.trc1.gz"/>
+    <glob pattern="*.trc0.zst"/>
+    <glob pattern="*.trc1.zst"/>
+    <glob pattern="*.trc0.lz4"/>
+    <glob pattern="*.trc1.lz4"/>
   </mime-type>
 
   <mime-type type="application/x-radcom">
@@ -126,6 +140,14 @@
     <glob pattern="*.pkt.gz"/>
     <glob pattern="*.tpc.gz"/>
     <glob pattern="*.wpz.gz"/>
+    <glob pattern="*.apc.zst"/>
+    <glob pattern="*.pkt.zst"/>
+    <glob pattern="*.tpc.zst"/>
+    <glob pattern="*.wpz.zst"/>
+    <glob pattern="*.apc.lz4"/>
+    <glob pattern="*.pkt.lz4"/>
+    <glob pattern="*.tpc.lz4"/>
+    <glob pattern="*.wpz.lz4"/>
   </mime-type>
 
   <mime-type type="application/x-visualnetworks">
@@ -144,6 +166,8 @@
     </magic>
     <glob pattern="*.bfr"/>
     <glob pattern="*.bfr.gz"/>
+    <glob pattern="*.bfr.zst"/>
+    <glob pattern="*.bfr.lz4"/>
   </mime-type>
 
   <mime-type type="application/x-5view">
@@ -154,6 +178,8 @@
     </magic>
     <glob pattern="*.5vw"/>
     <glob pattern="*.5vw.gz"/>
+    <glob pattern="*.5vw.zst"/>
+    <glob pattern="*.5vw.lz4"/>
   </mime-type>
 
   <mime-type type="application/x-tektronix-rf5">
@@ -164,6 +190,8 @@
     </magic>
     <glob pattern="*.rf5"/>
     <glob pattern="*.rf5.gz"/>
+    <glob pattern="*.rf5.zst"/>
+    <glob pattern="*.rf5.lz4"/>
   </mime-type>
 
   <mime-type type="application/x-micropross-mplog">
@@ -174,6 +202,8 @@
     </magic>
     <glob pattern="*.mplog"/>
     <glob pattern="*.mplog.gz"/>
+    <glob pattern="*.mplog.zst"/>
+    <glob pattern="*.mplog.lz4"/>
   </mime-type>
 
   <mime-type type="application/x-apple-packetlogger">
@@ -181,6 +211,8 @@
     <generic-icon name="org.wireshark.Wireshark-mimetype"/>
     <glob pattern="*.pklg"/>
     <glob pattern="*.pklg.gz"/>
+    <glob pattern="*.pklg.zst"/>
+    <glob pattern="*.pklg.lz4"/>
   </mime-type>
 
   <mime-type type="application/x-endace-erf">
@@ -188,6 +220,8 @@
     <generic-icon name="org.wireshark.Wireshark-mimetype"/>
     <glob pattern="*.erf"/>
     <glob pattern="*.erf.gz"/>
+    <glob pattern="*.erf.zst"/>
+    <glob pattern="*.erf.lz4"/>
   </mime-type>
 
   <mime-type type="application/ipfix">
@@ -195,6 +229,8 @@
     <generic-icon name="org.wireshark.Wireshark-mimetype"/>
     <glob pattern="*.ipfix"/>
     <glob pattern="*.ipfix.gz"/>
+    <glob pattern="*.ipfix.zst"/>
+    <glob pattern="*.ipfix.lz4"/>
     <!-- Don't register for .pfx: that extension has another (more common) use -->
   </mime-type>
 
@@ -203,5 +239,7 @@
     <generic-icon name="org.wireshark.Wireshark-mimetype"/>
     <glob pattern="*.vwr"/>
     <glob pattern="*.vwr.gz"/>
+    <glob pattern="*.vwr.zst"/>
+    <glob pattern="*.vwr.lz4"/>
   </mime-type>
 </mime-info>

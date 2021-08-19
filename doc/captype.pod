@@ -22,7 +22,7 @@ prints the capture file type of each E<lt>I<infile>E<gt>.
 B<Captype> is able to detect and read the same capture files that are
 supported by B<Wireshark>.
 The input files don't need a specific filename extension; the file
-format and an optional gzip compression will be automatically detected.
+format and an optional gzip, zstd or lz4 compression will be automatically detected.
 Near the beginning of the DESCRIPTION section of wireshark(1) or
 L<https://www.wireshark.org/docs/man-pages/wireshark.html>
 is a detailed description of the way B<Wireshark> handles this, which is
