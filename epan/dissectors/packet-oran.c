@@ -487,7 +487,8 @@ addSeqid(tvbuff_t *tvb, proto_tree *oran_tree, gint *offset)
     proto_item_append_text(seqIdItem, ", SeqId: %d, SubSeqId: %d, E: %d", seqId, subSeqId, e);
 }
 
-static float scale_to_float(guint32 h)
+/* Special case for uncompressed/16-bit value */
+static float uncompressed_to_float(guint32 h)
 {
     gint16 i16 = h & 0x0000ffff;
     return ((float)i16) / 0x7fff;
@@ -506,26 +507,28 @@ static int dissect_bfwCompHdr(tvbuff_t *tvb, proto_tree *tree, gint offset,
 
 /* Fields present (if any) depend upon passed-in bfwCompMeth */
 static int dissect_bfwCompParam(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint offset,
-                                proto_item *ti, guint32 bfwcomphdr_comp_method, gboolean *supported)
+                                proto_item *ti, guint32 bfwcomphdr_comp_method,
+                                guint32 *exponent, gboolean *supported)
 {
     *supported = FALSE;
     switch (bfwcomphdr_comp_method) {
-        case 0:  /* no compression */
+        case COMP_NONE:
             /* In this case, bfwCompParam is absent */
             *supported = TRUE;
             break;
-        case 1: /* block fl. point */
+        case COMP_BLOCK_FP:
             /* 4 reserved bits +  exponent */
-            proto_tree_add_item(tree, hf_oran_exponent,
-                                tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item_ret_uint(tree, hf_oran_exponent,
+                                         tvb, offset, 1, ENC_BIG_ENDIAN, exponent);
+            *supported = TRUE;
             offset++;
             break;
-        case 2: /* block scaling */
+        case COMP_BLOCK_SCALE:
             proto_tree_add_item(tree, hf_oran_blockScaler,
                                 tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
             break;
-        case 3: /* u-law */
+        case COMP_U_LAW:
             /* compBitWidth, compShift */
             proto_tree_add_item(tree, hf_oran_compBitWidth,
                                 tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -533,7 +536,7 @@ static int dissect_bfwCompParam(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
                                 tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
             break;
-        case 4: /* beamspace */
+        case COMP_MODULATION: /* beamspace */
             /* TODO: activeBeamspaceCoefficientMask - ceil(K/8) octets */
             /* proto_tree_add_item(extension_tree, hf_oran_blockScaler,
                                 tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -554,6 +557,38 @@ static int dissect_bfwCompParam(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
     return offset;
 }
 
+
+static gfloat decompress_value(guint32 bits, guint32 comp_method, guint8 iq_width _U_, guint32 exponent)
+{
+    switch (comp_method) {
+        case COMP_NONE: /* no compression */
+            return uncompressed_to_float(bits);
+
+        case COMP_BLOCK_FP: /* block floating point */
+        {
+            /* A.1.2 Block Floating Point Decompression Algorithm */
+            gint32 cPRB = bits;
+            guint32 scaler = 2 << (exponent-1);  /* i.e. 2^exponent */
+
+            /* Check last bit, in case we need to flip to -ve */
+            if (cPRB >= (1<<(iq_width-1))) {
+                cPRB -= (1<<iq_width);
+            }
+
+            const guint8 mantissa_bits = iq_width-1;
+            return (cPRB / (gfloat)(1 << (15+mantissa_bits))) * scaler;
+        }
+
+        case COMP_BLOCK_SCALE:
+        case COMP_U_LAW:
+        case COMP_MODULATION:
+        default:
+            /* Not supported! */
+            return 0.0;
+    }
+}
+
+
 #define ORPHAN_BUNDLE_NUMBER 999
 
 static guint32 dissect_bfw_bundle(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint offset,
@@ -563,8 +598,9 @@ static guint32 dissect_bfw_bundle(tvbuff_t *tvb, proto_tree *tree, packet_info *
 {
     /* bfwCompParam */
     gboolean compression_method_supported = FALSE;
+    guint32  exponent = 0;
     offset = dissect_bfwCompParam(tvb, tree, pinfo, offset, comp_meth_ti,
-                                  bfwcomphdr_comp_meth, &compression_method_supported);
+                                  bfwcomphdr_comp_meth, &exponent, &compression_method_supported);
 
     /* Can't show details of unsupported compression method */
     if (!compression_method_supported) {
@@ -618,7 +654,8 @@ static guint32 dissect_bfw_bundle(tvbuff_t *tvb, proto_tree *tree, packet_info *
         /* I */
         /* Get bits, and convert to float. */
         guint32 bits = tvb_get_bits(tvb, bit_offset, iq_width, ENC_BIG_ENDIAN);
-        gfloat value = scale_to_float(bits);
+        gfloat value = decompress_value(bits, bfwcomphdr_comp_meth, iq_width, exponent);
+
         /* Add to tree. */
         proto_tree_add_float_format_value(bfw_tree, hf_oran_bfw_i, tvb, bit_offset/8, (iq_width+7)/8, value, "#%u=%f", m, value);
         bit_offset += iq_width;
@@ -627,7 +664,7 @@ static guint32 dissect_bfw_bundle(tvbuff_t *tvb, proto_tree *tree, packet_info *
         /* Q */
         /* Get bits, and convert to float. */
         bits = tvb_get_bits(tvb, bit_offset, iq_width, ENC_BIG_ENDIAN);
-        value = scale_to_float(bits);
+        value = decompress_value(bits, bfwcomphdr_comp_meth, iq_width, exponent);
         /* Add to tree. */
         proto_tree_add_float_format_value(bfw_tree, hf_oran_bfw_q, tvb, bit_offset/8, (iq_width+7)/8, value, "#%u=%f", m, value);
         bit_offset += iq_width;
@@ -801,9 +838,10 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 }
 
                 /* bfwCompParam */
+                guint32 exponent = 0;
                 gboolean compression_method_supported = FALSE;
                 offset = dissect_bfwCompParam(tvb, extension_tree, pinfo, offset, comp_meth_ti,
-                                              bfwcomphdr_comp_meth, &compression_method_supported);
+                                              bfwcomphdr_comp_meth, &exponent, &compression_method_supported);
 
                 /* Can't show details of unsupported compression method */
                 if (!compression_method_supported) {
@@ -841,7 +879,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                     for (guint m=0; m < pref_num_bf_weights; m++) {
                         /* Get bits, and convert to float. */
                         guint32 bits = tvb_get_bits(tvb, bit_offset, iq_width, ENC_BIG_ENDIAN);
-                        gfloat value = scale_to_float(bits);
+                        gfloat value = uncompressed_to_float(bits);
                         /* Add to tree. */
                         proto_tree_add_float_format_value(bfw_tree, hf_oran_bfw_i, tvb, bit_offset/8, (iq_width+7)/8, value, "#%u=%f", m, value);
                         bit_offset += iq_width;
@@ -855,7 +893,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                     for (guint m=0; m < pref_num_bf_weights; m++) {
                         /* Get bits, and convert to float. */
                         guint32 bits = tvb_get_bits(tvb, bit_offset, iq_width, ENC_BIG_ENDIAN);
-                        gfloat value = scale_to_float(bits);
+                        gfloat value = uncompressed_to_float(bits);
                         /* Add to tree. */
                         proto_tree_add_float_format_value(bfw_tree, hf_oran_bfw_q, tvb, bit_offset/8, (iq_width+7)/8, value, "#%u=%f", m, value);
                         bit_offset += iq_width;
