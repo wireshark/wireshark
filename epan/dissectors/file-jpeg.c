@@ -731,7 +731,6 @@ process_app2_segment(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, guint3
         proto_tree_add_bytes_format_value(subtree, hf_remain_seg_data, tvb, 4 + str_size, -1, NULL, "%u bytes", len - 2 - str_size);
         proto_item_append_text(ti, " (Unknown identifier)");
     }
-    wmem_free(NULL, str);
 }
 
 static gint
