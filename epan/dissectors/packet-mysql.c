@@ -1201,6 +1201,7 @@ typedef struct mysql_conn_data {
 	gboolean is_mariadb_client; /* set to 1, if connected from a MariaDB client */
 	guint32 mariadb_server_ext_caps;
 	guint32 mariadb_client_ext_caps;
+	guint64 remaining_field_packet_count;
 } mysql_conn_data_t;
 
 struct mysql_frame_data {
@@ -1373,6 +1374,21 @@ static void mysql_set_conn_state(packet_info *pinfo, mysql_conn_data_t *conn_dat
 	{
 		conn_data->state = state;
 	}
+}
+
+static guint64 mysql_get_remaining_field_packet_count(mysql_conn_data_t *conn_data)
+{
+	return conn_data->remaining_field_packet_count;
+}
+
+static void mysql_dec_remaining_field_packet_count(mysql_conn_data_t *conn_data)
+{
+	conn_data->remaining_field_packet_count--;
+}
+
+static void mysql_set_remaining_field_packet_count(mysql_conn_data_t *conn_data, guint64 num_fields)
+{
+	conn_data->remaining_field_packet_count = num_fields;
 }
 
 static int
@@ -2288,6 +2304,10 @@ mysql_dissect_response(tvbuff_t *tvb, packet_info *pinfo, int offset,
 		case RESPONSE_PREPARE:
 		case PREPARED_PARAMETERS:
 			offset = mysql_dissect_field_packet(tvb, offset, tree, conn_data);
+			mysql_dec_remaining_field_packet_count(conn_data);
+			if ((conn_data->clnt_caps_ext & MYSQL_CAPS_DE) && (mysql_get_remaining_field_packet_count(conn_data) == 0)) {
+				mysql_set_conn_state(pinfo, conn_data, ROW_PACKET);
+			}
 			break;
 
 		case ROW_PACKET:
@@ -2592,6 +2612,7 @@ mysql_dissect_result_header(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
 	if (num_fields) {
 		mysql_set_conn_state(pinfo, conn_data, FIELD_PACKET);
+		mysql_set_remaining_field_packet_count(conn_data, num_fields);
 	} else {
 		mysql_set_conn_state(pinfo, conn_data, ROW_PACKET);
 	}
