@@ -1178,7 +1178,7 @@ static const gchar *get_sw_string(guint16 sw)
 	case 0x6f:
 		return "Technical problem with no diagnostic";
 	}
-	return val_to_str(sw, sw_vals, "%04x");
+	return val_to_str(sw, sw_vals, "Unknown status word: %04x");
 }
 
 static int
@@ -1441,7 +1441,7 @@ static gint
 dissect_rsp_apdu_tvb(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree, proto_tree *sim_tree)
 {
 	guint16 sw;
-	proto_item *ti;
+	proto_item *ti = NULL;
 	guint tvb_len = tvb_reported_length(tvb);
 
 	if (tree && !sim_tree) {
@@ -1461,16 +1461,21 @@ dissect_rsp_apdu_tvb(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree 
 							"Status Word: %04x %s", sw, get_sw_string(sw));
 	offset += 2;
 
-	switch (sw >> 8) {
-	case 0x90:
-	case 0x91:
-	case 0x92:
-	case 0x9e:
-	case 0x9f:
-		break;
-	default:
-		col_append_fstr(pinfo->cinfo, COL_INFO, ": %s ", get_sw_string(sw));
-		break;
+	if (ti) {
+		/* Always show status in info column when response only */
+		col_add_fstr(pinfo->cinfo, COL_INFO, "Response, %s ", get_sw_string(sw));
+	} else {
+		switch (sw >> 8) {
+		case 0x90:
+		case 0x91:
+		case 0x92:
+		case 0x9e:
+		case 0x9f:
+			break;
+		default:
+			col_append_fstr(pinfo->cinfo, COL_INFO, ": %s ", get_sw_string(sw));
+			break;
+		}
 	}
 
 	return offset;
