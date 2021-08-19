@@ -546,6 +546,12 @@ mp2t_dissect_packet(tvbuff_t *tvb, enum pid_payload_type pload_type,
         call_data_dissector(tvb, pinfo, tree);
 }
 
+/* Determine the length of a payload packet. If there aren't enough
+ * bytes to determine the length, returns -1. This will usually be
+ * called on the first fragment of a packet, but will be called
+ * on the second fragment if it returned -1 previously. (Returning
+ * -1 a second time indicates issues with dropped packets, etc.)
+ */
 static guint
 mp2t_get_packet_length(tvbuff_t *tvb, guint offset, packet_info *pinfo,
             guint32 frag_id, enum pid_payload_type pload_type)
@@ -556,18 +562,30 @@ mp2t_get_packet_length(tvbuff_t *tvb, guint offset, packet_info *pinfo,
     gint           pkt_len = 0;
     guint          remaining_len;
 
+    stream = (mp2t_stream_key *)p_get_proto_data(pinfo->pool, pinfo, proto_mp2t, MP2T_PROTO_DATA_STREAM);
     if (pinfo->fd->visited) {
         frag = fragment_get_reassembled_id(&mp2t_reassembly_table, pinfo, frag_id);
-        if (!frag) {
-            /* Not reassembled on the first pass, i.e. at the end of the
-             * capture. We're not going to reassemble it, so just return -1.
+        if (frag) {
+            len_tvb = frag->tvb_data;
+            offset = 0;
+        } else {
+            /* Not reassembled on the first pass. There are two possibilities:
+             * 1) An entire packet contained within a TSP, so it never was
+             * put in the table.
+             * 2) Dangling fragments at the end of the capture.
              */
-            return -1;
+            frag = fragment_get(&mp2t_reassembly_table, pinfo, frag_id, stream);
+            if (!frag) {
+                /* This is the entire packet */
+                len_tvb = tvb;
+            } else {
+                /* Dangling packets at the end that failed to reassemble the
+                 * first time around, so don't bother this time
+                 */
+                return -1;
+            }
         }
-        len_tvb = frag->tvb_data;
-        offset = 0;
     } else {
-        stream = (mp2t_stream_key *)p_get_proto_data(pinfo->pool, pinfo, proto_mp2t, MP2T_PROTO_DATA_STREAM);
         frag = fragment_get(&mp2t_reassembly_table, pinfo, frag_id, stream);
         if (frag)
             frag = frag->next;
@@ -852,13 +870,22 @@ mp2t_process_fragmented_payload(tvbuff_t *tvb, gint offset, guint remaining_len,
     }
 
     if (frag_tot_len == (guint)-1) {
+        /* We couldn't determine the total length of the reassembly from
+         * the first fragment (too short), so get it now that we have the
+         * second fragment.
+         */
         frag_tot_len = mp2t_get_packet_length(tvb, offset, pinfo, frag_id, pid_analysis->pload_type);
 
         if (frag_tot_len == (guint)-1) {
+            /* We still don't have enough to determine the length; this can
+             * only happen with dropped or out of order packets. Bail out.
+             * XXX: This just skips the packet and tries the next one, but
+             * there are probably better ways to handle it, especially if
+             * the PUSI flag is set in this packet.
+             */
             return;
         }
     }
-
 
     /* The beginning of a new packet is present */
     if (pusi_flag) {
@@ -909,7 +936,7 @@ mp2t_process_fragmented_payload(tvbuff_t *tvb, gint offset, guint remaining_len,
         }
 
         while (remaining_len > 0) {
-            /* Don't like subsequent packets overwrite the Info column */
+            /* Don't let subsequent packets overwrite the Info column */
             col_append_str(pinfo->cinfo, COL_INFO, " ");
             col_set_fence(pinfo->cinfo, COL_INFO);
 
