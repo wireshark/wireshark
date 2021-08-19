@@ -530,6 +530,7 @@ static int hf_icmpv6_da_lifetime = -1;
 static int hf_icmpv6_da_eui64 = -1;
 static int hf_icmpv6_da_raddr = -1;
 
+static heur_dissector_list_t icmpv6_heur_subdissector_list;
 static int icmpv6_tap = -1;
 
 /* RFC 7731 MPL (159) */
@@ -4182,8 +4183,15 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     trans = transaction_end(pinfo, icmp6_tree, conv_key);
                 }
             }
+            heur_dtbl_entry_t *hdtbl_entry;
             next_tvb = tvb_new_subset_remaining(tvb, offset);
-            offset += call_data_dissector(next_tvb, pinfo, icmp6_tree);
+            gboolean result = dissector_try_heuristic(icmpv6_heur_subdissector_list, next_tvb, pinfo, tree, &hdtbl_entry, NULL);
+            if (!result) {
+                offset += call_data_dissector(next_tvb, pinfo, icmp6_tree);
+            }
+            else {
+                offset += tvb_reported_length(next_tvb);
+            }
         }
     }
 
@@ -6179,6 +6187,7 @@ proto_register_icmpv6(void)
 
     register_seq_analysis("icmpv6", "ICMPv6 Flows", proto_icmpv6, NULL, TL_REQUIRES_COLUMNS, icmpv6_seq_analysis_packet);
     icmpv6_handle = register_dissector("icmpv6", dissect_icmpv6, proto_icmpv6);
+    icmpv6_heur_subdissector_list = register_heur_dissector_list("icmpv6", proto_icmpv6);
     icmpv6_tap = register_tap("icmpv6");
 }
 

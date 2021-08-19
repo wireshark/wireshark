@@ -43,6 +43,7 @@
 void proto_register_icmp(void);
 void proto_reg_handoff_icmp(void);
 
+static heur_dissector_list_t icmp_heur_subdissector_list;
 static int icmp_tap = -1;
 
 /* Conversation related data */
@@ -1757,8 +1758,11 @@ dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
 								8 + 8),
 				       pinfo, icmp_tree);
 		} else {
-			call_data_dissector(tvb_new_subset_remaining(tvb, 8),
-				       pinfo, icmp_tree);
+			heur_dtbl_entry_t *hdtbl_entry;
+			next_tvb = tvb_new_subset_remaining(tvb, 8);
+			if (!dissector_try_heuristic(icmp_heur_subdissector_list, next_tvb, pinfo, tree, &hdtbl_entry, NULL)) {
+				call_data_dissector(next_tvb, pinfo, icmp_tree);
+			}
 		}
 		break;
 
@@ -2326,6 +2330,7 @@ void proto_register_icmp(void)
 
 	register_seq_analysis("icmp", "ICMP Flows", proto_icmp, NULL, TL_REQUIRES_COLUMNS, icmp_seq_analysis_packet);
 	icmp_handle = register_dissector("icmp", dissect_icmp, proto_icmp);
+	icmp_heur_subdissector_list = register_heur_dissector_list("icmp", proto_icmp);
 	register_dissector("icmp_extension", dissect_icmp_extension, proto_icmp);
 	icmp_tap = register_tap("icmp");
 }
