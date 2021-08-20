@@ -18,6 +18,8 @@
 #include <epan/address_types.h>
 #include <epan/tap.h>
 
+#include <wsutil/pint.h>
+
 static GSList *export_pdu_tap_name_list = NULL;
 
 static int exp_pdu_data_ip_size(const address* addr)
@@ -39,17 +41,13 @@ static int exp_pdu_data_src_ip_size(packet_info *pinfo, void* data _U_)
 static int exp_pdu_data_src_ip_populate_data(packet_info *pinfo, void* data _U_, guint8 *tlv_buffer, guint32 buffer_size _U_)
 {
 	if(pinfo->net_src.type == AT_IPv4){
-		tlv_buffer[0] = 0;
-		tlv_buffer[1] = EXP_PDU_TAG_IPV4_SRC;
-		tlv_buffer[2] = 0;
-		tlv_buffer[3] = EXP_PDU_TAG_IPV4_LEN; /* tag length */
+		phton16(tlv_buffer+0, EXP_PDU_TAG_IPV4_SRC);
+		phton16(tlv_buffer+2, EXP_PDU_TAG_IPV4_LEN); /* tag length */
 		memcpy(tlv_buffer+4, pinfo->net_src.data, EXP_PDU_TAG_IPV4_LEN);
 		return 4 + EXP_PDU_TAG_IPV4_LEN;
 	}else if(pinfo->net_src.type == AT_IPv6){
-		tlv_buffer[0] = 0;
-		tlv_buffer[1] = EXP_PDU_TAG_IPV6_SRC;
-		tlv_buffer[2] = 0;
-		tlv_buffer[3] = EXP_PDU_TAG_IPV6_LEN; /* tag length */
+		phton16(tlv_buffer+0, EXP_PDU_TAG_IPV6_SRC);
+		phton16(tlv_buffer+2, EXP_PDU_TAG_IPV6_LEN); /* tag length */
 		memcpy(tlv_buffer+4, pinfo->net_src.data, EXP_PDU_TAG_IPV6_LEN);
 		return 4 + EXP_PDU_TAG_IPV6_LEN;
 	}
@@ -65,17 +63,13 @@ static int exp_pdu_data_dst_ip_size(packet_info *pinfo, void* data _U_)
 static int exp_pdu_data_dst_ip_populate_data(packet_info *pinfo, void* data _U_, guint8 *tlv_buffer, guint32 buffer_size _U_)
 {
 	if(pinfo->net_dst.type == AT_IPv4){
-		tlv_buffer[0] = 0;
-		tlv_buffer[1] = EXP_PDU_TAG_IPV4_DST;
-		tlv_buffer[2] = 0;
-		tlv_buffer[3] = EXP_PDU_TAG_IPV4_LEN; /* tag length */
+		phton16(tlv_buffer+0, EXP_PDU_TAG_IPV4_DST);
+		phton16(tlv_buffer+2, EXP_PDU_TAG_IPV4_LEN); /* tag length */
 		memcpy(tlv_buffer+4, pinfo->net_dst.data, EXP_PDU_TAG_IPV4_LEN);
 		return 4 + EXP_PDU_TAG_IPV4_LEN;
 	}else if(pinfo->net_dst.type == AT_IPv6){
-		tlv_buffer[0] = 0;
-		tlv_buffer[1] = EXP_PDU_TAG_IPV6_DST;
-		tlv_buffer[2] = 0;
-		tlv_buffer[3] = EXP_PDU_TAG_IPV6_LEN; /* tag length */
+		phton16(tlv_buffer+0, EXP_PDU_TAG_IPV6_DST);
+		phton16(tlv_buffer+2, EXP_PDU_TAG_IPV6_LEN); /* tag length */
 		memcpy(tlv_buffer+4, pinfo->net_dst.data, EXP_PDU_TAG_IPV6_LEN);
 		return 4 + EXP_PDU_TAG_IPV6_LEN;
 	}
@@ -126,15 +120,10 @@ static int exp_pdu_data_port_type_populate_data(packet_info *pinfo, void* data, 
 {
 	guint pt;
 
-	tlv_buffer[0] = 0;
-	tlv_buffer[1] = EXP_PDU_TAG_PORT_TYPE;
-	tlv_buffer[2] = 0;
-	tlv_buffer[3] = EXP_PDU_TAG_PORT_TYPE_LEN; /* tag length */
+	phton16(tlv_buffer+0, EXP_PDU_TAG_PORT_TYPE);
+	phton16(tlv_buffer+2, EXP_PDU_TAG_PORT_TYPE_LEN); /* tag length */
 	pt = exp_pdu_new_to_old_port_type(pinfo->ptype);
-	tlv_buffer[4] = (pt & 0xff000000) >> 24;
-	tlv_buffer[5] = (pt & 0x00ff0000) >> 16;
-	tlv_buffer[6] = (pt & 0x0000ff00) >> 8;
-	tlv_buffer[7] = (pt & 0x000000ff);
+	phton32(tlv_buffer+4, pt);
 
 	return exp_pdu_data_port_type_size(pinfo, data);
 }
@@ -146,14 +135,9 @@ static int exp_pdu_data_port_size(packet_info *pinfo _U_, void* data _U_)
 
 static int exp_pdu_data_port_populate_data(guint32 port, guint8 porttype, guint8 *tlv_buffer, guint32 buffer_size _U_)
 {
-	tlv_buffer[0] = 0;
-	tlv_buffer[1] = porttype;
-	tlv_buffer[2] = 0;
-	tlv_buffer[3] = EXP_PDU_TAG_PORT_LEN; /* tag length */
-	tlv_buffer[4] = (port & 0xff000000) >> 24;
-	tlv_buffer[5] = (port & 0x00ff0000) >> 16;
-	tlv_buffer[6] = (port & 0x0000ff00) >> 8;
-	tlv_buffer[7] = (port & 0x000000ff);
+	phton16(tlv_buffer+0, porttype);
+	phton16(tlv_buffer+2, EXP_PDU_TAG_PORT_LEN); /* tag length */
+	phton32(tlv_buffer+4, port);
 
 	return EXP_PDU_TAG_PORT_LEN + 4;
 }
@@ -175,14 +159,9 @@ static int exp_pdu_data_orig_frame_num_size(packet_info *pinfo _U_, void* data _
 
 static int exp_pdu_data_orig_frame_num_populate_data(packet_info *pinfo, void* data, guint8 *tlv_buffer, guint32 buffer_size _U_)
 {
-	tlv_buffer[0] = 0;
-	tlv_buffer[1] = EXP_PDU_TAG_ORIG_FNO;
-	tlv_buffer[2] = 0;
-	tlv_buffer[3] = EXP_PDU_TAG_ORIG_FNO_LEN; /* tag length */
-	tlv_buffer[4] = (pinfo->num & 0xff000000) >> 24;
-	tlv_buffer[5] = (pinfo->num & 0x00ff0000) >> 16;
-	tlv_buffer[6] = (pinfo->num & 0x0000ff00) >> 8;
-	tlv_buffer[7] = (pinfo->num & 0x000000ff);
+	phton16(tlv_buffer+0, EXP_PDU_TAG_ORIG_FNO);
+	phton16(tlv_buffer+2, EXP_PDU_TAG_ORIG_FNO_LEN); /* tag length */
+	phton32(tlv_buffer+4, pinfo->num);
 
 	return exp_pdu_data_orig_frame_num_size(pinfo, data);
 }
@@ -196,14 +175,9 @@ WS_DLL_PUBLIC int exp_pdu_data_dissector_table_num_value_populate_data(packet_in
 {
 	guint32 value = GPOINTER_TO_UINT(data);
 
-	tlv_buffer[0] = 0;
-	tlv_buffer[1] = EXP_PDU_TAG_DISSECTOR_TABLE_NAME_NUM_VAL;
-	tlv_buffer[2] = 0;
-	tlv_buffer[3] = EXP_PDU_TAG_DISSECTOR_TABLE_NUM_VAL_LEN; /* tag length */
-	tlv_buffer[4] = (value & 0xff000000) >> 24;
-	tlv_buffer[5] = (value & 0x00ff0000) >> 16;
-	tlv_buffer[6] = (value & 0x0000ff00) >> 8;
-	tlv_buffer[7] = (value & 0x000000ff);
+	phton16(tlv_buffer+0, EXP_PDU_TAG_DISSECTOR_TABLE_NAME_NUM_VAL);
+	phton16(tlv_buffer+2, EXP_PDU_TAG_DISSECTOR_TABLE_NUM_VAL_LEN); /* tag length */
+	phton32(tlv_buffer+4, value);
 
 	return exp_pdu_data_dissector_table_num_value_size(pinfo, data);
 }
@@ -275,10 +249,8 @@ export_pdu_create_tags(packet_info *pinfo, const char* proto_name, guint16 tag_t
 	buf_remaining = exp_pdu_data->tlv_buffer_len;
 
 	/* Start by adding protocol name as a tag */
-	buffer_data[0] = (tag_type & 0xff00) >> 8;
-	buffer_data[1] = tag_type & 0x00ff;
-	buffer_data[2] = (proto_tag_len & 0xff00) >> 8;
-	buffer_data[3] = proto_tag_len & 0x00ff; /* tag length */
+	phton16(buffer_data+0, tag_type);
+	phton16(buffer_data+2, proto_tag_len); /* tag length */
 	memcpy(buffer_data+4, proto_name, proto_str_len);
 	buffer_data += (proto_tag_len+4);
 	buf_remaining -= (proto_tag_len+4);
