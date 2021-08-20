@@ -143,7 +143,7 @@ static void parse_PAYLOAD(proto_tree *, packet_info *, struct infinibandinfo *, 
 static void parse_IETH(proto_tree *, tvbuff_t *, gint *);
 static void parse_IMMDT(proto_tree *, tvbuff_t *, gint *offset);
 static void parse_ATOMICACKETH(proto_tree *, tvbuff_t *, gint *offset);
-static void parse_AETH(proto_tree *, tvbuff_t *, gint *offset);
+static void parse_AETH(proto_tree *, tvbuff_t *, gint *offset, packet_info *pinfo);
 static void parse_ATOMICETH(proto_tree *, tvbuff_t *, gint *offset);
 static void parse_RETH(proto_tree *, tvbuff_t *, gint *offset,
                        struct infinibandinfo *info);
@@ -2043,7 +2043,7 @@ skip_lrh:
                 break;
             case RDETH_AETH_PAYLD:
                 parse_RDETH(all_headers_tree, tvb, &offset);
-                parse_AETH(all_headers_tree, tvb, &offset);
+                parse_AETH(all_headers_tree, tvb, &offset, pinfo);
 
                 packetLength -= 4; /* RDETH */
                 packetLength -= 4; /* AETH */
@@ -2058,7 +2058,7 @@ skip_lrh:
                 parse_PAYLOAD(all_headers_tree, pinfo, &info, tvb, &offset, packetLength, crclen, tree);
                 break;
             case RDETH_AETH:
-                parse_AETH(all_headers_tree, tvb, &offset);
+                parse_AETH(all_headers_tree, tvb, &offset, pinfo);
 
                 /*packetLength -= 4;*/ /* RDETH */
                 /*packetLength -= 4;*/ /* AETH */
@@ -2067,7 +2067,7 @@ skip_lrh:
                 break;
             case RDETH_AETH_ATOMICACKETH:
                 parse_RDETH(all_headers_tree, tvb, &offset);
-                parse_AETH(all_headers_tree, tvb, &offset);
+                parse_AETH(all_headers_tree, tvb, &offset, pinfo);
                 parse_ATOMICACKETH(all_headers_tree, tvb, &offset);
 
                 /*packetLength -= 4;*/ /* RDETH */
@@ -2136,20 +2136,20 @@ skip_lrh:
 
                 break;
             case AETH_PAYLD:
-                parse_AETH(all_headers_tree, tvb, &offset);
+                parse_AETH(all_headers_tree, tvb, &offset, pinfo);
 
                 packetLength -= 4; /* AETH */
 
                 parse_PAYLOAD(all_headers_tree, pinfo, &info, tvb, &offset, packetLength, crclen, tree);
                 break;
             case AETH:
-                parse_AETH(all_headers_tree, tvb, &offset);
+                parse_AETH(all_headers_tree, tvb, &offset, pinfo);
 
                 /*packetLength -= 4;*/ /* AETH */
 
                 break;
             case AETH_ATOMICACKETH:
-                parse_AETH(all_headers_tree, tvb, &offset);
+                parse_AETH(all_headers_tree, tvb, &offset, pinfo);
                 parse_ATOMICACKETH(all_headers_tree, tvb, &offset);
 
                 /*packetLength -= 4;*/ /* AETH */
@@ -2492,7 +2492,7 @@ parse_ATOMICETH(proto_tree * parentTree, tvbuff_t *tvb, gint *offset)
 * IN: tvb - the data buffer from wireshark
 * IN/OUT: The current and updated offset */
 static void
-parse_AETH(proto_tree * parentTree, tvbuff_t *tvb, gint *offset)
+parse_AETH(proto_tree * parentTree, tvbuff_t *tvb, gint *offset, packet_info *pinfo)
 {
     gint        local_offset = *offset;
     /* AETH - ACK Extended Transport Header */
@@ -2501,6 +2501,7 @@ parse_AETH(proto_tree * parentTree, tvbuff_t *tvb, gint *offset)
     proto_item *AETH_syndrome_item;
     proto_tree *AETH_syndrome_tree;
     guint8      opcode;
+    guint32     nak_error;
 
     AETH_header_item = proto_tree_add_item(parentTree, hf_infiniband_AETH, tvb, local_offset, 4, ENC_NA);
     proto_item_set_text(AETH_header_item, "%s", "AETH - ACK Extended Transport Header");
@@ -2524,7 +2525,8 @@ parse_AETH(proto_tree * parentTree, tvbuff_t *tvb, gint *offset)
             proto_tree_add_item(AETH_syndrome_tree, hf_infiniband_syndrome_reserved_value, tvb, local_offset, 1, ENC_BIG_ENDIAN);
             break;
         case AETH_SYNDROME_OPCODE_NAK:
-            proto_tree_add_item(AETH_syndrome_tree, hf_infiniband_syndrome_error_code, tvb, local_offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item_ret_uint(AETH_syndrome_tree, hf_infiniband_syndrome_error_code, tvb, local_offset, 1, ENC_BIG_ENDIAN, &nak_error);
+            col_append_fstr(pinfo->cinfo, COL_INFO, "[%s] ", val_to_str(nak_error, aeth_syndrome_nak_error_code_vals, "Unknown (%d)"));
             break;
     }
 
