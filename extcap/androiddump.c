@@ -26,6 +26,7 @@
 #include <wsutil/wslog.h>
 #include <ui/cmdarg_err.h>
 #include <wsutil/inet_addr.h>
+#include <wsutil/exported_pdu_tlvs.h>
 
 #include "ui/failure_message.h"
 
@@ -97,8 +98,6 @@
     #define EXTCAP_ENCAP_IEEE802_11_RADIO       WTAP_ENCAP_IEEE_802_11_RADIOTAP
     #define EXTCAP_ENCAP_NETLINK                WTAP_ENCAP_NETLINK
 #endif
-
-#define WIRESHARK_UPPER_PDU_TAG_DISSECTOR_NAME  0x000C
 
 #define INTERFACE_ANDROID_LOGCAT_MAIN                   "android-logcat-main"
 #define INTERFACE_ANDROID_LOGCAT_SYSTEM                 "android-logcat-system"
@@ -2029,7 +2028,7 @@ static int capture_android_logcat_text(char *interface, char *fifo,
 
     extcap_dumper = extcap_dumper_open(fifo, EXTCAP_ENCAP_WIRESHARK_UPPER_PDU);
 
-    exported_pdu_header_protocol_normal.tag = GUINT16_TO_BE(WIRESHARK_UPPER_PDU_TAG_DISSECTOR_NAME);
+    exported_pdu_header_protocol_normal.tag = GUINT16_TO_BE(EXP_PDU_TAG_PROTO_NAME);
     exported_pdu_header_protocol_normal.length = GUINT16_TO_BE(strlen(wireshark_protocol_logcat_text) + 2);
 
     serial_number = get_serial_from_interface(interface);
@@ -2182,10 +2181,10 @@ static int capture_android_logcat(char *interface, char *fifo,
 
     extcap_dumper = extcap_dumper_open(fifo, EXTCAP_ENCAP_WIRESHARK_UPPER_PDU);
 
-    exported_pdu_header_protocol_events.tag = GUINT16_TO_BE(WIRESHARK_UPPER_PDU_TAG_DISSECTOR_NAME);
+    exported_pdu_header_protocol_events.tag = GUINT16_TO_BE(EXP_PDU_TAG_PROTO_NAME);
     exported_pdu_header_protocol_events.length = GUINT16_TO_BE(strlen(wireshark_protocol_logcat_events) + 2);
 
-    exported_pdu_header_protocol_normal.tag = GUINT16_TO_BE(WIRESHARK_UPPER_PDU_TAG_DISSECTOR_NAME);
+    exported_pdu_header_protocol_normal.tag = GUINT16_TO_BE(EXP_PDU_TAG_PROTO_NAME);
     exported_pdu_header_protocol_normal.length = GUINT16_TO_BE(strlen(wireshark_protocol_logcat) + 2);
 
     serial_number = get_serial_from_interface(interface);
