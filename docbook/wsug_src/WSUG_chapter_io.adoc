@@ -334,9 +334,9 @@ The following file formats can be saved by Wireshark (with the known file extens
 
 * EyeSDN USB S0 traces ({asterisk}.trc)
 
-* Textronix K12 text file format captures ({asterisk}.txt)
+* Tekronix K12 text file format captures ({asterisk}.txt)
 
-* Textronix K12xx 32bit .rf5 format captures ({asterisk}.rf5)
+* Tektronix K12xx 32bit .rf5 format captures ({asterisk}.rf5)
 
 * Android Logcat binary logs ({asterisk}.logcat)
 

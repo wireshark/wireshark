@@ -51,7 +51,7 @@ The following features are new (or have been significantly updated) since versio
 * Wireshark now supports dissecting the rtp packet with OPUS payload.
 
 * Importing captures from text files is now also possible based on regular expressions. By specifying a regex capturing a single
-  packet including capturing groups for relevant fields a textfile can be converted to a libcap capture file. Supported data
+  packet including capturing groups for relevant fields a textfile can be converted to a libpcap capture file. Supported data
   encodings are plain-hexadecimal, -octal, -binary and base64.
   Also the timestamp format now allows the second-fractions to be placed anywhere in the timestamp and it will be stored with
   nanosecond instead of microsecond precision.
@@ -72,7 +72,7 @@ The following features are new (or have been significantly updated) since versio
 ** RTP Player added to menu Telephony>RTP>RTP Player
 
 * VoIP dialogs (VoIP Calls, RTP Streams, RTP Analysis, RTP Player, SIP Flows) are non-modal, can stay opened on background
-** Same tools are provided acros all dialogs (Prepare Filter, Analyse, RTP Player ...)
+** Same tools are provided across all dialogs (Prepare Filter, Analyse, RTP Player ...)
 
 * Follow stream is now able to follow SIP call by SIP.Call-ID
 

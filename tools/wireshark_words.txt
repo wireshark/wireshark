@@ -199,6 +199,7 @@ colorization
 colorize
 colorized
 colorizing
+colormap
 combiner
 combiners
 communication
@@ -330,6 +331,7 @@ dlsch
 dmepi
 dnskey
 docsis
+dodag
 double
 downlink
 dpauxmon
@@ -368,6 +370,7 @@ endianness
 enrollee
 entityid
 entryid
+enumerates
 enumerations
 epasv
 epdcch
@@ -380,6 +383,7 @@ errored
 errorportinfo
 erspan
 España
+esperanto
 etheraddr
 ethers
 ethertype
@@ -555,6 +559,7 @@ keygen
 keyid
 keylen
 keylog
+keymap
 keypress
 keyring
 keytab
@@ -568,6 +573,7 @@ leasequery
 libgcrypt
 libpcap
 linkaddr
+linker
 linkinfo
 linksys
 linux
@@ -590,6 +596,7 @@ malloc
 mantissa
 manuf
 mappable
+mariadb
 maxlen
 maybefcs
 mbits
@@ -732,6 +739,7 @@ optimisation
 optimizations
 optimizer
 optiplex
+ordinal
 ospf6
 outhdr
 packetcable
@@ -765,6 +773,7 @@ phonebook
 physcellid
 picmg
 pinfo
+pixmap
 plaintext
 plixer
 plugin
@@ -781,6 +790,7 @@ posix
 powercontrol
 pppdump
 prach
+preauth
 preconfiguration
 preconfigured
 preempting
@@ -819,6 +829,7 @@ qam16
 qam64
 qnet6
 qosinfo
+qsearch
 quadrature
 quadro
 quiescing
@@ -832,6 +843,7 @@ ranap
 randomization
 randomizer
 randpkt
+raster
 reachability
 readme
 realloc
@@ -856,6 +868,7 @@ recalculate
 recalculating
 recalibrate
 recognizer
+recompiled
 recompiling
 recomputed
 reconf
@@ -1070,6 +1083,7 @@ sysframe
 syslog
 systemd
 tablemod
+tabular
 tclas
 tcpdump
 tcpip
@@ -1174,6 +1188,7 @@ unescaped
 unexported
 unformatted
 unfragmented
+ungrab
 unhandled
 unicast
 unicode
@@ -1192,6 +1207,7 @@ unjoining
 unknown1
 unlink
 unlinked
+unmap
 unmappable
 unmarshal
 unmerged
@@ -1279,6 +1295,7 @@ withoutfcs
 wksta
 workarounds
 writable
+wscale
 wslua
 wsluarm
 x509sat
