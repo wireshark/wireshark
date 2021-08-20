@@ -82,38 +82,38 @@ static int exp_pdu_data_port_type_size(packet_info *pinfo _U_, void* data _U_)
 	return EXP_PDU_TAG_PORT_LEN + 4;
 }
 
-static guint exp_pdu_new_to_old_port_type(port_type pt)
+static guint exp_pdu_ws_port_type_to_exp_pdu_port_type(port_type pt)
 {
 	switch (pt)
 	{
 	case PT_NONE:
-		return OLD_PT_NONE;
+		return EXP_PDU_PT_NONE;
 	case PT_SCTP:
-		return OLD_PT_SCTP;
+		return EXP_PDU_PT_SCTP;
 	case PT_TCP:
-		return OLD_PT_TCP;
+		return EXP_PDU_PT_TCP;
 	case PT_UDP:
-		return OLD_PT_UDP;
+		return EXP_PDU_PT_UDP;
 	case PT_DCCP:
-		return OLD_PT_DCCP;
+		return EXP_PDU_PT_DCCP;
 	case PT_IPX:
-		return OLD_PT_IPX;
+		return EXP_PDU_PT_IPX;
 	case PT_DDP:
-		return OLD_PT_DDP;
+		return EXP_PDU_PT_DDP;
 	case PT_IDP:
-		return OLD_PT_IDP;
+		return EXP_PDU_PT_IDP;
 	case PT_USB:
-		return OLD_PT_USB;
+		return EXP_PDU_PT_USB;
 	case PT_I2C:
-		return OLD_PT_I2C;
+		return EXP_PDU_PT_I2C;
 	case PT_IBQP:
-		return OLD_PT_IBQP;
+		return EXP_PDU_PT_IBQP;
 	case PT_BLUETOOTH:
-		return OLD_PT_BLUETOOTH;
+		return EXP_PDU_PT_BLUETOOTH;
 	}
 
 	DISSECTOR_ASSERT(FALSE);
-	return OLD_PT_NONE;
+	return EXP_PDU_PT_NONE;
 }
 
 static int exp_pdu_data_port_type_populate_data(packet_info *pinfo, void* data, guint8 *tlv_buffer, guint32 buffer_size _U_)
@@ -122,7 +122,7 @@ static int exp_pdu_data_port_type_populate_data(packet_info *pinfo, void* data, 
 
 	phton16(tlv_buffer+0, EXP_PDU_TAG_PORT_TYPE);
 	phton16(tlv_buffer+2, EXP_PDU_TAG_PORT_TYPE_LEN); /* tag length */
-	pt = exp_pdu_new_to_old_port_type(pinfo->ptype);
+	pt = exp_pdu_ws_port_type_to_exp_pdu_port_type(pinfo->ptype);
 	phton32(tlv_buffer+4, pt);
 
 	return exp_pdu_data_port_type_size(pinfo, data);

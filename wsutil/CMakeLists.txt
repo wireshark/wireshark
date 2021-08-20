@@ -38,6 +38,7 @@ set(WSUTIL_PUBLIC_HEADERS
 	curve25519.h
 	eax.h
 	epochs.h
+	exported_pdu_tlvs.h
 	filesystem.h
 	g711.h
 	inet_addr.h

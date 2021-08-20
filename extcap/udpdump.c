@@ -45,6 +45,7 @@
 #include <wsutil/please_report_bug.h>
 #include <wsutil/wslog.h>
 #include <wsutil/pint.h>
+#include <wsutil/exported_pdu_tlvs.h>
 
 #include <cli_main.h>
 
@@ -60,13 +61,6 @@
 #define PKT_BUF_SIZE 65535
 
 #define UDPDUMP_EXPORT_HEADER_LEN 40
-
-/* Tags (from exported_pdu.h) */
-#define EXP_PDU_TAG_PROTO_NAME	12
-#define EXP_PDU_TAG_IPV4_SRC	20
-#define EXP_PDU_TAG_IPV4_DST	21
-#define EXP_PDU_TAG_SRC_PORT	25
-#define EXP_PDU_TAG_DST_PORT	26
 
 static gboolean run_loop = TRUE;
 

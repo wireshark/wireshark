@@ -24,7 +24,7 @@
 #include "wtap-int.h"
 #include "file_wrappers.h"
 
-#include <epan/exported_pdu.h>
+#include <wsutil/exported_pdu_tlvs.h>
 #include <wsutil/buffer.h>
 #include "wsutil/tempfile.h"
 #include "wsutil/os_version_info.h"
@@ -196,15 +196,15 @@ nettrace_parse_address(char* curr_pos, char* next_pos, gboolean is_src_addr, exp
 	scan_found = sscanf(curr_pos, ", %*s %*s %5u, %*s %*s %4s", &port, transp_str);
 	if (scan_found == 2) {
 		/* Only add port_type once */
-		if (exported_pdu_info->ptype == OLD_PT_NONE) {
+		if (exported_pdu_info->ptype == EXP_PDU_PT_NONE) {
 			if (g_ascii_strncasecmp(transp_str, "udp", 3) == 0) {
-				exported_pdu_info->ptype = OLD_PT_UDP;
+				exported_pdu_info->ptype = EXP_PDU_PT_UDP;
 			}
 			else if (g_ascii_strncasecmp(transp_str, "tcp", 3) == 0) {
-				exported_pdu_info->ptype = OLD_PT_TCP;
+				exported_pdu_info->ptype = EXP_PDU_PT_TCP;
 			}
 			else if (g_ascii_strncasecmp(transp_str, "sctp", 4) == 0) {
-				exported_pdu_info->ptype = OLD_PT_SCTP;
+				exported_pdu_info->ptype = EXP_PDU_PT_SCTP;
 			}
 		}
 		if (is_src_addr) {
@@ -262,7 +262,7 @@ nettrace_msg_to_packet(nettrace_3gpp_32_423_file_info_t *file_info, wtap_rec *re
 
 	/* Clear for each iteration */
 	exported_pdu_info.presence_flags = 0;
-	exported_pdu_info.ptype = OLD_PT_NONE;
+	exported_pdu_info.ptype = EXP_PDU_PT_NONE;
 
 	prev_pos = curr_pos = curr_pos + 4;
 	/* Look for the end of the tag first */
