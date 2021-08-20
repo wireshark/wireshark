@@ -123,6 +123,7 @@ static int hf_oran_num_bund_prbs = -1;
 static int hf_oran_beam_id = -1;
 static int hf_oran_num_weights_per_bundle = -1;
 
+static int hf_oran_off_start_prb_num_prb_pair = -1;
 static int hf_oran_off_start_prb = -1;
 static int hf_oran_num_prb = -1;
 
@@ -143,6 +144,7 @@ static gint ett_oran_u_prb = -1;
 static gint ett_oran_iq = -1;
 static gint ett_oran_c_section_extension = -1;
 static gint ett_oran_bfw = -1;
+static gint ett_oran_offset_start_prb_num_prb = -1;
 
 /* Expert info */
 static expert_field ei_oran_invalid_bfw_iqwidth = EI_INIT;
@@ -998,25 +1000,39 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
             case 12: /* Non-Contiguous PRB Allocation with Frequency Ranges */
             {
-                proto_item *pi;
+                /* priority */
                 proto_tree_add_item(extension_tree, hf_oran_noncontig_priority, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+                /* symbolMask */
                 proto_tree_add_item(extension_tree, hf_oran_symbolMask, tvb, offset, 2, ENC_BIG_ENDIAN);
                 offset += 2;
-                guint32 extlen_remaining_byte = extlen * 4 - 4;
-                guint8 prb_index = 0;
 
-                for(prb_index = 1; extlen_remaining_byte > 0; prb_index++)
+                /* There are now 'R' pairs of (offStartPrb, numPrb) values.  Not sure where R comes from,
+                   but for now assume that entire space in extLen should be filled with pairs.
+                   N.B. this suggests that 'R' would always be an even number.. */
+                guint32 extlen_remaining_byte = (extlen*4) - 4;
+                guint8 prb_index;
+
+                for (prb_index = 1; extlen_remaining_byte > 0; prb_index++)
                 {
-                    guint8 off_start_prb = tvb_get_guint8(tvb, offset);
-                    pi = proto_tree_add_item(extension_tree, hf_oran_off_start_prb, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    proto_item_set_text(pi,"offStartPrb(%u):%u",prb_index,off_start_prb);
+                    /* Create a subtree for each pair */
+                    proto_item *pair_ti = proto_tree_add_string(extension_tree, hf_oran_off_start_prb_num_prb_pair,
+                                                                tvb, offset, 2, "");
+                    proto_tree *pair_tree = proto_item_add_subtree(pair_ti, ett_oran_offset_start_prb_num_prb);
 
-                    offset += 1;
+                    /* offStartPrb */
+                    guint32 off_start_prb; // = tvb_get_guint8(tvb, offset);
+                    proto_tree_add_item_ret_uint(pair_tree, hf_oran_off_start_prb, tvb, offset, 1, ENC_BIG_ENDIAN, &off_start_prb);
+                    offset++;
 
-                    guint8 num_prb = tvb_get_guint8(tvb, offset);
-                    pi = proto_tree_add_item(extension_tree, hf_oran_num_prb, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    proto_item_set_text(pi,"numPrb(%u):%u",prb_index,num_prb);
-                    offset += 1;
+                    /* numPrb */
+                    guint32 num_prb; // = tvb_get_guint8(tvb, offset);
+                    proto_tree_add_item_ret_uint(pair_tree, hf_oran_num_prb, tvb, offset, 1, ENC_BIG_ENDIAN, &num_prb);
+                    offset++;
+
+                    /* Add summary to pair root item */
+                    proto_item_append_text(pair_ti, "(%u) offStartPrb=%3u, numPrb=%u",
+                                           prb_index, off_start_prb, num_prb);
 
                     extlen_remaining_byte -= 2;
                 }
@@ -2084,17 +2100,25 @@ proto_register_oran(void)
         },
 
         /* Section 5.4.7.12 */
+        {&hf_oran_off_start_prb_num_prb_pair,
+         {"Pair", "oran_fh_cus.offStartPrb_numPrb",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          "Pair of offStartPrb and numPrb.",
+          HFILL}
+        },
+
         {&hf_oran_off_start_prb,
          {"offStartPrb", "oran_fh_cus.offStartPrb",
           FT_UINT8, BASE_DEC,
-          NULL, 0x00,
+          NULL, 0x0,
           "Offset of PRB range start.",
           HFILL}
         },
         {&hf_oran_num_prb,
          {"numPrb", "oran_fh_cus.numPrb",
           FT_UINT8, BASE_DEC,
-          NULL, 0x00,
+          NULL, 0x0,
           "Number of PRBs in PRB range.",
           HFILL}
         },
@@ -2287,7 +2311,8 @@ proto_register_oran(void)
         &ett_oran_section,
         &ett_oran_iq,
         &ett_oran_c_section_extension,
-        &ett_oran_bfw
+        &ett_oran_bfw,
+        &ett_oran_offset_start_prb_num_prb
     };
 
     expert_module_t* expert_oran;
