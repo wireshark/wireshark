@@ -349,6 +349,17 @@ fix_endianness_blf_flexrayrcvmessage(blf_flexrayrcvmessage_t *header) {
 */
 }
 
+static void
+fix_endianness_blf_linmessage(blf_linmessage_t *header) {
+    header->channel = GUINT16_FROM_LE(header->channel);
+}
+
+static void
+fix_endianness_blf_linmessage_trailer(blf_linmessage_trailer_t *header) {
+    header->crc = GUINT16_FROM_LE(header->crc);
+    header->res2 = GUINT32_FROM_LE(header->res2);
+}
+
 static guint64
 blf_timestamp_to_ns(blf_logobjectheader_t *header) {
     switch (header->flags) {
@@ -1209,7 +1220,7 @@ blf_read_flexraydata(blf_params_t *params, int *err, gchar **err_info, gint64 bl
     params->rec->rec_header.packet_header.len = sizeof(tmpbuf) + payload_length;
 
     if (payload_length_valid > 0 && !blf_read_bytes_or_eof(params, data_start + sizeof(frheader), ws_buffer_end_ptr(params->buf), payload_length_valid, err, err_info)) {
-        ws_debug("blf_read_flexraydata: copying can payload failed");
+        ws_debug("blf_read_flexraydata: copying flexray payload failed");
         return FALSE;
     }
     params->buf->first_free += payload_length_valid;
@@ -1307,7 +1318,7 @@ blf_read_flexraymessage(blf_params_t *params, int *err, gchar **err_info, gint64
     params->rec->rec_header.packet_header.len = sizeof(tmpbuf) + payload_length;
 
     if (payload_length_valid > 0 && !blf_read_bytes_or_eof(params, data_start + sizeof(frheader), ws_buffer_end_ptr(params->buf), payload_length_valid, err, err_info)) {
-        ws_debug("blf_read_flexraymessage: copying can payload failed");
+        ws_debug("blf_read_flexraymessage: copying flexray payload failed");
         return FALSE;
     }
     params->buf->first_free += payload_length_valid;
@@ -1412,7 +1423,7 @@ blf_read_flexrayrcvmessageex(blf_params_t *params, int *err, gchar **err_info, g
     params->rec->rec_header.packet_header.len = sizeof(tmpbuf) + payload_length;
 
     if (payload_length_valid > 0 && !blf_read_bytes_or_eof(params, data_start + frheadersize, ws_buffer_end_ptr(params->buf), payload_length_valid, err, err_info)) {
-        ws_debug("blf_read_flexraymessage: copying can payload failed");
+        ws_debug("blf_read_flexraymessage: copying flexray payload failed");
         return FALSE;
     }
     params->buf->first_free += payload_length_valid;
@@ -1423,6 +1434,86 @@ blf_read_flexrayrcvmessageex(blf_params_t *params, int *err, gchar **err_info, g
     return TRUE;
 }
 
+static gboolean
+blf_read_linmessage(blf_params_t *params, int *err, gchar **err_info, gint64 block_start, gint64 header2_start, gint64 data_start, gint64 object_length) {
+    blf_logobjectheader_t    logheader;
+    blf_linmessage_t         linheader;
+    blf_linmessage_trailer_t lintrailer;
+
+    guint8  payload_length;
+    guint8  payload_length_valid;
+
+    if (data_start - header2_start < (gint64)sizeof(blf_logobjectheader_t)) {
+        ws_debug("blf_read_linmessage: not enough bytes for timestamp header");
+        return FALSE;
+    }
+
+    if (!blf_read_bytes_or_eof(params, header2_start, &logheader, sizeof(logheader), err, err_info)) {
+        ws_debug("blf_read_linmessage: not enough bytes for logheader");
+        return FALSE;
+    }
+    fix_endianness_blf_logobjectheader(&logheader);
+
+    if (object_length < (data_start - block_start) + (int)sizeof(linheader)) {
+        ws_debug("blf_read_linmessage: not enough bytes for linmessage header in object");
+        return FALSE;
+    }
+
+    if (!blf_read_bytes_or_eof(params, data_start, &linheader, sizeof(linheader), err, err_info)) {
+        ws_debug("blf_read_linmessage: not enough bytes for linmessage header in file");
+        return FALSE;
+    }
+    fix_endianness_blf_linmessage(&linheader);
+
+    if (linheader.dlc > 15) {
+        linheader.dlc = 15;
+    }
+
+    payload_length = linheader.dlc;
+    payload_length_valid = payload_length;
+
+    if (payload_length_valid > object_length - (data_start - block_start)) {
+        ws_debug("blf_read_linmessage: shortening LIN payload because buffer is too short!");
+        payload_length_valid = (guint8)(object_length - (data_start - block_start));
+    }
+
+    guint8 tmpbuf[8];
+    tmpbuf[0] = 1; /* message format rev = 1 */
+    tmpbuf[1] = 0; /* reserved */
+    tmpbuf[2] = 0; /* reserved */
+    tmpbuf[3] = 0; /* reserved */
+    tmpbuf[4] = (linheader.dlc << 4) | 0; /* dlc (4bit) | type (2bit) | checksum type (2bit) */
+    tmpbuf[5] = linheader.id;
+    tmpbuf[6] = 0; /* checksum */
+    tmpbuf[7] = 0; /* errors */
+
+    ws_buffer_assure_space(params->buf, sizeof(tmpbuf) + payload_length_valid);
+    ws_buffer_append(params->buf, tmpbuf, sizeof(tmpbuf));
+    params->rec->rec_header.packet_header.caplen = sizeof(tmpbuf) + payload_length_valid;
+    params->rec->rec_header.packet_header.len = sizeof(tmpbuf) + payload_length;
+
+    if (payload_length_valid > 0 && !blf_read_bytes_or_eof(params, data_start + 4, ws_buffer_end_ptr(params->buf), payload_length_valid, err, err_info)) {
+        ws_debug("blf_can_fill_buf: copying can payload failed");
+        return FALSE;
+    }
+    params->buf->first_free += payload_length_valid;
+
+    blf_init_rec(params, &logheader, WTAP_ENCAP_LIN, linheader.channel);
+    params->rec->presence_flags = WTAP_HAS_TS | WTAP_HAS_CAP_LEN | WTAP_HAS_INTERFACE_ID;
+
+    if (object_length < (data_start - block_start) + (int)sizeof(linheader) + payload_length_valid + (int)sizeof(lintrailer)) {
+        ws_debug("blf_read_linmessage: not enough bytes for lin message trailer");
+        return FALSE;
+    }
+    if (!blf_read_bytes_or_eof(params, data_start + sizeof(linheader) + payload_length_valid, &lintrailer, sizeof(lintrailer), err, err_info)) {
+        ws_debug("blf_read_linmessage: not enough bytes for lin message trailer in file");
+        return FALSE;
+    }
+    fix_endianness_blf_linmessage_trailer(&lintrailer);
+    /* we are not using it right now since the CRC is too big to convert */
+
+    return TRUE;
+}
 
 gboolean
 blf_read_block(blf_params_t *params, gint64 start_pos, int *err, gchar **err_info) {
@@ -1526,6 +1617,11 @@ blf_read_block(blf_params_t *params, gint64 start_pos, int *err, gchar **err_inf
         case BLF_OBJTYPE_FLEXRAY_RCVMESSAGE_EX:
             return blf_read_flexrayrcvmessageex(params, err, err_info, start_pos, start_pos + sizeof(blf_blockheader_t),
                                                 start_pos + header.header_length, header.object_length, TRUE);
+            break;
+
+        case BLF_OBJTYPE_LIN_MESSAGE:
+            return blf_read_linmessage(params, err, err_info, start_pos, start_pos + sizeof(blf_blockheader_t),
+                                       start_pos + header.header_length, header.object_length);
             break;
 
         default:

@@ -343,6 +343,25 @@ typedef struct blf_flexrayrcvmessageex {
 } blf_flexrayrcvmessageex_t;
 
 
+/* see https://bitbucket.org/tobylorenz/vector_blf/src/master/src/Vector/BLF/LinMessage.h */
+
+typedef struct blf_linmessage {
+    guint16 channel;
+    guint8  id;
+    guint8  dlc;
+} blf_linmessage_t;
+
+typedef struct blf_linmessage_trailer {
+    guint8  fsmId;
+    guint8  fsmState;
+    guint8  headerTime;
+    guint8  fullTime;
+    guint16 crc;
+    guint8  dir;            /* 0 RX, 1 TX Receipt, 2 TX Req */
+    guint8  res1;
+    guint32 res2;
+} blf_linmessage_trailer_t;
+
 /* see https://bitbucket.org/tobylorenz/vector_blf/src/master/src/Vector/BLF/ObjectHeaderBase.h */
 
 #define BLF_OBJTYPE_UNKNOWN                       0
