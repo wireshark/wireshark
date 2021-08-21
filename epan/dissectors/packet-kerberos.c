@@ -2825,7 +2825,7 @@ decrypt_krb5_data(proto_tree *tree _U_, packet_info *pinfo,
 					int keytype,
 					int *datalen)
 {
-	kerberos_private_data_t *zero_private = kerberos_new_private_data();
+	kerberos_private_data_t *zero_private = kerberos_new_private_data(pinfo);
 	krb5_error_code ret;
 	krb5_data data;
 	enc_key_t *ek;
