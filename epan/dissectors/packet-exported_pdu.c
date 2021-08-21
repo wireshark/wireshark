@@ -416,17 +416,17 @@ proto_register_exported_pdu(void)
         },
         { &hf_exported_pdu_prot_name,
             { "Protocol Name", "exported_pdu.prot_name",
-               FT_STRING, BASE_NONE, NULL, 0,
+               FT_STRINGZPAD, BASE_NONE, NULL, 0,
               NULL, HFILL }
         },
         { &hf_exported_pdu_heur_prot_name,
             { "Heuristic Protocol Name", "exported_pdu.heur_prot_name",
-               FT_STRING, BASE_NONE, NULL, 0,
+               FT_STRINGZPAD, BASE_NONE, NULL, 0,
               NULL, HFILL }
         },
         { &hf_exported_pdu_dis_table_name,
             { "Dissector Table Name", "exported_pdu.dis_table_name",
-               FT_STRING, BASE_NONE, NULL, 0,
+               FT_STRINGZPAD, BASE_NONE, NULL, 0,
               NULL, HFILL }
         },
         { &hf_exported_pdu_p2p_dir,
@@ -506,7 +506,7 @@ proto_register_exported_pdu(void)
         },
         { &hf_exported_pdu_col_proto_str,
             { "Column protocol string", "exported_pdu.col_proto_str",
-               FT_STRING, BASE_NONE, NULL, 0,
+               FT_STRINGZPAD, BASE_NONE, NULL, 0,
               NULL, HFILL }
         },
     };

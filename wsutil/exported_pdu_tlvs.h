@@ -20,37 +20,33 @@
  * It is a sequence of TLVs; at least one TLV MUST indicate what protocol is
  * in the PDU following the TLVs.
  *
- * Each TLV has the form:
+ * Each TLV contains, in order:
  *
- *   0                   1                   2                   3
- *  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
- * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- * |         TLV type              |            TLV length         |
- * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- * /                          TLV value                            /
- * /                       variable length                         /
- * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *    a 2-byte big-endian type field;
+ *    a 2-byte big-endian length field;
+ *    a value, the length of which is indicated by the value of
+ *      the length field (that value does not include the length
+ *      of the type or length fields themselves).
  *
- * The type and length are both big-endian; the length is the length
- * of the value, and does not include the length of the type and
- * length fields.
+ * TLVs are not guaranteed to be aligned to any particular number
+ * of bytes.
  *
- * The first TLV is of type EXP_PDU_TAG_OPTIONS_LENGTH; its value
- * is a 4-byte integer value, giving the length of all TLVs following
- * that TLV (i.e., the length does not include the length of the
- * EXP_PDU_TAG_OPTIONS_LENGTH TLV).
+ * The list of TLVs may begin with a TLV of type EXP_PDU_TAG_OPTIONS_LENGTH;
+ * its value is a 4-byte integer value, giving the length of all TLVs
+ * following that TLV (i.e., the length does not include the length of
+ * the EXP_PDU_TAG_OPTIONS_LENGTH TLV).  This tag is deprecated; it is
+ * not guaranteed to be present, and code reading packets should not
+ * require it to be present.
  *
  * The last TLV is of type EXP_PDU_TAG_END_OF_OPT; it has a length
  * of 0, and the value is zero-length.
  *
- * XXX - explain the padding/length rules; this requires reading
- * all code that writes TLVs, to make sure that the rules don't
- * disallow any TLVs that might ever have been written by that code,
- * and reading all code that reads TLVs, to make sure it can handle
- * all that code, and to make sure the rules don't allow writing TLVs
- * that code can't read.
+ * For string values, a string may have zero, one, or more null bytes
+ * at the end; code that reads the string value must not assume that
+ * there are, or are not, null bytes at the end.  Null bytes are included
+ * in the length field, but are not part of the string value.
  *
- * This includes the rules for writing strings.
+ * For integral values, the values are in big-endian format.
  */
 
 /*  Tag values
@@ -65,7 +61,9 @@
  */
 #define EXP_PDU_TAG_END_OF_OPT         0 /**< End-of-options Tag. */
 /* 1 - 9 reserved */
-#define EXP_PDU_TAG_OPTIONS_LENGTH    10 /**< Total length of the options excluding this TLV */
+#define EXP_PDU_TAG_OPTIONS_LENGTH    10 /**< Total length of the options excluding this TLV
+                                          * Deprecated - do not use
+                                          */
 #define EXP_PDU_TAG_LINKTYPE          11 /**< Deprecated - do not use */
 #define EXP_PDU_TAG_PROTO_NAME        12 /**< The value part should be an ASCII non NULL terminated string
                                           * of the registered dissector used by Wireshark e.g "sip"
@@ -126,11 +124,14 @@
                                                       *  given with tag EXP_PDU_TAG_DISSECTOR_TABLE_NAME, must follow immediately after the table tag.
                                                       */
 
-#define EXP_PDU_TAG_COL_PROT_TEXT   33 /**< Text string to put in COL_PROTOCOL, one use case is in conjunction with dissector tables where
+#define EXP_PDU_TAG_COL_PROT_TEXT   33 /**< UTF-8 text string to put in COL_PROTOCOL, one use case is in conjunction with dissector tables where
                                         *   COL_PROTOCOL might not be filled in.
                                         */
 
-/**< value part is structure passed into TCP subdissectors.  Format is:
+/**< value part is structure passed into TCP subdissectors.  The field
+    begins with a 2-byte version number; if the version number value is
+    1, the value part is in the form:
+
     version          2 bytes - xport PDU version of structure (for backwards/forwards compatibility)
     seq              4 bytes - Sequence number of first byte in the data
     nxtseq           4 bytes - Sequence number of first byte after data
