@@ -1621,9 +1621,10 @@ static const value_string pfcp_ie_type[] = {
     { 287, "Maximum Receive Unit"},                                 /* Fixed / Clause 8.2.195 */
     { 288, "Thresholds"},                                           /* Variable Length / Clause 8.2.196 */
     { 289, "Steering Mode Indicator"},                              /* Extendable / Clause 8.2.197 */
-    { 290, "Group ID"},                                             /* Fixed / Clause 8.2.198 */
-    { 290, "CP IP Address"},                                        /* Variable Length / Clause 8.2.199 */
-    //292 to 32767 Spare. For future use.
+    { 290, "PFCP Session Change Info"},                             /* Extendable */
+    { 291, "Group ID"},                                             /* Fixed / Clause 8.2.198 */
+    { 292, "CP IP Address"},                                        /* Variable Length / Clause 8.2.199 */
+    //293 to 32767 Spare. For future use.
     //32768 to 65535 Vendor-specific IEs.
     {0, NULL}
 };
