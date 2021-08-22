@@ -3804,7 +3804,7 @@ proto_register_ldp(void)
             NULL, 0, NULL, HFILL }},
 
         { &hf_ldp_tlv_generic_label,
-          { "Generic Label", "ldp.msg.tlv.generic.label", FT_UINT32, BASE_HEX,
+          { "Generic Label", "ldp.msg.tlv.generic.label", FT_UINT32, BASE_DEC,
             NULL, 0x000FFFFF, NULL, HFILL }},
 
         { &hf_ldp_tlv_atm_label_vbits,
