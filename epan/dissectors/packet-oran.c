@@ -733,6 +733,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
     }
 
     guint32 beamId = 0;
+    guint32 ueId = 0;
 
     /* TODO: check formats for remaining sectionType values - they look different, and some fields above might not be present.. */
 
@@ -774,8 +775,10 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
         }
         case SEC_C_UE_SCHED:   /* Section Type "5" - Table 5.7 */
             /* ueId */
-            proto_tree_add_item(oran_tree, hf_oran_ueId, tvb, offset, 2, ENC_NA);
+            proto_tree_add_item_ret_uint(oran_tree, hf_oran_ueId, tvb, offset, 2, ENC_NA, &ueId);
             offset += 2;
+
+            proto_item_append_text(sectionHeading, ", UEId: %d", ueId);
             break;
 
         default:
@@ -1837,8 +1840,8 @@ proto_register_oran(void)
         /* Section 5.4.5.10 */
         {&hf_oran_ueId,
          {"UE ID", "oran_fh_cus.ueId",
-          FT_UINT16, BASE_HEX,
-          NULL, 0x0,
+          FT_UINT16, BASE_HEX_DEC,
+          NULL, 0x7fff,
           "This parameter provides a label for the UE for which the section "
           "contents apply.  This is used to support channel information "
           "sending from the lls-CU to the RU.  This is just a label and the "
