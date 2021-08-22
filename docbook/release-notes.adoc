@@ -119,6 +119,7 @@ Bluetooth Link Manager Protocol (BT LMP)
 E2 Application Protocol (E2AP)
 Event Tracing for Windows (ETW)
 High-Performance Connectivity Tracer (HiPerConTracer)
+ISO 10681
 Kerberos SPAKE
 Linux psample protocol
 Local Interconnect Network (LIN)

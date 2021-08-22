@@ -14,6 +14,7 @@
 #include <epan/uat.h>
 #include <wsutil/bits_ctz.h>
 #include <epan/dissectors/packet-doip.h>
+#include <epan/dissectors/packet-iso10681.h>
 #include <epan/dissectors/packet-iso15765.h>
 
 void proto_register_uds(void);
@@ -382,6 +383,7 @@ static int proto_uds = -1;
 
 static dissector_handle_t uds_handle;
 static dissector_handle_t uds_handle_doip;
+static dissector_handle_t uds_handle_iso10681;
 static dissector_handle_t uds_handle_iso15765;
 
 
@@ -976,6 +978,13 @@ dissect_uds_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, vo
     return dissect_uds_internal(tvb, pinfo, tree, info->source_address, info->target_address, info->number_of_addresses_valid);
 }
 
+static int
+dissect_uds_iso10681(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *data) {
+    DISSECTOR_ASSERT(data);
+
+    iso10681_info_t *info = (iso10681_info_t *)data;
+    return dissect_uds_internal(tvb, pinfo, tree, info->source_address, info->target_address, 2);
+}
 
 static void
 pref_update_uds(void) {
@@ -1373,6 +1382,7 @@ proto_register_uds(void)
 
     uds_handle = register_dissector("uds", dissect_uds_no_data, proto_uds);
     uds_handle_doip = register_dissector("uds_over_doip", dissect_uds_doip, proto_uds);
+    uds_handle_iso10681 = register_dissector("uds_over_iso10681", dissect_uds_iso10681, proto_uds);
     uds_handle_iso15765 = register_dissector("uds_over_iso15765", dissect_uds_iso15765, proto_uds);
 
     /* Register preferences */
@@ -1436,6 +1446,7 @@ proto_register_uds(void)
 void
 proto_reg_handoff_uds(void)
 {
+    dissector_add_for_decode_as("iso10681.subdissector", uds_handle_iso10681);
     dissector_add_for_decode_as("iso15765.subdissector", uds_handle_iso15765);
 }
 

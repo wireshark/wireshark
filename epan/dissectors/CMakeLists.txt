@@ -355,6 +355,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-fcswils.h
 	packet-ff.h
 	packet-fix.h
+	packet-flexray.h
 	packet-fmp.h
 	packet-frame.h
 	packet-ftam.h
@@ -413,6 +414,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-isis.h
 	packet-isis-clv.h
 	packet-isl.h
+	packet-iso10681.h
 	packet-iso15765.h
 	packet-isup.h
 	packet-its.h
@@ -1292,6 +1294,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ismacryp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ismp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-isns.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-iso10681.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-iso14443.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-iso15765.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-iso7816.c

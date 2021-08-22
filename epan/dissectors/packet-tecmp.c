@@ -44,8 +44,6 @@ static gboolean heuristic_first = FALSE;
 
 static dissector_table_t fr_subdissector_table;
 static heur_dissector_list_t fr_heur_subdissector_list;
-static heur_dtbl_entry_t *fr_heur_dtbl_entry;
-
 static dissector_table_t lin_subdissector_table;
 
 
@@ -1187,7 +1185,7 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     gdouble analog_value_scale_factor;
 
     struct can_info can_info;
-    flexray_identifier fr_info;
+    flexray_info_t fr_info;
     lin_info_t lin_info;
 
     static int * const tecmp_payload_id_flags_can_11[] = {
@@ -1297,6 +1295,9 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                 break;
 
             case TECMP_DATA_TYPE_FR_DATA:
+                /* lets set it based on config */
+                fr_info.bus_id = ht_channel_config_to_bus_id(channel_id);
+
                 /* we assume "channel A" since we cannot know */
                 fr_info.ch = 0;
 
@@ -1317,18 +1318,8 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                 if (length2 > 0) {
                     payload_tvb = tvb_new_subset_length(sub_tvb, offset2, tvb_captured_length_remaining(sub_tvb, offset2));
 
-                    if (!heuristic_first) {
-                        if (!dissector_try_payload_new(fr_subdissector_table, payload_tvb, pinfo, tree, TRUE, &fr_info)) {
-                            if (!dissector_try_heuristic(fr_heur_subdissector_list, payload_tvb, pinfo, tree, &fr_heur_dtbl_entry, &fr_info)) {
-                                call_data_dissector(payload_tvb, pinfo, tree);
-                            }
-                        }
-                    } else {
-                        if (!dissector_try_heuristic(fr_heur_subdissector_list, payload_tvb, pinfo, tree, &fr_heur_dtbl_entry, &fr_info)) {
-                            if (!dissector_try_payload_new(fr_subdissector_table, payload_tvb, pinfo, tree, FALSE, &fr_info)) {
-                                call_data_dissector(payload_tvb, pinfo, tree);
-                            }
-                        }
+                    if (!flexray_call_subdissectors(payload_tvb, pinfo, tree, &fr_info, heuristic_first)) {
+                        call_data_dissector(payload_tvb, pinfo, tree);
                     }
                 }
                 break;

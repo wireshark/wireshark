@@ -684,7 +684,7 @@ dissect_iso15765_flexray(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 {
     DISSECTOR_ASSERT(data);
 
-    flexray_identifier *flexray_id = (flexray_identifier *)data;
+    flexray_info_t *flexray_id = (flexray_info_t *)data;
 
     guint32 id = (((guint32)flexray_id->id) << 16) | (((guint32)flexray_id->cc) << 8) | flexray_id->ch;
 

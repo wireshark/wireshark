@@ -1627,7 +1627,7 @@ dissect_spdu_message_can_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
 static int
 dissect_spdu_message_flexray(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
-    struct flexray_identifier *flexray_data = (struct flexray_identifier*)data;
+    struct flexray_info *flexray_data = (struct flexray_info*)data;
     DISSECTOR_ASSERT(flexray_data);
 
     spdu_flexray_mapping_t *flexray_mapping = get_flexray_mapping(flexray_data->ch, flexray_data->cc, flexray_data->id);
