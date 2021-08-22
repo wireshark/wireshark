@@ -706,7 +706,7 @@ wtap_block_t cf_get_packet_block(capture_file *cf, const frame_data *fd);
  * @param fd the frame_data structure for the frame
  * @param new_block the block replacing the old block
  */
-gboolean cf_set_modified_block(capture_file *cf, frame_data *fd, wtap_block_t new_block);
+gboolean cf_set_modified_block(capture_file *cf, frame_data *fd, const wtap_block_t new_block);
 
 /**
  * What types of comments does this file have?
