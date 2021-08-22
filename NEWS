@@ -49,7 +49,7 @@ Wireshark 3.5.0 Release Notes
      • Importing captures from text files is now also possible based on
        regular expressions. By specifying a regex capturing a single
        packet including capturing groups for relevant fields a textfile
-       can be converted to a libcap capture file. Supported data
+       can be converted to a libpcap capture file. Supported data
        encodings are plain-hexadecimal, -octal, -binary and base64. Also
        the timestamp format now allows the second-fractions to be placed
        anywhere in the timestamp and it will be stored with nanosecond
@@ -82,7 +82,7 @@ Wireshark 3.5.0 Release Notes
    VoIP dialogs (VoIP Calls, RTP Streams, RTP Analysis, RTP Player, SIP
    Flows) are non-modal, can stay opened on background
 
-     • Same tools are provided acros all dialogs (Prepare Filter,
+     • Same tools are provided across all dialogs (Prepare Filter,
        Analyse, RTP Player …​)
 
    Follow stream is now able to follow SIP call by SIP.Call-ID
@@ -106,17 +106,22 @@ Wireshark 3.5.0 Release Notes
    Wireshark participated in the Google Season of Docs 2020 and the
    User’s Guide has been extensively updated.
 
+   Format of export to CSV in RTP Stream Analysis dialog was slightly
+   changed. First line of export contains names of columns as in other
+   CSV exports.
+
   New Protocol Support
 
    Bluetooth Link Manager Protocol (BT LMP), Event Tracing for Windows
-   (ETW), Kerberos SPAKE, Linux psample protocol, Local Interconnect
-   Network (LIN), Microsoft Task Scheduler Service, O-RAN E2AP, O-RAN
-   fronthaul UC-plane (O-RAN), Opus Interactive Audio Codec (OPUS), PDU
-   Transport Protocol, R09.x (R09), Real-Time Publish-Subscribe Virtual
-   Transport (RTPS-VT), Real-Time Publish-Subscribe Wire Protocol
-   (processed) (RTPS-PROC), Shared Memory Communications (SMC), Signal
-   PDU, SparkplugB, State Synchronization Protocol (SSyncP), Tagged
-   Image File Format (TIFF), and TP-Link Smart Home Protocol
+   (ETW), High-Performance Connectivity Tracer (HiPerConTracer),
+   Kerberos SPAKE, Linux psample protocol, Local Interconnect Network
+   (LIN), Microsoft Task Scheduler Service, O-RAN E2AP, O-RAN fronthaul
+   UC-plane (O-RAN), Opus Interactive Audio Codec (OPUS), PDU Transport
+   Protocol, R09.x (R09), Real-Time Publish-Subscribe Virtual Transport
+   (RTPS-VT), Real-Time Publish-Subscribe Wire Protocol (processed)
+   (RTPS-PROC), Shared Memory Communications (SMC), Signal PDU,
+   SparkplugB, State Synchronization Protocol (SSyncP), Tagged Image
+   File Format (TIFF), and TP-Link Smart Home Protocol
 
   Updated Protocol Support
 
@@ -160,7 +165,7 @@ Wireshark 3.5.0 Release Notes
 
   A complete FAQ is available on the Wireshark web site[8].
 
-  Last updated 2021-08-15 09:05:34 UTC
+  Last updated 2021-08-22 09:05:33 UTC
 
  References
 
