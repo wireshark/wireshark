@@ -13,6 +13,8 @@
 #include <epan/packet.h>
 #include <epan/uat.h>
 #include <wsutil/bits_ctz.h>
+#include <epan/dissectors/packet-doip.h>
+#include <epan/dissectors/packet-iso15765.h>
 
 void proto_register_uds(void);
 void proto_reg_handoff_uds(void);
@@ -379,30 +381,40 @@ static gint ett_uds_cdtcs = -1;
 static int proto_uds = -1;
 
 static dissector_handle_t uds_handle;
+static dissector_handle_t uds_handle_doip;
+static dissector_handle_t uds_handle_iso15765;
 
 
 /*** Configuration ***/
-typedef struct _generic_one_id_string {
-    guint  id;
-    gchar *name;
-} generic_one_id_string_t;
+typedef struct _generic_addr_id_string {
+    guint32  address;
+    guint    id;
+    gchar   *name;
+} generic_addr_id_string_t;
 
 static void *
 copy_generic_one_id_string_cb(void *n, const void *o, size_t size _U_) {
-    generic_one_id_string_t *new_rec = (generic_one_id_string_t *)n;
-    const generic_one_id_string_t *old_rec = (const generic_one_id_string_t *)o;
+    generic_addr_id_string_t *new_rec = (generic_addr_id_string_t *)n;
+    const generic_addr_id_string_t *old_rec = (const generic_addr_id_string_t *)o;
 
     new_rec->name = g_strdup(old_rec->name);
     new_rec->id = old_rec->id;
+    new_rec->address = old_rec->address;
     return new_rec;
 }
 
 static gboolean
-update_generic_one_identifier_16bit(void *r, char **err) {
-    generic_one_id_string_t *rec = (generic_one_id_string_t *)r;
+update_generic_addr_id_16bit(void *r, char **err) {
+    generic_addr_id_string_t *rec = (generic_addr_id_string_t *)r;
 
     if (rec->id > 0xffff) {
-        *err = g_strdup_printf("We currently only support 16 bit identifiers (ID: %i  Name: %s)", rec->id, rec->name);
+        *err = g_strdup_printf("We currently only support 16 bit identifiers (Addr: %x ID: %i  Name: %s)", rec->address, rec->id, rec->name);
+        return FALSE;
+    }
+
+    if (rec->address > 0xffff && rec->address != G_MAXUINT32) {
+        *err = g_strdup_printf("We currently only support 16 bit addresses with 0xffffffff = \"don't care\" (Addr: %x  ID: %i  Name: %s)",
+                                rec->address, rec->id, rec->name);
         return FALSE;
     }
 
@@ -416,35 +428,53 @@ update_generic_one_identifier_16bit(void *r, char **err) {
 
 static void
 free_generic_one_id_string_cb(void *r) {
-    generic_one_id_string_t *rec = (generic_one_id_string_t *)r;
+    generic_addr_id_string_t *rec = (generic_addr_id_string_t *)r;
 
     /* freeing result of g_strdup */
     g_free(rec->name);
     rec->name = NULL;
 }
 
+static gint64
+calc_key(guint32 addr, guint16 id) {
+    return ((gint64)id << 32) | (gint64)addr;
+}
+
 static void
-post_update_one_id_string_template_cb(generic_one_id_string_t *data, guint data_num, GHashTable *ht) {
-    guint  i;
-    int   *key = NULL;
+post_update_one_id_string_template_cb(generic_addr_id_string_t *data, guint data_num, GHashTable *ht) {
+    guint   i;
+    gint64 *key = NULL;
 
     for (i = 0; i < data_num; i++) {
-        key = wmem_new(wmem_epan_scope(), int);
-        *key = data[i].id;
+        key = wmem_new(wmem_epan_scope(), gint64);
+        *key = calc_key(data[i].address, data[i].id);
 
         g_hash_table_insert(ht, key, g_strdup(data[i].name));
     }
 }
 
 static char *
-generic_lookup_uint16(guint16 id, GHashTable *ht) {
-    guint32 tmp = (guint32)id;
+generic_lookup_addr_id(guint32 addr, guint16 id, GHashTable *ht) {
+    char *ret = NULL;
+
+    /* we only currently allow 16bit + MAXUINT32 as any */
+    if (addr > G_MAXUINT16 && addr != G_MAXUINT32) {
+        addr = G_MAXUINT32;
+    }
+
+    guint64 tmp = calc_key(addr, id);
 
     if (ht == NULL) {
         return NULL;
     }
 
-    return (char *)g_hash_table_lookup(ht, &tmp);
+    ret = (char *)g_hash_table_lookup(ht, &tmp);
+    if (ret == NULL) {
+        tmp = calc_key(G_MAXUINT32, id);
+        return (char *)g_hash_table_lookup(ht, &tmp);
+    }
+
+    return ret;
 }
 
 static void
@@ -460,12 +490,13 @@ simple_free(gpointer data) {
 
 
 /* Routine IDs */
-static generic_one_id_string_t *uds_uat_routine_ids = NULL;
+static generic_addr_id_string_t *uds_uat_routine_ids = NULL;
 static guint uds_uat_routine_id_num = 0;
 static GHashTable *uds_ht_routine_ids = NULL;
 
-UAT_HEX_CB_DEF(uds_uat_routine_ids, id, generic_one_id_string_t)
-UAT_CSTRING_CB_DEF(uds_uat_routine_ids, name, generic_one_id_string_t)
+UAT_HEX_CB_DEF(uds_uat_routine_ids, address, generic_addr_id_string_t)
+UAT_HEX_CB_DEF(uds_uat_routine_ids, id, generic_addr_id_string_t)
+UAT_CSTRING_CB_DEF(uds_uat_routine_ids, name, generic_addr_id_string_t)
 
 static void
 post_update_uds_routine_cb(void) {
@@ -475,26 +506,26 @@ post_update_uds_routine_cb(void) {
     }
 
     /* create new hash table */
-    uds_ht_routine_ids = g_hash_table_new_full(g_int_hash, g_int_equal, &simple_free_key, &simple_free);
+    uds_ht_routine_ids = g_hash_table_new_full(g_int64_hash, g_int64_equal, &simple_free_key, &simple_free);
     post_update_one_id_string_template_cb(uds_uat_routine_ids, uds_uat_routine_id_num, uds_ht_routine_ids);
 }
 
 static char *
-uds_lookup_routine_name(guint16 id) {
-    return generic_lookup_uint16(id, uds_ht_routine_ids);
+uds_lookup_routine_name(guint32 addr, guint16 id) {
+    return generic_lookup_addr_id(addr, id, uds_ht_routine_ids);
 }
 
 static void
-protoitem_append_routine_name(proto_item *ti, guint16 data_identifier) {
-    gchar *routine_name = uds_lookup_routine_name((guint16)data_identifier);
+protoitem_append_routine_name(proto_item *ti, guint32 addr, guint16 data_identifier) {
+    gchar *routine_name = uds_lookup_routine_name(addr, data_identifier);
     if (routine_name != NULL) {
         proto_item_append_text(ti, " (%s)", routine_name);
     }
 }
 
 static void
-infocol_append_routine_name(packet_info *pinfo, guint16 routine_identifier) {
-    gchar *routine_name = uds_lookup_routine_name((guint16)routine_identifier);
+infocol_append_routine_name(packet_info *pinfo, guint32 addr, guint16 routine_identifier) {
+    gchar *routine_name = uds_lookup_routine_name(addr, routine_identifier);
     if (routine_name != NULL) {
         col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", routine_name);
     }
@@ -502,12 +533,13 @@ infocol_append_routine_name(packet_info *pinfo, guint16 routine_identifier) {
 
 
 /* Data IDs */
-static generic_one_id_string_t *uds_uat_data_ids = NULL;
+static generic_addr_id_string_t *uds_uat_data_ids = NULL;
 static guint uds_uat_data_id_num = 0;
 static GHashTable *uds_ht_data_ids = NULL;
 
-UAT_HEX_CB_DEF(uds_uat_data_ids, id, generic_one_id_string_t)
-UAT_CSTRING_CB_DEF(uds_uat_data_ids, name, generic_one_id_string_t)
+UAT_HEX_CB_DEF(uds_uat_data_ids, address, generic_addr_id_string_t)
+UAT_HEX_CB_DEF(uds_uat_data_ids, id, generic_addr_id_string_t)
+UAT_CSTRING_CB_DEF(uds_uat_data_ids, name, generic_addr_id_string_t)
 
 static void
 post_update_uds_data_cb(void) {
@@ -517,26 +549,26 @@ post_update_uds_data_cb(void) {
     }
 
     /* create new hash table */
-    uds_ht_data_ids = g_hash_table_new_full(g_int_hash, g_int_equal, &simple_free_key, &simple_free);
+    uds_ht_data_ids = g_hash_table_new_full(g_int64_hash, g_int64_equal, &simple_free_key, &simple_free);
     post_update_one_id_string_template_cb(uds_uat_data_ids, uds_uat_data_id_num, uds_ht_data_ids);
 }
 
 static char *
-uds_lookup_data_name(guint16 id) {
-    return generic_lookup_uint16(id, uds_ht_data_ids);
+uds_lookup_data_name(guint32 addr, guint16 id) {
+    return generic_lookup_addr_id(addr, id, uds_ht_data_ids);
 }
 
 static void
-protoitem_append_data_name(proto_item *ti, guint16 data_identifier) {
-    gchar *data_name = uds_lookup_data_name((guint16)data_identifier);
+protoitem_append_data_name(proto_item *ti, guint32 addr, guint16 data_identifier) {
+    gchar *data_name = uds_lookup_data_name(addr, data_identifier);
     if (data_name != NULL) {
         proto_item_append_text(ti, " (%s)", data_name);
     }
 }
 
 static void
-infocol_append_data_name(packet_info *pinfo, guint16 data_identifier) {
-    gchar *data_name = uds_lookup_data_name((guint16)data_identifier);
+infocol_append_data_name(packet_info *pinfo, guint32 addr, guint16 data_identifier) {
+    gchar *data_name = uds_lookup_data_name(addr, data_identifier);
     if (data_name != NULL) {
         col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", data_name);
     }
@@ -576,14 +608,15 @@ tvb_get_guintX(tvbuff_t *tvb, const gint offset, const gint size, const guint en
 }
 
 static int
-dissect_uds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void* data _U_)
+dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 source_address, guint16 target_address, guint8 number_of_addresses_valid)
 {
     proto_tree *uds_tree, *subtree;
     proto_item *ti;
     guint8      sid, service;
     guint32     enum_val;
     const char *service_name;
-    guint32 data_length = tvb_reported_length(tvb);
+    guint32     ecu_address;
+    guint32     data_length = tvb_reported_length(tvb);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "UDS");
     col_clear(pinfo->cinfo,COL_INFO);
@@ -598,6 +631,24 @@ dissect_uds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void* data 
     uds_tree = proto_item_add_subtree(ti, ett_uds);
     proto_tree_add_item(uds_tree, hf_uds_service, tvb, UDS_SID_OFFSET, UDS_SID_LEN, ENC_BIG_ENDIAN);
     proto_tree_add_item(uds_tree, hf_uds_reply, tvb, UDS_SID_OFFSET, UDS_SID_LEN, ENC_BIG_ENDIAN);
+
+    if (sid & UDS_REPLY_MASK) {
+        ecu_address = source_address;
+    } else {
+        ecu_address = target_address;
+    }
+
+    switch (number_of_addresses_valid) {
+    case 0:
+        ecu_address = G_MAXUINT32;
+        break;
+    case 1:
+        proto_item_append_text(ti, ", Address: 0x%04x", source_address);
+        break;
+    case 2:
+        proto_item_append_text(ti, ", Source: 0x%04x, Target: 0x%04x", source_address, target_address);
+        break;
+    }
 
     switch (service) {
         case UDS_SERVICES_DSC:
@@ -643,12 +694,12 @@ dissect_uds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void* data 
                 ti = proto_tree_add_item_ret_uint(subtree, hf_uds_rdbi_data_identifier, tvb,
                                                   UDS_RDBI_DATA_IDENTIFIER_OFFSET, UDS_RDBI_DATA_IDENTIFIER_LEN,
                                                   ENC_BIG_ENDIAN, &data_identifier);
-                protoitem_append_data_name(ti, (guint16)data_identifier);
+                protoitem_append_data_name(ti, ecu_address, (guint16)data_identifier);
 
                 proto_tree_add_item(subtree, hf_uds_rdbi_data_record, tvb, UDS_RDBI_DATA_RECORD_OFFSET,
                                     record_length, ENC_NA);
                 col_append_fstr(pinfo->cinfo, COL_INFO, "   0x%04x", data_identifier);
-                infocol_append_data_name(pinfo, data_identifier);
+                infocol_append_data_name(pinfo, ecu_address, data_identifier);
                 col_append_fstr(pinfo->cinfo, COL_INFO, "   %s",
                                 tvb_bytes_to_str_punct(pinfo->pool, tvb, UDS_RDBI_DATA_RECORD_OFFSET,
                                                        record_length, ' '));
@@ -659,10 +710,10 @@ dissect_uds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void* data 
                     guint32 data_identifier;
                     ti = proto_tree_add_item_ret_uint(subtree, hf_uds_rdbi_data_identifier, tvb, offset,
                                                       UDS_RDBI_DATA_IDENTIFIER_LEN, ENC_BIG_ENDIAN, &data_identifier);
-                    protoitem_append_data_name(ti, (guint16)data_identifier);
+                    protoitem_append_data_name(ti, ecu_address, (guint16)data_identifier);
 
                     col_append_fstr(pinfo->cinfo, COL_INFO, "   0x%04x", data_identifier);
-                    infocol_append_data_name(pinfo, data_identifier);
+                    infocol_append_data_name(pinfo, ecu_address, data_identifier);
                     offset += UDS_RDBI_DATA_IDENTIFIER_LEN;
                     identifier_length -= UDS_RDBI_DATA_IDENTIFIER_LEN;
                 }
@@ -700,16 +751,16 @@ dissect_uds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void* data 
             ti = proto_tree_add_item_ret_uint(subtree, hf_uds_wdbi_data_identifier, tvb,
                                               UDS_WDBI_DATA_IDENTIFIER_OFFSET, UDS_WDBI_DATA_IDENTIFIER_LEN,
                                               ENC_BIG_ENDIAN, &enum_val);
-            protoitem_append_data_name(ti, (guint16)enum_val);
+            protoitem_append_data_name(ti, ecu_address, (guint16)enum_val);
             if (sid & UDS_REPLY_MASK) {
                 col_append_fstr(pinfo->cinfo, COL_INFO, "   0x%04x", enum_val);
-                infocol_append_data_name(pinfo, enum_val);
+                infocol_append_data_name(pinfo, ecu_address, enum_val);
             } else {
                 guint32 record_length = data_length - UDS_WDBI_DATA_RECORD_OFFSET;
                 proto_tree_add_item(subtree, hf_uds_wdbi_data_record, tvb, UDS_WDBI_DATA_RECORD_OFFSET,
                                     record_length, ENC_NA);
                 col_append_fstr(pinfo->cinfo, COL_INFO, "   0x%04x", enum_val);
-                infocol_append_data_name(pinfo, enum_val);
+                infocol_append_data_name(pinfo, ecu_address, enum_val);
                 col_append_fstr(pinfo->cinfo, COL_INFO, "   %s",
                                 tvb_bytes_to_str_punct(pinfo->pool, tvb, UDS_WDBI_DATA_RECORD_OFFSET,
                                                        record_length, ' '));
@@ -724,7 +775,7 @@ dissect_uds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void* data 
             ti = proto_tree_add_item_ret_uint(subtree, hf_uds_iocbi_data_identifier, tvb,
                                               UDS_IOCBI_DATA_IDENTIFIER_OFFSET, UDS_IOCBI_DATA_IDENTIFIER_LEN,
                                               ENC_BIG_ENDIAN, &data_identifier);
-            protoitem_append_data_name(ti, (guint16)data_identifier);
+            protoitem_append_data_name(ti, ecu_address, (guint16)data_identifier);
 
             proto_tree_add_item_ret_uint(subtree, hf_uds_iocbi_parameter, tvb, UDS_IOCBI_PARAMETER_OFFSET,
                                          UDS_IOCBI_PARAMETER_LEN, ENC_BIG_ENDIAN, &enum_val);
@@ -732,7 +783,7 @@ dissect_uds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void* data 
             proto_tree_add_item(subtree, hf_uds_iocbi_state, tvb, UDS_IOCBI_STATE_OFFSET,
                                 state_length, ENC_NA);
             col_append_fstr(pinfo->cinfo, COL_INFO, "   0x%04x", data_identifier);
-            infocol_append_data_name(pinfo, data_identifier);
+            infocol_append_data_name(pinfo, ecu_address, data_identifier);
             col_append_fstr(pinfo->cinfo, COL_INFO, "  %s %s",
                             val_to_str(enum_val, uds_iocbi_parameters, "Unknown (0x%02x)"),
                             tvb_bytes_to_str_punct(pinfo->pool, tvb, UDS_IOCBI_STATE_OFFSET,
@@ -748,11 +799,11 @@ dissect_uds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void* data 
 
             ti = proto_tree_add_item_ret_uint(subtree, hf_uds_rc_identifier, tvb, UDS_RC_ROUTINE_OFFSET,
                                 UDS_RC_ROUTINE_LEN, ENC_BIG_ENDIAN, &identifier);
-            protoitem_append_routine_name(ti, identifier);
+            protoitem_append_routine_name(ti, ecu_address, identifier);
 
             col_append_fstr(pinfo->cinfo, COL_INFO, "   %s 0x%04x",
                             val_to_str(enum_val, uds_rc_types, "Unknown (0x%02x)"), identifier);
-            infocol_append_routine_name(pinfo, identifier);
+            infocol_append_routine_name(pinfo, ecu_address, identifier);
             if (sid & UDS_REPLY_MASK) {
                 guint32 rc_data_len = data_length - UDS_RC_INFO_OFFSET;
                 if (rc_data_len > 0) {
@@ -903,6 +954,28 @@ dissect_uds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void* data 
 
     return tvb_captured_length(tvb);
 }
+
+static int
+dissect_uds_no_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *data _U_) {
+    return dissect_uds_internal(tvb, pinfo, tree, 0, 0, 0);
+}
+
+static int
+dissect_uds_doip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *data) {
+    DISSECTOR_ASSERT(data);
+
+    doip_info_t *doip_info = (doip_info_t *)data;
+    return dissect_uds_internal(tvb, pinfo, tree, doip_info->source_address, doip_info->target_address, 2);
+}
+
+static int
+dissect_uds_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *data) {
+    DISSECTOR_ASSERT(data);
+
+    iso15765_info_t *info = (iso15765_info_t *)data;
+    return dissect_uds_internal(tvb, pinfo, tree, info->source_address, info->target_address, info->number_of_addresses_valid);
+}
+
 
 static void
 pref_update_uds(void) {
@@ -1298,13 +1371,16 @@ proto_register_uds(void)
     proto_register_field_array(proto_uds, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    uds_handle = register_dissector("uds", dissect_uds, proto_uds);
+    uds_handle = register_dissector("uds", dissect_uds_no_data, proto_uds);
+    uds_handle_doip = register_dissector("uds_over_doip", dissect_uds_doip, proto_uds);
+    uds_handle_iso15765 = register_dissector("uds_over_iso15765", dissect_uds_iso15765, proto_uds);
 
     /* Register preferences */
     uds_module = prefs_register_protocol(proto_uds, &pref_update_uds);
 
     /* UATs for user_data fields */
     static uat_field_t uds_routine_id_uat_fields[] = {
+        UAT_FLD_HEX(uds_uat_routine_ids, address, "Address", "Address (16bit hex without leading 0x, 0xffffffff for 'any')"),
         UAT_FLD_HEX(uds_uat_routine_ids, id, "Routine ID", "Routine Identifier (16bit hex without leading 0x)"),
         UAT_FLD_CSTRING(uds_uat_routine_ids, name, "Routine Name", "Name of the Routine ID (string)"),
         UAT_END_FIELDS
@@ -1312,7 +1388,7 @@ proto_register_uds(void)
 
     /* UATs */
     uds_routine_ids_uat = uat_new("UDS Routine Identifier List",
-        sizeof(generic_one_id_string_t),            /* record size           */
+        sizeof(generic_addr_id_string_t),           /* record size           */
         DATAFILE_UDS_ROUTINE_IDS,                   /* filename              */
         TRUE,                                       /* from profile          */
         (void**)&uds_uat_routine_ids,               /* data_ptr              */
@@ -1320,7 +1396,7 @@ proto_register_uds(void)
         UAT_AFFECTS_DISSECTION,                     /* but not fields        */
         NULL,                                       /* help                  */
         copy_generic_one_id_string_cb,              /* copy callback         */
-        update_generic_one_identifier_16bit,        /* update callback       */
+        update_generic_addr_id_16bit,               /* update callback       */
         free_generic_one_id_string_cb,              /* free callback         */
         post_update_uds_routine_cb,                 /* post update callback  */
         NULL,                                       /* reset callback        */
@@ -1331,13 +1407,14 @@ proto_register_uds(void)
         "A table to define names of UDS Routines", uds_routine_ids_uat);
 
     static uat_field_t uds_data_id_uat_fields[] = {
+        UAT_FLD_HEX(uds_uat_data_ids, address, "Address", "Address (16bit hex without leading 0x, 0xffffffff for 'any')"),
         UAT_FLD_HEX(uds_uat_data_ids, id, "Data ID", "Data Identifier (16bit hex without leading 0x)"),
         UAT_FLD_CSTRING(uds_uat_data_ids, name, "Data Name", "Name of the Data ID (string)"),
         UAT_END_FIELDS
     };
 
     uds_data_ids_uat = uat_new("UDS Data Identifier List",
-        sizeof(generic_one_id_string_t),            /* record size           */
+        sizeof(generic_addr_id_string_t),           /* record size           */
         DATAFILE_UDS_DATA_IDS,                      /* filename              */
         TRUE,                                       /* from profile          */
         (void**)&uds_uat_data_ids,                  /* data_ptr              */
@@ -1345,7 +1422,7 @@ proto_register_uds(void)
         UAT_AFFECTS_DISSECTION,                     /* but not fields        */
         NULL,                                       /* help                  */
         copy_generic_one_id_string_cb,              /* copy callback         */
-        update_generic_one_identifier_16bit,        /* update callback       */
+        update_generic_addr_id_16bit,               /* update callback       */
         free_generic_one_id_string_cb,              /* free callback         */
         post_update_uds_data_cb,                    /* post update callback  */
         NULL,                                       /* reset callback        */
@@ -1359,7 +1436,7 @@ proto_register_uds(void)
 void
 proto_reg_handoff_uds(void)
 {
-    dissector_add_for_decode_as("iso15765.subdissector", uds_handle);
+    dissector_add_for_decode_as("iso15765.subdissector", uds_handle_iso15765);
 }
 
 /*

@@ -17,9 +17,12 @@
 #define ISO15765_TYPE_FLEXRAY 4
 
 struct iso15765_info {
-    guint32 bus_type;
-    guint32 id;
-    guint32 len;
+    guint32  bus_type;
+    guint32  id;
+    guint32  len;
+    guint16  target_address;
+    guint16  source_address;
+    guint8   number_of_addresses_valid;
 };
 
 typedef struct iso15765_info iso15765_info_t;

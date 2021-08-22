@@ -20,6 +20,7 @@
 #include <epan/reassemble.h>
 #include <epan/expert.h>
 #include <epan/proto_data.h>
+#include <epan/uat.h>
 #include <wsutil/bits_ctz.h>
 
 #include "packet-socketcan.h"
@@ -196,11 +197,146 @@ static const fragment_items iso15765_frag_items = {
         "ISO15765 fragments"
 };
 
+/* UAT for address encoded into CAN IDs */
+typedef struct config_can_addr_mapping {
+    gboolean extended_address;
+    guint32  can_id;
+    guint32  can_id_mask;
+    guint32  source_addr_mask;
+    guint32  target_addr_mask;
+    guint32  ecu_addr_mask;
+} config_can_addr_mapping_t;
+
+static config_can_addr_mapping_t *config_can_addr_mappings = NULL;
+static guint config_can_addr_mappings_num = 0;
+#define DATAFILE_CAN_ADDR_MAPPING "ISO15765_can_id_mappings"
+
+UAT_BOOL_CB_DEF(config_can_addr_mappings, extended_address, config_can_addr_mapping_t)
+UAT_HEX_CB_DEF(config_can_addr_mappings, can_id, config_can_addr_mapping_t)
+UAT_HEX_CB_DEF(config_can_addr_mappings, can_id_mask, config_can_addr_mapping_t)
+UAT_HEX_CB_DEF(config_can_addr_mappings, source_addr_mask, config_can_addr_mapping_t)
+UAT_HEX_CB_DEF(config_can_addr_mappings, target_addr_mask, config_can_addr_mapping_t)
+UAT_HEX_CB_DEF(config_can_addr_mappings, ecu_addr_mask, config_can_addr_mapping_t)
+
+static void *
+copy_config_can_addr_mapping_cb(void *n, const void *o, size_t size _U_) {
+    config_can_addr_mapping_t *new_rec = (config_can_addr_mapping_t *)n;
+    const config_can_addr_mapping_t *old_rec = (const config_can_addr_mapping_t *)o;
+
+    new_rec->extended_address = old_rec->extended_address;
+    new_rec->can_id = old_rec->can_id;
+    new_rec->can_id_mask = old_rec->can_id_mask;
+    new_rec->source_addr_mask = old_rec->source_addr_mask;
+    new_rec->target_addr_mask = old_rec->target_addr_mask;
+    new_rec->ecu_addr_mask = old_rec->ecu_addr_mask;
+
+    return new_rec;
+}
+
+static gboolean
+update_config_can_addr_mappings(void *r, char **err) {
+    config_can_addr_mapping_t *rec = (config_can_addr_mapping_t *)r;
+
+    if (rec->source_addr_mask == 0 && rec->target_addr_mask == 0 && rec->ecu_addr_mask == 0) {
+        *err = g_strdup_printf("You need to define the ECU Mask OR Source Mask/Target Mask!");
+        return FALSE;
+    }
+
+    if ((rec->source_addr_mask != 0 || rec->target_addr_mask != 0) && rec->ecu_addr_mask != 0) {
+        *err = g_strdup_printf("You can only use Source Address Mask/Target Address Mask OR ECU Address Mask! Not both at the same time!");
+        return FALSE;
+    }
+
+    if ((rec->source_addr_mask == 0 || rec->target_addr_mask == 0) && rec->ecu_addr_mask == 0) {
+        *err = g_strdup_printf("You can only use Source Address Mask and Target Address Mask in combination!");
+        return FALSE;
+    }
+
+    if (rec->extended_address) {
+        if ((rec->source_addr_mask & ~CAN_EFF_MASK) != 0) {
+            *err = g_strdup_printf("Source Address Mask covering bits not allowed for extended IDs (29bit)!");
+            return FALSE;
+        }
+        if ((rec->target_addr_mask & ~CAN_EFF_MASK) != 0) {
+            *err = g_strdup_printf("Target Address Mask covering bits not allowed for extended IDs (29bit)!");
+            return FALSE;
+        }
+        if ((rec->ecu_addr_mask & ~CAN_EFF_MASK) != 0) {
+            *err = g_strdup_printf("ECU Address Mask covering bits not allowed for extended IDs (29bit)!");
+            return FALSE;
+        }
+    } else {
+        if ((rec->source_addr_mask & ~CAN_SFF_MASK) != 0) {
+            *err = g_strdup_printf("Source Address Mask covering bits not allowed for standard IDs (11bit)!");
+            return FALSE;
+        }
+        if ((rec->target_addr_mask & ~CAN_SFF_MASK) != 0) {
+            *err = g_strdup_printf("Target Address Mask covering bits not allowed for standard IDs (11bit)!");
+            return FALSE;
+        }
+        if ((rec->ecu_addr_mask & ~CAN_SFF_MASK) != 0) {
+            *err = g_strdup_printf("ECU Address Mask covering bits not allowed for standard IDs (11bit)!");
+            return FALSE;
+        }
+    }
+
+    return TRUE;
+}
+
+static void
+free_config_can_addr_mappings(void *r _U_) {
+    /* do nothing right now */
+}
+
+static void
+post_update_config_can_addr_mappings_cb(void) {
+    /* do nothing right now */
+}
+
 static guint16
 masked_guint16_value(const guint16 value, const guint16 mask)
 {
     return (value & mask) >> ws_ctz(mask);
 }
+
+/*
+ * setting addresses to 0xffffffff, if not found or configured
+ * returning number of addresses (0: none, 1:ecu (both addr same), 2:source+target)
+ */
+static guint8
+find_config_can_addr_mapping(gboolean ext_id, guint32 can_id, guint16 *source_addr, guint16 *target_addr) {
+    config_can_addr_mapping_t *tmp = NULL;
+    guint32 i;
+
+    if (source_addr == NULL || target_addr == NULL || config_can_addr_mappings == NULL) {
+        return 0;
+    }
+
+    for (i = 0; i < config_can_addr_mappings_num; i++) {
+        if (config_can_addr_mappings[i].extended_address == ext_id &&
+            (config_can_addr_mappings[i].can_id & config_can_addr_mappings[i].can_id_mask) ==
+            (can_id & config_can_addr_mappings[i].can_id_mask)) {
+            tmp = &(config_can_addr_mappings[i]);
+            break;
+        }
+    }
+
+    if (tmp != NULL) {
+        if (tmp->ecu_addr_mask != 0) {
+            *source_addr = masked_guint16_value(can_id, tmp->ecu_addr_mask);
+            *target_addr = *source_addr;
+            return 1;
+        }
+        if (tmp->source_addr_mask != 0 && tmp->target_addr_mask != 0) {
+            *source_addr = masked_guint16_value(can_id, tmp->source_addr_mask);
+            *target_addr = masked_guint16_value(can_id, tmp->target_addr_mask);
+            return 2;
+        }
+    }
+
+    return 0;
+}
+
 
 static int
 dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 bus_type, guint32 frame_id, guint32 frame_length)
@@ -222,6 +358,8 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 bu
     gboolean    fragmented = FALSE;
     gboolean    complete = FALSE;
 
+    iso15765_info_t iso15765data;
+
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISO15765");
     col_clear(pinfo->cinfo, COL_INFO);
 
@@ -237,13 +375,32 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 bu
     ti = proto_tree_add_item(tree, proto_iso15765, tvb, 0, -1, ENC_NA);
     iso15765_tree = proto_item_add_subtree(ti, ett_iso15765);
 
+    iso15765data.bus_type = bus_type;
+    iso15765data.id = frame_id;
+    iso15765data.number_of_addresses_valid = 0;
+
     if (bus_type == ISO15765_TYPE_FLEXRAY) {
-        proto_tree_add_item(iso15765_tree, hf_iso15765_source_address, tvb, 0, flexray_addressing, ENC_BIG_ENDIAN);
-        proto_tree_add_item(iso15765_tree, hf_iso15765_target_address, tvb, flexray_addressing, flexray_addressing, ENC_BIG_ENDIAN);
+        guint32 tmp;
+        proto_tree_add_item_ret_uint(iso15765_tree, hf_iso15765_source_address, tvb, 0, flexray_addressing, ENC_BIG_ENDIAN, &tmp);
+        iso15765data.source_address = (guint16)tmp;
+        proto_tree_add_item_ret_uint(iso15765_tree, hf_iso15765_target_address, tvb, flexray_addressing, flexray_addressing, ENC_BIG_ENDIAN, &tmp);
+        iso15765data.target_address = (guint16)tmp;
+        iso15765data.number_of_addresses_valid = 2;
         ae = 2 * flexray_addressing;
     } else {
         if (ae != 0) {
-            proto_tree_add_item(iso15765_tree, hf_iso15765_address, tvb, 0, ae, ENC_NA);
+            guint32 tmp;
+            iso15765data.number_of_addresses_valid = 1;
+            proto_tree_add_item_ret_uint(iso15765_tree, hf_iso15765_address, tvb, 0, ae, ENC_NA, &tmp);
+            iso15765data.source_address = (guint16)tmp;
+            iso15765data.target_address = (guint16)tmp;
+        } else {
+            /* Address implicit encoded? */
+            if (bus_type == ISO15765_TYPE_CAN || bus_type == ISO15765_TYPE_CAN_FD) {
+                gboolean ext_id = (CAN_EFF_FLAG & frame_id) == CAN_EFF_FLAG;
+                guint32  can_id = ext_id ? frame_id & CAN_EFF_MASK : frame_id & CAN_SFF_MASK;
+                iso15765data.number_of_addresses_valid = find_config_can_addr_mapping(ext_id, can_id, &(iso15765data.source_address), &(iso15765data.target_address));
+            }
         }
     }
 
@@ -482,9 +639,6 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 bu
     }
 
     if (next_tvb) {
-        iso15765_info_t iso15765data;
-        iso15765data.bus_type = bus_type;
-        iso15765data.id = frame_id;
         iso15765data.len = frame_length;
 
         if (!complete || !dissector_try_payload_new(subdissector_table, next_tvb, pinfo, tree, TRUE, &iso15765data)) {
@@ -563,6 +717,8 @@ update_config(void)
 void
 proto_register_iso15765(void)
 {
+    uat_t *config_can_addr_mapping_uat;
+
     static hf_register_info hf[] = {
             {
                     &hf_iso15765_address,
@@ -817,6 +973,36 @@ proto_register_iso15765(void)
                                     "CAN IDs (extended)",
                                     "ISO15765 bound extended CAN IDs",
                                     &configured_ext_can_ids, 0x1fffffff);
+
+    /* UATs for config_can_addr_mapping_uat */
+    static uat_field_t config_can_addr_mapping_uat_fields[] = {
+        UAT_FLD_BOOL(config_can_addr_mappings, extended_address, "Ext. Addr.",       "Extended Addressing (TRUE), Standard Addressing (FALSE)"),
+        UAT_FLD_HEX(config_can_addr_mappings,  can_id,           "CAN ID",           "CAN ID (hex)"),
+        UAT_FLD_HEX(config_can_addr_mappings,  can_id_mask,      "CAN ID Mask",      "CAN ID Mask (hex)"),
+        UAT_FLD_HEX(config_can_addr_mappings,  source_addr_mask, "Source Addr Mask", "Bitmask to specify location of Source Address (hex)"),
+        UAT_FLD_HEX(config_can_addr_mappings,  target_addr_mask, "Target Addr Mask", "Bitmask to specify location of Target Address (hex)"),
+        UAT_FLD_HEX(config_can_addr_mappings,  ecu_addr_mask,    "ECU Addr Mask",    "Bitmask to specify location of ECU Address (hex)"),
+        UAT_END_FIELDS
+    };
+
+    config_can_addr_mapping_uat = uat_new("ISO15765 CAN ID Mapping",
+        sizeof(config_can_addr_mapping_t),          /* record size           */
+        DATAFILE_CAN_ADDR_MAPPING,                  /* filename              */
+        TRUE,                                       /* from profile          */
+        (void**)&config_can_addr_mappings,          /* data_ptr              */
+        &config_can_addr_mappings_num,              /* numitems_ptr          */
+        UAT_AFFECTS_DISSECTION,                     /* but not fields        */
+        NULL,                                       /* help                  */
+        copy_config_can_addr_mapping_cb,            /* copy callback         */
+        update_config_can_addr_mappings,            /* update callback       */
+        free_config_can_addr_mappings,              /* free callback         */
+        post_update_config_can_addr_mappings_cb,    /* post update callback  */
+        NULL,                                       /* reset callback        */
+        config_can_addr_mapping_uat_fields          /* UAT field definitions */
+    );
+
+    prefs_register_uat_preference(iso15765_module, "_iso15765_can_id_mappings", "CAN ID Mappings",
+        "A table to define mappings rules for CAN IDs", config_can_addr_mapping_uat);
 
     prefs_register_bool_preference(iso15765_module, "lin_diag",
                                    "Handle LIN Diagnostic Frames",

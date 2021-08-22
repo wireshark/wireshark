@@ -324,6 +324,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-disp.h
 	packet-dns.h
 	packet-docsis-tlv.h
+	packet-doip.h
 	packet-dop.h
 	packet-dsp.h
 	packet-dtls.h
