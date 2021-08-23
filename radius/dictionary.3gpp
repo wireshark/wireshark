@@ -52,36 +52,36 @@ ATTRIBUTE	3GPP-Packet-Filter			25	octets
 ATTRIBUTE	3GPP-Negotiated-DSCP			26	integer
 ATTRIBUTE	3GPP-Allocate-IP-Type			27	integer
 
-ATTRIBRUTE	External-Identifier			28	octets
-ATTRIBRUTE	TWAN-Identifier				29	octets
-ATTRIBRUTE	3GPP-User-Location-Info-Time		30	octets
-ATTRIBRUTE	3GPP-Secondary-RAT-Usage		31	octets
-ATTRIBRUTE	3GPP-UE-Local-IP-Address		32	octets
-ATTRIBRUTE	3GPP-UE-Source-Port			33	octets
+ATTRIBUTE	External-Identifier			28	octets
+ATTRIBUTE	TWAN-Identifier				29	octets
+ATTRIBUTE	3GPP-User-Location-Info-Time		30	octets
+ATTRIBUTE	3GPP-Secondary-RAT-Usage		31	octets
+ATTRIBUTE	3GPP-UE-Local-IP-Address		32	octets
+ATTRIBUTE	3GPP-UE-Source-Port			33	octets
 
 #
 # TS 29.561 5G System; Interworking between 5G Network and external Data Networks
 #
-ATTRIBRUTE	3GPP-Notification			110	octets
-ATTRIBRUTE	3GPP-UE-MAC-Address			111	octets
-ATTRIBRUTE	3GPP-Authorization-Reference		112	octets
-ATTRIBRUTE	3GPP-Policy-Reference			113	octets
-ATTRIBRUTE	3GPP-Session-AMBR			114	octets
-ATTRIBRUTE	3GPP-NAI				115	octets
-ATTRIBRUTE	3GPP-Session-AMBR-v2			116	octets
-ATTRIBRUTE	3GPP-IP-Address-Pool-Info		118	octets
-ATTRIBRUTE	3GPP-VLAN-Id				119	octets
-ATTRIBRUTE	3GPP-TNAP-Identifier			120	octets
-ATTRIBRUTE	3GPP-HFC-NodeId				121	octets
-ATTRIBRUTE	3GPP-GLI				122	octets
-ATTRIBRUTE	3GPP-Line-Type				123	octets
-ATTRIBRUTE	3GPP-NID				124	octets
-ATTRIBRUTE	3GPP-Session-S-NSSAI			125	octets
-ATTRIBRUTE	3GPP-CHF-FQDN				126	octets
-ATTRIBRUTE	3GPP-Serving-NF-FQDN			127	octets
-ATTRIBRUTE	3GPP-Session-Id				128	octets
-ATTRIBRUTE	3GPP-GCI				129	octets
-ATTRIBRUTE	Supported-Features			628	tlv
+ATTRIBUTE	3GPP-Notification			110	octets
+ATTRIBUTE	3GPP-UE-MAC-Address			111	octets
+ATTRIBUTE	3GPP-Authorization-Reference		112	octets
+ATTRIBUTE	3GPP-Policy-Reference			113	octets
+ATTRIBUTE	3GPP-Session-AMBR			114	octets
+ATTRIBUTE	3GPP-NAI				115	octets
+ATTRIBUTE	3GPP-Session-AMBR-v2			116	octets
+ATTRIBUTE	3GPP-IP-Address-Pool-Info		118	octets
+ATTRIBUTE	3GPP-VLAN-Id				119	octets
+ATTRIBUTE	3GPP-TNAP-Identifier			120	octets
+ATTRIBUTE	3GPP-HFC-NodeId				121	octets
+ATTRIBUTE	3GPP-GLI				122	octets
+ATTRIBUTE	3GPP-Line-Type				123	octets
+ATTRIBUTE	3GPP-NID				124	octets
+ATTRIBUTE	3GPP-Session-S-NSSAI			125	octets
+ATTRIBUTE	3GPP-CHF-FQDN				126	string
+ATTRIBUTE	3GPP-Serving-NF-FQDN			127	string
+ATTRIBUTE	3GPP-Session-Id				128	octets
+ATTRIBUTE	3GPP-GCI				129	octets
+ATTRIBUTE	Supported-Features			628	tlv
 
 VALUE	3GPP-PDP-Type		IPv4		0
 VALUE	3GPP-PDP-Type		PPP		1
