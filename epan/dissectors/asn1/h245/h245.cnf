@@ -149,7 +149,7 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
       h245_setup_channels(actx->pinfo, &upcoming_olc->rev_lc);
     } else {
       wmem_map_insert(h245_pending_olc_reqs,
-        wmem_strdup(wmem_file_scope(), gen_olc_key(upcoming_olc->fwd_lc_num, &%(ACTX)s->pinfo->dst, &%(ACTX)s->pinfo->src)),
+        wmem_strdup(wmem_file_scope(), gen_olc_key(upcoming_olc->fwd_lc_num, &%(ACTX)s->pinfo->dst, &%(ACTX)s->pinfo->src, actx->pinfo->pool)),
         upcoming_olc);
     }
   }
@@ -250,7 +250,7 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
   %(ACTX)s->pinfo->p2p_dir = p2p_dir;
 
   if (upcoming_olc) {
-    olc_key = gen_olc_key(upcoming_olc->fwd_lc_num, &%(ACTX)s->pinfo->src, &%(ACTX)s->pinfo->dst);
+    olc_key = gen_olc_key(upcoming_olc->fwd_lc_num, &%(ACTX)s->pinfo->src, &%(ACTX)s->pinfo->dst, actx->pinfo->pool);
     olc_req = (olc_info_t *)wmem_map_lookup(h245_pending_olc_reqs, olc_key);
     if (olc_req) {
       update_unicast_addr(&olc_req->fwd_lc.media_addr, &upcoming_olc->fwd_lc.media_addr);

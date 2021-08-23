@@ -422,11 +422,11 @@ void h245_set_h223_add_lc_handle( h223_add_lc_handle_t handle )
 	h223_add_lc_handle = handle;
 }
 
-static const gchar *gen_olc_key(guint16 lc_num, address *dst_addr, address *src_addr)
+static const gchar *gen_olc_key(guint16 lc_num, address *dst_addr, address *src_addr, wmem_allocator_t *scope)
 {
-  return wmem_strdup_printf(wmem_packet_scope(), "%s/%s/%u",
-          address_to_str(wmem_packet_scope(), dst_addr),
-          address_to_str(wmem_packet_scope(), src_addr),
+  return wmem_strdup_printf(scope, "%s/%s/%u",
+          address_to_str(scope, dst_addr),
+          address_to_str(scope, src_addr),
           lc_num);
 }
 
@@ -2416,7 +2416,7 @@ static gint ett_h245_MobileMultilinkReconfigurationIndication = -1;
 static int dissect_h245_MultimediaSystemControlMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 static void reset_h245_pi(void *dummy _U_)
 {
-	h245_pi = NULL; /* Make sure we don't leave wmem_packet_scoped() memory lying around */
+	h245_pi = NULL; /* Make sure we don't leave pinfo->pool memory lying around */
 }
 
 
@@ -8757,7 +8757,7 @@ dissect_h245_OpenLogicalChannel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
       h245_setup_channels(actx->pinfo, &upcoming_olc->rev_lc);
     } else {
       wmem_map_insert(h245_pending_olc_reqs,
-        wmem_strdup(wmem_file_scope(), gen_olc_key(upcoming_olc->fwd_lc_num, &actx->pinfo->dst, &actx->pinfo->src)),
+        wmem_strdup(wmem_file_scope(), gen_olc_key(upcoming_olc->fwd_lc_num, &actx->pinfo->dst, &actx->pinfo->src, actx->pinfo->pool)),
         upcoming_olc);
     }
   }
@@ -11112,7 +11112,7 @@ dissect_h245_OpenLogicalChannelAck(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
   actx->pinfo->p2p_dir = p2p_dir;
 
   if (upcoming_olc) {
-    olc_key = gen_olc_key(upcoming_olc->fwd_lc_num, &actx->pinfo->src, &actx->pinfo->dst);
+    olc_key = gen_olc_key(upcoming_olc->fwd_lc_num, &actx->pinfo->src, &actx->pinfo->dst, actx->pinfo->pool);
     olc_req = (olc_info_t *)wmem_map_lookup(h245_pending_olc_reqs, olc_key);
     if (olc_req) {
       update_unicast_addr(&olc_req->fwd_lc.media_addr, &upcoming_olc->fwd_lc.media_addr);

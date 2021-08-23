@@ -89,7 +89,7 @@ static tvbuff_t* snmp_usm_priv_aes128(snmp_usm_params_t*, tvbuff_t*, packet_info
 static tvbuff_t* snmp_usm_priv_aes192(snmp_usm_params_t*, tvbuff_t*, packet_info *pinfo, gchar const**);
 static tvbuff_t* snmp_usm_priv_aes256(snmp_usm_params_t*, tvbuff_t*, packet_info *pinfo, gchar const**);
 
-static gboolean snmp_usm_auth(const snmp_usm_auth_model_t model, snmp_usm_params_t* p, guint8**, guint*, gchar const**);
+static gboolean snmp_usm_auth(const packet_info *pinfo, const snmp_usm_auth_model_t model, snmp_usm_params_t* p, guint8**, guint*, gchar const**);
 
 static const value_string auth_types[] = {
 	{SNMP_USM_AUTH_MD5,"MD5"},
@@ -516,7 +516,7 @@ DateAndTime ::= TEXTUAL-CONVENTION
     SYNTAX       OCTET STRING (SIZE (8 | 11))
 */
 static proto_item *
-dissect_snmp_variable_date_and_time(proto_tree *tree,int hfid, tvbuff_t *tvb, int offset, int length)
+dissect_snmp_variable_date_and_time(proto_tree *tree, packet_info *pinfo, int hfid, tvbuff_t *tvb, int offset, int length)
 {
 	guint16 year;
 	guint8 month;
@@ -540,7 +540,7 @@ dissect_snmp_variable_date_and_time(proto_tree *tree,int hfid, tvbuff_t *tvb, in
 		hour_from_utc	= tvb_get_guint8(tvb,offset+9);
 		min_from_utc	= tvb_get_guint8(tvb,offset+10);
 
-		str = wmem_strdup_printf(wmem_packet_scope(),
+		str = wmem_strdup_printf(pinfo->pool,
 			 "%u-%u-%u, %u:%u:%u.%u UTC %s%u:%u",
 			 year,
 			 month,
@@ -549,11 +549,11 @@ dissect_snmp_variable_date_and_time(proto_tree *tree,int hfid, tvbuff_t *tvb, in
 			 minutes,
 			 seconds,
 			 deci_seconds,
-			 tvb_get_string_enc(wmem_packet_scope(),tvb,offset+8,1,ENC_ASCII|ENC_NA),
+			 tvb_get_string_enc(pinfo->pool,tvb,offset+8,1,ENC_ASCII|ENC_NA),
 			 hour_from_utc,
 			 min_from_utc);
 	}else{
-		 str = wmem_strdup_printf(wmem_packet_scope(),
+		 str = wmem_strdup_printf(pinfo->pool,
 			 "%u-%u-%u, %u:%u:%u.%u",
 			 year,
 			 month,
@@ -1119,7 +1119,7 @@ indexing_done:
 		}
 		/* Special case DATE AND TIME */
 		if((oid_info->value_type)&&(oid_info->value_type->keytype == OID_KEY_TYPE_DATE_AND_TIME)&&(value_len > 7)){
-			pi_value = dissect_snmp_variable_date_and_time(pt_varbind, hfid, tvb, value_offset, value_len);
+			pi_value = dissect_snmp_variable_date_and_time(pt_varbind, actx->pinfo, hfid, tvb, value_offset, value_len);
 		}else{
 			pi_value = proto_tree_add_item(pt_varbind,hfid,tvb,value_offset,value_len,ENC_BIG_ENDIAN);
 		}
@@ -1631,7 +1631,7 @@ localize_ue( snmp_ue_assoc_t* o, const guint8* engine, guint engine_len )
 	( a->user.userName.len == l && memcmp( a->user.userName.data, u, l) == 0 )
 
 static snmp_ue_assoc_t*
-get_user_assoc(tvbuff_t* engine_tvb, tvbuff_t* user_tvb)
+get_user_assoc(tvbuff_t* engine_tvb, tvbuff_t* user_tvb, packet_info *pinfo)
 {
 	static snmp_ue_assoc_t* a;
 	guint given_username_len;
@@ -1646,8 +1646,8 @@ get_user_assoc(tvbuff_t* engine_tvb, tvbuff_t* user_tvb)
 	given_username_len = tvb_captured_length(user_tvb);
 	given_engine_len = tvb_captured_length(engine_tvb);
 	if (! ( given_engine_len && given_username_len ) ) return NULL;
-	given_username = (guint8*)tvb_memdup(wmem_packet_scope(),user_tvb,0,-1);
-	given_engine = (guint8*)tvb_memdup(wmem_packet_scope(),engine_tvb,0,-1);
+	given_username = (guint8*)tvb_memdup(pinfo->pool,user_tvb,0,-1);
+	given_engine = (guint8*)tvb_memdup(pinfo->pool,engine_tvb,0,-1);
 
 	for (a = localized_ues; a; a = a->next) {
 		if ( localized_match(a, given_username, given_username_len, given_engine, given_engine_len) ) {
@@ -1667,7 +1667,7 @@ get_user_assoc(tvbuff_t* engine_tvb, tvbuff_t* user_tvb)
 }
 
 static gboolean
-snmp_usm_auth(const snmp_usm_auth_model_t model, snmp_usm_params_t* p, guint8** calc_auth_p,
+snmp_usm_auth(const packet_info *pinfo, const snmp_usm_auth_model_t model, snmp_usm_params_t* p, guint8** calc_auth_p,
 	guint* calc_auth_len_p, gchar const** error)
 {
 	gint msg_len;
@@ -1706,9 +1706,9 @@ snmp_usm_auth(const snmp_usm_auth_model_t model, snmp_usm_params_t* p, guint8** 
 		*error = "Not enough data remaining";
 		return FALSE;
 	}
-	msg = (guint8*)tvb_memdup(wmem_packet_scope(),p->msg_tvb,0,msg_len);
+	msg = (guint8*)tvb_memdup(pinfo->pool,p->msg_tvb,0,msg_len);
 
-	auth = (guint8*)tvb_memdup(wmem_packet_scope(),p->auth_tvb,0,auth_len);
+	auth = (guint8*)tvb_memdup(pinfo->pool,p->auth_tvb,0,auth_len);
 
 	start = p->auth_offset - p->start_offset;
 	end =   start + auth_len;
@@ -1718,7 +1718,7 @@ snmp_usm_auth(const snmp_usm_auth_model_t model, snmp_usm_params_t* p, guint8** 
 		msg[i] = '\0';
 	}
 
-	calc_auth = (guint8*)wmem_alloc(wmem_packet_scope(), auth_hash_len[model]);
+	calc_auth = (guint8*)wmem_alloc(pinfo->pool, auth_hash_len[model]);
 
 	if (ws_hmac_buffer(auth_hash_algo[model], calc_auth, msg, msg_len, key, key_len)) {
 		return FALSE;
