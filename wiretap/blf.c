@@ -20,6 +20,7 @@
 
 #include <epan/dissectors/packet-socketcan.h>
 #include <string.h>
+#include <epan/value_string.h>
 #include <wsutil/wslog.h>
 #include "file_wrappers.h"
 #include "wtap-int.h"
@@ -72,6 +73,9 @@ typedef struct blf_data {
 
     guint   current_log_container;
     GArray *log_containers;
+
+    GHashTable *channel_to_iface_ht;
+    guint32     next_interface_id;
 } blf_t;
 
 typedef struct blf_params {
@@ -82,6 +86,100 @@ typedef struct blf_params {
 
     blf_t    *blf_data;
 } blf_params_t;
+
+typedef struct blf_channel_to_iface_entry {
+    int pkt_encap;
+    guint32 channel;
+    guint32 interface_id;
+} blf_channel_to_iface_entry_t;
+
+static void
+blf_free_key(gpointer key) {
+    g_free(key);
+}
+
+static void
+blf_free_channel_to_iface_entry(gpointer data) {
+     g_free(data);
+}
+
+static gint64
+blf_calc_key_value(int pkt_encap, guint32 channel) {
+    return ((gint64)pkt_encap << 32) | channel;
+}
+
+static void add_interface_name(wtap_block_t *int_data, int pkt_encap, guint32 channel) {
+    switch (pkt_encap) {
+    case WTAP_ENCAP_ETHERNET:
+        wtap_block_add_string_option_format(*int_data, OPT_IDB_NAME, "ETH-%d", channel);
+        break;
+    case WTAP_ENCAP_FLEXRAY:
+        wtap_block_add_string_option_format(*int_data, OPT_IDB_NAME, "FR-%d", channel);
+        break;
+    case WTAP_ENCAP_LIN:
+        wtap_block_add_string_option_format(*int_data, OPT_IDB_NAME, "LIN-%d", channel);
+        break;
+    case WTAP_ENCAP_SOCKETCAN:
+        wtap_block_add_string_option_format(*int_data, OPT_IDB_NAME, "CAN-%d", channel);
+        break;
+    default:
+        wtap_block_add_string_option_format(*int_data, OPT_IDB_NAME, "0x%04x-%d", pkt_encap, channel);
+    }
+}
+
+static guint32
+blf_add_interface(blf_params_t *params, int pkt_encap, guint32 channel) {
+    wtap_block_t int_data = wtap_block_create(WTAP_BLOCK_IF_ID_AND_INFO);
+    wtapng_if_descr_mandatory_t *if_descr_mand = (wtapng_if_descr_mandatory_t*)wtap_block_get_mandatory_data(int_data);
+    blf_channel_to_iface_entry_t *item = NULL;
+
+    if_descr_mand->wtap_encap = pkt_encap;
+    add_interface_name(&int_data, pkt_encap, channel);
+    if_descr_mand->time_units_per_second = 1000 * 1000 * 1000;
+    if_descr_mand->tsprecision = WTAP_TSPREC_NSEC;
+    if_descr_mand->snap_len = WTAP_MAX_PACKET_SIZE_STANDARD;
+    if_descr_mand->num_stat_entries = 0;
+    if_descr_mand->interface_statistics = NULL;
+    wtap_add_idb(params->wth, int_data);
+
+    if (params->wth->file_encap == WTAP_ENCAP_UNKNOWN) {
+        params->wth->file_encap = if_descr_mand->wtap_encap;
+    } else {
+        if (params->wth->file_encap != if_descr_mand->wtap_encap) {
+            params->wth->file_encap = WTAP_ENCAP_PER_PACKET;
+        }
+    }
+
+    gint64 *key = NULL;
+    key = g_new(gint64, 1);
+    *key = blf_calc_key_value(pkt_encap, channel);
+
+    item = g_new(blf_channel_to_iface_entry_t, 1);
+    item->channel = channel;
+    item->pkt_encap = pkt_encap;
+    item->interface_id = params->blf_data->next_interface_id++;
+    g_hash_table_insert(params->blf_data->channel_to_iface_ht, key, item);
+
+    return item->interface_id;
+}
+
+static guint32
+blf_lookup_interface(blf_params_t *params, int pkt_encap, guint32 channel) {
+    gint64 key = blf_calc_key_value(pkt_encap, channel);
+    blf_channel_to_iface_entry_t *item = NULL;
+
+    if (params->blf_data->channel_to_iface_ht == NULL) {
+        return 0;
+    }
+
+    item = (blf_channel_to_iface_entry_t *)g_hash_table_lookup(params->blf_data->channel_to_iface_ht, &key);
+
+    if (item != NULL) {
+        return item->interface_id;
+    } else {
+        return blf_add_interface(params, pkt_encap, channel);
+    }
+}
 
 gboolean blf_read_block(blf_params_t *params, gint64 start_pos, int *err, gchar **err_info);
 
@@ -588,7 +686,7 @@ blf_init_rec(blf_params_t *params, blf_logobjectheader_t *header, int pkt_encap,
     params->rec->ts.nsecs = object_timestamp % (1000 * 1000 * 1000);
 
     params->rec->rec_header.packet_header.pkt_encap = pkt_encap;
-    params->rec->rec_header.packet_header.interface_id = channel;
+    params->rec->rec_header.packet_header.interface_id = blf_lookup_interface(params, pkt_encap, channel);
 
     /* TODO: before we had to remove comments and verdict here to not leak memory but APIs have changed ... */
 }
@@ -1423,6 +1521,13 @@ static void blf_close(wtap *wth) {
         blf->log_containers = NULL;
     }
 
+    if (blf != NULL && blf->channel_to_iface_ht != NULL) {
+        g_hash_table_destroy(blf->channel_to_iface_ht);
+        blf->channel_to_iface_ht = NULL;
+    }
+
+    /* TODO: do we need to reverse the wtap_add_idb? how? */
+
     return;
 }
 
@@ -1479,6 +1584,9 @@ blf_open(wtap *wth, int *err, gchar **err_info) {
     blf->start_offset_ns = 1000 * 1000 * 1000 * (guint64)mktime(&timestamp);
     blf->start_offset_ns += 1000 * 1000 * header.start_date.ms;
 
+    blf->channel_to_iface_ht = g_hash_table_new_full(g_int64_hash, g_int64_equal, &blf_free_key, &blf_free_channel_to_iface_entry);
+    blf->next_interface_id = 0;
+
     /* embed in params */
     params.blf_data = blf;
     params.buf = NULL;
@@ -1502,8 +1610,15 @@ blf_open(wtap *wth, int *err, gchar **err_info) {
     return WTAP_OPEN_MINE;
 }
 
+/* Options for interface blocks. */
+static const struct supported_option_type interface_block_options_supported[] = {
+    /* No comments, just an interface name. */
+    { OPT_IDB_NAME, ONE_OPTION_SUPPORTED }
+};
+
 static const struct supported_block_type blf_blocks_supported[] = {
-    { WTAP_BLOCK_PACKET, MULTIPLE_BLOCKS_SUPPORTED, NO_OPTIONS_SUPPORTED }
+    { WTAP_BLOCK_PACKET, MULTIPLE_BLOCKS_SUPPORTED, NO_OPTIONS_SUPPORTED },
+    { WTAP_BLOCK_IF_ID_AND_INFO, MULTIPLE_BLOCKS_SUPPORTED, OPTION_TYPES_SUPPORTED(interface_block_options_supported) },
 };
 
 static const struct file_type_subtype_info blf_info = {
