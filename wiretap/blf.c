@@ -1503,7 +1503,7 @@ blf_open(wtap *wth, int *err, gchar **err_info) {
 }
 
 static const struct supported_block_type blf_blocks_supported[] = {
-    { WTAP_BLOCK_PACKET, ONE_BLOCK_SUPPORTED, NO_OPTIONS_SUPPORTED }
+    { WTAP_BLOCK_PACKET, MULTIPLE_BLOCKS_SUPPORTED, NO_OPTIONS_SUPPORTED }
 };
 
 static const struct file_type_subtype_info blf_info = {
