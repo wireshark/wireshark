@@ -646,8 +646,9 @@ static guint32 dissect_bfw_bundle(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
         /* Create subtree */
         bfw_offset = bit_offset / 8;
+        guint8 bfw_extent = ((bit_offset + (iq_width*2)) / 8) - bfw_offset;
         proto_item *bfw_ti = proto_tree_add_string_format(bundle_tree, hf_oran_bfw,
-                                                          tvb, bfw_offset, 4 /* assuming 1*16-bit samples */,
+                                                          tvb, bfw_offset, bfw_extent,
                                                           "", "TRX %u: (", m);
         proto_tree *bfw_tree = proto_item_add_subtree(bfw_ti, ett_oran_bfw);
 
