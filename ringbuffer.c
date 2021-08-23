@@ -72,6 +72,7 @@ typedef struct _ringbuf_data {
   guint         curr_file_num;       /**< Number of the current file (ever increasing) */
   gchar        *fprefix;             /**< Filename prefix */
   gchar        *fsuffix;             /**< Filename suffix */
+  gboolean      nametimenum;         /**< ...num_time... or ...time_num...   */
   gboolean      unlimited;           /**< TRUE if unlimited number of files */
 
   int           fd;                  /**< Current ringbuffer file descriptor */
@@ -232,8 +233,11 @@ static int ringbuf_open_file(rb_file *rfile, int *err)
     strftime(timestr, sizeof(timestr), "%Y%m%d%H%M%S", tm);
   else
     (void) g_strlcpy(timestr, "196912312359", sizeof(timestr)); /* second before the Epoch */
-  rfile->name = g_strconcat(rb_data.fprefix, "_", filenum, "_", timestr,
-                            rb_data.fsuffix, NULL);
+  if (rb_data.nametimenum) {
+    rfile->name = g_strconcat(rb_data.fprefix, "_", timestr, "_", filenum, rb_data.fsuffix, NULL);
+  } else {
+    rfile->name = g_strconcat(rb_data.fprefix, "_", filenum, "_", timestr, rb_data.fsuffix, NULL);
+  }
 
   if (rfile->name == NULL) {
     if (err != NULL)
@@ -255,7 +259,8 @@ static int ringbuf_open_file(rb_file *rfile, int *err)
  * Initialize the ringbuffer data structures
  */
 int
-ringbuf_init(const char *capfile_name, guint num_files, gboolean group_read_access, gchar *compress_type)
+ringbuf_init(const char *capfile_name, guint num_files, gboolean group_read_access,
+             gchar *compress_type, gboolean has_nametimenum)
 {
   unsigned int i;
   char        *pfx, *last_pathsep;
@@ -265,6 +270,7 @@ ringbuf_init(const char *capfile_name, guint num_files, gboolean group_read_acce
   rb_data.curr_file_num = 0;
   rb_data.fprefix = NULL;
   rb_data.fsuffix = NULL;
+  rb_data.nametimenum = has_nametimenum;
   rb_data.unlimited = FALSE;
   rb_data.fd = -1;
   rb_data.pdh = NULL;

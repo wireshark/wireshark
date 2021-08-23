@@ -231,6 +231,14 @@ every hour on the hour.
 B<packets>:I<value> switch to the next file after it contains I<value>
 packets.
 
+B<nametimenum>:I<value> Choose between two save filename templates.  If
+I<value> is 1, make running file number part before start time part; this is
+the original and default behaviour (e.g. log_00001_20210828164426.pcap).  If
+I<value> is greater than 1, make start time part before running number part
+(e.g. log_20210828164426_00001.pcap).  The latter makes alphabetical sortig
+order equal to creation time order, and keeps related multiple file sets in
+same directory close to each other.
+
 Example: B<tshark -b filesize:1000 -b files:5> results in a ring buffer of five
 files of size one megabyte each.
 

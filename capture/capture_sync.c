@@ -302,6 +302,13 @@ sync_pipe_start(capture_options *capture_opts, GPtrArray *capture_comments,
             argv = sync_pipe_add_arg(argv, &argc, sring_num_files);
         }
 
+        if (capture_opts->has_nametimenum) {
+            char nametimenum[ARGV_NUMBER_LEN];
+            argv = sync_pipe_add_arg(argv, &argc, "-b");
+            g_snprintf(nametimenum, ARGV_NUMBER_LEN, "nametimenum:2");
+            argv = sync_pipe_add_arg(argv, &argc, nametimenum);
+        }
+
         if (capture_opts->has_autostop_files) {
             char sautostop_files[ARGV_NUMBER_LEN];
             argv = sync_pipe_add_arg(argv, &argc, "-a");

@@ -3580,7 +3580,8 @@ capture_loop_open_output(capture_options *capture_opts, int *save_file_fd,
                 *save_file_fd = ringbuf_init(capfile_name,
                                              (capture_opts->has_ring_num_files) ? capture_opts->ring_num_files : 0,
                                              capture_opts->group_read_access,
-                                             capture_opts->compress_type);
+                                             capture_opts->compress_type,
+                                             capture_opts->has_nametimenum);
 
                 /* capfile_name is unused as the ringbuffer provides its own filename. */
                 if (*save_file_fd != -1) {

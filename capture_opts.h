@@ -295,6 +295,7 @@ typedef struct capture_options_tag {
     int                file_packets;          /**< Switch file after n packets */
     gboolean           has_ring_num_files;    /**< TRUE if ring num_files specified */
     guint32            ring_num_files;        /**< Number of multiple buffer files */
+    gboolean           has_nametimenum;       /**< TRUE if file name has date part before num part  */
 
     /* autostop conditions */
     gboolean           has_autostop_files;    /**< TRUE if maximum number of capture files
