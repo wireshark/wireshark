@@ -1498,7 +1498,7 @@ void proto_register_wreth(void)
             NULL, HFILL }
         },
         { &hf_Wreth_IdentificationMacAddr,
-            { "Client MAC address :", "wreth.IdentClientMacAddr",
+            { "Client MAC address", "wreth.IdentClientMacAddr",
             FT_ETHER, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },

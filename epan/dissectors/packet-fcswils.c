@@ -1969,7 +1969,7 @@ proto_register_fcswils(void)
 
 #if 0
         { &hf_swils_fspfh_cmd,
-          {"Command:", "swils.fspf.cmd",
+          {"Command", "swils.fspf.cmd",
            FT_UINT8, BASE_HEX, NULL, 0x0,
            NULL, HFILL}},
 #endif

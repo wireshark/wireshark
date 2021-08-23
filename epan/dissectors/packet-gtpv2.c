@@ -9364,7 +9364,7 @@ void proto_register_gtpv2(void)
           FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL}
         },
         {&hf_gtpv2_clii,
-         {"CLII (Change of Location Information Indication):", "gtpv2.clii",
+         {"CLII (Change of Location Information Indication)", "gtpv2.clii",
           FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL}
         },
         {&hf_gtpv2_cpsr,

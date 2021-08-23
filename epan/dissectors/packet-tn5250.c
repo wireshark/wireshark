@@ -7418,7 +7418,7 @@ proto_register_tn5250(void)
     { &hf_tn5250_field_data,
       {  "Field Data", "tn5250.field_data", FT_STRING, BASE_NONE, NULL, 0x0,
          NULL, HFILL }},
-    { &hf_tn5250_reserved, {  "Flags (Reserved):", "tn5250.reserved",
+    { &hf_tn5250_reserved, {  "Flags (Reserved)", "tn5250.reserved",
                               FT_UINT8, BASE_HEX|BASE_RANGE_STRING, RVALS(vals_tn5250_reserved), 0,
                               NULL, HFILL }},
     { &hf_tn5250_unknown_data,

@@ -242,6 +242,8 @@ class Item:
                 label.count('[') != label.count(']') or
                 label.count('{') != label.count('}')):
                 print('Warning: ' + filename + ': - filter "' + filter + '" label', '"' + label + '"', 'has unbalanced parens/braces/brackets')
+            if item_type != 'FT_NONE' and label.endswith(':'):
+                print('Warning: ' + filename + ': - filter "' + filter + '" label', '"' + label + '"', 'ends with an unnecessary colon')
 
         self.item_type = item_type
         self.type_modifier = type_modifier

@@ -12775,7 +12775,7 @@ void proto_register_rtps(void) {
     },
 
     { &hf_rtps_coherent_set_end, {
-        "End of coherent set sequence:",
+        "End of coherent set sequence",
         "rtps.coherent_set.end",
         FT_UINT64,
         BASE_DEC,

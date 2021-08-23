@@ -3929,17 +3929,17 @@ proto_register_fileexp (void)
         NULL, HFILL}
     },
     { &hf_fileexp_setcontext_rqst_epochtime,
-      { "EpochTime:", "fileexp.setcontext_rqst_epochtime",
+      { "EpochTime", "fileexp.setcontext_rqst_epochtime",
         FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,
         NULL, HFILL}
     },
     { &hf_fileexp_setcontext_rqst_clientsizesattrs,
-      { "ClientSizeAttrs:", "fileexp.setcontext_clientsizesattrs",
+      { "ClientSizeAttrs", "fileexp.setcontext_clientsizesattrs",
         FT_UINT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL}
     },
     { &hf_fileexp_setcontext_rqst_parm7,
-      { "Parm7:", "fileexp.setcontext.parm7",
+      { "Parm7", "fileexp.setcontext.parm7",
         FT_UINT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL}
     },

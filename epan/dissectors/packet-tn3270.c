@@ -5755,7 +5755,7 @@ proto_register_tn3270(void)
          NULL, HFILL }
     },
     { &hf_tn3270_load_format_storage_operand,
-      {  "Operand:",
+      {  "Operand",
          "tn3270.load_format_storage_operand",
          FT_UINT8, BASE_HEX, VALS(vals_load_storage_format_operand), 0x0,
          NULL, HFILL }
