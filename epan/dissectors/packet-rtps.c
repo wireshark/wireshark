@@ -5646,7 +5646,7 @@ static int rtps_util_add_fragment_number_set(proto_tree *tree, packet_info *pinf
    * message match what is here. If not re-decode it as 64-bit.
    */
   num_bits = tvb_get_guint32(tvb, offset+4, encoding);
-  expected_size = (((num_bits / 8) + 3) / 4) * 4 + 8;
+  expected_size = ((num_bits + 31) / 32) * 4 + 8;
   if (expected_size == section_size) {
     base = (guint64)tvb_get_guint32(tvb, offset, encoding);
     base_size = 4;
