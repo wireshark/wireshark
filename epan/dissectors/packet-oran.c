@@ -716,7 +716,6 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
     switch (sectionType) {
         case SEC_C_NORMAL:            /* Section Type "1" */
         case SEC_C_PRACH:             /* Section Type "3" */
-        case SEC_C_UE_SCHED:          /* Section Type "5" */
             proto_tree_add_item_ret_boolean(oran_tree, hf_oran_ef, tvb, offset, 1, ENC_BIG_ENDIAN, &extension_flag);
             break;
         default:
@@ -1171,6 +1170,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     guint32 scs, slots_per_subframe;
     proto_item *ti;
 
+    /* Section-specific fields */
     switch (sectionType) {
     case SEC_C_UNUSED_RB:   /* Section Type "0" */
 
@@ -1190,6 +1190,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
         break;
 
     case SEC_C_NORMAL:      /* Section Type "1" */
+    case SEC_C_UE_SCHED:    /* Section Type "5" */
         iq_width_item = proto_tree_add_item_ret_uint(section_tree, hf_oran_udCompHdrIqWidth , tvb, offset, 1, ENC_NA, &bit_width);
         proto_item_append_text(iq_width_item, " (%d bits)", bit_width == 0 ? 16 : bit_width);
 
