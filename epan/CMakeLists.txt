@@ -320,12 +320,12 @@ target_link_libraries(epan
 	PUBLIC
 		wiretap
 		wsutil
+		${GLIB2_LIBRARIES}
 	PRIVATE
 		${BROTLI_LIBRARIES}
 		${CARES_LIBRARIES}
 		${GCRYPT_LIBRARIES}
 		${GIO2_LIBRARIES}
-		${GLIB2_LIBRARIES}
 		${GNUTLS_LIBRARIES}
 		${GTHREAD2_LIBRARIES}
 		${KERBEROS_LIBRARIES}
@@ -340,6 +340,11 @@ target_link_libraries(epan
 		${WIN_WS2_32_LIBRARY}
 		${ZLIB_LIBRARIES}
 		${ZSTD_LIBRARIES}
+)
+
+target_include_directories(epan
+	SYSTEM PUBLIC
+		${GLIB2_INCLUDE_DIRS}
 )
 
 target_include_directories(epan
