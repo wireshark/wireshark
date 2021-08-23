@@ -168,7 +168,7 @@ gcp_msg_t* gcp_msg(packet_info* pinfo, int o, gboolean keep_persistent_data) {
             wmem_tree_insert32_array(gcp_msgs,key,m);
         }
     } else {
-        m = wmem_new0(wmem_packet_scope(), gcp_msg_t);
+        m = wmem_new0(pinfo->pool, gcp_msg_t);
         m->framenum = framenum;
         m->trxs = NULL;
         m->committed = FALSE;
@@ -198,8 +198,8 @@ gcp_msg_t* gcp_msg(packet_info* pinfo, int o, gboolean keep_persistent_data) {
             }
             else {
                 /* XXX: heuristic and error prone */
-                m->hi_addr = g_str_hash(address_to_str(wmem_packet_scope(), hi_addr));
-                m->lo_addr = g_str_hash(address_to_str(wmem_packet_scope(), lo_addr));
+                m->hi_addr = g_str_hash(address_to_str(pinfo->pool, hi_addr));
+                m->lo_addr = g_str_hash(address_to_str(pinfo->pool, lo_addr));
             }
         break;
     }
@@ -207,7 +207,7 @@ gcp_msg_t* gcp_msg(packet_info* pinfo, int o, gboolean keep_persistent_data) {
     return m;
 }
 
-gcp_trx_t* gcp_trx(gcp_msg_t* m ,guint32 t_id , gcp_trx_type_t type, gboolean keep_persistent_data) {
+gcp_trx_t* gcp_trx(gcp_msg_t* m ,guint32 t_id , gcp_trx_type_t type, packet_info *pinfo, gboolean keep_persistent_data) {
     gcp_trx_t* t = NULL;
     gcp_trx_msg_t* trxmsg;
 
@@ -260,8 +260,8 @@ gcp_trx_t* gcp_trx(gcp_msg_t* m ,guint32 t_id , gcp_trx_type_t type, gboolean ke
 
         }
     } else {
-        t = wmem_new(wmem_packet_scope(), gcp_trx_t);
-        trxmsg = wmem_new(wmem_packet_scope(), gcp_trx_msg_t);
+        t = wmem_new(pinfo->pool, gcp_trx_t);
+        trxmsg = wmem_new(pinfo->pool, gcp_trx_msg_t);
         t->initial = NULL;
         t->id = t_id;
         t->type = type;
@@ -286,7 +286,7 @@ gcp_trx_t* gcp_trx(gcp_msg_t* m ,guint32 t_id , gcp_trx_type_t type, gboolean ke
 }
 
 
-gcp_ctx_t* gcp_ctx(gcp_msg_t* m, gcp_trx_t* t, guint32 c_id, gboolean persistent) {
+gcp_ctx_t* gcp_ctx(gcp_msg_t* m, gcp_trx_t* t, guint32 c_id, packet_info *pinfo, gboolean persistent) {
     gcp_ctx_t* context = NULL;
     gcp_ctx_t** context_p = NULL;
 
@@ -384,7 +384,7 @@ gcp_ctx_t* gcp_ctx(gcp_msg_t* m, gcp_trx_t* t, guint32 c_id, gboolean persistent
             }
         }
     } else {
-        context = wmem_new(wmem_packet_scope(), gcp_ctx_t);
+        context = wmem_new(pinfo->pool, gcp_ctx_t);
         context->initial = m;
         context->cmds = NULL;
         context->id = c_id;
@@ -396,7 +396,7 @@ gcp_ctx_t* gcp_ctx(gcp_msg_t* m, gcp_trx_t* t, guint32 c_id, gboolean persistent
     return context;
 }
 
-gcp_cmd_t* gcp_cmd(gcp_msg_t* m, gcp_trx_t* t, gcp_ctx_t* c, gcp_cmd_type_t type, guint offset, gboolean persistent) {
+gcp_cmd_t* gcp_cmd(gcp_msg_t* m, gcp_trx_t* t, gcp_ctx_t* c, gcp_cmd_type_t type, guint offset, packet_info *pinfo, gboolean persistent) {
     gcp_cmd_t* cmd;
     gcp_cmd_msg_t* cmdtrx;
     gcp_cmd_msg_t* cmdctx;
@@ -423,9 +423,9 @@ gcp_cmd_t* gcp_cmd(gcp_msg_t* m, gcp_trx_t* t, gcp_ctx_t* c, gcp_cmd_type_t type
             cmdctx = wmem_new(wmem_file_scope(), gcp_cmd_msg_t);
         }
     } else {
-        cmd = wmem_new(wmem_packet_scope(), gcp_cmd_t);
-        cmdtrx = wmem_new(wmem_packet_scope(), gcp_cmd_msg_t);
-        cmdctx = wmem_new(wmem_packet_scope(), gcp_cmd_msg_t);
+        cmd = wmem_new(pinfo->pool, gcp_cmd_t);
+        cmdtrx = wmem_new(pinfo->pool, gcp_cmd_msg_t);
+        cmdctx = wmem_new(pinfo->pool, gcp_cmd_msg_t);
     }
 
     cmd->type = type;
@@ -465,7 +465,7 @@ gcp_cmd_t* gcp_cmd(gcp_msg_t* m, gcp_trx_t* t, gcp_ctx_t* c, gcp_cmd_type_t type
     return cmd;
 }
 
-gcp_term_t* gcp_cmd_add_term(gcp_msg_t* m, gcp_trx_t* tr, gcp_cmd_t* c, gcp_term_t* t, gcp_wildcard_t wildcard, gboolean persistent) {
+gcp_term_t* gcp_cmd_add_term(gcp_msg_t* m, gcp_trx_t* tr, gcp_cmd_t* c, gcp_term_t* t, gcp_wildcard_t wildcard, packet_info *pinfo, gboolean persistent) {
     gcp_terms_t* ct;
     gcp_terms_t* ct2;
 
@@ -582,7 +582,7 @@ gcp_term_t* gcp_cmd_add_term(gcp_msg_t* m, gcp_trx_t* tr, gcp_cmd_t* c, gcp_term
             DISSECTOR_ASSERT_NOT_REACHED();
         }
     } else {
-        ct = wmem_new(wmem_packet_scope(), gcp_terms_t);
+        ct = wmem_new(pinfo->pool, gcp_terms_t);
         ct->term = t;
         ct->next = NULL;
         c->terms.last = c->terms.last->next = ct;
@@ -592,7 +592,7 @@ gcp_term_t* gcp_cmd_add_term(gcp_msg_t* m, gcp_trx_t* tr, gcp_cmd_t* c, gcp_term
 
 }
 
-static const gchar* gcp_cmd_to_str(gcp_cmd_t* c, gboolean persistent) {
+static const gchar* gcp_cmd_to_str(gcp_cmd_t* c, wmem_allocator_t *scope, gboolean persistent) {
     const gchar* s;
     gcp_terms_t* term;
 
@@ -601,7 +601,6 @@ static const gchar* gcp_cmd_to_str(gcp_cmd_t* c, gboolean persistent) {
     switch (c->type) {
         case GCP_CMD_NONE:
             return "-";
-            break;
         case GCP_CMD_ADD_REQ:
             s = "AddReq {";
             break;
@@ -671,16 +670,17 @@ static const gchar* gcp_cmd_to_str(gcp_cmd_t* c, gboolean persistent) {
     }
 
     for (term = c->terms.next; term; term = term->next) {
-        s = wmem_strdup_printf(wmem_packet_scope(), "%s %s",s,term->term->str);
+        s = wmem_strdup_printf(scope, "%s %s", s, term->term->str);
     }
 
     if (c->error) {
-        s = wmem_strdup_printf(wmem_packet_scope(), "%s Error=%i",s,c->error);
+        s = wmem_strdup_printf(scope, "%s Error=%i", s, c->error);
     }
 
-    s = wmem_strdup_printf(wmem_packet_scope(), "%s }", s);
+    s = wmem_strdup_printf(scope, "%s }", s);
 
     if (persistent) {
+        /* FIXME: this method has a side-effect but is buried deep within an apparently side-effect free string helper */
         if (! c->str) c->str = wmem_strdup(wmem_file_scope(), s);
     } else {
         c->str = s;
@@ -689,46 +689,52 @@ static const gchar* gcp_cmd_to_str(gcp_cmd_t* c, gboolean persistent) {
     return s;
 }
 
-static const gchar* gcp_trx_to_str(gcp_msg_t* m, gcp_trx_t* t, gboolean persistent) {
-    gchar* s;
+static const gchar * gcp_trx_to_str(gcp_msg_t* m, gcp_trx_t* t, wmem_allocator_t *scope, gboolean persistent) {
+    wmem_strbuf_t *s;
     gcp_cmd_msg_t* c;
 
     if ( !m || !t ) return "-";
 
-    s = wmem_strdup_printf(wmem_packet_scope(), "T %x { ",t->id);
+    s = wmem_strbuf_new(scope, NULL);
+    wmem_strbuf_append_printf(s, "T %x { ", t->id);
 
     if (t->cmds) {
         if (t->cmds->cmd->ctx) {
-            s = wmem_strdup_printf(wmem_packet_scope(), "%s C %x {",s,t->cmds->cmd->ctx->id);
+            wmem_strbuf_append_printf(s, " C %x {", t->cmds->cmd->ctx->id);
 
             for (c = t->cmds; c; c = c->next) {
                 if (c->cmd->msg == m) {
-                    s = wmem_strdup_printf(wmem_packet_scope(), "%s %s",s,gcp_cmd_to_str(c->cmd,persistent));
+                    wmem_strbuf_append_c(s, ' ');
+                    wmem_strbuf_append(s, gcp_cmd_to_str(c->cmd, scope, persistent));
                 }
             }
 
-            s = wmem_strdup_printf(wmem_packet_scope(), "%s %s",s,"}");
+            wmem_strbuf_append(s, " }");
         }
     }
 
     if (t->error) {
-        s = wmem_strdup_printf(wmem_packet_scope(), "%s Error=%i",s,t->error);
+        wmem_strbuf_append_printf(s, " Error=%i", t->error);
     }
 
-    return wmem_strdup_printf(wmem_packet_scope(), "%s %s",s,"}");
+    wmem_strbuf_append(s, " }");
+
+    return wmem_strbuf_finalize(s);
 }
 
-const gchar* gcp_msg_to_str(gcp_msg_t* m, gboolean persistent) {
+const gchar* gcp_msg_to_str(gcp_msg_t* m, wmem_allocator_t *scope, gboolean persistent) {
     gcp_trx_msg_t* t;
-    const gchar* s = "";
+    wmem_strbuf_t *s;
 
     if ( !m ) return "-";
 
+    s = wmem_strbuf_new(scope, NULL);
     for (t = m->trxs; t; t = t->next) {
-        s = wmem_strdup_printf(wmem_packet_scope(), "%s %s",s,gcp_trx_to_str(m,t->trx, persistent));
+        wmem_strbuf_append_c(s, ' ');
+        wmem_strbuf_append(s, gcp_trx_to_str(m, t->trx, scope, persistent));
     }
 
-    return s;
+    return wmem_strbuf_finalize(s);
 }
 
 typedef struct _gcp_ctxs_t {
@@ -756,7 +762,7 @@ void gcp_analyze_msg(proto_tree* gcp_tree, packet_info* pinfo, tvbuff_t* gcp_tvb
             }
 
             if (! ctx_node) {
-                ctx_node = wmem_new(wmem_packet_scope(), gcp_ctxs_t);
+                ctx_node = wmem_new(pinfo->pool, gcp_ctxs_t);
                 ctx_node->ctx = ctx;
                 ctx_node->next = contexts.next;
                 contexts.next = ctx_node;
@@ -811,7 +817,7 @@ void gcp_analyze_msg(proto_tree* gcp_tree, packet_info* pinfo, tvbuff_t* gcp_tvb
                     }
 
                     if (ctx_term->term->bir && ctx_term->term->nsap) {
-                        gchar* tmp_key = wmem_strdup_printf(wmem_packet_scope(), "%s:%s",ctx_term->term->nsap,ctx_term->term->bir);
+                        gchar* tmp_key = wmem_strdup_printf(pinfo->pool, "%s:%s",ctx_term->term->nsap,ctx_term->term->bir);
                         gchar* key = g_ascii_strdown(tmp_key, -1);
                         alcap_tree_from_bearer_key(term_tree, gcp_tvb, pinfo, key);
                         g_free(key);
@@ -1517,9 +1523,9 @@ extern void h248_param_PkgdName(proto_tree* tree, tvbuff_t* tvb, packet_info* pi
             pi = proto_tree_add_uint(package_tree, hf_248_pkg_param, tvb, offset-2, 2, name_minor);
 
             if (pkg->signal_names && ( strval = try_val_to_str(name_minor, pkg->signal_names) )) {
-                strval = wmem_strdup_printf(wmem_packet_scope(), "%s (%d)",strval,name_minor);
+                strval = wmem_strdup_printf(pinfo->pool, "%s (%d)",strval,name_minor);
             } else {
-                strval = wmem_strdup_printf(wmem_packet_scope(), "Unknown (%d)",name_minor);
+                strval = wmem_strdup_printf(pinfo->pool, "Unknown (%d)",name_minor);
             }
 
             proto_item_set_text(pi,"Signal ID: %s", strval);
@@ -1772,9 +1778,9 @@ static int dissect_h248_PkgdName(gboolean implicit_tag, tvbuff_t *tvb, int offse
             const gchar* strval;
 
             if (pkg->param_names && ( strval = try_val_to_str(name_minor, pkg->param_names) )) {
-                strval = wmem_strdup_printf(wmem_packet_scope(), "%s (%d)",strval,name_minor);
+                strval = wmem_strdup_printf(actx->pinfo->pool, "%s (%d)",strval,name_minor);
             } else {
-                strval = wmem_strdup_printf(wmem_packet_scope(), "Unknown (%d)",name_minor);
+                strval = wmem_strdup_printf(actx->pinfo->pool, "Unknown (%d)",name_minor);
             }
 
             proto_item_set_text(pi,"Parameter: %s", strval);
@@ -1835,9 +1841,9 @@ static int dissect_h248_EventName(gboolean implicit_tag, tvbuff_t *tvb, int offs
             const gchar* strval;
 
             if (pkg->event_names && ( strval = try_val_to_str(name_minor, pkg->event_names) )) {
-                strval = wmem_strdup_printf(wmem_packet_scope(), "%s (%d)",strval,name_minor);
+                strval = wmem_strdup_printf(actx->pinfo->pool, "%s (%d)",strval,name_minor);
             } else {
-                strval = wmem_strdup_printf(wmem_packet_scope(), "Unknown (%d)",name_minor);
+                strval = wmem_strdup_printf(actx->pinfo->pool, "Unknown (%d)",name_minor);
             }
 
             proto_item_set_text(pi,"Event ID: %s", strval);
@@ -1900,9 +1906,9 @@ static int dissect_h248_SignalName(gboolean implicit_tag , tvbuff_t *tvb, int of
             const gchar* strval;
 
             if (pkg->signal_names && ( strval = try_val_to_str(name_minor, pkg->signal_names) )) {
-                strval = wmem_strdup_printf(wmem_packet_scope(), "%s (%d)",strval,name_minor);
+                strval = wmem_strdup_printf(actx->pinfo->pool, "%s (%d)",strval,name_minor);
             } else {
-                strval = wmem_strdup_printf(wmem_packet_scope(), "Unknown (%d)",name_minor);
+                strval = wmem_strdup_printf(actx->pinfo->pool, "Unknown (%d)",name_minor);
             }
 
             proto_item_set_text(pi,"Signal ID: %s", strval);
@@ -1993,9 +1999,9 @@ static int dissect_h248_SigParameterName(gboolean implicit_tag _U_, tvbuff_t *tv
     }
 
     if (curr_info.sig && curr_info.sig->param_names && ( strval = try_val_to_str(param_id, curr_info.sig->param_names) )) {
-        strval = wmem_strdup_printf(wmem_packet_scope(), "%s (%d)",strval,param_id);
+        strval = wmem_strdup_printf(actx->pinfo->pool, "%s (%d)",strval,param_id);
     } else {
-        strval = wmem_strdup_printf(wmem_packet_scope(), "Unknown (%d)",param_id);
+        strval = wmem_strdup_printf(actx->pinfo->pool, "Unknown (%d)",param_id);
     }
 
     proto_item_set_text(pi,"Parameter: %s", strval);
@@ -2071,9 +2077,9 @@ static int dissect_h248_EventParameterName(gboolean implicit_tag _U_, tvbuff_t *
     }
 
     if (curr_info.evt && curr_info.evt->param_names && ( strval = try_val_to_str(param_id, curr_info.evt->param_names) )) {
-        strval = wmem_strdup_printf(wmem_packet_scope(), "%s (%d)",strval,param_id);
+        strval = wmem_strdup_printf(actx->pinfo->pool, "%s (%d)",strval,param_id);
     } else {
-        strval = wmem_strdup_printf(wmem_packet_scope(), "Unknown (%d)",param_id);
+        strval = wmem_strdup_printf(actx->pinfo->pool, "Unknown (%d)",param_id);
     }
 
     proto_item_set_text(pi,"Parameter: %s", strval);

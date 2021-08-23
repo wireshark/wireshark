@@ -948,7 +948,7 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
  *          TransToken = ("Transaction" / "T")
  */
 
-        trx = gcp_trx(msg , trx_id , trx_type, keep_persistent_data);
+        trx = gcp_trx(msg , trx_id , trx_type, pinfo, keep_persistent_data);
 
         /* Find Context */
 nextcontext:
@@ -995,7 +995,7 @@ nextcontext:
         my_proto_tree_add_uint(megaco_tree, hf_megaco_Context, tvb, context_offset, context_length, ctx_id);
         col_append_fstr(pinfo->cinfo, COL_INFO, " |=%s", val_to_str(ctx_id, megaco_context_vals, "%d"));
 
-        ctx = gcp_ctx(msg,trx,ctx_id,keep_persistent_data);
+        ctx = gcp_ctx(msg,trx,ctx_id,pinfo,keep_persistent_data);
 
         /* Find Commands */
 
@@ -1447,7 +1447,7 @@ nextcontext:
                     }
 
                     if (cmd_type != GCP_CMD_NONE) {
-                        cmd = gcp_cmd(msg, trx, ctx, cmd_type, tvb_command_start_offset, keep_persistent_data);
+                        cmd = gcp_cmd(msg, trx, ctx, cmd_type, tvb_command_start_offset, pinfo, keep_persistent_data);
                         tap_queue_packet(megaco_tap, pinfo, cmd);
                     }
 
@@ -1485,7 +1485,7 @@ nextcontext:
                         term->len = tokenlen;
                         term->str = (const gchar*)(term->buffer = TermID);
 
-                        gcp_cmd_add_term(msg, trx, cmd, term, wild_term, keep_persistent_data);
+                        gcp_cmd_add_term(msg, trx, cmd, term, wild_term, pinfo, keep_persistent_data);
 
                         /*** TERM ***/
                         proto_tree_add_string(megaco_tree_command_line, hf_megaco_termid, tvb,
@@ -1497,7 +1497,7 @@ nextcontext:
                         term->len = 1;
                         term->buffer = (const guint8*)(term->str = "*");
 
-                        gcp_cmd_add_term(msg, trx, cmd, term, wild_term, keep_persistent_data);
+                        gcp_cmd_add_term(msg, trx, cmd, term, wild_term, pinfo, keep_persistent_data);
 
                         proto_tree_add_string(megaco_tree_command_line, hf_megaco_termid, tvb,
                             tvb_offset, tokenlen,
@@ -1511,7 +1511,7 @@ nextcontext:
                         term->len = 1;
                         term->buffer = (term->str = "$");
 
-                        gcp_cmd_add_term(msg, trx, cmd, term, wild_term, keep_persistent_data);
+                        gcp_cmd_add_term(msg, trx, cmd, term, wild_term, pinfo, keep_persistent_data);
 
                         proto_tree_add_string(megaco_tree_command_line, hf_megaco_termid, tvb,
                             tvb_offset, tokenlen,
@@ -1539,7 +1539,7 @@ nextcontext:
                             term->len = tokenlen;
                             term->buffer = (const guint8*)(term->str = tvb_format_text(tvb, tvb_offset, tokenlen));
 
-                            gcp_cmd_add_term(msg, trx, cmd, term, wild_term, keep_persistent_data);
+                            gcp_cmd_add_term(msg, trx, cmd, term, wild_term, pinfo, keep_persistent_data);
                             break;
                         }
 
@@ -1589,7 +1589,7 @@ nextcontext:
         } while ( tvb_command_end_offset < tvb_transaction_end_offset );
 
         if (keep_persistent_data) {
-            gcp_msg_to_str(msg,keep_persistent_data);
+            gcp_msg_to_str(msg,pinfo->pool,keep_persistent_data);
             gcp_analyze_msg(megaco_tree, pinfo, tvb, msg, &megaco_ctx_ids, &ei_megaco_errored_command);
         }
 
