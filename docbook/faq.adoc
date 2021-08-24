@@ -28,33 +28,7 @@ unsupported and has known security vulnerabilities.
 For more information, please see the
 https://www.wireshark.org/about.html[About Wireshark] page.
 
-=== What's up with the name change? Is Wireshark a fork?
-
-In May of 2006, Gerald Combs (the original author of Ethereal) went
-to work for CACE Technologies (best known for WinPcap). Unfortunately,
-he had to leave the Ethereal trademarks behind.
-
-This left the project in an awkward position. The only reasonable way
-to ensure the continued success of the project was to change the name.
-This is how Wireshark was born.
-
-Wireshark is almost (but not quite) a fork. Normally a "fork" of an
-open source project results in two names, web sites, development teams,
-support infrastructures, etc. This is the case with Wireshark except for
-one notable exception -- every member of the core development team is
-now working on Wireshark. There has been no active development on
-Ethereal since the name change. Several parts of the Ethereal web site`
-(such as the mailing lists, source code repository, and build farm) have
-gone offline.
-
-More information on the name change can be found here:
-
-* https://www.prweb.com/releases/2006/6/prweb396098.htm[Original press
-release]
-* https://www.linux.com/news/ethereal-changes-name-wireshark[NewsForge article]
-* Many other articles in https://www.wireshark.org/bibliography.html[our
-bibliography]
-
+[[wheretogethelp]]
 === Where can I get help?
 
 Community support is available on the
@@ -138,6 +112,19 @@ item in the GPL FAQ].
 We recommend keeping Wireshark and your product completely separate,
 communicating over sockets or pipes. If you're loading any part of
 Wireshark as a DLL, you're probably doing it wrong.
+
+=== Can you help me fill out this compliance form so that I can use Wireshark?
+
+If you need help filling out individual items in the form, you’re certainly free to <<wheretogethelp,ask the community>> for help.
+If you want someone within the project to fill out the form for you, we simply can’t help you.
+Wireshark is developed by a team of volunteers, and while we try to make sure that it’s as easy as possible to obtain and use, filling out a form would mean taking precious time away from other aspects of the project.
+
+=== Can you sign this legal agreement so that I can use Wireshark?
+
+Probably not.
+As with the previous question, we really do want you to be able to use Wireshark.
+However, while we've been fortunate enough to have developers, educators, and networking experts volunteer their time, so far we haven't had any attorneys volunteer to review contracts for us pro bono.
+Asking us to sign a contract is asking us to spend time reviewing that contract and/or paying for an attorney to do so that you can use Wireshark for free.
 
 === What protocols are currently supported?
 
@@ -1068,3 +1055,32 @@ Note that Wireshark was not designed to be an intrusion detection
 system; you might be able to use it as an IDS, but in most cases
 software designed to be an IDS, such as https://www.snort.org/[Snort] or
 https://www.prelude-siem.org/[Prelude], will probably work better.
+
+== Questions Which Are Still Notable Even Though They Aren’t Asked Much Any More
+
+=== What's up with the name change? Is Wireshark a fork?
+
+In May of 2006, Gerald Combs (the original author of Ethereal) went
+to work for CACE Technologies (best known for WinPcap). Unfortunately,
+he had to leave the Ethereal trademarks behind.
+
+This left the project in an awkward position. The only reasonable way
+to ensure the continued success of the project was to change the name.
+This is how Wireshark was born.
+
+Wireshark is almost (but not quite) a fork. Normally a "fork" of an
+open source project results in two names, web sites, development teams,
+support infrastructures, etc. This is the case with Wireshark except for
+one notable exception -- every member of the core development team is
+now working on Wireshark. There has been no active development on
+Ethereal since the name change. Several parts of the Ethereal web site`
+(such as the mailing lists, source code repository, and build farm) have
+gone offline.
+
+More information on the name change can be found here:
+
+* https://www.prweb.com/releases/2006/6/prweb396098.htm[Original press
+release]
+* https://www.linux.com/news/ethereal-changes-name-wireshark[NewsForge article]
+* Many other articles in https://www.wireshark.org/bibliography.html[our
+bibliography]
