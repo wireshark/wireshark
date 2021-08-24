@@ -2973,7 +2973,7 @@ dissect_e_dch_t2_or_common_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto
     int      pdu_no;
     guint64  total_macis_sdus;
     guint16  macis_sdus_found = 0;
-    guint16  macis_pdus       = 0;
+    /* guint16  macis_pdus       = 0; */
     gboolean F                = TRUE; /* We want to continue loop if get E-RNTI indication... */
     gint     bit_offset;
     proto_item *subframe_macis_descriptors_ti = NULL;
@@ -3031,7 +3031,7 @@ dissect_e_dch_t2_or_common_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto
                                     bit_offset, 4, &no_of_macis_pdus, ENC_BIG_ENDIAN);
         bit_offset += 4;
         subframes[n].number_of_mac_is_pdus = (guint8)no_of_macis_pdus;
-        macis_pdus += subframes[n].number_of_mac_is_pdus;
+        /* macis_pdus += subframes[n].number_of_mac_is_pdus; */
 
         /* Next 4 bits are spare for T2*/
         if (!is_common) {

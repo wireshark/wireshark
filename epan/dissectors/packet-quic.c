@@ -677,8 +677,11 @@ static const val64_string quic_frame_id_direction[] = {
 static void
 quic_extract_header(tvbuff_t *tvb, guint8 *long_packet_type, guint32 *version,
                     quic_cid_t *dcid, quic_cid_t *scid);
+
+#ifdef HAVE_LIBGCRYPT_AEAD
 static void
 quic_streams_add(packet_info *pinfo, quic_info_data_t *quic_info, guint64 stream_id);
+#endif
 
 static void
 quic_hp_cipher_reset(quic_hp_cipher *hp_cipher)
@@ -3790,7 +3793,7 @@ quic_cleanup(void)
 }
 
 /* Follow QUIC Stream functionality {{{ */
-
+#ifdef HAVE_LIBGCRYPT_AEAD
 static void
 quic_streams_add(packet_info *pinfo, quic_info_data_t *quic_info, guint64 stream_id)
 {
@@ -3816,6 +3819,7 @@ quic_streams_add(packet_info *pinfo, quic_info_data_t *quic_info, guint64 stream
         wmem_map_insert(quic_info->streams_map, GUINT_TO_POINTER(stream->num), stream);
     }
 }
+#endif
 
 static quic_info_data_t *
 get_conn_by_number(guint conn_number)

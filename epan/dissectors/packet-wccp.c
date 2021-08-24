@@ -1208,7 +1208,7 @@ dissect_wccp2_web_cache_view_info(tvbuff_t *tvb, int offset, gint length,
 /* 6.2 Router Assignment Element */
 static void
 dissect_wccp2_router_assignment_element(tvbuff_t *tvb, int offset,
-                                        gint length, packet_info *pinfo, proto_tree *info_tree, wccp_address_table* addr_table)
+                                        gint length _U_, packet_info *pinfo, proto_tree *info_tree, wccp_address_table* addr_table)
 {
   dissect_wccp2_router_identity_element(tvb,offset,pinfo,info_tree, addr_table);
   EAT(8);
