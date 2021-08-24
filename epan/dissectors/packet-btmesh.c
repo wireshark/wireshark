@@ -2236,6 +2236,8 @@ btmesh_deobfuscate(tvbuff_t *tvb, packet_info *pinfo, int offset _U_, uat_btmesh
     return de_obf_tvb;
 }
 
+#endif /* GCRYPT_VERSION_NUMBER >= 0x010600 */
+
 static const gchar *period_interval_unit[] = {"ms", "s", "s", "min"};
 static const guint32 period_interval_multiplier[] = {100, 1, 10, 10};
 
@@ -2630,6 +2632,8 @@ format_tai_to_utc_date(gchar *buf, guint64 value) {
         g_snprintf(buf, ITEM_LABEL_LENGTH, "%s", time_str);
     }
 }
+
+#if GCRYPT_VERSION_NUMBER >= 0x010600 /* 1.6.0 */
 
 static void
 dissect_btmesh_model_layer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
@@ -4924,151 +4928,6 @@ dissect_btmesh_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 }
 
 #else /* GCRYPT_VERSION_NUMBER >= 0x010600 */
-
-static void
-format_transmit(gchar *buf _U_, guint32 value _U_)
-{
-}
-
-static void
-format_key_index_rfu(gchar *buf _U_, guint32 value _U_)
-{
-}
-
-static void
-format_interval_steps(gchar *buf _U_, guint32 value _U_)
-{
-}
-
-static void
-format_retransmit(gchar *buf _U_, guint32 value _U_)
-{
-}
-
-static void
-format_publish_period(gchar *buf _U_, guint32 value _U_)
-{
-}
-
-static void
-format_publish_appkeyindex_model(gchar *buf _U_, guint32 value _U_)
-{
-}
-
-static void
-format_vendor_model(gchar *buf _U_, guint32 value _U_)
-{
-}
-
-static void
-format_key_index(gchar *buf _U_, guint32 value _U_)
-{
-}
-
-static void
-format_dual_key_index(gchar *buf _U_, guint32 value _U_)
-{
-}
-
-static void
-format_delay_ms(gchar *buf _U_, guint32 value _U_) {
-}
-
-static void
-format_power(gchar *buf _U_, guint32 value _U_) {
-}
-
-static void
-format_battery_level(gchar *buf _U_, guint32 value _U_) {
-}
-
-static void
-format_battery_time(gchar *buf _U_, guint32 value _U_) {
-}
-
-static void
-format_global_latitude(gchar *buf _U_, gint32 value _U_) {
-}
-
-static void
-format_global_longitude(gchar *buf _U_, gint32 value _U_) {
-}
-
-static void
-format_global_altitude(gchar *buf _U_, gint16 value _U_) {
-}
-
-static void
-format_local_north(gchar *buf _U_, gint16 value _U_) {
-}
-
-static void
-format_local_east(gchar *buf _U_, gint16 value _U_) {
-}
-
-static void
-format_local_altitude(gchar *buf _U_, gint16 value _U_) {
-}
-
-static void
-format_floor_number(gchar *buf _U_, guint8 value _U_) {
-}
-
-static void
-format_update_time(gchar *buf _U_, guint16 value _U_) {
-}
-
-static void
-format_precision(gchar *buf _U_, guint16 value _U_) {
-}
-
-static void
-format_scheduler_year(gchar *buf, gint32 value) {
-}
-
-static void
-format_scheduler_day(gchar *buf, gint32 value) {
-}
-
-static void
-format_scheduler_hour(gchar *buf, gint32 value) {
-}
-
-static void
-format_scheduler_minute(gchar *buf, gint32 value) {
-}
-
-static void
-format_scheduler_second(gchar *buf, gint32 value) {
-}
-
-static void
-format_scheduler_action(gchar *buf, gint32 value) {
-}
-
-static void
-format_scheduler_empty(gchar *buf,_U_ gint32 value) {
-}
-
-static void
-format_subsecond_ms(gchar *buf, guint32 value) {
-}
-
-static void
-format_uncertainty_ms(gchar *buf, guint32 value) {
-}
-
-static void
-format_tai_utc_delta_s(gchar *buf, guint32 value) {
-}
-
-static void
-format_time_zone_offset_h(gchar *buf, guint32 value) {
-}
-
-static void
-format_tai_to_utc_date(gchar *buf, guint64 value) {
-}
 
 static gboolean
 create_master_security_keys(uat_btmesh_record_t * net_key_set _U_)
