@@ -53,7 +53,7 @@ static gint ett_json_compact = -1;
 static gint ett_json_array_compact = -1;
 static gint ett_json_object_compact = -1;
 static gint ett_json_member_compact = -1;
-static gint ett_json_ueepspdnconnection = -1;
+static gint ett_json_base64decoded_eps_ie = -1;
 
 static header_field_info *hfi_json = NULL;
 
@@ -118,6 +118,13 @@ static header_field_info hfi_json_ignored_leading_bytes JSON_HFI_INIT =
 	{ "Ignored leading bytes", "json.ignored_leading_bytes", FT_STRING, STR_UNICODE, NULL, 0x00, NULL, HFILL };
 
 static int hf_json_3gpp_ueepspdnconnection = -1;
+static int hf_json_3gpp_bearerlevelqos = -1;
+static int hf_json_3gpp_epsbearersetup = -1;
+static int hf_json_3gpp_forwardingbearercontexts = -1;
+static int hf_json_3gpp_forwardingfteid = -1;
+static int hf_json_3gpp_pgwnodename = -1;
+static int hf_json_3gpp_pgws8cfteid = -1;
+static int hf_json_3gpp_pgws8ufteid = -1;
 
 /* json data decoding function XXXX only works for the compact form.
  * Callback function to further dissect json data
@@ -125,6 +132,12 @@ static int hf_json_3gpp_ueepspdnconnection = -1;
  * https://www.etsi.org/deliver/etsi_ts/129500_129599/129502/15.01.00_60/ts_129502v150100p.pdf
  */
 typedef void(*json_data_decoder_func)(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo, int offset, int len);
+
+/* Array of functions to dissect IEs
+*/
+typedef struct _json_ie {
+    void(*json_data_decoder_func)(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo, int offset, int len);
+} json_ie_t;
 
 /* A struct to hold the hf and callback function stored in a hastable with the json key as key.
  * If the callback is null NULL the filter will be used useful to create filterable items in json.
@@ -1145,18 +1158,17 @@ dissect_json_acdr_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
 /* Functions to sub dissect json content */
 static void
-dissect_ueepspdnconnection(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo, int offset, int len)
+dissect_base64decoded_eps_ie(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo, int offset, int len)
 {
 	/* base64-encoded characters, encoding the
-	 * UeEpsPdnConnection IE specified in Table 7.3.1-2 or Table
-	 * 7.3.6-2 of 3GPP TS 29.274 [16] for the N26 interface.
+	 * EPS IE specified in 3GPP TS 29.274.
 	 */
 	proto_item* ti;
 	proto_tree* sub_tree;
 	tvbuff_t* bin_tvb = base64_tvb_to_new_tvb(tvb, offset, len);
 	add_new_data_source(pinfo, bin_tvb, "Base64 decoded");
 	ti = proto_tree_add_item(tree, &hfi_json_binary_data_compact, bin_tvb, 0, -1, ENC_NA);
-	sub_tree = proto_item_add_subtree(ti, ett_json_ueepspdnconnection);
+	sub_tree = proto_item_add_subtree(ti, ett_json_base64decoded_eps_ie);
 	dissect_gtpv2_ie_common(bin_tvb, pinfo, sub_tree, 0, 0/* Message type 0, Reserved */, NULL);
 }
 
@@ -1175,14 +1187,73 @@ register_static_headers(void) {
 			{"ueEpsPdnConnection", "json.3gpp.ueepspdnconnection",
 				FT_STRING, BASE_NONE, NULL, 0x0,
 				NULL, HFILL}
+		},
+		{
+			&hf_json_3gpp_bearerlevelqos,
+			{"bearerLevelQoS", "json.3gpp.bearerlevelqos",
+				FT_STRING, BASE_NONE, NULL, 0x0,
+				NULL, HFILL}
+		},
+		{
+			&hf_json_3gpp_epsbearersetup,
+			{"epsBearerSetup", "json.3gpp.epsbearersetup",
+				FT_STRING, BASE_NONE, NULL, 0x0,
+				NULL, HFILL}
+		},
+		{
+			&hf_json_3gpp_forwardingbearercontexts,
+			{"forwardingBearerContexts", "json.3gpp.forwardingbearercontexts",
+				FT_STRING, BASE_NONE, NULL, 0x0,
+				NULL, HFILL}
+		},
+		{
+			&hf_json_3gpp_forwardingfteid,
+			{"forwardingFTeid", "json.3gpp.forwardingfteid",
+				FT_STRING, BASE_NONE, NULL, 0x0,
+				NULL, HFILL}
+		},
+		{
+			&hf_json_3gpp_pgwnodename,
+			{"pgwNodeName", "json.3gpp.pgwnodename",
+				FT_STRING, BASE_NONE, NULL, 0x0,
+				NULL, HFILL}
+		},
+		{
+			&hf_json_3gpp_pgws8cfteid,
+			{"pgwS8cFteid", "json.3gpp.pgws8cfteid",
+				FT_STRING, BASE_NONE, NULL, 0x0,
+				NULL, HFILL}
+		},
+		{
+			&hf_json_3gpp_pgws8ufteid,
+			{"pgwS8uFteid", "json.3gpp.pgws8ufteid",
+				FT_STRING, BASE_NONE, NULL, 0x0,
+				NULL, HFILL}
 		}
 	};
+
+	/* List of decoding functions the index matches the HF */
+	static void(*json_decode_fn[])(tvbuff_t * tvb, proto_tree * tree, packet_info * pinfo, int offset, int len) = {
+		dissect_base64decoded_eps_ie,   /* ueEpsPdnConnection */
+		dissect_base64decoded_eps_ie,   /* bearerLevelQoS */
+		dissect_base64decoded_eps_ie,   /* epsBearerSetup */
+		dissect_base64decoded_eps_ie,   /* forwardingBearerContexts */
+		dissect_base64decoded_eps_ie,   /* forwardingFTeid */
+		dissect_base64decoded_eps_ie,   /* pgwNodeName */
+		dissect_base64decoded_eps_ie,   /* pgwS8cFteid */
+		dissect_base64decoded_eps_ie,   /* pgwS8uFteid */
+
+		NULL,   /* NONE */
+	};
+
 	/* Hfs with functions */
-	header_name = g_strdup(hf[0].hfinfo.name);
-	json_data_decoder_t* json_data_decoder_rec = g_new(json_data_decoder_t, 1);
-	json_data_decoder_rec->hf_id = &hf[0].hfinfo.id;
-	json_data_decoder_rec->json_data_decoder = dissect_ueepspdnconnection;
-	g_hash_table_insert(header_fields_hash, header_name, json_data_decoder_rec);
+	for (guint i = 0; i < G_N_ELEMENTS(hf); ++i) {
+		header_name = g_strdup(hf[i].hfinfo.name);
+		json_data_decoder_t* json_data_decoder_rec = g_new(json_data_decoder_t, 1);
+		json_data_decoder_rec->hf_id = &hf[i].hfinfo.id;
+		json_data_decoder_rec->json_data_decoder = json_decode_fn[i];
+		g_hash_table_insert(header_fields_hash, header_name, json_data_decoder_rec);
+	}
 
 	proto_register_field_array(proto_json_3gpp, hf, G_N_ELEMENTS(hf));
 }
@@ -1199,7 +1270,7 @@ proto_register_json(void)
 		&ett_json_array_compact,
 		&ett_json_object_compact,
 		&ett_json_member_compact,
-		&ett_json_ueepspdnconnection,
+		&ett_json_base64decoded_eps_ie,
 	};
 
 #ifndef HAVE_HFI_SECTION_INIT
