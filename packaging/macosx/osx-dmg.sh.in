@@ -79,7 +79,6 @@ if [ -n "$CODE_SIGN_IDENTITY" ] ; then
 		--timestamp \
 		--verbose \
 		"$img_name"
-	spctl --assess --type open --context context:primary-signature --verbose=2 "$img_name" || exit 1
 fi
 
 exit 0

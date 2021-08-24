@@ -116,3 +116,7 @@ echo -e "\\nStapling $dmg_file"
 "${staple_cmd[@]}"
 
 echo -e "\\nSHA256 post: $(shasum -a 256 "$dmg_file" | awk '{print $1}' )"
+
+# macOS 10.14.5+ requires notarization in order for this to pass?
+# https://wiki.lazarus.freepascal.org/Notarization_for_macOS_10.14.5%2B
+spctl --assess --type open --context context:primary-signature --verbose=2 "$dmg_file" || exit 1

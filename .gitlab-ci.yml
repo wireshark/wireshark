@@ -407,10 +407,9 @@ Win32 Package:
 # - Notarization
 macOS Arm Package:
   stage: build
-  # Production builds
   rules: !reference [.if-w-w-only-merged]
-  # Testing builds
-  # rules: !reference [.if-w-w-only-merge-request]
+  variables:
+    CODE_SIGN_IDENTITY: "Wireshark Foundation, Inc."
   tags:
     - wireshark-macos-arm-package
   retry: 1
@@ -432,15 +431,18 @@ macOS Arm Package:
     - arch -arch arm64 cmake -DENABLE_CCACHE=ON -DCMAKE_APPLE_SILICON_PROCESSOR=arm64 -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0 -DCMAKE_OSX_SYSROOT=macosx11.3 -DCMAKE_OSX_ARCHITECTURES=arm64 -DTEST_EXTRA_ARGS=--enable-release -G Ninja ..
     - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
     - arch -arch arm64 ninja
-    # - package-prep
+    - package-prep
     - arch -arch arm64 ninja dmg_package
-    # - notarize-build
+    - cd run
+    - notarize-build
     - |
-      if [ -n "$AWS_ACCESS_KEY_ID" ] && [ -n "$AWS_SECRET_ACCESS_KEY" ] && [ -n "$S3_DESTINATION_MACOS" ] ; then
-        aws s3 cp run/Wireshark-*.dmg "$S3_DESTINATION_MACOS/"
+      if [ -n "$AWS_ACCESS_KEY_ID" ] && [ -n "$AWS_SECRET_ACCESS_KEY" ] && [ -n "$S3_DESTINATION_MACOS_ARM64" ] ; then
+        aws s3 cp run/Wireshark-*.dmg "$S3_DESTINATION_MACOS_ARM64/"
       fi
+    - cd ..
     - arch -arch arm64 ninja test-programs
     - arch -arch arm64 ctest --parallel 4 --output-on-failure
+  needs: []
 
 # Build the User's Guide and Developer's Guide
 Documentation:
