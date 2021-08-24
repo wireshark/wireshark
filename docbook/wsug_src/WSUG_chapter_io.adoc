@@ -334,7 +334,7 @@ The following file formats can be saved by Wireshark (with the known file extens
 
 * EyeSDN USB S0 traces ({asterisk}.trc)
 
-* Tekronix K12 text file format captures ({asterisk}.txt)
+* Tektronix K12 text file format captures ({asterisk}.txt)
 
 * Tektronix K12xx 32bit .rf5 format captures ({asterisk}.rf5)
 
@@ -670,7 +670,7 @@ Once all input and import parameters are setup click btn:[Import] to start the
 import. If your current data wasn’t saved before you will be asked to save it
 first.
 
-If the import button doesn't unlock, make sure all encapsualation parameters are
+If the import button doesn't unlock, make sure all encapsulation parameters are
 in the expected range and all unlocked fields are populated when using regex mode
 (the placeholder text is not used as default).
 

@@ -636,7 +636,7 @@ as the pattern. In this case both expressions give the same result because Wires
 both support the same byte escape sequence (0x43 is the ASCII hex code for `C`).
 
 An example where this fails badly is `+foo matches "bar\x28"+`. Because 0x28 is the ASCII
-code for `(` the pattern input to PCRE is `+"bar("+`. This regular expression is synctatically
+code for `(` the pattern input to PCRE is `+"bar("+`. This regular expression is syntactically
 invalid (missing closing parenthesis). To match a literal parenthesis in a display filter regular
 expression it must be escaped (twice) with backslashes.
 

@@ -8554,7 +8554,7 @@ static void dissect_parametrized_serialized_data(proto_tree *tree, tvbuff_t *tvb
 /* * Serialized data dissector                                           * */
 /* *********************************************************************** */
 /* Note: the encapsulation header is ALWAYS big endian, then the encapsulation
- * type specified the type of endianess of the payload.
+ * type specified the type of endianness of the payload.
  */
 static void dissect_serialized_data(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, gint offset,
                         int  size, const char *label, guint16 vendor_id, gboolean is_discovery_data,
@@ -14740,7 +14740,7 @@ void proto_register_rtps(void) {
         FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }
     },
     { &hf_rtps_flag_udpv4_wan_binding_ping_e, {
-        "Endianess", "rtps.flag.udpv4_wan_binding_ping.e",
+        "Endianness", "rtps.flag.udpv4_wan_binding_ping.e",
         FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x01, NULL, HFILL }
     },
     { &hf_rtps_flag_udpv4_wan_binding_ping_l, {

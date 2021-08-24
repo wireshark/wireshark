@@ -5444,12 +5444,12 @@ proto_register_isobus_vt(void)
             NULL, HFILL }
         },
         { &hf_isobus_vt_graphicscontext_copycanvastopicturegraphic_objectidpicturegraphic,
-          { "Object ID of Picture Grahpic", "isobus.vt.graphics_context.copy_canvas_to_picture_graphic.object_id_picture_graphic",
+          { "Object ID of Picture Graphic", "isobus.vt.graphics_context.copy_canvas_to_picture_graphic.object_id_picture_graphic",
             FT_UINT16, BASE_DEC_HEX, VALS(object_id_strings), 0x0,
             NULL, HFILL }
         },
         { &hf_isobus_vt_graphicscontext_copyviewporttopicturegraphic_objectidpicturegraphic,
-          { "Object ID of Picture Grahpic", "isobus.vt.graphics_context.copy_viewport_to_picture_graphic.object_id_picture_graphic",
+          { "Object ID of Picture Graphic", "isobus.vt.graphics_context.copy_viewport_to_picture_graphic.object_id_picture_graphic",
             FT_UINT16, BASE_DEC_HEX, VALS(object_id_strings), 0x0,
             NULL, HFILL }
         },

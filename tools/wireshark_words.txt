@@ -4,6 +4,7 @@
 100mb
 10base
 10gig
+16apsk
 16bit
 1xrtt
 32bit
@@ -23,10 +24,12 @@ activations
 actuator
 additionsr
 adjacency
+adlink
 administrable
 adwin
 aes128
 aes256
+aggregations
 aggregator
 agnss
 aifsn
@@ -140,6 +143,8 @@ canceled
 canceling
 cancelled
 canceller
+canfd
+canfdmessage
 cannot
 canonicalised
 canonicalize
@@ -180,6 +185,7 @@ ciphering
 ciphersuite
 ciphertext
 citrix
+cksum
 classmark
 classmark3
 clientkey
@@ -367,6 +373,7 @@ encrypting
 endace
 endian
 endianness
+enodeb
 enrollee
 entityid
 entryid
@@ -524,6 +531,7 @@ initializing
 inline
 inode
 inodes
+instrumented
 interferer
 interleaving
 interruptible
@@ -578,6 +586,7 @@ linkinfo
 linksys
 linux
 list1
+literals
 lithionics
 logcat
 loghans
@@ -640,6 +649,7 @@ mrcpv
 msbuild
 msgid
 msgsend
+msisdn
 mtftp
 mtrace
 multiband
@@ -674,6 +684,7 @@ netboot
 netfilter
 netflow
 nethop
+netkey
 netkeyindex
 netlink
 netlogon
@@ -787,6 +798,7 @@ portmod
 portnumber
 portstatus
 posix
+postfix
 powercontrol
 pppdump
 prach
@@ -802,6 +814,7 @@ prepay
 prepend
 preshared
 printf
+prioritization
 prioritized
 privkey
 procid
@@ -832,6 +845,7 @@ qosinfo
 qsearch
 quadrature
 quadro
+quantifiers
 quiescing
 quintuplet
 quintuplets
@@ -917,6 +931,7 @@ reregister
 reroute
 rerouted
 rerouting
+resampled
 rescan
 resegment
 resend
@@ -972,6 +987,7 @@ sectorized
 segno
 semiautomatic
 sendto
+separators
 seqno
 seqnum
 sequenceno
@@ -999,6 +1015,7 @@ smpte
 sname
 snaplen
 snow3g
+softkey
 someip
 someipsd
 spare
@@ -1015,6 +1032,7 @@ spcell
 specifiers
 spectrograph
 speex
+spline
 spnego
 spoofing
 spooled
@@ -1075,6 +1093,7 @@ subtrees
 superset
 switchinfo
 synchronizing
+synchronously
 synphasor
 syntaxes
 sysdig
@@ -1094,6 +1113,7 @@ tdd768
 technica
 Tektronix
 Telecomunicaciones
+telefonica
 Telefónica
 Teléfonos
 telekom
@@ -1182,6 +1202,7 @@ undelete
 undeliverable
 underflow
 underrun
+undisposed
 undissected
 unencrypted
 unescaped
@@ -1195,6 +1216,7 @@ unicode
 unicom
 unignore
 unimplemented
+uninformative
 uninitialized
 uninstall
 uninstallation
@@ -1209,8 +1231,11 @@ unlink
 unlinked
 unmap
 unmappable
+unmark
 unmarshal
 unmerged
+unmute
+unmuted
 unoptimized
 unordered
 unparsable
@@ -1240,6 +1265,7 @@ untruncated
 untrusted
 untunneled
 untyped
+unvisited
 updatability
 updatable
 uplink
@@ -1274,6 +1300,7 @@ version6
 version7
 versioned
 versioning
+viavi
 virtualization
 vlans
 vocoder
@@ -1282,6 +1309,7 @@ volerr
 wakeup
 webcam
 websocket
+whoami
 wideband
 wikipedia
 wikis
