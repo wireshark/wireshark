@@ -1165,6 +1165,7 @@ static void dissect_pfcp_partial_failure_information_within_pfcp_session_modific
 static void dissect_pfcp_l2tp_tunnel_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
 static void dissect_pfcp_l2tp_session_information_within_pfcp_session_establishment_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
 static void dissect_pfcp_l2tp_session_information_within_pfcp_session_establishment_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
+static void dissect_pfcp_pfcp_session_change_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
 
 static const true_false_string pfcp_id_predef_dynamic_tfs = {
     "Predefined by UP",
@@ -1333,6 +1334,7 @@ static value_string_ext pfcp_message_type_ext = VALUE_STRING_EXT_INIT(pfcp_messa
 #define PFCP_IE_L2TP_TUNNEL_INFORMATION 276
 #define PFCP_IE_L2TP_SESSION_INFORMATION_WITHIN_PFCP_SESSION_ESTABLISHMENT_REQUEST 277
 #define PFCP_IE_L2TP_SESSION_INFORMATION_WITHIN_PFCP_SESSION_ESTABLISHMENT_RESPONSE 279
+#define PFCP_IE_PFCP_SESSION_CHANGE_INFO 290
 
 
 static const value_string pfcp_ie_type[] = {
@@ -1621,7 +1623,7 @@ static const value_string pfcp_ie_type[] = {
     { 287, "Maximum Receive Unit"},                                 /* Fixed / Clause 8.2.195 */
     { 288, "Thresholds"},                                           /* Variable Length / Clause 8.2.196 */
     { 289, "Steering Mode Indicator"},                              /* Extendable / Clause 8.2.197 */
-    { 290, "PFCP Session Change Info"},                             /* Extendable */
+    { 290, "PFCP Session Change Info"},                             /* Extendable / Table 7.4.7.1-2 */
     { 291, "Group ID"},                                             /* Fixed / Clause 8.2.198 */
     { 292, "CP IP Address"},                                        /* Variable Length / Clause 8.2.199 */
     //293 to 32767 Spare. For future use.
@@ -8688,10 +8690,11 @@ static const pfcp_ie_t pfcp_ies[] = {
 /*    287 */    { dissect_pfcp_maximum_receive_unit },                          /* Maximum Receive Unit                            Fixed / Clause 8.2.195 */
 /*    288 */    { dissect_pfcp_thresholds },                                    /* Thresholds                                      Variable Length / Clause 8.2.196 */
 /*    289 */    { dissect_pfcp_steering_mode_indications },                     /* Steering Mode Indicator                         Extendable / Clause 8.2.197 */
-/*    290 */    { dissect_pfcp_group_id },                                      /* Group ID                                        Fixed / Clause 8.2.198 */
-/*    291 */    { dissect_pfcp_cp_ip_address },                                 /* CP IP Address                                   Variable Length / Clause 8.2.190 */
+/*    290 */    { dissect_pfcp_pfcp_session_change_info },                      /* PFCP Session Change Info                        Extendable / Table 7.4.7.1-2  */
+/*    291 */    { dissect_pfcp_group_id },                                      /* Group ID                                        Fixed / Clause 8.2.198 */
+/*    292 */    { dissect_pfcp_cp_ip_address },                                 /* CP IP Address                                   Variable Length / Clause 8.2.190 */
 
-//291 to 32767 Spare. For future use.
+//293 to 32767 Spare. For future use.
 //32768 to 65535 Vendor-specific IEs.
     { NULL },                                                        /* End of List */
 };
@@ -9423,6 +9426,12 @@ static void
 dissect_pfcp_l2tp_session_information_within_pfcp_session_establishment_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
     dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_L2TP_SESSION_INFORMATION_WITHIN_PFCP_SESSION_ESTABLISHMENT_RESPONSE], args);
+}
+
+static void
+dissect_pfcp_pfcp_session_change_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
+{
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_PFCP_SESSION_CHANGE_INFO], args);
 }
 
 static void
