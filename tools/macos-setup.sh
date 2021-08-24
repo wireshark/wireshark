@@ -103,7 +103,7 @@ NINJA_VERSION=${NINJA_VERSION-1.10.2}
 # The following libraries and tools are required even to build only TShark.
 #
 GETTEXT_VERSION=0.21
-GLIB_VERSION=2.58.3
+GLIB_VERSION=2.68.4
 if [ "$GLIB_VERSION" ]; then
     GLIB_MAJOR_VERSION="`expr $GLIB_VERSION : '\([0-9][0-9]*\).*'`"
     GLIB_MINOR_VERSION="`expr $GLIB_VERSION : '[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
@@ -814,7 +814,7 @@ install_glib() {
         xzcat glib-$GLIB_VERSION.tar.xz | tar xf - || exit 1
         cd glib-$GLIB_VERSION
         #
-        # First, determine where the system include files are. 
+        # First, determine where the system include files are.
         # (It's not necessarily /usr/include.)  There's a bit of a
         # greasy hack here; pre-5.x versions of the developer tools
         # don't support the --show-sdk-path option, and will produce
