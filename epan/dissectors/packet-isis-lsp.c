@@ -3377,10 +3377,10 @@ dissect_sub_clv_tlv_22_22_23_141_222_223(tvbuff_t *tvb, packet_info* pinfo, prot
                 local_offset = sub_tlv_offset;
                 local_len = clv_len;
                 proto_tree_add_item(subtree, hf_isis_lsp_clv_app_sabm_legacy, tvb, local_offset, 1, ENC_NA);
-                sabm_length = tvb_get_guint8(tvb, local_offset);
+                sabm_length = tvb_get_guint8(tvb, local_offset) & 0x7f;
                 proto_tree_add_uint(subtree, hf_isis_lsp_clv_app_sabm_length, tvb, local_offset, 1, sabm_length);
                 proto_tree_add_item(subtree, hf_isis_lsp_clv_app_udabm_reserved, tvb, local_offset + 1, 1, ENC_NA);
-                udabm_length = tvb_get_guint8(tvb, local_offset + 1);
+                udabm_length = tvb_get_guint8(tvb, local_offset + 1) & 0x7f;
                 proto_tree_add_uint(subtree, hf_isis_lsp_clv_app_udabm_length, tvb, local_offset + 1, 1, udabm_length);
                 local_offset += 2;
                 local_len -= 2;
@@ -6331,7 +6331,7 @@ proto_register_isis_lsp(void)
             NULL, HFILL }
         },
         { &hf_isis_lsp_clv_flex_algo_priority,
-          { "Calculation-Type", "isis.lsp.flex_algorithm.priority",
+          { "Priority", "isis.lsp.flex_algorithm.priority",
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
