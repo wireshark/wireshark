@@ -437,7 +437,7 @@ macOS Arm Package:
     - notarize-build
     - |
       if [ -n "$AWS_ACCESS_KEY_ID" ] && [ -n "$AWS_SECRET_ACCESS_KEY" ] && [ -n "$S3_DESTINATION_MACOS_ARM64" ] ; then
-        aws s3 cp Wireshark-*.dmg "$S3_DESTINATION_MACOS_ARM64/"
+        aws s3 cp Wireshark*Arm*.dmg "$S3_DESTINATION_MACOS_ARM64/"
       fi
     - cd ..
     - arch -arch arm64 ninja test-programs
