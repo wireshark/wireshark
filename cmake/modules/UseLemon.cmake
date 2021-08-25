@@ -13,7 +13,7 @@ MACRO(ADD_LEMON_FILES _source _generated)
           # These files are generated as side-effect
           ${_out}.h
           ${_out}.out
-         COMMAND lemon
+         COMMAND $<TARGET_FILE:lemon>
            -T${_lemonpardir}/lempar.c
            -d.
            ${_in}
