@@ -4910,7 +4910,6 @@ add_header_to_tree(WowwDecryptedHeader_t* decrypted_header,
 
     proto_tree_add_item(woww_tree, hf_woww_opcode, next_tvb,
                         offset, len, ENC_LITTLE_ENDIAN);
-    offset += len;
 
     if (start_offset == 0) {
         // First message
