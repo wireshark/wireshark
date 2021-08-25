@@ -1397,7 +1397,7 @@ init_pn (int proto)
 }
 
 /* Read a string from an "xml" file, dropping xml comment blocks */
-char *pn_fgets(char *str, int n, FILE *stream)
+char *pn_fgets(char *str, int n, FILE *stream, wmem_allocator_t *scope)
 {
     const char XML_COMMENT_START[] = "<!--";
     const char XML_COMMENT_END[] = "-->";
@@ -1425,7 +1425,7 @@ char *pn_fgets(char *str, int n, FILE *stream)
     char *comment_end = strstr(common_start_end, XML_COMMENT_END);
     if (comment_end == NULL) {
       // Not found in this line, read more lines until we do find it */
-      char *temp = (char*)wmem_alloc(wmem_packet_scope(), MAX_LINE_LENGTH);
+      char *temp = (char*)wmem_alloc(scope, MAX_LINE_LENGTH);
       char *next_line = temp;
       while((comment_end == NULL) && (next_line != NULL)) {
           next_line = fgets(temp, MAX_LINE_LENGTH, stream);

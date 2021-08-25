@@ -563,6 +563,7 @@ static const value_string wimaxasncp_decode_type_vals[] =
 /* ========================================================================= */
 
 static void wimaxasncp_proto_tree_add_tlv_ipv4_value(
+    packet_info *pinfo,
     tvbuff_t   *tvb,
     proto_tree *tree,
     proto_item *tlv_item,
@@ -583,7 +584,7 @@ static void wimaxasncp_proto_tree_add_tlv_ipv4_value(
     }
 
     ip = tvb_get_ipv4(tvb, offset);
-    addr_res = tvb_address_with_resolution_to_str(wmem_packet_scope(), tvb, AT_IPv4, offset);
+    addr_res = tvb_address_with_resolution_to_str(pinfo->pool, tvb, AT_IPv4, offset);
 
     proto_tree_add_ipv4_format(
         tree, hf_value,
@@ -597,6 +598,7 @@ static void wimaxasncp_proto_tree_add_tlv_ipv4_value(
 /* ========================================================================= */
 
 static void wimaxasncp_proto_tree_add_tlv_ipv6_value(
+    packet_info *pinfo,
     tvbuff_t   *tvb,
     proto_tree *tree,
     proto_item *tlv_item,
@@ -617,7 +619,7 @@ static void wimaxasncp_proto_tree_add_tlv_ipv6_value(
     }
 
     tvb_get_ipv6(tvb, offset, &ip);
-    addr_res = tvb_address_with_resolution_to_str(wmem_packet_scope(), tvb, AT_IPv6, offset);
+    addr_res = tvb_address_with_resolution_to_str(pinfo->pool, tvb, AT_IPv6, offset);
 
     proto_tree_add_ipv6_format(
         tree, hf_value,
@@ -631,6 +633,7 @@ static void wimaxasncp_proto_tree_add_tlv_ipv6_value(
 /* ========================================================================= */
 
 static void wimaxasncp_proto_tree_add_ether_value(
+    packet_info *pinfo,
     tvbuff_t   *tvb,
     proto_tree *tree,
     proto_item *tlv_item,
@@ -652,7 +655,7 @@ static void wimaxasncp_proto_tree_add_ether_value(
     }
 
     p = tvb_get_ptr(tvb, offset, length);
-    ether_name = tvb_address_with_resolution_to_str(wmem_packet_scope(), tvb, AT_ETHER, offset);
+    ether_name = tvb_address_with_resolution_to_str(pinfo->pool, tvb, AT_ETHER, offset);
 
     proto_tree_add_ether_format(
         tree, hf_value,
@@ -669,7 +672,7 @@ static void wimaxasncp_proto_tree_add_ether_value(
 
 static void wimaxasncp_dissect_tlv_value(
     tvbuff_t           *tvb,
-    packet_info *pinfo  _U_,
+    packet_info        *pinfo,
     proto_tree         *tree,
     proto_item         *tlv_item,
     const wimaxasncp_dict_tlv_t *tlv_info)
@@ -802,7 +805,7 @@ static void wimaxasncp_dissect_tlv_value(
         if (tree)
         {
             wimaxasncp_proto_tree_add_ether_value(
-                tvb, tree, tlv_item, offset, length, tlv_info);
+                pinfo, tvb, tree, tlv_item, offset, length, tlv_info);
         }
 
         return;
@@ -811,7 +814,7 @@ static void wimaxasncp_dissect_tlv_value(
     {
         if (tree)
         {
-            const gchar  *s = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_ASCII);
+            const gchar  *s = tvb_get_string_enc(pinfo->pool, tvb, offset, length, ENC_ASCII);
 
             proto_tree_add_string_format(
                 tree, tlv_info->hf_value,
@@ -1005,7 +1008,7 @@ static void wimaxasncp_dissect_tlv_value(
             if (tree)
             {
                 wimaxasncp_proto_tree_add_tlv_ipv4_value(
-                    tvb, tree, tlv_item, offset, tlv_info);
+                    pinfo, tvb, tree, tlv_item, offset, tlv_info);
             }
 
             return;
@@ -1015,7 +1018,7 @@ static void wimaxasncp_dissect_tlv_value(
             if (tree)
             {
                 wimaxasncp_proto_tree_add_ether_value(
-                    tvb, tree, tlv_item, offset, length, tlv_info);
+                    pinfo, tvb, tree, tlv_item, offset, length, tlv_info);
             }
 
             return;
@@ -1025,7 +1028,7 @@ static void wimaxasncp_dissect_tlv_value(
             if (tree)
             {
                 wimaxasncp_proto_tree_add_tlv_ipv6_value(
-                    tvb, tree, tlv_item, offset, tlv_info);
+                    pinfo, tvb, tree, tlv_item, offset, tlv_info);
             }
 
             return;
@@ -1043,7 +1046,7 @@ static void wimaxasncp_dissect_tlv_value(
             const gchar  *format1;
             const gchar  *format2;
             const guint8 *p = tvb_get_ptr(tvb, offset, length);
-            const gchar  *s = bytes_to_str_punct(wmem_packet_scope(), p, MIN(length, max_show_bytes), 0);
+            const gchar  *s = bytes_to_str_punct(pinfo->pool, p, MIN(length, max_show_bytes), 0);
 
             if (length <= max_show_bytes)
             {
@@ -1223,7 +1226,7 @@ static void wimaxasncp_dissect_tlv_value(
         {
             const gchar  *format;
             const guint8 *p = tvb_get_ptr(tvb, offset, length);
-            const gchar  *s = bytes_to_str_punct(wmem_packet_scope(), p, MIN(length, max_show_bytes), 0);
+            const gchar  *s = bytes_to_str_punct(pinfo->pool, p, MIN(length, max_show_bytes), 0);
 
             if (length <= max_show_bytes)
             {
@@ -1251,7 +1254,7 @@ static void wimaxasncp_dissect_tlv_value(
             if (tree)
             {
                 wimaxasncp_proto_tree_add_tlv_ipv4_value(
-                    tvb, tree, tlv_item, offset, tlv_info);
+                    pinfo, tvb, tree, tlv_item, offset, tlv_info);
             }
 
             return;
@@ -1261,7 +1264,7 @@ static void wimaxasncp_dissect_tlv_value(
             if (tree)
             {
                 wimaxasncp_proto_tree_add_tlv_ipv6_value(
-                    tvb, tree, tlv_item, offset, tlv_info);
+                    pinfo, tvb, tree, tlv_item, offset, tlv_info);
             }
 
             return;
@@ -1283,7 +1286,7 @@ static void wimaxasncp_dissect_tlv_value(
         if (tree)
         {
             wimaxasncp_proto_tree_add_tlv_ipv4_value(
-                tvb, tree, tlv_item, offset, tlv_info);
+                pinfo, tvb, tree, tlv_item, offset, tlv_info);
         }
 
         return;
@@ -1712,7 +1715,7 @@ static void wimaxasncp_dissect_tlv_value(
             const gchar *format2;
             const guint8 *p = tvb_get_ptr(tvb, offset, length);
             const gchar *s =
-                bytes_to_str_punct(wmem_packet_scope(), p, MIN(length, max_show_bytes), 0);
+                bytes_to_str_punct(pinfo->pool, p, MIN(length, max_show_bytes), 0);
 
             if (length <= max_show_bytes)
             {
@@ -1752,7 +1755,7 @@ static void wimaxasncp_dissect_tlv_value(
     {
         const gchar *format;
         const guint8 *p = tvb_get_ptr(tvb, offset, length);
-        const gchar *s = bytes_to_str_punct(wmem_packet_scope(), p, MIN(length, max_show_bytes), 0);
+        const gchar *s = bytes_to_str_punct(pinfo->pool, p, MIN(length, max_show_bytes), 0);
 
         if (length <= max_show_bytes)
         {

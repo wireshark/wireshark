@@ -9266,7 +9266,7 @@ dissect_ExpectedSubmoduleBlockReq_block(tvbuff_t *tvb, int offset,
 
                     if(fp != NULL) {
                         /* ---- Get VendorID & DeviceID ---- */
-                        while(pn_fgets(puffer, MAX_LINE_LENGTH, fp) != NULL) {
+                        while(pn_fgets(puffer, MAX_LINE_LENGTH, fp, pinfo->pool) != NULL) {
                             /* ----- VendorID ------ */
                             if((strstr(puffer, vendorIdStr)) != NULL) {
                                 memset (convertStr, 0, sizeof(*convertStr));
@@ -9413,7 +9413,7 @@ dissect_ExpectedSubmoduleBlockReq_block(tvbuff_t *tvb, int offset,
                 fseek(fp, 0, SEEK_SET);
 
                 /* Find Indexnumber for fParameter */
-                while(pn_fgets(temp, MAX_LINE_LENGTH, fp) != NULL) {
+                while(pn_fgets(temp, MAX_LINE_LENGTH, fp, pinfo->pool) != NULL) {
                     if((strstr(temp, fParameterStr)) != NULL) {
                         memset (convertStr, 0, sizeof(*convertStr));
 
@@ -9428,7 +9428,7 @@ dissect_ExpectedSubmoduleBlockReq_block(tvbuff_t *tvb, int offset,
                 memset (temp, 0, sizeof(*temp));
                 fseek(fp, 0, SEEK_SET);                /* Set filepointer to the beginning */
 
-                while(pn_fgets(temp, MAX_LINE_LENGTH, fp) != NULL) {
+                while(pn_fgets(temp, MAX_LINE_LENGTH, fp, pinfo->pool) != NULL) {
                     if((strstr(temp, moduleStr)) != NULL) {                         /* find the String "ModuleIdentNumber=" */
                         memset (convertStr, 0, sizeof(*convertStr));
                         pch = strstr(temp, moduleStr);                              /* search for "ModuleIdentNumber=\"" within GSD-file */
@@ -9439,7 +9439,7 @@ dissect_ExpectedSubmoduleBlockReq_block(tvbuff_t *tvb, int offset,
                             if (read_module_id == io_data_object->moduleIdentNr) {
                                 ++io_data_object->amountInGSDML;    /* Save the amount of same (!) Module- & SubmoduleIdentNr in one GSD-file */
 
-                                while(pn_fgets(temp, MAX_LINE_LENGTH, fp) != NULL) {
+                                while(pn_fgets(temp, MAX_LINE_LENGTH, fp, pinfo->pool) != NULL) {
                                     if((strstr(temp, moduleNameInfo)) != NULL) {                    /* find the String "<Name" for the TextID */
                                         long filePosRecord;
 
@@ -9449,7 +9449,7 @@ dissect_ExpectedSubmoduleBlockReq_block(tvbuff_t *tvb, int offset,
                                         filePosRecord = ftell(fp);            /* save the current position of the filepointer (Offset) */
                                         /* ftell() may return -1 for error, don't move fp in this case */
                                         if (filePosRecord >= 0) {
-                                            while (pn_fgets(temp, MAX_LINE_LENGTH, fp) != NULL && io_data_object->amountInGSDML == 1) {
+                                            while (pn_fgets(temp, MAX_LINE_LENGTH, fp, pinfo->pool) != NULL && io_data_object->amountInGSDML == 1) {
                                                 /* Find a String with the saved TextID and with a fitting value for it in the same line. This value is the name of the Module! */
                                                 if(((strstr(temp, tmp_moduletext)) != NULL) && ((strstr(temp, moduleValueInfo)) != NULL)) {
                                                     pch = strstr(temp, moduleValueInfo);
@@ -9476,7 +9476,7 @@ dissect_ExpectedSubmoduleBlockReq_block(tvbuff_t *tvb, int offset,
                                                     break;
                                                 }
                                                 else {    /* flag is not in the same line as Submoduleidentnumber -> search for it */
-                                                    while(pn_fgets(temp, MAX_LINE_LENGTH, fp) != NULL) {
+                                                    while(pn_fgets(temp, MAX_LINE_LENGTH, fp, pinfo->pool) != NULL) {
                                                         if((strstr(temp, profisafeStr)) != NULL) {
                                                             io_data_object->profisafeSupported = TRUE;
                                                             break;    /* Found the PROFIsafeSupported flag of the module */

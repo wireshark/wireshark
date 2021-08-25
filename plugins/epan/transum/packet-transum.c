@@ -819,7 +819,7 @@ static void cleanup_globals(void)
 /* This function adds the RTE data to the tree.  The summary ptr is currently
    not used but will be used for summariser information once this feature has
    been ported from the LUA code. */
-static void write_rte(RRPD *in_rrpd, tvbuff_t *tvb, proto_tree *tree, char *summary)
+static void write_rte(RRPD *in_rrpd, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, char *summary)
 {
     nstime_t rte_art;
     nstime_t rte_st;
@@ -827,7 +827,7 @@ static void write_rte(RRPD *in_rrpd, tvbuff_t *tvb, proto_tree *tree, char *summ
     nstime_t rte_rspspread;
     proto_tree *rte_tree;
     proto_item *pi;
-    wmem_strbuf_t *temp_string = wmem_strbuf_new(wmem_packet_scope(), "");
+    wmem_strbuf_t *temp_string = wmem_strbuf_new(pinfo->pool, "");
 
     if (in_rrpd->req_first_frame)
     {
@@ -1098,13 +1098,13 @@ static int dissect_transum(tvbuff_t *buffer, packet_info *pinfo, proto_tree *tre
             if (tree)
             {
                 /* Add the RTE data to the protocol decode tree if we output_flag is set */
-                write_rte(rrpd, buffer, tree, NULL);
+                write_rte(rrpd, buffer, pinfo, tree, NULL);
             }
         }
     }
     else
     {
-        PKT_INFO *sub_packet = wmem_alloc0_array(wmem_packet_scope(), PKT_INFO, MAX_SUBPKTS_PER_PACKET);
+        PKT_INFO *sub_packet = wmem_alloc0_array(pinfo->pool, PKT_INFO, MAX_SUBPKTS_PER_PACKET);
 
         set_proto_values(pinfo, tree, &sub_packet[0], sub_packet);
 

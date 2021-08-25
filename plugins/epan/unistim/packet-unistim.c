@@ -44,7 +44,7 @@ static gint dissect_audio_switch(proto_tree *msg_tree,packet_info *pinfo,
                                    tvbuff_t *tvb,gint offset,guint msg_len);
 static gint dissect_expansion_switch(proto_tree *msg_tree,
                                    tvbuff_t *tvb,gint offset,guint msg_len);
-static gint dissect_display_switch(proto_tree *msg_tree,
+static gint dissect_display_switch(proto_tree *msg_tree, packet_info *pinfo,
                                    tvbuff_t *tvb,gint offset,guint msg_len);
 static gint dissect_key_indicator_switch(proto_tree *msg_tree,
                                    tvbuff_t *tvb,gint offset,guint msg_len);
@@ -194,7 +194,7 @@ dissect_unistim(tvbuff_t *tvb,packet_info *pinfo,proto_tree *tree,void *data _U_
    proto_tree_add_item(rudpm_tree,hf_unistim_seq_nu,tvb,offset,4,ENC_BIG_ENDIAN);
 
    /* Allocate new mem for queueing */
-   uinfo = wmem_new(wmem_packet_scope(), unistim_info_t);
+   uinfo = wmem_new(pinfo->pool, unistim_info_t);
 
    /* Clear tap struct */
    uinfo->rudp_type = 0;
@@ -415,7 +415,7 @@ dissect_unistim_message(proto_tree *unistim_tree,packet_info *pinfo,tvbuff_t *tv
          break;
       case 0x17:
    /*Display Manager Switch*/
-         offset = dissect_display_switch(msg_tree,tvb,offset,msg_len-2);
+         offset = dissect_display_switch(msg_tree,pinfo,tvb,offset,msg_len-2);
          break;
       case 0x19:
    /*Key Indicator Manager Switch*/
@@ -731,7 +731,7 @@ dissect_broadcast_phone(proto_tree *msg_tree,
 
    /*DONE*/
 static gint
-dissect_display_switch(proto_tree *msg_tree,
+dissect_display_switch(proto_tree *msg_tree, packet_info *pinfo,
                        tvbuff_t *tvb, gint offset,guint msg_len){
    guint clear_mask;
    guint highlight_cmd;
@@ -1057,7 +1057,7 @@ dissect_display_switch(proto_tree *msg_tree,
          /* whatever's left is the message */
          if(msg_len>0){
             /* I'm guessing this will work flakily at best */
-            proto_tree_add_item_ret_string(msg_tree,hf_generic_string,tvb,offset,msg_len, ENC_ASCII|ENC_NA, wmem_packet_scope(), &uinfo->string_data);
+            proto_tree_add_item_ret_string(msg_tree,hf_generic_string,tvb,offset,msg_len, ENC_ASCII|ENC_NA, pinfo->pool, &uinfo->string_data);
             offset+=msg_len;
          }
          break;
