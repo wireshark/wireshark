@@ -699,8 +699,6 @@ API Reference:
   extends: .build-ubuntu
   rules: !reference [.if-daily-schedule]
   script:
-    - mkdir build
-    - cd build
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
     - cmake -GNinja ..
     - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
