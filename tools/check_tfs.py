@@ -132,11 +132,11 @@ def checkFile(filename, tfs_items, look_for_common=False):
             #
             # Test whether there's a common prefix for the file name
             # and "plugin/epan/"; if so, this is a plugin, and there
-            # is no common path and os.path.commonpath returns an
+            # is no common path and os.path.commonprefix returns an
             # empty string, otherwise it returns the common path, so
             # we check whether the common path is an empty string.
             #
-            if os.path.commonpath([filename, 'plugin/epan/']) == '':
+            if os.path.commonprefix([filename, 'plugin/epan/']) == '':
                 exact_case = False
                 if tfs_items[t].val1 == items[i].val1 and tfs_items[t].val2 == items[i].val2:
                     found = True
