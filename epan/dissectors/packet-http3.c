@@ -195,6 +195,7 @@ http3_check_frame_size(tvbuff_t *tvb, packet_info *pinfo, int offset)
     return FALSE;
 }
 
+#ifdef HAVE_LIBGCRYPT_AEAD
 /* Settings */
 static int
 dissect_http3_settings(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* http3_tree, guint offset)
@@ -242,7 +243,7 @@ dissect_http3_settings(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* http3_
 
     return offset;
 }
-#ifdef HAVE_LIBGCRYPT_AEAD
+
 static int
 dissect_http3_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
