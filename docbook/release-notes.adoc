@@ -50,7 +50,7 @@ The following bugs have been fixed:
 
 * Raknet Addresses are incorrectly identified. wsbuglink:17509[].
 
-* [3.4.x] Editcap saving files as ethernet when specifying '-T ieee-802-11-*' wsbuglink:17520[].
+* Editcap saving files as ethernet when specifying '-T ieee-802-11-*' wsbuglink:17520[].
 
 * CoAP dissector confuses Content-Format with Accept wsbuglink:17536[].
 
