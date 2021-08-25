@@ -3562,9 +3562,8 @@ cmd_usdt(tvbuff_t *tvb, int offset, proto_tree *pt)
 static int
 cmd_bits_in (tvbuff_t *tvb, int offset, proto_tree *pt)
 {
-    int          msglen, value;
+    int          value;
 
-    msglen = tvb_reported_length_remaining(tvb, offset);
     value = tvb_get_guint8(tvb, offset);
     if (value) {
         static int * const digital_values[] = {
@@ -3580,16 +3579,14 @@ cmd_bits_in (tvbuff_t *tvb, int offset, proto_tree *pt)
     }
 
     offset++;
-    msglen--;
     return offset;
 }
 
 static int
 cmd_bits_out (tvbuff_t *tvb, int offset, proto_tree *pt)
 {
-    int          msglen, value;
+    int          value;
 
-    msglen = tvb_reported_length_remaining(tvb, offset);
     value = tvb_get_guint8(tvb, offset);
     if (value) {
         static int * const digital_values[] = {
@@ -3603,7 +3600,6 @@ cmd_bits_out (tvbuff_t *tvb, int offset, proto_tree *pt)
     }
 
     offset++;
-    msglen--;
     return offset;
 }
 
