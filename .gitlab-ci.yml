@@ -253,7 +253,7 @@ Win64 Package:
     - $plugins = Get-ChildItem run\RelWithDebInfo\plugins\*\*.dll ; signtool verify /v /pa /all run\RelWithDebInfo\*.exe run\RelWithDebInfo\extcap\*.exe $plugins run\RelWithDebInfo\libwireshark.dll run\RelWithDebInfo\libwiretap.dll run\RelWithDebInfo\libwsutil.dll packaging\nsis\Wireshark-win??-*.exe packaging\wix\Wireshark-win??-*.msi
     - msbuild /verbosity:minimal pdb_zip_package.vcxproj
     - C:\gitlab-builds\bin\mse-scan.ps1
-    - $packages = Get-ChildItem "packaging\nsis\Wireshark-win??-*.exe", "packaging\wix\Wireshark-win??-*.msi"
+    - $packages = Get-ChildItem "packaging\nsis\Wireshark-win??-*.exe", "packaging\wix\Wireshark-win??-*.msi", "Wireshark-pdb-win??-*.zip"
     - foreach ($package in $packages) { certutil -hashfile $package SHA256 }
     - |
       if ((Test-Path env:AWS_ACCESS_KEY_ID) -and (Test-Path env:AWS_SECRET_ACCESS_KEY) -and (Test-Path env:S3_DESTINATION_WIN64)) {
@@ -300,7 +300,7 @@ Win32 Package:
     - $plugins = Get-ChildItem run\RelWithDebInfo\plugins\*\*.dll ; signtool verify /v /pa /all run\RelWithDebInfo\*.exe run\RelWithDebInfo\extcap\*.exe $plugins run\RelWithDebInfo\libwireshark.dll run\RelWithDebInfo\libwiretap.dll run\RelWithDebInfo\libwsutil.dll packaging\nsis\Wireshark-win??-*.exe packaging\wix\Wireshark-win??-*.msi packaging\portableapps\WiresharkPortable_*.paf.exe
     - msbuild /verbosity:minimal pdb_zip_package.vcxproj
     - C:\gitlab-builds\bin\mse-scan.ps1
-    - $packages = Get-ChildItem "packaging\nsis\Wireshark-win??-*.exe", "packaging\wix\Wireshark-win??-*.msi", "packaging\portableapps\WiresharkPortable_*.paf.exe"
+    - $packages = Get-ChildItem "packaging\nsis\Wireshark-win??-*.exe", "packaging\wix\Wireshark-win??-*.msi", "packaging\portableapps\WiresharkPortable_*.paf.exe", "Wireshark-pdb-win??-*.zip"
     - foreach ($package in $packages) { certutil -hashfile $package SHA256 }
     - |
       if ((Test-Path env:AWS_ACCESS_KEY_ID) -and (Test-Path env:AWS_SECRET_ACCESS_KEY) -and (Test-Path env:S3_DESTINATION_WIN32)) {
