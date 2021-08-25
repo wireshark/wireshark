@@ -357,7 +357,8 @@ typedef enum {
     PT_USB,             /* USB endpoint 0xffff means the host */
     PT_I2C,
     PT_IBQP,            /* Infiniband QP number */
-    PT_BLUETOOTH
+    PT_BLUETOOTH,
+    PT_IWARP_MPA        /* iWarp MPA */
 } port_type;
 
 #ifdef __cplusplus

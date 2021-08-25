@@ -1677,7 +1677,7 @@ get_conversation_for_call(packet_info *pinfo)
 	 * might send retransmissions from a different port from
 	 * the original request.
 	 */
-	if (pinfo->ptype == PT_TCP || pinfo->ptype == PT_IBQP) {
+	if (pinfo->ptype == PT_TCP || pinfo->ptype == PT_IBQP || pinfo->ptype == PT_IWARP_MPA) {
 		conversation = find_conversation_pinfo(pinfo, 0);
 	} else {
 		/*
@@ -1691,7 +1691,7 @@ get_conversation_for_call(packet_info *pinfo)
 	}
 
 	if (conversation == NULL) {
-		if (pinfo->ptype == PT_TCP || pinfo->ptype == PT_IBQP) {
+		if (pinfo->ptype == PT_TCP || pinfo->ptype == PT_IBQP || pinfo->ptype == PT_IWARP_MPA) {
 			conversation = conversation_new(pinfo->num,
 			    &pinfo->src, &pinfo->dst, conversation_pt_to_endpoint_type(pinfo->ptype),
 			    pinfo->srcport, pinfo->destport, 0);
@@ -1729,7 +1729,7 @@ find_conversation_for_reply(packet_info *pinfo)
 	 * to the original call and a retransmission of the call
 	 * might be sent to different ports.
 	 */
-	if (pinfo->ptype == PT_TCP || pinfo->ptype == PT_IBQP) {
+	if (pinfo->ptype == PT_TCP || pinfo->ptype == PT_IBQP || pinfo->ptype == PT_IWARP_MPA) {
 		conversation = find_conversation_pinfo(pinfo, 0);
 	} else {
 		/*
@@ -1759,6 +1759,11 @@ new_conversation_for_reply(packet_info *pinfo)
 	case PT_IBQP:
 		conversation = conversation_new(pinfo->num,
 		    &pinfo->src, &pinfo->dst, ENDPOINT_IBQP,
+		    pinfo->srcport, pinfo->destport, 0);
+		break;
+	case PT_IWARP_MPA:
+		conversation = conversation_new(pinfo->num,
+		    &pinfo->src, &pinfo->dst, ENDPOINT_IWARP_MPA,
 		    pinfo->srcport, pinfo->destport, 0);
 		break;
 	default:
@@ -2147,7 +2152,7 @@ looks_like_rpc_reply(tvbuff_t *tvb, packet_info *pinfo, int offset)
 		 * and this is a connection-oriented transport,
 		 * give up.
 		 */
-		if (((! rpc_find_fragment_start) || (pinfo->ptype != PT_TCP)) && (pinfo->ptype != PT_IBQP)) {
+		if (((! rpc_find_fragment_start) || (pinfo->ptype != PT_TCP)) && (pinfo->ptype != PT_IBQP) && (pinfo->ptype != PT_IWARP_MPA)) {
 			return NULL;
 		}
 

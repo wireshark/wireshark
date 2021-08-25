@@ -118,6 +118,7 @@ static const value_string exported_pdu_port_type_vals[] = {
    { EXP_PDU_PT_IBQP,     "IBQP" },
    { EXP_PDU_PT_BLUETOOTH,"BLUETOOTH" },
    { EXP_PDU_PT_TDMOP,    "TDMOP" },
+   { EXP_PDU_PT_IWARP_MPA,"IWARP_MPA" },
 
    { 0,        NULL   }
 };

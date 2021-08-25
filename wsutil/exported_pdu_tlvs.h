@@ -108,6 +108,7 @@
 #define EXP_PDU_PT_IBQP         14
 #define EXP_PDU_PT_BLUETOOTH    15
 #define EXP_PDU_PT_TDMOP        16
+#define EXP_PDU_PT_IWARP_MPA    17
 
 #define EXP_PDU_TAG_PORT_TYPE       24  /**< part type - 4 bytes, EXP_PDU_PT value */
 #define EXP_PDU_TAG_SRC_PORT        25  /**< source port - 4 bytes (even for protocols with 2-byte ports) */
@@ -127,6 +128,7 @@
 #define EXP_PDU_TAG_COL_PROT_TEXT   33 /**< UTF-8 text string to put in COL_PROTOCOL, one use case is in conjunction with dissector tables where
                                         *   COL_PROTOCOL might not be filled in.
                                         */
+
 
 /**< value part is structure passed into TCP subdissectors.  The field
     begins with a 2-byte version number; if the version number value is
