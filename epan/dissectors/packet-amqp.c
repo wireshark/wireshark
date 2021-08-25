@@ -10763,6 +10763,11 @@ dissect_amqp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
         conversation_add_proto_data(conv, proto_amqp, conn);
     }
     check_amqp_version(tvb, conn);
+    /* Restore can_desegment to whatever TCP set it to before calling the
+     * subdissector (which will decrement it a second time) in order for
+     * tcp_dissect_pdus() to work as expected.
+     */
+    pinfo->can_desegment = pinfo->saved_can_desegment;
     if (!dissector_try_uint_new(version_table, conn->version, tvb, pinfo, tree, FALSE, data))
     {
         col_append_str(pinfo->cinfo, COL_INFO, "AMQP (unknown version)");
