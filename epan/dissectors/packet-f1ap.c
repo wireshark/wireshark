@@ -27,6 +27,7 @@
 #include <epan/sctpppids.h>
 #include <epan/proto_data.h>
 #include <epan/stats_tree.h>
+#include <epan/exported_pdu.h>
 
 #include "packet-per.h"
 #include "packet-f1ap.h"
@@ -45,6 +46,8 @@
 
 void proto_register_f1ap(void);
 void proto_reg_handoff_f1ap(void);
+
+static gint exported_pdu_tap = -1;
 
 
 /*--- Included file: packet-f1ap-val.h ---*/
@@ -638,7 +641,7 @@ typedef enum _ProtocolIE_ID_enum {
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-f1ap-val.h ---*/
-#line 42 "./asn1/f1ap/packet-f1ap-template.c"
+#line 45 "./asn1/f1ap/packet-f1ap-template.c"
 
 /* Initialize the protocol and registered fields */
 static int proto_f1ap = -1;
@@ -2106,7 +2109,7 @@ static int hf_f1ap_successfulOutcome_value = -1;  /* SuccessfulOutcome_value */
 static int hf_f1ap_unsuccessfulOutcome_value = -1;  /* UnsuccessfulOutcome_value */
 
 /*--- End of included file: packet-f1ap-hf.c ---*/
-#line 71 "./asn1/f1ap/packet-f1ap-template.c"
+#line 74 "./asn1/f1ap/packet-f1ap-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_f1ap = -1;
@@ -2855,7 +2858,7 @@ static gint ett_f1ap_SuccessfulOutcome = -1;
 static gint ett_f1ap_UnsuccessfulOutcome = -1;
 
 /*--- End of included file: packet-f1ap-ett.c ---*/
-#line 130 "./asn1/f1ap/packet-f1ap-template.c"
+#line 133 "./asn1/f1ap/packet-f1ap-template.c"
 
 enum{
   INITIATING_MESSAGE,
@@ -25849,7 +25852,7 @@ static int dissect_F1AP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
 
 /*--- End of included file: packet-f1ap-fn.c ---*/
-#line 465 "./asn1/f1ap/packet-f1ap-template.c"
+#line 468 "./asn1/f1ap/packet-f1ap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -25925,6 +25928,19 @@ static void set_stats_message_type(packet_info *pinfo, int type)
     priv_data->stats_tap->f1ap_mtype = type;
 }
 
+static void
+export_f1ap_pdu(packet_info* pinfo, tvbuff_t* tvb)
+{
+    exp_pdu_data_t* exp_pdu_data = export_pdu_create_common_tags(pinfo, "f1ap", EXP_PDU_TAG_PROTO_NAME);
+
+    exp_pdu_data->tvb_captured_length = tvb_captured_length(tvb);
+    exp_pdu_data->tvb_reported_length = tvb_reported_length(tvb);
+    exp_pdu_data->pdu_tvb = tvb;
+
+    tap_queue_packet(exported_pdu_tap, pinfo, exp_pdu_data);
+
+}
+
 static int
 dissect_f1ap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
@@ -25955,6 +25971,7 @@ dissect_f1ap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   dissect_F1AP_PDU_PDU(tvb, pinfo, f1ap_tree, NULL);
 
   tap_queue_packet(f1ap_tap, pinfo, f1ap_info);
+  export_f1ap_pdu(pinfo, tvb);
   return tvb_captured_length(tvb);
 }
 
@@ -31800,7 +31817,7 @@ void proto_register_f1ap(void) {
         "UnsuccessfulOutcome_value", HFILL }},
 
 /*--- End of included file: packet-f1ap-hfarr.c ---*/
-#line 675 "./asn1/f1ap/packet-f1ap-template.c"
+#line 692 "./asn1/f1ap/packet-f1ap-template.c"
   };
 
   /* List of subtrees */
@@ -32551,7 +32568,7 @@ void proto_register_f1ap(void) {
     &ett_f1ap_UnsuccessfulOutcome,
 
 /*--- End of included file: packet-f1ap-ettarr.c ---*/
-#line 736 "./asn1/f1ap/packet-f1ap-template.c"
+#line 753 "./asn1/f1ap/packet-f1ap-template.c"
   };
 
   /* Register protocol */
@@ -32587,6 +32604,7 @@ proto_reg_handoff_f1ap(void)
   stats_tree_register("f1ap", "f1ap", "F1AP", 0,
                        f1ap_stats_tree_packet, f1ap_stats_tree_init, NULL);
 
+  exported_pdu_tap = find_tap_id(EXPORT_PDU_TAP_NAME_LAYER_7);
 
 /*--- Included file: packet-f1ap-dis-tab.c ---*/
 #line 1 "./asn1/f1ap/packet-f1ap-dis-tab.c"
@@ -33109,7 +33127,7 @@ proto_reg_handoff_f1ap(void)
 
 
 /*--- End of included file: packet-f1ap-dis-tab.c ---*/
-#line 772 "./asn1/f1ap/packet-f1ap-template.c"
+#line 790 "./asn1/f1ap/packet-f1ap-template.c"
 }
 
 /*
