@@ -5200,9 +5200,9 @@ dissect_epl_sdo_command_read_by_index(struct epl_convo *convo, proto_tree *epl_t
 		}
 
 		/* determine remaining SDO payload size (depends on segment size of current command) */
-		if (size > (segment_size - 4))
+		if (size > segment_size)
 		{
-			rem_size = (segment_size - 4);
+			rem_size = segment_size;
 		}
 		else
 		{
