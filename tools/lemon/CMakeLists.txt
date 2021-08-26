@@ -9,6 +9,11 @@
 
 add_executable(lemon lemon.c)
 
+if(DEFINED LEMON_C_COMPILER)
+	set(CMAKE_C_COMPILER "${LEMON_C_COMPILER}")
+	set(CMAKE_C_FLAGS "")
+endif()
+
 # To keep lemon.c as close to upstream as possible, deliberately ignore
 # some stylistic issues.
 set(lemon_cflags)
