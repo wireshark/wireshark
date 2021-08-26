@@ -34,6 +34,10 @@ The following features are new (or have been significantly updated) since versio
 * The Windows installers now ship with Npcap 1.50.
 //They previously shipped with Npcap 1.31.
 
+* A 64-bit Windows PortableApps package is now available.
+
+* A macOS Arm 64 (Apple Silicon) package is now available.
+
 * TCP conversations now support a completeness criteria, which facilitates the identification of TCP streams having any
   of opening or closing handshakes, a payload, in any combination. It is accessed with the new tcp.completeness filter.
 
@@ -86,23 +90,22 @@ The following features are new (or have been significantly updated) since versio
 
 * tshark can now export TLS session keys with the --export-tls-session-keys option.
 
-<<<<<<< HEAD
 * Wireshark participated in the Google Season of Docs 2020 and the User’s Guide has been extensively updated.
 
 * Format of export to CSV in RTP Stream Analysis dialog was slightly changed. First line of export contains names of columns as in other CSV exports.
-=======
+
 * Wireshark now supports the Turkish language.
->>>>>>> Qt: Add Turkey translation
 
 // === Removed Features and Support
 
 // === Removed Dissectors
 
-// === New File Format Decoding Support
+=== New File Format Decoding Support
 
-// [commaize]
-// --
-// --
+[commaize]
+--
+Vector Informatik Binary Log File (BLF)
+--
 
 === New Protocol Support
 
@@ -111,25 +114,28 @@ The following features are new (or have been significantly updated) since versio
 [commaize]
 --
 Bluetooth Link Manager Protocol (BT LMP)
+E2 Application Protocol (E2AP)
 Event Tracing for Windows (ETW)
 High-Performance Connectivity Tracer (HiPerConTracer)
 Kerberos SPAKE
 Linux psample protocol
 Local Interconnect Network (LIN)
 Microsoft Task Scheduler Service
+O-RAN E2AP
 O-RAN fronthaul UC-plane (O-RAN)
 Opus Interactive Audio Codec (OPUS)
 PDU Transport Protocol
-Real-Time Publish-Subscribe Wire Protocol (processed) (RTPS-PROC)
+R09.x (R09)
+RDP Dynamic Channel Protocol (DRDYNVC)
 Real-Time Publish-Subscribe Virtual Transport (RTPS-VT)
+Real-Time Publish-Subscribe Wire Protocol (processed) (RTPS-PROC)
 Shared Memory Communications (SMC)
 Signal PDU
 SparkplugB
 State Synchronization Protocol (SSyncP)
 Tagged Image File Format (TIFF)
 TP-Link Smart Home Protocol
-R09.x (R09)
-O-RAN E2AP
+World of Warcraft World (WOWW)
 --
 
 === Updated Protocol Support
@@ -142,7 +148,7 @@ Too many protocols have been updated to list here.
 // Add one file type per line between the -- delimiters.
 [commaize]
 --
-BLF support
+Vector Informatik Binary Log File (BLF)
 --
 
 // === New and Updated Capture Interfaces support
