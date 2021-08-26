@@ -771,6 +771,10 @@ static const value_string apdu_ins_vals[] = {
 	{ 0x70, "MANAGE CHANNEL" },
 	{ 0x73, "MANAGE SECURE CHANNEL" },
 	{ 0x75, "TRANSACT DATA" },
+	/* TS 102 221 v15.11.0 */
+	{ 0x78, "GET IDENTITY" },
+	/* GSMA SGP.02 v4.2 */
+	{ 0xCA, "GET DATA" },
 	/* TS TS 102 222 */
 	{ 0xE0, "CREATE FILE" },
 	{ 0xE4, "DELETE FILE" },
@@ -1416,7 +1420,9 @@ dissect_gsm_apdu(guint8 ins, guint8 p1, guint8 p2, guint8 p3, tvbuff_t *tvb,
 			break;
 		}
 		break;
+	case 0x78: /* GET IDENTITY */
 	case 0xC0: /* GET RESPONSE */
+	case 0xCA: /* GET DATA */
 		proto_tree_add_item(tree, hf_le, tvb, offset+P3_OFFS, 1, ENC_BIG_ENDIAN);
 		if (isSIMtrace) {
 			proto_tree_add_item(tree, hf_apdu_data, tvb, offset+DATA_OFFS, p3, ENC_NA);
