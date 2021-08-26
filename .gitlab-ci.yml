@@ -487,10 +487,10 @@ Documentation:
       - wsug_html_chunked.zip
       - wsdg_html.zip
       - wsdg_html_chunked.zip
-      - "Wireshark User’s Guide.pdf"
-      - "Wireshark Developer’s Guide.pdf"
-      - "Wireshark User’s Guide.epub"
-      - "Wireshark Developer’s Guide.epub"
+      - "Wireshark User's Guide.pdf"
+      - "Wireshark Developer's Guide.pdf"
+      - "Wireshark User's Guide.epub"
+      - "Wireshark Developer's Guide.epub"
   needs: []
 
 

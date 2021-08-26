@@ -26,7 +26,7 @@ FIND_PROGRAM(ASCIIDOCTOR_EXECUTABLE
 if(ASCIIDOCTOR_EXECUTABLE)
     # As of 2.2.0 the AsciidctorJ wrapper script sets -Xmn128m -Xms256m -Xmx256m.
     # This isn't enough for the User's Guide.
-    set(_asciidoctorj_opts -Xmn256m -Xms512m -Xmx2048m $ENV{ASCIIDOCTORJ_OPTS})
+    set(_asciidoctorj_opts "-Xmn256m -Xms512m -Xmx2048m $ENV{ASCIIDOCTORJ_OPTS}")
     execute_process( COMMAND ${ASCIIDOCTOR_EXECUTABLE} --version OUTPUT_VARIABLE _ad_full_version )
     separate_arguments(_ad_full_version)
     list(GET _ad_full_version 1 ASCIIDOCTOR_VERSION)
@@ -50,7 +50,7 @@ if(ASCIIDOCTOR_EXECUTABLE)
     )
 
     set(_asciidoctor_common_command
-        ${CMAKE_COMMAND} -E env TZ=UTC ASCIIDOCTORJ_OPTS="${_asciidoctorj_opts}"
+        ${CMAKE_COMMAND} -E env TZ=UTC ASCIIDOCTORJ_OPTS=${_asciidoctorj_opts}
         ${ASCIIDOCTOR_EXECUTABLE}
         ${_asciidoctor_common_args}
     )
@@ -144,7 +144,7 @@ if(ASCIIDOCTOR_EXECUTABLE)
     if(ASCIIDOCTOR_PDF_EXECUTABLE)
 
         set(_asciidoctor_pdf_common_command
-            ${CMAKE_COMMAND} -E env TZ=UTC ASCIIDOCTORJ_OPTS="${_asciidoctorj_opts}"
+            ${CMAKE_COMMAND} -E env TZ=UTC "ASCIIDOCTORJ_OPTS=${_asciidoctorj_opts}"
             ${ASCIIDOCTOR_PDF_EXECUTABLE}
             --require asciidoctor-pdf
             --backend pdf
@@ -160,12 +160,12 @@ if(ASCIIDOCTOR_EXECUTABLE)
             OUTPUT
                     ${_output_pdf}
             COMMAND ${_asciidoctor_pdf_common_command}
-                    --out-file ${_output_pdf}
+                    --out-file "${_output_pdf}"
                     ${CMAKE_CURRENT_SOURCE_DIR}/${_asciidocsource}
             DEPENDS
                     ${CMAKE_CURRENT_SOURCE_DIR}/${_asciidocsource}
                     ${ARGN}
-
+            VERBATIM
             )
             add_custom_target(${_generate_pdf} DEPENDS ${_output_pdf})
             set_asciidoctor_target_properties(${_generate_pdf})
@@ -210,11 +210,12 @@ if(ASCIIDOCTOR_EXECUTABLE)
             OUTPUT
                     ${_output_epub}
             COMMAND ${_asciidoctor_epub_common_command}
-                    --out-file ${_output_epub}
+                    --out-file "${_output_epub}"
                     ${CMAKE_CURRENT_SOURCE_DIR}/${_asciidocsource}
             DEPENDS
                     ${CMAKE_CURRENT_SOURCE_DIR}/${_asciidocsource}
                     ${ARGN}
+            VERBATIM
             )
             add_custom_target(${_generate_epub} DEPENDS ${_output_epub})
             set_asciidoctor_target_properties(${_generate_epub})

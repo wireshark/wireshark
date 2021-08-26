@@ -43,7 +43,7 @@ add_custom_target(update_tools_help
 )
 set_docbook_target_properties(update_tools_help)
 
-set(WSUG_TITLE "Wireshark User’s Guide")
+set(WSUG_TITLE "Wireshark User's Guide")
 
 set(WSUG_FILES
 	wsug_src/WSUG_app_files.adoc
@@ -223,7 +223,7 @@ set(WSUG_GRAPHICS
 	${COMMON_GRAPHICS}
 )
 
-set(WSDG_TITLE "Wireshark Developer’s Guide")
+set(WSDG_TITLE "Wireshark Developer's Guide")
 
 set(WSDG_FILES
 	wsdg_src/WSDG_chapter_asn2wrs.adoc
