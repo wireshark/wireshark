@@ -977,7 +977,18 @@ static const value_string protocol_types[] = {
     {0,                             NULL},
 };
 
-/* Note: using external tfs strings doesn't work in a plugin */
+/*
+ * Note: using external tfs strings doesn't work in a plugin.
+ * The address of a data item exported from a shared library
+ * such as libwireshark is not known until the library is
+ * loaded, so "&data_item" is not a constant; MSVC complains
+ * about that.
+ *
+ * (*Direct* references to the item in code can execute a
+ * different code sequence to get the address and then load
+ * from that address, but references from a data structure
+ * can't do that.)
+ */
 static const true_false_string tfs_wait_response = { "Wait", "Don't Wait" };
 static const true_false_string true_false = { "True", "False" };
 static const true_false_string register_unregister_action_flags = { "Register", "Unregister" };
