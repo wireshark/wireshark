@@ -58,10 +58,7 @@ bytes_to_hexstr(char *out, const guint8 *ad, size_t len)
 {
 	size_t i;
 
-	if (!ad) {
-		ws_warning("Null pointer passed to bytes_to_hexstr()");
-		return NULL;
-	}
+	ws_return_ptr_if_null(ad, NULL);
 
 	for (i = 0; i < len; i++)
 		out = byte_to_hex(out, ad[i]);
@@ -81,10 +78,7 @@ bytes_to_hexstr_punct(char *out, const guint8 *ad, size_t len, char punct)
 {
 	size_t i;
 
-	if (!ad) {
-		ws_warning("Null pointer passed to bytes_to_hexstr_punct()");
-		return NULL;
-	}
+	ws_return_ptr_if_null(ad, NULL);
 
 	out = byte_to_hex(out, ad[0]);
 	for (i = 1; i < len; i++) {
@@ -109,15 +103,8 @@ bytes_to_str_punct_max(wmem_allocator_t *scope, const guint8 *ad, size_t len, co
 	gchar *buf_ptr;
 	int truncated = 0;
 
-	if (len == 0) {
-		ws_warning("Zero length passed to bytes_to_str_punct()");
-		return wmem_strdup(scope, "(zero length)");
-	}
-
-	if (!ad) {
-		ws_warning("Null pointer passed to bytes_to_str_punct()");
-		return wmem_strdup(scope, "(null pointer)");
-	}
+	ws_return_str_if_zero(scope, len);
+	ws_return_str_if_null(scope, ad);
 
 	if (!punct)
 		return bytes_to_str_max(scope, ad, len, max);
@@ -149,15 +136,8 @@ bytes_to_str_max(wmem_allocator_t *scope, const guint8 *bd, size_t bd_len, size_
 	gchar *cur_ptr;
 	int truncated = 0;
 
-	if (bd_len == 0) {
-		ws_warning("Zero length passed to bytes_to_str()");
-		return wmem_strdup(scope, "(zero length)");
-	}
-
-	if (!bd) {
-		ws_warning("Null pointer passed to bytes_to_str()");
-		return wmem_strdup(scope, "(null pointer)");
-	}
+	ws_return_str_if_zero(scope, bd_len);
+	ws_return_str_if_null(scope, bd);
 
 	if (max > bd_len * 2)
 		max = bd_len * 2;
