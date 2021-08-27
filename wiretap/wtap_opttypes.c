@@ -602,7 +602,7 @@ wtap_block_get_ipv6_option_value(wtap_block_t block, guint option_id, ws_in6_add
     wtap_opttype_return_val ret;
     wtap_optval_t *optval;
 
-    ret = wtap_block_get_option_common(block, option_id, WTAP_OPTTYPE_IPv4, &optval);
+    ret = wtap_block_get_option_common(block, option_id, WTAP_OPTTYPE_IPv6, &optval);
     if (ret != WTAP_OPTTYPE_SUCCESS)
         return ret;
     *value = optval->ipv6val;
