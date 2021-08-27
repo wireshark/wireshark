@@ -1,6 +1,6 @@
 /* packet-isobus-vt.c
  * Routines for ISObus VT dissection (Based on CANOpen Dissector)
- * Copyright 2016, Jeroen Sack <jsack@lely.com>
+ * Copyright 2016, Jeroen Sack <jeroen@jeroensack.nl>
  * ISO 11783-6
  *
  * Wireshark - Network traffic analyzer
