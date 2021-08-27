@@ -1243,7 +1243,6 @@ static int
 dissect_gsm_apdu(guint8 ins, guint8 p1, guint8 p2, guint8 p3, tvbuff_t *tvb,
 		 int offset, packet_info *pinfo, proto_tree *tree, gboolean isSIMtrace)
 {
-	guint8 g8;
 	guint16 g16;
 	tvbuff_t *subtvb;
 	int i, start_offset;
@@ -1399,21 +1398,18 @@ dissect_gsm_apdu(guint8 ins, guint8 p1, guint8 p2, guint8 p3, tvbuff_t *tvb,
 		call_dissector_with_data(sub_handle_cap, subtvb, pinfo, tree, GUINT_TO_POINTER(0x14));
 		break;
 	case 0x70: /* MANAGE CHANNEL */
-		proto_tree_add_item(tree, hf_chan_op, tvb, offset-3, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_chan_op, tvb, offset+P1_OFFS, 1, ENC_BIG_ENDIAN);
 		col_append_fstr(pinfo->cinfo, COL_INFO, "Operation=%s ",
 				val_to_str(p1, chan_op_vals, "%02x"));
-		switch (p1) {
-		case 0x00: /* OPEN */
-			/* Logical channels are assigned by the card, so in 'open' they are
-			 * in the DATA, whereas in close their number is in P2 */
-			proto_tree_add_item(tree, hf_chan_nr, tvb, offset+DATA_OFFS, 1, ENC_BIG_ENDIAN);
-			g8 = tvb_get_guint8(tvb, offset+DATA_OFFS);
-			col_append_fstr(pinfo->cinfo, COL_INFO, "Channel=%d ", g8);
-			break;
-		case 0x80: /* CLOSE */
-			proto_tree_add_item(tree, hf_chan_nr, tvb, offset-2, 1, ENC_BIG_ENDIAN);
-			col_append_fstr(pinfo->cinfo, COL_INFO, "Channel=%d ", p2);
-			break;
+		proto_tree_add_item(tree, hf_chan_nr, tvb, offset+P2_OFFS, 1, ENC_BIG_ENDIAN);
+		if (p1 == 0) { /* OPEN */
+			proto_tree_add_item(tree, hf_le, tvb, offset+P3_OFFS, 1, ENC_BIG_ENDIAN);
+		}
+		if (p1 == 0 && p2 == 0) {
+			/* Logical channels are assigned by the card when P2 is 0. */
+			col_append_fstr(pinfo->cinfo, COL_INFO, "(assign channel) ");
+		} else {
+			col_append_fstr(pinfo->cinfo, COL_INFO, "(channel: %d) ", p2);
 		}
 		break;
 	case 0xC0: /* GET RESPONSE */
@@ -1494,7 +1490,13 @@ dissect_cmd_apdu_tvb(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree 
 	ins = tvb_get_guint8(tvb, offset+1);
 	p1 = tvb_get_guint8(tvb, offset+2);
 	p2 = tvb_get_guint8(tvb, offset+3);
-	p3 = tvb_get_guint8(tvb, offset+4);
+
+	if (tvb_reported_length_remaining(tvb, offset+3) > 1) {
+		p3 = tvb_get_guint8(tvb, offset+4);
+	} else {
+		/* Parameter 3 not present. */
+		p3 = 0;
+	}
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_gsm_sim, tvb, 0, -1, ENC_NA);
