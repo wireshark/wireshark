@@ -52,6 +52,22 @@ typedef struct wtapng_block_s {
     Buffer       *frame_buffer;
 } wtapng_block_t;
 
+/* Section data in private struct */
+/*
+ * XXX - there needs to be a more general way to implement the Netflix
+ * BBLog blocks and options.
+ */
+typedef struct section_info_t {
+    gboolean byte_swapped;        /**< TRUE if this section is not in our byte order */
+    guint16 version_major;        /**< Major version number of this section */
+    guint16 version_minor;        /**< Minor version number of this section */
+    GArray *interfaces;           /**< Interfaces found in this section */
+    gint64 shb_off;               /**< File offset of the SHB for this section */
+    guint32 bblog_version;        /**< BBLog: version used */
+    guint64 bblog_offset_tv_sec;  /**< BBLog: UTC offset */
+    guint64 bblog_offset_tv_usec;
+} section_info_t;
+
 /*
  * Reader and writer routines for pcapng block types.
  */
@@ -90,5 +106,79 @@ void register_pcapng_option_handler(guint block_type, guint option_code,
                                     option_parser parser,
                                     option_sizer sizer,
                                     option_writer writer);
+
+/*
+ * Byte order of the options within a block.
+ *
+ * This is usually the byte order of the section, but, for options
+ * within a Custom Block, it needs to be a specified byte order,
+ * or a byte order indicated by data in the Custom Data (stored in
+ * a fashion that doesn't require knowing the byte order of the
+ * Custom Data, as it's also the byte order of the Custom Data
+ * itself), so that programs ignorant of the format of a given
+ * type of Custom Block can still read a block from one file and
+ * write it to another, even if the host doing the writing has
+ * a byte order different from the host that previously wrote
+ * the file.
+ */
+typedef enum {
+    OPT_SECTION_BYTE_ORDER, /* byte order of this section */
+    OPT_BIG_ENDIAN,         /* as it says */
+    OPT_LITTLE_ENDIAN       /* ditto */
+} pcapng_opt_byte_order_e;
+
+/*
+ * Process the options section of a block.  process_option points to
+ * a routine that processes all the block-specific options, i.e.
+ * options other than the end-of-options, comment, and custom
+ * options.
+ */
+WS_DLL_PUBLIC
+gboolean pcapng_process_options(FILE_T fh, wtapng_block_t *wblock,
+                                section_info_t *section_info,
+                                guint opt_cont_buf_len,
+                                gboolean (*process_option)(wtapng_block_t *,
+                                                           const section_info_t *,
+                                                           guint16, guint16,
+                                                           const guint8 *,
+                                                           int *, gchar **),
+                                pcapng_opt_byte_order_e byte_order,
+                                int *err, gchar **err_info);
+
+/*
+ * Helper routines to process options with types used in more than one
+ * block type.
+ */
+WS_DLL_PUBLIC
+void pcapng_process_uint8_option(wtapng_block_t *wblock,
+                                 guint16 option_code, guint16 option_length,
+                                 const guint8 *option_content);
+
+WS_DLL_PUBLIC
+void pcapng_process_uint32_option(wtapng_block_t *wblock,
+                                  guint16 option_code, guint16 option_length,
+                                  guint32 option_content);
+
+WS_DLL_PUBLIC
+void pcapng_process_timestamp_option(wtapng_block_t *wblock,
+                                     const section_info_t *section_info,
+                                     pcapng_opt_byte_order_e byte_order,
+                                     guint16 option_code, guint16 option_length,
+                                     const guint8 *option_content);
+
+WS_DLL_PUBLIC
+void pcapng_process_uint64_option(wtapng_block_t *wblock,
+                                  const section_info_t *section_info,
+                                  pcapng_opt_byte_order_e byte_order,
+                                  guint16 option_code, guint16 option_length,
+                                  const guint8 *option_content);
+
+WS_DLL_PUBLIC
+void pcapng_process_string_option(wtapng_block_t *wblock, guint16 option_code,
+                                  guint16 option_length, const guint8 *option_content);
+
+WS_DLL_PUBLIC
+void pcapng_process_bytes_option(wtapng_block_t *wblock, guint16 option_code,
+                                 guint16 option_length, const guint8 *option_content);
 
 #endif /* __PCAP_MODULE_H__ */

@@ -18,6 +18,13 @@ libwiretap.so.0 libwiretap0 #MINVER#
  merge_string_to_idb_merge_mode@Base 1.99.9
  open_info_name_to_type@Base 1.12.0~rc1
  open_routines@Base 1.12.0~rc1
+ pcapng_process_options@Base 3.5.0
+ pcapng_process_bytes_option@Base 3.5.0
+ pcapng_process_string_option@Base 3.5.0
+ pcapng_process_timestamp_option@Base 3.5.0
+ pcapng_process_uint8_option@Base 3.5.0
+ pcapng_process_uint32_option@Base 3.5.0
+ pcapng_process_uint64_option@Base 3.5.0
  register_pcapng_block_type_handler@Base 1.99.0
  register_pcapng_option_handler@Base 1.99.2
  wtap_add_generated_idb@Base 3.3.0

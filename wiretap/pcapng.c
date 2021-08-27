@@ -231,18 +231,6 @@ typedef struct wtapng_simple_packet_s {
     /* XXX - put the packet data / pseudo_header here as well? */
 } wtapng_simple_packet_t;
 
-/* Section data in private struct */
-typedef struct section_info_t {
-    gboolean byte_swapped;        /**< TRUE if this section is not in our byte order */
-    guint16 version_major;        /**< Major version number of this section */
-    guint16 version_minor;        /**< Minor version number of this section */
-    GArray *interfaces;           /**< Interfaces found in this section */
-    gint64 shb_off;               /**< File offset of the SHB for this section */
-    guint32 bblog_version;        /**< BBLog: version used */
-    guint64 bblog_offset_tv_sec;  /**< BBLog: UTC offset */
-    guint64 bblog_offset_tv_usec;
-} section_info_t;
-
 /* Interface data in private struct */
 typedef struct interface_info_s {
     int wtap_encap;
@@ -514,7 +502,7 @@ register_pcapng_option_handler(guint block_type, guint option_code,
                         GUINT_TO_POINTER(option_code), handler);
 }
 
-static void
+void
 pcapng_process_uint8_option(wtapng_block_t *wblock,
                             guint16 option_code, guint16 option_length,
                             const guint8 *option_content)
@@ -529,7 +517,7 @@ pcapng_process_uint8_option(wtapng_block_t *wblock,
     }
 }
 
-static void
+void
 pcapng_process_uint32_option(wtapng_block_t *wblock,
                             guint16 option_code, guint16 option_length,
                             guint32 option_content)
@@ -544,9 +532,10 @@ pcapng_process_uint32_option(wtapng_block_t *wblock,
     }
 }
 
-static void
+void
 pcapng_process_timestamp_option(wtapng_block_t *wblock,
                                 const section_info_t *section_info,
+                                pcapng_opt_byte_order_e byte_order,
                                 guint16 option_code, guint16 option_length,
                                 const guint8 *option_content)
 {
@@ -560,9 +549,35 @@ pcapng_process_timestamp_option(wtapng_block_t *wblock,
          */
         memcpy(&high, option_content, sizeof(guint32));
         memcpy(&low, option_content + sizeof(guint32), sizeof(guint32));
-        if (section_info->byte_swapped) {
-            high = GUINT32_SWAP_LE_BE(high);
-            low = GUINT32_SWAP_LE_BE(low);
+        switch (byte_order) {
+
+        case OPT_SECTION_BYTE_ORDER:
+            if (section_info->byte_swapped) {
+                high = GUINT32_SWAP_LE_BE(high);
+                low = GUINT32_SWAP_LE_BE(low);
+            }
+            break;
+
+        case OPT_BIG_ENDIAN:
+            high = GUINT32_FROM_BE(high);
+            low = GUINT32_FROM_BE(low);
+            break;
+
+        case OPT_LITTLE_ENDIAN:
+            high = GUINT32_FROM_LE(high);
+            low = GUINT32_FROM_LE(low);
+            break;
+
+        default:
+            /*
+             * This should not happen - this is called by pcapng_process_options(),
+             * which returns an error for an invalid byte_order argument, and
+             * otherwise passes the known-to-be-valid byte_order argument to
+             * us.
+             *
+             * Just ignore the option.
+             */
+            return;
         }
         timestamp = (guint64)high;
         timestamp <<= 32;
@@ -576,9 +591,10 @@ pcapng_process_timestamp_option(wtapng_block_t *wblock,
     }
 }
 
-static void
+void
 pcapng_process_uint64_option(wtapng_block_t *wblock,
                              const section_info_t *section_info,
+                             pcapng_opt_byte_order_e byte_order,
                              guint16 option_code, guint16 option_length,
                              const guint8 *option_content)
 {
@@ -590,6 +606,33 @@ pcapng_process_uint64_option(wtapng_block_t *wblock,
          *  aligned correctly.
          */
         memcpy(&uint64, option_content, sizeof(guint64));
+        switch (byte_order) {
+
+        case OPT_SECTION_BYTE_ORDER:
+            if (section_info->byte_swapped) {
+                uint64 = GUINT64_SWAP_LE_BE(uint64);
+            }
+            break;
+
+        case OPT_BIG_ENDIAN:
+            uint64 = GUINT64_FROM_BE(uint64);
+            break;
+
+        case OPT_LITTLE_ENDIAN:
+            uint64 = GUINT64_FROM_LE(uint64);
+            break;
+
+        default:
+            /*
+             * This should not happen - this is called by pcapng_process_options(),
+             * which returns an error for an invalid byte_order argument, and
+             * otherwise passes the known-to-be-valid byte_order argument to
+             * us.
+             *
+             * Just ignore the option.
+             */
+            return;
+        }
         if (section_info->byte_swapped)
             uint64 = GUINT64_SWAP_LE_BE(uint64);
         /*
@@ -601,16 +644,16 @@ pcapng_process_uint64_option(wtapng_block_t *wblock,
     }
 }
 
-static void
+void
 pcapng_process_string_option(wtapng_block_t *wblock, guint16 option_code,
                              guint16 option_length, const guint8 *option_content)
 {
     wtap_block_add_string_option(wblock->block, option_code, (const char *)option_content, option_length);
 }
 
-static void
+void
 pcapng_process_bytes_option(wtapng_block_t *wblock, guint16 option_code,
-                             guint16 option_length, const guint8 *option_content)
+                            guint16 option_length, const guint8 *option_content)
 {
     wtap_block_add_bytes_option(wblock->block, option_code, (const char *)option_content, option_length);
 }
@@ -702,7 +745,7 @@ pcapng_process_custom_option(wtapng_block_t *wblock,
                              section_info_t *section_info,
                              guint16 option_code, guint16 option_length,
                              const guint8 *option_content,
-                             gboolean little_endian,
+                             pcapng_opt_byte_order_e byte_order,
                              int *err, gchar **err_info)
 {
     guint32 pen;
@@ -715,10 +758,33 @@ pcapng_process_custom_option(wtapng_block_t *wblock,
         return FALSE;
     }
     memcpy(&pen, option_content, sizeof(guint32));
-    if (little_endian) {
+    switch (byte_order) {
+
+    case OPT_SECTION_BYTE_ORDER:
+        if (section_info->byte_swapped) {
+            pen = GUINT32_SWAP_LE_BE(pen);
+        }
+        break;
+
+    case OPT_BIG_ENDIAN:
+        pen = GUINT32_FROM_BE(pen);
+        break;
+
+    case OPT_LITTLE_ENDIAN:
         pen = GUINT32_FROM_LE(pen);
-    } else if (section_info->byte_swapped) {
-        pen = GUINT32_SWAP_LE_BE(pen);
+        break;
+
+    default:
+        /*
+         * This should not happen - this is called by pcapng_process_options(),
+         * which returns an error for an invalid byte_order argument, and
+         * otherwise passes the known-to-be-valid byte_order argument to
+         * us.
+         */
+        *err = WTAP_ERR_INTERNAL;
+        *err_info = g_strdup_printf("pcapng: invalid byte order %d passed to pcapng_process_custom_option()",
+                                    byte_order);
+        return FALSE;
     }
     switch (pen) {
     case PEN_NFLX:
@@ -771,7 +837,7 @@ pcapng_process_unhandled_option(wtapng_block_t *wblock _U_,
 }
 #endif
 
-static gboolean
+gboolean
 pcapng_process_options(FILE_T fh, wtapng_block_t *wblock,
                        section_info_t *section_info,
                        guint opt_cont_buf_len,
@@ -780,7 +846,7 @@ pcapng_process_options(FILE_T fh, wtapng_block_t *wblock,
                                                   guint16, guint16,
                                                   const guint8 *,
                                                   int *, gchar **),
-                       gboolean little_endian,
+                       pcapng_opt_byte_order_e byte_order,
                        int *err, gchar **err_info)
 {
     guint8 *option_content; /* Allocate as large as the options block */
@@ -830,12 +896,31 @@ pcapng_process_options(FILE_T fh, wtapng_block_t *wblock,
         }
         option_code = oh->option_code;
         option_length = oh->option_length;
-        if (little_endian) {
+        switch (byte_order) {
+
+        case OPT_SECTION_BYTE_ORDER:
+            if (section_info->byte_swapped) {
+                option_code = GUINT16_SWAP_LE_BE(option_code);
+                option_length = GUINT16_SWAP_LE_BE(option_length);
+            }
+            break;
+
+        case OPT_BIG_ENDIAN:
+            option_code = GUINT16_FROM_BE(option_code);
+            option_length = GUINT16_FROM_BE(option_length);
+            break;
+
+        case OPT_LITTLE_ENDIAN:
             option_code = GUINT16_FROM_LE(option_code);
             option_length = GUINT16_FROM_LE(option_length);
-        } else if (section_info->byte_swapped) {
-            option_code = GUINT16_SWAP_LE_BE(option_code);
-            option_length = GUINT16_SWAP_LE_BE(option_length);
+            break;
+
+        default:
+            /* Don't do that. */
+            *err = WTAP_ERR_INTERNAL;
+            *err_info = g_strdup_printf("pcapng: invalid byte order %d passed to pcapng_process_options()",
+                                        byte_order);
+            return FALSE;
         }
         option_ptr += sizeof (*oh); /* 4 bytes, so it remains aligned */
         opt_bytes_remaining -= sizeof (*oh);
@@ -871,7 +956,7 @@ pcapng_process_options(FILE_T fh, wtapng_block_t *wblock,
                 if (!pcapng_process_custom_option(wblock, section_info,
                                                   option_code, option_length,
                                                   option_ptr,
-                                                  little_endian,
+                                                  byte_order,
                                                   err, err_info)) {
                     g_free(option_content);
                     return FALSE;
@@ -1092,7 +1177,7 @@ pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh,
     opt_cont_buf_len = bh->block_total_length - MIN_SHB_SIZE;
     if (!pcapng_process_options(fh, wblock, section_info, opt_cont_buf_len,
                                 pcapng_process_section_header_block_option,
-                                FALSE, err, err_info))
+                                OPT_SECTION_BYTE_ORDER, err, err_info))
         return PCAPNG_BLOCK_ERROR;
 
     /*
@@ -1140,8 +1225,10 @@ pcapng_process_if_descr_block_option(wtapng_block_t *wblock,
                                          option_content);
             break;
         case(OPT_IDB_SPEED): /* if_speed */
-            pcapng_process_uint64_option(wblock, section_info, option_code,
-                                         option_length, option_content);
+            pcapng_process_uint64_option(wblock, section_info,
+                                         OPT_SECTION_BYTE_ORDER,
+                                         option_code, option_length,
+                                         option_content);
             break;
         case(OPT_IDB_TSRESOL): /* if_tsresol */
             pcapng_process_uint8_option(wblock, option_code, option_length,
@@ -1355,7 +1442,7 @@ pcapng_read_if_descr_block(wtap *wth, FILE_T fh, pcapng_block_header_t *bh,
     opt_cont_buf_len = bh->block_total_length - MIN_IDB_SIZE;
     if (!pcapng_process_options(fh, wblock, section_info, opt_cont_buf_len,
                                 pcapng_process_if_descr_block_option,
-                                FALSE, err, err_info))
+                                OPT_SECTION_BYTE_ORDER, err, err_info))
         return FALSE;
 
     /*
@@ -1562,7 +1649,10 @@ pcapng_process_packet_block_option(wtapng_block_t *wblock,
                 /* XXX - free anything? */
                 return FALSE;
             }
-            pcapng_process_uint64_option(wblock, section_info, option_code, option_length, option_content);
+            pcapng_process_uint64_option(wblock, section_info,
+                                         OPT_SECTION_BYTE_ORDER,
+                                         option_code, option_length,
+                                         option_content);
             break;
         case(OPT_EPB_PACKETID):
             if (option_length != 8) {
@@ -1572,7 +1662,10 @@ pcapng_process_packet_block_option(wtapng_block_t *wblock,
                 /* XXX - free anything? */
                 return FALSE;
             }
-            pcapng_process_uint64_option(wblock, section_info, option_code, option_length, option_content);
+            pcapng_process_uint64_option(wblock, section_info,
+                                         OPT_SECTION_BYTE_ORDER,
+                                         option_code, option_length,
+                                         option_content);
             break;
         case(OPT_EPB_QUEUE):
             if (option_length != 4) {
@@ -1860,7 +1953,7 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh,
         (int)sizeof(bh->block_total_length);
     if (!pcapng_process_options(fh, wblock, section_info, opt_cont_buf_len,
                                 pcapng_process_packet_block_option,
-                                FALSE, err, err_info))
+                                OPT_SECTION_BYTE_ORDER, err, err_info))
         return FALSE;
 
     /*
@@ -2351,7 +2444,7 @@ read_options:
     opt_cont_buf_len = to_read;
     if (!pcapng_process_options(fh, wblock, section_info, opt_cont_buf_len,
                                 pcapng_process_name_resolution_block_option,
-                                FALSE, err, err_info))
+                                OPT_SECTION_BYTE_ORDER, err, err_info))
         return FALSE;
 
     ws_buffer_free(&nrb_rec);
@@ -2391,32 +2484,46 @@ pcapng_process_interface_statistics_block_option(wtapng_block_t *wblock,
      */
     switch (option_code) {
         case(OPT_ISB_STARTTIME): /* isb_starttime */
-            pcapng_process_timestamp_option(wblock, section_info, option_code,
-                                            option_length, option_content);
+            pcapng_process_timestamp_option(wblock, section_info,
+                                            OPT_SECTION_BYTE_ORDER,
+                                            option_code, option_length,
+                                            option_content);
             break;
         case(OPT_ISB_ENDTIME): /* isb_endtime */
-            pcapng_process_timestamp_option(wblock, section_info, option_code,
-                                            option_length, option_content);
+            pcapng_process_timestamp_option(wblock, section_info,
+                                            OPT_SECTION_BYTE_ORDER,
+                                            option_code, option_length,
+                                            option_content);
             break;
         case(OPT_ISB_IFRECV): /* isb_ifrecv */
-            pcapng_process_uint64_option(wblock, section_info, option_code,
-                                         option_length, option_content);
+            pcapng_process_uint64_option(wblock, section_info,
+                                         OPT_SECTION_BYTE_ORDER,
+                                         option_code, option_length,
+                                         option_content);
             break;
         case(OPT_ISB_IFDROP): /* isb_ifdrop */
-            pcapng_process_uint64_option(wblock, section_info, option_code,
-                                         option_length, option_content);
+            pcapng_process_uint64_option(wblock, section_info,
+                                         OPT_SECTION_BYTE_ORDER,
+                                         option_code, option_length,
+                                         option_content);
             break;
         case(OPT_ISB_FILTERACCEPT): /* isb_filteraccept 6 */
-            pcapng_process_uint64_option(wblock, section_info, option_code,
-                                         option_length, option_content);
+            pcapng_process_uint64_option(wblock, section_info,
+                                         OPT_SECTION_BYTE_ORDER,
+                                         option_code, option_length,
+                                         option_content);
             break;
         case(OPT_ISB_OSDROP): /* isb_osdrop 7 */
-            pcapng_process_uint64_option(wblock, section_info, option_code,
-                                         option_length, option_content);
+            pcapng_process_uint64_option(wblock, section_info,
+                                         OPT_SECTION_BYTE_ORDER,
+                                         option_code, option_length,
+                                         option_content);
             break;
         case(OPT_ISB_USRDELIV): /* isb_usrdeliv 8  */
-            pcapng_process_uint64_option(wblock, section_info, option_code,
-                                         option_length, option_content);
+            pcapng_process_uint64_option(wblock, section_info,
+                                         OPT_SECTION_BYTE_ORDER,
+                                         option_code, option_length,
+                                         option_content);
             break;
         default:
             if (!pcapng_process_unhandled_option(wblock, BT_INDEX_ISB,
@@ -2483,7 +2590,7 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh,
         (MIN_BLOCK_SIZE + (guint)sizeof isb);    /* fixed and variable part, including padding */
     if (!pcapng_process_options(fh, wblock, section_info, opt_cont_buf_len,
                                 pcapng_process_interface_statistics_block_option,
-                                FALSE, err, err_info))
+                                OPT_SECTION_BYTE_ORDER, err, err_info))
         return FALSE;
 
     /*
@@ -2553,7 +2660,7 @@ pcapng_read_nflx_custom_block(FILE_T fh, pcapng_block_header_t *bh,
 
     /* Options */
     if (!pcapng_process_options(fh, wblock, section_info, opt_cont_buf_len,
-                                NULL, TRUE, err, err_info))
+                                NULL, OPT_LITTLE_ENDIAN, err, err_info))
         return FALSE;
 
     return TRUE;
