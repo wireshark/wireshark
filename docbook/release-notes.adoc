@@ -78,7 +78,7 @@ The following features are new (or have been significantly updated) since versio
 * VoIP dialogs (VoIP Calls, RTP Streams, RTP Analysis, RTP Player, SIP Flows) are non-modal, can stay opened on background
 ** Same tools are provided across all dialogs (Prepare Filter, Analyse, RTP Player ...)
 
-* Follow stream is now able to follow SIP call by SIP.Call-ID
+* Follow stream is now able to follow SIP calls based on their Call-ID value.
 
 * Follow stream YAML output format’s has been changed to add timestamps and peers information (for more details see the user’s guide,
 {wireshark-users-guide-url}/ChAdvFollowStreamSection.html[Following Protocol Streams])
@@ -88,7 +88,9 @@ The following features are new (or have been significantly updated) since versio
   account, as those addresses can be reused. To revert to the previous behavior and not reassemble fragments with different VLAN IDs,
   turn on the "Enable stricter conversation tracking heuristics" top level protocol preference.
 
-* tshark can now export TLS session keys with the --export-tls-session-keys option.
+* USB Link Layer reassembly has been added, which allows hardware captures to be analyzed at the same level as software captures.
+
+* TShark can now export TLS session keys with the --export-tls-session-keys option.
 
 * Wireshark participated in the Google Season of Docs 2020 and the User’s Guide has been extensively updated.
 
