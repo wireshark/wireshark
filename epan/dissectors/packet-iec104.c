@@ -665,6 +665,7 @@ static int hf_cp24time_iv  = -1;
 static int hf_cp56time  = -1;
 static int hf_cp56time_ms  = -1;
 static int hf_cp56time_min  = -1;
+static int hf_cp56time_gen  = -1;
 static int hf_cp56time_iv  = -1;
 static int hf_cp56time_hour  = -1;
 static int hf_cp56time_su  = -1;
@@ -1193,6 +1194,7 @@ static void get_CP56Time(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_heade
 	(*offset) += 2;
 
 	proto_tree_add_item(cp56time_tree, hf_cp56time_min, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(cp56time_tree, hf_cp56time_gen, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(cp56time_tree, hf_cp56time_iv, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
 	(*offset) ++;
 
@@ -2328,6 +2330,10 @@ proto_register_iec60870_asdu(void)
 		{ &hf_cp56time_min,
 		  { "Min", "iec60870_asdu.cp56time.min", FT_UINT8, BASE_DEC, NULL, 0x3F,
 		    "CP56Time minutes", HFILL }},
+
+		{ &hf_cp56time_gen,
+		  { "GEN", "iec60870_asdu.cp56time.gen", FT_BOOLEAN, 8, TFS(&tfs_substituted_not_substituted), 0x40,
+		    "CP56Time substituted", HFILL }},
 
 		{ &hf_cp56time_iv,
 		  { "IV", "iec60870_asdu.cp56time.iv", FT_BOOLEAN, 8, TFS(&tfs_invalid_valid), 0x80,
