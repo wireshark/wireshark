@@ -72,11 +72,11 @@ static int dissect_bencoding_str(tvbuff_t *tvb, packet_info *pinfo,
 
             if (treeadd == 1) {
                proto_item_append_text(ti, " Key: %s",
-                                      tvb_format_text(tvb, offset + used, stringlen));
+                                      tvb_format_text(pinfo->pool, tvb, offset + used, stringlen));
             }
             if (treeadd == 2) {
                proto_item_append_text(ti, "  Value: %s",
-                                      tvb_format_text(tvb, offset + used, stringlen));
+                                      tvb_format_text(pinfo->pool, tvb, offset + used, stringlen));
             }
          }
          return used + stringlen;

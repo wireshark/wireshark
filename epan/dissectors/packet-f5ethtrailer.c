@@ -2477,7 +2477,7 @@ dissect_dpt_trailer_noise_low(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
             /* Cannot go any further */
             return len;
         }
-        gchar *text = tvb_format_text(tvb, offset +1, viplen);
+        gchar *text = tvb_format_text(pinfo->pool, tvb, offset +1, viplen);
         ti = proto_tree_add_subtree_format(
             tree, tvb, offset, viplen + 1, ett_f5ethtrailer_obj_names, NULL,
             "Virtual Server: %s", text);
@@ -2566,7 +2566,7 @@ dissect_dpt_trailer_noise_low(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
                 /* Cannot go any further */
                 return len;
             }
-            gchar *text = tvb_format_text(data_tvb, data_off + 2, l);
+            gchar *text = tvb_format_text(pinfo->pool, data_tvb, data_off + 2, l);
             ti = proto_tree_add_subtree_format(
                 tree, data_tvb, data_off, l + 2, ett_f5ethtrailer_obj_names, NULL,
                 text_format, text);

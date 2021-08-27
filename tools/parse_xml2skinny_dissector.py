@@ -542,7 +542,7 @@ def xml2obj(src):
             ret = ''
 
             if self.declare == "yes" and self.size != "VariableDirnumSize":
-                ret += self.indent_out('const gchar * %s = g_strdup(tvb_format_stringzpad(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor), %s));\n' %(self.name, self.size))
+                ret += self.indent_out('const gchar * %s = g_strdup(tvb_format_stringzpad(pinfo->pool, ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor), %s));\n' %(self.name, self.size))
 
             if self.subtype == "DisplayLabel":
                 if self.basemessage.dynamic == "yes":
@@ -556,18 +556,18 @@ def xml2obj(src):
                 ret += self.indent_out('%s_len = tvb_strnlen(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor), -1)+1;\n' %self.name)
                 ret += self.indent_out('if (%s_len > 1) {\n' %self.name)
                 if self.name in si_fields.keys():
-                    ret += self.indent_out('  %s = g_strdup(tvb_format_stringzpad(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor), %s_len));\n' %(si_fields[self.name], self.name))
+                    ret += self.indent_out('  %s = g_strdup(tvb_format_stringzpad(pinfo->pool, ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor), %s_len));\n' %(si_fields[self.name], self.name))
                 ret += self.indent_out('  ptvcursor_add(cursor, hf_skinny_%s, %s_len, ENC_ASCII|ENC_NA);\n' %(self.name, self.name))
                 ret += self.indent_out('} else {\n')
                 ret += self.indent_out('  ptvcursor_advance(cursor, 1);\n')
                 ret += self.indent_out('}\n')
             elif self.size_fieldname:
                 if self.name in si_fields.keys():
-                    ret += self.indent_out('%s = g_strdup(tvb_format_stringzpad(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor), %s));\n' %(si_fields[self.name], self.size_fieldname))
+                    ret += self.indent_out('%s = g_strdup(tvb_format_stringzpad(pinfo->pool, ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor), %s));\n' %(si_fields[self.name], self.size_fieldname))
                 ret += self.indent_out('ptvcursor_add(cursor, hf_skinny_%s, %s, ENC_ASCII|ENC_NA);\n' %(self.name, self.size_fieldname))
             else:
                 if self.name in si_fields.keys():
-                    ret += self.indent_out('%s = g_strdup(tvb_format_stringzpad(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor), %s));\n' %(si_fields[self.name], self.size))
+                    ret += self.indent_out('%s = g_strdup(tvb_format_stringzpad(pinfo->pool, ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor), %s));\n' %(si_fields[self.name], self.size))
                 ret += self.indent_out('ptvcursor_add(cursor, hf_skinny_%s, %s, ENC_ASCII|ENC_NA);\n' %(self.name, self.size))
 
             return ret

@@ -831,7 +831,7 @@ dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
       if(f_info->add_to_col_info) {
 
         col_append_fstr(pinfo->cinfo, COL_INFO, "%s: %s, ", f_info->name,
-                        tvb_format_text(tvb, value_offset, end_offset - value_offset - 2));
+                        tvb_format_text(pinfo->pool, tvb, value_offset, end_offset - value_offset - 2));
 
         /* if sender or subject, store for sending to the tap */
         if (eo_info && have_tap_listener(imf_eo_tap)) {

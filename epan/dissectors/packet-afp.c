@@ -1922,12 +1922,12 @@ get_name(tvbuff_t *tvb, int offset, int type)
 	case 2:
 		len = tvb_get_guint8(tvb, offset);
 		offset++;
-		string = tvb_format_text(tvb,offset, len);
+		string = tvb_format_text(wmem_packet_scope(), tvb,offset, len);
 		break;
 	case 3:
 		len = tvb_get_ntohs(tvb, offset +4);
 		offset += 6;
-		string = tvb_format_text(tvb,offset, len);
+		string = tvb_format_text(wmem_packet_scope(), tvb,offset, len);
 		break;
 	default:
 		string = "Unknown type";
@@ -3812,7 +3812,7 @@ decode_attr_name (proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb, gint 
 		gchar *name;
 		proto_tree *sub_tree;
 
-		name = tvb_format_text(tvb,offset+2, len);
+		name = tvb_format_text(pinfo->pool, tvb,offset+2, len);
 		sub_tree = proto_tree_add_subtree_format(tree, tvb, offset, len + 2,
 										ett_afp_extattr_names, NULL, label, name);
 

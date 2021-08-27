@@ -268,9 +268,9 @@ tftp_dissect_options(tvbuff_t *tvb, packet_info *pinfo, int offset,
     value_len = tvb_strsize(tvb, value_offset);
     /* use xxx_len-1 to exclude the trailing 0 byte, it would be
        displayed as nonprinting character
-       tvb_format_text() creates a temporary 0-terminated buffer */
-    optionname = tvb_format_text(tvb, offset, option_len-1);
-    optionvalue = tvb_format_text(tvb, value_offset, value_len-1);
+       tvb_format_text(pinfo->pool, ) creates a temporary 0-terminated buffer */
+    optionname = tvb_format_text(pinfo->pool, tvb, offset, option_len-1);
+    optionvalue = tvb_format_text(pinfo->pool, tvb, value_offset, value_len-1);
     opt_tree = proto_tree_add_subtree_format(tree, tvb, offset, option_len+value_len,
                                    ett_tftp_option, NULL, "Option: %s = %s", optionname, optionvalue);
 
@@ -446,7 +446,7 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
     tftp_info->request_frame = pinfo->num;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, ", File: %s",
-                    tvb_format_stringzpad(tvb, offset, i1));
+                    tvb_format_stringzpad(pinfo->pool, tvb, offset, i1));
 
     offset += i1;
 
@@ -455,7 +455,7 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
                         tvb, offset, i1, ENC_ASCII|ENC_NA);
 
     col_append_fstr(pinfo->cinfo, COL_INFO, ", Transfer type: %s",
-                    tvb_format_stringzpad(tvb, offset, i1));
+                    tvb_format_stringzpad(pinfo->pool, tvb, offset, i1));
 
     offset += i1;
 
@@ -472,7 +472,7 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
     tftp_info->request_frame = pinfo->num;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, ", File: %s",
-                    tvb_format_stringzpad(tvb, offset, i1));
+                    tvb_format_stringzpad(pinfo->pool, tvb, offset, i1));
 
     offset += i1;
 
@@ -481,7 +481,7 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
                         tvb, offset, i1, ENC_ASCII|ENC_NA);
 
     col_append_fstr(pinfo->cinfo, COL_INFO, ", Transfer type: %s",
-                    tvb_format_stringzpad(tvb, offset, i1));
+                    tvb_format_stringzpad(pinfo->pool, tvb, offset, i1));
 
     offset += i1;
 
@@ -695,7 +695,7 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
                         i1, ENC_ASCII|ENC_NA);
 
     col_append_fstr(pinfo->cinfo, COL_INFO, ", Message: %s",
-                    tvb_format_stringzpad(tvb, offset, i1));
+                    tvb_format_stringzpad(pinfo->pool, tvb, offset, i1));
 
     /*
      * If the packet looks like an intentional "close" after a transfer-size
@@ -777,7 +777,7 @@ is_valid_requerest_body(tvbuff_t *tvb)
 
   offset += tvb_strsize(tvb, offset);
   guint len = tvb_strsize(tvb, offset);
-  const gchar* mode = tvb_format_stringzpad(tvb, offset, len);
+  const gchar* mode = tvb_format_stringzpad(wmem_packet_scope(), tvb, offset, len);
   
   const gchar* modes[] = {"netscii", "octet", "mail"};
   for(guint i = 0; i < array_length(modes); ++i) {

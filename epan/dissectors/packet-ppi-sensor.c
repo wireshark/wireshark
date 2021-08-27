@@ -352,7 +352,7 @@ dissect_ppi_sensor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
             if (tree)
             {
                 /* proto_tree_add_item(ppi_vector_tree, hf_ppi_vector_descstr, tvb, offset, 32, ENC_NA); */
-                curr_str = tvb_format_stringzpad(tvb, offset, 32);
+                curr_str = tvb_format_stringzpad(pinfo->pool, tvb, offset, 32);
                 proto_tree_add_string(ppi_sensor_tree, hf_ppi_sensor_descstr, tvb, offset, 32, curr_str);
                 proto_item_append_text(sensor_line, " (%s)", curr_str);
             }

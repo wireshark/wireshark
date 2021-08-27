@@ -280,7 +280,7 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 
   is_ascii = tvb_ascii_isprint(parameter_tvb, 0, length);
   if (is_ascii)
-     proto_item_append_text(actx->created_item," (%%s)",tvb_format_text(parameter_tvb, 0, length));
+     proto_item_append_text(actx->created_item," (%%s)",tvb_format_text(actx->pinfo->pool, parameter_tvb, 0, length));
 
 #.FN_BODY MMEname VAL_PTR = parameter_tvb
   tvbuff_t *parameter_tvb=NULL;
@@ -296,7 +296,7 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 
   is_ascii = tvb_ascii_isprint(parameter_tvb, 0, length);
   if (is_ascii)
-     proto_item_append_text(actx->created_item," (%%s)",tvb_format_text(parameter_tvb, 0, length));
+     proto_item_append_text(actx->created_item," (%%s)",tvb_format_text(actx->pinfo->pool, parameter_tvb, 0, length));
 
 #.END
 

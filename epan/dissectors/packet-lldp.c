@@ -1523,20 +1523,20 @@ dissect_lldp_chassis_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 		{
 		case 2: /* Interface alias */
 			idType="IA";
-			strPtr = tvb_format_stringzpad(tvb, offset, (dataLen - 1));
+			strPtr = tvb_format_stringzpad(pinfo->pool, tvb, offset, (dataLen - 1));
 			break;
 		case 6: /* Interfae name */
 			idType="IN";
-			strPtr = tvb_format_stringzpad(tvb, offset, (dataLen - 1));
+			strPtr = tvb_format_stringzpad(pinfo->pool, tvb, offset, (dataLen - 1));
 			break;
 		case 7: /* Locally assigned */
 			idType="LA";
-			strPtr = tvb_format_stringzpad(tvb, offset, (dataLen-1));
+			strPtr = tvb_format_stringzpad(pinfo->pool, tvb, offset, (dataLen-1));
 			pn_lldp_column_info->chassis_id_locally_assigned = wmem_strdup(pinfo->pool, strPtr);
 			break;
 		case 1: /* Chassis component */
 			idType="CC";
-			strPtr = tvb_format_stringzpad(tvb, offset, (dataLen - 1));
+			strPtr = tvb_format_stringzpad(pinfo->pool, tvb, offset, (dataLen - 1));
 			break;
 		case 3: /* Port component */
 			idType="PC";
@@ -1694,7 +1694,7 @@ dissect_lldp_port_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
 		{
 		case 1: /* Interface alias */
 			idType = "IA";
-			strPtr = tvb_format_stringzpad(tvb, offset, (dataLen - 1));
+			strPtr = tvb_format_stringzpad(pinfo->pool, tvb, offset, (dataLen - 1));
 			break;
 		case 2: /* Port component */
 			idType = "PC";
@@ -1702,15 +1702,15 @@ dissect_lldp_port_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
 			break;
 		case 5: /* Interface name */
 			idType = "IN";
-			strPtr = tvb_format_stringzpad(tvb, offset, (dataLen - 1));
+			strPtr = tvb_format_stringzpad(pinfo->pool, tvb, offset, (dataLen - 1));
 			break;
 		case 6: /* Agent circuit ID */
 			idType = "AC";
-			strPtr = tvb_format_stringzpad(tvb, offset, (dataLen - 1));
+			strPtr = tvb_format_stringzpad(pinfo->pool, tvb, offset, (dataLen - 1));
 			break;
 		case 7: /* Locally assigned */
 			idType = "LA";
-			strPtr = tvb_format_stringzpad(tvb, offset, (dataLen-1));
+			strPtr = tvb_format_stringzpad(pinfo->pool, tvb, offset, (dataLen-1));
 			pn_lldp_column_info->port_id_locally_assigned = wmem_strdup(pinfo->pool, strPtr);
 			break;
 		default:
@@ -1814,7 +1814,7 @@ dissect_lldp_port_desc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 	/* Get tlv length */
 	dataLen = TLV_INFO_LEN(tempShort);
 
-	strPtr = tvb_format_stringzpad(tvb, (offset+2), dataLen);
+	strPtr = tvb_format_stringzpad(pinfo->pool, tvb, (offset+2), dataLen);
 
 	/* Set port tree */
 	port_desc_tree = proto_tree_add_subtree_format(tree, tvb, offset, (dataLen + 2),
@@ -1850,7 +1850,7 @@ dissect_lldp_system_name(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 	/* Get tlv length */
 	dataLen = TLV_INFO_LEN(tempShort);
 
-	strPtr = tvb_format_stringzpad(tvb, (offset+2), dataLen);
+	strPtr = tvb_format_stringzpad(pinfo->pool, tvb, (offset+2), dataLen);
 
 	/* Set system name tree */
 	if (tlvsubType == SYSTEM_NAME_TLV_TYPE) {

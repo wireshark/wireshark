@@ -1175,7 +1175,7 @@ ssh_dissect_protocol(tvbuff_t *tvb, packet_info *pinfo,
     }
 
     col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Protocol (%s)",
-            tvb_format_text(tvb, offset, protolen));
+            tvb_format_text(pinfo->pool, tvb, offset, protolen));
 
     // V_C / V_S (client and server identification strings) RFC4253 4.2
     // format: SSH-protoversion-softwareversion SP comments [CR LF not incl.]

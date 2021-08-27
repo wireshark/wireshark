@@ -2574,10 +2574,10 @@ dissect_dcm_tag_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, dcm_s
         val8 = tvb_get_guint8(tvb, offset + vl_max - 1);
         if (val8 == 0x00) {
             /* Last byte of string is 0x00, i.e. padded */
-            vals = tvb_format_text(tvb, offset, vl_max - 1);
+            vals = tvb_format_text(pinfo->pool, tvb, offset, vl_max - 1);
         }
         else {
-            vals = tvb_format_text(tvb, offset, vl_max);
+            vals = tvb_format_text(pinfo->pool, tvb, offset, vl_max);
         }
 
         if ((strncmp(vr, "UI", 2) == 0)) {
@@ -2649,7 +2649,7 @@ dissect_dcm_tag_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, dcm_s
         }
 
         if (is_string) {
-            vals = tvb_format_text(tvb, offset, (is_padded ? vl_max - 1 : vl_max));
+            vals = tvb_format_text(pinfo->pool, tvb, offset, (is_padded ? vl_max - 1 : vl_max));
             proto_tree_add_string(tree, hf_dcm_tag_value_str, tvb, offset, vl_max, vals);
 
             *tag_value = vals;

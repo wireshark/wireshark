@@ -571,8 +571,8 @@ dissect_log3gpp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data 
     if (prot3gpp_tree) {
         proto_tree_add_double_format_value(prot3gpp_tree, hf_log3gpp_timestamp, tvb,
             offset, timestamp_length,
-            g_ascii_strtod(tvb_format_text(tvb, offset, timestamp_length), NULL),
-            "%s", tvb_format_text(tvb, offset, timestamp_length - 1));
+            g_ascii_strtod(tvb_format_text(pinfo->pool, tvb, offset, timestamp_length), NULL),
+            "%s", tvb_format_text(pinfo->pool, tvb, offset, timestamp_length - 1));
     }
     offset += timestamp_length;
 

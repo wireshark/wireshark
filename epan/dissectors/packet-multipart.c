@@ -631,7 +631,7 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb,
                       hf_header_array[hf_index], tvb,
                       offset, next_offset - offset,
                       (const char *)value_str, "%s",
-                      tvb_format_text(tvb, offset, next_offset - offset));
+                      tvb_format_text(pinfo->pool, tvb, offset, next_offset - offset));
 
                 switch (hf_index) {
                     case POS_ORIGINALCONTENT:

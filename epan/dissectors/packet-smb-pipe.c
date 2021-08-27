@@ -379,8 +379,8 @@ get_stringz_pointer_value(tvbuff_t *tvb, int offset, int convert, int *cptrp,
 	if (tvb_offset_exists(tvb, cptr) &&
 	    (string_len = tvb_strnlen(tvb, cptr, -1)) != -1) {
 	    	string_len++;	/* include the terminating '\0' */
-	    	*lenp = string_len;
-	    	return tvb_format_text(tvb, cptr, string_len - 1);
+			*lenp = string_len;
+			return tvb_format_text(wmem_packet_scope(), tvb, cptr, string_len - 1);
 	} else
 		return NULL;
 }
@@ -1769,7 +1769,7 @@ dissect_request_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				    "%s: Value is %s, type is wrong (z)",
 				    proto_registrar_get_name((*items->hf_index == -1) ?
 				      hf_smb_pipe_string_param : *items->hf_index),
-				    tvb_format_text(tvb, offset, string_len));
+				    tvb_format_text(pinfo->pool, tvb, offset, string_len));
 				offset += string_len;
 				items++;
 			} else {

@@ -262,7 +262,7 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                                     tvb, offset,
                                     next_offset - offset,
                                     "", "%s",
-                                    tvb_format_text(tvb, offset, next_offset - offset));
+                                    tvb_format_text(pinfo->pool, tvb, offset, next_offset - offset));
   reqresp_tree = proto_item_add_subtree(ti, ett_pop_reqresp);
 
   /*
@@ -379,7 +379,7 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                                  tvb, offset,
                                  next_offset - offset,
                                  "", "%s",
-                                 tvb_format_text(tvb, offset, next_offset - offset));
+                                 tvb_format_text(pinfo->pool, tvb, offset, next_offset - offset));
     offset = next_offset;
   }
   return tvb_captured_length(tvb);

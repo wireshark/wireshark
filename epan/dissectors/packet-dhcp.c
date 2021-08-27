@@ -5695,7 +5695,7 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, packet_info *pinfo, tvbuff_t *tv
 
 				ti = proto_tree_add_uint_format(v_tree, hf_dhcp_pkt_mta_cap_type,
 				    tvb, off, 2, raw_val, "0x%s: %s = ",
-				    tvb_format_text(tvb, off, 2),
+				    tvb_format_text(pinfo->pool, tvb, off, 2),
 				    val_to_str_const(raw_val, pkt_mdc_type_vals, "unknown"));
 				proto_item_set_len(ti, (tlv_len * 2) + 4);
 				switch (raw_val) {
@@ -5705,14 +5705,14 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, packet_info *pinfo, tvbuff_t *tv
 					proto_item_append_text(ti,
 							       "%s (%s)",
 							       val_to_str_const(raw_val, pkt_mdc_version_vals, "Reserved"),
-							       tvb_format_stringzpad(tvb, off + 4, 2) );
+							       tvb_format_stringzpad(pinfo->pool, tvb, off + 4, 2) );
 					break;
 
 				case PKT_MDC_TEL_END:
 				case PKT_MDC_IF_INDEX:
 					proto_item_append_text(ti,
 							       "%s",
-							       tvb_format_stringzpad(tvb, off + 4, 2) );
+							       tvb_format_stringzpad(pinfo->pool, tvb, off + 4, 2) );
 					break;
 
 				case PKT_MDC_TGT:
@@ -5742,7 +5742,7 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, packet_info *pinfo, tvbuff_t *tv
 					proto_item_append_text(ti,
 							       "%s (%s)",
 							       val_to_str_const(raw_val, pkt_mdc_boolean_vals, "unknown"),
-							       tvb_format_stringzpad(tvb, off + 4, 2) );
+							       tvb_format_stringzpad(pinfo->pool, tvb, off + 4, 2) );
 					break;
 
 				case PKT_MDC_SUPP_CODECS:
@@ -5753,7 +5753,7 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, packet_info *pinfo, tvbuff_t *tv
 								       "%s%s (%s)",
 								       plurality(i + 1, "", ", "),
 								       val_to_str_const(raw_val, pkt_mdc_codec_vals, "unknown"),
-								       tvb_format_stringzpad(tvb, off + 4 + (i * 2), 2) );
+								       tvb_format_stringzpad(pinfo->pool, tvb, off + 4 + (i * 2), 2) );
 					}
 					break;
 
@@ -5771,7 +5771,7 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, packet_info *pinfo, tvbuff_t *tv
 					proto_item_append_text(ti,
 							       "%s (%s)",
 							       val_to_str_const(raw_val, pkt_mdc_t38_version_vals, "unknown"),
-							       tvb_format_stringzpad(tvb, off + 4, 2) );
+							       tvb_format_stringzpad(pinfo->pool, tvb, off + 4, 2) );
 					break;
 
 				case PKT_MDC_T38_EC:
@@ -5779,7 +5779,7 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, packet_info *pinfo, tvbuff_t *tv
 					proto_item_append_text(ti,
 							       "%s (%s)",
 							       val_to_str_const(raw_val, pkt_mdc_t38_ec_vals, "unknown"),
-							       tvb_format_stringzpad(tvb, off + 4, 2) );
+							       tvb_format_stringzpad(pinfo->pool, tvb, off + 4, 2) );
 					break;
 
 				case PKT_MDC_MIBS:
@@ -5789,7 +5789,7 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, packet_info *pinfo, tvbuff_t *tv
 				default:
 					proto_item_append_text(ti,
 							       "%s",
-							       tvb_format_stringzpad(tvb, off + 4, tlv_len * 2) );
+							       tvb_format_stringzpad(pinfo->pool, tvb, off + 4, tlv_len * 2) );
 					break;
 				}
 			}
@@ -6639,7 +6639,7 @@ dissect_packetcable_i05_ccc(packet_info *pinfo, proto_item *v_ti, proto_tree *v_
 	case PKT_CCC_KRB_REALM:
 	case PKT_CCC_CMS_FQDN:
 		proto_item_append_text(vti, "%s (%u byte%s)",
-				       tvb_format_stringzpad(tvb, suboptoff, subopt_len),
+				       tvb_format_stringzpad(pinfo->pool, tvb, suboptoff, subopt_len),
 				       subopt_len,
 				       plurality(subopt_len, "", "s") );
 		suboptoff += subopt_len;

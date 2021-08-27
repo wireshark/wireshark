@@ -318,7 +318,7 @@ rsip_parameter(tvbuff_t *tvb, proto_tree *rsip_tree, int off, int eoff)
 				    hf_rsip_parameter_address_fqdn, tvb,
 				    off + 4, paramlen - 1, ENC_ASCII|ENC_NA);
 				proto_item_append_text(pti, ": %s",
-				    tvb_format_text(tvb, off + 4, paramlen - 1));
+				    tvb_format_text(wmem_packet_scope(), tvb, off + 4, paramlen - 1));
 			} else
 				proto_item_append_text(pti,
 				    ": Any Fully Qualified Domain Name");

@@ -971,7 +971,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
               }
               proto_tree_add_string(cmdresp_tree, hf_smtp_username, tvb, loffset + 11, linelen - 11, decrypt);
               col_append_str(pinfo->cinfo, COL_INFO,
-                             tvb_format_text(tvb, loffset, 11));
+                             tvb_format_text(pinfo->pool, tvb, loffset, 11));
               col_append_fstr(pinfo->cinfo, COL_INFO, "User: %s", format_text(pinfo->pool, decrypt, decrypt_len));
             }
           }
@@ -993,19 +993,19 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                   decrypt = tvb_get_string_enc(pinfo->pool, tvb, loffset + 10, linelen - 10, ENC_ASCII);
                   decrypt_len = linelen - 10;
                   col_append_str(pinfo->cinfo, COL_INFO,
-                                 tvb_format_text(tvb, loffset, 10));
+                                 tvb_format_text(pinfo->pool, tvb, loffset, 10));
                   col_append_str(pinfo->cinfo, COL_INFO, format_text(pinfo->pool, decrypt, linelen - 10));
                 }
                 else {
                   base64_string = tvb_get_string_enc(pinfo->pool, tvb, loffset + 10, linelen - 10, ENC_ASCII);
                   col_append_str(pinfo->cinfo, COL_INFO,
-                                 tvb_format_text(tvb, loffset, 10));
+                                 tvb_format_text(pinfo->pool, tvb, loffset, 10));
                   dissect_ntlm_auth(tvb, pinfo, cmdresp_tree, format_text(pinfo->pool, base64_string, linelen - 10));
                 }
               }
               else {
                 col_append_str(pinfo->cinfo, COL_INFO,
-                               tvb_format_text(tvb, loffset, 10));
+                               tvb_format_text(pinfo->pool, tvb, loffset, 10));
                 col_append_str(pinfo->cinfo, COL_INFO, format_text(pinfo->pool, decrypt, linelen - 10));
               }
             }
@@ -1014,18 +1014,18 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
             proto_tree_add_item(cmdresp_tree, hf_smtp_req_parameter, tvb,
                               loffset + 5, linelen - 5, ENC_ASCII|ENC_NA);
             col_append_str(pinfo->cinfo, COL_INFO,
-                           tvb_format_text(tvb, loffset, 11));
+                           tvb_format_text(pinfo->pool, tvb, loffset, 11));
             decode_plain_auth(tvb, pinfo, cmdresp_tree, loffset + 11, linelen - 11);
           }
           else if (linelen > 5) {
             proto_tree_add_item(cmdresp_tree, hf_smtp_req_parameter, tvb,
                               loffset + 5, linelen - 5, ENC_ASCII|ENC_NA);
             col_append_str(pinfo->cinfo, COL_INFO,
-                           tvb_format_text(tvb, loffset, linelen));
+                           tvb_format_text(pinfo->pool, tvb, loffset, linelen));
           }
           else {
             col_append_str(pinfo->cinfo, COL_INFO,
-                           tvb_format_text(tvb, loffset, linelen));
+                           tvb_format_text(pinfo->pool, tvb, loffset, linelen));
           }
 
           if (smtp_data_desegment && !spd_frame_data->more_frags) {
@@ -1211,15 +1211,15 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                     if ((multiline_state != SMTP_MULTILINE_CONTINUE) &&
                         (multiline_state != SMTP_MULTILINE_END)) {
                       col_append_fstr(pinfo->cinfo, COL_INFO, "%s",
-                                    tvb_format_text(tvb, offset, linelen));
+                                    tvb_format_text(pinfo->pool, tvb, offset, linelen));
                     } else {
                       col_append_fstr(pinfo->cinfo, COL_INFO, "%s",
-                        tvb_format_text(tvb, offset+4, linelen-4));
+                        tvb_format_text(pinfo->pool, tvb, offset+4, linelen-4));
                     }
                 }
             } else {
                col_append_str(pinfo->cinfo, COL_INFO,
-                              tvb_format_text(tvb, offset, linelen));
+                              tvb_format_text(pinfo->pool, tvb, offset, linelen));
             }
           }
 

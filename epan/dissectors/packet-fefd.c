@@ -131,13 +131,13 @@ dissect_fefd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
             col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL,
                                     "Device ID: %s",
-                                    tvb_format_stringzpad(tvb, offset + 4,
+                                    tvb_format_stringzpad(pinfo->pool, tvb, offset + 4,
                                                           length - 4));
 
             if (tree) {
                 tlv_tree = proto_tree_add_subtree_format(fefd_tree, tvb, offset,
                                            length, ett_fefd_tlv, NULL, "Device ID: %s",
-                                           tvb_format_stringzpad(tvb, offset + 4, length - 4));
+                                           tvb_format_stringzpad(pinfo->pool, tvb, offset + 4, length - 4));
                 proto_tree_add_uint(tlv_tree, hf_fefd_tlvtype, tvb,
                                     offset + TLV_TYPE, 2, type);
                 proto_tree_add_uint(tlv_tree, hf_fefd_tlvlength, tvb,
@@ -162,12 +162,12 @@ dissect_fefd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
             col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL,
                                     "Port ID: %s",
-                                    tvb_format_stringzpad(tvb, offset + 4, real_length - 4));
+                                    tvb_format_stringzpad(pinfo->pool, tvb, offset + 4, real_length - 4));
 
             if (tree) {
                 tlv_tree = proto_tree_add_subtree_format(fefd_tree, tvb, offset,
                                            real_length, ett_fefd_tlv, NULL, "Port ID: %s",
-                                           tvb_format_text(tvb, offset + 4, real_length - 4));
+                                           tvb_format_text(pinfo->pool, tvb, offset + 4, real_length - 4));
                 proto_tree_add_uint(tlv_tree, hf_fefd_tlvtype, tvb,
                                     offset + TLV_TYPE, 2, type);
                 proto_tree_add_uint(tlv_tree, hf_fefd_tlvlength, tvb,

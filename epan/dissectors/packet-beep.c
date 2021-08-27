@@ -278,7 +278,7 @@ check_term(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree)
   }
 
   proto_tree_add_expert_format(tree, pinfo, &ei_beep_invalid_terminator, tvb,
-                                offset, 1, "Terminator: %s", tvb_format_text(tvb, offset, 2));
+                                offset, 1, "Terminator: %s", tvb_format_text(pinfo->pool, tvb, offset, 2));
   return -1;
 }
 
@@ -776,7 +776,7 @@ dissect_beep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
    * of the packet, so it won't throw an exception.
    */
   if (tvb_reported_length_remaining(tvb, offset) > 0)
-    col_add_str(pinfo->cinfo, COL_INFO, tvb_format_text(tvb, offset, tvb_reported_length_remaining(tvb, offset)));
+    col_add_str(pinfo->cinfo, COL_INFO, tvb_format_text(pinfo->pool, tvb, offset, tvb_reported_length_remaining(tvb, offset)));
 
   /* Here, we parse the message so we can retrieve the info we need, which
    * is that there is some payload left from a previous segment on the

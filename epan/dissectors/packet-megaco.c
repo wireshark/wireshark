@@ -847,7 +847,7 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
             tvb_current_offset = megaco_tvb_skip_wsp_return(tvb, tvb_current_offset)-1; /* cut last RBRKT */
             len = tvb_current_offset - tvb_previous_offset;
 
-            pending_id = (guint)strtoul(tvb_format_text(tvb,tvb_previous_offset,len),NULL,10);
+            pending_id = (guint)strtoul(tvb_format_text(pinfo->pool, tvb,tvb_previous_offset,len),NULL,10);
             col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "%d TransactionResponseAck", pending_id);
 
             my_proto_tree_add_uint(megaco_tree, hf_megaco_transid, tvb, save_offset, save_length, pending_id);
@@ -872,7 +872,7 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
             tvb_current_offset  = megaco_tvb_skip_wsp_return(tvb, tvb_current_offset-1);
             len = tvb_current_offset - tvb_offset;
 
-            pending_id = (guint)strtoul(tvb_format_text(tvb,tvb_offset,len),NULL,10);
+            pending_id = (guint)strtoul(tvb_format_text(pinfo->pool, tvb,tvb_offset,len),NULL,10);
             col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "%d Pending", pending_id);
 
             my_proto_tree_add_uint(megaco_tree, hf_megaco_transid, tvb, save_offset, save_length, pending_id);
@@ -893,7 +893,7 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
             tvb_current_offset  = megaco_tvb_skip_wsp_return(tvb, tvb_LBRKT-1);
             len = tvb_current_offset - tvb_offset;
 
-            trx_id = (guint)strtoul(tvb_format_text(tvb,tvb_offset,len),NULL,10);
+            trx_id = (guint)strtoul(tvb_format_text(pinfo->pool, tvb,tvb_offset,len),NULL,10);
             col_add_fstr(pinfo->cinfo, COL_INFO, "%d Reply  ", trx_id);
 
             my_proto_tree_add_uint(megaco_tree, hf_megaco_transid, tvb, save_offset, save_length, trx_id);
@@ -921,7 +921,7 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
             tvb_current_offset  = megaco_tvb_skip_wsp_return(tvb, tvb_current_offset-1);
             len = tvb_current_offset - tvb_offset;
 
-            trx_id = (guint)strtoul(tvb_format_text(tvb,tvb_offset,len),NULL,10);
+            trx_id = (guint)strtoul(tvb_format_text(pinfo->pool, tvb,tvb_offset,len),NULL,10);
             col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "%d Request", trx_id);
 
             my_proto_tree_add_uint(megaco_tree, hf_megaco_transid, tvb, save_offset, save_length, trx_id);
@@ -932,7 +932,7 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
         default :
             proto_tree_add_expert_format(tree, pinfo, &ei_megaco_error_descriptor_transaction_list, tvb, 0, -1,
                     "Sorry, can't understand errorDescriptor / transactionList = %s, can't parse it pos %u",
-                        tvb_format_text(tvb,tvb_previous_offset,2),tvb_previous_offset);
+                        tvb_format_text(pinfo->pool, tvb,tvb_previous_offset,2),tvb_previous_offset);
             return tvb_captured_length(tvb);
         } /* end switch */
 /*      Only these remains now
@@ -989,7 +989,7 @@ nextcontext:
             ctx_id = NULL_CONTEXT;
             break;
         default:
-            ctx_id = (guint)strtoul(tvb_format_text(tvb, tvb_previous_offset, tokenlen),NULL,10);
+            ctx_id = (guint)strtoul(tvb_format_text(pinfo->pool, tvb, tvb_previous_offset, tokenlen),NULL,10);
         }
 
         my_proto_tree_add_uint(megaco_tree, hf_megaco_Context, tvb, context_offset, context_length, ctx_id);
@@ -1377,7 +1377,7 @@ nextcontext:
                         }
                     }
                     else{
-                        gchar* command = tvb_format_text(tvb, tvb_command_start_offset, tokenlen);
+                        gchar* command = tvb_format_text(pinfo->pool, tvb, tvb_command_start_offset, tokenlen);
 
                         if ( g_str_equal(command,"Subtract") ) {
                             switch(trx_type) {
@@ -1527,23 +1527,23 @@ nextcontext:
                         case MEGACO_CMD_PRIORITY:
                             proto_tree_add_string(megaco_tree_command_line, hf_megaco_priority, tvb,
                                 tvb_offset, tokenlen,
-                                tvb_format_text(tvb, tvb_offset,
+                                tvb_format_text(pinfo->pool, tvb, tvb_offset,
                                     tokenlen));
                             break;
                         default:
                             proto_tree_add_string(megaco_tree_command_line, hf_megaco_termid, tvb,
                                 tvb_offset, tokenlen,
-                                tvb_format_text(tvb, tvb_offset,
+                                tvb_format_text(pinfo->pool, tvb, tvb_offset,
                                     tokenlen));
 
                             term->len = tokenlen;
-                            term->buffer = (const guint8*)(term->str = tvb_format_text(tvb, tvb_offset, tokenlen));
+                            term->buffer = (const guint8*)(term->str = tvb_format_text(pinfo->pool, tvb, tvb_offset, tokenlen));
 
                             gcp_cmd_add_term(msg, trx, cmd, term, wild_term, pinfo, keep_persistent_data);
                             break;
                         }
 
-                        col_append_fstr(pinfo->cinfo, COL_INFO, "=%s",tvb_format_text(tvb, tvb_offset,tokenlen));
+                        col_append_fstr(pinfo->cinfo, COL_INFO, "=%s",tvb_format_text(pinfo->pool, tvb, tvb_offset,tokenlen));
                         break;
                     }
 
@@ -1662,7 +1662,7 @@ dissect_megaco_modemdescriptor(tvbuff_t *tvb, proto_tree *megaco_tree_command_li
     tokenlen =  (tvb_RBRKT+1) - tvb_previous_offset;
     proto_tree_add_string(megaco_tree_command_line, hf_megaco_modem_descriptor, tvb,
                             tvb_previous_offset, tokenlen,
-                            tvb_format_text(tvb, tvb_previous_offset,
+                            tvb_format_text(wmem_packet_scope(), tvb, tvb_previous_offset,
                             tokenlen));
 
 }
@@ -1675,7 +1675,7 @@ dissect_megaco_multiplexdescriptor(tvbuff_t *tvb, proto_tree *megaco_tree_comman
     tokenlen =  (tvb_RBRKT+1) - tvb_previous_offset;
     proto_tree_add_string(megaco_tree_command_line, hf_megaco_multiplex_descriptor, tvb,
                             tvb_previous_offset, tokenlen,
-                            tvb_format_text(tvb, tvb_previous_offset,
+                            tvb_format_text(wmem_packet_scope(), tvb, tvb_previous_offset,
                             tokenlen));
 
 }
@@ -1798,7 +1798,7 @@ dissect_megaco_mediadescriptor(tvbuff_t *tvb, proto_tree *megaco_tree_command_li
             tvb_offset = megaco_tvb_skip_wsp_return(tvb, tvb_LBRKT-1);
             tokenlen =  tvb_offset - tvb_current_offset;
 
-            streamId = (guint)strtoul(tvb_format_text(tvb, tvb_current_offset,tokenlen),NULL,10);
+            streamId = (guint)strtoul(tvb_format_text(pinfo->pool, tvb, tvb_current_offset,tokenlen),NULL,10);
             ti = proto_tree_add_uint(megaco_mediadescriptor_tree, hf_megaco_streamid, tvb,
                 save_offset, 1, streamId);
             proto_item_set_len(ti, tvb_offset-save_offset+tokenlen);
@@ -1837,7 +1837,7 @@ dissect_megaco_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *megaco_tree, 
 {
     /*proto_item *item;*/
     /*proto_tree *tree;*/
-    gchar *msg = tvb_format_text(tvb, offset, len);
+    gchar *msg = tvb_format_text(pinfo->pool, tvb, offset, len);
 
     /*item= */proto_tree_add_item(megaco_tree, hf_megaco_h245, tvb, offset, len, ENC_NA);
     /*tree = proto_item_add_subtree(item, ett_megaco_h245); */
@@ -2022,7 +2022,7 @@ dissect_megaco_eventsdescriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *m
 
         ti = proto_tree_add_uint(megaco_eventsdescriptor_tree, hf_megaco_requestid, tvb,
             tvb_current_offset, 1,
-            (guint32) strtoul(tvb_format_text(tvb, tvb_current_offset, tokenlen), NULL, 10));
+            (guint32) strtoul(tvb_format_text(pinfo->pool, tvb, tvb_current_offset, tokenlen), NULL, 10));
         proto_item_set_len(ti, tokenlen);
 
         tvb_events_end_offset   = tvb_RBRKT;
@@ -2164,7 +2164,7 @@ dissect_megaco_signaldescriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *m
 
     tvb_current_offset = tvb_LBRKT;
     tvb_next_offset = megaco_tvb_skip_wsp(tvb, tvb_current_offset+1);
-    col_append_fstr(pinfo->cinfo, COL_INFO, " (Signal:%s)",tvb_format_text(tvb, tvb_current_offset,tokenlen-tvb_current_offset+tvb_previous_offset));
+    col_append_fstr(pinfo->cinfo, COL_INFO, " (Signal:%s)",tvb_format_text(pinfo->pool, tvb, tvb_current_offset,tokenlen-tvb_current_offset+tvb_previous_offset));
 
 
     if ( tvb_current_offset < tvb_signals_end_offset && tvb_current_offset != -1 && tvb_next_offset != tvb_signals_end_offset){
@@ -2488,7 +2488,7 @@ dissect_megaco_servicechangedescriptor(tvbuff_t *tvb, packet_info* pinfo, proto_
     tokenlen =  (tvb_RBRKT+1) - tvb_previous_offset;
     proto_tree_add_string(megaco_tree_command_line, hf_megaco_servicechange_descriptor, tvb,
                             tvb_previous_offset, tokenlen,
-                            tvb_format_text(tvb, tvb_previous_offset,
+                            tvb_format_text(pinfo->pool, tvb, tvb_previous_offset,
                             tokenlen));
     */
     proto_tree_add_format_text(megaco_tree, tvb, tvb_RBRKT, 1);
@@ -2503,7 +2503,7 @@ dissect_megaco_digitmapdescriptor(tvbuff_t *tvb, proto_tree *megaco_tree_command
     tokenlen =  tvb_RBRKT - tvb_previous_offset;
     proto_tree_add_string(megaco_tree_command_line, hf_megaco_digitmap_descriptor, tvb,
                             tvb_previous_offset, tokenlen,
-                            tvb_format_text(tvb, tvb_previous_offset,
+                            tvb_format_text(wmem_packet_scope(), tvb, tvb_previous_offset,
                             tokenlen));
 
 }
@@ -2573,7 +2573,7 @@ dissect_megaco_observedeventsdescriptor(tvbuff_t *tvb, packet_info *pinfo, proto
 
         ti = proto_tree_add_uint(megaco_observedeventsdescriptor_tree, hf_megaco_requestid, tvb,
             tvb_current_offset, 1,
-            (guint32) strtoul(tvb_format_text(tvb, tvb_current_offset, tokenlen), NULL, 10));
+            (guint32) strtoul(tvb_format_text(pinfo->pool, tvb, tvb_current_offset, tokenlen), NULL, 10));
         proto_item_set_len(ti, tokenlen);
 
         tvb_observedevents_end_offset   = tvb_RBRKT;
@@ -2734,7 +2734,7 @@ dissect_megaco_Packagesdescriptor(tvbuff_t *tvb, proto_tree *megaco_tree_command
 
         ti = proto_tree_add_uint(megaco_packagesdescriptor_tree, hf_megaco_requestid, tvb,
             tvb_current_offset, 1,
-            (guint32) strtoul(tvb_format_text(tvb, tvb_current_offset, tokenlen), NULL, 10));
+            (guint32) strtoul(tvb_format_text(wmem_packet_scope(), tvb, tvb_current_offset, tokenlen), NULL, 10));
         proto_item_set_len(ti, tokenlen);
 
         tvb_packages_end_offset   = tvb_RBRKT;
@@ -2962,7 +2962,7 @@ dissect_megaco_TerminationStatedescriptor(tvbuff_t *tvb, proto_tree *megaco_medi
 
             proto_tree_add_string(megaco_TerminationState_tree, hf_megaco_Service_State, tvb,
                 tvb_current_offset, tokenlen,
-                tvb_format_text(tvb, tvb_current_offset,
+                tvb_format_text(wmem_packet_scope(), tvb, tvb_current_offset,
                 tokenlen));
 
             break;
@@ -2978,7 +2978,7 @@ dissect_megaco_TerminationStatedescriptor(tvbuff_t *tvb, proto_tree *megaco_medi
 
             proto_tree_add_string(megaco_TerminationState_tree, hf_megaco_Event_Buffer_Control, tvb,
                 tvb_current_offset, tokenlen,
-                tvb_format_text(tvb, tvb_current_offset,
+                tvb_format_text(wmem_packet_scope(), tvb, tvb_current_offset,
                 tokenlen));
 
             break;
@@ -2993,7 +2993,7 @@ dissect_megaco_TerminationStatedescriptor(tvbuff_t *tvb, proto_tree *megaco_medi
 
             proto_tree_add_string(megaco_TerminationState_tree, hf_megaco_Event_Buffer_Control, tvb,
                 tvb_current_offset, tokenlen,
-                tvb_format_text(tvb, tvb_current_offset,
+                tvb_format_text(wmem_packet_scope(), tvb, tvb_current_offset,
                 tokenlen));
 
             break;
@@ -3209,34 +3209,34 @@ dissect_megaco_LocalControldescriptor(tvbuff_t *tvb, proto_tree *megaco_mediades
         case MEGACO_MODETOKEN: /* Mode */
             proto_tree_add_string(megaco_LocalControl_tree, hf_megaco_mode, tvb,
                 tvb_help_offset, tvb_offset-tvb_help_offset,
-                tvb_format_text(tvb, tvb_current_offset,
+                tvb_format_text(pinfo->pool, tvb, tvb_current_offset,
                 tokenlen));
-            col_append_fstr(pinfo->cinfo, COL_INFO, " (Mode:%s)",tvb_format_text(tvb, tvb_current_offset,tokenlen));
+            col_append_fstr(pinfo->cinfo, COL_INFO, " (Mode:%s)",tvb_format_text(pinfo->pool, tvb, tvb_current_offset,tokenlen));
             tvb_current_offset = megaco_tvb_skip_wsp(tvb, tvb_offset +1);
             break;
 
         case MEGACO_RESERVEDVALUETOKEN: /* ReservedValue */
             proto_tree_add_string(megaco_LocalControl_tree, hf_megaco_reserve_value, tvb,
                     tvb_help_offset, tvb_offset-tvb_help_offset,
-                    tvb_format_text(tvb, tvb_current_offset, tokenlen));
+                    tvb_format_text(pinfo->pool, tvb, tvb_current_offset, tokenlen));
 
             tvb_current_offset = megaco_tvb_skip_wsp(tvb, tvb_offset +1);
             break;
         case MEGACO_RESERVEDGROUPTOKEN: /* ReservedGroup */
             proto_tree_add_string(megaco_LocalControl_tree, hf_megaco_reserve_group, tvb,
                 tvb_help_offset, tvb_offset-tvb_help_offset,
-                tvb_format_text(tvb, tvb_current_offset, tokenlen));
+                tvb_format_text(pinfo->pool, tvb, tvb_current_offset, tokenlen));
             tvb_current_offset = megaco_tvb_skip_wsp(tvb, tvb_offset +1);
             break;
 
         case MEGACO_H324_H223CAPR: /* h324/h223capr */
             proto_tree_add_string(megaco_LocalControl_tree, hf_megaco_h324_h223capr, tvb,
                 tvb_help_offset, tvb_offset-tvb_help_offset,
-                tvb_format_text(tvb, tvb_current_offset, tokenlen));
+                tvb_format_text(pinfo->pool, tvb, tvb_current_offset, tokenlen));
 
             tvb_current_offset = megaco_tvb_skip_wsp(tvb, tvb_offset +1);
             tokenlen = tvb_offset - tvb_help_offset;
-            msg=tvb_format_text(tvb,tvb_help_offset, tokenlen);
+            msg=tvb_format_text(pinfo->pool, tvb,tvb_help_offset, tokenlen);
             dissect_megaco_h324_h223caprn(tvb, pinfo, megaco_mediadescriptor_tree, tvb_help_offset, tokenlen, msg);
 
             break;
@@ -3245,7 +3245,7 @@ dissect_megaco_LocalControldescriptor(tvbuff_t *tvb, proto_tree *megaco_mediades
 
             proto_tree_add_string(megaco_LocalControl_tree, hf_megaco_h324_muxtbl_in, tvb,
                 tvb_help_offset, tvb_offset-tvb_help_offset,
-                tvb_format_text(tvb, tvb_current_offset, tokenlen));
+                tvb_format_text(pinfo->pool, tvb, tvb_current_offset, tokenlen));
 
             tvb_current_offset = megaco_tvb_skip_wsp(tvb, tvb_offset +1);
 
@@ -3259,7 +3259,7 @@ dissect_megaco_LocalControldescriptor(tvbuff_t *tvb, proto_tree *megaco_mediades
 
             proto_tree_add_string(megaco_LocalControl_tree, hf_megaco_h324_muxtbl_out, tvb,
                 tvb_current_offset, tokenlen,
-                tvb_format_text(tvb, tvb_current_offset,
+                tvb_format_text(pinfo->pool, tvb, tvb_current_offset,
                 tokenlen));
 
             tvb_current_offset = megaco_tvb_skip_wsp(tvb, tvb_offset +1);
@@ -3280,37 +3280,37 @@ dissect_megaco_LocalControldescriptor(tvbuff_t *tvb, proto_tree *megaco_mediades
 
         case MEGACO_GM_SAF:
             proto_tree_add_string(megaco_LocalControl_tree, hf_megaco_gm_saf, tvb,
-                tvb_help_offset, tvb_offset-tvb_help_offset, tvb_format_text(tvb, tvb_current_offset, tokenlen));
+                tvb_help_offset, tvb_offset-tvb_help_offset, tvb_format_text(pinfo->pool, tvb, tvb_current_offset, tokenlen));
             tvb_current_offset = megaco_tvb_skip_wsp(tvb, tvb_offset +1);
             break;
         case MEGACO_GM_SAM:
             proto_tree_add_string(megaco_LocalControl_tree, hf_megaco_gm_sam, tvb,
-                tvb_help_offset, tvb_offset-tvb_help_offset, tvb_format_text(tvb, tvb_current_offset, tokenlen));
+                tvb_help_offset, tvb_offset-tvb_help_offset, tvb_format_text(pinfo->pool, tvb, tvb_current_offset, tokenlen));
             tvb_current_offset = megaco_tvb_skip_wsp(tvb, tvb_offset +1);
             break;
         case MEGACO_GM_SPF:
             proto_tree_add_string(megaco_LocalControl_tree, hf_megaco_gm_spf, tvb,
-                tvb_help_offset, tvb_offset-tvb_help_offset, tvb_format_text(tvb, tvb_current_offset, tokenlen));
+                tvb_help_offset, tvb_offset-tvb_help_offset, tvb_format_text(pinfo->pool, tvb, tvb_current_offset, tokenlen));
             tvb_current_offset = megaco_tvb_skip_wsp(tvb, tvb_offset +1);
             break;
         case MEGACO_GM_SPR:
             proto_tree_add_string(megaco_LocalControl_tree, hf_megaco_gm_spr, tvb,
-                tvb_help_offset, tvb_offset-tvb_help_offset, tvb_format_text(tvb, tvb_current_offset, tokenlen));
+                tvb_help_offset, tvb_offset-tvb_help_offset, tvb_format_text(pinfo->pool, tvb, tvb_current_offset, tokenlen));
             tvb_current_offset = megaco_tvb_skip_wsp(tvb, tvb_offset +1);
             break;
         case MEGACO_GM_ESAS:
             proto_tree_add_string(megaco_LocalControl_tree, hf_megaco_gm_esas, tvb,
-                tvb_help_offset, tvb_offset-tvb_help_offset, tvb_format_text(tvb, tvb_current_offset, tokenlen));
+                tvb_help_offset, tvb_offset-tvb_help_offset, tvb_format_text(pinfo->pool, tvb, tvb_current_offset, tokenlen));
             tvb_current_offset = megaco_tvb_skip_wsp(tvb, tvb_offset +1);
             break;
         case MEGACO_GM_RSB:
             proto_tree_add_string(megaco_LocalControl_tree, hf_megaco_gm_rsb, tvb,
-                tvb_help_offset, tvb_offset - tvb_help_offset, tvb_format_text(tvb, tvb_current_offset, tokenlen));
+                tvb_help_offset, tvb_offset - tvb_help_offset, tvb_format_text(pinfo->pool, tvb, tvb_current_offset, tokenlen));
             tvb_current_offset = megaco_tvb_skip_wsp(tvb, tvb_offset + 1);
             break;
         case MEGACO_TMAN_POL:
             proto_tree_add_string(megaco_LocalControl_tree, hf_megaco_tman_pol, tvb,
-                tvb_help_offset, tvb_offset-tvb_help_offset, tvb_format_text(tvb, tvb_current_offset, tokenlen));
+                tvb_help_offset, tvb_offset-tvb_help_offset, tvb_format_text(pinfo->pool, tvb, tvb_current_offset, tokenlen));
             tvb_current_offset = megaco_tvb_skip_wsp(tvb, tvb_offset +1);
             break;
         case MEGACO_TMAN_SDR:
@@ -3319,7 +3319,7 @@ dissect_megaco_LocalControldescriptor(tvbuff_t *tvb, proto_tree *megaco_mediades
             gboolean sdr_valid;
             proto_item* pi;
 
-            sdr_valid = ws_strtoi32(tvb_format_text(tvb, tvb_current_offset, tokenlen), NULL, &sdr);
+            sdr_valid = ws_strtoi32(tvb_format_text(pinfo->pool, tvb, tvb_current_offset, tokenlen), NULL, &sdr);
             pi =proto_tree_add_int(megaco_LocalControl_tree, hf_megaco_tman_sdr, tvb, tvb_help_offset,
                 tvb_offset - tvb_help_offset, sdr);
             proto_item_append_text(pi, " [%i b/s]", sdr*8);
@@ -3331,22 +3331,22 @@ dissect_megaco_LocalControldescriptor(tvbuff_t *tvb, proto_tree *megaco_mediades
             break;
         case MEGACO_TMAN_MBS:
             proto_tree_add_string(megaco_LocalControl_tree, hf_megaco_tman_mbs, tvb,
-                tvb_help_offset, tvb_offset-tvb_help_offset, tvb_format_text(tvb, tvb_current_offset, tokenlen));
+                tvb_help_offset, tvb_offset-tvb_help_offset, tvb_format_text(pinfo->pool, tvb, tvb_current_offset, tokenlen));
             tvb_current_offset = megaco_tvb_skip_wsp(tvb, tvb_offset +1);
             break;
         case MEGACO_TMAN_PDR:
             proto_tree_add_string(megaco_LocalControl_tree, hf_megaco_tman_pdr, tvb,
-                tvb_help_offset, tvb_offset-tvb_help_offset, tvb_format_text(tvb, tvb_current_offset, tokenlen));
+                tvb_help_offset, tvb_offset-tvb_help_offset, tvb_format_text(pinfo->pool, tvb, tvb_current_offset, tokenlen));
             tvb_current_offset = megaco_tvb_skip_wsp(tvb, tvb_offset +1);
             break;
         case MEGACO_TMAN_DVT:
             proto_tree_add_string(megaco_LocalControl_tree, hf_megaco_tman_dvt, tvb,
-                tvb_help_offset, tvb_offset-tvb_help_offset, tvb_format_text(tvb, tvb_current_offset, tokenlen));
+                tvb_help_offset, tvb_offset-tvb_help_offset, tvb_format_text(pinfo->pool, tvb, tvb_current_offset, tokenlen));
             tvb_current_offset = megaco_tvb_skip_wsp(tvb, tvb_offset +1);
             break;
         case MEGACO_IPDC_REALM:
             proto_tree_add_string(megaco_LocalControl_tree, hf_megaco_ipdc_realm, tvb,
-                tvb_help_offset, tvb_offset-tvb_help_offset, tvb_format_text(tvb, tvb_current_offset, tokenlen));
+                tvb_help_offset, tvb_offset-tvb_help_offset, tvb_format_text(pinfo->pool, tvb, tvb_current_offset, tokenlen));
             tvb_current_offset = megaco_tvb_skip_wsp(tvb, tvb_offset +1);
             break;
 

@@ -526,20 +526,20 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "MSRP");
     if (is_msrp_response){
         col_add_fstr(pinfo->cinfo, COL_INFO, "Response: %s ",
-                tvb_format_text(tvb, token_3_start, token_3_len));
+                tvb_format_text(pinfo->pool, tvb, token_3_start, token_3_len));
 
         if (token_4_len )
             col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
-                tvb_format_text(tvb, token_4_start, token_4_len));
+                tvb_format_text(pinfo->pool, tvb, token_4_start, token_4_len));
 
         col_append_fstr(pinfo->cinfo, COL_INFO, "Transaction ID: %s",
-                tvb_format_text(tvb, token_2_start, token_2_len));
+                tvb_format_text(pinfo->pool, tvb, token_2_start, token_2_len));
     }else{
         col_add_fstr(pinfo->cinfo, COL_INFO, "Request: %s ",
-                tvb_format_text(tvb, token_3_start, token_3_len));
+                tvb_format_text(pinfo->pool, tvb, token_3_start, token_3_len));
 
         col_append_fstr(pinfo->cinfo, COL_INFO, "Transaction ID: %s",
-                tvb_format_text(tvb, token_2_start, token_2_len));
+                tvb_format_text(pinfo->pool, tvb, token_2_start, token_2_len));
     }
 
     if (tree) {
@@ -597,7 +597,7 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                 /*
                  * Malformed header - no colon after the name.
                  */
-                hdr_str = tvb_format_text(tvb, offset, linelen);
+                hdr_str = tvb_format_text(pinfo->pool, tvb, offset, linelen);
                 proto_tree_add_string_format(msrp_hdr_tree, hf_msrp_hdr, tvb, offset,
                                     next_offset - offset, hdr_str, "%s", hdr_str);
             } else {
@@ -605,7 +605,7 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                 hf_index = msrp_is_known_msrp_header(tvb, offset, header_len);
 
                 if (hf_index == -1) {
-                    hdr_str = tvb_format_text(tvb, offset, linelen);
+                    hdr_str = tvb_format_text(pinfo->pool, tvb, offset, linelen);
                     proto_tree_add_string_format(msrp_hdr_tree, hf_msrp_hdr, tvb,
                                     offset, next_offset - offset, hdr_str, "%s", hdr_str);
                 } else {
@@ -632,7 +632,7 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                    hf_header_array[hf_index], tvb,
                                    offset, next_offset - offset,
                                    value, "%s",
-                                   tvb_format_text(tvb, offset, linelen));
+                                   tvb_format_text(pinfo->pool, tvb, offset, linelen));
 
                     switch ( hf_index ) {
 

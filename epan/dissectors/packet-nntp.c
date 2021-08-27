@@ -51,7 +51,7 @@ dissect_nntp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 	 */
 	linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s: %s", type,
-		    tvb_format_text(tvb, offset, linelen));
+		    tvb_format_text(pinfo->pool, tvb, offset, linelen));
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_nntp, tvb, offset, -1,

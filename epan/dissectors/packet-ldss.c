@@ -496,7 +496,7 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
 			line_tree = proto_tree_add_subtree(ldss_tree, tvb, offset, linelen,
 							 ett_ldss_transfer_req, NULL,
-							 tvb_format_text(tvb, offset, next_offset-offset));
+							 tvb_format_text(pinfo->pool, tvb, offset, next_offset-offset));
 
 			if (strncmp(line,"md5:",4)==0) {
 				digest_type_len = 4;

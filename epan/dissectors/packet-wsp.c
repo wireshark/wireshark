@@ -5100,8 +5100,8 @@ add_uri (proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
     proto_tree_add_item (tree, hf_wsp_header_uri,
             tvb, URIOffset, uriLen, ENC_ASCII|ENC_NA);
 
-    str = tvb_format_text (tvb, URIOffset, uriLen);
-    /* XXX - tvb_format_text() returns a pointer to a static text string
+    str = tvb_format_text (pinfo->pool, tvb, URIOffset, uriLen);
+    /* XXX - tvb_format_text(pinfo->pool, ) returns a pointer to a static text string
      * so please DO NOT attempt at g_free()ing it!
      */
     col_append_fstr(pinfo->cinfo, COL_INFO, " %s", str);

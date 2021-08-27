@@ -4478,7 +4478,7 @@ dissect_vsncp_apname_opt(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
                 tvb_get_string_enc(pinfo->pool, tvb, off, lengthofapn, ENC_ASCII),
                 "Label%d (%d byte%s): %s", j++, lengthofapn,
                 plurality(lengthofapn, "", "s"),
-                tvb_format_text(tvb, off, lengthofapn));
+                tvb_format_text(pinfo->pool, tvb, off, lengthofapn));
             off += lengthofapn;
             i += lengthofapn + 1;
         }
@@ -6160,7 +6160,7 @@ dissect_pap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
         proto_tree_add_item(data_tree, hf_pap_peer_id, tvb, offset,
                             peer_id_length, ENC_ASCII|ENC_NA);
-        peer_id = tvb_format_text(tvb, offset, peer_id_length);
+        peer_id = tvb_format_text(pinfo->pool, tvb, offset, peer_id_length);
         offset += peer_id_length;
 
         proto_tree_add_item(data_tree, hf_pap_password_length, tvb, offset,
@@ -6170,7 +6170,7 @@ dissect_pap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
         proto_tree_add_item(data_tree, hf_pap_password, tvb, offset,
                             password_length, ENC_ASCII|ENC_NA);
-        password = tvb_format_text(tvb, offset, password_length);
+        password = tvb_format_text(pinfo->pool, tvb, offset, password_length);
 
         col_append_fstr(pinfo->cinfo, COL_INFO,
                         " (Peer-ID='%s', Password='%s')", peer_id, password);
@@ -6185,7 +6185,7 @@ dissect_pap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
         proto_tree_add_item(data_tree, hf_pap_message, tvb, offset,
                             message_length, ENC_ASCII|ENC_NA);
-        message = tvb_format_text(tvb, offset, message_length);
+        message = tvb_format_text(pinfo->pool, tvb, offset, message_length);
 
         col_append_fstr(pinfo->cinfo, COL_INFO, " (Message='%s')",
                         message);
@@ -6289,7 +6289,7 @@ dissect_chap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                 /* Show name and value in info column */
                 col_append_fstr(pinfo->cinfo, COL_INFO,
                                 " (NAME='%s%s', VALUE=0x%s)",
-                                tvb_format_text(tvb, name_offset,
+                                tvb_format_text(pinfo->pool, tvb, name_offset,
                                                 (name_size > 20) ? 20 : name_size),
                                 (name_size > 20) ? "..." : "",
                                 tvb_bytes_to_str(pinfo->pool, tvb, value_offset, value_size));
@@ -6307,7 +6307,7 @@ dissect_chap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
         /* Show message in info column */
         col_append_fstr(pinfo->cinfo, COL_INFO, " (MESSAGE='%s')",
-            tvb_format_text(tvb, offset, length));
+            tvb_format_text(pinfo->pool, tvb, offset, length));
         break;
 
     /* Code from unknown code type... */

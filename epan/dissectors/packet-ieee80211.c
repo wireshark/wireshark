@@ -19276,7 +19276,7 @@ dissect_ssid_list(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void*
     if (offset + 2 + len > tag_len)
       break;
 
-    str = tvb_format_text(tvb, offset + 2, len);
+    str = tvb_format_text(pinfo->pool, tvb, offset + 2, len);
     proto_item_append_text(tree, "%c %s", (first ? ':' : ','), str);
     first = FALSE;
     entry = proto_tree_add_subtree_format(tree, tvb, offset, 2 + len, ett_ssid_list, NULL, "SSID: %s", str);

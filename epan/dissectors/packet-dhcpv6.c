@@ -1584,7 +1584,7 @@ dissect_cablelabs_specific_opts(proto_tree *v_tree, proto_item *v_item, packet_i
                 opt_len = tlv_len;
                 field_len = tlv_len;
                 proto_item_append_text(ti, "\"%s\"",
-                                       tvb_format_stringzpad(tvb, sub_off, field_len));
+                                       tvb_format_stringzpad(pinfo->pool, tvb, sub_off, field_len));
                 break;
             case CL_OPTION_VENDOR_OUI:
                 /* CableLabs specs treat 17.8 inconsistently
@@ -1594,7 +1594,7 @@ dissect_cablelabs_specific_opts(proto_tree *v_tree, proto_item *v_item, packet_i
                     proto_item_append_text(ti, "%s",
                         tvb_bytes_to_str_punct(pinfo->pool, tvb, sub_off, 3, ':'));
                 } else if (tlv_len == 6) {
-                    proto_item_append_text(ti, "\"%s\"", tvb_format_stringzpad(tvb, sub_off, tlv_len));
+                    proto_item_append_text(ti, "\"%s\"", tvb_format_stringzpad(pinfo->pool, tvb, sub_off, tlv_len));
                 } else {
                     expert_add_info_format(pinfo, ti, &ei_dhcpv6_bogus_length, "Suboption %d: suboption length isn't 3 or 6", type);
                 }

@@ -16320,7 +16320,7 @@ dissect_qfsi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 		proto_tree_add_bytes_format_value(tree, hf_smb_mac_fndrinfo, tvb,
 					    offset, 32, NULL,
 					    "%s",
-					    tvb_format_text(tvb, offset, 32));
+					    tvb_format_text(pinfo->pool, tvb, offset, 32));
 		COUNT_BYTES_TRANS_SUBR(32);
 		/* Number Files */
 		CHECK_BYTE_COUNT_TRANS_SUBR(4);

@@ -128,7 +128,7 @@ CallingSSuserReference/t61String DISPLAY = STR_UNICODE
   tvbuff_t *string = NULL;
   %(DEFAULT_BODY)s
   if(open_request && string)
-    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", tvb_format_text(string, 0, tvb_reported_length(string)));
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", tvb_format_text(actx->pinfo->pool, string, 0, tvb_reported_length(string)));
 
 #.END
 
@@ -136,7 +136,7 @@ CallingSSuserReference/t61String DISPLAY = STR_UNICODE
   tvbuff_t *string = NULL;
   %(DEFAULT_BODY)s
   if(open_request && string)
-    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", tvb_format_text(string, 0, tvb_reported_length(string)));
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", tvb_format_text(actx->pinfo->pool, string, 0, tvb_reported_length(string)));
 
 #.FN_BODY RTTPapdu  VAL_PTR=&priority
   int priority = -1;

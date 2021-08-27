@@ -183,7 +183,7 @@ dissect_tapa_discover_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tapa_di
 		item_type = tvb_get_guint8(tvb, offset);
 		item_type_text = val_to_str(item_type, tapa_discover_request_vals, "%d");
 		item_length = tvb_get_ntohs(tvb, offset + 2);
-		item_text = tvb_format_text(tvb, offset + 4, item_length);
+		item_text = tvb_format_text(pinfo->pool, tvb, offset + 4, item_length);
 
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s: %s",
 				item_type_text, item_text);
@@ -250,7 +250,7 @@ dissect_tapa_discover_unknown_new_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_t
 
 		is_ascii = check_ascii(tvb, offset + 4, item_length);
 		if (is_ascii)
-			item_text = tvb_format_text(tvb, offset + 4, item_length);
+			item_text = tvb_format_text(pinfo->pool, tvb, offset + 4, item_length);
 		else
 			item_text = "BINARY-DATA";
 

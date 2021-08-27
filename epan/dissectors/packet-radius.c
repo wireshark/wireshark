@@ -1056,7 +1056,7 @@ radius_string(radius_attr_info_t *a, proto_tree *tree, packet_info *pinfo _U_, t
 
 	case 0: /* not encrypted */
 		proto_tree_add_item(tree, a->hf, tvb, offset, len, ENC_UTF_8|ENC_NA);
-		proto_item_append_text(avp_item, "%s", tvb_format_text(tvb, offset, len));
+		proto_item_append_text(avp_item, "%s", tvb_format_text(pinfo->pool, tvb, offset, len));
 		break;
 
 	case 1: /* encrypted like User-Password as defined in RFC 2865 */

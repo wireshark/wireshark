@@ -773,7 +773,7 @@ dissect_x509if_T_atadv_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
   if(out_tvb) {
     /* it was a string - format it */
-    value = tvb_format_text(out_tvb, 0, tvb_reported_length(out_tvb));
+    value = tvb_format_text(actx->pinfo->pool, out_tvb, 0, tvb_reported_length(out_tvb));
 
     if(last_rdn) {
       (void) g_strlcat(last_rdn, value, MAX_RDN_STR_LEN);

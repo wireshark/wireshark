@@ -3137,7 +3137,7 @@ dissect_rsvp_ifid_tlv(proto_tree *ti, packet_info* pinfo, proto_tree *rsvp_objec
                                   tvb, offset + tlv_off,
                                   tlv_len,
                                   subtree_type, NULL, "ERROR_STRING TLV - %s",
-                                  tvb_format_text(tvb, offset + tlv_off + 4,
+                                  tvb_format_text(pinfo->pool, tvb, offset + tlv_off + 4,
                                                   tlv_len - 4));
             proto_tree_add_uint_format_value(rsvp_ifid_subtree, hf_rsvp_type, tvb, offset + tlv_off, 2,
                                 tlv_type, "516 (ERROR_STRING)");
@@ -4927,7 +4927,7 @@ dissect_rsvp_session_attribute(proto_item *ti, proto_tree *rsvp_object_tree,
                             flags &0x04 ? "SE Style, " : "",
                             flags &0x08 ? "Bandwidth Protection, " : "",
                             flags &0x10 ? "Node Protection, " : "",
-                            name_len ? tvb_format_text(tvb, offset2+4, name_len) : "");
+                            name_len ? tvb_format_text(wmem_packet_scope(), tvb, offset2+4, name_len) : "");
         break;
 
     default:

@@ -2404,7 +2404,7 @@ static void dissect_item_list_identity(packet_info* pinfo, tvbuff_t* tvb, int of
    proto_tree_add_item(item_tree, hf_enip_lir_name, tvb, offset + 33, name_length, ENC_ASCII | ENC_NA);
 
    /* Append product name to info column */
-   col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", tvb_format_text(tvb, offset + 33, name_length));
+   col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", tvb_format_text(pinfo->pool, tvb, offset + 33, name_length));
 
    /* State */
    proto_tree_add_item(item_tree, hf_enip_lir_state, tvb, offset + name_length + 33, 1, ENC_LITTLE_ENDIAN);
@@ -2454,7 +2454,7 @@ static void dissect_item_list_services_response(packet_info* pinfo, tvbuff_t* tv
 
    /* Append service name to info column */
    col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
-      tvb_format_stringzpad(tvb, offset + 4, 16));
+      tvb_format_stringzpad(pinfo->pool, tvb, offset + 4, 16));
 }
 
 static void display_fwd_open_connection_path(cip_conn_info_t* conn_info, proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo)

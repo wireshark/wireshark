@@ -150,7 +150,7 @@ dissect_kismet(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * da
 			 */
 			reqresp_tree = proto_tree_add_subtree(kismet_tree, tvb, offset,
 					next_offset - offset, ett_kismet_reqresp, NULL,
-					tvb_format_text(tvb, offset,
+					tvb_format_text(pinfo->pool, tvb, offset,
 					next_offset - offset - 1));
 			tokenlen = get_token_len(line, line + linelen, &next_token);
 			if (tokenlen != 0) {

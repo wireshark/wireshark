@@ -446,7 +446,7 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     } else {
 
       if (first_line) {
-        col_add_fstr(pinfo->cinfo, COL_INFO, "%s: %s", is_request ? "Request" : "Response", tvb_format_text(tvb, offset, linelen));
+        col_add_fstr(pinfo->cinfo, COL_INFO, "%s: %s", is_request ? "Request" : "Response", tvb_format_text(pinfo->pool, tvb, offset, linelen));
         first_line = FALSE;
       }
 
@@ -635,7 +635,7 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
   // If there is only lines that begin with *, at least show the first one
   if (first_line) {
-    col_add_fstr(pinfo->cinfo, COL_INFO, "%s: %s", is_request ? "Request" : "Response", tvb_format_text(tvb, 0, linelen));
+    col_add_fstr(pinfo->cinfo, COL_INFO, "%s: %s", is_request ? "Request" : "Response", tvb_format_text(pinfo->pool, tvb, 0, linelen));
   }
 
   return tvb_captured_length(tvb);

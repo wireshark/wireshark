@@ -10601,7 +10601,7 @@ format_amqp_0_10_char(tvbuff_t *tvb,
                       guint offset, guint length _U_,
                       const char **value)
 {
-    *value = tvb_format_text(tvb, offset, 1);
+    *value = tvb_format_text(wmem_packet_scope(), tvb, offset, 1);
     return 1;
 }
 

@@ -259,7 +259,7 @@ dissect_syslog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
   }
 
   msg_len = tvb_ensure_captured_length_remaining(tvb, msg_off);
-  msg_str = tvb_format_text(tvb, msg_off, msg_len);
+  msg_str = tvb_format_text(pinfo->pool, tvb, msg_off, msg_len);
   reported_msg_len = tvb_reported_length_remaining(tvb, msg_off);
 
   mtp3_tvb = mtp3_msu_present(tvb, pinfo, fac, lev, msg_str,

@@ -181,7 +181,7 @@ isis_dissect_authentication_clv(proto_tree *tree, packet_info* pinfo, tvbuff_t *
     case 1:
         if ( length > 0 ) {
             proto_tree_add_bytes_format( tree, hf_auth_bytes, tvb, offset, length,
-                NULL, "clear text (1), password (length %d) = %s", length, tvb_format_text(tvb, offset, length));
+                NULL, "clear text (1), password (length %d) = %s", length, tvb_format_text(pinfo->pool, tvb, offset, length));
         } else {
             proto_tree_add_bytes_format( tree, hf_auth_bytes, tvb, offset, length,
                 NULL, "clear text (1), no clear-text password found!!!");

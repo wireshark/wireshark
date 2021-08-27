@@ -738,7 +738,7 @@ dissect_adb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     gchar       *data_str;
 
                     data_item = proto_tree_add_item(main_tree, hf_data, tvb, offset, data_length, ENC_NA);
-                    data_str = tvb_format_text(tvb, offset, data_length);
+                    data_str = tvb_format_text(pinfo->pool, tvb, offset, data_length);
                     proto_item_append_text(data_item, ": %s", data_str);
                     col_append_fstr(pinfo->cinfo, COL_INFO, " Raw: %s", data_str);
                 }

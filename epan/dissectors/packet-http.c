@@ -1384,7 +1384,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 */
 		saw_req_resp_or_header = TRUE;
 		if (is_request_or_reply) {
-			char *text = tvb_format_text(tvb, offset, next_offset - offset);
+			char *text = tvb_format_text(pinfo->pool, tvb, offset, next_offset - offset);
 
 			req_tree = proto_tree_add_subtree(http_tree, tvb,
 				    offset, next_offset - offset, ett_http_request, &hdr_item, text);

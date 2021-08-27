@@ -7098,7 +7098,7 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb, packet_info
 			break;
 		case 0x03: /* STR_I */
 			len = tvb_strsize (tvb, off+1);
-			str = tvb_format_text (tvb, off+1, len-1);
+			str = tvb_format_text (pinfo->pool, tvb, off+1, len-1);
 			proto_tree_add_string_format(tree, hf_wbxml_str_i, tvb, off, 1+len, str,
 					     "  %3d |  Attr | A %3d    | STR_I (Inline string)           |     %s\'%s\'",
 					     recursion_level, *codepage_attr, Indent (recursion_level), str);
@@ -7112,7 +7112,7 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb, packet_info
 			if (len <= tvb_len) {
 				str_len = tvb_strsize (tvb, str_tbl+idx);
 				attr_save_known = 0;
-				attr_save_literal = tvb_format_text (tvb, str_tbl+idx, str_len-1);
+				attr_save_literal = tvb_format_text (pinfo->pool, tvb, str_tbl+idx, str_len-1);
 				proto_tree_add_string_format(tree, hf_wbxml_literal, tvb, off, 1+len, attr_save_literal,
 					         "  %3d |  Attr | A %3d    | LITERAL (Literal Attribute)     |   %s<%s />",
 					         recursion_level, *codepage_attr, Indent (recursion_level), attr_save_literal);
@@ -7127,7 +7127,7 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb, packet_info
 		case 0x42: /* EXT_I_2 */
 			/* Extension tokens */
 			len = tvb_strsize (tvb, off+1);
-			str = tvb_format_text (tvb, off+1, len-1);
+			str = tvb_format_text (pinfo->pool, tvb, off+1, len-1);
 			proto_tree_add_string_format(tree, hf_wbxml_ext_i, tvb, off, 1+len, str,
 					     "  %3d |  Attr | A %3d    | EXT_I_%1x    (Extension Token)    |     %s(%s: \'%s\')",
 					     recursion_level, *codepage_attr, peek & 0x0f, Indent (recursion_level),
@@ -7148,10 +7148,10 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb, packet_info
 					if (map->ext_t[peek & 0x03])
 						s = (map->ext_t[peek & 0x03])(tvb, idx, str_tbl);
 					else
-						s = wmem_strdup_printf(wmem_packet_scope(), "EXT_T_%1x (%s)", peek & 0x03,
+						s = wmem_strdup_printf(pinfo->pool, "EXT_T_%1x (%s)", peek & 0x03,
 								    map_token (map->global, 0, peek));
 				} else {
-					s = wmem_strdup_printf(wmem_packet_scope(), "Extension Token, integer value: (%u", idx);
+					s = wmem_strdup_printf(pinfo->pool, "Extension Token, integer value: (%u", idx);
 				}
 				proto_tree_add_string_format(tree, hf_wbxml_ext_t, tvb, off, 1+len, s,
 						     "  %3d | Tag   | T %3d    | EXT_T_%1x    (Extension Token)    | %s%s)",
@@ -7169,7 +7169,7 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb, packet_info
 			idx = tvb_get_guintvar (tvb, off+1, &len, pinfo, &ei_wbxml_oversized_uintvar);
 			if (len <= tvb_len) {
 				str_len = tvb_strsize (tvb, str_tbl+idx);
-				str = tvb_format_text (tvb, str_tbl+idx, str_len-1);
+				str = tvb_format_text (pinfo->pool, tvb, str_tbl+idx, str_len-1);
 				proto_tree_add_string_format(tree, hf_wbxml_str_t, tvb, off, 1+len, str,
 					         "  %3d |  Attr | A %3d    | STR_T (Tableref string)         |     %s\'%s\'",
 					         recursion_level, *codepage_attr, Indent (recursion_level), str);
@@ -7379,7 +7379,7 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gu
 			break;
 		case 0x03: /* STR_I */
 			len = tvb_strsize (tvb, off+1);
-			str = tvb_format_text (tvb, off+1, len-1);
+			str = tvb_format_text (pinfo->pool, tvb, off+1, len-1);
 			proto_tree_add_string_format(tree, hf_wbxml_str_i, tvb, off, 1+len, str,
 					     "  %3d | Tag   | T %3d    | STR_I (Inline string)           | %s\'%s\'",
 					     recursion_level, *codepage_stag, Indent(recursion_level),
@@ -7391,7 +7391,7 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gu
 		case 0x42: /* EXT_I_2 */
 			/* Extension tokens */
 			len = tvb_strsize (tvb, off+1);
-			str = tvb_format_text (tvb, off+1, len-1);
+			str = tvb_format_text (pinfo->pool, tvb, off+1, len-1);
 			proto_tree_add_string_format(tree, hf_wbxml_ext_i, tvb, off, 1+len, str,
 					     "  %3d | Tag   | T %3d    | EXT_I_%1x    (Extension Token)    | %s(%s: \'%s\')",
 					     recursion_level, *codepage_stag,
@@ -7429,12 +7429,12 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gu
 					if (map->ext_t[peek & 0x03])
 						s = (map->ext_t[peek & 0x03])(tvb, idx, str_tbl);
 					else
-						s = wmem_strdup_printf(wmem_packet_scope(), "EXT_T_%1x (%s)", peek & 0x03,
+						s = wmem_strdup_printf(pinfo->pool, "EXT_T_%1x (%s)", peek & 0x03,
 							        map_token (map->global, 0, peek));
 				}
 				else
 				{
-					s = wmem_strdup_printf(wmem_packet_scope(), "(Extension Token, integer value: %u)", idx);
+					s = wmem_strdup_printf(pinfo->pool, "(Extension Token, integer value: %u)", idx);
 				}
 				proto_tree_add_string_format(tree, hf_wbxml_ext_t, tvb, off, 1+len, s,
 						     "  %3d | Tag   | T %3d    | EXT_T_%1x    (Extension Token)    | %s%s",
@@ -7445,7 +7445,7 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gu
 		case 0x83: /* STR_T */
 			idx = tvb_get_guintvar (tvb, off+1, &len, pinfo, &ei_wbxml_oversized_uintvar);
 			str_len = tvb_strsize (tvb, str_tbl+idx);
-			str = tvb_format_text (tvb, str_tbl+idx, str_len-1);
+			str = tvb_format_text (pinfo->pool, tvb, str_tbl+idx, str_len-1);
 			proto_tree_add_string_format(tree, hf_wbxml_str_t, tvb, off, 1+len, str,
 					     "  %3d | Tag   | T %3d    | STR_T (Tableref string)         | %s\'%s\'",
 					     recursion_level, *codepage_stag, Indent (recursion_level), str);
@@ -7783,15 +7783,15 @@ dissect_wbxml_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	/* Compose the summary line */
 	if ( publicid ) {
-		summary = wmem_strdup_printf(wmem_packet_scope(), "%s, Public ID: \"%s\"",
+		summary = wmem_strdup_printf(pinfo->pool, "%s, Public ID: \"%s\"",
 					  val_to_str_ext (version, &vals_wbxml_versions_ext, "(unknown 0x%x)"),
 					  val_to_str_ext (publicid, &vals_wbxml_public_ids_ext, "(unknown 0x%x)"));
 	} else {
 		/* Read length of Public ID from string table */
 		len = tvb_strsize (tvb, str_tbl + publicid_index);
-		summary = wmem_strdup_printf(wmem_packet_scope(), "%s, Public ID: \"%s\"",
+		summary = wmem_strdup_printf(pinfo->pool, "%s, Public ID: \"%s\"",
 					  val_to_str_ext (version, &vals_wbxml_versions_ext, "(unknown 0x%x)"),
-					  tvb_format_text (tvb, str_tbl + publicid_index, len - 1));
+					  tvb_format_text (pinfo->pool, tvb, str_tbl + publicid_index, len - 1));
 	}
 
 	/* Add summary to INFO column if it is enabled */

@@ -538,7 +538,7 @@ gdsdb_connect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 	proto_tree_add_item(tree, hf_gdsdb_connect_count, tvb,
 							offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
-	col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", tvb_format_text(tvb, offset+4, tvb_get_ntohl(tvb, offset)));
+	col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", tvb_format_text(pinfo->pool, tvb, offset+4, tvb_get_ntohl(tvb, offset)));
 	offset = add_uint_string(tree, hf_gdsdb_connect_userid, tvb, offset);
 
 	for(i=0;i<count;i++){
@@ -630,7 +630,7 @@ gdsdb_attach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 	proto_tree_add_item(tree, hf_gdsdb_attach_database_object_id, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
-	col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", tvb_format_text(tvb, offset+4, tvb_get_ntohl(tvb, offset)));
+	col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", tvb_format_text(pinfo->pool, tvb, offset+4, tvb_get_ntohl(tvb, offset)));
 	offset = add_uint_string(tree, hf_gdsdb_attach_database_path, tvb, offset);
 	offset = add_uint_string(tree, hf_gdsdb_attach_database_param_buf, tvb, offset);
 
@@ -1169,7 +1169,7 @@ gdsdb_prepare(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 	proto_tree_add_item(tree, hf_gdsdb_prepare_dialect, tvb,
 							offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
-	col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", tvb_format_text(tvb, offset+4, tvb_get_ntohl(tvb, offset)));
+	col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", tvb_format_text(pinfo->pool, tvb, offset+4, tvb_get_ntohl(tvb, offset)));
 	offset = add_uint_string(tree, hf_gdsdb_prepare_querystr, tvb, offset);
 
 	proto_tree_add_item(tree, hf_gdsdb_prepare_bufferlength, tvb,

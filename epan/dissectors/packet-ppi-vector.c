@@ -857,7 +857,7 @@ dissect_ppi_vector_v2(tvbuff_t *tvb, packet_info *pinfo, int offset, gint length
             if (ppi_vector_tree)
             {
                 /* proto_tree_add_item(ppi_vector_tree, hf_ppi_vector_descstr, tvb, offset, 32, ENC_ASCII|ENC_NA); */
-                curr_str = tvb_format_stringzpad(tvb, offset, 32); /* need to append_text this */
+                curr_str = tvb_format_stringzpad(pinfo->pool, tvb, offset, 32); /* need to append_text this */
                 proto_tree_add_string(ppi_vector_tree, hf_ppi_vector_descstr, tvb, offset, 32, curr_str);
                 proto_item_append_text(vector_line, " (%s)", curr_str);
             }

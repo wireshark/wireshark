@@ -1599,7 +1599,7 @@ static void
 sip_proto_set_format_text(const proto_tree *tree, proto_item *item, tvbuff_t *tvb, int offset, int length)
 {
     if (tree != item && item && PTREE_DATA(item)->visible)
-        proto_item_set_text(item, "%s", tvb_format_text(tvb, offset, length));
+        proto_item_set_text(item, "%s", tvb_format_text(wmem_packet_scope(), tvb, offset, length));
 }
 /*
  * XXXX If/when more parameters are added consider doing something similar to what's done in
@@ -3522,22 +3522,22 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
         descr = is_known_request ? "Request" : "Unknown request";
         col_add_lstr(pinfo->cinfo, COL_INFO,
                      descr, ": ",
-                     tvb_format_text(tvb, offset, linelen - SIP2_HDR_LEN - 1),
+                     tvb_format_text(pinfo->pool, tvb, offset, linelen - SIP2_HDR_LEN - 1),
                      COL_ADD_LSTR_TERMINATOR);
         DPRINT(("got %s: %s", descr,
-                tvb_format_text(tvb, offset, linelen - SIP2_HDR_LEN - 1)));
+                tvb_format_text(pinfo->pool, tvb, offset, linelen - SIP2_HDR_LEN - 1)));
         break;
 
     case STATUS_LINE:
         descr = "Status";
         col_add_lstr(pinfo->cinfo, COL_INFO,
                      "Status: ",
-                     tvb_format_text(tvb, offset + SIP2_HDR_LEN + 1, linelen - SIP2_HDR_LEN - 1),
+                     tvb_format_text(pinfo->pool, tvb, offset + SIP2_HDR_LEN + 1, linelen - SIP2_HDR_LEN - 1),
                      COL_ADD_LSTR_TERMINATOR);
         stat_info->reason_phrase = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + SIP2_HDR_LEN + 5,
                                                       linelen - (SIP2_HDR_LEN + 5),ENC_UTF_8|ENC_NA);
         DPRINT(("got Response: %s",
-                tvb_format_text(tvb, offset + SIP2_HDR_LEN + 1, linelen - SIP2_HDR_LEN - 1)));
+                tvb_format_text(pinfo->pool, tvb, offset + SIP2_HDR_LEN + 1, linelen - SIP2_HDR_LEN - 1)));
         break;
 
     case OTHER_LINE:
@@ -3576,7 +3576,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
         if (sip_tree) {
             reqresp_tree = proto_tree_add_subtree_format(sip_tree, tvb, offset, next_offset,
                                      ett_sip_reqresp, NULL, "%s line: %s", descr,
-                                     tvb_format_text(tvb, offset, linelen));
+                                     tvb_format_text(pinfo->pool, tvb, offset, linelen));
             /* XXX: Is adding to 'reqresp_tree as intended ? Changed from original 'sip_tree' */
             proto_tree_add_item(reqresp_tree, hf_sip_continuation, tvb, offset, -1, ENC_NA);
         }
@@ -3678,7 +3678,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                     proto_item *ti_c;
                     proto_tree *ti_tree = proto_tree_add_subtree(hdr_tree, tvb,
                                                          offset, next_offset - offset, ett_sip_ext_hdr, &ti_c,
-                                                         tvb_format_text(tvb, offset, linelen));
+                                                         tvb_format_text(pinfo->pool, tvb, offset, linelen));
 
                     ext_hdr_handle = dissector_get_string_handle(ext_hdr_subdissector_table, header_name);
                     if (ext_hdr_handle != NULL) {
@@ -5200,7 +5200,7 @@ tvb_raw_text_add(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
             if (global_sip_raw_text_without_crlf)
                 str = tvb_format_text_wsp(wmem_packet_scope(), tvb, offset, linelen);
             else
-                str = tvb_format_text(tvb, offset, linelen);
+                str = tvb_format_text(wmem_packet_scope(), tvb, offset, linelen);
             proto_tree_add_string_format(raw_tree, hf_sip_raw_line, tvb, offset, linelen,
                              str,
                              "%s",

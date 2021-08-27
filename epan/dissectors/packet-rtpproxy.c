@@ -352,7 +352,7 @@ rtpproxy_add_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *rtpproxy_t
                     codec_len = (guint)strlen(codecs[i]);
                     ti = proto_tree_add_uint(another_tree, hf_rtpproxy_command_parameter_codec, tvb, begin+offset, codec_len,
                             (guint16) g_ascii_strtoull((gchar*)tvb_get_string_enc(pinfo->pool, tvb, begin+offset, codec_len, ENC_ASCII), NULL, 10));
-                    proto_item_append_text(ti, " (%s)", val_to_str_ext((guint)strtoul(tvb_format_text(tvb,begin+offset,codec_len),NULL,10), &rtp_payload_type_vals_ext, "Unknown"));
+                    proto_item_append_text(ti, " (%s)", val_to_str_ext((guint)strtoul(tvb_format_text(pinfo->pool, tvb,begin+offset,codec_len),NULL,10), &rtp_payload_type_vals_ext, "Unknown"));
                     offset += codec_len;
                     if(codecs[i+1])
                         offset++; /* skip comma */
@@ -396,7 +396,7 @@ rtpproxy_add_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *rtpproxy_t
                 proto_tree_add_uint(another_tree, hf_rtpproxy_command_parameter_dtmf, tvb, begin+offset, new_offset,
                         (guint16) g_ascii_strtoull((gchar*)tvb_get_string_enc(pinfo->pool, tvb, begin+offset, new_offset, ENC_ASCII), NULL, 10));
                 if(rtpproxy_establish_conversation){
-                    pt = (guint)strtoul(tvb_format_text(tvb,begin+offset,new_offset),NULL,10);
+                    pt = (guint)strtoul(tvb_format_text(pinfo->pool, tvb,begin+offset,new_offset),NULL,10);
                     dissector_add_uint("rtp.pt", pt, rtp_events_handle);
                 }
                 offset += new_offset;
@@ -416,7 +416,7 @@ rtpproxy_add_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *rtpproxy_t
                 another_tree = proto_item_add_subtree(ti, ett_rtpproxy_command_parameters_transcode);
                 ti = proto_tree_add_uint(another_tree, hf_rtpproxy_command_parameter_transcode, tvb, begin+offset, new_offset,
                         (guint16) g_ascii_strtoull((gchar*)tvb_get_string_enc(pinfo->pool, tvb, begin+offset, new_offset, ENC_ASCII), NULL, 10));
-                proto_item_append_text(ti, " (%s)", val_to_str_ext((guint)strtoul(tvb_format_text(tvb,begin+offset, new_offset),NULL,10), &rtp_payload_type_vals_ext, "Unknown"));
+                proto_item_append_text(ti, " (%s)", val_to_str_ext((guint)strtoul(tvb_format_text(pinfo->pool, tvb,begin+offset, new_offset),NULL,10), &rtp_payload_type_vals_ext, "Unknown"));
                 offset += new_offset;
                 break;
             case 'u':
@@ -593,7 +593,7 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     }
 
     /* Get payload string */
-    rawstr = tvb_format_text(tvb, offset, realsize - offset);
+    rawstr = tvb_format_text(pinfo->pool, tvb, offset, realsize - offset);
 
     /* Extract command */
     tmp = g_ascii_tolower(tvb_get_guint8(tvb, offset));

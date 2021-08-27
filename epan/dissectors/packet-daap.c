@@ -415,7 +415,7 @@ dissect_daap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     */
    col_set_str(pinfo->cinfo, COL_INFO, "DAAP Response");
    col_append_fstr(pinfo->cinfo, COL_INFO, " [first tag: %s, size: %d]",
-                   tvb_format_text(tvb, 0, 4),
+                   tvb_format_text(pinfo->pool, tvb, 0, 4),
                    tvb_get_ntohl(tvb, 4));
 
    ti = proto_tree_add_item(tree, proto_daap, tvb, 0, -1, ENC_NA);

@@ -2358,7 +2358,7 @@ dissect_fastmsg_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
             /* find the null separators and add the bit label text strings to the tree */
             for (null_offset = offset; null_offset < len; null_offset++) {
                 if ((tvb_memeql(tvb, null_offset, "\x00", 1) == 0) && (tvb_reported_length_remaining(tvb, offset) > 2)) {
-                    gchar* str = tvb_format_text(tvb, offset, (null_offset-offset));
+                    gchar* str = tvb_format_text(pinfo->pool, tvb, offset, (null_offset-offset));
                     proto_tree_add_string_format(fastmsg_tree, hf_selfm_fastmsg_bit_label_name, tvb, offset, (null_offset-offset), str,
                             "Bit Label #%d Name: %s", cnt, str);
                     offset = null_offset+1; /* skip the null */

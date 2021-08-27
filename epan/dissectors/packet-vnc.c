@@ -1150,7 +1150,7 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 
 		col_add_fstr(pinfo->cinfo, COL_INFO,
 				     "Server protocol version: %s",
-				     tvb_format_text(tvb, 4, 7));
+				     tvb_format_text(pinfo->pool, tvb, 4, 7));
 
 		per_conversation_info->vnc_next_state = VNC_SESSION_STATE_CLIENT_VERSION;
 		break;
@@ -1166,7 +1166,7 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 
 		col_add_fstr(pinfo->cinfo, COL_INFO,
 				     "Client protocol version: %s",
-				     tvb_format_text(tvb, 4, 7));
+				     tvb_format_text(pinfo->pool, tvb, 4, 7));
 
 		per_conversation_info->vnc_next_state = VNC_SESSION_STATE_SECURITY;
 		break;
