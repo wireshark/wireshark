@@ -438,7 +438,7 @@ macOS Arm Package:
     - arch -arch arm64 ninja dmg_package
     - cd run
     - notarize-build
-    - stat --format="%N %z bytes" Wireshark*Arm*.dmg
+    - stat -f "%N %z bytes" Wireshark*Arm*.dmg
     - for digest in sha256 rmd160 sha1 ; do openssl $digest Wireshark*Arm*.dmg ; done
     - |
       if [ -n "$AWS_ACCESS_KEY_ID" ] && [ -n "$AWS_SECRET_ACCESS_KEY" ] && [ -n "$S3_DESTINATION_MACOS_ARM64" ] ; then
