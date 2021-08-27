@@ -70,7 +70,7 @@ static int hf_usb_hid_globalitem_pop = -1;
 
 static int hf_usb_hid_localitem_usage = -1;
 static int hf_usb_hid_localitem_usage_min = -1;
-/* static int hf_usb_hid_localitem_usage_max = -1; */
+static int hf_usb_hid_localitem_usage_max = -1;
 static int hf_usb_hid_localitem_desig_index = -1;
 static int hf_usb_hid_localitem_desig_min = -1;
 static int hf_usb_hid_localitem_desig_max = -1;
@@ -3913,7 +3913,7 @@ dissect_usb_hid_report_localitem_data(packet_info *pinfo _U_, proto_tree *tree, 
             proto_item_append_text(ti, " (0x%02x)", val);
             break;
         case USBHID_LOCALITEM_TAG_USAGE_MAX:
-            proto_tree_add_item_ret_uint(tree, hf_usb_hid_localitem_usage, tvb, offset, bSize, ENC_LITTLE_ENDIAN, &val);
+            proto_tree_add_item_ret_uint(tree, hf_usb_hid_localitem_usage_max, tvb, offset, bSize, ENC_LITTLE_ENDIAN, &val);
             proto_item_append_text(ti, " (0x%02x)", val);
             break;
         case USBHID_LOCALITEM_TAG_DESIG_INDEX:
@@ -5216,11 +5216,9 @@ proto_register_usb_hid(void)
             { "Usage minimum", "usbhid.item.local.usage_min", FT_UINT8, BASE_HEX,
                 NULL, 0, NULL, HFILL }},
 
-#if 0
         { &hf_usb_hid_localitem_usage_max,
             { "Usage maximum", "usbhid.item.local.usage_max", FT_UINT8, BASE_HEX,
                 NULL, 0, NULL, HFILL }},
-#endif
 
         { &hf_usb_hid_localitem_desig_index,
             { "Designator index", "usbhid.item.local.desig_index", FT_UINT8, BASE_HEX,
