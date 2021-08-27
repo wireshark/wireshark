@@ -156,8 +156,10 @@ void pcapng_process_uint8_option(wtapng_block_t *wblock,
 
 WS_DLL_PUBLIC
 void pcapng_process_uint32_option(wtapng_block_t *wblock,
+                                  const section_info_t *section_info,
+                                  pcapng_opt_byte_order_e byte_order,
                                   guint16 option_code, guint16 option_length,
-                                  guint32 option_content);
+                                  const guint8 *option_content);
 
 WS_DLL_PUBLIC
 void pcapng_process_timestamp_option(wtapng_block_t *wblock,

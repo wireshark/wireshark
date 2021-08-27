@@ -519,16 +519,58 @@ pcapng_process_uint8_option(wtapng_block_t *wblock,
 
 void
 pcapng_process_uint32_option(wtapng_block_t *wblock,
-                            guint16 option_code, guint16 option_length,
-                            guint32 option_content)
+                             const section_info_t *section_info,
+                             pcapng_opt_byte_order_e byte_order,
+                             guint16 option_code, guint16 option_length,
+                             const guint8 *option_content)
 {
+    guint32 uint32;
+
     if (option_length == 4) {
+        /*  Don't cast a guint8 * into a guint32 *--the
+         *  guint8 * may not point to something that's
+         *  aligned correctly.
+         *
+         * XXX - options are aligned on 32-bit boundaries, so, while
+         * it may be true that 64-bit options aren't guaranteed to be
+         * aligned on 64-bit bounaries, it shouldn't be true that 32-bit
+         * options aren't guaranteed to be aligned on 32-bit boundaries.
+         */
+        memcpy(&uint32, option_content, sizeof(guint32));
+        switch (byte_order) {
+
+        case OPT_SECTION_BYTE_ORDER:
+            if (section_info->byte_swapped) {
+                uint32 = GUINT32_SWAP_LE_BE(uint32);
+            }
+            break;
+
+        case OPT_BIG_ENDIAN:
+            uint32 = GUINT32_FROM_BE(uint32);
+            break;
+
+        case OPT_LITTLE_ENDIAN:
+            uint32 = GUINT32_FROM_LE(uint32);
+            break;
+
+        default:
+            /*
+             * This should not happen - this is called by pcapng_process_options(),
+             * which returns an error for an invalid byte_order argument, and
+             * otherwise passes the known-to-be-valid byte_order argument to
+             * us.
+             *
+             * Just ignore the option.
+             */
+            return;
+        }
+
         /*
          * If this option can appear only once in a block, this call
          * will fail on the second and later occurrences of the option;
          * we silently ignore the failure.
          */
-        wtap_block_add_uint32_option(wblock->block, option_code, option_content);
+        wtap_block_add_uint32_option(wblock->block, option_code, uint32);
     }
 }
 
@@ -1597,7 +1639,6 @@ pcapng_process_packet_block_option(wtapng_block_t *wblock,
                                    const guint8 *option_content,
                                    int *err, gchar **err_info)
 {
-    guint32 tmp32;
     guint64 tmp64;
 
     /*
@@ -1626,15 +1667,10 @@ pcapng_process_packet_block_option(wtapng_block_t *wblock,
                 /* XXX - free anything? */
                 return FALSE;
             }
-            /*  Don't cast a guint8 * into a guint32 *--the
-             *  guint8 * may not point to something that's
-             *  aligned correctly.
-             */
-            memcpy(&tmp32, option_content, sizeof(guint32));
-            if (section_info->byte_swapped)
-                tmp32 = GUINT32_SWAP_LE_BE(tmp32);
-            pcapng_process_uint32_option(wblock, option_code, option_length, tmp32);
-            ws_debug("pack_flags 0x%08x", tmp32);
+            pcapng_process_uint32_option(wblock, section_info,
+                                         OPT_SECTION_BYTE_ORDER,
+                                         option_code, option_length,
+                                         option_content);
             break;
         case(OPT_EPB_HASH):
             ws_debug("epb_hash %u currently not handled - ignoring %u bytes",
@@ -1674,15 +1710,10 @@ pcapng_process_packet_block_option(wtapng_block_t *wblock,
                 /* XXX - free anything? */
                 return FALSE;
             }
-            /*  Don't cast a guint8 * into a guint32 *--the
-             *  guint8 * may not point to something that's
-             *  aligned correctly.
-             */
-            memcpy(&tmp32, option_content, sizeof(guint32));
-            if (section_info->byte_swapped)
-                tmp32 = GUINT32_SWAP_LE_BE(tmp32);
-            pcapng_process_uint32_option(wblock, option_code, option_length, tmp32);
-            ws_debug("queue %u", tmp32);
+            pcapng_process_uint32_option(wblock, section_info,
+                                         OPT_SECTION_BYTE_ORDER,
+                                         option_code, option_length,
+                                         option_content);
             break;
         case(OPT_EPB_VERDICT):
             if (option_length < 1) {
