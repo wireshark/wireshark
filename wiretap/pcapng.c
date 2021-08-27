@@ -633,8 +633,7 @@ pcapng_process_uint64_option(wtapng_block_t *wblock,
              */
             return;
         }
-        if (section_info->byte_swapped)
-            uint64 = GUINT64_SWAP_LE_BE(uint64);
+
         /*
          * If this option can appear only once in a block, this call
          * will fail on the second and later occurrences of the option;
