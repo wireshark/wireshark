@@ -39,8 +39,8 @@ ResolveWin32UUID(e_guid_t if_id, char *uuid_name, int uuid_name_max_len)
 	DWORD uuid_max_size = MAX_PATH;
 	TCHAR *reg_uuid_str;
 
-	reg_uuid_name=wmem_alloc(wmem_packet_scope(), (MAX_PATH*sizeof(TCHAR))+1);
-	reg_uuid_str=wmem_alloc(wmem_packet_scope(), (MAX_PATH*sizeof(TCHAR))+1);
+	reg_uuid_name=wmem_alloc(NULL, (MAX_PATH*sizeof(TCHAR))+1);
+	reg_uuid_str=wmem_alloc(NULL, (MAX_PATH*sizeof(TCHAR))+1);
 
 	if(uuid_name_max_len < 2){
 		return 0;
@@ -56,10 +56,14 @@ ResolveWin32UUID(e_guid_t if_id, char *uuid_name, int uuid_name_max_len)
 		if (RegQueryValueEx(hKey, NULL, NULL, NULL, (LPBYTE)reg_uuid_name, &uuid_max_size) == ERROR_SUCCESS && uuid_max_size <= MAX_PATH) {
 			g_snprintf(uuid_name, uuid_name_max_len, "%s", utf_16to8(reg_uuid_name));
 			RegCloseKey(hKey);
+			wmem_free(NULL, reg_uuid_name);
+			wmem_free(NULL, reg_uuid_str);
 			return (int) strlen(uuid_name);
 		}
 		RegCloseKey(hKey);
 	}
+	wmem_free(NULL, reg_uuid_name);
+	wmem_free(NULL, reg_uuid_str);
 	return 0; /* we didn't find anything anyhow. Please don't use the string! */
 
 }

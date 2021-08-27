@@ -1172,7 +1172,7 @@ get_etsi_ts_102_221_annex_a_string(wmem_allocator_t *scope, const guint8 *ptr,
      */
     if (length == 0) {
         /* XXX - return error indication */
-        strbuf = wmem_strbuf_new(wmem_packet_scope(), "");
+        strbuf = wmem_strbuf_new(scope, "");
         return (guint8 *)wmem_strbuf_finalize(strbuf);
     }
     string_type = *ptr;
@@ -1214,14 +1214,14 @@ get_etsi_ts_102_221_annex_a_string(wmem_allocator_t *scope, const guint8 *ptr,
      */
     if (length == 0) {
         /* XXX - return error indication */
-        strbuf = wmem_strbuf_new(wmem_packet_scope(), "");
+        strbuf = wmem_strbuf_new(scope, "");
         return (guint8 *)wmem_strbuf_finalize(strbuf);
     }
     string_len = *ptr;
     ptr++;
     length--;
 
-    strbuf = wmem_strbuf_sized_new(wmem_packet_scope(), 2*string_len+1, 0);
+    strbuf = wmem_strbuf_sized_new(scope, 2*string_len+1, 0);
 
     /*
      * Get the UCS-2 base.
