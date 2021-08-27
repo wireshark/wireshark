@@ -979,7 +979,6 @@ smbstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
 #define SMB_EO_CONTAINS_READS           0x01
 #define SMB_EO_CONTAINS_WRITES          0x02
 #define SMB_EO_CONTAINS_READSANDWRITES  0x03
-#define LEGAL_FILENAME_CHARS "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890_.- /\\{}[]=()&%$!,;.+&%$~#@"
 
 static const value_string smb_eo_contains_string[] = {
 	{SMB_EO_CONTAINS_NOTHING,            ""   },
@@ -1297,8 +1296,8 @@ smb_eo_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 		new_file->is_out_of_memory = FALSE;
 		entry->pkt_num = pinfo->num;
 
-		entry->hostname=g_filename_display_name(g_strcanon(eo_info->hostname,LEGAL_FILENAME_CHARS,'?'));
-		entry->filename=g_filename_display_name(g_strcanon(eo_info->filename,LEGAL_FILENAME_CHARS,'?'));
+		entry->hostname=g_filename_display_name(eo_info->hostname);
+		entry->filename=g_filename_display_name(eo_info->filename);
 
 		/* Insert the first chunk in the chunk list of this file */
 		if (is_supported_filetype) {
