@@ -110,7 +110,6 @@ static gboolean find_packet(capture_file *cf, ws_match_function match_function,
     void *criterion, search_direction dir);
 
 static void cf_rename_failure_alert_box(const char *filename, int err);
-static void ref_time_packets(capture_file *cf);
 
 /* Seconds spent processing packets between pushing UI updates. */
 #define PROGBAR_UPDATE_INTERVAL 0.150
@@ -1554,12 +1553,6 @@ cf_filter_packets(capture_file *cf, gchar *dftext, gboolean force)
 }
 
 void
-cf_reftime_packets(capture_file *cf)
-{
-  ref_time_packets(cf);
-}
-
-void
 cf_redissect_packets(capture_file *cf)
 {
   if (cf->read_lock || cf->redissection_queued == RESCAN_SCAN) {
@@ -2022,8 +2015,8 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
  * without rereading the file.
  * XXX - do we need a progres bar or is this fast enough?
  */
-static void
-ref_time_packets(capture_file *cf)
+void
+cf_reftime_packets(capture_file* cf)
 {
   guint32     framenum;
   frame_data *fdata;

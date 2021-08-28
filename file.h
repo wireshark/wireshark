@@ -395,7 +395,8 @@ void cf_set_rfcode(capture_file *cf, dfilter_t *rfcode);
 cf_status_t cf_filter_packets(capture_file *cf, gchar *dfilter, gboolean force);
 
 /**
- * At least one "Refence Time" flag has changed, rescan all packets.
+ * Scan through all frame data and recalculate the ref time
+ * without rereading the file.
  *
  * @param cf the capture file
  */
