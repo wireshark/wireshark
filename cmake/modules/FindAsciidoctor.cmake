@@ -195,7 +195,7 @@ if(ASCIIDOCTOR_EXECUTABLE)
     if(ASCIIDOCTOR_EPUB_EXECUTABLE)
 
         set(_asciidoctor_epub_common_command
-            ${CMAKE_COMMAND} -E env TZ=UTC ASCIIDOCTORJ_OPTS="${_asciidoctorj_opts}"
+            ${CMAKE_COMMAND} -E env TZ=UTC "ASCIIDOCTORJ_OPTS=${_asciidoctorj_opts}"
             ${ASCIIDOCTOR_EPUB_EXECUTABLE}
             --backend epub3
             ${_asciidoctor_common_args}
