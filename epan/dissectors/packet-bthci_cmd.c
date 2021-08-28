@@ -288,6 +288,7 @@ static int hf_bthci_cmd_amp_remaining_assoc_length = -1;
 static int hf_bthci_cmd_amp_assoc_fragment = -1;
 static int hf_bthci_cmd_le_event_mask = -1;
 static int hf_bthci_cmd_le_event_mask_le_reserved = -1;
+static int hf_bthci_cmd_le_event_mask_le_subrate_changed = -1;
 static int hf_bthci_cmd_le_event_mask_le_biginfo_advertising_report = -1;
 static int hf_bthci_cmd_le_event_mask_le_transmit_power_reporting = -1;
 static int hf_bthci_cmd_le_event_mask_le_path_loss_threshold = -1;
@@ -518,6 +519,13 @@ static int hf_bthci_cmd_low_hysteresis = -1;
 static int hf_bthci_cmd_min_time_spent = -1;
 static int hf_bthci_cmd_local_reporting_enable = -1;
 static int hf_bthci_cmd_remote_reporting_enable = -1;
+static int hf_bthci_cmd_addr_change_reasons = -1;
+static int hf_bthci_cmd_addr_change_reasons_adv_data = -1;
+static int hf_bthci_cmd_addr_change_reasons_scan_rsp_data = -1;
+static int hf_bthci_cmd_addr_change_reasons_reserved = -1;
+static int hf_bthci_cmd_subrate_factor_min = -1;
+static int hf_bthci_cmd_subrate_factor_max = -1;
+static int hf_bthci_cmd_continuation_number = -1;
 static int hf_bthci_cmd_triggered_clock_capture = -1;
 static int hf_bthci_cmd_lpo_allowed = -1;
 static int hf_bthci_cmd_number_of_clock_captures_to_filter = -1;
@@ -616,6 +624,7 @@ static int hf_bthci_cmd_extended_inquiry_length = -1;
 
 static int * const hfx_bthci_cmd_le_event_mask[] = {
     &hf_bthci_cmd_le_event_mask_le_reserved,
+    &hf_bthci_cmd_le_event_mask_le_subrate_changed,
     &hf_bthci_cmd_le_event_mask_le_biginfo_advertising_report,
     &hf_bthci_cmd_le_event_mask_le_transmit_power_reporting,
     &hf_bthci_cmd_le_event_mask_le_path_loss_threshold,
@@ -724,6 +733,13 @@ static int * const hfx_btcmd_cte_types[] = {
     NULL
 };
 
+static int * const hfx_btcmd_addr_change_reasons[] = {
+    &hf_bthci_cmd_addr_change_reasons_reserved,
+    &hf_bthci_cmd_addr_change_reasons_scan_rsp_data,
+    &hf_bthci_cmd_addr_change_reasons_adv_data,
+    NULL
+};
+
 static int * const hfx_bthci_cmd_sco_packet_type[] = {
     &hf_bthci_cmd_sco_packet_type_reserved,
     &hf_bthci_cmd_sco_packet_type_3ev5,
@@ -786,6 +802,7 @@ static gint ett_table_item = -1;
 static gint ett_patterns = -1;
 static gint ett_pattern = -1;
 static gint ett_cis_params = -1;
+static gint ett_addr_change_reasons = -1;
 
 static gint proto_btcommon = -1;
 static gint hf_btcommon_eir_ad_entry = -1;
@@ -1517,7 +1534,11 @@ value_string_ext bthci_cmd_ocf_testing_vals_ext = VALUE_STRING_EXT_INIT(bthci_cm
     { (base) | 0x078,  "LE Set Path Loss Reporting Parameters" }, \
     { (base) | 0x079,  "LE Set Path Loss Reporting Enable" }, \
     { (base) | 0x07A,  "LE Set Transmit Power Reporting Enable" }, \
-    { (base) | 0x07B,  "LE Transmitter Test [v4]" }
+    { (base) | 0x07B,  "LE Transmitter Test [v4]" }, \
+/* Bluetooth Core 5.3 */ \
+    { (base) | 0x07C,  "LE Set Data Related Address Changes" }, \
+    { (base) | 0x07D,  "LE Set Default Subrate" }, \
+    { (base) | 0x07E,  "LE Subrate Request" }
 
 static const value_string bthci_cmd_ocf_low_energy_vals[] = {
     LOW_ENERGY_VALS(0x0),
@@ -2480,6 +2501,7 @@ static const value_string cmd_payload_type_vals[] = {
 
 static const value_string cmd_host_enabled_feature_bit_vals[] = {
     { 32, "Isochronous Channels, Host Support" },
+    { 38, "Connection Subrating, Host Support" },
     { 0, NULL }
 };
 
@@ -5569,6 +5591,34 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
             offset++;
             break;
 
+        case 0x007C: /* LE Set Data Related Changes */
+            proto_tree_add_item(tree, hf_bthci_cmd_advertising_handle, tvb, offset, 1, ENC_NA);
+            offset++;
+            proto_tree_add_bitmask(tree, tvb, offset, hf_bthci_cmd_addr_change_reasons, ett_addr_change_reasons, hfx_btcmd_addr_change_reasons, ENC_NA);
+            offset++;
+            break;
+
+        case 0x007E: /* LE Subrate Request */
+            proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset+=2;
+            /* FALLTHROUGH */
+
+        case 0x007D: /* LE Set Default Subrate */
+            proto_tree_add_item(tree, hf_bthci_cmd_subrate_factor_min, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset+=2;
+            proto_tree_add_item(tree, hf_bthci_cmd_subrate_factor_max, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset+=2;
+            item = proto_tree_add_item(tree, hf_bthci_cmd_le_con_latency, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_item_append_text(item, " (subrated events)");
+            offset+=2;
+            item = proto_tree_add_item(tree, hf_bthci_cmd_continuation_number, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_item_append_text(item, " (underlying events)");
+            offset+=2;
+            item = proto_tree_add_item(tree, hf_bthci_cmd_le_supervision_timeout, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_item_append_text(item, " (%g sec)",  tvb_get_letohs(tvb, offset)*0.01);
+            offset+=2;
+            break;
+
         case 0x0002: /* LE Read Buffer Size [v1] */
         case 0x0003: /* LE Read Local Supported Features */
         case 0x0007: /* LE Read Advertising Channel Tx Power */
@@ -7283,9 +7333,14 @@ proto_register_bthci_cmd(void)
             FT_BOOLEAN, 64, NULL, G_GUINT64_CONSTANT(0x200000000),
             NULL, HFILL }
         },
+        { &hf_bthci_cmd_le_event_mask_le_subrate_changed,
+          { "LE Subrate Changed", "bthci_cmd.le_event_mask.le_subrate_changed",
+            FT_BOOLEAN, 64, NULL, G_GUINT64_CONSTANT(0x400000000),
+            NULL, HFILL }
+        },
         { &hf_bthci_cmd_le_event_mask_le_reserved,
           { "Reserved",                                    "bthci_cmd.le_event_mask.reserved",
-            FT_UINT64, BASE_HEX, NULL, G_GUINT64_CONSTANT(0xFFFFFFFC00000000),
+            FT_UINT64, BASE_HEX, NULL, G_GUINT64_CONSTANT(0xFFFFFFF800000000),
             NULL, HFILL }
         },
         { &hf_bthci_cmd_le_advts_interval_min,
@@ -7404,7 +7459,7 @@ proto_register_bthci_cmd(void)
             NULL, HFILL }
         },
         { &hf_bthci_cmd_le_con_latency,
-          { "Connection Latency", "bthci_cmd.le_con_latency",
+          { "Max Connection Latency", "bthci_cmd.le_con_latency",
             FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
@@ -8268,6 +8323,41 @@ proto_register_bthci_cmd(void)
             FT_UINT8, BASE_HEX, VALS(disable_enable_vals), 0x0,
             NULL, HFILL }
         },
+        { &hf_bthci_cmd_addr_change_reasons,
+          { "Address Change Reasons", "bthci_cmd.addr_change_reasons",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_addr_change_reasons_adv_data,
+          { "Advertising Data Changed", "bthci_cmd.addr_change_reasons.adv_data",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_addr_change_reasons_scan_rsp_data,
+          { "Scan Response Data Changed", "bthci_cmd.addr_change_reasons.scan_rsp_data",
+            FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_addr_change_reasons_reserved,
+          { "Reserved", "bthci_cmd.addr_change_reasons.reserved",
+            FT_UINT8, BASE_HEX, NULL, 0xFC,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_subrate_factor_min,
+          { "Minimum Subrate Factor", "bthci_cmd.subrate_min",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_subrate_factor_max,
+          { "Maximum Subrate Factor", "bthci_cmd.subrate_max",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_continuation_number,
+          { "Continuation Number", "bthci_cmd.continuation_number",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
         { &hf_bthci_cmd_triggered_clock_capture,
           { "Triggered Clock Capture", "bthci_cmd.triggered_clock_capture",
             FT_UINT8, BASE_HEX, VALS(disable_enable_vals), 0x0,
@@ -8771,7 +8861,8 @@ proto_register_bthci_cmd(void)
         &ett_table_item,
         &ett_patterns,
         &ett_pattern,
-        &ett_cis_params
+        &ett_cis_params,
+        &ett_addr_change_reasons
     };
 
     proto_bthci_cmd = proto_register_protocol("Bluetooth HCI Command", "HCI_CMD", "bthci_cmd");
