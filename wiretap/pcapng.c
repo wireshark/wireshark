@@ -2441,6 +2441,7 @@ pcapng_read_sysdig_event_block(FILE_T fh, pcapng_block_header_t *bh,
         wblock->rec->rec_header.syscall_header.thread_id = GUINT64_SWAP_LE_BE(thread_id);
         wblock->rec->rec_header.syscall_header.event_len = GUINT32_SWAP_LE_BE(event_len);
         wblock->rec->rec_header.syscall_header.event_type = GUINT16_SWAP_LE_BE(event_type);
+        wblock->rec->rec_header.syscall_header.nparams = GUINT32_SWAP_LE_BE(nparams);
     } else {
         wblock->rec->rec_header.syscall_header.cpu_id = cpu_id;
         ts = wire_ts;
