@@ -17,10 +17,12 @@
 #include <epan/exported_pdu.h>
 #include <epan/address_types.h>
 #include <epan/tap.h>
+#include <wiretap/wtap.h>
 
 #include <wsutil/pint.h>
 
 static GSList *export_pdu_tap_name_list = NULL;
+static wmem_map_t *export_pdu_encap_table = NULL;
 
 static int exp_pdu_data_ip_size(const address* addr)
 {
@@ -270,8 +272,24 @@ export_pdu_create_tags(packet_info *pinfo, const char* proto_name, guint16 tag_t
 }
 
 gint
+register_export_pdu_tap_with_encap(const char *name, gint encap)
+{
+	gchar *tap_name = g_strdup(name);
+	export_pdu_tap_name_list = g_slist_prepend(export_pdu_tap_name_list, tap_name);
+	wmem_map_insert(export_pdu_encap_table, tap_name, GINT_TO_POINTER(encap));
+	return register_tap(tap_name);
+}
+
+gint
 register_export_pdu_tap(const char *name)
 {
+#if 0
+	/* XXX: We could register it like this, but don't have to, since
+	 * export_pdu_tap_get_encap() returns WTAP_ENCAP_WIRESHARK_UPPER_PDU
+	 * if it's not in the encap hash table anyway.
+	 */
+	return register_export_pdu_tap_with_encap(name, WTAP_ENCAP_WIRESHARK_UPPER_PDU);
+#endif
 	gchar *tap_name = g_strdup(name);
 	export_pdu_tap_name_list = g_slist_prepend(export_pdu_tap_name_list, tap_name);
 	return register_tap(tap_name);
@@ -290,8 +308,20 @@ get_export_pdu_tap_list(void)
 	return export_pdu_tap_name_list;
 }
 
+gint
+export_pdu_tap_get_encap(const char* name)
+{
+	gpointer value;
+	if (wmem_map_lookup_extended(export_pdu_encap_table, name, NULL, &value)) {
+		return GPOINTER_TO_INT(value);
+	}
+
+	return WTAP_ENCAP_WIRESHARK_UPPER_PDU;
+}
+
 void export_pdu_init(void)
 {
+	export_pdu_encap_table = wmem_map_new(wmem_epan_scope(), wmem_str_hash, g_str_equal);
 }
 
 void export_pdu_cleanup(void)

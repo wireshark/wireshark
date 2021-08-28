@@ -36,6 +36,7 @@
 #include <epan/ax25_pids.h>
 #include <epan/decode_as.h>
 #include <epan/proto_data.h>
+#include <epan/exported_pdu.h>
 
 #include <wiretap/erf_record.h>
 #include <wsutil/str_util.h>
@@ -53,6 +54,8 @@ void proto_register_ip(void);
 void proto_reg_handoff_ip(void);
 
 static int ip_tap = -1;
+
+static int exported_pdu_tap = -1;
 
 /* Decode the old IPv4 TOS field as the DiffServ DS Field (RFC2474/2475) */
 static gboolean g_ip_dscp_actif = TRUE;
@@ -1828,6 +1831,19 @@ ip_try_dissect(gboolean heur_first, guint nxt, tvbuff_t *tvb, packet_info *pinfo
   return FALSE;
 }
 
+static void
+export_pdu(tvbuff_t *tvb, packet_info *pinfo)
+{
+  if (have_tap_listener(exported_pdu_tap)) {
+    exp_pdu_data_t *exp_pdu_data = wmem_new0(pinfo->pool, exp_pdu_data_t);
+
+    exp_pdu_data->tvb_captured_length = tvb_captured_length(tvb);
+    exp_pdu_data->tvb_reported_length = tvb_reported_length(tvb);
+    exp_pdu_data->pdu_tvb = tvb;
+    tap_queue_packet(exported_pdu_tap, pinfo, exp_pdu_data);
+  }
+}
+
 static int
 dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)
 {
@@ -1988,6 +2004,9 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
       set_actual_length(tvb, iph->ip_len);
     }
   }
+
+  /* Only export after adjusting the length */
+  export_pdu(tvb, pinfo);
 
   iph->ip_id  = tvb_get_ntohs(tvb, offset + 4);
   if (tree)
@@ -2987,6 +3006,9 @@ proto_register_ip(void)
   reassembly_table_register(&ip_reassembly_table,
                         &addresses_reassembly_table_functions);
   ip_tap = register_tap("ip");
+
+  /* This needs a different (& more user-friendly) name than the other tap */
+  exported_pdu_tap = register_export_pdu_tap_with_encap("IP", WTAP_ENCAP_RAW_IP);
 
   register_decode_as(&ip_da);
   register_conversation_table(proto_ip, TRUE, ip_conversation_packet, ip_hostlist_packet);

@@ -1001,25 +1001,31 @@ image::wsug_graphics/ws-export-pdus-to-file.png[{screenshot-attrs}]
 
 . To select the data according to your needs, type the filter value into the `Display Filter` field. For more information about filters syntax, see the link:https://www.wireshark.org/docs/man-pages/wireshark-filter.html[Wireshark Filters] man page.
 
-. In the field below the `Display Filter` field you can choose the level, from which you want to export the PDUs to the file. There are seven levels:
+. In the field below the `Display Filter` field you can choose the level from which you want to export the PDUs to the file. There are nine levels:
 +
 .. `DLT User`. You can export a protocol, which is framed in the user data link type table without the need to reconfigure the DLT user table. For more information, see the link:https://gitlab.com/wireshark/wireshark/-/wikis/HowToDissectAnything[How to Dissect Anything] page.
 +
 .. `DVB-CI`. You can use it for the Digital Video Broadcasting (DVB) protocol.
 +
+.. `Ethernet`. You can use it to export Ethernet encapsulated in other protocols.
++
+.. `IP`. You can use it to export IPv4 and IPv6 encapsulated in other protocols.
++
 .. `Logcat` and `Logcat Text`. You can use them for the Android logs.
 +
-.. `OSI layer 3`. You can use it to export encapsulated in IPSec or SCTP protocols.
+.. `OSI layer 3`. You can use it to export PDUs encapsulated in the IPSec or SCTP protocols.
 +
-.. `OSI layer 4`. You can use it to export encapsulated in TCP or UDP protocols.
+.. `OSI layer 4`. You can use it to export PDUs encapsulated in the TCP or UDP protocols.
 +
 .. `OSI layer 7`. You can use it to export the following protocols: CredSSP over TLS, Diameter, protocols encapsulated in TLS and DTLS, H.248, Megaco, RELOAD framing, SIP, SMPP.
 +
-NOTE: You can add any dissector to the existing list, or define a new entry in the list.
+NOTE: As a developer you can add any dissector to the existing list or define a new entry in the list by using the functions in `epan/exported_pdu.h`.
 
-. To finish exporting PDUs to file, click the btn:[OK] button in the bottom-right corner.
+. To finish exporting PDUs to file, click the btn:[OK] button in the bottom-right corner. This will close the originally captured file and open the exported results instead as a temporary file in the main Wireshark window.
 
-. You can open the file from the main Wireshark window by choosing it in the bottom-left corner. That closes the originally captured file and opens the exported results instead.
+. You may save the temporary file just like any captured file. See <<ChIOSaveSection>> for details.
++
+NOTE: The `Ethernet` and `IP` options produce capture files with common encapsulation types that can be read in virtually any other tool, but the other options produce files with a `Wireshark Upper PDU` encapsulation type that has more limited support outside of Wireshark.
 
 [#ChIOExportTLSSessionKeys]
 

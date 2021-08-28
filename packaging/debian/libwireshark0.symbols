@@ -635,6 +635,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  expert_update_comment_count@Base 1.12.0~rc1
  export_pdu_create_common_tags@Base 2.1.1
  export_pdu_create_tags@Base 2.1.1
+ export_pdu_tap_get_encap@Base 3.7.0
  ext_menubar_add_entry@Base 1.99.8
  ext_menubar_add_separator@Base 1.99.8
  ext_menubar_add_submenu@Base 1.99.8
@@ -1402,6 +1403,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  register_dissector_with_data@Base 2.5.0
  register_export_object@Base 2.3.0
  register_export_pdu_tap@Base 1.99.0
+ register_export_pdu_tap_with_encap@Base 3.7.0
  register_follow_stream@Base 2.1.0
  register_final_registration_routine@Base 1.9.1
  register_giop_user@Base 1.9.1

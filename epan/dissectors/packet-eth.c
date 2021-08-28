@@ -20,6 +20,7 @@
 #include <epan/conversation_table.h>
 #include <epan/conversation_filter.h>
 #include <epan/capture_dissectors.h>
+#include <epan/exported_pdu.h>
 #include <wsutil/pint.h>
 #include "packet-eth.h"
 #include "packet-gre.h"
@@ -110,6 +111,8 @@ static dissector_handle_t eth_maybefcs_handle;
 
 
 static int eth_tap = -1;
+
+static gint exported_pdu_tap = -1;
 
 #define ETH_HEADER_SIZE    14
 
@@ -409,6 +412,19 @@ dissect_address_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
   proto_item_set_hidden(addr_item);
 }
 
+static void
+export_pdu(tvbuff_t *tvb, packet_info *pinfo)
+{
+  if (have_tap_listener(exported_pdu_tap)) {
+    exp_pdu_data_t *exp_pdu_data = wmem_new0(pinfo->pool, exp_pdu_data_t);
+
+    exp_pdu_data->tvb_captured_length = tvb_captured_length(tvb);
+    exp_pdu_data->tvb_reported_length = tvb_reported_length(tvb);
+    exp_pdu_data->pdu_tvb = tvb;
+    tap_queue_packet(exported_pdu_tap, pinfo, exp_pdu_data);
+  }
+}
+
 static proto_tree *
 dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
     int fcs_len)
@@ -444,6 +460,7 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
   ehdr->type = tvb_get_ntohs(tvb, 12);
 
   tap_queue_packet(eth_tap, pinfo, ehdr);
+  export_pdu(tvb, pinfo);
 
   /*
    * In case the packet is a non-Ethernet packet inside
@@ -1155,6 +1172,8 @@ proto_reg_handoff_eth(void)
 
   eth_handle = create_dissector_handle(dissect_eth, proto_eth);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_ETHERNET, eth_handle);
+  /* This needs a different (& more user-friendly) name than the other tap */
+  exported_pdu_tap = register_export_pdu_tap_with_encap("Ethernet", WTAP_ENCAP_ETHERNET);
 
   dissector_add_uint("ethertype", ETHERTYPE_ETHBRIDGE, eth_withoutfcs_handle);
 

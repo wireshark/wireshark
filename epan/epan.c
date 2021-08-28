@@ -293,6 +293,7 @@ epan_init(register_cb cb, gpointer client_data, gboolean load_plugins)
 #endif
 
 	TRY {
+		export_pdu_init();
 		tap_init();
 		prefs_init();
 		expert_init();
@@ -310,7 +311,6 @@ epan_init(register_cb cb, gpointer client_data, gboolean load_plugins)
 		final_registration_all_protocols();
 		print_cache_field_handles();
 		expert_packet_init();
-		export_pdu_init();
 #ifdef HAVE_LUA
 		wslua_init(cb, client_data);
 #endif
