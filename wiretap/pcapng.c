@@ -5167,7 +5167,7 @@ put_nrb_option(wtap_block_t block _U_, guint option_id, wtap_opttype_e option_ty
         memcpy(*opt_ptrp, &option_hdr, 4);
         *opt_ptrp += 4;
 
-        memcpy(*opt_ptrp, optval, size);
+        memcpy(*opt_ptrp, optval->stringval, size);
         *opt_ptrp += size;
 
         if ((size % 4)) {
