@@ -1041,6 +1041,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-exablaze.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-exec.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-exported_pdu.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-extreme-exeh.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-extreme.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-f5ethtrailer.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-fc00.c

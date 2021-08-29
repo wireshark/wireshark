@@ -654,6 +654,10 @@ extern "C" {
 #define ETHERTYPE_AVSP			0xD28B /* Ethernet type for Arista vendor specific packet frames */
 #endif
 
+#ifndef ETHERTYPE_EXEH
+#define ETHERTYPE_EXEH			0xE555	/* EXos internal Extra Header */
+#endif
+
 #ifndef ETHERTYPE_FCFT
 #define ETHERTYPE_FCFT			0xFCFC	/* used to transport FC frames+MDS hdr internal to Cisco's MDS switch */
 #endif

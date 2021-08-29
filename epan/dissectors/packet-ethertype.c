@@ -188,6 +188,7 @@ const value_string etype_vals[] = {
 	{ ETHERTYPE_AVSP,                 "Arista Timestamp" },
 	{ ETHERTYPE_ECPRI,                "eCPRI" },
 	{ ETHERTYPE_CABLELABS,            "CableLabs Layer-3 Protocol" },
+	{ ETHERTYPE_EXEH,                 "EXos internal Extra Header" },
 	{ ETHERTYPE_ACIGLEAN,             "Cisco ACI ARP gleaning" },
 	{ ETHERTYPE_IEEE_802_1CB,         "802.1CB Frame Replication and Elimination for Reliability" },
 	{ 0, NULL }
@@ -260,7 +261,7 @@ dissect_ethertype(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 				payload_etype = 0x0806;
 			}
 			ethertype_data->etype = payload_etype;
-// FIXME: Add glean to protocol-stack in frame-header
+		// FIXME: Add glean to protocol-stack in frame-header
 		}
 	}
 
