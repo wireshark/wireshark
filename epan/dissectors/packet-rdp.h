@@ -50,6 +50,5 @@ typedef struct _rdp_conv_info_t {
   rdp_channel_def_t staticChannels[RDP_MAX_CHANNELS+1];
 } rdp_conv_info_t;
 
-extern gboolean rdp_isServerAddressTarget(packet_info *infos);
 
 #endif /* __PACKET_RDP_H__ */

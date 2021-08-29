@@ -16,6 +16,7 @@
 #include <epan/prefs.h>
 #include <epan/conversation.h>
 #include "packet-rdp.h"
+#include "packet-rdpudp.h"
 
 void proto_register_rdp_drdynvc(void);
 void proto_reg_handoff_drdynvc(void);
@@ -217,6 +218,30 @@ find_channel_name_by_id(packet_info *pinfo, drdynvc_conv_info_t *dyninfo, guint3
 	}
 
 	return NULL;
+}
+
+static gboolean
+rdp_isServerAddressTarget(packet_info *pinfo)
+{
+	conversation_t *conv;
+	rdp_conv_info_t *rdp_info;
+	rdpudp_conv_info_t *rdpudp_info;
+
+	conv = find_conversation_pinfo(pinfo, 0);
+	if (!conv)
+		return FALSE;
+
+	rdp_info = (rdp_conv_info_t *)conversation_get_proto_data(conv, proto_rdp);
+	if (rdp_info) {
+		rdp_server_address_t *server = &rdp_info->serverAddr;
+		return addresses_equal(&server->addr, &pinfo->dst) && (pinfo->destport == server->port);
+	}
+
+	rdpudp_info = (rdpudp_conv_info_t *)conversation_get_proto_data(conv, proto_rdpudp);
+	if (!rdpudp_info)
+		return FALSE;
+
+	return addresses_equal(&rdpudp_info->server_addr, &pinfo->dst) && (rdpudp_info->server_port == pinfo->destport);
 }
 
 

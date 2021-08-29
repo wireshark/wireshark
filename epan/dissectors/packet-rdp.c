@@ -957,22 +957,6 @@ rdp_get_conversation_data(packet_info *pinfo)
   return rdp_info;
 }
 
-gboolean rdp_isServerAddressTarget(packet_info *pinfo)
-{
-	conversation_t *conv;
-	rdp_server_address_t *server;
-	rdp_conv_info_t *rdp_info;
-
-	conv = find_conversation_pinfo(pinfo, 0);
-	if (!conv)
-		return FALSE;
-
-	rdp_info = (rdp_conv_info_t *)conversation_get_proto_data(conv, proto_rdp);
-	server = &rdp_info->serverAddr;
-
-	return addresses_equal(&server->addr, &pinfo->dst) && (pinfo->destport == server->port);
-}
-
 static int
 dissect_rdp_fields(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, const rdp_field_info_t *fields, int totlen)
 {
@@ -1319,7 +1303,7 @@ dissect_rdp_channelPDU(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
   switch (channelType) {
   case RDP_CHANNEL_DRDYNVC:
 	  subtvb = tvb_new_subset_length(tvb, offset, length);
-	  offset = call_dissector(drdynvc_handle, subtvb, pinfo, tree);
+	  offset += call_dissector(drdynvc_handle, subtvb, pinfo, tree);
 	  break;
   default:
 	  break;
