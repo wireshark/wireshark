@@ -1148,7 +1148,7 @@ dissect_thrift_t_string_enc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 /* Simple dispatch function for lists, sets, maps, and structs internal elements to avoid code duplication. */
-int
+static int
 dissect_thrift_t_member(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, thrift_option_data_t *thrift_opt, gboolean is_field, const thrift_member_t *elt)
 {
     switch (elt->type) {
@@ -1201,7 +1201,7 @@ dissect_thrift_t_member(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
  * Map is only adding a type in the header and one element in each loop
  * so it's easy to use the same code and handle the additional elements only when necessary.
  */
-int
+static int
 dissect_thrift_b_linear(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, thrift_option_data_t *thrift_opt, gboolean is_field, int field_id, gint hf_id, gint ett_id, const thrift_member_t *key, const thrift_member_t *val, thrift_type_enum_t expected)
 {
     proto_item *container_pi = NULL;
@@ -1302,7 +1302,7 @@ dissect_thrift_b_linear(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
  * Since the only difference is in the hf_id used when showing internal Thrift fields,
  * this prevents code duplication.
  */
-int
+static int
 dissect_thrift_c_list_set(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, thrift_option_data_t *thrift_opt, gboolean is_field, int field_id, gint hf_id, gint ett_id, const thrift_member_t *elt, gboolean is_list)
 {
     proto_item *container_pi;
