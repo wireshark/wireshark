@@ -16,7 +16,6 @@
  */
 
 #include "config.h"
-#include "wtap_opttypes.h"
 
 #define WS_LOG_DOMAIN LOG_DOMAIN_WIRETAP
 
