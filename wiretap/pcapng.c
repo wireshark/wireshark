@@ -2466,7 +2466,6 @@ pcapng_read_name_resolution_block(FILE_T fh, pcapng_block_header_t *bh,
         }
     }
 
-
 read_options:
     to_read -= block_read;
 
@@ -2974,7 +2973,6 @@ pcapng_read_systemd_journal_export_block(wtap *wth, FILE_T fh, pcapng_block_head
 
 static gboolean
 pcapng_read_unknown_block(FILE_T fh, pcapng_block_header_t *bh,
-#
 #ifdef HAVE_PLUGINS
     const section_info_t *section_info,
 #else
@@ -3510,7 +3508,6 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
     return WTAP_OPEN_MINE;
 }
 
-
 /* classic wtap: read packet */
 static gboolean
 pcapng_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
@@ -3670,7 +3667,6 @@ pcapng_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
     return TRUE;
 }
 
-
 /* classic wtap: seek to file position and read packet */
 static gboolean
 pcapng_seek_read(wtap *wth, gint64 seek_off,
@@ -3741,7 +3737,6 @@ pcapng_seek_read(wtap *wth, gint64 seek_off,
     wtap_block_unref(wblock.block);
     return TRUE;
 }
-
 
 /* classic wtap: close capture file */
 static void
@@ -4513,6 +4508,7 @@ typedef struct pcapng_write_block_s
     int *err;
 }
 pcapng_write_block_t;
+
 /* Helper function used in pcapng_write_enhanced_packet_block().
  * Meant to be generic enough to be used elsewhere too, but currently,
  * only WTAP_OPTTYPE_STRING and WTAP_OPTTYPE_BYTES are exercised (and thus tested).
@@ -5397,8 +5393,7 @@ pcapng_write_name_resolution_block(wtap_dumper *wdh, int *err)
             block_off += namelen;
             memset(block_data + block_off, 0, PADDING4(namelen));
             block_off += PADDING4(namelen);
-            ws_debug("added IPv4 record for %s",
-                     ipv4_hash_list_entry->name);
+            ws_debug("added IPv4 record for %s", ipv4_hash_list_entry->name);
 
             i++;
             ipv4_hash_list_entry = (hashipv4_t *)g_list_nth_data(wdh->addrinfo_lists->ipv4_addr_list, i);
@@ -5479,8 +5474,7 @@ pcapng_write_name_resolution_block(wtap_dumper *wdh, int *err)
             block_off += namelen;
             memset(block_data + block_off, 0, PADDING4(namelen));
             block_off += PADDING4(namelen);
-            ws_debug("added IPv6 record for %s",
-                     ipv6_hash_list_entry->name);
+            ws_debug("added IPv6 record for %s", ipv6_hash_list_entry->name);
 
             i++;
             ipv6_hash_list_entry = (hashipv6_t *)g_list_nth_data(wdh->addrinfo_lists->ipv6_addr_list, i);
@@ -5855,7 +5849,6 @@ static gboolean pcapng_dump(wtap_dumper *wdh,
     return TRUE;
 }
 
-
 /* Finish writing to a dump file.
    Returns TRUE on success, FALSE on failure. */
 static gboolean pcapng_dump_finish(wtap_dumper *wdh, int *err,
@@ -5890,7 +5883,6 @@ static gboolean pcapng_dump_finish(wtap_dumper *wdh, int *err,
     ws_debug("leaving function");
     return TRUE;
 }
-
 
 /* Returns TRUE on success, FALSE on failure; sets "*err" to an error code on
    failure */
@@ -5940,7 +5932,6 @@ pcapng_dump_open(wtap_dumper *wdh, int *err, gchar **err_info _U_)
 
     return TRUE;
 }
-
 
 /* Returns 0 if we could write the specified encapsulation type,
    an error indication otherwise. */
