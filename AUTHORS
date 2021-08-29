@@ -4422,6 +4422,7 @@ Jeremy Hitt		<jeremy.hitt[AT]isilon.com>
 Jeremy Kerr		<jk[AT]ozlabs.org>
 Jeremy Martin		<boardermartin[AT]gmail.com>
 Jeroen Roovers		<jer[AT]gentoo.org>
+Jeroen Sack		<jeroen.sack[AT]agcocorp.com>
 Jeroen Sack		<jeroen[AT]jeroensack.nl>
 Jesse Gross		<jesse[AT]kernel.org>
 Jiajun Wang		<me[AT]jiajunw.com>
@@ -4589,6 +4590,7 @@ Matthieu Coudron	<matthieu.coudron[AT]lip6.fr>
 Max Dmitrichenko	<dmitrmax[AT]gmail.com>
 Maxim Kropp		<maxim.kropp[AT]hotmail.de>
 Maxim Sharabayko	<maxim.sharabayko[AT]gmail.com>
+Maxime Meignan		<meignanmaxime[AT]hotmail.fr>
 Maximilian Kohler	<maximilian.kohler[AT]viavisolutions.com>
 Mehmet Oguz Sakaoglu	<mehmet.oguz.mnz[AT]gmail.com>
 Merlin Chlosta		<merlin.chlosta+gnuradio[AT]ruhr-uni-bochum.de>
@@ -4902,6 +4904,7 @@ Tomas Liscak		<tomas.liscak[AT]nokia.com>
 Tony Ciavarella		<tony.ciavarella[AT]squalllinesoftware.com>
 Topi Miettinen		<toiwoton[AT]gmail.com>
 Trevor Bergeron		<mal[AT]sec.gd>
+Triton Circonflexe	<triton[AT]kumal.info>
 Trond Myklebust		<trond.myklebust[AT]primarydata.com>
 Trond Norbye		<trond[AT]couchbase.com>
 Ulf			<ulf33286[AT]gmail.com>
@@ -4912,6 +4915,7 @@ Uwe Kleine-König	<uwe[AT]kleine-koenig.org>
 Vadim Fedorenko		<vadimjunk[AT]gmail.com>
 Vadim Yanitskiy		<axilirator[AT]gmail.com>
 Vadim Yanitskiy		<vyanitskiy[AT]sysmocom.de>
+Vahap Emin Agaogullari	<emin.agaogullari[AT]siemens.com>
 Vahap Emin Agaogullari	<vahapemin44[AT]gmail.com>
 ValdikSS		<iam[AT]valdikss.org.ru>
 Valentin Vidic		<Valentin.Vidic[AT]CARNet.hr>
@@ -5023,7 +5027,7 @@ Mattia Cazzola <mattiac[AT]alinet.it> provided a patch to the hex dump display r
 
 We use the exception module from Kazlib, a C library written by Kaz Kylheku <kaz[AT]kylheku.com>. Thanks go to him for his well-written library. The Kazlib home page can be found at http://www.kylheku.com/~kaz/kazlib.html
 
-We use Lua BitOp, written by Mike Pall, for bitwise operations on numbers in Lua. The Lua BitOp home page can be found at https://bitop.luajit.org/
+We use Lua BitOp, written by Mike Pall, for bitwise operations on numbers in Lua. The Lua BitOp home page can be found at https://bitop.luajit.org
 
 snax <snax[AT]shmoo.com> gave permission to use his(?) weak key detection code from Airsnort.
 

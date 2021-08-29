@@ -145,6 +145,7 @@ tali.reassemble: FALSE
 tcp.desegment_tcp_streams: FALSE
 tcpros.desegment_tcpros_messages: FALSE
 tds.desegment_buffers: FALSE
+thrift.desegment_framed: FALSE
 tibia.reassemble_tcp_segments: FALSE
 tipc.desegment: FALSE
 tls.desegment_ssl_records: FALSE
