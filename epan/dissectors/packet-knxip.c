@@ -26,13 +26,18 @@
 #include <epan/proto.h>
 #include <epan/ipproto.h>
 #include <epan/prefs.h>
+#include <epan/proto_data.h>
 #include <epan/tvbuff.h>
 #include <epan/strutil.h>
 
+#include "packet-tcp.h"
+#include "packet-udp.h"
 #include "packet-knxip.h"
 #include "packet-knxip_decrypt.h"
 
 #define ECDH_PUBLIC_VALUE_SIZE  32
+
+#define KIP_HDR_LEN 6
 
  /* The following service families are defined for the
  version 1.0 KNXnet/IP implementation of the eFCP protocol
@@ -478,6 +483,7 @@ guint8 knxip_host_protocol;
 expert_field ei_knxip_error = EI_INIT;
 expert_field ei_knxip_warning = EI_INIT;
 
+static gboolean pref_desegment = TRUE;
 static const gchar* pref_key_texts[ MAX_KNX_DECRYPTION_KEYS ];
 //static const gchar* authentication_code_text;
 //static const gchar* password_hash_text;
@@ -492,7 +498,7 @@ guint8 knx_decryption_key_count;
 
 /* Forward declarations
 */
-static void dissect_knxip( guint8 level, tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree );
+static gint dissect_knxip( tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_ );
 void proto_reg_handoff_knxip( void );
 void proto_register_knxip( void );
 
@@ -2790,7 +2796,7 @@ static guint8 dissect_secure_wrapper( guint8 header_length, tvbuff_t* tvb, packe
               /* Dissect embedded KIP packet */
               {
                 tvbuff_t* tvb3 = tvb_new_subset_length( tvb2, 0, size2 );
-                dissect_knxip( 1, tvb3, pinfo, root );
+                dissect_knxip( tvb3, pinfo, root, NULL );
               }
             }
           }
@@ -3721,7 +3727,13 @@ static void dissect_knxip_data( guint8 header_length, guint8 protocol_version _U
   }
 }
 
-static void dissect_knxip( guint8 level, tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree )
+static guint
+get_knxip_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
+{
+  return tvb_get_ntohs( tvb, offset+4 );
+}
+
+static gint dissect_knxip( tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_ )
 {
   gint offset = 0;
   guint remaining_len = tvb_captured_length( tvb );
@@ -3745,6 +3757,7 @@ static void dissect_knxip( guint8 level, tvbuff_t* tvb, packet_info* pinfo, prot
 
   gchar version_info[ 16 ];
 
+  unsigned level = p_get_proto_depth(pinfo, proto_knxip);
   if( level == 0 )
   {
     knxip_error = 0;
@@ -3755,6 +3768,7 @@ static void dissect_knxip( guint8 level, tvbuff_t* tvb, packet_info* pinfo, prot
   {
     col_append_str( cinfo, COL_INFO, " " );
   }
+  p_set_proto_depth(pinfo, proto_knxip, level+1);
 
   kip_item = proto_tree_add_item( tree, proto_knxip, tvb, offset, (remaining_len <= 0) ? 0 : -1, ENC_BIG_ENDIAN );
   kip_tree = proto_item_add_subtree( kip_item, ett_kip );
@@ -3795,7 +3809,7 @@ static void dissect_knxip( guint8 level, tvbuff_t* tvb, packet_info* pinfo, prot
       error = 1;
       header_len = (guint8) remaining_len;
     }
-    else if( header_len != 0x06 )
+    else if( header_len != KIP_HDR_LEN )
     {
       proto_item_prepend_text( header_len_item, "? " );
       expert_add_info_format( pinfo, header_len_item, KIP_ERROR, "Expected: 6 bytes" );
@@ -3846,7 +3860,7 @@ static void dissect_knxip( guint8 level, tvbuff_t* tvb, packet_info* pinfo, prot
 
         offset += 2;
 
-        if( header_len >= 6 )
+        if( header_len >= KIP_HDR_LEN )
         {
           /* 2 bytes Total Length */
           total_len = tvb_get_ntohs( tvb, 4 );
@@ -3907,19 +3921,21 @@ static void dissect_knxip( guint8 level, tvbuff_t* tvb, packet_info* pinfo, prot
 
     dissect_knxip_data( header_len, protocol_version, service_id, tvb, pinfo, tree, kip_item, kip_tree );
   }
-}
-
-static gint dissect_tcp_knxip( tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* udata _U_ )
-{
-  knxip_host_protocol = IP_PROTO_TCP;
-  dissect_knxip( 0, tvb, pinfo, tree );
   return tvb_captured_length( tvb );
 }
 
-static gint dissect_udp_knxip( tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* udata _U_ )
+static gint dissect_tcp_knxip( tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* udata )
+{
+  knxip_host_protocol = IP_PROTO_TCP;
+  tcp_dissect_pdus(tvb, pinfo, tree, pref_desegment, KIP_HDR_LEN, get_knxip_pdu_len, dissect_knxip, udata);
+
+  return tvb_captured_length( tvb );
+}
+
+static gint dissect_udp_knxip( tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* udata )
 {
   knxip_host_protocol = IP_PROTO_UDP;
-  dissect_knxip( 0, tvb, pinfo, tree );
+  udp_dissect_pdus( tvb, pinfo, tree, KIP_HDR_LEN, NULL, get_knxip_pdu_len, dissect_knxip, udata );
   return tvb_captured_length( tvb );
 }
 
@@ -4058,6 +4074,8 @@ void proto_register_knxip( void )
       "KNX decryption key (format: 16 bytes as hex; example: A0 A1 A2 A3 A4 A5 A6 A7 A8 A9 AA AB AC AD AE AF)",
       &pref_key_texts[ x - 1 ] );
   }
+
+  prefs_register_bool_preference(knxip_module, "desegment", "Reassemble KNX/IP messages spanning multiple TCP segments.", "Whether the KNX/IP dissector should reassemble messages spanning multiple TCP segments.  To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.", &pref_desegment);
 }
 
 void proto_reg_handoff_knxip( void )
