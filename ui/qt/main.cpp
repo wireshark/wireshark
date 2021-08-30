@@ -1090,5 +1090,6 @@ clean_exit:
     codecs_cleanup();
     wtap_cleanup();
     free_progdirs();
+    commandline_options_free();
     exit_application(ret_val);
 }

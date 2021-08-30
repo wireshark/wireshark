@@ -421,6 +421,7 @@ void commandline_other_options(int argc, char *argv[], gboolean opt_reset)
     global_commandline_info.capture_comments = NULL;
 #endif
     global_commandline_info.full_screen = FALSE;
+    global_commandline_info.user_opts = NULL;
 
     while ((opt = getopt_long(argc, argv, optstring, long_options, NULL)) != -1) {
         switch (opt) {
@@ -510,6 +511,9 @@ void commandline_other_options(int argc, char *argv[], gboolean opt_reset)
 
                 switch (prefs_set_pref(optarg, &errmsg)) {
                     case PREFS_SET_OK:
+                        global_commandline_info.user_opts =
+                                g_slist_prepend(global_commandline_info.user_opts,
+                                        g_strdup(optarg));
                         break;
                     case PREFS_SET_SYNTAX_ERR:
                         cmdarg_err("Invalid -o flag \"%s\"%s%s", optarg,
@@ -617,6 +621,11 @@ void commandline_other_options(int argc, char *argv[], gboolean opt_reset)
             }
     }
 
+    /* Since we prepended each option when processing `-o`, reverse the list
+     * in case the order of options becomes meaningful.
+     */
+    global_commandline_info.user_opts = g_slist_reverse(global_commandline_info.user_opts);
+
     if (!arg_error) {
         argc -= optind;
         argv += optind;
@@ -716,4 +725,59 @@ void commandline_other_options(int argc, char *argv[], gboolean opt_reset)
         }
     }
 #endif
+}
+
+/* Local function used by commandline_options_drop */
+static int cl_find_custom(gconstpointer elem_data, gconstpointer search_data) {
+    return memcmp(elem_data, search_data, strlen((char *)search_data));
+}
+
+/* Drop any options the user specified on the command line with `-o`
+ * that have the given module and preference names
+ */
+void commandline_options_drop(const char *module_name, const char *pref_name) {
+    GSList *elem;
+    char *opt_prefix;
+
+    if (global_commandline_info.user_opts == NULL) return;
+
+    opt_prefix = g_strdup_printf("%s.%s:", module_name, pref_name);
+
+    while (NULL != (elem = g_slist_find_custom(global_commandline_info.user_opts,
+                        (gconstpointer)opt_prefix, cl_find_custom))) {
+        global_commandline_info.user_opts =
+                g_slist_remove_link(global_commandline_info.user_opts, elem);
+        g_free(elem->data);
+        g_slist_free_1(elem);
+    }
+    g_free(opt_prefix);
+}
+
+/* Reapply any options the user specified on the command line with `-o`
+ * Called in the Qt UI when reloading Lua plugins
+ * For https://gitlab.com/wireshark/wireshark/-/issues/12331
+ */
+void commandline_options_reapply(void) {
+    char *errmsg = NULL;
+    GSList *entry = NULL;
+
+    for (entry = global_commandline_info.user_opts; entry != NULL; entry = g_slist_next(entry)) {
+        /* Although these options are from the user-supplied command line,
+         * they were checked for validity before we added them to user_opts,
+         * so we don't check them again here. In the worst case, a pref is
+         * specified for a lua plugin which has been edited after Wireshark
+         * started and has had that pref removed; not worth exiting over.
+         * See #12331
+         */
+        prefs_set_pref((char *)entry->data, &errmsg);
+        if (errmsg != NULL) {
+            g_free(errmsg);
+            errmsg = NULL;
+        }
+    }
+}
+
+/* Free memory used to hold user-specified command line options */
+void commandline_options_free(void) {
+    g_slist_free_full(global_commandline_info.user_opts, g_free);
 }

@@ -1527,6 +1527,7 @@ void MainWindow::reloadLuaPlugins()
     main_ui_->preferenceEditorFrame->animatedHide();
 
     wsApp->readConfigurationFiles(true);
+    commandline_options_reapply();
 
     prefs_apply_all();
     fieldsChanged();

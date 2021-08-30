@@ -16,6 +16,8 @@
 #include <epan/decode_as.h>
 #include <ui/language.h>
 #include <ui/preference_utils.h>
+#include <cfile.h>
+#include <ui/commandline.h>
 #include <ui/simple_dialog.h>
 #include <ui/recent.h>
 #include <main_window.h>
@@ -43,6 +45,7 @@ module_prefs_unstash(module_t *module, gpointer data)
 
         unstashed_data.module = module;
         pref_unstash(pref, &unstashed_data);
+        commandline_options_drop(module->name, prefs_get_name(pref));
     }
 
     /* If any of them changed, indicate that we must redissect and refilter
