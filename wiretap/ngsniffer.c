@@ -510,7 +510,7 @@ static gboolean ngsniffer_seek_read(wtap *wth, gint64 seek_off,
     wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
 static gboolean read_rec_header(wtap *wth, gboolean is_random,
     struct rec_header *hdr, int *err, gchar **err_info);
-static gboolean ngsniffer_process_record(wtap *wth, gboolean is_random,
+static gboolean process_frame_record(wtap *wth, gboolean is_random,
     guint *padding, struct rec_header *hdr, wtap_rec *rec, Buffer *buf,
     int *err, gchar **err_info);
 static void set_metadata_frame2(wtap *wth, wtap_rec *rec,
@@ -1058,10 +1058,8 @@ ngsniffer_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
 		case REC_FRAME2:
 		case REC_FRAME4:
 		case REC_FRAME6:
-			/*
-			 * Packet record.
-			 */
-			if (!ngsniffer_process_record(wth, FALSE, &padding,
+			/* Frame record */
+			if (!process_frame_record(wth, FALSE, &padding,
 			    &hdr, rec, buf, err, err_info)) {
 				/* Read error, short read, or other error */
 				return FALSE;
@@ -1130,8 +1128,8 @@ ngsniffer_seek_read(wtap *wth, gint64 seek_off,
 	case REC_FRAME2:
 	case REC_FRAME4:
 	case REC_FRAME6:
-		/* Packet record */
-		if (!ngsniffer_process_record(wth, TRUE, NULL, &hdr, rec, buf,
+		/* Frame record */
+		if (!process_frame_record(wth, TRUE, NULL, &hdr, rec, buf,
 		    err, err_info)) {
 			/* Read error, short read, or other error */
 			return FALSE;
@@ -1196,7 +1194,7 @@ read_rec_header(wtap *wth, gboolean is_random, struct rec_header *hdr,
  * the end of the record.
  */
 static gboolean
-ngsniffer_process_record(wtap *wth, gboolean is_random, guint *padding,
+process_frame_record(wtap *wth, gboolean is_random, guint *padding,
     struct rec_header *hdr, wtap_rec *rec, Buffer *buf, int *err,
     gchar **err_info)
 {
@@ -1330,8 +1328,6 @@ ngsniffer_process_record(wtap *wth, gboolean is_random, guint *padding,
 	}
 
 	/*
-	 * This is a packet record.
-	 *
 	 * Is the frame data size greater than than what's left of the
 	 * record?
 	 */
