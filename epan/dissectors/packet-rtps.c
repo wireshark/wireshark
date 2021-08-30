@@ -74,8 +74,9 @@ void proto_reg_handoff_rtps(void);
 #define LONG_ALIGN_ZERO(x,zero) (x -= zero, LONG_ALIGN(x), x += zero)
 #define SHORT_ALIGN_ZERO(x,zero) (x -= zero, SHORT_ALIGN(x), x += zero)
 
-#define DISSECTION_INFO_MAX_ELEMENTS_DEFAULT_VALUE    (100)
-#define DISSECTION_INFO_REMAINING_ELEMENTS_STR_d      "... %d element(s) remaining"
+#define DISSECTION_INFO_MAX_ELEMENTS_DEFAULT_VALUE          (100)
+#define DISSECTION_INFO_ARRAY_MAX_ELEMENTS_DEFAULT_VALUE    (100)
+#define DISSECTION_INFO_REMAINING_ELEMENTS_STR_d      "... %d items(s) remaining. The number of items shown is configurable through RTPS properties under Preferences/Protocols."
 #define MAX_MEMBER_NAME                 (256)
 #define HASHMAP_DISCRIMINATOR_CONSTANT  (-2)
 #define UUID_SIZE                       (9)
@@ -225,9 +226,12 @@ static wmem_map_t * mutable_member_mappings = NULL;
 /***************************************************************************/
 static guint rtps_max_batch_samples_dissected = 16;
 static guint rtps_max_data_type_elements = DISSECTION_INFO_MAX_ELEMENTS_DEFAULT_VALUE;
+static guint rtps_max_array_data_type_elements = DISSECTION_INFO_ARRAY_MAX_ELEMENTS_DEFAULT_VALUE;
 static gboolean enable_topic_info = TRUE;
 static gboolean enable_rtps_reassembly = FALSE;
 static gboolean enable_user_data_dissection = FALSE;
+static gboolean enable_max_array_data_type_elements = TRUE;
+static gboolean enable_max_data_type_elements = TRUE;
 static dissector_table_t rtps_type_name_table;
 
 /***************************************************************************/
@@ -2475,28 +2479,87 @@ static void rtps_util_dissect_parameter_header(tvbuff_t * tvb, gint * offset,
 }
 
 static gint dissect_mutable_member(proto_tree *tree , tvbuff_t * tvb, gint offset, guint encoding,
-        dissection_info * info, gboolean * is_end);
+        dissection_info * info, gboolean * is_end, gboolean show);
+
+static gint get_native_type_cdr_length(guint64 member_kind) {
+  guint length = 0;
+
+  switch (member_kind) {
+      case RTI_CDR_TYPE_OBJECT_TYPE_KIND_BOOLEAN_TYPE: {
+          length = 1;
+          break;
+      }
+      case RTI_CDR_TYPE_OBJECT_TYPE_KIND_CHAR_8_TYPE:
+      case RTI_CDR_TYPE_OBJECT_TYPE_KIND_BYTE_TYPE: {
+          length = 1;
+          break;
+      }
+      case RTI_CDR_TYPE_OBJECT_TYPE_KIND_INT_16_TYPE: {
+          length = 2;
+          break;
+      }
+      case RTI_CDR_TYPE_OBJECT_TYPE_KIND_UINT_16_TYPE: {
+          length = 2;
+          break;
+      }
+      case RTI_CDR_TYPE_OBJECT_TYPE_KIND_ENUMERATION_TYPE:
+      case RTI_CDR_TYPE_OBJECT_TYPE_KIND_INT_32_TYPE: {
+          length = 4;
+          break;
+      }
+      case RTI_CDR_TYPE_OBJECT_TYPE_KIND_UINT_32_TYPE: {
+          length = 4;
+          break;
+      }
+      case RTI_CDR_TYPE_OBJECT_TYPE_KIND_INT_64_TYPE: {
+          length = 8;
+          break;
+      }
+      case RTI_CDR_TYPE_OBJECT_TYPE_KIND_UINT_64_TYPE: {
+          length = 8;
+          break;
+      }
+      case RTI_CDR_TYPE_OBJECT_TYPE_KIND_FLOAT_32_TYPE: {
+          length = 4;
+          break;
+      }
+      case RTI_CDR_TYPE_OBJECT_TYPE_KIND_FLOAT_64_TYPE: {
+          length = 8;
+          break;
+      }
+      case RTI_CDR_TYPE_OBJECT_TYPE_KIND_FLOAT_128_TYPE: {
+          length = 16;
+          break;
+      }
+      default: {
+          length = -1;
+          break;
+      }
+  }
+  return length;
+}
 
 /* this is a recursive function. _info may or may not be NULL depending on the use iteration */
 static gint dissect_user_defined(proto_tree *tree, tvbuff_t * tvb, gint offset, guint encoding,
         dissection_info * _info, guint64 type_id, gchar * name,
         RTICdrTypeObjectExtensibility extensibility, gint offset_zero,
-        guint16 flags, guint32 element_member_id) {
+        guint16 flags, guint32 element_member_id, gboolean show) {
 
     guint64 member_kind;
     dissection_info * info = NULL;
-    guint32 member_id, member_length;
+    guint32 member_id;
+    guint32 member_length = 0;
 
     if (_info)  { /* first call enters here */
-      info = _info;
-      member_kind = info->member_kind;
-    } else {
-      info = (dissection_info *) wmem_map_lookup(dissection_infos, &(type_id));
-      if (info != NULL) {
+        info = _info;
         member_kind = info->member_kind;
-      } else {
-        member_kind = type_id;
-      }
+    } else {
+        info = (dissection_info *) wmem_map_lookup(dissection_infos, &(type_id));
+        if (info != NULL) {
+            member_kind = info->member_kind;
+        } else {
+            member_kind = type_id;
+        }
     }
     if (info && (flags & MEMBER_OPTIONAL) == MEMBER_OPTIONAL) {
         gint offset_before = offset;
@@ -2523,138 +2586,262 @@ static gint dissect_user_defined(proto_tree *tree, tvbuff_t * tvb, gint offset, 
 
     switch (member_kind) {
         case RTI_CDR_TYPE_OBJECT_TYPE_KIND_BOOLEAN_TYPE: {
-            gint length = 1;
-            ALIGN_ZERO(offset, length, offset_zero);
-            gint16 value =  tvb_get_gint8(tvb, offset);
-            proto_tree_add_boolean_format(tree, hf_rtps_dissection_boolean, tvb, offset, length, value,
-                "%s: %d", name, value);
+            gint length = get_native_type_cdr_length(member_kind);
+            if (show) {
+                ALIGN_ZERO(offset, length, offset_zero);
+                gint16 value = tvb_get_gint8(tvb, offset);
+                proto_tree_add_boolean_format(tree, hf_rtps_dissection_boolean, tvb, offset, length, value,
+                  "%s: %d", name, value);
+            }
             offset += length;
             break;
         }
         case RTI_CDR_TYPE_OBJECT_TYPE_KIND_CHAR_8_TYPE:
         case RTI_CDR_TYPE_OBJECT_TYPE_KIND_BYTE_TYPE: {
-            gint length = 1;
-            ALIGN_ZERO(offset, length, offset_zero);
-            gint16 value =  tvb_get_gint8(tvb, offset);
-            proto_tree_add_uint_format(tree, hf_rtps_dissection_byte, tvb, offset, length, value,
-                "%s: %d", name, value);
+            gint length = get_native_type_cdr_length(member_kind);
+            if (show) {
+                ALIGN_ZERO(offset, length, offset_zero);
+                gint16 value = tvb_get_gint8(tvb, offset);
+                proto_tree_add_uint_format(tree, hf_rtps_dissection_byte, tvb, offset, length, value,
+                    "%s: %d", name, value);
+            }
             offset += length;
             break;
         }
         case RTI_CDR_TYPE_OBJECT_TYPE_KIND_INT_16_TYPE: {
-            gint length = 2;
-            ALIGN_ZERO(offset, length, offset_zero);
-            gint16 value =  tvb_get_gint16(tvb, offset, encoding);
-            proto_tree_add_int_format(tree, hf_rtps_dissection_int16, tvb, offset, length, value,
-                "%s: %d", name, value);
+            gint length = get_native_type_cdr_length(member_kind);
+            if (show) {
+                ALIGN_ZERO(offset, length, offset_zero);
+                gint16 value = tvb_get_gint16(tvb, offset, encoding);
+                proto_tree_add_int_format(tree, hf_rtps_dissection_int16, tvb, offset, length, value,
+                  "%s: %d", name, value);
+            }
             offset += length;
             break;
         }
         case RTI_CDR_TYPE_OBJECT_TYPE_KIND_UINT_16_TYPE: {
-            gint length = 2;
-            ALIGN_ZERO(offset, length, offset_zero);
-            guint16 value =  tvb_get_guint16(tvb, offset, encoding);
-            proto_tree_add_uint_format(tree, hf_rtps_dissection_uint16, tvb, offset, length, value,
-                "%s: %u", name, value);
+            gint length = get_native_type_cdr_length(member_kind);
+            if (show) {
+                ALIGN_ZERO(offset, length, offset_zero);
+                guint16 value = tvb_get_guint16(tvb, offset, encoding);
+                proto_tree_add_uint_format(tree, hf_rtps_dissection_uint16, tvb, offset, length, value,
+                  "%s: %u", name, value);
+            }
             offset += length;
             break;
         }
         case RTI_CDR_TYPE_OBJECT_TYPE_KIND_ENUMERATION_TYPE:
         case RTI_CDR_TYPE_OBJECT_TYPE_KIND_INT_32_TYPE: {
-            gint length = 4;
-            ALIGN_ZERO(offset, length, offset_zero);
-            gint value =  tvb_get_gint32(tvb, offset, encoding);
-            proto_tree_add_int_format(tree, hf_rtps_dissection_int32, tvb, offset, length, value,
-                "%s: %d", name, value);
+            gint length = get_native_type_cdr_length(member_kind);
+            if (show) {
+                ALIGN_ZERO(offset, length, offset_zero);
+                gint value = tvb_get_gint32(tvb, offset, encoding);
+                proto_tree_add_int_format(tree, hf_rtps_dissection_int32, tvb, offset, length, value,
+                  "%s: %d", name, value);
+            }
             offset += length;
             break;
         }
         case RTI_CDR_TYPE_OBJECT_TYPE_KIND_UINT_32_TYPE: {
-            gint length = 4;
-            ALIGN_ZERO(offset, length, offset_zero);
-            guint value =  tvb_get_guint32(tvb, offset, encoding);
-            proto_tree_add_uint_format(tree, hf_rtps_dissection_uint32, tvb, offset, length, value,
-                "%s: %u", name, value);
+            gint length = get_native_type_cdr_length(member_kind);
+            if (show) {
+                ALIGN_ZERO(offset, length, offset_zero);
+                guint value = tvb_get_guint32(tvb, offset, encoding);
+                proto_tree_add_uint_format(tree, hf_rtps_dissection_uint32, tvb, offset, length, value,
+                  "%s: %u", name, value);
+            }
             offset += length;
             break;
         }
         case RTI_CDR_TYPE_OBJECT_TYPE_KIND_INT_64_TYPE: {
-            gint length = 8;
-            ALIGN_ZERO(offset, length, offset_zero);
-            gint64 value =  tvb_get_gint64(tvb, offset, encoding);
-            proto_tree_add_int64_format(tree, hf_rtps_dissection_int64, tvb, offset, length, value,
-                "%s: %"G_GINT64_MODIFIER"d", name, value);
+            gint length = get_native_type_cdr_length(member_kind);
+            if (show) {
+                ALIGN_ZERO(offset, length, offset_zero);
+                gint64 value = tvb_get_gint64(tvb, offset, encoding);
+                proto_tree_add_int64_format(tree, hf_rtps_dissection_int64, tvb, offset, length, value,
+                  "%s: %"G_GINT64_MODIFIER"d", name, value);
+            }
             offset += length;
             break;
         }
         case RTI_CDR_TYPE_OBJECT_TYPE_KIND_UINT_64_TYPE: {
-            gint length = 8;
-            ALIGN_ZERO(offset, length, offset_zero);
-            guint64 value =  tvb_get_guint64(tvb, offset, encoding);
-            proto_tree_add_uint64_format(tree, hf_rtps_dissection_uint64, tvb, offset, length, value,
-                "%s: %"G_GINT64_MODIFIER"u", name, value);
+            gint length = get_native_type_cdr_length(member_kind);
+            if (show) {
+                ALIGN_ZERO(offset, length, offset_zero);
+                guint64 value = tvb_get_guint64(tvb, offset, encoding);
+                proto_tree_add_uint64_format(tree, hf_rtps_dissection_uint64, tvb, offset, length, value,
+                  "%s: %"G_GINT64_MODIFIER"u", name, value);
+            }
             offset += length;
             break;
         }
         case RTI_CDR_TYPE_OBJECT_TYPE_KIND_FLOAT_32_TYPE: {
-            gint length = 4;
-            ALIGN_ZERO(offset, length, offset_zero);
-            gfloat value =  tvb_get_ieee_float(tvb, offset, encoding);
-            proto_tree_add_float_format(tree, hf_rtps_dissection_float, tvb, offset, length, value,
-                "%s: %.6f", name, value);
+            gint length = get_native_type_cdr_length(member_kind);
+            if (show) {
+                ALIGN_ZERO(offset, length, offset_zero);
+                gfloat value = tvb_get_ieee_float(tvb, offset, encoding);
+                proto_tree_add_float_format(tree, hf_rtps_dissection_float, tvb, offset, length, value,
+                  "%s: %.6f", name, value);
+            }
             offset += length;
             break;
         }
         case RTI_CDR_TYPE_OBJECT_TYPE_KIND_FLOAT_64_TYPE: {
-            gint length = 8;
-            ALIGN_ZERO(offset, length, offset_zero);
-            gdouble value =  tvb_get_ieee_double(tvb, offset, encoding);
-            proto_tree_add_double_format(tree, hf_rtps_dissection_double, tvb, offset, length, value,
-                "%s: %.6f", name, value);
+            gint length = get_native_type_cdr_length(member_kind);
+            if (show) {
+                ALIGN_ZERO(offset, length, offset_zero);
+                gdouble value = tvb_get_ieee_double(tvb, offset, encoding);
+                if (show)
+                  proto_tree_add_double_format(tree, hf_rtps_dissection_double, tvb, offset, length, value,
+                    "%s: %.6f", name, value);
+            }
             offset += length;
             break;
         }
         case RTI_CDR_TYPE_OBJECT_TYPE_KIND_FLOAT_128_TYPE: {
-            gint length = 16;
-            ALIGN_ZERO(offset, length, offset_zero);
-            proto_tree_add_item(tree, hf_rtps_dissection_int128, tvb, offset, length, encoding);
+            gint length = get_native_type_cdr_length(member_kind);
+            if (show) {
+                ALIGN_ZERO(offset, length, offset_zero);
+                proto_tree_add_item(tree, hf_rtps_dissection_int128, tvb, offset, length, encoding);
+            }
             offset += length;
             break;
         }
         case RTI_CDR_TYPE_OBJECT_TYPE_KIND_ARRAY_TYPE: {
-            gint i;
-            proto_tree * aux_tree;
+            guint i;
+            guint num_elements;
+            proto_tree * aux_tree = NULL;
             gint base_offset = offset;
+            gboolean show_current_element = TRUE;
+            gint array_kind_length = 0;
+            guint bound = (guint)info->bound;
+            gint first_skipped_element_offset = 0;
 
-            aux_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_rtps_dissection_tree,
-                  NULL, name);
-            for (i = 0; i < info->bound; i++) {
+            /* In case this array is not shown and is a native type. We get the sze length for calculating
+             * the whole array length */
+            array_kind_length = get_native_type_cdr_length(info->base_type_id);
+
+            /* Do not add any information to the tree if it is not shown */
+            if (show) {
+                aux_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_rtps_dissection_tree,
+                    NULL, name);
+            } else if (array_kind_length != -1) {
+                /* Total length of the array. Nothing elese to do here. */
+                offset += bound * array_kind_length;
+                break;
+            }
+
+            /* Get the maximun number of elements to be shown */
+            num_elements = (enable_max_array_data_type_elements)
+                ? MIN(bound, rtps_max_array_data_type_elements)
+                : bound;
+            for (i = 0; i < bound; i++) {
                 gchar temp_buff[MAX_MEMBER_NAME];
-                g_snprintf(temp_buff, MAX_MEMBER_NAME, "%s[%u]", name, i);
+
+                if (show && i < num_elements) {
+                    /* No need to copy if it will not be shown */
+                    g_snprintf(temp_buff, MAX_MEMBER_NAME, "%s[%u]", name, i);
+                    show_current_element = TRUE;
+                } else {
+                    if (show_current_element) {
+                        show_current_element = FALSE;
+                        /* Updated only once */
+                        first_skipped_element_offset = offset;
+                    }
+                    /* If this array has elements that won't be shown and is an array of native type
+                     * we can calculate the total offset and break the loop */
+                    if (array_kind_length != -1) {
+                        offset += (bound - i) * array_kind_length;
+                        break;
+                    }
+                }
                 offset = dissect_user_defined(aux_tree, tvb, offset, encoding, NULL,
-                        info->base_type_id, temp_buff, EXTENSIBILITY_INVALID, offset_zero, 0, 0);
+                        info->base_type_id, temp_buff, EXTENSIBILITY_INVALID, offset_zero, 0, 0, show_current_element);
+            }
+
+            /* If reached the limit and there are remaining elements we need to show the message and
+             * assign the length of the ramining elements to this */
+            if (enable_max_array_data_type_elements && show && !show_current_element) {
+                proto_tree_add_subtree_format(
+                    aux_tree,
+                    tvb,
+                    /* Start at the first item not shown */
+                    first_skipped_element_offset,
+                    offset - first_skipped_element_offset,
+                    ett_rtps_info_remaining_items,
+                    NULL,
+                    DISSECTION_INFO_REMAINING_ELEMENTS_STR_d,
+                    bound - num_elements);
             }
             proto_item_set_len(aux_tree, offset - base_offset);
             break;
         }
         case RTI_CDR_TYPE_OBJECT_TYPE_KIND_SEQUENCE_TYPE: {
             guint i;
-            proto_tree * aux_tree;
+            guint num_elements;
+            proto_tree * aux_tree = NULL;
             gint base_offset = offset;
-
+            gboolean show_current_element = TRUE;
             gint length = 4;
+            gint sequence_kind_length = 0;
+            gint first_skipped_element_offset = 0;
+
             ALIGN_ZERO(offset, length, offset_zero);
             guint seq_size =  tvb_get_guint32(tvb, offset, encoding);
-            aux_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1, ett_rtps_dissection_tree,
-                  NULL, "%s (%u elements)", name, seq_size);
+
+            /* In case this sequence is not shown and is a native type. We get the sze length for calculating
+             * the whole seuqnece length */
+            sequence_kind_length = get_native_type_cdr_length(info->base_type_id);
+            if (show) {
+                aux_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1, ett_rtps_dissection_tree,
+                    NULL, "%s (%u elements)", name, seq_size);
+            /* If it is a native type we can calculate the sequence length and finish. */
+            } else if (sequence_kind_length != -1) {
+                /* Number of elements integer size + number of elements * size of the native type */
+                offset += 4 + seq_size * sequence_kind_length;
+                break;
+            }
             offset += 4;
 
+            num_elements = (enable_max_array_data_type_elements)
+                ? MIN(seq_size, rtps_max_array_data_type_elements)
+                : seq_size;
             for (i = 0; i < seq_size; i++) {
                 gchar temp_buff[MAX_MEMBER_NAME];
-                g_snprintf(temp_buff, MAX_MEMBER_NAME, "%s[%u]", name, i);
+                if (show && i < num_elements) {
+                    /* No need to copy if it will not be shown */
+                    g_snprintf(temp_buff, MAX_MEMBER_NAME, "%s[%u]", name, i);
+                    show_current_element = TRUE;
+                } else {
+                    if (show_current_element) {
+                        show_current_element = FALSE;
+                        /* Updated only once */
+                        first_skipped_element_offset = offset;
+                    }
+                    /* If this array has elements that won't be shown and is an array of native type
+                     * we can calculate the total offset and break the loop */
+                    if (sequence_kind_length != -1) {
+                        offset += (seq_size - i) * sequence_kind_length;
+                        break;
+                    }
+                }
                 if (info->base_type_id > 0)
                     offset = dissect_user_defined(aux_tree, tvb, offset, encoding, NULL,
-                         info->base_type_id, temp_buff, EXTENSIBILITY_INVALID, offset_zero, 0, 0);
+                         info->base_type_id, temp_buff, EXTENSIBILITY_INVALID, offset_zero, 0, 0, show_current_element);
+            }
+            /* If reached the limit and there are remaining elements we need to show the message and
+             * assign the length of the ramining elements to this */
+            if (enable_max_array_data_type_elements && show && !show_current_element) {
+                proto_tree_add_subtree_format(
+                    aux_tree,
+                    tvb,
+                    /* Start at the first item not shown */
+                    first_skipped_element_offset,
+                    offset - first_skipped_element_offset,
+                    ett_rtps_info_remaining_items,
+                    NULL,
+                    DISSECTION_INFO_REMAINING_ELEMENTS_STR_d,
+                    seq_size - num_elements);
             }
             proto_item_set_len(aux_tree, offset - base_offset);
             break;
@@ -2662,22 +2849,22 @@ static gint dissect_user_defined(proto_tree *tree, tvbuff_t * tvb, gint offset, 
         case RTI_CDR_TYPE_OBJECT_TYPE_KIND_STRING_TYPE: {
             gchar * string_value = NULL;
             gint length = 4;
-            ALIGN_ZERO(offset, length, offset_zero);
 
+            ALIGN_ZERO(offset, length, offset_zero);
             guint string_size =  tvb_get_guint32(tvb, offset, encoding);
             offset += 4;
             //proto_item_append_text(tree, "(String length: %u)", string_size);
-
-            string_value = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, string_size, ENC_ASCII);
-            proto_tree_add_string_format(tree, hf_rtps_dissection_string, tvb, offset, string_size,
-                string_value, "%s: %s", name, string_value);
-
+            if (show) {
+                string_value = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, string_size, ENC_ASCII);
+                proto_tree_add_string_format(tree, hf_rtps_dissection_string, tvb, offset, string_size,
+                  string_value, "%s: %s", name, string_value);
+            }
             offset += string_size;
             break;
         }
         case RTI_CDR_TYPE_OBJECT_TYPE_KIND_ALIAS_TYPE: {
             offset = dissect_user_defined(tree, tvb, offset, encoding, NULL,
-                         info->base_type_id, name, EXTENSIBILITY_INVALID, offset_zero, 0, 0);
+                         info->base_type_id, name, EXTENSIBILITY_INVALID, offset_zero, 0, 0, show);
             break;
         }
         case RTI_CDR_TYPE_OBJECT_TYPE_KIND_UNION_TYPE: {
@@ -2693,20 +2880,24 @@ static gint dissect_user_defined(proto_tree *tree, tvbuff_t * tvb, gint offset, 
                         key = type_id + value;
                         result = (union_member_mapping *)wmem_map_lookup(union_member_mappings, &(key));
                         if (result != NULL) {
-                          proto_item_append_text(tree, " (discriminator = %d, type_id = 0x%016" G_GINT64_MODIFIER "x)",
-                               value, result->member_type_id);
+                            if (show) {
+                                proto_item_append_text(tree, " (discriminator = %d, type_id = 0x%016" G_GINT64_MODIFIER "x)",
+                                    value, result->member_type_id);
+                            }
                           offset = dissect_user_defined(tree, tvb, offset, encoding, NULL,
-                             result->member_type_id, result->member_name, EXTENSIBILITY_INVALID, offset, 0, 0);
+                             result->member_type_id, result->member_name, EXTENSIBILITY_INVALID, offset, 0, 0, show);
                         } else {
                             /* the hashmap uses the type_id to index the objects. substracting -2 here to lookup the discriminator
                                related to the type_id that identifies an union */
                             key = type_id + HASHMAP_DISCRIMINATOR_CONSTANT;
                             result = (union_member_mapping *)wmem_map_lookup(union_member_mappings, &(key));
                             if (result != NULL) {
-                            proto_item_append_text(tree, " (discriminator = %d, type_id = 0x%016" G_GINT64_MODIFIER "x)",
-                                value, result->member_type_id);
+                                if (show) {
+                                    proto_item_append_text(tree, " (discriminator = %d, type_id = 0x%016" G_GINT64_MODIFIER "x)",
+                                        value, result->member_type_id);
+                                }
                             offset = dissect_user_defined(tree, tvb, offset, encoding, NULL,
-                                result->member_type_id, result->member_name, EXTENSIBILITY_INVALID, offset, 0, 0);
+                                result->member_type_id, result->member_name, EXTENSIBILITY_INVALID, offset, 0, 0, show);
                             }
                         }
                         break;
@@ -2715,52 +2906,90 @@ static gint dissect_user_defined(proto_tree *tree, tvbuff_t * tvb, gint offset, 
                         break;
                 }
             } else {
-              proto_item_append_text(tree, "(NULL 0x%016" G_GINT64_MODIFIER "x)", type_id);
+              if (show) {
+                proto_item_append_text(tree, "(NULL 0x%016" G_GINT64_MODIFIER "x)", type_id);
+              }
             }
             break;
         }
         case RTI_CDR_TYPE_OBJECT_TYPE_KIND_STRUCTURE_TYPE: {
             guint i;
-            proto_tree * aux_tree;
+            proto_tree * aux_tree = NULL;
+            guint shown_elements = 0;
+            gboolean show_current_element = TRUE;
+            guint num_elements = 0;
+            gint first_skipped_element_offset = 0;
 
-            aux_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_rtps_dissection_tree,
-                  NULL, name);
-
+            if (show) {
+                aux_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_rtps_dissection_tree,
+                    NULL, name);
+            }
             if (info->extensibility == EXTENSIBILITY_MUTABLE) {
                 gboolean is_end = FALSE;
-                while(!is_end)
-                    offset = dissect_mutable_member(aux_tree, tvb, offset, encoding, info, &is_end);
-                } else {
+                /* Don't know beforehand the number of elements. Need to count them */
+                while (!is_end) {
+                    if (!(show && shown_elements < rtps_max_data_type_elements) && show_current_element) {
+                        show_current_element = FALSE;
+                        /* Updated only once */
+                        first_skipped_element_offset = offset;
+                        }
+                    offset = dissect_mutable_member(aux_tree, tvb, offset, encoding, info, &is_end, show_current_element);
+                    ++num_elements;
+                    if (show_current_element) {
+                        ++shown_elements;
+                    }
+                }
+            } else {
                 if (info->base_type_id > 0) {
-                    proto_item_append_text(tree, "(BaseId: 0x%016" G_GINT64_MODIFIER "x)", info->base_type_id);
+                    if (show) {
+                      proto_item_append_text(tree, "(BaseId: 0x%016" G_GINT64_MODIFIER "x)", info->base_type_id);
+                    }
                     offset = dissect_user_defined(aux_tree, tvb, offset, encoding, NULL,
                             info->base_type_id, info->member_name, EXTENSIBILITY_INVALID,
-                            offset, 0, 0);
+                            offset, 0, 0, show);
                 }
 
-                for (i = 0; i < info->num_elements && i < rtps_max_data_type_elements; i++) {
-                    if (info->elements[i].type_id > 0)
-                            offset = dissect_user_defined(aux_tree, tvb, offset, encoding, NULL,
-                                info->elements[i].type_id, info->elements[i].member_name, info->extensibility,
-                                offset_zero, info->elements[i].flags, info->elements[i].member_id);
+                /* Get the maximun number of elements to be shown depending if enable_max_data_type_elements is enabled */
+                shown_elements = (enable_max_data_type_elements)
+                        ? MIN(info->num_elements, rtps_max_data_type_elements)
+                        : info->num_elements;
+                for (i = 0; i < info->num_elements; i++) {
+                    if (info->elements[i].type_id > 0) {
+                        /* A member is shown if the parent cluster is shown and the position is in the
+                        * range of maximun number of elements shown */
+                        if (!(show && i < shown_elements) && show_current_element) {
+                            show_current_element = FALSE;
+                            /* Updated only once */
+                            first_skipped_element_offset = offset;
+                        }
+                        /* If a member is not shown all it children will inherit the "show_current_element" value */
+                        offset = dissect_user_defined(aux_tree, tvb, offset, encoding, NULL,
+                        info->elements[i].type_id, info->elements[i].member_name, info->extensibility,
+                        offset_zero, info->elements[i].flags, info->elements[i].member_id, show_current_element);
+                    }
                 }
-                if (i < info->num_elements) {
-                    proto_tree_add_subtree_format(
-                        aux_tree,
-                        tvb,
-                        0,
-                        0,
-                        ett_rtps_info_remaining_items,
-                        NULL,
-                        DISSECTION_INFO_REMAINING_ELEMENTS_STR_d,
-                        info->num_elements - i);
-                }
+                num_elements = info->num_elements;
             }
-            break;
+            /* If reached the limit and there are remaining elements we need to show the message and
+             * assign the length of the ramining elements to this */
+            if (enable_max_array_data_type_elements && show && !show_current_element) {
+                proto_tree_add_subtree_format(
+                    aux_tree,
+                    tvb,
+                    first_skipped_element_offset,
+                    offset - first_skipped_element_offset,
+                    ett_rtps_info_remaining_items,
+                    NULL,
+                    DISSECTION_INFO_REMAINING_ELEMENTS_STR_d,
+                    num_elements - shown_elements);
+            }
+        break;
         }
         default:{
             /* undefined behavior. this should not happen. the following line helps to debug if it happened */
-            proto_item_append_text(tree, "(unknown 0x%016" G_GINT64_MODIFIER "x)", member_kind);
+            if (show) {
+                 proto_item_append_text(tree, "(unknown 0x%016" G_GINT64_MODIFIER "x)", member_kind);
+            }
             break;
         }
     }
@@ -2774,7 +3003,7 @@ static gint dissect_user_defined(proto_tree *tree, tvbuff_t * tvb, gint offset, 
 }
 
 static gint dissect_mutable_member(proto_tree *tree , tvbuff_t * tvb, gint offset, guint encoding,
-        dissection_info * info, gboolean * is_end) {
+        dissection_info * info, gboolean * is_end, gboolean show) {
 
     proto_tree * member;
     guint32 member_id, member_length;
@@ -2803,7 +3032,7 @@ static gint dissect_mutable_member(proto_tree *tree , tvbuff_t * tvb, gint offse
             if (mapping) { /* the library knows how to dissect this */
                 proto_item_append_text(member, "(base found 0x%016" G_GINT64_MODIFIER "x)", key);
                 dissect_user_defined(tree, tvb, offset, encoding, NULL, mapping->member_type_id,
-                    mapping->member_name, EXTENSIBILITY_INVALID, offset, 0, mapping->member_id);
+                    mapping->member_name, EXTENSIBILITY_INVALID, offset, 0, mapping->member_id, show);
                 PROTO_ITEM_SET_HIDDEN(member);
                 return offset + member_length;
             } else
@@ -2817,7 +3046,7 @@ static gint dissect_mutable_member(proto_tree *tree , tvbuff_t * tvb, gint offse
     if (mapping) { /* the library knows how to dissect this */
         proto_item_append_text(member, "(found 0x%016" G_GINT64_MODIFIER "x)", key);
         dissect_user_defined(tree, tvb, offset, encoding, NULL, mapping->member_type_id,
-            mapping->member_name, EXTENSIBILITY_INVALID, offset, 0, mapping->member_id);
+            mapping->member_name, EXTENSIBILITY_INVALID, offset, 0, mapping->member_id, show);
 
     } else
         proto_item_append_text(member, "(not found 0x%016" G_GINT64_MODIFIER "x from 0x%016" G_GINT64_MODIFIER "x)",
@@ -5211,9 +5440,11 @@ static void rtps_util_add_type_element_struct(proto_tree *tree,
   long_number = tvb_get_guint32(tvb, offset_tmp, encoding);
 
   offset_tmp += 4;
-  max_elements = (long_number < rtps_max_data_type_elements)
-       ? long_number
-       : rtps_max_data_type_elements;
+
+  max_elements = (0/*enable_max_data_type_elements*/)
+          ? MIN(long_number, rtps_max_data_type_elements)
+          : long_number;
+
   if (info) {
       info->elements = (dissection_element*)wmem_alloc0(
             wmem_file_scope(),
@@ -5844,7 +6075,7 @@ static gboolean rtps_util_topic_info_add_column_info_and_try_dissector(proto_tre
           proto_item_append_text(tree, " (TypeId: 0x%016" G_GINT64_MODIFIER "x)", info->type_id);
           return dissect_user_defined(tree, tvb, offset, encoding, info,
               info->type_id, info->member_name, EXTENSIBILITY_INVALID, offset,
-              0 /* flags */, 0 /* member_id */);
+              0 /* flags */, 0 /* member_id */, TRUE);
         }
       }
       /* This part tries to dissect the content using a dissector */
@@ -14894,12 +15125,31 @@ void proto_register_rtps(void) {
             "performances if the trace has a lot of big batched samples.",
             10, &rtps_max_batch_samples_dissected);
 
+  prefs_register_bool_preference(rtps_module, "enable_max_dissection_info_elements",
+            "Limit the number of elements dissected in structs",
+            "Enabling this option may affect "
+            "performance if the trace has messages with large Data Types.",
+            &enable_max_data_type_elements);
+
   prefs_register_uint_preference(rtps_module, "max_dissection_info_elements",
-            "Max disection info elements shown",
+            "Max Dissection info elements shown in structs",
             "Specifies the maximum number of Data Type elements dissected. "
             "Increasing this value may affect "
             "performance if the trace has messages with large Data Types.",
             10, &rtps_max_data_type_elements);
+
+  prefs_register_bool_preference(rtps_module, "enable_max_dissection_array_elements",
+            "Limit the number of elements dissected in arrays or sequences",
+            "Disabling this option may affect "
+            "performance if the trace has messages with large arrays or sequences.",
+            &enable_max_array_data_type_elements);
+
+  prefs_register_uint_preference(rtps_module, "max_dissection_array_elements",
+            "Max Dissection elements shown in arrays or sequences",
+            "Specifies the maximum number of Data Type elements dissected in arrays or sequences. "
+            "Increasing this value may affect "
+            "performance if the trace has messages with large Data Types.",
+            10, &rtps_max_array_data_type_elements);
 
   prefs_register_bool_preference(rtps_module, "enable_topic_info",
               "Enable Topic Information",
