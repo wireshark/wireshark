@@ -4195,12 +4195,18 @@ dissect_usb_hid_report_globalitem_data(packet_info *pinfo _U_, proto_tree *tree,
             proto_item_append_text(ti, " (%u)", val);
             break;
         case USBHID_GLOBALITEM_TAG_PUSH:
-            proto_tree_add_item_ret_uint(tree, hf_usb_hid_globalitem_push, tvb, offset, bSize, ENC_LITTLE_ENDIAN, &val);
-            proto_item_append_text(ti, " (%u)", val);
+            // Push and Pop have no data, but the HID spec 6.2.2.7 doesn't prohibit it.
+            if(bSize > 0) {
+                proto_tree_add_item_ret_uint(tree, hf_usb_hid_globalitem_push, tvb, offset, bSize, ENC_LITTLE_ENDIAN, &val);
+                proto_item_append_text(ti, " (%u)", val);
+            }
             break;
         case USBHID_GLOBALITEM_TAG_POP:
-            proto_tree_add_item_ret_uint(tree, hf_usb_hid_globalitem_pop, tvb, offset, bSize, ENC_LITTLE_ENDIAN, &val);
-            proto_item_append_text(ti, " (%u)", val);
+            // Push and Pop have no data, but the HID spec 6.2.2.7 doesn't prohibit it.
+            if(bSize > 0) {
+                proto_tree_add_item_ret_uint(tree, hf_usb_hid_globalitem_pop, tvb, offset, bSize, ENC_LITTLE_ENDIAN, &val);
+                proto_item_append_text(ti, " (%u)", val);
+            }
             break;
         default:
             proto_tree_add_item(tree, hf_usb_hid_item_unk_data, tvb, offset, bSize, ENC_NA);
