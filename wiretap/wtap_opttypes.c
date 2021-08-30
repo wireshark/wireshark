@@ -143,6 +143,57 @@ static void if_filter_free(if_filter_opt_t* filter_src)
     }
 }
 
+static packet_verdict_opt_t
+packet_verdict_dup(packet_verdict_opt_t* verdict_src)
+{
+    packet_verdict_opt_t verdict_dest;
+
+    memset(&verdict_dest, 0, sizeof(verdict_dest));
+
+    /* Deep copy. */
+    verdict_dest.type = verdict_src->type;
+    switch (verdict_src->type) {
+
+    case packet_verdict_hardware:
+        /* array of octets */
+        verdict_dest.data.verdict_bytes =
+            g_byte_array_new_take((guint8 *)g_memdup2(verdict_src->data.verdict_bytes->data,
+                                                      verdict_src->data.verdict_bytes->len),
+                                  verdict_src->data.verdict_bytes->len);
+        break;
+
+    case packet_verdict_linux_ebpf_tc:
+        /* eBPF TC_ACT_ value */
+        verdict_dest.data.verdict_linux_ebpf_tc =
+            verdict_src->data.verdict_linux_ebpf_tc;
+        break;
+
+    case packet_verdict_linux_ebpf_xdp:
+        /* xdp_action value */
+        verdict_dest.data.verdict_linux_ebpf_xdp =
+            verdict_src->data.verdict_linux_ebpf_xdp;
+        break;
+
+    default:
+        break;
+    }
+    return verdict_dest;
+}
+
+void wtap_packet_verdict_free(packet_verdict_opt_t* verdict)
+{
+    switch (verdict->type) {
+
+    case packet_verdict_hardware:
+        /* array of bytes */
+        g_byte_array_free(verdict->data.verdict_bytes, TRUE);
+        break;
+
+    default:
+        break;
+    }
+}
+
 static void wtap_opttype_block_register(wtap_blocktype_t *blocktype)
 {
     wtap_block_type_t block_type;
@@ -309,6 +360,10 @@ static void wtap_block_free_option(wtap_block_t block, wtap_option_t *opt)
         }
         break;
 
+    case WTAP_OPTTYPE_PACKET_VERDICT:
+        wtap_packet_verdict_free(&opt->value.packet_verdictval);
+        break;
+
     default:
         break;
     }
@@ -449,6 +504,10 @@ wtap_block_copy(wtap_block_t dest_block, wtap_block_t src_block)
                 break;
             }
             break;
+
+        case WTAP_OPTTYPE_PACKET_VERDICT:
+            wtap_block_add_packet_verdict_option(dest_block, src_opt->option_id, &src_opt->value.packet_verdictval);
+            break;
         }
     }
 }
@@ -460,109 +519,6 @@ wtap_block_t wtap_block_make_copy(wtap_block_t block)
     block_copy = wtap_block_create(block->info->block_type);
     wtap_block_copy(block_copy, block);
     return block_copy;
-}
-
-/*
- * Get the (un-padded) size of the given option value, by its type.
- */
-gsize
-wtap_block_option_get_value_size(wtap_opttype_e option_type, wtap_optval_t *option)
-{
-    gsize ret_val = 0;
-
-    switch(option_type) {
-
-    case WTAP_OPTTYPE_UINT8:
-        ret_val += 1;
-        break;
-
-    case WTAP_OPTTYPE_UINT32:
-        ret_val += 4;
-        break;
-
-    case WTAP_OPTTYPE_UINT64:
-        ret_val += 8;
-        break;
-
-    case WTAP_OPTTYPE_IPv4:
-        ret_val += 4;
-        break;
-
-    case WTAP_OPTTYPE_IPv6:
-        ret_val += IPv6_ADDR_SIZE;
-        break;
-
-    case WTAP_OPTTYPE_STRING:
-        ret_val += strlen(option->stringval);
-        break;
-
-    case WTAP_OPTTYPE_BYTES:
-        ret_val += g_bytes_get_size(option->byteval);
-        break;
-
-    case WTAP_OPTTYPE_IF_FILTER:
-        switch(option->if_filterval.type) {
-
-        case if_filter_pcap:
-            ret_val += 1 + strlen(option->if_filterval.data.filter_str);
-            break;
-
-        case if_filter_bpf:
-            ret_val += 1 + (8 * option->if_filterval.data.bpf_prog.bpf_prog_len);
-            break;
-        }
-        break;
-
-    case WTAP_OPTTYPE_CUSTOM:
-        /* PEN */
-        ret_val += sizeof(guint32);
-        switch (option->custom_opt.pen) {
-        case PEN_NFLX:
-            /* NFLX type */
-            ret_val += sizeof(guint32);
-            ret_val += option->custom_opt.data.nflx_data.custom_data_len;
-            break;
-        default:
-            ret_val += option->custom_opt.data.generic_data.custom_data_len;
-            break;
-        }
-        break;
-    }
-    return ret_val;
-}
-
-/*
- * Get the size of all options, padded to a 32-bit boundary.
- */
-gsize
-wtap_block_get_options_size_padded(wtap_block_t block)
-{
-    gsize ret_val = 0;
-    gsize opt_size = 0;
-    guint i;
-    wtap_option_t *opt;
-    const wtap_opttype_t *opttype;
-
-    if (block == NULL) {
-        return 0;
-    }
-
-    for (i = 0; i < block->options->len; i++)
-    {
-
-        opt = &g_array_index(block->options, wtap_option_t, i);
-        opttype = GET_OPTION_TYPE(block->info->options, opt->option_id);
-
-        opt_size = ROUND_TO_4BYTE(wtap_block_option_get_value_size(opttype->data_type, &opt->value));
-
-        /* pcapng.c silently skips over data that's too big to fit in an option.
-         * Reflect that when calculating the size of our options.
-         */
-        if (opt_size <= 0xffff) {
-            ret_val += opt_size + 4; // 4 for size of type and length fields themselves
-        }
-    }
-    return ret_val;
 }
 
 guint
@@ -1429,6 +1385,50 @@ wtap_block_add_custom_option(wtap_block_t block, guint option_id, guint32 pen, c
 }
 
 wtap_opttype_return_val
+wtap_block_add_packet_verdict_option(wtap_block_t block, guint option_id, packet_verdict_opt_t* value)
+{
+    wtap_opttype_return_val ret;
+    wtap_option_t *opt;
+
+    ret = wtap_block_add_option_common(block, option_id, WTAP_OPTTYPE_PACKET_VERDICT, &opt);
+    if (ret != WTAP_OPTTYPE_SUCCESS)
+        return ret;
+    opt->value.packet_verdictval = packet_verdict_dup(value);
+    return WTAP_OPTTYPE_SUCCESS;
+}
+
+wtap_opttype_return_val
+wtap_block_set_nth_packet_verdict_option_value(wtap_block_t block, guint option_id, guint idx, packet_verdict_opt_t* value)
+{
+    wtap_opttype_return_val ret;
+    wtap_optval_t *optval;
+    packet_verdict_opt_t prev_value;
+
+    ret = wtap_block_get_nth_option_common(block, option_id, WTAP_OPTTYPE_PACKET_VERDICT, idx, &optval);
+    if (ret != WTAP_OPTTYPE_SUCCESS)
+        return ret;
+    prev_value = optval->packet_verdictval;
+    optval->packet_verdictval = packet_verdict_dup(value);
+    /* Free after memory is duplicated in case structure was manipulated with a "get then set" */
+    wtap_packet_verdict_free(&prev_value);
+
+    return WTAP_OPTTYPE_SUCCESS;
+}
+
+wtap_opttype_return_val
+wtap_block_get_nth_packet_verdict_option_value(wtap_block_t block, guint option_id, guint idx, packet_verdict_opt_t* value)
+{
+    wtap_opttype_return_val ret;
+    wtap_optval_t *optval;
+
+    ret = wtap_block_get_nth_option_common(block, option_id, WTAP_OPTTYPE_STRING, idx, &optval);
+    if (ret != WTAP_OPTTYPE_SUCCESS)
+        return ret;
+    *value = optval->packet_verdictval;
+    return WTAP_OPTTYPE_SUCCESS;
+}
+
+wtap_opttype_return_val
 wtap_block_remove_option(wtap_block_t block, guint option_id)
 {
     const wtap_opttype_t *opttype;
@@ -1849,8 +1849,7 @@ void wtap_opttypes_initialize(void)
     static const wtap_opttype_t pkt_verdict = {
         "verdict",
         "Packet Verdict",
-        WTAP_OPTTYPE_BYTES,  // maybe replace with a pkt_verdict_opt_t
-                             // (or maybe not, packet-frame.c reads the raw bytes)
+        WTAP_OPTTYPE_PACKET_VERDICT,
         WTAP_OPTTYPE_FLAG_MULTIPLE_ALLOWED
     };
 

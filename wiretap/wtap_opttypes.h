@@ -281,7 +281,8 @@ typedef enum {
     WTAP_OPTTYPE_IPv4,
     WTAP_OPTTYPE_IPv6,
     WTAP_OPTTYPE_IF_FILTER,
-    WTAP_OPTTYPE_CUSTOM
+    WTAP_OPTTYPE_CUSTOM,
+    WTAP_OPTTYPE_PACKET_VERDICT
 } wtap_opttype_e;
 
 typedef enum {
@@ -346,6 +347,26 @@ typedef struct custom_opt_s {
     } data;
 } custom_opt_t;
 
+/* Packet - packet_verdict option structure */
+
+/*
+ * Type of verdict.
+ */
+typedef enum {
+    packet_verdict_hardware =       0, /* array of octets */
+    packet_verdict_linux_ebpf_tc  = 1, /* 64-bit unsigned integer TC_ACT_ value */
+    packet_verdict_linux_ebpf_xdp = 2  /* 64-bit unsigned integer xdp_action value */
+} packet_verdict_type_e;
+
+typedef struct packet_verdict_opt_s {
+    packet_verdict_type_e type;
+    union {
+        GByteArray *verdict_bytes;
+        guint64     verdict_linux_ebpf_tc;
+        guint64     verdict_linux_ebpf_xdp;
+    }               data;
+} packet_verdict_opt_t;
+
 /*
  * Structure describing a NFLX custom option.
  */
@@ -370,6 +391,7 @@ typedef union {
     GBytes *byteval;
     if_filter_opt_t if_filterval;
     custom_opt_t custom_opt;
+    packet_verdict_opt_t packet_verdictval;
 } wtap_optval_t;
 
 /*
@@ -977,6 +999,46 @@ wtap_block_get_nflx_custom_option(wtap_block_t block, guint32 nflx_type, char *n
 WS_DLL_PUBLIC wtap_opttype_return_val
 wtap_block_add_custom_option(wtap_block_t block, guint option_id, guint32 pen, const char *custom_data, gsize custom_data_len);
 
+/** Add an packet_verdict option value to a block
+ *
+ * @param[in] block Block to which to add the option
+ * @param[in] option_id Identifier value for option
+ * @param[in] value Value of option
+ * @return wtap_opttype_return_val - WTAP_OPTTYPE_SUCCESS if successful,
+ * error code otherwise
+ */
+WS_DLL_PUBLIC wtap_opttype_return_val
+wtap_block_add_packet_verdict_option(wtap_block_t block, guint option_id, packet_verdict_opt_t* value);
+
+/** Set packet_verdict option value for the nth instsance of a particular
+ * option in a block
+ *
+ * @param[in] block Block in which to set the option value
+ * @param[in] option_id Identifier value for option
+ * @param[in] idx Instance number of option with that ID
+ * @param[in] value New value of option
+ * @return wtap_opttype_return_val - WTAP_OPTTYPE_SUCCESS if successful,
+ * error code otherwise
+ */
+WS_DLL_PUBLIC wtap_opttype_return_val
+wtap_block_set_nth_packet_verdict_option_value(wtap_block_t block, guint option_id, guint idx, packet_verdict_opt_t* value);
+
+/** Get packet_verdict option value for the nth instance of a particular
+ * option in a block
+ *
+ * @param[in] block Block from which to get the option value
+ * @param[in] option_id Identifier value for option
+ * @param[in] idx Instance number of option with that ID
+ * @param[out] value Returned value of option value
+ * @return wtap_opttype_return_val - WTAP_OPTTYPE_SUCCESS if successful,
+ * error code otherwise
+ */
+WS_DLL_PUBLIC wtap_opttype_return_val
+wtap_block_get_nth_packet_verdict_option_value(wtap_block_t block, guint option_id, guint idx, packet_verdict_opt_t* value) G_GNUC_WARN_UNUSED_RESULT;
+
+WS_DLL_PUBLIC void
+wtap_packet_verdict_free(packet_verdict_opt_t* verdict);
+
 /** Remove an option from a block
  *
  * @param[in] block Block from which to remove the option
@@ -997,26 +1059,6 @@ wtap_block_remove_option(wtap_block_t block, guint option_id);
  */
 WS_DLL_PUBLIC wtap_opttype_return_val
 wtap_block_remove_nth_option_instance(wtap_block_t block, guint option_id, guint idx);
-
-/**
- * Get the original (unpadded) length of an option's value
- *
- * @param[in] option_type The `wtap_opttype_e` for this option
- * @param[in] option The option's value to measure
- * @return gsize - the number of bytes occupied by the option's value
- */
-WS_DLL_PUBLIC gsize
-wtap_block_option_get_value_size(wtap_opttype_e option_type, wtap_optval_t *option);
-
-/** Get the padded length of all options in the block
- *
- * @param[in] block Block from which to remove the option instance
- * @return gsize - size in bytes of all options, each padded to 32 bits
- * @note The size of any options with values larger than can be held in an option
- * is NOT included, because pcapng.c skips over such option values.
- */
-WS_DLL_PUBLIC gsize
-wtap_block_get_options_size_padded(wtap_block_t block);
 
 /** Copy a block to another.
  *

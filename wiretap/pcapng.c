@@ -1639,6 +1639,7 @@ pcapng_process_packet_block_option(wtapng_block_t *wblock,
                                    int *err, gchar **err_info)
 {
     guint64 tmp64;
+    packet_verdict_opt_t packet_verdict;
 
     /*
      * Handle option content.
@@ -1725,7 +1726,11 @@ pcapng_process_packet_block_option(wtapng_block_t *wblock,
             switch (option_content[0]) {
 
                 case(OPT_VERDICT_TYPE_HW):
-                    /* No byte swapping needed */
+                    packet_verdict.type = packet_verdict_hardware;
+                    packet_verdict.data.verdict_bytes =
+                        g_byte_array_new_take((guint8 *)g_memdup2(&option_content[1],
+                                                                  option_length - 1),
+                                              option_length - 1);
                     break;
 
                 case(OPT_VERDICT_TYPE_TC):
@@ -1736,11 +1741,15 @@ pcapng_process_packet_block_option(wtapng_block_t *wblock,
                         /* XXX - free anything? */
                         return FALSE;
                     }
-                    if (section_info->byte_swapped) {
-                        memcpy(&tmp64, option_content + 1, sizeof(tmp64));
+                    /*  Don't cast a guint8 * into a guint64 *--the
+                     *  guint8 * may not point to something that's
+                     *  aligned correctly.
+                     */
+                    memcpy(&tmp64, &option_content[1], sizeof(guint64));
+                    if (section_info->byte_swapped)
                         tmp64 = GUINT64_SWAP_LE_BE(tmp64);
-                        memcpy((void *)(option_content + 1), &tmp64, sizeof(tmp64));
-                    }
+                    packet_verdict.type = packet_verdict_linux_ebpf_tc;
+                    packet_verdict.data.verdict_linux_ebpf_tc = tmp64;
                     break;
 
                 case(OPT_VERDICT_TYPE_XDP):
@@ -1751,24 +1760,32 @@ pcapng_process_packet_block_option(wtapng_block_t *wblock,
                         /* XXX - free anything? */
                         return FALSE;
                     }
-                    if (section_info->byte_swapped) {
-                        memcpy(&tmp64, option_content + 1, sizeof(tmp64));
+                    /*  Don't cast a guint8 * into a guint64 *--the
+                     *  guint8 * may not point to something that's
+                     *  aligned correctly.
+                     */
+                    memcpy(&tmp64, &option_content[1], sizeof(guint64));
+                    if (section_info->byte_swapped)
                         tmp64 = GUINT64_SWAP_LE_BE(tmp64);
-                        memcpy((void*)(option_content + 1), &tmp64, sizeof(tmp64));
-                    }
+                    packet_verdict.type = packet_verdict_linux_ebpf_xdp;
+                    packet_verdict.data.verdict_linux_ebpf_xdp = tmp64;
                     break;
 
                 default:
                     /* Silently ignore unknown verdict types */
                     return TRUE;
             }
-            pcapng_process_bytes_option(wblock, option_code, option_length, (void*)option_content);
+            wtap_block_add_packet_verdict_option(wblock->block, option_code, &packet_verdict);
+            wtap_packet_verdict_free(&packet_verdict);
             ws_debug("verdict type %u, data len %u",
                      option_content[0], option_length - 1);
             break;
         default:
-            ws_debug("unknown option %u - ignoring %u bytes",
-                     option_code, option_length);
+            if (!pcapng_process_unhandled_option(wblock, BT_INDEX_PBS,
+                                                 section_info, option_code,
+                                                 option_length, option_content,
+                                                 err, err_info))
+                return FALSE;
             break;
     }
     return TRUE;
@@ -3829,7 +3846,7 @@ static guint32 pcapng_compute_custom_option_size(wtap_optval_t *optval)
     size = sizeof(guint32);
     switch (optval->custom_opt.pen) {
     case PEN_NFLX:
-        /* PEN */
+        /* NFLX type */
         size += sizeof(guint32);
         size += optval->custom_opt.data.nflx_data.custom_data_len;
         break;
@@ -3849,6 +3866,39 @@ static guint32 pcapng_compute_custom_option_size(wtap_optval_t *optval)
     size += pad;
 
     return (guint32)size;
+}
+
+static guint32 pcapng_compute_packet_verdict_option_size(wtap_optval_t *optval)
+{
+    packet_verdict_opt_t* verdict = &optval->packet_verdictval;
+    guint32 size;
+    guint32 pad;
+
+    switch (verdict->type) {
+
+    case packet_verdict_hardware:
+        size = verdict->data.verdict_bytes->len;
+        break;
+
+    case packet_verdict_linux_ebpf_tc:
+        size = 9;
+        break;
+
+    case packet_verdict_linux_ebpf_xdp:
+        size = 9;
+        break;
+
+    default:
+        size = 0;
+        break;
+    }
+    if ((size % 4)) {
+        pad = 4 - (size % 4);
+    } else {
+        pad = 0;
+    }
+    size += pad;
+    return size;
 }
 
 static gboolean
@@ -4097,6 +4147,7 @@ static gboolean pcapng_write_string_option(wtap_dumper *wdh, guint option_id, wt
     return TRUE;
 }
 
+#if 0
 static gboolean pcapng_write_bytes_option(wtap_dumper *wdh, guint option_id, wtap_optval_t *optval, int *err)
 {
     struct pcapng_option_header option_hdr;
@@ -4177,6 +4228,7 @@ static gboolean pcapng_write_ipv6_option(wtap_dumper *wdh, guint option_id, wtap
 
     return TRUE;
 }
+#endif
 
 static gboolean pcapng_write_if_filter_option(wtap_dumper *wdh, guint option_id, wtap_optval_t *optval, int *err)
 {
@@ -4363,6 +4415,99 @@ static gboolean pcapng_write_custom_option(wtap_dumper *wdh, guint option_id, wt
     return TRUE;
 }
 
+static gboolean pcapng_write_packet_verdict_option(wtap_dumper *wdh, guint option_id, wtap_optval_t *optval, int *err)
+{
+    packet_verdict_opt_t* verdict = &optval->packet_verdictval;
+    struct pcapng_option_header option_hdr;
+    guint8 type;
+    size_t size;
+    const guint32 zero_pad = 0;
+    guint32 pad;
+
+    switch (verdict->type) {
+
+    case packet_verdict_hardware:
+        size = verdict->data.verdict_bytes->len;
+        if (size > 65535) {
+            /*
+             * Too big to fit in the option.
+             * Don't write anything.
+             *
+             * XXX - truncate it?  Report an error?
+             */
+            return TRUE;
+        }
+        option_hdr.type         = option_id;
+        option_hdr.value_length = (guint16)size;
+        if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
+            return FALSE;
+        wdh->bytes_dumped += 4;
+
+        type = packet_verdict_hardware;
+        if (!wtap_dump_file_write(wdh, &type, sizeof(guint8), err))
+            return FALSE;
+        wdh->bytes_dumped += 1;
+
+        if (!wtap_dump_file_write(wdh, verdict->data.verdict_bytes->data, size,
+                                  err))
+            return FALSE;
+        wdh->bytes_dumped += size;
+        break;
+
+    case packet_verdict_linux_ebpf_tc:
+        size = 9;
+        option_hdr.type         = option_id;
+        option_hdr.value_length = (guint16)size;
+        if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
+            return FALSE;
+        wdh->bytes_dumped += 4;
+
+        type = packet_verdict_linux_ebpf_tc;
+        if (!wtap_dump_file_write(wdh, &type, sizeof(guint8), err))
+            return FALSE;
+        wdh->bytes_dumped += 1;
+
+        if (!wtap_dump_file_write(wdh, &verdict->data.verdict_linux_ebpf_tc,
+                                  sizeof(guint64), err))
+            return FALSE;
+        wdh->bytes_dumped += 8;
+        break;
+
+    case packet_verdict_linux_ebpf_xdp:
+        size = 9;
+        option_hdr.type         = option_id;
+        option_hdr.value_length = (guint16)size;
+        if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
+            return FALSE;
+        wdh->bytes_dumped += 4;
+
+        type = packet_verdict_linux_ebpf_xdp;
+        if (!wtap_dump_file_write(wdh, &type, sizeof(guint8), err))
+            return FALSE;
+        wdh->bytes_dumped += 1;
+
+        if (!wtap_dump_file_write(wdh, &verdict->data.verdict_linux_ebpf_xdp,
+                                  sizeof(guint64), err))
+            return FALSE;
+        wdh->bytes_dumped += 8;
+        break;
+
+    default:
+        /* Unknown - don't write it out. */
+        return TRUE;
+    }
+
+    /* write padding (if any) */
+    if ((size % 4)) {
+        pad = 4 - (size % 4);
+        if (!wtap_dump_file_write(wdh, &zero_pad, pad, err))
+            return FALSE;
+
+        wdh->bytes_dumped += pad;
+    }
+    return TRUE;
+}
+
 static gboolean write_block_option(wtap_block_t block, guint option_id, wtap_opttype_e option_type _U_, wtap_optval_t *optval, void* user_data)
 {
     write_options_t* write_options = (write_options_t*)user_data;
@@ -4393,8 +4538,9 @@ static gboolean write_block_option(wtap_block_t block, guint option_id, wtap_opt
          */
         break;
     default:
-        /* Block-type dependent; call the callback. */
-        if (!(*write_options->write_option)(write_options->wdh, block, option_id, option_type, optval, write_options->err))
+        /* Block-type dependent; call the callback, if we have one. */
+        if (write_options->write_option != NULL &&
+            !(*write_options->write_option)(write_options->wdh, block, option_id, option_type, optval, write_options->err))
             return FALSE;
         break;
     }
@@ -4485,8 +4631,8 @@ pcapng_write_section_header_block(wtap_dumper *wdh, int *err)
     wdh->bytes_dumped += sizeof shb;
 
     if (wdh_shb) {
+        /* Write options, if we have any */
         if (options_size != 0) {
-            /* Write options */
             if (!write_options(wdh, wdh_shb, write_wtap_shb_option, err))
                 return FALSE;
         }
@@ -4501,67 +4647,114 @@ pcapng_write_section_header_block(wtap_dumper *wdh, int *err)
     return TRUE;
 }
 
-typedef struct pcapng_write_block_s
-{
-    wtap_dumper *wdh;
-    int *err;
-}
-pcapng_write_block_t;
-
-/* Helper function used in pcapng_write_enhanced_packet_block().
- * Meant to be generic enough to be used elsewhere too, but currently,
- * only WTAP_OPTTYPE_STRING and WTAP_OPTTYPE_BYTES are exercised (and thus tested).
- * This is a wtap_block_foreach_func.
+/* options defined in Section 2.5 (Options)
+ * Name           Code Length     Description
+ * opt_comment    1    variable   A UTF-8 string containing a comment that is associated to the current block.
+ *
+ * Enhanced Packet Block options
+ * epb_flags      2    4          A flags word containing link-layer information. A complete specification of
+ *                                the allowed flags can be found in Appendix A (Packet Block Flags Word).
+ * epb_hash       3    variable   This option contains a hash of the packet. The first byte specifies the hashing algorithm,
+ *                                while the following bytes contain the actual hash, whose size depends on the hashing algorithm,
+ *                                                                and hence from the value in the first bit. The hashing algorithm can be: 2s complement
+ *                                                                (algorithm byte = 0, size=XXX), XOR (algorithm byte = 1, size=XXX), CRC32 (algorithm byte = 2, size = 4),
+ *                                                                MD-5 (algorithm byte = 3, size=XXX), SHA-1 (algorithm byte = 4, size=XXX).
+ *                                                                The hash covers only the packet, not the header added by the capture driver:
+ *                                                                this gives the possibility to calculate it inside the network card.
+ *                                                                The hash allows easier comparison/merging of different capture files, and reliable data transfer between the
+ *                                                                data acquisition system and the capture library.
+ * epb_dropcount   4   8          A 64bit integer value specifying the number of packets lost (by the interface and the operating system)
+ *                                between this packet and the preceding one.
+ * epb_packetid    5   8          The epb_packetid option is a 64-bit unsigned integer that
+ *                                uniquely identifies the packet.  If the same packet is seen
+ *                                by multiple interfaces and there is a way for the capture
+ *                                application to correlate them, the same epb_packetid value
+ *                                must be used.  An example could be a router that captures
+ *                                packets on all its interfaces in both directions.  When a
+ *                                packet hits interface A on ingress, an EPB entry gets
+ *                                created, TTL gets decremented, and right before it egresses
+ *                                on interface B another EPB entry gets created in the trace
+ *                                file.  In this case, two packets are in the capture file,
+ *                                which are not identical but the epb_packetid can be used to
+ *                                correlate them.
+ * epb_queue       6   4          The epb_queue option is a 32-bit unsigned integer that
+ *                                identifies on which queue of the interface the specific
+ *                                packet was received.
+ * epb_verdict     7   variable   The epb_verdict option stores a verdict of the packet.  The
+ *                                verdict indicates what would be done with the packet after
+ *                                processing it.  For example, a firewall could drop the
+ *                                packet.  This verdict can be set by various components, i.e.
+ *                                Hardware, Linux's eBPF TC or XDP framework, etc.  etc.  The
+ *                                first octet specifies the verdict type, while the following
+ *                                octets contain the actual verdict data, whose size depends on
+ *                                the verdict type, and hence from the value in the first
+ *                                octet.  The verdict type can be: Hardware (type octet = 0,
+ *                                size = variable), Linux_eBPF_TC (type octet = 1, size = 8
+ *                                (64-bit unsigned integer), value = TC_ACT_* as defined in the
+ *                                Linux pck_cls.h include), Linux_eBPF_XDP (type octet = 2,
+ *                                size = 8 (64-bit unsigned integer), value = xdp_action as
+ *                                defined in the Linux pbf.h include).
+ * opt_endofopt    0   0          It delimits the end of the optional fields. This block cannot be repeated within a given list of options.
  */
-static gboolean
-pcapng_write_option_cb(wtap_block_t block _U_, guint option_id _U_, wtap_opttype_e option_type, wtap_optval_t *option, void *user_data)
+static guint32
+compute_epb_option_size(wtap_block_t block _U_, guint option_id, wtap_opttype_e option_type _U_, wtap_optval_t* optval)
 {
-    pcapng_write_block_t* write_block = (pcapng_write_block_t*)user_data;
-    gboolean ok = TRUE;
+    guint32 size;
 
-    /* The functions below write their option type and length fields, and any needed padding. */
-    switch(option_type)
+    switch(option_id)
     {
-
-    case WTAP_OPTTYPE_UINT8:
-        ok = pcapng_write_uint8_option(write_block->wdh, option_id, option, write_block->err);
+    case OPT_EPB_FLAGS:
+        size = 4;
         break;
-
-    case WTAP_OPTTYPE_UINT32:
-        ok = pcapng_write_uint32_option(write_block->wdh, option_id, option, write_block->err);
+    case OPT_EPB_DROPCOUNT:
+        size = 8;
         break;
-
-    case WTAP_OPTTYPE_UINT64:
-        ok = pcapng_write_uint64_option(write_block->wdh, option_id, option, write_block->err);
+    case OPT_EPB_PACKETID:
+        size = 8;
         break;
-
-    case WTAP_OPTTYPE_IPv4:
-        // wtap_opttypes.h implies this is stored in network byte order
-        ok = pcapng_write_ipv4_option(write_block->wdh, option_id, option, write_block->err);
+    case OPT_EPB_QUEUE:
+        size = 4;
         break;
-
-    case WTAP_OPTTYPE_IPv6:
-        ok = pcapng_write_ipv6_option(write_block->wdh, option_id, option, write_block->err);
+    case OPT_EPB_VERDICT:
+        size = pcapng_compute_packet_verdict_option_size(optval);
         break;
-
-    case WTAP_OPTTYPE_STRING:
-        ok = pcapng_write_string_option(write_block->wdh, option_id, option, write_block->err);
-        break;
-
-    case WTAP_OPTTYPE_BYTES:
-        ok = pcapng_write_bytes_option(write_block->wdh, option_id, option, write_block->err);
-        break;
-
-    case WTAP_OPTTYPE_IF_FILTER:
-        ok = pcapng_write_if_filter_option(write_block->wdh, option_id, option, write_block->err);
-        break;
-
-    case WTAP_OPTTYPE_CUSTOM:
-        ok = pcapng_write_custom_option(write_block->wdh, option_id, option, write_block->err);
+    default:
+        /* Unknown options - size by datatype? */
+        size = 0;
         break;
     }
+    return size;
+}
 
-    return ok;
+static gboolean write_wtap_epb_option(wtap_dumper *wdh, wtap_block_t block _U_, guint option_id, wtap_opttype_e option_type _U_, wtap_optval_t *optval, int *err)
+{
+    switch(option_id)
+    {
+    case OPT_PKT_FLAGS:
+        if (!pcapng_write_uint32_option(wdh, OPT_EPB_FLAGS, optval, err))
+            return FALSE;
+        break;
+    case OPT_PKT_DROPCOUNT:
+        if (!pcapng_write_uint64_option(wdh, OPT_EPB_DROPCOUNT, optval, err))
+            return FALSE;
+        break;
+    case OPT_PKT_PACKETID:
+        if (!pcapng_write_uint64_option(wdh, OPT_EPB_PACKETID, optval, err))
+            return FALSE;
+        break;
+    case OPT_PKT_QUEUE:
+        if (!pcapng_write_uint32_option(wdh, OPT_EPB_QUEUE, optval, err))
+            return FALSE;
+        break;
+    case OPT_PKT_VERDICT:
+        if (!pcapng_write_packet_verdict_option(wdh, OPT_EPB_QUEUE, optval,
+                                                err))
+        break;
+    default:
+        /* Unknown options - write by datatype? */
+        break;
+    }
+    return TRUE; /* success */
 }
 
 static gboolean
@@ -4571,19 +4764,14 @@ pcapng_write_enhanced_packet_block(wtap_dumper *wdh, const wtap_rec *rec,
     const union wtap_pseudo_header *pseudo_header = &rec->rec_header.packet_header.pseudo_header;
     pcapng_block_header_t bh;
     pcapng_enhanced_packet_block_t epb;
+    guint32 options_size = 0;
     guint64 ts;
     const guint32 zero_pad = 0;
     guint32 pad_len;
     guint32 phdr_len;
-    gboolean have_options = FALSE;
     guint32 options_total_length = 0;
-    gsize options_len = 0;
     wtap_block_t int_data;
     wtapng_if_descr_mandatory_t *int_data_mand;
-    pcapng_write_block_t block_data;
-
-    block_data.wdh = wdh;
-    block_data.err = err;
 
     /* Don't write anything we're not willing to read. */
     if (rec->rec_header.packet_header.caplen > wtap_max_snaplen_for_encap(wdh->encap)) {
@@ -4597,24 +4785,15 @@ pcapng_write_enhanced_packet_block(wtap_dumper *wdh, const wtap_rec *rec,
     } else {
         pad_len = 0;
     }
-    if (rec->block != NULL) {
-        // Remember to also add newly-supported option types to packet_block_options_supported
-        // below.
-        options_len = wtap_block_get_options_size_padded(rec->block);
-        if (options_len > 0) {
-            have_options = TRUE;
-            options_total_length += (guint32)options_len;
-        }
-    }
 
-    if (have_options) {
-        /* End-of options tag */
-        options_total_length += 4;
+    if (rec->block != NULL) {
+        /* Compute size of all the options */
+        options_size = compute_options_size(rec->block, compute_epb_option_size);
     }
 
     /* write (enhanced) packet block header */
     bh.block_type = BLOCK_TYPE_EPB;
-    bh.block_total_length = (guint32)sizeof(bh) + (guint32)sizeof(epb) + phdr_len + rec->rec_header.packet_header.caplen + pad_len + options_total_length + 4;
+    bh.block_total_length = (guint32)sizeof(bh) + (guint32)sizeof(epb) + phdr_len + rec->rec_header.packet_header.caplen + pad_len + options_total_length + options_size + 4;
 
     if (!wtap_dump_file_write(wdh, &bh, sizeof bh, err))
         return FALSE;
@@ -4687,65 +4866,9 @@ pcapng_write_enhanced_packet_block(wtap_dumper *wdh, const wtap_rec *rec,
         wdh->bytes_dumped += pad_len;
     }
 
-    /* XXX - write (optional) block options */
-    /* options defined in Section 2.5 (Options)
-     * Name           Code  Length     Description
-     * opt_comment    1     variable   A UTF-8 string containing a comment that is associated to the current block.
-     * opt_custom     2988  variable   A UTF-8 string which can be copied.
-     * opt_custom     2989  variable   Binary octets which can be copied.
-     * opt_custom     19372 variable   A UTF-8 string which should not be copied.
-     * opt_custom     19373 variable   Binary octets which should not be copied.
-     * Enhanced Packet Block options
-     * epb_flags      2     4          A flags word containing link-layer information. A complete specification of
-     *                                 the allowed flags can be found in Appendix A (Packet Block Flags Word).
-     * epb_hash       3     variable   This option contains a hash of the packet. The first byte specifies the hashing algorithm,
-     *                                 while the following bytes contain the actual hash, whose size depends on the hashing algorithm,
-     *                                 and hence from the value in the first bit. The hashing algorithm can be: 2s complement
-     *                                 (algorithm byte = 0, size=XXX), XOR (algorithm byte = 1, size=XXX), CRC32 (algorithm byte = 2, size = 4),
-     *                                 MD-5 (algorithm byte = 3, size=XXX), SHA-1 (algorithm byte = 4, size=XXX).
-     *                                 The hash covers only the packet, not the header added by the capture driver:
-     *                                 this gives the possibility to calculate it inside the network card.
-     *                                 The hash allows easier comparison/merging of different capture files, and reliable data transfer between the
-     *                                 data acquisition system and the capture library.
-     * epb_dropcount   4    8          A 64bit integer value specifying the number of packets lost (by the interface and the operating system)
-     *                                 between this packet and the preceding one.
-     * epb_packetid    5    8          The epb_packetid option is a 64-bit unsigned integer that
-     *                                 uniquely identifies the packet.  If the same packet is seen
-     *                                 by multiple interfaces and there is a way for the capture
-     *                                 application to correlate them, the same epb_packetid value
-     *                                 must be used.  An example could be a router that captures
-     *                                 packets on all its interfaces in both directions.  When a
-     *                                 packet hits interface A on ingress, an EPB entry gets
-     *                                 created, TTL gets decremented, and right before it egresses
-     *                                 on interface B another EPB entry gets created in the trace
-     *                                 file.  In this case, two packets are in the capture file,
-     *                                 which are not identical but the epb_packetid can be used to
-     *                                 correlate them.
-     * epb_queue       6    4          The epb_queue option is a 32-bit unsigned integer that
-     *                                 identifies on which queue of the interface the specific
-     *                                 packet was received.
-     * epb_verdict     7    variable   The epb_verdict option stores a verdict of the packet.  The
-     *                                 verdict indicates what would be done with the packet after
-     *                                 processing it.  For example, a firewall could drop the
-     *                                 packet.  This verdict can be set by various components, i.e.
-     *                                 Hardware, Linux's eBPF TC or XDP framework, etc.  etc.  The
-     *                                 first octet specifies the verdict type, while the following
-     *                                 octets contain the actual verdict data, whose size depends on
-     *                                 the verdict type, and hence from the value in the first
-     *                                 octet.  The verdict type can be: Hardware (type octet = 0,
-     *                                 size = variable), Linux_eBPF_TC (type octet = 1, size = 8
-     *                                 (64-bit unsigned integer), value = TC_ACT_* as defined in the
-     *                                 Linux pck_cls.h include), Linux_eBPF_XDP (type octet = 2,
-     *                                 size = 8 (64-bit unsigned integer), value = xdp_action as
-     *                                 defined in the Linux pbf.h include).
-     * opt_endofopt    0    0          It delimits the end of the optional fields. This block cannot be repeated within a given list of options.
-     */
-    if (!wtap_block_foreach_option(rec->block, pcapng_write_option_cb, &block_data)) {
-        return FALSE;
-    }
-    /* Write end of options if we have options */
-    if (have_options) {
-        if (!pcapng_write_option_eofopt(wdh, err))
+    /* Write options, if we have any */
+    if (options_size != 0) {
+        if (!write_options(wdh, rec->block, write_wtap_epb_option, err))
             return FALSE;
     }
 
@@ -4994,15 +5117,15 @@ pcapng_write_bblog_block(wtap_dumper *wdh, const wtap_rec *rec,
                          const guint8 *pd _U_, int *err)
 {
     pcapng_block_header_t bh;
-    pcapng_write_block_t block_data;
-    gsize options_len;
+    guint32 options_size = 0;
     guint32 pen, skipped, type;
 
-    options_len = wtap_block_get_options_size_padded(rec->block) + 4;
+    /* Compute size of all the options */
+    options_size = compute_options_size(rec->block, compute_epb_option_size);
 
     /* write block header */
     bh.block_type = BLOCK_TYPE_CB_COPY;
-    bh.block_total_length = (guint32)(sizeof(bh) + sizeof(guint32) + sizeof(guint32) + options_len + 4);
+    bh.block_total_length = (guint32)(sizeof(bh) + sizeof(guint32) + sizeof(guint32) + options_size + 4);
     if (rec->rec_header.custom_block_header.custom_data_header.nflx_custom_data_header.type == BBLOG_TYPE_SKIPPED_BLOCK) {
         bh.block_total_length += (guint32)sizeof(guint32);
     }
@@ -5038,14 +5161,14 @@ pcapng_write_bblog_block(wtap_dumper *wdh, const wtap_rec *rec,
         ws_debug("wrote skipped = %u", rec->rec_header.custom_block_header.custom_data_header.nflx_custom_data_header.skipped);
     }
 
-    block_data.wdh = wdh;
-    block_data.err = err;
-    if (!wtap_block_foreach_option(rec->block, pcapng_write_option_cb, &block_data)) {
-        return FALSE;
-    }
-    /* Write end of options if we have options */
-    if (!pcapng_write_option_eofopt(wdh, err)) {
-        return FALSE;
+    /* Write options, if we have any */
+    if (options_size != 0) {
+        /*
+         * This block type supports only comments and custom options,
+         * so it doesn't need a callback.
+         */
+        if (!write_options(wdh, rec->block, NULL, err))
+            return FALSE;
     }
 
     /* write block footer */

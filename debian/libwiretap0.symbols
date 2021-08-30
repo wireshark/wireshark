@@ -36,6 +36,7 @@ libwiretap.so.0 libwiretap0 #MINVER#
  wtap_block_add_ipv4_option@Base 2.1.2
  wtap_block_add_ipv6_option@Base 2.1.2
  wtap_block_add_nflx_custom_option@Base 3.5.0
+ wtap_block_add_packet_verdict_option@Base 3.5.1
  wtap_block_add_string_option@Base 2.1.2
  wtap_block_add_string_option_format@Base 2.1.2
  wtap_block_add_uint32_option@Base 3.5.0
@@ -53,15 +54,14 @@ libwiretap.so.0 libwiretap0 #MINVER#
  wtap_block_get_mandatory_data@Base 2.1.2
  wtap_block_get_nflx_custom_option@Base 3.5.0
  wtap_block_get_nth_bytes_option_value@Base 3.5.0
+ wtap_block_get_nth_packet_verdict_option_value@Base 3.5.1
  wtap_block_get_nth_string_option_value@Base 2.1.2
- wtap_block_get_options_size_padded@Base 3.5.0
  wtap_block_get_string_option_value@Base 2.1.2
  wtap_block_get_type@Base 3.5.0
  wtap_block_get_uint32_option_value@Base 3.5.0
  wtap_block_get_uint64_option_value@Base 2.1.2
  wtap_block_get_uint8_option_value@Base 2.1.2
  wtap_block_make_copy@Base 3.3.2
- wtap_block_option_get_value_size@Base 3.5.0
  wtap_block_ref@Base 3.5.0
  wtap_block_remove_nth_option_instance@Base 2.2.0
  wtap_block_remove_option@Base 2.2.0
@@ -70,6 +70,7 @@ libwiretap.so.0 libwiretap0 #MINVER#
  wtap_block_set_ipv4_option_value@Base 2.1.2
  wtap_block_set_ipv6_option_value@Base 2.1.2
  wtap_block_set_nth_bytes_option_value@Base 3.5.0
+ wtap_block_set_nth_packet_verdict_option_value@Base 3.5.1
  wtap_block_set_nth_string_option_value@Base 2.1.2
  wtap_block_set_nth_string_option_value_format@Base 3.5.0
  wtap_block_set_string_option_value@Base 2.1.2
@@ -151,6 +152,7 @@ libwiretap.so.0 libwiretap0 #MINVER#
  wtap_open_offline@Base 1.9.1
  wtap_opttypes_initialize@Base 2.1.2
  wtap_opttypes_cleanup@Base 2.3.0
+ wtap_packet_verdict_free@Base 3.5.1
  wtap_pcap_encap_to_wtap_encap@Base 1.9.1
  wtap_pcap_file_type_subtype@Base 3.5.0
  wtap_pcap_nsec_file_type_subtype@Base 3.5.0
