@@ -227,7 +227,6 @@ frame_data_init(frame_data *fdata, guint32 num, const wtap_rec *rec,
   ws_assert(rec->tsprec <= 0xF);
   fdata->tsprec = (unsigned int)rec->tsprec;
   fdata->abs_ts = rec->ts;
-  fdata->has_phdr_block = (rec->block != NULL);
   fdata->has_modified_block = 0;
   fdata->need_colorize = 0;
   fdata->color_filter = NULL;

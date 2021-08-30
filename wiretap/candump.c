@@ -86,6 +86,7 @@ candump_write_packet(wtap_rec *rec, Buffer *buf, const msg_t *msg)
     }
 
     rec->rec_type       = REC_TYPE_PACKET;
+    rec->block          = wtap_block_create(WTAP_BLOCK_PACKET);
     rec->presence_flags = WTAP_HAS_TS;
     rec->ts             = msg->ts;
     rec->tsprec         = WTAP_TSPREC_USEC;

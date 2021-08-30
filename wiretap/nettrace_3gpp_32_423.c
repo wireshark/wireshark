@@ -256,6 +256,7 @@ nettrace_msg_to_packet(nettrace_3gpp_32_423_file_info_t *file_info, wtap_rec *re
 	prev_pos = curr_pos = input + CLEN(c_s_msg);
 
 	rec->rec_type = REC_TYPE_PACKET;
+	rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
 	rec->presence_flags = 0; /* start out assuming no special features */
 	rec->ts.secs = 0;
 	rec->ts.nsecs = 0;

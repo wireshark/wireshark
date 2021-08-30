@@ -605,11 +605,8 @@ dissect_record(epan_dissect_t *edt, int file_type_subtype,
 	if (fd->has_modified_block) {
 		frame_dissector_data.pkt_block = epan_get_modified_block(edt->session, fd);
 	}
-	else if (fd->has_phdr_block) {
-		frame_dissector_data.pkt_block = rec->block;
-	}
 	else {
-		frame_dissector_data.pkt_block = NULL;
+		frame_dissector_data.pkt_block = rec->block;
 	}
 	frame_dissector_data.file_type_subtype = file_type_subtype;
 	frame_dissector_data.color_edt = edt; /* Used strictly for "coloring rules" */
@@ -682,11 +679,8 @@ dissect_file(epan_dissect_t *edt, wtap_rec *rec,
 		if (fd->has_modified_block) {
 			file_dissector_data.pkt_block = epan_get_modified_block(edt->session, fd);
 		}
-		else if (fd->has_phdr_block) {
-			file_dissector_data.pkt_block = rec->block;
-		}
 		else {
-			file_dissector_data.pkt_block = NULL;
+			file_dissector_data.pkt_block = rec->block;
 		}
 		file_dissector_data.color_edt = edt; /* Used strictly for "coloring rules" */
 

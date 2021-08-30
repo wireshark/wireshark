@@ -198,6 +198,7 @@ static gboolean logcat_read_packet(struct logcat_phdr *logcat, FILE_T fh,
     }
 
     rec->rec_type = REC_TYPE_PACKET;
+    rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
     rec->presence_flags = WTAP_HAS_TS;
     rec->ts.secs = (time_t) GINT32_FROM_LE(log_entry->sec);
     rec->ts.nsecs = GINT32_FROM_LE(log_entry->nsec);

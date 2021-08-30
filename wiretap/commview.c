@@ -316,6 +316,7 @@ commview_ncf_read_packet(FILE_T fh, wtap_rec *rec, Buffer *buf,
 	tm.tm_isdst = -1;
 
 	rec->rec_type = REC_TYPE_PACKET;
+	rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
 	rec->presence_flags = WTAP_HAS_TS;
 
 	rec->rec_header.packet_header.len = cv_hdr.data_len;
@@ -1003,6 +1004,7 @@ commview_ncfx_read_packet(FILE_T fh, wtap_rec *rec, Buffer *buf,
 	tm.tm_isdst = -1;
 
 	rec->rec_type = REC_TYPE_PACKET;
+	rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
 	rec->presence_flags = WTAP_HAS_TS;
 
 	if (length_remaining > WTAP_MAX_PACKET_SIZE_STANDARD) {

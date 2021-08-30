@@ -1077,6 +1077,7 @@ netmon_process_record(wtap *wth, FILE_T fh, wtap_rec *rec,
 	}
 
 	rec->rec_type = REC_TYPE_PACKET;
+	rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
 
 	/*
 	 * If this is an ATM packet, the first

@@ -549,6 +549,7 @@ static gboolean lanalyzer_read_trace_record(wtap *wth, FILE_T fh,
       }
 
       rec->rec_type = REC_TYPE_PACKET;
+      rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
       rec->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
 
       time_low = pletoh16(&descriptor[8]);

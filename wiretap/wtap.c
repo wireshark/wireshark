@@ -1542,6 +1542,13 @@ wtap_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
 		 */
 		if (*err == 0)
 			*err = file_error(wth->fh, err_info);
+		if (rec->block != NULL) {
+			/*
+			 * Unreference any block created for this record.
+			 */
+			wtap_block_unref(rec->block);
+			rec->block = NULL;
+		}
 		return FALSE;	/* failure */
 	}
 
@@ -1697,8 +1704,16 @@ wtap_seek_read(wtap *wth, gint64 seek_off, wtap_rec *rec, Buffer *buf,
 
 	*err = 0;
 	*err_info = NULL;
-	if (!wth->subtype_seek_read(wth, seek_off, rec, buf, err, err_info))
+	if (!wth->subtype_seek_read(wth, seek_off, rec, buf, err, err_info)) {
+		if (rec->block != NULL) {
+			/*
+			 * Unreference any block created for this record.
+			 */
+			wtap_block_unref(rec->block);
+			rec->block = NULL;
+		}
 		return FALSE;
+	}
 
 	/*
 	 * Is this a packet record?

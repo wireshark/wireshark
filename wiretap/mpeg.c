@@ -173,6 +173,7 @@ mpeg_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf,
 		return FALSE;
 
 	rec->rec_type = REC_TYPE_PACKET;
+	rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
 
 	rec->presence_flags = 0; /* we may or may not have a time stamp */
 	if (!is_random) {

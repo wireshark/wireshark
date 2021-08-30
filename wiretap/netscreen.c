@@ -265,6 +265,7 @@ parse_netscreen_packet(FILE_T fh, wtap_rec *rec, Buffer* buf,
 	gchar		dststr[13];
 
 	rec->rec_type = REC_TYPE_PACKET;
+	rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
 	rec->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
 	/* Suppress compiler warnings */
 	memset(cap_int, 0, sizeof(cap_int));

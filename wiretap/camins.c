@@ -377,6 +377,7 @@ camins_read_packet(FILE_T fh, wtap_rec *rec, Buffer *buf,
     offset += bytes_read;
 
     rec->rec_type = REC_TYPE_PACKET;
+    rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
     rec->presence_flags = 0; /* we may or may not have a time stamp */
     rec->rec_header.packet_header.pkt_encap = WTAP_ENCAP_DVBCI;
     if (time_us) {

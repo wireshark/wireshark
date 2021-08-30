@@ -185,6 +185,7 @@ csids_read_packet(FILE_T fh, csids_t *csids, wtap_rec *rec,
    */
 
   rec->rec_type = REC_TYPE_PACKET;
+  rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
   rec->presence_flags = WTAP_HAS_TS;
   rec->rec_header.packet_header.len = hdr.caplen;
   rec->rec_header.packet_header.caplen = hdr.caplen;

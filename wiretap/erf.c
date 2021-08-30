@@ -716,6 +716,7 @@ static gboolean erf_read_header(wtap *wth, FILE_T fh,
 
     /*if ((erf_header->type & 0x7f) != ERF_TYPE_META || wth->file_type_subtype != file_type_subtype_erf) {*/
       rec->rec_type = REC_TYPE_PACKET;
+      rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
     /*
      * XXX: ERF_TYPE_META records should ideally be FT_SPECIFIC for display
      * purposes, but currently ft_specific_record_phdr clashes with erf_mc_phdr
@@ -733,6 +734,7 @@ static gboolean erf_read_header(wtap *wth, FILE_T fh,
        */
       /* For now just treat all Provenance records as reports */
       rec->rec_type = REC_TYPE_FT_SPECIFIC_REPORT;
+      rec->block = wtap_block_create(WTAP_BLOCK_FT_SPECIFIC_REPORT);
       /* XXX: phdr ft_specific_record_phdr? */
     }
 #endif
@@ -2257,9 +2259,6 @@ static int erf_update_anchors_from_header(erf_t *erf_priv, wtap_rec *rec, union 
   }
 
   if (comment) {
-    /* Will be freed by either wtap_sequential_close (for rec = &wth->rec) or by
-     * the caller of wtap_seek_read. See wtap_rec_cleanup. */
-    rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
     wtap_block_add_string_option(rec->block, OPT_COMMENT, comment, strlen(comment));
   }
 

@@ -180,6 +180,7 @@ busmaster_gen_packet(wtap_rec               *rec, Buffer *buf,
     }
 
     rec->rec_type       = REC_TYPE_PACKET;
+    rec->block          = wtap_block_create(WTAP_BLOCK_PACKET);
     rec->presence_flags = has_ts ? WTAP_HAS_TS : 0;
     rec->ts.secs        = secs;
     rec->ts.nsecs       = nsecs;

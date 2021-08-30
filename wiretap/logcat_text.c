@@ -224,6 +224,7 @@ static gboolean logcat_text_read_packet(FILE_T fh, wtap_rec *rec,
     }
 
     rec->rec_type = REC_TYPE_PACKET;
+    rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
     rec->rec_header.packet_header.caplen = (guint32)strlen(cbuff);
     rec->rec_header.packet_header.len = rec->rec_header.packet_header.caplen;
 

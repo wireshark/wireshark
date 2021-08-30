@@ -547,7 +547,7 @@ WSLUA_METHOD Dumper_dump_current(lua_State* L) {
     if (lua_pinfo->fd->has_modified_block) {
         rec.block = epan_get_modified_block(lua_pinfo->epan, lua_pinfo->fd);
         rec.block_was_modified = TRUE;
-    } else if (lua_pinfo->fd->has_phdr_block) {
+    } else {
         rec.block = lua_pinfo->rec->block;
     }
 

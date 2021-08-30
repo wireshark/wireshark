@@ -729,7 +729,7 @@ sharkd_get_packet_block(const frame_data *fd)
 {
   if (fd->has_modified_block)
     return wtap_block_ref(cap_file_provider_get_modified_block(&cfile.provider, fd));
-  if (fd->has_phdr_block)
+  else
   {
     wtap_rec rec; /* Record metadata */
     Buffer buf;   /* Record data */
@@ -750,8 +750,6 @@ sharkd_get_packet_block(const frame_data *fd)
     ws_buffer_free(&buf);
     return block;
   }
-  else
-    return wtap_block_create(WTAP_BLOCK_PACKET);
 }
 
 int

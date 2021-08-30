@@ -253,6 +253,7 @@ k12text_set_headers(wtap_rec *rec, k12text_state_t *state,
     int *err, gchar **err_info)
 {
 	rec->rec_type = REC_TYPE_PACKET;
+	rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
 	rec->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
 
 	rec->ts.secs = 946681200 + (3600*state->g_h) + (60*state->g_m) + state->g_s;

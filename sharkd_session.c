@@ -1346,7 +1346,7 @@ sharkd_session_process_frames_cb(epan_dissect_t *edt, proto_tree *tree _U_,
 	 */
 	if (fdata->has_modified_block)
 		pkt_block = sharkd_get_modified_block(fdata);
-	else if (fdata->has_phdr_block)
+	else
 		pkt_block = pi->rec->block;
 
 	/*
@@ -3428,7 +3428,7 @@ sharkd_session_process_frame_cb(epan_dissect_t *edt, proto_tree *tree, struct ep
 
 	if (fdata->has_modified_block)
 		pkt_block = sharkd_get_modified_block(fdata);
-	else if (fdata->has_phdr_block)
+	else
 		pkt_block = pi->rec->block;
 
 	if (pkt_block)

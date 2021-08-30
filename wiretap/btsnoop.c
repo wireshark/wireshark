@@ -203,6 +203,7 @@ static gboolean btsnoop_read_record(wtap *wth, FILE_T fh,
     ts -= KUnixTimeBase;
 
     rec->rec_type = REC_TYPE_PACKET;
+    rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
     rec->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
     rec->ts.secs = (guint)(ts / 1000000);
     rec->ts.nsecs = (guint)((ts % 1000000) * 1000);

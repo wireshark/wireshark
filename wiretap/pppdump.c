@@ -320,6 +320,7 @@ pppdump_set_phdr(wtap_rec *rec, int num_bytes,
     direction_enum direction)
 {
 	rec->rec_type = REC_TYPE_PACKET;
+	rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
 	rec->rec_header.packet_header.len = num_bytes;
 	rec->rec_header.packet_header.caplen = num_bytes;
 	rec->rec_header.packet_header.pkt_encap	= WTAP_ENCAP_PPP_WITH_PHDR;

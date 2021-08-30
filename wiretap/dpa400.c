@@ -106,6 +106,7 @@ static gboolean dpa400_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
 		get_ts(&hdr, &rec->ts);
 
 		rec->rec_type = REC_TYPE_PACKET;
+		rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
 		rec->presence_flags = WTAP_HAS_TS;
 		rec->rec_header.packet_header.caplen = rec->rec_header.packet_header.len = 0;
 
@@ -134,6 +135,7 @@ static gboolean dpa400_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
 		ctr++;
 
 		rec->rec_type = REC_TYPE_PACKET;
+		rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
 		rec->presence_flags = WTAP_HAS_TS;
 		rec->rec_header.packet_header.caplen = rec->rec_header.packet_header.len = ctr;
 
@@ -171,6 +173,7 @@ static gboolean dpa400_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
 		}
 
 		rec->rec_type = REC_TYPE_PACKET;
+		rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
 		rec->presence_flags = WTAP_HAS_TS;
 		rec->rec_header.packet_header.caplen = rec->rec_header.packet_header.len = ctr;
 
@@ -181,6 +184,7 @@ static gboolean dpa400_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
 		get_ts_overflow(&rec->ts);
 
 		rec->rec_type = REC_TYPE_PACKET;
+		rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
 		rec->presence_flags = WTAP_HAS_TS;
 		rec->rec_header.packet_header.caplen = rec->rec_header.packet_header.len = ctr;
 

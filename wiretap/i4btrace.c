@@ -245,6 +245,7 @@ i4b_read_rec(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf,
 	}
 
 	rec->rec_type = REC_TYPE_PACKET;
+	rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
 	rec->presence_flags = WTAP_HAS_TS;
 
 	rec->rec_header.packet_header.len = length;

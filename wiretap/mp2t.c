@@ -66,6 +66,7 @@ mp2t_read_packet(mp2t_filetype_t *mp2t, FILE_T fh, gint64 offset,
         return FALSE;
 
     rec->rec_type = REC_TYPE_PACKET;
+    rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
 
     /* XXX - relative, not absolute, time stamps */
     rec->presence_flags = WTAP_HAS_TS;

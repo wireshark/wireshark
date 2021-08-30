@@ -596,6 +596,7 @@ process_packet_data(wtap_rec *rec, Buffer *target, guint8 *buffer,
     }
 
     rec->rec_type = REC_TYPE_PACKET;
+    rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
     rec->presence_flags = WTAP_HAS_TS;
 
     ts = pntoh64(buffer + K12_PACKET_TIMESTAMP);

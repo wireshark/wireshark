@@ -261,6 +261,7 @@ usbdump_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf,
 
     /* Setup the per packet structure and fill it with info from this frame */
     rec->rec_type = REC_TYPE_PACKET;
+    rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
     rec->presence_flags = WTAP_HAS_TS | WTAP_HAS_CAP_LEN;
     rec->ts.secs = (guint32)bpf_hdr[3] << 24 | (guint32)bpf_hdr[2] << 16 |
                     (guint32)bpf_hdr[1] << 8 | (guint32)bpf_hdr[0];

@@ -281,6 +281,7 @@ _5views_read_header(wtap *wth, FILE_T fh, t_5VW_TimeStamped_Header *hdr,
 	hdr->NanoSecondes = pletoh32(&hdr->NanoSecondes);
 
 	rec->rec_type = REC_TYPE_PACKET;
+	rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
 	rec->presence_flags = WTAP_HAS_TS;
 	rec->ts.secs = hdr->Utc;
 	rec->ts.nsecs = hdr->NanoSecondes;
