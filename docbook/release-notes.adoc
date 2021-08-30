@@ -138,6 +138,9 @@ SparkplugB
 State Synchronization Protocol (SSyncP)
 Tagged Image File Format (TIFF)
 TP-Link Smart Home Protocol
+UAVCAN/CAN
+UAVCAN DSDL
+Van Jacobson PPP compression (VJC)
 World of Warcraft World (WOWW)
 --
 
