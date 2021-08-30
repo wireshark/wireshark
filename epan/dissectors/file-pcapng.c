@@ -1538,7 +1538,7 @@ static void
 dissect_pb_data(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                 block_data_arg *argp)
 {
-    int offset = 0;
+    volatile int offset = 0;
     guint32 interface_id;
     struct interface_description *interface_description;
     guint32 captured_length;
@@ -1596,7 +1596,7 @@ static void
 dissect_spb_data(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                  block_data_arg *argp)
 {
-    int offset = 0;
+    volatile int offset = 0;
     struct interface_description *interface_description;
     proto_item *ti;
     volatile guint32 captured_length;
@@ -1788,7 +1788,7 @@ static void
 dissect_epb_data(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                  block_data_arg *argp)
 {
-    int offset = 0;
+    volatile int offset = 0;
     guint32 interface_id;
     struct interface_description *interface_description;
     guint32 captured_length;
