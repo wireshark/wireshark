@@ -80,6 +80,10 @@ these sources.
 
 ==== Building
 
+The recommended (and fastest) way to build Wireshark is with CMake
+and Ninja.  Building with make took nearly 2x time as Ninja in one
+experiment.
+
 CMake builds are best done in a separate build directory, such as a
 `build` subdirectory of the top-level source directory.  If that
 directory is a subdirectory of the top-level source directory, to
@@ -114,7 +118,36 @@ $ cmake -G Ninja ../{source directory}
 to use Ninja as the build tool.  `{source directory}` is the name of the
 top-level Wireshark source directory.
 
-You can then run make or Ninja to build Wireshark.
+If you need to build with a non-standard configuration, you can run
+
+[source,sh]
+----
+$ cmake -LH ../{source directory}
+----
+
+to see what options you have.
+
+You can then run Ninja or make to build Wireshark.
+
+----
+$ ninja
+$ # or
+$ make
+----
+
+Once you have build Wireshark with `ninja` or `make` above, you should be able to test it
+by entering `run/wireshark`.
+
+==== Optional: Install
+
+Install Wireshark in its final destination:
+
+----
+make install
+----
+
+Once you have installed Wireshark with `make install` above, you should be able
+to run it by entering `wireshark`.
 
 ==== Optional: Create User’s and Developer’s Guide
 
@@ -135,6 +168,26 @@ To create an installable package after successfully building Wireshark:
 `appimage` target;
 * to build a macOS dmg package containing am application bundle, build
 the `dmg_package` target.
+
+==== Troubleshooting during the build and install on Unix
+
+A number of errors can occur during the build and installation process.
+Some hints on solving these are provided here.
+
+If the `cmake` stage fails you will need to find out why. You can check the
+file `CMakeOutput.log` and `CMakeError.log` in the build directory to find
+out what failed. The last few lines of this file should help in determining the
+problem.
+
+The standard problems are that you do not have a required development package on
+your system or that the development package isn’t new enough. Note that
+installing a library package isn’t enough. You need to install its development
+package as well.
+
+If you cannot determine what the problems are, send an email to the
+_wireshark-dev_ mailing list explaining your problem. Include the output from
+`cmake` and anything else you think is relevant such as a trace of the
+`make` stage.
 
 [[ChSetupWin32]]
 

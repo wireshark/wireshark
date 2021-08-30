@@ -140,11 +140,18 @@ $ git config --global user.email henry.perry@example.com
 $ git clone -o upstream git@gitlab.com:wireshark/wireshark.git
 # If you don't you can use the HTTPS URL:
 $ git clone -o upstream https://gitlab.com/wireshark/wireshark.git
+# You can speed up cloning in either case by adding --shallow-since=1year or --depth=5000.
 ----
 The clone only has to be done once.
 This will copy all the sources (including directories) from the server to your machine and check out the latest version.
+
 The `-o upstream` flag uses the origin name “upstream” for the repository instead of the default “origin” as described in the https://docs.gitlab.com/ee/user/project/repository/forking_workflow.html[GitLab documentation].
+
 Cloning may take some time depending on the speed of your internet connection.
+
+The `--shallow-since=1year` option limits cloned commits to the last 1 year.
+
+The `--depth=5000` option limits cloned commits to the last 5000.
 --
 
 [[ChSrcBuildbot]]
@@ -214,33 +221,11 @@ Building Wireshark for the first time depends on your platform.
 
 ==== Building on Unix
 
-The recommended (and fastest) way to build Wireshark is with CMake and
-Ninja:
-
-[source,sh]
-----
-# Starting from your Wireshark source directory, create a build directory
-# alongside it.
-$ cd ..
-$ mkdir wireshark-ninja
-$ cd wireshark-ninja
-# Assumes your source directory is named "wireshark".
-$ cmake -G Ninja ../wireshark
-$ ninja (or cmake --build .)
-----
-
-If you need to build with a non-standard configuration, you can run
-
-[source,sh]
-----
-$ cmake -LH ../wireshark
-----
-
-to see what options you have.
+Follow the build procedure in <<ChSetupUNIX>> to build Wireshark.
 
 ==== Windows Native
 
-Follow the build procedure in <<ChWin32Build>> to build Wireshark.
+Follow the build procedure in <<ChSetupWin32>> to build Wireshark.
 
 After the build process has successfully finished, you should find a
 `Wireshark.exe` and some other files in the `run\RelWithDebInfo` directory.
