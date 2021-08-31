@@ -104,7 +104,7 @@ ieee1609dot2_Time32_fmt(gchar *s, guint32 v)
 {
   time_t secs = v + 1072915200 - 5;
   struct tm *tm = gmtime(&secs);
-  g_snprintf(s, ITEM_LABEL_LENGTH, "%u-%02u-%02u %02u:%02u:%02u (%" G_GUINT64_FORMAT ")",
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%u-%02u-%02u %02u:%02u:%02u (%u)",
     tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec, v
   );
 }
