@@ -2723,7 +2723,6 @@ static gint dissect_user_defined(proto_tree *tree, tvbuff_t * tvb, gint offset, 
             guint i;
             proto_tree * aux_tree;
 
-            offset_zero = offset;
             aux_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_rtps_dissection_tree,
                   NULL, name);
 
