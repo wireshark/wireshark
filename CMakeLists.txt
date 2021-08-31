@@ -409,13 +409,6 @@ endif()
 # -fPIC/-fPIE (so set CMAKE_POSITION_INDEPENDENT_CODE to enable that).
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-# Path to our generated executables (or wrapper scripts)
-if(WIN32)
-	set(WS_PROGRAM_PATH ./run/$<CONFIG>)
-else()
-	set(WS_PROGRAM_PATH ./run)
-endif()
-
 if( CMAKE_C_COMPILER_ID MATCHES "MSVC")
 	if ((MSVC_VERSION LESS "1900") OR (MSVC_VERSION GREATER_EQUAL "2000"))
 		message(FATAL_ERROR "You are using an unsupported version of MSVC")
@@ -3453,7 +3446,7 @@ foreach(_group_name ${_test_group_list})
 		COMMAND ${CMAKE_COMMAND} -E env PYTHONIOENCODING=UTF-8
 			${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/test/test.py
 			--verbose
-			--program-path ${WS_PROGRAM_PATH}
+			--program-path $<TARGET_FILE_DIR:tshark>
 			${TEST_EXTRA_ARGS}
 			${_group_name}
 		)
