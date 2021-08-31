@@ -1474,7 +1474,7 @@ static int dissect_dvb_s2_bb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     fragment_head *fd_head;
     dvbs2_bb_data *pdata;
 
-    gboolean    npd;
+    gboolean    npd, composite_init = FALSE;
     guint8      input8, matype1, crc8, isi = 0, issyi;
     guint8      sync_flag = 0;
     guint16     input16, bb_data_len = 0, user_packet_length, syncd;
@@ -1797,7 +1797,6 @@ static int dissect_dvb_s2_bb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         }
         if (dvb_s2_df_dissection && user_packet_length) {
             sync_tvb = tvb_new_subset_length(tvb, DVB_S2_BB_OFFS_SYNC, 1);
-            tsp_tvb = tvb_new_composite();
             ts_stream = find_stream(subcircuit, pinfo->p2p_dir);
             if (ts_stream == NULL) {
                 ts_stream = stream_new(subcircuit, pinfo->p2p_dir);
@@ -1835,6 +1834,8 @@ static int dissect_dvb_s2_bb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                             "Reassembled TSP", ts_frag, &dvbs2_frag_items, NULL,
                             tree);
                     if (next_tvb && tvb_reported_length(next_tvb) == user_packet_length) {
+                        tsp_tvb = tvb_new_composite();
+                        composite_init = TRUE;
                         tvb_composite_append(tsp_tvb, sync_tvb);
                         proto_tree_add_checksum(dvb_s2_bb_tree, next_tvb, 0,
                                 hf_dvb_s2_bb_up_crc, hf_dvb_s2_bb_up_crc_status,
@@ -1867,6 +1868,10 @@ static int dissect_dvb_s2_bb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                 proto_tree_add_checksum(dvb_s2_bb_tree, tvb, new_off,
                         hf_dvb_s2_bb_up_crc, hf_dvb_s2_bb_up_crc_status,
                         &ei_dvb_s2_bb_crc, pinfo, crc8, ENC_NA, flags);
+                if (!composite_init) {
+                    tsp_tvb = tvb_new_composite();
+                    composite_init = TRUE;
+                }
                 tvb_composite_append(tsp_tvb, sync_tvb);
                 new_off++;
                 crc8 = compute_crc8(tvb, user_packet_length - 1, new_off);
@@ -1897,8 +1902,8 @@ static int dissect_dvb_s2_bb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                 next_tvb = stream_process_reassembled(next_tvb, 0, pinfo,
                         "Reassembled TSP", ts_frag, &dvbs2_frag_items, NULL, tree);
             }
-            tvb_composite_finalize(tsp_tvb);
-            if (tvb_reported_length(tsp_tvb)) {
+            if (composite_init) {
+                tvb_composite_finalize(tsp_tvb);
                 add_new_data_source(pinfo, tsp_tvb, "Sync-swapped TS");
                 /* The way the MP2T dissector handles reassembly (using the
                  * offsets into the TVB to store per-packet information), it
