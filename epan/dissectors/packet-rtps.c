@@ -9654,7 +9654,7 @@ static void dissect_NACK_FRAG(tvbuff_t *tvb, packet_info *pinfo, gint offset, gu
    * | EntityId writerEntityId                                       |
    * +---------------+---------------+---------------+---------------+
    * |                                                               |
-   * + SequenceNumberSet writerSN                                    +
+   * + SequenceNumber writerSN                                       +
    * |                                                               |
    * +---------------+---------------+---------------+---------------+
    * |                                                               |
