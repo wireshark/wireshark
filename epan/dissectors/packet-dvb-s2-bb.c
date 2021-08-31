@@ -30,7 +30,7 @@
  *
  * Copyright 2012, Tobias Rutz <tobias.rutz@work-microwave.de>
  * Copyright 2013-2020, Thales Alenia Space
- * Copyright 2013-2020, Viveris Technologies <adrien.destugues@opensource.viveris.fr>
+ * Copyright 2013-2021, Viveris Technologies <adrien.destugues@opensource.viveris.fr>
  * Copyright 2021, John Thacker <johnthacker@gmail.com>
  *
  * Wireshark - Network traffic analyzer
@@ -107,6 +107,10 @@ static dissector_handle_t eth_withoutfcs_handle;
 static dissector_handle_t dvb_s2_table_handle;
 static dissector_handle_t data_handle;
 static dissector_handle_t mp2t_handle;
+static dissector_handle_t dvb_s2_modeadapt_handle;
+
+/* The dynamic payload type range which will be dissected as H.264 */
+static range_t *temp_dynamic_payload_type_range = NULL;
 
 void proto_register_dvb_s2_modeadapt(void);
 void proto_reg_handoff_dvb_s2_modeadapt(void);
@@ -2491,14 +2495,23 @@ void proto_register_dvb_s2_modeadapt(void)
         "The preferred Mode Adaptation Interface in the case of ambiguity",
         &dvb_s2_default_modeadapt, dvb_s2_modeadapt_enum, FALSE);
 
+    prefs_register_range_preference(dvb_s2_modeadapt_module, "dynamic.payload.type",
+                            "DVB-S2 RTP dynamic payload types",
+                            "RTP Dynamic payload types which will be interpreted as DVB-S2"
+                            "; values must be in the range 1 - 127",
+                            &temp_dynamic_payload_type_range, 127);
+
     register_init_routine(dvb_s2_gse_defragment_init);
     register_init_routine(&virtual_stream_init);
 
     virtual_stream_hashtable = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), virtual_stream_hash, virtual_stream_equal);
+
+    dvb_s2_modeadapt_handle = register_dissector("DVB-S2 Mode adaptation header", dissect_dvb_s2_modeadapt, proto_dvb_s2_modeadapt);
 }
 
 void proto_reg_handoff_dvb_s2_modeadapt(void)
 {
+    static range_t  *dynamic_payload_type_range = NULL;
     static gboolean prefs_initialized = FALSE;
 
     if (!prefs_initialized) {
@@ -2509,8 +2522,18 @@ void proto_reg_handoff_dvb_s2_modeadapt(void)
         eth_withoutfcs_handle = find_dissector("eth_withoutfcs");
         data_handle = find_dissector("data");
         mp2t_handle = find_dissector_add_dependency("mp2t", proto_dvb_s2_bb);
+
+        dissector_add_string("rtp_dyn_payload_type","DVB-S2", dvb_s2_modeadapt_handle);
+
         prefs_initialized = TRUE;
+    } else {
+        dissector_delete_uint_range("rtp.pt", dynamic_payload_type_range, dvb_s2_modeadapt_handle);
+        wmem_free(wmem_epan_scope(), dynamic_payload_type_range);
     }
+
+    dynamic_payload_type_range = range_copy(wmem_epan_scope(), temp_dynamic_payload_type_range);
+    range_remove_value(wmem_epan_scope(), &dynamic_payload_type_range, 0);
+    dissector_add_uint_range("rtp.pt", dynamic_payload_type_range, dvb_s2_modeadapt_handle);
 }
 
 /*
