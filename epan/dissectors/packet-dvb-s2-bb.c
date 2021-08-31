@@ -1930,6 +1930,46 @@ static int dissect_dvb_s2_bb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     return new_off;
 }
 
+static int detect_dvb_s2_modeadapt(tvbuff_t *tvb)
+{
+    int matched_headers = 0;
+
+    /* Check that there's enough data */
+    if (tvb_captured_length(tvb) < DVB_S2_MODEADAPT_MINSIZE)
+        return 0;
+
+    /* There are four different mode adaptation formats, with different
+       length headers. Two of them have a sync byte at the beginning, but
+       the other two do not. In every case, the mode adaptation header is
+       followed by the baseband header, which is protected by a CRC-8.
+       The CRC-8 is weak protection, so it can match by accident, leading
+       to an ambiguity in identifying which format is in use. We will
+       check for ambiguity and report it. */
+    /* Try L.1 format: no header. */
+    if (test_dvb_s2_crc(tvb, DVB_S2_MODEADAPT_L1SIZE)) {
+        matched_headers |= (1 << DVB_S2_MODEADAPT_TYPE_L1);
+    }
+
+    /* Try L.2 format: header includes sync byte */
+    if ((tvb_get_guint8(tvb, DVB_S2_MODEADAPT_OFFS_SYNCBYTE) == DVB_S2_MODEADAPT_SYNCBYTE) &&
+        test_dvb_s2_crc(tvb, DVB_S2_MODEADAPT_L2SIZE)) {
+        matched_headers |= (1 << DVB_S2_MODEADAPT_TYPE_L2);
+    }
+
+    /* Try L.4 format: header does not include sync byte */
+    if (test_dvb_s2_crc(tvb, DVB_S2_MODEADAPT_L4SIZE)) {
+        matched_headers |= (1 << DVB_S2_MODEADAPT_TYPE_L4);
+    }
+
+    /* Try L.3 format: header includes sync byte */
+    if ((tvb_get_guint8(tvb, DVB_S2_MODEADAPT_OFFS_SYNCBYTE) == DVB_S2_MODEADAPT_SYNCBYTE) &&
+        test_dvb_s2_crc(tvb, DVB_S2_MODEADAPT_L3SIZE)) {
+        matched_headers |= (1 << DVB_S2_MODEADAPT_TYPE_L3);
+    }
+
+    return matched_headers;
+}
+
 static int dissect_dvb_s2_modeadapt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     int         cur_off = 0, modeadapt_len, modeadapt_type, matched_headers = 0;
@@ -1946,55 +1986,24 @@ static int dissect_dvb_s2_modeadapt(tvbuff_t *tvb, packet_info *pinfo, proto_tre
         NULL
     };
 
-    /* Check that there's enough data */
-    if (tvb_captured_length(tvb) < DVB_S2_MODEADAPT_MINSIZE)
-        return 0;
-
-    /* There are four different mode adaptation formats, with different
-       length headers. Two of them have a sync byte at the beginning, but
-       the other two do not. In every case, the mode adaptation header is
-       followed by the baseband header, which is protected by a CRC-8.
-       The CRC-8 is weak protection, so it can match by accident, leading
-       to an ambiguity in identifying which format is in use. We will
-       check for ambiguity and report it. */
-    /* Try L.1 format: no header. */
-    if (test_dvb_s2_crc(tvb, DVB_S2_MODEADAPT_L1SIZE)) {
-        matched_headers |= (1 << DVB_S2_MODEADAPT_TYPE_L1);
-        modeadapt_type = DVB_S2_MODEADAPT_TYPE_L1;
-    }
-
-    /* Try L.2 format: header includes sync byte */
-    if ((tvb_get_guint8(tvb, DVB_S2_MODEADAPT_OFFS_SYNCBYTE) == DVB_S2_MODEADAPT_SYNCBYTE) &&
-        test_dvb_s2_crc(tvb, DVB_S2_MODEADAPT_L2SIZE)) {
-        matched_headers |= (1 << DVB_S2_MODEADAPT_TYPE_L2);
-        modeadapt_type = DVB_S2_MODEADAPT_TYPE_L2;
-    }
-
-    /* Try L.4 format: header does not include sync byte */
-    if (test_dvb_s2_crc(tvb, DVB_S2_MODEADAPT_L4SIZE)) {
-        matched_headers |= (1 << DVB_S2_MODEADAPT_TYPE_L4);
-        modeadapt_type = DVB_S2_MODEADAPT_TYPE_L4;
-    }
-
-    /* In my experience and in product data sheets, L.3 format is the most
-     * common for outputting over UDP or RTP, so give it highest priority
-     * (or second highest if another is set to default) by trying it last.
-     */
-    /* Try L.3 format: header includes sync byte */
-    if ((tvb_get_guint8(tvb, DVB_S2_MODEADAPT_OFFS_SYNCBYTE) == DVB_S2_MODEADAPT_SYNCBYTE) &&
-        test_dvb_s2_crc(tvb, DVB_S2_MODEADAPT_L3SIZE)) {
-        matched_headers |= (1 << DVB_S2_MODEADAPT_TYPE_L3);
-        modeadapt_type = DVB_S2_MODEADAPT_TYPE_L3;
-    }
-
-    if (matched_headers == 0) {
-        /* This does not look like a DVB-S2-BB frame at all. We are a
-           heuristic dissector, so we should just punt and let another
-           dissector have a try at this one. */
-        return 0;
-    }
+    matched_headers = detect_dvb_s2_modeadapt(tvb);
 
     if (matched_headers & (1 << dvb_s2_default_modeadapt)) {
+        /* If the default value from preferences matches, use it first */
+        modeadapt_type = dvb_s2_default_modeadapt;
+    } else if (matched_headers & (1 << DVB_S2_MODEADAPT_L3SIZE)) {
+        /* In my experience and in product data sheets, L.3 format is the most
+         * common for outputting over UDP or RTP, so give it highest priority
+         * (or second highest if another is set to default) by trying it last.
+         */
+        modeadapt_type = DVB_S2_MODEADAPT_TYPE_L3;
+    } else if (matched_headers & (1 << DVB_S2_MODEADAPT_L4SIZE)) {
+        modeadapt_type = DVB_S2_MODEADAPT_TYPE_L4;
+    } else if (matched_headers & (1 << DVB_S2_MODEADAPT_L2SIZE)) {
+        modeadapt_type = DVB_S2_MODEADAPT_TYPE_L2;
+    } else {
+        /* If nothing matches, use the default value from preferences.
+         */
         modeadapt_type = dvb_s2_default_modeadapt;
     }
     modeadapt_len = dvb_s2_modeadapt_sizes[modeadapt_type];
@@ -2063,6 +2072,24 @@ static int dissect_dvb_s2_modeadapt(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     return cur_off;
 }
 
+static gboolean dissect_dvb_s2_modeadapt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    int matched_headers = detect_dvb_s2_modeadapt(tvb);
+    if (matched_headers == 0) {
+        /* This does not look like a DVB-S2-BB frame at all. We are a
+           heuristic dissector, so we should just punt and let another
+           dissector have a try at this one. */
+        return FALSE;
+    }
+
+    int dissected_bytes;
+    dissected_bytes = dissect_dvb_s2_modeadapt(tvb, pinfo, tree, data);
+    if (dissected_bytes > 0) {
+        return TRUE;
+    } else {
+        return FALSE;
+    }
+}
 
 /* Register the protocol with Wireshark */
 void proto_register_dvb_s2_modeadapt(void)
@@ -2520,7 +2547,8 @@ void proto_reg_handoff_dvb_s2_modeadapt(void)
     static gboolean prefs_initialized = FALSE;
 
     if (!prefs_initialized) {
-        heur_dissector_add("udp", dissect_dvb_s2_modeadapt, "DVB-S2 over UDP", "dvb_s2_udp", proto_dvb_s2_modeadapt, HEURISTIC_DISABLE);
+        heur_dissector_add("udp", dissect_dvb_s2_modeadapt_heur, "DVB-S2 over UDP", "dvb_s2_udp", proto_dvb_s2_modeadapt, HEURISTIC_DISABLE);
+        dissector_add_for_decode_as("udp.port", dvb_s2_modeadapt_handle);
         ip_handle   = find_dissector_add_dependency("ip", proto_dvb_s2_bb);
         ipv6_handle = find_dissector_add_dependency("ipv6", proto_dvb_s2_bb);
         dvb_s2_table_handle = find_dissector("dvb-s2_table");
