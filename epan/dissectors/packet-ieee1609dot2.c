@@ -23,6 +23,8 @@
 
 #include "config.h"
 
+#include <time.h>
+
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/oids.h>
@@ -213,7 +215,7 @@ static int hf_ieee1609dot2_EndEntityType_app = -1;
 static int hf_ieee1609dot2_EndEntityType_enrol = -1;
 
 /*--- End of included file: packet-ieee1609dot2-hf.c ---*/
-#line 38 "./asn1/ieee1609dot2/packet-ieee1609dot2-template.c"
+#line 40 "./asn1/ieee1609dot2/packet-ieee1609dot2-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_ieee1609dot2_ssp = -1;
@@ -290,7 +292,7 @@ static gint ett_ieee1609dot2_SubjectPermissions = -1;
 static gint ett_ieee1609dot2_VerificationKeyIndicator = -1;
 
 /*--- End of included file: packet-ieee1609dot2-ett.c ---*/
-#line 42 "./asn1/ieee1609dot2/packet-ieee1609dot2-template.c"
+#line 44 "./asn1/ieee1609dot2/packet-ieee1609dot2-template.c"
 
 static dissector_table_t unsecured_data_subdissector_table;
 static dissector_table_t ssp_subdissector_table;
@@ -490,13 +492,6 @@ dissect_ieee1609dot2_ValidityPeriod(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 }
 
 
-static const value_string ieee1609dot2_NinetyDegreeInt_vals[] = {
-  { -900000000, "min" },
-  { 900000000, "max" },
-  { 900000001, "unknown" },
-  { 0, NULL }
-};
-
 
 static int
 dissect_ieee1609dot2_NinetyDegreeInt(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -515,13 +510,6 @@ dissect_ieee1609dot2_Latitude(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
   return offset;
 }
 
-
-static const value_string ieee1609dot2_OneEightyDegreeInt_vals[] = {
-  { -1799999999, "min" },
-  { 1800000000, "max" },
-  { 1800000001, "unknown" },
-  { 0, NULL }
-};
 
 
 static int
@@ -1165,6 +1153,7 @@ const val64_string ieee1609dot2_Psid_vals[] = {
   { psid_geonetworking_management_communications, "psid-geonetworking-management-communications" },
   { psid_traffic_light_control_status_service, "psid-traffic-light-control-status-service" },
   { psid_certificate_revocation_list_application, "psid-certificate-revocation-list-application" },
+  { psid_collective_perception_service, "psid-collective-perception-service" },
   { psid_vehicle_initiated_distress_notivication, "psid-vehicle-initiated-distress-notivication" },
   { psid_fast_service_advertisement_protocol, "psid-fast-service-advertisement-protocol" },
   { psid_its_station_internal_management_communications_protocol, "psid-its-station-internal-management-communications-protocol" },
@@ -1191,7 +1180,7 @@ dissect_ieee1609dot2_Psid(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 static int
 dissect_ieee1609dot2_T_psPsid(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 111 "./asn1/ieee1609dot2/ieee1609dot2.cnf"
+#line 122 "./asn1/ieee1609dot2/ieee1609dot2.cnf"
   offset = dissect_oer_constrained_integer_64b_no_ub(tvb, offset, actx, tree, hf_index,
                                                0U, NO_BOUND, &((ieee1609_private_data_t*)actx->private_data)->psidssp, FALSE);
 
@@ -1204,7 +1193,7 @@ dissect_ieee1609dot2_T_psPsid(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 
 static int
 dissect_ieee1609dot2_T_opaque(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 115 "./asn1/ieee1609dot2/ieee1609dot2.cnf"
+#line 126 "./asn1/ieee1609dot2/ieee1609dot2.cnf"
   tvbuff_t *ssp;
   ieee1609_private_data_t *my_private_data = (ieee1609_private_data_t*)actx->private_data;
 
@@ -1469,7 +1458,7 @@ dissect_ieee1609dot2_GroupLinkageValue(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 
 static int
 dissect_ieee1609dot2_T_unsecuredData(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 77 "./asn1/ieee1609dot2/ieee1609dot2.cnf"
+#line 88 "./asn1/ieee1609dot2/ieee1609dot2.cnf"
   ieee1609_private_data_t *my_private_data = (ieee1609_private_data_t*)actx->private_data;
 
   offset = dissect_oer_octet_string(tvb, offset, actx, tree, hf_index,
@@ -1495,7 +1484,7 @@ dissect_ieee1609dot2_T_unsecuredData(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
 static int
 dissect_ieee1609dot2_T_hiPsid(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 96 "./asn1/ieee1609dot2/ieee1609dot2.cnf"
+#line 107 "./asn1/ieee1609dot2/ieee1609dot2.cnf"
   guint64 psid;
   ieee1609_private_data_t *my_private_data = (ieee1609_private_data_t*)actx->private_data;
 
@@ -2058,7 +2047,7 @@ static const oer_sequence_t Ieee1609Dot2Data_sequence[] = {
 
 static int
 dissect_ieee1609dot2_Ieee1609Dot2Data(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 73 "./asn1/ieee1609dot2/ieee1609dot2.cnf"
+#line 84 "./asn1/ieee1609dot2/ieee1609dot2.cnf"
   actx->private_data = (void*)wmem_new0(actx->pinfo->pool, ieee1609_private_data_t);
 
   offset = dissect_oer_sequence(tvb, offset, actx, tree, hf_index,
@@ -2114,8 +2103,69 @@ static int dissect_Ieee1609Dot2Data_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U
 
 
 /*--- End of included file: packet-ieee1609dot2-fn.c ---*/
-#line 58 "./asn1/ieee1609dot2/packet-ieee1609dot2-template.c"
+#line 60 "./asn1/ieee1609dot2/packet-ieee1609dot2-template.c"
 
+
+static void
+ieee1609dot2_NinetyDegreeInt_fmt(gchar *s, guint32 v)
+{
+  gint32 lat = (gint32)v;
+  if (lat == 900000001) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "unavailable(%d)", lat);
+  } else {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "%u°%u'%.3f\"%c (%d)",
+               abs(lat) / 10000000,
+               abs(lat) % 10000000 * 6 / 1000000,
+               abs(lat) % 10000000 * 6 % 1000000 * 6.0 / 100000.0,
+               (lat >= 0) ? 'N' : 'S',
+               lat);
+  }
+}
+
+static void
+ieee1609dot2_OneEightyDegreeInt_fmt(gchar *s, guint32 v)
+{
+  gint32 lng = (gint32)v;
+  if (lng == 1800000001) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "unavailable(%d)", lng);
+  } else {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "%u°%u'%.3f\"%c (%d)",
+               abs(lng) / 10000000,
+               abs(lng) % 10000000 * 6 / 1000000,
+               abs(lng) % 10000000 * 6 % 1000000 * 6.0 / 100000.0,
+               (lng >= 0) ? 'E' : 'W',
+               lng);
+  }
+}
+
+static void
+ieee1609dot2_ElevInt_fmt(gchar *s, guint32 v)
+{
+  // Range is from -4096 to 61439 in units of one-tenth of a meter
+  gint32 alt = (gint32)v - 4096;
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%.2fm (%u)", alt * 0.1, v);
+}
+
+static void
+ieee1609dot2_Time32_fmt(gchar *s, guint32 v)
+{
+  time_t secs = v + 1072915200 - 5;
+  struct tm *tm = gmtime(&secs);
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%u-%02u-%02u %02u:%02u:%02u (%" G_GUINT64_FORMAT ")",
+    tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec, v
+  );
+}
+
+static void
+ieee1609dot2_Time64_fmt(gchar *s, guint64 v)
+{
+  time_t secs = v / 1000000 + 1072915200 - 5;
+  guint32 usecs = v % 1000000;
+  struct tm *tm = gmtime(&secs);
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%u-%02u-%02u %02u:%02u:%02u.%06u (%" G_GUINT64_FORMAT ")",
+    tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec, usecs, v
+  );
+}
 
 /*--- proto_register_ieee1609dot2 ----------------------------------------------*/
 void proto_register_ieee1609dot2(void) {
@@ -2143,7 +2193,7 @@ void proto_register_ieee1609dot2(void) {
         NULL, HFILL }},
     { &hf_ieee1609dot2_start,
       { "start", "ieee1609dot2.start",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_UINT32, BASE_CUSTOM, CF_FUNC(ieee1609dot2_Time32_fmt), 0,
         "Time32", HFILL }},
     { &hf_ieee1609dot2_duration,
       { "duration", "ieee1609dot2.duration",
@@ -2219,11 +2269,11 @@ void proto_register_ieee1609dot2(void) {
         NULL, HFILL }},
     { &hf_ieee1609dot2_latitude,
       { "latitude", "ieee1609dot2.latitude",
-        FT_INT32, BASE_DEC, VALS(ieee1609dot2_NinetyDegreeInt_vals), 0,
+        FT_INT32, BASE_CUSTOM, CF_FUNC(ieee1609dot2_NinetyDegreeInt_fmt), 0,
         NULL, HFILL }},
     { &hf_ieee1609dot2_longitude,
       { "longitude", "ieee1609dot2.longitude",
-        FT_INT32, BASE_DEC, VALS(ieee1609dot2_OneEightyDegreeInt_vals), 0,
+        FT_INT32, BASE_CUSTOM, CF_FUNC(ieee1609dot2_OneEightyDegreeInt_fmt), 0,
         NULL, HFILL }},
     { &hf_ieee1609dot2_countryOnly,
       { "countryOnly", "ieee1609dot2.countryOnly",
@@ -2267,7 +2317,7 @@ void proto_register_ieee1609dot2(void) {
         NULL, HFILL }},
     { &hf_ieee1609dot2_elevation,
       { "elevation", "ieee1609dot2.elevation",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_UINT32, BASE_CUSTOM, CF_FUNC(ieee1609dot2_ElevInt_fmt), 0,
         NULL, HFILL }},
     { &hf_ieee1609dot2_ecdsaNistP256Signature,
       { "ecdsaNistP256Signature", "ieee1609dot2.ecdsaNistP256Signature_element",
@@ -2543,11 +2593,11 @@ void proto_register_ieee1609dot2(void) {
         "T_hiPsid", HFILL }},
     { &hf_ieee1609dot2_generationTime,
       { "generationTime", "ieee1609dot2.generationTime",
-        FT_UINT64, BASE_DEC, NULL, 0,
+        FT_UINT64, BASE_CUSTOM, CF_FUNC(ieee1609dot2_Time64_fmt), 0,
         "Time64", HFILL }},
     { &hf_ieee1609dot2_expiryTime,
       { "expiryTime", "ieee1609dot2.expiryTime",
-        FT_UINT64, BASE_DEC, NULL, 0,
+        FT_UINT64, BASE_CUSTOM, CF_FUNC(ieee1609dot2_Time64_fmt), 0,
         "Time64", HFILL }},
     { &hf_ieee1609dot2_generationLocation,
       { "generationLocation", "ieee1609dot2.generationLocation_element",
@@ -2787,7 +2837,7 @@ void proto_register_ieee1609dot2(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-ieee1609dot2-hfarr.c ---*/
-#line 66 "./asn1/ieee1609dot2/packet-ieee1609dot2-template.c"
+#line 129 "./asn1/ieee1609dot2/packet-ieee1609dot2-template.c"
   };
 
   /* List of subtrees */
@@ -2865,7 +2915,7 @@ void proto_register_ieee1609dot2(void) {
     &ett_ieee1609dot2_VerificationKeyIndicator,
 
 /*--- End of included file: packet-ieee1609dot2-ettarr.c ---*/
-#line 71 "./asn1/ieee1609dot2/packet-ieee1609dot2-template.c"
+#line 134 "./asn1/ieee1609dot2/packet-ieee1609dot2-template.c"
         &ett_ieee1609dot2_ssp,
   };
 

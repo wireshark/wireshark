@@ -84,6 +84,7 @@ typedef enum _Psid_enum {
   psid_geonetworking_management_communications = 141,
   psid_traffic_light_control_status_service = 637,
   psid_certificate_revocation_list_application = 256,
+  psid_collective_perception_service = 8319,
   psid_vehicle_initiated_distress_notivication = 16514,
   psid_fast_service_advertisement_protocol = 2113664,
   psid_its_station_internal_management_communications_protocol = 2113665,

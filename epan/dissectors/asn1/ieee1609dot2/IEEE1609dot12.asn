@@ -69,6 +69,8 @@ psid-traffic-light-control-status-service                           Psid ::= 637
 
 psid-certificate-revocation-list-application                        Psid ::= 256           -- CAMP
 
+psid-collective-perception-service                                  Psid ::= 8319          -- ETSI-TS-103-324
+
 -- 0x01-01 to 0x3E-7F 0p80-81 to 0pBD-FF Not allocated
 -- 0x3E-80 to 0x40-1F 0pBE-00 to 0pBF-9F Reserved IEEE P1609 WG 416
 -- 0x40-20 to 0x40-5F 0pBF-A0 to 0pBF-DF Private used IEEE P1609 WG 64

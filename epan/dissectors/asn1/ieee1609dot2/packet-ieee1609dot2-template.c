@@ -15,6 +15,8 @@
 
 #include "config.h"
 
+#include <time.h>
+
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/oids.h>
@@ -56,6 +58,67 @@ ieee1609dot2_set_next_default_psid(packet_info *pinfo, guint32 psid)
 
 #include "packet-ieee1609dot2-fn.c"
 
+
+static void
+ieee1609dot2_NinetyDegreeInt_fmt(gchar *s, guint32 v)
+{
+  gint32 lat = (gint32)v;
+  if (lat == 900000001) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "unavailable(%d)", lat);
+  } else {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "%u°%u'%.3f\"%c (%d)",
+               abs(lat) / 10000000,
+               abs(lat) % 10000000 * 6 / 1000000,
+               abs(lat) % 10000000 * 6 % 1000000 * 6.0 / 100000.0,
+               (lat >= 0) ? 'N' : 'S',
+               lat);
+  }
+}
+
+static void
+ieee1609dot2_OneEightyDegreeInt_fmt(gchar *s, guint32 v)
+{
+  gint32 lng = (gint32)v;
+  if (lng == 1800000001) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "unavailable(%d)", lng);
+  } else {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "%u°%u'%.3f\"%c (%d)",
+               abs(lng) / 10000000,
+               abs(lng) % 10000000 * 6 / 1000000,
+               abs(lng) % 10000000 * 6 % 1000000 * 6.0 / 100000.0,
+               (lng >= 0) ? 'E' : 'W',
+               lng);
+  }
+}
+
+static void
+ieee1609dot2_ElevInt_fmt(gchar *s, guint32 v)
+{
+  // Range is from -4096 to 61439 in units of one-tenth of a meter
+  gint32 alt = (gint32)v - 4096;
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%.2fm (%u)", alt * 0.1, v);
+}
+
+static void
+ieee1609dot2_Time32_fmt(gchar *s, guint32 v)
+{
+  time_t secs = v + 1072915200 - 5;
+  struct tm *tm = gmtime(&secs);
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%u-%02u-%02u %02u:%02u:%02u (%" G_GUINT64_FORMAT ")",
+    tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec, v
+  );
+}
+
+static void
+ieee1609dot2_Time64_fmt(gchar *s, guint64 v)
+{
+  time_t secs = v / 1000000 + 1072915200 - 5;
+  guint32 usecs = v % 1000000;
+  struct tm *tm = gmtime(&secs);
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%u-%02u-%02u %02u:%02u:%02u.%06u (%" G_GUINT64_FORMAT ")",
+    tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec, usecs, v
+  );
+}
 
 /*--- proto_register_ieee1609dot2 ----------------------------------------------*/
 void proto_register_ieee1609dot2(void) {
