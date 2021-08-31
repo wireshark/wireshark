@@ -38,7 +38,7 @@ set(GUIDE_INSTALL_DIRS)
 add_custom_target(update_tools_help
 	COMMAND ${CMAKE_COMMAND} -E env PYTHONIOENCODING=UTF-8
 		${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/update-tools-help.py
-		--program-path ${WS_PROGRAM_PATH}
+		--program-path $<TARGET_FILE_DIR:tshark>
 	WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 )
 set_docbook_target_properties(update_tools_help)
