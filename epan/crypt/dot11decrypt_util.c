@@ -245,7 +245,6 @@ static gboolean sha256(const guint8 *data, size_t len, guint8 output[32])
  * @param r0kh_id PMK-R0 key holder identifier in the Authenticator.
  * @param r0kh_id_len Lenth of r0kh_id in bytes.
  * @param s0kh_id PMK-R0 key holder in the Supplicant (STA mac address)
- * @param s0kd_id_len Length of s0kh_id in bytes.
  * @param hash_algo Hash algorithm to use for the KDF.
  *        See gcrypt available hash algorithms:
  *        https://gnupg.org/documentation/manuals/gcrypt/Available-hash-algorithms.html
