@@ -34168,7 +34168,14 @@ dissect_ieee80211_pv0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
               encap_type = ENCAP_ETHERNET;
             else if ((octet1 == 0xff) && (octet2 == 0xff))
               encap_type = ENCAP_IPX;
-            else if (((octet1 == 0x00) && (octet2 == 0x00)) ||
+            else if (((octet1 == 0x00) && (octet2 == 0x00)) &&
+              tvb_bytes_exist(next_tvb, 0, 18) &&
+              (tvb_memeql(next_tvb, 6, (const guint8*)pinfo->dl_dst.data, 6) == 0) &&
+              (tvb_memeql(next_tvb, 12, (const guint8*)pinfo->dl_src.data, 6) == 0)) {
+              proto_tree_add_item(tree, hf_ieee80211_mysterious_extra_stuff, next_tvb, 0, 6, ENC_NA);
+              next_tvb = tvb_new_subset_remaining(next_tvb, 6);
+              encap_type = ENCAP_ETHERNET;
+            } else if (((octet1 == 0x00) && (octet2 == 0x00)) ||
                      (((octet2 << 8) | octet1) == seq_control)) {
               proto_tree_add_item(tree, hf_ieee80211_mysterious_extra_stuff, next_tvb, 0, 2, ENC_NA);
               next_tvb = tvb_new_subset_remaining(next_tvb, 2);
@@ -48654,7 +48661,7 @@ proto_register_ieee80211(void)
       NULL, HFILL }},
 
     {&hf_ieee80211_mysterious_extra_stuff,
-     {"Mysterious extra OLPC/Ruckus/Atheros/??? stuff", "wlan.mysterious_extra_stuff",
+     {"Mysterious extra OLPC/Ruckus/Atheros/Vector/??? stuff", "wlan.mysterious_extra_stuff",
       FT_NONE, BASE_NONE, NULL, 0x0,
       NULL, HFILL }},
 

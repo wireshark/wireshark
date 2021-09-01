@@ -257,6 +257,15 @@ fix_endianness_blf_ethernetframeheader_ex(blf_ethernetframeheader_ex_t *header) 
 }
 
 static void
+fix_endianness_blf_wlanframeheader(blf_wlanframeheader_t* header) {
+    header->channel = GUINT16_FROM_LE(header->channel);
+    header->flags = GUINT16_FROM_LE(header->flags);
+    header->signal_strength = GUINT16_FROM_LE(header->signal_strength);
+    header->signal_quality = GUINT16_FROM_LE(header->signal_quality);
+    header->frame_length = GUINT16_FROM_LE(header->frame_length);
+}
+
+static void
 fix_endianness_blf_canmessage(blf_canmessage_t *header) {
     header->channel = GUINT16_FROM_LE(header->channel);
     header->id = GUINT32_FROM_LE(header->id);
@@ -816,6 +825,53 @@ blf_read_ethernetframe_ext(blf_params_t *params, int *err, gchar **err_info, gin
     wtap_block_add_uint32_option(params->rec->block, OPT_PKT_QUEUE, ethheader.hw_channel);
     params->rec->rec_header.packet_header.caplen = ethheader.frame_length;
     params->rec->rec_header.packet_header.len = ethheader.frame_length;
+    return TRUE;
+}
+
+static gboolean
+blf_read_wlanframe(blf_params_t* params, int* err, gchar** err_info, gint64 block_start, gint64 header2_start, gint64 data_start, gint64 object_length) {
+    blf_logobjectheader_t logheader;
+    blf_wlanframeheader_t wlanheader;
+
+    if (data_start - header2_start < (gint64)sizeof(blf_logobjectheader_t)) {
+        ws_debug("blf_read_wlanframe: not enough bytes for timestamp header");
+        return FALSE;
+    }
+
+    if (!blf_read_bytes_or_eof(params, header2_start, &logheader, sizeof(logheader), err, err_info)) {
+        ws_debug("blf_read_wlanframe: not enough bytes for logheader");
+        return FALSE;
+    }
+    fix_endianness_blf_logobjectheader(&logheader);
+
+    if (object_length < (data_start - block_start) + (int)sizeof(blf_wlanframeheader_t)) {
+        ws_debug("blf_read_wlanframe: not enough bytes for wlan frame header in object");
+        return FALSE;
+    }
+
+    if (!blf_read_bytes_or_eof(params, data_start, &wlanheader, sizeof(blf_wlanframeheader_t), err, err_info)) {
+        ws_debug("blf_read_wlanframe: not enough bytes for wlan frame header in file");
+        return FALSE;
+    }
+    fix_endianness_blf_wlanframeheader(&wlanheader);
+
+    ws_buffer_assure_space(params->buf, wlanheader.frame_length);
+
+    if (object_length - (data_start - block_start) - sizeof(blf_wlanframeheader_t) < wlanheader.frame_length) {
+        ws_debug("blf_read_wlanframe: frame too short");
+        return FALSE;
+    }
+
+    if (!blf_read_bytes_or_eof(params, data_start + sizeof(blf_wlanframeheader_t), ws_buffer_start_ptr(params->buf), wlanheader.frame_length, err, err_info)) {
+        ws_debug("blf_read_wlanframe: copying wlan frame failed");
+        return FALSE;
+    }
+
+    blf_init_rec(params, &logheader, WTAP_ENCAP_IEEE_802_11, wlanheader.channel);
+    params->rec->presence_flags = WTAP_HAS_TS | WTAP_HAS_CAP_LEN | WTAP_HAS_INTERFACE_ID;
+    params->rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
+    params->rec->rec_header.packet_header.caplen = wlanheader.frame_length;
+    params->rec->rec_header.packet_header.len = wlanheader.frame_length;
     return TRUE;
 }
 
@@ -1422,6 +1478,11 @@ blf_read_block(blf_params_t *params, gint64 start_pos, int *err, gchar **err_inf
         case BLF_OBJTYPE_ETHERNET_FRAME_EX:
             return blf_read_ethernetframe_ext(params, err, err_info, start_pos, start_pos + sizeof(blf_blockheader_t),
                                               start_pos + header.header_length, header.object_length);
+            break;
+
+        case BLF_OBJTYPE_WLAN_FRAME:
+            return blf_read_wlanframe(params, err, err_info, start_pos, start_pos + sizeof(blf_blockheader_t),
+                start_pos + header.header_length, header.object_length);
             break;
 
         case BLF_OBJTYPE_CAN_MESSAGE:

@@ -109,6 +109,17 @@ typedef struct blf_ethernetframeheader_ex {
     guint32 error;
 } blf_ethernetframeheader_ex_t;
 
+typedef struct blf_wlanframeheader {
+    guint16 channel;
+    guint16 flags;
+    guint8  direction;
+    guint8  radio_channel;
+    guint16 signal_strength;
+    guint16 signal_quality;
+    guint16 frame_length;
+    guint32 res;
+} blf_wlanframeheader_t;
+
 /* see https://bitbucket.org/tobylorenz/vector_blf/src/master/src/Vector/BLF/CanMessage.h */
 
 /* shared for CAN message and CAN message2 and CANFD message */
