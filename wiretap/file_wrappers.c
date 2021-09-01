@@ -835,7 +835,7 @@ gz_head(FILE_T state)
         && state->in.buf[0] == 0x28 && state->in.buf[1] == 0xb5
         && state->in.buf[2] == 0x2f && state->in.buf[3] == 0xfd) {
 #ifdef HAVE_ZSTD
-        const size_t ret = ZSTD_DCtx_reset(state->zstd_dctx, ZSTD_reset_session_and_parameters);
+        const size_t ret = ZSTD_initDStream(state->zstd_dctx);
         if (ZSTD_isError(ret)) {
             state->err = WTAP_ERR_DECOMPRESS;
             state->err_info = ZSTD_getErrorName(ret);
@@ -927,7 +927,7 @@ fill_out_buffer(FILE_T state)
         state->in.avail -= input.pos;
 
         state->out.next = output.dst;
-        state->out.avail = output.pos;
+        state->out.avail = (guint)output.pos;
 
         if (ret == 0) {
             state->compression = UNKNOWN;
@@ -954,7 +954,7 @@ fill_out_buffer(FILE_T state)
         state->in.avail -= inBufSize;
 
         state->out.next = state->out.buf;
-        state->out.avail = outBufSize;
+        state->out.avail = (guint)outBufSize;
 
         if (ret == 0) {
             state->compression = UNKNOWN;
@@ -1083,8 +1083,8 @@ file_fdopen(int fd)
 #endif
 #ifdef HAVE_ZSTD
     /* we should have separate input and output buf sizes */
-    want = MAX(want, ZSTD_DStreamInSize());
-    want = MAX(want, ZSTD_DStreamOutSize());
+    want = MAX(want, (guint)ZSTD_DStreamInSize());
+    want = MAX(want, (guint)ZSTD_DStreamOutSize());
 #endif
 
     /* allocate buffers */
