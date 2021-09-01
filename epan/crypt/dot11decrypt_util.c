@@ -21,6 +21,7 @@
 
 #define FC0_AAD_MASK 0x8f
 #define FC1_AAD_MASK 0xc7
+#define FC1_AAD_QOS_MASK 0x47
 
 /****************************************************************************/
 /* Internal macros								*/
@@ -41,7 +42,7 @@ void dot11decrypt_construct_aad(
 	int alen = 22;
 
 	/* AAD:
-	* FC with bits 4..6 and 11..13 masked to zero; 14 is always one
+	* FC with bits 4..6 and 11..13 masked to zero; 14 is always one; 15 zero when QoS Control field present
 	* A1 | A2 | A3
 	* SC with bits 4..15 (seq#) masked to zero
 	* A4 (if present)
@@ -54,7 +55,11 @@ void dot11decrypt_construct_aad(
 	} else {
 		aad[0] = wh->fc[0];
 	}
-	aad[1] = (UINT8)(wh->fc[1] & FC1_AAD_MASK);
+	if (DOT11DECRYPT_IS_QOS_DATA(wh)) {
+		aad[1] = (UINT8)((wh->fc[1] & FC1_AAD_QOS_MASK) | 0x40);
+	} else {
+		aad[1] = (UINT8)((wh->fc[1] & FC1_AAD_MASK) | 0x40);
+	}
 	/* NB: we know 3 addresses are contiguous */
 	memcpy(aad + 2, (guint8 *)wh->addr1, 3 * DOT11DECRYPT_MAC_LEN);
 	aad[20] = (UINT8)(wh->seq[0] & DOT11DECRYPT_SEQ_FRAG_MASK);
