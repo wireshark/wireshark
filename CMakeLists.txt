@@ -3553,7 +3553,7 @@ foreach(_group_name ${_test_group_list})
 		COMMAND ${CMAKE_COMMAND} -E env PYTHONIOENCODING=UTF-8
 			${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/test/test.py
 			--verbose
-			--program-path $<TARGET_FILE_DIR:tshark>
+			--program-path $<TARGET_FILE_DIR:wmem_test>
 			${TEST_EXTRA_ARGS}
 			${_group_name}
 		)
