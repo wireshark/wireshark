@@ -31,6 +31,28 @@ static dissector_handle_t jpeg_handle;
 
 static header_field_info *hfi_jpeg = NULL;
 
+static const range_string jpeg_ts_rvals [] = {
+    {0, 0,      "Progressively scanned"},
+    {1, 1,      "Odd field of interlaced signal"},
+    {2, 2,      "Even field of interlaced signal"},
+    {3, 3,      "Interlaced field to be line doubled"},
+    {3, 0xff,   "Unspecified"},
+    {0, 0,      NULL}
+};
+
+static const range_string jpeg_type_rvals [] = {
+    {  0,   0,  "4:2:2 Video"},
+    {  1,   1,  "4:2:0 Video"},
+    {  2,   5,  "Reserved"}, /* Previously assigned by RFC 2035 */
+    {  6,  63,  "Unassigned"},
+    { 64,  64,  "4:2:0 Video, Restart Markers present"},
+    { 65,  65,  "4:2:0 Video, Restart Markers present"},
+    { 66,  69,  "Reserved"}, /* Since [2,5] are reserved */
+    { 70, 127,  "Unassigned, Restart Markers present"},
+    {128, 255,  "Dynamically assigned"},
+    {  0,   0,  NULL}
+};
+
 #define JPEG_HFI_INIT HFI_INIT(proto_jpeg)
 
 /* JPEG header fields */
@@ -44,7 +66,7 @@ static header_field_info hfi_rtp_jpeg_main_hdr JPEG_HFI_INIT = {
 static header_field_info hfi_rtp_jpeg_main_hdr_ts JPEG_HFI_INIT = {
 	"Type Specific",
 	"jpeg.main_hdr.ts",
-	FT_UINT8, BASE_DEC, NULL, 0,
+	FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(jpeg_ts_rvals), 0,
 	NULL, HFILL
 };
 
@@ -58,7 +80,7 @@ static header_field_info hfi_rtp_jpeg_main_hdr_offs JPEG_HFI_INIT = {
 static header_field_info hfi_rtp_jpeg_main_hdr_type JPEG_HFI_INIT = {
 	"Type",
 	"jpeg.main_hdr.type",
-	FT_UINT8, BASE_DEC, NULL, 0,
+	FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(jpeg_type_rvals), 0,
 	NULL, HFILL
 };
 
@@ -285,7 +307,7 @@ proto_register_jpeg(void)
 	proto_register_fields(proto_jpeg, hfi, array_length(hfi));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	jpeg_handle = create_dissector_handle(dissect_jpeg, proto_jpeg);
+	jpeg_handle = register_dissector("jpeg", dissect_jpeg, proto_jpeg);
 
 	/* RFC 2798 */
 	register_ber_oid_dissector_handle("0.9.2342.19200300.100.1.60", jpeg_handle, proto_jpeg, "jpegPhoto");
