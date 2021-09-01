@@ -20,11 +20,13 @@ IMPORTS
 	AddressString,
 	BasicServiceCode,
 	ExternalSignalInfo,
+	HLR-List,
 	GlobalCellId,
 	ISDN-AddressString,
 	IMSI,
 	IMSI-WithLMSI,
 	LMSI,
+	NetworkResource,
 	ProtocolId,
 	SignalInfo,
 	TeleserviceCode,
@@ -754,5 +756,12 @@ sendParameters	OPERATION ::= {
 		UnidentifiedSubscriber}
 	CODE	local:9 }
 
-END
+ResetArgV1 ::= SEQUENCE {
+	networkResource NetworkResource OPTIONAL,
+	-- networkResource must be present in version 1
+	-- networkResource must be absent in version greater 1
+	hlr-Number ISDN-AddressString,
+	hlr-List HLR-List OPTIONAL,
+	...}
 
+END

@@ -1320,7 +1320,11 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
     offset=dissect_gsm_map_ms_CancelVcsgLocationArg(FALSE, tvb, offset, actx, tree, -1);
     break;
   case 37: /*reset*/
-    offset=dissect_gsm_map_ms_ResetArg(FALSE, tvb, offset, actx, tree, -1);
+      if (application_context_version == 1) {
+          offset = dissect_gsm_old_ResetArgV1(FALSE, tvb, offset, actx, tree, -1);
+      } else {
+          offset = dissect_gsm_map_ms_ResetArg(FALSE, tvb, offset, actx, tree, -1);
+      }
     break;
   case 38: /*forwardCheckSS-Indication*/
     return offset;

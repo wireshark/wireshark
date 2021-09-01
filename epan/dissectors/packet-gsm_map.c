@@ -1783,6 +1783,9 @@ static int hf_gsm_old_ki = -1;                    /* Ki */
 static int hf_gsm_old_tripletList_01 = -1;        /* TripletList */
 static int hf_gsm_old_quintupletList = -1;        /* QuintupletList */
 static int hf_gsm_old_SentParameterList_item = -1;  /* SentParameter */
+static int hf_gsm_old_networkResource = -1;       /* NetworkResource */
+static int hf_gsm_old_hlr_Number = -1;            /* ISDN_AddressString */
+static int hf_gsm_old_hlr_List = -1;              /* HLR_List */
 
 /* --- Module SS-DataTypes --- --- ---                                        */
 
@@ -2670,6 +2673,7 @@ static gint ett_gsm_old_RequestParameterList = -1;
 static gint ett_gsm_old_SentParameter = -1;
 static gint ett_gsm_old_AuthenticationSetListOld = -1;
 static gint ett_gsm_old_SentParameterList = -1;
+static gint ett_gsm_old_ResetArgV1 = -1;
 
 /* --- Module SS-DataTypes --- --- ---                                        */
 
@@ -19157,6 +19161,22 @@ dissect_gsm_old_SentParameterList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 }
 
 
+static const ber_sequence_t gsm_old_ResetArgV1_sequence[] = {
+  { &hf_gsm_old_networkResource, BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_gsm_map_NetworkResource },
+  { &hf_gsm_old_hlr_Number  , BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_gsm_map_ISDN_AddressString },
+  { &hf_gsm_old_hlr_List    , BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_gsm_map_HLR_List },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_gsm_old_ResetArgV1(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   gsm_old_ResetArgV1_sequence, hf_index, ett_gsm_old_ResetArgV1);
+
+  return offset;
+}
+
+
 /* --- Module SS-DataTypes --- --- ---                                        */
 
 
@@ -22668,7 +22688,11 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
     offset=dissect_gsm_map_ms_CancelVcsgLocationArg(FALSE, tvb, offset, actx, tree, -1);
     break;
   case 37: /*reset*/
-    offset=dissect_gsm_map_ms_ResetArg(FALSE, tvb, offset, actx, tree, -1);
+      if (application_context_version == 1) {
+          offset = dissect_gsm_old_ResetArgV1(FALSE, tvb, offset, actx, tree, -1);
+      } else {
+          offset = dissect_gsm_map_ms_ResetArg(FALSE, tvb, offset, actx, tree, -1);
+      }
     break;
   case 38: /*forwardCheckSS-Indication*/
     return offset;
@@ -31036,6 +31060,18 @@ void proto_register_gsm_map(void) {
       { "SentParameter", "gsm_old.SentParameter",
         FT_UINT32, BASE_DEC, VALS(gsm_old_SentParameter_vals), 0,
         NULL, HFILL }},
+    { &hf_gsm_old_networkResource,
+      { "networkResource", "gsm_old.networkResource",
+        FT_UINT32, BASE_DEC, VALS(gsm_map_NetworkResource_vals), 0,
+        NULL, HFILL }},
+    { &hf_gsm_old_hlr_Number,
+      { "hlr-Number", "gsm_old.hlr_Number",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "ISDN_AddressString", HFILL }},
+    { &hf_gsm_old_hlr_List,
+      { "hlr-List", "gsm_old.hlr_List",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
 
 /* --- Module SS-DataTypes --- --- ---                                        */
 
@@ -32003,7 +32039,7 @@ void proto_register_gsm_map(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-gsm_map-hfarr.c ---*/
-#line 3329 "./asn1/gsm_map/packet-gsm_map-template.c"
+#line 3333 "./asn1/gsm_map/packet-gsm_map-template.c"
   };
 
   /* List of subtrees */
@@ -32640,6 +32676,7 @@ void proto_register_gsm_map(void) {
     &ett_gsm_old_SentParameter,
     &ett_gsm_old_AuthenticationSetListOld,
     &ett_gsm_old_SentParameterList,
+    &ett_gsm_old_ResetArgV1,
 
 /* --- Module SS-DataTypes --- --- ---                                        */
 
@@ -32758,7 +32795,7 @@ void proto_register_gsm_map(void) {
     &ett_NokiaMAP_Extensions_AllowedServiceData,
 
 /*--- End of included file: packet-gsm_map-ettarr.c ---*/
-#line 3368 "./asn1/gsm_map/packet-gsm_map-template.c"
+#line 3372 "./asn1/gsm_map/packet-gsm_map-template.c"
   };
 
   static ei_register_info ei[] = {
@@ -32902,7 +32939,7 @@ void proto_register_gsm_map(void) {
 
 
 /*--- End of included file: packet-gsm_map-dis-tab.c ---*/
-#line 3428 "./asn1/gsm_map/packet-gsm_map-template.c"
+#line 3432 "./asn1/gsm_map/packet-gsm_map-template.c"
   oid_add_from_string("ericsson-gsm-Map-Ext","1.2.826.0.1249.58.1.0" );
   oid_add_from_string("accessTypeNotAllowed-id","1.3.12.2.1107.3.66.1.2");
   /*oid_add_from_string("map-ac networkLocUp(1) version3(3)","0.4.0.0.1.0.1.3" );
