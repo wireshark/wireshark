@@ -2631,7 +2631,7 @@ static const per_sequence_t its_ItsPduHeader_sequence[] = {
 
 static int
 dissect_its_ItsPduHeader(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 694 "./asn1/its/its.cnf"
+#line 711 "./asn1/its/its.cnf"
   guint8 version = tvb_get_guint8(tvb, 0);
   int test_offset = offset;
   if ((test_offset = dissector_try_uint(its_version_subdissector_table, version, tvb, actx->pinfo, tree))) {
@@ -2794,13 +2794,6 @@ dissect_its_ReferencePosition(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 }
 
 
-static const value_string its_DeltaLatitude_vals[] = {
-  {  10, "oneMicrodegreeNorth" },
-  { -10, "oneMicrodegreeSouth" },
-  { 131072, "unavailable" },
-  { 0, NULL }
-};
-
 
 static int
 dissect_its_DeltaLatitude(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -2811,13 +2804,6 @@ dissect_its_DeltaLatitude(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 }
 
 
-static const value_string its_DeltaLongitude_vals[] = {
-  {  10, "oneMicrodegreeEast" },
-  { -10, "oneMicrodegreeWest" },
-  { 131072, "unavailable" },
-  { 0, NULL }
-};
-
 
 static int
 dissect_its_DeltaLongitude(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -2827,13 +2813,6 @@ dissect_its_DeltaLongitude(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
   return offset;
 }
 
-
-static const value_string its_DeltaAltitude_vals[] = {
-  {   1, "oneCentimeterUp" },
-  {  -1, "oneCentimeterDown" },
-  { 12800, "unavailable" },
-  { 0, NULL }
-};
 
 
 static int
@@ -2860,11 +2839,6 @@ dissect_its_DeltaReferencePosition(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
   return offset;
 }
 
-
-static const value_string its_PathDeltaTime_vals[] = {
-  {   1, "tenMilliSecondsInPast" },
-  { 0, NULL }
-};
 
 
 static int
@@ -2926,7 +2900,7 @@ static const per_sequence_t its_PtActivation_sequence[] = {
 
 static int
 dissect_its_PtActivation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 849 "./asn1/its/its.cnf"
+#line 881 "./asn1/its/its.cnf"
   void *priv_data = actx->private_data;
   its_pt_activation_data_t *pta;
 
@@ -2936,7 +2910,7 @@ dissect_its_PtActivation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_its_PtActivation, its_PtActivation_sequence);
 
-#line 855 "./asn1/its/its.cnf"
+#line 887 "./asn1/its/its.cnf"
   dissector_try_uint_new(cam_pt_activation_table, pta->type, pta->data, actx->pinfo, tree, TRUE, NULL);
   actx->private_data = priv_data;
 
@@ -3008,7 +2982,7 @@ dissect_its_CauseCodeType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 static int
 dissect_its_SubCauseCodeType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 817 "./asn1/its/its.cnf"
+#line 849 "./asn1/its/its.cnf"
   // Overwrite hf_index
   hf_index = *find_subcause_from_cause((CauseCodeType_enum) ((its_private_data_t*)actx->private_data)->cause_code);
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
@@ -4859,13 +4833,6 @@ dissect_itsv1_ReferencePosition(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 }
 
 
-static const value_string itsv1_DeltaLatitude_vals[] = {
-  {  10, "oneMicrodegreeNorth" },
-  { -10, "oneMicrodegreeSouth" },
-  { 131072, "unavailable" },
-  { 0, NULL }
-};
-
 
 static int
 dissect_itsv1_DeltaLatitude(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -4876,13 +4843,6 @@ dissect_itsv1_DeltaLatitude(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 }
 
 
-static const value_string itsv1_DeltaLongitude_vals[] = {
-  {  10, "oneMicrodegreeEast" },
-  { -10, "oneMicrodegreeWest" },
-  { 131072, "unavailable" },
-  { 0, NULL }
-};
-
 
 static int
 dissect_itsv1_DeltaLongitude(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -4892,13 +4852,6 @@ dissect_itsv1_DeltaLongitude(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
   return offset;
 }
 
-
-static const value_string itsv1_DeltaAltitude_vals[] = {
-  {   1, "oneCentimeterUp" },
-  {  -1, "oneCentimeterDown" },
-  { 12800, "unavailable" },
-  { 0, NULL }
-};
 
 
 static int
@@ -4925,11 +4878,6 @@ dissect_itsv1_DeltaReferencePosition(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
   return offset;
 }
 
-
-static const value_string itsv1_PathDeltaTime_vals[] = {
-  {   1, "tenMilliSecondsInPast" },
-  { 0, NULL }
-};
 
 
 static int
@@ -4991,7 +4939,7 @@ static const per_sequence_t itsv1_PtActivation_sequence[] = {
 
 static int
 dissect_itsv1_PtActivation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 849 "./asn1/its/its.cnf"
+#line 881 "./asn1/its/its.cnf"
   void *priv_data = actx->private_data;
   its_pt_activation_data_t *pta;
 
@@ -5001,7 +4949,7 @@ dissect_itsv1_PtActivation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_itsv1_PtActivation, itsv1_PtActivation_sequence);
 
-#line 855 "./asn1/its/its.cnf"
+#line 887 "./asn1/its/its.cnf"
   dissector_try_uint_new(cam_pt_activation_table, pta->type, pta->data, actx->pinfo, tree, TRUE, NULL);
   actx->private_data = priv_data;
 
@@ -7232,14 +7180,14 @@ static const per_sequence_t dsrc_Position3D_sequence[] = {
 
 static int
 dissect_dsrc_Position3D(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 599 "./asn1/its/its.cnf"
+#line 616 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_Position3D;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_dsrc_Position3D, dsrc_Position3D_sequence);
 
-#line 603 "./asn1/its/its.cnf"
+#line 620 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -7584,14 +7532,14 @@ static const per_sequence_t dsrc_LaneAttributes_sequence[] = {
 
 static int
 dissect_dsrc_LaneAttributes(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 545 "./asn1/its/its.cnf"
+#line 562 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_LaneAttributes;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_dsrc_LaneAttributes, dsrc_LaneAttributes_sequence);
 
-#line 549 "./asn1/its/its.cnf"
+#line 566 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -7814,7 +7762,7 @@ static const per_choice_t dsrc_NodeOffsetPointXY_choice[] = {
 
 static int
 dissect_dsrc_NodeOffsetPointXY(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 590 "./asn1/its/its.cnf"
+#line 607 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_NodeOffsetPointXY;
 
@@ -7822,7 +7770,7 @@ dissect_dsrc_NodeOffsetPointXY(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
                                  ett_dsrc_NodeOffsetPointXY, dsrc_NodeOffsetPointXY_choice,
                                  NULL);
 
-#line 594 "./asn1/its/its.cnf"
+#line 611 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -8003,7 +7951,7 @@ static const per_choice_t dsrc_LaneDataAttribute_choice[] = {
 
 static int
 dissect_dsrc_LaneDataAttribute(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 554 "./asn1/its/its.cnf"
+#line 571 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_LaneDataAttribute;
 
@@ -8011,7 +7959,7 @@ dissect_dsrc_LaneDataAttribute(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
                                  ett_dsrc_LaneDataAttribute, dsrc_LaneDataAttribute_choice,
                                  NULL);
 
-#line 558 "./asn1/its/its.cnf"
+#line 575 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -8059,14 +8007,14 @@ static const per_sequence_t dsrc_NodeAttributeSetXY_sequence[] = {
 
 static int
 dissect_dsrc_NodeAttributeSetXY(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 581 "./asn1/its/its.cnf"
+#line 598 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_NodeAttributeSetXY;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_dsrc_NodeAttributeSetXY, dsrc_NodeAttributeSetXY_sequence);
 
-#line 585 "./asn1/its/its.cnf"
+#line 602 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -8213,14 +8161,14 @@ static const per_sequence_t dsrc_ComputedLane_sequence[] = {
 
 static int
 dissect_dsrc_ComputedLane(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 500 "./asn1/its/its.cnf"
+#line 517 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_ComputedLane;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_dsrc_ComputedLane, dsrc_ComputedLane_sequence);
 
-#line 504 "./asn1/its/its.cnf"
+#line 521 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -8370,14 +8318,14 @@ static const per_sequence_t dsrc_GenericLane_sequence[] = {
 
 static int
 dissect_dsrc_GenericLane(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 518 "./asn1/its/its.cnf"
+#line 535 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_GenericLane;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_dsrc_GenericLane, dsrc_GenericLane_sequence);
 
-#line 522 "./asn1/its/its.cnf"
+#line 539 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -8405,14 +8353,14 @@ static const per_sequence_t dsrc_SignalControlZone_sequence[] = {
 
 static int
 dissect_dsrc_SignalControlZone(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 680 "./asn1/its/its.cnf"
+#line 697 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_SignalControlZone;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_dsrc_SignalControlZone, dsrc_SignalControlZone_sequence);
 
-#line 684 "./asn1/its/its.cnf"
+#line 701 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -8462,14 +8410,14 @@ static const per_sequence_t dsrc_IntersectionGeometry_sequence[] = {
 
 static int
 dissect_dsrc_IntersectionGeometry(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 527 "./asn1/its/its.cnf"
+#line 544 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_IntersectionGeometry;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_dsrc_IntersectionGeometry, dsrc_IntersectionGeometry_sequence);
 
-#line 531 "./asn1/its/its.cnf"
+#line 548 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -8557,14 +8505,14 @@ static const per_sequence_t dsrc_RoadSegment_sequence[] = {
 
 static int
 dissect_dsrc_RoadSegment(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 635 "./asn1/its/its.cnf"
+#line 652 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_RoadSegment;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_dsrc_RoadSegment, dsrc_RoadSegment_sequence);
 
-#line 639 "./asn1/its/its.cnf"
+#line 656 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -8668,7 +8616,7 @@ static const per_choice_t dsrc_RestrictionUserType_choice[] = {
 
 static int
 dissect_dsrc_RestrictionUserType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 626 "./asn1/its/its.cnf"
+#line 643 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_RestrictionUserType;
 
@@ -8676,7 +8624,7 @@ dissect_dsrc_RestrictionUserType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
                                  ett_dsrc_RestrictionUserType, dsrc_RestrictionUserType_choice,
                                  NULL);
 
-#line 630 "./asn1/its/its.cnf"
+#line 647 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -8755,7 +8703,7 @@ static const per_sequence_t dsrc_MapData_sequence[] = {
 
 static int
 dissect_dsrc_MapData(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 404 "./asn1/its/its.cnf"
+#line 421 "./asn1/its/its.cnf"
   its_private_data_t *regext = wmem_new0(actx->pinfo->pool, its_private_data_t);
   actx->private_data = (void*)regext;
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "MAPEM");
@@ -9313,7 +9261,7 @@ static const per_sequence_t dsrc_RTCMcorrections_sequence[] = {
 
 static int
 dissect_dsrc_RTCMcorrections(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 421 "./asn1/its/its.cnf"
+#line 438 "./asn1/its/its.cnf"
   its_private_data_t *regext = wmem_new0(actx->pinfo->pool, its_private_data_t);
   actx->private_data = (void*)regext;
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "RTCMEM");
@@ -9495,14 +9443,14 @@ static const per_sequence_t dsrc_AdvisorySpeed_sequence[] = {
 
 static int
 dissect_dsrc_AdvisorySpeed(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 491 "./asn1/its/its.cnf"
+#line 508 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_AdvisorySpeed;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_dsrc_AdvisorySpeed, dsrc_AdvisorySpeed_sequence);
 
-#line 495 "./asn1/its/its.cnf"
+#line 512 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -9547,14 +9495,14 @@ static const per_sequence_t dsrc_MovementEvent_sequence[] = {
 
 static int
 dissect_dsrc_MovementEvent(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 563 "./asn1/its/its.cnf"
+#line 580 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_MovementEvent;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_dsrc_MovementEvent, dsrc_MovementEvent_sequence);
 
-#line 567 "./asn1/its/its.cnf"
+#line 584 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -9619,14 +9567,14 @@ static const per_sequence_t dsrc_ConnectionManeuverAssist_sequence[] = {
 
 static int
 dissect_dsrc_ConnectionManeuverAssist(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 509 "./asn1/its/its.cnf"
+#line 526 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_ConnectionManeuverAssist;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_dsrc_ConnectionManeuverAssist, dsrc_ConnectionManeuverAssist_sequence);
 
-#line 513 "./asn1/its/its.cnf"
+#line 530 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -9672,14 +9620,14 @@ static const per_sequence_t dsrc_MovementState_sequence[] = {
 
 static int
 dissect_dsrc_MovementState(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 572 "./asn1/its/its.cnf"
+#line 589 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_MovementState;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_dsrc_MovementState, dsrc_MovementState_sequence);
 
-#line 576 "./asn1/its/its.cnf"
+#line 593 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -9730,14 +9678,14 @@ static const per_sequence_t dsrc_IntersectionState_sequence[] = {
 
 static int
 dissect_dsrc_IntersectionState(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 536 "./asn1/its/its.cnf"
+#line 553 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_IntersectionState;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_dsrc_IntersectionState, dsrc_IntersectionState_sequence);
 
-#line 540 "./asn1/its/its.cnf"
+#line 557 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -9782,7 +9730,7 @@ static const per_sequence_t dsrc_SPAT_sequence[] = {
 
 static int
 dissect_dsrc_SPAT(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 412 "./asn1/its/its.cnf"
+#line 429 "./asn1/its/its.cnf"
   its_private_data_t *regext = wmem_new0(actx->pinfo->pool, its_private_data_t);
   actx->private_data = (void*)regext;
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "SPATEM");
@@ -9874,14 +9822,14 @@ static const per_sequence_t dsrc_SignalRequest_sequence[] = {
 
 static int
 dissect_dsrc_SignalRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 653 "./asn1/its/its.cnf"
+#line 670 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_SignalRequest;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_dsrc_SignalRequest, dsrc_SignalRequest_sequence);
 
-#line 657 "./asn1/its/its.cnf"
+#line 674 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -9913,14 +9861,14 @@ static const per_sequence_t dsrc_SignalRequestPackage_sequence[] = {
 
 static int
 dissect_dsrc_SignalRequestPackage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 644 "./asn1/its/its.cnf"
+#line 661 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_SignalRequestPackage;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_dsrc_SignalRequestPackage, dsrc_SignalRequestPackage_sequence);
 
-#line 648 "./asn1/its/its.cnf"
+#line 665 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -10112,14 +10060,14 @@ static const per_sequence_t dsrc_RequestorType_sequence[] = {
 
 static int
 dissect_dsrc_RequestorType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 617 "./asn1/its/its.cnf"
+#line 634 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_RequestorType;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_dsrc_RequestorType, dsrc_RequestorType_sequence);
 
-#line 621 "./asn1/its/its.cnf"
+#line 638 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -10222,14 +10170,14 @@ static const per_sequence_t dsrc_RequestorDescription_sequence[] = {
 
 static int
 dissect_dsrc_RequestorDescription(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 608 "./asn1/its/its.cnf"
+#line 625 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_RequestorDescription;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_dsrc_RequestorDescription, dsrc_RequestorDescription_sequence);
 
-#line 612 "./asn1/its/its.cnf"
+#line 629 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -10262,7 +10210,7 @@ static const per_sequence_t dsrc_SignalRequestMessage_sequence[] = {
 
 static int
 dissect_dsrc_SignalRequestMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 396 "./asn1/its/its.cnf"
+#line 413 "./asn1/its/its.cnf"
   its_private_data_t *regext = wmem_new0(actx->pinfo->pool, its_private_data_t);
   actx->private_data = (void*)regext;
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "SREM");
@@ -10344,14 +10292,14 @@ static const per_sequence_t dsrc_SignalStatusPackage_sequence[] = {
 
 static int
 dissect_dsrc_SignalStatusPackage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 662 "./asn1/its/its.cnf"
+#line 679 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_SignalStatusPackage;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_dsrc_SignalStatusPackage, dsrc_SignalStatusPackage_sequence);
 
-#line 666 "./asn1/its/its.cnf"
+#line 683 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -10396,14 +10344,14 @@ static const per_sequence_t dsrc_SignalStatus_sequence[] = {
 
 static int
 dissect_dsrc_SignalStatus(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 671 "./asn1/its/its.cnf"
+#line 688 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_SignalStatus;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_dsrc_SignalStatus, dsrc_SignalStatus_sequence);
 
-#line 675 "./asn1/its/its.cnf"
+#line 692 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -10449,7 +10397,7 @@ static const per_sequence_t dsrc_SignalStatusMessage_sequence[] = {
 
 static int
 dissect_dsrc_SignalStatusMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 388 "./asn1/its/its.cnf"
+#line 405 "./asn1/its/its.cnf"
   its_private_data_t *regext = wmem_new0(actx->pinfo->pool, its_private_data_t);
   actx->private_data = (void*)regext;
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "SSEM");
@@ -10596,7 +10544,7 @@ static const per_sequence_t AddGrpC_ConnectionManeuverAssist_addGrpC_sequence[] 
 
 static int
 dissect_AddGrpC_ConnectionManeuverAssist_addGrpC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 436 "./asn1/its/its.cnf"
+#line 453 "./asn1/its/its.cnf"
   actx->private_data = wmem_new0(actx->pinfo->pool, its_private_data_t);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -10614,7 +10562,7 @@ static const per_sequence_t AddGrpC_ConnectionTrajectory_addGrpC_sequence[] = {
 
 static int
 dissect_AddGrpC_ConnectionTrajectory_addGrpC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 441 "./asn1/its/its.cnf"
+#line 458 "./asn1/its/its.cnf"
   actx->private_data = wmem_new0(actx->pinfo->pool, its_private_data_t);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -10661,7 +10609,7 @@ static const per_sequence_t AddGrpC_IntersectionState_addGrpC_sequence[] = {
 
 static int
 dissect_AddGrpC_IntersectionState_addGrpC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 451 "./asn1/its/its.cnf"
+#line 468 "./asn1/its/its.cnf"
   actx->private_data = wmem_new0(actx->pinfo->pool, its_private_data_t);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -10679,7 +10627,7 @@ static const per_sequence_t AddGrpC_LaneAttributes_addGrpC_sequence[] = {
 
 static int
 dissect_AddGrpC_LaneAttributes_addGrpC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 476 "./asn1/its/its.cnf"
+#line 493 "./asn1/its/its.cnf"
   actx->private_data = wmem_new0(actx->pinfo->pool, its_private_data_t);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -10726,7 +10674,7 @@ static const per_sequence_t AddGrpC_MapData_addGrpC_sequence[] = {
 
 static int
 dissect_AddGrpC_MapData_addGrpC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 456 "./asn1/its/its.cnf"
+#line 473 "./asn1/its/its.cnf"
   actx->private_data = wmem_new0(actx->pinfo->pool, its_private_data_t);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -10770,7 +10718,7 @@ static const per_sequence_t AddGrpC_MovementEvent_addGrpC_sequence[] = {
 
 static int
 dissect_AddGrpC_MovementEvent_addGrpC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 481 "./asn1/its/its.cnf"
+#line 498 "./asn1/its/its.cnf"
   actx->private_data = wmem_new0(actx->pinfo->pool, its_private_data_t);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -10848,7 +10796,7 @@ static const per_sequence_t AddGrpC_NodeAttributeSet_addGrpC_sequence[] = {
 
 static int
 dissect_AddGrpC_NodeAttributeSet_addGrpC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 446 "./asn1/its/its.cnf"
+#line 463 "./asn1/its/its.cnf"
   actx->private_data = wmem_new0(actx->pinfo->pool, its_private_data_t);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -10865,7 +10813,7 @@ static const per_sequence_t AddGrpC_Position3D_addGrpC_sequence[] = {
 
 static int
 dissect_AddGrpC_Position3D_addGrpC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 461 "./asn1/its/its.cnf"
+#line 478 "./asn1/its/its.cnf"
   actx->private_data = wmem_new0(actx->pinfo->pool, its_private_data_t);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -10903,7 +10851,7 @@ static const per_sequence_t AddGrpC_RestrictionUserType_addGrpC_sequence[] = {
 
 static int
 dissect_AddGrpC_RestrictionUserType_addGrpC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 466 "./asn1/its/its.cnf"
+#line 483 "./asn1/its/its.cnf"
   actx->private_data = wmem_new0(actx->pinfo->pool, its_private_data_t);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -10939,7 +10887,7 @@ static const per_sequence_t AddGrpC_RequestorDescription_addGrpC_sequence[] = {
 
 static int
 dissect_AddGrpC_RequestorDescription_addGrpC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 486 "./asn1/its/its.cnf"
+#line 503 "./asn1/its/its.cnf"
   actx->private_data = wmem_new0(actx->pinfo->pool, its_private_data_t);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -10977,7 +10925,7 @@ static const per_sequence_t AddGrpC_SignalStatusPackage_addGrpC_sequence[] = {
 
 static int
 dissect_AddGrpC_SignalStatusPackage_addGrpC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 471 "./asn1/its/its.cnf"
+#line 488 "./asn1/its/its.cnf"
   actx->private_data = wmem_new0(actx->pinfo->pool, its_private_data_t);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -11472,7 +11420,7 @@ static const value_string gdd_Code_Units_vals[] = {
 
 static int
 dissect_gdd_T_unit(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 842 "./asn1/its/its.cnf"
+#line 874 "./asn1/its/its.cnf"
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                            2U, 8U, NULL, FALSE);
 
@@ -11499,7 +11447,7 @@ dissect_gdd_Distance(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 
 static int
 dissect_gdd_T_unit_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 832 "./asn1/its/its.cnf"
+#line 864 "./asn1/its/its.cnf"
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                            10U, 12U, NULL, FALSE);
 
@@ -11553,7 +11501,7 @@ dissect_gdd_INTEGER_0_250(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 static int
 dissect_gdd_T_unit_02(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 827 "./asn1/its/its.cnf"
+#line 859 "./asn1/its/its.cnf"
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                            0U, 1U, NULL, FALSE);
 
@@ -11852,7 +11800,7 @@ dissect_gdd_DistOrDuration_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 
 static int
 dissect_gdd_DistOrDuration_Units(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 837 "./asn1/its/its.cnf"
+#line 869 "./asn1/its/its.cnf"
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                            2U, 9U, NULL, FALSE);
 
@@ -14294,7 +14242,7 @@ static const per_sequence_t ivi_IviStructure_sequence[] = {
 
 static int
 dissect_ivi_IviStructure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 382 "./asn1/its/its.cnf"
+#line 399 "./asn1/its/its.cnf"
   actx->private_data = (void*)wmem_new0(actx->pinfo->pool, its_private_data_t);
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "IVIM");
   col_set_str(actx->pinfo->cinfo, COL_INFO, "IVIM");
@@ -14628,7 +14576,7 @@ static const per_sequence_t camv1_CoopAwarenessV1_sequence[] = {
 
 static int
 dissect_camv1_CoopAwarenessV1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 346 "./asn1/its/its.cnf"
+#line 363 "./asn1/its/its.cnf"
   actx->private_data = (void*)wmem_new0(actx->pinfo->pool, its_private_data_t);
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "CAMv1");
   col_set_str(actx->pinfo->cinfo, COL_INFO, "CAMv1");
@@ -14944,7 +14892,7 @@ static const per_sequence_t cam_CoopAwareness_sequence[] = {
 
 static int
 dissect_cam_CoopAwareness(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 340 "./asn1/its/its.cnf"
+#line 357 "./asn1/its/its.cnf"
   actx->private_data = (void*)wmem_new0(actx->pinfo->pool, its_private_data_t);
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "CAM");
   col_set_str(actx->pinfo->cinfo, COL_INFO, "CAM");
@@ -15152,7 +15100,7 @@ static const per_sequence_t denmv1_DecentralizedEnvironmentalNotificationMessage
 
 static int
 dissect_denmv1_DecentralizedEnvironmentalNotificationMessageV1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 358 "./asn1/its/its.cnf"
+#line 375 "./asn1/its/its.cnf"
   actx->private_data = (void*)wmem_new0(actx->pinfo->pool, its_private_data_t);
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "DENMv1");
   col_set_str(actx->pinfo->cinfo, COL_INFO, "DENMv1");
@@ -15360,7 +15308,7 @@ static const per_sequence_t denm_DecentralizedEnvironmentalNotificationMessage_s
 
 static int
 dissect_denm_DecentralizedEnvironmentalNotificationMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 352 "./asn1/its/its.cnf"
+#line 369 "./asn1/its/its.cnf"
   actx->private_data = (void*)wmem_new0(actx->pinfo->pool, its_private_data_t);
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "DENM");
   col_set_str(actx->pinfo->cinfo, COL_INFO, "DENM");
@@ -16464,7 +16412,7 @@ static const per_choice_t tistpg_TisTpgTransaction_choice[] = {
 
 static int
 dissect_tistpg_TisTpgTransaction(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 376 "./asn1/its/its.cnf"
+#line 393 "./asn1/its/its.cnf"
   actx->private_data = (void*)wmem_new0(actx->pinfo->pool, its_private_data_t);
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "TISTPG");
   col_set_str(actx->pinfo->cinfo, COL_INFO, "TISTPG");
@@ -16597,7 +16545,7 @@ dissect_evcsn_ChargingSpotType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 static int
 dissect_evcsn_TypeOfReceptacle(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 731 "./asn1/its/its.cnf"
+#line 748 "./asn1/its/its.cnf"
   tvbuff_t *parameter_tvb = NULL;
   int len;
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
@@ -16771,7 +16719,7 @@ static const per_sequence_t evcsn_EVChargingSpotNotificationPOIMessage_sequence[
 
 static int
 dissect_evcsn_EVChargingSpotNotificationPOIMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 364 "./asn1/its/its.cnf"
+#line 381 "./asn1/its/its.cnf"
   actx->private_data = (void*)wmem_new0(actx->pinfo->pool, its_private_data_t);
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "EVCSN");
   col_set_str(actx->pinfo->cinfo, COL_INFO, "EVCSN");
@@ -17275,7 +17223,7 @@ static const per_choice_t evrsr_EV_RSR_MessageBody_choice[] = {
 
 static int
 dissect_evrsr_EV_RSR_MessageBody(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 370 "./asn1/its/its.cnf"
+#line 387 "./asn1/its/its.cnf"
   actx->private_data = (void*)wmem_new0(actx->pinfo->pool, its_private_data_t);
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "EV-RSR");
   col_set_str(actx->pinfo->cinfo, COL_INFO, "EV-RSR");
@@ -17362,14 +17310,6 @@ dissect_cpm_WGS84AngleValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 }
 
 
-static const value_string cpm_AngleConfidence_vals[] = {
-  {   1, "zeroPointOneDegree" },
-  {  10, "oneDegree" },
-  { 126, "outOfRange" },
-  { 127, "unavailable" },
-  { 0, NULL }
-};
-
 
 static int
 dissect_cpm_AngleConfidence(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -17394,13 +17334,6 @@ dissect_cpm_WGS84Angle(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
   return offset;
 }
 
-
-static const value_string cpm_CartesianAngleValue_vals[] = {
-  {   1, "zeroPointOneDegree" },
-  {  10, "oneDegree" },
-  { 3601, "unavailable" },
-  { 0, NULL }
-};
 
 
 static int
@@ -17960,14 +17893,6 @@ dissect_cpm_DetectionArea(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 }
 
 
-static const value_string cpm_FreeSpaceConfidence_vals[] = {
-  {   0, "unknown" },
-  {   1, "onePercent" },
-  { 100, "oneHundredPercent" },
-  { 101, "unavailable" },
-  { 0, NULL }
-};
-
 
 static int
 dissect_cpm_FreeSpaceConfidence(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -18023,11 +17948,6 @@ dissect_cpm_SensorIdList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 }
 
 
-static const value_string cpm_TimeOfMeasurement_vals[] = {
-  {   1, "oneMilliSecond" },
-  { 0, NULL }
-};
-
 
 static int
 dissect_cpm_TimeOfMeasurement(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -18053,14 +17973,6 @@ dissect_cpm_ObjectAge(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
 }
 
 
-static const value_string cpm_ObjectConfidence_vals[] = {
-  {   0, "unknown" },
-  {   1, "onePercent" },
-  { 100, "oneHundredPercent" },
-  { 101, "unavailable" },
-  { 0, NULL }
-};
-
 
 static int
 dissect_cpm_ObjectConfidence(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -18071,12 +17983,6 @@ dissect_cpm_ObjectConfidence(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 }
 
 
-static const value_string cpm_DistanceValue_vals[] = {
-  {   1, "zeroPointZeroOneMeter" },
-  { 100, "oneMeter" },
-  { 0, NULL }
-};
-
 
 static int
 dissect_cpm_DistanceValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -18086,14 +17992,6 @@ dissect_cpm_DistanceValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
   return offset;
 }
 
-
-static const value_string cpm_DistanceConfidence_vals[] = {
-  {   1, "zeroPointZeroOneMeter" },
-  { 100, "oneMeter" },
-  { 101, "outOfRange" },
-  { 102, "unavailable" },
-  { 0, NULL }
-};
 
 
 static int
@@ -18120,13 +18018,6 @@ dissect_cpm_ObjectDistanceWithConfidence(tvbuff_t *tvb _U_, int offset _U_, asn1
 }
 
 
-static const value_string cpm_SpeedValueExtended_vals[] = {
-  {   0, "standstill" },
-  {   1, "oneCentimeterPerSec" },
-  { 16383, "unavailable" },
-  { 0, NULL }
-};
-
 
 static int
 dissect_cpm_SpeedValueExtended(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -18152,12 +18043,6 @@ dissect_cpm_SpeedExtended(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 }
 
 
-static const value_string cpm_ObjectDimensionValue_vals[] = {
-  {   1, "zeroPointOneMeter" },
-  {  10, "oneMeter" },
-  { 0, NULL }
-};
-
 
 static int
 dissect_cpm_ObjectDimensionValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -18167,14 +18052,6 @@ dissect_cpm_ObjectDimensionValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
   return offset;
 }
 
-
-static const value_string cpm_ObjectDimensionConfidence_vals[] = {
-  {   1, "zeroPointZeroOneMeter" },
-  { 100, "oneMeter" },
-  { 101, "outOfRange" },
-  { 102, "unavailable" },
-  { 0, NULL }
-};
 
 
 static int
@@ -18240,14 +18117,6 @@ dissect_cpm_DynamicStatus(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
   return offset;
 }
 
-
-static const value_string cpm_ClassConfidence_vals[] = {
-  {   0, "unknown" },
-  {   1, "onePercent" },
-  { 100, "oneHundredPercent" },
-  { 101, "unavailable" },
-  { 0, NULL }
-};
 
 
 static int
@@ -18667,7 +18536,7 @@ static const per_sequence_t cpm_CollectivePerceptionMessage_sequence[] = {
 
 static int
 dissect_cpm_CollectivePerceptionMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 429 "./asn1/its/its.cnf"
+#line 446 "./asn1/its/its.cnf"
   actx->private_data = (void*)wmem_new0(actx->pinfo->pool, its_private_data_t);
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "CPM");
   col_set_str(actx->pinfo->cinfo, COL_INFO, "CPM");
@@ -18698,7 +18567,7 @@ its_latitude_fmt(gchar *s, guint32 v)
 {
   gint32 lat = (gint32)v;
   if (lat == 900000001) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "unavailable(%d)", lat);
+    g_snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", lat);
   } else {
     g_snprintf(s, ITEM_LABEL_LENGTH, "%u°%u'%.3f\"%c (%d)",
                abs(lat) / 10000000,
@@ -18714,7 +18583,7 @@ its_longitude_fmt(gchar *s, guint32 v)
 {
   gint32 lng = (gint32)v;
   if (lng == 1800000001) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "unavailable(%d)", lng);
+    g_snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", lng);
   } else {
     g_snprintf(s, ITEM_LABEL_LENGTH, "%u°%u'%.3f\"%c (%d)",
                abs(lng) / 10000000,
@@ -18730,19 +18599,70 @@ its_altitude_fmt(gchar *s, guint32 v)
 {
   gint32 alt = (gint32)v;
   if (alt == 800001) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "unavailable(%d)", alt);
+    g_snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", alt);
   } else {
     g_snprintf(s, ITEM_LABEL_LENGTH, "%.2fm (%d)", alt * 0.01, alt);
   }
 }
 
 static void
+its_delta_latitude_fmt(gchar *s, guint32 v)
+{
+  gint32 lat = (gint32)v;
+  if (lat == 131072) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", lat);
+  } else {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "%u°%u'%.3f\"%c (%d)",
+               abs(lat) / 10000000,
+               abs(lat) % 10000000 * 6 / 1000000,
+               abs(lat) % 10000000 * 6 % 1000000 * 6.0 / 100000.0,
+               (lat >= 0) ? 'N' : 'S',
+               lat);
+  }
+}
+
+static void
+its_delta_longitude_fmt(gchar *s, guint32 v)
+{
+  gint32 lng = (gint32)v;
+  if (lng == 131072) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", lng);
+  } else {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "%u°%u'%.3f\"%c (%d)",
+               abs(lng) / 10000000,
+               abs(lng) % 10000000 * 6 / 1000000,
+               abs(lng) % 10000000 * 6 % 1000000 * 6.0 / 100000.0,
+               (lng >= 0) ? 'E' : 'W',
+               lng);
+  }
+}
+
+static void
+its_delta_altitude_fmt(gchar *s, guint32 v)
+{
+  gint32 alt = (gint32)v;
+  if (alt == 12800) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", alt);
+  } else {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "%.2fm (%d)", alt * 0.01, alt);
+  }
+}
+
+static void
+its_path_delta_time_fmt(gchar *s, guint32 v)
+{
+  gint32 dt = (gint32)v;
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%.2fs (%d)", dt * 0.01, dt);
+}
+
+
+static void
 its_sax_length_fmt(gchar *s, guint32 v)
 {
   if (v == 4095) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "unavailable(%d)", v);
+    g_snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
   } else if (v == 4094) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "outOfRange(%d)", v);
+    g_snprintf(s, ITEM_LABEL_LENGTH, "outOfRange (%d)", v);
   } else {
     g_snprintf(s, ITEM_LABEL_LENGTH, "%.2fm (%d)", v * 0.01, v);
   }
@@ -18753,7 +18673,7 @@ its_heading_value_fmt(gchar *s, guint32 v)
 {
   const gchar *p = try_val_to_str(v, VALS(its_HeadingValue_vals));
   if (p) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "%s(%d)", p, v);
+    g_snprintf(s, ITEM_LABEL_LENGTH, "%s (%d)", p, v);
   } else {
     g_snprintf(s, ITEM_LABEL_LENGTH, "%.1f° (%d)", v * 0.1, v);
   }
@@ -18763,9 +18683,9 @@ static void
 its_heading_confidence_fmt(gchar *s, guint32 v)
 {
   if (v == 127) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "unavailable(%d)", v);
+    g_snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
   } else if (v == 126) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "outOfRange(%d)", v);
+    g_snprintf(s, ITEM_LABEL_LENGTH, "outOfRange (%d)", v);
   } else {
     g_snprintf(s, ITEM_LABEL_LENGTH, "%.1f° (%d)", v * 0.1, v);
   }
@@ -18775,9 +18695,9 @@ static void
 its_speed_value_fmt(gchar *s, guint32 v)
 {
   if (v == 0) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "standstill(%d)", v);
+    g_snprintf(s, ITEM_LABEL_LENGTH, "standstill (%d)", v);
   } else if (v == 16383) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "unavailable(%d)", v);
+    g_snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
   } else {
     double vms = v * 0.01;
     g_snprintf(s, ITEM_LABEL_LENGTH, "%.2fm/s = %.1fkm/h (%d)",
@@ -18789,9 +18709,9 @@ static void
 its_speed_confidence_fmt(gchar *s, guint32 v)
 {
   if (v == 127) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "unavailable(%d)", v);
+    g_snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
   } else if (v == 126) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "outOfRange(%d)", v);
+    g_snprintf(s, ITEM_LABEL_LENGTH, "outOfRange (%d)", v);
   } else {
     g_snprintf(s, ITEM_LABEL_LENGTH, "%.2fm/s (%d)", v * 0.01, v);
   }
@@ -18801,9 +18721,9 @@ static void
 its_vehicle_length_value_fmt(gchar *s, guint32 v)
 {
   if (v == 1023) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "unavailable(%d)", v);
+    g_snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
   } else if (v == 1022) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "outOfRange(%d)", v);
+    g_snprintf(s, ITEM_LABEL_LENGTH, "outOfRange (%d)", v);
   } else {
     g_snprintf(s, ITEM_LABEL_LENGTH, "%.1fm (%d)", v * 0.1, v);
   }
@@ -18813,9 +18733,9 @@ static void
 its_vehicle_width_fmt(gchar *s, guint32 v)
 {
   if (v == 62) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "unavailable(%d)", v);
+    g_snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
   } else if (v == 61) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "outOfRange(%d)", v);
+    g_snprintf(s, ITEM_LABEL_LENGTH, "outOfRange (%d)", v);
   } else {
     g_snprintf(s, ITEM_LABEL_LENGTH, "%.1fm (%d)", v * 0.1, v);
   }
@@ -18826,7 +18746,7 @@ its_acceleration_value_fmt(gchar *s, guint32 v)
 {
   gint32 acc = (gint32)v;
   if (acc == 161) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "unavailable(%d)", v);
+    g_snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
   } else {
     g_snprintf(s, ITEM_LABEL_LENGTH, "%.1fm/s² (%d)", acc * 0.1, acc);
   }
@@ -18836,9 +18756,9 @@ static void
 its_acceleration_confidence_fmt(gchar *s, guint32 v)
 {
   if (v == 102) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "unavailable(%d)", v);
+    g_snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
   } else if (v == 101) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "outOfRange(%d)", v);
+    g_snprintf(s, ITEM_LABEL_LENGTH, "outOfRange (%d)", v);
   } else {
     g_snprintf(s, ITEM_LABEL_LENGTH, "%.1fm/s² (%d)", v * 0.1, v);
   }
@@ -18849,9 +18769,9 @@ its_curvature_value_fmt(gchar *s, guint32 v)
 {
   gint32 curv = (gint32)v;
   if (curv == 0) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "straight(%d)", v);
+    g_snprintf(s, ITEM_LABEL_LENGTH, "straight (%d)", v);
   } else if (curv == 30001) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "unavailable(%d)", v);
+    g_snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
   } else {
     g_snprintf(s, ITEM_LABEL_LENGTH, "%.3fm %s (%d)",
                30000.0 / curv,
@@ -18865,9 +18785,9 @@ its_yaw_rate_value_fmt(gchar *s, guint32 v)
 {
   gint32 yaw = (gint32)v;
   if (yaw == 0) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "straight(%d)", v);
+    g_snprintf(s, ITEM_LABEL_LENGTH, "straight (%d)", v);
   } else if (yaw == 32767) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "unavailable(%d)", v);
+    g_snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
   } else {
     g_snprintf(s, ITEM_LABEL_LENGTH, "%.2f°/s %s (%d)",
                yaw * 0.01,
@@ -18881,9 +18801,9 @@ its_swa_value_fmt(gchar *s, guint32 v)
 {
   gint32 swa = (gint32)v;
   if (swa == 0) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "straight(%d)", v);
+    g_snprintf(s, ITEM_LABEL_LENGTH, "straight (%d)", v);
   } else if (swa == 512) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "unavailable(%d)", v);
+    g_snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
   } else {
     g_snprintf(s, ITEM_LABEL_LENGTH, "%.1f° %s (%d)",
                swa * 1.5,
@@ -18896,9 +18816,9 @@ static void
 its_swa_confidence_fmt(gchar *s, guint32 v)
 {
   if (v == 127) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "unavailable(%d)", v);
+    g_snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
   } else if (v == 126) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "outOfRange(%d)", v);
+    g_snprintf(s, ITEM_LABEL_LENGTH, "outOfRange (%d)", v);
   } else {
     g_snprintf(s, ITEM_LABEL_LENGTH, "%.1f° (%d)", v * 1.5, v);
   }
@@ -18908,7 +18828,7 @@ static void
 dsrc_moi_fmt(gchar *s, guint32 v)
 {
   if (v == 527040) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "invalid(%d)", v);
+    g_snprintf(s, ITEM_LABEL_LENGTH, "invalid (%d)", v);
   } else {
     g_snprintf(s, ITEM_LABEL_LENGTH, "%ud %02u:%02u (%d)",
             v / 1440, v % 1440 / 60, v % 60, v);
@@ -18919,9 +18839,9 @@ static void
 dsrc_dsecond_fmt(gchar *s, guint32 v)
 {
   if (v == 65535) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "unavailable(%d)", v);
+    g_snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
   } else if ((61000 <= v) && (v <= 65534)) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "reserved(%d)", v);
+    g_snprintf(s, ITEM_LABEL_LENGTH, "reserved (%d)", v);
   } else {
     g_snprintf(s, ITEM_LABEL_LENGTH, "%02u.%03u (%d)",
             v / 1000, v % 1000, v);
@@ -18932,9 +18852,9 @@ static void
 dsrc_time_mark_fmt(gchar *s, guint32 v)
 {
   if (v == 36001) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "unknown(%d)", v);
+    g_snprintf(s, ITEM_LABEL_LENGTH, "unknown (%d)", v);
   } else if (v == 36000) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "moreThanHour(%d)", v);
+    g_snprintf(s, ITEM_LABEL_LENGTH, "moreThanHour (%d)", v);
   } else {
     g_snprintf(s, ITEM_LABEL_LENGTH, "%02u:%02u.%u (%d)",
             v / 600, v % 600 / 10, v % 10, v);
@@ -18965,7 +18885,7 @@ static void
 dsrc_velocity_fmt(gchar *s, guint32 v)
 {
   if (v == 8191) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "unavailable(%d)", v);
+    g_snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
   } else {
     double vms = v * 0.02;
     g_snprintf(s, ITEM_LABEL_LENGTH, "%.2fm/s = %ukm/h (%d)",
@@ -18984,14 +18904,100 @@ dsrc_delta_time_fmt(gchar *s, guint32 v)
 {
   gint32 dt = (gint32)v;
   if (dt == -122) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "unknown(%d)", dt);
+    g_snprintf(s, ITEM_LABEL_LENGTH, "unknown (%d)", dt);
   } else if (dt == -121) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "moreThanMinus20Minutes(%d)", dt);
+    g_snprintf(s, ITEM_LABEL_LENGTH, "moreThanMinus20Minutes (%d)", dt);
   } else if (dt == 121) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "moreThanPlus20Minutes(%d)", dt);
+    g_snprintf(s, ITEM_LABEL_LENGTH, "moreThanPlus20Minutes (%d)", dt);
   } else {
     g_snprintf(s, ITEM_LABEL_LENGTH, "%s%d:%02u (%d)",
             (dt < 0) ? "-" : "", abs(dt) / 6, abs(dt) % 6 * 10, dt);
+  }
+}
+
+static void
+cpm_general_confidence_fmt(gchar *s, guint32 v)
+{
+  if (v == 0) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "unknown (%u)", v);
+  } else if (v == 101) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%u)", v);
+  } else {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "%u%% (%u)", v, v);
+  }
+}
+
+static void
+cpm_distance_value_fmt(gchar *s, guint32 v)
+{
+  gint32 sv = (gint32)v;
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%.2fm (%d)", sv * 0.01, sv);
+}
+
+static void
+cpm_distance_confidence_fmt(gchar *s, guint32 v)
+{
+  if (v == 102) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
+  } else if (v == 101) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "outOfRange (%d)", v);
+  } else {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "%.2fm (%d)", v * 0.01, v);
+  }
+}
+
+static void
+cpm_speed_value_ext_fmt(gchar *s, guint32 v)
+{
+  gint32 sv = (gint32)v;
+  if (sv == 0) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "standstill (%d)", sv);
+  } else if (sv == 16383) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", sv);
+  } else {
+    double vms = sv * 0.01;
+    g_snprintf(s, ITEM_LABEL_LENGTH, "%.2fm/s = %.1fkm/h (%d)",
+            vms, vms * 3.6, sv);
+  }
+}
+
+static void
+cpm_cartesian_angle_value_fmt(gchar *s, guint32 v)
+{
+  if (v == 3601) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
+  } else {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "%.1f° (%d)", v * 0.1, v);
+  }
+}
+
+static void
+cpm_angle_confidence_fmt(gchar *s, guint32 v)
+{
+  if (v == 127) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
+  } else if (v == 126) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "outOfRange (%d)", v);
+  } else {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "%.1f° (%d)", v * 0.1, v);
+  }
+}
+
+static void
+cpm_object_dimension_value_fmt(gchar *s, guint32 v)
+{
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%.1fm (%d)", v * 0.1, v);
+}
+
+static void
+cpm_object_dimension_confidence_fmt(gchar *s, guint32 v)
+{
+  if (v == 102) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
+  } else if (v == 101) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "outOfRange (%d)", v);
+  } else {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "%.2fm (%d)", v * 0.01, v);
   }
 }
 
@@ -19069,15 +19075,15 @@ void proto_register_its(void)
         NULL, HFILL }},
     { &hf_its_deltaLatitude,
       { "deltaLatitude", "its.deltaLatitude",
-        FT_INT32, BASE_DEC, VALS(its_DeltaLatitude_vals), 0,
+        FT_INT32, BASE_CUSTOM, CF_FUNC(its_delta_longitude_fmt), 0,
         NULL, HFILL }},
     { &hf_its_deltaLongitude,
       { "deltaLongitude", "its.deltaLongitude",
-        FT_INT32, BASE_DEC, VALS(its_DeltaLongitude_vals), 0,
+        FT_INT32, BASE_CUSTOM, CF_FUNC(its_delta_latitude_fmt), 0,
         NULL, HFILL }},
     { &hf_its_deltaAltitude,
       { "deltaAltitude", "its.deltaAltitude",
-        FT_INT32, BASE_DEC, VALS(its_DeltaAltitude_vals), 0,
+        FT_INT32, BASE_CUSTOM, CF_FUNC(its_delta_altitude_fmt), 0,
         NULL, HFILL }},
     { &hf_its_altitudeValue,
       { "altitudeValue", "its.altitudeValue",
@@ -19105,7 +19111,7 @@ void proto_register_its(void)
         "DeltaReferencePosition", HFILL }},
     { &hf_its_pathDeltaTime,
       { "pathDeltaTime", "its.pathDeltaTime",
-        FT_UINT32, BASE_DEC, VALS(its_PathDeltaTime_vals), 0,
+        FT_UINT32, BASE_CUSTOM, CF_FUNC(its_path_delta_time_fmt), 0,
         NULL, HFILL }},
     { &hf_its_ptActivationType,
       { "ptActivationType", "its.ptActivationType",
@@ -19309,7 +19315,7 @@ void proto_register_its(void)
         "DeltaReferencePosition", HFILL }},
     { &hf_its_eventDeltaTime,
       { "eventDeltaTime", "its.eventDeltaTime",
-        FT_UINT32, BASE_DEC, VALS(its_PathDeltaTime_vals), 0,
+        FT_UINT32, BASE_CUSTOM, CF_FUNC(its_path_delta_time_fmt), 0,
         "PathDeltaTime", HFILL }},
     { &hf_its_informationQuality,
       { "informationQuality", "its.informationQuality",
@@ -19548,15 +19554,15 @@ void proto_register_its(void)
         NULL, HFILL }},
     { &hf_itsv1_deltaLatitude,
       { "deltaLatitude", "itsv1.deltaLatitude",
-        FT_INT32, BASE_DEC, VALS(itsv1_DeltaLatitude_vals), 0,
+        FT_INT32, BASE_CUSTOM, CF_FUNC(its_delta_longitude_fmt), 0,
         NULL, HFILL }},
     { &hf_itsv1_deltaLongitude,
       { "deltaLongitude", "itsv1.deltaLongitude",
-        FT_INT32, BASE_DEC, VALS(itsv1_DeltaLongitude_vals), 0,
+        FT_INT32, BASE_CUSTOM, CF_FUNC(its_delta_latitude_fmt), 0,
         NULL, HFILL }},
     { &hf_itsv1_deltaAltitude,
       { "deltaAltitude", "itsv1.deltaAltitude",
-        FT_INT32, BASE_DEC, VALS(itsv1_DeltaAltitude_vals), 0,
+        FT_INT32, BASE_CUSTOM, CF_FUNC(its_delta_altitude_fmt), 0,
         NULL, HFILL }},
     { &hf_itsv1_altitudeValue,
       { "altitudeValue", "itsv1.altitudeValue",
@@ -19584,7 +19590,7 @@ void proto_register_its(void)
         "DeltaReferencePosition", HFILL }},
     { &hf_itsv1_pathDeltaTime,
       { "pathDeltaTime", "itsv1.pathDeltaTime",
-        FT_UINT32, BASE_DEC, VALS(itsv1_PathDeltaTime_vals), 0,
+        FT_UINT32, BASE_CUSTOM, CF_FUNC(its_path_delta_time_fmt), 0,
         NULL, HFILL }},
     { &hf_itsv1_ptActivationType,
       { "ptActivationType", "itsv1.ptActivationType",
@@ -19784,7 +19790,7 @@ void proto_register_its(void)
         "DeltaReferencePosition", HFILL }},
     { &hf_itsv1_eventDeltaTime,
       { "eventDeltaTime", "itsv1.eventDeltaTime",
-        FT_UINT32, BASE_DEC, VALS(itsv1_PathDeltaTime_vals), 0,
+        FT_UINT32, BASE_CUSTOM, CF_FUNC(its_path_delta_time_fmt), 0,
         "PathDeltaTime", HFILL }},
     { &hf_itsv1_informationQuality,
       { "informationQuality", "itsv1.informationQuality",
@@ -21939,7 +21945,7 @@ void proto_register_its(void)
         NULL, HFILL }},
     { &hf_AddGrpC_nodeZ,
       { "nodeZ", "AddGrpC.nodeZ",
-        FT_INT32, BASE_DEC, VALS(its_DeltaAltitude_vals), 0,
+        FT_INT32, BASE_CUSTOM, CF_FUNC(its_delta_altitude_fmt), 0,
         "DeltaAltitude", HFILL }},
     { &hf_AddGrpC_signalGroupID,
       { "signalGroupID", "AddGrpC.signalGroupID",
@@ -22789,11 +22795,11 @@ void proto_register_its(void)
         "DeltaReferencePosition", HFILL }},
     { &hf_ivi_deltaLatitude,
       { "deltaLatitude", "ivi.deltaLatitude",
-        FT_INT32, BASE_DEC, VALS(its_DeltaLatitude_vals), 0,
+        FT_INT32, BASE_CUSTOM, CF_FUNC(its_delta_longitude_fmt), 0,
         NULL, HFILL }},
     { &hf_ivi_deltaLongitude,
       { "deltaLongitude", "ivi.deltaLongitude",
-        FT_INT32, BASE_DEC, VALS(its_DeltaLongitude_vals), 0,
+        FT_INT32, BASE_CUSTOM, CF_FUNC(its_delta_latitude_fmt), 0,
         NULL, HFILL }},
     { &hf_ivi_dtm,
       { "dtm", "ivi.dtm_element",
@@ -24953,7 +24959,7 @@ void proto_register_its(void)
         NULL, HFILL }},
     { &hf_cpm_freeSpaceConfidence,
       { "freeSpaceConfidence", "cpm.freeSpaceConfidence",
-        FT_UINT32, BASE_DEC, VALS(cpm_FreeSpaceConfidence_vals), 0,
+        FT_UINT32, BASE_CUSTOM, CF_FUNC(cpm_general_confidence_fmt), 0,
         NULL, HFILL }},
     { &hf_cpm_PerceivedObjectContainer_item,
       { "PerceivedObject", "cpm.PerceivedObject_element",
@@ -24969,7 +24975,7 @@ void proto_register_its(void)
         NULL, HFILL }},
     { &hf_cpm_timeOfMeasurement,
       { "timeOfMeasurement", "cpm.timeOfMeasurement",
-        FT_INT32, BASE_DEC, VALS(cpm_TimeOfMeasurement_vals), 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_cpm_objectAge,
       { "objectAge", "cpm.objectAge",
@@ -24977,7 +24983,7 @@ void proto_register_its(void)
         NULL, HFILL }},
     { &hf_cpm_objectConfidence,
       { "objectConfidence", "cpm.objectConfidence",
-        FT_UINT32, BASE_DEC, VALS(cpm_ObjectConfidence_vals), 0,
+        FT_UINT32, BASE_CUSTOM, CF_FUNC(cpm_general_confidence_fmt), 0,
         NULL, HFILL }},
     { &hf_cpm_xDistance,
       { "xDistance", "cpm.xDistance_element",
@@ -25101,19 +25107,19 @@ void proto_register_its(void)
         NULL, HFILL }},
     { &hf_cpm_horizontalOpeningAngleStart,
       { "horizontalOpeningAngleStart", "cpm.horizontalOpeningAngleStart",
-        FT_UINT32, BASE_DEC, VALS(cpm_CartesianAngleValue_vals), 0,
+        FT_UINT32, BASE_CUSTOM, CF_FUNC(cpm_cartesian_angle_value_fmt), 0,
         "CartesianAngleValue", HFILL }},
     { &hf_cpm_horizontalOpeningAngleEnd,
       { "horizontalOpeningAngleEnd", "cpm.horizontalOpeningAngleEnd",
-        FT_UINT32, BASE_DEC, VALS(cpm_CartesianAngleValue_vals), 0,
+        FT_UINT32, BASE_CUSTOM, CF_FUNC(cpm_cartesian_angle_value_fmt), 0,
         "CartesianAngleValue", HFILL }},
     { &hf_cpm_verticalOpeningAngleStart,
       { "verticalOpeningAngleStart", "cpm.verticalOpeningAngleStart",
-        FT_UINT32, BASE_DEC, VALS(cpm_CartesianAngleValue_vals), 0,
+        FT_UINT32, BASE_CUSTOM, CF_FUNC(cpm_cartesian_angle_value_fmt), 0,
         "CartesianAngleValue", HFILL }},
     { &hf_cpm_verticalOpeningAngleEnd,
       { "verticalOpeningAngleEnd", "cpm.verticalOpeningAngleEnd",
-        FT_UINT32, BASE_DEC, VALS(cpm_CartesianAngleValue_vals), 0,
+        FT_UINT32, BASE_CUSTOM, CF_FUNC(cpm_cartesian_angle_value_fmt), 0,
         "CartesianAngleValue", HFILL }},
     { &hf_cpm_nodeCenterPoint,
       { "nodeCenterPoint", "cpm.nodeCenterPoint_element",
@@ -25193,27 +25199,27 @@ void proto_register_its(void)
         "AreaRectangle", HFILL }},
     { &hf_cpm_value,
       { "value", "cpm.value",
-        FT_INT32, BASE_DEC, VALS(cpm_DistanceValue_vals), 0,
+        FT_INT32, BASE_CUSTOM, CF_FUNC(cpm_distance_value_fmt), 0,
         "DistanceValue", HFILL }},
     { &hf_cpm_confidence,
       { "confidence", "cpm.confidence",
-        FT_UINT32, BASE_DEC, VALS(cpm_DistanceConfidence_vals), 0,
+        FT_UINT32, BASE_CUSTOM, CF_FUNC(cpm_distance_confidence_fmt), 0,
         "DistanceConfidence", HFILL }},
     { &hf_cpm_value_01,
       { "value", "cpm.value",
-        FT_UINT32, BASE_DEC, VALS(cpm_ObjectDimensionValue_vals), 0,
+        FT_UINT32, BASE_CUSTOM, CF_FUNC(cpm_object_dimension_value_fmt), 0,
         "ObjectDimensionValue", HFILL }},
     { &hf_cpm_confidence_01,
       { "confidence", "cpm.confidence",
-        FT_UINT32, BASE_DEC, VALS(cpm_ObjectDimensionConfidence_vals), 0,
+        FT_UINT32, BASE_CUSTOM, CF_FUNC(cpm_object_dimension_confidence_fmt), 0,
         "ObjectDimensionConfidence", HFILL }},
     { &hf_cpm_value_02,
       { "value", "cpm.value",
-        FT_UINT32, BASE_DEC, VALS(cpm_CartesianAngleValue_vals), 0,
+        FT_UINT32, BASE_CUSTOM, CF_FUNC(cpm_cartesian_angle_value_fmt), 0,
         "CartesianAngleValue", HFILL }},
     { &hf_cpm_confidence_02,
       { "confidence", "cpm.confidence",
-        FT_UINT32, BASE_DEC, VALS(cpm_AngleConfidence_vals), 0,
+        FT_UINT32, BASE_CUSTOM, CF_FUNC(cpm_angle_confidence_fmt), 0,
         "AngleConfidence", HFILL }},
     { &hf_cpm_value_03,
       { "value", "cpm.value",
@@ -25221,7 +25227,7 @@ void proto_register_its(void)
         "WGS84AngleValue", HFILL }},
     { &hf_cpm_value_04,
       { "value", "cpm.value",
-        FT_INT32, BASE_DEC, VALS(cpm_SpeedValueExtended_vals), 0,
+        FT_INT32, BASE_CUSTOM, CF_FUNC(cpm_speed_value_ext_fmt), 0,
         "SpeedValueExtended", HFILL }},
     { &hf_cpm_confidence_03,
       { "confidence", "cpm.confidence",
@@ -25285,7 +25291,7 @@ void proto_register_its(void)
         NULL, HFILL }},
     { &hf_cpm_confidence_04,
       { "confidence", "cpm.confidence",
-        FT_UINT32, BASE_DEC, VALS(cpm_ClassConfidence_vals), 0,
+        FT_UINT32, BASE_CUSTOM, CF_FUNC(cpm_general_confidence_fmt), 0,
         "ClassConfidence", HFILL }},
     { &hf_cpm_class,
       { "class", "cpm.class",
@@ -25357,7 +25363,7 @@ void proto_register_its(void)
         "Offset_B16", HFILL }},
 
 /*--- End of included file: packet-its-hfarr.c ---*/
-#line 698 "./asn1/its/packet-its-template.c"
+#line 835 "./asn1/its/packet-its-template.c"
 
     { &hf_its_roadworksSubCauseCode,
       { "roadworksSubCauseCode", "its.subCauseCode",
@@ -26131,7 +26137,7 @@ void proto_register_its(void)
     &ett_cpm_NodeOffsetPointZ,
 
 /*--- End of included file: packet-its-ettarr.c ---*/
-#line 901 "./asn1/its/packet-its-template.c"
+#line 1038 "./asn1/its/packet-its-template.c"
     };
 
     static ei_register_info ei[] = {

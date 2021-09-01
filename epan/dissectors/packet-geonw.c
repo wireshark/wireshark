@@ -2964,6 +2964,7 @@ void
 proto_register_geonw(void)
 {
     static const value_string bh_next_header_names[] = {
+        { 0, "ANY" },
         { 1, "Common Header" },
         { 2, "Secured Packet" },
         { 0, NULL}
@@ -2978,6 +2979,7 @@ proto_register_geonw(void)
     };
 
     static const value_string ch_next_header_names[] = {
+        { 0, "ANY" },
         { CH_NH_BTP_A, "BTP-A Transport protocol" },
         { CH_NH_BTP_B, "BTP-B Transport protocol" },
         { CH_NH_IPV6, "IPv6 header" },
