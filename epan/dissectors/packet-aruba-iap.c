@@ -67,6 +67,7 @@ static const value_string iap_model[] = {
     { 0x37, "Draco (IAP-344/345)" },
     { 0x39, "Scorpio (IAP-514 and IAP-515)" },
     { 0x40, "Gemini (IAP-500 Series)" },
+    { 0x47, "Norma (IAP-635)" },
     { 0, NULL }
 };
 
