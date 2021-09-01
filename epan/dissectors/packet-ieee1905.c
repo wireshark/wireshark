@@ -21,6 +21,7 @@
  */
 
 #include <config.h>
+#include <stdio.h>
 
 #include <epan/packet.h>
 #include <epan/etypes.h>
@@ -634,6 +635,7 @@ static int hf_ieee1905_encap_dpp_sta_mac = -1;
 static int hf_ieee1905_dpp_encap_frame_type = -1;
 static int hf_ieee1905_dpp_encap_frame_length = -1;
 static int hf_ieee1905_dpp_encap_dpp_oui = -1;
+static int hf_ieee1905_dpp_encap_category = -1;
 static int hf_ieee1905_dpp_encap_public_action = -1;
 static int hf_ieee1905_dpp_encap_dpp_subtype = -1;
 static int hf_ieee1905_dpp_bootstrapping_uri_radio_id = -1;
@@ -677,6 +679,7 @@ static int hf_ieee1905_metric_collection_interval = -1;
 static int hf_ieee1905_max_reporting_rate = -1;
 static int hf_ieee1905_bss_configuration_request = -1;
 static int hf_ieee1905_bss_configuration_response = -1;
+static int hf_ieee1905_dpp_message_category = -1;
 static int hf_ieee1905_dpp_message_public_action = -1;
 
 static gint ett_ieee1905 = -1;
@@ -7417,18 +7420,26 @@ dissect_1905_encap_dpp(tvbuff_t *tvb, packet_info *pinfo _U_,
         guint8 code;
         tvbuff_t *new_tvb;
 
+        proto_tree_add_item(tree, hf_ieee1905_dpp_message_category, tvb,
+                            offset, 1, ENC_NA);
+        offset += 1;
+
         code = tvb_get_guint8(tvb, offset);
         proto_tree_add_item(tree, hf_ieee1905_dpp_message_public_action, tvb,
                             offset, 1, ENC_NA);
         offset += 1;
 
-        new_tvb = tvb_new_subset_length(tvb, offset, frame_length - 1);
+        new_tvb = tvb_new_subset_length(tvb, offset, frame_length - 2);
 
         add_ff_action_public_fields(tree, new_tvb, pinfo, 0, code);
 
-        offset += frame_length - 1;
+        offset += frame_length - 2;
     } else {
         tvbuff_t *new_tvb;
+
+        proto_tree_add_item(tree, hf_ieee1905_dpp_encap_category, tvb,
+                            offset, 1, ENC_NA);
+        offset += 1;
 
         proto_tree_add_item(tree, hf_ieee1905_dpp_encap_public_action, tvb,
                             offset, 1, ENC_NA);
@@ -7442,10 +7453,10 @@ dissect_1905_encap_dpp(tvbuff_t *tvb, packet_info *pinfo _U_,
                             offset, 1, ENC_NA);
         offset += 1;
 
-        new_tvb = tvb_new_subset_length(tvb, offset, frame_length - 5);
+        new_tvb = tvb_new_subset_length(tvb, offset, frame_length - 6);
         dissect_wifi_dpp_public_action(new_tvb, pinfo, tree, NULL);
 
-        offset += (frame_length - 5);
+        offset += (frame_length - 6);
     }
 
     return offset;
@@ -7668,15 +7679,20 @@ dissect_dpp_message(tvbuff_t *tvb, packet_info *pinfo _U_,
     tvbuff_t *new_tvb;
 
     code = tvb_get_guint8(tvb, offset);
+
+    proto_tree_add_item(tree, hf_ieee1905_dpp_message_category, tvb,
+                        offset, 1, ENC_NA);
+    offset += 1;
+
     proto_tree_add_item(tree, hf_ieee1905_dpp_message_public_action, tvb,
                         offset, 1, ENC_NA);
     offset += 1;
 
-    new_tvb = tvb_new_subset_length(tvb, offset, len - 1);
+    new_tvb = tvb_new_subset_length(tvb, offset, len - 2);
 
     add_ff_action_public_fields(tree, new_tvb, pinfo, 0, code);
 
-    offset += len -1;
+    offset += len -2;
 
     return offset;
 }
@@ -11027,6 +11043,10 @@ proto_register_ieee1905(void)
           { "OUI", "ieee1905.1905_encap_dpp.oui",
             FT_UINT24, BASE_OUI, NULL, 0, NULL, HFILL }},
 
+        { &hf_ieee1905_dpp_encap_category,
+          { "Category", "ieee1905.1905_encap_dpp.category",
+            FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+
         { &hf_ieee1905_dpp_encap_public_action,
           { "Public Action", "ieee1905.1905_encap_dpp.public_action",
             FT_UINT8, BASE_HEX|BASE_EXT_STRING, &ff_pa_action_codes_ext, 0,
@@ -11216,6 +11236,11 @@ proto_register_ieee1905(void)
           { "Configuration Response Object",
             "ieee1905.bss_configuration_response.configuration_response_object",
             FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_dpp_message_category,
+          { "Category", "ieee1905.dpp_message.category",
+            FT_UINT8, BASE_HEX, NULL, 0,
+            NULL, HFILL }},
 
         { &hf_ieee1905_dpp_message_public_action,
           { "Public Action", "ieee1905.dpp_message.public_action",
