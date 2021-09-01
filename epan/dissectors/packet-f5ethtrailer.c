@@ -418,9 +418,12 @@ static gboolean
 f5_ip_conv_valid(packet_info *pinfo)
 {
     gboolean is_ip = FALSE;
+    gboolean is_f5ethtrailer = FALSE;
 
     proto_get_frame_protocols(pinfo->layers, &is_ip, NULL, NULL, NULL, NULL, NULL, NULL);
-    return is_ip;
+    is_f5ethtrailer = proto_is_frame_protocol(pinfo->layers, "f5ethtrailer");
+
+    return is_ip && is_f5ethtrailer;
 } /* f5_ip_conv_valid() */
 
 /*-----------------------------------------------------------------------------------------------*/
@@ -437,9 +440,12 @@ f5_tcp_conv_valid(packet_info *pinfo)
 {
     gboolean is_ip  = FALSE;
     gboolean is_tcp = FALSE;
+    gboolean is_f5ethtrailer = FALSE;
 
     proto_get_frame_protocols(pinfo->layers, &is_ip, &is_tcp, NULL, NULL, NULL, NULL, NULL);
-    return is_ip && is_tcp;
+    is_f5ethtrailer = proto_is_frame_protocol(pinfo->layers, "f5ethtrailer");
+
+    return is_ip && is_tcp && is_f5ethtrailer;
 } /* f5_tcp_conv_valid() */
 
 /*-----------------------------------------------------------------------------------------------*/
@@ -456,9 +462,12 @@ f5_udp_conv_valid(packet_info *pinfo)
 {
     gboolean is_ip  = FALSE;
     gboolean is_udp = FALSE;
+    gboolean is_f5ethtrailer = FALSE;
 
     proto_get_frame_protocols(pinfo->layers, &is_ip, NULL, &is_udp, NULL, NULL, NULL, NULL);
-    return is_ip && is_udp;
+    is_f5ethtrailer = proto_is_frame_protocol(pinfo->layers, "f5ethtrailer");
+
+    return is_ip && is_udp && is_f5ethtrailer;
 } /* f5_tcp_conv_valid() */
 
 /*-----------------------------------------------------------------------------------------------*/
