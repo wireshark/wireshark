@@ -1530,7 +1530,7 @@ dissect_thrift_t_struct(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 {
     thrift_field_header_t field_header;
     proto_tree *sub_tree = NULL;
-    proto_item *type_pi;
+    proto_item *type_pi = NULL;
 
     gboolean enable_subtree = (ett_id != DISABLE_SUBTREE) || (hf_id != DISABLE_SUBTREE);
 
