@@ -18,10 +18,10 @@ do
     case $OPTCHAR in
     c)
         CLANG_CHECK_CMD="clang-check-$OPTARG"
-        exit 0
         ;;
     *)
         echo "Usage: $( basename "$0" ) [ -c <clang version> ]"
+        exit 0
     esac
 done
 
