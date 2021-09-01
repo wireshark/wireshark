@@ -23,6 +23,7 @@
 
 #include "config.h"
 
+#include <stdlib.h>
 #include <time.h>
 
 #include <epan/packet.h>
@@ -215,7 +216,7 @@ static int hf_ieee1609dot2_EndEntityType_app = -1;
 static int hf_ieee1609dot2_EndEntityType_enrol = -1;
 
 /*--- End of included file: packet-ieee1609dot2-hf.c ---*/
-#line 40 "./asn1/ieee1609dot2/packet-ieee1609dot2-template.c"
+#line 41 "./asn1/ieee1609dot2/packet-ieee1609dot2-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_ieee1609dot2_ssp = -1;
@@ -292,7 +293,7 @@ static gint ett_ieee1609dot2_SubjectPermissions = -1;
 static gint ett_ieee1609dot2_VerificationKeyIndicator = -1;
 
 /*--- End of included file: packet-ieee1609dot2-ett.c ---*/
-#line 44 "./asn1/ieee1609dot2/packet-ieee1609dot2-template.c"
+#line 45 "./asn1/ieee1609dot2/packet-ieee1609dot2-template.c"
 
 static dissector_table_t unsecured_data_subdissector_table;
 static dissector_table_t ssp_subdissector_table;
@@ -2103,7 +2104,7 @@ static int dissect_Ieee1609Dot2Data_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U
 
 
 /*--- End of included file: packet-ieee1609dot2-fn.c ---*/
-#line 60 "./asn1/ieee1609dot2/packet-ieee1609dot2-template.c"
+#line 61 "./asn1/ieee1609dot2/packet-ieee1609dot2-template.c"
 
 
 static void
@@ -2837,7 +2838,7 @@ void proto_register_ieee1609dot2(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-ieee1609dot2-hfarr.c ---*/
-#line 129 "./asn1/ieee1609dot2/packet-ieee1609dot2-template.c"
+#line 130 "./asn1/ieee1609dot2/packet-ieee1609dot2-template.c"
   };
 
   /* List of subtrees */
@@ -2915,7 +2916,7 @@ void proto_register_ieee1609dot2(void) {
     &ett_ieee1609dot2_VerificationKeyIndicator,
 
 /*--- End of included file: packet-ieee1609dot2-ettarr.c ---*/
-#line 134 "./asn1/ieee1609dot2/packet-ieee1609dot2-template.c"
+#line 135 "./asn1/ieee1609dot2/packet-ieee1609dot2-template.c"
         &ett_ieee1609dot2_ssp,
   };
 
