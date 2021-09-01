@@ -109,6 +109,7 @@ if ! grep "Status: success" "$altool_out" > /dev/null 2>&1 ; then
 	echo "${eval_info_cmd[@]}"
 	echo -e "\\nStaple command:"
 	echo "${staple_cmd[@]}"
+	echo "You can check the status of the Notary Service at https://developer.apple.com/system-status/."
 	exit 1
 fi
 
