@@ -7307,7 +7307,7 @@ proto_register_rtcp(void)
             &hf_rtcp_psfb_ms_vsre_aspect_ratio_bitmask,
             {
                 "Aspect Ratio Bitmask",
-                "rtcp.psfb.ms.vsr.entry.apsect_ratio",
+                "rtcp.psfb.ms.vsr.entry.aspect_ratio",
                 FT_UINT8,
                 BASE_HEX,
                 NULL,
@@ -7319,7 +7319,7 @@ proto_register_rtcp(void)
             &hf_rtcp_psfb_ms_vsre_aspect_ratio_4by3,
             {
                 "Aspect Ratio 4 by 3",
-                "rtcp.psfb.ms.vsr.entry.apsect_ratio_4by3",
+                "rtcp.psfb.ms.vsr.entry.aspect_ratio_4by3",
                 FT_BOOLEAN,
                 8,
                 NULL,
@@ -7331,7 +7331,7 @@ proto_register_rtcp(void)
             &hf_rtcp_psfb_ms_vsre_aspect_ratio_16by9,
             {
                 "Aspect Ratio 16 by 9",
-                "rtcp.psfb.ms.vsr.entry.apsect_ratio_16by9",
+                "rtcp.psfb.ms.vsr.entry.aspect_ratio_16by9",
                 FT_BOOLEAN,
                 8,
                 NULL,
@@ -7343,7 +7343,7 @@ proto_register_rtcp(void)
             &hf_rtcp_psfb_ms_vsre_aspect_ratio_1by1,
             {
                 "Aspect Ratio 1 by 1",
-                "rtcp.psfb.ms.vsr.entry.apsect_ratio_1by1",
+                "rtcp.psfb.ms.vsr.entry.aspect_ratio_1by1",
                 FT_BOOLEAN,
                 8,
                 NULL,
@@ -7355,7 +7355,7 @@ proto_register_rtcp(void)
             &hf_rtcp_psfb_ms_vsre_aspect_ratio_3by4,
             {
                 "Aspect Ratio 3 by 4",
-                "rtcp.psfb.ms.vsr.entry.apsect_ratio_3by4",
+                "rtcp.psfb.ms.vsr.entry.aspect_ratio_3by4",
                 FT_BOOLEAN,
                 8,
                 NULL,
@@ -7367,7 +7367,7 @@ proto_register_rtcp(void)
             &hf_rtcp_psfb_ms_vsre_aspect_ratio_9by16,
             {
                 "Aspect Ratio 9 by 16",
-                "rtcp.psfb.ms.vsr.entry.apsect_ratio_9by16",
+                "rtcp.psfb.ms.vsr.entry.aspect_ratio_9by16",
                 FT_BOOLEAN,
                 8,
                 NULL,
@@ -7379,7 +7379,7 @@ proto_register_rtcp(void)
             &hf_rtcp_psfb_ms_vsre_aspect_ratio_20by3,
             {
                 "Aspect Ratio 20 by 3",
-                "rtcp.psfb.ms.vsr.entry.apsect_ratio_20by3",
+                "rtcp.psfb.ms.vsr.entry.aspect_ratio_20by3",
                 FT_BOOLEAN,
                 8,
                 NULL,

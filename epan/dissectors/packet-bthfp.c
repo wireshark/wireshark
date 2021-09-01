@@ -2873,7 +2873,7 @@ proto_register_bthfp(void)
            NULL, HFILL}
         },
         { &hf_ccwa_show_result_code,
-           { "Show Result Code Presentation Status",       "bthfp.ccwa.presentaion_status",
+           { "Show Result Code Presentation Status",       "bthfp.ccwa.presentation_status",
            FT_UINT32, BASE_DEC, VALS(ccwa_show_result_code_vals), 0,
            NULL, HFILL}
         },

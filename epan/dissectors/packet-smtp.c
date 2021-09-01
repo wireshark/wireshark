@@ -223,7 +223,7 @@ static const value_string response_codes_vs[] = {
   { 450, "Requested mail action not taken: mailbox unavailable" },
   { 451, "Requested action aborted: local error in processing" },
   { 452, "Requested action not taken: insufficient system storage" },
-  { 454, "Temporary authenticaion failed" },
+  { 454, "Temporary authentication failed" },
   { 500, "Syntax error, command unrecognized" },
   { 501, "Syntax error in parameters or arguments" },
   { 502, "Command not implemented" },

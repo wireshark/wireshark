@@ -37,6 +37,7 @@ aironet
 airpcap
 airtel
 alcap
+alcatel
 alljoyn
 alloc
 allocators
@@ -243,7 +244,9 @@ cryptographic
 csapi
 ctype
 customizable
+customization
 customizing
+cyphering
 datagram
 datagrams
 dataitem
@@ -291,6 +294,7 @@ demodulator
 demultiplexer
 demultiplexers
 deobfuscated
+depassivated
 deprecated
 deprotection
 dequeue
@@ -408,6 +412,7 @@ extensible
 exthdr
 extrainformation
 failover
+fastip
 fastmsg
 fattr
 fiber
@@ -497,6 +502,7 @@ ident
 idiographic
 idl2wrs
 iec60870
+ieee1609dot
 ieee17221
 ieee80211
 iface
@@ -573,6 +579,8 @@ keyring
 keytab
 knxip
 l2cap
+l2vpn
+l3vpn
 lanalyzer
 lcgid
 lcids
@@ -606,10 +614,13 @@ mantissa
 manuf
 mappable
 mariadb
+marvell
+mathieson
 maxlen
 maybefcs
 mbits
 mcast
+mcptt
 mcsset
 measurability
 measurements
@@ -736,6 +747,7 @@ ofpat
 ofppf
 ofpxmt
 om2000
+onboarding
 onduration
 onoff
 ontime
@@ -766,6 +778,7 @@ parms
 parser
 parses
 passcode
+passivated
 passkey
 passthrough
 passwd
@@ -962,6 +975,7 @@ retry
 retrying
 retyping
 revalidate
+revalidation
 revertive
 rfcomm
 rlcmac
@@ -1008,6 +1022,7 @@ sharkd
 siapp
 sidelink
 signaling
+signon
 simulcast
 skype
 slsch
@@ -1038,6 +1053,7 @@ spoofing
 spooled
 srbid
 srcport
+srtcp
 srvcc
 sshdump
 sshkey
@@ -1078,12 +1094,14 @@ subnet
 subnets
 subobj
 subobject
+subopt
 suboption
 suboptions
 subparam
 subpdu
 subpm
 subquery
+subrects
 subselect
 subselection
 subslot
@@ -1105,6 +1123,7 @@ tablemod
 tabular
 tclas
 tcpdump
+tcpflags
 tcpip
 tcpudp
 tdd128
@@ -1154,6 +1173,7 @@ tunid
 tunneled
 tunneling
 tuple
+tuples
 tvbuff
 twamp
 type1
@@ -1175,7 +1195,9 @@ unacked
 unadvise
 unaligned
 unallocated
+unallowed
 unassign
+unassoc
 unauthenticated
 unbind
 unbuffered
@@ -1252,6 +1274,7 @@ unrecovered
 unregister
 unregistration
 unreportable
+unresolvable
 unresponded
 unroutable
 unsecure
@@ -1306,6 +1329,7 @@ vlans
 vocoder
 vodafone
 volerr
+vxlan
 wakeup
 webcam
 websocket

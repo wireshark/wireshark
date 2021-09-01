@@ -2084,7 +2084,7 @@ active.
 
 =item WIRESHARK_LOG_FATAL
 
-Sets the fatal log level. Fatal log levels cause the progeam to abort.
+Sets the fatal log level. Fatal log levels cause the program to abort.
 The fatal log level be set to C<critical> or C<warning>. C<Error> is
 always fatal.
 
