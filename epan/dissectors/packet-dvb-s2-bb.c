@@ -1466,7 +1466,7 @@ static int dissect_dvb_s2_bb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     proto_item *ti;
     proto_tree *dvb_s2_bb_tree;
 
-    tvbuff_t   *sync_tvb, *tsp_tvb, *next_tvb;
+    tvbuff_t   *sync_tvb = NULL, *tsp_tvb = NULL, *next_tvb = NULL;
 
     conversation_t *conv, *subcircuit;
     stream_t *ts_stream;
