@@ -26,5 +26,5 @@ typedef struct _rdpudp_conv_info_t {
 	guint16 server_port;
 } rdpudp_conv_info_t;
 
-
+gboolean rdp_isServerAddressTarget(packet_info *pinfo);
 #endif /* __PACKET_RDPUDP_H_ */

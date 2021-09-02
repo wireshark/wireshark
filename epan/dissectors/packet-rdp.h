@@ -50,5 +50,6 @@ typedef struct _rdp_conv_info_t {
   rdp_channel_def_t staticChannels[RDP_MAX_CHANNELS+1];
 } rdp_conv_info_t;
 
+gint dissect_rdp_bandwidth_req(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree, gboolean from_server);
 
 #endif /* __PACKET_RDP_H__ */
