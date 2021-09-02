@@ -131,6 +131,30 @@ typedef enum {
 #endif
 } compression_t;
 
+/*
+ * We limit the size of our input and output buffers to 2^30 bytes,
+ * because:
+ *
+ *    1) on Windows with MSVC, the return value of _read() is int,
+ *       so the biggest read you can do is INT_MAX, and the biggest
+ *       power of 2 below that is 2^30;
+ *
+ *    2) the "avail_in" and "avail_out" values in a z_stream structure
+ *       in zlib are uInts, and those are unsigned ints, and that
+ *       imposes a limit on the buffer size when we're reading a
+ *       gzipped file.
+ *
+ * Thus, we use guint for the buffer sizes, offsets, amount available
+ * from the buffer, etc.
+ *
+ * If we want an even bigger buffer for uncompressed data, or for
+ * some other form of compression, then the guint-sized values should
+ * be in structure values used only for reading gzipped files, and
+ * other values should be used for uncompressed data or data
+ * compressed using other algorithms (e.g., in a union).
+ */
+#define MAX_READ_BUF_SIZE	(1U << 30)
+
 struct wtap_reader_buf {
     guint8 *buf;  /* buffer */
     guint8 *next; /* next byte to deliver from buffer */
@@ -198,8 +222,8 @@ bytes_in_buffer(struct wtap_reader_buf *buf)
        Thus, (buf->next + buf->avail) - buf->buf is the number of bytes
        of data in the buffer.
 
-       This will fit in an unsigned int, because it can't be bigger
-       than the size of the buffer, which is an unsigned int. */
+       This will fit in an guint, because it can't be bigger
+       than the size of the buffer, which is a guint. */
     return (guint)((buf->next + buf->avail) - buf->buf);
 }
 
@@ -924,7 +948,7 @@ fill_out_buffer(FILE_T state)
         }
 
         state->in.next = state->in.next + input.pos;
-        state->in.avail -= input.pos;
+        state->in.avail -= (guint)input.pos;
 
         state->out.next = output.dst;
         state->out.avail = (guint)output.pos;
@@ -950,8 +974,12 @@ fill_out_buffer(FILE_T state)
             return -1;
         }
 
+        /*
+         * We assume LZ4F_decompress() will not set inBufSize to a
+         * value > state->in.avail.
+         */
         state->in.next = state->in.next + inBufSize;
-        state->in.avail -= inBufSize;
+        state->in.avail -= (guint)inBufSize;
 
         state->out.next = state->out.buf;
         state->out.avail = (guint)outBufSize;
@@ -1038,7 +1066,10 @@ file_fdopen(int fd)
 #ifdef _STATBUF_ST_BLKSIZE
     ws_statb64 st;
 #endif
-    int want = GZBUFSIZE;
+#ifdef HAVE_ZSTD
+    size_t zstd_buf_size;
+#endif
+    guint want = GZBUFSIZE;
     FILE_T state;
     size_t ret;
 
@@ -1068,30 +1099,53 @@ file_fdopen(int fd)
     gz_reset(state);
 
 #ifdef _STATBUF_ST_BLKSIZE
+    /*
+     * See what I/O size the file system recommends using, and if
+     * it's bigger than what we're using and isn't too big, use
+     * it.
+     */
     if (ws_fstat64(fd, &st) >= 0) {
         /*
          * Yes, st_blksize can be bigger than an int; apparently,
          * it's a long on LP64 Linux, for example.
          *
-         * If the value is too big to fit into an int, just
-         * use the default.
+         * If the value is too big to fit into a guint,
+         * just use the maximum read buffer size.
          */
-        if (st.st_blksize <= G_MAXINT)
-            want = (int)st.st_blksize;
+        if (st.st_blksize <= MAX_READ_BUF_SIZE)
+            want = (guint)st.st_blksize;
+        else
+            want = MAX_READ_BUF_SIZE;
         /* XXX, verify result? */
     }
 #endif
 #ifdef HAVE_ZSTD
     /* we should have separate input and output buf sizes */
-    want = MAX(want, (guint)ZSTD_DStreamInSize());
-    want = MAX(want, (guint)ZSTD_DStreamOutSize());
+    zstd_buf_size = ZSTD_DStreamInSize();
+    if (zstd_buf_size > want) {
+        if (zstd_buf_size <= MAX_READ_BUF_SIZE)
+            want = (guint)zstd_buf_size;
+        else
+            want = MAX_READ_BUF_SIZE;
+    }
+    zstd_buf_size = ZSTD_DStreamOutSize();
+    if (zstd_buf_size > want) {
+        if (zstd_buf_size <= MAX_READ_BUF_SIZE)
+            want = (guint)zstd_buf_size;
+        else
+            want = MAX_READ_BUF_SIZE;
+    }
 #endif
+    /*
+     * And GLib uses gsize, not size_t, as the argument type for
+     * g_try_malloc().  Make sure what we have still fits.
+     */
 
     /* allocate buffers */
-    state->in.buf = (unsigned char *)g_try_malloc((gsize)want);
+    state->in.buf = (unsigned char *)g_try_malloc(want);
     state->in.next = state->in.buf;
     state->in.avail = 0;
-    state->out.buf = (unsigned char *)g_try_malloc(((gsize)want) << 1);
+    state->out.buf = (unsigned char *)g_try_malloc(want << 1);
     state->out.next = state->out.buf;
     state->out.avail = 0;
     state->size = want;
