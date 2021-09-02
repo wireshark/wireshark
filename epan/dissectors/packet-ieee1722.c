@@ -1,5 +1,5 @@
 /* packet-ieee1722.c
- * Routines for AVB-TP (Audio Video Bridging - Transport Protocol) dissection
+ * Routines for AVTP (Audio Video Transport Protocol) dissection
  * Copyright 2010, Torrey Atcitty <tatcitty@harman.com>
  *                 Dave Olsen <dave.olsen@harman.com>
  *                 Levi Pearson <levi.pearson@harman.com>
@@ -823,7 +823,7 @@ static int dissect_1722(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     };
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "IEEE1722");
-    col_set_str(pinfo->cinfo, COL_INFO, "AVB Transportation Protocol");
+    col_set_str(pinfo->cinfo, COL_INFO, "Audio Video Transport Protocol");
 
     ti = proto_tree_add_item(tree, proto_1722, tvb, 0, -1, ENC_NA);
     ieee1722_tree = proto_item_add_subtree(ti, ett_1722);
@@ -847,7 +847,7 @@ void proto_register_1722(void)
 {
     static hf_register_info hf[] = {
         { &hf_1722_subtype,
-            { "AVBTP Subtype", "ieee1722.subtype",
+            { "AVTP Subtype", "ieee1722.subtype",
               FT_UINT8, BASE_HEX | BASE_RANGE_STRING, RVALS(subtype_range_rvals), 0x00, NULL, HFILL }
         },
         { &hf_1722_svfield,
@@ -865,7 +865,7 @@ void proto_register_1722(void)
     };
 
     /* Register the protocol name and description */
-    proto_1722 = proto_register_protocol("IEEE 1722 Protocol", "IEEE1722", "ieee1722");
+    proto_1722 = proto_register_protocol("IEEE 1722 Audio Video Transport Protocol (AVTP)", "IEEE1722", "ieee1722");
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_1722, hf, array_length(hf));
@@ -873,16 +873,16 @@ void proto_register_1722(void)
 
     /* Sub-dissector for 1772.1, 1722 AAF, 1722 CRF, 1722 61883, 1722 CVF */
     avb_dissector_table = register_dissector_table("ieee1722.subtype",
-                          "IEEE1722 AVBTP Subtype", proto_1722, FT_UINT8, BASE_HEX);
+                          "IEEE1722 AVTP Subtype", proto_1722, FT_UINT8, BASE_HEX);
 }
 
 void proto_reg_handoff_1722(void)
 {
-    dissector_handle_t avbtp_handle;
+    dissector_handle_t avtp_handle;
 
-    avbtp_handle = create_dissector_handle(dissect_1722, proto_1722);
-    dissector_add_uint("ethertype", ETHERTYPE_AVBTP, avbtp_handle);
-    dissector_add_uint("udp.port", UDP_PORT_IEEE_1722, avbtp_handle);
+    avtp_handle = create_dissector_handle(dissect_1722, proto_1722);
+    dissector_add_uint("ethertype", ETHERTYPE_AVTP, avtp_handle);
+    dissector_add_uint("udp.port", UDP_PORT_IEEE_1722, avtp_handle);
 }
 
 /**************************************************************************************************/

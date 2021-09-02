@@ -103,7 +103,7 @@ const value_string etype_vals[] = {
 	{ ETHERTYPE_MMRP,                 "802.1ak Multiple Mac Registration Protocol" },
 	{ ETHERTYPE_NSH,                  "Network Service Header" },
 	{ ETHERTYPE_PA_HBBACKUP,          "PA HB Backup" },
-	{ ETHERTYPE_AVBTP,                "IEEE 1722 Audio Video Bridging Transport Protocol" },
+	{ ETHERTYPE_AVTP,                 "IEEE 1722 Audio Video Transport Protocol" },
 	{ ETHERTYPE_ROHC,                 "Robust Header Compression(RoHC)" },
 	{ ETHERTYPE_TRILL,                "Transparent Interconnection of Lots of Links" },
 	{ ETHERTYPE_L2ISIS,               "Intermediate System to Intermediate System" },

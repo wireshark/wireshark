@@ -111,8 +111,8 @@ extern "C" {
 #define ETHERTYPE_MSRP			0x22EA
 #endif
 
-#ifndef ETHERTYPE_AVBTP
-#define ETHERTYPE_AVBTP			0x22F0
+#ifndef ETHERTYPE_AVTP
+#define ETHERTYPE_AVTP			0x22F0
 #endif
 
 #ifndef ETHERTYPE_ROHC				/* ROHC (Robust Header Compression) is an IP header compression protocol specified in */
