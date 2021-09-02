@@ -1071,7 +1071,9 @@ file_fdopen(int fd)
 #endif
     guint want = GZBUFSIZE;
     FILE_T state;
+#ifdef HAVE_LZ4
     size_t ret;
+#endif
 
     if (fd == -1)
         return NULL;
