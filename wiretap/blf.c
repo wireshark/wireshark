@@ -113,6 +113,9 @@ static void add_interface_name(wtap_block_t *int_data, int pkt_encap, guint32 ch
     case WTAP_ENCAP_ETHERNET:
         wtap_block_add_string_option_format(*int_data, OPT_IDB_NAME, "ETH-%d", channel);
         break;
+    case WTAP_ENCAP_IEEE_802_11:
+        wtap_block_add_string_option_format(*int_data, OPT_IDB_NAME, "WLAN-%d", channel);
+        break;
     case WTAP_ENCAP_FLEXRAY:
         wtap_block_add_string_option_format(*int_data, OPT_IDB_NAME, "FR-%d", channel);
         break;
