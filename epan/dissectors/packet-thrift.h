@@ -108,17 +108,17 @@ struct _thrift_member_t {
 
 /** These functions are to be used by dissectors dissecting Thrift based protocols similar to packet-ber.c
  *
- * @param[in] tvb:          Pointer to the tvbuff_t holding the captured data.
- * @param[in] pinfo:        Pointer to the packet_info holding information about the currently dissected packet.
- * @param[in] tree:         Pointer to the proto_tree used to hold the display tree in Wireshark's interface.
- * @param[in] offset:       Offset from the beginning of the tvbuff_t where the Thrift field is. Function will dissect type, id, & data.
- * @param[in] thrift_opt:   Options from the Thrift dissector that will be necessary for sub-dissection (binary vs. compact, ...)
- * @param[in] is_field:     Indicate if the offset point to a field element and if field type and field id must be dissected.
+ * @param[in] tvb           Pointer to the tvbuff_t holding the captured data.
+ * @param[in] pinfo         Pointer to the packet_info holding information about the currently dissected packet.
+ * @param[in] tree          Pointer to the proto_tree used to hold the display tree in Wireshark's interface.
+ * @param[in] offset        Offset from the beginning of the tvbuff_t where the Thrift field is. Function will dissect type, id, & data.
+ * @param[in] thrift_opt    Options from the Thrift dissector that will be necessary for sub-dissection (binary vs. compact, ...)
+ * @param[in] is_field      Indicate if the offset point to a field element and if field type and field id must be dissected.
  *                          Only for containers internal use. Sub-dissectors must always use TRUE except for struct (see below).
- * @param[in] field_id:     Thrift field identifier, to check that the right field is being dissected (in case of optional fields).
- * @param[in] hf_id:        Header field info that describes the field to display (display name, filter name, FT_TYPE, ...).
+ * @param[in] field_id      Thrift field identifier, to check that the right field is being dissected (in case of optional fields).
+ * @param[in] hf_id         Header field info that describes the field to display (display name, filter name, FT_TYPE, ...).
  *
- * @param[in] encoding:     Encoding used for string display. (Only for dissect_thrift_t_string_enc)
+ * @param[in] encoding      Encoding used for string display. (Only for dissect_thrift_t_string_enc)
  *
  * @return                  Offset of the first non-dissected byte in case of success,
  *                          THRIFT_REQUEST_REASSEMBLY (-1) in case reassembly is required, or
@@ -142,27 +142,27 @@ WS_DLL_PUBLIC int dissect_thrift_t_string_enc(tvbuff_t* tvb, packet_info* pinfo,
 /** Dissect a Thrift struct
  * Dissect a Thrift struct by calling the struct member dissector in turn from the thrift_member_t array
  *
- * @param[in] tvb:          Pointer to the tvbuff_t holding the captured data.
- * @param[in] pinfo:        Pointer to the packet_info holding information about the currently dissected packet.
- * @param[in] tree:         Pointer to the proto_tree used to hold the display tree in Wireshark's interface.
- * @param[in] offset:       Offset from the beginning of the tvbuff_t where the Thrift field is. Function will dissect type, id, & data.
- * @param[in] thrift_opt:   Options from the Thrift dissector that will be necessary for sub-dissection (binary vs. compact, ...)
- * @param[in] is_field:     Indicate if the offset point to a field element and if field type and field id must be dissected.
+ * @param[in] tvb           Pointer to the tvbuff_t holding the captured data.
+ * @param[in] pinfo         Pointer to the packet_info holding information about the currently dissected packet.
+ * @param[in] tree          Pointer to the proto_tree used to hold the display tree in Wireshark's interface.
+ * @param[in] offset        Offset from the beginning of the tvbuff_t where the Thrift field is. Function will dissect type, id, & data.
+ * @param[in] thrift_opt    Options from the Thrift dissector that will be necessary for sub-dissection (binary vs. compact, ...)
+ * @param[in] is_field      Indicate if the offset point to a field element and if field type and field id must be dissected.
  *                          Only for internal use in containers. Sub-dissectors must always use TRUE except for struct (see below).
  *                          Sub-dissectors should always use TRUE except in one case:
  *                          - Define the parameters of the Thrift command as a struct (including T_STOP at the end)
  *                          - Single call to dissect_thrift_t_struct with is_field = FALSE.
- * @param[in] field_id:     Thrift field identifier, to check that the right field is being dissected (in case of optional fields).
- * @param[in] hf_id:        A header field of FT_BYTES which will be the struct header field
+ * @param[in] field_id      Thrift field identifier, to check that the right field is being dissected (in case of optional fields).
+ * @param[in] hf_id         A header field of FT_BYTES which will be the struct header field
  *
- * @param[in] ett_id:       An ett field used for the subtree created to list the container's elements.
+ * @param[in] ett_id        An ett field used for the subtree created to list the container's elements.
  *
- * @param[in] key:          Description of the map's key elements.
- * @param[in] val:          Description of the map's value elements.
+ * @param[in] key           Description of the map's key elements.
+ * @param[in] val           Description of the map's value elements.
  *
- * @param[in] elt:          Description of the list's or set's elements.
+ * @param[in] elt           Description of the list's or set's elements.
  *
- * @param[in] seq:          Sequence of descriptions of the structure's members.
+ * @param[in] seq           Sequence of descriptions of the structure's members.
  *                          An array of thrift_member_t's containing thrift type of the struct members the hf variable to use etc.
  *
  * @return                  Offset of the first non-dissected byte in case of success,
