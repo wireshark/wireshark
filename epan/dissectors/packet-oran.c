@@ -564,7 +564,7 @@ static int dissect_bfwCompParam(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
 }
 
 
-static gfloat decompress_value(guint32 bits, guint32 comp_method, guint8 iq_width _U_, guint32 exponent)
+static gfloat decompress_value(guint32 bits, guint32 comp_method, guint8 iq_width, guint32 exponent)
 {
     switch (comp_method) {
         case COMP_NONE: /* no compression */
@@ -574,7 +574,7 @@ static gfloat decompress_value(guint32 bits, guint32 comp_method, guint8 iq_widt
         {
             /* A.1.2 Block Floating Point Decompression Algorithm */
             gint32 cPRB = bits;
-            guint32 scaler = 2 << (exponent-1);  /* i.e. 2^exponent */
+            guint32 scaler = 1 << exponent;  /* i.e. 2^exponent */
 
             /* Check last bit, in case we need to flip to -ve */
             if (cPRB >= (1<<(iq_width-1))) {
