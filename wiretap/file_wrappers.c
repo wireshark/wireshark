@@ -1138,11 +1138,6 @@ file_fdopen(int fd)
             want = MAX_READ_BUF_SIZE;
     }
 #endif
-    /*
-     * And GLib uses gsize, not size_t, as the argument type for
-     * g_try_malloc().  Make sure what we have still fits.
-     */
-
     /* allocate buffers */
     state->in.buf = (unsigned char *)g_try_malloc(want);
     state->in.next = state->in.buf;
