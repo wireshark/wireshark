@@ -560,7 +560,7 @@ Code Checks + Clang Warnings:
     - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
     - script --command ninja --flush --quiet --return ../clang_report.txt
     - ansi2html < ../clang_report.txt > ../clang_report.html
-    - ./run/tshark -v
+    - ./run/tshark -v 2> >(tee ../checkhf_conflict.txt)
     - ../tools/validate-clang-check.sh -c $CLANG_VERSION 2> >(tee ../clang_analyzer_check.txt)
     - ninja checkAPI
   artifacts:
@@ -571,6 +571,7 @@ Code Checks + Clang Warnings:
       - cppcheck_report.xml
       - item_calls_check.txt
       - tfs_check.txt
+      - checkhf_conflict.txt
 
 # Windows runners are still beta, at least technically:
 # https://docs.gitlab.com/ee/user/gitlab_com/index.html#windows-shared-runners-beta
