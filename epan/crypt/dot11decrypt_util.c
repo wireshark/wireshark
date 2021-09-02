@@ -243,12 +243,13 @@ static gboolean sha256(const guint8 *data, size_t len, guint8 output[32])
  * @param ssid_len Length of SSID in bytes.
  * @param mdid MDID (Mobility Domain Identifier).
  * @param r0kh_id PMK-R0 key holder identifier in the Authenticator.
- * @param r0kh_id_len Lenth of r0kh_id in bytes.
+ * @param r0kh_id_len Length of r0kh_id in bytes.
  * @param s0kh_id PMK-R0 key holder in the Supplicant (STA mac address)
  * @param hash_algo Hash algorithm to use for the KDF.
  *        See gcrypt available hash algorithms:
  *        https://gnupg.org/documentation/manuals/gcrypt/Available-hash-algorithms.html
  * @param[out] pmk_r0 Pairwise master key, first level
+ * @param pmk_r0_len Length of pmk_r0 in bytes.
  * @param[out] pmk_r0_name Pairwise master key (PMK) R0 name.
  */
 gboolean
