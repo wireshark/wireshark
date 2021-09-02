@@ -74,7 +74,7 @@ static header_field_info hfi_udp_stream UDP_HFI_INIT =
 
 static header_field_info hfi_udp_length UDP_HFI_INIT =
 { "Length", "udp.length", FT_UINT16, BASE_DEC, NULL, 0x0,
-  NULL, HFILL };
+  "Length in octets including this header and the data", HFILL };
 
 static header_field_info hfi_udp_checksum UDP_HFI_INIT =
 { "Checksum", "udp.checksum", FT_UINT16, BASE_HEX, NULL, 0x0,
