@@ -5415,46 +5415,60 @@ decode_link_state_attribute_tlv(proto_tree *tree, tvbuff_t *tvb, gint offset, pa
         case BGP_LS_IGP_TE_METRIC_DELAY:
             tlv_item = proto_tree_add_item(tree, hf_bgp_ls_igp_te_metric_delay, tvb, offset, length+4, ENC_NA);
             tlv_tree = proto_item_add_subtree(tlv_item, ett_bgp_link_state);
-            proto_tree_add_bitmask(tlv_tree, tvb, offset, hf_bgp_ls_igp_te_metric_flags,
+            proto_tree_add_item(tlv_tree, hf_bgp_ls_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tlv_tree, hf_bgp_ls_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_bitmask(tlv_tree, tvb, offset + 4, hf_bgp_ls_igp_te_metric_flags,
                                    ett_bgp_link_state, ls_igp_te_metric_flags, ENC_BIG_ENDIAN);
-            proto_tree_add_item(tlv_tree, hf_bgp_ls_igp_te_metric_delay_value, tvb, offset + 1, 3, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tlv_tree, hf_bgp_ls_igp_te_metric_delay_value, tvb, offset + 5, 3, ENC_BIG_ENDIAN);
             break;
         case BGP_LS_IGP_TE_METRIC_DELAY_MIN_MAX:
             tlv_item = proto_tree_add_item(tree, hf_bgp_ls_igp_te_metric_delay_min_max, tvb, offset, length+4, ENC_NA);
             tlv_tree = proto_item_add_subtree(tlv_item, ett_bgp_link_state);
-            proto_tree_add_bitmask(tlv_tree, tvb, offset, hf_bgp_ls_igp_te_metric_flags,
+            proto_tree_add_item(tlv_tree, hf_bgp_ls_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tlv_tree, hf_bgp_ls_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_bitmask(tlv_tree, tvb, offset + 4, hf_bgp_ls_igp_te_metric_flags,
                                    ett_bgp_link_state, ls_igp_te_metric_flags, ENC_BIG_ENDIAN);
-            proto_tree_add_item(tlv_tree, hf_bgp_ls_igp_te_metric_delay_min, tvb, offset + 1, 3, ENC_BIG_ENDIAN);
-            proto_tree_add_item(tlv_tree, hf_bgp_ls_igp_te_metric_reserved, tvb, offset + 4, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(tlv_tree, hf_bgp_ls_igp_te_metric_delay_max, tvb, offset + 5, 3, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tlv_tree, hf_bgp_ls_igp_te_metric_delay_min, tvb, offset + 5, 3, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tlv_tree, hf_bgp_ls_igp_te_metric_reserved, tvb, offset + 8, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tlv_tree, hf_bgp_ls_igp_te_metric_delay_max, tvb, offset + 9, 3, ENC_BIG_ENDIAN);
             break;
         case BGP_LS_IGP_TE_METRIC_DELAY_VARIATION:
             tlv_item = proto_tree_add_item(tree, hf_bgp_ls_igp_te_metric_delay_variation, tvb, offset, length+4, ENC_NA);
             tlv_tree = proto_item_add_subtree(tlv_item, ett_bgp_link_state);
-            proto_tree_add_item(tlv_tree, hf_bgp_ls_igp_te_metric_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(tlv_tree, hf_bgp_ls_igp_te_metric_delay_variation_value, tvb, offset + 1, 3, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tlv_tree, hf_bgp_ls_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tlv_tree, hf_bgp_ls_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tlv_tree, hf_bgp_ls_igp_te_metric_reserved, tvb, offset + 4, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tlv_tree, hf_bgp_ls_igp_te_metric_delay_variation_value, tvb, offset + 5, 3, ENC_BIG_ENDIAN);
             break;
         case BGP_LS_IGP_TE_METRIC_LOSS:
             tlv_item = proto_tree_add_item(tree, hf_bgp_ls_igp_te_metric_link_loss, tvb, offset, length+4, ENC_NA);
             tlv_tree = proto_item_add_subtree(tlv_item, ett_bgp_link_state);
-            proto_tree_add_bitmask(tlv_tree, tvb, offset, hf_bgp_ls_igp_te_metric_flags,
+            proto_tree_add_item(tlv_tree, hf_bgp_ls_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tlv_tree, hf_bgp_ls_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_bitmask(tlv_tree, tvb, offset + 4, hf_bgp_ls_igp_te_metric_flags,
                                    ett_bgp_link_state, ls_igp_te_metric_flags, ENC_BIG_ENDIAN);
-            proto_tree_add_item(tlv_tree, hf_bgp_ls_igp_te_metric_link_loss_value, tvb, offset + 1, 3, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tlv_tree, hf_bgp_ls_igp_te_metric_link_loss_value, tvb, offset + 5, 3, ENC_BIG_ENDIAN);
             break;
         case BGP_LS_IGP_TE_METRIC_BANDWIDTH_RESIDUAL:
             tlv_item = proto_tree_add_item(tree, hf_bgp_ls_igp_te_metric_bandwidth_residual, tvb, offset, length+4, ENC_NA);
             tlv_tree = proto_item_add_subtree(tlv_item, ett_bgp_link_state);
-            proto_tree_add_item(tlv_tree, hf_bgp_ls_igp_te_metric_bandwidth_residual_value, tvb, offset, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tlv_tree, hf_bgp_ls_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tlv_tree, hf_bgp_ls_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tlv_tree, hf_bgp_ls_igp_te_metric_bandwidth_residual_value, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
             break;
         case BGP_LS_IGP_TE_METRIC_BANDWIDTH_AVAILABLE:
             tlv_item = proto_tree_add_item(tree, hf_bgp_ls_igp_te_metric_bandwidth_available, tvb, offset, length+4, ENC_NA);
             tlv_tree = proto_item_add_subtree(tlv_item, ett_bgp_link_state);
-            proto_tree_add_item(tlv_tree, hf_bgp_ls_igp_te_metric_bandwidth_available_value, tvb, offset, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tlv_tree, hf_bgp_ls_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tlv_tree, hf_bgp_ls_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tlv_tree, hf_bgp_ls_igp_te_metric_bandwidth_available_value, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
             break;
         case BGP_LS_IGP_TE_METRIC_BANDWIDTH_UTILIZED:
             tlv_item = proto_tree_add_item(tree, hf_bgp_ls_igp_te_metric_bandwidth_utilized, tvb, offset, length+4, ENC_NA);
             tlv_tree = proto_item_add_subtree(tlv_item, ett_bgp_link_state);
-            proto_tree_add_item(tlv_tree, hf_bgp_ls_igp_te_metric_bandwidth_utilized_value, tvb, offset, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tlv_tree, hf_bgp_ls_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tlv_tree, hf_bgp_ls_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tlv_tree, hf_bgp_ls_igp_te_metric_bandwidth_utilized_value, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
             break;
 
         default:
