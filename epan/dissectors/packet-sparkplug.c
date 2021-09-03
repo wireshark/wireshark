@@ -58,6 +58,7 @@ dissect_sparkplugb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     gchar **topic_elements, **current_element;
     char *topic = (char *)data;
 
+    /* Confirm the expected topic data is present */
     if (topic == NULL)
       return FALSE;
 
@@ -75,7 +76,7 @@ dissect_sparkplugb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 
     /* Adjust the info column */
     col_clear(pinfo->cinfo, COL_INFO);
-    col_set_str(pinfo->cinfo, COL_INFO, "SparkplugB");
+    col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "SparkplugB");
 
     /* create display subtree for the protocol */
     ti = proto_tree_add_item(tree, proto_sparkplugb, tvb, 0, -1, ENC_NA);
@@ -90,10 +91,13 @@ dissect_sparkplugb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     proto_item_set_generated(ti);
 
     current_element += 1;
-    ti = proto_tree_add_string(namespace_tree, hf_sparkplugb_groupid, tvb, 0, 0, current_element[0]);
-    proto_item_set_generated(ti);
-    if (!current_element[0]) {
-        expert_add_info(pinfo, ti, &ei_sparkplugb_missing_groupid);
+    if (current_element[0]) {
+        ti = proto_tree_add_string(namespace_tree, hf_sparkplugb_groupid, tvb, 0, 0, current_element[0]);
+        proto_item_set_generated(ti);
+    }
+    else {
+        expert_add_info(pinfo, namespace_tree, &ei_sparkplugb_missing_groupid);
+        return FALSE;
     }
 
     /* Adjust the info colum text with the message type */
@@ -101,25 +105,31 @@ dissect_sparkplugb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     if (current_element[0]) {
         col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, current_element[0]);
         col_set_fence(pinfo->cinfo, COL_INFO);
-    }
 
-    ti = proto_tree_add_string(namespace_tree, hf_sparkplugb_messagetype, tvb, 0, 0, current_element[0]);
-    proto_item_set_generated(ti);
-    if (!current_element[0]) {
-        expert_add_info(pinfo, ti, &ei_sparkplugb_missing_messagetype);
+        ti = proto_tree_add_string(namespace_tree, hf_sparkplugb_messagetype, tvb, 0, 0, current_element[0]);
+        proto_item_set_generated(ti);
+    }
+    else {
+        expert_add_info(pinfo, namespace_tree, &ei_sparkplugb_missing_messagetype);
+        return FALSE;
     }
 
     current_element += 1;
-    ti = proto_tree_add_string(namespace_tree, hf_sparkplugb_edgenodeid, tvb, 0, 0, current_element[0]);
-    proto_item_set_generated(ti);
-    if (!current_element[0]) {
-        expert_add_info(pinfo, ti, &ei_sparkplugb_missing_edgenodeid);
+    if (current_element[0]) {
+        ti = proto_tree_add_string(namespace_tree, hf_sparkplugb_edgenodeid, tvb, 0, 0, current_element[0]);
+        proto_item_set_generated(ti);
+    }
+    else {
+        expert_add_info(pinfo, namespace_tree, &ei_sparkplugb_missing_edgenodeid);
+        return FALSE;
     }
 
     /* Device ID is optional */
     current_element += 1;
-    ti = proto_tree_add_string(namespace_tree, hf_sparkplugb_deviceid, tvb, 0, 0, current_element[0]);
-    proto_item_set_generated(ti);
+    if (current_element[0]) {
+        ti = proto_tree_add_string(namespace_tree, hf_sparkplugb_deviceid, tvb, 0, 0, current_element[0]);
+        proto_item_set_generated(ti);
+    }
 
     g_strfreev(topic_elements);
 
