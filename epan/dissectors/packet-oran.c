@@ -825,7 +825,12 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
         /* Antenna count from preference */
         guint num_trx = pref_num_bf_antennas;
-        proto_item_append_text(sectionHeading, " (UEId=%u  PRBs %u-%u, %u antennas", ueId, startPrbc, startPrbc+numPrbc, num_trx);
+        if (numPrbc > 1) {
+            proto_item_append_text(sectionHeading, " (UEId=%u  PRBs %u-%u, %u antennas", ueId, startPrbc, startPrbc+numPrbc-1, num_trx);
+        }
+        else {
+            proto_item_append_text(sectionHeading, " (UEId=%u  PRB %u, %u antennas", ueId, startPrbc, num_trx);
+        }
 
         for (prb=startPrbc; prb < startPrbc+numPrbc; prb++) {
 
