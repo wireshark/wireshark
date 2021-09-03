@@ -5212,7 +5212,7 @@ proto_register_woww(void)
               NULL, HFILL }
         },
         { &hf_woww_movement_swim_pitch,
-            { "Swim Pitch", "woww.movement.flags",
+            { "Swim Pitch", "woww.movement.swim_pitch",
               FT_FLOAT, BASE_FLOAT, NULL, 0,
               NULL, HFILL }
         },
