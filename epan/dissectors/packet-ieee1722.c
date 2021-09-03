@@ -37,9 +37,11 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/conversation.h>
 #include <epan/expert.h>
 #include <epan/etypes.h>
 #include <epan/decode_as.h>
+#include <epan/proto_data.h>
 #include <epan/dissectors/packet-socketcan.h>
 
 void proto_register_1722(void);
@@ -66,7 +68,16 @@ void proto_reg_handoff_1722_acf_lin(void);
 static dissector_handle_t jpeg_handle;
 static dissector_handle_t h264_handle;
 
-#define UDP_PORT_IEEE_1722                  17220
+#define UDP_PORT_IEEE_1722   17220 /* One of two IANA registered ports */
+
+enum IEEE_1722_TRANSPORT {
+    IEEE_1722_TRANSPORT_ETH,
+    IEEE_1722_TRANSPORT_UDP,
+};
+
+typedef struct _ieee1722_seq_data_t {
+    guint32     seqnum_exp;
+} ieee1722_seq_data_t;
 
 /**************************************************************************************************/
 /* 1722                                                                                           */
@@ -329,12 +340,16 @@ static const range_string subtype_range_rvals[] = {
 
 /* Initialize the protocol and registered fields          */
 static int proto_1722 = -1;
+static int hf_1722_encap_seqnum = -1;
 static int hf_1722_subtype = -1;
 static int hf_1722_svfield = -1;
 static int hf_1722_verfield = -1;
 
 /* Initialize the subtree pointers */
 static int ett_1722 = -1;
+
+static expert_field ei_1722_encap_seqnum_dup = EI_INIT;
+static expert_field ei_1722_encap_seqnum_ooo = EI_INIT;
 
 static dissector_table_t avb_dissector_table;
 
@@ -809,10 +824,40 @@ static dissector_table_t avb1722_acf_lin_dissector_table;
 /* 1722 dissector implementation                                                                  */
 /*                                                                                                */
 /**************************************************************************************************/
-static int dissect_1722(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+
+static guint32
+get_seqnum_exp_1722_udp(packet_info *pinfo, const guint32 seqnum)
+{
+    conversation_t *conv;
+    ieee1722_seq_data_t *conv_seq_data, *p_seq_data;
+
+    if (!PINFO_FD_VISITED(pinfo)) {
+        conv = find_or_create_conversation(pinfo);
+        conv_seq_data = (ieee1722_seq_data_t *)conversation_get_proto_data(conv, proto_1722);
+        if (conv_seq_data == NULL) {
+            conv_seq_data = wmem_new(wmem_file_scope(), ieee1722_seq_data_t);
+            conv_seq_data->seqnum_exp = seqnum;
+
+            conversation_add_proto_data(conv, proto_1722, conv_seq_data);
+        } else {
+            conv_seq_data->seqnum_exp++;
+        }
+        p_seq_data = wmem_new(wmem_file_scope(), ieee1722_seq_data_t);
+        p_seq_data->seqnum_exp = conv_seq_data->seqnum_exp;
+        p_add_proto_data(wmem_file_scope(), pinfo, proto_1722, 0, p_seq_data);
+
+    } else {
+        p_seq_data = (ieee1722_seq_data_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_1722, 0);
+    }
+    DISSECTOR_ASSERT(p_seq_data != NULL);
+    return p_seq_data->seqnum_exp;
+}
+
+static int dissect_1722_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum IEEE_1722_TRANSPORT transport)
 {
     proto_item *ti;
     proto_tree *ieee1722_tree;
+    guint32     encap_seqnum, encap_seqnum_exp;
     guint       subtype = 0;
     gint        offset = 0;
     int         dissected_size;
@@ -828,6 +873,20 @@ static int dissect_1722(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     ti = proto_tree_add_item(tree, proto_1722, tvb, 0, -1, ENC_NA);
     ieee1722_tree = proto_item_add_subtree(ti, ett_1722);
 
+    if (transport == IEEE_1722_TRANSPORT_UDP) {
+        /* IEEE 1722-2016 Annex J IP Encapsulation */
+        ti = proto_tree_add_item_ret_uint(ieee1722_tree, hf_1722_encap_seqnum, tvb, offset, 4, ENC_BIG_ENDIAN, &encap_seqnum);
+        encap_seqnum_exp = get_seqnum_exp_1722_udp(pinfo, encap_seqnum);
+        if (encap_seqnum != encap_seqnum_exp) {
+            if ((encap_seqnum + 1) == encap_seqnum_exp) {
+                expert_add_info(pinfo, ti, &ei_1722_encap_seqnum_dup);
+            } else {
+                expert_add_info(pinfo, ti, &ei_1722_encap_seqnum_ooo);
+            }
+        }
+        offset += 4;
+    }
+
     proto_tree_add_item_ret_uint(ieee1722_tree, hf_1722_subtype, tvb, offset, 1, ENC_BIG_ENDIAN, &subtype);
     offset += 1;
     proto_tree_add_bitmask_list(ieee1722_tree, tvb, offset, 1, fields, ENC_NA);
@@ -842,10 +901,25 @@ static int dissect_1722(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     return tvb_captured_length(tvb);
 }
 
+static int dissect_1722_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    return dissect_1722_common(tvb, pinfo, tree, IEEE_1722_TRANSPORT_ETH);
+}
+
+static int dissect_1722_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    return dissect_1722_common(tvb, pinfo, tree, IEEE_1722_TRANSPORT_UDP);
+}
+
 /* Register the protocol with Wireshark */
 void proto_register_1722(void)
 {
     static hf_register_info hf[] = {
+        { &hf_1722_encap_seqnum,
+            { "Encapsulation Sequence Number", "ieee1722.encapsulation_sequence_num",
+              FT_UINT32, BASE_HEX, NULL, 0x00,
+              "Sequence number incremented for each AVTPDU on a 5-tuple", HFILL }
+        },
         { &hf_1722_subtype,
             { "AVTP Subtype", "ieee1722.subtype",
               FT_UINT8, BASE_HEX | BASE_RANGE_STRING, RVALS(subtype_range_rvals), 0x00, NULL, HFILL }
@@ -860,9 +934,16 @@ void proto_register_1722(void)
         }
     };
 
+    static ei_register_info ei[] = {
+        { &ei_1722_encap_seqnum_dup,          { "ieee1722.encapsulation_sequence_num.dup", PI_SEQUENCE, PI_NOTE, "Duplicate encapsulation_sequence_num (retransmission?)", EXPFILL }},
+        { &ei_1722_encap_seqnum_ooo,          { "ieee1722.encapsulation_sequence_num.ooo", PI_SEQUENCE, PI_WARN, "Unexpected encapsulation_sequence_num (lost or out-of-order?)", EXPFILL }},
+    };
+
     static gint *ett[] = {
         &ett_1722
     };
+
+    expert_module_t *expert_1722;
 
     /* Register the protocol name and description */
     proto_1722 = proto_register_protocol("IEEE 1722 Audio Video Transport Protocol (AVTP)", "IEEE1722", "ieee1722");
@@ -871,18 +952,22 @@ void proto_register_1722(void)
     proto_register_field_array(proto_1722, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    /* Sub-dissector for 1772.1, 1722 AAF, 1722 CRF, 1722 61883, 1722 CVF */
+    expert_1722 = expert_register_protocol(proto_1722);
+    expert_register_field_array(expert_1722, ei, array_length(ei));
+
+    /* Sub-dissector for 1722.1, 1722 AAF, 1722 CRF, 1722 61883, 1722 CVF */
     avb_dissector_table = register_dissector_table("ieee1722.subtype",
                           "IEEE1722 AVTP Subtype", proto_1722, FT_UINT8, BASE_HEX);
 }
 
 void proto_reg_handoff_1722(void)
 {
-    dissector_handle_t avtp_handle;
+    dissector_handle_t avtp_handle_eth, avtp_handle_udp;
 
-    avtp_handle = create_dissector_handle(dissect_1722, proto_1722);
-    dissector_add_uint("ethertype", ETHERTYPE_AVTP, avtp_handle);
-    dissector_add_uint("udp.port", UDP_PORT_IEEE_1722, avtp_handle);
+    avtp_handle_eth = create_dissector_handle(dissect_1722_eth, proto_1722);
+    avtp_handle_udp = create_dissector_handle(dissect_1722_udp, proto_1722);
+    dissector_add_uint("ethertype", ETHERTYPE_AVTP, avtp_handle_eth);
+    dissector_add_uint_with_preference("udp.port", UDP_PORT_IEEE_1722, avtp_handle_udp);
 }
 
 /**************************************************************************************************/
