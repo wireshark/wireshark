@@ -179,6 +179,7 @@ WS_DLL_PUBLIC void epan_get_version_number(int *major, int *minor, int *micro);
  * created if create_proto_tree is false in the call to epan_dissect_init().
  * Clearing this reverts the decision to epan_dissect_init() and proto_tree_visible.
  */
+WS_DLL_PUBLIC
 void epan_set_always_visible(gboolean force);
 
 /** initialize an existing single packet dissection */
