@@ -2838,41 +2838,29 @@
 		Specific Attributes (See TS 29.061 [13])
 		Note: The AVP codes from 256 to 299 are reserved for future use.
 		-->
-		<avp name="Authentication-Method" code="300" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
-			<type type-name="Enumerated"/>
-			<enum name="WLAN_EAP_SIM" code="0"/>
-			<enum name="WLAN_EAP_AKA" code="1"/>
-		</avp>
-		<avp name="Authentication-Information-SIM" code="301" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
-			<type type-name="OctetString"/>
-		</avp>
-		<avp name="Authorization-Information-SIM" code="302" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
-			<type type-name="OctetString"/>
-		</avp>
-		<!--
-		303 WLAN-User-Data Grouped
-		304 Charging-Data Grouped
-		305 WLAN-Access Enumerated
-		306 WLAN- 3GPP-IP-Access Enumerated
-		307 APN-Authorized Grouped
-		308 APN-Id
-		309 APN-Barring-Type Enumerated
-		310 WLAN-Direct-IP-Access Enumerated
-		311 Session-Request-Type Enumerated
-		312 Routing-Policy IPFilterRule
-		313 Max-Requested-Bandwidth OctetString
-		314 Charging-Characteristics Integer
-		315 Charging-Nodes Grouped
-		316 Primary-OCS-Charging-Function-Name DiameterIdentity
-		317 Secondary-OCS-Charging-Function-Name DiameterIdentity
-		-->
 
-		<avp name="3GPP-AAA-Server-Name" code="318" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
-			<type type-name="OctetString"/>
-		</avp>
-		<avp name="Maximum-Number-Accesses" code="319" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
-			<type type-name="Unsigned32"/>
-		</avp>
+		<!--
+		300 Authentication-Method Enumerated [3GPP 29.234]
+		301 Authentication-Information-SIM OctetString [3GPP 29.234]
+		302 Authorization-Information-SIM OctetString [3GPP 29.234]
+		303 WLAN-User-Data Grouped [3GPP 29.234]
+		304 Charging-Data Grouped [3GPP 29.234]
+		305 WLAN-Access Enumerated [3GPP 29.234]
+		306 WLAN- 3GPP-IP-Access Enumerated [3GPP 29.234]
+		307 APN-Authorized Grouped [3GPP 29.234]
+		308 APN-Id
+		309 APN-Barring-Type Enumerated [3GPP 29.234]
+		310 WLAN-Direct-IP-Access Enumerated [3GPP 29.234]
+		311 Session-Request-Type Enumerated [3GPP 29.234]
+		312 Routing-Policy IPFilterRule [3GPP 29.234]
+		313 Max-Requested-Bandwidth OctetString [3GPP 29.234]
+		314 Charging-Characteristics Integer [3GPP 29.234]
+		315 Charging-Nodes Grouped [3GPP 29.234]
+		316 Primary-OCS-Charging-Function-Name DiameterIdentity [3GPP 29.234]
+		317 Secondary-OCS-Charging-Function-Name DiameterIdentity [3GPP 29.234]
+		318 3GPP-AAA-Server-Name DiameterIdentity [3GPP 29.234]
+		319 Maximum-Number-Accesses Unsigned32 [3GPP 29.234]
+		-->
 
 		<!--
 		Note: The AVP codes from 320 to 399 are reserved for TS 29.234
