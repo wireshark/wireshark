@@ -1619,6 +1619,7 @@ dissect_ieee802154_fcf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ieee
 
         /* The second octet of the FCF is only present if the long frame control bit is set */
         if (packet->long_frame_control) {
+            packet->pan_id_present = (fcf & IEEE802154_MPF_FCF_PAN_ID_PRESENT) >> 8;
             packet->security_enable = (fcf & IEEE802154_MPF_FCF_SEC_EN) >> 9;
             packet->seqno_suppression = (fcf & IEEE802154_MPF_FCF_SEQNO_SUPPRESSION) >> 10;
             packet->frame_pending   = (fcf & IEEE802154_MPF_FCF_FRAME_PND) >> 11;
