@@ -1100,6 +1100,110 @@
 	-->
 </application>	<!-- 3GPP Sh -->
 
+
+<application id="16777219" name="3GPP Wx" uri="http://www.3gpp.org/DynaReport/29234.htm">
+  <avp name="3GPP-WLAN-APN-Id" code="100" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+    <type type-name="OctetString"/>
+  </avp>
+  <avp name="Authentication-Method" code="300" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+    <type type-name="Enumerated"/>
+    <enum name="WLAN_EAP_SIM" code="0"/>
+    <enum name="WLAN_EAP_AKA" code="1"/>
+  </avp>
+  <avp name="Authentication-Information-SIM" code="301" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+    <type type-name="OctetString"/>
+  </avp>
+  <avp name="Authorization-Information-SIM" code="302" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+    <type type-name="OctetString"/>
+  </avp>
+  <avp name="WLAN-User-Data" code="303" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+    <grouped>
+      <gavp name="Subscription-Id"/>
+      <gavp name="WLAN-Access"/>
+      <gavp name="WLAN-3GPP-IP-Access"/>
+      <gavp name="Session-Timeout"/>
+      <gavp name="APN-Authorized"/>
+      <gavp name="Maximum-Number-Accesses"/>
+      <gavp name="WLAN-Direct-IP-Access"/>
+      <gavp name="QoS-Resources"/>
+    </grouped>
+  </avp>
+  <avp name="Charging-Data" code="304" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+    <grouped>
+      <gavp name="Charging-Characteristics"/>
+      <gavp name="Charging-Nodes"/>
+    </grouped>
+  </avp>
+  <avp name="WLAN-Access" code="305" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+    <type type-name="Enumerated"/>
+    <enum name="WLAN_SUBSCRIPTION_ALLOWED" code="0"/>
+    <enum name="WLAN_SUBSCRIPTION_BARRED" code="1"/>
+  </avp>
+  <avp name="WLAN-3GPP-IP-Access" code="306" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+    <type type-name="Enumerated"/>
+    <enum name="WLAN_APNS_ENABLE" code="0"/>
+    <enum name="WLAN_APNS_DISABLE" code="1"/>
+  </avp>
+  <avp name="APN-Authorized" code="307" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+    <grouped>
+      <gavp name="3GPP-WLAN-APN-Id"/>
+      <gavp name="APN-Barring-Type"/>
+      <gavp name="Framed-IP-Address"/>
+      <gavp name="Framed-IPv6-Prefix"/>
+      <gavp name="Max-Requested-Bandwidth"/>
+      <gavp name="QoS-Resources"/>
+    </grouped>
+  </avp>
+  <avp name="APN-Barring-Type" code="309" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+    <type type-name="Enumerated"/>
+    <enum name="WLAN_APN_NO_BARRING" code="0"/>
+    <enum name="WLAN_APN_HOME_BARRED_WHEN_ROAMING " code="1"/>
+    <enum name="WLAN_APN_VISITED_BARRED" code="2"/>
+    <enum name="WLAN_APN_HOME_BARRED" code="3"/>
+    <enum name="WLAN_APN_INTERNET_ACCESS_BARRED" code="4"/>
+  </avp>
+  <avp name="WLAN-Direct-IP-Access" code="310" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+    <type type-name="Enumerated"/>
+    <enum name="WLAN_DIRECT_IP_ACCESS" code="0"/>
+    <enum name="WLAN_NO_DIRECT_IP_ACCESS" code="1"/>
+  </avp>
+  <avp name="Session-Request-Type" code="311" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+    <type type-name="Enumerated"/>
+    <enum name="AUTHORIZATION REQUEST" code="0"/>
+    <enum name="ROUTING POLICY" code="1"/>
+  </avp>
+  <avp name="Routing-Policy" code="312" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+    <type type-name="IPFilterRule"/>
+  </avp>
+  <avp name="Max-Requested-Bandwidth" code="313" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+    <type type-name="OctetString"/>
+  </avp>
+  <avp name="Charging-Characteristics" code="314" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+    <type type-name="OctetString"/>
+  </avp>
+  <avp name="Charging-Nodes" code="315" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+    <grouped>
+      <gavp name="Primary-OCS-Charging-Function-Name"/>
+      <gavp name="Secondary-OCS-Charging-Function-Name"/>
+      <gavp name="Primary-Charging-Collection-Function-Name"/>
+      <gavp name="Secondary-Charging-Collection-Function-Name"/>
+    </grouped>
+  </avp>
+  <avp name="Primary-OCS-Charging-Function-Name" code="316" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+    <type type-name="DiameterIdentity"/>
+  </avp>
+  <avp name="Secondary-OCS-Charging-Function-Name" code="317" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+    <type type-name="DiameterIdentity"/>
+  </avp>
+  <avp name="3GPP-AAA-Server-Name" code="318" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+    <type type-name="DiameterIdentity"/>
+  </avp>
+  <avp name="Maximum-Number-Accesses" code="319" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+    <type type-name="Unsigned32"/>
+  </avp>
+</application>	<!-- 3GPP Wx -->
+
+
 <!-- Note: This section has both SGmb and Gmb AVPs -->
 <!-- The AVP codes from 900 to 999 are reserved for TS 29.061. -->
 <application id="16777292" name="3GPP SGmb" uri="http://www.3gpp.org/DynaReport/29061.htm">
