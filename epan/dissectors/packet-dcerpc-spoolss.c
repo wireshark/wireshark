@@ -7164,7 +7164,7 @@ proto_register_dcerpc_spoolss(void)
 		  { "Default data type", "spoolss.defaultdatatype", FT_STRING, BASE_NONE,
 		    NULL, 0, NULL, HFILL }},
 		{ &hf_driverinfo_cversion,
-		  { "Driver version", "spoolss.driverversion", FT_UINT32, BASE_DEC,
+		  { "Driver version", "spoolss.drivercversion", FT_UINT32, BASE_DEC,
 		    VALS(driverinfo_cversion_vals), 0, "Printer name", HFILL }},
 		{ &hf_dependentfiles,
 		  { "Dependent files", "spoolss.dependentfiles", FT_STRING, BASE_NONE,
