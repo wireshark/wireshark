@@ -569,7 +569,6 @@ dissect_autosar_nm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
           proto_tree_add_item(autosar_nm_subtree, *hf_id, tvb, offset, length, ENC_BIG_ENDIAN);
         }
       }
-      offset += length;
     } else {
       /* should we warn? */
     }
