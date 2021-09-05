@@ -253,7 +253,7 @@ nettrace_msg_to_packet(nettrace_3gpp_32_423_file_info_t *file_info, wtap_rec *re
 		return FALSE;
 	}
 
-	prev_pos = curr_pos = input + CLEN(c_s_msg);
+	curr_pos = input + CLEN(c_s_msg);
 
 	rec->rec_type = REC_TYPE_PACKET;
 	rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
@@ -292,7 +292,6 @@ nettrace_msg_to_packet(nettrace_3gpp_32_423_file_info_t *file_info, wtap_rec *re
 		status = FALSE;
 		goto end;
 	}
-	next_msg_pos += CLEN(c_e_msg);
 
 	/* Check if we have a time stamp "changeTime"
 	 * expressed in number of seconds and milliseconds (nbsec.ms).
@@ -484,7 +483,6 @@ nettrace_msg_to_packet(nettrace_3gpp_32_423_file_info_t *file_info, wtap_rec *re
 	if (exported_pdu_info.presence_flags & EXP_PDU_TAG_DST_PORT_BIT) {
 		if (!port_type_defined) {
 			exp_pdu_tags_len += 4 + EXP_PDU_TAG_PORT_TYPE_LEN;
-			port_type_defined = TRUE;
 		}
 		exp_pdu_tags_len += 4 + EXP_PDU_TAG_PORT_LEN;
 	}
