@@ -3458,7 +3458,7 @@ sharkd_session_process_frame_cb(epan_dissect_t *edt, proto_tree *tree, struct ep
 			guint count = g_slist_length((GSList *) data_src);
 			guint i;
 
-			tvbs = (tvbuff_t **) g_malloc((count + 1) * sizeof(*tvbs));
+			tvbs = (tvbuff_t **) g_malloc0((count + 1) * sizeof(*tvbs));
 
 			for (i = 0; i < count; i++)
 			{
