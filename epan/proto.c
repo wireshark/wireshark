@@ -6477,7 +6477,7 @@ proto_item_fill_display_label(field_info *finfo, gchar *display_label_str, const
 					hf_str_val = hf_try_val_to_str(number, hfinfo);
 					label_len += protoo_strlcpy(display_label_str+label_len, hf_str_val, label_str_size-label_len);
 				} else {
-					number_out = hf_str_val = hf_try_val_to_str(number, hfinfo);
+					number_out = hf_try_val_to_str(number, hfinfo);
 
 					if (!number_out) {
 						number_out = hfinfo_number_value_format_display(hfinfo, hfinfo->display, number_buf, number);
@@ -6521,7 +6521,7 @@ proto_item_fill_display_label(field_info *finfo, gchar *display_label_str, const
 					hf_str_val = hf_try_val64_to_str(number64, hfinfo);
 					label_len += protoo_strlcpy(display_label_str+label_len, hf_str_val, label_str_size-label_len);
 				} else {
-					number_out = hf_str_val = hf_try_val64_to_str(number64, hfinfo);
+					number_out = hf_try_val64_to_str(number64, hfinfo);
 
 					if (!number_out)
 						number_out = hfinfo_number_value_format_display64(hfinfo, hfinfo->display, number_buf, number64);
