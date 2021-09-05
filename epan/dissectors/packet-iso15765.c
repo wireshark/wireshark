@@ -531,7 +531,6 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 bu
             break;
         }
         case ISO15765_MESSAGE_TYPES_FR_FIRST_FRAME_EXT: {
-            pci = tvb_get_guint8(tvb, ae);
             full_len = tvb_get_guint32(tvb, ae + 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(iso15765_tree, hf_iso15765_frame_length, tvb, ae + 1, 4, ENC_BIG_ENDIAN);
             offset = ae + 1 + 4;
