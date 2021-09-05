@@ -1631,7 +1631,7 @@ proto_register_ncsi(void)
             NULL, HFILL },
         },
         { &hf_ncsi_mlnx_gama_mac,
-          { "Allocated MC MAC address", "ncsi.mlx.gama.st",
+          { "Allocated MC MAC address", "ncsi.mlx.gama.mac",
             FT_ETHER, BASE_NONE, NULL, 0x0,
             NULL, HFILL },
         },
