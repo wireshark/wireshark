@@ -180,6 +180,10 @@ static expert_field ei_thrift_frame_too_short = EI_INIT;
 static expert_field ei_thrift_not_enough_data = EI_INIT;
 static expert_field ei_thrift_frame_too_long = EI_INIT;
 static expert_field ei_thrift_varint_too_large = EI_INIT;
+static expert_field ei_thrift_negative_field_id = EI_INIT;
+static expert_field ei_thrift_unordered_field_id = EI_INIT;
+static expert_field ei_thrift_application_exception = EI_INIT;
+static expert_field ei_thrift_protocol_exception = EI_INIT;
 
 static const thrift_member_t thrift_exception[] = {
     { &hf_thrift_exception_message, 1, TRUE, DE_THRIFT_T_BINARY, NULL, { .encoding = ENC_UTF_8|ENC_NA } },
@@ -610,6 +614,19 @@ dissect_thrift_field_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 header->fid_pi = proto_tree_add_int(header->fh_tree, hf_thrift_fid, tvb, header->fid_offset, header->fid_length, (gint16)header->field_id);
             }
             proto_item_set_generated(header->fid_pi);
+        }
+        /* When reading a successful T_REPLY, we always have
+         * - previous_field_id == 0 because we are at the beginning of a structure, and
+         * - header->field_id == 0 because it is the return value
+         * so we need to ignore this case. */
+        if (header->field_id < thrift_opt->previous_field_id || (header->field_id == thrift_opt->previous_field_id && thrift_opt->previous_field_id != 0)) {
+            if (thrift_opt->previous_field_id == 0) {
+                // Maybe an old application from when negative values were authorized.
+                expert_add_info(pinfo, header->fid_pi, &ei_thrift_negative_field_id);
+            } else {
+                // Although not mandated by Thrift protocol, applications should send fields in numerical order.
+                expert_add_info(pinfo, header->fid_pi, &ei_thrift_unordered_field_id);
+            }
         }
     } else if (header->fid_length <= 0) {
         /* Varint for field id was too long to decode, handle the error without the sub-tree. */
@@ -2425,6 +2442,8 @@ dissect_thrift_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
 {
     proto_tree *thrift_tree, *sub_tree;
     proto_item *thrift_pi, *data_pi;
+    proto_item *mtype_pi = NULL;
+    proto_item *fid_pi = NULL;
     int start_offset = offset;
     int header_offset = 0, data_offset = 0;
     gint32 seqid_len = TCP_THRIFT_MAX_I32_LEN;
@@ -2590,7 +2609,7 @@ dissect_thrift_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
             /* Compact: proto_id|mtype+version|seqid|length|name */
             proto_tree_add_item(sub_tree, hf_thrift_protocol_id, tvb, offset, TBP_THRIFT_TYPE_LEN, ENC_BIG_ENDIAN);
             proto_tree_add_bits_item(sub_tree, hf_thrift_version, tvb, (offset << OCTETS_TO_BITS_SHIFT) + 11, 5, ENC_BIG_ENDIAN);
-            proto_tree_add_bits_item(sub_tree, hf_thrift_mtype, tvb, (offset << OCTETS_TO_BITS_SHIFT) + 8, 3, ENC_BIG_ENDIAN);
+            mtype_pi = proto_tree_add_bits_item(sub_tree, hf_thrift_mtype, tvb, (offset << OCTETS_TO_BITS_SHIFT) + 8, 3, ENC_BIG_ENDIAN);
             offset += TCP_THRIFT_VERSION_LEN;
             proto_tree_add_int(sub_tree, hf_thrift_seq_id, tvb, offset, seqid_len, seq_id);
             offset += seqid_len;
@@ -2603,7 +2622,7 @@ dissect_thrift_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
             proto_tree_add_item(sub_tree, hf_thrift_protocol_id, tvb, offset, TBP_THRIFT_TYPE_LEN, ENC_BIG_ENDIAN);
             proto_tree_add_bits_item(sub_tree, hf_thrift_version, tvb, (offset << OCTETS_TO_BITS_SHIFT) + 11, 5, ENC_BIG_ENDIAN);
             offset += TBP_THRIFT_MTYPE_OFFSET;
-            proto_tree_add_bits_item(sub_tree, hf_thrift_mtype, tvb, (offset << OCTETS_TO_BITS_SHIFT) + 5, 3, ENC_BIG_ENDIAN);
+            mtype_pi = proto_tree_add_bits_item(sub_tree, hf_thrift_mtype, tvb, (offset << OCTETS_TO_BITS_SHIFT) + 5, 3, ENC_BIG_ENDIAN);
             offset += TBP_THRIFT_MTYPE_LEN;
             proto_tree_add_item(sub_tree, hf_thrift_str_len, tvb, offset, TBP_THRIFT_LENGTH_LEN, ENC_BIG_ENDIAN);
             offset += TBP_THRIFT_LENGTH_LEN;
@@ -2617,7 +2636,7 @@ dissect_thrift_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
             offset += TBP_THRIFT_LENGTH_LEN;
             proto_tree_add_item(sub_tree, hf_thrift_method, tvb, offset, str_len, ENC_UTF_8|ENC_NA);
             offset = offset + str_len;
-            proto_tree_add_bits_item(sub_tree, hf_thrift_mtype, tvb, (offset << OCTETS_TO_BITS_SHIFT) + 5, 3, ENC_BIG_ENDIAN);
+            mtype_pi = proto_tree_add_bits_item(sub_tree, hf_thrift_mtype, tvb, (offset << OCTETS_TO_BITS_SHIFT) + 5, 3, ENC_BIG_ENDIAN);
             offset += TBP_THRIFT_MTYPE_LEN;
             proto_tree_add_item(sub_tree, hf_thrift_seq_id, tvb, offset, TBP_THRIFT_SEQ_ID_LEN, ENC_BIG_ENDIAN);
             offset += TBP_THRIFT_SEQ_ID_LEN;
@@ -2658,12 +2677,14 @@ dissect_thrift_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
             break;
         }
         thrift_opt->reply_field_id = header.field_id;
+        fid_pi = header.fid_pi;
     }
     if (thrift_opt->mtype != ME_THRIFT_T_EXCEPTION) {
         if (pinfo->can_desegment > 0) pinfo->can_desegment++;
         len = dissector_try_string(thrift_method_name_dissector_table, method_str, msg_tvb, pinfo, tree, thrift_opt);
         if (pinfo->can_desegment > 0) pinfo->can_desegment--;
     } else {
+        expert_add_info(pinfo, mtype_pi, &ei_thrift_protocol_exception);
         /* Leverage the sub-dissector capabilities to dissect Thrift exceptions. */
         len = dissect_thrift_t_struct(msg_tvb, pinfo, thrift_tree, 0, thrift_opt, FALSE, 0, hf_thrift_exception, ett_thrift_exception, thrift_exception);
     }
@@ -2690,6 +2711,7 @@ dissect_thrift_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
     sub_tree = proto_tree_add_subtree(thrift_tree, tvb, data_offset, -1, ett_thrift_params, &data_pi, "Data");
     thrift_opt->reassembly_length = TBP_THRIFT_TYPE_LEN;
     if (thrift_opt->reply_field_id != 0) {
+        expert_add_info(pinfo, fid_pi, &ei_thrift_application_exception);
         proto_item_set_text(data_pi, "Exception: %" G_GINT64_MODIFIER "d", thrift_opt->reply_field_id);
     }
 
@@ -3343,6 +3365,10 @@ proto_register_thrift(void)
         { &ei_thrift_frame_too_short, { "thrift.frame_too_short", PI_MALFORMED, PI_ERROR, "Thrift frame shorter than data.", EXPFILL } },
         { &ei_thrift_frame_too_long, { "thrift.frame_too_long", PI_PROTOCOL, PI_WARN, "Thrift frame longer than data.", EXPFILL } },
         { &ei_thrift_varint_too_large, { "thrift.varint_too_large", PI_PROTOCOL, PI_ERROR, "Thrift varint value too large for target integer type.", EXPFILL } },
+        { &ei_thrift_negative_field_id, { "thrift.negative_field_id", PI_PROTOCOL, PI_NOTE, "Encountered unexpected negative field id, possibly an old application.", EXPFILL } },
+        { &ei_thrift_unordered_field_id, { "thrift.unordered_field_id", PI_PROTOCOL, PI_WARN, "Field id not defined by sub-dissector, using generic Thrift dissector.", EXPFILL } },
+        { &ei_thrift_application_exception, { "thrift.application_exception", PI_PROTOCOL, PI_NOTE, "The application recognized the method but rejected the content.", EXPFILL } },
+        { &ei_thrift_protocol_exception, { "thrift.protocol_exception", PI_PROTOCOL, PI_WARN, "The application was not able to handle the request.", EXPFILL } },
     };
 
 
