@@ -2787,6 +2787,7 @@ pcapng_read_custom_block(FILE_T fh, pcapng_block_header_t *bh,
 
     wblock->rec->block = wblock->block;
     wblock->block = NULL;
+    wblock->internal = FALSE;
 
     return TRUE;
 }
