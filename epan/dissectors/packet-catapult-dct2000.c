@@ -2823,7 +2823,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                     tvbuff_t *mac_nr_tvb = tvb_new_real_data(mac_data, idx, idx);
                     add_new_data_source(pinfo, mac_nr_tvb, "MAC-NR Payload");
                     /* Call the dissector! */
-                    sub_dissector_result = call_dissector_only(mac_nr_handle, mac_nr_tvb, pinfo, tree, NULL);
+                    call_dissector_only(mac_nr_handle, mac_nr_tvb, pinfo, tree, NULL);
                 }
 
                 /* Look for logged NRUP PDU */
