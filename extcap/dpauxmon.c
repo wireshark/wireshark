@@ -288,7 +288,7 @@ static int send_start(struct nl_sock *sock, int family, unsigned int interface_i
 	}
 
 	if ((err = nl_send_auto_complete(sock, msg)) < 0)
-		ws_debug("Starting monitor failed, already running?");
+		ws_debug("Starting monitor failed, already running? :%s", nl_geterror(err));
 
 out_free:
 	nlmsg_free(msg);
@@ -430,19 +430,22 @@ static void run_listener(const char* fifo, unsigned int interface_id)
 	}
 
 	if ((err = genl_register_family(&ops)) < 0) {
-		ws_critical("Unable to register Generic Netlink family");
+		ws_critical("Unable to register Generic Netlink family: %s",
+			   nl_geterror(err));
 		goto err_out;
 	}
 
 	if ((err = genl_ops_resolve(sock, &ops)) < 0) {
-		ws_critical("Unable to resolve family name");
+		ws_critical("Unable to resolve family name: %s",
+			   nl_geterror(err));
 		goto err_out;
 	}
 
 	/* register notification handler callback */
 	if ((err = nl_socket_modify_cb(sock, NL_CB_VALID, NL_CB_CUSTOM,
 			parse_cb, NULL)) < 0) {
-		ws_critical("Unable to modify valid message callback");
+		ws_critical("Unable to modify valid message callback %s",
+			   nl_geterror(err));
 		goto err_out;
 	}
 
