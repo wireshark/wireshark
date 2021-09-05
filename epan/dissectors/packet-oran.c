@@ -1070,11 +1070,11 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                     /* Any remaining BFWs will be added into an 'orphan bundle'. */
                     orphaned_prbs = numPrbc % numBundPrb;
                     if (orphaned_prbs) {
-                        offset = dissect_bfw_bundle(tvb, extension_tree, pinfo, offset,
-                                                    comp_meth_ti, bfwcomphdr_comp_meth,
-                                                    iq_width, ORPHAN_BUNDLE_NUMBER,
-                                                    startPrbc + num_bundles*numBundPrb,
-                                                    startPrbc + num_bundles*numBundPrb + orphaned_prbs-1);
+                        dissect_bfw_bundle(tvb, extension_tree, pinfo, offset,
+                                           comp_meth_ti, bfwcomphdr_comp_meth,
+                                           iq_width, ORPHAN_BUNDLE_NUMBER,
+                                           startPrbc + num_bundles*numBundPrb,
+                                           startPrbc + num_bundles*numBundPrb + orphaned_prbs-1);
                     }
                 }
                 else {
