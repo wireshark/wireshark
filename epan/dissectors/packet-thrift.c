@@ -1379,13 +1379,13 @@ dissect_thrift_c_list_set(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
             }
             container_len = (guint32)varint;
             if (show_internal_thrift_fields) {
-                len_pi = proto_tree_add_int(sub_tree, hf_num_item, tvb, offset, len_len, container_len);
+                proto_tree_add_int(sub_tree, hf_num_item, tvb, offset, len_len, container_len);
             }
             offset += len_len;
             break;
         }
     } else if (show_internal_thrift_fields) {
-        len_pi = proto_tree_add_bits_item(sub_tree, hf_num_item, tvb, (lt_offset << OCTETS_TO_BITS_SHIFT), TCP_THRIFT_NIBBLE_SHIFT, ENC_BIG_ENDIAN);
+        proto_tree_add_bits_item(sub_tree, hf_num_item, tvb, (lt_offset << OCTETS_TO_BITS_SHIFT), TCP_THRIFT_NIBBLE_SHIFT, ENC_BIG_ENDIAN);
     }
 
     /* Read the content of the container. */
