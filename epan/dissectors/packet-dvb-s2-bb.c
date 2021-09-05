@@ -1899,7 +1899,7 @@ static int dissect_dvb_s2_bb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                     ts_frag = stream_add_frag(ts_stream, pinfo->num, new_off,
                             next_tvb, pinfo, TRUE);
                 }
-                next_tvb = stream_process_reassembled(next_tvb, 0, pinfo,
+                stream_process_reassembled(next_tvb, 0, pinfo,
                         "Reassembled TSP", ts_frag, &dvbs2_frag_items, NULL, tree);
             }
             if (composite_init) {
