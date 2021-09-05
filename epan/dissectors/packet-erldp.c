@@ -400,7 +400,7 @@ static gint dissect_etf_big_ext(tvbuff_t *tvb, gint offset, guint32 len, proto_t
       } if (len < 64) {
         gchar *buf, *buf_ptr;
 
-        buf=buf_ptr=(gchar *)wmem_alloc(wmem_packet_scope(), len*1+3+1);
+        buf=(gchar *)wmem_alloc(wmem_packet_scope(), len*1+3+1);
         buf_ptr = g_stpcpy(buf, "0x");
         for (i = len - 1; i >= 0; i--)
           buf_ptr = guint8_to_hex(buf_ptr, tvb_get_guint8(tvb, offset + i));
@@ -919,13 +919,13 @@ static int dissect_erldp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
       offset = dissect_etf_versioned_type("ControlMessage", pinfo, tvb, offset, erldp_tree);
       if (tvb_reported_length_remaining(tvb, offset) > 0) {
-        offset = dissect_etf_versioned_type("Message", pinfo, tvb, offset, erldp_tree);
+        dissect_etf_versioned_type("Message", pinfo, tvb, offset, erldp_tree);
       }
       break;
 
     case VERSION_MAGIC:
       next_tvb = tvb_new_subset_length_caplen(tvb, offset, -1, 4 + msg_len - offset);
-      offset += dissect_etf_pdu(next_tvb, pinfo, erldp_tree, "DistributionHeader");
+      dissect_etf_pdu(next_tvb, pinfo, erldp_tree, "DistributionHeader");
      break;
 
     default:
