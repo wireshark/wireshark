@@ -3738,6 +3738,10 @@ Jeffrey Nichols		<jsnichols[AT]suprocktech.com> {
 	Asphodel dissector
 }
 
+Erik Rigtorp		<erik[AT]rigtorp.se> {
+	Support for reading ZSTD and LZ4 compressed files
+}
+
 and by:
 
 Georgi Guninski		<guninski[AT]guninski.com>
@@ -4010,6 +4014,7 @@ Adam Wujek		<adam.wujek[AT]cern.ch>
 Aditya Jain		<aditya.jain[AT]samsung.com>
 Adrian Granados		<adrian[AT]adriangranados.com>
 Adrian Granados		<adrian[AT]intuitibits.com>
+Adrian Ratiu		<adrian.ratiu[AT]collabora.com>
 Adrian Simionov		<daniel.simionov[AT]gmail.com>
 Adrian-Ken Rueegsegger	<ken[AT]codelabs.ch>
 Adrien Aubry		<adraub[AT]gmail.com>
@@ -4115,6 +4120,7 @@ Benjamin Hesmans	<benjamin.hesmans[AT]uclouvain.be>
 Benjamin Parzella	<bparzella[AT]gmail.com>
 Benjamin Roch		<benjamin.roch[AT]tttech.com>
 Benoit Grange		<benoit.grange[AT]gmail.com>
+Berk Akinci		<berka[AT]alum.wpi.edu>
 Bert van Leeuwen	<bert.vanleeuwen[AT]gmail.com>
 Bertrand Bonnefoy-Claudet <bertrandbc[AT]gmail.com>
 Bharath Ravindranath	<bravindranath[AT]arista.com>
@@ -4482,6 +4488,7 @@ Justin Helgesen		<justinhelgesen[AT]gmail.com>
 Justin J. Novack	<jnovack[AT]gmail.com>
 JustinKu		<jiunrong[AT]gmail.com>
 Jérôme LAFORGE		<jerome.laforge[AT]gmail.com>
+Jörg Mayer		<jmghc[AT]loplof.de>
 Ka-Shu Wong		<kswong[AT]exablaze.com>
 Kaige Ye		<ye[AT]kaige.org>
 Karl Knoebl		<karl.knoebl[AT]technikum-wien.at>
@@ -4551,6 +4558,7 @@ Marie Janssen		<jamuraa[AT]google.com>
 Marios Makassikis	<mmakassikis[AT]gmail.com>
 Marius David		<marius.david[AT]keysight.com>
 Marius Paliga		<marius.paliga[AT]gmail.com>
+Marius Preuten		<marius.preuten[AT]lancom.de>
 Mariusz Zaborski	<oshogbo[AT]vexillium.org>
 Mark Ciechanowski	<markciechanowski[AT]gmail.com>
 Mark Cunningham		<launchpad[AT]markcunningham.ie>
@@ -4639,6 +4647,7 @@ Mirko Parthey		<mirko.parthey[AT]web.de>
 Moraney Jalil		<moraney.jalil[AT]outlook.com>
 Morten Tryfoss		<morten[AT]tryfoss.no>
 Moshe Kaplan		<me[AT]moshekaplan.com>
+Natale Patriciello	<natale.patriciello[AT]gmail.com>
 Nathan Cole		<nath[AT]thecoleresidence.co.uk>
 Nathan Houghton		<nathan[AT]brainwerk.org>
 Nathaniel Clark		<Nathaniel.Clark[AT]misrule.us>
@@ -4751,6 +4760,7 @@ Rafał Kuźnia		<rafal.kuznia[AT]protonmail.com>
 Rainer Keller		<Rainer.Keller[AT]qt.io>
 Ralf Nasilowski		<Ralf.Nasilowski[AT]ise.de>
 Ralph Boehme		<slow[AT]samba.org>
+Ramin Moussavi		<lordrasmus[AT]gmail.com>
 Ranjeet Kumar Singh	<ranjeetsih[AT]gmail.com>
 Rasmus Jonsson		<wasmus[AT]zom.bi>
 Ray Gomez		<rayvincent.gomez[AT]gmail.com>
@@ -4907,6 +4917,7 @@ Trevor Bergeron		<mal[AT]sec.gd>
 Triton Circonflexe	<triton[AT]kumal.info>
 Trond Myklebust		<trond.myklebust[AT]primarydata.com>
 Trond Norbye		<trond[AT]couchbase.com>
+Ugur ILTER		<ugur.ilter[AT]airties.com>
 Ulf			<ulf33286[AT]gmail.com>
 Uli Schlachter		<psychon[AT]znc.in>
 Umberto Corponi		<umberto.corponi[AT]athonet.com>
@@ -4994,6 +5005,7 @@ ishaangandhi		<ishaangandhi[AT]gmail.com>
 jfp_martin		<john[AT]purplemeanie.co.uk>
 kardam			<netkardam[AT]gmail.com>
 kkoizumi		<kkoizumi46[AT]gmail.com>
+kor			<drkor[AT]bk.ru>
 liam-black		<liam.black[AT]enea.com>
 liningjie		<1350445139[AT]qq.com>
 lutianxiong		<lutianxiong[AT]huawei.com>

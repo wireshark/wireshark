@@ -65,6 +65,7 @@ ippusb.attempt_reassembly: FALSE
 iscsi.desegment_iscsi_messages: FALSE
 isns.desegment: FALSE
 jxta.desegment: FALSE
+kip.desegment: FALSE
 kpasswd.desegment: FALSE
 kerberos.desegment: FALSE
 lg8979.desegment: FALSE
