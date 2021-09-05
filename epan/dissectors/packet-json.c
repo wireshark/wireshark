@@ -362,13 +362,11 @@ json_string_unescape(tvbparse_elem_t* tok, gboolean enclose_in_quotation_marks)
 					// Do not overflow TVB
 					if (!tvb_offset_exists(tok->tvb, tok->offset + read_index))
 					{
-						is_valid_unicode_character = FALSE;
 						break;
 					}
 					// Do not overflow input string
 					if (!(read_index < tok->len))
 					{
-						is_valid_unicode_character = FALSE;
 						break;
 					}
 					current_character = tvb_get_guint8(tok->tvb, tok->offset + read_index);
@@ -380,13 +378,11 @@ json_string_unescape(tvbparse_elem_t* tok, gboolean enclose_in_quotation_marks)
 						// Do not overflow TVB
 						if (!tvb_offset_exists(tok->tvb, tok->offset + read_index))
 						{
-							is_valid_unicode_character = FALSE;
 							break;
 						}
 						// Do not overflow input string
 						if (!(read_index < tok->len))
 						{
-							is_valid_unicode_character = FALSE;
 							break;
 						}
 
