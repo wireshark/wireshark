@@ -791,7 +791,6 @@ dissect_tiff_ifd(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint3
 
     proto_tree_add_item(ifd_tree, hf_tiff_ifd_next, tvb, offset, 4, encoding);
     guint32 ifd_next = tvb_get_guint32(tvb, offset, encoding);
-    offset += 4;
 
     return ifd_next;
 }
