@@ -1597,7 +1597,7 @@ dissect_rdp_MessageChannelData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
 		next_tree = proto_tree_add_subtree(tree, tvb, offset, -1,
 				ett_rdp_mt_req, NULL, "MultiTransport request");
-		offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree,
+		dissect_rdp_fields(tvb, offset, pinfo, next_tree,
 				mt_req_fields, 0);
 
 	} else if (flags & SEC_TRANSPORT_RSP) {
@@ -1611,7 +1611,7 @@ dissect_rdp_MessageChannelData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
 		next_tree = proto_tree_add_subtree(tree, tvb, offset, -1,
 				ett_rdp_mt_rsp, NULL, "MultiTransport response");
-		offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree,
+		dissect_rdp_fields(tvb, offset, pinfo, next_tree,
 				mt_resp_fields, 0);
 
 	} else if (flags & SEC_AUTODETECT_REQ) {
