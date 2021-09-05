@@ -2672,7 +2672,6 @@ pcapng_read_nflx_custom_block(FILE_T fh, pcapng_block_header_t *bh,
         return FALSE;
     }
 
-    opt_cont_buf_len = bh->block_total_length - MIN_NFLX_CB_SIZE;
     wblock->rec->rec_type = REC_TYPE_CUSTOM_BLOCK;
     wblock->rec->rec_header.custom_block_header.pen = PEN_NFLX;
     /* "NFLX Custom Block" read fixed part */
