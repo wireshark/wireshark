@@ -222,7 +222,7 @@ proto_register_exeh(void)
 			0xfd, NULL, HFILL }},
 
 		{ &hf_exeh_unknown_17_0x02,
-		{ "Unknown_17 (Add dot1Q?)",	"exeh.unknown17", FT_BOOLEAN, 8, TFS(&tfs_no_yes),
+		{ "Unknown_17 (Add dot1Q?)",	"exeh.unknown17.dot1q", FT_BOOLEAN, 8, TFS(&tfs_no_yes),
 			0x02, NULL, HFILL }},
 
 		{ &hf_exeh_unknown_18_21,
