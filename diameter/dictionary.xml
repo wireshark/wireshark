@@ -4302,7 +4302,7 @@
 			</grouped>
 		</avp>
 		<avp name="TDF-Application-Identifier" code="1088" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
-			<type type-name="OctetString"/>
+			<type type-name="OctetStringOrUTF8"/>
 		</avp>
 		<avp name="TDF-Destination-Host" code="1089" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="DiameterIdentity"/>
@@ -7733,10 +7733,10 @@
 			</grouped>
 		</avp>
 		<avp name="Traffic-Steering-Policy-Identifier-DL" code="2836" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
-			<type type-name="OctetString"/>
+			<type type-name="OctetStringOrUTF8"/>
 		</avp>
 		<avp name="Traffic-Steering-Policy-Identifier-UL" code="2837" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
-			<type type-name="OctetString"/>
+			<type type-name="OctetStringOrUTF8"/>
 		</avp>
 		<avp name="Request-Type" code="2838" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
 			<type type-name="Unsigned32"/>
