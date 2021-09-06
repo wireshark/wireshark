@@ -44,6 +44,8 @@
 #include <epan/proto_data.h>
 #include <epan/dissectors/packet-socketcan.h>
 
+#include "packet-mp2t.h"
+
 void proto_register_1722(void);
 void proto_reg_handoff_1722(void);
 void proto_register_1722_crf(void);
@@ -67,6 +69,7 @@ void proto_reg_handoff_1722_acf_lin(void);
 
 static dissector_handle_t jpeg_handle;
 static dissector_handle_t h264_handle;
+static dissector_handle_t mp2t_handle;
 
 #define UDP_PORT_IEEE_1722   17220 /* One of two IANA registered ports */
 
@@ -1232,14 +1235,13 @@ static int dissect_1722_61883(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
             }
             numSourcePackets = datalen / IEEE_1722_61883_4_LEN_SOURCE_PACKET;
 
-            if (ti_video_tree) {
-                /* Loop through all packets and add them to the video tree. */
-                for (j = 0; j < numSourcePackets; j++) {
-                    proto_tree_add_item(ti_video_tree, hf_1722_61883_source_packet_header_timestamp, tvb, offset, IEEE_1722_61883_4_LEN_SP_TIMESTAMP, ENC_BIG_ENDIAN);
-                    offset += IEEE_1722_61883_4_LEN_SP_TIMESTAMP;
-                    proto_tree_add_item(ti_video_tree, hf_1722_61883_video_data, tvb, offset, (IEEE_1722_61883_4_LEN_SOURCE_PACKET - IEEE_1722_61883_4_LEN_SP_TIMESTAMP), ENC_NA);
-                    offset += (IEEE_1722_61883_4_LEN_SOURCE_PACKET - IEEE_1722_61883_4_LEN_SP_TIMESTAMP);
-                }
+            /* if (ti_video_tree) - MP2T needs to be called regardless
+             * for fragmentation handling */
+            for (j = 0; j < numSourcePackets; j++) {
+                proto_tree_add_item(ti_video_tree, hf_1722_61883_source_packet_header_timestamp, tvb, offset, IEEE_1722_61883_4_LEN_SP_TIMESTAMP, ENC_BIG_ENDIAN);
+                offset += IEEE_1722_61883_4_LEN_SP_TIMESTAMP;
+                call_dissector(mp2t_handle, tvb_new_subset_length(tvb, offset, MP2T_PACKET_SIZE), pinfo, ti_video_tree);
+                offset += MP2T_PACKET_SIZE;
             }
             break;
         default:
@@ -1441,6 +1443,8 @@ void proto_reg_handoff_1722_61883(void)
 
     avb1722_61883_handle = create_dissector_handle(dissect_1722_61883, proto_1722_61883);
     dissector_add_uint("ieee1722.subtype", IEEE_1722_SUBTYPE_61883, avb1722_61883_handle);
+
+    mp2t_handle = find_dissector_add_dependency("mp2t", proto_1722_61883);
 }
 
 /**************************************************************************************************/

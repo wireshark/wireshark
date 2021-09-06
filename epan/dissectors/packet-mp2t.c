@@ -149,10 +149,10 @@ static int hf_mp2t_af_e_m_3 = -1;
 static int hf_mp2t_stuff_bytes = -1;
 static int hf_mp2t_pointer = -1;
 
-/* proto data keys. These are in different scopes, so they could be the
- * same value, but it's clearer if they're not.
+/* proto data keys. Note that the packet_analysis_data structure is stored
+ * using the layer number, but since that is at wmem_file_scope() while
+ * the stream information is at pinfo->pool, they don't actually clash.
  */
-#define MP2T_PROTO_DATA_PACKET_ANALYSIS 0
 #define MP2T_PROTO_DATA_STREAM 1
 
 static const value_string mp2t_sync_byte_vals[] = {
@@ -830,11 +830,15 @@ mp2t_process_fragmented_payload(tvbuff_t *tvb, gint offset, guint remaining_len,
         frag_tot_len = pid_analysis->frag_tot_len;
         fragmentation = pid_analysis->fragmentation;
         frag_id = pid_analysis->frag_id;
-        pdata = (packet_analysis_data_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_mp2t, MP2T_PROTO_DATA_PACKET_ANALYSIS);
+        pdata = (packet_analysis_data_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_mp2t, pinfo->curr_layer_num);
         if (!pdata) {
             pdata = wmem_new0(wmem_file_scope(), packet_analysis_data_t);
             pdata->subpacket_table = wmem_tree_new(wmem_file_scope());
-            p_add_proto_data(wmem_file_scope(), pinfo, proto_mp2t, MP2T_PROTO_DATA_PACKET_ANALYSIS, pdata);
+            /* Since the subpacket data is indexed by offset in the tvb,
+             * lacking a fragment id transmitted in the protocol,
+             * we need a different table for each mp2t layer.
+             */
+            p_add_proto_data(wmem_file_scope(), pinfo, proto_mp2t, pinfo->curr_layer_num, pdata);
 
         } else {
             spdata = (subpacket_analysis_data_t *)wmem_tree_lookup32(pdata->subpacket_table, offset);
@@ -851,7 +855,7 @@ mp2t_process_fragmented_payload(tvbuff_t *tvb, gint offset, guint remaining_len,
         }
     } else {
         /* Get saved values */
-        pdata = (packet_analysis_data_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_mp2t, MP2T_PROTO_DATA_PACKET_ANALYSIS);
+        pdata = (packet_analysis_data_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_mp2t, pinfo->curr_layer_num);
         if (!pdata) {
             /* Occurs for the first packets in the capture which cannot be reassembled */
             return;
