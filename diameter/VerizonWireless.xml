@@ -66,12 +66,25 @@
     <enum name="Reactivation-Disallowed-To-APN" code="1"/>
   </avp>
 
+  <avp name="Virtual-APN-Name" vendor-id="VerizonWireless" code="6116" >
+    <type type-name="UTF8String"/>
+  </avp>
+
   <avp name="Origination-Timestamp" vendor-id="VerizonWireless" code="7102" >
     <type type-name="Unsigned64"/>
   </avp>
 
   <avp name="Max-Wait-Time" code="7103" vendor-id="VerizonWireless" >
     <type type-name="Unsigned32"/>
+  </avp>
+
+  <avp name="Online-Response-Required" code="8105" vendor-id="VerizonWireless" >
+    <type type-name="Enumerated"/>
+    <enum name="Wait" code="0"/>
+    <enum name="Don't Wait" code="1"/>
+    <enum name="Spare2" code="2"/>
+    <enum name="Spare3" code="3"/>
+    <enum name="Spare4" code="4"/>
   </avp>
 
 </vendor>

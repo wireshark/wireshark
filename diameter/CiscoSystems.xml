@@ -131,14 +131,141 @@ http://www.cisco.com/c/dam/en/us/td/docs/wireless/asr_5000/20/AAA/20-AAA-Referen
     <enum name="Enable-Offline" code="1"/>
   </avp>
 
+  <avp name="Override-Content-Filtering-State" code="132028" vendor-id="CiscoSystems" >
+    <type type-name="Enumerated"/>
+    <enum name="Disable-CF" code="0"/>
+    <enum name="Enable-CF" code="1"/>
+  </avp>
+
+  <avp name="Override-Policy-Parameters" code="132029" vendor-id="CiscoSystems">
+    <grouped>
+      <gavp name="Override-QoS-Information" />
+      <gavp name="Override-Nexthop-Address" />
+      <gavp name="Override-Tos-Value" />
+      <gavp name="Override-Content-Filtering-State" />
+    </grouped>
+  </avp>
+
+
+  <avp name="Override-QoS-Information" code="132030" vendor-id="CiscoSystems">
+    <grouped>
+      <gavp name="Override-Max-Requested-Bandwidth-UL" />
+      <gavp name="Override-Max-Requested-Bandwidth-DL" />
+      <gavp name="Override-Guaranteed-Bitrate-UL" />
+      <gavp name="Override-Guaranteed-Bitrate-DL" />
+      <gavp name="Override-Allocation-Retention-Priority" />
+      <gavp name="Override-QoS-Class-Identifier" />
+    </grouped>
+  </avp>
+
+  <avp name="Override-QoS-Class-Identifier" code="132039" vendor-id="CiscoSystems" >
+    <type type-name="Enumerated"/>
+    <enum name="Traffic Class A" code="1"/>
+    <enum name="Traffic Class B" code="2"/>
+    <enum name="Traffic Class C" code="3"/>
+    <enum name="Traffic Class D" code="4"/>
+    <enum name="Traffic Class E" code="5"/>
+    <enum name="Traffic Class F" code="6"/>
+    <enum name="Traffic Class G" code="7"/>
+    <enum name="Traffic Class H" code="8"/>
+    <enum name="Traffic Class I" code="9"/>
+  </avp>
+
+  <avp name="Override-Max-Requested-Bandwidth-UL" code="132032" vendor-id="CiscoSystems" >
+    <type type-name="Unsigned32" />
+  </avp>
+
+  <avp name="Override-Max-Requested-Bandwidth-DL" code="132033" vendor-id="CiscoSystems" >
+    <type type-name="Unsigned32" />
+  </avp>
+
+  <avp name="Override-Guaranteed-Bitrate-UL" code="132034" vendor-id="CiscoSystems" >
+    <type type-name="Unsigned32" />
+  </avp>
+
+  <avp name="Override-Guaranteed-Bitrate-DL" code="132035" vendor-id="CiscoSystems" >
+    <type type-name="Unsigned32" />
+  </avp>
+
+  <avp name="Override-Allocation-Retention-Priority" code="132036" vendor-id="CiscoSystems">
+    <grouped>
+      <gavp name="Override-Priority-Level" />
+      <gavp name="Override-Pre-Emption-Capability" />
+      <gavp name="Override-Pre-Emption-Vulnerability" />
+    </grouped>
+  </avp>
+
+  <avp name="Override-Priority-Level" code="132037" vendor-id="CiscoSystems" >
+    <type type-name="Unsigned32" />
+  </avp>
+
+  <avp name="Override-Pre-Emption-Capability" code="132038" vendor-id="CiscoSystems" >
+    <type type-name="Enumerated"/>
+    <enum name="Pre-Emption-Capability-Enabled" code="0"/>
+    <enum name="Pre-Emption-Capability-Disabled" code="1"/>
+  </avp>
+
+  <avp name="Override-Pre-Emption-Vulnerability" code="132039" vendor-id="CiscoSystems" >
+    <type type-name="Enumerated"/>
+    <enum name="Pre-Emption-Vulnerability-Enabled" code="0"/>
+    <enum name="Pre-Emption-Vulnerability-Disabled" code="1"/>
+  </avp>
+
+  <avp name="Override-Tos-Value" code="132046" vendor-id="CiscoSystems">
+    <grouped>
+      <gavp name="Override-Tos-Direction" />
+      <gavp name="Override-Tos-Value-Standard" />
+      <gavp name="Override-Tos-Value-Custom" />
+    </grouped>
+  </avp>
+
+  <avp name="Override-Tos-Direction" code="132047" vendor-id="CiscoSystems" >
+    <type type-name="Enumerated"/>
+    <enum name="Uplink Direction" code="0"/>
+    <enum name="Downlink Direction" code="1"/>
+    <enum name="Bidirectional" code="2"/>
+  </avp>
+
+  <avp name="Override-Tos-Value-Standard" code="132048" vendor-id="CiscoSystems" >
+    <type type-name="Enumerated"/>
+    <enum name="be" code="0"/>
+    <enum name="af11" code="10"/>
+    <enum name="af12" code="12"/>
+    <enum name="af13" code="14"/>
+    <enum name="af21" code="18"/>
+    <enum name="af22" code="20"/>
+    <enum name="af23" code="22"/>
+    <enum name="af31" code="26"/>
+    <enum name="af32" code="28"/>
+    <enum name="af33" code="30"/>
+    <enum name="af41" code="34"/>
+    <enum name="af42" code="36"/>
+    <enum name="af43" code="38"/>
+    <enum name="ef" code="46"/>
+  </avp>
+
+  <avp name="Override-Tos-Value-Custom" code="132049" vendor-id="CiscoSystems" >
+    <type type-name="Unsigned32" />
+  </avp>
+
   <avp name="Override-Control-Name" code="132052" vendor-id="CiscoSystems" >
     <type type-name="OctetString" />
+  </avp>
+
+  <avp name="Override-Nexthop-Address" code="132054" vendor-id="CiscoSystems" >
+    <type type-name="IPAddress" />
   </avp>
 
   <avp name="Override-Control-Pending-Queue-Action" code="132078" vendor-id="CiscoSystems" >
   <type type-name="Enumerated"/>
     <enum name="Flush" code="0"/>
     <enum name="Retain" code="1"/>
+  </avp>
+
+  <avp name="Override-Control-Merge-Wildcard" code="132079" vendor-id="CiscoSystems" >
+    <type type-name="Enumerated"/>
+    <enum name="True" code="0"/>
+    <enum name="False" code="1"/>
   </avp>
 
 </vendor>
