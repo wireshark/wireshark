@@ -1775,7 +1775,7 @@ proto_register_mp2t(void)
 
     static ei_register_info ei[] = {
         { &ei_mp2t_pointer, { "mp2t.pointer_too_large", PI_MALFORMED, PI_ERROR, "Pointer value is too large", EXPFILL }},
-        { &ei_mp2t_cc_drop, { "mp2t.cc.drop", PI_MALFORMED, PI_ERROR, "Detected missing TS frames", EXPFILL }},
+        { &ei_mp2t_cc_drop, { "mp2t.cc.drop", PI_SEQUENCE, PI_ERROR, "Detected missing TS frames", EXPFILL }},
         { &ei_mp2t_invalid_afc, { "mp2t.afc.invalid", PI_PROTOCOL, PI_WARN,
                                     "Adaptation Field Control contains an invalid value", EXPFILL }}
     };
