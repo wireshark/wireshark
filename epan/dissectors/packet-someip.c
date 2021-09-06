@@ -23,6 +23,7 @@
 #include "packet-udp.h"
 #include "packet-dtls.h"
 #include "packet-someip.h"
+#include "packet-tls.h"
 
 /*
  * Dissector for SOME/IP, SOME/IP-TP, and SOME/IP Payloads.
@@ -4192,8 +4193,9 @@ proto_reg_handoff_someip(void) {
     static gboolean initialized = FALSE;
 
     if (!initialized) {
-        /* add support for DTLS decode as */
+        /* add support for (D)TLS decode as */
         dtls_dissector_add(0, someip_handle_udp);
+        ssl_dissector_add(0, someip_handle_tcp);
 
         heur_dissector_add("udp", dissect_some_ip_heur_udp, "SOME/IP_UDP_Heuristic", "someip_udp_heur", proto_someip, HEURISTIC_DISABLE);
         heur_dissector_add("tcp", dissect_some_ip_heur_tcp, "SOME/IP_TCP_Heuristic", "someip_tcp_heur", proto_someip, HEURISTIC_DISABLE);
