@@ -19,7 +19,8 @@
 
 
 typedef enum {
-    DE_THRIFT_T_STOP = 0,
+    DE_THRIFT_T_GENERIC = -1, // Use this to delegate field dissection to generic dissector.
+    DE_THRIFT_T_STOP,
     DE_THRIFT_T_VOID, // DE_THRIFT_T_UNUSED_1?
     DE_THRIFT_T_BOOL,
     DE_THRIFT_T_I8,

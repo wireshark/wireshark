@@ -180,6 +180,7 @@ static expert_field ei_thrift_frame_too_short = EI_INIT;
 static expert_field ei_thrift_not_enough_data = EI_INIT;
 static expert_field ei_thrift_frame_too_long = EI_INIT;
 static expert_field ei_thrift_varint_too_large = EI_INIT;
+static expert_field ei_thrift_undefined_field_id = EI_INIT;
 static expert_field ei_thrift_negative_field_id = EI_INIT;
 static expert_field ei_thrift_unordered_field_id = EI_INIT;
 static expert_field ei_thrift_application_exception = EI_INIT;
@@ -1224,7 +1225,7 @@ dissect_thrift_b_linear(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
     proto_item *container_pi = NULL;
     proto_item *len_pi = NULL;
     proto_tree *sub_tree;
-    guint32 key_type, val_type;
+    gint32 key_type, val_type;
     gint32 length;
 
     /* Get the current state of dissection. */
@@ -1617,8 +1618,26 @@ dissect_thrift_t_struct(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
             }
         }
 
-        /* Type is not T_STOP and field id matches one we know how to dissect. */
-        offset = dissect_thrift_t_member(tvb, pinfo, sub_tree, offset, thrift_opt, TRUE, seq);
+        if (seq->type != DE_THRIFT_T_GENERIC) {
+            /* Type is not T_STOP and field id matches one we know how to dissect. */
+            offset = dissect_thrift_t_member(tvb, pinfo, sub_tree, offset, thrift_opt, TRUE, seq);
+        } else {
+            /* The field is not defined in the struct, switch back to generic dissection.
+             * Re-read the header ensuring it is displayed (no need to check result,
+             * we already dissected it but without the header tree creation. */
+            dissect_thrift_field_header(tvb, pinfo, sub_tree, &offset, thrift_opt, &field_header);
+            expert_add_info(pinfo, field_header.fid_pi, &ei_thrift_undefined_field_id);
+            // Then dissect just this field.
+            if (thrift_opt->tprotocol & PROTO_THRIFT_COMPACT) {
+                if (dissect_thrift_compact_type(tvb, pinfo, sub_tree, &offset, thrift_opt, field_header.fh_tree, field_header.type.compact, field_header.type_pi) == THRIFT_REQUEST_REASSEMBLY) {
+                    return THRIFT_REQUEST_REASSEMBLY;
+                }
+            } else {
+                if (dissect_thrift_binary_type(tvb, pinfo, sub_tree, &offset, thrift_opt, field_header.fh_tree, field_header.type.compact, field_header.type_pi) == THRIFT_REQUEST_REASSEMBLY) {
+                    return THRIFT_REQUEST_REASSEMBLY;
+                }
+            }
+        }
         ABORT_SUBDISSECTION_ON_ISSUE(offset);
         if (tvb_reported_length_remaining(tvb, offset) < TBP_THRIFT_TYPE_LEN) {
             return THRIFT_REQUEST_REASSEMBLY;
@@ -2665,6 +2684,7 @@ dissect_thrift_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
          * - Field id > 0: The number of the exception that was raised by the method.
          *   Note: This is different from the ME_THRIFT_T_EXCEPTION method type that is used in case the method is unknown
          *         or the PDU invalid/impossible to decode for the other endpoint.
+         * We read this before checking for sub-dissectors as the information might be useful to them.
          */
         int result = data_offset;
         result = dissect_thrift_field_header(tvb, pinfo, NULL, &result, thrift_opt, &header);
@@ -3365,6 +3385,7 @@ proto_register_thrift(void)
         { &ei_thrift_frame_too_short, { "thrift.frame_too_short", PI_MALFORMED, PI_ERROR, "Thrift frame shorter than data.", EXPFILL } },
         { &ei_thrift_frame_too_long, { "thrift.frame_too_long", PI_PROTOCOL, PI_WARN, "Thrift frame longer than data.", EXPFILL } },
         { &ei_thrift_varint_too_large, { "thrift.varint_too_large", PI_PROTOCOL, PI_ERROR, "Thrift varint value too large for target integer type.", EXPFILL } },
+        { &ei_thrift_undefined_field_id, { "thrift.undefined_field_id", PI_PROTOCOL, PI_NOTE, "Field id not defined by sub-dissector, using generic Thrift dissector.", EXPFILL } },
         { &ei_thrift_negative_field_id, { "thrift.negative_field_id", PI_PROTOCOL, PI_NOTE, "Encountered unexpected negative field id, possibly an old application.", EXPFILL } },
         { &ei_thrift_unordered_field_id, { "thrift.unordered_field_id", PI_PROTOCOL, PI_WARN, "Field id not defined by sub-dissector, using generic Thrift dissector.", EXPFILL } },
         { &ei_thrift_application_exception, { "thrift.application_exception", PI_PROTOCOL, PI_NOTE, "The application recognized the method but rejected the content.", EXPFILL } },
