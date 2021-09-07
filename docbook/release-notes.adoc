@@ -31,7 +31,7 @@ See the “New and Updated Features” section below for more details.
 
 The following features are new (or have been significantly updated) since version 3.4.0:
 
-* The Windows installers now ship with Npcap 1.50.
+* The Windows installers now ship with Npcap 1.55.
 //They previously shipped with Npcap 1.31.
 
 * A 64-bit Windows PortableApps package is now available.

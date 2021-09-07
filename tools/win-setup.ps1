@@ -69,8 +69,8 @@ Param(
 # trouble instead of trying to catch exceptions everywhere.
 $ErrorActionPreference = "Stop"
 
-$Win64CurrentTag = "2021-08-14"
-$Win32CurrentTag = "2021-08-14"
+$Win64CurrentTag = "2021-09-07"
+$Win32CurrentTag = "2021-09-07"
 
 # Archive file / SHA256
 $Win64Archives = @{
@@ -133,12 +133,12 @@ $ArchivesSubDirectory = @{
 # Plain file downloads
 
 $Win32Files = @{
-    "npcap-1.50.exe" = "4af9538091ed309ebc57bc35897ccb053012b8a166c32bae0f62fbc4fbf11e89";
+    "npcap-1.55.exe" = "0bcc56aef29b24985d7f658cd34013b08cb53ad5bf6b6ac2a982a5f6d4d95800";
     "USBPcapSetup-1.5.4.0.exe" = "87a7edf9bbbcf07b5f4373d9a192a6770d2ff3add7aa1e276e82e38582ccb622";
 }
 
 $Win64Files = @{
-    "npcap-1.50.exe" = "4af9538091ed309ebc57bc35897ccb053012b8a166c32bae0f62fbc4fbf11e89";
+    "npcap-1.55.exe" = "0bcc56aef29b24985d7f658cd34013b08cb53ad5bf6b6ac2a982a5f6d4d95800";
     "USBPcapSetup-1.5.4.0.exe" = "87a7edf9bbbcf07b5f4373d9a192a6770d2ff3add7aa1e276e82e38582ccb622";
 }
 
