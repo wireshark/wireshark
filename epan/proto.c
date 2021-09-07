@@ -117,7 +117,7 @@ struct ptvcursor {
 		/* Let the exception handler add items to the tree */	\
 		PTREE_DATA(tree)->count = 0;				\
 		THROW_MESSAGE(DissectorError,				\
-			wmem_strdup_printf(wmem_packet_scope(),		\
+			wmem_strdup_printf(PNODE_POOL(tree),		\
 			    "Adding %s would put more than %d items in the tree -- possible infinite loop (max number of items can be increased in advanced preferences)", \
 			    hfinfo->abbrev, prefs.gui_max_tree_items));	\
 	}								\
@@ -2816,7 +2816,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 			break;
 
 		case FT_STRING:
-			stringval = get_string_value(wmem_packet_scope(),
+			stringval = get_string_value(PNODE_POOL(tree),
 			    tvb, start, length, &length, encoding);
 			proto_tree_set_string(new_fi, stringval);
 
@@ -2833,7 +2833,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 			break;
 
 		case FT_STRINGZ:
-			stringval = get_stringz_value(wmem_packet_scope(),
+			stringval = get_stringz_value(PNODE_POOL(tree),
 			    tree, tvb, start, length, &length, encoding);
 			proto_tree_set_string(new_fi, stringval);
 
@@ -2864,7 +2864,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 			 */
 			if (encoding == TRUE)
 				encoding = ENC_ASCII|ENC_LITTLE_ENDIAN;
-			stringval = get_uint_string_value(wmem_packet_scope(),
+			stringval = get_uint_string_value(PNODE_POOL(tree),
 			    tree, tvb, start, length, &length, encoding);
 			proto_tree_set_string(new_fi, stringval);
 
@@ -2881,7 +2881,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 			break;
 
 		case FT_STRINGZPAD:
-			stringval = get_stringzpad_value(wmem_packet_scope(),
+			stringval = get_stringzpad_value(PNODE_POOL(tree),
 			    tvb, start, length, &length, encoding);
 			proto_tree_set_string(new_fi, stringval);
 
@@ -2898,7 +2898,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 			break;
 
 		case FT_STRINGZTRUNC:
-			stringval = get_stringztrunc_value(wmem_packet_scope(),
+			stringval = get_stringztrunc_value(PNODE_POOL(tree),
 			    tvb, start, length, &length, encoding);
 			proto_tree_set_string(new_fi, stringval);
 
@@ -5861,7 +5861,7 @@ proto_tree_add_node(proto_tree *tree, field_info *fi)
 		for (tnode = tree; tnode != NULL; tnode = tnode->parent) {
 			depth++;
 			if (G_UNLIKELY(depth > prefs.gui_max_tree_depth)) {
-				THROW_MESSAGE(DissectorError, wmem_strdup_printf(wmem_packet_scope(),
+				THROW_MESSAGE(DissectorError, wmem_strdup_printf(PNODE_POOL(tree),
 						     "Maximum tree depth %d exceeded for \"%s\" - \"%s\" (%s:%u) (Maximum depth can be increased in advanced preferences)",
 						     prefs.gui_max_tree_depth,
 						     fi->hfinfo->name, fi->hfinfo->abbrev, G_STRFUNC, __LINE__));
@@ -10611,7 +10611,7 @@ proto_find_undecoded_data(proto_tree *tree, guint length)
 {
 	decoded_data_t decoded;
 	decoded.length = length;
-	decoded.buf = (gchar*)wmem_alloc0(wmem_packet_scope(), length / 8 + 1);
+	decoded.buf = (gchar*)wmem_alloc0(PNODE_POOL(tree), length / 8 + 1);
 
 	proto_tree_traverse_pre_order(tree, check_for_undecoded, &decoded);
 	return decoded.buf;
@@ -12322,7 +12322,7 @@ _proto_tree_add_bits_ret_val(proto_tree *tree, const int hfindex, tvbuff_t *tvb,
 		break;
 
 	case FT_BYTES:
-		bytes = tvb_get_bits_array(wmem_packet_scope(), tvb, bit_offset, no_of_bits, &bytes_length);
+		bytes = tvb_get_bits_array(PNODE_POOL(tree), tvb, bit_offset, no_of_bits, &bytes_length);
 		pi = proto_tree_add_bytes_with_length(tree, hfindex, tvb, offset, length, bytes, (gint) bytes_length);
 		proto_item_fill_label(PITEM_FINFO(pi), lbl_str);
 		proto_item_set_text(pi, "%s", lbl_str);
@@ -12911,7 +12911,7 @@ proto_tree_add_ts_23_038_7bits_packed_item(proto_tree *tree, const int hfindex, 
 	byte_length = (((no_of_chars + 1) * 7) + (bit_offset & 0x07)) >> 3;
 	byte_offset = bit_offset >> 3;
 
-	string = tvb_get_ts_23_038_7bits_string_packed(wmem_packet_scope(), tvb, bit_offset, no_of_chars);
+	string = tvb_get_ts_23_038_7bits_string_packed(PNODE_POOL(tree), tvb, bit_offset, no_of_chars);
 
 	if (hfinfo->display == STR_UNICODE) {
 		DISSECTOR_ASSERT(g_utf8_validate(string, -1, NULL));
@@ -12943,7 +12943,7 @@ proto_tree_add_ascii_7bits_item(proto_tree *tree, const int hfindex, tvbuff_t *t
 	byte_length = (((no_of_chars + 1) * 7) + (bit_offset & 0x07)) >> 3;
 	byte_offset = bit_offset >> 3;
 
-	string = tvb_get_ascii_7bits_string(wmem_packet_scope(), tvb, bit_offset, no_of_chars);
+	string = tvb_get_ascii_7bits_string(PNODE_POOL(tree), tvb, bit_offset, no_of_chars);
 
 	if (hfinfo->display == STR_UNICODE) {
 		DISSECTOR_ASSERT(g_utf8_validate(string, -1, NULL));
