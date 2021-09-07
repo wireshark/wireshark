@@ -1334,7 +1334,12 @@ char* oid_test_a2b(guint32 num_subids, guint32* subids) {
 	guint str2enc_len = oid_string2encoded(NULL, sub2str,&str2enc);
 	guint str2sub_len = oid_string2subid(sub2str,&str2sub);
 
-	ret = wmem_strdup_printf(wmem_packet_scope(),
+	char* sub2enc_str = bytes_to_str_punct(NULL, sub2enc, sub2enc_len, ':');
+	char* enc2sub_str = enc2sub ? oid_subid2string(NULL, enc2sub,enc2sub_len) : wmem_strdup(NULL, "-");
+	char* str2enc_str = bytes_to_str_punct(NULL, str2enc, str2enc_len, ':');
+	char* str2sub_str = str2sub ? oid_subid2string(NULL, str2sub,str2sub_len) : wmem_strdup(NULL, "-");
+
+	ret = wmem_strdup_printf(NULL,
 							"oid_subid2string=%s \n"
 							"oid_subid2encoded=[%d]%s \n"
 							"oid_encoded2subid=%s \n "
@@ -1342,12 +1347,17 @@ char* oid_test_a2b(guint32 num_subids, guint32* subids) {
 							"oid_string2encoded=[%d]%s \n"
 							"oid_string2subid=%s \n "
 							,sub2str
-							,sub2enc_len,bytes_to_str_punct(wmem_packet_scope(), sub2enc, sub2enc_len, ':')
-							,enc2sub ? oid_subid2string(wmem_packet_scope(), enc2sub,enc2sub_len) : "-"
+							,sub2enc_len,sub2enc_str
+							,enc2sub_str
 							,enc2str
-							,str2enc_len,bytes_to_str_punct(wmem_packet_scope(), str2enc, str2enc_len, ':')
-							,str2sub ? oid_subid2string(wmem_packet_scope(), str2sub,str2sub_len) : "-"
+							,str2enc_len,str2enc_str,
+							,str2sub_str
 							);
+
+	wmem_free(NULL, sub2enc_str);
+	wmem_free(NULL, enc2sub_str);
+	wmem_free(NULL, str2enc_str);
+	wmem_free(NULL, str2sub_str);
 
 	wmem_free(NULL, sub2str);
 	wmem_free(NULL, enc2sub);
