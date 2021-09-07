@@ -269,6 +269,9 @@ void
 dvb_add_chartbl(proto_tree *tree, int hf,
         tvbuff_t *tvb, gint offset, gint length, dvb_encoding_e encoding)
 {
+    if (tree == NULL)
+        return;
+
     if (length==0) {
         proto_item *pi;
 
@@ -280,7 +283,7 @@ dvb_add_chartbl(proto_tree *tree, int hf,
         proto_tree_add_bytes_format_value(tree, hf,
             tvb, offset, length, NULL, "%s (%s)",
             val_to_str_const(encoding, dvb_string_encoding_vals, "Unknown"),
-            tvb_bytes_to_str_punct(wmem_packet_scope(), tvb, offset, length, ' '));
+            tvb_bytes_to_str_punct(PNODE_POOL(tree), tvb, offset, length, ' '));
     }
 }
 
