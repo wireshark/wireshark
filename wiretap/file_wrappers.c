@@ -34,7 +34,12 @@
 #endif
 
 #ifdef HAVE_LZ4
+#include <lz4.h>
+
+#if LZ4_VERSION_NUMBER >= 10703
+#define USE_LZ4
 #include <lz4frame.h>
+#endif
 #endif
 
 /*
@@ -126,7 +131,7 @@ typedef enum {
 #ifdef HAVE_ZSTD
     ZSTD,
 #endif
-#ifdef HAVE_LZ4
+#ifdef USE_LZ4
     LZ4,
 #endif
 } compression_t;
@@ -195,7 +200,7 @@ struct wtap_reader {
 #ifdef HAVE_ZSTD
     ZSTD_DCtx *zstd_dctx;
 #endif
-#ifdef HAVE_LZ4
+#ifdef USE_LZ4
     LZ4F_dctx *lz4_dctx;
 #endif
 };
@@ -879,7 +884,7 @@ gz_head(FILE_T state)
     if (state->in.avail >= 4
         && state->in.buf[0] == 0x04 && state->in.buf[1] == 0x22
         && state->in.buf[2] == 0x4d && state->in.buf[3] == 0x18) {
-#ifdef HAVE_LZ4
+#ifdef USE_LZ4
         LZ4F_resetDecompressionContext(state->lz4_dctx);
         state->compression = LZ4;
         state->is_compressed = TRUE;
@@ -958,7 +963,7 @@ fill_out_buffer(FILE_T state)
         }
     }
 #endif
-#ifdef HAVE_LZ4
+#ifdef USE_LZ4
     else if (state->compression == LZ4) {
         assert(state->out.avail == 0);
 
@@ -1071,7 +1076,7 @@ file_fdopen(int fd)
 #endif
     guint want = GZBUFSIZE;
     FILE_T state;
-#ifdef HAVE_LZ4
+#ifdef USE_LZ4
     size_t ret;
 #endif
 
@@ -1172,7 +1177,7 @@ file_fdopen(int fd)
     }
 #endif
 
-#ifdef HAVE_LZ4
+#ifdef USE_LZ4
     ret = LZ4F_createDecompressionContext(&state->lz4_dctx, LZ4F_VERSION);
     if (LZ4F_isError(ret)) {
         goto err;
@@ -1189,7 +1194,7 @@ err:
 #ifdef HAVE_ZSTD
     ZSTD_freeDCtx(state->zstd_dctx);
 #endif
-#ifdef HAVE_LZ4
+#ifdef USE_LZ4
     LZ4F_freeDecompressionContext(state->lz4_dctx);
 #endif
     g_free(state->out.buf);
