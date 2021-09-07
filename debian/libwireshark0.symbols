@@ -964,7 +964,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  next_tvb_add_string@Base 1.9.1
  next_tvb_add_uint@Base 1.9.1
  next_tvb_call@Base 1.9.1
- next_tvb_init@Base 1.9.1
+ next_tvb_list_new@Base 3.5.0
  nmas_subverb_enum@Base 2.1.0
  nt_cmd_vals_ext@Base 1.9.1
  num_tree_types@Base 1.9.1

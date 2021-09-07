@@ -184,7 +184,7 @@ tvbuff_t *value_tvb=NULL;
 static dissector_handle_t snmp_handle;
 static dissector_handle_t data_handle;
 
-static next_tvb_list_t var_list;
+static next_tvb_list_t *var_list;
 
 static int hf_snmp_response_in = -1;
 static int hf_snmp_response_to = -1;
@@ -1134,7 +1134,7 @@ already_added:
 	if (value_len > 0 && oid_string) {
 		tvbuff_t* sub_tvb = tvb_new_subset_length(tvb, value_offset, value_len);
 
-		next_tvb_add_string(&var_list, sub_tvb, (snmp_var_in_tree) ? pt_value : NULL, value_sub_dissectors_table, oid_string);
+		next_tvb_add_string(var_list, sub_tvb, (snmp_var_in_tree) ? pt_value : NULL, value_sub_dissectors_table, oid_string);
 	}
 
 
@@ -2071,7 +2071,7 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		}
 	}
 
-	next_tvb_init(&var_list);
+	var_list = next_tvb_list_new(pinfo->pool);
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, proto_get_protocol_short_name(find_protocol_by_id(proto)));
 
@@ -2108,7 +2108,7 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		next_tvb = tvb_new_subset_remaining(tvb, offset);
 		call_dissector(data_handle, next_tvb, pinfo, tree);
 	} else {
-		next_tvb_call(&var_list, pinfo, tree, NULL, data_handle);
+		next_tvb_call(var_list, pinfo, tree, NULL, data_handle);
 	}
 
 	return offset;
@@ -2210,7 +2210,7 @@ dissect_smux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 	proto_tree *smux_tree = NULL;
 	proto_item *item = NULL;
 
-	next_tvb_init(&var_list);
+	var_list = next_tvb_list_new(pinfo->pool);
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SMUX");
 
