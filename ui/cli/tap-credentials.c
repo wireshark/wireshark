@@ -85,7 +85,7 @@ static void credentials_init(const char *opt_arg _U_, void *userdata _U_)
         exit(1);
     }
 
-    credentials = wmem_array_new(wmem_file_scope(), sizeof(tap_credential_t));
+    credentials = wmem_array_new(wmem_epan_scope(), sizeof(tap_credential_t));
 }
 
 static stat_tap_ui credentials_ui = {
