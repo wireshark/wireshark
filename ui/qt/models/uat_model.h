@@ -41,8 +41,12 @@ public:
     bool insertRows(int row, int count, const QModelIndex &parent = QModelIndex());
     bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex());
 
-    bool copyRow(int dst_row, int src_row);
+    QModelIndex appendEntry(QVariantList row);
+
+    QModelIndex copyRow(QModelIndex original);
     bool moveRow(int src_row, int dst_row);
+
+    bool moveRow(const QModelIndex &sourceParent, int sourceRow, const QModelIndex &destinationParent, int destinationChild);
 
     void reloadUat();
     bool hasErrors() const;

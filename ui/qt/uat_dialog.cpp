@@ -260,18 +260,22 @@ void UatDialog::addRecord(bool copy_from_current)
 {
     if (!uat_) return;
 
-    const QModelIndex &current = ui->uatTreeView->currentIndex();
+    QModelIndex current = ui->uatTreeView->currentIndex();
     if (copy_from_current && !current.isValid()) return;
 
-    // should not fail, but you never know.
-    if (!uat_model_->insertRows(uat_model_->rowCount(), 1)) {
-        qDebug() << "Failed to add a new record";
-        return;
-    }
-    const QModelIndex &new_index = uat_model_->index(uat_model_->rowCount() - 1, 0);
+    QModelIndex new_index;
     if (copy_from_current) {
-        uat_model_->copyRow(new_index.row(), current.row());
+        new_index = uat_model_->copyRow(current);
+    }  else {
+        // should not fail, but you never know.
+        if (!uat_model_->insertRows(uat_model_->rowCount(), 1)) {
+            qDebug() << "Failed to add a new record";
+            return;
+        }
+
+        new_index = uat_model_->index(uat_model_->rowCount() - 1, 0);
     }
+
     // due to an EditTrigger, this will also start editing.
     ui->uatTreeView->setCurrentIndex(new_index);
     // trigger updating error messages and the OK button state.
