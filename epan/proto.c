@@ -6179,7 +6179,7 @@ get_full_length(header_field_info *hfinfo, tvbuff_t *tvb, const gint start,
 		if (length == -1) {
 			/* This can throw an exception */
 			/* XXX - do this without fetching the string? */
-			tvb_get_stringz_enc(wmem_packet_scope(), tvb, start, &length, encoding);
+			wmem_free(NULL, tvb_get_stringz_enc(NULL, tvb, start, &length, encoding));
 		}
 		item_length = length;
 		break;
@@ -12692,9 +12692,9 @@ proto_tree_add_bits_format_value(proto_tree *tree, const int hfindex,
 	return item;
 }
 
-#define CREATE_VALUE_STRING(dst,format,ap) \
+#define CREATE_VALUE_STRING(tree,dst,format,ap) \
 	va_start(ap, format); \
-	dst = wmem_strdup_vprintf(wmem_packet_scope(), format, ap); \
+	dst = wmem_strdup_vprintf(PNODE_POOL(tree), format, ap); \
 	va_end(ap);
 
 proto_item *
@@ -12725,7 +12725,7 @@ proto_tree_add_uint_bits_format_value(proto_tree *tree, const int hfindex,
 			break;
 	}
 
-	CREATE_VALUE_STRING(dst, format, ap);
+	CREATE_VALUE_STRING(tree, dst, format, ap);
 
 	return proto_tree_add_bits_format_value(tree, hfindex, tvb, bit_offset, no_of_bits, &value, dst);
 }
@@ -12758,7 +12758,7 @@ proto_tree_add_uint64_bits_format_value(proto_tree *tree, const int hfindex,
 			break;
 	}
 
-	CREATE_VALUE_STRING(dst, format, ap);
+	CREATE_VALUE_STRING(tree, dst, format, ap);
 
 	return proto_tree_add_bits_format_value(tree, hfindex, tvb, bit_offset, no_of_bits, &value, dst);
 }
@@ -12779,7 +12779,7 @@ proto_tree_add_float_bits_format_value(proto_tree *tree, const int hfindex,
 
 	DISSECTOR_ASSERT_FIELD_TYPE(hf_field, FT_FLOAT);
 
-	CREATE_VALUE_STRING(dst, format, ap);
+	CREATE_VALUE_STRING(tree, dst, format, ap);
 
 	return proto_tree_add_bits_format_value(tree, hfindex, tvb, bit_offset, no_of_bits, &value, dst);
 }
@@ -12812,7 +12812,7 @@ proto_tree_add_int_bits_format_value(proto_tree *tree, const int hfindex,
 			break;
 	}
 
-	CREATE_VALUE_STRING(dst, format, ap);
+	CREATE_VALUE_STRING(tree, dst, format, ap);
 
 	return proto_tree_add_bits_format_value(tree, hfindex, tvb, bit_offset, no_of_bits, &value, dst);
 }
@@ -12845,7 +12845,7 @@ proto_tree_add_int64_bits_format_value(proto_tree *tree, const int hfindex,
 			break;
 	}
 
-	CREATE_VALUE_STRING(dst, format, ap);
+	CREATE_VALUE_STRING(tree, dst, format, ap);
 
 	return proto_tree_add_bits_format_value(tree, hfindex, tvb, bit_offset, no_of_bits, &value, dst);
 }
@@ -12866,7 +12866,7 @@ proto_tree_add_boolean_bits_format_value(proto_tree *tree, const int hfindex,
 
 	DISSECTOR_ASSERT_FIELD_TYPE(hf_field, FT_BOOLEAN);
 
-	CREATE_VALUE_STRING(dst, format, ap);
+	CREATE_VALUE_STRING(tree, dst, format, ap);
 
 	return proto_tree_add_bits_format_value(tree, hfindex, tvb, bit_offset, no_of_bits, &value, dst);
 }
@@ -12887,7 +12887,7 @@ proto_tree_add_boolean_bits_format_value64(proto_tree *tree, const int hfindex,
 
 	DISSECTOR_ASSERT_FIELD_TYPE(hf_field, FT_BOOLEAN);
 
-	CREATE_VALUE_STRING(dst, format, ap);
+	CREATE_VALUE_STRING(tree, dst, format, ap);
 
 	return proto_tree_add_bits_format_value(tree, hfindex, tvb, bit_offset, no_of_bits, &value, dst);
 }
