@@ -9330,7 +9330,7 @@ void proto_register_dis(void)
                 NULL, HFILL}
             },
             { &hf_dis_mod_param_ts_allocation_mode,
-              { "Time Slot Allocaton Mode", "dis.radio.mod_param.jtids.ts_alloc_mode",
+              { "Time Slot Allocation Mode", "dis.radio.mod_param.jtids.ts_alloc_mode",
                 FT_UINT8, BASE_DEC, VALS(DIS_PDU_TSAllocationFidelity_Strings), 0x0,
                 NULL, HFILL }
             },

@@ -193,6 +193,7 @@ clientkey
 cmake
 cmdcontrol
 cmstatus
+codabar
 codebook
 codecs
 codepoint
@@ -250,6 +251,7 @@ cyphering
 datagram
 datagrams
 dataitem
+datalen
 datarate
 datastate
 datetime
@@ -268,6 +270,7 @@ deauthentications
 debian
 debug
 decapsulation
+decca
 dechunk
 decompressing
 decompressor
@@ -317,6 +320,7 @@ deselect
 destport
 deutschland
 devcap
+deviceid
 devmode
 dfilter
 dfilters
@@ -326,6 +330,7 @@ dialed
 dialup
 diffie
 Digicel
+digitizer
 diplexer
 directionality
 disambiguation
@@ -347,6 +352,7 @@ downlink
 dpauxmon
 dpnss
 drbid
+drdynvc
 droppable
 dsmcc
 dstport
@@ -377,12 +383,14 @@ encrypting
 endace
 endian
 endianness
+engineid
 enodeb
 enrollee
 entityid
 entryid
 enumerates
 enumerations
+enumerator
 epasv
 epdcch
 ericsson
@@ -405,6 +413,7 @@ eutra
 eutran
 eventlog
 executables
+exocet
 extattr
 extcap
 extensibility
@@ -467,6 +476,7 @@ google
 gprscdr
 greyed
 groupa
+groupadd
 groupb
 groupcast
 groupmod
@@ -545,6 +555,7 @@ interworking
 invalidation
 ioctl
 ioerr
+iograph
 ipaddr
 ipaddress
 ipfix
@@ -588,6 +599,7 @@ lcsap
 leasequery
 libgcrypt
 libpcap
+linearity
 linkaddr
 linker
 linkinfo
@@ -685,12 +697,14 @@ multirate
 multislot
 multistate
 mumbai
+mycapture
 nacks
 namelen
 namespace
 narrowband
 nbrar
 ndpsm
+negotiability
 netboot
 netfilter
 netflow
@@ -753,6 +767,7 @@ onoff
 ontime
 opcode
 opcodes
+openssh
 openssl
 openstreetmap
 openvpn
@@ -788,6 +803,7 @@ pcmax
 pcmaxc
 pdcch
 pdsch
+pdustatus
 peeraddr
 peerkey
 periodicities
@@ -808,6 +824,7 @@ popup
 portcounters
 portinfo
 portmod
+portno
 portnumber
 portstatus
 posix
@@ -834,6 +851,7 @@ procid
 profidrive
 profinet
 promiscuously
+propertykey
 protected
 protoabbrev
 protobuf
@@ -850,6 +868,7 @@ pubdir
 pubkey
 pucch
 pusch
+pwach
 pytest
 qam16
 qam64
@@ -871,6 +890,7 @@ randomization
 randomizer
 randpkt
 raster
+rdpudp
 reachability
 readme
 realloc
@@ -888,6 +908,7 @@ reauthenticate
 reauthentication
 reauthorize
 rebalance
+rebase
 rebinding
 rebooted
 reboots
@@ -1010,6 +1031,7 @@ serialize
 serialized
 sessionid
 setattr
+setcap
 setuid
 severities
 sflow
@@ -1033,6 +1055,7 @@ snow3g
 softkey
 someip
 someipsd
+sonet
 spare
 spare1
 spare2
@@ -1065,6 +1088,8 @@ statusbar
 stderr
 stdout
 streamid
+stringz
+stringzpad
 struct
 structs
 subaddress
@@ -1143,6 +1168,8 @@ telia
 teredo
 tesla
 text2pcap
+thermister
+thermistor
 timeout
 timeslot
 timestamp
@@ -1161,6 +1188,7 @@ traceroute
 transcoder
 transifex
 transitioning
+transitivity
 traveler
 traversal
 truncatable
@@ -1256,6 +1284,7 @@ unmappable
 unmark
 unmarshal
 unmerged
+unmodulated
 unmute
 unmuted
 unoptimized
@@ -1313,6 +1342,7 @@ v1410
 v1530
 v1610
 validator
+varint
 verifier
 verizon
 version2

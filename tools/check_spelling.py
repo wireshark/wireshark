@@ -14,6 +14,8 @@ from collections import Counter
 
 # Looks for spelling errors among strings found in source or documentation files.
 
+# TODO: check structured doxygen comments?
+
 # For text colouring/highlighting.
 class bcolors:
     HEADER = '\033[95m'
@@ -320,7 +322,7 @@ def isGeneratedFile(filename):
 
 def isAppropriateFile(filename):
     file, extension = os.path.splitext(filename)
-    return extension in { '.adoc', '.c', '.cpp', '.pod'} or file.endswith('README')
+    return extension in { '.adoc', '.c', '.cpp', '.pod', '.nsi'} or file.endswith('README')
 
 
 def findFilesInFolder(folder):
