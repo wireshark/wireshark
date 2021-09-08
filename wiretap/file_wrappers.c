@@ -1846,6 +1846,12 @@ file_close(FILE_T file)
 #ifdef HAVE_ZLIB
         inflateEnd(&(file->strm));
 #endif
+#ifdef HAVE_ZSTD
+        ZSTD_freeDCtx(file->zstd_dctx);
+#endif
+#ifdef USE_LZ4
+        LZ4F_freeDecompressionContext(file->lz4_dctx);
+#endif
         g_free(file->out.buf);
         g_free(file->in.buf);
     }
