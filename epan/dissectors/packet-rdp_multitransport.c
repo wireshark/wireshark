@@ -85,8 +85,8 @@ dissect_rdpmt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *
 	proto_tree_add_item(tree, pf_mt_flags, tvb, offset, 1, ENC_NA);
 	offset++;
 
-	payload_len	= tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
-	proto_tree_add_item(tree, pf_mt_payload_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+	payload_len	= tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, pf_mt_payload_len, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
 	subheader_len = tvb_get_guint8(tvb, offset);
@@ -105,10 +105,10 @@ dissect_rdpmt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *
 	switch (action) {
 	case RDPMT_TUNNEL_CREATE_REQ:
 		subtree = proto_tree_add_subtree(tree, tvb, offset, payload_len, ett_rdpmt_create_req, NULL, "TunnelCreateRequest");
-		proto_tree_add_item(subtree, pf_mt_createreq_reqId, tvb, offset, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(subtree, pf_mt_createreq_reqId, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
 
-		proto_tree_add_item(subtree, pf_mt_createreq_reserved, tvb, offset, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(subtree, pf_mt_createreq_reserved, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
 
 		proto_tree_add_item(subtree, pf_mt_createreq_cookie, tvb, offset, 16, ENC_NA);
@@ -116,7 +116,7 @@ dissect_rdpmt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *
 		break;
 	case RDPMT_TUNNEL_CREATE_RESP:
 		subtree = proto_tree_add_subtree(tree, tvb, offset, payload_len, ett_rdpmt_create_resp, NULL, "TunnelCreateResponse");
-		proto_tree_add_item(subtree, pf_mt_createresp_hrResponse, tvb, offset, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(subtree, pf_mt_createresp_hrResponse, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		break;
 
 	case RDPMT_TUNNEL_DATA:
@@ -199,7 +199,7 @@ rdpmt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 	if (action > 2)
 		return FALSE;
 
-	payload_len = tvb_get_guint16(tvb, 1, ENC_BIG_ENDIAN);
+	payload_len = tvb_get_guint16(tvb, 1, ENC_LITTLE_ENDIAN);
 	header_len = tvb_get_guint8(tvb, 3);
 
 	if ((header_len < 4UL) || (tvb_reported_length_remaining(tvb, header_len) < payload_len))

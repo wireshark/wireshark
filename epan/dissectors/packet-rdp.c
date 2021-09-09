@@ -1628,8 +1628,8 @@ dissect_rdp_bandwidth_req(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_
 
 		case 0x0002:
 			/* Bandwidth Measure Payload */
-			payloadLength = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
-			proto_tree_add_item(tree, hf_rdp_bandwidth_measure_payload_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+			payloadLength = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_rdp_bandwidth_measure_payload_len, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			offset += 2;
 
 			proto_tree_add_item(tree, hf_rdp_bandwidth_measure_payload_data, tvb, offset, payloadLength, ENC_NA);
@@ -1641,8 +1641,8 @@ dissect_rdp_bandwidth_req(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_
 		case 0x0629:
 			/* Bandwidth Measure Stop */
 			if (reqRespType == 0x002B) {
-				payloadLength = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
-				proto_tree_add_item(tree, hf_rdp_bandwidth_measure_payload_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+				payloadLength = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+				proto_tree_add_item(tree, hf_rdp_bandwidth_measure_payload_len, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 				offset += 2;
 
 				proto_tree_add_item(tree, hf_rdp_bandwidth_measure_payload_data, tvb, offset, payloadLength, ENC_NA);
@@ -1655,15 +1655,15 @@ dissect_rdp_bandwidth_req(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_
 		case 0x08C0:
 			/* Network Characteristics Result*/
 			if (reqRespType == 0x840 || reqRespType == 0x8C0) {
-				proto_tree_add_item(tree, hf_rdp_network_characteristics_basertt, tvb, offset, 4, ENC_BIG_ENDIAN);
+				proto_tree_add_item(tree, hf_rdp_network_characteristics_basertt, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 				offset += 4;
 			}
 			if (reqRespType == 0x880 || reqRespType == 0x8C0) {
-				proto_tree_add_item(tree, hf_rdp_network_characteristics_bandwidth, tvb, offset, 4, ENC_BIG_ENDIAN);
+				proto_tree_add_item(tree, hf_rdp_network_characteristics_bandwidth, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 				offset += 4;
 			}
 			if (reqRespType == 0x840 || reqRespType == 0x8C0) {
-				proto_tree_add_item(tree, hf_rdp_network_characteristics_averagertt, tvb, offset, 4, ENC_BIG_ENDIAN);
+				proto_tree_add_item(tree, hf_rdp_network_characteristics_averagertt, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 				offset += 4;
 			}
 			break;
@@ -1676,10 +1676,10 @@ dissect_rdp_bandwidth_req(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_
 		case 0x0003:
 		case 0x000B:
 			/* Bandwidth Measure Results */
-			proto_tree_add_item(tree, hf_rdp_rtt_measure_time_delta, tvb, offset, 4, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hf_rdp_rtt_measure_time_delta, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			offset += 4;
 
-			proto_tree_add_item(tree, hf_rdp_rtt_measure_time_bytecount, tvb, offset, 4, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hf_rdp_rtt_measure_time_bytecount, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			offset += 4;
 			break;
 		}
