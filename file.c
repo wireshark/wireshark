@@ -3022,7 +3022,7 @@ cf_write_json_packets(capture_file *cf, print_args_t *print_args)
 
   /* Iterate through the list of packets, printing the packets we were
      told to print. */
-  ret = process_specified_records(cf, &print_args->range, "Writing PDML",
+  ret = process_specified_records(cf, &print_args->range, "Writing JSON",
                                   "selected packets", TRUE,
                                   write_json_packet, &callback_args, TRUE);
 
