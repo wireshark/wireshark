@@ -345,10 +345,6 @@ static void wtap_block_free_option(wtap_block_t block, wtap_option_t *opt)
         g_bytes_unref(opt->value.byteval);
         break;
 
-    case WTAP_OPTTYPE_IF_FILTER:
-        if_filter_free(&opt->value.if_filterval);
-        break;
-
     case WTAP_OPTTYPE_CUSTOM:
         switch (opt->value.custom_opt.pen) {
         case PEN_NFLX:
@@ -358,6 +354,10 @@ static void wtap_block_free_option(wtap_block_t block, wtap_option_t *opt)
             g_free(opt->value.custom_opt.data.generic_data.custom_data);
             break;
         }
+        break;
+
+    case WTAP_OPTTYPE_IF_FILTER:
+        if_filter_free(&opt->value.if_filterval);
         break;
 
     case WTAP_OPTTYPE_PACKET_VERDICT:
