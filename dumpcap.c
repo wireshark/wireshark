@@ -126,6 +126,7 @@ static gint64 pcap_queue_byte_limit = 0;
 static gint64 pcap_queue_packet_limit = 0;
 
 static gboolean capture_child = FALSE; /* FALSE: standalone call, TRUE: this is an Wireshark capture child */
+static const char *report_capture_filename = NULL; /* capture child file name */
 #ifdef _WIN32
 static gchar *sig_pipe_name = NULL;
 static HANDLE sig_pipe_handle = NULL;
@@ -4564,6 +4565,13 @@ capture_loop_write_pcapng_cb(capture_src *pcap_src, const pcapng_block_header_t 
                    bh->block_type, bh->block_total_length, pcap_src->interface_id);
 #endif
             capture_loop_wrote_one_packet(pcap_src);
+        } else if (bh->block_type == BLOCK_TYPE_SHB && report_capture_filename) {
+#if defined(DEBUG_DUMPCAP) || defined(DEBUG_CHILD_DUMPCAP)
+            ws_info("Sending SP_FILE on first SHB");
+#endif
+            /* SHB is now ready for capture parent to read on SP_FILE message */
+            pipe_write_block(2, SP_FILE, report_capture_filename);
+            report_capture_filename = NULL;
         }
     }
 }
@@ -5634,7 +5642,15 @@ report_new_capture_file(const char *filename)
 {
     if (capture_child) {
         ws_debug("File: %s", filename);
-        pipe_write_block(2, SP_FILE, filename);
+        if (global_ld.pcapng_passthrough) {
+            /* Save filename for sending SP_FILE to capture parent after SHB is passed-through */
+#if defined(DEBUG_DUMPCAP) || defined(DEBUG_CHILD_DUMPCAP)
+            ws_info("Delaying SP_FILE until first SHB");
+#endif
+            report_capture_filename = filename;
+        } else {
+            pipe_write_block(2, SP_FILE, filename);
+        }
     } else {
 #ifdef SIGINFO
         /*
