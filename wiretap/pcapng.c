@@ -1905,7 +1905,7 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh,
              * No.
              */
             *err = WTAP_ERR_BAD_FILE;
-            *err_info = g_strdup_printf("pcapng: total block length %u of EPB is too small for %u bytes of packet data",
+            *err_info = g_strdup_printf("pcapng: total block length %u of an EPB is too small for %u bytes of packet data",
                                         bh->block_total_length, packet.cap_len);
             return FALSE;
         }
@@ -1916,7 +1916,7 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh,
              * No.
              */
             *err = WTAP_ERR_BAD_FILE;
-            *err_info = g_strdup_printf("pcapng: total block length %u of PB is too small for %u bytes of packet data",
+            *err_info = g_strdup_printf("pcapng: total block length %u of a PB is too small for %u bytes of packet data",
                                         bh->block_total_length, packet.cap_len);
             return FALSE;
         }
@@ -2113,7 +2113,7 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh,
          * not a *minimum* length.
          */
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("pcapng: total block length %u of PB is too small for %u bytes of packet data",
+        *err_info = g_strdup_printf("pcapng: total block length %u of an SPB is too small for %u bytes of packet data",
                                     bh->block_total_length, simple_packet.packet_len);
         return FALSE;
     }
@@ -2599,7 +2599,7 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh,
          * No.
          */
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("pcapng: total block length %u is too small (< %u)",
+        *err_info = g_strdup_printf("pcapng: total block length %u of an ISB is too small (< %u)",
                                     bh->block_total_length, MIN_ISB_SIZE);
         return FALSE;
     }
@@ -2667,7 +2667,7 @@ pcapng_read_nflx_custom_block(FILE_T fh, pcapng_block_header_t *bh,
 
     if (bh->block_total_length < MIN_NFLX_CB_SIZE) {
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("pcapng_read_nflx_custom_block: total block length %u is too small (< %u)",
+        *err_info = g_strdup_printf("pcapng: total block length %u of a Netflix CB is too small (< %u)",
                                     bh->block_total_length, MIN_NFLX_CB_SIZE);
         return FALSE;
     }
@@ -2683,19 +2683,36 @@ pcapng_read_nflx_custom_block(FILE_T fh, pcapng_block_header_t *bh,
     ws_debug("BBLog type: %u", type);
     switch (type) {
         case NFLX_BLOCK_TYPE_EVENT:
+            /*
+             * The fixed-length portion is MIN_NFLX_CB_SIZE bytes.
+             * We already know we have that much data in the block.
+             */
             wblock->rec->rec_header.custom_block_header.custom_data_header.nflx_custom_data_header.type = BBLOG_TYPE_EVENT_BLOCK;
             opt_cont_buf_len = bh->block_total_length - MIN_NFLX_CB_SIZE;
             ws_debug("event");
             break;
         case NFLX_BLOCK_TYPE_SKIP:
+            /*
+             * The fixed-length portion is MIN_NFLX_CB_SIZE bytes plus a
+             * 32-bit value.
+             *
+             * Make sure we have that much data in the block.
+             */
+            if (bh->block_total_length < MIN_NFLX_CB_SIZE + (guint32)sizeof(guint32)) {
+                *err = WTAP_ERR_BAD_FILE;
+                *err_info = g_strdup_printf("pcapng: total block length %u of a Netflix skip CB is too small (< %u)",
+                                            bh->block_total_length,
+                                            MIN_NFLX_CB_SIZE + (guint32)sizeof(guint32));
+                return FALSE;
+            }
             wblock->rec->rec_header.custom_block_header.custom_data_header.nflx_custom_data_header.type = BBLOG_TYPE_SKIPPED_BLOCK;
+            opt_cont_buf_len = bh->block_total_length - MIN_NFLX_CB_SIZE - sizeof(guint32);
             if (!wtap_read_bytes(fh, &skipped, sizeof(guint32), err, err_info)) {
                 ws_debug("Failed to read skipped");
                 return FALSE;
             }
             wblock->rec->rec_header.custom_block_header.custom_data_header.nflx_custom_data_header.skipped = GUINT32_FROM_LE(skipped);
             ws_debug("skipped: %u", wblock->rec->rec_header.custom_block_header.custom_data_header.nflx_custom_data_header.skipped);
-            opt_cont_buf_len = bh->block_total_length - MIN_NFLX_CB_SIZE - sizeof(guint32);
             break;
         default:
             ws_debug("Unknown type %u", type);
@@ -2754,7 +2771,7 @@ pcapng_read_custom_block(FILE_T fh, pcapng_block_header_t *bh,
          * No.
          */
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("pcapng_read_custom_block: total block length %u is too small (< %u)",
+        *err_info = g_strdup_printf("pcapng: total block length %u of a CB is too small (< %u)",
                                     bh->block_total_length, MIN_CB_SIZE);
         return FALSE;
     }
@@ -2816,7 +2833,7 @@ pcapng_read_sysdig_event_block(FILE_T fh, pcapng_block_header_t *bh,
 
     if (bh->block_total_length < min_event_size) {
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("pcapng: total block length %u is too small (< %u)",
+        *err_info = g_strdup_printf("pcapng: total block length %u of a Sysdig event block is too small (< %u)",
                                     bh->block_total_length, min_event_size);
         return FALSE;
     }
@@ -2909,7 +2926,7 @@ pcapng_read_systemd_journal_export_block(wtap *wth, FILE_T fh, pcapng_block_head
 
     if (bh->block_total_length < MIN_SYSTEMD_JOURNAL_EXPORT_BLOCK_SIZE) {
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("pcapng: total block length %u is too small (< %u)",
+        *err_info = g_strdup_printf("pcapng: total block length %u of a systemd journal export block is too small (< %u)",
                                     bh->block_total_length, MIN_SYSTEMD_JOURNAL_EXPORT_BLOCK_SIZE);
         return FALSE;
     }
