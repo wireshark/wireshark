@@ -133,6 +133,10 @@ static int hf_oran_ciSample = -1;
 static int hf_oran_ciIsample = -1;
 static int hf_oran_ciQsample = -1;
 
+static int hf_oran_beamGroupType = -1;
+static int hf_oran_numPortc = -1;
+
+
 /* Computed fields */
 static int hf_oran_c_eAxC_ID = -1;
 static int hf_oran_refa = -1;
@@ -398,6 +402,14 @@ static const value_string priority_vals[] = {
     {0, NULL}
 };
 
+/* 5.4.7.10.1  beamGroupType */
+static const value_string beam_group_type_vals[] = {
+    {0x0, "common beam"},
+    {0x1, "beam matrix indication"},
+    {0x2, "beam vector listing"},
+    {0x3, "reserved"},
+    {0, NULL}
+};
 
 #if 0
 static const range_string bfw_comp_parms[] = {
@@ -697,6 +709,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
     guint32 startPrbc;
     guint32 numPrbc;
     guint32 ueId = 0;
+    guint32 beamId = 0;
 
     gboolean extension_flag = FALSE;
 
@@ -742,8 +755,6 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
             numPrbc = pref_data_plane_section_total_rbs;
             startPrbc = 0;  /* may already be 0... */
         }
-
-        guint32 beamId = 0;
 
         /* TODO: check formats for remaining sectionType values - they look different, and some fields above might not be present.. */
 
@@ -998,6 +1009,77 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 proto_tree_add_item(extension_tree, hf_oran_symbolMask, tvb, offset, 2, ENC_BIG_ENDIAN);
                 /* offset += 2; */
                 break;
+
+            case 10: /* Section description for group configuration of multiple ports */
+            {
+                /* beamGroupType */
+                guint32 beam_group_type = 0;
+                proto_tree_add_item_ret_uint(extension_tree, hf_oran_beamGroupType,
+                                             tvb, offset, 1, ENC_BIG_ENDIAN, &beam_group_type);
+                proto_item_append_text(extension_ti, " (%s)", val_to_str_const(beam_group_type, beam_group_type_vals, "Unknown"));
+
+                /* numPortc */
+                guint32 numPortc;
+                proto_tree_add_item_ret_uint(extension_tree, hf_oran_numPortc,
+                                             tvb, offset, 1, ENC_BIG_ENDIAN, &numPortc);
+
+                /* TODO: any generated fields or expert info should be added, due to enties in table 5-35 ? */
+
+                /* Will append all beamId values to extension_ti, regardless of beamGroupType */
+                proto_item_append_text(extension_ti, "(");
+                guint n;
+
+                switch (beam_group_type) {
+                    case 0x0: /* common beam */
+                        /* Reserved byte */
+                        proto_tree_add_item(oran_tree, hf_oran_rsvd8, tvb, offset, 1, ENC_NA);
+                        offset++;
+
+                        /* All entries are beamId... */
+                        for (n=0; n < numPortc; n++) {
+                            proto_item_append_text(extension_ti, "%u ", beamId);
+                        }
+                        break;
+
+                    case 0x1: /* beam matrix indication */
+                        /* Reserved byte */
+                        proto_tree_add_item(oran_tree, hf_oran_rsvd8, tvb, offset, 1, ENC_NA);
+                        offset++;
+
+                        /* Entries inc from beamId... */
+                        for (n=0; n < numPortc; n++) {
+                            proto_item_append_text(extension_ti, "%u ", beamId+n);
+                        }
+                        break;
+
+                    case 0x2: /* beam vector listing */
+                    {
+                        /* Beam listing vector case */
+                        /* Work out how many port beam entries there is room for */
+                        guint num_beam_or_ueid_entries = ((extlen*4)-3) / 2;
+                        proto_item_append_text(extension_ti, " (%u entries)", num_beam_or_ueid_entries);
+                        for (guint entry=2; entry < num_beam_or_ueid_entries; entry++) {
+                            /* TODO: Single reserved bit */
+
+                            /* port beam ID (or UEID) */
+                            guint32 id;
+                            proto_item *beamid_or_ueid_ti = proto_tree_add_item_ret_uint(oran_tree, hf_oran_beamId,
+                                                                                         tvb, offset, 2, ENC_BIG_ENDIAN, &id);
+                            proto_item_append_text(beamid_or_ueid_ti, " port #%u beam ID (or UEId) %u", entry, id);
+                            offset += 2;
+
+                            proto_item_append_text(extension_ti, "%u ", id);
+                        }
+                        break;
+                    }
+
+                    default:
+                        /* TODO: warning for unsupported/reserved value */
+                        break;
+                }
+                proto_item_append_text(extension_ti, ")");
+                break;
+            }
 
             case 11: /* Flexible Weights Extension Type */
             {
@@ -2463,6 +2545,23 @@ proto_register_oran(void)
             "Channel information complex value - Q part",
             HFILL}
         },
+
+        /* 5.4.7.10.1 */
+        { &hf_oran_beamGroupType,
+          { "beamGroupType", "oran_fh_cus.beamGroupType",
+            FT_UINT8, BASE_DEC,
+            VALS(beam_group_type_vals), 0xc0,
+            "The type of beam grouping",
+            HFILL }
+        },
+        /* 5.4.7.10.2 */
+        { &hf_oran_numPortc,
+          { "numPortc", "oran_fh_cus.numPortc",
+            FT_UINT8, BASE_DEC,
+            NULL, 0x3f,
+            "The number of eAxC ports",
+            HFILL }
+        }
     };
 
     /* Setup protocol subtree array */
