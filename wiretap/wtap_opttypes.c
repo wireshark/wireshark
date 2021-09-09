@@ -490,10 +490,6 @@ wtap_block_copy(wtap_block_t dest_block, wtap_block_t src_block)
             wtap_block_add_bytes_option_borrow(dest_block, src_opt->option_id, src_opt->value.byteval);
             break;
 
-        case WTAP_OPTTYPE_IF_FILTER:
-            wtap_block_add_if_filter_option(dest_block, src_opt->option_id, &src_opt->value.if_filterval);
-            break;
-
         case WTAP_OPTTYPE_CUSTOM:
             switch (src_opt->value.custom_opt.pen) {
             case PEN_NFLX:
@@ -503,6 +499,10 @@ wtap_block_copy(wtap_block_t dest_block, wtap_block_t src_block)
                 wtap_block_add_custom_option(dest_block, src_opt->option_id, src_opt->value.custom_opt.pen, src_opt->value.custom_opt.data.generic_data.custom_data, src_opt->value.custom_opt.data.generic_data.custom_data_len);
                 break;
             }
+            break;
+
+        case WTAP_OPTTYPE_IF_FILTER:
+            wtap_block_add_if_filter_option(dest_block, src_opt->option_id, &src_opt->value.if_filterval);
             break;
 
         case WTAP_OPTTYPE_PACKET_VERDICT:
@@ -1142,50 +1142,6 @@ wtap_block_get_nth_bytes_option_value(wtap_block_t block, guint option_id, guint
 }
 
 wtap_opttype_return_val
-wtap_block_add_if_filter_option(wtap_block_t block, guint option_id, if_filter_opt_t* value)
-{
-    wtap_opttype_return_val ret;
-    wtap_option_t *opt;
-
-    ret = wtap_block_add_option_common(block, option_id, WTAP_OPTTYPE_IF_FILTER, &opt);
-    if (ret != WTAP_OPTTYPE_SUCCESS)
-        return ret;
-    opt->value.if_filterval = if_filter_dup(value);
-    return WTAP_OPTTYPE_SUCCESS;
-}
-
-wtap_opttype_return_val
-wtap_block_set_if_filter_option_value(wtap_block_t block, guint option_id, if_filter_opt_t* value)
-{
-    wtap_opttype_return_val ret;
-    wtap_optval_t *optval;
-    if_filter_opt_t prev_value;
-
-    ret = wtap_block_get_option_common(block, option_id, WTAP_OPTTYPE_IF_FILTER, &optval);
-    if (ret != WTAP_OPTTYPE_SUCCESS)
-        return ret;
-    prev_value = optval->if_filterval;
-    optval->if_filterval = if_filter_dup(value);
-    /* Free after memory is duplicated in case structure was manipulated with a "get then set" */
-    if_filter_free(&prev_value);
-
-    return WTAP_OPTTYPE_SUCCESS;
-}
-
-wtap_opttype_return_val
-wtap_block_get_if_filter_option_value(wtap_block_t block, guint option_id, if_filter_opt_t* value)
-{
-    wtap_opttype_return_val ret;
-    wtap_optval_t *optval;
-
-    ret = wtap_block_get_option_common(block, option_id, WTAP_OPTTYPE_IF_FILTER, &optval);
-    if (ret != WTAP_OPTTYPE_SUCCESS)
-        return ret;
-    *value = optval->if_filterval;
-    return WTAP_OPTTYPE_SUCCESS;
-}
-
-wtap_opttype_return_val
 wtap_block_add_nflx_custom_option(wtap_block_t block, guint32 type, const char *custom_data, gsize custom_data_len)
 {
     wtap_opttype_return_val ret;
@@ -1381,6 +1337,50 @@ wtap_block_add_custom_option(wtap_block_t block, guint option_id, guint32 pen, c
     opt->value.custom_opt.pen = pen;
     opt->value.custom_opt.data.generic_data.custom_data_len = custom_data_len;
     opt->value.custom_opt.data.generic_data.custom_data = g_memdup2(custom_data, custom_data_len);
+    return WTAP_OPTTYPE_SUCCESS;
+}
+
+wtap_opttype_return_val
+wtap_block_add_if_filter_option(wtap_block_t block, guint option_id, if_filter_opt_t* value)
+{
+    wtap_opttype_return_val ret;
+    wtap_option_t *opt;
+
+    ret = wtap_block_add_option_common(block, option_id, WTAP_OPTTYPE_IF_FILTER, &opt);
+    if (ret != WTAP_OPTTYPE_SUCCESS)
+        return ret;
+    opt->value.if_filterval = if_filter_dup(value);
+    return WTAP_OPTTYPE_SUCCESS;
+}
+
+wtap_opttype_return_val
+wtap_block_set_if_filter_option_value(wtap_block_t block, guint option_id, if_filter_opt_t* value)
+{
+    wtap_opttype_return_val ret;
+    wtap_optval_t *optval;
+    if_filter_opt_t prev_value;
+
+    ret = wtap_block_get_option_common(block, option_id, WTAP_OPTTYPE_IF_FILTER, &optval);
+    if (ret != WTAP_OPTTYPE_SUCCESS)
+        return ret;
+    prev_value = optval->if_filterval;
+    optval->if_filterval = if_filter_dup(value);
+    /* Free after memory is duplicated in case structure was manipulated with a "get then set" */
+    if_filter_free(&prev_value);
+
+    return WTAP_OPTTYPE_SUCCESS;
+}
+
+wtap_opttype_return_val
+wtap_block_get_if_filter_option_value(wtap_block_t block, guint option_id, if_filter_opt_t* value)
+{
+    wtap_opttype_return_val ret;
+    wtap_optval_t *optval;
+
+    ret = wtap_block_get_option_common(block, option_id, WTAP_OPTTYPE_IF_FILTER, &optval);
+    if (ret != WTAP_OPTTYPE_SUCCESS)
+        return ret;
+    *value = optval->if_filterval;
     return WTAP_OPTTYPE_SUCCESS;
 }
 

@@ -280,8 +280,8 @@ typedef enum {
     WTAP_OPTTYPE_BYTES,
     WTAP_OPTTYPE_IPv4,
     WTAP_OPTTYPE_IPv6,
-    WTAP_OPTTYPE_IF_FILTER,
     WTAP_OPTTYPE_CUSTOM,
+    WTAP_OPTTYPE_IF_FILTER,
     WTAP_OPTTYPE_PACKET_VERDICT
 } wtap_opttype_e;
 
@@ -294,6 +294,39 @@ typedef enum {
     WTAP_OPTTYPE_ALREADY_EXISTS = -5,
     WTAP_OPTTYPE_BAD_BLOCK = -6,
 } wtap_opttype_return_val;
+
+/* https://www.iana.org/assignments/enterprise-numbers/enterprise-numbers */
+#define PEN_NFLX 10949
+
+/*
+ * Structure describing a custom option.
+ */
+
+typedef struct custom_opt_s {
+    guint32 pen;
+    union {
+        struct generic_custom_opt_data {
+            gsize custom_data_len;
+            gchar *custom_data;
+        } generic_data;
+        struct nflx_custom_opt_data {
+            guint32 type;
+            gsize custom_data_len;
+            gchar *custom_data;
+            gboolean use_little_endian;
+        } nflx_data;
+    } data;
+} custom_opt_t;
+
+/*
+ * Structure describing a NFLX custom option.
+ */
+typedef struct nflx_custom_opt_s {
+    gboolean nflx_use_little_endian;
+    guint32 nflx_type;
+    gsize nflx_custom_data_len;
+    gchar *nflx_custom_data;
+} nflx_custom_opt_t;
 
 /* Interface description data - if_filter option structure */
 
@@ -324,29 +357,6 @@ typedef struct if_filter_opt_s {
     }                      data;
 } if_filter_opt_t;
 
-/* https://www.iana.org/assignments/enterprise-numbers/enterprise-numbers */
-#define PEN_NFLX 10949
-
-/*
- * Structure describing a custom option.
- */
-
-typedef struct custom_opt_s {
-    guint32 pen;
-    union {
-        struct generic_custom_opt_data {
-            gsize custom_data_len;
-            gchar *custom_data;
-        } generic_data;
-        struct nflx_custom_opt_data {
-            guint32 type;
-            gsize custom_data_len;
-            gchar *custom_data;
-            gboolean use_little_endian;
-        } nflx_data;
-    } data;
-} custom_opt_t;
-
 /* Packet - packet_verdict option structure */
 
 /*
@@ -368,17 +378,6 @@ typedef struct packet_verdict_opt_s {
 } packet_verdict_opt_t;
 
 /*
- * Structure describing a NFLX custom option.
- */
-
-typedef struct nflx_custom_opt_s {
-    gboolean nflx_use_little_endian;
-    guint32 nflx_type;
-    gsize nflx_custom_data_len;
-    gchar *nflx_custom_data;
-} nflx_custom_opt_t;
-
-/*
  * Structure describing a value of an option.
  */
 typedef union {
@@ -389,8 +388,8 @@ typedef union {
     ws_in6_addr ipv6val;
     char *stringval;
     GBytes *byteval;
-    if_filter_opt_t if_filterval;
     custom_opt_t custom_opt;
+    if_filter_opt_t if_filterval;
     packet_verdict_opt_t packet_verdictval;
 } wtap_optval_t;
 
@@ -929,6 +928,43 @@ wtap_block_get_bytes_option_value(wtap_block_t block, guint option_id, GBytes** 
 WS_DLL_PUBLIC wtap_opttype_return_val
 wtap_block_get_nth_bytes_option_value(wtap_block_t block, guint option_id, guint idx, GBytes** value) G_GNUC_WARN_UNUSED_RESULT;
 
+/** Add an NFLX custom option to a block
+ *
+ * @param[in] block Block to which to add the option
+ * @param[in] nflx_type NFLX option type
+ * @param[in] nflx_custom_data pointer to the data
+ * @param[in] nflx_custom_data_len length of custom_data
+ * @return wtap_opttype_return_val - WTAP_OPTTYPE_SUCCESS if successful,
+ * error code otherwise
+ */
+WS_DLL_PUBLIC wtap_opttype_return_val
+wtap_block_add_nflx_custom_option(wtap_block_t block, guint32 nflx_type, const char *nflx_custom_data, gsize nflx_custom_data_len);
+
+/** Get an NFLX custom option value from a block
+ *
+ * @param[in] block Block from which to get the option value
+ * @param[in] nflx_type type of the option
+ * @param[out] nflx_custom_data Returned value of NFLX custom option value
+ * @param[in] nflx_custom_data_len size of buffer provided in nflx_custom_data
+ * @return wtap_opttype_return_val - WTAP_OPTTYPE_SUCCESS if successful,
+ * error code otherwise
+ */
+WS_DLL_PUBLIC wtap_opttype_return_val
+wtap_block_get_nflx_custom_option(wtap_block_t block, guint32 nflx_type, char *nflx_custom_data, gsize nflx_custom_data_len);
+
+/** Add an custom option to a block
+ *
+ * @param[in] block Block to which to add the option
+ * @param[in] option_id Identifier value for option
+ * @param[in] pen PEN
+ * @param[in] custom_data pointer to the data
+ * @param[in] custom_data_len length of custom_data
+ * @return wtap_opttype_return_val - WTAP_OPTTYPE_SUCCESS if successful,
+ * error code otherwise
+ */
+WS_DLL_PUBLIC wtap_opttype_return_val
+wtap_block_add_custom_option(wtap_block_t block, guint option_id, guint32 pen, const char *custom_data, gsize custom_data_len);
+
 /** Add an if_filter option value to a block
  *
  * @param[in] block Block to which to add the option
@@ -961,43 +997,6 @@ wtap_block_set_if_filter_option_value(wtap_block_t block, guint option_id, if_fi
  */
 WS_DLL_PUBLIC wtap_opttype_return_val
 wtap_block_get_if_filter_option_value(wtap_block_t block, guint option_id, if_filter_opt_t* value) G_GNUC_WARN_UNUSED_RESULT;
-
-/** Add an NFLX custom option to a block
- *
- * @param[in] block Block to which to add the option
- * @param[in] nflx_type NFLX option type
- * @param[in] nflx_custom_data pointer to the data
- * @param[in] nflx_custom_data_len length of custom_data
- * @return wtap_opttype_return_val - WTAP_OPTTYPE_SUCCESS if successful,
- * error code otherwise
- */
-WS_DLL_PUBLIC wtap_opttype_return_val
-wtap_block_add_nflx_custom_option(wtap_block_t block, guint32 nflx_type, const char *nflx_custom_data, gsize nflx_custom_data_len);
-
-/** Get an if_filter option value from a block
- *
- * @param[in] block Block from which to get the option value
- * @param[in] nflx_type type of the option
- * @param[out] nflx_custom_data Returned value of NFLX custom option value
- * @param[in] nflx_custom_data_len size of buffer provided in nflx_custom_data
- * @return wtap_opttype_return_val - WTAP_OPTTYPE_SUCCESS if successful,
- * error code otherwise
- */
-WS_DLL_PUBLIC wtap_opttype_return_val
-wtap_block_get_nflx_custom_option(wtap_block_t block, guint32 nflx_type, char *nflx_custom_data, gsize nflx_custom_data_len);
-
-/** Add an custom option to a block
- *
- * @param[in] block Block to which to add the option
- * @param[in] option_id Identifier value for option
- * @param[in] pen PEN
- * @param[in] custom_data pointer to the data
- * @param[in] custom_data_len length of custom_data
- * @return wtap_opttype_return_val - WTAP_OPTTYPE_SUCCESS if successful,
- * error code otherwise
- */
-WS_DLL_PUBLIC wtap_opttype_return_val
-wtap_block_add_custom_option(wtap_block_t block, guint option_id, guint32 pen, const char *custom_data, gsize custom_data_len);
 
 /** Add an packet_verdict option value to a block
  *
