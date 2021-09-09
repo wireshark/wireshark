@@ -425,7 +425,7 @@ dissect_rdp_drdynvc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 						proto_tree_add_item(dvc_tree, hf_rdp_drdynvc_softsync_req_channel_dvcid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 
 						if (label) {
-							proto_item *pi = proto_tree_add_item(dvc_tree, hf_rdp_drdynvc_channelName, tvb, offset, -1, ENC_ASCII|ENC_NA);
+							proto_item *pi = proto_tree_add_string_format(dvc_tree, hf_rdp_drdynvc_channelName, tvb, offset, 4, label, "%s", label);
 							proto_item_set_generated(pi);
 						}
 					}
