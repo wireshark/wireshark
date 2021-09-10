@@ -7957,6 +7957,8 @@ dissect_h225_h225_RasMessage(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
   p_add_proto_data(pinfo->pool, pinfo, proto_h225, 0, h225_pi);
 
   register_frame_end_routine(pinfo, h225_frame_end);
+  h245_list = next_tvb_list_new(pinfo->pool);
+  tp_list = next_tvb_list_new(pinfo->pool);
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
 
@@ -7966,6 +7968,9 @@ dissect_h225_h225_RasMessage(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
   offset = dissect_RasMessage_PDU(tvb, pinfo, tr, NULL);
 
   ras_call_matching(tvb, pinfo, tr, h225_pi);
+
+  next_tvb_call(h245_list, pinfo, tree, h245dg_handle, data_handle);
+  next_tvb_call(tp_list, pinfo, tree, NULL, data_handle);
 
   tap_queue_packet(h225_tap, pinfo, h225_pi);
 
@@ -11496,7 +11501,7 @@ void proto_register_h225(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-h225-hfarr.c ---*/
-#line 822 "./asn1/h225/packet-h225-template.c"
+#line 827 "./asn1/h225/packet-h225-template.c"
   };
 
   /* List of subtrees */
@@ -11746,7 +11751,7 @@ void proto_register_h225(void) {
     &ett_h225_T_result,
 
 /*--- End of included file: packet-h225-ettarr.c ---*/
-#line 828 "./asn1/h225/packet-h225-template.c"
+#line 833 "./asn1/h225/packet-h225-template.c"
   };
 
   static tap_param h225_stat_params[] = {
