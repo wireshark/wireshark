@@ -221,9 +221,10 @@ from one another with a single comma "," character.
 
 =item -M
 
-Print raw (machine readable) numeric values in long reports.
-By default capinfos prints human-readable values with SI
-suffixes. Table reports (-T) always print raw values.
+Print raw (machine readable) values in long reports.
+By default capinfos prints numeric values with human-readable SI
+suffixes, and shows human-readable file type and encapsulation.
+Table reports (-T) always print raw values.
 
 =item -n
 

@@ -629,8 +629,14 @@ print_stats(const gchar *filename, capture_info *cf_info)
   gchar                 *size_string;
 
   /* Build printable strings for various stats */
-  file_type_string = wtap_file_type_subtype_description(cf_info->file_type);
-  file_encap_string = wtap_encap_description(cf_info->file_encap);
+  if (machine_readable) {
+    file_type_string = wtap_file_type_subtype_name(cf_info->file_type);
+    file_encap_string = wtap_encap_name(cf_info->file_encap);
+  }
+  else {
+    file_type_string = wtap_file_type_subtype_description(cf_info->file_type);
+    file_encap_string = wtap_encap_description(cf_info->file_encap);
+  }
 
   if (filename)           printf     ("File name:           %s\n", filename);
   if (cap_file_type) {
@@ -878,8 +884,8 @@ print_stats_table(const gchar *filename, capture_info *cf_info)
   const gchar           *file_type_string, *file_encap_string;
 
   /* Build printable strings for various stats */
-  file_type_string = wtap_file_type_subtype_description(cf_info->file_type);
-  file_encap_string = wtap_encap_description(cf_info->file_encap);
+  file_type_string = wtap_file_type_subtype_name(cf_info->file_type);
+  file_encap_string = wtap_encap_name(cf_info->file_encap);
 
   if (filename) {
     putquote();
