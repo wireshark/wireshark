@@ -43,10 +43,10 @@ void proto_reg_handoff_eth(void);
 #define PADDING_ZEROS       1
 #define PADDING_ANY         2
 
-/* Assume all packets have an FCS */
 static gint eth_padding = PADDING_ZEROS;
 static guint eth_trailer_length = 0;
-static gboolean eth_assume_fcs = FALSE;
+/* By default, try to autodetect FCS */
+static gint eth_fcs = -1;
 static gboolean eth_check_fcs = FALSE;
 /* Interpret packets as FW1 monitor file packets if they look as if they are */
 static gboolean eth_interpret_as_fw1_monitor = FALSE;
@@ -125,6 +125,13 @@ static const enum_val_t eth_padding_vals[] = {
   {"never", "Never", PADDING_NONE},
   {"zeros", "Zeros", PADDING_ZEROS},
   {"any",   "Any",   PADDING_ANY},
+  {NULL, NULL, 0}
+};
+
+static const enum_val_t eth_fcs_vals[] = {
+  {"heuristic", "According to heuristic", -1},
+  {"never",     "Never",                   0},
+  {"always",    "Always",                  4},
   {NULL, NULL, 0}
 };
 
@@ -722,6 +729,19 @@ add_ethernet_trailer(packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
          needs no trailer, as there's no need to pad an Ethernet
          packet past 60 bytes.
 
+         XXX: This is not quite true. See IEEE Std 802.1Q-2014
+         G.2.1 "Treatment of PAD fields in IEEE 802.3 frames" and
+         G.2.3 "Minimum PDU size." It is permissible for a Bridge
+         to adopt a minimum tagged frame length of 68 bytes (64
+         without counting FCS) to avoid having to remove up to 4
+         octets of padding when receiving an untagged padded IEEE
+         802.3 frame and adding tagging to it, it being easier to
+         add extra padding than to remove it. (Illustrated at
+         https://gitlab.com/wireshark/wireshark/-/wikis/PRP )
+         The same calculation with 4 more octets can apply to 802.1ad
+         QinQ. These cases are hard to deal with, though, especially
+         if PADDING_ANY is set.
+
          The trailer must be at least 4 bytes long to have enough
          space for an FCS. */
 
@@ -806,14 +826,21 @@ add_ethernet_trailer(packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
 }
 
 /* Called for the Ethernet Wiretap encapsulation type; pass the FCS length
-   reported to us, or, if the "assume_fcs" preference is set, pass 4. */
+   reported to us, if known, otherwise falling back to the "fcs" preference. */
 static int
 dissect_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
   struct eth_phdr   *eth = (struct eth_phdr *)data;
   proto_tree        *fh_tree;
   tvbuff_t          *real_tvb;
-  guint              fcs_len = eth_assume_fcs ? 4 : (eth ? eth->fcs_len : -1);
+  gint               fcs_len;
+
+  if (eth && eth->fcs_len != -1) {
+    /* Use the value reported from Wiretap, if known. */
+    fcs_len = eth->fcs_len;
+  } else {
+    fcs_len = eth_fcs;
+  }
 
   /* When capturing on a Cisco FEX, some frames (most likely all frames
      captured without a vntag) have an extra destination mac prepended. */
@@ -831,13 +858,14 @@ dissect_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
      properly dissect. */
   if ( (eth_trailer_length > 0) && (eth_trailer_length < tvb_captured_length(real_tvb)) ) {
     tvbuff_t *next_tvb;
-    guint total_trailer_length;
+    guint total_trailer_length = eth_trailer_length;
 
-    /*
-     * XXX - this overrides Wiretap saying "this packet definitely has
-     * no FCS".
+    /* If we have to guess if the trailer includes the FCS, assume not; the
+     * user probably set the "eth_trailer_length" preference to the total
+     * trailer length. The user has already set the preference, so should
+     * have little difficulty changing it or the "fcs" preference if need be.
      */
-    total_trailer_length = eth_trailer_length + (eth_assume_fcs ? 4 : 0);
+    total_trailer_length += (fcs_len < 0 ? 0 : (guint)fcs_len);
 
     /* Dissect the tvb up to, but not including the trailer */
     next_tvb = tvb_new_subset_length_caplen(real_tvb, 0,
@@ -847,17 +875,9 @@ dissect_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     /* Now handle the ethernet trailer and optional FCS */
     next_tvb = tvb_new_subset_remaining(real_tvb, tvb_captured_length(real_tvb) - total_trailer_length);
-    /*
-     * XXX - this overrides Wiretap saying "this packet definitely has
-     * no FCS".
-     */
     add_ethernet_trailer(pinfo, tree, fh_tree, hf_eth_trailer, real_tvb, next_tvb,
                          fcs_len);
   } else {
-    /*
-     * XXX - this overrides Wiretap saying "this packet definitely has
-     * no FCS".
-     */
     dissect_eth_common(real_tvb, pinfo, tree, fcs_len);
   }
   return tvb_captured_length(tvb);
@@ -884,7 +904,7 @@ dissect_eth_withfcs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 static int
 dissect_eth_maybefcs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-  dissect_eth_common(tvb, pinfo, tree, eth_assume_fcs ? 4 : -1);
+  dissect_eth_common(tvb, pinfo, tree, eth_fcs);
   return tvb_captured_length(tvb);
 }
 
@@ -1057,12 +1077,15 @@ proto_register_eth(void)
                                  "gets interpreted correctly.",
                                  10, &eth_trailer_length);
 
-  prefs_register_bool_preference(eth_module, "assume_fcs",
+  prefs_register_obsolete_preference(eth_module, "assume_fcs");
+  prefs_register_enum_preference(eth_module, "fcs",
                                  "Assume packets have FCS",
                                  "Some Ethernet adapters and drivers include the FCS at the end of a packet, others do not.  "
-                                 "The Ethernet dissector attempts to guess whether a captured packet has an FCS, "
-                                 "but it cannot always guess correctly.",
-                                 &eth_assume_fcs);
+                                 "Some capture file formats and protocols do not indicate whether or not the FCS is included. "
+                                 "The Ethernet dissector then attempts to guess whether a captured packet has an FCS, "
+                                 "but it cannot always guess correctly.  This option can override that heuristic "
+                                 "and assume that the FCS is either never or always present in such cases.",
+                                 &eth_fcs, eth_fcs_vals, FALSE);
 
   prefs_register_bool_preference(eth_module, "check_fcs",
                                  "Validate the Ethernet checksum if possible",
