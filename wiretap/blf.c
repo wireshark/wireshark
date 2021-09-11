@@ -372,7 +372,7 @@ blf_timestamp_to_ns(blf_logobjectheader_t *header) {
         break;
 
     default:
-        ws_debug("i dont understand the flags 0x%x", header->flags);
+        ws_debug("I don't understand the flags 0x%x", header->flags);
         return 0;
         break;
     }

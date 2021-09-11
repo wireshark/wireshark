@@ -306,7 +306,7 @@ check_hf_rename_refcount(void)
 {
 	hf_rename_item_t *hri;
 
-	/* dont generate code for renamed hf fields  just return the new name*/
+	/* don't generate code for renamed hf fields  just return the new name*/
 	for(hri=hf_rename_list;hri;hri=hri->next){
 		if(!hri->refcount){
 			FPRINTF(stderr, "ERROR: the hf_rename field:%s was never referenced. it is likely the conformance file is stale\n", hri->old_name);
@@ -345,7 +345,7 @@ register_hf_field(const char *hf_name, const char *title, const char *filter_nam
 	hf_field_item_t *hfi;
 	hf_rename_item_t *hri;
 
-	/* dont generate code for renamed hf fields  just return the new name*/
+	/* don't generate code for renamed hf fields  just return the new name*/
 	for(hri=hf_rename_list;hri;hri=hri->next){
 		if(!strncmp(hf_name, hri->old_name, strlen(hf_name))){
 			hfi=find_hf_field(hri->new_name);
@@ -554,13 +554,13 @@ parsebrackets(token_item_t *ti, bracket_item_t **bracket){
 			continue;
 		}
 
-		/* public : we dont care about this one */
+		/* public : we don't care about this one */
 		if(!g_strcmp0(ti->str, "public")){
 			ti=ti->next;
 			continue;
 		}
 
-		/* gensize : we dont care about this one */
+		/* gensize : we don't care about this one */
 		if(!g_strcmp0(ti->str, "gensize")){
 			ti=ti->next;
 			continue;
@@ -591,7 +591,7 @@ parsebrackets(token_item_t *ti, bracket_item_t **bracket){
 			continue;
 		}
 
-		/* value   we dont care about this one so just skip it */
+		/* value   we don't care about this one so just skip it */
 		if(!g_strcmp0(ti->str, "value")){
 			int level;
 			ti=ti->next;
@@ -619,7 +619,7 @@ parsebrackets(token_item_t *ti, bracket_item_t **bracket){
 			continue;
 		}
 
-		/* range   we dont care about this one so just skip it */
+		/* range   we don't care about this one so just skip it */
 		if(!g_strcmp0(ti->str, "range")){
 			int level;
 			ti=ti->next;
@@ -647,7 +647,7 @@ parsebrackets(token_item_t *ti, bracket_item_t **bracket){
 			continue;
 		}
 
-		/* flag   we dont care about this one so just skip it */
+		/* flag   we don't care about this one so just skip it */
 		if(!g_strcmp0(ti->str, "flag")){
 			int level;
 			ti=ti->next;
@@ -1549,7 +1549,7 @@ static void parsetypedefstruct(int pass)
 
 	/* this is pass 0  so reset alignment to zero and update as items are
 	   processed. we need alignment when pass 1 is run.
-	   set alignment initially to 1 so we dont fail for empty structs
+	   set alignment initially to 1 so we don't fail for empty structs
 	*/
 	if(pass==0){
 		alignment=1;

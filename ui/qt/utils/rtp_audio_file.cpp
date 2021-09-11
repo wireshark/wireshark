@@ -181,7 +181,7 @@ bool RtpAudioFile::readFrameSamples(gint32 *read_buff_bytes, SAMPLE **read_buff,
     guint64 read_bytes = 0;
 
     if (!sample_file_frame_->read((char *)&frame_info, sizeof(frame_info))) {
-        // Can't read frame, some error occured
+        // Can't read frame, some error occurred
         return false;
     }
 
@@ -255,7 +255,7 @@ bool RtpAudioFile::seek(qint64 off)
     while (1) {
         // Read frame
         if (!sample_file_frame_->read((char *)&cur_frame_, sizeof(cur_frame_))) {
-            // Can't read frame, some error occured
+            // Can't read frame, some error occurred
             return false;
         }
 

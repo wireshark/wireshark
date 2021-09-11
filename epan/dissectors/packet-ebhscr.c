@@ -79,7 +79,7 @@ static int hf_ts_utc_leap_sec = -1;
 static int hf_ts_sync_state = -1;
 
 static int hf_dio_overflow_mon_unit = -1;
-static int hf_dio_jump_occured = -1;
+static int hf_dio_jump_occurred = -1;
 static int hf_dio_value_type = -1;
 static int hf_dio_reserved_bytes = -1;
 
@@ -251,7 +251,7 @@ static const value_string ts_sync_state_strings[] = {
 
 static int * const dio_status_bits[] = {
 	&hf_dio_overflow_mon_unit,
-	&hf_dio_jump_occured,
+	&hf_dio_jump_occurred,
 	NULL
 };
 
@@ -887,11 +887,11 @@ proto_register_ebhscr(void)
 			NULL, 0x0001,
 			"Set to 1 in case of an overflow in the monitoring unit. In this case all remaining fields are invalid.", HFILL }
 		},
-		{ &hf_dio_jump_occured,
-			{ "Time jump occured", "ebhscr.dio.jump_occ",
+		{ &hf_dio_jump_occurred,
+			{ "Time jump occurred", "ebhscr.dio.jump_occ",
 			FT_BOOLEAN, 16,
 			NULL, 0x0400,
-			"Set to 1 if a time jump occured near the edge and thus the timestamp was estimated.", HFILL }
+			"Set to 1 if a time jump occurred near the edge and thus the timestamp was estimated.", HFILL }
 		},
 		{ &hf_dio_value_type,
 			{ "Digital IO value type", "ebhscr.dio.valtype",

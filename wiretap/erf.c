@@ -1952,7 +1952,7 @@ static gboolean erf_dump(
 
       /* If we have seen a metadata record in the first ~1 second it
        * means that we are dealing with an ERF file with metadata already in them.
-       * We dont want to write extra metadata if nothing has changed. We can't
+       * We don't want to write extra metadata if nothing has changed. We can't
        * trust the Wireshark representation since we massage the fields on
        * read. */
       /* restart searching for next meta record to update capture comment at */

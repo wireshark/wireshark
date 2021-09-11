@@ -991,7 +991,7 @@ post_update_spdu_someip_mapping_cb(void) {
         data_spdu_someip_mappings = NULL;
     }
 
-    /* we dont need to free the data as long as we don't alloc it first */
+    /* we don't need to free the data as long as we don't alloc it first */
     data_spdu_someip_mappings = g_hash_table_new_full(g_int64_hash, g_int64_equal, &spdu_payload_free_key, NULL);
 
     if (data_spdu_someip_mappings == NULL || spdu_someip_mapping == NULL) {
@@ -1054,7 +1054,7 @@ post_update_spdu_can_mapping_cb(void) {
         data_spdu_can_mappings = NULL;
     }
 
-    /* we dont need to free the data as long as we don't alloc it first */
+    /* we don't need to free the data as long as we don't alloc it first */
     data_spdu_can_mappings = g_hash_table_new_full(g_int64_hash, g_int64_equal, &spdu_payload_free_key, NULL);
 
     if (data_spdu_can_mappings == NULL || spdu_can_mapping == NULL) {
@@ -1142,7 +1142,7 @@ post_update_spdu_flexray_mapping_cb(void) {
         data_spdu_flexray_mappings = NULL;
     }
 
-    /* we dont need to free the data as long as we don't alloc it first */
+    /* we don't need to free the data as long as we don't alloc it first */
     data_spdu_flexray_mappings = g_hash_table_new_full(g_int64_hash, g_int64_equal, &spdu_payload_free_key, NULL);
 
     if (data_spdu_flexray_mappings == NULL || spdu_flexray_mapping == NULL) {
@@ -1220,7 +1220,7 @@ post_update_spdu_lin_mapping_cb(void) {
         data_spdu_lin_mappings = NULL;
     }
 
-    /* we dont need to free the data as long as we don't alloc it first */
+    /* we don't need to free the data as long as we don't alloc it first */
     data_spdu_lin_mappings = g_hash_table_new_full(g_int_hash, g_int_equal, &spdu_payload_free_key, NULL);
 
     if (data_spdu_lin_mappings == NULL || spdu_lin_mapping == NULL) {
@@ -1300,7 +1300,7 @@ post_update_spdu_pdu_transport_mapping_cb(void) {
         data_spdu_pdu_transport_mappings = NULL;
     }
 
-    /* we dont need to free the data as long as we don't alloc it first */
+    /* we don't need to free the data as long as we don't alloc it first */
     data_spdu_pdu_transport_mappings = g_hash_table_new_full(g_int64_hash, g_int64_equal, &spdu_payload_free_key, NULL);
 
     if (data_spdu_pdu_transport_mappings == NULL || spdu_pdu_transport_mapping == NULL) {

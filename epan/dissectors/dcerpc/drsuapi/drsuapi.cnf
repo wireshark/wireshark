@@ -1,6 +1,6 @@
 #
 #
-#We dont know this type yet
+#We don't know this type yet
 TYPE	a_string drsuapi_dissect_a_string FT_STRING BASE_NONE 0 NULL 4
 #
 # this one is better/easier to just implement by hand

@@ -2451,7 +2451,7 @@ Framed Transport can encapsulate any protocol version:
  *
  * Returns:
  * - THRIFT_REQUEST_REASSEMBLY = -1 if reassembly is required
- * -                              0 if an error occured
+ * -                              0 if an error occurred
  * -                     offset > 0 to indicate the end of the PDU in case of success
  *
  * This method MUST be called with non-null thrift_opt.

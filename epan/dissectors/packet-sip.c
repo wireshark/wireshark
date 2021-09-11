@@ -3501,7 +3501,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
         const gchar *proto_name;
         void *tmp;
 
-        /* For SIP messages with other sip messages embeded in the body, dont export those individually.
+        /* For SIP messages with other sip messages embeded in the body, don't export those individually.
          * E.g. if we are called from the mime_multipart dissector don't export the message.
          */
         cur = wmem_list_frame_prev(wmem_list_tail(pinfo->layers));

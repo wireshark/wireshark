@@ -31559,9 +31559,9 @@ dissect_ieee80211_vht_ndp_annc(tvbuff_t *tvb, packet_info *pinfo _U_,
   if ((sounding_dialog_token & 0x03) == 0x00) {
     proto_item_append_text(dialog, " VHT NDP Announcement");
   } else if ((sounding_dialog_token & 0x03) == 0x02) {
-    proto_item_append_text(dialog, " HE NDP Annoucement");
+    proto_item_append_text(dialog, " HE NDP Announcement");
   } else if ((sounding_dialog_token & 0x03) == 0x01) {
-    proto_item_append_text(dialog, " Ranging NDP Annoucement");
+    proto_item_append_text(dialog, " Ranging NDP Announcement");
   }
 
   offset++;
