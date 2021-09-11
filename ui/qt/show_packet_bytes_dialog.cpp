@@ -59,6 +59,7 @@ ShowPacketBytesDialog::ShowPacketBytesDialog(QWidget &parent, CaptureFile &cf) :
     ui->cbDecodeAs->addItem(tr("None"), DecodeAsNone);
     ui->cbDecodeAs->addItem(tr("Base64"), DecodeAsBASE64);
     ui->cbDecodeAs->addItem(tr("Compressed"), DecodeAsCompressed);
+    ui->cbDecodeAs->addItem(tr("Hex Digits"), DecodeAsHexDigits);
     ui->cbDecodeAs->addItem(tr("Quoted-Printable"), DecodeAsQuotedPrintable);
     ui->cbDecodeAs->addItem(tr("ROT13"), DecodeAsROT13);
     ui->cbDecodeAs->blockSignals(false);
@@ -548,6 +549,11 @@ void ShowPacketBytesDialog::updateFieldBytes(bool initialization)
         }
         break;
     }
+
+    case DecodeAsHexDigits:
+        bytes = tvb_get_ptr(finfo_->ds_tvb, start, -1);
+        field_bytes_ = QByteArray::fromHex(QByteArray::fromRawData((const char *)bytes, length));
+        break;
 
     case DecodeAsQuotedPrintable:
         bytes = tvb_get_ptr(finfo_->ds_tvb, start, -1);

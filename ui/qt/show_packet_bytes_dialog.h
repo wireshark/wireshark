@@ -68,6 +68,7 @@ private:
         DecodeAsNone,
         DecodeAsBASE64,
         DecodeAsCompressed,
+        DecodeAsHexDigits,
         DecodeAsQuotedPrintable,
         DecodeAsROT13
     };
