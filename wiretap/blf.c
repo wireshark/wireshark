@@ -184,8 +184,6 @@ blf_lookup_interface(blf_params_t *params, int pkt_encap, guint32 channel) {
     }
 }
 
-gboolean blf_read_block(blf_params_t *params, gint64 start_pos, int *err, gchar **err_info);
-
 static void
 fix_endianness_blf_date(blf_date_t *date) {
     date->year = GUINT16_FROM_LE(date->year);
@@ -1515,7 +1513,7 @@ blf_read_linmessage(blf_params_t *params, int *err, gchar **err_info, gint64 blo
     return TRUE;
 }
 
-gboolean
+static gboolean
 blf_read_block(blf_params_t *params, gint64 start_pos, int *err, gchar **err_info) {
     blf_blockheader_t header;
 
