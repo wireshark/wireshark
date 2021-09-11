@@ -51,6 +51,8 @@
  * draft-ietf-idr-segment-routing-te-policy-08
  * draft-yu-bess-evpn-l2-attributes-04
  * draft-ietf-bess-srv6-services-05
+ * RFC9104 Distribution of Traffic Engineering Extended Administrative Groups
+           Using the Border Gateway Protocol - Link State
 
  * TODO:
  * Destination Preference Attribute for BGP (work in progress)
@@ -790,6 +792,7 @@ static dissector_handle_t bgp_handle;
 #define BGP_NLRI_TLV_PREFIX_METRIC                  1155
 #define BGP_NLRI_TLV_OSPF_FORWARDING_ADDRESS        1156
 #define BGP_NLRI_TLV_OPAQUE_PREFIX_ATTRIBUTE        1157
+#define BGP_NLRI_TLV_EXTENDED_ADMINISTRATIVE_GROUP  1173
 
 
 /* Link-State NLRI TLV lengths */
@@ -2432,6 +2435,8 @@ static int hf_bgp_ls_ospf_forwarding_address_ipv4_address = -1;
 static int hf_bgp_ls_ospf_forwarding_address_ipv6_address = -1;
 static int hf_bgp_ls_opaque_prefix_attribute = -1;                 /* 1157 */
 static int hf_bgp_ls_opaque_prefix_attribute_value = -1;
+static int hf_bgp_ls_extended_administrative_group = -1;           /* 1173 */
+static int hf_bgp_ls_extended_administrative_group_value = -1;
 
 
 /* Link Protection Types */
@@ -5481,6 +5486,23 @@ decode_link_state_attribute_tlv(proto_tree *tree, tvbuff_t *tvb, gint offset, pa
             proto_tree_add_item(tlv_tree, hf_bgp_ls_type, tvb, offset, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item(tlv_tree, hf_bgp_ls_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item(tlv_tree, hf_bgp_ls_opaque_prefix_attribute_value, tvb, offset + 4, length, ENC_NA);
+            break;
+
+        case BGP_NLRI_TLV_EXTENDED_ADMINISTRATIVE_GROUP:
+            tlv_item = proto_tree_add_item(tree, hf_bgp_ls_extended_administrative_group, tvb, offset, length+4, ENC_NA);
+            tlv_tree = proto_item_add_subtree(tlv_item, ett_bgp_link_state);
+            proto_tree_add_item(tlv_tree, hf_bgp_ls_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tlv_tree, hf_bgp_ls_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+            if(length % 4 != 0) {
+                expert_add_info_format(pinfo, tlv_tree, &ei_bgp_ls_error, "Unexpected Extended Administrative Group TLV's length (%u mod 4 != 0)",
+                                       length);
+                break;
+            }
+            tmp16 = length;
+            while(tmp16){
+                proto_tree_add_item(tlv_tree, hf_bgp_ls_extended_administrative_group_value, tvb, offset + 4 + (length - tmp16), 4, ENC_NA);
+                tmp16 -= 4;
+            }
             break;
 
         case BGP_LS_SR_TLV_PREFIX_SID:
@@ -12094,6 +12116,12 @@ proto_register_bgp(void)
           BASE_NONE, NULL, 0x0, NULL, HFILL}},
       { &hf_bgp_ls_opaque_prefix_attribute_value,
         { "Opaque prefix attributes", "bgp.ls.tlv.opaque_prefix_attribute_value", FT_NONE,
+          BASE_NONE, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_ls_extended_administrative_group,
+        { "Extended Administrative Group TLV", "bgp.ls.tlv.extended_administrative_group", FT_NONE,
+          BASE_NONE, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_ls_extended_administrative_group_value,
+        { "Extended Administrative Group", "bgp.ls.tlv.extended_administrative_group_value", FT_BYTES,
           BASE_NONE, NULL, 0x0, NULL, HFILL}},
       { &hf_bgp_ls_tlv_igp_router,
         { "IGP Router-ID", "bgp.ls.tlv.igp_router", FT_NONE,
