@@ -556,7 +556,7 @@ blf_read_bytes_or_eof(blf_params_t *params, guint64 real_pos, void *target_buffe
         break;
 
     case BLF_COMPRESSION_ZLIB:
-            while (current_container_index <= end_container_index) {
+        while (current_container_index <= end_container_index) {
             if (!blf_pull_logcontainer_into_memory(params, current_container_index)) {
                 ws_debug("blf_read_bytes_or_eof: cannot pull in container");
                 return FALSE;
