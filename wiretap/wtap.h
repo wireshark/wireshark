@@ -1774,7 +1774,9 @@ void wtap_rec_cleanup(wtap_rec *rec);
  */
 typedef enum {
     WTAP_UNCOMPRESSED,
-    WTAP_GZIP_COMPRESSED
+    WTAP_GZIP_COMPRESSED,
+    WTAP_ZSTD_COMPRESSED,
+    WTAP_LZ4_COMPRESSED
 } wtap_compression_type;
 
 WS_DLL_PUBLIC

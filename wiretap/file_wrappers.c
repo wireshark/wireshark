@@ -69,16 +69,21 @@ static struct compression_type {
 #ifdef HAVE_ZLIB
     { WTAP_GZIP_COMPRESSED, "gz", "gzip compressed" },
 #endif
+#ifdef HAVE_ZSTD
+    { WTAP_ZSTD_COMPRESSED, "zst", "zstd compressed" },
+#endif
+#ifdef USE_LZ4
+    { WTAP_LZ4_COMPRESSED, "lz4", "lz4 compressed" },
+#endif
     { WTAP_UNCOMPRESSED, NULL, NULL }
 };
+
+static wtap_compression_type file_get_compression_type(FILE_T stream);
 
 wtap_compression_type
 wtap_get_compression_type(wtap *wth)
 {
-	gboolean is_compressed;
-
-	is_compressed = file_iscompressed((wth->fh == NULL) ? wth->random_fh : wth->fh);
-	return is_compressed ? WTAP_GZIP_COMPRESSED : WTAP_UNCOMPRESSED;
+	return file_get_compression_type((wth->fh == NULL) ? wth->random_fh : wth->fh);
 }
 
 const char *
@@ -122,18 +127,12 @@ wtap_get_all_compression_type_extensions_list(void)
 
 /* values for wtap_reader compression */
 typedef enum {
-    UNKNOWN,       /* unknown - look for a gzip header */
+    UNKNOWN,       /* unknown - look for a compression header */
     UNCOMPRESSED,  /* uncompressed - copy input directly */
-#ifdef HAVE_ZLIB
     ZLIB,          /* decompress a zlib stream */
     GZIP_AFTER_HEADER,
-#endif
-#ifdef HAVE_ZSTD
     ZSTD,
-#endif
-#ifdef USE_LZ4
     LZ4,
-#endif
 } compression_t;
 
 /*
@@ -179,6 +178,7 @@ struct wtap_reader {
     gint64 start;               /* where the gzip data started, for rewinding */
     gint64 raw;                 /* where the raw data started, for seeking */
     compression_t compression;  /* type of compression, if any */
+    compression_t last_compression; /* last known compression type */
     gboolean is_compressed;     /* FALSE if completely uncompressed, TRUE otherwise */
 
     /* seek request */
@@ -686,6 +686,7 @@ DIAG_ON(cast-qual)
                 state->err_info = "length field wrong";
             }
         }
+        state->last_compression = state->compression;
         state->compression = UNKNOWN;      /* ready for next stream, once have is 0 */
         g_free(state->fast_seek_cur);
         state->fast_seek_cur = NULL;
@@ -921,7 +922,7 @@ gz_head(FILE_T state)
 static int /* gz_make */
 fill_out_buffer(FILE_T state)
 {
-    if (state->compression == UNKNOWN) {           /* look for gzip header */
+    if (state->compression == UNKNOWN) {          /* look for compression header */
         if (gz_head(state) == -1)
             return -1;
         if (state->out.avail != 0)                /* got some data from gz_head() */
@@ -938,7 +939,7 @@ fill_out_buffer(FILE_T state)
 #endif
 #ifdef HAVE_ZSTD
     else if (state->compression == ZSTD) {
-        assert(state->out.avail == 0);
+        ws_assert(state->out.avail == 0);
 
         if (state->in.avail == 0 && fill_in_buffer(state) == -1)
             return -1;
@@ -959,13 +960,14 @@ fill_out_buffer(FILE_T state)
         state->out.avail = (guint)output.pos;
 
         if (ret == 0) {
+            state->last_compression = state->compression;
             state->compression = UNKNOWN;
         }
     }
 #endif
 #ifdef USE_LZ4
     else if (state->compression == LZ4) {
-        assert(state->out.avail == 0);
+        ws_assert(state->out.avail == 0);
 
         if (state->in.avail == 0 && fill_in_buffer(state) == -1)
             return -1;
@@ -990,6 +992,7 @@ fill_out_buffer(FILE_T state)
         state->out.avail = (guint)outBufSize;
 
         if (ret == 0) {
+            state->last_compression = state->compression;
             state->compression = UNKNOWN;
         }
     }
@@ -1038,7 +1041,7 @@ gz_reset(FILE_T state)
 {
     buf_reset(&state->out);       /* no output data available */
     state->eof = FALSE;           /* not at end of file */
-    state->compression = UNKNOWN; /* look for gzip header */
+    state->compression = UNKNOWN; /* look for compression header */
 
     state->seek_pending = FALSE;  /* no seek request pending */
     state->err = 0;               /* clear error */
@@ -1096,6 +1099,7 @@ file_fdopen(int fd)
 
     /* we don't yet know whether it's compressed */
     state->is_compressed = FALSE;
+    state->last_compression = UNKNOWN;
 
     /* save the current position for rewinding (only if reading) */
     state->start = ws_lseek64(state->fd, 0, SEEK_CUR);
@@ -1576,6 +1580,38 @@ gboolean
 file_iscompressed(FILE_T stream)
 {
     return stream->is_compressed;
+}
+
+/* Returns a wtap compression type. If we don't know the compression type,
+ * return WTAP_UNCOMPRESSED, but if our compression state is temporarily
+ * UNKNOWN because we need to reread compression headers, return the last
+ * known compression type.
+ */
+static wtap_compression_type
+file_get_compression_type(FILE_T stream)
+{
+    if (stream->is_compressed) {
+        switch ((stream->compression == UNKNOWN) ? stream->last_compression : stream->compression) {
+
+        case ZLIB:
+        case GZIP_AFTER_HEADER:
+            return WTAP_GZIP_COMPRESSED;
+
+        case ZSTD:
+            return WTAP_ZSTD_COMPRESSED;
+
+        case LZ4:
+            return WTAP_LZ4_COMPRESSED;
+
+        case UNCOMPRESSED:
+            return WTAP_UNCOMPRESSED;
+
+        default: /* UNKNOWN, should never happen if is_compressed is set */
+            ws_assert_not_reached();
+            return WTAP_UNCOMPRESSED;
+        }
+    }
+    return WTAP_UNCOMPRESSED;
 }
 
 int
