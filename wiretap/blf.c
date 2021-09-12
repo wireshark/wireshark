@@ -713,21 +713,29 @@ blf_init_rec(blf_params_t *params, blf_logobjectheader_t *header, int pkt_encap,
 }
 
 static gboolean
+blf_read_log_object_header(blf_params_t *params, int *err, gchar **err_info, gint64 header2_start, gint64 data_start, blf_logobjectheader_t *logheader) {
+    if (data_start - header2_start < (gint64)sizeof(blf_logobjectheader_t)) {
+        ws_debug("blf_read_log_object_header: not enough bytes for timestamp header");
+        return FALSE;
+    }
+
+    if (!blf_read_bytes_or_eof(params, header2_start, logheader, sizeof(*logheader), err, err_info)) {
+        ws_debug("blf_read_log_object_header: not enough bytes for logheader");
+        return FALSE;
+    }
+    fix_endianness_blf_logobjectheader(logheader);
+    return TRUE;
+}
+
+static gboolean
 blf_read_ethernetframe(blf_params_t *params, int *err, gchar **err_info, gint64 block_start, gint64 header2_start, gint64 data_start, gint64 object_length) {
     blf_logobjectheader_t logheader;
     blf_ethernetframeheader_t ethheader;
     guint8 tmpbuf[18];
 
-    if (data_start - header2_start < (gint64)sizeof(blf_logobjectheader_t)) {
-        ws_debug("blf_read_ethernetframe: not enough bytes for timestamp header");
+    if (!blf_read_log_object_header(params, err, err_info, header2_start, data_start, &logheader)) {
         return FALSE;
     }
-
-    if (!blf_read_bytes_or_eof(params, header2_start, &logheader, sizeof(logheader), err, err_info)) {
-        ws_debug("blf_read_ethernetframe: not enough bytes for logheader");
-        return FALSE;
-    }
-    fix_endianness_blf_logobjectheader(&logheader);
 
     if (object_length < (data_start - block_start) + (int) sizeof(blf_ethernetframeheader_t)) {
         ws_debug("blf_read_ethernetframe: not enough bytes for ethernet frame header in object");
@@ -797,16 +805,9 @@ blf_read_ethernetframe_ext(blf_params_t *params, int *err, gchar **err_info, gin
     blf_logobjectheader_t logheader;
     blf_ethernetframeheader_ex_t ethheader;
 
-    if (data_start - header2_start < (gint64)sizeof(blf_logobjectheader_t)) {
-        ws_debug("blf_read_ethernetframe_ex: not enough bytes for timestamp header");
+    if (!blf_read_log_object_header(params, err, err_info, header2_start, data_start, &logheader)) {
         return FALSE;
     }
-
-    if (!blf_read_bytes_or_eof(params, header2_start, &logheader, sizeof(logheader), err, err_info)) {
-        ws_debug("blf_read_ethernetframe_ex: not enough bytes for logheader");
-        return FALSE;
-    }
-    fix_endianness_blf_logobjectheader(&logheader);
 
     if (object_length < (data_start - block_start) + (int) sizeof(blf_ethernetframeheader_ex_t)) {
         ws_debug("blf_read_ethernetframe_ex: not enough bytes for ethernet frame header in object");
@@ -845,16 +846,9 @@ blf_read_wlanframe(blf_params_t* params, int* err, gchar** err_info, gint64 bloc
     blf_logobjectheader_t logheader;
     blf_wlanframeheader_t wlanheader;
 
-    if (data_start - header2_start < (gint64)sizeof(blf_logobjectheader_t)) {
-        ws_debug("blf_read_wlanframe: not enough bytes for timestamp header");
+    if (!blf_read_log_object_header(params, err, err_info, header2_start, data_start, &logheader)) {
         return FALSE;
     }
-
-    if (!blf_read_bytes_or_eof(params, header2_start, &logheader, sizeof(logheader), err, err_info)) {
-        ws_debug("blf_read_wlanframe: not enough bytes for logheader");
-        return FALSE;
-    }
-    fix_endianness_blf_logobjectheader(&logheader);
 
     if (object_length < (data_start - block_start) + (int)sizeof(blf_wlanframeheader_t)) {
         ws_debug("blf_read_wlanframe: not enough bytes for wlan frame header in object");
@@ -930,16 +924,9 @@ blf_read_canmessage(blf_params_t *params, int *err, gchar **err_info, gint64 blo
     guint8   payload_length;
     guint8   payload_length_valid;
 
-    if (data_start - header2_start < (gint64)sizeof(blf_logobjectheader_t)) {
-        ws_debug("blf_read_canmessage: not enough bytes for timestamp header");
+    if (!blf_read_log_object_header(params, err, err_info, header2_start, data_start, &logheader)) {
         return FALSE;
     }
-
-    if (!blf_read_bytes_or_eof(params, header2_start, &logheader, sizeof(logheader), err, err_info)) {
-        ws_debug("blf_read_canmessage: not enough bytes for logheader");
-        return FALSE;
-    }
-    fix_endianness_blf_logobjectheader(&logheader);
 
     if (object_length < (data_start - block_start) + (int) sizeof(canheader)) {
         ws_debug("blf_read_canmessage: not enough bytes for canfd header in object");
@@ -1006,16 +993,9 @@ blf_read_canfdmessage(blf_params_t *params, int *err, gchar **err_info, gint64 b
     guint8   payload_length;
     guint8   payload_length_valid;
 
-    if (data_start - header2_start < (gint64)sizeof(blf_logobjectheader_t)) {
-        ws_debug("blf_read_canfdmessage64: not enough bytes for timestamp header");
+    if (!blf_read_log_object_header(params, err, err_info, header2_start, data_start, &logheader)) {
         return FALSE;
     }
-
-    if (!blf_read_bytes_or_eof(params, header2_start, &logheader, sizeof(logheader), err, err_info)) {
-        ws_debug("blf_read_canfdmessage64: not enough bytes for logheader");
-        return FALSE;
-    }
-    fix_endianness_blf_logobjectheader(&logheader);
 
     if (object_length < (data_start - block_start) + (int) sizeof(canheader)) {
         ws_debug("blf_read_canfdmessage64: not enough bytes for canfd header in object");
@@ -1078,16 +1058,9 @@ blf_read_canfdmessage64(blf_params_t *params, int *err, gchar **err_info, gint64
     guint8   payload_length;
     guint8   payload_length_valid;
 
-    if (data_start - header2_start < (gint64)sizeof(blf_logobjectheader_t)) {
-        ws_debug("blf_read_canfdmessage64: not enough bytes for timestamp header");
+    if (!blf_read_log_object_header(params, err, err_info, header2_start, data_start, &logheader)) {
         return FALSE;
     }
-
-    if (!blf_read_bytes_or_eof(params, header2_start, &logheader, sizeof(logheader), err, err_info)) {
-        ws_debug("blf_read_canfdmessage64: not enough bytes for logheader");
-        return FALSE;
-    }
-    fix_endianness_blf_logobjectheader(&logheader);
 
     if (object_length < (data_start - block_start) + (int) sizeof(canheader)) {
         ws_debug("blf_read_canfdmessage64: not enough bytes for canfd header in object");
@@ -1157,16 +1130,9 @@ blf_read_flexraydata(blf_params_t *params, int *err, gchar **err_info, gint64 bl
     guint8 payload_length_valid;
     guint8 tmpbuf[7];
 
-    if (data_start - header2_start < (gint64)sizeof(blf_logobjectheader_t)) {
-        ws_debug("blf_read_flexraydata: not enough bytes for timestamp header");
+    if (!blf_read_log_object_header(params, err, err_info, header2_start, data_start, &logheader)) {
         return FALSE;
     }
-
-    if (!blf_read_bytes_or_eof(params, header2_start, &logheader, sizeof(logheader), err, err_info)) {
-        ws_debug("blf_read_flexraydata: not enough bytes for logheader");
-        return FALSE;
-    }
-    fix_endianness_blf_logobjectheader(&logheader);
 
     if (object_length < (data_start - block_start) + (int) sizeof(frheader)) {
         ws_debug("blf_read_flexraydata: not enough bytes for flexrayheader in object");
@@ -1238,16 +1204,9 @@ blf_read_flexraymessage(blf_params_t *params, int *err, gchar **err_info, gint64
     guint8 payload_length_valid;
     guint8 tmpbuf[7];
 
-    if (data_start - header2_start < (gint64)sizeof(blf_logobjectheader_t)) {
-        ws_debug("blf_read_flexraymessage: not enough bytes for timestamp header");
+    if (!blf_read_log_object_header(params, err, err_info, header2_start, data_start, &logheader)) {
         return FALSE;
     }
-
-    if (!blf_read_bytes_or_eof(params, header2_start, &logheader, sizeof(logheader), err, err_info)) {
-        ws_debug("blf_read_flexraymessage: not enough bytes for logheader");
-        return FALSE;
-    }
-    fix_endianness_blf_logobjectheader(&logheader);
 
     if (object_length < (data_start - block_start) + (int) sizeof(frheader)) {
         ws_debug("blf_read_flexraymessage: not enough bytes for flexrayheader in object");
@@ -1337,20 +1296,13 @@ blf_read_flexrayrcvmessageex(blf_params_t *params, int *err, gchar **err_info, g
     guint8  tmpbuf[7];
     gint    frheadersize = sizeof(frheader);
 
+    if (!blf_read_log_object_header(params, err, err_info, header2_start, data_start, &logheader)) {
+        return FALSE;
+    }
+
     if (ext) {
         frheadersize += 40;
     }
-
-    if (data_start - header2_start < (gint64)sizeof(blf_logobjectheader_t)) {
-        ws_debug("blf_read_flexraymessage: not enough bytes for timestamp header");
-        return FALSE;
-    }
-
-    if (!blf_read_bytes_or_eof(params, header2_start, &logheader, sizeof(logheader), err, err_info)) {
-        ws_debug("blf_read_flexraymessage: not enough bytes for logheader");
-        return FALSE;
-    }
-    fix_endianness_blf_logobjectheader(&logheader);
 
     if ((gint64)object_length < (data_start - block_start) + frheadersize) {
         ws_debug("blf_read_flexraymessage: not enough bytes for flexrayheader in object");
@@ -1441,16 +1393,9 @@ blf_read_linmessage(blf_params_t *params, int *err, gchar **err_info, gint64 blo
     guint8  payload_length;
     guint8  payload_length_valid;
 
-    if (data_start - header2_start < (gint64)sizeof(blf_logobjectheader_t)) {
-        ws_debug("blf_read_linmessage: not enough bytes for timestamp header");
+    if (!blf_read_log_object_header(params, err, err_info, header2_start, data_start, &logheader)) {
         return FALSE;
     }
-
-    if (!blf_read_bytes_or_eof(params, header2_start, &logheader, sizeof(logheader), err, err_info)) {
-        ws_debug("blf_read_linmessage: not enough bytes for logheader");
-        return FALSE;
-    }
-    fix_endianness_blf_logobjectheader(&logheader);
 
     if (object_length < (data_start - block_start) + (int)sizeof(linheader)) {
         ws_debug("blf_read_linmessage: not enough bytes for linmessage header in object");
