@@ -56,7 +56,7 @@ BASIC_LIST="cmake \
 	glib2-devel \
 	libpcap-devel \
 	zlib-devel \
-	libgcrypt-devel" 
+	libgcrypt-devel"
 
 ADDITIONAL_LIST="libcap-devel \
 	libssh-devel \
@@ -68,6 +68,13 @@ ADDITIONAL_LIST="libcap-devel \
 	libxml2-devel \
 	spandsp-devel \
 	systemd-devel"
+
+# Uncomment to add PNG compression utilities used by compress-pngs:
+# ADDITIONAL_LIST="$ADDITIONAL_LIST \
+#	advancecomp \
+#	optipng \
+#	oxipng \
+#	pngcrush"
 
 RPMDEPS_LIST="rpm-build"
 

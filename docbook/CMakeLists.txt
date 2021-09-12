@@ -78,7 +78,7 @@ set(WSUG_FILES
 	${COMMON_FILES}
 )
 
-# Note: Images should be minimized using tools/compress-pngs.sh.
+# Note: Images should be minimized using tools/compress-pngs.py.
 set(WSUG_GRAPHICS
 	wsug_graphics/related-ack.png
 	wsug_graphics/related-current.png

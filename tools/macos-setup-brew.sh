@@ -19,6 +19,9 @@ brew install sparkle opus c-ares glib libgcrypt gnutls lua@5.1 cmake python nght
 # Uncomment to enable automatic updates using Sparkle
 # brew cask install sparkle
 
+# Uncomment to add PNG compression utilities used by compress-pngs:
+# brew install advancecomp optipng oxipng pngcrush
+
 brew doctor
 
 exit 0

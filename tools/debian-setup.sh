@@ -89,6 +89,12 @@ ADDITIONAL_LIST="libnl-3-dev \
 	xsltproc \
 	libspeexdsp-dev"
 
+# Uncomment to add PNG compression utilities used by compress-pngs:
+# ADDITIONAL_LIST="$ADDITIONAL_LIST \
+#	advancecomp \
+#	optipng \
+#	pngcrush"
+
 DEBDEPS_LIST="debhelper \
 	dh-python \
 	docbook-xml \
