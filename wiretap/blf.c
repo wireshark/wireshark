@@ -594,6 +594,17 @@ blf_read_bytes_or_eof(blf_params_t *params, guint64 real_pos, void *target_buffe
     return FALSE;
 }
 
+static gboolean
+blf_read_bytes(blf_params_t *params, guint64 real_pos, void *target_buffer, unsigned int count, int *err, gchar **err_info) {
+    if (!blf_read_bytes_or_eof(params, real_pos, target_buffer, count, err, err_info)) {
+        if (*err == 0) {
+            *err = WTAP_ERR_SHORT_READ;
+        }
+        return FALSE;
+    }
+    return TRUE;
+}
+
 /* this is only called once on open to figure out the layout of the file */
 static gboolean
 blf_scan_file_for_logcontainers(blf_params_t *params) {
@@ -747,7 +758,7 @@ blf_read_ethernetframe(blf_params_t *params, int *err, gchar **err_info, gint64 
         return FALSE;
     }
 
-    if (!blf_read_bytes_or_eof(params, data_start, &ethheader, sizeof(ethheader), err, err_info)) {
+    if (!blf_read_bytes(params, data_start, &ethheader, sizeof(ethheader), err, err_info)) {
         ws_debug("not enough bytes for ethernet frame header in file");
         return FALSE;
     }
@@ -793,7 +804,7 @@ blf_read_ethernetframe(blf_params_t *params, int *err, gchar **err_info, gint64 
         len = ((guint32)14 + ethheader.payloadlength);
     }
 
-    if (!blf_read_bytes_or_eof(params, data_start + sizeof(blf_ethernetframeheader_t), ws_buffer_end_ptr(params->buf), ethheader.payloadlength, err, err_info)) {
+    if (!blf_read_bytes(params, data_start + sizeof(blf_ethernetframeheader_t), ws_buffer_end_ptr(params->buf), ethheader.payloadlength, err, err_info)) {
         ws_debug("copying ethernet frame failed");
         return FALSE;
     }
@@ -818,7 +829,7 @@ blf_read_ethernetframe_ext(blf_params_t *params, int *err, gchar **err_info, gin
         return FALSE;
     }
 
-    if (!blf_read_bytes_or_eof(params, data_start, &ethheader, sizeof(blf_ethernetframeheader_ex_t), err, err_info)) {
+    if (!blf_read_bytes(params, data_start, &ethheader, sizeof(blf_ethernetframeheader_ex_t), err, err_info)) {
         ws_debug("not enough bytes for ethernet frame header in file");
         return FALSE;
     }
@@ -831,7 +842,7 @@ blf_read_ethernetframe_ext(blf_params_t *params, int *err, gchar **err_info, gin
         return FALSE;
     }
 
-    if (!blf_read_bytes_or_eof(params, data_start + sizeof(blf_ethernetframeheader_ex_t), ws_buffer_start_ptr(params->buf), ethheader.frame_length, err, err_info)) {
+    if (!blf_read_bytes(params, data_start + sizeof(blf_ethernetframeheader_ex_t), ws_buffer_start_ptr(params->buf), ethheader.frame_length, err, err_info)) {
         ws_debug("copying ethernet frame failed");
         return FALSE;
     }
@@ -855,7 +866,7 @@ blf_read_wlanframe(blf_params_t* params, int* err, gchar** err_info, gint64 bloc
         return FALSE;
     }
 
-    if (!blf_read_bytes_or_eof(params, data_start, &wlanheader, sizeof(blf_wlanframeheader_t), err, err_info)) {
+    if (!blf_read_bytes(params, data_start, &wlanheader, sizeof(blf_wlanframeheader_t), err, err_info)) {
         ws_debug("not enough bytes for wlan frame header in file");
         return FALSE;
     }
@@ -868,7 +879,7 @@ blf_read_wlanframe(blf_params_t* params, int* err, gchar** err_info, gint64 bloc
         return FALSE;
     }
 
-    if (!blf_read_bytes_or_eof(params, data_start + sizeof(blf_wlanframeheader_t), ws_buffer_start_ptr(params->buf), wlanheader.frame_length, err, err_info)) {
+    if (!blf_read_bytes(params, data_start + sizeof(blf_wlanframeheader_t), ws_buffer_start_ptr(params->buf), wlanheader.frame_length, err, err_info)) {
         ws_debug("copying wlan frame failed");
         return FALSE;
     }
@@ -900,7 +911,7 @@ blf_can_fill_buf_and_rec(blf_params_t *params, int *err, gchar **err_info, guint
     caplen = sizeof(tmpbuf) + payload_length_valid;
     len = sizeof(tmpbuf) + payload_length;
 
-    if (payload_length_valid > 0 && !blf_read_bytes_or_eof(params, start_position, ws_buffer_end_ptr(params->buf), payload_length_valid, err, err_info)) {
+    if (payload_length_valid > 0 && !blf_read_bytes(params, start_position, ws_buffer_end_ptr(params->buf), payload_length_valid, err, err_info)) {
         ws_debug("copying can payload failed");
         return FALSE;
     }
@@ -930,7 +941,7 @@ blf_read_canmessage(blf_params_t *params, int *err, gchar **err_info, gint64 blo
         return FALSE;
     }
 
-    if (!blf_read_bytes_or_eof(params, data_start, &canheader, sizeof(canheader), err, err_info)) {
+    if (!blf_read_bytes(params, data_start, &canheader, sizeof(canheader), err, err_info)) {
         ws_debug("not enough bytes for can header in file");
         return FALSE;
     }
@@ -970,7 +981,7 @@ blf_read_canmessage(blf_params_t *params, int *err, gchar **err_info, gint64 blo
             ws_debug("not enough bytes for can message 2 trailer");
             return FALSE;
         }
-        if (!blf_read_bytes_or_eof(params, data_start + sizeof(canheader) + payload_length_valid, &can2trailer, sizeof(can2trailer), err, err_info)) {
+        if (!blf_read_bytes(params, data_start + sizeof(canheader) + payload_length_valid, &can2trailer, sizeof(can2trailer), err, err_info)) {
             ws_debug("not enough bytes for can message 2 trailer in file");
             return FALSE;
         }
@@ -999,7 +1010,7 @@ blf_read_canfdmessage(blf_params_t *params, int *err, gchar **err_info, gint64 b
         return FALSE;
     }
 
-    if (!blf_read_bytes_or_eof(params, data_start, &canheader, sizeof(canheader), err, err_info)) {
+    if (!blf_read_bytes(params, data_start, &canheader, sizeof(canheader), err, err_info)) {
         ws_debug("not enough bytes for canfd header in file");
         return FALSE;
     }
@@ -1064,7 +1075,7 @@ blf_read_canfdmessage64(blf_params_t *params, int *err, gchar **err_info, gint64
         return FALSE;
     }
 
-    if (!blf_read_bytes_or_eof(params, data_start, &canheader, sizeof(canheader), err, err_info)) {
+    if (!blf_read_bytes(params, data_start, &canheader, sizeof(canheader), err, err_info)) {
         ws_debug("not enough bytes for canfd header in file");
         return FALSE;
     }
@@ -1137,7 +1148,7 @@ blf_read_flexraydata(blf_params_t *params, int *err, gchar **err_info, gint64 bl
         return FALSE;
     }
 
-    if (!blf_read_bytes_or_eof(params, data_start, &frheader, sizeof(frheader), err, err_info)) {
+    if (!blf_read_bytes(params, data_start, &frheader, sizeof(frheader), err, err_info)) {
         ws_debug("not enough bytes for flexrayheader header in file");
         return FALSE;
     }
@@ -1181,7 +1192,7 @@ blf_read_flexraydata(blf_params_t *params, int *err, gchar **err_info, gint64 bl
     caplen = sizeof(tmpbuf) + payload_length_valid;
     len = sizeof(tmpbuf) + payload_length;
 
-    if (payload_length_valid > 0 && !blf_read_bytes_or_eof(params, data_start + sizeof(frheader), ws_buffer_end_ptr(params->buf), payload_length_valid, err, err_info)) {
+    if (payload_length_valid > 0 && !blf_read_bytes(params, data_start + sizeof(frheader), ws_buffer_end_ptr(params->buf), payload_length_valid, err, err_info)) {
         ws_debug("copying flexray payload failed");
         return FALSE;
     }
@@ -1211,7 +1222,7 @@ blf_read_flexraymessage(blf_params_t *params, int *err, gchar **err_info, gint64
         return FALSE;
     }
 
-    if (!blf_read_bytes_or_eof(params, data_start, &frheader, sizeof(frheader), err, err_info)) {
+    if (!blf_read_bytes(params, data_start, &frheader, sizeof(frheader), err, err_info)) {
         ws_debug("not enough bytes for flexrayheader header in file");
         return FALSE;
     }
@@ -1272,7 +1283,7 @@ blf_read_flexraymessage(blf_params_t *params, int *err, gchar **err_info, gint64
     caplen = sizeof(tmpbuf) + payload_length_valid;
     len = sizeof(tmpbuf) + payload_length;
 
-    if (payload_length_valid > 0 && !blf_read_bytes_or_eof(params, data_start + sizeof(frheader), ws_buffer_end_ptr(params->buf), payload_length_valid, err, err_info)) {
+    if (payload_length_valid > 0 && !blf_read_bytes(params, data_start + sizeof(frheader), ws_buffer_end_ptr(params->buf), payload_length_valid, err, err_info)) {
         ws_debug("copying flexray payload failed");
         return FALSE;
     }
@@ -1307,7 +1318,7 @@ blf_read_flexrayrcvmessageex(blf_params_t *params, int *err, gchar **err_info, g
         return FALSE;
     }
 
-    if (!blf_read_bytes_or_eof(params, data_start, &frheader, sizeof(frheader), err, err_info)) {
+    if (!blf_read_bytes(params, data_start, &frheader, sizeof(frheader), err, err_info)) {
         ws_debug("not enough bytes for flexrayheader header in file");
         return FALSE;
     }
@@ -1370,7 +1381,7 @@ blf_read_flexrayrcvmessageex(blf_params_t *params, int *err, gchar **err_info, g
     caplen = sizeof(tmpbuf) + payload_length_valid;
     len = sizeof(tmpbuf) + payload_length;
 
-    if (payload_length_valid > 0 && !blf_read_bytes_or_eof(params, data_start + frheadersize, ws_buffer_end_ptr(params->buf), payload_length_valid, err, err_info)) {
+    if (payload_length_valid > 0 && !blf_read_bytes(params, data_start + frheadersize, ws_buffer_end_ptr(params->buf), payload_length_valid, err, err_info)) {
         ws_debug("copying flexray payload failed");
         return FALSE;
     }
@@ -1400,7 +1411,7 @@ blf_read_linmessage(blf_params_t *params, int *err, gchar **err_info, gint64 blo
         return FALSE;
     }
 
-    if (!blf_read_bytes_or_eof(params, data_start, &linheader, sizeof(linheader), err, err_info)) {
+    if (!blf_read_bytes(params, data_start, &linheader, sizeof(linheader), err, err_info)) {
         ws_debug("not enough bytes for linmessage header in file");
         return FALSE;
     }
@@ -1433,7 +1444,7 @@ blf_read_linmessage(blf_params_t *params, int *err, gchar **err_info, gint64 blo
     caplen = sizeof(tmpbuf) + payload_length_valid;
     len = sizeof(tmpbuf) + payload_length;
 
-    if (payload_length_valid > 0 && !blf_read_bytes_or_eof(params, data_start + 4, ws_buffer_end_ptr(params->buf), payload_length_valid, err, err_info)) {
+    if (payload_length_valid > 0 && !blf_read_bytes(params, data_start + 4, ws_buffer_end_ptr(params->buf), payload_length_valid, err, err_info)) {
         ws_debug("copying can payload failed");
         return FALSE;
     }
@@ -1443,7 +1454,7 @@ blf_read_linmessage(blf_params_t *params, int *err, gchar **err_info, gint64 blo
         ws_debug("not enough bytes for lin message trailer");
         return FALSE;
     }
-    if (!blf_read_bytes_or_eof(params, data_start + sizeof(linheader) + payload_length_valid, &lintrailer, sizeof(lintrailer), err, err_info)) {
+    if (!blf_read_bytes(params, data_start + sizeof(linheader) + payload_length_valid, &lintrailer, sizeof(lintrailer), err, err_info)) {
         ws_debug("not enough bytes for lin message trailer in file");
         return FALSE;
     }
