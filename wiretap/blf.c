@@ -699,12 +699,16 @@ blf_scan_file_for_logcontainers(blf_params_t *params) {
 }
 
 static void
-blf_init_rec(blf_params_t *params, blf_logobjectheader_t *header, int pkt_encap, guint32 channel) {
+blf_init_rec(blf_params_t *params, blf_logobjectheader_t *header, int pkt_encap, guint32 channel, guint caplen, guint len) {
     params->rec->rec_type = REC_TYPE_PACKET;
+    params->rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
+    params->rec->presence_flags = WTAP_HAS_TS | WTAP_HAS_CAP_LEN | WTAP_HAS_INTERFACE_ID;
     params->rec->tsprec = WTAP_TSPREC_NSEC;       /* there is no 10us, maybe we should update this */
     guint64 object_timestamp = blf_timestamp_to_ns(header) + params->blf_data->start_offset_ns;
     params->rec->ts.secs = object_timestamp / (1000 * 1000 * 1000);
     params->rec->ts.nsecs = object_timestamp % (1000 * 1000 * 1000);
+    params->rec->rec_header.packet_header.caplen = caplen;
+    params->rec->rec_header.packet_header.len = len;
 
     params->rec->rec_header.packet_header.pkt_encap = pkt_encap;
     params->rec->rec_header.packet_header.interface_id = blf_lookup_interface(params, pkt_encap, channel);
@@ -732,6 +736,7 @@ blf_read_ethernetframe(blf_params_t *params, int *err, gchar **err_info, gint64 
     blf_logobjectheader_t logheader;
     blf_ethernetframeheader_t ethheader;
     guint8 tmpbuf[18];
+    guint caplen, len;
 
     if (!blf_read_log_object_header(params, err, err_info, header2_start, data_start, &logheader)) {
         return FALSE;
@@ -777,15 +782,15 @@ blf_read_ethernetframe(blf_params_t *params, int *err, gchar **err_info, gint64 
         tmpbuf[17] = (ethheader.ethtype & 0x00ff);
         ws_buffer_assure_space(params->buf, (gsize)18 + ethheader.payloadlength);
         ws_buffer_append(params->buf, tmpbuf, (gsize)18);
-        params->rec->rec_header.packet_header.caplen = ((guint32)18 + ethheader.payloadlength);
-        params->rec->rec_header.packet_header.len = ((guint32)18 + ethheader.payloadlength);
+        caplen = ((guint32)18 + ethheader.payloadlength);
+        len = ((guint32)18 + ethheader.payloadlength);
     } else {
         tmpbuf[12] = (ethheader.ethtype & 0xff00) >> 8;
         tmpbuf[13] = (ethheader.ethtype & 0x00ff);
         ws_buffer_assure_space(params->buf, (gsize)14 + ethheader.payloadlength);
         ws_buffer_append(params->buf, tmpbuf, (gsize)14);
-        params->rec->rec_header.packet_header.caplen = ((guint32)14 + ethheader.payloadlength);
-        params->rec->rec_header.packet_header.len = ((guint32)14 + ethheader.payloadlength);
+        caplen = ((guint32)14 + ethheader.payloadlength);
+        len = ((guint32)14 + ethheader.payloadlength);
     }
 
     if (!blf_read_bytes_or_eof(params, data_start + sizeof(blf_ethernetframeheader_t), ws_buffer_end_ptr(params->buf), ethheader.payloadlength, err, err_info)) {
@@ -794,8 +799,7 @@ blf_read_ethernetframe(blf_params_t *params, int *err, gchar **err_info, gint64 
     }
     params->buf->first_free += ethheader.payloadlength;
 
-    params->rec->presence_flags = WTAP_HAS_TS | WTAP_HAS_CAP_LEN | WTAP_HAS_INTERFACE_ID;
-    blf_init_rec(params, &logheader, WTAP_ENCAP_ETHERNET, ethheader.channel);
+    blf_init_rec(params, &logheader, WTAP_ENCAP_ETHERNET, ethheader.channel, caplen, len);
 
     return TRUE;
 }
@@ -832,12 +836,8 @@ blf_read_ethernetframe_ext(blf_params_t *params, int *err, gchar **err_info, gin
         return FALSE;
     }
 
-    blf_init_rec(params, &logheader, WTAP_ENCAP_ETHERNET, ethheader.channel);
-    params->rec->presence_flags = WTAP_HAS_TS | WTAP_HAS_CAP_LEN | WTAP_HAS_INTERFACE_ID;
-    params->rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
+    blf_init_rec(params, &logheader, WTAP_ENCAP_ETHERNET, ethheader.channel, ethheader.frame_length, ethheader.frame_length);
     wtap_block_add_uint32_option(params->rec->block, OPT_PKT_QUEUE, ethheader.hw_channel);
-    params->rec->rec_header.packet_header.caplen = ethheader.frame_length;
-    params->rec->rec_header.packet_header.len = ethheader.frame_length;
     return TRUE;
 }
 
@@ -873,11 +873,7 @@ blf_read_wlanframe(blf_params_t* params, int* err, gchar** err_info, gint64 bloc
         return FALSE;
     }
 
-    blf_init_rec(params, &logheader, WTAP_ENCAP_IEEE_802_11, wlanheader.channel);
-    params->rec->presence_flags = WTAP_HAS_TS | WTAP_HAS_CAP_LEN | WTAP_HAS_INTERFACE_ID;
-    params->rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
-    params->rec->rec_header.packet_header.caplen = wlanheader.frame_length;
-    params->rec->rec_header.packet_header.len = wlanheader.frame_length;
+    blf_init_rec(params, &logheader, WTAP_ENCAP_IEEE_802_11, wlanheader.channel, wlanheader.frame_length, wlanheader.frame_length);
     return TRUE;
 }
 
@@ -888,6 +884,8 @@ static gboolean
 blf_can_fill_buf_and_rec(blf_params_t *params, int *err, gchar **err_info, guint32 canid, guint8 payload_length, guint8 payload_length_valid, guint64 start_position,
                          blf_logobjectheader_t *header, guint32 channel) {
     guint8   tmpbuf[8];
+    guint    caplen, len;
+
     tmpbuf[0] = (canid & 0xff000000) >> 24;
     tmpbuf[1] = (canid & 0x00ff0000) >> 16;
     tmpbuf[2] = (canid & 0x0000ff00) >> 8;
@@ -899,8 +897,8 @@ blf_can_fill_buf_and_rec(blf_params_t *params, int *err, gchar **err_info, guint
 
     ws_buffer_assure_space(params->buf, sizeof(tmpbuf) + payload_length_valid);
     ws_buffer_append(params->buf, tmpbuf, sizeof(tmpbuf));
-    params->rec->rec_header.packet_header.caplen = sizeof(tmpbuf) + payload_length_valid;
-    params->rec->rec_header.packet_header.len = sizeof(tmpbuf) + payload_length;
+    caplen = sizeof(tmpbuf) + payload_length_valid;
+    len = sizeof(tmpbuf) + payload_length;
 
     if (payload_length_valid > 0 && !blf_read_bytes_or_eof(params, start_position, ws_buffer_end_ptr(params->buf), payload_length_valid, err, err_info)) {
         ws_debug("blf_can_fill_buf: copying can payload failed");
@@ -908,8 +906,7 @@ blf_can_fill_buf_and_rec(blf_params_t *params, int *err, gchar **err_info, guint
     }
     params->buf->first_free += payload_length_valid;
 
-    blf_init_rec(params, header, WTAP_ENCAP_SOCKETCAN, channel);
-    params->rec->presence_flags = WTAP_HAS_TS | WTAP_HAS_CAP_LEN | WTAP_HAS_INTERFACE_ID;
+    blf_init_rec(params, header, WTAP_ENCAP_SOCKETCAN, channel, caplen, len);
 
     return TRUE;
 }
@@ -1129,6 +1126,7 @@ blf_read_flexraydata(blf_params_t *params, int *err, gchar **err_info, gint64 bl
     guint8 payload_length;
     guint8 payload_length_valid;
     guint8 tmpbuf[7];
+    guint  caplen, len;
 
     if (!blf_read_log_object_header(params, err, err_info, header2_start, data_start, &logheader)) {
         return FALSE;
@@ -1180,8 +1178,8 @@ blf_read_flexraydata(blf_params_t *params, int *err, gchar **err_info, gint64 bl
 
     ws_buffer_assure_space(params->buf, sizeof(tmpbuf) + payload_length_valid);
     ws_buffer_append(params->buf, tmpbuf, sizeof(tmpbuf));
-    params->rec->rec_header.packet_header.caplen = sizeof(tmpbuf) + payload_length_valid;
-    params->rec->rec_header.packet_header.len = sizeof(tmpbuf) + payload_length;
+    caplen = sizeof(tmpbuf) + payload_length_valid;
+    len = sizeof(tmpbuf) + payload_length;
 
     if (payload_length_valid > 0 && !blf_read_bytes_or_eof(params, data_start + sizeof(frheader), ws_buffer_end_ptr(params->buf), payload_length_valid, err, err_info)) {
         ws_debug("blf_read_flexraydata: copying flexray payload failed");
@@ -1189,8 +1187,7 @@ blf_read_flexraydata(blf_params_t *params, int *err, gchar **err_info, gint64 bl
     }
     params->buf->first_free += payload_length_valid;
 
-    blf_init_rec(params, &logheader, WTAP_ENCAP_FLEXRAY, frheader.channel);
-    params->rec->presence_flags = WTAP_HAS_TS | WTAP_HAS_CAP_LEN | WTAP_HAS_INTERFACE_ID;
+    blf_init_rec(params, &logheader, WTAP_ENCAP_FLEXRAY, frheader.channel, caplen, len);
 
     return TRUE;
 }
@@ -1203,6 +1200,7 @@ blf_read_flexraymessage(blf_params_t *params, int *err, gchar **err_info, gint64
     guint8 payload_length;
     guint8 payload_length_valid;
     guint8 tmpbuf[7];
+    guint  caplen, len;
 
     if (!blf_read_log_object_header(params, err, err_info, header2_start, data_start, &logheader)) {
         return FALSE;
@@ -1271,8 +1269,8 @@ blf_read_flexraymessage(blf_params_t *params, int *err, gchar **err_info, gint64
 
     ws_buffer_assure_space(params->buf, sizeof(tmpbuf) + payload_length_valid);
     ws_buffer_append(params->buf, tmpbuf, sizeof(tmpbuf));
-    params->rec->rec_header.packet_header.caplen = sizeof(tmpbuf) + payload_length_valid;
-    params->rec->rec_header.packet_header.len = sizeof(tmpbuf) + payload_length;
+    caplen = sizeof(tmpbuf) + payload_length_valid;
+    len = sizeof(tmpbuf) + payload_length;
 
     if (payload_length_valid > 0 && !blf_read_bytes_or_eof(params, data_start + sizeof(frheader), ws_buffer_end_ptr(params->buf), payload_length_valid, err, err_info)) {
         ws_debug("blf_read_flexraymessage: copying flexray payload failed");
@@ -1280,8 +1278,7 @@ blf_read_flexraymessage(blf_params_t *params, int *err, gchar **err_info, gint64
     }
     params->buf->first_free += payload_length_valid;
 
-    blf_init_rec(params, &logheader, WTAP_ENCAP_FLEXRAY, frheader.channel);
-    params->rec->presence_flags = WTAP_HAS_TS | WTAP_HAS_CAP_LEN | WTAP_HAS_INTERFACE_ID;
+    blf_init_rec(params, &logheader, WTAP_ENCAP_FLEXRAY, frheader.channel, caplen, len);
 
     return TRUE;
 }
@@ -1295,6 +1292,7 @@ blf_read_flexrayrcvmessageex(blf_params_t *params, int *err, gchar **err_info, g
     guint16 payload_length_valid;
     guint8  tmpbuf[7];
     gint    frheadersize = sizeof(frheader);
+    guint   caplen, len;
 
     if (!blf_read_log_object_header(params, err, err_info, header2_start, data_start, &logheader)) {
         return FALSE;
@@ -1369,8 +1367,8 @@ blf_read_flexrayrcvmessageex(blf_params_t *params, int *err, gchar **err_info, g
 
     ws_buffer_assure_space(params->buf, sizeof(tmpbuf) + payload_length_valid);
     ws_buffer_append(params->buf, tmpbuf, sizeof(tmpbuf));
-    params->rec->rec_header.packet_header.caplen = sizeof(tmpbuf) + payload_length_valid;
-    params->rec->rec_header.packet_header.len = sizeof(tmpbuf) + payload_length;
+    caplen = sizeof(tmpbuf) + payload_length_valid;
+    len = sizeof(tmpbuf) + payload_length;
 
     if (payload_length_valid > 0 && !blf_read_bytes_or_eof(params, data_start + frheadersize, ws_buffer_end_ptr(params->buf), payload_length_valid, err, err_info)) {
         ws_debug("blf_read_flexraymessage: copying flexray payload failed");
@@ -1378,8 +1376,7 @@ blf_read_flexrayrcvmessageex(blf_params_t *params, int *err, gchar **err_info, g
     }
     params->buf->first_free += payload_length_valid;
 
-    blf_init_rec(params, &logheader, WTAP_ENCAP_FLEXRAY, frheader.channelMask);
-    params->rec->presence_flags = WTAP_HAS_TS | WTAP_HAS_CAP_LEN | WTAP_HAS_INTERFACE_ID;
+    blf_init_rec(params, &logheader, WTAP_ENCAP_FLEXRAY, frheader.channelMask, caplen, len);
 
     return TRUE;
 }
@@ -1392,6 +1389,7 @@ blf_read_linmessage(blf_params_t *params, int *err, gchar **err_info, gint64 blo
 
     guint8  payload_length;
     guint8  payload_length_valid;
+    guint   caplen, len;
 
     if (!blf_read_log_object_header(params, err, err_info, header2_start, data_start, &logheader)) {
         return FALSE;
@@ -1432,17 +1430,14 @@ blf_read_linmessage(blf_params_t *params, int *err, gchar **err_info, gint64 blo
 
     ws_buffer_assure_space(params->buf, sizeof(tmpbuf) + payload_length_valid);
     ws_buffer_append(params->buf, tmpbuf, sizeof(tmpbuf));
-    params->rec->rec_header.packet_header.caplen = sizeof(tmpbuf) + payload_length_valid;
-    params->rec->rec_header.packet_header.len = sizeof(tmpbuf) + payload_length;
+    caplen = sizeof(tmpbuf) + payload_length_valid;
+    len = sizeof(tmpbuf) + payload_length;
 
     if (payload_length_valid > 0 && !blf_read_bytes_or_eof(params, data_start + 4, ws_buffer_end_ptr(params->buf), payload_length_valid, err, err_info)) {
         ws_debug("blf_can_fill_buf: copying can payload failed");
         return FALSE;
     }
     params->buf->first_free += payload_length_valid;
-
-    blf_init_rec(params, &logheader, WTAP_ENCAP_LIN, linheader.channel);
-    params->rec->presence_flags = WTAP_HAS_TS | WTAP_HAS_CAP_LEN | WTAP_HAS_INTERFACE_ID;
 
     if (object_length < (data_start - block_start) + (int)sizeof(linheader) + payload_length_valid + (int)sizeof(lintrailer)) {
         ws_debug("blf_read_linmessage: not enough bytes for lin message trailer");
@@ -1454,6 +1449,8 @@ blf_read_linmessage(blf_params_t *params, int *err, gchar **err_info, gint64 blo
     }
     fix_endianness_blf_linmessage_trailer(&lintrailer);
     /* we are not using it right now since the CRC is too big to convert */
+
+    blf_init_rec(params, &logheader, WTAP_ENCAP_LIN, linheader.channel, caplen, len);
 
     return TRUE;
 }
