@@ -8225,6 +8225,16 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>&quot;%1&quot;i sil</translation>
     </message>
     <message>
+        <source>Delete packet comments</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <source>Delete comments from %n packet(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
         <source> before starting a new capture</source>
         <translation> yeni bir yakalamaya başlamadan önce</translation>
     </message>
@@ -8681,7 +8691,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>PacketCommentDialog</name>
     <message>
         <source>Packet %1 Comment</source>
-        <translation>Paket %1 Yorum</translation>
+        <translation type="vanished">Paket %1 Yorum</translation>
+    </message>
+    <message>
+        <source>Edit Packet Comment</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add Packet Comment</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -12731,6 +12749,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Compressed</source>
         <translation>Sıkıştırılmış</translation>
+    </message>
+    <message>
+        <source>Hex Digits</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Quoted-Printable</source>

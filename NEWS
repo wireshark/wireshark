@@ -18,7 +18,7 @@ Wireshark 3.5.1 Release Notes
    The following features are new (or have been significantly updated)
    since version 3.4.0:
 
-     • The Windows installers now ship with Npcap 1.50.
+     • The Windows installers now ship with Npcap 1.55.
 
      • A 64-bit Windows PortableApps package is now available.
 
@@ -182,7 +182,7 @@ Wireshark 3.5.1 Release Notes
 
   A complete FAQ is available on the Wireshark web site[8].
 
-  Last updated 2021-09-05 18:28:34 UTC
+  Last updated 2021-09-12 09:05:23 UTC
 
  References
 
