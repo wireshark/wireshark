@@ -437,7 +437,7 @@ blf_pull_logcontainer_into_memory(blf_params_t *params, guint index_log_containe
     blf_log_container_t tmp;
 
     if (index_log_container >= blf_data->log_containers->len) {
-        ws_debug("blf_pull_logcontainer_into_memory: cannot pull an unknown log container into memory");
+        ws_debug("cannot pull an unknown log container into memory");
         return FALSE;
     }
 
@@ -454,7 +454,7 @@ blf_pull_logcontainer_into_memory(blf_params_t *params, guint index_log_containe
 
         file_seek(params->fh, tmp.infile_data_start, SEEK_SET, &err);
         if (err < 0) {
-            ws_debug("blf_pull_logcontainer_into_memory: cannot seek to start of log_container");
+            ws_debug("cannot seek to start of log_container");
             return FALSE;
         }
 
@@ -462,7 +462,7 @@ blf_pull_logcontainer_into_memory(blf_params_t *params, guint index_log_containe
         unsigned char *compressed_data = g_try_malloc0((gsize)tmp.infile_length);
         guint64 data_length = (unsigned int)tmp.infile_length - (tmp.infile_data_start - tmp.infile_start_pos);
         if (!wtap_read_bytes_or_eof(params->fh, compressed_data, (unsigned int)data_length, &err, &err_info)) {
-            ws_debug("blf_pull_logcontainer_into_memory: cannot read compressed data");
+            ws_debug("cannot read compressed data");
             return FALSE;
         }
 
@@ -510,11 +510,11 @@ blf_read_bytes_or_eof(blf_params_t *params, guint64 real_pos, void *target_buffe
     unsigned char *buf = (unsigned char *)target_buffer;
 
     if (!blf_find_logcontainer_for_address(params->blf_data, real_pos, &start_container, &start_container_index)) {
-        ws_debug("blf_read_bytes_or_eof: cannot read data because start position cannot be mapped");
+        ws_debug("cannot read data because start position cannot be mapped");
         return FALSE;
     }
     if (!blf_find_logcontainer_for_address(params->blf_data, real_pos + count - 1, &end_container, &end_container_index)) {
-        ws_debug("blf_read_bytes_or_eof: cannot read data because end position cannot be mapped");
+        ws_debug("cannot read data because end position cannot be mapped");
         return FALSE;
     }
 
@@ -526,20 +526,20 @@ blf_read_bytes_or_eof(blf_params_t *params, guint64 real_pos, void *target_buffe
     case BLF_COMPRESSION_NONE:
         while (current_container_index <= end_container_index) {
             if (!blf_get_logcontainer_by_index(params->blf_data, current_container_index, &current_container)) {
-                ws_debug("blf_read_bytes_or_eof: cannot refresh container");
+                ws_debug("cannot refresh container");
                 return FALSE;
             }
 
             data_left = (unsigned int)(current_container->real_length - start_in_buf);
 
             if (file_seek(params->fh, current_container->infile_data_start + start_in_buf, SEEK_SET, err) < 0) {
-                ws_debug("blf_read_bytes_or_eof: cannot seek data");
+                ws_debug("cannot seek data");
                 return FALSE;
             }
 
             if (data_left < (count - copied)) {
                 if (!wtap_read_bytes_or_eof(params->fh, buf + copied, data_left, err, err_info)) {
-                    ws_debug("blf_read_bytes_or_eof: cannot read data");
+                    ws_debug("cannot read data");
                     return FALSE;
                 }
                 copied += data_left;
@@ -547,7 +547,7 @@ blf_read_bytes_or_eof(blf_params_t *params, guint64 real_pos, void *target_buffe
                 start_in_buf = 0;
             } else {
                 if (!wtap_read_bytes_or_eof(params->fh, buf + copied, count - copied, err, err_info)) {
-                    ws_debug("blf_read_bytes_or_eof: cannot read data");
+                    ws_debug("cannot read data");
                     return FALSE;
                 }
                 return TRUE;
@@ -558,17 +558,17 @@ blf_read_bytes_or_eof(blf_params_t *params, guint64 real_pos, void *target_buffe
     case BLF_COMPRESSION_ZLIB:
         while (current_container_index <= end_container_index) {
             if (!blf_pull_logcontainer_into_memory(params, current_container_index)) {
-                ws_debug("blf_read_bytes_or_eof: cannot pull in container");
+                ws_debug("cannot pull in container");
                 return FALSE;
             }
 
             if (!blf_get_logcontainer_by_index(params->blf_data, current_container_index, &current_container)) {
-                ws_debug("blf_read_bytes_or_eof: cannot refresh container");
+                ws_debug("cannot refresh container");
                 return FALSE;
             }
 
             if (current_container->real_data == NULL) {
-                ws_debug("blf_read_bytes_or_eof: pulling in container failed hard");
+                ws_debug("pulling in container failed hard");
                 return FALSE;
             }
 
@@ -587,7 +587,7 @@ blf_read_bytes_or_eof(blf_params_t *params, guint64 real_pos, void *target_buffe
         break;
 
     default:
-        ws_debug("blf_read_bytes_or_eof: unknown compression method");
+        ws_debug("unknown compression method");
         return FALSE;
     }
 
@@ -719,12 +719,12 @@ blf_init_rec(blf_params_t *params, blf_logobjectheader_t *header, int pkt_encap,
 static gboolean
 blf_read_log_object_header(blf_params_t *params, int *err, gchar **err_info, gint64 header2_start, gint64 data_start, blf_logobjectheader_t *logheader) {
     if (data_start - header2_start < (gint64)sizeof(blf_logobjectheader_t)) {
-        ws_debug("blf_read_log_object_header: not enough bytes for timestamp header");
+        ws_debug("not enough bytes for timestamp header");
         return FALSE;
     }
 
     if (!blf_read_bytes_or_eof(params, header2_start, logheader, sizeof(*logheader), err, err_info)) {
-        ws_debug("blf_read_log_object_header: not enough bytes for logheader");
+        ws_debug("not enough bytes for logheader");
         return FALSE;
     }
     fix_endianness_blf_logobjectheader(logheader);
@@ -743,12 +743,12 @@ blf_read_ethernetframe(blf_params_t *params, int *err, gchar **err_info, gint64 
     }
 
     if (object_length < (data_start - block_start) + (int) sizeof(blf_ethernetframeheader_t)) {
-        ws_debug("blf_read_ethernetframe: not enough bytes for ethernet frame header in object");
+        ws_debug("not enough bytes for ethernet frame header in object");
         return FALSE;
     }
 
     if (!blf_read_bytes_or_eof(params, data_start, &ethheader, sizeof(ethheader), err, err_info)) {
-        ws_debug("blf_read_ethernetframe: not enough bytes for ethernet frame header in file");
+        ws_debug("not enough bytes for ethernet frame header in file");
         return FALSE;
     }
     fix_endianness_blf_ethernetframeheader(&ethheader);
@@ -794,7 +794,7 @@ blf_read_ethernetframe(blf_params_t *params, int *err, gchar **err_info, gint64 
     }
 
     if (!blf_read_bytes_or_eof(params, data_start + sizeof(blf_ethernetframeheader_t), ws_buffer_end_ptr(params->buf), ethheader.payloadlength, err, err_info)) {
-        ws_debug("blf_read_ethernetframe: copying ethernet frame failed");
+        ws_debug("copying ethernet frame failed");
         return FALSE;
     }
     params->buf->first_free += ethheader.payloadlength;
@@ -814,12 +814,12 @@ blf_read_ethernetframe_ext(blf_params_t *params, int *err, gchar **err_info, gin
     }
 
     if (object_length < (data_start - block_start) + (int) sizeof(blf_ethernetframeheader_ex_t)) {
-        ws_debug("blf_read_ethernetframe_ex: not enough bytes for ethernet frame header in object");
+        ws_debug("not enough bytes for ethernet frame header in object");
         return FALSE;
     }
 
     if (!blf_read_bytes_or_eof(params, data_start, &ethheader, sizeof(blf_ethernetframeheader_ex_t), err, err_info)) {
-        ws_debug("blf_read_ethernetframe_ex: not enough bytes for ethernet frame header in file");
+        ws_debug("not enough bytes for ethernet frame header in file");
         return FALSE;
     }
     fix_endianness_blf_ethernetframeheader_ex(&ethheader);
@@ -827,12 +827,12 @@ blf_read_ethernetframe_ext(blf_params_t *params, int *err, gchar **err_info, gin
     ws_buffer_assure_space(params->buf, ethheader.frame_length);
 
     if (object_length - (data_start - block_start) - sizeof(blf_ethernetframeheader_ex_t) < ethheader.frame_length) {
-        ws_debug("blf_read_ethernetframe_ext: frame too short");
+        ws_debug("frame too short");
         return FALSE;
     }
 
     if (!blf_read_bytes_or_eof(params, data_start + sizeof(blf_ethernetframeheader_ex_t), ws_buffer_start_ptr(params->buf), ethheader.frame_length, err, err_info)) {
-        ws_debug("blf_read_ethernetframe_ex: copying ethernet frame failed");
+        ws_debug("copying ethernet frame failed");
         return FALSE;
     }
 
@@ -851,12 +851,12 @@ blf_read_wlanframe(blf_params_t* params, int* err, gchar** err_info, gint64 bloc
     }
 
     if (object_length < (data_start - block_start) + (int)sizeof(blf_wlanframeheader_t)) {
-        ws_debug("blf_read_wlanframe: not enough bytes for wlan frame header in object");
+        ws_debug("not enough bytes for wlan frame header in object");
         return FALSE;
     }
 
     if (!blf_read_bytes_or_eof(params, data_start, &wlanheader, sizeof(blf_wlanframeheader_t), err, err_info)) {
-        ws_debug("blf_read_wlanframe: not enough bytes for wlan frame header in file");
+        ws_debug("not enough bytes for wlan frame header in file");
         return FALSE;
     }
     fix_endianness_blf_wlanframeheader(&wlanheader);
@@ -864,12 +864,12 @@ blf_read_wlanframe(blf_params_t* params, int* err, gchar** err_info, gint64 bloc
     ws_buffer_assure_space(params->buf, wlanheader.frame_length);
 
     if (object_length - (data_start - block_start) - sizeof(blf_wlanframeheader_t) < wlanheader.frame_length) {
-        ws_debug("blf_read_wlanframe: frame too short");
+        ws_debug("frame too short");
         return FALSE;
     }
 
     if (!blf_read_bytes_or_eof(params, data_start + sizeof(blf_wlanframeheader_t), ws_buffer_start_ptr(params->buf), wlanheader.frame_length, err, err_info)) {
-        ws_debug("blf_read_wlanframe: copying wlan frame failed");
+        ws_debug("copying wlan frame failed");
         return FALSE;
     }
 
@@ -901,7 +901,7 @@ blf_can_fill_buf_and_rec(blf_params_t *params, int *err, gchar **err_info, guint
     len = sizeof(tmpbuf) + payload_length;
 
     if (payload_length_valid > 0 && !blf_read_bytes_or_eof(params, start_position, ws_buffer_end_ptr(params->buf), payload_length_valid, err, err_info)) {
-        ws_debug("blf_can_fill_buf: copying can payload failed");
+        ws_debug("copying can payload failed");
         return FALSE;
     }
     params->buf->first_free += payload_length_valid;
@@ -926,12 +926,12 @@ blf_read_canmessage(blf_params_t *params, int *err, gchar **err_info, gint64 blo
     }
 
     if (object_length < (data_start - block_start) + (int) sizeof(canheader)) {
-        ws_debug("blf_read_canmessage: not enough bytes for canfd header in object");
+        ws_debug("not enough bytes for canfd header in object");
         return FALSE;
     }
 
     if (!blf_read_bytes_or_eof(params, data_start, &canheader, sizeof(canheader), err, err_info)) {
-        ws_debug("blf_read_canmessage: not enough bytes for can header in file");
+        ws_debug("not enough bytes for can header in file");
         return FALSE;
     }
     fix_endianness_blf_canmessage(&canheader);
@@ -942,14 +942,14 @@ blf_read_canmessage(blf_params_t *params, int *err, gchar **err_info, gint64 blo
 
     payload_length = canheader.dlc;
     if (payload_length > 8) {
-        ws_debug("blf_read_canmessage: regular CAN tries more than 8 bytes? Cutting to 8!");
+        ws_debug("regular CAN tries more than 8 bytes? Cutting to 8!");
         payload_length = 8;
     }
 
     payload_length_valid = payload_length;
 
     if (payload_length_valid > object_length - (data_start - block_start)) {
-        ws_debug("blf_read_canmessage: shortening CAN payload because buffer is too short!");
+        ws_debug("shortening CAN payload because buffer is too short!");
         payload_length_valid = (guint8)(object_length - (data_start - block_start));
     }
 
@@ -967,11 +967,11 @@ blf_read_canmessage(blf_params_t *params, int *err, gchar **err_info, gint64 blo
     /* actually, we do not really need the data, right now.... */
     if (can_message2) {
         if (object_length < (data_start - block_start) + (int) sizeof(canheader) + payload_length_valid + (int) sizeof(can2trailer)) {
-            ws_debug("blf_read_canmessage2: not enough bytes for can message 2 trailer");
+            ws_debug("not enough bytes for can message 2 trailer");
             return FALSE;
         }
         if (!blf_read_bytes_or_eof(params, data_start + sizeof(canheader) + payload_length_valid, &can2trailer, sizeof(can2trailer), err, err_info)) {
-            ws_debug("blf_read_canmessage2: not enough bytes for can message 2 trailer in file");
+            ws_debug("not enough bytes for can message 2 trailer in file");
             return FALSE;
         }
         fix_endianness_blf_canmessage2_trailer(&can2trailer);
@@ -995,12 +995,12 @@ blf_read_canfdmessage(blf_params_t *params, int *err, gchar **err_info, gint64 b
     }
 
     if (object_length < (data_start - block_start) + (int) sizeof(canheader)) {
-        ws_debug("blf_read_canfdmessage64: not enough bytes for canfd header in object");
+        ws_debug("not enough bytes for canfd header in object");
         return FALSE;
     }
 
     if (!blf_read_bytes_or_eof(params, data_start, &canheader, sizeof(canheader), err, err_info)) {
-        ws_debug("blf_read_canfdmessage64: not enough bytes for canfd header in file");
+        ws_debug("not enough bytes for canfd header in file");
         return FALSE;
     }
     fix_endianness_blf_canfdmessage(&canheader);
@@ -1014,7 +1014,7 @@ blf_read_canfdmessage(blf_params_t *params, int *err, gchar **err_info, gint64 b
         payload_length = canfd_dlc_to_length[canheader.dlc];
     } else {
         if (canheader.dlc > 8) {
-            ws_debug("blf_read_canfdmessage64: regular CAN tries more than 8 bytes?");
+            ws_debug("regular CAN tries more than 8 bytes?");
         }
         payload_length = can_dlc_to_length[canheader.dlc];
     }
@@ -1022,12 +1022,12 @@ blf_read_canfdmessage(blf_params_t *params, int *err, gchar **err_info, gint64 b
     payload_length_valid = payload_length;
 
     if (payload_length_valid > canheader.validDataBytes) {
-        ws_debug("blf_read_canfdmessage: shortening canfd payload because valid data bytes shorter!");
+        ws_debug("shortening canfd payload because valid data bytes shorter!");
         payload_length_valid = canheader.validDataBytes;
     }
 
     if (payload_length_valid > object_length - (data_start - block_start) + sizeof(canheader)) {
-        ws_debug("blf_read_canfdmessage: shortening can payload because buffer is too short!");
+        ws_debug("shortening can payload because buffer is too short!");
         payload_length_valid = (guint8)(object_length - (data_start - block_start));
     }
 
@@ -1060,12 +1060,12 @@ blf_read_canfdmessage64(blf_params_t *params, int *err, gchar **err_info, gint64
     }
 
     if (object_length < (data_start - block_start) + (int) sizeof(canheader)) {
-        ws_debug("blf_read_canfdmessage64: not enough bytes for canfd header in object");
+        ws_debug("not enough bytes for canfd header in object");
         return FALSE;
     }
 
     if (!blf_read_bytes_or_eof(params, data_start, &canheader, sizeof(canheader), err, err_info)) {
-        ws_debug("blf_read_canfdmessage64: not enough bytes for canfd header in file");
+        ws_debug("not enough bytes for canfd header in file");
         return FALSE;
     }
     fix_endianness_blf_canfdmessage64(&canheader);
@@ -1080,7 +1080,7 @@ blf_read_canfdmessage64(blf_params_t *params, int *err, gchar **err_info, gint64
         payload_length = canfd_dlc_to_length[canheader.dlc];
     } else {
         if (canheader.dlc > 8) {
-            ws_debug("blf_read_canfdmessage64: regular CAN tries more than 8 bytes?");
+            ws_debug("regular CAN tries more than 8 bytes?");
         }
         payload_length = can_dlc_to_length[canheader.dlc];
     }
@@ -1088,12 +1088,12 @@ blf_read_canfdmessage64(blf_params_t *params, int *err, gchar **err_info, gint64
     payload_length_valid = payload_length;
 
     if (payload_length_valid > canheader.validDataBytes) {
-        ws_debug("blf_read_canfdmessage64: shortening canfd payload because valid data bytes shorter!");
+        ws_debug("shortening canfd payload because valid data bytes shorter!");
         payload_length_valid = canheader.validDataBytes;
     }
 
     if (payload_length_valid > object_length - (data_start - block_start)) {
-        ws_debug("blf_read_canfdmessage64: shortening can payload because buffer is too short!");
+        ws_debug("shortening can payload because buffer is too short!");
         payload_length_valid = (guint8)(object_length - (data_start - block_start));
     }
 
@@ -1133,12 +1133,12 @@ blf_read_flexraydata(blf_params_t *params, int *err, gchar **err_info, gint64 bl
     }
 
     if (object_length < (data_start - block_start) + (int) sizeof(frheader)) {
-        ws_debug("blf_read_flexraydata: not enough bytes for flexrayheader in object");
+        ws_debug("not enough bytes for flexrayheader in object");
         return FALSE;
     }
 
     if (!blf_read_bytes_or_eof(params, data_start, &frheader, sizeof(frheader), err, err_info)) {
-        ws_debug("blf_read_flexraydata: not enough bytes for flexrayheader header in file");
+        ws_debug("not enough bytes for flexrayheader header in file");
         return FALSE;
     }
     fix_endianness_blf_flexraydata(&frheader);
@@ -1147,16 +1147,16 @@ blf_read_flexraydata(blf_params_t *params, int *err, gchar **err_info, gint64 bl
     payload_length_valid = payload_length;
 
     if ((frheader.len & 0x01) == 0x01) {
-        ws_debug("blf_read_flexraydata: reading odd length in FlexRay!?");
+        ws_debug("reading odd length in FlexRay!?");
     }
 
     if (payload_length_valid > object_length - (data_start - block_start) - sizeof(frheader)) {
-        ws_debug("blf_read_flexraydata: shortening FlexRay payload because buffer is too short!");
+        ws_debug("shortening FlexRay payload because buffer is too short!");
         payload_length_valid = (guint8)(object_length - (data_start - block_start) - sizeof(frheader));
     }
 
     if (frheader.channel != 0 && frheader.channel != 1) {
-        ws_debug("blf_read_flexraydata: FlexRay supports only two channels.");
+        ws_debug("FlexRay supports only two channels.");
     }
 
     /* Measurement Header */
@@ -1182,7 +1182,7 @@ blf_read_flexraydata(blf_params_t *params, int *err, gchar **err_info, gint64 bl
     len = sizeof(tmpbuf) + payload_length;
 
     if (payload_length_valid > 0 && !blf_read_bytes_or_eof(params, data_start + sizeof(frheader), ws_buffer_end_ptr(params->buf), payload_length_valid, err, err_info)) {
-        ws_debug("blf_read_flexraydata: copying flexray payload failed");
+        ws_debug("copying flexray payload failed");
         return FALSE;
     }
     params->buf->first_free += payload_length_valid;
@@ -1207,12 +1207,12 @@ blf_read_flexraymessage(blf_params_t *params, int *err, gchar **err_info, gint64
     }
 
     if (object_length < (data_start - block_start) + (int) sizeof(frheader)) {
-        ws_debug("blf_read_flexraymessage: not enough bytes for flexrayheader in object");
+        ws_debug("not enough bytes for flexrayheader in object");
         return FALSE;
     }
 
     if (!blf_read_bytes_or_eof(params, data_start, &frheader, sizeof(frheader), err, err_info)) {
-        ws_debug("blf_read_flexraymessage: not enough bytes for flexrayheader header in file");
+        ws_debug("not enough bytes for flexrayheader header in file");
         return FALSE;
     }
     fix_endianness_blf_flexraymessage(&frheader);
@@ -1221,16 +1221,16 @@ blf_read_flexraymessage(blf_params_t *params, int *err, gchar **err_info, gint64
     payload_length_valid = payload_length;
 
     if ((frheader.length & 0x01) == 0x01) {
-        ws_debug("blf_read_flexraymessage: reading odd length in FlexRay!?");
+        ws_debug("reading odd length in FlexRay!?");
     }
 
     if (payload_length_valid > object_length - (data_start - block_start) - sizeof(frheader)) {
-        ws_debug("blf_read_flexraymessage: shortening FlexRay payload because buffer is too short!");
+        ws_debug("shortening FlexRay payload because buffer is too short!");
         payload_length_valid = (guint8)(object_length - (data_start - block_start) - sizeof(frheader));
     }
 
     if (frheader.channel != 0 && frheader.channel != 1) {
-        ws_debug("blf_read_flexraymessage: FlexRay supports only two channels.");
+        ws_debug("FlexRay supports only two channels.");
     }
 
     /* Measurement Header */
@@ -1273,7 +1273,7 @@ blf_read_flexraymessage(blf_params_t *params, int *err, gchar **err_info, gint64
     len = sizeof(tmpbuf) + payload_length;
 
     if (payload_length_valid > 0 && !blf_read_bytes_or_eof(params, data_start + sizeof(frheader), ws_buffer_end_ptr(params->buf), payload_length_valid, err, err_info)) {
-        ws_debug("blf_read_flexraymessage: copying flexray payload failed");
+        ws_debug("copying flexray payload failed");
         return FALSE;
     }
     params->buf->first_free += payload_length_valid;
@@ -1303,12 +1303,12 @@ blf_read_flexrayrcvmessageex(blf_params_t *params, int *err, gchar **err_info, g
     }
 
     if ((gint64)object_length < (data_start - block_start) + frheadersize) {
-        ws_debug("blf_read_flexraymessage: not enough bytes for flexrayheader in object");
+        ws_debug("not enough bytes for flexrayheader in object");
         return FALSE;
     }
 
     if (!blf_read_bytes_or_eof(params, data_start, &frheader, sizeof(frheader), err, err_info)) {
-        ws_debug("blf_read_flexraymessage: not enough bytes for flexrayheader header in file");
+        ws_debug("not enough bytes for flexrayheader header in file");
         return FALSE;
     }
     fix_endianness_blf_flexrayrcvmessage(&frheader);
@@ -1322,11 +1322,11 @@ blf_read_flexrayrcvmessageex(blf_params_t *params, int *err, gchar **err_info, g
     payload_length_valid = frheader.payloadLengthValid;
 
     if ((frheader.payloadLength & 0x01) == 0x01) {
-        ws_debug("blf_read_flexraymessage: reading odd length in FlexRay!?");
+        ws_debug("reading odd length in FlexRay!?");
     }
 
     if (payload_length_valid > object_length - (data_start - block_start) - frheadersize) {
-        ws_debug("blf_read_flexraymessage: shortening FlexRay payload because buffer is too short!");
+        ws_debug("shortening FlexRay payload because buffer is too short!");
         payload_length_valid = (guint8)(object_length - (data_start - block_start) - frheadersize);
     }
 
@@ -1371,7 +1371,7 @@ blf_read_flexrayrcvmessageex(blf_params_t *params, int *err, gchar **err_info, g
     len = sizeof(tmpbuf) + payload_length;
 
     if (payload_length_valid > 0 && !blf_read_bytes_or_eof(params, data_start + frheadersize, ws_buffer_end_ptr(params->buf), payload_length_valid, err, err_info)) {
-        ws_debug("blf_read_flexraymessage: copying flexray payload failed");
+        ws_debug("copying flexray payload failed");
         return FALSE;
     }
     params->buf->first_free += payload_length_valid;
@@ -1396,12 +1396,12 @@ blf_read_linmessage(blf_params_t *params, int *err, gchar **err_info, gint64 blo
     }
 
     if (object_length < (data_start - block_start) + (int)sizeof(linheader)) {
-        ws_debug("blf_read_linmessage: not enough bytes for linmessage header in object");
+        ws_debug("not enough bytes for linmessage header in object");
         return FALSE;
     }
 
     if (!blf_read_bytes_or_eof(params, data_start, &linheader, sizeof(linheader), err, err_info)) {
-        ws_debug("blf_read_linmessage: not enough bytes for linmessage header in file");
+        ws_debug("not enough bytes for linmessage header in file");
         return FALSE;
     }
     fix_endianness_blf_linmessage(&linheader);
@@ -1414,7 +1414,7 @@ blf_read_linmessage(blf_params_t *params, int *err, gchar **err_info, gint64 blo
     payload_length_valid = payload_length;
 
     if (payload_length_valid > object_length - (data_start - block_start)) {
-        ws_debug("blf_read_linmessage: shortening LIN payload because buffer is too short!");
+        ws_debug("shortening LIN payload because buffer is too short!");
         payload_length_valid = (guint8)(object_length - (data_start - block_start));
     }
 
@@ -1434,17 +1434,17 @@ blf_read_linmessage(blf_params_t *params, int *err, gchar **err_info, gint64 blo
     len = sizeof(tmpbuf) + payload_length;
 
     if (payload_length_valid > 0 && !blf_read_bytes_or_eof(params, data_start + 4, ws_buffer_end_ptr(params->buf), payload_length_valid, err, err_info)) {
-        ws_debug("blf_can_fill_buf: copying can payload failed");
+        ws_debug("copying can payload failed");
         return FALSE;
     }
     params->buf->first_free += payload_length_valid;
 
     if (object_length < (data_start - block_start) + (int)sizeof(linheader) + payload_length_valid + (int)sizeof(lintrailer)) {
-        ws_debug("blf_read_linmessage: not enough bytes for lin message trailer");
+        ws_debug("not enough bytes for lin message trailer");
         return FALSE;
     }
     if (!blf_read_bytes_or_eof(params, data_start + sizeof(linheader) + payload_length_valid, &lintrailer, sizeof(lintrailer), err, err_info)) {
-        ws_debug("blf_read_linmessage: not enough bytes for lin message trailer in file");
+        ws_debug("not enough bytes for lin message trailer in file");
         return FALSE;
     }
     fix_endianness_blf_linmessage_trailer(&lintrailer);
@@ -1467,7 +1467,7 @@ blf_read_block(blf_params_t *params, gint64 start_pos, int *err, gchar **err_inf
 
         while (1) {
             if (!blf_read_bytes_or_eof(params, start_pos, &header, sizeof header, err, err_info)) {
-                ws_debug("blf_read_block: not enough bytes for block header or unsupported file");
+                ws_debug("not enough bytes for block header or unsupported file");
                 if (*err == WTAP_ERR_SHORT_READ) {
                     /* we have found the end that is not a short read therefore. */
                     *err = 0;
@@ -1500,7 +1500,7 @@ blf_read_block(blf_params_t *params, gint64 start_pos, int *err, gchar **err_inf
 
         switch (header.object_type) {
         case BLF_OBJTYPE_LOG_CONTAINER:
-            ws_debug("blf_read_block: log container in log container not supported");
+            ws_debug("log container in log container not supported");
             return FALSE;
             break;
 
@@ -1565,7 +1565,7 @@ blf_read_block(blf_params_t *params, gint64 start_pos, int *err, gchar **err_inf
             break;
 
         default:
-            ws_debug("blf_read_block: unknown object type");
+            ws_debug("unknown object type");
             start_pos += header.object_length;
         }
     }
