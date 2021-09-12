@@ -1132,7 +1132,7 @@
     </message>
     <message>
         <source>Stop Capture</source>
-        <translation type="unfinished"></translation>
+        <translation>Arrêter la Capture</translation>
     </message>
     <message>
         <source>%1 packets, %2:%3:%4</source>
