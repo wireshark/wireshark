@@ -1156,7 +1156,7 @@
     </message>
     <message>
         <source>Stop Capture</source>
-        <translation type="unfinished"></translation>
+        <translation>Arrêter la Capture</translation>
     </message>
     <message>
         <source>%1 packets, %2:%3:%4</source>
@@ -7881,7 +7881,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>Stop and Save</source>
-        <translation>Arreter et Sauvegarder</translation>
+        <translation>Arrêter et Sauvegarder</translation>
     </message>
     <message>
         <source>Stop and Quit &amp;without Saving</source>
@@ -7905,7 +7905,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <source>Stop and Continue &amp;without Saving</source>
         <oldsource>Stop and Continue without Saving</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Arrêter et Quitter sans Sauvegarder</translation>
     </message>
     <message>
         <source>The Wireshark Network Analyzer</source>
