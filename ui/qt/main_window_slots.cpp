@@ -1172,7 +1172,7 @@ void MainWindow::setEditCommentsMenu()
 void MainWindow::setMenusForSelectedPacket()
 {
     gboolean is_ip = FALSE, is_tcp = FALSE, is_udp = FALSE, is_dccp = FALSE, is_sctp = FALSE, is_tls = FALSE, is_rtp = FALSE, is_lte_rlc = FALSE,
-             is_http = FALSE, is_http2 = FALSE, is_quic = FALSE, is_sip = FALSE;
+             is_http = FALSE, is_http2 = FALSE, is_quic = FALSE, is_sip = FALSE, is_exported_pdu = FALSE;
 
     /* Making the menu context-sensitive allows for easier selection of the
        desired item and has the added benefit, with large captures, of
@@ -1247,6 +1247,13 @@ void MainWindow::setMenusForSelectedPacket()
             /* TODO: to follow a QUIC stream we need a *decrypted* QUIC connection, i.e. checking for "quic" in the protocol stack is not enough */
             is_quic = proto_is_frame_protocol(capture_file_.capFile()->edt->pi.layers, "quic");
             is_sip = proto_is_frame_protocol(capture_file_.capFile()->edt->pi.layers, "sip");
+            is_exported_pdu = proto_is_frame_protocol(capture_file_.capFile()->edt->pi.layers, "exported_pdu");
+            /* For Exported PDU there is a tag inserting IP addresses into the SRC and DST columns */
+            if (is_exported_pdu &&
+               (capture_file_.capFile()->edt->pi.net_src.type == AT_IPv4 || capture_file_.capFile()->edt->pi.net_src.type == AT_IPv6) &&
+               (capture_file_.capFile()->edt->pi.net_dst.type == AT_IPv4 || capture_file_.capFile()->edt->pi.net_dst.type == AT_IPv6)) {
+                is_ip = TRUE;
+            }
         }
     }
 
