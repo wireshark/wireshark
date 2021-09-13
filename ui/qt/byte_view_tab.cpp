@@ -33,7 +33,8 @@ ByteViewTab::ByteViewTab(QWidget *parent, epan_dissect_t *edt_fixed) :
     QTabWidget(parent),
     cap_file_(0),
     is_fixed_packet_(edt_fixed != NULL),
-    edt_(edt_fixed)
+    edt_(edt_fixed),
+    disable_hover_(false)
 {
     setAccessibleName(tr("Packet bytes"));
     setTabPosition(QTabWidget::South);

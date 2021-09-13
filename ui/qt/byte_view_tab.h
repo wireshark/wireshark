@@ -53,6 +53,7 @@ private:
                                packet in the packet dialog and false if the
                                packet dissection context can change. */
     epan_dissect_t *edt_;   /* Packet dissection result for the currently selected packet. */
+    bool disable_hover_;
 
     void setTabsVisible();
     ByteViewText * findByteViewTextForTvb(tvbuff_t * search, int * idx = 0);

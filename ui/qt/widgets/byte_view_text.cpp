@@ -58,7 +58,8 @@ ByteViewText::ByteViewText(const QByteArray &data, packet_char_enc encoding, QWi
     show_ascii_(true),
     row_width_(recent.gui_bytes_view == BYTES_HEX ? 16 : 8),
     font_width_(0),
-    line_height_(0)
+    line_height_(0),
+    allow_hover_selection_(false)
 {
     layout_->setCacheEnabled(true);
 
@@ -82,6 +83,13 @@ ByteViewText::~ByteViewText()
 
 void ByteViewText::createContextMenu()
 {
+
+    action_allow_hover_selection_ = ctx_menu_.addAction(tr("Allow hover selection"));
+    action_allow_hover_selection_->setCheckable(true);
+    action_allow_hover_selection_->setChecked(true);
+    connect(action_allow_hover_selection_, &QAction::toggled, this, &ByteViewText::toggleHoverAllowed);
+    ctx_menu_.addSeparator();
+
     QActionGroup * copy_actions = DataPrinter::copyActions(this);
     ctx_menu_.addActions(copy_actions->actions());
     ctx_menu_.addSeparator();
@@ -119,8 +127,16 @@ void ByteViewText::createContextMenu()
     connect(encoding_actions, &QActionGroup::triggered, this, &ByteViewText::setCharacterEncoding);
 }
 
+void ByteViewText::toggleHoverAllowed(bool checked)
+{
+    allow_hover_selection_ = ! checked;
+}
+
 void ByteViewText::updateContextMenu()
 {
+
+    action_allow_hover_selection_->setChecked(recent.gui_allow_hover_selection);
+
     switch (recent.gui_bytes_view) {
     case BYTES_HEX:
         action_bytes_hex_->setChecked(true);
@@ -315,7 +331,8 @@ void ByteViewText::mousePressEvent (QMouseEvent *event) {
 
 void ByteViewText::mouseMoveEvent(QMouseEvent *event)
 {
-    if (marked_byte_offset_ >= 0) {
+    if (marked_byte_offset_ >= 0 || allow_hover_selection_ || 
+        (!allow_hover_selection_ && event->modifiers() & Qt::ControlModifier)) {
         return;
     }
 
