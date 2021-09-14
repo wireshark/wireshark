@@ -1046,6 +1046,17 @@ when Wireshark has reassembled some packets into a single chunk of data. (See
 <<ChAdvReassemblySection>> for details). In this case you can see each data
 source by clicking its corresponding tab at the bottom of the pane.
 
+The default mode for viewing will highlight the bytes for a field where the 
+mouse pointer is hovering above. The highlight will follow the mouse cursor
+as it moves. If this higlighting is not required or wanted, there are two
+methods for deactrivating the functionality:
+
+* *Temporary* By holding down the Ctrl button while moving the mouse, the
+  highlighted field will not change
+
+* *Permanently* Using the context menu (right mouse click) the hover selection
+  may be activated/deactived. This setting is stored in the selected profile.
+
 [[ChUseWiresharkBytesPaneTabs]]
 .The “Packet Bytes” pane with tabs
 image::wsug_graphics/ws-bytes-pane-tabs.png[{screenshot-attrs}]
