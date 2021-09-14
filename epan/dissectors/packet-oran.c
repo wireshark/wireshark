@@ -14,7 +14,6 @@
    * The current implementation is based on the
    * ORAN-WG4.CUS.0-v01.00 specification, dated 2019/01/31.
    */
-
 #include <config.h>
 
 #include <epan/packet.h>
@@ -164,6 +163,7 @@ static expert_field ei_oran_invalid_num_bfw_weights = EI_INIT;
 static expert_field ei_oran_unsupported_bfw_compression_method = EI_INIT;
 static expert_field ei_oran_invalid_sample_bit_width = EI_INIT;
 static expert_field ei_oran_reserved_numBundPrb = EI_INIT;
+static expert_field ei_oran_extlen = EI_INIT;
 
 
 /* These are the message types handled by this dissector */
@@ -995,8 +995,8 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                     proto_item_append_text(bfw_ti, ")");
                     proto_item_set_len(bfw_ti, (bit_offset+7)/8  - bfw_offset);
                 }
+                offset = bit_offset/8;
 
-                /* pad */
                 break;
             }
 
@@ -1007,7 +1007,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 offset += 4;
                 proto_tree_add_item(extension_tree, hf_oran_noncontig_priority, tvb, offset, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(extension_tree, hf_oran_symbolMask, tvb, offset, 2, ENC_BIG_ENDIAN);
-                /* offset += 2; */
+                offset += 2;
                 break;
 
             case 10: /* Section description for group configuration of multiple ports */
@@ -1056,6 +1056,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                     {
                         /* Beam listing vector case */
                         /* Work out how many port beam entries there is room for */
+                        /* TODO: should this be numPortc instead??? */
                         guint num_beam_or_ueid_entries = ((extlen*4)-3) / 2;
                         proto_item_append_text(extension_ti, " (%u entries)", num_beam_or_ueid_entries);
                         for (guint entry=2; entry < num_beam_or_ueid_entries; entry++) {
@@ -1152,11 +1153,11 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                     /* Any remaining BFWs will be added into an 'orphan bundle'. */
                     orphaned_prbs = numPrbc % numBundPrb;
                     if (orphaned_prbs) {
-                        dissect_bfw_bundle(tvb, extension_tree, pinfo, offset,
-                                           comp_meth_ti, bfwcomphdr_comp_meth,
-                                           iq_width, ORPHAN_BUNDLE_NUMBER,
-                                           startPrbc + num_bundles*numBundPrb,
-                                           startPrbc + num_bundles*numBundPrb + orphaned_prbs-1);
+                        offset = dissect_bfw_bundle(tvb, extension_tree, pinfo, offset,
+                                                    comp_meth_ti, bfwcomphdr_comp_meth,
+                                                    iq_width, ORPHAN_BUNDLE_NUMBER,
+                                                    startPrbc + num_bundles*numBundPrb,
+                                                    startPrbc + num_bundles*numBundPrb + orphaned_prbs-1);
                     }
                 }
                 else {
@@ -1185,6 +1186,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                         proto_item *ti = proto_tree_add_item(extension_tree, hf_oran_beam_id,
                                                              tvb, offset, 2, ENC_BIG_ENDIAN);
                         proto_item_append_text(ti, " (Orphaned PRBs)");
+                        offset += 2;
                     }
 
                 }
@@ -1243,6 +1245,14 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
             default:
                 /* TODO: Support remaining extension types. */
                 break;
+        }
+
+        /* Check offset compared with extlen.  There should be 0-3 bytes of padding */
+        gint num_padding_bytes = (extension_start_offset + (extlen*4) - offset);
+        if ((num_padding_bytes<0) || (num_padding_bytes>3)) {
+            expert_add_info_format(pinfo, extlen_ti, &ei_oran_extlen,
+                                   "extlen signalled %u bytes (+ 0-3 bytes padding), but %u were dissected",
+                                   extlen*4, offset-extension_start_offset);
         }
 
         /* Move offset to beyond signalled length of extension */
@@ -2590,7 +2600,8 @@ proto_register_oran(void)
         { &ei_oran_invalid_num_bfw_weights, { "oran_fh_cus.num_bf_weights_invalid", PI_MALFORMED, PI_ERROR, "Invalid number of BF Weights", EXPFILL }},
         { &ei_oran_unsupported_bfw_compression_method, { "oran_fh_cus.unsupported_bfw_compression_method", PI_UNDECODED, PI_WARN, "Unsupported BFW Compression Method", EXPFILL }},
         { &ei_oran_invalid_sample_bit_width, { "oran_fh_cus.invalid_sample_bit_width", PI_UNDECODED, PI_ERROR, "Unsupported sample bit width", EXPFILL }},
-        { &ei_oran_reserved_numBundPrb, { "oran_fh_cus.reserved_numBundPrb", PI_MALFORMED, PI_ERROR, "Reserved value of numBundPrb", EXPFILL }}
+        { &ei_oran_reserved_numBundPrb, { "oran_fh_cus.reserved_numBundPrb", PI_MALFORMED, PI_ERROR, "Reserved value of numBundPrb", EXPFILL }},
+        { &ei_oran_extlen, { "oran_fh_cus.extlen_wrong", PI_MALFORMED, PI_ERROR, "extlen doesn't match number of dissected bytes", EXPFILL }}
     };
 
     /* Register the protocol name and description */
