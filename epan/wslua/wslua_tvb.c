@@ -961,6 +961,7 @@ WSLUA_METHOD TvbRange_string(lua_State* L) {
 #define WSLUA_OPTARG_TvbRange_string_ENCODING 2 /* The encoding to use. Defaults to ENC_ASCII. */
     TvbRange tvbr = checkTvbRange(L,1);
     guint encoding = (guint)luaL_optinteger(L,WSLUA_OPTARG_TvbRange_string_ENCODING, ENC_ASCII|ENC_NA);
+    char * str;
 
     if ( !(tvbr && tvbr->tvb)) return 0;
     if (tvbr->tvb->expired) {
@@ -968,7 +969,9 @@ WSLUA_METHOD TvbRange_string(lua_State* L) {
         return 0;
     }
 
-    lua_pushlstring(L, (gchar*)tvb_get_string_enc(wmem_packet_scope(),tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len,encoding), tvbr->len);
+    str = (gchar*)tvb_get_string_enc(NULL,tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len,encoding);
+    lua_pushlstring(L, str, tvbr->len);
+    wmem_free(NULL, str);
 
     WSLUA_RETURN(1); /* A string containing all bytes in the <<lua_class_TvbRange,`TvbRange`>> including all zeroes (e.g., "a\000bc\000"). */
 }
@@ -984,8 +987,9 @@ static int TvbRange_ustring_any(lua_State* L, gboolean little_endian) {
         return 0;
     }
 
-    str = (gchar*)tvb_get_string_enc(wmem_packet_scope(),tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len,(little_endian ? ENC_UTF_16|ENC_LITTLE_ENDIAN : ENC_UTF_16|ENC_BIG_ENDIAN));
+    str = (gchar*)tvb_get_string_enc(NULL,tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len,(little_endian ? ENC_UTF_16|ENC_LITTLE_ENDIAN : ENC_UTF_16|ENC_BIG_ENDIAN));
     lua_pushlstring(L, str, strlen(str));
+    wmem_free(NULL, str);
 
     return 1; /* The string */
 }
@@ -1007,6 +1011,7 @@ WSLUA_METHOD TvbRange_stringz(lua_State* L) {
     guint encoding = (guint)luaL_optinteger(L,WSLUA_OPTARG_TvbRange_stringz_ENCODING, ENC_ASCII|ENC_NA);
     gint offset;
     gunichar2 uchar;
+    gchar *str;
 
     if ( !(tvbr && tvbr->tvb)) return 0;
     if (tvbr->tvb->expired) {
@@ -1038,7 +1043,9 @@ WSLUA_METHOD TvbRange_stringz(lua_State* L) {
         break;
     }
 
-    lua_pushstring(L, (gchar*)tvb_get_stringz_enc(wmem_packet_scope(),tvbr->tvb->ws_tvb,tvbr->offset,NULL,encoding));
+    str = (gchar*)tvb_get_stringz_enc(NULL,tvbr->tvb->ws_tvb,tvbr->offset,NULL,encoding);
+    lua_pushstring(L, str);
+    wmem_free(NULL, str);
 
     WSLUA_RETURN(1); /* The string containing all bytes in the <<lua_class_TvbRange,`TvbRange`>> up to the first terminating zero. */
 }
@@ -1098,6 +1105,7 @@ static int TvbRange_ustringz_any(lua_State* L, gboolean little_endian) {
     TvbRange tvbr = checkTvbRange(L,1);
     gint offset;
     gunichar2 uchar;
+    gchar *str;
 
     if ( !(tvbr && tvbr->tvb)) return 0;
     if (tvbr->tvb->expired) {
@@ -1116,9 +1124,11 @@ static int TvbRange_ustringz_any(lua_State* L, gboolean little_endian) {
       offset += 2;
     } while (uchar != 0);
 
-    lua_pushstring(L, (gchar*)tvb_get_stringz_enc(wmem_packet_scope(),tvbr->tvb->ws_tvb,tvbr->offset,&count,
-                                (little_endian ? ENC_UTF_16|ENC_LITTLE_ENDIAN : ENC_UTF_16|ENC_BIG_ENDIAN)) );
+    str = (gchar*)tvb_get_stringz_enc(NULL,tvbr->tvb->ws_tvb,tvbr->offset,&count,
+                                (little_endian ? ENC_UTF_16|ENC_LITTLE_ENDIAN : ENC_UTF_16|ENC_BIG_ENDIAN));
+    lua_pushstring(L, str);
     lua_pushinteger(L,count);
+    wmem_free(NULL, str);
 
     return 2; /* The zero terminated string, the length found in tvbr */
 }
@@ -1155,7 +1165,9 @@ WSLUA_METHOD TvbRange_bytes(lua_State* L) {
 #define WSLUA_OPTARG_TvbRange_bytes_ENCODING 2 /* An optional ENC_* encoding value to use */
     TvbRange tvbr = checkTvbRange(L,1);
     GByteArray* ba;
+    guint8* raw;
     const guint encoding = (guint)luaL_optinteger(L, WSLUA_OPTARG_TvbRange_bytes_ENCODING, 0);
+
 
     if ( !(tvbr && tvbr->tvb)) return 0;
     if (tvbr->tvb->expired) {
@@ -1165,7 +1177,9 @@ WSLUA_METHOD TvbRange_bytes(lua_State* L) {
 
     if (encoding == 0) {
         ba = g_byte_array_new();
-        g_byte_array_append(ba,(const guint8 *)tvb_memdup(wmem_packet_scope(),tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len),tvbr->len);
+        raw = (guint8 *)tvb_memdup(NULL,tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len);
+        g_byte_array_append(ba,raw,tvbr->len);
+        wmem_free(NULL, raw);
         pushByteArray(L,ba);
         lua_pushinteger(L, tvbr->len);
     }

@@ -551,7 +551,7 @@ WSLUA_METHOD Dumper_dump_current(lua_State* L) {
         rec.block = lua_pinfo->rec->block;
     }
 
-    data = (const guchar *)tvb_memdup(wmem_packet_scope(),tvb,0,rec.rec_header.packet_header.caplen);
+    data = (const guchar *)tvb_memdup(lua_pinfo->pool,tvb,0,rec.rec_header.packet_header.caplen);
 
     if (! wtap_dump(d, &rec, data, &err, &err_info)) {
         switch (err) {
