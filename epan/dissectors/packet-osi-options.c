@@ -341,7 +341,7 @@ dissect_option_route(guchar parm_type, int offset, guchar parm_len,
 
   while ( this_hop < offset + last_hop -2 ) { /* -2 for crr and last_hop */
     netl = tvb_get_guint8(tvb, this_hop);
-    str = print_nsap_net(tvb, this_hop + 1, netl);
+    str = print_nsap_net(wmem_packet_scope(), tvb, this_hop + 1, netl);
     proto_tree_add_string_format(osi_route_tree, hf_osi_options_route, tvb, this_hop, netl + 1, str,
                         "Hop #%3u NETL: %2u, NET: %s", cnt_hops++, netl, str);
     this_hop += 1 + netl;
@@ -539,7 +539,7 @@ dissect_osi_options(guchar opt_len, tvbuff_t *tvb, int offset, proto_tree *tree,
         case OSI_OPT_ADDRESS_MASK:
           proto_tree_add_bytes_format_value(osi_option_tree, hf_osi_options_address_mask, tvb, offset, parm_len,
                               NULL, "%s",
-                              print_area(tvb, offset, parm_len));
+                              print_area(pinfo->pool, tvb, offset, parm_len));
           break;
 
         case OSI_OPT_SNPA_MASK:

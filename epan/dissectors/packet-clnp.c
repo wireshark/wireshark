@@ -362,7 +362,7 @@ dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     proto_tree_add_bytes_format_value(clnp_tree, hf_clnp_dest, tvb, offset, dst_len,
             NULL,
             "%s",
-            print_nsap_net(tvb, offset, dst_len));
+            print_nsap_net(pinfo->pool, tvb, offset, dst_len));
     offset += dst_len;
     opt_len -= dst_len;
 
@@ -398,7 +398,7 @@ dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     proto_tree_add_bytes_format_value(clnp_tree, hf_clnp_src, tvb, offset, src_len,
             NULL,
             "%s",
-            print_nsap_net(tvb, offset, src_len));
+            print_nsap_net(pinfo->pool, tvb, offset, src_len));
     offset += src_len;
     opt_len -= src_len;
 

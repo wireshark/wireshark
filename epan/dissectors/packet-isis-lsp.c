@@ -2809,7 +2809,7 @@ dissect_lsp_eis_neighbors_clv_inner(tvbuff_t *tvb, packet_info *pinfo, proto_tre
             proto_tree_add_item(ntree, hf_isis_lsp_eis_neighbors_error_metric_ie, tvb, offset+3, 1, ENC_NA);
             proto_tree_add_item(ntree, is_eis ? hf_isis_lsp_eis_neighbors_es_neighbor_id : hf_isis_lsp_eis_neighbors_is_neighbor_id,
                                     tvb, offset+4, id_length, ENC_NA);
-            proto_item_append_text(ti, ": %s", tvb_print_system_id(tvb, offset+4, id_length));
+            proto_item_append_text(ti, ": %s", tvb_print_system_id(pinfo->pool, tvb, offset+4, id_length));
         }
         offset += tlen;
         length -= tlen;
@@ -3536,7 +3536,7 @@ dissect_lsp_ext_is_reachability_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tre
                 ett_isis_lsp_part_of_clv_ext_is_reachability, &ti, "IS Neighbor");
 
         proto_tree_add_item(ntree, hf_isis_lsp_ext_is_reachability_is_neighbor_id, tvb, offset, 7, ENC_NA);
-        proto_item_append_text(ti, ": %s", tvb_print_system_id(tvb, offset, 7));
+        proto_item_append_text(ti, ": %s", tvb_print_system_id(pinfo->pool, tvb, offset, 7));
 
         proto_tree_add_item(ntree, hf_isis_lsp_ext_is_reachability_metric, tvb, offset+7, 3, ENC_BIG_ENDIAN);
 
@@ -3793,7 +3793,7 @@ dissect_lsp_prefix_neighbors_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *
          * Lets turn the area address into "standard" 0000.0000.etc
          * format string.
          */
-        sbuf =  print_address_prefix( tvb, offset+1, mylen );
+        sbuf =  print_address_prefix( pinfo->pool, tvb, offset+1, mylen );
         /* and spit it out */
         proto_tree_add_string( tree, hf_isis_lsp_area_address_str, tvb, offset, (mylen+1)/2 + 1, sbuf);
 
@@ -4665,7 +4665,7 @@ dissect_isis_lsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
         return;
     }
     proto_tree_add_item(lsp_tree, hf_isis_lsp_lsp_id, tvb, offset, isis->system_id_len + 2, ENC_NA);
-    system_id = tvb_print_system_id( tvb, offset, isis->system_id_len+2 );
+    system_id = tvb_print_system_id( pinfo->pool, tvb, offset, isis->system_id_len+2 );
     col_append_fstr(pinfo->cinfo, COL_INFO, ", LSP-ID: %s", system_id);
     offset += (isis->system_id_len + 2);
 
