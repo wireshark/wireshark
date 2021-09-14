@@ -557,13 +557,13 @@ proto_register_mpls(void)
         /* MPLS header fields */
         {&hf_mpls_label,
          {"MPLS Label", "mpls.label",
-          FT_UINT32, BASE_DEC, NULL, 0xFFFFF000,
+          FT_UINT32, BASE_DEC_HEX, NULL, 0xFFFFF000,
           NULL, HFILL }
         },
 
         {&hf_mpls_label_special,
          {"MPLS Label", "mpls.label",
-          FT_UINT32, BASE_DEC, VALS(special_labels), 0xFFFFF000,
+          FT_UINT32, BASE_DEC_HEX, VALS(special_labels), 0xFFFFF000,
           NULL, HFILL }
         },
 
