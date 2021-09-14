@@ -121,6 +121,8 @@ static int hf_twamp_control_keyid  = -1;
 static int hf_twamp_control_sessionid  = -1;
 static int hf_twamp_control_iv = -1;
 static int hf_twamp_control_ipvn = -1;
+static int hf_twamp_control_conf_sender = -1;
+static int hf_twamp_control_conf_receiver = -1;
 static int hf_twamp_control_start_time = -1;
 static int hf_twamp_control_accept = -1;
 static int hf_twamp_control_timeout = -1;
@@ -372,6 +374,12 @@ dissect_twamp_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 
         ipvn = tvb_get_guint8(tvb, offset) & 0x0F;
         proto_tree_add_uint(twamp_tree, hf_twamp_control_ipvn, tvb, offset, 1, ipvn);
+        offset += 1;
+
+        proto_tree_add_item(twamp_tree, hf_twamp_control_conf_sender, tvb, offset, 1, ENC_NA);
+        offset += 1;
+
+        proto_tree_add_item(twamp_tree, hf_twamp_control_conf_receiver, tvb, offset, 1, ENC_NA);
 
         offset = 12;
         proto_tree_add_item(twamp_tree, hf_twamp_control_sender_port, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -734,6 +742,12 @@ void proto_register_twamp(void)
         },
         {&hf_twamp_control_ipvn,
             {"IP Version", "twamp.control.ipvn", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_twamp_control_conf_sender,
+            {"Conf-Sender", "twamp.control.conf_sender", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_twamp_control_conf_receiver,
+            {"Conf-Receiver", "twamp.control.conf_receiver", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
         },
         {&hf_twamp_control_sender_ipv4,
             {"Sender Address", "twamp.control.sender_ipv4", FT_IPv4, BASE_NONE, NULL, 0x0,
