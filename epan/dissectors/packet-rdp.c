@@ -973,6 +973,54 @@ static const value_string rdp_wMonth_vals[] = {
   {0, NULL },
 };
 
+
+static wmem_map_t *rdp_transport_links;
+
+typedef struct {
+	address serverAddr;
+	guint16 serverPort;
+	gboolean reliable;
+	guint32 requestId;
+	guint8 securityCookie[16];
+
+} rdp_transports_key_t;
+
+typedef struct {
+	rdp_transports_key_t key;
+
+	conversation_t *tcp_conversation;
+	conversation_t *udp_conversation;
+} rdp_transports_link_t;
+
+
+static guint
+rdp_udp_conversation_hash(gconstpointer k)
+{
+	guint h;
+	gint i;
+	const rdp_transports_key_t *key = (const rdp_transports_key_t *)k;
+
+	h = key->serverPort + key->reliable + key->requestId;
+	h = add_address_to_hash(h, &key->serverAddr);
+	for (i = 0; i < 16; i++)
+		h += key->securityCookie[i];
+
+	return h;
+}
+
+static gboolean
+rdp_udp_conversation_equal_matched(gconstpointer k1, gconstpointer k2)
+{
+	const rdp_transports_key_t *key1 = (const rdp_transports_key_t *)k1;
+	const rdp_transports_key_t *key2 = (const rdp_transports_key_t *)k2;
+
+	return addresses_equal(&key1->serverAddr, &key2->serverAddr) &&
+			(key1->serverPort == key2->serverPort) &&
+			(key1->reliable == key2->reliable) &&
+			(key1->requestId == key2->requestId) &&
+			memcmp(key1->securityCookie, key2->securityCookie, 16) == 0;
+}
+
 /*
  * Flags in the flags field of a TS_INFO_PACKET.
  * XXX - define more, and show them underneath that field.
@@ -1707,6 +1755,50 @@ rdp_isServerAddressTarget(packet_info *pinfo)
 	return FALSE;
 }
 
+void
+rdp_transport_set_udp_conversation(const address *serverAddr, guint16 serverPort, gboolean reliable, guint32 reqId, guint8 *cookie, conversation_t *conv)
+{
+	rdp_transports_key_t key;
+	rdp_transports_link_t *transport_link;
+
+	key.reliable = reliable;
+	key.requestId = reqId;
+	memcpy(key.securityCookie, cookie, 16);
+	copy_address(&key.serverAddr, serverAddr);
+	key.serverPort = serverPort;
+
+	transport_link = (rdp_transports_link_t *)wmem_map_lookup(rdp_transport_links, &key);
+	if (!transport_link) {
+		transport_link = wmem_new(wmem_file_scope(), rdp_transports_link_t);
+
+		memcpy(&transport_link->key, &key, sizeof(key));
+		copy_address_wmem(wmem_file_scope(), &key.serverAddr, serverAddr);
+	}
+
+	transport_link->udp_conversation = conv;
+}
+
+typedef struct {
+	conversation_t *udp;
+	conversation_t *result;
+} find_tcp_conversation_t;
+
+static void
+map_find_tcp_conversation_fn(rdp_transports_key_t *key _U_, rdp_transports_link_t *transport, find_tcp_conversation_t *criteria)
+{
+	if (criteria->udp == transport->udp_conversation)
+		criteria->result = transport->tcp_conversation;
+}
+
+conversation_t *
+rdp_find_tcp_conversation_from_udp(conversation_t *udp)
+{
+	find_tcp_conversation_t criteria = { udp, NULL };
+
+	wmem_map_foreach(rdp_transport_links, (GHFunc)map_find_tcp_conversation_fn, &criteria);
+	return criteria.result;
+}
+
 static int
 dissect_rdp_MessageChannelData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
 	proto_item *pi;
@@ -1737,33 +1829,54 @@ dissect_rdp_MessageChannelData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	offset = dissect_rdp_fields(tvb, offset, pinfo, tree, se_fields, 0);
 
 	if (flags & SEC_TRANSPORT_REQ) {
-		rdp_field_info_t mt_req_fields[] = { { &hf_rdp_mt_req_requestId, 4,
-				NULL, 0, 0, NULL }, { &hf_rdp_mt_req_protocol, 2, NULL, 0, 0,
-				NULL }, { &hf_rdp_mt_req_reserved, 2, NULL, 0, 0, NULL }, {
-				&hf_rdp_mt_req_securityCookie, 16, NULL, 0, 0, NULL },
-		FI_TERMINATOR };
+		guint16 reqProto;
+		rdp_transports_key_t transport_key;
+		rdp_transports_link_t *transport_link;
 
-		col_append_sep_str(pinfo->cinfo, COL_INFO, " ",
-				"MultiTransportRequest");
+		rdp_field_info_t mt_req_fields[] = {
+			{ &hf_rdp_mt_req_requestId, 4, NULL, 0, 0, NULL },
+			{ &hf_rdp_mt_req_protocol, 2, NULL, 0, 0, NULL },
+			{ &hf_rdp_mt_req_reserved, 2, NULL, 0, 0, NULL },
+			{ &hf_rdp_mt_req_securityCookie, 16, NULL, 0, 0, NULL },
+			FI_TERMINATOR
+		};
+		col_append_sep_str(pinfo->cinfo, COL_INFO, " ",	"MultiTransportRequest");
+
+		reqProto = tvb_get_guint16(tvb, offset + 4, ENC_LITTLE_ENDIAN);
+
+		transport_key.reliable = !!(reqProto & INITITATE_REQUEST_PROTOCOL_UDPFECR);
+		transport_key.requestId = tvb_get_guint32(tvb, offset, ENC_LITTLE_ENDIAN);
+		copy_address(&transport_key.serverAddr, &pinfo->src);
+		transport_key.serverPort = pinfo->srcport;
+		tvb_memcpy(tvb, transport_key.securityCookie, offset + 8, 16);
+
+		transport_link = (rdp_transports_link_t *)wmem_map_lookup(rdp_transport_links, &transport_key);
+		if (!transport_link) {
+			transport_link = wmem_new(wmem_file_scope(), rdp_transports_link_t);
+
+			memcpy(&transport_link->key, &transport_key, sizeof(transport_key));
+			copy_address_wmem(wmem_file_scope(), &transport_key.serverAddr, &pinfo->src);
+			transport_link->tcp_conversation = find_or_create_conversation(pinfo);
+
+			wmem_map_insert(rdp_transport_links, &transport_link->key , transport_link);
+		}
 
 		next_tree = proto_tree_add_subtree(tree, tvb, offset, -1,
 				ett_rdp_mt_req, NULL, "MultiTransport request");
-		dissect_rdp_fields(tvb, offset, pinfo, next_tree,
-				mt_req_fields, 0);
+		offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree, mt_req_fields, 0);
 
 	} else if (flags & SEC_TRANSPORT_RSP) {
-		rdp_field_info_t mt_resp_fields[] = { { &hf_rdp_mt_rsp_requestId, 4,
-				NULL, 0, 0, NULL }, { &hf_rdp_mt_rsp_hrResponse, 4, NULL, 0, 0,
-				NULL },
-		FI_TERMINATOR };
+		rdp_field_info_t mt_resp_fields[] = {
+			{ &hf_rdp_mt_rsp_requestId, 4, NULL, 0, 0, NULL },
+			{ &hf_rdp_mt_rsp_hrResponse, 4, NULL, 0, 0, NULL },
+			FI_TERMINATOR
+		};
 
-		col_append_sep_str(pinfo->cinfo, COL_INFO, " ",
-				"MultiTransportResponse");
+		col_append_sep_str(pinfo->cinfo, COL_INFO, " ",	"MultiTransport response");
 
 		next_tree = proto_tree_add_subtree(tree, tvb, offset, -1,
 				ett_rdp_mt_rsp, NULL, "MultiTransport response");
-		dissect_rdp_fields(tvb, offset, pinfo, next_tree,
-				mt_resp_fields, 0);
+		dissect_rdp_fields(tvb, offset, pinfo, next_tree, mt_resp_fields, 0);
 
 	} else if (flags & SEC_AUTODETECT_REQ) {
 		col_append_sep_str(pinfo->cinfo, COL_INFO, " ", "Autodetect Req");
@@ -2724,6 +2837,14 @@ dissect_rdp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, voi
     return dissect_rdp_fastpath(tvb, pinfo, parent_tree, NULL);
 }
 
+
+static void
+init_server_conversations(void)
+{
+	rdp_transport_links = wmem_map_new(wmem_file_scope(), rdp_udp_conversation_hash, rdp_udp_conversation_equal_matched);
+}
+
+
 /*--- proto_register_rdp -------------------------------------------*/
 void
 proto_register_rdp(void) {
@@ -3191,7 +3312,7 @@ proto_register_rdp(void) {
 		  FT_UINT8, BASE_DEC, NULL, 0,
 		  NULL, HFILL}},
 	{ &hf_rdp_heartbeat_count2,
-		{ "Count1", "rdp.heartbeat.count2",
+		{ "Count2", "rdp.heartbeat.count2",
 		  FT_UINT8, BASE_DEC, NULL, 0,
 		  NULL, HFILL}},
 	{ &hf_rdp_bandwidth_header_len,
@@ -3906,10 +4027,9 @@ proto_register_rdp(void) {
   expert_rdp = expert_register_protocol(proto_rdp);
   expert_register_field_array(expert_rdp, ei, array_length(ei));
 
-  /*   register_dissector("rdp", dissect_rdp, proto_rdp); */
+  register_init_routine(init_server_conversations);
 
   /* Register our configuration options for RDP, particularly our port */
-
   rdp_module = prefs_register_protocol(proto_rdp, NULL);
 
   prefs_register_obsolete_preference(rdp_module, "tcp.port");

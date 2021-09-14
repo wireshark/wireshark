@@ -229,6 +229,22 @@ rdp_isServerAddressTarget(packet_info *pinfo)
 	return addresses_equal(&rdpudp_info->server_addr, &pinfo->dst) && (rdpudp_info->server_port == pinfo->destport);
 }
 
+gboolean
+rdpudp_is_reliable_transport(packet_info *pinfo)
+{
+	conversation_t *conv;
+	rdpudp_conv_info_t *rdpudp_info;
+
+	conv = find_conversation_pinfo(pinfo, 0);
+	if (!conv)
+		return FALSE;
+
+	rdpudp_info = (rdpudp_conv_info_t *)conversation_get_proto_data(conv, proto_rdpudp);
+	if (!rdpudp_info)
+		return FALSE;
+
+	return !rdpudp_info->is_lossy;
+}
 
 static int
 dissect_rdpudp_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rdpudp_conv_info_t *conv)

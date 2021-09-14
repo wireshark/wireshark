@@ -103,17 +103,26 @@ dissect_rdpmt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *
 	offset += subheader_len - 4;
 
 	switch (action) {
-	case RDPMT_TUNNEL_CREATE_REQ:
+	case RDPMT_TUNNEL_CREATE_REQ: {
+		guint8 cookie[16];
+		guint32 reqId;
+		conversation_t *conv = find_or_create_conversation(pinfo);
+
 		subtree = proto_tree_add_subtree(tree, tvb, offset, payload_len, ett_rdpmt_create_req, NULL, "TunnelCreateRequest");
 		proto_tree_add_item(subtree, pf_mt_createreq_reqId, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		reqId = tvb_get_guint32(tvb, offset, ENC_LITTLE_ENDIAN);
 		offset += 4;
 
 		proto_tree_add_item(subtree, pf_mt_createreq_reserved, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
 
 		proto_tree_add_item(subtree, pf_mt_createreq_cookie, tvb, offset, 16, ENC_NA);
+		tvb_memcpy(tvb, cookie, offset, 16);
 		offset += 4;
+
+		rdp_transport_set_udp_conversation(&pinfo->dst, pinfo->destport, rdpudp_is_reliable_transport(pinfo), reqId, cookie, conv);
 		break;
+	}
 	case RDPMT_TUNNEL_CREATE_RESP:
 		subtree = proto_tree_add_subtree(tree, tvb, offset, payload_len, ett_rdpmt_create_resp, NULL, "TunnelCreateResponse");
 		proto_tree_add_item(subtree, pf_mt_createresp_hrResponse, tvb, offset, 4, ENC_LITTLE_ENDIAN);

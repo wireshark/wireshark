@@ -39,6 +39,7 @@ typedef struct _rdp_server_address {
 	guint16 port;
 } rdp_server_address_t;
 
+
 typedef struct _rdp_conv_info_t {
   guint32 staticChannelId;
   guint32 messageChannelId;
@@ -51,5 +52,8 @@ typedef struct _rdp_conv_info_t {
 } rdp_conv_info_t;
 
 gint dissect_rdp_bandwidth_req(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree, gboolean from_server);
+void rdp_transport_set_udp_conversation(const address *serverAddr, guint16 serverPort, gboolean reliable, guint32 reqId,
+		guint8 *cookie, conversation_t *conv);
+conversation_t *rdp_find_tcp_conversation_from_udp(conversation_t *udp);
 
 #endif /* __PACKET_RDP_H__ */

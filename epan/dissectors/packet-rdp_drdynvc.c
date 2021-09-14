@@ -150,19 +150,24 @@ drdynvc_find_channel_by_id(drdynvc_conv_info_t *info, guint32 id)
 static drdynvc_conv_info_t *
 drdynvc_get_conversation_data(packet_info *pinfo)
 {
-  conversation_t  *conversation;
-  drdynvc_conv_info_t *info;
+	conversation_t  *conversation, *conversation_tcp;
+	drdynvc_conv_info_t *info;
 
-  conversation = find_or_create_conversation(pinfo);
+	conversation = find_or_create_conversation(pinfo);
 
-  info = (drdynvc_conv_info_t *)conversation_get_proto_data(conversation, proto_rdp_drdynvc);
+	info = (drdynvc_conv_info_t *)conversation_get_proto_data(conversation, proto_rdp_drdynvc);
+	if (!info) {
+		conversation_tcp = rdp_find_tcp_conversation_from_udp(conversation);
+		if (conversation_tcp)
+			info = (drdynvc_conv_info_t *)conversation_get_proto_data(conversation_tcp, proto_rdp_drdynvc);
+	}
 
-  if (info == NULL) {
-    info = wmem_new0(wmem_file_scope(), drdynvc_conv_info_t);
-    conversation_add_proto_data(conversation, proto_rdp_drdynvc, info);
-  }
+	if (info == NULL) {
+		info = wmem_new0(wmem_file_scope(), drdynvc_conv_info_t);
+		conversation_add_proto_data(conversation, proto_rdp_drdynvc, info);
+	}
 
-  return info;
+	return info;
 }
 
 

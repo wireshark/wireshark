@@ -27,4 +27,6 @@ typedef struct _rdpudp_conv_info_t {
 } rdpudp_conv_info_t;
 
 gboolean rdp_isServerAddressTarget(packet_info *pinfo);
+gboolean rdpudp_is_reliable_transport(packet_info *pinfo);
+
 #endif /* __PACKET_RDPUDP_H_ */
