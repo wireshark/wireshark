@@ -834,6 +834,8 @@ dissect_tls13_handshake(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     SslDecryptSession *ssl_session;
     SslSession        *session;
     gint               is_from_server;
+    proto_item        *ti;
+    proto_tree        *ssl_tree;
     /**
      * A value that uniquely identifies this fragment in this frame.
      */
@@ -862,8 +864,11 @@ dissect_tls13_handshake(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     ssl_debug_printf("  conversation = %p, ssl_session = %p, from_server = %d\n",
                      (void *)conversation, (void *)ssl_session, is_from_server);
 
-    /* Directly add handshake message to the tree (without proto_tls item). */
-    dissect_tls_handshake(tvb, pinfo, tree, 0,
+    /* Add a proto_tls item to allow simple "tls" display filter */
+    ti = proto_tree_add_item(tree, proto_tls, tvb, 0, -1, ENC_NA);
+    ssl_tree = proto_item_add_subtree(ti, ett_tls);
+
+    dissect_tls_handshake(tvb, pinfo, ssl_tree, 0,
                           tvb_reported_length(tvb), FALSE, record_id, pinfo->curr_layer_num, session,
                           is_from_server, ssl_session, TLSV1DOT3_VERSION);
 
