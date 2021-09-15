@@ -1041,12 +1041,24 @@ static expert_field ei_pfcp_ie_encoding_error = EI_INIT;
 
 static gboolean g_pfcp_session = FALSE;
 static guint32 pfcp_session_count;
+
+typedef struct pfcp_rule_ids {
+    guint32 far;
+    guint32 pdr;
+    guint32 qer;
+    guint32 urr;
+    guint32 bar;
+    guint32 mar;
+    guint32 srr;
+} pfcp_rule_ids_t;
+
 typedef struct pfcp_session_args {
     wmem_list_t *seid_list;
     wmem_list_t *ip_list;
     guint64 last_seid;
     address last_ip;
     guint8 last_cause;
+    pfcp_rule_ids_t last_rule_ids;
 } pfcp_session_args_t;
 
 typedef struct _pfcp_hdr {
@@ -3345,7 +3357,7 @@ dissect_pfcp_timer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, prot
  * 8.2.36   PDR ID
  */
 static int
-decode_pfcp_pdr_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item, gint offset)
+decode_pfcp_pdr_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item, gint offset, pfcp_session_args_t *args)
 {
     guint32 rule_id;
     /* Octet 5 to 6 Rule ID*/
@@ -3354,15 +3366,19 @@ decode_pfcp_pdr_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, prot
 
     proto_item_append_text(item, "%u", rule_id);
 
+    if (args) {
+        args->last_rule_ids.pdr = rule_id;
+    }
+
     return offset;
 }
 
 static void
-dissect_pfcp_pdr_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+dissect_pfcp_pdr_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args)
 {
     int offset = 0;
 
-    offset = decode_pfcp_pdr_id(tvb, pinfo, tree, item, offset);
+    offset = decode_pfcp_pdr_id(tvb, pinfo, tree, item, offset, args);
 
     if (offset < length) {
         proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
@@ -4234,7 +4250,7 @@ dissect_pfcp_end_time(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto
  * 8.2.54   URR ID
  */
 static int
-decode_pfcp_urr_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint offset)
+decode_pfcp_urr_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint offset, pfcp_session_args_t *args)
 {
     guint32 urr_id;
     guint8 urr_id_flag;
@@ -4253,15 +4269,19 @@ decode_pfcp_urr_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, prot
         tfs_get_string(urr_id_flag, &pfcp_id_predef_dynamic_tfs),
         (urr_id & 0x7fffffff));
 
+    if (args) {
+        args->last_rule_ids.urr = (urr_id & 0x7fffffff);
+    }
+
     return offset;
 }
 
 static void
-dissect_pfcp_urr_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+dissect_pfcp_urr_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args)
 {
     int offset = 0;
 
-    offset = decode_pfcp_urr_id(tvb, pinfo, tree, item, offset);
+    offset = decode_pfcp_urr_id(tvb, pinfo, tree, item, offset, args);
 
     if (offset < length) {
         proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
@@ -4279,7 +4299,7 @@ dissect_pfcp_linked_urr_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     /* Octet 5 to 8 Linked URR ID value
     * The Linked URR ID value shall be encoded as an Unsigned32 binary integer value
     */
-    offset = decode_pfcp_urr_id(tvb, pinfo, tree, item, offset);
+    offset = decode_pfcp_urr_id(tvb, pinfo, tree, item, offset, NULL);
 
     if (offset < length) {
         proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
@@ -4379,7 +4399,7 @@ dissect_pfcp_outer_header_creation(tvbuff_t *tvb, packet_info *pinfo, proto_tree
  * 8.2.57   BAR ID
  */
 static int
-decode_pfcp_bar_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item, guint16 offset)
+decode_pfcp_bar_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item, guint16 offset, pfcp_session_args_t *args)
 {
     guint32 value;
     /* Octet 5 BAR ID value
@@ -4389,14 +4409,18 @@ decode_pfcp_bar_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, prot
     offset++;
     proto_item_append_text(item, "%u", value);
 
+    if (args) {
+        args->last_rule_ids.bar = value;
+    }
+
     return offset;
 }
 static void
-dissect_pfcp_bar_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+dissect_pfcp_bar_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args)
 {
     int offset = 0;
 
-    offset = decode_pfcp_bar_id(tvb, pinfo, tree, item, offset);
+    offset = decode_pfcp_bar_id(tvb, pinfo, tree, item, offset, args);
 
     if (offset < length) {
         proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
@@ -4990,7 +5014,7 @@ dissect_pfcp_deact_predef_rules(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
  * 8.2.74   FAR ID
  */
 static int
-decode_pfcp_far_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, gint offset)
+decode_pfcp_far_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, gint offset, pfcp_session_args_t *args)
 {
     guint32 far_id;
     guint8 far_id_flag;
@@ -5010,15 +5034,19 @@ decode_pfcp_far_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, prot
         tfs_get_string(far_id_flag, &pfcp_id_predef_dynamic_tfs),
         (far_id & 0x7fffffff));
 
+    if (args) {
+        args->last_rule_ids.far = (far_id & 0x7fffffff);
+    }
+
     return offset;
 }
 
 static void
-dissect_pfcp_far_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+dissect_pfcp_far_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args)
 {
     int offset = 0;
 
-    offset = decode_pfcp_far_id(tvb, pinfo, tree, item, offset);
+    offset = decode_pfcp_far_id(tvb, pinfo, tree, item, offset, args);
 
     if (offset < length) {
         proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
@@ -5029,7 +5057,7 @@ dissect_pfcp_far_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_i
  * 8.2.75   QER ID
  */
 static int
-decode_pfcp_qer_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint offset)
+decode_pfcp_qer_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint offset, pfcp_session_args_t *args)
 {
     guint32 qer_id;
     guint8 qer_id_flag;
@@ -5048,14 +5076,18 @@ decode_pfcp_qer_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, prot
         tfs_get_string(qer_id_flag, &pfcp_id_predef_dynamic_tfs),
         (qer_id & 0x7fffffff));
 
+    if (args) {
+        args->last_rule_ids.qer = (qer_id & 0x7fffffff);
+    }
+
     return offset;
 }
 static void
-dissect_pfcp_qer_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+dissect_pfcp_qer_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args)
 {
     int offset = 0;
 
-    offset = decode_pfcp_qer_id(tvb, pinfo, tree, item, offset);
+    offset = decode_pfcp_qer_id(tvb, pinfo, tree, item, offset, args);
 
     if (offset < length) {
         proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
@@ -5206,7 +5238,7 @@ static const value_string pfcp_failed_rule_id_type_vals[] = {
  * 8.2.123   MAR ID
  */
 static int
-decode_pfcp_mar_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item, gint offset)
+decode_pfcp_mar_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item, gint offset, pfcp_session_args_t *args)
 {
     guint32 mar_id;
     /* Octet 5 to 6 MAR ID*/
@@ -5215,21 +5247,28 @@ decode_pfcp_mar_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, prot
 
     proto_item_append_text(item, "%u", mar_id);
 
+    if (args) {
+        args->last_rule_ids.mar = mar_id;
+    }
+
     return offset;
 }
 /*
  * 8.2.151   SRR ID
  */
 static int
-decode_pfcp_srr_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item, gint offset)
+decode_pfcp_srr_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item, gint offset, pfcp_session_args_t *args)
 {
     guint32 srr_id;
-
     /* Oct 5 The SRR ID value shall be encoded as a binary integer value. */
     proto_tree_add_item_ret_uint(tree, hf_pfcp_srr_id, tvb, offset, 1, ENC_BIG_ENDIAN, &srr_id);
     offset += 1;
 
     proto_item_append_text(item, "%u", srr_id);
+
+    if (args) {
+        args->last_rule_ids.srr = srr_id;
+    }
 
     return offset;
 }
@@ -5253,31 +5292,31 @@ dissect_pfcp_failed_rule_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
     switch (rule_type) {
         case 0:
             /* PDR ID */
-            offset = decode_pfcp_pdr_id(tvb, pinfo, tree, item, offset);
+            offset = decode_pfcp_pdr_id(tvb, pinfo, tree, item, offset, NULL);
             break;
         case 1:
             /* FAR ID */
-            offset = decode_pfcp_far_id(tvb, pinfo, tree, item, offset);
+            offset = decode_pfcp_far_id(tvb, pinfo, tree, item, offset, NULL);
             break;
         case 2:
             /* QER ID */
-            offset = decode_pfcp_qer_id(tvb, pinfo, tree, item, offset);
+            offset = decode_pfcp_qer_id(tvb, pinfo, tree, item, offset, NULL);
             break;
         case 3:
             /* URR ID */
-            offset = decode_pfcp_urr_id(tvb, pinfo, tree, item, offset);
+            offset = decode_pfcp_urr_id(tvb, pinfo, tree, item, offset, NULL);
             break;
         case 4:
             /* BAR ID */
-            offset = decode_pfcp_bar_id(tvb, pinfo, tree, item, offset);
+            offset = decode_pfcp_bar_id(tvb, pinfo, tree, item, offset, NULL);
             break;
         case 5:
             /* MAR ID */
-            offset = decode_pfcp_mar_id(tvb, pinfo, tree, item, offset);
+            offset = decode_pfcp_mar_id(tvb, pinfo, tree, item, offset, NULL);
             break;
         case 6:
             /* SRR ID */
-            offset = decode_pfcp_srr_id(tvb, pinfo, tree, item, offset);
+            offset = decode_pfcp_srr_id(tvb, pinfo, tree, item, offset, NULL);
             break;
         default:
             break;
@@ -5446,7 +5485,7 @@ static void
 dissect_pfcp_aggregated_urr_id_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item, guint16 length _U_, guint8 message_type _U_, pfcp_session_args_t *args _U_)
 {
     /* 5 to 8  URR ID */
-    decode_pfcp_urr_id(tvb, pinfo, tree, item, 0);
+    decode_pfcp_urr_id(tvb, pinfo, tree, item, 0, NULL);
 }
 
 /*
@@ -6467,11 +6506,11 @@ dissect_pfcp_deactivation_time(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
  */
 
 static void
-dissect_pfcp_mar_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+dissect_pfcp_mar_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args)
 {
     int offset = 0;
 
-    offset = decode_pfcp_mar_id(tvb, pinfo, tree, item, offset);
+    offset = decode_pfcp_mar_id(tvb, pinfo, tree, item, offset, args);
 
     if (offset < length) {
         proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
@@ -7166,11 +7205,11 @@ dissect_pfcp_cumulative_rate_ratio_measurement(tvbuff_t *tvb, packet_info *pinfo
  */
 
 static void
-dissect_pfcp_srr_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+dissect_pfcp_srr_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args)
 {
     int offset = 0;
 
-    offset = decode_pfcp_srr_id(tvb, pinfo, tree, item, offset);
+    offset = decode_pfcp_srr_id(tvb, pinfo, tree, item, offset, args);
 
     if (offset < length) {
         proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
@@ -8885,12 +8924,14 @@ static void
 dissect_pfcp_create_pdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
     dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_ID_CREATE_PDR], args);
+    proto_item_append_text(item, ": PDR ID: %u", args->last_rule_ids.pdr);
 }
 
 static void
 dissect_pfcp_create_far(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
     dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_CREATE_FAR], args);
+    proto_item_append_text(item, ": FAR ID: %u", args->last_rule_ids.far);
 }
 
 static void
@@ -8909,30 +8950,35 @@ static void
 dissect_pfcp_create_urr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
     dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_CREATE_URR], args);
+    proto_item_append_text(item, ": URR ID: %u", args->last_rule_ids.urr);
 }
 
 static void
 dissect_pfcp_create_qer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
     dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_CREATE_QER], args);
+    proto_item_append_text(item, ": QER ID: %u", args->last_rule_ids.qer);
 }
 
 static void
 dissect_pfcp_created_pdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
     dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_CREATED_PDR], args);
+    proto_item_append_text(item, ": PDR ID: %u", args->last_rule_ids.pdr);
 }
 
 static void
 dissect_pfcp_update_pdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
     dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_UPDATE_PDR], args);
+    proto_item_append_text(item, ": PDR ID: %u", args->last_rule_ids.pdr);
 }
 
 static void
 dissect_pfcp_update_far(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
     dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_UPDATE_FAR], args);
+    proto_item_append_text(item, ": FAR ID: %u", args->last_rule_ids.far);
 }
 
 static void
@@ -8945,42 +8991,49 @@ static void
 dissect_pfcp_update_bar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
     dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_UPDATE_BAR], args);
+    proto_item_append_text(item, ": BAR ID: %u", args->last_rule_ids.bar);
 }
 
 static void
 dissect_pfcp_update_urr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
     dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_UPDATE_URR], args);
+    proto_item_append_text(item, ": URR ID: %u", args->last_rule_ids.urr);
 }
 
 static void
 dissect_pfcp_update_qer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
     dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_UPDATE_QER], args);
+    proto_item_append_text(item, ": QER ID: %u", args->last_rule_ids.qer);
 }
 
 static void
 dissect_pfcp_remove_pdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
     dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_REMOVE_PDR], args);
+    proto_item_append_text(item, ": PDR ID: %u", args->last_rule_ids.pdr);
 }
 
 static void
 dissect_pfcp_remove_far(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
     dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_REMOVE_FAR], args);
+    proto_item_append_text(item, ": FAR ID: %u", args->last_rule_ids.far);
 }
 
 static void
 dissect_pfcp_remove_urr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
     dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_REMOVE_URR], args);
+    proto_item_append_text(item, ": URR ID: %u", args->last_rule_ids.urr);
 }
 
 static void
 dissect_pfcp_remove_qer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
     dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_REMOVE_QER], args);
+    proto_item_append_text(item, ": QER ID: %u", args->last_rule_ids.qer);
 }
 
 static void
@@ -9048,18 +9101,21 @@ static void
 dissect_pfcp_create_bar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
     dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_CREATE_BAR], args);
+    proto_item_append_text(item, ": BAR ID: %u", args->last_rule_ids.bar);
 }
 
 static void
 dissect_pfcp_update_bar_smr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
     dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_UPDATE_BAR_SMR], args);
+    proto_item_append_text(item, ": BAR ID: %u", args->last_rule_ids.bar);
 }
 
 static void
 dissect_pfcp_remove_bar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
     dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_REMOVE_BAR], args);
+    proto_item_append_text(item, ": BAR ID: %u", args->last_rule_ids.bar);
 }
 
 static void
@@ -9132,6 +9188,7 @@ static void
 dissect_pfcp_create_mar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
     dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_CREATE_MAR], args);
+    proto_item_append_text(item, ": MAR ID: %u", args->last_rule_ids.mar);
 }
 
 static void
@@ -9150,12 +9207,14 @@ static void
 dissect_pfcp_update_mar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
     dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_UPDATE_MAR], args);
+    proto_item_append_text(item, ": MAR ID: %u", args->last_rule_ids.mar);
 }
 
 static void
 dissect_pfcp_remove_mar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
     dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_REMOVE_MAR], args);
+    proto_item_append_text(item, ": MAR ID: %u", args->last_rule_ids.mar);
 }
 
 static void
@@ -9240,18 +9299,21 @@ static void
 dissect_pfcp_remove_srr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
     dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_REMOVE_SRR], args);
+    proto_item_append_text(item, ": SRR ID: %u", args->last_rule_ids.srr);
 }
 
 static void
 dissect_pfcp_create_srr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
     dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_CREATE_SRR], args);
+    proto_item_append_text(item, ": SRR ID: %u", args->last_rule_ids.srr);
 }
 
 static void
 dissect_pfcp_update_srr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
     dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_UPDATE_SRR], args);
+    proto_item_append_text(item, ": SRR ID: %u", args->last_rule_ids.srr);
 }
 
 static void
@@ -9641,9 +9703,10 @@ dissect_pfcp_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
     message_type = tvb_get_guint8(tvb, 1);
     col_set_str(pinfo->cinfo, COL_INFO, val_to_str_ext_const(message_type, &pfcp_message_type_ext, "Unknown"));
+
+    args = wmem_new0(pinfo->pool, pfcp_session_args_t);
+    args->last_cause = 1;                                         /* It stores the last cause decoded. Cause accepted by default */
     if (g_pfcp_session) {
-        args = wmem_new0(pinfo->pool, pfcp_session_args_t);
-        args->last_cause = 1;                                         /* It stores the last cause decoded. Cause accepted by default */
         /* We create the auxiliary lists */
         args->seid_list = wmem_list_new(pinfo->pool);
         args->ip_list = wmem_list_new(pinfo->pool);
@@ -9736,14 +9799,14 @@ dissect_pfcp_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     dissect_pfcp_ies_common(tvb, pinfo, sub_tree, offset, length_total, message_type, args);
 
     /* Use sequence number to track Req/Resp pairs */
-    cause_aux = 16; /* Cause accepted by default. Only used when args is NULL */
-    if (args && !PINFO_FD_VISITED(pinfo)) {
+    cause_aux = 16; /* Cause accepted by default. Only used when no session tracking enabled */
+    if (g_pfcp_session && !PINFO_FD_VISITED(pinfo)) {
         /* We insert the lists inside the table*/
         pfcp_fill_map(args->seid_list, args->ip_list, pinfo->num);
         cause_aux = args->last_cause;
     }
     pfcp_match_response(tvb, pinfo, sub_tree, seq_no, message_type, pfcp_info, cause_aux);
-    if (args) {
+    if (g_pfcp_session) {
         pfcp_track_session(tvb, pinfo, sub_tree, pfcp_hdr, args->seid_list, args->ip_list, args->last_seid, args->last_ip);
     }
 
