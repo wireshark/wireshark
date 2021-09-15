@@ -1551,7 +1551,7 @@ dissect_ntp_ctrl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree, nt
 		case NTPCTRL_OP_WRITEVAR:
 		case NTPCTRL_OP_READCLOCK:
 		case NTPCTRL_OP_WRITECLOCK:
-			tt = tvbparse_init(tvb, data_offset, datalen, NULL, want_ignore);
+			tt = tvbparse_init(pinfo->pool, tvb, data_offset, datalen, NULL, want_ignore);
 			while( (element = tvbparse_get(tt, want)) != NULL ) {
 				tvbparse_tree_add_elem(data_tree, element);
 			}

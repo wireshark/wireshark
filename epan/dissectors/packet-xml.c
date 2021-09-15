@@ -270,7 +270,7 @@ dissect_xml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         decoded = tvb;
     }
 
-    tt = tvbparse_init(decoded, 0, -1, stack, want_ignore);
+    tt = tvbparse_init(pinfo->pool, decoded, 0, -1, stack, want_ignore);
     current_frame->start_offset = 0;
     current_frame->length = tvb_captured_length(decoded);
 
@@ -307,7 +307,7 @@ dissect_xml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
 static gboolean dissect_xml_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    if (tvbparse_peek(tvbparse_init(tvb, 0, -1, NULL, want_ignore), want_heur)) {
+    if (tvbparse_peek(tvbparse_init(pinfo->pool, tvb, 0, -1, NULL, want_ignore), want_heur)) {
         dissect_xml(tvb, pinfo, tree, data);
         return TRUE;
     } else if (pref_heuristic_unicode) {
@@ -329,7 +329,7 @@ static gboolean dissect_xml_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         data_str    = tvb_get_string_enc(pinfo->pool, tvb, 0, tvb_captured_length(tvb), enc);
         l           = strlen(data_str);
         unicode_tvb = tvb_new_child_real_data(tvb, data_str, (guint)l, (gint)l);
-        if (tvbparse_peek(tvbparse_init(unicode_tvb, 0, -1, NULL, want_ignore), want_heur)) {
+        if (tvbparse_peek(tvbparse_init(pinfo->pool, unicode_tvb, 0, -1, NULL, want_ignore), want_heur)) {
             add_new_data_source(pinfo, unicode_tvb, "UTF8");
             dissect_xml(unicode_tvb, pinfo, tree, data);
             return TRUE;

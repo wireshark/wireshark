@@ -618,7 +618,7 @@ xmpp_stream_close(proto_tree *tree, tvbuff_t *tvb, packet_info* pinfo)
     tvbparse_t        *tt;
     tvbparse_elem_t   *elem;
 
-    tt = tvbparse_init(tvb,0,-1,NULL,want_ignore);
+    tt = tvbparse_init(pinfo->pool, tvb,0,-1,NULL,want_ignore);
 
     if((elem = tvbparse_get(tt,want_stream_end_tag))!=NULL)
     {

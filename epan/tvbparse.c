@@ -81,8 +81,9 @@ static tvbparse_elem_t* new_tok(tvbparse_t* tt,
     if (TVBPARSE_DEBUG & TVBPARSE_DEBUG_NEWTOK) ws_warning("new_tok: id=%i offset=%u len=%u",id,offset,len);
 #endif
 
-    tok = wmem_new(wmem_packet_scope(), tvbparse_elem_t);
+    tok = wmem_new(tt->scope, tvbparse_elem_t);
 
+    tok->parser = tt;
     tok->tvb = tt->tvb;
     tok->id = id;
     tok->offset = offset;
@@ -491,7 +492,7 @@ static int cond_hash(tvbparse_t* tt, const int offset, const tvbparse_wanted_t* 
         return -1;
     }
 
-    key = tvb_get_string_enc(wmem_packet_scope(),key_elem->tvb,key_elem->offset,key_elem->len, ENC_ASCII);
+    key = tvb_get_string_enc(tt->scope,key_elem->parser->tvb,key_elem->offset,key_elem->len, ENC_ASCII);
 #ifdef TVBPARSE_DEBUG
     if (TVBPARSE_DEBUG & TVBPARSE_DEBUG_HASH) ws_warning("cond_hash: got key='%s'",key);
 #endif
@@ -831,348 +832,6 @@ tvbparse_wanted_t* tvbparse_until(const int id,
     return w;
 }
 
-#if 0
-static int cond_handle(tvbparse_t* tt, const int offset, const tvbparse_wanted_t * wanted, tvbparse_elem_t** tok) {
-    tvbparse_wanted_t* w = *(wanted->control.handle);
-    int len = w->condition(tt, offset, w,  tok);
-
-    if (len >= 0) {
-        return len;
-    } else {
-        return -1;
-    }
-}
-
-tvbparse_wanted_t* tvbparse_handle(tvbparse_wanted_t** handle) {
-    tvbparse_wanted_t* w = g_new0(tvbparse_wanted_t, 1);
-
-    w->condition = cond_handle;
-    w->control.handle = handle;
-
-    return w;
-}
-
-static int cond_end(tvbparse_t* tt, const int offset, const tvbparse_wanted_t * wanted _U_, tvbparse_elem_t** tok) {
-    if (offset == tt->end_offset) {
-        *tok = new_tok(tt,wanted->id,offset,0,wanted);
-        return 0;
-    } else {
-        return -1;
-    }
-}
-
-tvbparse_wanted_t* tvbparse_end_of_buffer(const int id,
-                                          const void* data,
-                                          tvbparse_action_t before_cb,
-                                          tvbparse_action_t after_cb) {
-    tvbparse_wanted_t* w = g_new0(tvbparse_wanted_t, 1);
-
-    w->id = id;
-    w->condition = cond_end;
-    w->after = after_cb;
-    w->before = before_cb;
-    w->data = data;
-    return w;
-
-}
-
-
-/* these extract binary values */
-
-static int cond_ft(tvbparse_t* tt, int offset, const tvbparse_wanted_t * wanted, tvbparse_elem_t** tok) {
-    guint len = 0;
-
-    if ( offset + wanted->len > tt->end_offset )
-        return -1;
-
-    if (wanted->len) {
-        return wanted->len;
-    } else if (wanted->control.ftenum == FT_STRINGZ) {
-        if (( len = tvb_find_guint8(tt->tvb,offset,tt->end_offset - offset,'\0') >= 0 )) {
-            *tok = new_tok(tt,wanted->id,offset,len,wanted);
-            return len;
-        } else {
-            return -1;
-        }
-    } else {
-        return -2;
-    }
-}
-
-gint ft_lens[] = {-1,-1,-1, 1, 2, 3, 4, 8, 1, 2, 3, 4, 8, 4, 8,-1,-1,-1, 0, -1, 6, -1, -1, 4, sizeof(ws_in6_addr), -1, -1, -1, -1 };
-
-tvbparse_wanted_t* tvbparse_ft(int id,
-                               const void* data,
-                               tvbparse_action_t before_cb,
-                               tvbparse_action_t after_cb,
-                               enum ftenum ftenum) {
-    gint len = ft_lens[ftenum];
-
-    if (len >= 0) {
-        tvbparse_wanted_t* w = g_new0(tvbparse_wanted_t, 1);
-
-        w->id = id;
-        w->condition = cond_ft;
-        w->len = len;
-        w->control.ftenum = ftenum;
-        w->after = after_cb;
-        w->before = before_cb;
-        w->data = data;
-
-        return w;
-    } else {
-        ws_assert(! "unsupported ftenum" );
-        return NULL;
-    }
-}
-
-static int cond_ft_comp(tvbparse_t* tt, int offset, const tvbparse_wanted_t * wanted _U_, tvbparse_elem_t** tok) {
-    void* l = wanted->control.number.extract(tt->tvb,offset);
-    const void* r = &(wanted->control.number.value);
-
-    if ( offset + wanted->len > tt->end_offset )
-        return -1;
-
-    if ( wanted->control.number.comp(&l,&r) ) {
-        *tok = new_tok(tt,wanted->id,offset,wanted->len,wanted);
-        return wanted->len;
-    } else {
-        return -1;
-    }
-}
-
-static gboolean comp_gt_i(void* lp, const void* rp) { return ( *((gint64*)lp) > *((gint64*)rp) ); }
-static gboolean comp_ge_i(void* lp, const void* rp) { return ( *((gint64*)lp) >= *((gint64*)rp) ); }
-static gboolean comp_eq_i(void* lp, const void* rp) { return ( *((gint64*)lp) == *((gint64*)rp) ); }
-static gboolean comp_ne_i(void* lp, const void* rp) { return ( *((gint64*)lp) != *((gint64*)rp) ); }
-static gboolean comp_le_i(void* lp, const void* rp) { return ( *((gint64*)lp) <= *((gint64*)rp) ); }
-static gboolean comp_lt_i(void* lp, const void* rp) { return ( *((gint64*)lp) < *((gint64*)rp) ); }
-
-static gboolean comp_gt_u(void* lp, const void* rp) { return ( *((guint64*)lp) > *((guint64*)rp) ); }
-static gboolean comp_ge_u(void* lp, const void* rp) { return ( *((guint64*)lp) >= *((guint64*)rp) ); }
-static gboolean comp_eq_u(void* lp, const void* rp) { return ( *((guint64*)lp) == *((guint64*)rp) ); }
-static gboolean comp_ne_u(void* lp, const void* rp) { return ( *((guint64*)lp) != *((guint64*)rp) ); }
-static gboolean comp_le_u(void* lp, const void* rp) { return ( *((guint64*)lp) <= *((guint64*)rp) ); }
-static gboolean comp_lt_u(void* lp, const void* rp) { return ( *((guint64*)lp) < *((guint64*)rp) ); }
-
-static gboolean comp_gt_f(void* lp, const void* rp) { return ( *((gdouble*)lp) > *((gdouble*)rp) ); }
-static gboolean comp_ge_f(void* lp, const void* rp) { return ( *((gdouble*)lp) >= *((gdouble*)rp) ); }
-static gboolean comp_eq_f(void* lp, const void* rp) { return ( *((gdouble*)lp) == *((gdouble*)rp) ); }
-static gboolean comp_ne_f(void* lp, const void* rp) { return ( *((gdouble*)lp) != *((gdouble*)rp) ); }
-static gboolean comp_le_f(void* lp, const void* rp) { return ( *((gdouble*)lp) <= *((gdouble*)rp) ); }
-static gboolean comp_lt_f(void* lp, const void* rp) { return ( *((gdouble*)lp) < *((gdouble*)rp) ); }
-
-static void* extract_u8(tvbuff_t* tvb, guint offset) {
-    guint64* p = wmem_new(wmem_packet_scope(), guint64);
-    *p = tvb_get_guint8(tvb,offset);
-    return p;
-}
-
-static void* extract_uns(tvbuff_t* tvb, guint offset) {
-    guint64* p = wmem_new(wmem_packet_scope(), guint64);
-    *p = tvb_get_ntohs(tvb,offset);
-    return p;
-}
-
-static void* extract_un24(tvbuff_t* tvb, guint offset) {
-    guint64* p = wmem_new(wmem_packet_scope(), guint64);
-    *p = tvb_get_ntoh24(tvb,offset);
-    return p;
-}
-
-static void* extract_unl(tvbuff_t* tvb, guint offset) {
-    guint64* p = wmem_new(wmem_packet_scope(), guint64);
-    *p = tvb_get_ntohl(tvb,offset);
-    return p;
-}
-
-static void* extract_un64(tvbuff_t* tvb, guint offset) {
-    guint64* p = wmem_new(wmem_packet_scope(), guint64);
-    *p = tvb_get_ntoh64(tvb,offset);
-    return p;
-}
-
-static void* extract_ules(tvbuff_t* tvb, guint offset) {
-    guint64* p = wmem_new(wmem_packet_scope(), guint64);
-    *p = tvb_get_letohs(tvb,offset);
-    return p;
-}
-
-static void* extract_ule24(tvbuff_t* tvb, guint offset) {
-    guint64* p = wmem_new(wmem_packet_scope(), guint64);
-    *p = tvb_get_letoh24(tvb,offset);
-    return p;
-}
-
-static void* extract_ulel(tvbuff_t* tvb, guint offset) {
-    guint64* p = wmem_new(wmem_packet_scope(), guint64);
-    *p = tvb_get_letohl(tvb,offset);
-    return p;
-}
-
-static void* extract_ule64(tvbuff_t* tvb, guint offset) {
-    guint64* p = wmem_new(wmem_packet_scope(), guint64);
-    *p = tvb_get_letoh64(tvb,offset);
-    return p;
-}
-
-static void* extract_ins(tvbuff_t* tvb, guint offset) {
-    guint64* p = wmem_new(wmem_packet_scope(), guint64);
-    *p = tvb_get_ntohs(tvb,offset);
-    return p;
-}
-
-static void* extract_in24(tvbuff_t* tvb, guint offset) {
-    guint64* p = wmem_new(wmem_packet_scope(), guint64);
-    *p = tvb_get_ntoh24(tvb,offset);
-    return p;
-}
-
-static void* extract_inl(tvbuff_t* tvb, guint offset) {
-    guint64* p = wmem_new(wmem_packet_scope(), guint64);
-    *p = tvb_get_ntohl(tvb,offset);
-    return p;
-}
-
-static void* extract_in64(tvbuff_t* tvb, guint offset) {
-    guint64* p = wmem_new(wmem_packet_scope(), guint64);
-    *p = tvb_get_ntoh64(tvb,offset);
-    return p;
-}
-
-static void* extract_iles(tvbuff_t* tvb, guint offset) {
-    guint64* p = wmem_new(wmem_packet_scope(), guint64);
-    *p = tvb_get_letohs(tvb,offset);
-    return p;
-}
-
-static void* extract_ile24(tvbuff_t* tvb, guint offset) {
-    guint64* p = wmem_new(wmem_packet_scope(), guint64);
-    *p = tvb_get_letoh24(tvb,offset);
-    return p;
-}
-
-static void* extract_ilel(tvbuff_t* tvb, guint offset) {
-    guint64* p = wmem_new(wmem_packet_scope(), guint64);
-    *p = tvb_get_letohl(tvb,offset);
-    return p;
-}
-
-static void* extract_ile64(tvbuff_t* tvb, guint offset) {
-    guint64* p = wmem_new(wmem_packet_scope(), guint64);
-    *p = tvb_get_letoh64(tvb,offset);
-    return p;
-}
-
-static void* extract_inf(tvbuff_t* tvb, guint offset) {
-    gdouble* p = wmem_new(wmem_packet_scope(), gdouble);
-    *p = tvb_get_ntohieee_float(tvb,offset);
-    return p;
-}
-
-static void* extract_ind(tvbuff_t* tvb, guint offset) {
-    gdouble* p = wmem_new(wmem_packet_scope(), gdouble);
-    *p = tvb_get_ntohieee_double(tvb,offset);
-    return p;
-}
-
-static void* extract_ilef(tvbuff_t* tvb, guint offset) {
-    gdouble* p = wmem_new(wmem_packet_scope(), gdouble);
-    *p = tvb_get_letohieee_float(tvb,offset);
-    return p;
-}
-
-static void* extract_iled(tvbuff_t* tvb, guint offset) {
-    gdouble* p = wmem_new(wmem_packet_scope(), gdouble);
-    *p = tvb_get_letohieee_double(tvb,offset);
-    return p;
-}
-
-
-
-static gboolean (*comps_u[])(void*, const void*) = {comp_gt_u,comp_ge_u,comp_eq_u,comp_ne_u,comp_le_u,comp_lt_u};
-static gboolean (*comps_i[])(void*, const void*) = {comp_gt_i,comp_ge_i,comp_eq_i,comp_ne_i,comp_le_i,comp_lt_i};
-static gboolean (*comps_f[])(void*, const void*) = {comp_gt_f,comp_ge_f,comp_eq_f,comp_ne_f,comp_le_f,comp_lt_f};
-
-static gboolean (**comps[])(void*, const void*) = {comps_u,comps_i,comps_f};
-
-static void* (*extract_n[])(tvbuff_t* tvb, guint offset)  =  {
-    NULL, NULL, NULL, extract_u8, extract_uns, extract_un24, extract_unl,
-    extract_un64, extract_u8, extract_ins, extract_in24, extract_inl,
-    extract_in64, extract_inf, extract_ind, NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, NULL,NULL, NULL
-};
-static void* (*extract_le[])(tvbuff_t* tvb, guint offset)  =  {
-    NULL, NULL, NULL, extract_u8, extract_ules, extract_ule24, extract_ulel,
-    extract_ule64, extract_u8, extract_iles, extract_ile24, extract_ilel,
-    extract_ile64, extract_ilef, extract_iled, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL,NULL, NULL
-};
-
-static void* (**extracts[])(tvbuff_t* tvb, guint offset) = { extract_n, extract_le};
-
-
-tvbparse_wanted_t* tvbparse_ft_numcmp(int id,
-                                      const void* data,
-                                      tvbparse_action_t before_cb,
-                                      tvbparse_action_t after_cb,
-                                      enum ftenum ftenum,
-                                      int little_endian,
-                                      enum ft_cmp_op ft_cmp_op,
-                                      ... ) {
-    tvbparse_wanted_t* w = g_new0(tvbparse_wanted_t, 1);
-    va_list ap;
-
-    va_start(ap,ft_cmp_op);
-
-    switch (ftenum) {
-        case FT_UINT8:
-        case FT_UINT16:
-        case FT_UINT24:
-        case FT_UINT32:
-            w->control.number.comp = comps[0][ft_cmp_op];
-            w->control.number.value.u = va_arg(ap,guint32);
-            break;
-        case FT_UINT64:
-            w->control.number.comp = comps[0][ft_cmp_op];
-            w->control.number.value.u = va_arg(ap,guint64);
-            break;
-        case FT_INT8:
-        case FT_INT16:
-        case FT_INT24:
-        case FT_INT32:
-            w->control.number.comp = comps[1][ft_cmp_op];
-            w->control.number.value.i = va_arg(ap,gint32);
-            break;
-        case FT_INT64:
-            w->control.number.comp = comps[1][ft_cmp_op];
-            w->control.number.value.i = va_arg(ap,gint64);
-            break;
-        case FT_FLOAT:
-        case FT_DOUBLE:
-            w->control.number.comp = comps[1][ft_cmp_op];
-            w->control.number.value.i = va_arg(ap,gdouble);
-            break;
-        default:
-            ws_assert(! "comparison unsupported");
-    }
-
-    w->control.number.extract = extracts[little_endian][ftenum];
-
-    ws_assert(w->control.number.extract && "extraction unsupported");
-
-    w->id = id;
-    w->condition = cond_ft_comp;
-    w->after = after_cb;
-    w->before = before_cb;
-    w->data = data;
-
-    return w;
-}
-
-#endif
-
-
 tvbparse_wanted_t* tvbparse_quoted(const int id,
                                    const void* data,
                                    tvbparse_action_t before_cb,
@@ -1209,18 +868,19 @@ void tvbparse_shrink_token_cb(void* tvbparse_data _U_,
     tok->len -= 2;
 }
 
-tvbparse_t* tvbparse_init(tvbuff_t* tvb,
+tvbparse_t* tvbparse_init(wmem_allocator_t *scope,
+                          tvbuff_t* tvb,
                           const int offset,
                           int len,
                           void* data,
                           const tvbparse_wanted_t* ignore) {
-    tvbparse_t* tt = wmem_new(wmem_packet_scope(), tvbparse_t);
+    tvbparse_t* tt = wmem_new(scope, tvbparse_t);
 
 #ifdef TVBPARSE_DEBUG
     if (TVBPARSE_DEBUG & TVBPARSE_DEBUG_TT) ws_warning("tvbparse_init: offset=%i len=%i",offset,len);
 #endif
 
-
+    tt->scope = scope;
     tt->tvb = tvb;
     tt->offset = offset;
     len = (len == -1) ? (int) tvb_captured_length(tvb) : len;
@@ -1255,7 +915,7 @@ guint tvbparse_curr_offset(tvbparse_t* tt) {
 }
 
 static void execute_callbacks(tvbparse_t* tt, tvbparse_elem_t* curr) {
-    wmem_stack_t *stack = wmem_stack_new(wmem_packet_scope());
+    wmem_stack_t *stack = wmem_stack_new(tt->scope);
 
     while (curr) {
         if(curr->wanted->before) {
@@ -1396,19 +1056,19 @@ struct _elem_tree_stack_frame {
 };
 
 void tvbparse_tree_add_elem(proto_tree* tree, tvbparse_elem_t* curr) {
-    wmem_stack_t *stack = wmem_stack_new(wmem_packet_scope());
-    struct _elem_tree_stack_frame* frame = wmem_new(wmem_packet_scope(), struct _elem_tree_stack_frame);
+    wmem_stack_t *stack = wmem_stack_new(curr->parser->scope);
+    struct _elem_tree_stack_frame* frame = wmem_new(curr->parser->scope, struct _elem_tree_stack_frame);
     proto_item* pi;
     frame->tree = tree;
     frame->elem = curr;
 
     while (curr) {
-        pi = proto_tree_add_format_text(frame->tree,curr->tvb,curr->offset,curr->len);
+        pi = proto_tree_add_format_text(frame->tree,curr->parser->tvb,curr->offset,curr->len);
 
         if(curr->sub) {
             frame->elem = curr;
             wmem_stack_push(stack, frame);
-            frame = wmem_new(wmem_packet_scope(), struct _elem_tree_stack_frame);
+            frame = wmem_new(curr->parser->scope, struct _elem_tree_stack_frame);
             frame->tree = proto_item_add_subtree(pi,0);
             curr = curr->sub;
             continue;

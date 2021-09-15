@@ -543,7 +543,7 @@ xmpp_xml_frame_to_element_t(wmem_allocator_t *pool, xml_frame_t *xml_frame, xmpp
     node->offset = xml_frame->start_offset;
     node->length = xml_frame->length;
 
-    tt = tvbparse_init(tvb,node->offset,-1,NULL,want_ignore);
+    tt = tvbparse_init(pool, tvb,node->offset,-1,NULL,want_ignore);
 
     if((elem = tvbparse_get(tt,want_stream_end_with_ns))!=NULL)
     {

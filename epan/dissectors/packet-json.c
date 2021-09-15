@@ -654,7 +654,7 @@ dissect_json(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 		wmem_stack_push(parser_data.array_idx, GINT_TO_POINTER(JSON_COMPACT_TOP_ITEM)); /* top element */
 	}
 
-	tt = tvbparse_init(tvb, offset, buffer_length - offset, &parser_data, want_ignore);
+	tt = tvbparse_init(pinfo->pool, tvb, offset, buffer_length - offset, &parser_data, want_ignore);
 
 	/* XXX, only one json in packet? */
 	while (tvbparse_get(tt, want))
