@@ -51,7 +51,7 @@ static int dissect_vicp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
    ti = proto_tree_add_item(tree, proto_vicp, tvb, 0, -1, ENC_NA);
    vicp_tree = proto_item_add_subtree(ti, ett_vicp);
-   cursor = ptvcursor_new(vicp_tree, tvb, 0);
+   cursor = ptvcursor_new(pinfo->pool, vicp_tree, tvb, 0);
 
    ptvcursor_add(cursor, hf_vicp_operation, 1, ENC_BIG_ENDIAN);
    ptvcursor_add(cursor, hf_vicp_version,   1, ENC_BIG_ENDIAN);

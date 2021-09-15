@@ -263,7 +263,7 @@ static void dissect_a615a_protocol_file(tvbuff_t *tvb, packet_info *pinfo, proto
     ti = proto_tree_add_string(a615a_tree, hf_a615a_file_type, tvb, 0, 0, a615a_file[suffix].full);
     proto_item_set_generated(ti);
 
-    ptvcursor_t *ptvc = ptvcursor_new(a615a_tree, tvb, 0);
+    ptvcursor_t *ptvc = ptvcursor_new(pinfo->pool, a615a_tree, tvb, 0);
     ptvcursor_add(ptvc, hf_a615a_file_length, 4, ENC_BIG_ENDIAN);
     ptvcursor_add(ptvc, hf_a615a_protocol_version, 2, ENC_ASCII | ENC_NA);
 
@@ -343,7 +343,7 @@ static int dissect_find(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     proto_item *ti = proto_tree_add_item(tree, proto_find, tvb, 0, -1, ENC_NA);
     proto_tree *find_tree = proto_item_add_subtree(ti, ett_find);
 
-    ptvcursor_t *ptvc = ptvcursor_new(find_tree, tvb, 0);
+    ptvcursor_t *ptvc = ptvcursor_new(pinfo->pool, find_tree, tvb, 0);
 
     guint32 opcode;
     ptvcursor_add_ret_uint(ptvc, hf_find_opcode, 2, ENC_BIG_ENDIAN, &opcode);

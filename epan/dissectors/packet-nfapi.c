@@ -8025,7 +8025,7 @@ static void dissect_tlv_list(ptvcursor_t* ptvc, packet_info* pinfo, gint len)
 				{
 					// Create a sub buff with the correct length, so we can detect reading off the end
 					tvbuff_t* sub_tvbuff = tvb_new_subset_length(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc), tlv_len);
-					ptvcursor_t* sub_ptvc = ptvcursor_new(ptvcursor_tree(ptvc), sub_tvbuff, 0);
+					ptvcursor_t* sub_ptvc = ptvcursor_new(pinfo->pool, ptvcursor_tree(ptvc), sub_tvbuff, 0);
 
 					tlv->decode(sub_ptvc, pinfo);
 
@@ -8165,7 +8165,7 @@ static int dissect_p45_header(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 static int dissect_p45_header_with_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
 	int offset = dissect_p45_header(tvb, pinfo, tree, data);
-	ptvcursor_t *ptvc = ptvcursor_new(tree, tvb, offset);
+	ptvcursor_t *ptvc = ptvcursor_new(pinfo->pool, tree, tvb, offset);
 
 	dissect_tlv_list(ptvc, pinfo, tvb_reported_length(tvb));
 	ptvcursor_free(ptvc);
@@ -8189,7 +8189,7 @@ static int dissect_p45_header_with_error_and_list(tvbuff_t *tvb, packet_info *pi
 	proto_tree_add_item(tree, hf_nfapi_error_code, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
-	ptvc = ptvcursor_new(tree, tvb, offset);
+	ptvc = ptvcursor_new(pinfo->pool, tree, tvb, offset);
 	dissect_tlv_list(ptvc, pinfo, tvb_reported_length(tvb));
 	ptvcursor_free(ptvc);
 
@@ -8213,7 +8213,7 @@ static int dissect_p45_header_with_p4_error_and_list(tvbuff_t *tvb, packet_info 
 	proto_tree_add_item(tree, hf_nfapi_p4_error_code, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
-	ptvc = ptvcursor_new(tree, tvb, offset);
+	ptvc = ptvcursor_new(pinfo->pool, tree, tvb, offset);
 	dissect_tlv_list(ptvc, pinfo, tvb_reported_length(tvb));
 	ptvcursor_free(ptvc);
 
@@ -8228,7 +8228,7 @@ static int dissect_p45_header_with_rat_type_list(tvbuff_t *tvb, packet_info *pin
 	proto_tree_add_item(tree, hf_nfapi_rat_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	ptvc = ptvcursor_new(tree, tvb, offset);
+	ptvc = ptvcursor_new(pinfo->pool, tree, tvb, offset);
 	dissect_tlv_list(ptvc, pinfo, tvb_reported_length(tvb));
 	ptvcursor_free(ptvc);
 
@@ -8245,7 +8245,7 @@ static int dissect_p45_param_response_msg_id(tvbuff_t *tvb, packet_info *pinfo, 
 	proto_tree_add_item(tree, hf_nfapi_num_tlv, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	ptvc = ptvcursor_new(tree, tvb, offset);
+	ptvc = ptvcursor_new(pinfo->pool, tree, tvb, offset);
 	dissect_tlv_list(ptvc, pinfo, tvb_reported_length(tvb));
 	ptvcursor_free(ptvc);
 
@@ -8260,7 +8260,7 @@ static int dissect_p45_config_request_msg_id(tvbuff_t *tvb, packet_info *pinfo, 
 	proto_tree_add_item(tree, hf_nfapi_num_tlv, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	ptvc = ptvcursor_new(tree, tvb, offset);
+	ptvc = ptvcursor_new(pinfo->pool, tree, tvb, offset);
 	dissect_tlv_list(ptvc, pinfo, tvb_reported_length(tvb));
 	ptvcursor_free(ptvc);
 
@@ -8464,7 +8464,7 @@ static int dissect_nfapi_ul_p7(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 		case NFAPI_RX_SR_INDICATION_MSG_ID:
 		case NFAPI_RX_CQI_INDICATION_MSG_ID:
 		{
-			ptvcursor_t *ptvc = ptvcursor_new(tree, tvb, offset);
+			ptvcursor_t *ptvc = ptvcursor_new(pinfo->pool, tree, tvb, offset);
 			ptvcursor_add(ptvc, hf_nfapi_sfn_sf, 2, ENC_BIG_ENDIAN);
 			dissect_tlv_list(ptvc, pinfo, msg_len);
 			ptvcursor_free(ptvc);
@@ -8532,7 +8532,7 @@ static int dissect_nfapi_dl_p7(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 		case NFAPI_LBT_DL_CONFIG_REQUEST_MSG_ID:
 		case NFAPI_LBT_DL_INDICATION_MSG_ID:
 		{
-			ptvcursor_t *ptvc = ptvcursor_new(tree, tvb, offset);
+			ptvcursor_t *ptvc = ptvcursor_new(pinfo->pool, tree, tvb, offset);
 			ptvcursor_add(ptvc, hf_nfapi_sfn_sf, 2, ENC_BIG_ENDIAN);
 			dissect_tlv_list(ptvc, pinfo, msg_len);
 			ptvcursor_free(ptvc);

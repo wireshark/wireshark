@@ -4659,7 +4659,7 @@ add_body_fields(guint32 opcode,
                 gint32 offset_packet_end)
 {
     gint32 len = 0;
-    ptvcursor_t* ptv = ptvcursor_new(tree, tvb, offset);
+    ptvcursor_t* ptv = ptvcursor_new(wmem_packet_scope(), tree, tvb, offset);
     switch (opcode) {
         case SMSG_AUTH_CHALLENGE:
             ptvcursor_add(ptv, hf_woww_challenge_seed, 4, ENC_LITTLE_ENDIAN);

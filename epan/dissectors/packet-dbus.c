@@ -1181,7 +1181,7 @@ dissect_dbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 	proto_tree *dbus_tree = proto_item_add_subtree(pi, ett_dbus);
 
 	gint offset = 0;
-	packet.cursor = ptvcursor_new(dbus_tree, tvb, offset);
+	packet.cursor = ptvcursor_new(pinfo->pool, dbus_tree, tvb, offset);
 
 	(void)(dissect_dbus_header(&packet) ||
 		dissect_dbus_header_fields(&packet) ||

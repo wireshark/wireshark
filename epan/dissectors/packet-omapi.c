@@ -110,7 +110,7 @@ dissect_omapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 
   ti = proto_tree_add_item(tree, proto_omapi, tvb, 0, -1, ENC_NA);
   omapi_tree = proto_item_add_subtree(ti, ett_omapi);
-  cursor = ptvcursor_new(omapi_tree, tvb, 0);
+  cursor = ptvcursor_new(pinfo->pool, omapi_tree, tvb, 0);
 
   if (tvb_reported_length_remaining(tvb, 0) < 24)
   {

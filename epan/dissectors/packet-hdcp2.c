@@ -156,7 +156,7 @@ dissect_hdcp2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     pi = proto_tree_add_protocol_format(tree, proto_hdcp2,
             tvb, 0, tvb_reported_length(tvb), "HDCP2");
     hdcp_tree = proto_item_add_subtree(pi, ett_hdcp2);
-    cursor = ptvcursor_new(hdcp_tree, tvb, 0);
+    cursor = ptvcursor_new(pinfo->pool, hdcp_tree, tvb, 0);
 
     col_append_str(pinfo->cinfo, COL_INFO,
                     val_to_str(msg_id, hdcp2_msg_id, "unknown (0x%x)"));

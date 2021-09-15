@@ -93,7 +93,7 @@ dissect_hdcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
             tvb, 0, tvb_reported_length(tvb), "HDCP");
     hdcp_tree = proto_item_add_subtree(pi, ett_hdcp);
 
-    cursor = ptvcursor_new(hdcp_tree, tvb, 0);
+    cursor = ptvcursor_new(pinfo->pool, hdcp_tree, tvb, 0);
 
     if (pinfo->p2p_dir==P2P_DIR_SENT) {
         /* transmitter sends data to the receiver */

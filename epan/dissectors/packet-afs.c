@@ -3015,7 +3015,7 @@ dissect_afs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 			/* Process the packet according to what service it is */
 			/* Only for first packet in an rx data stream or the full reassembled stream */
 			if ( dissector && ( rxinfo->seq == 1 || reassembled ) ) {
-				cursor = ptvcursor_new(afs_op_tree, tvb, offset);
+				cursor = ptvcursor_new(pinfo->pool, afs_op_tree, tvb, offset);
 				(*dissector)(cursor, rxinfo, opcode);
 			}
 		}

@@ -8087,7 +8087,7 @@ static int dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
   }
   offset += 12;
 
-  cursor = ptvcursor_new(skinny_tree, tvb, offset);
+  cursor = ptvcursor_new(pinfo->pool, skinny_tree, tvb, offset);
   if (opcode_entry && opcode_entry->handler) {
     opcode_entry->handler(cursor, pinfo, skinny_conv);
   }

@@ -87,7 +87,7 @@ dissect_brcm_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
    ti = proto_tree_add_item(tree, proto_brcm_tag, tvb, 0, -1, ENC_NA);
    brcm_tag_tree = proto_item_add_subtree(ti, ett_brcm_tag);
 
-   cursor = ptvcursor_new(brcm_tag_tree, tvb, 0);
+   cursor = ptvcursor_new(pinfo->pool, brcm_tag_tree, tvb, 0);
 
    /* Check if we have enough data to process the header */
    if (check_tvb_length(cursor, BRCM_TAG_LEN) != TVB_LEN_SHORTEST) {

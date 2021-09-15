@@ -859,7 +859,7 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
 		pgm_tree = proto_item_add_subtree(ti, ett_pgm);
 
-		cursor = ptvcursor_new(pgm_tree, tvb, 0);
+		cursor = ptvcursor_new(pinfo->pool, pgm_tree, tvb, 0);
 
 		hidden_item = proto_tree_add_item(pgm_tree, hf_pgm_port, tvb, 0, 2, ENC_BIG_ENDIAN);
 		proto_item_set_hidden(hidden_item);

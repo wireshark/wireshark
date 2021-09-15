@@ -62,6 +62,7 @@ typedef struct __subtree_lvl {
 } subtree_lvl;
 
 struct ptvcursor {
+	wmem_allocator_t *scope;
 	subtree_lvl *pushed_tree;
 	guint8	     pushed_tree_index;
 	guint8	     pushed_tree_max;
@@ -1119,7 +1120,7 @@ ptvcursor_new_subtree_levels(ptvcursor_t *ptvc)
 	DISSECTOR_ASSERT(ptvc->pushed_tree_max <= SUBTREE_MAX_LEVELS-SUBTREE_ONCE_ALLOCATION_NUMBER);
 	ptvc->pushed_tree_max += SUBTREE_ONCE_ALLOCATION_NUMBER;
 
-	pushed_tree = (subtree_lvl *)wmem_realloc(wmem_packet_scope(), (void *)ptvc->pushed_tree, sizeof(subtree_lvl) * ptvc->pushed_tree_max);
+	pushed_tree = (subtree_lvl *)wmem_realloc(ptvc->scope, (void *)ptvc->pushed_tree, sizeof(subtree_lvl) * ptvc->pushed_tree_max);
 	DISSECTOR_ASSERT(pushed_tree != NULL);
 	ptvc->pushed_tree = pushed_tree;
 }
@@ -1136,11 +1137,12 @@ ptvcursor_free_subtree_levels(ptvcursor_t *ptvc)
 /* Allocates an initializes a ptvcursor_t with 3 variables:
  *	proto_tree, tvbuff, and offset. */
 ptvcursor_t *
-ptvcursor_new(proto_tree *tree, tvbuff_t *tvb, gint offset)
+ptvcursor_new(wmem_allocator_t *scope, proto_tree *tree, tvbuff_t *tvb, gint offset)
 {
 	ptvcursor_t *ptvc;
 
-	ptvc                    = wmem_new(wmem_packet_scope(), ptvcursor_t);
+	ptvc                    = wmem_new(scope, ptvcursor_t);
+	ptvc->scope             = scope;
 	ptvc->tree              = tree;
 	ptvc->tvb               = tvb;
 	ptvc->offset            = offset;
