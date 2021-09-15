@@ -1917,7 +1917,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  uat_update_record@Base 1.99.3
  udp_dissect_pdus@Base 1.99.3
  udp_port_to_display@Base 1.99.2
- uint_to_str_back@Base 2.1.0
  union_of_tap_listener_flags@Base 1.9.1
  unit_name_string_get_value@Base 2.3.0
  unit_name_string_get_value64@Base 2.3.0

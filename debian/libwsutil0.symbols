@@ -101,6 +101,8 @@ libwsutil.so.0 libwsutil0 #MINVER#
  get_resource_usage@Base 2.3.0
  get_systemfile_dir@Base 1.12.0~rc1
  has_global_profiles@Base 1.12.0~rc1
+ hex64_to_str_back_len@Base 3.5.1
+ hex_to_str_back_len@Base 3.5.1
  hkdf_expand@Base 2.5.1
  ieee80211_chan_to_mhz@Base 1.99.7
  ieee80211_mhz_to_chan@Base 1.99.7
@@ -108,6 +110,8 @@ libwsutil.so.0 libwsutil0 #MINVER#
  init_process_policies@Base 1.10.0
  init_progfile_dir@Base 1.12.0~rc1
  init_report_message@Base 2.3.0
+ int64_to_str_back@Base 3.5.1
+ int_to_str_back@Base 3.5.1
  is_default_profile@Base 1.12.0~rc1
  isdigit_string@Base 1.10.0
  iso8601_to_nstime@Base 3.5.0
@@ -157,6 +161,8 @@ libwsutil.so.0 libwsutil0 #MINVER#
  nstime_sum@Base 1.12.0~rc1
  nstime_to_msec@Base 1.12.0~rc1
  nstime_to_sec@Base 1.12.0~rc1
+ oct64_to_str_back@Base 3.5.1
+ oct_to_str_back@Base 3.5.1
  please_report_bug@Base 3.1.0
  please_report_bug_short@Base 3.1.0
  plugins_cleanup@Base 2.3.0
@@ -200,6 +206,10 @@ libwsutil.so.0 libwsutil0 #MINVER#
  type_util_gdouble_to_guint64@Base 1.10.0
  type_util_guint64_to_gdouble@Base 1.10.0
  uint64_compare@Base 3.5.0
+ uint64_to_str_back@Base 3.5.1
+ uint64_to_str_back_len@Base 3.5.1
+ uint_to_str_back@Base 3.5.1
+ uint_to_str_back_len@Base 3.5.1
  ulaw2linear@Base 1.12.0~rc1
  unix_epoch_to_nstime@Base 3.5.0
  update_adler32@Base 1.12.0~rc1
