@@ -672,7 +672,7 @@ void proto_register_sv(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-sv-hfarr.c ---*/
-#line 318 "./asn1/sv/packet-sv-template.c"
+#line 319 "./asn1/sv/packet-sv-template.c"
 	};
 
 	/* List of subtrees */
@@ -691,7 +691,7 @@ void proto_register_sv(void) {
     &ett_sv_ASDU,
 
 /*--- End of included file: packet-sv-ettarr.c ---*/
-#line 328 "./asn1/sv/packet-sv-template.c"
+#line 329 "./asn1/sv/packet-sv-template.c"
 	};
 
 	static ei_register_info ei[] = {
