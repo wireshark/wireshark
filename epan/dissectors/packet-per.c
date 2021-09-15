@@ -1331,10 +1331,10 @@ DEBUG_ENTRY("dissect_per_constrained_integer");
 
 		val_start = (offset)>>3;
 		val_length = length;
-		val = (guint32)tvb_get_bits64(tvb,offset,num_bits, ENC_BIG_ENDIAN);
+		val = (guint32)tvb_get_bits64(tvb,offset,num_bits,ENC_BIG_ENDIAN);
 
 		if (display_internal_per_fields){
-			str = decode_bits_in_field((offset&0x07),num_bits,val);
+			str = decode_bits_in_field((offset&0x07),num_bits,val,ENC_BIG_ENDIAN);
 			proto_tree_add_uint(tree, hf_per_internal_min, tvb, val_start,val_length, min);
 			proto_tree_add_uint64(tree, hf_per_internal_range, tvb, val_start, val_length, range);
 			proto_tree_add_uint(tree, hf_per_internal_num_bits, tvb, val_start, val_length, num_bits);
@@ -2134,7 +2134,7 @@ static tvbuff_t *dissect_per_bit_string_display(tvbuff_t *tvb, guint32 offset, a
 				value = tvb_get_bits64(out_tvb, 0, length, ENC_BIG_ENDIAN);
 			}
 			proto_item_append_text(actx->created_item, ", %s decimal value %" G_GINT64_MODIFIER "u",
-				decode_bits_in_field(0, length, value), value);
+				decode_bits_in_field(0, length, value, ENC_BIG_ENDIAN), value);
 			if (named_bits) {
 				const guint32 named_bits_bytelen = (num_named_bits + 7) / 8;
 				proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_per_named_bits);

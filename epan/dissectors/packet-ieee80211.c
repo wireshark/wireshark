@@ -24270,7 +24270,7 @@ dissect_pvb_encoded_block_bitmap(tvbuff_t *tvb, packet_info *pinfo _U_,
           proto_tree_add_uint_bits_format_value(sb_tree,
                                 hf_ieee80211_s1g_block_bitmap_sta_aid13,
                                 tvb, offset * 8 + (7 - bit_pos), 1, 1,
-                                " 0x%0x", aid13);
+                                ENC_BIG_ENDIAN, " 0x%0x", aid13);
         }
 
         bit_pos += 1;
@@ -24342,7 +24342,7 @@ dissect_pvb_encoded_olb(tvbuff_t *tvb, packet_info *pinfo _U_,
         proto_tree_add_uint_bits_format_value(sb_tree,
                               hf_ieee80211_s1g_block_bitmap_sta_aid13,
                               tvb, offset * 8 + (7 - bit_pos), 1, 1,
-                              " 0x%0x", aid13);
+                              ENC_BIG_ENDIAN, " 0x%0x", aid13);
       }
 
       bit_pos += 1;
@@ -24383,11 +24383,11 @@ dissect_pvb_encoded_ade(tvbuff_t *tvb, packet_info *pinfo _U_,
   proto_tree_add_uint_bits_format_value(cntl_tree,
                                         hf_ieee80211_s1g_block_bitmap_ewl,
                                         tvb, offset *8, 3, ewl,
-                                        "EWL: %u", ewl);
+                                        ENC_BIG_ENDIAN, "EWL: %u", ewl);
   proto_tree_add_uint_bits_format_value(cntl_tree,
                                         hf_ieee80211_s1g_block_bitmap_len,
                                         tvb, offset * 8 + 3, 5, ade_bytes,
-                                        "Length: %u", ade_bytes);
+                                        ENC_BIG_ENDIAN, "Length: %u", ade_bytes);
   offset += 1;
 
   /* TODO: Add each subblock */

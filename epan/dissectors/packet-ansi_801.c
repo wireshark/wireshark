@@ -562,20 +562,20 @@ pr_loc_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint len, 
 	/* TIME_REF_CDMA */
 	value = tvb_get_bits16(tvb, bit_offset, 14, ENC_BIG_ENDIAN);
 	proto_tree_add_uint_bits_format_value(tree, hf_ansi_801_time_ref_cdma, tvb, bit_offset, 14, value * 50,
-					      "%u frames (0x%04x)", value * 50, value);
+					      ENC_BIG_ENDIAN, "%u frames (0x%04x)", value * 50, value);
 	bit_offset += 14;
 
 	/* LAT */
 	value = tvb_get_bits32(tvb, bit_offset, 25, ENC_BIG_ENDIAN);
 	fl_value = (float)(-90.0 + ((float)value * 180 / 33554432));
-	proto_tree_add_float_bits_format_value(tree, hf_ansi_801_lat, tvb, bit_offset, 25, fl_value,
+	proto_tree_add_float_bits_format_value(tree, hf_ansi_801_lat, tvb, bit_offset, 25, fl_value, ENC_BIG_ENDIAN,
 					       "%.5f degrees %s (0x%08x)", fabs(fl_value), fl_value < 0 ? "South" : "North", value);
 	bit_offset += 25;
 
 	/* LONG */
 	value    = tvb_get_bits32(tvb, bit_offset, 26, ENC_BIG_ENDIAN);
 	fl_value = (float)(-180.0 + ((float)value * 180 / 33554432));
-	proto_tree_add_float_bits_format_value(tree, hf_ansi_801_long, tvb, bit_offset, 26, fl_value,
+	proto_tree_add_float_bits_format_value(tree, hf_ansi_801_long, tvb, bit_offset, 26, fl_value, ENC_BIG_ENDIAN,
 					       "%.5f degrees %s (0x%08x)", fabs(fl_value), fl_value < 0 ? "West" : "East", value);
 	bit_offset += 26;
 
@@ -583,7 +583,7 @@ pr_loc_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint len, 
 	value    = tvb_get_bits8(tvb, bit_offset, 4);
 	fl_value = (float)(5.625 * value);
 	proto_tree_add_float_bits_format_value(tree, hf_ansi_801_loc_uncrtnty_ang, tvb, bit_offset, 4, fl_value,
-					       "%.5f degrees (0x%02x)", fl_value, value);
+					       ENC_BIG_ENDIAN, "%.5f degrees (0x%02x)", fl_value, value);
 	bit_offset += 4;
 
 	/* LOC_UNCRTNTY_A */
@@ -599,7 +599,7 @@ pr_loc_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint len, 
 		str = wmem_strdup_printf(pinfo->pool, "%.2f meters", fl_value);
 	}
 	proto_tree_add_uint_bits_format_value(tree, hf_ansi_801_loc_uncrtnty_a, tvb, bit_offset, 5, value,
-					      "%s (0x%02x)", str, value);
+					      ENC_BIG_ENDIAN, "%s (0x%02x)", str, value);
 	bit_offset += 5;
 
 	/* LOC_UNCRTNTY_P */
@@ -615,7 +615,7 @@ pr_loc_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint len, 
 		str = wmem_strdup_printf(pinfo->pool, "%.2f meters", fl_value);
 	}
 	proto_tree_add_uint_bits_format_value(tree, hf_ansi_801_loc_uncrtnty_p, tvb, bit_offset, 5, value,
-					      "%s (0x%02x)", str, value);
+					      ENC_BIG_ENDIAN, "%s (0x%02x)", str, value);
 	bit_offset += 5;
 
 	/* FIX_TYPE */
@@ -631,14 +631,14 @@ pr_loc_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint len, 
 		value = tvb_get_bits16(tvb, bit_offset, 9, ENC_BIG_ENDIAN);
 		fl_value = (float)(0.25 * value);
 		proto_tree_add_float_bits_format_value(tree, hf_ansi_801_velocity_hor, tvb, bit_offset, 9, fl_value,
-						       "%.2f m/s (0x%04x)", fl_value, value);
+						       ENC_BIG_ENDIAN, "%.2f m/s (0x%04x)", fl_value, value);
 		bit_offset += 9;
 
 		/* HEADING */
 		value = tvb_get_bits16(tvb, bit_offset, 10, ENC_BIG_ENDIAN);
 		fl_value = (float)value * 360 / 1024;
 		proto_tree_add_float_bits_format_value(tree, hf_ansi_801_heading, tvb, bit_offset, 10, fl_value,
-						       "%.3f degrees (0x%04x)", fl_value, value);
+						       ENC_BIG_ENDIAN, "%.3f degrees (0x%04x)", fl_value, value);
 		bit_offset += 10;
 
 		if(fix_type)
@@ -647,7 +647,7 @@ pr_loc_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint len, 
 			value = tvb_get_bits8(tvb, bit_offset, 8);
 			fl_value = (float)(-64 + 0.5 * value);
 			proto_tree_add_float_bits_format_value(tree, hf_ansi_801_velocity_ver, tvb, bit_offset, 8, fl_value,
-							       "%.1f m/s (0x%02x)", fl_value, value);
+							       ENC_BIG_ENDIAN, "%.1f m/s (0x%02x)", fl_value, value);
 			bit_offset += 8;
 		}
 	}
@@ -660,13 +660,13 @@ pr_loc_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint len, 
 		/* CLOCK_BIAS */
 		value = tvb_get_bits32(tvb, bit_offset, 18, ENC_BIG_ENDIAN);
 		proto_tree_add_int_bits_format_value(tree, hf_ansi_801_clock_bias, tvb, bit_offset, 18, (gint32)value - 13000,
-						     "%d ns (0x%06x)", (gint32)value - 13000, value);
+						     ENC_BIG_ENDIAN, "%d ns (0x%06x)", (gint32)value - 13000, value);
 		bit_offset += 18;
 
 		/* CLOCK_DRIFT */
 		value = tvb_get_bits16(tvb, bit_offset, 16, ENC_BIG_ENDIAN);
 		proto_tree_add_int_bits_format_value(tree, hf_ansi_801_clock_drift, tvb, bit_offset, 16, (gint16)value,
-						     "%d ppb (ns/s) (0x%04x)", (gint16)value, value);
+						     ENC_BIG_ENDIAN, "%d ppb (ns/s) (0x%04x)", (gint16)value, value);
 		bit_offset += 16;
 	}
 
@@ -678,7 +678,7 @@ pr_loc_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint len, 
 		/* HEIGHT */
 		value = tvb_get_bits16(tvb, bit_offset, 14, ENC_BIG_ENDIAN);
 		proto_tree_add_int_bits_format_value(tree, hf_ansi_801_height, tvb, bit_offset, 14, (gint32)value - 500,
-						     "%d m (0x%04x)", (gint32)value - 500, value);
+						     ENC_BIG_ENDIAN, "%d m (0x%04x)", (gint32)value - 500, value);
 		bit_offset += 14;
 
 		/* LOC_UNCRTNTY_V */
@@ -694,7 +694,7 @@ pr_loc_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint len, 
 			str = wmem_strdup_printf(pinfo->pool, "%.2f meters", fl_value);
 		}
 		proto_tree_add_uint_bits_format_value(tree, hf_ansi_801_loc_uncrtnty_v, tvb, bit_offset, 5, value,
-						      "%s (0x%02x)", str, value);
+						      ENC_BIG_ENDIAN, "%s (0x%02x)", str, value);
 		bit_offset += 5;
 	}
 
@@ -736,7 +736,7 @@ for_pr_gps_sat_health(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
 		/* NUM_BAD_SV */
 		num_bad_sv = tvb_get_bits8(tvb, bit_offset, 4) + 1;
 		proto_tree_add_uint_bits_format_value(tree, hf_ansi_801_num_bad_sv, tvb, bit_offset, 4, num_bad_sv,
-						      "%u", num_bad_sv);
+						      ENC_BIG_ENDIAN, "%u", num_bad_sv);
 		bit_offset += 4;
 
 		for (i=0; i < num_bad_sv; i++)
@@ -744,7 +744,7 @@ for_pr_gps_sat_health(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
 			/* BAD_SV_PRN_NUM */
 			bad_sv_prn_num = tvb_get_bits8(tvb, bit_offset, 5) + 1;
 			proto_tree_add_uint_bits_format_value(tree, hf_ansi_801_bad_sv_prn_num, tvb, bit_offset, 5, bad_sv_prn_num,
-							      "%u", bad_sv_prn_num);
+							      ENC_BIG_ENDIAN, "%u", bad_sv_prn_num);
 			bit_offset += 5;
 		}
 	}

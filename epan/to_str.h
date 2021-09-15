@@ -149,7 +149,7 @@ WS_DLL_PUBLIC gchar *guid_to_str_buf(const e_guid_t *, gchar *, int);
 
 WS_DLL_PUBLIC gchar *guid_to_str(wmem_allocator_t *scope, const e_guid_t *);
 
-WS_DLL_PUBLIC char *decode_bits_in_field(const guint bit_offset, const gint no_of_bits, const guint64 value);
+WS_DLL_PUBLIC char *decode_bits_in_field(const guint bit_offset, const gint no_of_bits, const guint64 value, const guint encoding);
 
 #ifdef __cplusplus
 }

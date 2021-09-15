@@ -5016,41 +5016,15 @@ dissect_usb_hid_control_class_intf(tvbuff_t *tvb, packet_info *pinfo,
 /* unpack a HID logical report field */
 static int hid_unpack_logical(tvbuff_t *tvb, int bit_offset, guint32 size, gint32 min, gint32 *val)
 {
-    size_t bytes_length;
-    guint8 *bytes = tvb_get_bits_array(NULL, tvb, bit_offset, size, &bytes_length);
+    if (size > 32)
+        return -1;
 
-    switch (size / 8)
-    {
-        case 0:
-        case 1:
-            *val = bytes[0];
-            break;
-
-        case 2:
-            *val = pletoh16(bytes);
-            break;
-
-        case 3:
-            *val = pletoh24(bytes);
-            break;
-
-        case 4:
-            *val = pletoh32(bytes);
-            break;
-
-        default:
-            goto err;
-    }
+    *val = tvb_get_bits32(tvb, bit_offset, size, ENC_LITTLE_ENDIAN);
 
     if (min < 0)
         *val = ws_sign_ext32(*val, size);
 
-    wmem_free(NULL, bytes);
     return 0;
-
-err:
-    wmem_free(NULL, bytes);
-    return -1;
 }
 
 static gint
@@ -5062,7 +5036,7 @@ dissect_usb_hid_int_dynamic_value_variable(tvbuff_t *tvb, proto_tree *tree, hid_
     if (hid_unpack_logical(tvb, bit_offset, field->report_size, field->logical_min, &val))
         return -1;
 
-    proto_tree_add_int_bits_format_value(tree, hf, tvb, bit_offset, field->report_size, val, "%d", val);
+    proto_tree_add_int_bits_format_value(tree, hf, tvb, bit_offset, field->report_size, val, ENC_LITTLE_ENDIAN, "%d", val);
     return 0;
 }
 
@@ -5155,7 +5129,7 @@ dissect_usb_hid_keyboard_page(tvbuff_t *tvb, packet_info _U_ *pinfo,
     DISSECTOR_ASSERT(USAGE_PAGE(usage) == KEYBOARD_KEYPAD_PAGE);
     usage = USAGE_ID(usage);
 
-    proto_tree_add_boolean_bits_format_value(tree, hf_usbhid_key, tvb, bit_offset, field->report_size, val,
+    proto_tree_add_boolean_bits_format_value(tree, hf_usbhid_key, tvb, bit_offset, field->report_size, val, ENC_LITTLE_ENDIAN,
         "%s (0x%02x) = %s", val_to_str_ext(usage, &keycode_vals_ext, "Unknown"), usage, val ? "DOWN" : "UP");
     return 0;
 }
@@ -5174,7 +5148,7 @@ dissect_usb_hid_button_page(tvbuff_t *tvb, packet_info _U_ *pinfo,
     if (hid_unpack_logical(tvb, bit_offset, field->report_size, field->logical_min, &val))
         return -1;
 
-    ti = proto_tree_add_boolean_bits_format_value(tree, hf_usbhid_button, tvb, bit_offset, field->report_size, val, "%u", usage);
+    ti = proto_tree_add_boolean_bits_format_value(tree, hf_usbhid_button, tvb, bit_offset, field->report_size, val, ENC_LITTLE_ENDIAN, "%u", usage);
 
     if (usage == 0)
         proto_item_append_text(ti, " (No button pressed)");
@@ -5197,7 +5171,7 @@ dissect_hid_variable(tvbuff_t* tvb, packet_info _U_* pinfo, proto_tree* tree, hi
 
     /* vendor data (0xff00 - 0xffff) */
     if ((USAGE_PAGE(usage) & 0xff00) == 0xff00) {
-        proto_tree_add_bits_item(tree, hf_usbhid_vendor_data, tvb, bit_offset, field->report_size, ENC_NA);
+        proto_tree_add_bits_item(tree, hf_usbhid_vendor_data, tvb, bit_offset, field->report_size, ENC_LITTLE_ENDIAN);
         return;
     }
 
@@ -5222,7 +5196,7 @@ dissect_hid_variable(tvbuff_t* tvb, packet_info _U_* pinfo, proto_tree* tree, hi
 
     if (ret) {
         proto_tree_add_uint_bits_format_value(tree, hf_usb_hid_localitem_usage, tvb, bit_offset, field->report_size,
-            usage, "%s", get_usage_page_item_string(pinfo->pool, USAGE_PAGE(usage), USAGE_ID(usage)));
+            usage, ENC_LITTLE_ENDIAN, "%s", get_usage_page_item_string(pinfo->pool, USAGE_PAGE(usage), USAGE_ID(usage)));
     }
 }
 
@@ -5248,7 +5222,7 @@ dissect_hid_field(tvbuff_t *tvb, packet_info _U_ *pinfo, proto_tree *tree, hid_f
         proto_tree *array_tree;
 
         array_ti = proto_tree_add_bits_item(tree, hf_usbhid_array, tvb, bit_offset,
-            field->report_size * field->report_count, ENC_NA);
+            field->report_size * field->report_count, ENC_LITTLE_ENDIAN);
         array_tree = proto_item_add_subtree(array_ti, ett_usb_hid_array);
 
         for(unsigned int j = 0; j < field->report_count; j++) {
@@ -5261,11 +5235,11 @@ dissect_hid_field(tvbuff_t *tvb, packet_info _U_ *pinfo, proto_tree *tree, hid_f
             }
             if (in_range) {
                 proto_tree_add_boolean_bits_format_value(array_tree, hf_usbhid_array_usage, tvb, bit_offset, field->report_size,
-                    val, "%s (0x%04x, 0x%04x)", get_usage_page_item_string(pinfo->pool, USAGE_PAGE(val), USAGE_ID(val)),
+                    val, ENC_LITTLE_ENDIAN, "%s (0x%04x, 0x%04x)", get_usage_page_item_string(pinfo->pool, USAGE_PAGE(val), USAGE_ID(val)),
                     USAGE_PAGE(val), USAGE_ID(val));
             } else {
                 proto_tree_add_boolean_bits_format_value(array_tree, hf_usbhid_array_usage, tvb, bit_offset, field->report_size,
-                    val, "No controls asserted");
+                    val, ENC_LITTLE_ENDIAN, "No controls asserted");
             }
             bit_offset += field->report_size;
         }
@@ -5282,7 +5256,7 @@ dissect_hid_field(tvbuff_t *tvb, packet_info _U_ *pinfo, proto_tree *tree, hid_f
         }
         if (field->report_count > count) {
             gint remaining_bits = (field->report_count - count) * field->report_size;
-            proto_tree_add_bits_item(tree, hf_usbhid_padding, tvb, bit_offset, remaining_bits, ENC_NA);
+            proto_tree_add_bits_item(tree, hf_usbhid_padding, tvb, bit_offset, remaining_bits, ENC_LITTLE_ENDIAN);
             bit_offset += remaining_bits;
         }
     }
@@ -5330,7 +5304,7 @@ dissect_usb_hid_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 
                 /* if the item has no usages, it is padding - HID spec 6.2.2.9 */
                 if (wmem_array_get_count(field->usages) == 0) {
-                    proto_tree_add_bits_item(hid_tree, hf_usbhid_padding, tvb, hid_bit_offset, data_size, ENC_NA);
+                    proto_tree_add_bits_item(hid_tree, hf_usbhid_padding, tvb, hid_bit_offset, data_size, ENC_LITTLE_ENDIAN);
                     hid_bit_offset += data_size;
                     continue;
                 }

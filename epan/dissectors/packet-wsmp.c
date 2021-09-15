@@ -162,7 +162,7 @@ dissect_wsmp_psid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int o
 
     proto_tree_add_bits_item(tree, hf_wsmp_var_len_det, tvb, offset << 3, psidLen, ENC_NA);
     proto_tree_add_uint_bits_format_value(tree, hf_wsmp_psid, tvb, (offset << 3) + psidLen,
-            (psidLen << 3) - psidLen,*psid,"%s(%u)", val64_to_str_const(*psid, ieee1609dot2_Psid_vals, "Unknown"), *psid);
+            (psidLen << 3) - psidLen,*psid,ENC_BIG_ENDIAN,"%s(%u)", val64_to_str_const(*psid, ieee1609dot2_Psid_vals, "Unknown"), *psid);
     offset += psidLen;
 
     return offset;

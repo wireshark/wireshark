@@ -600,7 +600,7 @@ dissect_evs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                 /* LP-CNG SID frame */
                 /* Bandwidth indicator 1 bit */
                 oct = tvb_get_bits8(tvb, bit_offset, 1);
-                proto_tree_add_uint_bits_format_value(vd_tree, hf_evs_bw, tvb, bit_offset, 1, 1,"BW: %s (%u)",
+                proto_tree_add_uint_bits_format_value(vd_tree, hf_evs_bw, tvb, bit_offset, 1, 1, ENC_BIG_ENDIAN, "BW: %s (%u)",
                     val_to_str_const(oct << 1, evs_bw_values, "Unknown value"),
                     oct << 1);
                 bit_offset++;

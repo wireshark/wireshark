@@ -4045,7 +4045,7 @@ dissect_isup_range_and_status_parameter(tvbuff_t *parameter_tvb, packet_info *pi
     range_tree = proto_tree_add_subtree(parameter_tree, parameter_tvb, offset, -1, ett_isup_range, NULL, "Status subfield");
     if (range<9) {
       proto_tree_add_uint_bits_format_value(range_tree, hf_isup_bitbucket, parameter_tvb, (offset*8)+(8-range), range,
-                          tvb_get_guint8(parameter_tvb, offset), "%u bit 1", range);
+                          tvb_get_guint8(parameter_tvb, offset), ENC_BIG_ENDIAN, "%u bit 1", range);
     }
   } else {
     expert_add_info(pinfo, parameter_item, &ei_isup_status_subfield_not_present);

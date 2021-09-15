@@ -645,19 +645,30 @@ rel_time_to_secs_str(wmem_allocator_t *scope, const nstime_t *rel_time)
  */
 
 char *
-decode_bits_in_field(const guint bit_offset, const gint no_of_bits, const guint64 value)
+decode_bits_in_field(const guint bit_offset, const gint no_of_bits, const guint64 value, const guint encoding)
 {
 	guint64 mask;
 	char *str;
 	int bit, str_p = 0;
 	int i;
 	int max_bits = MIN(64, no_of_bits);
+	int no_leading_dots;
 
 	mask = G_GUINT64_CONSTANT(1) << (max_bits-1);
 
+	if(encoding & ENC_LITTLE_ENDIAN){
+		/* Bits within octet are numbered from LSB (0) to MSB (7).
+		 * The value in string is from most significant bit to lowest.
+		 * Calculate how many dots have to be printed at the beginning of string.
+		 */
+		no_leading_dots = (8 - ((bit_offset + no_of_bits) % 8)) % 8;
+	} else {
+		no_leading_dots = bit_offset % 8;
+	}
+
 	/* Prepare the string, 256 pos for the bits and zero termination, + 64 for the spaces */
 	str=(char *)wmem_alloc0(wmem_packet_scope(), 256+64);
-	for(bit=0;bit<((int)(bit_offset&0x07));bit++){
+	for(bit=0;bit<no_leading_dots;bit++){
 		if(bit&&(!(bit%4))){
 			str[str_p] = ' ';
 			str_p++;

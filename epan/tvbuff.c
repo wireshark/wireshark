@@ -56,6 +56,9 @@
 static guint64
 _tvb_get_bits64(tvbuff_t *tvb, guint bit_offset, const gint total_no_of_bits);
 
+static guint64
+_tvb_get_bits64_le(tvbuff_t *tvb, guint bit_offset, const gint total_no_of_bits);
+
 static inline gint
 _tvb_captured_length_remaining(const tvbuff_t *tvb, const gint offset);
 
@@ -429,6 +432,72 @@ tvb_new_octet_aligned(tvbuff_t *tvb, guint32 bit_offset, gint32 no_of_bits)
 	buf[datalen-1] &= left_aligned_bitmask[remaining_bits];
 
 	sub_tvb = tvb_new_child_real_data(tvb, buf, datalen, datalen);
+	tvb_set_free_cb(sub_tvb, g_free);
+
+	return sub_tvb;
+}
+
+tvbuff_t *
+tvb_new_octet_right_aligned(tvbuff_t *tvb, guint32 bit_offset, gint32 no_of_bits)
+{
+	tvbuff_t     *sub_tvb = NULL;
+	guint32       byte_offset;
+	gint          src_len, dst_len, i;
+	guint8        left, right, remaining_bits, *buf;
+	const guint8 *data;
+
+	DISSECTOR_ASSERT(tvb && tvb->initialized);
+
+	byte_offset = bit_offset / 8;
+	/* right shift to put bits in place and discard least significant bits */
+	right = bit_offset % 8;
+	/* left shift to get most significant bits from next octet */
+	left = 8 - right;
+
+	if (no_of_bits == -1) {
+		dst_len = _tvb_captured_length_remaining(tvb, byte_offset);
+		remaining_bits = 0;
+	} else {
+		dst_len = no_of_bits / 8;
+		remaining_bits = no_of_bits % 8;
+		if (remaining_bits) {
+			dst_len++;
+		}
+	}
+
+	/* already aligned -> shortcut */
+	if ((right == 0) && (remaining_bits == 0)) {
+		return tvb_new_subset_length_caplen(tvb, byte_offset, dst_len, dst_len);
+	}
+
+	DISSECTOR_ASSERT(dst_len>0);
+
+	if (_tvb_captured_length_remaining(tvb, byte_offset) > dst_len) {
+		/* last octet will get data from trailing octet */
+		src_len = dst_len + 1;
+	} else {
+		/* last octet will be zero padded */
+		src_len = dst_len;
+	}
+
+	data = ensure_contiguous(tvb, byte_offset, src_len); /* tvb_get_ptr */
+
+	/* Do this allocation AFTER tvb_get_ptr() (which could throw an exception) */
+	buf = (guint8 *)g_malloc(dst_len);
+
+	for (i = 0; i < (dst_len - 1); i++)
+		buf[i] = (data[i] >> right) | (data[i+1] << left);
+
+	/* Special handling for last octet */
+	buf[i] = (data[i] >> right);
+	/* Shift most significant bits from trailing octet if available */
+	if (src_len > dst_len)
+		buf[i] |= (data[i+1] << left);
+	/* Preserve only remaining bits in last octet if not multiple of 8 */
+	if (remaining_bits)
+		buf[i] &= ((1 << remaining_bits) - 1);
+
+	sub_tvb = tvb_new_child_real_data(tvb, buf, dst_len, dst_len);
 	tvb_set_free_cb(sub_tvb, g_free);
 
 	return sub_tvb;
@@ -2007,12 +2076,20 @@ static const guint8 bit_mask8[] = {
 
 /* Get a variable ammount of bits
  *
- * Return a byte array with bit limited data. The data is aligned to the right.
+ * Return a byte array with bit limited data.
+ * When encoding is ENC_BIG_ENDIAN, the data is aligned to the left.
+ * When encoding is ENC_LITTLE_ENDIAN, the data is aligned to the right.
  */
 guint8 *
-tvb_get_bits_array(wmem_allocator_t *scope, tvbuff_t *tvb, const gint bit_offset, size_t no_of_bits, size_t *data_length)
+tvb_get_bits_array(wmem_allocator_t *scope, tvbuff_t *tvb, const gint bit_offset,
+		   size_t no_of_bits, size_t *data_length, const guint encoding)
 {
-	tvbuff_t *sub_tvb = tvb_new_octet_aligned(tvb, bit_offset, (gint32) no_of_bits);
+	tvbuff_t *sub_tvb;
+	if (encoding & ENC_LITTLE_ENDIAN) {
+		sub_tvb = tvb_new_octet_right_aligned(tvb, bit_offset, (gint32) no_of_bits);
+	} else {
+		sub_tvb = tvb_new_octet_aligned(tvb, bit_offset, (gint32) no_of_bits);
+	}
 	*data_length = tvb_reported_length(sub_tvb);
 	return (guint8*)tvb_memdup(scope, sub_tvb, 0, *data_length);
 }
@@ -2024,33 +2101,37 @@ tvb_get_bits8(tvbuff_t *tvb, guint bit_offset, const gint no_of_bits)
 	return (guint8)_tvb_get_bits64(tvb, bit_offset, no_of_bits);
 }
 
-/* Get 9 - 16 bits */
+/* Get 1 - 16 bits */
 guint16
-tvb_get_bits16(tvbuff_t *tvb, guint bit_offset, const gint no_of_bits,const guint encoding _U_)
+tvb_get_bits16(tvbuff_t *tvb, guint bit_offset, const gint no_of_bits, const guint encoding)
 {
-	/* note that encoding has no meaning here, as the tvb is considered to contain an octet array */
-	return (guint16)_tvb_get_bits64(tvb, bit_offset, no_of_bits);
+	return (guint16)tvb_get_bits64(tvb, bit_offset, no_of_bits, encoding);
 }
 
 /* Get 1 - 32 bits */
 guint32
-tvb_get_bits32(tvbuff_t *tvb, guint bit_offset, const gint no_of_bits, const guint encoding _U_)
+tvb_get_bits32(tvbuff_t *tvb, guint bit_offset, const gint no_of_bits, const guint encoding)
 {
-	/* note that encoding has no meaning here, as the tvb is considered to contain an octet array */
-	return (guint32)_tvb_get_bits64(tvb, bit_offset, no_of_bits);
+	return (guint32)tvb_get_bits64(tvb, bit_offset, no_of_bits, encoding);
 }
 
 /* Get 1 - 64 bits */
 guint64
-tvb_get_bits64(tvbuff_t *tvb, guint bit_offset, const gint no_of_bits, const guint encoding _U_)
+tvb_get_bits64(tvbuff_t *tvb, guint bit_offset, const gint no_of_bits, const guint encoding)
 {
-	/* note that encoding has no meaning here, as the tvb is considered to contain an octet array */
-	return _tvb_get_bits64(tvb, bit_offset, no_of_bits);
+	/* encoding determines bit numbering within octet array */
+	if (encoding & ENC_LITTLE_ENDIAN) {
+		return _tvb_get_bits64_le(tvb, bit_offset, no_of_bits);
+	} else {
+		return _tvb_get_bits64(tvb, bit_offset, no_of_bits);
+	}
 }
+
 /*
  * This function will dissect a sequence of bits that does not need to be byte aligned; the bits
  * set will be shown in the tree as ..10 10.. and the integer value returned if return_value is set.
  * Offset should be given in bits from the start of the tvb.
+ * Bits within octet are numbered from MSB (0) to LSB (7). Bit at bit_offset is return value most significant bit.
  * The function tolerates requests for more than 64 bits, but will only return the least significant 64 bits.
  */
 static guint64
@@ -2126,12 +2207,84 @@ _tvb_get_bits64(tvbuff_t *tvb, guint bit_offset, const gint total_no_of_bits)
 	}
 	return value;
 }
+
+/*
+ * Offset should be given in bits from the start of the tvb.
+ * Bits within octet are numbered from LSB (0) to MSB (7). Bit at bit_offset is return value least significant bit.
+ * The function tolerates requests for more than 64 bits, but will only return the least significant 64 bits.
+ */
+static guint64
+_tvb_get_bits64_le(tvbuff_t *tvb, guint bit_offset, const gint total_no_of_bits)
+{
+	guint64 value = 0;
+	guint octet_offset = bit_offset / 8;
+	gint remaining_bits = total_no_of_bits;
+	gint shift = 0;
+
+	if (remaining_bits > 64)
+	{
+		remaining_bits = 64;
+	}
+
+	if (bit_offset % 8)
+	{
+		/* not aligned, extract bits from first octet */
+		shift = 8 - (bit_offset % 8);
+		value = tvb_get_guint8(tvb, octet_offset) >> (bit_offset % 8);
+		if (shift > total_no_of_bits)
+		{
+			/* keep only the requested bits */
+			value &= (G_GUINT64_CONSTANT(1) << total_no_of_bits) - 1;
+			remaining_bits = 0;
+		}
+		else
+		{
+			remaining_bits = total_no_of_bits - shift;
+		}
+		octet_offset++;
+	}
+
+	while (remaining_bits > 0)
+	{
+		/* take the biggest words, shorts or octets that we can */
+		if (remaining_bits >= 32)
+		{
+			value |= ((guint64)tvb_get_letohl(tvb, octet_offset) << shift);
+			shift += 32;
+			remaining_bits -= 32;
+			octet_offset += 4;
+		}
+		else if (remaining_bits >= 16)
+		{
+			value |= ((guint64)tvb_get_letohs(tvb, octet_offset) << shift);
+			shift += 16;
+			remaining_bits -= 16;
+			octet_offset += 2;
+		}
+		else if (remaining_bits >= 8)
+		{
+			value |= ((guint64)tvb_get_guint8(tvb, octet_offset) << shift);
+			shift += 8;
+			remaining_bits -= 8;
+			octet_offset += 1;
+		}
+		else
+		{
+			guint mask = (1 << remaining_bits) - 1;
+			value |= (((guint64)tvb_get_guint8(tvb, octet_offset) & mask) << shift);
+			shift += remaining_bits;
+			remaining_bits = 0;
+			octet_offset += 1;
+		}
+	}
+	return value;
+}
+
 /* Get 1 - 32 bits (should be deprecated as same as tvb_get_bits32??) */
 guint32
-tvb_get_bits(tvbuff_t *tvb, const guint bit_offset, const gint no_of_bits, const guint encoding _U_)
+tvb_get_bits(tvbuff_t *tvb, const guint bit_offset, const gint no_of_bits, const guint encoding)
 {
-	/* note that encoding has no meaning here, as the tvb is considered to contain an octet array */
-	return (guint32)_tvb_get_bits64(tvb, bit_offset, no_of_bits);
+	return (guint32)tvb_get_bits64(tvb, bit_offset, no_of_bits, encoding);
 }
 
 static gint

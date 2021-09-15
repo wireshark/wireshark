@@ -1833,6 +1833,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  tvb_new_child_real_data@Base 1.9.1
  tvb_new_composite@Base 1.9.1
  tvb_new_octet_aligned@Base 1.9.1
+ tvb_new_octet_right_aligned@Base 3.5.1
  tvb_new_real_data@Base 1.9.1
  tvb_new_subset_length@Base 1.9.1
  tvb_new_subset_length_caplen@Base 2.3.0

@@ -1297,10 +1297,10 @@ AlmanacBDS-AlmanacSet-r12/bdsAlmA1-r12 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_b
     bits = tvb_get_bits16(bdsSvHealth_tvb, 0, 9,ENC_BIG_ENDIAN);
     if (bits == 0x1ff) {
       proto_tree_add_boolean_bits_format_value(subtree, hf_lpp_bdsSvHealth_r12_sat_clock, bdsSvHealth_tvb, 0, 1, 1,
-                                               "Satellite is in failure or permanently shut off (1)");
+                                               ENC_BIG_ENDIAN, "Satellite is in failure or permanently shut off (1)");
     } else if (bits == 0x100) {
       proto_tree_add_boolean_bits_format_value(subtree, hf_lpp_bdsSvHealth_r12_sat_clock, bdsSvHealth_tvb, 0, 1, 1,
-                                               "Satellite clock is unavailable (1)");
+                                               ENC_BIG_ENDIAN, "Satellite clock is unavailable (1)");
     } else {
       proto_tree_add_bits_item(subtree, hf_lpp_bdsSvHealth_r12_sat_clock, bdsSvHealth_tvb, 0, 1, ENC_BIG_ENDIAN);
       proto_tree_add_bits_item(subtree, hf_lpp_bdsSvHealth_r12_b1i, bdsSvHealth_tvb, 1, 1, ENC_BIG_ENDIAN);

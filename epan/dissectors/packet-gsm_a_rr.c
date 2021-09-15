@@ -1599,7 +1599,7 @@ static void dissect_channel_list_n_range(tvbuff_t *tvb, proto_tree *tree, packet
     for (i=1; i<=imax; i++) {
         w[i] = (gint) tvb_get_bits(tvb, bit_offset, wsize, FALSE);
         proto_tree_add_bytes_format(subtree, hf_gsm_a_rr_w_elements, tvb, bit_offset>>3, ((bit_offset+wsize-1)>>3) - (bit_offset>>3) + 1 , NULL, "%s W(%d): %d",
-                            decode_bits_in_field(bit_offset, wsize, w[i]),
+                            decode_bits_in_field(bit_offset, wsize, w[i], ENC_BIG_ENDIAN),
                             i,
                             w[i]);
         bit_offset += wsize;
