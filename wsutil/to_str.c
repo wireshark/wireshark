@@ -21,6 +21,41 @@
 #include <wsutil/wslog.h>
 
 
+static const char fast_strings[][4] = {
+	"0", "1", "2", "3", "4", "5", "6", "7",
+	"8", "9", "10", "11", "12", "13", "14", "15",
+	"16", "17", "18", "19", "20", "21", "22", "23",
+	"24", "25", "26", "27", "28", "29", "30", "31",
+	"32", "33", "34", "35", "36", "37", "38", "39",
+	"40", "41", "42", "43", "44", "45", "46", "47",
+	"48", "49", "50", "51", "52", "53", "54", "55",
+	"56", "57", "58", "59", "60", "61", "62", "63",
+	"64", "65", "66", "67", "68", "69", "70", "71",
+	"72", "73", "74", "75", "76", "77", "78", "79",
+	"80", "81", "82", "83", "84", "85", "86", "87",
+	"88", "89", "90", "91", "92", "93", "94", "95",
+	"96", "97", "98", "99", "100", "101", "102", "103",
+	"104", "105", "106", "107", "108", "109", "110", "111",
+	"112", "113", "114", "115", "116", "117", "118", "119",
+	"120", "121", "122", "123", "124", "125", "126", "127",
+	"128", "129", "130", "131", "132", "133", "134", "135",
+	"136", "137", "138", "139", "140", "141", "142", "143",
+	"144", "145", "146", "147", "148", "149", "150", "151",
+	"152", "153", "154", "155", "156", "157", "158", "159",
+	"160", "161", "162", "163", "164", "165", "166", "167",
+	"168", "169", "170", "171", "172", "173", "174", "175",
+	"176", "177", "178", "179", "180", "181", "182", "183",
+	"184", "185", "186", "187", "188", "189", "190", "191",
+	"192", "193", "194", "195", "196", "197", "198", "199",
+	"200", "201", "202", "203", "204", "205", "206", "207",
+	"208", "209", "210", "211", "212", "213", "214", "215",
+	"216", "217", "218", "219", "220", "221", "222", "223",
+	"224", "225", "226", "227", "228", "229", "230", "231",
+	"232", "233", "234", "235", "236", "237", "238", "239",
+	"240", "241", "242", "243", "244", "245", "246", "247",
+	"248", "249", "250", "251", "252", "253", "254", "255"
+};
+
 static inline char
 low_nibble_of_octet_to_hex(guint8 oct)
 {
@@ -155,6 +190,190 @@ bytes_to_str_max(wmem_allocator_t *scope, const guint8 *bd, size_t bd_len, size_
 
 	*cur_ptr = '\0';				/* 1 byte */
 	return cur;
+}
+
+/*
+ * The *_to_str_back() functions measured approx. a x7.5 speed-up versus
+ * snprintf() on my Linux system with GNU libc.
+ */
+
+char *
+oct_to_str_back(char *ptr, guint32 value)
+{
+	while (value) {
+		*(--ptr) = '0' + (value & 0x7);
+		value >>= 3;
+	}
+
+	*(--ptr) = '0';
+	return ptr;
+}
+
+char *
+oct64_to_str_back(char *ptr, guint64 value)
+{
+	while (value) {
+		*(--ptr) = '0' + (value & 0x7);
+		value >>= 3;
+	}
+
+	*(--ptr) = '0';
+	return ptr;
+}
+
+char *
+hex_to_str_back(char *ptr, int len, guint32 value)
+{
+	do {
+		*(--ptr) = low_nibble_of_octet_to_hex(value);
+		value >>= 4;
+		len--;
+	} while (value);
+
+	/* pad */
+	while (len > 0) {
+		*(--ptr) = '0';
+		len--;
+	}
+
+	*(--ptr) = 'x';
+	*(--ptr) = '0';
+
+	return ptr;
+}
+
+char *
+hex64_to_str_back(char *ptr, int len, guint64 value)
+{
+	do {
+		*(--ptr) = low_nibble_of_octet_to_hex(value & 0xF);
+		value >>= 4;
+		len--;
+	} while (value);
+
+	/* pad */
+	while (len > 0) {
+		*(--ptr) = '0';
+		len--;
+	}
+
+	*(--ptr) = 'x';
+	*(--ptr) = '0';
+
+	return ptr;
+}
+
+char *
+uint_to_str_back(char *ptr, guint32 value)
+{
+	char const *p;
+
+	/* special case */
+	if (value == 0)
+		*(--ptr) = '0';
+
+	while (value >= 10) {
+		p = fast_strings[100 + (value % 100)];
+
+		value /= 100;
+
+		*(--ptr) = p[2];
+		*(--ptr) = p[1];
+	}
+
+	if (value)
+		*(--ptr) = (value) | '0';
+
+	return ptr;
+}
+
+char *
+uint64_to_str_back(char *ptr, guint64 value)
+{
+	char const *p;
+
+	/* special case */
+	if (value == 0)
+		*(--ptr) = '0';
+
+	while (value >= 10) {
+		p = fast_strings[100 + (value % 100)];
+
+		value /= 100;
+
+		*(--ptr) = p[2];
+		*(--ptr) = p[1];
+	}
+
+	/* value will be 0..9, so using '& 0xF' is safe, and faster than '% 10' */
+	if (value)
+		*(--ptr) = (value & 0xF) | '0';
+
+	return ptr;
+}
+
+char *
+uint_to_str_back_len(char *ptr, guint32 value, int len)
+{
+	char *new_ptr;
+
+	new_ptr = uint_to_str_back(ptr, value);
+
+	/* substract from len number of generated characters */
+	len -= (int)(ptr - new_ptr);
+
+	/* pad remaining with '0' */
+	while (len > 0)
+	{
+		*(--new_ptr) = '0';
+		len--;
+	}
+
+	return new_ptr;
+}
+
+char *
+uint64_to_str_back_len(char *ptr, guint64 value, int len)
+{
+	char *new_ptr;
+
+	new_ptr = uint64_to_str_back(ptr, value);
+
+	/* substract from len number of generated characters */
+	len -= (int)(ptr - new_ptr);
+
+	/* pad remaining with '0' */
+	while (len > 0)
+	{
+		*(--new_ptr) = '0';
+		len--;
+	}
+
+	return new_ptr;
+}
+
+char *
+int_to_str_back(char *ptr, gint32 value)
+{
+	if (value < 0) {
+		ptr = uint_to_str_back(ptr, -value);
+		*(--ptr) = '-';
+	} else
+		ptr = uint_to_str_back(ptr, value);
+
+	return ptr;
+}
+
+char *
+int64_to_str_back(char *ptr, gint64 value)
+{
+	if (value < 0) {
+		ptr = uint64_to_str_back(ptr, -value);
+		*(--ptr) = '-';
+	} else
+		ptr = uint64_to_str_back(ptr, value);
+
+	return ptr;
 }
 
 /*

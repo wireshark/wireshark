@@ -169,17 +169,6 @@ WS_DLL_PUBLIC char *word_to_hex(char *out, guint16 word);
  */
 WS_DLL_PUBLIC char *dword_to_hex(char *out, guint32 dword);
 
-/**
- * uint_to_str_back()
- *
- * Output guint32 decimal representation backward (last character will be written on ptr - 1),
- * and return pointer to first character.
- *
- * String is not NUL terminated by this routine.
- * There needs to be at least 10 bytes in the buffer.
- */
-WS_DLL_PUBLIC char *uint_to_str_back(char *ptr, guint32 value);
-
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

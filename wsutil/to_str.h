@@ -74,6 +74,120 @@ WS_DLL_PUBLIC char *bytes_to_str_max(wmem_allocator_t *scope, const guint8 *bd, 
 
 #define bytes_to_str(scope, bd, len) bytes_to_str_max(scope, bd, len, MAX_BYTE_STR_LEN)
 
+/**
+ * oct_to_str_back()
+ *
+ * Output guint32 octal representation backward (last character will be written on ptr - 1),
+ * and return pointer to first character.
+ *
+ * String is not NUL terminated by this routine.
+ * There needs to be at least 12 bytes in the buffer.
+ */
+WS_DLL_PUBLIC char *oct_to_str_back(char *ptr, guint32 value);
+
+/**
+ * oct64_to_str_back()
+ *
+ * Output guint64 octal representation backward (last character will be written on ptr - 1),
+ * and return pointer to first character.
+ *
+ * String is not NUL terminated by this routine.
+ * There needs to be at least 12 bytes in the buffer.
+ */
+WS_DLL_PUBLIC char *oct64_to_str_back(char *ptr, guint64 value);
+
+/**
+ * hex_to_str_back()
+ *
+ * Output guint32 hex representation backward (last character will be written on ptr - 1),
+ * and return pointer to first character.
+ * This routine will output for sure (can output more) 'len' decimal characters (number padded with '0').
+ *
+ * String is not NUL terminated by this routine.
+ * There needs to be at least 2 + MAX(8, len) bytes in the buffer.
+ */
+WS_DLL_PUBLIC char *hex_to_str_back(char *ptr, int len, guint32 value);
+
+/**
+ * hex64_to_str_back()
+ *
+ * Output guint64 hex representation backward (last character will be written on ptr - 1),
+ * and return pointer to first character.
+ * This routine will output for sure (can output more) 'len' decimal characters (number padded with '0').
+ *
+ * String is not NUL terminated by this routine.
+ * There needs to be at least 2 + MAX(16, len) bytes in the buffer.
+ */
+WS_DLL_PUBLIC char *hex64_to_str_back(char *ptr, int len, guint64 value);
+
+/**
+ * uint_to_str_back()
+ *
+ * Output guint32 decimal representation backward (last character will be written on ptr - 1),
+ * and return pointer to first character.
+ *
+ * String is not NUL terminated by this routine.
+ * There needs to be at least 10 bytes in the buffer.
+ */
+WS_DLL_PUBLIC char *uint_to_str_back(char *ptr, guint32 value);
+
+/**
+ * uint64_str_back()
+ *
+ * Output guint64 decimal representation backward (last character will be written on ptr - 1),
+ * and return pointer to first character.
+ *
+ * String is not NUL terminated by this routine.
+ * There needs to be at least 20 bytes in the buffer.
+ */
+WS_DLL_PUBLIC char *uint64_to_str_back(char *ptr, guint64 value);
+
+/**
+ * uint_to_str_back_len()
+ *
+ * Output guint32 decimal representation backward (last character will be written on ptr - 1),
+ * and return pointer to first character.
+ * This routine will output for sure (can output more) 'len' decimal characters (number padded with '0').
+ *
+ * String is not NUL terminated by this routine.
+ * There needs to be at least MAX(10, len) bytes in the buffer.
+ */
+WS_DLL_PUBLIC char *uint_to_str_back_len(char *ptr, guint32 value, int len);
+
+/**
+ * uint64_to_str_back_len()
+ *
+ * Output guint64 decimal representation backward (last character will be written on ptr - 1),
+ * and return pointer to first character.
+ * This routine will output for sure (can output more) 'len' decimal characters (number padded with '0').
+ *
+ * String is not NUL terminated by this routine.
+ * There needs to be at least MAX(20, len) bytes in the buffer.
+ */
+WS_DLL_PUBLIC char *uint64_to_str_back_len(char *ptr, guint64 value, int len);
+
+/**
+ * int_to_str_back()
+ *
+ * Output gint32 decimal representation backward (last character will be written on ptr - 1),
+ * and return pointer to first character.
+ *
+ * String is not NUL terminated by this routine.
+ * There needs to be at least 11 bytes in the buffer.
+ */
+WS_DLL_PUBLIC char *int_to_str_back(char *ptr, gint32 value);
+
+/**
+ * int64_to_str_back()
+ *
+ * Output gint64 decimal representation backward (last character will be written on ptr - 1),
+ * and return pointer to first character.
+ *
+ * String is not NUL terminated by this routine.
+ * There needs to be at least 21 bytes in the buffer.
+ */
+WS_DLL_PUBLIC char *int64_to_str_back(char *ptr, gint64 value);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
