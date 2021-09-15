@@ -886,7 +886,17 @@ gz_head(FILE_T state)
         && state->in.buf[0] == 0x04 && state->in.buf[1] == 0x22
         && state->in.buf[2] == 0x4d && state->in.buf[3] == 0x18) {
 #ifdef USE_LZ4
+#if LZ4_VERSION_NUMBER >= 10800
         LZ4F_resetDecompressionContext(state->lz4_dctx);
+#else
+        LZ4F_freeDecompressionContext(state->lz4_dctx);
+        const LZ4F_errorCode_t ret = LZ4F_createDecompressionContext(&state->lz4_dctx, LZ4F_VERSION);
+        if (LZ4F_isError(ret)) {
+            state->err = WTAP_ERR_INTERNAL;
+            state->err_info = LZ4F_getErrorName(ret);
+            return -1;
+        }
+#endif
         state->compression = LZ4;
         state->is_compressed = TRUE;
         return 0;
