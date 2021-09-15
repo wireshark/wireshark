@@ -222,7 +222,7 @@ oct64_to_str_back(char *ptr, guint64 value)
 }
 
 char *
-hex_to_str_back(char *ptr, int len, guint32 value)
+hex_to_str_back_len(char *ptr, guint32 value, int len)
 {
 	do {
 		*(--ptr) = low_nibble_of_octet_to_hex(value);
@@ -243,7 +243,7 @@ hex_to_str_back(char *ptr, int len, guint32 value)
 }
 
 char *
-hex64_to_str_back(char *ptr, int len, guint64 value)
+hex64_to_str_back_len(char *ptr, guint64 value, int len)
 {
 	do {
 		*(--ptr) = low_nibble_of_octet_to_hex(value & 0xF);

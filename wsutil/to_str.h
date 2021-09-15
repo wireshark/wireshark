@@ -106,7 +106,7 @@ WS_DLL_PUBLIC char *oct64_to_str_back(char *ptr, guint64 value);
  * String is not NUL terminated by this routine.
  * There needs to be at least 2 + MAX(8, len) bytes in the buffer.
  */
-WS_DLL_PUBLIC char *hex_to_str_back(char *ptr, int len, guint32 value);
+WS_DLL_PUBLIC char *hex_to_str_back_len(char *ptr, guint32 value, int len);
 
 /**
  * hex64_to_str_back()
@@ -118,7 +118,7 @@ WS_DLL_PUBLIC char *hex_to_str_back(char *ptr, int len, guint32 value);
  * String is not NUL terminated by this routine.
  * There needs to be at least 2 + MAX(16, len) bytes in the buffer.
  */
-WS_DLL_PUBLIC char *hex64_to_str_back(char *ptr, int len, guint64 value);
+WS_DLL_PUBLIC char *hex64_to_str_back_len(char *ptr, guint64 value, int len);
 
 /**
  * uint_to_str_back()
