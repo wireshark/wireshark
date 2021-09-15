@@ -560,20 +560,24 @@ Code Checks + Clang Warnings:
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
     - cmake -DENABLE_EXTRA_COMPILER_WARNINGS=on -DENABLE_CHECKHF_CONFLICT=on -DCMAKE_EXPORT_COMPILE_COMMANDS=on -DENABLE_CCACHE=ON -G Ninja ..
     - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
-    - script --command ninja --flush --quiet --return ../clang_report.txt
-    - ansi2html < ../clang_report.txt > ../clang_report.html
+    - mkdir ../html
+    - script --command ninja --flush --quiet --return ../tmp_clang_report.txt
+    - ansi2txt < ../tmp_clang_report.txt > ../clang_report.txt
+    - ansi2html < ../tmp_clang_report.txt > ../html/clang_report.html
     - ./run/tshark -v 2> >(tee ../checkhf_conflict.txt)
     - ../tools/validate-clang-check.sh -c $CLANG_VERSION 2> >(tee ../tmp_clang_analyzer_check.txt)
     - ansi2txt < ../tmp_clang_analyzer_check.txt > ../clang_analyzer_check.txt
+    - ansi2html < ../tmp_clang_analyzer_check.txt > ../html/clang_analyzer_check.html
     - ninja checkAPI 
   artifacts:
     paths:
-      - clang_report.html
+      - clang_report.txt
       - clang_analyzer_check.txt
       - cppcheck
       - item_calls_check.txt
       - tfs_check.txt
       - checkhf_conflict.txt
+      - html/
 
 # Windows runners are still beta, at least technically:
 # https://docs.gitlab.com/ee/user/gitlab_com/index.html#windows-shared-runners-beta
