@@ -123,6 +123,8 @@ static int hf_twamp_control_iv = -1;
 static int hf_twamp_control_ipvn = -1;
 static int hf_twamp_control_conf_sender = -1;
 static int hf_twamp_control_conf_receiver = -1;
+static int hf_twamp_control_number_of_schedule_slots = -1;
+static int hf_twamp_control_number_of_packets = -1;
 static int hf_twamp_control_start_time = -1;
 static int hf_twamp_control_accept = -1;
 static int hf_twamp_control_timeout = -1;
@@ -380,8 +382,14 @@ dissect_twamp_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
         offset += 1;
 
         proto_tree_add_item(twamp_tree, hf_twamp_control_conf_receiver, tvb, offset, 1, ENC_NA);
+        offset += 1;
 
-        offset = 12;
+        proto_tree_add_item(twamp_tree, hf_twamp_control_number_of_schedule_slots, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+
+        proto_tree_add_item(twamp_tree, hf_twamp_control_number_of_packets, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+
         proto_tree_add_item(twamp_tree, hf_twamp_control_sender_port, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
         proto_tree_add_item(twamp_tree, hf_twamp_control_receiver_port, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -748,6 +756,12 @@ void proto_register_twamp(void)
         },
         {&hf_twamp_control_conf_receiver,
             {"Conf-Receiver", "twamp.control.conf_receiver", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_twamp_control_number_of_schedule_slots,
+            {"Number of Schedule Slots", "twamp.control.number_of_schedule_slots", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_twamp_control_number_of_packets,
+            {"Number of Packets", "twamp.control.number_of_packets", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
         },
         {&hf_twamp_control_sender_ipv4,
             {"Sender Address", "twamp.control.sender_ipv4", FT_IPv4, BASE_NONE, NULL, 0x0,
