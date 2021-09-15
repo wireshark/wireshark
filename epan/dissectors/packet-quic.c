@@ -3858,6 +3858,9 @@ quic_get_stream_id_le(guint streamid, guint sub_stream_id, guint *sub_stream_id_
     if (!quic_info) {
         return FALSE;
     }
+    if (!quic_info->streams_list) {
+        return FALSE;
+    }
 
     prev_stream_id = G_MAXUINT64;
     curr_entry = wmem_list_head(quic_info->streams_list);
@@ -3889,6 +3892,9 @@ quic_get_stream_id_ge(guint streamid, guint sub_stream_id, guint *sub_stream_id_
     if (!quic_info) {
         return FALSE;
     }
+    if (!quic_info->streams_list) {
+        return FALSE;
+    }
 
     curr_entry = wmem_list_head(quic_info->streams_list);
     while (curr_entry) {
@@ -3916,11 +3922,13 @@ quic_follow_conv_filter(epan_dissect_t *edt _U_, packet_info *pinfo, guint *stre
 
         /* First Stream ID in the selected packet */
         quic_follow_stream *s;
-        s = wmem_map_lookup(conn->streams_map, GUINT_TO_POINTER(pinfo->num));
-        if (s) {
-            *stream = conn->number;
-            *sub_stream = (guint)s->stream_id;
-            return g_strdup_printf("quic.connection.number eq %u and quic.stream.stream_id eq %u", conn->number, *sub_stream);
+        if (conn->streams_map) {
+	    s = wmem_map_lookup(conn->streams_map, GUINT_TO_POINTER(pinfo->num));
+            if (s) {
+                *stream = conn->number;
+                *sub_stream = (guint)s->stream_id;
+                return g_strdup_printf("quic.connection.number eq %u and quic.stream.stream_id eq %u", conn->number, *sub_stream);
+            }
         }
     }
 
