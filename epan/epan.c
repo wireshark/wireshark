@@ -849,11 +849,11 @@ epan_get_compiled_version_info(GString *str)
 	g_string_append(str, ", without libxml2");
 #endif /* HAVE_LIBXML2 */
 
-	/* SNMP */
+	/* libsmi */
 #ifdef HAVE_LIBSMI
-	g_string_append(str, ", with SMI " SMI_VERSION_STRING);
-#else /* no SNMP library */
-	g_string_append(str, ", without SMI");
+	g_string_append(str, ", with libsmi " SMI_VERSION_STRING);
+#else
+	g_string_append(str, ", without libsmi");
 #endif /* HAVE_LIBSMI */
 }
 
@@ -902,7 +902,7 @@ epan_get_runtime_version_info(GString *str)
 #endif
 #endif /* HAVE_ZSTD */
 
-	/* SNMP */
+	/* libsmi */
 #ifdef HAVE_SMI_VERSION_STRING
 	g_string_append_printf(str, ", with libsmi %s", smi_version_string);
 #endif /* HAVE_SMI_VERSION_STRING */
