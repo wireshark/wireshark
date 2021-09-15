@@ -828,6 +828,10 @@ static dissector_handle_t bgp_handle;
 #define BGP_LS_SR_TLV_SR_CAPABILITY                 1034
 #define BGP_LS_SR_TLV_SR_ALGORITHM                  1035
 #define BGP_LS_SR_TLV_SR_LOCAL_BLOCK                1036
+#define BGP_LS_SR_TLV_FLEX_ALGO_DEF                 1039
+#define BGP_LS_SR_TLV_FLEX_ALGO_EXC_ANY_AFFINITY    1040
+#define BGP_LS_SR_TLV_FLEX_ALGO_INC_ANY_AFFINITY    1041
+#define BGP_LS_SR_TLV_FLEX_ALGO_INC_ALL_AFFINITY    1042
 #define BGP_LS_SR_TLV_ADJ_SID                       1099
 #define BGP_LS_SR_TLV_LAN_ADJ_SID                   1100
 #define BGP_LS_SR_TLV_PREFIX_SID                    1158
@@ -854,6 +858,9 @@ static dissector_handle_t bgp_handle;
 
 #define BGP_LS_IGP_TE_METRIC_FLAG_A                 0x80
 #define BGP_LS_IGP_TE_METRIC_FLAG_RESERVED          0x7F
+
+/* draft-ietf-idr-bgp-ls-app-specific-attr-07 */
+#define BGP_LS_APP_SPEC_LINK_ATTR                   1122
 
 /* Prefix-SID TLV flags, draft-gredler-idr-bgp-ls-segment-routing-ext-01:
 
@@ -928,6 +935,19 @@ static dissector_handle_t bgp_handle;
 #define BGP_LS_SR_PREFIX_ATTR_FLAGS_FLAG_AO 0x80
 #define BGP_LS_SR_PREFIX_ATTR_FLAGS_FLAG_NO 0x40
 #define BGP_LS_SR_PREFIX_ATTR_FLAGS_FLAG_EO 0x20
+
+/* Link Attribute Application Identifiers, https://www.iana.org/assignments/igp-parameters/igp-parameters.xhtml:
+
+   0  1  2  3  4  5  6  7
+   +--+--+--+--+--+--+--+--+
+   |R |S |F |X |  |  |  |  | rfc8919,rfc8920
+   +--+--+--+--+--+--+--+--+
+*/
+#define BGP_LS_APP_SPEC_LINK_ATTRS_SABM_R  0x80000000
+#define BGP_LS_APP_SPEC_LINK_ATTRS_SABM_S  0x40000000
+#define BGP_LS_APP_SPEC_LINK_ATTRS_SABM_F  0x20000000
+#define BGP_LS_APP_SPEC_LINK_ATTRS_SABM_X  0x10000000
+
 
 /* BGP Prefix-SID TLV type */
 #define BGP_PREFIX_SID_TLV_LABEL_INDEX     1 /* Label-Index [RFC8669]                           */
@@ -1738,6 +1758,21 @@ static const value_string link_state_prefix_descriptors_ospf_route_type[] = {
         {0, NULL}
 };
 
+/* Link state Flex Algo Metric Type: draft-ietf-lsr-flex-algo-17 */
+static const value_string flex_algo_metric_types[] = {
+    { 0, "IGP Metric"},
+    { 1, "Min Unidirectional Link Delay"},
+    { 2, "TE Metric"},
+    { 0, NULL }
+};
+
+/* Link state IGP Algorithm Type: https://www.iana.org/assignments/igp-parameters/igp-parameters.xhtml */
+static const value_string igp_algo_types[] = {
+    { 0,   "Shortest Path First (SPF)" },
+    { 1,   "Strict Shortest Path First (Strict SPF)" },
+    { 0,   NULL }
+};
+
 /* Link state IGP MSD Type: https://www.iana.org/assignments/igp-parameters/igp-parameters.xhtml */
 static const value_string igp_msd_types[] = {
     { 0,   "Reserved" },
@@ -2322,6 +2357,14 @@ static int hf_bgp_ls_sr_tlv_local_block_flags = -1;
 static int hf_bgp_ls_sr_tlv_local_block_range_size = -1;
 static int hf_bgp_ls_sr_tlv_local_block_sid_label = -1;
 static int hf_bgp_ls_sr_tlv_local_block_sid_index = -1;
+static int hf_bgp_ls_sr_tlv_flex_algo_def = -1;                    /* 1039 */
+static int hf_bgp_ls_sr_tlv_flex_algo_algorithm = -1;
+static int hf_bgp_ls_sr_tlv_flex_algo_metric_type = -1;
+static int hf_bgp_ls_sr_tlv_flex_algo_calc_type = -1;
+static int hf_bgp_ls_sr_tlv_flex_algo_priority = -1;
+static int hf_bgp_ls_sr_tlv_flex_algo_exc_any_affinity = -1;       /* 1040 */
+static int hf_bgp_ls_sr_tlv_flex_algo_inc_any_affinity = -1;       /* 1041 */
+static int hf_bgp_ls_sr_tlv_flex_algo_inc_all_affinity = -1;       /* 1042 */
 static int hf_bgp_ls_sr_tlv_prefix_sid = -1;
 static int hf_bgp_ls_sr_tlv_prefix_sid_flags = -1;
 static int hf_bgp_ls_sr_tlv_prefix_sid_flags_r = -1;
@@ -2422,6 +2465,16 @@ static int hf_bgp_ls_tlv_opaque_link_attribute = -1;               /* 1097 */
 static int hf_bgp_ls_tlv_opaque_link_attribute_value = -1;
 static int hf_bgp_ls_tlv_link_name_attribute = -1;                 /* 1098 */
 static int hf_bgp_ls_tlv_link_name_attribute_value = -1;
+static int hf_bgp_ls_tlv_app_spec_link_attrs = -1;                 /* 1122 */
+static int hf_bgp_ls_tlv_app_spec_link_attrs_sabm_len = -1;
+static int hf_bgp_ls_tlv_app_spec_link_attrs_udabm_len = -1;
+static int hf_bgp_ls_tlv_app_spec_link_attrs_reserved = -1;
+static int hf_bgp_ls_tlv_app_spec_link_attrs_sabm = -1;
+static int hf_bgp_ls_tlv_app_spec_link_attrs_sabm_r = -1;
+static int hf_bgp_ls_tlv_app_spec_link_attrs_sabm_s = -1;
+static int hf_bgp_ls_tlv_app_spec_link_attrs_sabm_f = -1;
+static int hf_bgp_ls_tlv_app_spec_link_attrs_sabm_x = -1;
+static int hf_bgp_ls_tlv_app_spec_link_attrs_udabm = -1;
 
 static int hf_bgp_ls_tlv_igp_flags = -1;                           /* 1152 */
 static int hf_bgp_ls_tlv_route_tag = -1;                           /* 1153 */
@@ -4828,6 +4881,57 @@ static int decode_bgp_link_nlri_prefix_descriptors(tvbuff_t *tvb,
 }
 
 /*
+ * Decode Flex Algo sub-TLVs in BGP-LS attributes
+ */
+static int
+decode_link_state_attribute_flex_algo_subtlv(proto_tree *tree, tvbuff_t *tvb, gint offset, packet_info *pinfo, guint8 _U_ protocol_id)
+{
+    guint16 type;
+    guint16 length;
+    guint16 tmp16;
+
+    proto_item* tlv_item;
+    proto_tree* tlv_tree;
+
+    type = tvb_get_ntohs(tvb, offset);
+    length = tvb_get_ntohs(tvb, offset + 2);
+
+    switch (type) {
+    case BGP_LS_SR_TLV_FLEX_ALGO_EXC_ANY_AFFINITY:
+    case BGP_LS_SR_TLV_FLEX_ALGO_INC_ANY_AFFINITY:
+    case BGP_LS_SR_TLV_FLEX_ALGO_INC_ALL_AFFINITY:
+        tlv_item = proto_tree_add_item(tree,
+                                       (type == BGP_LS_SR_TLV_FLEX_ALGO_EXC_ANY_AFFINITY) ?
+                                       hf_bgp_ls_sr_tlv_flex_algo_exc_any_affinity :
+                                       ((type == BGP_LS_SR_TLV_FLEX_ALGO_INC_ANY_AFFINITY) ?
+                                        hf_bgp_ls_sr_tlv_flex_algo_inc_any_affinity :
+                                        hf_bgp_ls_sr_tlv_flex_algo_inc_all_affinity),
+                                       tvb, offset, length + 4, ENC_NA);
+        tlv_tree = proto_item_add_subtree(tlv_item, ett_bgp_link_state);
+        proto_tree_add_item(tlv_tree, hf_bgp_ls_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tlv_tree, hf_bgp_ls_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+        if (length % 4 != 0) {
+            expert_add_info_format(pinfo, tlv_tree, &ei_bgp_ls_error, "Unexpected Extended Administrative Group TLV's length (%u mod 4 != 0)",
+                                   length);
+            break;
+        }
+        tmp16 = length;
+        while (tmp16) {
+            proto_tree_add_item(tlv_tree, hf_bgp_ls_extended_administrative_group_value, tvb, offset + 4 + (length - tmp16), 4, ENC_NA);
+            tmp16 -= 4;
+        }
+        break;
+
+    default:
+        expert_add_info_format(pinfo, tree, &ei_bgp_ls_warn,
+                               "Unknown BGP-LS Flex-Algo sub-TLV Code (%u)!", type);
+        break;
+    }
+
+    return length + 4;
+}
+
+/*
  * Decode a multiprotocol prefix
  */
 static int
@@ -4842,11 +4946,14 @@ decode_link_state_attribute_tlv(proto_tree *tree, tvbuff_t *tvb, gint offset, pa
     guint32 mask;
     gint local_offset, local_length;
     int n;
+    guint8  sabm_len, udabm_len;
+    int     advance;
 
     proto_item* tlv_item;
     proto_tree* tlv_tree;
     proto_item* tlv_sub_item;
     proto_tree* tlv_sub_tree;
+    proto_item* ti;
 
     type = tvb_get_ntohs(tvb, offset);
     length = tvb_get_ntohs(tvb, offset + 2);
@@ -5026,6 +5133,25 @@ decode_link_state_attribute_tlv(proto_tree *tree, tvbuff_t *tvb, gint offset, pa
                     offset2 += 1;
                     remaining_data -= 1;
                 }
+            }
+            break;
+
+        case BGP_LS_SR_TLV_FLEX_ALGO_DEF:
+            tlv_item = proto_tree_add_item(tree, hf_bgp_ls_sr_tlv_flex_algo_def, tvb, offset, length+4, ENC_NA);
+            tlv_tree = proto_item_add_subtree(tlv_item, ett_bgp_link_state);
+            proto_tree_add_item(tlv_tree, hf_bgp_ls_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tlv_tree, hf_bgp_ls_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tlv_tree, hf_bgp_ls_sr_tlv_flex_algo_algorithm, tvb, offset + 4, 1, ENC_NA);
+            proto_tree_add_item(tlv_tree, hf_bgp_ls_sr_tlv_flex_algo_metric_type, tvb, offset + 5, 1, ENC_NA);
+            proto_tree_add_item(tlv_tree, hf_bgp_ls_sr_tlv_flex_algo_calc_type, tvb, offset + 6, 1, ENC_NA);
+            proto_tree_add_item(tlv_tree, hf_bgp_ls_sr_tlv_flex_algo_priority, tvb, offset + 7, 1, ENC_NA);
+            local_offset = offset + 8;
+            while (local_offset < offset + length) {
+                advance = decode_link_state_attribute_flex_algo_subtlv(tlv_tree, tvb, local_offset, pinfo, protocol_id);
+                if (advance < 0) {
+                    break;
+                }
+                local_offset += advance;
             }
             break;
 
@@ -5384,6 +5510,59 @@ decode_link_state_attribute_tlv(proto_tree *tree, tvbuff_t *tvb, gint offset, pa
             break;
 
         case BGP_LS_SR_TLV_LAN_ADJ_SID:
+            break;
+
+        case BGP_LS_APP_SPEC_LINK_ATTR:
+            tlv_item = proto_tree_add_item(tree, hf_bgp_ls_tlv_app_spec_link_attrs, tvb, offset, length + 4, ENC_NA);
+            tlv_tree = proto_item_add_subtree(tlv_item, ett_bgp_link_state);
+            proto_tree_add_item(tlv_tree, hf_bgp_ls_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tlv_tree, hf_bgp_ls_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+            sabm_len = tvb_get_guint8(tvb, offset + 4);
+            ti = proto_tree_add_item(tlv_tree, hf_bgp_ls_tlv_app_spec_link_attrs_sabm_len, tvb, offset + 4, 1, ENC_NA);
+            if (sabm_len != 0 && sabm_len != 4 && sabm_len != 8) {
+                expert_add_info_format(pinfo, ti, &ei_bgp_ls_error,
+                                       "Unexpected SABM Length (%u) in BGP-LS Application-Specific Link Attributes TLV, it must be 0/4/8 bytes!",
+                                       sabm_len);
+                break;
+            }
+            udabm_len = tvb_get_guint8(tvb, offset + 5);
+            ti = proto_tree_add_item(tlv_tree, hf_bgp_ls_tlv_app_spec_link_attrs_udabm_len, tvb, offset + 5, 1, ENC_NA);
+            if (udabm_len != 0 && udabm_len != 4 && udabm_len != 8) {
+                expert_add_info_format(pinfo, ti, &ei_bgp_ls_error,
+                                       "Unexpected UDABM Length (%u) in BGP-LS Application Specific Link Attributes TLV, it must be 0/4/8 bytes!",
+                                       sabm_len);
+                break;
+            }
+            tmp16 = tvb_get_guint16(tvb, offset + 6, ENC_BIG_ENDIAN);
+            ti = proto_tree_add_item(tlv_tree, hf_bgp_ls_tlv_app_spec_link_attrs_reserved, tvb, offset + 6, 2, ENC_BIG_ENDIAN);
+            if (tmp16 != 0) {
+                expert_add_info_format(pinfo, ti, &ei_bgp_ls_warn,
+                                       "Reserved field must be 0 in BGP-LS Application-Specific Link Attributes TLV");
+            }
+            if (sabm_len > 0) {
+                static int * const app_spec_link_attrs_sabm[] = {
+                    &hf_bgp_ls_tlv_app_spec_link_attrs_sabm_r,
+                    &hf_bgp_ls_tlv_app_spec_link_attrs_sabm_s,
+                    &hf_bgp_ls_tlv_app_spec_link_attrs_sabm_f,
+                    &hf_bgp_ls_tlv_app_spec_link_attrs_sabm_x,
+                    NULL
+                };
+                proto_tree_add_bitmask(tlv_tree, tvb, offset + 8, hf_bgp_ls_tlv_app_spec_link_attrs_sabm,
+                                       ett_bgp_link_state, app_spec_link_attrs_sabm, ENC_BIG_ENDIAN);
+            }
+            if (udabm_len > 0) {
+                proto_tree_add_item(tlv_tree, hf_bgp_ls_tlv_app_spec_link_attrs_udabm,
+                                    tvb, offset + 8 + sabm_len, udabm_len, ENC_NA);
+            }
+            /* Decode Link Attribute sub-TLVs */
+            local_offset = offset + 8 + sabm_len + udabm_len;
+            while (local_offset < offset + length) {
+                advance = decode_link_state_attribute_tlv(tlv_tree, tvb, local_offset, pinfo, protocol_id);
+                if (advance < 0) {
+                    break;
+                }
+                local_offset += advance;
+            }
             break;
 
         /* Prefix Attribute TLVs */
@@ -12339,6 +12518,30 @@ proto_register_bgp(void)
       { &hf_bgp_ls_sr_tlv_local_block_sid_index,
         { "From Index", "bgp.ls.sr.tlv.local_block.sid.index", FT_UINT32,
           BASE_DEC, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_ls_sr_tlv_flex_algo_def,
+        { "Flexible Algorithm Definition TLV", "bgp.ls.sr.tlv.flex_algo", FT_NONE,
+          BASE_NONE, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_ls_sr_tlv_flex_algo_algorithm,
+        { "Flex-Algorithm", "bgp.ls.sr.tlv.flex_algo.flex_algorithm", FT_UINT8,
+          BASE_DEC, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_ls_sr_tlv_flex_algo_metric_type,
+        { "Metric-Type", "bgp.ls.sr.tlv.flex_algo.metric_type", FT_UINT8,
+          BASE_DEC, VALS(flex_algo_metric_types), 0x0, NULL, HFILL}},
+      { &hf_bgp_ls_sr_tlv_flex_algo_calc_type,
+        { "Calculation-Type", "bgp.ls.sr.tlv.flex_algo.calculation_type", FT_UINT8,
+          BASE_DEC, VALS(igp_algo_types), 0x0, NULL, HFILL}},
+      { &hf_bgp_ls_sr_tlv_flex_algo_priority,
+        { "Priority", "bgp.ls.sr.tlv.flex_algo.priority", FT_UINT8,
+          BASE_DEC, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_ls_sr_tlv_flex_algo_exc_any_affinity,
+        { "Flex Algo Exclude Any Affinity TLV", "bgp.ls.sr.tlv.flex_algo.exclude_any_affinity", FT_NONE,
+          BASE_NONE, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_ls_sr_tlv_flex_algo_inc_any_affinity,
+        { "Flex Algo Include Any Affinity TLV", "bgp.ls.sr.tlv.flex_algo.include_any_affinity", FT_NONE,
+          BASE_NONE, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_ls_sr_tlv_flex_algo_inc_all_affinity,
+        { "Flex Algo Include All Affinity TLV", "bgp.ls.sr.tlv.flex_algo.include_all_affinity", FT_NONE,
+          BASE_NONE, NULL, 0x0, NULL, HFILL}},
      /* Prefix Attribute TLVs */
       { &hf_bgp_ls_sr_tlv_prefix_sid,
         { "Prefix SID TLV", "bgp.ls.sr.tlv.prefix.sid", FT_NONE,
@@ -12509,6 +12712,37 @@ proto_register_bgp(void)
       { &hf_bgp_ls_igp_te_metric_reserved,
         { "Reserved", "bgp.ls.igp_te_metric.reserved", FT_UINT8,
           BASE_HEX, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_ls_tlv_app_spec_link_attrs,
+        { "Application-Specific Link Attributes TLV", "bgp.ls.tlv.application_specific_link_attributes", FT_NONE,
+          BASE_NONE, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_ls_tlv_app_spec_link_attrs_sabm_len,
+        { "SABM Length", "bgp.ls.tlv.application_specific_link_attributes.sabm_length", FT_UINT8,
+          BASE_DEC, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_ls_tlv_app_spec_link_attrs_udabm_len,
+        { "UDABM Length", "bgp.ls.tlv.application_specific_link_attributes.udabm_length", FT_UINT8,
+          BASE_DEC, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_ls_tlv_app_spec_link_attrs_reserved,
+        { "Reserved", "bgp.ls.tlv.application_specific_link_attributes.reserved", FT_UINT16,
+          BASE_HEX, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_ls_tlv_app_spec_link_attrs_sabm,
+        { "Standard Application Identifier Bit Mask", "bgp.ls.tlv.application_specific_link_attribugtes.sabm", FT_UINT32,
+          BASE_HEX, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_ls_tlv_app_spec_link_attrs_sabm_r,
+        { "RSVP-TE (R)", "bgp.ls.tlv.application_specific_link_attribugtes.sabm.r", FT_BOOLEAN,
+          32, TFS(&tfs_set_notset), BGP_LS_APP_SPEC_LINK_ATTRS_SABM_R, NULL, HFILL}},
+      { &hf_bgp_ls_tlv_app_spec_link_attrs_sabm_s,
+        { "Segment Routing Policy (S)", "bgp.ls.tlv.application_specific_link_attribugtes.sabm.s", FT_BOOLEAN,
+          32, TFS(&tfs_set_notset), BGP_LS_APP_SPEC_LINK_ATTRS_SABM_S, NULL, HFILL}},
+      { &hf_bgp_ls_tlv_app_spec_link_attrs_sabm_f,
+        { "Loop Free Alternate (F)", "bgp.ls.tlv.application_specific_link_attribugtes.sabm.f", FT_BOOLEAN,
+          32, TFS(&tfs_set_notset), BGP_LS_APP_SPEC_LINK_ATTRS_SABM_F, NULL, HFILL}},
+      { &hf_bgp_ls_tlv_app_spec_link_attrs_sabm_x,
+        { "Flexible Algorithm (X)", "bgp.ls.tlv.application_specific_link_attribugtes.sabm.x", FT_BOOLEAN,
+          32, TFS(&tfs_set_notset), BGP_LS_APP_SPEC_LINK_ATTRS_SABM_X, NULL, HFILL}},
+      { &hf_bgp_ls_tlv_app_spec_link_attrs_udabm,
+        { "User-Defined Application Identifier Bit Mask", "bgp.ls.tlv.application_specific_link_attributes.udabm", FT_BYTES,
+          SEP_SPACE, NULL, 0x0,NULL, HFILL }},
+
       { &hf_bgp_evpn_nlri_igmp_mc_or_length,
        { "Originator Router Length", "bgp.evpn.nlri.or_length", FT_UINT8,
           BASE_DEC, NULL, 0x0, NULL, HFILL}},
