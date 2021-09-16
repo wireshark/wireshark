@@ -23,8 +23,8 @@ extern "C" {
 /**
  * guint8_to_hex()
  *
- * Output guint8 hex represetation to 'out', and return pointer after last character (out + 4).
- * It always output full representation (padded with 0).
+ * Output guint8 hex representation to 'out', and return pointer after last character (out + 2).
+ * It will always output full representation (padded with 0).
  *
  * String is not NUL terminated by this routine.
  * There needs to be at least 2 bytes in the buffer.
@@ -34,8 +34,8 @@ WS_DLL_PUBLIC char *guint8_to_hex(char *out, guint8 val);
 /**
  * word_to_hex()
  *
- * Output guint16 hex represetation to 'out', and return pointer after last character (out + 4).
- * It always output full representation (padded with 0).
+ * Output guint16 hex representation to 'out', and return pointer after last character (out + 4).
+ * It will always output full representation (padded with 0).
  *
  * String is not NUL terminated by this routine.
  * There needs to be at least 4 bytes in the buffer.
@@ -43,22 +43,11 @@ WS_DLL_PUBLIC char *guint8_to_hex(char *out, guint8 val);
 WS_DLL_PUBLIC char *word_to_hex(char *out, guint16 word);
 
 /**
- * dword_to_hex()
- *
- * Output guint32 hex represetation to 'out', and return pointer after last character.
- * It always output full representation (padded with 0).
- *
- * String is not NUL terminated by this routine.
- * There needs to be at least 8 bytes in the buffer.
- */
-WS_DLL_PUBLIC char *dword_to_hex(char *out, guint32 dword);
-
-/**
  * word_to_hex_punct()
  *
- * Output guint16 hex represetation to 'out', and return pointer after last character.
+ * Output guint16 hex representation to 'out', and return pointer after last character.
  * Each byte will be separated with punct character (cannot be NUL).
- * It always output full representation (padded with 0).
+ * It will always output full representation (padded with 0).
  *
  * String is not NUL terminated by this routine.
  * There needs to be at least 5 bytes in the buffer.
@@ -68,7 +57,7 @@ WS_DLL_PUBLIC char *word_to_hex_punct(char *out, guint16 word, char punct);
 /**
  * word_to_hex_npad()
  *
- * Output guint16 hex represetation to 'out', and return pointer after last character.
+ * Output guint16 hex representation to 'out', and return pointer after last character.
  * Value is not padded.
  *
  * String is not NUL terminated by this routine.
@@ -77,11 +66,22 @@ WS_DLL_PUBLIC char *word_to_hex_punct(char *out, guint16 word, char punct);
 WS_DLL_PUBLIC char *word_to_hex_npad(char *out, guint16 word);
 
 /**
+ * dword_to_hex()
+ *
+ * Output guint32 hex representation to 'out', and return pointer after last character.
+ * It will always output full representation (padded with 0).
+ *
+ * String is not NUL terminated by this routine.
+ * There needs to be at least 8 bytes in the buffer.
+ */
+WS_DLL_PUBLIC char *dword_to_hex(char *out, guint32 dword);
+
+/**
  * dword_to_hex_punct()
  *
- * Output guint32 hex represetation to 'out', and return pointer after last character.
+ * Output guint32 hex representation to 'out', and return pointer after last character.
  * Each byte will be separated with punct character (cannot be NUL).
- * It always output full representation (padded with 0).
+ * It will always output full representation (padded with 0).
  *
  * String is not NUL terminated by this routine.
  * There needs to be at least 11 bytes in the buffer.
@@ -91,8 +91,8 @@ WS_DLL_PUBLIC char *dword_to_hex_punct(char *out, guint32 dword, char punct);
 /**
  * qword_to_hex()
  *
- * Output guint64 hex represetation to 'out', and return pointer after last character.
- * It always output full representation (padded with 0).
+ * Output guint64 hex representation to 'out', and return pointer after last character.
+ * It will always output full representation (padded with 0).
  *
  * String is not NUL terminated by this routine.
  * There needs to be at least 16 bytes in the buffer.
@@ -102,9 +102,9 @@ WS_DLL_PUBLIC char *qword_to_hex(char *out, guint64 qword);
 /**
  * qword_to_hex_punct()
  *
- * Output guint64 hex represetation to 'out', and return pointer after last character.
+ * Output guint64 hex representation to 'out', and return pointer after last character.
  * Each byte will be separated with punct character (cannot be NUL).
- * It always output full representation (padded with 0).
+ * It will always output full representation (padded with 0).
  *
  * String is not NUL terminated by this routine.
  * There needs to be at least 22 bytes in the buffer.
@@ -114,8 +114,8 @@ WS_DLL_PUBLIC char *qword_to_hex_punct(char *out, guint64 qword, char punct);
 /**
  * bytes_to_hexstr()
  *
- * Output hex represetation of guint8 ad array, and return pointer after last character.
- * It always output full representation (padded with 0).
+ * Output hex representation of guint8 array, and return pointer after last character.
+ * It will always output full representation (padded with 0).
  *
  * String is not NUL terminated by this routine.
  * There needs to be at least len * 2 bytes in the buffer.
@@ -125,9 +125,9 @@ WS_DLL_PUBLIC char *bytes_to_hexstr(char *out, const guint8 *ad, size_t len);
 /**
  * bytes_to_hexstr_punct()
  *
- * Output hex represetation of guint8 ad array, and return pointer after last character.
+ * Output hex representation of guint8 array, and return pointer after last character.
  * Each byte will be separated with punct character (cannot be NUL).
- * It always output full representation (padded with 0).
+ * It will always output full representation (padded with 0).
  *
  * String is not NUL terminated by this routine.
  * There needs to be at least len * 3 - 1 bytes in the buffer.

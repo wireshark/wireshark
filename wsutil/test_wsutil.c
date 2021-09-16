@@ -34,6 +34,54 @@ void test_format_size(void)
 
 #include "to_str.h"
 
+void test_word_to_hex(void)
+{
+    static char buf[32];
+    char *str;     /* String is not NULL terminated. */
+
+    str = guint8_to_hex(buf, 0x34);
+    g_assert_true(str == buf + 2);
+    g_assert_cmpint(str[-1], ==, '4');
+    g_assert_cmpint(str[-2], ==, '3');
+
+    str = word_to_hex(buf, 0x1234);
+    g_assert_true(str == buf + 4);
+    g_assert_cmpint(str[-1], ==, '4');
+    g_assert_cmpint(str[-2], ==, '3');
+    g_assert_cmpint(str[-3], ==, '2');
+    g_assert_cmpint(str[-4], ==, '1');
+
+    str = dword_to_hex(buf, 0x1234);
+    g_assert_true(str == buf + 8);
+    g_assert_cmpint(str[-1], ==, '4');
+    g_assert_cmpint(str[-2], ==, '3');
+    g_assert_cmpint(str[-3], ==, '2');
+    g_assert_cmpint(str[-4], ==, '1');
+    g_assert_cmpint(str[-5], ==, '0');
+    g_assert_cmpint(str[-6], ==, '0');
+    g_assert_cmpint(str[-7], ==, '0');
+    g_assert_cmpint(str[-8], ==, '0');
+
+    str = qword_to_hex(buf, G_GUINT64_CONSTANT(0xFEDCBA987654321));
+    g_assert_true(str == buf + 16);
+    g_assert_cmpint(str[-1], ==, '1');
+    g_assert_cmpint(str[-2], ==, '2');
+    g_assert_cmpint(str[-3], ==, '3');
+    g_assert_cmpint(str[-4], ==, '4');
+    g_assert_cmpint(str[-5], ==, '5');
+    g_assert_cmpint(str[-6], ==, '6');
+    g_assert_cmpint(str[-7], ==, '7');
+    g_assert_cmpint(str[-8], ==, '8');
+    g_assert_cmpint(str[-9], ==, '9');
+    g_assert_cmpint(str[-10], ==, 'a');
+    g_assert_cmpint(str[-11], ==, 'b');
+    g_assert_cmpint(str[-12], ==, 'c');
+    g_assert_cmpint(str[-13], ==, 'd');
+    g_assert_cmpint(str[-14], ==, 'e');
+    g_assert_cmpint(str[-15], ==, 'f');
+    g_assert_cmpint(str[-16], ==, '0');
+}
+
 void test_bytes_to_str(void)
 {
     char *str;
@@ -254,6 +302,7 @@ int main(int argc, char **argv)
 
     g_test_add_func("/str_util/format_size", test_format_size);
 
+    g_test_add_func("/to_str/word_to_hex", test_word_to_hex);
     g_test_add_func("/to_str/bytes_to_str", test_bytes_to_str);
     g_test_add_func("/to_str/bytes_to_str_punct", test_bytes_to_str_punct);
     g_test_add_func("/to_str/bytes_to_str_trunc1", test_bytes_to_string_trunc1);
