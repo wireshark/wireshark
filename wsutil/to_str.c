@@ -28,7 +28,13 @@
  * starting with "[Buf" should provide enough of a clue to be
  * useful.
  */
-#define BUF_TOO_SMALL_ERR "[Buffer too small]"
+#define _return_if_nospace(str_len, buf, buf_len) \
+	do { \
+		if ((str_len) > (buf_len)) { \
+			(void)g_strlcpy(buf, "[Buffer too small]", buf_len); \
+			return; \
+		} \
+	} while (0)
 
 static const char fast_strings[][4] = {
 	"0", "1", "2", "3", "4", "5", "6", "7",
@@ -479,10 +485,7 @@ guint32_to_str_buf(guint32 u, gchar *buf, int buf_len)
 
 	gchar *bp = &buf[str_len];
 
-	if (buf_len < str_len) {
-		(void) g_strlcpy(buf, BUF_TOO_SMALL_ERR, buf_len);	/* Let the unexpected value alert user */
-		return;
-	}
+	_return_if_nospace(str_len, buf, buf_len);
 
 	*--bp = '\0';
 
@@ -524,10 +527,7 @@ guint64_to_str_buf(guint64 u, gchar *buf, int buf_len)
 
 	gchar *bp = &buf[str_len];
 
-	if (buf_len < str_len) {
-		(void) g_strlcpy(buf, BUF_TOO_SMALL_ERR, buf_len);	/* Let the unexpected value alert user */
-		return;
-	}
+	_return_if_nospace(str_len, buf, buf_len);
 
 	*--bp = '\0';
 
@@ -544,10 +544,7 @@ ip_to_str_buf(const guint8 *ad, gchar *buf, const int buf_len)
 	register gchar const *p;
 	register gchar *b=buf;
 
-	if (buf_len < WS_INET_ADDRSTRLEN) {
-		(void) g_strlcpy(buf, BUF_TOO_SMALL_ERR, buf_len);  /* Let the unexpected value alert user */
-		return;
-	}
+	_return_if_nospace(WS_INET_ADDRSTRLEN, buf, buf_len);
 
 	p=fast_strings[*ad++];
 	do {
@@ -592,7 +589,8 @@ ip6_to_str_buf(const ws_in6_addr *addr, gchar *buf, size_t buf_size)
 {
 	/*
 	 * If there is not enough space then ws_inet_ntop6() will leave
-	 * an error message in the buffer, we don't need to use BUF_TOO_SMALL_ERR.
+	 * an error message in the buffer, we don't need
+	 * to use _return_if_nospace().
 	 */
 	ws_inet_ntop6(addr, buf, (guint)buf_size);
 }
