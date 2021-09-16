@@ -4253,24 +4253,23 @@ static int
 decode_pfcp_urr_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint offset, pfcp_session_args_t *args)
 {
     guint32 urr_id;
-    guint8 urr_id_flag;
     /* Octet 5 to 8 URR ID value
     * The bit 8 of octet 5 is used to indicate if the Rule ID is dynamically allocated by the CP function
     * or predefined in the UP function. If set to 0, it indicates that the Rule is dynamically provisioned
     * by the CP Function. If set to 1, it indicates that the Rule is predefined in the UP Function
     */
-    urr_id_flag = tvb_get_guint8(tvb, offset) & 0x80;
+    urr_id = tvb_get_guint32(tvb, offset, ENC_BIG_ENDIAN);
 
     proto_tree_add_item(tree, hf_pfcp_urr_id_flg, tvb, offset, 4, ENC_BIG_ENDIAN);
-    proto_tree_add_item_ret_uint(tree, hf_pfcp_urr_id, tvb, offset, 4, ENC_BIG_ENDIAN, &urr_id);
+    proto_tree_add_item(tree, hf_pfcp_urr_id, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
     proto_item_append_text(item, "%s %u",
-        tfs_get_string(urr_id_flag, &pfcp_id_predef_dynamic_tfs),
+        tfs_get_string((urr_id & 0x80000000), &pfcp_id_predef_dynamic_tfs),
         (urr_id & 0x7fffffff));
 
     if (args) {
-        args->last_rule_ids.urr = (urr_id & 0x7fffffff);
+        args->last_rule_ids.urr = urr_id;
     }
 
     return offset;
@@ -5017,25 +5016,24 @@ static int
 decode_pfcp_far_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, gint offset, pfcp_session_args_t *args)
 {
     guint32 far_id;
-    guint8 far_id_flag;
     /* Octet 5 to 8 FAR ID value
      * The bit 8 of octet 5 is used to indicate if the Rule ID is dynamically allocated
      * by the CP function or predefined in the UP function. If set to 0, it indicates that
      * the Rule is dynamically provisioned by the CP Function. If set to 1, it indicates that
      * the Rule is predefined in the UP Function.
      */
-    far_id_flag = tvb_get_guint8(tvb,offset) & 0x80;
+    far_id = tvb_get_guint32(tvb, offset, ENC_BIG_ENDIAN);
 
     proto_tree_add_item(tree, hf_pfcp_far_id_flg, tvb, offset, 4, ENC_BIG_ENDIAN);
-    proto_tree_add_item_ret_uint(tree, hf_pfcp_far_id, tvb, offset, 4, ENC_BIG_ENDIAN, &far_id);
+    proto_tree_add_item(tree, hf_pfcp_far_id, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
     proto_item_append_text(item, "%s %u",
-        tfs_get_string(far_id_flag, &pfcp_id_predef_dynamic_tfs),
+        tfs_get_string((far_id & 0x80000000), &pfcp_id_predef_dynamic_tfs),
         (far_id & 0x7fffffff));
 
     if (args) {
-        args->last_rule_ids.far = (far_id & 0x7fffffff);
+        args->last_rule_ids.far = far_id;
     }
 
     return offset;
@@ -5060,24 +5058,23 @@ static int
 decode_pfcp_qer_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint offset, pfcp_session_args_t *args)
 {
     guint32 qer_id;
-    guint8 qer_id_flag;
     /* Octet 5 to 8 QER ID value
     * The bit 8 of octet 5 is used to indicate if the Rule ID is dynamically allocated by the CP function
     * or predefined in the UP function. If set to 0, it indicates that the Rule is dynamically provisioned
     * by the CP Function. If set to 1, it indicates that the Rule is predefined in the UP Function
     */
-    qer_id_flag = tvb_get_guint8(tvb, offset) & 0x80;
+    qer_id = tvb_get_guint32(tvb, offset, ENC_BIG_ENDIAN);
 
     proto_tree_add_item(tree, hf_pfcp_qer_id_flg, tvb, offset, 4, ENC_BIG_ENDIAN);
-    proto_tree_add_item_ret_uint(tree, hf_pfcp_qer_id, tvb, offset, 4, ENC_BIG_ENDIAN, &qer_id);
+    proto_tree_add_item(tree, hf_pfcp_qer_id, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
     proto_item_append_text(item, "%s %u",
-        tfs_get_string(qer_id_flag, &pfcp_id_predef_dynamic_tfs),
+        tfs_get_string((qer_id & 0x80000000), &pfcp_id_predef_dynamic_tfs),
         (qer_id & 0x7fffffff));
 
     if (args) {
-        args->last_rule_ids.qer = (qer_id & 0x7fffffff);
+        args->last_rule_ids.qer = qer_id;
     }
 
     return offset;
@@ -8931,7 +8928,9 @@ static void
 dissect_pfcp_create_far(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
     dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_CREATE_FAR], args);
-    proto_item_append_text(item, ": FAR ID: %u", args->last_rule_ids.far);
+    proto_item_append_text(item, ": FAR ID: %s %u",
+                        tfs_get_string((args->last_rule_ids.far & 0x80000000), &pfcp_id_predef_dynamic_tfs),
+                        (args->last_rule_ids.far & 0x7fffffff));
 }
 
 static void
@@ -8950,14 +8949,18 @@ static void
 dissect_pfcp_create_urr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
     dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_CREATE_URR], args);
-    proto_item_append_text(item, ": URR ID: %u", args->last_rule_ids.urr);
+    proto_item_append_text(item, ": URR ID: %s %u",
+                        tfs_get_string((args->last_rule_ids.urr & 0x80000000), &pfcp_id_predef_dynamic_tfs),
+                        (args->last_rule_ids.urr & 0x7fffffff));
 }
 
 static void
 dissect_pfcp_create_qer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
     dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_CREATE_QER], args);
-    proto_item_append_text(item, ": QER ID: %u", args->last_rule_ids.qer);
+    proto_item_append_text(item, ": QER ID: %s %u",
+                        tfs_get_string((args->last_rule_ids.qer & 0x80000000), &pfcp_id_predef_dynamic_tfs),
+                        (args->last_rule_ids.qer & 0x7fffffff));
 }
 
 static void
@@ -8978,7 +8981,9 @@ static void
 dissect_pfcp_update_far(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
     dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_UPDATE_FAR], args);
-    proto_item_append_text(item, ": FAR ID: %u", args->last_rule_ids.far);
+    proto_item_append_text(item, ": FAR ID: %s %u",
+                        tfs_get_string((args->last_rule_ids.far & 0x80000000), &pfcp_id_predef_dynamic_tfs),
+                        (args->last_rule_ids.far & 0x7fffffff));
 }
 
 static void
@@ -8998,14 +9003,18 @@ static void
 dissect_pfcp_update_urr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
     dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_UPDATE_URR], args);
-    proto_item_append_text(item, ": URR ID: %u", args->last_rule_ids.urr);
+    proto_item_append_text(item, ": URR ID: %s %u",
+                        tfs_get_string((args->last_rule_ids.urr & 0x80000000), &pfcp_id_predef_dynamic_tfs),
+                        (args->last_rule_ids.urr & 0x7fffffff));
 }
 
 static void
 dissect_pfcp_update_qer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
     dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_UPDATE_QER], args);
-    proto_item_append_text(item, ": QER ID: %u", args->last_rule_ids.qer);
+    proto_item_append_text(item, ": QER ID: %s %u",
+                        tfs_get_string((args->last_rule_ids.qer & 0x80000000), &pfcp_id_predef_dynamic_tfs),
+                        (args->last_rule_ids.qer & 0x7fffffff));
 }
 
 static void
@@ -9019,21 +9028,27 @@ static void
 dissect_pfcp_remove_far(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
     dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_REMOVE_FAR], args);
-    proto_item_append_text(item, ": FAR ID: %u", args->last_rule_ids.far);
+    proto_item_append_text(item, ": FAR ID: %s %u",
+                        tfs_get_string((args->last_rule_ids.far & 0x80000000), &pfcp_id_predef_dynamic_tfs),
+                        (args->last_rule_ids.far & 0x7fffffff));
 }
 
 static void
 dissect_pfcp_remove_urr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
     dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_REMOVE_URR], args);
-    proto_item_append_text(item, ": URR ID: %u", args->last_rule_ids.urr);
+    proto_item_append_text(item, ": URR ID: %s %u",
+                        tfs_get_string((args->last_rule_ids.urr & 0x80000000), &pfcp_id_predef_dynamic_tfs),
+                        (args->last_rule_ids.urr & 0x7fffffff));
 }
 
 static void
 dissect_pfcp_remove_qer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
     dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_REMOVE_QER], args);
-    proto_item_append_text(item, ": QER ID: %u", args->last_rule_ids.qer);
+    proto_item_append_text(item, ": QER ID: %s %u",
+                        tfs_get_string((args->last_rule_ids.qer & 0x80000000), &pfcp_id_predef_dynamic_tfs),
+                        (args->last_rule_ids.qer & 0x7fffffff));
 }
 
 static void
@@ -9077,18 +9092,27 @@ static void
 dissect_pfcp_usage_report_smr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
     dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_USAGE_REPORT_SMR], args);
+    proto_item_append_text(item, ": URR ID: %s %u",
+                        tfs_get_string((args->last_rule_ids.urr & 0x80000000), &pfcp_id_predef_dynamic_tfs),
+                        (args->last_rule_ids.urr & 0x7fffffff));
 }
 
 static void
 dissect_pfcp_usage_report_sdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
     dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_USAGE_REPORT_SDR], args);
+    proto_item_append_text(item, ": URR ID: %s %u",
+                        tfs_get_string((args->last_rule_ids.urr & 0x80000000), &pfcp_id_predef_dynamic_tfs),
+                        (args->last_rule_ids.urr & 0x7fffffff));
 }
 
 static void
 dissect_pfcp_usage_report_srr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
     dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_USAGE_REPORT_SRR], args);
+    proto_item_append_text(item, ": URR ID: %s %u",
+                        tfs_get_string((args->last_rule_ids.urr & 0x80000000), &pfcp_id_predef_dynamic_tfs),
+                        (args->last_rule_ids.urr & 0x7fffffff));
 }
 
 static void
