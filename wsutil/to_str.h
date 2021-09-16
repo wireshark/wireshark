@@ -289,7 +289,7 @@ WS_DLL_PUBLIC void ip_to_str_buf(const guint8 *ad, gchar *buf, const int buf_len
 WS_DLL_PUBLIC char *ip_to_str(wmem_allocator_t *scope, const guint8 *ad);
 
 /* Returns length of the result. */
-WS_DLL_PUBLIC int ip6_to_str_buf(const ws_in6_addr *ad, gchar *buf, int buf_size);
+WS_DLL_PUBLIC void ip6_to_str_buf(const ws_in6_addr *ad, gchar *buf, size_t buf_size);
 
 WS_DLL_PUBLIC char *ip6_to_str(wmem_allocator_t *scope, const ws_in6_addr *ad);
 

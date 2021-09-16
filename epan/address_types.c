@@ -235,7 +235,8 @@ static int ipv4_name_res_len(void)
  ******************************************************************************/
 static int ipv6_to_str(const address* addr, gchar *buf, int buf_len)
 {
-    return ip6_to_str_buf((const ws_in6_addr *)addr->data, buf, buf_len) + 1;
+    ip6_to_str_buf((const ws_in6_addr *)addr->data, buf, buf_len);
+    return (int)(strlen(buf) + 1);
 }
 
 static int ipv6_str_len(const address* addr _U_)

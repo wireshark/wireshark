@@ -587,26 +587,21 @@ char *ip_to_str(wmem_allocator_t *scope, const guint8 *ad)
 	return buf;
 }
 
-int
-ip6_to_str_buf(const ws_in6_addr *addr, gchar *buf, int buf_size)
+void
+ip6_to_str_buf(const ws_in6_addr *addr, gchar *buf, size_t buf_size)
 {
-	gchar addr_buf[WS_INET6_ADDRSTRLEN];
-	int len;
-
-	/* slightly more efficient than ip6_to_str_buf_with_pfx(addr, buf, buf_size, NULL) */
-	len = (int)g_strlcpy(buf, ws_inet_ntop6(addr, addr_buf, sizeof(addr_buf)), buf_size);     /* this returns len = strlen(addr_buf) */
-
-	if (len > buf_size - 1) { /* size minus nul terminator */
-		len = (int)g_strlcpy(buf, BUF_TOO_SMALL_ERR, buf_size);  /* Let the unexpected value alert user */
-	}
-	return len;
+	/*
+	 * If there is not enough space then ws_inet_ntop6() will leave
+	 * an error message in the buffer, we don't need to use BUF_TOO_SMALL_ERR.
+	 */
+	ws_inet_ntop6(addr, buf, (guint)buf_size);
 }
 
 char *ip6_to_str(wmem_allocator_t *scope, const ws_in6_addr *ad)
 {
 	char *buf = wmem_alloc(scope, WS_INET6_ADDRSTRLEN * sizeof(char));
 
-	ip6_to_str_buf(ad, buf, WS_INET6_ADDRSTRLEN);
+	ws_inet_ntop6(ad, buf, WS_INET6_ADDRSTRLEN);
 
 	return buf;
 }
