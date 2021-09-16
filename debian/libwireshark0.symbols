@@ -577,7 +577,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  escape_string_len@Base 1.9.1
  esp_sa_record_add_from_dissector@Base 1.12.0~rc1
  etype_vals@Base 1.9.1
- eui64_to_str@Base 1.9.1
  ex_opt_add@Base 1.9.1
  ex_opt_count@Base 1.9.1
  ex_opt_get_next@Base 1.9.1
@@ -885,12 +884,11 @@ libwireshark.so.0 libwireshark0 #MINVER#
  gtcap_StatSRT@Base 1.9.1
  guid_cmp@Base 2.0.0
  guid_to_str@Base 1.99.2
+ guid_to_str_buf@Base 3.5.1
  guids_add_guid@Base 1.9.1
  guids_get_guid_name@Base 1.9.1
  guids_init@Base 1.9.1
  guids_resolve_guid_to_str@Base 1.9.1
- guint32_to_str_buf@Base 2.4.0~rc2
- guint64_to_str_buf@Base 2.4.0~rc2
  h225_RasMessage_vals@Base 1.9.1
  h225_ReleaseCompleteReason_vals@Base 1.9.1
  h245_set_h223_add_lc_handle@Base 1.9.1

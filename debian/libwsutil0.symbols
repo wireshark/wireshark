@@ -67,6 +67,7 @@ libwsutil.so.0 libwsutil0 #MINVER#
  deregister_codec@Base 3.1.0
  dword_to_hex@Base 3.5.1
  dword_to_hex_punct@Base 3.5.1
+ eui64_to_str@Base 3.5.1
  file_exists@Base 1.12.0~rc1
  file_needs_reopen@Base 3.0.6
  file_open_error_message@Base 1.12.0~rc1
@@ -102,6 +103,8 @@ libwsutil.so.0 libwsutil0 #MINVER#
  get_progfile_dir@Base 1.12.0~rc1
  get_resource_usage@Base 2.3.0
  get_systemfile_dir@Base 1.12.0~rc1
+ guint32_to_str_buf@Base 3.5.1
+ guint64_to_str_buf@Base 3.5.1
  guint8_to_hex@Base 3.5.1
  has_global_profiles@Base 1.12.0~rc1
  hex64_to_str_back_len@Base 3.5.1
@@ -115,6 +118,11 @@ libwsutil.so.0 libwsutil0 #MINVER#
  init_report_message@Base 2.3.0
  int64_to_str_back@Base 3.5.1
  int_to_str_back@Base 3.5.1
+ ip6_to_str@Base 3.5.1
+ ip6_to_str_buf@Base 3.5.1
+ ip_to_str@Base 3.5.1
+ ip_to_str_buf@Base 3.5.1
+ ipxnet_to_str_punct@Base 3.5.1
  is_default_profile@Base 1.12.0~rc1
  isdigit_string@Base 1.10.0
  iso8601_to_nstime@Base 3.5.0
