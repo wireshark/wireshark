@@ -22,6 +22,13 @@ brew install sparkle opus c-ares glib libgcrypt gnutls lua@5.1 cmake python nght
 # Uncomment to add PNG compression utilities used by compress-pngs:
 # brew install advancecomp optipng oxipng pngcrush
 
+# Uncomment to enable generation of documentation
+# brew install asciidoctor
+
+# Uncomment to build dmg bundle
+# /usr/local/bin/pip3 install dmgbuild
+# /usr/local/bin/pip3 install biplist
+
 brew doctor
 
 exit 0
