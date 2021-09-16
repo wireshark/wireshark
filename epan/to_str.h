@@ -38,9 +38,21 @@ extern "C" {
  * but for which no more specific module applies.
  */
 
-WS_DLL_PUBLIC gchar* address_to_str(wmem_allocator_t *scope, const address *addr);
-WS_DLL_PUBLIC gchar* address_with_resolution_to_str(wmem_allocator_t *scope, const address *addr);
-WS_DLL_PUBLIC gchar* tvb_address_with_resolution_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, int type, const gint offset);
+/*
+ ************** Numerical
+ */
+
+WS_DLL_PUBLIC void guint32_to_str_buf(guint32 u, gchar *buf, int buf_len);
+
+WS_DLL_PUBLIC void guint64_to_str_buf(guint64 u, gchar *buf, int buf_len);
+
+/*
+ ************** Address
+ */
+
+WS_DLL_PUBLIC gchar *address_to_str(wmem_allocator_t *scope, const address *addr);
+
+WS_DLL_PUBLIC gchar *address_with_resolution_to_str(wmem_allocator_t *scope, const address *addr);
 
 /*
  * address_to_name takes as input an "address", as defined in address.h.
@@ -66,52 +78,41 @@ WS_DLL_PUBLIC const gchar *address_to_name(const address *addr);
  * on the argument, which should be a string representation for the address,
  * e.g. "10.10.10.10" for IPv4 address 10.10.10.10.
  */
-WS_DLL_PUBLIC
-gchar *address_to_display(wmem_allocator_t *allocator, const address *addr);
+WS_DLL_PUBLIC gchar *address_to_display(wmem_allocator_t *allocator, const address *addr);
 
-WS_DLL_PUBLIC void     address_to_str_buf(const address *addr, gchar *buf, int buf_len);
+WS_DLL_PUBLIC void address_to_str_buf(const address *addr, gchar *buf, int buf_len);
 
-#define tvb_ether_to_str(tvb, offset) tvb_address_to_str(wmem_packet_scope(), tvb, AT_ETHER, offset)
-#define tvb_ip_to_str(tvb, offset) tvb_address_to_str(wmem_packet_scope(), tvb, AT_IPv4, offset)
-#define tvb_ip6_to_str(tvb, offset) tvb_address_to_str(wmem_packet_scope(), tvb, AT_IPv6, offset)
-#define tvb_fcwwn_to_str(tvb, offset) tvb_address_to_str(wmem_packet_scope(), tvb, AT_FCWWN, offset)
-#define tvb_fc_to_str(tvb, offset) tvb_address_to_str(wmem_packet_scope(), tvb, AT_FC, offset)
-#define tvb_eui64_to_str(tvb, offset) tvb_address_to_str(wmem_packet_scope(), tvb, AT_EUI64, offset)
-
-void	ip_to_str_buf(const guint8 *ad, gchar *buf, const int buf_len);
+WS_DLL_LOCAL void ip_to_str_buf(const guint8 *ad, gchar *buf, const int buf_len);
 
 /* Returns length of the result. */
-int ip6_to_str_buf(const ws_in6_addr *ad, gchar *buf, int buf_size);
+WS_DLL_LOCAL int ip6_to_str_buf(const ws_in6_addr *ad, gchar *buf, int buf_size);
 
 /* Returns length of the result. Takes a prefix to be inserted before the address. */
-int ip6_to_str_buf_with_pfx(const ws_in6_addr *ad, gchar *buf, int buf_size, const char *prefix);
+WS_DLL_LOCAL int ip6_to_str_buf_with_pfx(const ws_in6_addr *ad, gchar *buf, int buf_size, const char *prefix);
 
-extern gchar*	ipxnet_to_str_punct(wmem_allocator_t *scope, const guint32 ad, const char punct);
-WS_DLL_PUBLIC gchar*	eui64_to_str(wmem_allocator_t *scope, const guint64 ad);
+WS_DLL_LOCAL gchar *ipxnet_to_str_punct(wmem_allocator_t *scope, const guint32 ad, const char punct);
 
-WS_DLL_PUBLIC gchar*	abs_time_to_str(wmem_allocator_t *scope, const nstime_t*, const absolute_time_display_e fmt,
-    gboolean show_zone);
-WS_DLL_PUBLIC gchar*	abs_time_secs_to_str(wmem_allocator_t *scope, const time_t, const absolute_time_display_e fmt,
-    gboolean show_zone);
-WS_DLL_PUBLIC void	display_epoch_time(gchar *, int, const time_t,  gint32, const to_str_time_res_t);
+WS_DLL_PUBLIC gchar *eui64_to_str(wmem_allocator_t *scope, const guint64 ad);
 
-WS_DLL_PUBLIC void	display_signed_time(gchar *, int, const gint64, gint32, const to_str_time_res_t);
+WS_DLL_PUBLIC const gchar *port_type_to_str (port_type type);
 
-WS_DLL_PUBLIC gchar*	signed_time_secs_to_str(wmem_allocator_t *scope, const gint32 time_val);
-WS_DLL_PUBLIC gchar*	unsigned_time_secs_to_str(wmem_allocator_t *scope, const guint32);
-WS_DLL_PUBLIC gchar*	signed_time_msecs_to_str(wmem_allocator_t *scope, gint32 time_val);
+/*
+ ************** TVB
+ */
 
-WS_DLL_PUBLIC void guint32_to_str_buf(guint32 u, gchar *buf, int buf_len);
-WS_DLL_PUBLIC void guint64_to_str_buf(guint64 u, gchar *buf, int buf_len);
+WS_DLL_PUBLIC gchar* tvb_address_with_resolution_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, int type, const gint offset);
 
-WS_DLL_PUBLIC gchar*	rel_time_to_str(wmem_allocator_t *scope, const nstime_t*);
-WS_DLL_PUBLIC gchar*	rel_time_to_secs_str(wmem_allocator_t *scope, const nstime_t*);
-WS_DLL_PUBLIC gchar*	guid_to_str(wmem_allocator_t *scope, const e_guid_t*);
-gchar*	guid_to_str_buf(const e_guid_t*, gchar*, int);
+#define tvb_ether_to_str(tvb, offset) tvb_address_to_str(wmem_packet_scope(), tvb, AT_ETHER, offset)
 
-WS_DLL_PUBLIC char *decode_bits_in_field(const guint bit_offset, const gint no_of_bits, const guint64 value);
+#define tvb_ip_to_str(tvb, offset) tvb_address_to_str(wmem_packet_scope(), tvb, AT_IPv4, offset)
 
-WS_DLL_PUBLIC const gchar* port_type_to_str (port_type type);
+#define tvb_ip6_to_str(tvb, offset) tvb_address_to_str(wmem_packet_scope(), tvb, AT_IPv6, offset)
+
+#define tvb_fcwwn_to_str(tvb, offset) tvb_address_to_str(wmem_packet_scope(), tvb, AT_FCWWN, offset)
+
+#define tvb_fc_to_str(tvb, offset) tvb_address_to_str(wmem_packet_scope(), tvb, AT_FC, offset)
+
+#define tvb_eui64_to_str(tvb, offset) tvb_address_to_str(wmem_packet_scope(), tvb, AT_EUI64, offset)
 
 /** Turn an address type retrieved from a tvb into a string.
  *
@@ -135,6 +136,40 @@ WS_DLL_PUBLIC gchar* tvb_address_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, 
  *
  */
 WS_DLL_PUBLIC gchar* tvb_address_var_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, address_type type, const gint offset, int length);
+
+/*
+ ************** Time
+ */
+
+WS_DLL_PUBLIC gchar *abs_time_to_str(wmem_allocator_t *scope, const nstime_t*, const absolute_time_display_e fmt,
+                                                                                    gboolean show_zone);
+
+WS_DLL_PUBLIC gchar *abs_time_secs_to_str(wmem_allocator_t *scope, const time_t, const absolute_time_display_e fmt,
+                                                                                    gboolean show_zone);
+
+WS_DLL_PUBLIC void display_epoch_time(gchar *, int, const time_t, gint32, const to_str_time_res_t);
+
+WS_DLL_PUBLIC void display_signed_time(gchar *, int, const gint64, gint32, const to_str_time_res_t);
+
+WS_DLL_PUBLIC gchar *signed_time_secs_to_str(wmem_allocator_t *scope, const gint32 time_val);
+
+WS_DLL_PUBLIC gchar *unsigned_time_secs_to_str(wmem_allocator_t *scope, const guint32);
+
+WS_DLL_PUBLIC gchar *signed_time_msecs_to_str(wmem_allocator_t *scope, gint32 time_val);
+
+WS_DLL_PUBLIC gchar *rel_time_to_str(wmem_allocator_t *scope, const nstime_t *);
+
+WS_DLL_PUBLIC gchar *rel_time_to_secs_str(wmem_allocator_t *scope, const nstime_t *);
+
+/*
+ ************** Misc
+ */
+
+WS_DLL_PUBLIC gchar *guid_to_str_buf(const e_guid_t *, gchar *, int);
+
+WS_DLL_PUBLIC gchar *guid_to_str(wmem_allocator_t *scope, const e_guid_t *);
+
+WS_DLL_PUBLIC char *decode_bits_in_field(const guint bit_offset, const gint no_of_bits, const guint64 value);
 
 #ifdef __cplusplus
 }
