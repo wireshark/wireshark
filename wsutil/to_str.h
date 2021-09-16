@@ -15,6 +15,7 @@
 
 #include <ws_symbol_export.h>
 #include <wsutil/wmem/wmem.h>
+#include <wsutil/inet_ipv6.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -278,6 +279,22 @@ WS_DLL_PUBLIC char *int_to_str_back(char *ptr, gint32 value);
  * There needs to be at least 21 bytes in the buffer.
  */
 WS_DLL_PUBLIC char *int64_to_str_back(char *ptr, gint64 value);
+
+WS_DLL_PUBLIC void guint32_to_str_buf(guint32 u, gchar *buf, int buf_len);
+
+WS_DLL_PUBLIC void guint64_to_str_buf(guint64 u, gchar *buf, int buf_len);
+
+WS_DLL_PUBLIC void ip_to_str_buf(const guint8 *ad, gchar *buf, const int buf_len);
+
+/* Returns length of the result. */
+WS_DLL_PUBLIC int ip6_to_str_buf(const ws_in6_addr *ad, gchar *buf, int buf_size);
+
+/* Returns length of the result. Takes a prefix to be inserted before the address. */
+WS_DLL_PUBLIC int ip6_to_str_buf_with_pfx(const ws_in6_addr *ad, gchar *buf, int buf_size, const char *prefix);
+
+WS_DLL_PUBLIC gchar *ipxnet_to_str_punct(wmem_allocator_t *scope, const guint32 ad, const char punct);
+
+WS_DLL_PUBLIC gchar *eui64_to_str(wmem_allocator_t *scope, const guint64 ad);
 
 #ifdef __cplusplus
 }

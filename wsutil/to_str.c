@@ -19,7 +19,16 @@
 
 #include <wsutil/utf8_entities.h>
 #include <wsutil/wslog.h>
+#include <wsutil/inet_addr.h>
+#include <wsutil/pint.h>
 
+/*
+ * If a user _does_ pass in a too-small buffer, this is probably
+ * going to be too long to fit.  However, even a partial string
+ * starting with "[Buf" should provide enough of a clue to be
+ * useful.
+ */
+#define BUF_TOO_SMALL_ERR "[Buffer too small]"
 
 static const char fast_strings[][4] = {
 	"0", "1", "2", "3", "4", "5", "6", "7",
@@ -444,6 +453,190 @@ int64_to_str_back(char *ptr, gint64 value)
 		ptr = uint64_to_str_back(ptr, value);
 
 	return ptr;
+}
+
+static int
+guint32_to_str_buf_len(const guint32 u)
+{
+	/* ((2^32)-1) == 2147483647 */
+	if (u >= 1000000000)return 10;
+	if (u >= 100000000) return 9;
+	if (u >= 10000000)  return 8;
+	if (u >= 1000000)   return 7;
+	if (u >= 100000)    return 6;
+	if (u >= 10000)     return 5;
+	if (u >= 1000)      return 4;
+	if (u >= 100)       return 3;
+	if (u >= 10)        return 2;
+
+	return 1;
+}
+
+void
+guint32_to_str_buf(guint32 u, gchar *buf, int buf_len)
+{
+	int str_len = guint32_to_str_buf_len(u)+1;
+
+	gchar *bp = &buf[str_len];
+
+	if (buf_len < str_len) {
+		(void) g_strlcpy(buf, BUF_TOO_SMALL_ERR, buf_len);	/* Let the unexpected value alert user */
+		return;
+	}
+
+	*--bp = '\0';
+
+	uint_to_str_back(bp, u);
+}
+
+static int
+guint64_to_str_buf_len(const guint64 u)
+{
+	/* ((2^64)-1) == 18446744073709551615 */
+
+	if (u >= G_GUINT64_CONSTANT(10000000000000000000)) return 20;
+	if (u >= G_GUINT64_CONSTANT(1000000000000000000))  return 19;
+	if (u >= G_GUINT64_CONSTANT(100000000000000000))   return 18;
+	if (u >= G_GUINT64_CONSTANT(10000000000000000))    return 17;
+	if (u >= G_GUINT64_CONSTANT(1000000000000000))     return 16;
+	if (u >= G_GUINT64_CONSTANT(100000000000000))      return 15;
+	if (u >= G_GUINT64_CONSTANT(10000000000000))       return 14;
+	if (u >= G_GUINT64_CONSTANT(1000000000000))        return 13;
+	if (u >= G_GUINT64_CONSTANT(100000000000))         return 12;
+	if (u >= G_GUINT64_CONSTANT(10000000000))          return 11;
+	if (u >= G_GUINT64_CONSTANT(1000000000))           return 10;
+	if (u >= G_GUINT64_CONSTANT(100000000))            return 9;
+	if (u >= G_GUINT64_CONSTANT(10000000))             return 8;
+	if (u >= G_GUINT64_CONSTANT(1000000))              return 7;
+	if (u >= G_GUINT64_CONSTANT(100000))               return 6;
+	if (u >= G_GUINT64_CONSTANT(10000))                return 5;
+	if (u >= G_GUINT64_CONSTANT(1000))                 return 4;
+	if (u >= G_GUINT64_CONSTANT(100))                  return 3;
+	if (u >= G_GUINT64_CONSTANT(10))                   return 2;
+
+	return 1;
+}
+
+void
+guint64_to_str_buf(guint64 u, gchar *buf, int buf_len)
+{
+	int str_len = guint64_to_str_buf_len(u)+1;
+
+	gchar *bp = &buf[str_len];
+
+	if (buf_len < str_len) {
+		(void) g_strlcpy(buf, BUF_TOO_SMALL_ERR, buf_len);	/* Let the unexpected value alert user */
+		return;
+	}
+
+	*--bp = '\0';
+
+	uint64_to_str_back(bp, u);
+}
+
+/*
+   This function is very fast and this function is called a lot.
+   XXX update the address_to_str stuff to use this function.
+   */
+void
+ip_to_str_buf(const guint8 *ad, gchar *buf, const int buf_len)
+{
+	register gchar const *p;
+	register gchar *b=buf;
+
+	if (buf_len < WS_INET_ADDRSTRLEN) {
+		(void) g_strlcpy(buf, BUF_TOO_SMALL_ERR, buf_len);  /* Let the unexpected value alert user */
+		return;
+	}
+
+	p=fast_strings[*ad++];
+	do {
+		*b++=*p;
+		p++;
+	} while(*p);
+	*b++='.';
+
+	p=fast_strings[*ad++];
+	do {
+		*b++=*p;
+		p++;
+	} while(*p);
+	*b++='.';
+
+	p=fast_strings[*ad++];
+	do {
+		*b++=*p;
+		p++;
+	} while(*p);
+	*b++='.';
+
+	p=fast_strings[*ad];
+	do {
+		*b++=*p;
+		p++;
+	} while(*p);
+	*b=0;
+}
+
+int
+ip6_to_str_buf(const ws_in6_addr *addr, gchar *buf, int buf_size)
+{
+	gchar addr_buf[WS_INET6_ADDRSTRLEN];
+	int len;
+
+	/* slightly more efficient than ip6_to_str_buf_with_pfx(addr, buf, buf_size, NULL) */
+	len = (int)g_strlcpy(buf, ws_inet_ntop6(addr, addr_buf, sizeof(addr_buf)), buf_size);     /* this returns len = strlen(addr_buf) */
+
+	if (len > buf_size - 1) { /* size minus nul terminator */
+		len = (int)g_strlcpy(buf, BUF_TOO_SMALL_ERR, buf_size);  /* Let the unexpected value alert user */
+	}
+	return len;
+}
+
+int
+ip6_to_str_buf_with_pfx(const ws_in6_addr *addr, gchar *buf, int buf_size, const char *prefix)
+{
+	int bytes;    /* the number of bytes which would be produced if the buffer was large enough. */
+	gchar addr_buf[WS_INET6_ADDRSTRLEN];
+	int len;
+
+	if (prefix == NULL)
+		prefix = "";
+	bytes = g_snprintf(buf, buf_size, "%s%s", prefix, ws_inet_ntop6(addr, addr_buf, sizeof(addr_buf)));
+	len = bytes - 1;
+
+	if (len > buf_size - 1) { /* size minus nul terminator */
+		len = (int)g_strlcpy(buf, BUF_TOO_SMALL_ERR, buf_size);  /* Let the unexpected value alert user */
+	}
+	return len;
+}
+
+gchar *
+ipxnet_to_str_punct(wmem_allocator_t *allocator, const guint32 ad, const char punct)
+{
+    gchar *buf = (gchar *)wmem_alloc(allocator, 12);
+
+    *dword_to_hex_punct(buf, ad, punct) = '\0';
+    return buf;
+}
+
+#define WS_EUI64_STRLEN    24
+
+gchar *
+eui64_to_str(wmem_allocator_t *scope, const guint64 ad) {
+	gchar *buf, *tmp;
+	guint8 *p_eui64;
+
+	p_eui64=(guint8 *)wmem_alloc(NULL, 8);
+	buf=(gchar *)wmem_alloc(scope, WS_EUI64_STRLEN);
+
+	/* Copy and convert the address to network byte order. */
+	*(guint64 *)(void *)(p_eui64) = pntoh64(&(ad));
+
+	tmp = bytes_to_hexstr_punct(buf, p_eui64, 8, ':');
+	*tmp = '\0'; /* NULL terminate */
+	wmem_free(NULL, p_eui64);
+	return buf;
 }
 
 /*
