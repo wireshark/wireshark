@@ -605,6 +605,7 @@ decode_udp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
   tvbuff_t *next_tvb;
   int low_port, high_port;
+  gboolean try_low_port, try_high_port;
   gint len, reported_len;
   udp_p_info_t *udp_p_info;
   /* Save curr_layer_num as it might be changed by subdissector */
@@ -658,6 +659,44 @@ decode_udp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
     return;
   }
 
+  /* XXX - we ignore port numbers of 0, as some dissectors use a port
+     number of 0 to disable the port, and as RFC 768 says that the source
+     port in UDP datagrams is optional and is 0 if not used. */
+
+  if (uh_sport > uh_dport) {
+    low_port  = uh_dport;
+    high_port = uh_sport;
+  } else {
+    low_port  = uh_sport;
+    high_port = uh_dport;
+  }
+
+  try_low_port = FALSE;
+  if (low_port != 0) {
+    if (dissector_is_uint_changed(udp_dissector_table, low_port)) {
+      if (dissector_try_uint(udp_dissector_table, low_port, next_tvb, pinfo, tree)) {
+	handle_export_pdu_dissection_table(pinfo, next_tvb, low_port);
+	return;
+      }
+    } else {
+      /* The default; try it later */
+      try_low_port = TRUE;
+    }
+  }
+
+  try_high_port = FALSE;
+  if (high_port != 0) {
+    if (dissector_is_uint_changed(udp_dissector_table, high_port)) {
+      if (dissector_try_uint(udp_dissector_table, high_port, next_tvb, pinfo, tree)) {
+	handle_export_pdu_dissection_table(pinfo, next_tvb, high_port);
+	return;
+      }
+    } else {
+      /* The default; try it later */
+      try_high_port = TRUE;
+    }
+  }
+
   if (try_heuristic_first) {
     /* Do lookup with the heuristic subdissector table */
     if (dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, &hdtbl_entry, NULL)) {
@@ -685,23 +724,14 @@ decode_udp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
      although there is, of course, no guarantee that any such strategy
      will always pick the right port number.
+   */
 
-     XXX - we ignore port numbers of 0, as some dissectors use a port
-     number of 0 to disable the port, and as RFC 768 says that the source
-     port in UDP datagrams is optional and is 0 if not used. */
-  if (uh_sport > uh_dport) {
-    low_port  = uh_dport;
-    high_port = uh_sport;
-  } else {
-    low_port  = uh_sport;
-    high_port = uh_dport;
-  }
-  if ((low_port != 0) &&
+  if ((try_low_port) &&
       dissector_try_uint(udp_dissector_table, low_port, next_tvb, pinfo, tree)) {
     handle_export_pdu_dissection_table(pinfo, next_tvb, low_port);
     return;
   }
-  if ((high_port != 0) &&
+  if ((try_high_port) &&
       dissector_try_uint(udp_dissector_table, high_port, next_tvb, pinfo, tree)) {
     handle_export_pdu_dissection_table(pinfo, next_tvb, high_port);
     return;

@@ -1403,6 +1403,22 @@ dissector_reset_uint(const char *name, const guint32 pattern)
 	}
 }
 
+/* Return TRUE if an entry in a uint dissector table is found and has been
+ * changed (i.e. dissector_change_uint() has been called, such as from
+ * Decode As, prefs registered via dissector_add_uint_[range_]with_preference),
+ * etc.), otherwise return FALSE.
+ */
+gboolean
+dissector_is_uint_changed(dissector_table_t const sub_dissectors, const guint32 uint_val)
+{
+	if (sub_dissectors != NULL) {
+		dtbl_entry_t *dtbl_entry = find_uint_dtbl_entry(sub_dissectors, uint_val);
+		if (dtbl_entry != NULL)
+			return (dtbl_entry->current != dtbl_entry->initial);
+	}
+	return FALSE;
+}
+
 /* Look for a given value in a given uint dissector table and, if found,
    call the dissector with the arguments supplied, and return the number
    of bytes consumed by the dissector, otherwise return 0. */
@@ -1708,6 +1724,22 @@ dissector_reset_string(const char *name, const gchar *pattern)
 	} else {
 		g_hash_table_remove(sub_dissectors->hash_table, pattern);
 	}
+}
+
+/* Return TRUE if an entry in a uint dissector table is found and has been
+ * changed (i.e. dissector_change_uint() has been called, such as from
+ * Decode As, prefs registered via dissector_add_uint_[range_]with_preference),
+ * etc.), otherwise return FALSE.
+ */
+gboolean
+dissector_is_string_changed(dissector_table_t const sub_dissectors, const gchar *string)
+{
+	if (sub_dissectors != NULL) {
+		dtbl_entry_t *dtbl_entry = find_string_dtbl_entry(sub_dissectors, string);
+		if (dtbl_entry != NULL)
+			return (dtbl_entry->current != dtbl_entry->initial);
+	}
+	return FALSE;
 }
 
 /* Look for a given string in a given dissector table and, if found, call
