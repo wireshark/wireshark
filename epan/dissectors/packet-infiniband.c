@@ -8745,45 +8745,59 @@ void proto_reg_handoff_infiniband(void)
 {
     static gboolean initialized = FALSE;
     static guint prev_rroce_udp_port;
-    dissector_handle_t roce_handle, rroce_handle;
-    int proto_ethertype;
+    static dissector_handle_t rroce_handle;
 
-    ipv6_handle               = find_dissector_add_dependency("ipv6", proto_infiniband);
-
-    /*
-     * I haven't found an official spec for EoIB, but slide 10
-     * of
-     *
-     *    http://downloads.openfabrics.org/Media/Sonoma2009/Sonoma_2009_Tues_converged-net-bridging.pdf
-     *
-     * shows the "Eth Payload" following the "Eth Header" and optional
-     * "Vlan tag", and doesn't show an FCS; "Payload" generally
-     * refers to the data transported by the protocol, which wouldn't
-     * include the FCS.
-     *
-     * In addition, the capture attached to bug 5061 includes no
-     * Ethernet FCS.
-     *
-     * So we assume the Ethernet frames carried by EoIB don't include
-     * the Ethernet FCS.
-     */
-    eth_handle                = find_dissector("eth_withoutfcs");
-    ethertype_dissector_table = find_dissector_table("ethertype");
-
-    /* announce an anonymous Infiniband dissector */
-    dissector_add_uint("erf.types.type", ERF_TYPE_INFINIBAND, ib_handle);
-
-    /* announce an anonymous Infiniband dissector */
-    dissector_add_uint("erf.types.type", ERF_TYPE_INFINIBAND_LINK, ib_link_handle);
-
-    /* create and announce an anonymous RoCE dissector */
-    roce_handle = create_dissector_handle(dissect_roce, proto_infiniband);
-    dissector_add_uint("ethertype", ETHERTYPE_ROCE, roce_handle);
-
-    /* create and announce an anonymous RRoCE dissector */
-    rroce_handle = create_dissector_handle(dissect_rroce, proto_infiniband);
     if (!initialized)
     {
+        dissector_handle_t roce_handle;
+        int proto_ethertype;
+
+        ipv6_handle               = find_dissector_add_dependency("ipv6", proto_infiniband);
+
+        /*
+        * I haven't found an official spec for EoIB, but slide 10
+        * of
+        *
+        *    http://downloads.openfabrics.org/Media/Sonoma2009/Sonoma_2009_Tues_converged-net-bridging.pdf
+        *
+        * shows the "Eth Payload" following the "Eth Header" and optional
+        * "Vlan tag", and doesn't show an FCS; "Payload" generally
+        * refers to the data transported by the protocol, which wouldn't
+        * include the FCS.
+        *
+        * In addition, the capture attached to bug 5061 includes no
+        * Ethernet FCS.
+        *
+        * So we assume the Ethernet frames carried by EoIB don't include
+        * the Ethernet FCS.
+        */
+        eth_handle                = find_dissector("eth_withoutfcs");
+        ethertype_dissector_table = find_dissector_table("ethertype");
+
+        /* announce an anonymous Infiniband dissector */
+        dissector_add_uint("erf.types.type", ERF_TYPE_INFINIBAND, ib_handle);
+
+        /* announce an anonymous Infiniband dissector */
+        dissector_add_uint("erf.types.type", ERF_TYPE_INFINIBAND_LINK, ib_link_handle);
+
+        /* create and announce an anonymous RoCE dissector */
+        roce_handle = create_dissector_handle(dissect_roce, proto_infiniband);
+        dissector_add_uint("ethertype", ETHERTYPE_ROCE, roce_handle);
+
+        /* create and announce an anonymous RRoCE dissector */
+        rroce_handle = create_dissector_handle(dissect_rroce, proto_infiniband);
+
+        /* RROCE over IPv4 isn't standardized but it's been seen in the wild */
+        dissector_add_for_decode_as("ip.proto", rroce_handle);
+
+        dissector_add_uint("wtap_encap", WTAP_ENCAP_INFINIBAND, ib_handle);
+        heur_dissector_add("infiniband.payload", dissect_mellanox_eoib, "Mellanox EoIB", "mellanox_eoib", proto_mellanox_eoib, HEURISTIC_ENABLE);
+
+        /* This could be put in the ethernet dissector file, but since there are a few Infiniband fields in the encapsulation,
+           keep the dissector here, but associate it with ethernet */
+        proto_ethertype = proto_get_id_by_filter_name("ethertype");
+        heur_dissector_add("infiniband.payload", dissect_eth_over_ib, "Ethernet over IB", "eth_over_ib", proto_ethertype, HEURISTIC_ENABLE);
+
         initialized = TRUE;
     }
     else
@@ -8796,17 +8810,6 @@ void proto_reg_handoff_infiniband(void)
      */
     prev_rroce_udp_port = pref_rroce_udp_port;
     dissector_add_uint("udp.port", pref_rroce_udp_port, rroce_handle);
-
-    /* RROCE over IPv4 isn't standardized but it's been seen in the wild */
-    dissector_add_for_decode_as("ip.proto", rroce_handle);
-
-    dissector_add_uint("wtap_encap", WTAP_ENCAP_INFINIBAND, ib_handle);
-    heur_dissector_add("infiniband.payload", dissect_mellanox_eoib, "Mellanox EoIB", "mellanox_eoib", proto_mellanox_eoib, HEURISTIC_ENABLE);
-
-    /* This could be put in the ethernet dissector file, but since there are a few Infiniband fields in the encapsulation,
-       keep the dissector here, but associate it with ethernet */
-    proto_ethertype = proto_get_id_by_filter_name( "ethertype" );
-    heur_dissector_add("infiniband.payload", dissect_eth_over_ib, "Ethernet over IB", "eth_over_ib", proto_ethertype, HEURISTIC_ENABLE);
 }
 
 /*
