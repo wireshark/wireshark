@@ -578,6 +578,15 @@ ip_to_str_buf(const guint8 *ad, gchar *buf, const int buf_len)
 	*b=0;
 }
 
+char *ip_to_str(wmem_allocator_t *scope, const guint8 *ad)
+{
+	char *buf = wmem_alloc(scope, WS_INET_ADDRSTRLEN * sizeof(char));
+
+	ip_to_str_buf(ad, buf, WS_INET_ADDRSTRLEN);
+
+	return buf;
+}
+
 int
 ip6_to_str_buf(const ws_in6_addr *addr, gchar *buf, int buf_size)
 {
@@ -591,6 +600,15 @@ ip6_to_str_buf(const ws_in6_addr *addr, gchar *buf, int buf_size)
 		len = (int)g_strlcpy(buf, BUF_TOO_SMALL_ERR, buf_size);  /* Let the unexpected value alert user */
 	}
 	return len;
+}
+
+char *ip6_to_str(wmem_allocator_t *scope, const ws_in6_addr *ad)
+{
+	char *buf = wmem_alloc(scope, WS_INET6_ADDRSTRLEN * sizeof(char));
+
+	ip6_to_str_buf(ad, buf, WS_INET6_ADDRSTRLEN);
+
+	return buf;
 }
 
 int
