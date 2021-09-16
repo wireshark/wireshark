@@ -65,6 +65,8 @@ libwsutil.so.0 libwsutil0 #MINVER#
  decrypt_xtea_le_ecb@Base 2.5.0
  delete_persconffile_profile@Base 1.12.0~rc1
  deregister_codec@Base 3.1.0
+ dword_to_hex@Base 3.5.1
+ dword_to_hex_punct@Base 3.5.1
  file_exists@Base 1.12.0~rc1
  file_needs_reopen@Base 3.0.6
  file_open_error_message@Base 1.12.0~rc1
@@ -100,6 +102,7 @@ libwsutil.so.0 libwsutil0 #MINVER#
  get_progfile_dir@Base 1.12.0~rc1
  get_resource_usage@Base 2.3.0
  get_systemfile_dir@Base 1.12.0~rc1
+ guint8_to_hex@Base 3.5.1
  has_global_profiles@Base 1.12.0~rc1
  hex64_to_str_back_len@Base 3.5.1
  hex_to_str_back_len@Base 3.5.1
@@ -172,6 +175,8 @@ libwsutil.so.0 libwsutil0 #MINVER#
  printable_char_or_period@Base 1.99.0
  profile_exists@Base 1.12.0~rc1
  profile_store_persconffiles@Base 1.12.0~rc1
+ qword_to_hex@Base 3.5.1
+ qword_to_hex_punct@Base 3.5.1
  register_codec@Base 3.1.0
  relinquish_special_privs_perm@Base 1.10.0
  rename_persconffile_profile@Base 1.12.0~rc1
@@ -317,6 +322,9 @@ libwsutil.so.0 libwsutil0 #MINVER#
  wmem_tree_remove_string@Base 3.5.0
  wmem_tree_remove32@Base 3.5.0
  wmem_unregister_callback@Base 3.5.0
+ word_to_hex@Base 3.5.1
+ word_to_hex_npad@Base 3.5.1
+ word_to_hex_punct@Base 3.5.1
  write_file_binary_mode@Base 3.5.0
  ws_add_crash_info@Base 1.10.0
  ws_ascii_strnatcasecmp@Base 1.99.1
