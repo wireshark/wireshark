@@ -215,6 +215,7 @@ dissect_twamp_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
     proto_tree *item;
     guint32 modes;
     guint32 type_p;
+    guint8 command_number;
     guint8 ipvn;
 
     if (pinfo->destport == TWAMP_CONTROL_PORT) {
@@ -308,7 +309,19 @@ dissect_twamp_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
                 }
             }
         } else if (ct->last_state == CONTROL_STATE_ACCEPT_SESSION) {
-            ct->last_state = CONTROL_STATE_START_SESSIONS;
+            /* We shall check the Command Number to determine current CONTROL_STATE_XXX */
+            command_number = tvb_get_guint8(tvb, 0);
+            switch(command_number){
+                case 2: /* Start-Sessions */
+                    ct->last_state = CONTROL_STATE_START_SESSIONS;
+                    break;
+                case 3: /* Stop-Sessions */
+                    ct->last_state = CONTROL_STATE_STOP_SESSIONS;
+                    break;
+                case 5: /* Request-Session */
+                    ct->last_state = CONTROL_STATE_REQUEST_SESSION;
+                    break;
+            }
         } else if (ct->last_state == CONTROL_STATE_START_SESSIONS) {
             ct->last_state = CONTROL_STATE_START_SESSIONS_ACK;
         } else if (ct->last_state == CONTROL_STATE_START_SESSIONS_ACK) {
