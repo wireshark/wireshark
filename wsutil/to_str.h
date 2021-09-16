@@ -293,9 +293,6 @@ WS_DLL_PUBLIC void ip6_to_str_buf(const ws_in6_addr *ad, gchar *buf, size_t buf_
 
 WS_DLL_PUBLIC char *ip6_to_str(wmem_allocator_t *scope, const ws_in6_addr *ad);
 
-/* Returns length of the result. Takes a prefix to be inserted before the address. */
-WS_DLL_PUBLIC int ip6_to_str_buf_with_pfx(const ws_in6_addr *ad, gchar *buf, int buf_size, const char *prefix);
-
 WS_DLL_PUBLIC gchar *ipxnet_to_str_punct(wmem_allocator_t *scope, const guint32 ad, const char punct);
 
 WS_DLL_PUBLIC gchar *eui64_to_str(wmem_allocator_t *scope, const guint64 ad);
