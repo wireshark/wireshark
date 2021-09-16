@@ -48,8 +48,6 @@ struct option {
 WS_DLL_PUBLIC int ws_getopt_long(int, char *const *, const char *, const struct option *, int *);
 WS_DLL_PUBLIC int ws_getopt_long_only(int, char *const *, const char *, const struct option *, int *);
 
-WS_DLL_LOCAL void __getopt_msg(const char *a, const char *b, const char *c, size_t l);
-
 #define no_argument        0
 #define required_argument  1
 #define optional_argument  2

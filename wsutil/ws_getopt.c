@@ -25,13 +25,12 @@
  * ----------------------------------------------------------------------
  */
 
-//#define _BSD_SOURCE
-//#include <unistd.h>
-#include <wchar.h>
-#include <string.h>
-#include <limits.h>
+#include <stddef.h>
 #include <stdlib.h>
+#include <limits.h>
 #include <stdio.h>
+#include <string.h>
+#include <wchar.h>
 
 #include <wsutil/ws_getopt.h>
 
@@ -45,6 +44,16 @@ void __getopt_msg(const char *a, const char *b, const char *c, size_t l)
 	fwrite(b, strlen(b), 1, f);
 	fwrite(c, 1, l, f);
 	putc('\n', f);
+}
+
+static void permute(char *const *argv, int dest, int src)
+{
+	char **av = (char **)argv;
+	char *tmp = av[src];
+	int i;
+	for (i=src; i>dest; i--)
+		av[i] = av[i-1];
+	av[dest] = tmp;
 }
 
 int ws_getopt(int argc, char * const argv[], const char *optstring)
@@ -122,4 +131,132 @@ int ws_getopt(int argc, char * const argv[], const char *optstring)
 		}
 	}
 	return c;
+}
+
+static int __getopt_long_core(int argc, char *const *argv, const char *optstring, const struct option *longopts, int *idx, int longonly);
+
+static int __getopt_long(int argc, char *const *argv, const char *optstring, const struct option *longopts, int *idx, int longonly)
+{
+	int ret, skipped, resumed;
+	if (!ws_optind || ws_optreset) {
+		ws_optreset = 0;
+		ws_optpos = 0;
+		ws_optind = 1;
+	}
+	if (ws_optind >= argc || !argv[ws_optind]) return -1;
+	skipped = ws_optind;
+	if (optstring[0] != '+' && optstring[0] != '-') {
+		int i;
+		for (i=ws_optind; ; i++) {
+			if (i >= argc || !argv[i]) return -1;
+			if (argv[i][0] == '-' && argv[i][1]) break;
+		}
+		ws_optind = i;
+	}
+	resumed = ws_optind;
+	ret = __getopt_long_core(argc, argv, optstring, longopts, idx, longonly);
+	if (resumed > skipped) {
+		int i, cnt = ws_optind-resumed;
+		for (i=0; i<cnt; i++)
+			permute(argv, skipped, ws_optind-1);
+		ws_optind = skipped + cnt;
+	}
+	return ret;
+}
+
+static int __getopt_long_core(int argc, char *const *argv, const char *optstring, const struct option *longopts, int *idx, int longonly)
+{
+	ws_optarg = 0;
+	if (longopts && argv[ws_optind][0] == '-' &&
+		((longonly && argv[ws_optind][1] && argv[ws_optind][1] != '-') ||
+		 (argv[ws_optind][1] == '-' && argv[ws_optind][2])))
+	{
+		int colon = optstring[optstring[0]=='+'||optstring[0]=='-']==':';
+		int i, cnt, match = -1;
+		char *arg = NULL, *opt, *start = argv[ws_optind]+1;
+		for (cnt=i=0; longopts[i].name; i++) {
+			const char *name = longopts[i].name;
+			opt = start;
+			if (*opt == '-') opt++;
+			while (*opt && *opt != '=' && *opt == *name)
+				name++, opt++;
+			if (*opt && *opt != '=') continue;
+			arg = opt;
+			match = i;
+			if (!*name) {
+				cnt = 1;
+				break;
+			}
+			cnt++;
+		}
+		if (cnt==1 && longonly && arg-start == mblen(start, MB_LEN_MAX)) {
+			int l = arg-start;
+			for (i=0; optstring[i]; i++) {
+				int j;
+				for (j=0; j<l && start[j]==optstring[i+j]; j++);
+				if (j==l) {
+					cnt++;
+					break;
+				}
+			}
+		}
+		if (cnt==1) {
+			i = match;
+			opt = arg;
+			ws_optind++;
+			if (*opt == '=') {
+				if (!longopts[i].has_arg) {
+					ws_optopt = longopts[i].val;
+					if (colon || !ws_opterr)
+						return '?';
+					__getopt_msg(argv[0],
+						": option does not take an argument: ",
+						longopts[i].name,
+						strlen(longopts[i].name));
+					return '?';
+				}
+				ws_optarg = opt+1;
+			} else if (longopts[i].has_arg == required_argument) {
+				if (!(ws_optarg = argv[ws_optind])) {
+					ws_optopt = longopts[i].val;
+					if (colon) return ':';
+					if (!ws_opterr) return '?';
+					__getopt_msg(argv[0],
+						": option requires an argument: ",
+						longopts[i].name,
+						strlen(longopts[i].name));
+					return '?';
+				}
+				ws_optind++;
+			}
+			if (idx) *idx = i;
+			if (longopts[i].flag) {
+				*longopts[i].flag = longopts[i].val;
+				return 0;
+			}
+			return longopts[i].val;
+		}
+		if (argv[ws_optind][1] == '-') {
+			ws_optopt = 0;
+			if (!colon && ws_opterr)
+				__getopt_msg(argv[0], cnt ?
+					": option is ambiguous: " :
+					": unrecognized option: ",
+					argv[ws_optind]+2,
+					strlen(argv[ws_optind]+2));
+			ws_optind++;
+			return '?';
+		}
+	}
+	return ws_getopt(argc, argv, optstring);
+}
+
+int ws_getopt_long(int argc, char *const *argv, const char *optstring, const struct option *longopts, int *idx)
+{
+	return __getopt_long(argc, argv, optstring, longopts, idx, 0);
+}
+
+int ws_getopt_long_only(int argc, char *const *argv, const char *optstring, const struct option *longopts, int *idx)
+{
+	return __getopt_long(argc, argv, optstring, longopts, idx, 1);
 }

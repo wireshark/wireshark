@@ -130,7 +130,6 @@ set(WSUTIL_COMMON_FILES
 	glib-compat.c
 	ws_assert.c
 	ws_getopt.c
-	ws_getopt_long.c
 	ws_mempbrk.c
 	ws_pipe.c
 	wsgcrypt.c
