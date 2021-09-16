@@ -13,7 +13,7 @@
 #include "ftypes-int.h"
 #include <epan/addr_resolv.h>
 #include <epan/strutil.h>
-#include <epan/to_str-int.h>
+#include <epan/to_str.h>
 
 #include <wsutil/pint.h>
 

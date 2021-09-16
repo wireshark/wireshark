@@ -80,6 +80,76 @@ byte_to_hex(char *out, guint32 dword)
 	return out;
 }
 
+char *
+guint8_to_hex(char *out, guint8 val)
+{
+	return byte_to_hex(out, val);
+}
+
+char *
+word_to_hex(char *out, guint16 word)
+{
+	out = byte_to_hex(out, word >> 8);
+	out = byte_to_hex(out, word);
+	return out;
+}
+
+char *
+word_to_hex_punct(char *out, guint16 word, char punct)
+{
+	out = byte_to_hex(out, word >> 8);
+	*out++ = punct;
+	out = byte_to_hex(out, word);
+	return out;
+}
+
+char *
+word_to_hex_npad(char *out, guint16 word)
+{
+	if (word >= 0x1000)
+		*out++ = low_nibble_of_octet_to_hex((guint8)(word >> 12));
+	if (word >= 0x0100)
+		*out++ = low_nibble_of_octet_to_hex((guint8)(word >> 8));
+	if (word >= 0x0010)
+		*out++ = low_nibble_of_octet_to_hex((guint8)(word >> 4));
+	*out++ = low_nibble_of_octet_to_hex((guint8)(word >> 0));
+	return out;
+}
+
+char *
+dword_to_hex(char *out, guint32 dword)
+{
+	out = word_to_hex(out, dword >> 16);
+	out = word_to_hex(out, dword);
+	return out;
+}
+
+char *
+dword_to_hex_punct(char *out, guint32 dword, char punct)
+{
+	out = word_to_hex_punct(out, dword >> 16, punct);
+	*out++ = punct;
+	out = word_to_hex_punct(out, dword, punct);
+	return out;
+}
+
+char *
+qword_to_hex(char *out, guint64 qword)
+{
+	out = dword_to_hex(out, (guint32)(qword >> 32));
+	out = dword_to_hex(out, (guint32)(qword & 0xffffffff));
+	return out;
+}
+
+char *
+qword_to_hex_punct(char *out, guint64 qword, char punct)
+{
+	out = dword_to_hex_punct(out, (guint32)(qword >> 32), punct);
+	*out++ = punct;
+	out = dword_to_hex_punct(out, (guint32)(qword & 0xffffffff), punct);
+	return out;
+}
+
 /*
  * This does *not* null-terminate the string.  It returns a pointer
  * to the position in the string following the last character it

@@ -136,39 +136,6 @@ WS_DLL_PUBLIC gchar* tvb_address_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, 
  */
 WS_DLL_PUBLIC gchar* tvb_address_var_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, address_type type, const gint offset, int length);
 
-/**
- * guint8_to_hex()
- *
- * Output guint8 hex represetation to 'out', and return pointer after last character (out + 4).
- * It always output full representation (padded with 0).
- *
- * String is not NUL terminated by this routine.
- * There needs to be at least 2 bytes in the buffer.
- */
-WS_DLL_PUBLIC char *guint8_to_hex(char *out, guint8 val);
-
-/**
- * word_to_hex()
- *
- * Output guint16 hex represetation to 'out', and return pointer after last character (out + 4).
- * It always output full representation (padded with 0).
- *
- * String is not NUL terminated by this routine.
- * There needs to be at least 4 bytes in the buffer.
- */
-WS_DLL_PUBLIC char *word_to_hex(char *out, guint16 word);
-
-/**
- * dword_to_hex()
- *
- * Output guint32 hex represetation to 'out', and return pointer after last character.
- * It always output full representation (padded with 0).
- *
- * String is not NUL terminated by this routine.
- * There needs to be at least 8 bytes in the buffer.
- */
-WS_DLL_PUBLIC char *dword_to_hex(char *out, guint32 dword);
-
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

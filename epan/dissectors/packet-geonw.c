@@ -63,7 +63,7 @@
 #include <epan/address_types.h>
 #include <epan/addr_resolv.h>
 #include <epan/to_str.h>
-#include <epan/to_str-int.h>
+#include <epan/to_str.h>
 #include <epan/conversation.h>
 #include <epan/tap.h>
 #include <epan/etypes.h>

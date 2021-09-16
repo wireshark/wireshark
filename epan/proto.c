@@ -40,7 +40,6 @@
 #include <epan/wmem_scopes.h>
 #include "charsets.h"
 #include "column-utils.h"
-#include "to_str-int.h"
 #include "to_str.h"
 #include "osi-utils.h"
 #include "expert.h"

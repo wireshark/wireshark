@@ -14,7 +14,7 @@
 #include <epan/strutil.h>
 #include <epan/oids.h>
 #include <epan/osi-utils.h>
-#include <epan/to_str-int.h>
+#include <epan/to_str.h>
 
 #define CMP_MATCHES cmp_matches
 

@@ -18,7 +18,6 @@
 #include <epan/wmem_scopes.h>
 #include "proto.h"
 #include "to_str.h"
-#include "to_str-int.h"
 #include "strutil.h"
 #include <wsutil/pint.h>
 #include <wsutil/utf8_entities.h>
@@ -30,100 +29,6 @@
  * useful.
  */
 #define BUF_TOO_SMALL_ERR "[Buffer too small]"
-
-static inline char
-low_nibble_of_octet_to_hex(guint8 oct)
-{
-	/* At least one version of Apple's C compiler/linker is buggy, causing
-	   a complaint from the linker about the "literal C string section"
-	   not ending with '\0' if we initialize a 16-element "char" array with
-	   a 16-character string, the fact that initializing such an array with
-	   such a string is perfectly legitimate ANSI C nonwithstanding, the 17th
-	   '\0' byte in the string nonwithstanding. */
-	static const gchar hex_digits[16] =
-	{ '0', '1', '2', '3', '4', '5', '6', '7',
-	  '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
-
-	return hex_digits[oct & 0xF];
-}
-
-static inline char *
-byte_to_hex(char *out, guint32 dword)
-{
-	*out++ = low_nibble_of_octet_to_hex(dword >> 4);
-	*out++ = low_nibble_of_octet_to_hex(dword);
-	return out;
-}
-
-char *
-guint8_to_hex(char *out, guint8 val)
-{
-	return byte_to_hex(out, val);
-}
-
-char *
-word_to_hex(char *out, guint16 word)
-{
-	out = byte_to_hex(out, word >> 8);
-	out = byte_to_hex(out, word);
-	return out;
-}
-
-char *
-word_to_hex_punct(char *out, guint16 word, char punct)
-{
-	out = byte_to_hex(out, word >> 8);
-	*out++ = punct;
-	out = byte_to_hex(out, word);
-	return out;
-}
-
-char *
-word_to_hex_npad(char *out, guint16 word)
-{
-	if (word >= 0x1000)
-		*out++ = low_nibble_of_octet_to_hex((guint8)(word >> 12));
-	if (word >= 0x0100)
-		*out++ = low_nibble_of_octet_to_hex((guint8)(word >> 8));
-	if (word >= 0x0010)
-		*out++ = low_nibble_of_octet_to_hex((guint8)(word >> 4));
-	*out++ = low_nibble_of_octet_to_hex((guint8)(word >> 0));
-	return out;
-}
-
-char *
-dword_to_hex(char *out, guint32 dword)
-{
-	out = word_to_hex(out, dword >> 16);
-	out = word_to_hex(out, dword);
-	return out;
-}
-
-char *
-dword_to_hex_punct(char *out, guint32 dword, char punct)
-{
-	out = word_to_hex_punct(out, dword >> 16, punct);
-	*out++ = punct;
-	out = word_to_hex_punct(out, dword, punct);
-	return out;
-}
-
-char *
-qword_to_hex(char *out, guint64 qword)
-{
-	out = dword_to_hex(out, (guint32)(qword >> 32));
-	out = dword_to_hex(out, (guint32)(qword & 0xffffffff));
-	return out;
-}
-
-char *
-qword_to_hex_punct(char *out, guint64 qword, char punct)
-{
-	out = dword_to_hex_punct(out, (guint32)(qword >> 32), punct);
-	*out++ = punct;
-	out = dword_to_hex_punct(out, (guint32)(qword & 0xffffffff), punct);
-	return out;
-}
 
 static int
 guint32_to_str_buf_len(const guint32 u)

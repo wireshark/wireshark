@@ -19,7 +19,7 @@
 #include <epan/epan.h>
 #include <epan/epan_dissect.h>
 #include <epan/to_str.h>
-#include <epan/to_str-int.h>
+#include <epan/to_str.h>
 #include <epan/expert.h>
 #include <epan/column.h>
 #include <epan/column-info.h>
