@@ -1349,21 +1349,50 @@ check_relation(dfwork_t *dfw, const char *relation_string,
 #ifdef DEBUG_dfilter
 	static guint i = 0;
 #endif
-header_field_info   *hfinfo;
+	header_field_info   *hfinfo;
+	stnode_t            *new_st;
+	char                *s;
 
 	DebugLog(("   4 check_relation(\"%s\") [%u]\n", relation_string, i++));
 
 	/* Protocol can only be on LHS (for "contains" or "matches" operators).
-	 * Check to see if protocol is on RHS.  This catches the case where the
-	 * user has written "fc" on the RHS, probably intending a byte value
-	 * rather than the fibre channel protocol.
+	 * Check to see if protocol is on RHS, and re-interpret it as UNPARSED
+	 * instead. The subsequent functions will parse it according to the
+	 * existing rules for unparsed unquoted strings.
+	 *
+	 * This catches the case where the user has written "fc" on the RHS,
+	 * probably intending a byte value rather than the fibre channel
+	 * protocol, or similar for a number of other possibilities
+	 * ("dc", "ff", "fefd"), and also catches the case where the user
+	 * has written a generic string on the RHS for a "contains" or
+	 * "matches" relation. (XXX: There's still a bit of a confusing mess;
+	 * byte arrays take precedent over generic strings when unquoted, so
+	 * "field contains data" matches "\x64 \x61 \x74 \x61" but
+	 * "field contains dc" matches "\xdc" and not "\x64 \x43", but that's
+	 * an underlying issue.)
+	 *
+	 * XXX: Is there a better way to do this in the lex scanner or grammar
+	 * parser step instead?  Should the determination of whether something
+	 * is a field occur later than it does currently?  This is kind of a
+	 * hack.
 	 */
 
 	if (stnode_type_id(st_arg2) == STTYPE_FIELD) {
 		hfinfo = (header_field_info*)stnode_data(st_arg2);
 		if (hfinfo->type == FT_PROTOCOL) {
-			dfilter_fail(dfw, "Protocol (\"%s\") cannot appear on right-hand side of comparison.", hfinfo->abbrev);
-			THROW(TypeError);
+			/* Discard const qualifier from hfinfo->abbrev
+			 * for sttnode_new, even though it duplicates the
+			 * string.
+			 */
+			s = (char *)hfinfo->abbrev;
+			/* Send it through as unparsed and all the other
+			 * functions will take care of it as if it didn't
+			 * match a protocol string.
+			 */
+			new_st = stnode_new(STTYPE_UNPARSED, s);
+			stnode_free(st_arg2);
+			st_arg2 = new_st;
+			sttype_test_set2_args(st_node, st_arg1, new_st);
 		}
 	}
 
