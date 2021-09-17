@@ -848,7 +848,7 @@ dissect_thrift_t_stop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
  *                          THRIFT_REQUEST_REASSEMBLY (-1) in case reassembly is required, or
  *                          THRIFT_SUBDISSECTOR_ERROR (-2) in case of error.
  */
-int
+static int
 dissect_thrift_t_field_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, thrift_option_data_t *thrift_opt, thrift_type_enum_t expected, int field_id, proto_tree **header_tree)
 {
     thrift_field_header_t field_header;
