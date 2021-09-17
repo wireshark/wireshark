@@ -27,6 +27,7 @@
 /* Prototypes */
 /* (Required to prevent [-Wmissing-prototypes] warnings */
 void proto_reg_handoff_sparkplug(void);
+void proto_register_sparkplug(void);
 
 /* Initialize the protocol field */
 static int proto_sparkplugb = -1;
