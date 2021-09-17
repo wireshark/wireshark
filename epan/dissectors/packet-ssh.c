@@ -191,6 +191,10 @@ static int hf_ssh_languages_client_to_server_length = -1;
 static int hf_ssh_languages_server_to_client_length = -1;
 static int hf_ssh_first_kex_packet_follows = -1;
 static int hf_ssh_kex_reserved = -1;
+static int hf_ssh_kex_hassh_algo = -1;
+static int hf_ssh_kex_hassh = -1;
+static int hf_ssh_kex_hasshserver_algo = -1;
+static int hf_ssh_kex_hasshserver = -1;
 
 /* Key exchange common elements */
 static int hf_ssh_hostkey_length = -1;
@@ -1304,8 +1308,10 @@ ssh_dissect_key_init(tvbuff_t *tvb, int offset, proto_tree *tree,
 {
     int start_offset = offset;
     int payload_length;
+    wmem_strbuf_t *hassh_algo;
+    gchar  *hassh;
 
-    proto_item *tf;
+    proto_item *tf, *ti;
     proto_tree *key_init_tree;
 
     struct ssh_peer_data *peer_data = &global_data->peer_data[is_response];
@@ -1359,6 +1365,26 @@ ssh_dissect_key_init(tvbuff_t *tvb, int offset, proto_tree *tree,
     proto_tree_add_item(key_init_tree, hf_ssh_kex_reserved,
         tvb, offset, 4, ENC_NA);
     offset+=4;
+
+    hassh_algo = wmem_strbuf_new(wmem_packet_scope(), "");
+    if(!is_response) {
+        wmem_strbuf_append_printf(hassh_algo, "%s;%s;%s;%s", peer_data->kex_proposal, peer_data->enc_proposals[CLIENT_TO_SERVER_PROPOSAL],
+                peer_data->mac_proposals[CLIENT_TO_SERVER_PROPOSAL], peer_data->comp_proposals[CLIENT_TO_SERVER_PROPOSAL]);
+        hassh = g_compute_checksum_for_string(G_CHECKSUM_MD5, wmem_strbuf_get_str(hassh_algo), wmem_strbuf_get_len(hassh_algo));
+        ti = proto_tree_add_string(key_init_tree, hf_ssh_kex_hassh_algo, tvb, offset, 0, wmem_strbuf_get_str(hassh_algo));
+        proto_item_set_generated(ti);
+        ti = proto_tree_add_string(key_init_tree, hf_ssh_kex_hassh, tvb, offset, 0, hassh);
+        proto_item_set_generated(ti);
+        g_free(hassh);
+    } else {
+        wmem_strbuf_append_printf(hassh_algo, "%s;%s;%s;%s", peer_data->kex_proposal, peer_data->enc_proposals[SERVER_TO_CLIENT_PROPOSAL],
+                peer_data->mac_proposals[SERVER_TO_CLIENT_PROPOSAL], peer_data->comp_proposals[SERVER_TO_CLIENT_PROPOSAL]);
+        hassh = g_compute_checksum_for_string(G_CHECKSUM_MD5, wmem_strbuf_get_str(hassh_algo), wmem_strbuf_get_len(hassh_algo));
+        ti = proto_tree_add_string(key_init_tree, hf_ssh_kex_hasshserver_algo, tvb, offset, 0, wmem_strbuf_get_str(hassh_algo));
+        proto_item_set_generated(ti);
+        ti = proto_tree_add_string(key_init_tree, hf_ssh_kex_hasshserver, tvb, offset, 0, hassh);
+        proto_item_set_generated(ti);
+    }
 
     if (global_data->peer_data[CLIENT_PEER_DATA].kex_proposal &&
         global_data->peer_data[SERVER_PEER_DATA].kex_proposal &&
@@ -1984,6 +2010,26 @@ proto_register_ssh(void)
         { &hf_ssh_kex_reserved,
           { "Reserved",  "ssh.kex.reserved",
             FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_kex_hassh_algo,
+          { "hasshAlgorithms",  "ssh.kex.hassh_algorithms",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_kex_hassh,
+          { "hassh",  "ssh.kex.hassh",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_kex_hasshserver_algo,
+          { "hasshServerAlgorithms",  "ssh.kex.hasshserver_algorithms",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_kex_hasshserver,
+          { "hasshServer",  "ssh.kex.hasshserver",
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_hostkey_length,
