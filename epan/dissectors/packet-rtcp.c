@@ -2769,19 +2769,24 @@ dissect_rtcp_app_mccp(tvbuff_t* tvb, packet_info* pinfo, int offset, proto_tree*
              * number of the" m=audio" m-line in the SIP MESSAGE request announcing
              * the MBMS bearer described in 3GPP TS 24.379
              */
-            guint32 ip_ver;
+            guint32 ip_ver, floor_m_line_no;
             proto_tree_add_item(sub_tree, hf_rtcp_mccp_audio_m_line_no, tvb, offset, 1, ENC_BIG_ENDIAN);
             /* The <Floor m-line Number> value shall consist of 4 bit parameter giving the
              * number of the "m=application" m-line in the SIP MESSAGE request announcing
              * the MBMS bearer described in 3GPP TS 24.379 */
-            proto_tree_add_item(sub_tree, hf_rtcp_mccp_floor_m_line_no, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item_ret_uint(sub_tree, hf_rtcp_mccp_floor_m_line_no, tvb, offset, 1, ENC_BIG_ENDIAN, &floor_m_line_no);
             offset += 1;
             /* IP version */
             proto_tree_add_item_ret_uint(sub_tree, hf_rtcp_mccp_ip_version, tvb, offset, 1, ENC_BIG_ENDIAN, &ip_ver);
             offset += 1;
-            /* Floor Port Number */
-            proto_tree_add_item(sub_tree, hf_rtcp_mccp_floor_port_no, tvb, offset, 4, ENC_BIG_ENDIAN);
-            offset += 4;
+            /* Floor Port Number
+             * If the <Floor m-line Number> value is equal to '0',
+             * the <Floor control Port Number> value is not included in the MBMS Subchannel field.
+             */
+            if (floor_m_line_no > 0) {
+                proto_tree_add_item(sub_tree, hf_rtcp_mccp_floor_port_no, tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset += 4;
+            }
             /* Medis Port Number */
             proto_tree_add_item(sub_tree, hf_rtcp_mccp_media_port_no, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
