@@ -294,6 +294,103 @@ void test_int64_to_str_back(void)
     g_assert_cmpstr(str, ==, "9223372036854775807");
 }
 
+#include "ws_getopt.h"
+
+#define ARGV_MAX 31
+
+static char **new_argv(int *argc_ptr, const char *args, ...)
+{
+    char **argv;
+    int argc = 0;
+    va_list ap;
+
+    argv = g_malloc((ARGV_MAX + 1) * sizeof(char *));
+
+    va_start(ap, args);
+    while (args != NULL) {
+        /* Increase ARGV_MAX or use a dynamic size if this assertion fails. */
+        g_assert_true(argc < ARGV_MAX);
+        argv[argc++] = g_strdup(args);
+        args = va_arg(ap, const char *);
+    }
+    argv[argc] = NULL;
+    va_end(ap);
+
+    *argc_ptr = argc;
+    return argv;
+}
+
+static void free_argv(char **argv)
+{
+    for (char **p = argv; *p != NULL; p++) {
+        g_free(*p);
+    }
+    g_free(argv);
+}
+
+void test_getopt_long_basic1(void)
+{
+    char **argv;
+    int argc;
+
+    const char *optstring = "ab:c";
+    argv = new_argv(&argc, "/bin/ls", "-a", "-b", "arg1", "-c", "path", (char *)NULL);
+
+    ws_optind = 1;
+    int opt;
+
+    opt = ws_getopt_long(argc, argv, optstring, NULL, NULL);
+    g_assert_cmpint(opt, ==, 'a');
+    g_assert_null(ws_optarg);
+
+    opt = ws_getopt_long(argc, argv, optstring, NULL, NULL);
+    g_assert_cmpint(opt, ==, 'b');
+    g_assert_cmpstr(ws_optarg, ==, "arg1");
+
+    opt = ws_getopt_long(argc, argv, optstring, NULL, NULL);
+    g_assert_cmpint(opt, ==, 'c');
+    g_assert_null(ws_optarg);
+
+    opt = ws_getopt_long(argc, argv, optstring, NULL, NULL);
+    g_assert_cmpint(opt, ==, -1);
+
+    free_argv(argv);
+}
+
+void test_getopt_long_basic2(void)
+{
+    char **argv;
+    int argc;
+
+    struct option longopts[] = {
+        { "opt1", no_argument, NULL, '1' },
+        { "opt2", required_argument, NULL, '2' },
+        { "opt3", required_argument, NULL, '3' },
+        { 0, 0, 0, 0 }
+    };
+    argv = new_argv(&argc, "/bin/ls", "--opt1", "--opt2", "arg1", "--opt3=arg2", "path", (char *)NULL);
+
+    ws_optind = 1;
+    int opt;
+
+    opt = ws_getopt_long(argc, argv, "", longopts, NULL);
+    g_assert_cmpint(opt, ==, '1');
+    g_assert_null(ws_optarg);
+
+    opt = ws_getopt_long(argc, argv, "", longopts, NULL);
+    g_assert_cmpint(opt, ==, '2');
+    g_assert_cmpstr(ws_optarg, ==, "arg1");
+
+    opt = ws_getopt_long(argc, argv, "", longopts, NULL);
+    g_assert_cmpint(opt, ==, '3');
+    g_assert_cmpstr(ws_optarg, ==, "arg2");
+
+    opt = ws_getopt_long(argc, argv, "", longopts, NULL);
+    g_assert_cmpint(opt, ==, -1);
+
+    free_argv(argv);
+}
+
 int main(int argc, char **argv)
 {
     int ret;
@@ -317,6 +414,9 @@ int main(int argc, char **argv)
     g_test_add_func("/to_str/uint64_to_str_back_len", test_uint64_to_str_back_len);
     g_test_add_func("/to_str/int_to_str_back", test_int_to_str_back);
     g_test_add_func("/to_str/int64_to_str_back", test_int64_to_str_back);
+
+    g_test_add_func("/ws_getopt/basic1", test_getopt_long_basic1);
+    g_test_add_func("/ws_getopt/basic2", test_getopt_long_basic2);
 
     ret = g_test_run();
 
