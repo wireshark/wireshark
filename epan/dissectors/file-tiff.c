@@ -17,6 +17,9 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 
+void proto_reg_handoff_tiff(void);
+void proto_register_tiff(void);
+
 static int proto_tiff = -1;
 
 // Header fields
