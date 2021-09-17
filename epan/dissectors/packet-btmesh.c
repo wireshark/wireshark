@@ -1220,7 +1220,7 @@ static int hf_btmesh_scheduler_action_status_schedule_register_day = -1;
 static int hf_btmesh_scheduler_action_status_schedule_register_hour = -1;
 static int hf_btmesh_scheduler_action_status_schedule_register_minute = -1;
 static int hf_btmesh_scheduler_action_status_schedule_register_second = -1;
-static int hf_btmesh_scheduler_action_status_schedule_register_dayofweek = -1;
+static int hf_btmesh_scheduler_action_status_schedule_register_day_of_week = -1;
 static int hf_btmesh_scheduler_action_status_schedule_register_action = -1;
 static int hf_btmesh_scheduler_action_status_schedule_register_transition_time = -1;
 static int hf_btmesh_scheduler_action_status_schedule_register_transition_time_steps = -1;
@@ -1238,13 +1238,13 @@ static int hf_btmesh_scheduler_schedule_register_month_september = -1;
 static int hf_btmesh_scheduler_schedule_register_month_october = -1;
 static int hf_btmesh_scheduler_schedule_register_month_november = -1;
 static int hf_btmesh_scheduler_schedule_register_month_december = -1;
-static int hf_btmesh_scheduler_schedule_register_dayofweek_monday = -1;
-static int hf_btmesh_scheduler_schedule_register_dayofweek_tuesday = -1;
-static int hf_btmesh_scheduler_schedule_register_dayofweek_wednesday = -1;
-static int hf_btmesh_scheduler_schedule_register_dayofweek_thursday = -1;
-static int hf_btmesh_scheduler_schedule_register_dayofweek_friday = -1;
-static int hf_btmesh_scheduler_schedule_register_dayofweek_saturday = -1;
-static int hf_btmesh_scheduler_schedule_register_dayofweek_sunday = -1;
+static int hf_btmesh_scheduler_schedule_register_day_of_week_monday = -1;
+static int hf_btmesh_scheduler_schedule_register_day_of_week_tuesday = -1;
+static int hf_btmesh_scheduler_schedule_register_day_of_week_wednesday = -1;
+static int hf_btmesh_scheduler_schedule_register_day_of_week_thursday = -1;
+static int hf_btmesh_scheduler_schedule_register_day_of_week_friday = -1;
+static int hf_btmesh_scheduler_schedule_register_day_of_week_saturday = -1;
+static int hf_btmesh_scheduler_schedule_register_day_of_week_sunday = -1;
 static int hf_btmesh_scheduler_action_set_index = -1;
 static int hf_btmesh_scheduler_action_set_schedule_register_year = -1;
 static int hf_btmesh_scheduler_action_set_schedule_register_month = -1;
@@ -1252,7 +1252,7 @@ static int hf_btmesh_scheduler_action_set_schedule_register_day = -1;
 static int hf_btmesh_scheduler_action_set_schedule_register_hour = -1;
 static int hf_btmesh_scheduler_action_set_schedule_register_minute = -1;
 static int hf_btmesh_scheduler_action_set_schedule_register_second = -1;
-static int hf_btmesh_scheduler_action_set_schedule_register_dayofweek = -1;
+static int hf_btmesh_scheduler_action_set_schedule_register_day_of_week = -1;
 static int hf_btmesh_scheduler_action_set_schedule_register_action = -1;
 static int hf_btmesh_scheduler_action_set_schedule_register_transition_time = -1;
 static int hf_btmesh_scheduler_action_set_schedule_register_transition_time_steps = -1;
@@ -1265,7 +1265,7 @@ static int hf_btmesh_scheduler_action_set_unacknowledged_schedule_register_day =
 static int hf_btmesh_scheduler_action_set_unacknowledged_schedule_register_hour = -1;
 static int hf_btmesh_scheduler_action_set_unacknowledged_schedule_register_minute = -1;
 static int hf_btmesh_scheduler_action_set_unacknowledged_schedule_register_second = -1;
-static int hf_btmesh_scheduler_action_set_unacknowledged_schedule_register_dayofweek = -1;
+static int hf_btmesh_scheduler_action_set_unacknowledged_schedule_register_day_of_week = -1;
 static int hf_btmesh_scheduler_action_set_unacknowledged_schedule_register_action = -1;
 static int hf_btmesh_scheduler_action_set_unacknowledged_schedule_register_transition_time = -1;
 static int hf_btmesh_scheduler_action_set_unacknowledged_schedule_register_transition_time_steps = -1;
@@ -3699,8 +3699,50 @@ format_scheduler_action(gchar *buf, gint32 value) {
 }
 
 static void
-format_scheduler_empty(gchar *buf, gint32 value _U_) {
-    g_snprintf(buf, ITEM_LABEL_LENGTH, "%s", "");
+format_scheduler_month(gchar *buf, gint32 value) {
+    static const char ab_month_name[][4] =
+    {
+        "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+    };
+
+    gint i;
+    gboolean is_first = true;
+
+    *buf = '\0';
+    for (i = 0; i < 12; i++) {
+        if (value & (1 << i)) {
+            if (is_first) {
+                is_first = false;
+            } else {
+                buf = g_stpcpy(buf, ", ");
+            }
+            buf = g_stpcpy(buf, ab_month_name[i]);
+        }
+    }
+}
+
+static void
+format_scheduler_day_of_week(gchar *buf, gint32 value) {
+    static char const ab_weekday_name[][4] =
+    {
+        "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"
+    };
+
+    gint i;
+    gboolean is_first = true;
+
+    *buf = '\0';
+    for (i = 0; i < 7; i++) {
+        if (value & (1 << i)) {
+            if (is_first) {
+                is_first = false;
+            } else {
+                buf = g_stpcpy(buf, ", ");
+            }
+            buf = g_stpcpy(buf, ab_weekday_name[i]);
+        }
+    }
 }
 
 static void
@@ -5292,15 +5334,15 @@ dissect_btmesh_model_layer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         proto_tree_add_item(sub_tree, hf_btmesh_scheduler_action_status_schedule_register_hour, tvb, offset, 4, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(sub_tree, hf_btmesh_scheduler_action_status_schedule_register_minute, tvb, offset, 4, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(sub_tree, hf_btmesh_scheduler_action_status_schedule_register_second, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-        day_of_week_item = proto_tree_add_item(sub_tree, hf_btmesh_scheduler_action_status_schedule_register_dayofweek, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        day_of_week_item = proto_tree_add_item(sub_tree, hf_btmesh_scheduler_action_status_schedule_register_day_of_week, tvb, offset, 4, ENC_LITTLE_ENDIAN);
         day_of_week_sub_tree = proto_item_add_subtree(day_of_week_item, ett_btmesh_scheduler_model_day_of_week);
-        proto_tree_add_item(day_of_week_sub_tree, hf_btmesh_scheduler_schedule_register_dayofweek_monday, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(day_of_week_sub_tree, hf_btmesh_scheduler_schedule_register_dayofweek_tuesday, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(day_of_week_sub_tree, hf_btmesh_scheduler_schedule_register_dayofweek_wednesday, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(day_of_week_sub_tree, hf_btmesh_scheduler_schedule_register_dayofweek_thursday, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(day_of_week_sub_tree, hf_btmesh_scheduler_schedule_register_dayofweek_friday, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(day_of_week_sub_tree, hf_btmesh_scheduler_schedule_register_dayofweek_saturday, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(day_of_week_sub_tree, hf_btmesh_scheduler_schedule_register_dayofweek_sunday, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(day_of_week_sub_tree, hf_btmesh_scheduler_schedule_register_day_of_week_monday, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(day_of_week_sub_tree, hf_btmesh_scheduler_schedule_register_day_of_week_tuesday, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(day_of_week_sub_tree, hf_btmesh_scheduler_schedule_register_day_of_week_wednesday, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(day_of_week_sub_tree, hf_btmesh_scheduler_schedule_register_day_of_week_thursday, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(day_of_week_sub_tree, hf_btmesh_scheduler_schedule_register_day_of_week_friday, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(day_of_week_sub_tree, hf_btmesh_scheduler_schedule_register_day_of_week_saturday, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(day_of_week_sub_tree, hf_btmesh_scheduler_schedule_register_day_of_week_sunday, tvb, offset, 4, ENC_LITTLE_ENDIAN);
         offset+=1;
         proto_tree_add_item(sub_tree, hf_btmesh_scheduler_action_status_schedule_register_action, tvb, offset, 4, ENC_LITTLE_ENDIAN);
         offset+=3;
@@ -5334,15 +5376,15 @@ dissect_btmesh_model_layer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         proto_tree_add_item(sub_tree, hf_btmesh_scheduler_action_set_schedule_register_hour, tvb, offset, 4, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(sub_tree, hf_btmesh_scheduler_action_set_schedule_register_minute, tvb, offset, 4, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(sub_tree, hf_btmesh_scheduler_action_set_schedule_register_second, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-        day_of_week_item = proto_tree_add_item(sub_tree, hf_btmesh_scheduler_action_set_schedule_register_dayofweek, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        day_of_week_item = proto_tree_add_item(sub_tree, hf_btmesh_scheduler_action_set_schedule_register_day_of_week, tvb, offset, 4, ENC_LITTLE_ENDIAN);
         day_of_week_sub_tree = proto_item_add_subtree(day_of_week_item, ett_btmesh_scheduler_model_day_of_week);
-        proto_tree_add_item(day_of_week_sub_tree, hf_btmesh_scheduler_schedule_register_dayofweek_monday, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(day_of_week_sub_tree, hf_btmesh_scheduler_schedule_register_dayofweek_tuesday, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(day_of_week_sub_tree, hf_btmesh_scheduler_schedule_register_dayofweek_wednesday, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(day_of_week_sub_tree, hf_btmesh_scheduler_schedule_register_dayofweek_thursday, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(day_of_week_sub_tree, hf_btmesh_scheduler_schedule_register_dayofweek_friday, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(day_of_week_sub_tree, hf_btmesh_scheduler_schedule_register_dayofweek_saturday, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(day_of_week_sub_tree, hf_btmesh_scheduler_schedule_register_dayofweek_sunday, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(day_of_week_sub_tree, hf_btmesh_scheduler_schedule_register_day_of_week_monday, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(day_of_week_sub_tree, hf_btmesh_scheduler_schedule_register_day_of_week_tuesday, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(day_of_week_sub_tree, hf_btmesh_scheduler_schedule_register_day_of_week_wednesday, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(day_of_week_sub_tree, hf_btmesh_scheduler_schedule_register_day_of_week_thursday, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(day_of_week_sub_tree, hf_btmesh_scheduler_schedule_register_day_of_week_friday, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(day_of_week_sub_tree, hf_btmesh_scheduler_schedule_register_day_of_week_saturday, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(day_of_week_sub_tree, hf_btmesh_scheduler_schedule_register_day_of_week_sunday, tvb, offset, 4, ENC_LITTLE_ENDIAN);
         offset+=1;
         proto_tree_add_item(sub_tree, hf_btmesh_scheduler_action_set_schedule_register_action, tvb, offset, 4, ENC_LITTLE_ENDIAN);
         offset+=3;
@@ -5376,15 +5418,15 @@ dissect_btmesh_model_layer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         proto_tree_add_item(sub_tree, hf_btmesh_scheduler_action_set_unacknowledged_schedule_register_hour, tvb, offset, 4, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(sub_tree, hf_btmesh_scheduler_action_set_unacknowledged_schedule_register_minute, tvb, offset, 4, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(sub_tree, hf_btmesh_scheduler_action_set_unacknowledged_schedule_register_second, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-        day_of_week_item = proto_tree_add_item(sub_tree, hf_btmesh_scheduler_action_set_unacknowledged_schedule_register_dayofweek, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        day_of_week_item = proto_tree_add_item(sub_tree, hf_btmesh_scheduler_action_set_unacknowledged_schedule_register_day_of_week, tvb, offset, 4, ENC_LITTLE_ENDIAN);
         day_of_week_sub_tree = proto_item_add_subtree(day_of_week_item, ett_btmesh_scheduler_model_day_of_week);
-        proto_tree_add_item(day_of_week_sub_tree, hf_btmesh_scheduler_schedule_register_dayofweek_monday, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(day_of_week_sub_tree, hf_btmesh_scheduler_schedule_register_dayofweek_tuesday, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(day_of_week_sub_tree, hf_btmesh_scheduler_schedule_register_dayofweek_wednesday, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(day_of_week_sub_tree, hf_btmesh_scheduler_schedule_register_dayofweek_thursday, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(day_of_week_sub_tree, hf_btmesh_scheduler_schedule_register_dayofweek_friday, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(day_of_week_sub_tree, hf_btmesh_scheduler_schedule_register_dayofweek_saturday, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(day_of_week_sub_tree, hf_btmesh_scheduler_schedule_register_dayofweek_sunday, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(day_of_week_sub_tree, hf_btmesh_scheduler_schedule_register_day_of_week_monday, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(day_of_week_sub_tree, hf_btmesh_scheduler_schedule_register_day_of_week_tuesday, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(day_of_week_sub_tree, hf_btmesh_scheduler_schedule_register_day_of_week_wednesday, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(day_of_week_sub_tree, hf_btmesh_scheduler_schedule_register_day_of_week_thursday, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(day_of_week_sub_tree, hf_btmesh_scheduler_schedule_register_day_of_week_friday, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(day_of_week_sub_tree, hf_btmesh_scheduler_schedule_register_day_of_week_saturday, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(day_of_week_sub_tree, hf_btmesh_scheduler_schedule_register_day_of_week_sunday, tvb, offset, 4, ENC_LITTLE_ENDIAN);
         offset+=1;
         proto_tree_add_item(sub_tree, hf_btmesh_scheduler_action_set_unacknowledged_schedule_register_action, tvb, offset, 4, ENC_LITTLE_ENDIAN);
         offset+=3;
@@ -10149,38 +10191,38 @@ proto_register_btmesh(void)
             FT_UINT32, BASE_NONE, VALS(btmesh_yes_or_dash_vals), 0x00400000,
             NULL, HFILL }
         },
-        { &hf_btmesh_scheduler_schedule_register_dayofweek_monday,
-            { "Monday", "btmesh.model.schedule_register.dayofweek.monday",
+        { &hf_btmesh_scheduler_schedule_register_day_of_week_monday,
+            { "Monday", "btmesh.model.schedule_register.day_of_week.monday",
             FT_UINT32, BASE_NONE, VALS(btmesh_yes_or_dash_vals), 0x00200000,
             NULL, HFILL }
         },
-        { &hf_btmesh_scheduler_schedule_register_dayofweek_tuesday,
-            { "Tuesday", "btmesh.model.schedule_register.dayofweek.tuesday",
+        { &hf_btmesh_scheduler_schedule_register_day_of_week_tuesday,
+            { "Tuesday", "btmesh.model.schedule_register.day_of_week.tuesday",
             FT_UINT32, BASE_NONE, VALS(btmesh_yes_or_dash_vals), 0x00400000,
             NULL, HFILL }
         },
-        { &hf_btmesh_scheduler_schedule_register_dayofweek_wednesday,
-            { "Wednesday", "btmesh.model.schedule_register.dayofweek.wednesday",
+        { &hf_btmesh_scheduler_schedule_register_day_of_week_wednesday,
+            { "Wednesday", "btmesh.model.schedule_register.day_of_week.wednesday",
             FT_UINT32, BASE_NONE, VALS(btmesh_yes_or_dash_vals), 0x00800000,
             NULL, HFILL }
         },
-        { &hf_btmesh_scheduler_schedule_register_dayofweek_thursday,
-            { "Thursday", "btmesh.model.schedule_register.dayofweek.thursday",
+        { &hf_btmesh_scheduler_schedule_register_day_of_week_thursday,
+            { "Thursday", "btmesh.model.schedule_register.day_of_week.thursday",
             FT_UINT32, BASE_NONE, VALS(btmesh_yes_or_dash_vals), 0x01000000,
             NULL, HFILL }
         },
-        { &hf_btmesh_scheduler_schedule_register_dayofweek_friday,
-            { "Friday", "btmesh.model.schedule_register.dayofweek.friday",
+        { &hf_btmesh_scheduler_schedule_register_day_of_week_friday,
+            { "Friday", "btmesh.model.schedule_register.day_of_week.friday",
             FT_UINT32, BASE_NONE, VALS(btmesh_yes_or_dash_vals), 0x02000000,
             NULL, HFILL }
         },
-        { &hf_btmesh_scheduler_schedule_register_dayofweek_saturday,
-            { "Saturday", "btmesh.model.schedule_register.dayofweek.saturday",
+        { &hf_btmesh_scheduler_schedule_register_day_of_week_saturday,
+            { "Saturday", "btmesh.model.schedule_register.day_of_week.saturday",
             FT_UINT32, BASE_NONE, VALS(btmesh_yes_or_dash_vals), 0x04000000,
             NULL, HFILL }
         },
-        { &hf_btmesh_scheduler_schedule_register_dayofweek_sunday,
-            { "Sunday", "btmesh.model.schedule_register.dayofweek.sunday",
+        { &hf_btmesh_scheduler_schedule_register_day_of_week_sunday,
+            { "Sunday", "btmesh.model.schedule_register.day_of_week.sunday",
             FT_UINT32, BASE_NONE, VALS(btmesh_yes_or_dash_vals), 0x08000000,
             NULL, HFILL }
         },
@@ -10196,7 +10238,7 @@ proto_register_btmesh(void)
         },
         { &hf_btmesh_scheduler_action_status_schedule_register_month,
             { "Month", "btmesh.model.scheduler_action_status.schedule_register.month",
-            FT_UINT32, BASE_CUSTOM, CF_FUNC(format_scheduler_empty), 0x007FF800,
+            FT_UINT32, BASE_CUSTOM, CF_FUNC(format_scheduler_month), 0x007FF800,
             NULL, HFILL }
         },
         { &hf_btmesh_scheduler_action_status_schedule_register_day,
@@ -10219,9 +10261,9 @@ proto_register_btmesh(void)
             FT_UINT32, BASE_CUSTOM, CF_FUNC(format_scheduler_second), 0x001F8000,
             NULL, HFILL }
         },
-        { &hf_btmesh_scheduler_action_status_schedule_register_dayofweek,
-            { "DayOfWeek", "btmesh.model.scheduler_action_status.schedule_register.dayofweek",
-            FT_UINT32, BASE_CUSTOM, CF_FUNC(format_scheduler_empty), 0x0FE00000,
+        { &hf_btmesh_scheduler_action_status_schedule_register_day_of_week,
+            { "DayOfWeek", "btmesh.model.scheduler_action_status.schedule_register.day_of_week",
+            FT_UINT32, BASE_CUSTOM, CF_FUNC(format_scheduler_day_of_week), 0x0FE00000,
             NULL, HFILL }
         },
         { &hf_btmesh_scheduler_action_status_schedule_register_action,
@@ -10261,7 +10303,7 @@ proto_register_btmesh(void)
         },
         { &hf_btmesh_scheduler_action_set_schedule_register_month,
             { "Month", "btmesh.model.scheduler_action_set.schedule_register.month",
-            FT_UINT32, BASE_CUSTOM, CF_FUNC(format_scheduler_empty), 0x007FF800,
+            FT_UINT32, BASE_CUSTOM, CF_FUNC(format_scheduler_month), 0x007FF800,
             NULL, HFILL }
         },
         { &hf_btmesh_scheduler_action_set_schedule_register_day,
@@ -10284,9 +10326,9 @@ proto_register_btmesh(void)
             FT_UINT32, BASE_CUSTOM, CF_FUNC(format_scheduler_second), 0x001F8000,
             NULL, HFILL }
         },
-        { &hf_btmesh_scheduler_action_set_schedule_register_dayofweek,
-            { "DayOfWeek", "btmesh.model.scheduler_action_set.schedule_register.dayofweek",
-            FT_UINT32, BASE_CUSTOM, CF_FUNC(format_scheduler_empty), 0x0FE00000,
+        { &hf_btmesh_scheduler_action_set_schedule_register_day_of_week,
+            { "DayOfWeek", "btmesh.model.scheduler_action_set.schedule_register.day_of_week",
+            FT_UINT32, BASE_CUSTOM, CF_FUNC(format_scheduler_day_of_week), 0x0FE00000,
             NULL, HFILL }
         },
         { &hf_btmesh_scheduler_action_set_schedule_register_action,
@@ -10326,7 +10368,7 @@ proto_register_btmesh(void)
         },
         { &hf_btmesh_scheduler_action_set_unacknowledged_schedule_register_month,
             { "Month", "btmesh.model.scheduler_action_set_unacknowledged.schedule_register.month",
-            FT_UINT32, BASE_CUSTOM, CF_FUNC(format_scheduler_empty), 0x007FF800,
+            FT_UINT32, BASE_CUSTOM, CF_FUNC(format_scheduler_month), 0x007FF800,
             NULL, HFILL }
         },
         { &hf_btmesh_scheduler_action_set_unacknowledged_schedule_register_day,
@@ -10349,9 +10391,9 @@ proto_register_btmesh(void)
             FT_UINT32, BASE_CUSTOM, CF_FUNC(format_scheduler_second), 0x001F8000,
             NULL, HFILL }
         },
-        { &hf_btmesh_scheduler_action_set_unacknowledged_schedule_register_dayofweek,
-            { "DayOfWeek", "btmesh.model.scheduler_action_set_unacknowledged.schedule_register.dayofweek",
-            FT_UINT32, BASE_CUSTOM, CF_FUNC(format_scheduler_empty), 0x0FE00000,
+        { &hf_btmesh_scheduler_action_set_unacknowledged_schedule_register_day_of_week,
+            { "DayOfWeek", "btmesh.model.scheduler_action_set_unacknowledged.schedule_register.day_of_week",
+            FT_UINT32, BASE_CUSTOM, CF_FUNC(format_scheduler_day_of_week), 0x0FE00000,
             NULL, HFILL }
         },
         { &hf_btmesh_scheduler_action_set_unacknowledged_schedule_register_action,
