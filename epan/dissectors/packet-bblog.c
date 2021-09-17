@@ -15,7 +15,7 @@
 
 #include <epan/packet.h>
 
-void proto_register_bblog_event(void);
+void proto_register_bblog(void);
 void proto_reg_handoff_bblog(void);
 
 static int proto_bblog            = -1;
