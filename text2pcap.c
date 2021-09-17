@@ -1852,7 +1852,7 @@ parse_options (int argc, char *argv[])
     return EXIT_SUCCESS;
 }
 
-void
+static void
 text2pcap_vcmdarg_err(const char *fmt, va_list ap)
 {
     vfprintf(stderr, fmt, ap);
