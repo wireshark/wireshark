@@ -91,11 +91,22 @@ typedef enum {
 	SMC_CLC_OS_UNKOWN = 15,
 } clc_os_message;
 
+typedef enum {
+    SMC_CLC_LG_INDIRECT = 0,
+    SMC_CLC_LG_DIRECT = 1,
+} clc_v2_lg_message;
+
 static const value_string smc_clc_os_message_txt[] = {
 	{ SMC_CLC_OS_ZOS,      "z/OS" },
 	{ SMC_CLC_OS_LINUX,    "Linux" },
 	{ SMC_CLC_OS_AIX,      "AIX" },
 	{ SMC_CLC_OS_UNKOWN,   "Unknown" },
+	{ 0, NULL }
+};
+
+static const value_string smc_clc_v2_lg_message_txt[] = {
+	{ SMC_CLC_LG_INDIRECT,      "V2_INDIRECT" },
+	{ SMC_CLC_LG_DIRECT,        "V2_DIRECT" },
 	{ 0, NULL }
 };
 
@@ -109,19 +120,19 @@ static const value_string smc_clc_type_message_txt[] = {
 
 
 static const value_string smcv2_clc_col_info_message_txt[] = {
-	{ SMC_CLC_SMCR,     "[SMC-R-Proposal]" },
+	{ SMC_CLC_SMCR,     "[SMC-Rv2-Proposal]" },
 	{ SMC_CLC_SMCD,     "[SMC-Dv2-Proposal]"   },
 	{ SMC_CLC_NONE,     "[NONE]"  },
-	{ SMC_CLC_BOTH,     "[SMC-Dv2/SMC-R-Proposal]"  },
+	{ SMC_CLC_BOTH,     "[SMC-Dv2/SMC-Rv2-Proposal]"  },
 	{ 0, NULL }
 };
 
 static const value_string smc_clc_col_info_message_txt[] = {
-        { SMC_CLC_SMCR,     "[SMC-R-Proposal]" },
-        { SMC_CLC_SMCD,     "[SMC-D-Proposal]"   },
-        { SMC_CLC_NONE,     "[NONE]"  },
-        { SMC_CLC_BOTH,     "[SMC-D/SMC-R-Proposal]"  },
-        { 0, NULL }
+	{ SMC_CLC_SMCR,     "[SMC-R-Proposal]" },
+	{ SMC_CLC_SMCD,     "[SMC-D-Proposal]"   },
+	{ SMC_CLC_NONE,     "[NONE]"  },
+	{ SMC_CLC_BOTH,     "[SMC-D/SMC-R-Proposal]"  },
+	{ 0, NULL }
 };
 
 static const value_string smcr_clc_message_txt[] = {
@@ -196,12 +207,15 @@ static int hf_smc_reserved = -1;
 /* SMC-R Accept */
 static int ett_accept_flag = -1;
 static int ett_accept_flag2 = -1;
+static int ett_smcr_accept_fce_flag1 = -1;
+static int hf_accept_v2_lg_type = -1;
 static int hf_accept_smc_version = -1;
 static int hf_accept_first_contact = -1;
 static int hf_accept_rmb_buffer_size = -1;
 static int hf_accept_qp_mtu_value = -1;
 static int hf_smcr_accept_flags = -1;
 static int hf_smcr_accept_flags2 = -1;
+static int hf_smcr_accept_fce_flags = -1;
 static int hf_smcr_accept_server_peer_id = -1;
 static int hf_smcr_accept_server_preferred_gid = -1;
 static int hf_smcr_accept_server_preferred_mac = -1;
@@ -233,7 +247,7 @@ static int hf_confirm_qp_mtu_value = -1;
 /* SMC-D Accept */
 static int hf_accept_smc_type = -1;
 static int ett_smcd_accept_flag = -1;
-static int ett_smcd_accept_fce_flag = -1;
+static int ett_smc_accept_fce_flag = -1;
 static int ett_smcd_accept_flag2 = -1;
 static int hf_smcd_accept_smc_version = -1;
 static int hf_accept_os_type = -1;
@@ -241,26 +255,26 @@ static int hf_accept_smc_version_release_number = -1;
 static int hf_smcd_accept_first_contact = -1;
 static int hf_accept_dmb_buffer_size = -1;
 static int hf_smcd_accept_flags = -1;
-static int hf_smcd_accept_fce_flags = -1;
+static int hf_smc_accept_fce_flags = -1;
 static int hf_smcd_accept_flags2 = -1;
 static int hf_smcd_accept_server_peer_id = -1;
 static int hf_smcd_accept_dmbe_conn_index = -1;
 static int hf_smcd_accept_dmb_token = -1;
 static int hf_smcd_accept_server_link_id = -1;
 static int hf_smcd_accept_smc_chid = -1;
-static int hf_smcd_accept_eid = -1;
-static int hf_smcd_accept_peer_name = -1;
+static int hf_smc_accept_eid = -1;
+static int hf_smc_accept_peer_name = -1;
 
 /* SMC-D Confirm */
 static int hf_confirm_smc_type = -1;
 static int ett_smcd_confirm_flag = -1;
-static int ett_smcd_confirm_fce_flag = -1;
+static int ett_smc_confirm_fce_flag = -1;
 static int ett_smcd_confirm_flag2 = -1;
 static int hf_smcd_confirm_smc_version = -1;
 static int hf_confirm_os_type = -1;
 static int hf_smcd_confirm_flags = -1;
 static int hf_smcd_confirm_flags2 = -1;
-static int hf_smcd_confirm_first_contact = -1;
+static int hf_smc_confirm_first_contact = -1;
 static int hf_smcd_confirm_client_peer_id = -1;
 static int hf_smcd_confirm_dmb_token = -1;
 static int hf_smcd_confirm_dmbe_conn_index = -1;
@@ -268,8 +282,8 @@ static int hf_smcd_confirm_client_link_id = -1;
 static int hf_confirm_smc_version_release_number = -1;
 static int hf_smcd_confirm_dmb_buffer_size = -1;
 static int hf_smcd_confirm_smc_chid = -1;
-static int hf_smcd_confirm_eid = -1;
-static int hf_smcd_confirm_peer_name = -1;
+static int hf_smc_confirm_eid = -1;
+static int hf_smc_confirm_peer_name = -1;
 
 /* SMC-R Decline */
 static int ett_decline_flag = -1;
@@ -589,7 +603,7 @@ disect_smcd_accept(tvbuff_t* tvb, proto_tree* tree)
 			LENGTH_BYTE_LEN, ENC_BIG_ENDIAN);
 		offset += LENGTH_BYTE_LEN;
 
-		proto_tree_add_item(tree, hf_smcd_accept_eid, tvb, offset, 32, ENC_ASCII | ENC_NA);
+		proto_tree_add_item(tree, hf_smc_accept_eid, tvb, offset, 32, ENC_ASCII | ENC_NA);
 		offset += 32;
 		proto_tree_add_item(tree, hf_smc_reserved, tvb,
 					offset, 8, ENC_NA);
@@ -599,15 +613,15 @@ disect_smcd_accept(tvbuff_t* tvb, proto_tree* tree)
 			proto_tree_add_item(tree, hf_smc_reserved, tvb,
 						offset, ONE_BYTE_RESERVED, ENC_NA);
 			offset += ONE_BYTE_RESERVED;
-			accept_flag_item = proto_tree_add_item(tree, hf_smcd_accept_fce_flags, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
-			accept_flag_tree = proto_item_add_subtree(accept_flag_item, ett_smcd_accept_fce_flag);
+			accept_flag_item = proto_tree_add_item(tree, hf_smc_accept_fce_flags, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
+			accept_flag_tree = proto_item_add_subtree(accept_flag_item, ett_smc_accept_fce_flag);
 			proto_tree_add_item(accept_flag_tree, hf_accept_os_type, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 			proto_tree_add_item(accept_flag_tree, hf_accept_smc_version_release_number, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 			offset += FLAG_BYTE_LEN;
 			proto_tree_add_item(tree, hf_smc_reserved, tvb,
 						offset, TWO_BYTE_RESERVED, ENC_NA);
 			offset += TWO_BYTE_RESERVED;
-			proto_tree_add_item(tree, hf_smcd_accept_peer_name, tvb, offset, 32, ENC_ASCII | ENC_NA);
+			proto_tree_add_item(tree, hf_smc_accept_peer_name, tvb, offset, 32, ENC_ASCII | ENC_NA);
 			/* offset += 32; */
 		}
 	}
@@ -630,7 +644,7 @@ disect_smcd_confirm(tvbuff_t* tvb, proto_tree* tree)
 	confirm_flag_item = proto_tree_add_item(tree, hf_smcd_confirm_flags, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 	confirm_flag_tree = proto_item_add_subtree(confirm_flag_item, ett_smcd_confirm_flag);
 	proto_tree_add_item(confirm_flag_tree, hf_smcd_confirm_smc_version, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
-	proto_tree_add_item(confirm_flag_tree, hf_smcd_confirm_first_contact, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
+	proto_tree_add_item(confirm_flag_tree, hf_smc_confirm_first_contact, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 	proto_tree_add_item(confirm_flag_tree, hf_confirm_smc_type, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 	smc_version = tvb_get_guint8(tvb, offset);
 	first_contact = tvb_get_guint8(tvb, offset);
@@ -665,7 +679,7 @@ disect_smcd_confirm(tvbuff_t* tvb, proto_tree* tree)
 			LENGTH_BYTE_LEN, ENC_BIG_ENDIAN);
 		offset += LENGTH_BYTE_LEN;
 
-		proto_tree_add_item(tree, hf_smcd_confirm_eid, tvb, offset, 32, ENC_ASCII | ENC_NA);
+		proto_tree_add_item(tree, hf_smc_confirm_eid, tvb, offset, 32, ENC_ASCII | ENC_NA);
 		offset += 32;
 		proto_tree_add_item(tree, hf_smc_reserved, tvb,
 					offset, 8, ENC_NA);
@@ -675,15 +689,15 @@ disect_smcd_confirm(tvbuff_t* tvb, proto_tree* tree)
 			proto_tree_add_item(tree, hf_smc_reserved, tvb,
 						offset, ONE_BYTE_RESERVED, ENC_NA);
 			offset += ONE_BYTE_RESERVED;
-			confirm_flag_item = proto_tree_add_item(tree, hf_smcd_accept_fce_flags, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
-			confirm_flag_tree = proto_item_add_subtree(confirm_flag_item, ett_smcd_confirm_fce_flag);
+			confirm_flag_item = proto_tree_add_item(tree, hf_smc_accept_fce_flags, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
+			confirm_flag_tree = proto_item_add_subtree(confirm_flag_item, ett_smc_confirm_fce_flag);
 			proto_tree_add_item(confirm_flag_tree, hf_confirm_os_type, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 			proto_tree_add_item(confirm_flag_tree, hf_confirm_smc_version_release_number, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 			offset += FLAG_BYTE_LEN;
 			proto_tree_add_item(tree, hf_smc_reserved, tvb,
 						offset, TWO_BYTE_RESERVED, ENC_NA);
 			offset += TWO_BYTE_RESERVED;
-			proto_tree_add_item(tree, hf_smcd_confirm_peer_name, tvb, offset, 32, ENC_ASCII | ENC_NA);
+			proto_tree_add_item(tree, hf_smc_confirm_peer_name, tvb, offset, 32, ENC_ASCII | ENC_NA);
 			/* offset += 32; */
 		}
 	}
@@ -698,6 +712,7 @@ disect_smcr_accept(tvbuff_t *tvb, proto_tree *tree)
 	proto_tree *accept_flag_tree;
 	proto_item *accept_flag2_item;
 	proto_tree *accept_flag2_tree;
+	guint8 smc_version, first_contact = 0;
 
 	offset = CLC_MSG_START_OFFSET;
 	proto_tree_add_item(tree, hf_smc_length, tvb, offset,
@@ -707,6 +722,10 @@ disect_smcr_accept(tvbuff_t *tvb, proto_tree *tree)
 	accept_flag_tree = proto_item_add_subtree(accept_flag_item, ett_accept_flag);
 	proto_tree_add_item(accept_flag_tree, hf_accept_smc_version, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 	proto_tree_add_item(accept_flag_tree, hf_accept_first_contact, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
+	smc_version = tvb_get_guint8(tvb, offset);
+	first_contact = tvb_get_guint8(tvb, offset);
+	smc_version = ((smc_version >> 4) & 0x0F);
+	first_contact = ((first_contact >> 3) & 0x01);
 	offset += FLAG_BYTE_LEN;
 	proto_tree_add_item(tree, hf_smcr_accept_server_peer_id, tvb, offset,
 			PEERID_LEN, ENC_BIG_ENDIAN);
@@ -745,6 +764,29 @@ disect_smcr_accept(tvbuff_t *tvb, proto_tree *tree)
 	offset += ONE_BYTE_RESERVED;
 	proto_tree_add_item(tree, hf_smcr_accept_initial_psn, tvb,
 			offset, PSN_LEN, ENC_BIG_ENDIAN);
+
+	if (smc_version >= SMC_V2) {
+		offset += PSN_LEN;
+		proto_tree_add_item(tree, hf_smc_accept_eid, tvb, offset, 32, ENC_ASCII | ENC_NA);
+		offset += 32;
+		proto_tree_add_item(tree, hf_smc_reserved, tvb, offset, 8, ENC_NA);
+		offset += 8;
+
+		if (first_contact) {
+			accept_flag_item = proto_tree_add_item(tree, hf_smcr_accept_fce_flags, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
+			accept_flag_tree = proto_item_add_subtree(accept_flag_item, ett_smcr_accept_fce_flag1);
+			proto_tree_add_item(accept_flag_tree, hf_accept_v2_lg_type, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
+			offset += FLAG_BYTE_LEN;
+			accept_flag_item = proto_tree_add_item(tree, hf_smc_accept_fce_flags, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
+			accept_flag_tree = proto_item_add_subtree(accept_flag_item, ett_smc_accept_fce_flag);
+			proto_tree_add_item(accept_flag_tree, hf_accept_os_type, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
+			proto_tree_add_item(accept_flag_tree, hf_accept_smc_version_release_number, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
+			offset += FLAG_BYTE_LEN;
+			proto_tree_add_item(tree, hf_smc_reserved, tvb, offset, TWO_BYTE_RESERVED, ENC_NA);
+			offset += TWO_BYTE_RESERVED;
+			proto_tree_add_item(tree, hf_smc_accept_peer_name, tvb, offset, 32, ENC_ASCII | ENC_NA);
+		}
+	}
 }
 
 static void
@@ -755,6 +797,7 @@ disect_smcr_confirm(tvbuff_t *tvb, proto_tree *tree)
 	proto_tree *confirm_flag_tree;
 	proto_item *confirm_flag2_item;
 	proto_tree *confirm_flag2_tree;
+	guint8 smc_version, first_contact = 0;
 
 	offset = CLC_MSG_START_OFFSET;
 	proto_tree_add_item(tree, hf_smc_length, tvb, offset,
@@ -763,6 +806,12 @@ disect_smcr_confirm(tvbuff_t *tvb, proto_tree *tree)
 	confirm_flag_item = proto_tree_add_item(tree, hf_smcr_confirm_flags, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 	confirm_flag_tree = proto_item_add_subtree(confirm_flag_item, ett_confirm_flag);
 	proto_tree_add_item(confirm_flag_tree, hf_confirm_smc_version, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
+	proto_tree_add_item(confirm_flag_tree, hf_smc_confirm_first_contact, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
+	proto_tree_add_item(confirm_flag_tree, hf_confirm_smc_type, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
+	smc_version = tvb_get_guint8(tvb, offset);
+	first_contact = tvb_get_guint8(tvb, offset);
+	smc_version = ((smc_version >> 4) & 0x0F);
+	first_contact = ((first_contact >> 3) & 0x01);
 	offset += FLAG_BYTE_LEN;
 	proto_tree_add_item(tree, hf_smcr_confirm_client_peer_id, tvb, offset,
 			PEERID_LEN, ENC_BIG_ENDIAN);
@@ -801,20 +850,45 @@ disect_smcr_confirm(tvbuff_t *tvb, proto_tree *tree)
 	offset += ONE_BYTE_RESERVED;
 	proto_tree_add_item(tree, hf_smcr_confirm_initial_psn, tvb,
 			offset, PSN_LEN, ENC_BIG_ENDIAN);
+
+
+	if (smc_version >= SMC_V2) {
+		offset += PSN_LEN;
+		proto_tree_add_item(tree, hf_smc_confirm_eid, tvb, offset, 32, ENC_ASCII | ENC_NA);
+		offset += 32;
+		proto_tree_add_item(tree, hf_smc_reserved, tvb, offset, 8, ENC_NA);
+		offset += 8;
+
+		if (first_contact) {
+			confirm_flag_item = proto_tree_add_item(tree, hf_smcr_accept_fce_flags, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
+			confirm_flag_tree = proto_item_add_subtree(confirm_flag_item, ett_smcr_accept_fce_flag1);
+			proto_tree_add_item(confirm_flag_tree, hf_accept_v2_lg_type, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
+			offset += FLAG_BYTE_LEN;
+			confirm_flag_item = proto_tree_add_item(tree, hf_smc_accept_fce_flags, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
+			confirm_flag_tree = proto_item_add_subtree(confirm_flag_item, ett_smc_confirm_fce_flag);
+			proto_tree_add_item(confirm_flag_tree, hf_confirm_os_type, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
+			proto_tree_add_item(confirm_flag_tree, hf_confirm_smc_version_release_number, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
+			offset += FLAG_BYTE_LEN;
+			proto_tree_add_item(tree, hf_smc_reserved, tvb, offset, TWO_BYTE_RESERVED, ENC_NA);
+			offset += TWO_BYTE_RESERVED;
+			proto_tree_add_item(tree, hf_smc_confirm_peer_name, tvb, offset, 32, ENC_ASCII | ENC_NA);
+		}
+	}
 }
 
 static void
-disect_smcr_decline(tvbuff_t *tvb, proto_tree *tree)
+disect_smc_decline(tvbuff_t *tvb, proto_tree *tree)
 {
 	proto_item* decline_flag_item;
 	proto_tree* decline_flag_tree;
 	proto_item* decline_flag2_item;
 	proto_tree* decline_flag2_tree;
-	guint offset, smc_version;
+	guint offset, smc_version, smc_length, num_of_diag;
 
 	offset = CLC_MSG_START_OFFSET;
 	proto_tree_add_item(tree, hf_smc_length, tvb, offset,
 		LENGTH_BYTE_LEN, ENC_BIG_ENDIAN);
+	smc_length = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
 	offset += LENGTH_BYTE_LEN;
 
 	decline_flag_item = proto_tree_add_item(tree, hf_smc_decline_flags, tvb, offset,
@@ -840,6 +914,15 @@ disect_smcr_decline(tvbuff_t *tvb, proto_tree *tree)
 		decline_flag2_tree = proto_item_add_subtree(decline_flag2_item, ett_decline_flag2);
 		proto_tree_add_item(decline_flag2_tree, hf_decline_os_type, tvb, offset,
 			FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
+		offset += FLAG_BYTE_LEN;
+		offset += 3;
+		if (smc_length >= offset + 16) {
+			for (num_of_diag = 0; num_of_diag < 4; num_of_diag++) {
+				proto_tree_add_item(tree, hf_smc_decline_diag_info, tvb, offset,
+						    DIAG_INFO_LEN, ENC_BIG_ENDIAN);
+				offset += DIAG_INFO_LEN;
+			}
+		}
 	}
 }
 
@@ -1217,9 +1300,15 @@ dissect_smc_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		}
 	} else if ((smc_v2_type == SMC_CLC_SMCR) && ((clc_msgid == SMC_CLC_ACCEPT) ||
 		   (clc_msgid == SMC_CLC_CONFIRMATION))) {
-		col_prepend_fstr(pinfo->cinfo, COL_INFO, "[SMC-R-%s],",
-			val_to_str_const((guint32)clc_msgid,
-				smcr_clc_message_txt, "Unknown Command"));
+		if (is_smc_v2)
+			col_prepend_fstr(pinfo->cinfo, COL_INFO, "[SMC-Rv2-%s],",
+					val_to_str_const((guint32)clc_msgid,
+							smcr_clc_message_txt, "Unknown Command"));
+		else
+			col_prepend_fstr(pinfo->cinfo, COL_INFO, "[SMC-R-%s],",
+					val_to_str_const((guint32)clc_msgid,
+					smcr_clc_message_txt, "Unknown Command"));
+
 		col_append_fstr(pinfo->cinfo, COL_INFO, " QP=0x%06x",
 				tvb_get_ntoh24(tvb, ACCEPT_CONFIRM_QP_OFFSET));
 	}
@@ -1270,7 +1359,7 @@ dissect_smc_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				disect_smcr_confirm(tvb, smc_tree);
 			break;
 		case SMC_CLC_DECLINE:
-			disect_smcr_decline(tvb, smc_tree);
+			disect_smc_decline(tvb, smc_tree);
 			break;
 		default:
 			/* Unknown Command */
@@ -1970,19 +2059,19 @@ proto_register_smcr(void)
 		"Peer Abnormal Close", "smc.rmbe.ctrl.peer.abnormal.close",
 		FT_BOOLEAN, 8, NULL, 0x20, NULL, HFILL}},
 
-		{ &hf_smcd_accept_eid, {
+		{ &hf_smc_accept_eid, {
 		"EID", "smc.accept.eid",
 		FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL} },
 
-		{ &hf_smcd_confirm_eid, {
+		{ &hf_smc_confirm_eid, {
 		"EID", "smc.confirm.eid",
 		FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL} },
 
-		{ &hf_smcd_accept_peer_name, {
+		{ &hf_smc_accept_peer_name, {
 		"Peer Host Name", "smc.accept.peer.host.name",
 		FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL} },
 
-		{ &hf_smcd_confirm_peer_name, {
+		{ &hf_smc_confirm_peer_name, {
 		"Peer Host Name", "smc.confirm.peer.host.name",
 		FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL} },
 
@@ -1990,7 +2079,7 @@ proto_register_smcr(void)
 		"First Contact", "smc.accept.first.contact",
 		FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL} },
 
-		{ &hf_smcd_confirm_first_contact, {
+		{ &hf_smc_confirm_first_contact, {
 		"First Contact", "smc.confirm.first.contact",
 		FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL} },
 
@@ -2005,6 +2094,10 @@ proto_register_smcr(void)
 		{ &hf_accept_os_type, {
 		"OS Type", "smc.accept.os.type",
 		FT_UINT8, BASE_DEC, VALS(smc_clc_os_message_txt), 0xF0, NULL, HFILL} },
+
+		{ &hf_accept_v2_lg_type, {
+		"V2 LG Type", "smc.accept.v2_lg.type",
+		FT_UINT8, BASE_DEC, VALS(smc_clc_v2_lg_message_txt), 0x80, NULL, HFILL} },
 
 		{ &hf_confirm_os_type, {
 		"OS Type", "smc.confirm.os.type",
@@ -2080,8 +2173,12 @@ proto_register_smcr(void)
 		"DMBE Size", "smc.confirm.dmbe.size",
 		FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL} },
 
-		{ &hf_smcd_accept_fce_flags, {
+		{ &hf_smc_accept_fce_flags, {
 		"Flags", "smc.accept.fce.flags",
+		FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL} },
+
+		{ &hf_smcr_accept_fce_flags, {
+		"Flags", "smc.accept.fce1.flags",
 		FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL} },
 
 		{ &hf_smc_reserved, {
@@ -2096,11 +2193,12 @@ proto_register_smcr(void)
 		&ett_proposal_ext_flag2,
 		&ett_accept_flag,
 		&ett_accept_flag2,
+		&ett_smcr_accept_fce_flag1,
 		&ett_smcd_accept_flag,
 		&ett_smcd_accept_flag2,
-		&ett_smcd_accept_fce_flag,
+		&ett_smc_accept_fce_flag,
 		&ett_smcd_confirm_flag,
-		&ett_smcd_confirm_fce_flag,
+		&ett_smc_confirm_fce_flag,
 		&ett_smcd_confirm_flag2,
 		&ett_confirm_flag,
 		&ett_confirm_flag2,
