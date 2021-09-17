@@ -903,9 +903,11 @@ epan_get_runtime_version_info(GString *str)
 #endif /* HAVE_ZSTD */
 
 	/* libsmi */
+#ifdef HAVE_LIBSMI
 #ifdef HAVE_SMI_VERSION_STRING
 	g_string_append_printf(str, ", with libsmi %s", smi_version_string);
 #endif /* HAVE_SMI_VERSION_STRING */
+#endif
 }
 
 /*
