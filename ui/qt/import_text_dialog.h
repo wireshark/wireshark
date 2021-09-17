@@ -46,9 +46,15 @@ private:
     void check_line_edit(SyntaxLineEdit *le, bool &ok_enable, const QString &num_str, int base, guint max_val, bool is_short, guint *val_ptr);
     bool checkDateTimeFormat(const QString &time_format);
 
+    void loadSettingsFile();
+    void saveSettingsFile();
+    void applyDialogSettings();
+    void storeDialogSettings();
+
     void updateImportButtonState();
 
     Ui::ImportTextDialog *ti_ui_;
+    QVariantMap settings;
 
     QPushButton *import_button_;
     QList<QRadioButton *>encap_buttons_;

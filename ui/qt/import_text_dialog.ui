@@ -303,7 +303,7 @@
            <item>
             <widget class="QLabel" name="label_3">
              <property name="text">
-              <string>&lt;small&gt;&lt;i&gt;reccomended regex:&lt;/small&gt;&lt;/i&gt;</string>
+              <string>&lt;small&gt;&lt;i&gt;recommended regex:&lt;/small&gt;&lt;/i&gt;</string>
              </property>
             </widget>
            </item>

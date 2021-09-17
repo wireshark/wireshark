@@ -30,6 +30,7 @@
 #include "file.h"
 #include "wsutil/file_util.h"
 #include "wsutil/tempfile.h"
+#include "wsutil/filesystem.h"
 
 #include <ui_import_text_dialog.h>
 #include "wireshark_application.h"
@@ -37,6 +38,8 @@
 #include "ui/qt/widgets/wireshark_file_dialog.h"
 
 #include <QDebug>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QFile>
 
 #define HINT_BEGIN "<small><i>"
@@ -46,6 +49,8 @@
 
 static const QString default_regex_hint = ImportTextDialog::tr("Supported fields are data, dir, time, seqno");
 static const QString missing_data_hint = ImportTextDialog::tr("Missing capturing group data (use (?" HTML_LT "data" HTML_GT "(...)) )");
+
+#define SETTINGS_FILE "import_hexdump.json"
 
 ImportTextDialog::ImportTextDialog(QWidget *parent) :
     QDialog(parent),
@@ -155,15 +160,216 @@ ImportTextDialog::ImportTextDialog(QWidget *parent) :
 
     ti_ui_->regexHintLabel->setText(default_regex_hint);
 
-    import_info_.mode = TEXT_IMPORT_HEXDUMP;
-
-    on_modeTabWidget_currentChanged(0);
+    applyDialogSettings();
     updateImportButtonState();
 }
 
 ImportTextDialog::~ImportTextDialog()
 {
+    storeDialogSettings();
+
     delete ti_ui_;
+}
+
+void ImportTextDialog::loadSettingsFile()
+{
+    QFileInfo fileInfo(QString(get_profile_dir(get_profile_name(), FALSE)), QString(SETTINGS_FILE));
+    QFile loadFile(fileInfo.filePath());
+
+    if (!fileInfo.exists() || !fileInfo.isFile()) {
+        return;
+    }
+
+    if (loadFile.open(QIODevice::ReadOnly)) {
+        QByteArray loadData = loadFile.readAll();
+        QJsonDocument document = QJsonDocument::fromJson(loadData);
+
+        settings = document.object().toVariantMap();
+    }
+}
+
+void ImportTextDialog::saveSettingsFile()
+{
+    QFileInfo fileInfo(QString(get_profile_dir(get_profile_name(), FALSE)), QString(SETTINGS_FILE));
+    QFile saveFile(fileInfo.filePath());
+
+    if (fileInfo.exists() && !fileInfo.isFile()) {
+        return;
+    }
+
+    if (saveFile.open(QIODevice::WriteOnly)) {
+        QJsonDocument document = QJsonDocument::fromVariant(settings);
+        QByteArray saveData = document.toJson();
+
+        saveFile.write(saveData);
+    }
+}
+
+void ImportTextDialog::applyDialogSettings()
+{
+    loadSettingsFile();
+
+    // Hex Dump
+    QString offsetType = settings["hexdump.offsets"].toString();
+    if (offsetType == "hex") {
+        ti_ui_->hexOffsetButton->setChecked(true);
+    } else if (offsetType == "dec") {
+        ti_ui_->decimalOffsetButton->setChecked(true);
+    } else if (offsetType == "oct") {
+        ti_ui_->octalOffsetButton->setChecked(true);
+    } else if (offsetType == "none") {
+        ti_ui_->noOffsetButton->setChecked(true);
+    }
+    ti_ui_->directionIndicationCheckBox->setChecked(settings["hexdump.hasDirection"].toBool());
+
+    // Regular Expression
+    ti_ui_->regexTextEdit->setText(settings["regex.format"].toString());
+    QString encoding = settings["regex.encoding"].toString();
+    if (encoding == "plainHex") {
+        ti_ui_->dataEncodingComboBox->setCurrentIndex(0);
+    } else if (encoding == "plainOct") {
+        ti_ui_->dataEncodingComboBox->setCurrentIndex(1);
+    } else if (encoding == "plainBin") {
+        ti_ui_->dataEncodingComboBox->setCurrentIndex(2);
+    } else if (encoding == "base64") {
+        ti_ui_->dataEncodingComboBox->setCurrentIndex(3);
+    }
+    ti_ui_->dirInIndicationLineEdit->setText(settings["regex.inIndication"].toString());
+    ti_ui_->dirOutIndicationLineEdit->setText(settings["regex.outIndication"].toString());
+
+    // Import info
+    ti_ui_->timestampFormatLineEdit->setText(settings["timestampFormat"].toString());
+
+    const char *name = wtap_encap_description(settings["encapsulation"].toInt());
+    ti_ui_->encapComboBox->setCurrentText(name);
+
+    QString dummyHeader = settings["dummyHeader"].toString();
+    if (dummyHeader == "ethernet") {
+        ti_ui_->ethernetButton->setChecked(true);
+    } else if (dummyHeader == "ipv4") {
+        ti_ui_->ipv4Button->setChecked(true);
+    } else if (dummyHeader == "udp") {
+        ti_ui_->udpButton->setChecked(true);
+    } else if (dummyHeader == "tcp") {
+        ti_ui_->tcpButton->setChecked(true);
+    } else if (dummyHeader == "sctp") {
+        ti_ui_->sctpButton->setChecked(true);
+    } else if (dummyHeader == "sctpData") {
+        ti_ui_->sctpDataButton->setChecked(true);
+    } else if (dummyHeader == "exportPDU") {
+        ti_ui_->exportPduButton->setChecked(true);
+    } else if (dummyHeader == "none") {
+        ti_ui_->noDummyButton->setChecked(true);
+    }
+
+    ti_ui_->ethertypeLineEdit->setText(settings["ethertype"].toString());
+    ti_ui_->protocolLineEdit->setText(settings["ipProtocol"].toString());
+    ti_ui_->sourcePortLineEdit->setText(settings["sourcePort"].toString());
+    ti_ui_->destinationPortLineEdit->setText(settings["destinationPort"].toString());
+    ti_ui_->tagLineEdit->setText(settings["sctpTag"].toString());
+    ti_ui_->ppiLineEdit->setText(settings["sctpPPI"].toString());
+
+    if (settings.contains("pduPayload")) {
+        ti_ui_->dissectorComboBox->setCurrentText(settings["pduPayload"].toString());
+    } else {
+        // Default to the data dissector when not previously set
+        ti_ui_->dissectorComboBox->setCurrentText("data");
+    }
+
+    ti_ui_->maxLengthLineEdit->setText(settings["maxFrameLength"].toString());
+
+    // Select mode tab last to enableFieldWidgets()
+    QString mode(settings["mode"].toString());
+    int modeIndex = (mode == "regex") ? 1 : 0;
+    ti_ui_->modeTabWidget->setCurrentIndex(modeIndex);
+    on_modeTabWidget_currentChanged(modeIndex);
+}
+
+void ImportTextDialog::storeDialogSettings()
+{
+    int modeIndex = ti_ui_->modeTabWidget->currentIndex();
+    if (modeIndex == 0) {
+        settings["mode"] = "hexdump";
+    } else {
+        settings["mode"] = "regex";
+    }
+
+    // Hex Dump
+    if (ti_ui_->hexOffsetButton->isChecked()) {
+        settings["hexdump.offsets"] = "hex";
+    } else if (ti_ui_->decimalOffsetButton->isChecked()) {
+        settings["hexdump.offsets"] = "dec";
+    } else if (ti_ui_->octalOffsetButton->isChecked()) {
+        settings["hexdump.offsets"] = "oct";
+    } else {
+        settings["hexdump.offsets"] = "none";
+    }
+    settings["hexdump.hasDirection"] = ti_ui_->directionIndicationCheckBox->isChecked();
+
+    // Regular Expression
+    settings["regex.format"] = ti_ui_->regexTextEdit->toPlainText();
+    QVariant encodingVal = ti_ui_->dataEncodingComboBox->itemData(ti_ui_->dataEncodingComboBox->currentIndex());
+    if (encodingVal.isValid()) {
+        enum data_encoding encoding = (enum data_encoding) encodingVal.toUInt();
+        switch (encoding) {
+        case ENCODING_PLAIN_HEX:
+            settings["regex.encoding"] = "plainHex";
+            break;
+        case ENCODING_PLAIN_OCT:
+            settings["regex.encoding"] = "plainOct";
+            break;
+        case ENCODING_PLAIN_BIN:
+            settings["regex.encoding"] = "plainBin";
+            break;
+        case ENCODING_BASE64:
+            settings["regex.encoding"] = "base64";
+            break;
+        }
+    } else {
+        settings["regex.encoding"] = "plainHex";
+    }
+    settings["regex.inIndication"] = ti_ui_->dirInIndicationLineEdit->text();
+    settings["regex.outIndication"] = ti_ui_->dirOutIndicationLineEdit->text();
+
+    // Import info
+    settings["timestampFormat"] = ti_ui_->timestampFormatLineEdit->text();
+
+    QVariant encapVal = ti_ui_->encapComboBox->itemData(ti_ui_->encapComboBox->currentIndex());
+    if (encapVal.isValid()) {
+        settings["encapsulation"] = encapVal.toUInt();
+    } else {
+        settings["encapsulation"] = WTAP_ENCAP_ETHERNET;
+    }
+
+    if (ti_ui_->ethernetButton->isChecked()) {
+        settings["dummyHeader"] = "ethernet";
+    } else if (ti_ui_->ipv4Button->isChecked()) {
+        settings["dummyHeader"] = "ipv4";
+    } else if (ti_ui_->udpButton->isChecked()) {
+        settings["dummyHeader"] = "udp";
+    } else if (ti_ui_->tcpButton->isChecked()) {
+        settings["dummyHeader"] = "tcp";
+    } else if (ti_ui_->sctpButton->isChecked()) {
+        settings["dummyHeader"] = "sctp";
+    } else if (ti_ui_->sctpDataButton->isChecked()) {
+        settings["dummyHeader"] = "sctpData";
+    } else if (ti_ui_->exportPduButton->isChecked()) {
+        settings["dummyHeader"] = "exportPDU";
+    } else {
+        settings["dummyHeader"] = "none";
+    }
+
+    settings["ethertype"] = ti_ui_->ethertypeLineEdit->text();
+    settings["ipProtocol"] = ti_ui_->protocolLineEdit->text();
+    settings["sourcePort"] = ti_ui_->sourcePortLineEdit->text();
+    settings["destinationPort"] = ti_ui_->destinationPortLineEdit->text();
+    settings["sctpTag"] = ti_ui_->tagLineEdit->text();
+    settings["sctpPPI"] = ti_ui_->ppiLineEdit->text();
+    settings["pduPayload"] = ti_ui_->dissectorComboBox->currentData().toString();
+
+    settings["maxFrameLength"] = ti_ui_->maxLengthLineEdit->text();
+
+    saveSettingsFile();
 }
 
 QString &ImportTextDialog::capfileName() {
@@ -502,7 +708,7 @@ void ImportTextDialog::on_regexTextEdit_textChanged()
     GError* gerror = NULL;
     /* TODO: Use GLib's c++ interface or enable C++ int to enum casting
      * because the flags are declared as enum, so we can't pass 0 like
-     * the specificaion reccomends. These options don't hurt.
+     * the specification recommends. These options don't hurt.
      */
     GRegex* regex = g_regex_new(regex_gchar_p, G_REGEX_DUPNAMES, G_REGEX_MATCH_NOTEMPTY, &gerror);
     if (gerror) {

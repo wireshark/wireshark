@@ -98,6 +98,8 @@ The following features are new (or have been significantly updated) since versio
 
 * Wireshark now supports the Turkish language.
 
+* The settings in the 'Import from Hex Dump' dialog is now stored in a profile import_hexdump.json file.
+
 // === Removed Features and Support
 
 // === Removed Dissectors
