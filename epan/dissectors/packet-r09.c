@@ -17,6 +17,9 @@
 
 #include <epan/packet.h>
 
+void proto_register_r09(void);
+void proto_reg_handoff_r09(void);
+
 #define PNAME  "R09.x"
 #define PSNAME "R09"
 #define PFNAME "r09"
