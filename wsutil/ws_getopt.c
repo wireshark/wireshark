@@ -89,8 +89,10 @@ int ws_getopt(int argc, char * const argv[], const char *optstring)
 	if (!argv[ws_optind][1])
 		return -1;
 
-	if (argv[ws_optind][1] == '-' && !argv[ws_optind][2])
-		return ws_optind++, -1;
+	if (argv[ws_optind][1] == '-' && !argv[ws_optind][2]) {
+		ws_optind++;
+		return -1;
+	}
 
 	if (!ws_optpos) ws_optpos++;
 	if ((k = mbtowc(&c, argv[ws_optind]+ws_optpos, MB_LEN_MAX)) < 0) {
@@ -184,8 +186,10 @@ static int __getopt_long_core(int argc, char *const *argv, const char *optstring
 			const char *name = longopts[i].name;
 			opt = start;
 			if (*opt == '-') opt++;
-			while (*opt && *opt != '=' && *opt == *name)
-				name++, opt++;
+			while (*opt && *opt != '=' && *opt == *name) {
+				name++;
+				opt++;
+			}
 			if (*opt && *opt != '=') continue;
 			arg = opt;
 			match = i;
@@ -196,9 +200,9 @@ static int __getopt_long_core(int argc, char *const *argv, const char *optstring
 			cnt++;
 		}
 		if (cnt==1 && longonly && arg-start == mblen(start, MB_LEN_MAX)) {
-			int l = arg-start;
+			ptrdiff_t l = arg - start;
 			for (i=0; optstring[i]; i++) {
-				int j;
+				ptrdiff_t j;
 				for (j=0; j<l && start[j]==optstring[i+j]; j++);
 				if (j==l) {
 					cnt++;

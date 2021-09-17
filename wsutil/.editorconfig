@@ -110,6 +110,10 @@ indent_size = 2
 [unicode-utils.[ch]]
 indent_size = 2
 
+[ws_getopt.[ch]]
+indent_style = tab
+indent_size = tab
+
 [ws_mempbrk.[ch]]
 indent_style = tab
 indent_size = tab
