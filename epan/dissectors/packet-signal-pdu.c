@@ -31,6 +31,11 @@
 #include <packet-pdu-transport.h>
 #include <packet-lin.h>
 
+void proto_reg_handoff_signal_pdu_can(void);
+void proto_reg_handoff_signal_pdu_lin(void);
+void proto_reg_handoff_signal_pdu_someip(void);
+void proto_reg_handoff_signal_pdu_pdu_transport(void);
+
 /*
  * Dissector for CAN, FlexRay, and other message payloads.
  * This includes such PDUs being transported on top of TECMP,
