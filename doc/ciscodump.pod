@@ -24,8 +24,8 @@ S<[ B<--remote-host>=E<lt>IP addressE<gt> ]>
 S<[ B<--remote-port>=E<lt>TCP portE<gt> ]>
 S<[ B<--remote-username>=E<lt>usernameE<gt> ]>
 S<[ B<--remote-password>=E<lt>passwordE<gt> ]>
-S<[ B<--remote-filter>=E<lt>filter<gt> ]>
-S<[ B<--sshkey>=E<lt>public key path<gt> ]>
+S<[ B<--remote-filter>=E<lt>filterE<gt> ]>
+S<[ B<--sshkey>=E<lt>public key pathE<gt> ]>
 S<[ B<--remote-interface>=E<lt>interfaceE<gt> ]>
 
 

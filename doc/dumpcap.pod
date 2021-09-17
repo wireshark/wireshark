@@ -12,8 +12,8 @@ dumpcap - Dump network traffic
 
 B<dumpcap>
 S<[ B<-a>|B<--autostop> E<lt>capture autostop conditionE<gt> ] ...>
-S<[ B<-b>|B<--ring-buffer> E<lt>capture ring buffer optionE<gt>] ...>
-S<[ B<-B>|B<--buffer-size> E<lt>capture buffer sizeE<gt> ] >
+S<[ B<-b>|B<--ring-buffer> E<lt>capture ring buffer optionE<gt> ] ...>
+S<[ B<-B>|B<--buffer-size> E<lt>capture buffer sizeE<gt> ]>
 S<[ B<-c> E<lt>capture packet countE<gt> ]>
 S<[ B<-C> E<lt>byte limitE<gt> ]>
 S<[ B<-d> ]>
@@ -23,7 +23,7 @@ S<[ B<-g> ]>
 S<[ B<-h>|B<--help> ]>
 S<[ B<-i>|B<--interface> E<lt>capture interfaceE<gt>|rpcap://E<lt>hostE<gt>:E<lt>portE<gt>/E<lt>capture interfaceE<gt>|TCP@E<lt>hostE<gt>:E<lt>portE<gt>|- ]>
 S<[ B<-I>|B<--monitor-mode> ]>
-S<[ B<-k> E<lt>freqE<gt>,[E<lt>typeE<gt>],[E<lt>center_freq1E<gt>],[E<lt>center_freq2>E<gt>]
+S<[ B<-k> E<lt>freqE<gt>,[E<lt>typeE<gt>],[E<lt>center_freq1E<gt>],[E<lt>center_freq2>E<gt>] ]>
 S<[ B<-L>|B<--list-data-link-types> ]>
 S<[ B<-M> ]>
 S<[ B<-n> ]>

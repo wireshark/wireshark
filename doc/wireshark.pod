@@ -13,7 +13,7 @@ wireshark - Interactively dump and analyze network traffic
 B<wireshark>
 S<[ B<-i> E<lt>capture interfaceE<gt>|- ]>
 S<[ B<-f> E<lt>capture filterE<gt> ]>
-S<[ B<-Y> E<lt>displaY filterE<gt> ]>
+S<[ B<-Y> E<lt>display filterE<gt> ]>
 S<[ B<-w> E<lt>outfileE<gt> ]>
 S<[ B<options> ]>
 S<[ E<lt>infileE<gt> ]>
@@ -2948,7 +2948,7 @@ active.
 
 Sets the fatal log level. Fatal log levels cause the progeam to abort.
 The fatal log level be set to C<critical> or C<warning>. C<Error> is
-always fatal. 
+always fatal.
 
 =item WIRESHARK_LOG_DOMAINS
 

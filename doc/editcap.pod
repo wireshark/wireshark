@@ -292,7 +292,7 @@ If <strict time adjustment> value is specified as a
 negative value, then the timestamp values of B<all>
 packets will be adjusted to be equal to the timestamp value
 of the previous packet plus the absolute value of the
-<lt>strict time adjustment<gt> value. A <strict time
+E<lt>strict time adjustmentE<gt> value. A <strict time
 adjustment> value of -0 will result in all packets
 having the timestamp value of the first packet.
 

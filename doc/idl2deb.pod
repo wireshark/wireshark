@@ -11,20 +11,20 @@ idl2deb - Create a Debian package for CORBA monitoring from IDL
 =head1 SYNOPSIS
 
 B<idl2deb>
-S< [ B<-d> E<lt>optsE<gt> ]>
-S< [ B<--dbopts>=E<lt>optsE<gt> ]>
-S< [ B<-e> E<lt>addressE<gt> ]>
-S< [ B<--email>=E<lt>addressE<gt> ]>
-S< [ B<-h> ]>
-S< [ B<--help> ]>
-S< [ B<-i> E<lt>idlfileE<gt> ]>
-S< [ B<--idl>=E<lt>idlfileE<gt> ]>
-S< [ B<-n> E<lt>nameE<gt> ]>
-S< [ B<--name>=E<lt>nameE<gt> ]>
-S< [ B<-p> ]>
-S< [ B<--preserve> ]>
-S< [ B<-v> ]>
-S< [ B<--version> ]>
+S<[ B<-d> E<lt>optsE<gt> ]>
+S<[ B<--dbopts>=E<lt>optsE<gt> ]>
+S<[ B<-e> E<lt>addressE<gt> ]>
+S<[ B<--email>=E<lt>addressE<gt> ]>
+S<[ B<-h> ]>
+S<[ B<--help> ]>
+S<[ B<-i> E<lt>idlfileE<gt> ]>
+S<[ B<--idl>=E<lt>idlfileE<gt> ]>
+S<[ B<-n> E<lt>nameE<gt> ]>
+S<[ B<--name>=E<lt>nameE<gt> ]>
+S<[ B<-p> ]>
+S<[ B<--preserve> ]>
+S<[ B<-v> ]>
+S<[ B<--version> ]>
 
 =head1 DESCRIPTION
 

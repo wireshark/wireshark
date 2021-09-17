@@ -23,7 +23,7 @@ S<[ B<-n> E<lt>nameE<gt> ]>
 S<[ B<--name>=E<lt>nameE<gt> ]>
 S<[ B<-p> ]>
 S<[ B<--preserve> ]>
-S< [B<-v> ]>
+S<[ B<-v> ]>
 S<[ B<--version> ]>
 
 =head1 DESCRIPTION
