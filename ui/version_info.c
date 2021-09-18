@@ -381,24 +381,6 @@ get_compiler_info(GString *str)
 	#endif
 }
 
-/* XXX - is the setlocale() return string opaque? For glibc the separator is ';' */
-static gchar *
-get_locale(void)
-{
-	const gchar *lang;
-	gchar **locv, *loc;
-
-	lang = setlocale(LC_ALL, NULL);
-	if (lang == NULL) {
-		return NULL;
-	}
-
-	locv = g_strsplit(lang, ";", -1);
-	loc = g_strjoinv(", ", locv);
-	g_strfreev(locv);
-	return loc;
-}
-
 /*
  * Get various library run-time versions, and the OS version, and append
  * them to the specified GString.
@@ -412,7 +394,7 @@ GString *
 get_runtime_version_info(void (*additional_info)(GString *))
 {
 	GString *str;
-	gchar *lang;
+	gchar *lc;
 
 	str = g_string_new("Running on ");
 
@@ -438,23 +420,12 @@ get_runtime_version_info(void (*additional_info)(GString *))
 		(*additional_info)(str);
 
 	/*
-	 * Locale.
-	 *
-	 * This returns the C language's locale information; this
-	 * returns the locale that's actually in effect, even if
-	 * it doesn't happen to match the settings of any of the
-	 * locale environment variables.
-	 *
-	 * On Windows get_locale returns the full language, country
-	 * name, and code page, e.g. "English_United States.1252":
-	 * https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/setlocale-wsetlocale?view=vs-2019
+	 * Display LC_CTYPE as a relevant, portable and sort of representative
+	 * locale configuration without being exceedingly verbose and including
+	 * the whole shebang of categories using LC_ALL.
 	 */
-	if ((lang = get_locale()) != NULL) {
-		g_string_append_printf(str, ", with locale %s", lang);
-		g_free(lang);
-	}
-	else {
-		g_string_append(str, ", with default locale");
+	if ((lc = setlocale(LC_CTYPE, NULL)) != NULL) {
+		g_string_append_printf(str, ", with LC_TYPE=%s", lc);
 	}
 
 	/* plugins */
