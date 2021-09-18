@@ -391,6 +391,45 @@ void test_getopt_long_basic2(void)
     free_argv(argv);
 }
 
+
+void test_getopt_opterr1(void)
+{
+    char **argv;
+    int argc;
+
+#ifdef _WIN32
+    g_test_skip("Not supported on Windows");
+    return;
+#endif
+
+    if (g_test_subprocess()) {
+        const char *optstring = "ab";
+        argv = new_argv(&argc, "/bin/ls", "-a", "-z", "path", (char *)NULL);
+
+        ws_optind = 0;
+        ws_opterr = 1;
+        int opt;
+
+        opt = ws_getopt_long(argc, argv, optstring, NULL, NULL);
+        g_assert_cmpint(opt, ==, 'a');
+
+        opt = ws_getopt_long(argc, argv, optstring, NULL, NULL);
+        g_assert_cmpint(opt, ==, '?');
+        g_assert_cmpint(ws_optopt, ==, 'z');
+
+        opt = ws_getopt_long(argc, argv, optstring, NULL, NULL);
+        g_assert_cmpint(opt, ==, -1);
+
+        free_argv(argv);
+
+        return;
+    }
+
+    g_test_trap_subprocess(NULL, 0, 0);
+    g_test_trap_assert_passed();
+    g_test_trap_assert_stderr("/bin/ls: unrecognized option: z\n");
+}
+
 int main(int argc, char **argv)
 {
     int ret;
@@ -417,6 +456,7 @@ int main(int argc, char **argv)
 
     g_test_add_func("/ws_getopt/basic1", test_getopt_long_basic1);
     g_test_add_func("/ws_getopt/basic2", test_getopt_long_basic2);
+    g_test_add_func("/ws_getopt/opterr1", test_getopt_opterr1);
 
     ret = g_test_run();
 

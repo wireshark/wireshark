@@ -37,12 +37,15 @@
 char *ws_optarg;
 int ws_optind=1, ws_opterr=1, ws_optopt, ws_optpos, ws_optreset=0;
 
-void __getopt_msg(const char *a, const char *b, const char *c, size_t l)
+static void __getopt_msg(const char *prog, const char *errstr,
+				const char *optbuf, size_t optsize)
 {
 	FILE *f = stderr;
-	fputs(a, f);
-	fwrite(b, strlen(b), 1, f);
-	fwrite(c, 1, l, f);
+	if ((fputs(prog, f) < 0) ||
+			(fputs(errstr, f) < 0) ||
+			(fwrite(optbuf, sizeof(char), optsize, f) != optsize)) {
+		return;
+	}
 	putc('\n', f);
 }
 
