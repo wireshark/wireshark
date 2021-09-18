@@ -788,14 +788,10 @@ epan_get_compiled_version_info(GString *str)
 	g_string_append(str, ", with Gcrypt " GCRYPT_VERSION);
 
 	/* Kerberos */
-	/* XXX - I don't see how to get the version number, at least for KfW */
-#ifdef HAVE_KERBEROS
-#ifdef HAVE_MIT_KERBEROS
+#if defined(HAVE_MIT_KERBEROS)
 	g_string_append(str, ", with MIT Kerberos");
-#else
-	/* HAVE_HEIMDAL_KERBEROS */
+#elif defined(HAVE_HEIMDAL_KERBEROS)
 	g_string_append(str, ", with Heimdal Kerberos");
-#endif
 #else
 	g_string_append(str, ", without Kerberos");
 #endif /* HAVE_KERBEROS */
@@ -875,12 +871,10 @@ epan_get_runtime_version_info(GString *str)
 	g_string_append_printf(str, ", with Gcrypt %s", gcry_check_version(NULL));
 
 	/* nghttp2 */
-#ifdef HAVE_NGHTTP2
 #if NGHTTP2_VERSION_AGE >= 1
 	nghttp2_info *nghttp2_ptr = nghttp2_version(0);
 	g_string_append_printf(str, ", with nghttp2 %s",  nghttp2_ptr->version_str);
-#endif
-#endif /* HAVE_NGHTTP2 */
+#endif /* NGHTTP2_VERSION_AGE */
 
 	/* brotli */
 #ifdef HAVE_BROTLI
@@ -889,25 +883,19 @@ epan_get_runtime_version_info(GString *str)
 #endif
 
 	/* LZ4 */
-#ifdef HAVE_LZ4
 #if LZ4_VERSION_NUMBER >= 10703
 	g_string_append_printf(str, ", with LZ4 %s", LZ4_versionString());
-#endif
-#endif /* HAVE_LZ4 */
+#endif /* LZ4_VERSION_NUMBER */
 
 	/* Zstandard */
-#ifdef HAVE_ZSTD
 #if ZSTD_VERSION_NUMBER >= 10300
 	g_string_append_printf(str, ", with Zstandard %s", ZSTD_versionString());
-#endif
-#endif /* HAVE_ZSTD */
+#endif /* ZSTD_VERSION_NUMBER */
 
 	/* libsmi */
-#ifdef HAVE_LIBSMI
 #ifdef HAVE_SMI_VERSION_STRING
 	g_string_append_printf(str, ", with libsmi %s", smi_version_string);
 #endif /* HAVE_SMI_VERSION_STRING */
-#endif
 }
 
 /*
