@@ -721,6 +721,10 @@
 <context>
     <name>ByteViewText</name>
     <message>
+        <source>Allow hover selection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Show bytes as hexadecimal</source>
         <translation>Baytları onaltılık olarak göster</translation>
     </message>
@@ -4326,8 +4330,9 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Veriler nasıl kodlanır</translation>
     </message>
     <message>
-        <source>&lt;small&gt;&lt;i&gt;reccomended regex:&lt;/small&gt;&lt;/i&gt;</source>
-        <translation>&lt;small&gt;&lt;i&gt;önerilen normal ifade:&lt;/small&gt;&lt;/i&gt;</translation>
+        <source>&lt;small&gt;&lt;i&gt;recommended regex:&lt;/small&gt;&lt;/i&gt;</source>
+        <oldsource>&lt;small&gt;&lt;i&gt;reccomended regex:&lt;/small&gt;&lt;/i&gt;</oldsource>
+        <translation type="unfinished">&lt;small&gt;&lt;i&gt;önerilen normal ifade:&lt;/small&gt;&lt;/i&gt;</translation>
     </message>
     <message>
         <source>encodingRegexExample</source>
@@ -8689,10 +8694,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 </context>
 <context>
     <name>PacketCommentDialog</name>
-    <message>
-        <source>Packet %1 Comment</source>
-        <translation type="vanished">Paket %1 Yorum</translation>
-    </message>
     <message>
         <source>Edit Packet Comment</source>
         <translation type="unfinished"></translation>

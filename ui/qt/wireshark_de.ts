@@ -722,6 +722,10 @@
 <context>
     <name>ByteViewText</name>
     <message>
+        <source>Allow hover selection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Show bytes as hexadecimal</source>
         <translation>Bytes in Hexadezimal anzeigen</translation>
     </message>
@@ -1053,7 +1057,7 @@
     </message>
     <message>
         <source>Packet size limit (snaplen)</source>
-        <translation type="unfinished"></translation>
+        <translation>Paketgrößenlimit (snaplen)</translation>
     </message>
     <message>
         <source>none</source>
@@ -3209,7 +3213,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>QUIC streams not found on the selected packet.</source>
-        <translation type="unfinished"></translation>
+        <translation>Keinen QUIC Stream für das ausgewählte Paket gefunden</translation>
     </message>
     <message numerus="yes">
         <source>%Ln total sub stream(s).</source>
@@ -3220,16 +3224,16 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message numerus="yes">
         <source>Total number of QUIC connections: %Ln</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Gesamtzahl an QUIC Verbindungen: %Ln</numerusform>
+            <numerusform>Gesamtzahl an QUIC Verbindungen: %Ln</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>Max QUIC Stream ID for the selected connection: %Ln</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Max. QUIC Stream ID für die ausgewählte Verbindung: %Ln</numerusform>
+            <numerusform>Max. QUIC Stream ID für die ausgewählte Verbindung: %Ln</numerusform>
         </translation>
     </message>
     <message>
@@ -4320,7 +4324,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Import a file formatted according to a custom regular expression</source>
-        <translation type="unfinished"></translation>
+        <translation>Datei mit einer Formatierung nach einem Regulären Ausdruck importieren</translation>
     </message>
     <message>
         <source>Packet format regular expression</source>
@@ -4343,8 +4347,9 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Wie die Daten codiert sind</translation>
     </message>
     <message>
-        <source>&lt;small&gt;&lt;i&gt;reccomended regex:&lt;/small&gt;&lt;/i&gt;</source>
-        <translation>&lt;small&gt;&lt;i&gt;Empfohlener regulärer Ausdruck:&lt;/small&gt;&lt;/i&gt;</translation>
+        <source>&lt;small&gt;&lt;i&gt;recommended regex:&lt;/small&gt;&lt;/i&gt;</source>
+        <oldsource>&lt;small&gt;&lt;i&gt;reccomended regex:&lt;/small&gt;&lt;/i&gt;</oldsource>
+        <translation type="unfinished">&lt;small&gt;&lt;i&gt;Empfohlener regulärer Ausdruck:&lt;/small&gt;&lt;/i&gt;</translation>
     </message>
     <message>
         <source>encodingRegexExample</source>
@@ -6362,7 +6367,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Packet Comments</source>
-        <translation type="unfinished">Paketkommentar</translation>
+        <translation>Paketkommentare</translation>
     </message>
     <message>
         <source>Main Toolbar</source>
@@ -8230,31 +8235,31 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>(empty comment)</source>
         <comment>placeholder for empty comment</comment>
-        <translation type="unfinished"></translation>
+        <translation>(leerer Kommentar)</translation>
     </message>
     <message>
         <source>Add New Comment…</source>
-        <translation type="unfinished"></translation>
+        <translation>Neuen Kommentar hinzufügen..</translation>
     </message>
     <message>
         <source>Edit &quot;%1&quot;</source>
         <comment>edit packet comment</comment>
-        <translation type="unfinished"></translation>
+        <translation>Editiere &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Delete &quot;%1&quot;</source>
         <comment>delete packet comment</comment>
-        <translation type="unfinished"></translation>
+        <translation>Lösche &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Delete packet comments</source>
-        <translation type="unfinished"></translation>
+        <translation>Paketkommentare löschen</translation>
     </message>
     <message numerus="yes">
         <source>Delete comments from %n packet(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Kommentar von %n Paket löschen</numerusform>
+            <numerusform>Kommentare von %n Paketen löschen</numerusform>
         </translation>
     </message>
     <message>
@@ -8714,16 +8719,12 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
 <context>
     <name>PacketCommentDialog</name>
     <message>
-        <source>Packet %1 Comment</source>
-        <translation type="vanished">Paket %1 Kommentar</translation>
-    </message>
-    <message>
         <source>Edit Packet Comment</source>
-        <translation type="unfinished"></translation>
+        <translation>Paketkommentar bearbeiten</translation>
     </message>
     <message>
         <source>Add Packet Comment</source>
-        <translation type="unfinished"></translation>
+        <translation>Paketkommentar hinzufügen</translation>
     </message>
 </context>
 <context>
@@ -10576,7 +10577,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>&amp;Add to List</source>
-        <translation type="unfinished"></translation>
+        <translation>Zur Liste hinzufügen &amp;a</translation>
     </message>
     <message>
         <source>&amp;Remove from List</source>
@@ -10790,7 +10791,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Stop playback</source>
-        <translation type="unfinished"></translation>
+        <translation>Abspielen stoppen</translation>
     </message>
     <message>
         <source>Enable/disable skipping of silence during playback</source>
@@ -11139,7 +11140,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>&amp;Add to playlist</source>
-        <translation type="unfinished"></translation>
+        <translation>Zur &amp;Abspielliste hinzufügen</translation>
     </message>
     <message>
         <source>Add new set to existing playlist in RTP Player</source>
@@ -11259,7 +11260,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Can&apos;t write header of WAV file</source>
-        <translation type="unfinished"></translation>
+        <translation>Header der WAV Datei kann nicht gespeichert werden</translation>
     </message>
     <message>
         <source>Payload save works with just one audio stream.</source>
@@ -12785,7 +12786,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Hex Digits</source>
-        <translation type="unfinished"></translation>
+        <translation>Hexzahlen</translation>
     </message>
     <message>
         <source>Quoted-Printable</source>

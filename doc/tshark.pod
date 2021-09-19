@@ -233,7 +233,7 @@ packets.
 
 B<nametimenum>:I<value> Choose between two save filename templates.  If
 I<value> is 1, make running file number part before start time part; this is
-the original and default behaviour (e.g. log_00001_20210828164426.pcap).  If
+the original and default behaviour (e.g. log_00001_20210714164426.pcap).  If
 I<value> is greater than 1, make start time part before running number part
 (e.g. log_20210828164426_00001.pcap).  The latter makes alphabetical sortig
 order equal to creation time order, and keeps related multiple file sets in
