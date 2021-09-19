@@ -418,24 +418,29 @@ bool EnabledProtocolsProxyModel::filterAcceptsSelf(int sourceRow, const QModelIn
     if (! regex.isValid())
         return false;
 
-    if ((type_ != EnabledProtocolsProxyModel::EnabledItems && type_ != EnabledProtocolsProxyModel::DisabledItems) &&
-        (protocolType_ == EnabledProtocolItem::Any || protocolType_ == item->type()) )
+    if (protocolType_ == EnabledProtocolItem::Any || protocolType_ == item->type())
     {
-        if (! filter_.isEmpty())
+        if (type_ != EnabledProtocolsProxyModel::EnabledItems && type_ != EnabledProtocolsProxyModel::DisabledItems)
         {
-            if (item->name().contains(regex) && type_ != OnlyDescription)
-                return true;
+            if (! filter_.isEmpty())
+            {
+                if (item->name().contains(regex) && type_ != OnlyDescription)
+                    return true;
 
-            if (item->description().contains(regex) && type_ != OnlyProtocol)
+                if (item->description().contains(regex) && type_ != OnlyProtocol)
+                    return true;
+            }
+            else
                 return true;
         }
-        else
-            return true;
+        else if (filter_.isEmpty() || (! filter_.isEmpty() && (item->name().contains(regex) || item->description().contains(regex))))
+        {
+            if (type_ == EnabledProtocolsProxyModel::EnabledItems && item->enabled())
+                return true;
+            else if (type_ == EnabledProtocolsProxyModel::DisabledItems && ! item->enabled())
+                return true;
+        }
     }
-    else if (type_ == EnabledProtocolsProxyModel::EnabledItems && item->enabled())
-        return true;
-    else if (type_ == EnabledProtocolsProxyModel::DisabledItems && ! item->enabled())
-        return true;
 
     return false;
 }
