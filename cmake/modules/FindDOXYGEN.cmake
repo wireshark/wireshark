@@ -11,6 +11,7 @@ find_program( DOXYGEN_EXECUTABLE
     /usr/bin
     /usr/local/bin
     /sbin
+    $ENV{ProgramFiles}/doxygen/bin
 )
 
 # We set various paths in doxygen.cfg via configure_file(). These are
