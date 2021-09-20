@@ -93,8 +93,11 @@ if(WIN32)
 		set(WIRESHARK_TARGET_PLATFORM win64)
 	elseif(CMAKE_GENERATOR MATCHES "Visual Studio")
 		set(WIRESHARK_TARGET_PLATFORM win32)
-	else()
+	elseif(DEFINED ENV{WIRESHARK_TARGET_PLATFORM})
 		set(WIRESHARK_TARGET_PLATFORM $ENV{WIRESHARK_TARGET_PLATFORM})
+	else()
+		message(WARNING "Assuming \"Win64\" target platform")
+		set(WIRESHARK_TARGET_PLATFORM win64)
 	endif()
 
 	if(WIRESHARK_TARGET_PLATFORM MATCHES "win64")
@@ -104,18 +107,20 @@ if(WIN32)
 	endif()
 
 	# Sanity check
-	if(DEFINED ENV{PLATFORM})
-		string(TOLOWER $ENV{PLATFORM} _vs_platform)
-	else()
-		set(_vs_platform "[undefined]") # x86
-	endif()
-	if(
-		(_vs_platform STREQUAL "x64" AND NOT WIRESHARK_TARGET_PLATFORM STREQUAL "win64")
-		OR
-		(_vs_platform STREQUAL "[undefined]" AND NOT WIRESHARK_TARGET_PLATFORM STREQUAL "win32")
-	)
-		message(FATAL_ERROR "The PLATFORM environment variable (${_vs_platform})"
-			" doesn't match the generator platform (${WIRESHARK_TARGET_PLATFORM})")
+	if(MSVC)
+		if(DEFINED ENV{PLATFORM})
+			string(TOLOWER $ENV{PLATFORM} _vs_platform)
+		else()
+			set(_vs_platform "[undefined]") # x86
+		endif()
+		if(
+			(_vs_platform STREQUAL "x64" AND NOT WIRESHARK_TARGET_PLATFORM STREQUAL "win64")
+			OR
+			(_vs_platform STREQUAL "[undefined]" AND NOT WIRESHARK_TARGET_PLATFORM STREQUAL "win32")
+		)
+			message(FATAL_ERROR "The PLATFORM environment variable (${_vs_platform})"
+				" doesn't match the generator platform (${WIRESHARK_TARGET_PLATFORM})")
+		endif()
 	endif()
 	message(STATUS "Building for ${WIRESHARK_TARGET_PLATFORM} using ${CMAKE_GENERATOR}")
 
@@ -141,9 +146,10 @@ if(WIN32)
 	execute_process(
 		COMMAND ${POWERSHELL_COMMAND} "\"${_win_setup}\"" -Destination "${_ws_lib_dir}" -Platform ${WIRESHARK_TARGET_PLATFORM}
 		RESULT_VARIABLE _win_setup_failed
+		ERROR_VARIABLE _win_setup_error_output
 	)
 	if(_win_setup_failed)
-		message(FATAL_ERROR "Windows setup (win-setup.ps1) failed.")
+		message(FATAL_ERROR "Windows setup (win-setup.ps1) failed: ${_win_setup_error_output}.")
 	endif()
 
 	set(EXTRA_INSTALLER_DIR ${_ws_lib_dir})
