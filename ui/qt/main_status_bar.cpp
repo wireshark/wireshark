@@ -36,6 +36,7 @@
 #include <QHBoxLayout>
 #include <QSplitter>
 #include <QToolButton>
+#include <QLatin1Char>
 
 // To do:
 // - Use the CaptureFile class.
@@ -424,9 +425,9 @@ void MainStatusBar::showCaptureStatistics()
                 gulong computed_elapsed = cf_get_computed_elapsed(cap_file_);
                 packets_str.append(QString(tr(" %1  Load time: %2:%3.%4"))
                                    .arg(UTF8_MIDDLE_DOT)
-                                   .arg(computed_elapsed/60000)
-                                   .arg(computed_elapsed%60000/1000)
-                                   .arg(computed_elapsed%1000));
+                                   .arg(computed_elapsed/60000, 2, 10, QLatin1Char('0'))
+                                   .arg(computed_elapsed%60000/1000, 2, 10, QLatin1Char('0'))
+                                   .arg(computed_elapsed%1000, 3, 10, QLatin1Char('0')));
             }
         }
     }
