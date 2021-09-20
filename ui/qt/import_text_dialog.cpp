@@ -618,15 +618,15 @@ void ImportTextDialog::on_timestampFormatLineEdit_textChanged(const QString &tim
             char time_str[100];
             QString timefmt = QString(time_format);
 
-#if defined(_WIN32)
+#if defined(HAVE_CLOCK_GETTIME)
+            // Newer POSIX API.  Some UN*Xes whose C libraries lack
+            // timespec_get() (C11) have this.
+            clock_gettime(CLOCK_REALTIME, &timenow);
+#elif defined(_WIN32)
             // At least some Windows C libraries have this.
             // Some UN*X C libraries do, as well, but they might not
             // show it unless you're requesting C11 - or C++17.
             timespec_get(&timenow, TIME_UTC);
-#elif defined(HAVE_CLOCK_GETTIME)
-            // Newer POSIX API.  Some UN*Xes whose C libraries lack
-            // timespec_get() (C11) have this.
-            clock_gettime(CLOCK_REALTIME, &timenow);
 #else
             // Fall back on gettimeofday().
             struct timeval usectimenow;

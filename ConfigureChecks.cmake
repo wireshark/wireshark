@@ -80,19 +80,7 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "SunOS" AND CMAKE_SYSTEM_VERSION MATCHES "5[.]
 	check_function_exists("getexecname"     HAVE_GETEXECNAME)
 endif()
 
-#
-# Check whether we have clock_gettime().
-# It's not on Windows, so don't waste time checking for it.
-# It's in newer POSIX, so some, but not all, UN*Xes have it.
-#
-if (NOT WIN32)
-	#
-	# POSIX - don't bother checking on Windows, as checks
-	# take time.
-	#
-	check_function_exists("clock_gettime"    HAVE_CLOCK_GETTIME)
-endif (NOT WIN32)
-
+check_function_exists("clock_gettime"    HAVE_CLOCK_GETTIME)
 check_function_exists("getifaddrs"       HAVE_GETIFADDRS)
 check_function_exists("issetugid"        HAVE_ISSETUGID)
 check_function_exists("setresgid"        HAVE_SETRESGID)
