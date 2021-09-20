@@ -436,6 +436,11 @@ if(WIN32)
 	add_definitions(
 		-DWIN32_LEAN_AND_MEAN
 		#
+		# NOMINMAX keeps windows.h from defining "min" and "max" via windef.h.
+		# This avoids conflicts with the C++ standard library.
+		#
+		-DNOMINMAX
+		#
 		# Make sure everyone is using the same API and that it's sufficient
 		# for our needs.
 		# This should match the following:
@@ -455,9 +460,6 @@ if( CMAKE_C_COMPILER_ID MATCHES "MSVC")
 
 	add_definitions(
 		/D_CRT_SECURE_NO_DEPRECATE
-		# NOMINMAX keeps windows.h from defining "min" and "max" via windef.h.
-		# This avoids conflicts with the C++ standard library.
-		/DNOMINMAX
 		# -DPSAPI_VERSION=1                 Programs that must run on earlier versions of Windows as well as Windows 7 and later
 		#                                   versions should always call this function as GetProcessMemoryInfo. To ensure correct
 		#                                   resolution of symbols, add Psapi.lib to the TARGETLIBS macro and compile the program
