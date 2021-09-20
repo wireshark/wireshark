@@ -10,6 +10,7 @@
 ADD_CUSTOM_CMAKE_INCLUDE()
 
 set(ASN1_SRC_DIRS
+	lix2
 	HI2Operations
 	acp133
 	acse
