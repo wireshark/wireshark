@@ -12,7 +12,6 @@
 #ifndef __EXTCAP_BASE_H__
 #define __EXTCAP_BASE_H__
 
-#include "config.h"
 
 #include <glib.h>
 #include <glib/gprintf.h>

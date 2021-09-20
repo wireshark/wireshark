@@ -10,6 +10,8 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+#include "config.h"
+
 #include "mate.h"
 #include <wsutil/ws_assert.h>
 

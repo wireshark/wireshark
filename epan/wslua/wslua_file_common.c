@@ -24,6 +24,7 @@
  * two files opened at the same time for the same Lua script (due to reload
  * and other such events), the script can't just have one file state.
  */
+#include "config.h"
 
 #include "wslua_file_common.h"
 

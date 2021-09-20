@@ -12,11 +12,11 @@
  *
  * Ref: Mesh Profile v1.0
  */
+#include "config.h"
 
 #include "packet-bluetooth.h"
 #include "packet-btatt.h"
 #include "packet-btmesh.h"
-#include "config.h"
 
 #include <epan/packet.h>
 #include <epan/prefs.h>

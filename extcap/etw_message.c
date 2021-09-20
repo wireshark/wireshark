@@ -8,6 +8,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
+#include "config.h"
 
 #include "etw_message.h"
 #include <wsutil/wslog.h>

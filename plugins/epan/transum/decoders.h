@@ -9,7 +9,6 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-#include "config.h"
 
 int decode_syn(packet_info *pinfo, proto_tree *tree, PKT_INFO* pkt_info);
 int decode_dcerpc(packet_info *pinfo, proto_tree *tree, PKT_INFO* pkt_info);
