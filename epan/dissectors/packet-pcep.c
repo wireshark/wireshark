@@ -53,7 +53,8 @@
  * Updated support of "PCEP Extensions for Segment Routing" (draft-ietf-pce-segment-routing-08)
  * (c) Copyright 2017 Simon Zhong <szhong[AT]juniper.net>
  * Updated support from draft-ietf-pce-segment-routing-08 to RFC 8664  "PCEP Extensions for Segment Routing"
- *  2021 Oscar Gonzalez de Dios <oscar.gonzalezdedios[AT]telefonica.com>
+ * Added support of draft-ietf-pce-segment-routing-policy-cp-05 "PCEP extension to support Segment Routing Policy Candidate Paths"
+ * (c) Copyright 2021 Oscar Gonzalez de Dios <oscar.gonzalezdedios[AT]telefonica.com>
  */
 
 #include "config.h"
@@ -99,7 +100,7 @@ void proto_reg_handoff_pcep(void);
 #define PCEP_OBJ_SRP                    33
 #define PCEP_OBJ_VENDOR_INFORMATION     34 /* RFC 7470 */
 #define PCEP_OBJ_BU                     35 /* draft-ietf-pce-pcep-service-aware */
-#define PCEP_ASSOCIATION_OBJ            40 /* draft-ietf-pce-association-group */
+#define PCEP_ASSOCIATION_OBJ            40 /* RFC 8697 */
 
 /*Subobjects of EXPLICIT ROUTE Object*/
 #define PCEP_SUB_IPv4                    1
@@ -664,6 +665,10 @@ static int hf_pcep_association_source_ipv4 = -1;
 static int hf_pcep_association_source_ipv6 = -1;
 static int hf_pcep_association_source_global = -1;
 static int hf_pcep_association_id_extended = -1;
+
+static int hf_pcep_association_id_extended_color = -1;
+static int hf_pcep_association_id_extended_ipv4_endpoint = -1;
+static int hf_pcep_association_id_extended_ipv6_endpoint = -1;
 static int hf_pcep_unreach_destination_obj_ipv4_address = -1;
 static int hf_pcep_unreach_destination_obj_ipv6_address = -1;
 
@@ -675,6 +680,15 @@ static int hf_pcep_op_conf_assoc_range_range = -1;
 static int hf_pcep_srcpag_info_color = -1;
 static int hf_pcep_srcpag_info_destination_endpoint = -1;
 static int hf_pcep_srcpag_info_preference = -1;
+
+
+static int hf_pcep_sr_policy_name = -1;
+static int hf_pcep_sr_policy_cpath_id_proto_origin = -1;
+static int hf_pcep_sr_policy_cpath_id_originator_asn = -1;
+static int hf_pcep_sr_policy_cpath_id_originator_address = -1;
+static int hf_pcep_sr_policy_cpath_id_discriminator = -1;
+static int hf_pcep_sr_policy_cpath_name = -1;
+static int hf_pcep_sr_policy_cpath_preference = -1;
 
 static int hf_pcep_enterprise_number = -1;
 static int hf_pcep_enterprise_specific_info = -1;
@@ -1113,7 +1127,11 @@ static const value_string pcep_tlvs_vals[] = {
     {52, "FLOW FILTER TLV"                         },
     {53, "L2 FLOW FILTER TLV"                      },
     {54, "Bidirectional LSP Association Group TLV" },
-    {55, "TE-PATH-BINDING"                         },
+    {55, "TE-PATH-BINDING"                         }, /* TEMPORARY - registered 2021-03-29, expires 2022-03-29 draft-ietf-pce-binding-label-sid-07 */
+    {56, "SRPOLICY-POL-NAME"                       }, /* TEMPORARY - registered 2021-03-30, expires 2022-03-30 draft-ietf-pce-segment-routing-policy-cp-04 */
+    {57, "SRPOLICY-CPATH-ID"                       }, /* TEMPORARY - registered 2021-03-30, expires 2022-03-30 draft-ietf-pce-segment-routing-policy-cp-04 */
+    {58, "SRPOLICY-CPATH-NAME"                     }, /* TEMPORARY - registered 2021-03-30, expires 2022-03-30 draft-ietf-pce-segment-routing-policy-cp-04 */
+    {59, "SRPOLICY-CPATH-PREFERENCE"               }, /* TEMPORARY - registered 2021-03-30, expires 2022-03-30 draft-ietf-pce-segment-routing-policy-cp-04 */
     {0, NULL                                       }
 };
 
@@ -1461,6 +1479,7 @@ static const value_string pcep_p2mp_leaf_type_vals[] = {
 };
 
 /* Association Type Fields.  */
+/* https://www.iana.org/assignments/pcep/pcep.xhtml#association-type-field */
 static const value_string pcep_association_type_field_vals[] = {
     {0, "Reserved"}, /* RFC 8697*/
     {1, "Path Protection Association"}, /* RFC 8745 */
@@ -1479,11 +1498,21 @@ static const value_string pcep_path_setup_type_capability_sub_tlv_vals[] = {
     {26, "SR-PCE-CAPABILITY"                       }, /* RFC 8664*/
     {0,  NULL }
 };
+
+
+/* Protocol Origin values in SR Policy Candidate Path Identifiers TLV*/
+static const value_string pcep_sr_policy_id_proto_origin_vals[] = {
+    {10, "PCEP"                        }, /*  draft-ietf-spring-segment-routing-policy section 2.3 */
+    {20, "BGP SR Policy"               }, /*  draft-ietf-spring-segment-routing-policy section 2.3 */
+    {30, "Via Configuration"           }, /*  draft-ietf-spring-segment-routing-policy section 2.3 */
+    {0,  NULL }
+};
+
 #define OBJ_HDR_LEN  4       /* length of object header */
 
 /*------------------------------------------------------------
  * SUB-TLVS
- ----------------------------------------------------------------*/
+ * ----------------------------------------------------------------*/
 static void
 dissect_pcep_path_setup_capabilities_sub_tlvs(proto_tree *pcep_tlv, tvbuff_t *tvb, int offset, gint length, gint ett_pcep_obj)
 {
@@ -1521,12 +1550,21 @@ dissect_pcep_path_setup_capabilities_sub_tlvs(proto_tree *pcep_tlv, tvbuff_t *tv
 
 }
 
+/*------------------------------------------------------------
+ * PCEP TLVS
+ *----------------------------------------------------------------*/
 
+/* The content of Extended Association ID TLV, type = 31 is scoped
+ *  on the association type. The TLV dissection receives such
+ *  information to be able to decode properly the TLV
+ *  All the other TLVs do not need scope at the moment.
+*/
 static void
-dissect_pcep_tlvs(proto_tree *pcep_obj, tvbuff_t *tvb, int offset, gint length, gint ett_pcep_obj)
+dissect_pcep_tlvs_with_scope(proto_tree *pcep_obj, tvbuff_t *tvb, int offset, gint length, gint ett_pcep_obj, guint16 association_type)
 {
     proto_tree *tlv;
     guint16     tlv_length, tlv_type, of_code, assoc_type;
+    guint32 psts;
     int         i, j;
     int         padding = 0;
 
@@ -1657,30 +1695,37 @@ dissect_pcep_tlvs(proto_tree *pcep_obj, tvbuff_t *tvb, int offset, gint length, 
                 break;
 
             case 31:    /* EXTENDED-ASSOCIATION-ID TLV */
-                proto_tree_add_item(tlv, hf_pcep_association_id_extended, tvb, offset + 4 + j, tlv_length, ENC_NA);
+                /* The extend association ID is scoped depending on the association type of the object
+                in which the TLV is present */
+                if (association_type==6) {
+                  if (tlv_length==8) {
+                    proto_tree_add_item(tlv, hf_pcep_association_id_extended_color, tvb, offset + 4 + j, 4, ENC_NA);
+                    proto_tree_add_item(tlv, hf_pcep_association_id_extended_ipv4_endpoint, tvb, offset + 8 + j, 4, ENC_NA);
+                  } else if (tlv_length==20) {
+                     proto_tree_add_item(tlv, hf_pcep_association_id_extended_color, tvb, offset + 4 + j, 4, ENC_NA);
+                     proto_tree_add_item(tlv, hf_pcep_association_id_extended_ipv6_endpoint, tvb, offset + 8 + j, 16, ENC_NA);
+                  } else {
+                    proto_tree_add_item(tlv, hf_pcep_association_id_extended, tvb, offset + 4 + j, tlv_length, ENC_NA);
+                  }
+                } else {
+                  proto_tree_add_item(tlv, hf_pcep_association_id_extended, tvb, offset + 4 + j, tlv_length, ENC_NA);
+                }
                 break;
 
             case 34:    /* PATH-SETUP-TYPE-CAPABILITY TLV */
-                {
-                    guint32 psts;
+                proto_tree_add_item(tlv, hf_pcep_path_setup_type_capability_reserved24, tvb, offset + 4 + j, 3, ENC_BIG_ENDIAN);
+                proto_tree_add_item_ret_uint(tlv, hf_pcep_path_setup_type_capability_psts, tvb, offset + 4 + j + 3, 1, ENC_NA, &psts);
+                for (i = 0; i < (int)psts; i++) {
+                    proto_tree_add_item(tlv, hf_pcep_path_setup_type_capability_pst, tvb, offset + 4 + j + 4 + i, 1, ENC_NA);
+                }
 
-                    proto_tree_add_item(tlv, hf_pcep_path_setup_type_capability_reserved24, tvb, offset + 4 + j, 3, ENC_BIG_ENDIAN);
-                    proto_tree_add_item_ret_uint(tlv, hf_pcep_path_setup_type_capability_psts, tvb, offset + 4 + j + 3, 1, ENC_NA, &psts);
-                    for (i = 0; i < (int)psts; i++) {
-                        proto_tree_add_item(tlv, hf_pcep_path_setup_type_capability_pst, tvb, offset + 4 + j + 4 + i, 1, ENC_NA);
-                    }
-
-                    padding = (4 - (psts % 4)) % 4;
-                    if (padding != 0) {
-                        proto_tree_add_item(tlv, hf_pcep_tlv_padding, tvb, offset + 4 + j + 4 + psts, padding, ENC_NA);
-                    }
-
-                     //offset += 8+(int)psts+padding;
-                     //obj_length -= OBJ_HDR_LEN+RP_OBJ_MIN_LEN;
-                     if (tlv_length>8+psts+padding) {
-                       //There are sub-TLVs to decode
-                     dissect_pcep_path_setup_capabilities_sub_tlvs(tlv, tvb, offset+j+8+psts+padding, tlv_length -psts- padding-4, ett_pcep_obj);
-                     }
+                padding = (4 - (psts % 4)) % 4;
+                if (padding != 0) {
+                    proto_tree_add_item(tlv, hf_pcep_tlv_padding, tvb, offset + 4 + j + 4 + psts, padding, ENC_NA);
+                }
+                if (tlv_length>8+psts+padding) {
+                    //There are sub-TLVs to decode
+                    dissect_pcep_path_setup_capabilities_sub_tlvs(tlv, tvb, offset+j+8+psts+padding, tlv_length -psts- padding-4, ett_pcep_obj);
                 }
                 break;
 
@@ -1698,6 +1743,25 @@ dissect_pcep_tlvs(proto_tree *pcep_obj, tvbuff_t *tvb, int offset, gint length, 
                 proto_tree_add_item(tlv, hf_pcep_srcpag_info_preference, tvb, offset + 4 + j + 8, 4, ENC_NA);
                 break;
 
+            case 56:   /* SRPOLICY-POL-NAME */
+                proto_tree_add_item(tlv, hf_pcep_sr_policy_name, tvb, offset+4+j, tlv_length, ENC_ASCII|ENC_NA);
+                break;
+
+            case 57:   /* SRPOLICY-CPATH-ID */
+                proto_tree_add_item(tlv, hf_pcep_sr_policy_cpath_id_proto_origin, tvb, offset + 4 + j, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tlv, hf_pcep_sr_policy_cpath_id_originator_asn, tvb, offset + 8 + j, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tlv, hf_pcep_sr_policy_cpath_id_originator_address, tvb, offset + 24+ j, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tlv, hf_pcep_sr_policy_cpath_id_discriminator, tvb, offset + 28 + j, 4, ENC_BIG_ENDIAN);
+                break;
+
+            case 58:   /* SRPOLICY-CPATH-NAME */
+                proto_tree_add_item(tlv, hf_pcep_sr_policy_cpath_name, tvb, offset+4+j, tlv_length, ENC_ASCII|ENC_NA);
+                break;
+
+            case 59:   /* SRPOLICY-CPATH-PREFERENCE */
+                proto_tree_add_item(tlv, hf_pcep_sr_policy_cpath_preference, tvb, offset + 4 + j, 4, ENC_BIG_ENDIAN);
+                break;
+
             default:
                 proto_tree_add_item(tlv, hf_pcep_tlv_data, tvb, offset+4+j, tlv_length, ENC_NA);
         }
@@ -1709,6 +1773,11 @@ dissect_pcep_tlvs(proto_tree *pcep_obj, tvbuff_t *tvb, int offset, gint length, 
     }
 }
 
+static void
+dissect_pcep_tlvs(proto_tree *pcep_obj, tvbuff_t *tvb, int offset, gint length, gint ett_pcep_obj)
+{
+  dissect_pcep_tlvs_with_scope(pcep_obj, tvb, offset, length, ett_pcep_obj,0);
+}
 
 /*------------------------------------------------------------------------------
  *SUBOBJECTS
@@ -3573,6 +3642,7 @@ dissect_pcep_association_obj(proto_tree *pcep_object_tree, packet_info *pinfo,
 {
     proto_tree *pcep_association_flags = NULL;
     proto_item *ti = NULL;
+    guint16 association_type;
 
     /* object length sanity checks */
     if ((type == 1) &&
@@ -3610,6 +3680,7 @@ dissect_pcep_association_obj(proto_tree *pcep_object_tree, packet_info *pinfo,
     offset2 += 2; /* consume flags */
     proto_tree_add_item(pcep_object_tree, hf_pcep_association_type,
                         tvb, offset2, 2, ENC_BIG_ENDIAN);
+    association_type = tvb_get_ntohs(tvb, offset2);
     offset2 += 2; /* consume association type */
     proto_tree_add_item(pcep_object_tree, hf_pcep_association_id,
                         tvb, offset2, 2, ENC_BIG_ENDIAN);
@@ -3638,8 +3709,9 @@ dissect_pcep_association_obj(proto_tree *pcep_object_tree, packet_info *pinfo,
     }
 
     /* The ASSOCIATION object can have optional TLV(s) */
-    dissect_pcep_tlvs(pcep_object_tree, tvb,
-                      offset2, obj_length, ett_pcep_obj_association);
+    /* The EXTENDED_ASSOCIATION_ID TLV is scoped to the ASSOCIATION TYPE*/
+    dissect_pcep_tlvs_with_scope(pcep_object_tree, tvb,
+                      offset2, obj_length, ett_pcep_obj_association,association_type);
 }
 
 /*------------------------------------------------------------------------------*/
@@ -5830,7 +5902,7 @@ proto_register_pcep(void)
         },
         { &hf_pcep_association_type,
           { "Association Type", "pcep.association.type",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
+            FT_UINT16, BASE_DEC, VALS(pcep_association_type_field_vals), 0x0,
             NULL, HFILL }
         },
         { &hf_pcep_association_id,
@@ -5854,8 +5926,23 @@ proto_register_pcep(void)
             NULL, HFILL }
         },
         { &hf_pcep_association_id_extended,
-          { "Extended Association ID", "pcep.association.id.extended",
+          { "Extended Association ID", "pcep.tlv.extended_association_id.id",
             FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pcep_association_id_extended_color,
+          { "Color", "pcep.tlv.extended_association_id.color",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pcep_association_id_extended_ipv4_endpoint,
+          { "IPv4 Endpoint", "pcep.tlv.extended_association_id.ipv4_endpoint",
+            FT_IPv4, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pcep_association_id_extended_ipv6_endpoint,
+          { "IPv6 Endpoint", "pcep.tlv.extended_association_id.ipv6_endpoint",
+            FT_IPv6, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_pcep_op_conf_assoc_range_reserved,
@@ -5890,6 +5977,41 @@ proto_register_pcep(void)
         },
         { &hf_pcep_srcpag_info_preference,
           { "Preference", "pcep.srcpag_info.preference",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pcep_sr_policy_name,
+          { "SR Policy Name", "pcep.tlv.sr_policy_name",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pcep_sr_policy_cpath_id_proto_origin,
+          { "Proto origin", "pcep.tlv.sr_policy_cpath_id.proto_origin",
+            FT_UINT8, BASE_DEC, VALS(pcep_sr_policy_id_proto_origin_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pcep_sr_policy_cpath_id_originator_asn,
+          { "Originator ASN", "pcep.tlv.sr_policy_cpath_id.originator_asn",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pcep_sr_policy_cpath_id_originator_address,
+          { "IPv4 Originator Address", "pcep.tlv.sr_policy_cpath_id.originator_ipv4_address",
+            FT_IPv4, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pcep_sr_policy_cpath_id_discriminator,
+          { "Discriminator", "pcep.tlv.sr_policy_cpath_id.proto_discriminator",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pcep_sr_policy_cpath_name,
+          { "SR Policy Candidate Path Name", "pcep.tlv.sr_policy_cpath_name",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pcep_sr_policy_cpath_preference,
+          { "Preference", "pcep.tlv.sr_policy_cpath_preference",
             FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
