@@ -427,6 +427,25 @@ set_property(DIRECTORY
 		$<$<OR:$<BOOL:${DISABLE_DEBUG}>,$<CONFIG:Release>>:WS_DISABLE_DEBUG>
 )
 
+if(WIN32)
+	#
+	# Make sure everyone is using the same API and that it's sufficient
+	# for our needs.
+	# This should match the following:
+	# - The <compatibility><application> section in image\wireshark.exe.manifest.in
+	# - The GetWindowsVersion parts of packaging\nsis\wireshark.nsi
+	# - The VersionNT parts of packaging\wix\Prerequisites.wxi
+	#
+	# NOTE: Because of the way Qt moc is including "config.h" (not as the
+	# first header) this *MUST* be defined on the command line to precede
+	# every included header and not trigger symbol redefinition errors.
+	#
+	add_definitions(
+		-DNTDDI_VERSION=NTDDI_WIN7
+		-D_WIN32_WINNT=_WIN32_WINNT_WIN7
+	)
+endif()
+
 if( CMAKE_C_COMPILER_ID MATCHES "MSVC")
 	if ((MSVC_VERSION LESS "1900") OR (MSVC_VERSION GREATER_EQUAL "2000"))
 		message(FATAL_ERROR "You are using an unsupported version of MSVC")

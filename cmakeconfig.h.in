@@ -289,23 +289,6 @@
 #cmakedefine YYTEXT_POINTER
 
 #if defined(_WIN32)
-   /*
-    * Make sure everyone is using the same API and that it's sufficient
-    * for our needs.
-    * This should match the following:
-    * - The <compatibility><application> section in image\wireshark.exe.manifest.in
-    * - The GetWindowsVersion parts of packaging\nsis\wireshark.nsi
-    * - The VersionNT parts of packaging\wix\Prerequisites.wxi
-    */
-#  if defined(NTDDI_VERSION)
-#    error NTDDI_VERSION already defined.
-#  endif
-#  define NTDDI_VERSION NTDDI_WIN7
-#  if defined(_WIN32_WINNT)
-#    error _WIN32_WINNT already defined.
-#  endif
-#  define _WIN32_WINNT _WIN32_WINNT_WIN7
-
    /* WpdPack/INclude/pcap/pcap.h checks for "#if defined(WIN32)" */
 #  ifndef WIN32
 #    define WIN32	1
