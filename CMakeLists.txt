@@ -436,6 +436,11 @@ if(WIN32)
 	add_definitions(
 		-DWIN32_LEAN_AND_MEAN
 		#
+		# Use Unicode in Windows runtime functions.
+		#
+		-DUNICODE
+		-D_UNICODE
+		#
 		# NOMINMAX keeps windows.h from defining "min" and "max" via windef.h.
 		# This avoids conflicts with the C++ standard library.
 		#

@@ -312,9 +312,6 @@
 #  ifndef __STDC__
 #    define __STDC__ 0
 #  endif
-   /* Use Unicode in Windows runtime functions. */
-#  define UNICODE 1
-#  define _UNICODE 1
 #endif
 
 #include <ws_diag_control.h>
