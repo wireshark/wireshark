@@ -288,14 +288,16 @@
 /* Note: not use in the code */
 #cmakedefine YYTEXT_POINTER
 
+#if defined(_MSC_VER)
+#  if !defined(QT_VERSION) || !defined(_SSIZE_T_DEFINED)
+   typedef int ssize_t;
+#  endif
+#endif
+
 #if defined(_WIN32)
    /* WpdPack/INclude/pcap/pcap.h checks for "#if defined(WIN32)" */
 #  ifndef WIN32
 #    define WIN32	1
-#  endif
-
-#  if !defined(QT_VERSION) || !defined(_SSIZE_T_DEFINED)
-   typedef int ssize_t;
 #  endif
 
    /*
