@@ -1997,6 +1997,7 @@ dissect_abis_oml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 {
 	proto_item *ti;
 	proto_tree *oml_tree;
+	guint32 remain_len;
 	int offset = 0;
 
 	guint8	    msg_disc = tvb_get_guint8(tvb, offset);
@@ -2020,10 +2021,14 @@ dissect_abis_oml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 			    1, ENC_LITTLE_ENDIAN);
 
 	/* Check whether the indicated length is correct */
-	if (len != tvb_reported_length_remaining(tvb, offset)) {
+	if (msg_disc == ABIS_OM_MDISC_MANUF) /* TS 12.21 sec 8.1.4 NOTE 1 */
+		remain_len = tvb_reported_length_remaining(tvb, offset + 1 + tvb_get_guint8(tvb, offset));
+	else
+		remain_len = tvb_reported_length_remaining(tvb, offset);
+	if (len != remain_len) {
 		expert_add_info_format(pinfo, ti, &ei_length_mismatch,
 			"Indicated length (%u) does not match the actual (%u)",
-			len, tvb_reported_length_remaining(tvb, offset));
+			len, remain_len);
 	}
 
 	if (global_oml_dialect == OML_DIALECT_ERICSSON) {
