@@ -733,6 +733,7 @@ static dissector_handle_t bgp_handle;
 #define BGP_LS_NLRI_PROTO_ID_OSPF          3
 #define BGP_LS_NLRI_PROTO_ID_DIRECT        4
 #define BGP_LS_NLRI_PROTO_ID_STATIC        5
+#define BGP_LS_NLRI_PROTO_ID_BGP           7
 
 /* Link-State routing universes */
 #define BGP_LS_NLRI_ROUTING_UNIVERSE_LEVEL_3     0
@@ -764,6 +765,7 @@ static dissector_handle_t bgp_handle;
 #define BGP_NLRI_TLV_BGP_LS_IDENTIFIER              513
 #define BGP_NLRI_TLV_AREA_ID                        514
 #define BGP_NLRI_TLV_IGP_ROUTER_ID                  515
+#define BGP_NLRI_TLV_BGP_ROUTER_ID                  516
 
 #define BGP_NLRI_TLV_NODE_FLAG_BITS                 1024
 #define BGP_NLRI_TLV_OPAQUE_NODE_PROPERTIES         1025
@@ -834,6 +836,9 @@ static dissector_handle_t bgp_handle;
 #define BGP_LS_SR_TLV_FLEX_ALGO_INC_ALL_AFFINITY    1042
 #define BGP_LS_SR_TLV_ADJ_SID                       1099
 #define BGP_LS_SR_TLV_LAN_ADJ_SID                   1100
+#define BGP_LS_SR_TLV_PEER_NODE_SID                 1101
+#define BGP_LS_SR_TLV_PEER_ADJ_SID                  1102
+#define BGP_LS_SR_TLV_PEER_SET_SID                  1103
 #define BGP_LS_SR_TLV_PREFIX_SID                    1158
 #define BGP_LS_SR_TLV_RANGE                         1159
 #define BGP_LS_SR_TLV_BINDING_SID                   1160
@@ -904,6 +909,18 @@ static dissector_handle_t bgp_handle;
 #define BGP_LS_SR_ADJACENCY_SID_FLAG_LI 0x10
 #define BGP_LS_SR_ADJACENCY_SID_FLAG_SO 0x10
 #define BGP_LS_SR_ADJACENCY_SID_FLAG_SI 0x08
+
+/* BGP Peering SIDs TLV flags, rfc9086:
+
+   0  1  2  3  4  5  6  7
+   +--+--+--+--+--+--+--+--+
+   |V |L |B |P |  |  |  |  | rfc9086
+   +--+--+--+--+--+--+--+--+
+*/
+#define BGP_LS_SR_PEER_SID_FLAG_V   0x80
+#define BGP_LS_SR_PEER_SID_FLAG_L   0x40
+#define BGP_LS_SR_PEER_SID_FLAG_B   0x20
+#define BGP_LS_SR_PEER_SID_FLAG_P   0x10
 
 /* SR-Capabilities TLV flags, draft-gredler-idr-bgp-ls-segment-routing-ext-01:
 
@@ -1736,6 +1753,7 @@ static const value_string link_state_nlri_protocol_id_values[] = {
         {BGP_LS_NLRI_PROTO_ID_OSPF, "OSPF"},
         {BGP_LS_NLRI_PROTO_ID_DIRECT, "Direct"},
         {BGP_LS_NLRI_PROTO_ID_STATIC, "Static"},
+        {BGP_LS_NLRI_PROTO_ID_BGP, "BGP"},
         {0, NULL},
 };
 
@@ -2392,6 +2410,17 @@ static int hf_bgp_ls_sr_tlv_adjacency_sid_flags_so = -1;
 static int hf_bgp_ls_sr_tlv_adjacency_sid_weight = -1;
 static int hf_bgp_ls_sr_tlv_adjacency_sid_label = -1;
 static int hf_bgp_ls_sr_tlv_adjacency_sid_index = -1;
+static int hf_bgp_ls_sr_tlv_peer_node_sid = -1;                    /* 1101 */
+static int hf_bgp_ls_sr_tlv_peer_adj_sid = -1;                     /* 1102 */
+static int hf_bgp_ls_sr_tlv_peer_set_sid = -1;                     /* 1103 */
+static int hf_bgp_ls_sr_tlv_peer_sid_flags = -1;
+static int hf_bgp_ls_sr_tlv_peer_sid_flags_v = -1;
+static int hf_bgp_ls_sr_tlv_peer_sid_flags_l = -1;
+static int hf_bgp_ls_sr_tlv_peer_sid_flags_b = -1;
+static int hf_bgp_ls_sr_tlv_peer_sid_flags_p = -1;
+static int hf_bgp_ls_sr_tlv_peer_sid_weight = -1;
+static int hf_bgp_ls_sr_tlv_peer_sid_label = -1;
+static int hf_bgp_ls_sr_tlv_peer_sid_index = -1;
 static int hf_bgp_ls_sr_tlv_prefix_attr_flags = -1;                /* 1170 */
 static int hf_bgp_ls_sr_tlv_prefix_attr_flags_flags = -1;
 static int hf_bgp_ls_sr_tlv_prefix_attr_flags_flags_unknown= -1;
@@ -2427,6 +2456,8 @@ static int hf_bgp_ls_tlv_area_id = -1;                             /* 514 */
 static int hf_bgp_ls_tlv_area_id_id = -1;
 static int hf_bgp_ls_tlv_igp_router = -1;                          /* 515 */
 static int hf_bgp_ls_tlv_igp_router_id = -1;
+static int hf_bgp_ls_tlv_bgp_router_id = -1;                       /* 516 */
+static int hf_bgp_ls_tlv_bgp_router_id_id = -1;
 
 static int hf_bgp_ls_tlv_node_flags_bits = -1;                     /* 1024 */
 static int hf_bgp_ls_tlv_opaque_node_properties = -1;              /* 1025 */
@@ -4522,8 +4553,15 @@ static int decode_bgp_link_node_descriptor(tvbuff_t *tvb, proto_tree *tree, gint
               proto_tree_add_item(tlv_tree, hf_bgp_ls_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
               proto_tree_add_item(tlv_tree, hf_bgp_ls_tlv_igp_router_id, tvb, offset + 4, sub_length, ENC_NA);
           break;
+          case BGP_NLRI_TLV_BGP_ROUTER_ID:
+              tlv_item = proto_tree_add_item(tree, hf_bgp_ls_tlv_bgp_router_id, tvb, offset, sub_length+4, ENC_NA);
+              tlv_tree = proto_item_add_subtree(tlv_item, ett_bgp_mp_reach_nlri);
+              proto_tree_add_item(tlv_tree, hf_bgp_ls_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+              proto_tree_add_item(tlv_tree, hf_bgp_ls_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+              proto_tree_add_item(tlv_tree, hf_bgp_ls_tlv_bgp_router_id_id, tvb, offset + 4, sub_length, ENC_NA);
+          break;
           default:
-              expert_add_info_format(pinfo, tree, &ei_bgp_ls_error, "Undefined node Descriptor Sub-TLV type (%u)!", type);
+              expert_add_info_format(pinfo, tree, &ei_bgp_ls_warn, "Undefined node Descriptor Sub-TLV type (%u)!", type);
     }
 
     length -= 4 + sub_length;
@@ -5510,6 +5548,51 @@ decode_link_state_attribute_tlv(proto_tree *tree, tvbuff_t *tvb, gint offset, pa
             break;
 
         case BGP_LS_SR_TLV_LAN_ADJ_SID:
+            break;
+
+        case BGP_LS_SR_TLV_PEER_NODE_SID:
+        case BGP_LS_SR_TLV_PEER_ADJ_SID:
+        case BGP_LS_SR_TLV_PEER_SET_SID:
+            {
+                /*
+                   0  1  2  3  4  5  6  7
+                  +--+--+--+--+--+--+--+--+
+                  |V |L |B |P |  |  |  |  | rfc9086
+                  +--+--+--+--+--+--+--+--+
+                */
+                static int * const peer_sid_flags[] = {
+                    &hf_bgp_ls_sr_tlv_peer_sid_flags_v,
+                    &hf_bgp_ls_sr_tlv_peer_sid_flags_l,
+                    &hf_bgp_ls_sr_tlv_peer_sid_flags_b,
+                    &hf_bgp_ls_sr_tlv_peer_sid_flags_p,
+                    NULL
+                };
+
+                tlv_item = proto_tree_add_item(tree,
+                                               (type == BGP_LS_SR_TLV_PEER_NODE_SID ?
+                                                hf_bgp_ls_sr_tlv_peer_node_sid :
+                                                (type == BGP_LS_SR_TLV_PEER_ADJ_SID ?
+                                                 hf_bgp_ls_sr_tlv_peer_adj_sid :
+                                                 hf_bgp_ls_sr_tlv_peer_set_sid)),
+                                               tvb, offset, length + 4, ENC_NA);
+                tlv_tree = proto_item_add_subtree(tlv_item, ett_bgp_link_state);
+                proto_tree_add_item(tlv_tree, hf_bgp_ls_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+                ti = proto_tree_add_item(tlv_tree, hf_bgp_ls_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+                if (length != 7 && length != 8) {
+                    expert_add_info_format(pinfo, ti, &ei_bgp_ls_error,
+                                           "Unexpected TLV Length (%u) in BGP-LS Peer SID TLV, it must be either 7 or 8 bytes!",
+                                           length);
+                    break;
+                }
+                proto_tree_add_bitmask(tlv_tree, tvb, offset + 4, hf_bgp_ls_sr_tlv_peer_sid_flags,
+                                       ett_bgp_link_state, peer_sid_flags, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tlv_tree, hf_bgp_ls_sr_tlv_peer_sid_weight, tvb, offset + 5, 1, ENC_BIG_ENDIAN);
+                if (length == 7) {
+                    proto_tree_add_item(tlv_tree, hf_bgp_ls_sr_tlv_peer_sid_label, tvb, offset + 8, 3, ENC_BIG_ENDIAN);
+                } else {
+                    proto_tree_add_item(tlv_tree, hf_bgp_ls_sr_tlv_peer_sid_index, tvb, offset + 8, 4, ENC_BIG_ENDIAN);
+                }
+            }
             break;
 
         case BGP_LS_APP_SPEC_LINK_ATTR:
@@ -12308,6 +12391,12 @@ proto_register_bgp(void)
       { &hf_bgp_ls_tlv_igp_router_id,
         { "IGP ID", "bgp.ls.tlv.igp_router_id", FT_BYTES,
           BASE_NONE, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_ls_tlv_bgp_router_id,
+        { "BGP Router-ID TLV", "bgp.ls.tlv.bgp_router_id", FT_NONE,
+          BASE_NONE, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_ls_tlv_bgp_router_id_id,
+        { "BGP Router-ID", "bgp.ls.tlv.bgp_router_id.id", FT_IPv4,
+          BASE_NONE, NULL, 0x0, NULL, HFILL}},
       { &hf_bgp_ls_tlv_node_flags_bits,
         { "Node Flags Bits TLV", "bgp.ls.tlv.node_flags_bits", FT_NONE,
          BASE_NONE, NULL, 0x0, NULL, HFILL}},
@@ -12654,6 +12743,39 @@ proto_register_bgp(void)
           BASE_DEC, NULL, 0x0FFFFF, NULL, HFILL}},
       { &hf_bgp_ls_sr_tlv_adjacency_sid_index,
         { "SID/Index", "bgp.ls.sr.tlv.adjacency.sid.index", FT_UINT32,
+          BASE_DEC, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_ls_sr_tlv_peer_node_sid,
+        { "PeerNode SID TLV", "bgp.ls.sr.tlv.peer_node.sid", FT_NONE,
+          BASE_NONE, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_ls_sr_tlv_peer_adj_sid,
+        { "PeerAdj SID TLV", "bgp.ls.sr.tlv.peer_adj.sid", FT_NONE,
+          BASE_NONE, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_ls_sr_tlv_peer_set_sid,
+        { "PeerSet SID TLV", "bgp.ls.sr.tlv.peer_set.sid", FT_NONE,
+          BASE_NONE, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_ls_sr_tlv_peer_sid_flags,
+        { "Flags", "bgp.ls.sr.tlv.peer.sid.flags", FT_UINT8,
+          BASE_HEX, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_ls_sr_tlv_peer_sid_flags_v,
+        { "Value flag (V)", "bgp.ls.sr.tlv.peer.sid.flags.v", FT_BOOLEAN,
+          8, TFS(&tfs_set_notset), BGP_LS_SR_PEER_SID_FLAG_V, NULL, HFILL}},
+      { &hf_bgp_ls_sr_tlv_peer_sid_flags_l,
+        { "Local flag (L)", "bgp.ls.sr.tlv.peer.sid.flags.l", FT_BOOLEAN,
+          8, TFS(&tfs_set_notset), BGP_LS_SR_PEER_SID_FLAG_L, NULL, HFILL}},
+      { &hf_bgp_ls_sr_tlv_peer_sid_flags_b,
+        { "Backup flag (B)", "bgp.ls.sr.tlv.peer.sid.flags.b", FT_BOOLEAN,
+          8, TFS(&tfs_set_notset), BGP_LS_SR_PEER_SID_FLAG_B, NULL, HFILL}},
+      { &hf_bgp_ls_sr_tlv_peer_sid_flags_p,
+        { "Persistent flag (P)", "bgp.ls.sr.tlv.peer.sid.flags.p", FT_BOOLEAN,
+          8, TFS(&tfs_set_notset), BGP_LS_SR_PEER_SID_FLAG_P, NULL, HFILL}},
+      { &hf_bgp_ls_sr_tlv_peer_sid_weight,
+        { "Weight", "bgp.ls.sr.tlv.peer.sid.weight", FT_UINT8,
+          BASE_DEC, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_ls_sr_tlv_peer_sid_label,
+        { "SID/Label", "bgp.ls.sr.tlv.peer.sid.label", FT_UINT24,
+          BASE_DEC, NULL, 0x0FFFFF, NULL, HFILL}},
+      { &hf_bgp_ls_sr_tlv_peer_sid_index,
+        { "SID/Index", "bgp.ls.sr.tlv.peer.sid.index", FT_UINT32,
           BASE_DEC, NULL, 0x0, NULL, HFILL}},
       { &hf_bgp_ls_igp_te_metric_flags,
         { "TE Metric Flags", "bgp.ls.igp_te_metric.flags", FT_UINT8,
