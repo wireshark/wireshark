@@ -945,6 +945,10 @@ typedef struct ssl_common_dissect {
         gint hs_finished;
         gint hs_client_cert_vrfy_sig_len;
         gint hs_client_cert_vrfy_sig;
+        gint hs_ja3_full;
+        gint hs_ja3_hash;
+        gint hs_ja3s_full;
+        gint hs_ja3s_hash;
 
         /* TLS 1.3 */
         gint hs_ext_psk_ke_modes_length;
@@ -1274,7 +1278,7 @@ ssl_common_dissect_t name = {   \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1, -1, -1, -1, -1, -1, -1                              \
+        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1              \
     },                                                                  \
     /* ett */ {                                                         \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
@@ -1979,6 +1983,26 @@ ssl_common_dissect_t name = {   \
       { "Signature", prefix ".handshake.client_cert_vrfy.sig",          \
         FT_BYTES, BASE_NONE, NULL, 0x0,                                 \
         "CertificateVerify's signature", HFILL }                        \
+    },                                                                  \
+    { & name .hf.hs_ja3_full,                                           \
+      { "JA3 Fullstring", prefix ".handshake.ja3_full",                 \
+        FT_STRING, BASE_NONE, NULL, 0x0,                                \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ja3_hash,                                           \
+      { "JA3", prefix ".handshake.ja3",                                 \
+        FT_STRING, BASE_NONE, NULL, 0x0,                                \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ja3s_full,                                          \
+      { "JA3S Fullstring", prefix ".handshake.ja3s_full",               \
+        FT_STRING, BASE_NONE, NULL, 0x0,                                \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ja3s_hash,                                          \
+      { "JA3S", prefix ".handshake.ja3s",                               \
+        FT_STRING, BASE_NONE, NULL, 0x0,                                \
+        NULL, HFILL }                                                   \
     },                                                                  \
     { & name .hf.hs_ext_psk_ke_modes_length,                            \
       { "PSK Key Exchange Modes Length", prefix ".extension.psk_ke_modes_length", \

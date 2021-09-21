@@ -8149,7 +8149,8 @@ tls_dissect_hnd_certificate_status(ssl_common_dissect_t *hf, tvbuff_t *tvb, pack
 
 static guint
 ssl_dissect_hnd_hello_ext_supported_groups(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo,
-                                           proto_tree *tree, guint32 offset, guint32 offset_end)
+                                           proto_tree *tree, guint32 offset, guint32 offset_end,
+                                           wmem_strbuf_t *ja3)
 {
     /* RFC 8446 Section 4.2.7
      *  enum { ..., (0xFFFF) } NamedGroup;
@@ -8163,6 +8164,7 @@ ssl_dissect_hnd_hello_ext_supported_groups(ssl_common_dissect_t *hf, tvbuff_t *t
     guint32     groups_length, next_offset;
     proto_tree *groups_tree;
     proto_item *ti;
+    guint32     ja3_value;
 
     /* NamedGroup named_group_list<2..2^16-1> */
     if (!ssl_add_vector(hf, tvb, pinfo, tree, offset, offset_end, &groups_length,
@@ -8182,10 +8184,20 @@ ssl_dissect_hnd_hello_ext_supported_groups(ssl_common_dissect_t *hf, tvbuff_t *t
     /* make this a subtree */
     groups_tree = proto_item_add_subtree(ti, hf->ett.hs_ext_groups);
 
+    if (ja3) {
+        wmem_strbuf_append_c(ja3, ',');
+    }
     /* loop over all groups */
     while (offset + 2 <= offset_end) {
-        proto_tree_add_item(groups_tree, hf->hf.hs_ext_supported_group, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint(groups_tree, hf->hf.hs_ext_supported_group, tvb, offset, 2,
+                                     ENC_BIG_ENDIAN, &ja3_value);
         offset += 2;
+        if (ja3) {
+            wmem_strbuf_append_printf(ja3, "%i", ja3_value);
+            if (offset < offset_end) {
+                wmem_strbuf_append_c(ja3, '-');
+            }
+        }
     }
     if (!ssl_end_vector(hf, tvb, pinfo, groups_tree, offset, next_offset)) {
         offset = next_offset;
@@ -8196,11 +8208,12 @@ ssl_dissect_hnd_hello_ext_supported_groups(ssl_common_dissect_t *hf, tvbuff_t *t
 
 static gint
 ssl_dissect_hnd_hello_ext_ec_point_formats(ssl_common_dissect_t *hf, tvbuff_t *tvb,
-                                           proto_tree *tree, guint32 offset)
+                                           proto_tree *tree, guint32 offset, wmem_strbuf_t *ja3)
 {
     guint8      ecpf_length;
     proto_tree *ecpf_tree;
     proto_item *ti;
+    guint32     ja3_value;
 
     ecpf_length = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(tree, hf->hf.hs_ext_ec_point_formats_len,
@@ -8216,12 +8229,23 @@ ssl_dissect_hnd_hello_ext_ec_point_formats(ssl_common_dissect_t *hf, tvbuff_t *t
     /* make this a subtree */
     ecpf_tree = proto_item_add_subtree(ti, hf->ett.hs_ext_curves_point_formats);
 
+    if (ja3) {
+        wmem_strbuf_append_c(ja3, ',');
+    }
+
     /* loop over all point formats */
     while (ecpf_length > 0)
     {
-        proto_tree_add_item(ecpf_tree, hf->hf.hs_ext_ec_point_format, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint(ecpf_tree, hf->hf.hs_ext_ec_point_format, tvb, offset, 1,
+                                     ENC_BIG_ENDIAN, &ja3_value);
         offset++;
         ecpf_length--;
+        if (ja3) {
+            wmem_strbuf_append_printf(ja3, "%i", ja3_value);
+            if (ecpf_length > 0) {
+                wmem_strbuf_append_c(ja3, '-');
+            }
+        }
     }
 
     return offset;
@@ -8688,7 +8712,7 @@ static gint
 ssl_dissect_hnd_extension(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
                           packet_info* pinfo, guint32 offset, guint32 offset_end, guint8 hnd_type,
                           SslSession *session, SslDecryptSession *ssl,
-                          gboolean is_dtls);
+                          gboolean is_dtls, wmem_strbuf_t *ja3);
 void
 ssl_dissect_hnd_cli_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                           packet_info *pinfo, proto_tree *tree, guint32 offset,
@@ -8711,11 +8735,15 @@ ssl_dissect_hnd_cli_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     guint32     compression_methods_length;
     guint8      compression_method;
     guint32     next_offset;
+    guint32     ja3_value;
+    wmem_strbuf_t *ja3 = wmem_strbuf_new(wmem_packet_scope(), "");
+    gchar      *ja3_hash;
 
     /* show the client version */
-    proto_tree_add_item(tree, hf->hf.hs_client_version, tvb,
-                        offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf->hf.hs_client_version, tvb,
+                        offset, 2, ENC_BIG_ENDIAN, &ja3_value);
     offset += 2;
+    wmem_strbuf_append_printf(ja3, "%i,", ja3_value);
 
     /* dissect fields that are also present in ClientHello */
     offset = ssl_dissect_hnd_hello_common(hf, tvb, tree, offset, session, ssl, FALSE, FALSE);
@@ -8751,9 +8779,15 @@ ssl_dissect_hnd_cli_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                                     plurality(cipher_suite_length/2, "", "s"));
     cs_tree = proto_item_add_subtree(ti, hf->ett.cipher_suites);
     while (offset + 2 <= next_offset) {
-        proto_tree_add_item(cs_tree, hf->hf.hs_cipher_suite, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint(cs_tree, hf->hf.hs_cipher_suite, tvb, offset, 2,
+                                     ENC_BIG_ENDIAN, &ja3_value);
         offset += 2;
+        wmem_strbuf_append_printf(ja3, "%i", ja3_value);
+        if (offset < next_offset) {
+            wmem_strbuf_append_c(ja3, '-');
+        }
     }
+    wmem_strbuf_append_c(ja3, ',');
     if (!ssl_end_vector(hf, tvb, pinfo, cs_tree, offset, next_offset)) {
         offset = next_offset;
     }
@@ -8794,8 +8828,18 @@ ssl_dissect_hnd_cli_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     if (offset < offset_end) {
         ssl_dissect_hnd_extension(hf, tvb, tree, pinfo, offset,
                                   offset_end, SSL_HND_CLIENT_HELLO,
-                                  session, ssl, dtls_hfs != NULL);
+                                  session, ssl, dtls_hfs != NULL, ja3);
+    } else {
+        wmem_strbuf_append_printf(ja3, ",,");
     }
+
+    ja3_hash = g_compute_checksum_for_string(G_CHECKSUM_MD5, wmem_strbuf_get_str(ja3),
+            wmem_strbuf_get_len(ja3));
+    ti = proto_tree_add_string(tree, hf->hf.hs_ja3_full, tvb, offset, 0, wmem_strbuf_get_str(ja3));
+    proto_item_set_generated(ti);
+    ti = proto_tree_add_string(tree, hf->hf.hs_ja3_hash, tvb, offset, 0, ja3_hash);
+    proto_item_set_generated(ti);
+    g_free(ja3_hash);
 }
 
 void
@@ -8814,6 +8858,10 @@ ssl_dissect_hnd_srv_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
      * } ServerHello;
      */
     guint8  draft_version = session->tls13_draft_version;
+    proto_item *ti;
+    guint32     ja3_value;
+    wmem_strbuf_t *ja3 = wmem_strbuf_new(wmem_packet_scope(), "");
+    gchar      *ja3_hash;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL,
                 val_to_str_const(session->version, ssl_version_short_names, "SSL"));
@@ -8824,9 +8872,10 @@ ssl_dissect_hnd_srv_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     session->is_session_resumed = TRUE;
 
     /* show the server version */
-    proto_tree_add_item(tree, hf->hf.hs_server_version, tvb,
-                        offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf->hf.hs_server_version, tvb,
+                        offset, 2, ENC_BIG_ENDIAN, &ja3_value);
     offset += 2;
+    wmem_strbuf_append_printf(ja3, "%i", ja3_value);
 
     /* dissect fields that are also present in ClientHello */
     offset = ssl_dissect_hnd_hello_common(hf, tvb, tree, offset, session, ssl, TRUE, is_hrr);
@@ -8837,9 +8886,10 @@ ssl_dissect_hnd_srv_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     }
 
     /* now the server-selected cipher suite */
-    proto_tree_add_item(tree, hf->hf.hs_cipher_suite,
-                        tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf->hf.hs_cipher_suite,
+                        tvb, offset, 2, ENC_BIG_ENDIAN, &ja3_value);
     offset += 2;
+    wmem_strbuf_append_printf(ja3, ",%i,", ja3_value);
 
     /* No compression with TLS 1.3 before draft -22 */
     if (!(session->version == TLSV1DOT3_VERSION && draft_version > 0 && draft_version < 22)) {
@@ -8858,8 +8908,16 @@ ssl_dissect_hnd_srv_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
         ssl_dissect_hnd_extension(hf, tvb, tree, pinfo, offset,
                                   offset_end,
                                   is_hrr ? SSL_HND_HELLO_RETRY_REQUEST : SSL_HND_SERVER_HELLO,
-                                  session, ssl, is_dtls);
+                                  session, ssl, is_dtls, ja3);
     }
+
+    ja3_hash = g_compute_checksum_for_string(G_CHECKSUM_MD5, wmem_strbuf_get_str(ja3),
+            wmem_strbuf_get_len(ja3));
+    ti = proto_tree_add_string(tree, hf->hf.hs_ja3s_full, tvb, offset, 0, wmem_strbuf_get_str(ja3));
+    proto_item_set_generated(ti);
+    ti = proto_tree_add_string(tree, hf->hf.hs_ja3s_hash, tvb, offset, 0, ja3_hash);
+    proto_item_set_generated(ti);
+    g_free(ja3_hash);
 }
 /* Client Hello and Server Hello dissections. }}} */
 
@@ -8960,7 +9018,7 @@ ssl_dissect_hnd_new_ses_ticket(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_i
     if (is_tls13) {
         ssl_dissect_hnd_extension(hf, tvb, subtree, pinfo, offset,
                                   offset_end, SSL_HND_NEWSESSION_TICKET,
-                                  session, ssl, is_dtls);
+                                  session, ssl, is_dtls, NULL);
     }
 } /* }}} */
 
@@ -8994,7 +9052,7 @@ ssl_dissect_hnd_hello_retry_request(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 
     ssl_dissect_hnd_extension(hf, tvb, tree, pinfo, offset,
                               offset_end, SSL_HND_HELLO_RETRY_REQUEST,
-                              session, ssl, is_dtls);
+                              session, ssl, is_dtls, NULL);
 }
 
 void
@@ -9010,7 +9068,7 @@ ssl_dissect_hnd_encrypted_extensions(ssl_common_dissect_t *hf, tvbuff_t *tvb,
      */
     ssl_dissect_hnd_extension(hf, tvb, tree, pinfo, offset,
                               offset_end, SSL_HND_ENCRYPTED_EXTENSIONS,
-                              session, ssl, is_dtls);
+                              session, ssl, is_dtls, NULL);
 }
 
 /* Certificate and Certificate Request dissections. {{{ */
@@ -9159,7 +9217,7 @@ ssl_dissect_hnd_cert(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
         if (session->version == TLSV1DOT3_VERSION) {
             offset = ssl_dissect_hnd_extension(hf, tvb, subtree, pinfo, offset,
                                                next_offset, SSL_HND_CERTIFICATE,
-                                               session, ssl, is_dtls);
+                                               session, ssl, is_dtls, NULL);
         }
 
         certificate_index++;
@@ -9295,7 +9353,7 @@ ssl_dissect_hnd_cert_req(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *p
          */
         ssl_dissect_hnd_extension(hf, tvb, tree, pinfo, offset,
                                   offset_end, SSL_HND_CERT_REQUEST,
-                                  session, NULL, is_dtls);
+                                  session, NULL, is_dtls, NULL);
     } else if (is_tls13 && draft_version <= 18) {
         /*
          * TLS 1.3 draft 18 and older: certificate_authorities and
@@ -9491,7 +9549,7 @@ static gint
 ssl_dissect_hnd_extension(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
                           packet_info* pinfo, guint32 offset, guint32 offset_end, guint8 hnd_type,
                           SslSession *session, SslDecryptSession *ssl,
-                          gboolean is_dtls)
+                          gboolean is_dtls, wmem_strbuf_t *ja3)
 {
     guint32     exts_len;
     guint16     ext_type;
@@ -9499,6 +9557,8 @@ ssl_dissect_hnd_extension(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
     guint32     next_offset;
     proto_tree *ext_tree;
     gboolean    is_tls13 = session->version == TLSV1DOT3_VERSION;
+    wmem_strbuf_t *ja3_sg = wmem_strbuf_new(wmem_packet_scope(), "");
+    wmem_strbuf_t *ja3_ecpf = wmem_strbuf_new(wmem_packet_scope(), "");
 
     /* Extension extensions<0..2^16-2> (for TLS 1.3 HRR/CR min-length is 2) */
     if (!ssl_add_vector(hf, tvb, pinfo, tree, offset, offset_end, &exts_len,
@@ -9521,6 +9581,12 @@ ssl_dissect_hnd_extension(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
         proto_tree_add_uint(ext_tree, hf->hf.hs_ext_type,
                             tvb, offset, 2, ext_type);
         offset += 2;
+        if (ja3) {
+            wmem_strbuf_append_printf(ja3, "%i", ext_type);
+            if (offset_end - offset - ext_len > 2) {
+                wmem_strbuf_append_c(ja3, '-');
+            }
+        }
 
         /* opaque extension_data<0..2^16-1> */
         if (!ssl_add_vector(hf, tvb, pinfo, ext_tree, offset, offset_end, &ext_len,
@@ -9552,10 +9618,21 @@ ssl_dissect_hnd_extension(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
                                                          session);
             break;
         case SSL_HND_HELLO_EXT_SUPPORTED_GROUPS:
-            offset = ssl_dissect_hnd_hello_ext_supported_groups(hf, tvb, pinfo, ext_tree, offset, next_offset);
+            if (hnd_type == SSL_HND_CLIENT_HELLO) {
+                offset = ssl_dissect_hnd_hello_ext_supported_groups(hf, tvb, pinfo, ext_tree, offset,
+                        next_offset, ja3_sg);
+            } else {
+                offset = ssl_dissect_hnd_hello_ext_supported_groups(hf, tvb, pinfo, ext_tree, offset,
+                        next_offset, NULL);
+            }
             break;
         case SSL_HND_HELLO_EXT_EC_POINT_FORMATS:
-            offset = ssl_dissect_hnd_hello_ext_ec_point_formats(hf, tvb, ext_tree, offset);
+            if (hnd_type == SSL_HND_CLIENT_HELLO) {
+                offset = ssl_dissect_hnd_hello_ext_ec_point_formats(hf, tvb, ext_tree, offset, ja3_ecpf);
+            } else {
+                offset = ssl_dissect_hnd_hello_ext_ec_point_formats(hf, tvb, ext_tree, offset, NULL);
+            }
+            break;
             break;
         case SSL_HND_HELLO_EXT_SRP:
             offset = ssl_dissect_hnd_hello_ext_srp(hf, tvb, pinfo, ext_tree, offset, next_offset);
@@ -9699,6 +9776,21 @@ ssl_dissect_hnd_extension(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
         if (!ssl_end_vector(hf, tvb, pinfo, ext_tree, offset, next_offset)) {
             /* Dissection did not end at expected location, fix it. */
             offset = next_offset;
+        }
+    }
+
+    if (ja3) {
+        if (hnd_type == SSL_HND_CLIENT_HELLO) {
+            if(wmem_strbuf_get_len(ja3_sg) > 0) {
+                wmem_strbuf_append_printf(ja3, "%s", wmem_strbuf_get_str(ja3_sg));
+            } else {
+                wmem_strbuf_append_c(ja3, ',');
+            }
+            if(wmem_strbuf_get_len(ja3_ecpf) > 0) {
+                wmem_strbuf_append_printf(ja3, "%s", wmem_strbuf_get_str(ja3_ecpf));
+            } else {
+                wmem_strbuf_append_c(ja3, ',');
+            }
         }
     }
 
