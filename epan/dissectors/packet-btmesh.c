@@ -41,6 +41,9 @@
 #define HEALTH_CURRENT_STATUS                                    0x0004
 #define HEALTH_FAULT_STATUS                                      0x0005
 #define CONFIG_HEARTBEAT_PUBLICATION_STATUS                      0x0006
+#define LIGHT_LC_PROPERTY_SET                                    0x0062
+#define LIGHT_LC_PROPERTY_SET_UNACKNOWLEDGED                     0x0063
+#define LIGHT_LC_PROPERTY_STATUS                                 0x0064
 #define CONFIG_APPKEY_DELETE                                     0x8000
 #define CONFIG_APPKEY_GET                                        0x8001
 #define CONFIG_APPKEY_LIST                                       0x8002
@@ -193,6 +196,394 @@
 #define SCHEDULER_GET                                            0x8249
 #define SCHEDULER_STATUS                                         0x824a
 
+#define GENERIC_MANUFACTURER_PROPERTIES_STATUS                   0x0043
+#define GENERIC_MANUFACTURER_PROPERTY_SET                        0x0044
+#define GENERIC_MANUFACTURER_PROPERTY_SET_UNACKNOWLEDGED         0x0045
+#define GENERIC_MANUFACTURER_PROPERTY_STATUS                     0x0046
+#define GENERIC_ADMIN_PROPERTIES_STATUS                          0x0047
+#define GENERIC_ADMIN_PROPERTY_SET                               0x0048
+#define GENERIC_ADMIN_PROPERTY_SET_UNACKNOWLEDGED                0x0049
+#define GENERIC_ADMIN_PROPERTY_STATUS                            0x004a
+#define GENERIC_USER_PROPERTIES_STATUS                           0x004b
+#define GENERIC_USER_PROPERTY_SET                                0x004c
+#define GENERIC_USER_PROPERTY_SET_UNACKNOWLEDGED                 0x004d
+#define GENERIC_USER_PROPERTY_STATUS                             0x004e
+#define GENERIC_CLIENT_PROPERTIES_GET                            0x004f
+#define GENERIC_CLIENT_PROPERTIES_STATUS                         0x0050
+
+#define SENSOR_DESCRIPTOR_STATUS                                 0x0051
+#define SENSOR_STATUS                                            0x0052
+#define SENSOR_COLUMN_STATUS                                     0x0053
+#define SENSOR_SERIES_STATUS                                     0x0054
+#define SENSOR_CADENCE_SET                                       0x0055
+#define SENSOR_CADENCE_SET_UNACKNOWLEDGED                        0x0056
+#define SENSOR_CADENCE_STATUS                                    0x0057
+#define SENSOR_SETTINGS_STATUS                                   0x0058
+#define SENSOR_SETTING_SET                                       0x0059
+#define SENSOR_SETTING_SET_UNACKNOWLEDGED                        0x005a
+#define SENSOR_SETTING_STATUS                                    0x005b
+#define GENERIC_MANUFACTURER_PROPERTIES_GET                      0x822a
+#define GENERIC_MANUFACTURER_PROPERTY_GET                        0x822b
+#define GENERIC_ADMIN_PROPERTIES_GET                             0x822c
+#define GENERIC_ADMIN_PROPERTY_GET                               0x822d
+#define GENERIC_USER_PROPERTIES_GET                              0x822e
+#define GENERIC_USER_PROPERTY_GET                                0x822f
+#define SENSOR_DESCRIPTOR_GET                                    0x8230
+#define SENSOR_GET                                               0x8231
+#define SENSOR_COLUMN_GET                                        0x8232
+#define SENSOR_SERIES_GET                                        0x8233
+#define SENSOR_CADENCE_GET                                       0x8234
+#define SENSOR_SETTINGS_GET                                      0x8235
+#define SENSOR_SETTING_GET                                       0x8236
+
+#define LIGHT_LIGHTNESS_GET                                      0x824b
+#define LIGHT_LIGHTNESS_SET                                      0x824c
+#define LIGHT_LIGHTNESS_SET_UNACKNOWLEDGED                       0x824d
+#define LIGHT_LIGHTNESS_STATUS                                   0x824e
+#define LIGHT_LIGHTNESS_LINEAR_GET                               0x824f
+#define LIGHT_LIGHTNESS_LINEAR_SET                               0x8250
+#define LIGHT_LIGHTNESS_LINEAR_SET_UNACKNOWLEDGED                0x8251
+#define LIGHT_LIGHTNESS_LINEAR_STATUS                            0x8252
+#define LIGHT_LIGHTNESS_LAST_GET                                 0x8253
+#define LIGHT_LIGHTNESS_LAST_STATUS                              0x8254
+#define LIGHT_LIGHTNESS_DEFAULT_GET                              0x8255
+#define LIGHT_LIGHTNESS_DEFAULT_STATUS                           0x8256
+#define LIGHT_LIGHTNESS_RANGE_GET                                0x8257
+#define LIGHT_LIGHTNESS_RANGE_STATUS                             0x8258
+#define LIGHT_LIGHTNESS_DEFAULT_SET                              0x8259
+#define LIGHT_LIGHTNESS_DEFAULT_SET_UNACKNOWLEDGED               0x825a
+#define LIGHT_LIGHTNESS_RANGE_SET                                0x825b
+#define LIGHT_LIGHTNESS_RANGE_SET_UNACKNOWLEDGED                 0x825c
+#define LIGHT_CTL_GET                                            0x825d
+#define LIGHT_CTL_SET                                            0x825e
+#define LIGHT_CTL_SET_UNACKNOWLEDGED                             0x825f
+#define LIGHT_CTL_STATUS                                         0x8260
+#define LIGHT_CTL_TEMPERATURE_GET                                0x8261
+#define LIGHT_CTL_TEMPERATURE_RANGE_GET                          0x8262
+#define LIGHT_CTL_TEMPERATURE_RANGE_STATUS                       0x8263
+#define LIGHT_CTL_TEMPERATURE_SET                                0x8264
+#define LIGHT_CTL_TEMPERATURE_SET_UNACKNOWLEDGED                 0x8265
+#define LIGHT_CTL_TEMPERATURE_STATUS                             0x8266
+#define LIGHT_CTL_DEFAULT_GET                                    0x8267
+#define LIGHT_CTL_DEFAULT_STATUS                                 0x8268
+#define LIGHT_CTL_DEFAULT_SET                                    0x8269
+#define LIGHT_CTL_DEFAULT_SET_UNACKNOWLEDGED                     0x826a
+#define LIGHT_CTL_TEMPERATURE_RANGE_SET                          0x826b
+#define LIGHT_CTL_TEMPERATURE_RANGE_SET_UNACKNOWLEDGED           0x826c
+#define LIGHT_HSL_GET                                            0x826d
+#define LIGHT_HSL_HUE_GET                                        0x826e
+#define LIGHT_HSL_HUE_SET                                        0x826f
+#define LIGHT_HSL_HUE_SET_UNACKNOWLEDGED                         0x8270
+#define LIGHT_HSL_HUE_STATUS                                     0x8271
+#define LIGHT_HSL_SATURATION_GET                                 0x8272
+#define LIGHT_HSL_SATURATION_SET                                 0x8273
+#define LIGHT_HSL_SATURATION_SET_UNACKNOWLEDGED                  0x8274
+#define LIGHT_HSL_SATURATION_STATUS                              0x8275
+#define LIGHT_HSL_SET                                            0x8276
+#define LIGHT_HSL_SET_UNACKNOWLEDGED                             0x8277
+#define LIGHT_HSL_STATUS                                         0x8278
+#define LIGHT_HSL_TARGET_GET                                     0x8279
+#define LIGHT_HSL_TARGET_STATUS                                  0x827a
+#define LIGHT_HSL_DEFAULT_GET                                    0x827b
+#define LIGHT_HSL_DEFAULT_STATUS                                 0x827c
+#define LIGHT_HSL_RANGE_GET                                      0x827d
+#define LIGHT_HSL_RANGE_STATUS                                   0x827e
+#define LIGHT_HSL_DEFAULT_SET                                    0x827f
+#define LIGHT_HSL_DEFAULT_SET_UNACKNOWLEDGED                     0x8280
+#define LIGHT_HSL_RANGE_SET                                      0x8281
+#define LIGHT_HSL_RANGE_SET_UNACKNOWLEDGED                       0x8282
+#define LIGHT_XYL_GET                                            0x8283
+#define LIGHT_XYL_SET                                            0x8284
+#define LIGHT_XYL_SET_UNACKNOWLEDGED                             0x8285
+#define LIGHT_XYL_STATUS                                         0x8286
+#define LIGHT_XYL_TARGET_GET                                     0x8287
+#define LIGHT_XYL_TARGET_STATUS                                  0x8288
+#define LIGHT_XYL_DEFAULT_GET                                    0x8289
+#define LIGHT_XYL_DEFAULT_STATUS                                 0x828a
+#define LIGHT_XYL_RANGE_GET                                      0x828b
+#define LIGHT_XYL_RANGE_STATUS                                   0x828c
+#define LIGHT_XYL_DEFAULT_SET                                    0x828d
+#define LIGHT_XYL_DEFAULT_SET_UNACKNOWLEDGED                     0x828e
+#define LIGHT_XYL_RANGE_SET                                      0x828f
+#define LIGHT_XYL_RANGE_SET_UNACKNOWLEDGED                       0x8290
+#define LIGHT_LC_MODE_GET                                        0x8291
+#define LIGHT_LC_MODE_SET                                        0x8292
+#define LIGHT_LC_MODE_SET_UNACKNOWLEDGED                         0x8293
+#define LIGHT_LC_MODE_STATUS                                     0x8294
+#define LIGHT_LC_OM_GET                                          0x8295
+#define LIGHT_LC_OM_SET                                          0x8296
+#define LIGHT_LC_OM_SET_UNACKNOWLEDGED                           0x8297
+#define LIGHT_LC_OM_STATUS                                       0x8298
+#define LIGHT_LC_LIGHT_ONOFF_GET                                 0x8299
+#define LIGHT_LC_LIGHT_ONOFF_SET                                 0x829a
+#define LIGHT_LC_LIGHT_ONOFF_SET_UNACKNOWLEDGED                  0x829b
+#define LIGHT_LC_LIGHT_ONOFF_STATUS                              0x829c
+#define LIGHT_LC_PROPERTY_GET                                    0x829d
+
+#define PROPERTY_AVERAGE_AMBIENT_TEMPERATURE_IN_A_PERIOD_OF_DAY             0x0001
+#define PROPERTY_AVERAGE_INPUT_CURRENT                                      0x0002
+#define PROPERTY_AVERAGE_INPUT_VOLTAGE                                      0x0003
+#define PROPERTY_AVERAGE_OUTPUT_CURRENT                                     0x0004
+#define PROPERTY_AVERAGE_OUTPUT_VOLTAGE                                     0x0005
+#define PROPERTY_CENTER_BEAM_INTENSITY_AT_FULL_POWER                        0x0006
+#define PROPERTY_CHROMATICITY_TOLERANCE                                     0x0007
+#define PROPERTY_COLOR_RENDERING_INDEX_R9                                   0x0008
+#define PROPERTY_COLOR_RENDERING_INDEX_RA                                   0x0009
+#define PROPERTY_DEVICE_APPEARANCE                                          0x000A
+#define PROPERTY_DEVICE_COUNTRY_OF_ORIGIN                                   0x000B
+#define PROPERTY_DEVICE_DATE_OF_MANUFACTURE                                 0x000C
+#define PROPERTY_DEVICE_ENERGY_USE_SINCE_TURN_ON                            0x000D
+#define PROPERTY_DEVICE_FIRMWARE_REVISION                                   0x000E
+#define PROPERTY_DEVICE_GLOBAL_TRADE_ITEM_NUMBER                            0x000F
+#define PROPERTY_DEVICE_HARDWARE_REVISION                                   0x0010
+#define PROPERTY_DEVICE_MANUFACTURER_NAME                                   0x0011
+#define PROPERTY_DEVICE_MODEL_NUMBER                                        0x0012
+#define PROPERTY_DEVICE_OPERATING_TEMPERATURE_RANGE_SPECIFICATION           0x0013
+#define PROPERTY_DEVICE_OPERATING_TEMPERATURE_STATISTICAL_VALUES            0x0014
+#define PROPERTY_DEVICE_OVER_TEMPERATURE_EVENT_STATISTICS                   0x0015
+#define PROPERTY_DEVICE_POWER_RANGE_SPECIFICATION                           0x0016
+#define PROPERTY_DEVICE_RUNTIME_SINCE_TURN_ON                               0x0017
+#define PROPERTY_DEVICE_RUNTIME_WARRANTY                                    0x0018
+#define PROPERTY_DEVICE_SERIAL_NUMBER                                       0x0019
+#define PROPERTY_DEVICE_SOFTWARE_REVISION                                   0x001A
+#define PROPERTY_DEVICE_UNDER_TEMPERATURE_EVENT_STATISTICS                  0x001B
+#define PROPERTY_INDOOR_AMBIENT_TEMPERATURE_STATISTICAL_VALUES              0x001C
+#define PROPERTY_INITIAL_CIE_1931_CHROMATICITY_COORDINATES                  0x001D
+#define PROPERTY_INITIAL_CORRELATED_COLOR_TEMPERATURE                       0x001E
+#define PROPERTY_INITIAL_LUMINOUS_FLUX                                      0x001F
+#define PROPERTY_INITIAL_PLANCKIAN_DISTANCE                                 0x0020
+#define PROPERTY_INPUT_CURRENT_RANGE_SPECIFICATION                          0x0021
+#define PROPERTY_INPUT_CURRENT_STATISTICS                                   0x0022
+#define PROPERTY_INPUT_OVER_CURRENT_EVENT_STATISTICS                        0x0023
+#define PROPERTY_INPUT_OVER_RIPPLE_VOLTAGE_EVENT_STATISTICS                 0x0024
+#define PROPERTY_INPUT_OVER_VOLTAGE_EVENT_STATISTICS                        0x0025
+#define PROPERTY_INPUT_UNDER_CURRENT_EVENT_STATISTICS                       0x0026
+#define PROPERTY_INPUT_UNDER_VOLTAGE_EVENT_STATISTICS                       0x0027
+#define PROPERTY_INPUT_VOLTAGE_RANGE_SPECIFICATION                          0x0028
+#define PROPERTY_INPUT_VOLTAGE_RIPPLE_SPECIFICATION                         0x0029
+#define PROPERTY_INPUT_VOLTAGE_STATISTICS                                   0x002A
+#define PROPERTY_LIGHT_CONTROL_AMBIENT_LUX_LEVEL_ON                         0x002B
+#define PROPERTY_LIGHT_CONTROL_AMBIENT_LUX_LEVEL_PROLONG                    0x002C
+#define PROPERTY_LIGHT_CONTROL_AMBIENT_LUX_LEVEL_STANDBY                    0x002D
+#define PROPERTY_LIGHT_CONTROL_LIGHTNESS_ON                                 0x002E
+#define PROPERTY_LIGHT_CONTROL_LIGHTNESS_PROLONG                            0x002F
+#define PROPERTY_LIGHT_CONTROL_LIGHTNESS_STANDBY                            0x0030
+#define PROPERTY_LIGHT_CONTROL_REGULATOR_ACCURACY                           0x0031
+#define PROPERTY_LIGHT_CONTROL_REGULATOR_KID                                0x0032
+#define PROPERTY_LIGHT_CONTROL_REGULATOR_KIU                                0x0033
+#define PROPERTY_LIGHT_CONTROL_REGULATOR_KPD                                0x0034
+#define PROPERTY_LIGHT_CONTROL_REGULATOR_KPU                                0x0035
+#define PROPERTY_LIGHT_CONTROL_TIME_FADE                                    0x0036
+#define PROPERTY_LIGHT_CONTROL_TIME_FADE_ON                                 0x0037
+#define PROPERTY_LIGHT_CONTROL_TIME_FADE_STANDBY_AUTO                       0x0038
+#define PROPERTY_LIGHT_CONTROL_TIME_FADE_STANDBY_MANUAL                     0x0039
+#define PROPERTY_LIGHT_CONTROL_TIME_OCCUPANCY_DELAY                         0x003A
+#define PROPERTY_LIGHT_CONTROL_TIME_PROLONG                                 0x003B
+#define PROPERTY_LIGHT_CONTROL_TIME_RUN_ON                                  0x003C
+#define PROPERTY_LUMEN_MAINTENANCE_FACTOR                                   0x003D
+#define PROPERTY_LUMINOUS_EFFICACY                                          0x003E
+#define PROPERTY_LUMINOUS_ENERGY_SINCE_TURN_ON                              0x003F
+#define PROPERTY_LUMINOUS_EXPOSURE                                          0x0040
+#define PROPERTY_LUMINOUS_FLUX_RANGE                                        0x0041
+#define PROPERTY_MOTION_SENSED                                              0x0042
+#define PROPERTY_MOTION_THRESHOLD                                           0x0043
+#define PROPERTY_OPEN_CIRCUIT_EVENT_STATISTICS                              0x0044
+#define PROPERTY_OUTDOOR_STATISTICAL_VALUES                                 0x0045
+#define PROPERTY_OUTPUT_CURRENT_RANGE                                       0x0046
+#define PROPERTY_OUTPUT_CURRENT_STATISTICS                                  0x0047
+#define PROPERTY_OUTPUT_RIPPLE_VOLTAGE_SPECIFICATION                        0x0048
+#define PROPERTY_OUTPUT_VOLTAGE_RANGE                                       0x0049
+#define PROPERTY_OUTPUT_VOLTAGE_STATISTICS                                  0x004A
+#define PROPERTY_OVER_OUTPUT_RIPPLE_VOLTAGE_EVENT_STATISTICS                0x004B
+#define PROPERTY_PEOPLE_COUNT                                               0x004C
+#define PROPERTY_PRESENCE_DETECTED                                          0x004D
+#define PROPERTY_PRESENT_AMBIENT_LIGHT_LEVEL                                0x004E
+#define PROPERTY_PRESENT_AMBIENT_TEMPERATURE                                0x004F
+#define PROPERTY_PRESENT_CIE_1931_CHROMATICITY_COORDINATES                  0x0050
+#define PROPERTY_PRESENT_CORRELATED_COLOR_TEMPERATURE                       0x0051
+#define PROPERTY_PRESENT_DEVICE_INPUT_POWER                                 0x0052
+#define PROPERTY_PRESENT_DEVICE_OPERATING_EFFICIENCY                        0x0053
+#define PROPERTY_PRESENT_DEVICE_OPERATING_TEMPERATURE                       0x0054
+#define PROPERTY_PRESENT_ILLUMINANCE                                        0x0055
+#define PROPERTY_PRESENT_INDOOR_AMBIENT_TEMPERATURE                         0x0056
+#define PROPERTY_PRESENT_INPUT_CURRENT                                      0x0057
+#define PROPERTY_PRESENT_INPUT_RIPPLE_VOLTAGE                               0x0058
+#define PROPERTY_PRESENT_INPUT_VOLTAGE                                      0x0059
+#define PROPERTY_PRESENT_LUMINOUS_FLUX                                      0x005A
+#define PROPERTY_PRESENT_OUTDOOR_AMBIENT_TEMPERATURE                        0x005B
+#define PROPERTY_PRESENT_OUTPUT_CURRENT                                     0x005C
+#define PROPERTY_PRESENT_OUTPUT_VOLTAGE                                     0x005D
+#define PROPERTY_PRESENT_PLANCKIAN_DISTANCE                                 0x005E
+#define PROPERTY_PRESENT_RELATIVE_OUTPUT_RIPPLE_VOLTAGE                     0x005F
+#define PROPERTY_RELATIVE_DEVICE_ENERGY_USE_IN_A_PERIOD_OF_DAY              0x0060
+#define PROPERTY_RELATIVE_DEVICE_RUNTIME_IN_A_GENERIC_LEVEL_RANGE           0x0061
+#define PROPERTY_RELATIVE_EXPOSURE_TIME_IN_AN_ILLUMINANCE_RANGE             0x0062
+#define PROPERTY_RELATIVE_RUNTIME_IN_A_CORRELATED_COLOR_TEMPERATURE_RANGE   0x0063
+#define PROPERTY_RELATIVE_RUNTIME_IN_A_DEVICE_OPERATING_TEMPERATURE_RANGE   0x0064
+#define PROPERTY_RELATIVE_RUNTIME_IN_AN_INPUT_CURRENT_RANGE                 0x0065
+#define PROPERTY_RELATIVE_RUNTIME_IN_AN_INPUT_VOLTAGE_RANGE                 0x0066
+#define PROPERTY_SHORT_CIRCUIT_EVENT_STATISTICS                             0x0067
+#define PROPERTY_TIME_SINCE_MOTION_SENSED                                   0x0068
+#define PROPERTY_TIME_SINCE_PRESENCE_DETECTED                               0x0069
+#define PROPERTY_TOTAL_DEVICE_ENERGY_USE                                    0x006A
+#define PROPERTY_TOTAL_DEVICE_OFF_ON_CYCLES                                 0x006B
+#define PROPERTY_TOTAL_DEVICE_POWER_ON_CYCLES                               0x006C
+#define PROPERTY_TOTAL_DEVICE_POWER_ON_TIME                                 0x006D
+#define PROPERTY_TOTAL_DEVICE_RUNTIME                                       0x006E
+#define PROPERTY_TOTAL_LIGHT_EXPOSURE_TIME                                  0x006F
+#define PROPERTY_TOTAL_LUMINOUS_ENERGY                                      0x0070
+#define PROPERTY_DESIRED_AMBIENT_TEMPERATURE                                0x0071
+#define PROPERTY_PRECISE_TOTAL_DEVICE_ENERGY_USE                            0x0072
+#define PROPERTY_POWER_FACTOR                                               0x0073
+#define PROPERTY_SENSOR_GAIN                                                0x0074
+#define PROPERTY_PRECISE_PRESENT_AMBIENT_TEMPERATURE                        0x0075
+#define PROPERTY_PRESENT_AMBIENT_RELATIVE_HUMIDITY                          0x0076
+#define PROPERTY_PRESENT_AMBIENT_CARBON_DIOXIDE_CONCENTRATION               0x0077
+#define PROPERTY_PRESENT_AMBIENT_VOLATILE_ORGANIC_COMPOUNDS_CONCENTRATION   0x0078
+#define PROPERTY_PRESENT_AMBIENT_NOISE                                      0x0079
+#define PROPERTY_ACTIVE_ENERGY_LOADSIDE                                     0x0080
+#define PROPERTY_ACTIVE_POWER_LOADSIDE                                      0x0081
+#define PROPERTY_AIR_PRESSURE                                               0x0082
+#define PROPERTY_APPARENT_ENERGY                                            0x0083
+#define PROPERTY_APPARENT_POWER                                             0x0084
+#define PROPERTY_APPARENT_WIND_DIRECTION                                    0x0085
+#define PROPERTY_APPARENT_WIND_SPEED                                        0x0086
+#define PROPERTY_DEW_POINT                                                  0x0087
+#define PROPERTY_EXTERNAL_SUPPLY_VOLTAGE                                    0x0088
+#define PROPERTY_EXTERNAL_SUPPLY_VOLTAGE_FREQUENCY                          0x0089
+#define PROPERTY_GUST_FACTOR                                                0x008A
+#define PROPERTY_HEAT_INDEX                                                 0x008B
+#define PROPERTY_LIGHT_DISTRIBUTION                                         0x008C
+#define PROPERTY_LIGHT_SOURCE_CURRENT                                       0x008D
+#define PROPERTY_LIGHT_SOURCE_ON_TIME_NOT_RESETTABLE                        0x008E
+#define PROPERTY_LIGHT_SOURCE_ON_TIME_RESETTABLE                            0x008F
+#define PROPERTY_LIGHT_SOURCE_OPEN_CIRCUIT_STATISTICS                       0x0090
+#define PROPERTY_LIGHT_SOURCE_OVERALL_FAILURES_STATISTICS                   0x0091
+#define PROPERTY_LIGHT_SOURCE_SHORT_CIRCUIT_STATISTICS                      0x0092
+#define PROPERTY_LIGHT_SOURCE_START_COUNTER_RESETTABLE                      0x0093
+#define PROPERTY_LIGHT_SOURCE_TEMPERATURE                                   0x0094
+#define PROPERTY_LIGHT_SOURCE_THERMAL_DERATING_STATISTICS                   0x0095
+#define PROPERTY_LIGHT_SOURCE_THERMAL_SHUTDOWN_STATISTICS                   0x0096
+#define PROPERTY_LIGHT_SOURCE_TOTAL_POWER_ON_CYCLES                         0x0097
+#define PROPERTY_LIGHT_SOURCE_VOLTAGE                                       0x0098
+#define PROPERTY_LUMINAIRE_COLOR                                            0x0099
+#define PROPERTY_LUMINAIRE_IDENTIFICATION_NUMBER                            0x009A
+#define PROPERTY_LUMINAIRE_MANUFACTURER_GTIN                                0x009B
+#define PROPERTY_LUMINAIRE_NOMINAL_INPUT_POWER                              0x009C
+#define PROPERTY_LUMINAIRE_NOMINAL_MAXIMUM_AC_MAINS_VOLTAGE                 0x009D
+#define PROPERTY_LUMINAIRE_NOMINAL_MINIMUM_AC_MAINS_VOLTAGE                 0x009E
+#define PROPERTY_LUMINAIRE_POWER_AT_MINIMUM_DIM_LEVEL                       0x009F
+#define PROPERTY_LUMINAIRE_TIME_OF_MANUFACTURE                              0x00A0
+#define PROPERTY_MAGNETIC_DECLINATION                                       0x00A1
+#define PROPERTY_MAGNETIC_FLUX_DENSITY_2_D                                  0x00A2
+#define PROPERTY_MAGNETIC_FLUX_DENSITY_3_D                                  0x00A3
+#define PROPERTY_NOMINAL_LIGHT_OUTPUT                                       0x00A4
+#define PROPERTY_OVERALL_FAILURE_CONDITION                                  0x00A5
+#define PROPERTY_POLLEN_CONCENTRATION                                       0x00A6
+#define PROPERTY_PRESENT_INDOOR_RELATIVE_HUMIDITY                           0x00A7
+#define PROPERTY_PRESENT_OUTDOOR_RELATIVE_HUMIDITY                          0x00A8
+#define PROPERTY_PRESSURE                                                   0x00A9
+#define PROPERTY_RAINFALL                                                   0x00AA
+#define PROPERTY_RATED_MEDIAN_USEFUL_LIFE_OF_LUMINAIRE                      0x00AB
+#define PROPERTY_RATED_MEDIAN_USEFUL_LIGHT_SOURCE_STARTS                    0x00AC
+#define PROPERTY_REFERENCE_TEMPERATURE                                      0x00AD
+#define PROPERTY_TOTAL_DEVICE_STARTS                                        0x00AE
+#define PROPERTY_TRUE_WIND_DIRECTION                                        0x00AF
+#define PROPERTY_TRUE_WIND_SPEED                                            0x00B0
+#define PROPERTY_UV_INDEX                                                   0x00B1
+#define PROPERTY_WIND_CHILL                                                 0x00B2
+#define PROPERTY_LIGHT_SOURCE_TYPE                                          0x00B3
+#define PROPERTY_LUMINAIRE_IDENTIFICATION_STRING                            0x00B4
+#define PROPERTY_OUTPUT_POWER_LIMITATION                                    0x00B5
+#define PROPERTY_THERMAL_DERATING                                           0x00B6
+#define PROPERTY_OUTPUT_CURRENT_PERCENT                                     0x00B7
+
+#define CHARACTERISTIC_APPARENT_ENERGY32                          0x2BCF
+#define CHARACTERISTIC_APPARENT_POWER                             0x2BD0
+#define CHARACTERISTIC_APPARENT_WIND_DIRECTION                    0x2A73
+#define CHARACTERISTIC_APPARENT_WIND_SPEED                        0x2A72
+#define CHARACTERISTIC_APPEARANCE                                 0x2A01
+#define CHARACTERISTIC_AVERAGE_CURRENT                            0x2AE0
+#define CHARACTERISTIC_AVERAGE_VOLTAGE                            0x2AE1
+#define CHARACTERISTIC_BOOLEAN                                    0x2AE2
+#define CHARACTERISTIC_CHROMATIC_DISTANCE_FROM_PLANCKIAN          0x2AE3
+#define CHARACTERISTIC_CHROMATICITY_COORDINATES                   0x2AE4
+#define CHARACTERISTIC_CHROMATICITY_TOLERANCE                     0x2AE6
+#define CHARACTERISTIC_CIE_13_3_1995_COLOR_RENDERING_INDEX        0x2AE7
+#define CHARACTERISTIC_CO2_CONCENTRATION                          0x2BD1
+#define CHARACTERISTIC_COEFFICIENT                                0x2AE8
+#define CHARACTERISTIC_CORRELATED_COLOR_TEMPERATURE               0x2AE9
+#define CHARACTERISTIC_COSINE_OF_THE_ANGLE                        0x2BD2
+#define CHARACTERISTIC_COUNT_16                                   0x2AEA
+#define CHARACTERISTIC_COUNT_24                                   0x2AEB
+#define CHARACTERISTIC_COUNTRY_CODE                               0x2AEC
+#define CHARACTERISTIC_DATE_UTC                                   0x2AED
+#define CHARACTERISTIC_DEW_POINT                                  0x2BD3
+#define CHARACTERISTIC_ELECTRIC_CURRENT                           0x2AEE
+#define CHARACTERISTIC_ELECTRIC_CURRENT_RANGE                     0x2AEF
+#define CHARACTERISTIC_ELECTRIC_CURRENT_SPECIFICATION             0x2AF0
+#define CHARACTERISTIC_ELECTRIC_CURRENT_STATISTICS                0x2AF1
+#define CHARACTERISTIC_ENERGY                                     0x2AF2
+#define CHARACTERISTIC_ENERGY_IN_A_PERIOD_OF_DAY                  0x2AF3
+#define CHARACTERISTIC_ENERGY32                                   0x2BD4
+#define CHARACTERISTIC_EVENT_STATISTICS                           0x2AF4
+#define CHARACTERISTIC_FIXED_STRING_16                            0x2AF5
+#define CHARACTERISTIC_FIXED_STRING_24                            0x2AF6
+#define CHARACTERISTIC_FIXED_STRING_36                            0x2AF7
+#define CHARACTERISTIC_FIXED_STRING_64                            0x2BD5
+#define CHARACTERISTIC_FIXED_STRING_8                             0x2AF8
+#define CHARACTERISTIC_GLOBAL_TRADE_ITEM_NUMBER                   0x2AFA
+#define CHARACTERISTIC_GUST_FACTOR                                0x2A74
+#define CHARACTERISTIC_HEAT_INDEX                                 0x2A7A
+#define CHARACTERISTIC_HIGH_TEMPERATURE                           0x2BD6
+#define CHARACTERISTIC_HIGH_VOLTAGE                               0x2BD7
+#define CHARACTERISTIC_HUMIDITY                                   0x2A6F
+#define CHARACTERISTIC_ILLUMINANCE                                0x2AFB
+#define CHARACTERISTIC_LIGHT_DISTRIBUTION                         0x2BD8
+#define CHARACTERISTIC_LIGHT_OUTPUT                               0x2BD9
+#define CHARACTERISTIC_LIGHT_SOURCE_TYPE                          0x2BDA
+#define CHARACTERISTIC_LUMINOUS_EFFICACY                          0x2AFC
+#define CHARACTERISTIC_LUMINOUS_ENERGY                            0x2AFD
+#define CHARACTERISTIC_LUMINOUS_EXPOSURE                          0x2AFE
+#define CHARACTERISTIC_LUMINOUS_FLUX                              0x2AFF
+#define CHARACTERISTIC_LUMINOUS_FLUX_RANGE                        0x2B00
+#define CHARACTERISTIC_LUMINOUS_INTENSITY                         0x2B01
+#define CHARACTERISTIC_MAGNETIC_DECLINATION                       0x2BDB
+#define CHARACTERISTIC_MAGNETIC_FLUX_DENSITY_2_D                  0x2AA0
+#define CHARACTERISTIC_MAGNETIC_FLUX_DENSITY_3_D                  0x2AA1
+#define CHARACTERISTIC_NOISE                                      0x2BDC
+#define CHARACTERISTIC_PERCEIVED_LIGHTNESS                        0x2B03
+#define CHARACTERISTIC_PERCENTAGE_8                               0x2B04
+#define CHARACTERISTIC_POLLEN_CONCENTRATION                       0x2A75
+#define CHARACTERISTIC_POWER                                      0x2B05
+#define CHARACTERISTIC_POWER_SPECIFICATION                        0x2B06
+#define CHARACTERISTIC_PRESSURE                                   0x2A6D
+#define CHARACTERISTIC_RAINFALL                                   0x2A78
+#define CHARACTERISTIC_RELATIVE_RUNTIME_IN_A_CURRENT_RANGE        0x2B07
+#define CHARACTERISTIC_RELATIVE_RUNTIME_IN_A_GENERIC_LEVEL_RANGE  0x2B08
+#define CHARACTERISTIC_RELATIVE_VALUE_IN_A_TEMPERATURE_RANGE      0x2B0C
+#define CHARACTERISTIC_RELATIVE_VALUE_IN_A_VOLTAGE_RANGE          0x2B09
+#define CHARACTERISTIC_RELATIVE_VALUE_IN_AN_ILLUMINANCE_RANGE     0x2B0A
+#define CHARACTERISTIC_TEMPERATURE                                0x2A6E
+#define CHARACTERISTIC_TEMPERATURE_8                              0x2B0D
+#define CHARACTERISTIC_TEMPERATURE_8_IN_A_PERIOD_OF_DAY           0x2B0E
+#define CHARACTERISTIC_TEMPERATURE_8_STATISTICS                   0x2B0F
+#define CHARACTERISTIC_TEMPERATURE_RANGE                          0x2B10
+#define CHARACTERISTIC_TEMPERATURE_STATISTICS                     0x2B11
+#define CHARACTERISTIC_TIME_HOUR_24                               0x2B14
+#define CHARACTERISTIC_TIME_MILLISECOND_24                        0x2B15
+#define CHARACTERISTIC_TIME_SECOND_16                             0x2B16
+#define CHARACTERISTIC_TIME_SECOND_32                             0x2BDE
+#define CHARACTERISTIC_TRUE_WIND_DIRECTION                        0x2A71
+#define CHARACTERISTIC_TRUE_WIND_SPEED                            0x2A70
+#define CHARACTERISTIC_UV_INDEX                                   0x2A76
+#define CHARACTERISTIC_VOC_CONCENTRATION                          0x2BDF
+#define CHARACTERISTIC_VOLTAGE                                    0x2B18
+#define CHARACTERISTIC_VOLTAGE_FREQUENCY                          0x2BE0
+#define CHARACTERISTIC_VOLTAGE_SPECIFICATION                      0x2B19
+#define CHARACTERISTIC_VOLTAGE_STATISTICS                         0x2B1A
+#define CHARACTERISTIC_WIND_CHILL                                 0x2A79
+
 void proto_register_btmesh(void);
 
 static int proto_btmesh = -1;
@@ -255,6 +646,17 @@ typedef struct {
 } uat_btmesh_label_uuid_record_t;
 
 static uat_btmesh_label_uuid_record_t *uat_btmesh_label_uuid_records = NULL;
+
+typedef struct {
+    guint16 property_id;
+    guint16 characteristic_id;
+} btmesh_properties_t;
+
+typedef struct {
+    guint16 characteristic_id;
+    guint16 characteristic_value_length;
+    int     *hfindex;
+} bt_gatt_characteristic_t;
 
 static int hf_btmesh_ivi = -1;
 static int hf_btmesh_nid = -1;
@@ -903,6 +1305,285 @@ static int hf_btmesh_scheduler_status_schedules_schedule_13 = -1;
 static int hf_btmesh_scheduler_status_schedules_schedule_14 = -1;
 static int hf_btmesh_scheduler_status_schedules_schedule_15 = -1;
 
+static int hf_btmesh_light_lc_property_set_light_lc_property_id = -1;
+static int hf_btmesh_light_lc_property_set_light_lc_property_value = -1;
+static int hf_btmesh_light_lc_property_set_unacknowledged_light_lc_property_id = -1;
+static int hf_btmesh_light_lc_property_set_unacknowledged_light_lc_property_value = -1;
+static int hf_btmesh_light_lc_property_status_light_lc_property_id = -1;
+static int hf_btmesh_light_lc_property_status_light_lc_property_value = -1;
+static int hf_btmesh_light_lightness_set_lightness = -1;
+static int hf_btmesh_light_lightness_set_tid = -1;
+static int hf_btmesh_light_lightness_set_transition_time = -1;
+static int hf_btmesh_light_lightness_set_transition_time_steps = -1;
+static int hf_btmesh_light_lightness_set_transition_time_resolution = -1;
+static int hf_btmesh_light_lightness_set_delay = -1;
+static int hf_btmesh_light_lightness_set_unacknowledged_lightness = -1;
+static int hf_btmesh_light_lightness_set_unacknowledged_tid = -1;
+static int hf_btmesh_light_lightness_set_unacknowledged_transition_time = -1;
+static int hf_btmesh_light_lightness_set_unacknowledged_transition_time_steps = -1;
+static int hf_btmesh_light_lightness_set_unacknowledged_transition_time_resolution = -1;
+static int hf_btmesh_light_lightness_set_unacknowledged_delay = -1;
+static int hf_btmesh_light_lightness_status_present_lightness = -1;
+static int hf_btmesh_light_lightness_status_target_lightness = -1;
+static int hf_btmesh_light_lightness_status_remaining_time = -1;
+static int hf_btmesh_light_lightness_status_remaining_time_steps = -1;
+static int hf_btmesh_light_lightness_status_remaining_time_resolution = -1;
+static int hf_btmesh_light_lightness_linear_set_lightness = -1;
+static int hf_btmesh_light_lightness_linear_set_tid = -1;
+static int hf_btmesh_light_lightness_linear_set_transition_time = -1;
+static int hf_btmesh_light_lightness_linear_set_transition_time_steps = -1;
+static int hf_btmesh_light_lightness_linear_set_transition_time_resolution = -1;
+static int hf_btmesh_light_lightness_linear_set_delay = -1;
+static int hf_btmesh_light_lightness_linear_set_unacknowledged_lightness = -1;
+static int hf_btmesh_light_lightness_linear_set_unacknowledged_tid = -1;
+static int hf_btmesh_light_lightness_linear_set_unacknowledged_transition_time = -1;
+static int hf_btmesh_light_lightness_linear_set_unacknowledged_transition_time_steps = -1;
+static int hf_btmesh_light_lightness_linear_set_unacknowledged_transition_time_resolution = -1;
+static int hf_btmesh_light_lightness_linear_set_unacknowledged_delay = -1;
+static int hf_btmesh_light_lightness_linear_status_present_lightness = -1;
+static int hf_btmesh_light_lightness_linear_status_target_lightness = -1;
+static int hf_btmesh_light_lightness_linear_status_remaining_time = -1;
+static int hf_btmesh_light_lightness_linear_status_remaining_time_steps = -1;
+static int hf_btmesh_light_lightness_linear_status_remaining_time_resolution = -1;
+static int hf_btmesh_light_lightness_last_status_lightness = -1;
+static int hf_btmesh_light_lightness_default_status_lightness = -1;
+static int hf_btmesh_light_lightness_range_status_status_code = -1;
+static int hf_btmesh_light_lightness_range_status_range_min = -1;
+static int hf_btmesh_light_lightness_range_status_range_max = -1;
+static int hf_btmesh_light_lightness_default_set_lightness = -1;
+static int hf_btmesh_light_lightness_default_set_unacknowledged_lightness = -1;
+static int hf_btmesh_light_lightness_range_set_range_min = -1;
+static int hf_btmesh_light_lightness_range_set_range_max = -1;
+static int hf_btmesh_light_lightness_range_set_unacknowledged_range_min = -1;
+static int hf_btmesh_light_lightness_range_set_unacknowledged_range_max = -1;
+static int hf_btmesh_light_ctl_set_ctl_lightness = -1;
+static int hf_btmesh_light_ctl_set_ctl_temperature = -1;
+static int hf_btmesh_light_ctl_set_ctl_delta_uv = -1;
+static int hf_btmesh_light_ctl_set_tid = -1;
+static int hf_btmesh_light_ctl_set_transition_time = -1;
+static int hf_btmesh_light_ctl_set_transition_time_steps = -1;
+static int hf_btmesh_light_ctl_set_transition_time_resolution = -1;
+static int hf_btmesh_light_ctl_set_delay = -1;
+static int hf_btmesh_light_ctl_set_unacknowledged_ctl_lightness = -1;
+static int hf_btmesh_light_ctl_set_unacknowledged_ctl_temperature = -1;
+static int hf_btmesh_light_ctl_set_unacknowledged_ctl_delta_uv = -1;
+static int hf_btmesh_light_ctl_set_unacknowledged_tid = -1;
+static int hf_btmesh_light_ctl_set_unacknowledged_transition_time = -1;
+static int hf_btmesh_light_ctl_set_unacknowledged_transition_time_steps = -1;
+static int hf_btmesh_light_ctl_set_unacknowledged_transition_time_resolution = -1;
+static int hf_btmesh_light_ctl_set_unacknowledged_delay = -1;
+static int hf_btmesh_light_ctl_status_present_ctl_lightness = -1;
+static int hf_btmesh_light_ctl_status_present_ctl_temperature = -1;
+static int hf_btmesh_light_ctl_status_target_ctl_lightness = -1;
+static int hf_btmesh_light_ctl_status_target_ctl_temperature = -1;
+static int hf_btmesh_light_ctl_status_remaining_time = -1;
+static int hf_btmesh_light_ctl_status_remaining_time_steps = -1;
+static int hf_btmesh_light_ctl_status_remaining_time_resolution = -1;
+static int hf_btmesh_light_ctl_temperature_range_status_status_code = -1;
+static int hf_btmesh_light_ctl_temperature_range_status_range_min = -1;
+static int hf_btmesh_light_ctl_temperature_range_status_range_max = -1;
+static int hf_btmesh_light_ctl_temperature_set_ctl_temperature = -1;
+static int hf_btmesh_light_ctl_temperature_set_ctl_delta_uv = -1;
+static int hf_btmesh_light_ctl_temperature_set_tid = -1;
+static int hf_btmesh_light_ctl_temperature_set_transition_time = -1;
+static int hf_btmesh_light_ctl_temperature_set_transition_time_steps = -1;
+static int hf_btmesh_light_ctl_temperature_set_transition_time_resolution = -1;
+static int hf_btmesh_light_ctl_temperature_set_delay = -1;
+static int hf_btmesh_light_ctl_temperature_set_unacknowledged_ctl_temperature = -1;
+static int hf_btmesh_light_ctl_temperature_set_unacknowledged_ctl_delta_uv = -1;
+static int hf_btmesh_light_ctl_temperature_set_unacknowledged_tid = -1;
+static int hf_btmesh_light_ctl_temperature_set_unacknowledged_transition_time = -1;
+static int hf_btmesh_light_ctl_temperature_set_unacknowledged_transition_time_steps = -1;
+static int hf_btmesh_light_ctl_temperature_set_unacknowledged_transition_time_resolution = -1;
+static int hf_btmesh_light_ctl_temperature_set_unacknowledged_delay = -1;
+static int hf_btmesh_light_ctl_temperature_status_present_ctl_temperature = -1;
+static int hf_btmesh_light_ctl_temperature_status_present_ctl_delta_uv = -1;
+static int hf_btmesh_light_ctl_temperature_status_target_ctl_temperature = -1;
+static int hf_btmesh_light_ctl_temperature_status_target_ctl_delta_uv = -1;
+static int hf_btmesh_light_ctl_temperature_status_remaining_time = -1;
+static int hf_btmesh_light_ctl_temperature_status_remaining_time_steps = -1;
+static int hf_btmesh_light_ctl_temperature_status_remaining_time_resolution = -1;
+static int hf_btmesh_light_ctl_default_status_lightness = -1;
+static int hf_btmesh_light_ctl_default_status_temperature = -1;
+static int hf_btmesh_light_ctl_default_status_delta_uv = -1;
+static int hf_btmesh_light_ctl_default_set_lightness = -1;
+static int hf_btmesh_light_ctl_default_set_temperature = -1;
+static int hf_btmesh_light_ctl_default_set_delta_uv = -1;
+static int hf_btmesh_light_ctl_default_set_unacknowledged_lightness = -1;
+static int hf_btmesh_light_ctl_default_set_unacknowledged_temperature = -1;
+static int hf_btmesh_light_ctl_default_set_unacknowledged_delta_uv = -1;
+static int hf_btmesh_light_ctl_temperature_range_set_range_min = -1;
+static int hf_btmesh_light_ctl_temperature_range_set_range_max = -1;
+static int hf_btmesh_light_ctl_temperature_range_set_unacknowledged_range_min = -1;
+static int hf_btmesh_light_ctl_temperature_range_set_unacknowledged_range_max = -1;
+static int hf_btmesh_light_hsl_hue_set_hue = -1;
+static int hf_btmesh_light_hsl_hue_set_tid = -1;
+static int hf_btmesh_light_hsl_hue_set_transition_time = -1;
+static int hf_btmesh_light_hsl_hue_set_transition_time_steps = -1;
+static int hf_btmesh_light_hsl_hue_set_transition_time_resolution = -1;
+static int hf_btmesh_light_hsl_hue_set_delay = -1;
+static int hf_btmesh_light_hsl_hue_set_unacknowledged_hue = -1;
+static int hf_btmesh_light_hsl_hue_set_unacknowledged_tid = -1;
+static int hf_btmesh_light_hsl_hue_set_unacknowledged_transition_time = -1;
+static int hf_btmesh_light_hsl_hue_set_unacknowledged_transition_time_steps = -1;
+static int hf_btmesh_light_hsl_hue_set_unacknowledged_transition_time_resolution = -1;
+static int hf_btmesh_light_hsl_hue_set_unacknowledged_delay = -1;
+static int hf_btmesh_light_hsl_hue_status_present_hue = -1;
+static int hf_btmesh_light_hsl_hue_status_target_hue = -1;
+static int hf_btmesh_light_hsl_hue_status_remaining_time = -1;
+static int hf_btmesh_light_hsl_hue_status_remaining_time_steps = -1;
+static int hf_btmesh_light_hsl_hue_status_remaining_time_resolution = -1;
+static int hf_btmesh_light_hsl_saturation_set_saturation = -1;
+static int hf_btmesh_light_hsl_saturation_set_tid = -1;
+static int hf_btmesh_light_hsl_saturation_set_transition_time = -1;
+static int hf_btmesh_light_hsl_saturation_set_transition_time_steps = -1;
+static int hf_btmesh_light_hsl_saturation_set_transition_time_resolution = -1;
+static int hf_btmesh_light_hsl_saturation_set_delay = -1;
+static int hf_btmesh_light_hsl_saturation_set_unacknowledged_saturation = -1;
+static int hf_btmesh_light_hsl_saturation_set_unacknowledged_tid = -1;
+static int hf_btmesh_light_hsl_saturation_set_unacknowledged_transition_time = -1;
+static int hf_btmesh_light_hsl_saturation_set_unacknowledged_transition_time_steps = -1;
+static int hf_btmesh_light_hsl_saturation_set_unacknowledged_transition_time_resolution = -1;
+static int hf_btmesh_light_hsl_saturation_set_unacknowledged_delay = -1;
+static int hf_btmesh_light_hsl_saturation_status_present_saturation = -1;
+static int hf_btmesh_light_hsl_saturation_status_target_saturation = -1;
+static int hf_btmesh_light_hsl_saturation_status_remaining_time = -1;
+static int hf_btmesh_light_hsl_saturation_status_remaining_time_steps = -1;
+static int hf_btmesh_light_hsl_saturation_status_remaining_time_resolution = -1;
+static int hf_btmesh_light_hsl_set_hsl_lightness = -1;
+static int hf_btmesh_light_hsl_set_hsl_hue = -1;
+static int hf_btmesh_light_hsl_set_hsl_saturation = -1;
+static int hf_btmesh_light_hsl_set_tid = -1;
+static int hf_btmesh_light_hsl_set_transition_time = -1;
+static int hf_btmesh_light_hsl_set_transition_time_steps = -1;
+static int hf_btmesh_light_hsl_set_transition_time_resolution = -1;
+static int hf_btmesh_light_hsl_set_delay = -1;
+static int hf_btmesh_light_hsl_set_unacknowledged_hsl_lightness = -1;
+static int hf_btmesh_light_hsl_set_unacknowledged_hsl_hue = -1;
+static int hf_btmesh_light_hsl_set_unacknowledged_hsl_saturation = -1;
+static int hf_btmesh_light_hsl_set_unacknowledged_tid = -1;
+static int hf_btmesh_light_hsl_set_unacknowledged_transition_time = -1;
+static int hf_btmesh_light_hsl_set_unacknowledged_transition_time_steps = -1;
+static int hf_btmesh_light_hsl_set_unacknowledged_transition_time_resolution = -1;
+static int hf_btmesh_light_hsl_set_unacknowledged_delay = -1;
+static int hf_btmesh_light_hsl_status_hsl_lightness = -1;
+static int hf_btmesh_light_hsl_status_hsl_hue = -1;
+static int hf_btmesh_light_hsl_status_hsl_saturation = -1;
+static int hf_btmesh_light_hsl_status_remaining_time = -1;
+static int hf_btmesh_light_hsl_status_remaining_time_steps = -1;
+static int hf_btmesh_light_hsl_status_remaining_time_resolution = -1;
+static int hf_btmesh_light_hsl_target_status_hsl_lightness_target = -1;
+static int hf_btmesh_light_hsl_target_status_hsl_hue_target = -1;
+static int hf_btmesh_light_hsl_target_status_hsl_saturation_target = -1;
+static int hf_btmesh_light_hsl_target_status_remaining_time = -1;
+static int hf_btmesh_light_hsl_target_status_remaining_time_steps = -1;
+static int hf_btmesh_light_hsl_target_status_remaining_time_resolution = -1;
+static int hf_btmesh_light_hsl_default_status_lightness = -1;
+static int hf_btmesh_light_hsl_default_status_hue = -1;
+static int hf_btmesh_light_hsl_default_status_saturation = -1;
+static int hf_btmesh_light_hsl_range_status_status_code = -1;
+static int hf_btmesh_light_hsl_range_status_hue_range_min = -1;
+static int hf_btmesh_light_hsl_range_status_hue_range_max = -1;
+static int hf_btmesh_light_hsl_range_status_saturation_range_min = -1;
+static int hf_btmesh_light_hsl_range_status_saturation_range_max = -1;
+static int hf_btmesh_light_hsl_default_set_lightness = -1;
+static int hf_btmesh_light_hsl_default_set_hue = -1;
+static int hf_btmesh_light_hsl_default_set_saturation = -1;
+static int hf_btmesh_light_hsl_default_set_unacknowledged_lightness = -1;
+static int hf_btmesh_light_hsl_default_set_unacknowledged_hue = -1;
+static int hf_btmesh_light_hsl_default_set_unacknowledged_saturation = -1;
+static int hf_btmesh_light_hsl_range_set_hue_range_min = -1;
+static int hf_btmesh_light_hsl_range_set_hue_range_max = -1;
+static int hf_btmesh_light_hsl_range_set_saturation_range_min = -1;
+static int hf_btmesh_light_hsl_range_set_saturation_range_max = -1;
+static int hf_btmesh_light_hsl_range_set_unacknowledged_hue_range_min = -1;
+static int hf_btmesh_light_hsl_range_set_unacknowledged_hue_range_max = -1;
+static int hf_btmesh_light_hsl_range_set_unacknowledged_saturation_range_min = -1;
+static int hf_btmesh_light_hsl_range_set_unacknowledged_saturation_range_max = -1;
+static int hf_btmesh_light_xyl_set_xyl_lightness = -1;
+static int hf_btmesh_light_xyl_set_xyl_x = -1;
+static int hf_btmesh_light_xyl_set_xyl_y = -1;
+static int hf_btmesh_light_xyl_set_tid = -1;
+static int hf_btmesh_light_xyl_set_transition_time = -1;
+static int hf_btmesh_light_xyl_set_transition_time_steps = -1;
+static int hf_btmesh_light_xyl_set_transition_time_resolution = -1;
+static int hf_btmesh_light_xyl_set_delay = -1;
+static int hf_btmesh_light_xyl_set_unacknowledged_xyl_lightness = -1;
+static int hf_btmesh_light_xyl_set_unacknowledged_xyl_x = -1;
+static int hf_btmesh_light_xyl_set_unacknowledged_xyl_y = -1;
+static int hf_btmesh_light_xyl_set_unacknowledged_tid = -1;
+static int hf_btmesh_light_xyl_set_unacknowledged_transition_time = -1;
+static int hf_btmesh_light_xyl_set_unacknowledged_transition_time_steps = -1;
+static int hf_btmesh_light_xyl_set_unacknowledged_transition_time_resolution = -1;
+static int hf_btmesh_light_xyl_set_unacknowledged_delay = -1;
+static int hf_btmesh_light_xyl_status_xyl_lightness = -1;
+static int hf_btmesh_light_xyl_status_xyl_x = -1;
+static int hf_btmesh_light_xyl_status_xyl_y = -1;
+static int hf_btmesh_light_xyl_status_remaining_time = -1;
+static int hf_btmesh_light_xyl_status_remaining_time_steps = -1;
+static int hf_btmesh_light_xyl_status_remaining_time_resolution = -1;
+static int hf_btmesh_light_xyl_target_status_target_xyl_lightness = -1;
+static int hf_btmesh_light_xyl_target_status_target_xyl_x = -1;
+static int hf_btmesh_light_xyl_target_status_target_xyl_y = -1;
+static int hf_btmesh_light_xyl_target_status_remaining_time = -1;
+static int hf_btmesh_light_xyl_target_status_remaining_time_steps = -1;
+static int hf_btmesh_light_xyl_target_status_remaining_time_resolution = -1;
+static int hf_btmesh_light_xyl_default_status_lightness = -1;
+static int hf_btmesh_light_xyl_default_status_xyl_x = -1;
+static int hf_btmesh_light_xyl_default_status_xyl_y = -1;
+static int hf_btmesh_light_xyl_range_status_status_code = -1;
+static int hf_btmesh_light_xyl_range_status_xyl_x_range_min = -1;
+static int hf_btmesh_light_xyl_range_status_xyl_x_range_max = -1;
+static int hf_btmesh_light_xyl_range_status_xyl_y_range_min = -1;
+static int hf_btmesh_light_xyl_range_status_xyl_y_range_max = -1;
+static int hf_btmesh_light_xyl_default_set_lightness = -1;
+static int hf_btmesh_light_xyl_default_set_xyl_x = -1;
+static int hf_btmesh_light_xyl_default_set_xyl_y = -1;
+static int hf_btmesh_light_xyl_default_set_unacknowledged_lightness = -1;
+static int hf_btmesh_light_xyl_default_set_unacknowledged_xyl_x = -1;
+static int hf_btmesh_light_xyl_default_set_unacknowledged_xyl_y = -1;
+static int hf_btmesh_light_xyl_range_set_xyl_x_range_min = -1;
+static int hf_btmesh_light_xyl_range_set_xyl_x_range_max = -1;
+static int hf_btmesh_light_xyl_range_set_xyl_y_range_min = -1;
+static int hf_btmesh_light_xyl_range_set_xyl_y_range_max = -1;
+static int hf_btmesh_light_xyl_range_set_unacknowledged_xyl_x_range_min = -1;
+static int hf_btmesh_light_xyl_range_set_unacknowledged_xyl_x_range_max = -1;
+static int hf_btmesh_light_xyl_range_set_unacknowledged_xyl_y_range_min = -1;
+static int hf_btmesh_light_xyl_range_set_unacknowledged_xyl_y_range_max = -1;
+static int hf_btmesh_light_lc_mode_set_mode = -1;
+static int hf_btmesh_light_lc_mode_set_unacknowledged_mode = -1;
+static int hf_btmesh_light_lc_mode_status_mode = -1;
+static int hf_btmesh_light_lc_om_set_mode = -1;
+static int hf_btmesh_light_lc_om_set_unacknowledged_mode = -1;
+static int hf_btmesh_light_lc_om_status_mode = -1;
+static int hf_btmesh_light_lc_light_onoff_set_light_onoff = -1;
+static int hf_btmesh_light_lc_light_onoff_set_tid = -1;
+static int hf_btmesh_light_lc_light_onoff_set_transition_time = -1;
+static int hf_btmesh_light_lc_light_onoff_set_transition_time_steps = -1;
+static int hf_btmesh_light_lc_light_onoff_set_transition_time_resolution = -1;
+static int hf_btmesh_light_lc_light_onoff_set_delay = -1;
+static int hf_btmesh_light_lc_light_onoff_set_unacknowledged_light_onoff = -1;
+static int hf_btmesh_light_lc_light_onoff_set_unacknowledged_tid = -1;
+static int hf_btmesh_light_lc_light_onoff_set_unacknowledged_transition_time = -1;
+static int hf_btmesh_light_lc_light_onoff_set_unacknowledged_transition_time_steps = -1;
+static int hf_btmesh_light_lc_light_onoff_set_unacknowledged_transition_time_resolution = -1;
+static int hf_btmesh_light_lc_light_onoff_set_unacknowledged_delay = -1;
+static int hf_btmesh_light_lc_light_onoff_status_present_light_onoff = -1;
+static int hf_btmesh_light_lc_light_onoff_status_target_light_onoff = -1;
+static int hf_btmesh_light_lc_light_onoff_status_remaining_time = -1;
+static int hf_btmesh_light_lc_light_onoff_status_remaining_time_steps = -1;
+static int hf_btmesh_light_lc_light_onoff_status_remaining_time_resolution = -1;
+static int hf_btmesh_light_lc_property_get_light_lc_property_id = -1;
+
+static int hf_bt_characteristic_boolean = -1;
+static int hf_bt_characteristic_coefficient = -1;
+static int hf_bt_characteristic_count_16 = -1;
+static int hf_bt_characteristic_illuminance = -1;
+static int hf_bt_characteristic_perceived_lightness = -1;
+static int hf_bt_characteristic_percentage_8 = -1;
+static int hf_bt_characteristic_time_millisecond_24 = -1;
+static int hf_bt_characteristic_time_second_16 = -1;
+
 static int ett_btmesh = -1;
 static int ett_btmesh_net_pdu = -1;
 static int ett_btmesh_transp_pdu = -1;
@@ -1039,290 +1720,290 @@ static const value_string btmesh_szmic_vals[] = {
 
 static const value_string btmesh_models_opcode_vals[] = {
     /* Bluetooth Mesh Foundation messages */
-    { 0x00, "Config AppKey Add" },
-    { 0x01, "Config AppKey Update" },
-    { 0x02, "Config Composition Data Status" },
-    { 0x03, "Config Config Model Publication Set" },
-    { 0x04, "Health Current Status" },
-    { 0x05, "Health Fault Status" },
-    { 0x06, "Config Heartbeat Publication Status" },
-    { 0x8000, "Config AppKey Delete" },
-    { 0x8001, "Config AppKey Get" },
-    { 0x8002, "Config AppKey List" },
-    { 0x8003, "Config AppKey Status" },
-    { 0x8004, "Health Attention Get" },
-    { 0x8005, "Health Attention Set" },
-    { 0x8006, "Health Attention Set Unacknowledged" },
-    { 0x8007, "Health Attention Status" },
-    { 0x8008, "Config Composition Data Get" },
-    { 0x8009, "Config Beacon Get" },
-    { 0x800A, "Config Beacon Set" },
-    { 0x800B, "Config Beacon Status" },
-    { 0x800C, "Config Default TTL Get" },
-    { 0x800D, "Config Default TTL Set" },
-    { 0x800E, "Config Default TTL Status" },
-    { 0x800F, "Config Friend Get" },
-    { 0x8010, "Config Friend Set" },
-    { 0x8011, "Config Friend Status" },
-    { 0x8012, "Config GATT Proxy Get" },
-    { 0x8013, "Config GATT Proxy Set" },
-    { 0x8014, "Config GATT Proxy Status" },
-    { 0x8015, "Config Key Refresh Phase Get" },
-    { 0x8016, "Config Key Refresh Phase Set" },
-    { 0x8017, "Config Key Refresh Phase Status" },
-    { 0x8018, "Config Model Publication Get" },
-    { 0x8019, "Config Model Publication Status" },
-    { 0x801A, "Config Model Publication Virtual Address Set" },
-    { 0x801B, "Config Model Subscription Add" },
-    { 0x801C, "Config Model Subscription Delete" },
-    { 0x801D, "Config Model Subscription Delete All" },
-    { 0x801E, "Config Model Subscription Overwrite" },
-    { 0x801F, "Config Model Subscription Status" },
-    { 0x8020, "Config Model Subscription Virtual Address Add" },
-    { 0x8021, "Config Model Subscription Virtual Address Delete" },
-    { 0x8022, "Config Model Subscription Virtual Address Overwrite" },
-    { 0x8023, "Config Network Transmit Get" },
-    { 0x8024, "Config Network Transmit Set" },
-    { 0x8025, "Config Network Transmit Status" },
-    { 0x8026, "Config Relay Get" },
-    { 0x8027, "Config Relay Set" },
-    { 0x8028, "Config Relay Status" },
-    { 0x8029, "Config SIG Model Subscription Get" },
-    { 0x802A, "Config SIG Model Subscription List" },
-    { 0x802B, "Config Vendor Model Subscription Get" },
-    { 0x802C, "Config Vendor Model Subscription List" },
-    { 0x802D, "Config Low Power Node PollTimeout Get" },
-    { 0x802E, "Config Low Power Node PollTimeout Status" },
-    { 0x802F, "Health Fault Clear" },
-    { 0x8030, "Health Fault Clear Unacknowledged" },
-    { 0x8031, "Health Fault Get" },
-    { 0x8032, "Health Fault Test" },
-    { 0x8033, "Health Fault Test Unacknowledged" },
-    { 0x8034, "Health Period Get" },
-    { 0x8035, "Health Period Set" },
-    { 0x8036, "Health Period Set Unacknowledged" },
-    { 0x8037, "Health Period Status" },
-    { 0x8038, "Config Heartbeat Publication Get" },
-    { 0x8039, "Config Heartbeat Publication Set" },
-    { 0x803A, "Config Heartbeat Subscription Get" },
-    { 0x803B, "Config Heartbeat Subscription Set" },
-    { 0x803C, "Config Heartbeat Subscription Status" },
-    { 0x803D, "Config Model App Bind" },
-    { 0x803E, "Config Model App Status" },
-    { 0x803F, "Config Model App Unbind" },
-    { 0x8040, "Config NetKey Add" },
-    { 0x8041, "Config NetKey Delete" },
-    { 0x8042, "Config NetKey Get" },
-    { 0x8043, "Config NetKey List" },
-    { 0x8044, "Config NetKey Status" },
-    { 0x8045, "Config NetKey Update" },
-    { 0x8046, "Config Node Identity Get" },
-    { 0x8047, "Config Node Identity Set" },
-    { 0x8048, "Config Node Identity Status" },
-    { 0x8049, "Config Node Reset" },
-    { 0x804A, "Config Node Reset Status" },
-    { 0x804B, "Config SIG Model App Get" },
-    { 0x804C, "Config SIG Model App List" },
-    { 0x804D, "Config Vendor Model App Get" },
-    { 0x804E, "Config Vendor Model App List" },
+    { CONFIG_APPKEY_ADD                                   , "Config AppKey Add"                                  },
+    { CONFIG_APPKEY_UPDATE                                , "Config AppKey Update"                               },
+    { CONFIG_COMPOSITION_DATA_STATUS                      , "Config Composition Data Status"                     },
+    { CONFIG_MODEL_PUBLICATION_SET                        , "Config Model Publication Set"                       },
+    { HEALTH_CURRENT_STATUS                               , "Health Current Status"                              },
+    { HEALTH_FAULT_STATUS                                 , "Health Fault Status"                                },
+    { CONFIG_HEARTBEAT_PUBLICATION_STATUS                 , "Config Heartbeat Publication Status"                },
+    { CONFIG_APPKEY_DELETE                                , "Config AppKey Delete"                               },
+    { CONFIG_APPKEY_GET                                   , "Config AppKey Get"                                  },
+    { CONFIG_APPKEY_LIST                                  , "Config AppKey List"                                 },
+    { CONFIG_APPKEY_STATUS                                , "Config AppKey Status"                               },
+    { HEALTH_ATTENTION_GET                                , "Health Attention Get"                               },
+    { HEALTH_ATTENTION_SET                                , "Health Attention Set"                               },
+    { HEALTH_ATTENTION_SET_UNACKNOWLEDGED                 , "Health Attention Set Unacknowledged"                },
+    { HEALTH_ATTENTION_STATUS                             , "Health Attention Status"                            },
+    { CONFIG_COMPOSITION_DATA_GET                         , "Config Composition Data Get"                        },
+    { CONFIG_BEACON_GET                                   , "Config Beacon Get"                                  },
+    { CONFIG_BEACON_SET                                   , "Config Beacon Set"                                  },
+    { CONFIG_BEACON_STATUS                                , "Config Beacon Status"                               },
+    { CONFIG_DEFAULT_TTL_GET                              , "Config Default TTL Get"                             },
+    { CONFIG_DEFAULT_TTL_SET                              , "Config Default TTL Set"                             },
+    { CONFIG_DEFAULT_TTL_STATUS                           , "Config Default TTL Status"                          },
+    { CONFIG_FRIEND_GET                                   , "Config Friend Get"                                  },
+    { CONFIG_FRIEND_SET                                   , "Config Friend Set"                                  },
+    { CONFIG_FRIEND_STATUS                                , "Config Friend Status"                               },
+    { CONFIG_GATT_PROXY_GET                               , "Config GATT Proxy Get"                              },
+    { CONFIG_GATT_PROXY_SET                               , "Config GATT Proxy Set"                              },
+    { CONFIG_GATT_PROXY_STATUS                            , "Config GATT Proxy Status"                           },
+    { CONFIG_KEY_REFRESH_PHASE_GET                        , "Config Key Refresh Phase Get"                       },
+    { CONFIG_KEY_REFRESH_PHASE_SET                        , "Config Key Refresh Phase Set"                       },
+    { CONFIG_KEY_REFRESH_PHASE_STATUS                     , "Config Key Refresh Phase Status"                    },
+    { CONFIG_MODEL_PUBLICATION_GET                        , "Config Model Publication Get"                       },
+    { CONFIG_MODEL_PUBLICATION_STATUS                     , "Config Model Publication Status"                    },
+    { CONFIG_MODEL_PUBLICATION_VIRTUAL_ADDRESS_SET        , "Config Model Publication Virtual Address Set"       },
+    { CONFIG_MODEL_SUBSCRIPTION_ADD                       , "Config Model Subscription Add"                      },
+    { CONFIG_MODEL_SUBSCRIPTION_DELETE                    , "Config Model Subscription Delete"                   },
+    { CONFIG_MODEL_SUBSCRIPTION_DELETE_ALL                , "Config Model Subscription Delete All"               },
+    { CONFIG_MODEL_SUBSCRIPTION_OVERWRITE                 , "Config Model Subscription Overwrite"                },
+    { CONFIG_MODEL_SUBSCRIPTION_STATUS                    , "Config Model Subscription Status"                   },
+    { CONFIG_MODEL_SUBSCRIPTION_VIRTUAL_ADDRESS_ADD       , "Config Model Subscription Virtual Address Add"      },
+    { CONFIG_MODEL_SUBSCRIPTION_VIRTUAL_ADDRESS_DELETE    , "Config Model Subscription Virtual Address Delete"   },
+    { CONFIG_MODEL_SUBSCRIPTION_VIRTUAL_ADDRESS_OVERWRITE , "Config Model Subscription Virtual Address Overwrite"},
+    { CONFIG_NETWORK_TRANSMIT_GET                         , "Config Network Transmit Get"                        },
+    { CONFIG_NETWORK_TRANSMIT_SET                         , "Config Network Transmit Set"                        },
+    { CONFIG_NETWORK_TRANSMIT_STATUS                      , "Config Network Transmit Status"                     },
+    { CONFIG_RELAY_GET                                    , "Config Relay Get"                                   },
+    { CONFIG_RELAY_SET                                    , "Config Relay Set"                                   },
+    { CONFIG_RELAY_STATUS                                 , "Config Relay Status"                                },
+    { CONFIG_SIG_MODEL_SUBSCRIPTION_GET                   , "Config SIG Model Subscription Get"                  },
+    { CONFIG_SIG_MODEL_SUBSCRIPTION_LIST                  , "Config SIG Model Subscription List"                 },
+    { CONFIG_VENDOR_MODEL_SUBSCRIPTION_GET                , "Config Vendor Model Subscription Get"               },
+    { CONFIG_VENDOR_MODEL_SUBSCRIPTION_LIST               , "Config Vendor Model Subscription List"              },
+    { CONFIG_LOW_POWER_NODE_POLLTIMEOUT_GET               , "Config Low Power Node PollTimeout Get"              },
+    { CONFIG_LOW_POWER_NODE_POLLTIMEOUT_STATUS            , "Config Low Power Node PollTimeout Status"           },
+    { HEALTH_FAULT_CLEAR                                  , "Health Fault Clear"                                 },
+    { HEALTH_FAULT_CLEAR_UNACKNOWLEDGED                   , "Health Fault Clear Unacknowledged"                  },
+    { HEALTH_FAULT_GET                                    , "Health Fault Get"                                   },
+    { HEALTH_FAULT_TEST                                   , "Health Fault Test"                                  },
+    { HEALTH_FAULT_TEST_UNACKNOWLEDGED                    , "Health Fault Test Unacknowledged"                   },
+    { HEALTH_PERIOD_GET                                   , "Health Period Get"                                  },
+    { HEALTH_PERIOD_SET                                   , "Health Period Set"                                  },
+    { HEALTH_PERIOD_SET_UNACKNOWLEDGED                    , "Health Period Set Unacknowledged"                   },
+    { HEALTH_PERIOD_STATUS                                , "Health Period Status"                               },
+    { CONFIG_HEARTBEAT_PUBLICATION_GET                    , "Config Heartbeat Publication Get"                   },
+    { CONFIG_HEARTBEAT_PUBLICATION_SET                    , "Config Heartbeat Publication Set"                   },
+    { CONFIG_HEARTBEAT_SUBSCRIPTION_GET                   , "Config Heartbeat Subscription Get"                  },
+    { CONFIG_HEARTBEAT_SUBSCRIPTION_SET                   , "Config Heartbeat Subscription Set"                  },
+    { CONFIG_HEARTBEAT_SUBSCRIPTION_STATUS                , "Config Heartbeat Subscription Status"               },
+    { CONFIG_MODEL_APP_BIND                               , "Config Model App Bind"                              },
+    { CONFIG_MODEL_APP_STATUS                             , "Config Model App Status"                            },
+    { CONFIG_MODEL_APP_UNBIND                             , "Config Model App Unbind"                            },
+    { CONFIG_NETKEY_ADD                                   , "Config NetKey Add"                                  },
+    { CONFIG_NETKEY_DELETE                                , "Config NetKey Delete"                               },
+    { CONFIG_NETKEY_GET                                   , "Config NetKey Get"                                  },
+    { CONFIG_NETKEY_LIST                                  , "Config NetKey List"                                 },
+    { CONFIG_NETKEY_STATUS                                , "Config NetKey Status"                               },
+    { CONFIG_NETKEY_UPDATE                                , "Config NetKey Update"                               },
+    { CONFIG_NODE_IDENTITY_GET                            , "Config Node Identity Get"                           },
+    { CONFIG_NODE_IDENTITY_SET                            , "Config Node Identity Set"                           },
+    { CONFIG_NODE_IDENTITY_STATUS                         , "Config Node Identity Status"                        },
+    { CONFIG_NODE_RESET                                   , "Config Node Reset"                                  },
+    { CONFIG_NODE_RESET_STATUS                            , "Config Node Reset Status"                           },
+    { CONFIG_SIG_MODEL_APP_GET                            , "Config SIG Model App Get"                           },
+    { CONFIG_SIG_MODEL_APP_LIST                           , "Config SIG Model App List"                          },
+    { CONFIG_VENDOR_MODEL_APP_GET                         , "Config Vendor Model App Get"                        },
+    { CONFIG_VENDOR_MODEL_APP_LIST                        , "Config Vendor Model App List"                       },
 
-    /* Bluetooth Mesh Model messages */
-    { 0x8201, "Generic OnOff Get" },
-    { 0x8202, "Generic OnOff Set" },
-    { 0x8203, "Generic OnOff Set Unacknowledged" },
-    { 0x8204, "Generic OnOff Status" },
-    { 0x8205, "Generic Level Get" },
-    { 0x8206, "Generic Level Set" },
-    { 0x8207, "Generic Level Set Unacknowledged" },
-    { 0x8208, "Generic Level Status" },
-    { 0x8209, "Generic Delta Set" },
-    { 0x820A, "Generic Delta Set Unacknowledged" },
-    { 0x820B, "Generic Move Set" },
-    { 0x820C, "Generic Move Set Unacknowledged" },
-    { 0x820D, "Generic Default Transition Time Get" },
-    { 0x820E, "Generic Default Transition Time Set" },
-    { 0x820F, "Generic Default Transition Time Set Unacknowledged" },
-    { 0x8210, "Generic Default Transition Time Status" },
-    { 0x8211, "Generic OnPowerUp Get" },
-    { 0x8212, "Generic OnPowerUp Status" },
-    { 0x8213, "Generic OnPowerUp Set" },
-    { 0x8214, "Generic OnPowerUp Set Unacknowledged" },
-    { 0x8215, "Generic Power Level Get" },
-    { 0x8216, "Generic Power Level Set" },
-    { 0x8217, "Generic Power Level Set Unacknowledged" },
-    { 0x8218, "Generic Power Level Status" },
-    { 0x8219, "Generic Power Last Get" },
-    { 0x821A, "Generic Power Last Status" },
-    { 0x821B, "Generic Power Default Get" },
-    { 0x821C, "Generic Power Default Status" },
-    { 0x821D, "Generic Power Range Get" },
-    { 0x821E, "Generic Power Range Status" },
-    { 0x821F, "Generic Power Default Set" },
-    { 0x8220, "Generic Power Default Set Unacknowledged" },
-    { 0x8221, "Generic Power Range Set" },
-    { 0x8222, "Generic Power Range Set Unacknowledged" },
-    { 0x8223, "Generic Battery Get" },
-    { 0x8224, "Generic Battery Status" },
-    { 0x8225, "Generic Location Global Get" },
-    { 0x40, "Generic Location Global Status" },
-    { 0x8226, "Generic Location Local Get" },
-    { 0x8227, "Generic Location Local Status" },
-    { 0x41, "Generic Location Global Set" },
-    { 0x42, "Generic Location Global Set Unacknowledged" },
-    { 0x8228, "Generic Location Local Set" },
-    { 0x8229, "Generic Location Local Set Unacknowledged" },
-    { 0x822A, "Generic Manufacturer Properties Get" },
-    { 0x43, "Generic Manufacturer Properties Status" },
-    { 0x822B, "Generic Manufacturer Property Get" },
-    { 0x44, "Generic Manufacturer Property Set" },
-    { 0x45, "Generic Manufacturer Property Set Unacknowledged" },
-    { 0x46, "Generic Manufacturer Property Status" },
-    { 0x822C, "Generic Admin Properties Get" },
-    { 0x47, "Generic Admin Properties Status" },
-    { 0x822D, "Generic Admin Property Get" },
-    { 0x48, "Generic Admin Property Set" },
-    { 0x49, "Generic Admin Property Set Unacknowledged" },
-    { 0x4A, "Generic Admin Property Status" },
-    { 0x822E, "Generic User Properties Get" },
-    { 0x4B, "Generic User Properties Status" },
-    { 0x822F, "Generic User Property Get" },
-    { 0x4C, "Generic User Property Set" },
-    { 0x4D, "Generic User Property Set Unacknowledged" },
-    { 0x4E, "Generic User Property Status" },
-    { 0x4F, "Generic Client Properties Get" },
-    { 0x50, "Generic Client Properties Status" },
-    { 0x8230, "Sensor Descriptor Get" },
-    { 0x51, "Sensor Descriptor Status" },
-    { 0x8231, "Sensor Get" },
-    { 0x52, "Sensor Status" },
-    { 0x8232, "Sensor Column Get" },
-    { 0x53, "Sensor Column Status" },
-    { 0x8233, "Sensor Series Get" },
-    { 0x54, "Sensor Series Status" },
-    { 0x8234, "Sensor Cadence Get" },
-    { 0x55, "Sensor Cadence Set" },
-    { 0x56, "Sensor Cadence Set Unacknowledged" },
-    { 0x57, "Sensor Cadence Status" },
-    { 0x8235, "Sensor Settings Get" },
-    { 0x58, "Sensor Settings Status" },
-    { 0x8236, "Sensor Setting Get" },
-    { 0x59, "Sensor Setting Set" },
-    { 0x5A, "Sensor Setting Set Unacknowledged" },
-    { 0x5B, "Sensor Setting Status" },
-    { 0x8237, "Time Get" },
-    { 0x5C, "Time Set" },
-    { 0x5D, "Time Status" },
-    { 0x8238, "Time Role Get" },
-    { 0x8239, "Time Role Set" },
-    { 0x823A, "Time Role Status" },
-    { 0x823B, "Time Zone Get" },
-    { 0x823C, "Time Zone Set" },
-    { 0x823D, "Time Zone Status" },
-    { 0x823E, "TAI-UTC Delta Get" },
-    { 0x823F, "TAI-UTC Delta Set" },
-    { 0x8240, "TAI-UTC Delta Status" },
-    { 0x8241, "Scene Get" },
-    { 0x8242, "Scene Recall" },
-    { 0x8243, "Scene Recall Unacknowledged" },
-    { 0x5E, "Scene Status" },
-    { 0x8244, "Scene Register Get" },
-    { 0x8245, "Scene Register Status" },
-    { 0x8246, "Scene Store" },
-    { 0x8247, "Scene Store Unacknowledged" },
-    { 0x829E, "Scene Delete" },
-    { 0x829F, "Scene Delete Unacknowledged" },
-    { 0x8248, "Scheduler Action Get" },
-    { 0x5F, "Scheduler Action Status" },
-    { 0x8249, "Scheduler Get" },
-    { 0x824A, "Scheduler Status" },
-    { 0x60, "Scheduler Action Set" },
-    { 0x61, "Scheduler Action Set Unacknowledged" },
-    { 0x824B, "Light Lightness Get" },
-    { 0x824C, "Light Lightness Set" },
-    { 0x824D, "Light Lightness Set Unacknowledged" },
-    { 0x824E, "Light Lightness Status" },
-    { 0x824F, "Light Lightness Linear Get" },
-    { 0x8250, "Light Lightness Linear Set" },
-    { 0x8251, "Light Lightness Linear Set Unacknowledged" },
-    { 0x8252, "Light Lightness Linear Status" },
-    { 0x8253, "Light Lightness Last Get" },
-    { 0x8254, "Light Lightness Last Status" },
-    { 0x8255, "Light Lightness Default Get" },
-    { 0x8256, "Light Lightness Default Status" },
-    { 0x8257, "Light Lightness Range Get" },
-    { 0x8258, "Light Lightness Range Status" },
-    { 0x8259, "Light Lightness Default Set" },
-    { 0x825A, "Light Lightness Default Set Unacknowledged" },
-    { 0x825B, "Light Lightness Range Set" },
-    { 0x825C, "Light Lightness Range Set Unacknowledged" },
-    { 0x825D, "Light CTL Get" },
-    { 0x825E, "Light CTL Set" },
-    { 0x825F, "Light CTL Set Unacknowledged" },
-    { 0x8260, "Light CTL Status" },
-    { 0x8261, "Light CTL Temperature Get" },
-    { 0x8262, "Light CTL Temperature Range Get" },
-    { 0x8263, "Light CTL Temperature Range Status" },
-    { 0x8264, "Light CTL Temperature Set" },
-    { 0x8265, "Light CTL Temperature Set Unacknowledged" },
-    { 0x8266, "Light CTL Temperature Status" },
-    { 0x8267, "Light CTL Default Get" },
-    { 0x8268, "Light CTL Default Status" },
-    { 0x8269, "Light CTL Default Set" },
-    { 0x826A, "Light CTL Default Set Unacknowledged" },
-    { 0x826B, "Light CTL Temperature Range Set" },
-    { 0x826C, "Light CTL Temperature Range Set Unacknowledged" },
-    { 0x826D, "Light HSL Get" },
-    { 0x826E, "Light HSL Hue Get" },
-    { 0x826F, "Light HSL Hue Set" },
-    { 0x8270, "Light HSL Hue Set Unacknowledged" },
-    { 0x8271, "Light HSL Hue Status" },
-    { 0x8272, "Light HSL Saturation Get" },
-    { 0x8273, "Light HSL Saturation Set" },
-    { 0x8274, "Light HSL Saturation Set Unacknowledged" },
-    { 0x8275, "Light HSL Saturation Status" },
-    { 0x8276, "Light HSL Set" },
-    { 0x8277, "Light HSL Set Unacknowledged" },
-    { 0x8278, "Light HSL Status" },
-    { 0x8279, "Light HSL Target Get" },
-    { 0x827A, "Light HSL Target Status" },
-    { 0x827B, "Light HSL Default Get" },
-    { 0x827C, "Light HSL Default Status" },
-    { 0x827D, "Light HSL Range Get" },
-    { 0x827E, "Light HSL Range Status" },
-    { 0x827F, "Light HSL Default Set" },
-    { 0x8280, "Light HSL Default Set Unacknowledged" },
-    { 0x8281, "Light HSL Range Set" },
-    { 0x8282, "Light HSL Range Set Unacknowledged" },
-    { 0x8283, "Light xyL Get" },
-    { 0x8284, "Light xyL Set" },
-    { 0x8285, "Light xyL Set Unacknowledged" },
-    { 0x8286, "Light xyL Status" },
-    { 0x8287, "Light xyL Target Get" },
-    { 0x8288, "Light xyL Target Status" },
-    { 0x8289, "Light xyL Default Get" },
-    { 0x828A, "Light xyL Default Status" },
-    { 0x828B, "Light xyL Range Get" },
-    { 0x828C, "Light xyL Range Status" },
-    { 0x828D, "Light xyL Default Set" },
-    { 0x828E, "Light xyL Default Set Unacknowledged" },
-    { 0x828F, "Light xyL Range Set" },
-    { 0x8290, "Light xyL Range Set Unacknowledged" },
-    { 0x8291, "Light LC Mode Get" },
-    { 0x8292, "Light LC Mode Set" },
-    { 0x8293, "Light LC Mode Set Unacknowledged" },
-    { 0x8294, "Light LC Mode Status" },
-    { 0x8295, "Light LC OM Get" },
-    { 0x8296, "Light LC OM Set" },
-    { 0x8297, "Light LC OM Set Unacknowledged" },
-    { 0x8298, "Light LC OM Status" },
-    { 0x8299, "Light LC Light OnOff Get" },
-    { 0x829A, "Light LC Light OnOff Set" },
-    { 0x829B, "Light LC Light OnOff Set Unacknowledged" },
-    { 0x829C, "Light LC Light OnOff Status" },
-    { 0x829D, "Light LC Property Get" },
-    { 0x62, "Light LC Property Set" },
-    { 0x63, "Light LC Property Set Unacknowledged" },
-    { 0x64, "Light LC Property Status" },
+      /* Bluetooth Mesh Model messages */
+    { GENERIC_ONOFF_GET                                   , "Generic OnOff Get"                                  },
+    { GENERIC_ONOFF_SET                                   , "Generic OnOff Set"                                  },
+    { GENERIC_ONOFF_SET_UNACKNOWLEDGED                    , "Generic OnOff Set Unacknowledged"                   },
+    { GENERIC_ONOFF_STATUS                                , "Generic OnOff Status"                               },
+    { GENERIC_LEVEL_GET                                   , "Generic Level Get"                                  },
+    { GENERIC_LEVEL_SET                                   , "Generic Level Set"                                  },
+    { GENERIC_LEVEL_SET_UNACKNOWLEDGED                    , "Generic Level Set Unacknowledged"                   },
+    { GENERIC_LEVEL_STATUS                                , "Generic Level Status"                               },
+    { GENERIC_DELTA_SET                                   , "Generic Delta Set"                                  },
+    { GENERIC_DELTA_SET_UNACKNOWLEDGED                    , "Generic Delta Set Unacknowledged"                   },
+    { GENERIC_MOVE_SET                                    , "Generic Move Set"                                   },
+    { GENERIC_MOVE_SET_UNACKNOWLEDGED                     , "Generic Move Set Unacknowledged"                    },
+    { GENERIC_DEFAULT_TRANSITION_TIME_GET                 , "Generic Default Transition Time Get"                },
+    { GENERIC_DEFAULT_TRANSITION_TIME_SET                 , "Generic Default Transition Time Set"                },
+    { GENERIC_DEFAULT_TRANSITION_TIME_SET_UNACKNOWLEDGED  , "Generic Default Transition Time Set Unacknowledged" },
+    { GENERIC_DEFAULT_TRANSITION_TIME_STATUS              , "Generic Default Transition Time Status"             },
+    { GENERIC_ONPOWERUP_GET                               , "Generic OnPowerUp Get"                              },
+    { GENERIC_ONPOWERUP_STATUS                            , "Generic OnPowerUp Status"                           },
+    { GENERIC_ONPOWERUP_SET                               , "Generic OnPowerUp Set"                              },
+    { GENERIC_ONPOWERUP_SET_UNACKNOWLEDGED                , "Generic OnPowerUp Set Unacknowledged"               },
+    { GENERIC_POWER_LEVEL_GET                             , "Generic Power Level Get"                            },
+    { GENERIC_POWER_LEVEL_SET                             , "Generic Power Level Set"                            },
+    { GENERIC_POWER_LEVEL_SET_UNACKNOWLEDGED              , "Generic Power Level Set Unacknowledged"             },
+    { GENERIC_POWER_LEVEL_STATUS                          , "Generic Power Level Status"                         },
+    { GENERIC_POWER_LAST_GET                              , "Generic Power Last Get"                             },
+    { GENERIC_POWER_LAST_STATUS                           , "Generic Power Last Status"                          },
+    { GENERIC_POWER_DEFAULT_GET                           , "Generic Power Default Get"                          },
+    { GENERIC_POWER_DEFAULT_STATUS                        , "Generic Power Default Status"                       },
+    { GENERIC_POWER_RANGE_GET                             , "Generic Power Range Get"                            },
+    { GENERIC_POWER_RANGE_STATUS                          , "Generic Power Range Status"                         },
+    { GENERIC_POWER_DEFAULT_SET                           , "Generic Power Default Set"                          },
+    { GENERIC_POWER_DEFAULT_SET_UNACKNOWLEDGED            , "Generic Power Default Set Unacknowledged"           },
+    { GENERIC_POWER_RANGE_SET                             , "Generic Power Range Set"                            },
+    { GENERIC_POWER_RANGE_SET_UNACKNOWLEDGED              , "Generic Power Range Set Unacknowledged"             },
+    { GENERIC_BATTERY_GET                                 , "Generic Battery Get"                                },
+    { GENERIC_BATTERY_STATUS                              , "Generic Battery Status"                             },
+    { GENERIC_LOCATION_GLOBAL_GET                         , "Generic Location Global Get"                        },
+    { GENERIC_LOCATION_GLOBAL_STATUS                      , "Generic Location Global Status"                     },
+    { GENERIC_LOCATION_LOCAL_GET                          , "Generic Location Local Get"                         },
+    { GENERIC_LOCATION_LOCAL_STATUS                       , "Generic Location Local Status"                      },
+    { GENERIC_LOCATION_GLOBAL_SET                         , "Generic Location Global Set"                        },
+    { GENERIC_LOCATION_GLOBAL_SET_UNACKNOWLEDGED          , "Generic Location Global Set Unacknowledged"         },
+    { GENERIC_LOCATION_LOCAL_SET                          , "Generic Location Local Set"                         },
+    { GENERIC_LOCATION_LOCAL_SET_UNACKNOWLEDGED           , "Generic Location Local Set Unacknowledged"          },
+    { GENERIC_MANUFACTURER_PROPERTIES_GET                 , "Generic Manufacturer Properties Get"                },
+    { GENERIC_MANUFACTURER_PROPERTIES_STATUS              , "Generic Manufacturer Properties Status"             },
+    { GENERIC_MANUFACTURER_PROPERTY_GET                   , "Generic Manufacturer Property Get"                  },
+    { GENERIC_MANUFACTURER_PROPERTY_SET                   , "Generic Manufacturer Property Set"                  },
+    { GENERIC_MANUFACTURER_PROPERTY_SET_UNACKNOWLEDGED    , "Generic Manufacturer Property Set Unacknowledged"   },
+    { GENERIC_MANUFACTURER_PROPERTY_STATUS                , "Generic Manufacturer Property Status"               },
+    { GENERIC_ADMIN_PROPERTIES_GET                        , "Generic Admin Properties Get"                       },
+    { GENERIC_ADMIN_PROPERTIES_STATUS                     , "Generic Admin Properties Status"                    },
+    { GENERIC_ADMIN_PROPERTY_GET                          , "Generic Admin Property Get"                         },
+    { GENERIC_ADMIN_PROPERTY_SET                          , "Generic Admin Property Set"                         },
+    { GENERIC_ADMIN_PROPERTY_SET_UNACKNOWLEDGED           , "Generic Admin Property Set Unacknowledged"          },
+    { GENERIC_ADMIN_PROPERTY_STATUS                       , "Generic Admin Property Status"                      },
+    { GENERIC_USER_PROPERTIES_GET                         , "Generic User Properties Get"                        },
+    { GENERIC_USER_PROPERTIES_STATUS                      , "Generic User Properties Status"                     },
+    { GENERIC_USER_PROPERTY_GET                           , "Generic User Property Get"                          },
+    { GENERIC_USER_PROPERTY_SET                           , "Generic User Property Set"                          },
+    { GENERIC_USER_PROPERTY_SET_UNACKNOWLEDGED            , "Generic User Property Set Unacknowledged"           },
+    { GENERIC_USER_PROPERTY_STATUS                        , "Generic User Property Status"                       },
+    { GENERIC_CLIENT_PROPERTIES_GET                       , "Generic Client Properties Get"                      },
+    { GENERIC_CLIENT_PROPERTIES_STATUS                    , "Generic Client Properties Status"                   },
+    { SENSOR_DESCRIPTOR_GET                               , "Sensor Descriptor Get"                              },
+    { SENSOR_DESCRIPTOR_STATUS                            , "Sensor Descriptor Status"                           },
+    { SENSOR_GET                                          , "Sensor Get"                                         },
+    { SENSOR_STATUS                                       , "Sensor Status"                                      },
+    { SENSOR_COLUMN_GET                                   , "Sensor Column Get"                                  },
+    { SENSOR_COLUMN_STATUS                                , "Sensor Column Status"                               },
+    { SENSOR_SERIES_GET                                   , "Sensor Series Get"                                  },
+    { SENSOR_SERIES_STATUS                                , "Sensor Series Status"                               },
+    { SENSOR_CADENCE_GET                                  , "Sensor Cadence Get"                                 },
+    { SENSOR_CADENCE_SET                                  , "Sensor Cadence Set"                                 },
+    { SENSOR_CADENCE_SET_UNACKNOWLEDGED                   , "Sensor Cadence Set Unacknowledged"                  },
+    { SENSOR_CADENCE_STATUS                               , "Sensor Cadence Status"                              },
+    { SENSOR_SETTINGS_GET                                 , "Sensor Settings Get"                                },
+    { SENSOR_SETTINGS_STATUS                              , "Sensor Settings Status"                             },
+    { SENSOR_SETTING_GET                                  , "Sensor Setting Get"                                 },
+    { SENSOR_SETTING_SET                                  , "Sensor Setting Set"                                 },
+    { SENSOR_SETTING_SET_UNACKNOWLEDGED                   , "Sensor Setting Set Unacknowledged"                  },
+    { SENSOR_SETTING_STATUS                               , "Sensor Setting Status"                              },
+    { TIME_GET                                            , "Time Get"                                           },
+    { TIME_SET                                            , "Time Set"                                           },
+    { TIME_STATUS                                         , "Time Status"                                        },
+    { TIME_ROLE_GET                                       , "Time Role Get"                                      },
+    { TIME_ROLE_SET                                       , "Time Role Set"                                      },
+    { TIME_ROLE_STATUS                                    , "Time Role Status"                                   },
+    { TIME_ZONE_GET                                       , "Time Zone Get"                                      },
+    { TIME_ZONE_SET                                       , "Time Zone Set"                                      },
+    { TIME_ZONE_STATUS                                    , "Time Zone Status"                                   },
+    { TAI_UTC_DELTA_GET                                   , "TAI-UTC Delta Get"                                  },
+    { TAI_UTC_DELTA_SET                                   , "TAI-UTC Delta Set"                                  },
+    { TAI_UTC_DELTA_STATUS                                , "TAI-UTC Delta Status"                               },
+    { SCENE_GET                                           , "Scene Get"                                          },
+    { SCENE_RECALL                                        , "Scene Recall"                                       },
+    { SCENE_RECALL_UNACKNOWLEDGED                         , "Scene Recall Unacknowledged"                        },
+    { SCENE_STATUS                                        , "Scene Status"                                       },
+    { SCENE_REGISTER_GET                                  , "Scene Register Get"                                 },
+    { SCENE_REGISTER_STATUS                               , "Scene Register Status"                              },
+    { SCENE_STORE                                         , "Scene Store"                                        },
+    { SCENE_STORE_UNACKNOWLEDGED                          , "Scene Store Unacknowledged"                         },
+    { SCENE_DELETE                                        , "Scene Delete"                                       },
+    { SCENE_DELETE_UNACKNOWLEDGED                         , "Scene Delete Unacknowledged"                        },
+    { SCHEDULER_ACTION_GET                                , "Scheduler Action Get"                               },
+    { SCHEDULER_ACTION_STATUS                             , "Scheduler Action Status"                            },
+    { SCHEDULER_GET                                       , "Scheduler Get"                                      },
+    { SCHEDULER_STATUS                                    , "Scheduler Status"                                   },
+    { SCHEDULER_ACTION_SET                                , "Scheduler Action Set"                               },
+    { SCHEDULER_ACTION_SET_UNACKNOWLEDGED                 , "Scheduler Action Set Unacknowledged"                },
+    { LIGHT_LIGHTNESS_GET                                 , "Light Lightness Get"                                },
+    { LIGHT_LIGHTNESS_SET                                 , "Light Lightness Set"                                },
+    { LIGHT_LIGHTNESS_SET_UNACKNOWLEDGED                  , "Light Lightness Set Unacknowledged"                 },
+    { LIGHT_LIGHTNESS_STATUS                              , "Light Lightness Status"                             },
+    { LIGHT_LIGHTNESS_LINEAR_GET                          , "Light Lightness Linear Get"                         },
+    { LIGHT_LIGHTNESS_LINEAR_SET                          , "Light Lightness Linear Set"                         },
+    { LIGHT_LIGHTNESS_LINEAR_SET_UNACKNOWLEDGED           , "Light Lightness Linear Set Unacknowledged"          },
+    { LIGHT_LIGHTNESS_LINEAR_STATUS                       , "Light Lightness Linear Status"                      },
+    { LIGHT_LIGHTNESS_LAST_GET                            , "Light Lightness Last Get"                           },
+    { LIGHT_LIGHTNESS_LAST_STATUS                         , "Light Lightness Last Status"                        },
+    { LIGHT_LIGHTNESS_DEFAULT_GET                         , "Light Lightness Default Get"                        },
+    { LIGHT_LIGHTNESS_DEFAULT_STATUS                      , "Light Lightness Default Status"                     },
+    { LIGHT_LIGHTNESS_RANGE_GET                           , "Light Lightness Range Get"                          },
+    { LIGHT_LIGHTNESS_RANGE_STATUS                        , "Light Lightness Range Status"                       },
+    { LIGHT_LIGHTNESS_DEFAULT_SET                         , "Light Lightness Default Set"                        },
+    { LIGHT_LIGHTNESS_DEFAULT_SET_UNACKNOWLEDGED          , "Light Lightness Default Set Unacknowledged"         },
+    { LIGHT_LIGHTNESS_RANGE_SET                           , "Light Lightness Range Set"                          },
+    { LIGHT_LIGHTNESS_RANGE_SET_UNACKNOWLEDGED            , "Light Lightness Range Set Unacknowledged"           },
+    { LIGHT_CTL_GET                                       , "Light CTL Get"                                      },
+    { LIGHT_CTL_SET                                       , "Light CTL Set"                                      },
+    { LIGHT_CTL_SET_UNACKNOWLEDGED                        , "Light CTL Set Unacknowledged"                       },
+    { LIGHT_CTL_STATUS                                    , "Light CTL Status"                                   },
+    { LIGHT_CTL_TEMPERATURE_GET                           , "Light CTL Temperature Get"                          },
+    { LIGHT_CTL_TEMPERATURE_RANGE_GET                     , "Light CTL Temperature Range Get"                    },
+    { LIGHT_CTL_TEMPERATURE_RANGE_STATUS                  , "Light CTL Temperature Range Status"                 },
+    { LIGHT_CTL_TEMPERATURE_SET                           , "Light CTL Temperature Set"                          },
+    { LIGHT_CTL_TEMPERATURE_SET_UNACKNOWLEDGED            , "Light CTL Temperature Set Unacknowledged"           },
+    { LIGHT_CTL_TEMPERATURE_STATUS                        , "Light CTL Temperature Status"                       },
+    { LIGHT_CTL_DEFAULT_GET                               , "Light CTL Default Get"                              },
+    { LIGHT_CTL_DEFAULT_STATUS                            , "Light CTL Default Status"                           },
+    { LIGHT_CTL_DEFAULT_SET                               , "Light CTL Default Set"                              },
+    { LIGHT_CTL_DEFAULT_SET_UNACKNOWLEDGED                , "Light CTL Default Set Unacknowledged"               },
+    { LIGHT_CTL_TEMPERATURE_RANGE_SET                     , "Light CTL Temperature Range Set"                    },
+    { LIGHT_CTL_TEMPERATURE_RANGE_SET_UNACKNOWLEDGED      , "Light CTL Temperature Range Set Unacknowledged"     },
+    { LIGHT_HSL_GET                                       , "Light HSL Get"                                      },
+    { LIGHT_HSL_HUE_GET                                   , "Light HSL Hue Get"                                  },
+    { LIGHT_HSL_HUE_SET                                   , "Light HSL Hue Set"                                  },
+    { LIGHT_HSL_HUE_SET_UNACKNOWLEDGED                    , "Light HSL Hue Set Unacknowledged"                   },
+    { LIGHT_HSL_HUE_STATUS                                , "Light HSL Hue Status"                               },
+    { LIGHT_HSL_SATURATION_GET                            , "Light HSL Saturation Get"                           },
+    { LIGHT_HSL_SATURATION_SET                            , "Light HSL Saturation Set"                           },
+    { LIGHT_HSL_SATURATION_SET_UNACKNOWLEDGED             , "Light HSL Saturation Set Unacknowledged"            },
+    { LIGHT_HSL_SATURATION_STATUS                         , "Light HSL Saturation Status"                        },
+    { LIGHT_HSL_SET                                       , "Light HSL Set"                                      },
+    { LIGHT_HSL_SET_UNACKNOWLEDGED                        , "Light HSL Set Unacknowledged"                       },
+    { LIGHT_HSL_STATUS                                    , "Light HSL Status"                                   },
+    { LIGHT_HSL_TARGET_GET                                , "Light HSL Target Get"                               },
+    { LIGHT_HSL_TARGET_STATUS                             , "Light HSL Target Status"                            },
+    { LIGHT_HSL_DEFAULT_GET                               , "Light HSL Default Get"                              },
+    { LIGHT_HSL_DEFAULT_STATUS                            , "Light HSL Default Status"                           },
+    { LIGHT_HSL_RANGE_GET                                 , "Light HSL Range Get"                                },
+    { LIGHT_HSL_RANGE_STATUS                              , "Light HSL Range Status"                             },
+    { LIGHT_HSL_DEFAULT_SET                               , "Light HSL Default Set"                              },
+    { LIGHT_HSL_DEFAULT_SET_UNACKNOWLEDGED                , "Light HSL Default Set Unacknowledged"               },
+    { LIGHT_HSL_RANGE_SET                                 , "Light HSL Range Set"                                },
+    { LIGHT_HSL_RANGE_SET_UNACKNOWLEDGED                  , "Light HSL Range Set Unacknowledged"                 },
+    { LIGHT_XYL_GET                                       , "Light xyL Get"                                      },
+    { LIGHT_XYL_SET                                       , "Light xyL Set"                                      },
+    { LIGHT_XYL_SET_UNACKNOWLEDGED                        , "Light xyL Set Unacknowledged"                       },
+    { LIGHT_XYL_STATUS                                    , "Light xyL Status"                                   },
+    { LIGHT_XYL_TARGET_GET                                , "Light xyL Target Get"                               },
+    { LIGHT_XYL_TARGET_STATUS                             , "Light xyL Target Status"                            },
+    { LIGHT_XYL_DEFAULT_GET                               , "Light xyL Default Get"                              },
+    { LIGHT_XYL_DEFAULT_STATUS                            , "Light xyL Default Status"                           },
+    { LIGHT_XYL_RANGE_GET                                 , "Light xyL Range Get"                                },
+    { LIGHT_XYL_RANGE_STATUS                              , "Light xyL Range Status"                             },
+    { LIGHT_XYL_DEFAULT_SET                               , "Light xyL Default Set"                              },
+    { LIGHT_XYL_DEFAULT_SET_UNACKNOWLEDGED                , "Light xyL Default Set Unacknowledged"               },
+    { LIGHT_XYL_RANGE_SET                                 , "Light xyL Range Set"                                },
+    { LIGHT_XYL_RANGE_SET_UNACKNOWLEDGED                  , "Light xyL Range Set Unacknowledged"                 },
+    { LIGHT_LC_MODE_GET                                   , "Light LC Mode Get"                                  },
+    { LIGHT_LC_MODE_SET                                   , "Light LC Mode Set"                                  },
+    { LIGHT_LC_MODE_SET_UNACKNOWLEDGED                    , "Light LC Mode Set Unacknowledged"                   },
+    { LIGHT_LC_MODE_STATUS                                , "Light LC Mode Status"                               },
+    { LIGHT_LC_OM_GET                                     , "Light LC OM Get"                                    },
+    { LIGHT_LC_OM_SET                                     , "Light LC OM Set"                                    },
+    { LIGHT_LC_OM_SET_UNACKNOWLEDGED                      , "Light LC OM Set Unacknowledged"                     },
+    { LIGHT_LC_OM_STATUS                                  , "Light LC OM Status"                                 },
+    { LIGHT_LC_LIGHT_ONOFF_GET                            , "Light LC Light OnOff Get"                           },
+    { LIGHT_LC_LIGHT_ONOFF_SET                            , "Light LC Light OnOff Set"                           },
+    { LIGHT_LC_LIGHT_ONOFF_SET_UNACKNOWLEDGED             , "Light LC Light OnOff Set Unacknowledged"            },
+    { LIGHT_LC_LIGHT_ONOFF_STATUS                         , "Light LC Light OnOff Status"                        },
+    { LIGHT_LC_PROPERTY_GET                               , "Light LC Property Get"                              },
+    { LIGHT_LC_PROPERTY_SET                               , "Light LC Property Set"                              },
+    { LIGHT_LC_PROPERTY_SET_UNACKNOWLEDGED                , "Light LC Property Set Unacknowledged"               },
+    { LIGHT_LC_PROPERTY_STATUS                            , "Light LC Property Status"                           },
     { 0, NULL }
 };
 
@@ -1679,6 +2360,456 @@ static const value_string btmesh_model_vals[] = {
     { 0, NULL }
 };
 
+static const value_string btmesh_properties_vals[] = {
+    { PROPERTY_AVERAGE_AMBIENT_TEMPERATURE_IN_A_PERIOD_OF_DAY          , "Average Ambient Temperature In A Period Of Day"           },
+    { PROPERTY_AVERAGE_INPUT_CURRENT                                   , "Average Input Current"                                    },
+    { PROPERTY_AVERAGE_INPUT_VOLTAGE                                   , "Average Input Voltage"                                    },
+    { PROPERTY_AVERAGE_OUTPUT_CURRENT                                  , "Average Output Current"                                   },
+    { PROPERTY_AVERAGE_OUTPUT_VOLTAGE                                  , "Average Output Voltage"                                   },
+    { PROPERTY_CENTER_BEAM_INTENSITY_AT_FULL_POWER                     , "Center Beam Intensity At Full Power"                      },
+    { PROPERTY_CHROMATICITY_TOLERANCE                                  , "Chromaticity Tolerance"                                   },
+    { PROPERTY_COLOR_RENDERING_INDEX_R9                                , "Color Rendering Index R9"                                 },
+    { PROPERTY_COLOR_RENDERING_INDEX_RA                                , "Color Rendering Index Ra"                                 },
+    { PROPERTY_DEVICE_APPEARANCE                                       , "Device Appearance"                                        },
+    { PROPERTY_DEVICE_COUNTRY_OF_ORIGIN                                , "Device Country Of Origin"                                 },
+    { PROPERTY_DEVICE_DATE_OF_MANUFACTURE                              , "Device Date Of Manufacture"                               },
+    { PROPERTY_DEVICE_ENERGY_USE_SINCE_TURN_ON                         , "Device Energy Use Since Turn On"                          },
+    { PROPERTY_DEVICE_FIRMWARE_REVISION                                , "Device Firmware Revision"                                 },
+    { PROPERTY_DEVICE_GLOBAL_TRADE_ITEM_NUMBER                         , "Device Global Trade Item Number"                          },
+    { PROPERTY_DEVICE_HARDWARE_REVISION                                , "Device Hardware Revision"                                 },
+    { PROPERTY_DEVICE_MANUFACTURER_NAME                                , "Device Manufacturer Name"                                 },
+    { PROPERTY_DEVICE_MODEL_NUMBER                                     , "Device Model Number"                                      },
+    { PROPERTY_DEVICE_OPERATING_TEMPERATURE_RANGE_SPECIFICATION        , "Device Operating Temperature Range Specification"         },
+    { PROPERTY_DEVICE_OPERATING_TEMPERATURE_STATISTICAL_VALUES         , "Device Operating Temperature Statistical Values"          },
+    { PROPERTY_DEVICE_OVER_TEMPERATURE_EVENT_STATISTICS                , "Device Over Temperature Event Statistics"                 },
+    { PROPERTY_DEVICE_POWER_RANGE_SPECIFICATION                        , "Device Power Range Specification"                         },
+    { PROPERTY_DEVICE_RUNTIME_SINCE_TURN_ON                            , "Device Runtime Since Turn On"                             },
+    { PROPERTY_DEVICE_RUNTIME_WARRANTY                                 , "Device Runtime Warranty"                                  },
+    { PROPERTY_DEVICE_SERIAL_NUMBER                                    , "Device Serial Number"                                     },
+    { PROPERTY_DEVICE_SOFTWARE_REVISION                                , "Device Software Revision"                                 },
+    { PROPERTY_DEVICE_UNDER_TEMPERATURE_EVENT_STATISTICS               , "Device Under Temperature Event Statistics"                },
+    { PROPERTY_INDOOR_AMBIENT_TEMPERATURE_STATISTICAL_VALUES           , "Indoor Ambient Temperature Statistical Values"            },
+    { PROPERTY_INITIAL_CIE_1931_CHROMATICITY_COORDINATES               , "Initial CIE 1931 Chromaticity Coordinates"                },
+    { PROPERTY_INITIAL_CORRELATED_COLOR_TEMPERATURE                    , "Initial Correlated Color Temperature"                     },
+    { PROPERTY_INITIAL_LUMINOUS_FLUX                                   , "Initial Luminous Flux"                                    },
+    { PROPERTY_INITIAL_PLANCKIAN_DISTANCE                              , "Initial Planckian Distance"                               },
+    { PROPERTY_INPUT_CURRENT_RANGE_SPECIFICATION                       , "Input Current Range Specification"                        },
+    { PROPERTY_INPUT_CURRENT_STATISTICS                                , "Input Current Statistics"                                 },
+    { PROPERTY_INPUT_OVER_CURRENT_EVENT_STATISTICS                     , "Input Over Current Event Statistics"                      },
+    { PROPERTY_INPUT_OVER_RIPPLE_VOLTAGE_EVENT_STATISTICS              , "Input Over Ripple Voltage Event Statistics"               },
+    { PROPERTY_INPUT_OVER_VOLTAGE_EVENT_STATISTICS                     , "Input Over Voltage Event Statistics"                      },
+    { PROPERTY_INPUT_UNDER_CURRENT_EVENT_STATISTICS                    , "Input Under Current Event Statistics"                     },
+    { PROPERTY_INPUT_UNDER_VOLTAGE_EVENT_STATISTICS                    , "Input Under Voltage Event Statistics"                     },
+    { PROPERTY_INPUT_VOLTAGE_RANGE_SPECIFICATION                       , "Input Voltage Range Specification"                        },
+    { PROPERTY_INPUT_VOLTAGE_RIPPLE_SPECIFICATION                      , "Input Voltage Ripple Specification"                       },
+    { PROPERTY_INPUT_VOLTAGE_STATISTICS                                , "Input Voltage Statistics"                                 },
+    { PROPERTY_LIGHT_CONTROL_AMBIENT_LUX_LEVEL_ON                      , "Light Control Ambient LuxLevel On"                        },
+    { PROPERTY_LIGHT_CONTROL_AMBIENT_LUX_LEVEL_PROLONG                 , "Light Control Ambient LuxLevel Prolong"                   },
+    { PROPERTY_LIGHT_CONTROL_AMBIENT_LUX_LEVEL_STANDBY                 , "Light Control Ambient LuxLevel Standby"                   },
+    { PROPERTY_LIGHT_CONTROL_LIGHTNESS_ON                              , "Light Control Lightness On"                               },
+    { PROPERTY_LIGHT_CONTROL_LIGHTNESS_PROLONG                         , "Light Control Lightness Prolong"                          },
+    { PROPERTY_LIGHT_CONTROL_LIGHTNESS_STANDBY                         , "Light Control Lightness Standby"                          },
+    { PROPERTY_LIGHT_CONTROL_REGULATOR_ACCURACY                        , "Light Control Regulator Accuracy"                         },
+    { PROPERTY_LIGHT_CONTROL_REGULATOR_KID                             , "Light Control Regulator Kid"                              },
+    { PROPERTY_LIGHT_CONTROL_REGULATOR_KIU                             , "Light Control Regulator Kiu"                              },
+    { PROPERTY_LIGHT_CONTROL_REGULATOR_KPD                             , "Light Control Regulator Kpd"                              },
+    { PROPERTY_LIGHT_CONTROL_REGULATOR_KPU                             , "Light Control Regulator Kpu"                              },
+    { PROPERTY_LIGHT_CONTROL_TIME_FADE                                 , "Light Control Time Fade"                                  },
+    { PROPERTY_LIGHT_CONTROL_TIME_FADE_ON                              , "Light Control Time Fade On"                               },
+    { PROPERTY_LIGHT_CONTROL_TIME_FADE_STANDBY_AUTO                    , "Light Control Time Fade Standby Auto"                     },
+    { PROPERTY_LIGHT_CONTROL_TIME_FADE_STANDBY_MANUAL                  , "Light Control Time Fade Standby Manual"                   },
+    { PROPERTY_LIGHT_CONTROL_TIME_OCCUPANCY_DELAY                      , "Light Control Time Occupancy Delay"                       },
+    { PROPERTY_LIGHT_CONTROL_TIME_PROLONG                              , "Light Control Time Prolong"                               },
+    { PROPERTY_LIGHT_CONTROL_TIME_RUN_ON                               , "Light Control Time Run On"                                },
+    { PROPERTY_LUMEN_MAINTENANCE_FACTOR                                , "Lumen Maintenance Factor"                                 },
+    { PROPERTY_LUMINOUS_EFFICACY                                       , "Luminous Efficacy"                                        },
+    { PROPERTY_LUMINOUS_ENERGY_SINCE_TURN_ON                           , "Luminous Energy Since Turn On"                            },
+    { PROPERTY_LUMINOUS_EXPOSURE                                       , "Luminous Exposure"                                        },
+    { PROPERTY_LUMINOUS_FLUX_RANGE                                     , "Luminous Flux Range"                                      },
+    { PROPERTY_MOTION_SENSED                                           , "Motion Sensed"                                            },
+    { PROPERTY_MOTION_THRESHOLD                                        , "Motion Threshold"                                         },
+    { PROPERTY_OPEN_CIRCUIT_EVENT_STATISTICS                           , "Open Circuit Event Statistics"                            },
+    { PROPERTY_OUTDOOR_STATISTICAL_VALUES                              , "Outdoor Statistical Values"                               },
+    { PROPERTY_OUTPUT_CURRENT_RANGE                                    , "Output Current Range"                                     },
+    { PROPERTY_OUTPUT_CURRENT_STATISTICS                               , "Output Current Statistics"                                },
+    { PROPERTY_OUTPUT_RIPPLE_VOLTAGE_SPECIFICATION                     , "Output Ripple Voltage Specification"                      },
+    { PROPERTY_OUTPUT_VOLTAGE_RANGE                                    , "Output Voltage Range"                                     },
+    { PROPERTY_OUTPUT_VOLTAGE_STATISTICS                               , "Output Voltage Statistics"                                },
+    { PROPERTY_OVER_OUTPUT_RIPPLE_VOLTAGE_EVENT_STATISTICS             , "Over Output Ripple Voltage Event Statistics"              },
+    { PROPERTY_PEOPLE_COUNT                                            , "People Count"                                             },
+    { PROPERTY_PRESENCE_DETECTED                                       , "Presence Detected"                                        },
+    { PROPERTY_PRESENT_AMBIENT_LIGHT_LEVEL                             , "Present Ambient Light Level"                              },
+    { PROPERTY_PRESENT_AMBIENT_TEMPERATURE                             , "Present Ambient Temperature"                              },
+    { PROPERTY_PRESENT_CIE_1931_CHROMATICITY_COORDINATES               , "Present CIE 1931 Chromaticity Coordinates"                },
+    { PROPERTY_PRESENT_CORRELATED_COLOR_TEMPERATURE                    , "Present Correlated Color Temperature"                     },
+    { PROPERTY_PRESENT_DEVICE_INPUT_POWER                              , "Present Device Input Power"                               },
+    { PROPERTY_PRESENT_DEVICE_OPERATING_EFFICIENCY                     , "Present Device Operating Efficiency"                      },
+    { PROPERTY_PRESENT_DEVICE_OPERATING_TEMPERATURE                    , "Present Device Operating Temperature"                     },
+    { PROPERTY_PRESENT_ILLUMINANCE                                     , "Present Illuminance"                                      },
+    { PROPERTY_PRESENT_INDOOR_AMBIENT_TEMPERATURE                      , "Present Indoor Ambient Temperature"                       },
+    { PROPERTY_PRESENT_INPUT_CURRENT                                   , "Present Input Current"                                    },
+    { PROPERTY_PRESENT_INPUT_RIPPLE_VOLTAGE                            , "Present Input Ripple Voltage"                             },
+    { PROPERTY_PRESENT_INPUT_VOLTAGE                                   , "Present Input Voltage"                                    },
+    { PROPERTY_PRESENT_LUMINOUS_FLUX                                   , "Present Luminous Flux"                                    },
+    { PROPERTY_PRESENT_OUTDOOR_AMBIENT_TEMPERATURE                     , "Present Outdoor Ambient Temperature"                      },
+    { PROPERTY_PRESENT_OUTPUT_CURRENT                                  , "Present Output Current"                                   },
+    { PROPERTY_PRESENT_OUTPUT_VOLTAGE                                  , "Present Output Voltage"                                   },
+    { PROPERTY_PRESENT_PLANCKIAN_DISTANCE                              , "Present Planckian Distance"                               },
+    { PROPERTY_PRESENT_RELATIVE_OUTPUT_RIPPLE_VOLTAGE                  , "Present Relative Output Ripple Voltage"                   },
+    { PROPERTY_RELATIVE_DEVICE_ENERGY_USE_IN_A_PERIOD_OF_DAY           , "Relative Device Energy Use In A Period Of Day"            },
+    { PROPERTY_RELATIVE_DEVICE_RUNTIME_IN_A_GENERIC_LEVEL_RANGE        , "Relative Device Runtime In A Generic Level Range"         },
+    { PROPERTY_RELATIVE_EXPOSURE_TIME_IN_AN_ILLUMINANCE_RANGE          , "Relative Exposure Time In An Illuminance Range"           },
+    { PROPERTY_RELATIVE_RUNTIME_IN_A_CORRELATED_COLOR_TEMPERATURE_RANGE, "Relative Runtime In A Correlated Color Temperature Range" },
+    { PROPERTY_RELATIVE_RUNTIME_IN_A_DEVICE_OPERATING_TEMPERATURE_RANGE, "Relative Runtime In A Device Operating Temperature Range" },
+    { PROPERTY_RELATIVE_RUNTIME_IN_AN_INPUT_CURRENT_RANGE              , "Relative Runtime In An Input Current Range"               },
+    { PROPERTY_RELATIVE_RUNTIME_IN_AN_INPUT_VOLTAGE_RANGE              , "Relative Runtime In An Input Voltage Range"               },
+    { PROPERTY_SHORT_CIRCUIT_EVENT_STATISTICS                          , "Short Circuit Event Statistics"                           },
+    { PROPERTY_TIME_SINCE_MOTION_SENSED                                , "Time Since Motion Sensed"                                 },
+    { PROPERTY_TIME_SINCE_PRESENCE_DETECTED                            , "Time Since Presence Detected"                             },
+    { PROPERTY_TOTAL_DEVICE_ENERGY_USE                                 , "Total Device Energy Use"                                  },
+    { PROPERTY_TOTAL_DEVICE_OFF_ON_CYCLES                              , "Total Device Off On Cycles"                               },
+    { PROPERTY_TOTAL_DEVICE_POWER_ON_CYCLES                            , "Total Device Power On Cycles"                             },
+    { PROPERTY_TOTAL_DEVICE_POWER_ON_TIME                              , "Total Device Power On Time"                               },
+    { PROPERTY_TOTAL_DEVICE_RUNTIME                                    , "Total Device Runtime"                                     },
+    { PROPERTY_TOTAL_LIGHT_EXPOSURE_TIME                               , "Total Light Exposure Time"                                },
+    { PROPERTY_TOTAL_LUMINOUS_ENERGY                                   , "Total Luminous Energy"                                    },
+    { PROPERTY_DESIRED_AMBIENT_TEMPERATURE                             , "Desired Ambient Temperature"                              },
+    { PROPERTY_PRECISE_TOTAL_DEVICE_ENERGY_USE                         , "Precise Total Device Energy Use"                          },
+    { PROPERTY_POWER_FACTOR                                            , "Power Factor"                                             },
+    { PROPERTY_SENSOR_GAIN                                             , "Sensor Gain"                                              },
+    { PROPERTY_PRECISE_PRESENT_AMBIENT_TEMPERATURE                     , "Precise Present Ambient Temperature"                      },
+    { PROPERTY_PRESENT_AMBIENT_RELATIVE_HUMIDITY                       , "Present Ambient Relative Humidity"                        },
+    { PROPERTY_PRESENT_AMBIENT_CARBON_DIOXIDE_CONCENTRATION            , "Present Ambient Carbon Dioxide Concentration"             },
+    { PROPERTY_PRESENT_AMBIENT_VOLATILE_ORGANIC_COMPOUNDS_CONCENTRATION, "Present Ambient Volatile Organic Compounds Concentration" },
+    { PROPERTY_PRESENT_AMBIENT_NOISE                                   , "Present Ambient Noise"                                    },
+    { PROPERTY_ACTIVE_ENERGY_LOADSIDE                                  , "Active Energy Loadside"                                   },
+    { PROPERTY_ACTIVE_POWER_LOADSIDE                                   , "Active Power Loadside"                                    },
+    { PROPERTY_AIR_PRESSURE                                            , "Air Pressure"                                             },
+    { PROPERTY_APPARENT_ENERGY                                         , "Apparent Energy"                                          },
+    { PROPERTY_APPARENT_POWER                                          , "Apparent Power"                                           },
+    { PROPERTY_APPARENT_WIND_DIRECTION                                 , "Apparent Wind Direction"                                  },
+    { PROPERTY_APPARENT_WIND_SPEED                                     , "Apparent Wind Speed"                                      },
+    { PROPERTY_DEW_POINT                                               , "Dew Point"                                                },
+    { PROPERTY_EXTERNAL_SUPPLY_VOLTAGE                                 , "External Supply Voltage"                                  },
+    { PROPERTY_EXTERNAL_SUPPLY_VOLTAGE_FREQUENCY                       , "External Supply Voltage Frequency"                        },
+    { PROPERTY_GUST_FACTOR                                             , "Gust Factor"                                              },
+    { PROPERTY_HEAT_INDEX                                              , "Heat Index"                                               },
+    { PROPERTY_LIGHT_DISTRIBUTION                                      , "Light Distribution"                                       },
+    { PROPERTY_LIGHT_SOURCE_CURRENT                                    , "Light Source Current"                                     },
+    { PROPERTY_LIGHT_SOURCE_ON_TIME_NOT_RESETTABLE                     , "Light Source On Time Not Resettable"                      },
+    { PROPERTY_LIGHT_SOURCE_ON_TIME_RESETTABLE                         , "Light Source On Time Resettable"                          },
+    { PROPERTY_LIGHT_SOURCE_OPEN_CIRCUIT_STATISTICS                    , "Light Source Open Circuit Statistics"                     },
+    { PROPERTY_LIGHT_SOURCE_OVERALL_FAILURES_STATISTICS                , "Light Source Overall Failures Statistics"                 },
+    { PROPERTY_LIGHT_SOURCE_SHORT_CIRCUIT_STATISTICS                   , "Light Source Short Circuit Statistics"                    },
+    { PROPERTY_LIGHT_SOURCE_START_COUNTER_RESETTABLE                   , "Light Source Start Counter Resettable"                    },
+    { PROPERTY_LIGHT_SOURCE_TEMPERATURE                                , "Light Source Temperature"                                 },
+    { PROPERTY_LIGHT_SOURCE_THERMAL_DERATING_STATISTICS                , "Light Source Thermal Derating Statistics"                 },
+    { PROPERTY_LIGHT_SOURCE_THERMAL_SHUTDOWN_STATISTICS                , "Light Source Thermal Shutdown Statistics"                 },
+    { PROPERTY_LIGHT_SOURCE_TOTAL_POWER_ON_CYCLES                      , "Light Source Total Power On Cycles"                       },
+    { PROPERTY_LIGHT_SOURCE_VOLTAGE                                    , "Light Source Voltage"                                     },
+    { PROPERTY_LUMINAIRE_COLOR                                         , "Luminaire Color"                                          },
+    { PROPERTY_LUMINAIRE_IDENTIFICATION_NUMBER                         , "Luminaire Identification Number"                          },
+    { PROPERTY_LUMINAIRE_MANUFACTURER_GTIN                             , "Luminaire Manufacturer GTIN"                              },
+    { PROPERTY_LUMINAIRE_NOMINAL_INPUT_POWER                           , "Luminaire Nominal Input Power"                            },
+    { PROPERTY_LUMINAIRE_NOMINAL_MAXIMUM_AC_MAINS_VOLTAGE              , "Luminaire Nominal Maximum AC Mains Voltage"               },
+    { PROPERTY_LUMINAIRE_NOMINAL_MINIMUM_AC_MAINS_VOLTAGE              , "Luminaire Nominal Minimum AC Mains Voltage"               },
+    { PROPERTY_LUMINAIRE_POWER_AT_MINIMUM_DIM_LEVEL                    , "Luminaire Power At Minimum Dim Level"                     },
+    { PROPERTY_LUMINAIRE_TIME_OF_MANUFACTURE                           , "Luminaire Time Of Manufacture"                            },
+    { PROPERTY_MAGNETIC_DECLINATION                                    , "Magnetic Declination"                                     },
+    { PROPERTY_MAGNETIC_FLUX_DENSITY_2_D                               , "Magnetic Flux Density - 2D"                               },
+    { PROPERTY_MAGNETIC_FLUX_DENSITY_3_D                               , "Magnetic Flux Density - 3D"                               },
+    { PROPERTY_NOMINAL_LIGHT_OUTPUT                                    , "Nominal Light Output"                                     },
+    { PROPERTY_OVERALL_FAILURE_CONDITION                               , "Overall Failure Condition"                                },
+    { PROPERTY_POLLEN_CONCENTRATION                                    , "Pollen Concentration"                                     },
+    { PROPERTY_PRESENT_INDOOR_RELATIVE_HUMIDITY                        , "Present Indoor Relative Humidity"                         },
+    { PROPERTY_PRESENT_OUTDOOR_RELATIVE_HUMIDITY                       , "Present Outdoor Relative Humidity"                        },
+    { PROPERTY_PRESSURE                                                , "Pressure"                                                 },
+    { PROPERTY_RAINFALL                                                , "Rainfall"                                                 },
+    { PROPERTY_RATED_MEDIAN_USEFUL_LIFE_OF_LUMINAIRE                   , "Rated Median Useful Life Of Luminaire"                    },
+    { PROPERTY_RATED_MEDIAN_USEFUL_LIGHT_SOURCE_STARTS                 , "Rated Median Useful Light Source Starts"                  },
+    { PROPERTY_REFERENCE_TEMPERATURE                                   , "Reference Temperature"                                    },
+    { PROPERTY_TOTAL_DEVICE_STARTS                                     , "Total Device Starts"                                      },
+    { PROPERTY_TRUE_WIND_DIRECTION                                     , "True Wind Direction"                                      },
+    { PROPERTY_TRUE_WIND_SPEED                                         , "True Wind Speed"                                          },
+    { PROPERTY_UV_INDEX                                                , "UV Index"                                                 },
+    { PROPERTY_WIND_CHILL                                              , "Wind Chill"                                               },
+    { PROPERTY_LIGHT_SOURCE_TYPE                                       , "Light Source Type"                                        },
+    { PROPERTY_LUMINAIRE_IDENTIFICATION_STRING                         , "Luminaire Identification String"                          },
+    { PROPERTY_OUTPUT_POWER_LIMITATION                                 , "Output Power Limitation"                                  },
+    { PROPERTY_THERMAL_DERATING                                        , "Thermal Derating"                                         },
+    { PROPERTY_OUTPUT_CURRENT_PERCENT                                  , "Output Current Percent"                                   },
+    { 0, NULL }
+};
+
+static const btmesh_properties_t btmesh_properties[] = {
+    { PROPERTY_ACTIVE_ENERGY_LOADSIDE                                  , CHARACTERISTIC_ENERGY32                                  },
+    { PROPERTY_ACTIVE_POWER_LOADSIDE                                   , CHARACTERISTIC_POWER                                     },
+    { PROPERTY_AIR_PRESSURE                                            , CHARACTERISTIC_PRESSURE                                  },
+    { PROPERTY_APPARENT_ENERGY                                         , CHARACTERISTIC_APPARENT_ENERGY32                         },
+    { PROPERTY_APPARENT_POWER                                          , CHARACTERISTIC_APPARENT_POWER                            },
+    { PROPERTY_APPARENT_WIND_DIRECTION                                 , CHARACTERISTIC_APPARENT_WIND_DIRECTION                   },
+    { PROPERTY_APPARENT_WIND_SPEED                                     , CHARACTERISTIC_APPARENT_WIND_SPEED                       },
+    { PROPERTY_AVERAGE_AMBIENT_TEMPERATURE_IN_A_PERIOD_OF_DAY          , CHARACTERISTIC_TEMPERATURE_8_IN_A_PERIOD_OF_DAY          },
+    { PROPERTY_AVERAGE_INPUT_CURRENT                                   , CHARACTERISTIC_AVERAGE_CURRENT                           },
+    { PROPERTY_AVERAGE_INPUT_VOLTAGE                                   , CHARACTERISTIC_AVERAGE_VOLTAGE                           },
+    { PROPERTY_AVERAGE_OUTPUT_CURRENT                                  , CHARACTERISTIC_AVERAGE_CURRENT                           },
+    { PROPERTY_AVERAGE_OUTPUT_VOLTAGE                                  , CHARACTERISTIC_AVERAGE_VOLTAGE                           },
+    { PROPERTY_CENTER_BEAM_INTENSITY_AT_FULL_POWER                     , CHARACTERISTIC_LUMINOUS_INTENSITY                        },
+    { PROPERTY_CHROMATICITY_TOLERANCE                                  , CHARACTERISTIC_CHROMATICITY_TOLERANCE                    },
+    { PROPERTY_COLOR_RENDERING_INDEX_R9                                , CHARACTERISTIC_CIE_13_3_1995_COLOR_RENDERING_INDEX       },
+    { PROPERTY_COLOR_RENDERING_INDEX_RA                                , CHARACTERISTIC_CIE_13_3_1995_COLOR_RENDERING_INDEX       },
+    { PROPERTY_DESIRED_AMBIENT_TEMPERATURE                             , CHARACTERISTIC_TEMPERATURE_8                             },
+    { PROPERTY_DEVICE_APPEARANCE                                       , CHARACTERISTIC_APPEARANCE                                },
+    { PROPERTY_DEVICE_COUNTRY_OF_ORIGIN                                , CHARACTERISTIC_COUNTRY_CODE                              },
+    { PROPERTY_DEVICE_DATE_OF_MANUFACTURE                              , CHARACTERISTIC_DATE_UTC                                  },
+    { PROPERTY_DEVICE_ENERGY_USE_SINCE_TURN_ON                         , CHARACTERISTIC_ENERGY                                    },
+    { PROPERTY_DEVICE_FIRMWARE_REVISION                                , CHARACTERISTIC_FIXED_STRING_8                            },
+    { PROPERTY_DEVICE_GLOBAL_TRADE_ITEM_NUMBER                         , CHARACTERISTIC_GLOBAL_TRADE_ITEM_NUMBER                  },
+    { PROPERTY_DEVICE_HARDWARE_REVISION                                , CHARACTERISTIC_FIXED_STRING_16                           },
+    { PROPERTY_DEVICE_MANUFACTURER_NAME                                , CHARACTERISTIC_FIXED_STRING_36                           },
+    { PROPERTY_DEVICE_MODEL_NUMBER                                     , CHARACTERISTIC_FIXED_STRING_24                           },
+    { PROPERTY_DEVICE_OPERATING_TEMPERATURE_RANGE_SPECIFICATION        , CHARACTERISTIC_TEMPERATURE_RANGE                         },
+    { PROPERTY_DEVICE_OPERATING_TEMPERATURE_STATISTICAL_VALUES         , CHARACTERISTIC_TEMPERATURE_STATISTICS                    },
+    { PROPERTY_DEVICE_OVER_TEMPERATURE_EVENT_STATISTICS                , CHARACTERISTIC_EVENT_STATISTICS                          },
+    { PROPERTY_DEVICE_POWER_RANGE_SPECIFICATION                        , CHARACTERISTIC_POWER_SPECIFICATION                       },
+    { PROPERTY_DEVICE_RUNTIME_SINCE_TURN_ON                            , CHARACTERISTIC_TIME_HOUR_24                              },
+    { PROPERTY_DEVICE_RUNTIME_WARRANTY                                 , CHARACTERISTIC_TIME_HOUR_24                              },
+    { PROPERTY_DEVICE_SERIAL_NUMBER                                    , CHARACTERISTIC_FIXED_STRING_16                           },
+    { PROPERTY_DEVICE_SOFTWARE_REVISION                                , CHARACTERISTIC_FIXED_STRING_8                            },
+    { PROPERTY_DEVICE_UNDER_TEMPERATURE_EVENT_STATISTICS               , CHARACTERISTIC_EVENT_STATISTICS                          },
+    { PROPERTY_DEW_POINT                                               , CHARACTERISTIC_DEW_POINT                                 },
+    { PROPERTY_EXTERNAL_SUPPLY_VOLTAGE                                 , CHARACTERISTIC_HIGH_VOLTAGE                              },
+    { PROPERTY_EXTERNAL_SUPPLY_VOLTAGE_FREQUENCY                       , CHARACTERISTIC_VOLTAGE_FREQUENCY                         },
+    { PROPERTY_GUST_FACTOR                                             , CHARACTERISTIC_GUST_FACTOR                               },
+    { PROPERTY_HEAT_INDEX                                              , CHARACTERISTIC_HEAT_INDEX                                },
+    { PROPERTY_INDOOR_AMBIENT_TEMPERATURE_STATISTICAL_VALUES           , CHARACTERISTIC_TEMPERATURE_8_STATISTICS                  },
+    { PROPERTY_INITIAL_CIE_1931_CHROMATICITY_COORDINATES               , CHARACTERISTIC_CHROMATICITY_COORDINATES                  },
+    { PROPERTY_INITIAL_CORRELATED_COLOR_TEMPERATURE                    , CHARACTERISTIC_CORRELATED_COLOR_TEMPERATURE              },
+    { PROPERTY_INITIAL_LUMINOUS_FLUX                                   , CHARACTERISTIC_LUMINOUS_FLUX                             },
+    { PROPERTY_INITIAL_PLANCKIAN_DISTANCE                              , CHARACTERISTIC_CHROMATIC_DISTANCE_FROM_PLANCKIAN         },
+    { PROPERTY_INPUT_CURRENT_RANGE_SPECIFICATION                       , CHARACTERISTIC_ELECTRIC_CURRENT_SPECIFICATION            },
+    { PROPERTY_INPUT_CURRENT_STATISTICS                                , CHARACTERISTIC_ELECTRIC_CURRENT_STATISTICS               },
+    { PROPERTY_INPUT_OVER_CURRENT_EVENT_STATISTICS                     , CHARACTERISTIC_EVENT_STATISTICS                          },
+    { PROPERTY_INPUT_OVER_RIPPLE_VOLTAGE_EVENT_STATISTICS              , CHARACTERISTIC_EVENT_STATISTICS                          },
+    { PROPERTY_INPUT_OVER_VOLTAGE_EVENT_STATISTICS                     , CHARACTERISTIC_EVENT_STATISTICS                          },
+    { PROPERTY_INPUT_UNDER_CURRENT_EVENT_STATISTICS                    , CHARACTERISTIC_EVENT_STATISTICS                          },
+    { PROPERTY_INPUT_UNDER_VOLTAGE_EVENT_STATISTICS                    , CHARACTERISTIC_EVENT_STATISTICS                          },
+    { PROPERTY_INPUT_VOLTAGE_RANGE_SPECIFICATION                       , CHARACTERISTIC_VOLTAGE_SPECIFICATION                     },
+    { PROPERTY_INPUT_VOLTAGE_RIPPLE_SPECIFICATION                      , CHARACTERISTIC_PERCENTAGE_8                              },
+    { PROPERTY_INPUT_VOLTAGE_STATISTICS                                , CHARACTERISTIC_VOLTAGE_STATISTICS                        },
+    { PROPERTY_LIGHT_CONTROL_AMBIENT_LUX_LEVEL_ON                      , CHARACTERISTIC_ILLUMINANCE                               },
+    { PROPERTY_LIGHT_CONTROL_AMBIENT_LUX_LEVEL_PROLONG                 , CHARACTERISTIC_ILLUMINANCE                               },
+    { PROPERTY_LIGHT_CONTROL_AMBIENT_LUX_LEVEL_STANDBY                 , CHARACTERISTIC_ILLUMINANCE                               },
+    { PROPERTY_LIGHT_CONTROL_LIGHTNESS_ON                              , CHARACTERISTIC_PERCEIVED_LIGHTNESS                       },
+    { PROPERTY_LIGHT_CONTROL_LIGHTNESS_PROLONG                         , CHARACTERISTIC_PERCEIVED_LIGHTNESS                       },
+    { PROPERTY_LIGHT_CONTROL_LIGHTNESS_STANDBY                         , CHARACTERISTIC_PERCEIVED_LIGHTNESS                       },
+    { PROPERTY_LIGHT_CONTROL_REGULATOR_ACCURACY                        , CHARACTERISTIC_PERCENTAGE_8                              },
+    { PROPERTY_LIGHT_CONTROL_REGULATOR_KID                             , CHARACTERISTIC_COEFFICIENT                               },
+    { PROPERTY_LIGHT_CONTROL_REGULATOR_KIU                             , CHARACTERISTIC_COEFFICIENT                               },
+    { PROPERTY_LIGHT_CONTROL_REGULATOR_KPD                             , CHARACTERISTIC_COEFFICIENT                               },
+    { PROPERTY_LIGHT_CONTROL_REGULATOR_KPU                             , CHARACTERISTIC_COEFFICIENT                               },
+    { PROPERTY_LIGHT_CONTROL_TIME_FADE                                 , CHARACTERISTIC_TIME_MILLISECOND_24                       },
+    { PROPERTY_LIGHT_CONTROL_TIME_FADE_ON                              , CHARACTERISTIC_TIME_MILLISECOND_24                       },
+    { PROPERTY_LIGHT_CONTROL_TIME_FADE_STANDBY_AUTO                    , CHARACTERISTIC_TIME_MILLISECOND_24                       },
+    { PROPERTY_LIGHT_CONTROL_TIME_FADE_STANDBY_MANUAL                  , CHARACTERISTIC_TIME_MILLISECOND_24                       },
+    { PROPERTY_LIGHT_CONTROL_TIME_OCCUPANCY_DELAY                      , CHARACTERISTIC_TIME_MILLISECOND_24                       },
+    { PROPERTY_LIGHT_CONTROL_TIME_PROLONG                              , CHARACTERISTIC_TIME_MILLISECOND_24                       },
+    { PROPERTY_LIGHT_CONTROL_TIME_RUN_ON                               , CHARACTERISTIC_TIME_MILLISECOND_24                       },
+    { PROPERTY_LIGHT_DISTRIBUTION                                      , CHARACTERISTIC_LIGHT_DISTRIBUTION                        },
+    { PROPERTY_LIGHT_SOURCE_CURRENT                                    , CHARACTERISTIC_AVERAGE_CURRENT                           },
+    { PROPERTY_LIGHT_SOURCE_ON_TIME_NOT_RESETTABLE                     , CHARACTERISTIC_TIME_SECOND_32                            },
+    { PROPERTY_LIGHT_SOURCE_ON_TIME_RESETTABLE                         , CHARACTERISTIC_TIME_SECOND_32                            },
+    { PROPERTY_LIGHT_SOURCE_OPEN_CIRCUIT_STATISTICS                    , CHARACTERISTIC_EVENT_STATISTICS                          },
+    { PROPERTY_LIGHT_SOURCE_OVERALL_FAILURES_STATISTICS                , CHARACTERISTIC_EVENT_STATISTICS                          },
+    { PROPERTY_LIGHT_SOURCE_SHORT_CIRCUIT_STATISTICS                   , CHARACTERISTIC_EVENT_STATISTICS                          },
+    { PROPERTY_LIGHT_SOURCE_START_COUNTER_RESETTABLE                   , CHARACTERISTIC_COUNT_24                                  },
+    { PROPERTY_LIGHT_SOURCE_TEMPERATURE                                , CHARACTERISTIC_HIGH_TEMPERATURE                          },
+    { PROPERTY_LIGHT_SOURCE_THERMAL_DERATING_STATISTICS                , CHARACTERISTIC_EVENT_STATISTICS                          },
+    { PROPERTY_LIGHT_SOURCE_THERMAL_SHUTDOWN_STATISTICS                , CHARACTERISTIC_EVENT_STATISTICS                          },
+    { PROPERTY_LIGHT_SOURCE_TOTAL_POWER_ON_CYCLES                      , CHARACTERISTIC_COUNT_24                                  },
+    { PROPERTY_LIGHT_SOURCE_TYPE                                       , CHARACTERISTIC_LIGHT_SOURCE_TYPE                         },
+    { PROPERTY_LIGHT_SOURCE_VOLTAGE                                    , CHARACTERISTIC_AVERAGE_VOLTAGE                           },
+    { PROPERTY_LUMEN_MAINTENANCE_FACTOR                                , CHARACTERISTIC_PERCENTAGE_8                              },
+    { PROPERTY_LUMINAIRE_COLOR                                         , CHARACTERISTIC_FIXED_STRING_24                           },
+    { PROPERTY_LUMINAIRE_IDENTIFICATION_NUMBER                         , CHARACTERISTIC_FIXED_STRING_24                           },
+    { PROPERTY_LUMINAIRE_IDENTIFICATION_STRING                         , CHARACTERISTIC_FIXED_STRING_64                           },
+    { PROPERTY_LUMINAIRE_MANUFACTURER_GTIN                             , CHARACTERISTIC_GLOBAL_TRADE_ITEM_NUMBER                  },
+    { PROPERTY_LUMINAIRE_NOMINAL_INPUT_POWER                           , CHARACTERISTIC_POWER                                     },
+    { PROPERTY_LUMINAIRE_NOMINAL_MAXIMUM_AC_MAINS_VOLTAGE              , CHARACTERISTIC_VOLTAGE                                   },
+    { PROPERTY_LUMINAIRE_NOMINAL_MINIMUM_AC_MAINS_VOLTAGE              , CHARACTERISTIC_VOLTAGE                                   },
+    { PROPERTY_LUMINAIRE_POWER_AT_MINIMUM_DIM_LEVEL                    , CHARACTERISTIC_POWER                                     },
+    { PROPERTY_LUMINAIRE_TIME_OF_MANUFACTURE                           , CHARACTERISTIC_DATE_UTC                                  },
+    { PROPERTY_LUMINOUS_EFFICACY                                       , CHARACTERISTIC_LUMINOUS_EFFICACY                         },
+    { PROPERTY_LUMINOUS_ENERGY_SINCE_TURN_ON                           , CHARACTERISTIC_LUMINOUS_ENERGY                           },
+    { PROPERTY_LUMINOUS_EXPOSURE                                       , CHARACTERISTIC_LUMINOUS_EXPOSURE                         },
+    { PROPERTY_LUMINOUS_FLUX_RANGE                                     , CHARACTERISTIC_LUMINOUS_FLUX_RANGE                       },
+    { PROPERTY_MAGNETIC_DECLINATION                                    , CHARACTERISTIC_MAGNETIC_DECLINATION                      },
+    { PROPERTY_MAGNETIC_FLUX_DENSITY_2_D                               , CHARACTERISTIC_MAGNETIC_FLUX_DENSITY_2_D                 },
+    { PROPERTY_MAGNETIC_FLUX_DENSITY_3_D                               , CHARACTERISTIC_MAGNETIC_FLUX_DENSITY_3_D                 },
+    { PROPERTY_MOTION_SENSED                                           , CHARACTERISTIC_PERCENTAGE_8                              },
+    { PROPERTY_MOTION_THRESHOLD                                        , CHARACTERISTIC_PERCENTAGE_8                              },
+    { PROPERTY_NOMINAL_LIGHT_OUTPUT                                    , CHARACTERISTIC_LIGHT_OUTPUT                              },
+    { PROPERTY_OPEN_CIRCUIT_EVENT_STATISTICS                           , CHARACTERISTIC_EVENT_STATISTICS                          },
+    { PROPERTY_OUTDOOR_STATISTICAL_VALUES                              , CHARACTERISTIC_TEMPERATURE_8_STATISTICS                  },
+    { PROPERTY_OUTPUT_CURRENT_PERCENT                                  , CHARACTERISTIC_PERCENTAGE_8                              },
+    { PROPERTY_OUTPUT_CURRENT_RANGE                                    , CHARACTERISTIC_ELECTRIC_CURRENT_RANGE                    },
+    { PROPERTY_OUTPUT_CURRENT_STATISTICS                               , CHARACTERISTIC_ELECTRIC_CURRENT_STATISTICS               },
+    { PROPERTY_OUTPUT_POWER_LIMITATION                                 , CHARACTERISTIC_EVENT_STATISTICS                          },
+    { PROPERTY_OUTPUT_RIPPLE_VOLTAGE_SPECIFICATION                     , CHARACTERISTIC_PERCENTAGE_8                              },
+    { PROPERTY_OUTPUT_VOLTAGE_RANGE                                    , CHARACTERISTIC_VOLTAGE_SPECIFICATION                     },
+    { PROPERTY_OUTPUT_VOLTAGE_STATISTICS                               , CHARACTERISTIC_VOLTAGE_STATISTICS                        },
+    { PROPERTY_OVER_OUTPUT_RIPPLE_VOLTAGE_EVENT_STATISTICS             , CHARACTERISTIC_EVENT_STATISTICS                          },
+    { PROPERTY_OVERALL_FAILURE_CONDITION                               , CHARACTERISTIC_EVENT_STATISTICS                          },
+    { PROPERTY_PEOPLE_COUNT                                            , CHARACTERISTIC_COUNT_16                                  },
+    { PROPERTY_POLLEN_CONCENTRATION                                    , CHARACTERISTIC_POLLEN_CONCENTRATION                      },
+    { PROPERTY_POWER_FACTOR                                            , CHARACTERISTIC_COSINE_OF_THE_ANGLE                       },
+    { PROPERTY_PRECISE_PRESENT_AMBIENT_TEMPERATURE                     , CHARACTERISTIC_TEMPERATURE                               },
+    { PROPERTY_PRECISE_TOTAL_DEVICE_ENERGY_USE                         , CHARACTERISTIC_ENERGY32                                  },
+    { PROPERTY_PRESENCE_DETECTED                                       , CHARACTERISTIC_BOOLEAN                                   },
+    { PROPERTY_PRESENT_AMBIENT_CARBON_DIOXIDE_CONCENTRATION            , CHARACTERISTIC_CO2_CONCENTRATION                         },
+    { PROPERTY_PRESENT_AMBIENT_LIGHT_LEVEL                             , CHARACTERISTIC_ILLUMINANCE                               },
+    { PROPERTY_PRESENT_AMBIENT_NOISE                                   , CHARACTERISTIC_NOISE                                     },
+    { PROPERTY_PRESENT_AMBIENT_RELATIVE_HUMIDITY                       , CHARACTERISTIC_HUMIDITY                                  },
+    { PROPERTY_PRESENT_AMBIENT_TEMPERATURE                             , CHARACTERISTIC_TEMPERATURE_8                             },
+    { PROPERTY_PRESENT_AMBIENT_VOLATILE_ORGANIC_COMPOUNDS_CONCENTRATION, CHARACTERISTIC_VOC_CONCENTRATION                         },
+    { PROPERTY_PRESENT_CIE_1931_CHROMATICITY_COORDINATES               , CHARACTERISTIC_CHROMATICITY_COORDINATES                  },
+    { PROPERTY_PRESENT_CORRELATED_COLOR_TEMPERATURE                    , CHARACTERISTIC_CORRELATED_COLOR_TEMPERATURE              },
+    { PROPERTY_PRESENT_DEVICE_INPUT_POWER                              , CHARACTERISTIC_POWER                                     },
+    { PROPERTY_PRESENT_DEVICE_OPERATING_EFFICIENCY                     , CHARACTERISTIC_PERCENTAGE_8                              },
+    { PROPERTY_PRESENT_DEVICE_OPERATING_TEMPERATURE                    , CHARACTERISTIC_TEMPERATURE                               },
+    { PROPERTY_PRESENT_ILLUMINANCE                                     , CHARACTERISTIC_ILLUMINANCE                               },
+    { PROPERTY_PRESENT_INDOOR_AMBIENT_TEMPERATURE                      , CHARACTERISTIC_TEMPERATURE_8                             },
+    { PROPERTY_PRESENT_INDOOR_RELATIVE_HUMIDITY                        , CHARACTERISTIC_HUMIDITY                                  },
+    { PROPERTY_PRESENT_INPUT_CURRENT                                   , CHARACTERISTIC_ELECTRIC_CURRENT                          },
+    { PROPERTY_PRESENT_INPUT_RIPPLE_VOLTAGE                            , CHARACTERISTIC_PERCENTAGE_8                              },
+    { PROPERTY_PRESENT_INPUT_VOLTAGE                                   , CHARACTERISTIC_VOLTAGE                                   },
+    { PROPERTY_PRESENT_LUMINOUS_FLUX                                   , CHARACTERISTIC_LUMINOUS_FLUX                             },
+    { PROPERTY_PRESENT_OUTDOOR_AMBIENT_TEMPERATURE                     , CHARACTERISTIC_TEMPERATURE_8                             },
+    { PROPERTY_PRESENT_OUTDOOR_RELATIVE_HUMIDITY                       , CHARACTERISTIC_HUMIDITY                                  },
+    { PROPERTY_PRESENT_OUTPUT_CURRENT                                  , CHARACTERISTIC_ELECTRIC_CURRENT                          },
+    { PROPERTY_PRESENT_OUTPUT_VOLTAGE                                  , CHARACTERISTIC_VOLTAGE                                   },
+    { PROPERTY_PRESENT_PLANCKIAN_DISTANCE                              , CHARACTERISTIC_CHROMATIC_DISTANCE_FROM_PLANCKIAN         },
+    { PROPERTY_PRESENT_RELATIVE_OUTPUT_RIPPLE_VOLTAGE                  , CHARACTERISTIC_PERCENTAGE_8                              },
+    { PROPERTY_PRESSURE                                                , CHARACTERISTIC_PRESSURE                                  },
+    { PROPERTY_RAINFALL                                                , CHARACTERISTIC_RAINFALL                                  },
+    { PROPERTY_RATED_MEDIAN_USEFUL_LIFE_OF_LUMINAIRE                   , CHARACTERISTIC_TIME_HOUR_24                              },
+    { PROPERTY_RATED_MEDIAN_USEFUL_LIGHT_SOURCE_STARTS                 , CHARACTERISTIC_COUNT_24                                  },
+    { PROPERTY_REFERENCE_TEMPERATURE                                   , CHARACTERISTIC_HIGH_TEMPERATURE                          },
+    { PROPERTY_RELATIVE_DEVICE_ENERGY_USE_IN_A_PERIOD_OF_DAY           , CHARACTERISTIC_ENERGY_IN_A_PERIOD_OF_DAY                 },
+    { PROPERTY_RELATIVE_DEVICE_RUNTIME_IN_A_GENERIC_LEVEL_RANGE        , CHARACTERISTIC_RELATIVE_RUNTIME_IN_A_GENERIC_LEVEL_RANGE },
+    { PROPERTY_RELATIVE_EXPOSURE_TIME_IN_AN_ILLUMINANCE_RANGE          , CHARACTERISTIC_RELATIVE_VALUE_IN_AN_ILLUMINANCE_RANGE    },
+    { PROPERTY_RELATIVE_RUNTIME_IN_A_CORRELATED_COLOR_TEMPERATURE_RANGE, CHARACTERISTIC_LUMINOUS_ENERGY                           },
+    { PROPERTY_RELATIVE_RUNTIME_IN_A_DEVICE_OPERATING_TEMPERATURE_RANGE, CHARACTERISTIC_RELATIVE_VALUE_IN_A_TEMPERATURE_RANGE     },
+    { PROPERTY_RELATIVE_RUNTIME_IN_AN_INPUT_CURRENT_RANGE              , CHARACTERISTIC_RELATIVE_RUNTIME_IN_A_CURRENT_RANGE       },
+    { PROPERTY_RELATIVE_RUNTIME_IN_AN_INPUT_VOLTAGE_RANGE              , CHARACTERISTIC_RELATIVE_VALUE_IN_A_VOLTAGE_RANGE         },
+    { PROPERTY_SENSOR_GAIN                                             , CHARACTERISTIC_COEFFICIENT                               },
+    { PROPERTY_SHORT_CIRCUIT_EVENT_STATISTICS                          , CHARACTERISTIC_EVENT_STATISTICS                          },
+    { PROPERTY_THERMAL_DERATING                                        , CHARACTERISTIC_EVENT_STATISTICS                          },
+    { PROPERTY_TIME_SINCE_MOTION_SENSED                                , CHARACTERISTIC_TIME_SECOND_16                            },
+    { PROPERTY_TIME_SINCE_PRESENCE_DETECTED                            , CHARACTERISTIC_TIME_SECOND_16                            },
+    { PROPERTY_TOTAL_DEVICE_ENERGY_USE                                 , CHARACTERISTIC_ENERGY                                    },
+    { PROPERTY_TOTAL_DEVICE_OFF_ON_CYCLES                              , CHARACTERISTIC_COUNT_24                                  },
+    { PROPERTY_TOTAL_DEVICE_POWER_ON_CYCLES                            , CHARACTERISTIC_COUNT_24                                  },
+    { PROPERTY_TOTAL_DEVICE_POWER_ON_TIME                              , CHARACTERISTIC_TIME_HOUR_24                              },
+    { PROPERTY_TOTAL_DEVICE_RUNTIME                                    , CHARACTERISTIC_TIME_HOUR_24                              },
+    { PROPERTY_TOTAL_DEVICE_STARTS                                     , CHARACTERISTIC_COUNT_24                                  },
+    { PROPERTY_TOTAL_LIGHT_EXPOSURE_TIME                               , CHARACTERISTIC_TIME_HOUR_24                              },
+    { PROPERTY_TOTAL_LUMINOUS_ENERGY                                   , CHARACTERISTIC_LUMINOUS_ENERGY                           },
+    { PROPERTY_TRUE_WIND_DIRECTION                                     , CHARACTERISTIC_TRUE_WIND_DIRECTION                       },
+    { PROPERTY_TRUE_WIND_SPEED                                         , CHARACTERISTIC_TRUE_WIND_SPEED                           },
+    { PROPERTY_UV_INDEX                                                , CHARACTERISTIC_UV_INDEX                                  },
+    { PROPERTY_WIND_CHILL                                              , CHARACTERISTIC_WIND_CHILL                                },
+    { 0, 0},
+};
+
+static const bt_gatt_characteristic_t bt_gatt_characteristics[] = {
+    { CHARACTERISTIC_APPARENT_ENERGY32                        , 4, NULL                                      },
+    { CHARACTERISTIC_APPARENT_POWER                           , 3, NULL                                      },
+    { CHARACTERISTIC_APPARENT_WIND_DIRECTION                  , 2, NULL                                      },
+    { CHARACTERISTIC_APPARENT_WIND_SPEED                      , 2, NULL                                      },
+    { CHARACTERISTIC_APPEARANCE                               , 2, NULL                                      },
+    { CHARACTERISTIC_AVERAGE_CURRENT                          , 3, NULL                                      },
+    { CHARACTERISTIC_AVERAGE_VOLTAGE                          , 3, NULL                                      },
+    { CHARACTERISTIC_BOOLEAN                                  , 1, &hf_bt_characteristic_boolean             },
+    { CHARACTERISTIC_CHROMATIC_DISTANCE_FROM_PLANCKIAN        , 2, NULL                                      },
+    { CHARACTERISTIC_CHROMATICITY_COORDINATES                 , 2, NULL                                      },
+    { CHARACTERISTIC_CHROMATICITY_TOLERANCE                   , 1, NULL                                      },
+    { CHARACTERISTIC_CIE_13_3_1995_COLOR_RENDERING_INDEX      , 1, NULL                                      },
+    { CHARACTERISTIC_CO2_CONCENTRATION                        , 2, NULL                                      },
+    { CHARACTERISTIC_COEFFICIENT                              , 4, &hf_bt_characteristic_coefficient         },
+    { CHARACTERISTIC_CORRELATED_COLOR_TEMPERATURE             , 2, NULL                                      },
+    { CHARACTERISTIC_COSINE_OF_THE_ANGLE                      , 1, NULL                                      },
+    { CHARACTERISTIC_COUNT_16                                 , 2, &hf_bt_characteristic_count_16            },
+    { CHARACTERISTIC_COUNT_24                                 , 3, NULL                                      },
+    { CHARACTERISTIC_COUNTRY_CODE                             , 2, NULL                                      },
+    { CHARACTERISTIC_DATE_UTC                                 , 3, NULL                                      },
+    { CHARACTERISTIC_DEW_POINT                                , 1, NULL                                      },
+    { CHARACTERISTIC_ELECTRIC_CURRENT                         , 2, NULL                                      },
+    { CHARACTERISTIC_ELECTRIC_CURRENT_RANGE                   , 4, NULL                                      },
+    { CHARACTERISTIC_ELECTRIC_CURRENT_SPECIFICATION           , 6, NULL                                      },
+    { CHARACTERISTIC_ELECTRIC_CURRENT_STATISTICS              , 9, NULL                                      },
+    { CHARACTERISTIC_ENERGY                                   , 3, NULL                                      },
+    { CHARACTERISTIC_ENERGY_IN_A_PERIOD_OF_DAY                , 5, NULL                                      },
+    { CHARACTERISTIC_ENERGY32                                 , 4, NULL                                      },
+    { CHARACTERISTIC_EVENT_STATISTICS                         , 6, NULL                                      },
+    { CHARACTERISTIC_FIXED_STRING_16                          , 16, NULL                                     },
+    { CHARACTERISTIC_FIXED_STRING_24                          , 24, NULL                                     },
+    { CHARACTERISTIC_FIXED_STRING_36                          , 36, NULL                                     },
+    { CHARACTERISTIC_FIXED_STRING_64                          , 64, NULL                                     },
+    { CHARACTERISTIC_FIXED_STRING_8                           , 8, NULL                                      },
+    { CHARACTERISTIC_GLOBAL_TRADE_ITEM_NUMBER                 , 6, NULL                                      },
+    { CHARACTERISTIC_GUST_FACTOR                              , 1, NULL                                      },
+    { CHARACTERISTIC_HEAT_INDEX                               , 1, NULL                                      },
+    { CHARACTERISTIC_HIGH_TEMPERATURE                         , 2, NULL                                      },
+    { CHARACTERISTIC_HIGH_VOLTAGE                             , 3, NULL                                      },
+    { CHARACTERISTIC_HUMIDITY                                 , 2, NULL                                      },
+    { CHARACTERISTIC_ILLUMINANCE                              , 3, &hf_bt_characteristic_illuminance         },
+    { CHARACTERISTIC_LIGHT_DISTRIBUTION                       , 1, NULL                                      },
+    { CHARACTERISTIC_LIGHT_OUTPUT                             , 3, NULL                                      },
+    { CHARACTERISTIC_LIGHT_SOURCE_TYPE                        , 1, NULL                                      },
+    { CHARACTERISTIC_LUMINOUS_EFFICACY                        , 2, NULL                                      },
+    { CHARACTERISTIC_LUMINOUS_ENERGY                          , 3, NULL                                      },
+    { CHARACTERISTIC_LUMINOUS_EXPOSURE                        , 3, NULL                                      },
+    { CHARACTERISTIC_LUMINOUS_FLUX                            , 2, NULL                                      },
+    { CHARACTERISTIC_LUMINOUS_FLUX_RANGE                      , 4, NULL                                      },
+    { CHARACTERISTIC_LUMINOUS_INTENSITY                       , 2, NULL                                      },
+    { CHARACTERISTIC_MAGNETIC_DECLINATION                     , 2, NULL                                      },
+    { CHARACTERISTIC_MAGNETIC_FLUX_DENSITY_2_D                , 4, NULL                                      },
+    { CHARACTERISTIC_MAGNETIC_FLUX_DENSITY_3_D                , 6, NULL                                      },
+    { CHARACTERISTIC_NOISE                                    , 1, NULL                                      },
+    { CHARACTERISTIC_PERCEIVED_LIGHTNESS                      , 2, &hf_bt_characteristic_perceived_lightness },
+    { CHARACTERISTIC_PERCENTAGE_8                             , 1, &hf_bt_characteristic_percentage_8        },
+    { CHARACTERISTIC_POLLEN_CONCENTRATION                     , 3, NULL                                      },
+    { CHARACTERISTIC_POWER                                    , 3, NULL                                      },
+    { CHARACTERISTIC_POWER_SPECIFICATION                      , 9, NULL                                      },
+    { CHARACTERISTIC_PRESSURE                                 , 4, NULL                                      },
+    { CHARACTERISTIC_RAINFALL                                 , 2, NULL                                      },
+    { CHARACTERISTIC_RELATIVE_RUNTIME_IN_A_CURRENT_RANGE      , 5, NULL                                      },
+    { CHARACTERISTIC_RELATIVE_RUNTIME_IN_A_GENERIC_LEVEL_RANGE, 5, NULL                                      },
+    { CHARACTERISTIC_RELATIVE_VALUE_IN_A_TEMPERATURE_RANGE    , 3, NULL                                      },
+    { CHARACTERISTIC_RELATIVE_VALUE_IN_A_VOLTAGE_RANGE        , 5, NULL                                      },
+    { CHARACTERISTIC_RELATIVE_VALUE_IN_AN_ILLUMINANCE_RANGE   , 5, NULL                                      },
+    { CHARACTERISTIC_TEMPERATURE                              , 2, NULL                                      },
+    { CHARACTERISTIC_TEMPERATURE_8                            , 1, NULL                                      },
+    { CHARACTERISTIC_TEMPERATURE_8_IN_A_PERIOD_OF_DAY         , 3, NULL                                      },
+    { CHARACTERISTIC_TEMPERATURE_8_STATISTICS                 , 5, NULL                                      },
+    { CHARACTERISTIC_TEMPERATURE_RANGE                        , 4, NULL                                      },
+    { CHARACTERISTIC_TEMPERATURE_STATISTICS                   , 9, NULL                                      },
+    { CHARACTERISTIC_TIME_HOUR_24                             , 3, NULL                                      },
+    { CHARACTERISTIC_TIME_MILLISECOND_24                      , 3, &hf_bt_characteristic_time_millisecond_24 },
+    { CHARACTERISTIC_TIME_SECOND_16                           , 2, &hf_bt_characteristic_time_second_16      },
+    { CHARACTERISTIC_TIME_SECOND_32                           , 4, NULL                                      },
+    { CHARACTERISTIC_TRUE_WIND_DIRECTION                      , 2, NULL                                      },
+    { CHARACTERISTIC_TRUE_WIND_SPEED                          , 2, NULL                                      },
+    { CHARACTERISTIC_UV_INDEX                                 , 1, NULL                                      },
+    { CHARACTERISTIC_VOC_CONCENTRATION                        , 2, NULL                                      },
+    { CHARACTERISTIC_VOLTAGE                                  , 2, NULL                                      },
+    { CHARACTERISTIC_VOLTAGE_FREQUENCY                        , 2, NULL                                      },
+    { CHARACTERISTIC_VOLTAGE_SPECIFICATION                    , 6, NULL                                      },
+    { CHARACTERISTIC_VOLTAGE_STATISTICS                       , 9, NULL                                      },
+    { CHARACTERISTIC_WIND_CHILL                               , 1, NULL                                      },
+    { 0, 0, NULL},
+};
 
 /* Upper Transport Message reassembly */
 
@@ -2307,7 +3438,7 @@ format_vendor_model(gchar *buf, guint32 value) {
 
 static void
 format_publish_appkeyindex_model(gchar *buf, guint32 value) {
-    g_snprintf(buf, ITEM_LABEL_LENGTH, "%u (0x%03x) using %s security material", value & 0x0FFF, value & 0x0FFF, (value & 0x1000 ? "Friendship" : "Master"));
+    g_snprintf(buf, ITEM_LABEL_LENGTH, "%u (0x%03x) using %s security material", value & 0x0FFF, value & 0x0FFF, ((value & 0x1000) ? "Friendship" : "Master"));
 }
 
 static void
@@ -2568,8 +3699,8 @@ format_scheduler_action(gchar *buf, gint32 value) {
 }
 
 static void
-format_scheduler_empty(gchar *buf _U_, gint32 value _U_) {
-    buf = g_strdup("");
+format_scheduler_empty(gchar *buf, gint32 value _U_) {
+    g_snprintf(buf, ITEM_LABEL_LENGTH, "%s", "");
 }
 
 static void
@@ -2633,7 +3764,162 @@ format_tai_to_utc_date(gchar *buf, guint64 value) {
     }
 }
 
+static void
+format_temperature_kelvin(gchar *buf, guint32 value) {
+    if (value < 0x0320 ) {
+        g_snprintf(buf, ITEM_LABEL_LENGTH, "Prohibited (%d)", value);
+    } else if (value > 0x4E20 ) {
+        g_snprintf(buf, ITEM_LABEL_LENGTH, "Prohibited (%d)", value);
+    } else {
+        g_snprintf(buf, ITEM_LABEL_LENGTH, "%d K", value);
+    }
+}
+
+static void
+format_temperature_kelvin_unknown(gchar *buf, guint32 value) {
+    if (value < 0x0320 ) {
+        g_snprintf(buf, ITEM_LABEL_LENGTH, "Prohibited (%d)", value);
+    } else if (value > 0x4E20 && value != 0xFFFF) {
+        g_snprintf(buf, ITEM_LABEL_LENGTH, "Prohibited (%d)", value);
+    } else if (value == 0xFFFF ) {
+        g_snprintf(buf, ITEM_LABEL_LENGTH, "Unknown");
+    } else {
+        g_snprintf(buf, ITEM_LABEL_LENGTH, "%d K", value);
+    }
+}
+
+static void
+format_light_lightness_prohibited(gchar *buf, guint32 value) {
+    if (value == 0x0 ) {
+        g_snprintf(buf, ITEM_LABEL_LENGTH, "Prohibited (%d)", value);
+    } else {
+        g_snprintf(buf, ITEM_LABEL_LENGTH, "%d", value);
+    }
+}
+
+static void
+format_light_lightness_default(gchar *buf, guint32 value) {
+    if (value == 0x0 ) {
+        g_snprintf(buf, ITEM_LABEL_LENGTH, "Use the Light Lightness Last value");
+    } else {
+        g_snprintf(buf, ITEM_LABEL_LENGTH, "%d", value);
+    }
+}
+
+static void
+format_hsl_hue(gchar *buf, guint32 value) {
+    gdouble val;
+    val =  (gdouble)360.0 / (gdouble) (0x10000) * (gdouble)value;
+    g_snprintf(buf, ITEM_LABEL_LENGTH, "% 3.3f°", val);
+}
+
+static void
+format_xyl_coordinate(gchar *buf, guint32 value) {
+    gdouble val;
+    val =  (gdouble)value / (gdouble) (0xFFFF);
+    g_snprintf(buf, ITEM_LABEL_LENGTH, "%1.5f", val);
+}
+
+static void
+format_illuminance(gchar *buf, guint32 value) {
+    if (value == 0xFFFFFF) {
+        g_snprintf(buf, ITEM_LABEL_LENGTH, "Value is not known");
+    } else {
+        gdouble val;
+        val =  (gdouble)value / (gdouble) (100);
+        g_snprintf(buf, ITEM_LABEL_LENGTH, "%.2f lux", val);
+    }
+}
+
+static void
+format_percentage_8(gchar *buf, guint32 value) {
+    if (value == 0xFF) {
+        g_snprintf(buf, ITEM_LABEL_LENGTH, "Value is not known");
+    } else if (value > 200) {
+        g_snprintf(buf, ITEM_LABEL_LENGTH, "Prohibited (%d)", value);
+    } else {
+        gdouble val;
+        val =  (gdouble)value / (gdouble) (2);
+        g_snprintf(buf, ITEM_LABEL_LENGTH, "%.1f %%", val);
+    }
+}
+
+static void
+format_time_millisecond_24(gchar *buf, guint32 value) {
+    if (value == 0xFFFFFF) {
+        g_snprintf(buf, ITEM_LABEL_LENGTH, "Value is not known");
+    } else {
+        gdouble val;
+        val =  (gdouble)value / (gdouble) (1000);
+        g_snprintf(buf, ITEM_LABEL_LENGTH, "%.2f s", val);
+    }
+}
+
+static void
+format_count_16(gchar *buf, guint32 value) {
+    if (value == 0xFFFF) {
+        g_snprintf(buf, ITEM_LABEL_LENGTH, "Value is not known");
+    } else {
+        g_snprintf(buf, ITEM_LABEL_LENGTH, "%d", value);
+    }
+}
+
+static void
+format_boolean(gchar *buf, guint32 value) {
+    if (value == 0x00) {
+        g_snprintf(buf, ITEM_LABEL_LENGTH, "False");
+    } else if (value == 0x01) {
+        g_snprintf(buf, ITEM_LABEL_LENGTH, "True");
+    } else {
+        g_snprintf(buf, ITEM_LABEL_LENGTH, "Prohibited (%d)", value);
+    }
+}
+
+static void
+format_time_second_16(gchar *buf, guint32 value) {
+    if (value == 0xFFFF) {
+        g_snprintf(buf, ITEM_LABEL_LENGTH, "Value is not known");
+    } else {
+        g_snprintf(buf, ITEM_LABEL_LENGTH, "%d s", value);
+    }
+}
+
 #if GCRYPT_VERSION_NUMBER >= 0x010600 /* 1.6.0 */
+
+static guint16
+dissect_btmesh_property(tvbuff_t *tvb _U_, proto_tree *tree _U_, int offset _U_, guint16 property_id)
+{
+    int i;
+    guint16 characteristic_id = 0;
+    guint16 characteristic_value_length = 0;
+    int hfindex = -1;
+
+    //Find characteristic
+    for (i=0; btmesh_properties[i].characteristic_id !=0; i++ ) {
+        if (btmesh_properties[i].property_id == property_id) {
+            characteristic_id = btmesh_properties[i].characteristic_id;
+            break;
+        }
+    }
+    if (characteristic_id == 0) {
+        return 0;
+    }
+    //Find field length and index
+    for (i=0; bt_gatt_characteristics[i].characteristic_id !=0; i++ ) {
+        if (bt_gatt_characteristics[i].characteristic_id == characteristic_id) {
+            if (bt_gatt_characteristics[i].characteristic_value_length == 0 || bt_gatt_characteristics[i].hfindex == NULL) {
+                return 0;
+            }
+            characteristic_value_length = bt_gatt_characteristics[i].characteristic_value_length;
+            hfindex = *bt_gatt_characteristics[i].hfindex;
+            break;
+        }
+    }
+
+    //Dissect
+    proto_tree_add_item(tree, hfindex, tvb, offset, characteristic_value_length, ENC_LITTLE_ENDIAN);
+    return characteristic_value_length;
+}
 
 static void
 dissect_btmesh_model_layer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
@@ -2659,6 +3945,7 @@ dissect_btmesh_model_layer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     guint32 netkeyindexes, appkeyindexes;
     guint32 nums, numv, element;
     guint i;
+    guint16 property_id, offset_delta;
 
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_btmesh_model_layer, NULL, "Model Layer");
 
@@ -2667,8 +3954,8 @@ dissect_btmesh_model_layer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         if (opcode & 0x40) {
             /* Vendor opcode */
             proto_tree_add_item(sub_tree, hf_btmesh_model_layer_vendor_opcode, tvb, offset, 1, ENC_NA);
-            vendor = tvb_get_guint16(tvb, offset+1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(sub_tree, hf_btmesh_model_layer_vendor, tvb, offset+1, 2, ENC_NA);
+            vendor = tvb_get_guint16(tvb, offset + 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(sub_tree, hf_btmesh_model_layer_vendor, tvb, offset + 1, 2, ENC_NA);
             payload_tvb = tvb_new_subset_remaining(tvb, offset);
             dissector_try_uint_new(btmesh_model_vendor_dissector_table, vendor, payload_tvb, pinfo, tree, TRUE, GUINT_TO_POINTER(vendor));
             offset+=3;
@@ -2853,7 +4140,7 @@ dissect_btmesh_model_layer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
             if (tvb_reported_length_remaining(tvb, offset) >= 3) {
                 appkeyindexes = tvb_get_guint24(tvb, offset, ENC_LITTLE_ENDIAN);
                 proto_tree_add_uint(appkeylist_tree, hf_btmesh_config_appkey_list_appkeyindex, tvb, offset, 2, appkeyindexes & 0x000FFF);
-                proto_tree_add_uint(appkeylist_tree, hf_btmesh_config_appkey_list_appkeyindex, tvb, offset +1 , 2, (appkeyindexes >> 12 ) & 0x000FFF);
+                proto_tree_add_uint(appkeylist_tree, hf_btmesh_config_appkey_list_appkeyindex, tvb, offset + 1, 2, (appkeyindexes >> 12 ) & 0x000FFF);
                 offset+=3;
             } else {
                 appkeyindexes = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
@@ -3458,7 +4745,7 @@ dissect_btmesh_model_layer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
             if (tvb_reported_length_remaining(tvb, offset) >= 3) {
                 appkeyindexes = tvb_get_guint24(tvb, offset, ENC_LITTLE_ENDIAN);
                 proto_tree_add_uint(appkeylist_tree, hf_btmesh_config_sig_model_app_list_appkeyindex, tvb, offset, 2, appkeyindexes & 0x000FFF);
-                proto_tree_add_uint(appkeylist_tree, hf_btmesh_config_sig_model_app_list_appkeyindex, tvb, offset +1 , 2, (appkeyindexes >> 12 ) & 0x000FFF);
+                proto_tree_add_uint(appkeylist_tree, hf_btmesh_config_sig_model_app_list_appkeyindex, tvb, offset + 1, 2, (appkeyindexes >> 12 ) & 0x000FFF);
                 offset+=3;
             } else {
                 appkeyindexes = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
@@ -3486,7 +4773,7 @@ dissect_btmesh_model_layer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
             if (tvb_reported_length_remaining(tvb, offset) >= 3) {
                 appkeyindexes = tvb_get_guint24(tvb, offset, ENC_LITTLE_ENDIAN);
                 proto_tree_add_uint(appkeylist_tree, hf_btmesh_config_vendor_model_app_list_appkeyindex, tvb, offset, 2, appkeyindexes & 0x000FFF);
-                proto_tree_add_uint(appkeylist_tree, hf_btmesh_config_vendor_model_app_list_appkeyindex, tvb, offset +1 , 2, (appkeyindexes >> 12 ) & 0x000FFF);
+                proto_tree_add_uint(appkeylist_tree, hf_btmesh_config_vendor_model_app_list_appkeyindex, tvb, offset + 1, 2, (appkeyindexes >> 12 ) & 0x000FFF);
                 offset+=3;
             } else {
                 appkeyindexes = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
@@ -4181,6 +5468,792 @@ dissect_btmesh_model_layer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         proto_tree_add_item(scheduler_tree, hf_btmesh_scheduler_status_schedules_schedule_13, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(scheduler_tree, hf_btmesh_scheduler_status_schedules_schedule_14, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(scheduler_tree, hf_btmesh_scheduler_status_schedules_schedule_15, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        break;
+    case LIGHT_LC_PROPERTY_SET:
+        proto_tree_add_item(sub_tree, hf_btmesh_light_lc_property_set_light_lc_property_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        property_id = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        offset_delta = dissect_btmesh_property(tvb, sub_tree, offset, property_id);
+        if (offset_delta == 0) {
+            proto_tree_add_item(sub_tree, hf_btmesh_light_lc_property_set_light_lc_property_value, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_NA);
+            offset+=tvb_reported_length_remaining(tvb, offset);
+        } else {
+            offset += offset_delta;
+        }
+        break;
+    case LIGHT_LC_PROPERTY_SET_UNACKNOWLEDGED:
+        proto_tree_add_item(sub_tree, hf_btmesh_light_lc_property_set_unacknowledged_light_lc_property_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        property_id = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        offset_delta = dissect_btmesh_property(tvb, sub_tree, offset, property_id);
+        if (offset_delta == 0) {
+            proto_tree_add_item(sub_tree, hf_btmesh_light_lc_property_set_unacknowledged_light_lc_property_value, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_NA);
+            offset+=tvb_reported_length_remaining(tvb, offset);
+        } else {
+            offset += offset_delta;
+        }
+        break;
+    case LIGHT_LC_PROPERTY_STATUS:
+        proto_tree_add_item(sub_tree, hf_btmesh_light_lc_property_status_light_lc_property_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        property_id = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        offset_delta = dissect_btmesh_property(tvb, sub_tree, offset, property_id);
+        if (offset_delta == 0) {
+            proto_tree_add_item(sub_tree, hf_btmesh_light_lc_property_status_light_lc_property_value, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_NA);
+            offset += tvb_reported_length_remaining(tvb, offset);
+        } else {
+            offset += offset_delta;
+        }
+        break;
+    case LIGHT_LIGHTNESS_GET:
+        break;
+    case LIGHT_LIGHTNESS_SET:
+        proto_tree_add_item(sub_tree, hf_btmesh_light_lightness_set_lightness, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_lightness_set_tid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        /* Optional */
+        if (tvb_reported_length_remaining(tvb, offset) > 0) {
+            publishperiod_item = proto_tree_add_item(sub_tree, hf_btmesh_light_lightness_set_transition_time, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            publishperiod_sub_tree = proto_item_add_subtree(publishperiod_item, ett_btmesh_config_model_publishperiod);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_light_lightness_set_transition_time_steps, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_light_lightness_set_transition_time_resolution, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            proto_tree_add_item(sub_tree, hf_btmesh_light_lightness_set_delay, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+        }
+        break;
+    case LIGHT_LIGHTNESS_SET_UNACKNOWLEDGED:
+        proto_tree_add_item(sub_tree, hf_btmesh_light_lightness_set_unacknowledged_lightness, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_lightness_set_unacknowledged_tid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        /* Optional */
+        if (tvb_reported_length_remaining(tvb, offset) > 0) {
+            publishperiod_item = proto_tree_add_item(sub_tree, hf_btmesh_light_lightness_set_unacknowledged_transition_time, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            publishperiod_sub_tree = proto_item_add_subtree(publishperiod_item, ett_btmesh_config_model_publishperiod);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_light_lightness_set_unacknowledged_transition_time_steps, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_light_lightness_set_unacknowledged_transition_time_resolution, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            proto_tree_add_item(sub_tree, hf_btmesh_light_lightness_set_unacknowledged_delay, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+        }
+        break;
+    case LIGHT_LIGHTNESS_STATUS:
+        proto_tree_add_item(sub_tree, hf_btmesh_light_lightness_status_present_lightness, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        /* Optional */
+        if (tvb_reported_length_remaining(tvb, offset) > 0) {
+            proto_tree_add_item(sub_tree, hf_btmesh_light_lightness_status_target_lightness, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset+=2;
+            publishperiod_item = proto_tree_add_item(sub_tree, hf_btmesh_light_lightness_status_remaining_time, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            publishperiod_sub_tree = proto_item_add_subtree(publishperiod_item, ett_btmesh_config_model_publishperiod);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_light_lightness_status_remaining_time_steps, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_light_lightness_status_remaining_time_resolution, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+        }
+        break;
+    case LIGHT_LIGHTNESS_LINEAR_GET:
+        break;
+    case LIGHT_LIGHTNESS_LINEAR_SET:
+        proto_tree_add_item(sub_tree, hf_btmesh_light_lightness_linear_set_lightness, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_lightness_linear_set_tid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        /* Optional */
+        if (tvb_reported_length_remaining(tvb, offset) > 0) {
+            publishperiod_item = proto_tree_add_item(sub_tree, hf_btmesh_light_lightness_linear_set_transition_time, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            publishperiod_sub_tree = proto_item_add_subtree(publishperiod_item, ett_btmesh_config_model_publishperiod);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_light_lightness_linear_set_transition_time_steps, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_light_lightness_linear_set_transition_time_resolution, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            proto_tree_add_item(sub_tree, hf_btmesh_light_lightness_linear_set_delay, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+        }
+        break;
+    case LIGHT_LIGHTNESS_LINEAR_SET_UNACKNOWLEDGED:
+        proto_tree_add_item(sub_tree, hf_btmesh_light_lightness_linear_set_unacknowledged_lightness, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_lightness_linear_set_unacknowledged_tid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        /* Optional */
+        if (tvb_reported_length_remaining(tvb, offset) > 0) {
+            publishperiod_item = proto_tree_add_item(sub_tree, hf_btmesh_light_lightness_linear_set_unacknowledged_transition_time, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            publishperiod_sub_tree = proto_item_add_subtree(publishperiod_item, ett_btmesh_config_model_publishperiod);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_light_lightness_linear_set_unacknowledged_transition_time_steps, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_light_lightness_linear_set_unacknowledged_transition_time_resolution, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            proto_tree_add_item(sub_tree, hf_btmesh_light_lightness_linear_set_unacknowledged_delay, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+        }
+        break;
+    case LIGHT_LIGHTNESS_LINEAR_STATUS:
+        proto_tree_add_item(sub_tree, hf_btmesh_light_lightness_linear_status_present_lightness, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        /* Optional */
+        if (tvb_reported_length_remaining(tvb, offset) > 0) {
+            proto_tree_add_item(sub_tree, hf_btmesh_light_lightness_linear_status_target_lightness, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset+=2;
+            publishperiod_item = proto_tree_add_item(sub_tree, hf_btmesh_light_lightness_linear_status_remaining_time, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            publishperiod_sub_tree = proto_item_add_subtree(publishperiod_item, ett_btmesh_config_model_publishperiod);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_light_lightness_linear_status_remaining_time_steps, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_light_lightness_linear_status_remaining_time_resolution, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+        }
+        break;
+    case LIGHT_LIGHTNESS_LAST_GET:
+        break;
+    case LIGHT_LIGHTNESS_LAST_STATUS:
+        proto_tree_add_item(sub_tree, hf_btmesh_light_lightness_last_status_lightness, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        break;
+    case LIGHT_LIGHTNESS_DEFAULT_GET:
+        break;
+    case LIGHT_LIGHTNESS_DEFAULT_STATUS:
+        proto_tree_add_item(sub_tree, hf_btmesh_light_lightness_default_status_lightness, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        break;
+    case LIGHT_LIGHTNESS_RANGE_GET:
+        break;
+    case LIGHT_LIGHTNESS_RANGE_STATUS:
+        proto_tree_add_item(sub_tree, hf_btmesh_light_lightness_range_status_status_code, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_lightness_range_status_range_min, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_lightness_range_status_range_max, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        break;
+    case LIGHT_LIGHTNESS_DEFAULT_SET:
+        proto_tree_add_item(sub_tree, hf_btmesh_light_lightness_default_set_lightness, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        break;
+    case LIGHT_LIGHTNESS_DEFAULT_SET_UNACKNOWLEDGED:
+        proto_tree_add_item(sub_tree, hf_btmesh_light_lightness_default_set_unacknowledged_lightness, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        break;
+    case LIGHT_LIGHTNESS_RANGE_SET:
+        proto_tree_add_item(sub_tree, hf_btmesh_light_lightness_range_set_range_min, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_lightness_range_set_range_max, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        break;
+    case LIGHT_LIGHTNESS_RANGE_SET_UNACKNOWLEDGED:
+        proto_tree_add_item(sub_tree, hf_btmesh_light_lightness_range_set_unacknowledged_range_min, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_lightness_range_set_unacknowledged_range_max, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        break;
+    case LIGHT_CTL_GET:
+        break;
+    case LIGHT_CTL_SET:
+        proto_tree_add_item(sub_tree, hf_btmesh_light_ctl_set_ctl_lightness, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_ctl_set_ctl_temperature, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_ctl_set_ctl_delta_uv, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_ctl_set_tid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        /* Optional */
+        if (tvb_reported_length_remaining(tvb, offset) > 0) {
+            publishperiod_item = proto_tree_add_item(sub_tree, hf_btmesh_light_ctl_set_transition_time, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            publishperiod_sub_tree = proto_item_add_subtree(publishperiod_item, ett_btmesh_config_model_publishperiod);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_light_ctl_set_transition_time_steps, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_light_ctl_set_transition_time_resolution, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            proto_tree_add_item(sub_tree, hf_btmesh_light_ctl_set_delay, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+        }
+        break;
+    case LIGHT_CTL_SET_UNACKNOWLEDGED:
+        proto_tree_add_item(sub_tree, hf_btmesh_light_ctl_set_unacknowledged_ctl_lightness, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_ctl_set_unacknowledged_ctl_temperature, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_ctl_set_unacknowledged_ctl_delta_uv, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_ctl_set_unacknowledged_tid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        /* Optional */
+        if (tvb_reported_length_remaining(tvb, offset) > 0) {
+            publishperiod_item = proto_tree_add_item(sub_tree, hf_btmesh_light_ctl_set_unacknowledged_transition_time, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            publishperiod_sub_tree = proto_item_add_subtree(publishperiod_item, ett_btmesh_config_model_publishperiod);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_light_ctl_set_unacknowledged_transition_time_steps, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_light_ctl_set_unacknowledged_transition_time_resolution, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            proto_tree_add_item(sub_tree, hf_btmesh_light_ctl_set_unacknowledged_delay, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+        }
+        break;
+    case LIGHT_CTL_STATUS:
+        proto_tree_add_item(sub_tree, hf_btmesh_light_ctl_status_present_ctl_lightness, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_ctl_status_present_ctl_temperature, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        /* Optional */
+        if (tvb_reported_length_remaining(tvb, offset) > 0) {
+            proto_tree_add_item(sub_tree, hf_btmesh_light_ctl_status_target_ctl_lightness, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset+=2;
+            proto_tree_add_item(sub_tree, hf_btmesh_light_ctl_status_target_ctl_temperature, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset+=2;
+            publishperiod_item = proto_tree_add_item(sub_tree, hf_btmesh_light_ctl_status_remaining_time, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            publishperiod_sub_tree = proto_item_add_subtree(publishperiod_item, ett_btmesh_config_model_publishperiod);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_light_ctl_status_remaining_time_steps, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_light_ctl_status_remaining_time_resolution, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+        }
+        break;
+    case LIGHT_CTL_TEMPERATURE_GET:
+        break;
+    case LIGHT_CTL_TEMPERATURE_RANGE_GET:
+        break;
+    case LIGHT_CTL_TEMPERATURE_RANGE_STATUS:
+        proto_tree_add_item(sub_tree, hf_btmesh_light_ctl_temperature_range_status_status_code, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_ctl_temperature_range_status_range_min, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_ctl_temperature_range_status_range_max, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        break;
+    case LIGHT_CTL_TEMPERATURE_SET:
+        proto_tree_add_item(sub_tree, hf_btmesh_light_ctl_temperature_set_ctl_temperature, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_ctl_temperature_set_ctl_delta_uv, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_ctl_temperature_set_tid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        /* Optional */
+        if (tvb_reported_length_remaining(tvb, offset) > 0) {
+            publishperiod_item = proto_tree_add_item(sub_tree, hf_btmesh_light_ctl_temperature_set_transition_time, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            publishperiod_sub_tree = proto_item_add_subtree(publishperiod_item, ett_btmesh_config_model_publishperiod);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_light_ctl_temperature_set_transition_time_steps, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_light_ctl_temperature_set_transition_time_resolution, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            proto_tree_add_item(sub_tree, hf_btmesh_light_ctl_temperature_set_delay, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+        }
+        break;
+    case LIGHT_CTL_TEMPERATURE_SET_UNACKNOWLEDGED:
+        proto_tree_add_item(sub_tree, hf_btmesh_light_ctl_temperature_set_unacknowledged_ctl_temperature, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_ctl_temperature_set_unacknowledged_ctl_delta_uv, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_ctl_temperature_set_unacknowledged_tid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        /* Optional */
+        if (tvb_reported_length_remaining(tvb, offset) > 0) {
+            publishperiod_item = proto_tree_add_item(sub_tree, hf_btmesh_light_ctl_temperature_set_unacknowledged_transition_time, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            publishperiod_sub_tree = proto_item_add_subtree(publishperiod_item, ett_btmesh_config_model_publishperiod);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_light_ctl_temperature_set_unacknowledged_transition_time_steps, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_light_ctl_temperature_set_unacknowledged_transition_time_resolution, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            proto_tree_add_item(sub_tree, hf_btmesh_light_ctl_temperature_set_unacknowledged_delay, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+        }
+        break;
+    case LIGHT_CTL_TEMPERATURE_STATUS:
+        proto_tree_add_item(sub_tree, hf_btmesh_light_ctl_temperature_status_present_ctl_temperature, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_ctl_temperature_status_present_ctl_delta_uv, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        /* Optional */
+        if (tvb_reported_length_remaining(tvb, offset) > 0) {
+            proto_tree_add_item(sub_tree, hf_btmesh_light_ctl_temperature_status_target_ctl_temperature, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset+=2;
+            proto_tree_add_item(sub_tree, hf_btmesh_light_ctl_temperature_status_target_ctl_delta_uv, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset+=2;
+            publishperiod_item = proto_tree_add_item(sub_tree, hf_btmesh_light_ctl_temperature_status_remaining_time, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            publishperiod_sub_tree = proto_item_add_subtree(publishperiod_item, ett_btmesh_config_model_publishperiod);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_light_ctl_temperature_status_remaining_time_steps, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_light_ctl_temperature_status_remaining_time_resolution, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+        }
+        break;
+    case LIGHT_CTL_DEFAULT_GET:
+        break;
+    case LIGHT_CTL_DEFAULT_STATUS:
+        proto_tree_add_item(sub_tree, hf_btmesh_light_ctl_default_status_lightness, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_ctl_default_status_temperature, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_ctl_default_status_delta_uv, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        break;
+    case LIGHT_CTL_DEFAULT_SET:
+        proto_tree_add_item(sub_tree, hf_btmesh_light_ctl_default_set_lightness, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_ctl_default_set_temperature, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_ctl_default_set_delta_uv, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        break;
+    case LIGHT_CTL_DEFAULT_SET_UNACKNOWLEDGED:
+        proto_tree_add_item(sub_tree, hf_btmesh_light_ctl_default_set_unacknowledged_lightness, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_ctl_default_set_unacknowledged_temperature, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_ctl_default_set_unacknowledged_delta_uv, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        break;
+    case LIGHT_CTL_TEMPERATURE_RANGE_SET:
+        proto_tree_add_item(sub_tree, hf_btmesh_light_ctl_temperature_range_set_range_min, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_ctl_temperature_range_set_range_max, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        break;
+    case LIGHT_CTL_TEMPERATURE_RANGE_SET_UNACKNOWLEDGED:
+        proto_tree_add_item(sub_tree, hf_btmesh_light_ctl_temperature_range_set_unacknowledged_range_min, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_ctl_temperature_range_set_unacknowledged_range_max, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        break;
+    case LIGHT_HSL_GET:
+        break;
+    case LIGHT_HSL_HUE_GET:
+        break;
+    case LIGHT_HSL_HUE_SET:
+        proto_tree_add_item(sub_tree, hf_btmesh_light_hsl_hue_set_hue, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_hsl_hue_set_tid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        /* Optional */
+        if (tvb_reported_length_remaining(tvb, offset) > 0) {
+            publishperiod_item = proto_tree_add_item(sub_tree, hf_btmesh_light_hsl_hue_set_transition_time, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            publishperiod_sub_tree = proto_item_add_subtree(publishperiod_item, ett_btmesh_config_model_publishperiod);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_light_hsl_hue_set_transition_time_steps, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_light_hsl_hue_set_transition_time_resolution, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            proto_tree_add_item(sub_tree, hf_btmesh_light_hsl_hue_set_delay, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+        }
+        break;
+    case LIGHT_HSL_HUE_SET_UNACKNOWLEDGED:
+        proto_tree_add_item(sub_tree, hf_btmesh_light_hsl_hue_set_unacknowledged_hue, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_hsl_hue_set_unacknowledged_tid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        /* Optional */
+        if (tvb_reported_length_remaining(tvb, offset) > 0) {
+            publishperiod_item = proto_tree_add_item(sub_tree, hf_btmesh_light_hsl_hue_set_unacknowledged_transition_time, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            publishperiod_sub_tree = proto_item_add_subtree(publishperiod_item, ett_btmesh_config_model_publishperiod);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_light_hsl_hue_set_unacknowledged_transition_time_steps, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_light_hsl_hue_set_unacknowledged_transition_time_resolution, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            proto_tree_add_item(sub_tree, hf_btmesh_light_hsl_hue_set_unacknowledged_delay, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+        }
+        break;
+    case LIGHT_HSL_HUE_STATUS:
+        proto_tree_add_item(sub_tree, hf_btmesh_light_hsl_hue_status_present_hue, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        /* Optional */
+        if (tvb_reported_length_remaining(tvb, offset) > 0) {
+            proto_tree_add_item(sub_tree, hf_btmesh_light_hsl_hue_status_target_hue, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset+=2;
+            publishperiod_item = proto_tree_add_item(sub_tree, hf_btmesh_light_hsl_hue_status_remaining_time, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            publishperiod_sub_tree = proto_item_add_subtree(publishperiod_item, ett_btmesh_config_model_publishperiod);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_light_hsl_hue_status_remaining_time_steps, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_light_hsl_hue_status_remaining_time_resolution, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+        }
+        break;
+    case LIGHT_HSL_SATURATION_GET:
+        break;
+    case LIGHT_HSL_SATURATION_SET:
+        proto_tree_add_item(sub_tree, hf_btmesh_light_hsl_saturation_set_saturation, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_hsl_saturation_set_tid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        /* Optional */
+        if (tvb_reported_length_remaining(tvb, offset) > 0) {
+            publishperiod_item = proto_tree_add_item(sub_tree, hf_btmesh_light_hsl_saturation_set_transition_time, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            publishperiod_sub_tree = proto_item_add_subtree(publishperiod_item, ett_btmesh_config_model_publishperiod);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_light_hsl_saturation_set_transition_time_steps, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_light_hsl_saturation_set_transition_time_resolution, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            proto_tree_add_item(sub_tree, hf_btmesh_light_hsl_saturation_set_delay, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+        }
+        break;
+    case LIGHT_HSL_SATURATION_SET_UNACKNOWLEDGED:
+        proto_tree_add_item(sub_tree, hf_btmesh_light_hsl_saturation_set_unacknowledged_saturation, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_hsl_saturation_set_unacknowledged_tid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        /* Optional */
+        if (tvb_reported_length_remaining(tvb, offset) > 0) {
+            publishperiod_item = proto_tree_add_item(sub_tree, hf_btmesh_light_hsl_saturation_set_unacknowledged_transition_time, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            publishperiod_sub_tree = proto_item_add_subtree(publishperiod_item, ett_btmesh_config_model_publishperiod);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_light_hsl_saturation_set_unacknowledged_transition_time_steps, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_light_hsl_saturation_set_unacknowledged_transition_time_resolution, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            proto_tree_add_item(sub_tree, hf_btmesh_light_hsl_saturation_set_unacknowledged_delay, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+        }
+        break;
+    case LIGHT_HSL_SATURATION_STATUS:
+        proto_tree_add_item(sub_tree, hf_btmesh_light_hsl_saturation_status_present_saturation, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        /* Optional */
+        if (tvb_reported_length_remaining(tvb, offset) > 0) {
+            proto_tree_add_item(sub_tree, hf_btmesh_light_hsl_saturation_status_target_saturation, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset+=2;
+            publishperiod_item = proto_tree_add_item(sub_tree, hf_btmesh_light_hsl_saturation_status_remaining_time, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            publishperiod_sub_tree = proto_item_add_subtree(publishperiod_item, ett_btmesh_config_model_publishperiod);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_light_hsl_saturation_status_remaining_time_steps, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_light_hsl_saturation_status_remaining_time_resolution, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+        }
+        break;
+    case LIGHT_HSL_SET:
+        proto_tree_add_item(sub_tree, hf_btmesh_light_hsl_set_hsl_lightness, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_hsl_set_hsl_hue, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_hsl_set_hsl_saturation, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_hsl_set_tid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        /* Optional */
+        if (tvb_reported_length_remaining(tvb, offset) > 0) {
+            publishperiod_item = proto_tree_add_item(sub_tree, hf_btmesh_light_hsl_set_transition_time, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            publishperiod_sub_tree = proto_item_add_subtree(publishperiod_item, ett_btmesh_config_model_publishperiod);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_light_hsl_set_transition_time_steps, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_light_hsl_set_transition_time_resolution, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            proto_tree_add_item(sub_tree, hf_btmesh_light_hsl_set_delay, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+        }
+        break;
+    case LIGHT_HSL_SET_UNACKNOWLEDGED:
+        proto_tree_add_item(sub_tree, hf_btmesh_light_hsl_set_unacknowledged_hsl_lightness, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_hsl_set_unacknowledged_hsl_hue, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_hsl_set_unacknowledged_hsl_saturation, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_hsl_set_unacknowledged_tid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        /* Optional */
+        if (tvb_reported_length_remaining(tvb, offset) > 0) {
+            publishperiod_item = proto_tree_add_item(sub_tree, hf_btmesh_light_hsl_set_unacknowledged_transition_time, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            publishperiod_sub_tree = proto_item_add_subtree(publishperiod_item, ett_btmesh_config_model_publishperiod);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_light_hsl_set_unacknowledged_transition_time_steps, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_light_hsl_set_unacknowledged_transition_time_resolution, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            proto_tree_add_item(sub_tree, hf_btmesh_light_hsl_set_unacknowledged_delay, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+        }
+        break;
+    case LIGHT_HSL_STATUS:
+        proto_tree_add_item(sub_tree, hf_btmesh_light_hsl_status_hsl_lightness, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_hsl_status_hsl_hue, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_hsl_status_hsl_saturation, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        /* Optional */
+        if (tvb_reported_length_remaining(tvb, offset) > 0) {
+            publishperiod_item = proto_tree_add_item(sub_tree, hf_btmesh_light_hsl_status_remaining_time, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            publishperiod_sub_tree = proto_item_add_subtree(publishperiod_item, ett_btmesh_config_model_publishperiod);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_light_hsl_status_remaining_time_steps, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_light_hsl_status_remaining_time_resolution, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+        }
+        break;
+    case LIGHT_HSL_TARGET_GET:
+        break;
+    case LIGHT_HSL_TARGET_STATUS:
+        proto_tree_add_item(sub_tree, hf_btmesh_light_hsl_target_status_hsl_lightness_target, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_hsl_target_status_hsl_hue_target, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_hsl_target_status_hsl_saturation_target, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        /* Optional */
+        if (tvb_reported_length_remaining(tvb, offset) > 0) {
+            publishperiod_item = proto_tree_add_item(sub_tree, hf_btmesh_light_hsl_target_status_remaining_time, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            publishperiod_sub_tree = proto_item_add_subtree(publishperiod_item, ett_btmesh_config_model_publishperiod);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_light_hsl_target_status_remaining_time_steps, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_light_hsl_target_status_remaining_time_resolution, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+        }
+        break;
+    case LIGHT_HSL_DEFAULT_GET:
+        break;
+    case LIGHT_HSL_DEFAULT_STATUS:
+        proto_tree_add_item(sub_tree, hf_btmesh_light_hsl_default_status_lightness, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_hsl_default_status_hue, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_hsl_default_status_saturation, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        break;
+    case LIGHT_HSL_RANGE_GET:
+        break;
+    case LIGHT_HSL_RANGE_STATUS:
+        proto_tree_add_item(sub_tree, hf_btmesh_light_hsl_range_status_status_code, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_hsl_range_status_hue_range_min, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_hsl_range_status_hue_range_max, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_hsl_range_status_saturation_range_min, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_hsl_range_status_saturation_range_max, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        break;
+    case LIGHT_HSL_DEFAULT_SET:
+        proto_tree_add_item(sub_tree, hf_btmesh_light_hsl_default_set_lightness, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_hsl_default_set_hue, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_hsl_default_set_saturation, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        break;
+    case LIGHT_HSL_DEFAULT_SET_UNACKNOWLEDGED:
+        proto_tree_add_item(sub_tree, hf_btmesh_light_hsl_default_set_unacknowledged_lightness, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_hsl_default_set_unacknowledged_hue, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_hsl_default_set_unacknowledged_saturation, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        break;
+    case LIGHT_HSL_RANGE_SET:
+        proto_tree_add_item(sub_tree, hf_btmesh_light_hsl_range_set_hue_range_min, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_hsl_range_set_hue_range_max, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_hsl_range_set_saturation_range_min, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_hsl_range_set_saturation_range_max, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        break;
+    case LIGHT_HSL_RANGE_SET_UNACKNOWLEDGED:
+        proto_tree_add_item(sub_tree, hf_btmesh_light_hsl_range_set_unacknowledged_hue_range_min, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_hsl_range_set_unacknowledged_hue_range_max, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_hsl_range_set_unacknowledged_saturation_range_min, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_hsl_range_set_unacknowledged_saturation_range_max, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        break;
+    case LIGHT_XYL_GET:
+        break;
+    case LIGHT_XYL_SET:
+        proto_tree_add_item(sub_tree, hf_btmesh_light_xyl_set_xyl_lightness, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_xyl_set_xyl_x, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_xyl_set_xyl_y, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_xyl_set_tid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        /* Optional */
+        if (tvb_reported_length_remaining(tvb, offset) > 0) {
+            publishperiod_item = proto_tree_add_item(sub_tree, hf_btmesh_light_xyl_set_transition_time, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            publishperiod_sub_tree = proto_item_add_subtree(publishperiod_item, ett_btmesh_config_model_publishperiod);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_light_xyl_set_transition_time_steps, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_light_xyl_set_transition_time_resolution, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            proto_tree_add_item(sub_tree, hf_btmesh_light_xyl_set_delay, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+        }
+        break;
+    case LIGHT_XYL_SET_UNACKNOWLEDGED:
+        proto_tree_add_item(sub_tree, hf_btmesh_light_xyl_set_unacknowledged_xyl_lightness, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_xyl_set_unacknowledged_xyl_x, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_xyl_set_unacknowledged_xyl_y, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_xyl_set_unacknowledged_tid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        /* Optional */
+        if (tvb_reported_length_remaining(tvb, offset) > 0) {
+            publishperiod_item = proto_tree_add_item(sub_tree, hf_btmesh_light_xyl_set_unacknowledged_transition_time, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            publishperiod_sub_tree = proto_item_add_subtree(publishperiod_item, ett_btmesh_config_model_publishperiod);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_light_xyl_set_unacknowledged_transition_time_steps, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_light_xyl_set_unacknowledged_transition_time_resolution, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            proto_tree_add_item(sub_tree, hf_btmesh_light_xyl_set_unacknowledged_delay, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+        }
+        break;
+    case LIGHT_XYL_STATUS:
+        proto_tree_add_item(sub_tree, hf_btmesh_light_xyl_status_xyl_lightness, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_xyl_status_xyl_x, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_xyl_status_xyl_y, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        /* Optional */
+        if (tvb_reported_length_remaining(tvb, offset) > 0) {
+            publishperiod_item = proto_tree_add_item(sub_tree, hf_btmesh_light_xyl_status_remaining_time, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            publishperiod_sub_tree = proto_item_add_subtree(publishperiod_item, ett_btmesh_config_model_publishperiod);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_light_xyl_status_remaining_time_steps, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_light_xyl_status_remaining_time_resolution, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+        }
+        break;
+    case LIGHT_XYL_TARGET_GET:
+        break;
+    case LIGHT_XYL_TARGET_STATUS:
+        proto_tree_add_item(sub_tree, hf_btmesh_light_xyl_target_status_target_xyl_lightness, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_xyl_target_status_target_xyl_x, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_xyl_target_status_target_xyl_y, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        /* Optional */
+        if (tvb_reported_length_remaining(tvb, offset) > 0) {
+            publishperiod_item = proto_tree_add_item(sub_tree, hf_btmesh_light_xyl_target_status_remaining_time, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            publishperiod_sub_tree = proto_item_add_subtree(publishperiod_item, ett_btmesh_config_model_publishperiod);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_light_xyl_target_status_remaining_time_steps, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_light_xyl_target_status_remaining_time_resolution, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+        }
+        break;
+    case LIGHT_XYL_DEFAULT_GET:
+        break;
+    case LIGHT_XYL_DEFAULT_STATUS:
+        proto_tree_add_item(sub_tree, hf_btmesh_light_xyl_default_status_lightness, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_xyl_default_status_xyl_x, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_xyl_default_status_xyl_y, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        break;
+    case LIGHT_XYL_RANGE_GET:
+        break;
+    case LIGHT_XYL_RANGE_STATUS:
+        proto_tree_add_item(sub_tree, hf_btmesh_light_xyl_range_status_status_code, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_xyl_range_status_xyl_x_range_min, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_xyl_range_status_xyl_x_range_max, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_xyl_range_status_xyl_y_range_min, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_xyl_range_status_xyl_y_range_max, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        break;
+    case LIGHT_XYL_DEFAULT_SET:
+        proto_tree_add_item(sub_tree, hf_btmesh_light_xyl_default_set_lightness, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_xyl_default_set_xyl_x, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_xyl_default_set_xyl_y, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        break;
+    case LIGHT_XYL_DEFAULT_SET_UNACKNOWLEDGED:
+        proto_tree_add_item(sub_tree, hf_btmesh_light_xyl_default_set_unacknowledged_lightness, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_xyl_default_set_unacknowledged_xyl_x, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_xyl_default_set_unacknowledged_xyl_y, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        break;
+    case LIGHT_XYL_RANGE_SET:
+        proto_tree_add_item(sub_tree, hf_btmesh_light_xyl_range_set_xyl_x_range_min, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_xyl_range_set_xyl_x_range_max, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_xyl_range_set_xyl_y_range_min, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_xyl_range_set_xyl_y_range_max, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        break;
+    case LIGHT_XYL_RANGE_SET_UNACKNOWLEDGED:
+        proto_tree_add_item(sub_tree, hf_btmesh_light_xyl_range_set_unacknowledged_xyl_x_range_min, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_xyl_range_set_unacknowledged_xyl_x_range_max, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_xyl_range_set_unacknowledged_xyl_y_range_min, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_xyl_range_set_unacknowledged_xyl_y_range_max, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        break;
+    case LIGHT_LC_MODE_GET:
+        break;
+    case LIGHT_LC_MODE_SET:
+        proto_tree_add_item(sub_tree, hf_btmesh_light_lc_mode_set_mode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        break;
+    case LIGHT_LC_MODE_SET_UNACKNOWLEDGED:
+        proto_tree_add_item(sub_tree, hf_btmesh_light_lc_mode_set_unacknowledged_mode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        break;
+    case LIGHT_LC_MODE_STATUS:
+        proto_tree_add_item(sub_tree, hf_btmesh_light_lc_mode_status_mode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        break;
+    case LIGHT_LC_OM_GET:
+        break;
+    case LIGHT_LC_OM_SET:
+        proto_tree_add_item(sub_tree, hf_btmesh_light_lc_om_set_mode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        break;
+    case LIGHT_LC_OM_SET_UNACKNOWLEDGED:
+        proto_tree_add_item(sub_tree, hf_btmesh_light_lc_om_set_unacknowledged_mode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        break;
+    case LIGHT_LC_OM_STATUS:
+        proto_tree_add_item(sub_tree, hf_btmesh_light_lc_om_status_mode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        break;
+    case LIGHT_LC_LIGHT_ONOFF_GET:
+        break;
+    case LIGHT_LC_LIGHT_ONOFF_SET:
+        proto_tree_add_item(sub_tree, hf_btmesh_light_lc_light_onoff_set_light_onoff, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_lc_light_onoff_set_tid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        /* Optional */
+        if (tvb_reported_length_remaining(tvb, offset) > 0) {
+            publishperiod_item = proto_tree_add_item(sub_tree, hf_btmesh_light_lc_light_onoff_set_transition_time, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            publishperiod_sub_tree = proto_item_add_subtree(publishperiod_item, ett_btmesh_config_model_publishperiod);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_light_lc_light_onoff_set_transition_time_steps, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_light_lc_light_onoff_set_transition_time_resolution, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            proto_tree_add_item(sub_tree, hf_btmesh_light_lc_light_onoff_set_delay, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+        }
+        break;
+    case LIGHT_LC_LIGHT_ONOFF_SET_UNACKNOWLEDGED:
+        proto_tree_add_item(sub_tree, hf_btmesh_light_lc_light_onoff_set_unacknowledged_light_onoff, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        proto_tree_add_item(sub_tree, hf_btmesh_light_lc_light_onoff_set_unacknowledged_tid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        /* Optional */
+        if (tvb_reported_length_remaining(tvb, offset) > 0) {
+            publishperiod_item = proto_tree_add_item(sub_tree, hf_btmesh_light_lc_light_onoff_set_unacknowledged_transition_time, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            publishperiod_sub_tree = proto_item_add_subtree(publishperiod_item, ett_btmesh_config_model_publishperiod);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_light_lc_light_onoff_set_unacknowledged_transition_time_steps, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_light_lc_light_onoff_set_unacknowledged_transition_time_resolution, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            proto_tree_add_item(sub_tree, hf_btmesh_light_lc_light_onoff_set_unacknowledged_delay, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+        }
+        break;
+    case LIGHT_LC_LIGHT_ONOFF_STATUS:
+        proto_tree_add_item(sub_tree, hf_btmesh_light_lc_light_onoff_status_present_light_onoff, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        /* Optional */
+        if (tvb_reported_length_remaining(tvb, offset) > 0) {
+            proto_tree_add_item(sub_tree, hf_btmesh_light_lc_light_onoff_status_target_light_onoff, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            publishperiod_item = proto_tree_add_item(sub_tree, hf_btmesh_light_lc_light_onoff_status_remaining_time, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            publishperiod_sub_tree = proto_item_add_subtree(publishperiod_item, ett_btmesh_config_model_publishperiod);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_light_lc_light_onoff_status_remaining_time_steps, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_light_lc_light_onoff_status_remaining_time_resolution, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+        }
+        break;
+    case LIGHT_LC_PROPERTY_GET:
+        proto_tree_add_item(sub_tree, hf_btmesh_light_lc_property_get_light_lc_property_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         offset+=2;
         break;
 //
@@ -7188,7 +9261,7 @@ proto_register_btmesh(void)
         },
         { &hf_btmesh_generic_onoff_set_onoff,
             { "OnOff", "btmesh.model.generic_onoff_set.onoff",
-            FT_UINT8, BASE_DEC , VALS(btmesh_on_off_vals), 0x0,
+            FT_UINT8, BASE_DEC, VALS(btmesh_on_off_vals), 0x0,
             NULL, HFILL }
         },
         { &hf_btmesh_generic_onoff_set_tid,
@@ -7218,7 +9291,7 @@ proto_register_btmesh(void)
         },
         { &hf_btmesh_generic_onoff_set_unacknowledged_onoff,
             { "OnOff", "btmesh.model.generic_onoff_set_unacknowledged.onoff",
-            FT_UINT8, BASE_DEC , VALS(btmesh_on_off_vals), 0x0,
+            FT_UINT8, BASE_DEC, VALS(btmesh_on_off_vals), 0x0,
             NULL, HFILL }
         },
         { &hf_btmesh_generic_onoff_set_unacknowledged_tid,
@@ -7248,12 +9321,12 @@ proto_register_btmesh(void)
         },
         { &hf_btmesh_generic_onoff_status_present_onoff,
             { "Present OnOff", "btmesh.model.generic_onoff_status.present_onoff",
-            FT_UINT8, BASE_DEC , VALS(btmesh_on_off_vals), 0x0,
+            FT_UINT8, BASE_DEC, VALS(btmesh_on_off_vals), 0x0,
             NULL, HFILL }
         },
         { &hf_btmesh_generic_onoff_status_target_onoff,
             { "Target OnOff", "btmesh.model.generic_onoff_status.target_onoff",
-            FT_UINT8, BASE_DEC , VALS(btmesh_on_off_vals), 0x0,
+            FT_UINT8, BASE_DEC, VALS(btmesh_on_off_vals), 0x0,
             NULL, HFILL }
         },
         { &hf_btmesh_generic_onoff_status_remaining_time,
@@ -7523,17 +9596,17 @@ proto_register_btmesh(void)
         },
         { &hf_btmesh_generic_onpowerup_status_onpowerup,
             { "OnPowerUp", "btmesh.model.generic_onpowerup_status.onpowerup",
-            FT_UINT8, BASE_DEC , VALS(btmesh_generic_onpowerup_vals), 0x0,
+            FT_UINT8, BASE_DEC, VALS(btmesh_generic_onpowerup_vals), 0x0,
             NULL, HFILL }
         },
         { &hf_btmesh_generic_onpowerup_set_onpowerup,
             { "OnPowerUp", "btmesh.model.generic_onpowerup_set.onpowerup",
-            FT_UINT8, BASE_DEC , VALS(btmesh_generic_onpowerup_vals), 0x0,
+            FT_UINT8, BASE_DEC, VALS(btmesh_generic_onpowerup_vals), 0x0,
             NULL, HFILL }
         },
         { &hf_btmesh_generic_onpowerup_set_unacknowledged_onpowerup,
             { "OnPowerUp", "btmesh.model.generic_onpowerup_set_unacknowledged.onpowerup",
-            FT_UINT8, BASE_DEC , VALS(btmesh_generic_onpowerup_vals), 0x0,
+            FT_UINT8, BASE_DEC, VALS(btmesh_generic_onpowerup_vals), 0x0,
             NULL, HFILL }
         },
         { &hf_btmesh_generic_power_level_set_power,
@@ -8469,6 +10542,1391 @@ proto_register_btmesh(void)
         { &hf_btmesh_scheduler_status_schedules_schedule_15,
             { "Schedule 15", "btmesh.model.scheduler_status.schedules.schedule_15",
             FT_UINT16, BASE_NONE, VALS(btmesh_defined_or_dash_vals), 0x8000,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_lc_property_set_light_lc_property_id,
+            { "Light LC Property ID", "btmesh.model.light_lc_property_set.light_lc_property_id",
+            FT_UINT16, BASE_DEC, VALS(btmesh_properties_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_lc_property_set_light_lc_property_value,
+            { "Light LC Property Value", "btmesh.model.light_lc_property_set.light_lc_property_value",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_lc_property_set_unacknowledged_light_lc_property_id,
+            { "Light LC Property ID", "btmesh.model.light_lc_property_set_unacknowledged.light_lc_property_id",
+            FT_UINT16, BASE_DEC, VALS(btmesh_properties_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_lc_property_set_unacknowledged_light_lc_property_value,
+            { "Light LC Property Value", "btmesh.model.light_lc_property_set_unacknowledged.light_lc_property_value",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_lc_property_status_light_lc_property_id,
+            { "Light LC Property ID", "btmesh.model.light_lc_property_status.light_lc_property_id",
+            FT_UINT16, BASE_DEC, VALS(btmesh_properties_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_lc_property_status_light_lc_property_value,
+            { "Light LC Property Value", "btmesh.model.light_lc_property_status.light_lc_property_value",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_lightness_set_lightness,
+            { "Lightness", "btmesh.model.light_lightness_set.lightness",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_lightness_set_tid,
+            { "TID", "btmesh.model.light_lightness_set.tid",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_lightness_set_transition_time,
+            { "Transition Time", "btmesh.model.light_lightness_set.transition_time",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_publish_period), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_lightness_set_transition_time_resolution,
+            { "Step Resolution", "btmesh.model.light_lightness_set.transition_time.resolution",
+            FT_UINT8, BASE_DEC, VALS(btmesh_publishperiod_resolution_vals), 0xC0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_lightness_set_transition_time_steps,
+            { "Number of Steps", "btmesh.model.light_lightness_set.transition_time.steps",
+            FT_UINT8, BASE_DEC, NULL, 0x3F,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_lightness_set_delay,
+            { "Delay", "btmesh.model.light_lightness_set.delay",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_delay_ms), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_lightness_set_unacknowledged_lightness,
+            { "Lightness", "btmesh.model.light_lightness_set_unacknowledged.lightness",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_lightness_set_unacknowledged_tid,
+            { "TID", "btmesh.model.light_lightness_set_unacknowledged.tid",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_lightness_set_unacknowledged_transition_time,
+            { "Transition Time", "btmesh.model.light_lightness_set_unacknowledged.transition_time",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_publish_period), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_lightness_set_unacknowledged_transition_time_resolution,
+            { "Step Resolution", "btmesh.model.light_lightness_set_unacknowledged.transition_time.resolution",
+            FT_UINT8, BASE_DEC, VALS(btmesh_publishperiod_resolution_vals), 0xC0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_lightness_set_unacknowledged_transition_time_steps,
+            { "Number of Steps", "btmesh.model.light_lightness_set_unacknowledged.transition_time.steps",
+            FT_UINT8, BASE_DEC, NULL, 0x3F,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_lightness_set_unacknowledged_delay,
+            { "Delay", "btmesh.model.light_lightness_set_unacknowledged.delay",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_delay_ms), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_lightness_status_present_lightness,
+            { "Present Lightness", "btmesh.model.light_lightness_status.present_lightness",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_lightness_status_target_lightness,
+            { "Target Lightness", "btmesh.model.light_lightness_status.target_lightness",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_lightness_status_remaining_time,
+            { "Remaining Time", "btmesh.model.light_lightness_status.remaining_time",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_publish_period), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_lightness_status_remaining_time_resolution,
+            { "Step Resolution", "btmesh.model.light_lightness_status.remaining_time.resolution",
+            FT_UINT8, BASE_DEC, VALS(btmesh_publishperiod_resolution_vals), 0xC0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_lightness_status_remaining_time_steps,
+            { "Number of Steps", "btmesh.model.light_lightness_status.remaining_time.steps",
+            FT_UINT8, BASE_DEC, NULL, 0x3F,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_lightness_linear_set_lightness,
+            { "Lightness", "btmesh.model.light_lightness_linear_set.lightness",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_lightness_linear_set_tid,
+            { "TID", "btmesh.model.light_lightness_linear_set.tid",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_lightness_linear_set_transition_time,
+            { "Transition Time", "btmesh.model.light_lightness_linear_set.transition_time",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_publish_period), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_lightness_linear_set_transition_time_resolution,
+            { "Step Resolution", "btmesh.model.light_lightness_linear_set.transition_time.resolution",
+            FT_UINT8, BASE_DEC, VALS(btmesh_publishperiod_resolution_vals), 0xC0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_lightness_linear_set_transition_time_steps,
+            { "Number of Steps", "btmesh.model.light_lightness_linear_set.transition_time.steps",
+            FT_UINT8, BASE_DEC, NULL, 0x3F,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_lightness_linear_set_delay,
+            { "Delay", "btmesh.model.light_lightness_linear_set.delay",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_delay_ms), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_lightness_linear_set_unacknowledged_lightness,
+            { "Lightness", "btmesh.model.light_lightness_linear_set_unacknowledged.lightness",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_lightness_linear_set_unacknowledged_tid,
+            { "TID", "btmesh.model.light_lightness_linear_set_unacknowledged.tid",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_lightness_linear_set_unacknowledged_transition_time,
+            { "Transition Time", "btmesh.model.light_lightness_linear_set_unacknowledged.transition_time",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_publish_period), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_lightness_linear_set_unacknowledged_transition_time_resolution,
+            { "Step Resolution", "btmesh.model.light_lightness_linear_set_unacknowledged.transition_time.resolution",
+            FT_UINT8, BASE_DEC, VALS(btmesh_publishperiod_resolution_vals), 0xC0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_lightness_linear_set_unacknowledged_transition_time_steps,
+            { "Number of Steps", "btmesh.model.light_lightness_linear_set_unacknowledged.transition_time.steps",
+            FT_UINT8, BASE_DEC, NULL, 0x3F,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_lightness_linear_set_unacknowledged_delay,
+            { "Delay", "btmesh.model.light_lightness_linear_set_unacknowledged.delay",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_delay_ms), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_lightness_linear_status_present_lightness,
+            { "Present Lightness", "btmesh.model.light_lightness_linear_status.present_lightness",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_lightness_linear_status_target_lightness,
+            { "Target Lightness", "btmesh.model.light_lightness_linear_status.target_lightness",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_lightness_linear_status_remaining_time,
+            { "Remaining Time", "btmesh.model.light_lightness_linear_status.remaining_time",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_publish_period), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_lightness_linear_status_remaining_time_resolution,
+            { "Step Resolution", "btmesh.model.light_lightness_linear_status.remaining_time.resolution",
+            FT_UINT8, BASE_DEC, VALS(btmesh_publishperiod_resolution_vals), 0xC0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_lightness_linear_status_remaining_time_steps,
+            { "Number of Steps", "btmesh.model.light_lightness_linear_status.remaining_time.steps",
+            FT_UINT8, BASE_DEC, NULL, 0x3F,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_lightness_last_status_lightness,
+            { "Lightness", "btmesh.model.light_lightness_last_status.lightness",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_light_lightness_prohibited), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_lightness_default_status_lightness,
+            { "Lightness", "btmesh.model.light_lightness_default_status.lightness",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_light_lightness_default), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_lightness_range_status_status_code,
+            { "Status Code", "btmesh.model.light_lightness_range_status.status_code",
+            FT_UINT8, BASE_DEC, VALS(btmesh_generic_status_code_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_lightness_range_status_range_min,
+            { "Range Min", "btmesh.model.light_lightness_range_status.range_min",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_light_lightness_prohibited), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_lightness_range_status_range_max,
+            { "Range Max", "btmesh.model.light_lightness_range_status.range_max",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_light_lightness_prohibited), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_lightness_default_set_lightness,
+            { "Lightness", "btmesh.model.light_lightness_default_set.lightness",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_light_lightness_default), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_lightness_default_set_unacknowledged_lightness,
+            { "Lightness", "btmesh.model.light_lightness_default_set_unacknowledged.lightness",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_light_lightness_default), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_lightness_range_set_range_min,
+            { "Range Min", "btmesh.model.light_lightness_range_set.range_min",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_light_lightness_prohibited), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_lightness_range_set_range_max,
+            { "Range Max", "btmesh.model.light_lightness_range_set.range_max",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_light_lightness_prohibited), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_lightness_range_set_unacknowledged_range_min,
+            { "Range Min", "btmesh.model.light_lightness_range_set_unacknowledged.range_min",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_light_lightness_prohibited), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_lightness_range_set_unacknowledged_range_max,
+            { "Range Max", "btmesh.model.light_lightness_range_set_unacknowledged.range_max",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_light_lightness_prohibited), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_ctl_set_ctl_lightness,
+            { "CTL Lightness", "btmesh.model.light_ctl_set.ctl_lightness",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_ctl_set_ctl_temperature,
+            { "CTL Temperature", "btmesh.model.light_ctl_set.ctl_temperature",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_temperature_kelvin), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_ctl_set_ctl_delta_uv,
+            { "CTL Delta UV", "btmesh.model.light_ctl_set.ctl_delta_uv",
+            FT_INT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_ctl_set_tid,
+            { "TID", "btmesh.model.light_ctl_set.tid",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_ctl_set_transition_time,
+            { "Transition Time", "btmesh.model.light_ctl_set.transition_time",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_publish_period), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_ctl_set_transition_time_resolution,
+            { "Step Resolution", "btmesh.model.light_ctl_set.transition_time.resolution",
+            FT_UINT8, BASE_DEC, VALS(btmesh_publishperiod_resolution_vals), 0xC0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_ctl_set_transition_time_steps,
+            { "Number of Steps", "btmesh.model.light_ctl_set.transition_time.steps",
+            FT_UINT8, BASE_DEC, NULL, 0x3F,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_ctl_set_delay,
+            { "Delay", "btmesh.model.light_ctl_set.delay",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_delay_ms), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_ctl_set_unacknowledged_ctl_lightness,
+            { "CTL Lightness", "btmesh.model.light_ctl_set_unacknowledged.ctl_lightness",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_ctl_set_unacknowledged_ctl_temperature,
+            { "CTL Temperature", "btmesh.model.light_ctl_set_unacknowledged.ctl_temperature",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_temperature_kelvin), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_ctl_set_unacknowledged_ctl_delta_uv,
+            { "CTL Delta UV", "btmesh.model.light_ctl_set_unacknowledged.ctl_delta_uv",
+            FT_INT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_ctl_set_unacknowledged_tid,
+            { "TID", "btmesh.model.light_ctl_set_unacknowledged.tid",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_ctl_set_unacknowledged_transition_time,
+            { "Transition Time", "btmesh.model.light_ctl_set_unacknowledged.transition_time",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_publish_period), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_ctl_set_unacknowledged_transition_time_resolution,
+            { "Step Resolution", "btmesh.model.light_ctl_set_unacknowledged.transition_time.resolution",
+            FT_UINT8, BASE_DEC, VALS(btmesh_publishperiod_resolution_vals), 0xC0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_ctl_set_unacknowledged_transition_time_steps,
+            { "Number of Steps", "btmesh.model.light_ctl_set_unacknowledged.transition_time.steps",
+            FT_UINT8, BASE_DEC, NULL, 0x3F,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_ctl_set_unacknowledged_delay,
+            { "Delay", "btmesh.model.light_ctl_set_unacknowledged.delay",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_delay_ms), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_ctl_status_present_ctl_lightness,
+            { "Present CTL Lightness", "btmesh.model.light_ctl_status.present_ctl_lightness",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_ctl_status_present_ctl_temperature,
+            { "Present CTL Temperature", "btmesh.model.light_ctl_status.present_ctl_temperature",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_temperature_kelvin), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_ctl_status_target_ctl_lightness,
+            { "Target CTL Lightness", "btmesh.model.light_ctl_status.target_ctl_lightness",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_ctl_status_target_ctl_temperature,
+            { "Target CTL Temperature", "btmesh.model.light_ctl_status.target_ctl_temperature",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_temperature_kelvin), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_ctl_status_remaining_time,
+            { "Remaining Time", "btmesh.model.light_ctl_status.remaining_time",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_publish_period), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_ctl_status_remaining_time_resolution,
+            { "Step Resolution", "btmesh.model.light_ctl_status.remaining_time.resolution",
+            FT_UINT8, BASE_DEC, VALS(btmesh_publishperiod_resolution_vals), 0xC0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_ctl_status_remaining_time_steps,
+            { "Number of Steps", "btmesh.model.light_ctl_status.remaining_time.steps",
+            FT_UINT8, BASE_DEC, NULL, 0x3F,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_ctl_temperature_range_status_status_code,
+            { "Status Code", "btmesh.model.light_ctl_temperature_range_status.status_code",
+            FT_UINT8, BASE_DEC, VALS(btmesh_generic_status_code_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_ctl_temperature_range_status_range_min,
+            { "Range Min", "btmesh.model.light_ctl_temperature_range_status.range_min",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_temperature_kelvin_unknown), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_ctl_temperature_range_status_range_max,
+            { "Range Max", "btmesh.model.light_ctl_temperature_range_status.range_max",
+            FT_UINT16,BASE_CUSTOM, CF_FUNC(format_temperature_kelvin_unknown), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_ctl_temperature_set_ctl_temperature,
+            { "CTL Temperature", "btmesh.model.light_ctl_temperature_set.ctl_temperature",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_temperature_kelvin), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_ctl_temperature_set_ctl_delta_uv,
+            { "CTL Delta UV", "btmesh.model.light_ctl_temperature_set.ctl_delta_uv",
+            FT_INT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_ctl_temperature_set_tid,
+            { "TID", "btmesh.model.light_ctl_temperature_set.tid",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_ctl_temperature_set_transition_time,
+            { "Transition Time", "btmesh.model.light_ctl_temperature_set.transition_time",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_publish_period), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_ctl_temperature_set_transition_time_resolution,
+            { "Step Resolution", "btmesh.model.light_ctl_temperature_set.transition_time.resolution",
+            FT_UINT8, BASE_DEC, VALS(btmesh_publishperiod_resolution_vals), 0xC0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_ctl_temperature_set_transition_time_steps,
+            { "Number of Steps", "btmesh.model.light_ctl_temperature_set.transition_time.steps",
+            FT_UINT8, BASE_DEC, NULL, 0x3F,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_ctl_temperature_set_delay,
+            { "Delay", "btmesh.model.light_ctl_temperature_set.delay",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_delay_ms), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_ctl_temperature_set_unacknowledged_ctl_temperature,
+            { "CTL Temperature", "btmesh.model.light_ctl_temperature_set_unacknowledged.ctl_temperature",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_temperature_kelvin), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_ctl_temperature_set_unacknowledged_ctl_delta_uv,
+            { "CTL Delta UV", "btmesh.model.light_ctl_temperature_set_unacknowledged.ctl_delta_uv",
+            FT_INT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_ctl_temperature_set_unacknowledged_tid,
+            { "TID", "btmesh.model.light_ctl_temperature_set_unacknowledged.tid",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_ctl_temperature_set_unacknowledged_transition_time,
+            { "Transition Time", "btmesh.model.light_ctl_temperature_set_unacknowledged.transition_time",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_publish_period), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_ctl_temperature_set_unacknowledged_transition_time_resolution,
+            { "Step Resolution", "btmesh.model.light_ctl_temperature_set_unacknowledged.transition_time.resolution",
+            FT_UINT8, BASE_DEC, VALS(btmesh_publishperiod_resolution_vals), 0xC0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_ctl_temperature_set_unacknowledged_transition_time_steps,
+            { "Number of Steps", "btmesh.model.light_ctl_temperature_set_unacknowledged.transition_time.steps",
+            FT_UINT8, BASE_DEC, NULL, 0x3F,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_ctl_temperature_set_unacknowledged_delay,
+            { "Delay", "btmesh.model.light_ctl_temperature_set_unacknowledged.delay",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_delay_ms), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_ctl_temperature_status_present_ctl_temperature,
+            { "Present CTL Temperature", "btmesh.model.light_ctl_temperature_status.present_ctl_temperature",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_temperature_kelvin), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_ctl_temperature_status_present_ctl_delta_uv,
+            { "Present CTL Delta UV", "btmesh.model.light_ctl_temperature_status.present_ctl_delta_uv",
+            FT_INT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_ctl_temperature_status_target_ctl_temperature,
+            { "Target CTL Temperature", "btmesh.model.light_ctl_temperature_status.target_ctl_temperature",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_temperature_kelvin), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_ctl_temperature_status_target_ctl_delta_uv,
+            { "Target CTL Delta UV", "btmesh.model.light_ctl_temperature_status.target_ctl_delta_uv",
+            FT_INT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_ctl_temperature_status_remaining_time,
+            { "Remaining Time", "btmesh.model.light_ctl_temperature_status.remaining_time",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_publish_period), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_ctl_temperature_status_remaining_time_resolution,
+            { "Step Resolution", "btmesh.model.light_ctl_temperature_status.remaining_time.resolution",
+            FT_UINT8, BASE_DEC, VALS(btmesh_publishperiod_resolution_vals), 0xC0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_ctl_temperature_status_remaining_time_steps,
+            { "Number of Steps", "btmesh.model.light_ctl_temperature_status.remaining_time.steps",
+            FT_UINT8, BASE_DEC, NULL, 0x3F,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_ctl_default_status_lightness,
+            { "Lightness", "btmesh.model.light_ctl_default_status.lightness",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_ctl_default_status_temperature,
+            { "Temperature", "btmesh.model.light_ctl_default_status.temperature",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_temperature_kelvin), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_ctl_default_status_delta_uv,
+            { "Delta UV", "btmesh.model.light_ctl_default_status.delta_uv",
+            FT_INT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_ctl_default_set_lightness,
+            { "Lightness", "btmesh.model.light_ctl_default_set.lightness",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_ctl_default_set_temperature,
+            { "Temperature", "btmesh.model.light_ctl_default_set.temperature",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_temperature_kelvin), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_ctl_default_set_delta_uv,
+            { "Delta UV", "btmesh.model.light_ctl_default_set.delta_uv",
+            FT_INT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_ctl_default_set_unacknowledged_lightness,
+            { "Lightness", "btmesh.model.light_ctl_default_set_unacknowledged.lightness",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_ctl_default_set_unacknowledged_temperature,
+            { "Temperature", "btmesh.model.light_ctl_default_set_unacknowledged.temperature",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_temperature_kelvin), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_ctl_default_set_unacknowledged_delta_uv,
+            { "Delta UV", "btmesh.model.light_ctl_default_set_unacknowledged.delta_uv",
+            FT_INT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_ctl_temperature_range_set_range_min,
+            { "Range Min", "btmesh.model.light_ctl_temperature_range_set.range_min",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_temperature_kelvin_unknown), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_ctl_temperature_range_set_range_max,
+            { "Range Max", "btmesh.model.light_ctl_temperature_range_set.range_max",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_temperature_kelvin_unknown), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_ctl_temperature_range_set_unacknowledged_range_min,
+            { "Range Min", "btmesh.model.light_ctl_temperature_range_set_unacknowledged.range_min",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_temperature_kelvin_unknown), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_ctl_temperature_range_set_unacknowledged_range_max,
+            { "Range Max", "btmesh.model.light_ctl_temperature_range_set_unacknowledged.range_max",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_temperature_kelvin_unknown), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_hue_set_hue,
+            { "Hue", "btmesh.model.light_hsl_hue_set.hue",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_hsl_hue), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_hue_set_tid,
+            { "TID", "btmesh.model.light_hsl_hue_set.tid",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_hue_set_transition_time,
+            { "Transition Time", "btmesh.model.light_hsl_hue_set.transition_time",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_publish_period), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_hue_set_transition_time_resolution,
+            { "Step Resolution", "btmesh.model.light_hsl_hue_set.transition_time.resolution",
+            FT_UINT8, BASE_DEC, VALS(btmesh_publishperiod_resolution_vals), 0xC0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_hue_set_transition_time_steps,
+            { "Number of Steps", "btmesh.model.light_hsl_hue_set.transition_time.steps",
+            FT_UINT8, BASE_DEC, NULL, 0x3F,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_hue_set_delay,
+            { "Delay", "btmesh.model.light_hsl_hue_set.delay",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_delay_ms), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_hue_set_unacknowledged_hue,
+            { "Hue", "btmesh.model.light_hsl_hue_set_unacknowledged.hue",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_hsl_hue), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_hue_set_unacknowledged_tid,
+            { "TID", "btmesh.model.light_hsl_hue_set_unacknowledged.tid",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_hue_set_unacknowledged_transition_time,
+            { "Transition Time", "btmesh.model.light_hsl_hue_set_unacknowledged.transition_time",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_publish_period), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_hue_set_unacknowledged_transition_time_resolution,
+            { "Step Resolution", "btmesh.model.light_hsl_hue_set_unacknowledged.transition_time.resolution",
+            FT_UINT8, BASE_DEC, VALS(btmesh_publishperiod_resolution_vals), 0xC0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_hue_set_unacknowledged_transition_time_steps,
+            { "Number of Steps", "btmesh.model.light_hsl_hue_set_unacknowledged.transition_time.steps",
+            FT_UINT8, BASE_DEC, NULL, 0x3F,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_hue_set_unacknowledged_delay,
+            { "Delay", "btmesh.model.light_hsl_hue_set_unacknowledged.delay",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_delay_ms), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_hue_status_present_hue,
+            { "Present Hue", "btmesh.model.light_hsl_hue_status.present_hue",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_hsl_hue), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_hue_status_target_hue,
+            { "Target Hue", "btmesh.model.light_hsl_hue_status.target_hue",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_hsl_hue), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_hue_status_remaining_time,
+            { "Remaining Time", "btmesh.model.light_hsl_hue_status.remaining_time",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_publish_period), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_hue_status_remaining_time_resolution,
+            { "Step Resolution", "btmesh.model.light_hsl_hue_status.remaining_time.resolution",
+            FT_UINT8, BASE_DEC, VALS(btmesh_publishperiod_resolution_vals), 0xC0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_hue_status_remaining_time_steps,
+            { "Number of Steps", "btmesh.model.light_hsl_hue_status.remaining_time.steps",
+            FT_UINT8, BASE_DEC, NULL, 0x3F,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_saturation_set_saturation,
+            { "Saturation", "btmesh.model.light_hsl_saturation_set.saturation",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_saturation_set_tid,
+            { "TID", "btmesh.model.light_hsl_saturation_set.tid",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_saturation_set_transition_time,
+            { "Transition Time", "btmesh.model.light_hsl_saturation_set.transition_time",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_publish_period), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_saturation_set_transition_time_resolution,
+            { "Step Resolution", "btmesh.model.light_hsl_saturation_set.transition_time.resolution",
+            FT_UINT8, BASE_DEC, VALS(btmesh_publishperiod_resolution_vals), 0xC0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_saturation_set_transition_time_steps,
+            { "Number of Steps", "btmesh.model.light_hsl_saturation_set.transition_time.steps",
+            FT_UINT8, BASE_DEC, NULL, 0x3F,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_saturation_set_delay,
+            { "Delay", "btmesh.model.light_hsl_saturation_set.delay",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_delay_ms), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_saturation_set_unacknowledged_saturation,
+            { "Saturation", "btmesh.model.light_hsl_saturation_set_unacknowledged.saturation",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_saturation_set_unacknowledged_tid,
+            { "TID", "btmesh.model.light_hsl_saturation_set_unacknowledged.tid",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_saturation_set_unacknowledged_transition_time,
+            { "Transition Time", "btmesh.model.light_hsl_saturation_set_unacknowledged.transition_time",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_publish_period), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_saturation_set_unacknowledged_transition_time_resolution,
+            { "Step Resolution", "btmesh.model.light_hsl_saturation_set_unacknowledged.transition_time.resolution",
+            FT_UINT8, BASE_DEC, VALS(btmesh_publishperiod_resolution_vals), 0xC0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_saturation_set_unacknowledged_transition_time_steps,
+            { "Number of Steps", "btmesh.model.light_hsl_saturation_set_unacknowledged.transition_time.steps",
+            FT_UINT8, BASE_DEC, NULL, 0x3F,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_saturation_set_unacknowledged_delay,
+            { "Delay", "btmesh.model.light_hsl_saturation_set_unacknowledged.delay",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_delay_ms), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_saturation_status_present_saturation,
+            { "Present Saturation", "btmesh.model.light_hsl_saturation_status.present_saturation",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_saturation_status_target_saturation,
+            { "Target Saturation", "btmesh.model.light_hsl_saturation_status.target_saturation",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_saturation_status_remaining_time,
+            { "Remaining Time", "btmesh.model.light_hsl_saturation_status.remaining_time",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_publish_period), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_saturation_status_remaining_time_resolution,
+            { "Step Resolution", "btmesh.model.light_hsl_saturation_status.remaining_time.resolution",
+            FT_UINT8, BASE_DEC, VALS(btmesh_publishperiod_resolution_vals), 0xC0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_saturation_status_remaining_time_steps,
+            { "Number of Steps", "btmesh.model.light_hsl_saturation_status.remaining_time.steps",
+            FT_UINT8, BASE_DEC, NULL, 0x3F,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_set_hsl_lightness,
+            { "HSL Lightness", "btmesh.model.light_hsl_set.hsl_lightness",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_set_hsl_hue,
+            { "HSL Hue", "btmesh.model.light_hsl_set.hsl_hue",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_hsl_hue), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_set_hsl_saturation,
+            { "HSL Saturation", "btmesh.model.light_hsl_set.hsl_saturation",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_set_tid,
+            { "TID", "btmesh.model.light_hsl_set.tid",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_set_transition_time,
+            { "Transition Time", "btmesh.model.light_hsl_set.transition_time",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_publish_period), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_set_transition_time_resolution,
+            { "Step Resolution", "btmesh.model.light_hsl_set.transition_time.resolution",
+            FT_UINT8, BASE_DEC, VALS(btmesh_publishperiod_resolution_vals), 0xC0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_set_transition_time_steps,
+            { "Number of Steps", "btmesh.model.light_hsl_set.transition_time.steps",
+            FT_UINT8, BASE_DEC, NULL, 0x3F,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_set_delay,
+            { "Delay", "btmesh.model.light_hsl_set.delay",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_delay_ms), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_set_unacknowledged_hsl_lightness,
+            { "HSL Lightness", "btmesh.model.light_hsl_set_unacknowledged.hsl_lightness",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_set_unacknowledged_hsl_hue,
+            { "HSL Hue", "btmesh.model.light_hsl_set_unacknowledged.hsl_hue",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_hsl_hue), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_set_unacknowledged_hsl_saturation,
+            { "HSL Saturation", "btmesh.model.light_hsl_set_unacknowledged.hsl_saturation",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_set_unacknowledged_tid,
+            { "TID", "btmesh.model.light_hsl_set_unacknowledged.tid",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_set_unacknowledged_transition_time,
+            { "Transition Time", "btmesh.model.light_hsl_set_unacknowledged.transition_time",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_publish_period), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_set_unacknowledged_transition_time_resolution,
+            { "Step Resolution", "btmesh.model.light_hsl_set_unacknowledged.transition_time.resolution",
+            FT_UINT8, BASE_DEC, VALS(btmesh_publishperiod_resolution_vals), 0xC0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_set_unacknowledged_transition_time_steps,
+            { "Number of Steps", "btmesh.model.light_hsl_set_unacknowledged.transition_time.steps",
+            FT_UINT8, BASE_DEC, NULL, 0x3F,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_set_unacknowledged_delay,
+            { "Delay", "btmesh.model.light_hsl_set_unacknowledged.delay",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_delay_ms), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_status_hsl_lightness,
+            { "HSL Lightness", "btmesh.model.light_hsl_status.hsl_lightness",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_status_hsl_hue,
+            { "HSL Hue", "btmesh.model.light_hsl_status.hsl_hue",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_hsl_hue), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_status_hsl_saturation,
+            { "HSL Saturation", "btmesh.model.light_hsl_status.hsl_saturation",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_status_remaining_time,
+            { "Remaining Time", "btmesh.model.light_hsl_status.remaining_time",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_publish_period), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_status_remaining_time_resolution,
+            { "Step Resolution", "btmesh.model.light_hsl_status.remaining_time.resolution",
+            FT_UINT8, BASE_DEC, VALS(btmesh_publishperiod_resolution_vals), 0xC0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_status_remaining_time_steps,
+            { "Number of Steps", "btmesh.model.light_hsl_status.remaining_time.steps",
+            FT_UINT8, BASE_DEC, NULL, 0x3F,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_target_status_hsl_lightness_target,
+            { "HSL Lightness Target", "btmesh.model.light_hsl_target_status.hsl_lightness_target",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_target_status_hsl_hue_target,
+            { "HSL Hue Target", "btmesh.model.light_hsl_target_status.hsl_hue_target",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_hsl_hue), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_target_status_hsl_saturation_target,
+            { "HSL Saturation Target", "btmesh.model.light_hsl_target_status.hsl_saturation_target",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_target_status_remaining_time,
+            { "Remaining Time", "btmesh.model.light_hsl_target_status.remaining_time",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_publish_period), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_target_status_remaining_time_resolution,
+            { "Step Resolution", "btmesh.model.light_hsl_target_status.remaining_time.resolution",
+            FT_UINT8, BASE_DEC, VALS(btmesh_publishperiod_resolution_vals), 0xC0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_target_status_remaining_time_steps,
+            { "Number of Steps", "btmesh.model.light_hsl_target_status.remaining_time.steps",
+            FT_UINT8, BASE_DEC, NULL, 0x3F,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_default_status_lightness,
+            { "Lightness", "btmesh.model.light_hsl_default_status.lightness",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_default_status_hue,
+            { "Hue", "btmesh.model.light_hsl_default_status.hue",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_hsl_hue), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_default_status_saturation,
+            { "Saturation", "btmesh.model.light_hsl_default_status.saturation",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_range_status_status_code,
+            { "Status Code", "btmesh.model.light_hsl_range_status.status_code",
+            FT_UINT8, BASE_DEC, VALS(btmesh_generic_status_code_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_range_status_hue_range_min,
+            { "Hue Range Min", "btmesh.model.light_hsl_range_status.hue_range_min",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_hsl_hue), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_range_status_hue_range_max,
+            { "Hue Range Max", "btmesh.model.light_hsl_range_status.hue_range_max",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_hsl_hue), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_range_status_saturation_range_min,
+            { "Saturation Range Min", "btmesh.model.light_hsl_range_status.saturation_range_min",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_range_status_saturation_range_max,
+            { "Saturation Range Max", "btmesh.model.light_hsl_range_status.saturation_range_max",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_default_set_lightness,
+            { "Lightness", "btmesh.model.light_hsl_default_set.lightness",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_default_set_hue,
+            { "Hue", "btmesh.model.light_hsl_default_set.hue",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_hsl_hue), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_default_set_saturation,
+            { "Saturation", "btmesh.model.light_hsl_default_set.saturation",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_default_set_unacknowledged_lightness,
+            { "Lightness", "btmesh.model.light_hsl_default_set_unacknowledged.lightness",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_default_set_unacknowledged_hue,
+            { "Hue", "btmesh.model.light_hsl_default_set_unacknowledged.hue",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_hsl_hue), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_default_set_unacknowledged_saturation,
+            { "Saturation", "btmesh.model.light_hsl_default_set_unacknowledged.saturation",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_range_set_hue_range_min,
+            { "Hue Range Min", "btmesh.model.light_hsl_range_set.hue_range_min",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_hsl_hue), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_range_set_hue_range_max,
+            { "Hue Range Max", "btmesh.model.light_hsl_range_set.hue_range_max",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_hsl_hue), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_range_set_saturation_range_min,
+            { "Saturation Range Min", "btmesh.model.light_hsl_range_set.saturation_range_min",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_range_set_saturation_range_max,
+            { "Saturation Range Max", "btmesh.model.light_hsl_range_set.saturation_range_max",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_range_set_unacknowledged_hue_range_min,
+            { "Hue Range Min", "btmesh.model.light_hsl_range_set_unacknowledged.hue_range_min",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_hsl_hue), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_range_set_unacknowledged_hue_range_max,
+            { "Hue Range Max", "btmesh.model.light_hsl_range_set_unacknowledged.hue_range_max",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_hsl_hue), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_range_set_unacknowledged_saturation_range_min,
+            { "Saturation Range Min", "btmesh.model.light_hsl_range_set_unacknowledged.saturation_range_min",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_hsl_range_set_unacknowledged_saturation_range_max,
+            { "Saturation Range Max", "btmesh.model.light_hsl_range_set_unacknowledged.saturation_range_max",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_xyl_set_xyl_lightness,
+            { "xyL Lightness", "btmesh.model.light_xyl_set.xyl_lightness",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_xyl_set_xyl_x,
+            { "xyL x", "btmesh.model.light_xyl_set.xyl_x",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_xyl_coordinate), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_xyl_set_xyl_y,
+            { "xyL y", "btmesh.model.light_xyl_set.xyl_y",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_xyl_coordinate), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_xyl_set_tid,
+            { "TID", "btmesh.model.light_xyl_set.tid",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_xyl_set_transition_time,
+            { "Transition Time", "btmesh.model.light_xyl_set.transition_time",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_publish_period), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_xyl_set_transition_time_resolution,
+            { "Step Resolution", "btmesh.model.light_xyl_set.transition_time.resolution",
+            FT_UINT8, BASE_DEC, VALS(btmesh_publishperiod_resolution_vals), 0xC0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_xyl_set_transition_time_steps,
+            { "Number of Steps", "btmesh.model.light_xyl_set.transition_time.steps",
+            FT_UINT8, BASE_DEC, NULL, 0x3F,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_xyl_set_delay,
+            { "Delay", "btmesh.model.light_xyl_set.delay",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_delay_ms), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_xyl_set_unacknowledged_xyl_lightness,
+            { "xyL Lightness", "btmesh.model.light_xyl_set_unacknowledged.xyl_lightness",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_xyl_set_unacknowledged_xyl_x,
+            { "xyL x", "btmesh.model.light_xyl_set_unacknowledged.xyl_x",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_xyl_coordinate), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_xyl_set_unacknowledged_xyl_y,
+            { "xyL y", "btmesh.model.light_xyl_set_unacknowledged.xyl_y",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_xyl_coordinate), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_xyl_set_unacknowledged_tid,
+            { "TID", "btmesh.model.light_xyl_set_unacknowledged.tid",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_xyl_set_unacknowledged_transition_time,
+            { "Transition Time", "btmesh.model.light_xyl_set_unacknowledged.transition_time",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_publish_period), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_xyl_set_unacknowledged_transition_time_resolution,
+            { "Step Resolution", "btmesh.model.light_xyl_set_unacknowledged.transition_time.resolution",
+            FT_UINT8, BASE_DEC, VALS(btmesh_publishperiod_resolution_vals), 0xC0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_xyl_set_unacknowledged_transition_time_steps,
+            { "Number of Steps", "btmesh.model.light_xyl_set_unacknowledged.transition_time.steps",
+            FT_UINT8, BASE_DEC, NULL, 0x3F,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_xyl_set_unacknowledged_delay,
+            { "Delay", "btmesh.model.light_xyl_set_unacknowledged.delay",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_delay_ms), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_xyl_status_xyl_lightness,
+            { "xyL Lightness", "btmesh.model.light_xyl_status.xyl_lightness",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_xyl_status_xyl_x,
+            { "xyL x", "btmesh.model.light_xyl_status.xyl_x",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_xyl_coordinate), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_xyl_status_xyl_y,
+            { "xyL y", "btmesh.model.light_xyl_status.xyl_y",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_xyl_coordinate), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_xyl_status_remaining_time,
+            { "Remaining Time", "btmesh.model.light_xyl_status.remaining_time",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_publish_period), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_xyl_status_remaining_time_resolution,
+            { "Step Resolution", "btmesh.model.light_xyl_status.remaining_time.resolution",
+            FT_UINT8, BASE_DEC, VALS(btmesh_publishperiod_resolution_vals), 0xC0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_xyl_status_remaining_time_steps,
+            { "Number of Steps", "btmesh.model.light_xyl_status.remaining_time.steps",
+            FT_UINT8, BASE_DEC, NULL, 0x3F,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_xyl_target_status_target_xyl_lightness,
+            { "Target xyL Lightness", "btmesh.model.light_xyl_target_status.target_xyl_lightness",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_xyl_target_status_target_xyl_x,
+            { "Target xyL x", "btmesh.model.light_xyl_target_status.target_xyl_x",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_xyl_coordinate), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_xyl_target_status_target_xyl_y,
+            { "Target xyL y", "btmesh.model.light_xyl_target_status.target_xyl_y",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_xyl_coordinate), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_xyl_target_status_remaining_time,
+            { "Remaining Time", "btmesh.model.light_xyl_target_status.remaining_time",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_publish_period), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_xyl_target_status_remaining_time_resolution,
+            { "Step Resolution", "btmesh.model.light_xyl_target_status.remaining_time.resolution",
+            FT_UINT8, BASE_DEC, VALS(btmesh_publishperiod_resolution_vals), 0xC0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_xyl_target_status_remaining_time_steps,
+            { "Number of Steps", "btmesh.model.light_xyl_target_status.remaining_time.steps",
+            FT_UINT8, BASE_DEC, NULL, 0x3F,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_xyl_default_status_lightness,
+            { "Lightness", "btmesh.model.light_xyl_default_status.lightness",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_xyl_default_status_xyl_x,
+            { "xyL x", "btmesh.model.light_xyl_default_status.xyl_x",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_xyl_coordinate), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_xyl_default_status_xyl_y,
+            { "xyL y", "btmesh.model.light_xyl_default_status.xyl_y",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_xyl_coordinate), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_xyl_range_status_status_code,
+            { "Status Code", "btmesh.model.light_xyl_range_status.status_code",
+            FT_UINT8, BASE_DEC, VALS(btmesh_generic_status_code_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_xyl_range_status_xyl_x_range_min,
+            { "xyL x Range Min", "btmesh.model.light_xyl_range_status.xyl_x_range_min",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_xyl_coordinate), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_xyl_range_status_xyl_x_range_max,
+            { "xyL x Range Max", "btmesh.model.light_xyl_range_status.xyl_x_range_max",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_xyl_coordinate), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_xyl_range_status_xyl_y_range_min,
+            { "xyL y Range Min", "btmesh.model.light_xyl_range_status.xyl_y_range_min",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_xyl_coordinate), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_xyl_range_status_xyl_y_range_max,
+            { "xyL y Range Max", "btmesh.model.light_xyl_range_status.xyl_y_range_max",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_xyl_coordinate), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_xyl_default_set_lightness,
+            { "Lightness", "btmesh.model.light_xyl_default_set.lightness",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_xyl_default_set_xyl_x,
+            { "xyL x", "btmesh.model.light_xyl_default_set.xyl_x",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_xyl_coordinate), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_xyl_default_set_xyl_y,
+            { "xyL y", "btmesh.model.light_xyl_default_set.xyl_y",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_xyl_coordinate), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_xyl_default_set_unacknowledged_lightness,
+            { "Lightness", "btmesh.model.light_xyl_default_set_unacknowledged.lightness",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_xyl_default_set_unacknowledged_xyl_x,
+            { "xyL x", "btmesh.model.light_xyl_default_set_unacknowledged.xyl_x",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_xyl_coordinate), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_xyl_default_set_unacknowledged_xyl_y,
+            { "xyL y", "btmesh.model.light_xyl_default_set_unacknowledged.xyl_y",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_xyl_coordinate), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_xyl_range_set_xyl_x_range_min,
+            { "xyL x Range Min", "btmesh.model.light_xyl_range_set.xyl_x_range_min",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_xyl_coordinate), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_xyl_range_set_xyl_x_range_max,
+            { "xyL x Range Max", "btmesh.model.light_xyl_range_set.xyl_x_range_max",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_xyl_coordinate), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_xyl_range_set_xyl_y_range_min,
+            { "xyL y Range Min", "btmesh.model.light_xyl_range_set.xyl_y_range_min",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_xyl_coordinate), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_xyl_range_set_xyl_y_range_max,
+            { "xyL y Range Max", "btmesh.model.light_xyl_range_set.xyl_y_range_max",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_xyl_coordinate), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_xyl_range_set_unacknowledged_xyl_x_range_min,
+            { "xyL x Range Min", "btmesh.model.light_xyl_range_set_unacknowledged.xyl_x_range_min",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_xyl_coordinate), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_xyl_range_set_unacknowledged_xyl_x_range_max,
+            { "xyL x Range Max", "btmesh.model.light_xyl_range_set_unacknowledged.xyl_x_range_max",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_xyl_coordinate), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_xyl_range_set_unacknowledged_xyl_y_range_min,
+            { "xyL y Range Min", "btmesh.model.light_xyl_range_set_unacknowledged.xyl_y_range_min",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_xyl_coordinate), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_xyl_range_set_unacknowledged_xyl_y_range_max,
+            { "xyL y Range Max", "btmesh.model.light_xyl_range_set_unacknowledged.xyl_y_range_max",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_xyl_coordinate), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_lc_mode_set_mode,
+            { "Mode", "btmesh.model.light_lc_mode_set.mode",
+            FT_UINT8, BASE_DEC, VALS(btmesh_on_off_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_lc_mode_set_unacknowledged_mode,
+            { "Mode", "btmesh.model.light_lc_mode_set_unacknowledged.mode",
+            FT_UINT8, BASE_DEC, VALS(btmesh_on_off_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_lc_mode_status_mode,
+            { "Mode", "btmesh.model.light_lc_mode_status.mode",
+            FT_UINT8, BASE_DEC, VALS(btmesh_on_off_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_lc_om_set_mode,
+            { "Mode", "btmesh.model.light_lc_om_set.mode",
+            FT_UINT8, BASE_DEC, VALS(btmesh_on_off_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_lc_om_set_unacknowledged_mode,
+            { "Mode", "btmesh.model.light_lc_om_set_unacknowledged.mode",
+            FT_UINT8, BASE_DEC, VALS(btmesh_on_off_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_lc_om_status_mode,
+            { "Mode", "btmesh.model.light_lc_om_status.mode",
+            FT_UINT8, BASE_DEC, VALS(btmesh_on_off_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_lc_light_onoff_set_light_onoff,
+            { "Light OnOff", "btmesh.model.light_lc_light_onoff_set.light_onoff",
+            FT_UINT8, BASE_DEC, VALS(btmesh_on_off_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_lc_light_onoff_set_tid,
+            { "TID", "btmesh.model.light_lc_light_onoff_set.tid",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_lc_light_onoff_set_transition_time,
+            { "Transition Time", "btmesh.model.light_lc_light_onoff_set.transition_time",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_publish_period), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_lc_light_onoff_set_transition_time_resolution,
+            { "Step Resolution", "btmesh.model.light_lc_light_onoff_set.transition_time.resolution",
+            FT_UINT8, BASE_DEC, VALS(btmesh_publishperiod_resolution_vals), 0xC0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_lc_light_onoff_set_transition_time_steps,
+            { "Number of Steps", "btmesh.model.light_lc_light_onoff_set.transition_time.steps",
+            FT_UINT8, BASE_DEC, NULL, 0x3F,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_lc_light_onoff_set_delay,
+            { "Delay", "btmesh.model.light_lc_light_onoff_set.delay",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_delay_ms), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_lc_light_onoff_set_unacknowledged_light_onoff,
+            { "Light OnOff", "btmesh.model.light_lc_light_onoff_set_unacknowledged.light_onoff",
+            FT_UINT8, BASE_DEC, VALS(btmesh_on_off_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_lc_light_onoff_set_unacknowledged_tid,
+            { "TID", "btmesh.model.light_lc_light_onoff_set_unacknowledged.tid",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_lc_light_onoff_set_unacknowledged_transition_time,
+            { "Transition Time", "btmesh.model.light_lc_light_onoff_set_unacknowledged.transition_time",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_publish_period), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_lc_light_onoff_set_unacknowledged_transition_time_resolution,
+            { "Step Resolution", "btmesh.model.light_lc_light_onoff_set_unacknowledged.transition_time.resolution",
+            FT_UINT8, BASE_DEC, VALS(btmesh_publishperiod_resolution_vals), 0xC0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_lc_light_onoff_set_unacknowledged_transition_time_steps,
+            { "Number of Steps", "btmesh.model.light_lc_light_onoff_set_unacknowledged.transition_time.steps",
+            FT_UINT8, BASE_DEC, NULL, 0x3F,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_lc_light_onoff_set_unacknowledged_delay,
+            { "Delay", "btmesh.model.light_lc_light_onoff_set_unacknowledged.delay",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_delay_ms), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_lc_light_onoff_status_present_light_onoff,
+            { "Present Light OnOff", "btmesh.model.light_lc_light_onoff_status.present_light_onoff",
+            FT_UINT8, BASE_DEC, VALS(btmesh_on_off_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_lc_light_onoff_status_target_light_onoff,
+            { "Target Light OnOff", "btmesh.model.light_lc_light_onoff_status.target_light_onoff",
+            FT_UINT8, BASE_DEC, VALS(btmesh_on_off_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_lc_light_onoff_status_remaining_time,
+            { "Remaining Time", "btmesh.model.light_lc_light_onoff_status.remaining_time",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_publish_period), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_lc_light_onoff_status_remaining_time_resolution,
+            { "Step Resolution", "btmesh.model.light_lc_light_onoff_status.remaining_time.resolution",
+            FT_UINT8, BASE_DEC, VALS(btmesh_publishperiod_resolution_vals), 0xC0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_lc_light_onoff_status_remaining_time_steps,
+            { "Number of Steps", "btmesh.model.light_lc_light_onoff_status.remaining_time.steps",
+            FT_UINT8, BASE_DEC, NULL, 0x3F,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_light_lc_property_get_light_lc_property_id,
+            { "Light LC Property ID", "btmesh.model.light_lc_property_get.light_lc_property_id",
+            FT_UINT16, BASE_DEC, VALS(btmesh_properties_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bt_characteristic_illuminance,
+            { "Illuminance", "btmesh.property.illuminance",
+            FT_UINT24, BASE_CUSTOM, CF_FUNC(format_illuminance), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bt_characteristic_perceived_lightness,
+            { "Perceived Lightness", "btmesh.property.perceived_lightness",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bt_characteristic_percentage_8,
+            { "Percentage 8", "btmesh.property.percentage_8",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_percentage_8), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bt_characteristic_coefficient,
+            { "Coefficient", "btmesh.property.coefficient",
+            FT_FLOAT, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bt_characteristic_time_millisecond_24,
+            { "Time Millisecond 24", "btmesh.property.time_millisecond_24",
+            FT_UINT24, BASE_CUSTOM, CF_FUNC(format_time_millisecond_24), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bt_characteristic_count_16,
+            { "Count 16", "btmesh.property.count_16",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_count_16), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bt_characteristic_boolean,
+            { "Boolean", "btmesh.property.boolean",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_boolean), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bt_characteristic_time_second_16,
+            { "Time Second 16", "btmesh.property.time_second_16",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_time_second_16), 0x0,
             NULL, HFILL }
         },
     };
