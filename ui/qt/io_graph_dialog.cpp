@@ -349,6 +349,8 @@ IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf, QString displayFi
         close_bt->setDefault(true);
     }
 
+    ui->automaticUpdateCheckBox->setChecked(prefs.gui_io_graph_automatic_update ? true : false);
+
     stat_timer_ = new QTimer(this);
     connect(stat_timer_, SIGNAL(timeout()), this, SLOT(updateStatistics()));
     stat_timer_->start(stat_update_interval_);
@@ -1141,13 +1143,13 @@ void IOGraphDialog::updateStatistics()
 {
     if (!isVisible()) return;
 
-    if (need_retap_ && !file_closed_) {
+    if (need_retap_ && !file_closed_ && prefs.gui_io_graph_automatic_update) {
         need_retap_ = false;
         cap_file_.retapPackets();
         // The user might have closed the window while tapping, which means
         // we might no longer exist.
     } else {
-        if (need_recalc_ && !file_closed_) {
+        if (need_recalc_ && !file_closed_ && prefs.gui_io_graph_automatic_update) {
             need_recalc_ = false;
             need_replot_ = true;
             int enabled_graphs = 0;
@@ -1369,6 +1371,18 @@ void IOGraphDialog::on_logCheckBox_toggled(bool checked)
 
     iop->yAxis->setScaleType(checked ? QCPAxis::stLogarithmic : QCPAxis::stLinear);
     iop->replot();
+}
+
+void IOGraphDialog::on_automaticUpdateCheckBox_toggled(bool checked)
+{
+    prefs.gui_io_graph_automatic_update = checked ? TRUE : FALSE;
+
+    prefs_main_write();
+
+    if(prefs.gui_io_graph_automatic_update)
+    {
+        updateStatistics();
+    }
 }
 
 void IOGraphDialog::on_actionReset_triggered()

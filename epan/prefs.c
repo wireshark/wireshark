@@ -3471,6 +3471,11 @@ prefs_register_modules(void)
          "9 = Virtual",
         &prefs.gui_interfaces_hide_types, PREF_STRING, NULL, TRUE);
 
+    prefs_register_bool_preference(gui_module, "io_graph_automatic_update",
+        "Enables automatic updates for IO Graph",
+        "Enables automatic updates for IO Graph",
+        &prefs.gui_io_graph_automatic_update);
+
     /* Console
      * These are preferences that can be read/written using the
      * preference module API.  These preferences still use their own
@@ -4209,6 +4214,9 @@ pre_init_prefs(void)
     prefs.st_sort_showfullname = FALSE;
     prefs.display_hidden_proto_items = FALSE;
     prefs.display_byte_fields_with_spaces = FALSE;
+
+    /* set the default values for the io graph dialog */
+    prefs.gui_io_graph_automatic_update = TRUE;
 }
 
 /*

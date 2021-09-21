@@ -15,6 +15,8 @@
 #include <glib.h>
 
 #include "epan/epan_dissect.h"
+#include "epan/prefs.h"
+#include "ui/preference_utils.h"
 
 #include "ui/io_graph_item.h"
 
@@ -224,6 +226,7 @@ private slots:
 
     void on_resetButton_clicked();
     void on_logCheckBox_toggled(bool checked);
+    void on_automaticUpdateCheckBox_toggled(bool checked);
     void on_newToolButton_clicked();
     void on_deleteToolButton_clicked();
     void on_copyToolButton_clicked();
