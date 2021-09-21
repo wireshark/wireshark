@@ -182,6 +182,7 @@ libwsutil.so.0 libwsutil0 #MINVER#
  plugins_get_descriptions@Base 1.12.0~rc1
  printable_char_or_period@Base 1.99.0
  profile_exists@Base 1.12.0~rc1
+ profile_register_persconffile@Base 3.5.1
  profile_store_persconffiles@Base 1.12.0~rc1
  qword_to_hex@Base 3.5.1
  qword_to_hex_punct@Base 3.5.1

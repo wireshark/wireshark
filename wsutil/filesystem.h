@@ -147,6 +147,12 @@ WS_DLL_PUBLIC char *get_global_profiles_dir(void);
 WS_DLL_PUBLIC void profile_store_persconffiles(gboolean store);
 
 /*
+ * Register a filename to the personal config files storage.
+ * This is for files which are not read using get_persconffile_path() during startup.
+ */
+WS_DLL_PUBLIC void profile_register_persconffile(const char *filename);
+
+/*
  * Check if given configuration profile exists.
  */
 WS_DLL_PUBLIC gboolean profile_exists(const gchar *profilename, gboolean global);
