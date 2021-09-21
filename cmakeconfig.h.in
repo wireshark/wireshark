@@ -292,6 +292,9 @@
 #  if !defined(QT_VERSION) || !defined(_SSIZE_T_DEFINED)
    typedef int ssize_t;
 #  endif
+#  define strncasecmp strnicmp
+#  define popen       _popen
+#  define pclose      _pclose
 #endif
 
 #if defined(_WIN32)
@@ -304,10 +307,6 @@
     * Flex (v 2.5.35) uses this symbol to "exclude" unistd.h
     */
 #  define YY_NO_UNISTD_H
-
-#  define strncasecmp strnicmp
-#  define popen       _popen
-#  define pclose      _pclose
 
 #  ifndef __STDC__
 #    define __STDC__ 0

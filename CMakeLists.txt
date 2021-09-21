@@ -476,6 +476,7 @@ if( CMAKE_C_COMPILER_ID MATCHES "MSVC")
 		#                                   in pcap-stdinc.h when compiling C++ files, e.g. the Qt UI
 		/DPSAPI_VERSION=1
 		/D_ALLOW_KEYWORD_MACROS
+		# Disable deprecation of POSIX function names.
 		# https://stackoverflow.com/questions/37845163/what-is-the-purpose-of-microsofts-underscore-c-functions
 		/D_CRT_NONSTDC_NO_WARNINGS
 	)
