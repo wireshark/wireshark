@@ -3024,7 +3024,7 @@ void proto_register_ecat(void)
          },
          { &hf_ecat_reg_ctrlstat_wraccess,
            {"Write access", "ecat.reg.ctrlstat.wraccess",
-           FT_BOOLEAN, 8, TFS(&tfs_local_true_false), 0x1, NULL, HFILL }
+           FT_BOOLEAN, 8, TFS(&tfs_local_true_false), 0x01, NULL, HFILL }
          },
          { &hf_ecat_reg_ctrlstat_eepromemul,
            {"EEPROM emulation", "ecat.reg.ctrlstat.eepromemul",

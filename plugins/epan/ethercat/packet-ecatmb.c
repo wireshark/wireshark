@@ -1527,27 +1527,27 @@ void proto_register_ecat_mailbox(void)
       },
       { &hf_ecat_mailbox_coe_sdoccsid_sizeind,
       { "Size Ind.", "ecat_mailbox.coe.sdoccsid.sizeind",
-      FT_BOOLEAN, 8, TFS(&flags_set_truth), 0x00000001,
+      FT_BOOLEAN, 8, TFS(&flags_set_truth), 0x01,
       NULL, HFILL }
       },
       { &hf_ecat_mailbox_coe_sdoccsid_expedited,
       { "Expedited", "ecat_mailbox.coe.sdoccsid.expedited",
-      FT_BOOLEAN, 8, TFS(&flags_set_truth), 0x00000002,
+      FT_BOOLEAN, 8, TFS(&flags_set_truth), 0x02,
       NULL, HFILL }
       },
       { &hf_ecat_mailbox_coe_sdoccsid_size0,
       { "Bytes", "ecat_mailbox.coe.sdoccsid.size0",
-      FT_BOOLEAN, 8, TFS(&flags_set_truth), 0x00000004,
+      FT_BOOLEAN, 8, TFS(&flags_set_truth), 0x04,
       NULL, HFILL }
       },
       { &hf_ecat_mailbox_coe_sdoccsid_size1,
       { "Bytes", "ecat_mailbox.coe.sdoccsid.size1",
-      FT_BOOLEAN, 8, TFS(&flags_set_truth), 0x00000008,
+      FT_BOOLEAN, 8, TFS(&flags_set_truth), 0x08,
       NULL, HFILL }
       },
       { &hf_ecat_mailbox_coe_sdoccsid_complete,
       { "Access", "ecat_mailbox.coe.sdoccsid.complete",
-      FT_BOOLEAN, 8, TFS(&tfs_complete), 0x00000010,
+      FT_BOOLEAN, 8, TFS(&tfs_complete), 0x10,
       NULL, HFILL }
       },
       { &hf_ecat_mailbox_coe_sdoccsds,
@@ -1557,17 +1557,17 @@ void proto_register_ecat_mailbox(void)
       },
       { &hf_ecat_mailbox_coe_sdoccsds_lastseg,
       { "Last Segment", "ecat_mailbox.coe.sdoccsds.lastseg",
-      FT_BOOLEAN, 8, TFS(&flags_set_truth), 0x00000001,
+      FT_BOOLEAN, 8, TFS(&flags_set_truth), 0x01,
       NULL, HFILL }
       },
       { &hf_ecat_mailbox_coe_sdoccsds_size,
       { "Size", "ecat_mailbox.coe.sdoccsds.size",
-      FT_UINT8, BASE_DEC, NULL, 0x0000000E,
+      FT_UINT8, BASE_DEC, NULL, 0x0E,
       NULL, HFILL }
       },
       { &hf_ecat_mailbox_coe_sdoccsds_toggle,
       { "Toggle Bit", "ecat_mailbox.coe.sdoccsds.toggle",
-      FT_BOOLEAN, 8, TFS(&flags_set_truth), 0x00000010,
+      FT_BOOLEAN, 8, TFS(&flags_set_truth), 0x10,
       NULL, HFILL }
       },
       { &hf_ecat_mailbox_coe_sdoccsiu,
@@ -1577,8 +1577,8 @@ void proto_register_ecat_mailbox(void)
       },
 #if 0
       { &hf_ecat_mailbox_coe_sdoccsiu_complete,
-      { "Toggle Bit", "ecat_mailbox.coe.sdoccsiu_complete",
-      FT_BOOLEAN, 8, TFS(&flags_set_truth), 0x00000010,
+      { "Toggle Bit", "ecat_mailbox.coe.sdoccsiu.complete",
+      FT_BOOLEAN, 8, TFS(&flags_set_truth), 0x10,
       NULL, HFILL }
       },
 #endif
@@ -1589,7 +1589,7 @@ void proto_register_ecat_mailbox(void)
       },
       { &hf_ecat_mailbox_coe_sdoccsus_toggle,
       { "Toggle Bit", "ecat_mailbox.coe.sdoccsus_toggle",
-      FT_BOOLEAN, 8, TFS(&flags_set_truth), 0x00000010,
+      FT_BOOLEAN, 8, TFS(&flags_set_truth), 0x10,
       NULL, HFILL }
       },
       { &hf_ecat_mailbox_coe_sdoidx,
@@ -1651,27 +1651,27 @@ void proto_register_ecat_mailbox(void)
       },
       { &hf_ecat_mailbox_coe_sdoscsiu_sizeind,
       { "Size Ind.", "ecat_mailbox.coe.sdoscsiu_sizeind",
-      FT_BOOLEAN, 8, TFS(&flags_set_truth), 0x00000001,
+      FT_BOOLEAN, 8, TFS(&flags_set_truth), 0x01,
       NULL, HFILL }
       },
       { &hf_ecat_mailbox_coe_sdoscsiu_expedited,
       { "Expedited", "ecat_mailbox.coe.sdoscsiu_expedited",
-      FT_BOOLEAN, 8, TFS(&flags_set_truth), 0x00000002,
+      FT_BOOLEAN, 8, TFS(&flags_set_truth), 0x02,
       NULL, HFILL }
       },
       { &hf_ecat_mailbox_coe_sdoscsiu_size0,
       { "Bytes", "ecat_mailbox.coe.sdoscsiu_size0",
-      FT_BOOLEAN, 8, TFS(&flags_set_truth), 0x00000004,
+      FT_BOOLEAN, 8, TFS(&flags_set_truth), 0x04,
       NULL, HFILL }
       },
       { &hf_ecat_mailbox_coe_sdoscsiu_size1,
       { "Bytes", "ecat_mailbox.coe.sdoscsiu_size1",
-      FT_BOOLEAN, 8, TFS(&flags_set_truth), 0x00000008,
+      FT_BOOLEAN, 8, TFS(&flags_set_truth), 0x08,
       NULL, HFILL }
       },
       { &hf_ecat_mailbox_coe_sdoscsiu_complete,
       { "Access", "ecat_mailbox.coe.sdoscsiu_complete",
-      FT_BOOLEAN, 8, TFS(&tfs_complete), 0x00000010,
+      FT_BOOLEAN, 8, TFS(&tfs_complete), 0x10,
       NULL, HFILL }
       },
       { &hf_ecat_mailbox_coe_sdoscsds,
@@ -1681,7 +1681,7 @@ void proto_register_ecat_mailbox(void)
       },
       { &hf_ecat_mailbox_coe_sdoscsds_toggle,
       { "Toggle Bit", "ecat_mailbox.coe.sdoscsds_toggle",
-      FT_BOOLEAN, 8, TFS(&flags_set_truth), 0x00000010,
+      FT_BOOLEAN, 8, TFS(&flags_set_truth), 0x10,
       NULL, HFILL }
       },
       { &hf_ecat_mailbox_coe_sdoscsus,
@@ -1691,17 +1691,17 @@ void proto_register_ecat_mailbox(void)
       },
       { &hf_ecat_mailbox_coe_sdoscsus_lastseg,
       { "Last Segment", "ecat_mailbox.coe.sdoscsus_lastseg",
-      FT_BOOLEAN, 8, TFS(&flags_set_truth), 0x00000001,
+      FT_BOOLEAN, 8, TFS(&flags_set_truth), 0x01,
       NULL, HFILL }
       },
       { &hf_ecat_mailbox_coe_sdoscsus_bytes,
       { "Bytes", "ecat_mailbox.coe.sdoscsus_bytes",
-      FT_UINT8, BASE_DEC, NULL, 0x0000000E,
+      FT_UINT8, BASE_DEC, NULL, 0x0E,
       NULL, HFILL }
       },
       { &hf_ecat_mailbox_coe_sdoscsus_toggle,
       { "Toggle Bit", "ecat_mailbox.coe.sdoscsus_toggle",
-      FT_BOOLEAN, 8, TFS(&flags_set_truth), 0x00000010,
+      FT_BOOLEAN, 8, TFS(&flags_set_truth), 0x10,
       NULL, HFILL }
       },
       { &hf_ecat_mailbox_coe_sdoinfoopcode,
@@ -1863,7 +1863,7 @@ void proto_register_ecat_mailbox(void)
       },
       { &hf_ecat_mailbox_soe_header_error,
       { "Error", "ecat_mailbox.soe_header_error",
-      FT_BOOLEAN, 16, TFS(&flags_set_truth), 0x00000010,
+      FT_BOOLEAN, 16, TFS(&flags_set_truth), 0x0010,
       NULL, HFILL }
       },
       { &hf_ecat_mailbox_soe_header_driveno,
@@ -1872,42 +1872,42 @@ void proto_register_ecat_mailbox(void)
       },
       { &hf_ecat_mailbox_soe_header_datastate,
       { "Datastate", "ecat_mailbox.soe_header_datastate",
-      FT_BOOLEAN, 16, TFS(&flags_set_truth), 0x00000100,
+      FT_BOOLEAN, 16, TFS(&flags_set_truth), 0x0100,
       NULL, HFILL }
       },
       { &hf_ecat_mailbox_soe_header_name,
       { "Name", "ecat_mailbox.soe_header_name",
-      FT_BOOLEAN, 16, TFS(&flags_set_truth), 0x00000200,
+      FT_BOOLEAN, 16, TFS(&flags_set_truth), 0x0200,
       NULL, HFILL }
       },
       { &hf_ecat_mailbox_soe_header_attribute,
       { "Attribute", "ecat_mailbox.soe_header_attribute",
-      FT_BOOLEAN, 16, TFS(&flags_set_truth), 0x00000400,
+      FT_BOOLEAN, 16, TFS(&flags_set_truth), 0x0400,
       NULL, HFILL }
       },
       { &hf_ecat_mailbox_soe_header_unit,
       { "Unit", "ecat_mailbox.soe_header_unit",
-      FT_BOOLEAN, 16, TFS(&flags_set_truth), 0x00000800,
+      FT_BOOLEAN, 16, TFS(&flags_set_truth), 0x0800,
       NULL, HFILL }
       },
       { &hf_ecat_mailbox_soe_header_min,
       { "Min", "ecat_mailbox.soe_header_min",
-      FT_BOOLEAN, 16, TFS(&flags_set_truth), 0x00001000,
+      FT_BOOLEAN, 16, TFS(&flags_set_truth), 0x1000,
       NULL, HFILL }
       },
       { &hf_ecat_mailbox_soe_header_max,
       { "Max", "ecat_mailbox.soe_header_max",
-      FT_BOOLEAN, 16, TFS(&flags_set_truth), 0x00002000,
+      FT_BOOLEAN, 16, TFS(&flags_set_truth), 0x2000,
       NULL, HFILL }
       },
       { &hf_ecat_mailbox_soe_header_value,
       { "Value", "ecat_mailbox.soe_header_value",
-      FT_BOOLEAN, 16, TFS(&flags_set_truth), 0x00004000,
+      FT_BOOLEAN, 16, TFS(&flags_set_truth), 0x4000,
       NULL, HFILL }
       },
       { &hf_ecat_mailbox_soe_header_reserved,
       { "Reserved", "ecat_mailbox.soe_header_reserved",
-      FT_BOOLEAN, 16, TFS(&flags_set_truth), 0x00008000,
+      FT_BOOLEAN, 16, TFS(&flags_set_truth), 0x8000,
       NULL, HFILL }
       },
       { &hf_ecat_mailbox_soe_idn,

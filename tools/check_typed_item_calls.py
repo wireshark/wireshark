@@ -18,7 +18,6 @@ import subprocess
 # is assigned to a different variable or a macro is used, it isn't tracked.
 
 # TODO:
-# Attempt to check length (where literal value is given). Arg position differs among functions.
 # Currently assuming we'll find call + first 2 args in same line...
 # Attempt to check for allowed encoding types (most likely will be literal values |'d)?
 
@@ -322,7 +321,7 @@ class Item:
             return
         while n <= 63:
             if self.check_bit(self.mask_value, n):
-                print('Warning: ', self.filename, 'filter=', self.filter, ' - mask with non-contiguous bits', mask)
+                print('Warning:', self.filename, 'filter=', self.filter, ' - mask with non-contiguous bits', mask)
                 return
             n += 1
 
@@ -332,6 +331,8 @@ class Item:
                 return 8  # i.e. 1 byte
             elif self.type_modifier == 'BASE_NONE':
                 return 8
+            elif self.type_modifier == 'SEP_DOT':
+                return 64
             else:
                 return int(self.type_modifier)
         else:
@@ -344,7 +345,7 @@ class Item:
             # There may be good reasons for having a wider field/mask, e.g. if there are 32 related flags, showing them
             # all lined up as part of the same word may make it clearer.  But some cases have been found
             # where the grouping does not seem to be natural..
-            print('Warning: ', self.filename, 'filter=', self.filter, ' - mask with leading or trailing 0 bytes suggests field', self.item_type, 'may be wider than necessary?', mask)
+            print('Warning:', self.filename, 'filter=', self.filter, ' - mask with leading or trailing 0 bytes suggests field', self.item_type, 'may be wider than necessary?', mask)
             global warnings_found
             warnings_found += 1
 
@@ -352,17 +353,17 @@ class Item:
         if mask.startswith('0x') and len(mask) > 3:
             global warnings_found
             if len(mask) % 2:
-                print('Warning: ', self.filename, 'filter=', self.filter, ' - mask has odd number of digits', mask,
+                print('Warning:', self.filename, 'filter=', self.filter, ' - mask has odd number of digits', mask,
                       'expected max for', self.item_type, 'is', int(self.get_field_width_in_bits()/4))
                 warnings_found += 1
 
             if self.item_type in field_widths:
                 if len(mask)-2 > self.get_field_width_in_bits()/4:
-                    print('Warning: ', self.filename, 'filter=', self.filter, self.mask, "with len is", len(mask)-2,
+                    print('Warning:', self.filename, 'filter=', self.filter, self.mask, "with len is", len(mask)-2,
                           "but type", self.item_type, " indicates max of", int(self.get_field_width_in_bits()/4))
                     warnings_found += 1
             else:
-                print('Warning: ', self.filename, 'filter=', self.filter, ' - item has type', self.item_type, 'but mask set:', mask)
+                print('Warning:', self.filename, 'filter=', self.filter, ' - item has type', self.item_type, 'but mask set:', mask)
                 warnings_found += 1
 
     def check_digits_all_zeros(self, mask):
@@ -555,6 +556,8 @@ def checkFile(filename, check_mask=False, check_label=False, check_consecutive=F
 parser = argparse.ArgumentParser(description='Check calls in dissectors')
 parser.add_argument('--file', action='store', default='',
                     help='specify individual dissector file to test')
+parser.add_argument('--folder', action='store', default='',
+                    help='specify folder to test')
 parser.add_argument('--commits', action='store',
                     help='last N commits to check')
 parser.add_argument('--open', action='store_true',
@@ -573,11 +576,20 @@ args = parser.parse_args()
 # Get files from wherever command-line args indicate.
 files = []
 if args.file:
-    # Add single specified file..
-    if not args.file.startswith('epan'):
+    # Add single specified file
+    if not args.file.startswith('epan') and not os.path.exists(args.file):
         files.append(os.path.join('epan', 'dissectors', args.file))
     else:
         files.append(args.file)
+elif args.folder:
+    # Add all files from a given folder.
+    folder = args.folder
+    if not os.path.isdir(folder):
+        print('Folder', folder, 'not found!')
+        exit(1)
+    # Find files from folder.
+    print('Looking for files in', folder)
+    files = findDissectorFilesInFolder(folder, recursive=True)
 elif args.commits:
     # Get files affected by specified number of commits.
     command = ['git', 'diff', '--name-only', '--diff-filter=d', 'HEAD~' + args.commits]
