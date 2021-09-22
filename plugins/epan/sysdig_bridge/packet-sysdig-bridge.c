@@ -561,7 +561,7 @@ proto_register_sdplugin(void)
     proto_register_field_array(proto_sdplugin, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    register_cleanup_routine(on_wireshark_exit);
+    register_shutdown_routine(on_wireshark_exit);
 }
 
 static bridge_info*
