@@ -11,10 +11,8 @@ FIND_PROGRAM(ASCIIDOCTOR_EXECUTABLE
         asciidoctorj
         asciidoctor
         asciidoctor.ruby2.1
-	# Asciidoctor.js releases
-        asciidoctor-linux
-        asciidoctor-macos
-        asciidoctor-win
+        # XXX Add Asciidoctor.js releases (asciidoctor-linux,
+        # asciidoctor-macos, asciidoctor-win) if that ever becomes an option.
     PATHS
         /bin
         /usr/bin

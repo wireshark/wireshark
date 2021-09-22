@@ -473,14 +473,15 @@ Release notes text:: Asciidoctor → _HTML_ → html2text.py
 ==== Asciidoctor
 
 https://asciidoctor.org/[Asciidoctor] comes in several flavors: a Ruby gem (Asciidoctor), a Java bundle (AsciidoctorJ), and transpiled JavaScript (Asciidoctor.js).
-Any of them can be used to build Wireshark’s documentation.
+The Ruby and Java flavors can be used to build Wireshark’s documentation, but the JavaScript flavor doesn’t support all of the features that we require.
+// We need docbook5, PDF & EPUB output and macros
 
 The guides and release notes were originally written in DocBook (hence the directory name).
 They were later converted to AsciiDoc and then migrated to Asciidoctor.
 We currently use Asciidoctor’s modern (>= 1.5.0) syntax.
 
 PDF output requires Asciidoctor’s PDF backend.
-It is included with AsciidoctorJ and Asciidoctor.js but _not_ with Asciidoctor.
+It is included with AsciidoctorJ but _not_ with Asciidoctor.
 
 ==== DocBook XML and XSL
 
