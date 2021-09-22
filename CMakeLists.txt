@@ -464,6 +464,16 @@ if(WIN32)
 	)
 endif()
 
+if(MINGW)
+	add_definitions(
+		#
+		# Enable POSIX APIs. This will switch stdio to ANSI C functions and
+		# enable C99 conformant vsnprintf() among other things.
+		#
+		-D_POSIX
+	)
+endif()
+
 if( CMAKE_C_COMPILER_ID MATCHES "MSVC")
 	if ((MSVC_VERSION LESS "1900") OR (MSVC_VERSION GREATER_EQUAL "2000"))
 		message(FATAL_ERROR "You are using an unsupported version of MSVC")
