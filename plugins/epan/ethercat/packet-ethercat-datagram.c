@@ -3100,7 +3100,7 @@ void proto_register_ecat(void)
          },
          { &hf_ecat_reg_mio_ctrlstat_wracc1,
            {"Write access", "ecat.reg.mio.ctrlstat.wracc1",
-           FT_BOOLEAN, 16, TFS(&tfs_local_true_false), 0x001, NULL, HFILL }
+           FT_BOOLEAN, 16, TFS(&tfs_local_true_false), 0x0001, NULL, HFILL }
          },
          { &hf_ecat_reg_mio_ctrlstat_offsphy,
            {"Offset Phy offset", "ecat.reg.mio.ctrlstat.offsphy",
@@ -3160,7 +3160,7 @@ void proto_register_ecat(void)
          },
          { &hf_ecat_reg_mio_status0_physlink,
            {"Physical link detected", "ecat.reg.mio.status0.physlink",
-           FT_BOOLEAN, 8, TFS(&tfs_local_true_false), 0x001, NULL, HFILL }
+           FT_BOOLEAN, 8, TFS(&tfs_local_true_false), 0x01, NULL, HFILL }
          },
          { &hf_ecat_reg_mio_status0_link,
            {"Link detected", "ecat.reg.mio.status0.link",
@@ -3188,7 +3188,7 @@ void proto_register_ecat(void)
          },
          { &hf_ecat_reg_mio_status1_physlink,
            {"Physical link detected", "ecat.reg.mio.status1.physlink",
-           FT_BOOLEAN, 8, TFS(&tfs_local_true_false), 0x001, NULL, HFILL }
+           FT_BOOLEAN, 8, TFS(&tfs_local_true_false), 0x01, NULL, HFILL }
          },
          { &hf_ecat_reg_mio_status1_link,
            {"Link detected", "ecat.reg.mio.status1.link",
@@ -3216,7 +3216,7 @@ void proto_register_ecat(void)
          },
          { &hf_ecat_reg_mio_status2_physlink,
            {"Physical link detected", "ecat.reg.mio.status2.physlink",
-           FT_BOOLEAN, 8, TFS(&tfs_local_true_false), 0x001, NULL, HFILL }
+           FT_BOOLEAN, 8, TFS(&tfs_local_true_false), 0x01, NULL, HFILL }
          },
          { &hf_ecat_reg_mio_status2_link,
            {"Link detected", "ecat.reg.mio.status2.link",
@@ -3244,7 +3244,7 @@ void proto_register_ecat(void)
          },
          { &hf_ecat_reg_mio_status3_physlink,
            {"Physical link detected", "ecat.reg.mio.status3.physlink",
-           FT_BOOLEAN, 8, TFS(&tfs_local_true_false), 0x001, NULL, HFILL }
+           FT_BOOLEAN, 8, TFS(&tfs_local_true_false), 0x01, NULL, HFILL }
          },
          { &hf_ecat_reg_mio_status3_link,
            {"Link detected", "ecat.reg.mio.status3.link",

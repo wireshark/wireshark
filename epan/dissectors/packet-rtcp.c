@@ -6564,7 +6564,7 @@ proto_register_rtcp(void)
                 FT_UINT16,
                 BASE_DEC,
                 NULL,
-                0x1ff,
+                0x01ff,
                 NULL, HFILL
             }
         },
