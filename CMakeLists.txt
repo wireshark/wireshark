@@ -87,15 +87,33 @@ endif()
 # %WIRESHARK_TARGET_PLATFORM%.
 
 if(WIN32)
-	find_package(PowerShell REQUIRED)
+	# Are we using MSYS2? If we are we don't use our own third party
+	# libraries.
+	if(DEFINED ENV{MSYSTEM})
+		set(_msystem $ENV{MSYSTEM})
+		set(_repositoy False)
+		message(STATUS "Using MSYS2 with MSYSTEM=${_msystem}")
+	else()
+		set(_msystem False)
+		set(_repositoy True)
+		message(STATUS "Using 3rd party repository")
+	endif()
+	set(USE_MSYSTEM ${_msystem} CACHE INTERNAL "Use MSYS2 subsystem")
+	set(USE_REPOSITORY ${_repositoy} CACHE INTERNAL "Use Wireshark 3rd Party Repository")
 
-	if(CMAKE_CL_64 OR CMAKE_GENERATOR MATCHES "Win64")
+	if(DEFINED ENV{WIRESHARK_TARGET_PLATFORM})
+		string(TOLOWER $ENV{WIRESHARK_TARGET_PLATFORM} _target_platform)
+		set(WIRESHARK_TARGET_PLATFORM ${_target_platform})
+	elseif(USE_MSYSTEM MATCHES "MINGW64")
+		set(WIRESHARK_TARGET_PLATFORM win64)
+	elseif(USE_MSYSTEM MATCHES "MINGW32")
+		set(WIRESHARK_TARGET_PLATFORM win32)
+	elseif(USE_MSYSTEM)
+		message(WARNING "Building for MSYSTEM=${USE_MSYSTEM} is not officially supported")
+	elseif(CMAKE_CL_64 OR CMAKE_GENERATOR MATCHES "Win64")
 		set(WIRESHARK_TARGET_PLATFORM win64)
 	elseif(CMAKE_GENERATOR MATCHES "Visual Studio")
 		set(WIRESHARK_TARGET_PLATFORM win32)
-	elseif(DEFINED ENV{WIRESHARK_TARGET_PLATFORM})
-		string(TOLOWER $ENV{WIRESHARK_TARGET_PLATFORM} _target_platform)
-		set(WIRESHARK_TARGET_PLATFORM ${_target_platform})
 	else()
 		message(WARNING "Assuming \"win64\" target platform")
 		set(WIRESHARK_TARGET_PLATFORM win64)
@@ -127,40 +145,44 @@ if(WIN32)
 	endif()
 	message(STATUS
 		"Building for ${WIRESHARK_TARGET_PLATFORM} using \"${CMAKE_GENERATOR}\" \
-and CPU target architecture \"${WIRESHARK_TARGET_PROCESSOR_ARCHITECTURE}\""
+and CPU target ${WIRESHARK_TARGET_PROCESSOR_ARCHITECTURE}"
 	)
 
 	# Determine where the 3rd party libraries will be
-	if( DEFINED ENV{WIRESHARK_LIB_DIR} )
-		# The buildbots set WIRESHARK_LIB_DIR but not WIRESHARK_BASE_DIR.
-		file( TO_CMAKE_PATH "$ENV{WIRESHARK_LIB_DIR}" _PROJECT_LIB_DIR )
-	elseif( DEFINED ENV{WIRESHARK_BASE_DIR} )
-		file( TO_CMAKE_PATH "$ENV{WIRESHARK_BASE_DIR}" _WS_BASE_DIR )
-		set( _PROJECT_LIB_DIR "${_WS_BASE_DIR}/wireshark-${WIRESHARK_TARGET_PLATFORM}-libs" )
-	else()
-		# Don't know what to do
-		message(FATAL_ERROR "Neither WIRESHARK_BASE_DIR or WIRESHARK_LIB_DIR are defined")
+	if(USE_REPOSITORY)
+		find_package(PowerShell REQUIRED)
+
+		if( DEFINED ENV{WIRESHARK_LIB_DIR} )
+			# The buildbots set WIRESHARK_LIB_DIR but not WIRESHARK_BASE_DIR.
+			file( TO_CMAKE_PATH "$ENV{WIRESHARK_LIB_DIR}" _PROJECT_LIB_DIR )
+		elseif( DEFINED ENV{WIRESHARK_BASE_DIR} )
+			file( TO_CMAKE_PATH "$ENV{WIRESHARK_BASE_DIR}" _WS_BASE_DIR )
+			set( _PROJECT_LIB_DIR "${_WS_BASE_DIR}/wireshark-${WIRESHARK_TARGET_PLATFORM}-libs" )
+		else()
+			# Don't know what to do
+			message(FATAL_ERROR "Neither WIRESHARK_BASE_DIR or WIRESHARK_LIB_DIR are defined")
+		endif()
+
+		# Download third-party libraries
+		file (TO_NATIVE_PATH ${CMAKE_SOURCE_DIR}/tools/win-setup.ps1 _win_setup)
+		file (TO_NATIVE_PATH ${_PROJECT_LIB_DIR} _ws_lib_dir)
+
+		# Is it possible to have a one-time, non-cached option in CMake? If
+		# so, we could add a "-DFORCE_WIN_SETUP" which passes -Force to
+		# win-setup.ps1.
+		execute_process(
+			COMMAND ${POWERSHELL_COMMAND} "\"${_win_setup}\"" -Destination "${_ws_lib_dir}" -Platform ${WIRESHARK_TARGET_PLATFORM}
+			RESULT_VARIABLE _win_setup_failed
+			ERROR_VARIABLE _win_setup_error_output
+		)
+		if(_win_setup_failed)
+			message(FATAL_ERROR "Windows setup (win-setup.ps1) failed: ${_win_setup_error_output}.")
+		endif()
+
+		set(EXTRA_INSTALLER_DIR ${_ws_lib_dir})
+
+		# XXX Add a dependency on ${_ws_lib_dir}/current_tag.txt?
 	endif()
-
-	# Download third-party libraries
-	file (TO_NATIVE_PATH ${CMAKE_SOURCE_DIR}/tools/win-setup.ps1 _win_setup)
-	file (TO_NATIVE_PATH ${_PROJECT_LIB_DIR} _ws_lib_dir)
-
-	# Is it possible to have a one-time, non-cached option in CMake? If
-	# so, we could add a "-DFORCE_WIN_SETUP" which passes -Force to
-	# win-setup.ps1.
-	execute_process(
-		COMMAND ${POWERSHELL_COMMAND} "\"${_win_setup}\"" -Destination "${_ws_lib_dir}" -Platform ${WIRESHARK_TARGET_PLATFORM}
-		RESULT_VARIABLE _win_setup_failed
-		ERROR_VARIABLE _win_setup_error_output
-	)
-	if(_win_setup_failed)
-		message(FATAL_ERROR "Windows setup (win-setup.ps1) failed: ${_win_setup_error_output}.")
-	endif()
-
-	set(EXTRA_INSTALLER_DIR ${_ws_lib_dir})
-
-	# XXX Add a dependency on ${_ws_lib_dir}/current_tag.txt?
 endif(WIN32)
 
 include(UseCustomIncludes)
@@ -1959,7 +1981,7 @@ if(NOT WIN32)
 	list(APPEND INSTALL_FILES COPYING)
 endif()
 
-if(WIN32)
+if(USE_REPOSITORY)
 	set(_dll_output_dir "${DATAFILE_DIR}")
 	add_custom_target(copy_cli_dlls)
 	set_target_properties(copy_cli_dlls PROPERTIES FOLDER "Copy Tasks")
@@ -2159,7 +2181,7 @@ if(WIN32)
 			WORKING_DIRECTORY "${_dll_output_dir}"
 		)
 	endif()
-endif(WIN32)
+endif()
 
 # List of extra dependencies for the "copy_data_files" target
 set(copy_data_files_depends)

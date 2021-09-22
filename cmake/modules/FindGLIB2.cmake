@@ -24,7 +24,7 @@ endif()
 include( FindWSWinLibs )
 FindWSWinLibs( "vcpkg-export-*" "GLIB2_HINTS" )
 
-if (NOT WIN32)
+if (NOT USE_REPOSITORY)
 	find_package(PkgConfig)
 	pkg_search_module( PC_GLIB2 glib-2.0 )
 endif()
@@ -65,7 +65,7 @@ FindWSLibrary( GLIB2_LIBRARY
 		/usr/lib
 )
 
-if (WIN32)
+if (USE_REPOSITORY)
 	# In the Windows vcpkg port glibconfig.h is in
 	# installed/$ARCH-windows/lib/glib-2.0/include.
 	set( glib2LibDir "${GLIB2_HINTS}/lib" )
@@ -79,6 +79,7 @@ find_path( GLIB2_INTERNAL_INCLUDE_DIR
 	NAMES
 		glibconfig.h
 	HINTS
+		"${PC_GLIB2_LIBDIR}"
 		"${glib2LibDir}"
 		"${GLIB2_INCLUDEDIR}"
 		${CMAKE_SYSTEM_LIBRARY_PATH}
@@ -121,7 +122,7 @@ if( GLIB2_FOUND )
 		list(APPEND GLIB2_LIBRARIES -pthread ${PCRE_LIBRARY})
 	endif()
 	set( GLIB2_INCLUDE_DIRS ${GLIB2_MAIN_INCLUDE_DIR} ${GLIB2_INTERNAL_INCLUDE_DIR} )
-	if ( WIN32 AND GLIB2_FOUND )
+	if ( USE_REPOSITORY AND GLIB2_FOUND )
 		set ( GLIB2_DLL_DIR_RELEASE "${GLIB2_HINTS}/bin"
 			CACHE PATH "Path to GLib2 release DLLs"
 		)
