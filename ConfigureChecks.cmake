@@ -107,10 +107,6 @@ check_symbol_exists(tzname "time.h" HAVE_TZNAME)
 # Check if the libc vsnprintf() conforms to C99. If this fails we may
 # need to fall-back on GLib I/O.
 #
-cmake_push_check_state(RESET)
-if(MINGW)
-	set(CMAKE_REQUIRED_DEFINITIONS -D__USE_MINGW_ANSI_STDIO)
-endif()
 check_c_source_runs("
 	#include <stdio.h>
 	int main(void)
@@ -124,7 +120,6 @@ check_c_source_runs("
 	}"
 	HAVE_C99_VSNPRINTF
 )
-cmake_pop_check_state()
 if (NOT HAVE_C99_VSNPRINTF)
 	message(FATAL_ERROR
 "Building Wireshark requires a C99 compliant vsnprintf() and this \
