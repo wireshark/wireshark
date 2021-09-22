@@ -94,16 +94,19 @@ if(WIN32)
 	elseif(CMAKE_GENERATOR MATCHES "Visual Studio")
 		set(WIRESHARK_TARGET_PLATFORM win32)
 	elseif(DEFINED ENV{WIRESHARK_TARGET_PLATFORM})
-		set(WIRESHARK_TARGET_PLATFORM $ENV{WIRESHARK_TARGET_PLATFORM})
+		string(TOLOWER $ENV{WIRESHARK_TARGET_PLATFORM} _target_platform)
+		set(WIRESHARK_TARGET_PLATFORM ${_target_platform})
 	else()
-		message(WARNING "Assuming \"Win64\" target platform")
+		message(WARNING "Assuming \"win64\" target platform")
 		set(WIRESHARK_TARGET_PLATFORM win64)
 	endif()
 
 	if(WIRESHARK_TARGET_PLATFORM MATCHES "win64")
 		set(WIRESHARK_TARGET_PROCESSOR_ARCHITECTURE amd64)
-	else()
+	elseif(WIRESHARK_TARGET_PLATFORM MATCHES "win32")
 		set(WIRESHARK_TARGET_PROCESSOR_ARCHITECTURE x86)
+	else()
+		message(FATAL_ERROR "Invalid target platform: ${WIRESHARK_TARGET_PLATFORM}")
 	endif()
 
 	# Sanity check
@@ -122,7 +125,10 @@ if(WIN32)
 				" doesn't match the generator platform (${WIRESHARK_TARGET_PLATFORM})")
 		endif()
 	endif()
-	message(STATUS "Building for ${WIRESHARK_TARGET_PLATFORM} using ${CMAKE_GENERATOR}")
+	message(STATUS
+		"Building for ${WIRESHARK_TARGET_PLATFORM} using \"${CMAKE_GENERATOR}\" \
+and CPU target architecture \"${WIRESHARK_TARGET_PROCESSOR_ARCHITECTURE}\""
+	)
 
 	# Determine where the 3rd party libraries will be
 	if( DEFINED ENV{WIRESHARK_LIB_DIR} )
