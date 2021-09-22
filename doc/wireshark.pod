@@ -1682,15 +1682,12 @@ line using the B<-z conv> argument.
 =over 4
 
 =item *
-
 AFP
 
 =item *
-
 CAMEL
 
 =item *
-
 DCE-RPC
 
 Open a window to display Service Response Time statistics for an
@@ -1707,11 +1704,9 @@ that match that filter will be used to calculate the statistics.  If no filter
 string is specified all request/response pairs will be used.
 
 =item *
-
 Diameter
 
 =item *
-
 Fibre Channel
 
 Open a window to display Service Response Time statistics for Fibre Channel
@@ -1729,11 +1724,9 @@ that match that filter will be used to calculate the statistics.  If no filter
 string is specified all request/response pairs will be used.
 
 =item *
-
 GTP
 
 =item *
-
 H.225 RAS
 
 Collect requests/response SRT (Service Response Time) data for ITU-T H.225 RAS.
@@ -1749,15 +1742,12 @@ the calculation.  The statistics will only be calculated
 on those calls matching that filter.
 
 =item *
-
 LDAP
 
 =item *
-
 MEGACO
 
 =item *
-
 MGCP
 
 Collect requests/response SRT (Service Response Time) data for MGCP.
@@ -1771,11 +1761,9 @@ the calculation.  The statistics will only be calculated
 on those calls matching that filter.
 
 =item *
-
 NCP
 
 =item *
-
 ONC-RPC
 
 Open a window to display statistics for an arbitrary ONC-RPC program interface
@@ -1794,15 +1782,12 @@ mouse button) Wireshark will display a popup menu offering several different
 filter operations to apply to the capture.
 
 =item *
-
 RADIUS
 
 =item *
-
 SCSI
 
 =item *
-
 SMB
 
 Collect call/reply SRT (Service Response Time) data for SMB.  Data collected
@@ -1827,7 +1812,6 @@ mouse button) Wireshark will display a popup menu offering several different
 filter operations to apply to the capture.
 
 =item *
-
 SMB2
 
 =back
@@ -2699,7 +2683,7 @@ An example is:
 A partially matched name will be printed as "subnet-name.remaining-address".
 For example, "192.168.0.1" under the subnet above would be printed as
 "ws_test_network.1"; if the mask length above had been 16 rather than 24, the
-printed address would be ``ws_test_network.0.1".
+printed address would be "ws_test_network.0.1".
 
 =item Name Resolution (ethers)
 
