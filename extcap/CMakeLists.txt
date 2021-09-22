@@ -74,9 +74,10 @@ macro(set_extcap_executable_properties _executable)
 		endif()
 	endif()
 
-	if (MINGW AND CMAKE_VERSION VERSION_GREATER "3.12.99")
+	if (MINGW)
 		set_target_properties(${_executable} PROPERTIES
-			LINK_OPTIONS -municode)
+			LINK_OPTIONS -municode
+		)
 	endif()
 endmacro()
 

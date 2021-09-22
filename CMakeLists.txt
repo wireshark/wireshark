@@ -2587,7 +2587,7 @@ endmacro()
 
 macro(executable_link_mingw_unicode _target)
 	# target_link_options() requires CMake >= 3.13
-	if (MINGW AND CMAKE_VERSION VERSION_GREATER "3.12.99")
+	if (MINGW)
 		target_link_options(${_target} PRIVATE "-municode")
 	endif()
 endmacro()
