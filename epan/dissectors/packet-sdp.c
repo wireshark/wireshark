@@ -27,6 +27,7 @@
 #include <epan/conversation.h>
 
 #include <wsutil/strtoi.h>
+#include <wsutil/str_util.h>
 
 #include "packet-http.h"
 #include "packet-sdp.h"
@@ -1588,6 +1589,22 @@ static gint find_sdp_media_attribute_names(tvbuff_t *tvb, int offset, guint len)
     return -1;
 }
 
+/* A few protocols give the fmtp parameter as a string instead of a
+ * numeric payload type, list them here (lower case for comparison).
+ */
+static const string_string media_format_str_types[] = {
+    /* ETSI TS 102 472, ETSI TS 102 592 */
+    { "ipdc-kmm", "IP Datacast Key Management Message"},
+    { "ipdc-ksm", "IP Datacast Key Stream Message"},
+    /* ETSI TS 124 380 */
+    { "mcptt",    "Mission Critical Push To Talk"},
+    /* ETSI TS 124 581 */
+    { "mcvideo",  "Mission Critical Video"},
+    /* OMA PoC Control Plane */
+    { "tbcp",     "Talk Burst Control Protocol"},
+    { 0, NULL }
+};
+
 static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_item * ti, int length,
                                         transport_info_t *transport_info,
                                         session_info_t *session_info,
@@ -1601,6 +1618,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
     gint          offset, next_offset, tokenlen, colon_offset;
     /*??guint8   *field_name;*/
     const guint8 *payload_type;
+    const guint8 *media_format_str;
     guint8       *attribute_value;
     guint8        pt;
     gint          sdp_media_attrbute_code;
@@ -1749,21 +1767,21 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
                 media_format_item = proto_tree_add_item_ret_string(sdp_media_attribute_tree, hf_media_format, tvb,
                     offset, tokenlen, ENC_UTF_8 | ENC_NA, pinfo->pool, &payload_type);
 
+                /* Append encoding name to format if known */
+                payload_type = wmem_ascii_strdown(pinfo->pool, payload_type, -1);
                 media_format = 0;
-                if (g_ascii_strncasecmp(payload_type, "MCPTT", 5) != 0) {
-                    if (g_ascii_strncasecmp(payload_type, "TBCP", 4) != 0) {
-                        if (g_ascii_strncasecmp(payload_type, "MCVideo", 7) != 0) {
-                            if (!ws_strtou8(payload_type, NULL, &media_format) || media_format >= SDP_NO_OF_PT) {
-                                expert_add_info(pinfo, media_format_item, &ei_sdp_invalid_media_format);
-                                return;
-                            }
-                            /* Append encoding name to format if known */
-                            if (media_format) {
-                                proto_item_append_text(media_format_item, " [%s]",
-                                    transport_info->encoding_name[media_format]);
-                            }
-                        }
+                if ((media_format_str = try_str_to_str(payload_type, media_format_str_types))) {
+
+                    proto_item_append_text(media_format_item, " [%s]",
+                        media_format_str);
+                } else if (ws_strtou8(payload_type, NULL, &media_format) && media_format < SDP_NO_OF_PT) {
+                    if (media_format) {
+                        proto_item_append_text(media_format_item, " [%s]",
+                            transport_info->encoding_name[media_format]);
                     }
+                } else {
+                    expert_add_info(pinfo, media_format_item, &ei_sdp_invalid_media_format);
+                    return;
                 }
 
 
