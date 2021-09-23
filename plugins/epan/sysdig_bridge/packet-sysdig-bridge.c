@@ -186,18 +186,16 @@ gboolean async_plugin_wait(void *wait_ctx)
     guint64 start_time = 0;
 
     /*
-     * Worker has done and now waits for a new input or a shutdown request.
+     * Worker is done and now waits for a new input or a shutdown request.
      * Note: we busy loop for the first 1ms to guarantee maximum performance.
      *       After 1ms we start sleeping to conserve CPU.
      */
-
     while (TRUE) {
 #ifdef _WIN32
         int old_val = InterlockedCompareExchange(plock, LS_PROCESSING, LS_INPUT_READY);
 #else
         int old_val = __sync_val_compare_and_swap(plock, LS_INPUT_READY, LS_PROCESSING);
 #endif
-
         if (old_val == LS_PROCESSING) {
             return TRUE;
         }
@@ -244,7 +242,6 @@ gboolean async_plugin_wait(void *wait_ctx)
 void async_plugin_shutdown(void* wait_ctx)
 {
     volatile guint* plock = (volatile guint*)wait_ctx;
-
     while (TRUE) {
 #ifdef _WIN32
         int old_val = InterlockedCompareExchange(plock, LS_SHUTDOWN_REQ, LS_DONE);
@@ -468,8 +465,6 @@ void
 import_plugin(char* fname)
 {
     nbridges++;
-    bridges = (bridge_info*)g_realloc(bridges, nbridges * sizeof(bridge_info));
-
     bridge_info* bi = &bridges[nbridges - 1];
 
     if (create_dynlib_source(fname, &(bi->si)) == FALSE) {
@@ -493,6 +488,7 @@ import_plugin(char* fname)
 static void
 on_wireshark_exit(void)
 {
+
     for (guint j = 0; j < nbridges; j++) {
         bridge_info* bi = bridges + j;
         if (bi->si.register_async_extractor != NULL) {
@@ -534,6 +530,22 @@ proto_register_sdplugin(void)
     char dname[2048];
     const char *wspgdname = get_plugins_dir();
     snprintf(dname, sizeof(dname), "%s/../sysdig", wspgdname);
+
+    /*
+     * We scan the plugins directory twice. The first time we count how many
+     * plugins we have, which we need to know in order to allocate the right
+     * amount of memory. The second time we actually load and configure
+     * each plugin.
+     */
+    if ((dir = ws_dir_open(dname, 0, NULL)) != NULL) {
+        while ((file = ws_dir_read_name(dir)) != NULL) {
+            nbridges++;
+        }
+        ws_dir_close(dir);
+    }
+
+    bridges = (bridge_info*)g_malloc(nbridges * sizeof(bridge_info));
+    nbridges = 0;
 
     if ((dir = ws_dir_open(dname, 0, NULL)) != NULL) {
         while ((file = ws_dir_read_name(dir)) != NULL) {
