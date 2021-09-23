@@ -1794,8 +1794,8 @@ set_package_properties(SpeexDSP PROPERTIES
 	PURPOSE "RTP audio resampling"
 )
 set_package_properties(Minizip PROPERTIES
-	URL "https://www.winimage.com/zLibDll/minizip.html"
-	DESCRIPTION "C library for supporting zip/unzip functionality"
+	URL "https://github.com/madler/zlib"
+	DESCRIPTION "Mini zip and unzip based on zlib"
 	PURPOSE "Support for profiles import/export"
 )
 set_package_properties(SMI PROPERTIES
