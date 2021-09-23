@@ -12,11 +12,8 @@ working on Analyzer. The specification was found at:
 
 http://analyzer.polito.it/30alpha/docs/dissectors/PDMLSpec.htm
 
-That URL is not working any more, but a copy can be found at:
-
-http://gd.tuwien.ac.at/.vhost/analyzer.polito.it/docs/dissectors/PDMLSpec.htm
-
-or at the internet archive:
+That URL is not working anymore, but a copy can be found at the Internet
+Archive:
 
 https://web.archive.org/web/20050305174853/http://analyzer.polito.it/30alpha/docs/dissectors/PDMLSpec.htm
 
@@ -24,16 +21,16 @@ This is similar to the NetPDL language specification:
 
 http://www.nbee.org/doku.php?id=netpdl:index
 
+The domain registration there has also expired, but an Internet Archive
+copy is also available at:
+
+https://web.archive.org/web/20160305211810/http://nbee.org/doku.php?id=netpdl:index
+
 A related XML format, the Packet Summary Markup Language (PSML), is
 also defined by the Analyzer group to provide packet summary information.
 The PSML format is not documented in a publicly-available HTML document,
-but its format is simple. Wireshark can export this format too. Some day it
-may be added to tshark so that "-Tpsml" would produce PSML.
-
-One wonders if the "-T" option should read "-Txml" instead of "-Tpdml"
-(and in the future, "-Tpsml"), but if tshark was required to produce
-another XML-based format of its protocol dissection, then "-Txml" would
-be ambiguous.
+but its format is simple. Wireshark can export this format too, and
+tshark can produce it with the "-Tpsml" option.
 
 PDML
 ====
@@ -41,7 +38,9 @@ The PDML that Wireshark produces is known not to be loadable into Analyzer.
 It causes Analyzer to crash. As such, the PDML that Wireshark produces
 is labeled with a version number of "0", which means that the PDML does
 not fully follow the PDML spec. Furthermore, a creator attribute in the
-"<pdml>" tag gives the version number of wireshark/tshark that produced the PDML.
+"<pdml>" tag gives the version number of wireshark/tshark that produced the
+PDML.
+
 In that way, as the PDML produced by Wireshark matures, but still does not
 meet the PDML spec, scripts can make intelligent decisions about how to
 best parse the PDML, based on the "creator" attribute.
@@ -96,14 +95,26 @@ The "<field>" tag
 	show - the representation of the packet data ('value') as it would
 		appear in a display filter.
 
+
+Deviations from the PDML standard
+=================================
+Various dissectors parse packets in a way that does not fit all the assumptions
+in the PDML specification. In some cases Wireshark adjusts the output to match
+the spec more closely, but exceptions exist.
+
 Some dissectors sometimes place text into the protocol tree, without using
 a field with a field-name. Those appear in PDML as "<field>" tags with no
 'name' attribute, but with a 'show' attribute giving that text.
 
+Some dissectors place field items at the top level instead of inside a
+protocol. In these cases, in the PDML output the field items are placed
+inside a fake "<proto>" element named "fake-field-wrapper" in order to
+maximize compliance.
+
 Many dissectors label the undissected payload of a protocol as belonging
-to a "data" protocol, and the "data" protocol usually resided inside
-that last protocol dissected. In the PDML, The "data" protocol becomes
-a "data" field, placed exactly where the "data" protocol is in wireshark's
+to a "data" protocol, and the "data" protocol often resides inside
+that last protocol dissected. In the PDML, the "data" protocol becomes
+a "data" field, placed exactly where the "data" protocol is in Wireshark's
 protocol tree. So, if Wireshark would normally show:
 
 +-- Frame
@@ -143,7 +154,23 @@ In PDML, the "Data" protocol would become another field under HTTP:
 	</proto>
 </packet>
 
+In cases where the "data" protocol appears at the top level, it is
+still converted to a field, and placed inside the "fake-field-wrapper"
+protocol, just as any other top level field.
+
+Similarly, expert info items in Wireshark belong to an internal protocol
+named "_ws.expert", which is likewise converted into a "<field>" element
+of that name.
+
+Some dissectors also place subdissected protocols in a subtree instead of
+at the top level. Unlike with the "data" protocol, the PDML output does
+_not_ change these protocols to fields, but rather outputs them as "<proto>"
+elements. This results in well-formed XML that does, however, violate the
+PDML spec, as "<proto>" elements should only appear as direct children of
+"<packet>" elements, with only "<field>" elements nested therein.
+
 Note that packet tag may have nonstandard color attributes, "foreground" and "background"
+
 
 tools/WiresharkXML.py
 ====================
