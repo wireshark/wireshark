@@ -258,7 +258,7 @@ openSUSE 15.2 RPM Test:
   extends: .test-rpm
   image: wireshark/wireshark-opensuse-15.2-dev
   script:
-    - zypper --no-gpg-checks install -y build/packaging/rpm/RPMS/x86_64/*.rpm
+    - zypper --no-gpg-checks --no-remote install -y build/packaging/rpm/RPMS/x86_64/*.rpm
     - tshark --version
   needs: [ 'openSUSE 15.2 RPM Package' ]
 
@@ -568,7 +568,7 @@ Code Checks + Clang Warnings:
     - ../tools/validate-clang-check.sh -c $CLANG_VERSION 2> >(tee ../tmp_clang_analyzer_check.txt)
     - ansi2txt < ../tmp_clang_analyzer_check.txt > ../clang_analyzer_check.txt
     - ansi2html < ../tmp_clang_analyzer_check.txt > ../html/clang_analyzer_check.html
-    - ninja checkAPI 
+    - ninja checkAPI
   artifacts:
     paths:
       - clang_report.txt
