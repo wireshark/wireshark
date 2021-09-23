@@ -136,6 +136,9 @@
 /* Define to use the minizip library */
 #cmakedefine HAVE_MINIZIP 1
 
+/* Define if `dos_date' (with underscore) field exists in `zip_fileinfo'  */
+#cmakedefine HAVE_MZCOMPAT_DOS_DATE 1
+
 /* Define to use brotli library */
 #cmakedefine HAVE_BROTLI 1
 
