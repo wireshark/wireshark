@@ -35,9 +35,11 @@ for FILE in $COMMIT_FILES; do
     fi
     # extcap/{etwdump.c,etl.c,etw_message.c}: those compile, and are compiled,
     # only on Windows
+    # The same applies to capture-wpcap.c
     if test \( "$FILE_BASENAME" = "etwdump.c" -o \
                "$FILE_BASENAME" = "etl.c" -o \
-               "$FILE_BASENAME" = "etw_message.c" \)
+               "$FILE_BASENAME" = "etw_message.c" -o \
+               "$FILE_BASENAME" = "capture-wpcap.c" \)
     then
         continue
     fi
