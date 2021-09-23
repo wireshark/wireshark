@@ -1274,13 +1274,9 @@ When Wireshark starts, the color filters are loaded from:
 
 =over
 
-=item 1.
+=item 1. The user's personal color filters file or, if that does not exist,
 
-The user's personal color filters file or, if that does not exist,
-
-=item 2.
-
-The global color filters file.
+=item 2. The global color filters file.
 
 =back
 

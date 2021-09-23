@@ -41,19 +41,20 @@ To resolve a single address:
 
     echo 4.4.4.4 | mmdbresolve -f /usr/share/GeoIP/GeoLite2-City.mmdb
 
-  Example output:
-[init]
-db.0.path: /usr/share/GeoIP/GeoLite2-City.mmdb
-db.0.status: OK
-mmdbresolve.status: true
-# End init
-[4.4.4.4]
-# GeoLite2-City
-country.iso_code: US
-country.names.en: United States
-location.latitude: 37.751000
-location.longitude: -97.822000
-# End 4.4.4.4
+Example output:
+
+    [init]
+    db.0.path: /usr/share/GeoIP/GeoLite2-City.mmdb
+    db.0.status: OK
+    mmdbresolve.status: true
+    # End init
+    [4.4.4.4]
+    # GeoLite2-City
+    country.iso_code: US
+    country.names.en: United States
+    location.latitude: 37.751000
+    location.longitude: -97.822000
+    # End 4.4.4.4
 
 =head1 SEE ALSO
 
