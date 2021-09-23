@@ -45,6 +45,7 @@ alteon
 amperage
 ampere
 amperes
+anacap
 analyzers
 analyzes
 annexc
@@ -180,6 +181,7 @@ checkout
 checksum
 choco
 chocolatey
+chromaticities
 chunked
 ciphered
 ciphering
@@ -199,6 +201,7 @@ codecs
 codepoint
 codeset
 codingrate
+codute
 collectd
 colocated
 coloring
@@ -261,6 +264,7 @@ deactivated
 deactivating
 deactivation
 deassert
+deasserted
 deassertion
 deauth
 deauthenticate
@@ -294,6 +298,7 @@ delimited
 delimiters
 delimiting
 demodulator
+demultiplexed
 demultiplexer
 demultiplexers
 deobfuscated
@@ -370,6 +375,7 @@ editcap
 egprs
 egroup
 eigrp
+elided
 elink
 ellipsoid
 encap
@@ -385,6 +391,7 @@ endian
 endianness
 engineid
 enodeb
+enqueue
 enrollee
 entityid
 entryid
@@ -393,6 +400,7 @@ enumerations
 enumerator
 epasv
 epdcch
+equinf
 ericsson
 erldp
 errinf
@@ -565,6 +573,7 @@ iptables
 iptrace
 ipv4addr
 isakmp
+iscsi
 iseries
 isobus
 isochronous
@@ -608,6 +617,7 @@ linux
 list1
 literals
 lithionics
+lnpdqp
 logcat
 loghans
 loglocal
@@ -822,6 +832,7 @@ pname
 polestar
 popup
 portcounters
+portid
 portinfo
 portmod
 portno
@@ -942,6 +953,7 @@ referer
 referrer
 regex
 regexp
+regionid
 reimplemented
 reinitialization
 reinitialize
@@ -998,7 +1010,9 @@ retyping
 revalidate
 revalidation
 revertive
+revocations
 rfcomm
+rgoose
 rlcmac
 rmcap
 rnsap
@@ -1011,6 +1025,7 @@ rxreq
 sanicap
 sanitize
 satisfiable
+scalability
 scaler
 scannable
 scell
@@ -1049,6 +1064,7 @@ simulcast
 skype
 slsch
 smpte
+smrse
 sname
 snaplen
 snow3g
@@ -1180,6 +1196,7 @@ toggled
 toggling
 toolbar
 toolongfragment
+toolset
 tooltip
 toshiba
 touchlink
@@ -1343,6 +1360,7 @@ v1530
 v1610
 validator
 varint
+vcredist
 verifier
 verizon
 version2
@@ -1377,12 +1395,14 @@ withoutfcs
 wksta
 workarounds
 writable
+wsbuild
 wscale
 wslua
 wsluarm
 x509sat
 xchannel
 xmlns
+xsltproc
 xtreme
 z3950
 zeroes

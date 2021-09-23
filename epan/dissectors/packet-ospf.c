@@ -2750,7 +2750,7 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree 
 
                 if (stlv_len < 4) {
                   proto_tree_add_expert_format(tlv_tree, pinfo, &ei_ospf_stlv_length_invalid, tvb, stlv_offset + 2, 2,
-                                        "Invalid sub-TLV lentgh: %u", stlv_len);
+                                        "Invalid sub-TLV length: %u", stlv_len);
                   break;
                 }
 

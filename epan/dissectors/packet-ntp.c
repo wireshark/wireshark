@@ -324,7 +324,7 @@ static const value_string ctrl_peer_status_selection_types[] = {
 	{ 1,		"passed sanity checks (tests 1 through 8 in Section 3.4.3)" },
 	{ 2,		"passed correctness checks (intersection algorithm in Section 4.2.1)" },
 	{ 3,		"passed candidate checks (if limit check implemented)" },
-	{ 4,		"passed outlyer checks (clustering algorithm in Section 4.2.2)" },
+	{ 4,		"passed outlier checks (clustering algorithm in Section 4.2.2)" },
 	{ 5,		"current synchronization source; max distance exceeded (if limit check implemented)" },
 	{ 6,		"current synchronization source; max distance okay" },
 	{ 7,		"reserved" },
