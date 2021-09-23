@@ -1384,6 +1384,7 @@ ssh_dissect_key_init(tvbuff_t *tvb, int offset, proto_tree *tree,
         proto_item_set_generated(ti);
         ti = proto_tree_add_string(key_init_tree, hf_ssh_kex_hasshserver, tvb, offset, 0, hassh);
         proto_item_set_generated(ti);
+        g_free(hassh);
     }
 
     if (global_data->peer_data[CLIENT_PEER_DATA].kex_proposal &&
