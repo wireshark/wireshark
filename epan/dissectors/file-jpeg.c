@@ -349,6 +349,7 @@ static gint hf_idf_offset = -1;
 static gint ett_jfif = -1;
 static gint ett_marker_segment = -1;
 static gint ett_details = -1;
+static gint ett_ifd = -1;
 
 static expert_field ei_file_jpeg_first_identifier_not_jfif   = EI_INIT;
 static expert_field ei_start_ifd_offset   = EI_INIT;
@@ -613,7 +614,7 @@ process_app1_segment(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, guint3
          */
         int encoding;
         guint16 val_16;
-        guint32 val_32, num_fields;
+        guint32 val_32;
         proto_item* tiff_item;
 
         offset++; /* Skip a byte supposed to be 0x00 */
@@ -661,27 +662,33 @@ process_app1_segment(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, guint3
             proto_tree_add_bytes_format_value(subtree, hf_skipped_tiff_data, tvb, offset, val_32 + tiff_start - offset, NULL, "%u bytes",
                 val_32 + tiff_start - offset);
         }
-        for (;;) {
+        for (unsigned ifd_index = 0;; ++ifd_index) {
+            guint32 num_fields;
+            proto_tree *subtree_ifd;
+
             offset = val_32 + tiff_start;
             /*
              * Process the IFD
              */
-            proto_tree_add_item_ret_uint(subtree, hf_ifd_num_fields, tvb, offset, 2, encoding, &num_fields);
+            num_fields = tvb_get_guint16(tvb, offset, encoding);
+            subtree_ifd = proto_tree_add_subtree_format(subtree, tvb, offset, num_fields * 12 + 6,
+                    ett_ifd, NULL, "Image File Directory #%u", ifd_index);
+            proto_tree_add_item(subtree_ifd, hf_ifd_num_fields, tvb, offset, 2, encoding);
             offset += 2;
             while (num_fields-- > 0) {
-                proto_tree_add_item(subtree, hf_idf_tag, tvb, offset, 2, encoding);
+                proto_tree_add_item(subtree_ifd, hf_idf_tag, tvb, offset, 2, encoding);
                 offset += 2;
-                proto_tree_add_item(subtree, hf_idf_type, tvb, offset, 2, encoding);
+                proto_tree_add_item(subtree_ifd, hf_idf_type, tvb, offset, 2, encoding);
                 offset += 2;
-                proto_tree_add_item(subtree, hf_idf_count, tvb, offset, 4, encoding);
+                proto_tree_add_item(subtree_ifd, hf_idf_count, tvb, offset, 4, encoding);
                 offset += 4;
-                proto_tree_add_item(subtree, hf_idf_offset, tvb, offset, 4, encoding);
+                proto_tree_add_item(subtree_ifd, hf_idf_offset, tvb, offset, 4, encoding);
                 offset += 4;
             }
             /*
              * Offset to the next IFD
              */
-            tiff_item = proto_tree_add_item_ret_uint(subtree, hf_next_ifd_offset, tvb, offset, 4, encoding, &val_32);
+            tiff_item = proto_tree_add_item_ret_uint(subtree_ifd, hf_next_ifd_offset, tvb, offset, 4, encoding, &val_32);
             offset += 4;
             if (val_32 != 0 &&
                 val_32 + tiff_start < (guint32)offset) {
@@ -1282,6 +1289,7 @@ proto_register_jfif(void)
         &ett_jfif,
         &ett_marker_segment,
         &ett_details,
+        &ett_ifd,
     };
 
     static ei_register_info ei[] = {
