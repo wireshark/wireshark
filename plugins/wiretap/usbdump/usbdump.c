@@ -176,7 +176,7 @@ usbdump_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err, gchar **err_info,
     if (usbdump_info->multiframe_overrun)
     {
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = "Multiframe overrun";
+        *err_info = g_strdup_printf("Multiframe overrun");
         return FALSE;
     }
 
