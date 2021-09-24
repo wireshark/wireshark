@@ -256,6 +256,7 @@ set(LIBWIRESHARK_NONGENERATED_FILES
 	tvbuff_lz77.c
 	tvbuff_lz77huff.c
 	tvbuff_lznt1.c
+	tvbuff_rdp.c
 	uat.c
 	value_string.c
 	wscbor.c

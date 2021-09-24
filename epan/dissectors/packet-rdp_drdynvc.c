@@ -54,6 +54,7 @@ static int ett_rdp_drdynvc_softsync_channels = -1;
 static int ett_rdp_drdynvc_softsync_channel = -1;
 static int ett_rdp_drdynvc_softsync_dvc = -1;
 
+dissector_handle_t egfx_handle;
 
 #define PNAME  "RDP Dynamic Channel Protocol"
 #define PSNAME "DRDYNVC"
@@ -87,9 +88,18 @@ typedef enum {
 } drdynvc_known_channel_t;
 
 typedef struct {
+	wmem_array_t *packet;
+	guint32 pendingLen;
+	guint32 startFrame;
+} drdynvc_pending_packet_t;
+
+typedef struct {
 	drdynvc_known_channel_t type;
 	char *name;
 	guint32 channelId;
+
+	drdynvc_pending_packet_t pending_cs;
+	drdynvc_pending_packet_t pending_sc;
 } drdynvc_channel_def_t;
 
 #define DRDYNVC_MAX_CHANNELS 32
@@ -237,6 +247,7 @@ dissect_rdp_drdynvc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 	gboolean haveChannelId, havePri, haveLen;
 	gboolean isServerTarget = rdp_isServerAddressTarget(pinfo);
 	guint32 channelId = 0;
+	guint32 pduLen;
 	drdynvc_conv_info_t *info;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "DRDYNVC");
@@ -285,13 +296,13 @@ dissect_rdp_drdynvc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 
 	if (haveLen) {
 		Len = (cbIdSpCmd >> 2) & 0x3;
-		offset += dissect_rdp_vlength(tvb, hf_rdp_drdynvc_length, offset, Len, tree, NULL);
+		offset += dissect_rdp_vlength(tvb, hf_rdp_drdynvc_length, offset, Len, tree, &pduLen);
 	}
 
 	info = drdynvc_get_conversation_data(pinfo);
 	switch (cmdId) {
 		case DRDYNVC_CREATE_REQUEST_PDU:
-			if (isServerTarget) {
+			if (!isServerTarget) {
 				guint nameLen = tvb_strsize(tvb, offset);
 
 				col_set_str(pinfo->cinfo, COL_INFO, "CreateChannel Request");
@@ -303,6 +314,13 @@ dissect_rdp_drdynvc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 					channel->channelId = channelId;
 					channel->name = tvb_get_string_enc(NULL, tvb, offset, nameLen, ENC_ASCII);
 					channel->type = drdynvc_find_channel_type(channel->name);
+					channel->pending_cs.pendingLen = 0;
+					channel->pending_cs.packet = NULL;
+					channel->pending_cs.startFrame = pinfo->num;
+					channel->pending_sc.pendingLen = 0;
+					channel->pending_sc.packet = NULL;
+					channel->pending_sc.startFrame = pinfo->num;
+
 					info->maxChannels++;
 				}
 
@@ -328,7 +346,7 @@ dissect_rdp_drdynvc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 
 			offset += 2;
 
-			if (isServerTarget) {
+			if (!isServerTarget) {
 				col_set_str(pinfo->cinfo, COL_INFO, "Capabilities request");
 				proto_tree_add_item(tree, hf_rdp_drdynvc_capa_prio0, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 				offset += 2;
@@ -348,8 +366,31 @@ dissect_rdp_drdynvc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 			col_set_str(pinfo->cinfo, COL_INFO, "Data first");
 
 			if (channel) {
+				drdynvc_pending_packet_t *pendingPacket = isServerTarget ? &channel->pending_cs : &channel->pending_sc;
+				gint payloadLen = tvb_reported_length_remaining(tvb, offset);
 				proto_item *channelName = proto_tree_add_string_format_value(tree, hf_rdp_drdynvc_createresp_channelname, tvb, offset, 0, NULL, "%s", channel->name);
 				proto_item_set_generated(channelName);
+
+				pendingPacket->pendingLen = pduLen;
+				pendingPacket->pendingLen -= payloadLen;
+				pendingPacket->startFrame = pinfo->num;
+
+				if (!pendingPacket->pendingLen) {
+					switch (channel->type) {
+					case DRDYNVC_CHANNEL_EGFX:
+						call_dissector(egfx_handle, tvb_new_subset_remaining(tvb, offset), pinfo, tree);
+						break;
+					default:
+						proto_tree_add_item(tree, hf_rdp_drdynvc_data, tvb, offset, -1, ENC_NA);
+						break;
+					}
+
+					offset += payloadLen;
+					return offset;
+				} else {
+					pendingPacket->packet = wmem_array_sized_new(wmem_file_scope(), 1, pduLen);
+					wmem_array_append(pendingPacket->packet, tvb_get_ptr(tvb, offset, -1), payloadLen);
+				}
 			}
 
 			proto_tree_add_item(tree, hf_rdp_drdynvc_data, tvb, offset, -1, ENC_NA);
@@ -361,8 +402,45 @@ dissect_rdp_drdynvc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 			col_set_str(pinfo->cinfo, COL_INFO, "Data");
 
 			if (channel) {
+				drdynvc_pending_packet_t *pendingPacket = isServerTarget ? &channel->pending_cs : &channel->pending_sc;
+				gboolean fragmented = FALSE;
+				gint payloadLen = tvb_reported_length_remaining(tvb, offset);
 				proto_item *channelName = proto_tree_add_string_format_value(tree, hf_rdp_drdynvc_createresp_channelname, tvb, offset, 0, NULL, "%s", channel->name);
 				proto_item_set_generated(channelName);
+
+				if (pendingPacket->startFrame > pinfo->num) {
+					/* catch the case when we're on the second pass and the end of the capture
+					 * contains a packet fragment */
+					pendingPacket->pendingLen = 0;
+				}
+
+				if (pendingPacket->pendingLen) {
+					if ((guint32)payloadLen > pendingPacket->pendingLen) {
+						// TODO: error
+						return offset;
+					}
+					pendingPacket->pendingLen -= payloadLen;
+					wmem_array_append(pendingPacket->packet, tvb_get_ptr(tvb, offset, -1), payloadLen);
+					fragmented = TRUE;
+				}
+
+				if (!pendingPacket->pendingLen) {
+					tvbuff_t *targetTvb;
+					if (!fragmented) {
+						targetTvb = tvb_new_subset_remaining(tvb, offset);
+					} else {
+						gint reassembled_len = wmem_array_get_count(pendingPacket->packet);
+						targetTvb = tvb_new_real_data(wmem_array_get_raw(pendingPacket->packet), reassembled_len, reassembled_len);
+						add_new_data_source(pinfo, targetTvb, "Reassembled DRDYNVC");
+					}
+					switch (channel->type) {
+					case DRDYNVC_CHANNEL_EGFX:
+						return call_dissector(egfx_handle, targetTvb, pinfo, tree);
+					default:
+						proto_tree_add_item(tree, hf_rdp_drdynvc_data, tvb, offset, -1, ENC_NA);
+						return offset;
+					}
+				}
 			}
 
 			proto_tree_add_item(tree, hf_rdp_drdynvc_data, tvb, offset, -1, ENC_NA);
@@ -631,6 +709,7 @@ void proto_register_rdp_drdynvc(void) {
 }
 
 void proto_reg_handoff_drdynvc(void) {
+	egfx_handle = find_dissector("rdp_egfx");
 }
 
 /*
