@@ -63,7 +63,9 @@ def program_path(request):
     '''
     curdir_run = os.path.join(os.curdir, 'run')
     if sys.platform == 'win32':
-        curdir_run = os.path.join(curdir_run, 'RelWithDebInfo')
+        curdir_run_config = os.path.join(curdir_run, 'RelWithDebInfo')
+        if os.path.exists(curdir_run_config):
+            curdir_run = curdir_run_config
     paths = (
         request.config.getoption('--program-path', default=None),
         os.environ.get('WS_BIN_PATH'),
