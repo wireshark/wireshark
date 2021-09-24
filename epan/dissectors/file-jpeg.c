@@ -339,10 +339,10 @@ static gint hf_entropy_coded_segment = -1;
 static gint hf_fill_bytes = -1;
 static gint hf_skipped_tiff_data = -1;
 static gint hf_ifd_num_fields = -1;
-static gint hf_idf_tag = -1;
-static gint hf_idf_type = -1;
-static gint hf_idf_count = -1;
-static gint hf_idf_offset = -1;
+static gint hf_ifd_tag = -1;
+static gint hf_ifd_type = -1;
+static gint hf_ifd_count = -1;
+static gint hf_ifd_offset = -1;
 
 
 /* Initialize the subtree pointers */
@@ -676,13 +676,13 @@ process_app1_segment(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, guint3
             proto_tree_add_item(subtree_ifd, hf_ifd_num_fields, tvb, offset, 2, encoding);
             offset += 2;
             while (num_fields-- > 0) {
-                proto_tree_add_item(subtree_ifd, hf_idf_tag, tvb, offset, 2, encoding);
+                proto_tree_add_item(subtree_ifd, hf_ifd_tag, tvb, offset, 2, encoding);
                 offset += 2;
-                proto_tree_add_item(subtree_ifd, hf_idf_type, tvb, offset, 2, encoding);
+                proto_tree_add_item(subtree_ifd, hf_ifd_type, tvb, offset, 2, encoding);
                 offset += 2;
-                proto_tree_add_item(subtree_ifd, hf_idf_count, tvb, offset, 4, encoding);
+                proto_tree_add_item(subtree_ifd, hf_ifd_count, tvb, offset, 4, encoding);
                 offset += 4;
-                proto_tree_add_item(subtree_ifd, hf_idf_offset, tvb, offset, 4, encoding);
+                proto_tree_add_item(subtree_ifd, hf_ifd_offset, tvb, offset, 4, encoding);
                 offset += 4;
             }
             /*
@@ -1250,7 +1250,7 @@ proto_register_jfif(void)
               HFILL
           }
         },
-        { &hf_idf_tag,
+        { &hf_ifd_tag,
           {   "Exif Tag",
               "image-jfif.ifd.tag",
               FT_UINT16, BASE_DEC, VALS(vals_exif_tags), 0x0,
@@ -1258,7 +1258,7 @@ proto_register_jfif(void)
               HFILL
           }
         },
-        { &hf_idf_type,
+        { &hf_ifd_type,
           {   "Type",
               "image-jfif.ifd.type",
               FT_UINT16, BASE_DEC, VALS(vals_exif_types), 0x0,
@@ -1266,7 +1266,7 @@ proto_register_jfif(void)
               HFILL
           }
         },
-        { &hf_idf_count,
+        { &hf_ifd_count,
           {   "Count",
               "image-jfif.ifd.count",
               FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -1274,7 +1274,7 @@ proto_register_jfif(void)
               HFILL
           }
         },
-        { &hf_idf_offset,
+        { &hf_ifd_offset,
           {   "Value offset from start of TIFF header",
               "image-jfif.ifd.offset",
               FT_UINT32, BASE_DEC, NULL, 0x0,
