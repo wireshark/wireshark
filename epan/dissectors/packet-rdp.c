@@ -1223,9 +1223,6 @@ dissect_rdp_clientNetworkData(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 
   offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree, net_fields, 0);
 
-  copy_address(&rdp_info->serverAddr.addr, &pinfo->src);
-  rdp_info->serverAddr.port = pinfo->srcport;
-
   if (channelCount > 0) {
     guint i;
     pi        = proto_tree_add_item(next_tree, hf_rdp_channelDefArray, tvb, offset, channelCount * 12, ENC_NA);
@@ -2290,6 +2287,9 @@ dissect_rdp_ClientData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
   tree = dissect_rdp(tvb, pinfo, tree);
 
   rdp_info = rdp_get_conversation_data(pinfo);
+
+  copy_address(&rdp_info->serverAddr.addr, &pinfo->dst);
+  rdp_info->serverAddr.port = pinfo->destport;
 
   col_append_sep_str(pinfo->cinfo, COL_INFO, " ", "ClientData");
 
