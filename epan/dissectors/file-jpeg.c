@@ -256,7 +256,7 @@ static const value_string vals_exif_tags[] = {
     { 0x0110, "Model" },
     { 0x0131, "Software" },
     { 0x013B, "Artist" },
-    { 0x8296, "Copyright" },
+    { 0x8298, "Copyright" },
     /*
      * Exif-specific IFD:
      */
