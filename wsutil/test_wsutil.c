@@ -15,7 +15,7 @@
 #include "str_util.h"
 
 
-void test_format_size(void)
+static void test_format_size(void)
 {
     char *str;
 
@@ -34,7 +34,7 @@ void test_format_size(void)
 
 #include "to_str.h"
 
-void test_word_to_hex(void)
+static void test_word_to_hex(void)
 {
     static char buf[32];
     char *str;     /* String is not NULL terminated. */
@@ -82,7 +82,7 @@ void test_word_to_hex(void)
     g_assert_cmpint(str[-16], ==, '0');
 }
 
-void test_bytes_to_str(void)
+static void test_bytes_to_str(void)
 {
     char *str;
 
@@ -93,7 +93,7 @@ void test_bytes_to_str(void)
     g_free(str);
 }
 
-void test_bytes_to_str_punct(void)
+static void test_bytes_to_str_punct(void)
 {
     char *str;
 
@@ -104,7 +104,7 @@ void test_bytes_to_str_punct(void)
     g_free(str);
 }
 
-void test_bytes_to_string_trunc1(void)
+static void test_bytes_to_string_trunc1(void)
 {
     char *str;
 
@@ -128,7 +128,7 @@ void test_bytes_to_string_trunc1(void)
     g_free(str);
 }
 
-void test_bytes_to_string_punct_trunc1(void)
+static void test_bytes_to_string_punct_trunc1(void)
 {
     char *str;
 
@@ -154,7 +154,7 @@ void test_bytes_to_string_punct_trunc1(void)
 static char to_str_back_buf[32];
 #define BACK_PTR (&to_str_back_buf[31]) /* pointer to NUL string terminator */
 
-void test_oct_to_str_back(void)
+static void test_oct_to_str_back(void)
 {
     char *str;
 
@@ -168,7 +168,7 @@ void test_oct_to_str_back(void)
     g_assert_cmpstr(str, ==, "010613120332");
 }
 
-void test_oct64_to_str_back(void)
+static void test_oct64_to_str_back(void)
 {
     char *str;
 
@@ -182,7 +182,7 @@ void test_oct64_to_str_back(void)
     g_assert_cmpstr(str, ==, "01263236102754220511046");
 }
 
-void test_hex_to_str_back_len(void)
+static void test_hex_to_str_back_len(void)
 {
     char *str;
 
@@ -196,7 +196,7 @@ void test_hex_to_str_back_len(void)
     g_assert_cmpstr(str, ==, "0x00003f66");
 }
 
-void test_hex64_to_str_back_len(void)
+static void test_hex64_to_str_back_len(void)
 {
     char *str;
 
@@ -210,7 +210,7 @@ void test_hex64_to_str_back_len(void)
     g_assert_cmpstr(str, ==, "0xffffffffffffffff");
 }
 
-void test_uint_to_str_back(void)
+static void test_uint_to_str_back(void)
 {
     char *str;
 
@@ -224,7 +224,7 @@ void test_uint_to_str_back(void)
     g_assert_cmpstr(str, ==, "181787997");
 }
 
-void test_uint64_to_str_back(void)
+static void test_uint64_to_str_back(void)
 {
     char *str;
 
@@ -238,7 +238,7 @@ void test_uint64_to_str_back(void)
     g_assert_cmpstr(str, ==, "95778573911934485");
 }
 
-void test_uint_to_str_back_len(void)
+static void test_uint_to_str_back_len(void)
 {
     char *str;
 
@@ -252,7 +252,7 @@ void test_uint_to_str_back_len(void)
     g_assert_cmpstr(str, ==, "18750000");
 }
 
-void test_uint64_to_str_back_len(void)
+static void test_uint64_to_str_back_len(void)
 {
     char *str;
 
@@ -266,7 +266,7 @@ void test_uint64_to_str_back_len(void)
     g_assert_cmpstr(str, ==, "18446744073709551615");
 }
 
-void test_int_to_str_back(void)
+static void test_int_to_str_back(void)
 {
     char *str;
 
@@ -280,7 +280,7 @@ void test_int_to_str_back(void)
     g_assert_cmpstr(str, ==, "898901469");
 }
 
-void test_int64_to_str_back(void)
+static void test_int64_to_str_back(void)
 {
     char *str;
 
@@ -328,7 +328,7 @@ static void free_argv(char **argv)
     g_free(argv);
 }
 
-void test_getopt_long_basic1(void)
+static void test_getopt_long_basic1(void)
 {
     char **argv;
     int argc;
@@ -357,7 +357,7 @@ void test_getopt_long_basic1(void)
     free_argv(argv);
 }
 
-void test_getopt_long_basic2(void)
+static void test_getopt_long_basic2(void)
 {
     char **argv;
     int argc;
@@ -392,7 +392,7 @@ void test_getopt_long_basic2(void)
 }
 
 
-void test_getopt_opterr1(void)
+static void test_getopt_opterr1(void)
 {
     char **argv;
     int argc;
