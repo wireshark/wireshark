@@ -19,6 +19,7 @@
 #define UB_HW_ADDR       1
 #define UB_HW_IP_ADDR    2
 #define UB_FIRMWARE_FULL 3
+#define UB_USERNAME      6
 #define UB_UPTIME        10
 #define UB_HOSTNAME      11
 #define UB_PRODUCT       12
@@ -37,13 +38,15 @@ void proto_reg_handoff_ubdp(void);
 
 static int proto_ubdp = -1;
 
-static int hf_ubdp_preamble = -1;
+static int hf_ubdp_version = -1;
+static int hf_ubdp_command = -1;
 static int hf_ubdp_size = -1;
 static int hf_ubdp_type = -1;
 static int hf_ubdp_len = -1;
 static int hf_ubdp_mac = -1;
 static int hf_ubdp_ip = -1;
 static int hf_ubdp_firmware_full = -1;
+static int hf_ubdp_username = -1;
 static int hf_ubdp_uptime = -1;
 static int hf_ubdp_hostname = -1;
 static int hf_ubdp_product = -1;
@@ -59,7 +62,7 @@ static int hf_ubdp_generic = -1;
 static gint ett_ubdp = -1;
 static gint ett_ubdp_tlv = -1;
 
-static expert_field ei_ubdp_bad_preamble = EI_INIT;
+static expert_field ei_ubdp_bad_version = EI_INIT;
 static expert_field ei_ubdp_unexpected_len = EI_INIT;
 
 static dissector_handle_t ubdp_handle;
@@ -69,6 +72,7 @@ static const value_string type_vals[] = {
     { UB_HW_ADDR, "MAC Address" },
     { UB_HW_IP_ADDR, "MAC and IP Address" },
     { UB_FIRMWARE_FULL, "Firmware Detailed" },
+    { UB_USERNAME, "Username" },
     { UB_UPTIME, "Uptime" },
     { UB_HOSTNAME, "Hostname" },
     { UB_PRODUCT, "Product" },
@@ -133,7 +137,7 @@ dissect_ubdp(tvbuff_t *ubdp_tvb, packet_info *pinfo, proto_tree *tree, void *dat
     proto_item  *ubdp_item, *tlv_item;
     guint32     ubdp_length;
     guint32     ubdp_type;
-    guint32     preamble;
+    guint32     version;
     gint offset = 0;
     gchar *uValue;
     const gchar *uModel;
@@ -145,13 +149,14 @@ dissect_ubdp(tvbuff_t *ubdp_tvb, packet_info *pinfo, proto_tree *tree, void *dat
     ubdp_item = proto_tree_add_item(tree, proto_ubdp, ubdp_tvb, 0, -1, ENC_NA);
     ubdp_tree = proto_item_add_subtree(ubdp_item, ett_ubdp);
 
-    proto_tree_add_item_ret_uint(ubdp_tree, hf_ubdp_preamble, ubdp_tvb, offset, 2, ENC_BIG_ENDIAN, &preamble);
+    proto_tree_add_item_ret_uint(ubdp_tree, hf_ubdp_version, ubdp_tvb, offset, 1, ENC_BIG_ENDIAN, &version);
+    proto_tree_add_item(ubdp_tree, hf_ubdp_command, ubdp_tvb, offset + 1, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(ubdp_tree, hf_ubdp_size, ubdp_tvb, offset + 2, 2, ENC_BIG_ENDIAN);
 
     offset+=4;
 
-    if (preamble != 0x0206 && preamble != 0x100){
-      expert_add_info(pinfo, ubdp_item, &ei_ubdp_bad_preamble);
+    if (version != 1 && version != 2){
+      expert_add_info(pinfo, ubdp_item, &ei_ubdp_bad_version);
       return tvb_captured_length(ubdp_tvb);
     }
     while(tvb_reported_length_remaining(ubdp_tvb, offset) != 0){
@@ -182,6 +187,9 @@ dissect_ubdp(tvbuff_t *ubdp_tvb, packet_info *pinfo, proto_tree *tree, void *dat
             break;
           case UB_FIRMWARE_FULL:
             proto_tree_add_item(tlv_tree, hf_ubdp_firmware_full, ubdp_tvb, offset, ubdp_length, ENC_ASCII|ENC_NA);
+            break;
+          case UB_USERNAME:
+            proto_tree_add_item(tlv_tree, hf_ubdp_username, ubdp_tvb, offset, ubdp_length, ENC_ASCII|ENC_NA);
             break;
           case UB_UPTIME:
             if(ubdp_length == 4){
@@ -256,13 +264,15 @@ void
 proto_register_ubdp(void)
 {
     static hf_register_info hf[] = {
-        { &hf_ubdp_preamble, {"Preamble","ubdp.preamble",FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        { &hf_ubdp_version, {"Version", "ubdp.version", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_ubdp_command, {"Command", "ubdp.command", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_ubdp_size, {"Data Bytes","ubdp.size",FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_ubdp_type, {"Type","ubdp.type",FT_UINT8, BASE_DEC, VALS(type_vals), 0x0, NULL, HFILL }},
         { &hf_ubdp_len, {"Length","ubdp.len",FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_ubdp_mac, {"MAC","ubdp.mac",FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_ubdp_ip, {"IP","ubdp.ip",FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_ubdp_firmware_full, {"Firmware Path","ubdp.firmware_full",FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }},
+        { &hf_ubdp_username, {"Username", "ubdp.username", FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }},
         { &hf_ubdp_uptime, {"Uptime","ubdp.uptime",FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_ubdp_hostname, {"Hostname","ubdp.hostname",FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }},
         { &hf_ubdp_product, {"Product","ubdp.product",FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }},
@@ -282,7 +292,7 @@ proto_register_ubdp(void)
     };
 
   static ei_register_info ei[] = {
-     { &ei_ubdp_bad_preamble, { "ubdp.bad-preamble-detected", PI_PROTOCOL, PI_WARN, "Bad Preamble Detected", EXPFILL }},
+	 { &ei_ubdp_bad_version, { "ubdp.bad-version-detected", PI_PROTOCOL, PI_WARN, "Bad Version Detected", EXPFILL }},
      { &ei_ubdp_unexpected_len, { "ubdp.bad-field-length-detected", PI_PROTOCOL, PI_WARN, "Bad Length Field Detected", EXPFILL }},
   };
 
