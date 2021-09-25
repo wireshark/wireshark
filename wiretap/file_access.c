@@ -1396,7 +1396,7 @@ wtap_deregister_file_type_subtype(const int subtype)
 		ws_error("invalid file type to de-register");
 		return;
 	}
-	if ((guint)subtype >= wtap_num_builtin_file_types_subtypes) {
+	if ((guint)subtype < wtap_num_builtin_file_types_subtypes) {
 		ws_error("built-in file types cannot be de-registered");
 		return;
 	}
