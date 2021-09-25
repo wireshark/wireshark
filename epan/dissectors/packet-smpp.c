@@ -44,6 +44,7 @@
 #include <epan/stats_tree.h>
 #include <epan/prefs.h>
 #include <epan/exported_pdu.h>
+#include <epan/conversation.h>
 #include <wsutil/time_util.h>
 #include "packet-tcp.h"
 #include "packet-smpp.h"
@@ -2362,6 +2363,29 @@ huawei_sm_result_notify_resp(proto_tree *tree, tvbuff_t *tvb, int offset)
     proto_tree_add_item(tree, hf_huawei_smpp_delivery_result, tvb, offset, 4, ENC_BIG_ENDIAN);
 }
 
+static gboolean
+test_smpp(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
+{
+    guint32      command_id;            /* SMPP command         */
+    guint32      command_status;        /* Status code          */
+    guint32      command_length;        /* length of PDU        */
+
+    if (tvb_reported_length_remaining(tvb, offset) < SMPP_MIN_LENGTH ||   /* Mandatory header     */
+        tvb_captured_length_remaining(tvb, offset) < 12)
+        return FALSE;
+    command_length = tvb_get_ntohl(tvb, offset);
+    if (command_length > 64 * 1024 || command_length < SMPP_MIN_LENGTH)
+        return FALSE;
+    command_id = tvb_get_ntohl(tvb, offset + 4);         /* Only known commands  */
+    if (try_val_to_str(command_id, vals_command_id) == NULL)
+        return FALSE;
+    command_status = tvb_get_ntohl(tvb, offset + 8);     /* ..with known status  */
+    if (try_rval_to_str(command_status, rvals_command_status) == NULL)
+        return FALSE;
+
+    return TRUE;
+}
+
 static guint
 get_smpp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
@@ -2604,9 +2628,14 @@ static int
 dissect_smpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     if (pinfo->ptype == PT_TCP) {       /* are we running on top of TCP */
+        if (!test_smpp(pinfo, tvb, 0, data)) {
+            return 0;
+        }
         tcp_dissect_pdus(tvb, pinfo, tree,
             reassemble_over_tcp,    /* Do we try to reassemble      */
-            16,                     /* Length of fixed header       */
+            SMPP_FIXED_HEADER_LENGTH, /* Length of fixed header       */
+            /* XXX: We only use the first 4 bytes for the length, do we
+             * really need to pass in the entire fixed header? */
             get_smpp_pdu_len,       /* Function returning PDU len   */
             dissect_smpp_pdu, data);      /* PDU dissector                */
     }
@@ -2646,22 +2675,17 @@ static gboolean
 dissect_smpp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     guint32      command_id;            /* SMPP command         */
-    guint32      command_status;        /* Status code          */
-    guint32      command_length;        /* length of PDU        */
 
-    if (tvb_reported_length(tvb) < SMPP_MIN_LENGTH ||   /* Mandatory header     */
-        tvb_captured_length(tvb) < 12)
-        return FALSE;
-    command_length = tvb_get_ntohl(tvb, 0);
-    if (command_length > 64 * 1024 || command_length < SMPP_MIN_LENGTH)
-        return FALSE;
-    command_id = tvb_get_ntohl(tvb, 4);         /* Only known commands  */
-    if (try_val_to_str(command_id, vals_command_id) == NULL)
-        return FALSE;
-    command_status = tvb_get_ntohl(tvb, 8);     /* ..with known status  */
-    if (try_rval_to_str(command_status, rvals_command_status) == NULL)
-        return FALSE;
+    conversation_t* conversation;
 
+    if (!test_smpp(pinfo, tvb, 0, data)) {
+        return FALSE;
+    }
+
+    // Test a few extra bytes in the heuristic dissector, past the
+    // minimum fixed header length, to reduce false positives.
+
+    command_id = tvb_get_ntohl(tvb, 4);
     //Check for specific values in commands (to avoid false positives)
     switch (command_id)
     {
@@ -2690,6 +2714,10 @@ dissect_smpp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     break;
     }
 
+    /* This is called on TCP or X.25, both of which are endpoint types.
+     * Set the conversation so we can handle TCP segmentation. */
+    conversation = find_or_create_conversation(pinfo);
+    conversation_set_dissector(conversation, smpp_handle);
 
     dissect_smpp(tvb, pinfo, tree, data);
     return TRUE;
