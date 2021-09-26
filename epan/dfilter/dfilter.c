@@ -129,6 +129,38 @@ dfilter_str_to_gint32(dfwork_t *dfw, const char *s, gint32* pint)
 	return TRUE;
 }
 
+/*
+ * Tries to convert an STTYPE_UNPARSED to a STTYPE_FIELD. If it's not registered as
+ * a field pass UNPARSED to the semantic check.
+ */
+stnode_t *
+dfilter_resolve_unparsed(dfwork_t *dfw, stnode_t *node)
+{
+	const char *name;
+	header_field_info *hfinfo;
+
+	ws_assert(stnode_type_id(node) == STTYPE_UNPARSED);
+
+	name = stnode_data(node);
+
+	hfinfo = proto_registrar_get_byname(name);
+	if (hfinfo != NULL) {
+		/* It's a field name */
+		stnode_replace(node, STTYPE_FIELD, hfinfo);
+		return node;
+	}
+
+	hfinfo = proto_registrar_get_byalias(name);
+	if (hfinfo != NULL) {
+		/* It's an aliased field name */
+		add_deprecated_token(dfw->deprecated, name);
+		stnode_replace(node, STTYPE_FIELD, hfinfo);
+		return node;
+	}
+
+	/* It's not a field. */
+	return node;
+}
 
 /* Initialize the dfilter module */
 void
@@ -292,7 +324,6 @@ const char *tokenstr(int token)
 		case TOKEN_TEST_MATCHES: return "TEST_MATCHES";
 		case TOKEN_TEST_BITWISE_AND: return "TEST_BITWISE_AND";
 		case TOKEN_TEST_NOT:	return "TEST_NOT";
-		case TOKEN_FIELD:	return "FIELD";
 		case TOKEN_STRING:	return "STRING";
 		case TOKEN_CHARCONST:	return "CHARCONST";
 		case TOKEN_UNPARSED:	return "UNPARSED";

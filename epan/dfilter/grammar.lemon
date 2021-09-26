@@ -69,8 +69,6 @@
 any "error" symbols are shifted, if possible. */
 %syntax_error {
 
-	header_field_info	*hfinfo;
-
 	if (!TOKEN) {
 		dfilter_fail(dfw, "Unexpected end of filter string.");
 		dfw->syntax_error = TRUE;
@@ -96,14 +94,11 @@ any "error" symbols are shifted, if possible. */
 			dfilter_fail(dfw, "\"%s\" was unexpected in this context.",
 				(char *)stnode_data(TOKEN));
 			break;
-		case STTYPE_FIELD:
-			hfinfo = (header_field_info *)stnode_data(TOKEN);
-			dfilter_fail(dfw, "Syntax error near \"%s\".", hfinfo->abbrev);
-			break;
 		/* These aren't handed to use as terminal tokens from
 		   the scanner, so was can assert that we'll never
 		   see them here. */
 		case STTYPE_NUM_TYPES:
+		case STTYPE_FIELD:
 		case STTYPE_FUNCTION:
 		case STTYPE_RANGE:
 		case STTYPE_FVALUE:
@@ -168,10 +163,9 @@ logical_test(T) ::= entity(E).
 
 
 /* Entities, or things that can be compared/tested/checked */
-entity(E) ::= FIELD(F).		{ E = F; }
 entity(E) ::= STRING(S).	{ E = S; }
 entity(E) ::= CHARCONST(C).	{ E = C; }
-entity(E) ::= UNPARSED(U).	{ E = U; }
+entity(E) ::= UNPARSED(U).	{ E = dfilter_resolve_unparsed(dfw, U); }
 entity(E) ::= range(R).		{ E = R; }
 entity(E) ::= function(F).	{ E = F; }
 

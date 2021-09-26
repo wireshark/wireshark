@@ -90,6 +90,9 @@ dfilter_new_function(dfwork_t *dfw, const char *name);
 gboolean
 dfilter_str_to_gint32(dfwork_t *dfw, const char *s, gint32* pint);
 
+stnode_t *
+dfilter_resolve_unparsed(dfwork_t *dfw, stnode_t *node);
+
 const char *tokenstr(int token);
 
 #endif
