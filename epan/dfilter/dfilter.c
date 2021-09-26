@@ -311,7 +311,7 @@ dfilter_compile(const gchar *text, dfilter_t **dfp, gchar **err_msg)
 	df_set_extra(&state, scanner);
 
 	while (1) {
-		df_lval = stnode_new(STTYPE_UNINITIALIZED, NULL);
+		df_lval = stnode_new(STTYPE_UNINITIALIZED, NULL, NULL);
 		token = df_lex(scanner);
 
 		/* Check for scanner failure */

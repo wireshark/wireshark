@@ -152,25 +152,25 @@ expr(X) ::= logical_test(L).	{ X = L; }
 /* Logical tests */
 logical_test(T) ::= expr(E) TEST_AND expr(F).
 {
-	T = stnode_new(STTYPE_TEST, NULL);
+	T = stnode_new(STTYPE_TEST, NULL, NULL);
 	sttype_test_set2(T, TEST_OP_AND, E, F);
 }
 
 logical_test(T) ::= expr(E) TEST_OR expr(F).
 {
-	T = stnode_new(STTYPE_TEST, NULL);
+	T = stnode_new(STTYPE_TEST, NULL, NULL);
 	sttype_test_set2(T, TEST_OP_OR, E, F);
 }
 
 logical_test(T) ::= TEST_NOT expr(E).
 {
-	T = stnode_new(STTYPE_TEST, NULL);
+	T = stnode_new(STTYPE_TEST, NULL, NULL);
 	sttype_test_set1(T, TEST_OP_NOT, E);
 }
 
 logical_test(T) ::= entity(E).
 {
-	T = stnode_new(STTYPE_TEST, NULL);
+	T = stnode_new(STTYPE_TEST, NULL, NULL);
 	sttype_test_set1(T, TEST_OP_EXISTS, E);
 }
 
@@ -190,7 +190,7 @@ range_body(B) ::= range(R).	{ B = R; }
 /* Ranges */
 range(R) ::= range_body(B) LBRACKET drnode_list(L) RBRACKET.
 {
-	R = stnode_new(STTYPE_RANGE, NULL);
+	R = stnode_new(STTYPE_RANGE, NULL, NULL);
 	sttype_range_set(R, B, L);
 
 	/* Delete the list, but not the drange_nodes that
@@ -266,7 +266,7 @@ drnode(D) ::= INTEGER(X).
 /* Relational tests */
 relation_test(T) ::= entity(E) rel_op2(O) entity(F).
 {
-	T = stnode_new(STTYPE_TEST, NULL);
+	T = stnode_new(STTYPE_TEST, NULL, NULL);
 	sttype_test_set2(T, O, E, F);
 }
 
@@ -284,10 +284,10 @@ relation_test(T) ::= entity(E) rel_op2(O) relation_test(R).
 		sttype_test_get(F, NULL, &F, NULL);
 	} while (stnode_type_id(F) == STTYPE_TEST);
 
-	L = stnode_new(STTYPE_TEST, NULL);
+	L = stnode_new(STTYPE_TEST, NULL, NULL);
 	sttype_test_set2(L, O, E, stnode_dup(F));
 
-	T = stnode_new(STTYPE_TEST, NULL);
+	T = stnode_new(STTYPE_TEST, NULL, NULL);
 	sttype_test_set2(T, TEST_OP_AND, L, R);
 }
 
@@ -304,8 +304,8 @@ rel_op2(O) ::= TEST_MATCHES.  { O = TEST_OP_MATCHES; }
 relation_test(T) ::= entity(E) TEST_IN LBRACE setnode_list(L) RBRACE.
 {
 	stnode_t *S;
-	T = stnode_new(STTYPE_TEST, NULL);
-	S = stnode_new(STTYPE_SET, L);
+	T = stnode_new(STTYPE_TEST, NULL, NULL);
+	S = stnode_new(STTYPE_SET, L, NULL);
 	sttype_test_set2(T, TEST_OP_IN, E, S);
 }
 

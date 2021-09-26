@@ -62,6 +62,8 @@ typedef struct {
 	 * set aside to time to do so. */
 	gpointer	data;
 	int32_t		value;
+
+	char		*token_value;
 } stnode_t;
 
 /* These are the sttype_t registration function prototypes. */
@@ -83,16 +85,16 @@ void
 sttype_register(sttype_t *type);
 
 stnode_t*
-stnode_new(sttype_id_t type_id, gpointer data);
+stnode_new(sttype_id_t type_id, gpointer data, const char *token_value);
 
 stnode_t*
 stnode_dup(const stnode_t *org);
 
 void
-stnode_init(stnode_t *node, sttype_id_t type_id, gpointer data);
+stnode_init(stnode_t *node, sttype_id_t type_id, gpointer data, const char *token_value);
 
 void
-stnode_init_int(stnode_t *node, sttype_id_t type_id, gint32 value);
+stnode_init_int(stnode_t *node, sttype_id_t type_id, gint32 value, const char *token_value);
 
 void
 stnode_free(stnode_t *node);
@@ -117,6 +119,9 @@ stnode_tostr(stnode_t *node);
 
 gboolean
 stnode_inside_parens(stnode_t *node);
+
+const char *
+stnode_token_value(stnode_t *node);
 
 void
 stnode_set_inside_parens(stnode_t *node, gboolean inside);

@@ -84,10 +84,12 @@ DIAG_OFF_FLEX
 
 /*#undef YY_NO_UNPUT*/
 
-static int set_lval(int token, gpointer data);
-static int set_lval_int(dfwork_t *dfw, int token, char *s);
+static int set_lval_str(int token, const char *token_value);
+static int set_lval_field(int token, header_field_info *hfinfo, const char *token_value);
+static int set_lval_func(int token, df_func_def_t *func, const char *token_value);
+static int set_lval_int(dfwork_t *dfw, int token, const char *token_value);
 static int simple(int token);
-static gboolean str_to_gint32(dfwork_t *dfw, char *s, gint32* pint);
+static gboolean str_to_gint32(dfwork_t *dfw, const char *s, gint32* pint);
 
 /*
  * Sleazy hack to suppress compiler warnings in yy_fatal_error().
@@ -269,7 +271,7 @@ static gboolean str_to_gint32(dfwork_t *dfw, char *s, gint32* pint);
 	/* end quote */
 	int token;
 	BEGIN(INITIAL);
-	token = set_lval(TOKEN_STRING, yyextra->quoted_string->str);
+	token = set_lval_str(TOKEN_STRING, yyextra->quoted_string->str);
 	g_string_free(yyextra->quoted_string, TRUE);
 	yyextra->quoted_string = NULL;
 	return token;
@@ -371,7 +373,7 @@ static gboolean str_to_gint32(dfwork_t *dfw, char *s, gint32* pint);
 	int token;
 	BEGIN(INITIAL);
 	g_string_append_c(yyextra->quoted_string, '\'');
-	token = set_lval(TOKEN_CHARCONST, yyextra->quoted_string->str);
+	token = set_lval_str(TOKEN_CHARCONST, yyextra->quoted_string->str);
 	g_string_free(yyextra->quoted_string, TRUE);
 	yyextra->quoted_string = NULL;
 	return token;
@@ -391,7 +393,7 @@ static gboolean str_to_gint32(dfwork_t *dfw, char *s, gint32* pint);
 
 [-[:alnum:]_\.:]*\/[[:digit:]]+  {
         /* CIDR */
-        return set_lval(TOKEN_UNPARSED, yytext);
+        return set_lval_str(TOKEN_UNPARSED, yytext);
 }
 
 		([.][-+[:alnum:]_:]+)+[.]{0,2} |
@@ -409,30 +411,28 @@ static gboolean str_to_gint32(dfwork_t *dfw, char *s, gint32* pint);
 	hfinfo = proto_registrar_get_byname(yytext);
 	if (hfinfo) {
 		/* Yes, it's a field name */
-		return set_lval(TOKEN_FIELD, hfinfo);
+		return set_lval_field(TOKEN_FIELD, hfinfo, yytext);
 	}
 
 	hfinfo = proto_registrar_get_byalias(yytext);
 	if (hfinfo) {
 		/* Yes, it's an aliased field name */
-		/* XXX Do we need to make a copy of yytext? dfilter_compile
-		 * will dup this later on. */
 		add_deprecated_token(yyextra->deprecated, yytext);
-		return set_lval(TOKEN_FIELD, hfinfo);
+		return set_lval_field(TOKEN_FIELD, hfinfo, yytext);
 	}
 
 	df_func_def = df_func_lookup(yytext);
 	if (df_func_def) {
 		/* Yes, it's a dfilter function */
-		return set_lval(TOKEN_FUNCTION, df_func_def);
+		return set_lval_func(TOKEN_FUNCTION, df_func_def, yytext);
 	}
 	/* No match, so treat it as an unparsed string */
-	return set_lval(TOKEN_UNPARSED, yytext);
+	return set_lval_str(TOKEN_UNPARSED, yytext);
 }
 
 . {
 	/* Default */
-	return set_lval(TOKEN_UNPARSED, yytext);
+	return set_lval_str(TOKEN_UNPARSED, yytext);
 }
 
 
@@ -479,9 +479,9 @@ simple(int token)
 }
 
 static int
-set_lval(int token, gpointer data)
+set_lval_str(int token, const char *token_value)
 {
-	sttype_id_t	type_id = STTYPE_UNINITIALIZED;
+	sttype_id_t	type_id;
 
 	switch (token) {
 		case TOKEN_STRING:
@@ -490,29 +490,39 @@ set_lval(int token, gpointer data)
 		case TOKEN_CHARCONST:
 			type_id = STTYPE_CHARCONST;
 			break;
-		case TOKEN_FIELD:
-			type_id = STTYPE_FIELD;
-			break;
 		case TOKEN_UNPARSED:
 			type_id = STTYPE_UNPARSED;
-			break;
-		case TOKEN_FUNCTION:
-			type_id = STTYPE_FUNCTION;
 			break;
 		default:
 			ws_assert_not_reached();
 	}
-	stnode_init(df_lval, type_id, data);
+	stnode_init(df_lval, type_id, (gpointer)token_value, token_value);
 	return token;
 }
 
 static int
-set_lval_int(dfwork_t *dfw, int token, char *s)
+set_lval_field(int token, header_field_info *hfinfo, const char *token_value)
+{
+	ws_assert(token == TOKEN_FIELD);
+	stnode_init(df_lval, STTYPE_FIELD, hfinfo, token_value);
+	return token;
+}
+
+static int
+set_lval_func(int token, df_func_def_t *func, const char *token_value)
+{
+	ws_assert(token == TOKEN_FUNCTION);
+	stnode_init(df_lval, STTYPE_FUNCTION, func, token_value);
+	return token;
+}
+
+static int
+set_lval_int(dfwork_t *dfw, int token, const char *token_value)
 {
 	sttype_id_t	type_id = STTYPE_UNINITIALIZED;
 	gint32		val;
 
-	if (!str_to_gint32(dfw, s, &val)) {
+	if (!str_to_gint32(dfw, token_value, &val)) {
 		return SCAN_FAILED;
 	}
 
@@ -524,13 +534,13 @@ set_lval_int(dfwork_t *dfw, int token, char *s)
 			ws_assert_not_reached();
 	}
 
-	stnode_init_int(df_lval, type_id, val);
+	stnode_init_int(df_lval, type_id, val, token_value);
 	return token;
 }
 
 
 static gboolean
-str_to_gint32(dfwork_t *dfw, char *s, gint32* pint)
+str_to_gint32(dfwork_t *dfw, const char *s, gint32* pint)
 {
 	char    *endptr;
 	long	integer;
