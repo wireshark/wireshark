@@ -892,7 +892,7 @@
     </message>
     <message>
         <source>Unknown file type returned by save as dialog.</source>
-        <translation type="unfinished"></translation>
+        <translation>Неизвестный тип файла возвращен диалоговым окном Save as.</translation>
     </message>
     <message>
         <source>Please report this as a Wireshark issue at https://gitlab.com/wireshark/wireshark/-/issues.</source>
@@ -1064,7 +1064,7 @@
     </message>
     <message>
         <source>Packet size limit (snaplen)</source>
-        <translation type="unfinished"></translation>
+        <translation>Ограничение размера пакета (snaplen)</translation>
     </message>
     <message>
         <source>none</source>
@@ -3226,7 +3226,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>QUIC streams not found on the selected packet.</source>
-        <translation type="unfinished"></translation>
+        <translation>Потоки QUIC не найдены для выбранного пакета.</translation>
     </message>
     <message numerus="yes">
         <source>%Ln total sub stream(s).</source>
@@ -3254,7 +3254,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>No streams</source>
-        <translation type="unfinished"></translation>
+        <translation>Нет потоков</translation>
     </message>
     <message>
         <source>Entire conversation (%1)</source>
@@ -3682,6 +3682,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Log scale</source>
         <translation>Логарифмический масштаб</translation>
+    </message>
+    <message>
+        <source>Automatic Update</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Reset</source>
@@ -4301,7 +4305,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Hex Dump</source>
-        <translation type="unfinished">Шестнадцатеричный Дамп</translation>
+        <translation>Дамп Hex</translation>
     </message>
     <message>
         <source>Import a standard hex dump as exported by Wireshark</source>
@@ -4337,7 +4341,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Regular Expression</source>
-        <translation type="unfinished">Регулярное Выражение</translation>
+        <translation>Регулярное Выражение</translation>
     </message>
     <message>
         <source>Import a file formatted according to a custom regular expression</source>
@@ -4345,7 +4349,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Packet format regular expression</source>
-        <translation type="unfinished"></translation>
+        <translation>Регулярное выражение формата пакета</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Perl compatible regular expression capturing a single packet in the file with named groups identifieing data to import. Anchors ^ and $ also match before/after newlines &lt;/p&gt;&lt;p&gt;Required is only a data group, also supported are time, dir and seqno.&lt;/p&gt;&lt;p&gt;Regex flags: DUPNAMES, MULTILINE and NOEMPTY&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -4357,36 +4361,31 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Data encoding:</source>
-        <translation type="unfinished"></translation>
+        <translation>Кодирование данных:</translation>
     </message>
     <message>
         <source>How data is encoded</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;small&gt;&lt;i&gt;recommended regex:&lt;/small&gt;&lt;/i&gt;</source>
-        <oldsource>&lt;small&gt;&lt;i&gt;reccomended regex:&lt;/small&gt;&lt;/i&gt;</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Как закодированы данные</translation>
     </message>
     <message>
         <source>encodingRegexExample</source>
-        <translation type="unfinished"></translation>
+        <translation>encodingRegexExample</translation>
     </message>
     <message>
         <source>List of characters indicating incoming packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Список символов, показывающих входящие пакеты</translation>
     </message>
     <message>
         <source>iI&lt;</source>
-        <translation type="unfinished"></translation>
+        <translation>iI&lt;</translation>
     </message>
     <message>
         <source>List of characters indicating outgoing packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Список символов, показывающих исходящие пакеты</translation>
     </message>
     <message>
         <source>oO&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>oO&gt;</translation>
     </message>
     <message>
         <source>Timestamp format:</source>
@@ -4421,6 +4420,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Никакой</translation>
     </message>
     <message>
+        <source>&lt;small&gt;&lt;i&gt;recommended regex:&lt;/small&gt;&lt;/i&gt;</source>
+        <translation>&lt;small&gt;&lt;i&gt;Рекомендуемое регулярное выражение:&lt;/small&gt;&lt;/i&gt;</translation>
+    </message>
+    <message>
         <source>The format in which to parse timestamps in the text file (e.g. %H:%M:%S.). Format specifiers are based on strptime(3)</source>
         <translation>Формат, в котором парсятся временные метки в текстовом файле (например, %H:%M:%S.). Спецификаторы формата базируются на strptime(3)</translation>
     </message>
@@ -4434,7 +4437,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>timestampExampleLabel</source>
-        <translation type="unfinished"></translation>
+        <translation>timestampExampleLabel</translation>
     </message>
     <message>
         <source>Encapsulation Type:</source>
@@ -4446,7 +4449,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Dissector</source>
-        <translation type="unfinished">Диссектор</translation>
+        <translation>Диссектор</translation>
     </message>
     <message>
         <source>The UDP, TCP or SCTP source port for each frame</source>
@@ -4554,7 +4557,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>The dissector to use for each frame</source>
-        <translation type="unfinished"></translation>
+        <translation>Диссектор для использования для каждого пакета</translation>
     </message>
     <message>
         <source>The maximum size of the frames to write to the import capture file (max 256kiB)</source>
@@ -4562,7 +4565,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Supported fields are data, dir, time, seqno</source>
-        <translation type="unfinished"></translation>
+        <translation>Поддерживаемые поля: data, dir, time, seqno</translation>
     </message>
     <message>
         <source>Missing capturing group data (use (?</source>
@@ -6388,7 +6391,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Packet Comments</source>
-        <translation type="unfinished">Комментарии к Пакету</translation>
+        <translation>Комментарии к Пакету</translation>
     </message>
     <message>
         <source>Main Toolbar</source>
@@ -6995,7 +6998,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>SIP Call</source>
-        <translation type="unfinished"></translation>
+        <translation>SIP-звонок</translation>
     </message>
     <message>
         <source>Time Sequence (tcptrace)</source>
@@ -7175,11 +7178,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>F1AP</source>
-        <translation type="unfinished"></translation>
+        <translation>F1AP</translation>
     </message>
     <message>
         <source>F1AP Messages</source>
-        <translation type="unfinished"></translation>
+        <translation>Сообщения F1AP</translation>
     </message>
     <message>
         <source>Change the way packets are dissected</source>
@@ -7339,7 +7342,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>REGISTER_STAT_GROUP_RSERPOOL</source>
-        <translation type="unfinished"></translation>
+        <translation>REGISTER_STAT_GROUP_RSERPOOL</translation>
     </message>
     <message>
         <source>Start of &quot;REGISTER_STAT_GROUP_RSERPOOL&quot;</source>
@@ -7788,7 +7791,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>RTP Player</source>
-        <translation type="unfinished">Проигрыватель RTP</translation>
+        <translation>RTP-плейер</translation>
     </message>
     <message>
         <source>Play selected stream. Press CTRL key for playing reverse stream too.</source>
@@ -8153,7 +8156,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>SSRC value not found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Величина SSRC не найдена.</translation>
     </message>
     <message>
         <source>Show or hide the toolbar</source>
@@ -8257,32 +8260,32 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>(empty comment)</source>
         <comment>placeholder for empty comment</comment>
-        <translation type="unfinished"></translation>
+        <translation>(пустой комментарий)</translation>
     </message>
     <message>
         <source>Add New Comment…</source>
-        <translation type="unfinished"></translation>
+        <translation>Добавить Новый Комментарий…</translation>
     </message>
     <message>
         <source>Edit &quot;%1&quot;</source>
         <comment>edit packet comment</comment>
-        <translation type="unfinished"></translation>
+        <translation>Редактировать &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Delete &quot;%1&quot;</source>
         <comment>delete packet comment</comment>
-        <translation type="unfinished"></translation>
+        <translation>Удалить &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Delete packet comments</source>
-        <translation type="unfinished"></translation>
+        <translation>Удалить комментарии к пакету</translation>
     </message>
     <message numerus="yes">
         <source>Delete comments from %n packet(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Удалить комментарии из пакета %n</numerusform>
+            <numerusform>Удалить комментарии из пакета(ов) %n</numerusform>
+            <numerusform>Удалить комментарии из пакета(ов) %n</numerusform>
         </translation>
     </message>
     <message>
@@ -8331,7 +8334,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>RTP packet search failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Неудачный поиск пакета RTP</translation>
     </message>
     <message>
         <source>No Interface Selected.</source>
@@ -8744,11 +8747,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>PacketCommentDialog</name>
     <message>
         <source>Edit Packet Comment</source>
-        <translation type="unfinished"></translation>
+        <translation>Редактировать Комментарий к Пакету</translation>
     </message>
     <message>
         <source>Add Packet Comment</source>
-        <translation type="unfinished"></translation>
+        <translation>Добавить Комментарий к Пакету</translation>
     </message>
 </context>
 <context>
@@ -9516,7 +9519,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Not a field or protocol</source>
-        <translation type="unfinished"></translation>
+        <translation>Это не поле/протокол</translation>
     </message>
     <message>
         <source>No field reference available for text labels.</source>
@@ -10567,11 +10570,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Stream %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Поток %1</translation>
     </message>
     <message>
         <source>Stream %1 Jitter</source>
-        <translation type="unfinished"></translation>
+        <translation>Джиттер Потока %1</translation>
     </message>
     <message>
         <source>Stream %1 Difference</source>
@@ -10579,23 +10582,23 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Stream %1 Delta</source>
-        <translation type="unfinished"></translation>
+        <translation>Дельта Потока %1</translation>
     </message>
     <message>
         <source> %1 streams, </source>
-        <translation type="unfinished"></translation>
+        <translation>%1 потоки,</translation>
     </message>
     <message>
         <source>Save one stream CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>Сохранить CSV одного потока</translation>
     </message>
     <message>
         <source>Save all stream&apos;s CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>Сохранить CSV всех потоков</translation>
     </message>
     <message>
         <source>&amp;Analyze</source>
-        <translation type="unfinished">&amp;Анализ</translation>
+        <translation>&amp;Анализ</translation>
     </message>
     <message>
         <source>Open the analysis window for the selected stream(s)</source>
@@ -10635,11 +10638,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&amp;Export</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Экспорт</translation>
     </message>
     <message>
         <source>Open export menu</source>
-        <translation type="unfinished"></translation>
+        <translation>Открыть меню экспорта</translation>
     </message>
     <message>
         <source>CSV</source>
@@ -10647,7 +10650,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Save tables as CSV.</source>
-        <translation type="unfinished"></translation>
+        <translation>Сохранить таблицы как CSV.</translation>
     </message>
     <message>
         <source>Current Tab Stream CSV</source>
@@ -10699,7 +10702,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Prepare &amp;Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Подготовить &amp;Фильтр</translation>
     </message>
     <message>
         <source>Prepare a filter matching the selected stream(s).</source>
@@ -10707,7 +10710,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&amp;Current Tab</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Текущая Закладка</translation>
     </message>
     <message>
         <source>Prepare a filter matching current tab.</source>
@@ -10817,11 +10820,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Pause/unpause playback</source>
-        <translation type="unfinished"></translation>
+        <translation>Пауза/продолжение проигрывания</translation>
     </message>
     <message>
         <source>Stop playback</source>
-        <translation type="unfinished"></translation>
+        <translation>Остановить проигрывание</translation>
     </message>
     <message>
         <source>Enable/disable skipping of silence during playback</source>
@@ -10841,7 +10844,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Output Audio Rate:</source>
-        <translation type="unfinished"></translation>
+        <translation>Рейт Исходящего Аудио:</translation>
     </message>
     <message>
         <source>Jitter Buffer:</source>
@@ -10894,7 +10897,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&amp;Export</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Экспорт</translation>
     </message>
     <message>
         <source>Export audio of all unmuted selected channels or export payload of one channel.</source>
@@ -10902,11 +10905,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>From &amp;cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>От &amp;курсора</translation>
     </message>
     <message>
         <source>Save audio data started at the cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>Сохранить аудио данные, начиная с позиции курсора</translation>
     </message>
     <message>
         <source>&amp;Stream Synchronized Audio</source>
@@ -10982,35 +10985,35 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Remove Streams</source>
-        <translation type="unfinished"></translation>
+        <translation>Убрать Потоки</translation>
     </message>
     <message>
         <source>Remove selected streams from the list</source>
-        <translation type="unfinished"></translation>
+        <translation>Убрать выбранные потоки из списка</translation>
     </message>
     <message>
         <source>All</source>
-        <translation type="unfinished"></translation>
+        <translation>Все</translation>
     </message>
     <message>
         <source>Select all</source>
-        <translation type="unfinished"></translation>
+        <translation>Выбрать все</translation>
     </message>
     <message>
         <source>None</source>
-        <translation type="unfinished"></translation>
+        <translation>Никакой</translation>
     </message>
     <message>
         <source>Clear selection</source>
-        <translation type="unfinished">Очистить выбор</translation>
+        <translation>Очистить выбор</translation>
     </message>
     <message>
         <source>Invert</source>
-        <translation type="unfinished">Инвертировать</translation>
+        <translation>Инвертировать</translation>
     </message>
     <message>
         <source>Invert selection</source>
-        <translation type="unfinished"></translation>
+        <translation>Инвертировать выбор</translation>
     </message>
     <message>
         <source>Play/Pause</source>
@@ -11022,7 +11025,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Stop</source>
-        <translation type="unfinished"></translation>
+        <translation>Стоп</translation>
     </message>
     <message>
         <source>Stop playing</source>
@@ -11038,27 +11041,27 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Inaudible streams</source>
-        <translation type="unfinished"></translation>
+        <translation>Потоки, не содержащие звука</translation>
     </message>
     <message>
         <source>&amp;Select</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Выбор</translation>
     </message>
     <message>
         <source>Select inaudible streams</source>
-        <translation type="unfinished"></translation>
+        <translation>Выбрать потоки, не содержащие звука</translation>
     </message>
     <message>
         <source>&amp;Deselect</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Отменить выбор</translation>
     </message>
     <message>
         <source>Deselect inaudible streams</source>
-        <translation type="unfinished"></translation>
+        <translation>Отменить выбор потоков, не содержащих звука </translation>
     </message>
     <message>
         <source>Prepare &amp;Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Подготовить &amp;Фильтр</translation>
     </message>
     <message>
         <source>Prepare a filter matching the selected stream(s).</source>
@@ -11066,7 +11069,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>R&amp;efresh streams</source>
-        <translation type="unfinished"></translation>
+        <translation>О&amp;бновить потоки</translation>
     </message>
     <message>
         <source>Read captured packets from capture in progress to player</source>
@@ -11078,7 +11081,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>SR (Hz)</source>
-        <translation type="unfinished"></translation>
+        <translation>Sample Rate (Гц)</translation>
     </message>
     <message>
         <source>Sample rate of codec</source>
@@ -11086,7 +11089,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>PR (Hz)</source>
-        <translation type="unfinished"></translation>
+        <translation>Play Rate (Гц)</translation>
     </message>
     <message>
         <source>Play rate of decoded audio (depends e. g. on selected sound card)</source>
@@ -11146,7 +11149,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Select</source>
-        <translation type="unfinished"></translation>
+        <translation>Выбрать</translation>
     </message>
     <message>
         <source>Audio Routing</source>
@@ -11158,7 +11161,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Open RTP player dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>Открыть диалоговое окно RTP-плейера</translation>
     </message>
     <message>
         <source>&amp;Set playlist</source>
@@ -11186,11 +11189,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>No Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>Нет Аудио</translation>
     </message>
     <message>
         <source>Decoding streams...</source>
-        <translation type="unfinished"></translation>
+        <translation>Декодирование потоков...</translation>
     </message>
     <message>
         <source>Out of Sequence</source>
@@ -11214,11 +11217,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>%1 streams</source>
-        <translation type="unfinished">%1 потоки</translation>
+        <translation>%1 потоки</translation>
     </message>
     <message>
         <source>, %1 selected</source>
-        <translation type="unfinished"></translation>
+        <translation>, %1 выбрано</translation>
     </message>
     <message>
         <source>, %1 not muted</source>
@@ -11242,19 +11245,19 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>WAV (*.wav)</source>
-        <translation type="unfinished"></translation>
+        <translation>WAV (*.wav)</translation>
     </message>
     <message>
         <source>Sun Audio (*.au)</source>
-        <translation type="unfinished">Аудио Sun (*.au)</translation>
+        <translation>Sun Audio (*.au)</translation>
     </message>
     <message>
         <source>Save audio</source>
-        <translation type="unfinished">Сохранить аудио</translation>
+        <translation>Сохранить аудио</translation>
     </message>
     <message>
         <source>Raw (*.raw)</source>
-        <translation type="unfinished"></translation>
+        <translation>Raw (*.raw)</translation>
     </message>
     <message>
         <source>Save payload</source>
@@ -11262,15 +11265,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Warning</source>
-        <translation type="unfinished">Предупреждение</translation>
+        <translation>Предупреждение</translation>
     </message>
     <message>
         <source>No stream selected or none of selected streams provide audio</source>
-        <translation type="unfinished"></translation>
+        <translation>Потоки не выбраны или ни один выбранный поток не поддерживает аудио</translation>
     </message>
     <message>
         <source>Error</source>
-        <translation type="unfinished">Ошибка</translation>
+        <translation>Ошибка</translation>
     </message>
     <message>
         <source>All selected streams must use same play rate. Manual set of Output Audio Rate might help.</source>
@@ -11282,15 +11285,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Save failed!</source>
-        <translation type="unfinished"></translation>
+        <translation>Сбой сохранения!</translation>
     </message>
     <message>
         <source>Can&apos;t write header of AU file</source>
-        <translation type="unfinished"></translation>
+        <translation>Невозможно записать заголовок AU-файла</translation>
     </message>
     <message>
         <source>Can&apos;t write header of WAV file</source>
-        <translation type="unfinished"></translation>
+        <translation>Невозможно записать заголовок WAV-файла</translation>
     </message>
     <message>
         <source>Payload save works with just one audio stream.</source>
@@ -11393,19 +11396,19 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Prepare &amp;Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Подготовить &amp;Фильтр</translation>
     </message>
     <message>
         <source>&amp;Export</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Экспорт</translation>
     </message>
     <message>
         <source>&amp;Analyze</source>
-        <translation type="unfinished">&amp;Анализ</translation>
+        <translation>&amp;Анализ</translation>
     </message>
     <message>
         <source>Open the analysis window for the selected stream(s) and add it to it</source>
-        <translation type="unfinished"></translation>
+        <translation>Открыть окно анализа для выбранных потоков и добавить их в него</translation>
     </message>
     <message>
         <source>Find the reverse stream matching the selected forward stream.</source>
@@ -11413,15 +11416,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Min Delta (ms)</source>
-        <translation type="unfinished"></translation>
+        <translation>Минимальная Дельта (мс)</translation>
     </message>
     <message>
         <source>Mean Delta (ms)</source>
-        <translation type="unfinished"></translation>
+        <translation>Средняя Дельта (мс)</translation>
     </message>
     <message>
         <source>Min Jitter</source>
-        <translation type="unfinished"></translation>
+        <translation>Минимальный Джиттер</translation>
     </message>
     <message>
         <source>All forward/reverse stream actions</source>
@@ -11441,7 +11444,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Shift+R</source>
-        <translation type="unfinished"></translation>
+        <translation>Shift+R</translation>
     </message>
     <message>
         <source>Find Only &amp;Singles</source>
@@ -11453,7 +11456,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Ctrl+R</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+R</translation>
     </message>
     <message>
         <source>Mark Packets</source>
@@ -11469,11 +11472,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>All</source>
-        <translation type="unfinished"></translation>
+        <translation>Все</translation>
     </message>
     <message>
         <source>Select all</source>
-        <translation type="unfinished"></translation>
+        <translation>Выбрать все</translation>
     </message>
     <message>
         <source>None</source>
@@ -11485,11 +11488,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Invert</source>
-        <translation type="unfinished">Инвертировать</translation>
+        <translation>Инвертировать</translation>
     </message>
     <message>
         <source>Invert selection</source>
-        <translation type="unfinished"></translation>
+        <translation>Инвертировать выбор</translation>
     </message>
     <message>
         <source>Go To Setup</source>
@@ -11521,15 +11524,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>A</source>
-        <translation type="unfinished"></translation>
+        <translation>А</translation>
     </message>
     <message>
         <source>Cop&amp;y</source>
-        <translation type="unfinished"></translation>
+        <translation>Коп&amp;ировать</translation>
     </message>
     <message>
         <source>Open copy menu</source>
-        <translation type="unfinished"></translation>
+        <translation>Открыть меню копирования</translation>
     </message>
     <message>
         <source>Copy as CSV</source>
@@ -11553,7 +11556,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Select</source>
-        <translation type="unfinished"></translation>
+        <translation>Выбор</translation>
     </message>
     <message>
         <source>as CSV</source>
@@ -11991,7 +11994,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>List of Used IP Addresses</source>
-        <translation type="unfinished"></translation>
+        <translation>Список Использованных IP-Адресов</translation>
     </message>
     <message>
         <source>Used Number of Inbound Streams:</source>
@@ -12581,11 +12584,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&amp;Export</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Экспорт</translation>
     </message>
     <message>
         <source>Export diagram</source>
-        <translation type="unfinished"></translation>
+        <translation>Экспорт диаграммы</translation>
     </message>
     <message>
         <source>Zoom In</source>
@@ -12819,7 +12822,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Hex Digits</source>
-        <translation type="unfinished"></translation>
+        <translation>Шестнадцатиричные Символы</translation>
     </message>
     <message>
         <source>Quoted-Printable</source>
@@ -13898,7 +13901,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Prepare &amp;Filter</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Подготовить &amp;Фильтр</translation>
     </message>
     <message>
         <source>Prepare a filter matching the selected calls(s).</source>
@@ -13906,31 +13909,31 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Cop&amp;y</source>
-        <translation type="unfinished"></translation>
+        <translation>Коп&amp;ировать</translation>
     </message>
     <message>
         <source>Open copy menu</source>
-        <translation type="unfinished"></translation>
+        <translation>Открыть меню копирования</translation>
     </message>
     <message>
         <source>All</source>
-        <translation type="unfinished"></translation>
+        <translation>Все</translation>
     </message>
     <message>
         <source>Select all</source>
-        <translation type="unfinished"></translation>
+        <translation>Выбрать все</translation>
     </message>
     <message>
         <source>None</source>
-        <translation type="unfinished"></translation>
+        <translation>Никакой</translation>
     </message>
     <message>
         <source>Invert</source>
-        <translation type="unfinished">Инвертировать</translation>
+        <translation>Инвертировать</translation>
     </message>
     <message>
         <source>Invert selection</source>
-        <translation type="unfinished"></translation>
+        <translation>Инвертировать выбор</translation>
     </message>
     <message>
         <source>Select related RTP streams</source>
@@ -13942,7 +13945,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>S</source>
-        <translation type="unfinished">S</translation>
+        <translation>S</translation>
     </message>
     <message>
         <source>Deselect related RTP Streams</source>
@@ -13950,7 +13953,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>D</source>
-        <translation type="unfinished">D</translation>
+        <translation>D</translation>
     </message>
     <message>
         <source>Clear selection</source>
@@ -13994,7 +13997,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Select</source>
-        <translation type="unfinished"></translation>
+        <translation>Выбор</translation>
     </message>
 </context>
 <context>
