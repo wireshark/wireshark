@@ -1297,7 +1297,7 @@ void MainWindow::setMenusForSelectedPacket()
     main_ui_->actionAnalyzeFollowTCPStream->setEnabled(is_tcp);
     main_ui_->actionAnalyzeFollowUDPStream->setEnabled(is_udp);
     main_ui_->actionAnalyzeFollowDCCPStream->setEnabled(is_dccp);
-    main_ui_->actionAnalyzeFollowTLSStream->setEnabled(is_tls);
+    main_ui_->actionAnalyzeFollowTLSStream->setEnabled(is_tls && !is_quic);
     main_ui_->actionAnalyzeFollowHTTPStream->setEnabled(is_http);
     main_ui_->actionAnalyzeFollowHTTP2Stream->setEnabled(is_http2);
     main_ui_->actionAnalyzeFollowQUICStream->setEnabled(is_quic);
