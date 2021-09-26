@@ -269,7 +269,12 @@ static void gatherHeurProtocolDecodes(const char *, struct heur_dtbl_entry *dtbl
         return;
 
     if (dtbl_entry->protocol) {
-        DissectorTablesItem *heur = new DissectorTablesItem(proto_get_protocol_long_name(dtbl_entry->protocol), proto_get_protocol_short_name(dtbl_entry->protocol), hdl_ptr);
+        QString longName = proto_get_protocol_long_name(dtbl_entry->protocol);
+        QString heurDisplayName = dtbl_entry->display_name;
+        if (! heurDisplayName.isEmpty())
+            longName.append(QString(" (%1)").arg(heurDisplayName));
+
+        DissectorTablesItem *heur = new DissectorTablesItem(longName, proto_get_protocol_short_name(dtbl_entry->protocol), hdl_ptr);
         hdl_ptr->prependChild(heur);
     }
 }
