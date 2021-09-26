@@ -40,6 +40,35 @@ pcre_free(gpointer value)
 	}
 }
 
+static char *
+fvalue_tostr(const void *data)
+{
+	fvalue_t *fvalue = (fvalue_t*)data;
+
+	char *s, *repr;
+
+	s = fvalue_to_string_repr(NULL, fvalue, FTREPR_DFILTER, BASE_NONE);
+	repr = g_strdup_printf("%s[%s]", fvalue_type_name(fvalue), s);
+	g_free(s);
+	return repr;
+}
+
+static char *
+field_tostr(const void *data)
+{
+	header_field_info *hfinfo = (header_field_info *)data;
+
+	return g_strdup(hfinfo->abbrev);
+}
+
+static char *
+pcre_tostr(const void *data)
+{
+	const GRegex *pcre = (const GRegex *)data;
+
+	return g_strdup(g_regex_get_pattern(pcre));
+}
+
 void
 sttype_register_pointer(void)
 {
@@ -48,21 +77,24 @@ sttype_register_pointer(void)
 		"FIELD",
 		NULL,
 		NULL,
-		NULL
+		NULL,
+		field_tostr
 	};
 	static sttype_t fvalue_type = {
 		STTYPE_FVALUE,
 		"FVALUE",
 		NULL,
 		fvalue_free,
-		NULL
+		NULL,
+		fvalue_tostr
 	};
 	static sttype_t pcre_type = {
 		STTYPE_PCRE,
 		"PCRE",
 		NULL,
 		pcre_free,
-		NULL
+		NULL,
+		pcre_tostr
 	};
 
 	sttype_register(&field_type);

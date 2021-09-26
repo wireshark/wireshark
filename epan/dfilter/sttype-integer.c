@@ -20,6 +20,7 @@ sttype_register_integer(void)
 		"INTEGER",
 		NULL,
 		NULL,
+		NULL,
 		NULL
 	};
 

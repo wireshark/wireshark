@@ -116,7 +116,8 @@ sttype_register_range(void)
 		"RANGE",
 		range_new,
 		range_free,
-		range_dup
+		range_dup,
+		NULL
 	};
 
 	sttype_register(&range_type);

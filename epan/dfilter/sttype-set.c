@@ -65,6 +65,7 @@ sttype_register_set(void)
 		"SET",
 		NULL,
 		sttype_set_free,
+		NULL,
 		NULL
 	};
 

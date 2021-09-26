@@ -117,6 +117,8 @@ gchar printable_char_or_period(gchar c);
 /* To pass one of two strings, singular or plural */
 #define plurality(d,s,p) ((d) == 1 ? (s) : (p))
 
+#define true_or_false(val) ((val) ? "TRUE" : "FALSE")
+
 #ifdef __cplusplus
 }
 

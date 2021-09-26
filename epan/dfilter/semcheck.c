@@ -8,6 +8,8 @@
 
 #include "config.h"
 
+#define WS_LOG_DOMAIN LOG_DOMAIN_DFILTER
+
 #include <string.h>
 
 #include "dfilter-int.h"
@@ -22,21 +24,10 @@
 #include <epan/packet.h>
 
 #include <wsutil/ws_assert.h>
+#include <wsutil/wslog.h>
 
 #include <ftypes/ftypes-int.h>
 
-/* Enable debug logging by defining AM_CFLAGS
- * so that it contains "-DDEBUG_dfilter".
- * Usage: DebugLog(("Error: string=%s\n", str)); */
-
-#ifdef DEBUG_dfilter
-#define DebugLog(x) \
-	printf("%s:%u: ", __FILE__, (unsigned int)__LINE__); \
-	printf x; \
-	fflush(stdout)
-#else
-#define DebugLog(x) ;
-#endif
 
 static void
 semcheck(dfwork_t *dfw, stnode_t *st_node, GPtrArray *deprecated);
@@ -411,7 +402,7 @@ dfilter_g_regex_from_string(dfwork_t *dfw, const char *s)
 	 */
 	cflags = (GRegexCompileFlags)(cflags | G_REGEX_RAW);
 
-	DebugLog(("Compile regex pattern: '%s'\n", s));
+	ws_debug("Compile regex pattern: %s", s);
 
 	pcre = g_regex_new(
 			s,			/* pattern */
@@ -436,11 +427,13 @@ dfilter_g_regex_from_string(dfwork_t *dfw, const char *s)
 static void
 check_exists(dfwork_t *dfw, stnode_t *st_arg1)
 {
-#ifdef DEBUG_dfilter
+#ifndef WS_DISABLE_DEBUG
 	static guint i = 0;
 #endif
 
-	DebugLog(("   4 check_exists() [%u]\n", i++));
+	ws_debug("4 check_exists() [%u]", i++);
+	stnode_log(st_arg1);
+
 	switch (stnode_type_id(st_arg1)) {
 		case STTYPE_FIELD:
 			/* This is OK */
@@ -683,9 +676,9 @@ check_relation_LHS_FIELD(dfwork_t *dfw, const char *relation_string,
 	ftype1 = hfinfo1->type;
 
 	if (stnode_type_id(st_node) == STTYPE_TEST) {
-		DebugLog(("    5 check_relation_LHS_FIELD(%s)\n", relation_string));
+		ws_debug("5 check_relation_LHS_FIELD(%s)", relation_string);
 	} else {
-		DebugLog(("     6 check_relation_LHS_FIELD(%s)\n", relation_string));
+		ws_debug("6 check_relation_LHS_FIELD(%s)", relation_string);
 	}
 
 	if (!can_func(ftype1)) {
@@ -871,7 +864,7 @@ check_relation_LHS_STRING(dfwork_t *dfw, const char* relation_string,
 
 	type2 = stnode_type_id(st_arg2);
 
-	DebugLog(("    5 check_relation_LHS_STRING()\n"));
+	ws_debug("5 check_relation_LHS_STRING()");
 
 	if (type2 == STTYPE_FIELD) {
 		hfinfo2 = (header_field_info*)stnode_data(st_arg2);
@@ -965,7 +958,7 @@ check_relation_LHS_UNPARSED(dfwork_t *dfw, const char* relation_string,
 
 	type2 = stnode_type_id(st_arg2);
 
-	DebugLog(("    5 check_relation_LHS_UNPARSED()\n"));
+	ws_debug("5 check_relation_LHS_UNPARSED()");
 
 	if (type2 == STTYPE_FIELD) {
 		hfinfo2 = (header_field_info*)stnode_data(st_arg2);
@@ -1060,7 +1053,7 @@ check_relation_LHS_RANGE(dfwork_t *dfw, const char *relation_string,
 	char			*s;
 	int                     len_range;
 
-	DebugLog(("    5 check_relation_LHS_RANGE(%s)\n", relation_string));
+	ws_debug("5 check_relation_LHS_RANGE(%s)", relation_string);
 
 	type2 = stnode_type_id(st_arg2);
 	entity1 = sttype_range_entity(st_arg1);
@@ -1098,7 +1091,7 @@ check_relation_LHS_RANGE(dfwork_t *dfw, const char *relation_string,
 	check_drange_sanity(dfw, st_arg1);
 
 	if (type2 == STTYPE_FIELD) {
-		DebugLog(("    5 check_relation_LHS_RANGE(type2 = STTYPE_FIELD)\n"));
+		ws_debug("5 check_relation_LHS_RANGE(type2 = STTYPE_FIELD)");
 		hfinfo2 = (header_field_info*)stnode_data(st_arg2);
 		ftype2 = hfinfo2->type;
 
@@ -1117,7 +1110,7 @@ check_relation_LHS_RANGE(dfwork_t *dfw, const char *relation_string,
 		}
 	}
 	else if (type2 == STTYPE_STRING) {
-		DebugLog(("    5 check_relation_LHS_RANGE(type2 = STTYPE_STRING)\n"));
+		ws_debug("5 check_relation_LHS_RANGE(type2 = STTYPE_STRING)");
 		s = (char*)stnode_data(st_arg2);
 		if (strcmp(relation_string, "matches") == 0) {
 			/* Convert to a GRegex * */
@@ -1129,7 +1122,6 @@ check_relation_LHS_RANGE(dfwork_t *dfw, const char *relation_string,
 		} else {
 			fvalue = dfilter_fvalue_from_string(dfw, FT_BYTES, s);
 			if (!fvalue) {
-				DebugLog(("    5 check_relation_LHS_RANGE(type2 = STTYPE_STRING): Could not convert from string!\n"));
 				THROW(TypeError);
 			}
 			new_st = stnode_new(STTYPE_FVALUE, fvalue);
@@ -1138,7 +1130,7 @@ check_relation_LHS_RANGE(dfwork_t *dfw, const char *relation_string,
 		stnode_free(st_arg2);
 	}
 	else if (type2 == STTYPE_UNPARSED) {
-		DebugLog(("    5 check_relation_LHS_RANGE(type2 = STTYPE_UNPARSED)\n"));
+		ws_debug("5 check_relation_LHS_RANGE(type2 = STTYPE_UNPARSED)");
 		s = (char*)stnode_data(st_arg2);
 		len_range = drange_get_total_length(sttype_range_drange(st_arg1));
 		if (strcmp(relation_string, "matches") == 0) {
@@ -1182,7 +1174,6 @@ check_relation_LHS_RANGE(dfwork_t *dfw, const char *relation_string,
 				fvalue = dfilter_fvalue_from_unparsed(dfw, FT_BYTES, s, allow_partial_value);
 			}
 			if (!fvalue) {
-				DebugLog(("    5 check_relation_LHS_RANGE(type2 = STTYPE_UNPARSED): Could not convert from string!\n"));
 				THROW(TypeError);
 			}
 			new_st = stnode_new(STTYPE_FVALUE, fvalue);
@@ -1191,7 +1182,7 @@ check_relation_LHS_RANGE(dfwork_t *dfw, const char *relation_string,
 		stnode_free(st_arg2);
 	}
 	else if (type2 == STTYPE_CHARCONST) {
-		DebugLog(("    5 check_relation_LHS_RANGE(type2 = STTYPE_CHARCONST)\n"));
+		ws_debug("5 check_relation_LHS_RANGE(type2 = STTYPE_CHARCONST)");
 		s = (char*)stnode_data(st_arg2);
 		if (strcmp(relation_string, "matches") == 0) {
 			/* Convert to a GRegex */
@@ -1205,7 +1196,6 @@ check_relation_LHS_RANGE(dfwork_t *dfw, const char *relation_string,
 			 * one-byte byte string. */
 			fvalue = dfilter_fvalue_from_charconst_string(dfw, FT_BYTES, s, allow_partial_value);
 			if (!fvalue) {
-				DebugLog(("    5 check_relation_LHS_RANGE(type2 = STTYPE_UNPARSED): Could not convert from string!\n"));
 				THROW(TypeError);
 			}
 			new_st = stnode_new(STTYPE_FVALUE, fvalue);
@@ -1214,7 +1204,7 @@ check_relation_LHS_RANGE(dfwork_t *dfw, const char *relation_string,
 		stnode_free(st_arg2);
 	}
 	else if (type2 == STTYPE_RANGE) {
-		DebugLog(("    5 check_relation_LHS_RANGE(type2 = STTYPE_RANGE)\n"));
+		ws_debug("5 check_relation_LHS_RANGE(type2 = STTYPE_RANGE)");
 		check_drange_sanity(dfw, st_arg2);
 	}
 	else if (type2 == STTYPE_FUNCTION) {
@@ -1298,7 +1288,7 @@ check_relation_LHS_FUNCTION(dfwork_t *dfw, const char *relation_string,
 
 	/* params = */sttype_function_params(st_arg1);  /* XXX: is this done for the side-effect ? */
 
-	DebugLog(("    5 check_relation_LHS_FUNCTION(%s)\n", relation_string));
+	ws_debug("5 check_relation_LHS_FUNCTION(%s)", relation_string);
 
 	if (!can_func(ftype1)) {
 		dfilter_fail(dfw, "Function %s (type=%s) cannot participate in '%s' comparison.",
@@ -1415,14 +1405,16 @@ check_relation(dfwork_t *dfw, const char *relation_string,
 		FtypeCanFunc can_func, stnode_t *st_node,
 		stnode_t *st_arg1, stnode_t *st_arg2)
 {
-#ifdef DEBUG_dfilter
+#ifndef WS_DISABLE_DEBUG
 	static guint i = 0;
 #endif
 	header_field_info   *hfinfo;
 	stnode_t            *new_st;
 	char                *s;
 
-	DebugLog(("   4 check_relation(\"%s\") [%u]\n", relation_string, i++));
+	ws_debug("4 check_relation(\"%s\") [%u]", relation_string, i++);
+	stnode_log(st_arg1);
+	stnode_log(st_arg2);
 
 	/* Protocol can only be on LHS (for "contains" or "matches" operators).
 	 * Check to see if protocol is on RHS, and re-interpret it as UNPARSED
@@ -1504,11 +1496,12 @@ check_test(dfwork_t *dfw, stnode_t *st_node, GPtrArray *deprecated)
 {
 	test_op_t		st_op, st_arg_op;
 	stnode_t		*st_arg1, *st_arg2;
-#ifdef DEBUG_dfilter
+#ifndef WS_DISABLE_DEBUG
 	static guint i = 0;
 #endif
 
-	DebugLog(("  3 check_test(stnode_t *st_node = %p) [%u]\n", st_node, i));
+	ws_debug("3 check_test(stnode_t *st_node = %p) [%u]\n", st_node, i++);
+	stnode_log(st_node);
 
 	sttype_test_get(st_node, &st_op, &st_arg1, &st_arg2);
 
@@ -1583,7 +1576,6 @@ check_test(dfwork_t *dfw, stnode_t *st_node, GPtrArray *deprecated)
 		default:
 			ws_assert_not_reached();
 	}
-	DebugLog(("  3 check_test(stnode_t *st_node = %p) [%u] - End\n", st_node, i++));
 }
 
 
@@ -1591,10 +1583,11 @@ check_test(dfwork_t *dfw, stnode_t *st_node, GPtrArray *deprecated)
 static void
 semcheck(dfwork_t *dfw, stnode_t *st_node, GPtrArray *deprecated)
 {
-#ifdef DEBUG_dfilter
+#ifndef WS_DISABLE_DEBUG
 	static guint i = 0;
 #endif
-	DebugLog((" 2 semcheck(stnode_t *st_node = %p) [%u]\n", st_node, i++));
+	ws_debug("2 semcheck(stnode_t *st_node = %p) [%u]", st_node, i++);
+
 	/* The parser assures that the top-most syntax-tree
 	 * node will be a TEST node, no matter what. So assert that. */
 	switch (stnode_type_id(st_node)) {
@@ -1614,11 +1607,12 @@ gboolean
 dfw_semcheck(dfwork_t *dfw, GPtrArray *deprecated)
 {
 	volatile gboolean ok_filter = TRUE;
-#ifdef DEBUG_dfilter
+#ifndef WS_DISABLE_DEBUG
 	static guint i = 0;
 #endif
 
-	DebugLog(("1 dfw_semcheck(dfwork_t *dfw = %p) [%u]\n", dfw, i));
+	ws_debug("1 dfw_semcheck(dfwork_t *dfw = %p) [%u]", dfw, i);
+
 	/* Instead of having to check for errors at every stage of
 	 * the semantic-checking, the semantic-checking code will
 	 * throw an exception if a problem is found. */
@@ -1630,8 +1624,8 @@ dfw_semcheck(dfwork_t *dfw, GPtrArray *deprecated)
 	}
 	ENDTRY;
 
-	DebugLog(("1 dfw_semcheck(dfwork_t *dfw = %p) [%u] - Returns %d\n",
-				dfw, i++,ok_filter));
+	ws_debug("1 dfw_semcheck(dfwork_t *dfw = %p) [%u] - Returns %d",
+				dfw, i++, ok_filter);
 	return ok_filter;
 }
 

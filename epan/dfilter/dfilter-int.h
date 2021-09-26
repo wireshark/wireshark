@@ -73,4 +73,6 @@ dfilter_fail(dfwork_t *dfw, const char *format, ...) G_GNUC_PRINTF(2, 3);
 void
 DfilterTrace(FILE *TraceFILE, char *zTracePrompt);
 
+const char *tokenstr(int token);
+
 #endif

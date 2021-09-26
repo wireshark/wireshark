@@ -32,6 +32,8 @@
 
 #define LOG_DOMAIN_EPAN       "Epan"
 
+#define LOG_DOMAIN_DFILTER    "DFilter"
+
 #define LOG_DOMAIN_WSUTIL     "WSUtil"
 
 #define LOG_DOMAIN_QTUI       "GUI"

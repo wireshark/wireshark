@@ -27,6 +27,12 @@ string_free(gpointer value)
 	g_free(value);
 }
 
+static char *
+string_tostr(const void *data)
+{
+	return g_strdup(data);
+}
+
 
 void
 sttype_register_string(void)
@@ -36,7 +42,8 @@ sttype_register_string(void)
 		"STRING",
 		string_new,
 		string_free,
-		string_dup
+		string_dup,
+		string_tostr
 	};
 
 	static sttype_t charconst_type = {
@@ -44,7 +51,8 @@ sttype_register_string(void)
 		"CHARCONST",
 		string_new,
 		string_free,
-		string_dup
+		string_dup,
+		string_tostr
 	};
 
 	static sttype_t unparsed_type = {
@@ -52,7 +60,8 @@ sttype_register_string(void)
 		"UNPARSED",
 		string_new,
 		string_free,
-		string_dup
+		string_dup,
+		string_tostr
 	};
 
 	sttype_register(&string_type);

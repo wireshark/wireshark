@@ -9,8 +9,11 @@
 #ifndef SYNTAX_TREE_H
 #define SYNTAX_TREE_H
 
+#include <stdio.h>
+#include <stdint.h>
 #include <glib.h>
 #include "cppmagic.h"
+#include "ws_log_defs.h"
 
 /** @file
  */
@@ -34,6 +37,7 @@ typedef enum {
 typedef gpointer        (*STTypeNewFunc)(gpointer);
 typedef gpointer        (*STTypeDupFunc)(gconstpointer);
 typedef void            (*STTypeFreeFunc)(gpointer);
+typedef char*           (*STTypeToStrFunc)(gconstpointer);
 
 
 /* Type information */
@@ -43,17 +47,18 @@ typedef struct {
 	STTypeNewFunc		func_new;
 	STTypeFreeFunc		func_free;
 	STTypeDupFunc		func_dup;
+	STTypeToStrFunc		func_tostr;
 } sttype_t;
 
 /** Node (type instance) information */
 typedef struct {
-	guint32		magic;
+	uint32_t	magic;
 	sttype_t	*type;
 
 	/* This could be made an enum, but I haven't
 	 * set aside to time to do so. */
 	gpointer	data;
-	gint32		value;
+	int32_t		value;
 	gboolean	inside_brackets;
 	const char	*deprecated_token;
 } stnode_t;
@@ -111,6 +116,23 @@ stnode_value(stnode_t *node);
 
 const char *
 stnode_deprecated(stnode_t *node);
+
+char *
+stnode_tostr(stnode_t *node);
+
+void
+stnode_log_full(enum ws_log_level level,
+			const char *file, int line, const char *func,
+			stnode_t *node, const char *msg);
+
+#ifdef WS_DISABLE_DEBUG
+#define stnode_log(node) (void)0;
+#else
+#define stnode_log(node) \
+	stnode_log_full(LOG_LEVEL_NOISY, __FILE__, __LINE__, __func__, node, #node)
+#endif
+
+void log_syntax_tree(enum ws_log_level, stnode_t *root, const char *msg);
 
 #define assert_magic(obj, mnum) \
 	g_assert_true((obj)); \

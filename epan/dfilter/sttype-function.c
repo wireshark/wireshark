@@ -52,6 +52,21 @@ function_dup(gconstpointer data)
 	return (gpointer) stfuncrec;
 }
 
+static char *
+function_tostr(const void *data)
+{
+	const function_t *stfuncrec = (const function_t *)data;
+	const df_func_def_t *def = stfuncrec->funcdef;
+	guint args_len = 0;
+
+	ws_assert(def);
+
+	if (stfuncrec->params != NULL)
+		args_len = g_slist_length(stfuncrec->params);
+
+	return g_strdup_printf("%s(n = %u)", def->name, args_len);
+}
+
 static void
 slist_stnode_free(gpointer data)
 {
@@ -118,7 +133,8 @@ sttype_register_function(void)
 		"FUNCTION",
 		function_new,
 		function_free,
-		function_dup
+		function_dup,
+		function_tostr
 	};
 
 	sttype_register(&function_type);

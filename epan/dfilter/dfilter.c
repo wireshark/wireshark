@@ -7,7 +7,7 @@
  */
 
 #include "config.h"
-#define WS_LOG_DOMAIN "Dfilter"
+#define WS_LOG_DOMAIN LOG_DOMAIN_DFILTER
 
 #include <stdio.h>
 #include <string.h>
@@ -23,6 +23,7 @@
 #include "scanner_lex.h"
 #include <wsutil/wslog.h>
 #include <wsutil/ws_assert.h>
+#include "grammar.h"
 
 
 #define DFILTER_TOKEN_ID_OFFSET	1
@@ -197,6 +198,44 @@ dfwork_free(dfwork_t *dfw)
 	g_free(dfw);
 }
 
+const char *tokenstr(int token)
+{
+	switch (token) {
+		case TOKEN_TEST_AND:	return "TEST_AND";
+		case TOKEN_TEST_OR: 	return "TEST_OR";
+		case TOKEN_TEST_EQ:	return "TEST_EQ";
+		case TOKEN_TEST_NE:	return "TEST_NE";
+		case TOKEN_TEST_LT:	return "TEST_LT";
+		case TOKEN_TEST_LE:	return "TEST_LE";
+		case TOKEN_TEST_GT:	return "TEST_GT";
+		case TOKEN_TEST_GE:	return  "TEST_GE";
+		case TOKEN_TEST_CONTAINS: return "TEST_CONTAINS";
+		case TOKEN_TEST_MATCHES: return "TEST_MATCHES";
+		case TOKEN_TEST_BITWISE_AND: return "TEST_BITWISE_AND";
+		case TOKEN_TEST_NOT:	return "TEST_NOT";
+		case TOKEN_FIELD:	return "FIELD";
+		case TOKEN_STRING:	return "STRING";
+		case TOKEN_CHARCONST:	return "CHARCONST";
+		case TOKEN_UNPARSED:	return "UNPARSED";
+		case TOKEN_LBRACKET:	return "LBRACKET";
+		case TOKEN_RBRACKET:	return "RBRACKET";
+		case TOKEN_COMMA:	return "COMMA";
+		case TOKEN_INTEGER:	return "INTEGER";
+		case TOKEN_COLON:	return "COLON";
+		case TOKEN_HYPHEN:	return "HYPHEN";
+		case TOKEN_TEST_IN:	return "TEST_IN";
+		case TOKEN_LBRACE:	return "LBRACE";
+		case TOKEN_RBRACE:	return "RBRACE";
+		case TOKEN_WHITESPACE:	return "WHITESPACE";
+		case TOKEN_DOTDOT:	return "DOTDOT";
+		case TOKEN_FUNCTION:	return "FUNCTION";
+		case TOKEN_LPAREN:	return "LPAREN";
+		case TOKEN_RPAREN:	return "RPAREN";
+		default:		return "<unknown>";
+	}
+	ws_assert_not_reached();
+}
+
 gboolean
 dfilter_compile(const gchar *text, dfilter_t **dfp, gchar **err_msg)
 {
@@ -280,6 +319,8 @@ dfilter_compile(const gchar *text, dfilter_t **dfp, gchar **err_msg)
 			g_ptr_array_add(deprecated, g_strdup(depr_test));
 		}
 
+		ws_debug("Token: %d %s", token, tokenstr(token));
+
 		/* Give the token to the parser */
 		Dfilter(ParserObj, token, df_lval, dfw);
 		/* We've used the stnode_t, so we don't want to free it */
@@ -331,11 +372,14 @@ dfilter_compile(const gchar *text, dfilter_t **dfp, gchar **err_msg)
 		g_ptr_array_free(deprecated, TRUE);
 	}
 	else {
+		log_syntax_tree(LOG_LEVEL_NOISY, dfw->st_root, "Syntax tree before semantic check");
 
 		/* Check semantics and do necessary type conversion*/
 		if (!dfw_semcheck(dfw, deprecated)) {
 			goto FAILURE;
 		}
+
+		log_syntax_tree(LOG_LEVEL_NOISY, dfw->st_root, "Syntax tree after successful semantic check");
 
 		/* Create bytecode */
 		dfw_gencode(dfw);
