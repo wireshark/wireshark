@@ -238,7 +238,13 @@ parse_month_name(const char *s, int *tm_mon)
 	return FALSE;
 }
 
-
+/* Parses an absolute time value from a string. The string cannot have
+ * a time zone suffix and is always interpreted in local time.
+ *
+ * OS-dependent; e.g., on 32 bit versions of Windows when compiled to use
+ * _mktime32 treats dates before January 1, 1970 as invalid.
+ * (https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/mktime-mktime32-mktime64)
+ */
 static gboolean
 absolute_val_from_string(fvalue_t *fv, const char *s, gchar **err_msg)
 {
@@ -344,8 +350,24 @@ absolute_val_repr_len(fvalue_t *fv, ftrepr_t rtype, int field_display)
 	gchar *rep;
 	int ret;
 
-	rep = abs_time_to_str(NULL, &fv->value.time, (absolute_time_display_e)field_display,
-		rtype == FTREPR_DISPLAY);
+	switch (rtype) {
+
+	case FTREPR_DISPLAY:
+		rep = abs_time_to_str(NULL, &fv->value.time,
+				(absolute_time_display_e)field_display, TRUE);
+		break;
+
+	case FTREPR_DFILTER:
+		/* absolute_val_from_string only accepts local time,
+		 * with no time zone, so match that. */
+		rep = abs_time_to_str(NULL, &fv->value.time,
+				ABSOLUTE_TIME_LOCAL, FALSE);
+		break;
+
+	default:
+		ws_assert_not_reached();
+		break;
+	}
 
 	ret = (int)strlen(rep) + ((rtype == FTREPR_DFILTER) ? 2 : 0);	/* 2 for opening and closing quotes */
 
@@ -357,10 +379,25 @@ absolute_val_repr_len(fvalue_t *fv, ftrepr_t rtype, int field_display)
 static void
 absolute_val_to_repr(fvalue_t *fv, ftrepr_t rtype, int field_display, char *buf, unsigned int size)
 {
-	gchar *rep = abs_time_to_str(NULL, &fv->value.time, (absolute_time_display_e)field_display,
-		rtype == FTREPR_DISPLAY);
-	if (rtype == FTREPR_DFILTER) {
+	gchar *rep;
+	switch (rtype) {
+
+	case FTREPR_DISPLAY:
+		rep = abs_time_to_str(NULL, &fv->value.time,
+				(absolute_time_display_e)field_display, TRUE);
+		break;
+
+	case FTREPR_DFILTER:
+		/* absolute_val_from_string only accepts local time,
+		 * with no time zone, so match that. */
+		rep = abs_time_to_str(NULL, &fv->value.time,
+				ABSOLUTE_TIME_LOCAL, FALSE);
 		*buf++ = '\"';
+		break;
+
+	default:
+		ws_assert_not_reached();
+		break;
 	}
 
 	(void) g_strlcpy(buf, rep, size);
