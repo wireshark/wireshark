@@ -50,16 +50,18 @@ typedef struct {
 	STTypeToStrFunc		func_tostr;
 } sttype_t;
 
+#define STNODE_F_INSIDE_PARENS (1 << 0)
+
 /** Node (type instance) information */
 typedef struct {
 	uint32_t	magic;
 	sttype_t	*type;
+	uint16_t	flags;
 
 	/* This could be made an enum, but I haven't
 	 * set aside to time to do so. */
 	gpointer	data;
 	int32_t		value;
-	gboolean	inside_brackets;
 } stnode_t;
 
 /* These are the sttype_t registration function prototypes. */
@@ -82,9 +84,6 @@ sttype_register(sttype_t *type);
 
 stnode_t*
 stnode_new(sttype_id_t type_id, gpointer data);
-
-void
-stnode_set_bracket(stnode_t *node, gboolean bracket);
 
 stnode_t*
 stnode_dup(const stnode_t *org);
@@ -115,6 +114,12 @@ stnode_value(stnode_t *node);
 
 char *
 stnode_tostr(stnode_t *node);
+
+gboolean
+stnode_inside_parens(stnode_t *node);
+
+void
+stnode_set_inside_parens(stnode_t *node, gboolean inside);
 
 void
 stnode_log_full(enum ws_log_level level,

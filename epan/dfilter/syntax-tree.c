@@ -83,9 +83,8 @@ stnode_new(sttype_id_t type_id, gpointer data)
 	sttype_t	*type;
 	stnode_t	*node;
 
-	node = g_new(stnode_t, 1);
+	node = g_new0(stnode_t, 1);
 	node->magic = STNODE_MAGIC;
-	node->inside_brackets = FALSE;
 
 	if (type_id == STTYPE_UNINITIALIZED) {
 		node->type = NULL;
@@ -107,12 +106,6 @@ stnode_new(sttype_id_t type_id, gpointer data)
 	return node;
 }
 
-void
-stnode_set_bracket(stnode_t *node, gboolean bracket)
-{
-	node->inside_brackets = bracket;
-}
-
 stnode_t*
 stnode_dup(const stnode_t *org)
 {
@@ -127,12 +120,13 @@ stnode_dup(const stnode_t *org)
 	node = g_new(stnode_t, 1);
 	node->magic = STNODE_MAGIC;
 	node->type = type;
+	node->flags = org->flags;
+
 	if (type && type->func_dup)
 		node->data = type->func_dup(org->data);
 	else
 		node->data = org->data;
 	node->value = org->value;
-	node->inside_brackets = org->inside_brackets;
 
 	return node;
 }
@@ -149,6 +143,8 @@ stnode_init(stnode_t *node, sttype_id_t type_id, gpointer data)
 	type = sttype_lookup(type_id);
 	ws_assert(type);
 	node->type = type;
+	node->flags = 0;
+
 	if (type->func_new) {
 		node->data = type->func_new(data);
 	}
@@ -223,6 +219,23 @@ stnode_value(stnode_t *node)
 	return node->value;
 }
 
+gboolean
+stnode_inside_parens(stnode_t *node)
+{
+	return node->flags & STNODE_F_INSIDE_PARENS;
+}
+
+void
+stnode_set_inside_parens(stnode_t *node, gboolean inside)
+{
+	if (inside) {
+		node->flags |= STNODE_F_INSIDE_PARENS;
+	}
+	else {
+		node->flags &= ~STNODE_F_INSIDE_PARENS;
+	}
+}
+
 char *
 stnode_tostr(stnode_t *node)
 {
@@ -253,11 +266,13 @@ sprint_node(stnode_t *node)
 	wmem_strbuf_append_printf(buf, "stnode <%p> = {\n", (void *)node);
 	wmem_strbuf_append_printf(buf, "\tmagic = %"PRIx32"\n", node->magic);
 	wmem_strbuf_append_printf(buf, "\ttype = %s\n", stnode_type_name(node));
+	wmem_strbuf_append_printf(buf,
+			"\tflags = %"PRIx16" (inside_parens = %s)\n",
+			node->flags, true_or_false(stnode_inside_parens(node)));
 	s = node->type->func_tostr(node->data);
 	wmem_strbuf_append_printf(buf, "\tdata = %s\n", s);
 	g_free(s);
 	wmem_strbuf_append_printf(buf, "\tvalue = %"PRId32"\n", node->value);
-	wmem_strbuf_append_printf(buf, "\tinside_brackets = %s\n", true_or_false(node->inside_brackets));
 	wmem_strbuf_append_printf(buf, "}\n");
 	return wmem_strbuf_finalize(buf);
 }
