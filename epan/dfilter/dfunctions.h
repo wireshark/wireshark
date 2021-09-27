@@ -37,6 +37,6 @@ typedef struct {
 } df_func_def_t;
 
 /* Return the function definition record for a function of named "name" */
-df_func_def_t* df_func_lookup(char *name);
+df_func_def_t* df_func_lookup(const char *name);
 
 #endif

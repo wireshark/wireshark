@@ -318,7 +318,7 @@ df_functions[] = {
 
 /* Lookup a display filter function record by name */
 df_func_def_t*
-df_func_lookup(char *name)
+df_func_lookup(const char *name)
 {
     df_func_def_t *func_def;
 

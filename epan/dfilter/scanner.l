@@ -86,7 +86,6 @@ DIAG_OFF_FLEX
 
 static int set_lval_str(int token, const char *token_value);
 static int set_lval_field(int token, header_field_info *hfinfo, const char *token_value);
-static int set_lval_func(int token, df_func_def_t *func, const char *token_value);
 static int set_lval_int(dfwork_t *dfw, int token, const char *token_value);
 static int simple(int token, const char *token_value);
 #define SIMPLE(token) simple(token, yytext)
@@ -401,7 +400,6 @@ static gboolean str_to_gint32(dfwork_t *dfw, const char *s, gint32* pint);
 [-+[:alnum:]_:]+([.][-+[:alnum:]_:]+)*[.]{0,2} {
 	/* Is it a field name or some other value (float, integer, bytes, ...)? */
 	header_field_info *hfinfo;
-	df_func_def_t *df_func_def;
 
 	/* Trailing dot is allowed for floats, but make sure that trailing ".."
 	 * is interpreted as a token on its own. */
@@ -422,11 +420,6 @@ static gboolean str_to_gint32(dfwork_t *dfw, const char *s, gint32* pint);
 		return set_lval_field(TOKEN_FIELD, hfinfo, yytext);
 	}
 
-	df_func_def = df_func_lookup(yytext);
-	if (df_func_def) {
-		/* Yes, it's a dfilter function */
-		return set_lval_func(TOKEN_FUNCTION, df_func_def, yytext);
-	}
 	/* No match, so treat it as an unparsed string */
 	return set_lval_str(TOKEN_UNPARSED, yytext);
 }
@@ -507,14 +500,6 @@ set_lval_field(int token, header_field_info *hfinfo, const char *token_value)
 {
 	ws_assert(token == TOKEN_FIELD);
 	stnode_init(df_lval, STTYPE_FIELD, hfinfo, token_value);
-	return token;
-}
-
-static int
-set_lval_func(int token, df_func_def_t *func, const char *token_value)
-{
-	ws_assert(token == TOKEN_FUNCTION);
-	stnode_init(df_lval, STTYPE_FUNCTION, func, token_value);
 	return token;
 }
 

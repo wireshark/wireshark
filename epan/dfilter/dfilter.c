@@ -37,18 +37,45 @@ static void*	ParserObj = NULL;
  */
 dfwork_t *global_dfw;
 
+static void
+dfilter_vfail(dfwork_t *dfw, const char *format, va_list args)
+{
+	/* If we've already reported one error, don't overwite it */
+	if (dfw->error_message != NULL)
+		return;
+
+	dfw->error_message = g_strdup_vprintf(format, args);
+}
+
 void
 dfilter_fail(dfwork_t *dfw, const char *format, ...)
 {
 	va_list	args;
 
-	/* If we've already reported one error, don't overwite it */
-	if (dfw->error_message != NULL)
-		return;
+	va_start(args, format);
+	dfilter_vfail(dfw, format, args);
+	va_end(args);
+}
+
+void
+dfilter_parse_fail(dfwork_t *dfw, const char *format, ...)
+{
+	va_list	args;
 
 	va_start(args, format);
-	dfw->error_message = g_strdup_vprintf(format, args);
+	dfilter_vfail(dfw, format, args);
 	va_end(args);
+	dfw->syntax_error = TRUE;
+}
+
+stnode_t *
+dfilter_new_function(dfwork_t *dfw, const char *name)
+{
+	df_func_def_t *def = df_func_lookup(name);
+	if (!def) {
+		dfilter_parse_fail(dfw, "Function '%s' does not exist", name);
+	}
+	return stnode_new(STTYPE_FUNCTION, def, name);
 }
 
 /* Initialize the dfilter module */
@@ -228,7 +255,6 @@ const char *tokenstr(int token)
 		case TOKEN_RBRACE:	return "RBRACE";
 		case TOKEN_WHITESPACE:	return "WHITESPACE";
 		case TOKEN_DOTDOT:	return "DOTDOT";
-		case TOKEN_FUNCTION:	return "FUNCTION";
 		case TOKEN_LPAREN:	return "LPAREN";
 		case TOKEN_RPAREN:	return "RPAREN";
 		default:		return "<unknown>";

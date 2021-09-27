@@ -25,8 +25,6 @@ function_new(gpointer funcdef)
 {
 	function_t		*stfuncrec;
 
-	ws_assert(funcdef != NULL);
-
 	stfuncrec = g_new(function_t, 1);
 
 	stfuncrec->magic = FUNCTION_MAGIC;

@@ -104,14 +104,11 @@ any "error" symbols are shifted, if possible. */
 			hfinfo = (header_field_info *)stnode_data(TOKEN);
 			dfilter_fail(dfw, "Syntax error near \"%s\".", hfinfo->abbrev);
 			break;
-		case STTYPE_FUNCTION:
-			dfilter_fail(dfw, "The function \"%s\" was unexpected in this context.",
-				sttype_function_funcdef(TOKEN)->name);
-			break;
 		/* These aren't handed to use as terminal tokens from
 		   the scanner, so was can assert that we'll never
 		   see them here. */
 		case STTYPE_NUM_TYPES:
+		case STTYPE_FUNCTION:
 		case STTYPE_RANGE:
 		case STTYPE_FVALUE:
 		case STTYPE_PCRE:
@@ -331,16 +328,18 @@ set_node_list(L) ::= set_node_list(P) WHITESPACE entity(X) DOTDOT entity(Y).
 /* Functions */
 
 /* A function can have one or more parameters */
-function(G) ::= FUNCTION(F) LPAREN function_params(P) RPAREN.
+function(F) ::= UNPARSED(U) LPAREN function_params(P) RPAREN.
 {
-	G = F;
-	sttype_function_set_params(G, P);
+	F = dfilter_new_function(dfw, stnode_token_value(U));
+	stnode_free(U);
+	sttype_function_set_params(F, P);
 }
 
 /* A function can have zero parameters. */
-function(G) ::= FUNCTION(F) LPAREN RPAREN.
+function(F) ::= UNPARSED(U) LPAREN RPAREN.
 {
-	G = F;
+	F = dfilter_new_function(dfw, stnode_token_value(U));
+	stnode_free(U);
 }
 
 function_params(P) ::= entity(E).

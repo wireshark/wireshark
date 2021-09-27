@@ -73,6 +73,9 @@ void
 dfilter_fail(dfwork_t *dfw, const char *format, ...) G_GNUC_PRINTF(2, 3);
 
 void
+dfilter_parse_fail(dfwork_t *dfw, const char *format, ...) G_GNUC_PRINTF(2, 3);
+
+void
 add_deprecated_token(GPtrArray *deprecated, const char *token);
 
 void
@@ -80,6 +83,9 @@ free_deprecated(GPtrArray *deprecated);
 
 void
 DfilterTrace(FILE *TraceFILE, char *zTracePrompt);
+
+stnode_t *
+dfilter_new_function(dfwork_t *dfw, const char *name);
 
 const char *tokenstr(int token);
 
