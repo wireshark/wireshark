@@ -2236,6 +2236,8 @@ void wtap_register_open_info(struct open_info *oi, const gboolean first_routine)
 WS_DLL_PUBLIC
 gboolean wtap_has_open_info(const gchar *name);
 WS_DLL_PUBLIC
+gboolean wtap_uses_lua_filehandler(const wtap* wth);
+WS_DLL_PUBLIC
 void wtap_deregister_open_info(const gchar *name);
 
 WS_DLL_PUBLIC

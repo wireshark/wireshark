@@ -1529,6 +1529,22 @@ void MainWindow::reloadLuaPlugins()
     if (wsApp->isReloadingLua())
         return;
 
+    gboolean uses_lua_filehandler = FALSE;
+
+    if (capture_file_.capFile()) {
+        // Check if the current capture file is opened with a Lua FileHandler
+        capture_file *cf = capture_file_.capFile();
+        uses_lua_filehandler = wtap_uses_lua_filehandler(cf->provider.wth);
+
+        if (uses_lua_filehandler && cf->unsaved_changes) {
+            // Prompt to save the file before reloading, in case the FileHandler has changed
+            QString before_what(tr(" before reloading Lua plugins"));
+            if (!testCaptureFileClose(before_what, Reload)) {
+                return;
+            }
+        }
+    }
+
     wsApp->setReloadingLua(true);
 
     wslua_reload_plugins(NULL, NULL);
@@ -1544,7 +1560,14 @@ void MainWindow::reloadLuaPlugins()
 
     prefs_apply_all();
     fieldsChanged();
-    redissectPackets();
+
+    if (uses_lua_filehandler) {
+        // Reload the file in case the FileHandler has changed
+        cf_reload(capture_file_.capFile());
+        proto_free_deregistered_fields();
+    } else {
+        redissectPackets();
+    }
 
     wsApp->setReloadingLua(false);
     SimpleDialog::displayQueuedMessages();

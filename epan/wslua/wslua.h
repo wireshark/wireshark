@@ -296,6 +296,7 @@ struct _wslua_filehandler {
     int write_close_ref;
     int file_type;
     gboolean registered;
+    gboolean removed; /* This is set during reload Lua plugins */
 };
 
 struct _wslua_dir {

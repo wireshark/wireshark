@@ -75,6 +75,9 @@ report_error(int *err, gchar **err_info, const char *fmt, ...)
         report_error(err, err_info, "Error in file %s: no Lua FileHandler object", #name); \
         return retval; \
     } \
+    if (fh->removed) { \
+        return retval; \
+    } \
     if (!fh->registered) { \
         report_error(err, err_info, "Error in file %s: Lua FileHandler is not registered", #name); \
         return retval; \
@@ -309,6 +312,11 @@ wslua_filehandler_seek_read(wtap *wth, gint64 seek_off,
     File *fp = NULL;
     CaptureInfo *fc = NULL;
     FrameInfo *fi = NULL;
+
+    if (fh->removed) {
+        /* Return success when removed during reloading Lua plugins */
+        return TRUE;
+    }
 
     INIT_FILEHANDLER_ROUTINE(seek_read,FALSE,err,err_info);
 
@@ -1285,7 +1293,9 @@ int FileHandler_register(lua_State* L) {
 
 int wslua_deregister_filehandlers(lua_State* L _U_) {
     for (GSList *it = registered_file_handlers; it; it = it->next) {
-        wslua_deregister_filehandler_work((FileHandler)it->data);
+        FileHandler fh = (FileHandler)it->data;
+        wslua_deregister_filehandler_work(fh);
+        fh->removed = TRUE;
     }
     g_slist_free(registered_file_handlers);
     registered_file_handlers = NULL;

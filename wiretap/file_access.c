@@ -591,6 +591,20 @@ wtap_has_open_info(const gchar *name)
 	return FALSE;
 }
 
+gboolean
+wtap_uses_lua_filehandler(const wtap* wth)
+{
+	if (wth && wth->wslua_data != NULL) {
+		/*
+		 * Currently, wslua_data is set if and only if using a Lua
+		 * file handler.
+		 */
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
 /*
  * Visual C++ on Win32 systems doesn't define these.  (Old UNIX systems don't
  * define them either.)
