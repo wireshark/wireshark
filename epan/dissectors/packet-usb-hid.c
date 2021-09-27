@@ -5130,7 +5130,7 @@ dissect_usb_hid_keyboard_page(tvbuff_t *tvb, packet_info _U_ *pinfo,
     usage = USAGE_ID(usage);
 
     proto_tree_add_boolean_bits_format_value(tree, hf_usbhid_key, tvb, bit_offset, field->report_size, val, ENC_LITTLE_ENDIAN,
-        "%s (0x%02x) = %s", val_to_str_ext(usage, &keycode_vals_ext, "Unknown"), usage, val ? "DOWN" : "UP");
+        "%s (0x%02x): %s", val_to_str_ext(usage, &keycode_vals_ext, "Unknown"), usage, val ? "DOWN" : "UP");
     return 0;
 }
 
@@ -5159,7 +5159,7 @@ dissect_usb_hid_button_page(tvbuff_t *tvb, packet_info _U_ *pinfo,
     else if (usage == 3)
         proto_item_append_text(ti, " (tertiary)");
 
-    proto_item_append_text(ti, " = %s", val ? "DOWN" : "UP");
+    proto_item_append_text(ti, ": %s", val ? "DOWN" : "UP");
     return 0;
 }
 
@@ -5195,8 +5195,12 @@ dissect_hid_variable(tvbuff_t* tvb, packet_info _U_* pinfo, proto_tree* tree, hi
     }
 
     if (ret) {
-        proto_tree_add_uint_bits_format_value(tree, hf_usb_hid_localitem_usage, tvb, bit_offset, field->report_size,
-            usage, ENC_LITTLE_ENDIAN, "%s", get_usage_page_item_string(pinfo->pool, USAGE_PAGE(usage), USAGE_ID(usage)));
+        guint32 val = 0;
+        proto_item *ti =
+            proto_tree_add_uint_bits_format_value(tree, hf_usb_hid_localitem_usage, tvb, bit_offset, field->report_size,
+                                                  usage, ENC_LITTLE_ENDIAN, "%s", get_usage_page_item_string(pinfo->pool, USAGE_PAGE(usage), USAGE_ID(usage)));
+        if (0 == hid_unpack_logical(tvb, bit_offset, field->report_size, field->logical_min, &val))
+            proto_item_append_text(ti, ": %d", val);
     }
 }
 
