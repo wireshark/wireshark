@@ -827,10 +827,14 @@ wslua_deregister_filehandler_work(FileHandler fh)
         g_free(fh->finfo.wslua_info);
         fh->finfo.wslua_info = NULL;
     }
+    g_free((char *)fh->finfo.default_file_extension);
+    fh->finfo.default_file_extension = NULL;
+    fh->finfo.additional_file_extensions = NULL;
     fh->finfo.dump_open = NULL;
 
-    if (fh->file_type != WTAP_FILE_TYPE_SUBTYPE_UNKNOWN)
+    if (fh->file_type != WTAP_FILE_TYPE_SUBTYPE_UNKNOWN) {
         wtap_deregister_file_type_subtype(fh->file_type);
+    }
 
     if (fh->is_reader && wtap_has_open_info(fh->finfo.name)) {
         wtap_deregister_open_info(fh->finfo.name);
@@ -1295,7 +1299,20 @@ int wslua_deregister_filehandlers(lua_State* L _U_) {
     for (GSList *it = registered_file_handlers; it; it = it->next) {
         FileHandler fh = (FileHandler)it->data;
         wslua_deregister_filehandler_work(fh);
+
+        for (size_t i = 0; i < fh->finfo.num_supported_blocks; i++) {
+            g_free((struct supported_option_type *)fh->finfo.supported_blocks[i].supported_options);
+        }
+        g_free((struct supported_block_type  *)fh->finfo.supported_blocks);
+        g_free((char *)fh->extensions);
+        g_free((char *)fh->internal_description);
+        g_free((char *)fh->finfo.description);
+        g_free((char *)fh->finfo.name);
+        g_free(fh->type);
+
+        memset(fh, 0, sizeof(*fh));
         fh->removed = TRUE;
+        proto_add_deregistered_data(fh);
     }
     g_slist_free(registered_file_handlers);
     registered_file_handlers = NULL;
