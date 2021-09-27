@@ -755,7 +755,26 @@ to avoid warnings at all.
 The compiler flags in the Makefiles are set to "treat warnings as errors",
 so your code won't even compile when warnings occur.
 
-7. Miscellaneous notes
+7. General observatons about architecture
+
+One day we might conceivably wish to load dissectors on demand and do other
+more sophisticated kinds of unit test. Plus other scenarios not immediately
+obvious. For this to be possible it is important that the code in epan/ does
+not depend on code in epan/dissectors, i.e it is possible to compile epan
+without linking with dissector code. It helps to view dissectors as clients
+of an API provided by epan (libwireshark being constituted by two distinct
+components "epan" and "dissectors" bundled together, plus other bits and
+pieces). The reverse is ǹot* true; epan should not be the client of an API
+provided by dissectors.
+
+The main way this separation of concerns is achieved is by using runtime
+registration interfaces in epan for dissectors, preferences, etc. that are
+dynamic and do not have any dissector routines hard coded. Naturally this
+is also an essential component of a plugin system (libwireshark has plugins
+for taps, dissectors and an experimental interface to augment dissection with
+new extension languages).
+
+8. Miscellaneous notes
 
 Each commit in your branch corresponds to a different VCSVERSION string
 automatically defined in the header 'vcs_version.h' during the build. If you happen
