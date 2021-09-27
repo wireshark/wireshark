@@ -325,15 +325,20 @@ def isAppropriateFile(filename):
     return extension in { '.adoc', '.c', '.cpp', '.pod', '.nsi'} or file.endswith('README')
 
 
-def findFilesInFolder(folder):
+def findFilesInFolder(folder, recursive=True):
     files_to_check = []
 
-    for root, subfolders, files in os.walk(folder):
-        for f in files:
-            if should_exit:
-                return
-
-            f = os.path.join(root, f)
+    if recursive:
+        for root, subfolders, files in os.walk(folder):
+            for f in files:
+                if should_exit:
+                    return
+                f = os.path.join(root, f)
+                if isAppropriateFile(f) and not isGeneratedFile(f):
+                    files_to_check.append(f)
+    else:
+        for f in sorted(os.listdir(folder)):
+            f = os.path.join(folder, f)
             if isAppropriateFile(f) and not isGeneratedFile(f):
                 files_to_check.append(f)
 
@@ -362,6 +367,8 @@ parser.add_argument('--file', action='store', default='',
                     help='specify individual file to test')
 parser.add_argument('--folder', action='store', default='',
                     help='specify folder to test')
+parser.add_argument('--no-recurse', action='store_true', default='',
+                    help='do not recurse inside chosen folder')
 parser.add_argument('--commits', action='store',
                     help='last N commits to check')
 parser.add_argument('--open', action='store_true',
@@ -414,7 +421,7 @@ else:
 
     # Find files from folder.
     print('Looking for files in', folder)
-    files = findFilesInFolder(folder)
+    files = findFilesInFolder(folder, not args.no_recurse)
 
 
 # If scanning a subset of files, list them here.

@@ -151,6 +151,7 @@ cannot
 canonicalised
 canonicalize
 canonicalized
+capacitive
 capinfos
 capsa
 captioning
@@ -336,6 +337,7 @@ dialup
 diffie
 Digicel
 digitizer
+digium
 diplexer
 directionality
 disambiguation
@@ -497,6 +499,7 @@ hartip
 hashed
 hashes
 hazelcast
+hcidump
 heuristic
 hfarr
 hfill,
@@ -535,6 +538,7 @@ inband
 incits
 incremented
 incrementing
+indenting
 indirection
 infile
 infiniband
@@ -793,6 +797,7 @@ outhdr
 packetcable
 packetization
 packetized
+pagings
 parallelization
 param
 parameterization
@@ -1326,10 +1331,12 @@ unroutable
 unsecure
 unsegmented
 unsequenced
+unspec
 unsubscribe
 unsubscribed
 unsynchronized
 untagged
+unterminated
 untruncated
 untrusted
 untunneled

@@ -11867,7 +11867,7 @@ proto_register_isup(void)
 #endif
 
     { &hf_japan_isup_carrier_info_length,
-      { "Length of Carrier Information", "isup.jpn.arrier_info_length",
+      { "Length of Carrier Information", "isup.jpn.carrier_info_length",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
 

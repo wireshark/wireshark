@@ -4647,7 +4647,7 @@ proto_register_h265(void)
 
 	static ei_register_info ei[] = {
 		{ &ei_h265_undecoded,{ "h265.undecoded", PI_UNDECODED, PI_WARN, "[Not decoded yet]", EXPFILL } },
-		{ &ei_h265_oversized_exp_golomb_code, {"h265.oversized_exp_golomb_code", PI_MALFORMED, PI_ERROR, "Exponentional Golomb encoded value greater than 32 bit integer, clamped", EXPFILL } },
+		{ &ei_h265_oversized_exp_golomb_code, {"h265.oversized_exp_golomb_code", PI_MALFORMED, PI_ERROR, "Exponential Golomb encoded value greater than 32 bit integer, clamped", EXPFILL } },
 		{ &ei_h265_value_to_large,{ "h265.value_to_large", PI_PROTOCOL, PI_ERROR, "[Value to large, protocol violation]", EXPFILL } },
 		{ &ei_h265_format_specific_parameter,{ "h265.format_specific_parameter", PI_UNDECODED, PI_WARN, "[Unspecified media format specific parameter]", EXPFILL } },
 	};

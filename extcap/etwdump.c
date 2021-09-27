@@ -256,13 +256,13 @@ int main(int argc, char* argv[])
             if (etlfile == NULL)
             {
                 if (err_msg != NULL) {
-                    ws_warning("The live session didn't caputre any event. Error message: %s.",
+                    ws_warning("The live session didn't capture any event. Error message: %s.",
                         err_msg);
                     g_free(err_msg);
                 }
                 else
                 {
-                    ws_warning("The live session didn't caputre any event");
+                    ws_warning("The live session didn't capture any event");
                 }
             }
             else

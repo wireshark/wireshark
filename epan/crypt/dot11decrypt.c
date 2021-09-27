@@ -705,7 +705,7 @@ INT Dot11DecryptScanTdlsForKeys(
         }
 
         if (length < min_length || tot_len < offset + 2 + length) {
-            ws_debug("Invalid length reconds in IEs");
+            ws_debug("Invalid length records in IEs");
             return DOT11DECRYPT_RET_NO_VALID_HANDSHAKE;
         }
         offset += 2 + length;
