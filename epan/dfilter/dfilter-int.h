@@ -42,6 +42,7 @@ typedef struct {
 	int		next_const_id;
 	int		next_register;
 	int		first_constant; /* first register used as a constant */
+	GPtrArray	*deprecated;
 } dfwork_t;
 
 /*
@@ -52,6 +53,7 @@ typedef struct {
 	GString* quoted_string;
 	gboolean raw_string;
 	gboolean in_set;	/* true if parsing set elements for the membership operator */
+	GPtrArray *deprecated;
 } df_scanner_state_t;
 
 /* Constructor/Destructor prototypes for Lemon Parser */
@@ -69,6 +71,12 @@ extern stnode_t *df_lval;
 /* Set dfw->error_message */
 void
 dfilter_fail(dfwork_t *dfw, const char *format, ...) G_GNUC_PRINTF(2, 3);
+
+void
+add_deprecated_token(GPtrArray *deprecated, const char *token);
+
+void
+free_deprecated(GPtrArray *deprecated);
 
 void
 DfilterTrace(FILE *TraceFILE, char *zTracePrompt);

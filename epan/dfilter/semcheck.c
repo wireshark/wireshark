@@ -30,7 +30,7 @@
 
 
 static void
-semcheck(dfwork_t *dfw, stnode_t *st_node, GPtrArray *deprecated);
+semcheck(dfwork_t *dfw, stnode_t *st_node);
 
 static stnode_t*
 check_param_entity(dfwork_t *dfw, stnode_t *st_node);
@@ -1492,7 +1492,7 @@ check_relation(dfwork_t *dfw, const char *relation_string,
 
 /* Check the semantics of any type of TEST */
 static void
-check_test(dfwork_t *dfw, stnode_t *st_node, GPtrArray *deprecated)
+check_test(dfwork_t *dfw, stnode_t *st_node)
 {
 	test_op_t		st_op, st_arg_op;
 	stnode_t		*st_arg1, *st_arg2;
@@ -1515,7 +1515,7 @@ check_test(dfwork_t *dfw, stnode_t *st_node, GPtrArray *deprecated)
 			break;
 
 		case TEST_OP_NOT:
-			semcheck(dfw, st_arg1, deprecated);
+			semcheck(dfw, st_arg1);
 			break;
 
 		case TEST_OP_AND:
@@ -1524,7 +1524,7 @@ check_test(dfwork_t *dfw, stnode_t *st_node, GPtrArray *deprecated)
 				sttype_test_get(st_arg1, &st_arg_op, NULL, NULL);
 				if (st_arg_op == TEST_OP_AND || st_arg_op == TEST_OP_OR) {
 					if (st_op != st_arg_op && !st_arg1->inside_brackets)
-						g_ptr_array_add(deprecated, g_strdup("suggest parentheses around '&&' within '||'"));
+						g_ptr_array_add(dfw->deprecated, g_strdup("suggest parentheses around '&&' within '||'"));
 				}
 			}
 
@@ -1532,12 +1532,12 @@ check_test(dfwork_t *dfw, stnode_t *st_node, GPtrArray *deprecated)
 				sttype_test_get(st_arg2, &st_arg_op, NULL, NULL);
 				if (st_arg_op == TEST_OP_AND || st_arg_op == TEST_OP_OR) {
 					if (st_op != st_arg_op && !st_arg2->inside_brackets)
-						g_ptr_array_add(deprecated, g_strdup("suggest parentheses around '&&' within '||'"));
+						g_ptr_array_add(dfw->deprecated, g_strdup("suggest parentheses around '&&' within '||'"));
 				}
 			}
 
-			semcheck(dfw, st_arg1, deprecated);
-			semcheck(dfw, st_arg2, deprecated);
+			semcheck(dfw, st_arg1);
+			semcheck(dfw, st_arg2);
 			break;
 
 		case TEST_OP_EQ:
@@ -1581,7 +1581,7 @@ check_test(dfwork_t *dfw, stnode_t *st_node, GPtrArray *deprecated)
 
 /* Check the entire syntax tree. */
 static void
-semcheck(dfwork_t *dfw, stnode_t *st_node, GPtrArray *deprecated)
+semcheck(dfwork_t *dfw, stnode_t *st_node)
 {
 #ifndef WS_DISABLE_DEBUG
 	static guint i = 0;
@@ -1592,7 +1592,7 @@ semcheck(dfwork_t *dfw, stnode_t *st_node, GPtrArray *deprecated)
 	 * node will be a TEST node, no matter what. So assert that. */
 	switch (stnode_type_id(st_node)) {
 		case STTYPE_TEST:
-			check_test(dfw, st_node, deprecated);
+			check_test(dfw, st_node);
 			break;
 		default:
 			ws_assert_not_reached();
@@ -1604,7 +1604,7 @@ semcheck(dfwork_t *dfw, stnode_t *st_node, GPtrArray *deprecated)
  * some of the nodes into the form they need to be in order to
  * later generate the DFVM bytecode. */
 gboolean
-dfw_semcheck(dfwork_t *dfw, GPtrArray *deprecated)
+dfw_semcheck(dfwork_t *dfw)
 {
 	volatile gboolean ok_filter = TRUE;
 #ifndef WS_DISABLE_DEBUG
@@ -1617,7 +1617,7 @@ dfw_semcheck(dfwork_t *dfw, GPtrArray *deprecated)
 	 * the semantic-checking, the semantic-checking code will
 	 * throw an exception if a problem is found. */
 	TRY {
-		semcheck(dfw, dfw->st_root, deprecated);
+		semcheck(dfw, dfw->st_root);
 	}
 	CATCH(TypeError) {
 		ok_filter = FALSE;

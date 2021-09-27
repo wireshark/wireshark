@@ -60,7 +60,6 @@ typedef struct {
 	gpointer	data;
 	int32_t		value;
 	gboolean	inside_brackets;
-	const char	*deprecated_token;
 } stnode_t;
 
 /* These are the sttype_t registration function prototypes. */
@@ -113,9 +112,6 @@ stnode_steal_data(stnode_t *node);
 
 gint32
 stnode_value(stnode_t *node);
-
-const char *
-stnode_deprecated(stnode_t *node);
 
 char *
 stnode_tostr(stnode_t *node);

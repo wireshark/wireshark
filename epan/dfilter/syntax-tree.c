@@ -85,7 +85,6 @@ stnode_new(sttype_id_t type_id, gpointer data)
 
 	node = g_new(stnode_t, 1);
 	node->magic = STNODE_MAGIC;
-	node->deprecated_token = NULL;
 	node->inside_brackets = FALSE;
 
 	if (type_id == STTYPE_UNINITIALIZED) {
@@ -127,7 +126,6 @@ stnode_dup(const stnode_t *org)
 
 	node = g_new(stnode_t, 1);
 	node->magic = STNODE_MAGIC;
-	node->deprecated_token = NULL;
 	node->type = type;
 	if (type && type->func_dup)
 		node->data = type->func_dup(org->data);
@@ -225,15 +223,6 @@ stnode_value(stnode_t *node)
 	return node->value;
 }
 
-const char *
-stnode_deprecated(stnode_t *node)
-{
-	if (!node) {
-		return NULL;
-	}
-	return node->deprecated_token;
-}
-
 char *
 stnode_tostr(stnode_t *node)
 {
@@ -269,7 +258,6 @@ sprint_node(stnode_t *node)
 	g_free(s);
 	wmem_strbuf_append_printf(buf, "\tvalue = %"PRId32"\n", node->value);
 	wmem_strbuf_append_printf(buf, "\tinside_brackets = %s\n", true_or_false(node->inside_brackets));
-	wmem_strbuf_append_printf(buf, "\tdeprecated_token = %s\n", node->deprecated_token);
 	wmem_strbuf_append_printf(buf, "}\n");
 	return wmem_strbuf_finalize(buf);
 }

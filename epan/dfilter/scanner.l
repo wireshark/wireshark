@@ -88,7 +88,6 @@ static int set_lval(int token, gpointer data);
 static int set_lval_int(dfwork_t *dfw, int token, char *s);
 static int simple(int token);
 static gboolean str_to_gint32(dfwork_t *dfw, char *s, gint32* pint);
-static void mark_lval_deprecated(const char *s);
 
 /*
  * Sleazy hack to suppress compiler warnings in yy_fatal_error().
@@ -139,11 +138,11 @@ static void mark_lval_deprecated(const char *s);
 "=="			return simple(TOKEN_TEST_EQ);
 "eq"			return simple(TOKEN_TEST_EQ);
 "!="			{
-	mark_lval_deprecated("!=");
+	add_deprecated_token(yyextra->deprecated, "!=");
 	return simple(TOKEN_TEST_NE);
 }
 "ne"			{
-	mark_lval_deprecated("ne");
+	add_deprecated_token(yyextra->deprecated, "ne");
 	return simple(TOKEN_TEST_NE);
 }
 ">"				return simple(TOKEN_TEST_GT);
@@ -418,7 +417,7 @@ static void mark_lval_deprecated(const char *s);
 		/* Yes, it's an aliased field name */
 		/* XXX Do we need to make a copy of yytext? dfilter_compile
 		 * will dup this later on. */
-		mark_lval_deprecated(yytext);
+		add_deprecated_token(yyextra->deprecated, yytext);
 		return set_lval(TOKEN_FIELD, hfinfo);
 	}
 
@@ -581,8 +580,3 @@ str_to_gint32(dfwork_t *dfw, char *s, gint32* pint)
 	return TRUE;
 }
 
-static void
-mark_lval_deprecated(const char *s)
-{
-	df_lval->deprecated_token = s;
-}

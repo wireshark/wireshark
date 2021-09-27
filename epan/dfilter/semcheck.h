@@ -11,7 +11,7 @@
 #define SEMCHECK_H
 
 gboolean
-dfw_semcheck(dfwork_t *dfw, GPtrArray *deprecated);
+dfw_semcheck(dfwork_t *dfw);
 
 
 #endif

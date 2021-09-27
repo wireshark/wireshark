@@ -236,6 +236,29 @@ const char *tokenstr(int token)
 	ws_assert_not_reached();
 }
 
+void
+add_deprecated_token(GPtrArray *deprecated, const char *token)
+{
+	for (guint i = 0; i < deprecated->len; i++) {
+		const char *str = (const char *)g_ptr_array_index(deprecated, i);
+		if (g_ascii_strcasecmp(token, str) == 0) {
+			/* It's already in our list */
+			return;
+		}
+	}
+	g_ptr_array_add(deprecated, g_strdup(token));
+}
+
+void
+free_deprecated(GPtrArray *deprecated)
+{
+	for (guint i = 0; i < deprecated->len; ++i) {
+		gpointer *depr = g_ptr_array_index(deprecated,i);
+		g_free(depr);
+	}
+	g_ptr_array_free(deprecated, TRUE);
+}
+
 gboolean
 dfilter_compile(const gchar *text, dfilter_t **dfp, gchar **err_msg)
 {
@@ -247,8 +270,6 @@ dfilter_compile(const gchar *text, dfilter_t **dfp, gchar **err_msg)
 	yyscan_t	scanner;
 	YY_BUFFER_STATE in_buffer;
 	gboolean failure = FALSE;
-	const char	*depr_test;
-	guint		i;
 	/* XXX, GHashTable */
 	GPtrArray	*deprecated;
 
@@ -279,14 +300,15 @@ dfilter_compile(const gchar *text, dfilter_t **dfp, gchar **err_msg)
 
 	dfw = dfwork_new();
 
+	deprecated = g_ptr_array_new();
+
 	state.dfw = dfw;
 	state.quoted_string = NULL;
 	state.in_set = FALSE;
 	state.raw_string = FALSE;
+	state.deprecated = deprecated;
 
 	df_set_extra(&state, scanner);
-
-	deprecated = g_ptr_array_new();
 
 	while (1) {
 		df_lval = stnode_new(STTYPE_UNINITIALIZED, NULL);
@@ -301,22 +323,6 @@ dfilter_compile(const gchar *text, dfilter_t **dfp, gchar **err_msg)
 		/* Check for end-of-input */
 		if (token == 0) {
 			break;
-		}
-
-		/* See if the node is deprecated */
-		depr_test = stnode_deprecated(df_lval);
-
-		if (depr_test) {
-			for (i = 0; i < deprecated->len; i++) {
-				if (g_ascii_strcasecmp(depr_test, (const gchar *)g_ptr_array_index(deprecated, i)) == 0) {
-					/* It's already in our list */
-					depr_test = NULL;
-				}
-			}
-		}
-
-		if (depr_test) {
-			g_ptr_array_add(deprecated, g_strdup(depr_test));
 		}
 
 		ws_debug("Token: %d %s", token, tokenstr(token));
@@ -365,17 +371,15 @@ dfilter_compile(const gchar *text, dfilter_t **dfp, gchar **err_msg)
 	 * it and set *dfp to NULL */
 	if (dfw->st_root == NULL) {
 		*dfp = NULL;
-		for (i = 0; i < deprecated->len; ++i) {
-			gchar* depr = (gchar*)g_ptr_array_index(deprecated,i);
-			g_free(depr);
-		}
-		g_ptr_array_free(deprecated, TRUE);
+		free_deprecated(deprecated);
 	}
 	else {
 		log_syntax_tree(LOG_LEVEL_NOISY, dfw->st_root, "Syntax tree before semantic check");
 
+		dfw->deprecated = deprecated;
+
 		/* Check semantics and do necessary type conversion*/
-		if (!dfw_semcheck(dfw, deprecated)) {
+		if (!dfw_semcheck(dfw)) {
 			goto FAILURE;
 		}
 
@@ -424,11 +428,7 @@ FAILURE:
 		global_dfw = NULL;
 		dfwork_free(dfw);
 	}
-	for (i = 0; i < deprecated->len; ++i) {
-		gchar* depr = (gchar*)g_ptr_array_index(deprecated,i);
-		g_free(depr);
-	}
-	g_ptr_array_free(deprecated, TRUE);
+	free_deprecated(deprecated);
 	if (err_msg != NULL) {
 		/*
 		 * Default error message.
