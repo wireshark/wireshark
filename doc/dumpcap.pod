@@ -71,7 +71,7 @@ syntax follows the rules of the pcap library.
 =item -a|--autostop  E<lt>capture autostop conditionE<gt>
 
 Specify a criterion that specifies when B<Dumpcap> is to stop writing
-to a capture file.  The criterion is of the form I<test>B<:>I<value>,
+to a capture file.  The criterion is of the form I<test:value>,
 where I<test> is one of:
 
 B<duration>:I<value> Stop writing to a capture file after I<value> seconds have
@@ -105,7 +105,7 @@ writing to that file and so on. If the I<files> option is not set,
 new files filled up until one of the capture stop conditions match (or
 until the disk is full).
 
-The criterion is of the form I<key>B<:>I<value>,
+The criterion is of the form I<key:value>,
 where I<key> is one of:
 
 B<duration>:I<value> switch to the next file after I<value> seconds have

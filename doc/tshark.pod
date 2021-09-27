@@ -161,7 +161,7 @@ frame dependencies to be calculated correctly.
 =item -a|--autostop  E<lt>capture autostop conditionE<gt>
 
 Specify a criterion that specifies when B<TShark> is to stop writing
-to a capture file.  The criterion is of the form I<test>B<:>I<value>,
+to a capture file.  The criterion is of the form I<test:value>,
 where I<test> is one of:
 
 B<duration>:I<value> Stop writing to a capture file after I<value> seconds
@@ -205,7 +205,7 @@ writing to that file and so on.  If the I<files> option is not set,
 new files filled up until one of the capture stop conditions match (or
 until the disk is full).
 
-The criterion is of the form I<key>B<:>I<value>,
+The criterion is of the form I<key:value>,
 where I<key> is one of:
 
 B<duration>:I<value> switch to the next file after I<value> seconds have
@@ -657,7 +657,7 @@ B<v> to enable VLAN IDs to names resolution
 
 Set a preference value, overriding the default value and any value read
 from a preference file.  The argument to the option is a string of the
-form I<prefname>B<:>I<value>, where I<prefname> is the name of the
+form I<prefname:value>, where I<prefname> is the name of the
 preference (which is the same name that would appear in the preference
 file), and I<value> is the value to which it should be set.
 
@@ -930,7 +930,7 @@ after printing the summary and/or details, if either are also being displayed.
 =item -X E<lt>eXtension optionsE<gt>
 
 Specify an option to be passed to a B<TShark> module.  The eXtension option
-is in the form I<extension_key>B<:>I<value>, where I<extension_key> can be:
+is in the form I<extension_key:value>, where I<extension_key> can be:
 
 B<lua_script>:I<lua_script_filename> tells B<TShark> to load the given script in
 addition to the default Lua scripts.
@@ -1546,7 +1546,7 @@ This option can be used multiple times on the command line.
 
 If the optional I<filter> is provided, the stats will only be calculated
 for those frames that match that filter.
-Example: B<-z "mac-lte,stat,mac-lte.rnti>3000"> will only collect stats for
+Example: B<-z "mac-lte,stat,mac-lte.rntiE<gt>3000"> will only collect stats for
 UEs with an assigned RNTI whose value is more than 3000.
 
 =item B<-z> megaco,rtd[I<,filter>]
@@ -1628,7 +1628,7 @@ This option can be used multiple times on the command line.
 
 If the optional I<filter> is provided, the stats will only be calculated
 for those frames that match that filter.
-Example: B<-z "rlc-lte,stat,rlc-lte.ueid>3000"> will only collect stats for
+Example: B<-z "rlc-lte,stat,rlc-lte.ueidE<gt>3000"> will only collect stats for
 UEs with a UEId of more than 3000.
 
 =item B<-z> rpc,programs
@@ -1829,7 +1829,7 @@ file exists, it is read next, overriding any previous values.  Note: If
 the command line option B<-o> is used (possibly more than once), it will
 in turn override values from the preferences files.
 
-The preferences settings are in the form I<prefname>B<:>I<value>,
+The preferences settings are in the form I<prefname:value>,
 one per line,
 where I<prefname> is the name of the preference
 and I<value> is the value to

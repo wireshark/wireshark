@@ -224,7 +224,7 @@ it from the menus instead.  Those users may just skip this section.
 =item -a|--autostop  E<lt>capture autostop conditionE<gt>
 
 Specify a criterion that specifies when B<Wireshark> is to stop writing
-to a capture file.  The criterion is of the form I<test>B<:>I<value>,
+to a capture file.  The criterion is of the form I<test:value>,
 where I<test> is one of:
 
 B<duration>:I<value> Stop writing to a capture file after I<value> seconds have
@@ -259,7 +259,7 @@ writing to that file and so on.  If the I<files> option is not set,
 new files filled up until one of the capture stop conditions match (or
 until the disk is full).
 
-The criterion is of the form I<key>B<:>I<value>,
+The criterion is of the form I<key:value>,
 where I<key> is one of:
 
 B<duration>:I<value> switch to the next file after I<value> seconds have
@@ -531,7 +531,7 @@ B<v> to enable VLAN IDs to names resolution
 
 Set a preference or recent value, overriding the default value and any value
 read from a preference/recent file.  The argument to the flag is a string of
-the form I<prefname>B<:>I<value>, where I<prefname> is the name of the
+the form I<prefname:value>, where I<prefname> is the name of the
 preference/recent value (which is the same name that would appear in the
 preference/recent file), and I<value> is the value to which it should be set.
 Since B<Ethereal> 0.10.12, the recent settings replaces the formerly used
@@ -566,7 +566,7 @@ promiscuous mode.
 Special path settings usually detected automatically.  This is used for
 special cases, e.g. starting Wireshark from a known location on an USB stick.
 
-The criterion is of the form I<key>B<:>I<path>, where I<key> is one of:
+The criterion is of the form I<key:path>, where I<key> is one of:
 
 B<persconf>:I<path> path of personal configuration files, like the
 preferences files.
@@ -664,7 +664,7 @@ Set the default capture file name, or '-' for standard output.
 =item -X E<lt>eXtension optionsE<gt>
 
 Specify an option to be passed to an B<Wireshark> module.  The eXtension option
-is in the form I<extension_key>B<:>I<value>, where I<extension_key> can be:
+is in the form I<extension_key:value>, where I<extension_key> can be:
 
 B<lua_script>:I<lua_script_filename> tells B<Wireshark> to load the given script in addition to the
 default Lua scripts.
@@ -1452,12 +1452,10 @@ The window in which the data stream is displayed lets you select:
 =over 8
 
 =item *
-
 whether to display the entire conversation, or one or the other side of
 it;
 
 =item *
-
 whether the data being displayed is to be treated as ASCII or EBCDIC
 text or as raw hex data;
 
@@ -2574,7 +2572,7 @@ file exists, it is read next, overriding any previous values.  Note: If
 the command line flag B<-o> is used (possibly more than once), it will
 in turn override values from the preferences files.
 
-The preferences settings are in the form I<prefname>B<:>I<value>,
+The preferences settings are in the form I<prefname:value>,
 one per line,
 where I<prefname> is the name of the preference
 and I<value> is the value to

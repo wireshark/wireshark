@@ -445,19 +445,15 @@ can find references and examples at the following locations:
 =over 4
 
 =item *
-
 The online Display Filter Reference: L<https://www.wireshark.org/docs/dfref/>
 
 =item *
-
 I<View:Internals:Supported Protocols> in Wireshark
 
 =item *
-
 C<tshark -G fields> on the command line
 
 =item *
-
 The Wireshark wiki: L<https://gitlab.com/wireshark/wireshark/-/wikis/DisplayFilters>
 
 =back
