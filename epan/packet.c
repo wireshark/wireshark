@@ -2781,10 +2781,10 @@ heur_dissector_delete(const char *name, heur_dissector_t dissector, const int pr
 
 	if (found_entry) {
 		heur_dtbl_entry_t *found_hdtbl_entry = (heur_dtbl_entry_t *)(found_entry->data);
-		g_free(found_hdtbl_entry->list_name);
+		proto_add_deregistered_data(found_hdtbl_entry->list_name);
 		g_hash_table_remove(heuristic_short_names, found_hdtbl_entry->short_name);
-		g_free(found_hdtbl_entry->short_name);
-		g_slice_free(heur_dtbl_entry_t, found_entry->data);
+		proto_add_deregistered_data(found_hdtbl_entry->short_name);
+		proto_add_deregistered_slice(sizeof(heur_dtbl_entry_t), found_hdtbl_entry);
 		sub_dissectors->dissectors = g_slist_delete_link(sub_dissectors->dissectors,
 		    found_entry);
 	}

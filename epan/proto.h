@@ -2488,6 +2488,12 @@ proto_deregister_field (const int parent, gint hf_id);
 WS_DLL_PUBLIC void
 proto_add_deregistered_data (void *data);
 
+/** Add a memory slice to be freed when deregistered fields are freed.
+ @param block_size the size of the block
+ @param mem_block a pointer to the block to free */
+void
+proto_add_deregistered_slice (gsize block_size, gpointer mem_block);
+
 /** Free strings in a field.
  @param field_type the field type (one of FT_ values)
  @param field_display field display value (one of BASE_ values)

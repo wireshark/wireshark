@@ -362,9 +362,16 @@ struct _protocol {
 /* List of all protocols */
 static GList *protocols = NULL;
 
+/* Structure stored for deregistered g_slice */
+struct g_slice_data {
+	gsize    block_size;
+	gpointer mem_block;
+};
+
 /* Deregistered fields */
 static GPtrArray *deregistered_fields = NULL;
 static GPtrArray *deregistered_data = NULL;
+static GPtrArray *deregistered_slice = NULL;
 
 /* indexed by prefix, contains initializers */
 static GHashTable* prefixes = NULL;
@@ -502,6 +509,7 @@ proto_init(GSList *register_all_plugin_protocols_list,
 	gpa_protocol_aliases     = g_hash_table_new(g_str_hash, g_str_equal);
 	deregistered_fields      = g_ptr_array_new();
 	deregistered_data        = g_ptr_array_new();
+	deregistered_slice       = g_ptr_array_new();
 
 	/* Initialize the ftype subsystem */
 	ftypes_initialize();
@@ -628,6 +636,11 @@ proto_cleanup_base(void)
 	if (deregistered_data) {
 		g_ptr_array_free(deregistered_data, TRUE);
 		deregistered_data = NULL;
+	}
+
+	if (deregistered_slice) {
+		g_ptr_array_free(deregistered_slice, TRUE);
+		deregistered_slice = NULL;
 	}
 
 	g_free(tree_is_expanded);
@@ -8008,6 +8021,17 @@ proto_add_deregistered_data (void *data)
 	g_ptr_array_add(deregistered_data, data);
 }
 
+void
+proto_add_deregistered_slice (gsize block_size, gpointer mem_block)
+{
+	struct g_slice_data *slice_data = g_slice_new(struct g_slice_data);
+
+	slice_data->block_size = block_size;
+	slice_data->mem_block = mem_block;
+
+	g_ptr_array_add(deregistered_slice, slice_data);
+}
+
 void proto_free_field_strings (ftenum_t field_type, unsigned int field_display, const void *field_strings)
 {
 	if (field_strings == NULL) {
@@ -8121,6 +8145,15 @@ free_deregistered_data (gpointer data, gpointer user_data _U_)
 	g_free (data);
 }
 
+static void
+free_deregistered_slice (gpointer data, gpointer user_data _U_)
+{
+	struct g_slice_data *slice_data = (struct g_slice_data *)data;
+
+	g_slice_free1(slice_data->block_size, slice_data->mem_block);
+	g_slice_free(struct g_slice_data, slice_data);
+}
+
 /* free deregistered fields and data */
 void
 proto_free_deregistered_fields (void)
@@ -8134,6 +8167,10 @@ proto_free_deregistered_fields (void)
 	g_ptr_array_foreach(deregistered_data, free_deregistered_data, NULL);
 	g_ptr_array_free(deregistered_data, TRUE);
 	deregistered_data = g_ptr_array_new();
+
+	g_ptr_array_foreach(deregistered_slice, free_deregistered_slice, NULL);
+	g_ptr_array_free(deregistered_slice, TRUE);
+	deregistered_slice = g_ptr_array_new();
 }
 
 /* chars allowed in field abbrev: alphanumerics, '-', "_", and ".". */
