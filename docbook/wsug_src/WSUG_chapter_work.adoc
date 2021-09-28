@@ -598,6 +598,27 @@ backslash as a literal character.
 +
 `http.user_agent matches r"\(X11;"`
 
+Date and time::
+`frame.time == "Sep 26, 2004 23:18:04.954975"`
++
+`ntp.xmt ge "2020-07-04 12:34:56"`
++
+The value of an absolute time field is expressed as a string, using one of the
+two formats above. Fractional seconds can be omitted or specified up to
+nanosecond precision; extra trailing zeros are allowed but not other digits.
+The string cannot take a time zone suffix, and is always parsed as in the local
+time zone, even for fields that are displayed in UTC.
++
+In the first format, the abbreviated month names must be in English regardless
+of locale. In the second format, any number of time fields may be omitted, in
+the order from least significant (seconds) to most, but at least the entire
+date must be specified:
++
+`frame.time < "2022-01-01"`
++
+In the second format, a `T` may appear between the date and time as in
+ISO 8601, but not when less significant times are dropped.
+
 [[ChWorkFilterExamples]]
 
 ===== Some Examples
