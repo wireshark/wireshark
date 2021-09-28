@@ -270,7 +270,7 @@ dissect_dtpt_guid(tvbuff_t *tvb, guint offset, proto_tree *tree, int hfindex)
 		}
 		dtpt_guid_item = proto_tree_add_guid(tree, hfindex, tvb, offset, 4 + guid_length, &guid);
 		if (dtpt_guid_item) {
-			guid_name = guids_get_guid_name(&guid);
+			guid_name = guids_get_guid_name(&guid, wmem_packet_scope());
 			if (guid_name != NULL)
 				proto_item_set_text(dtpt_guid_item, "%s: %s (%s)",
 				proto_registrar_get_name(hfindex), guid_name, guid_to_str(wmem_packet_scope(), &guid));

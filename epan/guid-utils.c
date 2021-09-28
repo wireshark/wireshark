@@ -107,9 +107,9 @@ guids_add_guid(const e_guid_t *guid, const gchar *name)
 }
 
 
-/* retrieve the registered name for this GUID */
+/* retrieve the registered name for this GUID; uses the scope for the fallback case only */
 const gchar *
-guids_get_guid_name(const e_guid_t *guid)
+guids_get_guid_name(const e_guid_t *guid, wmem_allocator_t *scope _U_)
 {
 	wmem_tree_key_t guidkey[2];
 	guint32 g[4];
@@ -151,7 +151,7 @@ guids_get_guid_name(const e_guid_t *guid)
 #ifdef _WIN32
 	/* try to resolve the mapping from the Windows registry */
 	/* XXX - prefill the resolving database with all the Windows registry entries once at init only (instead of searching each time)? */
-	uuid_name=wmem_alloc(wmem_packet_scope(), 128);
+	uuid_name=wmem_alloc(scope, 128);
 	if(ResolveWin32UUID(*guid, uuid_name, 128)) {
 		return uuid_name;
 	}
@@ -171,19 +171,19 @@ guids_init(void)
 
 /* Tries to match a guid against its name.
    Returns the associated string ptr on a match.
-   Formats uuid number and returns the resulting string, if name is unknown.
+   Formats uuid number and returns the resulting string via wmem scope, if name is unknown.
    (derived from val_to_str) */
 const gchar *
-guids_resolve_guid_to_str(const e_guid_t *guid)
+guids_resolve_guid_to_str(const e_guid_t *guid, wmem_allocator_t *scope)
 {
 	const gchar *name;
 
-	name=guids_get_guid_name(guid);
+	name=guids_get_guid_name(guid, scope);
 	if(name){
 		return name;
 	}
 
-	return wmem_strdup_printf(wmem_packet_scope(), "%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
+	return wmem_strdup_printf(scope, "%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
 				guid->data1, guid->data2, guid->data3,
 				guid->data4[0], guid->data4[1],
 				guid->data4[2], guid->data4[3],

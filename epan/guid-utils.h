@@ -13,6 +13,7 @@
 #define __GUID_UTILS_H__
 
 #include "ws_symbol_export.h"
+#include <wsutil/wmem/wmem.h>
 
 #define GUID_LEN	16
 
@@ -35,17 +36,17 @@ WS_DLL_PUBLIC void guids_init(void);
 WS_DLL_PUBLIC void guids_add_guid(const e_guid_t *guid, const gchar *name);
 
 /* try to get registered name for this GUID */
-WS_DLL_PUBLIC const gchar *guids_get_guid_name(const e_guid_t *guid);
+WS_DLL_PUBLIC const gchar *guids_get_guid_name(const e_guid_t *guid, wmem_allocator_t *scope);
 
 /* resolve GUID to name (or if unknown to hex string) */
 /* (if you need hex string only, use guid_to_str instead) */
-WS_DLL_PUBLIC const gchar* guids_resolve_guid_to_str(const e_guid_t *guid);
+WS_DLL_PUBLIC const gchar* guids_resolve_guid_to_str(const e_guid_t *guid, wmem_allocator_t *scope);
 
 /* add a UUID (dcerpc_init_uuid() will call this too) */
 #define guids_add_uuid(uuid, name) guids_add_guid((const e_guid_t *) (uuid), (name))
 
 /* try to get registered name for this UUID */
-#define guids_get_uuid_name(uuid) guids_get_guid_name((e_guid_t *) (uuid))
+#define guids_get_uuid_name(uuid, scope) guids_get_guid_name((e_guid_t *) (uuid), scope)
 
 /* resolve UUID to name (or if unknown to hex string) */
 /* (if you need hex string only, use guid_to_str instead) */

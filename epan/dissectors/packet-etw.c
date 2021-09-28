@@ -162,7 +162,7 @@ dissect_etw(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree _U_, void* data 
             col_set_str(pinfo->cinfo, COL_PROTOCOL, provider_name);
         }
     } else {
-        col_set_str(pinfo->cinfo, COL_INFO, guids_resolve_guid_to_str(&provider_id));
+        col_set_str(pinfo->cinfo, COL_INFO, guids_resolve_guid_to_str(&provider_id, pinfo->pool));
     }
 
     etw_counter += 1;

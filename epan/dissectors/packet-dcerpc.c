@@ -3502,7 +3502,7 @@ dissect_sec_vt_pcontext(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb)
     const char *uuid_name;
 
     tvb_get_letohguid(tvb, offset, &uuid);
-    uuid_name = guids_get_uuid_name(&uuid);
+    uuid_name = guids_get_uuid_name(&uuid, pinfo->pool);
     if (!uuid_name) {
             uuid_name = guid_to_str(pinfo->pool, &uuid);
     }
@@ -3516,7 +3516,7 @@ dissect_sec_vt_pcontext(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb)
     offset += 4;
 
     tvb_get_letohguid(tvb, offset, &uuid);
-    uuid_name = guids_get_uuid_name(&uuid);
+    uuid_name = guids_get_uuid_name(&uuid, pinfo->pool);
     if (!uuid_name) {
             uuid_name = guid_to_str(pinfo->pool, &uuid);
     }
@@ -3762,7 +3762,7 @@ dcerpc_try_handoff(packet_info *pinfo, proto_tree *tree,
                                              tvb, offset, 0, TRUE);
         proto_item_set_hidden(hidden_item);
         col_append_fstr(pinfo->cinfo, COL_INFO, " %s V%u",
-        guids_resolve_guid_to_str(&info->call_data->uuid), info->call_data->ver);
+        guids_resolve_guid_to_str(&info->call_data->uuid, pinfo->pool), info->call_data->ver);
 
         show_stub_data(pinfo, tvb, 0, dcerpc_tree, auth_info, !decrypted);
         return -1;
@@ -4063,7 +4063,7 @@ dissect_dcerpc_cn_bind(tvbuff_t *tvb, gint offset, packet_info *pinfo,
             iface_tree = proto_item_add_subtree(iface_item, ett_dcerpc_cn_iface);
 
             uuid_str = guid_to_str(pinfo->pool, (e_guid_t*)&if_id);
-            uuid_name = guids_get_uuid_name(&if_id);
+            uuid_name = guids_get_uuid_name(&if_id, pinfo->pool);
             if (uuid_name) {
                 proto_tree_add_guid_format(iface_tree, hf_dcerpc_cn_bind_if_id, tvb,
                                            offset, 16, (e_guid_t *) &if_id, "Interface: %s UUID: %s", uuid_name, uuid_str);
@@ -4107,7 +4107,7 @@ dissect_dcerpc_cn_bind(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                 trans_tree = proto_item_add_subtree(trans_item, ett_dcerpc_cn_trans_syntax);
 
                 uuid_str = guid_to_str(pinfo->pool, (e_guid_t *) &trans_id);
-                uuid_name = guids_get_uuid_name(&trans_id);
+                uuid_name = guids_get_uuid_name(&trans_id, pinfo->pool);
 
                 /* check for [MS-RPCE] 3.3.1.5.3 Bind Time Feature Negotiation */
                 if (trans_id.data1 == 0x6cb71c2c && trans_id.data2 == 0x9812 && trans_id.data3 == 0x4540) {
@@ -4173,8 +4173,8 @@ dissect_dcerpc_cn_bind(tvbuff_t *tvb, gint offset, packet_info *pinfo,
         if (i > 0)
             col_append_fstr(pinfo->cinfo, COL_INFO, ",");
         col_append_fstr(pinfo->cinfo, COL_INFO, " %s V%u.%u (%s)",
-                        guids_resolve_guid_to_str(&if_id), if_ver, if_ver_minor,
-                        guids_resolve_guid_to_str(&trans_id));
+                        guids_resolve_guid_to_str(&if_id, pinfo->pool), if_ver, if_ver_minor,
+                        guids_resolve_guid_to_str(&trans_id, pinfo->pool));
 
         if (ctx_tree) {
             proto_item_set_len(ctx_item, offset - ctx_offset);
@@ -4271,7 +4271,7 @@ dissect_dcerpc_cn_bind_ack(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
         if (ctx_tree) {
             dcerpc_tvb_get_uuid(tvb, offset, hdr->drep, &trans_id);
-            uuid_name = guids_get_uuid_name(&trans_id);
+            uuid_name = guids_get_uuid_name(&trans_id, pinfo->pool);
             if (! uuid_name) {
                 uuid_name = guid_to_str(pinfo->pool, (e_guid_t *) &trans_id);
             }
@@ -6525,7 +6525,7 @@ dissect_dcerpc_dg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
     if (tree) {
         uuid_str = guid_to_str(pinfo->pool, (e_guid_t*)&hdr.if_id);
-        uuid_name = guids_get_uuid_name(&hdr.if_id);
+        uuid_name = guids_get_uuid_name(&hdr.if_id, pinfo->pool);
         if (uuid_name) {
             proto_tree_add_guid_format(dcerpc_tree, hf_dcerpc_dg_if_id, tvb,
                                        offset, 16, (e_guid_t *) &hdr.if_id, "Interface: %s UUID: %s", uuid_name, uuid_str);

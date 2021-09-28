@@ -248,7 +248,7 @@ dissect_remunk_remrelease_rqst(tvbuff_t *tvb, int offset,
         /* update subtree */
         proto_item_append_text(sub_item, "[%u]: IPID=%s, PublicRefs=%u, PrivateRefs=%u",
                                u32ItemIdx,
-                               guids_resolve_guid_to_str(&ipid),
+                               guids_resolve_guid_to_str(&ipid, pinfo->pool),
                                u32PublicRefs, u32PrivateRefs);
         proto_item_set_len(sub_item, offset - u32SubStart);
 

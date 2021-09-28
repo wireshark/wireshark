@@ -2960,7 +2960,7 @@ static void get_name_from_fullpropspec(struct CFullPropSpec *v, char *out, int b
 	if (id_str) {
 		g_snprintf(dest, bufsize, "%s", id_str);
 	} else {
-		guid_str = guids_get_guid_name(&v->guid);
+		guid_str = guids_get_guid_name(&v->guid, wmem_packet_scope());
 		if (guid_str) {
 			g_snprintf(dest, bufsize, "\"%s\"", guid_str);
 		} else {
@@ -3029,7 +3029,7 @@ static int parse_guid(tvbuff_t *tvb, int offset, proto_tree *tree, e_guid_t *gui
 
 	tvb_get_letohguid(tvb, offset, guid);
 	guid_str =  guid_to_str(wmem_packet_scope(), guid);
-	name = guids_get_guid_name(guid);
+	name = guids_get_guid_name(guid, wmem_packet_scope());
 
 	tr = proto_tree_add_subtree_format(tree, tvb, offset, 16, ett_GUID, NULL, "%s: %s {%s}", text, name ? name : "", guid_str);
 
@@ -3395,7 +3395,7 @@ static int parse_CFullPropSpec(tvbuff_t *tvb, int offset, proto_tree *parent_tre
 	if (id_str) {
 		proto_item_append_text(item, ": %s", id_str);
 	} else {
-		guid_str = guids_get_guid_name(&v->guid);
+		guid_str = guids_get_guid_name(&v->guid, wmem_packet_scope());
 		if (guid_str) {
 			proto_item_append_text(item, ": \"%s\"", guid_str);
 		} else {
