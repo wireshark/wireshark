@@ -82,6 +82,7 @@
 #define OUI_ZIGBEE          0x4A191B    /* ZigBee Alliance */
 #define OUI_WFA             0x506F9A    /* Wi-Fi Alliance */
 #define OUI_MIST            0x5C5B35    /* Mist Systems */
+#define OUI_RUCKUS          0x001392    /* Ruckus Networks */
 #define OUI_SMPTE           0x6897E8    /* Society of Motion Picture and Television Engineers */
 #define OUI_SGDSN           0x6A5C35    /* Secrétariat Général de la Défense et de la Sécurité Nationale http://www.sgdsn.gouv.fr */
 #define OUI_ONOS            0xA42305    /* Open Networking Laboratory (ONOS) */
