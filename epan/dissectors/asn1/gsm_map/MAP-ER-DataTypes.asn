@@ -1,9 +1,9 @@
--- 3GPP TS 29.002 V15.5.0 (2019-06)
+-- 3GPP TS 29.002 V17.1.0 (2021-06)
 -- 17.7.7	Error data types
 
 MAP-ER-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-ER-DataTypes (17) version18 (18)}
+   gsm-Network (1) modules (3) map-ER-DataTypes (17) version20 (20)}
 
 DEFINITIONS
 
@@ -71,7 +71,7 @@ IMPORTS
 	SS-Status
 FROM MAP-SS-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-SS-DataTypes (14) version18 (18)}
+   gsm-Network (1) modules (3) map-SS-DataTypes (14) version20 (20)}
 
 	SignalInfo,
 	BasicServiceCode,
@@ -81,18 +81,18 @@ FROM MAP-SS-DataTypes {
 	Time
 FROM MAP-CommonDataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-CommonDataTypes (18) version18 (18)}
+   gsm-Network (1) modules (3) map-CommonDataTypes (18) version20 (20)}
 
 
 	SS-Code
 FROM MAP-SS-Code {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-SS-Code (15) version18 (18)}
+   gsm-Network (1) modules (3) map-SS-Code (15) version20 (20)}
 
 	ExtensionContainer
 FROM MAP-ExtensionDataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-ExtensionDataTypes (21) version18 (18)}
+   gsm-Network (1) modules (3) map-ExtensionDataTypes (21) version20 (20)}
 ;
 
 RoamingNotAllowedParam ::= SEQUENCE {
@@ -180,7 +180,7 @@ AbsentSubscriberSM-Param ::= SEQUENCE {
 	-- if received, additionalAbsentSubscriberDiagnosticSM 
 	-- is for GPRS and absentSubscriberDiagnosticSM is 
 	-- for non-GPRS
-	imsi		[1] IMSI	OPTIONAL,
+	imsi	[1] IMSI	OPTIONAL,
 	-- when sent from HLR to IP-SM-GW, IMSI shall be present if UNRI is not set 
 	-- to indicate that the absent condition is met for CS and PS but not for IMS. 
 	requestedRetransmissionTime	[2] Time	OPTIONAL,
@@ -216,7 +216,7 @@ DataMissingParam ::= SEQUENCE {
 UnexpectedDataParam ::= SEQUENCE {
 	extensionContainer	ExtensionContainer	OPTIONAL,
 	...,
-	unexpectedSubscriber [0]	NULL		OPTIONAL}
+	unexpectedSubscriber [0]	NULL	OPTIONAL}
 -- the unexpectedSubscriber indication in the unexpectedDataValue error shall not be used
 -- for operations that allow the unidentifiedSubscriber error.
 
@@ -348,7 +348,7 @@ InformationNotAvailableParam ::= SEQUENCE {
 SubBusyForMT-SMS-Param ::= SEQUENCE {
 	extensionContainer	ExtensionContainer	OPTIONAL,
 	... ,
-	gprsConnectionSuspended	NULL		OPTIONAL }
+	gprsConnectionSuspended	NULL	OPTIONAL }
 	-- If GprsConnectionSuspended is not understood it shall 
 	-- be discarded
 
@@ -380,7 +380,7 @@ UnauthorizedRequestingNetwork-Param ::= SEQUENCE {
 
 UnauthorizedLCSClient-Param ::= SEQUENCE {
 	unauthorizedLCSClient-Diagnostic	[0] UnauthorizedLCSClient-Diagnostic	OPTIONAL,
-	extensionContainer	[1] ExtensionContainer		OPTIONAL,
+	extensionContainer	[1] ExtensionContainer	OPTIONAL,
 	... }
 
 UnauthorizedLCSClient-Diagnostic ::= ENUMERATED {
@@ -398,7 +398,7 @@ UnauthorizedLCSClient-Diagnostic ::= ENUMERATED {
 
 PositionMethodFailure-Param ::= SEQUENCE {
 	positionMethodFailure-Diagnostic	[0] PositionMethodFailure-Diagnostic	OPTIONAL,
-	extensionContainer	[1] ExtensionContainer		OPTIONAL,
+	extensionContainer	[1] ExtensionContainer	OPTIONAL,
 	... }
 
 PositionMethodFailure-Diagnostic ::= ENUMERATED {

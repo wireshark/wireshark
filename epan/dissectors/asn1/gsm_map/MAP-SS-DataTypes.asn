@@ -1,9 +1,9 @@
--- 3GPP TS 29.002 V15.5.0 (2019-06)
+-- 3GPP TS 29.002 V17.1.0 (2021-06)
 -- 17.7.4	Supplementary service data types
  
 MAP-SS-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-SS-DataTypes (14) version18 (18)}
+   gsm-Network (1) modules (3) map-SS-DataTypes (14) version20 (20)}
 
 DEFINITIONS
 
@@ -57,17 +57,17 @@ IMPORTS
 	ExternalSignalInfo
 FROM MAP-CommonDataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-CommonDataTypes (18) version18 (18)}
+   gsm-Network (1) modules (3) map-CommonDataTypes (18) version20 (20)}
 
 	ExtensionContainer
 FROM MAP-ExtensionDataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-ExtensionDataTypes (21) version18 (18)}
+   gsm-Network (1) modules (3) map-ExtensionDataTypes (21) version20 (20)}
 
 	SS-Code
 FROM MAP-SS-Code {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-SS-Code (15) version18 (18)}
+   gsm-Network (1) modules (3) map-SS-Code (15) version20 (20)}
 ;
 
 
@@ -96,7 +96,7 @@ ForwardingInfo ::= SEQUENCE {
 
 ForwardingFeatureList ::= 
 	SEQUENCE SIZE (1..maxNumOfBasicServiceGroups) OF
-		ForwardingFeature
+	ForwardingFeature
 
 ForwardingFeature ::= SEQUENCE {
 	basicService	BasicServiceCode	OPTIONAL,
@@ -112,8 +112,8 @@ SS-Status ::= OCTET STRING (SIZE (1))
 
 	-- bits 8765: 0000 (unused)
 	-- bits 4321: Used to convey the "P bit","R bit","A bit" and "Q bit",
-	--	  representing supplementary service state information
-	--	  as defined in TS 3GPP TS 23.011 [22]
+	--	 representing supplementary service state information
+	--	 as defined in TS 3GPP TS 23.011 [22]
 
 	-- bit 4: "Q bit"
 
@@ -144,7 +144,7 @@ ForwardingOptions ::= OCTET STRING (SIZE (1))
 	--	01  ms busy
 	--	10  no reply
 	--	11  unconditional when used in a SRI Result, 
-	--	  or call deflection when used in a RCH Argument
+	--	 or call deflection when used in a RCH Argument
 	-- bits 21: 00 (unused)
 
 CallBarringInfo ::= SEQUENCE {
@@ -153,7 +153,7 @@ CallBarringInfo ::= SEQUENCE {
 	...}
 
 CallBarringFeatureList ::= SEQUENCE SIZE (1..maxNumOfBasicServiceGroups) OF
-		CallBarringFeature
+	CallBarringFeature
 
 CallBarringFeature ::= SEQUENCE {
 	basicService	BasicServiceCode	OPTIONAL,
@@ -201,7 +201,7 @@ GenericServiceInfo ::= SEQUENCE {
 	nbrSN	[5] MC-Bearers	OPTIONAL }
 
 CCBS-FeatureList ::= SEQUENCE SIZE (1..maxNumOfCCBS-Requests) OF
-		CCBS-Feature
+	CCBS-Feature
 
 maxNumOfCCBS-Requests  INTEGER ::= 5
 
@@ -256,20 +256,20 @@ GuidanceInfo ::= ENUMERATED {
 	-- specification.
 
 SS-List ::= SEQUENCE SIZE (1..maxNumOfSS) OF
-		SS-Code
+	SS-Code
 
 maxNumOfSS  INTEGER ::= 30
 
 SS-InfoList ::= SEQUENCE SIZE (1..maxNumOfSS) OF
-		SS-Info
+	SS-Info
 
 BasicServiceGroupList ::= SEQUENCE SIZE (1..maxNumOfBasicServiceGroups) OF
-		BasicServiceCode
+	BasicServiceCode
 
 maxNumOfBasicServiceGroups  INTEGER ::= 13
 
 SS-InvocationNotificationArg ::= SEQUENCE {
-	imsi		[0] IMSI,
+	imsi	[0] IMSI,
 	msisdn	[1] ISDN-AddressString,
 	ss-Event	[2] SS-Code,
 	-- The following SS-Code values are allowed :
@@ -300,7 +300,7 @@ SS-InvocationNotificationRes ::= SEQUENCE {
 	}
 
 SS-EventSpecification ::= SEQUENCE SIZE (1..maxEventSpecification) OF
-		AddressString
+	AddressString
 
 maxEventSpecification  INTEGER ::= 2
 

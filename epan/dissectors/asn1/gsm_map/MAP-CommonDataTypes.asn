@@ -1,9 +1,9 @@
--- 3GPP TS 29.002 V15.5.0 (2019-06)
+-- 3GPP TS 29.002 V17.1.0 (2021-06)
 -- 17.7.8	Common data types
 
 MAP-CommonDataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-CommonDataTypes (18) version18 (18)}
+   gsm-Network (1) modules (3) map-CommonDataTypes (18) version20 (20)}
 
 DEFINITIONS
 
@@ -50,7 +50,8 @@ AccessNetworkSignalInfo,
 	PLMN-Id,
 	E-UTRAN-CGI,
 	NR-CGI,
-	TA-Id,
+	TA-Id, 
+	NR-TA-Id,
 	RAIdentity,
 	NetworkNodeDiameterAddress,
 
@@ -75,7 +76,7 @@ AccessNetworkSignalInfo,
 	LCSClientInternalID,
 	LCSServiceTypeID,
 -- WS added exports needed by gsm_map.asn (extra asn1 file to handle older protocol versions)
-    ProtocolId,
+	ProtocolId,
 	-- gprs location registration types
 	GSN-Address
 
@@ -86,23 +87,23 @@ IMPORTS
 	Ext-TeleserviceCode
 FROM MAP-TS-Code {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-TS-Code (19) version18 (18)}
+   gsm-Network (1) modules (3) map-TS-Code (19) version20 (20)}
 
 	BearerServiceCode,
 	Ext-BearerServiceCode
 FROM MAP-BS-Code {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-BS-Code (20) version18 (18)}
+   gsm-Network (1) modules (3) map-BS-Code (20) version20 (20)}
 
 	SS-Code
 FROM MAP-SS-Code {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-SS-Code (15) version18 (18)}
+   gsm-Network (1) modules (3) map-SS-Code (15) version20 (20)}
 
 	ExtensionContainer
 FROM MAP-ExtensionDataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-ExtensionDataTypes (21) version18 (18)}
+   gsm-Network (1) modules (3) map-ExtensionDataTypes (21) version20 (20)}
 ;
 
 
@@ -165,13 +166,13 @@ AddressString ::= OCTET STRING (SIZE (1..maxAddressLength))
 maxAddressLength  INTEGER ::= 20
 
 ISDN-AddressString ::= 
-		AddressString (SIZE (1..maxISDN-AddressLength))
+	AddressString (SIZE (1..maxISDN-AddressLength))
 	-- This type is used to represent ISDN numbers.
 
 maxISDN-AddressLength  INTEGER ::= 9
 
 FTN-AddressString ::= 
-		AddressString (SIZE (1..maxFTN-AddressLength))
+	AddressString (SIZE (1..maxFTN-AddressLength))
 	-- This type is used to represent forwarded-to numbers. 
 	-- If NAI = international the first digits represent the country code (CC)
 	-- and the network destination code (NDC) as for E.164.
@@ -179,7 +180,7 @@ FTN-AddressString ::=
 maxFTN-AddressLength  INTEGER ::= 15
 
 ISDN-SubaddressString ::= 
-		OCTET STRING (SIZE (1..maxISDN-SubaddressLength))
+	OCTET STRING (SIZE (1..maxISDN-SubaddressLength))
 	-- This type is used to represent ISDN subaddresses.
 	-- It is composed of
 	--	a)	one octet for type of subaddress and odd/even indicator.
@@ -327,12 +328,12 @@ IMSI ::= TBCD-STRING (SIZE (3..8))
 	-- digits of MCC, MNC, MSIN are concatenated in this order.
 
 Identity ::= CHOICE {
-	imsi		IMSI,
+	imsi	IMSI,
 	imsi-WithLMSI	IMSI-WithLMSI}
 
 IMSI-WithLMSI ::= SEQUENCE {
-	imsi		IMSI,
-	lmsi		LMSI,
+	imsi	IMSI,
+	lmsi	LMSI,
 	-- a special value 00000000 indicates that the LMSI is not in use
 	...}
 
@@ -343,8 +344,8 @@ ASCI-CallReference ::= TBCD-STRING (SIZE (1..8))
 TMSI ::= OCTET STRING (SIZE (1..4))
 
 SubscriberId ::= CHOICE {
-	imsi		[0] IMSI,
-	tmsi		[1] TMSI}
+	imsi	[0] IMSI,
+	tmsi	[1] TMSI}
 
 IMEI ::= TBCD-STRING (SIZE (8))
 	--	Refers to International Mobile Station Equipment Identity
@@ -358,7 +359,7 @@ HLR-Id ::= IMSI
 	-- MSIN) forming HLR Id defined in TS 3GPP TS 23.003 [17].
 
 HLR-List ::= SEQUENCE SIZE (1..maxNumOfHLR-Id) OF
-		HLR-Id
+	HLR-Id
 
 maxNumOfHLR-Id  INTEGER ::= 50
 
@@ -371,7 +372,7 @@ GlobalCellId ::= OCTET STRING (SIZE (5..7))
 	--         bits 8765	Mobile Country Code 2nd digit
 	-- octet 2 bits 4321	Mobile Country Code 3rd digit
 	--         bits 8765	Mobile Network Code 3rd digit
-	--		or filler (1111) for 2 digit MNCs
+	--	or filler (1111) for 2 digit MNCs
 	-- octet 3 bits 4321	Mobile Network Code 1st digit
 	--         bits 8765	Mobile Network Code 2nd digit
 	-- octets 4 and 5	Location Area Code according to TS 3GPP TS 24.008 [35]
@@ -414,7 +415,7 @@ NAEA-CIC ::= OCTET STRING (SIZE (3))
 	-- using 4 digits.
 
 SubscriberIdentity ::= CHOICE {
-	imsi		[0] IMSI,
+	imsi	[0] IMSI,
 	msisdn	[1] ISDN-AddressString
 	}
 
@@ -439,94 +440,94 @@ LCSServiceTypeID ::= INTEGER (0..127)
 -- Standard LCS Service Types
 emergencyServices	LCSServiceTypeID ::= 0
 emergencyAlertServices	LCSServiceTypeID ::= 1
-personTracking		LCSServiceTypeID ::= 2
+personTracking	LCSServiceTypeID ::= 2
 fleetManagement	LCSServiceTypeID ::= 3
 assetManagement	LCSServiceTypeID ::= 4
 trafficCongestionReporting	LCSServiceTypeID ::= 5
 roadsideAssistance	LCSServiceTypeID ::= 6
 routingToNearestCommercialEnterprise	LCSServiceTypeID ::= 7
-navigation		LCSServiceTypeID ::= 8
+navigation	LCSServiceTypeID ::= 8
 	--this service type is reserved for use in previous releases
 citySightseeing	LCSServiceTypeID ::= 9
 localizedAdvertising	LCSServiceTypeID ::= 10
 mobileYellowPages	LCSServiceTypeID ::= 11 
 trafficAndPublicTransportationInfo	LCSServiceTypeID ::= 12
-weather		LCSServiceTypeID ::= 13
+weather	LCSServiceTypeID ::= 13
 assetAndServiceFinding	LCSServiceTypeID ::= 14
-gaming		LCSServiceTypeID ::= 15
-findYourFriend		LCSServiceTypeID ::= 16
-dating		LCSServiceTypeID ::= 17
-chatting		LCSServiceTypeID ::= 18
-routeFinding		LCSServiceTypeID ::= 19
-whereAmI		LCSServiceTypeID ::= 20
+gaming	LCSServiceTypeID ::= 15
+findYourFriend	LCSServiceTypeID ::= 16
+dating	LCSServiceTypeID ::= 17
+chatting	LCSServiceTypeID ::= 18
+routeFinding	LCSServiceTypeID ::= 19
+whereAmI	LCSServiceTypeID ::= 20
 
 -- The values of LCSServiceTypeID are defined according to 3GPP TS 22.071.
 
 -- Non Standard LCS Service Types
-serv64		LCSServiceTypeID ::= 64
-serv65		LCSServiceTypeID ::= 65
-serv66		LCSServiceTypeID ::= 66
-serv67		LCSServiceTypeID ::= 67
-serv68		LCSServiceTypeID ::= 68
-serv69		LCSServiceTypeID ::= 69
-serv70		LCSServiceTypeID ::= 70
-serv71		LCSServiceTypeID ::= 71
-serv72		LCSServiceTypeID ::= 72
-serv73		LCSServiceTypeID ::= 73
-serv74		LCSServiceTypeID ::= 74
-serv75		LCSServiceTypeID ::= 75
-serv76		LCSServiceTypeID ::= 76
-serv77		LCSServiceTypeID ::= 77
-serv78		LCSServiceTypeID ::= 78
-serv79		LCSServiceTypeID ::= 79
-serv80		LCSServiceTypeID ::= 80
-serv81		LCSServiceTypeID ::= 81
-serv82		LCSServiceTypeID ::= 82
-serv83		LCSServiceTypeID ::= 83
-serv84		LCSServiceTypeID ::= 84
-serv85		LCSServiceTypeID ::= 85
-serv86		LCSServiceTypeID ::= 86
-serv87		LCSServiceTypeID ::= 87
-serv88		LCSServiceTypeID ::= 88
-serv89		LCSServiceTypeID ::= 89
-serv90		LCSServiceTypeID ::= 90
-serv91		LCSServiceTypeID ::= 91
-serv92		LCSServiceTypeID ::= 92
-serv93		LCSServiceTypeID ::= 93
-serv94		LCSServiceTypeID ::= 94
-serv95		LCSServiceTypeID ::= 95
-serv96		LCSServiceTypeID ::= 96
-serv97		LCSServiceTypeID ::= 97
-serv98		LCSServiceTypeID ::= 98
-serv99		LCSServiceTypeID ::= 99
-serv100		LCSServiceTypeID ::= 100
-serv101		LCSServiceTypeID ::= 101
-serv102		LCSServiceTypeID ::= 102
-serv103		LCSServiceTypeID ::= 103
-serv104		LCSServiceTypeID ::= 104
-serv105		LCSServiceTypeID ::= 105
-serv106		LCSServiceTypeID ::= 106
-serv107		LCSServiceTypeID ::= 107
-serv108		LCSServiceTypeID ::= 108
-serv109		LCSServiceTypeID ::= 109
-serv110		LCSServiceTypeID ::= 110
-serv111		LCSServiceTypeID ::= 111
-serv112		LCSServiceTypeID ::= 112
-serv113		LCSServiceTypeID ::= 113
-serv114		LCSServiceTypeID ::= 114
-serv115		LCSServiceTypeID ::= 115
-serv116		LCSServiceTypeID ::= 116
-serv117		LCSServiceTypeID ::= 117
-serv118		LCSServiceTypeID ::= 118
-serv119		LCSServiceTypeID ::= 119
-serv120		LCSServiceTypeID ::= 120
-serv121		LCSServiceTypeID ::= 121
-serv122		LCSServiceTypeID ::= 122
-serv123		LCSServiceTypeID ::= 123
-serv124		LCSServiceTypeID ::= 124
-serv125		LCSServiceTypeID ::= 125
-serv126		LCSServiceTypeID ::= 126
-serv127		LCSServiceTypeID ::= 127
+serv64	LCSServiceTypeID ::= 64
+serv65	LCSServiceTypeID ::= 65
+serv66	LCSServiceTypeID ::= 66
+serv67	LCSServiceTypeID ::= 67
+serv68	LCSServiceTypeID ::= 68
+serv69	LCSServiceTypeID ::= 69
+serv70	LCSServiceTypeID ::= 70
+serv71	LCSServiceTypeID ::= 71
+serv72	LCSServiceTypeID ::= 72
+serv73	LCSServiceTypeID ::= 73
+serv74	LCSServiceTypeID ::= 74
+serv75	LCSServiceTypeID ::= 75
+serv76	LCSServiceTypeID ::= 76
+serv77	LCSServiceTypeID ::= 77
+serv78	LCSServiceTypeID ::= 78
+serv79	LCSServiceTypeID ::= 79
+serv80	LCSServiceTypeID ::= 80
+serv81	LCSServiceTypeID ::= 81
+serv82	LCSServiceTypeID ::= 82
+serv83	LCSServiceTypeID ::= 83
+serv84	LCSServiceTypeID ::= 84
+serv85	LCSServiceTypeID ::= 85
+serv86	LCSServiceTypeID ::= 86
+serv87	LCSServiceTypeID ::= 87
+serv88	LCSServiceTypeID ::= 88
+serv89	LCSServiceTypeID ::= 89
+serv90	LCSServiceTypeID ::= 90
+serv91	LCSServiceTypeID ::= 91
+serv92	LCSServiceTypeID ::= 92
+serv93	LCSServiceTypeID ::= 93
+serv94	LCSServiceTypeID ::= 94
+serv95	LCSServiceTypeID ::= 95
+serv96	LCSServiceTypeID ::= 96
+serv97	LCSServiceTypeID ::= 97
+serv98	LCSServiceTypeID ::= 98
+serv99	LCSServiceTypeID ::= 99
+serv100	LCSServiceTypeID ::= 100
+serv101	LCSServiceTypeID ::= 101
+serv102	LCSServiceTypeID ::= 102
+serv103	LCSServiceTypeID ::= 103
+serv104	LCSServiceTypeID ::= 104
+serv105	LCSServiceTypeID ::= 105
+serv106	LCSServiceTypeID ::= 106
+serv107	LCSServiceTypeID ::= 107
+serv108	LCSServiceTypeID ::= 108
+serv109	LCSServiceTypeID ::= 109
+serv110	LCSServiceTypeID ::= 110
+serv111	LCSServiceTypeID ::= 111
+serv112	LCSServiceTypeID ::= 112
+serv113	LCSServiceTypeID ::= 113
+serv114	LCSServiceTypeID ::= 114
+serv115	LCSServiceTypeID ::= 115
+serv116	LCSServiceTypeID ::= 116
+serv117	LCSServiceTypeID ::= 117
+serv118	LCSServiceTypeID ::= 118
+serv119	LCSServiceTypeID ::= 119
+serv120	LCSServiceTypeID ::= 120
+serv121	LCSServiceTypeID ::= 121
+serv122	LCSServiceTypeID ::= 122
+serv123	LCSServiceTypeID ::= 123
+serv124	LCSServiceTypeID ::= 124
+serv125	LCSServiceTypeID ::= 125
+serv126	LCSServiceTypeID ::= 126
+serv127	LCSServiceTypeID ::= 127
 
 PLMN-Id ::= OCTET STRING (SIZE (3))
 	-- The internal structure is defined as follows:
@@ -534,7 +535,7 @@ PLMN-Id ::= OCTET STRING (SIZE (3))
 	--         bits 8765	Mobile Country Code 2nd digit
 	-- octet 2 bits 4321	Mobile Country Code 3rd digit
 	--         bits 8765	Mobile Network Code 3rd digit
-	--		or filler (1111) for 2 digit MNCs
+	--	or filler (1111) for 2 digit MNCs
 	-- octet 3 bits 4321	Mobile Network Code 1st digit
 	--         bits 8765	Mobile Network Code 2nd digit
 
@@ -546,6 +547,9 @@ NR-CGI ::= OCTET STRING (SIZE (8))
 
 TA-Id ::= OCTET STRING (SIZE (5))
 	-- Octets are coded as described in 3GPP TS 29.118 [152].
+
+NR-TA-Id ::= OCTET STRING (SIZE (6))
+	-- Octets are coded as described in 3GPP TS 38.413 [153].
 
 RAIdentity ::= OCTET STRING (SIZE (6))
 -- Routing Area Identity is coded in accordance with 3GPP TS 29.060 [105].
@@ -570,13 +574,13 @@ CellGlobalIdOrServiceAreaIdFixedLength ::= OCTET STRING (SIZE (7))
 	--         bits 8765	Mobile Country Code 2nd digit
 	-- octet 2 bits 4321	Mobile Country Code 3rd digit
 	--         bits 8765	Mobile Network Code 3rd digit
-	--		or filler (1111) for 2 digit MNCs
+	--	or filler (1111) for 2 digit MNCs
 	-- octet 3 bits 4321	Mobile Network Code 1st digit
 	--         bits 8765	Mobile Network Code 2nd digit
 	-- octets 4 and 5	Location Area Code according to 3GPP TS 24.008
 	-- octets 6 and 7	Cell Identity (CI) value or 
-	--		Service Area Code (SAC) value 
-	--		according to 3GPP TS 23.003
+	--	Service Area Code (SAC) value 
+	--	according to 3GPP TS 23.003
 
 LAIFixedLength ::= OCTET STRING (SIZE (5))
 	-- Refers to Location Area Identification defined in 3GPP TS 23.003 [17].
@@ -585,7 +589,7 @@ LAIFixedLength ::= OCTET STRING (SIZE (5))
 	--         bits 8765	Mobile Country Code 2nd digit
 	-- octet 2 bits 4321	Mobile Country Code 3rd digit
 	--         bits 8765	Mobile Network Code 3rd digit
-	--		or filler (1111) for 2 digit MNCs
+	--	or filler (1111) for 2 digit MNCs
 	-- octet 3 bits 4321	Mobile Network Code 1st digit
 	--         bits 8765	Mobile Network Code 2nd digit
 	-- octets 4 and 5	Location Area Code according to 3GPP TS 24.008 [35]
@@ -640,8 +644,8 @@ Ext-SS-Status ::= OCTET STRING (SIZE (1..5))
 	--
 	-- bits 8765: 0000 (unused)
 	-- bits 4321: Used to convey the "P bit","R bit","A bit" and "Q bit",
-	--	  representing supplementary service state information
-	--	  as defined in TS 3GPP TS 23.011 [22]
+	--	 representing supplementary service state information
+	--	 as defined in TS 3GPP TS 23.011 [22]
 
 	-- bit 4: "Q bit"
 

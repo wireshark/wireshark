@@ -1,10 +1,9 @@
--- 3GPP TS 29.002 V15.5.0 (2019-06)
+-- 3GPP TS 29.002 V17.1.0 (2021-06)
 -- 17.6.1	Mobile Service Operations
-
 MAP-MobileServiceOperations {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
    gsm-Network (1) modules (3) map-MobileServiceOperations (5)
-   version18 (18)}
+   version20 (20)}
 
 DEFINITIONS
 
@@ -113,7 +112,7 @@ joint-iso-itu-t remote-operations(4)
 
 FROM MAP-Errors {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-Errors (10) version18 (18)}
+   gsm-Network (1) modules (3) map-Errors (10) version20 (20)}
 
 	UpdateLocationArg,
 	UpdateLocationRes,
@@ -172,14 +171,14 @@ PrepareSubsequentHO-Res,
 
 FROM MAP-MS-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-MS-DataTypes (11) version18 (18)}
+   gsm-Network (1) modules (3) map-MS-DataTypes (11) version20 (20)}
 
 ;
 
 
 -- location registration operations
 
-updateLocation  OPERATION ::= {		--Timer m
+updateLocation  OPERATION ::= {	--Timer m
 	ARGUMENT
 	UpdateLocationArg
 	RESULT
@@ -192,30 +191,30 @@ updateLocation  OPERATION ::= {		--Timer m
 	roamingNotAllowed}
 	CODE	local:2 }
 
-cancelLocation  OPERATION ::= {		--Timer m
+cancelLocation  OPERATION ::= {	--Timer m
 	ARGUMENT
 	CancelLocationArg
 	RESULT
 	CancelLocationRes
-		-- optional
+	-- optional
 	ERRORS {
 	dataMissing |
 	unexpectedDataValue}
 	CODE	local:3 }
 
-purgeMS  OPERATION ::= {		--Timer m
+purgeMS  OPERATION ::= {	--Timer m
 	ARGUMENT
 	PurgeMS-Arg
 	RESULT
 	PurgeMS-Res
-		-- optional
+	-- optional
 	ERRORS{
 	dataMissing |
 	unexpectedDataValue|
 	unknownSubscriber}
 	CODE	local:67 }
 
-sendIdentification  OPERATION ::= {		--Timer s
+sendIdentification  OPERATION ::= {	--Timer s
 	ARGUMENT
 	SendIdentificationArg
 	RESULT
@@ -227,7 +226,7 @@ sendIdentification  OPERATION ::= {		--Timer s
 
 -- gprs location registration operations
 
-updateGprsLocation  OPERATION ::= {		--Timer m
+updateGprsLocation  OPERATION ::= {	--Timer m
 	ARGUMENT
 	UpdateGprsLocationArg
 	RESULT
@@ -241,7 +240,7 @@ updateGprsLocation  OPERATION ::= {		--Timer m
 
 -- subscriber information enquiry operations
 
-provideSubscriberInfo  OPERATION ::= {		--Timer m
+provideSubscriberInfo  OPERATION ::= {	--Timer m
 	ARGUMENT
 	ProvideSubscriberInfoArg
 	RESULT
@@ -253,7 +252,7 @@ provideSubscriberInfo  OPERATION ::= {		--Timer m
 
 -- any time information enquiry operations
 
-anyTimeInterrogation  OPERATION ::= {		--Timer m
+anyTimeInterrogation  OPERATION ::= {	--Timer m
 	ARGUMENT
 	AnyTimeInterrogationArg
 	RESULT
@@ -268,7 +267,7 @@ anyTimeInterrogation  OPERATION ::= {		--Timer m
 
 -- any time information handling operations
 
-anyTimeSubscriptionInterrogation  OPERATION ::= {		--Timer m
+anyTimeSubscriptionInterrogation  OPERATION ::= {	--Timer m
 	ARGUMENT
 	AnyTimeSubscriptionInterrogationArg
 	RESULT
@@ -286,7 +285,7 @@ anyTimeSubscriptionInterrogation  OPERATION ::= {		--Timer m
 	informationNotAvailable}
 	CODE	local:62 }
 
-anyTimeModification  OPERATION ::= {		--Timer m
+anyTimeModification  OPERATION ::= {	--Timer m
 	ARGUMENT
 	AnyTimeModificationArg
 	RESULT
@@ -308,12 +307,12 @@ anyTimeModification  OPERATION ::= {		--Timer m
 
 -- subscriber data modification notification operations
 
-noteSubscriberDataModified  OPERATION ::= {		--Timer m
+noteSubscriberDataModified  OPERATION ::= {	--Timer m
 	ARGUMENT
 	NoteSubscriberDataModifiedArg
 	RESULT
 	NoteSubscriberDataModifiedRes
-		-- optional
+	-- optional
 	ERRORS {
 	dataMissing |
 	unexpectedDataValue |
@@ -322,7 +321,7 @@ noteSubscriberDataModified  OPERATION ::= {		--Timer m
 
 -- handover operations
 
-prepareHandover  OPERATION ::= {		--Timer m
+prepareHandover  OPERATION ::= {	--Timer m
 	ARGUMENT
 	PrepareHO-Arg
 	RESULT
@@ -335,24 +334,24 @@ prepareHandover  OPERATION ::= {		--Timer m
 	targetCellOutsideGroupCallArea }
 	CODE	local:68 }
 
-sendEndSignal  OPERATION ::= {		--Timer l
+sendEndSignal  OPERATION ::= {	--Timer l
 	ARGUMENT
 	SendEndSignal-Arg
 	RESULT
 	SendEndSignal-Res
 	CODE	local:29 }
 
-processAccessSignalling  OPERATION ::= {		--Timer s
+processAccessSignalling  OPERATION ::= {	--Timer s
 	ARGUMENT
 	ProcessAccessSignalling-Arg
 	CODE	local:33 }
 
-forwardAccessSignalling  OPERATION ::= {		--Timer s
+forwardAccessSignalling  OPERATION ::= {	--Timer s
 	ARGUMENT
 	ForwardAccessSignalling-Arg
 	CODE	local:34 }
 
-prepareSubsequentHandover  OPERATION ::= {		--Timer m
+prepareSubsequentHandover  OPERATION ::= {	--Timer m
 	ARGUMENT
 	PrepareSubsequentHO-Arg
 	RESULT
@@ -366,7 +365,7 @@ prepareSubsequentHandover  OPERATION ::= {		--Timer m
 
 -- authentication management operations
 
-sendAuthenticationInfo  OPERATION ::= {		--Timer m
+sendAuthenticationInfo  OPERATION ::= {	--Timer m
 	ARGUMENT
 	SendAuthenticationInfoArg
 	-- optional
@@ -384,7 +383,7 @@ sendAuthenticationInfo  OPERATION ::= {		--Timer m
 	unknownSubscriber}
 	CODE	local:56 }
 
-authenticationFailureReport  OPERATION ::= {		--Timer m
+authenticationFailureReport  OPERATION ::= {	--Timer m
 	ARGUMENT
 	AuthenticationFailureReportArg
 	RESULT
@@ -398,7 +397,7 @@ authenticationFailureReport  OPERATION ::= {		--Timer m
 
 -- IMEI management operations
 
-checkIMEI  OPERATION ::= {		--Timer m
+checkIMEI  OPERATION ::= {	--Timer m
 	ARGUMENT
 	CheckIMEI-Arg
 	RESULT
@@ -411,7 +410,7 @@ checkIMEI  OPERATION ::= {		--Timer m
 
 -- subscriber management operations
 
-insertSubscriberData  OPERATION ::= {		--Timer m
+insertSubscriberData  OPERATION ::= {	--Timer m
 	ARGUMENT
 	InsertSubscriberDataArg
 	RESULT
@@ -423,7 +422,7 @@ insertSubscriberData  OPERATION ::= {		--Timer m
 	unidentifiedSubscriber}
 	CODE	local:7 }
 
-deleteSubscriberData  OPERATION ::= {		--Timer m
+deleteSubscriberData  OPERATION ::= {	--Timer m
 	ARGUMENT
 	DeleteSubscriberDataArg
 	RESULT
@@ -437,15 +436,15 @@ deleteSubscriberData  OPERATION ::= {		--Timer m
 
 -- fault recovery operations
 
-reset  OPERATION ::= {		--Timer m
+reset  OPERATION ::= {	--Timer m
 	ARGUMENT
 	ResetArg
 	CODE	local:37 }
 
-forwardCheckSS-Indication  OPERATION ::= {		--Timer s
+forwardCheckSS-Indication  OPERATION ::= {	--Timer s
 	CODE	local:38 }
 
-restoreData  OPERATION ::= {		--Timer m
+restoreData  OPERATION ::= {	--Timer m
 	ARGUMENT
 	RestoreDataArg
 	RESULT
@@ -459,7 +458,7 @@ restoreData  OPERATION ::= {		--Timer m
 
 -- gprs location information retrieval operations
 
-sendRoutingInfoForGprs  OPERATION ::= {		--Timer m
+sendRoutingInfoForGprs  OPERATION ::= {	--Timer m
 	ARGUMENT
 	SendRoutingInfoForGprsArg
 	RESULT
@@ -475,12 +474,12 @@ sendRoutingInfoForGprs  OPERATION ::= {		--Timer m
 
 -- failure reporting operations
 
-failureReport  OPERATION ::= {		--Timer m
+failureReport  OPERATION ::= {	--Timer m
 	ARGUMENT
 	FailureReportArg
 	RESULT
 	FailureReportRes
-		-- optional
+	-- optional
 	ERRORS {
 	systemFailure |
 	dataMissing |
@@ -490,12 +489,12 @@ failureReport  OPERATION ::= {		--Timer m
 
 -- gprs notification operations
 
-noteMsPresentForGprs  OPERATION ::= {		--Timer m
+noteMsPresentForGprs  OPERATION ::= {	--Timer m
 	ARGUMENT
 	NoteMsPresentForGprsArg
 	RESULT
 	NoteMsPresentForGprsRes
-		-- optional
+	-- optional
 	ERRORS {
 	systemFailure |
 	dataMissing |
@@ -503,7 +502,7 @@ noteMsPresentForGprs  OPERATION ::= {		--Timer m
 	unknownSubscriber}
 	CODE	local:26 }
 
-noteMM-Event  OPERATION ::= {		--Timer m
+noteMM-Event  OPERATION ::= {	--Timer m
 	ARGUMENT
 	NoteMM-EventArg
 	RESULT
@@ -517,7 +516,7 @@ noteMM-Event  OPERATION ::= {		--Timer m
 
 -- vcsg location registration operations
 
-updateVcsgLocation  OPERATION ::= {		--Timer m
+updateVcsgLocation  OPERATION ::= {	--Timer m
 	ARGUMENT
 	UpdateVcsgLocationArg
 	RESULT
@@ -528,12 +527,12 @@ updateVcsgLocation  OPERATION ::= {		--Timer m
 	unknownSubscriber}
 	CODE	local:53 }
 
-cancelVcsgLocation  OPERATION ::= {		--Timer m
+cancelVcsgLocation  OPERATION ::= {	--Timer m
 	ARGUMENT
 	CancelVcsgLocationArg
 	RESULT
 	CancelVcsgLocationRes
-		-- optional
+	-- optional
 	ERRORS {
 	dataMissing |
 	unexpectedDataValue}

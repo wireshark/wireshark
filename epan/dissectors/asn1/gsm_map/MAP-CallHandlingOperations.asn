@@ -1,9 +1,9 @@
--- 3GPP TS 29.002 V15.5.0 (2019-06)
+-- 3GPP TS 29.002 V17.1.0 (2021-06)
 --17.6.3	Call Handling Operations
 MAP-CallHandlingOperations {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
    gsm-Network (1) modules (3) map-CallHandlingOperations (7)
-   version18 (18)}
+   version20 (20)}
 
 DEFINITIONS
 
@@ -52,7 +52,7 @@ joint-iso-itu-t remote-operations(4)
 
 FROM MAP-Errors {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-Errors (10) version18 (18)}
+   gsm-Network (1) modules (3) map-Errors (10) version20 (20)}
 	SendRoutingInfoArg,
 	SendRoutingInfoRes,
 	ProvideRoamingNumberArg,
@@ -73,11 +73,11 @@ FROM MAP-Errors {
 	ReleaseResourcesRes
 FROM MAP-CH-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-CH-DataTypes (13) version18 (18)}
+   gsm-Network (1) modules (3) map-CH-DataTypes (13) version20 (20)}
 
 ;
 
-sendRoutingInfo  OPERATION ::= {		--Timer m
+sendRoutingInfo  OPERATION ::= {	--Timer m
 -- The timer is set to the upper limit of the range if the GMSC supports pre-paging.
 	ARGUMENT
 	SendRoutingInfoArg
@@ -101,7 +101,7 @@ sendRoutingInfo  OPERATION ::= {		--Timer m
 	forwardingViolation}
 	CODE	local:22 }
 
-provideRoamingNumber  OPERATION ::= {		--Timer m
+provideRoamingNumber  OPERATION ::= {	--Timer m
 -- The timer is set to the upper limit of the range if the HLR supports pre-paging.
 	ARGUMENT
 	ProvideRoamingNumberArg
@@ -117,7 +117,7 @@ provideRoamingNumber  OPERATION ::= {		--Timer m
 	noRoamingNumberAvailable}
 	CODE	local:4 }
 
-resumeCallHandling  OPERATION ::= {		--Timer m
+resumeCallHandling  OPERATION ::= {	--Timer m
 	ARGUMENT
 	ResumeCallHandlingArg
 	RESULT
@@ -130,7 +130,7 @@ resumeCallHandling  OPERATION ::= {		--Timer m
 	dataMissing }
 	CODE	local:6 }
 
-setReportingState  OPERATION ::= {		--Timer m
+setReportingState  OPERATION ::= {	--Timer m
 	ARGUMENT
 	SetReportingStateArg
 	RESULT
@@ -145,7 +145,7 @@ setReportingState  OPERATION ::= {		--Timer m
 	facilityNotSupported}
 	CODE	local:73 }
 
-statusReport  OPERATION ::= {		--Timer m
+statusReport  OPERATION ::= {	--Timer m
 	ARGUMENT
 	StatusReportArg
 	RESULT
@@ -158,7 +158,7 @@ statusReport  OPERATION ::= {		--Timer m
 	dataMissing}
 	CODE	local:74 }
 
-remoteUserFree  OPERATION ::= {		--Timer ml
+remoteUserFree  OPERATION ::= {	--Timer ml
 	ARGUMENT
 	RemoteUserFreeArg
 	RESULT
@@ -172,7 +172,7 @@ remoteUserFree  OPERATION ::= {		--Timer ml
 	busySubscriber}
 	CODE	local:75 }
 
-ist-Alert  OPERATION ::= {		--Timer m
+ist-Alert  OPERATION ::= {	--Timer m
 	ARGUMENT
 	IST-AlertArg
 	RESULT
@@ -186,7 +186,7 @@ ist-Alert  OPERATION ::= {		--Timer m
 	facilityNotSupported}
 	CODE	local:87 }
 
-ist-Command  OPERATION::= {		--Timer m
+ist-Command  OPERATION::= {	--Timer m
 	ARGUMENT
 	IST-CommandArg
 	RESULT
@@ -200,7 +200,7 @@ ist-Command  OPERATION::= {		--Timer m
 	facilityNotSupported}
 	CODE	local:88 }
 
-releaseResources  OPERATION::= {		--Timer m
+releaseResources  OPERATION::= {	--Timer m
 	ARGUMENT
 	ReleaseResourcesArg
 	RESULT

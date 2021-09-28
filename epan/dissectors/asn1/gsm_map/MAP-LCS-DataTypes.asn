@@ -1,13 +1,13 @@
 -- MAP-LCS-DataTypes.asn
 --
--- Taken from 3GPP TS 29.002 V15.5.0 (2019-06)
+-- Taken from 3GPP TS 29.002 V17.1.0 (2021-06)
 --
 -- 17.7.13 Location service data types
 --
 
 MAP-LCS-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-LCS-DataTypes (25) version18 (18)}
+   gsm-Network (1) modules (3) map-LCS-DataTypes (25) version20 (20)}
 
 DEFINITIONS
 IMPLICIT TAGS
@@ -61,30 +61,30 @@ PLMN-Id,
 	DiameterIdentity
 FROM MAP-CommonDataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-CommonDataTypes (18) version18 (18)}
+   gsm-Network (1) modules (3) map-CommonDataTypes (18) version20 (20)}
 
 	ExtensionContainer,
 	SLR-ArgExtensionContainer
 FROM MAP-ExtensionDataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-ExtensionDataTypes (21) version18 (18)}
+   gsm-Network (1) modules (3) map-ExtensionDataTypes (21) version20 (20)}
 
 	USSD-DataCodingScheme,
 USSD-String
 FROM MAP-SS-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0) gsm-Network (1) modules (3)
-   map-SS-DataTypes (14) version18 (18)}
+   map-SS-DataTypes (14) version20 (20)}
 
 	APN,
 	SupportedLCS-CapabilitySets
 FROM MAP-MS-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-MS-DataTypes (11) version18 (18)}
+   gsm-Network (1) modules (3) map-MS-DataTypes (11) version20 (20)}
 
 	Additional-Number
 FROM MAP-SM-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-SM-DataTypes (16) version18 (18)}
+   gsm-Network (1) modules (3) map-SM-DataTypes (16) version20 (20)}
 ;
 
 
@@ -107,7 +107,7 @@ RoutingInfoForLCS-Res ::= SEQUENCE {
 LCSLocationInfo ::= SEQUENCE {
 	networkNode-Number	ISDN-AddressString,
 	-- NetworkNode-number can be msc-number, sgsn-number or a dummy value of "0"
-	lmsi		[0] LMSI	OPTIONAL,
+	lmsi	[0] LMSI	OPTIONAL,
 	extensionContainer	[1] ExtensionContainer	OPTIONAL,
 	... ,
 	gprsNodeIndicator	[2] NULL	OPTIONAL,
@@ -126,10 +126,10 @@ ProvideSubscriberLocation-Arg ::= SEQUENCE {
 	mlc-Number	ISDN-AddressString,
 	lcs-ClientID	[0] LCS-ClientID	OPTIONAL,
 	privacyOverride	[1] NULL	OPTIONAL,
-	imsi		[2] IMSI	OPTIONAL,
+	imsi	[2] IMSI	OPTIONAL,
 	msisdn	[3] ISDN-AddressString	OPTIONAL,
-	lmsi		[4] LMSI	OPTIONAL,
-	imei		[5] IMEI	OPTIONAL,
+	lmsi	[4] LMSI	OPTIONAL,
+	imei	[5] IMEI	OPTIONAL,
 	lcs-Priority	[6] LCS-Priority	OPTIONAL,
 	lcs-QoS	[7] LCS-QoS	OPTIONAL,
 	extensionContainer	[8] ExtensionContainer	OPTIONAL,
@@ -229,7 +229,7 @@ LCS-FormatIndicator ::= ENUMERATED {
 	logicalName	(0),
 	e-mailAddress	(1),
 	msisdn	(2),
-	url		(3),
+	url	(3),
 	sipUrl	(4),
 	... }
 
@@ -343,11 +343,11 @@ AreaIdentification ::= OCTET STRING (SIZE (2..7))
 	--         bits 8765	Mobile Country Code 2nd digit
 	-- octet 2 bits 4321	Mobile Country Code 3rd digit
 	--         bits 8765	Mobile Network Code 3rd digit if 3 digit MNC included
-	--		or filler (1111)
+	--	or filler (1111)
 	-- octet 3 bits 4321	Mobile Network Code 1st digit
 	--         bits 8765	Mobile Network Code 2nd digit
 	-- octets 4 and 5	Location Area Code (LAC) for Local Area Id,
-	--		Routing Area Id and Cell Global Id
+	--	Routing Area Id and Cell Global Id
 	-- octet 6	Routing Area Code (RAC) for Routing Area Id
 	-- octets 6 and 7	Cell Identity (CI) for Cell Global Id
 	-- octets 4 until 7	Utran Cell Identity (UC-Id) for Utran Cell Id
@@ -377,23 +377,23 @@ ReportingInterval ::= INTEGER (1..maxReportingInterval)
 maxReportingInterval INTEGER ::= 8639999
 
 ReportingPLMNList::= SEQUENCE {
-	plmn-ListPrioritized		[0] NULL			OPTIONAL,
-	plmn-List			[1] PLMNList,
+	plmn-ListPrioritized	[0] NULL		OPTIONAL,
+	plmn-List		[1] PLMNList,
 	...}
 
 PLMNList::= SEQUENCE SIZE (1..maxNumOfReportingPLMN) OF
-		ReportingPLMN
+	ReportingPLMN
 
 maxNumOfReportingPLMN INTEGER ::= 20
 
 ReportingPLMN::= SEQUENCE {
-	plmn-Id			[0] PLMN-Id,
-	ran-Technology			[1] RAN-Technology		OPTIONAL,
-	ran-PeriodicLocationSupport	[2] NULL			OPTIONAL,
+	plmn-Id		[0] PLMN-Id,
+	ran-Technology		[1] RAN-Technology	OPTIONAL,
+	ran-PeriodicLocationSupport	[2] NULL		OPTIONAL,
 	...}
 
 RAN-Technology ::= ENUMERATED {
-	gsm		(0),
+	gsm	(0),
 	umts	(1),
 	...}
 
@@ -446,36 +446,36 @@ Ext-GeographicalInformation ::= OCTET STRING (SIZE (1..maxExt-GeographicalInform
 	--	(e) Ellipsoid Point
 	-- Any other value in octet 1 shall be treated as invalid
 	-- Octets 2 to 8 for case (a) – Ellipsoid point with uncertainty circle
-	--	Degrees of Latitude		3 octets
-	--	Degrees of Longitude		3 octets
-	--	Uncertainty code		1 octet
+	--	Degrees of Latitude	3 octets
+	--	Degrees of Longitude	3 octets
+	--	Uncertainty code	1 octet
 	-- Octets 2 to 11 for case (b) – Ellipsoid point with uncertainty ellipse:
-	--	Degrees of Latitude		3 octets
-	--	Degrees of Longitude		3 octets
-	--	Uncertainty semi-major axis		1 octet
-	--	Uncertainty semi-minor axis		1 octet
-	--	Angle of major axis		1 octet
-	--	Confidence		1 octet
+	--	Degrees of Latitude	3 octets
+	--	Degrees of Longitude	3 octets
+	--	Uncertainty semi-major axis	1 octet
+	--	Uncertainty semi-minor axis	1 octet
+	--	Angle of major axis	1 octet
+	--	Confidence	1 octet
 	-- Octets 2 to 14 for case (c) – Ellipsoid point with altitude and uncertainty ellipsoid
-	--	Degrees of Latitude		3 octets
-	--	Degrees of Longitude		3 octets
-	--	Altitude		2 octets
-	--	Uncertainty semi-major axis		1 octet
-	--	Uncertainty semi-minor axis		1 octet
-	--	Angle of major axis		1 octet
-	--	Uncertainty altitude		1 octet
-	--	Confidence		1 octet
+	--	Degrees of Latitude	3 octets
+	--	Degrees of Longitude	3 octets
+	--	Altitude	2 octets
+	--	Uncertainty semi-major axis	1 octet
+	--	Uncertainty semi-minor axis	1 octet
+	--	Angle of major axis	1 octet
+	--	Uncertainty altitude	1 octet
+	--	Confidence	1 octet
 	-- Octets 2 to 13 for case (d) – Ellipsoid Arc
-	--	Degrees of Latitude		3 octets
-	--	Degrees of Longitude		3 octets
-	--	Inner radius		2 octets
-	--	Uncertainty radius		1 octet
-	--	Offset angle		1 octet
-	--	Included angle		1 octet
-	--	Confidence		1 octet
+	--	Degrees of Latitude	3 octets
+	--	Degrees of Longitude	3 octets
+	--	Inner radius	2 octets
+	--	Uncertainty radius	1 octet
+	--	Offset angle	1 octet
+	--	Included angle	1 octet
+	--	Confidence	1 octet
 	-- Octets 2 to 7 for case (e) – Ellipsoid Point
-	--	Degrees of Latitude		3 octets
-	--	Degrees of Longitude		3 octets
+	--	Degrees of Latitude	3 octets
+	--	Degrees of Longitude	3 octets
 
 	--
 	-- An Ext-GeographicalInformation parameter comprising more than one octet and
@@ -507,22 +507,22 @@ VelocityEstimate ::= OCTET STRING (SIZE (4..7))
 	-- and Uncertainty, the direction of the Vertical Speed is also included in Octet 1
 	-- Any other value in octet 1 shall be treated as invalid
 	-- Octets 2 to 4 for case (a) Horizontal velocity:
-	--	Bearing		1 octet
-	--	Horizontal Speed		2 octets
+	--	Bearing	1 octet
+	--	Horizontal Speed	2 octets
 	-- Octets 2 to 5 for case (b) – Horizontal with Vertical Velocity:
-	--	Bearing		1 octet
-	--	Horizontal Speed		2 octets
-	--	Vertical Speed		1 octet
+	--	Bearing	1 octet
+	--	Horizontal Speed	2 octets
+	--	Vertical Speed	1 octet
 	-- Octets 2 to 5 for case (c) – Horizontal velocity with Uncertainty:
-	--	Bearing		1 octet
-	--	Horizontal Speed		2 octets
-	--	Uncertainty Speed		1 octet
+	--	Bearing	1 octet
+	--	Horizontal Speed	2 octets
+	--	Uncertainty Speed	1 octet
 	-- Octets 2 to 7 for case (d) – Horizontal with Vertical Velocity and Uncertainty:
-	--	Bearing		1 octet
-	--	Horizontal Speed		2 octets
-	--	Vertical Speed		1 octet
-	--	Horizontal Uncertainty Speed		1 octet
-	--	Vertical Uncertainty Speed		1 octet
+	--	Bearing	1 octet
+	--	Horizontal Speed	2 octets
+	--	Vertical Speed	1 octet
+	--	Horizontal Uncertainty Speed	1 octet
+	--	Vertical Uncertainty Speed	1 octet
 
 PositioningDataInformation ::= OCTET STRING (SIZE (2..maxPositioningDataInformation))
 	-- Refers to the Positioning Data defined in 3GPP TS 49.031.
@@ -599,8 +599,8 @@ SubscriberLocationReport-Arg ::= SEQUENCE {
 	lcs-ClientID	LCS-ClientID, 
 	lcsLocationInfo	LCSLocationInfo,
 	msisdn	[0] ISDN-AddressString	OPTIONAL,
-	imsi		[1] IMSI	OPTIONAL,
-	imei		[2] IMEI	OPTIONAL,
+	imsi	[1] IMSI	OPTIONAL,
+	imei	[2] IMEI	OPTIONAL,
 	na-ESRD	[3] ISDN-AddressString	OPTIONAL,
 	na-ESRK	[4] ISDN-AddressString	OPTIONAL,
 	locationEstimate	[5] Ext-GeographicalInformation	OPTIONAL,

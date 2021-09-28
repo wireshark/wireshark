@@ -1,10 +1,10 @@
--- 3GPP TS 29.002 V15.5.0 (2019-06)
+-- 3GPP TS 29.002 V17.1.0 (2021-06)
 -- 17.6.5	Short message service operations
  
 MAP-ShortMessageServiceOperations {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
    gsm-Network (1) modules (3) map-ShortMessageServiceOperations (9)
-   version18 (18)}
+   version20 (20)}
 
 DEFINITIONS
 
@@ -45,7 +45,7 @@ joint-iso-itu-t remote-operations(4)
 	absentSubscriberSM
 FROM MAP-Errors {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-Errors (10) version18 (18)}
+   gsm-Network (1) modules (3) map-Errors (10) version20 (20)}
 
 	RoutingInfoForSM-Arg,
 	RoutingInfoForSM-Res,
@@ -63,11 +63,11 @@ FROM MAP-Errors {
 	MT-ForwardSM-VGCS-Res
 FROM MAP-SM-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-SM-DataTypes (16) version18 (18)}
+   gsm-Network (1) modules (3) map-SM-DataTypes (16) version20 (20)}
 
 ;
 
-sendRoutingInfoForSM  OPERATION ::= {		--Timer m
+sendRoutingInfoForSM  OPERATION ::= {	--Timer m
 	ARGUMENT
 	RoutingInfoForSM-Arg
 	RESULT
@@ -83,7 +83,7 @@ sendRoutingInfoForSM  OPERATION ::= {		--Timer m
 	absentSubscriberSM}
 	CODE	local:45 }
 
-mo-ForwardSM  OPERATION ::= {		--Timer ml
+mo-ForwardSM  OPERATION ::= {	--Timer ml
 	ARGUMENT
 	MO-ForwardSM-Arg
 	RESULT
@@ -96,7 +96,7 @@ mo-ForwardSM  OPERATION ::= {		--Timer ml
 	sm-DeliveryFailure}
 	CODE	local:46 }
 
-mt-ForwardSM  OPERATION ::= {		--Timer ml
+mt-ForwardSM  OPERATION ::= {	--Timer ml
 	-- the timer value may be subject to negotiation between GMSC and IP-SM-GW
 	ARGUMENT
 	MT-ForwardSM-Arg
@@ -116,7 +116,7 @@ mt-ForwardSM  OPERATION ::= {		--Timer ml
 	absentSubscriberSM}
 	CODE	local:44 }
 
-reportSM-DeliveryStatus  OPERATION ::= {		--Timer s
+reportSM-DeliveryStatus  OPERATION ::= {	--Timer s
 	ARGUMENT
 	ReportSM-DeliveryStatusArg
 	RESULT
@@ -129,7 +129,7 @@ reportSM-DeliveryStatus  OPERATION ::= {		--Timer s
 	messageWaitingListFull}
 	CODE	local:47 }
 
-alertServiceCentre  OPERATION ::= {		--Timer s
+alertServiceCentre  OPERATION ::= {	--Timer s
 	ARGUMENT
 	AlertServiceCentreArg
 	RETURN RESULT TRUE
@@ -139,12 +139,12 @@ alertServiceCentre  OPERATION ::= {		--Timer s
 	unexpectedDataValue}
 	CODE	local:64 }
 
-informServiceCentre  OPERATION ::= {		--Timer s
+informServiceCentre  OPERATION ::= {	--Timer s
 	ARGUMENT
 	InformServiceCentreArg
 	CODE	local:63 }
 
-readyForSM  OPERATION ::= {		--Timer m
+readyForSM  OPERATION ::= {	--Timer m
 	ARGUMENT
 	ReadyForSM-Arg
 	RESULT
@@ -157,7 +157,7 @@ readyForSM  OPERATION ::= {		--Timer m
 	unknownSubscriber}
 	CODE	local:66 }
 
-mt-ForwardSM-VGCS  OPERATION ::= {		--Timer ml
+mt-ForwardSM-VGCS  OPERATION ::= {	--Timer ml
 	ARGUMENT
 	MT-ForwardSM-VGCS-Arg
 	RESULT
@@ -170,3 +170,4 @@ mt-ForwardSM-VGCS  OPERATION ::= {		--Timer ml
 
 
 END
+
