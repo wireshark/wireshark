@@ -111,8 +111,8 @@ static header_field_info hfi_json_member_compact JSON_HFI_INIT =
 static header_field_info hfi_json_array_item_compact JSON_HFI_INIT =
 	{ "Array item compact", "json.array_item_compact", FT_NONE, BASE_NONE, NULL, 0x00, "JSON array item compact", HFILL };
 
-static header_field_info hfi_json_binary_data_compact JSON_HFI_INIT =
-	{ "Binary data compact", "json.binary_data_compact", FT_BYTES, BASE_NONE, NULL, 0x00, "JSON binary data compact", HFILL };
+static header_field_info hfi_json_binary_data JSON_HFI_INIT =
+	{ "Binary data", "json.binary_data", FT_BYTES, BASE_NONE, NULL, 0x00, "JSON binary data", HFILL };
 
 static header_field_info hfi_json_ignored_leading_bytes JSON_HFI_INIT =
 	{ "Ignored leading bytes", "json.ignored_leading_bytes", FT_STRING, STR_UNICODE, NULL, 0x00, NULL, HFILL };
@@ -501,12 +501,11 @@ json_string_unescape(tvbparse_elem_t* tok, gboolean enclose_in_quotation_marks)
 static GHashTable* header_fields_hash = NULL;
 
 static proto_item*
-json_key_lookup(proto_tree* tree, tvbparse_elem_t* tok, char* key_str, packet_info* pinfo)
+json_key_lookup(proto_tree* tree, tvbparse_elem_t* tok, char* key_str, packet_info* pinfo, gboolean use_compact)
 {
 	proto_item* ti;
 	int hf_id = -1;
 	header_field_info* hfi;
-	int str_len = (int)strlen(key_str);
 
 	json_data_decoder_t* json_data_decoder_rec = (json_data_decoder_t*)g_hash_table_lookup(header_fields_hash, key_str);
 	if (json_data_decoder_rec == NULL) {
@@ -518,9 +517,17 @@ json_key_lookup(proto_tree* tree, tvbparse_elem_t* tok, char* key_str, packet_in
 	hfi = proto_registrar_get_nth(hf_id);
 	DISSECTOR_ASSERT(hfi != NULL);
 
-	ti = proto_tree_add_item(tree, hfi, tok->tvb, tok->offset + (4 + str_len), tok->len - (5 + str_len), ENC_NA);
-	if (json_data_decoder_rec->json_data_decoder) {
-		(*json_data_decoder_rec->json_data_decoder)(tok->tvb, tree, pinfo, tok->offset + (4 + str_len), tok->len - (5 + str_len));
+	if (use_compact) {
+		int str_len = (int)strlen(key_str);
+		ti = proto_tree_add_item(tree, hfi, tok->tvb, tok->offset + (4 + str_len), tok->len - (5 + str_len), ENC_NA);
+		if (json_data_decoder_rec->json_data_decoder) {
+			(*json_data_decoder_rec->json_data_decoder)(tok->tvb, tree, pinfo, tok->offset + (4 + str_len), tok->len - (5 + str_len));
+		}
+	} else {
+		ti = proto_tree_add_item(tree, hfi, tok->tvb, tok->offset, tok->len, ENC_NA);
+		if (json_data_decoder_rec->json_data_decoder) {
+			(*json_data_decoder_rec->json_data_decoder)(tok->tvb, tree, pinfo, tok->offset, tok->len);
+		}
 	}
 	return ti;
 
@@ -782,7 +789,7 @@ before_member(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t 
 		tvbparse_elem_t *key_tok = tok->sub;
 
 		if (key_tok && key_tok->id == JSON_TOKEN_STRING) {
-			ti_compact = json_key_lookup(tree_compact, tok, key_string_without_quotation_marks, data->pinfo);
+			ti_compact = json_key_lookup(tree_compact, tok, key_string_without_quotation_marks, data->pinfo, TRUE);
 			if (!ti_compact) {
 				ti_compact = proto_tree_add_none_format(tree_compact, &hfi_json_member_compact, tok->tvb, tok->offset, tok->len, "%s:", key_string_with_quotation_marks);
 			}
@@ -935,9 +942,13 @@ after_value(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t *t
 
 	switch (value_id) {
 		case JSON_TOKEN_STRING:
-			if (tok->len >= 2)
-			{
-				proto_tree_add_string(tree, &hfi_json_value_string, tok->tvb, tok->offset, tok->len, value_str);
+			if (tok->len >= 2) {
+				// Try key_lookup
+				proto_item *key_lookup = NULL;
+				key_lookup = json_key_lookup(tree, tok, key_string, data->pinfo, FALSE);
+				if (!key_lookup) {
+					proto_tree_add_string(tree, &hfi_json_value_string, tok->tvb, tok->offset, tok->len, value_str);
+				}
 			}
 			else
 			{
@@ -1163,7 +1174,7 @@ dissect_base64decoded_eps_ie(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo
 	proto_tree* sub_tree;
 	tvbuff_t* bin_tvb = base64_tvb_to_new_tvb(tvb, offset, len);
 	add_new_data_source(pinfo, bin_tvb, "Base64 decoded");
-	ti = proto_tree_add_item(tree, &hfi_json_binary_data_compact, bin_tvb, 0, -1, ENC_NA);
+	ti = proto_tree_add_item(tree, &hfi_json_binary_data, bin_tvb, 0, -1, ENC_NA);
 	sub_tree = proto_item_add_subtree(ti, ett_json_base64decoded_eps_ie);
 	dissect_gtpv2_ie_common(bin_tvb, pinfo, sub_tree, 0, 0/* Message type 0, Reserved */, NULL);
 }
@@ -1288,7 +1299,7 @@ proto_register_json(void)
 		&hfi_json_object_compact,
 		&hfi_json_member_compact,
 		&hfi_json_array_item_compact,
-		&hfi_json_binary_data_compact,
+		&hfi_json_binary_data,
 		&hfi_json_ignored_leading_bytes
 	};
 #endif
