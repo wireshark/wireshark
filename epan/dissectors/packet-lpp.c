@@ -16,7 +16,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * Ref 3GPP TS 37.355 version 16.5.0 Release 16
+ * Ref 3GPP TS 37.355 version 16.6.0 Release 16
  * http://www.3gpp.org
  */
 
@@ -412,6 +412,7 @@ static int hf_lpp_nr_DL_PRS_SFN0_Offset_r16 = -1;  /* NR_DL_PRS_SFN0_Offset_r16 
 static int hf_lpp_nr_DL_PRS_ExpectedRSTD_r16 = -1;  /* INTEGER_M3841_3841 */
 static int hf_lpp_nr_DL_PRS_ExpectedRSTD_Uncertainty_r16 = -1;  /* INTEGER_0_246 */
 static int hf_lpp_nr_DL_PRS_Info_r16 = -1;        /* NR_DL_PRS_Info_r16 */
+static int hf_lpp_prs_OnlyTP_r16 = -1;            /* T_prs_OnlyTP_r16 */
 static int hf_lpp_dl_PRS_SubcarrierSpacing_r16 = -1;  /* T_dl_PRS_SubcarrierSpacing_r16 */
 static int hf_lpp_dl_PRS_ResourceBandwidth_r16 = -1;  /* INTEGER_1_63 */
 static int hf_lpp_dl_PRS_StartPRB_r16 = -1;       /* INTEGER_0_2176 */
@@ -19531,6 +19532,34 @@ dissect_lpp_NR_DL_PRS_Info_r16(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 }
 
 
+static const value_string lpp_T_prs_OnlyTP_r16_vals[] = {
+  {   0, "true" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lpp_T_prs_OnlyTP_r16(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t NR_DL_PRS_AssistanceDataPerTRP_r16_eag_1_sequence[] = {
+  { &hf_lpp_prs_OnlyTP_r16  , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_T_prs_OnlyTP_r16 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lpp_NR_DL_PRS_AssistanceDataPerTRP_r16_eag_1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence_eag(tvb, offset, actx, tree, NR_DL_PRS_AssistanceDataPerTRP_r16_eag_1_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t NR_DL_PRS_AssistanceDataPerTRP_r16_sequence[] = {
   { &hf_lpp_dl_PRS_ID_r16   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_INTEGER_0_255 },
   { &hf_lpp_nr_PhysCellID_r16, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_NR_PhysCellID_r16 },
@@ -19540,6 +19569,7 @@ static const per_sequence_t NR_DL_PRS_AssistanceDataPerTRP_r16_sequence[] = {
   { &hf_lpp_nr_DL_PRS_ExpectedRSTD_r16, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_INTEGER_M3841_3841 },
   { &hf_lpp_nr_DL_PRS_ExpectedRSTD_Uncertainty_r16, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_INTEGER_0_246 },
   { &hf_lpp_nr_DL_PRS_Info_r16, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_NR_DL_PRS_Info_r16 },
+  { &dummy_hf_lpp_eag_field , ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lpp_NR_DL_PRS_AssistanceDataPerTRP_r16_eag_1 },
   { NULL, 0, 0, NULL }
 };
 
@@ -28005,6 +28035,10 @@ void proto_register_lpp(void) {
     { &hf_lpp_nr_DL_PRS_Info_r16,
       { "nr-DL-PRS-Info-r16", "lpp.nr_DL_PRS_Info_r16_element",
         FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lpp_prs_OnlyTP_r16,
+      { "prs-OnlyTP-r16", "lpp.prs_OnlyTP_r16",
+        FT_UINT32, BASE_DEC, VALS(lpp_T_prs_OnlyTP_r16_vals), 0,
         NULL, HFILL }},
     { &hf_lpp_dl_PRS_SubcarrierSpacing_r16,
       { "dl-PRS-SubcarrierSpacing-r16", "lpp.dl_PRS_SubcarrierSpacing_r16",
