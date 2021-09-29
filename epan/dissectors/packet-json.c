@@ -862,6 +862,9 @@ before_array(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t *
 	wmem_stack_push(data->stack_path, path);
 	wmem_stack_push(data->stack_path, "[]");
 
+	// Try key_lookup
+	json_key_lookup(tree, tok, last_key_string, data->pinfo, FALSE);
+
 	if (json_compact) {
 		JSON_ARRAY_BEGIN(data);
 	}
