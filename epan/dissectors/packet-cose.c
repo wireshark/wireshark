@@ -349,6 +349,9 @@ static void dissect_header_pair(dissector_table_t dis_table, cose_header_context
     wscbor_chunk_t *chunk_label = wscbor_chunk_read(wmem_packet_scope(), tvb, offset);
 
     proto_item *item_label = NULL;
+    proto_tree *volatile tree_label = NULL;
+    tvbuff_t *volatile tvb_value = NULL;
+
     cose_param_key_t *key = g_new0(cose_param_key_t, 1);
 
     switch (chunk_label->type_major) {
@@ -382,12 +385,12 @@ static void dissect_header_pair(dissector_table_t dis_table, cose_header_context
         key->principal = NULL;
         dissector = dissector_get_custom_table_handle(dis_table, key);
     }
-    proto_tree *tree_label = proto_item_add_subtree(item_label, ett_hdr_label);
+    tree_label = proto_item_add_subtree(item_label, ett_hdr_label);
 
     // Peek into the value as tvb
     const gint offset_value = *offset;
     wscbor_skip_next_item(wmem_packet_scope(), tvb, offset);
-    tvbuff_t *tvb_value = tvb_new_subset_length(tvb, offset_value, *offset - offset_value);
+    tvb_value = tvb_new_subset_length(tvb, offset_value, *offset - offset_value);
 
     gint sublen = 0;
     if (dissector) {
