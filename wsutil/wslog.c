@@ -37,7 +37,10 @@
 #define ENV_VAR_LEVEL       "WIRESHARK_LOG_LEVEL"
 
 /* Log domains enabled/disabled. */
-#define ENV_VAR_DOMAINS     "WIRESHARK_LOG_DOMAINS"
+#define ENV_VAR_DOMAIN      "WIRESHARK_LOG_DOMAIN"
+
+/* Alias "domain" and "domains". */
+#define ENV_VAR_DOMAIN_S    "WIRESHARK_LOG_DOMAINS"
 
 /* Log level that generates a trap and aborts. Can be "critical"
  * or "warning". */
@@ -296,7 +299,8 @@ enum ws_log_level ws_log_set_level_str(const char *str_level)
 
 
 static const char *opt_level   = "--log-level";
-static const char *opt_domains = "--log-domains";
+/* Alias "domain" and "domains". */
+static const char *opt_domain  = "--log-domain";
 static const char *opt_file    = "--log-file";
 static const char *opt_fatal   = "--log-fatal";
 static const char *opt_debug   = "--log-debug";
@@ -341,9 +345,13 @@ int ws_log_parse_args(int *argc_ptr, char *argv[],
             option = opt_level;
             optlen = strlen(opt_level);
         }
-        else if (g_str_has_prefix(*ptr, opt_domains)) {
-            option = opt_domains;
-            optlen = strlen(opt_domains);
+        else if (g_str_has_prefix(*ptr, opt_domain)) {
+            option = opt_domain;
+            optlen = strlen(opt_domain);
+            /* Alias "domain" and "domains". Last form wins. */
+            if (*(*ptr + optlen) == 's') {
+                optlen += 1;
+            }
         }
         else if (g_str_has_prefix(*ptr, opt_file)) {
             option = opt_file;
@@ -407,7 +415,7 @@ int ws_log_parse_args(int *argc_ptr, char *argv[],
                 ret += 1;
             }
         }
-        else if (option == opt_domains) {
+        else if (option == opt_domain) {
             ws_log_set_domain_filter(value);
         }
         else if (option == opt_file) {
@@ -643,8 +651,10 @@ void ws_log_init(const char *progname,
         }
     }
 
-    env = g_getenv(ENV_VAR_DOMAINS);
-    if (env != NULL)
+    /* Alias "domain" and "domains". The plural form wins. */
+    if ((env = g_getenv(ENV_VAR_DOMAIN_S)) != NULL)
+        ws_log_set_domain_filter(env);
+    else if ((env = g_getenv(ENV_VAR_DOMAIN)) != NULL)
         ws_log_set_domain_filter(env);
 
     env = g_getenv(ENV_VAR_DEBUG);
