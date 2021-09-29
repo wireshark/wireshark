@@ -518,7 +518,7 @@ proto_item * proto_tree_add_cbor_bitmask(proto_tree *tree, int hfindex, const gi
     }
 
     // Fake TVB data for these functions
-    guint8 *flags = (guint8 *) wmem_alloc0(wmem_packet_scope(), flagsize);
+    guint8 *flags = (guint8 *) wmem_alloc0(pinfo->pool, flagsize);
     { // Inject big-endian value directly
         guint64 buf = (value ? *value : 0);
         for (gint ix = flagsize - 1; ix >= 0; --ix) {
