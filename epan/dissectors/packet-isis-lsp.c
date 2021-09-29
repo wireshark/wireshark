@@ -1057,10 +1057,19 @@ dissect_ipreach_subclv(tvbuff_t *tvb, packet_info *pinfo,  proto_tree *tree, pro
         proto_tree_add_item(tree, hf_isis_lsp_clv_sr_alg, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
 
-        if ((flags & 0xC) == 0xC) {
+        if (clv_len == 5) {
+            if (!((flags & 0x0C) == 0x0C))
+                proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_malformed_subtlv, tvb,
+                                offset-2, clv_len, "V & L flags must be set");
             proto_tree_add_item(tree, hf_isis_lsp_sid_sli_label, tvb, offset, 3, ENC_BIG_ENDIAN);
-        } else if (!(flags & 0xC)) {
+        } else if (clv_len == 6) {
+            if (flags & 0x0C)
+                proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_malformed_subtlv, tvb,
+                                offset-2, clv_len, "V & L flags must be unset");
             proto_tree_add_item(tree, hf_isis_lsp_sid_sli_index, tvb, offset, 4, ENC_BIG_ENDIAN);
+        } else {
+                proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_malformed_subtlv, tvb,
+                                offset-2, clv_len, "Unknown SID/Index/Label format");
         }
         break;
     case IP_REACH_SUBTLV_PFX_ATTRIB_FLAG:
