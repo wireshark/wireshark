@@ -1547,9 +1547,9 @@ main(int argc, char *argv[])
   gboolean need_separator = FALSE;
   int    opt;
   int    overall_error_status = EXIT_SUCCESS;
-  static const struct option long_options[] = {
-      {"help", no_argument, NULL, 'h'},
-      {"version", no_argument, NULL, 'v'},
+  static const struct ws_option long_options[] = {
+      {"help", ws_no_argument, NULL, 'h'},
+      {"version", ws_no_argument, NULL, 'v'},
       {0, 0, 0, 0 }
   };
 

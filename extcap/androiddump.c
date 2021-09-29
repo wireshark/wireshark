@@ -198,19 +198,19 @@ enum {
     OPT_CONFIG_BT_LOCAL_TCP_PORT
 };
 
-static struct option longopts[] = {
+static struct ws_option longopts[] = {
     EXTCAP_BASE_OPTIONS,
-    { "help",                     no_argument,       NULL, OPT_HELP},
-    { "version",                  no_argument,       NULL, OPT_VERSION},
-    { "adb-server-ip",            required_argument, NULL, OPT_CONFIG_ADB_SERVER_IP},
-    { "adb-server-tcp-port",      required_argument, NULL, OPT_CONFIG_ADB_SERVER_TCP_PORT},
-    { "logcat-text",              optional_argument, NULL, OPT_CONFIG_LOGCAT_TEXT},
-    { "logcat-ignore-log-buffer", optional_argument, NULL, OPT_CONFIG_LOGCAT_IGNORE_LOG_BUFFER},
-    { "logcat-custom-options",    required_argument, NULL, OPT_CONFIG_LOGCAT_CUSTOM_OPTIONS},
-    { "bt-server-tcp-port",       required_argument, NULL, OPT_CONFIG_BT_SERVER_TCP_PORT},
-    { "bt-forward-socket",        required_argument, NULL, OPT_CONFIG_BT_FORWARD_SOCKET},
-    { "bt-local-ip",              required_argument, NULL, OPT_CONFIG_BT_LOCAL_IP},
-    { "bt-local-tcp-port",        required_argument, NULL, OPT_CONFIG_BT_LOCAL_TCP_PORT},
+    { "help",                     ws_no_argument,       NULL, OPT_HELP},
+    { "version",                  ws_no_argument,       NULL, OPT_VERSION},
+    { "adb-server-ip",            ws_required_argument, NULL, OPT_CONFIG_ADB_SERVER_IP},
+    { "adb-server-tcp-port",      ws_required_argument, NULL, OPT_CONFIG_ADB_SERVER_TCP_PORT},
+    { "logcat-text",              ws_optional_argument, NULL, OPT_CONFIG_LOGCAT_TEXT},
+    { "logcat-ignore-log-buffer", ws_optional_argument, NULL, OPT_CONFIG_LOGCAT_IGNORE_LOG_BUFFER},
+    { "logcat-custom-options",    ws_required_argument, NULL, OPT_CONFIG_LOGCAT_CUSTOM_OPTIONS},
+    { "bt-server-tcp-port",       ws_required_argument, NULL, OPT_CONFIG_BT_SERVER_TCP_PORT},
+    { "bt-forward-socket",        ws_required_argument, NULL, OPT_CONFIG_BT_FORWARD_SOCKET},
+    { "bt-local-ip",              ws_required_argument, NULL, OPT_CONFIG_BT_LOCAL_IP},
+    { "bt-local-tcp-port",        ws_required_argument, NULL, OPT_CONFIG_BT_LOCAL_TCP_PORT},
     { 0, 0, 0, 0 }
 };
 

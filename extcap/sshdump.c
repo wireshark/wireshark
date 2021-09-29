@@ -61,14 +61,14 @@ enum {
 	OPT_REMOTE_NOPROM
 };
 
-static struct option longopts[] = {
+static struct ws_option longopts[] = {
 	EXTCAP_BASE_OPTIONS,
-	{ "help", no_argument, NULL, OPT_HELP},
-	{ "version", no_argument, NULL, OPT_VERSION},
+	{ "help", ws_no_argument, NULL, OPT_HELP},
+	{ "version", ws_no_argument, NULL, OPT_VERSION},
 	SSH_BASE_OPTIONS,
-	{ "remote-capture-command", required_argument, NULL, OPT_REMOTE_CAPTURE_COMMAND},
-	{ "remote-sudo", no_argument, NULL, OPT_REMOTE_SUDO },
-	{ "remote-noprom", no_argument, NULL, OPT_REMOTE_NOPROM },
+	{ "remote-capture-command", ws_required_argument, NULL, OPT_REMOTE_CAPTURE_COMMAND},
+	{ "remote-sudo", ws_no_argument, NULL, OPT_REMOTE_SUDO },
+	{ "remote-noprom", ws_no_argument, NULL, OPT_REMOTE_NOPROM },
 	{ 0, 0, 0, 0}
 };
 

@@ -166,7 +166,7 @@ typedef struct pcapng_option_header_s {
     /* ... Padding ... */
 } pcapng_option_header_t;
 
-struct option {
+struct pcapng_option {
     guint16 type;
     guint16 value_length;
 };
@@ -4907,7 +4907,7 @@ pcapng_write_sysdig_event_block(wtap_dumper *wdh, const wtap_rec *rec,
     guint32 pad_len;
 #if 0
     gboolean have_options = FALSE;
-    struct option option_hdr;
+    struct pcapng_option option_hdr;
     guint32 comment_len = 0, comment_pad_len = 0;
 #endif
     guint32 options_total_length = 0;
@@ -5375,7 +5375,7 @@ put_nrb_options(wtap_dumper *wdh, guint8 *opt_ptr)
 {
     if (wdh->nrb_hdrs && wdh->nrb_hdrs->len > 0) {
         wtap_block_t nrb_hdr = g_array_index(wdh->nrb_hdrs, wtap_block_t, 0);
-        struct option option_hdr;
+        struct pcapng_option option_hdr;
 
         wtap_block_foreach_option(nrb_hdr, put_nrb_option, &opt_ptr);
 

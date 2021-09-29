@@ -122,8 +122,8 @@ main(int argc, char *argv[])
 	int allrandom = FALSE;
 	wtap_dumper *savedump;
 	int ret = EXIT_SUCCESS;
-	static const struct option long_options[] = {
-		{"help", no_argument, NULL, 'h'},
+	static const struct ws_option long_options[] = {
+		{"help", ws_no_argument, NULL, 'h'},
 		{0, 0, 0, 0 }
 	};
 

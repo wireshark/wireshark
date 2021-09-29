@@ -4822,13 +4822,13 @@ main(int argc, char *argv[])
 {
     char             *err_msg;
     int               opt;
-    static const struct option long_options[] = {
-        {"help", no_argument, NULL, 'h'},
-        {"version", no_argument, NULL, 'v'},
+    static const struct ws_option long_options[] = {
+        {"help", ws_no_argument, NULL, 'h'},
+        {"version", ws_no_argument, NULL, 'v'},
         LONGOPT_CAPTURE_COMMON
-        {"ifname", required_argument, NULL, LONGOPT_IFNAME},
-        {"ifdescr", required_argument, NULL, LONGOPT_IFDESCR},
-        {"capture-comment", required_argument, NULL, LONGOPT_CAPTURE_COMMENT},
+        {"ifname", ws_required_argument, NULL, LONGOPT_IFNAME},
+        {"ifdescr", ws_required_argument, NULL, LONGOPT_IFDESCR},
+        {"capture-comment", ws_required_argument, NULL, LONGOPT_CAPTURE_COMMENT},
         {0, 0, 0, 0 }
     };
 

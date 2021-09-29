@@ -198,9 +198,9 @@ main(int argc, char *argv[])
       cfile_close_failure_message
   };
   int                 opt;
-  static const struct option long_options[] = {
-      {"help", no_argument, NULL, 'h'},
-      {"version", no_argument, NULL, 'V'},
+  static const struct ws_option long_options[] = {
+      {"help", ws_no_argument, NULL, 'h'},
+      {"version", ws_no_argument, NULL, 'V'},
       {0, 0, 0, 0 }
   };
   gboolean            do_append          = FALSE;

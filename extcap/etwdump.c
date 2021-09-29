@@ -41,13 +41,13 @@ enum {
     OPT_PARAMS
 };
 
-static struct option longopts[] = {
+static struct ws_option longopts[] = {
     EXTCAP_BASE_OPTIONS,
-    { "help",    no_argument,       NULL, OPT_HELP},
-    { "version", no_argument,       NULL, OPT_VERSION},
-    { "iue",     optional_argument, NULL, OPT_INCLUDE_UNDECIDABLE_EVENT},
-    { "etlfile", required_argument, NULL, OPT_ETLFILE},
-    { "params",  required_argument, NULL, OPT_PARAMS},
+    { "help",    ws_no_argument,       NULL, OPT_HELP},
+    { "version", ws_no_argument,       NULL, OPT_VERSION},
+    { "iue",     ws_optional_argument, NULL, OPT_INCLUDE_UNDECIDABLE_EVENT},
+    { "etlfile", ws_required_argument, NULL, OPT_ETLFILE},
+    { "params",  ws_required_argument, NULL, OPT_PARAMS},
     { 0, 0, 0, 0 }
 };
 

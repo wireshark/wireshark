@@ -51,13 +51,13 @@ enum {
 	OPT_INTERFACE_ID,
 };
 
-static struct option longopts[] = {
+static struct ws_option longopts[] = {
 	EXTCAP_BASE_OPTIONS,
 	/* Generic application options */
-	{ "help", no_argument, NULL, OPT_HELP},
-	{ "version", no_argument, NULL, OPT_VERSION},
+	{ "help", ws_no_argument, NULL, OPT_HELP},
+	{ "version", ws_no_argument, NULL, OPT_VERSION},
 	/* Interfaces options */
-	{ "interface_id", required_argument, NULL, OPT_INTERFACE_ID},
+	{ "interface_id", ws_required_argument, NULL, OPT_INTERFACE_ID},
 	{ 0, 0, 0, 0 }
 };
 

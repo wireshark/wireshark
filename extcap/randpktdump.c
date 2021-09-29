@@ -42,16 +42,16 @@ enum {
 	OPT_TYPE
 };
 
-static struct option longopts[] = {
+static struct ws_option longopts[] = {
 	EXTCAP_BASE_OPTIONS,
-	{ "help",					no_argument,		NULL, OPT_HELP},
-	{ "version",				no_argument,		NULL, OPT_VERSION},
-	{ "maxbytes",				required_argument,	NULL, OPT_MAXBYTES},
-	{ "count",					required_argument,	NULL, OPT_COUNT},
-	{ "delay",					required_argument,	NULL, OPT_DELAY},
-	{ "random-type",			no_argument,		NULL, OPT_RANDOM_TYPE},
-	{ "all-random",				no_argument,		NULL, OPT_ALL_RANDOM},
-	{ "type",					required_argument,	NULL, OPT_TYPE},
+	{ "help",					ws_no_argument,		NULL, OPT_HELP},
+	{ "version",				ws_no_argument,		NULL, OPT_VERSION},
+	{ "maxbytes",				ws_required_argument,	NULL, OPT_MAXBYTES},
+	{ "count",					ws_required_argument,	NULL, OPT_COUNT},
+	{ "delay",					ws_required_argument,	NULL, OPT_DELAY},
+	{ "random-type",			ws_no_argument,		NULL, OPT_RANDOM_TYPE},
+	{ "all-random",				ws_no_argument,		NULL, OPT_ALL_RANDOM},
+	{ "type",					ws_required_argument,	NULL, OPT_TYPE},
     { 0, 0, 0, 0 }
 };
 

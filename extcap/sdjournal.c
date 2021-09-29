@@ -50,11 +50,11 @@ enum {
 	OPT_START_FROM
 };
 
-static struct option longopts[] = {
+static struct ws_option longopts[] = {
 	EXTCAP_BASE_OPTIONS,
-	{ "help", no_argument, NULL, OPT_HELP},
-	{ "version", no_argument, NULL, OPT_VERSION},
-	{ "start-from", required_argument, NULL, OPT_START_FROM},
+	{ "help", ws_no_argument, NULL, OPT_HELP},
+	{ "version", ws_no_argument, NULL, OPT_VERSION},
+	{ "start-from", ws_required_argument, NULL, OPT_START_FROM},
 	{ 0, 0, 0, 0}
 };
 

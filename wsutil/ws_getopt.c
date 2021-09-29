@@ -138,9 +138,9 @@ int ws_getopt(int argc, char * const argv[], const char *optstring)
 	return c;
 }
 
-static int __getopt_long_core(int argc, char *const *argv, const char *optstring, const struct option *longopts, int *idx, int longonly);
+static int __getopt_long_core(int argc, char *const *argv, const char *optstring, const struct ws_option *longopts, int *idx, int longonly);
 
-static int __getopt_long(int argc, char *const *argv, const char *optstring, const struct option *longopts, int *idx, int longonly)
+static int __getopt_long(int argc, char *const *argv, const char *optstring, const struct ws_option *longopts, int *idx, int longonly)
 {
 	int ret, skipped, resumed;
 	if (!ws_optind || ws_optreset) {
@@ -169,7 +169,7 @@ static int __getopt_long(int argc, char *const *argv, const char *optstring, con
 	return ret;
 }
 
-static int __getopt_long_core(int argc, char *const *argv, const char *optstring, const struct option *longopts, int *idx, int longonly)
+static int __getopt_long_core(int argc, char *const *argv, const char *optstring, const struct ws_option *longopts, int *idx, int longonly)
 {
 	ws_optarg = 0;
 	if (longopts && argv[ws_optind][0] == '-' &&
@@ -223,7 +223,7 @@ static int __getopt_long_core(int argc, char *const *argv, const char *optstring
 					return '?';
 				}
 				ws_optarg = opt+1;
-			} else if (longopts[i].has_arg == required_argument) {
+			} else if (longopts[i].has_arg == ws_required_argument) {
 				if (!(ws_optarg = argv[ws_optind])) {
 					ws_optopt = longopts[i].val;
 					if (colon) return ':';
@@ -258,12 +258,12 @@ static int __getopt_long_core(int argc, char *const *argv, const char *optstring
 	return ws_getopt(argc, argv, optstring);
 }
 
-int ws_getopt_long(int argc, char *const *argv, const char *optstring, const struct option *longopts, int *idx)
+int ws_getopt_long(int argc, char *const *argv, const char *optstring, const struct ws_option *longopts, int *idx)
 {
 	return __getopt_long(argc, argv, optstring, longopts, idx, 0);
 }
 
-int ws_getopt_long_only(int argc, char *const *argv, const char *optstring, const struct option *longopts, int *idx)
+int ws_getopt_long_only(int argc, char *const *argv, const char *optstring, const struct ws_option *longopts, int *idx)
 {
 	return __getopt_long(argc, argv, optstring, longopts, idx, 1);
 }

@@ -362,10 +362,10 @@ static void test_getopt_long_basic2(void)
     char **argv;
     int argc;
 
-    struct option longopts[] = {
-        { "opt1", no_argument, NULL, '1' },
-        { "opt2", required_argument, NULL, '2' },
-        { "opt3", required_argument, NULL, '3' },
+    struct ws_option longopts[] = {
+        { "opt1", ws_no_argument, NULL, '1' },
+        { "opt2", ws_required_argument, NULL, '2' },
+        { "opt3", ws_required_argument, NULL, '3' },
         { 0, 0, 0, 0 }
     };
     argv = new_argv(&argc, "/bin/ls", "--opt1", "--opt2", "arg1", "--opt3=arg2", "path", (char *)NULL);

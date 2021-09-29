@@ -38,19 +38,19 @@ WS_DLL_PUBLIC int ws_getopt(int, char * const [], const char *);
 WS_DLL_PUBLIC char *ws_optarg;
 WS_DLL_PUBLIC int ws_optind, ws_opterr, ws_optopt, ws_optpos, ws_optreset;
 
-struct option {
+struct ws_option {
 	const char *name;
 	int has_arg;
 	int *flag;
 	int val;
 };
 
-WS_DLL_PUBLIC int ws_getopt_long(int, char *const *, const char *, const struct option *, int *);
-WS_DLL_PUBLIC int ws_getopt_long_only(int, char *const *, const char *, const struct option *, int *);
+WS_DLL_PUBLIC int ws_getopt_long(int, char *const *, const char *, const struct ws_option *, int *);
+WS_DLL_PUBLIC int ws_getopt_long_only(int, char *const *, const char *, const struct ws_option *, int *);
 
-#define no_argument        0
-#define required_argument  1
-#define optional_argument  2
+#define ws_no_argument        0
+#define ws_required_argument  1
+#define ws_optional_argument  2
 
 #ifdef __cplusplus
 }

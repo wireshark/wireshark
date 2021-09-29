@@ -1445,9 +1445,9 @@ parse_options (int argc, char *argv[])
 {
     int   c;
     char *p;
-    static const struct option long_options[] = {
-        {"help", no_argument, NULL, 'h'},
-        {"version", no_argument, NULL, 'v'},
+    static const struct ws_option long_options[] = {
+        {"help", ws_no_argument, NULL, 'h'},
+        {"version", ws_no_argument, NULL, 'v'},
         {0, 0, 0, 0 }
     };
     struct tm *now_tm;

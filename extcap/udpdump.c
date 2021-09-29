@@ -72,14 +72,14 @@ enum {
 	OPT_PAYLOAD
 };
 
-static struct option longopts[] = {
+static struct ws_option longopts[] = {
 	EXTCAP_BASE_OPTIONS,
 	/* Generic application options */
-	{ "help", no_argument, NULL, OPT_HELP},
-	{ "version", no_argument, NULL, OPT_VERSION},
+	{ "help", ws_no_argument, NULL, OPT_HELP},
+	{ "version", ws_no_argument, NULL, OPT_VERSION},
 	/* Interfaces options */
-	{ "port", required_argument, NULL, OPT_PORT},
-	{ "payload", required_argument, NULL, OPT_PAYLOAD},
+	{ "port", ws_required_argument, NULL, OPT_PORT},
+	{ "payload", ws_required_argument, NULL, OPT_PAYLOAD},
     { 0, 0, 0, 0 }
 };
 

@@ -1141,16 +1141,16 @@ main(int argc, char *argv[])
 #define LONGOPT_CAPTURE_COMMENT      LONGOPT_BASE_APPLICATION+6
 #define LONGOPT_DISCARD_CAPTURE_COMMENT LONGOPT_BASE_APPLICATION+7
 
-    static const struct option long_options[] = {
-        {"novlan", no_argument, NULL, LONGOPT_NO_VLAN},
-        {"skip-radiotap-header", no_argument, NULL, LONGOPT_SKIP_RADIOTAP_HEADER},
-        {"seed", required_argument, NULL, LONGOPT_SEED},
-        {"inject-secrets", required_argument, NULL, LONGOPT_INJECT_SECRETS},
-        {"discard-all-secrets", no_argument, NULL, LONGOPT_DISCARD_ALL_SECRETS},
-        {"help", no_argument, NULL, 'h'},
-        {"version", no_argument, NULL, 'V'},
-        {"capture-comment", required_argument, NULL, LONGOPT_CAPTURE_COMMENT},
-        {"discard-capture-comment", no_argument, NULL, LONGOPT_DISCARD_CAPTURE_COMMENT},
+    static const struct ws_option long_options[] = {
+        {"novlan", ws_no_argument, NULL, LONGOPT_NO_VLAN},
+        {"skip-radiotap-header", ws_no_argument, NULL, LONGOPT_SKIP_RADIOTAP_HEADER},
+        {"seed", ws_required_argument, NULL, LONGOPT_SEED},
+        {"inject-secrets", ws_required_argument, NULL, LONGOPT_INJECT_SECRETS},
+        {"discard-all-secrets", ws_no_argument, NULL, LONGOPT_DISCARD_ALL_SECRETS},
+        {"help", ws_no_argument, NULL, 'h'},
+        {"version", ws_no_argument, NULL, 'V'},
+        {"capture-comment", ws_required_argument, NULL, LONGOPT_CAPTURE_COMMENT},
+        {"discard-capture-comment", ws_no_argument, NULL, LONGOPT_DISCARD_CAPTURE_COMMENT},
         {0, 0, 0, 0 }
     };
 

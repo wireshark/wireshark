@@ -76,10 +76,10 @@ enum {
 	OPT_REMOTE_COUNT
 };
 
-static struct option longopts[] = {
+static struct ws_option longopts[] = {
 	EXTCAP_BASE_OPTIONS,
-	{ "help", no_argument, NULL, OPT_HELP},
-	{ "version", no_argument, NULL, OPT_VERSION},
+	{ "help", ws_no_argument, NULL, OPT_HELP},
+	{ "version", ws_no_argument, NULL, OPT_VERSION},
 	SSH_BASE_OPTIONS,
 	{ 0, 0, 0, 0}
 };

@@ -59,7 +59,7 @@ extern "C" {
 
 #ifdef CAN_SET_CAPTURE_BUFFER_SIZE
 #define LONGOPT_BUFFER_SIZE \
-    {"buffer-size", required_argument, NULL, 'B'},
+    {"buffer-size", ws_required_argument, NULL, 'B'},
 #define OPTSTRING_B "B:"
 #else
 #define LONGOPT_BUFFER_SIZE
@@ -67,7 +67,7 @@ extern "C" {
 #endif
 
 #ifdef HAVE_PCAP_CREATE
-#define LONGOPT_MONITOR_MODE {"monitor-mode", no_argument, NULL, 'I'},
+#define LONGOPT_MONITOR_MODE {"monitor-mode", ws_no_argument, NULL, 'I'},
 #define OPTSTRING_I "I"
 #else
 #define LONGOPT_MONITOR_MODE
@@ -75,19 +75,19 @@ extern "C" {
 #endif
 
 #define LONGOPT_CAPTURE_COMMON \
-    {"autostop",              required_argument, NULL, 'a'}, \
-    {"ring-buffer",           required_argument, NULL, 'b'}, \
+    {"autostop",              ws_required_argument, NULL, 'a'}, \
+    {"ring-buffer",           ws_required_argument, NULL, 'b'}, \
     LONGOPT_BUFFER_SIZE \
-    {"list-interfaces",       no_argument,       NULL, 'D'}, \
-    {"interface",             required_argument, NULL, 'i'}, \
+    {"list-interfaces",       ws_no_argument,       NULL, 'D'}, \
+    {"interface",             ws_required_argument, NULL, 'i'}, \
     LONGOPT_MONITOR_MODE \
-    {"list-data-link-types",  no_argument,       NULL, 'L'}, \
-    {"no-promiscuous-mode",   no_argument,       NULL, 'p'}, \
-    {"snapshot-length",       required_argument, NULL, 's'}, \
-    {"linktype",              required_argument, NULL, 'y'}, \
-    {"list-time-stamp-types", no_argument,       NULL, LONGOPT_LIST_TSTAMP_TYPES}, \
-    {"time-stamp-type",       required_argument, NULL, LONGOPT_SET_TSTAMP_TYPE}, \
-    {"compress-type",         required_argument, NULL, LONGOPT_COMPRESS_TYPE},
+    {"list-data-link-types",  ws_no_argument,       NULL, 'L'}, \
+    {"no-promiscuous-mode",   ws_no_argument,       NULL, 'p'}, \
+    {"snapshot-length",       ws_required_argument, NULL, 's'}, \
+    {"linktype",              ws_required_argument, NULL, 'y'}, \
+    {"list-time-stamp-types", ws_no_argument,       NULL, LONGOPT_LIST_TSTAMP_TYPES}, \
+    {"time-stamp-type",       ws_required_argument, NULL, LONGOPT_SET_TSTAMP_TYPE}, \
+    {"compress-type",         ws_required_argument, NULL, LONGOPT_COMPRESS_TYPE},
 
 
 #define OPTSTRING_CAPTURE_COMMON \

@@ -191,14 +191,14 @@ commandline_print_usage(gboolean for_help_option) {
 #define LONGOPT_CAPTURE_COMMENT LONGOPT_BASE_GUI+2
 
 #define OPTSTRING OPTSTRING_CAPTURE_COMMON OPTSTRING_DISSECT_COMMON "C:g:HhjJ:klm:o:P:r:R:Svw:X:Y:z:"
-static const struct option long_options[] = {
-        {"help", no_argument, NULL, 'h'},
-        {"read-file", required_argument, NULL, 'r' },
-        {"read-filter", required_argument, NULL, 'R' },
-        {"display-filter", required_argument, NULL, 'Y' },
-        {"version", no_argument, NULL, 'v'},
-        {"fullscreen", no_argument, NULL, LONGOPT_FULL_SCREEN },
-        {"capture-comment", required_argument, NULL, LONGOPT_CAPTURE_COMMENT},
+static const struct ws_option long_options[] = {
+        {"help", ws_no_argument, NULL, 'h'},
+        {"read-file", ws_required_argument, NULL, 'r' },
+        {"read-filter", ws_required_argument, NULL, 'R' },
+        {"display-filter", ws_required_argument, NULL, 'Y' },
+        {"version", ws_no_argument, NULL, 'v'},
+        {"fullscreen", ws_no_argument, NULL, LONGOPT_FULL_SCREEN },
+        {"capture-comment", ws_required_argument, NULL, LONGOPT_CAPTURE_COMMENT},
         LONGOPT_CAPTURE_COMMON
         LONGOPT_DISSECT_COMMON
         {0, 0, 0, 0 }

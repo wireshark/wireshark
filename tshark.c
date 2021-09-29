@@ -688,18 +688,18 @@ main(int argc, char *argv[])
     cfile_close_failure_message
   };
   int                  opt;
-  static const struct option long_options[] = {
-    {"help", no_argument, NULL, 'h'},
-    {"version", no_argument, NULL, 'v'},
+  static const struct ws_option long_options[] = {
+    {"help", ws_no_argument, NULL, 'h'},
+    {"version", ws_no_argument, NULL, 'v'},
     LONGOPT_CAPTURE_COMMON
     LONGOPT_DISSECT_COMMON
-    {"print", no_argument, NULL, 'P'},
-    {"export-objects", required_argument, NULL, LONGOPT_EXPORT_OBJECTS},
-    {"export-tls-session-keys", required_argument, NULL, LONGOPT_EXPORT_TLS_SESSION_KEYS},
-    {"color", no_argument, NULL, LONGOPT_COLOR},
-    {"no-duplicate-keys", no_argument, NULL, LONGOPT_NO_DUPLICATE_KEYS},
-    {"elastic-mapping-filter", required_argument, NULL, LONGOPT_ELASTIC_MAPPING_FILTER},
-    {"capture-comment", required_argument, NULL, LONGOPT_CAPTURE_COMMENT},
+    {"print", ws_no_argument, NULL, 'P'},
+    {"export-objects", ws_required_argument, NULL, LONGOPT_EXPORT_OBJECTS},
+    {"export-tls-session-keys", ws_required_argument, NULL, LONGOPT_EXPORT_TLS_SESSION_KEYS},
+    {"color", ws_no_argument, NULL, LONGOPT_COLOR},
+    {"no-duplicate-keys", ws_no_argument, NULL, LONGOPT_NO_DUPLICATE_KEYS},
+    {"elastic-mapping-filter", ws_required_argument, NULL, LONGOPT_ELASTIC_MAPPING_FILTER},
+    {"capture-comment", ws_required_argument, NULL, LONGOPT_CAPTURE_COMMENT},
     {0, 0, 0, 0 }
   };
   gboolean             arg_error = FALSE;

@@ -40,16 +40,16 @@
 
 
 #define EXTCAP_BASE_OPTIONS \
-	{ "extcap-interfaces", no_argument, NULL, EXTCAP_OPT_LIST_INTERFACES}, \
-	{ "extcap-version", optional_argument, NULL, EXTCAP_OPT_VERSION}, \
-	{ "extcap-dlts", no_argument, NULL, EXTCAP_OPT_LIST_DLTS}, \
-	{ "extcap-interface", required_argument, NULL, EXTCAP_OPT_INTERFACE}, \
-	{ "extcap-config", no_argument, NULL, EXTCAP_OPT_CONFIG}, \
-	{ "capture", no_argument, NULL, EXTCAP_OPT_CAPTURE}, \
-	{ "extcap-capture-filter", required_argument,	NULL, EXTCAP_OPT_CAPTURE_FILTER}, \
-	{ "fifo", required_argument, NULL, EXTCAP_OPT_FIFO}, \
-	{ "debug", no_argument, NULL, EXTCAP_OPT_DEBUG}, \
-	{ "debug-file", required_argument, NULL, EXTCAP_OPT_DEBUG_FILE}
+	{ "extcap-interfaces", ws_no_argument, NULL, EXTCAP_OPT_LIST_INTERFACES}, \
+	{ "extcap-version", ws_optional_argument, NULL, EXTCAP_OPT_VERSION}, \
+	{ "extcap-dlts", ws_no_argument, NULL, EXTCAP_OPT_LIST_DLTS}, \
+	{ "extcap-interface", ws_required_argument, NULL, EXTCAP_OPT_INTERFACE}, \
+	{ "extcap-config", ws_no_argument, NULL, EXTCAP_OPT_CONFIG}, \
+	{ "capture", ws_no_argument, NULL, EXTCAP_OPT_CAPTURE}, \
+	{ "extcap-capture-filter", ws_required_argument,	NULL, EXTCAP_OPT_CAPTURE_FILTER}, \
+	{ "fifo", ws_required_argument, NULL, EXTCAP_OPT_FIFO}, \
+	{ "debug", ws_no_argument, NULL, EXTCAP_OPT_DEBUG}, \
+	{ "debug-file", ws_required_argument, NULL, EXTCAP_OPT_DEBUG_FILE}
 
 typedef struct _extcap_parameters
 {

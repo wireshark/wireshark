@@ -222,11 +222,11 @@ sharkd_init(int argc, char **argv)
 	static const char    optstring[] = OPTSTRING;
 
 	// right now we don't have any long options
-	static const struct option long_options[] = {
-	  {"api", required_argument, NULL, 'a'},
-	  {"help", no_argument, NULL, 'h'},
-	  {"version", no_argument, NULL, 'v'},
-	  {"config-profile", required_argument, NULL, 'C'},
+	static const struct ws_option long_options[] = {
+	  {"api", ws_required_argument, NULL, 'a'},
+	  {"help", ws_no_argument, NULL, 'h'},
+	  {"version", ws_no_argument, NULL, 'v'},
+	  {"config-profile", ws_required_argument, NULL, 'C'},
 	  {0, 0, 0, 0 }
 	};
 

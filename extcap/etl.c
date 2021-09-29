@@ -54,10 +54,10 @@ enum {
     OPT_LEVEL,
 };
 
-static struct option longopts[] = {
-    { "p", required_argument, NULL, OPT_PROVIDER},
-    { "k", required_argument, NULL, OPT_KEYWORD},
-    { "l", required_argument, NULL, OPT_LEVEL},
+static struct ws_option longopts[] = {
+    { "p", ws_required_argument, NULL, OPT_PROVIDER},
+    { "k", ws_required_argument, NULL, OPT_KEYWORD},
+    { "l", ws_required_argument, NULL, OPT_LEVEL},
     { 0, 0, 0, 0 }
 };
 
