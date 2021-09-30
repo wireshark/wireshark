@@ -432,7 +432,7 @@ check_exists(dfwork_t *dfw, stnode_t *st_arg1)
 #endif
 
 	ws_debug("4 check_exists() [%u]", i++);
-	stnode_log(st_arg1);
+	log_stnode(st_arg1);
 
 	switch (stnode_type_id(st_arg1)) {
 		case STTYPE_FIELD:
@@ -1413,8 +1413,8 @@ check_relation(dfwork_t *dfw, const char *relation_string,
 	char                *s;
 
 	ws_debug("4 check_relation(\"%s\") [%u]", relation_string, i++);
-	stnode_log(st_arg1);
-	stnode_log(st_arg2);
+	log_stnode(st_arg1);
+	log_stnode(st_arg2);
 
 	/* Protocol can only be on LHS (for "contains" or "matches" operators).
 	 * Check to see if protocol is on RHS, and re-interpret it as UNPARSED
@@ -1501,7 +1501,7 @@ check_test(dfwork_t *dfw, stnode_t *st_node)
 #endif
 
 	ws_debug("3 check_test(stnode_t *st_node = %p) [%u]\n", st_node, i++);
-	stnode_log(st_node);
+	log_stnode(st_node);
 
 	sttype_test_get(st_node, &st_op, &st_arg1, &st_arg2);
 

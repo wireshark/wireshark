@@ -279,7 +279,7 @@ sprint_node(stnode_t *node)
 }
 
 void
-stnode_log_full(enum ws_log_level level,
+log_stnode_full(enum ws_log_level level,
 			const char *file, int line, const char *func,
 			stnode_t *node, const char *msg)
 {
@@ -292,7 +292,8 @@ stnode_log_full(enum ws_log_level level,
 	g_free(str);
 }
 
-static void indent(wmem_strbuf_t *buf, int level)
+static void
+indent(wmem_strbuf_t *buf, int level)
 {
 	for (int i = 0; i < level * 2; i++) {
 		wmem_strbuf_append_c(buf, ' ');
@@ -346,7 +347,8 @@ log_syntax_tree(enum ws_log_level level, stnode_t *root, const char *msg)
 	wmem_strbuf_t *buf = wmem_strbuf_new(NULL, NULL);
 
 	visit_tree(buf, root, 0);
-	ws_log(LOG_DOMAIN_DFILTER, level, "%s:\n%s", msg, wmem_strbuf_get_str(buf));
+	ws_log_write_always_full(LOG_DOMAIN_DFILTER, level, NULL, -1, NULL,
+				"%s:\n%s", msg, wmem_strbuf_get_str(buf));
 	wmem_strbuf_destroy(buf);
 }
 
