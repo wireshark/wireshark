@@ -444,7 +444,7 @@ static void dissect_header_map(dissector_table_t dis_table, tvbuff_t *tvb, packe
     proto_item_set_len(item_hdr_map, *offset - chunk_hdr_map->start);
 }
 
-int dissect_cose_msg_header_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
+static int dissect_cose_msg_header_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
     gint offset = 0;
     dissect_header_map(table_header, tvb, pinfo, tree, &offset);
     return offset;
@@ -683,7 +683,7 @@ static int dissect_cose_mac0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 /** Dissect a tagged COSE message.
  */
-int dissect_cose_msg_tagged(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
+static int dissect_cose_msg_tagged(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
     gint offset = 0;
 
     // All messages have the same base structure, attempt all tags present
@@ -709,7 +709,7 @@ int dissect_cose_msg_tagged(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     return -1;
 }
 
-void dissect_value_alg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint *offset, GVariant **value) {
+static void dissect_value_alg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint *offset, GVariant **value) {
     wscbor_chunk_t *chunk = wscbor_chunk_read(wmem_packet_scope(), tvb, offset);
     switch (chunk->type_major) {
         case CBOR_TYPE_UINT:
