@@ -259,12 +259,6 @@ static const true_false_string direction_tfs =
     "Slave -> Master"
 };
 
-static const true_false_string ok_incorrect =
-{
-    "OK",
-    "Incorrect"
-};
-
 static const value_string le_phys[] =
 {
     { 0, "LE 1M"    },
@@ -842,7 +836,7 @@ proto_register_nordic_ble(void)
         },
         { &hf_nordic_ble_crcok,
             { "CRC", "nordic_ble.crcok",
-                FT_BOOLEAN, 8, TFS(&ok_incorrect), 0x01,
+                FT_BOOLEAN, 8, TFS(&tfs_ok_error), 0x01,
                 "Cyclic Redundancy Check state", HFILL }
         },
         { &hf_nordic_ble_direction,
@@ -872,7 +866,7 @@ proto_register_nordic_ble(void)
         },
         { &hf_nordic_ble_micok,
             { "MIC", "nordic_ble.micok",
-                FT_BOOLEAN, 8, TFS(&ok_incorrect), 0x08,
+                FT_BOOLEAN, 8, TFS(&tfs_ok_error), 0x08,
                 "Message Integrity Check state", HFILL }
         },
         { &hf_nordic_ble_mic_not_relevant,
