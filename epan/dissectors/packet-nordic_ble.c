@@ -236,7 +236,7 @@ static int hf_nordic_ble_mic_not_relevant = -1;
 static int hf_nordic_ble_aux_type = -1;
 static int hf_nordic_ble_flag_reserved1 = -1;
 static int hf_nordic_ble_flag_reserved2 = -1;
-static int hf_nordic_ble_flag_reserved3 = -1;
+static int hf_nordic_ble_address_resolved = -1;
 static int hf_nordic_ble_flag_reserved7 = -1;
 static int hf_nordic_ble_le_phy = -1;
 static int hf_nordic_ble_direction = -1;
@@ -417,7 +417,7 @@ dissect_flags(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree, 
             proto_tree_add_item(flags_tree, hf_nordic_ble_flag_reserved1, tvb, offset, 1, ENC_NA);
             proto_tree_add_item(flags_tree, hf_nordic_ble_flag_reserved2, tvb, offset, 1, ENC_NA);
         }
-        proto_tree_add_item(flags_tree, hf_nordic_ble_flag_reserved3, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(flags_tree, hf_nordic_ble_address_resolved, tvb, offset, 1, ENC_NA);
     }
 
     proto_tree_add_item(flags_tree, hf_nordic_ble_le_phy, tvb, offset, 1, ENC_NA);
@@ -880,9 +880,9 @@ proto_register_nordic_ble(void)
                 FT_UINT8, BASE_DEC, NULL, 0x08,
                 "Message Integrity Check state is only relevant when encrypted", HFILL }
         },
-        { &hf_nordic_ble_flag_reserved3,
-            { "Reserved", "nordic_ble.flag_reserved3",
-                FT_UINT8, BASE_DEC, NULL, 0x08,
+        { &hf_nordic_ble_address_resolved,
+            { "Address Resolved", "nordic_ble.address_resolved",
+                FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x08,
                 NULL, HFILL }
         },
         { &hf_nordic_ble_le_phy,
