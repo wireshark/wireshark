@@ -68,6 +68,12 @@
  */
 #define VW_RECORD_HEADER_LENGTH 16
 
+/*
+ * Maximum number of bytes to read looking for a valid frame starting
+ * with a command byte to determine if this is our file type. Arbitrary.
+ */
+#define VW_BYTES_TO_CHECK 0x3FFFFFFFU
+
 /* Command byte values */
 #define COMMAND_RX   0x21
 #define COMMAND_TX   0x31
@@ -967,6 +973,7 @@ static int vwr_get_fpga_version(wtap *wth, int *err, gchar **err_info)
     guint8  *s_510024_ptr = NULL;
     guint8  *s_510012_ptr = NULL; /* stats pointers */
     gint64   filePos      = -1;
+    guint64  bytes_read   = 0;
     guint32  frame_type   = 0;
     int      f_len, v_type;
     guint16  data_length  = 0;
@@ -1103,6 +1110,12 @@ static int vwr_get_fpga_version(wtap *wth, int *err, gchar **err_info)
                     return fpga_version;
                 }
             }
+        }
+        bytes_read += VW_RECORD_HEADER_LENGTH;
+        if (bytes_read > VW_BYTES_TO_CHECK) {
+            /* no frame found in VW_BYTES_TO_CHECK - not a vwr file */
+            g_free(rec);
+            return UNKNOWN_FPGA;
         }
     }
 

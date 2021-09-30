@@ -106,6 +106,9 @@ typedef enum {
 #define DVB_CI_PSEUDO_HDR_CAM_TO_HOST 0xFF
 #define DVB_CI_PSEUDO_HDR_HOST_TO_CAM 0xFE
 
+/* Maximum number of bytes to read before making a heuristic decision
+ * of whether this is our file type or not. Arbitrary. */
+#define CAMINS_BYTES_TO_CHECK 0x3FFFFFFFU
 
 static int camins_file_type_subtype = -1;
 
@@ -115,8 +118,8 @@ void register_camins(void);
    size register. The matching blocks to access the upper and lower 8bit
    must be no further than 5 blocks apart.
    A file may have errors that affect the size blocks. Therefore, we
-   read the entire file and require that we have much more valid pairs
-   than errors. */
+   read CAMINS_BYTES_TO_CHECK bytes and require that we have many more
+   valid pairs than errors. */
 static wtap_open_return_val detect_camins_file(FILE_T fh)
 {
     int      err;
@@ -125,6 +128,7 @@ static wtap_open_return_val detect_camins_file(FILE_T fh)
     guint8   search_block = 0;
     guint8   gap_count = 0;
     guint32  valid_pairs = 0, invalid_pairs = 0;
+    guint64  read_bytes = 0;
 
     while (wtap_read_bytes(fh, block, sizeof(block), &err, &err_info)) {
        if (search_block != 0) {
@@ -167,9 +171,14 @@ static wtap_open_return_val detect_camins_file(FILE_T fh)
                 gap_count = 0;
             }
         }
+        read_bytes += sizeof(block);
+        if (read_bytes > CAMINS_BYTES_TO_CHECK) {
+            err = 0;
+            break;
+        }
     }
 
-    if (err != WTAP_ERR_SHORT_READ) {
+    if ((err != 0) && (err != WTAP_ERR_SHORT_READ)) {
         /* A real read error. */
         return WTAP_OPEN_ERROR;
     }
