@@ -152,6 +152,9 @@ static gchar file_sha256[HASH_STR_SIZE];
 static gchar file_rmd160[HASH_STR_SIZE];
 static gchar file_sha1[HASH_STR_SIZE];
 
+static char  *hash_buf = NULL;
+static gcry_md_hd_t hd = NULL;
+
 static guint num_ipv4_addresses;
 static guint num_ipv6_addresses;
 static guint num_decryption_secrets;
@@ -1150,6 +1153,41 @@ count_decryption_secret(guint32 secrets_type _U_, const void *secrets _U_, guint
   num_decryption_secrets++;
 }
 
+static void
+hash_to_str(const unsigned char *hash, size_t length, char *str) {
+  int i;
+
+  for (i = 0; i < (int) length; i++) {
+    g_snprintf(str+(i*2), 3, "%02x", hash[i]);
+  }
+}
+
+static void
+calculate_hashes(const char *filename)
+{
+  FILE  *fh;
+  size_t hash_bytes;
+
+  (void) g_strlcpy(file_sha256, "<unknown>", HASH_STR_SIZE);
+  (void) g_strlcpy(file_rmd160, "<unknown>", HASH_STR_SIZE);
+  (void) g_strlcpy(file_sha1, "<unknown>", HASH_STR_SIZE);
+
+  if (cap_file_hashes) {
+    fh = ws_fopen(filename, "rb");
+    if (fh && hd) {
+      while((hash_bytes = fread(hash_buf, 1, HASH_BUF_SIZE, fh)) > 0) {
+        gcry_md_write(hd, hash_buf, hash_bytes);
+      }
+      gcry_md_final(hd);
+      hash_to_str(gcry_md_read(hd, GCRY_MD_SHA256), HASH_SIZE_SHA256, file_sha256);
+      hash_to_str(gcry_md_read(hd, GCRY_MD_RMD160), HASH_SIZE_RMD160, file_rmd160);
+      hash_to_str(gcry_md_read(hd, GCRY_MD_SHA1), HASH_SIZE_SHA1, file_sha1);
+    }
+    if (fh) fclose(fh);
+    if (hd) gcry_md_reset(hd);
+  }
+}
+
 static int
 process_cap_file(const char *filename, gboolean need_separator)
 {
@@ -1183,6 +1221,13 @@ process_cap_file(const char *filename, gboolean need_separator)
     cfile_open_failure_message(filename, err, err_info);
     return 2;
   }
+
+  /*
+   * Calculate the checksums. Do this after wtap_open_offline, so we don't
+   * bother calculating them for files that are not known capture types
+   * where we wouldn't print them anyway.
+   */
+  calculate_hashes(filename);
 
   if (need_separator && long_report) {
     printf("\n");
@@ -1519,15 +1564,6 @@ capinfos_cmdarg_err_cont(const char *msg_format, va_list ap)
   fprintf(stderr, "\n");
 }
 
-static void
-hash_to_str(const unsigned char *hash, size_t length, char *str) {
-  int i;
-
-  for (i = 0; i < (int) length; i++) {
-    g_snprintf(str+(i*2), 3, "%02x", hash[i]);
-  }
-}
-
 int
 main(int argc, char *argv[])
 {
@@ -1554,10 +1590,6 @@ main(int argc, char *argv[])
   };
 
   int status = 0;
-  FILE  *fh;
-  char  *hash_buf = NULL;
-  gcry_md_hd_t hd = NULL;
-  size_t hash_bytes;
 
   /*
    * Set the C-language locale to the native environment and set the
@@ -1815,25 +1847,6 @@ main(int argc, char *argv[])
   overall_error_status = 0;
 
   for (opt = ws_optind; opt < argc; opt++) {
-
-    (void) g_strlcpy(file_sha256, "<unknown>", HASH_STR_SIZE);
-    (void) g_strlcpy(file_rmd160, "<unknown>", HASH_STR_SIZE);
-    (void) g_strlcpy(file_sha1, "<unknown>", HASH_STR_SIZE);
-
-    if (cap_file_hashes) {
-      fh = ws_fopen(argv[opt], "rb");
-      if (fh && hd) {
-        while((hash_bytes = fread(hash_buf, 1, HASH_BUF_SIZE, fh)) > 0) {
-          gcry_md_write(hd, hash_buf, hash_bytes);
-        }
-        gcry_md_final(hd);
-        hash_to_str(gcry_md_read(hd, GCRY_MD_SHA256), HASH_SIZE_SHA256, file_sha256);
-        hash_to_str(gcry_md_read(hd, GCRY_MD_RMD160), HASH_SIZE_RMD160, file_rmd160);
-        hash_to_str(gcry_md_read(hd, GCRY_MD_SHA1), HASH_SIZE_SHA1, file_sha1);
-      }
-      if (fh) fclose(fh);
-      if (hd) gcry_md_reset(hd);
-    }
 
     status = process_cap_file(argv[opt], need_separator);
     if (status) {
