@@ -69,8 +69,8 @@ Param(
 # trouble instead of trying to catch exceptions everywhere.
 $ErrorActionPreference = "Stop"
 
-$Win64CurrentTag = "2021-09-07"
-$Win32CurrentTag = "2021-09-07"
+$Win64CurrentTag = "2021-09-29"
+$Win32CurrentTag = "2021-09-29"
 
 # Archive file / SHA256
 $Win64Archives = @{
@@ -83,16 +83,16 @@ $Win64Archives = @{
     "libgcrypt-1.8.3-win64ws.zip" = "53b1c636cb89de308ca4ea01b4990cf1deca7f6c2446189c7ff6e971137ffd76";
     "libilbc-2.0.2-3-win64ws.zip" = "d7baeb98627c405bd7c3e41d6b07c4ea4f0f5db88436e566148320afd10cbb66";
     "libmaxminddb-1.4.3-1-win64ws.zip" = "ee89944a19ab6e1c873bdecb9fc6205d317c41e6da6ec1d30bc892fddfd143da";
-    "libpcap-1.9.1-1-win64ws.zip" = "5713acad1b095b0351c3b05d7c8e51351af91ae19c306bb1aa985b69c5af7f16";
+    "libpcap-1.10.1-1-win64ws.zip" = "59f8e0e90a3ab5671df561266ed2b02870a6f8f3a895b80c9db19fea9a12ffb2";
     "libsmi-svn-40773-win64ws.zip" = "571fcee71d741bf847c3247d4c2e1c42388ca6a9feebe08fc0d4ce053571d15d";
     "libssh-0.9.5-win64ws.zip" = "3226fcb89969a77643bd2bca7a1ff6b5a79261b680a09a6bfedb3d40f7a187e3";
     "lua-5.2.4-unicode-win64-vc14.zip" = "e8968d2c7871ce1ea82cbd29ac1b3a2c59d3dec25e483c5e12de85df66f5d928";
-    "lz4-1.9.2-1-win64ws.zip" = "751c68b81454d0b4411b9306add61847471ad4b84c40fe852d23d3d071a51268";
+    "lz4-1.9.3-1-win64ws.zip" = "7129515893ffdc439f4ffe9673c4bc43f9042e910bb2607e68dde6b99a1ab058";
     "minizip-1.2.11-4-win64ws.zip" = "dd6bf24e2d946465ad19aa4f8c38e0db91da6585887935de68011982cd6fb2cb";
-    "nghttp2-1.42.0-1-win64ws.zip" = "20164ae2189da68145a5d3ddc2eadcc554f15c6a4254b3d2f622cf3c6d3c32c2";
+    "nghttp2-1.44.0-1-win64ws.zip" = "30e4925d48bbd401b03ce6502e8df01f81f114366f28682206e08423486cf161";
     "opus-1.3.1-3-win64ws.zip" = "1f7a55a6d2d7215dffa4a43bca8ca05024bd4ba1ac3d0d0c405fd38b09cc2205";
     "sbc-1.3-1-win64ws.zip" = "08cef6898c421277a6582ef3225d8820f74a037cbd5b6e673a4d8f4593ce80a1";
-    "snappy-1.1.8-1-win64ws.zip" = "45d496ac98ffd365f2b86707a077498f4ab59cca33f65dcca1f89669a85ee92a";
+    "snappy-1.1.9-1-win64ws.zip" = "fa907724be019bcc55d27ebe88257ba8898b5c38b719099b8164ac78600d81cc";
     "spandsp-0.0.6-2-win64ws.zip" = "2eb8278633037f60f44815ea1606486ab5dcdf3bddc500b20c9fe356856236b2";
     "vcpkg-export-20210609-1-win64ws.zip" = "2207112ecae2d93e64405cb33e625d37c85f9b9db90b440a4d0f0362346564e4";
     "WinSparkle-0.5.7.zip" = "56d396ef0c4e8b0589ea74134e484376ca6459d972cd1ab1da6b9624d82e6d04";
@@ -109,16 +109,16 @@ $Win32Archives = @{
     "libgcrypt-1.8.3-win32ws.zip" = "409b72f2809019050cca91b9e670047c50a0752ff52999089178da54ef926393";
     "libilbc-2.0.2-3-win32ws.zip" = "b87967b5e46cd96d178bc3b3dbba5a75c069ef28ab8a86838c9d004690703997";
     "libmaxminddb-1.4.3-1-win32ws.zip" = "956f33daa63ce671df4c3e9210308f105e193e7a62c2d947f786d441758ed5e4";
-    "libpcap-1.9.1-1-win32ws.zip" = "431d8a6bac7a5e80ff8c7f1fc99388fb17c9555589b368577dc8c9d2f4499275";
+    "libpcap-1.10.1-1-win32ws.zip" = "145060e567d19b599e2e91e6c3e8023c3d2219acde4bf8bd45ec12e951d57909";
     "libsmi-svn-40773-win32ws.zip" = "44bc81edfeb8948322ca365fc632e419383907c305cc922e6b74fdbb13827958";
     "libssh-0.9.5-win32ws.zip" = "0cbdc1b9a65c38e601fda6df3fcdd76f8a0b83e98fa5c836764e1592d8a79194";
     "lua-5.2.4-unicode-win32-vc14.zip" = "ca2368a83f623674178e9441f71fb791e3c0b46f208e3dac28c6ac735f034bff";
-    "lz4-1.9.2-1-win32ws.zip" = "9bf6398e7f3d81d3db01b27356a9f4a0930573dbf9cc46011a59f89bef3bec69";
+    "lz4-1.9.3-1-win32ws.zip" = "4b74f9f41a1d364909d9815500dcd10931aa4fbed7fcc39503dfa84c9fcd58d3";
     "minizip-1.2.11-4-win32ws.zip" = "41e113930902c2519c4644e8307a0cc51c5855e001e1e69768c48deb376142d0";
-    "nghttp2-1.42.0-1-win32ws.zip" = "3b124dd883c6c1c7af2a12c262adec81b1e55ead71d1562f09b795d4e653400a";
+    "nghttp2-1.44.0-1-win32ws.zip" = "3a19e076523ef263f6900749f345725b4e8bf2c4027e0f349404ad81c4613bde";
     "opus-1.3.1-3-win32ws.zip" = "9700b14c8945fcfed2188b806a2ee7e8628922c22569a4c5183075f3dc133177";
     "sbc-1.3-1-win32ws.zip" = "ad37825e9ace4b849a5442c08f1ed7e30634e6b774bba4307fb86f35f82e71ba";
-    "snappy-1.1.8-1-win32ws.zip" = "058c12605d747e805e0fcb310b8fe6efdde5b36d68664bbf54f7ee8fa5fd5adb";
+    "snappy-1.1.9-1-win32ws.zip" = "28bae646f1dff80ceb1b1756b1fdec0ebc47580a412a8a4980f3d61c63cb0858";
     "spandsp-0.0.6-2-win32ws.zip" = "31a4b5ca228c719ab4190e1b46801f1483efb8756f1e33d10ecc915244612fca";
     "vcpkg-export-20210609-1-win32ws.zip" = "da544758352e31aed6cf9e62a6670df218b3d369cd113a462e94010b0ef8e472";
     "WinSparkle-0.5.7.zip" = "56d396ef0c4e8b0589ea74134e484376ca6459d972cd1ab1da6b9624d82e6d04";
