@@ -1173,6 +1173,10 @@ static struct encap_type_info encap_table_base[] = {
 
 	/* WTAP_ENCAP_ETW */
 	{ "etw", "Event Tracing for Windows messages" },
+
+	/* WTAP_ENCAP_ERI_ENB_LOG */
+	{ "eri_enb_log", "Ericsson eNode-B raw log" },
+
 };
 
 WS_DLL_LOCAL
