@@ -151,6 +151,7 @@ stnode_init(stnode_t *node, sttype_id_t type_id, gpointer data)
 	else {
 		node->data = data;
 	}
+	node->value = 0;
 }
 
 void
@@ -269,10 +270,10 @@ sprint_node(stnode_t *node)
 	wmem_strbuf_append_printf(buf,
 			"\tflags = %"PRIx16" (inside_parens = %s)\n",
 			node->flags, true_or_false(stnode_inside_parens(node)));
-	s = node->type->func_tostr(node->data);
+	s = stnode_tostr(node);
 	wmem_strbuf_append_printf(buf, "\tdata = %s\n", s);
 	g_free(s);
-	wmem_strbuf_append_printf(buf, "\tvalue = %"PRId32"\n", node->value);
+	wmem_strbuf_append_printf(buf, "\tvalue = %"PRId32"\n", stnode_value(node));
 	wmem_strbuf_append_printf(buf, "}\n");
 	return wmem_strbuf_finalize(buf);
 }

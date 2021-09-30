@@ -74,7 +74,7 @@ test_tostr(const void *value)
 
 	switch(test->op) {
 		case TEST_OP_EXISTS:
-			s = "TEST_EXIST";
+			s = "TEST_EXISTS";
 			break;
 		case TEST_OP_NOT:
 			s = "TEST_NOT";

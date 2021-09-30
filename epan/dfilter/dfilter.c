@@ -208,7 +208,7 @@ const char *tokenstr(int token)
 		case TOKEN_TEST_LT:	return "TEST_LT";
 		case TOKEN_TEST_LE:	return "TEST_LE";
 		case TOKEN_TEST_GT:	return "TEST_GT";
-		case TOKEN_TEST_GE:	return  "TEST_GE";
+		case TOKEN_TEST_GE:	return "TEST_GE";
 		case TOKEN_TEST_CONTAINS: return "TEST_CONTAINS";
 		case TOKEN_TEST_MATCHES: return "TEST_MATCHES";
 		case TOKEN_TEST_BITWISE_AND: return "TEST_BITWISE_AND";
