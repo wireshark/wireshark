@@ -391,6 +391,43 @@ static void test_getopt_long_basic2(void)
     free_argv(argv);
 }
 
+static void test_getopt_optional_argument1(void)
+{
+    char **argv;
+    int argc;
+    int opt;
+
+    struct ws_option longopts_optional[] = {
+        { "optional", ws_optional_argument, NULL, '1' },
+        { 0, 0, 0, 0 }
+    };
+
+    argv = new_argv(&argc, "/bin/ls", "--optional=arg1", (char *)NULL);
+
+    ws_optreset = 1;
+    opt = ws_getopt_long(argc, argv, "", longopts_optional, NULL);
+    g_assert_cmpint(opt, ==, '1');
+    g_assert_cmpstr(ws_optarg, ==, "arg1");
+
+    free_argv(argv);
+    argv = new_argv(&argc, "/bin/ls", "--optional", "arg1", (char *)NULL);
+
+    ws_optreset = 1;
+    opt = ws_getopt_long(argc, argv, "", longopts_optional, NULL);
+    g_assert_cmpint(opt, ==, '1');
+    /* Optional argument does not recognize the form "--arg param" (it's ambiguous). */
+    g_assert_null(ws_optarg);
+
+    free_argv(argv);
+    argv = new_argv(&argc, "/bin/ls", "--optional", (char *)NULL);
+
+    ws_optreset = 1;
+    opt = ws_getopt_long(argc, argv, "", longopts_optional, NULL);
+    g_assert_cmpint(opt, ==, '1');
+    g_assert_null(ws_optarg);
+
+    free_argv(argv);
+}
 
 static void test_getopt_opterr1(void)
 {
@@ -456,6 +493,7 @@ int main(int argc, char **argv)
 
     g_test_add_func("/ws_getopt/basic1", test_getopt_long_basic1);
     g_test_add_func("/ws_getopt/basic2", test_getopt_long_basic2);
+    g_test_add_func("/ws_getopt/optional1", test_getopt_optional_argument1);
     g_test_add_func("/ws_getopt/opterr1", test_getopt_opterr1);
 
     ret = g_test_run();
