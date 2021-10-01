@@ -1,4 +1,4 @@
--- 3GPP TS 38.331 V16.5.0 (2021-06)
+-- 3GPP TS 38.331 V16.6.0 (2021-09)
 
 NR-RRC-Definitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -1755,10 +1755,15 @@ RA-InformationCommon-r16 ::=         SEQUENCE {
     msg1-FDM-r16                         ENUMERATED {one, two, four, eight}               OPTIONAL,
     msg1-FDMCFRA-r16                     ENUMERATED {one, two, four, eight}               OPTIONAL,
     perRAInfoList-r16                    PerRAInfoList-r16,
-    ...
+    ...,
+    [[
+    perRAInfoListExt-v1660               PerRAInfoListExt-v1660                           OPTIONAL
+    ]]
 }
 
 PerRAInfoList-r16 ::= SEQUENCE (SIZE (1..200)) OF PerRAInfo-r16
+
+PerRAInfoListExt-v1660 ::= SEQUENCE (SIZE (1..200)) OF PerRACSI-RSInfoExt-v1660
 
 PerRAInfo-r16 ::=                    CHOICE {
     perRASSBInfoList-r16                 PerRASSBInfo-r16,
@@ -1774,6 +1779,10 @@ PerRASSBInfo-r16 ::=                 SEQUENCE {
 PerRACSI-RSInfo-r16 ::=              SEQUENCE {
     csi-RS-Index-r16                     CSI-RS-Index,
     numberOfPreamblesSentOnCSI-RS-r16    INTEGER (1..200)
+}
+
+PerRACSI-RSInfoExt-v1660 ::=         SEQUENCE {
+    csi-RS-Index-v1660                   INTEGER (1..96)                     OPTIONAL
 }
 
 PerRAAttemptInfoList-r16 ::=         SEQUENCE (SIZE (1..200)) OF PerRAAttemptInfo-r16
@@ -2495,7 +2504,7 @@ ARFCN-ValueUTRA-FDD-r16 ::=                INTEGER (0..16383)
 AvailabilityCombinationsPerCell-r16 ::=     SEQUENCE {
     availabilityCombinationsPerCellIndex-r16     AvailabilityCombinationsPerCellIndex-r16,
     iab-DU-CellIdentity-r16                      CellIdentity,
-    positionInDCI-AI-r16                         INTEGER(0..maxAI-DCI-PayloadSize-r16-1)                              OPTIONAL, -- Need M
+    positionInDCI-AI-r16                         INTEGER(0..maxAI-DCI-PayloadSize-1-r16)                              OPTIONAL, -- Need M
     availabilityCombinations-r16                 SEQUENCE (SIZE (1..maxNrofAvailabilityCombinationsPerSet-r16)) OF AvailabilityCombination-r16,
     ...
 }
@@ -2507,7 +2516,7 @@ AvailabilityCombination-r16 ::=         SEQUENCE {
     resourceAvailability-r16                SEQUENCE (SIZE (1..maxNrofResourceAvailabilityPerCombination-r16)) OF INTEGER (0..7)
 }
 
-AvailabilityCombinationId-r16 ::=       INTEGER (0..maxNrofAvailabilityCombinationsPerSet-r16-1)
+AvailabilityCombinationId-r16 ::=       INTEGER (0..maxNrofAvailabilityCombinationsPerSet-1-r16)
 
 -- TAG-AVAILABILITYCOMBINATIONSPERCELL-STOP
 -- TAG-AVAILABILITYINDICATOR-START
@@ -2773,7 +2782,7 @@ ConfiguredGrantConfigType2DeactivationStateList-r16  ::=
 -- TAG-CELLACCESSRELATEDINFO-START
 
 CellAccessRelatedInfo   ::=         SEQUENCE {
-    plmn-IdentityList                   PLMN-IdentityInfoList,
+    plmn-IdentityInfoList               PLMN-IdentityInfoList,
     cellReservedForOtherUse             ENUMERATED {true}             OPTIONAL,   -- Need R
     ...,
     [[
@@ -3224,12 +3233,12 @@ CG-StartingOffsets-r16 ::= SEQUENCE {
 -- TAG-CONFIGUREDGRANTCONFIG-STOP
 -- TAG-CONFIGUREDGRANTCONFIGINDEX-START
 
-ConfiguredGrantConfigIndex-r16 ::= INTEGER (0.. maxNrofConfiguredGrantConfig-r16-1)
+ConfiguredGrantConfigIndex-r16 ::= INTEGER (0.. maxNrofConfiguredGrantConfig-1-r16)
 
 -- TAG-CONFIGUREDGRANTCONFIGINDEX-STOP
 -- TAG-CONFIGUREDGRANTCONFIGINDEXMAC-START
 
-ConfiguredGrantConfigIndexMAC-r16 ::= INTEGER (0.. maxNrofConfiguredGrantConfigMAC-r16-1)
+ConfiguredGrantConfigIndexMAC-r16 ::= INTEGER (0.. maxNrofConfiguredGrantConfigMAC-1-r16)
 
 -- TAG-CONFIGUREDGRANTCONFIGINDEXMAC-STOP
 -- TAG-CONNESTFAILURECONTROL-START
@@ -4074,7 +4083,7 @@ LogicalChannelConfig ::=            SEQUENCE {
         ...,
         bitRateQueryProhibitTimer       ENUMERATED {s0, s0dot4, s0dot8, s1dot6, s3, s6, s12, s30}               OPTIONAL,    -- Need R
         [[
-        allowedCG-List-r16                  SEQUENCE (SIZE (0.. maxNrofConfiguredGrantConfigMAC-r16-1)) OF ConfiguredGrantConfigIndexMAC-r16
+        allowedCG-List-r16                  SEQUENCE (SIZE (0.. maxNrofConfiguredGrantConfigMAC-1-r16)) OF ConfiguredGrantConfigIndexMAC-r16
                                                                                                                 OPTIONAL,   -- Need S
         allowedPHY-PriorityIndex-r16        ENUMERATED {p0, p1}                                                 OPTIONAL    -- Need S
         ]]
@@ -4317,7 +4326,7 @@ RSSI-ResourceConfigCLI-r16 ::=      SEQUENCE {
     ...
 }
 
-RSSI-ResourceId-r16 ::=             INTEGER (0.. maxNrofCLI-RSSI-Resources-r16-1)
+RSSI-ResourceId-r16 ::=             INTEGER (0.. maxNrofCLI-RSSI-Resources-1-r16)
 
 RSSI-PeriodicityAndOffset-r16 ::=   CHOICE {
     sl10                                INTEGER(0..9),
@@ -7696,7 +7705,7 @@ SPS-Config ::=                  SEQUENCE {
 -- TAG-SPS-CONFIG-STOP
 -- TAG-SPS-CONFIGINDEX-START
 
-SPS-ConfigIndex-r16             ::= INTEGER (0.. maxNrofSPS-Config-r16-1)
+SPS-ConfigIndex-r16             ::= INTEGER (0.. maxNrofSPS-Config-1-r16)
 
 -- TAG-SPS-CONFIGINDEX-STOP
 -- TAG-SPS-PUCCH-AN-START
@@ -8338,8 +8347,8 @@ UplinkCancellation-r16 ::=           SEQUENCE {
 
 CI-ConfigurationPerServingCell-r16 ::=   SEQUENCE {
     servingCellId                            ServCellIndex,
-    positionInDCI-r16                        INTEGER (0..maxCI-DCI-PayloadSize-r16-1),
-    positionInDCI-ForSUL-r16                 INTEGER (0..maxCI-DCI-PayloadSize-r16-1)                             OPTIONAL,   -- Cond SUL-Only
+    positionInDCI-r16                        INTEGER (0..maxCI-DCI-PayloadSize-1-r16),
+    positionInDCI-ForSUL-r16                 INTEGER (0..maxCI-DCI-PayloadSize-1-r16)                             OPTIONAL,   -- Cond SUL-Only
     ci-PayloadSize-r16                       ENUMERATED {n1, n2, n4, n5, n7, n8, n10, n14, n16, n20, n28, n32, n35, n42, n56, n112},
     timeFrequencyRegion-r16                  SEQUENCE {
         timeDurationForCI-r16                    ENUMERATED {n2, n4, n7, n14}                                      OPTIONAL,   -- Cond SymbolPeriodicity
@@ -10849,6 +10858,9 @@ RF-Parameters ::=                                   SEQUENCE {
     [[
     supportedBandCombinationList-v1650                  BandCombinationList-v1650                   OPTIONAL,
     supportedBandCombinationList-UplinkTxSwitch-v1650   BandCombinationList-UplinkTxSwitch-v1650    OPTIONAL
+    ]],
+    [[
+    extendedBand-n77-r16                                ENUMERATED {supported}                      OPTIONAL
     ]]
 
 }
@@ -11016,6 +11028,10 @@ BandNR ::=                          SEQUENCE {
     configuredUL-GrantType1-v1650             ENUMERATED {supported}                       OPTIONAL,
     configuredUL-GrantType2-v1650             ENUMERATED {supported}                       OPTIONAL,
     sharedSpectrumChAccessParamsPerBand-v1650 SharedSpectrumChAccessParamsPerBand-v1650    OPTIONAL
+    ]],
+    [[
+    enhancedSkipUplinkTxConfigured-v1660      ENUMERATED {supported}                       OPTIONAL,
+    enhancedSkipUplinkTxDynamic-v1660         ENUMERATED {supported}                       OPTIONAL
     ]]
 }
 
@@ -12174,7 +12190,7 @@ SL-ConfiguredGrantConfig-r16 ::=           SEQUENCE {
     ]]
 }
 
-SL-ConfigIndexCG-r16 ::=          INTEGER (0..maxNrofCG-SL-r16-1)
+SL-ConfigIndexCG-r16 ::=          INTEGER (0..maxNrofCG-SL-1-r16)
 
 SL-CG-MaxTransNumList-r16 ::=     SEQUENCE (SIZE (1..8)) OF SL-CG-MaxTransNum-r16
 
@@ -12238,7 +12254,7 @@ SL-LogicalChannelConfig-r16 ::=            SEQUENCE {
                                                spare7, spare6, spare5, spare4, spare3,spare2, spare1},
     sl-ConfiguredGrantType1Allowed-r16         ENUMERATED {true}                                                        OPTIONAL,   -- Need R
     sl-HARQ-FeedbackEnabled-r16                ENUMERATED {enabled, disabled }                                          OPTIONAL,   -- Need R
-    sl-AllowedCG-List-r16                      SEQUENCE (SIZE (0.. maxNrofCG-SL-r16-1)) OF SL-ConfigIndexCG-r16
+    sl-AllowedCG-List-r16                      SEQUENCE (SIZE (0.. maxNrofCG-SL-1-r16)) OF SL-ConfigIndexCG-r16
                                                                                                                         OPTIONAL,   -- Need R
     sl-AllowedSCS-List-r16                     SEQUENCE (SIZE (1..maxSCSs)) OF SubcarrierSpacing                        OPTIONAL,   -- Need R
     sl-MaxPUSCH-Duration-r16                   ENUMERATED {ms0p02, ms0p04, ms0p0625, ms0p125, ms0p25, ms0p5, spare2, spare1}
@@ -12783,7 +12799,7 @@ SLRB-Uu-ConfigIndex-r16 ::=                    INTEGER (1..maxNrofSLRB-r16)
 -- TAG-MULTIPLICITY-AND-TYPE-CONSTRAINT-DEFINITIONS-START
 
 maxAI-DCI-PayloadSize-r16               INTEGER ::= 128      --Maximum size of the DCI payload scrambled with ai-RNTI
-maxAI-DCI-PayloadSize-r16-1             INTEGER ::= 127      --Maximum size of the DCI payload scrambled with ai-RNTI minus 1
+maxAI-DCI-PayloadSize-1-r16             INTEGER ::= 127      --Maximum size of the DCI payload scrambled with ai-RNTI minus 1
 maxBandComb                             INTEGER ::= 65536   -- Maximum number of DL band combinations
 maxBandsUTRA-FDD-r16                    INTEGER ::= 64      -- Maximum number of bands listed in UTRA-FDD UE caps
 maxBH-RLC-ChannelID-r16                 INTEGER ::= 65536   -- Maximum value of BH RLC Channel ID
@@ -12822,11 +12838,11 @@ maxNrofAggregatedCellsPerCellGroup      INTEGER ::= 16
 maxNrofAggregatedCellsPerCellGroupMinus4-r16   INTEGER ::= 12
 maxNrofDUCells-r16                      INTEGER ::= 512     -- Max number of cells configured on the collocated IAB-DU
 maxNrofAvailabilityCombinationsPerSet-r16   INTEGER ::= 512 -- Max number of AvailabilityCombinationId used in the DCI format 2_5
-maxNrofAvailabilityCombinationsPerSet-r16-1 INTEGER ::= 511 -- Max number of AvailabilityCombinationId used in the DCI format 2_5 minus 1
+maxNrofAvailabilityCombinationsPerSet-1-r16 INTEGER ::= 511 -- Max number of AvailabilityCombinationId used in the DCI format 2_5 minus 1
 maxNrofSCells                           INTEGER ::= 31      -- Max number of secondary serving cells per cell group
 maxNrofCellMeas                         INTEGER ::= 32      -- Maximum number of entries in each of the cell lists in a measurement object
 maxNrofCG-SL-r16                        INTEGER ::= 8       -- Max number of sidelink configured grant
-maxNrofCG-SL-r16-1                      INTEGER ::= 7       -- Max number of sidelink configured grant minus 1
+maxNrofCG-SL-1-r16                      INTEGER ::= 7       -- Max number of sidelink configured grant minus 1
 maxNrofSS-BlocksToAverage               INTEGER ::= 16      -- Max number for the (max) number of SS blocks to average to determine cell measurement
 maxNrofCondCells-r16                    INTEGER ::= 8       -- Max number of conditional candidate SpCells
 maxNrofCSI-RS-ResourcesToAverage        INTEGER ::= 16      -- Max number for the (max) number of CSI-RS to average to determine cell measurement
@@ -13018,7 +13034,7 @@ maxSIB                                  INTEGER::= 32       -- Maximum number of
 maxSI-Message                           INTEGER::= 32       -- Maximum number of SI messages
 maxPO-perPF                             INTEGER ::= 4       -- Maximum number of paging occasion per paging frame
 maxAccessCat-1                          INTEGER ::= 63      -- Maximum number of Access Categories minus 1
-maxBarringInfoSet                       INTEGER ::= 8       -- Maximum number of Access Categories
+maxBarringInfoSet                       INTEGER ::= 8       -- Maximum number of access control parameter sets
 maxCellEUTRA                            INTEGER ::= 8       -- Maximum number of E-UTRA cells in SIB list
 maxEUTRA-Carrier                        INTEGER ::= 8       -- Maximum number of E-UTRA carriers in SIB list
 maxPLMNIdentities                       INTEGER ::= 8       -- Maximum number of PLMN identites in RAN area configurations
@@ -13042,7 +13058,7 @@ maxNrofP0-PUSCH-Set-r16                 INTEGER ::= 2       -- Maximum number of
 maxOnDemandSIB-r16                      INTEGER ::= 8       -- Maximum number of SIB(s) that can be requested on-demand
 maxOnDemandPosSIB-r16                   INTEGER ::= 32      -- Maximum number of posSIB(s) that can be requested on-demand
 maxCI-DCI-PayloadSize-r16               INTEGER ::= 126     -- Maximum number of the DCI size for CI
-maxCI-DCI-PayloadSize-r16-1             INTEGER ::= 125     -- Maximum number of the DCI size for CI minus 1
+maxCI-DCI-PayloadSize-1-r16             INTEGER ::= 125     -- Maximum number of the DCI size for CI minus 1
 maxWLAN-Id-Report-r16                   INTEGER ::= 32      -- Maximum number of WLAN IDs to report
 maxWLAN-Name-r16                        INTEGER ::= 4       -- Maximum number of WLAN name
 maxRAReport-r16                         INTEGER ::= 8       -- Maximum number of RA procedures information to be included in the RA report
@@ -13050,16 +13066,15 @@ maxTxConfig-r16                         INTEGER ::= 64      -- Maximum number of
 maxTxConfig-1-r16                       INTEGER ::= 63      -- Maximum number of sidelink transmission parameters configurations minus 1
 maxPSSCH-TxConfig-r16                   INTEGER ::= 16      -- Maximum number of PSSCH TX configurations
 maxNrofCLI-RSSI-Resources-r16           INTEGER ::= 64      -- Maximum number of CLI-RSSI resources for UE
-maxNrofCLI-RSSI-Resources-r16-1         INTEGER ::= 63      -- Maximum number of CLI-RSSI resources for UE minus 1
-maxNrofCLI-SRS-Resources-r16             INTEGER ::= 32      -- Maximum number of SRS resources for CLI measurement for UE
+maxNrofCLI-RSSI-Resources-1-r16         INTEGER ::= 63      -- Maximum number of CLI-RSSI resources for UE minus 1
+maxNrofCLI-SRS-Resources-r16            INTEGER ::= 32      -- Maximum number of SRS resources for CLI measurement for UE
 maxCLI-Report-r16                       INTEGER ::= 8
 maxNrofConfiguredGrantConfig-r16        INTEGER ::= 12      -- Maximum number of configured grant configurations per BWP
-maxNrofConfiguredGrantConfig-r16-1      INTEGER ::= 11      -- Maximum number of configured grant configurations per BWP minus 1
+maxNrofConfiguredGrantConfig-1-r16      INTEGER ::= 11      -- Maximum number of configured grant configurations per BWP minus 1
 maxNrofCG-Type2DeactivationState        INTEGER ::= 16      -- Maximum number of deactivation state for type 2 configured grants per BWP
-maxNrofConfiguredGrantConfigMAC-r16     INTEGER ::= 32      -- Maximum number of configured grant configurations per MAC entity
-maxNrofConfiguredGrantConfigMAC-r16-1   INTEGER ::= 31      -- Maximum number of configured grant configurations per MAC entity minus 1
+maxNrofConfiguredGrantConfigMAC-1-r16   INTEGER ::= 31      -- Maximum number of configured grant configurations per MAC entity minus 1
 maxNrofSPS-Config-r16                   INTEGER ::= 8       -- Maximum number of SPS configurations per BWP
-maxNrofSPS-Config-r16-1                 INTEGER ::= 7       -- Maximum number of SPS configurations per BWP minus 1
+maxNrofSPS-Config-1-r16                 INTEGER ::= 7       -- Maximum number of SPS configurations per BWP minus 1
 maxNrofSPS-DeactivationState            INTEGER ::= 16      -- Maximum number of deactivation state for SPS per BWP
 maxNrofDormancyGroups                   INTEGER ::= 5       --
 maxNrofPUCCH-ResourceGroups-1-r16       INTEGER ::= 3       --
