@@ -15,6 +15,7 @@
 #include "config.h"
 
 #include "wslua_file_common.h"
+#include <wiretap/file_wrappers.h>
 
 /* WSLUA_CONTINUE_MODULE File */
 
@@ -133,9 +134,8 @@ static gboolean
 wslua_filehandler_read(wtap *wth, wtap_rec *rec, Buffer *buf,
                        int *err, gchar **err_info, gint64 *offset);
 static gboolean
-wslua_filehandler_seek_read(wtap *wth, gint64 seek_off,
-    wtap_rec *rec, Buffer *buf,
-    int *err, gchar **err_info);
+wslua_filehandler_seek_read(wtap *wth, gint64 seek_off, wtap_rec *rec, Buffer *buf,
+                            int *err, gchar **err_info);
 static void
 wslua_filehandler_close(wtap *wth);
 static void
@@ -193,13 +193,8 @@ wslua_filehandler_open(wtap *wth, int *err, gchar **err_info)
             return WTAP_OPEN_NOT_MINE;
         }
 
-        if (fh->seek_read_ref != LUA_NOREF) {
-            wth->subtype_seek_read = wslua_filehandler_seek_read;
-        }
-        else {
-            ws_warning("Lua file format module lacks a seek-read routine");
-            return WTAP_OPEN_NOT_MINE;
-        }
+        /* when not having a seek_read routine a default will be used */
+        wth->subtype_seek_read = wslua_filehandler_seek_read;
 
         /* it's ok to not have a close routine */
         if (fh->read_close_ref != LUA_NOREF)
@@ -238,15 +233,9 @@ wslua_filehandler_open(wtap *wth, int *err, gchar **err_info)
     return retval;
 }
 
-/* The classic wtap read routine.  This returns TRUE if it found the next packet,
- * else FALSE.
- * If it finds a frame/packet, it should set the pseudo-header info (ie, let Lua set it).
- * Also Lua needs to set data_offset to the beginning of the line we're returning.
- * This will be the seek_off parameter when this frame is re-read.
-*/
 static gboolean
-wslua_filehandler_read(wtap *wth, wtap_rec *rec, Buffer *buf,
-                       int *err, gchar **err_info, gint64 *offset)
+wslua_filehandler_read_packet(wtap *wth, FILE_T wth_fh, wtap_rec *rec, Buffer *buf,
+                              int *err, gchar **err_info, gint64 *offset)
 {
     FileHandler fh = (FileHandler)(wth->wslua_data);
     int retval = -1;
@@ -265,7 +254,7 @@ wslua_filehandler_read(wtap *wth, wtap_rec *rec, Buffer *buf,
     wtap_block_unref(rec->block);
     rec->block = NULL;
 
-    fp = push_File(L, wth->fh);
+    fp = push_File(L, wth_fh);
     fc = push_CaptureInfo(L, wth, FALSE);
     fi = push_FrameInfo(L, rec, buf);
 
@@ -298,13 +287,22 @@ wslua_filehandler_read(wtap *wth, wtap_rec *rec, Buffer *buf,
     return (retval == 1);
 }
 
-/* Classic wtap seek_read function, called by wtap core.  This must return TRUE on
- * success, FALSE on error.
+/* The classic wtap read routine.  This returns TRUE if it found the next packet,
+ * else FALSE.
+ * If it finds a frame/packet, it should set the pseudo-header info (ie, let Lua set it).
+ * Also Lua needs to set data_offset to the beginning of the line we're returning.
+ * This will be the seek_off parameter when this frame is re-read.
  */
 static gboolean
-wslua_filehandler_seek_read(wtap *wth, gint64 seek_off,
-    wtap_rec *rec, Buffer *buf,
-    int *err, gchar **err_info)
+wslua_filehandler_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+                       int *err, gchar **err_info, gint64 *offset)
+{
+    return wslua_filehandler_read_packet(wth, wth->fh, rec, buf, err, err_info, offset);
+}
+
+static gboolean
+wslua_filehandler_seek_read_packet(wtap *wth, gint64 seek_off, wtap_rec *rec, Buffer *buf,
+                            int *err, gchar **err_info)
 {
     FileHandler fh = (FileHandler)(wth->wslua_data);
     int retval = -1;
@@ -312,11 +310,6 @@ wslua_filehandler_seek_read(wtap *wth, gint64 seek_off,
     File *fp = NULL;
     CaptureInfo *fc = NULL;
     FrameInfo *fi = NULL;
-
-    if (fh->removed) {
-        /* Return success when removed during reloading Lua plugins */
-        return TRUE;
-    }
 
     INIT_FILEHANDLER_ROUTINE(seek_read,FALSE,err,err_info);
 
@@ -356,6 +349,43 @@ wslua_filehandler_seek_read(wtap *wth, gint64 seek_off,
     lua_settop(L,0);
 
     return (retval == 1);
+}
+
+/* Default FileHandler:seek_read() implementation.
+ * Do a standard file_seek() and then call FileHandler:read().
+ */
+static gboolean
+wslua_filehandler_seek_read_default(wtap *wth, gint64 seek_off, wtap_rec *rec, Buffer *buf,
+                                    int *err, gchar **err_info)
+{
+    gint64 offset = file_seek(wth->random_fh, seek_off, SEEK_SET, err);
+
+    if (offset < 0) {
+        return FALSE;
+    }
+
+    return wslua_filehandler_read_packet(wth, wth->random_fh, rec, buf, err, err_info, &offset);
+}
+
+/* Classic wtap seek_read function, called by wtap core.  This must return TRUE on
+ * success, FALSE on error.
+ */
+static gboolean
+wslua_filehandler_seek_read(wtap *wth, gint64 seek_off, wtap_rec *rec, Buffer *buf,
+                            int *err, gchar **err_info)
+{
+    FileHandler fh = (FileHandler)(wth->wslua_data);
+
+    if (fh->removed) {
+        /* Return success when removed during reloading Lua plugins */
+        return TRUE;
+    }
+
+    if (fh->seek_read_ref != LUA_NOREF) {
+        return wslua_filehandler_seek_read_packet(wth, seek_off, rec, buf, err, err_info);
+    } else {
+        return wslua_filehandler_seek_read_default(wth, seek_off, rec, buf, err, err_info);
+    }
 }
 
 /* Classic wtap close function, called by wtap core.
@@ -748,8 +778,7 @@ static gboolean verify_filehandler_complete(FileHandler fh) {
             (!fh->is_reader ||
              (fh->is_reader &&
               fh->read_open_ref != LUA_NOREF &&
-              fh->read_ref      != LUA_NOREF &&
-              fh->seek_read_ref != LUA_NOREF)) &&
+              fh->read_ref      != LUA_NOREF)) &&
             (!fh->is_writer ||
              (fh->is_writer &&
               fh->can_write_encap_ref != LUA_NOREF &&
@@ -932,6 +961,8 @@ WSLUA_ATTRIBUTE_FUNC_SETTER(FileHandler,read);
         return fh_read(file, capture, frame)
     end
     ----
+
+    Since 3.6.0, it's possible to omit the `FileHandler:seek_read()` function to get a default seek_read implementation.
  */
 WSLUA_ATTRIBUTE_FUNC_SETTER(FileHandler,seek_read);
 
