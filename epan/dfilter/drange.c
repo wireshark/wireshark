@@ -222,6 +222,40 @@ drange_foreach_drange_node(drange_t * dr, GFunc func, gpointer funcdata)
     g_slist_foreach(dr->range_list,func,funcdata);
 }
 
+static void
+_sprint_drange_node(GString *repr, drange_node *rn)
+{
+    if (rn->ending == DRANGE_NODE_END_T_TO_THE_END)
+        g_string_append_printf(repr, "%d:",
+                            rn->start_offset);
+    else if(rn->ending == DRANGE_NODE_END_T_OFFSET)
+        g_string_append_printf(repr, "%d-%d",
+                            rn->start_offset, rn->end_offset);
+    else if (rn->ending == DRANGE_NODE_END_T_LENGTH)
+        g_string_append_printf(repr, "%d:%d",
+                            rn->start_offset, rn->length);
+    else
+        g_string_append_printf(repr, "%d/%d/%d/U",
+                            rn->start_offset, rn->length, rn->end_offset);
+}
+
+char *
+drange_tostr(drange_t *dr)
+{
+    GString *repr = g_string_new("");
+    GSList *range_list = dr->range_list;
+
+    while (range_list) {
+        _sprint_drange_node(repr, (drange_node *)(range_list->data));
+        range_list = g_slist_next(range_list);
+        if (range_list != NULL) {
+            g_string_append_c(repr, ',');
+        }
+    }
+
+    return g_string_free(repr, FALSE);
+}
+
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
