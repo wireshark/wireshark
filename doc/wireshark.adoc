@@ -3268,6 +3268,8 @@ See above in the description of the About:Plugins page.
 
 == ENVIRONMENT VARIABLES
 
+// Should this be moved to an include file?
+
 WIRESHARK_CONFIG_DIR::
 +
 --
@@ -3413,8 +3415,9 @@ xref:text2pcap.html[text2pcap](1), xref:https://www.tcpdump.org/manpages/pcap-fi
 
 == NOTES
 
+This is the manual page for *Wireshark* {wireshark-version}.
 The latest version of *Wireshark* can be found at
 https://www.wireshark.org.
 
-HTML versions of the Wireshark project man pages are available at:
+HTML versions of the Wireshark project man pages are available at
 https://www.wireshark.org/docs/man-pages.

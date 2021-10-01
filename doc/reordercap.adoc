@@ -67,7 +67,7 @@ of *Wireshark* can be found at https://www.wireshark.org.
 It may make sense to move this functionality into *editcap*, or perhaps
 *mergecap*, in which case *reordercap* could be retired.
 
-HTML versions of the Wireshark project man pages are available at:
+HTML versions of the Wireshark project man pages are available at
 https://www.wireshark.org/docs/man-pages.
 
 == AUTHORS

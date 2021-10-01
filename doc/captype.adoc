@@ -40,7 +40,7 @@ xref:dumpcap.html[dumpcap](1), xref:capinfos.html[capinfos](1), xref:https://www
 *Captype* is part of the *Wireshark* distribution.  The latest version
 of *Wireshark* can be found at https://www.wireshark.org.
 
-HTML versions of the Wireshark project man pages are available at:
+HTML versions of the Wireshark project man pages are available at
 https://www.wireshark.org/docs/man-pages.
 
 == AUTHORS

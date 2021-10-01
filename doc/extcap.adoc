@@ -157,5 +157,5 @@ xref:wireshark.html[wireshark](1), xref:tshark.html[tshark](1), xref:dumpcap.htm
 *Extcap* is feature of *Wireshark*.  The latest version
 of *Wireshark* can be found at https://www.wireshark.org.
 
-HTML versions of the Wireshark project man pages are available at:
+HTML versions of the Wireshark project man pages are available at
 https://www.wireshark.org/docs/man-pages.
