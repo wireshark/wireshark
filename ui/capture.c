@@ -153,9 +153,9 @@ capture_start(capture_options *capture_opts, GPtrArray *capture_comments,
     wtap_rec_init(&cap_session->rec);
     ws_buffer_init(&cap_session->buf, 1514);
 
-    if (capture_opts->show_info) {
-        cap_session->wtap = NULL;
+    cap_session->wtap = NULL;
 
+    if (capture_opts->show_info) {
         if (cap_data->counts.counts_hash != NULL)
         {
             /* Clean up any previous lists of packet counts */
@@ -549,7 +549,7 @@ capture_input_new_packets(capture_session *cap_session, int to_read)
         capture_callback_invoke(capture_cb_capture_fixed_continue, cap_session);
     }
 
-    if(capture_opts->show_info)
+    if(cap_session->wtap)
         capture_info_new_packets(to_read, cap_session->wtap, cap_session->cap_data_info);
 }
 
@@ -748,10 +748,10 @@ capture_input_closed(capture_session *cap_session, gchar *msg)
         }
     }
 
-    if(capture_opts->show_info) {
-        capture_info_ui_destroy(&cap_session->cap_data_info->ui);
-        if(cap_session->wtap)
-            wtap_close(cap_session->wtap);
+    capture_info_ui_destroy(&cap_session->cap_data_info->ui);
+    if(cap_session->wtap) {
+        wtap_close(cap_session->wtap);
+        cap_session->wtap = NULL;
     }
 
     cap_session->state = CAPTURE_STOPPED;
