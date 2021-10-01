@@ -810,7 +810,6 @@ SL-V2X-SyncOffsetIndicators-r14
 SL-V2X-TxProfile-r15
 SL-V2X-TxProfileList-r15
 SSB-IndexList-r15
-TypeFFS
 Tx-PreconfigIndex-r14
 VarANR-MeasConfig-NB-r16
 VarANR-MeasReport-NB-r16

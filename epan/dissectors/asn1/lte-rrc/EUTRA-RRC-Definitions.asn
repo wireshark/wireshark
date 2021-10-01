@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V16.5.0 (2021-06)
+-- 3GPP TS 36.331 V16.6.0 (2021-09)
 
 EUTRA-RRC-Definitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -2496,7 +2496,7 @@ FailureReportSCG-NR-r15 ::=		SEQUENCE {
 											t310-Expiry, randomAccessProblem,
 											rlc-MaxNumRetx,
 											synchReconfigFailureSCG, scg-reconfigFailure,
-											srb3-IntegrityFailure, other-r16},
+											srb3-IntegrityFailure, dummy},
 	measResultFreqListNR-r15				MeasResultFreqListFailNR-r15		OPTIONAL,
 	measResultSCG-r15						OCTET STRING						OPTIONAL,
 	...,
@@ -3902,9 +3902,6 @@ WLANConnectionStatusReport-v1430-IEs ::=	SEQUENCE {
 	wlan-Status-v1430				WLAN-Status-v1430,
 	nonCriticalExtension			SEQUENCE {}								OPTIONAL
 }
-
-
-TypeFFS ::= NULL					-- To be removed
 
 
 -- WS modification: asn2wrs does not support this syntax; replace all occurrences
@@ -6815,8 +6812,6 @@ PDSCH-ConfigDedicated-v1430 ::=		SEQUENCE {
 PDSCH-ConfigDedicated-v1530 ::=		SEQUENCE {
 	qcl-Operation-v1530						ENUMERATED {typeC}				OPTIONAL,	-- Need OR
 	tbs-IndexAlt3-r15							ENUMERATED {a37}			OPTIONAL,	-- Need OR
-	-- eNote (ToDo): Clarify that eMTC fields (i.e. fields starting with ce-) do not apply
-	-- for SCell (merging issue)
 	ce-CQI-AlternativeTableConfig-r15			ENUMERATED {on}				OPTIONAL,	-- Need OR
 	ce-PDSCH-64QAM-Config-r15					ENUMERATED {on}				OPTIONAL,	-- Need OR
 	ce-PDSCH-FlexibleStartPRB-AllocConfig-r15	ENUMERATED {on}				OPTIONAL,	-- Need OR
@@ -9376,7 +9371,6 @@ SPS-ConfigUL ::=	CHOICE {
 		]],
 		[[ cyclicShiftSPS-r15				ENUMERATED {cs0, cs1, cs2, cs3, cs4, cs5, cs6, cs7}
 												OPTIONAL,	-- Need ON
-	-- eNote (TBC) that no separate STTI field is required (alike in merged CR)
 			harq-ProcID-Offset-r15				INTEGER (0..7)			OPTIONAL,	-- Need ON
 			rv-SPS-UL-Repetitions-r15			ENUMERATED {ulrvseq1, ulrvseq2, ulrvseq3} OPTIONAL, -- Need ON
 			tpc-PDCCH-ConfigPUSCH-SPS-r15		TPC-PDCCH-Config		OPTIONAL,	-- Need ON
@@ -12720,6 +12714,11 @@ UE-EUTRA-Capability-v1630-IEs ::= SEQUENCE {
 
 UE-EUTRA-Capability-v1650-IEs ::= SEQUENCE {
 	otherParameters-v1650				Other-Parameters-v1650			OPTIONAL,
+	nonCriticalExtension				UE-EUTRA-Capability-v1660-IEs		OPTIONAL
+}
+
+UE-EUTRA-Capability-v1660-IEs ::= SEQUENCE {
+	irat-ParametersNR-v1660			IRAT-ParametersNR-v1660,
 	nonCriticalExtension				SEQUENCE {}						OPTIONAL
 }
 
@@ -14159,6 +14158,10 @@ IRAT-ParametersNR-v1610 ::=		SEQUENCE {
 	ce-EUTRA-5GC-HO-ToNR-TDD-FR1-r16	ENUMERATED {supported}				OPTIONAL,
 	ce-EUTRA-5GC-HO-ToNR-FDD-FR2-r16	ENUMERATED {supported}				OPTIONAL,
 	ce-EUTRA-5GC-HO-ToNR-TDD-FR2-r16	ENUMERATED {supported}				OPTIONAL
+}
+
+IRAT-ParametersNR-v1660 ::=		SEQUENCE {
+	extendedBand-n77-r16				ENUMERATED {supported}				OPTIONAL
 }
 
 EUTRA-5GC-Parameters-r15 ::=		SEQUENCE {
