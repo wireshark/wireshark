@@ -459,6 +459,16 @@ dissect_rdp_drdynvc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 			}
 			break;
 		}
+		case DRDYNVC_CLOSE_REQUEST_PDU: {
+			drdynvc_channel_def_t *channel = drdynvc_find_channel_by_id(info, channelId);
+
+			col_set_str(pinfo->cinfo, COL_INFO, "Close request");
+			if (channel) {
+				proto_item *channelName = proto_tree_add_string_format_value(tree, hf_rdp_drdynvc_channelName, tvb, offset, 0, NULL, "%s", channel->name);
+				proto_item_set_generated(channelName);
+			}
+			break;
+		}
 		default:
 			break;
 	}
@@ -598,7 +608,7 @@ void proto_register_rdp_drdynvc(void) {
 		{ &hf_rdp_drdynvc_data,
 		  { "Data", "rdp_drdynvc.data",
 			FT_BYTES, BASE_NONE, NULL, 0,
-			NULL, HFILL }}
+			NULL, HFILL }},
 	};
 
 	/* List of subtrees */
