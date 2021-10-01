@@ -10,6 +10,7 @@
 
 #include "syntax-tree.h"
 #include "sttype-set.h"
+#include <wsutil/ws_assert.h>
 
 /*
  * The GSList stores a list of elements of the set. Each element is represented
@@ -40,6 +41,40 @@ sttype_set_free(gpointer value)
 	}
 }
 
+static char *
+sttype_set_tostr(const void *data)
+{
+	GSList* nodelist = (GSList *)data;
+	stnode_t *lower, *upper;
+	GString *repr = g_string_new("");
+	char *str;
+
+	while (nodelist) {
+		lower = nodelist->data;
+		str = stnode_tostr(lower);
+		g_string_append(repr, str);
+		g_free(str);
+
+		/* Set elements are always in pairs; upper may be null. */
+		nodelist = g_slist_next(nodelist);
+		ws_assert(nodelist);
+		upper = nodelist->data;
+		if (upper != NULL) {
+			g_string_append(repr, "..");
+			str = stnode_tostr(upper);
+			g_string_append(repr, str);
+			g_free(str);
+		}
+
+		nodelist = g_slist_next(nodelist);
+		if (nodelist != NULL) {
+			g_string_append_c(repr, ' ');
+		}
+	}
+
+	return g_string_free(repr, FALSE);
+}
+
 void
 sttype_set_replace_element(stnode_t *node, stnode_t *oldnode, stnode_t *newnode)
 {
@@ -66,7 +101,7 @@ sttype_register_set(void)
 		NULL,
 		sttype_set_free,
 		NULL,
-		NULL
+		sttype_set_tostr
 	};
 
 	sttype_register(&set_type);
