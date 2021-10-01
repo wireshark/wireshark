@@ -57,14 +57,26 @@ function_tostr(const void *data)
 {
 	const function_t *stfuncrec = (const function_t *)data;
 	const df_func_def_t *def = stfuncrec->funcdef;
-	guint args_len = 0;
+	GSList *params = stfuncrec->params;
+	GString *repr = g_string_new("");
+	char *s;
 
 	ws_assert(def);
 
-	if (stfuncrec->params != NULL)
-		args_len = g_slist_length(stfuncrec->params);
+	g_string_printf(repr, "%s(", def->name);
+	while (params != NULL) {
+		ws_assert(params->data);
+		s = stnode_tostr(params->data);
+		g_string_append(repr, s);
+		g_free(s);
+		params = params->next;
+		if (params != NULL) {
+			g_string_append(repr, ", ");
+		}
+	}
+	g_string_append_c(repr, ')');
 
-	return g_strdup_printf("%s(n = %u)", def->name, args_len);
+	return g_string_free(repr, FALSE);
 }
 
 static void
