@@ -3607,6 +3607,7 @@ set(_test_group_list
 	suite_dfilter.group_scanner
 	suite_dfilter.group_string_type
 	suite_dfilter.group_stringz
+	suite_dfilter.group_syntax
 	suite_dfilter.group_time_relative
 	suite_dfilter.group_time_type
 	suite_dfilter.group_tvb
