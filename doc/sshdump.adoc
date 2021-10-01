@@ -216,22 +216,21 @@ To see interfaces:
 
 Only one interface (sshdump) is supported.
 
-  Output:
+.Example output
     interface {value=sshdump}{display=SSH remote capture}
 
 To see interface DLTs:
 
     sshdump --extcap-interface=sshdump --extcap-dlts
 
-  Output:
+.Example output
     dlt {number=147}{name=sshdump}{display=Remote capture dependent DLT}
 
 To see interface configuration options:
 
     sshdump --extcap-interface=sshdump --extcap-config
 
-  Output:
-
+.Example output
     arg {number=0}{call=--remote-host}{display=Remote SSH server address}{type=string}
         {tooltip=The remote SSH host. It can be both an IP address or a hostname}{required=true}{group=Server}
     arg {number=1}{call=--remote-port}{display=Remote SSH server port}{type=unsigned}

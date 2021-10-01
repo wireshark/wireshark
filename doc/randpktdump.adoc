@@ -134,21 +134,21 @@ To see interfaces:
 
     randpktdump --extcap-interfaces
 
-  Example output:
+.Example output
     interface {value=randpkt}{display=Random packet generator}
 
 To see interface DLTs:
 
     randpktdump --extcap-interface=randpkt --extcap-dlts
 
-  Example output:
+.Example output
     dlt {number=1}{name=randpkt}{display=Ethernet}
 
 To see interface configuration options:
 
     randpktdump --extcap-interface=randpkt --extcap-config
 
-  Example output:
+.Example output
     arg {number=0}{call=--maxbytes}{display=Max bytes in a packet}{type=unsigned}{range=1,5000}{default=5000}{tooltip=The max number of bytes in a packet}
     arg {number=1}{call=--count}{display=Number of packets}{type=long}{default=1000}{tooltip=Number of packets to generate (-1 for infinite)}
     arg {number=2}{call=--delay}{display=Packet delay (ms)}{type=long}{default=0}{tooltip=Milliseconds to wait after writing each packet}

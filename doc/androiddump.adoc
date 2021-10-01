@@ -205,49 +205,51 @@ To see interfaces:
 
     androiddump --extcap-interfaces
 
-  Example output:
-    interface {display=Android Logcat Main unknown MSM7627A}{value=android-logcat-main-MSM7627A}
-    interface {display=Android Logcat System unknown MSM7627A}{value=android-logcat-system-MSM7627A}
-    interface {display=Android Logcat Radio unknown MSM7627A}{value=android-logcat-radio-MSM7627A}
-    interface {display=Android Logcat Events unknown MSM7627A}{value=android-logcat-events-MSM7627A}
-    interface {display=Android Bluetooth Hcidump unknown MSM7627A}{value=android-bluetooth-hcidump-MSM7627A}
+.Example output
+----
+interface {display=Android Logcat Main unknown MSM7627A}{value=android-logcat-main-MSM7627A}
+interface {display=Android Logcat System unknown MSM7627A}{value=android-logcat-system-MSM7627A}
+interface {display=Android Logcat Radio unknown MSM7627A}{value=android-logcat-radio-MSM7627A}
+interface {display=Android Logcat Events unknown MSM7627A}{value=android-logcat-events-MSM7627A}
+interface {display=Android Bluetooth Hcidump unknown MSM7627A}{value=android-bluetooth-hcidump-MSM7627A}
 
-    Human-readable display name of interfaces contains interface type, one of:
-        android-logcat-main (Android Logcat Main)
-        android-logcat-system (Android Logcat System)
-        android-logcat-radio (Android Logcat Radio)
-        android-logcat-events (Android Logcat Events)
-        android-logcat-text-main (Android Logcat Main)
-        android-logcat-text-system (Android Logcat System)
-        android-logcat-text-radio (Android Logcat Radio)
-        android-logcat-text-events (Android Logcat Events)
-        android-logcat-text-crash (Android Logcat Crash)
-        android-bluetooth-hcidump (Android Bluetooth Hcidump)
-        android-bluetooth-external-parser (Android Bluetooth External Parser)
-        android-bluetooth-btsnoop-net (Android Bluetooth Btsnoop Net)
-        android-wifi-tcpdump (Android WiFi)
-    Then Android Device's name if available, otherwise "unknown".
-    Last part of it is DeviceID - the identificator of the device provided by Android SDK (see "adb devices").
+Human-readable display name of interfaces contains interface type, one of:
+    android-logcat-main (Android Logcat Main)
+    android-logcat-system (Android Logcat System)
+    android-logcat-radio (Android Logcat Radio)
+    android-logcat-events (Android Logcat Events)
+    android-logcat-text-main (Android Logcat Main)
+    android-logcat-text-system (Android Logcat System)
+    android-logcat-text-radio (Android Logcat Radio)
+    android-logcat-text-events (Android Logcat Events)
+    android-logcat-text-crash (Android Logcat Crash)
+    android-bluetooth-hcidump (Android Bluetooth Hcidump)
+    android-bluetooth-external-parser (Android Bluetooth External Parser)
+    android-bluetooth-btsnoop-net (Android Bluetooth Btsnoop Net)
+    android-wifi-tcpdump (Android WiFi)
+Then Android Device's name if available, otherwise "unknown".
+Last part of it is DeviceID - the identificator of the device provided by Android SDK (see "adb devices").
 
-    For example:
-    "Android Logcat Main unknown MSM7627A"
+For example:
+"Android Logcat Main unknown MSM7627A"
 
-    "Android Logcat Main" - user-friendly type of interface
-    "unknown" - name of Android Device
-    "MSM7627A" - device ID
+"Android Logcat Main" - user-friendly type of interface
+"unknown" - name of Android Device
+"MSM7627A" - device ID
+----
 
 To see interface DLTs:
 
     androiddump --extcap-interface=android-bluetooth-hcidump-MSM7627A --extcap-dlts
 
-  Example output:
+.Example output
     dlt {number=99}{name=BluetoothH4}{display=Bluetooth HCI UART transport layer plus pseudo-header}
 
 To see interface configuration options:
 
     androiddump --extcap-interface=android-bluetooth-hcidump-MSM7627A --extcap-config
 
-  Example output:
+.Example output
     arg {number=0}{call=--adb-server-ip}{display=ADB Server IP Address}{type=string}{default=127.0.0.1}
     arg {number=1}{call=--adb-server-tcp-port}{display=ADB Server TCP Port}{type=integer}{range=0,65535}{default=5037}
 

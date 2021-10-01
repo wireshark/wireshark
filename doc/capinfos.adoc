@@ -453,8 +453,9 @@ xref:dumpcap.html[dumpcap](1), xref:captype.html[captype](1), xref:https://www.t
 
 == NOTES
 
-*Capinfos* is part of the *Wireshark* distribution.  The latest version
-of *Wireshark* can be found at https://www.wireshark.org.
+This is the manual page for *Capinfos* {wireshark-version}.
+*Capinfos* is part of the *Wireshark* distribution.
+The latest version of *Wireshark* can be found at https://www.wireshark.org.
 
 HTML versions of the Wireshark project man pages are available at
 https://www.wireshark.org/docs/man-pages.

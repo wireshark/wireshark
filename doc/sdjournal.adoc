@@ -109,22 +109,21 @@ To see interfaces:
 
 Only one interface (sdjournal) is supported.
 
-  Output:
+.Example output
     interface {value=sdjournal}{display=systemd journal capture}
 
 To see interface DLTs:
 
     sdjournal --extcap-interface=sdjournal --extcap-dlts
 
-  Output:
+.Example output
     dlt {number=147}{name=sdjournal}{display=USER0}
 
 To see interface configuration options:
 
     sdjournal --extcap-interface=sdjournal --extcap-config
 
-  Output:
-
+.Example output
     arg {number=0}{call=--start-from}{display=Starting position}{type=string}
         {tooltip=The journal starting position. Values with a leading "+" start from the beginning, similar to the "tail" command}
 

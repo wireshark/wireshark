@@ -112,21 +112,21 @@ To see interfaces:
 
     etwdump --extcap-interfaces
 
-  Example output:
+.Example output
     interface {value=etwdump}{display=ETW reader}
 
 To see interface DLTs:
 
     etwdump --extcap-interface=etwdump --extcap-dlts
 
-  Example output:
+.Example output
     dlt {number=1}{name=etwdump}{display=DLT_ETW}
 
 To see interface configuration options:
 
     etwdump --extcap-interface=etwdump --extcap-config
 
-  Example output:
+.Example output
     arg {number=0}{call=--etlfile}{display=etl file}{type=fileselect}{tooltip=Select etl file to display in Wireshark}{group=Capture}
     arg {number=1}{call=--params}{display=filter parmeters}{type=string}{tooltip=Input providers, keyword and level filters for the etl file and live session}{group=Capture}
     arg {number=2}{call=--iue}{display=Should undecidable events be included}{type=boolflag}{default=false}{tooltip=Choose if the undecidable event is included}{group=Capture}

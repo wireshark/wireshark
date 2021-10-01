@@ -126,21 +126,21 @@ To see interfaces:
 
 Only one interface (dpauxmon) is supported.
 
-  Output:
+.Example output
     interface {value=dpauxmon}{display=DisplayPort AUX channel capture}
 
 To see interface DLTs:
 
     dpauxmon --extcap-interface=dpauxmon --extcap-dlts
 
-  Output:
+.Example output
     dlt {number=275}{name=dpauxmon}{display=DisplayPort AUX channel monitor DLT}
 
 To see interface configuration options:
 
     dpauxmon --extcap-interface=dpauxmon --extcap-config
 
-  Output:
+.Example output
     dpauxmon --extcap-interface=dpauxmon --extcap-config
     arg {number=0}{call=--interface_id}{display=Interface Id}
         {type=unsigned}{tooltip=The Interface Id}

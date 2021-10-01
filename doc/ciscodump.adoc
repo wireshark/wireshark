@@ -192,21 +192,21 @@ To see interfaces:
 
 Only one interface (cisco) is supported.
 
-  Output:
+.Example output
     interface {value=cisco}{display=SSH remote capture}
 
 To see interface DLTs:
 
     ciscodump --extcap-interface=cisco --extcap-dlts
 
-  Output:
+.Example output
     dlt {number=147}{name=cisco}{display=Remote capture dependent DLT}
 
 To see interface configuration options:
 
     ciscodump --extcap-interface=cisco --extcap-config
 
-  Output:
+.Example output
     ciscodump --extcap-interface=cisco --extcap-config
     arg {number=0}{call=--remote-host}{display=Remote SSH server address}
         {type=string}{tooltip=The remote SSH host. It can be both an IP address or a hostname}

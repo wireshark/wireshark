@@ -304,9 +304,12 @@ xref:editcap.html[editcap](1), strptime(3), xref:https://www.tcpdump.org/manpage
 
 == NOTES
 
-*Text2pcap* is part of the *Wireshark* distribution.  The latest version
-of *Wireshark* can be found at https://www.wireshark.org.
+This is the manual page for *Text2pcap* {wireshark-version}.
+*Text2pcap* is part of the *Wireshark* distribution.
+The latest version of *Wireshark* can be found at https://www.wireshark.org.
 
 == AUTHORS
 
-  Ashok Narayanan          <ashokn[AT]cisco.com>
+.Original Author
+[%hardbreaks]
+Ashok Narayanan <ashokn[AT]cisco.com>

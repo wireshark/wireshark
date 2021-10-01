@@ -61,11 +61,11 @@ xref:text2pcap.html[text2pcap](1), xref:https://www.tcpdump.org/manpages/pcap-fi
 
 == NOTES
 
-*Reordercap* is part of the *Wireshark* distribution.  The latest version
-of *Wireshark* can be found at https://www.wireshark.org.
+This is the manual page for *Reordercap* {wireshark-version}.
+*Reordercap* is part of the *Wireshark* distribution.
+The latest version of *Wireshark* can be found at https://www.wireshark.org.
 
-It may make sense to move this functionality into *editcap*, or perhaps
-*mergecap*, in which case *reordercap* could be retired.
+It may make sense to move this functionality into *editcap*, or perhaps *mergecap*, in which case *reordercap* could be retired.
 
 HTML versions of the Wireshark project man pages are available at
 https://www.wireshark.org/docs/man-pages.

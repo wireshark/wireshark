@@ -41,8 +41,7 @@ To resolve a single address:
 
     echo 4.4.4.4 | mmdbresolve -f /usr/share/GeoIP/GeoLite2-City.mmdb
 
-Example output:
-
+.Example output
     [init]
     db.0.path: /usr/share/GeoIP/GeoLite2-City.mmdb
     db.0.status: OK
