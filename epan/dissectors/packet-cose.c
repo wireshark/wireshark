@@ -406,7 +406,7 @@ static void dissect_header_pair(dissector_table_t dis_table, cose_header_context
     g_free(key);
     if (sublen == 0) {
         TRY {
-            sublen = call_dissector(handle_cbor, tvb_value, pinfo, tree_label);
+            call_dissector(handle_cbor, tvb_value, pinfo, tree_label);
         }
         CATCH_ALL {}
         ENDTRY;
