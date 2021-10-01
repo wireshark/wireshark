@@ -19,7 +19,6 @@
 #include <epan/sctpppids.h>
 #include <epan/proto_data.h>
 #include <epan/stats_tree.h>
-#include <epan/exported_pdu.h>
 
 #include "packet-per.h"
 #include "packet-f1ap.h"
@@ -38,8 +37,6 @@
 
 void proto_register_f1ap(void);
 void proto_reg_handoff_f1ap(void);
-
-static gint exported_pdu_tap = -1;
 
 #include "packet-f1ap-val.h"
 
@@ -540,19 +537,6 @@ static void set_stats_message_type(packet_info *pinfo, int type)
     priv_data->stats_tap->f1ap_mtype = type;
 }
 
-static void
-export_f1ap_pdu(packet_info* pinfo, tvbuff_t* tvb)
-{
-    exp_pdu_data_t* exp_pdu_data = export_pdu_create_common_tags(pinfo, "f1ap", EXP_PDU_TAG_PROTO_NAME);
-
-    exp_pdu_data->tvb_captured_length = tvb_captured_length(tvb);
-    exp_pdu_data->tvb_reported_length = tvb_reported_length(tvb);
-    exp_pdu_data->pdu_tvb = tvb;
-
-    tap_queue_packet(exported_pdu_tap, pinfo, exp_pdu_data);
-
-}
-
 static int
 dissect_f1ap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
@@ -583,7 +567,6 @@ dissect_f1ap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   dissect_F1AP_PDU_PDU(tvb, pinfo, f1ap_tree, NULL);
 
   tap_queue_packet(f1ap_tap, pinfo, f1ap_info);
-  export_f1ap_pdu(pinfo, tvb);
   return tvb_captured_length(tvb);
 }
 
@@ -785,7 +768,6 @@ proto_reg_handoff_f1ap(void)
   stats_tree_register("f1ap", "f1ap", "F1AP", 0,
                        f1ap_stats_tree_packet, f1ap_stats_tree_init, NULL);
 
-  exported_pdu_tap = find_tap_id(EXPORT_PDU_TAP_NAME_LAYER_7);
 #include "packet-f1ap-dis-tab.c"
 }
 
