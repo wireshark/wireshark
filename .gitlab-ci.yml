@@ -4,10 +4,6 @@
 # https://gitlab.com/wireshark/wireshark-containers/ instead.
 # The resulting images can be found at
 # https://gitlab.com/wireshark/wireshark-containers/container_registry
-# https://hub.docker.com/r/wireshark/wireshark-centos-7-dev
-# https://hub.docker.com/r/wireshark/wireshark-debian-stable-dev
-# https://hub.docker.com/r/wireshark/wireshark-fedora-dev
-# https://hub.docker.com/r/wireshark/wireshark-ubuntu-dev
 
 stages:
   - build
@@ -96,7 +92,7 @@ variables:
 
 .build-ubuntu:
   extends: .build-linux
-  image: wireshark/wireshark-ubuntu-dev
+  image: registry.gitlab.com/wireshark/wireshark-containers/ubuntu-dev
   retry: 1
   # https://gould.cx/ted/blog/2017/06/10/ccache-for-Gitlab-CI/
   cache:
@@ -210,12 +206,9 @@ Source Package:
     paths:
       - wireshark-*.tar.*
 
-# The custom CentOS 7 image pre-installs dependencies and compilers to speed up the build:
-# https://hub.docker.com/r/wireshark/wireshark-centos-7-dev
-# https://gitlab.com/wireshark/wireshark-containers/-/tree/master/dev/centos-7
 CentOS 7 RPM Package:
   extends: .build-rpm
-  image: wireshark/wireshark-centos-7-dev
+  image: registry.gitlab.com/wireshark/wireshark-containers/centos-7-dev
   script:
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
     - cmake3 -GNinja ..
@@ -223,7 +216,7 @@ CentOS 7 RPM Package:
     - ninja-build rpm-package
 CentOS 7 RPM Test:
   extends: .test-rpm
-  image: wireshark/wireshark-centos-7-dev
+  image: registry.gitlab.com/wireshark/wireshark-containers/centos-7-dev
   script:
     - yum --nogpgcheck localinstall -y build/packaging/rpm/RPMS/x86_64/*.rpm
     - tshark --version
@@ -263,7 +256,7 @@ openSUSE 15.2 RPM Test:
 
 Fedora RPM Package:
   extends: .build-rpm
-  image: wireshark/wireshark-fedora-dev
+  image: registry.gitlab.com/wireshark/wireshark-containers/fedora-dev
   script:
     # Shared GitLab runners limit the log size to 4M, so reduce verbosity. See
     # https://gitlab.com/gitlab-com/support-forum/issues/2790
@@ -284,7 +277,7 @@ Fedora RPM Package:
 Debian Stable APT Package:
   extends: .build-linux
   rules: !reference [.if-merged]
-  image: wireshark/wireshark-debian-stable-dev
+  image: registry.gitlab.com/wireshark/wireshark-containers/debian-stable-dev
   script:
     - perl tools/make-version.pl --set-release
     # Shared GitLab runners limit the log size to 4M, so reduce verbosity. See
@@ -301,7 +294,7 @@ Debian Stable APT Package:
 Debian Stable APT Test:
   extends: .test-linux
   rules: !reference [.if-merged]
-  image: wireshark/wireshark-debian-stable-dev
+  image: registry.gitlab.com/wireshark/wireshark-containers/debian-stable-dev
   stage: test
   script:
     - DEBIAN_FRONTEND=noninteractive apt-get install ./debian-packages/*.deb -y
@@ -451,7 +444,7 @@ macOS Arm Package:
 # Build the User's Guide and Developer's Guide
 Documentation:
   extends: .build-linux
-  image: wireshark/wireshark-ubuntu-dev
+  image: registry.gitlab.com/wireshark/wireshark-containers/ubuntu-dev
   rules:
     - if: '$CI_PIPELINE_SOURCE == "push" && $CI_PROJECT_URL =~ /.*gitlab.com\/wireshark\/wireshark/'
       changes:
@@ -594,7 +587,7 @@ Windows Build:
 # Adapted from https://www.synopsys.com/blogs/software-security/integrating-coverity-scan-with-gitlab-ci/
 # and https://gitlab.gnome.org/GNOME/glib/-/blob/8f57a5b9/.gitlab-ci.yml#L481
 Coverity GCC Scan:
-  image: wireshark/wireshark-ubuntu-dev
+  image: registry.gitlab.com/wireshark/wireshark-containers/ubuntu-dev
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule" && $SCHEDULE_TYPE == "coverity-gcc"'
       when: always
