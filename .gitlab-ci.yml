@@ -234,6 +234,8 @@ CentOS 8 RPM Package:
   extends: .build-rpm
   image: wireshark/wireshark-centos-8-dev
   script:
+    - dnf install -y ruby
+    - gem install asciidoctor
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
     - cmake -GNinja ..
     - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"

@@ -58,7 +58,13 @@ BuildRequires:  python3
 BuildRequires:	gcc
 BuildRequires:	perl
 BuildRequires:	flex
-BuildRequires:	asciidoctor
+# XXX We always require Asciidoctor for packaging builds as of 84ab55cf75,
+# unfortunately it's not evently distributed across distros.
+# CentOS 7: rubygem-asciidoctor
+# CentOS 8: <no package?>
+# Fedora: rubygem-asciidoctor
+# openSUSE 15.2: ruby2.5-rubygem-asciidoctor
+# BuildRequires:	asciidoctor
 
 BuildRequires:	glib2-devel >= 2.32.0
 Requires:	glib2
