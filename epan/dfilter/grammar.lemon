@@ -79,7 +79,10 @@ any "error" symbols are shifted, if possible. */
 
 	switch(stnode_type_id(TOKEN)) {
 		case STTYPE_UNINITIALIZED:
-			dfilter_fail(dfw, "Syntax error.");
+			if ((TOKEN)->token_value != NULL)
+				dfilter_fail(dfw, "Syntax error near \"%s\".", stnode_token_value(TOKEN));
+			else
+				dfilter_fail(dfw, "Syntax error.");
 			break;
 		case STTYPE_TEST:
 			dfilter_fail(dfw, "Syntax error, TEST.");

@@ -88,7 +88,8 @@ static int set_lval_str(int token, const char *token_value);
 static int set_lval_field(int token, header_field_info *hfinfo, const char *token_value);
 static int set_lval_func(int token, df_func_def_t *func, const char *token_value);
 static int set_lval_int(dfwork_t *dfw, int token, const char *token_value);
-static int simple(int token);
+static int simple(int token, const char *token_value);
+#define SIMPLE(token) simple(token, yytext)
 static gboolean str_to_gint32(dfwork_t *dfw, const char *s, gint32* pint);
 
 /*
@@ -117,61 +118,61 @@ static gboolean str_to_gint32(dfwork_t *dfw, const char *s, gint32* pint);
 	 * should have used commas from the beginning, but now we are stuck with
 	 * whitespace as separators. */
 	if (yyextra->in_set) {
-		return simple(TOKEN_WHITESPACE);
+		return simple(TOKEN_WHITESPACE, NULL);
 	}
 }
 
 
 
-"("				return simple(TOKEN_LPAREN);
-")"				return simple(TOKEN_RPAREN);
-","				return simple(TOKEN_COMMA);
+"("		return SIMPLE(TOKEN_LPAREN);
+")"		return SIMPLE(TOKEN_RPAREN);
+","		return SIMPLE(TOKEN_COMMA);
 
 "{"[[:blank:]\n]*	{
 	yyextra->in_set = TRUE;
-	return simple(TOKEN_LBRACE);
+	return simple(TOKEN_LBRACE, "{");
 }
-[[:blank:]\n]*".."[[:blank:]\n]*	return simple(TOKEN_DOTDOT);
+[[:blank:]\n]*".."[[:blank:]\n]*	return simple(TOKEN_DOTDOT, "..");
 [[:blank:]\n]*"}"	{
 	yyextra->in_set = FALSE;
-	return simple(TOKEN_RBRACE);
+	return simple(TOKEN_RBRACE, "}");
 }
 
-"=="			return simple(TOKEN_TEST_EQ);
-"eq"			return simple(TOKEN_TEST_EQ);
+"=="		return SIMPLE(TOKEN_TEST_EQ);
+"eq"		return SIMPLE(TOKEN_TEST_EQ);
 "!="			{
 	add_deprecated_token(yyextra->deprecated, "!=");
-	return simple(TOKEN_TEST_NE);
+	return SIMPLE(TOKEN_TEST_NE);
 }
 "ne"			{
 	add_deprecated_token(yyextra->deprecated, "ne");
-	return simple(TOKEN_TEST_NE);
+	return SIMPLE(TOKEN_TEST_NE);
 }
-">"				return simple(TOKEN_TEST_GT);
-"gt"			return simple(TOKEN_TEST_GT);
-">="			return simple(TOKEN_TEST_GE);
-"ge"			return simple(TOKEN_TEST_GE);
-"<"				return simple(TOKEN_TEST_LT);
-"lt"			return simple(TOKEN_TEST_LT);
-"<="			return simple(TOKEN_TEST_LE);
-"le"			return simple(TOKEN_TEST_LE);
-"bitwise_and"	return simple(TOKEN_TEST_BITWISE_AND);
-"&"				return simple(TOKEN_TEST_BITWISE_AND);
-"contains"		return simple(TOKEN_TEST_CONTAINS);
-"~"				return simple(TOKEN_TEST_MATCHES);
-"matches"		return simple(TOKEN_TEST_MATCHES);
-"!"				return simple(TOKEN_TEST_NOT);
-"not"			return simple(TOKEN_TEST_NOT);
-"&&"			return simple(TOKEN_TEST_AND);
-"and"			return simple(TOKEN_TEST_AND);
-"||"			return simple(TOKEN_TEST_OR);
-"or"			return simple(TOKEN_TEST_OR);
-"in"			return simple(TOKEN_TEST_IN);
+">"		return SIMPLE(TOKEN_TEST_GT);
+"gt"		return SIMPLE(TOKEN_TEST_GT);
+">="		return SIMPLE(TOKEN_TEST_GE);
+"ge"		return SIMPLE(TOKEN_TEST_GE);
+"<"		return SIMPLE(TOKEN_TEST_LT);
+"lt"		return SIMPLE(TOKEN_TEST_LT);
+"<="		return SIMPLE(TOKEN_TEST_LE);
+"le"		return SIMPLE(TOKEN_TEST_LE);
+"bitwise_and"	return SIMPLE(TOKEN_TEST_BITWISE_AND);
+"&"		return SIMPLE(TOKEN_TEST_BITWISE_AND);
+"contains"	return SIMPLE(TOKEN_TEST_CONTAINS);
+"~"		return SIMPLE(TOKEN_TEST_MATCHES);
+"matches"	return SIMPLE(TOKEN_TEST_MATCHES);
+"!"		return SIMPLE(TOKEN_TEST_NOT);
+"not"		return SIMPLE(TOKEN_TEST_NOT);
+"&&"		return SIMPLE(TOKEN_TEST_AND);
+"and"		return SIMPLE(TOKEN_TEST_AND);
+"||"		return SIMPLE(TOKEN_TEST_OR);
+"or"		return SIMPLE(TOKEN_TEST_OR);
+"in"		return SIMPLE(TOKEN_TEST_IN);
 
 
 "["					{
 	BEGIN(RANGE_INT);
-	return simple(TOKEN_LBRACKET);
+	return SIMPLE(TOKEN_LBRACKET);
 }
 
 <RANGE_INT>[+-]?[[:digit:]]+		{
@@ -186,22 +187,22 @@ static gboolean str_to_gint32(dfwork_t *dfw, const char *s, gint32* pint);
 
 <RANGE_INT,RANGE_PUNCT>":"		{
 	BEGIN(RANGE_INT);
-	return simple(TOKEN_COLON);
+	return SIMPLE(TOKEN_COLON);
 }
 
 <RANGE_PUNCT>"-"			{
 	BEGIN(RANGE_INT);
-	return simple(TOKEN_HYPHEN);
+	return SIMPLE(TOKEN_HYPHEN);
 }
 
 <RANGE_INT,RANGE_PUNCT>","		{
 	BEGIN(RANGE_INT);
-	return simple(TOKEN_COMMA);
+	return SIMPLE(TOKEN_COMMA);
 }
 
 <RANGE_INT,RANGE_PUNCT>"]"		{
 	BEGIN(INITIAL);
-	return simple(TOKEN_RBRACKET);
+	return SIMPLE(TOKEN_RBRACKET);
 }
 
 	/* Error if none of the above while scanning a range (slice) */
@@ -444,7 +445,7 @@ static gboolean str_to_gint32(dfwork_t *dfw, const char *s, gint32* pint);
 DIAG_ON_FLEX
 
 static int
-simple(int token)
+simple(int token, const char *token_value)
 {
 	switch (token) {
 		case TOKEN_LPAREN:
@@ -475,6 +476,7 @@ simple(int token)
 		default:
 			ws_assert_not_reached();
 	}
+	stnode_init(df_lval, STTYPE_UNINITIALIZED, NULL, token_value);
 	return token;
 }
 

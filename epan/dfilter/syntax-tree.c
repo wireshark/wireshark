@@ -76,15 +76,17 @@ sttype_lookup(sttype_id_t type_id)
 	return result;
 }
 
-
-stnode_t*
-stnode_new(sttype_id_t type_id, gpointer data, const char *token_value)
+void
+stnode_init(stnode_t *node, sttype_id_t type_id, gpointer data,  const char *token_value)
 {
 	sttype_t	*type;
-	stnode_t	*node;
 
-	node = g_new0(stnode_t, 1);
-	node->magic = STNODE_MAGIC;
+	ws_assert_magic(node, STNODE_MAGIC);
+	ws_assert(!node->type);
+	ws_assert(!node->data);
+	ws_assert(!node->token_value);
+	node->flags = 0;
+	node->value = 0;
 
 	if (type_id == STTYPE_UNINITIALIZED) {
 		node->type = NULL;
@@ -103,6 +105,24 @@ stnode_new(sttype_id_t type_id, gpointer data, const char *token_value)
 
 	}
 	node->token_value = g_strdup(token_value);
+}
+
+void
+stnode_init_int(stnode_t *node, sttype_id_t type_id, gint32 value, const char *token_value)
+{
+	stnode_init(node, type_id, NULL, token_value);
+	node->value = value;
+}
+
+stnode_t*
+stnode_new(sttype_id_t type_id, gpointer data, const char *token_value)
+{
+	stnode_t	*node;
+
+	node = g_new0(stnode_t, 1);
+	node->magic = STNODE_MAGIC;
+
+	stnode_init(node, type_id, data, token_value);
 
 	return node;
 }
@@ -133,38 +153,6 @@ stnode_dup(const stnode_t *org)
 	node->token_value = g_strdup(org->token_value);
 
 	return node;
-}
-
-void
-stnode_init(stnode_t *node, sttype_id_t type_id, gpointer data,  const char *token_value)
-{
-	sttype_t	*type;
-
-	ws_assert_magic(node, STNODE_MAGIC);
-	ws_assert(!node->type);
-	ws_assert(!node->data);
-	ws_assert(!node->token_value);
-
-	type = sttype_lookup(type_id);
-	ws_assert(type);
-	node->type = type;
-	node->flags = 0;
-
-	if (type->func_new) {
-		node->data = type->func_new(data);
-	}
-	else {
-		node->data = data;
-	}
-	node->value = 0;
-	node->token_value = g_strdup(token_value);
-}
-
-void
-stnode_init_int(stnode_t *node, sttype_id_t type_id, gint32 value, const char *token_value)
-{
-	stnode_init(node, type_id, NULL, token_value);
-	node->value = value;
 }
 
 void
