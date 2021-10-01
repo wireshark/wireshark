@@ -48,22 +48,22 @@
 %type		logical_test	{stnode_t*}
 %destructor	logical_test	{stnode_free($$);}
 
-%type		rel_op2		{test_op_t}
+%type		rel_binop	{test_op_t}
 
 %type		range		{stnode_t*}
 %destructor	range		{stnode_free($$);}
 
-%type		drnode		{drange_node*}
-%destructor	drnode		{drange_node_free($$);}
+%type		range_node	{drange_node*}
+%destructor	range_node	{drange_node_free($$);}
 
-%type		drnode_list	{GSList*}
-%destructor	drnode_list	{drange_node_free_list($$);}
+%type		range_node_list	{GSList*}
+%destructor	range_node_list	{drange_node_free_list($$);}
 
-%type		funcparams	{GSList*}
-%destructor	funcparams	{st_funcparams_free($$);}
+%type		function_params	{GSList*}
+%destructor	function_params	{st_funcparams_free($$);}
 
-%type		setnode_list	{GSList*}
-%destructor	setnode_list	{set_nodelist_free($$);}
+%type		set_node_list	{GSList*}
+%destructor	set_node_list	{set_nodelist_free($$);}
 
 /* This is called as soon as a syntax error happens. After that, 
 any "error" symbols are shifted, if possible. */
@@ -191,7 +191,7 @@ range_body(B) ::= STRING(S).	{ B = S; }
 range_body(B) ::= range(R).	{ B = R; }
 
 /* Ranges */
-range(R) ::= range_body(B) LBRACKET drnode_list(L) RBRACKET.
+range(R) ::= range_body(B) LBRACKET range_node_list(L) RBRACKET.
 {
 	R = stnode_new(STTYPE_RANGE, NULL, NULL);
 	sttype_range_set(R, B, L);
@@ -201,18 +201,18 @@ range(R) ::= range_body(B) LBRACKET drnode_list(L) RBRACKET.
 	g_slist_free(L);
 }
 
-drnode_list(L) ::= drnode(D).
+range_node_list(L) ::= range_node(D).
 {
 	L = g_slist_append(NULL, D);
 }
 
-drnode_list(L) ::= drnode_list(P) COMMA drnode(D).
+range_node_list(L) ::= range_node_list(P) COMMA range_node(D).
 {
 	L = g_slist_append(P, D);
 }
 
 /* x:y is offset:length */
-drnode(D) ::= INTEGER(X) COLON INTEGER(Y).
+range_node(D) ::= INTEGER(X) COLON INTEGER(Y).
 {
 	D = drange_node_new();
 	drange_node_set_start_offset(D, stnode_value(X));
@@ -223,7 +223,7 @@ drnode(D) ::= INTEGER(X) COLON INTEGER(Y).
 }
 
 /* x-y == offset:offset */
-drnode(D) ::= INTEGER(X) HYPHEN INTEGER(Y).
+range_node(D) ::= INTEGER(X) HYPHEN INTEGER(Y).
 {
 	D = drange_node_new();
 	drange_node_set_start_offset(D, stnode_value(X));
@@ -235,7 +235,7 @@ drnode(D) ::= INTEGER(X) HYPHEN INTEGER(Y).
 
 
 /* :y == from start to offset */
-drnode(D) ::= COLON INTEGER(Y).
+range_node(D) ::= COLON INTEGER(Y).
 {
 	D = drange_node_new();
 	drange_node_set_start_offset(D, 0);
@@ -245,7 +245,7 @@ drnode(D) ::= COLON INTEGER(Y).
 }
 
 /* x: from offset to end */
-drnode(D) ::= INTEGER(X) COLON.
+range_node(D) ::= INTEGER(X) COLON.
 {
 	D = drange_node_new();
 	drange_node_set_start_offset(D, stnode_value(X));
@@ -255,7 +255,7 @@ drnode(D) ::= INTEGER(X) COLON.
 }
 
 /* x == x:1 */
-drnode(D) ::= INTEGER(X).
+range_node(D) ::= INTEGER(X).
 {
 	D = drange_node_new();
 	drange_node_set_start_offset(D, stnode_value(X));
@@ -264,17 +264,25 @@ drnode(D) ::= INTEGER(X).
 	stnode_free(X);
 }
 
-
+rel_binop(O) ::= TEST_EQ.	{ O = TEST_OP_EQ; }
+rel_binop(O) ::= TEST_NE.	{ O = TEST_OP_NE; }
+rel_binop(O) ::= TEST_GT.	{ O = TEST_OP_GT; }
+rel_binop(O) ::= TEST_GE.	{ O = TEST_OP_GE; }
+rel_binop(O) ::= TEST_LT.	{ O = TEST_OP_LT; }
+rel_binop(O) ::= TEST_LE.	{ O = TEST_OP_LE; }
+rel_binop(O) ::= TEST_BITWISE_AND. { O = TEST_OP_BITWISE_AND; }
+rel_binop(O) ::= TEST_CONTAINS.	{ O = TEST_OP_CONTAINS; }
+rel_binop(O) ::= TEST_MATCHES.	{ O = TEST_OP_MATCHES; }
 
 /* Relational tests */
-relation_test(T) ::= entity(E) rel_op2(O) entity(F).
+relation_test(T) ::= entity(E) rel_binop(O) entity(F).
 {
 	T = stnode_new(STTYPE_TEST, NULL, NULL);
 	sttype_test_set2(T, O, E, F);
 }
 
 /* 'a == b == c' or 'a < b <= c <= d < e' */
-relation_test(T) ::= entity(E) rel_op2(O) relation_test(R).
+relation_test(T) ::= entity(E) rel_binop(O) relation_test(R).
 {
 	stnode_t *L, *F;
 	/* for now generate it like E O F  TEST_OP_AND  F P G, later it could be optimized
@@ -294,17 +302,7 @@ relation_test(T) ::= entity(E) rel_op2(O) relation_test(R).
 	sttype_test_set2(T, TEST_OP_AND, L, R);
 }
 
-rel_op2(O) ::= TEST_EQ.  { O = TEST_OP_EQ; }
-rel_op2(O) ::= TEST_NE.  { O = TEST_OP_NE; }
-rel_op2(O) ::= TEST_GT.  { O = TEST_OP_GT; }
-rel_op2(O) ::= TEST_GE.  { O = TEST_OP_GE; }
-rel_op2(O) ::= TEST_LT.  { O = TEST_OP_LT; }
-rel_op2(O) ::= TEST_LE.  { O = TEST_OP_LE; }
-rel_op2(O) ::= TEST_BITWISE_AND.  { O = TEST_OP_BITWISE_AND; }
-rel_op2(O) ::= TEST_CONTAINS.  { O = TEST_OP_CONTAINS; }
-rel_op2(O) ::= TEST_MATCHES.  { O = TEST_OP_MATCHES; }
-
-relation_test(T) ::= entity(E) TEST_IN LBRACE setnode_list(L) RBRACE.
+relation_test(T) ::= entity(E) TEST_IN LBRACE set_node_list(L) RBRACE.
 {
 	stnode_t *S;
 	T = stnode_new(STTYPE_TEST, NULL, NULL);
@@ -312,26 +310,26 @@ relation_test(T) ::= entity(E) TEST_IN LBRACE setnode_list(L) RBRACE.
 	sttype_test_set2(T, TEST_OP_IN, E, S);
 }
 
-setnode_list(L) ::= entity(E).
+set_node_list(L) ::= entity(E).
 {
 	L = g_slist_append(NULL, E);
 	L = g_slist_append(L, NULL);
 }
 
-setnode_list(L) ::= setnode_list(P) WHITESPACE entity(E).
+set_node_list(L) ::= set_node_list(P) WHITESPACE entity(E).
 {
 	L = g_slist_append(P, E);
 	L = g_slist_append(L, NULL);
 }
 
 /* Range elements. */
-setnode_list(L) ::= entity(X) DOTDOT entity(Y).
+set_node_list(L) ::= entity(X) DOTDOT entity(Y).
 {
 	L = g_slist_append(NULL, X);
 	L = g_slist_append(L, Y);
 }
 
-setnode_list(L) ::= setnode_list(P) WHITESPACE entity(X) DOTDOT entity(Y).
+set_node_list(L) ::= set_node_list(P) WHITESPACE entity(X) DOTDOT entity(Y).
 {
 	L = g_slist_append(P, X);
 	L = g_slist_append(L, Y);
@@ -340,7 +338,7 @@ setnode_list(L) ::= setnode_list(P) WHITESPACE entity(X) DOTDOT entity(Y).
 /* Functions */
 
 /* A function can have one or more parameters */
-entity(E) ::= FUNCTION(F) LPAREN funcparams(P) RPAREN.
+entity(E) ::= FUNCTION(F) LPAREN function_params(P) RPAREN.
 {
 	E = F;
 	sttype_function_set_params(E, P);
@@ -352,12 +350,12 @@ entity(E) ::= FUNCTION(F) LPAREN RPAREN.
 	E = F;
 }
 
-funcparams(P) ::= entity(E).
+function_params(P) ::= entity(E).
 {
 	P = g_slist_append(NULL, E);
 }
 
-funcparams(P) ::= funcparams(L) COMMA entity(E).
+function_params(P) ::= function_params(L) COMMA entity(E).
 {
 	P = g_slist_append(L, E);
 }
