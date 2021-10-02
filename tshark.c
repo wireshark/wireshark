@@ -893,6 +893,14 @@ main(int argc, char *argv[])
     }
   }
 
+#ifndef HAVE_LUA
+  if (ex_opt_count("lua_script") > 0) {
+    cmdarg_err("This version of TShark was not built with support for Lua scripting.");
+    exit_status = INIT_FAILED;
+    goto clean_exit;
+  }
+#endif /* HAVE_LUA */
+
 /** Send All g_log messages to our own handler **/
 
   log_flags =
