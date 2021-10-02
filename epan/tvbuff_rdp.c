@@ -163,8 +163,6 @@ struct _zgfx_context_t{
 	guint8 outputSegment[65536];
 };
 
-typedef struct _zgfx_context_t zgfx_context_t;
-
 zgfx_context_t *zgfx_context_new(wmem_allocator_t *allocator) {
 	zgfx_context_t *ret = wmem_alloc0(allocator, sizeof(*ret));
 	ret->historyBufferSize = sizeof(ret->historyBuffer);
@@ -185,7 +183,7 @@ zgfx_write_history_buffer_tvb(zgfx_context_t *zgfx, tvbuff_t *src, guint32 count
 	guint32 front;
 
 	if (count > zgfx->historyBufferSize) {
-		const size_t residue = count - zgfx->historyBufferSize;
+		const guint32 residue = count - zgfx->historyBufferSize;
 		count = zgfx->historyBufferSize;
 		src_offset += residue;
 		zgfx->historyIndex = (zgfx->historyIndex + residue) % zgfx->historyBufferSize;
@@ -212,7 +210,7 @@ zgfx_write_history_buffer(zgfx_context_t *zgfx, const guint8 *src, guint32 count
 	guint32 front;
 
 	if (count > zgfx->historyBufferSize) {
-		const size_t residue = count - zgfx->historyBufferSize;
+		const guint32 residue = count - zgfx->historyBufferSize;
 		count = zgfx->historyBufferSize;
 		zgfx->historyIndex = (zgfx->historyIndex + residue) % zgfx->historyBufferSize;
 	}
