@@ -403,28 +403,32 @@ void FollowStreamDialog::on_streamNumberSpinBox_valueChanged(int stream_num)
     sub_stream_num = ui->subStreamNumberSpinBox->value();
     ui->subStreamNumberSpinBox->blockSignals(false);
 
-    /* We need to find a suitable sub stream for the new stream */
-    guint sub_stream_num_new = static_cast<guint>(sub_stream_num);
     gboolean ok;
-    if (sub_stream_num < 0) {
-        // Stream ID 0 should always exist as it is used for control messages.
-        sub_stream_num_new = 0;
-        ok = TRUE;
-    } else if (follow_type_ == FOLLOW_HTTP2) {
-        ok = http2_get_stream_id_ge(static_cast<guint>(stream_num), sub_stream_num_new, &sub_stream_num_new);
-        if (!ok) {
-            ok = http2_get_stream_id_le(static_cast<guint>(stream_num), sub_stream_num_new, &sub_stream_num_new);
+    if (ui->subStreamNumberSpinBox->isVisible()) {
+        /* We need to find a suitable sub stream for the new stream */
+        guint sub_stream_num_new = static_cast<guint>(sub_stream_num);
+        if (sub_stream_num < 0) {
+            // Stream ID 0 should always exist as it is used for control messages.
+            sub_stream_num_new = 0;
+            ok = TRUE;
+        } else if (follow_type_ == FOLLOW_HTTP2) {
+            ok = http2_get_stream_id_ge(static_cast<guint>(stream_num), sub_stream_num_new, &sub_stream_num_new);
+            if (!ok) {
+                ok = http2_get_stream_id_le(static_cast<guint>(stream_num), sub_stream_num_new, &sub_stream_num_new);
+            }
+        } else if (follow_type_ == FOLLOW_QUIC) {
+            ok = quic_get_stream_id_ge(static_cast<guint>(stream_num), sub_stream_num_new, &sub_stream_num_new);
+            if (!ok) {
+                ok = quic_get_stream_id_le(static_cast<guint>(stream_num), sub_stream_num_new, &sub_stream_num_new);
+            }
+        } else {
+            // Should not happen, this field is only visible for suitable protocols.
+            return;
         }
-    } else if (follow_type_ == FOLLOW_QUIC) {
-        ok = quic_get_stream_id_ge(static_cast<guint>(stream_num), sub_stream_num_new, &sub_stream_num_new);
-        if (!ok) {
-            ok = quic_get_stream_id_le(static_cast<guint>(stream_num), sub_stream_num_new, &sub_stream_num_new);
-        }
+        sub_stream_num = static_cast<gint>(sub_stream_num_new);
     } else {
-        // Should not happen, this field is only visible for suitable protocols.
-        return;
+        ok = true;
     }
-    sub_stream_num = static_cast<gint>(sub_stream_num_new);
 
     if (stream_num >= 0 && ok) {
         follow(previous_filter_, true, stream_num, sub_stream_num);
