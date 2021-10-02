@@ -25,6 +25,9 @@
 #include <stdio.h>
 #include <inttypes.h>
 
+void proto_register_cose(void);
+void proto_reg_handoff_cose(void);
+
 /// Glib logging "domain" name
 static const char *LOG_DOMAIN = "COSE";
 /// Protocol column name
