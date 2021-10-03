@@ -5994,6 +5994,7 @@ tw-auth-key	27999/tcp/udp	# TW Authentication/Key Distribution and
 nxlmd		28000/tcp/udp	# NX License Manager
 pqsp		28001/tcp	# PQ Service
 gruber-cashreg	28010/tcp	# Gruber cash registry protocol
+thor-engine	28080/tcp	# thor/server - ML engine
 a27-ran-ran	28119/udp	# A27 cdma2000 RAN Management
 voxelstorm	28200/tcp/udp	# VoxelStorm game server
 siemensgsm	28240/tcp/udp	# Siemens GSM
