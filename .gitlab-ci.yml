@@ -3,11 +3,7 @@
 # Do so in the appropriate Dockerfile at
 # https://gitlab.com/wireshark/wireshark-containers/ instead.
 # The resulting images can be found at
-# https://hub.docker.com/r/wireshark/wireshark-centos-7-dev
-# https://hub.docker.com/r/wireshark/wireshark-debian-stable-dev
-# https://hub.docker.com/r/wireshark/wireshark-fedora-dev
-# https://hub.docker.com/r/wireshark/wireshark-opensuse-15.1-dev
-# https://hub.docker.com/r/wireshark/wireshark-ubuntu-dev
+# https://gitlab.com/wireshark/wireshark-containers/container_registry
 
 stages:
   - build
@@ -73,7 +69,7 @@ variables:
 
 .build-ubuntu:
   extends: .build-linux
-  image: wireshark/wireshark-ubuntu-dev
+  image: registry.gitlab.com/wireshark/wireshark-containers/ubuntu-dev
   retry: 1
   # https://gould.cx/ted/blog/2017/06/10/ccache-for-Gitlab-CI/
   cache:
@@ -143,7 +139,7 @@ Source Package:
 
 CentOS 7 RPM Package:
   extends: .build-rpm
-  image: wireshark/wireshark-centos-7-dev
+  image: registry.gitlab.com/wireshark/wireshark-containers/centos-7-dev
   script:
     - mkdir build
     - cd build
@@ -151,7 +147,7 @@ CentOS 7 RPM Package:
     - ninja-build rpm-package
 CentOS 7 RPM Test:
   extends: .test-rpm
-  image: wireshark/wireshark-centos-7-dev
+  image: registry.gitlab.com/wireshark/wireshark-containers/centos-7-dev
   script:
     - yum --nogpgcheck localinstall -y build/packaging/rpm/RPMS/x86_64/*.rpm
     - tshark --version
@@ -159,7 +155,7 @@ CentOS 7 RPM Test:
 
 openSUSE 15.1 RPM Package:
   extends: .build-rpm
-  image: wireshark/wireshark-opensuse-15.1-dev
+  image: registry.gitlab.com/wireshark/wireshark-containers/opensuse-15.1-dev
   script:
     - mkdir build
     - cd build
@@ -167,7 +163,7 @@ openSUSE 15.1 RPM Package:
     - ninja rpm-package
 openSUSE 15.1 RPM Test:
   extends: .test-rpm
-  image: wireshark/wireshark-opensuse-15.1-dev
+  image: registry.gitlab.com/wireshark/wireshark-containers/opensuse-15.1-dev
   script:
     - zypper --no-gpg-checks install -y build/packaging/rpm/RPMS/x86_64/*.rpm
     - tshark --version
@@ -176,7 +172,7 @@ openSUSE 15.1 RPM Test:
 # Disabled for now due to issues with Fedora 33.
 .Fedora RPM Package:
   extends: .build-rpm
-  image: wireshark/wireshark-fedora-dev
+  image: registry.gitlab.com/wireshark/wireshark-containers/fedora-dev
   script:
     - mkdir build
     - cd build
@@ -195,7 +191,7 @@ openSUSE 15.1 RPM Test:
 Debian Stable APT Package:
   extends: .build-linux
   rules: !reference [.if-merged]
-  image: wireshark/wireshark-debian-stable-dev
+  image: registry.gitlab.com/wireshark/wireshark-containers/debian-stable-dev
   script:
     # Shared GitLab runners limit the log size to 4M, so reduce verbosity. See
     # https://gitlab.com/gitlab-com/support-forum/issues/2790
@@ -211,7 +207,7 @@ Debian Stable APT Package:
 Debian Stable APT Test:
   extends: .test-linux
   rules: !reference [.if-merged]
-  image: wireshark/wireshark-debian-stable-dev
+  image: registry.gitlab.com/wireshark/wireshark-containers/debian-stable-dev
   stage: test
   script:
     - DEBIAN_FRONTEND=noninteractive apt-get install ./debian-packages/*.deb -y
@@ -322,7 +318,7 @@ Win32 Package:
 # Note: Need ubuntu:focal with `ruby-coderay` and `ruby-asciidoctor-pdf` packages to build PDF docs
 Documentation:
   extends: .build-linux
-  image: wireshark/wireshark-ubuntu-dev
+  image: registry.gitlab.com/wireshark/wireshark-containers/ubuntu-dev
   rules:
     - if: '$CI_PIPELINE_SOURCE == "push" && $CI_PROJECT_URL =~ /.*gitlab.com\/wireshark\/wireshark/'
       changes:
