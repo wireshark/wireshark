@@ -249,7 +249,7 @@ dissect_lacp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     offset += 2;
 
     proto_tree_add_item(lacp_tree, hf_lacp_actor_sysid, tvb, offset, 6, ENC_NA);
-    sysidstr = tvb_ether_to_str(tvb, offset);
+    sysidstr = tvb_ether_to_str(pinfo->pool, tvb, offset);
     offset += 6;
 
     proto_tree_add_item_ret_uint(lacp_tree, hf_lacp_actor_key, tvb, offset, 2, ENC_BIG_ENDIAN, &key);
@@ -292,7 +292,7 @@ dissect_lacp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     offset += 2;
 
     proto_tree_add_item(lacp_tree, hf_lacp_partner_sysid, tvb, offset, 6, ENC_NA);
-    sysidstr = tvb_ether_to_str(tvb, offset);
+    sysidstr = tvb_ether_to_str(pinfo->pool, tvb, offset);
     offset += 6;
 
     proto_tree_add_item_ret_uint(lacp_tree, hf_lacp_partner_key, tvb, offset, 2, ENC_BIG_ENDIAN, &key);

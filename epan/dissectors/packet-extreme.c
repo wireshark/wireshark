@@ -693,7 +693,7 @@ dissect_eaps_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, prot
 	const gchar	*sysmac_str;
 
 	ctrlvlanid = tvb_get_ntohs(tvb, offset + 1 + 1 + 4);
-	sysmac_str = tvb_ether_to_str(tvb, offset + 12);
+	sysmac_str = tvb_ether_to_str(pinfo->pool, tvb, offset + 12);
 
 	eaps_item = proto_tree_add_protocol_format(tree, hf_edp_eaps,
 		tvb, offset, length, "EAPS: Ctrlvlan %d, Sysmac %s",
@@ -765,7 +765,7 @@ dissect_esl_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto
 	const gchar	*sysmac_str;
 
 	ctrlvlanid = tvb_get_ntohs(tvb, offset + 2 + 4);
-	sysmac_str = tvb_ether_to_str(tvb, offset + 12);
+	sysmac_str = tvb_ether_to_str(pinfo->pool, tvb, offset + 12);
 
 	esl_item = proto_tree_add_protocol_format(tree, hf_edp_esl,
 		tvb, offset, length, "ESL: Ctrlvlan %d, Sysmac %s",

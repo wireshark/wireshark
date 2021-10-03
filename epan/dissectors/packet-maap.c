@@ -94,13 +94,13 @@ dissect_maap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     case MAAP_MSG_TYPE_PROBE:
     case MAAP_MSG_TYPE_ANNOUNCE:
         col_append_fstr(pinfo->cinfo, COL_INFO, " req_start=%s, cnt=%d",
-                        tvb_ether_to_str(tvb, MAAP_REQ_START_ADDR_OFFSET),
+                        tvb_ether_to_str(pinfo->pool, tvb, MAAP_REQ_START_ADDR_OFFSET),
                         tvb_get_ntohs(tvb, MAAP_REQ_COUNT_OFFSET));
 
         break;
     case MAAP_MSG_TYPE_DEFEND:
         col_append_fstr(pinfo->cinfo, COL_INFO, " conflict_start=%s, cnt=%d",
-                        tvb_ether_to_str(tvb, MAAP_CONFLICT_START_ADDR_OFFSET),
+                        tvb_ether_to_str(pinfo->pool, tvb, MAAP_CONFLICT_START_ADDR_OFFSET),
                         tvb_get_ntohs(tvb, MAAP_CONFLICT_COUNT_OFFSET));
         break;
     default:

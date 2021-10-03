@@ -1232,7 +1232,7 @@ radius_ether(radius_attr_info_t *a, proto_tree *tree, packet_info *pinfo _U_, tv
 	}
 
 	proto_tree_add_item(tree, a->hf, tvb, offset, len, ENC_NA);
-	proto_item_append_text(avp_item, "%s", tvb_ether_to_str(tvb, offset));
+	proto_item_append_text(avp_item, "%s", tvb_ether_to_str(pinfo->pool, tvb, offset));
 }
 
 void

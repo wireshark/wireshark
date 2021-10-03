@@ -6372,7 +6372,7 @@ dissect_rsvp_call_id(proto_tree *ti, packet_info* pinfo, proto_tree *rsvp_object
 
         case 4:
             offset4 = offset3 + 6;
-            str = tvb_ether_to_str(tvb, offset3);
+            str = tvb_ether_to_str(pinfo->pool, tvb, offset3);
             proto_tree_add_item(rsvp_object_tree, hf_rsvp_callid_srcaddr_ether, tvb, offset3, 6, ENC_NA);
             break;
 

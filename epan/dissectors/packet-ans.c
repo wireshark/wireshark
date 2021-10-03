@@ -65,7 +65,7 @@ dissect_ans(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 	sender_id = tvb_get_ntohs(tvb, 8);
 
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Sequence: %u, Sender ID %u, Team ID %s",
-		seq_num, sender_id, tvb_ether_to_str(tvb, 10));
+		seq_num, sender_id, tvb_ether_to_str(pinfo->pool, tvb, 10));
 
 	ti = proto_tree_add_item(tree, proto_ans, tvb, 0, -1, ENC_NA);
 	ans_tree = proto_item_add_subtree(ti, ett_ans);

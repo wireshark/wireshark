@@ -8136,13 +8136,13 @@ dissect_bgp_update_ext_com(proto_tree *parent_tree, tvbuff_t *tvb, guint16 tlen,
                     case BGP_EXT_COM_STYPE_EVPN_IMP:
                         proto_tree_add_item(community_tree, hf_bgp_ext_com_evpn_esirt, tvb, offset+2, 6, ENC_NA);
 
-                        proto_item_append_text(community_item, " RT: %s", tvb_ether_to_str(tvb, offset+2));
+                        proto_item_append_text(community_item, " RT: %s", tvb_ether_to_str(pinfo->pool, tvb, offset+2));
                         break;
 
                     case BGP_EXT_COM_STYPE_EVPN_ROUTERMAC:
                         proto_tree_add_item(community_tree, hf_bgp_ext_com_evpn_routermac, tvb, offset+2, 6, ENC_NA);
 
-                        proto_item_append_text(community_item, " Router MAC: %s", tvb_ether_to_str(tvb, offset+2));
+                        proto_item_append_text(community_item, " Router MAC: %s", tvb_ether_to_str(pinfo->pool, tvb, offset+2));
                         break;
 
                     case BGP_EXT_COM_STYPE_EVPN_L2ATTR:

@@ -1453,7 +1453,7 @@ dissect_lldp_chassis_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 		}
 
 		idType="MA";
-		strPtr = tvb_ether_to_str(tvb, offset);
+		strPtr = tvb_ether_to_str(pinfo->pool, tvb, offset);
 		proto_tree_add_item(chassis_tree, hf_chassis_id_mac, tvb, offset, 6, ENC_NA);
 		pn_lldp_column_info->chassis_id_mac = wmem_strdup(pinfo->pool, strPtr);
 		offset += (dataLen - 1);
@@ -1628,7 +1628,7 @@ dissect_lldp_port_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
 		}
 
 		idType = "MA";
-		strPtr = tvb_ether_to_str(tvb, offset);
+		strPtr = tvb_ether_to_str(pinfo->pool, tvb, offset);
 		proto_tree_add_item(port_tree, hf_port_id_mac, tvb, offset, 6, ENC_NA);
 
 		offset += (dataLen - 1);

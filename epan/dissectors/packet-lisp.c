@@ -554,7 +554,7 @@ get_addr_str(tvbuff_t *tvb, gint offset, guint16 afi, guint16 *addr_len)
         case AFNUM_802:
         case AFNUM_EUI48:
             *addr_len = EUI48_ADDRLEN;
-            addr_str  = tvb_ether_to_str(tvb, offset);
+            addr_str  = tvb_ether_to_str(wmem_packet_scope(), tvb, offset);
             return addr_str;
         case AFNUM_DISTNAME:
             *addr_len = tvb_strsize(tvb, offset);
@@ -804,7 +804,7 @@ dissect_lcaf_afi_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             case AFNUM_802:
             case AFNUM_EUI48:
                 proto_tree_add_item(lisp_afi_list_tree, hf_lisp_lcaf_afi_list_mac, tvb, offset, EUI48_ADDRLEN, ENC_NA);
-                proto_item_append_text(tir, " %d. MAC Address: %s", i, tvb_ether_to_str(tvb, offset));
+                proto_item_append_text(tir, " %d. MAC Address: %s", i, tvb_ether_to_str(pinfo->pool, tvb, offset));
                 proto_item_set_len(tir, 2 + EUI48_ADDRLEN);
                 offset    += EUI48_ADDRLEN;
                 remaining -= EUI48_ADDRLEN;

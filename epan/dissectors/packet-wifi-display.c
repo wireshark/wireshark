@@ -241,7 +241,7 @@ dissect_wfd_subelem_session_info(packet_info *pinfo, proto_tree *tree,
 
     proto_tree_add_item(descr, hf_wfd_subelem_session_dev_addr, tvb, offset, 6,
                         ENC_NA);
-    proto_item_append_text(descr, ": %s", tvb_ether_to_str(tvb, offset));
+    proto_item_append_text(descr, ": %s", tvb_ether_to_str(pinfo->pool, tvb, offset));
     offset += 6;
 
     proto_tree_add_item(descr, hf_wfd_subelem_session_assoc_bssid,

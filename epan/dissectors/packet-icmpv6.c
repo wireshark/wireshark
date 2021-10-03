@@ -1689,7 +1689,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                     ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_src_linkaddr_mac, tvb, opt_offset, 6, ENC_NA);
                     proto_item_set_hidden(ti_opt);
 
-                    link_str = tvb_ether_to_str(tvb, opt_offset);
+                    link_str = tvb_ether_to_str(pinfo->pool, tvb, opt_offset);
                     col_append_fstr(pinfo->cinfo, COL_INFO, " from %s", link_str);
                     proto_item_append_text(ti, " : %s", link_str);
                 /* if the opt len is 16 and the 6 last bytes is 0n the Link Addr is EUI64 Address */
@@ -1726,7 +1726,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                     ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_target_linkaddr_mac, tvb, opt_offset, 6, ENC_NA);
                     proto_item_set_hidden(ti_opt);
 
-                    link_str = tvb_ether_to_str(tvb, opt_offset);
+                    link_str = tvb_ether_to_str(pinfo->pool, tvb, opt_offset);
                     col_append_fstr(pinfo->cinfo, COL_INFO, " is at %s", link_str);
                     proto_item_append_text(ti, " : %s", link_str);
 

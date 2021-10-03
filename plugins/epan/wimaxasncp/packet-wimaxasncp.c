@@ -1939,7 +1939,7 @@ static guint dissect_wimaxasncp_backend(
             tree, hf_wimaxasncp_msid,
             tvb, offset, 6, ENC_NA);
     }
-    pmsid = tvb_ether_to_str(tvb, offset);
+    pmsid = tvb_ether_to_str(pinfo->pool, tvb, offset);
 
     offset += 6;
 

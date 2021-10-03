@@ -26812,7 +26812,7 @@ ieee80211_tag_ibss_dfs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
   }
 
   proto_tree_add_item(tree, hf_ieee80211_tag_dfs_owner, tvb, offset, 6, ENC_NA);
-  proto_item_append_text(field_data->item_tag, " Owner: %s", tvb_ether_to_str(tvb, offset));
+  proto_item_append_text(field_data->item_tag, " Owner: %s", tvb_ether_to_str(pinfo->pool, tvb, offset));
   offset += 6;
 
   proto_tree_add_item(tree, hf_ieee80211_tag_dfs_recovery_interval, tvb, offset, 1, ENC_NA);

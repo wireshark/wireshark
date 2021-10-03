@@ -259,7 +259,7 @@ dissect_dtp_tlv(packet_info *pinfo, tvbuff_t *tvb, int offset, int length,
 	case DTP_TLV_SENDERID:
 		if (length == 6) { /* Value length must be 6 bytes for a MAC address */
 			proto_item_append_text(ti, ": %s",
-				tvb_ether_to_str(tvb, offset));	/* XXX - resolve? */
+				tvb_ether_to_str(pinfo->pool, tvb, offset));	/* XXX - resolve? */
 			proto_tree_add_item(tree, hf_dtp_senderid, tvb, offset, length, ENC_NA);
 		}
 		else
