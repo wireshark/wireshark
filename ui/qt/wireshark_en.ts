@@ -8211,6 +8211,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source> before reloading Lua plugins</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Please wait while Wireshark is initializing…</source>
         <translation type="unfinished"></translation>
     </message>

@@ -8270,6 +8270,10 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation> före en ny fångst startas</translation>
     </message>
     <message>
+        <source> before reloading Lua plugins</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Please wait while Wireshark is initializing…</source>
         <translation type="unfinished"></translation>
     </message>

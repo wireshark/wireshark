@@ -8270,6 +8270,10 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation> vor dem Starten einer neuen Aufzeichnung</translation>
     </message>
     <message>
+        <source> before reloading Lua plugins</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Please wait while Wireshark is initializing…</source>
         <translation>Bitte Warten während Wireshark initialisiert wird…</translation>
     </message>

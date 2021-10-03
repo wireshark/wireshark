@@ -8250,6 +8250,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>新規キャプチャを開始する前に</translation>
     </message>
     <message>
+        <source> before reloading Lua plugins</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Please wait while Wireshark is initializing…</source>
         <translation>Wiresharkが初期化している間お待ちください…</translation>
     </message>

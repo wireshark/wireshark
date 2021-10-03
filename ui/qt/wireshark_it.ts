@@ -3668,7 +3668,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Automatic Update</source>
-        <translation type="unfinished"></translation>
+        <translation>Aggiornamento automatico</translation>
     </message>
     <message>
         <source>Reset</source>
@@ -8268,6 +8268,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source> before starting a new capture</source>
         <translation> prima di iniziare una nuova cattura</translation>
+    </message>
+    <message>
+        <source> before reloading Lua plugins</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Please wait while Wireshark is initializing…</source>
