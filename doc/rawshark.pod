@@ -108,7 +108,7 @@ fields might be displayed.
 =item -d  E<lt>encapsulationE<gt>
 
 Specify how the packet data should be dissected. The encapsulation is of the
-form I<type>B<:>I<value>, where I<type> is one of:
+form I<type:value>, where I<type> is one of:
 
 B<encap>:I<name> Packet data should be dissected using the
 libpcap/Npcap/WinPcap data link type (DLT) I<name>, e.g. B<encap:EN10MB> for
@@ -189,7 +189,7 @@ B<v> to enable VLAN IDs to names resolution
 
 Set a preference value, overriding the default value and any value read
 from a preference file.  The argument to the option is a string of the
-form I<prefname>B<:>I<value>, where I<prefname> is the name of the
+form I<prefname:value>, where I<prefname> is the name of the
 preference (which is the same name that would appear in the preference
 file), and I<value> is the value to which it should be set.
 
@@ -299,7 +299,7 @@ file exists, it is read next, overriding any previous values. Note: If
 the command line option B<-o> is used (possibly more than once), it will
 in turn override values from the preferences files.
 
-The preferences settings are in the form I<prefname>B<:>I<value>,
+The preferences settings are in the form I<prefname:value>,
 one per line,
 where I<prefname> is the name of the preference
 and I<value> is the value to
