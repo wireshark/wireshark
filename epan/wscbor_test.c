@@ -174,7 +174,7 @@ wscbor_test_read_invalid(void)
     }
     g_assert_cmpint(offset, ==, 4);
     { // Read past the end
-        guint caught = 0;
+        volatile guint caught = 0;
         TRY {
             wscbor_chunk_read(test_scope, tvb, &offset);
             g_assert(FALSE);
@@ -415,20 +415,23 @@ wscbor_test_require_tstr_short(void)
     const example_s * examples[] = {
         &ex_tstr_short,
     };
+    tvbuff_t *tvb = NULL;
+    wscbor_chunk_t *chunk = NULL;
+
     for (size_t ex_ix = 0; ex_ix < (sizeof(examples) / sizeof(example_s*)); ++ex_ix) {
         const example_s *ex = examples[ex_ix];
         printf("simple #%zu\n", ex_ix);
 
-        tvbuff_t *tvb = tvb_new_real_data(ex->enc, ex->enc_len, ex->enc_len);
+        tvb = tvb_new_real_data(ex->enc, ex->enc_len, ex->enc_len);
         gint offset = 0;
 
-        wscbor_chunk_t *chunk = wscbor_chunk_read(test_scope, tvb, &offset);
+        chunk = wscbor_chunk_read(test_scope, tvb, &offset);
         g_assert(chunk);
         g_assert_cmpuint(wscbor_has_errors(chunk), ==, 0);
         g_assert_cmpuint(chunk->type_major, ==, ex->type_major);
         g_assert_cmpuint(chunk->head_value, ==, ex->head_value);
 
-        guint caught = 0;
+        volatile guint caught = 0;
         TRY {
             wscbor_require_tstr(test_scope, tvb, chunk);
             g_assert(FALSE);
