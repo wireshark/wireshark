@@ -512,9 +512,38 @@ dissect_bencoded_dict(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
   return offset;
 }
 
-static int
-dissect_bt_dht(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+static gboolean
+test_bt_dht(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
+
+  /* try dissecting */
+  /* Assume dictionary (d) is followed by a one char long (1:) key string. */
+
+  if(tvb_captured_length_remaining(tvb, offset) < 4)
+    return FALSE;
+
+  if(tvb_memeql(tvb, offset, "d1:", 3) != 0)
+    return FALSE;
+
+  /* Is 'key' a valid key ? */
+  if(try_val_to_str(tvb_get_guint8(tvb, offset+3), short_key_name_value_string) == NULL)
+    return FALSE;
+
+  return TRUE;
+}
+
+static int
+dissect_bt_dht(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+  /* BitTorrent clients use the same UDP connection for DHT as for uTP.
+   * So even if this has been set as the dissector for this conversation
+   * or port, test it and reject it if not BT-DHT in order to give other
+   * dissectors, especially BT-uTP, a chance.
+   */
+  if (!test_bt_dht(pinfo, tvb, 0, data)) {
+    return 0;
+  }
+
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "BT-DHT");
   col_clear(pinfo->cinfo, COL_INFO);
   col_set_str(pinfo->cinfo, COL_INFO, "BitTorrent DHT Protocol");
@@ -524,22 +553,13 @@ dissect_bt_dht(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
 static
 gboolean dissect_bt_dht_heur (tvbuff_t *tvb, packet_info *pinfo,
-                                        proto_tree *tree, void *data _U_)
+                                        proto_tree *tree, void *data)
 {
   conversation_t *conversation;
 
-  /* try dissecting */
-  /* Assume dictionary (d) is followed by a one char long (1:) key string. */
-
-  if(tvb_captured_length(tvb) < 4)
+  if (!test_bt_dht(pinfo, tvb, 0, data)) {
     return FALSE;
-
-  if(tvb_memeql(tvb, 0, "d1:", 3) != 0)
-    return FALSE;
-
-  /* Is 'key' a valid key ? */
-  if(try_val_to_str(tvb_get_guint8(tvb, 3), short_key_name_value_string) == NULL)
-    return FALSE;
+  }
 
   conversation = find_or_create_conversation(pinfo);
   conversation_set_dissector(conversation, bt_dht_handle);
