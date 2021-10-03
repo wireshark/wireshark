@@ -135,8 +135,9 @@ void cf_close(capture_file *cf);
  * Reload a capture file.
  *
  * @param cf the capture file to be reloaded
+ * @return one of cf_status_t
  */
-void cf_reload(capture_file *cf);
+cf_status_t cf_reload(capture_file *cf);
 
 /**
  * Read all packets of a capture file into the internal structures.
