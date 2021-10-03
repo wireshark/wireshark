@@ -137,7 +137,7 @@ p_get_proto_name_and_key(wmem_allocator_t *scope, struct _packet_info* pinfo, gu
     DISSECTOR_ASSERT(!"invalid wmem scope");
   }
 
-  return wmem_strdup_printf(wmem_packet_scope(),"[%s, key %u]",proto_get_protocol_name(temp->proto), temp->key);
+  return wmem_strdup_printf(pinfo->pool, "[%s, key %u]",proto_get_protocol_name(temp->proto), temp->key);
 }
 
 #define PROTO_DEPTH_KEY 0x3c233fb5 // printf "0x%02x%02x\n" ${RANDOM} ${RANDOM}
