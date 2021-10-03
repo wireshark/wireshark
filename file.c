@@ -4962,15 +4962,16 @@ cf_rename_failure_alert_box(const char *filename, int err)
 }
 
 /* Reload the current capture file. */
-void
+cf_status_t
 cf_reload(capture_file *cf) {
   gchar    *filename;
   gboolean  is_tempfile;
+  cf_status_t cf_status = CF_OK;
   int       err;
 
   if (cf->read_lock) {
     ws_warning("Failing cf_reload(\"%s\") since a read is in progress", cf->filename);
-    return;
+    return CF_ERROR;
   }
 
   /* If the file could be opened, "cf_open()" calls "cf_close()"
@@ -4998,11 +4999,8 @@ cf_reload(capture_file *cf) {
 
     case CF_READ_ABORTED:
       /* The user bailed out of re-reading the capture file; the
-         capture file has been closed - just free the capture file name
-         string and return (without changing the last containing
-         directory). */
-      g_free(filename);
-      return;
+         capture file has been closed. */
+      break;
     }
   } else {
     /* The open failed, so "cf->is_tempfile" wasn't set to "is_tempfile".
@@ -5012,10 +5010,12 @@ cf_reload(capture_file *cf) {
        XXX - change the menu?  Presumably "cf_open()" will do that;
        make sure it does! */
     cf->is_tempfile = is_tempfile;
+    cf_status = CF_ERROR;
   }
   /* "cf_open()" made a copy of the file name we handed it, so
      we should free up our copy. */
   g_free(filename);
+  return cf_status;
 }
 
 /*

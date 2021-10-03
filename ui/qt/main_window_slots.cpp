@@ -1563,7 +1563,9 @@ void MainWindow::reloadLuaPlugins()
 
     if (uses_lua_filehandler) {
         // Reload the file in case the FileHandler has changed
-        cf_reload(capture_file_.capFile());
+        if (cf_reload(capture_file_.capFile()) != CF_OK) {
+            cf_close(capture_file_.capFile());
+        }
         proto_free_deregistered_fields();
     } else {
         redissectPackets();
