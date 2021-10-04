@@ -205,13 +205,13 @@ Measurement-ID                             N nrppa.ies id-RAN-Measurement-ID
 TRP-MeasurementRequestList                 N nrppa.ies id-TRP-MeasurementRequestList
 TRP-MeasurementResponseList                N nrppa.ies id-TRP-MeasurementResponseList
 SRSType                                    N nrppa.ies id-SRSType
-SFNInitialisationTime                      N nrppa.ies id-ActivationTime
+RelativeTime1900                           N nrppa.ies id-ActivationTime
 TRPList                                    N nrppa.ies id-TRPList
 SystemFrameNumber                          N nrppa.ies id-SystemFrameNumber
 SlotNumber                                 N nrppa.ies id-SlotNumber
 TRPMeasurementQuantities                   N nrppa.ies id-TRPMeasurementQuantities
 AbortTransmission                          N nrppa.ies id-AbortTransmission
-SFNInitialisationTime                      N nrppa.ies id-SFNInitialisationTime
+RelativeTime1900                           N nrppa.ies id-SFNInitialisationTime
 ResultNR                                   N nrppa.ies id-ResultNR
 ResultEUTRA                                N nrppa.ies id-ResultEUTRA
 TRPInformationTypeItem                     N nrppa.ies id-TRPInformationTypeItem
@@ -224,7 +224,7 @@ SrsFrequency                               N nrppa.ies id-SrsFrequency
 #NRPPA-PROTOCOL-EXTENSION
 
 GeographicalCoordinates                    N nrppa.extension id-GeographicalCoordinates
-SRSSpatialRelation                         N nrppa.extension id-SRSSpatialRelation
+SpatialRelationInfo                        N nrppa.extension id-SRSSpatialRelation
 
 
 #LPPA-ELEMENTARY-PROCEDURE
