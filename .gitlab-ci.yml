@@ -124,6 +124,8 @@ Source Package:
   extends: .build-ubuntu
   rules: !reference [.if-merged]
   script:
+    # Print some variables to make rule writing easier.
+    - env | grep -E "CI_(COMMIT|JOB|PROJECT)"
     - perl ../tools/make-version.pl --set-release || ../perl make-version.pl --set-release
     - cmake -G Ninja $CMAKE_ARGS -DENABLE_CCACHE=ON ..
     - cd $CI_PROJECT_DIR
