@@ -14324,7 +14324,7 @@ void proto_register_asterix (void)
         { &hf_021_160_GSPD, { "Ground speed [NM/s]", "asterix.021_160_GSPD", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_021_160_TA, { "Track angle [deg]", "asterix.021_160_TA", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_021_161, { "161, Track Number", "asterix.021_161", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-        { &hf_021_161_TN, { "TN", "asterix.021_161_TN", FT_UINT8, BASE_DEC, NULL, 0x0fff, NULL, HFILL } },
+        { &hf_021_161_TN, { "TN", "asterix.021_161_TN", FT_UINT16, BASE_DEC, NULL, 0x0fff, NULL, HFILL } },
         { &hf_021_165, { "165, Track Angle Rate", "asterix.021_165", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_021_165_v0_2, { "165, Rate of Turn", "asterix.021_165", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_021_165_TAR, { "TAR [deg/s]", "asterix.021_165_TAR", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },

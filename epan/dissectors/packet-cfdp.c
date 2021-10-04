@@ -1753,7 +1753,7 @@ proto_register_cfdp(void)
         },
         { &hf_cfdp_trans_stat_2,
             { "Transaction status", "cfdp.trans_stat_2_b",
-            FT_UINT8, BASE_DEC, VALS(cfdp_trans_stat_ack), 0x6000,
+            FT_UINT8, BASE_DEC, VALS(cfdp_trans_stat_ack), 0x60,
             NULL, HFILL }
         },
         { &hf_cfdp_file_checksum,
@@ -1904,7 +1904,7 @@ proto_register_cfdp(void)
         },
         { &hf_cfdp_suspension_ind,
             {"Suspension indicator", "cfdp.suspension_ind_b",
-            FT_UINT8, BASE_DEC, VALS(cfdp_suspension_ind), 0x8000,
+            FT_UINT8, BASE_DEC, VALS(cfdp_suspension_ind), 0x80,
             NULL, HFILL}
         },
 

@@ -4717,12 +4717,12 @@ proto_register_capwap_control(void)
         },
         { &hf_capwap_msg_element_type_ieee80211_station_session_key_flags_a,
             { "Flag A", "capwap.control.message_element.ieee80211_station_session_key.flags_a",
-              FT_BOOLEAN, 1, NULL, 0x2000,
+              FT_BOOLEAN, 16, NULL, 0x2000,
               NULL, HFILL }
         },
         { &hf_capwap_msg_element_type_ieee80211_station_session_key_flags_c,
             { "Flag C", "capwap.control.message_element.ieee80211_station_session_key.flags_c",
-              FT_BOOLEAN, 1, NULL, 0x1000,
+              FT_BOOLEAN, 16, NULL, 0x1000,
               NULL, HFILL }
         },
         { &hf_capwap_msg_element_type_ieee80211_station_session_key_pairwire_tsc,
