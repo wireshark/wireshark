@@ -30,6 +30,13 @@ extern "C" {
 WS_DLL_PUBLIC
 void wscbor_init(void);
 
+/** Expose available expert info for this library.
+ * @param[out] size Set to the size of the array.
+ * @return The array of expert info objects.
+ */
+WS_DLL_PUBLIC
+const ei_register_info * wscbor_expert_items(int *size);
+
 /// The same enumeration from libcbor-0.5
 typedef enum cbor_type {
     CBOR_TYPE_UINT = 0, ///< positive integers
@@ -79,10 +86,12 @@ typedef struct {
     guint64 value;
 } wscbor_tag_t;
 
+struct _wscbor_chunk_priv_t;
+typedef struct _wscbor_chunk_priv_t wscbor_chunk_priv_t;
 /// A data-containing, optionally-tagged chunk of CBOR
 typedef struct {
-    /// The allocator used for #errors and #tags
-    wmem_allocator_t *_alloc;
+    /// Internal private data
+    wscbor_chunk_priv_t *_priv;
 
     /// The start offset of this chunk
     gint start;
@@ -111,9 +120,11 @@ typedef struct {
  * @param alloc The allocator to use.
  * @param tvb The TVB to read from.
  * @param[in,out] offset The offset with in @c tvb.
+ * This is updated to be just past the new chunk.
  * @return The chunk of data found, including any errors.
  * This never returns NULL.
- * @post This can throw ReportedBoundsError if the read itself ran out of data.
+ * @post This can throw ReportedBoundsError or ContainedBoundsError
+ * if the read itself ran out of data.
  */
 WS_DLL_PUBLIC
 wscbor_chunk_t * wscbor_chunk_read(wmem_allocator_t *alloc, tvbuff_t *tvb, gint *offset);
@@ -239,24 +250,30 @@ WS_DLL_PUBLIC
 gint64 * wscbor_require_int64(wmem_allocator_t *alloc, wscbor_chunk_t *chunk);
 
 /** Require a CBOR item to have a text-string value.
+ * If the actual text string is not needed, use the following to avoid an
+ * unnecessary allocation.
+ * @code
+ * wscbor_require_major_type(chunk, CBOR_TYPE_STRING)
+ * @endcode
  *
  * @param alloc The allocator to use.
- * @param parent The containing buffer.
  * @param[in,out] chunk The chunk to read from and write errors on.
  * @return Pointer to the null-terminated UTF-8, if the item was a tstr.
+ * @post This can throw ContainedBoundsError string ran out of data.
  */
 WS_DLL_PUBLIC
-char * wscbor_require_tstr(wmem_allocator_t *alloc, tvbuff_t *parent, wscbor_chunk_t *chunk);
+char * wscbor_require_tstr(wmem_allocator_t *alloc, wscbor_chunk_t *chunk);
 
 /** Require a CBOR item to have a byte-string value.
+ * Use tvb_memdup() or similar if the raw byte-string is needed.
  *
- * @param parent The containing buffer.
+ * @param alloc The allocator to use.
  * @param[in,out] chunk The chunk to read from and write errors on.
- * @return Pointer to the value, if the item was an string.
+ * @return Pointer to the value, if the item was an bstr.
  * The value is memory managed by wireshark.
  */
 WS_DLL_PUBLIC
-tvbuff_t * wscbor_require_bstr(tvbuff_t *parent, wscbor_chunk_t *chunk);
+tvbuff_t * wscbor_require_bstr(wmem_allocator_t *alloc, wscbor_chunk_t *chunk);
 
 /** Add an item representing an array or map container.
  * If the item is type FT_UINT* or FT_INT* the count of (array) items

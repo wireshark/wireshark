@@ -2038,6 +2038,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  wscbor_chunk_mark_errors@Base 3.5.1
  wscbor_chunk_read@Base 3.5.1
  wscbor_error_new@Base 3.5.1
+ wscbor_expert_items@Base 3.5.1
  wscbor_has_errors@Base 3.5.1
  wscbor_init@Base 3.5.1
  wscbor_is_indefinite_break@Base 3.5.1
