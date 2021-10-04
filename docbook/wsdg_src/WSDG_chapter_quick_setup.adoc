@@ -150,10 +150,10 @@ to run it by entering `wireshark`.
 
 ==== Optional: Create User’s and Developer’s Guide
 
-To build the Wireshark User's Guide and the Wireshark Developer's Guide
+To build the Wireshark User's Guide and the Wireshark Developer's Guide,
 build the `all_guides` target, e.g.  `make all_guides` or `ninja
 all_guides`.  Detailed information to build these guides can be found in
-the file _docbook\README.adoc_ in the Wireshark sources.
+the file _docbook/README.adoc_ in the Wireshark sources.
 
 ==== Optional: Create an installable or source code package
 
@@ -624,7 +624,7 @@ on using the <<ChToolsDebugger, Debugger Tools>>.
 
 ==== Optional: Create User’s and Developer’s Guide
 
-To build the Wireshark User's Guide and the Wireshark Developer's Guide
+To build the Wireshark User's Guide and the Wireshark Developer's Guide,
 build the `all_guides` target, e.g.  `msbuild all_guides.vcxproj`.
 Detailed information to build these guides can be found in the file
 _docbook\README.adoc_ in the Wireshark sources.

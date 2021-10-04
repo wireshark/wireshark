@@ -432,7 +432,7 @@ Time TYPE = FT_STRING  DISPLAY = BASE_NONE  STRING = NULL BITMASK = 0
 [[SimpleASN1BasedDissector]]
 === Simple ASN.1-Based Dissector
 
-// https://https://gitlab.com/wireshark/wireshark/-/wikis/ASN1_sample?action=AttachFile&do=view&target=foo.tar.gz[foo.tar.gz]
+// https://gitlab.com/wireshark/wireshark/-/wikis/ASN1_sample?action=AttachFile&do=view&target=foo.tar.gz[foo.tar.gz]
 // all seven files as gzipped foo directory (suitable for unzipping in
 // wireshark/asn1 directory)
 
