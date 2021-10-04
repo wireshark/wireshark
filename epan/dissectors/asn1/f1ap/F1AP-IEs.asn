@@ -1,4 +1,4 @@
--- 3GPP TS 38.473 V16.6.0 (2021-07)
+-- 3GPP TS 38.473 V16.7.0 (2021-10)
 -- 9.4.5	Information Element Definitions
 -- **************************************************************
 --
@@ -4139,7 +4139,8 @@ Served-Cell-Information-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
 	{	ID id-IAB-Info-IAB-DU				CRITICALITY ignore	EXTENSION IAB-Info-IAB-DU				PRESENCE optional}|
 	{	ID id-SSB-PositionsInBurst			CRITICALITY ignore	EXTENSION SSB-PositionsInBurst			PRESENCE optional }|
 	{	ID id-NRPRACHConfig					CRITICALITY ignore	EXTENSION NRPRACHConfig					PRESENCE optional }|
-	{	ID id-SFN-Offset					CRITICALITY ignore	EXTENSION SFN-Offset					PRESENCE optional },
+	{	ID id-SFN-Offset					CRITICALITY ignore	EXTENSION SFN-Offset					PRESENCE optional }|
+	{	ID id-NPNBroadcastInformation		CRITICALITY reject 	EXTENSION NPNBroadcastInformation		PRESENCE optional },
 	...
 }
 

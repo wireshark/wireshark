@@ -1,4 +1,4 @@
--- 3GPP TS 38.473 V16.6.0 (2021-07)
+-- 3GPP TS 38.473 V16.7.0 (2021-10)
 -- 9.4.7	Constant Definitions
 -- **************************************************************
 --
@@ -306,8 +306,8 @@ id-InactivityMonitoringRequest						ProtocolIE-ID ::= 97
 id-InactivityMonitoringResponse						ProtocolIE-ID ::= 98
 id-DRB-Activity-Item								ProtocolIE-ID ::= 99
 id-DRB-Activity-List								ProtocolIE-ID ::= 100
-id-EUTRA-NR-CellResourceCoordinationReq-Container 		ProtocolIE-ID ::= 101
-id-EUTRA-NR-CellResourceCoordinationReqAck-Container 	ProtocolIE-ID ::= 102
+id-EUTRA-NR-CellResourceCoordinationReq-Container	ProtocolIE-ID ::= 101
+id-EUTRA-NR-CellResourceCoordinationReqAck-Container	ProtocolIE-ID ::= 102
 -- WS extension
 id-Unknown-103										ProtocolIE-ID ::= 103
 id-Unknown-104										ProtocolIE-ID ::= 104
@@ -360,8 +360,8 @@ id-Broadcast-To-Be-Cancelled-List 					ProtocolIE-ID ::= 148
 id-Broadcast-To-Be-Cancelled-Item 					ProtocolIE-ID ::= 149
 id-Cells-Broadcast-Cancelled-List 					ProtocolIE-ID ::= 150
 id-Cells-Broadcast-Cancelled-Item 					ProtocolIE-ID ::= 151
-id-NR-CGI-List-For-Restart-List 					ProtocolIE-ID ::= 152
-id-NR-CGI-List-For-Restart-Item 					ProtocolIE-ID ::= 153
+id-NR-CGI-List-For-Restart-List 						ProtocolIE-ID ::= 152
+id-NR-CGI-List-For-Restart-Item 						ProtocolIE-ID ::= 153
 id-PWS-Failed-NR-CGI-List 							ProtocolIE-ID ::= 154
 id-PWS-Failed-NR-CGI-Item 							ProtocolIE-ID ::= 155
 id-ConfirmedUEID									ProtocolIE-ID ::= 156
