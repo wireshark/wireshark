@@ -12309,7 +12309,7 @@ _proto_tree_add_bits_ret_val(proto_tree *tree, const int hfindex, tvbuff_t *tvb,
 	CHECK_FOR_NULL_TREE(tree);
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hf_field);
 
-	bf_str = decode_bits_in_field(bit_offset, no_of_bits, value, encoding);
+	bf_str = decode_bits_in_field(PNODE_POOL(tree), bit_offset, no_of_bits, value, encoding);
 
 	switch (hf_field->type) {
 	case FT_BOOLEAN:
@@ -12568,13 +12568,22 @@ proto_tree_add_split_bits_crumb(proto_tree *tree, const int hfindex, tvbuff_t *t
 				const crumb_spec_t *crumb_spec, guint16 crumb_index)
 {
 	header_field_info *hfinfo;
+	gint start = bit_offset >> 3;
+	gint length = ((bit_offset + crumb_spec[crumb_index].crumb_bit_length - 1) >> 3) - (bit_offset >> 3) + 1;
+
+	/* We have to duplicate this length check from proto_tree_add_text_internal in order to check for a null tree
+	 * so that we can use the tree's memory scope in calculating the string */
+	if (length == -1) {
+		tvb_captured_length(tvb) ? tvb_ensure_captured_length_remaining(tvb, start) : 0;
+	} else {
+		tvb_ensure_bytes_exist(tvb, start, length);
+	}
+	if (!tree) return;
 
 	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
-	proto_tree_add_text_internal(tree, tvb,
-			    bit_offset >> 3,
-			    ((bit_offset + crumb_spec[crumb_index].crumb_bit_length - 1) >> 3) - (bit_offset >> 3) + 1,
+	proto_tree_add_text_internal(tree, tvb, start, length,
 			    "%s crumb %d of %s (decoded above)",
-			    decode_bits_in_field(bit_offset, crumb_spec[crumb_index].crumb_bit_length,
+			    decode_bits_in_field(PNODE_POOL(tree), bit_offset, crumb_spec[crumb_index].crumb_bit_length,
 						 tvb_get_bits(tvb,
 							      bit_offset,
 							      crumb_spec[crumb_index].crumb_bit_length,
@@ -12648,7 +12657,7 @@ _proto_tree_add_bits_format_value(proto_tree *tree, const int hfindex,
 		return NULL;
 	}
 
-	str = decode_bits_in_field(bit_offset, no_of_bits, value, encoding);
+	str = decode_bits_in_field(PNODE_POOL(tree), bit_offset, no_of_bits, value, encoding);
 
 	(void) g_strlcat(str, " = ", 256+64);
 	(void) g_strlcat(str, hf_field->name, 256+64);

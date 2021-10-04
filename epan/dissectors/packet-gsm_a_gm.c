@@ -1880,7 +1880,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 
 				/* decode_bits_in_field(gint bit_offset, gint no_of_bits, guint64 value)*/
 				proto_tree_add_uint_format(tf_tree, hf_gsm_a_gm_rf_power_capability, tvb, curr_offset-1-add_octets, 1+add_octets, value,
-												"%s RF Power Capability, GMSK Power Class: %s (%u)", decode_bits_in_field(bit_offset, 3, value, ENC_BIG_ENDIAN), str, value);
+												"%s RF Power Capability, GMSK Power Class: %s (%u)", decode_bits_in_field(pinfo->pool, bit_offset, 3, value, ENC_BIG_ENDIAN), str, value);
 				bit_offset	  += 3;
 				curr_bits_length  -= bits_needed;
 				oct		 <<= bits_needed;
@@ -1948,7 +1948,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 			str = "Not specified??";
 
 		proto_tree_add_uint_format(tf_tree, hf_gsm_a_gm_rf_power_capability, tvb, curr_offset-1-add_octets, 1+add_octets, value,
-						"%s RF Power Capability, GMSK Power Class: %s (%u)", decode_bits_in_field(bit_offset, 3, value, ENC_BIG_ENDIAN), str, value);
+						"%s RF Power Capability, GMSK Power Class: %s (%u)", decode_bits_in_field(pinfo->pool, bit_offset, 3, value, ENC_BIG_ENDIAN), str, value);
 
 		bit_offset	  += 3;
 		curr_bits_length  -= bits_needed;
