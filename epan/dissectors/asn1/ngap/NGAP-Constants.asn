@@ -1,4 +1,4 @@
--- 3GPP TS 38.413 V16.6.0 (2021-07)﻿
+-- 3GPP TS 38.413 V16.7.0 (2021-10)
 -- 9.4.7	Constant Definitions
 -- **************************************************************
 --
@@ -463,5 +463,8 @@ maxProtocolIEs							INTEGER ::= 65535
 	id-QosFlowFeedbackList									ProtocolIE-ID ::= 278
 	id-BurstArrivalTimeDownlink								ProtocolIE-ID ::= 279
 	id-ExtendedUEIdentityIndexValue							ProtocolIE-ID ::= 280
+	id-PduSessionExpectedUEActivityBehaviour					ProtocolIE-ID ::= 281
+	id-MicoAllPLMN											ProtocolIE-ID ::= 282
+	id-QosFlowFailedToSetupList								ProtocolIE-ID ::= 283
 
 END

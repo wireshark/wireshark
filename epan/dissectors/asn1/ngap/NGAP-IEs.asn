@@ -1,4 +1,4 @@
--- 3GPP TS 38.413 V16.6.0 (2021-07)﻿
+-- 3GPP TS 38.413 V16.7.0 (2021-10)
 -- 9.4.5	Information Element Definitions
 -- **************************************************************
 --
@@ -58,6 +58,7 @@ IMPORTS
 	id-LocationReportingAdditionalInfo,
 	id-MaximumIntegrityProtectedDataRate-DL,
 	id-MDTConfiguration,
+	id-MicoAllPLMN,
 	id-NetworkInstance,
 	id-NID,
 	id-NPN-MobilityInformation,
@@ -67,11 +68,13 @@ IMPORTS
 	id-PagingAssisDataforCEcapabUE,
 	id-PagingeDRXInformation,
 	id-PDUSessionAggregateMaximumBitRate,
+	id-PduSessionExpectedUEActivityBehaviour,
 	id-PDUSessionResourceFailedToSetupListCxtFail,
 	id-PDUSessionResourceReleaseResponseTransfer,
 	id-PDUSessionType,
 	id-PSCellInformation,
 	id-QosFlowAddOrModifyRequestList,
+	id-QosFlowFailedToSetupList,
 	id-QosFlowFeedbackList,
 	id-QosFlowParametersList,
 	id-QosFlowSetupRequestList,
@@ -978,7 +981,8 @@ CoreNetworkAssistanceInformationForInactive ::= SEQUENCE {
 CoreNetworkAssistanceInformationForInactive-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
 	{ ID id-PagingeDRXInformation				CRITICALITY ignore	EXTENSION PagingeDRXInformation					PRESENCE optional	}|
 	{ ID id-ExtendedUEIdentityIndexValue		CRITICALITY ignore	EXTENSION ExtendedUEIdentityIndexValue			PRESENCE optional	}|
-	{ ID id-UERadioCapabilityForPaging			CRITICALITY ignore	EXTENSION UERadioCapabilityForPaging			PRESENCE optional	},
+	{ ID id-UERadioCapabilityForPaging			CRITICALITY ignore	EXTENSION UERadioCapabilityForPaging			PRESENCE optional	}|
+	{ ID id-MicoAllPLMN							CRITICALITY ignore	EXTENSION MicoAllPLMN								PRESENCE optional	},
 	...
 }
 
@@ -1190,7 +1194,7 @@ DRBsSubjectToStatusTransferItem ::= SEQUENCE {
 }
 
 DRBsSubjectToStatusTransferItem-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
-	{ ID id-OldAssociatedQosFlowList-ULendmarkerexpected	CRITICALITY reject EXTENSION AssociatedQosFlowList	 PRESENCE optional },
+	{ ID id-OldAssociatedQosFlowList-ULendmarkerexpected	CRITICALITY ignore EXTENSION AssociatedQosFlowList	 PRESENCE optional },
 	...
 }
 
@@ -1886,7 +1890,8 @@ HandoverCommandTransfer-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
 	{ ID id-AdditionalDLForwardingUPTNLInformation		CRITICALITY ignore	EXTENSION QosFlowPerTNLInformationList			PRESENCE optional		}|
 	{ ID id-ULForwardingUP-TNLInformation				CRITICALITY reject	EXTENSION UPTransportLayerInformation			PRESENCE optional		}|
 	{ ID id-AdditionalULForwardingUPTNLInformation		CRITICALITY reject	EXTENSION UPTransportLayerInformationList		PRESENCE optional		}|
-	{ ID id-DataForwardingResponseERABList				CRITICALITY ignore	EXTENSION DataForwardingResponseERABList		PRESENCE optional		},
+	{ ID id-DataForwardingResponseERABList				CRITICALITY ignore	EXTENSION DataForwardingResponseERABList		PRESENCE optional		}|
+	{ ID id-QosFlowFailedToSetupList					CRITICALITY ignore	EXTENSION QosFlowListWithCause						PRESENCE optional		},
 	...
 }
 
@@ -2331,6 +2336,12 @@ MaximumIntegrityProtectedDataRate ::= ENUMERATED {
 	maximum-UE-rate,
 	...
 }
+
+MicoAllPLMN ::= ENUMERATED {
+	true,
+	...
+}
+
 
 MICOModeIndication ::= ENUMERATED {
 	true,
@@ -3363,7 +3374,8 @@ PDUSessionResourceModifyItemModReq ::= SEQUENCE {
 }
 
 PDUSessionResourceModifyItemModReq-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
-	{ID id-S-NSSAI		CRITICALITY reject	EXTENSION S-NSSAI		PRESENCE optional	},
+	{ ID id-S-NSSAI											CRITICALITY reject	EXTENSION S-NSSAI						PRESENCE optional	}|
+	{ ID id-PduSessionExpectedUEActivityBehaviour			CRITICALITY ignore	EXTENSION ExpectedUEActivityBehaviour	PRESENCE optional	},
 	...
 }
 
@@ -3551,6 +3563,7 @@ PDUSessionResourceSetupItemCxtReq ::= SEQUENCE {
 }
 
 PDUSessionResourceSetupItemCxtReq-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	{ ID id-PduSessionExpectedUEActivityBehaviour			CRITICALITY ignore	EXTENSION ExpectedUEActivityBehaviour	PRESENCE optional	},
 	...
 }
 
@@ -3578,6 +3591,7 @@ PDUSessionResourceSetupItemHOReq ::= SEQUENCE {
 }
 
 PDUSessionResourceSetupItemHOReq-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	{ ID id-PduSessionExpectedUEActivityBehaviour			CRITICALITY ignore	EXTENSION ExpectedUEActivityBehaviour	PRESENCE optional	},
 	...
 }
 
@@ -3593,6 +3607,7 @@ PDUSessionResourceSetupItemSUReq ::= SEQUENCE {
 }
 
 PDUSessionResourceSetupItemSUReq-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	{ ID id-PduSessionExpectedUEActivityBehaviour			CRITICALITY ignore	EXTENSION ExpectedUEActivityBehaviour	PRESENCE optional	},
 	...
 }
 
@@ -3683,6 +3698,7 @@ PDUSessionResourceSwitchedItem ::= SEQUENCE {
 }
 
 PDUSessionResourceSwitchedItem-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	{ ID id-PduSessionExpectedUEActivityBehaviour			CRITICALITY ignore	EXTENSION ExpectedUEActivityBehaviour	PRESENCE optional	},
 	...
 }
 
@@ -3884,7 +3900,7 @@ QosFlowInformationItem ::= SEQUENCE {
 }
 
 QosFlowInformationItem-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
-	{ID id-ULForwarding	CRITICALITY reject	EXTENSION ULForwarding	PRESENCE optional},
+	{ID id-ULForwarding	CRITICALITY ignore	EXTENSION ULForwarding	PRESENCE optional},
 	...
 }
 
@@ -4714,12 +4730,12 @@ TargetNGRANNode-ToSourceNGRANNode-TransparentContainer ::= SEQUENCE {
 }
 
 TargetNGRANNode-ToSourceNGRANNode-TransparentContainer-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
-	{ ID id-DAPSResponseInfoList						CRITICALITY reject	EXTENSION DAPSResponseInfoList	PRESENCE optional },
+	{ ID id-DAPSResponseInfoList						CRITICALITY ignore	EXTENSION DAPSResponseInfoList	PRESENCE optional },
 	...
 }
 
 TargetNGRANNode-ToSourceNGRANNode-FailureTransparentContainer ::= SEQUENCE {
-	cell-CAGInformation		Cell-CAGInformation,
+	cell-CAGInformation		Cell-CAGInformation			OPTIONAL,
 	iE-Extensions			ProtocolExtensionContainer { {TargetNGRANNode-ToSourceNGRANNode-FailureTransparentContainer-ExtIEs} } OPTIONAL,
 	...
 }
@@ -4820,8 +4836,8 @@ TooearlyIntersystemHO-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
 TraceActivation ::= SEQUENCE {
 	nGRANTraceID						NGRANTraceID,
 	interfacesToTrace					InterfacesToTrace,
-traceDepth							TraceDepth,
-traceCollectionEntityIPAddress		TransportLayerAddress,
+     traceDepth							TraceDepth,
+     traceCollectionEntityIPAddress		TransportLayerAddress,
 	iE-Extensions		ProtocolExtensionContainer { {TraceActivation-ExtIEs} }	OPTIONAL,
 	...
 }
@@ -5184,6 +5200,7 @@ UPTransportLayerInformationItem ::= SEQUENCE {
 }
 
 UPTransportLayerInformationItem-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	{ ID id-CommonNetworkInstance				CRITICALITY ignore	EXTENSION  CommonNetworkInstance						PRESENCE optional		},
 	...
 }
 
