@@ -285,6 +285,10 @@ id-QosMonitoringReportingFrequency              ProtocolIE-ID
 id-QoSMonitoringDisabled                        ProtocolIE-ID
 id-AdditionalHandoverInfo                       ProtocolIE-ID
 id-Extended-NR-CGI-Support-List                 ProtocolIE-ID
+id-DataForwardingtoNG-RANQoSFlowInformationList ProtocolIE-ID
+id-MaxCIDEHCDL                                  ProtocolIE-ID
+id-ignoreMappingRuleIndication                  ProtocolIE-ID
+id-DirectForwardingPathAvailability             ProtocolIE-ID
 #.END
 
 #.REGISTER
@@ -390,6 +394,7 @@ DRB-Measurement-Results-Information-List     N e1ap.ies id-DRB-Measurement-Resul
 Extended-GNB-CU-CP-Name                      N e1ap.ies id-Extended-GNB-CU-CP-Name
 Extended-GNB-CU-UP-Name                      N e1ap.ies id-Extended-GNB-CU-UP-Name
 AdditionalHandoverInfo                       N e1ap.ies id-AdditionalHandoverInfo
+DirectForwardingPathAvailability             N e1ap.ies id-DirectForwardingPathAvailability
 
 #E1AP-PROTOCOL-EXTENSION
 SNSSAI                                       N e1ap.extension id-SNSSAI
@@ -428,6 +433,9 @@ DataForwardingtoE-UTRANInformationList       N e1ap.extension id-DataForwardingt
 QosMonitoringReportingFrequency              N e1ap.extension id-QosMonitoringReportingFrequency
 QosMonitoringDisabled                        N e1ap.extension id-QoSMonitoringDisabled
 Extended-NR-CGI-Support-List                 N e1ap.extension id-Extended-NR-CGI-Support-List
+DataForwardingtoNG-RANQoSFlowInformationList N e1ap.extension id-DataForwardingtoNG-RANQoSFlowInformationList
+MaxCIDEHCDL                                  N e1ap.extension id-MaxCIDEHCDL
+IgnoreMappingRuleIndication                  N e1ap.extension id-ignoreMappingRuleIndication
 
 #E1AP-ELEMENTARY-PROCEDURE
 Reset                                    N e1ap.proc.imsg id-reset

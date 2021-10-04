@@ -1,4 +1,4 @@
--- 3GPP TS 38.463 V16.6.0 (2021-07)
+-- 3GPP TS 38.463 V16.7.0 (2021-10)
 -- **************************************************************
 --
 -- PDU definitions for E1AP
@@ -114,7 +114,8 @@ IMPORTS
 	ExtendedSliceSupportList,
 	TransportLayerAddress,
 	AdditionalHandoverInfo,
-	Extended-NR-CGI-Support-List
+	Extended-NR-CGI-Support-List,
+	DirectForwardingPathAvailability
 
 
 FROM E1AP-IEs
@@ -233,6 +234,7 @@ FROM E1AP-Containers
 	id-ExtendedSliceSupportList,
 	id-AdditionalHandoverInfo,
 	id-Extended-NR-CGI-Support-List,
+	id-DirectForwardingPathAvailability,
 
 	maxnoofErrors,
 	maxnoofSPLMNs,
@@ -704,7 +706,9 @@ BearerContextSetupRequestIEs E1AP-PROTOCOL-IES ::= {
 	{ ID id-NPNContextInfo						CRITICALITY reject	TYPE NPNContextInfo									PRESENCE optional}|
 	{ ID id-ManagementBasedMDTPLMNList			CRITICALITY	ignore	TYPE MDTPLMNList									PRESENCE optional}|
 	{ ID id-CHOInitiation						CRITICALITY reject	TYPE CHOInitiation									PRESENCE optional }|
-	{ ID id-AdditionalHandoverInfo				CRITICALITY ignore	TYPE AdditionalHandoverInfo							PRESENCE optional },
+	{ ID id-AdditionalHandoverInfo				CRITICALITY ignore	TYPE AdditionalHandoverInfo							PRESENCE optional }|
+	{ ID id-DirectForwardingPathAvailability	CRITICALITY ignore	TYPE DirectForwardingPathAvailability			PRESENCE optional }|
+	{ ID id-gNB-CU-UP-UE-E1AP-ID				CRITICALITY ignore	TYPE GNB-CU-UP-UE-E1AP-ID							PRESENCE optional },
 	...
 }
 
@@ -1125,7 +1129,8 @@ DLDataNotification ::= SEQUENCE {
 DLDataNotificationIEs E1AP-PROTOCOL-IES ::= {
 	{ ID id-gNB-CU-CP-UE-E1AP-ID			CRITICALITY reject	TYPE GNB-CU-CP-UE-E1AP-ID			PRESENCE mandatory }|
 	{ ID id-gNB-CU-UP-UE-E1AP-ID			CRITICALITY reject	TYPE GNB-CU-UP-UE-E1AP-ID			PRESENCE mandatory }|
-	{ ID id-PPI							CRITICALITY ignore	TYPE PPI							PRESENCE optional },
+	{ ID id-PPI								CRITICALITY ignore	TYPE PPI							PRESENCE optional }|
+	{ ID id-PDU-Session-To-Notify-List		CRITICALITY ignore	TYPE PDU-Session-To-Notify-List		PRESENCE optional },
 	...
 }
 
@@ -1330,8 +1335,8 @@ DeactivateTraceIEs E1AP-PROTOCOL-IES ::= {
 -- **************************************************************
 
 CellTrafficTrace ::= SEQUENCE {
-protocolIEs		ProtocolIE-Container	{ { CellTrafficTraceIEs } },
-...
+    protocolIEs		ProtocolIE-Container	{ { CellTrafficTraceIEs } },
+    ...
 }
 
 CellTrafficTraceIEs E1AP-PROTOCOL-IES ::= {
@@ -1340,7 +1345,7 @@ CellTrafficTraceIEs E1AP-PROTOCOL-IES ::= {
 	{ID id-TraceID					           CRITICALITY ignore	TYPE TraceID			            PRESENCE mandatory}|
 	{ID id-TraceCollectionEntityIPAddress	CRITICALITY ignore	TYPE TransportLayerAddress		   PRESENCE mandatory	}|
 	{ID id-PrivacyIndicator					CRITICALITY ignore	TYPE PrivacyIndicator			        PRESENCE optional}|
-{ID id-URIaddress	                     CRITICALITY ignore	    TYPE URIaddress		            PRESENCE optional},
+    {ID id-URIaddress	                     CRITICALITY ignore	    TYPE URIaddress		            PRESENCE optional},
 	...
 }
 

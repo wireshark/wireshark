@@ -1,4 +1,4 @@
--- 3GPP TS 38.463 V16.6.0 (2021-07)
+-- 3GPP TS 38.463 V16.7.0 (2021-10)
 -- **************************************************************
 --
 -- Information Element Definitions
@@ -50,6 +50,9 @@ IMPORTS
 	id-MCG-OfferedGBRQoSFlowInfo,
 	id-Number-of-tunnels,
 	id-DataForwardingtoE-UTRANInformationList,
+	id-DataForwardingtoNG-RANQoSFlowInformationList,
+	id-MaxCIDEHCDL,
+	id-ignoreMappingRuleIndication,
 	maxnoofQoSParaSets,
 	maxnoofErrors,
 	maxnoofSliceItems,
@@ -352,6 +355,7 @@ Data-Forwarding-Information	::=	SEQUENCE {
 }
 
 Data-Forwarding-Information-ExtIEs		E1AP-PROTOCOL-EXTENSION ::= {
+	{ID id-DataForwardingtoNG-RANQoSFlowInformationList	CRITICALITY ignore	EXTENSION DataForwardingtoNG-RANQoSFlowInformationList	PRESENCE optional},
 	...
 }
 
@@ -417,6 +421,11 @@ Data-Usage-Report-ItemExtIEs 	E1AP-PROTOCOL-EXTENSION ::= {
 DefaultDRB	::=	ENUMERATED	{
 	true,
 	false,
+	...
+}
+
+DirectForwardingPathAvailability ::= ENUMERATED {
+	inter-system-direct-path-available,
 	...
 }
 
@@ -933,8 +942,9 @@ DRB-To-Setup-Item-NG-RAN	::=	SEQUENCE {
 }
 
 DRB-To-Setup-Item-NG-RAN-ExtIEs		E1AP-PROTOCOL-EXTENSION ::= {
-		{ID id-DRB-QoS			CRITICALITY ignore	EXTENSION QoSFlowLevelQoSParameters	PRESENCE optional}|
-		{ID id-DAPSRequestInfo	CRITICALITY ignore	EXTENSION DAPSRequestInfo			PRESENCE optional},
+		{ID id-DRB-QoS						CRITICALITY ignore	EXTENSION QoSFlowLevelQoSParameters		PRESENCE optional}|
+		{ID id-DAPSRequestInfo				CRITICALITY ignore	EXTENSION DAPSRequestInfo					PRESENCE optional}|
+		{ID id-ignoreMappingRuleIndication	CRITICALITY reject	EXTENSION IgnoreMappingRuleIndication	PRESENCE optional},
 	...
 }
 
@@ -954,7 +964,9 @@ DRB-To-Setup-Mod-Item-NG-RAN	::=	SEQUENCE {
 }
 
 DRB-To-Setup-Mod-Item-NG-RAN-ExtIEs		E1AP-PROTOCOL-EXTENSION ::= {
-	{ID id-DRB-QoS	CRITICALITY ignore	EXTENSION QoSFlowLevelQoSParameters	PRESENCE optional},
+	{ID id-DRB-QoS						CRITICALITY ignore	EXTENSION QoSFlowLevelQoSParameters		PRESENCE optional}|
+	{ID id-ignoreMappingRuleIndication	CRITICALITY reject	EXTENSION IgnoreMappingRuleIndication	PRESENCE optional}|
+	{ID id-DAPSRequestInfo				CRITICALITY ignore	EXTENSION DAPSRequestInfo				PRESENCE optional},
 	...
 }
 
@@ -1032,6 +1044,7 @@ EHC-Downlink-Parameters ::= SEQUENCE {
 }
 
 EHC-Downlink-Parameters-ExtIEs E1AP-PROTOCOL-EXTENSION ::= {
+{ID id-MaxCIDEHCDL			CRITICALITY ignore	EXTENSION	MaxCIDEHCDL		PRESENCE optional	},
 	...
 }
 
@@ -1312,6 +1325,11 @@ HW-CapacityIndicator-ExtIEs	E1AP-PROTOCOL-EXTENSION ::= {
 
 -- I
 
+IgnoreMappingRuleIndication	::=	ENUMERATED	{
+	true,
+	...
+}
+
 IntegrityProtectionIndication ::= ENUMERATED {
 	required,
 	preferred,
@@ -1385,6 +1403,8 @@ MaxIPrate ::= ENUMERATED {
 }
 
 MaxPacketLossRate ::= INTEGER (0..1000, ...)
+
+MaxCIDEHCDL ::= INTEGER (1..32767, ...)
 
 MRDC-Data-Usage-Report-Item ::= SEQUENCE {
 	startTimeStamp				OCTET STRING (SIZE(4)),
@@ -2151,6 +2171,18 @@ QoS-Mapping-Information ::= SEQUENCE {
 dscp							BIT STRING (SIZE(6))		OPTIONAL,
 flow-label						BIT STRING (SIZE(20))	OPTIONAL,
 ...
+}
+
+DataForwardingtoNG-RANQoSFlowInformationList		::= SEQUENCE (SIZE(1.. maxnoofQoSFlows)) OF DataForwardingtoNG-RANQoSFlowInformationList-Item
+
+DataForwardingtoNG-RANQoSFlowInformationList-Item	::=	SEQUENCE {
+	qoS-Flow-Identifier					QoS-Flow-Identifier,
+	iE-Extensions						ProtocolExtensionContainer	{ { DataForwardingtoNG-RANQoSFlowInformationList-Item-ExtIEs} }	OPTIONAL,
+	...
+}
+
+DataForwardingtoNG-RANQoSFlowInformationList-Item-ExtIEs E1AP-PROTOCOL-EXTENSION ::= {
+	...
 }
 
 -- R

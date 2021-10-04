@@ -1,4 +1,4 @@
--- 3GPP TS 38.463 V16.6.0 (2021-07)
+-- 3GPP TS 38.463 V16.7.0 (2021-10)
 -- **************************************************************
 --
 -- Constant definitions
@@ -228,6 +228,10 @@ id-QosMonitoringReportingFrequency								ProtocolIE-ID ::= 132
 id-QoSMonitoringDisabled										ProtocolIE-ID ::= 133
 id-AdditionalHandoverInfo										ProtocolIE-ID ::= 134
 id-Extended-NR-CGI-Support-List									ProtocolIE-ID ::= 135
+id-DataForwardingtoNG-RANQoSFlowInformationList					ProtocolIE-ID ::= 136
+id-MaxCIDEHCDL													ProtocolIE-ID ::= 137
+id-ignoreMappingRuleIndication									ProtocolIE-ID ::= 138
+id-DirectForwardingPathAvailability								ProtocolIE-ID ::= 139
 
 
 END
