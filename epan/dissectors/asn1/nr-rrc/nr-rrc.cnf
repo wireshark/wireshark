@@ -123,7 +123,7 @@ BCCH-BCH-Message                   @bcch.bch
 BCCH-DL-SCH-Message                @bcch.dl.sch
 CellGroupConfig
 CG-Config
-CG-ConfigInfo
+CG-ConfigInfo                      @cg_configinfo
 ConfigRestrictInfoSCG
 DL-CCCH-Message                    @dl.ccch
 DL-DCCH-Message                    @dl.dcch
@@ -146,7 +146,7 @@ PH-TypeListMCG
 PH-TypeListSCG
 RA-ReportList-r16
 RACH-ConfigCommon
-RadioBearerConfig
+RadioBearerConfig                  @radiobearerconfig
 ReferenceTime-r16
 RRCReconfiguration                 @rrc_reconf
 RRCReconfigurationComplete
@@ -172,7 +172,7 @@ SIB12-r16
 SIB13-r16
 SIB14-r16
 TDD-UL-DL-ConfigCommon
-UE-CapabilityRAT-ContainerList
+UE-CapabilityRAT-ContainerList     @ue_capabilityrat_containerlist
 UE-CapabilityRequestFilterCommon
 UE-CapabilityRequestFilterNR
 UE-MRDC-Capability                 @ue_mrdc_cap
