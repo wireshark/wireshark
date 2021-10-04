@@ -100,6 +100,8 @@ The following features are new (or have been significantly updated) since versio
 
 * The settings in the 'Import from Hex Dump' dialog is now stored in a profile import_hexdump.json file.
 
+* Reload Lua plugins has been improved to properly support FileHandler.
+
 // === Removed Features and Support
 
 // === Removed Dissectors
