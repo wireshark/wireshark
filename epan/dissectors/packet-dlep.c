@@ -539,7 +539,7 @@ decode_dataitem_macaddr(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree *p
       break;
     case FT_EUI64_LEN:
       proto_tree_add_item(pt, hf_dlep_dataitem_macaddr_eui64, tvb, offset, len, ENC_BIG_ENDIAN);
-      proto_item_append_text(pi, ": %s", tvb_eui64_to_str(tvb, offset));
+      proto_item_append_text(pi, ": %s", tvb_eui64_to_str(wmem_packet_scope(), tvb, offset));
       break;
     default:
       proto_tree_add_expert(pt, NULL, &ei_dlep_dataitem_macaddr_unexpected_length, tvb, offset, len);

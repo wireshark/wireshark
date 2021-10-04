@@ -450,12 +450,12 @@ dissect_fip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             subtree = fip_desc_type_len(fip_tree, desc_tvb, dtype, ett_fip_dt_map, &item);
             proto_tree_add_item(subtree, hf_fip_desc_map, desc_tvb,
                     5, 3, ENC_NA);
-            proto_item_append_text(item, "%s", tvb_fc_to_str(desc_tvb, 5));
+            proto_item_append_text(item, "%s", tvb_fc_to_str(pinfo->pool, desc_tvb, 5));
             break;
         case FIP_DT_NAME:
             subtree = fip_desc_type_len(fip_tree, desc_tvb, dtype, ett_fip_dt_name, &item);
             proto_tree_add_item(subtree, hf_fip_desc_name, desc_tvb, 4, 8, ENC_NA);
-            proto_item_append_text(item, "%s", tvb_fcwwn_to_str(desc_tvb, 4));
+            proto_item_append_text(item, "%s", tvb_fcwwn_to_str(pinfo->pool, desc_tvb, 4));
             break;
         case FIP_DT_FAB:
             subtree = fip_desc_type_len(fip_tree, desc_tvb, dtype, ett_fip_dt_fab, &item);
@@ -464,7 +464,7 @@ dissect_fip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             proto_tree_add_item(subtree, hf_fip_desc_fab_map, desc_tvb,
                     5, 3, ENC_NA);
             proto_tree_add_item(subtree, hf_fip_desc_fab_name, desc_tvb, 8, 8, ENC_NA);
-            proto_item_append_text(item, "%s", tvb_fcwwn_to_str(desc_tvb, 8));
+            proto_item_append_text(item, "%s", tvb_fcwwn_to_str(pinfo->pool, desc_tvb, 8));
             break;
         case FIP_DT_FCOE_SIZE:
             subtree = fip_desc_type_len(fip_tree, desc_tvb, dtype, ett_fip_dt_mdl, &item);
