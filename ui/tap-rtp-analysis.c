@@ -165,7 +165,7 @@ rtppacket_analyse(tap_rtp_stat_t *statinfo,
                        const struct _rtp_info *rtpinfo)
 {
     double current_time;
-    double current_jitter;
+    double current_jitter = 0;
     double current_diff = 0;
     double nominaltime;
     double arrivaltime;         /* Time relative to start_time */
@@ -494,7 +494,7 @@ rtppacket_analyse(tap_rtp_stat_t *statinfo,
              * handled, that logic increments total_nr from 0 to 1; here, it is
              * always >=1 .
              */
-            statinfo->mean_jitter = (statinfo->mean_jitter*(statinfo->total_nr-1) + current_diff) / statinfo->total_nr;
+            statinfo->mean_jitter = (statinfo->mean_jitter*(statinfo->total_nr-1) + current_jitter) / statinfo->total_nr;
 
             /* Minimum jitter calculation */
             if (statinfo->min_jitter == -1 ) {
