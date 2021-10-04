@@ -1558,8 +1558,8 @@ void MainWindow::reloadLuaPlugins()
     wsApp->readConfigurationFiles(true);
     commandline_options_reapply();
 
-    prefs_apply_all();
     fieldsChanged();
+    prefs_apply_all();
 
     if (uses_lua_filehandler) {
         // Reload the file in case the FileHandler has changed
