@@ -528,6 +528,61 @@ nr_rrc_MeasTriggerQuantityOffset_fmt(gchar *s, guint32 v)
   g_snprintf(s, ITEM_LABEL_LENGTH, "%.1fdB (%d)", (float)d/2, d);
 }
 
+static int
+dissect_nr_rrc_cg_configinfo_msg(tvbuff_t* tvb _U_, packet_info* pinfo _U_, proto_tree* tree _U_, void* data _U_)
+{
+    proto_item* ti;
+    proto_tree* sub_tree;
+
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "NR RRC");
+    col_set_str(pinfo->cinfo, COL_INFO, "CG-ConfigInfo");
+
+    ti = proto_tree_add_item(tree, proto_nr_rrc, tvb, 0, -1, ENC_NA);
+    sub_tree = proto_item_add_subtree(ti, ett_nr_rrc);
+    return dissect_nr_rrc_CG_ConfigInfo_PDU(tvb, pinfo, sub_tree, NULL);
+}
+
+static int
+dissect_nr_rrc_radiobearerconfig_msg(tvbuff_t* tvb _U_, packet_info* pinfo _U_, proto_tree* tree _U_, void* data _U_)
+{
+    proto_item* ti;
+    proto_tree* sub_tree;
+
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "NR RRC");
+    col_set_str(pinfo->cinfo, COL_INFO, "RadioBearerConfig");
+
+    ti = proto_tree_add_item(tree, proto_nr_rrc, tvb, 0, -1, ENC_NA);
+    sub_tree = proto_item_add_subtree(ti, ett_nr_rrc);
+    return dissect_nr_rrc_RadioBearerConfig_PDU(tvb, pinfo, sub_tree, NULL);
+}
+
+static int
+dissect_nr_rrc_ue_mrdc_capability_msg(tvbuff_t* tvb _U_, packet_info* pinfo _U_, proto_tree* tree _U_, void* data _U_)
+{
+    proto_item* ti;
+    proto_tree* sub_tree;
+
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "NR RRC");
+    col_set_str(pinfo->cinfo, COL_INFO, "UE-MRDC-Capability");
+
+    ti = proto_tree_add_item(tree, proto_nr_rrc, tvb, 0, -1, ENC_NA);
+    sub_tree = proto_item_add_subtree(ti, ett_nr_rrc);
+    return dissect_nr_rrc_UE_MRDC_Capability_PDU(tvb, pinfo, sub_tree, NULL);
+}
+
+static int
+dissect_nr_rrc_ue_capabilityrat_containerlist_msg(tvbuff_t* tvb _U_, packet_info* pinfo _U_, proto_tree* tree _U_, void* data _U_)
+{
+    proto_item* ti;
+    proto_tree* sub_tree;
+
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "NR RRC");
+    col_set_str(pinfo->cinfo, COL_INFO, "UE-CapabilityRAT-ContainerList");
+
+    ti = proto_tree_add_item(tree, proto_nr_rrc, tvb, 0, -1, ENC_NA);
+    sub_tree = proto_item_add_subtree(ti, ett_nr_rrc);
+    return dissect_nr_rrc_UE_CapabilityRAT_ContainerList_PDU(tvb, pinfo, sub_tree, NULL);
+}
 #include "packet-nr-rrc-fn.c"
 
 int
@@ -767,6 +822,12 @@ proto_register_nr_rrc(void) {
   expert_register_field_array(expert_nr_rrc, ei, array_length(ei));
 
   /* Register the dissectors defined in nr-rrc.cnf */
+  register_dissector("nr-rrc.cg_configinfo", dissect_nr_rrc_cg_configinfo_msg, proto_nr_rrc);
+  register_dissector("nr-rrc.radiobearerconfig", dissect_nr_rrc_radiobearerconfig_msg, proto_nr_rrc);
+  register_dissector("nr-rrc.ue_capabilityrat_containerlist", dissect_nr_rrc_ue_capabilityrat_containerlist_msg, proto_nr_rrc);
+  register_dissector("nr-rrc.ue_mrdc_cap_msg", dissect_nr_rrc_ue_mrdc_capability_msg, proto_nr_rrc);
+
+
 #include "packet-nr-rrc-dis-reg.c"
 
   nr_rrc_etws_cmas_dcs_hash = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(),
