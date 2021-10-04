@@ -334,7 +334,8 @@ class Item:
             elif self.type_modifier == 'SEP_DOT':
                 return 64
             else:
-                return int(self.type_modifier)
+                # Round up to next nibble.
+                return int(self.type_modifier)+3
         else:
             return field_widths[self.item_type]
 
@@ -352,16 +353,27 @@ class Item:
     def check_num_digits(self, mask):
         if mask.startswith('0x') and len(mask) > 3:
             global warnings_found
+            global errors_found
             if len(mask) % 2:
                 print('Warning:', self.filename, 'filter=', self.filter, ' - mask has odd number of digits', mask,
-                      'expected max for', self.item_type, 'is', int(self.get_field_width_in_bits()/4))
+                      'expected max for', self.item_type, 'is', int((self.get_field_width_in_bits())/4))
                 warnings_found += 1
 
             if self.item_type in field_widths:
                 if len(mask)-2 > self.get_field_width_in_bits()/4:
-                    print('Warning:', self.filename, 'filter=', self.filter, self.mask, "with len is", len(mask)-2,
-                          "but type", self.item_type, " indicates max of", int(self.get_field_width_in_bits()/4))
-                    warnings_found += 1
+                    extra_digits = mask[2:2+(len(mask)-2 - int(self.get_field_width_in_bits()/4))]
+                    # Its an error if any of these are non-zero, as they won't have any effect!
+                    if extra_digits != '0'*len(extra_digits):
+                        print('Error:', self.filename, 'filter=', self.filter, self.mask, "with len is", len(mask)-2,
+                              "but type", self.item_type, " indicates max of", int(self.get_field_width_in_bits()/4),
+                              "and extra digits are non-zero (" + extra_digits + ")")
+                        errors_found += 1
+                    else:
+                        # If has leading zeros, still confusing, so warn.
+                        print('Warning:', self.filename, 'filter=', self.filter, self.mask, "with len is", len(mask)-2,
+                              "but type", self.item_type, " indicates max of", int(self.get_field_width_in_bits()/4))
+                        warnings_found += 1
+
             else:
                 print('Warning:', self.filename, 'filter=', self.filter, ' - item has type', self.item_type, 'but mask set:', mask)
                 warnings_found += 1
