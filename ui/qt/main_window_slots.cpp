@@ -3602,6 +3602,11 @@ void MainWindow::on_actionTelephonyF1APMessages_triggered()
 	openStatisticsTreeDialog("f1ap");
 }
 
+void MainWindow::on_actionTelephonyNGAPMessages_triggered()
+{
+    openStatisticsTreeDialog("ngap");
+}
+
 void MainWindow::on_actionTelephonySipFlows_triggered()
 {
     openTelephonyVoipCallsDialogSip();

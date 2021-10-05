@@ -623,6 +623,7 @@
     <addaction name="actionTelephonySMPPOperations"/>
     <addaction name="actionTelephonyUCPMessages"/>
     <addaction name="actionTelephonyF1APMessages"/>
+    <addaction name="actionTelephonyNGAPMessages"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
@@ -1973,6 +1974,14 @@
    </property>
    <property name="toolTip">
     <string>F1AP Messages</string>
+   </property>
+  </action>
+  <action name="actionTelephonyNGAPMessages">
+   <property name="text">
+    <string>NGAP</string>
+   </property>
+   <property name="toolTip">
+    <string>NGAP Messages</string>
    </property>
   </action>
   <action name="actionAnalyzeDecodeAs">
