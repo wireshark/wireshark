@@ -1709,7 +1709,7 @@ void proto_register_ecat(void)
          },
 #if 0
          { &hf_ecat_header,
-           { "eader", "ecat.header",
+           { "header", "ecat.header",
              FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
          },
 #endif

@@ -3017,7 +3017,7 @@ proto_register_unistim(void){
          8,NULL,DISPLAY_WRITE_ADDRESS_SOFT_LABEL_FLAG,NULL,HFILL}
       },
       { &hf_display_write_address_softkey_id,
-        {"Soft Key ID","unistim.write.addres.softkey.id",FT_UINT8,
+        {"Soft Key ID","unistim.write.address.softkey.id",FT_UINT8,
          BASE_HEX,NULL,DISPLAY_WRITE_ADDRESS_SOFT_KEY_ID,NULL,HFILL}
       },
       { &hf_display_write_address_char_pos,

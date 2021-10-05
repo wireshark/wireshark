@@ -45738,7 +45738,7 @@ proto_register_ieee80211(void)
       "", HFILL }},
 
     {&hf_ieee80211_tag_neighbor_report_bssid_info_high_throughput,
-     {"High Throughput Control (+HTC)", "wlan.nreport.bssid.info.hthoughput",
+     {"High Throughput Control (+HTC)", "wlan.nreport.bssid.info.hthroughput",
       FT_BOOLEAN, 32, NULL, 0x00000800,
       NULL, HFILL }},
 
