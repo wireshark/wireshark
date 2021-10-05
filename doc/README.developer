@@ -764,7 +764,7 @@ not depend on code in epan/dissectors, i.e it is possible to compile epan
 without linking with dissector code. It helps to view dissectors as clients
 of an API provided by epan (libwireshark being constituted by two distinct
 components "epan" and "dissectors" bundled together, plus other bits and
-pieces). The reverse is ǹot* true; epan should not be the client of an API
+pieces). The reverse is not* true; epan should not be the client of an API
 provided by dissectors.
 
 The main way this separation of concerns is achieved is by using runtime
