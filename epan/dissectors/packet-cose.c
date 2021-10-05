@@ -355,7 +355,7 @@ static void dissect_header_pair(dissector_table_t dis_table, cose_header_context
     proto_tree *volatile tree_label = NULL;
     tvbuff_t *volatile tvb_value = NULL;
 
-    cose_param_key_t *key = g_new0(cose_param_key_t, 1);
+    cose_param_key_t key = { 0 };
 
     switch (chunk_label->type_major) {
         case CBOR_TYPE_UINT:
@@ -363,7 +363,7 @@ static void dissect_header_pair(dissector_table_t dis_table, cose_header_context
             gint64 *label = wscbor_require_int64(wmem_packet_scope(), chunk_label);
             item_label = proto_tree_add_cbor_int64(tree, hf_hdr_label_int, pinfo, tvb, chunk_label, label);
             if (label) {
-                key->label = ctx->label =
+                key.label = ctx->label =
                     g_variant_new_int64(*label);
             }
             break;
@@ -372,7 +372,7 @@ static void dissect_header_pair(dissector_table_t dis_table, cose_header_context
             const char *label = wscbor_require_tstr(wmem_packet_scope(), tvb, chunk_label);
             item_label = proto_tree_add_cbor_tstr(tree, hf_hdr_label_tstr, pinfo, tvb, chunk_label);
             if (label) {
-                key->label = ctx->label =
+                key.label = ctx->label =
                     g_variant_new_string(label);
             }
             break;
@@ -382,11 +382,11 @@ static void dissect_header_pair(dissector_table_t dis_table, cose_header_context
     }
 
     // First attempt with context then without
-    key->principal = ctx->principal;
-    dissector_handle_t dissector = dissector_get_custom_table_handle(dis_table, key);
+    key.principal = ctx->principal;
+    dissector_handle_t dissector = dissector_get_custom_table_handle(dis_table, &key);
     if (!dissector) {
-        key->principal = NULL;
-        dissector = dissector_get_custom_table_handle(dis_table, key);
+        key.principal = NULL;
+        dissector = dissector_get_custom_table_handle(dis_table, &key);
     }
     tree_label = proto_item_add_subtree(item_label, ett_hdr_label);
 
@@ -406,7 +406,6 @@ static void dissect_header_pair(dissector_table_t dis_table, cose_header_context
         g_variant_unref(ctx->label);
         ctx->label = NULL;
     }
-    g_free(key);
     if (sublen == 0) {
         TRY {
             call_dissector(handle_cbor, tvb_value, pinfo, tree_label);
@@ -864,7 +863,7 @@ static void dissect_value_x5cert(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
     if (tvb_item) {
         // disallow column text rewrite
-        gchar *info_text = g_strdup(col_get_text(pinfo->cinfo, COL_INFO));
+        gchar *info_text = wmem_strdup(wmem_packet_scope(), col_get_text(pinfo->cinfo, COL_INFO));
 
         TRY {
             dissector_try_string(
@@ -880,7 +879,6 @@ static void dissect_value_x5cert(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         ENDTRY;
 
         col_add_str(pinfo->cinfo, COL_INFO, info_text);
-        g_free(info_text);
     }
 
 }
