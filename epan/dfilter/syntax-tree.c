@@ -235,22 +235,13 @@ stnode_set_inside_parens(stnode_t *node, gboolean inside)
 char *
 stnode_tostr(stnode_t *node)
 {
-	char *s, *repr;
-
-	if (stnode_type_id(node) == STTYPE_TEST)
-		return node->type->func_tostr(node->data);
-
 	if (stnode_type_id(node) == STTYPE_INTEGER)
-		return g_strdup_printf("%s<%"PRId32">", stnode_type_name(node), stnode_value(node));
+		return g_strdup_printf("%"PRId32, stnode_value(node));
 
 	if (node->type->func_tostr == NULL)
-		return g_strdup_printf("%s<FIXME>", stnode_type_name(node));
+		return g_strdup("<FIXME>");
 
-	s = node->type->func_tostr(node->data);
-	repr = g_strdup_printf("%s<%s>", stnode_type_name(node), s);
-	g_free(s);
-
-	return repr;
+	return node->type->func_tostr(node->data);
 }
 
 static char *
@@ -266,7 +257,7 @@ sprint_node(stnode_t *node)
 			"\tflags = %"PRIx16" (inside_parens = %s)\n",
 			node->flags, true_or_false(stnode_inside_parens(node)));
 	s = stnode_tostr(node);
-	wmem_strbuf_append_printf(buf, "\tdata = %s\n", s);
+	wmem_strbuf_append_printf(buf, "\tdata = %s<%s>\n", stnode_type_name(node), s);
 	g_free(s);
 	wmem_strbuf_append_printf(buf, "\tvalue = %"PRId32"\n", stnode_value(node));
 	wmem_strbuf_append_printf(buf, "}\n");
@@ -328,7 +319,7 @@ visit_tree(wmem_strbuf_t *buf, stnode_t *node, int level)
 	}
 	else {
 		str = stnode_tostr(node);
-		wmem_strbuf_append_printf(buf, "%s", str);
+		wmem_strbuf_append_printf(buf, "%s<%s>", stnode_type_name(node), str);
 		g_free(str);
 	}
 }
