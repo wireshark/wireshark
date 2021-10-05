@@ -180,6 +180,7 @@ entity(E) ::= STRING(S).	{ E = S; }
 entity(E) ::= CHARCONST(C).	{ E = C; }
 entity(E) ::= UNPARSED(U).	{ E = U; }
 entity(E) ::= range(R).		{ E = R; }
+entity(E) ::= function(F).	{ E = F; }
 
 
 /* Ranges */
@@ -330,16 +331,16 @@ set_node_list(L) ::= set_node_list(P) WHITESPACE entity(X) DOTDOT entity(Y).
 /* Functions */
 
 /* A function can have one or more parameters */
-entity(E) ::= FUNCTION(F) LPAREN function_params(P) RPAREN.
+function(G) ::= FUNCTION(F) LPAREN function_params(P) RPAREN.
 {
-	E = F;
-	sttype_function_set_params(E, P);
+	G = F;
+	sttype_function_set_params(G, P);
 }
 
 /* A function can have zero parameters. */
-entity(E) ::= FUNCTION(F) LPAREN RPAREN.
+function(G) ::= FUNCTION(F) LPAREN RPAREN.
 {
-	E = F;
+	G = F;
 }
 
 function_params(P) ::= entity(E).
