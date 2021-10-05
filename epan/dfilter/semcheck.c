@@ -35,6 +35,9 @@ semcheck(dfwork_t *dfw, stnode_t *st_node);
 static stnode_t*
 check_param_entity(dfwork_t *dfw, stnode_t *st_node);
 
+static void
+check_function(dfwork_t *dfw, stnode_t *st_node);
+
 typedef gboolean (*FtypeCanFunc)(enum ftenum);
 
 /* Compares to ftenum_t's and decides if they're
@@ -573,7 +576,46 @@ check_drange_node_sanity(gpointer data, gpointer user_data)
 static void
 check_drange_sanity(dfwork_t *dfw, stnode_t *st)
 {
+	stnode_t		*entity1;
+	header_field_info	*hfinfo1;
+	ftenum_t		ftype1;
 	struct check_drange_sanity_args	args;
+	char *s;
+
+	entity1 = sttype_range_entity(st);
+	if (entity1 && stnode_type_id(entity1) == STTYPE_FIELD) {
+		hfinfo1 = (header_field_info *)stnode_data(entity1);
+		ftype1 = hfinfo1->type;
+
+		if (!ftype_can_slice(ftype1)) {
+			dfilter_fail(dfw, "\"%s\" is a %s and cannot be sliced into a sequence of bytes.",
+					hfinfo1->abbrev, ftype_pretty_name(ftype1));
+			THROW(TypeError);
+		}
+	} else if (entity1 && stnode_type_id(entity1) == STTYPE_FUNCTION) {
+		df_func_def_t *funcdef = sttype_function_funcdef(entity1);
+		ftype1 = funcdef->retval_ftype;
+
+		if (!ftype_can_slice(ftype1)) {
+			dfilter_fail(dfw, "Return value of function \"%s\" is a %s and cannot be converted into a sequence of bytes.",
+					funcdef->name, ftype_pretty_name(ftype1));
+			THROW(TypeError);
+		}
+
+		check_function(dfw, entity1);
+	} else if (entity1 && stnode_type_id(entity1) == STTYPE_RANGE) {
+		/* Should this be rejected instead? */
+		check_drange_sanity(dfw, entity1);
+	} else if (entity1) {
+		s = stnode_tostr(entity1);
+		dfilter_fail(dfw, "Range is not supported for entity %s of type %s",
+					s, stnode_type_name(entity1));
+		g_free(s);
+		THROW(TypeError);
+	} else {
+		dfilter_fail(dfw, "Range is not supported, details: " G_STRLOC " entity: NULL");
+		THROW(TypeError);
+	}
 
 	args.dfw = dfw;
 	args.st = st;
@@ -1045,9 +1087,8 @@ check_relation_LHS_RANGE(dfwork_t *dfw, const char *relation_string,
 {
 	stnode_t		*new_st;
 	sttype_id_t		type2;
-	stnode_t		*entity1;
-	header_field_info	*hfinfo1, *hfinfo2;
-	ftenum_t		ftype1, ftype2;
+	header_field_info	*hfinfo2;
+	ftenum_t		ftype2;
 	fvalue_t		*fvalue;
 	GRegex			*pcre;
 	char			*s;
@@ -1055,39 +1096,9 @@ check_relation_LHS_RANGE(dfwork_t *dfw, const char *relation_string,
 
 	ws_debug("5 check_relation_LHS_RANGE(%s)", relation_string);
 
-	type2 = stnode_type_id(st_arg2);
-	entity1 = sttype_range_entity(st_arg1);
-	if (entity1 && stnode_type_id(entity1) == STTYPE_FIELD) {
-		hfinfo1 = (header_field_info *)stnode_data(entity1);
-		ftype1 = hfinfo1->type;
-
-		if (!ftype_can_slice(ftype1)) {
-			dfilter_fail(dfw, "\"%s\" is a %s and cannot be sliced into a sequence of bytes.",
-					hfinfo1->abbrev, ftype_pretty_name(ftype1));
-			THROW(TypeError);
-		}
-	} else if (entity1 && stnode_type_id(entity1) == STTYPE_FUNCTION) {
-		df_func_def_t *funcdef = sttype_function_funcdef(entity1);
-		ftype1 = funcdef->retval_ftype;
-
-		if (!ftype_can_slice(ftype1)) {
-			dfilter_fail(dfw, "Return value of function \"%s\" is a %s and cannot be converted into a sequence of bytes.",
-					funcdef->name, ftype_pretty_name(ftype1));
-			THROW(TypeError);
-		}
-
-		check_function(dfw, entity1);
-
-	} else if (entity1) {
-		dfilter_fail(dfw, "Range is not supported for entity %s of type %s",
-					stnode_token_value(entity1), stnode_type_name(entity1));
-		THROW(TypeError);
-	} else {
-		dfilter_fail(dfw, "Range is not supported, details: " G_STRLOC " entity: NULL");
-		THROW(TypeError);
-	}
-
 	check_drange_sanity(dfw, st_arg1);
+
+	type2 = stnode_type_id(st_arg2);
 
 	if (type2 == STTYPE_FIELD) {
 		ws_debug("5 check_relation_LHS_RANGE(type2 = STTYPE_FIELD)");

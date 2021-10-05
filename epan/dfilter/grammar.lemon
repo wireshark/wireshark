@@ -186,9 +186,7 @@ entity(E) ::= CHARCONST(C).	{ E = C; }
 entity(E) ::= UNPARSED(U).	{ E = U; }
 entity(E) ::= range(R).		{ E = R; }
 
-range_body(B) ::= FIELD(F).	{ B = F; }
-range_body(B) ::= STRING(S).	{ B = S; }
-range_body(B) ::= range(R).	{ B = R; }
+range_body(B) ::= entity(E).	{ B = E; }
 
 /* Ranges */
 range(R) ::= range_body(B) LBRACKET range_node_list(L) RBRACKET.
