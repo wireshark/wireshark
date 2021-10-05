@@ -755,7 +755,7 @@ to avoid warnings at all.
 The compiler flags in the Makefiles are set to "treat warnings as errors",
 so your code won't even compile when warnings occur.
 
-7. General observatons about architecture
+7. General observations about architecture
 
 One day we might conceivably wish to load dissectors on demand and do other
 more sophisticated kinds of unit test. Plus other scenarios not immediately

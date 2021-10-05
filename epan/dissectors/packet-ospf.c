@@ -4426,7 +4426,7 @@ proto_register_ospf(void)
          { "Security Association Identifier (SA ID)", "ospf.at.sa_id", FT_UINT16,
            BASE_HEX, NULL, 0x0, "That maps to the authentication algorithm and the secret key used to create the message digest", HFILL }},
         {&hf_ospf_at_crypto_seq_nbr,
-         { "Cryptographic Sequence Number", "ospf.at.cryto_seq_nbr", FT_UINT64,
+         { "Cryptographic Sequence Number", "ospf.at.crypto_seq_nbr", FT_UINT64,
            BASE_DEC, NULL, 0x0, "Increasing sequence number that is used to guard against replay attacks", HFILL }},
         {&hf_ospf_at_auth_data,
          { "Authentication Data", "ospf.at.auth_data", FT_BYTES,

@@ -22,10 +22,13 @@ acknowledgement
 acp133
 activations
 actuator
+acyclic
+addba
 additionsr
 adjacency
 adlink
 administrable
+adspec
 adwin
 aes128
 aes256
@@ -64,6 +67,7 @@ asciidoc
 asn1
 asn1cnf
 asn2wrs
+assignor
 assoc
 assymetric
 async
@@ -79,6 +83,7 @@ authen
 authenticates
 authenticator
 authenticators
+authgss
 authn
 authntransitioning
 authorizer
@@ -91,6 +96,7 @@ autosar
 available
 avaya
 avrcp
+bacapp
 backend
 backhaul
 backoff
@@ -153,6 +159,7 @@ canonicalize
 canonicalized
 capacitive
 capinfos
+caplen
 capsa
 captioning
 capwap
@@ -204,6 +211,7 @@ codeset
 codingrate
 codute
 collectd
+collimation
 colocated
 coloring
 colorise
@@ -215,6 +223,7 @@ colormap
 combiner
 combiners
 communication
+compat
 compilers
 computable
 concatenate
@@ -231,14 +240,17 @@ const
 contactless
 contiguously
 Coord3D
+copycss
 copyfile
 corba
+corrigendum
 couchbase
 coverity
 cpdlc
 cpich
 cppcheck
 cpuregisters
+cqich
 credential
 credentials
 criticalextensions
@@ -276,6 +288,7 @@ debian
 debug
 decapsulation
 decca
+decentralization
 dechunk
 decompressing
 decompressor
@@ -374,6 +387,7 @@ ebcdic
 ecdhe
 ecdsa
 editcap
+eeprom
 egprs
 egroup
 eigrp
@@ -402,6 +416,7 @@ enumerations
 enumerator
 epasv
 epdcch
+epsem
 equinf
 ericsson
 erldp
@@ -456,6 +471,7 @@ frametype
 frontend
 fsctl
 ftype
+ftypes
 functionalities
 funkt
 fvalue
@@ -470,8 +486,10 @@ geoip
 geonw
 geran
 getattr
+getentrybyname
 getnext
 getter
+gidaddr
 gigabit
 gigamon
 gigpod
@@ -573,9 +591,11 @@ ipaddress
 ipfix
 ipprim
 ipsec
+ipseckey
 iptables
 iptrace
 ipv4addr
+irqmask
 isakmp
 iscsi
 iseries
@@ -614,6 +634,7 @@ libgcrypt
 libpcap
 linearity
 linkaddr
+linkcss
 linker
 linkinfo
 linksys
@@ -645,6 +666,7 @@ mathieson
 maxlen
 maybefcs
 mbits
+mbsfn
 mcast
 mcptt
 mcsset
@@ -680,6 +702,7 @@ modespecificinfo
 modulo
 motorola
 mpeg4
+mplstp
 mpsse
 mptcp
 mrcpv
@@ -736,9 +759,11 @@ newpw
 nexthop
 nfs4err
 nghttp
+ngran
 ngsniffer
 niagra
 noauth
+nodeid
 nofcs
 nokia
 nominals
@@ -755,11 +780,13 @@ novell
 nowait
 npcap
 nprach
+nrppa
 nsapi
 nssai
 nstime
 nstrace
 ntlmssp
+nullptr
 nvmeof
 obfuscated
 objectid
@@ -822,7 +849,10 @@ pdustatus
 peeraddr
 peerkey
 periodicities
+peristency
+persistency
 phaser
+phasor
 phich
 phonebook
 physcellid
@@ -832,6 +862,7 @@ pixmap
 plaintext
 plixer
 plugin
+pluginize
 plugins
 pname
 polestar
@@ -964,6 +995,7 @@ reinitialization
 reinitialize
 reinitialized
 reinitializing
+reinvoke
 rekey
 rekeying
 relocatable
@@ -983,6 +1015,7 @@ reroute
 rerouted
 rerouting
 resampled
+resampler
 rescan
 resegment
 resend
@@ -1018,6 +1051,7 @@ revertive
 revocations
 rfcomm
 rgoose
+ripemd
 rlcmac
 rmcap
 rnsap
@@ -1027,6 +1061,7 @@ rpcap
 rtpmidi
 rtpmux
 rxreq
+sacch
 sanicap
 sanitize
 satisfiable
@@ -1039,9 +1074,11 @@ scrollbar
 sdusize
 sectorization
 sectorized
+segmenting
 segno
 semiautomatic
 sendto
+separability
 separators
 seqno
 seqnum
@@ -1055,6 +1092,7 @@ setcap
 setuid
 severities
 sflow
+sftpserver
 sgdsn
 sgsap
 sha256
@@ -1066,6 +1104,7 @@ sidelink
 signaling
 signon
 simulcast
+skippable
 skype
 slsch
 smpte
@@ -1146,6 +1185,7 @@ suboptions
 subparam
 subpdu
 subpm
+subprocesstest
 subquery
 subrects
 subselect
@@ -1171,6 +1211,7 @@ tclas
 tcpdump
 tcpflags
 tcpip
+tcptrace
 tcpudp
 tdd128
 tdd384
@@ -1207,10 +1248,12 @@ toshiba
 touchlink
 touchpad
 traceroute
+transceive
 transcoder
 transifex
 transitioning
 transitivity
+transversal
 traveler
 traversal
 truncatable
@@ -1241,7 +1284,9 @@ uint32
 uint8
 ulmap
 ulsch
+unack
 unacked
+unadmitted
 unadvise
 unaligned
 unallocated
@@ -1256,6 +1301,7 @@ uncalibrated
 uncategorized
 unchannelized
 unciphered
+uncompensated
 uncompress
 uncompressed
 uncompressing
@@ -1301,6 +1347,7 @@ unjoining
 unknown1
 unlink
 unlinked
+unmanaged
 unmap
 unmappable
 unmark
@@ -1404,9 +1451,11 @@ workarounds
 writable
 wsbuild
 wscale
+wscbor
 wslua
 wsluarm
 x509sat
+xattr
 xchannel
 xmlns
 xsltproc

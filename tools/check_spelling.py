@@ -392,7 +392,7 @@ elif args.commits:
     files = [f.decode('utf-8')
              for f in subprocess.check_output(command).splitlines()]
     # Filter files
-    files = list(filter(lambda f : isAppropriateFile(f) and not isGeneratedFile(f), files))
+    files = list(filter(lambda f : os.path.exists(f) and isAppropriateFile(f) and not isGeneratedFile(f), files))
 elif args.open:
     # Unstaged changes.
     command = ['git', 'diff', '--name-only']

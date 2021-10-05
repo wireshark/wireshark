@@ -9586,7 +9586,7 @@ void proto_register_gtpv2(void)
            "SGSN", HFILL}
         },
         { &hf_gtpv2_tra_info_ggsn_pdp,
-          {"PDP Cpntext", "gtpv2.tra_info_ggsn_pdp",
+          {"PDP Context", "gtpv2.tra_info_ggsn_pdp",
            FT_UINT8, BASE_DEC, NULL, 0x01,
            "GGSN", HFILL}
         },

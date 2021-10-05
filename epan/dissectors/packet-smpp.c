@@ -976,7 +976,7 @@ static const value_string vals_broadcast_content_type_type[] = {
     {0x0011,        "[News Service] General News (Local)"},
     {0x0012,        "[News Service] General News (Regional)"},
     {0x0013,        "[News Service] General News (National)"},
-    {0x0014,        "[News Service] General News (Internationa)"},
+    {0x0014,        "[News Service] General News (International)"},
     {0x0015,        "[News Service] Business/Financial News (Local)"},
     {0x0016,        "[News Service] Business/Financial News (Regional)"},
     {0x0017,        "[News Service] Business/Financial News (National)"},

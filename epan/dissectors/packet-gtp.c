@@ -236,9 +236,9 @@ static int hf_gtp_sndcp_number = -1;
 static int hf_gtp_tear_ind = -1;
 static int hf_gtp_teid = -1;
 static int hf_gtp_teid_cp = -1;
-static int hf_gtp_ulink_teid_cp = -1;
+static int hf_gtp_uplink_teid_cp = -1;
 static int hf_gtp_teid_data = -1;
-static int hf_gtp_ulink_teid_data = -1;
+static int hf_gtp_uplink_teid_data = -1;
 static int hf_gtp_teid_ii = -1;
 static int hf_gtp_tid = -1;
 static int hf_gtp_tlli = -1;
@@ -5841,8 +5841,8 @@ decode_gtp_pdp_cntxt(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_
         offset = offset + 8;
         break;
     case 1:
-        proto_tree_add_item(ext_tree_pdp, hf_gtp_ulink_teid_cp,   tvb, offset + 6, 4, ENC_BIG_ENDIAN);
-        proto_tree_add_item(ext_tree_pdp, hf_gtp_ulink_teid_data, tvb, offset + 10, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(ext_tree_pdp, hf_gtp_uplink_teid_cp,   tvb, offset + 6, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(ext_tree_pdp, hf_gtp_uplink_teid_data, tvb, offset + 10, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item(ext_tree_pdp, hf_gtp_pdp_context_identifier, tvb, offset + 14, 1, ENC_BIG_ENDIAN);
         offset = offset + 15;
         break;
@@ -10788,8 +10788,8 @@ proto_register_gtp(void)
            FT_UINT32, BASE_HEX_DEC, NULL, 0,
            "Tunnel Endpoint Identifier Control Plane", HFILL}
         },
-        {&hf_gtp_ulink_teid_cp,
-         { "Uplink TEID Control Plane", "gtp.ulink_teid_cp",
+        {&hf_gtp_uplink_teid_cp,
+         { "Uplink TEID Control Plane", "gtp.uplink_teid_cp",
            FT_UINT32, BASE_HEX_DEC, NULL, 0,
            "Uplink Tunnel Endpoint Identifier Control Plane", HFILL}
         },
@@ -10798,8 +10798,8 @@ proto_register_gtp(void)
            FT_UINT32, BASE_HEX_DEC, NULL, 0,
            "Tunnel Endpoint Identifier Data I", HFILL}
         },
-        {&hf_gtp_ulink_teid_data,
-         { "Uplink TEID Data I", "gtp.ulink_teid_data",
+        {&hf_gtp_uplink_teid_data,
+         { "Uplink TEID Data I", "gtp.uplink_teid_data",
            FT_UINT32, BASE_HEX_DEC, NULL, 0,
            "UplinkTunnel Endpoint Identifier Data I", HFILL}
         },
