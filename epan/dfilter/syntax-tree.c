@@ -215,6 +215,15 @@ stnode_value(stnode_t *node)
 	return node->value;
 }
 
+const char *
+stnode_token_value(stnode_t *node)
+{
+	if (node->token_value) {
+		return node->token_value;
+	}
+	return "<unknown token>";
+}
+
 gboolean
 stnode_inside_parens(stnode_t *node)
 {
@@ -322,15 +331,6 @@ visit_tree(wmem_strbuf_t *buf, stnode_t *node, int level)
 		wmem_strbuf_append_printf(buf, "%s<%s>", stnode_type_name(node), str);
 		g_free(str);
 	}
-}
-
-const char *
-stnode_token_value(stnode_t *node)
-{
-	if (node->token_value) {
-		return node->token_value;
-	}
-	return "<unknown token>";
 }
 
 void

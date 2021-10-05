@@ -114,14 +114,14 @@ stnode_steal_data(stnode_t *node);
 gint32
 stnode_value(stnode_t *node);
 
+const char *
+stnode_token_value(stnode_t *node);
+
 char *
 stnode_tostr(stnode_t *node);
 
 gboolean
 stnode_inside_parens(stnode_t *node);
-
-const char *
-stnode_token_value(stnode_t *node);
 
 void
 stnode_set_inside_parens(stnode_t *node, gboolean inside);

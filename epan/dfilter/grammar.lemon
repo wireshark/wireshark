@@ -79,13 +79,10 @@ any "error" symbols are shifted, if possible. */
 
 	switch(stnode_type_id(TOKEN)) {
 		case STTYPE_UNINITIALIZED:
-			if ((TOKEN)->token_value != NULL)
+			if (stnode_token_value(TOKEN) != NULL)
 				dfilter_fail(dfw, "Syntax error near \"%s\".", stnode_token_value(TOKEN));
 			else
 				dfilter_fail(dfw, "Syntax error.");
-			break;
-		case STTYPE_TEST:
-			dfilter_fail(dfw, "Syntax error, TEST.");
 			break;
 		case STTYPE_STRING:
 			dfilter_fail(dfw, "The string \"%s\" was unexpected in this context.",
@@ -111,10 +108,6 @@ any "error" symbols are shifted, if possible. */
 			dfilter_fail(dfw, "The function \"%s\" was unexpected in this context.",
 				sttype_function_funcdef(TOKEN)->name);
 			break;
-		case STTYPE_SET:
-			dfilter_fail(dfw, "Syntax error, SET.");
-			break;
-
 		/* These aren't handed to use as terminal tokens from
 		   the scanner, so was can assert that we'll never
 		   see them here. */
@@ -122,6 +115,8 @@ any "error" symbols are shifted, if possible. */
 		case STTYPE_RANGE:
 		case STTYPE_FVALUE:
 		case STTYPE_PCRE:
+		case STTYPE_SET:
+		case STTYPE_TEST:
 			ws_assert_not_reached();
 			break;
 	}
@@ -186,13 +181,12 @@ entity(E) ::= CHARCONST(C).	{ E = C; }
 entity(E) ::= UNPARSED(U).	{ E = U; }
 entity(E) ::= range(R).		{ E = R; }
 
-range_body(B) ::= entity(E).	{ B = E; }
 
 /* Ranges */
-range(R) ::= range_body(B) LBRACKET range_node_list(L) RBRACKET.
+range(R) ::= entity(E) LBRACKET range_node_list(L) RBRACKET.
 {
 	R = stnode_new(STTYPE_RANGE, NULL, NULL);
-	sttype_range_set(R, B, L);
+	sttype_range_set(R, E, L);
 
 	/* Delete the list, but not the drange_nodes that
 	 * the list contains. */
@@ -320,7 +314,7 @@ set_node_list(L) ::= set_node_list(P) WHITESPACE entity(E).
 	L = g_slist_append(L, NULL);
 }
 
-/* Range elements. */
+/* Set elements. */
 set_node_list(L) ::= entity(X) DOTDOT entity(Y).
 {
 	L = g_slist_append(NULL, X);
