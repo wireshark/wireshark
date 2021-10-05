@@ -268,7 +268,7 @@ static int hf_bssap_extension = -1;
 static int hf_bssap_type_of_number = -1;
 static int hf_bssap_numbering_plan_id = -1;
 static int hf_bssap_sgsn_number = -1;
-/* static int hf_bssap_vlr_number = -1; */
+static int hf_bssap_vlr_number = -1;
 static int hf_bssap_call_priority = -1;
 static int hf_bssap_gprs_loc_upd_type_ie = -1;
 static int hf_bssap_Gs_cause_ie = -1;
@@ -1480,7 +1480,7 @@ dissect_bssap_vlr_number(tvbuff_t *tvb, proto_tree *tree, int offset)
     proto_tree_add_item(ie_tree, hf_bssap_numbering_plan_id, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     number_tvb = tvb_new_subset_length(tvb, offset, ie_len - 1);
-    proto_tree_add_item(ie_tree, hf_bssap_sgsn_number, number_tvb, 0, -1, ENC_BCD_DIGITS_0_9);
+    proto_tree_add_item(ie_tree, hf_bssap_vlr_number, number_tvb, 0, -1, ENC_BCD_DIGITS_0_9);
 
     return offset + ie_len - 1;
 
@@ -2173,12 +2173,10 @@ proto_register_bssap(void)
             FT_STRING, BASE_NONE, NULL, 0,
             NULL, HFILL }},
 
-#if 0
         { &hf_bssap_vlr_number,
           { "VLR number", "bssap.vlr_number",
             FT_STRING, BASE_NONE, NULL, 0,
             NULL, HFILL }},
-#endif
 
         { &hf_bssap_cell_global_id_ie,
           { "Cell global identity IE", "bssap.cell_global_id_ie",
