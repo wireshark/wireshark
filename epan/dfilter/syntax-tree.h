@@ -144,20 +144,21 @@ log_stnode_full(enum ws_log_level level,
 	log_stnode_full(LOG_LEVEL_NOISY, __FILE__, __LINE__, __func__, node, #node)
 #endif
 
-void log_syntax_tree(enum ws_log_level, stnode_t *root, const char *msg);
+void
+log_syntax_tree(enum ws_log_level, stnode_t *root, const char *msg);
 
-#define _assert_magic(obj, mnum) \
-	g_assert((obj)); \
-	if ((obj)->magic != (mnum)) { \
-		g_print("\nMagic num is 0x%08x, but should be 0x%08x", \
-			(obj)->magic, (mnum)); \
-			g_assert((obj)->magic == (mnum)); \
-	}
+void
+ws_assert_magic_full(const char *domain, enum ws_log_level level,
+				const char *file, int line, const char *func,
+				const void *node, uint32_t magic);
 
 #ifdef WS_DISABLE_DEBUG
 #define ws_assert_magic(obj, mnum) (void)0
 #else
-#define ws_assert_magic(obj, mnum) _assert_magic(obj, mnum)
+#define ws_assert_magic(obj, mnum) \
+	ws_assert_magic_full(LOG_DOMAIN_DFILTER, LOG_LEVEL_CRITICAL, \
+			__FILE__, __LINE__, __func__, \
+			obj, mnum)
 #endif
 
 #endif /* SYNTAX_TREE_H */

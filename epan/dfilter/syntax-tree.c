@@ -380,6 +380,20 @@ log_syntax_tree(enum ws_log_level level, stnode_t *root, const char *msg)
 	wmem_strbuf_destroy(buf);
 }
 
+void
+ws_assert_magic_full(const char *domain, enum ws_log_level level,
+				const char *file, int line, const char *func,
+				const void *ptr, uint32_t magic)
+{
+	const stnode_t *node = (const stnode_t *)ptr;
+	ws_assert(node);
+	if (node->magic != magic) {
+		ws_log_full(domain, level, file, line, func,
+			"Magic num is 0x%08"PRIx32", but should be 0x%08"PRIx32,
+			node->magic, magic);
+	}
+}
+
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
