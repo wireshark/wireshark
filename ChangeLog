@@ -1,0 +1,1036 @@
+commit 34b7ff734b
+Author: Stig Bjørlykke <stig@bjorlykke.org>
+Date:   Wed Oct 6 14:41:02 2021 +0200
+
+    gsm_a: Fix dissect_description_of_velocity()
+    
+    Several improvements to dissect_description_of_velocity()
+    - Velocity Type is first 4 bits, do not increase offset after this
+    - Direction of Vertical Speed is bit 7
+    - Only increase curr_offset in this function
+    
+    
+    (cherry picked from commit f19c621abd601f66a94c9eee435d9473201ae63a)
+
+commit eb2642f44b
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Oct 5 12:51:08 2021 -0700
+
+    GitLab CI: Restrict our merges to release-3.4.
+
+commit 64b66b6e0b
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Oct 3 12:53:52 2021 -0400
+
+    BT-DHT: Test packets even if the dissector is set
+    
+    BitTorrent clients use the same UDP conversation for both DHT and
+    uTP, switching back and forth between the two at connection start.
+    So even if the dissector has been set for the conversation or
+    ports to BT-DHT, test the packet and reject it if not DHT in order
+    to give the uTP dissector a chance. Fix #17626
+    
+    
+    (cherry picked from commit 5c185238a49bb6b2120d5a32f75ba99e0891919f)
+
+commit 8b2fda62a4
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Sep 30 08:51:49 2021 -0400
+
+    wiretap: camins, vwr: Stop heuristics after 1GiB
+    
+    Very large 64 bit files are supported, so the CAM Inspector and
+    Ixia Veriwave heuristics, which are fairly weak and either always
+    (CAM Inspector) or possibly (Veriwave) try to read the entire file
+    should stop their heuristics and make a decision after some reasonable
+    length.
+    
+    Without this, the GUI freezes for seconds, minutes, or even hours
+    by merely clicking on a large file in the file chooser, as
+    wtap_open_offline attempts to determine the file type. The same issue
+    occurs in capinfos, captype, tshark, editcap, etc.
+    
+    In addition, previously the CAM Inspector heuristics could give the wrong
+    result on very large files, because 10 * invalid_pairs could overflow
+    its guint32 and then end up comparing as less than valid_pairs.
+    
+    Fix #17620
+    
+    
+    (cherry picked from commit e05f704606c5787a9f7899eebb29686f8a8e8a02)
+
+commit dc02565d4a
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Sat Oct 2 16:39:58 2021 +0200
+
+    Show error for -X lua_script if no Lua support
+    
+    Wireshark/tshark may be built without Lua support. This patch adds an
+    error message if the user specifies the `-X lua_script` command-line
+    argument to a program built without Lua support, so the user is not left
+    wondering why their script isn't working.
+    
+    (Cherry picked from commit d3d4e4b1)
+
+commit e744f1ffb3
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Sat Oct 2 12:22:53 2021 +0200
+
+    gtp: alternative GSN address decoders
+    
+    All fields with GSN address were decodes as common hf_gsn_addr. But if
+    ETSI order is used, it's possible to specify alternative decoder
+    depending on message type and field position.
+    Alternative decoder for GSN address was added for mandatary fields and
+    optional/conditional field in the case there is single GSN address in
+    message.
+    
+    Added new function as common dissector for all addr types.
+    
+    (cherry picked from commit 88657fd5, with additional corrections)
+
+commit 38ed3d30c9
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Oct 4 12:24:30 2021 -0700
+
+    Prep for 3.4.9.
+
+commit 1804dd492e
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Oct 4 11:45:51 2021 -0700
+
+    Debian: Fix a dpkg-gensymbols warning.
+
+commit b95f93f783
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Oct 4 11:06:25 2021 -0700
+
+    GitLab CI: Print some variables.
+    
+    Print some of GitLab CI's variables in the Source Package job.
+
+commit 7bfa970162
+Author: João Valverde <j@v6e.pt>
+Date:   Thu Sep 23 10:26:59 2021 +0100
+
+    Windows: Fix build without libpcap
+    
+    wireshark\caputils\capture-wpcap.c:901:42: error: expected ';', ',' or ')' before '_U_'
+     get_runtime_caplibs_version(GString *str _U_)
+                                              ^~~
+    
+    (cherry picked from commit 443f05bc92958fb03ab498c20f78c5a035e8bedb)
+
+commit 73c9a3f3b3
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Mon Oct 4 18:00:27 2021 +0200
+
+    Update clang validation script
+    
+    Port the current script from master, including all new features, and
+    adjust the list of files to those relevant for release-3.4
+
+commit 9c6386fe5e
+Author: Stig Bjørlykke <stig@bjorlykke.org>
+Date:   Sun Oct 3 21:16:16 2021 +0200
+
+    Qt: Handle errors when reloading Lua FileHandler
+    
+    Reloading the capture file after reloading a Lua FileHandler
+    may fail because of Lua errors. Handle this by closing the file.
+    
+    Related to #17615
+    
+    (cherry picked from commit e866034c55a139587d1d2d5340802dedbaa81801)
+
+commit e2e4340b31
+Author: Stig Bjørlykke <stig@bjorlykke.org>
+Date:   Mon Oct 4 10:08:30 2021 +0200
+
+    Qt: Handle fieldsChanged before prefs_apply_all
+    
+    Improve reload Lua plugins to handle fieldsChanged before calling
+    the preferences apply callback, because a proto.prefs_changed()
+    function may call reload_packets() or redissect_packets(), and this
+    requires the fields to be updated.
+    
+    
+    (cherry picked from commit e724ab1b41eea95e7b37aacaddd0fe26b12181ae)
+
+commit decf57d0cc
+Author: Stig Bjørlykke <stig@bjorlykke.org>
+Date:   Mon Sep 27 15:56:40 2021 +0200
+
+    Lua: Free FileHandler on deregister
+    
+    Free FileHandler and all allocated strings on deregister to avoid
+    memory leak when reloading Lua plugins.
+    
+    (cherry picked from commit 19d27eff980f144f39d06950228b7ffd854476da)
+
+commit 5c3b36ce43
+Author: Stig Bjørlykke <stig@bjorlykke.org>
+Date:   Mon Sep 27 13:10:43 2021 +0200
+
+    Qt: Reload Lua FileHandler when having a capture file
+    
+    Support reloading a Lua FileHandler when this is in use for a
+    loaded capture file. Prompt to save the file if having unsaved
+    changes because the file must be reloaded.
+    
+    Fixes #17615
+    
+    (cherry picked from commit 96cfaf67a383cd3676a7dba61040e8c4b7a47b12)
+
+commit 77fa88ce41
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Oct 3 09:00:15 2021 -0700
+
+    GitLab CI: Switch all Linux builds to our container registry.
+    
+    Switch all of our Linux builds to
+    registry.gitlab.com/wireshark/wireshark-containers/
+
+commit 659ddea463
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Wed Sep 29 16:21:42 2021 +0200
+
+    IS-IS LSP: extended IP reachability prefix SID dissection change
+    
+    The flags were used to identify the SID format, without regard for the
+    available size. Also in case of error in the flags the SID would not be
+    shown. Convert, like elsewhere, SID format identification based on size
+    and add flag validity checks, based on RFC 8667 section 2.1.1.
+    
+    Closes #17610
+    
+    
+    (cherry picked from commit e1543bda0c15f5d9a32d975ed235344426e81385)
+
+commit e47c497786
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Sun Oct 3 10:58:56 2021 +0200
+
+    Docs: More POD markup cleanup.
+    
+    (cherry picked from commit 440bbd37a0ac91ce1303b31adb4afd300838036c)
+    
+    # Conflicts:
+    #       doc/wireshark-filter.pod
+
+commit 604c1d5ead
+Author: Anders Broman <anders.broman@ericsson.com>
+Date:   Mon Sep 6 15:59:46 2021 +0200
+
+    Diameter: Update Verizon and Cisco AVPs from MR !3731
+    
+    
+    (cherry picked from commit 1095faf9d80934f53bda3c8f04cbdcc3e415850d)
+
+commit 3d799c6889
+Author: João Valverde <j@v6e.pt>
+Date:   Sat Sep 25 21:30:20 2021 +0100
+
+    reassemble_test: Add an explicit cast [-Wformat=]
+    
+    (cherry picked from commit 047542b587c052fcda641dfdc682a7cecf6138f3)
+
+commit 496075a5b5
+Author: Роман Донченко <dpb@corrigendum.ru>
+Date:   Fri Sep 24 20:30:01 2021 +0300
+
+    jpeg: correct the IFD tag for the Copyright field
+    
+    It is supposed to be 0x8298 according to both the TIFF and Exif specs.
+    
+    
+    (cherry picked from commit 05512b0428438b216b7ae558c660140c7d0867b2)
+
+commit b34197c8b0
+Author: João Valverde <j@v6e.pt>
+Date:   Thu Sep 23 12:51:03 2021 +0100
+
+    CMake: The minizip URL is ancient
+    
+    Use something a bit more modern instead.
+    
+    
+    (cherry picked from commit b6e80d9a2f1701acd789062181d8990d5c2f40b3)
+
+commit 15b1ef0ae9
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Thu Sep 23 13:35:05 2021 -0700
+
+    Docs: More POD markup cleanup.
+    
+    (cherry picked from commit da817af97498700b21671addf24cb858c5766a3b)
+
+commit b069b0d366
+Author: João Valverde <j@v6e.pt>
+Date:   Thu Sep 23 12:16:33 2021 +0100
+
+    Add compatibility fix for Minizip dependency
+    
+    
+    (cherry picked from commit f4c283298febb37631a755d10b89def515f2bd50)
+
+commit e9abb05938
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Sep 22 14:23:16 2021 -0700
+
+    Docs: Clean up wireshark.pod markup.
+    
+    Clean up some list items and a quote.
+    
+    (cherry picked from commit 9d108383142777b0f8063bb538c82d09cda90626)
+
+commit 027b589e10
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Sep 22 21:02:36 2021 -0400
+
+    documentation: update PDML/PSML doc
+    
+    Provide Internet Archive links for dead URLs.
+    Update to note that PSML output is supported by tshark and not
+    a future feature (true since 17 years ago, when it was still tethereal).
+    Note "fake-field-wrapper" protocol for top level fields (including data,
+    which is converted from a protocol to a field for PDML).
+    Note "_ws.expert" protocol replaced by field, as with data.
+    Note that some dissectors place subdissected protocols in subtrees
+    instead of at the top level, and that this is _not_ changed, violating
+    the PDML spec.
+    Fix #10588.
+    
+    
+    (cherry picked from commit 07330b392e5356d22e4c1892a9d02e502f4bca6f)
+
+commit 3792fa1e8a
+Author: João Valverde <j@v6e.pt>
+Date:   Mon Sep 20 14:14:03 2021 +0100
+
+    CMake: Add guards for PLATFORM sanity check
+    
+    The sanity check is specific for Visual Studio so add those
+    guards. The PLATFORM variable is not standard for other toolchains.
+    
+    Add a default "windows target platform" of Win64.
+    
+    Add error output for win-setup.ps1.
+    
+    
+    (cherry picked from commit bb12a187df01c3789fae3c1a1d07e3bf9837e5e1)
+
+commit 4c9e03e993
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Sep 22 06:56:14 2021 -0400
+
+    SDP: Handle fmpt:ipdc-ksm and fmpt:ipdc-kmm
+    
+    ETSI IP Datacast is another protocol that uses strings instead
+    of numeric payload types after the fmpt attribute. (ETSI TS 102 472,
+    ETSI TS 102 592). Since we're up to five special case strings to
+    check for, refactor the code a bit.
+    
+    
+    (cherry picked from commit a22aa677ad824a09c1831aff1bad709731e8631e)
+
+commit 7e4893afeb
+Author: Pau Espin Pedrol <pespin@sysmocom.de>
+Date:   Tue Sep 21 18:29:53 2021 +0200
+
+    GSM A-bis/OML: Fix false positive on expert notification for ABIS_OM_MDISC_MANUF
+    
+    As per TS 12.21 section 8.1.4 "Manufacturer-Defined O&M messages",
+    NOTE 1:
+    """
+    The Length Indicator gives the length of the Manufacturer-defined O&M data field in the message
+    segment being transported which is less than or equal to 255 octet.
+    """
+    
+    Where the "Manufacturer-defined O&M data field" is the content AFTER the
+    "ManId Length Indicator" + "Manuf. Identifier" as can be seen in the
+    table of the same section.
+    
+    This fix was tested against osmo-bts, which implements the ipaccess
+    manufacturer extensions.
+    
+    
+    (cherry picked from commit 07b0c4e78a6677145f8750993cf7d14bdb633624)
+
+commit c95a9d556e
+Author: Jan Romann <jan.romann@gmail.com>
+Date:   Tue Sep 21 01:14:33 2021 +0000
+
+    coap:  add missing content-format mappings
+    
+    (cherry picked from commit f3dbfa3bdfb24c2c3cadfb3c6f957df07fe2b11b)
+
+commit cc834592ee
+Author: João Valverde <j@v6e.pt>
+Date:   Sun Sep 19 22:34:00 2021 +0100
+
+    Windows: Don't search for a SpeexDSP package
+    
+    
+    (cherry picked from commit a193aff05244f53c668f725588e18bf6b1e496e1)
+
+commit 93d00020ee
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Thu Sep 16 17:38:47 2021 +0200
+
+    InfiniBand: create proper preference change handler out of handoff function
+    
+    
+    (cherry picked from commit 6e174c17eba85a3e343f849b4a53330d38b81853)
+
+commit 59f96d16c2
+Author: Vivek Mangala <vivekmangala@gmail.com>
+Date:   Thu Sep 16 20:56:54 2021 +0530
+
+    twamp: fixed decoding of control-message sequence
+    
+    Added check on Command-Number on control message following
+    Accept-Session to detect the correct state.  There are
+    various states possible after Accept-Session.
+    
+    
+    (cherry picked from commit f341e045c9faac39c94105ee0fb2302e28d23b8f)
+
+commit 0db456cfc6
+Author: Anders Broman <anders.broman@ericsson.com>
+Date:   Fri Sep 17 14:57:46 2021 +0200
+
+    RTCP:Fix dissection of MBMS Subchannel field
+    
+    
+    (cherry picked from commit b2bc8fd05945a8213aedd052d6b5958513ca4d18)
+
+commit 45b0e92e67
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Sep 8 19:43:44 2021 -0400
+
+    VSS Monitoring: Tighten heuristic, reduce false positives by default
+    
+    Add a preference to VSS Monitoring for dissecting packets that
+    lack a timestamp and only have port stamping, and set it to false
+    by default. There's no heuristic for port stamping, so it defaults
+    to accepting all trailers with 1, 2, 5, or 6 bytes (1 or 2 byte
+    port stamp plus optional 4 bytes for Ethernet FCS.) That's too
+    indiscriminate, especially if there are other possible trailers
+    (e.g., if the PRP-1 dissector is eventually changed to a eth.trailer
+    dissector, see #17066 which this helps with).
+    
+    Also, VSS Monitoring has never actually supported two byte port stamps,
+    and recent product releases have dropped port stamping in favor of
+    VLAN tagging for port tagging, so only support 1 byte port stamps by
+    default and add a preference for 2 byte port stamps.
+    
+    With these changes by default the VSS Monitoring heuristic dissector
+    only dissects trailers that pass the timestamp heuristic, greatly
+    reducing the number of false positives. This does much of #8997,
+    though the timestamp heuristic could be tightened as well.
+    
+    
+    (cherry picked from commit 21e7bb10731169ea796e97c3d3c4d47286dfc8d1)
+
+commit 2d8693652d
+Author: Developer Alexander <dev@alex-mails.de>
+Date:   Thu Sep 9 10:18:16 2021 +0200
+
+    Qt: JSON Export - Statusbar info corrected
+    
+    During a JSON Export "Writing JSON" will displayed in the statusbar.
+    
+    
+    (cherry picked from commit 02285e53b8a8f478a0e14c7f57b5d59a3a0140e8)
+
+commit 603b20a046
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Mon Sep 6 01:33:16 2021 -0400
+
+    MP2T: Expert info, counter drop is PI_SEQUENCE, not MALFORMED
+    
+    
+    (cherry picked from commit f6e0589f89e6f59e957584b02b978d3c4484b42d)
+
+commit b1618ed3f2
+Author: Joakim Karlsson <oakimk@gmail.com>
+Date:   Mon Sep 6 10:14:00 2021 +0200
+
+    Diameter: Update some 3GPP AVS to OctetStringOrUTF8
+    
+    
+    (cherry picked from commit 4eeb091eca644e41bc7a0dbcba9e3163d6269871)
+
+commit f5e2e3ac7c
+Author: Alexis La Goutte <alexis.lagoutte@gmail.com>
+Date:   Sun Sep 5 12:40:28 2021 +0000
+
+    dcerpc_spoolss: fix display filter name
+    
+    found by conflict check
+     'spoolss.driverversion' exists multiple times with incompatible types: FT_UINT64 and FT_UINT32
+    
+    
+    (cherry picked from commit 95b63d04d925fad738eaa1c1a90fb0b8b0393ded)
+
+commit ef8c184ae4
+Author: Chuck Craft <bubbasnmp@gmail.com>
+Date:   Fri Sep 3 15:59:34 2021 -0500
+
+    NSIS: expand title area for long program names that wrap
+    
+    Release candidates (rc blah blah hash) or if WIRESHARK_VERSION_EXTRA
+    is set for the build, are wrapped/clipped to be unreadable.
+    
+    
+    (cherry picked from commit eb83421c96c486aab492a97315f8b56f6a7614ec)
+
+commit d780c36ab6
+Author: Taisuke Sasaki <taisasak@cisco.com>
+Date:   Fri Sep 3 11:35:52 2021 +0900
+
+    BGP: Fix BGP-LS TLV offset of IGP TE Metric (RFC8571)
+    
+    
+    (cherry picked from commit b4ef378e5e67ca558b166f01d265580933ff72e4)
+
+commit b4c4adbdad
+Author: Natale Patriciello <natale.patriciello@gmail.com>
+Date:   Wed Sep 1 15:20:48 2021 +0200
+
+    RTCP: Fix padding dissection in transport feedback
+    
+    The transport feedback definition, from
+    (https://datatracker.ietf.org/doc/html/draft-holmer-rmcat-transport-wide-cc-extensions-01#section-3.1)
+    has the third bit as the padding bit (as any RTCP feedback message). However,
+    the transport feedback dissector was consuming the padding (if present),
+    leaving the outer RTCP dissector with a padding bit set, but no padding to
+    analyze/show. That resulted in a "Malformed packet" error.
+    
+    With this patch, any padding that is consumed in the transport feedback
+    dissection clears the outer padding bit set, leaving the RTCP dissector happy.
+    
+    
+    (cherry picked from commit 57376bdf3ed8e4e9da85c44d81343679f4970d78)
+
+commit e4334f57da
+Author: Ugur ILTER <ugur.ilter@airties.com>
+Date:   Wed Sep 1 11:58:47 2021 +0300
+
+    ieee1905: fix dissection of DPP messages
+    
+     - Handle 'Category' field under 'Encapsulated Frame' field inside 1905 Encap DPP TLVs
+    
+    ![incorrect](/uploads/be54a9e6757aacbccb3625b4aa11db9b/incorrect.png)
+    
+    ![correct](/uploads/285b14d3945c2821ba3606e7da7ae94d/correct.png)
+    
+    
+    (cherry picked from commit 43d2655f16ab70e97d35700f628e23720c8e58db)
+
+commit 84f8c8681c
+Author: Alexis La Goutte <alexis.lagoutte@gmail.com>
+Date:   Tue Dec 1 20:27:28 2020 +0000
+
+    Aruba(IAP): Fix and update model list
+    
+    (cherry picked from commit 11bccd9e399d88360e8201924a00d728d8541b83)
+    (cherry picked from commit 1330b729d54f5a7a1c9abea8a76cfb12ae98e5e0)
+    (cherry picked from commit 4713e04143711496e6e0064962aff3e2da78268f)
+    (cherry picked from commit 91064e337c029b98941762c9816b574a5e43c378)
+    (cherry picked from commit 875d60789211d4b926b8b4e8925544972fa5204d)
+
+commit 361138776e
+Author: Dario Lombardo <lomato@gmail.com>
+Date:   Sun Jan 10 18:57:39 2021 +0100
+
+    imap: fix bug in username retrieve.
+    
+    Fix: #16874.
+    
+    
+    (cherry picked from commit aad42108e0108b0cd195fa7d22dc34bb35dfac6f)
+
+commit c087677e88
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Aug 31 11:34:11 2021 -0700
+
+    CMake: Get rid of WS_PROGRAM_PATH
+    
+    Use the $<TARGET_FILE_DIR:tshark> generator expression instead.
+    
+    (cherry picked from commit 4d1357eebeb1c128b8153d176c57af0dea6dd531)
+
+commit 72846d1c92
+Author: Adrian Ratiu <adrian.ratiu@collabora.com>
+Date:   Wed Aug 25 20:13:03 2021 +0300
+
+    cmake: lemon: fix path to internal lemon tool
+    
+    Wireshark fails to build when cross-compiling on Gentoo/ChromeOS
+    systems because the lemon command is not properly specified or
+    included in PATH, failing with:
+    
+    /bin/sh: lemon: command not found
+    
+    The relevant excerpt from build.ninja is:
+    
+    COMMAND = cd ..._build/plugins/epan/mate && lemon -T.../tools/lemon/lempar.c
+    -d. .../plugins/epan/mate/mate_grammar.lemon
+    
+    By specifying the full path to "lemon" we ensure it is
+    always searched and found in the correct location.
+    
+    
+    (cherry picked from commit 49240e23b4cf890df67d81d1900f313d1193db8c)
+
+commit 54e20dd37f
+Author: Adrian Ratiu <adrian.ratiu@collabora.com>
+Date:   Thu Aug 26 17:44:11 2021 +0300
+
+    cmake: lemon: allow overriding lemon CC setting
+    
+    When cross-compiling wireshark the lemon tool should be built
+    using the host machine compiler to be run on the host. Before
+    cmake this was done via autotools CC_FOR_BUILD but cmake only
+    supports one compiler toolchain per build and requires some
+    workarounds like running cmake twice using separately defined
+    toolchains.
+    
+    This gets ugly and complicated fast when considering multiple
+    toolchains, especially for a simple tool like lemon, so just
+    allow builds to override the C compiler and wipe the cflags.
+    
+    This way systems like Gentoo/ChromeOS/Yocto with a properly
+    setup cross-compile environment can just point to the native
+    BUILD_CC or similar while minimizing complexity.
+    
+    
+    (cherry picked from commit 61e66c37abb1b7f59726e4407ac8dd53e6b75cac)
+
+commit 5ea31987fe
+Author: Berk Akinci <berka@alum.wpi.edu>
+Date:   Fri Aug 27 18:09:12 2021 -0400
+
+    USB HID: Update to match HID Usage Tables version 1.22
+    
+    Add camera control page (0x90). Usages are up to date with HID Usage
+    Tables for USB version 1.22.
+    
+    
+    (cherry picked from commit 64a76cca7f5245a21df2d64cff67839f4a3aa5e9)
+
+commit 30fe0c75b0
+Author: Berk Akinci <berka@alum.wpi.edu>
+Date:   Fri Aug 27 18:34:22 2021 -0400
+
+    USB HID: Fix Usage Maximum typo
+    
+    Fix typo preventing 'Usage Maximum' values from being parsed.
+    Values were were reported as 'Usage:'.
+    
+    
+    (cherry picked from commit 0ba0d4e779665a075539093adfb21abc34501b4a)
+
+commit 76c0791cec
+Author: Joakim Andersson <joakim.andersson@nordicsemi.no>
+Date:   Mon Aug 9 08:53:59 2021 +0200
+
+    nordic_ble: Mark failure to decrypt reason as CRC error over MIC error
+    
+    A packet that has been received by the sniffer with CRC errors will not
+    decrypted properly by the sniffer. Mark the decrypt failure reason as
+    CRC error instead of MIC error.
+    
+    Signed-off-by: Joakim Andersson <joakim.andersson@nordicsemi.no>
+    
+    
+    (cherry picked from commit 1f0251a82dafacd8c1d4a9074961c7ccc85d46f7)
+
+commit 97dbca1079
+Author: Denis Pronin <dannftk@yandex.ru>
+Date:   Thu Jul 29 11:50:39 2021 +0300
+
+    Fixed incorrect calculating hash from quic_cid_t
+    
+    
+    (cherry picked from commit 5cd9646e7235460eb443b778c246794eb6efef17)
+
+commit 5b85d9da89
+Author: Jeroen Sack <jeroen.sack@agcocorp.com>
+Date:   Thu Aug 26 19:49:18 2021 -0500
+
+    Isobus-VT: Fix description of auxiliary input status enable message
+    
+    Show if message indicates that auxiliary input was enabled or disabled
+    
+    
+    (cherry picked from commit 0ceaaad76338e5c3f74d2e495c14e6703f306c07)
+
+commit fb181e87f3
+Author: Christian Krump <christian.krump@br-automation.com>
+Date:   Thu Aug 26 13:17:13 2021 +0200
+
+    EPL: fix length detection of SDO 'read by index'
+    
+    correction of the length-calculation of SDO 'read by index' payload data
+    
+    
+    (cherry picked from commit 28bc920e273e8f708df0c10add32c8f99883edd3)
+
+commit eb1d48bbe2
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Mon Sep 27 18:44:13 2021 -0400
+
+    ftype-time: Absolute times for DFILTER are always local time
+    
+    absolute_val_from_string() doesn't allow a time zone and always
+    assumes that time strings are in local time zone, so
+    absolute_val_to_repr() needs to produce that output for FTREPR_DFILTER
+    so that construct_match_selected_string() produces the correct filter
+    string for FT_ABSOLUTE_TIME fields that are not ABSOLUTE_TIME_LOCAL.
+    
+    Fix #17617
+    
+    (cherry picked from commit 2ee57a0e465783b8a419799404815de520ec5c69)
+
+commit 82f05fc99b
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Oct 3 09:54:48 2021 +0000
+
+    [Automatic update for 2021-10-03]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 29d9eae179
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Sep 1 10:24:58 2021 -0700
+
+    Packaging: Update the macOS notarization failure error message.
+    
+    Apple provides a status page for various developer services at
+    https://developer.apple.com/system-status/, including the status of the
+    Developer ID Notary Service. Show the URL notarization fails so that
+    troubleshooting is easier.
+    
+    
+    (cherry picked from commit 348d35659424e1f9bd3c7f0ea72dc8c312fc497b)
+
+commit 0e5b43de02
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Aug 2 21:27:57 2021 -0700
+
+    GitLab CI: Make sure Linux builds run under Docker.
+    
+    Rename the .build job to .build-linux and require the "docker" tag. Add
+    a corresponding .test-linux job and have the Linux test stages extend
+    it. Update various steps accordingly.
+    
+    (cherry picked from commit 282179b643313b558f69d40b4889fcdfda211da6)
+    
+    Conflicts:
+            .gitlab-ci.yml
+
+commit e4a8671054
+Author: David Perry <boolean263@protonmail.com>
+Date:   Fri May 14 07:26:17 2021 -0400
+
+    Don't try to install qt5-default
+    
+    As of Debian bullseye and Ubuntu 21.04, `qt5-default` is no longer
+    available. This patch removes it and adds its dependencies instead
+    as suggested in <https://askubuntu.com/a/1335187/580576>.
+    
+    
+    (cherry picked from commit 162cba438dc9a36ee640c40643c1a7eb8eac16d4)
+
+commit 276f391638
+Author: Stig Bjørlykke <stig@bjorlykke.org>
+Date:   Fri Oct 1 10:31:30 2021 +0200
+
+    capture: Check for valid wtap when capture.show_info
+    
+    Changing profile during capture may change the capture_opts->show_info
+    setting. Always init cap_session->wtap and check if valid before doing
+    capture_info_new_packets(). Always close dialog and cap_session->wtap
+    in capture_input_closed().
+    
+    This will not bring up the Capture Information dialog when switching
+    to a profile having this enabled.
+    
+    Fixes #17622
+    
+    
+    (cherry picked from commit ec2746c910059169fa528466e8187643105ba56d)
+
+commit 421a3531fa
+Author: Joakim Andersson <joakim.andersson@nordicsemi.no>
+Date:   Thu Sep 30 08:30:07 2021 +0200
+
+    nordic_ble: Add address resolved flag to Advertising PDUs
+    
+    Add address resolved flag to Advertising PDUs. This indicates if the
+    sniffer was able to resolve the advertising address using an IRK.
+    
+    Signed-off-by: Joakim Andersson <joakim.andersson@nordicsemi.no>
+    (cherry picked from commit e4842cea3f02fecbab326da83d237a7540b1171f)
+
+commit d79243be0b
+Author: Stig Bjørlykke <stig@bjorlykke.org>
+Date:   Tue Sep 28 13:45:38 2021 +0200
+
+    proto: Delay deleting heur_dtbl_entry_t in heur_dissector_delete
+    
+    Add the heur_dtbl_entry_t entry as deregistered when deleting a
+    heuristics dissector. The UDP dissector is storing a pointer to
+    this in proto_data and may access the entry during reload Lua
+    plugins until all packets are redissected.
+    
+    
+    (cherry picked from commit e9ac4d390086a6994cac0b2b500326f13a35c8bb)
+
+commit d9a02c445e
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Sep 26 09:54:46 2021 +0000
+
+    [Automatic update for 2021-09-26]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 8b0a2aec5c
+Author: Roland Knall <rknall@gmail.com>
+Date:   Fri Sep 24 08:54:40 2021 +0200
+
+    USBDump: Fix Memleak with error info
+    
+    The memory block the error was written to was uninitialized
+    
+    
+    (cherry picked from commit 0c7d82d8b7c4ae2932ba25b092be814cf5e4eb46)
+
+commit 2614a78f89
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Sep 16 20:15:54 2021 -0400
+
+    dfilter: Allow generic unquoted strings that are protocol names on RHS
+    
+    Protocol names can only be on the left hand side of filter expressions.
+    Allow unquoted strings on the RHS that can be interpreted as protocol
+    names to instead be treated as if they did not match a protocol.
+    
+    N.B. in accordance with current behavior, they will first be intepreted
+    as a byte array, if possible and failing that, as a generic string.
+    I.e., "frame contains data" will now match frames that contain
+    "\x64\x61\x74\x61" but "frame contains fc" will now match frames that
+    contain "\xfc" and not "\x66\x63", instead of both being illegal.
+    
+    Fix #12810.
+    
+    (squashed from commits ac0b1d42f314b752d87c9d583d6bd66e8140f534
+    and a2120e823c7274d9c4301a27f3805c877ae9ff65)
+
+commit 34f041deee
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Sep 19 09:54:34 2021 +0000
+
+    [Automatic update for 2021-09-19]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 4b377a5169
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Sep 12 09:52:00 2021 +0000
+
+    [Automatic update for 2021-09-12]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 60f7cdffb9
+Author: Graham Bloice <graham.bloice@trihedral.com>
+Date:   Sat Sep 11 15:02:18 2021 +0100
+
+    Windows: Update displayed OS version info
+    
+    MS has changed the registry key that holds the version for display
+    from 20H2 onwards.
+    
+    
+    (cherry picked from commit 58207d2f8dcbabe05f392d7145eb12fd80f7c4ea)
+
+commit 5b32a530ba
+Author: Uli Heilmeier <uh@heilmeier.eu>
+Date:   Wed Sep 8 16:55:54 2021 +0200
+
+    Credentials Tap: Fix wmem scope for init call
+    
+    When calling credentials_init() for a tshark live capture we're in the
+    epan wmem scope.
+    
+    Fixes: wireshark/wireshark#17576
+    
+    
+    (cherry picked from commit 4e7d10eea14a015f5c034a3e4fa38f1e8718d1a0)
+
+commit 45bad35416
+Author: Mikael Kanstrup <mikael.kanstrup@gmail.com>
+Date:   Wed Sep 8 13:36:24 2021 +0200
+
+    dot11decrypt: Fix AAD calculation for legacy ccmp implementation
+    
+    Re-implement below change but for the legacy ccmp decryption used on
+    3.2 release track but also on later releases when Wireshark is built
+    with older versions of libgcrypt:
+    
+    e5e37add9a 802.11 Decrypt: Fix AAD Calculation when HT-Control present in a QoS Data Frame
+    
+    Ping #17577.
+    
+    
+    (cherry picked from commit c58c106b304fbcc8333d470e93a7c0962c7d6b1d)
+
+commit 02dfe671f8
+Author: Marius Preuten <marius.preuten@lancom.de>
+Date:   Wed Sep 1 12:54:18 2021 +0200
+
+    802.11 Decrypt: Fix AAD Calculation when HT-Control present in a QoS Data Frame
+    
+    The current implementation misses an edge case, where bit 15 of the FC Field
+    must be zeroed in case a QoS Control field is present (IEEE 802.11 12.5.3.3.3),
+    which results in a wrong AAD and subsequently in the failure of the packet
+    decryption for QoS Data Frame carrying a HT Control Field (indicated by bit
+    15 set to 1).
+    
+    In addition the field 14 must be 1, which is ensured explicitly (the author is
+    not sure if the code is reachable by frames which do not have bit 14 set to
+    one).
+    
+    (cherry picked from commit e5e37add9af3bdf0d69662ceb2e5bad420528c02)
+
+commit 1c0b66bd51
+Author: kor <drkor@bk.ru>
+Date:   Sat Sep 4 12:04:25 2021 +0300
+
+    diameter: add 3GPP 29.234 V11.2.0 (2013-06)
+    
+    Added new AVP from 3GPP 29.234
+    
+    
+    (cherry picked from commit 61e1e69218ad0c9c0c3f2d097d9bf8f8a4515251)
+
+commit e42587fe1a
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Sep 5 19:18:02 2021 +0000
+
+    [Automatic update for 2021-09-05]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 0846ecd065
+Author: Uli Heilmeier <uh@heilmeier.eu>
+Date:   Sat Sep 4 11:17:08 2021 +0200
+
+    IEEE 802.15.4: Add PAN ID when flag is set
+    
+    According to IEEE 802.15.4-2020 Section 7.3.5.1 Destination PAN ID field is
+    present when PAN ID Present bit is set. Therefore we should check for the bit.
+    
+    Fixes: wireshark/wireshark#17496
+    
+    
+    (cherry picked from commit 86d5606be3d77d689f6b47e0c93165a1123cd58b)
+
+commit 9110d25165
+Author: Stig Bjørlykke <stig@bjorlykke.org>
+Date:   Fri Aug 27 12:25:37 2021 +0200
+
+    gsm_sim: Fix MANAGE CHANNEL
+    
+    Use correct offset for P1 and P2 when showing channel operation
+    and channel number.
+    
+    According to TS 102 221 V14.2.0 the Open channel operation is using
+    P2 for channel, and let UICC assign when this is 0. Show P3 as Le.
+    Make P3 optional because it's not present in at least Close channel
+    operation.
+    
+    Change text in Info column to avoid "Channel Channel: x".
+    
+    
+    (cherry picked from commit 3efb3cab62c64fbda2e15b528e87fc7c1c515af4)
+
+commit 39c9fce326
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Aug 29 09:54:08 2021 +0000
+
+    [Automatic update for 2021-08-29]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 9ce83d4cc5
+Author: Guy Harris <gharris@sonic.net>
+Date:   Sat Aug 28 16:00:41 2021 -0700
+
+    pcapng: fix handling of byte-swapped sysdig event blocks.
+    
+    We weren't setting wblock->rec->rec_header.syscall_header.nparams for
+    byte-swapped event blocks.
+    
+    
+    (cherry picked from commit 10be4d1611da4911cbdd12f119a74aa965fdb537)
+
+commit 86a69dedd5
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Aug 25 17:24:31 2021 -0400
+
+    AMQP: Fix dissection of PDUs split across TCP segments
+    
+    AMQP calls a subdissector table before tcp_dissect_pdus() is used to
+    desegment PDUs (see commit 27c10ed72ea2451bfbb6c0eb50af4280e65a3fcf),
+    so pinfo->can_desegment needs to be restored before it is decremented
+    a second time.  Fixes #14217.
+    
+    
+    (cherry picked from commit f997f2889828474bd20eaff4265eade918b85f52)
+
+commit 8f27321529
+Author: Guy Harris <gharris@sonic.net>
+Date:   Fri Aug 27 12:54:02 2021 -0700
+
+    wtap_opttypes: fix a typo.
+    
+    
+    (cherry picked from commit 5536ca319a8e7cc7ebf7bf387ad2b7efe070c532)
+
+commit 692440f539
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Aug 26 22:01:39 2021 -0400
+
+    SMB: Don't canonize filenames to ASCII for Export Objects
+    
+    Windows can allow Unicode in filenames now, and export_object.c
+    has its own eo_massage_str function that the GUI and CLI already
+    call to create safe filenames when they are saved. There's no need
+    for an individual dissector like SMB to have its own (worse)
+    implementation of the same functionality, and to call it before
+    filenames are displayed. Fix #17530
+    
+    
+    (cherry picked from commit 0e3782831ab14b721c7b1dc26959eecbc85ad6ec)
+
+commit 4a8f32309b
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Aug 25 14:02:28 2021 -0700
+
+    GitLab CI: Publish our Windows PDBs.
+    
+    Conflicts:
+            .gitlab-ci.yml
+
+commit f975c8e5d8
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Aug 25 14:38:17 2021 -0700
+
+    Version: 3.4.8 → 3.4.9
+    
+    [skip ci]

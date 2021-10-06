@@ -44,7 +44,7 @@ The following bugs have been fixed:
 //* Wireshark exposed details your sordid redneck past, which were subsequently widely disseminated on social media.
 // cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log v3.4.4rc0.. | gsed -e 's/\(close\|fix\|resolv\)[^ ]* #/\nclose #/gI' | grep ^close | sed -e 's/close.*#\([1-9][0-9]*\).*/\1/' | sort -V -u` ; do "$(git rev-parse --show-toplevel)/tools/gen-bugnote" $bugnumber; pbpaste >> /tmp/buglist.txt; done
 
-* tshark pdml output embeds "proto" elements within other "proto" elements wsbuglink:10588[].
+* TShark PDML output embeds "proto" elements within other "proto" elements wsbuglink:10588[].
 
 * Filter expressions comparing against single-octet hex strings where the hex digit string equals a protocol name don't work wsbuglink:12810[].
 
@@ -64,7 +64,12 @@ The following bugs have been fixed:
 
 * Absolute time UTC field filters are constructed incorrectly, don't match the packet wsbuglink:17617[].
 
-* "Crash" after selecting a different profile while capturing wsbuglink:17622[].
+* GUI freezes when clicking on large (non-capture) file in File chooser wsbuglink:17620[].
+
+* Crash after selecting a different profile while capturing wsbuglink:17622[].
+
+* BT-DHT reports malformed packets that are actually uTP on same connection wsbuglink:17626[].
+
 
 === New and Updated Features
 
@@ -89,12 +94,14 @@ There are no new protocols in this release.
 --
 AMQP
 Aruba IAP
-CoAP
 BGP
+BT-DHT
+CoAP
 DCERPC SPOOLSS
 Diameter
 EPL
 GSM A-bis OML
+GSM A-I/F COMMON
 GSM SIM
 IEEE 1905.1a
 IEEE 802.15.4
@@ -120,6 +127,8 @@ VSS Monitoring
 // Add one file type per line between the -- delimiters.
 [commaize]
 --
+CAM Inspector
+Ixia IxVeriWave
 pcapng
 USBDump
 --
