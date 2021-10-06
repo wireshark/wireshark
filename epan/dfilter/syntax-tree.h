@@ -91,10 +91,16 @@ stnode_t*
 stnode_dup(const stnode_t *org);
 
 void
+stnode_clear(stnode_t *node);
+
+void
 stnode_init(stnode_t *node, sttype_id_t type_id, gpointer data, const char *token_value);
 
 void
 stnode_init_int(stnode_t *node, sttype_id_t type_id, gint32 value, const char *token_value);
+
+void
+stnode_replace(stnode_t *node, sttype_id_t type_id, gpointer data);
 
 void
 stnode_free(stnode_t *node);

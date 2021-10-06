@@ -76,23 +76,6 @@ sttype_set_tostr(const void *data)
 }
 
 void
-sttype_set_replace_element(stnode_t *node, stnode_t *oldnode, stnode_t *newnode)
-{
-	GSList	*nodelist = (GSList*)stnode_data(node);
-
-	/* This deliberately checks both the left and right nodes, covering both
-	 * the lower and upper bound for ranges. NULL right nodes (in case of
-	 * normal, non-range elements) will usually not match "oldnode". */
-	while (nodelist) {
-		if (nodelist->data == oldnode) {
-			nodelist->data = newnode;
-			break;
-		}
-		nodelist = g_slist_next(nodelist);
-	}
-}
-
-void
 sttype_register_set(void)
 {
 	static sttype_t set_type = {
