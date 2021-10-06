@@ -1,5 +1,7 @@
 Wireshark 3.2.17 Release Notes
 
+ This is expected to be the final supported version of the 3.2 branch.
+
  What is Wireshark?
 
   Wireshark is the world’s most popular network protocol analyzer. It is
@@ -11,6 +13,24 @@ Wireshark 3.2.17 Release Notes
 
    The following bugs have been fixed:
 
+     • AMQP 0.9: dissector fails to handle Content-Body frame split
+       across TCP packets Issue 14217[1].
+
+     • Wireshark ignored some character in filename when exporting SMB
+       objects. Issue 17530[2].
+
+     • tshark -z credentials: assertion failed: (allocator→in_scope)
+       Issue 17576[3].
+
+     • IS-IS Extended IP Reachability Prefix-SID not decoded properly
+       Issue 17610[4].
+
+     • GUI freezes when clicking on large (non-capture) file in File
+       chooser Issue 17620[5].
+
+     • Crash after selecting a different profile while capturing Issue
+       17622[6].
+
   New and Updated Features
 
    There are no new features in this release.
@@ -21,9 +41,13 @@ Wireshark 3.2.17 Release Notes
 
   Updated Protocol Support
 
+   AMQP, BGP, CoAP, DCERPC SPOOLSS, GTP, InfiniBand, ISIS LSP, ISObus
+   VT, JPEG, MP2T, NORDIC_BLE, QUIC, RTCP, SMB, TWAMP-Control, and VSS
+   Monitoring
+
   New and Updated Capture File Support
 
-   There is no new or updated capture file support in this release.
+   CAM Inspector, Ixia IxVeriWave, pcapng, and USBDump
 
  Getting Wireshark
 
@@ -35,7 +59,7 @@ Wireshark 3.2.17 Release Notes
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[1] on the Wireshark web site.
+   be found on the download page[7] on the Wireshark web site.
 
  File Locations
 
@@ -49,22 +73,28 @@ Wireshark 3.2.17 Release Notes
   The User’s Guide, manual pages and various other documentation can be
   found at https://www.wireshark.org/docs/
 
-  Community support is available on Wireshark’s Q&A site[2] and on the
+  Community support is available on Wireshark’s Q&A site[8] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[3].
+  for all of Wireshark’s mailing lists can be found on the web site[9].
 
-  Issues and feature requests can be reported on the issue tracker[4].
+  Issues and feature requests can be reported on the issue tracker[10].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[5].
+  A complete FAQ is available on the Wireshark web site[11].
 
-  Last updated 2021-10-03 09:56:53 UTC
+  Last updated 2021-10-06 17:39:18 UTC
 
  References
 
-   1. https://www.wireshark.org/download.html#thirdparty
-   2. https://ask.wireshark.org/
-   3. https://www.wireshark.org/lists/
-   4. https://gitlab.com/wireshark/wireshark/-/issues
-   5. https://www.wireshark.org/faq.html
+   1. https://gitlab.com/wireshark/wireshark/-/issues/14217
+   2. https://gitlab.com/wireshark/wireshark/-/issues/17530
+   3. https://gitlab.com/wireshark/wireshark/-/issues/17576
+   4. https://gitlab.com/wireshark/wireshark/-/issues/17610
+   5. https://gitlab.com/wireshark/wireshark/-/issues/17620
+   6. https://gitlab.com/wireshark/wireshark/-/issues/17622
+   7. https://www.wireshark.org/download.html#thirdparty
+   8. https://ask.wireshark.org/
+   9. https://www.wireshark.org/lists/
+  10. https://gitlab.com/wireshark/wireshark/-/issues
+  11. https://www.wireshark.org/faq.html

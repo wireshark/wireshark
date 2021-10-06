@@ -6,6 +6,8 @@ include::attributes.adoc[]
 // Asciidoctor Syntax Quick Reference:
 // https://asciidoctor.org/docs/asciidoc-syntax-quick-reference/
 
+This is expected to be the final supported version of the 3.2 branch.
+
 == What is Wireshark?
 
 Wireshark is the world’s most popular network protocol analyzer.
@@ -50,7 +52,11 @@ The following bugs have been fixed:
 
 * tshark -z credentials: assertion failed:  (allocator->in_scope) wsbuglink:17576[].
 
-* "Crash" after selecting a different profile while capturing wsbuglink:17622[].
+* IS-IS Extended IP Reachability Prefix-SID not decoded properly wsbuglink:17610[].
+
+* GUI freezes when clicking on large (non-capture) file in File chooser wsbuglink:17620[].
+
+* Crash after selecting a different profile while capturing wsbuglink:17622[].
 
 === New and Updated Features
 
@@ -76,7 +82,21 @@ There are no new protocols in this release.
 [commaize]
 --
 AMQP
+BGP
+CoAP
+DCERPC SPOOLSS
+GTP
+InfiniBand
+ISIS LSP
+ISObus VT
+JPEG
+MP2T
+NORDIC_BLE
+QUIC
+RTCP
 SMB
+TWAMP-Control
+VSS Monitoring
 --
 
 === New and Updated Capture File Support
@@ -85,6 +105,8 @@ SMB
 // Add one file type per line between the -- delimiters.
 [commaize]
 --
+CAM Inspector
+Ixia IxVeriWave
 pcapng
 USBDump
 --
