@@ -484,16 +484,6 @@ struct check_drange_sanity_args {
 	gboolean		err;
 };
 
-/* Q: Where are sttype_range_drange() and sttype_range_entity() defined?
- *
- * A: Those functions are defined by macros in epan/dfilter/sttype-range.h
- *
- *    The macro which creates them, STTYPE_ACCESSOR, is defined in
- *    epan/dfilter/syntax-tree.h.
- *
- * From https://www.wireshark.org/lists/ethereal-dev/200308/msg00070.html
- */
-
 static void
 check_drange_node_sanity(gpointer data, gpointer user_data)
 {

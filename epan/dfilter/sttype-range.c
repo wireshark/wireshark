@@ -121,9 +121,21 @@ sttype_range_set1(stnode_t *node, stnode_t *entity, drange_node *rn)
 	sttype_range_set(node, entity, g_slist_append(NULL, rn));
 }
 
-STTYPE_ACCESSOR(stnode_t*, range, entity, RANGE_MAGIC)
-STTYPE_ACCESSOR(drange_t*, range, drange, RANGE_MAGIC)
+stnode_t *
+sttype_range_entity(stnode_t *node)
+{
+	range_t *range = node->data;
+	ws_assert_magic(range, RANGE_MAGIC);
+	return range->entity;
+}
 
+drange_t *
+sttype_range_drange(stnode_t *node)
+{
+	range_t *range = node->data;
+	ws_assert_magic(range, RANGE_MAGIC);
+	return range->drange;
+}
 
 void
 sttype_register_range(void)

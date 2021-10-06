@@ -12,7 +12,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <glib.h>
-#include "cppmagic.h"
+
 #include "ws_log_defs.h"
 
 /** @file
@@ -160,19 +160,4 @@ void log_syntax_tree(enum ws_log_level, stnode_t *root, const char *msg);
 #define ws_assert_magic(obj, mnum) _assert_magic(obj, mnum)
 #endif
 
-#define STTYPE_ACCESSOR(ret,type,attr,magicnum) \
-	ret \
-	CONCAT(CONCAT(CONCAT(sttype_,type),_),attr) (stnode_t *node) \
-{\
-	CONCAT(type,_t)	*value; \
-	value = (CONCAT(type,_t) *)stnode_data(node);\
-	ws_assert_magic(value, magicnum); \
-	return value->attr; \
-}
-
-#define STTYPE_ACCESSOR_PROTOTYPE(ret,type,attr) \
-	ret \
-	CONCAT(CONCAT(CONCAT(sttype_,type),_),attr) (stnode_t *node);
-
-
-#endif
+#endif /* SYNTAX_TREE_H */
