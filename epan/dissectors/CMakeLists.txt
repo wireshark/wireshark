@@ -252,6 +252,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-adb_service.h
 	packet-afp.h
 	packet-alcap.h
+	packet-amp.h
 	packet-ansi_a.h
 	packet-ansi_map.h
 	packet-ansi_tcap.h
@@ -267,6 +268,9 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-bgp.h
 	packet-bicc_mst.h
 	packet-bluetooth.h
+	packet-bpv6.h
+	packet-bpv7.h
+	packet-bpsec.h
 	packet-bssap.h
 	packet-bssgp.h
 	packet-btatt.h
@@ -330,7 +334,6 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-dop.h
 	packet-dsp.h
 	packet-dtls.h
-	packet-dtn.h
 	packet-dvbci.h
 	packet-e1ap.h
 	packet-enip.h
@@ -581,6 +584,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-tacacs.h
 	packet-tcap.h
 	packet-tcp.h
+	packet-tcpclv3.h
 	packet-tetra.h
 	packet-thrift.h
 	packet-tls-utils.h
@@ -694,6 +698,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ansi_637.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ansi_683.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ansi_801.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-amp.h
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ansi_a.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-aodv.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-aoe.c
@@ -764,6 +769,9 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-brcm-tag.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-brdwlk.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-brp.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-bpv6.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-bpv7.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-bpsec.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-bssap.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-bssgp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-bt-dht.c
@@ -983,7 +991,6 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dsr.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dtcp-ip.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dtls.c
-	${CMAKE_CURRENT_SOURCE_DIR}/packet-dtn.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dtp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dtpt.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dua.c
@@ -1831,6 +1838,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-tapa.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-tcg-cp-oids.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-tcp.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-tcpclv3.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-tcpros.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-tdmoe.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-tdmop.c

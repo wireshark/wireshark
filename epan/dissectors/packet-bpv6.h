@@ -1,4 +1,7 @@
-/*
+/* packet-bpv6.h
+ * References:
+ *     RFC 5050: https://tools.ietf.org/html/rfc5050
+ *
  * Copyright 2006-2007 The MITRE Corporation.
  * All Rights Reserved.
  * Approved for Public Release; Distribution Unlimited.
@@ -15,53 +18,18 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
+#ifndef PACKET_BPV6_H
+#define PACKET_BPV6_H
 
-/* TCP Convergence Layer - Message Types */
-#define TCP_CONV_MSG_TYPE_DATA          0x01
-#define TCP_CONV_MSG_TYPE_ACK           0x02
-#define TCP_CONV_MSG_TYPE_KEEP_ALIVE    0x03
-#define TCP_CONV_MSG_TYPE_SHUTDOWN      0x04
+#include <ws_symbol_export.h>
+#include <epan/tvbuff.h>
+#include <epan/proto.h>
 
-/* TCP Convergence Layer (3) - Message Types */
-#define TCP_CONVERGENCE_TYPE_MASK       0xf0
-#define TCP_CONVERGENCE_DATA_SEGMENT    0x10
-#define TCP_CONVERGENCE_ACK_SEGMENT     0x20
-#define TCP_CONVERGENCE_REFUSE_BUNDLE   0x30
-#define TCP_CONVERGENCE_KEEP_ALIVE      0x40
-#define TCP_CONVERGENCE_SHUTDOWN        0x50
-#define TCP_CONVERGENCE_LENGTH          0x60
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-/* TCP Convergence Layer - Contact Header Flags */
-#define TCP_CONV_BUNDLE_ACK_FLAG        0x01
-#define TCP_CONV_REACTIVE_FRAG_FLAG     0x02
-#define TCP_CONV_CONNECTOR_RCVR_FLAG    0x04
-
-/* TCP Convergence Layer - Data Segment Flags */
-#define TCP_CONVERGENCE_DATA_FLAGS      0x03
-#define TCP_CONVERGENCE_DATA_END_FLAG   0x01
-#define TCP_CONVERGENCE_DATA_START_FLAG 0x02
-
-/* TCP Convergence Layer - Shutdown Segment Flags */
-#define TCP_CONVERGENCE_SHUTDOWN_FLAGS  0x03
-#define TCP_CONVERGENCE_SHUTDOWN_REASON 0x02
-#define TCP_CONVERGENCE_SHUTDOWN_DELAY  0x01
-
-/* REFUSE-BUNDLE Reason-Codes */
-#define TCP_REFUSE_BUNDLE_REASON_UNKNOWN       0x00
-#define TCP_REFUSE_BUNDLE_REASON_RX_COMPLETE   0x01
-#define TCP_REFUSE_BUNDLE_REASON_RX_EXHAUSTED  0x02
-#define TCP_REFUSE_BUNDLE_REASON_RX_RETRANSMIT 0x03
-/* 0x4-0x7 - Unassigned
- * 0x8-0xf - Reserved for future Use */
-
-/*
- * TCP Convergence Layer - Minimum buffer sizes
- * For Data Packet require 5 bytes fixed plus
- * up to 4 additional for length SDV
- */
-
-#define TCP_CONV_MIN_DATA_BUFFER        9
-
+#define BUNDLE_PORT 4556
 
 #define BUNDLE_PROCFLAGS_FRAG_MASK      0x01
 #define BUNDLE_PROCFLAGS_ADMIN_MASK     0x02
@@ -106,12 +74,6 @@
 #define PAYLOAD_PROCFLAGS_DISCARD_FAILURE       0x04
 #define PAYLOAD_PROCFLAGS_LAST_HEADER           0x08
 
-/* Header Fixed Sizes */
-#define TCP_CONV_HDR_DATA_FIXED_LENGTH  5
-#define TCP_CONV_HDR_ACK_LENGTH         9
-#define TCP_CONV_HDR_KEEP_ALIVE_LENGTH  1
-#define TCP_CONV_HDR_SHUTDOWN_LENGTH    1
-
 /* Administrative Record Definitions */
 #define ADMIN_REC_TYPE_STATUS_REPORT            0x01
 #define ADMIN_REC_TYPE_CUSTODY_SIGNAL           0x02
@@ -150,7 +112,20 @@
 #define DTN_SCHEME_STR                  "dtn"
 #define IPN_SCHEME_STR                  "ipn"
 
+/*
+ * SDNV has a zero in high-order bit position of last byte. The high-order
+ * bit of all preceding bytes is set to one. This returns the numeric value
+ * in an integer and sets the value of the second argument to the number of
+ * bytes used to code the SDNV. A -1 is returned if the evaluation fails
+ * (value exceeds maximum for signed integer). 0 is an acceptable value.
+ */
+#define SDNV_MASK       0x7f
+
 int evaluate_sdnv(tvbuff_t *tvb, int offset, int *bytecount);
+
+/// Return an error_info index if not valid
+int evaluate_sdnv_ei(tvbuff_t *tvb, int offset, int *bytecount, expert_field **error);
+
 gint64 evaluate_sdnv_64(tvbuff_t *tvb, int offset, int *bytecount);
 
 
@@ -161,10 +136,14 @@ gint64 evaluate_sdnv_64(tvbuff_t *tvb, int offset, int *bytecount);
  *    result is TRUE (1) on success else FALSE (0)
  */
 int evaluate_sdnv32(tvbuff_t *tvb, int offset, int *bytecount, guint32 *value);
+
 int evaluate_sdnv64(tvbuff_t *tvb, int offset, int *bytecount, guint64 *value);
 
-void
-dissect_cfdp_as_subtree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset);
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* PACKET_AMP_H */
 
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html

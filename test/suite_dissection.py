@@ -14,6 +14,49 @@ import unittest
 import fixtures
 import sys
 
+
+@fixtures.mark_usefixtures('test_env')
+@fixtures.uses_fixtures
+class case_dissect_bpv7(subprocesstest.SubprocessTestCase):
+
+    def test_bpv7_admin_status(self, cmd_tshark, features, dirs, capture_file):
+        self.assertRun((cmd_tshark,
+                '-r', capture_file('dtn_udpcl_bpv7_bpsec_bib_admin.pcapng'),
+                '-Tfields', '-ebpv7.status_rep.identity',
+            ))
+        self.assertTrue(self.grepOutput(r'Source: ipn:93.185, DTN Time: 1396536125, Seq: 281'))
+
+    def test_bpv7_bpsec_bib(self, cmd_tshark, features, dirs, capture_file):
+        self.assertRun((cmd_tshark,
+                '-r', capture_file('dtn_udpcl_bpv7_bpsec_bib_admin.pcapng'),
+                '-Tfields', '-ebpsec.asb.ctxid',
+            ))
+        self.assertEqual(self.countOutput(r'1'), 1)
+
+    def test_bpv7_bpsec_bib_admin_type(self, cmd_tshark, features, dirs, capture_file):
+        # BIB doesn't alter payload
+        self.assertRun((cmd_tshark,
+                '-r', capture_file('dtn_udpcl_bpv7_bpsec_bib_admin.pcapng'),
+                '-Tfields', '-ebpv7.admin_rec.type_code',
+            ))
+        self.assertEqual(self.countOutput(r'1'), 1)
+
+    def test_bpv7_bpsec_bcb(self, cmd_tshark, features, dirs, capture_file):
+        self.assertRun((cmd_tshark,
+                '-r', capture_file('dtn_udpcl_bpv7_bpsec_bcb_admin.pcapng'),
+                '-Tfields', '-ebpsec.asb.ctxid',
+            ))
+        self.assertEqual(self.countOutput(r'2'), 1)
+
+    def test_bpv7_bpsec_bcb_admin_type(self, cmd_tshark, features, dirs, capture_file):
+        # BCB inhibits payload dissection
+        self.assertRun((cmd_tshark,
+                '-r', capture_file('dtn_udpcl_bpv7_bpsec_bcb_admin.pcapng'),
+                '-Tfields', '-ebpv7.admin_rec.type_code',
+            ))
+        self.assertEqual(self.countOutput(r'1'), 0)
+
+
 @fixtures.mark_usefixtures('test_env')
 @fixtures.uses_fixtures
 class case_dissect_cose(subprocesstest.SubprocessTestCase):

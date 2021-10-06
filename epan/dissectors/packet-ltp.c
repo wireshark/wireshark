@@ -36,7 +36,7 @@
 #include <epan/expert.h>
 #include <epan/reassemble.h>
 
-#include "packet-dtn.h"
+#include "packet-bpv6.h"
 
 void proto_register_ltp(void);
 void proto_reg_handoff_ltp(void);
