@@ -44,6 +44,8 @@ static int ett_rdpudp2_delayack = -1;
 static int ett_rdpudp2_aoa = -1;
 static int ett_rdpudp2_data = -1;
 static int ett_rdpudp2_ackvec = -1;
+static int ett_rdpudp2_ackvec_vecs = -1;
+static int ett_rdpudp2_ackvec_vec = -1;
 
 
 static int pf_rdpudp_snSourceAck = -1;
@@ -127,6 +129,7 @@ static int pf_rdpudp2_AckvecBaseSeq = -1;
 static int pf_rdpudp2_AckvecCodecAckVecSize = -1;
 static int pf_rdpudp2_AckvecHaveTs = -1;
 static int pf_rdpudp2_AckvecTimeStamp = -1;
+static int pf_rdpudp2_SendAckTimeGapInMs = -1;
 static int pf_rdpudp2_AckvecCodedAck = -1;
 static int pf_rdpudp2_AckvecCodedAckMode = -1;
 static int pf_rdpudp2_AckvecCodedAckRleState = -1;
@@ -194,14 +197,14 @@ static const value_string rdpudp2_packetType_vals[] = {
 };
 
 static const value_string rdpudp2_ackvec_mode_vals[] = {
-	{ 0x0, "Bitmap"},
-	{ 0x1, "Run length"},
-	{ 0x0, NULL }
+	{ 0x00, "Bitmap"},
+	{ 0x01, "Run length"},
+	{ 0x00, NULL }
 };
 
 static const value_string rdpudp2_ackvec_rlestates_vals[] = {
-	{ 0x0, "lost" },
-	{ 0x1, "received" },
+	{ 0x00, "lost" },
+	{ 0x01, "received" },
 	{ 0x0, NULL }
 };
 
@@ -477,6 +480,9 @@ dissect_rdpudp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	if (flags & RDPUDP2_ACKVEC) {
+		proto_tree *acks_tree;
+		guint8 i;
+		guint32 base_seq;
 		gint ackvecSz = 3;
 		guint8 codedAckVecSizeA = tvb_get_guint8(tvb2, offset + 2);
 		guint8 codedAckVecSize = codedAckVecSizeA & 0x7f;
@@ -487,7 +493,7 @@ dissect_rdpudp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			ackvecSz += 3;
 
 		subtree = proto_tree_add_subtree(tree, tvb2, offset, ackvecSz, ett_rdpudp2_ackvec, NULL, "AckVec");
-		proto_tree_add_item(subtree, pf_rdpudp2_AckvecBaseSeq, tvb2, offset, 2, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item_ret_uint(subtree, pf_rdpudp2_AckvecBaseSeq, tvb2, offset, 2, ENC_LITTLE_ENDIAN, &base_seq);
 		offset += 2;
 
 		proto_tree_add_item(subtree, pf_rdpudp2_AckvecCodecAckVecSize, tvb2, offset, 1, ENC_LITTLE_ENDIAN);
@@ -495,10 +501,47 @@ dissect_rdpudp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset++;
 
 		if (haveTs) {
-			gint tsSize = 4;
-			proto_tree_add_item(subtree, pf_rdpudp2_AckvecTimeStamp, tvb2, offset, tsSize, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(subtree, pf_rdpudp2_AckvecTimeStamp, tvb2, offset, 3, ENC_LITTLE_ENDIAN);
+			offset += 3;
 
-			offset += tsSize;
+			proto_tree_add_item(subtree, pf_rdpudp2_SendAckTimeGapInMs, tvb2, offset, 1, ENC_LITTLE_ENDIAN);
+			offset += 1;
+		}
+
+		acks_tree = proto_tree_add_subtree(subtree, tvb2, offset, codedAckVecSize, ett_rdpudp2_ackvec_vecs, NULL, "Acks");
+		for (i = 0; i < codedAckVecSize; i++) {
+			proto_tree *ack_tree;
+
+			guint8 b = tvb_get_guint8(tvb2, offset + i);
+
+			if (b & 0x80) {
+				/* run length mode */
+				guint8 rle_len = (b & 0x3f);
+				ack_tree = proto_tree_add_subtree_format(acks_tree, tvb2, offset + i, 1, ett_rdpudp2_ackvec_vec, NULL,
+						"RLE %s %04x -> %04x", (b & 0x40) ? "received" : "lost",
+						base_seq, base_seq + rle_len);
+
+				base_seq += rle_len;
+			} else {
+				/* bitmap mode */
+				ack_tree = proto_tree_add_subtree_format(acks_tree, tvb2, offset + i, 1, ett_rdpudp2_ackvec_vec, NULL,
+						"bitmap %s%04x %s%04x %s%04x %s%04x %s%04x %s%04x %s%04x",
+						(b & 0x01) ? "" : "!", base_seq,
+						(b & 0x02) ? "" : "!", base_seq + 1,
+						(b & 0x04) ? "" : "!", base_seq + 2,
+						(b & 0x08) ? "" : "!", base_seq + 3,
+						(b & 0x10) ? "" : "!", base_seq + 4,
+						(b & 0x20) ? "" : "!", base_seq + 5,
+						(b & 0x40) ? "" : "!", base_seq + 6
+				);
+				base_seq += 7;
+			}
+
+			proto_tree_add_item(ack_tree, pf_rdpudp2_AckvecCodedAckMode, tvb2, offset + i, 1, ENC_LITTLE_ENDIAN);
+			if (b & 0x80) {
+				proto_tree_add_item(ack_tree, pf_rdpudp2_AckvecCodedAckRleState, tvb2, offset + i, 1, ENC_LITTLE_ENDIAN);
+				proto_tree_add_item(ack_tree, pf_rdpudp2_AckvecCodedAckRleLen, tvb2, offset + i, 1, ENC_LITTLE_ENDIAN);
+			}
 		}
 
 		offset += codedAckVecSize;
@@ -746,11 +789,14 @@ proto_register_rdpudp(void) {
 	  { &pf_rdpudp2_AckvecTimeStamp,
 		{"Timestamp", "rdpudp2.ackvec.timestamp", FT_UINT24, BASE_HEX, NULL, 0, NULL, HFILL}
 	  },
+	  { &pf_rdpudp2_SendAckTimeGapInMs,
+		{"SendAckTimeGap", "rdpudp2.ackvec.sendacktimegap", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL}
+	  },
 	  { &pf_rdpudp2_AckvecCodedAck,
 		{"Coded Ack", "rdpudp2.ackvec.codedAck", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL}
 	  },
 	  { &pf_rdpudp2_AckvecCodedAckMode,
-		{"Mode", "rdpudp2.ackvec.codecAckMode", FT_UINT8, BASE_DEC, VALS(rdpudp2_ackvec_mode_vals), 0x80, NULL, HFILL}
+		{"Mode", "rdpudp2.ackvec.codecAckMode", FT_UINT8, BASE_HEX, VALS(rdpudp2_ackvec_mode_vals), 0x80, NULL, HFILL}
 	  },
 	  { &pf_rdpudp2_AckvecCodedAckRleState,
 		{"State", "rdpudp2.ackvec.codecAckRleState", FT_UINT8, BASE_DEC, VALS(rdpudp2_ackvec_rlestates_vals), 0x40, NULL, HFILL}
@@ -776,6 +822,8 @@ proto_register_rdpudp(void) {
 		&ett_rdpudp2_aoa,
 		&ett_rdpudp2_data,
 		&ett_rdpudp2_ackvec,
+		&ett_rdpudp2_ackvec_vecs,
+		&ett_rdpudp2_ackvec_vec,
 	};
 
 	/* Register protocol */
