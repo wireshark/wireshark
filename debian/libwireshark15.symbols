@@ -65,6 +65,24 @@ libwireshark.so.15 libwireshark15 #MINVER#
  bluetooth_uuid_vals@Base 1.99.2
  bluetooth_uuid_vals_ext@Base 1.99.2
  bluetooth_uuids@Base 2.1.0
+ bp_block_canonical_new@Base 3.5.1rc0-3265-gb0c69d7db316
+ bp_block_primary_free@Base 3.5.1rc0-3265-gb0c69d7db316
+ bp_block_primary_new@Base 3.5.1rc0-3265-gb0c69d7db316
+ bp_bundle_free@Base 3.5.1rc0-3265-gb0c69d7db316
+ bp_bundle_ident_equal@Base 3.5.1rc0-3265-gb0c69d7db316
+ bp_bundle_ident_free@Base 3.5.1rc0-3265-gb0c69d7db316
+ bp_bundle_ident_hash@Base 3.5.1rc0-3265-gb0c69d7db316
+ bp_bundle_ident_new@Base 3.5.1rc0-3265-gb0c69d7db316
+ bp_bundle_new@Base 3.5.1rc0-3265-gb0c69d7db316
+ bp_creation_ts_compare@Base 3.5.1rc0-3265-gb0c69d7db316
+ bp_creation_ts_free@Base 3.5.1rc0-3265-gb0c69d7db316
+ bp_eid_equal@Base 3.5.1rc0-3265-gb0c69d7db316
+ bp_eid_free@Base 3.5.1rc0-3265-gb0c69d7db316
+ bp_eid_new@Base 3.5.1rc0-3265-gb0c69d7db316
+ bpsec_id_equal@Base 3.5.1rc0-3265-gb0c69d7db316
+ bpsec_id_free@Base 3.5.1rc0-3265-gb0c69d7db316
+ bpsec_id_hash@Base 3.5.1rc0-3265-gb0c69d7db316
+ bpsec_id_new@Base 3.5.1rc0-3265-gb0c69d7db316
  bssgp_cause_vals_ext@Base 1.9.1
  bthci_cmd_authentication_enable_values@Base 2.1.2
  bthci_cmd_encrypt_mode_vals@Base 2.1.2
@@ -1226,6 +1244,7 @@ libwireshark.so.15 libwireshark15 #MINVER#
  proto_tree_add_cbor_bstr@Base 3.5.1
  proto_tree_add_cbor_container@Base 3.5.1
  proto_tree_add_cbor_ctrl@Base 3.5.1
+ proto_tree_add_cbor_eid@Base 3.5.1rc0-3265-gb0c69d7db316
  proto_tree_add_cbor_int64@Base 3.5.1
  proto_tree_add_cbor_tstr@Base 3.5.1
  proto_tree_add_cbor_uint64@Base 3.5.1

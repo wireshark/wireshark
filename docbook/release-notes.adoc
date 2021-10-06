@@ -130,6 +130,8 @@ Vector Informatik Binary Log File (BLF)
 --
 5G Lawful Interception (5GLI)
 Bluetooth Link Manager Protocol (BT LMP)
+Bundle Protocol version 7 (BPv7)
+Bundle Protocol version 7 Security (BPSec)
 CBOR Object Signing and Encryption (COSE)
 E2 Application Protocol (E2AP)
 Event Tracing for Windows (ETW)

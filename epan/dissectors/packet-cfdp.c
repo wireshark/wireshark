@@ -19,7 +19,7 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
-#include "packet-dtn.h"
+#include "packet-cfdp.h"
 
 /* The CFDP standard can be found here:
  * http://public.ccsds.org/publications/archive/727x0b4.pdf
