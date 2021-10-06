@@ -146,18 +146,18 @@ log_stnode_full(enum ws_log_level level,
 
 void log_syntax_tree(enum ws_log_level, stnode_t *root, const char *msg);
 
-#define assert_magic(obj, mnum) \
-	g_assert_true((obj)); \
+#define _assert_magic(obj, mnum) \
+	g_assert((obj)); \
 	if ((obj)->magic != (mnum)) { \
 		g_print("\nMagic num is 0x%08x, but should be 0x%08x", \
 			(obj)->magic, (mnum)); \
-			g_assert_true((obj)->magic == (mnum)); \
+			g_assert((obj)->magic == (mnum)); \
 	}
 
-#ifdef WS_DEBUG
-#define ws_assert_magic(obj, mnum) assert_magic(obj, mnum)
+#ifdef WS_DISABLE_DEBUG
+#define ws_assert_magic(obj, mnum) (void)0
 #else
-#define ws_assert_magic(obj, mnum)
+#define ws_assert_magic(obj, mnum) _assert_magic(obj, mnum)
 #endif
 
 #define STTYPE_ACCESSOR(ret,type,attr,magicnum) \
