@@ -239,6 +239,15 @@ bytes_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U
 	GByteArray	*bytes;
 	gboolean	res;
 
+	/*
+	 * Special case where the byte string is specified using a one byte
+	 * hex literal. We can't allow this for byte strings that are longer
+	 * than one byte, because then we'd have to know which endianness the
+	 * byte string should be in.
+	 */
+	if (strlen(s) == 4 && s[0] == '0' && s[1] == 'x')
+		s = s + 2;
+
 	bytes = g_byte_array_new();
 
 	res = hex_str_to_bytes(s, bytes, TRUE);
