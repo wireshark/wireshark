@@ -23,6 +23,7 @@
 #include <epan/strutil.h>
 #include <wsutil/str_util.h>
 
+#include "packet-gsm_a_common.h"
 #include "packet-http.h"
 
 void proto_register_lwm2mtlv(void);
@@ -63,6 +64,7 @@ static gint ett_lwm2mtlv_resource                = -1;
 static gint ett_lwm2mtlv_resource_instance       = -1;
 static gint ett_lwm2mtlv_resource_array          = -1;
 static gint ett_lwm2mtlv_object_instance         = -1;
+static gint ett_lwm2mtlv_location_velocity       = -1;
 
 typedef enum {
 	OBJECT_INSTANCE   = 0,
@@ -765,9 +767,17 @@ addValueInterpretations(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tlv_tree,
 		}
 		case DATA_TYPE_OPAQUE:
 		default:
-			proto_tree_add_item(tlv_tree, *resource->hf_id, tvb, valueOffset, element->length_of_value, ENC_BIG_ENDIAN);
+		{
+			proto_item *ti = proto_tree_add_item(tlv_tree, *resource->hf_id, tvb, valueOffset, element->length_of_value, ENC_BIG_ENDIAN);
+
 			proto_item_append_text(tlv_tree, ": %s", tvb_bytes_to_str(pinfo->pool, tvb, valueOffset, element->length_of_value));
+
+			if (resource->object_id == 6 && resource->resource_id == 4) {
+				proto_tree *pt = proto_item_add_subtree(ti, ett_lwm2mtlv_location_velocity);
+				dissect_description_of_velocity(tvb, pt, pinfo, valueOffset, element->length_of_value, NULL, 0);
+			}
 			break;
+		}
 		}
 	} else {
 		guint8 *str = tvb_get_string_enc(pinfo->pool, tvb, valueOffset, element->length_of_value, ENC_UTF_8);
@@ -1106,7 +1116,8 @@ void proto_register_lwm2mtlv(void)
 		&ett_lwm2mtlv_resource,
 		&ett_lwm2mtlv_resource_instance,
 		&ett_lwm2mtlv_resource_array,
-		&ett_lwm2mtlv_object_instance
+		&ett_lwm2mtlv_object_instance,
+		&ett_lwm2mtlv_location_velocity
 	};
 
 	static uat_field_t lwm2m_object_name_flds[] = {
