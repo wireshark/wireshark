@@ -1061,7 +1061,6 @@ check_relation_LHS_RANGE(dfwork_t *dfw, const char *relation_string,
 	fvalue_t		*fvalue;
 	GRegex			*pcre;
 	char			*s;
-	int                     len_range;
 
 	ws_debug("5 check_relation_LHS_RANGE(%s)", relation_string);
 
@@ -1109,7 +1108,6 @@ check_relation_LHS_RANGE(dfwork_t *dfw, const char *relation_string,
 	else if (type2 == STTYPE_UNPARSED) {
 		ws_debug("5 check_relation_LHS_RANGE(type2 = STTYPE_UNPARSED)");
 		s = (char*)stnode_data(st_arg2);
-		len_range = drange_get_total_length(sttype_range_drange(st_arg1));
 		if (strcmp(relation_string, "matches") == 0) {
 			/* Convert to a GRegex */
 			pcre = dfilter_g_regex_from_string(dfw, s);
@@ -1118,38 +1116,7 @@ check_relation_LHS_RANGE(dfwork_t *dfw, const char *relation_string,
 			}
 			stnode_replace(st_arg2, STTYPE_PCRE, pcre);
 		} else {
-			/*
-			 * The RHS should be FT_BYTES. However, there is a
-			 * special case where the range slice on the LHS is
-			 * one byte long. In that case, it is natural
-			 * for the user to specify a normal hex integer
-			 * on the RHS, with the "0x" notation, as in
-			 * "slice[0] == 0x10". We can't allow this for any
-			 * slices that are longer than one byte, because
-			 * then we'd have to know which endianness the
-			 * byte string should be in.
-			 */
-			if (len_range == 1 && strlen(s) == 4 && strncmp(s, "0x", 2) == 0) {
-				/*
-				 * Even if the RHS string starts with "0x",
-				 * it still could fail to be an integer.
-				 * Try converting it here.
-				 */
-				fvalue = dfilter_fvalue_from_unparsed(dfw, FT_UINT8, s, allow_partial_value);
-				if (fvalue) {
-					FVALUE_FREE(fvalue);
-					/*
-					 * The value doees indeed fit into
-					 * 8 bits. Create a BYTE_STRING
-					 * from it. Since we know that
-					 * the last 2 characters are a valid
-					 * hex string, just use those directly.
-					 */
-					fvalue = dfilter_fvalue_from_unparsed(dfw, FT_BYTES, s+2, allow_partial_value);
-				}
-			} else {
-				fvalue = dfilter_fvalue_from_unparsed(dfw, FT_BYTES, s, allow_partial_value);
-			}
+			fvalue = dfilter_fvalue_from_unparsed(dfw, FT_BYTES, s, allow_partial_value);
 			if (!fvalue) {
 				THROW(TypeError);
 			}
