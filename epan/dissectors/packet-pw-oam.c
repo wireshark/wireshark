@@ -150,7 +150,7 @@ proto_register_pw_oam(void)
 
     {&hf_pw_oam_flags_a,
       {"Acknowledgement", "pw_oam.flags_a",
-        FT_BOOLEAN, 8, NULL, 0x0080, "ACK bit", HFILL}
+        FT_BOOLEAN, 8, NULL, 0x80, "ACK bit", HFILL}
     },
 
     {&hf_pw_oam_tlv_reserved,

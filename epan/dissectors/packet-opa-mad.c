@@ -9117,7 +9117,7 @@ void proto_register_opa_mad(void)
         },
         { &hf_opa_Trap_DataValid_Gid2, {
                 "Gid2", "opa.trap.datavalid.gid2",
-                FT_BOOLEAN, 16, TFS(&tfs_valid_invalid), 0x01000, NULL, HFILL }
+                FT_BOOLEAN, 16, TFS(&tfs_valid_invalid), 0x0100, NULL, HFILL }
         },
         { &hf_opa_Trap_DataValid_Reserved, {
                 "DataValid", "opa.trap.datavalid.reserved",

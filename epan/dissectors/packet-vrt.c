@@ -504,7 +504,7 @@ proto_register_vrt(void)
         { &hf_vrt_trailer_ind_user0,
             { "User indicator 0", "vrt.user0",
             FT_BOOLEAN, 16,
-            NULL, 0x00008,
+            NULL, 0x0008,
             NULL, HFILL }
         },
         { &hf_vrt_trailer_ind_user1,
@@ -516,7 +516,7 @@ proto_register_vrt(void)
         { &hf_vrt_trailer_ind_user2,
             { "User indicator 2", "vrt.user2",
             FT_BOOLEAN, 16,
-            NULL, 0x00002,
+            NULL, 0x0002,
             NULL, HFILL }
         },
         { &hf_vrt_trailer_ind_user3,

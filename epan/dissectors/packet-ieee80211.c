@@ -41520,20 +41520,20 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_tclas_class_mask9_frame_control_match_spec,
      {"Frame Control Spec", "wlan.tclas.class9.frame_control_spec",
-      FT_UINT16, BASE_HEX, VALS(frame_control_mask_vals), 0x000003, NULL, HFILL }},
+      FT_UINT16, BASE_HEX, VALS(frame_control_mask_vals), 0x0003, NULL, HFILL }},
 
     {&hf_ieee80211_tclas_class_mask9_address_1_match_spec,
      {"Address 1 Spec", "wlan.tclas.class9.mask.address_1_spec",
-      FT_UINT16, BASE_HEX, VALS(address_1_mask_vals), 0x000003, NULL, HFILL }},
+      FT_UINT16, BASE_HEX, VALS(address_1_mask_vals), 0x0003, NULL, HFILL }},
 
     {&hf_ieee80211_tclas_class_mask9_address_2_match_spec,
      {"Address 2 Spec", "wlan.tclas.class9.mask.address_2_spec",
       FT_UINT16, BASE_HEX, VALS(address_2_mask_vals), 0x00000C, NULL, HFILL }},
 
     {&hf_ieee80211_tclas_class_mask9_sequence_control_spec,
-     {"Sequence Control Spec", "wlan.tclas.class9.mask.sequence_contro_spec",
+     {"Sequence Control Spec", "wlan.tclas.class9.mask.sequence_control_spec",
       FT_UINT16, BASE_HEX, VALS(sequence_control_mask_vals),
-      0x000030, NULL, HFILL }},
+      0x0030, NULL, HFILL }},
 
     {&hf_ieee80211_tclas_class_mask9_reserved,
      {"Reserved", "wlan.tclas.class9.mask.reserved",
@@ -47173,15 +47173,15 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_he_uph_ul_power_headroom,
      {"UL Power Headroom", "wlan.htc.he.a_control.uph.ul_power_headroom",
-      FT_UINT8, BASE_DEC, NULL, 0x0000001f, NULL, HFILL }},
+      FT_UINT8, BASE_DEC, NULL, 0x1f, NULL, HFILL }},
 
     {&hf_ieee80211_he_uph_ul_min_transmit_power_flag,
      {"Minimum Transmit Power Flag", "wlan.htc.he.a_control.uph.min_transmit_power_flag",
-      FT_BOOLEAN, 8, NULL, 0x00000020, NULL, HFILL }},
+      FT_BOOLEAN, 8, NULL, 0x20, NULL, HFILL }},
 
     {&hf_ieee80211_he_uph_reserved,
      {"Reserved", "wlan.htc.he.a_control.uph.reserved",
-      FT_UINT8, BASE_HEX, NULL, 0x000000c0, NULL, HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0xc0, NULL, HFILL }},
 
     {&hf_ieee80211_he_btc_avail_chan,
      {"Available Channel Bitmap", "wlan.htc.he.a_control.bqr.avail_chan_bitmap",

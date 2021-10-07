@@ -2087,7 +2087,7 @@ void proto_register_icmp(void)
 
 		{&hf_icmp_mpls_label,
 		 {"Label", "icmp.mpls.label", FT_UINT24, BASE_DEC, NULL,
-		  0x00fffff0,
+		  0xfffff0,
 		  NULL, HFILL}},
 
 		{&hf_icmp_mpls_exp,

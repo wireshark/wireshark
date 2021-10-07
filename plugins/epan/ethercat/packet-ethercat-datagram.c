@@ -3164,23 +3164,23 @@ void proto_register_ecat(void)
          },
          { &hf_ecat_reg_mio_status0_link,
            {"Link detected", "ecat.reg.mio.status0.link",
-           FT_BOOLEAN, 8, TFS(&tfs_local_true_false), 0x0002, NULL, HFILL }
+           FT_BOOLEAN, 8, TFS(&tfs_local_true_false), 0x02, NULL, HFILL }
          },
          { &hf_ecat_reg_mio_status0_linkstatuserr,
            {"Link status error", "ecat.reg.mio.status0.linkstatuserr",
-           FT_BOOLEAN, 8, TFS(&tfs_local_true_false), 0x0004, NULL, HFILL }
+           FT_BOOLEAN, 8, TFS(&tfs_local_true_false), 0x04, NULL, HFILL }
          },
          { &hf_ecat_reg_mio_status0_readerr,
            {"Read error", "ecat.reg.mio.status0.readerr",
-           FT_BOOLEAN, 8, TFS(&tfs_local_true_false), 0x0008, NULL, HFILL }
+           FT_BOOLEAN, 8, TFS(&tfs_local_true_false), 0x08, NULL, HFILL }
          },
          { &hf_ecat_reg_mio_status0_linkpartnererr,
            {"Link partner error", "ecat.reg.mio.status0.linkpartnererr",
-           FT_BOOLEAN, 8, TFS(&tfs_local_true_false), 0x0010, NULL, HFILL }
+           FT_BOOLEAN, 8, TFS(&tfs_local_true_false), 0x10, NULL, HFILL }
          },
          { &hf_ecat_reg_mio_status0_phycfgupdated,
            {"Phy config updated", "ecat.reg.mio.status0.phycfgupdated",
-           FT_BOOLEAN, 8, TFS(&tfs_local_true_false), 0x0020, NULL, HFILL }
+           FT_BOOLEAN, 8, TFS(&tfs_local_true_false), 0x20, NULL, HFILL }
          },
          { &hf_ecat_reg_mio_status1,
            {"MIO port status 1 (0x519)", "ecat.reg.mio.status1",
@@ -3192,23 +3192,23 @@ void proto_register_ecat(void)
          },
          { &hf_ecat_reg_mio_status1_link,
            {"Link detected", "ecat.reg.mio.status1.link",
-           FT_BOOLEAN, 8, TFS(&tfs_local_true_false), 0x0002, NULL, HFILL }
+           FT_BOOLEAN, 8, TFS(&tfs_local_true_false), 0x02, NULL, HFILL }
          },
          { &hf_ecat_reg_mio_status1_linkstatuserr,
            {"Link status error", "ecat.reg.mio.status1.linkstatuserr",
-           FT_BOOLEAN, 8, TFS(&tfs_local_true_false), 0x0004, NULL, HFILL }
+           FT_BOOLEAN, 8, TFS(&tfs_local_true_false), 0x04, NULL, HFILL }
          },
          { &hf_ecat_reg_mio_status1_readerr,
            {"Read error", "ecat.reg.mio.status1.readerr",
-           FT_BOOLEAN, 8, TFS(&tfs_local_true_false), 0x0008, NULL, HFILL }
+           FT_BOOLEAN, 8, TFS(&tfs_local_true_false), 0x08, NULL, HFILL }
          },
          { &hf_ecat_reg_mio_status1_linkpartnererr,
            {"Link partner error", "ecat.reg.mio.status1.linkpartnererr",
-           FT_BOOLEAN, 8, TFS(&tfs_local_true_false), 0x0010, NULL, HFILL }
+           FT_BOOLEAN, 8, TFS(&tfs_local_true_false), 0x10, NULL, HFILL }
          },
          { &hf_ecat_reg_mio_status1_phycfgupdated,
            {"Phy config updated", "ecat.reg.mio.status1.phycfgupdated",
-           FT_BOOLEAN, 8, TFS(&tfs_local_true_false), 0x0020, NULL, HFILL }
+           FT_BOOLEAN, 8, TFS(&tfs_local_true_false), 0x20, NULL, HFILL }
          },
          { &hf_ecat_reg_mio_status2,
            {"MIO port status 2 (0x51A)", "ecat.reg.mio.status2",
@@ -3220,23 +3220,23 @@ void proto_register_ecat(void)
          },
          { &hf_ecat_reg_mio_status2_link,
            {"Link detected", "ecat.reg.mio.status2.link",
-           FT_BOOLEAN, 8, TFS(&tfs_local_true_false), 0x0002, NULL, HFILL }
+           FT_BOOLEAN, 8, TFS(&tfs_local_true_false), 0x02, NULL, HFILL }
          },
          { &hf_ecat_reg_mio_status2_linkstatuserr,
            {"Link status error", "ecat.reg.mio.status2.linkstatuserr",
-           FT_BOOLEAN, 8, TFS(&tfs_local_true_false), 0x0004, NULL, HFILL }
+           FT_BOOLEAN, 8, TFS(&tfs_local_true_false), 0x04, NULL, HFILL }
          },
          { &hf_ecat_reg_mio_status2_readerr,
            {"Read error", "ecat.reg.mio.status2.readerr",
-           FT_BOOLEAN, 8, TFS(&tfs_local_true_false), 0x0008, NULL, HFILL }
+           FT_BOOLEAN, 8, TFS(&tfs_local_true_false), 0x08, NULL, HFILL }
          },
          { &hf_ecat_reg_mio_status2_linkpartnererr,
            {"Link partner error", "ecat.reg.mio.status2.linkpartnererr",
-           FT_BOOLEAN, 8, TFS(&tfs_local_true_false), 0x0010, NULL, HFILL }
+           FT_BOOLEAN, 8, TFS(&tfs_local_true_false), 0x10, NULL, HFILL }
          },
          { &hf_ecat_reg_mio_status2_phycfgupdated,
            {"Phy config updated", "ecat.reg.mio.status2.phycfgupdated",
-           FT_BOOLEAN, 8, TFS(&tfs_local_true_false), 0x0020, NULL, HFILL }
+           FT_BOOLEAN, 8, TFS(&tfs_local_true_false), 0x20, NULL, HFILL }
          },
          { &hf_ecat_reg_mio_status3,
            {"MIO port status 3 (0x51B)", "ecat.reg.mio.status3",
@@ -3248,23 +3248,23 @@ void proto_register_ecat(void)
          },
          { &hf_ecat_reg_mio_status3_link,
            {"Link detected", "ecat.reg.mio.status3.link",
-           FT_BOOLEAN, 8, TFS(&tfs_local_true_false), 0x0002, NULL, HFILL }
+           FT_BOOLEAN, 8, TFS(&tfs_local_true_false), 0x02, NULL, HFILL }
          },
          { &hf_ecat_reg_mio_status3_linkstatuserr,
            {"Link status error", "ecat.reg.mio.status3.linkstatuserr",
-           FT_BOOLEAN, 8, TFS(&tfs_local_true_false), 0x0004, NULL, HFILL }
+           FT_BOOLEAN, 8, TFS(&tfs_local_true_false), 0x04, NULL, HFILL }
          },
          { &hf_ecat_reg_mio_status3_readerr,
            {"Read error", "ecat.reg.mio.status3.readerr",
-           FT_BOOLEAN, 8, TFS(&tfs_local_true_false), 0x0008, NULL, HFILL }
+           FT_BOOLEAN, 8, TFS(&tfs_local_true_false), 0x08, NULL, HFILL }
          },
          { &hf_ecat_reg_mio_status3_linkpartnererr,
            {"Link partner error", "ecat.reg.mio.status3.linkpartnererr",
-           FT_BOOLEAN, 8, TFS(&tfs_local_true_false), 0x0010, NULL, HFILL }
+           FT_BOOLEAN, 8, TFS(&tfs_local_true_false), 0x10, NULL, HFILL }
          },
          { &hf_ecat_reg_mio_status3_phycfgupdated,
            {"Phy config updated", "ecat.reg.mio.status3.phycfgupdated",
-           FT_BOOLEAN, 8, TFS(&tfs_local_true_false), 0x0020, NULL, HFILL }
+           FT_BOOLEAN, 8, TFS(&tfs_local_true_false), 0x20, NULL, HFILL }
          },
          { &hf_ecat_reg_fmmu,
            {"FMMU", "ecat.fmmu",

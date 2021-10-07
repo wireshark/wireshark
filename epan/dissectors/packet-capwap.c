@@ -3431,7 +3431,7 @@ proto_register_capwap_control(void)
         },
         { &hf_capwap_header_flags_t,
             { "Payload Type", "capwap.header.flags.t",
-              FT_BOOLEAN, 24, TFS(&flag_type_t), 0x0000100,
+              FT_BOOLEAN, 24, TFS(&flag_type_t), 0x000100,
               NULL, HFILL }
         },
         { &hf_capwap_header_flags_f,
@@ -4942,22 +4942,22 @@ proto_register_capwap_control(void)
         },
         { &hf_capwap_msg_element_type_ieee80211_wtp_radio_info_radio_type_n,
             { "Radio Type 802.11n", "capwap.control.message_element.ieee80211_wtp_info_radio.radio_type_n",
-              FT_BOOLEAN, 4, TFS(&tfs_true_false), 0x0008,
+              FT_BOOLEAN, 4, TFS(&tfs_true_false), 0x8,
               NULL, HFILL }
         },
         { &hf_capwap_msg_element_type_ieee80211_wtp_radio_info_radio_type_g,
             { "Radio Type 802.11g", "capwap.control.message_element.ieee80211_wtp_info_radio.radio_type_g",
-              FT_BOOLEAN, 4, TFS(&tfs_true_false), 0x0004,
+              FT_BOOLEAN, 4, TFS(&tfs_true_false), 0x4,
               NULL, HFILL }
         },
         { &hf_capwap_msg_element_type_ieee80211_wtp_radio_info_radio_type_a,
             { "Radio Type 802.11a", "capwap.control.message_element.ieee80211_wtp_info_radio.radio_type_a",
-              FT_BOOLEAN, 4, TFS(&tfs_true_false), 0x0002,
+              FT_BOOLEAN, 4, TFS(&tfs_true_false), 0x2,
               NULL, HFILL }
         },
         { &hf_capwap_msg_element_type_ieee80211_wtp_radio_info_radio_type_b,
             { "Radio Type 802.11b", "capwap.control.message_element.ieee80211_wtp_info_radio.radio_type_b",
-              FT_BOOLEAN, 4, TFS(&tfs_true_false), 0x0001,
+              FT_BOOLEAN, 4, TFS(&tfs_true_false), 0x1,
               NULL, HFILL }
         },
 

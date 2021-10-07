@@ -9741,12 +9741,12 @@ void proto_register_dis(void)
             },
             { &hf_dis_environment_status_last,
               { "Environment Status Last", "dis.environmental.environment_status_last",
-                FT_UINT8, BASE_DEC, VALS(environmental_environment_status_last_vals), 0x00000001,
+                FT_UINT8, BASE_DEC, VALS(environmental_environment_status_last_vals), 0x01,
                 NULL, HFILL }
             },
             { &hf_dis_environment_status_on,
               { "Environment Status Last", "dis.environmental.environment_status_last",
-                FT_UINT8, BASE_DEC, VALS(environmental_environment_status_on_vals), 0x00000002,
+                FT_UINT8, BASE_DEC, VALS(environmental_environment_status_on_vals), 0x02,
                 NULL, HFILL }
             },
             { &hf_dis_aggregate_formation,

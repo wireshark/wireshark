@@ -303,12 +303,12 @@ proto_register_mplstp_fm(void)
 
     { &hf_mplstp_fm_flags_l,
       { "Link Down Indication", "mplstp_oam.flag_l",
-        FT_BOOLEAN, 8, NULL, 0x0002, NULL, HFILL}
+        FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL}
     },
 
     { &hf_mplstp_fm_flags_r,
       { "FM Condition Cleared", "mplstp_oam.flag_r",
-        FT_BOOLEAN, 8, NULL, 0x0001, "Fault Condition Cleared", HFILL}
+        FT_BOOLEAN, 8, NULL, 0x01, "Fault Condition Cleared", HFILL}
     },
   };
 

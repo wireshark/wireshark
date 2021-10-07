@@ -14257,11 +14257,11 @@ void proto_register_rtps(void) {
     },
     { &hf_rtps_flag_unregistered, {
         "Unregistered", "rtps.flag.unregistered",
-        FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x0002, NULL, HFILL }
+        FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x02, NULL, HFILL }
     },
     { &hf_rtps_flag_disposed, {
         "Disposed", "rtps.flag.undisposed",
-        FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x0001, NULL, HFILL }
+        FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x01, NULL, HFILL }
     },
     { &hf_rtps_flag_participant_announcer, {
         "Participant Announcer", "rtps.flag.participant_announcer",
