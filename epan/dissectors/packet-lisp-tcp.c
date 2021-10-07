@@ -150,7 +150,7 @@ dissect_lisp_tcp_message_eid_prefix(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     prefix_length = tvb_get_guint8(tvb, offset);
     prefix_afi = tvb_get_ntohs(tvb, offset + 1);
 
-    prefix = get_addr_str(tvb, offset + 3, prefix_afi, &addr_len);
+    prefix = get_addr_str(pinfo->pool, tvb, offset + 3, prefix_afi, &addr_len);
 
     if (prefix == NULL) {
         expert_add_info_format(pinfo, message_tree, &ei_lisp_tcp_unexpected_afi,

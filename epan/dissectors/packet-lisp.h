@@ -22,7 +22,7 @@
 
 #define LISP_CONTROL_PORT   4342
 
-const gchar * get_addr_str(tvbuff_t *tvb, gint offset, guint16 afi, guint16 *addr_len);
+const gchar * get_addr_str(wmem_allocator_t *pool, tvbuff_t *tvb, gint offset, guint16 afi, guint16 *addr_len);
 int dissect_lcaf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, proto_item *tip);
 int dissect_lisp_mapping(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tree,
         guint8 rec_cnt, int rec, gboolean referral, gint offset, proto_item *tim);
