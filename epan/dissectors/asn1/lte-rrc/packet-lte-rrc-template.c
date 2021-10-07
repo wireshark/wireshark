@@ -3613,6 +3613,37 @@ dissect_lte_rrc_BCCH_DL_SCH_MBMS(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
   return tvb_captured_length(tvb);
 }
 
+static int
+dissect_lte_rrc_ue_eutra_capability_msg(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
+{
+    proto_item* ti;
+    proto_tree* lte_rrc_tree;
+
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "LTE RRC UE EUTRA Capability");
+    col_clear(pinfo->cinfo, COL_INFO);
+
+    ti = proto_tree_add_item(tree, proto_lte_rrc, tvb, 0, -1, ENC_NA);
+    lte_rrc_tree = proto_item_add_subtree(ti, ett_lte_rrc);
+    dissect_lte_rrc_UE_EUTRA_Capability_PDU(tvb, pinfo, lte_rrc_tree, NULL);
+    return tvb_captured_length(tvb);
+}
+
+static int
+dissect_lte_rrc_ueradioaccesscapabilityinformation_msg(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
+{
+    proto_item* ti;
+    proto_tree* lte_rrc_tree;
+
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "LTE RRC UERadioAccessCapabilityInformation");
+    col_clear(pinfo->cinfo, COL_INFO);
+
+    ti = proto_tree_add_item(tree, proto_lte_rrc, tvb, 0, -1, ENC_NA);
+    lte_rrc_tree = proto_item_add_subtree(ti, ett_lte_rrc);
+    dissect_lte_rrc_UERadioAccessCapabilityInformation_PDU(tvb, pinfo, lte_rrc_tree, NULL);
+    return tvb_captured_length(tvb);
+}
+
+
 /*--- proto_register_rrc -------------------------------------------*/
 void proto_register_lte_rrc(void) {
 
@@ -4477,6 +4508,9 @@ void proto_register_lte_rrc(void) {
   register_dissector("lte_rrc.sc_mcch.nb", dissect_lte_rrc_SC_MCCH_NB, proto_lte_rrc);
   register_dissector("lte_rrc.bcch_bch.mbms", dissect_lte_rrc_BCCH_BCH_MBMS, proto_lte_rrc);
   register_dissector("lte_rrc.bcch_dl_sch.mbms", dissect_lte_rrc_BCCH_DL_SCH_MBMS, proto_lte_rrc);
+  register_dissector("lte-rrc.ue_eutra_cap.msg", dissect_lte_rrc_ue_eutra_capability_msg, proto_lte_rrc);
+  register_dissector("lte-rrc.ue_radio_access_cap_info.msg", dissect_lte_rrc_ueradioaccesscapabilityinformation_msg, proto_lte_rrc);
+
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_lte_rrc, hf, array_length(hf));
