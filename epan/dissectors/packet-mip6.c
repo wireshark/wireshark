@@ -3043,7 +3043,7 @@ dissect_pmip6_opt_ipv4hareq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (dword == 0) {
         proto_item_append_text(item, " - Request that the local mobility anchor perform the address allocation");
     }
-    proto_item_append_text(ti, ": %s", tvb_ip_to_str(tvb,offset));
+    proto_item_append_text(ti, ": %s", tvb_ip_to_str(pinfo->pool, tvb,offset));
 
     return tvb_captured_length(tvb);
 }
@@ -3082,7 +3082,7 @@ dissect_pmip6_opt_ipv4harep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree_add_item(opt_tree, hf_mip6_ipv4ha_ha, tvb,
             offset, MIP6_IPV4HAREP_HA_LEN, ENC_BIG_ENDIAN);
 
-    proto_item_append_text(ti, ": %s", tvb_ip_to_str(tvb,offset));
+    proto_item_append_text(ti, ": %s", tvb_ip_to_str(pinfo->pool, tvb,offset));
 
     return tvb_captured_length(tvb);
 }
@@ -3115,7 +3115,7 @@ dissect_pmip6_opt_ipv4dra(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     proto_tree_add_item(opt_tree, hf_mip6_ipv4dra_dra, tvb,
             offset, MIP6_IPV4DRA_DRA_LEN, ENC_BIG_ENDIAN);
 
-    proto_item_append_text(ti, ": %s", tvb_ip_to_str(tvb,offset));
+    proto_item_append_text(ti, ": %s", tvb_ip_to_str(pinfo->pool, tvb,offset));
 
     return tvb_captured_length(tvb);
 }
@@ -3243,7 +3243,7 @@ dissect_pmip6_opt_lmaa(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     }else if (opt_code == 2) {
         /* IPv4 addr */
         proto_tree_add_item(opt_tree, hf_mip6_lmaa_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
-        proto_item_append_text(ti, ": %s", tvb_ip_to_str(tvb,offset));
+        proto_item_append_text(ti, ": %s", tvb_ip_to_str(pinfo->pool, tvb,offset));
 
     }
 
@@ -3665,7 +3665,7 @@ dissect_mip6_opt_dmnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
         proto_tree_add_item(opt_tree, hf_mip6_opt_dmnp_dmnp_ipv4, tvb,
                             offset, 4, ENC_BIG_ENDIAN);
         proto_item_append_text(ti, ": %s/%u",
-                               tvb_ip_to_str(tvb, offset), prefix_len);
+                               tvb_ip_to_str(pinfo->pool, tvb, offset), prefix_len);
             break;
 
     case 18:

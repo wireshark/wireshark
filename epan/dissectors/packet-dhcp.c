@@ -1744,7 +1744,7 @@ dhcp_handle_basic_types(packet_info *pinfo, proto_tree *tree, proto_item *item, 
 			proto_tree_add_item(tree, *hf_default->ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
 
 		/* Show IP address in root of option */
-		proto_item_append_text(tree, " (%s)", tvb_ip_to_str(tvb, offset));
+		proto_item_append_text(tree, " (%s)", tvb_ip_to_str(pinfo->pool, tvb, offset));
 		consumed = 4;
 		break;
 
@@ -2991,7 +2991,7 @@ dissect_dhcpopt_classless_static_route(tvbuff_t *tvb, packet_info *pinfo, proto_
 				proto_item_append_text(route_item, ".0");
 			proto_item_append_text(route_item, "/%d", mask_width);
 		}
-		proto_item_append_text(route_item, "-%s", tvb_ip_to_str(tvb, offset));
+		proto_item_append_text(route_item, "-%s", tvb_ip_to_str(pinfo->pool, tvb, offset));
 		offset += 4;
 	}
 
@@ -6771,7 +6771,7 @@ dissect_packetcable_ietf_ccc(packet_info *pinfo, proto_item *v_ti, proto_tree *v
 			return (optend);
 		}
 		proto_item_append_text(vti, "%s (%u byte%s%s)",
-				       tvb_ip_to_str(tvb, suboptoff),
+				       tvb_ip_to_str(pinfo->pool, tvb, suboptoff),
 				       subopt_len,
 				       plurality(subopt_len, "", "s"),
 				       subopt_len != 4 ? " [Invalid]" : "");
@@ -6799,7 +6799,7 @@ dissect_packetcable_ietf_ccc(packet_info *pinfo, proto_item *v_ti, proto_tree *v
 				return (optend);
 			}
 			proto_item_append_text(vti, "%s (%u byte%s%s)",
-					       tvb_ip_to_str(tvb, suboptoff),
+					       tvb_ip_to_str(pinfo->pool, tvb, suboptoff),
 					       subopt_len,
 					       plurality(subopt_len, "", "s"),
 					       subopt_len != 5 ? " [Invalid]" : "");

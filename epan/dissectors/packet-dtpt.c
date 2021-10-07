@@ -350,7 +350,7 @@ dissect_dtpt_sockaddr(tvbuff_t *tvb, guint offset, proto_tree *tree, int hfindex
 						proto_tree_add_item(sockaddr_tree, hf_dtpt_sockaddr_address,
 											tvb, offset+4,4,ENC_BIG_ENDIAN);
 						proto_tree_add_item(sockaddr_tree, hf_dtpt_padding, tvb, offset+8, 8, ENC_NA);
-						proto_item_append_text(sockaddr_item, ": %s:%d", tvb_ip_to_str(tvb,offset+4), port);
+						proto_item_append_text(sockaddr_item, ": %s:%d", tvb_ip_to_str(wmem_packet_scope(), tvb,offset+4), port);
 					}
 					break;
 				}
@@ -373,7 +373,7 @@ dissect_dtpt_sockaddr(tvbuff_t *tvb, guint offset, proto_tree *tree, int hfindex
 						proto_tree_add_item(sockaddr_tree, hf_dtpt_sockaddr_address,
 							tvb, offset+10,4,ENC_BIG_ENDIAN);
 						proto_tree_add_item(sockaddr_tree, hf_dtpt_padding, tvb, offset+14, 16, ENC_NA);
-						proto_item_append_text(sockaddr_item, ": %s:%d", tvb_ip_to_str(tvb,offset+10), port);
+						proto_item_append_text(sockaddr_item, ": %s:%d", tvb_ip_to_str(wmem_packet_scope(), tvb,offset+10), port);
 					}
 					break;
 				}

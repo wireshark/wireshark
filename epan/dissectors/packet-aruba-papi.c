@@ -446,7 +446,7 @@ dissect_papi_license_manager(tvbuff_t *tvb, packet_info *pinfo, guint offset, pr
         switch (type) {
             case 1: /* IP Address */
                 proto_tree_add_item(licmgr_subtree, hf_papi_licmgr_ip, tvb, offset, 4, ENC_NA);
-                proto_item_append_text(tlv_item, ": %s", tvb_ip_to_str(tvb, offset));
+                proto_item_append_text(tlv_item, ": %s", tvb_ip_to_str(pinfo->pool, tvb, offset));
             break;
             case 2: /* Serial Number */
                 proto_tree_add_item(licmgr_subtree, hf_papi_licmgr_serial_number, tvb, offset, 32, ENC_ASCII|ENC_NA);

@@ -4398,7 +4398,7 @@ dissect_vsncp_pdnaddress_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         proto_tree_add_ipv4_format(field_tree, hf_vsncp_pdn_ipv4, tvb, offset + 3, 4,
             tvb_get_ntohl(tvb, offset + 3), "%s: %s",
             val_to_str_const(pdnaddtype, vsncp_pdntype_vals, "Unknown"),
-            tvb_ip_to_str(tvb, offset + 3));
+            tvb_ip_to_str(pinfo->pool, tvb, offset + 3));
         break;
 
     case 2:
@@ -4426,7 +4426,7 @@ dissect_vsncp_pdnaddress_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             address_to_str(pinfo->pool, &addr));
         proto_tree_add_ipv4_format(field_tree, hf_vsncp_pdn_ipv4, tvb, offset + 11, length - 11,
             tvb_get_ntohl(tvb, offset + 11), "%s: %s", val_to_str_const(pdnaddtype, vsncp_pdntype_vals, "Unknown"),
-            tvb_ip_to_str(tvb, offset + 11));
+            tvb_ip_to_str(pinfo->pool, tvb, offset + 11));
         break;
     }
 

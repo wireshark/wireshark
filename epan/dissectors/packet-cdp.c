@@ -475,7 +475,7 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                 if (tree) {
                     tlv_tree = proto_tree_add_subtree_format(cdp_tree, tvb, offset,
                                                length, ett_cdp_tlv, NULL, "ODR Default gateway: %s",
-                                               tvb_ip_to_str(tvb, offset+4));
+                                               tvb_ip_to_str(pinfo->pool, tvb, offset+4));
                     proto_tree_add_item(tlv_tree, hf_cdp_tlvtype, tvb, offset + TLV_TYPE, 2, ENC_BIG_ENDIAN);
                     proto_tree_add_item(tlv_tree, hf_cdp_tlvlength, tvb, offset + TLV_LENGTH, 2, ENC_BIG_ENDIAN);
                     proto_tree_add_item(tlv_tree, hf_cdp_odr_default_gateway, tvb, offset+4, 4, ENC_BIG_ENDIAN);
@@ -497,7 +497,7 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                 length -= 4;
                 while (length > 0) {
                     proto_tree_add_ipv4_format_value(tlv_tree, hf_cdp_ip_prefix, tvb, offset, 5, tvb_get_ntohl(tvb, offset),
-                                    "%s/%u", tvb_ip_to_str(tvb, offset), tvb_get_guint8(tvb,offset+4));
+                                    "%s/%u", tvb_ip_to_str(pinfo->pool, tvb, offset), tvb_get_guint8(tvb,offset+4));
                     offset += 5;
                     length -= 5;
                 }
@@ -1118,7 +1118,7 @@ dissect_address_tlv(tvbuff_t *tvb, packet_info* pinfo, int offset, int length, p
         case NLPID_IP:
             if (address_length == 4) {
                 /* The address is an IP address. */
-                proto_item_set_text(ti, "IP address: %s", tvb_ip_to_str(tvb, offset));
+                proto_item_set_text(ti, "IP address: %s", tvb_ip_to_str(pinfo->pool, tvb, offset));
                 hf_addr = hf_cdp_nrgyz_ip_address;
                 proto_tree_add_item(address_tree, hf_cdp_nrgyz_ip_address, tvb, offset, address_length, ENC_BIG_ENDIAN);
             }
@@ -1214,7 +1214,7 @@ dissect_nrgyz_tlv(tvbuff_t *tvb, packet_info* pinfo, int offset, guint16 length,
                 etree  = proto_tree_add_subtree_format(tree, tvb, offset,
                                          tlvl, ett_cdp_nrgyz_tlv, NULL, "EnergyWise %s: %s port %u",
                                          ttext,
-                                         tvb_ip_to_str(tvb, offset + 12),
+                                         tvb_ip_to_str(pinfo->pool, tvb, offset + 12),
                                          tvb_get_ntohs(tvb, offset + 10)
                     );
                 break;

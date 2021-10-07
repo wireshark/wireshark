@@ -119,7 +119,7 @@ dissect_aruba_iap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
         offset += 4;
 
         proto_tree_add_item(aruba_iap_tree, hf_iap_vc_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
-        col_append_fstr(pinfo->cinfo, COL_INFO, " VC IP: %s", tvb_ip_to_str(tvb, offset));
+        col_append_fstr(pinfo->cinfo, COL_INFO, " VC IP: %s", tvb_ip_to_str(pinfo->pool, tvb, offset));
         offset += 4;
 
         proto_tree_add_item(aruba_iap_tree, hf_iap_model, tvb, offset, 1, ENC_BIG_ENDIAN);

@@ -851,9 +851,9 @@ dissect_mip( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   case MIP_REGISTRATION_REQUEST:
     col_add_fstr(pinfo->cinfo, COL_INFO,
                "Reg Request: HoA=%s HA=%s CoA=%s",
-               tvb_ip_to_str(tvb, 4),
-               tvb_ip_to_str(tvb, 8),
-               tvb_ip_to_str(tvb, 12));
+               tvb_ip_to_str(pinfo->pool, tvb, 4),
+               tvb_ip_to_str(pinfo->pool, tvb, 8),
+               tvb_ip_to_str(pinfo->pool, tvb, 12));
 
     if (tree) {
       static int * const flags[] = {
@@ -906,8 +906,8 @@ dissect_mip( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   case MIP_REGISTRATION_REPLY:
     col_add_fstr(pinfo->cinfo, COL_INFO,
                "Reg Reply: HoA=%s HA=%s, Code=%u",
-               tvb_ip_to_str(tvb, 4),
-               tvb_ip_to_str(tvb, 8),
+               tvb_ip_to_str(pinfo->pool, tvb, 4),
+               tvb_ip_to_str(pinfo->pool, tvb, 8),
                tvb_get_guint8(tvb,1));
 
     if (tree) {
@@ -973,9 +973,9 @@ dissect_mip( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   case MIP_REGISTRATION_REVOCATION:
     col_add_fstr(pinfo->cinfo, COL_INFO,
                "Reg Revocation: HoA=%s HDA=%s FDA=%s",
-               tvb_ip_to_str(tvb, 4),
-               tvb_ip_to_str(tvb, 8),
-               tvb_ip_to_str(tvb, 12));
+               tvb_ip_to_str(pinfo->pool, tvb, 4),
+               tvb_ip_to_str(pinfo->pool, tvb, 8),
+               tvb_ip_to_str(pinfo->pool, tvb, 12));
 
     if (tree) {
       static int * const mip_flags[] = {
@@ -1021,7 +1021,7 @@ dissect_mip( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     break;
   case MIP_REGISTRATION_REVOCATION_ACK:
       col_add_fstr(pinfo->cinfo, COL_INFO, "Reg Revocation Ack: HoA=%s",
-               tvb_ip_to_str(tvb, 4));
+               tvb_ip_to_str(pinfo->pool, tvb, 4));
 
     if (tree) {
       static int * const mip_flags[] = {

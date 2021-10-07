@@ -313,7 +313,7 @@ dissect_someip_sd_pdu_option_ipv4(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     offset += 1;
 
     proto_tree_add_item(tree, hf_someip_sd_option_ipv4, tvb, offset, 4, ENC_NA);
-    ipstring = tvb_ip_to_str(tvb, offset);
+    ipstring = tvb_ip_to_str(pinfo->pool, tvb, offset);
     offset += 4;
 
     proto_tree_add_item(tree, hf_someip_sd_option_reserved2, tvb, offset, 1, ENC_NA);

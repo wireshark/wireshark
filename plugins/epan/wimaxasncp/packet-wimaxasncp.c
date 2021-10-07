@@ -1537,7 +1537,7 @@ static void wimaxasncp_dissect_tlv_value(
 
                     proto_item_append_text(
                         item, " - %s (%s)",
-                        get_hostname(ip), tvb_ip_to_str(tvb, offset));
+                        get_hostname(ip), tvb_ip_to_str(pinfo->pool, tvb, offset));
 
                     offset += 4;
 
@@ -1546,7 +1546,7 @@ static void wimaxasncp_dissect_tlv_value(
                      * --------------------------------------------------------
                      */
 
-                    s = tvb_ip_to_str(tvb, offset);
+                    s = tvb_ip_to_str(pinfo->pool, tvb, offset);
 
                     proto_tree_add_item(
                         ip_address_mask_tree,

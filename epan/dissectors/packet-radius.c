@@ -615,7 +615,7 @@ dissect_framed_ip_address(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U
 		proto_tree_add_ipv4_format_value(tree, hf_radius_framed_ip_address,
 					   tvb, 0, len, ip, "%s", str);
 	} else {
-		str = tvb_ip_to_str(tvb, 0);
+		str = tvb_ip_to_str(pinfo->pool, tvb, 0);
 		proto_tree_add_item(tree, hf_radius_framed_ip_address,
 					   tvb, 0, len, ENC_BIG_ENDIAN);
 	}
@@ -647,7 +647,7 @@ dissect_login_ip_host(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_)
 		proto_tree_add_ipv4_format_value(tree, hf_radius_login_ip_host,
 					   tvb, 0, len, ip, "%s", str);
 	} else {
-		str = tvb_ip_to_str(tvb, 0);
+		str = tvb_ip_to_str(pinfo->pool, tvb, 0);
 		proto_tree_add_item(tree, hf_radius_login_ip_host,
 					   tvb, 0, len, ENC_BIG_ENDIAN);
 	}
@@ -1107,7 +1107,7 @@ radius_ipaddr(radius_attr_info_t *a, proto_tree *tree, packet_info *pinfo _U_, t
 
 	proto_tree_add_item(tree, a->hf, tvb, offset, len, ENC_BIG_ENDIAN);
 
-	proto_item_append_text(avp_item, "%s", tvb_ip_to_str(tvb, offset));
+	proto_item_append_text(avp_item, "%s", tvb_ip_to_str(pinfo->pool, tvb, offset));
 }
 
 void
@@ -1165,7 +1165,7 @@ radius_combo_ip(radius_attr_info_t *a, proto_tree *tree, packet_info *pinfo _U_,
 
 	if (len == 4) {
 		proto_tree_add_item(tree, a->hf, tvb, offset, len, ENC_BIG_ENDIAN);
-		proto_item_append_text(avp_item, "%s", tvb_ip_to_str(tvb, offset));
+		proto_item_append_text(avp_item, "%s", tvb_ip_to_str(pinfo->pool, tvb, offset));
 	} else if (len == 16) {
 		proto_tree_add_item(tree, a->hf_alt, tvb, offset, len, ENC_NA);
 		proto_item_append_text(avp_item, "%s", tvb_ip6_to_str(tvb, offset));

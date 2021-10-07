@@ -990,10 +990,10 @@ dissect_lsp_ip_reachability_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *t
 
             if(found_mask) {
               ti = proto_tree_add_ipv4_format_value( tree, hf_isis_lsp_ip_reachability_ipv4_prefix, tvb, offset, 12,
-                src, "%s/%d", tvb_ip_to_str(tvb, offset+4), prefix_len );
+                src, "%s/%d", tvb_ip_to_str(pinfo->pool, tvb, offset+4), prefix_len );
             } else {
               ti = proto_tree_add_ipv4_format_value( tree, hf_isis_lsp_ip_reachability_ipv4_prefix, tvb, offset, 12,
-                src, "%s mask %s", tvb_ip_to_str(tvb, offset+4), tvb_ip_to_str(tvb, offset+8));
+                src, "%s mask %s", tvb_ip_to_str(pinfo->pool, tvb, offset+4), tvb_ip_to_str(pinfo->pool, tvb, offset+8));
             };
 
             ntree = proto_item_add_subtree(ti, ett_isis_lsp_clv_ip_reachability);

@@ -1361,7 +1361,7 @@ dissect_ipaddressport(int anchor, tvbuff_t *tvb, proto_tree *tree, guint16 offse
   ipaddressport_type = tvb_get_guint8(tvb, offset);
   proto_item_append_text(ti_ipaddressport, ": %s", val_to_str_const(ipaddressport_type, ipaddressporttypes,"Unknown Type"));
   if (ipaddressport_type == IPADDRESSPORTTYPE_IPV4) {
-    proto_item_append_text(ti_ipaddressport, " (%s:%d)", tvb_ip_to_str(tvb, offset+2),tvb_get_ntohs(tvb,offset+2+4));
+    proto_item_append_text(ti_ipaddressport, " (%s:%d)", tvb_ip_to_str(wmem_packet_scope(), tvb, offset+2),tvb_get_ntohs(tvb,offset+2+4));
   }
   else if (ipaddressport_type == IPADDRESSPORTTYPE_IPV6) {
     proto_item_append_text(ti_ipaddressport, " (%s:%d)", tvb_ip6_to_str(tvb, offset+2),tvb_get_ntohs(tvb,offset+2+16));
@@ -1377,7 +1377,7 @@ dissect_ipaddressport(int anchor, tvbuff_t *tvb, proto_tree *tree, guint16 offse
     proto_item *ti_ipv4;
     proto_tree *ipv4_tree;
     ti_ipv4 = proto_tree_add_item(ipaddressport_tree, hf_reload_ipv4addrport, tvb, offset, 6, ENC_NA);
-    proto_item_append_text(ti_ipv4, ": %s:%d", tvb_ip_to_str(tvb, offset),tvb_get_ntohs(tvb,offset+4));
+    proto_item_append_text(ti_ipv4, ": %s:%d", tvb_ip_to_str(wmem_packet_scope(), tvb, offset),tvb_get_ntohs(tvb,offset+4));
     ipv4_tree = proto_item_add_subtree(ti_ipv4, ett_reload_ipv4addrport);
     proto_tree_add_item(ipv4_tree, hf_reload_ipv4addr, tvb, offset, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(ipv4_tree, hf_reload_port, tvb, offset + 4, 2, ENC_BIG_ENDIAN);

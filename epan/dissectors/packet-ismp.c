@@ -262,7 +262,7 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp
 		edp_tree = proto_item_add_subtree(edp_ti, ett_ismp_edp);
 
 		col_add_fstr(pinfo->cinfo, COL_INFO, "MIP %s, MMAC %s, ifIdx %d",
-			tvb_ip_to_str(tvb, offset+2),
+			tvb_ip_to_str(pinfo->pool, tvb, offset+2),
 			tvb_ether_to_str(pinfo->pool, tvb, offset+6),
 			tvb_get_ntohl(tvb, offset+12));
 

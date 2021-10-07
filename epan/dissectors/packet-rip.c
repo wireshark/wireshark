@@ -262,7 +262,7 @@ dissect_ip_rip_vektor(tvbuff_t *tvb, int offset, guint8 version,
     metric = tvb_get_ntohl(tvb, offset+16);
     rip_vektor_tree = proto_tree_add_subtree_format(tree, tvb, offset,
                              RIP_ENTRY_LENGTH, ett_rip_vec, NULL, "IP Address: %s, Metric: %u",
-                             tvb_ip_to_str(tvb, offset+4), metric);
+                             tvb_ip_to_str(wmem_packet_scope(), tvb, offset+4), metric);
 
     proto_tree_add_item(rip_vektor_tree, &hfi_rip_family, tvb, offset, 2, ENC_BIG_ENDIAN);
     if (version == RIPv2) {

@@ -3381,7 +3381,7 @@ static gint rtps_util_add_locator_t(proto_tree *tree, packet_info *pinfo, tvbuff
         expert_add_info(pinfo, ti, &ei_rtps_locator_port);
       proto_item_append_text(tree, " (%s, %s:%u)",
                  val_to_str(kind, rtps_locator_kind_vals, "%02x"),
-                 tvb_ip_to_str(tvb, offset + 20), port);
+                 tvb_ip_to_str(pinfo->pool, tvb, offset + 20), port);
       break;
     }
     case LOCATOR_KIND_TCPV4_LAN:
@@ -3408,7 +3408,7 @@ static gint rtps_util_add_locator_t(proto_tree *tree, packet_info *pinfo, tvbuff
                 4, ENC_BIG_ENDIAN);
         proto_item_append_text(tree, " (%s, %s:%d, Logical Port = %u)",
                    val_to_str(kind, rtps_locator_kind_vals, "%02x"),
-                   tvb_ip_to_str(tvb, offset + 20), public_address_port, port);
+                   tvb_ip_to_str(pinfo->pool, tvb, offset + 20), public_address_port, port);
         } else { /* IPv6 format */
           proto_tree_add_item(locator_tree, hf_rtps_locator_ipv6, tvb, offset+8,
                   16, ENC_NA);
@@ -3532,7 +3532,7 @@ static gint rtps_util_add_locator_t(proto_tree *tree, packet_info *pinfo, tvbuff
         }
 
         /* Port & IP */
-        ip_str = tvb_ip_to_str(tvb, ip_offset);
+        ip_str = tvb_ip_to_str(pinfo->pool, tvb, ip_offset);
         locator_ip = tvb_get_ipv4(tvb, ip_offset);
         if (locator_ip != 0) {
             proto_tree_add_item_ret_uint(
@@ -3681,7 +3681,7 @@ static int rtps_util_add_multichannel_locator_list(proto_tree *tree, packet_info
             case LOCATOR_KIND_TUDPV4: {
                 proto_tree_add_item(locator_item_tree, hf_rtps_locator_ipv4, tvb, offset + 16, 4,
                     ENC_BIG_ENDIAN);
-                channel_address = tvb_ip_to_str(tvb, offset + 16);
+                channel_address = tvb_ip_to_str(pinfo->pool, tvb, offset + 16);
                 break;
             }
             case LOCATOR_KIND_UDPV6: {

@@ -223,7 +223,7 @@ dissect_dsr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                         proto_item_append_text(ti_hoplist, " :");
                                         for(i=0;i<(opt_len-4)/4;i++) {
                                                 proto_tree_add_item(opt_hoplist_tree, hf_dsr_opt_rreq_address, tvb, offset_in_option, 4, ENC_NA); /* Opt rreq address */
-                                                proto_item_append_text(ti_hoplist, " %s", tvb_ip_to_str(tvb, offset_in_option));
+                                                proto_item_append_text(ti_hoplist, " %s", tvb_ip_to_str(pinfo->pool, tvb, offset_in_option));
                                                 offset_in_option += 4;
                                         }
                                 }
@@ -249,7 +249,7 @@ dissect_dsr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                         proto_item_append_text(ti_hoplist, " :");
                                         for(i=0;i<(opt_len-1)/4;i++) {
                                                 proto_tree_add_item(opt_hoplist_tree, hf_dsr_opt_rrep_address, tvb, offset_in_option, 4, ENC_NA); /*Opt rrep address */
-                                                proto_item_append_text(ti_hoplist, " %s", tvb_ip_to_str(tvb, offset_in_option));
+                                                proto_item_append_text(ti_hoplist, " %s", tvb_ip_to_str(pinfo->pool, tvb, offset_in_option));
                                                 offset_in_option += 4;
                                         }
                                 }
@@ -376,7 +376,7 @@ dissect_dsr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                         proto_item_append_text(ti_hoplist, " :");
                                         for(i=0;i<(opt_len-2)/4;i++) {
                                                 proto_tree_add_item(opt_hoplist_tree, hf_dsr_opt_srcrt_address, tvb, offset_in_option , 4, ENC_NA); /* Opt srcrt addresses */
-                                                proto_item_append_text(ti_hoplist, " %s", tvb_ip_to_str(tvb, offset_in_option));
+                                                proto_item_append_text(ti_hoplist, " %s", tvb_ip_to_str(pinfo->pool, tvb, offset_in_option));
                                                 offset_in_option  += 4;
                                         }
                                 }

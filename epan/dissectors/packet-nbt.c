@@ -645,7 +645,7 @@ dissect_nbns_answer(tvbuff_t *tvb, packet_info *pinfo, int offset, int nbns_data
             if (opcode != OPCODE_WACK) {
                 col_append_fstr(cinfo, COL_INFO, " %s %s",
                                 type_name,
-                                tvb_ip_to_str(tvb, cur_offset+2));
+                                tvb_ip_to_str(pinfo->pool, tvb, cur_offset+2));
             }
         }
 

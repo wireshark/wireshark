@@ -5342,7 +5342,7 @@ dissect_kerberos_T_address(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
   switch(private_data->addr_type){
   case KERBEROS_ADDR_TYPE_IPV4:
     it=proto_tree_add_item(tree, hf_krb_address_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
-    address_str = tvb_ip_to_str(tvb, offset);
+    address_str = tvb_ip_to_str(actx->pinfo->pool, tvb, offset);
     break;
   case KERBEROS_ADDR_TYPE_NETBIOS:
     {

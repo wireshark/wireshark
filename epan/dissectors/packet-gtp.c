@@ -4897,7 +4897,7 @@ decode_gtp_user_addr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_
         switch (pdp_typ) {
         case 0x21:
             proto_tree_add_item(ext_tree_user, hf_gtp_user_ipv4, tvb, offset + 5, 4, ENC_BIG_ENDIAN);
-            proto_item_append_text(te, " : %s", tvb_ip_to_str(tvb, offset + 5));
+            proto_item_append_text(te, " : %s", tvb_ip_to_str(pinfo->pool, tvb, offset + 5));
             break;
         case 0x57:
             proto_tree_add_item(ext_tree_user, hf_gtp_user_ipv6, tvb, offset + 5, 16, ENC_NA);
@@ -4909,7 +4909,7 @@ decode_gtp_user_addr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_
                 memset(&ipv6, 0, sizeof(ws_in6_addr));
                 proto_tree_add_item(ext_tree_user, hf_gtp_user_ipv4, tvb, offset + 5, 4, ENC_BIG_ENDIAN);
                 proto_tree_add_ipv6_format_value(ext_tree_user, hf_gtp_user_ipv6, tvb, offset + 9, 0, &ipv6, "dynamic");
-                proto_item_append_text(te, " : %s / dynamic", tvb_ip_to_str(tvb, offset + 5));
+                proto_item_append_text(te, " : %s / dynamic", tvb_ip_to_str(pinfo->pool, tvb, offset + 5));
             } else if (length == 18) {
                 proto_tree_add_ipv4_format_value(ext_tree_user, hf_gtp_user_ipv6, tvb, offset + 5, 0, 0, "dynamic");
                 proto_tree_add_item(ext_tree_user, hf_gtp_user_ipv6, tvb, offset + 5, 16, ENC_NA);
@@ -4917,7 +4917,7 @@ decode_gtp_user_addr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_
             } else if (length == 22) {
                 proto_tree_add_item(ext_tree_user, hf_gtp_user_ipv4, tvb, offset + 5, 4, ENC_BIG_ENDIAN);
                 proto_tree_add_item(ext_tree_user, hf_gtp_user_ipv6, tvb, offset + 9, 16, ENC_NA);
-                proto_item_append_text(te, " : %s / %s", tvb_ip_to_str(tvb, offset + 5),
+                proto_item_append_text(te, " : %s / %s", tvb_ip_to_str(pinfo->pool, tvb, offset + 5),
                                        tvb_ip6_to_str(tvb, offset + 9));
             } else {
                 proto_tree_add_expert_format(ext_tree_user, pinfo, &ei_gtp_ext_length_mal, tvb, offset + 3, length, "Wrong length indicated. Expected 6, 18 or 22, got %u", length);
@@ -6026,7 +6026,7 @@ decode_gtp_gsn_addr_common(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, 
         proto_tree_add_item(ext_tree_gsn_addr, hf_ipv4, tvb, offset + 3, 4, ENC_BIG_ENDIAN);
         if (hf_ipv4 != hf_gtp_gsn_ipv4)
             proto_item_set_hidden(proto_tree_add_item(ext_tree_gsn_addr, hf_gtp_gsn_ipv4, tvb, offset + 3, 4, ENC_BIG_ENDIAN));
-        proto_item_append_text(te, "%s", tvb_ip_to_str(tvb, offset + 3));
+        proto_item_append_text(te, "%s", tvb_ip_to_str(pinfo->pool, tvb, offset + 3));
         set_address_tvb(gsn_address, AT_IPv4, 4, tvb, offset + 3);
         break;
     case 5:
@@ -6038,7 +6038,7 @@ decode_gtp_gsn_addr_common(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, 
         proto_tree_add_item(ext_tree_gsn_addr, hf_ipv4, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
         if (hf_ipv4 != hf_gtp_gsn_ipv4)
             proto_item_set_hidden(proto_tree_add_item(ext_tree_gsn_addr, hf_gtp_gsn_ipv4, tvb, offset + 4, 4, ENC_BIG_ENDIAN));
-        proto_item_append_text(te, "%s", tvb_ip_to_str(tvb, offset + 4));
+        proto_item_append_text(te, "%s", tvb_ip_to_str(pinfo->pool, tvb, offset + 4));
         set_address_tvb(gsn_address, AT_IPv6, 16, tvb, offset + 4);
         break;
     case 16:
@@ -6447,7 +6447,7 @@ decode_gtp_chrg_addr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_
     switch (length) {
     case 4:
         proto_tree_add_item(ext_tree_chrg_addr, hf_gtp_chrg_ipv4, tvb, offset + 3, 4, ENC_BIG_ENDIAN);
-        proto_item_append_text(te, "%s", tvb_ip_to_str(tvb, offset + 3));
+        proto_item_append_text(te, "%s", tvb_ip_to_str(pinfo->pool, tvb, offset + 3));
         break;
     case 16:
         proto_tree_add_item(ext_tree_chrg_addr, hf_gtp_chrg_ipv6, tvb, offset + 3, 16, ENC_NA);
@@ -8945,7 +8945,7 @@ decode_gtp_node_addr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_
     switch (length) {
     case 4:
         proto_tree_add_item(ext_tree_node_addr, hf_gtp_node_ipv4, tvb, offset + 3, 4, ENC_BIG_ENDIAN);
-        proto_item_append_text(te, "%s", tvb_ip_to_str(tvb, offset + 3));
+        proto_item_append_text(te, "%s", tvb_ip_to_str(pinfo->pool, tvb, offset + 3));
         break;
     case 16:
         proto_tree_add_item(ext_tree_node_addr, hf_gtp_node_ipv6, tvb, offset + 3, 16, ENC_NA);

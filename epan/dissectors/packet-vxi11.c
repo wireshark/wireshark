@@ -562,7 +562,7 @@ dissect_device_remote_func(tvbuff_t *tvb,
     const gchar *addrstr;
     int offset = 0;
 
-    addrstr = tvb_ip_to_str(tvb, offset);
+    addrstr = tvb_ip_to_str(pinfo->pool, tvb, offset);
     offset = dissect_rpc_uint32(tvb, tree, hf_vxi11_core_host_addr, offset);
 
     port   = tvb_get_ntohl(tvb, offset);

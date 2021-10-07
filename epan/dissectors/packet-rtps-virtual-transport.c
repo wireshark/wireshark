@@ -621,7 +621,7 @@ static gint dissect_parameter_transport_rtps_type(
                             addr,
                             sizeof(addr),
                             "%s",
-                            tvb_ip_to_str(tvb, OFFSET_TO_VAL + sizeof(bytes_zeroed)));
+                            tvb_ip_to_str(pinfo->pool, tvb, OFFSET_TO_VAL + sizeof(bytes_zeroed)));
                 } else {
                     g_snprintf(
                             addr,
@@ -774,7 +774,7 @@ static gint dissect_parameter_transport_rtps_type(
                             addr,
                             sizeof(addr),
                             "%s",
-                            tvb_ip_to_str(tvb, OFFSET_TO_VAL + sizeof(bytes_zeroed)));
+                            tvb_ip_to_str(pinfo->pool, tvb, OFFSET_TO_VAL + sizeof(bytes_zeroed)));
                 } else {
                     g_snprintf(
                             addr,

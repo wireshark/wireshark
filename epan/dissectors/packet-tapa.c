@@ -150,7 +150,7 @@ dissect_tapa_discover_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tapa_
 		ENC_BIG_ENDIAN);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", Switch: %s",
-			tvb_ip_to_str(tvb, offset));
+			tvb_ip_to_str(pinfo->pool, tvb, offset));
 
 	offset += 4;
 

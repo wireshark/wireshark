@@ -2089,7 +2089,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     {
       const char *addr;
 
-      addr = tvb_ip_to_str(tvb, cur_offset);
+      addr = tvb_ip_to_str(pinfo->pool, tvb, cur_offset);
       col_append_fstr(pinfo->cinfo, COL_INFO, " %s", addr);
 
       proto_item_append_text(trr, ", addr %s", addr);
@@ -2256,7 +2256,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       proto_item     *ti_wks;
       wmem_strbuf_t *bitnames = wmem_strbuf_new_label(wmem_packet_scope());
 
-      wks_addr = tvb_ip_to_str(tvb, cur_offset);
+      wks_addr = tvb_ip_to_str(pinfo->pool, tvb, cur_offset);
       col_append_fstr(pinfo->cinfo, COL_INFO, " %s", wks_addr);
       proto_item_append_text(trr, ", addr %s", wks_addr);
       proto_tree_add_item(rr_tree, hf_dns_wks_address, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
@@ -3565,7 +3565,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
             case DNS_SVCB_KEY_IPV4HINT:
               for (svc_param_offset = 0; svc_param_offset < svc_param_length; svc_param_offset += 4) {
                 proto_tree_add_item(svcb_param_tree, hf_dns_svcb_param_ipv4hint_ip, tvb, cur_offset, 4, ENC_NA);
-                proto_item_append_text(svcb_param_ti, "%c%s", (svc_param_offset == 0 ? '=' : ','), tvb_ip_to_str(tvb, cur_offset));
+                proto_item_append_text(svcb_param_ti, "%c%s", (svc_param_offset == 0 ? '=' : ','), tvb_ip_to_str(pinfo->pool, tvb, cur_offset));
                 cur_offset += 4;
               }
               break;

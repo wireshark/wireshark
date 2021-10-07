@@ -3297,7 +3297,7 @@ decode_bgp_rd(wmem_allocator_t *pool, tvbuff_t *tvb, gint offset)
                                       tvb_get_ntohl(tvb, offset + 4));
             break;
         case FORMAT_IP_LOC:
-            wmem_strbuf_append_printf(strbuf, "%s:%u", tvb_ip_to_str(tvb, offset + 2),
+            wmem_strbuf_append_printf(strbuf, "%s:%u", tvb_ip_to_str(pool, tvb, offset + 2),
                                       tvb_get_ntohs(tvb, offset + 6));
             break ;
         case FORMAT_AS4_LOC:
@@ -4125,7 +4125,7 @@ decode_mp_next_hop_ipv4(tvbuff_t *tvb, proto_tree *tree, gint offset, packet_inf
     switch (nhlen) {
         case (FT_IPv4_LEN):
             proto_tree_add_item(tree, hf_bgp_update_path_attribute_mp_reach_nlri_next_hop_ipv4, tvb, offset, FT_IPv4_LEN, ENC_BIG_ENDIAN);
-            wmem_strbuf_append(strbuf, tvb_ip_to_str(tvb, offset));
+            wmem_strbuf_append(strbuf, tvb_ip_to_str(pinfo->pool, tvb, offset));
             break;
         default:
             return 0;
@@ -4156,7 +4156,7 @@ decode_mp_next_hop_vpn_ipv4(tvbuff_t *tvb, proto_tree *tree, gint offset, packet
             wmem_strbuf_append_printf(strbuf, " RD=%s", rd_string);
             offset += BGP_ROUTE_DISTINGUISHER_SIZE;
             proto_tree_add_item(tree, hf_bgp_update_path_attribute_mp_reach_nlri_next_hop_ipv4, tvb, offset, FT_IPv4_LEN, ENC_BIG_ENDIAN);
-            wmem_strbuf_append_printf(strbuf, " IPv4=%s", tvb_ip_to_str(tvb, offset));
+            wmem_strbuf_append_printf(strbuf, " IPv4=%s", tvb_ip_to_str(pinfo->pool, tvb, offset));
             break;
         default:
             return 0;
@@ -6639,7 +6639,7 @@ decode_prefix_MP(proto_tree *tree, int hf_path_id, int hf_addr4, int hf_addr6,
                     break;
                 case BGP_EXT_COM_RT_IP4:
                     wmem_strbuf_append_printf(comm_strbuf, "%s:%u",
-                                              tvb_ip_to_str(tvb, offset + 1 + 6),
+                                              tvb_ip_to_str(pinfo->pool, tvb, offset + 1 + 6),
                                               tvb_get_ntohs(tvb, offset + 1 + 10));
                     break;
                 case BGP_EXT_COM_RT_AS4:
@@ -6967,7 +6967,7 @@ decode_prefix_MP(proto_tree *tree, int hf_path_id, int hf_addr4, int hf_addr6,
                                             (offset + 8 + length) - start_offset,
                                             wmem_strbuf_get_str(stack_strbuf), "Label Stack=%s RD=%s:%u, IPv6=%s/%u",
                                             wmem_strbuf_get_str(stack_strbuf),
-                                            tvb_ip_to_str(tvb, offset + 2),
+                                            tvb_ip_to_str(pinfo->pool, tvb, offset + 2),
                                             tvb_get_ntohs(tvb, offset + 6),
                                             address_to_str(pinfo->pool, &addr), plen);
                         total_length = (1 + labnum * 3 + 8) + length;
@@ -7878,7 +7878,7 @@ dissect_bgp_update_ext_com(proto_tree *parent_tree, tvbuff_t *tvb, guint16 tlen,
 
                 proto_item_set_text(community_item, "%s: %s:%u",
                         val_to_str(com_stype_low_byte, bgpext_com_stype_tr_IP4, "Unknown subtype 0x%02x"),
-                        tvb_ip_to_str(tvb, offset+2), tvb_get_ntohs(tvb,offset+6));
+                        tvb_ip_to_str(pinfo->pool, tvb, offset+2), tvb_get_ntohs(tvb,offset+6));
 
                 switch(com_stype_low_byte) {
                     case BGP_EXT_COM_STYPE_IP4_OSPF_RID:
@@ -7899,7 +7899,7 @@ dissect_bgp_update_ext_com(proto_tree *parent_tree, tvbuff_t *tvb, guint16 tlen,
 
                 proto_item_set_text(community_item, "%s: %s:%u",
                         val_to_str(com_stype_low_byte, bgpext_com_stype_ntr_IP4, "Unknown subtype 0x%02x"),
-                        tvb_ip_to_str(tvb, offset+2), tvb_get_ntohs(tvb,offset+6));
+                        tvb_ip_to_str(pinfo->pool, tvb, offset+2), tvb_get_ntohs(tvb,offset+6));
                 break;
 
             case BGP_EXT_COM_TYPE_HIGH_TR_AS4: /* Transitive Four-Octet AS-Specific Extended Community */
@@ -7968,7 +7968,7 @@ dissect_bgp_update_ext_com(proto_tree *parent_tree, tvbuff_t *tvb, guint16 tlen,
                                 tfs_get_string(tvb_get_guint8(tvb,offset+7) & BGP_OSPF_RTYPE_METRIC_TYPE, &tfs_ospf_rt_mt));
 
                         proto_item_append_text(community_item, " Area: %s, Type: %s",
-                                tvb_ip_to_str(tvb,offset+2),
+                                tvb_ip_to_str(pinfo->pool, tvb,offset+2),
                                 val_to_str_const(tvb_get_guint8(tvb,offset+6), bgpext_com_ospf_rtype, "Unknown"));
                         }
                         break;
@@ -8224,7 +8224,7 @@ dissect_bgp_update_ext_com(proto_tree *parent_tree, tvbuff_t *tvb, guint16 tlen,
                                 tfs_get_string(tvb_get_guint8(tvb,offset+7) & BGP_OSPF_RTYPE_METRIC_TYPE, &tfs_ospf_rt_mt));
 
                         proto_item_append_text(community_item, " Area: %s, Type: %s",
-                                tvb_ip_to_str(tvb,offset+2),
+                                tvb_ip_to_str(pinfo->pool, tvb,offset+2),
                                 val_to_str_const(tvb_get_guint8(tvb,offset+6), bgpext_com_ospf_rtype, "Unknown"));
                         }
                         break;
@@ -8232,7 +8232,7 @@ dissect_bgp_update_ext_com(proto_tree *parent_tree, tvbuff_t *tvb, guint16 tlen,
                     case BGP_EXT_COM_STYPE_EXP_OSPF_RID:
                         proto_tree_add_item(community_tree, hf_bgp_ext_com_value_ospf_rid, tvb, offset+2, 4, ENC_BIG_ENDIAN);
 
-                        proto_item_append_text(community_item, " %s", tvb_ip_to_str(tvb, offset+2));
+                        proto_item_append_text(community_item, " %s", tvb_ip_to_str(pinfo->pool, tvb, offset+2));
                         break;
 
                     case BGP_EXT_COM_STYPE_EXP_OSPF_DID:
@@ -8473,7 +8473,7 @@ dissect_bgp_update_ext_com(proto_tree *parent_tree, tvbuff_t *tvb, guint16 tlen,
                         proto_tree_add_item(community_tree, hf_bgp_ext_com_eigrp_e_rid, tvb, offset+4, 4, ENC_BIG_ENDIAN);
 
                         proto_item_append_text(community_tree, " ASN: %u, RID: %s",
-                                tvb_get_ntohs(tvb, offset+2), tvb_ip_to_str(tvb, offset+4));
+                                tvb_get_ntohs(tvb, offset+2), tvb_ip_to_str(pinfo->pool, tvb, offset+4));
                         break;
 
                     case BGP_EXT_COM_STYPE_EXP_EIGRP_EPM:
@@ -8487,7 +8487,7 @@ dissect_bgp_update_ext_com(proto_tree *parent_tree, tvbuff_t *tvb, guint16 tlen,
 
                     case BGP_EXT_COM_STYPE_EXP_EIGRP_RID:
                        proto_tree_add_item(community_tree, hf_bgp_ext_com_eigrp_rid, tvb, offset+4, 4, ENC_NA);
-                       proto_item_append_text(community_tree, " %s", tvb_ip_to_str(tvb, offset+4));
+                       proto_item_append_text(community_tree, " %s", tvb_ip_to_str(pinfo->pool, tvb, offset+4));
                      break;
                 }
                 break;
@@ -8559,7 +8559,7 @@ dissect_bgp_update_pmsi_attr(packet_info *pinfo, proto_tree *parent_tree, tvbuff
             proto_tree_add_item(tunnel_id_tree, hf_bgp_pmsi_tunnel_rsvp_p2mp_tunnel_id, tvb, offset+11, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item(tunnel_id_tree, hf_bgp_pmsi_tunnel_rsvp_p2mp_ext_tunnel_idv4, tvb, offset+13, 4, ENC_NA);
             proto_item_append_text(tunnel_id_item, ": Id %u, Ext Id %s",
-                                tvb_get_ntohs(tvb, offset+11), tvb_ip_to_str(tvb, offset+13));
+                                tvb_get_ntohs(tvb, offset+11), tvb_ip_to_str(pinfo->pool, tvb, offset+13));
             break;
         case PMSI_TUNNEL_MLDP_P2MP:
         case PMSI_TUNNEL_MLDP_MP2MP:
@@ -8581,7 +8581,7 @@ dissect_bgp_update_pmsi_attr(packet_info *pinfo, proto_tree *parent_tree, tvbuff
                 proto_tree_add_item(tunnel_id_tree, hf_bgp_pmsi_tunnel_mldp_fec_el_opa_value_rn, tvb, offset+14+rn_addr_length, 4, ENC_BIG_ENDIAN);
                 proto_item_append_text(tunnel_id_item, ": Type: %s root node: %s Id: %u",
                                        val_to_str_const(tvb_get_guint8(tvb, offset+5), fec_types_vals, "Unknown"),
-                                       tvb_ip_to_str(tvb, offset+9),
+                                       tvb_ip_to_str(pinfo->pool, tvb, offset+9),
                                        tvb_get_ntohl(tvb, offset+14+rn_addr_length));
             } else if (opaque_value_type == PMSI_MLDP_FEC_TYPE_EXT_TYPE) {
                 proto_tree_add_item(tunnel_id_tree, hf_bgp_pmsi_tunnel_mldp_fec_el_opa_val_ext_type, tvb, offset+12+rn_addr_length, 2, ENC_BIG_ENDIAN);
@@ -8600,27 +8600,27 @@ dissect_bgp_update_pmsi_attr(packet_info *pinfo, proto_tree *parent_tree, tvbuff
             proto_tree_add_item(tunnel_id_tree, hf_bgp_pmsi_tunnel_pimssm_root_node, tvb, offset+5, 4, ENC_BIG_ENDIAN);
             proto_tree_add_item(tunnel_id_tree, hf_bgp_pmsi_tunnel_pimssm_pmc_group, tvb, offset+9, 4, ENC_BIG_ENDIAN);
             proto_item_append_text(tunnel_id_item, ": < %s, %s >",
-                                   tvb_ip_to_str(tvb, offset+5),
-                                   tvb_ip_to_str(tvb, offset+9));
+                                   tvb_ip_to_str(pinfo->pool, tvb, offset+5),
+                                   tvb_ip_to_str(pinfo->pool, tvb, offset+9));
             break;
         case PMSI_TUNNEL_PIMSM:
             proto_tree_add_item(tunnel_id_tree, hf_bgp_pmsi_tunnel_pimsm_sender, tvb, offset+5, 4, ENC_BIG_ENDIAN);
             proto_tree_add_item(tunnel_id_tree, hf_bgp_pmsi_tunnel_pimsm_pmc_group, tvb, offset+9, 4, ENC_BIG_ENDIAN);
             proto_item_append_text(tunnel_id_item, ": < %s, %s >",
-                                   tvb_ip_to_str(tvb, offset+5),
-                                   tvb_ip_to_str(tvb, offset+9));
+                                   tvb_ip_to_str(pinfo->pool, tvb, offset+5),
+                                   tvb_ip_to_str(pinfo->pool, tvb, offset+9));
             break;
         case PMSI_TUNNEL_BIDIR_PIM:
             proto_tree_add_item(tunnel_id_tree, hf_bgp_pmsi_tunnel_pimbidir_sender, tvb, offset+5, 4, ENC_BIG_ENDIAN);
             proto_tree_add_item(tunnel_id_tree, hf_bgp_pmsi_tunnel_pimbidir_pmc_group, tvb, offset+9, 4, ENC_BIG_ENDIAN);
             proto_item_append_text(tunnel_id_item, ": < %s, %s >",
-                                   tvb_ip_to_str(tvb, offset+5),
-                                   tvb_ip_to_str(tvb, offset+9));
+                                   tvb_ip_to_str(pinfo->pool, tvb, offset+5),
+                                   tvb_ip_to_str(pinfo->pool, tvb, offset+9));
             break;
         case PMSI_TUNNEL_INGRESS:
             proto_tree_add_item(tunnel_id_tree, hf_bgp_pmsi_tunnel_ingress_rep_addr, tvb, offset+5, 4, ENC_BIG_ENDIAN);
             proto_item_append_text(tunnel_id_item, ": tunnel end point -> %s",
-                                   tvb_ip_to_str(tvb, offset+5));
+                                   tvb_ip_to_str(pinfo->pool, tvb, offset+5));
             break;
         default:
             expert_add_info_format(pinfo, pmsi_tunnel_type_item, &ei_bgp_attr_pmsi_tunnel_type,
@@ -8874,7 +8874,7 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, guint16 path_attr_len,
                 } else {
                     proto_tree_add_item(subtree2, hf_bgp_update_path_attribute_next_hop, tvb,
                                         o + i + aoff, 4, ENC_BIG_ENDIAN);
-                    proto_item_append_text(ti_pa, ": %s ", tvb_ip_to_str(tvb, o + i + aoff));
+                    proto_item_append_text(ti_pa, ": %s ", tvb_ip_to_str(pinfo->pool, tvb, o + i + aoff));
                 }
                 break;
             case BGPTYPE_MULTI_EXIT_DISC:
@@ -8930,7 +8930,7 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, guint16 path_attr_len,
                                         o + i + aoff + asn_len, 4, ENC_BIG_ENDIAN);
 
                     proto_item_append_text(ti_pa, ": AS: %u origin: %s", aggregator_as,
-                                           tvb_ip_to_str(tvb, o + i + aoff + asn_len));
+                                           tvb_ip_to_str(pinfo->pool, tvb, o + i + aoff + asn_len));
                 }
                 break;
             case BGPTYPE_COMMUNITIES:
@@ -8995,7 +8995,7 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, guint16 path_attr_len,
                 } else {
                     proto_tree_add_item(subtree2, hf_bgp_update_path_attribute_originator_id, tvb,
                                         o + i + aoff, tlen, ENC_BIG_ENDIAN);
-                    proto_item_append_text(ti_pa, ": %s ", tvb_ip_to_str(tvb, o + i + aoff));
+                    proto_item_append_text(ti_pa, ": %s ", tvb_ip_to_str(pinfo->pool, tvb, o + i + aoff));
                 }
                 break;
             case BGPTYPE_MP_REACH_NLRI:
@@ -9117,8 +9117,8 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, guint16 path_attr_len,
                 while (q < end) {
                     proto_tree_add_item(cluster_list_tree, hf_bgp_update_path_attribute_cluster_id,
                                         tvb, q - 3 + aoff, 4, ENC_NA);
-                    proto_item_append_text(ti, " %s", tvb_ip_to_str(tvb, q-3+aoff));
-                    proto_item_append_text(ti_pa, " %s", tvb_ip_to_str(tvb, q-3+aoff));
+                    proto_item_append_text(ti, " %s", tvb_ip_to_str(pinfo->pool, tvb, q-3+aoff));
+                    proto_item_append_text(ti_pa, " %s", tvb_ip_to_str(pinfo->pool, tvb, q-3+aoff));
                     q += 4;
                 }
 

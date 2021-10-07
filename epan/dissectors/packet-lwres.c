@@ -194,7 +194,7 @@ static void dissect_getnamebyaddr_request(tvbuff_t* tvb, proto_tree* lwres_tree)
     flags = tvb_get_ntohl(tvb, LWRES_LWPACKET_LENGTH);
     family = tvb_get_ntohl(tvb, LWRES_LWPACKET_LENGTH + 4);
     addrlen = tvb_get_ntohs(tvb, LWRES_LWPACKET_LENGTH + 8);
-    addrs = tvb_ip_to_str(tvb, LWRES_LWPACKET_LENGTH + 10);
+    addrs = tvb_ip_to_str(wmem_packet_scope(), tvb, LWRES_LWPACKET_LENGTH + 10);
     slen = (int)strlen(addrs);
 
     if (lwres_tree == NULL)
@@ -407,7 +407,7 @@ static void dissect_getaddrsbyname_response(tvbuff_t* tvb, packet_info *pinfo, p
         {
             family = tvb_get_ntohl(tvb, offset);
             length = tvb_get_ntohs(tvb, offset + 4);
-            addrs = tvb_ip_to_str(tvb, offset + 6);
+            addrs = tvb_ip_to_str(pinfo->pool, tvb, offset + 6);
             slen = (int)strlen(addrs);
 
             addr_tree = proto_tree_add_subtree_format(adn_resp_tree,tvb, offset, 4+2+4, ett_adn_addr, NULL, "Address %s", addrs);
@@ -447,7 +447,7 @@ static void dissect_a_records(tvbuff_t* tvb, proto_tree* tree,guint32 nrec,int o
 
         curr = offset + (int)((sizeof(guint32)+sizeof(guint16)) * i);
 
-        addrs = tvb_ip_to_str(tvb, curr+2);
+        addrs = tvb_ip_to_str(wmem_packet_scope(), tvb, curr+2);
 
         addr_tree = proto_tree_add_subtree_format(a_rec_tree, tvb, curr,
                             6, ett_a_rec_addr, NULL, "Address %s", addrs);

@@ -1507,7 +1507,7 @@ dissect_wccp2r1_address_table_info(tvbuff_t *tvb, int offset, int length,
     switch (family) {
     case 1:
       /* IPv4 */
-      addr  =  tvb_ip_to_str(tvb, offset);
+      addr  =  tvb_ip_to_str(pinfo->pool, tvb, offset);
       if ((wccp_wccp_address_table->in_use == FALSE) &&
           (wccp_wccp_address_table->table_ipv4 != NULL) &&
           (i < wccp_wccp_address_table->table_length))
@@ -2732,7 +2732,7 @@ dissect_wccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                    hf_cache_ip, tvb, offset, 4,
                                    ipaddr,
                                    "Web Cache %d IP Address: %s", i,
-                                   tvb_ip_to_str(tvb, offset));
+                                   tvb_ip_to_str(pinfo->pool, tvb, offset));
         offset += 4;
       }
 

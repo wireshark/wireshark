@@ -315,7 +315,7 @@ static void dissect_bat_hna(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 		if (PTREE_DATA(tree)->visible) {
 			ti = proto_tree_add_protocol_format(tree, proto_bat_plugin, tvb, 0, 5,
 							    "B.A.T.M.A.N. HNA: %s/%d",
-							    tvb_ip_to_str(tvb, 0), hna_netmask);
+							    tvb_ip_to_str(pinfo->pool, tvb, 0), hna_netmask);
 		} else {
 			ti = proto_tree_add_item(tree, proto_bat_plugin, tvb, 0, 5, ENC_NA);
 		}

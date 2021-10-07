@@ -423,7 +423,7 @@ dissect_v3_group_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 
 	tree = proto_tree_add_subtree_format(parent_tree, tvb, offset, -1,
 			ett_group_record, &item, "Group Record : %s  %s",
-			tvb_ip_to_str(tvb, offset+4),
+			tvb_ip_to_str(pinfo->pool, tvb, offset+4),
 			val_to_str_const(tvb_get_guint8(tvb, offset), vs_record_type,"")
 		);
 
@@ -444,7 +444,7 @@ dissect_v3_group_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 
 	/* multicast address */
 	proto_tree_add_item(tree, hf_maddr, tvb, offset, 4, ENC_BIG_ENDIAN);
-	maddr_str = tvb_ip_to_str(tvb, offset);
+	maddr_str = tvb_ip_to_str(pinfo->pool, tvb, offset);
 	offset += 4;
 
 	if (num == 0) {
@@ -508,7 +508,7 @@ dissect_v3_group_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 	/* source addresses */
 	while(num--){
 		col_append_fstr(pinfo->cinfo, COL_INFO, "%s%s",
-				tvb_ip_to_str(tvb, offset), (num?", ":"}"));
+				tvb_ip_to_str(pinfo->pool, tvb, offset), (num?", ":"}"));
 
 		proto_tree_add_item(tree, hf_saddr, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
@@ -584,7 +584,7 @@ dissect_igmp_v3_query(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree
 		col_append_str(pinfo->cinfo, COL_INFO, ", general");
 	} else {
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", specific for group %s",
-			tvb_ip_to_str(tvb, offset));
+			tvb_ip_to_str(pinfo->pool, tvb, offset));
 	}
 	offset +=4;
 
@@ -603,7 +603,7 @@ dissect_igmp_v3_query(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree
 	offset += 2;
 
 	while(num--){
-		col_append_fstr(pinfo->cinfo, COL_INFO, "%s%s", tvb_ip_to_str(tvb, offset), (num?", ":"}"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, "%s%s", tvb_ip_to_str(pinfo->pool, tvb, offset), (num?", ":"}"));
 		proto_tree_add_item(tree, hf_saddr, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
 	}
@@ -641,13 +641,13 @@ dissect_igmp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void
 		switch(type)
 		{
 		case IGMP_V2_LEAVE_GROUP:
-			col_append_fstr(pinfo->cinfo, COL_INFO, " %s", tvb_ip_to_str(tvb, offset));
+			col_append_fstr(pinfo->cinfo, COL_INFO, " %s", tvb_ip_to_str(pinfo->pool, tvb, offset));
 			break;
 		case IGMP_V1_HOST_MEMBERSHIP_QUERY:
-			col_append_fstr(pinfo->cinfo, COL_INFO, ", specific for group %s", tvb_ip_to_str(tvb, offset));
+			col_append_fstr(pinfo->cinfo, COL_INFO, ", specific for group %s", tvb_ip_to_str(pinfo->pool, tvb, offset));
 			break;
 		default: /* IGMP_V2_MEMBERSHIP_REPORT is the only case left */
-			col_append_fstr(pinfo->cinfo, COL_INFO, " group %s", tvb_ip_to_str(tvb, offset));
+			col_append_fstr(pinfo->cinfo, COL_INFO, " group %s", tvb_ip_to_str(pinfo->pool, tvb, offset));
 			break;
 		}
 	}
@@ -826,8 +826,8 @@ dissect_igmp_mtrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 
 		block_tree = proto_tree_add_subtree_format(tree, tvb, offset, IGMP_TRACEROUTE_RSP_LEN,
 			ett_mtrace_block, NULL, "Response data block: %s -> %s,  Proto: %s,  Forwarding Code: %s",
-			tvb_ip_to_str(tvb, offset + 4),
-			tvb_ip_to_str(tvb, offset + 8),
+			tvb_ip_to_str(pinfo->pool, tvb, offset + 4),
+			tvb_ip_to_str(pinfo->pool, tvb, offset + 8),
 			val_to_str_const(tvb_get_guint8(tvb, offset + 28), mtrace_rtg_vals, "Unknown"),
 			val_to_str_const(tvb_get_guint8(tvb, offset + 31), mtrace_fwd_code_vals, "Unknown"));
 

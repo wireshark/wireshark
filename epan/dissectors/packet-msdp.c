@@ -317,9 +317,9 @@ static void dissect_msdp_sa(tvbuff_t *tvb, packet_info *pinfo,
                 }
                 entry_tree = proto_tree_add_subtree_format(tree, tvb, *offset, 12, ett_msdp_sa_entry, NULL,
                                          "(S,G) block: %s/%u -> %s",
-                                         tvb_ip_to_str(tvb, *offset + 8),
+                                         tvb_ip_to_str(pinfo->pool, tvb, *offset + 8),
                                          tvb_get_guint8(tvb, *offset + 3),
-                                         tvb_ip_to_str(tvb, *offset + 4));
+                                         tvb_ip_to_str(pinfo->pool, tvb, *offset + 4));
 
                 proto_tree_add_item(entry_tree, hf_msdp_sa_reserved, tvb, *offset, 3, ENC_BIG_ENDIAN);
                 *offset += 3;

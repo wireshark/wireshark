@@ -168,7 +168,7 @@ static int do_auto_rp_map(tvbuff_t *tvb, int offset, proto_tree *auto_rp_tree)
         /* sizeof map header + n * sizeof encoded group addresses */
         map_tree = proto_tree_add_subtree_format(auto_rp_tree, tvb, offset, 6 + group_count * 6,
                                  ett_auto_rp_map, NULL,
-                                 "RP %s: %u group%s", tvb_ip_to_str(tvb, offset),
+                                 "RP %s: %u group%s", tvb_ip_to_str(wmem_packet_scope(), tvb, offset),
                                  group_count, plurality(group_count, "", "s"));
 
         proto_tree_add_item(map_tree, hf_auto_rp_rp_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -186,7 +186,7 @@ static int do_auto_rp_map(tvbuff_t *tvb, int offset, proto_tree *auto_rp_tree)
                 mask_len = tvb_get_guint8(tvb, offset + 1);
                 grp_tree = proto_tree_add_subtree_format(map_tree, tvb, offset, 6,
                                          ett_auto_rp_group, NULL, "Group %s/%u (%s)",
-                                         tvb_ip_to_str(tvb, offset + 2), mask_len,
+                                         tvb_ip_to_str(wmem_packet_scope(), tvb, offset + 2), mask_len,
                                          val_to_str_const(sign&AUTO_RP_SIGN_MASK, auto_rp_mask_sign_vals, ""));
 
                 proto_tree_add_uint(grp_tree, hf_auto_rp_prefix_sgn, tvb, offset, 1, sign);

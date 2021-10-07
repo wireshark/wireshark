@@ -417,7 +417,7 @@ decode_dataitem_v4conn(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree *pt
   offset+=DLEP_DIT_V4CONN_FLAGS_LEN;
 
   proto_tree_add_item(pt, hf_dlep_dataitem_v4conn_addr, tvb, offset, FT_IPv4_LEN, ENC_BIG_ENDIAN);
-  proto_item_append_text(pi, ", Addr: %s", tvb_ip_to_str(tvb, offset));
+  proto_item_append_text(pi, ", Addr: %s", tvb_ip_to_str(pinfo->pool, tvb, offset));
   offset+=FT_IPv4_LEN;
 
   if (len == DLEP_DIT_V4CONN_WPORT_LEN) {
@@ -567,7 +567,7 @@ decode_dataitem_v4addr(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree *pt
   offset+=DLEP_DIT_V4ADDR_FLAGS_LEN;
 
   proto_tree_add_item(pt, hf_dlep_dataitem_v4addr_addr, tvb, offset, FT_IPv4_LEN, ENC_BIG_ENDIAN);
-  proto_item_append_text(pi, " %s", tvb_ip_to_str(tvb, offset));
+  proto_item_append_text(pi, " %s", tvb_ip_to_str(pinfo->pool, tvb, offset));
   offset+=FT_IPv4_LEN;
 
   if (len != DLEP_DIT_V4ADDR_LEN)
@@ -620,7 +620,7 @@ decode_dataitem_v4subnet(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree *
   offset+=DLEP_DIT_V4SUBNET_FLAGS_LEN;
 
   proto_tree_add_item(pt, hf_dlep_dataitem_v4subnet_subnet, tvb, offset, FT_IPv4_LEN, ENC_BIG_ENDIAN);
-  proto_item_append_text(pi, " %s", tvb_ip_to_str(tvb, offset));
+  proto_item_append_text(pi, " %s", tvb_ip_to_str(pinfo->pool, tvb, offset));
   offset+=FT_IPv4_LEN;
 
   proto_tree_add_item_ret_uint(pt, hf_dlep_dataitem_v4subnet_prefixlen, tvb, offset, 1, ENC_BIG_ENDIAN, &prefixlen);
