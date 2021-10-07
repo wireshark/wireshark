@@ -57,7 +57,11 @@ parse_charconst(const char *s, unsigned long *valuep, gchar **err_msg)
 	cp = s + 1;	/* skip the leading ' */
 	if (*cp == '\\') {
 		/*
-		 * Escape.
+		 * C escape sequence.
+		 * An escape sequence is an octal number \NNN,
+		 * an hex number \xNN, or one of \' \" \? \\ \a \b \f \n \r
+		 * \t \v that stands for the byte value of the equivalent
+		 * C-escape in ASCII encoding.
 		 */
 		cp++;
 		switch (*cp) {
@@ -138,6 +142,7 @@ parse_charconst(const char *s, unsigned long *valuep, gchar **err_msg)
 			break;
 
 		default:
+			/* Octal */
 			if (*cp >= '0' && *cp <= '7')
 				value = *cp - '0';
 			else {
@@ -145,8 +150,8 @@ parse_charconst(const char *s, unsigned long *valuep, gchar **err_msg)
 					*err_msg = g_strdup_printf("\"%s\" isn't a valid character constant.", s);
 				return FALSE;
 			}
-			cp++;
-			if (*cp != '\'') {
+			if (*(cp + 1) != '\'') {
+				cp++;
 				value <<= 3;
 				if (*cp >= '0' && *cp <= '7')
 					value |= *cp - '0';
@@ -155,8 +160,8 @@ parse_charconst(const char *s, unsigned long *valuep, gchar **err_msg)
 						*err_msg = g_strdup_printf("\"%s\" isn't a valid character constant.", s);
 					return FALSE;
 				}
-				cp++;
-				if (*cp != '\'') {
+				if (*(cp + 1) != '\'') {
+					cp++;
 					value <<= 3;
 					if (*cp >= '0' && *cp <= '7')
 						value |= *cp - '0';
