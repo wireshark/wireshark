@@ -7102,8 +7102,8 @@ dissect_windows_sockaddr_in6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 
 	/* IPv6 address */
 	proto_tree_add_item(sub_tree, hf_windows_sockaddr_in6_addr, tvb, offset, 16, ENC_NA);
-	proto_item_append_text(sub_item, ", IPv6: %s", tvb_ip6_to_str(tvb, offset));
-	proto_item_append_text(parent_item, ", IPv6: %s", tvb_ip6_to_str(tvb, offset));
+	proto_item_append_text(sub_item, ", IPv6: %s", tvb_ip6_to_str(pinfo->pool, tvb, offset));
+	proto_item_append_text(parent_item, ", IPv6: %s", tvb_ip6_to_str(pinfo->pool, tvb, offset));
 	offset += 16;
 
 	/* sin6_scope_id */

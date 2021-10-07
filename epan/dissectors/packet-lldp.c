@@ -1485,7 +1485,7 @@ dissect_lldp_chassis_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 			break;
 		case AFNUM_INET6:
 			if  (dataLen == 18){
-				strPtr = tvb_ip6_to_str(tvb, offset);
+				strPtr = tvb_ip6_to_str(pinfo->pool, tvb, offset);
 			}else{
 				expert_add_info_format(pinfo, lf, &ei_lldp_bad_length,
 					"Invalid Chassis ID Length (%u) for Type (%s, %s), expected (18)", dataLen, val_to_str_const(tlvsubType, chassis_id_subtypes, ""), val_to_str_const(addr_family, afn_vals, ""));
@@ -1658,7 +1658,7 @@ dissect_lldp_port_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
 			break;
 		case AFNUM_INET6:
 			if  (dataLen == 18){
-				strPtr = tvb_ip6_to_str(tvb, offset);
+				strPtr = tvb_ip6_to_str(pinfo->pool, tvb, offset);
 			}else{
 				expert_add_info_format(pinfo, lf, &ei_lldp_bad_length,
 					"Invalid Port ID Length (%u) for Type (%s, %s), expected (18)", dataLen, val_to_str_const(tlvsubType, port_id_subtypes, ""), val_to_str_const(addr_family, afn_vals, ""));

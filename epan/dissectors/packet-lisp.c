@@ -533,7 +533,7 @@ get_addr_str(tvbuff_t *tvb, gint offset, guint16 afi, guint16 *addr_len)
             return addr_str;
         case AFNUM_INET6:
             *addr_len  = INET6_ADDRLEN;
-            addr_str   = tvb_ip6_to_str(tvb, offset);
+            addr_str   = tvb_ip6_to_str(wmem_packet_scope(), tvb, offset);
             return addr_str;
         case AFNUM_LCAF:
             get_lcaf_data(tvb, offset, &lcaf_type, addr_len);
@@ -788,7 +788,7 @@ dissect_lcaf_afi_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 break;
             case AFNUM_INET6:
                 proto_tree_add_item(lisp_afi_list_tree, hf_lisp_lcaf_afi_list_ipv6, tvb, offset, INET6_ADDRLEN, ENC_NA);
-                proto_item_append_text(tir, " %d. IPv6 Address: %s", i, tvb_ip6_to_str(tvb, offset));
+                proto_item_append_text(tir, " %d. IPv6 Address: %s", i, tvb_ip6_to_str(pinfo->pool, tvb, offset));
                 proto_item_set_len(tir, 2 + INET6_ADDRLEN);
                 offset    += INET6_ADDRLEN;
                 remaining -= INET6_ADDRLEN;
@@ -2326,7 +2326,7 @@ dissect_lisp_map_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tre
                 break;
             case AFNUM_INET6:
                 proto_tree_add_item(lisp_itr_tree, hf_lisp_mreq_itr_rloc_ipv6, tvb, offset, 16, ENC_NA);
-                proto_item_append_text(tir, " %d: %s", i + 1, tvb_ip6_to_str(tvb, offset));
+                proto_item_append_text(tir, " %d: %s", i + 1, tvb_ip6_to_str(pinfo->pool, tvb, offset));
                 proto_item_set_len(tir, 2 + INET6_ADDRLEN);
                 offset += INET6_ADDRLEN;
                 break;

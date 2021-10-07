@@ -1121,7 +1121,7 @@ radius_ipv6addr(radius_attr_info_t *a, proto_tree *tree, packet_info *pinfo _U_,
 
 	proto_tree_add_item(tree, a->hf, tvb, offset, len, ENC_NA);
 
-	proto_item_append_text(avp_item, "%s", tvb_ip6_to_str(tvb, offset));
+	proto_item_append_text(avp_item, "%s", tvb_ip6_to_str(pinfo->pool, tvb, offset));
 }
 
 void
@@ -1168,7 +1168,7 @@ radius_combo_ip(radius_attr_info_t *a, proto_tree *tree, packet_info *pinfo _U_,
 		proto_item_append_text(avp_item, "%s", tvb_ip_to_str(pinfo->pool, tvb, offset));
 	} else if (len == 16) {
 		proto_tree_add_item(tree, a->hf_alt, tvb, offset, len, ENC_NA);
-		proto_item_append_text(avp_item, "%s", tvb_ip6_to_str(tvb, offset));
+		proto_item_append_text(avp_item, "%s", tvb_ip6_to_str(pinfo->pool, tvb, offset));
 	} else {
 		proto_item_append_text(avp_item, "[wrong length for both of IPv4 and IPv6 address]");
 		return;

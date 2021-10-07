@@ -5357,7 +5357,7 @@ dissect_kerberos_T_address(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
     break;
   case KERBEROS_ADDR_TYPE_IPV6:
     it=proto_tree_add_item(tree, hf_krb_address_ipv6, tvb, offset, INET6_ADDRLEN, ENC_NA);
-    address_str = tvb_ip6_to_str(tvb, offset);
+    address_str = tvb_ip6_to_str(actx->pinfo->pool, tvb, offset);
     break;
   default:
     proto_tree_add_expert(tree, actx->pinfo, &ei_kerberos_address, tvb, offset, len);

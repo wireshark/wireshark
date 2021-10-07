@@ -401,7 +401,7 @@ wrong answer on the PC on which you're doing development, and try
 answer on big-endian machines.
 
 gchar *tvb_ip_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset)
-gchar *tvb_ip6_to_str(tvbuff_t *tvb, const gint offset)
+gchar *tvb_ip6_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset)
 
 Returns a null-terminated buffer containing a string with IPv4 or IPv6 Address
 from the specified tvbuff, starting at the specified offset.

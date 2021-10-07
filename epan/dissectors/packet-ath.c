@@ -144,7 +144,7 @@ dissect_ath(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         info_srcaddr = tvb_ip_to_str(pinfo->pool, tvb, offset);
       } else if (hlen == 6) {
         proto_tree_add_item(ath_tree, hf_ath_ipv6, tvb, offset, 6, ENC_NA);
-        info_srcaddr = tvb_ip6_to_str(tvb, offset);
+        info_srcaddr = tvb_ip6_to_str(pinfo->pool, tvb, offset);
       } else {
         expert_add_info(pinfo, hlen_item, &ei_ath_hlen_invalid);
       }
@@ -244,7 +244,7 @@ dissect_ath(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         info_srcaddr = tvb_ip_to_str(pinfo->pool, tvb, offset);
       } else if (hlen == 6) {
         proto_tree_add_item(ath_tree, hf_ath_ipv6, tvb, offset, 6, ENC_NA);
-        info_srcaddr = tvb_ip6_to_str(tvb, offset);
+        info_srcaddr = tvb_ip6_to_str(pinfo->pool, tvb, offset);
       } else {
         expert_add_info(pinfo, hlen_item, &ei_ath_hlen_invalid);
       }

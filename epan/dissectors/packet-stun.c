@@ -1184,7 +1184,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                 case 2:
                     if (att_length < 20)
                         break;
-                    addr_str = tvb_ip6_to_str(tvb, offset + 4);
+                    addr_str = tvb_ip6_to_str(pinfo->pool, tvb, offset + 4);
                     proto_tree_add_item(att_tree, hf_stun_att_ipv6, tvb, offset+4, 16, ENC_NA);
                     break;
                 }

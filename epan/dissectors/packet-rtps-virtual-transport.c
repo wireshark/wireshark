@@ -627,7 +627,7 @@ static gint dissect_parameter_transport_rtps_type(
                             addr,
                             sizeof(addr),
                             "%s",
-                            tvb_ip6_to_str(tvb, OFFSET_TO_VAL));
+                            tvb_ip6_to_str(pinfo->pool, tvb, OFFSET_TO_VAL));
                 }
 
                 /* Add source to destination column field */
@@ -780,7 +780,7 @@ static gint dissect_parameter_transport_rtps_type(
                             addr,
                             sizeof(addr),
                             "%s",
-                            tvb_ip6_to_str(tvb, OFFSET_TO_VAL));
+                            tvb_ip6_to_str(pinfo->pool, tvb, OFFSET_TO_VAL));
                 }
 
                 /* Add address to destination column field */

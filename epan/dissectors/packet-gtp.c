@@ -4901,7 +4901,7 @@ decode_gtp_user_addr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_
             break;
         case 0x57:
             proto_tree_add_item(ext_tree_user, hf_gtp_user_ipv6, tvb, offset + 5, 16, ENC_NA);
-            proto_item_append_text(te, " : %s", tvb_ip6_to_str(tvb, offset + 5));
+            proto_item_append_text(te, " : %s", tvb_ip6_to_str(pinfo->pool, tvb, offset + 5));
             break;
         case 0x8d:
             if (length == 6) {
@@ -4913,12 +4913,12 @@ decode_gtp_user_addr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_
             } else if (length == 18) {
                 proto_tree_add_ipv4_format_value(ext_tree_user, hf_gtp_user_ipv6, tvb, offset + 5, 0, 0, "dynamic");
                 proto_tree_add_item(ext_tree_user, hf_gtp_user_ipv6, tvb, offset + 5, 16, ENC_NA);
-                proto_item_append_text(te, " : dynamic / %s", tvb_ip6_to_str(tvb, offset + 5));
+                proto_item_append_text(te, " : dynamic / %s", tvb_ip6_to_str(pinfo->pool, tvb, offset + 5));
             } else if (length == 22) {
                 proto_tree_add_item(ext_tree_user, hf_gtp_user_ipv4, tvb, offset + 5, 4, ENC_BIG_ENDIAN);
                 proto_tree_add_item(ext_tree_user, hf_gtp_user_ipv6, tvb, offset + 9, 16, ENC_NA);
                 proto_item_append_text(te, " : %s / %s", tvb_ip_to_str(pinfo->pool, tvb, offset + 5),
-                                       tvb_ip6_to_str(tvb, offset + 9));
+                                       tvb_ip6_to_str(pinfo->pool, tvb, offset + 9));
             } else {
                 proto_tree_add_expert_format(ext_tree_user, pinfo, &ei_gtp_ext_length_mal, tvb, offset + 3, length, "Wrong length indicated. Expected 6, 18 or 22, got %u", length);
             }
@@ -6046,7 +6046,7 @@ decode_gtp_gsn_addr_common(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, 
         proto_tree_add_item(ext_tree_gsn_addr, hf_ipv6, tvb, offset + 3, 16, ENC_NA);
         if (hf_ipv6 != hf_gtp_gsn_ipv6)
             proto_item_set_hidden(proto_tree_add_item(ext_tree_gsn_addr, hf_gtp_gsn_ipv6, tvb, offset + 3, 16, ENC_NA));
-        proto_item_append_text(te, "%s", tvb_ip6_to_str(tvb, offset + 3));
+        proto_item_append_text(te, "%s", tvb_ip6_to_str(pinfo->pool, tvb, offset + 3));
         set_address_tvb(gsn_address, AT_IPv4, 4, tvb, offset + 3);
         break;
     case 17:
@@ -6055,7 +6055,7 @@ decode_gtp_gsn_addr_common(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, 
         proto_tree_add_uint(ext_tree_gsn_addr, hf_gtp_gsn_addr_type, tvb, offset + 3, 1, addr_type);
         addr_len = tvb_get_guint8(tvb, offset + 3) & 0x3F;
         proto_tree_add_uint(ext_tree_gsn_addr, hf_gtp_gsn_addr_len, tvb, offset + 3, 1, addr_len);
-        proto_item_append_text(te, "%s", tvb_ip6_to_str(tvb, offset + 4));
+        proto_item_append_text(te, "%s", tvb_ip6_to_str(pinfo->pool, tvb, offset + 4));
         proto_tree_add_item(ext_tree_gsn_addr, hf_ipv6, tvb, offset + 4, 16, ENC_NA);
         if (hf_ipv6 != hf_gtp_gsn_ipv6)
             proto_item_set_hidden(proto_tree_add_item(ext_tree_gsn_addr, hf_gtp_gsn_ipv6, tvb, offset + 4, 16, ENC_NA));
@@ -6451,7 +6451,7 @@ decode_gtp_chrg_addr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_
         break;
     case 16:
         proto_tree_add_item(ext_tree_chrg_addr, hf_gtp_chrg_ipv6, tvb, offset + 3, 16, ENC_NA);
-        proto_item_append_text(te, "%s", tvb_ip6_to_str(tvb, offset + 3));
+        proto_item_append_text(te, "%s", tvb_ip6_to_str(pinfo->pool, tvb, offset + 3));
         break;
     default:
         proto_item_append_text(te, "unknown type or wrong length");
@@ -8949,7 +8949,7 @@ decode_gtp_node_addr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_
         break;
     case 16:
         proto_tree_add_item(ext_tree_node_addr, hf_gtp_node_ipv6, tvb, offset + 3, 16, ENC_NA);
-        proto_item_append_text(te, "%s", tvb_ip6_to_str(tvb, offset + 3));
+        proto_item_append_text(te, "%s", tvb_ip6_to_str(pinfo->pool, tvb, offset + 3));
         break;
     default:
         proto_item_append_text(te, "unknown type or wrong length");

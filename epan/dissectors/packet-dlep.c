@@ -449,7 +449,7 @@ decode_dataitem_v6conn(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree *pt
   offset+=DLEP_DIT_V6CONN_FLAGS_LEN;
 
   proto_tree_add_item(pt, hf_dlep_dataitem_v6conn_addr, tvb, offset, FT_IPv6_LEN, ENC_NA);
-  proto_item_append_text(pi, ", Addr: %s", tvb_ip6_to_str(tvb, offset));
+  proto_item_append_text(pi, ", Addr: %s", tvb_ip6_to_str(pinfo->pool, tvb, offset));
   offset+=FT_IPv6_LEN;
 
   if (len == DLEP_DIT_V6CONN_WPORT_LEN) {
@@ -593,7 +593,7 @@ decode_dataitem_v6addr(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree *pt
   offset+=DLEP_DIT_V6ADDR_FLAGS_LEN;
 
   proto_tree_add_item(pt, hf_dlep_dataitem_v6addr_addr, tvb, offset, FT_IPv6_LEN, ENC_NA);
-  proto_item_append_text(pi, " %s", tvb_ip6_to_str(tvb, offset));
+  proto_item_append_text(pi, " %s", tvb_ip6_to_str(pinfo->pool, tvb, offset));
   offset+=FT_IPv6_LEN;
 
   if (len != DLEP_DIT_V6ADDR_LEN)
@@ -651,7 +651,7 @@ decode_dataitem_v6subnet(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree *
   offset+=DLEP_DIT_V6SUBNET_FLAGS_LEN;
 
   proto_tree_add_item(pt, hf_dlep_dataitem_v6subnet_subnet, tvb, offset, FT_IPv6_LEN, ENC_NA);
-  proto_item_append_text(pi, " %s", tvb_ip6_to_str(tvb, offset));
+  proto_item_append_text(pi, " %s", tvb_ip6_to_str(pinfo->pool, tvb, offset));
   offset+=FT_IPv6_LEN;
 
   proto_tree_add_item_ret_uint(pt, hf_dlep_dataitem_v6subnet_prefixlen, tvb, offset, 1, ENC_BIG_ENDIAN, &prefixlen);

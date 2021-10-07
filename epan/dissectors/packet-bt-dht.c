@@ -288,7 +288,7 @@ dissect_bt_dht_values(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
       value_tree = proto_item_add_subtree( value_ti, ett_bt_dht_peers);
 
       proto_tree_add_item( value_tree, hf_ip6, tvb, offset, 16, ENC_NA);
-      proto_item_append_text(value_ti, " (IPv6/Port: [%s]", tvb_ip6_to_str(tvb, offset));
+      proto_item_append_text(value_ti, " (IPv6/Port: [%s]", tvb_ip6_to_str(pinfo->pool, tvb, offset));
       proto_tree_add_item( value_tree, hf_port, tvb, offset+16, 2, ENC_BIG_ENDIAN);
       proto_item_append_text(value_ti, ":%u)", tvb_get_ntohs( tvb, offset+16 ));
     }
@@ -354,7 +354,7 @@ dissect_bt_dht_nodes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
     if ( is_ipv6 )
     {
       proto_tree_add_item( node_tree, hf_ip6, tvb, offset+20, 16, ENC_NA);
-      proto_item_append_text(node_ti, ", IPv6/Port: [%s]", tvb_ip6_to_str(tvb, offset+20));
+      proto_item_append_text(node_ti, ", IPv6/Port: [%s]", tvb_ip6_to_str(pinfo->pool, tvb, offset+20));
 
       proto_tree_add_item( node_tree, hf_port, tvb, offset+36, 2, ENC_BIG_ENDIAN);
       proto_item_append_text(node_ti, ":%u)", tvb_get_ntohs( tvb, offset+36 ));

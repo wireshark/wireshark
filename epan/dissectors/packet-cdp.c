@@ -1138,7 +1138,7 @@ dissect_address_tlv(tvbuff_t *tvb, packet_info* pinfo, int offset, int length, p
         case ETHERTYPE_IPv6:
             if (address_length == 16) {
                 /* The address is an IPv6 address. */
-                proto_item_set_text(ti, "IPv6 address: %s", tvb_ip6_to_str(tvb, offset));
+                proto_item_set_text(ti, "IPv6 address: %s", tvb_ip6_to_str(pinfo->pool, tvb, offset));
                 hf_addr = hf_cdp_nrgyz_ip6_address;
                 proto_tree_add_item(address_tree, hf_cdp_nrgyz_ip6_address, tvb, offset, address_length, ENC_NA);
             }

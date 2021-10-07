@@ -1515,7 +1515,7 @@ dissect_wccp2r1_address_table_info(tvbuff_t *tvb, int offset, int length,
       break;
     case 2:
       /* IPv6 */
-      addr = tvb_ip6_to_str(tvb, offset);
+      addr = tvb_ip6_to_str(pinfo->pool, tvb, offset);
       if ((wccp_wccp_address_table->in_use == FALSE) &&
           (wccp_wccp_address_table->table_ipv6 != NULL) &&
           (i < wccp_wccp_address_table->table_length))

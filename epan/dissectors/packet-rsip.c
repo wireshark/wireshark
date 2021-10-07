@@ -307,7 +307,7 @@ rsip_parameter(tvbuff_t *tvb, proto_tree *rsip_tree, int off, int eoff)
 				    hf_rsip_parameter_address_ipv6, tvb,
 				    off + 4, paramlen - 1, ENC_NA);
 				proto_item_append_text(pti, ": %s",
-				    tvb_ip6_to_str(tvb, off + 4));
+				    tvb_ip6_to_str(wmem_packet_scope(), tvb, off + 4));
 			} else
 				proto_item_append_text(pti,
 				    ": Any IPv6 Address");

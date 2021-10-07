@@ -419,8 +419,8 @@ dissect_lisp_tcp_membership_message(tvbuff_t *tvb, packet_info *pinfo, proto_tre
             break;
         case AFNUM_INET6:
             proto_tree_add_item(message_tree, hf_lisp_tcp_message_rloc_ipv6, tvb, offset, INET6_ADDRLEN, ENC_NA);
-            proto_item_append_text(tim, ", RLOC: %s", tvb_ip6_to_str(tvb, offset));
-            col_append_fstr(pinfo->cinfo, COL_INFO, " [%u] %s", iid, tvb_ip6_to_str(tvb, offset));
+            proto_item_append_text(tim, ", RLOC: %s", tvb_ip6_to_str(pinfo->pool, tvb, offset));
+            col_append_fstr(pinfo->cinfo, COL_INFO, " [%u] %s", iid, tvb_ip6_to_str(pinfo->pool, tvb, offset));
             offset += INET6_ADDRLEN;
             data_len -= INET6_ADDRLEN;
             break;

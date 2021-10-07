@@ -1871,7 +1871,7 @@ dissect_subobj_ipv6(proto_tree *pcep_subobj_tree, packet_info *pinfo, tvbuff_t *
     }
 
     prefix_length = tvb_get_guint8(tvb, offset+18);
-    proto_item_append_text(ti, ": %s/%u", tvb_ip6_to_str(tvb, offset+2),
+    proto_item_append_text(ti, ": %s/%u", tvb_ip6_to_str(pinfo->pool, tvb, offset+2),
                            prefix_length);
 
     switch (obj_class) {
@@ -2333,7 +2333,7 @@ dissect_subobj_pksv6(proto_tree *pcep_subobj_tree, packet_info *pinfo, tvbuff_t 
     }
 
     path_key = tvb_get_ntohs(tvb, offset+2);
-    proto_item_append_text(ti, ": %s, Path Key %u", tvb_ip6_to_str(tvb, offset+4), path_key);
+    proto_item_append_text(ti, ": %s, Path Key %u", tvb_ip6_to_str(pinfo->pool, tvb, offset+4), path_key);
 
     proto_tree_add_item(pcep_subobj_pksv6, hf_pcep_subobj_pksv6_l,        tvb, offset,   1, ENC_NA);
     proto_tree_add_item(pcep_subobj_pksv6, hf_PCEPF_SUBOBJ_7F,            tvb, offset,   1, ENC_NA);

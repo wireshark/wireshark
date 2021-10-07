@@ -2168,7 +2168,7 @@ dissect_pfcp_f_teid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_i
         if ((fteid_flags_val & 0x2) == 2) {
             /* p to (p+15)   IPv6 address */
             proto_tree_add_item(tree, hf_pfcp_f_teid_ipv6, tvb, offset, 16, ENC_NA);
-            proto_item_append_text(item, ", IPv6 %s", tvb_ip6_to_str(tvb, offset));
+            proto_item_append_text(item, ", IPv6 %s", tvb_ip6_to_str(pinfo->pool, tvb, offset));
             offset += 16;
         }
         /* If the value of CH bit is set to "0", but the value of CHID bit is "1" */
@@ -3433,7 +3433,7 @@ dissect_pfcp_f_seid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_i
     if ((f_seid_flags & 0x1) == 1) {
         ipv6 = wmem_new0(pinfo->pool, address);
         proto_tree_add_item(tree, hf_pfcp_f_seid_ipv6, tvb, offset, 16, ENC_NA);
-        proto_item_append_text(item, ", IPv6 %s", tvb_ip6_to_str(tvb, offset));
+        proto_item_append_text(item, ", IPv6 %s", tvb_ip6_to_str(pinfo->pool, tvb, offset));
         set_address_tvb(ipv6, AT_IPv6, 16, tvb, offset);
         offset += 16;
     }
@@ -3532,7 +3532,7 @@ decode_pfcp_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_i
         case 1:
             /* IPv6 address */
             proto_tree_add_item(tree, hf_pfcp_node_id_ipv6, tvb, offset, 16, ENC_NA);
-            proto_item_append_text(item, "%s", tvb_ip6_to_str(tvb, offset));
+            proto_item_append_text(item, "%s", tvb_ip6_to_str(pinfo->pool, tvb, offset));
             offset += 16;
             break;
         case 2:
@@ -4939,7 +4939,7 @@ dissect_pfcp_remote_gtp_u_peer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     /* IPv6 address (if present)*/
     if (flags & 0x1) {
         proto_tree_add_item(tree, hf_pfcp_remote_gtp_u_peer_ipv6, tvb, offset, 16, ENC_NA);
-        proto_item_append_text(item, "IPv6 %s ", tvb_ip6_to_str(tvb, offset));
+        proto_item_append_text(item, "IPv6 %s ", tvb_ip6_to_str(pinfo->pool, tvb, offset));
         offset += 16;
     }
     /* DI (if present)*/
@@ -6667,7 +6667,7 @@ dissect_pfcp_alternative_smf_ip_address(tvbuff_t *tvb, packet_info *pinfo, proto
     /* IPv6 address (if present) */
     if (alternative_smf_ip_address_flags & 0x1) {
         proto_tree_add_item(tree, hf_pfcp_alternative_smf_ip_address_ipv6, tvb, offset, 16, ENC_NA);
-        proto_item_append_text(item, ", IPv6 %s", tvb_ip6_to_str(tvb, offset));
+        proto_item_append_text(item, ", IPv6 %s", tvb_ip6_to_str(pinfo->pool, tvb, offset));
         offset += 16;
     }
 
@@ -6808,7 +6808,7 @@ dissect_pfcp_cp_pfcp_entity_ip_address(tvbuff_t *tvb, packet_info *pinfo, proto_
     /* IPv6 address (if present) */
     if ((cp_pfcp_entity_ip_address_flags & 0x1)) {
         proto_tree_add_item(tree, hf_pfcp_cp_pfcp_entity_ip_address_ipv6, tvb, offset, 16, ENC_NA);
-        proto_item_append_text(item, ", IPv6 %s", tvb_ip6_to_str(tvb, offset));
+        proto_item_append_text(item, ", IPv6 %s", tvb_ip6_to_str(pinfo->pool, tvb, offset));
         offset += 16;
     }
 
@@ -6925,13 +6925,13 @@ dissect_pfcp_source_ip_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     /* IPv6 address (if present) */
     if ((source_ip_address_flags & 0x1)) {
         proto_tree_add_item(tree, hf_pfcp_source_ip_address_ipv6, tvb, offset, 16, ENC_NA);
-        proto_item_append_text(item, ", IPv6 %s", tvb_ip6_to_str(tvb, offset));
+        proto_item_append_text(item, ", IPv6 %s", tvb_ip6_to_str(pinfo->pool, tvb, offset));
         offset += 16;
     }
     /* Mask/Prefix Length (if present) */
     if ((source_ip_address_flags & 0x4)) {
         proto_tree_add_item(tree, hf_pfcp_source_ip_address_mask_prefix_lengt, tvb, offset, 16, ENC_NA);
-        proto_item_append_text(item, ", IPv6 %s", tvb_ip6_to_str(tvb, offset));
+        proto_item_append_text(item, ", IPv6 %s", tvb_ip6_to_str(pinfo->pool, tvb, offset));
         offset += 16;
     }
 
@@ -7392,7 +7392,7 @@ dissect_pfcp_mptcp_address_information(tvbuff_t *tvb, packet_info *pinfo, proto_
     /* MPTCP Proxy IPv6 address (if present) */
     if ((mptcp_address_flags & 0x2)) {
         proto_tree_add_item(tree, hf_pfcp_mptcp_proxy_ip_address_ipv6, tvb, offset, 16, ENC_NA);
-        proto_item_append_text(item, ", IPv6 %s", tvb_ip6_to_str(tvb, offset));
+        proto_item_append_text(item, ", IPv6 %s", tvb_ip6_to_str(pinfo->pool, tvb, offset));
         offset += 16;
     }
 
@@ -8419,7 +8419,7 @@ dissect_pfcp_cp_ip_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     /* IPv6 address (if present) */
     if (cp_ip_address_flags & 0x1) {
         proto_tree_add_item(tree, hf_pfcp_cp_ip_address_ipv6, tvb, offset, 16, ENC_NA);
-        proto_item_append_text(item, ", IPv6 %s", tvb_ip6_to_str(tvb, offset));
+        proto_item_append_text(item, ", IPv6 %s", tvb_ip6_to_str(pinfo->pool, tvb, offset));
         offset += 16;
     }
 

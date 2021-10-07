@@ -2200,7 +2200,7 @@ dissect_mip6_network_prefix_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
     offset++;
     proto_tree_add_item(field_tree, hf_mip6_nemo_mnp_mnp, tvb, offset, MIP6_NEMO_MNP_MNP_LEN, ENC_NA);
-    proto_item_append_text(ti, ": %s/%u", tvb_ip6_to_str(tvb, offset), prefix_len);
+    proto_item_append_text(ti, ": %s/%u", tvb_ip6_to_str(pinfo->pool, tvb, offset), prefix_len);
 
     return tvb_captured_length(tvb);
 }
@@ -2954,7 +2954,7 @@ dissect_pmip6_opt_mhipv6ap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     offset++;
 
     proto_tree_add_item(opt_tree, hf_mip6_opt_mhipv6ap_ipv6_address, tvb, offset, 16, ENC_NA);
-    ti = proto_tree_add_string(opt_tree, hf_mip6_opt_mhipv6ap_ipv6_address_prefix, tvb, offset -1, 16+1, tvb_ip6_to_str(tvb, offset));
+    ti = proto_tree_add_string(opt_tree, hf_mip6_opt_mhipv6ap_ipv6_address_prefix, tvb, offset -1, 16+1, tvb_ip6_to_str(pinfo->pool, tvb, offset));
     proto_item_append_text(ti, "/%u", prefix_l);
     proto_item_set_generated(ti);
 
@@ -3239,7 +3239,7 @@ dissect_pmip6_opt_lmaa(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     if (opt_code == 1) {
         /* Ipv6 Addr */
         proto_tree_add_item(opt_tree, hf_mip6_lmaa_ipv6, tvb, offset, 16, ENC_NA);
-        proto_item_append_text(ti, ": %s", tvb_ip6_to_str(tvb,offset));
+        proto_item_append_text(ti, ": %s", tvb_ip6_to_str(pinfo->pool, tvb,offset));
     }else if (opt_code == 2) {
         /* IPv4 addr */
         proto_tree_add_item(opt_tree, hf_mip6_lmaa_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -3673,7 +3673,7 @@ dissect_mip6_opt_dmnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
         proto_tree_add_item(opt_tree, hf_mip6_opt_dmnp_dmnp_ipv6, tvb,
                             offset, 16, ENC_NA);
         proto_item_append_text(ti, ": %s/%u",
-                               tvb_ip6_to_str(tvb, offset), prefix_len);
+                               tvb_ip6_to_str(pinfo->pool, tvb, offset), prefix_len);
         break;
 
     default:

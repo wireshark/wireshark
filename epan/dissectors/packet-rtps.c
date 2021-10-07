@@ -3414,7 +3414,7 @@ static gint rtps_util_add_locator_t(proto_tree *tree, packet_info *pinfo, tvbuff
                   16, ENC_NA);
           proto_item_append_text(tree, " (%s, %s, Logical Port = %u)",
                   val_to_str(kind, rtps_locator_kind_vals, "%02x"),
-                  tvb_ip6_to_str(tvb, offset + 8), port);
+                  tvb_ip6_to_str(pinfo->pool, tvb, offset + 8), port);
         }
       break;
     }
@@ -3450,7 +3450,7 @@ static gint rtps_util_add_locator_t(proto_tree *tree, packet_info *pinfo, tvbuff
       proto_tree_add_item(locator_tree, hf_rtps_locator_ipv6, tvb, offset+8, 16, ENC_NA);
       proto_item_append_text(tree, " (%s, %s:%u)",
               val_to_str(kind, rtps_locator_kind_vals, "%02x"),
-              tvb_ip6_to_str(tvb, offset + 8), port);
+              tvb_ip6_to_str(pinfo->pool, tvb, offset + 8), port);
       break;
     }
     case LOCATOR_KIND_DTLS: {
@@ -3465,7 +3465,7 @@ static gint rtps_util_add_locator_t(proto_tree *tree, packet_info *pinfo, tvbuff
       proto_tree_add_item(locator_tree, hf_rtps_locator_ipv6, tvb, offset+8, 16, ENC_NA);
       proto_item_append_text(tree, " (%s, %s:%u)",
               val_to_str(kind, rtps_locator_kind_vals, "%02x"),
-              tvb_ip6_to_str(tvb, offset + 8), port);
+              tvb_ip6_to_str(pinfo->pool, tvb, offset + 8), port);
       break;
     }
     /*
@@ -3686,10 +3686,10 @@ static int rtps_util_add_multichannel_locator_list(proto_tree *tree, packet_info
             }
             case LOCATOR_KIND_UDPV6: {
                 proto_tree_add_item(locator_tree, hf_rtps_locator_ipv6, tvb, offset + 4, 16, ENC_NA);
-                channel_address = tvb_ip6_to_str(tvb, offset + 4);
+                channel_address = tvb_ip6_to_str(pinfo->pool, tvb, offset + 4);
                 proto_item_append_text(tree, " (%s, %s)",
                     val_to_str(kind, rtps_locator_kind_vals, "%02x"),
-                    tvb_ip6_to_str(tvb, offset + 4));
+                    tvb_ip6_to_str(pinfo->pool, tvb, offset + 4));
                 break;
             }
                                      /* Default case, Multichannel locators only should be present in UDPv4 and UDPv6 transports

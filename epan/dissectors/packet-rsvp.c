@@ -2548,7 +2548,7 @@ summary_session(wmem_allocator_t *pool, tvbuff_t *tvb, int offset)
     case RSVP_SESSION_TYPE_IPV6_LSP:
         return wmem_strdup_printf(pool,
                                   "SESSION: IPv6-LSP, Destination %s, Short Call ID %d, Tunnel ID %d, Ext ID %0x%0x%0x%0x. ",
-                                  tvb_ip6_to_str(tvb, offset+4),
+                                  tvb_ip6_to_str(pool, tvb, offset+4),
                                   tvb_get_ntohs(tvb, offset+20),
                                   tvb_get_ntohs(tvb, offset+22),
                                   tvb_get_ntohl(tvb, offset+24),
@@ -2580,7 +2580,7 @@ summary_session(wmem_allocator_t *pool, tvbuff_t *tvb, int offset)
                                   "SESSION: IPv6-P2MP LSP TUNNEL, PSMP ID %d, Tunnel ID %d, Ext Tunnel %s. ",
                                   tvb_get_ntohl(tvb, offset+4),
                                   tvb_get_ntohs(tvb, offset+10),
-                                  tvb_ip6_to_str(tvb, offset+12));
+                                  tvb_ip6_to_str(pool, tvb, offset+12));
         break;
     case RSVP_SESSION_TYPE_IPV4_E_NNI:
         return wmem_strdup_printf(pool,
@@ -2624,7 +2624,7 @@ summary_template(wmem_allocator_t *pool, tvbuff_t *tvb, int offset)
     case 8:
         return wmem_strdup_printf(pool,
                                   "%s: IPv6-LSP, Tunnel Source: %s, Short Call ID: %d, LSP ID: %d. ", objtype,
-                                  tvb_ip6_to_str(tvb, offset+4),
+                                  tvb_ip6_to_str(pool, tvb, offset+4),
                                   tvb_get_ntohs(tvb, offset+20),
                                   tvb_get_ntohs(tvb, offset+22));
         break;
@@ -2764,7 +2764,7 @@ dissect_rsvp_session(packet_info *pinfo, proto_item *ti, proto_tree *rsvp_object
                             tvb, offset2+18, 2, ENC_BIG_ENDIAN);
 
         proto_tree_add_item(rsvp_object_tree, hf_rsvp_extended_tunnel_ipv6, tvb, offset2+20, 16, ENC_NA);
-        proto_item_set_text(ti, "Extended Tunnel ID: (%s)", tvb_ip6_to_str(tvb, offset2+20));
+        proto_item_set_text(ti, "Extended Tunnel ID: (%s)", tvb_ip6_to_str(pinfo->pool, tvb, offset2+20));
 
 
         hidden_item = proto_tree_add_item(rsvp_object_tree,
@@ -2972,7 +2972,7 @@ dissect_rsvp_ifid_tlv(proto_tree *ti, packet_info* pinfo, proto_tree *rsvp_objec
         case 17:                        /* INCOMING_IPV6 */
             tlv_name = "Incoming ";
         ifid_ipv6:
-            ip_str = tvb_ip6_to_str(tvb, offset+tlv_off+4);
+            ip_str = tvb_ip6_to_str(pinfo->pool, tvb, offset+tlv_off+4);
             rsvp_ifid_subtree = proto_tree_add_subtree_format(rsvp_object_tree, tvb,
                                       offset+tlv_off, tlv_len,
                                       subtree_type, NULL, "%sIPv6 TLV - %s", tlv_name, ip_str);
@@ -3214,7 +3214,7 @@ dissect_rsvp_hop(proto_item *ti, packet_info* pinfo, proto_tree *rsvp_object_tre
         proto_tree_add_item(rsvp_object_tree, hf_rsvp_hop_logical_interface, tvb, offset2+16, 4, ENC_BIG_ENDIAN);
 
         proto_item_set_text(ti, "HOP: IPv6 IF-ID. Control IPv6: %s. ",
-                            tvb_ip6_to_str(tvb, offset2));
+                            tvb_ip6_to_str(pinfo->pool, tvb, offset2));
 
         dissect_rsvp_ifid_tlv(ti, pinfo, rsvp_object_tree, tvb, offset+24, obj_length-24,
                               TREE(TT_HOP_SUBOBJ));
@@ -5248,7 +5248,7 @@ dissect_rsvp_ro_subobjects(proto_tree *ti, packet_info* pinfo, proto_tree *rsvp_
             rsvp_ro_subtree = proto_tree_add_subtree_format(rsvp_object_tree, tvb,
                                       offset+l, 8, tree_type, &ti2,
                                       "Path Key subobject - %s, %u",
-                                      tvb_ip6_to_str(tvb, offset+l+4),
+                                      tvb_ip6_to_str(pinfo->pool, tvb, offset+l+4),
                                       path_key);
             proto_tree_add_uint_format_value(rsvp_ro_subtree, hf_rsvp_type, tvb, offset+l, 1,
                                 type, "65 (Path Key with IPv6 PCE-ID)");
@@ -5805,7 +5805,7 @@ dissect_rsvp_association(proto_tree *ti, proto_tree *rsvp_object_tree,
         proto_tree_add_item(rsvp_object_tree, hf_rsvp_association_id, tvb, offset+6, 2, ENC_BIG_ENDIAN);
         proto_item_append_text(ti, "ID: %u. ", association_id);
         proto_tree_add_item(rsvp_object_tree, hf_rsvp_association_source_ipv6, tvb, offset+8, 16, ENC_NA);
-        proto_item_append_text(ti, "Src: %s", tvb_ip6_to_str(tvb, offset+8));
+        proto_item_append_text(ti, "Src: %s", tvb_ip6_to_str(wmem_packet_scope(), tvb, offset+8));
         break;
 
     case 4:       /* oif2008.389 */
@@ -5957,7 +5957,7 @@ dissect_rsvp_lsp_tunnel_if_id(proto_tree *ti, packet_info* pinfo, proto_tree *rs
         proto_tree_add_item(rsvp_object_tree, hf_rsvp_lsp_tunnel_if_id_target_igp_instance, tvb, offset+20, 4, ENC_BIG_ENDIAN);
         proto_item_set_text(ti, "LSP INTERFACE-ID: IPv6, interface address %s,"
                             "IGP instance %s",
-                            tvb_ip6_to_str(tvb, offset+4),
+                            tvb_ip6_to_str(pinfo->pool, tvb, offset+4),
                             tvb_ip_to_str(pinfo->pool, tvb, offset+20));
         proto_tree_add_item(rsvp_object_tree, hf_rsvp_lsp_tunnel_if_id_action, tvb, offset+24, 1, ENC_BIG_ENDIAN);
         dissect_rsvp_lsp_tunnel_if_id_tlv(rsvp_object_tree, pinfo, tvb, offset+28, obj_length-28,
@@ -6014,7 +6014,7 @@ dissect_rsvp_notify_request(proto_item *ti, proto_tree *rsvp_object_tree,
         proto_tree_add_item(rsvp_object_tree, hf_rsvp_ctype_notify_request, tvb, offset+3, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(rsvp_object_tree, hf_rsvp_notify_request_notify_node_address_ipv6, tvb, offset2, 16, ENC_NA);
         proto_item_append_text(ti, ": Notify node: %s",
-                               tvb_ip6_to_str(tvb, offset2));
+                               tvb_ip6_to_str(wmem_packet_scope(), tvb, offset2));
         break;
     }
 
@@ -6101,7 +6101,7 @@ dissect_rsvp_gen_uni(proto_tree *ti, packet_info* pinfo, proto_tree *rsvp_object
                                           tvb, offset2+l+4, 16, ENC_NA);
                     if (i < 4) {
                         proto_item_append_text(ti, "%s IPv6 TNA: %s", c,
-                                               tvb_ip6_to_str(tvb, offset2+l+4));
+                                               tvb_ip6_to_str(pinfo->pool, tvb, offset2+l+4));
                     }
                     break;
 
@@ -6359,7 +6359,7 @@ dissect_rsvp_call_id(proto_tree *ti, packet_info* pinfo, proto_tree *rsvp_object
 
         case 2:
             offset4 = offset3 + 16;
-            str = tvb_ip6_to_str(tvb, offset3);
+            str = tvb_ip6_to_str(pinfo->pool, tvb, offset3);
             proto_tree_add_item(rsvp_object_tree, hf_rsvp_filter[RSVPF_CALL_ID_SRC_ADDR_IPV6],
                                 tvb, offset3, 16, ENC_NA);
             break;

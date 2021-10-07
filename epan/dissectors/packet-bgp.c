@@ -4179,12 +4179,12 @@ decode_mp_next_hop_ipv6(tvbuff_t *tvb, proto_tree *tree, gint offset, packet_inf
     switch (nhlen) {
         case (FT_IPv6_LEN):
             proto_tree_add_item(tree, hf_bgp_update_path_attribute_mp_reach_nlri_next_hop_ipv6, tvb, offset, FT_IPv6_LEN, ENC_NA);
-            wmem_strbuf_append(strbuf, tvb_ip6_to_str(tvb, offset));
+            wmem_strbuf_append(strbuf, tvb_ip6_to_str(pinfo->pool, tvb, offset));
             break;
         case (2*FT_IPv6_LEN):
             /* global address followed by link-local */
             proto_tree_add_item(tree, hf_bgp_update_path_attribute_mp_reach_nlri_next_hop_ipv6, tvb, offset, FT_IPv6_LEN, ENC_NA);
-            wmem_strbuf_append_printf(strbuf, "IPv6=%s", tvb_ip6_to_str(tvb, offset));
+            wmem_strbuf_append_printf(strbuf, "IPv6=%s", tvb_ip6_to_str(pinfo->pool, tvb, offset));
             offset += FT_IPv6_LEN;
             ti = proto_tree_add_item(tree, hf_bgp_update_path_attribute_mp_reach_nlri_next_hop_ipv6_link_local, tvb, offset, FT_IPv6_LEN, ENC_NA);
             tvb_get_ipv6(tvb, offset, &ipv6_addr);
@@ -4225,7 +4225,7 @@ decode_mp_next_hop_vpn_ipv6(tvbuff_t *tvb, proto_tree *tree, gint offset, packet
             wmem_strbuf_append_printf(strbuf, " RD=%s", rd_string);
             offset += BGP_ROUTE_DISTINGUISHER_SIZE;
             proto_tree_add_item(tree, hf_bgp_update_path_attribute_mp_reach_nlri_next_hop_ipv6, tvb, offset, FT_IPv6_LEN, ENC_NA);
-            wmem_strbuf_append_printf(strbuf, " IPv6=%s", tvb_ip6_to_str(tvb, offset));
+            wmem_strbuf_append_printf(strbuf, " IPv6=%s", tvb_ip6_to_str(pinfo->pool, tvb, offset));
             break;
         case (2*(BGP_ROUTE_DISTINGUISHER_SIZE + FT_IPv6_LEN)):
             rd_string = decode_bgp_rd(pinfo->pool, tvb, offset);
@@ -4236,7 +4236,7 @@ decode_mp_next_hop_vpn_ipv6(tvbuff_t *tvb, proto_tree *tree, gint offset, packet
             wmem_strbuf_append_printf(strbuf, " RD=%s", rd_string);
             offset += BGP_ROUTE_DISTINGUISHER_SIZE;
             proto_tree_add_item(tree, hf_bgp_update_path_attribute_mp_reach_nlri_next_hop_ipv6, tvb, offset, FT_IPv6_LEN, ENC_NA);
-            wmem_strbuf_append_printf(strbuf, " IPv6=%s", tvb_ip6_to_str(tvb, offset));
+            wmem_strbuf_append_printf(strbuf, " IPv6=%s", tvb_ip6_to_str(pinfo->pool, tvb, offset));
             offset += FT_IPv6_LEN;
             rd_string = decode_bgp_rd(pinfo->pool, tvb, offset);
             ti = proto_tree_add_string(tree, hf_bgp_update_path_attribute_mp_reach_nlri_next_hop_rd, tvb, offset, BGP_ROUTE_DISTINGUISHER_SIZE, rd_string);
