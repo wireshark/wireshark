@@ -24,11 +24,14 @@
 
 #include <wsutil/strtoi.h>
 
+#define DHT_MIN_LEN 5
+
 void proto_register_bt_dht(void);
 void proto_reg_handoff_bt_dht(void);
 
-/* Specifications: BEP-0005
- * http://www.bittorrent.org/beps/bep_0005.html
+/* Specifications:
+ * https://www.bittorrent.org/beps/bep_0005.html BEP 5 DHT Protocol
+ * https://www.bittorrent.org/beps/bep_0042.html BEP 42 DHT Security extension
  */
 
 static int proto_bt_dht = -1;
@@ -67,21 +70,21 @@ static gint ett_bt_dht_nodes = -1;
 
 /* some keys use short name in packet */
 static const value_string short_key_name_value_string[] = {
-  { 'y', "Message type" },
-  { 'q', "Request type" },
+  { 'a', "Request arguments" },
   { 'e', "Error" },
+  { 'q', "Request type" },
+  { 'r', "Response values" },
   { 't', "Transaction ID" },
   { 'v', "Version" },
-  { 'a', "Request arguments" },
-  { 'r', "Response values" },
+  { 'y', "Message type" },
   { 0, NULL }
 };
 
 /* some values use short name in packet */
 static const value_string short_val_name_value_string[] = {
+  { 'e', "Error" },
   { 'q', "Request" },
   { 'r', "Response" },
-  { 'e', "Error" },
   { 0, NULL }
 };
 
@@ -442,20 +445,28 @@ dissect_bencoded_dict_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     else if( strcmp(key,"ip")==0 )
     {
       /*
-       * Not found in BEP 0005 but explained by
-       * http://www.rasterbar.com/products/libtorrent/dht_sec.html
+       * BEP 42 DHT Security extension
+       * https://www.bittorrent.org/beps/bep_0042.html
+       * https://www.rasterbar.com/products/libtorrent/dht_sec.html
        */
 
       int len, old_offset;
       old_offset = offset;
       len = bencoded_string_length(pinfo, tvb, &offset);
 
-      if(len == 4) {
-        proto_tree_add_item(sub_tree, hf_ip, tvb, offset, len, ENC_BIG_ENDIAN);
+      if(len == 6) {
+        proto_tree_add_item(sub_tree, hf_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
         val = tvb_ip_to_str(pinfo->pool, tvb, offset);
-        offset += len;
+        offset += 4;
+        proto_tree_add_item(sub_tree, hf_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
       }
       else {
+        /* XXX: BEP 42 doesn't mention IPv6 and predates the IPv6 DHT;
+         * it doesn't make sense for IPv6 because the purpose is to tell
+         * the requestor its own publicly routable IP address and port
+         * (working around NAT). So any other length than 6 is unexpected.
+         */
         offset = dissect_bencoded_string( tvb, pinfo, sub_tree, old_offset, &val, TRUE, "Value" );
       }
     }
@@ -531,20 +542,35 @@ static gboolean
 test_bt_dht(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
 
-  /* try dissecting */
-  /* Assume dictionary (d) is followed by a one char long (1:) key string. */
+  /* The DHT KRPC protocol sends packets that are bencoded dictionaries.
+   * Bencoded dictionaries always have the keys in sorted (raw string)
+   * order. There are three possible message types, query, which has "a" and
+   * "q" keys that map to dictionaries, response, which has an "r" key
+   * that maps to a dictionary, and error, which has an "e" key that maps
+   * to a list.
+   *
+   * Conveniently, those keys appear in sort order before all other possible
+   * top level keys, with the exception of the "ip" key added in BEP-0042.
+   *
+   * Thus, there are only four possible initial sets of bytes, corresponding
+   * to beginning with an "a" dictionary, "r" dictionary, "ip" string, or an
+   * "e" list.
+   */
 
-  if(tvb_captured_length_remaining(tvb, offset) < 4)
+  if (tvb_captured_length_remaining(tvb, offset) < DHT_MIN_LEN)
     return FALSE;
 
-  if(tvb_memeql(tvb, offset, "d1:", 3) != 0)
-    return FALSE;
+  if (tvb_memeql(tvb, offset, "d1:ad", 5) == 0) {
+    return TRUE;
+  } else if (tvb_memeql(tvb, offset, "d1:rd", 5) == 0) {
+    return TRUE;
+  } else if (tvb_memeql(tvb, offset, "d2:ip", 5) == 0) {
+    return TRUE;
+  } else if (tvb_memeql(tvb, offset, "d1:el", 5) == 0) {
+    return TRUE;
+  }
 
-  /* Is 'key' a valid key ? */
-  if(try_val_to_str(tvb_get_guint8(tvb, offset+3), short_key_name_value_string) == NULL)
-    return FALSE;
-
-  return TRUE;
+  return FALSE;
 }
 
 static int
@@ -563,6 +589,12 @@ dissect_bt_dht(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
   col_clear(pinfo->cinfo, COL_INFO);
   col_set_str(pinfo->cinfo, COL_INFO, "BitTorrent DHT Protocol");
 
+  /* XXX: There is a separate "bencode" dissector. Would it be possible
+   * to use it, at least to move some functions into a shared header?
+   * DHT has some keys with special meanings, and some values that
+   * are supposed to be interpreted specially (e.g., IP/port combinations),
+   * so maybe it's more trouble than it's worth.
+   */
   return dissect_bencoded_dict(tvb, pinfo, tree, 0, "BitTorrent DHT Protocol");
 }
 
@@ -688,11 +720,7 @@ proto_register_bt_dht(void)
 void
 proto_reg_handoff_bt_dht(void)
 {
-  /* "Decode As" is always available;
-   *  Heuristic dissection in disabled by default since the heuristic is quite weak.
-   *  XXX - Still too weak?
-   */
-  heur_dissector_add("udp", dissect_bt_dht_heur, "BitTorrent DHT over UDP", "bittorrent_dht_udp", proto_bt_dht, HEURISTIC_DISABLE);
+  heur_dissector_add("udp", dissect_bt_dht_heur, "BitTorrent DHT over UDP", "bittorrent_dht_udp", proto_bt_dht, HEURISTIC_ENABLE);
 
   bt_dht_handle = create_dissector_handle(dissect_bt_dht, proto_bt_dht);
   dissector_add_for_decode_as_with_preference("udp.port", bt_dht_handle);
