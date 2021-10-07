@@ -75,8 +75,8 @@ The following features are new (or have been significantly updated) since versio
   expressions.
 
 * Significant RTP Player redesign and improvements (see Wireshark User Documentation,
-  https://www.wireshark.org/docs/wsug_html_chunked/ChTelPlayingCalls.html[Playing VoIP Calls] and
-  https://www.wireshark.org/docs/wsug_html_chunked/_rtp.html#ChTelRtpPlayer[RTP Player Window])
+  {wireshark-users-guide-url}ChTelPlayingCalls.html[Playing VoIP Calls] and
+  {wireshark-users-guide-url}_rtp.html#ChTelRtpPlayer[RTP Player Window])
 ** RTP Player can play many streams in row
 ** UI is more responsive
 ** RTP Player maintains playlist, other tools can add/remove streams to it
@@ -90,7 +90,7 @@ The following features are new (or have been significantly updated) since versio
 * Follow stream is now able to follow SIP calls based on their Call-ID value.
 
 * Follow stream YAML output format’s has been changed to add timestamps and peers information (for more details see the user’s guide,
-{wireshark-users-guide-url}/ChAdvFollowStreamSection.html[Following Protocol Streams])
+{wireshark-users-guide-url}ChAdvFollowStreamSection.html[Following Protocol Streams])
 
 * IP fragments between public IPv4 addresses are now reassembled even if they have different VLAN IDs. Reassembly of IP fragments
   where one endpoint is a private (RFC 1918 section 3) or link-local (RFC 3927) IPv4 address continues to take the VLAN ID into
@@ -193,14 +193,14 @@ https://www.wireshark.org/download.html.
 Most Linux and Unix vendors supply their own Wireshark packages.
 You can usually install or upgrade Wireshark using the package management system specific to that platform.
 A list of third-party packages can be found on the
-https://www.wireshark.org/download.html#thirdparty[download page]
+https://www.wireshark.org/download.html[download page]
 on the Wireshark web site.
 
 == File Locations
 
 Wireshark and TShark look in several different locations for preference files, plugins, SNMP MIBS, and RADIUS dictionaries.
 These locations vary from platform to platform.
-You can use About → Folders to find the default locations on your system.
+You can use menu:Help[About Wireshark,Folders] or `tshark -G folders` to find the default locations on your system.
 
 == Getting Help
 
