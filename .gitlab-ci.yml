@@ -26,11 +26,6 @@ variables:
   # Enable color output in CMake, Ninja, and other tools. https://bixense.com/clicolors/
   CLICOLOR_FORCE: 1
 
-# Scheduled builds additionally set SCHEDULE_TYPE, which can be one of:
-# - daily: Daily at 10:00 UTC
-# - coverity-visual-c++: Monday, Wednesday, & Friday at 12:00 UTC
-# - coverity-gcc: Sunday, Tuesday, Thursday & Saturday at 12:00 UTC
-
 # Common rule stanzas
 # These must currently be including using "!reference tags". "extends:" and
 # YAML anchors won't work:
@@ -39,7 +34,7 @@ variables:
 # Commits that have been approved and merged. Run automatically in the main
 # repo and allow manual runs in the web UI and in forks.
 .if-merged:
-  - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "master" && $CI_PROJECT_URL =~ /.*gitlab.com\/wireshark\/wireshark/'
+  - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "release-3.6" && $CI_PROJECT_URL =~ /.*gitlab.com\/wireshark\/wireshark/'
     when: always
   - if: '$CI_PIPELINE_SOURCE == "web"'
     when: always
@@ -61,11 +56,6 @@ variables:
 # available in wireshark/wireshark, e.g. wireshark-windows-*
 .if-w-w-only-merge-request:
   - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_PROJECT_URL =~ /.*gitlab.com\/wireshark\/wireshark/'
-    when: always
-# Daily jobs. Care should be taken when changing this since the scheduler
-# often doesn't report errors.
-.if-daily-schedule:
-  - if: '$CI_PIPELINE_SOURCE == "schedule" && $SCHEDULE_TYPE == "daily"'
     when: always
 # Fuzz jobs. Care should be taken when changing this since the scheduler
 # often doesn't report errors.
@@ -97,7 +87,7 @@ variables:
   # https://gould.cx/ted/blog/2017/06/10/ccache-for-Gitlab-CI/
   cache:
     # XXX Use ${CI_JOB_NAME}-${CI_MERGE_REQUEST_TARGET_BRANCH_NAME} instead?
-    key: ${CI_JOB_NAME}-master
+    key: ${CI_JOB_NAME}-release-3.6
     paths:
       - ccache/
   before_script:
@@ -324,7 +314,7 @@ Win64 Package:
     - cd build
   script:
     - perl ../tools/make-version.pl --set-release
-    - cmake -G "Visual Studio 16 2019" -A x64 -DENABLE_LTO=off ..
+    - cmake -G "Visual Studio 16 2019" -A x64 -DDISABLE_WERROR=OFF -DTEST_EXTRA_ARGS=--enable-release -DENABLE_LTO=off ..
     - msbuild /verbosity:minimal "/consoleloggerparameters:PerformanceSummary;NoSummary" /maxcpucount Wireshark.sln
     - msbuild /verbosity:minimal /maxcpucount test-programs.vcxproj
     - msbuild /verbosity:minimal /maxcpucount nsis_package_prep.vcxproj
@@ -372,7 +362,7 @@ Win32 Package:
     - cd build
   script:
     - perl ../tools/make-version.pl --set-release
-    - cmake -G "Visual Studio 16 2019" -A Win32 -DENABLE_LTO=off ..
+    - cmake -G "Visual Studio 16 2019" -A Win32 -DDISABLE_WERROR=OFF -DTEST_EXTRA_ARGS=--enable-release -DENABLE_LTO=off ..
     - msbuild /verbosity:minimal "/consoleloggerparameters:PerformanceSummary;NoSummary" /maxcpucount Wireshark.sln
     - msbuild /verbosity:minimal /maxcpucount test-programs.vcxproj
     - msbuild /verbosity:minimal /maxcpucount nsis_package_prep.vcxproj
@@ -398,8 +388,6 @@ Win32 Package:
       }
     - ctest -C RelWithDebInfo --parallel 3 --force-new-ctest-process --output-on-failure
 
-# To do:
-# - Notarization
 macOS Arm Package:
   stage: build
   rules: !reference [.if-w-w-only-merged]
@@ -579,193 +567,10 @@ Windows Build:
   tags:
     - wireshark-windows-merge-req
   script:
-    - cmake -G "Visual Studio 16 2019" -A x64 -DENABLE_LTO=off ..
+    - cmake -G "Visual Studio 16 2019" -A x64 -DDISABLE_WERROR=OFF -DTEST_EXTRA_ARGS=--enable-release -DENABLE_LTO=off ..
     - msbuild /verbosity:minimal /maxcpucount Wireshark.sln
     - msbuild /verbosity:minimal /maxcpucount test-programs.vcxproj
     - ctest -C RelWithDebInfo --parallel 3 --force-new-ctest-process --output-on-failure
-
-# Adapted from https://www.synopsys.com/blogs/software-security/integrating-coverity-scan-with-gitlab-ci/
-# and https://gitlab.gnome.org/GNOME/glib/-/blob/8f57a5b9/.gitlab-ci.yml#L481
-Coverity GCC Scan:
-  image: registry.gitlab.com/wireshark/wireshark-containers/ubuntu-dev
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "schedule" && $SCHEDULE_TYPE == "coverity-gcc"'
-      when: always
-  stage: analysis
-  needs: []
-  variables:
-    CC: gcc
-    CXX: g++
-    # cov-build doesn’t handle GLIB_DEPRECATED_ENUMERATOR
-    CFLAGS: '-DGLIB_DISABLE_DEPRECATION_WARNINGS'
-    CXXFLAGS: '-DGLIB_DISABLE_DEPRECATION_WARNINGS'
-  script:
-    - curl --output /tmp/cov-analysis-linux64.tar.gz --form project=$COVERITY_SCAN_PROJECT_NAME --form token=$COVERITY_SCAN_TOKEN https://scan.coverity.com/download/linux64
-    - tar --directory=/tmp --extract --gzip --file /tmp/cov-analysis-linux64.tar.gz
-    - mkdir build
-    - cd build
-    - cmake -G Ninja ..
-    - /tmp/cov-analysis-linux64-*/bin/cov-build --return-emit-failures --dir ../cov-int ninja
-    - cd ..
-    - tar --create --gzip --file cov-int.tar.gz cov-int
-    - echo "export ARTIFACT_JOB_URL=$CI_JOB_URL" > job_environment_variables.sh
-    - echo "export GIT_DESCRIPTION=$( git describe --tags )" >> job_environment_variables.sh
-  artifacts:
-    paths:
-      - cov-int.tar.gz
-      - job_environment_variables.sh
-
-Coverity GCC Submit:
-  image: curlimages/curl
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "schedule" && $SCHEDULE_TYPE == "coverity-gcc"'
-      when: always
-  stage: .post
-  script:
-    - . job_environment_variables.sh
-    - echo $ARTIFACT_JOB_URL
-    - echo $GIT_DESCRIPTION
-    - curl --fail --data "project=$COVERITY_SCAN_PROJECT_NAME&token=$COVERITY_SCAN_TOKEN&email=$GITLAB_USER_EMAIL&url=$ARTIFACT_JOB_URL/artifacts/raw/cov-int.tar.gz&version=$GIT_DESCRIPTION&description=Ubuntu $GIT_DESCRIPTION $CI_COMMIT_REF_NAME:$CI_PIPELINE_ID" https://scan.coverity.com/builds
-  needs: [ 'Coverity GCC Scan' ]
-
-Coverity Visual C++ Scan:
-  extends: .build-windows
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "schedule" && $SCHEDULE_TYPE == "coverity-visual-c++"'
-      when: always
-  tags:
-    - wireshark-windows-merge-req
-  stage: analysis
-  needs: []
-  script:
-    - $gitDescription = (( git describe --tags ) | Out-String).Trim()
-    - C:\Windows\System32\curl --output $env:temp\cov-analysis-win64.zip --form project=$COVERITY_SCAN_PROJECT_NAME --form token=$COVERITY_SCAN_TOKEN https://scan.coverity.com/download/win64
-    - C:\ProgramData\chocolatey\tools\7z x "$env:temp\cov-analysis-win64.zip" -y -r -o"$env:temp"
-    - cmake -DTEST_EXTRA_ARGS=--enable-release -DENABLE_LTO=off -G "Visual Studio 16 2019" -A x64 ..
-    - $covAnalysisWin64 = (Get-ChildItem -Path $env:temp -Filter "cov-analysis-win64-*" -Directory)[0].FullName
-    - Invoke-Expression "& $covAnalysisWin64\bin\cov-build.exe --return-emit-failures --dir ..\cov-int msbuild /verbosity:minimal `"/consoleloggerparameters:PerformanceSummary;NoSummary`" /maxcpucount:1 Wireshark.sln"
-    - cd ..
-    - C:\ProgramData\chocolatey\tools\7z a -tzip cov-int.zip cov-int
-    - '"export ARTIFACT_JOB_URL=$env:CI_JOB_URL" | Out-File -Encoding ascii job_environment_variables.sh'
-    - '"export GIT_DESCRIPTION=$gitDescription" | Out-File -Encoding ascii -Append job_environment_variables.sh'
-  artifacts:
-    paths:
-      - cov-int.zip
-      - job_environment_variables.sh
-Coverity Visual C++ Submit:
-  image: curlimages/curl
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "schedule" && $SCHEDULE_TYPE == "coverity-visual-c++"'
-      when: always
-  stage: .post
-  script:
-    - sed -i -e 's/\r//' job_environment_variables.sh
-    - . job_environment_variables.sh
-    - echo $ARTIFACT_JOB_URL
-    - echo $GIT_DESCRIPTION
-    - curl --fail --data "project=$COVERITY_SCAN_PROJECT_NAME&token=$COVERITY_SCAN_TOKEN&email=$GITLAB_USER_EMAIL&url=$ARTIFACT_JOB_URL/artifacts/raw/cov-int.zip&version=$GIT_DESCRIPTION&description=Windows $GIT_DESCRIPTION $CI_COMMIT_REF_NAME:$CI_PIPELINE_ID" https://scan.coverity.com/builds
-  needs: [ 'Coverity Visual C++ Scan' ]
-
-Clang Static Analyzer:
-  extends: .build-ubuntu
-  rules: !reference [.if-daily-schedule]
-  stage: analysis
-  needs: []
-  variables:
-    CC: "clang-${CLANG_VERSION}"
-    CXX: "clang++-${CLANG_VERSION}"
-  script:
-    - scan-build-${CLANG_VERSION} cmake -DCMAKE_BUILD_TYPE=Debug -DDISABLE_WERROR=ON -G Ninja ..
-    - scan-build-${CLANG_VERSION} -o ../sbout ninja
-    - cd ../sbout
-    - RAW_DIR=$( find ../sbout -type d -name "20??-??-??-*" -printf "%P\n" | head )
-    - SB_DIR="scan-build-$RAW_DIR"
-    - mv "$RAW_DIR" "$SB_DIR"
-    - if [ -d logs ] ; then mv logs $SB_DIR ; fi
-    - chmod -R u=rwX,go=rX "$SB_DIR"
-    - zip -9 -r "${SB_DIR}.zip" "$SB_DIR"
-    - if [ -n "$AWS_ACCESS_KEY_ID" ] && [ -n "$AWS_SECRET_ACCESS_KEY" ] && [ -n "$S3_DESTINATION_ANALYSIS" ] ; then aws s3 cp "${SB_DIR}.zip" "$S3_DESTINATION_ANALYSIS/" ; fi
-
-# Windows runners are still beta, at least technically:
-# https://docs.gitlab.com/ee/user/gitlab_com/index.html#windows-shared-runners-beta
-Visual Studio Code Analysis:
-  extends: .build-windows
-  tags:
-    - wireshark-windows-dev
-  rules:
-    # The wireshark-windows-* tags are only available in wireshark/wireshark.
-    - if: '$CI_PIPELINE_SOURCE == "schedule" && $SCHEDULE_TYPE == "daily" && $CI_PROJECT_URL =~ /.*gitlab.com\/wireshark\/wireshark/'
-      when: always
-  script:
-    - $env:caexcludepath = "C:\Qt;$env:INCLUDE"
-    - cmake -DENABLE_CODE_ANALYSIS=ON -G "Visual Studio 16 2019" -A x64 -DENABLE_LTO=off ..
-    - msbuild /verbosity:minimal "/consoleloggerparameters:PerformanceSummary;NoSummary" /maxcpucount:2 Wireshark.sln
-
-# Build all doxygen docs
-API Reference:
-  extends: .build-ubuntu
-  rules: !reference [.if-daily-schedule]
-  script:
-    - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
-    - cmake -GNinja ..
-    - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
-    - ninja wsar_html_zip 2>&1 > doxygen_output.txt | tee doxygen_errors.txt
-  after_script:
-    - mv build/wsar_html.zip .
-    - mv build/doxygen_output.txt .
-    - mv build/doxygen_errors.txt .
-    - |
-      if [ -n "$AWS_ACCESS_KEY_ID" ] && [ -n "$AWS_SECRET_ACCESS_KEY" ] && [ -n "$S3_DESTINATION_DOCS" ] ; then
-        aws s3 cp wsar_html.zip "$S3_DESTINATION_DOCS/"
-      fi
-  artifacts:
-    when: always
-    paths:
-    - doxygen_errors.txt
-    - doxygen_output.txt
-    - wsar_html.zip
-  needs: []
-
-Code Lines:
-  extends: .build-ubuntu
-  rules: !reference [.if-daily-schedule]
-  stage: analysis
-  variables:
-    CLOC_OUT: /tmp/cloc.txt
-    SCC_OUT: /tmp/scc.txt
-    SLOC_OUT: /tmp/sloccount.txt
-    TOKEI_OUT: /tmp/tokei.txt
-  script:
-    - DEBIAN_FRONTEND=noninteractive apt-get update
-    - DEBIAN_FRONTEND=noninteractive apt-get --yes install sloccount cloc curl unzip
-    - pushd /tmp
-    - curl -L -O https://github.com/boyter/scc/releases/download/v3.0.0/scc-3.0.0-x86_64-unknown-linux.zip
-    - unzip scc-3.0.0-x86_64-unknown-linux.zip
-    - curl -L -O https://github.com/XAMPPRocky/tokei/releases/download/v12.1.2/tokei-x86_64-unknown-linux-gnu.tar.gz
-    - tar -xf tokei-x86_64-unknown-linux-gnu.tar.gz
-    - popd
-    - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
-    - cmake -G Ninja ..
-    - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
-    - ninja
-    - cd ..
-    - echo -n "cloc version:\ "
-    - cloc --version
-    - cloc --quiet . | tee $CLOC_OUT
-    - /tmp/scc --version
-    - /tmp/scc --not-match 'qt/.*.ts' . | tee $SCC_OUT
-    - echo -n "SLOCCount version:\ "
-    - sloccount --version
-    - sloccount . | awk "/^Computing results/ { results=1 } { if (results) print }" | tee $SLOC_OUT
-    - /tmp/tokei --version
-    - /tmp/tokei --exclude 'qt/*.ts' . | tee $TOKEI_OUT
-    - |
-      if [ -n "$AWS_ACCESS_KEY_ID" ] && [ -n "$AWS_SECRET_ACCESS_KEY" ] && [ -n "$S3_DESTINATION_ANALYSIS" ] ; then
-        aws s3 cp "$CLOC_OUT" "$S3_DESTINATION_ANALYSIS/"
-        aws s3 cp "$SCC_OUT" "$S3_DESTINATION_ANALYSIS/"
-        aws s3 cp "$SLOC_OUT" "$S3_DESTINATION_ANALYSIS/"
-        aws s3 cp "$TOKEI_OUT" "$S3_DESTINATION_ANALYSIS/"
-      fi
 
 # Fuzz TShark using ASAN and valgrind.
 .fuzz-ubuntu:
@@ -773,7 +578,7 @@ Code Lines:
   rules: !reference [.if-fuzz-schedule]
   tags:
     - wireshark-ubuntu-fuzz
-  resource_group: fuzz-master
+  resource_group: fuzz-release-3.6
   variables:
     CC: "clang-$CLANG_VERSION"
     CXX: "clang++-$CLANG_VERSION"

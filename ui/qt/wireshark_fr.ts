@@ -7164,6 +7164,14 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>NGAP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>NGAP Messages</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Change the way packets are dissected</source>
         <translation>Modifier la manière dont les paquets sont analysés</translation>
     </message>

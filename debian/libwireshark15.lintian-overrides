@@ -1,0 +1,8 @@
+# from file-elf.c
+libwireshark15: spelling-error-in-binary usr/lib/x86_64-linux-gnu/libwireshark.so.15.0.0 Synopsys Synopsis
+
+# Typo directly on IANA enterprise-numbers (epan/enterprise-numbers)
+
+libwireshark15: spelling-error-in-binary usr/lib/x86_64-linux-gnu/libwireshark.so.15.0.0 Nam Name
+libwireshark15: spelling-error-in-binary usr/lib/x86_64-linux-gnu/libwireshark.so.15.0.0 Informations Information
+libwireshark15: spelling-error-in-binary usr/lib/x86_64-linux-gnu/libwireshark.so.15.0.0 Dont Don't

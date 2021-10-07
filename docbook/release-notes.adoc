@@ -6,7 +6,7 @@ include::attributes.adoc[]
 // Asciidoctor Syntax Quick Reference:
 // https://asciidoctor.org/docs/asciidoc-syntax-quick-reference/
 
-This is an experimental release intended to test new features for Wireshark 3.6.
+This is the first release candidate for Wireshark 3.6.
 
 == What is Wireshark?
 
@@ -119,10 +119,12 @@ Vector Informatik Binary Log File (BLF)
 // "Full protocol name (Abbreviation)"
 [commaize]
 --
+5G Lawful Interception (5GLI)
 Bluetooth Link Manager Protocol (BT LMP)
 CBOR Object Signing and Encryption (COSE)
 E2 Application Protocol (E2AP)
 Event Tracing for Windows (ETW)
+EXtreme extra Eth Header (EXEH)
 High-Performance Connectivity Tracer (HiPerConTracer)
 ISO 10681
 Kerberos SPAKE
@@ -135,6 +137,8 @@ Opus Interactive Audio Codec (OPUS)
 PDU Transport Protocol
 R09.x (R09)
 RDP Dynamic Channel Protocol (DRDYNVC)
+RDP Graphic pipeline channel Protocol (EGFX)
+RDP Multi-transport (RDPMT)
 Real-Time Publish-Subscribe Virtual Transport (RTPS-VT)
 Real-Time Publish-Subscribe Wire Protocol (processed) (RTPS-PROC)
 Shared Memory Communications (SMC)
@@ -145,8 +149,10 @@ Tagged Image File Format (TIFF)
 TP-Link Smart Home Protocol
 UAVCAN/CAN
 UAVCAN DSDL
+UDP Remote Desktop Protocol (RDPUDP)
 Van Jacobson PPP compression (VJC)
 World of Warcraft World (WOWW)
+X2 xIRI payload (xIRI)
 --
 
 === Updated Protocol Support
