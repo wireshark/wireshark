@@ -20,8 +20,6 @@
 
 class AudioRoutingFilter: public QIODevice
 {
-    Q_OBJECT
-
 public:
     explicit AudioRoutingFilter(QIODevice *input, bool stereo_required, AudioRouting audio_routing);
     ~AudioRoutingFilter() { }

@@ -23,8 +23,6 @@
 
 class UatModel : public QAbstractTableModel
 {
-    Q_OBJECT
-
 public:
     UatModel(QObject *parent, uat_t *uat = 0);
     UatModel(QObject *parent, QString tableName);
