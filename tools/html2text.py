@@ -44,6 +44,9 @@ class TextHTMLParser(HTMLParser):
         self.need_space = False
         # Whether to prevent word-wrapping the contents (for "pre" tag)
         self.skip_wrap = False
+        # Quoting
+        self.need_quote = False
+        self.quote_stack = []
         # track list items
         self.list_item_prefix = None
         self.ordered_list_index = None
@@ -89,6 +92,9 @@ class TextHTMLParser(HTMLParser):
         # terminated.
         if tag == 'br' or tag == 'li':
             self._commit_block('\n')
+        if tag == 'code':
+            self.need_quote = True
+            self.quote_stack.append('`')
         if tag == 'pre':
             self.skip_wrap = True
         if tag in ('ol', 'ul'):
@@ -116,10 +122,22 @@ class TextHTMLParser(HTMLParser):
                     self.href = href
             except IndexError:
                 self.href = None
+        if tag == 'span':
+            try:
+                el_class = [attr[1] for attr in attrs if attr[0] == 'class'][0]
+                if 'menuseq' in el_class:
+                    sys.stderr.write('menuseq\n')
+                    self.need_quote = True
+                    self.quote_stack.append('"')
+            except IndexError:
+                pass
         if tag in self.ignore_tags:
             self.ignore_level += 1
 
     def handle_data(self, data):
+        quote = ''
+        if self.need_quote:
+            quote = self.quote_stack[-1]
         if self.ignore_level > 0:
             return
         elif self.skip_wrap:
@@ -132,21 +150,25 @@ class TextHTMLParser(HTMLParser):
             # For normal text, fold multiple whitespace and strip
             # leading and trailing spaces for the whole block (but
             # keep spaces in the middle).
-            block = ''
+            block = quote
             if data.strip() and data[:1].isspace():
                 # Keep spaces in the middle
                 self.need_space = True
             if self.need_space and data.strip() and self.text_block:
-                block = ' '
+                block = ' ' + quote
             block += ' '.join(data.split())
             self.need_space = data[-1:].isspace()
         self.text_block += block
+        self.need_quote = False
 
     def handle_endtag(self, tag):
         block_elements = 'p li ul pre ol h1 h2 h3 h4 h5 h6'
         #block_elements += ' dl dd dt'
         if tag in block_elements.split():
             self._commit_block()
+        if tag in ('code', 'span'):
+            # XXX This span isn't guaranteed to match its opening.
+            self.text_block += self.quote_stack.pop()
         if tag in ('ol', 'ul'):
             self.list_indent_level -= 1
             self.list_item_indent = "   " * (self.list_indent_level - 1)
