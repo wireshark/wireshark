@@ -1,4 +1,4 @@
-Wireshark 3.5.1 Release Notes
+Wireshark 3.7.0 Release Notes
 
  This is an experimental release intended to test new features for
  Wireshark 3.6.
@@ -123,6 +123,9 @@ Wireshark 3.5.1 Release Notes
      • The settings in the 'Import from Hex Dump' dialog is now stored
        in a profile import_hexdump.json file.
 
+     • Reload Lua plugins has been improved to properly support
+       FileHandler.
+
   New File Format Decoding Support
 
    Vector Informatik Binary Log File (BLF)
@@ -167,8 +170,9 @@ Wireshark 3.5.1 Release Notes
 
   Wireshark and TShark look in several different locations for
   preference files, plugins, SNMP MIBS, and RADIUS dictionaries. These
-  locations vary from platform to platform. You can use About → Folders
-  to find the default locations on your system.
+  locations vary from platform to platform. You can use "Help › About
+  Wireshark › Folders" or `tshark -G folders` to find the default
+  locations on your system.
 
  Getting Help
 
@@ -185,7 +189,7 @@ Wireshark 3.5.1 Release Notes
 
   A complete FAQ is available on the Wireshark web site[8].
 
-  Last updated 2021-10-03 09:05:36 UTC
+  Last updated 2021-10-08 21:37:06 UTC
 
  References
 
@@ -193,9 +197,9 @@ Wireshark 3.5.1 Release Notes
   .html
    2. https://www.wireshark.org/docs/wsug_html_chunked/_rtp.html#ChTelRt
   pPlayer
-   3. https://www.wireshark.org/docs/wsug_html_chunked//ChAdvFollowStrea
-  mSection.html
-   4. https://www.wireshark.org/download.html#thirdparty
+   3. https://www.wireshark.org/docs/wsug_html_chunked/ChAdvFollowStream
+  Section.html
+   4. https://www.wireshark.org/download.html
    5. https://ask.wireshark.org/
    6. https://www.wireshark.org/lists/
    7. https://gitlab.com/wireshark/wireshark/-/issues
