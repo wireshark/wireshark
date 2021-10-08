@@ -47,13 +47,10 @@ sttype_set_tostr(const void *data)
 	GSList* nodelist = (GSList *)data;
 	stnode_t *lower, *upper;
 	GString *repr = g_string_new("");
-	char *str;
 
 	while (nodelist) {
 		lower = nodelist->data;
-		str = stnode_tostr(lower);
-		g_string_append(repr, str);
-		g_free(str);
+		g_string_append(repr, stnode_tostr(lower));
 
 		/* Set elements are always in pairs; upper may be null. */
 		nodelist = g_slist_next(nodelist);
@@ -61,9 +58,7 @@ sttype_set_tostr(const void *data)
 		upper = nodelist->data;
 		if (upper != NULL) {
 			g_string_append(repr, "..");
-			str = stnode_tostr(upper);
-			g_string_append(repr, str);
-			g_free(str);
+			g_string_append(repr, stnode_tostr(upper));
 		}
 
 		nodelist = g_slist_next(nodelist);

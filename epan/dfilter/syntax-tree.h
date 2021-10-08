@@ -59,6 +59,7 @@ typedef struct {
 	uint16_t	flags;
 	gpointer	data;
 	char		*token_value;
+	char 		*repr;
 } stnode_t;
 
 /* These are the sttype_t registration function prototypes. */
@@ -112,7 +113,7 @@ stnode_steal_data(stnode_t *node);
 const char *
 stnode_token_value(stnode_t *node);
 
-char *
+const char *
 stnode_tostr(stnode_t *node);
 
 gboolean

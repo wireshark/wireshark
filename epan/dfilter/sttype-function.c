@@ -57,16 +57,13 @@ function_tostr(const void *data)
 	const df_func_def_t *def = stfuncrec->funcdef;
 	GSList *params = stfuncrec->params;
 	GString *repr = g_string_new("");
-	char *s;
 
 	ws_assert(def);
 
 	g_string_printf(repr, "%s(", def->name);
 	while (params != NULL) {
 		ws_assert(params->data);
-		s = stnode_tostr(params->data);
-		g_string_append(repr, s);
-		g_free(s);
+		g_string_append(repr, stnode_tostr(params->data));
 		params = params->next;
 		if (params != NULL) {
 			g_string_append(repr, ", ");

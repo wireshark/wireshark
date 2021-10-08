@@ -611,7 +611,6 @@ check_drange_sanity(dfwork_t *dfw, stnode_t *st)
 	header_field_info	*hfinfo1;
 	ftenum_t		ftype1;
 	struct check_drange_sanity_args	args;
-	char *s;
 
 	entity1 = sttype_range_entity(st);
 	if (entity1 && stnode_type_id(entity1) == STTYPE_FIELD) {
@@ -638,10 +637,8 @@ check_drange_sanity(dfwork_t *dfw, stnode_t *st)
 		/* Should this be rejected instead? */
 		check_drange_sanity(dfw, entity1);
 	} else if (entity1) {
-		s = stnode_tostr(entity1);
 		dfilter_fail(dfw, "Range is not supported for entity %s of type %s",
-					s, stnode_type_name(entity1));
-		g_free(s);
+					stnode_tostr(entity1), stnode_type_name(entity1));
 		THROW(TypeError);
 	} else {
 		dfilter_fail(dfw, "Range is not supported, details: " G_STRLOC " entity: NULL");

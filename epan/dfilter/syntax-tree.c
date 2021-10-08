@@ -88,6 +88,8 @@ _node_clear(stnode_t *node)
 	node->type = NULL;
 	node->flags = 0;
 	node->data = NULL;
+	g_free(node->repr);
+	node->repr = NULL;
 }
 
 void
@@ -107,6 +109,7 @@ _node_init(stnode_t *node, sttype_id_t type_id, gpointer data)
 	ws_assert(!node->type);
 	ws_assert(!node->data);
 	node->flags = 0;
+	node->repr = NULL;
 
 	if (type_id == STTYPE_UNINITIALIZED) {
 		node->type = NULL;
@@ -253,20 +256,24 @@ stnode_set_inside_parens(stnode_t *node, gboolean inside)
 	}
 }
 
-char *
+const char *
 stnode_tostr(stnode_t *node)
 {
-	if (node->type->func_tostr == NULL)
-		return g_strdup("<FIXME>");
+	if (node->repr != NULL)
+		return node->repr;
 
-	return node->type->func_tostr(node->data);
+	if (node->type->func_tostr == NULL)
+		node->repr = g_strdup("<FIXME>");
+	else
+		node->repr = node->type->func_tostr(node->data);
+
+	return node->repr;
 }
 
 static char *
 sprint_node(stnode_t *node)
 {
 	wmem_strbuf_t *buf = wmem_strbuf_new(NULL, NULL);
-	char *s;
 
 	wmem_strbuf_append_printf(buf, "stnode <%p> = {\n", (void *)node);
 	wmem_strbuf_append_printf(buf, "\tmagic = %"PRIx32"\n", node->magic);
@@ -274,9 +281,7 @@ sprint_node(stnode_t *node)
 	wmem_strbuf_append_printf(buf,
 			"\tflags = %"PRIx16" (inside_parens = %s)\n",
 			node->flags, true_or_false(stnode_inside_parens(node)));
-	s = stnode_tostr(node);
-	wmem_strbuf_append_printf(buf, "\tdata = %s<%s>\n", stnode_type_name(node), s);
-	g_free(s);
+	wmem_strbuf_append_printf(buf, "\tdata = %s<%s>\n", stnode_type_name(node), stnode_tostr(node));
 	wmem_strbuf_append_printf(buf, "}\n");
 	return wmem_strbuf_finalize(buf);
 }
@@ -307,12 +312,9 @@ static void
 visit_tree(wmem_strbuf_t *buf, stnode_t *node, int level)
 {
 	stnode_t *left, *right;
-	char *str;
 
 	if (stnode_type_id(node) == STTYPE_TEST) {
-		str = stnode_tostr(node);
-		wmem_strbuf_append_printf(buf, "%s(", str);
-		g_free(str);
+		wmem_strbuf_append_printf(buf, "%s(", stnode_tostr(node));
 		sttype_test_get(node, NULL, &left, &right);
 		if (left && right) {
 			wmem_strbuf_append_c(buf, '\n');
@@ -335,9 +337,7 @@ visit_tree(wmem_strbuf_t *buf, stnode_t *node, int level)
 		wmem_strbuf_append(buf, ")");
 	}
 	else {
-		str = stnode_tostr(node);
-		wmem_strbuf_append_printf(buf, "%s<%s>", stnode_type_name(node), str);
-		g_free(str);
+		wmem_strbuf_append_printf(buf, "%s<%s>", stnode_type_name(node), stnode_tostr(node));
 	}
 }
 

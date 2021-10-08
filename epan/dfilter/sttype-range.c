@@ -77,13 +77,12 @@ range_tostr(const void *data)
 {
 	range_t	*range = (range_t*)data;
 	ws_assert_magic(range, RANGE_MAGIC);
-	char *repr, *entity_str, *drange_str;
+	char *repr, *drange_str;
 
-	entity_str = stnode_tostr(range->entity);
 	drange_str = drange_tostr(range->drange);
-
-	repr = g_strdup_printf("%s[%s]", entity_str, drange_str);
-	g_free(entity_str);
+	repr = g_strdup_printf("%s[%s]",
+			stnode_tostr(range->entity),
+			drange_str);
 	g_free(drange_str);
 
 	return repr;
