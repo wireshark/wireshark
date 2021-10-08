@@ -1182,8 +1182,6 @@ check_relation_LHS_FUNCTION(dfwork_t *dfw, const char *relation_string,
 	funcdef = sttype_function_funcdef(st_arg1);
 	ftype1 = funcdef->retval_ftype;
 
-	/* params = */sttype_function_params(st_arg1);  /* XXX: is this done for the side-effect ? */
-
 	ws_debug("5 check_relation_LHS_FUNCTION(%s)", relation_string);
 
 	if (!can_func(ftype1)) {
