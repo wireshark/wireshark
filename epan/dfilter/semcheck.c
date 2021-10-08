@@ -800,7 +800,7 @@ check_relation_LHS_FIELD(dfwork_t *dfw, const char *relation_string,
 			}
 
 			if (type2 == STTYPE_STRING) {
-				fvalue = dfilter_fvalue_from_string(dfw, ftype1, st_arg2, NULL);
+				fvalue = dfilter_fvalue_from_string(dfw, ftype1, st_arg2, hfinfo1);
 			}
 			else if (type2 == STTYPE_CHARCONST &&
 			    strcmp(relation_string, "contains") == 0) {

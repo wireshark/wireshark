@@ -26,3 +26,7 @@ class case_syntax(unittest.TestCase):
     def test_func_1(self, checkDFilterCount):
         dfilter = "len(frame) == 207"
         checkDFilterCount(dfilter, 1)
+
+    def test_value_string_1(self, checkDFilterSucceed):
+        dfilter = 'eth.fcs.status=="Bad"'
+        checkDFilterSucceed(dfilter)
