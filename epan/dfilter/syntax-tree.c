@@ -10,10 +10,7 @@
 
 #define WS_LOG_DOMAIN LOG_DOMAIN_DFILTER
 
-#include <inttypes.h>
 #include "syntax-tree.h"
-#include <wsutil/ws_assert.h>
-#include <wsutil/wslog.h>
 #include <wsutil/wmem/wmem.h>
 #include <wsutil/str_util.h>
 #include "sttype-test.h"
@@ -378,20 +375,6 @@ log_syntax_tree(enum ws_log_level level, stnode_t *root, const char *msg)
 	ws_log_write_always_full(LOG_DOMAIN_DFILTER, level, NULL, -1, NULL,
 				"%s:\n%s", msg, wmem_strbuf_get_str(buf));
 	wmem_strbuf_destroy(buf);
-}
-
-void
-ws_assert_magic_full(const char *domain, enum ws_log_level level,
-				const char *file, int line, const char *func,
-				const void *ptr, uint32_t magic)
-{
-	const stnode_t *node = (const stnode_t *)ptr;
-	ws_assert(node);
-	if (node->magic != magic) {
-		ws_log_full(domain, level, file, line, func,
-			"Magic num is 0x%08"PRIx32", but should be 0x%08"PRIx32,
-			node->magic, magic);
-	}
 }
 
 /*
