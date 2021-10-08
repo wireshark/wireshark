@@ -16,8 +16,6 @@
 
 class AudioSilenceGenerator: public QIODevice
 {
-    Q_OBJECT
-
 public:
     explicit AudioSilenceGenerator();
     ~AudioSilenceGenerator() { }

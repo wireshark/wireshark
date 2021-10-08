@@ -22,7 +22,6 @@
  */
 class TabnavTreeWidget : public QTreeWidget
 {
-    Q_OBJECT
 public:
     TabnavTreeWidget(QWidget *parent = 0);
     QModelIndex moveCursor(CursorAction cursorAction, Qt::KeyboardModifiers modifiers);
