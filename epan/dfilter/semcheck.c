@@ -511,7 +511,6 @@ check_exists(dfwork_t *dfw, stnode_t *st_arg1)
 
 		case STTYPE_UNINITIALIZED:
 		case STTYPE_TEST:
-		case STTYPE_INTEGER:
 		case STTYPE_FVALUE:
 		case STTYPE_SET:
 		case STTYPE_PCRE:
@@ -1354,7 +1353,6 @@ check_relation(dfwork_t *dfw, const char *relation_string,
 
 		case STTYPE_UNINITIALIZED:
 		case STTYPE_TEST:
-		case STTYPE_INTEGER:
 		case STTYPE_FVALUE:
 		case STTYPE_SET:
 		default:

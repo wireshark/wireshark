@@ -26,7 +26,6 @@ void
 sttype_init(void)
 {
 	sttype_register_function();
-	sttype_register_integer();
 	sttype_register_pointer();
 	sttype_register_range();
 	sttype_register_set();
@@ -89,7 +88,6 @@ _node_clear(stnode_t *node)
 	node->type = NULL;
 	node->flags = 0;
 	node->data = NULL;
-	node->value = 0;
 }
 
 void
@@ -109,7 +107,6 @@ _node_init(stnode_t *node, sttype_id_t type_id, gpointer data)
 	ws_assert(!node->type);
 	ws_assert(!node->data);
 	node->flags = 0;
-	node->value = 0;
 
 	if (type_id == STTYPE_UNINITIALIZED) {
 		node->type = NULL;
@@ -134,13 +131,6 @@ stnode_init(stnode_t *node, sttype_id_t type_id, gpointer data,  const char *tok
 	_node_init(node, type_id, data);
 	ws_assert(node->token_value == NULL);
 	node->token_value = g_strdup(token_value);
-}
-
-void
-stnode_init_int(stnode_t *node, sttype_id_t type_id, gint32 value, const char *token_value)
-{
-	stnode_init(node, type_id, NULL, token_value);
-	node->value = value;
 }
 
 void
@@ -186,7 +176,6 @@ stnode_dup(const stnode_t *org)
 		node->data = type->func_dup(org->data);
 	else
 		node->data = org->data;
-	node->value = org->value;
 
 	node->token_value = g_strdup(org->token_value);
 
@@ -238,13 +227,6 @@ stnode_steal_data(stnode_t *node)
 	return data;
 }
 
-gint32
-stnode_value(stnode_t *node)
-{
-	ws_assert_magic(node, STNODE_MAGIC);
-	return node->value;
-}
-
 const char *
 stnode_token_value(stnode_t *node)
 {
@@ -274,9 +256,6 @@ stnode_set_inside_parens(stnode_t *node, gboolean inside)
 char *
 stnode_tostr(stnode_t *node)
 {
-	if (stnode_type_id(node) == STTYPE_INTEGER)
-		return g_strdup_printf("%"PRId32, stnode_value(node));
-
 	if (node->type->func_tostr == NULL)
 		return g_strdup("<FIXME>");
 
@@ -298,7 +277,6 @@ sprint_node(stnode_t *node)
 	s = stnode_tostr(node);
 	wmem_strbuf_append_printf(buf, "\tdata = %s<%s>\n", stnode_type_name(node), s);
 	g_free(s);
-	wmem_strbuf_append_printf(buf, "\tvalue = %"PRId32"\n", stnode_value(node));
 	wmem_strbuf_append_printf(buf, "}\n");
 	return wmem_strbuf_finalize(buf);
 }

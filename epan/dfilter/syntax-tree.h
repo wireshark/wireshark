@@ -27,7 +27,6 @@ typedef enum {
 	STTYPE_CHARCONST,
 	STTYPE_FIELD,
 	STTYPE_FVALUE,
-	STTYPE_INTEGER,
 	STTYPE_RANGE,
 	STTYPE_FUNCTION,
 	STTYPE_SET,
@@ -58,12 +57,7 @@ typedef struct {
 	uint32_t	magic;
 	sttype_t	*type;
 	uint16_t	flags;
-
-	/* This could be made an enum, but I haven't
-	 * set aside to time to do so. */
 	gpointer	data;
-	int32_t		value;
-
 	char		*token_value;
 } stnode_t;
 
@@ -98,9 +92,6 @@ void
 stnode_init(stnode_t *node, sttype_id_t type_id, gpointer data, const char *token_value);
 
 void
-stnode_init_int(stnode_t *node, sttype_id_t type_id, gint32 value, const char *token_value);
-
-void
 stnode_replace(stnode_t *node, sttype_id_t type_id, gpointer data);
 
 void
@@ -117,9 +108,6 @@ stnode_data(stnode_t *node);
 
 gpointer
 stnode_steal_data(stnode_t *node);
-
-gint32
-stnode_value(stnode_t *node);
 
 const char *
 stnode_token_value(stnode_t *node);

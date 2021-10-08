@@ -78,6 +78,58 @@ dfilter_new_function(dfwork_t *dfw, const char *name)
 	return stnode_new(STTYPE_FUNCTION, def, name);
 }
 
+gboolean
+dfilter_str_to_gint32(dfwork_t *dfw, const char *s, gint32* pint)
+{
+	char    *endptr;
+	long	integer;
+
+	errno = 0;
+	integer = strtol(s, &endptr, 0);
+
+	if (errno == EINVAL || endptr == s || *endptr != '\0') {
+		/* This isn't a valid number. */
+		dfilter_parse_fail(dfw, "\"%s\" is not a valid number.", s);
+		return FALSE;
+	}
+	if (errno == ERANGE) {
+		if (integer == LONG_MAX) {
+			dfilter_parse_fail(dfw, "\"%s\" causes an integer overflow.", s);
+		}
+		else if (integer == LONG_MIN) {
+			dfilter_parse_fail(dfw, "\"%s\" causes an integer underflow.", s);
+		}
+		else {
+			/*
+			 * XXX - can "strtol()" set errno to ERANGE without
+			 * returning LONG_MAX or LONG_MIN?
+			 */
+			dfilter_parse_fail(dfw, "\"%s\" is not an integer.", s);
+		}
+		return FALSE;
+	}
+	if (integer > G_MAXINT32) {
+		/*
+		 * Fits in a long, but not in a gint32 (a long might be
+		 * 64 bits).
+		 */
+		dfilter_parse_fail(dfw, "\"%s\" causes an integer overflow.", s);
+		return FALSE;
+	}
+	if (integer < G_MININT32) {
+		/*
+		 * Fits in a long, but not in a gint32 (a long might be
+		 * 64 bits).
+		 */
+		dfilter_parse_fail(dfw, "\"%s\" causes an integer underflow.", s);
+		return FALSE;
+	}
+
+	*pint = (gint32)integer;
+	return TRUE;
+}
+
+
 /* Initialize the dfilter module */
 void
 dfilter_init(void)

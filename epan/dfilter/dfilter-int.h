@@ -87,6 +87,9 @@ DfilterTrace(FILE *TraceFILE, char *zTracePrompt);
 stnode_t *
 dfilter_new_function(dfwork_t *dfw, const char *name);
 
+gboolean
+dfilter_str_to_gint32(dfwork_t *dfw, const char *s, gint32* pint);
+
 const char *tokenstr(int token);
 
 #endif

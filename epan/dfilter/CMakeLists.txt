@@ -38,7 +38,6 @@ set(DFILTER_NONGENERATED_FILES
 	gencode.c
 	semcheck.c
 	sttype-function.c
-	sttype-integer.c
 	sttype-pointer.c
 	sttype-range.c
 	sttype-set.c

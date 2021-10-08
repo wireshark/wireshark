@@ -96,10 +96,6 @@ any "error" symbols are shifted, if possible. */
 			dfilter_fail(dfw, "\"%s\" was unexpected in this context.",
 				(char *)stnode_data(TOKEN));
 			break;
-		case STTYPE_INTEGER:
-			dfilter_fail(dfw, "The integer %d was unexpected in this context.",
-				stnode_value(TOKEN));
-			break;
 		case STTYPE_FIELD:
 			hfinfo = (header_field_info *)stnode_data(TOKEN);
 			dfilter_fail(dfw, "Syntax error near \"%s\".", hfinfo->abbrev);
@@ -201,54 +197,76 @@ range_node_list(L) ::= range_node_list(P) COMMA range_node(D).
 	L = g_slist_append(P, D);
 }
 
-/* x:y is offset:length */
+/* x:y */
 range_node(D) ::= INTEGER(X) COLON INTEGER(Y).
 {
+	int32_t start = 0, length = 0;
+
+	dfilter_str_to_gint32(dfw, stnode_token_value(X), &start);
+	dfilter_str_to_gint32(dfw, stnode_token_value(Y), &length);
+
 	D = drange_node_new();
-	drange_node_set_start_offset(D, stnode_value(X));
-	drange_node_set_length(D, stnode_value(Y));
+	drange_node_set_start_offset(D, start);
+	drange_node_set_length(D, length);
 
 	stnode_free(X);
 	stnode_free(Y);
 }
 
-/* x-y == offset:offset */
+/* x-y */
 range_node(D) ::= INTEGER(X) HYPHEN INTEGER(Y).
 {
+	int32_t start = 0, offset = 0;
+
+	dfilter_str_to_gint32(dfw, stnode_token_value(X), &start);
+	dfilter_str_to_gint32(dfw, stnode_token_value(Y), &offset);
+
 	D = drange_node_new();
-	drange_node_set_start_offset(D, stnode_value(X));
-	drange_node_set_end_offset(D, stnode_value(Y));
+	drange_node_set_start_offset(D, start);
+	drange_node_set_end_offset(D, offset);
 
 	stnode_free(X);
 	stnode_free(Y);
 }
 
 
-/* :y == from start to offset */
+/* :y = 0:y*/
 range_node(D) ::= COLON INTEGER(Y).
 {
+	int32_t length = 0;
+
+	dfilter_str_to_gint32(dfw, stnode_token_value(Y), &length);
+
 	D = drange_node_new();
 	drange_node_set_start_offset(D, 0);
-	drange_node_set_length(D, stnode_value(Y));
+	drange_node_set_length(D, length);
 
 	stnode_free(Y);
 }
 
-/* x: from offset to end */
+/* x: = x:-1 */
 range_node(D) ::= INTEGER(X) COLON.
 {
+	int32_t start = 0;
+
+	dfilter_str_to_gint32(dfw, stnode_token_value(X), &start);
+
 	D = drange_node_new();
-	drange_node_set_start_offset(D, stnode_value(X));
+	drange_node_set_start_offset(D, start);
 	drange_node_set_to_the_end(D);
 
 	stnode_free(X);
 }
 
-/* x == x:1 */
+/* x = x:1 */
 range_node(D) ::= INTEGER(X).
 {
+	int32_t start = 0;
+
+	dfilter_str_to_gint32(dfw, stnode_token_value(X), &start);
+
 	D = drange_node_new();
-	drange_node_set_start_offset(D, stnode_value(X));
+	drange_node_set_start_offset(D, start);
 	drange_node_set_length(D, 1);
 
 	stnode_free(X);

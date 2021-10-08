@@ -86,10 +86,8 @@ DIAG_OFF_FLEX
 
 static int set_lval_str(int token, const char *token_value);
 static int set_lval_field(int token, header_field_info *hfinfo, const char *token_value);
-static int set_lval_int(dfwork_t *dfw, int token, const char *token_value);
 static int simple(int token, const char *token_value);
 #define SIMPLE(token) simple(token, yytext)
-static gboolean str_to_gint32(dfwork_t *dfw, const char *s, gint32* pint);
 
 /*
  * Sleazy hack to suppress compiler warnings in yy_fatal_error().
@@ -168,20 +166,20 @@ static gboolean str_to_gint32(dfwork_t *dfw, const char *s, gint32* pint);
 "or"		return SIMPLE(TOKEN_TEST_OR);
 "in"		return SIMPLE(TOKEN_TEST_IN);
 
+	/*
+	 * The syntax for ranges must handle slice[-d-d] and slice[-d--5], e.g:
+	 *   frame[-10-5] (minus ten to five)
+	 *   frame[-10--5] (minus ten to minus 5)
+	 */
 
 "["					{
 	BEGIN(RANGE_INT);
 	return SIMPLE(TOKEN_LBRACKET);
 }
 
-<RANGE_INT>[+-]?[[:digit:]]+		{
+<RANGE_INT>[+-]?[[:alnum:]]+		{
 	BEGIN(RANGE_PUNCT);
-	return set_lval_int(yyextra->dfw, TOKEN_INTEGER, yytext);
-}
-
-<RANGE_INT>[+-]?0x[[:xdigit:]]+		{
-	BEGIN(RANGE_PUNCT);
-	return set_lval_int(yyextra->dfw, TOKEN_INTEGER, yytext);
+	return set_lval_str(TOKEN_INTEGER, yytext);
 }
 
 <RANGE_INT,RANGE_PUNCT>":"		{
@@ -207,17 +205,13 @@ static gboolean str_to_gint32(dfwork_t *dfw, const char *s, gint32* pint);
 	/* Error if none of the above while scanning a range (slice) */
 
 <RANGE_PUNCT>[^:\-,\]]+		{
-	dfilter_fail(yyextra->dfw, "Invalid string \"%s\" found while scanning slice.", yytext);
-	return SCAN_FAILED;
+	BEGIN(RANGE_INT);
+	return set_lval_str(TOKEN_UNPARSED, yytext);
 }
 
-	/* XXX It would be nice to be able to match an entire non-integer string,
-	 * but beware of Flex's "match the most text" rule.
-	 */
-
-<RANGE_INT>.	{
-	dfilter_fail(yyextra->dfw, "Invalid character \"%s\" found while scanning slice; expected integer.", yytext);
-	return SCAN_FAILED;
+<RANGE_INT>[+-]?[^[:alnum:]\]]+	{
+	BEGIN(RANGE_PUNCT);
+	return set_lval_str(TOKEN_UNPARSED, yytext);
 }
 
 [rR]{0,1}\042			{
@@ -488,6 +482,10 @@ set_lval_str(int token, const char *token_value)
 		case TOKEN_UNPARSED:
 			type_id = STTYPE_UNPARSED;
 			break;
+		case TOKEN_INTEGER:
+			/* Not used in AST. */
+			type_id = STTYPE_UNINITIALIZED;
+			break;
 		default:
 			ws_assert_not_reached();
 	}
@@ -502,78 +500,3 @@ set_lval_field(int token, header_field_info *hfinfo, const char *token_value)
 	stnode_init(df_lval, STTYPE_FIELD, hfinfo, token_value);
 	return token;
 }
-
-static int
-set_lval_int(dfwork_t *dfw, int token, const char *token_value)
-{
-	sttype_id_t	type_id = STTYPE_UNINITIALIZED;
-	gint32		val;
-
-	if (!str_to_gint32(dfw, token_value, &val)) {
-		return SCAN_FAILED;
-	}
-
-	switch (token) {
-		case TOKEN_INTEGER:
-			type_id = STTYPE_INTEGER;
-			break;
-		default:
-			ws_assert_not_reached();
-	}
-
-	stnode_init_int(df_lval, type_id, val, token_value);
-	return token;
-}
-
-
-static gboolean
-str_to_gint32(dfwork_t *dfw, const char *s, gint32* pint)
-{
-	char    *endptr;
-	long	integer;
-
-	errno = 0;
-	integer = strtol(s, &endptr, 0);
-
-	if (errno == EINVAL || endptr == s || *endptr != '\0') {
-		/* This isn't a valid number. */
-		dfilter_fail(dfw, "\"%s\" is not a valid number.", s);
-		return FALSE;
-	}
-	if (errno == ERANGE) {
-		if (integer == LONG_MAX) {
-			dfilter_fail(dfw, "\"%s\" causes an integer overflow.", s);
-		}
-		else if (integer == LONG_MIN) {
-			dfilter_fail(dfw, "\"%s\" causes an integer underflow.", s);
-		}
-		else {
-			/*
-			 * XXX - can "strtol()" set errno to ERANGE without
-			 * returning LONG_MAX or LONG_MIN?
-			 */
-			dfilter_fail(dfw, "\"%s\" is not an integer.", s);
-		}
-		return FALSE;
-	}
-	if (integer > G_MAXINT32) {
-		/*
-		 * Fits in a long, but not in a gint32 (a long might be
-		 * 64 bits).
-		 */
-		dfilter_fail(dfw, "\"%s\" causes an integer overflow.", s);
-		return FALSE;
-	}
-	if (integer < G_MININT32) {
-		/*
-		 * Fits in a long, but not in a gint32 (a long might be
-		 * 64 bits).
-		 */
-		dfilter_fail(dfw, "\"%s\" causes an integer underflow.", s);
-		return FALSE;
-	}
-
-	*pint = (gint32)integer;
-	return TRUE;
-}
-
