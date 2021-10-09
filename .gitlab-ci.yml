@@ -316,6 +316,39 @@ Win32 Package:
       }
     - ctest -C RelWithDebInfo --parallel 3 --force-new-ctest-process --verbose
 
+macOS Intel Package:
+  stage: build
+  rules: !reference [.if-merged]
+  variables:
+    CODE_SIGN_IDENTITY: "Wireshark Foundation, Inc."
+  tags:
+    - wireshark-macos-intel-package
+  retry: 1
+  script:
+    - export CMAKE_PREFIX_PATH="$HOME/Qt5.12.6/5.12.6/clang_64/lib/cmake"
+    - export PATH="$PATH:$HOME/bin"
+    - perl tools/make-version.pl --set-release
+    - mkdir build
+    - cd build
+    - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
+    - cmake -DENABLE_CCACHE=ON -DCMAKE_OSX_DEPLOYMENT_TARGET=10.12 -DCMAKE_OSX_SYSROOT=macosx10.15 -DTEST_EXTRA_ARGS=--enable-release -G Ninja ..
+    - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
+    - ninja
+    - package-prep
+    - ninja dmg_package
+    - cd run
+    - notarize-build
+    - stat -f "%N %z bytes" Wireshark*Intel*.dmg
+    - for digest in sha256 rmd160 sha1 ; do openssl $digest Wireshark*Intel*.dmg ; done
+    - |
+      if [ -n "$AWS_ACCESS_KEY_ID" ] && [ -n "$AWS_SECRET_ACCESS_KEY" ] && [ -n "$S3_DESTINATION_MACOS_INTEL64" ] ; then
+        aws s3 cp Wireshark*Intel*.dmg "$S3_DESTINATION_MACOS_INTEL64/"
+      fi
+    - cd ..
+    - ninja test-programs
+    - ctest --parallel 4 --output-on-failure
+  needs: []
+
 # Build Wireshark manuals
 # Note: Need ubuntu:focal with `ruby-coderay` and `ruby-asciidoctor-pdf` packages to build PDF docs
 Documentation:
