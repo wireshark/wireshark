@@ -756,7 +756,7 @@ The btn:[Close] button will, well, close the dialog box.
 
 Wireshark provides a variety of options for exporting packet data.
 This section describes general ways to export data from the main Wireshark application.
-There are many other ways to export or extract data from capture files, including processing <<AppToolstshark,tshark>> output and customizing Wireshark and tshark using Lua scripts.
+There are many other ways to export or extract data from capture files, including processing <<AppToolstshark,tshark>> output and customizing Wireshark and TShark using Lua scripts.
 
 [[ChIOExportSpecifiedPacketsDialog]]
 

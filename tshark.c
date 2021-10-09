@@ -3564,7 +3564,7 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
     /* Set up to write to the capture file. */
     wtap_dump_params_init_no_idbs(&params, cf->provider.wth);
 
-    /* If we don't have an application name add Tshark */
+    /* If we don't have an application name add TShark */
     if (wtap_block_get_string_option_value(g_array_index(params.shb_hdrs, wtap_block_t, 0), OPT_SHB_USERAPPL, &shb_user_appl) != WTAP_OPTTYPE_SUCCESS) {
       /* this is free'd by wtap_block_unref() later */
       wtap_block_add_string_option_format(g_array_index(params.shb_hdrs, wtap_block_t, 0), OPT_SHB_USERAPPL, "%s", get_appname_and_version());

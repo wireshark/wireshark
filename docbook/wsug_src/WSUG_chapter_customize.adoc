@@ -404,7 +404,7 @@ stamp type to use while capturing packets. The values reported by
 `--list-time-stamp-types` are the values that can be used.
 
 -X <eXtension option>::
-Specify an option to be passed to a Wireshark/Tshark module. The eXtension
+Specify an option to be passed to a Wireshark/TShark module. The eXtension
 option is in the form extension_key:value, where extension_key can be:
 +
 --
