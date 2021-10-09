@@ -608,7 +608,7 @@ gboolean dissect_bt_dht_heur (tvbuff_t *tvb, packet_info *pinfo,
   }
 
   conversation = find_or_create_conversation(pinfo);
-  conversation_set_dissector(conversation, bt_dht_handle);
+  conversation_set_dissector_from_frame_number(conversation, pinfo->num, bt_dht_handle);
 
   dissect_bt_dht(tvb, pinfo, tree, NULL);
   return TRUE;

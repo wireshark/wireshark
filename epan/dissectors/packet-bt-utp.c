@@ -354,15 +354,11 @@ dissect_bt_utp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
   /* try dissecting */
   if (version >= 0)
   {
-    conversation_t *conversation;
     guint len_tvb;
     proto_tree *sub_tree = NULL;
     proto_item *ti;
     gint offset = 0;
     guint8 extension_type;
-
-    conversation = find_or_create_conversation(pinfo);
-    conversation_set_dissector(conversation, bt_utp_handle);
 
     /* set the protocol column */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "BT-uTP");
@@ -393,6 +389,26 @@ dissect_bt_utp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     return offset+len_tvb;
   }
   return 0;
+}
+
+static gboolean
+dissect_bt_utp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+  gint version;
+  version = get_utp_version(tvb);
+
+  if (version >= 0)
+  {
+    conversation_t *conversation;
+
+    conversation = find_or_create_conversation(pinfo);
+    conversation_set_dissector_from_frame_number(conversation, pinfo->num, bt_utp_handle);
+
+    dissect_bt_utp(tvb, pinfo, tree, data);
+    return TRUE;
+  }
+
+  return FALSE;
 }
 
 void
@@ -529,7 +545,7 @@ proto_reg_handoff_bt_utp(void)
    * on packets with lots of zero bytes. Needs more testing before enabling
    * by default.
    */
-  heur_dissector_add("udp", dissect_bt_utp, "BitTorrent UTP over UDP", "bt_utp_udp", proto_bt_utp, HEURISTIC_DISABLE);
+  heur_dissector_add("udp", dissect_bt_utp_heur, "BitTorrent UTP over UDP", "bt_utp_udp", proto_bt_utp, HEURISTIC_DISABLE);
 
   bt_utp_handle = create_dissector_handle(dissect_bt_utp, proto_bt_utp);
   dissector_add_for_decode_as_with_preference("udp.port", bt_utp_handle);
