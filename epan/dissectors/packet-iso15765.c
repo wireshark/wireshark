@@ -693,24 +693,21 @@ dissect_iso15765_flexray(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 static void
 update_config(void)
 {
-    if (iso15765_handle_lin == NULL) {
-        return;
+    if (iso15765_handle_lin != NULL) {
+        dissector_delete_all("lin.frame_id", iso15765_handle_lin);
+        if (register_lin_diag_frames) {
+            /* LIN specification states that 0x3c and 0x3d are for diagnostics */
+            dissector_add_uint("lin.frame_id", LIN_DIAG_MASTER_REQUEST_FRAME, iso15765_handle_lin);
+            dissector_add_uint("lin.frame_id", LIN_DIAG_SLAVE_RESPONSE_FRAME, iso15765_handle_lin);
+        }
     }
 
-    dissector_delete_all("lin.frame_id", iso15765_handle_lin);
-    if (register_lin_diag_frames) {
-        /* LIN specification states that 0x3c and 0x3d are for diagnostics */
-        dissector_add_uint("lin.frame_id", LIN_DIAG_MASTER_REQUEST_FRAME, iso15765_handle_lin);
-        dissector_add_uint("lin.frame_id", LIN_DIAG_SLAVE_RESPONSE_FRAME, iso15765_handle_lin);
-    }
-
-    dissector_delete_all("can.id", iso15765_handle_can);
-    dissector_delete_all("can.extended_id", iso15765_handle_can);
-    if (register_lin_diag_frames) {
+    if (iso15765_handle_can != NULL) {
+        dissector_delete_all("can.id", iso15765_handle_can);
+        dissector_delete_all("can.extended_id", iso15765_handle_can);
         dissector_add_uint_range("can.id", configured_can_ids, iso15765_handle_can);
         dissector_add_uint_range("can.extended_id", configured_ext_can_ids, iso15765_handle_can);
     }
-
 }
 
 void
