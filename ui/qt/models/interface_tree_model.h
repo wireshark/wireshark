@@ -54,7 +54,7 @@ enum InterfaceTreeColumns
 
 class InterfaceTreeModel : public QAbstractTableModel
 {
-    Q_OBJECT
+    //Q_OBJECT
 public:
     InterfaceTreeModel(QObject *parent);
     ~InterfaceTreeModel();

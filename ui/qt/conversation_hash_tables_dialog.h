@@ -19,8 +19,6 @@ class ConversationHashTablesDialog;
 
 class ConversationHashTablesDialog : public GeometryStateDialog
 {
-    Q_OBJECT
-
 public:
     explicit ConversationHashTablesDialog(QWidget *parent = 0);
     ~ConversationHashTablesDialog();

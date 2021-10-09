@@ -18,8 +18,6 @@
 
 class InfoProxyModel : public QIdentityProxyModel
 {
-    Q_OBJECT
-
 public:
     explicit InfoProxyModel(QObject * parent = 0);
     ~InfoProxyModel();

@@ -29,8 +29,6 @@ typedef struct _packet_proto_data_t {
 
 class DecodeAsDelegate : public QStyledItemDelegate
 {
-    Q_OBJECT
-
 public:
     DecodeAsDelegate(QObject *parent = 0, capture_file *cf = NULL);
 

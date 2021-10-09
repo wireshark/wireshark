@@ -61,7 +61,8 @@ WiresharkPreference * PreferenceManager::getPreference(PrefsItem * pref)
         return Q_NULLPTR;
 
     /* All actions are parented with this manager, to clear the objects together with the manager */
-    WiresharkPreference * wspref = qobject_cast<WiresharkPreference *>(PreferenceManager::factories()[key]->create(this));
+//    WiresharkPreference * wspref = qobject_cast<WiresharkPreference *>(PreferenceManager::factories()[key]->create(this));
+    WiresharkPreference * wspref = PreferenceManager::factories()[key]->create(this);
     if (wspref)
         wspref->setPrefsItem(pref);
 

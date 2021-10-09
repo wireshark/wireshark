@@ -32,7 +32,6 @@ private:
 
 class ColumnTypeDelegate : public QStyledItemDelegate
 {
-    Q_OBJECT
 public:
     ColumnTypeDelegate(QObject * parent = Q_NULLPTR);
 
@@ -49,8 +48,6 @@ public:
 
 class ColumnListModel : public QAbstractTableModel
 {
-    Q_OBJECT
-
 public:
     ColumnListModel(QObject * parent = Q_NULLPTR);
 

@@ -26,8 +26,6 @@ typedef struct export_object_list_gui_t {
 
 class ExportObjectModel : public QAbstractTableModel
 {
-    Q_OBJECT
-
 public:
     ExportObjectModel(register_eo_t* eo, QObject *parent);
 
@@ -69,7 +67,6 @@ private:
 
 class ExportObjectProxyModel : public QSortFilterProxyModel
 {
-    Q_OBJECT
 public:
 
     explicit ExportObjectProxyModel(QObject * parent = Q_NULLPTR);
