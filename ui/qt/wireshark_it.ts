@@ -6421,8 +6421,8 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>TShark</translation>
     </message>
     <message>
-        <source>RawShark</source>
-        <translation>RawShark</translation>
+        <source>Rawshark</source>
+        <translation>Rawshark</translation>
     </message>
     <message>
         <source>Dumpcap</source>

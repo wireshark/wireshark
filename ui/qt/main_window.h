@@ -603,7 +603,7 @@ private slots:
     void on_actionHelpMPDumpcap_triggered();
     void on_actionHelpMPEditcap_triggered();
     void on_actionHelpMPMergecap_triggered();
-    void on_actionHelpMPRawShark_triggered();
+    void on_actionHelpMPRawshark_triggered();
     void on_actionHelpMPReordercap_triggered();
     void on_actionHelpMPText2pcap_triggered();
     void on_actionHelpMPTShark_triggered();

@@ -231,7 +231,7 @@
      <addaction name="actionHelpMPDumpcap"/>
      <addaction name="actionHelpMPEditcap"/>
      <addaction name="actionHelpMPMergecap"/>
-     <addaction name="actionHelpMPRawShark"/>
+     <addaction name="actionHelpMPRawshark"/>
      <addaction name="actionHelpMPReordercap"/>
      <addaction name="actionHelpMPText2pcap"/>
      <addaction name="actionHelpMPTShark"/>
@@ -900,9 +900,9 @@
     <string>TShark</string>
    </property>
   </action>
-  <action name="actionHelpMPRawShark">
+  <action name="actionHelpMPRawshark">
    <property name="text">
-    <string>RawShark</string>
+    <string>Rawshark</string>
    </property>
   </action>
   <action name="actionHelpMPDumpcap">

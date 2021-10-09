@@ -6421,8 +6421,8 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>TShark</translation>
     </message>
     <message>
-        <source>RawShark</source>
-        <translation>RawShark</translation>
+        <source>Rawshark</source>
+        <translation>Rawshark</translation>
     </message>
     <message>
         <source>Dumpcap</source>

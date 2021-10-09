@@ -3689,7 +3689,7 @@ void MainWindow::on_actionHelpMPMergecap_triggered() {
     wsApp->helpTopicAction(LOCALPAGE_MAN_MERGECAP);
 }
 
-void MainWindow::on_actionHelpMPRawShark_triggered() {
+void MainWindow::on_actionHelpMPRawshark_triggered() {
     wsApp->helpTopicAction(LOCALPAGE_MAN_RAWSHARK);
 }
 
