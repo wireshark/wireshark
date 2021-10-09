@@ -78,6 +78,42 @@ dfilter_new_function(dfwork_t *dfw, const char *name)
 	return stnode_new(STTYPE_FUNCTION, def, name);
 }
 
+/* Gets a GRegex from a string, and sets the error message on failure. */
+stnode_t *
+dfilter_new_regex(dfwork_t *dfw, const char *patt)
+{
+	GError *regex_error = NULL;
+	GRegex *pcre;
+
+	ws_debug("Compile regex pattern: %s", patt);
+
+	/*
+	 * As a string is not guaranteed to contain valid UTF-8,
+	 * we have to disable support for UTF-8 patterns and treat
+	 * every pattern and subject as raw bytes.
+	 *
+	 * Should support for UTF-8 patterns be necessary, then we
+	 * should compile a pattern without G_REGEX_RAW. Additionally,
+	 * we MUST use g_utf8_validate() before calling g_regex_match_full()
+	 * or risk crashes.
+	 */
+	GRegexCompileFlags cflags = G_REGEX_CASELESS | G_REGEX_OPTIMIZE | G_REGEX_RAW;
+
+	pcre = g_regex_new(
+			patt,			/* pattern */
+			cflags,			/* Compile options */
+			0,			/* Match options */
+			&regex_error);		/* Compile / study errors */
+
+	if (regex_error) {
+		dfilter_parse_fail(dfw, "%s", regex_error->message);
+		g_error_free(regex_error);
+		pcre = NULL;
+	}
+
+	return stnode_new(STTYPE_PCRE, pcre, patt);
+}
+
 gboolean
 dfilter_str_to_gint32(dfwork_t *dfw, const char *s, gint32* pint)
 {

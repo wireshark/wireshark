@@ -13,6 +13,7 @@
 #include <ws_symbol_export.h>
 #include <ws_attributes.h>
 #include <stdbool.h>
+#include <string.h>
 
 #ifdef WS_LOG_DOMAIN
 #define _ASSERT_DOMAIN WS_LOG_DOMAIN
@@ -57,6 +58,9 @@ void ws_assert_failed(const char *file, int line, const char *function,
 #else
 #define ws_assert(expr) ws_abort_if_fail(expr)
 #endif
+
+#define ws_assert_streq(s1, s2) \
+        ws_assert((s1) && (s2) && strcmp((s1), (s2)) == 0)
 
 /*
  * We don't want to disable ws_assert_not_reached() with WS_DISABLE_ASSERT.

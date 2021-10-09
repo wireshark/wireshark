@@ -119,6 +119,8 @@ _node_init(stnode_t *node, sttype_id_t type_id, gpointer data)
 		node->data = NULL;
 	}
 	else {
+		/* Creating an initialized node with a NULL pointer is
+		 * allowed and needs to be safe. The parser relies on that. */
 		type = sttype_lookup(type_id);
 		ws_assert(type);
 		node->type = type;

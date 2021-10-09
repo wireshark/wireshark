@@ -302,10 +302,13 @@ relation_test(T) ::= entity(E) rel_binop(O) relation_test(R).
 }
 
 /* "matches" does not chain with other relational tests. */ 
-relation_test(T) ::= entity(E) TEST_MATCHES entity(F).
+relation_test(T) ::= entity(E) TEST_MATCHES STRING(S).
 {
+	stnode_t *R = dfilter_new_regex(dfw, stnode_token_value(S));
+	stnode_free(S);
+
 	T = stnode_new(STTYPE_TEST, NULL, NULL);
-	sttype_test_set2(T, TEST_OP_MATCHES, E, F);
+	sttype_test_set2(T, TEST_OP_MATCHES, E, R);
 }
 
 relation_test(T) ::= entity(E) TEST_IN LBRACE set_node_list(L) RBRACE.

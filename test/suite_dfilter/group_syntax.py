@@ -30,3 +30,15 @@ class case_syntax(unittest.TestCase):
     def test_value_string_1(self, checkDFilterSucceed):
         dfilter = 'eth.fcs.status=="Bad"'
         checkDFilterSucceed(dfilter)
+
+    def test_matches_1(self, checkDFilterSucceed):
+        dfilter = 'http.request.method matches "^HEAD"'
+        checkDFilterSucceed(dfilter)
+
+    def test_matches_2(self, checkDFilterFail):
+        dfilter = 'http.request.method matches HEAD'
+        checkDFilterFail(dfilter, '"HEAD" was unexpected in this context')
+
+    def test_matches_3(self, checkDFilterFail):
+        dfilter = 'http.request.method matches "^HEAD" matches "^POST"'
+        checkDFilterFail(dfilter, '"matches" was unexpected in this context.')

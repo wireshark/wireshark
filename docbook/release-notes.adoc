@@ -108,6 +108,8 @@ The following features are new (or have been significantly updated) since versio
    match a valid byte array specification. Now this is a syntax error. Use double-quotes to match literal strings.
 ** For string comparisons literal byte arrays are always interpreted as unquoted literal strings. This avoids unexpected results with embedded NUL bytes.
    For example "http.user_agent contains aa:bb" tries to match "aa:bb". Avoid this usage, always use double-quotes: http.user_agent contains "\xaa\xbb".
+** Regular expressions (using "matches" or "~") must be specified using character strings. It is a syntax error to omit the double-quotes around
+   the regular expression. Before the syntax rules of an unquoted regex string could be difficult to predict.
 
 // === Removed Features and Support
 
