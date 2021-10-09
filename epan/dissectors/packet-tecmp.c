@@ -1237,7 +1237,7 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
                 if (length2 > 0) {
                     lin_info.len = tvb_captured_length_remaining(sub_tvb, offset2);
-                    payload_tvb = tvb_new_subset_length(sub_tvb, offset2, tvb_captured_length_remaining(sub_tvb, offset2) - 1);
+                    payload_tvb = tvb_new_subset_length(sub_tvb, offset2, length2 - 1);
                     guint32 bus_frame_id = lin_info.id | (lin_info.bus_id << 16);
                     if (!dissector_try_uint_new(lin_subdissector_table, bus_frame_id, payload_tvb, pinfo, tree, FALSE, &lin_info)) {
                         if (!dissector_try_uint_new(lin_subdissector_table, lin_info.id, payload_tvb, pinfo, tree, FALSE, &lin_info)) {
@@ -1270,7 +1270,7 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                 }
 
                 if (length2 > 0) {
-                    payload_tvb = tvb_new_subset_length(sub_tvb, offset2, tvb_captured_length_remaining(sub_tvb, offset2));
+                    payload_tvb = tvb_new_subset_length(sub_tvb, offset2, length2);
 
                     can_info.fd = (msg_type == TECMP_DATA_TYPE_CAN_FD_DATA);
                     can_info.len = tvb_captured_length_remaining(sub_tvb, offset2);
@@ -1316,7 +1316,7 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                 }
 
                 if (length2 > 0) {
-                    payload_tvb = tvb_new_subset_length(sub_tvb, offset2, tvb_captured_length_remaining(sub_tvb, offset2));
+                    payload_tvb = tvb_new_subset_length(sub_tvb, offset2, length2);
 
                     if (!flexray_call_subdissectors(payload_tvb, pinfo, tree, &fr_info, heuristic_first)) {
                         call_data_dissector(payload_tvb, pinfo, tree);
