@@ -35,8 +35,6 @@
 
 class PercentBarDelegate : public QStyledItemDelegate
 {
-    Q_OBJECT
-
 public:
     PercentBarDelegate(QWidget *parent = 0) : QStyledItemDelegate(parent) { }
 

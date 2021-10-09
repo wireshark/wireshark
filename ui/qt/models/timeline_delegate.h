@@ -42,8 +42,6 @@ Q_DECLARE_METATYPE(timeline_span)
 
 class TimelineDelegate : public QStyledItemDelegate
 {
-    Q_OBJECT
-
 public:
     TimelineDelegate(QWidget *parent = 0);
 

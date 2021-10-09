@@ -65,8 +65,6 @@ private:
 
 class ExpertInfoModel : public QAbstractItemModel
 {
-    Q_OBJECT
-
 public:
     ExpertInfoModel(CaptureFile& capture_file, QObject *parent = 0);
     virtual ~ExpertInfoModel();

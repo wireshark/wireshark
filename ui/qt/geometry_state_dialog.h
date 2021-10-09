@@ -14,8 +14,6 @@
 
 class GeometryStateDialog : public QDialog
 {
-    Q_OBJECT
-
 public:
 
 // As discussed in change 7072, QDialogs have different minimize and "on

@@ -41,8 +41,6 @@ private:
 
 class SupportedProtocolsModel : public QAbstractItemModel
 {
-    Q_OBJECT
-
 public:
     explicit SupportedProtocolsModel(QObject * parent = Q_NULLPTR);
     virtual ~SupportedProtocolsModel();
@@ -77,7 +75,6 @@ private:
 
 class SupportedProtocolsProxyModel : public QSortFilterProxyModel
 {
-    Q_OBJECT
 public:
 
     explicit SupportedProtocolsProxyModel(QObject * parent = Q_NULLPTR);
