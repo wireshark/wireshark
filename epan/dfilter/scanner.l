@@ -75,15 +75,7 @@
  */
 DIAG_OFF_FLEX
 
-#define LVAL		df_lval
-#define LVAL_TYPE	stnode_t*
-#define LVAL_INIT_VAL	NULL
-#define MODNAME		df
-#define FLEX_YY_PREFIX	df_
-
-#include <lemonflex-head.inc>
-
-/*#undef YY_NO_UNPUT*/
+stnode_t *df_lval;
 
 static int set_lval_str(int token, const char *token_value);
 static int simple(int token, const char *token_value);
