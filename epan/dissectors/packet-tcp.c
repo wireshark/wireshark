@@ -6566,28 +6566,47 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
      * from the base_seq of the retrieved conversation. If this is the
      * case, create a new conversation with the same addresses and ports
      * and set the TA_PORTS_REUSED flag. If the seq-nr is the same as
-     * the base_seq, then do nothing so it will be marked as a retrans-
-     * mission later.
+     * the base_seq, then restore some flow values to avoid buggy
+     * analysis. In the latter case, it will also be marked as a
+     * retransmission later.
      * XXX - Is this affected by MPTCP which can use multiple SYNs?
      */
     if(tcpd && ((tcph->th_flags&(TH_SYN|TH_ACK))==TH_SYN) &&
-       (tcpd->fwd->static_flags & TCP_S_BASE_SEQ_SET) &&
-       (tcph->th_seq!=tcpd->fwd->base_seq) ) {
-        if (!(pinfo->fd->visited)) {
-            /* Reset the last frame seen in the conversation */
-            if (save_last_frame > 0)
-                conv->last_frame = save_last_frame;
+       (tcpd->fwd->static_flags & TCP_S_BASE_SEQ_SET)) {
+        if(tcph->th_seq!=tcpd->fwd->base_seq) {
+            if (!(pinfo->fd->visited)) {
+                /* Reset the last frame seen in the conversation */
+                if (save_last_frame > 0)
+                    conv->last_frame = save_last_frame;
 
-            conv=conversation_new(pinfo->num, &pinfo->src, &pinfo->dst, ENDPOINT_TCP, pinfo->srcport, pinfo->destport, 0);
-            tcpd=get_tcp_conversation_data(conv,pinfo);
+                conv=conversation_new(pinfo->num, &pinfo->src, &pinfo->dst, ENDPOINT_TCP, pinfo->srcport, pinfo->destport, 0);
+                tcpd=get_tcp_conversation_data(conv,pinfo);
 
-            /* As above, a new conversation starting with a SYN implies conversation completeness value 1 */
-            tcpd->conversation_completeness = 1;
+                if(!tcpd->ta)
+                    tcp_analyze_get_acked_struct(pinfo->num, tcph->th_seq, tcph->th_ack, TRUE, tcpd);
+                tcpd->ta->flags|=TCP_A_REUSED_PORTS;
+
+                /* As above, a new conversation starting with a SYN implies conversation completeness value 1 */
+                tcpd->conversation_completeness = 1;
+            }
         }
-        if(!tcpd->ta)
-            tcp_analyze_get_acked_struct(pinfo->num, tcph->th_seq, tcph->th_ack, TRUE, tcpd);
-        tcpd->ta->flags|=TCP_A_REUSED_PORTS;
+        else {
+            if (!(pinfo->fd->visited)) {
+                /*
+                 * Sometimes we need to restore the nextseq value.
+                 * As stated in RFC 793 3.4 a RST packet might be
+                 * sent with SEQ being equal to the ACK received,
+                 * thus breaking our flow monitoring. (issue 17616)
+                 */
+                tcpd->fwd->tcp_analyze_seq_info->nextseq = tcpd->fwd->tcp_analyze_seq_info->maxseqtobeacked;
+
+                if(!tcpd->ta)
+                    tcp_analyze_get_acked_struct(pinfo->num, tcph->th_seq, tcph->th_ack, TRUE, tcpd);
+                tcpd->ta->flags|=TCP_A_REUSED_PORTS;
+            }
+        }
     }
+
     /* If this is a SYN/ACK packet, then check if its seq-nr is different
      * from the base_seq of the retrieved conversation. If this is the
      * case, try to find a conversation with the same addresses and ports
@@ -6597,8 +6616,8 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
      * XXX - Is this affected by MPTCP which can use multiple SYNs?
      */
     if(tcpd && ((tcph->th_flags&(TH_SYN|TH_ACK))==(TH_SYN|TH_ACK)) &&
-       (tcpd->fwd->static_flags & TCP_S_BASE_SEQ_SET) &&
-       (tcph->th_seq!=tcpd->fwd->base_seq) ) {
+        (tcpd->fwd->static_flags & TCP_S_BASE_SEQ_SET) &&
+        (tcph->th_seq!=tcpd->fwd->base_seq) ) {
         if (!(pinfo->fd->visited)) {
             /* Reset the last frame seen in the conversation */
             if (save_last_frame > 0)
