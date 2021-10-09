@@ -53,7 +53,7 @@ TreeItem create_TreeItem(proto_tree* tree, proto_item* item)
 CLEAR_OUTSTANDING(TreeItem, expired, TRUE)
 
 WSLUA_CLASS_DEFINE(TreeItem,FAIL_ON_NULL_OR_EXPIRED("TreeItem"));
-/* <lua_class_TreeItem,`TreeItem`>>s represent information in the https://www.wireshark.org/docs/wsug_html_chunked/ChUsePacketDetailsPaneSection.html[packet details] pane of Wireshark, and the packet details view of Tshark.
+/* <lua_class_TreeItem,`TreeItem`>>s represent information in the https://www.wireshark.org/docs/wsug_html_chunked/ChUsePacketDetailsPaneSection.html[packet details] pane of Wireshark, and the packet details view of TShark.
    A <<lua_class_TreeItem,`TreeItem`>> represents a node in the tree, which might also be a subtree and have a list of children.
    The children of a subtree have zero or more siblings which are other children of the same <<lua_class_TreeItem,`TreeItem`>> subtree.
 
@@ -62,7 +62,7 @@ WSLUA_CLASS_DEFINE(TreeItem,FAIL_ON_NULL_OR_EXPIRED("TreeItem"));
 
    In some cases the tree is not truly added to, in order to improve performance.
    For example for packets not currently displayed/selected in Wireshark's visible
-   window pane, or if Tshark isn't invoked with the `-V` switch. However the
+   window pane, or if TShark isn't invoked with the `-V` switch. However the
    "add" type <<lua_class_TreeItem,`TreeItem`>> functions can still be called, and still return <<lua_class_TreeItem,`TreeItem`>>
    objects - but the info isn't really added to the tree. Therefore you do not
    typically need to worry about whether there's a real tree or not. If, for some

@@ -788,7 +788,7 @@ static gboolean verify_filehandler_complete(FileHandler fh) {
 
 
 WSLUA_FUNCTION wslua_register_filehandler(lua_State* L) {
-    /* Register the FileHandler into Wireshark/tshark, so they can read/write this new format.
+    /* Register the FileHandler into Wireshark/TShark, so they can read/write this new format.
        All functions and settings must be complete before calling this registration function.
        This function cannot be called inside the reading/writing callback functions. */
 #define WSLUA_ARG_register_filehandler_FILEHANDLER 1 /* the FileHandler object to be registered */
@@ -873,7 +873,7 @@ wslua_deregister_filehandler_work(FileHandler fh)
 }
 
 WSLUA_FUNCTION wslua_deregister_filehandler(lua_State* L) {
-    /* Deregister the FileHandler from Wireshark/tshark, so it no longer gets used for reading/writing/display.
+    /* Deregister the FileHandler from Wireshark/TShark, so it no longer gets used for reading/writing/display.
        This function cannot be called inside the reading/writing callback functions. */
 #define WSLUA_ARG_register_filehandler_FILEHANDLER 1 /* the FileHandler object to be deregistered */
     FileHandler fh = checkFileHandler(L,WSLUA_ARG_register_filehandler_FILEHANDLER);

@@ -36,7 +36,7 @@ WSLUA_CLASS_DEFINE(File,FAIL_ON_NULL_OR_EXPIRED("File"));
     functions (e.g., `read_open`, `read`, `write`, etc.).  This behaves similarly to the
     Lua `io` library's `file` object, returned when calling `io.open()`, *except*
     in this case you cannot call `file:close()`, `file:open()`, nor `file:setvbuf()`,
-    since Wireshark/tshark manages the opening and closing of files.
+    since Wireshark/TShark manages the opening and closing of files.
     You also cannot use the '`io`' library itself on this object, i.e. you cannot
     do `io.read(file, 4)`.  Instead, use this `File` with the object-oriented style
     calling its methods, i.e. `myfile:read(4)`. (see later example)
