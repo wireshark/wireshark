@@ -657,21 +657,19 @@ check_drange_sanity(dfwork_t *dfw, stnode_t *st)
 	}
 }
 
-static stnode_t *
+static void
 convert_to_bytes(stnode_t *arg)
 {
-	stnode_t      *new_st;
+	stnode_t      *entity1;
 	drange_node   *rn;
 
-	new_st = stnode_new(STTYPE_RANGE, NULL, arg->token_value);
-
+	entity1 = stnode_dup(arg);
 	rn = drange_node_new();
 	drange_node_set_start_offset(rn, 0);
 	drange_node_set_to_the_end(rn);
-	/* new_st is owner of arg in this step */
-	sttype_range_set1(new_st, arg, rn);
 
-	return new_st;
+	stnode_replace(arg, STTYPE_RANGE, NULL);
+	sttype_range_set1(arg, entity1, rn);
 }
 
 static void
@@ -737,7 +735,6 @@ check_relation_LHS_FIELD(dfwork_t *dfw, const char *relation_string,
 		FtypeCanFunc can_func, gboolean allow_partial_value,
 		stnode_t *st_node, stnode_t *st_arg1, stnode_t *st_arg2)
 {
-	stnode_t		*new_st;
 	sttype_id_t		type2;
 	header_field_info	*hfinfo1, *hfinfo2;
 	df_func_def_t		*funcdef;
@@ -822,9 +819,7 @@ check_relation_LHS_FIELD(dfwork_t *dfw, const char *relation_string,
 			}
 
 			/* Convert entire field to bytes */
-			new_st = convert_to_bytes(st_arg1);
-
-			sttype_test_set2_args(st_node, new_st, st_arg2);
+			convert_to_bytes(st_arg1);
 		}
 	}
 	else if (type2 == STTYPE_FUNCTION) {
@@ -1032,10 +1027,9 @@ static void
 check_relation_LHS_RANGE(dfwork_t *dfw, const char *relation_string,
 		FtypeCanFunc can_func _U_,
 		gboolean allow_partial_value,
-		stnode_t *st_node,
+		stnode_t *st_node _U_,
 		stnode_t *st_arg1, stnode_t *st_arg2)
 {
-	stnode_t		*new_st;
 	sttype_id_t		type2;
 	header_field_info	*hfinfo2;
 	ftenum_t		ftype2;
@@ -1062,9 +1056,7 @@ check_relation_LHS_RANGE(dfwork_t *dfw, const char *relation_string,
 			}
 
 			/* Convert entire field to bytes */
-			new_st = convert_to_bytes(st_arg2);
-
-			sttype_test_set2_args(st_node, st_arg1, new_st);
+			convert_to_bytes(st_arg2);
 		}
 	}
 	else if (type2 == STTYPE_STRING) {
@@ -1119,9 +1111,7 @@ check_relation_LHS_RANGE(dfwork_t *dfw, const char *relation_string,
 			}
 
 			/* Convert function result to bytes */
-			new_st = convert_to_bytes(st_arg2);
-
-			sttype_test_set2_args(st_node, st_arg1, new_st);
+			convert_to_bytes(st_arg2);
 		}
 
 		check_function(dfw, st_arg2);
@@ -1160,9 +1150,8 @@ static void
 check_relation_LHS_FUNCTION(dfwork_t *dfw, const char *relation_string,
 		FtypeCanFunc can_func,
 		gboolean allow_partial_value,
-		stnode_t *st_node, stnode_t *st_arg1, stnode_t *st_arg2)
+		stnode_t *st_node _U_, stnode_t *st_arg1, stnode_t *st_arg2)
 {
-	stnode_t		*new_st;
 	sttype_id_t		type2;
 	header_field_info	*hfinfo2;
 	ftenum_t		ftype1, ftype2;
@@ -1235,9 +1224,7 @@ check_relation_LHS_FUNCTION(dfwork_t *dfw, const char *relation_string,
 			}
 
 			/* Convert function result to bytes */
-			new_st = convert_to_bytes(st_arg1);
-
-			sttype_test_set2_args(st_node, new_st, st_arg2);
+			convert_to_bytes(st_arg1);
 		}
 	}
 	else if (type2 == STTYPE_FUNCTION) {
