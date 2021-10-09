@@ -39,14 +39,14 @@ static const value_string bt_utp_type_vals[] = {
 
 enum {
   EXT_NO_EXTENSION    = 0,
-  EXT_SELECTION_ACKS  = 1,
+  EXT_SELECTIVE_ACKS  = 1,
   EXT_EXTENSION_BITS  = 2,
   EXT_NUM_EXT
 };
 
 static const value_string bt_utp_extension_type_vals[] = {
   { EXT_NO_EXTENSION,   "No Extension" },
-  { EXT_SELECTION_ACKS, "Selective ACKs" },
+  { EXT_SELECTIVE_ACKS, "Selective ACKs" },
   { EXT_EXTENSION_BITS, "Extension bits" },
   { 0, NULL }
 };
@@ -115,6 +115,14 @@ Fields Types
 #define V0_FIXED_HDR_SIZE 23
 #define V1_FIXED_HDR_SIZE 20
 
+/* Very early versions of libutp (still used by Transmission) set the max
+ * recv window size to 0x00380000, versions from 2013 and later set it to
+ * 0x00100000, and some other clients use 0x00040000. This is one of the
+ * few possible sources of heuristics.
+ */
+
+#define V1_MAX_WINDOW_SIZE 0x380000U
+
 static dissector_handle_t bt_utp_handle;
 
 static int hf_bt_utp_ver = -1;
@@ -139,11 +147,16 @@ static int hf_bt_utp_data = -1;
 static gint ett_bt_utp = -1;
 static gint ett_bt_utp_extension = -1;
 
+static gboolean enable_version0 = FALSE;
+static guint max_window_size = V1_MAX_WINDOW_SIZE;
+
 static gint
 get_utp_version(tvbuff_t *tvb) {
-  guint8 v0_flags, v0_ext;
-  guint8 v1_ver_type, v1_ext;
-  guint  len;
+  guint8  v0_flags;
+  guint8  v1_ver_type, ext, ext_len;
+  guint32 window;
+  guint   len, offset = 0;
+  gint    ver = -1;
 
   /* Simple heuristics inspired by code from utp.cpp */
 
@@ -155,24 +168,53 @@ get_utp_version(tvbuff_t *tvb) {
   }
 
   v1_ver_type = tvb_get_guint8(tvb, 0);
-  v1_ext = tvb_get_guint8(tvb, 1);
+  ext = tvb_get_guint8(tvb, 1);
   if (((v1_ver_type & 0x0f) == 1) && ((v1_ver_type>>4) < ST_NUM_STATES) &&
-      (v1_ext < EXT_NUM_EXT)) {
-    return 1;
+      (ext < EXT_NUM_EXT)) {
+    window = tvb_get_guint32(tvb, 12, ENC_BIG_ENDIAN);
+    if (window > max_window_size) {
+      return -1;
+    }
+    ver = 1;
+    offset = V1_FIXED_HDR_SIZE;
+  } else if (enable_version0) {
+    /* Version 0? */
+    if (len < V0_FIXED_HDR_SIZE) {
+      return -1;
+    }
+    v0_flags = tvb_get_guint8(tvb, 18);
+    ext = tvb_get_guint8(tvb, 17);
+    if ((v0_flags < ST_NUM_STATES) && (ext < EXT_NUM_EXT)) {
+      ver = 0;
+      offset = V0_FIXED_HDR_SIZE;
+    }
   }
 
-  /* Version 0? */
-  if (len < V0_FIXED_HDR_SIZE) {
-    return -1;
+  if (ver < 0) {
+    return ver;
   }
 
-  v0_flags = tvb_get_guint8(tvb, 18);
-  v0_ext = tvb_get_guint8(tvb, 17);
-  if ((v0_flags < ST_NUM_STATES) || (v0_ext < EXT_NUM_EXT)) {
-    return 0;
+  /* In V0 we could use the microseconds value as a heuristic, because
+   * it was tv_usec, but in the modern V1 we cannot, because it is
+   * computed by converting a time_t into a 64 bit quantity of microseconds
+   * and then taking the lower 32 bits, so all possible values are likely.
+   */
+  /* If we have an extension, then check the next two bytes,
+   * the first of which is another extension type (likely NO_EXTENSION)
+   * and the second of which is a length, which must be at least 4.
+   */
+  if (ext != EXT_NO_EXTENSION) {
+    if (len < offset + 2) {
+      return -1;
+    }
+    ext = tvb_get_guint8(tvb, offset);
+    ext_len = tvb_get_guint8(tvb, offset+1);
+    if (ext >= EXT_NUM_EXT || ext_len < 4) {
+      return -1;
+    }
   }
 
-  return -1;
+  return ver;
 }
 
 static int
@@ -242,7 +284,7 @@ dissect_utp_extension(tvbuff_t *tvb, packet_info _U_*pinfo, proto_tree *tree, in
   while(*extension_type != EXT_NO_EXTENSION && offset < (int)tvb_reported_length(tvb))
   {
     switch(*extension_type){
-      case EXT_SELECTION_ACKS: /* 1 */
+      case EXT_SELECTIVE_ACKS: /* 1 */
       {
         ti = proto_tree_add_item(tree, hf_bt_utp_extension, tvb, offset, -1, ENC_NA);
         ext_tree = proto_item_add_subtree(ti, ett_bt_utp_extension);
@@ -253,7 +295,7 @@ dissect_utp_extension(tvbuff_t *tvb, packet_info _U_*pinfo, proto_tree *tree, in
 
         proto_tree_add_item(ext_tree, hf_bt_utp_extension_len, tvb, offset, 1, ENC_BIG_ENDIAN);
         extension_length = tvb_get_guint8(tvb, offset);
-        proto_item_append_text(ti, " Selection ACKs, Len=%d", extension_length);
+        proto_item_append_text(ti, " Selective ACKs, Len=%d", extension_length);
         offset += 1;
 
         proto_tree_add_item(ext_tree, hf_bt_utp_extension_bitmask, tvb, offset, extension_length, ENC_NA);
@@ -328,16 +370,17 @@ dissect_bt_utp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     col_set_str( pinfo->cinfo, COL_INFO, "uTorrent Transport Protocol" );
 
     len_tvb = tvb_reported_length(tvb);
-    ti = proto_tree_add_protocol_format(tree, proto_bt_utp, tvb, 0, -1,
-                                        "uTorrent Transport Protocol V%d (%d bytes)",
-                                        version, len_tvb);
-    sub_tree = proto_item_add_subtree(ti, ett_bt_utp);
 
     /* Determine header version */
 
     if (version == 0) {
+      ti = proto_tree_add_protocol_format(tree, proto_bt_utp, tvb, 0, -1,
+                                          "uTorrent Transport Protocol V0");
+      sub_tree = proto_item_add_subtree(ti, ett_bt_utp);
       offset = dissect_utp_header_v0(tvb, pinfo, sub_tree, offset, &extension_type);
     } else {
+      ti = proto_tree_add_item(tree, proto_bt_utp, tvb, 0, -1, ENC_NA);
+      sub_tree = proto_item_add_subtree(ti, ett_bt_utp);
       offset = dissect_utp_header_v1(tvb, pinfo, sub_tree, offset, &extension_type);
     }
 
@@ -383,7 +426,7 @@ proto_register_bt_utp(void)
     },
     { &hf_bt_utp_extension_len,
       { "Extension Length", "bt-utp.extension_len",
-      FT_UINT8, BASE_DEC, NULL, 0x0,
+      FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0,
       NULL, HFILL }
     },
     { &hf_bt_utp_extension_bitmask,
@@ -422,13 +465,13 @@ proto_register_bt_utp(void)
       NULL, HFILL }
     },
     { &hf_bt_utp_wnd_size_v0,
-      { "Windows Size", "bt-utp.wnd_size",
+      { "Window Size", "bt-utp.wnd_size",
       FT_UINT8, BASE_DEC, NULL, 0x0,
-      NULL, HFILL }
+      "V0 receive window size, in multiples of 350 bytes", HFILL }
     },
     { &hf_bt_utp_wnd_size_v1,
-      { "Windows Size", "bt-utp.wnd_size",
-      FT_UINT32, BASE_DEC, NULL, 0x0,
+      { "Window Size", "bt-utp.wnd_size",
+      FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0,
       NULL, HFILL }
     },
     { &hf_bt_utp_seq_nr,
@@ -458,6 +501,21 @@ proto_register_bt_utp(void)
 
   bt_utp_module = prefs_register_protocol(proto_bt_utp, NULL);
   prefs_register_obsolete_preference(bt_utp_module, "enable");
+  prefs_register_bool_preference(bt_utp_module,
+      "enable_version0",
+      "Dissect prerelease (version 0) packets",
+      "Whether the dissector should attempt to dissect packets with the "
+      "obsolete format (version 0) that predates BEP 29 (22-Jun-2009)",
+      &enable_version0);
+  prefs_register_uint_preference(bt_utp_module,
+      "max_window_size",
+      "Maximum window size (in hex)",
+      "Maximum receive window size allowed by the dissector. Early clients "
+      "(and a few modern ones) set this value to 0x380000 (the default), "
+      "later ones use smaller values like 0x100000 and 0x40000. A higher "
+      "value can detect nonstandard packets, but at the cost of false "
+      "positives.",
+      16, &max_window_size);
 
   proto_register_field_array(proto_bt_utp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
@@ -467,6 +525,10 @@ void
 proto_reg_handoff_bt_utp(void)
 {
   /* disabled by default since heuristic is weak */
+  /* XXX: The heuristic is stronger now, but might still get false positives
+   * on packets with lots of zero bytes. Needs more testing before enabling
+   * by default.
+   */
   heur_dissector_add("udp", dissect_bt_utp, "BitTorrent UTP over UDP", "bt_utp_udp", proto_bt_utp, HEURISTIC_DISABLE);
 
   bt_utp_handle = create_dissector_handle(dissect_bt_utp, proto_bt_utp);
