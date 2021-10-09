@@ -6373,8 +6373,8 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation>Editcap</translation>
     </message>
     <message>
-        <source>Text2cap</source>
-        <translation>Text2cap</translation>
+        <source>Text2pcap</source>
+        <translation>Text2pcap</translation>
     </message>
     <message>
         <source>Website</source>

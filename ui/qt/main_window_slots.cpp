@@ -3697,7 +3697,7 @@ void MainWindow::on_actionHelpMPReordercap_triggered() {
     wsApp->helpTopicAction(LOCALPAGE_MAN_REORDERCAP);
 }
 
-void MainWindow::on_actionHelpMPText2cap_triggered() {
+void MainWindow::on_actionHelpMPText2pcap_triggered() {
     wsApp->helpTopicAction(LOCALPAGE_MAN_TEXT2PCAP);
 }
 

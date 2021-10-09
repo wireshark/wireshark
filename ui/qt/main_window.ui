@@ -233,7 +233,7 @@
      <addaction name="actionHelpMPMergecap"/>
      <addaction name="actionHelpMPRawShark"/>
      <addaction name="actionHelpMPReordercap"/>
-     <addaction name="actionHelpMPText2cap"/>
+     <addaction name="actionHelpMPText2pcap"/>
      <addaction name="actionHelpMPTShark"/>
     </widget>
     <addaction name="actionHelpContents"/>
@@ -920,9 +920,9 @@
     <string>Editcap</string>
    </property>
   </action>
-  <action name="actionHelpMPText2cap">
+  <action name="actionHelpMPText2pcap">
    <property name="text">
-    <string>Text2cap</string>
+    <string>Text2pcap</string>
    </property>
   </action>
   <action name="actionHelpWebsite">

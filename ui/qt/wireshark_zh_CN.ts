@@ -6412,8 +6412,8 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Editcap</translation>
     </message>
     <message>
-        <source>Text2cap</source>
-        <translation>Text2cap</translation>
+        <source>Text2pcap</source>
+        <translation>Text2pcap</translation>
     </message>
     <message>
         <source>Website</source>

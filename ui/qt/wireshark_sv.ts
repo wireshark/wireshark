@@ -6437,8 +6437,8 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Editcap</translation>
     </message>
     <message>
-        <source>Text2cap</source>
-        <translation>Text2cap</translation>
+        <source>Text2pcap</source>
+        <translation>Text2pcap</translation>
     </message>
     <message>
         <source>Website</source>
