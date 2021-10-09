@@ -7348,6 +7348,31 @@ check_valid_filter_name_or_fail(const char *filter_name)
 			" Allowed are lower characters, digits, '-', '_' and non-repeating '.'."
 			" This might be caused by an inappropriate plugin or a development error.", filter_name);
 	}
+
+	const char *reserved_filter_names[] = {
+		/* Display filter keywords. */
+		"eq",
+		"ne",
+		"gt",
+		"ge",
+		"lt",
+		"le",
+		"bitwise_and",
+		"contains",
+		"matches",
+		"not",
+		"and",
+		"or",
+		"in",
+		NULL
+	};
+
+	/* Check for reserved keywords. */
+	for (const char **ptr = reserved_filter_names; *ptr != NULL; ptr++) {
+		if (strcmp(*ptr, filter_name) == 0) {
+			ws_error("Protocol filter name \"%s\" is a reserved keyword.", filter_name);
+		}
+	}
 }
 
 int
