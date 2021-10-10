@@ -7165,11 +7165,11 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>NGAP</source>
-        <translation type="unfinished"></translation>
+        <translation>NGAP</translation>
     </message>
     <message>
         <source>NGAP Messages</source>
-        <translation type="unfinished"></translation>
+        <translation>Messaggi NGAP</translation>
     </message>
     <message>
         <source>Change the way packets are dissected</source>
@@ -8199,8 +8199,8 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <source>Export SSL Session Keys (%Ln key(s))</source>
         <oldsource>Export SSL Session Keys (%1 key%2</oldsource>
         <translation type="vanished">
-            <numerusform>Esporta chiavi della sessione SSL (%Ln chiave)</numerusform>
-            <numerusform>Esporta chiavi della sessione SSL (%Ln chiavi)</numerusform>
+            <numerusform>Esporta chiavi di sessione SSL (%Ln chiave)</numerusform>
+            <numerusform>Esporta chiavi di sessione SSL (%Ln chiavi)</numerusform>
         </translation>
     </message>
     <message>
@@ -8279,7 +8279,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source> before reloading Lua plugins</source>
-        <translation type="unfinished"></translation>
+        <translation> prima di ricaricare i plugin Lua</translation>
     </message>
     <message>
         <source>Please wait while Wireshark is initializing…</source>

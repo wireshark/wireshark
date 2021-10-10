@@ -803,29 +803,6 @@
         <source>Automatically detect file type</source>
         <translation>Détecter automatiquement le type de fichier</translation>
     </message>
-    <message numerus="yes">
-        <source>%1, error after %Ln packet(s)</source>
-        <oldsource>%1, error after %2 packets</oldsource>
-        <translation type="vanished">
-            <numerusform>%1, erreur après %Ln paquet</numerusform>
-            <numerusform>%1, erreur après %Ln paquets</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%1, timed out at %Ln packet(s)</source>
-        <oldsource>%1, timed out at %2 packets</oldsource>
-        <translation type="vanished">
-            <numerusform>%1, expiré à %Ln paquet</numerusform>
-            <numerusform>%1, expiré à %Ln paquets</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%1, %Ln packet(s)</source>
-        <translation type="vanished">
-            <numerusform>%1, %Ln paquet</numerusform>
-            <numerusform>%1, %Ln paquets</numerusform>
-        </translation>
-    </message>
     <message>
         <source>Prepend packets</source>
         <translation>Ajout de paquets</translation>
@@ -3105,20 +3082,6 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     <message>
         <source>Print</source>
         <translation>Imprimer</translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln client pkt(s), </source>
-        <translation type="vanished">
-            <numerusform>%n client paquet, </numerusform>
-            <numerusform>%n client paquet(s), </numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln server pkt(s), </source>
-        <translation type="vanished">
-            <numerusform>%n serveur paquet</numerusform>
-            <numerusform>%n serveur paquet(s)</numerusform>
-        </translation>
     </message>
     <message>
         <source>ASCII</source>

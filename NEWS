@@ -1,7 +1,6 @@
-Wireshark 3.5.1 Release Notes
+Wireshark 3.6.0 Release Notes
 
- This is an experimental release intended to test new features for
- Wireshark 3.6.
+ This is the first release candidate for Wireshark 3.6.
 
  What is Wireshark?
 
@@ -123,25 +122,32 @@ Wireshark 3.5.1 Release Notes
      • The settings in the 'Import from Hex Dump' dialog is now stored
        in a profile import_hexdump.json file.
 
+     • Reload Lua plugins has been improved to properly support
+       FileHandler.
+
   New File Format Decoding Support
 
    Vector Informatik Binary Log File (BLF)
 
   New Protocol Support
 
-   Bluetooth Link Manager Protocol (BT LMP), CBOR Object Signing and
-   Encryption (COSE), E2 Application Protocol (E2AP), Event Tracing for
-   Windows (ETW), High-Performance Connectivity Tracer (HiPerConTracer),
+   5G Lawful Interception (5GLI), Bluetooth Link Manager Protocol (BT
+   LMP), CBOR Object Signing and Encryption (COSE), E2 Application
+   Protocol (E2AP), Event Tracing for Windows (ETW), EXtreme extra Eth
+   Header (EXEH), High-Performance Connectivity Tracer (HiPerConTracer),
    ISO 10681, Kerberos SPAKE, Linux psample protocol, Local Interconnect
    Network (LIN), Microsoft Task Scheduler Service, O-RAN E2AP, O-RAN
    fronthaul UC-plane (O-RAN), Opus Interactive Audio Codec (OPUS), PDU
    Transport Protocol, R09.x (R09), RDP Dynamic Channel Protocol
-   (DRDYNVC), Real-Time Publish-Subscribe Virtual Transport (RTPS-VT),
-   Real-Time Publish-Subscribe Wire Protocol (processed) (RTPS-PROC),
-   Shared Memory Communications (SMC), Signal PDU, SparkplugB, State
-   Synchronization Protocol (SSyncP), Tagged Image File Format (TIFF),
-   TP-Link Smart Home Protocol, UAVCAN DSDL, UAVCAN/CAN, Van Jacobson
-   PPP compression (VJC), and World of Warcraft World (WOWW)
+   (DRDYNVC), RDP Graphic pipeline channel Protocol (EGFX), RDP
+   Multi-transport (RDPMT), Real-Time Publish-Subscribe Virtual
+   Transport (RTPS-VT), Real-Time Publish-Subscribe Wire Protocol
+   (processed) (RTPS-PROC), Shared Memory Communications (SMC), Signal
+   PDU, SparkplugB, State Synchronization Protocol (SSyncP), Tagged
+   Image File Format (TIFF), TP-Link Smart Home Protocol, UAVCAN DSDL,
+   UAVCAN/CAN, UDP Remote Desktop Protocol (RDPUDP), Van Jacobson PPP
+   compression (VJC), World of Warcraft World (WOWW), and X2 xIRI
+   payload (xIRI)
 
   Updated Protocol Support
 
@@ -185,7 +191,7 @@ Wireshark 3.5.1 Release Notes
 
   A complete FAQ is available on the Wireshark web site[8].
 
-  Last updated 2021-10-03 09:05:36 UTC
+  Last updated 2021-10-10 09:05:44 UTC
 
  References
 

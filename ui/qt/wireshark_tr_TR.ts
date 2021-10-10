@@ -813,7 +813,7 @@
         <source>%1, timed out at %Ln packet(s)</source>
         <oldsource>%1, timed out at %2 packets</oldsource>
         <translation type="vanished">
-            <numerusform>%1, %Ln paketinde zaman aşımına uğradı</numerusform>
+            <numerusform>%1, %Ln paketi zaman aşımına uğradı</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -906,13 +906,13 @@
         <source>%1, error after %Ln data record(s)</source>
         <oldsource>%1, error after %Ln record(s)</oldsource>
         <translation>
-            <numerusform>%1, %Ln veri kaydından sonra hata</numerusform>
+            <numerusform>%1, %Ln veri kayıdından sonra hata</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%1, timed out at %Ln data record(s)</source>
         <translation>
-            <numerusform>%1, %Ln veri kaydında zaman aşımına uğradı</numerusform>
+            <numerusform>%1, %Ln veri kaydı zaman aşımına uğradı</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -2714,7 +2714,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>%Ln File(s) in Set</source>
         <oldsource>%1 File%2 in Set</oldsource>
         <translation>
-            <numerusform>Kümedeki %Ln Dosyaları</numerusform>
+            <numerusform>Kümedeki %Ln Dosya</numerusform>
         </translation>
     </message>
 </context>
@@ -3251,7 +3251,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message numerus="yes">
         <source>%Ln total stream(s).</source>
         <translation>
-            <numerusform>%Ln toplam akış.</numerusform>
+            <numerusform>%Ln akışları.</numerusform>
         </translation>
     </message>
     <message>
@@ -7144,11 +7144,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>NGAP</source>
-        <translation type="unfinished"></translation>
+        <translation>NGAP</translation>
     </message>
     <message>
         <source>NGAP Messages</source>
-        <translation type="unfinished"></translation>
+        <translation>NGAP Mesajları</translation>
     </message>
     <message>
         <source>Change the way packets are dissected</source>
@@ -8247,7 +8247,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message numerus="yes">
         <source>Delete comments from %n packet(s)</source>
         <translation>
-            <numerusform>%n paketinden() yorumları sil</numerusform>
+            <numerusform>%n paketten() yorumları sil</numerusform>
         </translation>
     </message>
     <message>
@@ -8256,7 +8256,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source> before reloading Lua plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>Lua eklentilerini yeniden yüklemeden önce</translation>
     </message>
     <message>
         <source>Please wait while Wireshark is initializing…</source>
