@@ -30,67 +30,12 @@
 #include "wsutil/strptime.h"
 #endif
 
-static gboolean
-cmp_eq(const fvalue_t *a, const fvalue_t *b)
-{
-	return ((a->value.time.secs) ==(b->value.time.secs))
-	     &&((a->value.time.nsecs)==(b->value.time.nsecs));
-}
-static gboolean
-cmp_ne(const fvalue_t *a, const fvalue_t *b)
-{
-	return (a->value.time.secs !=b->value.time.secs)
-	     ||(a->value.time.nsecs!=b->value.time.nsecs);
-}
-static gboolean
-cmp_gt(const fvalue_t *a, const fvalue_t *b)
-{
-	if (a->value.time.secs > b->value.time.secs) {
-		return TRUE;
-	}
-	if (a->value.time.secs < b->value.time.secs) {
-		return FALSE;
-	}
 
-	return a->value.time.nsecs > b->value.time.nsecs;
-}
-static gboolean
-cmp_ge(const fvalue_t *a, const fvalue_t *b)
+static int
+cmp_order(const fvalue_t *a, const fvalue_t *b)
 {
-	if (a->value.time.secs > b->value.time.secs) {
-		return TRUE;
-	}
-	if (a->value.time.secs < b->value.time.secs) {
-		return FALSE;
-	}
-
-	return a->value.time.nsecs >= b->value.time.nsecs;
+	return nstime_cmp(&(a->value.time), &(b->value.time));
 }
-static gboolean
-cmp_lt(const fvalue_t *a, const fvalue_t *b)
-{
-	if (a->value.time.secs < b->value.time.secs) {
-		return TRUE;
-	}
-	if (a->value.time.secs > b->value.time.secs) {
-		return FALSE;
-	}
-
-	return a->value.time.nsecs < b->value.time.nsecs;
-}
-static gboolean
-cmp_le(const fvalue_t *a, const fvalue_t *b)
-{
-	if (a->value.time.secs < b->value.time.secs) {
-		return TRUE;
-	}
-	if (a->value.time.secs > b->value.time.secs) {
-		return FALSE;
-	}
-
-	return a->value.time.nsecs <= b->value.time.nsecs;
-}
-
 
 /*
  * Get a nanoseconds value, starting at "p".
@@ -451,12 +396,7 @@ ftype_register_time(void)
 		{ .set_value_time = time_fvalue_set },	/* union set_value */
 		{ .get_value_ptr = value_get },		/* union get_value */
 
-		cmp_eq,
-		cmp_ne,
-		cmp_gt,
-		cmp_ge,
-		cmp_lt,
-		cmp_le,
+		cmp_order,
 		NULL,				/* cmp_bitwise_and */
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
@@ -479,12 +419,7 @@ ftype_register_time(void)
 		{ .set_value_time = time_fvalue_set },	/* union set_value */
 		{ .get_value_ptr = value_get },		/* union get_value */
 
-		cmp_eq,
-		cmp_ne,
-		cmp_gt,
-		cmp_ge,
-		cmp_lt,
-		cmp_le,
+		cmp_order,
 		NULL,				/* cmp_bitwise_and */
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */

@@ -91,40 +91,14 @@ double_val_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char
 	g_ascii_formatd(buf, size, "%." G_STRINGIFY(DBL_DIG) "g", fv->value.floating);
 }
 
-static gboolean
-cmp_eq(const fvalue_t *a, const fvalue_t *b)
+static int
+cmp_order(const fvalue_t *a, const fvalue_t *b)
 {
-	return a->value.floating == b->value.floating;
-}
-
-static gboolean
-cmp_ne(const fvalue_t *a, const fvalue_t *b)
-{
-	return a->value.floating != b->value.floating;
-}
-
-static gboolean
-cmp_gt(const fvalue_t *a, const fvalue_t *b)
-{
-	return a->value.floating > b->value.floating;
-}
-
-static gboolean
-cmp_ge(const fvalue_t *a, const fvalue_t *b)
-{
-	return a->value.floating >= b->value.floating;
-}
-
-static gboolean
-cmp_lt(const fvalue_t *a, const fvalue_t *b)
-{
-	return a->value.floating < b->value.floating;
-}
-
-static gboolean
-cmp_le(const fvalue_t *a, const fvalue_t *b)
-{
-	return a->value.floating <= b->value.floating;
+	if (a->value.floating < b->value.floating)
+		return -1;
+	if (a->value.floating > b->value.floating)
+		return 1;
+	return 0;
 }
 
 void
@@ -146,12 +120,7 @@ ftype_register_double(void)
 		{ .set_value_floating = double_fvalue_set_floating },		/* union set_value */
 		{ .get_value_floating = value_get_floating },	/* union get_value */
 
-		cmp_eq,
-		cmp_ne,
-		cmp_gt,
-		cmp_ge,
-		cmp_lt,
-		cmp_le,
+		cmp_order,
 		NULL,				/* cmp_bitwise_and */
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
@@ -175,12 +144,7 @@ ftype_register_double(void)
 		{ .set_value_floating = double_fvalue_set_floating },		/* union set_value */
 		{ .get_value_floating = value_get_floating },	/* union get_value */
 
-		cmp_eq,
-		cmp_ne,
-		cmp_gt,
-		cmp_ge,
-		cmp_lt,
-		cmp_le,
+		cmp_order,
 		NULL,				/* cmp_bitwise_and */
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */

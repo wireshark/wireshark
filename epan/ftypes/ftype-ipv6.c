@@ -100,8 +100,8 @@ value_get(fvalue_t *fv)
 static const guint8 bitmasks[9] =
 	{ 0x00, 0x80, 0xc0, 0xe0, 0xf0, 0xf8, 0xfc, 0xfe, 0xff };
 
-static gint
-cmp_compare(const fvalue_t *fv_a, const fvalue_t *fv_b)
+static int
+cmp_order(const fvalue_t *fv_a, const fvalue_t *fv_b)
 {
 	const ipv6_addr_and_prefix *a = &(fv_a->value.ipv6);
 	const ipv6_addr_and_prefix *b = &(fv_b->value.ipv6);
@@ -130,42 +130,6 @@ cmp_compare(const fvalue_t *fv_a, const fvalue_t *fv_b)
 			return byte_a - byte_b;
 	}
 	return 0;
-}
-
-static gboolean
-cmp_eq(const fvalue_t *fv_a, const fvalue_t *fv_b)
-{
-	return (cmp_compare(fv_a, fv_b) == 0);
-}
-
-static gboolean
-cmp_ne(const fvalue_t *fv_a, const fvalue_t *fv_b)
-{
-	return (cmp_compare(fv_a, fv_b) != 0);
-}
-
-static gboolean
-cmp_gt(const fvalue_t *fv_a, const fvalue_t *fv_b)
-{
-	return (cmp_compare(fv_a, fv_b) > 0);
-}
-
-static gboolean
-cmp_ge(const fvalue_t *fv_a, const fvalue_t *fv_b)
-{
-	return (cmp_compare(fv_a, fv_b) >= 0);
-}
-
-static gboolean
-cmp_lt(const fvalue_t *fv_a, const fvalue_t *fv_b)
-{
-	return (cmp_compare(fv_a, fv_b) < 0);
-}
-
-static gboolean
-cmp_le(const fvalue_t *fv_a, const fvalue_t *fv_b)
-{
-	return (cmp_compare(fv_a, fv_b) <= 0);
 }
 
 static gboolean
@@ -225,12 +189,7 @@ ftype_register_ipv6(void)
 		{ .set_value_bytes = ipv6_fvalue_set },	/* union set_value */
 		{ .get_value_ptr = value_get },		/* union get_value */
 
-		cmp_eq,
-		cmp_ne,
-		cmp_gt,
-		cmp_ge,
-		cmp_lt,
-		cmp_le,
+		cmp_order,
 		cmp_bitwise_and,
 		NULL, 				/* XXX, cmp_contains, needed? ipv4 doesn't support it */
 		NULL,				/* cmp_matches */

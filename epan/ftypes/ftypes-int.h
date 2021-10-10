@@ -61,7 +61,9 @@ typedef guint64 (*FvalueGetUnsignedInteger64Func)(fvalue_t*);
 typedef gint64 (*FvalueGetSignedInteger64Func)(fvalue_t*);
 typedef double (*FvalueGetFloatingFunc)(fvalue_t*);
 
-typedef gboolean (*FvalueCmp)(const fvalue_t*, const fvalue_t*);
+typedef int (*FvalueCmp)(const fvalue_t*, const fvalue_t*);
+typedef gboolean (*FvalueBitwiseAnd)(const fvalue_t*, const fvalue_t*);
+typedef gboolean (*FvalueContains)(const fvalue_t*, const fvalue_t*);
 typedef gboolean (*FvalueMatches)(const fvalue_t*, const GRegex*);
 
 typedef guint (*FvalueLen)(fvalue_t*);
@@ -102,14 +104,9 @@ struct _ftype_t {
 		FvalueGetFloatingFunc	get_value_floating;
 	} get_value;
 
-	FvalueCmp		cmp_eq;
-	FvalueCmp		cmp_ne;
-	FvalueCmp		cmp_gt;
-	FvalueCmp		cmp_ge;
-	FvalueCmp		cmp_lt;
-	FvalueCmp		cmp_le;
-	FvalueCmp		cmp_bitwise_and;
-	FvalueCmp		cmp_contains;
+	FvalueCmp		cmp_order;
+	FvalueBitwiseAnd	cmp_bitwise_and;
+	FvalueContains		cmp_contains;
 	FvalueMatches		cmp_matches;
 
 	FvalueLen		len;

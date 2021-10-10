@@ -119,70 +119,17 @@ val_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf, 
  * So, for example, w.x.y.z/32 eq w.x.y.0/24 is TRUE.
  */
 
-static gboolean
-cmp_eq(const fvalue_t *fv_a, const fvalue_t *fv_b)
+static int
+cmp_order(const fvalue_t *fv_a, const fvalue_t *fv_b)
 {
 	guint32		addr_a, addr_b, nmask;
 
 	nmask = MIN(fv_a->value.ipv4.nmask, fv_b->value.ipv4.nmask);
 	addr_a = fv_a->value.ipv4.addr & nmask;
 	addr_b = fv_b->value.ipv4.addr & nmask;
-	return (addr_a == addr_b);
-}
-
-static gboolean
-cmp_ne(const fvalue_t *fv_a, const fvalue_t *fv_b)
-{
-	guint32		addr_a, addr_b, nmask;
-
-	nmask = MIN(fv_a->value.ipv4.nmask, fv_b->value.ipv4.nmask);
-	addr_a = fv_a->value.ipv4.addr & nmask;
-	addr_b = fv_b->value.ipv4.addr & nmask;
-	return (addr_a != addr_b);
-}
-
-static gboolean
-cmp_gt(const fvalue_t *fv_a, const fvalue_t *fv_b)
-{
-	guint32		addr_a, addr_b, nmask;
-
-	nmask = MIN(fv_a->value.ipv4.nmask, fv_b->value.ipv4.nmask);
-	addr_a = fv_a->value.ipv4.addr & nmask;
-	addr_b = fv_b->value.ipv4.addr & nmask;
-	return (addr_a > addr_b);
-}
-
-static gboolean
-cmp_ge(const fvalue_t *fv_a, const fvalue_t *fv_b)
-{
-	guint32		addr_a, addr_b, nmask;
-
-	nmask = MIN(fv_a->value.ipv4.nmask, fv_b->value.ipv4.nmask);
-	addr_a = fv_a->value.ipv4.addr & nmask;
-	addr_b = fv_b->value.ipv4.addr & nmask;
-	return (addr_a >= addr_b);
-}
-
-static gboolean
-cmp_lt(const fvalue_t *fv_a, const fvalue_t *fv_b)
-{
-	guint32		addr_a, addr_b, nmask;
-
-	nmask = MIN(fv_a->value.ipv4.nmask, fv_b->value.ipv4.nmask);
-	addr_a = fv_a->value.ipv4.addr & nmask;
-	addr_b = fv_b->value.ipv4.addr & nmask;
-	return (addr_a < addr_b);
-}
-
-static gboolean
-cmp_le(const fvalue_t *fv_a, const fvalue_t *fv_b)
-{
-	guint32		addr_a, addr_b, nmask;
-
-	nmask = MIN(fv_a->value.ipv4.nmask, fv_b->value.ipv4.nmask);
-	addr_a = fv_a->value.ipv4.addr & nmask;
-	addr_b = fv_b->value.ipv4.addr & nmask;
-	return (addr_a <= addr_b);
+	if (addr_a == addr_b)
+		return 0;
+	return addr_a < addr_b ? -1 : 1;
 }
 
 static gboolean
@@ -224,12 +171,7 @@ ftype_register_ipv4(void)
 		{ .set_value_uinteger = set_uinteger },	/* union set_value */
 		{ .get_value_uinteger = value_get },	/* union get_value */
 
-		cmp_eq,
-		cmp_ne,
-		cmp_gt,
-		cmp_ge,
-		cmp_lt,
-		cmp_le,
+		cmp_order,
 		cmp_bitwise_and,
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */

@@ -173,7 +173,7 @@ ftype_can_eq(enum ftenum ftype)
 	ftype_t	*ft;
 
 	FTYPE_LOOKUP(ftype, ft);
-	return ft->cmp_eq ? TRUE : FALSE;
+	return ft->cmp_order != NULL;
 }
 
 gboolean
@@ -182,7 +182,7 @@ ftype_can_ne(enum ftenum ftype)
 	ftype_t	*ft;
 
 	FTYPE_LOOKUP(ftype, ft);
-	return ft->cmp_ne ? TRUE : FALSE;
+	return ft->cmp_order != NULL;
 }
 
 gboolean
@@ -191,7 +191,7 @@ ftype_can_gt(enum ftenum ftype)
 	ftype_t	*ft;
 
 	FTYPE_LOOKUP(ftype, ft);
-	return ft->cmp_gt ? TRUE : FALSE;
+	return ft->cmp_order != NULL;
 }
 
 gboolean
@@ -200,7 +200,7 @@ ftype_can_ge(enum ftenum ftype)
 	ftype_t	*ft;
 
 	FTYPE_LOOKUP(ftype, ft);
-	return ft->cmp_ge ? TRUE : FALSE;
+	return ft->cmp_order != NULL;
 }
 
 gboolean
@@ -209,7 +209,7 @@ ftype_can_lt(enum ftenum ftype)
 	ftype_t	*ft;
 
 	FTYPE_LOOKUP(ftype, ft);
-	return ft->cmp_lt ? TRUE : FALSE;
+	return ft->cmp_order != NULL;
 }
 
 gboolean
@@ -218,7 +218,7 @@ ftype_can_le(enum ftenum ftype)
 	ftype_t	*ft;
 
 	FTYPE_LOOKUP(ftype, ft);
-	return ft->cmp_le ? TRUE : FALSE;
+	return ft->cmp_order != NULL;
 }
 
 gboolean
@@ -686,52 +686,48 @@ fvalue_get_floating(fvalue_t *fv)
 	return fv->ftype->get_value.get_value_floating(fv);
 }
 
+static inline int
+_fvalue_cmp(const fvalue_t *a, const fvalue_t *b)
+{
+	/* XXX - check compatibility of a and b */
+	ws_assert(a->ftype->cmp_order);
+	return a->ftype->cmp_order(a, b);
+}
+
 gboolean
 fvalue_eq(const fvalue_t *a, const fvalue_t *b)
 {
-	/* XXX - check compatibility of a and b */
-	ws_assert(a->ftype->cmp_eq);
-	return a->ftype->cmp_eq(a, b);
+	return _fvalue_cmp(a, b) == 0;
 }
 
 gboolean
 fvalue_ne(const fvalue_t *a, const fvalue_t *b)
 {
-	/* XXX - check compatibility of a and b */
-	ws_assert(a->ftype->cmp_ne);
-	return a->ftype->cmp_ne(a, b);
+	return _fvalue_cmp(a, b) != 0;
 }
 
 gboolean
 fvalue_gt(const fvalue_t *a, const fvalue_t *b)
 {
-	/* XXX - check compatibility of a and b */
-	ws_assert(a->ftype->cmp_gt);
-	return a->ftype->cmp_gt(a, b);
+	return _fvalue_cmp(a, b) > 0;
 }
 
 gboolean
 fvalue_ge(const fvalue_t *a, const fvalue_t *b)
 {
-	/* XXX - check compatibility of a and b */
-	ws_assert(a->ftype->cmp_ge);
-	return a->ftype->cmp_ge(a, b);
+	return _fvalue_cmp(a, b) >= 0;
 }
 
 gboolean
 fvalue_lt(const fvalue_t *a, const fvalue_t *b)
 {
-	/* XXX - check compatibility of a and b */
-	ws_assert(a->ftype->cmp_lt);
-	return a->ftype->cmp_lt(a, b);
+	return _fvalue_cmp(a, b) < 0;
 }
 
 gboolean
 fvalue_le(const fvalue_t *a, const fvalue_t *b)
 {
-	/* XXX - check compatibility of a and b */
-	ws_assert(a->ftype->cmp_le);
-	return a->ftype->cmp_le(a, b);
+	return _fvalue_cmp(a, b) <= 0;
 }
 
 gboolean

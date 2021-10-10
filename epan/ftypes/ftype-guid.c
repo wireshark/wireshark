@@ -93,16 +93,10 @@ guid_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf,
     guid_to_str_buf(&fv->value.guid, buf, size);
 }
 
-static gboolean
-cmp_eq(const fvalue_t *a, const fvalue_t *b)
+static int
+cmp_order(const fvalue_t *a, const fvalue_t *b)
 {
-    return memcmp(&a->value.guid, &b->value.guid, sizeof(e_guid_t)) == 0;
-}
-
-static gboolean
-cmp_ne(const fvalue_t *a, const fvalue_t *b)
-{
-    return memcmp(&a->value.guid, &b->value.guid, sizeof(e_guid_t)) != 0;
+    return memcmp(&a->value.guid, &b->value.guid, sizeof(e_guid_t));
 }
 
 void
@@ -124,12 +118,7 @@ ftype_register_guid(void)
         { .set_value_guid = guid_fvalue_set_guid }, /* union set_value */
         { .get_value_ptr = value_get },             /* union get_value */
 
-        cmp_eq,
-        cmp_ne,
-        NULL,
-        NULL,
-        NULL,
-        NULL,
+        cmp_order,
         NULL,
         NULL,
         NULL,                /* cmp_matches */

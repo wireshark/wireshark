@@ -525,101 +525,16 @@ slice(fvalue_t *fv, GByteArray *bytes, guint offset, guint length)
 	g_byte_array_append(bytes, data, length);
 }
 
-
-static gboolean
-cmp_eq(const fvalue_t *fv_a, const fvalue_t *fv_b)
+static int
+cmp_order(const fvalue_t *fv_a, const fvalue_t *fv_b)
 {
 	GByteArray	*a = fv_a->value.bytes;
 	GByteArray	*b = fv_b->value.bytes;
 
-	if (a->len != b->len) {
-		return FALSE;
-	}
+	if (a->len != b->len)
+		return a->len < b->len ? -1 : 1;
 
-	return (memcmp(a->data, b->data, a->len) == 0);
-}
-
-
-static gboolean
-cmp_ne(const fvalue_t *fv_a, const fvalue_t *fv_b)
-{
-	GByteArray	*a = fv_a->value.bytes;
-	GByteArray	*b = fv_b->value.bytes;
-
-	if (a->len != b->len) {
-		return TRUE;
-	}
-
-	return (memcmp(a->data, b->data, a->len) != 0);
-}
-
-
-static gboolean
-cmp_gt(const fvalue_t *fv_a, const fvalue_t *fv_b)
-{
-	GByteArray	*a = fv_a->value.bytes;
-	GByteArray	*b = fv_b->value.bytes;
-
-	if (a->len > b->len) {
-		return TRUE;
-	}
-
-	if (a->len < b->len) {
-		return FALSE;
-	}
-
-	return (memcmp(a->data, b->data, a->len) > 0);
-}
-
-static gboolean
-cmp_ge(const fvalue_t *fv_a, const fvalue_t *fv_b)
-{
-	GByteArray	*a = fv_a->value.bytes;
-	GByteArray	*b = fv_b->value.bytes;
-
-	if (a->len > b->len) {
-		return TRUE;
-	}
-
-	if (a->len < b->len) {
-		return FALSE;
-	}
-
-	return (memcmp(a->data, b->data, a->len) >= 0);
-}
-
-static gboolean
-cmp_lt(const fvalue_t *fv_a, const fvalue_t *fv_b)
-{
-	GByteArray	*a = fv_a->value.bytes;
-	GByteArray	*b = fv_b->value.bytes;
-
-	if (a->len < b->len) {
-		return TRUE;
-	}
-
-	if (a->len > b->len) {
-		return FALSE;
-	}
-
-	return (memcmp(a->data, b->data, a->len) < 0);
-}
-
-static gboolean
-cmp_le(const fvalue_t *fv_a, const fvalue_t *fv_b)
-{
-	GByteArray	*a = fv_a->value.bytes;
-	GByteArray	*b = fv_b->value.bytes;
-
-	if (a->len < b->len) {
-		return TRUE;
-	}
-
-	if (a->len > b->len) {
-		return FALSE;
-	}
-
-	return (memcmp(a->data, b->data, a->len) <= 0);
+	return memcmp(a->data, b->data, a->len);
 }
 
 static gboolean
@@ -694,12 +609,7 @@ ftype_register_bytes(void)
 		{ .set_value_byte_array = bytes_fvalue_set },	/* union set_value */
 		{ .get_value_ptr = value_get },			/* union get_value */
 
-		cmp_eq,
-		cmp_ne,
-		cmp_gt,
-		cmp_ge,
-		cmp_lt,
-		cmp_le,
+		cmp_order,
 		cmp_bitwise_and,
 		cmp_contains,
 		CMP_MATCHES,
@@ -723,12 +633,7 @@ ftype_register_bytes(void)
 		{ .set_value_byte_array = bytes_fvalue_set },	/* union set_value */
 		{ .get_value_ptr = value_get },			/* union get_value */
 
-		cmp_eq,
-		cmp_ne,
-		cmp_gt,
-		cmp_ge,
-		cmp_lt,
-		cmp_le,
+		cmp_order,
 		cmp_bitwise_and,
 		cmp_contains,
 		NULL,				/* cmp_matches */
@@ -752,12 +657,7 @@ ftype_register_bytes(void)
 		{ .set_value_bytes = ax25_fvalue_set },	/* union set_value */
 		{ .get_value_ptr = value_get },			/* union get_value */
 
-		cmp_eq,
-		cmp_ne,
-		cmp_gt,
-		cmp_ge,
-		cmp_lt,
-		cmp_le,
+		cmp_order,
 		cmp_bitwise_and,
 		cmp_contains,
 		CMP_MATCHES,
@@ -781,12 +681,7 @@ ftype_register_bytes(void)
 		{ .set_value_bytes = vines_fvalue_set },	/* union set_value */
 		{ .get_value_ptr = value_get },			/* union get_value */
 
-		cmp_eq,
-		cmp_ne,
-		cmp_gt,
-		cmp_ge,
-		cmp_lt,
-		cmp_le,
+		cmp_order,
 		cmp_bitwise_and,
 		cmp_contains,
 		CMP_MATCHES,
@@ -810,12 +705,7 @@ ftype_register_bytes(void)
 		{ .set_value_bytes = ether_fvalue_set },	/* union set_value */
 		{ .get_value_ptr = value_get },			/* union get_value */
 
-		cmp_eq,
-		cmp_ne,
-		cmp_gt,
-		cmp_ge,
-		cmp_lt,
-		cmp_le,
+		cmp_order,
 		cmp_bitwise_and,
 		cmp_contains,
 		CMP_MATCHES,
@@ -839,12 +729,7 @@ ftype_register_bytes(void)
 		{ .set_value_byte_array = oid_fvalue_set },	/* union set_value */
 		{ .get_value_ptr = value_get },			/* union get_value */
 
-		cmp_eq,
-		cmp_ne,
-		cmp_gt,
-		cmp_ge,
-		cmp_lt,
-		cmp_le,
+		cmp_order,
 		cmp_bitwise_and,
 		cmp_contains,
 		NULL,				/* cmp_matches */
@@ -868,12 +753,7 @@ ftype_register_bytes(void)
 		{ .set_value_byte_array = oid_fvalue_set },	/* union set_value */
 		{ .get_value_ptr = value_get },			/* union get_value */
 
-		cmp_eq,
-		cmp_ne,
-		cmp_gt,
-		cmp_ge,
-		cmp_lt,
-		cmp_le,
+		cmp_order,
 		cmp_bitwise_and,
 		cmp_contains,
 		NULL,				/* cmp_matches */
@@ -897,12 +777,7 @@ ftype_register_bytes(void)
 		{ .set_value_byte_array = system_id_fvalue_set }, /* union set_value */
 		{ .get_value_ptr = value_get },			/* union get_value */
 
-		cmp_eq,
-		cmp_ne,
-		cmp_gt,
-		cmp_ge,
-		cmp_lt,
-		cmp_le,
+		cmp_order,
 		cmp_bitwise_and,
 		cmp_contains,
 		NULL,				/* cmp_matches */
@@ -926,12 +801,7 @@ ftype_register_bytes(void)
 		{ .set_value_bytes = fcwwn_fvalue_set },	/* union set_value */
 		{ .get_value_ptr = value_get },			/* union get_value */
 
-		cmp_eq,
-		cmp_ne,
-		cmp_gt,
-		cmp_ge,
-		cmp_lt,
-		cmp_le,
+		cmp_order,
 		cmp_bitwise_and,
 		cmp_contains,
 		CMP_MATCHES,

@@ -224,89 +224,6 @@ cmp_eq(const fvalue_t *fv_a, const fvalue_t *fv_b)
 }
 
 static gboolean
-cmp_ne(const fvalue_t *fv_a, const fvalue_t *fv_b)
-{
-	const protocol_value_t	*a = (const protocol_value_t *)&fv_a->value.protocol;
-	const protocol_value_t	*b = (const protocol_value_t *)&fv_b->value.protocol;
-	volatile gboolean	ne = TRUE;
-
-	TRY {
-		if ((a->tvb != NULL) && (b->tvb != NULL)) {
-			guint	a_len = tvb_captured_length(a->tvb);
-
-			if (a_len == tvb_captured_length(b->tvb))
-				ne = (memcmp(tvb_get_ptr(a->tvb, 0, a_len), tvb_get_ptr(b->tvb, 0, a_len), a_len) != 0);
-		} else {
-			ne = (strcmp(a->proto_string, b->proto_string) != 0);
-		}
-	}
-	CATCH_ALL {
-		/* nothing */
-	}
-	ENDTRY;
-
-	return ne;
-}
-
-static gboolean
-cmp_gt(const fvalue_t *fv_a, const fvalue_t *fv_b)
-{
-	const protocol_value_t	*a = (const protocol_value_t *)&fv_a->value.protocol;
-	const protocol_value_t	*b = (const protocol_value_t *)&fv_b->value.protocol;
-	volatile gboolean	gt = FALSE;
-
-	TRY {
-		if ((a->tvb != NULL) && (b->tvb != NULL)) {
-			guint	a_len = tvb_captured_length(a->tvb);
-			guint	b_len = tvb_captured_length(b->tvb);
-
-			if (a_len > b_len) {
-				gt = TRUE;
-			} else if (a_len == b_len) {
-				gt = (memcmp(tvb_get_ptr(a->tvb, 0, a_len), tvb_get_ptr(b->tvb, 0, a_len), a_len) > 0);
-			}
-		} else {
-			gt = (strcmp(a->proto_string, b->proto_string) > 0);
-		}
-	}
-	CATCH_ALL {
-		/* nothing */
-	}
-	ENDTRY;
-
-	return gt;
-}
-
-static gboolean
-cmp_ge(const fvalue_t *fv_a, const fvalue_t *fv_b)
-{
-	const protocol_value_t	*a = (const protocol_value_t *)&fv_a->value.protocol;
-	const protocol_value_t	*b = (const protocol_value_t *)&fv_b->value.protocol;
-	volatile gboolean	ge = FALSE;
-
-	TRY {
-		if ((a->tvb != NULL) && (b->tvb != NULL)) {
-			guint	a_len = tvb_captured_length(a->tvb);
-			guint	b_len = tvb_captured_length(b->tvb);
-
-			if (a_len > b_len) {
-				ge = TRUE;
-			} else if (a_len == b_len) {
-				ge = (memcmp(tvb_get_ptr(a->tvb, 0, a_len), tvb_get_ptr(b->tvb, 0, a_len), a_len) >= 0);
-			}
-		} else {
-			ge = (strcmp(a->proto_string, b->proto_string) >= 0);
-		}
-	}
-	CATCH_ALL {
-		/* nothing */
-	}
-	ENDTRY;
-
-	return ge;
-}
-
-static gboolean
 cmp_lt(const fvalue_t *fv_a, const fvalue_t *fv_b)
 {
 	const protocol_value_t	*a = (const protocol_value_t *)&fv_a->value.protocol;
@@ -335,33 +252,14 @@ cmp_lt(const fvalue_t *fv_a, const fvalue_t *fv_b)
 	return lt;
 }
 
-static gboolean
-cmp_le(const fvalue_t *fv_a, const fvalue_t *fv_b)
+static int
+cmp_order(const fvalue_t *fv_a, const fvalue_t *fv_b)
 {
-	const protocol_value_t	*a = (const protocol_value_t *)&fv_a->value.protocol;
-	const protocol_value_t	*b = (const protocol_value_t *)&fv_b->value.protocol;
-	volatile gboolean	le = FALSE;
-
-	TRY {
-		if ((a->tvb != NULL) && (b->tvb != NULL)) {
-			guint	a_len = tvb_captured_length(a->tvb);
-			guint	b_len = tvb_captured_length(b->tvb);
-
-			if (a_len < b_len) {
-				le = TRUE;
-			} else if (a_len == b_len) {
-				le = (memcmp(tvb_get_ptr(a->tvb, 0, a_len), tvb_get_ptr(b->tvb, 0, a_len), a_len) <= 0);
-			}
-		} else {
-			le = (strcmp(a->proto_string, b->proto_string) <= 0);
-		}
-	}
-	CATCH_ALL {
-		/* nothing */
-	}
-	ENDTRY;
-
-	return le;
+	if (cmp_lt(fv_a, fv_b))
+		return -1;
+	if (cmp_eq(fv_a, fv_b))
+		return 0;
+	return 1;
 }
 
 static gboolean
@@ -454,12 +352,7 @@ ftype_register_tvbuff(void)
 		{ .set_value_protocol = value_set },	/* union set_value */
 		{ .get_value_ptr = value_get },		/* union get_value */
 
-		cmp_eq,
-		cmp_ne,
-		cmp_gt,
-		cmp_ge,
-		cmp_lt,
-		cmp_le,
+		cmp_order,
 		NULL,				/* cmp_bitwise_and */
 		cmp_contains,
 		CMP_MATCHES,

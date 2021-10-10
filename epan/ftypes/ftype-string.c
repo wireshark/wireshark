@@ -130,41 +130,10 @@ slice(fvalue_t *fv, GByteArray *bytes, guint offset, guint length)
 	g_byte_array_append(bytes, data, length);
 }
 
-
-static gboolean
-cmp_eq(const fvalue_t *a, const fvalue_t *b)
+static int
+cmp_order(const fvalue_t *a, const fvalue_t *b)
 {
-	return (strcmp(a->value.string, b->value.string) == 0);
-}
-
-static gboolean
-cmp_ne(const fvalue_t *a, const fvalue_t *b)
-{
-	return (strcmp(a->value.string, b->value.string) != 0);
-}
-
-static gboolean
-cmp_gt(const fvalue_t *a, const fvalue_t *b)
-{
-	return (strcmp(a->value.string, b->value.string) > 0);
-}
-
-static gboolean
-cmp_ge(const fvalue_t *a, const fvalue_t *b)
-{
-	return (strcmp(a->value.string, b->value.string) >= 0);
-}
-
-static gboolean
-cmp_lt(const fvalue_t *a, const fvalue_t *b)
-{
-	return (strcmp(a->value.string, b->value.string) < 0);
-}
-
-static gboolean
-cmp_le(const fvalue_t *a, const fvalue_t *b)
-{
-	return (strcmp(a->value.string, b->value.string) <= 0);
+	return strcmp(a->value.string, b->value.string);
 }
 
 static gboolean
@@ -224,12 +193,7 @@ ftype_register_string(void)
 		{ .set_value_string = string_fvalue_set_string },	/* union set_value */
 		{ .get_value_ptr = value_get },	/* union get_value */
 
-		cmp_eq,
-		cmp_ne,
-		cmp_gt,
-		cmp_ge,
-		cmp_lt,
-		cmp_le,
+		cmp_order,
 		NULL,				/* cmp_bitwise_and */
 		cmp_contains,
 		CMP_MATCHES,
@@ -252,12 +216,7 @@ ftype_register_string(void)
 		{ .set_value_string = string_fvalue_set_string },	/* union set_value */
 		{ .get_value_ptr = value_get },	/* union get_value */
 
-		cmp_eq,
-		cmp_ne,
-		cmp_gt,
-		cmp_ge,
-		cmp_lt,
-		cmp_le,
+		cmp_order,
 		NULL,				/* cmp_bitwise_and */
 		cmp_contains,			/* cmp_contains */
 		CMP_MATCHES,
@@ -280,12 +239,7 @@ ftype_register_string(void)
 		{ .set_value_string = string_fvalue_set_string },	/* union set_value */
 		{ .get_value_ptr = value_get },	/* union get_value */
 
-		cmp_eq,
-		cmp_ne,
-		cmp_gt,
-		cmp_ge,
-		cmp_lt,
-		cmp_le,
+		cmp_order,
 		NULL,				/* cmp_bitwise_and */
 		cmp_contains,			/* cmp_contains */
 		CMP_MATCHES,
@@ -308,12 +262,7 @@ ftype_register_string(void)
 		{ .set_value_string = string_fvalue_set_string },	/* union set_value */
 		{ .get_value_ptr = value_get },	/* union get_value */
 
-		cmp_eq,
-		cmp_ne,
-		cmp_gt,
-		cmp_ge,
-		cmp_lt,
-		cmp_le,
+		cmp_order,
 		NULL,				/* cmp_bitwise_and */
 		cmp_contains,			/* cmp_contains */
 		CMP_MATCHES,
@@ -336,12 +285,7 @@ ftype_register_string(void)
 		{ .set_value_string = string_fvalue_set_string },	/* union set_value */
 		{ .get_value_ptr = value_get },	/* union get_value */
 
-		cmp_eq,
-		cmp_ne,
-		cmp_gt,
-		cmp_ge,
-		cmp_lt,
-		cmp_le,
+		cmp_order,
 		NULL,				/* cmp_bitwise_and */
 		cmp_contains,			/* cmp_contains */
 		CMP_MATCHES,

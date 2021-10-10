@@ -557,64 +557,36 @@ ipxnet_to_repr(fvalue_t *fv, ftrepr_t rtype, int field_display _U_, char *buf, u
 	uinteger_to_repr(fv, rtype, BASE_HEX, buf, size);
 }
 
-static gboolean
-cmp_eq(const fvalue_t *a, const fvalue_t *b)
+static int
+uinteger_cmp_order(const fvalue_t *a, const fvalue_t *b)
 {
-	return a->value.uinteger == b->value.uinteger;
+	if (a->value.uinteger == b->value.uinteger)
+		return 0;
+	return a->value.uinteger < b->value.uinteger ? -1 : 1;
 }
 
-static gboolean
-cmp_ne(const fvalue_t *a, const fvalue_t *b)
+static int
+sinteger_cmp_order(const fvalue_t *a, const fvalue_t *b)
 {
-	return a->value.uinteger != b->value.uinteger;
+	if (a->value.sinteger == b->value.sinteger)
+		return 0;
+	return a->value.sinteger < b->value.sinteger ? -1 : 1;
 }
 
-static gboolean
-u_cmp_gt(const fvalue_t *a, const fvalue_t *b)
+static int
+uinteger64_cmp_order(const fvalue_t *a, const fvalue_t *b)
 {
-	return a->value.uinteger > b->value.uinteger;
+	if (a->value.uinteger64 == b->value.uinteger64)
+		return 0;
+	return a->value.uinteger64 < b->value.uinteger64 ? -1 : 1;
 }
 
-static gboolean
-u_cmp_ge(const fvalue_t *a, const fvalue_t *b)
+static int
+sinteger64_cmp_order(const fvalue_t *a, const fvalue_t *b)
 {
-	return a->value.uinteger >= b->value.uinteger;
-}
-
-static gboolean
-u_cmp_lt(const fvalue_t *a, const fvalue_t *b)
-{
-	return a->value.uinteger < b->value.uinteger;
-}
-
-static gboolean
-u_cmp_le(const fvalue_t *a, const fvalue_t *b)
-{
-	return a->value.uinteger <= b->value.uinteger;
-}
-
-static gboolean
-s_cmp_gt(const fvalue_t *a, const fvalue_t *b)
-{
-	return a->value.sinteger > b->value.sinteger;
-}
-
-static gboolean
-s_cmp_ge(const fvalue_t *a, const fvalue_t *b)
-{
-	return a->value.sinteger >= b->value.sinteger;
-}
-
-static gboolean
-s_cmp_lt(const fvalue_t *a, const fvalue_t *b)
-{
-	return a->value.sinteger < b->value.sinteger;
-}
-
-static gboolean
-s_cmp_le(const fvalue_t *a, const fvalue_t *b)
-{
-	return a->value.sinteger <= b->value.sinteger;
+	if (a->value.sinteger64 == b->value.sinteger64)
+		return 0;
+	return a->value.sinteger64 < b->value.sinteger64 ? -1 : 1;
 }
 
 static gboolean
@@ -857,66 +829,6 @@ uinteger64_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display, char *bu
 }
 
 static gboolean
-cmp_eq64(const fvalue_t *a, const fvalue_t *b)
-{
-	return a->value.uinteger64 == b->value.uinteger64;
-}
-
-static gboolean
-cmp_ne64(const fvalue_t *a, const fvalue_t *b)
-{
-	return a->value.uinteger64 != b->value.uinteger64;
-}
-
-static gboolean
-u_cmp_gt64(const fvalue_t *a, const fvalue_t *b)
-{
-	return a->value.uinteger64 > b->value.uinteger64;
-}
-
-static gboolean
-u_cmp_ge64(const fvalue_t *a, const fvalue_t *b)
-{
-	return a->value.uinteger64 >= b->value.uinteger64;
-}
-
-static gboolean
-u_cmp_lt64(const fvalue_t *a, const fvalue_t *b)
-{
-	return a->value.uinteger64 < b->value.uinteger64;
-}
-
-static gboolean
-u_cmp_le64(const fvalue_t *a, const fvalue_t *b)
-{
-	return a->value.uinteger64 <= b->value.uinteger64;
-}
-
-static gboolean
-s_cmp_gt64(const fvalue_t *a, const fvalue_t *b)
-{
-	return (gint64)a->value.sinteger64 > (gint64)b->value.sinteger64;
-}
-
-static gboolean
-s_cmp_ge64(const fvalue_t *a, const fvalue_t *b)
-{
-	return (gint64)a->value.sinteger64 >= (gint64)b->value.sinteger64;
-}
-
-static gboolean
-s_cmp_lt64(const fvalue_t *a, const fvalue_t *b)
-{
-	return (gint64)a->value.sinteger64 < (gint64)b->value.sinteger64;
-}
-
-static gboolean
-s_cmp_le64(const fvalue_t *a, const fvalue_t *b)
-{
-	return (gint64)a->value.sinteger64 <= (gint64)b->value.sinteger64;
-}
-
-static gboolean
 cmp_bitwise_and64(const fvalue_t *a, const fvalue_t *b)
 {
 	return ((a->value.uinteger64 & b->value.uinteger64) != 0);
@@ -943,33 +855,26 @@ boolean_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *b
 	*buf   = '\0';
 }
 
-/* Checks for equality with zero or non-zero */
-static gboolean
-bool_eq(const fvalue_t *a, const fvalue_t *b)
+/* False is less than True (arbitrary):
+ * A  B   cmp(A, B)
+ * T  T   0
+ * F  F   0
+ * F  T  -1
+ * T  F   1
+ */
+static int
+bool_cmp_order(const fvalue_t *a, const fvalue_t *b)
 {
 	if (a->value.uinteger64) {
 		if (b->value.uinteger64) {
-			return TRUE;
+			return 0;
 		}
-		else {
-			return FALSE;
-		}
+		return 1;
 	}
-	else {
-		if (b->value.uinteger64) {
-			return FALSE;
-		}
-		else {
-			return TRUE;
-		}
+	if (b->value.uinteger64) {
+		return -1;
 	}
-}
-
-/* Checks for inequality with zero or non-zero */
-static gboolean
-bool_ne(const fvalue_t *a, const fvalue_t *b)
-{
-	return (!bool_eq(a,b));
+	return 0;
 }
 
 /* EUI64-specific */
@@ -1047,12 +952,7 @@ ftype_register_integers(void)
 		{ .set_value_uinteger = set_uinteger },	/* union set_value */
 		{ .get_value_uinteger = get_uinteger },	/* union get_value */
 
-		cmp_eq,
-		cmp_ne,
-		u_cmp_gt,
-		u_cmp_ge,
-		u_cmp_lt,
-		u_cmp_le,
+		uinteger_cmp_order,
 		cmp_bitwise_and,
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
@@ -1075,12 +975,7 @@ ftype_register_integers(void)
 		{ .set_value_uinteger = set_uinteger },	/* union set_value */
 		{ .get_value_uinteger = get_uinteger },	/* union get_value */
 
-		cmp_eq,
-		cmp_ne,
-		u_cmp_gt,
-		u_cmp_ge,
-		u_cmp_lt,
-		u_cmp_le,
+		uinteger_cmp_order,
 		cmp_bitwise_and,
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
@@ -1103,12 +998,7 @@ ftype_register_integers(void)
 		{ .set_value_uinteger = set_uinteger },	/* union set_value */
 		{ .get_value_uinteger = get_uinteger },	/* union get_value */
 
-		cmp_eq,
-		cmp_ne,
-		u_cmp_gt,
-		u_cmp_ge,
-		u_cmp_lt,
-		u_cmp_le,
+		uinteger_cmp_order,
 		cmp_bitwise_and,
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
@@ -1131,12 +1021,7 @@ ftype_register_integers(void)
 		{ .set_value_uinteger = set_uinteger },	/* union set_value */
 		{ .get_value_uinteger = get_uinteger },	/* union get_value */
 
-		cmp_eq,
-		cmp_ne,
-		u_cmp_gt,
-		u_cmp_ge,
-		u_cmp_lt,
-		u_cmp_le,
+		uinteger_cmp_order,
 		cmp_bitwise_and,
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
@@ -1159,12 +1044,7 @@ ftype_register_integers(void)
 		{ .set_value_uinteger = set_uinteger },	/* union set_value */
 		{ .get_value_uinteger = get_uinteger },	/* union get_value */
 
-		cmp_eq,
-		cmp_ne,
-		u_cmp_gt,
-		u_cmp_ge,
-		u_cmp_lt,
-		u_cmp_le,
+		uinteger_cmp_order,
 		cmp_bitwise_and,
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
@@ -1187,12 +1067,7 @@ ftype_register_integers(void)
 		{ .set_value_uinteger64 = set_uinteger64 },	/* union set_value */
 		{ .get_value_uinteger64 = get_uinteger64 },	/* union get_value */
 
-		cmp_eq64,
-		cmp_ne64,
-		u_cmp_gt64,
-		u_cmp_ge64,
-		u_cmp_lt64,
-		u_cmp_le64,
+		uinteger64_cmp_order,
 		cmp_bitwise_and64,
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
@@ -1215,12 +1090,7 @@ ftype_register_integers(void)
 		{ .set_value_uinteger64 = set_uinteger64 },	/* union set_value */
 		{ .get_value_uinteger64 = get_uinteger64 },	/* union get_value */
 
-		cmp_eq64,
-		cmp_ne64,
-		u_cmp_gt64,
-		u_cmp_ge64,
-		u_cmp_lt64,
-		u_cmp_le64,
+		uinteger64_cmp_order,
 		cmp_bitwise_and64,
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
@@ -1243,12 +1113,7 @@ ftype_register_integers(void)
 		{ .set_value_uinteger64 = set_uinteger64 },	/* union set_value */
 		{ .get_value_uinteger64 = get_uinteger64 },	/* union get_value */
 
-		cmp_eq64,
-		cmp_ne64,
-		u_cmp_gt64,
-		u_cmp_ge64,
-		u_cmp_lt64,
-		u_cmp_le64,
+		uinteger64_cmp_order,
 		cmp_bitwise_and64,
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
@@ -1271,12 +1136,7 @@ ftype_register_integers(void)
 		{ .set_value_uinteger64 = set_uinteger64 },	/* union set_value */
 		{ .get_value_uinteger64 = get_uinteger64 },	/* union get_value */
 
-		cmp_eq64,
-		cmp_ne64,
-		u_cmp_gt64,
-		u_cmp_ge64,
-		u_cmp_lt64,
-		u_cmp_le64,
+		uinteger64_cmp_order,
 		cmp_bitwise_and64,
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
@@ -1299,12 +1159,7 @@ ftype_register_integers(void)
 		{ .set_value_sinteger = set_sinteger },	/* union set_value */
 		{ .get_value_sinteger = get_sinteger },	/* union get_value */
 
-		cmp_eq,
-		cmp_ne,
-		s_cmp_gt,
-		s_cmp_ge,
-		s_cmp_lt,
-		s_cmp_le,
+		sinteger_cmp_order,
 		cmp_bitwise_and,
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
@@ -1327,12 +1182,7 @@ ftype_register_integers(void)
 		{ .set_value_sinteger = set_sinteger },	/* union set_value */
 		{ .get_value_sinteger = get_sinteger },	/* union get_value */
 
-		cmp_eq,
-		cmp_ne,
-		s_cmp_gt,
-		s_cmp_ge,
-		s_cmp_lt,
-		s_cmp_le,
+		sinteger_cmp_order,
 		cmp_bitwise_and,
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
@@ -1355,12 +1205,7 @@ ftype_register_integers(void)
 		{ .set_value_sinteger = set_sinteger },	/* union set_value */
 		{ .get_value_sinteger = get_sinteger },	/* union get_value */
 
-		cmp_eq,
-		cmp_ne,
-		s_cmp_gt,
-		s_cmp_ge,
-		s_cmp_lt,
-		s_cmp_le,
+		sinteger_cmp_order,
 		cmp_bitwise_and,
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
@@ -1383,12 +1228,7 @@ ftype_register_integers(void)
 		{ .set_value_sinteger = set_sinteger },	/* union set_value */
 		{ .get_value_sinteger = get_sinteger },	/* union get_value */
 
-		cmp_eq,
-		cmp_ne,
-		s_cmp_gt,
-		s_cmp_ge,
-		s_cmp_lt,
-		s_cmp_le,
+		sinteger_cmp_order,
 		cmp_bitwise_and,
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
@@ -1411,12 +1251,7 @@ ftype_register_integers(void)
 		{ .set_value_sinteger64 = set_sinteger64 },	/* union set_value */
 		{ .get_value_sinteger64 = get_sinteger64 },	/* union get_value */
 
-		cmp_eq64,
-		cmp_ne64,
-		s_cmp_gt64,
-		s_cmp_ge64,
-		s_cmp_lt64,
-		s_cmp_le64,
+		sinteger64_cmp_order,
 		cmp_bitwise_and64,
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
@@ -1439,12 +1274,7 @@ ftype_register_integers(void)
 		{ .set_value_sinteger64 = set_sinteger64 },	/* union set_value */
 		{ .get_value_sinteger64 = get_sinteger64 },	/* union get_value */
 
-		cmp_eq64,
-		cmp_ne64,
-		s_cmp_gt64,
-		s_cmp_ge64,
-		s_cmp_lt64,
-		s_cmp_le64,
+		sinteger64_cmp_order,
 		cmp_bitwise_and64,
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
@@ -1467,12 +1297,7 @@ ftype_register_integers(void)
 		{ .set_value_sinteger64 = set_sinteger64 },	/* union set_value */
 		{ .get_value_sinteger64 = get_sinteger64 },	/* union get_value */
 
-		cmp_eq64,
-		cmp_ne64,
-		s_cmp_gt64,
-		s_cmp_ge64,
-		s_cmp_lt64,
-		s_cmp_le64,
+		sinteger64_cmp_order,
 		cmp_bitwise_and64,
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
@@ -1495,12 +1320,7 @@ ftype_register_integers(void)
 		{ .set_value_sinteger64 = set_sinteger64 },	/* union set_value */
 		{ .get_value_sinteger64 = get_sinteger64 },	/* union get_value */
 
-		cmp_eq64,
-		cmp_ne64,
-		s_cmp_gt64,
-		s_cmp_ge64,
-		s_cmp_lt64,
-		s_cmp_le64,
+		sinteger64_cmp_order,
 		cmp_bitwise_and64,
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
@@ -1523,12 +1343,7 @@ ftype_register_integers(void)
 		{ .set_value_uinteger64 = set_uinteger64 },	/* union set_value */
 		{ .get_value_uinteger64 = get_uinteger64 },	/* union get_value */
 
-		bool_eq,			/* cmp_eq */
-		bool_ne,			/* cmp_ne */
-		NULL,				/* cmp_gt */
-		NULL,				/* cmp_ge */
-		NULL,				/* cmp_lt */
-		NULL,				/* cmp_le */
+		bool_cmp_order,			/* cmp_eq */
 		NULL,				/* cmp_bitwise_and */
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
@@ -1552,12 +1367,7 @@ ftype_register_integers(void)
 		{ .set_value_uinteger = set_uinteger },	/* union set_value */
 		{ .get_value_uinteger = get_uinteger },	/* union get_value */
 
-		cmp_eq,
-		cmp_ne,
-		u_cmp_gt,
-		u_cmp_ge,
-		u_cmp_lt,
-		u_cmp_le,
+		uinteger_cmp_order,
 		cmp_bitwise_and,
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
@@ -1581,12 +1391,7 @@ ftype_register_integers(void)
 		{ .set_value_uinteger = set_uinteger },	/* union set_value */
 		{ .get_value_uinteger = get_uinteger },	/* union get_value */
 
-		cmp_eq,
-		cmp_ne,
-		u_cmp_gt,
-		u_cmp_ge,
-		u_cmp_lt,
-		u_cmp_le,
+		uinteger_cmp_order,
 		NULL,				/* cmp_bitwise_and */
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
@@ -1610,12 +1415,7 @@ ftype_register_integers(void)
 		{ .set_value_uinteger64 = set_uinteger64 },	/* union set_value */
 		{ .get_value_uinteger64 = get_uinteger64 },	/* union get_value */
 
-		cmp_eq64,
-		cmp_ne64,
-		u_cmp_gt64,
-		u_cmp_ge64,
-		u_cmp_lt64,
-		u_cmp_le64,
+		uinteger64_cmp_order,
 		cmp_bitwise_and64,
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
