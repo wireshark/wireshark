@@ -6417,7 +6417,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Text2pcap</source>
-        <translation>Text2pcap</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Website</source>
@@ -7141,6 +7141,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>F1AP Messages</source>
         <translation>F1AP Mesajları</translation>
+    </message>
+    <message>
+        <source>NGAP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>NGAP Messages</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Change the way packets are dissected</source>
@@ -8248,7 +8256,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source> before reloading Lua plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>Lua eklentilerini yeniden yüklemeden önce</translation>
     </message>
     <message>
         <source>Please wait while Wireshark is initializing…</source>

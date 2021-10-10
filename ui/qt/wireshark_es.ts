@@ -6374,7 +6374,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Text2pcap</source>
-        <translation>Text2pcap</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Website</source>
@@ -7097,6 +7097,14 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>F1AP Messages</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>NGAP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>NGAP Messages</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

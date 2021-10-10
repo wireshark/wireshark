@@ -12,6 +12,7 @@ bittorrent.desegment: FALSE
 bthci_acl.hci_acl_reassembly: FALSE
 bthci_iso.hci_iso_reassembly: FALSE
 bmp.desegment: FALSE
+bpv7.bp_reassemble_payload: FALSE
 c1222.desegment: FALSE
 capwap.reassemble: FALSE
 cast.reassembly: FALSE
