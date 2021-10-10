@@ -198,68 +198,37 @@ slice(fvalue_t *fv, GByteArray *bytes, guint offset, guint length)
 	}
 }
 
-static gboolean
-cmp_eq(const fvalue_t *fv_a, const fvalue_t *fv_b)
+static int
+_tvbcmp(tvbuff_t *a, tvbuff_t *b)
 {
-	const protocol_value_t	*a = (const protocol_value_t *)&fv_a->value.protocol;
-	const protocol_value_t	*b = (const protocol_value_t *)&fv_b->value.protocol;
-	volatile gboolean	eq = FALSE;
+	guint	a_len = tvb_captured_length(a);
+	guint	b_len = tvb_captured_length(b);
 
-	TRY {
-		if ((a->tvb != NULL) && (b->tvb != NULL)) {
-			guint	a_len = tvb_captured_length(a->tvb);
-
-			if (a_len == tvb_captured_length(b->tvb))
-				eq = (memcmp(tvb_get_ptr(a->tvb, 0, a_len), tvb_get_ptr(b->tvb, 0, a_len), a_len) == 0);
-		} else {
-			eq = (strcmp(a->proto_string, b->proto_string) == 0);
-		}
-	}
-	CATCH_ALL {
-		/* nothing */
-	}
-	ENDTRY;
-
-	return eq;
-}
-
-static gboolean
-cmp_lt(const fvalue_t *fv_a, const fvalue_t *fv_b)
-{
-	const protocol_value_t	*a = (const protocol_value_t *)&fv_a->value.protocol;
-	const protocol_value_t	*b = (const protocol_value_t *)&fv_b->value.protocol;
-	volatile gboolean	lt = FALSE;
-
-	TRY {
-		if ((a->tvb != NULL) && (b->tvb != NULL)) {
-			guint	a_len = tvb_captured_length(a->tvb);
-			guint	b_len = tvb_captured_length(b->tvb);
-
-			if (a_len < b_len) {
-				lt = TRUE;
-			} else if (a_len == b_len) {
-				lt = (memcmp(tvb_get_ptr(a->tvb, 0, a_len), tvb_get_ptr(b->tvb, 0, a_len), a_len) < 0);
-			}
-		} else {
-			lt = (strcmp(a->proto_string, b->proto_string) < 0);
-		}
-	}
-	CATCH_ALL {
-		/* nothing */
-	}
-	ENDTRY;
-
-	return lt;
+	if (a_len != b_len)
+		return a_len < b_len ? -1 : 1;
+	return memcmp(tvb_get_ptr(a, 0, a_len), tvb_get_ptr(b, 0, a_len), a_len);
 }
 
 static int
 cmp_order(const fvalue_t *fv_a, const fvalue_t *fv_b)
 {
-	if (cmp_lt(fv_a, fv_b))
-		return -1;
-	if (cmp_eq(fv_a, fv_b))
-		return 0;
-	return 1;
+	const protocol_value_t	*a = (const protocol_value_t *)&fv_a->value.protocol;
+	const protocol_value_t	*b = (const protocol_value_t *)&fv_b->value.protocol;
+	volatile int		c = 0;
+
+	TRY {
+		if ((a->tvb != NULL) && (b->tvb != NULL)) {
+			c = _tvbcmp(a->tvb, b->tvb);
+		} else {
+			c = strcmp(a->proto_string, b->proto_string);
+		}
+	}
+	CATCH_ALL {
+		/* nothing */
+	}
+	ENDTRY;
+
+	return c;
 }
 
 static gboolean
