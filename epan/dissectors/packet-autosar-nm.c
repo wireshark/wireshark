@@ -337,14 +337,14 @@ user_data_post_update_cb(void)
 
       if (user_data_fields[i].udf_mask == 0 || user_data_fields[i].udf_length <= 0 || user_data_fields[i].udf_length>8) {
         dynamic_hf[i].hfinfo.name = g_strdup(user_data_fields[i].udf_name);
-        dynamic_hf[i].hfinfo.abbrev = g_strdup_printf("nm.user_data.%s", user_data_fields[i].udf_name);
+        dynamic_hf[i].hfinfo.abbrev = g_strdup_printf("autosar-nm.user_data.%s", user_data_fields[i].udf_name);
         dynamic_hf[i].hfinfo.type = FT_BYTES;
         dynamic_hf[i].hfinfo.display = BASE_NONE;
         dynamic_hf[i].hfinfo.bitmask = 0;
         dynamic_hf[i].hfinfo.blurb = g_strdup(user_data_fields[i].udf_desc);
       } else {
         dynamic_hf[i].hfinfo.name = g_strdup(user_data_fields[i].udf_value_desc);
-        dynamic_hf[i].hfinfo.abbrev = g_strdup_printf("nm.user_data.%s.%s", user_data_fields[i].udf_name, user_data_fields[i].udf_value_desc);
+        dynamic_hf[i].hfinfo.abbrev = g_strdup_printf("autosar-nm.user_data.%s.%s", user_data_fields[i].udf_name, user_data_fields[i].udf_value_desc);
         dynamic_hf[i].hfinfo.type = FT_BOOLEAN;
         dynamic_hf[i].hfinfo.display = 8 * (user_data_fields[i].udf_length);
         /* dynamic_hf[i].hfinfo.bitmask = 0; */
