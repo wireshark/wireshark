@@ -70,8 +70,8 @@ FileSetDialog::FileSetDialog(QWidget *parent) :
 
     close_button_ = fs_ui_->buttonBox->button(QDialogButtonBox::Close);
 
-    connect(fs_ui_->fileSetTree->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
-            this, SLOT(selectionChanged(QItemSelection,QItemSelection)));
+    connect(fs_ui_->fileSetTree->selectionModel(), &QItemSelectionModel::selectionChanged,
+            this, &FileSetDialog::selectionChanged);
 
     beginAddFile();
     addFile();

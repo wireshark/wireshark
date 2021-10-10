@@ -197,8 +197,8 @@ ServiceResponseTimeDialog::ServiceResponseTimeDialog(QWidget &parent, CaptureFil
         setDisplayFilter(filter);
     }
 
-    connect(statsTreeWidget(), SIGNAL(itemChanged(QTreeWidgetItem*,int)),
-            this, SLOT(statsTreeWidgetItemChanged()));
+    connect(statsTreeWidget(), &QTreeWidget::itemChanged,
+            this, &ServiceResponseTimeDialog::statsTreeWidgetItemChanged);
 }
 
 ServiceResponseTimeDialog::~ServiceResponseTimeDialog()

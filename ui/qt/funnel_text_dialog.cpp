@@ -126,7 +126,7 @@ void FunnelTextDialog::addButton(funnel_bt_t *funnel_button, QString label)
     QPushButton *button = new QPushButton(label);
     ui->buttonBox->addButton(button, QDialogButtonBox::ActionRole);
     text_button_to_funnel_button_[button] = funnel_button;
-    connect(button, SIGNAL(clicked(bool)), this, SLOT(buttonClicked()));
+    connect(button, &QPushButton::clicked, this, &FunnelTextDialog::buttonClicked);
 }
 
 void FunnelTextDialog::buttonClicked()

@@ -104,15 +104,12 @@ BluetoothDeviceDialog::BluetoothDeviceDialog(QWidget &parent, CaptureFile &cf, Q
     WiresharkDialog(parent, cf),
     ui(new Ui::BluetoothDeviceDialog)
 {
-    QString titleBdAddr;
-    QString titleName;
-
     ui->setupUi(this);
     resize(parent.width() * 4 / 10, parent.height() * 2 / 2);
 
     setTitle(bdAddr, name);
 
-    connect(ui->tableWidget, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(tableContextMenu(const QPoint &)));
+    connect(ui->tableWidget, &QTableWidget::customContextMenuRequested, this, &BluetoothDeviceDialog::tableContextMenu);
 
     ui->tableWidget->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
 

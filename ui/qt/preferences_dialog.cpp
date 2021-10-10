@@ -132,7 +132,7 @@ PreferencesDialog::PreferencesDialog(QWidget *parent) :
     pd_ui_->filterExpressonsFrame->setUat(uat_get_table_by_name("Display expressions"));
     pd_ui_->expertFrame->setUat(uat_get_table_by_name("Expert Info Severity Level Configuration"));
 
-    connect(pd_ui_->prefsView, SIGNAL(goToPane(QString)), this, SLOT(selectPane(QString)));
+    connect(pd_ui_->prefsView, &PrefModuleTreeView::goToPane, this, &PreferencesDialog::selectPane);
 
     /* Create a single-shot timer for debouncing calls to
      * updateSearchLineEdit() */

@@ -338,7 +338,7 @@ void ExtcapOptionsDialog::updateWidgets()
             if (argument->isRequired() && ! argument->isValid())
                 allowStart = false;
 
-            connect(argument, SIGNAL(valueChanged()), this, SLOT(anyValueChanged()));
+            connect(argument, &ExtcapArgument::valueChanged, this, &ExtcapOptionsDialog::anyValueChanged);
 
             counter++;
         }

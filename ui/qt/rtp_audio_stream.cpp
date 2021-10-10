@@ -719,7 +719,7 @@ bool RtpAudioStream::prepareForPlay(QAudioDeviceInfo out_device)
         temp_file_->seek(start_pos);
         if (audio_output_) delete audio_output_;
         audio_output_ = new QAudioOutput(out_device, format, this);
-        connect(audio_output_, SIGNAL(stateChanged(QAudio::State)), this, SLOT(outputStateChanged(QAudio::State)));
+        connect(audio_output_, &QAudioOutput::stateChanged, this, &RtpAudioStream::outputStateChanged);
         return true;
     } else {
         // Report stopped audio if start position is later than stream ends

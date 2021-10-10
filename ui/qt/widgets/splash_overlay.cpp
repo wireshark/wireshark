@@ -82,8 +82,7 @@ SplashOverlay::SplashOverlay(QWidget *parent) :
                       )
                   .arg(QColor(tango_aluminium_4).name()));
 
-    connect(wsApp, SIGNAL(splashUpdate(register_action_e,const char*)),
-            this, SLOT(splashUpdate(register_action_e,const char*)));
+    connect(wsApp, &WiresharkApplication::splashUpdate, this, &SplashOverlay::splashUpdate);
 }
 
 SplashOverlay::~SplashOverlay()

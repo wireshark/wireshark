@@ -17,7 +17,7 @@
 #include "wireshark_application.h"
 
 // Helper object used for sending close signal to open dialogs from a C function
-static FunnelStringDialogHelper dialogHelper;
+static FunnelStringDialogHelper dialog_helper_;
 
 const int min_edit_width_ = 20; // em widths
 FunnelStringDialog::FunnelStringDialog(const QString title, const QList<QPair<QString, QString>> field_list, funnel_dlg_cb_t dialog_cb, void* dialog_cb_data, funnel_dlg_cb_data_free_t dialog_data_free_cb) :
@@ -88,7 +88,7 @@ void FunnelStringDialog::on_buttonBox_accepted()
 void FunnelStringDialog::stringDialogNew(const QString title, QList<QPair<QString, QString>> field_list, funnel_dlg_cb_t dialog_cb, void* dialog_cb_data, funnel_dlg_cb_data_free_t dialog_cb_data_free)
 {
     FunnelStringDialog* fsd = new FunnelStringDialog(title, field_list, dialog_cb, dialog_cb_data, dialog_cb_data_free);
-    connect(&dialogHelper, SIGNAL(closeDialogs()), fsd, SLOT(close()));
+    connect(&dialog_helper_, &FunnelStringDialogHelper::closeDialogs, fsd, &FunnelStringDialog::close);
     fsd->show();
 }
 
@@ -114,5 +114,5 @@ void string_dialog_new(const gchar* title, const gchar** field_names, const gcha
 
 void string_dialogs_close(void)
 {
-    dialogHelper.emitCloseDialogs();
+    dialog_helper_.emitCloseDialogs();
 }
