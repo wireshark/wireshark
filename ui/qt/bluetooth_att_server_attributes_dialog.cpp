@@ -59,10 +59,10 @@ BluetoothAttServerAttributesDialog::BluetoothAttServerAttributesDialog(QWidget &
     ui->setupUi(this);
     loadGeometry(parent.width() * 4 / 5, parent.height() * 2 / 3);
 
-    connect(ui->tableTreeWidget, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(tableContextMenu(const QPoint &)));
-    connect(ui->interfaceComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(interfaceCurrentIndexChanged(int)));
-    connect(ui->deviceComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(deviceCurrentIndexChanged(int)));
-    connect(ui->removeDuplicatesCheckBox, SIGNAL(stateChanged(int)), this, SLOT(removeDuplicatesStateChanged(int)));
+    connect(ui->tableTreeWidget, &QTreeWidget::customContextMenuRequested, this, &BluetoothAttServerAttributesDialog::tableContextMenu);
+    connect(ui->interfaceComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &BluetoothAttServerAttributesDialog::interfaceCurrentIndexChanged);
+    connect(ui->deviceComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &BluetoothAttServerAttributesDialog::deviceCurrentIndexChanged);
+    connect(ui->removeDuplicatesCheckBox, &QCheckBox::stateChanged, this, &BluetoothAttServerAttributesDialog::removeDuplicatesStateChanged);
 
     ui->tableTreeWidget->sortByColumn(column_number_handle, Qt::AscendingOrder);
 

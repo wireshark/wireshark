@@ -229,9 +229,10 @@ MulticastStatisticsDialog::MulticastStatisticsDialog(QWidget &parent, CaptureFil
             << buffer_alarm_threshold_le_ << stream_empty_speed_le_
             << total_empty_speed_le_;
 
-    foreach (QWidget *line_edit, line_edits_) {
+    foreach (QWidget *w, line_edits_) {
+        QLineEdit *line_edit = qobject_cast<QLineEdit *>(w);
         line_edit->setMinimumWidth(one_em * 5);
-        connect(line_edit, SIGNAL(textEdited(QString)), this, SLOT(updateWidgets()));
+        connect(line_edit, &QLineEdit::textEdited, this, &MulticastStatisticsDialog::updateWidgets);
     }
 
     addFilterActions();
@@ -240,8 +241,8 @@ MulticastStatisticsDialog::MulticastStatisticsDialog(QWidget &parent, CaptureFil
         setDisplayFilter(filter);
     }
 
-    connect(this, SIGNAL(updateFilter(QString)),
-            this, SLOT(updateMulticastParameters()));
+    connect(this, &MulticastStatisticsDialog::updateFilter,
+            this, &MulticastStatisticsDialog::updateMulticastParameters);
 
     /* Register the tap listener */
     register_tap_listener_mcast_stream(tapinfo_);

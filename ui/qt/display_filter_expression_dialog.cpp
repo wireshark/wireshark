@@ -87,8 +87,8 @@ DisplayFilterExpressionDialog::DisplayFilterExpressionDialog(QWidget *parent) :
 
     value_label_pfx_ = ui->valueLabel->text();
 
-    connect(ui->valueLineEdit, SIGNAL(textEdited(QString)), this, SLOT(updateWidgets()));
-    connect(ui->rangeLineEdit, SIGNAL(textEdited(QString)), this, SLOT(updateWidgets()));
+    connect(ui->valueLineEdit, &QLineEdit::textEdited, this, &DisplayFilterExpressionDialog::updateWidgets);
+    connect(ui->rangeLineEdit, &QLineEdit::textEdited, this, &DisplayFilterExpressionDialog::updateWidgets);
 
     // Trigger updateWidgets
     ui->fieldTreeWidget->selectionModel()->clear();

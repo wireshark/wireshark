@@ -87,8 +87,8 @@ void PreferenceEditorFrame::editPreference(preference *pref, pref_module *module
     switch (prefs_get_type(pref_)) {
     case PREF_UINT:
     case PREF_DECODE_AS_UINT:
-        connect(ui->preferenceLineEdit, SIGNAL(textChanged(QString)),
-                this, SLOT(uintLineEditTextEdited(QString)));
+        connect(ui->preferenceLineEdit, &SyntaxLineEdit::textChanged,
+                this, &PreferenceEditorFrame::uintLineEditTextEdited);
         show = true;
         break;
     case PREF_SAVE_FILENAME:
@@ -97,14 +97,14 @@ void PreferenceEditorFrame::editPreference(preference *pref, pref_module *module
         browse_button = true;
         // Fallthrough
     case PREF_STRING:
-        connect(ui->preferenceLineEdit, SIGNAL(textChanged(QString)),
-                this, SLOT(stringLineEditTextEdited(QString)));
+        connect(ui->preferenceLineEdit, &SyntaxLineEdit::textChanged,
+                this, &PreferenceEditorFrame::stringLineEditTextEdited);
         show = true;
         break;
     case PREF_RANGE:
     case PREF_DECODE_AS_RANGE:
-        connect(ui->preferenceLineEdit, SIGNAL(textChanged(QString)),
-                this, SLOT(rangeLineEditTextEdited(QString)));
+        connect(ui->preferenceLineEdit, &SyntaxLineEdit::textChanged,
+                this, &PreferenceEditorFrame::rangeLineEditTextEdited);
         show = true;
         break;
     default:

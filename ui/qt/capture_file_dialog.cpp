@@ -603,7 +603,7 @@ void CaptureFileDialog::addPreview(QVBoxLayout &v_box) {
     preview_grid->addWidget(&preview_first_elapsed_, 3, 1);
     preview_labels_ << lbl << &preview_first_elapsed_;
 
-    connect(this, SIGNAL(currentChanged(const QString &)), this, SLOT(preview(const QString &)));
+    connect(this, &CaptureFileDialog::currentChanged, this, &CaptureFileDialog::preview);
 
     preview("");
 }
@@ -692,7 +692,7 @@ QDialogButtonBox *CaptureFileDialog::addHelpButton(topic_action_e help_topic)
 
     if (button_box) {
         button_box->addButton(QDialogButtonBox::Help);
-        connect(button_box, SIGNAL(helpRequested()), this, SLOT(on_buttonBox_helpRequested()));
+        connect(button_box, &QDialogButtonBox::helpRequested, this, &CaptureFileDialog::on_buttonBox_helpRequested);
     }
     return button_box;
 }
@@ -784,8 +784,8 @@ check_savability_t CaptureFileDialog::exportSelectedPackets(QString &file_name, 
     if (button_box) {
         save_bt_ = button_box->button(QDialogButtonBox::Save);
         if (save_bt_) {
-            connect(&packet_range_group_box_, SIGNAL(validityChanged(bool)),
-                    save_bt_, SLOT(setEnabled(bool)));
+            connect(&packet_range_group_box_, &PacketRangeGroupBox::validityChanged,
+                    save_bt_, &QPushButton::setEnabled);
         }
     }
 

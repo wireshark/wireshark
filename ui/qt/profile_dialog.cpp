@@ -106,10 +106,10 @@ ProfileDialog::ProfileDialog(QWidget *parent) :
 
     pd_ui_->cmbProfileTypes->addItems(ProfileSortModel::filterTypes());
 
-    connect (pd_ui_->cmbProfileTypes, SIGNAL(currentTextChanged(const QString &)),
-              this, SLOT(filterChanged(const QString &)));
-    connect (pd_ui_->lineProfileFilter, SIGNAL(textChanged(const QString &)),
-              this, SLOT(filterChanged(const QString &)));
+    connect (pd_ui_->cmbProfileTypes, &QComboBox::currentTextChanged,
+              this, &ProfileDialog::filterChanged);
+    connect (pd_ui_->lineProfileFilter, &QLineEdit::textChanged,
+              this, &ProfileDialog::filterChanged);
 
     currentItemChanged();
 
@@ -760,8 +760,8 @@ void ProfileDialog::resetTreeView()
     QItemSelectionModel *selModel = pd_ui_->profileTreeView->selectionModel();
     connect(selModel, &QItemSelectionModel::currentChanged,
             this, &ProfileDialog::currentItemChanged, Qt::QueuedConnection);
-    connect(selModel, SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
-            this, SLOT(selectionChanged()));
+    connect(selModel, &QItemSelectionModel::selectionChanged,
+            this, &ProfileDialog::selectionChanged);
 
     selectionChanged();
 

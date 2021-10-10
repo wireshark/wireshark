@@ -332,8 +332,8 @@ LBMStreamDialog::LBMStreamDialog(QWidget * parent, capture_file * cfile) :
 {
     m_ui->setupUi(this);
     m_dialog_info = new LBMStreamDialogInfo();
-    connect(this, SIGNAL(accepted()), this, SLOT(closeDialog()));
-    connect(this, SIGNAL(rejected()), this, SLOT(closeDialog()));
+    connect(this, &LBMStreamDialog::accepted, this, &LBMStreamDialog::closeDialog);
+    connect(this, &LBMStreamDialog::rejected, this, &LBMStreamDialog::closeDialog);
     fillTree();
 }
 
