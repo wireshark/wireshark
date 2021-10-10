@@ -67,11 +67,6 @@ variables:
 .if-daily-schedule:
   - if: '$CI_PIPELINE_SOURCE == "schedule" && $SCHEDULE_TYPE == "daily"'
     when: always
-# Weekly jobs. Care should be taken when changing this since the scheduler
-# often doesn't report errors.
-.if-weekly-schedule:
-  - if: '$CI_PIPELINE_SOURCE == "schedule" && $SCHEDULE_TYPE == "weekly"'
-    when: always
 # Fuzz jobs. Care should be taken when changing this since the scheduler
 # often doesn't report errors.
 .if-fuzz-schedule:
@@ -802,90 +797,6 @@ Code Lines:
         aws s3 cp "$SLOC_OUT" "$S3_DESTINATION_ANALYSIS/"
         aws s3 cp "$TOKEI_OUT" "$S3_DESTINATION_ANALYSIS/"
       fi
-
-Update Numbers:
-  extends: .build-ubuntu
-  rules: !reference [.if-weekly-schedule]
-  retry: 1
-  cache:
-  script:
-    # build-ubuntu puts us in `build`.
-    # - env | grep "^CI_" | sort
-    - DEBIAN_FRONTEND=noninteractive apt-get update
-    - DEBIAN_FRONTEND=noninteractive apt-get --yes install libwww-perl transifex-client
-    - |
-      cat > ~/.transifexrc <<FIN
-      [https://www.transifex.com]
-      api_hostname = https://api.transifex.com
-      hostname = https://www.transifex.com
-      password = $TRANSIFEX_TOKEN
-      username = api
-      FIN
-    # XXX Use a role account instead?
-    - git config user.email "gerald@wireshark.org"
-    - git config user.name "Gerald Combs"
-    - DATESTAMP=$( date +%F )
-    - MERGE_REQ_BRANCH="update-numbers-${DATESTAMP}-master"
-    - COMMIT_FILES=( "AUTHORS" "NEWS" "manuf" "services" "enterprises.tsv" "epan/dissectors/usb.c" )
-    - git checkout -b "$MERGE_REQ_BRANCH"
-    - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
-    - cmake -GNinja $CMAKE_ARGS ..
-    - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
-    - printf "\e[0Ksection_start:%s:ninja_section[collapsed=true]\r\e[0KBuilding" "$( date +%s)"
-    - ninja
-    - ninja news
-    - printf "\e[0Ksection_end:%s:ninja_section\r\e[0K" "$( date +%s)"
-    - cd ..
-    - |
-      cat > commit-message.txt <<FIN
-      [Automatic update for $DATESTAMP]
-
-      Update manuf, services enterprise numbers, translations, and other items.
-
-      FIN
-    - git --no-pager shortlog -se HEAD > ./AUTHORS.git
-    - ./tools/generate_authors.pl ./AUTHORS.src ./AUTHORS.git > ./AUTHORS
-    - ./tools/make-sminmpec.pl || echo "SMI failed." >> commit-message.txt
-    - python3 ./tools/make-manuf.py || "manuf failed." >> commit-message.txt
-    - touch -d "2 weeks ago" services
-    - ./tools/make-services.py || echo "services failed." >> commit-message.txt
-    - ./tools/make-usb.py || "USB failed." >> commit-message.txt
-    - ./tools/update-tx || "Transifex failed." >> commit-message.txt
-    - while IFS='' read -r line; do COMMIT_FILES+=("$line"); done < <( git ls-files -m ui/qt )
-    - while IFS='' read -r line; do COMMIT_FILES+=("$line"); done < <( git ls-files -m debian/po )
-    - ./tools/update-tools-help.py -p ./build/run
-    - while IFS='' read -r line; do COMMIT_FILES+=("$line"); done < <( git ls-files -m docbook/wsug_src )
-    - ./tools/make-no-reassembly-profile.py -p ./build/run
-    - git add "profiles/No Reassembly/preferences"
-    - YEAR=$( date +%Y )
-    - sed -E --in-place "s/(_[0-9]{5}_)2[0-9]{7}/\1${YEAR}0714/g" $( grep -E -r -l "[0-9]_2[0-9]{7}" doc docbook )
-    - while IFS='' read -r line; do COMMIT_FILES+=("$line"); done < <( git ls-files -m doc docbook )
-    - git add "${COMMIT_FILES[@]}"
-    - git commit --file=commit-message.txt
-    - git log --stat --max-count=1
-    # Create a patch just in case.
-    - git diff HEAD~1 > ${MERGE_REQ_BRANCH}.patch
-    # Adapted from https://about.gitlab.com/blog/2017/09/05/how-to-automatically-create-a-new-mr-on-gitlab-with-gitlab-ci/
-    - if [[ $CI_PROJECT_URL =~ ^https?://[^/]+ ]]; then API_HOST="${BASH_REMATCH[0]}/api/v4/projects/" ; fi
-    - |
-      POST_DATA=$(cat <<FIN
-      {
-        "id": ${CI_PROJECT_ID},
-        "source_branch": "${CI_COMMIT_REF_NAME}",
-        "target_branch": "master",
-        "title": "[Automatic update for ${DATESTAMP}]",
-        "remove_source_branch": true
-      }
-      FIN
-      )
-    # - echo "$POST_DATA"
-    - curl --verbose "${API_HOST}${CI_PROJECT_ID}/merge_requests"
-        --header "PRIVATE-TOKEN:${UPDATE_NUMBERS_TOKEN}"
-        --header "Content-Type:\ application/json"
-        --data "${POST_DATA}"
-  artifacts:
-    paths:
-      - update-numbers-*.patch
 
 # Fuzz TShark using ASAN and valgrind.
 .fuzz-ubuntu:
