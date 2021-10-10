@@ -421,6 +421,13 @@ static const value_string tecmp_bus_status_link_quality[] = {
 #define DATA_FLAG_CAN_ERR 0x0008
 #define DATA_FLAG_CAN_BRS 0x0010
 
+#define DATA_FLAG_FR_NF   0x0001
+#define DATA_FLAG_FR_ST   0x0002
+#define DATA_FLAG_FR_SYNC 0x0004
+#define DATA_FLAG_FR_WUS  0x0008
+#define DATA_FLAG_FR_PPI  0x0010
+#define DATA_FLAG_FR_CAS  0x0020
+
 /********* UATs *********/
 
 typedef struct _generic_one_id_string {
@@ -1315,7 +1322,7 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                     length2 = MAX(0, MIN((gint)length2, tvb_captured_length_remaining(sub_tvb, offset2)));
                 }
 
-                if (length2 > 0) {
+                if ((dataflags & DATA_FLAG_FR_NF) == 0 && length2 > 0) {
                     payload_tvb = tvb_new_subset_length(sub_tvb, offset2, length2);
 
                     if (!flexray_call_subdissectors(payload_tvb, pinfo, tree, &fr_info, heuristic_first)) {
@@ -1672,22 +1679,22 @@ proto_register_tecmp_payload(void) {
         /* FlexRay Data */
         { &hf_tecmp_payload_data_flags_nf,
             { "Null Frame", "tecmp.payload.data_flags.null_frame",
-            FT_BOOLEAN, 16, NULL, 0x0001, NULL, HFILL }},
+            FT_BOOLEAN, 16, NULL, DATA_FLAG_FR_NF, NULL, HFILL }},
         { &hf_tecmp_payload_data_flags_sf,
             { "Startup Frame", "tecmp.payload.data_flags.startup_frame",
-            FT_BOOLEAN, 16, NULL, 0x0002, NULL, HFILL }},
+            FT_BOOLEAN, 16, NULL, DATA_FLAG_FR_ST, NULL, HFILL }},
         { &hf_tecmp_payload_data_flags_sync,
             { "Sync Frame", "tecmp.payload.data_flags.sync_frame",
-            FT_BOOLEAN, 16, NULL, 0x0004, NULL, HFILL }},
+            FT_BOOLEAN, 16, NULL, DATA_FLAG_FR_SYNC, NULL, HFILL }},
         { &hf_tecmp_payload_data_flags_wus,
             { "Wakeup Symbol", "tecmp.payload.data_flags.wakeup_symbol",
-            FT_BOOLEAN, 16, NULL, 0x0008, NULL, HFILL }},
+            FT_BOOLEAN, 16, NULL, DATA_FLAG_FR_WUS, NULL, HFILL }},
         { &hf_tecmp_payload_data_flags_ppi,
             { "Payload Preamble Indicator", "tecmp.payload.data_flags.payload_preamble_indicator",
-            FT_BOOLEAN, 16, NULL, 0x0010, NULL, HFILL }},
+            FT_BOOLEAN, 16, NULL, DATA_FLAG_FR_PPI, NULL, HFILL }},
         { &hf_tecmp_payload_data_flags_cas,
             { "Collision Avoidance Symbol", "tecmp.payload.data_flags.collision_avoidance_symbol",
-            FT_BOOLEAN, 16, NULL, 0x0020, NULL, HFILL } },
+            FT_BOOLEAN, 16, NULL, DATA_FLAG_FR_CAS, NULL, HFILL } },
 
         /* UART/RS232 ASCII */
         { &hf_tecmp_payload_data_flags_dl,
