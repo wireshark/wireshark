@@ -121,9 +121,6 @@ stnode_tostr(stnode_t *node, gboolean pretty);
 
 #define stnode_todebug(node) stnode_tostr(node, FALSE)
 
-const char *
-stnode_repr(stnode_t *node);
-
 gboolean
 stnode_inside_parens(stnode_t *node);
 
