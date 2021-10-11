@@ -27,6 +27,7 @@
 #include "packet-lin.h"
 #include "packet-flexray.h"
 #include "packet-iso15765.h"
+#include "packet-autosar-ipdu-multiplexer.h"
 
 void proto_register_iso15765(void);
 void proto_reg_handoff_iso15765(void);
@@ -107,16 +108,19 @@ static const value_string iso15765_flow_status_types[] = {
 #define NORMAL_ADDRESSING 1
 #define EXTENDED_ADDRESSING 2
 
-#define FLEXRAY_ONE_BYTE_ADDRESSING 1
-#define FLEXRAY_TWO_BYTE_ADDRESSING 2
+#define ZERO_BYTE_ADDRESSING 0
+#define ONE_BYTE_ADDRESSING 1
+#define TWO_BYTE_ADDRESSING 2
 
 static gint addressing = NORMAL_ADDRESSING;
-static gint flexray_addressing = FLEXRAY_ONE_BYTE_ADDRESSING;
+static gint flexray_addressing = ONE_BYTE_ADDRESSING;
 static guint flexray_segment_size_limit = 0;
 static guint window = 8;
 static range_t *configured_can_ids= NULL;
 static range_t *configured_ext_can_ids = NULL;
 static gboolean register_lin_diag_frames = TRUE;
+static range_t *configured_ipdum_pdu_ids = NULL;
+static gint ipdum_addressing = ZERO_BYTE_ADDRESSING;
 
 /* Encoding */
 static const enum_val_t enum_addressing[] = {
@@ -127,11 +131,17 @@ static const enum_val_t enum_addressing[] = {
 
 /* Encoding */
 static const enum_val_t enum_flexray_addressing[] = {
-        {"1 Byte", "1 byte addressing", FLEXRAY_ONE_BYTE_ADDRESSING},
-        {"2 byte", "2 byte addressing", FLEXRAY_TWO_BYTE_ADDRESSING},
+        {"1 Byte", "1 byte addressing", ONE_BYTE_ADDRESSING},
+        {"2 byte", "2 byte addressing", TWO_BYTE_ADDRESSING},
         {NULL, NULL, 0}
 };
 
+static const enum_val_t enum_ipdum_addressing[] = {
+        {"0 Byte", "0 byte addressing", ZERO_BYTE_ADDRESSING},
+        {"1 Byte", "1 byte addressing", ONE_BYTE_ADDRESSING},
+        {"2 byte", "2 byte addressing", TWO_BYTE_ADDRESSING},
+        {NULL, NULL, 0}
+};
 
 static int hf_iso15765_address = -1;
 static int hf_iso15765_target_address = -1;
@@ -155,6 +165,7 @@ static int proto_iso15765 = -1;
 static dissector_handle_t iso15765_handle_can = NULL;
 static dissector_handle_t iso15765_handle_lin = NULL;
 static dissector_handle_t iso15765_handle_flexray = NULL;
+static dissector_handle_t iso15765_handle_ipdum = NULL;
 
 static dissector_table_t subdissector_table;
 
@@ -387,6 +398,14 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 bu
         iso15765data.target_address = (guint16)tmp;
         iso15765data.number_of_addresses_valid = 2;
         ae = 2 * flexray_addressing;
+    } else if (bus_type == ISO15765_TYPE_IPDUM && ipdum_addressing > 0) {
+        guint32 tmp;
+        proto_tree_add_item_ret_uint(iso15765_tree, hf_iso15765_source_address, tvb, 0, ipdum_addressing, ENC_BIG_ENDIAN, &tmp);
+        iso15765data.source_address = (guint16)tmp;
+        proto_tree_add_item_ret_uint(iso15765_tree, hf_iso15765_target_address, tvb, ipdum_addressing, ipdum_addressing, ENC_BIG_ENDIAN, &tmp);
+        iso15765data.target_address = (guint16)tmp;
+        iso15765data.number_of_addresses_valid = 2;
+        ae = 2 * ipdum_addressing;
     } else {
         if (ae != 0) {
             guint32 tmp;
@@ -690,6 +709,16 @@ dissect_iso15765_flexray(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     return dissect_iso15765(tvb, pinfo, tree, ISO15765_TYPE_FLEXRAY, id, tvb_captured_length(tvb));
 }
 
+static int
+dissect_iso15765_ipdum(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+{
+    DISSECTOR_ASSERT(data);
+
+    autosar_ipdu_multiplexer_info_t *ipdum_data = (autosar_ipdu_multiplexer_info_t *)data;
+
+    return dissect_iso15765(tvb, pinfo, tree, ISO15765_TYPE_IPDUM, ipdum_data->pdu_id, tvb_captured_length(tvb));
+}
+
 static void
 update_config(void)
 {
@@ -707,6 +736,11 @@ update_config(void)
         dissector_delete_all("can.extended_id", iso15765_handle_can);
         dissector_add_uint_range("can.id", configured_can_ids, iso15765_handle_can);
         dissector_add_uint_range("can.extended_id", configured_ext_can_ids, iso15765_handle_can);
+    }
+
+    if (iso15765_handle_ipdum != NULL) {
+        dissector_delete_all("ipdum.pdu.id", iso15765_handle_ipdum);
+        dissector_add_uint_range("ipdum.pdu.id", configured_ipdum_pdu_ids, iso15765_handle_ipdum);
     }
 }
 
@@ -1016,6 +1050,19 @@ proto_register_iso15765(void)
                                    "Segment Size Limit for first and consecutive frames of FlexRay (bytes after addresses)",
                                    10, &flexray_segment_size_limit);
 
+
+    range_convert_str(wmem_epan_scope(), &configured_ipdum_pdu_ids, "", 0xffffffff);
+    prefs_register_range_preference(iso15765_module, "ipdum.pdu.id",
+        "I-PduM PDU-IDs",
+        "I-PduM PDU-IDs",
+        &configured_ipdum_pdu_ids, 0xffffffff);
+
+    prefs_register_enum_preference(iso15765_module, "ipdum_addressing",
+        "I-PduM Addressing",
+        "Addressing of I-PduM TP. 0, 1, or 2 Bytes",
+        &ipdum_addressing,
+        enum_ipdum_addressing, TRUE);
+
     iso15765_frame_table = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_direct_hash, g_direct_equal);
 
     reassembly_table_register(&iso15765_reassembly_table, &addresses_reassembly_table_functions);
@@ -1029,6 +1076,7 @@ proto_reg_handoff_iso15765(void)
     iso15765_handle_can = create_dissector_handle(dissect_iso15765_can, proto_iso15765);
     iso15765_handle_lin = create_dissector_handle(dissect_iso15765_lin, proto_iso15765);
     iso15765_handle_flexray = create_dissector_handle(dissect_iso15765_flexray, proto_iso15765);
+    iso15765_handle_ipdum = create_dissector_handle(dissect_iso15765_ipdum, proto_iso15765);
     dissector_add_for_decode_as("can.subdissector", iso15765_handle_can);
     dissector_add_for_decode_as("flexray.subdissector", iso15765_handle_flexray);
     update_config();

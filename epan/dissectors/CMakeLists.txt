@@ -261,6 +261,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-atalk.h
 	packet-atm.h
 	packet-atn-ulcs.h
+	packet-autosar-ipdu-multiplexer.h
 	packet-bacapp.h
 	packet-bacnet.h
 	packet-ber.h
@@ -733,6 +734,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-atmtcp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-auto_rp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-autosar-nm.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-autosar-ipdu-multiplexer.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-avsp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-awdl.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ax25.c

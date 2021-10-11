@@ -131,6 +131,8 @@ static guint32 g_autosar_nm_can_id_mask = 0xffffffff;
 
 /* Relevant PDUs */
 static range_t *g_autosar_nm_pdus = NULL;
+static range_t *g_autosar_nm_ipdum_pdus = NULL;
+
 
 /*******************************
  ****** User data fields  ******
@@ -720,6 +722,11 @@ void proto_register_autosar_nm(void)
   prefs_register_range_preference(autosar_nm_module, "pdu_transport.ids", "AUTOSAR NM PDU IDs",
       "PDU Transport IDs.",
       &g_autosar_nm_pdus, 0xffffffff);
+
+  range_convert_str(wmem_epan_scope(), &g_autosar_nm_ipdum_pdus, "", 0xffffffff);
+  prefs_register_range_preference(autosar_nm_module, "ipdum.pdu.id", "AUTOSAR I-PduM PDU IDs",
+      "I-PDU Multiplexer PDU IDs.",
+      &g_autosar_nm_ipdum_pdus, 0xffffffff);
 }
 
 void proto_reg_handoff_autosar_nm(void)
@@ -739,9 +746,11 @@ void proto_reg_handoff_autosar_nm(void)
       initialized = TRUE;
   } else {
       dissector_delete_all("pdu_transport.id", nm_handle);
+      dissector_delete_all("ipdum.pdu.id", nm_handle);
   }
 
   dissector_add_uint_range("pdu_transport.id", g_autosar_nm_pdus, nm_handle);
+  dissector_add_uint_range("ipdum.pdu.id", g_autosar_nm_ipdum_pdus, nm_handle);
 }
 
 /*
