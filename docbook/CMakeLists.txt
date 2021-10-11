@@ -504,7 +504,7 @@ add_custom_target(
 set_docbook_target_properties(news)
 
 if( ASCIIDOCTOR_FOUND )
-	ASCIIDOCTOR2HTML( release-notes.adoc copy_ws.css )
+	ASCIIDOCTOR2HTML( release-notes.adoc )
 	ASCIIDOCTOR2TXT( release-notes.adoc )
 endif()
 
@@ -518,7 +518,7 @@ set_docbook_target_properties(faq)
 add_dependencies ( faq faq_html )
 
 if( ASCIIDOCTOR_FOUND )
-	ASCIIDOCTOR2HTML( faq.adoc copy_ws.css )
+	ASCIIDOCTOR2HTML( faq.adoc )
 endif()
 
 #
