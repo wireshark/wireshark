@@ -127,7 +127,6 @@ set(WSUTIL_COMMON_FILES
 	to_str.c
 	type_util.c
 	unicode-utils.c
-	glib-compat.c
 	ws_assert.c
 	ws_getopt.c
 	ws_mempbrk.c
