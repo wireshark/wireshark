@@ -181,6 +181,7 @@ dissect_bencoded_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
   offset += 1;
   while( (one_byte=tvb_get_guint8(tvb,offset)) != 'e' )
   {
+    guint start_offset = offset;
     switch( one_byte )
     {
     /* a integer */
@@ -198,13 +199,13 @@ dissect_bencoded_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
     /* a string */
     default:
       offset = dissect_bencoded_string( tvb, pinfo, sub_tree, offset, &result, FALSE, "String" );
-      if (offset == 0)
-      {
-        proto_tree_add_expert(sub_tree, pinfo, &ei_int_string, tvb, offset, -1);
-        /* if offset is not going on, there is no chance to exit the loop, then return*/
-        return 0;
-      }
       break;
+    }
+    if (offset <= start_offset)
+    {
+      proto_tree_add_expert(sub_tree, pinfo, &ei_int_string, tvb, offset, -1);
+      /* if offset is not going on, there is no chance to exit the loop, then return*/
+      return 0;
     }
   }
   proto_tree_add_item(sub_tree, hf_bencoded_list_terminator, tvb, offset, 1, ENC_ASCII|ENC_NA);
