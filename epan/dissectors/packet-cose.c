@@ -697,7 +697,7 @@ static int dissect_cose_msg_tagged(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         if (!dissector) {
             continue;
         }
-        g_log(LOG_DOMAIN, G_LOG_LEVEL_INFO, "main dissector using tag %" PRIu64, tag->value);
+        g_log(LOG_DOMAIN, G_LOG_LEVEL_INFO, "main dissector using tag %" G_GUINT64_FORMAT, tag->value);
         int sublen = call_dissector_with_data(dissector, tvb, pinfo, tree, tag);
         if (sublen > 0) {
             return sublen;
