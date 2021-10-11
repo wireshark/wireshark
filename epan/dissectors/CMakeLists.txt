@@ -584,7 +584,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-tacacs.h
 	packet-tcap.h
 	packet-tcp.h
-	packet-tcpclv3.h
+	packet-tcpcl.h
 	packet-tetra.h
 	packet-thrift.h
 	packet-tls-utils.h
@@ -1838,7 +1838,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-tapa.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-tcg-cp-oids.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-tcp.c
-	${CMAKE_CURRENT_SOURCE_DIR}/packet-tcpclv3.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-tcpcl.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-tcpros.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-tdmoe.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-tdmop.c

@@ -1617,6 +1617,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  tap_register_plugin@Base 2.5.0
  tcp_dissect_pdus@Base 1.9.1
  tcp_port_to_display@Base 1.99.2
+ tcpcl_dissect_ctx_get@Base 3.7.0
  tfs_accept_reject@Base 1.9.1
  tfs_accepted_not_accepted@Base 1.9.1
  tfs_ack_nack@Base 1.9.1

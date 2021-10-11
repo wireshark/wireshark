@@ -17,6 +17,25 @@ import sys
 
 @fixtures.mark_usefixtures('test_env')
 @fixtures.uses_fixtures
+class case_dissect_dtn_tcpcl(subprocesstest.SubprocessTestCase):
+
+    def test_tcpclv3_xfer(self, cmd_tshark, features, dirs, capture_file):
+        self.assertRun((cmd_tshark,
+                '-r', capture_file('dtn_tcpclv3_bpv6_transfer.pcapng'),
+                '-Tfields', '-etcpcl.ack.length',
+            ))
+        self.assertEqual(self.countOutput(r'1064'), 2)
+
+    def test_tcpclv4_xfer(self, cmd_tshark, features, dirs, capture_file):
+        self.assertRun((cmd_tshark,
+                '-r', capture_file('dtn_tcpclv4_bpv7_transfer.pcapng'),
+                '-Tfields', '-etcpcl.v4.xfer_ack.ack_len',
+            ))
+        self.assertEqual(self.countOutput(r'199'), 2)
+
+
+@fixtures.mark_usefixtures('test_env')
+@fixtures.uses_fixtures
 class case_dissect_bpv7(subprocesstest.SubprocessTestCase):
 
     def test_bpv7_admin_status(self, cmd_tshark, features, dirs, capture_file):
