@@ -128,6 +128,7 @@ Vector Informatik Binary Log File (BLF)
 // "Full protocol name (Abbreviation)"
 [commaize]
 --
+Allied Telesis Loop Detection Frames (AT LDF)
 Bluetooth Link Manager Protocol (BT LMP)
 Bundle Protocol version 7 (BPv7)
 Bundle Protocol version 7 Security (BPSec)

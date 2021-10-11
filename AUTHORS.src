@@ -3742,6 +3742,10 @@ Erik Rigtorp		<erik[AT]rigtorp.se> {
 	Support for reading ZSTD and LZ4 compressed files
 }
 
+Martin Mayer		<martin.mayer[AT]m2-it-solutions.de> {
+	Allied Telesis Loop Detection Frames (LDF) dissector
+}
+
 and by:
 
 Georgi Guninski		<guninski[AT]guninski.com>
