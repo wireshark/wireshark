@@ -638,7 +638,7 @@ check_drange_sanity(dfwork_t *dfw, stnode_t *st)
 		check_drange_sanity(dfw, entity1);
 	} else if (entity1) {
 		dfilter_fail(dfw, "Range is not supported for entity %s of type %s",
-					stnode_tostr(entity1), stnode_type_name(entity1));
+					stnode_todisplay(entity1), stnode_type_name(entity1));
 		THROW(TypeError);
 	} else {
 		dfilter_fail(dfw, "Range is not supported, details: " G_STRLOC " entity: NULL");

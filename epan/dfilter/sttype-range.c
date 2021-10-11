@@ -73,7 +73,7 @@ range_free(gpointer value)
 }
 
 static char *
-range_tostr(const void *data)
+range_tostr(const void *data, gboolean pretty)
 {
 	range_t	*range = (range_t*)data;
 	ws_assert_magic(range, RANGE_MAGIC);
@@ -81,7 +81,7 @@ range_tostr(const void *data)
 
 	drange_str = drange_tostr(range->drange);
 	repr = g_strdup_printf("%s[%s]",
-			stnode_tostr(range->entity),
+			stnode_tostr(range->entity, pretty),
 			drange_str);
 	g_free(drange_str);
 

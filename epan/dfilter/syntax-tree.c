@@ -88,8 +88,10 @@ _node_clear(stnode_t *node)
 	node->type = NULL;
 	node->flags = 0;
 	node->data = NULL;
-	g_free(node->repr);
-	node->repr = NULL;
+	g_free(node->repr_display);
+	node->repr_display = NULL;
+	g_free(node->repr_debug);
+	node->repr_debug = NULL;
 }
 
 void
@@ -109,7 +111,8 @@ _node_init(stnode_t *node, sttype_id_t type_id, gpointer data)
 	ws_assert(!node->type);
 	ws_assert(!node->data);
 	node->flags = 0;
-	node->repr = NULL;
+	node->repr_display = NULL;
+	node->repr_debug = NULL;
 
 	if (type_id == STTYPE_UNINITIALIZED) {
 		node->type = NULL;
@@ -256,18 +259,38 @@ stnode_set_inside_parens(stnode_t *node, gboolean inside)
 	}
 }
 
-const char *
-stnode_tostr(stnode_t *node)
+static char *
+_node_tostr(stnode_t *node, gboolean pretty)
 {
-	if (node->repr != NULL)
-		return node->repr;
+	const char *s;
 
 	if (node->type->func_tostr == NULL)
-		node->repr = g_strdup("<FIXME>");
+		s = "FIXME";
 	else
-		node->repr = node->type->func_tostr(node->data);
+		s = node->type->func_tostr(node->data, pretty);
 
-	return node->repr;
+	if (pretty)
+		return g_strdup(s);
+
+	return g_strdup_printf("%s<%s>", stnode_type_name(node), s);
+}
+
+const char *
+stnode_tostr(stnode_t *node, gboolean pretty)
+{
+	if (pretty && node->repr_display != NULL)
+		return node->repr_display;
+
+	if (!pretty && node->repr_debug != NULL)
+		return node->repr_debug;
+
+	char *str = _node_tostr(node, pretty);
+
+	if (pretty)
+		node->repr_display = str;
+	else
+		node->repr_debug = str;
+	return str;
 }
 
 static char *
@@ -276,13 +299,15 @@ sprint_node(stnode_t *node)
 	wmem_strbuf_t *buf = wmem_strbuf_new(NULL, NULL);
 
 	wmem_strbuf_append_printf(buf, "stnode <%p> = {\n", (void *)node);
-	wmem_strbuf_append_printf(buf, "\tmagic = %"PRIx32"\n", node->magic);
-	wmem_strbuf_append_printf(buf, "\ttype = %s\n", stnode_type_name(node));
-	wmem_strbuf_append_printf(buf,
-			"\tflags = %"PRIx16" (inside_parens = %s)\n",
-			node->flags, true_or_false(stnode_inside_parens(node)));
-	wmem_strbuf_append_printf(buf, "\tdata = %s<%s>\n", stnode_type_name(node), stnode_tostr(node));
-	wmem_strbuf_append_printf(buf, "}\n");
+	wmem_strbuf_append_printf(buf, "\tmagic = 0x%"PRIx32"\n", node->magic);
+	wmem_strbuf_append_printf(buf, "\ttype = <%p>\n", (void *)(node->type));
+	wmem_strbuf_append_printf(buf, "\tdata = %s\n", stnode_todebug(node));
+	wmem_strbuf_append_printf(buf, "\tflags (0x%04"PRIx16") = {\n", node->flags);
+	wmem_strbuf_append_printf(buf, "\t\tinside_parens = %s\n",
+					true_or_false(stnode_inside_parens(node)));
+	wmem_strbuf_append(buf, "\t}\n");
+	wmem_strbuf_append_printf(buf, "\ttoken_value = \"%s\"\n", stnode_token_value(node));
+	wmem_strbuf_append(buf, "}\n");
 	return wmem_strbuf_finalize(buf);
 }
 
@@ -314,7 +339,7 @@ visit_tree(wmem_strbuf_t *buf, stnode_t *node, int level)
 	stnode_t *left, *right;
 
 	if (stnode_type_id(node) == STTYPE_TEST) {
-		wmem_strbuf_append_printf(buf, "%s(", stnode_tostr(node));
+		wmem_strbuf_append_printf(buf, "%s(", stnode_todisplay(node));
 		sttype_test_get(node, NULL, &left, &right);
 		if (left && right) {
 			wmem_strbuf_append_c(buf, '\n');
@@ -337,7 +362,7 @@ visit_tree(wmem_strbuf_t *buf, stnode_t *node, int level)
 		wmem_strbuf_append(buf, ")");
 	}
 	else {
-		wmem_strbuf_append_printf(buf, "%s<%s>", stnode_type_name(node), stnode_tostr(node));
+		wmem_strbuf_append(buf, stnode_todebug(node));
 	}
 }
 

@@ -65,7 +65,7 @@ test_free(gpointer value)
 }
 
 static char *
-test_tostr(const void *value)
+test_tostr(const void *value, gboolean pretty _U_)
 {
 	const test_t *test = (const test_t *)value;
 	ws_assert_magic(test, TEST_MAGIC);

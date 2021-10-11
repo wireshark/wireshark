@@ -41,20 +41,23 @@ pcre_free(gpointer value)
 }
 
 static char *
-fvalue_tostr(const void *data)
+fvalue_tostr(const void *data, gboolean pretty)
 {
 	fvalue_t *fvalue = (fvalue_t*)data;
 
 	char *s, *repr;
 
 	s = fvalue_to_string_repr(NULL, fvalue, FTREPR_DFILTER, BASE_NONE);
-	repr = g_strdup_printf("%s[%s]", fvalue_type_name(fvalue), s);
+	if (pretty)
+		repr = g_strdup(s);
+	else
+		repr = g_strdup_printf("%s[%s]", fvalue_type_name(fvalue), s);
 	g_free(s);
 	return repr;
 }
 
 static char *
-field_tostr(const void *data)
+field_tostr(const void *data, gboolean pretty _U_)
 {
 	header_field_info *hfinfo = (header_field_info *)data;
 
@@ -62,7 +65,7 @@ field_tostr(const void *data)
 }
 
 static char *
-pcre_tostr(const void *data)
+pcre_tostr(const void *data, gboolean pretty _U_)
 {
 	const GRegex *pcre = (const GRegex *)data;
 

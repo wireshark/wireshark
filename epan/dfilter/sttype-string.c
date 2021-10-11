@@ -28,7 +28,7 @@ string_free(gpointer value)
 }
 
 static char *
-string_tostr(const void *data)
+string_tostr(const void *data, gboolean pretty _U_)
 {
 	return g_strdup(data);
 }
