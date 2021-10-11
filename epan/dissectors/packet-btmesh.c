@@ -2540,7 +2540,7 @@ static const value_string btmesh_properties_vals[] = {
     { PROPERTY_OUTPUT_CURRENT_PERCENT                                  , "Output Current Percent"                                   },
     { 0, NULL }
 };
-
+#if GCRYPT_VERSION_NUMBER >= 0x010600 /* 1.6.0 */
 static const btmesh_properties_t btmesh_properties[] = {
     { PROPERTY_ACTIVE_ENERGY_LOADSIDE                                  , CHARACTERISTIC_ENERGY32                                  },
     { PROPERTY_ACTIVE_POWER_LOADSIDE                                   , CHARACTERISTIC_POWER                                     },
@@ -2810,6 +2810,7 @@ static const bt_gatt_characteristic_t bt_gatt_characteristics[] = {
     { CHARACTERISTIC_WIND_CHILL                               , 1, NULL                                      },
     { 0, 0, NULL},
 };
+#endif /* GCRYPT_VERSION_NUMBER >= 0x010600 */
 
 /* Upper Transport Message reassembly */
 
