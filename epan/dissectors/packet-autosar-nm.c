@@ -40,10 +40,6 @@ typedef struct _user_data_field_t {
 } user_data_field_t;
 
 static int proto_autosar_nm = -1;
-static int proto_can = -1;
-static int proto_canfd = -1;
-static int proto_caneth = -1;
-static int proto_udp = -1;
 
 static dissector_handle_t nm_handle;
 static dissector_handle_t nm_handle_can;
@@ -736,11 +732,6 @@ void proto_reg_handoff_autosar_nm(void)
 
       nm_handle_can = create_dissector_handle(dissect_autosar_nm_can, proto_autosar_nm);
       dissector_add_for_decode_as("can.subdissector", nm_handle_can);
-
-      proto_can = proto_get_id_by_filter_name("can");
-      proto_canfd = proto_get_id_by_filter_name("canfd");
-      proto_caneth = proto_get_id_by_filter_name("caneth");
-      proto_udp = proto_get_id_by_filter_name("udp");
 
       /* heuristics default on since they do nothing without IDs being configured */
       heur_dissector_add("can", dissect_autosar_nm_can_heur, "AUTOSAR_NM_Heuristic", "autosar_nm_can_heur", proto_autosar_nm, HEURISTIC_ENABLE);
