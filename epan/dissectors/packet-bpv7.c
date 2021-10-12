@@ -466,7 +466,7 @@ static void file_scope_delete(gpointer ptr) {
     wmem_free(wmem_file_scope(), ptr);
 }
 
-bp_creation_ts_t * bp_creation_ts_new(wmem_allocator_t *alloc) {
+static bp_creation_ts_t * bp_creation_ts_new(wmem_allocator_t *alloc) {
     bp_creation_ts_t *obj = wmem_new0(alloc, bp_creation_ts_t);
     return obj;
 }
@@ -545,12 +545,6 @@ bp_block_canonical_t * bp_block_canonical_new(wmem_allocator_t *alloc, guint64 b
     obj->sec.data_i = wmem_map_new(alloc, g_int64_hash, g_int64_equal);
     obj->sec.data_c = wmem_map_new(alloc, g_int64_hash, g_int64_equal);
     return obj;
-}
-
-void bp_block_canonical_free(wmem_allocator_t *alloc, bp_block_canonical_t *obj) {
-    wmem_free(alloc, obj->sec.data_i);
-    wmem_free(alloc, obj->sec.data_c);
-    wmem_free(alloc, obj);
 }
 
 static guint64 * guint64_new(wmem_allocator_t *alloc, const guint64 val) {
