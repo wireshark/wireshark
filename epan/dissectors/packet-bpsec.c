@@ -254,7 +254,7 @@ static int dissect_block_asb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                     expert_add_info(pinfo, item_tgt, &ei_target_invalid);
                 }
             }
-            if (map) {
+            if (map && (data->block->block_number)) {
                 wmem_map_insert(
                     map,
                     data->block->block_number,
