@@ -742,6 +742,7 @@ Get *Wireshark* to collect various types of statistics and display the result
 in a window that updates in semi-real time.
 
 Some of the currently implemented statistics are:
+--
 
 *-z help*::
 +
