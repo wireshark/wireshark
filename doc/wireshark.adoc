@@ -741,8 +741,7 @@ Start with the given display filter.
 Get *Wireshark* to collect various types of statistics and display the result
 in a window that updates in semi-real time.
 
-Currently implemented statistics are:
---
+Some of the currently implemented statistics are:
 
 *-z help*::
 +
@@ -805,7 +804,7 @@ Example: [.nowrap]#*-z dcerpc,srt,12345778-1234-abcd-ef00-0123456789ac,1.0,ip.ad
 SRT statistics for a specific host.
 --
 
-*-z* bootp,stat[,__filter__]::
+*-z* dhcp,stat[,__filter__]::
 +
 --
 Show DHCP (BOOTP) statistics.

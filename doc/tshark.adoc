@@ -1108,8 +1108,7 @@ summary output, and must also not use the *-V* option, as that would
 cause packet detail information rather than packet summary information
 to be printed.
 
-Currently implemented statistics are:
---
+Some of the currently implemented statistics are:
 
 *-z help*::
 +
@@ -1181,7 +1180,7 @@ Example: [.nowrap]#*-z dcerpc,srt,12345778-1234-abcd-ef00-0123456789ac,1.0,ip.ad
 SRT statistics for a specific host.
 --
 
-*-z* bootp,stat[,__filter__]::
+*-z* dhcp,stat[,__filter__]::
 +
 --
 Show DHCP (BOOTP) statistics.
