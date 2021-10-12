@@ -1049,7 +1049,7 @@ typedef struct tcp_follow_tap_data
  * missing segments before them).
  */
 static gboolean
-check_follow_fragments(follow_info_t *follow_info, gboolean is_server, guint32 acknowledged, guint32 packet_num)
+check_follow_fragments(follow_info_t *follow_info, gboolean is_server, guint32 acknowledged, guint32 packet_num, gboolean use_ack)
 {
     GList *fragment_entry;
     follow_record_t *fragment, *follow_record;
@@ -1127,7 +1127,7 @@ check_follow_fragments(follow_info_t *follow_info, gboolean is_server, guint32 a
         }
     }
 
-    if( GT_SEQ(acknowledged, lowest_seq) ) {
+    if( use_ack && GT_SEQ(acknowledged, lowest_seq) ) {
         /* There are frames missing in the capture file that were seen
          * by the receiving host. Add dummy stream chunk with the data
          * "[xxx bytes missing in capture file]".
@@ -1185,7 +1185,7 @@ follow_tcp_tap_listener(void *tapdata, packet_info *pinfo,
     * seen by the receiving host (Fixes bug 592).
     */
     if (follow_info->fragments[!is_server] != NULL) {
-        while (check_follow_fragments(follow_info, !is_server, follow_data->tcph->th_ack, pinfo->fd->num));
+        while (check_follow_fragments(follow_info, !is_server, follow_data->tcph->th_ack, pinfo->fd->num, TRUE));
     }
 
     /*
@@ -1240,7 +1240,7 @@ follow_tcp_tap_listener(void *tapdata, packet_info *pinfo,
         follow_info->payload = g_list_prepend(follow_info->payload, follow_record);
 
         /* done with the packet, see if it caused a fragment to fit */
-        while(check_follow_fragments(follow_info, is_server, 0, pinfo->fd->num));
+        while(check_follow_fragments(follow_info, is_server, 0, pinfo->fd->num, FALSE));
     } else {
         /* Out of order packet (more preceding segments are expected). */
         follow_info->fragments[is_server] = g_list_append(follow_info->fragments[is_server], follow_record);
