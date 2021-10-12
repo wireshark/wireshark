@@ -1390,7 +1390,7 @@ static int dissect_bp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
         bp_block_canonical_t *block = wmem_list_frame_data(it);
 
         // Payload block requirements
-        if (*(block->type_code) == BP_BLOCKTYPE_PAYLOAD) {
+        if (block->type_code && (*(block->type_code) == BP_BLOCKTYPE_PAYLOAD)) {
             // must be last block (i.e. next is NULL)
             if (wmem_list_frame_next(it)) {
                 expert_add_info(pinfo, block->item_block, &ei_block_payload_index);

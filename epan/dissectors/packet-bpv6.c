@@ -2072,6 +2072,8 @@ dissect_bpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     col_clear(pinfo->cinfo,COL_INFO);
 
     ti_bundle_protocol = proto_tree_add_item(tree, proto_bundle, tvb, offset, -1, ENC_NA);
+    // identify parent proto version
+    proto_item_append_text(ti_bundle_protocol, " Version %d", version);
 
     bundle_tree = proto_item_add_subtree(ti_bundle_protocol, ett_bundle);
 
