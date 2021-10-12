@@ -276,6 +276,7 @@
 #define PROTOCOL_BINARY_CMD_SUBDOC_MULTI_LOOKUP     0xd0
 #define PROTOCOL_BINARY_CMD_SUBDOC_MULTI_MUTATION   0xd1
 #define PROTOCOL_BINARY_CMD_SUBDOC_GET_COUNT        0xd2
+#define PROTOCOL_BINARY_CMD_SUBDOC_REPLACE_BODY_WITH_XATTR 0xd3
 
 /* DCP commands */
 #define PROTOCOL_BINARY_DCP_OPEN_CONNECTION         0x50
@@ -848,6 +849,7 @@ static const value_string opcode_vals[] = {
   { PROTOCOL_BINARY_CMD_SUBDOC_MULTI_LOOKUP,        "Subdoc Multipath Lookup"  },
   { PROTOCOL_BINARY_CMD_SUBDOC_MULTI_MUTATION,      "Subdoc Multipath Mutation"},
   { PROTOCOL_BINARY_CMD_SUBDOC_GET_COUNT,           "Subdoc Get Count"         },
+  { PROTOCOL_BINARY_CMD_SUBDOC_REPLACE_BODY_WITH_XATTR, "Subdoc Replace Body With Xattr"},
   { PROTOCOL_BINARY_CMD_SCRUB,                      "Scrub"                    },
   { PROTOCOL_BINARY_CMD_ISASL_REFRESH,              "isasl Refresh"            },
   { PROTOCOL_BINARY_CMD_SSL_CERTS_REFRESH,          "SSL Certificates Refresh" },
