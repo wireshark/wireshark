@@ -115,6 +115,9 @@
 #define PROTOCOL_BINARY_RESPONSE_SUBDOC_XATTR_CANT_MODIFY_VATTR    0xd2
 #define PROTOCOL_BINARY_RESPONSE_SUBDOC_MULTI_PATH_FAILURE_DELETED 0xd3
 #define PROTOCOL_BINARY_RESPONSE_SUBDOC_INVALID_XATTR_ORDER        0xd4
+#define PROTOCOL_BINARY_RESPONSE_SUBDOC_XATTR_UNKNOWN_VATTR_MACRO  0xd5
+#define PROTOCOL_BINARY_RESPONSE_SUBDOC_CAN_ONLY_REVIVE_DELETED_DOCUMENTS 0xd6
+#define PROTOCOL_BINARY_RESPONSE_SUBDOC_DELETED_DOCUMENT_CANT_HAVE_VALUE  0xd7
 
  /* Command Opcodes */
 #define PROTOCOL_BINARY_CMD_GET                     0x00
@@ -675,6 +678,12 @@ static const value_string status_vals[] = {
     "Subdoc: Specified key was found as a deleted document, but one or more path operations failed."},
   { PROTOCOL_BINARY_RESPONSE_SUBDOC_INVALID_XATTR_ORDER,
     "Subdoc: According to the spec all xattr commands should come first, followed by the commands for the document body."},
+  { PROTOCOL_BINARY_RESPONSE_SUBDOC_XATTR_UNKNOWN_VATTR_MACRO,
+    "Subdoc: The server does not know about this virtual macro."},
+  { PROTOCOL_BINARY_RESPONSE_SUBDOC_CAN_ONLY_REVIVE_DELETED_DOCUMENTS,
+    "Subdoc: The document isn't dead (and we wanted to revive the document)."},
+  { PROTOCOL_BINARY_RESPONSE_SUBDOC_DELETED_DOCUMENT_CANT_HAVE_VALUE,
+    "Subdoc: A deleted document can't have a user value."},
   { 0, NULL }
 };
 
