@@ -1,6 +1,7 @@
 /* packet-bt-utp.c
  * Routines for BT-UTP dissection
  * Copyright 2011, Xiao Xiangquan <xiaoxiangquan@gmail.com>
+ * Copyright 2021, John Thacker <johnthacker@gmail.com>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -14,6 +15,10 @@
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/prefs.h>
+#include <epan/proto_data.h>
+
+#include "packet-udp.h"
+#include "packet-bt-utp.h"
 
 void proto_register_bt_utp(void);
 void proto_reg_handoff_bt_utp(void);
@@ -135,6 +140,7 @@ static int hf_bt_utp_extension_bitmask = -1;
 static int hf_bt_utp_extension_unknown = -1;
 static int hf_bt_utp_connection_id_v0 = -1;
 static int hf_bt_utp_connection_id_v1 = -1;
+static int hf_bt_utp_stream = -1;
 static int hf_bt_utp_timestamp_sec = -1;
 static int hf_bt_utp_timestamp_us = -1;
 static int hf_bt_utp_timestamp_diff_us = -1;
@@ -149,6 +155,106 @@ static gint ett_bt_utp_extension = -1;
 
 static gboolean enable_version0 = FALSE;
 static guint max_window_size = V1_MAX_WINDOW_SIZE;
+
+static guint32 bt_utp_stream_count = 0;
+
+typedef struct {
+  guint32 stream;
+
+#if 0
+  /* XXX: Some other things to add in later. The flow will contain
+   * multisegment PDU handling, base sequence numbers, etc. */
+  utp_flow_t flow[2];
+  nstime_t ts_first;
+  nstime_t ts_prev;
+  guint8 conversation_completeness;
+#endif
+} utp_stream_info_t;
+
+/* Per-packet header information. */
+typedef struct {
+  guint8  type;
+  gboolean v0;
+  guint32 connection; /* The prelease "V0" version is 32 bit */
+  guint32 stream;
+  guint16 seq;
+  guint16 ack;
+  guint32 seglen; /* reported length remaining */
+} utp_info_t;
+
+static utp_stream_info_t*
+get_utp_stream_info(packet_info *pinfo, utp_info_t *utp_info)
+{
+  conversation_t* conv;
+  utp_stream_info_t *stream_info;
+  guint32 id_up, id_down;
+
+  /* Handle connection ID wrapping correctly. (Mainline libutp source
+   * does not appear to do this, probably fails to connect if the random
+   * connection ID is GMAX_UINT16 and tries again.)
+   */
+  if (utp_info->v0) {
+    id_up = utp_info->connection+1;
+    id_down = utp_info->connection-1;
+  } else {
+    id_up = (guint16)(utp_info->connection+1);
+    id_down = (guint16)(utp_info->connection-1);
+  }
+
+  if (utp_info->type == ST_SYN) {
+    /* SYN packets are special, they have the connection ID for the other
+     * side, and allow us to know both.
+     */
+    conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, ENDPOINT_BT_UTP,
+ id_up, utp_info->connection, 0);
+    if (!conv) {
+      /* XXX: A SYN for between the same pair of hosts with a duplicate
+       * connection ID in the same direction is almost surely a retransmission
+       * (unless there's a client that doesn't actually generate random IDs.)
+       * We could check to see if we've gotten a FIN or RST on that same
+       * connection, and also could do like TCP and see if the initial sequence
+       * number matches. (The latter still doesn't help if the client also
+       * doesn't start with random sequence numbers.)
+       */
+      conv = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst, ENDPOINT_BT_UTP, id_up, utp_info->connection, 0);
+    }
+  } else {
+    /* For non-SYN packets, we know our connection ID, but we don't know if
+     * the other side has our ID+1 (src initiated the connection) or our ID-1
+     * (dst initiated). We also don't want find_conversation() to accidentally
+     * call conversation_set_port2() with the wrong ID. So first we see if
+     * we have a wildcarded conversation around (if we've seen previous
+     * non-SYN packets from our current direction but none in the other.)
+     */
+    conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, ENDPOINT_BT_UTP, utp_info->connection, 0, NO_PORT_B);
+    if (!conv) {
+      /* Do we have a complete conversation originated by our src, or
+       * possibly a wildcarded conversation originated in this direction
+       * (but we saw a non-SYN for the non-initiating side first)? */
+      conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, ENDPOINT_BT_UTP, utp_info->connection, id_up, 0);
+      if (!conv) {
+        /* As above, but dst initiated? */
+        conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, ENDPOINT_BT_UTP, utp_info->connection, id_down, 0);
+        if (!conv) {
+          /* Didn't find it, so create a new wildcarded conversation. When we
+           * get a packet for the other direction, find_conversation() above
+           * will set port2 with the other connection ID.
+           */
+          conv = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst, ENDPOINT_BT_UTP, utp_info->connection, 0, NO_PORT2);
+        }
+      }
+    }
+  }
+
+  stream_info = (utp_stream_info_t *)conversation_get_proto_data(conv, proto_bt_utp);
+  if (!stream_info) {
+    stream_info = wmem_new0(wmem_file_scope(), utp_stream_info_t);
+    stream_info->stream = bt_utp_stream_count++;
+    conversation_add_proto_data(conv, proto_bt_utp, stream_info);
+  }
+
+  return stream_info;
+}
 
 static gint
 get_utp_version(tvbuff_t *tvb) {
@@ -220,8 +326,18 @@ get_utp_version(tvbuff_t *tvb) {
 static int
 dissect_utp_header_v0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint8 *extension_type)
 {
-    /* "Original" (V0) */
-  proto_tree_add_item(tree, hf_bt_utp_connection_id_v0, tvb, offset, 4, ENC_BIG_ENDIAN);
+  /* "Original" (V0) */
+  utp_info_t        *p_utp_info = NULL;
+  utp_stream_info_t *stream_info = NULL;
+
+  proto_item     *ti;
+  guint32 type, connection, win, seq, ack;
+
+  p_utp_info = wmem_new(pinfo->pool, utp_info_t);
+  p_utp_info->v0 = TRUE;
+  p_add_proto_data(pinfo->pool, pinfo, proto_bt_utp, 0, p_utp_info);
+
+  proto_tree_add_item_ret_uint(tree, hf_bt_utp_connection_id_v0, tvb, offset, 4, ENC_BIG_ENDIAN, &connection);
   offset += 4;
   proto_tree_add_item(tree, hf_bt_utp_timestamp_sec, tvb, offset, 4, ENC_BIG_ENDIAN);
   offset += 4;
@@ -229,19 +345,37 @@ dissect_utp_header_v0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
   offset += 4;
   proto_tree_add_item(tree, hf_bt_utp_timestamp_diff_us, tvb, offset, 4, ENC_BIG_ENDIAN);
   offset += 4;
-  proto_tree_add_item(tree, hf_bt_utp_wnd_size_v0, tvb, offset, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_uint(tree, hf_bt_utp_wnd_size_v0, tvb, offset, 1, ENC_BIG_ENDIAN, &win);
   offset += 1;
   proto_tree_add_item(tree, hf_bt_utp_next_extension_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-
   *extension_type = tvb_get_guint8(tvb, offset);
   offset += 1;
-  proto_tree_add_item(tree, hf_bt_utp_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
-  col_append_fstr(pinfo->cinfo, COL_INFO, " Type: %s", val_to_str(tvb_get_guint8(tvb, offset), bt_utp_type_vals, "Unknown %d"));
+  proto_tree_add_item_ret_uint(tree, hf_bt_utp_flags, tvb, offset, 1, ENC_BIG_ENDIAN, &type);
   offset += 1;
+
+  col_append_fstr(pinfo->cinfo, COL_INFO, "Connection ID:%d [%s]", connection, val_to_str(type, bt_utp_type_vals, "Unknown %d"));
+  p_utp_info->type = type;
+  p_utp_info->connection = connection;
+
   proto_tree_add_item(tree, hf_bt_utp_seq_nr, tvb, offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
   proto_tree_add_item(tree, hf_bt_utp_ack_nr, tvb, offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
+
+  proto_tree_add_item_ret_uint(tree, hf_bt_utp_seq_nr, tvb, offset, 2, ENC_BIG_ENDIAN, &seq);
+  col_append_str_uint(pinfo->cinfo, COL_INFO, "Seq", seq, " ");
+  p_utp_info->seq = seq;
+  offset += 2;
+  proto_tree_add_item_ret_uint(tree, hf_bt_utp_ack_nr, tvb, offset, 2, ENC_BIG_ENDIAN, &ack);
+  col_append_str_uint(pinfo->cinfo, COL_INFO, "Ack", ack, " ");
+  p_utp_info->ack = ack;
+  offset += 2;
+  col_append_str_uint(pinfo->cinfo, COL_INFO, "Win", win, " ");
+
+  stream_info = get_utp_stream_info(pinfo, p_utp_info);
+  ti = proto_tree_add_uint(tree, hf_bt_utp_stream, tvb, offset, 0, stream_info->stream);
+  p_utp_info->stream = stream_info->stream;
+  proto_item_set_generated(ti);
 
   return offset;
 }
@@ -250,26 +384,55 @@ static int
 dissect_utp_header_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint8 *extension_type)
 {
   /* V1 */
+  utp_info_t        *p_utp_info = NULL;
+  utp_stream_info_t *stream_info = NULL;
+
+  proto_item     *ti;
+
+  guint32 type, connection, win, seq, ack;
+
+  p_utp_info = wmem_new(pinfo->pool, utp_info_t);
+  p_utp_info->v0 = FALSE;
+  p_add_proto_data(pinfo->pool, pinfo, proto_bt_utp, 0, p_utp_info);
+
   proto_tree_add_item(tree, hf_bt_utp_ver, tvb, offset, 1, ENC_BIG_ENDIAN);
-  proto_tree_add_item(tree, hf_bt_utp_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-  col_append_fstr(pinfo->cinfo, COL_INFO, " Type: %s", val_to_str((tvb_get_guint8(tvb, offset) >> 4), bt_utp_type_vals, "Unknown %d"));
+  proto_tree_add_item_ret_uint(tree, hf_bt_utp_type, tvb, offset, 1, ENC_BIG_ENDIAN, &type);
   offset += 1;
   proto_tree_add_item(tree, hf_bt_utp_next_extension_type, tvb, offset, 1, ENC_BIG_ENDIAN);
   *extension_type = tvb_get_guint8(tvb, offset);
   offset += 1;
-  proto_tree_add_item(tree, hf_bt_utp_connection_id_v1, tvb, offset, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_uint(tree, hf_bt_utp_connection_id_v1, tvb, offset, 2, ENC_BIG_ENDIAN, &connection);
   offset += 2;
+
+  col_append_fstr(pinfo->cinfo, COL_INFO, "Connection ID:%d [%s]", connection, val_to_str(type, bt_utp_type_vals, "Unknown %d"));
+  p_utp_info->type = type;
+  p_utp_info->connection = connection;
+
   proto_tree_add_item(tree, hf_bt_utp_timestamp_us, tvb, offset, 4, ENC_BIG_ENDIAN);
   offset += 4;
   proto_tree_add_item(tree, hf_bt_utp_timestamp_diff_us, tvb, offset, 4, ENC_BIG_ENDIAN);
   offset += 4;
-  proto_tree_add_item(tree, hf_bt_utp_wnd_size_v1, tvb, offset, 4, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_uint(tree, hf_bt_utp_wnd_size_v1, tvb, offset, 4, ENC_BIG_ENDIAN, &win);
   offset += 4;
-  proto_tree_add_item(tree, hf_bt_utp_seq_nr, tvb, offset, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_uint(tree, hf_bt_utp_seq_nr, tvb, offset, 2, ENC_BIG_ENDIAN, &seq);
+  col_append_str_uint(pinfo->cinfo, COL_INFO, "Seq", seq, " ");
+  p_utp_info->seq = seq;
   offset += 2;
-  proto_tree_add_item(tree, hf_bt_utp_ack_nr, tvb, offset, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_uint(tree, hf_bt_utp_ack_nr, tvb, offset, 2, ENC_BIG_ENDIAN, &ack);
+  col_append_str_uint(pinfo->cinfo, COL_INFO, "Ack", ack, " ");
+  p_utp_info->ack = ack;
   offset += 2;
+  col_append_str_uint(pinfo->cinfo, COL_INFO, "Win", win, " ");
 
+  stream_info = get_utp_stream_info(pinfo, p_utp_info);
+  ti = proto_tree_add_uint(tree, hf_bt_utp_stream, tvb, offset, 0, stream_info->stream);
+  p_utp_info->stream = stream_info->stream;
+  proto_item_set_generated(ti);
+
+  /* XXX: Multisegment PDUs are the top priority to add, but a number of
+   * other features in the TCP dissector would be useful- relative sequence
+   * numbers, conversation completeness, maybe even tracking SACKs.
+   */
   return offset;
 }
 
@@ -362,10 +525,7 @@ dissect_bt_utp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
     /* set the protocol column */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "BT-uTP");
-    /* set the info column */
-    col_set_str( pinfo->cinfo, COL_INFO, "uTorrent Transport Protocol" );
-
-    len_tvb = tvb_reported_length(tvb);
+    col_clear(pinfo->cinfo, COL_INFO);
 
     /* Determine header version */
 
@@ -382,9 +542,13 @@ dissect_bt_utp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
     offset = dissect_utp_extension(tvb, pinfo, sub_tree, offset, &extension_type);
 
-    len_tvb = tvb_captured_length_remaining(tvb, offset);
-    if(len_tvb > 0)
+    len_tvb = tvb_reported_length_remaining(tvb, offset);
+    if(len_tvb > 0) {
+      col_append_str_uint(pinfo->cinfo, COL_INFO, "Len", len_tvb, " ");
       proto_tree_add_item(sub_tree, hf_bt_utp_data, tvb, offset, len_tvb, ENC_NA);
+      utp_info_t *p_utp_info = (utp_info_t *)p_get_proto_data(pinfo->pool, pinfo, proto_bt_utp, 0);
+      p_utp_info->seglen = len_tvb;
+    }
 
     return offset+len_tvb;
   }
@@ -409,6 +573,12 @@ dissect_bt_utp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
   }
 
   return FALSE;
+}
+
+static void
+utp_init(void)
+{
+  bt_utp_stream_count = 0;
 }
 
 void
@@ -463,6 +633,11 @@ proto_register_bt_utp(void)
     { &hf_bt_utp_connection_id_v1,
       { "Connection ID", "bt-utp.connection_id",
       FT_UINT16, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }
+    },
+    { &hf_bt_utp_stream,
+      { "Stream index", "bt-utp.stream",
+      FT_UINT32, BASE_DEC, NULL, 0x0,
       NULL, HFILL }
     },
     { &hf_bt_utp_timestamp_sec,
@@ -535,6 +710,8 @@ proto_register_bt_utp(void)
 
   proto_register_field_array(proto_bt_utp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+
+  register_init_routine(utp_init);
 }
 
 void
