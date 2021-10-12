@@ -1637,7 +1637,6 @@ static int dissect_status_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
                 wmem_strbuf_append(status_text, "|");
             }
             wmem_strbuf_append(status_text, "DELETED");
-            sep = TRUE;
         }
         const char *status_buf = wmem_strbuf_finalize(status_text);
         proto_item_append_text(item_admin, ", Status: %s", status_buf);
