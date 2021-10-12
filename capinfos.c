@@ -1487,7 +1487,7 @@ print_usage(FILE *output)
   fprintf(output, "  -E display the capture file encapsulation\n");
   fprintf(output, "  -I display the capture file interface information\n");
   fprintf(output, "  -F display additional capture file information\n");
-  fprintf(output, "  -H display the SHA256, RMD160, and SHA1 hashes of the file\n");
+  fprintf(output, "  -H display the SHA256, RIPEMD160, and SHA1 hashes of the file\n");
   fprintf(output, "  -k display the capture comment\n");
   fprintf(output, "\n");
   fprintf(output, "Size infos:\n");
@@ -1531,7 +1531,8 @@ print_usage(FILE *output)
   fprintf(output, "  -Q quote infos with double quotes (\")\n");
   fprintf(output, "\n");
   fprintf(output, "Miscellaneous:\n");
-  fprintf(output, "  -h display this help and exit\n");
+  fprintf(output, "  -h, --help               display this help and exit\n");
+  fprintf(output, "  -v, --version            display version info and exit\n");
   fprintf(output, "  -C cancel processing if file open fails (default is to continue)\n");
   fprintf(output, "  -A generate all infos (default)\n");
   fprintf(output, "  -K disable displaying the capture comment\n");

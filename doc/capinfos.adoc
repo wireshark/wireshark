@@ -95,7 +95,7 @@ if packets exist "out-of-order", time-wise, in the capture,
 -A::
 +
 --
-Generate all infos. By default capinfos will display
+Generate all infos. By default *Capinfos* will display
 all infos values for each input file, but enabling
 any of the individual display infos options will
 disable the generate all option.
@@ -137,16 +137,16 @@ Displays the number of packets in the capture file.
 +
 --
 Cancel processing any additional files if and
-when capinfos fails to open an input file
+when *Capinfos* fails to open an input file
 or gets an error reading an input file.
-By default capinfos will continue processing files
+By default *Capinfos* will continue processing files
 even if it gets an error opening or reading a file.
 
 Note: An error message will be written to stderr
-whenever capinfos fails to open a file or gets
+whenever *Capinfos* fails to open a file or gets
 an error reading from a file regardless whether
 the -C option is specified or not.
-Upon exit, capinfos will return an error status
+Upon exit, *Capinfos* will return an error status
 if any errors occurred during processing.
 --
 
@@ -165,7 +165,8 @@ were captured with a snaplen or other slicing option),
 -D::
 +
 --
-Displays a count of the number of decryption secrets in the file.
+Displays a count of the number of decryption secrets in the file. This information
+is not available in table format.
 --
 
 -e::
@@ -190,7 +191,7 @@ Displays the per-file encapsulation of the capture file.
 Displays additional capture file information.
 --
 
--h::
+-h|--help::
 +
 --
 Prints the help listing and exits.
@@ -229,7 +230,7 @@ section header block.
 Use this option to suppress printing capture comments.  By default capture
 comments are enabled.  Capture comments are relatively freeform and might
 contain embedded new-line characters and/or other delimiting characters
-making it harder for a human or machine to easily parse the capinfos output.
+making it harder for a human or machine to easily parse the *Capinfos* output.
 Excluding capture comments can aid in post-processing of output.
 --
 
@@ -244,7 +245,7 @@ and by looking for truncated records in the capture file.
 -L::
 +
 --
-Generate long report.  Capinfos can generate two
+Generate long report.  *Capinfos* can generate two
 different styles of reports.  The "long" report is
 the default style of output and is suitable for a
 human to use.
@@ -263,7 +264,7 @@ from one another with a single comma "," character.
 +
 --
 Print raw (machine readable) values in long reports.
-By default capinfos prints numeric values with human-readable SI
+By default *Capinfos* prints numeric values with human-readable SI
 suffixes, and shows human-readable file type and encapsulation.
 Table reports (-T) always print raw values.
 --
@@ -272,7 +273,8 @@ Table reports (-T) always print raw values.
 +
 --
 Displays a count of the number of resolved IPv4 addresses and a count of
-the number of resolved IPv6 addresses in the file.
+the number of resolved IPv6 addresses in the file. This information
+is not available in table format.
 --
 
 -N::
@@ -362,7 +364,7 @@ Displays the capture type of the capture file.
 --
 Generate a table report. A table report is a text file
 that is suitable for importing into a spreadsheet or
-database.  Capinfos can build a tab delimited text file
+database.  *Capinfos* can build a tab delimited text file
 (the default) or several variations on Comma-separated
 values (CSV) files.
 --
@@ -375,7 +377,7 @@ difference in time between the earliest packet seen and
 latest packet seen.
 --
 
--v::
+-v|--version::
 +
 --
 Displays the tool's version and exits.
@@ -401,7 +403,7 @@ Displays the average packet size, in bytes
 
 == EXAMPLES
 
-To see a description of the capinfos options use:
+To see a description of the options use:
 
     capinfos -h
 
@@ -432,7 +434,7 @@ count for all the pcap files in the current directory use:
 
 or
 
-    capinfos -TtEs *.pcap
+    capinfos -TtEc *.pcap
 
 Note: The ability to use of filename globbing characters are
 a feature of *nix style command shells.
