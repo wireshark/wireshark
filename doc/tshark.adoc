@@ -1109,6 +1109,7 @@ cause packet detail information rather than packet summary information
 to be printed.
 
 Some of the currently implemented statistics are:
+--
 
 *-z help*::
 +
