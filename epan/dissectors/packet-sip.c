@@ -4776,7 +4776,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
             /* The body is gzip:ed */
             next_tvb = tvb_uncompress(tvb, offset,  datalen);
             if (next_tvb) {
-                add_new_data_source(pinfo, next_tvb, "gunziped data");
+                add_new_data_source(pinfo, next_tvb, "gunzipped data");
                 if(sip_tree) {
                     ti_a = proto_tree_add_item(sip_tree, hf_sip_msg_body, next_tvb, 0, -1,
                                          ENC_NA);

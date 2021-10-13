@@ -299,6 +299,7 @@ decrypt
 decrypted
 decrypting
 decryption
+dedup
 deduplicate
 deenabled
 deenablement
@@ -405,6 +406,7 @@ encrypting
 endace
 endian
 endianness
+endif
 engineid
 enodeb
 enqueue
@@ -510,6 +512,7 @@ groupcast
 groupmod
 gssapi
 guint
+gzipped
 handoff
 hangup
 harqid
@@ -546,6 +549,7 @@ ieee17221
 ieee80211
 iface
 ifconfig
+ifdef
 ikev2
 illuminance
 immersive
@@ -577,6 +581,7 @@ initializing
 inline
 inode
 inodes
+instdir
 instrumented
 interferer
 interleaving
@@ -595,6 +600,7 @@ ipseckey
 iptables
 iptrace
 ipv4addr
+ipxnets
 irqmask
 isakmp
 iscsi
@@ -648,6 +654,7 @@ loghans
 loglocal
 logoff
 logout
+lookups
 loopback
 lossy
 lscap
@@ -819,6 +826,7 @@ optimizations
 optimizer
 optiplex
 ordinal
+osmocom
 ospf6
 outhdr
 packetcable
@@ -830,6 +838,7 @@ param
 parameterization
 parameterized
 params
+parens
 parlay
 parms
 parser
@@ -864,6 +873,7 @@ plixer
 plugin
 pluginize
 plugins
+pluginsdir
 pname
 polestar
 popup
@@ -878,6 +888,7 @@ posix
 postfix
 powercontrol
 pppdump
+pppoe
 prach
 preauth
 preconfiguration
@@ -995,6 +1006,8 @@ reinitialization
 reinitialize
 reinitialized
 reinitializing
+reinjected
+reinjection
 reinvoke
 rekey
 rekeying
@@ -1253,6 +1266,7 @@ transcoder
 transifex
 transitioning
 transitivity
+transum
 transversal
 traveler
 traversal
@@ -1364,6 +1378,7 @@ unparsed
 unprocessable
 unpublish
 unpunctuated
+unquoted
 unreach
 unreassembled
 unreceived
@@ -1389,8 +1404,10 @@ untrusted
 untunneled
 untyped
 unvisited
+unvoiced
 updatability
 updatable
+upiri
 uplink
 upload
 uploaded
@@ -1399,6 +1416,7 @@ uploads
 urlencoded
 urnti
 usability
+usbpcap
 userdata
 userinfo
 userlist
@@ -1415,6 +1433,7 @@ v1610
 validator
 varint
 vcredist
+verbosity
 verifier
 verizon
 version2
@@ -1434,12 +1453,14 @@ volerr
 vxlan
 wakeup
 webcam
+webkit
 websocket
 whoami
 wideband
 wikipedia
 wikis
 wimax
+wimaxasncp
 winpcap
 winspool
 wireshark
@@ -1457,6 +1478,7 @@ wsluarm
 x509sat
 xattr
 xchannel
+xferext
 xmlns
 xsltproc
 xtreme
