@@ -1,3 +1,486 @@
+6bfef174c5 Packaging: Add captype to the Windows installers.
+da8a707b6c BT HCI_ISO: Don't overrun our reassembly buffer.
+0e453ec048 eNode-B: Fix check for eri_enb_log_magic
+723209794b Docs: Use Asciidoctor to copy ws.css.
+1ffe0cef2c BT-DHT: Exit a loop.
+000b3ebfc2 TCP: Follow: Don't treat placeholder value 0 as a real ACK number
+ff70f38ec7 wsutil: Provide static inline g_memdup2 in glib-compat.h to not export it
+2cd6c67088 autosar_nm: get rid of unused protocol IDs.
+7ca4ef4921 debian: Report upstream and package version instead of git revision
+1393360d38 debian/rules: Don't pass --parallel to dh, it is the default now
+b6f74e71cb debian/rules: Turn on BUILD_corbaidl2wrs to ship idl2wrs man page
+1bd5d954e9 debian: Bump compat level to 12 keeping backports in mind
+5e44881e4c debian/control: Drop Conflists: and Replaces: referring to very old versions
+08b9b01eb6 debian: Make wireshark depend on the same version of wireshark-qt
+a39d6a9a07 debian/copyright: Fix typo and remove patterns for removed files
+769ef1d64f Qt: Remove Q_OBJECT in a few places where it's not needed.
+98236c526f [Automatic update for 2021-10-10]
+c2f233b89c GitLab CI: Initial macOS Intel build.
+724b74b38e Initialize the release-3.6 branch.
+9dab2280ca dfilter: Fix parsing of octal character escape sequences
+0eda51a646 to_str: scope tvb_ip6_to_str
+086feb2f09 Ignore length of data parameter in DT1 message
+07f5472aa7 to_str: scope tvb_ip_to_str
+4a2b18a9c0 dfilter: Skip equality test and add explanation
+83446c4719 LTE-RRC: Add a couple of more "protocols".
+c946ee3686 5G LI: Add dissector for 5G Lawful Interception
+ca5a45428f SMPP: Handle unaligned PDUs better
+e4e0b97082 dfilter: Use wslog with ws_assert_magic()
+8c5a4f9100 dfilter: Replace node accessor macros with functions
+a7242733a4 dfilter: Fix ws_assert_magic() macro
+5f8ab69cb5 Windows: Fix stdint.h redefinition warnings
+e3ba0c5ea5 lwm2mtlv: Decode Location Velocity
+d3695f8b53 gsm_a: Fix dissect_description_of_velocity()
+4804c1224d dfilter: Use syntax tree node replacement semantics
+af19fc795a Add NGAP Stats.
+b240d5baa0 Ethercat: try to fix EEPROM Ctrl/Status bitmask fields
+1dd8f3a666 capinfos: Calculate hashes after determining if a capture file
+7bdfa653a1 PCEP: Added support of draft-ietf-pce-segment-routing-policy-cp-05
+9ae0d3c4f1 BSSAP: Use VLR number field
+aa41dd9a56 GitLab CI: Restrict our merges to master.
+d2dff29c83 NR RRC: Make more PDUs set col and proto.
+0aae44e145 GitLab CI: Switch to clang 13.
+4f4e9bfbc4 Transifex: Update our configuration.
+bc3bced07d COSE: Handle indefinite tstr/bstr encodings
+39036a0a30 dfilter: Add some more syntax tests
+7bf02254c1 dfilter: Rename function production rule
+a940318f37 dfilter: Minor grammar fixups
+d45ba348fd dfilter: Strengthen sanity check for range
+f7a2abb4ae dfilter: Don't include type name in 'tostr' output
+b700448745 Eth: Segment routing over IPv6
+0ca24f01d7 cose: Fix memory leaks
+60899ed216 Update README.developer
+6898210ded docs: Add section about architecture to README.developer
+f51510f401 IDMP: Fix a string allocation.
+f9ac0f40f7 to_str: scope decode_bits_in_field
+4661e1ddd9 btmesh: improve scheduler dissection
+b4cd8c0a8e NR RRC: Register protocols which sets proto and info columns.
+79c9e46144 Fix some items where mask was wider than field.
+d4c908a573 Revert "TCP: last out-of-order packet is marked as a retransmission"
+924bb5b8b3 F1AP: upgrade dissector to v16.7.0
+d6e2dbe407 E1AP: upgrade dissector to v16.7.0
+5cf2a61938 XnAP: upgrade dissector to v16.7.0
+1292ee5cef NRPPa: upgrade dissector to v16.5.0
+8faede569b NGAP: upgrade dissector to v16.7.0
+7b8938474b to_str: pull scope arg up into more addr macros
+ef2468662b check_typed_item_calls.py: Flag bits set outside mask
+9bf24deb2d WSDG: Trivial cleanups.
+e578c6caee to_str: pull scope arg up into tvb_ether_to_str
+eb9ae2ffd5 Read eNode-B raw logs
+5bc06b9042 proto_data: use pinfo->pool not the global scope
+9cf7ff44e1 wscbor-test: handle jmps
+120aab63e3 NR-RRC:Make it possible to use dissctor handles for more cases.
+c51073bc80 X2AP: upgrade dissector to v16.7.0
+1f7de4c724 S1AP: upgrade dissector to v16.7.0
+25ca031f53 Release notes: Add note about improved Reload Lua Plugins
+e724ab1b41 Qt: Handle fieldsChanged before prefs_apply_all
+e866034c55 Qt: Handle errors when reloading Lua FileHandler
+5c185238a4 BT-DHT: Test packets even if the dissector is set
+e05f704606 wiretap: camins, vwr: Stop heuristics after 1GiB
+7ca5d99d1e core: Fix -Wdocumentation
+f0da2cf58f core: Fix Wmissing-prototypes
+3cce9e3a74 core: Fix Clang Analyzer Warning
+4bda9dfd3d [Automatic update for 2021-10-03]
+da11ef5770 ieee80211: Add 6E support when converting freq. to channel number.
+41f4855443 Lua: Make FileHandler seek_read() optional
+c6b046abd7 rdp: Fix compile errors
+09f762ba5e rdp: add dissector for the egfx channel
+7b5661dfe0 rdp: dissect close requests PDU in drdynvc channel
+3841bcd82c rdp: set the server address in the right place
+4e61cf4b73 UBDP: Update the UBDP header dissection and add username TLV
+ced4f00447 UI: Fix "Follow Stream" spin box for protocols without substreams
+cfc3212ae2 Docs: Miscellaneous man page updates.
+ce22d958a8 Test: Add external tests.
+436dd46720 GitLab CI: Switch all Linux builds to our container registry.
+f9279ddaea GitLab CI: Switch the openSUSE 15.2 image.
+58a9b77fb8 F1AP: Don't export PDUs as L7
+fee7f31e63 GitLab CI: Switch the CentOS 8 image.
+8705dfbe74 Docs: Update some man page markup and remove pod2adoc.py.
+7f47511653 Try to fix RPM packaging.
+ec2746c910 capture: Check for valid wtap when capture.show_info
+c7dc907d0e dfilter: Rename some identifiers in grammar
+84ab55cf75 Docs+Packaging: Convert our man pages to Asciidoctor.
+9f1607ab47 Docs: Prep for POD to Asciidoctor conversion.
+04b0e2b80b dfilter: Extend function 'tostr' method
+90dc58a942 dfilter: Add range 'tostr' method
+dcf41b93a8 dfilter: Add set 'tostr' method
+2c55bffb41 dfilter: Improve syntax error message
+db18865e55 dfilter: Save token value to syntax tree
+487e2b6bc3 dfilter: Remove unnecessary log activation check
+728061fa17 NR RRC: upgrade dissector to v16.6.0
+35826bbb95 LTE RRC: upgrade dissector to v16.6.0
+de6f5b9d82 dfilter: Fixup syntax tree node display
+b4af7c52a5 dfilter: Add a flags member to the syntax tree node
+eef110de80 documentation: Add absolute time to user guide
+0e7ba54d98 dfilter: Clean up handling of "deprecated" tokens
+d6836d103d dfilter: Add test for "deprecated" tokens
+3ea2a61f2a dfilter: Display syntax tree for debugging
+1883487241 ws_getopt: Add a test for optional parameter
+5362d0c31b ws_getopt: Rename struct and macros
+0173ea0ec1 COSE: make some functions static
+e6a1225611 wslog: Alias --log-domain to --log-domains
+19d27eff98 Lua: Free FileHandler on deregister
+96cfaf67a3 Qt: Reload Lua FileHandler when having a capture file
+a3c2ad04ee nordic_ble: Re-use OK Error true false flag
+e4842cea3f nordic_ble: Add address resolved flag to Advertising PDUs
+2ee57a0e46 ftype-time: Absolute times for DFILTER are always local time
+4975dbc867 ieee80211: Add dissector for Ruckus vendor specific IE
+220b5af9d4 Removed unnecessary second lookup with val_to_str_const().
+c2a0a5ebca Add message type with col_add_fstr().
+e1543bda0c IS-IS LSP: extended IP reachability prefix SID dissection change
+eb5d17f2bc Windows: Upgrade libpcap, lz4, nghttp2, and snappy.
+a88d0742cf USBHID: Add integer representation of data bits without specific parsing.
+8269572c4f cbor: use scoped pinfo pool instead of global
+6d04c07955 COSE: fix might be clobbered by ‘longjmp’ or ‘vfork’ [-Werror=clobbered]
+42906f1246 dftest: Don't use quotes to output filter
+93d49562c5 JSON: enable Binary data lookup on Array
+abd0f1183f COSE dissector from dtn-wireshark project
+4010502a82 LPP: upgrade dissector to v16.6.0
+e9ac4d3900 proto: Delay deleting heur_dtbl_entry_t in heur_dissector_delete
+3cdada3e7b guids: wmem-scope lookups
+440bbd37a0 Docs: More POD markup cleanup.
+a156d7d05d Fix some spelling errors.
+9a5b9dbca3 JSON: enable Binary data also for non-compact
+a757a93208 GSM MAP Update to 3GPP TS 29.002 V17.1.0 (2021-06)
+d7a8a55d2a GSM MAP: Dissect message noteSubscriberPresent.
+481d0716e5 MSYS2: Test commands in pipes need quoting
+ef06593c13 MSYS2: Fix detection of test suite binaries
+6c5e56f752 Windows: Add preliminary support for MSYS2
+1c8752935d CMake: Remove debian package target
+f1ee29fc61 GitLab CI: Don't refresh our openSUSE repository.
+7b82110092 USB HID: Parse bit fields with correct bit order
+d87e6e58fa [Automatic update for 2021-09-26]
+151cfe5823 QUIC: disable "Follow TLS stream" for QUIC session
+7a283b0f36 Qt: Add heuristic description to dissector tables
+92d77cef7a libwiretap: fix test for built-in file types.
+047542b587 reassemble_test: Add an explicit cast [-Wformat=]
+acffc56148 test_wsutil: Use 'static' linkage
+eba84d06e4 docs: Fix fatal log level description
+1c3da46bf8 H265: Handle too large Exponential-Golomb coded values
+a7dfe53488 H264: Handle too large Exponential-Golomb coded values
+05512b0428 jpeg: correct the IFD tag for the Copyright field
+1848fa71ed jpeg: fix typos in variable names
+141e3b331f jpeg: place each IFD in a subtree
+b6e80d9a2f CMake: The minizip URL is ancient
+0c7d82d8b7 USBDump: Fix Memleak with error info
+f18ee30a3d TLS: Adding JA3 and JA3S fingerprints
+b84aa6b243 Fix some spelling errors.
+da817af974 Docs: More POD markup cleanup.
+f4c283298f Add compatibility fix for Minizip dependency
+f827daba24 SSH: Fix missing g_free()
+443f05bc92 Windows: Fix build without libpcap
+624ed977cb validate-clang-check: add yet another Windows-only file.
+9d10838314 Docs: Clean up wireshark.pod markup.
+0b567bb27e Docs: Asciidoctor.js isn't yet suitable for our needs.
+07330b392e documentation: update PDML/PSML doc
+3adfca384b MinGW-w64: Fix extcap build output path
+fa525649be CMake: Try to set a required try_run() definition in a more idiomatic way
+9bce34ca67 NVMe: decode Async Event Req CQE.
+9f9afc0e86 CMake: Remove an unnecessary version check
+6921f01250 MinGW-w64: Need to use ANSI C stdio
+8d59f81729 MinGW-w64: Replace incompatible format for strftime()
+c4265865c2 MinGW-w64: Fix windeployqt errors
+c4d5eea33e CMake: Target platform for WIN32 needs to be lower case
+a22aa677ad SDP: Handle fmpt:ipdc-ksm and fmpt:ipdc-kmm
+5de2b55663 CMake: Check if vsnprinf() is C99-compliant
+a2120e823c dfilter: Allow generic unquoted strings that are protocol names on RHS
+1dad8190b1 CMake: Fix minimum version requirements for CentOS 8
+fee630dbdc Fix the lengths of some masks.
+3e193b376f GitLab CI: Add HTML output for Clang Analyzer Check artifact
+6c0897393b GitLab CI: remove ANSI color when generate Clang Check Analyzer text log
+07b0c4e78a GSM A-bis/OML: Fix false positive on expert notification for ABIS_OM_MDISC_MANUF
+533d859499 Qt: Register import_hexdump.json as a profile file
+0c735dcf0a MinGW-w64: Disable building 'etwdump'
+d09651e637 CMake: 'libui' depends on wiretap
+dfd241cef5 CMake: 'version_info' depends on wsutil
+0d6f0a4213 MinGW-w64: Add guards for MSVC macro definitions
+b2691b8f6c file_util: Fix declaration is not a prototype [-Wstrict-prototypes]
+a5a9bb0763 CMake: Move UNICODE defines to command line
+6bd1bb4d7c MinGW-w64: Define NOMINMAX for Windows API
+bf55ff9b47 btmesh: Add mesh models lighting opcodes dissector
+b9687f7d85 BGP: Add BGP-LS BGP Egress Peer Engineering (rfc9086)
+7866f43d82 IO Graph: Add checkbox to prevent automatic rescans
+543ea3968c ethercat:  Fix some too-wide mask widths.
+b12644b629 MinGW-w64: Need to define WIN32_LEAN_AND_MEAN
+50fdfda316 MinGW-w64: Need to link using -municode
+3164d4a646 MinGW-w64: Use clock_gettime()
+2f7e3f1d82 MinGW-w64: No need to define 'ssize_t'
+f3dbfa3bdf coap:  add missing content-format mappings
+a193aff052 Windows: Don't search for a SpeexDSP package
+5f79503d67 Fix config.h include order
+2c7d22dba2 CMake: Fix macro redefinition of Windows API versioning
+76e31fe09e CMake: Add Doxygen search hint for Windows
+bb12a187df CMake: Add guards for PLATFORM sanity check
+8726c65267 win-setup.ps1: Be more lax about validating path separators
+c513188f52 CMake: wsetargv.obj is specific to Visual Studio
+977c73d5b4 Qt: Pad time values for loading times
+f0a375cf21 ORAN FH CUS: Add expert info check for extlen 0
+debd6bffae version info: Reduce locale display.
+2cb684c92d [Automatic update for 2021-09-19]
+b054286744 ws_getopt: Cleaner better __getopt_msg()
+4941809359 TECMP: change Capture Module ID in UAT to hex
+ac0b1d42f3 dfilter: Allow bytestrings that are also protocol names on RHS
+750cc38669 epan: Remove some extraneous #ifdefs
+dd667dddf0 Some spelling fixes
+36977acfbf Qt: Store Import Hex Dump settings
+acf9b52b78 RTPS: Added option to limit the number of items dissected in data samples.
+a34a234cf2 wslog: Add ws_log_buffer()
+a918325324 SSH: Add fingerprint hassh, hasshserver fields
+6e174c17eb InfiniBand: create proper preference change handler out of handoff function
+f341e045c9 twamp: fixed decoding of control-message sequence
+13c33fa68a text2pcap: Fix -Wmissing-prototypes
+be2469b91d thrift: Fix Wmissing-protypes warning
+aa9d666acb sparkplug: Fix -Wmissing-prototypes warning
+d842da234d signal(pdu): Fix -Wmissing-prototypes warnings
+1be344800a r09: Fix -Wmissing-prototypes warning
+7f411bbe80 bblog: Fix -Wmissing-prototypes warning
+e1c754262f tiff(file): Fix -Wmissing-prototypes warning
+05b91f5aaf Docs: Fix some POD markup.
+16eb55b54e IPv6: Rename "SA MAC" to "SLAAC MAC"
+a823e34642 Fix build error if ENABLE_SMI=OFF
+dd59d1fcf9 ws_getopt: Add test suite skeleton with some basic tests
+f80b7babe5 CMake: Remove cmakedefine HAVE_ALLOCA_H
+b2bc8fd059 RTCP:Fix dissection of MBMS Subchannel field
+fea994855d Revert "ws_getopt: Disable MSVC warning C4244"
+3c484f278b ws_getopt: Fix some clang warnings.
+ac3a30f61b ws_getopt: Disable MSVC warning C4244
+2deb1c95d9 Merge ws_getopt source files
+8df2a73594 Use the musl in-tree getopt_long() everywhere
+7462e76884 Add musl getopt_long() source files to project
+36a2606064 Debian: Fix symbols
+4d873d4ce2 wsutil/to_str: Use a macro to check buffer size
+18c155a3ca wsutil: Remove ip6_to_str_buf_with_pfx()
+364df939ea wsutil: Rewrite ip6_to_str_buf()
+d4c7978f68 wsutil: Add ip_to_str()
+8c4a479c52 Move more numerical functions to wsutil/to_str.h
+cc1e5b8334 Reformat and cleanup epan/to_str.h header
+8208c68b49 Debian: Add missing wsutil symbols
+8304ced0e6 wsutil: Add some tests for word_to_hex()
+24fd8c6740 Move more numerical epan/*to_str() routines to wsutil
+5b4c7e1c46 NEWS: multiple list indentation levels (nested lists)
+0019723b14 Debian: Add missing wsutil symbols
+44538f6e4d wsutil: Add tests for to_str_back()
+8b70e24889 wsutil/to_str: Rename some functions for consistency
+8a584222f1 Move epan/*to_str_back() functions to wsutil
+2de4d40e22 setup-macos-brew: Extend to build dmg
+45398ad333 PFCP: Additional improved Rule ID visibility
+b81192d312 rdp: keep track of UDP and TCP connection links
+e4b8a58513 ptvcursor: add explicit memory scope
+f4aa108913 tvbparse: explicitly memory-scope parser
+2cb1eb955f epan: Rename SMI dependency to "libsmi"
+bfc7708f63 SV / IEC 61850: Accommodate Ethernet trailers
+4ebd927ccd Support LZ4 versions earlier than 1.8.0
+bd33320521 wslog: Add macro to validate arguments and return
+20dc422550 wsutil: Add test for bytes_to_str_punct()
+6c066adad7 twamp: improved decoding of Request-Session
+24af672884 PFCP: Improved Rule ID visibility
+cda79cb819 QUIC: fix "Follow QUIC stream" crashes when encryption keys are not available
+aceb1aea10 twamp: improved decoding of Request-Session
+8567f657aa MPLS: Some systems display labels (mostly) in HEX
+806599b923 BGP: Add BGP-LS Flex Algorithm (draft-ietf-idr-bgp-ls-flex-algo-07)
+a72df64a60 Fixed Mode S Interrogator Identifier type check.
+0844c0862a Fixed typo in Mode S Interrogator Identifier.
+bf18882a42 DD-14 Made changes to Mode S interrogator layout.
+a804547019 DD-14 Added Mode S Interrogator Identifier Information Column.
+ca83fbcf42 DD-14 Added Mode S Interroator Identifier Record.
+a0600993a1 DD-14 Added RRB Trandponder Code Record.
+2fd0c3a976 DD-6 Added System Designator and System Specific Information
+1c3729a9fd DD-6 Updated Layer 1 Dissection with DIS v7 IFF Layer 1
+7c59dd00c2 DD-6 Updated Dissection of PDU Header
+2a2fbf3921 DD-6 Updated Enums with SISO 2019
+8b194a924f osi: avoid global memory scopes
+b39fc2aafc wslua: avoid global memory scopes
+65bfe0ccd6 ORAN FH CUS: check dissected extension length against extlen
+f82535d645 Docbook: Add changed behavior for byteview
+8bc52f542b Add tshark ringbuffer option '-b nametimenum:value'
+6cf6794e37 GitLab Ci: Fix duplicate apt cmd for daily run
+55a67fd66a Tools: Migrate compress-pngs.sh to Python.
+77e6110c59 websocket: Enable websocket as heuristic dissector for TCP
+19f3a82ff8 Qt: ByteView make hover configurable
+3cb302f05b HTTP2, QUIC: fix "Follow Stream"
+a7a7849259 Qt: Enable Edit Name Resolution for EXPORTED_PDU
+fe9123b541 Qt: Restructure related-packet indicator drawing.
+3ebc8fd8fe dumpcap:Send SP_FILE after SHB passthru in child mode
+2d08611d54 BGP: Add RFC 9104 Extended Administrative Groups
+902b614fe2 eth: Allow assuming no FCS as well as assuming FCS or using heuristic
+21e7bb1073 VSS Monitoring: Tighten heuristic, reduce false positives by default
+4fe297767b [Automatic update for 2021-09-12]
+9fcc11cc9b blf: report a bunch of errors.
+fdf2d78d9a blf: most reads in a packet are errors even if they get an EOF.
+b6d1806053 blf: remove the function name from ws_debug() calls.
+89368f9d28 blf: do more work in blf_init_rec().
+5aad28d773 blf: use common code to read the log object header.
+6fe68991df wiretap: Add zstd and lz4 as WTAP compression types
+07a31d2918 cmake: fix the uninstall script.
+8307d5d9be blf: fix indentation.
+8b614c6a1c blf: make blf_read_block() static.
+58207d2f8d Windows: Update displayed OS version info
+147aadea44 Qt: Add Decode as Hex Digits in Show Packet Bytes
+21339ceed0 make-pci-ids.py: make it executable.
+76b08ea083 Fix spelling errors.
+d4ed129727 pre-commit: skip some checks on idl2wrs.c.
+7f1f5b40b3 ORAN FH CUS: add section ext10
+389a603fdb Allow adding comments to all selected packets
+059c7906c0 h225: fix tvblist used uninitialized
+c634315363 [#17519] capinfos: no section headers in table output
+d87fb12bc2 SV / IEC 61850: Accommodate Ethernet trailers
+8a311003df USB HID: Handle different usage pages in fields
+739666a7f5 USB HID: Support extended usages in descriptors
+9d65d3f889 DOC: Remove redundancy in build instructions.
+5076aee044 [#17517] capinfos: machine-readable filetype/encap
+dee79a0c81 wtap_opttypes: move more if_filter and packet_verdict stuff together.
+d46e31a48a rdp_drdynvc: fix channel name displaying in SOFT_SYNC_REQUEST
+0da1babbb3 rdp: fix endianess in misc places
+84a0141683 [#12331] Persist cmd-line prefs on reloading Lua
+02285e53b8 Qt: JSON Export - Statusbar info corrected
+be7b4163de BLF: Adding LIN support
+a4a571e680 wtap_opttypes: move the specialized options after the custom options.
+58d053923e pcapng: clean up block length checks.
+cb88f6d4e8 BLIP: Add next gen Web-Sec-Protocol
+42372c0dfa BGP: Add BGP-LS SR Local Block TLV (rfc9085)
+69176a0eff IEEE 1722 / MP2T: Call MP2T subdissector from AVTP
+bb1286dc3c epan: more work to avoid global memory pool
+197b67cf8c Fix two memory leaks on ZSTD and LZ4 decompression
+c58c106b30 dot11decrypt: Fix AAD calculation for legacy ccmp implementation
+4e7d10eea1 Credentials Tap: Fix wmem scope for init call
+48cf9d5497 Qt: IOGraph - correctly add new graphs
+03480fd6e1 epan: export epan_set_always_visible()
+6caf24e966 tvblist: explicitly scope memory
+530ee0b365 Windows: upgrade Npcap to 1.55
+98faf05b6b file_wrappers.c: use LZ4 if the library is 1.7.3 or later
+a97e34a1c1 oids: remove global scopes from debug code
+8a4242fb76 proto: prefer memory from tree over global pool
+36f9bb412b dvb_chartbl: remove wmem_packet_scope
+d5a3824f54 IEEE1722 AVTP: Support UDP/IP Encapsulation
+22768e218c Thrift: Allow partial definition of sub-dissectors
+aae500d32b add RDP multi-transport dissector
+8a1649c5a5 rdpudp: dissect the RDP UDP protocol
+a3eafc6a5b rdp: parses heartbeat messages
+1bf1a1ea7c sequence_dialog(Qt): Fix Called C++ object is null
+3eb15f04ad sharkd_session: Fix Branch condition evaluate to a garbage value
+5fc6549178 pcapng: Fix Branch condition evaluate to a garbage value
+fece6e0440 SOME/IP: Adding dissection support for SOME/IP over TLS
+1095faf9d8 Diameter: Update Verizon and Cisco AVPs from MR !3731
+f6e0589f89 MP2T: Expert info, counter drop is PI_SEQUENCE, not MALFORMED
+c30e111ceb Thrift: Improve error reporting
+4eeb091eca Diameter: Update some 3GPP AVS to OctetStringOrUTF8
+a5494200c6 tiff: Fix Dead Store found by Clang Analyzer
+90a060c339 autosar-nm: Fix Dead Store found by Clang Analyzer
+a39fcee57a catapult-dct2000: Fix Dead Store found by Clang Analyzer
+7644d6cc4a dvb-s2-bb: Fix Dead Store found by Clang Analyzer
+104242836b erldp: Fix Dead Store found by Clang Analyzer
+34c094a6e9 iso15765: Fix Dead Store Found by Clang Analyzer
+c58400a2ed json: Fix Dead Store found by Clang Analyzer
+b007d13f57 oran: Fix Dead Store found by Clang Analyzer
+3d0017ec9f rdp: Fix Dead Store found by Clang Analyzer
+9b4263fa3c thrift: Fix Dead Store Found by Clang Analyzer
+39da486c7d proto: fix Dead Store found by Clang Analyzer
+4a55281078 dpauxmon(extcap): Fix Dead Store found by Clang Analyzer
+7740e9ae27 pcapng(wiretap): Fix Dead Store found by Clang Analyzer
+203e082a50 nettrace_3gpp (wiretap): Fix Dead Store found by Clang Analyzer
+d940352da7 gitlab-ci: enhance cppcheck
+da6ef0a3f0 extreme-exeh: fix conflict
+95b63d04d9 dcerpc_spoolss: fix display filter name
+ea6267d12b ncsi: Fix typo (on display name)
+197911dea1 [Automatic update for 2021-09-05]
+61e1e69218 diameter: add 3GPP 29.234 V11.2.0 (2013-06)
+3403e37d47 gitlab-ci: Add artifact for check hf conflict
+03a07e4f1b fix two display issues with remote interfaces window
+86d5606be3 IEEE 802.15.4: Add PAN ID when flag is set
+8ef6f04f5a Qt: Debounce Preferences -> Advanced menu : Avoid leaking memory
+eb83421c96 NSIS: expand title area for long program names that wrap
+fb02f423b1 Some spelling fixes
+436eab0d77 SparkplugB: Fix handling of malformed message
+738670df7e woww: Fix conflict
+571c0c9580 ORAN FH CUS: Fix section 6 summary
+b4ef378e5e BGP: Fix BGP-LS TLV offset of IGP TE Metric (RFC8571)
+57376bdf3e RTCP: Fix padding dissection in transport feedback
+00438ef755 RTPS: Fixed structure alignment when dissecting user data samples.
+dde6fde173 Vector BLF: add WLAN interface name
+bf1039a529 Vector BLF: WLAN frame supported
+358df6c80d dot11decrypt_util: Enhance Documentation
+746585fe70 dot11decrypt_util (crypt): Fix -Wdocumentation Warning
+7083e70842 Remove an out-of-date comment.
+92fb6a72f8 UDP: Add long help text for length field
+8684ba27a2 DVB-S2: fix build issues [-Werror=maybe-uninitialized]
+5c46e0eac3 btle: Add support for CTE Info field in Data Physical Channel PDUs
+994bf73f46 IEEE 1722 AVTP: Fix name
+1f4e150ca7 gitlab-ci (Clang): Add Clang Analyzer ouput to artifacts
+bbcedb667c clang-check(tools): exit when set illegal option
+fb6aa10c12 ORAN FH CUS: avoid undefined shift in block fp decompress
+2e9f33fe09 file_wrapper: fix compilation without LZ4.
+2be72076f0 f5ethtrailer: greedy conversation filters
+124f7ce798 ORAN FH CUS: Add C SectionType=6
+e5e37add9a 802.11 Decrypt: Fix AAD Calculation when HT-Control present in a QoS Data Frame
+cfc60b3f6e thrift(.h): Fix Warning about -Wdocumentation
+062994e089 GSM MAP: Handle Version 1 of ResetArg
+e998a4cc02 Clean up handling of buffer size/offset/etc. types.
+4091b31444 IEEE 1722/AVTP: Update Compressed Video Format
+341a9d099c Fix build for debian and macOS
+5844c469f0 Add support for ZSTD and LZ4 decompression
+3f92ae9db9 IEEE1609dot2: fix missing import (BUGFIX)
+348d356594 Packaging: Update the macOS notarization failure error message.
+5893d3cd09 CMake: Fix tests.
+43d2655f16 ieee1905: fix dissection of DPP messages
+9cf6caee62 Thrift: Fix warning about unused variable.
+875d607892 Aruba(IAP): Add IAP-635 (Norma)
+4d1357eebe CMake: Get rid of WS_PROGRAM_PATH
+b04165a57b DVB-S2: Only create composite if used
+033068916d ITS: use custom value format for CPM elements
+cdfab0d6e9 tvbuff: convert helper methods to pinfo->pool
+61e66c37ab cmake: lemon: allow overriding lemon CC setting
+49240e23b4 cmake: lemon: fix path to internal lemon tool
+2dc8b74afc IEEE1609dot2: fix psid-collective-perception-service value
+3bd885d42e IEEE1609dot2: use custom formatters for better readability
+16b1cdb23f IEEE1609dot2: use custom formatters for better readability
+a728da1f28 NAS-5GS: fix dissection of port management information container IE
+40685047a5 USBHID: Report Descriptor: Fix Push and Pop global item parsing.
+8223405abc DVB-S2: allow dissection of DVB-S2 over RTP
+d900777d68 KNX/IP: Handle multiple PDUs per TCP segment / UDP datagram
+e0f7940d29 Fix broken release notes caused by !3048
+981ec7f3c7 iwarp_mpa: fix iWarp MPA for NFS-over-RDMA
+e446bbc3e7 ISO10681: Adding support for ISO10681 (FlexRay ISO TP)
+030b06ba3c pcapng: write packet and Netflix custom blocks the same as other blocks.
+510c088ce6 ngsniffer: fix a routine name.
+b300c063c2 Add a code of conduct.
+dcfa3ec835 ngsniffer: clean up the read process.
+2c543f999b DoIP/ISO15765/UDS: Passing addresses to UDS to refine lookup
+d3d4e4b135 Show error for `-X lua_script` if no Lua support
+3efb3cab62 gsm_sim: Fix MANAGE CHANNEL
+28dbab369d git: Add test cases
+853d55b871 pcapng: declare offset to be volatile to fix build error on aarch64
+40aebad079 IEC104: Added Counter integrrogation command qualifier dissection
+3cb6403a4c wiretap: always allocate a block for a record.
+eb2037fda4 NSIS: add ntar to AdditionalTasksPage screen
+0ba0d4e779 USB HID: Fix Usage Maximum typo
+64a76cca7f USB HID: Update to match HID Usage Tables version 1.22
+eb2078e89e Thrift: make some functions static.
+c8656a2dcb New dissector for EXOS internal capture extra header
+ed9e958a2e nordic_ble: Update text for channel to include index
+eda513d972 btle: Update text for channel to include index
+23a3daefbf BTHCI: Add new Bluetooth v5.3 HCI commands/event dissection
+1f0251a82d nordic_ble: Mark failure to decrypt reason as CRC error over MIC error
+dc122d1404 [Automatic update for 2021-08-29]
+7124525d24 epan: remove a few more uses of wmem_packet_scope
+eaa2cf0c21 Cmake: misplaced quote in epub asciidoctor_opts
+c2edb44a9a Qt: fix memory leaks found by Visual Leak Detector
+bce7cbf529 lapd: clean up variable names, remove unnecessary initialization.
+e9533a3f5d Qt: stop capture syntax worker thread on exit
+dd8c23c83d pcapng: remove include of wtap_opttypes.h.
+07416c01dc peektagged: set rec->block right after rec->rec_type.
+5e2fb6c000 packet-frame: assorted cleanups.
+266d707dff pcapng: whitespace and other cleanups.
+10be4d1611 pcapng: fix handling of byte-swapped sysdig event blocks.
+b428fa509d IEC104: Added Substituted / Not substituted dissection of CP56Time2a
+68893e415c capture file: remove redundant API ref_time_packets()
+9b132c2353 pcapng: fix output of comment and DNS server name options.
+97b6610818 GitLab CI: Fix a command.
+70e26d691e Some spelling fixes.
+916dac3316 GitLab CI: Print package sizes and hashes.
+f51b018f87 Version: 3.5.0 → 3.5.1.
+5536ca319a wtap_opttypes: fix a typo.
+e7296d5208 Packaging: Try to fix git-export-release.sh.
+b7ff41703e Build: 3.5.0.
 f997f28898 AMQP: Fix dissection of PDUs split across TCP segments
 4b7bfe35c5 pcapng: process uint32 options like uint64 options.
 0e3782831a SMB: Don't canonize filenames to ASCII for Export Objects
