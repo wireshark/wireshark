@@ -50,6 +50,12 @@ if(ASCIIDOCTOR_EXECUTABLE)
     )
 
     set(_asciidoctor_common_command
+        ${CMAKE_COMMAND} -E env TZ=UTC
+        ${ASCIIDOCTOR_EXECUTABLE}
+        ${_asciidoctor_common_args}
+    )
+
+    set(_asciidoctor_docbook_common_command
         ${CMAKE_COMMAND} -E env TZ=UTC ASCIIDOCTORJ_OPTS=${_asciidoctorj_opts}
         ${ASCIIDOCTOR_EXECUTABLE}
         ${_asciidoctor_common_args}
@@ -62,7 +68,7 @@ if(ASCIIDOCTOR_EXECUTABLE)
         add_custom_command(
             OUTPUT
                 ${_output_xml}
-            COMMAND ${_asciidoctor_common_command}
+            COMMAND ${_asciidoctor_docbook_common_command}
                 --backend docbook
                 --out-file ${_output_xml}
                 ${CMAKE_CURRENT_SOURCE_DIR}/${_asciidocsource}
@@ -112,12 +118,12 @@ if(ASCIIDOCTOR_EXECUTABLE)
         set( _output_txt ${_source_base_name}.txt )
 
         ADD_CUSTOM_COMMAND(
-        OUTPUT
+            OUTPUT
                 ${_output_txt}
-        COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/html2text.py
+            COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/html2text.py
                 ${_output_html}
                 > ${_output_txt}
-        DEPENDS
+            DEPENDS
                 ${CMAKE_CURRENT_SOURCE_DIR}/${_asciidocsource}
                 ${_output_html}
                 ${ARGN}
