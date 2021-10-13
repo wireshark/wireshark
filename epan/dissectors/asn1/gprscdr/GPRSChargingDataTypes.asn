@@ -40,6 +40,7 @@ NodeID,
 PDPAddress,
 PLMN-Id,
 PositioningData,
+PSCellInformation,
 RATType,
 RecordingEntity,
 RecordType,
@@ -181,7 +182,9 @@ SGWRecord 	::= SET
 	servingPLMNRateControl		[61] ServingPLMNRateControl OPTIONAL,
 	pDPPDNTypeExtension			[62] PDPPDNTypeExtension OPTIONAL,
 	mOExceptionDataCounter		[63] MOExceptionDataCounter OPTIONAL,
-	listOfRANSecondaryRATUsageReports [64] SEQUENCE OF RANSecondaryRATUsageReport OPTIONAL
+	listOfRANSecondaryRATUsageReports [64] SEQUENCE OF RANSecondaryRATUsageReport OPTIONAL,
+	pSCellInformation			[65] PSCellInformation OPTIONAL
+
 }
 
 PGWRecord 	::= SET
