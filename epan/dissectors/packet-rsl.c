@@ -165,6 +165,12 @@ static int hf_rsl_phy_ctx_ab_err_bits          = -1;
 static int hf_rsl_phy_ctx_rx_lvl_ext           = -1;
 
 /* Osmocom specific IEs */
+static int hf_rsl_osmo_rep_acch_rxqual = -1;
+static int hf_rsl_osmo_rep_acch_ul_sacch = -1;
+static int hf_rsl_osmo_rep_acch_dl_sacch = -1;
+static int hf_rsl_osmo_rep_acch_dl_facch_all = -1;
+static int hf_rsl_osmo_rep_acch_dl_facch_cmd = -1;
+static int hf_rsl_osmo_top_acch_val = -1;
 static int hf_rsl_osmo_tsc_set = -1;
 static int hf_rsl_osmo_tsc_val = -1;
 
@@ -235,6 +241,8 @@ static int ett_ie_local_port = -1;
 static int ett_ie_local_ip = -1;
 static int ett_ie_rtp_payload = -1;
 static int ett_ie_etws_pn = -1;
+static int ett_ie_osmo_rep_acch_cap = -1;
+static int ett_ie_osmo_top_acch_cap = -1;
 static int ett_ie_osmo_training_seq = -1;
 
 /* Encapsulating paging messages into a packet REF: EP2192796 - proprietor Huawei */
@@ -425,7 +433,9 @@ static const value_string rsl_msg_disc_vals[] = {
 #define RSL_IE_IPAC_RTP_MPLEX_ID          0xfe
 
 /* Osmocom specific RSL IEs */
+#define RSL_IE_OSMO_REP_ACCH_CAP          0x60
 #define RSL_IE_OSMO_TRAINING_SEQUENCE     0x61
+#define RSL_IE_OSMO_TOP_ACCH_CAP          0x62
 
 static const value_string rsl_msg_type_vals[] = {
       /*    0 0 0 0 - - - - Radio Link Layer Management messages: */
@@ -665,7 +675,9 @@ static const value_string rsl_ie_type_vals[] = {
             Not used
 
     */
+/* 0x60 */    { RSL_IE_OSMO_REP_ACCH_CAP, "Repeated ACCH Capabilities" },
 /* 0x61 */    { RSL_IE_OSMO_TRAINING_SEQUENCE, "Training Sequence Code/Set" },
+/* 0x62 */    { RSL_IE_OSMO_TOP_ACCH_CAP, "Temporary ACCH Overpower Capabilities" },
 /* 0xe0 */    { RSL_IE_IPAC_SRTP_CONFIG,"SRTP Configuration" },
 /* 0xe1 */    { RSL_IE_IPAC_PROXY_UDP,  "BSC Proxy UDP Port" },
 /* 0xe2 */    { RSL_IE_IPAC_BSCMPL_TOUT,"BSC Multiplex Timeout" },
@@ -3578,6 +3590,72 @@ dissect_rsl_paging_package_number(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
     return package_number;
 }
 
+static int
+dissect_rsl_ie_osmo_rep_acch_cap(tvbuff_t *tvb, packet_info *pinfo _U_,
+                                 proto_tree *tree, int offset,
+                                 gboolean is_mandatory)
+{
+    proto_item *ti;
+    proto_tree *ie_tree;
+    guint32     length;
+    guint8      ie_id;
+
+    if (is_mandatory == FALSE) {
+        ie_id = tvb_get_guint8(tvb, offset);
+        if (ie_id != RSL_IE_OSMO_REP_ACCH_CAP)
+            return offset;
+    }
+    ie_tree = proto_tree_add_subtree(tree, tvb, offset, 0,
+                                     ett_ie_osmo_rep_acch_cap, &ti,
+                                     "Osmocom Repeated ACCH Capabilities IE");
+
+    /* Element identifier */
+    proto_tree_add_item(ie_tree, hf_rsl_ie_id, tvb, offset++, 1, ENC_NA);
+    /* Length */
+    proto_tree_add_item_ret_uint(ie_tree, hf_rsl_ie_length, tvb, offset++, 1, ENC_NA, &length);
+    proto_item_set_len(ti, length + 2);
+
+    proto_tree_add_item(ie_tree, hf_rsl_osmo_rep_acch_rxqual, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(ie_tree, hf_rsl_osmo_rep_acch_ul_sacch, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(ie_tree, hf_rsl_osmo_rep_acch_dl_sacch, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(ie_tree, hf_rsl_osmo_rep_acch_dl_facch_all, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(ie_tree, hf_rsl_osmo_rep_acch_dl_facch_cmd, tvb, offset, 1, ENC_NA);
+    offset++;
+
+    return offset;
+}
+
+static int
+dissect_rsl_ie_osmo_top_acch_cap(tvbuff_t *tvb, packet_info *pinfo _U_,
+                                 proto_tree *tree, int offset,
+                                 gboolean is_mandatory)
+{
+    proto_item *ti;
+    proto_tree *ie_tree;
+    guint32     length;
+    guint8      ie_id;
+
+    if (is_mandatory == FALSE) {
+        ie_id = tvb_get_guint8(tvb, offset);
+        if (ie_id != RSL_IE_OSMO_TOP_ACCH_CAP)
+            return offset;
+    }
+    ie_tree = proto_tree_add_subtree(tree, tvb, offset, 0,
+                                     ett_ie_osmo_top_acch_cap, &ti,
+                                     "Osmocom Temporary ACCH Overpower Capabilities IE");
+
+    /* Element identifier */
+    proto_tree_add_item(ie_tree, hf_rsl_ie_id, tvb, offset++, 1, ENC_NA);
+    /* Length */
+    proto_tree_add_item_ret_uint(ie_tree, hf_rsl_ie_length, tvb, offset++, 1, ENC_NA, &length);
+    proto_item_set_len(ti, length + 2);
+
+    proto_tree_add_item(ie_tree, hf_rsl_osmo_top_acch_val, tvb, offset, 1, ENC_NA);
+    offset++;
+
+    return offset;
+}
+
 static const value_string rsl_osmo_tsc_set_vals[] = {
     { 0, "TSC Set 1" },
     { 1, "TSC Set 2" },
@@ -4127,6 +4205,12 @@ dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
             offset = dissect_rsl_ie_tfo_transp_cont(tvb, pinfo, tree, offset, FALSE);
         /* Osmocom specific IEs */
         if (global_rsl_use_osmo_bts) {
+            /* Repeated ACCH Capabilities O TLV */
+            if (tvb_reported_length_remaining(tvb, offset) > 0)
+                offset = dissect_rsl_ie_osmo_rep_acch_cap(tvb, pinfo, tree, offset, FALSE);
+            /* Temporary ACCH Overpower Capabilities O TLV */
+            if (tvb_reported_length_remaining(tvb, offset) > 0)
+                offset = dissect_rsl_ie_osmo_top_acch_cap(tvb, pinfo, tree, offset, FALSE);
             /* Training Sequence O TLV 2 */
             if (tvb_reported_length_remaining(tvb, offset) > 0)
                 offset = dissect_rsl_ie_osmo_training_seq(tvb, pinfo, tree, offset, FALSE);
@@ -4237,6 +4321,12 @@ dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
             offset = dissect_rsl_ie_tfo_transp_cont(tvb, pinfo, tree, offset, FALSE);
         /* Osmocom specific IEs */
         if (global_rsl_use_osmo_bts) {
+            /* Repeated ACCH Capabilities O TLV */
+            if (tvb_reported_length_remaining(tvb, offset) > 0)
+                offset = dissect_rsl_ie_osmo_rep_acch_cap(tvb, pinfo, tree, offset, FALSE);
+            /* Temporary ACCH Overpower Capabilities O TLV */
+            if (tvb_reported_length_remaining(tvb, offset) > 0)
+                offset = dissect_rsl_ie_osmo_top_acch_cap(tvb, pinfo, tree, offset, FALSE);
             /* Training Sequence O TLV 2 */
             if (tvb_reported_length_remaining(tvb, offset) > 0)
                 offset = dissect_rsl_ie_osmo_training_seq(tvb, pinfo, tree, offset, FALSE);
@@ -5142,6 +5232,38 @@ void proto_register_rsl(void)
             FT_BYTES, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
+        { &hf_rsl_osmo_rep_acch_rxqual,
+          { "RxQual Threshold", "gsm_abis_rsl.osmo_rep_acch.rxqual",
+            FT_UINT8, BASE_DEC, VALS(gsm_a_rr_rxqual_vals), 0x70,
+            NULL, HFILL }
+        },
+        { &hf_rsl_osmo_rep_acch_ul_sacch,
+          { "Uplink SACCH", "gsm_abis_rsl.osmo_rep_acch.ul_sacch",
+            FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x08,
+            NULL, HFILL }
+        },
+        { &hf_rsl_osmo_rep_acch_dl_sacch,
+          { "Downlink SACCH", "gsm_abis_rsl.osmo_rep_acch.dl_sacch",
+            FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x04,
+            NULL, HFILL }
+        },
+        { &hf_rsl_osmo_rep_acch_dl_facch_all,
+          { "Downlink FACCH (all LDPDm message types)",
+            "gsm_abis_rsl.osmo_rep_acch.dl_facch_all",
+            FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x02,
+            NULL, HFILL }
+        },
+        { &hf_rsl_osmo_rep_acch_dl_facch_cmd,
+          { "Downlink FACCH (LAPDm commands only)",
+            "gsm_abis_rsl.osmo_rep_acch.dl_facch_cmd",
+            FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x01,
+            NULL, HFILL }
+        },
+        { &hf_rsl_osmo_top_acch_val,
+          { "Overpower value", "gsm_abis_rsl.osmo_top_acch.val",
+            FT_UINT8, BASE_DEC | BASE_UNIT_STRING, &units_decibels, 0x07,
+            NULL, HFILL }
+        },
         { &hf_rsl_osmo_tsc_set,
           { "Training Sequence Set", "gsm_abis_rsl.osmo_tsc_set",
             FT_UINT8, BASE_DEC, VALS(rsl_osmo_tsc_set_vals), 0,
@@ -5244,6 +5366,8 @@ void proto_register_rsl(void)
         &ett_phy_ctx_ab_rx_lvl_err_bits,
         &ett_phy_ctx_rxlvl_ext,
         &ett_ie_etws_pn,
+        &ett_ie_osmo_rep_acch_cap,
+        &ett_ie_osmo_top_acch_cap,
         &ett_ie_osmo_training_seq,
     };
     static ei_register_info ei[] = {
