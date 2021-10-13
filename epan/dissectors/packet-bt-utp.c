@@ -14,8 +14,11 @@
 
 #include <epan/packet.h>
 #include <epan/conversation.h>
+#include <epan/exceptions.h>
+#include <epan/show_exception.h>
 #include <epan/prefs.h>
 #include <epan/proto_data.h>
+#include <epan/reassemble.h>
 
 #include "packet-udp.h"
 #include "packet-bt-utp.h"
@@ -129,6 +132,7 @@ Fields Types
 #define V1_MAX_WINDOW_SIZE 0x380000U
 
 static dissector_handle_t bt_utp_handle;
+static dissector_handle_t bittorrent_handle;
 
 static int hf_bt_utp_ver = -1;
 static int hf_bt_utp_type = -1;
@@ -148,23 +152,56 @@ static int hf_bt_utp_wnd_size_v0 = -1;
 static int hf_bt_utp_wnd_size_v1 = -1;
 static int hf_bt_utp_seq_nr = -1;
 static int hf_bt_utp_ack_nr = -1;
+static int hf_bt_utp_len = -1;
 static int hf_bt_utp_data = -1;
+static int hf_bt_utp_pdu_size = -1;
+static int hf_bt_utp_continuation_to = -1;
 
 static gint ett_bt_utp = -1;
 static gint ett_bt_utp_extension = -1;
 
 static gboolean enable_version0 = FALSE;
 static guint max_window_size = V1_MAX_WINDOW_SIZE;
+/* XXX: Desegementation and OOO-reassembly are not supported yet */
+static gboolean utp_desegment = FALSE;
+/*static gboolean utp_reassemble_out_of_order = FALSE;*/
+static gboolean utp_analyze_seq = TRUE;
 
 static guint32 bt_utp_stream_count = 0;
+
+typedef struct _utp_multisegment_pdu {
+
+  guint16 first_seq;
+  guint16 last_seq;
+  guint first_seq_start_offset;
+  guint last_seq_end_offset;
+  /*gint length;
+  guint32 reassembly_id;*/
+  guint32 first_frame;
+
+} utp_multisegment_pdu;
+
+typedef struct _utp_flow_t {
+#if 0
+  /* XXX: Some other things to add in later. */
+  gboolean base_seq_set;
+  guint16 base_seq;
+  guint32 fin;
+  guint32 window;
+  guint32 maxnextseq;
+#endif
+
+  wmem_tree_t *multisegment_pdus;
+} utp_flow_t;
 
 typedef struct {
   guint32 stream;
 
-#if 0
-  /* XXX: Some other things to add in later. The flow will contain
-   * multisegment PDU handling, base sequence numbers, etc. */
   utp_flow_t flow[2];
+  utp_flow_t *fwd;
+  utp_flow_t *rev;
+#if 0
+  /* XXX: Some other things to add in later. */
   nstime_t ts_first;
   nstime_t ts_prev;
   guint8 conversation_completeness;
@@ -180,6 +217,9 @@ typedef struct {
   guint16 seq;
   guint16 ack;
   guint32 seglen; /* reported length remaining */
+  gboolean have_seglen;
+
+  proto_tree *tree; /* For the bittorrent subdissector to access */
 } utp_info_t;
 
 static utp_stream_info_t*
@@ -188,6 +228,7 @@ get_utp_stream_info(packet_info *pinfo, utp_info_t *utp_info)
   conversation_t* conv;
   utp_stream_info_t *stream_info;
   guint32 id_up, id_down;
+  int direction;
 
   /* Handle connection ID wrapping correctly. (Mainline libutp source
    * does not appear to do this, probably fails to connect if the random
@@ -250,10 +291,325 @@ get_utp_stream_info(packet_info *pinfo, utp_info_t *utp_info)
   if (!stream_info) {
     stream_info = wmem_new0(wmem_file_scope(), utp_stream_info_t);
     stream_info->stream = bt_utp_stream_count++;
+    stream_info->flow[0].multisegment_pdus=wmem_tree_new(wmem_file_scope());
+    stream_info->flow[1].multisegment_pdus=wmem_tree_new(wmem_file_scope());
     conversation_add_proto_data(conv, proto_bt_utp, stream_info);
   }
 
+  /* check direction */
+  direction=cmp_address(&pinfo->src, &pinfo->dst);
+  /* if the addresses are equal, match the ports instead. Use
+   * the UDP ports instead of the uTP connection IDs because
+   * we don't know which ID is smaller if we don't have both. */
+  if(direction==0) {
+      direction= (pinfo->srcport > pinfo->destport) ? 1 : -1;
+  }
+  if(direction>=0) {
+      stream_info->fwd=&(stream_info->flow[0]);
+      stream_info->rev=&(stream_info->flow[1]);
+  } else {
+      stream_info->fwd=&(stream_info->flow[1]);
+      stream_info->rev=&(stream_info->flow[0]);
+  }
+
   return stream_info;
+}
+
+static void
+print_pdu_tracking_data(packet_info *pinfo, tvbuff_t *tvb, proto_tree *utp_tree, utp_multisegment_pdu *msp)
+{
+    proto_item *item;
+
+    col_prepend_fence_fstr(pinfo->cinfo, COL_INFO, "[Continuation to #%u] ", msp->first_frame);
+    item=proto_tree_add_uint(utp_tree, hf_bt_utp_continuation_to,
+        tvb, 0, 0, msp->first_frame);
+    proto_item_set_generated(item);
+}
+
+static int
+scan_for_next_pdu(tvbuff_t *tvb, proto_tree *utp_tree, packet_info *pinfo, wmem_tree_t *multisegment_pdus)
+{
+  utp_multisegment_pdu *msp;
+  utp_info_t *p_utp_info;
+  guint16 seq, prev_seq;
+
+  p_utp_info = (utp_info_t *)p_get_proto_data(pinfo->pool, pinfo, proto_bt_utp, pinfo->curr_layer_num);
+
+  /* XXX: Wraparound is possible, as is cycling through all 16 bit
+   * sequence numbers in a connection. We only do this path if
+   * "seq analysis" is on; that ought to do something (relative
+   * sequence numbers definitely, maybe extend the width?) to help,
+   * but doesn't yet.
+   */
+  seq = p_utp_info->seq;
+  prev_seq = seq - 1;
+  msp = (utp_multisegment_pdu *)wmem_tree_lookup32_le(multisegment_pdus, prev_seq);
+  if (msp) {
+
+    if(seq>msp->first_seq && seq<=msp->last_seq) {
+      print_pdu_tracking_data(pinfo, tvb, utp_tree, msp);
+    }
+
+    /* If this segment is completely within a previous PDU
+     * then we just skip this packet
+     */
+    if(seq>msp->first_seq && seq<msp->last_seq) {
+      return -1;
+    }
+
+    if(seq>msp->first_seq && seq==msp->last_seq) {
+      if (!PINFO_FD_VISITED(pinfo) && p_utp_info->have_seglen) {
+        /* Unlike TCP, the sequence numbers don't measure bytes, so
+         * we can only really update the end of the MSP when the packets
+         * are in order, and if we have the real segment length (so not
+         * an unreassembled IP fragment).
+         */
+        if (p_utp_info->seglen >= msp->last_seq_end_offset) {
+          return msp->last_seq_end_offset;
+        } else {
+          msp->last_seq++;
+          msp->last_seq_end_offset -= p_utp_info->seglen;
+          return -1;
+        }
+      } else {
+        /* We can still provide a hint to the offset start in some
+         * cases even when we can't update the MSP.
+         */
+        if (msp->last_seq_end_offset < tvb_reported_length(tvb)) {
+          return msp->last_seq_end_offset;
+        } else {
+          return -1;
+        }
+      }
+    }
+  }
+
+  return 0;
+}
+
+static utp_multisegment_pdu *
+pdu_store_sequencenumber_of_next_pdu(packet_info *pinfo, guint16 seq, int offset, guint32 bytes_until_next_pdu, wmem_tree_t *multisegment_pdus)
+{
+  utp_multisegment_pdu *msp;
+
+  msp = wmem_new(wmem_file_scope(), utp_multisegment_pdu);
+  msp->first_seq = seq;
+  msp->first_seq_start_offset = offset;
+  msp->last_seq = seq+1;
+  msp->last_seq_end_offset = bytes_until_next_pdu;
+  msp->first_frame = pinfo->num;
+  wmem_tree_insert32(multisegment_pdus, seq, (void *)msp);
+
+  return msp;
+}
+
+#if 0
+static void
+desegment_utp(tvbuff_t *tvb, packet_info *pinfo, int offset,
+              guint32 seq, guint32 nxtseq,
+              proto_tree *tree, proto_tree *utp_tree,
+              utp_stream_info_t *stream_info)
+{
+
+}
+#endif
+
+void
+utp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                 gboolean proto_desegment, guint fixed_len,
+                 guint (*get_pdu_len)(packet_info *, tvbuff_t *, int, void*),
+                 dissector_t dissect_pdu, void* dissector_data)
+{
+  volatile int offset = 0;
+  int offset_before;
+  guint captured_length_remaining;
+  volatile guint plen;
+  guint length;
+  tvbuff_t *next_tvb;
+  proto_item *item=NULL;
+  const char *saved_proto;
+  guint8 curr_layer_num;
+  wmem_list_frame_t *frame;
+
+  while (tvb_reported_length_remaining(tvb, offset) > 0) {
+    /*
+     * We use "tvb_ensure_captured_length_remaining()" to make
+     * sure there actually *is* data remaining.  The protocol
+     * we're handling could conceivably consists of a sequence of
+     * fixed-length PDUs, and therefore the "get_pdu_len" routine
+     * might not actually fetch anything from the tvbuff, and thus
+     * might not cause an exception to be thrown if we've run past
+     * the end of the tvbuff.
+     *
+     * This means we're guaranteed that "captured_length_remaining" is positive.
+     */
+    captured_length_remaining = tvb_ensure_captured_length_remaining(tvb, offset);
+
+    /*
+     * Can we do reassembly?
+     */
+    if (proto_desegment && pinfo->can_desegment) {
+      /*
+       * Yes - is the fixed-length part of the PDU split across segment
+       * boundaries?
+       */
+      if (captured_length_remaining < fixed_len) {
+        /*
+         * Yes.  Tell the uTP dissector where the data for this message
+         * starts in the data it handed us and that we need "some more
+         * data."  Don't tell it exactly how many bytes we need because
+         * if/when we ask for even more (after the header) that will
+         * break reassembly.
+         */
+        pinfo->desegment_offset = offset;
+        pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
+        return;
+      }
+    }
+
+    /*
+     * Get the length of the PDU.
+     */
+    plen = (*get_pdu_len)(pinfo, tvb, offset, dissector_data);
+    if (plen == 0) {
+      /*
+       * Support protocols which have a variable length which cannot
+       * always be determined within the given fixed_len.
+       */
+      DISSECTOR_ASSERT(proto_desegment && pinfo->can_desegment);
+      pinfo->desegment_offset = offset;
+      pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
+      return;
+    }
+    if (plen < fixed_len) {
+      /*
+       * Either:
+       *
+       *  1) the length value extracted from the fixed-length portion
+       *     doesn't include the fixed-length portion's length, and
+       *     was so large that, when the fixed-length portion's
+       *     length was added to it, the total length overflowed;
+       *
+       *  2) the length value extracted from the fixed-length portion
+       *     includes the fixed-length portion's length, and the value
+       *     was less than the fixed-length portion's length, i.e. it
+       *     was bogus.
+       *
+       * Report this as a bounds error.
+       */
+      show_reported_bounds_error(tvb, pinfo, tree);
+      return;
+    }
+
+    /* give a hint to uTP where the next PDU starts
+     * so that it can attempt to find it in case it starts
+     * somewhere in the middle of a segment.
+     */
+    if(!pinfo->fd->visited && utp_analyze_seq) {
+      guint remaining_bytes;
+      remaining_bytes = tvb_reported_length_remaining(tvb, offset);
+      if(plen>remaining_bytes) {
+        pinfo->want_pdu_tracking=2;
+        pinfo->bytes_until_next_pdu=plen-remaining_bytes;
+      }
+    }
+
+    /*
+     * Can we do reassembly?
+     */
+    if (proto_desegment && pinfo->can_desegment) {
+      /*
+       * Yes - is the PDU split across segment boundaries?
+       */
+      if (captured_length_remaining < plen) {
+        /*
+         * Yes.  Tell the TCP dissector where the data for this message
+         * starts in the data it handed us, and how many more bytes we
+         * need, and return.
+         */
+        pinfo->desegment_offset = offset;
+        pinfo->desegment_len = plen - captured_length_remaining;
+        return;
+      }
+    }
+
+    curr_layer_num = pinfo->curr_layer_num-1;
+    frame = wmem_list_frame_prev(wmem_list_tail(pinfo->layers));
+    while (frame && (proto_bt_utp != (gint) GPOINTER_TO_UINT(wmem_list_frame_data(frame)))) {
+      frame = wmem_list_frame_prev(frame);
+      curr_layer_num--;
+    }
+#if 0
+    if (captured_length_remaining >= plen || there are more packets)
+    {
+#endif
+          /*
+           * Display the PDU length as a field
+           */
+          item=proto_tree_add_uint(((utp_info_t *)p_get_proto_data(pinfo->pool, pinfo, proto_bt_utp, curr_layer_num))->tree,
+                                   hf_bt_utp_pdu_size,
+                                   tvb, offset, plen, plen);
+          proto_item_set_generated(item);
+#if 0
+    } else {
+          item = proto_tree_add_expert_format((proto_tree *)p_get_proto_data(pinfo->pool, pinfo, proto_bt_utp, curr_layer_num),
+                                  tvb, offset, -1,
+              "PDU Size: %u cut short at %u",plen,captured_length_remaining);
+          proto_item_set_generated(item);
+    }
+#endif
+
+    /*
+     * Construct a tvbuff containing the amount of the payload we have
+     * available.  Make its reported length the amount of data in the PDU.
+     */
+    length = captured_length_remaining;
+    if (length > plen) {
+      length = plen;
+    }
+    next_tvb = tvb_new_subset_length_caplen(tvb, offset, length, plen);
+    if (!(proto_desegment && pinfo->can_desegment)) {
+      /* If we can't do reassembly, give a hint that bounds errors
+       * are probably fragment errors. */
+      tvb_set_fragment(next_tvb);
+    }
+
+    /*
+     * Dissect the PDU.
+     *
+     * If it gets an error that means there's no point in
+     * dissecting any more PDUs, rethrow the exception in
+     * question.
+     *
+     * If it gets any other error, report it and continue, as that
+     * means that PDU got an error, but that doesn't mean we should
+     * stop dissecting PDUs within this frame or chunk of reassembled
+     * data.
+     */
+    saved_proto = pinfo->current_proto;
+    TRY {
+      (*dissect_pdu)(next_tvb, pinfo, tree, dissector_data);
+    }
+    CATCH_NONFATAL_ERRORS {
+      show_exception(tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
+      /*
+       * Restore the saved protocol as well; we do this after
+       * show_exception(), so that the "Malformed packet" indication
+       * shows the protocol for which dissection failed.
+       */
+      pinfo->current_proto = saved_proto;
+    }
+    ENDTRY;
+
+    /*
+     * Step to the next PDU.
+     * Make sure we don't overflow.
+     */
+    offset_before = offset;
+    offset += plen;
+    if (offset <= offset_before)
+        break;
+  }
 }
 
 static gint
@@ -335,7 +691,7 @@ dissect_utp_header_v0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
 
   p_utp_info = wmem_new(pinfo->pool, utp_info_t);
   p_utp_info->v0 = TRUE;
-  p_add_proto_data(pinfo->pool, pinfo, proto_bt_utp, 0, p_utp_info);
+  p_add_proto_data(pinfo->pool, pinfo, proto_bt_utp, pinfo->curr_layer_num, p_utp_info);
 
   proto_tree_add_item_ret_uint(tree, hf_bt_utp_connection_id_v0, tvb, offset, 4, ENC_BIG_ENDIAN, &connection);
   offset += 4;
@@ -393,7 +749,7 @@ dissect_utp_header_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
 
   p_utp_info = wmem_new(pinfo->pool, utp_info_t);
   p_utp_info->v0 = FALSE;
-  p_add_proto_data(pinfo->pool, pinfo, proto_bt_utp, 0, p_utp_info);
+  p_add_proto_data(pinfo->pool, pinfo, proto_bt_utp, pinfo->curr_layer_num, p_utp_info);
 
   proto_tree_add_item(tree, hf_bt_utp_ver, tvb, offset, 1, ENC_BIG_ENDIAN);
   proto_tree_add_item_ret_uint(tree, hf_bt_utp_type, tvb, offset, 1, ENC_BIG_ENDIAN, &type);
@@ -508,6 +864,158 @@ dissect_utp_extension(tvbuff_t *tvb, packet_info _U_*pinfo, proto_tree *tree, in
   return offset;
 }
 
+gboolean
+decode_utp(tvbuff_t *tvb, int offset, packet_info *pinfo,
+    proto_tree *tree)
+{
+  proto_tree *parent_tree;
+  tvbuff_t *next_tvb;
+  int save_desegment_offset;
+  guint32 save_desegment_len;
+
+  /* XXX: Check for retransmission? */
+
+  next_tvb = tvb_new_subset_remaining(tvb, offset);
+
+  save_desegment_offset = pinfo->desegment_offset;
+  save_desegment_len = pinfo->desegment_len;
+
+  /* The only possible payload is bittorrent */
+
+  parent_tree = proto_tree_get_parent_tree(tree);
+  if (call_dissector_with_data(bittorrent_handle, next_tvb, pinfo, parent_tree, NULL)) {
+    pinfo->want_pdu_tracking -= !!(pinfo->want_pdu_tracking);
+    return TRUE;
+  }
+
+  DISSECTOR_ASSERT(save_desegment_offset == pinfo->desegment_offset &&
+                   save_desegment_len == pinfo->desegment_len);
+
+  call_data_dissector(tvb, pinfo, parent_tree);
+  pinfo->want_pdu_tracking -= !!(pinfo->want_pdu_tracking);
+
+  return FALSE;
+}
+
+static void
+process_utp_payload(tvbuff_t *tvb, packet_info *pinfo,
+    proto_tree *tree, guint16 seq, gboolean is_utp_segment,
+    utp_stream_info_t *stream_info)
+{
+  volatile int offset = 0;
+  pinfo->want_pdu_tracking = 0;
+
+  TRY {
+    if (is_utp_segment) {
+      /* See if an unaligned PDU */
+      if (stream_info && utp_analyze_seq && (!utp_desegment)) {
+        offset = scan_for_next_pdu(tvb, tree, pinfo,
+                stream_info->fwd->multisegment_pdus);
+      }
+    }
+
+    if ((offset != -1) && decode_utp(tvb, offset, pinfo, tree)) {
+      /*
+       * We succeeded in handing off to bittorent.
+       *
+       * Is this a segment (so we're not desegmenting for whatever
+       * reason)? Then at least do rudimentary PDU tracking.
+       */
+      if(is_utp_segment) {
+        /* if !visited, check want_pdu_tracking and
+           store it in table */
+        if(stream_info && (!pinfo->fd->visited) &&
+            utp_analyze_seq && pinfo->want_pdu_tracking) {
+              pdu_store_sequencenumber_of_next_pdu(
+                  pinfo,
+                  seq,
+                  offset,
+                  pinfo->bytes_until_next_pdu,
+                  stream_info->fwd->multisegment_pdus);
+        }
+      }
+    }
+  }
+  CATCH_ALL {
+    /* We got an exception. Before dissection is aborted and execution
+     * is transferred back to (probably) the frame dissector, do PDU
+     * tracking if we need to because this is a segment.
+     */
+    if (is_utp_segment) {
+        if(stream_info && (!pinfo->fd->visited) &&
+            utp_analyze_seq && pinfo->want_pdu_tracking) {
+              pdu_store_sequencenumber_of_next_pdu(
+                  pinfo,
+                  seq,
+                  offset,
+                  pinfo->bytes_until_next_pdu,
+                  stream_info->fwd->multisegment_pdus);
+        }
+    }
+    RETHROW;
+  }
+  ENDTRY;
+}
+
+static guint
+dissect_utp_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  proto_item *ti;
+
+  utp_info_t *p_utp_info;
+  guint len_tvb;
+  gboolean save_fragmented;
+
+  p_utp_info = (utp_info_t *)p_get_proto_data(pinfo->pool, pinfo, proto_bt_utp, pinfo->curr_layer_num);
+
+  p_utp_info->tree = tree;
+
+  utp_stream_info_t *stream_info;
+  stream_info = get_utp_stream_info(pinfo, p_utp_info);
+
+  len_tvb = tvb_reported_length(tvb);
+
+  /* As with TCP, if we've been handed an IP fragment, we don't really
+   * know how big the segment is, and we don't really want to do anything
+   * if this is an error packet from ICMP or similar.
+   *
+   * XXX: We don't want to desegment if the UDP checksum is bad either.
+   * Need to add that to the per-packet info that UDP stores and access
+   * it.
+   */
+  pinfo->can_desegment = 0;
+  if (!pinfo->fragmented && !pinfo->flags.in_error_pkt) {
+    p_utp_info->seglen = len_tvb;
+    p_utp_info->have_seglen = TRUE;
+
+    ti = proto_tree_add_uint(tree, hf_bt_utp_len, tvb, 0, 0, len_tvb);
+    proto_item_set_generated(ti);
+    col_append_str_uint(pinfo->cinfo, COL_INFO, "Len", len_tvb, " ");
+
+    if (utp_desegment && tvb_bytes_exist(tvb, 0, len_tvb)) {
+      /* If we actually have the bytes too then we can desegment. */
+      pinfo->can_desegment = 2;
+    }
+  } else {
+    p_utp_info->have_seglen = FALSE;
+  }
+
+  if(tvb_captured_length(tvb)) {
+    proto_tree_add_item(tree, hf_bt_utp_data, tvb, 0, len_tvb, ENC_NA);
+    if (pinfo->can_desegment) {
+      /* XXX: desegment_utp() is not implemented, but we can't get
+       * into this code path yet because utp_desegment is FALSE. */
+    } else {
+      save_fragmented = pinfo->fragmented;
+      pinfo->fragmented = TRUE;
+      process_utp_payload(tvb, pinfo, tree, p_utp_info->seq, TRUE, stream_info);
+      pinfo->fragmented = save_fragmented;
+    }
+  }
+
+  return len_tvb;
+}
+
 static int
 dissect_bt_utp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -517,7 +1025,6 @@ dissect_bt_utp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
   /* try dissecting */
   if (version >= 0)
   {
-    guint len_tvb;
     proto_tree *sub_tree = NULL;
     proto_item *ti;
     gint offset = 0;
@@ -542,15 +1049,9 @@ dissect_bt_utp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
     offset = dissect_utp_extension(tvb, pinfo, sub_tree, offset, &extension_type);
 
-    len_tvb = tvb_reported_length_remaining(tvb, offset);
-    if(len_tvb > 0) {
-      col_append_str_uint(pinfo->cinfo, COL_INFO, "Len", len_tvb, " ");
-      proto_tree_add_item(sub_tree, hf_bt_utp_data, tvb, offset, len_tvb, ENC_NA);
-      utp_info_t *p_utp_info = (utp_info_t *)p_get_proto_data(pinfo->pool, pinfo, proto_bt_utp, 0);
-      p_utp_info->seglen = len_tvb;
-    }
+    offset += dissect_utp_payload(tvb_new_subset_remaining(tvb, offset), pinfo, sub_tree);
 
-    return offset+len_tvb;
+    return tvb_reported_length(tvb);
   }
   return 0;
 }
@@ -675,10 +1176,25 @@ proto_register_bt_utp(void)
       FT_UINT16, BASE_DEC, NULL, 0x0,
       NULL, HFILL }
     },
+    { &hf_bt_utp_len,
+      { "uTP Segment Len", "bt-utp.len",
+      FT_UINT32, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }
+    },
     { &hf_bt_utp_data,
       { "Data", "bt-utp.data",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       NULL, HFILL }
+    },
+    { &hf_bt_utp_pdu_size,
+      { "PDU Size", "bt-utp.pdu.size",
+      FT_UINT32, BASE_DEC, NULL, 0x0,
+      "The size of this PDU", HFILL }
+    },
+    { &hf_bt_utp_continuation_to,
+      { "This is a continuation to the PDU in frame",
+      "bt-utp.continuation_to", FT_FRAMENUM, BASE_NONE,
+      NULL, 0x0, "This is a continuation to the PDU in frame #", HFILL }
     },
   };
 
@@ -692,6 +1208,14 @@ proto_register_bt_utp(void)
 
   bt_utp_module = prefs_register_protocol(proto_bt_utp, NULL);
   prefs_register_obsolete_preference(bt_utp_module, "enable");
+  prefs_register_bool_preference(bt_utp_module,
+      "analyze_sequence_numbers",
+      "Analyze uTP sequence numbers",
+      "Make the uTP dissector analyze uTP sequence numbers. Currently this "
+      "just means that it tries to find the correct start offset of a PDU "
+      "if it detected that previous in-order packets spanned multiple "
+      "frames.",
+      &utp_analyze_seq);
   prefs_register_bool_preference(bt_utp_module,
       "enable_version0",
       "Dissect prerelease (version 0) packets",
@@ -726,6 +1250,8 @@ proto_reg_handoff_bt_utp(void)
 
   bt_utp_handle = create_dissector_handle(dissect_bt_utp, proto_bt_utp);
   dissector_add_for_decode_as_with_preference("udp.port", bt_utp_handle);
+
+  bittorrent_handle = find_dissector_add_dependency("bittorrent.utp", proto_bt_utp);
 }
 
 /*

@@ -18,6 +18,7 @@
 #include <epan/strutil.h>
 
 #include "packet-tcp.h"
+#include "packet-bt-utp.h"
 
 void proto_register_bittorrent(void);
 void proto_reg_handoff_bittorrent(void);
@@ -574,6 +575,14 @@ int dissect_bittorrent (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 }
 
 static
+int dissect_bittorrent_utp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+{
+   utp_dissect_pdus(tvb, pinfo, tree, bittorrent_desegment, BITTORRENT_HEADER_LENGTH,
+                    get_bittorrent_pdu_length, dissect_bittorrent_tcp_pdu, data);
+   return tvb_reported_length(tvb);
+}
+
+static
 gboolean test_bittorrent_packet (tvbuff_t *tvb, packet_info *pinfo,
                                  proto_tree *tree, void *data)
 {
@@ -692,6 +701,7 @@ proto_register_bittorrent(void)
    proto_register_subtree_array(ett, array_length(ett));
 
    dissector_handle = register_dissector("bittorrent.tcp", dissect_bittorrent, proto_bittorrent);
+   register_dissector("bittorrent.utp", dissect_bittorrent_utp, proto_bittorrent);
 
    bittorrent_module = prefs_register_protocol(proto_bittorrent, NULL);
    prefs_register_bool_preference(bittorrent_module, "desegment",
