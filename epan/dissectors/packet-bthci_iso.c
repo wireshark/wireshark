@@ -407,6 +407,12 @@ dissect_bthci_iso(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             if (!pinfo->fd->visited) {
                 len = tvb_captured_length_remaining(tvb, offset);
                 if (mfp != NULL && !mfp->last_frame) {
+                    int avail = (int)mfp->tot_len - mfp->cur_off;
+                    if (len > avail) {
+                        expert_add_info(pinfo, sub_item, &ei_length_bad);
+                        /* Try to reassemble as much as possible */
+                        len = avail;
+                    }
                     tvb_memcpy(tvb, (guint8 *) mfp->reassembled + mfp->cur_off, offset, len);
                     mfp->cur_off += len;
                     if (pb_flag == 0x03)
@@ -520,7 +526,7 @@ proto_register_bthci_iso(void)
     };
 
     static ei_register_info ei[] = {
-        { &ei_length_bad,      { "bthci_iso.length.bad",      PI_MALFORMED, PI_WARN, "Length too short", EXPFILL }},
+        { &ei_length_bad,      { "bthci_iso.length.bad",      PI_MALFORMED, PI_WARN, "Invalid length", EXPFILL }},
     };
 
     /* Register the protocol name and description */
