@@ -1141,6 +1141,13 @@ File "${STAGING_DIR}\capinfos.exe"
 File "${STAGING_DIR}\capinfos.html"
 SectionEnd
 
+Section "Captype" SecCaptype
+;-------------------------------------------
+SetOutPath $INSTDIR
+File "${STAGING_DIR}\captype.exe"
+File "${STAGING_DIR}\captype.html"
+SectionEnd
+
 Section "Rawshark" SecRawshark
 ;-------------------------------------------
 SetOutPath $INSTDIR
@@ -1255,6 +1262,7 @@ SectionEnd
   !insertmacro MUI_DESCRIPTION_TEXT ${SecReordercap} "Copy packets to a new file, sorted by time."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecDFTest} "Shows display filter byte-code, for debugging dfilter routines"
   !insertmacro MUI_DESCRIPTION_TEXT ${SecCapinfos} "Print information about capture files."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecCaptype} "Print the types capture files."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecRawshark} "Raw packet filter."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecRandpkt} "Random packet generator."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecMMDBResolve} "MaxMind Database resolution tool"

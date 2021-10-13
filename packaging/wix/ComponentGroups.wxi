@@ -389,6 +389,24 @@
     </ComponentGroup>
   </Fragment>
 
+  <!-- Captype -->
+  <Fragment>
+    <DirectoryRef Id="INSTALLFOLDER">
+      <Component Id="cmpCaptype_exe" Guid="*">
+        <File Id="filCaptype_exe" KeyPath="yes" Source="$(var.Staging.Dir)\captype.exe" />
+      </Component>
+      <Component Id="cmpCaptype_html" Guid="*">
+        <File Id="filCaptype_html" KeyPath="yes" Source="$(var.Staging.Dir)\captype.html" />
+      </Component>
+    </DirectoryRef>
+  </Fragment>
+  <Fragment>
+    <ComponentGroup Id="CG.Tools.Captype">
+      <ComponentRef Id="cmpCaptype_exe" />
+      <ComponentRef Id="cmpCaptype_html" />
+    </ComponentGroup>
+  </Fragment>
+
   <!-- Rawshark -->
   <Fragment>
     <DirectoryRef Id="INSTALLFOLDER">
