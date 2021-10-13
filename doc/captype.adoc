@@ -13,6 +13,8 @@ captype - Prints the types of capture files
 
 [manarg]
 *captype*
+[ *-h* ]
+[ *-v* ]
 <__infile__>
 __...__
 
@@ -29,6 +31,20 @@ Near the beginning of the DESCRIPTION section of xref:wireshark.html[wireshark](
 https://www.wireshark.org/docs/man-pages/wireshark.html
 is a detailed description of the way *Wireshark* handles this, which is
 the same way *Captype* handles this.
+
+== OPTIONS
+
+-h|--help::
++
+--
+Print the version number and options and exit.
+--
+
+-v|--version::
++
+--
+Print the full version information and exit.
+--
 
 == SEE ALSO
 

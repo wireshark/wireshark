@@ -47,7 +47,11 @@ static void
 print_usage(FILE *output)
 {
   fprintf(output, "\n");
-  fprintf(output, "Usage: captype <infile> ...\n");
+  fprintf(output, "Usage: captype [options] <infile> ...\n");
+  fprintf(output, "\n");
+  fprintf(output, "Miscellaneous:\n");
+  fprintf(output, "  -h, --help               display this help and exit\n");
+  fprintf(output, "  -v, --version            display version info and exit\n");
 }
 
 /*
