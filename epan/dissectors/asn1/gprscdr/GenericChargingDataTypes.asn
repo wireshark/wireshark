@@ -39,6 +39,10 @@ FROM ACSE-1 {joint-iso-itu-t association-control (2) modules (0) apdus (0) versi
 --  Generic Data Types
 --
 
+-- 
+-- B
+-- 
+
 BCDDirectoryNumber		::= OCTET STRING
 --
 -- This type contains the binary coded decimal representation of
@@ -54,6 +58,10 @@ BCDDirectoryNumber		::= OCTET STRING
 	-- octets 1 and 2, the element name and length, as this would be 
 -- redundant.
 --
+
+-- 
+-- C
+-- 
 
 CallDuration 			::= INTEGER
 --
@@ -223,6 +231,7 @@ CauseForRecClosing	::= INTEGER
 -- 
 {
 	normalRelease					(0),
+	partialRecord					(1),
 	abnormalRelease					(4),
 	cAMELInitCallRelease			(5),
 	volumeLimit						(16),
@@ -282,6 +291,10 @@ CNIPMulticastDistribution		::= ENUMERATED
 	iP-MULTICAST				(1)
 }
 
+-- 
+-- D
+-- 
+
 DataVolumeOctets		::= INTEGER
 --
 -- The volume of data transferred in octets.
@@ -302,25 +315,51 @@ Diagnostics						::= CHOICE
 	itu-tQ767Cause							[2] INTEGER,
 	-- See Q.767 [309]
 	networkSpecificCause						[3] ManagementExtension,
-	-- To be defined by network operator	
+	-- To be defined by network operator
 	manufacturerSpecificCause				[4] ManagementExtension,
-	-- To be defined by manufacturer	
+	-- To be defined by manufacturer
+	-- May be used for CHF generated diagnostics
 	positionMethodFailureCause				[5] PositionMethodFailure-Diagnostic,
-	-- see TS 29.002 [214]
+	-- See TS 29.002 [214]
 	unauthorizedLCSClientCause				[6] UnauthorizedLCSClient-Diagnostic,
-	-- see TS 29.002 [214] 
+	-- See TS 29.002 [214] 
 	diameterResultCodeAndExperimentalResult	[7] INTEGER
-	-- See TS 29.338 [230], TS 29.337 [231], TS 29.128 [244]	
+	-- See TS 29.338 [230], TS 29.337 [231], TS 29.128 [244]
+-- May be used for Nchf received diagnostics
 }
 
 DiameterIdentity		::= OCTET STRING
+
+-- 
+-- E
+-- 
+
+Ecgi	::= SEQUENCE
+{
+	plmnId					[0] PLMN-Id,
+	eutraCellId			[1] EutraCellId,
+	nid						[2] Nid OPTIONAL
+}
 
 EnhancedDiagnostics					::= SEQUENCE
 {
 	rANNASCause						[0] SEQUENCE OF RANNASCause
 }
 
+EutraCellId		::= UTF8String
+-- 
+-- See 3GPP TS 29.571 [249] for details
+-- 
+
+-- 
+-- G
+-- 
+
 GSNAddress	::= IPAddress
+
+-- 
+-- I
+-- 
 
 InvolvedParty ::= CHOICE 
 {
@@ -362,11 +401,19 @@ IPBinV6AddressWithPrefixLength ::= SEQUENCE
 
 IPTextRepresentedAddress	::= CHOICE
 {	--
-	-- IP address in the familiar "dot" notation
+	-- IPv4 address are formatted in the "dotted decimal" notation according to IETF RFC 1166 [411].
+	-- IPv6 address are formatted according to clause 4 of IETF RFC 5952 [412]. The mixed IPv4 IPv6
+	-- notation according to clause 5 of IETF RFC 5952 [412] is not used.
+	-- IPv6 address prefix are formatted in the "/" notation and according to clause 4 of 
+	-- IETF RFC 5952 [412].
 	--
 	iPTextV4Address		[2] IA5String (SIZE(7..15)),
 	iPTextV6Address		[3] IA5String (SIZE(15..45))
 }
+
+-- 
+-- L
+-- 
 
 LCSCause				::= OCTET STRING (SIZE(1))
 --
@@ -409,6 +456,11 @@ LocationAreaCode		::= OCTET STRING (SIZE(2))
 --
 -- See TS 24.008 [208]
 --
+
+-- 
+-- M
+-- 
+
 
 ManagementExtensions	::= SET OF ManagementExtension
 
@@ -500,6 +552,21 @@ MSTimeZone	::= OCTET STRING (SIZE (2))
 -- 1. Octet: Time Zone and 2. Octet: Daylight saving time, see TS 29.060 [215]
 --
 
+-- 
+-- N
+-- 
+
+Ncgi	::= SEQUENCE
+{
+	plmnId					[0] PLMN-Id,
+	nrCellId			[1] NrCellId,
+	nid						[2] Nid OPTIONAL
+}
+
+Nid		::= UTF8String--
+-- See 3GPP TS 29.571 [249] for details.
+-- 
+
 NodeID		::= IA5String (SIZE(1..20))
 
 NodeAddress ::= CHOICE 
@@ -507,6 +574,16 @@ NodeAddress ::= CHOICE
 	iPAddress 	[0] IPAddress,
 	domainName	[1] GraphicString
 }
+
+NrCellId		::= UTF8String
+--
+-- See 3GPP TS 29.571 [249] for details.
+-- 
+
+
+-- 
+-- P
+-- 
 
 PDPAddressPrefixLength		::=INTEGER (1..64)
 --
@@ -538,6 +615,17 @@ PriorityType	::= ENUMERATED
 	normal		(1),
 	high		(2)
 }
+
+PSCellInformation	::= SEQUENCE
+{
+	nRcgi					[0] Ncgi OPTIONAL,
+	ecgi					[1] Ecgi OPTIONAL 
+
+}
+
+-- 
+-- R
+-- 
 
 RANNASCause				::=	OCTET STRING
 -- This octet string is a 1:1 copy of the contents (i.e. starting with octet 5)
@@ -643,7 +731,7 @@ RecordType 	::= INTEGER
 	iBCFRecord				(82),
 	tRFRecord				(89),
 	tFRecord				(90),
-	aTCFRecord				(91),
+aTCFRecord				(91),
 --
 --  Record values 71..75 are LCS specific. The contents are defined in TS 32.271 [31]
 --
@@ -746,6 +834,10 @@ RoutingAreaCode	::= OCTET STRING (SIZE(1))
 -- See TS 24.008 [208]	
 --
 
+-- 
+-- S
+-- 
+
 SCSASAddress		::= SET
 --
 -- 
@@ -807,7 +899,7 @@ SubscriberEquipmentType	::= ENUMERATED
 
 SubscriptionID	::= SET
 --
--- used for ExternalIdentifier with SubscriptionIdType = END-User-NAI. See TS 23.003 [200]
+-- See TS 23.003 [200] and TS 29.571 [249]
 --
 {
 	subscriptionIDType	[0]	SubscriptionIDType,
@@ -823,9 +915,10 @@ SubscriptionIDType	::= ENUMERATED
 	eND-USER-PRIVATE		(4)
 
 --
--- eND-USER-IMSI can be used for 5G BRG or 5G CRG. 
--- eND-USER-NAI can be used to contain GLI or GCI for wireline access network scenarios
--- NAI format containing a GCI or GLI is specified in 28.15.5 and 28.15.6 of TS 23.003 [200]. 
+-- eND-USER-NAI can be used for externalIdentifier.
+-- eND-USER-IMSI can be used for 5G BRG or 5G CRG.
+-- eND-USER-NAI can be used for GLI or GCI for wireline access network scenarios
+-- NAI format for GCI and GLI is specified in 28.15.5 and 28.15.6 of TS 23.003 [200]. 
 --
 
 }
@@ -839,6 +932,10 @@ SystemType	::= ENUMERATED
 	iuUTRAN				(1),
 	gERAN				(2)
 }
+
+-- 
+-- T
+-- 
 
 ThreeGPPPSDataOffStatus		::= ENUMERATED
 {
