@@ -267,6 +267,9 @@ static dissector_handle_t gsm_a_sacch_handle;
 /* Decode things as nanoBTS traces */
 static gboolean global_rsl_use_nano_bts = FALSE;
 
+/* Decode Osmocom specific messages and IEs */
+static gboolean global_rsl_use_osmo_bts = FALSE;
+
 /* Decode things in Physical Context Information field. */
 static gboolean global_rsl_dissect_phy_ctx_inf = TRUE;
 
@@ -4122,9 +4125,12 @@ dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
         /* TFO transparent container 9.3.59 O 12) TLV >=3   */
         if (tvb_reported_length_remaining(tvb, offset) > 0)
             offset = dissect_rsl_ie_tfo_transp_cont(tvb, pinfo, tree, offset, FALSE);
-        /* Training Sequence (Osmocom specific) O TLV 2 */
-        if (tvb_reported_length_remaining(tvb, offset) > 0)
-            offset = dissect_rsl_ie_osmo_training_seq(tvb, pinfo, tree, offset, FALSE);
+        /* Osmocom specific IEs */
+        if (global_rsl_use_osmo_bts) {
+            /* Training Sequence O TLV 2 */
+            if (tvb_reported_length_remaining(tvb, offset) > 0)
+                offset = dissect_rsl_ie_osmo_training_seq(tvb, pinfo, tree, offset, FALSE);
+        }
         break;
 
     /* 8.4.2 CHANNEL ACTIVATION ACKNOWLEDGE 34*/
@@ -4171,9 +4177,12 @@ dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
         /* Access Delay             9.3.17 O 1) TV 2        */
         if (tvb_reported_length_remaining(tvb, offset) > 0)
             offset = dissect_rsl_ie_access_delay(tvb, pinfo, tree, offset, FALSE);
-        /* Training Sequence (Osmocom specific) O TLV 2 */
-        if (tvb_reported_length_remaining(tvb, offset) > 0)
-            offset = dissect_rsl_ie_osmo_training_seq(tvb, pinfo, tree, offset, FALSE);
+        /* Osmocom specific IEs */
+        if (global_rsl_use_osmo_bts) {
+            /* Training Sequence O TLV 2 */
+            if (tvb_reported_length_remaining(tvb, offset) > 0)
+                offset = dissect_rsl_ie_osmo_training_seq(tvb, pinfo, tree, offset, FALSE);
+        }
         break;
     /* 8.4.8 MEASUREMENT RESULT 40 */
     case RSL_MSG_MEAS_RES:
@@ -4226,9 +4235,12 @@ dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
         /* TFO transparent container 9.3.59 O 4) TLV */
         if (tvb_reported_length_remaining(tvb, offset) > 0)
             offset = dissect_rsl_ie_tfo_transp_cont(tvb, pinfo, tree, offset, FALSE);
-        /* Training Sequence (Osmocom specific) O TLV 2 */
-        if (tvb_reported_length_remaining(tvb, offset) > 0)
-            offset = dissect_rsl_ie_osmo_training_seq(tvb, pinfo, tree, offset, FALSE);
+        /* Osmocom specific IEs */
+        if (global_rsl_use_osmo_bts) {
+            /* Training Sequence O TLV 2 */
+            if (tvb_reported_length_remaining(tvb, offset) > 0)
+                offset = dissect_rsl_ie_osmo_training_seq(tvb, pinfo, tree, offset, FALSE);
+        }
         break;
     /* 8.4.10 MODE MODIFY ACKNOWLEDGE */
     case RSL_MSG_MODE_MODIFY_ACK:   /*  42  8.4.10 */
@@ -5342,6 +5354,10 @@ void proto_register_rsl(void)
                                    "Use nanoBTS definitions",
                                    "Use ipaccess nanoBTS specific definitions for RSL",
                                    &global_rsl_use_nano_bts);
+    prefs_register_bool_preference(rsl_module, "use_osmocom_rsl",
+                                   "Use Osmocom definitions",
+                                   "Use Osmocom specific definitions for RSL",
+                                   &global_rsl_use_osmo_bts);
     prefs_register_bool_preference(rsl_module, "dissect_phy_ctx_inf",
                                    "Decode Physical Context Information field",
                                    "The Physical Context Information field is not specified "
