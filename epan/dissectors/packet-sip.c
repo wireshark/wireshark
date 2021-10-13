@@ -4690,20 +4690,27 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
     }
 
     /* Registration responses - this info only makes sense in 2xx responses */
-    if (line_type == STATUS_LINE && (strcmp(cseq_method, "REGISTER") == 0) &&
-        stat_info && stat_info->response_code > 199 && stat_info->response_code < 300)
+    if (line_type == STATUS_LINE && stat_info)
     {
-        if (contacts_expires_0 > 0) {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "  (removed %d binding%s)",
-                contacts_expires_0, contacts_expires_0 == 1 ? "":"s");
-            if (contacts > contacts_expires_0) {
-                col_append_fstr(pinfo->cinfo, COL_INFO, " (%d binding%s kept)",
-                    contacts - contacts_expires_0,
-                    (contacts - contacts_expires_0 == 1) ? "":"s");
+        if (stat_info->response_code == 200)
+        {
+            col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", cseq_method);
+        }
+        if ((strcmp(cseq_method, "REGISTER") == 0) &&
+            stat_info->response_code > 199 && stat_info->response_code < 300)
+        {
+            if (contacts_expires_0 > 0) {
+                col_append_fstr(pinfo->cinfo, COL_INFO, "  (removed %d binding%s)",
+                    contacts_expires_0, contacts_expires_0 == 1 ? "":"s");
+                if (contacts > contacts_expires_0) {
+                    col_append_fstr(pinfo->cinfo, COL_INFO, " (%d binding%s kept)",
+                        contacts - contacts_expires_0,
+                        (contacts - contacts_expires_0 == 1) ? "":"s");
+                }
+            } else {
+                col_append_fstr(pinfo->cinfo, COL_INFO, "  (%d binding%s)",
+                    contacts, contacts == 1 ? "":"s");
             }
-        } else {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "  (%d binding%s)",
-                contacts, contacts == 1 ? "":"s");
         }
     }
 
