@@ -76,6 +76,9 @@
       <Feature Id="Fe.Tools.Capinfos" Title="Capinfos" Level="1" AllowAdvertise="yes" Display="expand" Description="Print information about capture files.">
         <ComponentGroupRef Id="CG.Tools.Capinfos" />
       </Feature>
+      <Feature Id="Fe.Tools.Captype" Title="Captype" Level="1" AllowAdvertise="yes" Display="expand" Description="Print the types of capture files.">
+        <ComponentGroupRef Id="CG.Tools.Captype" />
+      </Feature>
       <Feature Id="Fe.Tools.Rawshark" Title="Rawshark" Level="1" AllowAdvertise="yes" Display="expand" Description="Raw packet filter.">
         <ComponentGroupRef Id="CG.Tools.Rawshark" />
       </Feature>
