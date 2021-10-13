@@ -35,6 +35,7 @@
 #define OUI_ATHEROS         0x00037F    /* Atheros Communications */
 #define OUI_ORACLE          0x0003BA    /* Oracle */
 #define OUI_AVAYA_EXTREME   0x00040D    /* Avaya Extreme access point */
+#define OUI_EXTREME_MESH    0x000512    /* Extreme MESH */
 #define OUI_SONY_ERICSSON   0x000AD9    /* Sony Ericsson Mobile Communications AB */
 #define OUI_ARUBA           0x000B86    /* Aruba Networks */
 #define OUI_ROUTERBOARD     0x000C42    /* Formerly listed as Mikrotik, however this OUI is owned by Routerboard*/

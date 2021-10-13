@@ -6118,6 +6118,20 @@ static int hf_ieee80211_marvell_ie_mesh_active_metric_id = -1;
 static int hf_ieee80211_marvell_ie_mesh_cap = -1;
 static int hf_ieee80211_marvell_ie_data = -1;
 
+static int hf_ieee80211_extreme_mesh_ie_type = -1;
+static int hf_ieee80211_extreme_mesh_ie_services = -1;
+static int hf_ieee80211_extreme_mesh_ie_hello_f_root = -1;
+static int hf_ieee80211_extreme_mesh_ie_hello_f_proxy = -1;
+static int hf_ieee80211_extreme_mesh_ie_hello_f_geo = -1;
+static int hf_ieee80211_extreme_mesh_ie_hello_f_path_pref = -1;
+static int hf_ieee80211_extreme_mesh_ie_hello_f_mobile = -1;
+static int hf_ieee80211_extreme_mesh_ie_htr = -1;
+static int hf_ieee80211_extreme_mesh_ie_mtr = -1;
+static int hf_ieee80211_extreme_mesh_ie_root = -1;
+static int hf_ieee80211_extreme_mesh_ie_nh = -1;
+static int hf_ieee80211_extreme_mesh_ie_mesh_id = -1;
+static int hf_ieee80211_extreme_mesh_ie_mp_id = -1;
+
 static int hf_ieee80211_atheros_ie_type = -1;
 static int hf_ieee80211_atheros_ie_subtype = -1;
 static int hf_ieee80211_atheros_ie_version = -1;
@@ -7266,6 +7280,7 @@ static gint ett_block_ack_bitmap = -1;
 static gint ett_block_ack_request_multi_sta_aid_tid = -1;
 static gint ett_multi_sta_block_ack = -1;
 static gint ett_ath_cap_tree = -1;
+static gint ett_extreme_mesh_services_tree = -1;
 
 static gint ett_80211_mgt = -1;
 static gint ett_fixed_parameters = -1;
@@ -17341,6 +17356,93 @@ static int * const ieee80211_atheros_ie_cap[] = {
   NULL
 };
 
+static int * const ieee80211_extreme_mesh_ie_hello[] = {
+  &hf_ieee80211_extreme_mesh_ie_hello_f_root,
+  &hf_ieee80211_extreme_mesh_ie_hello_f_proxy,
+  &hf_ieee80211_extreme_mesh_ie_hello_f_geo,
+  &hf_ieee80211_extreme_mesh_ie_hello_f_path_pref,
+  &hf_ieee80211_extreme_mesh_ie_hello_f_mobile,
+  NULL
+};
+
+typedef enum {
+  EXTREME_MESH_IE_SERVICES_ROOT      = 0x01,
+  EXTREME_MESH_IE_SERVICES_PROXY     = 0x02,
+  EXTREME_MESH_IE_SERVICES_GEO       = 0x04,
+  EXTREME_MESH_IE_SERVICES_PATH_PREF = 0x08,
+  EXTREME_MESH_IE_SERVICES_MOBILE    = 0x10,
+} extreme_mesh_ie_services;
+
+/* Mesh Fields found in Management Frames KJG */
+static const value_string extreme_mesh_ie_type_vals[] = {
+  {1, "Hello"},
+  {2, "Mesh ID"},
+  {3, "MPID"},
+  {0, NULL}
+};
+
+static void
+dissect_vendor_ie_extreme_mesh(proto_item *item _U_, proto_tree *ietree,
+                          tvbuff_t *tvb, int offset, guint tag_len,
+                          packet_info *pinfo, proto_item *ti_len)
+{
+  guint8      type;
+
+  if (tag_len <= 3) {
+    expert_add_info_format(pinfo, ti_len, &ei_ieee80211_tag_length, "Tag length %u too short, must be >= 6", tag_len+3);
+    /* Add length of OUI to tag_length */
+    return;
+  }
+  type = tvb_get_guint8(tvb, offset);
+  proto_tree_add_item(ietree, hf_ieee80211_extreme_mesh_ie_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+  proto_item_append_text(item, ": %s", val_to_str_const(type, extreme_mesh_ie_type_vals, "Unknown"));
+  offset  += 1;
+  tag_len -= 1;
+
+  switch (type) {
+    case 1:
+      {
+        proto_tree_add_bitmask_with_flags(ietree, tvb, offset, hf_ieee80211_extreme_mesh_ie_services,
+        ett_extreme_mesh_services_tree, ieee80211_extreme_mesh_ie_hello, ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
+        offset   += 1;
+        tag_len  -= 1;
+
+        proto_tree_add_item(ietree, hf_ieee80211_extreme_mesh_ie_htr, tvb, offset, 1, ENC_NA);
+        offset   += 1;
+        tag_len  -= 1;
+
+        proto_tree_add_item(ietree, hf_ieee80211_extreme_mesh_ie_mtr, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset   += 2;
+        tag_len  -= 2;
+
+        proto_tree_add_item(ietree, hf_ieee80211_extreme_mesh_ie_root, tvb, offset, 6, ENC_NA);
+        offset   += 6;
+        tag_len  -= 6;
+
+        proto_tree_add_item(ietree, hf_ieee80211_extreme_mesh_ie_nh, tvb, offset, 6, ENC_NA);
+        offset   += 6;
+        tag_len  -= 6;
+      }
+      break;
+    case 2:
+      {
+         proto_tree_add_item(ietree, hf_ieee80211_extreme_mesh_ie_mesh_id, tvb, offset, tag_len, ENC_ASCII|ENC_NA);
+         offset   += tag_len;
+         tag_len  = 0;
+      }
+      break;
+    case 3:
+      {
+         proto_tree_add_item(ietree, hf_ieee80211_extreme_mesh_ie_mp_id, tvb, offset, 6, ENC_NA);
+         offset   += 6;
+         tag_len  -= 6;
+      }
+      break;
+    default:
+      break;
+  }
+}
+
 static void
 dissect_vendor_ie_atheros(proto_item *item _U_, proto_tree *ietree,
                           tvbuff_t *tvb, int offset, guint tag_len,
@@ -27033,6 +27135,9 @@ ieee80211_tag_vendor_specific_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
       break;
     case OUI_ATHEROS:
       dissect_vendor_ie_atheros(field_data->item_tag, tree, tvb, offset, tag_vs_len, pinfo, field_data->item_tag_length);
+      break;
+    case OUI_EXTREME_MESH:
+      dissect_vendor_ie_extreme_mesh(field_data->item_tag, tree, tvb, offset, tag_vs_len, pinfo, field_data->item_tag_length);
       break;
     case OUI_ARUBA:
       dissect_vendor_ie_aruba(field_data->item_tag, tree, tvb, offset, tag_vs_len);
@@ -46409,6 +46514,59 @@ proto_register_ieee80211(void)
        FT_BYTES, BASE_NONE, NULL, 0x0,
        NULL, HFILL }},
 
+   {&hf_ieee80211_extreme_mesh_ie_type,
+     { "Type", "wlan.extreme_mesh.ie.type",
+       FT_UINT8, BASE_HEX, VALS(extreme_mesh_ie_type_vals), 0,
+       NULL, HFILL }},
+   {&hf_ieee80211_extreme_mesh_ie_services,
+     { "Services", "wlan.extreme_mesh.ie.services",
+       FT_UINT8, BASE_HEX, NULL, 0,
+       NULL, HFILL }},
+   {&hf_ieee80211_extreme_mesh_ie_hello_f_root,
+     { "Root", "wlan.extreme_mesh.ie.services.root",
+       FT_BOOLEAN, 8, NULL, EXTREME_MESH_IE_SERVICES_ROOT,
+       NULL, HFILL }},
+   {&hf_ieee80211_extreme_mesh_ie_hello_f_proxy,
+     { "Proxy", "wlan.extreme_mesh.ie.services.proxy",
+       FT_BOOLEAN, 8, NULL, EXTREME_MESH_IE_SERVICES_PROXY,
+       NULL, HFILL }},
+   {&hf_ieee80211_extreme_mesh_ie_hello_f_geo,
+     { "Geo", "wlan.extreme_mesh.ie.services.geo",
+       FT_BOOLEAN, 8, NULL, EXTREME_MESH_IE_SERVICES_GEO,
+       NULL, HFILL }},
+   {&hf_ieee80211_extreme_mesh_ie_hello_f_path_pref,
+     { "Path Preference", "wlan.extreme_mesh.ie.services.path_pref",
+       FT_BOOLEAN, 8, NULL, EXTREME_MESH_IE_SERVICES_PATH_PREF,
+       NULL, HFILL }},
+   {&hf_ieee80211_extreme_mesh_ie_hello_f_mobile,
+     { "Mobile", "wlan.extreme_mesh.ie.services.mobile",
+       FT_BOOLEAN, 8, NULL, EXTREME_MESH_IE_SERVICES_MOBILE,
+       NULL, HFILL }},
+   {&hf_ieee80211_extreme_mesh_ie_htr,
+     { "Hops to Root", "wlan.extreme_mesh.ie.htr",
+       FT_UINT8, BASE_HEX, NULL, 0,
+       NULL, HFILL }},
+   {&hf_ieee80211_extreme_mesh_ie_mtr,
+     { "Metric to Root", "wlan.extreme_mesh.ie.mtr",
+       FT_UINT16, BASE_HEX, NULL, 0,
+       NULL, HFILL }},
+   {&hf_ieee80211_extreme_mesh_ie_root,
+     { "Root Id", "wlan.extreme_mesh.ie.root",
+       FT_ETHER, BASE_NONE, NULL, 0,
+       NULL, HFILL }},
+   {&hf_ieee80211_extreme_mesh_ie_nh,
+     { "Next Hop", "wlan.extreme_mesh.ie.nh",
+       FT_ETHER, BASE_NONE, NULL, 0,
+       NULL, HFILL }},
+   {&hf_ieee80211_extreme_mesh_ie_mesh_id,
+     { "Mesh Id", "wlan.extreme_mesh.ie.mesh_id",
+       FT_STRING, BASE_NONE, NULL, 0,
+       NULL, HFILL }},
+   {&hf_ieee80211_extreme_mesh_ie_mp_id,
+     { "Mesh Point Id", "wlan.extreme_mesh.ie.mp_id",
+       FT_ETHER, BASE_NONE, NULL, 0,
+       NULL, HFILL }},
+
     {&hf_ieee80211_atheros_ie_type,
      {"Type", "wlan.atheros.ie.type",
       FT_UINT8, BASE_HEX, VALS(atheros_ie_type_vals), 0,
@@ -50457,6 +50615,7 @@ proto_register_ieee80211(void)
     &ett_block_ack_request_multi_sta_aid_tid,
     &ett_multi_sta_block_ack,
     &ett_ath_cap_tree,
+    &ett_extreme_mesh_services_tree,
 
     &ett_80211_mgt,
     &ett_fixed_parameters,
