@@ -358,7 +358,7 @@ int main(int argc, char **argv)
 	 */
 	init_progfile_dir_error = init_progfile_dir(argv[0]);
 	if (init_progfile_dir_error != NULL) {
-		ws_warning("Can't get pathname of directory containing the captype program: %s.",
+		ws_warning("Can't get pathname of directory containing the extcap program: %s.",
 			init_progfile_dir_error);
 		g_free(init_progfile_dir_error);
 	}
