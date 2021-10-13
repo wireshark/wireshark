@@ -564,6 +564,7 @@ static int * const hfx_pbap_pse_supported_features[] = {
 static expert_field ei_btsdp_continuation_state_none = EI_INIT;
 static expert_field ei_btsdp_continuation_state_large = EI_INIT;
 static expert_field ei_data_element_value_large = EI_INIT;
+static expert_field ei_length_bad = EI_INIT;
 
 static dissector_handle_t btsdp_handle;
 
@@ -1458,6 +1459,9 @@ dissect_continuation_state(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     return offset;
 }
 
+// The only specification I could find says the max length is 16:
+// https://lost-contact.mit.edu/afs/nada.kth.se/misc/cas/documentation/bluetooth/bluetooth_e.pdf
+#define MAX_CONTINUATION_STATE_LEN 16
 static gint
 reassemble_continuation_state(tvbuff_t *tvb, packet_info *pinfo,
         gint offset, guint tid, gboolean is_request,
@@ -1674,12 +1678,18 @@ reassemble_continuation_state(tvbuff_t *tvb, packet_info *pinfo,
         }
     } else {
         gchar       *continuation_state_buffer;
-        guint8       continuation_state_length;
+        unsigned     continuation_state_length;
 
         continuation_state_length = tvb_get_guint8(tvb, offset);
         offset++;
 
         continuation_state_buffer = tvb_bytes_to_str(wmem_file_scope(), tvb, offset, continuation_state_length);
+
+        if (continuation_state_length > MAX_CONTINUATION_STATE_LEN) {
+            // Try to make do with what we can.
+            expert_add_info(pinfo, NULL, &ei_length_bad);
+            continuation_state_length = MAX_CONTINUATION_STATE_LEN;
+        }
 
         if (!pinfo->fd->visited) {
             if (is_request) {
@@ -6518,6 +6528,7 @@ proto_register_btsdp(void)
         { &ei_btsdp_continuation_state_none,  { "btsdp.expert.continuation_state_none",  PI_MALFORMED, PI_WARN,      "There is no Continuation State", EXPFILL }},
         { &ei_btsdp_continuation_state_large, { "btsdp.expert.continuation_state_large", PI_MALFORMED, PI_WARN,      "Continuation State data is longer then 16", EXPFILL }},
         { &ei_data_element_value_large,       { "btsdp.expert.data_element.value.large", PI_MALFORMED, PI_WARN,      "Data size exceeds the length of payload", EXPFILL }},
+        { &ei_length_bad,      { "btsdp.expert.length.bad",      PI_MALFORMED, PI_WARN, "Invalid length", EXPFILL }},
     };
 
     proto_btsdp = proto_register_protocol("Bluetooth SDP Protocol", "BT SDP", "btsdp");
