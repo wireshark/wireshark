@@ -414,7 +414,7 @@ static gboolean str_to_gint32(dfwork_t *dfw, const char *s, gint32* pint);
 	hfinfo = proto_registrar_get_byalias(yytext);
 	if (hfinfo) {
 		/* Yes, it's an aliased field name */
-		add_deprecated_token(yyextra->deprecated, yytext);
+		add_deprecated_token(yyextra->dfw, yytext);
 		return set_lval_field(TOKEN_FIELD, hfinfo, yytext);
 	}
 

@@ -1450,7 +1450,7 @@ check_test(dfwork_t *dfw, stnode_t *st_node)
 				sttype_test_get(st_arg1, &st_arg_op, NULL, NULL);
 				if (st_arg_op == TEST_OP_AND || st_arg_op == TEST_OP_OR) {
 					if (st_op != st_arg_op && !stnode_inside_parens(st_arg1))
-						g_ptr_array_add(dfw->deprecated, g_strdup("suggest parentheses around '&&' within '||'"));
+						add_deprecated_token(dfw, "suggest parentheses around '&&' within '||'");
 				}
 			}
 
@@ -1458,7 +1458,7 @@ check_test(dfwork_t *dfw, stnode_t *st_node)
 				sttype_test_get(st_arg2, &st_arg_op, NULL, NULL);
 				if (st_arg_op == TEST_OP_AND || st_arg_op == TEST_OP_OR) {
 					if (st_op != st_arg_op && !stnode_inside_parens(st_arg2))
-						g_ptr_array_add(dfw->deprecated, g_strdup("suggest parentheses around '&&' within '||'"));
+						add_deprecated_token(dfw, "suggest parentheses around '&&' within '||'");
 				}
 			}
 
