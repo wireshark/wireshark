@@ -2872,43 +2872,35 @@ static gint dissect_user_defined(proto_tree *tree, tvbuff_t * tvb, gint offset, 
             union_member_mapping * result = (union_member_mapping *)wmem_map_lookup(union_member_mappings, &(key));
 
             if (result != NULL) {
-                switch (result->member_type_id) {
-                    case RTI_CDR_TYPE_OBJECT_TYPE_KIND_ENUMERATION_TYPE:
-                    case RTI_CDR_TYPE_OBJECT_TYPE_KIND_INT_32_TYPE: {
-                        gint value =  tvb_get_gint32(tvb, offset, encoding);
-                        offset += 4;
-                        key = type_id + value;
-                        result = (union_member_mapping *)wmem_map_lookup(union_member_mappings, &(key));
-                        if (result != NULL) {
-                            if (show) {
-                                proto_item_append_text(tree, " (discriminator = %d, type_id = 0x%016" G_GINT64_MODIFIER "x)",
-                                    value, result->member_type_id);
-                            }
-                          offset = dissect_user_defined(tree, tvb, offset, encoding, NULL,
-                             result->member_type_id, result->member_name, EXTENSIBILITY_INVALID, offset, 0, 0, show);
-                        } else {
-                            /* the hashmap uses the type_id to index the objects. substracting -2 here to lookup the discriminator
-                               related to the type_id that identifies an union */
-                            key = type_id + HASHMAP_DISCRIMINATOR_CONSTANT;
-                            result = (union_member_mapping *)wmem_map_lookup(union_member_mappings, &(key));
-                            if (result != NULL) {
-                                if (show) {
-                                    proto_item_append_text(tree, " (discriminator = %d, type_id = 0x%016" G_GINT64_MODIFIER "x)",
-                                        value, result->member_type_id);
-                                }
-                            offset = dissect_user_defined(tree, tvb, offset, encoding, NULL,
-                                result->member_type_id, result->member_name, EXTENSIBILITY_INVALID, offset, 0, 0, show);
-                            }
-                        }
-                        break;
+                gint value =  tvb_get_gint32(tvb, offset, encoding);
+                offset += 4;
+                key = type_id + value;
+                result = (union_member_mapping *)wmem_map_lookup(union_member_mappings, &(key));
+                if (result != NULL) {
+                    if (show) {
+                        proto_item_append_text(tree, " (discriminator = %d, type_id = 0x%016" G_GINT64_MODIFIER "x)",
+                            value, result->member_type_id);
                     }
-                    default:
-                        break;
+                  offset = dissect_user_defined(tree, tvb, offset, encoding, NULL,
+                      result->member_type_id, result->member_name, EXTENSIBILITY_INVALID, offset, 0, 0, show);
+                } else {
+                    /* the hashmap uses the type_id to index the objects. substracting -2 here to lookup the discriminator
+                        related to the type_id that identifies an union */
+                    key = type_id + HASHMAP_DISCRIMINATOR_CONSTANT;
+                    result = (union_member_mapping *)wmem_map_lookup(union_member_mappings, &(key));
+                    if (result != NULL) {
+                        if (show) {
+                            proto_item_append_text(tree, " (discriminator = %d, type_id = 0x%016" G_GINT64_MODIFIER "x)",
+                                value, result->member_type_id);
+                        }
+                    offset = dissect_user_defined(tree, tvb, offset, encoding, NULL,
+                        result->member_type_id, result->member_name, EXTENSIBILITY_INVALID, offset, 0, 0, show);
+                    }
                 }
             } else {
-              if (show) {
-                proto_item_append_text(tree, "(NULL 0x%016" G_GINT64_MODIFIER "x)", type_id);
-              }
+                if (show) {
+                  proto_item_append_text(tree, "(NULL 0x%016" G_GINT64_MODIFIER "x)", type_id);
+                }
             }
             break;
         }
