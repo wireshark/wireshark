@@ -132,7 +132,9 @@ struct _ftype_t {
 		g_slice_free(fvalue_t, fv);			\
 	}
 
-#endif
+GByteArray *byte_array_from_unparsed(const char *s, gchar **err_msg);
+
+#endif /* FTYPES_INT_H */
 
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html

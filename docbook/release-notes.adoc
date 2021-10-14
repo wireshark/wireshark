@@ -103,6 +103,10 @@ The following features are new (or have been significantly updated) since versio
 
 * Reload Lua plugins has been improved to properly support FileHandler.
 
+* Display filter syntax:
+** Protocols always parse unquoted strings as byte values. Before an expression such as "tcp contains ff.fg" would look for the string "ff.fg" if it does not
+   match a valid byte array specification. Now this is a syntax error. Use double-quotes to match literal strings.
+
 // === Removed Features and Support
 
 // === Removed Dissectors

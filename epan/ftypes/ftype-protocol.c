@@ -80,6 +80,7 @@ val_from_string(fvalue_t *fv, const char *s, gchar **err_msg _U_)
 static gboolean
 val_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg)
 {
+	GByteArray *bytes;
 	tvbuff_t *new_tvb;
 
 	/* Free up the old value, if we have one */
@@ -88,8 +89,8 @@ val_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_,
 	fv->value.protocol.proto_string = NULL;
 
 	/* Does this look like a byte string? */
-	GByteArray *bytes = g_byte_array_new();
-	if (hex_str_to_bytes(s, bytes, TRUE)) {
+	bytes = byte_array_from_unparsed(s, err_msg);
+	if (bytes != NULL) {
 		/* Make a tvbuff from the bytes */
 		new_tvb = tvb_new_real_data(bytes->data, bytes->len, bytes->len);
 
@@ -111,10 +112,7 @@ val_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_,
 	}
 
 	/* Not a byte array, forget about it. */
-	g_byte_array_free(bytes, TRUE);
-
-	/* Treat it as a string. */
-	return val_from_string(fv, s, err_msg);
+	return FALSE;
 }
 
 static int
