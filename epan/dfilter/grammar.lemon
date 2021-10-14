@@ -76,9 +76,11 @@ any "error" symbols are shifted, if possible. */
 	}
 
 	switch(stnode_type_id(TOKEN)) {
-		case STTYPE_UNINITIALIZED:
+		case STTYPE_UNINITIALIZED: /* fall-through */
+		case STTYPE_UNPARSED:
 			if (stnode_token_value(TOKEN) != NULL)
-				dfilter_fail(dfw, "Syntax error near \"%s\".", stnode_token_value(TOKEN));
+				dfilter_fail(dfw, "\"%s\" was unexpected in this context.",
+						stnode_token_value(TOKEN));
 			else
 				dfilter_fail(dfw, "Syntax error.");
 			break;
@@ -88,10 +90,6 @@ any "error" symbols are shifted, if possible. */
 			break;
 		case STTYPE_CHARCONST:
 			dfilter_fail(dfw, "The character constant \"%s\" was unexpected in this context.",
-				(char *)stnode_data(TOKEN));
-			break;
-		case STTYPE_UNPARSED:
-			dfilter_fail(dfw, "\"%s\" was unexpected in this context.",
 				(char *)stnode_data(TOKEN));
 			break;
 		/* These aren't handed to use as terminal tokens from
@@ -274,7 +272,6 @@ rel_binop(O) ::= TEST_LT.	{ O = TEST_OP_LT; }
 rel_binop(O) ::= TEST_LE.	{ O = TEST_OP_LE; }
 rel_binop(O) ::= TEST_BITWISE_AND. { O = TEST_OP_BITWISE_AND; }
 rel_binop(O) ::= TEST_CONTAINS.	{ O = TEST_OP_CONTAINS; }
-rel_binop(O) ::= TEST_MATCHES.	{ O = TEST_OP_MATCHES; }
 
 /* Relational tests */
 relation_test(T) ::= entity(E) rel_binop(O) entity(F).
@@ -302,6 +299,13 @@ relation_test(T) ::= entity(E) rel_binop(O) relation_test(R).
 
 	T = stnode_new(STTYPE_TEST, NULL, NULL);
 	sttype_test_set2(T, TEST_OP_AND, L, R);
+}
+
+/* "matches" does not chain with other relational tests. */ 
+relation_test(T) ::= entity(E) TEST_MATCHES entity(F).
+{
+	T = stnode_new(STTYPE_TEST, NULL, NULL);
+	sttype_test_set2(T, TEST_OP_MATCHES, E, F);
 }
 
 relation_test(T) ::= entity(E) TEST_IN LBRACE set_node_list(L) RBRACE.
