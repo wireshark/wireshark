@@ -3760,9 +3760,11 @@ do_file_switch_or_stop(capture_options *capture_opts)
                 global_ld.next_interval_time = get_next_time_interval(global_ld.interval_s);
             }
             fflush(global_ld.pdh);
-            if (!quiet)
-                report_packet_count(global_ld.inpkts_to_sync_pipe);
-            global_ld.inpkts_to_sync_pipe = 0;
+            if (global_ld.inpkts_to_sync_pipe) {
+                if (!quiet)
+                    report_packet_count(global_ld.inpkts_to_sync_pipe);
+                global_ld.inpkts_to_sync_pipe = 0;
+            }
             report_new_capture_file(capture_opts->save_file);
         } else {
             /* File switch failed: stop here */
@@ -4081,8 +4083,6 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
 #endif
 
         if (inpkts > 0) {
-            global_ld.inpkts_to_sync_pipe += inpkts;
-
             if (capture_opts->output_to_pipe) {
                 fflush(global_ld.pdh);
             }
@@ -4161,7 +4161,6 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
             if (!dequeued) {
                 break;
             }
-            global_ld.inpkts_to_sync_pipe += 1;
             if (capture_opts->output_to_pipe) {
                 fflush(global_ld.pdh);
             }
@@ -4475,6 +4474,8 @@ static void
 capture_loop_wrote_one_packet(capture_src *pcap_src) {
     global_ld.packets_captured++;
     global_ld.packets_written++;
+    global_ld.inpkts_to_sync_pipe++;
+
     if (!use_threads) {
         pcap_src->received++;
     }
