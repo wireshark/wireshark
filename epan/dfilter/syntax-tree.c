@@ -239,7 +239,7 @@ stnode_token_value(stnode_t *node)
 	if (node->token_value) {
 		return node->token_value;
 	}
-	return "<unknown token>";
+	return "<null token value>";
 }
 
 gboolean
