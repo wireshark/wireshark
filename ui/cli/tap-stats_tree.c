@@ -55,13 +55,19 @@ init_stats_tree(const char *opt_arg, void *userdata _U_)
 	GString	*error_string;
 	stats_tree_cfg *cfg = NULL;
 	stats_tree *st = NULL;
+	const char* filter = NULL;
+	size_t len;
 
 	if (abbr) {
 		cfg = stats_tree_get_cfg_by_abbr(abbr);
 
 		if (cfg != NULL) {
-			if (strncmp (opt_arg, cfg->pr->init_string, strlen(cfg->pr->init_string)) == 0) {
-				st = stats_tree_new(cfg, NULL, opt_arg+strlen(cfg->pr->init_string));
+			len = strlen(cfg->pr->init_string);
+			if (strncmp(opt_arg, cfg->pr->init_string, len) == 0) {
+				if (opt_arg[len] == ',') {
+					filter = opt_arg + len + 1;
+				}
+				st = stats_tree_new(cfg, NULL, filter);
 			} else {
 				report_failure("Wrong stats_tree (%s) found when looking at ->init_string", abbr);
 				return;
