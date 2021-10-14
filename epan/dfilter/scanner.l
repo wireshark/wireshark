@@ -137,11 +137,11 @@ static int simple(int token, const char *token_value);
 "=="		return SIMPLE(TOKEN_TEST_EQ);
 "eq"		return SIMPLE(TOKEN_TEST_EQ);
 "!="			{
-	add_deprecated_token(yyextra->deprecated, "!=");
+	add_deprecated_token(yyextra->dfw, "!=");
 	return SIMPLE(TOKEN_TEST_NE);
 }
 "ne"			{
-	add_deprecated_token(yyextra->deprecated, "ne");
+	add_deprecated_token(yyextra->dfw, "ne");
 	return SIMPLE(TOKEN_TEST_NE);
 }
 ">"		return SIMPLE(TOKEN_TEST_GT);
