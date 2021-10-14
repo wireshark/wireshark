@@ -162,30 +162,27 @@ stnode_new(sttype_id_t type_id, gpointer data, const char *token_value)
 }
 
 stnode_t*
-stnode_dup(const stnode_t *org)
+stnode_dup(const stnode_t *node)
 {
-	sttype_t	*type;
-	stnode_t	*node;
+	stnode_t *new;
 
-	if (!org)
-		return NULL;
+	ws_assert_magic(node, STNODE_MAGIC);
+	new = g_new(stnode_t, 1);
+	new->magic = STNODE_MAGIC;
+	new->flags = node->flags;
+	new->token_value = g_strdup(node->token_value);
+	new->repr_display = NULL;
+	new->repr_debug = NULL;
 
-	type = org->type;
-
-	node = g_new(stnode_t, 1);
-	node->magic = STNODE_MAGIC;
-
-	node->type = type;
-	node->flags = org->flags;
-
-	if (type && type->func_dup)
-		node->data = type->func_dup(org->data);
+	new->type = node->type;
+	if (node->type == NULL)
+		new->data = NULL;
+	else if (node->type->func_dup)
+		new->data = node->type->func_dup(node->data);
 	else
-		node->data = org->data;
+		new->data = node->data;
 
-	node->token_value = g_strdup(org->token_value);
-
-	return node;
+	return new;
 }
 
 void
