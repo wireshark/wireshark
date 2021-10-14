@@ -20,27 +20,20 @@ add_custom_command(
 		${CMAKE_SOURCE_DIR}/AUTHORS
 )
 
-set(MAN_TARGETS)
-set(HTML_TARGETS)
 set(MAN1_INSTALL_FILES)
-set(GENERATED_MAN1_PAGES)
 set(MAN4_INSTALL_FILES)
-set(GENERATED_MAN4_PAGES)
+set(HTML_INSTALL_FILES)
 
 macro (ASCIIDOCTOR2MANHTML _page_name _man_section)
 	if(ASCIIDOCTOR_FOUND)
 		ASCIIDOCTOR2HTML(${_page_name}.adoc)
 		ASCIIDOCTOR2MAN(${_page_name}.adoc ${_man_section})
 
-		list(APPEND HTML_TARGETS generate_${_page_name}.html)
-		list(APPEND MAN_TARGETS generate_${_page_name}.${_man_section})
-
+		list(APPEND HTML_INSTALL_FILES ${CMAKE_CURRENT_BINARY_DIR}/${_page_name}.html)
 		if (${_man_section} EQUAL 1)
 			list(APPEND MAN1_INSTALL_FILES ${CMAKE_CURRENT_BINARY_DIR}/${_page_name}.${_man_section})
-			list(APPEND GENERATED_MAN1_PAGES doc/${_page_name}.${_man_section})
 		elseif (${_man_section} EQUAL 4)
 			list(APPEND MAN4_INSTALL_FILES ${CMAKE_CURRENT_BINARY_DIR}/${_page_name}.${_man_section})
-			list(APPEND GENERATED_MAN4_PAGES doc/${_page_name}.${_man_section})
 		else()
 			message(FATAL_ERROR "Unsupported manual page section ${_man_section} for ${_page_name}")
 		endif()
@@ -90,20 +83,21 @@ if (BUILD_xxx2deb)
 	ASCIIDOCTOR2MANHTML(idl2deb     1)
 endif()
 
-set(BUNDLE_RESOURCE_SHARE_MAN1_FILES ${GENERATED_MAN1_PAGES} PARENT_SCOPE)
-set(BUNDLE_RESOURCE_SHARE_MAN4_FILES ${GENERATED_MAN4_PAGES} PARENT_SCOPE)
+set(BUNDLE_RESOURCE_SHARE_MAN1_FILES ${MAN1_INSTALL_FILES} PARENT_SCOPE)
+set(BUNDLE_RESOURCE_SHARE_MAN4_FILES ${MAN4_INSTALL_FILES} PARENT_SCOPE)
 
 add_custom_target(manpages DEPENDS
-	${MAN_TARGETS}
-	${MAN4_INSTALL_TARGETS}
+	${MAN1_INSTALL_FILES}
+	${MAN4_INSTALL_FILES}
 )
 
 add_custom_target(
 	docs ALL
 	DEPENDS
 		${CMAKE_CURRENT_BINARY_DIR}/AUTHORS-SHORT
-		${MAN_TARGETS}
-		${HTML_TARGETS}
+		${MAN1_INSTALL_FILES}
+		${MAN4_INSTALL_FILES}
+		${HTML_INSTALL_FILES}
 )
 set_target_properties(docs PROPERTIES FOLDER "Docs")
 
