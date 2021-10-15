@@ -1288,6 +1288,9 @@ ws_find_package(SMI ENABLE_SMI HAVE_LIBSMI)
 # Support for TLS decryption using RSA private keys.
 ws_find_package(GNUTLS ENABLE_GNUTLS HAVE_LIBGNUTLS "3.3.0")
 
+# PCRE2
+ws_find_package(PCRE2 ENABLE_PCRE2 HAVE_PCRE2)
+
 # Kerberos
 ws_find_package(KERBEROS ENABLE_KERBEROS HAVE_KERBEROS)
 
@@ -1836,6 +1839,11 @@ set_package_properties(SMI PROPERTIES
 	DESCRIPTION "Library to access SMI management information"
 	PURPOSE "Support MIB and PIB parsing and OID resolution"
 )
+set_package_properties(PCRE2 PROPERTIES
+	URL "https://www.pcre.org"
+	DESCRIPTION "Regular expression pattern matching using the same syntax and semantics as Perl 5"
+	PURPOSE "Support for regular expressions"
+)
 
 string(TOUPPER "${CMAKE_BUILD_TYPE}" _build_type)
 message(STATUS "C-Flags: ${CMAKE_C_FLAGS} ${CMAKE_C_FLAGS_${_build_type}}")
@@ -2068,6 +2076,10 @@ if(USE_REPOSITORY)
 		list (APPEND THIRD_PARTY_DLLS "${NGHTTP2_DLL_DIR}/${NGHTTP2_DLL}")
 		list (APPEND THIRD_PARTY_PDBS "${NGHTTP2_DLL_DIR}/${NGHTTP2_PDB}")
 	endif(NGHTTP2_FOUND)
+	if (PCRE2_FOUND)
+		list (APPEND THIRD_PARTY_DLLS "${PCRE2_DLL_DIR}/${PCRE2_DLL}")
+		list (APPEND THIRD_PARTY_PDBS "${PCRE2_DLL_DIR}/${PCRE2_PDB}")
+	endif(PCRE2_FOUND)
 	if (SBC_FOUND)
 		list (APPEND THIRD_PARTY_DLLS "${SBC_DLL_DIR}/${SBC_DLL}")
 	endif(SBC_FOUND)

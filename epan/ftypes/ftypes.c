@@ -11,9 +11,18 @@
 #include "ftypes-int.h"
 
 #include <wsutil/ws_assert.h>
+#ifdef HAVE_PCRE2
+#include <pcre2.h>
+#endif
 
 struct _fvalue_regex_t {
+#ifdef HAVE_PCRE2
+	pcre2_code *code;
+#else
 	GRegex *code;
+#endif
+	char *pattern;
+	char *repr_debug;
 };
 
 /* Keep track of ftype_t's via their ftenum number */
@@ -718,8 +727,51 @@ fvalue_matches(const fvalue_t *a, const fvalue_regex_t *b)
 	return a->ftype->cmp_matches(a, b);
 }
 
-fvalue_regex_t *
-fvalue_regex_compile(const char *patt, char **errmsg)
+#ifdef HAVE_PCRE2
+static pcre2_code *
+_pcre2_compile(const char *patt, char **errmsg)
+{
+	pcre2_code *code;
+	int errorcode;
+	PCRE2_SIZE erroroffset;
+
+	/* By default UTF-8 is off. */
+	code = pcre2_compile_8((PCRE2_SPTR)patt,
+				PCRE2_ZERO_TERMINATED,
+				PCRE2_NEVER_UTF,
+				&errorcode,
+				&erroroffset,
+				NULL);
+
+	if (code == NULL) {
+		*errmsg = g_malloc0(128);
+		pcre2_get_error_message(errorcode, *errmsg, 128);
+		return NULL;
+	}
+
+	return code;
+}
+
+static gboolean
+_pcre2_matches(pcre2_code *code, const char *subj, gssize subj_size)
+{
+	PCRE2_SIZE length;
+	pcre2_match_data *match_data;
+	int rc;
+
+	length = subj_size < 0 ? PCRE2_ZERO_TERMINATED : (PCRE2_SIZE)subj_size;
+	match_data = pcre2_match_data_create_from_pattern(code, NULL);
+
+	rc = pcre2_match(code, subj, length, 0, 0, match_data, NULL);
+	pcre2_match_data_free(match_data);
+
+	return rc < 0 ? FALSE : TRUE;
+}
+
+#else  /* HAVE_PCRE2 */
+
+static GRegex *
+_gregex_compile(const char *patt, char **errmsg)
 {
 	GError *regex_error = NULL;
 	GRegex *pcre;
@@ -744,29 +796,81 @@ fvalue_regex_compile(const char *patt, char **errmsg)
 		return NULL;
 	}
 
-	struct _fvalue_regex_t *re = g_new(struct _fvalue_regex_t, 1);
-	re->code = pcre;
+	return pcre;
+}
 
+static gboolean
+_gregex_matches(GRegex *code, const char *subj, gssize subj_size)
+{
+	return g_regex_match_full(code, subj, subj_size, 0, 0, NULL, NULL);
+}
+#endif /* !HAVE_PCRE2 */
+
+fvalue_regex_t *
+fvalue_regex_compile(const char *patt, char **errmsg)
+{
+	void *code;
+
+#ifdef HAVE_PCRE2
+	code = _pcre2_compile(patt, errmsg);
+#else
+	code = _gregex_compile(patt, errmsg);
+#endif
+	if (code == NULL)
+		return NULL;
+
+	fvalue_regex_t *re = g_new(fvalue_regex_t, 1);
+	re->code = code;
+	re->pattern = g_strdup(patt);
+	re->repr_debug = NULL;
 	return re;
 }
 
 gboolean
 fvalue_regex_matches(const fvalue_regex_t *regex, const char *subj, gssize subj_size)
 {
-	return g_regex_match_full(regex->code, subj, subj_size, 0, 0, NULL, NULL);
+#ifdef HAVE_PCRE2
+	return _pcre2_matches(regex->code, subj, subj_size);
+#else
+	return _gregex_matches(regex->code, subj, subj_size);
+#endif
 }
 
 void
 fvalue_regex_free(fvalue_regex_t *regex)
 {
+#ifdef HAVE_PCRE2
+	pcre2_code_free(regex->code);
+#else
 	g_regex_unref(regex->code);
+#endif
+	g_free(regex->pattern);
+	g_free(regex->repr_debug);
 	g_free(regex);
+}
+
+const char *
+fvalue_regex_tostr(const fvalue_regex_t *regex, gboolean pretty)
+{
+	if (pretty)
+		return regex->pattern;
+
+	if (regex->repr_debug == NULL) {
+#ifdef HAVE_PCRE2
+		const char *kind = "PCRE2";
+#else
+		const char *kind = "GRegex";
+#endif
+		((fvalue_regex_t *)regex)->repr_debug =
+			g_strdup_printf("(%s)%s", kind, regex->pattern);
+	}
+	return regex->repr_debug;
 }
 
 const char *
 fvalue_regex_pattern(const fvalue_regex_t *regex)
 {
-	return g_regex_get_pattern(regex->code);
+	return regex->pattern;
 }
 
 /*

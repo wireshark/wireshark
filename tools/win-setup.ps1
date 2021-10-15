@@ -69,8 +69,8 @@ Param(
 # trouble instead of trying to catch exceptions everywhere.
 $ErrorActionPreference = "Stop"
 
-$Win64CurrentTag = "2021-09-29"
-$Win32CurrentTag = "2021-09-29"
+$Win64CurrentTag = "2021-11-11"
+$Win32CurrentTag = "2021-11-11"
 
 # Archive file / SHA256
 $Win64Archives = @{
@@ -91,6 +91,7 @@ $Win64Archives = @{
     "minizip-1.2.11-4-win64ws.zip" = "dd6bf24e2d946465ad19aa4f8c38e0db91da6585887935de68011982cd6fb2cb";
     "nghttp2-1.44.0-1-win64ws.zip" = "30e4925d48bbd401b03ce6502e8df01f81f114366f28682206e08423486cf161";
     "opus-1.3.1-3-win64ws.zip" = "1f7a55a6d2d7215dffa4a43bca8ca05024bd4ba1ac3d0d0c405fd38b09cc2205";
+    "pcre2-10.39-1-win64ws.zip" = "d8b381515c4bae97a28a6b0a3faf66a4f890e85ef75f8ef9501ffa091db6ff8a";
     "sbc-1.3-1-win64ws.zip" = "08cef6898c421277a6582ef3225d8820f74a037cbd5b6e673a4d8f4593ce80a1";
     "snappy-1.1.9-1-win64ws.zip" = "fa907724be019bcc55d27ebe88257ba8898b5c38b719099b8164ac78600d81cc";
     "spandsp-0.0.6-2-win64ws.zip" = "2eb8278633037f60f44815ea1606486ab5dcdf3bddc500b20c9fe356856236b2";
@@ -117,6 +118,7 @@ $Win32Archives = @{
     "minizip-1.2.11-4-win32ws.zip" = "41e113930902c2519c4644e8307a0cc51c5855e001e1e69768c48deb376142d0";
     "nghttp2-1.44.0-1-win32ws.zip" = "3a19e076523ef263f6900749f345725b4e8bf2c4027e0f349404ad81c4613bde";
     "opus-1.3.1-3-win32ws.zip" = "9700b14c8945fcfed2188b806a2ee7e8628922c22569a4c5183075f3dc133177";
+    "pcre2-10.39-1" = "6ad963036bd913fba680e867bbcf8bf9c2995c80dd0401bfa6bb35328c640c70";
     "sbc-1.3-1-win32ws.zip" = "ad37825e9ace4b849a5442c08f1ed7e30634e6b774bba4307fb86f35f82e71ba";
     "snappy-1.1.9-1-win32ws.zip" = "28bae646f1dff80ceb1b1756b1fdec0ebc47580a412a8a4980f3d61c63cb0858";
     "spandsp-0.0.6-2-win32ws.zip" = "31a4b5ca228c719ab4190e1b46801f1483efb8756f1e33d10ecc915244612fca";
