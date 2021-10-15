@@ -7385,6 +7385,12 @@ check_valid_filter_name_or_fail(const char *filter_name)
 		ws_error("Protocol filter name \"%s\" is invalid because it is a reserved keyword."
 			" This might be caused by an inappropriate plugin or a development error.", filter_name);
 	}
+
+	/* First character cannot be '-'. */
+	if (filter_name[0] == '-') {
+		ws_error("Protocol filter name \"%s\" cannot begin with '-'."
+			" This might be caused by an inappropriate plugin or a development error.", filter_name);
+	}
 }
 
 int
