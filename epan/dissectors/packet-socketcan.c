@@ -106,8 +106,7 @@ static heur_dtbl_entry_t *heur_dtbl_entry;
 static dissector_table_t can_id_dissector_table = NULL;
 static dissector_table_t can_extended_id_dissector_table = NULL;
 static dissector_table_t subdissector_table = NULL;
-static dissector_handle_t socketcan_bigendian_handle;
-static dissector_handle_t socketcan_hostendian_handle;
+static dissector_handle_t socketcan_classic_handle;
 static dissector_handle_t socketcan_fd_handle;
 
 static const value_string can_err_prot_error_location_vals[] =
@@ -359,8 +358,29 @@ socketcan_call_subdissectors(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree
 	return TRUE;
 }
 
+/*
+ * Either:
+ *
+ *    1) a given SocketCAN frame is known to contain a classic CAN
+ *       packet based on information outside the SocketCAN header;
+ *
+ *    2) a given SocketCAN frame is known to contain a CAN FD
+ *       packet based on information outside the SocketCAN header;
+ *
+ *    3) we don't know whether the given SocketCAN frame is a
+ *       classic CAN packet or a CAN FD packet, and will have
+ *       to check the CANFD_FDF bit in the "FD flags" field of
+ *       the SocketCAN headder to determine that.
+ */
+typedef enum {
+	PACKET_TYPE_CAN,
+	PACKET_TYPE_CAN_FD,
+	PACKET_TYPE_UNKNOWN
+} can_packet_type_t;
+
 static int
-dissect_socketcan_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint encoding)
+dissect_socketcan_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                         guint encoding, can_packet_type_t can_packet_type)
 {
 	proto_tree *can_tree;
 	proto_item *ti;
@@ -382,6 +402,21 @@ dissect_socketcan_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
 		&hf_can_errflag,
 		NULL,
 	};
+	static int * const can_std_flags_fd[] = {
+		&hf_can_infoent_std,
+		&hf_can_extflag,
+		NULL,
+	};
+	static int * const can_ext_flags_fd[] = {
+		&hf_can_infoent_ext,
+		&hf_can_extflag,
+		NULL,
+	};
+	static int * const canfd_flag_fields[] = {
+		&hf_canfd_brsflag,
+		&hf_canfd_esiflag,
+		NULL,
+	};
 	static int * const can_err_flags[] = {
 		&hf_can_errflag,
 		&hf_can_err_tx_timeout,
@@ -399,11 +434,44 @@ dissect_socketcan_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
 
 	can_info.id = tvb_get_guint32(tvb, 0, encoding);
 	can_info.len = tvb_get_guint8(tvb, CAN_LEN_OFFSET);
-	can_info.fd = FALSE;
+	/*
+	 * If we weren't told the type of this frame, check
+	 * whether the CANFD_FDF flag is set in the FD flags
+	 * field of the header; if so, it's a CAN FD frame.
+	 * otherwise, it's a CAN frame.
+	 *
+	 * However, trust the CANFD_FDF flag only if the only
+	 * bits set in the FD flags field are the known bits,
+	 * and the two bytes following that field are both
+	 * zero.  This is because some older LINKTYPE_CAN_SOCKETCAN
+	 * frames had uninitialized junk in the FD flags field,
+	 * so we treat a frame with what appears to be uninitialized
+	 * junk as being CAN rather than CAN FD, under the assumption
+	 * that the CANFD_FDF bit is set because the field is
+	 * uninitialized, not because it was explicitly set because
+	 * it's a CAN FD frame.  At least some newer code that sets
+	 * that flag also makes sure that the fields in question are
+	 * initialized, so we assume that if they're not initialized
+	 * the code is older code that didn't support CAN FD.
+	 */
+	if (can_packet_type == PACKET_TYPE_UNKNOWN) {
+		guint8 fd_flags;
+
+		fd_flags = tvb_get_guint8(tvb, CANFD_FLAG_OFFSET);
+
+		if ((fd_flags & CANFD_FDF) &&
+		    ((fd_flags & ~(CANFD_BRS|CANFD_ESI|CANFD_FDF)) == 0) &&
+		    tvb_get_guint8(tvb, CANFD_FLAG_OFFSET + 1) == 0 &&
+		    tvb_get_guint8(tvb, CANFD_FLAG_OFFSET + 2) == 0)
+			can_packet_type = PACKET_TYPE_CAN_FD;
+		else
+			can_packet_type = PACKET_TYPE_CAN;
+	}
+	can_info.fd = (can_packet_type == PACKET_TYPE_CAN_FD);
 	can_info.bus_id = get_bus_id(pinfo);
 
 	/* Error Message Frames are only encapsulated in Classic CAN frames */
-	if (can_info.id & CAN_ERR_FLAG)
+	if (can_packet_type == PACKET_TYPE_CAN && (can_info.id & CAN_ERR_FLAG))
 	{
 		frame_type = LINUX_CAN_ERR;
 		can_flags  = can_err_flags;
@@ -412,23 +480,23 @@ dissect_socketcan_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
 	{
 		frame_type = LINUX_CAN_EXT;
 		can_info.id &= (CAN_EFF_MASK | CAN_FLAG_MASK);
-		can_flags  = can_ext_flags;
+		can_flags  = (can_packet_type == PACKET_TYPE_CAN_FD) ? can_ext_flags_fd : can_ext_flags;
 	}
 	else
 	{
 		frame_type = LINUX_CAN_STD;
 		can_info.id &= (CAN_SFF_MASK | CAN_FLAG_MASK);
-		can_flags  = can_std_flags;
+		can_flags  = (can_packet_type == PACKET_TYPE_CAN_FD) ? can_std_flags_fd : can_std_flags;
 	}
 
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "CAN");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, (can_packet_type == PACKET_TYPE_CAN_FD) ? "CANFD" : "CAN");
 	col_clear(pinfo->cinfo, COL_INFO);
 
 	guint32 effective_can_id = (can_info.id & CAN_EFF_FLAG) ? can_info.id & CAN_EFF_MASK : can_info.id & CAN_SFF_MASK;
 	char* id_name = (can_info.id & CAN_EFF_FLAG) ? "Ext. ID" : "ID";
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s: %d (0x%" G_GINT32_MODIFIER "x), Length: %d", id_name, effective_can_id, effective_can_id, can_info.len);
 
-	ti = proto_tree_add_item(tree, proto_can, tvb, 0, -1, ENC_NA);
+	ti = proto_tree_add_item(tree, (can_packet_type == PACKET_TYPE_CAN_FD) ? proto_canfd : proto_can, tvb, 0, -1, ENC_NA);
 	can_tree = proto_item_add_subtree(ti, ett_can);
 
 	proto_item_append_text(can_tree, ", %s: %d (0x%" G_GINT32_MODIFIER "x), Length: %d", id_name, effective_can_id, effective_can_id, can_info.len);
@@ -439,7 +507,11 @@ dissect_socketcan_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
 	{
 		proto_tree_add_expert(tree, pinfo, &ei_can_err_dlc_mismatch, tvb, CAN_LEN_OFFSET, 1);
 	}
-	proto_tree_add_item(can_tree, hf_can_reserved, tvb, CAN_LEN_OFFSET+1, 3, ENC_NA);
+	if (can_packet_type == PACKET_TYPE_CAN_FD) {
+		proto_tree_add_bitmask_list(can_tree, tvb, CANFD_FLAG_OFFSET, 1, canfd_flag_fields, ENC_NA);
+		proto_tree_add_item(can_tree, hf_can_reserved, tvb, CANFD_FLAG_OFFSET+1, 2, ENC_NA);
+	} else
+		proto_tree_add_item(can_tree, hf_can_reserved, tvb, CANFD_FLAG_OFFSET, 3, ENC_NA);
 
 	if (frame_type == LINUX_CAN_ERR)
 	{
@@ -533,90 +605,23 @@ dissect_socketcan_bigendian(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     void* data _U_)
 {
 	return dissect_socketcan_common(tvb, pinfo, tree,
-	    byte_swap ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
+	    byte_swap ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN, PACKET_TYPE_UNKNOWN);
 }
 
 static int
-dissect_socketcan_hostendian(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+dissect_socketcan_classic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     void* data _U_)
 {
 	return dissect_socketcan_common(tvb, pinfo, tree,
-	    byte_swap ? ENC_ANTI_HOST_ENDIAN : ENC_HOST_ENDIAN);
-}
-
-static int
-dissect_socketcanfd_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-							guint encoding)
-{
-	proto_tree *can_tree;
-	proto_item *ti;
-	struct can_info can_info;
-	tvbuff_t*   next_tvb;
-	int * can_flags_fd[] = {
-		&hf_can_infoent_ext,
-		&hf_can_extflag,
-		NULL,
-	};
-	static int * const canfd_flag_fields[] = {
-		&hf_canfd_brsflag,
-		&hf_canfd_esiflag,
-		NULL,
-	};
-
-	can_info.id = tvb_get_guint32(tvb, 0, encoding);
-	can_info.len = tvb_get_guint8(tvb, CAN_LEN_OFFSET);
-	can_info.fd = TRUE;
-	can_info.bus_id = get_bus_id(pinfo);
-
-	if (can_info.id & CAN_EFF_FLAG)
-	{
-		can_info.id &= (CAN_EFF_MASK | CAN_FLAG_MASK);
-	}
-	else
-	{
-		can_info.id &= (CAN_SFF_MASK | CAN_FLAG_MASK);
-		can_flags_fd[0] = &hf_can_infoent_std;
-	}
-
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "CANFD");
-	col_clear(pinfo->cinfo, COL_INFO);
-
-	guint32 effective_can_id = (can_info.id & CAN_EFF_FLAG) ? can_info.id & CAN_EFF_MASK : can_info.id & CAN_SFF_MASK;
-	char* id_name = (can_info.id & CAN_EFF_FLAG) ? "Ext. ID" : "ID";
-	col_add_fstr(pinfo->cinfo, COL_INFO, "%s: %d (0x%" G_GINT32_MODIFIER "x), Length: %d", id_name, effective_can_id, effective_can_id, can_info.len);
-
-	ti = proto_tree_add_item(tree, proto_canfd, tvb, 0, -1, ENC_NA);
-	can_tree = proto_item_add_subtree(ti, ett_can_fd);
-
-	proto_item_append_text(can_tree, ", %s: %d (0x%" G_GINT32_MODIFIER "x), Length: %d", id_name, effective_can_id, effective_can_id, can_info.len);
-
-	proto_tree_add_bitmask_list(can_tree, tvb, 0, 4, can_flags_fd, encoding);
-
-	proto_tree_add_item(can_tree, hf_can_len, tvb, CAN_LEN_OFFSET, 1, ENC_NA);
-	proto_tree_add_bitmask_list(can_tree, tvb, CANFD_FLAG_OFFSET, 1, canfd_flag_fields, ENC_NA);
-	proto_tree_add_item(can_tree, hf_can_reserved, tvb, CANFD_FLAG_OFFSET+1, 2, ENC_NA);
-
-	next_tvb = tvb_new_subset_length(tvb, CAN_DATA_OFFSET, can_info.len);
-
-	if (!socketcan_call_subdissectors(next_tvb, pinfo, tree, &can_info, heuristic_first))
-	{
-		call_data_dissector(next_tvb, pinfo, tree);
-	}
-
-	if (tvb_captured_length_remaining(tvb, CAN_DATA_OFFSET+can_info.len) > 0)
-	{
-		proto_tree_add_item(can_tree, hf_can_padding, tvb, CAN_DATA_OFFSET+can_info.len, -1, ENC_NA);
-	}
-
-	return tvb_captured_length(tvb);
+	    byte_swap ? ENC_ANTI_HOST_ENDIAN : ENC_HOST_ENDIAN, PACKET_TYPE_CAN);
 }
 
 static int
 dissect_socketcan_fd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     void* data _U_)
 {
-	return dissect_socketcanfd_common(tvb, pinfo, tree,
-	    byte_swap ? ENC_ANTI_HOST_ENDIAN : ENC_HOST_ENDIAN);
+	return dissect_socketcan_common(tvb, pinfo, tree,
+	    byte_swap ? ENC_ANTI_HOST_ENDIAN : ENC_HOST_ENDIAN, PACKET_TYPE_CAN_FD);
 }
 
 void
@@ -1006,8 +1011,15 @@ proto_register_socketcan(void)
 	module_t *can_module;
 
 	proto_can = proto_register_protocol("Controller Area Network", "CAN", "can");
-	socketcan_bigendian_handle = register_dissector("can-bigendian", dissect_socketcan_bigendian, proto_can);
-	socketcan_hostendian_handle = register_dissector("can-hostendian", dissect_socketcan_hostendian, proto_can);
+	/*
+	 * "can-hostendian" is a legacy name (there never was, in any libpcap
+	 * release, a SocketCAN LINKTYPE_ value for a host-endian CAN ID
+	 * and flags field); we need to keep it around in case some candump
+	 * or Busmaster capture that was saved as a pcap or pcapng file,
+	 * as those use a linktype of LINKTYPE_WIRESHARK_UPPER_PDU with
+	 * "can-hostendian" as the dissector name.
+	 */
+	socketcan_classic_handle = register_dissector("can-hostendian", dissect_socketcan_classic, proto_can);
 
 	proto_canfd = proto_register_protocol("Controller Area Network FD", "CANFD", "canfd");
 	socketcan_fd_handle = register_dissector("canfd", dissect_socketcan_fd, proto_canfd);
@@ -1069,8 +1081,12 @@ proto_register_socketcan(void)
 void
 proto_reg_handoff_socketcan(void)
 {
+	dissector_handle_t socketcan_bigendian_handle;
+
+	socketcan_bigendian_handle = create_dissector_handle(dissect_socketcan_bigendian, proto_can);
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_SOCKETCAN, socketcan_bigendian_handle);
-	dissector_add_uint("sll.ltype", LINUX_SLL_P_CAN, socketcan_hostendian_handle);
+
+	dissector_add_uint("sll.ltype", LINUX_SLL_P_CAN, socketcan_classic_handle);
 	dissector_add_uint("sll.ltype", LINUX_SLL_P_CANFD, socketcan_fd_handle);
 }
 
