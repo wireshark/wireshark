@@ -49,8 +49,12 @@
 #define ReportedBoundsError	3
 
 /**
-    Index is beyond the fragment length but not the reported length.
-    This means that the packet wasn't reassembled.
+    Index is beyond the contained length, and possibly the reported length,
+    of the tvbuff, but we believe it is an unreassembled fragment, either
+    because the "this is an unreassembled fragment" flag or pinfo->fragmented
+    is set.  This means that the packet wasn't reassembled, but could possibly
+    be correctly dissected if reassembly preferences were changed.  It is
+    therefore not reported as a "Malformed packet".
 **/
 #define FragmentBoundsError	4
 

@@ -276,7 +276,9 @@ WS_DLL_PUBLIC guint tvb_offset_from_real_beginning(const tvbuff_t *tvb);
 /* Returns the offset from the first byte of real data. */
 WS_DLL_PUBLIC gint tvb_raw_offset(tvbuff_t *tvb);
 
-/** Set the "this is a fragment" flag. */
+/** Set the "this is a fragment" flag. This affects whether
+ * FragmentBoundsError is thrown instead of ContainedBoundsError
+ * or ReportedBoundsError. */
 WS_DLL_PUBLIC void tvb_set_fragment(tvbuff_t *tvb);
 
 WS_DLL_PUBLIC struct tvbuff *tvb_get_ds_tvb(tvbuff_t *tvb);

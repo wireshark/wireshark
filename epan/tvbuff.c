@@ -191,29 +191,14 @@ validate_offset(const tvbuff_t *tvb, const guint abs_offset)
 	 * artificial boundary imposed by packet slicing, that
 	 * we're past.
 	 */
-	if (abs_offset <= tvb->reported_length) {
-		/*
-		 * We're within the bounds of what this tvbuff
-		 * purportedly contains, based on some length
-		 * value, but we're not within the bounds of
-		 * something from which this tvbuff was
-		 * extracted, so that length value ran past
-		 * the end of some parent tvbuff.
-		 */
-		return ContainedBoundsError;
-	}
 
-	/*
-	 * OK, we're past the bounds of what this tvbuff
-	 * purportedly contains.
-	 */
 	if (tvb->flags & TVBUFF_FRAGMENT) {
 		/*
 		 * This tvbuff is the first fragment of a larger
 		 * packet that hasn't been reassembled, so we
-		 * assume that's the source of the prblem - if
-		 * we'd reassembled the packet, we wouldn't
-		 * have gone past the end.
+		 * assume that's the source of the problem - if
+		 * we'd reassembled the packet, we wouldn't have
+		 * gone past the end.
 		 *
 		 * That might not be true, but for at least
 		 * some forms of reassembly, such as IP
@@ -224,6 +209,19 @@ validate_offset(const tvbuff_t *tvb, const guint abs_offset)
 		 * had we reassembled the packet.
 		 */
 		return FragmentBoundsError;
+	}
+
+	/* OK, we're not an unreassembled fragment (that we know of). */
+	if (abs_offset <= tvb->reported_length) {
+		/*
+		 * We're within the bounds of what this tvbuff
+		 * purportedly contains, based on some length
+		 * value, but we're not within the bounds of
+		 * something from which this tvbuff was
+		 * extracted, so that length value ran past
+		 * the end of some parent tvbuff.
+		 */
+		return ContainedBoundsError;
 	}
 
 	/*
@@ -242,10 +240,10 @@ compute_offset(const tvbuff_t *tvb, const gint offset, guint *offset_ptr)
 			*offset_ptr = offset;
 		} else if ((guint) offset <= tvb->contained_length) {
 			return BoundsError;
-		} else if ((guint) offset <= tvb->reported_length) {
-			return ContainedBoundsError;
 		} else if (tvb->flags & TVBUFF_FRAGMENT) {
 			return FragmentBoundsError;
+		} else if ((guint) offset <= tvb->reported_length) {
+			return ContainedBoundsError;
 		} else {
 			return ReportedBoundsError;
 		}
@@ -256,10 +254,10 @@ compute_offset(const tvbuff_t *tvb, const gint offset, guint *offset_ptr)
 			*offset_ptr = tvb->length + offset;
 		} else if ((guint) -offset <= tvb->contained_length) {
 			return BoundsError;
-		} else if ((guint) -offset <= tvb->reported_length) {
-			return ContainedBoundsError;
 		} else if (tvb->flags & TVBUFF_FRAGMENT) {
 			return FragmentBoundsError;
+		} else if ((guint) -offset <= tvb->reported_length) {
+			return ContainedBoundsError;
 		} else {
 			return ReportedBoundsError;
 		}
@@ -598,10 +596,10 @@ tvb_ensure_captured_length_remaining(const tvbuff_t *tvb, const gint offset)
 		 */
 		if (abs_offset < tvb->contained_length) {
 			THROW(BoundsError);
-		} else if (abs_offset < tvb->reported_length) {
-			THROW(ContainedBoundsError);
 		} else if (tvb->flags & TVBUFF_FRAGMENT) {
 			THROW(FragmentBoundsError);
+		} else if (abs_offset < tvb->reported_length) {
+			THROW(ContainedBoundsError);
 		} else {
 			THROW(ReportedBoundsError);
 		}
@@ -685,10 +683,10 @@ tvb_ensure_bytes_exist(const tvbuff_t *tvb, const gint offset, const gint length
 			real_offset = offset;
 		} else if ((guint) offset <= tvb->contained_length) {
 			THROW(BoundsError);
-		} else if ((guint) offset <= tvb->reported_length) {
-			THROW(ContainedBoundsError);
 		} else if (tvb->flags & TVBUFF_FRAGMENT) {
 			THROW(FragmentBoundsError);
+		} else if ((guint) offset <= tvb->reported_length) {
+			THROW(ContainedBoundsError);
 		} else {
 			THROW(ReportedBoundsError);
 		}
@@ -699,10 +697,10 @@ tvb_ensure_bytes_exist(const tvbuff_t *tvb, const gint offset, const gint length
 			real_offset = tvb->length + offset;
 		} else if ((guint) -offset <= tvb->contained_length) {
 			THROW(BoundsError);
-		} else if ((guint) -offset <= tvb->reported_length) {
-			THROW(ContainedBoundsError);
 		} else if (tvb->flags & TVBUFF_FRAGMENT) {
 			THROW(FragmentBoundsError);
+		} else if ((guint) -offset <= tvb->reported_length) {
+			THROW(ContainedBoundsError);
 		} else {
 			THROW(ReportedBoundsError);
 		}
@@ -723,10 +721,10 @@ tvb_ensure_bytes_exist(const tvbuff_t *tvb, const gint offset, const gint length
 		return;
 	else if (end_offset <= tvb->contained_length)
 		THROW(BoundsError);
-	else if (end_offset <= tvb->reported_length)
-		THROW(ContainedBoundsError);
 	else if (tvb->flags & TVBUFF_FRAGMENT)
 		THROW(FragmentBoundsError);
+	else if (end_offset <= tvb->reported_length)
+		THROW(ContainedBoundsError);
 	else
 		THROW(ReportedBoundsError);
 }
@@ -904,10 +902,10 @@ fast_ensure_contiguous(tvbuff_t *tvb, const gint offset, const guint length)
 		return tvb->real_data + u_offset;
 	} else if (end_offset <= tvb->contained_length) {
 		THROW(BoundsError);
-	} else if (end_offset <= tvb->reported_length) {
-		THROW(ContainedBoundsError);
 	} else if (tvb->flags & TVBUFF_FRAGMENT) {
 		THROW(FragmentBoundsError);
+	} else if (end_offset <= tvb->reported_length) {
+		THROW(ContainedBoundsError);
 	} else {
 		THROW(ReportedBoundsError);
 	}
@@ -2473,10 +2471,10 @@ tvb_strsize(tvbuff_t *tvb, const gint offset)
 		 */
 		if (tvb->length < tvb->contained_length) {
 			THROW(BoundsError);
-		} else if (tvb->length < tvb->reported_length) {
-			THROW(ContainedBoundsError);
 		} else if (tvb->flags & TVBUFF_FRAGMENT) {
 			THROW(FragmentBoundsError);
+		} else if (tvb->length < tvb->reported_length) {
+			THROW(ContainedBoundsError);
 		} else {
 			THROW(ReportedBoundsError);
 		}
