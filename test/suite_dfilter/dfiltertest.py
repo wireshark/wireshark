@@ -51,7 +51,7 @@ def checkDFilterFail(cmd_dftest, base_env):
                                 universal_newlines=True,
                                 env=base_env)
         outs, errs = proc.communicate()
-        assert errs.strip() == 'dftest: %s' % (error_message,), \
+        assert error_message in errs, \
             'Unexpected dftest stderr:\n%s\nstdout:\n%s' % (errs, outs)
         assert proc.returncode == 2, \
             'Unexpected dftest exit code: %d. stdout:\n%s\n' % \
