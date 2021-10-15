@@ -1,3 +1,4 @@
+#!/usr/bin/perl
 # Remove tasks from individual author entries from AUTHORS file
 # for use in the about dialog.
 #
