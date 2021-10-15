@@ -1280,16 +1280,13 @@ check_relation(dfwork_t *dfw, const char *relation_string,
 	 * protocol, or similar for a number of other possibilities
 	 * ("dc", "ff", "fefd"), and also catches the case where the user
 	 * has written a generic string on the RHS for a "contains" or
-	 * "matches" relation. (XXX: There's still a bit of a confusing mess;
-	 * byte arrays take precedent over generic strings when unquoted, so
-	 * "field contains data" matches "\x64 \x61 \x74 \x61" but
-	 * "field contains dc" matches "\xdc" and not "\x64 \x43", but that's
-	 * an underlying issue.)
+	 * "matches" relation with a string field. (The now unparsed value
+	 * will be interpreted in a way that matches the LHS; e.g.
+	 * FT_PROTOCOL and FT_BYTES fields expect byte arrays whereas
+	 * FT_STRING[Z][PAD] fields expect strings.)
 	 *
-	 * XXX: Is there a better way to do this in the lex scanner or grammar
-	 * parser step instead?  Should the determination of whether something
-	 * is a field occur later than it does currently?  This is kind of a
-	 * hack.
+	 * XXX: Is there a better way to do this in the grammar parser,
+	 * which now determines whether something is a field?
 	 */
 
 	if (stnode_type_id(st_arg2) == STTYPE_FIELD) {
