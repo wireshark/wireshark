@@ -472,9 +472,7 @@ dfilter_g_regex_from_string(dfwork_t *dfw, stnode_t *st)
 static void
 check_exists(dfwork_t *dfw, stnode_t *st_arg1)
 {
-#ifndef WS_DISABLE_DEBUG
 	static guint i = 0;
-#endif
 
 	ws_debug("4 check_exists() [%u]", i++);
 	log_stnode(st_arg1);
@@ -1264,9 +1262,7 @@ check_relation(dfwork_t *dfw, const char *relation_string,
 		FtypeCanFunc can_func, stnode_t *st_node,
 		stnode_t *st_arg1, stnode_t *st_arg2)
 {
-#ifndef WS_DISABLE_DEBUG
 	static guint i = 0;
-#endif
 	header_field_info   *hfinfo;
 	char                *s;
 
@@ -1350,9 +1346,7 @@ check_test(dfwork_t *dfw, stnode_t *st_node)
 {
 	test_op_t		st_op, st_arg_op;
 	stnode_t		*st_arg1, *st_arg2;
-#ifndef WS_DISABLE_DEBUG
 	static guint i = 0;
-#endif
 
 	ws_debug("3 check_test(stnode_t *st_node = %p) [%u]\n", st_node, i++);
 	log_stnode(st_node);
@@ -1437,9 +1431,8 @@ check_test(dfwork_t *dfw, stnode_t *st_node)
 static void
 semcheck(dfwork_t *dfw, stnode_t *st_node)
 {
-#ifndef WS_DISABLE_DEBUG
 	static guint i = 0;
-#endif
+
 	ws_debug("2 semcheck(stnode_t *st_node = %p) [%u]", st_node, i++);
 
 	/* The parser assures that the top-most syntax-tree
@@ -1461,9 +1454,7 @@ gboolean
 dfw_semcheck(dfwork_t *dfw)
 {
 	volatile gboolean ok_filter = TRUE;
-#ifndef WS_DISABLE_DEBUG
 	static guint i = 0;
-#endif
 
 	ws_debug("1 dfw_semcheck(dfwork_t *dfw = %p) [%u]", dfw, i);
 

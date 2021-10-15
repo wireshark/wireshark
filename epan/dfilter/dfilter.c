@@ -374,9 +374,7 @@ dfilter_compile(const gchar *text, dfilter_t **dfp, gchar **err_msg)
 	yyscan_t	scanner;
 	YY_BUFFER_STATE in_buffer;
 	gboolean failure = FALSE;
-#ifndef WS_DISABLE_DEBUG
 	unsigned token_count = 0;
-#endif
 
 	ws_assert(dfp);
 
@@ -427,9 +425,7 @@ dfilter_compile(const gchar *text, dfilter_t **dfp, gchar **err_msg)
 			break;
 		}
 
-		ws_log_full(LOG_DOMAIN_DFILTER, LOG_LEVEL_DEBUG,
-				NULL, -1, __func__,
-				"(%u) Token %d %s %s",
+		ws_debug("(%u) Token %d %s %s",
 				++token_count, token, tokenstr(token),
 				stnode_token_value(df_lval));
 
