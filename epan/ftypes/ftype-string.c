@@ -89,29 +89,11 @@ val_from_string(fvalue_t *fv, const char *s, gchar **err_msg _U_)
 static gboolean
 val_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg)
 {
-	fvalue_t *fv_bytes;
-
-	/* Does this look like a byte-string? */
-	fv_bytes = fvalue_from_unparsed(FT_BYTES, s, TRUE, NULL);
-	if (fv_bytes) {
-		/* Free up the old value, if we have one */
-		string_fvalue_free(fv);
-
-		/* Copy the bytes over to a string and terminate it
-		 * with a NUL. XXX - what if the user embeds a NUL
-		 * in the middle of the byte string? */
-		int num_bytes = fv_bytes->value.bytes->len;
-
-		fv->value.string = (gchar *)g_malloc(num_bytes + 1);
-		memcpy(fv->value.string, fv_bytes->value.bytes->data, num_bytes);
-		fv->value.string[num_bytes] = '\0';
-
-		FVALUE_FREE(fv_bytes);
-		return TRUE;
-	} else {
-		/* Just turn it into a string */
-		return val_from_string(fv, s, err_msg);
-	}
+	/* Just turn it into a string */
+	/* XXX Should probably be a syntax error instead. It's more user-friendly to ask the
+	 * user to be explicit about the meaning of unparsed than them trying to figure out
+	 * why a valid filter expression is giving wrong results. */
+	return val_from_string(fv, s, err_msg);
 }
 
 static guint

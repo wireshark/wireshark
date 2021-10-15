@@ -125,12 +125,16 @@ class case_string(unittest.TestCase):
         checkDFilterCount(dfilter, 0)
 
     def test_contains_5(self, checkDFilterCount):
-        dfilter = 'http.request.method contains 50:4f:53:54' # "POST"
+        dfilter = 'http.request.method contains "\x50\x4f\x53\x54"' # "POST"
         checkDFilterCount(dfilter, 0)
 
     def test_contains_6(self, checkDFilterCount):
-        dfilter = 'http.request.method contains 48:45:41:44' # "HEAD"
+        dfilter = 'http.request.method contains "\x48\x45\x41\x44"' # "HEAD"
         checkDFilterCount(dfilter, 1)
+
+    def test_contains_6(self, checkDFilterCount):
+        dfilter = 'http.request.method contains 48:45:41:44' # "48:45:41:44"
+        checkDFilterCount(dfilter, 0)
 
     def test_contains_fail_0(self, checkDFilterCount):
         dfilter = 'http.user_agent contains "update"'
