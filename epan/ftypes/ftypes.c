@@ -8,11 +8,13 @@
 
 #include "config.h"
 
-#include <ftypes-int.h>
-#include <glib.h>
+#include "ftypes-int.h"
 
-#include "ftypes.h"
 #include <wsutil/ws_assert.h>
+
+struct _fvalue_regex_t {
+	GRegex *code;
+};
 
 /* Keep track of ftype_t's via their ftenum number */
 static ftype_t* type_list[FT_NUM_TYPES];
@@ -747,11 +749,62 @@ fvalue_contains(const fvalue_t *a, const fvalue_t *b)
 }
 
 gboolean
-fvalue_matches(const fvalue_t *a, const GRegex *b)
+fvalue_matches(const fvalue_t *a, const fvalue_regex_t *b)
 {
 	/* XXX - check compatibility of a and b */
 	ws_assert(a->ftype->cmp_matches);
 	return a->ftype->cmp_matches(a, b);
+}
+
+fvalue_regex_t *
+fvalue_regex_compile(const char *patt, char **errmsg)
+{
+	GError *regex_error = NULL;
+	GRegex *pcre;
+
+	/*
+	 * As a string is not guaranteed to contain valid UTF-8,
+	 * we have to disable support for UTF-8 patterns and treat
+	 * every pattern and subject as raw bytes.
+	 *
+	 * Should support for UTF-8 patterns be necessary, then we
+	 * should compile a pattern without G_REGEX_RAW. Additionally,
+	 * we MUST use g_utf8_validate() before calling g_regex_match_full()
+	 * or risk crashes.
+	 */
+	GRegexCompileFlags cflags = G_REGEX_CASELESS | G_REGEX_OPTIMIZE | G_REGEX_RAW;
+
+	pcre = g_regex_new(patt, cflags, 0, &regex_error);
+
+	if (regex_error) {
+		*errmsg = g_strdup(regex_error->message);
+		g_error_free(regex_error);
+		return NULL;
+	}
+
+	struct _fvalue_regex_t *re = g_new(struct _fvalue_regex_t, 1);
+	re->code = pcre;
+
+	return re;
+}
+
+gboolean
+fvalue_regex_matches(const fvalue_regex_t *regex, const char *subj, gssize subj_size)
+{
+	return g_regex_match_full(regex->code, subj, subj_size, 0, 0, NULL, NULL);
+}
+
+void
+fvalue_regex_free(fvalue_regex_t *regex)
+{
+	g_regex_unref(regex->code);
+	g_free(regex);
+}
+
+const char *
+fvalue_regex_pattern(const fvalue_regex_t *regex)
+{
+	return g_regex_get_pattern(regex->code);
 }
 
 /*

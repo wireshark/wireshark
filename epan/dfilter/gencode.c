@@ -234,7 +234,7 @@ dfw_append_function(dfwork_t *dfw, stnode_t *node, dfvm_value_t **p_jmp)
 
 /* returns register number */
 static int
-dfw_append_put_pcre(dfwork_t *dfw, GRegex *pcre)
+dfw_append_put_pcre(dfwork_t *dfw, fvalue_regex_t *pcre)
 {
 	dfvm_insn_t	*insn;
 	dfvm_value_t	*val1, *val2;
@@ -427,7 +427,7 @@ gen_entity(dfwork_t *dfw, stnode_t *st_arg, dfvm_value_t **p_jmp)
 		reg = dfw_append_function(dfw, st_arg, p_jmp);
 	}
 	else if (e_type == STTYPE_PCRE) {
-		reg = dfw_append_put_pcre(dfw, (GRegex *)stnode_steal_data(st_arg));
+		reg = dfw_append_put_pcre(dfw, stnode_steal_data(st_arg));
 	}
 	else {
 		/* printf("sttype_id is %u\n", (unsigned)e_type); */

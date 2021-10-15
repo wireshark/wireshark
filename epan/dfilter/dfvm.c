@@ -38,7 +38,7 @@ dfvm_value_free(dfvm_value_t *v)
 			drange_free(v->value.drange);
 			break;
 		case PCRE:
-			g_regex_unref(v->value.pcre);
+			fvalue_regex_free(v->value.pcre);
 			break;
 		default:
 			/* nothing */
@@ -110,9 +110,9 @@ dfvm_dump(FILE *f, dfilter_t *df)
 				wmem_free(NULL, value_str);
 				break;
 			case PUT_PCRE:
-				fprintf(f, "%05d PUT_PCRE\t%s -> reg#%u\n",
+				fprintf(f, "%05d PUT_PCRE  \t%s <GRegex> -> reg#%u\n",
 					id,
-					g_regex_get_pattern(arg1->value.pcre),
+					fvalue_regex_pattern(arg1->value.pcre),
 					arg2->value.numeric);
 				break;
 			case CHECK_EXISTS:
@@ -365,7 +365,7 @@ put_fvalue(dfilter_t *df, fvalue_t *fv, int reg)
 /* Put a constant PCRE in a register. These will not be cleared by
  * free_register_overhead. */
 static gboolean
-put_pcre(dfilter_t *df, GRegex *pcre, int reg)
+put_pcre(dfilter_t *df, fvalue_regex_t *pcre, int reg)
 {
 	df->registers[reg] = g_list_append(NULL, pcre);
 	df->owns_memory[reg] = FALSE;
@@ -404,7 +404,7 @@ any_matches(dfilter_t *df, int reg1, int reg2)
 	while (list_a) {
 		list_b = df->registers[reg2];
 		while (list_b) {
-			if (fvalue_matches((fvalue_t *)list_a->data, (GRegex *)list_b->data)) {
+			if (fvalue_matches((fvalue_t *)list_a->data, list_b->data)) {
 				return TRUE;
 			}
 			list_b = g_list_next(list_b);

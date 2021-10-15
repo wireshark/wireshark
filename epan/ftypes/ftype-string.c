@@ -138,22 +138,14 @@ cmp_contains(const fvalue_t *fv_a, const fvalue_t *fv_b)
 }
 
 static gboolean
-cmp_matches(const fvalue_t *fv, const GRegex *regex)
+cmp_matches(const fvalue_t *fv, const fvalue_regex_t *regex)
 {
 	char *str = fv->value.string;
 
 	if (! regex) {
 		return FALSE;
 	}
-	return g_regex_match_full(
-			regex,		/* Compiled PCRE */
-			str,		/* The data to check for the pattern... */
-			(int)strlen(str),	/* ... and its length */
-			0,		/* Start offset within data */
-			(GRegexMatchFlags)0,		/* GRegexMatchFlags */
-			NULL,		/* We are not interested in the match information */
-			NULL		/* We don't want error information */
-			);
+	return fvalue_regex_matches(regex, str, -1);
 }
 
 void

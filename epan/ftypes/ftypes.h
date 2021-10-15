@@ -131,6 +131,9 @@ typedef enum ft_framenum_type ft_framenum_type_t;
 struct _ftype_t;
 typedef struct _ftype_t ftype_t;
 
+struct _fvalue_regex_t;
+typedef struct _fvalue_regex_t fvalue_regex_t;
+
 /* String representation types. */
 enum ftrepr {
 	FTREPR_DISPLAY,
@@ -368,7 +371,19 @@ gboolean
 fvalue_contains(const fvalue_t *a, const fvalue_t *b);
 
 gboolean
-fvalue_matches(const fvalue_t *a, const GRegex *b);
+fvalue_matches(const fvalue_t *a, const fvalue_regex_t *re);
+
+fvalue_regex_t *
+fvalue_regex_compile(const char *patt, char **errmsg);
+
+gboolean
+fvalue_regex_matches(const fvalue_regex_t *regex, const char *subj, gssize subj_size);
+
+void
+fvalue_regex_free(fvalue_regex_t *regex);
+
+const char *
+fvalue_regex_pattern(const fvalue_regex_t *regex);
 
 guint
 fvalue_length(fvalue_t *fv);

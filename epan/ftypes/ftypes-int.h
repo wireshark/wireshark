@@ -64,7 +64,7 @@ typedef double (*FvalueGetFloatingFunc)(fvalue_t*);
 typedef int (*FvalueCmp)(const fvalue_t*, const fvalue_t*);
 typedef gboolean (*FvalueBitwiseAnd)(const fvalue_t*, const fvalue_t*);
 typedef gboolean (*FvalueContains)(const fvalue_t*, const fvalue_t*);
-typedef gboolean (*FvalueMatches)(const fvalue_t*, const GRegex*);
+typedef gboolean (*FvalueMatches)(const fvalue_t*, const fvalue_regex_t*);
 
 typedef guint (*FvalueLen)(fvalue_t*);
 typedef void (*FvalueSlice)(fvalue_t*, GByteArray *, guint offset, guint length);

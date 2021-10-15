@@ -27,7 +27,7 @@ fvalue_free(gpointer value)
 static void
 pcre_free(gpointer value)
 {
-	GRegex	*pcre = (GRegex*)value;
+	fvalue_regex_t *pcre = value;
 
 	/* If the data was not claimed with stnode_steal_data(), free it. */
 	if (pcre) {
@@ -36,7 +36,7 @@ pcre_free(gpointer value)
 		 * count; it'll get freed when the reference count drops
 		 * to 0.
 		 */
-		g_regex_unref(pcre);
+		fvalue_regex_free(pcre);
 	}
 }
 
@@ -67,9 +67,9 @@ field_tostr(const void *data, gboolean pretty _U_)
 static char *
 pcre_tostr(const void *data, gboolean pretty _U_)
 {
-	const GRegex *pcre = (const GRegex *)data;
+	const fvalue_regex_t *pcre = data;
 
-	return g_strdup(g_regex_get_pattern(pcre));
+	return g_strdup(fvalue_regex_pattern(pcre));
 }
 
 void

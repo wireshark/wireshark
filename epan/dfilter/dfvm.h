@@ -36,7 +36,7 @@ typedef struct {
 		drange_t		*drange;
 		header_field_info	*hfinfo;
 		df_func_def_t		*funcdef;
-		GRegex			*pcre;
+		fvalue_regex_t		*pcre;
 	} value;
 
 } dfvm_value_t;

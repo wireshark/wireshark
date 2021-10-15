@@ -586,20 +586,11 @@ cmp_contains(const fvalue_t *fv_a, const fvalue_t *fv_b)
 }
 
 static gboolean
-cmp_matches(const fvalue_t *fv, const GRegex *regex)
+cmp_matches(const fvalue_t *fv, const fvalue_regex_t *regex)
 {
 	GByteArray *a = fv->value.bytes;
 
-	return g_regex_match_full(
-		regex,			/* Compiled PCRE */
-		(char *)a->data,	/* The data to check for the pattern... */
-		(int)a->len,		/* ... and its length */
-		0,			/* Start offset within data */
-		(GRegexMatchFlags)0,	/* GRegexMatchFlags */
-		NULL,			/* We are not interested in the match information */
-		NULL			/* We don't want error information */
-		);
-	/* NOTE - DO NOT g_free(data) */
+	return fvalue_regex_matches(regex, a->data, a->len);
 }
 
 void
