@@ -41,14 +41,18 @@ definition, which is the enum of all possible ftypes:
 
 /* field types */
 enum ftenum {
-    FT_NONE,        /* used for text labels with no value */
-    FT_PROTOCOL,
-    FT_BOOLEAN,     /* TRUE and FALSE come from <glib.h> */
-    FT_UINT8,
-    FT_UINT16,
-    FT_UINT24,      /* really a UINT32, but displayed as3 hex-digits if FD_HEX*/
-    FT_UINT32,
-    FT_UINT64,
+	FT_NONE,	/* used for text labels with no value */
+	FT_PROTOCOL,
+	FT_BOOLEAN,	/* TRUE and FALSE come from <glib.h> */
+	FT_CHAR,	/* 1-octet character as 0-255 */
+	FT_UINT8,
+	FT_UINT16,
+	FT_UINT24,	/* really a UINT32, but displayed as 6 hex-digits if FD_HEX*/
+	FT_UINT32,
+	FT_UINT40,	/* really a UINT64, but displayed as 10 hex-digits if FD_HEX*/
+	FT_UINT48,	/* really a UINT64, but displayed as 12 hex-digits if FD_HEX*/
+	FT_UINT56,	/* really a UINT64, but displayed as 14 hex-digits if FD_HEX*/
+	FT_UINT64,
     etc., etc.
 }
 
@@ -60,27 +64,30 @@ The fvalue_t is mostly just a gigantic union of possible C-language types
 (as opposed to FT_* types):
 
 typedef struct _fvalue_t {
-        ftype_t *ftype;
-        union {
-                /* Put a few basic types in here */
-                guint32         uinteger;
-                gint32          sinteger;
-                guint64         integer64;
-                gdouble         floating;
-                gchar           *string;
-                guchar          *ustring;
-                GByteArray      *bytes;
-                ipv4_addr       ipv4;
-                ipv6_addr       ipv6;
-                e_guid_t        guid;
-                nstime_t        time;
-                tvbuff_t        *tvb;
-                GRegex          *re;
-        } value;
+	ftype_t	*ftype;
+	union {
+		/* Put a few basic types in here */
+		guint32			uinteger;
+		gint32			sinteger;
+		guint64			integer64;
+		guint64			uinteger64;
+		gint64			sinteger64;
+		gdouble			floating;
+		gchar			*string;
+		guchar			*ustring;
+		GByteArray		*bytes;
+		ipv4_addr_and_mask	ipv4;
+		ipv6_addr_and_prefix	ipv6;
+		e_guid_t		guid;
+		nstime_t		time;
+		protocol_value_t 	protocol;
+		guint16			sfloat_ieee_11073;
+		guint32			float_ieee_11073;
+	} value;
 
-        /* The following is provided for private use
-         * by the fvalue. */
-        gboolean        fvalue_gboolean1;
+	/* The following is provided for private use
+	 * by the fvalue. */
+	gboolean	fvalue_gboolean1;
 
 } fvalue_t;
 
@@ -90,8 +97,8 @@ Defining a field type
 The ftype system itself is designed to be modular, so that new field types
 can be added when necessary.
 
-Each field type must implement an ftype_t structure, also defined in
-ftypes.h. This is the way a field type is registered with the ftype engine.
+Each field type must implement an ftype_t structure, defined in
+ftypes-int.h. This is the way a field type is registered with the ftype engine.
 
 If you take a look at ftype-integer.c, you will see that it provides
 an ftype_register_integers() function, that fills in many such ftype_t
@@ -207,7 +214,7 @@ The syntax tree system
 ----------------------
 The syntax tree is created as a result of running the lemon-based
 grammar parser on the scanned tokens. The syntax tree code
-is in epan/dfilter/syntax-tree* and epan/dfilter/sttree-*. It too
+is in epan/dfilter/syntax-tree* and epan/dfilter/sttype-*. It too
 uses a set of code modules that implement different syntax node types,
 similar to how the field-type system registers a set of ftypes
 with a central engine.
@@ -217,19 +224,21 @@ These sttypes are very much related to ftypes (field types), but there
 is not a one-to-one correspondence. The syntax tree nodes are slightly
 high-level. For example, there is only a single INTEGER sttype, unlike
 the ftype system that has a type for UINT64, UINT32, UINT16, UINT8, etc.
+(INTEGER removed in 2c701ddf - dfilter: Improve grammar to parse ranges)
 
 typedef enum {
-        STTYPE_UNINITIALIZED,
-        STTYPE_TEST,
-        STTYPE_UNPARSED,
-        STTYPE_STRING,
-        STTYPE_FIELD,
-        STTYPE_FVALUE,
-        STTYPE_INTEGER,
-        STTYPE_RANGE,
-        STTYPE_FUNCTION,
-        STTYPE_SET,
-        STTYPE_NUM_TYPES
+	STTYPE_UNINITIALIZED,
+	STTYPE_TEST,
+	STTYPE_UNPARSED,
+	STTYPE_STRING,
+	STTYPE_CHARCONST,
+	STTYPE_FIELD,
+	STTYPE_FVALUE,
+	STTYPE_RANGE,
+	STTYPE_FUNCTION,
+	STTYPE_SET,
+	STTYPE_PCRE,
+	STTYPE_NUM_TYPES
 } sttype_id_t;
 
 
@@ -293,11 +302,11 @@ Both of these can only branch forwards, and never backwards. In this way
 sets of DFVM instructions will never get into an infinite loop.
 
 The epan/dfilter/gencode.c code converts the syntax tree
-into a set of dvfm instructions.
+into a set of dfvm instructions.
 
 The constants that are in the DFVM instructions (the constant
 values that the user is checking against) are pre-loaded
-into registers via the dvfm_init_const() call, and stored
+into registers via the dfvm_init_const() call, and stored
 in the dfilter_t structure for when the display filter is
 actually applied.
 
@@ -331,7 +340,7 @@ $ make dftest
 To use it, give it the display filter on the command-line:
 
 $ ./dftest 'ip.addr == 127.0.0.1'
-Filter: "ip.addr == 127.0.0.1"
+Filter: ip.addr == 127.0.0.1
 
 Constants:
 00000 PUT_FVALUE        127.0.0.1 <FT_IPv4> -> reg#1
@@ -367,9 +376,9 @@ in the proto_tree, then we jump to instruction 3.
 
 00002 ANY_EQ            reg#0 == reg#1
 
-This checks to see if any of the fields in register 0
+This checks to see if any of the fields in register 1
 (which has the pre-loaded constant value of 127.0.0.1) are equal
-to any of the fields in register 1 (which are all of the ip.addr
+to any of the fields in register 0 (which are all of the ip.addr
 fields in the proto tree). The resulting value in the
 accumulator will be TRUE if any of the fields match, or FALSE
 if none match.
@@ -378,10 +387,11 @@ if none match.
 
 This returns the accumulator's value, either TRUE or FALSE.
 
-In addition to dftest, there is also a tools/dfilter-test script
-which is a unit-test script for the display filter engine.
-It makes use of text2pcap and tshark to run specific display
-filters against specific captures (embedded within dfilter-test).
+In addition to dftest, there is also a unit-test script for the 
+display filter engine - test/suite_dfilter/dfiltertest.py.
+It makes use of tshark to run specific display filters against
+specific captures in test/captures. See the "Wireshark Tests" chapter
+in the Wireshark Developer’s Guide.
 
 
 
@@ -439,21 +449,23 @@ is passed to your function so you can set the pointer to your return value.
 
 DFSemCheckType
 --------------
-typedef void (*DFSemCheckType)(int param_num, stnode_t *st_node);
+typedef void (*DFSemCheckType)(dfwork_t *dfw, int param_num, stnode_t *st_node);
 
 For each parameter in the syntax tree, this function will be called.
 "param_num" will indicate the number of the parameter, starting with 0.
 The "stnode_t" is the syntax-tree node representing that parameter.
 If everything is okay with the value of that stnode_t, your function
 does nothing --- it merely returns. If something is wrong, however,
-it should THROW a TypeError exception.
+it should call dfilter_fail(dfw,...) and THROW a TypeError exception.
 
 
 Example: add an 'in' display filter operation
 =============================================
 
-This example has been discussed on wireshark-dev in April 2004. It illustrates
-how a more complex operation can be added to the display filter language.
+This example has been discussed on ethereal-dev in April 2004.
+[Ethereal-dev] Need for an 'in' dfilter operator?
+(https://www.wireshark.org/lists/ethereal-dev/200404/msg00372.html)
+It illustrates how a more complex operation can be added to the display filter language.
 
 Question:
 

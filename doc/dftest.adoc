@@ -18,6 +18,8 @@ dftest - Shows display filter byte-code, for debugging dfilter routines.
 == DESCRIPTION
 
 *dftest* is a simple tool which compiles a display filter and shows its bytecode.
+Please refer to doc/README.display_filter for a description of the
+DFVM (Display Filter Virtual Machine) Byte Codes.
 
 == OPTIONS
 
@@ -40,3 +42,14 @@ Shows how frame 150 is filtered:
 == SEE ALSO
 
 xref:wireshark-filter.html[wireshark-filter](4)
+
+// 526a2946 - dftest and randpkt ... they are not documented in any man page.
+== AUTHORS
+
+.Original Author
+[%hardbreaks]
+Jan Šafránek
+
+.Contributors
+[%hardbreaks]
+Jaap Keuter
