@@ -1640,7 +1640,7 @@ dissect_rdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 
 gint
-dissect_rdp_bandwidth_req(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree,	gboolean from_server)
+dissect_rdp_bandwidth_req(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree, gboolean to_server)
 {
 	guint16 payloadLength;
 	rdp_field_info_t bandwidth_fields[] = {
@@ -1651,14 +1651,14 @@ dissect_rdp_bandwidth_req(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_
 		FI_TERMINATOR
 	};
 	guint8 typeId = tvb_get_guint8(tvb, offset + 1);
-	guint16 reqRespType = tvb_get_guint8(tvb, offset + 4);
+	guint16 reqRespType = tvb_get_guint16(tvb, offset + 4, ENC_LITTLE_ENDIAN);
 
 	if (typeId == TYPE_ID_AUTODETECT_RESPONSE)
 		bandwidth_fields[3].pfield = &hf_rdp_bandwidth_resptype;
 
 	offset = dissect_rdp_fields(tvb, offset, pinfo, tree, bandwidth_fields, 0);
 
-	if (from_server) {
+	if (!to_server) {
 		switch (reqRespType) {
 		case 0x0001:
 		case 0x1001:
