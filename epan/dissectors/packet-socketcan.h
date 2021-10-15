@@ -10,6 +10,11 @@
 #ifndef __PACKET_SOCKETCAN_H__
 #define __PACKET_SOCKETCAN_H__
 
+/* Flags for CAN FD frames. */
+#define CANFD_BRS	0x01 /* Bit Rate Switch (second bitrate for payload data) */
+#define CANFD_ESI	0x02 /* Error State Indicator of the transmitting node */
+#define CANFD_FDF	0x04 /* FD flag - if set, this is an FD frame */
+
 /* Structure that gets passed between dissectors. */
 struct can_info
 {
