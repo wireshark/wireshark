@@ -444,6 +444,26 @@ static GHashTable* proto_names        = NULL;
 static GHashTable* proto_short_names  = NULL;
 static GHashTable* proto_filter_names = NULL;
 
+static const char *reserved_filter_names[] = {
+	/* Display filter keywords. */
+	"eq",
+	"ne",
+	"gt",
+	"ge",
+	"lt",
+	"le",
+	"bitwise_and",
+	"contains",
+	"matches",
+	"not",
+	"and",
+	"or",
+	"in",
+	NULL
+};
+
+static GHashTable *proto_reserved_filter_names = NULL;
+
 static gint
 proto_compare_name(gconstpointer p1_arg, gconstpointer p2_arg)
 {
@@ -501,6 +521,12 @@ proto_init(GSList *register_all_plugin_protocols_list,
 	proto_names        = g_hash_table_new(g_str_hash, g_str_equal);
 	proto_short_names  = g_hash_table_new(g_str_hash, g_str_equal);
 	proto_filter_names = g_hash_table_new(g_str_hash, g_str_equal);
+
+	proto_reserved_filter_names = g_hash_table_new(g_str_hash, NULL);
+	for (const char **ptr = reserved_filter_names; *ptr != NULL; ptr++) {
+		/* GHashTable has no key destructor. */
+		g_hash_table_add(proto_reserved_filter_names, *(char **)ptr);
+	}
 
 	gpa_hfinfo.len           = 0;
 	gpa_hfinfo.allocated_len = 0;
@@ -619,6 +645,11 @@ proto_cleanup_base(void)
 	if (proto_filter_names) {
 		g_hash_table_destroy(proto_filter_names);
 		proto_filter_names = NULL;
+	}
+
+	if (proto_reserved_filter_names) {
+		g_hash_table_destroy(proto_reserved_filter_names);
+		proto_reserved_filter_names = NULL;
 	}
 
 	if (gpa_hfinfo.allocated_len) {
@@ -7349,29 +7380,10 @@ check_valid_filter_name_or_fail(const char *filter_name)
 			" This might be caused by an inappropriate plugin or a development error.", filter_name);
 	}
 
-	const char *reserved_filter_names[] = {
-		/* Display filter keywords. */
-		"eq",
-		"ne",
-		"gt",
-		"ge",
-		"lt",
-		"le",
-		"bitwise_and",
-		"contains",
-		"matches",
-		"not",
-		"and",
-		"or",
-		"in",
-		NULL
-	};
-
 	/* Check for reserved keywords. */
-	for (const char **ptr = reserved_filter_names; *ptr != NULL; ptr++) {
-		if (strcmp(*ptr, filter_name) == 0) {
-			ws_error("Protocol filter name \"%s\" is a reserved keyword.", filter_name);
-		}
+	if (g_hash_table_contains(proto_reserved_filter_names, filter_name)) {
+		ws_error("Protocol filter name \"%s\" is invalid because it is a reserved keyword."
+			" This might be caused by an inappropriate plugin or a development error.", filter_name);
 	}
 }
 
