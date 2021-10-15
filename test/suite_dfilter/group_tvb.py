@@ -67,7 +67,7 @@ class case_tvb(unittest.TestCase):
         dfilter = 'frame contains aa.bb.ff'
         checkDFilterSucceed(dfilter)
 
-    def test_protocol_1(self, checkDFilterFail):
+    def test_protocol_2(self, checkDFilterFail):
         dfilter = 'frame contains aa.bb.hh'
         checkDFilterFail(dfilter, '"aa.bb.hh" is not a valid byte string.')
 

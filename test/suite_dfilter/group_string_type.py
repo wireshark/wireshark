@@ -132,7 +132,7 @@ class case_string(unittest.TestCase):
         dfilter = 'http.request.method contains "\x48\x45\x41\x44"' # "HEAD"
         checkDFilterCount(dfilter, 1)
 
-    def test_contains_6(self, checkDFilterCount):
+    def test_contains_7(self, checkDFilterCount):
         dfilter = 'http.request.method contains 48:45:41:44' # "48:45:41:44"
         checkDFilterCount(dfilter, 0)
 
