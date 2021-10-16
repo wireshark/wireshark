@@ -1,6 +1,7 @@
 %top {
 /* Include this before everything else, for various large-file definitions */
 #include "config.h"
+#include <wireshark.h>
 }
 
 /*
@@ -57,7 +58,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <glib.h>
 #include "protobuf_lang_tree.h"
 #include "protobuf_lang_parser.h"
 

@@ -9,10 +9,9 @@
 #ifndef __WTAP_FILE_WRAPPERS_H__
 #define __WTAP_FILE_WRAPPERS_H__
 
-#include <glib.h>
+#include <wireshark.h>
 #include "wtap.h"
 #include <wsutil/file_util.h>
-#include "ws_symbol_export.h"
 
 extern FILE_T file_open(const char *path);
 extern FILE_T file_fdopen(int fildes);

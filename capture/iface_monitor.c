@@ -8,12 +8,10 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#include <config.h>
+#include "config.h"
+#include "iface_monitor.h"
 
 #ifdef HAVE_LIBPCAP
-
-#include <capture/iface_monitor.h>
-#include "ws_attributes.h"
 
 #if defined(HAVE_LIBNL)
 

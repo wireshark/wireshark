@@ -757,6 +757,84 @@ so your code won't even compile when warnings occur.
 
 7. General observations about architecture
 
+7.1 The global header "wireshark.h"
+
+You should include the global header <wireshark.h> in your code. However
+there are some things to keep in mind when using it and especially
+if you are considering modifying it.
+
+** wireshark.h needs to be minimal: for efficiency reasons, to reduce the
+error surface and because every time this header changes everything must be
+rebuilt. Consider carefully if another header/module should be included
+globally with every project file and exported as public header.
+
+** No configuration: configuration is specific to the build environment
+and target machine. wireshark.h must not depend on that.
+
+** Only wireshark system headers allowed: plugins use this header and
+cannot depend on any header (even indirectly) that is not installed on the
+target system.
+
+** Only global definitions allowed: for example it is acceptable to include
+'wsutil' headers in wireshark.h because every component of Wireshark is allowed
+to depend on wsutil. wiretap is not acceptable because we cannot introduce
+dependencies on wiretap globally (and wireshark.h must be usable everywhere).
+
+7.2 Best practices using headers
+
+C files can be categorized in three types: source files, private headers and
+public headers.
+
+A module "foobar" can have only a private header, only a public header, or
+both. If it's only one it is named "foobar.h" in both cases. If it is both they
+are named "foobar-int.h" and "foobar.h" respectively.
+
+In general the order of #include's for a C module source files (foobar.c),
+assuming foobar implements any kind of interface should be:
+
+  #include "config.h"
+  #define WS_LOG_DOMAIN "mydomain"
+  #include "foobar-int.h"
+
+  followed by <system headers>
+  followed by <wireshark public headers>
+  followed by <wireshark private headers>
+
+For header files (private and public) config.h must NOT be included. A public
+header file (foobar.h) looks like this:
+
+  #ifndef __FOOBAR_H__
+  #define __FOOBAR_H__
+  #include <wireshark.h>
+  followed by <system headers>
+  followed by <wireshark public headers>
+
+  #ifdef __cplusplus
+  extern "C" { 
+  #endif
+  (declarations)
+  #ifdef __cplusplus
+  }
+  #endif
+  #endif /* FOOBAR_H */
+
+A private header (foobar-int.h) is the public header plus the declarations
+with private scope:
+
+  #ifndef __FOOBAR_INT_H__
+  #define __FOOBAR_INT_H__
+  #include "foobar.h"
+  followed by <system headers>
+  followed by <wireshark public headers>
+  followed by <wireshark private headers>
+  (etc.)
+
+Again if there are only public or private declarations the name foobar-int.h
+is not used. The macro symbol WS_LOG_DOMAIN can be defined in source files or
+private headers as long as it comes before wireshark.h.
+
+7.3 libwireshark is not a single monolithic entity
+
 One day we might conceivably wish to load dissectors on demand and do other
 more sophisticated kinds of unit test. Plus other scenarios not immediately
 obvious. For this to be possible it is important that the code in epan/ does

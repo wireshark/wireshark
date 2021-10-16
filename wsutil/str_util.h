@@ -11,9 +11,7 @@
 #ifndef __STR_UTIL_H__
 #define __STR_UTIL_H__
 
-#include <glib.h>
-#include "ws_symbol_export.h"
-
+#include <wireshark.h>
 #include <wsutil/wmem/wmem.h>
 
 #ifdef __cplusplus

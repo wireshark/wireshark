@@ -89,6 +89,7 @@
 #    define _XOPEN_SOURCE 600
 #  endif
 #endif
+#include "text_import.h"
 
 /*
  * Defining _XOPEN_SOURCE is needed on some platforms, e.g. platforms
@@ -127,7 +128,6 @@
 # include "wsutil/strptime.h"
 #endif
 
-#include "text_import.h"
 #include "text_import_scanner.h"
 #include "text_import_scanner_lex.h"
 #include "text_import_regex.h"

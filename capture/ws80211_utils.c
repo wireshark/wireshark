@@ -12,14 +12,13 @@ Copyright (c) 2008-2009		Luis R. Rodriguez
 SPDX-License-Identifier: ISC
 */
 
-#include <config.h>
+#include "config.h"
+#include "ws80211_utils.h"
 
 #include <stdio.h>
 
 #include <glib.h>
 #include <glib/gstdio.h>
-
-#include "ws80211_utils.h"
 
 #if defined(HAVE_LIBNL) && defined(HAVE_NL80211)
 #include <string.h>

@@ -3429,6 +3429,7 @@ set(SHARK_PUBLIC_HEADERS
 	ws_diag_control.h
 	ws_log_defs.h
 	ws_symbol_export.h
+	wireshark.h
 	${CMAKE_BINARY_DIR}/ws_version.h
 )
 

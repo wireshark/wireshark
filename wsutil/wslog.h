@@ -11,16 +11,15 @@
 #ifndef __WSLOG_H__
 #define __WSLOG_H__
 
-#include <ws_symbol_export.h>
-#include <ws_attributes.h>
 #include <glib.h>
 #include <stdio.h>
 #include <time.h>
 #include <stdarg.h>
 
-#include <wsutil/wmem/wmem.h>
-
+#include <wireshark.h>
 #include <ws_log_defs.h>
+
+#include <wsutil/wmem/wmem.h>
 
 #ifdef WS_LOG_DOMAIN
 #define _LOG_DOMAIN WS_LOG_DOMAIN
