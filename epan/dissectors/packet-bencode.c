@@ -183,9 +183,7 @@ static int dissect_bencoding_rec(tvbuff_t *tvb, packet_info *pinfo,
    }
 
    op = tvb_get_guint8(tvb, offset);
-   oplen = dissect_bencoding_rec(tvb, pinfo, offset, length, NULL, level + 1, NULL, 0);
-   if (oplen < 0)
-      oplen = length;
+   oplen = length;
 
    switch (op) {
    case 'd':
