@@ -833,7 +833,46 @@ Again if there are only public or private declarations the name foobar-int.h
 is not used. The macro symbol WS_LOG_DOMAIN can be defined in source files or
 private headers as long as it comes before wireshark.h.
 
-7.3 libwireshark is not a single monolithic entity
+7.3 Wireshark internal and external API policy
+
+Wireshark has several APIs. We need to distinguish between internal
+Wireshark library APIs and external Wireshark APIs. Wireshark the project is
+composed of many different programs and these executable binaries use a number
+of internal libraries to share code efficiently. These internal shared
+libraries need to be installed on the system to run the programs (wireshark,
+tshark, etc).
+
+A library's public API includes the symbols exported by the DSO (wsutil,
+libwireshark, etc). The internal API is made available in the shared libraries
+and exists to support the goals of the project. It is public from the point
+of view of Wireshark programs (client users of the internal API). The
+external API exists to support plugins (client users of the external API)
+and is a loosely defined subset of the internal API plus any infrastructure
+required to support a plugin system. Note that these two uses of shared
+libraries coexist with a lot of overlap, but are nevertheless distinct.
+
+The internal (public) API is not considered to be stable and will regularly
+change as a normal part of development to support new features, remove cruft,
+and whatever else is necessary to make the project sustainable and ease the
+burden on developers. There is less freedom to change something that could
+break a lot of plugins but this is also acceptable (with cause).
+
+The plugin ABI policy is to be compatible only between micro releases (also
+called patch releases). That means we try to make it unnecessary to recompile
+plugins with each micro release (on a best-effort basis). For major.minor
+releases it is explicitly required to recompile plugins. There is no stable
+ABI contract of any kind in that case.
+
+Keep in mind that APIs can exist in different scopes and levels of abstraction.
+Don't get stuck thinking the words public/private have a very specific
+meaning, like being decorated or not with WS_DLL_PUBLIC, although that is a
+big part of it usually.
+
+Also the Wireshark developers have historically tried to keep the Lua API
+very stable and provide strong backward-compatibility guarantees. Under this
+policy moving from Lua 5.2 is unlikely to happen in the foreseeable future.
+
+7.4 libwireshark is not a single monolithic entity
 
 One day we might conceivably wish to load dissectors on demand and do other
 more sophisticated kinds of unit test. Plus other scenarios not immediately
