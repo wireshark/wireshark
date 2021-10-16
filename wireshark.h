@@ -44,7 +44,9 @@
 #include <ws_symbol_export.h>
 #include <ws_version.h>
 
+#include <wsutil/wmem/wmem.h>
 #include <wsutil/ws_assert.h>
+#include <wsutil/wslog.h>
 
 #endif /* __WIRESHARK_H__ */
 

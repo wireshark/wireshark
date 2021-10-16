@@ -40,7 +40,8 @@
 
 #define OUTSIDE_SPEEX 1
 #define RANDOM_PREFIX ws_codec
-#include "ws_symbol_export.h"
+#include <ws_symbol_export.h>
+#include <ws_diag_control.h>
 #define EXPORT
 
 #ifdef OUTSIDE_SPEEX
