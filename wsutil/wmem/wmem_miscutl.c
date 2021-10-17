@@ -30,9 +30,15 @@ wmem_memdup(wmem_allocator_t *allocator, const void *source, const size_t size)
 }
 
 gint
-uint64_compare(gconstpointer a, gconstpointer b)
+int_compare(gconstpointer a, gconstpointer b)
 {
-    return (guint64)(a) > (guint64)(b) ? 1 : ((guint64)(a) < (guint64)(b) ? -1 : 0);
+    return GPOINTER_TO_INT(a) - GPOINTER_TO_INT(b);
+}
+
+gint
+uint_compare(gconstpointer a, gconstpointer b)
+{
+    return GPOINTER_TO_UINT(a) > GPOINTER_TO_UINT(b) ? 1 : (GPOINTER_TO_UINT(a) < GPOINTER_TO_UINT(b) ? -1 : 0);
 }
 
 /*

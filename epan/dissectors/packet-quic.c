@@ -3811,9 +3811,9 @@ quic_streams_add(packet_info *pinfo, quic_info_data_t *quic_info, guint64 stream
     if (!quic_info->streams_list) {
         quic_info->streams_list = wmem_list_new(wmem_file_scope());
     }
-    if (!wmem_list_find(quic_info->streams_list, (void *)(stream_id))) {
-        wmem_list_insert_sorted(quic_info->streams_list, (void *)(stream_id),
-                                uint64_compare);
+    if (!wmem_list_find(quic_info->streams_list, GUINT_TO_POINTER(stream_id))) {
+        wmem_list_insert_sorted(quic_info->streams_list, GUINT_TO_POINTER(stream_id),
+                                uint_compare);
     }
 
     /* Map: first Stream ID for each UDP payload */
@@ -3852,7 +3852,7 @@ quic_get_stream_id_le(guint streamid, guint sub_stream_id, guint *sub_stream_id_
 {
     quic_info_data_t *quic_info;
     wmem_list_frame_t *curr_entry;
-    guint64 prev_stream_id;
+    guint prev_stream_id;
 
     quic_info = get_conn_by_number(streamid);
     if (!quic_info) {
@@ -3862,20 +3862,20 @@ quic_get_stream_id_le(guint streamid, guint sub_stream_id, guint *sub_stream_id_
         return FALSE;
     }
 
-    prev_stream_id = G_MAXUINT64;
+    prev_stream_id = G_MAXUINT32;
     curr_entry = wmem_list_head(quic_info->streams_list);
     while (curr_entry) {
-        if ((guint64)wmem_list_frame_data(curr_entry) > sub_stream_id &&
-            prev_stream_id != G_MAXUINT64) {
+        if (GPOINTER_TO_UINT(wmem_list_frame_data(curr_entry)) > sub_stream_id &&
+            prev_stream_id != G_MAXUINT32) {
             *sub_stream_id_out = (guint)prev_stream_id;
             return TRUE;
         }
-        prev_stream_id = (guint64)wmem_list_frame_data(curr_entry);
+        prev_stream_id = GPOINTER_TO_UINT(wmem_list_frame_data(curr_entry));
         curr_entry = wmem_list_frame_next(curr_entry);
     }
 
-    if (prev_stream_id != G_MAXUINT64) {
-        *sub_stream_id_out = (guint)prev_stream_id;
+    if (prev_stream_id != G_MAXUINT32) {
+        *sub_stream_id_out = prev_stream_id;
         return TRUE;
     }
 
@@ -3898,9 +3898,9 @@ quic_get_stream_id_ge(guint streamid, guint sub_stream_id, guint *sub_stream_id_
 
     curr_entry = wmem_list_head(quic_info->streams_list);
     while (curr_entry) {
-        if ((guint64)wmem_list_frame_data(curr_entry) >= sub_stream_id) {
+        if (GPOINTER_TO_UINT(wmem_list_frame_data(curr_entry)) >= sub_stream_id) {
             /* StreamIDs are 64 bits long in QUIC, but "Follow Stream" generic code uses guint variables */
-            *sub_stream_id_out = (guint)(guint64)wmem_list_frame_data(curr_entry);
+            *sub_stream_id_out = GPOINTER_TO_UINT(wmem_list_frame_data(curr_entry));
             return TRUE;
         }
         curr_entry = wmem_list_frame_next(curr_entry);

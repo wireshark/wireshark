@@ -739,12 +739,6 @@ check_val_list(gpointer val, gpointer val_to_check)
 }
 
 static gint
-int_compare(gconstpointer a, gconstpointer b)
-{
-    return GPOINTER_TO_INT(a) - GPOINTER_TO_INT(b);
-}
-
-static gint
 str_compare(gconstpointer a, gconstpointer b)
 {
     return strcmp((const char*)a, (const char*)b);
