@@ -7120,7 +7120,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>F1AP</source>
-        <translation type="unfinished"></translation>
+        <translation>F1AP</translation>
     </message>
     <message>
         <source>F1AP Messages</source>

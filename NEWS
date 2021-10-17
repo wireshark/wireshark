@@ -15,6 +15,16 @@ Wireshark 3.6.0 Release Notes
   New and Updated Features
 
    The following features are new (or have been significantly updated)
+   since version 3.6.0rc1:
+
+     • Nothing of note.
+
+   The following features are new (or have been significantly updated)
+   since version 3.5.0:
+
+     • Nothing of note.
+
+   The following features are new (or have been significantly updated)
    since version 3.4.0:
 
      • The Windows installers now ship with Npcap 1.55.
@@ -191,7 +201,7 @@ Wireshark 3.6.0 Release Notes
 
   A complete FAQ is available on the Wireshark web site[8].
 
-  Last updated 2021-10-13 18:08:42 UTC
+  Last updated 2021-10-17 09:32:29 UTC
 
  References
 
