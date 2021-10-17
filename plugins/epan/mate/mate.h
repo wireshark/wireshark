@@ -15,6 +15,7 @@
 #define __MATE_H_
 
 #define WS_LOG_DOMAIN "MATE"
+#include <wireshark.h>
 
 #include <gmodule.h>
 

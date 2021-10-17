@@ -9,6 +9,12 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+%top {
+/* Include this before everything else, for various large-file definitions */
+#include "config.h"
+#include <wireshark.h>
+}
+
 %option reentrant
 %option noyywrap
 %option noinput
