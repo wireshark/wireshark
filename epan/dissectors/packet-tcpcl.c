@@ -549,7 +549,6 @@ static expert_field ei_tcpclv4_xfer_seg_duplicate_start = EI_INIT;
 static expert_field ei_tcpclv4_xfer_seg_missing_end = EI_INIT;
 static expert_field ei_tcpclv4_xfer_seg_duplicate_end = EI_INIT;
 static expert_field ei_tcpclv4_xfer_seg_no_relation = EI_INIT;
-static expert_field ei_xfer_seg_large_xferid = EI_INIT;
 static expert_field ei_xfer_seg_over_total_len = EI_INIT;
 static expert_field ei_xfer_mismatch_total_len = EI_INIT;
 static expert_field ei_xfer_ack_mismatch_flags = EI_INIT;
@@ -584,7 +583,6 @@ static ei_register_info ei_tcpcl[] = {
     {&ei_tcpclv4_xfer_seg_no_relation, { "tcpcl.v4.xfer_seg_no_relation", PI_SEQUENCE, PI_NOTE, "XFER_SEGMENT has no related XFER_ACK", EXPFILL}},
     {&ei_tcpclv4_xfer_refuse_no_transfer, { "tcpcl.v4.xfer_refuse_no_transfer", PI_SEQUENCE, PI_NOTE, "XFER_REFUSE has no related XFER_SEGMENT(s)", EXPFILL}},
     {&ei_tcpclv4_xferload_over_xfer_mru, { "tcpcl.v4.xferload_over_xfer_mru", PI_SEQUENCE, PI_NOTE, "Transfer larger than peer MRU", EXPFILL}},
-    {&ei_xfer_seg_large_xferid, { "tcpcl.xfer_seg_large_xferid", PI_REASSEMBLE, PI_WARN, "XFER_SEGMENT has a transfer ID larger than Wireshark can handle", EXPFILL}},
     {&ei_xfer_seg_over_total_len, { "tcpcl.xfer_seg_over_total_len", PI_SEQUENCE, PI_ERROR, "XFER_SEGMENT has accumulated length beyond the Transfer Length extension", EXPFILL}},
     {&ei_xfer_mismatch_total_len, { "tcpcl.xfer_mismatch_total_len", PI_SEQUENCE, PI_ERROR, "Transfer has total length different than the Transfer Length extension", EXPFILL}},
     {&ei_xfer_ack_mismatch_flags, { "tcpcl.xfer_ack_mismatch_flags", PI_SEQUENCE, PI_ERROR, "XFER_ACK does not have flags matching XFER_SEGMENT", EXPFILL}},
@@ -880,6 +878,69 @@ static void try_negotiate(tcpcl_dissect_ctx_t *ctx, packet_info *pinfo) {
 
     }
 }
+
+typedef struct {
+    // key type for addresses_ports_reassembly_table_functions
+    void *addr_port;
+    // TCPCL ID
+    guint64 xfer_id;
+} tcpcl_fragment_key_t;
+
+static guint fragment_key_hash(gconstpointer ptr) {
+    const tcpcl_fragment_key_t *obj = (const tcpcl_fragment_key_t *)ptr;
+    return (
+        addresses_ports_reassembly_table_functions.hash_func(obj->addr_port)
+        ^ g_int64_hash(&(obj->xfer_id))
+    );
+}
+
+static gboolean fragment_key_equal(gconstpointer ptrA, gconstpointer ptrB) {
+    const tcpcl_fragment_key_t *objA = (const tcpcl_fragment_key_t *)ptrA;
+    const tcpcl_fragment_key_t *objB = (const tcpcl_fragment_key_t *)ptrB;
+    return (
+        addresses_ports_reassembly_table_functions.equal_func(objA->addr_port, objB->addr_port)
+        && (objA->xfer_id == objB->xfer_id)
+    );
+}
+
+static gpointer fragment_key_temporary(const packet_info *pinfo, const guint32 id, const void *data) {
+    tcpcl_fragment_key_t *obj = g_slice_new(tcpcl_fragment_key_t);
+    obj->addr_port = addresses_ports_reassembly_table_functions.temporary_key_func(pinfo, id, NULL);
+    obj->xfer_id = *((const guint64 *)data);
+    return (gpointer)obj;
+}
+
+static gpointer fragment_key_persistent(const packet_info *pinfo, const guint32 id, const void *data) {
+    tcpcl_fragment_key_t *obj = g_slice_new(tcpcl_fragment_key_t);
+    obj->addr_port = addresses_ports_reassembly_table_functions.persistent_key_func(pinfo, id, NULL);
+    obj->xfer_id = *((const guint64 *)data);
+    return (gpointer)obj;
+}
+
+static void fragment_key_free_temporary(gpointer ptr) {
+    tcpcl_fragment_key_t *obj = (tcpcl_fragment_key_t *)ptr;
+    if (obj) {
+        addresses_ports_reassembly_table_functions.free_temporary_key_func(obj->addr_port);
+        g_slice_free(tcpcl_fragment_key_t, obj);
+    }
+}
+
+static void fragment_key_free_persistent(gpointer ptr) {
+    tcpcl_fragment_key_t *obj = (tcpcl_fragment_key_t *)ptr;
+    if (obj) {
+        addresses_ports_reassembly_table_functions.free_persistent_key_func(obj->addr_port);
+        g_slice_free(tcpcl_fragment_key_t, obj);
+    }
+}
+
+static reassembly_table_functions xfer_reassembly_table_functions = {
+    fragment_key_hash,
+    fragment_key_equal,
+    fragment_key_temporary,
+    fragment_key_persistent,
+    fragment_key_free_temporary,
+    fragment_key_free_persistent
+};
 
 /** Record metadata about one segment in a transfer.
  */
@@ -1221,24 +1282,22 @@ dissect_v3_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         }
 
         if (tcpcl_desegment_transfer) {
-            // wireshark fragment set IDs are 32-bits only
-            const guint32 corr_id = *xfer_id & 0xFFFFFFFF;
             // Reassemble the segments
             fragment_head *frag_msg;
             frag_msg = fragment_add_seq_next(
-                    &xfer_reassembly_table,
-                    tvb, offset,
-                    pinfo, corr_id, NULL,
-                    segment_length,
-                    !(conv_hdr & TCPCLV3_DATA_END_FLAG)
+                &xfer_reassembly_table,
+                tvb, offset,
+                pinfo, 0, xfer_id,
+                segment_length,
+                !(conv_hdr & TCPCLV3_DATA_END_FLAG)
             );
             ctx->xferload = process_reassembled_data(
-                    tvb, offset, pinfo,
-                    "Reassembled Transfer",
-                    frag_msg,
-                    &xfer_frag_items,
-                    NULL,
-                    proto_tree_get_parent_tree(tree)
+                tvb, offset, pinfo,
+                "Reassembled Transfer",
+                frag_msg,
+                &xfer_frag_items,
+                NULL,
+                proto_tree_get_parent_tree(tree)
             );
         }
         offset += segment_length;
@@ -1561,7 +1620,7 @@ dissect_v4_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             offset += 1;
 
             guint64 xfer_id = tvb_get_guint64(tvb, offset, ENC_BIG_ENDIAN);
-            proto_item *item_xfer_id = proto_tree_add_uint64(tree_msg, hf_tcpclv4_xfer_id, tvb, offset, 8, xfer_id);
+            proto_tree_add_uint64(tree_msg, hf_tcpclv4_xfer_id, tvb, offset, 8, xfer_id);
             offset += 8;
 
             if (flags & TCPCLV4_TRANSFER_FLAG_START) {
@@ -1653,29 +1712,22 @@ dissect_v4_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             }
 
             if (tcpcl_desegment_transfer) {
-                // wireshark fragment set IDs are 32-bits only
-                const guint32 corr_id = xfer_id & 0xFFFFFFFF;
-                if (corr_id != xfer_id) {
-                    expert_add_info(pinfo, item_xfer_id, &ei_xfer_seg_large_xferid);
-                }
-                else {
-                    // Reassemble the segments
-                    fragment_head *xferload_frag_msg = fragment_add_seq_next(
-                        &xfer_reassembly_table,
-                        tvb, data_offset,
-                        pinfo, corr_id, NULL,
-                        data_len_clamp,
-                        !(flags & TCPCLV4_TRANSFER_FLAG_END)
-                    );
-                    ctx->xferload = process_reassembled_data(
-                        tvb, data_offset, pinfo,
-                        "Reassembled Transfer",
-                        xferload_frag_msg,
-                        &xfer_frag_items,
-                        NULL,
-                        proto_tree_get_parent_tree(tree)
-                    );
-                }
+                // Reassemble the segments
+                fragment_head *xferload_frag_msg = fragment_add_seq_next(
+                    &xfer_reassembly_table,
+                    tvb, data_offset,
+                    pinfo, 0, &xfer_id,
+                    data_len_clamp,
+                    !(flags & TCPCLV4_TRANSFER_FLAG_END)
+                );
+                ctx->xferload = process_reassembled_data(
+                    tvb, data_offset, pinfo,
+                    "Reassembled Transfer",
+                    xferload_frag_msg,
+                    &xfer_frag_items,
+                    NULL,
+                    proto_tree_get_parent_tree(tree)
+                );
             }
 
             break;
@@ -2115,7 +2167,7 @@ proto_register_tcpclv3(void)
 
     reassembly_table_register(
         &xfer_reassembly_table,
-        &addresses_reassembly_table_functions
+        &xfer_reassembly_table_functions
     );
 
 }
