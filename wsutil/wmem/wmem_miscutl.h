@@ -40,12 +40,15 @@ void *
 wmem_memdup(wmem_allocator_t *allocator, const void *source, const size_t size)
 G_GNUC_MALLOC;
 
-/** Generic GCompareFunc implementation to compare unsigned integer 64 bits long
+/** Generic GCompareFunc implementations to compare signed/unsigned integer
  */
 WS_DLL_PUBLIC
 gint
-uint64_compare(gconstpointer a, gconstpointer b);
+int_compare(gconstpointer a, gconstpointer b);
 
+WS_DLL_PUBLIC
+gint
+uint_compare(gconstpointer a, gconstpointer b);
 
 /**   @}
  *  @} */
