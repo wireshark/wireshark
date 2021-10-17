@@ -8035,7 +8035,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source> before reloading Lua plugins</source>
-        <translation type="unfinished"></translation>
+        <translation> prima di ricaricare i plugin Lua</translation>
     </message>
     <message>
         <source>Please wait while Wireshark is initializing…</source>

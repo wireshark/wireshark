@@ -8035,7 +8035,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source> before reloading Lua plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>vor dem Neuladen der Lua Plugins</translation>
     </message>
     <message>
         <source>Please wait while Wireshark is initializing…</source>
