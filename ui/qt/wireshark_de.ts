@@ -6422,7 +6422,8 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Rawshark</source>
-        <translation>Rawshark</translation>
+        <oldsource>RawShark</oldsource>
+        <translation type="unfinished">RawShark</translation>
     </message>
     <message>
         <source>Dumpcap</source>
@@ -6438,7 +6439,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Text2pcap</source>
-        <translation type="unfinished"></translation>
+        <translation>Text2cap</translation>
     </message>
     <message>
         <source>Website</source>
@@ -13002,12 +13003,14 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
 <context>
     <name>SyntaxLineEdit</name>
     <message>
-        <source>&quot;%1&quot; is deprecated in favour of &quot;%2&quot;. See the User&apos;s Guide.</source>
-        <translation>&quot;%1&quot; wurde durch &quot;%2&quot; abgelöst. Siehe Benutzerhandbuch.</translation>
+        <source>&quot;%1&quot; is deprecated in favour of &quot;%2&quot;. See Help section 6.4.9 for details.</source>
+        <oldsource>&quot;%1&quot; is deprecated in favour of &quot;%2&quot;. See the User&apos;s Guide.</oldsource>
+        <translation type="unfinished">&quot;%1&quot; wurde durch &quot;%2&quot; abgelöst. Siehe Benutzerhandbuch.</translation>
     </message>
     <message>
-        <source>&quot;%1&quot; may have unexpected results. See the User&apos;s Guide.</source>
-        <translation>&quot;%1&quot; kann zu einem unerwarteten Ergebnis führen. Siehe Benutzerhandbuch.</translation>
+        <source>&quot;%1&quot; may have unexpected results. See Help section 6.4.8 for details.</source>
+        <oldsource>&quot;%1&quot; may have unexpected results. See the User&apos;s Guide.</oldsource>
+        <translation type="unfinished">&quot;%1&quot; kann zu einem unerwarteten Ergebnis führen. Siehe Benutzerhandbuch.</translation>
     </message>
 </context>
 <context>

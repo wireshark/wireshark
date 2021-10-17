@@ -6422,7 +6422,8 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Rawshark</source>
-        <translation>Rawshark</translation>
+        <oldsource>RawShark</oldsource>
+        <translation type="unfinished">RawShark</translation>
     </message>
     <message>
         <source>Dumpcap</source>
@@ -13002,12 +13003,14 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
 <context>
     <name>SyntaxLineEdit</name>
     <message>
-        <source>&quot;%1&quot; is deprecated in favour of &quot;%2&quot;. See the User&apos;s Guide.</source>
-        <translation>”%1” bör undvikas till förmån för ”%2”.  Se användarmanualen.</translation>
+        <source>&quot;%1&quot; is deprecated in favour of &quot;%2&quot;. See Help section 6.4.9 for details.</source>
+        <oldsource>&quot;%1&quot; is deprecated in favour of &quot;%2&quot;. See the User&apos;s Guide.</oldsource>
+        <translation type="unfinished">”%1” bör undvikas till förmån för ”%2”.  Se användarmanualen.</translation>
     </message>
     <message>
-        <source>&quot;%1&quot; may have unexpected results. See the User&apos;s Guide.</source>
-        <translation>”%1” kan ha oväntad effekt.  Se användarmanualen.</translation>
+        <source>&quot;%1&quot; may have unexpected results. See Help section 6.4.8 for details.</source>
+        <oldsource>&quot;%1&quot; may have unexpected results. See the User&apos;s Guide.</oldsource>
+        <translation type="unfinished">”%1” kan ha oväntad effekt.  Se användarmanualen.</translation>
     </message>
 </context>
 <context>

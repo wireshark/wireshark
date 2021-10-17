@@ -126,6 +126,20 @@ Wireshark 3.7.0 Release Notes
      • Reload Lua plugins has been improved to properly support
        FileHandler.
 
+     • Display filter syntax:
+
+        • Protocols always parse unquoted strings as byte values. Before
+       an expression such as "tcp contains ff.fg" would look for the
+       string "ff.fg" if it does not match a valid byte array
+       specification. Now this is a syntax error. Use double-quotes to
+       match literal strings.
+
+        • For string comparisons literal byte arrays are always
+       interpreted as unquoted literal strings. This avoids unexpected
+       results with embedded NUL bytes. For example "http.user_agent
+       contains aa:bb" tries to match "aa:bb". Avoid this usage, always
+       use double-quotes: http.user_agent contains "\xaa\xbb".
+
   New File Format Decoding Support
 
    Vector Informatik Binary Log File (BLF)
@@ -191,7 +205,7 @@ Wireshark 3.7.0 Release Notes
 
   A complete FAQ is available on the Wireshark web site[8].
 
-  Last updated 2021-10-10 20:17:01 UTC
+  Last updated 2021-10-17 09:05:37 UTC
 
  References
 

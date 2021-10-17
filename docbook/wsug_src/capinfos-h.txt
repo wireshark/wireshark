@@ -1,4 +1,4 @@
-Capinfos (Wireshark) 3.7.0 (v3.7.0rc0-33-g0d276b47d120)
+Capinfos (Wireshark) 3.7.0 (v3.7.0rc0-98-g71ccbe9f3748)
 Print various information (infos) about capture files.
 See https://www.wireshark.org for more information.
 
@@ -9,7 +9,7 @@ General infos:
   -E display the capture file encapsulation
   -I display the capture file interface information
   -F display additional capture file information
-  -H display the SHA256, RMD160, and SHA1 hashes of the file
+  -H display the SHA256, RIPEMD160, and SHA1 hashes of the file
   -k display the capture comment
 
 Size infos:
@@ -53,7 +53,8 @@ Table report options:
   -Q quote infos with double quotes (")
 
 Miscellaneous:
-  -h display this help and exit
+  -h, --help               display this help and exit
+  -v, --version            display version info and exit
   -C cancel processing if file open fails (default is to continue)
   -A generate all infos (default)
   -K disable displaying the capture comment

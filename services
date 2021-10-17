@@ -4632,6 +4632,7 @@ cisco-redu	5786/udp	# redundancy notification
 waascluster	5787/udp	# Cisco WAAS Cluster Protocol
 xtreamx		5793/tcp/udp	# XtreamX Supervised Peer message
 spdp		5794/udp	# Simple Peered Discovery Protocol
+enlabel-dpl	5798/tcp	# Proprietary Website deployment service
 icmpd		5813/tcp/udp	# ICMPD
 spt-automation	5814/tcp/udp	# Support Automation
 shiprush-d-ch	5841/tcp	# Z-firm ShipRush interface for web access and bidirectional data
