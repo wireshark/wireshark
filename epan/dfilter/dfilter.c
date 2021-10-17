@@ -80,11 +80,21 @@ dfilter_new_function(dfwork_t *dfw, const char *name)
 
 /* Gets a GRegex from a string, and sets the error message on failure. */
 stnode_t *
-dfilter_new_regex(dfwork_t *dfw, const char *patt)
+dfilter_new_regex(dfwork_t *dfw, stnode_t *node)
 {
 	GError *regex_error = NULL;
 	GRegex *pcre;
+	const char *patt;
 
+	if (stnode_type_id(node) == STTYPE_STRING) {
+		patt = stnode_data(node);
+	}
+	else {
+		dfilter_parse_fail(dfw, "Expected a string not %s", stnode_todisplay(node));
+		return node;
+	}
+
+	patt = stnode_data(node);
 	ws_debug("Compile regex pattern: %s", patt);
 
 	/*
@@ -108,10 +118,11 @@ dfilter_new_regex(dfwork_t *dfw, const char *patt)
 	if (regex_error) {
 		dfilter_parse_fail(dfw, "%s", regex_error->message);
 		g_error_free(regex_error);
-		pcre = NULL;
+		return node;
 	}
 
-	return stnode_new(STTYPE_PCRE, pcre, patt);
+	stnode_replace(node, STTYPE_PCRE, pcre);
+	return node;
 }
 
 gboolean
