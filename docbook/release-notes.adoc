@@ -111,6 +111,12 @@ The following features are new (or have been significantly updated) since versio
 
 * Reload Lua plugins has been improved to properly support FileHandler.
 
+* Display filter syntax:
+** The expression "a != b" now always has the same meaning as !(a == b). In particular this means filter expressions with multi-value fields like
+   "ip.addr != 1.1.1.1" will work as expected (the result is the same as typing "ip.src != 1.1.1.1 and ip.dst != 1.1.1.1"). This avoids the
+   contradiction (a == b and a != b) being true.
+** Use the syntax "a ~= b" or "a any_ne b" to recover the previous (inconsistent with ==) logic for not equal.
+
 * Corrected calculation of mean jitter in RTP Stream Analysis dialog and IAX2 Stram Analysis dialog
 
 * RTP streams are created based on Skinny protocol messages

@@ -1155,10 +1155,10 @@ You can become more familiar with display filter fields by selecting different p
 
 [[ChUseWiresharkStatusbarFilter]]
 
+//FIXME: Remove or choose a better example of a display filter message.
 .The Statusbar with a display filter message
 image::wsug_graphics/ws-statusbar-filter.png[{statusbar-attrs}]
 
 This is displayed if you are trying to use a display filter which may have unexpected results.
-For a detailed description see <<ChWorkBuildDisplayFilterMistake>>.
 
 // End of WSUG Chapter 3

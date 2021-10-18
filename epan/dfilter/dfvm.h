@@ -53,6 +53,7 @@ typedef enum {
 	PUT_FVALUE,
 	PUT_PCRE,
 	ANY_EQ,
+	ALL_NE,
 	ANY_NE,
 	ANY_GT,
 	ANY_GE,
