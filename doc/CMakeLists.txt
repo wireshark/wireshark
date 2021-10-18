@@ -23,13 +23,25 @@ add_custom_command(
 set(MAN1_INSTALL_FILES)
 set(MAN4_INSTALL_FILES)
 set(HTML_INSTALL_FILES)
+set(GENERATOR_TARGETS)
 
 macro (ASCIIDOCTOR2MANHTML _page_name _man_section)
 	if(ASCIIDOCTOR_FOUND)
 		ASCIIDOCTOR2HTML(${_page_name}.adoc)
-		ASCIIDOCTOR2MAN(${_page_name}.adoc ${_man_section})
-
+		list(APPEND GENERATOR_TARGETS generate_${_page_name}.html)
+		# Override set_asciidoctor_target_properties
+		set_target_properties(generate_${_page_name}.html PROPERTIES
+			FOLDER "Docs"
+			EXCLUDE_FROM_DEFAULT_BUILD False
+		)
 		list(APPEND HTML_INSTALL_FILES ${CMAKE_CURRENT_BINARY_DIR}/${_page_name}.html)
+
+		ASCIIDOCTOR2MAN(${_page_name}.adoc ${_man_section})
+		list(APPEND GENERATOR_TARGETS generate_${_page_name}.${_man_section})
+		set_target_properties(generate_${_page_name}.${_man_section} PROPERTIES
+			FOLDER "Docs"
+			EXCLUDE_FROM_DEFAULT_BUILD False
+		)
 		if (${_man_section} EQUAL 1)
 			list(APPEND MAN1_INSTALL_FILES ${CMAKE_CURRENT_BINARY_DIR}/${_page_name}.${_man_section})
 		elseif (${_man_section} EQUAL 4)
@@ -95,6 +107,7 @@ add_custom_target(
 	docs ALL
 	DEPENDS
 		${CMAKE_CURRENT_BINARY_DIR}/AUTHORS-SHORT
+		${GENERATOR_TARGETS}
 		${MAN1_INSTALL_FILES}
 		${MAN4_INSTALL_FILES}
 		${HTML_INSTALL_FILES}
