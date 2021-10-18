@@ -35,8 +35,14 @@ IdmResult/invokeID ABBREV=idmResult.invokeID
 
 #.FN_PARS	OBJECT_IDENTIFIER	FN_VARIANT = _str VAL_PTR = &protocolID
 
+#.FN_HDR	IdmBind
+	protocolID = saved_protocolID = NULL;
+#.END
+
 #.FN_FTR	IdmBind
-	saved_protocolID = wmem_strdup(wmem_epan_scope(), protocolID);
+	if (protocolID) {
+		saved_protocolID = wmem_strdup(wmem_epan_scope(), protocolID);
+	}
 #.END
 
 #.FN_BODY	IdmBindResult/result
