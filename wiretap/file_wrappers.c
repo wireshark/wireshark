@@ -1132,6 +1132,24 @@ file_fdopen(int fd)
          *
          * If the value is too big to fit into a guint,
          * just use the maximum read buffer size.
+         *
+         * On top of that, the Single UNIX Speification says that
+         * st_blksize is of type blksize_t, which is a *signed*
+         * integer type, and, at minimum, macOS 11.6 and Linux 5.14.11's
+         * include/uapi/asm-generic/stat.h define it as such.
+         *
+         * However, other OSes might make it unsigned, and older versions
+         * of OSes that currently make it signed might make it unsigned,
+         * so we try to avoid warnings from that.
+         *
+         * We cast MAX_READ_BUF_SIZE to long in order to avoid the
+         * warning, although it might introduce warnings on platforms
+         * where st_blocksize is unsigned; we'll deal with that if
+         * it ever shows up as an issue.
+         *
+         * MAX_READ_BUF_SIZE is < the largest *signed* 32-bt integer,
+         * so casting it to long won't turn it into a negative number.
+         * (We only support 32-bit and 64-bit 2's-complement platforms.)
          */
         if (st.st_blksize <= (long)MAX_READ_BUF_SIZE)
             want = (guint)st.st_blksize;
