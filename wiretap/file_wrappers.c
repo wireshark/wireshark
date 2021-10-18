@@ -1133,7 +1133,7 @@ file_fdopen(int fd)
          * If the value is too big to fit into a guint,
          * just use the maximum read buffer size.
          */
-        if (st.st_blksize <= MAX_READ_BUF_SIZE)
+        if (st.st_blksize <= (long)MAX_READ_BUF_SIZE)
             want = (guint)st.st_blksize;
         else
             want = MAX_READ_BUF_SIZE;
