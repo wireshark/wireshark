@@ -1311,11 +1311,14 @@ check_test(dfwork_t *dfw, stnode_t *st_node)
 			semcheck(dfw, st_arg2);
 			break;
 
-		case TEST_OP_EQ:
+		case TEST_OP_ANY_EQ:
 			check_relation(dfw, "==", FALSE, ftype_can_eq, st_node, st_arg1, st_arg2);
 			break;
-		case TEST_OP_NE:
+		case TEST_OP_ALL_NE:
 			check_relation(dfw, "!=", FALSE, ftype_can_ne, st_node, st_arg1, st_arg2);
+			break;
+		case TEST_OP_ANY_NE:
+			check_relation(dfw, "~=", FALSE, ftype_can_ne, st_node, st_arg1, st_arg2);
 			break;
 		case TEST_OP_GT:
 			check_relation(dfw, ">", FALSE, ftype_can_gt, st_node, st_arg1, st_arg2);

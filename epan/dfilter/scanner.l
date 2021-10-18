@@ -135,16 +135,12 @@ static int simple(int token, const char *token_value);
 	return simple(TOKEN_RBRACE, "}");
 }
 
-"=="		return SIMPLE(TOKEN_TEST_EQ);
-"eq"		return SIMPLE(TOKEN_TEST_EQ);
-"!="			{
-	add_deprecated_token(yyextra->dfw, "!=");
-	return SIMPLE(TOKEN_TEST_NE);
-}
-"ne"			{
-	add_deprecated_token(yyextra->dfw, "ne");
-	return SIMPLE(TOKEN_TEST_NE);
-}
+"=="		return SIMPLE(TOKEN_TEST_ANY_EQ);
+"eq"		return SIMPLE(TOKEN_TEST_ANY_EQ);
+"!="		return SIMPLE(TOKEN_TEST_ALL_NE);
+"ne"		return SIMPLE(TOKEN_TEST_ALL_NE);
+"~="		return SIMPLE(TOKEN_TEST_ANY_NE);
+"any_ne"	return SIMPLE(TOKEN_TEST_ANY_NE);
 ">"		return SIMPLE(TOKEN_TEST_GT);
 "gt"		return SIMPLE(TOKEN_TEST_GT);
 ">="		return SIMPLE(TOKEN_TEST_GE);
@@ -432,8 +428,9 @@ simple(int token, const char *token_value)
 		case TOKEN_DOTDOT:
 		case TOKEN_HYPHEN:
 		case TOKEN_WHITESPACE:
-		case TOKEN_TEST_EQ:
-		case TOKEN_TEST_NE:
+		case TOKEN_TEST_ANY_EQ:
+		case TOKEN_TEST_ALL_NE:
+		case TOKEN_TEST_ANY_NE:
 		case TOKEN_TEST_GT:
 		case TOKEN_TEST_GE:
 		case TOKEN_TEST_LT:

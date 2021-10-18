@@ -507,11 +507,15 @@ gen_test(dfwork_t *dfw, stnode_t *st_node)
 			val1->value.numeric = dfw->next_insn_id;
 			break;
 
-		case TEST_OP_EQ:
+		case TEST_OP_ANY_EQ:
 			gen_relation(dfw, ANY_EQ, st_arg1, st_arg2);
 			break;
 
-		case TEST_OP_NE:
+		case TEST_OP_ALL_NE:
+			gen_relation(dfw, ALL_NE, st_arg1, st_arg2);
+			break;
+
+		case TEST_OP_ANY_NE:
 			gen_relation(dfw, ANY_NE, st_arg1, st_arg2);
 			break;
 

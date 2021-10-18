@@ -46,3 +46,35 @@ class case_syntax(unittest.TestCase):
     def test_matches_4(self, checkDFilterCount):
         dfilter = r'http.host matches r"update\.microsoft\.c.."'
         checkDFilterCount(dfilter, 1)
+
+    def test_equal_1(self, checkDFilterCount):
+        dfilter = 'ip.addr == 10.0.0.5'
+        checkDFilterCount(dfilter, 1)
+
+    def test_equal_2(self, checkDFilterCount):
+        dfilter = 'ip.addr == 207.46.134.94'
+        checkDFilterCount(dfilter, 1)
+
+    def test_equal_3(self, checkDFilterCount):
+        dfilter = 'ip.addr == 10.0.0.5 or ip.addr == 207.46.134.94'
+        checkDFilterCount(dfilter, 1)
+
+    def test_equal_4(self, checkDFilterCount):
+        dfilter = 'ip.addr == 10.0.0.5 and ip.addr == 207.46.134.94'
+        checkDFilterCount(dfilter, 1)
+
+    def test_not_equal_1(self, checkDFilterCount):
+        dfilter = 'ip.addr != 10.0.0.5'
+        checkDFilterCount(dfilter, 0)
+
+    def test_not_equal_2(self, checkDFilterCount):
+        dfilter = 'ip.addr != 207.46.134.94'
+        checkDFilterCount(dfilter, 0)
+
+    def test_not_equal_3(self, checkDFilterCount):
+        dfilter = 'ip.addr != 10.0.0.5 and ip.addr != 207.46.134.94'
+        checkDFilterCount(dfilter, 0)
+
+    def test_not_equal_4(self, checkDFilterCount):
+        dfilter = 'ip.addr != 10.0.0.5 or ip.addr != 207.46.134.94'
+        checkDFilterCount(dfilter, 0)

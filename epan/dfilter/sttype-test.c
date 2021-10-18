@@ -85,11 +85,14 @@ test_tostr(const void *value, gboolean pretty _U_)
 		case TEST_OP_OR:
 			s = "TEST_OR";
 			break;
-		case TEST_OP_EQ:
-			s = "TEST_EQ";
+		case TEST_OP_ANY_EQ:
+			s = "TEST_ANY_EQ";
 			break;
-		case TEST_OP_NE:
-			s = "TEST_NE";
+		case TEST_OP_ALL_NE:
+			s = "TEST_ALL_NE";
+			break;
+		case TEST_OP_ANY_NE:
+			s = "TEST_ANY_NE";
 			break;
 		case TEST_OP_GT:
 			s = "TEST_GT";
@@ -135,8 +138,9 @@ num_operands(test_op_t op)
 			return 1;
 		case TEST_OP_AND:
 		case TEST_OP_OR:
-		case TEST_OP_EQ:
-		case TEST_OP_NE:
+		case TEST_OP_ANY_EQ:
+		case TEST_OP_ALL_NE:
+		case TEST_OP_ANY_NE:
 		case TEST_OP_GT:
 		case TEST_OP_GE:
 		case TEST_OP_LT:

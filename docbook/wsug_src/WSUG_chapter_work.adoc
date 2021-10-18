@@ -804,34 +804,6 @@ To match IP addresses ending in 255 in a block of subnets (172.16 to 172.31):
 string(ip.dst) matches r"^172\.(1[6-9]|2[0-9]|3[0-1])\.[0-9]{1,3}\.255"
 ----
 
-[[ChWorkBuildDisplayFilterMistake]]
-
-==== A Common Mistake with !=
-
-Using the != operator on combined expressions like `eth.addr`, `ip.addr`,
-`tcp.port`, and `udp.port` will probably not work as expected. Wireshark
-will show the warning “"!=" may have unexpected results” when you use it.
-
-People often use a filter string like `ip.addr == 1.2.3.4`
-to display all packets containing the IP address 1.2.3.4.
-
-Then they use `ip.addr != 1.2.3.4` expecting to see all packets not containing the IP
-address 1.2.3.4 in it. Unfortunately, this does _not_ do the expected.
-
-Instead, that expression will even be true for packets where either the source or
-destination IP address equals 1.2.3.4. The reason for this is because the
-expression `ip.addr != 1.2.3.4` is read as “the packet contains a field
-named ip.addr with a value different from 1.2.3.4”. As an IP datagram contains
-both a source and a destination address, the expression will evaluate to true
-whenever at least one of the two addresses differs from 1.2.3.4.
-
-If you want to filter out all packets containing IP datagrams to or from IP
-address 1.2.3.4, then the correct filter is `!(ip.addr == 1.2.3.4)` as it is read
-“show me all the packets for which it is not true that a field named ip.addr
-exists with a value of 1.2.3.4”, or in other words, “filter out all packets
-for which there are no occurrences of a field named ip.addr with the value
-1.2.3.4”.
-
 [[ChWorkBuildDisplayFilterTransitional]]
 
 ==== Sometimes Fields Change Names

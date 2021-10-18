@@ -448,6 +448,7 @@ static const char *reserved_filter_names[] = {
 	/* Display filter keywords. */
 	"eq",
 	"ne",
+	"any_ne",
 	"gt",
 	"ge",
 	"lt",

@@ -264,8 +264,9 @@ range_node(D) ::= INTEGER(X).
 	stnode_free(X);
 }
 
-rel_binop(O) ::= TEST_EQ.	{ O = TEST_OP_EQ; }
-rel_binop(O) ::= TEST_NE.	{ O = TEST_OP_NE; }
+rel_binop(O) ::= TEST_ANY_EQ.	{ O = TEST_OP_ANY_EQ; }
+rel_binop(O) ::= TEST_ALL_NE.	{ O = TEST_OP_ALL_NE; }
+rel_binop(O) ::= TEST_ANY_NE.	{ O = TEST_OP_ANY_NE; }
 rel_binop(O) ::= TEST_GT.	{ O = TEST_OP_GT; }
 rel_binop(O) ::= TEST_GE.	{ O = TEST_OP_GE; }
 rel_binop(O) ::= TEST_LT.	{ O = TEST_OP_LT; }
