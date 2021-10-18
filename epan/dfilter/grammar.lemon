@@ -239,6 +239,13 @@ relation_test(T) ::= entity(E) TEST_IN set(S).
 	T = stnode_new_test(TEST_OP_IN, E, S);
 }
 
+relation_test(T) ::= entity(E) TEST_NOT TEST_IN set(S).
+{
+	stnode_t *R = stnode_new_test(TEST_OP_IN, E, S);
+
+	T = stnode_new_test(TEST_OP_NOT, R, NULL);
+}
+
 set(S) ::= LBRACE set_list(L) RBRACE.
 {
 	S = stnode_new(STTYPE_SET, L);
