@@ -304,6 +304,17 @@ relation_test(T) ::= entity(E) TEST_IN LBRACE set_node_list(L) RBRACE.
 	sttype_test_set2(T, TEST_OP_IN, E, S);
 }
 
+relation_test(T) ::= entity(E) TEST_NOT TEST_IN LBRACE set_node_list(L) RBRACE.
+{
+	stnode_t *S = stnode_new(STTYPE_SET, L, NULL);
+
+	stnode_t *R = stnode_new(STTYPE_TEST, NULL, NULL);
+	sttype_test_set2(R, TEST_OP_IN, E, S);
+
+	T = stnode_new(STTYPE_TEST, NULL, NULL);
+	sttype_test_set2(T, TEST_OP_NOT, R, NULL);
+}
+
 set_node_list(L) ::= entity(E).
 {
 	L = g_slist_append(NULL, E);
