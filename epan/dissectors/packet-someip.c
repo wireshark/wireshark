@@ -2386,7 +2386,7 @@ dissect_someip_payload_add_wtlv_if_needed(tvbuff_t *tvb, packet_info *pinfo _U_,
 
     switch (wiretype) {
     case 5:
-        return 6;
+        return 8;
     case 6:
         return 16;
     case 7:
