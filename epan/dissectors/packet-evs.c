@@ -338,8 +338,8 @@ static const value_string evs_tcx_or_hq_mdct_core_values[] = {
 };
 
 static const value_string evs_sid_cng_values[] = {
-    { 0x0, "FD-CNG" },
-    { 0x1, "LP-CNG SID" },
+    { 0x0, "LP-CNG SID" },
+    { 0x1, "FD-CNG" },
     { 0, NULL }
 };
 
