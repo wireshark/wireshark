@@ -1,6 +1,6 @@
+include::../docbook/attributes.adoc[]
 = randpkt(1)
 :doctype: manpage
-include::../docbook/attributes.adoc[]
 :stylesheet: ws.css
 :linkcss:
 :copycss: ../docbook/{stylesheet}
