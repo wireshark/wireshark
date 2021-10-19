@@ -299,6 +299,7 @@ add_library(epan
 	$<TARGET_OBJECTS:dfilter>
 	$<TARGET_OBJECTS:dissectors>
 	$<TARGET_OBJECTS:dissectors-corba>
+	$<TARGET_OBJECTS:dissector-registration>
 	$<TARGET_OBJECTS:ftypes>
 	$<$<BOOL:${LUA_FOUND}>:$<TARGET_OBJECTS:wslua>>
 	${CMAKE_BINARY_DIR}/image/libwireshark.rc

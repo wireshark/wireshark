@@ -2033,7 +2033,6 @@ set(DISSECTOR_SUPPORT_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dcerpc-nt.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-snort-config.c
 	${CMAKE_CURRENT_SOURCE_DIR}/usb.c
-	${CMAKE_CURRENT_BINARY_DIR}/dissectors.c
 )
 source_group(dissector-support FILES ${DISSECTOR_SUPPORT_SRC})
 
@@ -2068,6 +2067,26 @@ add_custom_command(
 	COMMENT "Making dissectors.c"
 )
 
+set(DISSECTOR_REG_SRC
+	dissectors.c
+)
+
+source_group(dissector-registration FILES ${DISSECTOR_REG_SRC})
+
+add_library(dissector-registration OBJECT
+	${DISSECTOR_REG_SRC}
+)
+
+target_include_directories(dissector-registration
+	PRIVATE
+		${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+set_target_properties(dissector-registration PROPERTIES
+	FOLDER "Libs/epan/dissectors"
+	COMPILE_DEFINITIONS "WS_BUILD_DLL"
+)
+
 set(CLEAN_FILES
 	${DISSECTOR_SRC}
 	${PIDL_DISSECTOR_SRC}
@@ -2075,6 +2094,7 @@ set(CLEAN_FILES
 	${CLEAN_CORBA_IDL_DISSECTOR_SRC}
 	${NCP2222_DISSECTOR_SRC}
 	${DISSECTOR_SUPPORT_SRC}
+	${DISSECTOR_REG_SRC}
 )
 
 set_source_files_properties(
