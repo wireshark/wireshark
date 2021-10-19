@@ -20,31 +20,21 @@ add_custom_command(
 		${CMAKE_SOURCE_DIR}/AUTHORS
 )
 
+set(MAN1_SOURCE_FILES)
+set(MAN4_SOURCE_FILES)
 set(MAN1_INSTALL_FILES)
 set(MAN4_INSTALL_FILES)
 set(HTML_INSTALL_FILES)
-set(GENERATOR_TARGETS)
 
-macro (ASCIIDOCTOR2MANHTML _page_name _man_section)
+macro (ADD_MAN_PAGE _page_name _man_section)
 	if(ASCIIDOCTOR_FOUND)
-		ASCIIDOCTOR2HTML(${_page_name}.adoc)
-		list(APPEND GENERATOR_TARGETS generate_${_page_name}.html)
-		# Override set_asciidoctor_target_properties
-		set_target_properties(generate_${_page_name}.html PROPERTIES
-			FOLDER "Docs"
-			EXCLUDE_FROM_DEFAULT_BUILD False
-		)
 		list(APPEND HTML_INSTALL_FILES ${CMAKE_CURRENT_BINARY_DIR}/${_page_name}.html)
 
-		ASCIIDOCTOR2MAN(${_page_name}.adoc ${_man_section})
-		list(APPEND GENERATOR_TARGETS generate_${_page_name}.${_man_section})
-		set_target_properties(generate_${_page_name}.${_man_section} PROPERTIES
-			FOLDER "Docs"
-			EXCLUDE_FROM_DEFAULT_BUILD False
-		)
 		if (${_man_section} EQUAL 1)
+			list(APPEND MAN1_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/${_page_name}.adoc)
 			list(APPEND MAN1_INSTALL_FILES ${CMAKE_CURRENT_BINARY_DIR}/${_page_name}.${_man_section})
 		elseif (${_man_section} EQUAL 4)
+			list(APPEND MAN4_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/${_page_name}.adoc)
 			list(APPEND MAN4_INSTALL_FILES ${CMAKE_CURRENT_BINARY_DIR}/${_page_name}.${_man_section})
 		else()
 			message(FATAL_ERROR "Unsupported manual page section ${_man_section} for ${_page_name}")
@@ -52,53 +42,61 @@ macro (ASCIIDOCTOR2MANHTML _page_name _man_section)
 	endif()
 endmacro()
 
-ASCIIDOCTOR2MANHTML(wireshark   1)
-ASCIIDOCTOR2MANHTML(androiddump 1)
-ASCIIDOCTOR2MANHTML(capinfos    1)
-ASCIIDOCTOR2MANHTML(captype     1)
-ASCIIDOCTOR2MANHTML(ciscodump   1)
-ASCIIDOCTOR2MANHTML(dftest      1)
-ASCIIDOCTOR2MANHTML(dumpcap     1)
-ASCIIDOCTOR2MANHTML(editcap     1)
-ASCIIDOCTOR2MANHTML(mergecap    1)
-ASCIIDOCTOR2MANHTML(randpkt     1)
-ASCIIDOCTOR2MANHTML(randpktdump 1)
-ASCIIDOCTOR2MANHTML(etwdump     1)
-ASCIIDOCTOR2MANHTML(rawshark    1)
-ASCIIDOCTOR2MANHTML(reordercap  1)
-ASCIIDOCTOR2MANHTML(sshdump     1)
-ASCIIDOCTOR2MANHTML(text2pcap   1)
-ASCIIDOCTOR2MANHTML(tshark      1)
-ASCIIDOCTOR2MANHTML(udpdump     1)
+ADD_MAN_PAGE(wireshark   1)
+ADD_MAN_PAGE(androiddump 1)
+ADD_MAN_PAGE(capinfos    1)
+ADD_MAN_PAGE(captype     1)
+ADD_MAN_PAGE(ciscodump   1)
+ADD_MAN_PAGE(dftest      1)
+ADD_MAN_PAGE(dumpcap     1)
+ADD_MAN_PAGE(editcap     1)
+ADD_MAN_PAGE(mergecap    1)
+ADD_MAN_PAGE(randpkt     1)
+ADD_MAN_PAGE(randpktdump 1)
+ADD_MAN_PAGE(etwdump     1)
+ADD_MAN_PAGE(rawshark    1)
+ADD_MAN_PAGE(reordercap  1)
+ADD_MAN_PAGE(sshdump     1)
+ADD_MAN_PAGE(text2pcap   1)
+ADD_MAN_PAGE(tshark      1)
+ADD_MAN_PAGE(udpdump     1)
 
-ASCIIDOCTOR2MANHTML(extcap           4)
-ASCIIDOCTOR2MANHTML(wireshark-filter 4)
+ADD_MAN_PAGE(extcap           4)
+ADD_MAN_PAGE(wireshark-filter 4)
 
 if(BUILD_dpauxmon AND HAVE_LIBNL3)
-	ASCIIDOCTOR2MANHTML(dpauxmon    1)
+	ADD_MAN_PAGE(dpauxmon    1)
 endif()
 
 if(BUILD_sdjournal AND SYSTEMD_FOUND)
-	ASCIIDOCTOR2MANHTML(sdjournal   1)
+	ADD_MAN_PAGE(sdjournal   1)
 endif()
 
 if(MAXMINDDB_FOUND)
-	ASCIIDOCTOR2MANHTML(mmdbresolve 1)
+	ADD_MAN_PAGE(mmdbresolve 1)
 endif()
 
 if (BUILD_corbaidl2wrs)
-	ASCIIDOCTOR2MANHTML(idl2wrs     1)
+	ADD_MAN_PAGE(idl2wrs     1)
 endif()
 
 if (BUILD_xxx2deb)
-	ASCIIDOCTOR2MANHTML(asn2deb     1)
-	ASCIIDOCTOR2MANHTML(idl2deb     1)
+	ADD_MAN_PAGE(asn2deb     1)
+	ADD_MAN_PAGE(idl2deb     1)
 endif()
 
 set(BUNDLE_RESOURCE_SHARE_MAN1_FILES ${MAN1_INSTALL_FILES} PARENT_SCOPE)
 set(BUNDLE_RESOURCE_SHARE_MAN4_FILES ${MAN4_INSTALL_FILES} PARENT_SCOPE)
 
+if(ASCIIDOCTOR_FOUND)
+	ASCIIDOCTOR2ROFFMAN(1 ${MAN1_SOURCE_FILES})
+	ASCIIDOCTOR2ROFFMAN(4 ${MAN4_SOURCE_FILES})
+	ASCIIDOCTOR2HTMLMAN(${MAN1_SOURCE_FILES} ${MAN4_SOURCE_FILES})
+endif()
+
 add_custom_target(manpages DEPENDS
+	generate_roff_man1_pages
+	generate_roff_man4_pages
 	${MAN1_INSTALL_FILES}
 	${MAN4_INSTALL_FILES}
 )
@@ -107,7 +105,9 @@ add_custom_target(
 	docs ALL
 	DEPENDS
 		${CMAKE_CURRENT_BINARY_DIR}/AUTHORS-SHORT
-		${GENERATOR_TARGETS}
+		generate_roff_man1_pages
+		generate_roff_man4_pages
+		generate_html_man_pages
 		${MAN1_INSTALL_FILES}
 		${MAN4_INSTALL_FILES}
 		${HTML_INSTALL_FILES}

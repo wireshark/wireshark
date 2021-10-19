@@ -33,8 +33,14 @@ if(ASCIIDOCTOR_EXECUTABLE)
         set_target_properties(${_target} PROPERTIES
             FOLDER "Docbook"
             EXCLUDE_FROM_DEFAULT_BUILD True
-            )
+        )
     endfunction(set_asciidoctor_target_properties)
+
+    function(set_manpage_target_properties _target)
+        set_target_properties(${_target} PROPERTIES
+            FOLDER "Docs"
+        )
+    endfunction(set_manpage_target_properties)
 
     set (_asciidoctor_common_args
         # Doesn't work with AsciidoctorJ?
@@ -132,24 +138,57 @@ if(ASCIIDOCTOR_EXECUTABLE)
         unset(_output_txt)
     ENDMACRO()
 
-    # Single page only, for the release notes and man pages.
-    MACRO( ASCIIDOCTOR2MAN _asciidocsource _man_section)
-        GET_FILENAME_COMPONENT( _source_base_name ${_asciidocsource} NAME_WE )
-        set( _output_man ${_source_base_name}.${_man_section} )
+    # Generate one or more ROFF man pages
+    MACRO(ASCIIDOCTOR2ROFFMAN _man_section)
+        set(_input_adoc)
+        set(_output_man)
+        foreach(_src_file ${ARGN})
+            list(APPEND _input_adoc ${_src_file})
+            GET_FILENAME_COMPONENT(_source_base_name ${_src_file} NAME_WE )
+            list(APPEND _output_man ${_source_base_name}.${_man_section} )
+        endforeach()
 
         ADD_CUSTOM_COMMAND(
             OUTPUT
                 ${_output_man}
             COMMAND ${_asciidoctor_common_command}
                 --backend manpage
-                --out-file ${_output_man}
-                ${CMAKE_CURRENT_SOURCE_DIR}/${_asciidocsource}
+                --destination-dir ${CMAKE_CURRENT_BINARY_DIR}
+                ${_input_adoc}
             DEPENDS
-                ${CMAKE_CURRENT_SOURCE_DIR}/${_asciidocsource}
-                ${ARGN}
+                ${_input_adoc}
         )
-        add_custom_target(generate_${_output_man} DEPENDS ${_output_man})
-        set_asciidoctor_target_properties(generate_${_output_man})
+        add_custom_target(generate_roff_man${_man_section}_pages DEPENDS ${_output_man})
+        set_manpage_target_properties(generate_roff_man${_man_section}_pages)
+        unset(_src_file)
+        unset(_input_adoc)
+        unset(_output_man)
+    ENDMACRO()
+
+    # Generate one or more HTML man pages
+    MACRO(ASCIIDOCTOR2HTMLMAN)
+        set(_input_adoc)
+        set(_output_man)
+        foreach(_src_file ${ARGN})
+            list(APPEND _input_adoc ${_src_file})
+            GET_FILENAME_COMPONENT(_source_base_name ${_src_file} NAME_WE )
+            list(APPEND _output_man ${_source_base_name}.html )
+        endforeach()
+
+        ADD_CUSTOM_COMMAND(
+            OUTPUT
+                ${_output_man}
+            COMMAND ${_asciidoctor_common_command}
+                --backend html
+                --destination-dir ${CMAKE_CURRENT_BINARY_DIR}
+                ${_input_adoc}
+            DEPENDS
+                ${_input_adoc}
+        )
+        add_custom_target(generate_html_man_pages DEPENDS ${_output_man})
+        set_manpage_target_properties(generate_html_man_pages)
+        unset(_src_file)
+        unset(_input_adoc)
         unset(_output_man)
     ENDMACRO()
 
