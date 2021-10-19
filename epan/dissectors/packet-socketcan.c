@@ -294,7 +294,7 @@ dissect_socketcan_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	col_clear(pinfo->cinfo, COL_INFO);
 
 	ti = proto_tree_add_item(tree, (can_packet_type == PACKET_TYPE_CAN_FD) ? proto_canfd : proto_can, tvb, 0, -1, ENC_NA);
-	can_tree = proto_item_add_subtree(ti, ett_can);
+	can_tree = proto_item_add_subtree(ti, (can_packet_type == PACKET_TYPE_CAN_FD) ? ett_can_fd : ett_can);
 
 	proto_tree_add_bitmask_list(can_tree, tvb, 0, 4, can_flags, encoding);
 	proto_tree_add_item(can_tree, hf_can_len, tvb, CAN_LEN_OFFSET, 1, ENC_NA);
