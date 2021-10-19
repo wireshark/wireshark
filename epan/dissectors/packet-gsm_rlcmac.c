@@ -2664,8 +2664,8 @@ CSN_DESCR_END         (DTM_EGPRS_HighMultislotClass_t)
 
 static const
 CSN_DESCR_BEGIN       (DownlinkDualCarrierCapability_r7_t)
-  M_NEXT_EXIST        (DownlinkDualCarrierCapability_r7_t, MultislotCapabilityReductionForDL_DualCarrier, 1, &hf_content_multislot_capability_reduction_for_dl_dual_carrier),
-  M_UINT              (DownlinkDualCarrierCapability_r7_t, DL_DualCarrierForDTM,  3, &hf_content_dual_carrier_for_dtm),
+  M_UINT              (DownlinkDualCarrierCapability_r7_t, MultislotCapabilityReductionForDL_DualCarrier, 3, &hf_content_multislot_capability_reduction_for_dl_dual_carrier),
+  M_UINT              (DownlinkDualCarrierCapability_r7_t, DL_DualCarrierForDTM,  1, &hf_content_dual_carrier_for_dtm),
 CSN_DESCR_END         (DownlinkDualCarrierCapability_r7_t)
 
 static const
