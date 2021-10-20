@@ -24,8 +24,9 @@
 void proto_register_e212(void);
 
 /*
- * Annex to ITU Operational Bulletin
- * No. 1162 - 15.XII.2018
+ * Annexes to ITU Operational Bulletin
+ * No. 1117 - 1.II.2017 (List of Mobile Country Codes)
+ * No. 1162 - 15.XII.2018 (Mobile Network Codes)
  *
  * With Amendment No. 1 (T-SP-OB 1164 - 15.I.2019) up to and
  * including Amendment No. 34 (T-SP-OB 1198 - 15.VI.2020)
@@ -40,6 +41,7 @@ void proto_register_e212(void);
  * - Iranian PLMN codes
  */
 static const value_string E212_codes[] = {
+    /* 001 is used by some telecoms for internal TEST networks. */
     {  202, "Greece" },
     {  203, "Unassigned" },
     {  204, "Netherlands" },
@@ -63,7 +65,7 @@ static const value_string E212_codes[] = {
     {  222, "Italy" },
     {  223, "Unassigned" },
     {  224, "Unassigned" },
-    {  225, "Unassigned" },
+    {  225, "Vatican City" },
     {  226, "Romania" },
     {  227, "Unassigned" },
     {  228, "Switzerland" },
@@ -121,18 +123,20 @@ static const value_string E212_codes[] = {
     {  280, "Cyprus" },
     {  281, "Unassigned" },
     {  282, "Georgia" },
-    {  283, "Unassigned" },
+    {  283, "Armenia" },
     {  284, "Bulgaria" },
     {  285, "Unassigned" },
     {  286, "Turkey" },
     {  287, "Unassigned" },
     {  288, "Faroe Islands" },
     {  289, "Unassigned" },
+    /* Abkhazia uses MCC 289; ITU does not list the number due to status
+     * as disputed territory. */
     {  290, "Greenland" },
     {  291, "Unassigned" },
     {  292, "San Marino" },
     {  293, "Slovenia" },
-    {  294, "The Former Yugoslav Republic of Macedonia" },
+    {  294, "North Macedonia" },
     {  295, "Liechtenstein" },
     {  296, "Unassigned" },
     {  297, "Montenegro" },
@@ -153,7 +157,7 @@ static const value_string E212_codes[] = {
     {  312, "United States" },
     {  313, "United States" },
     {  314, "United States" },
-    {  315, "Unassigned" },
+    {  315, "United States" },
     {  316, "United States" },
     {  317, "Unassigned" },
     {  318, "Unassigned" },
@@ -168,9 +172,11 @@ static const value_string E212_codes[] = {
     {  327, "Unassigned" },
     {  328, "Unassigned" },
     {  329, "Unassigned" },
-    {  330, "Unassigned" },
+    {  330, "Puerto Rico" },
+    /* Some local operators use USA MCCs, some use assigned MCC 330. */
     {  331, "Unassigned" },
-    {  332, "Unassigned" },
+    {  332, "United States Virgin Islands" },
+    /* MCC 332 assigned to USVI but local operators use the USA MCCs */
     {  333, "Unassigned" },
     {  334, "Mexico" },
     {  335, "Unassigned" },
@@ -179,6 +185,8 @@ static const value_string E212_codes[] = {
     {  338, "Jamaica" },
     {  339, "Unassigned" },
     {  340, "French Guiana / Guadeloupe / Martinique" },
+    /* French Guiana has been assigned MCC 742, but some networks
+     * still operate on MCC 340. */
     {  341, "Unassigned" },
     {  342, "Barbados" },
     {  343, "Unassigned" },
@@ -200,7 +208,7 @@ static const value_string E212_codes[] = {
     {  359, "Unassigned" },
     {  360, "Saint Vincent and the Grenadines" },
     {  361, "Unassigned" },
-    {  362, "Curaçao" },
+    {  362, "Curaçao / Sint Maarten / Bonaire, Sint Eustatius and Saba" },
     {  363, "Aruba" },
     {  364, "Bahamas" },
     {  365, "Anguilla" },
@@ -244,7 +252,7 @@ static const value_string E212_codes[] = {
     {  403, "Unassigned" },
     {  404, "India" },
     {  405, "India" },
-    {  406, "Unassigned" },
+    {  406, "India" },
     {  407, "Unassigned" },
     {  408, "Unassigned" },
     {  409, "Unassigned" },
@@ -268,8 +276,8 @@ static const value_string E212_codes[] = {
     {  427, "Qatar" },
     {  428, "Mongolia" },
     {  429, "Nepal" },
-    {  430, "Unassigned" },
-    {  431, "Unassigned" },
+    {  430, "United Arab Emirates (Abu Dhabi)" },
+    {  431, "United Arab Emirates (Dubai)" },
     {  432, "Iran (Islamic Republic of)" },
     {  433, "Unassigned" },
     {  434, "Uzbekistan" },
@@ -299,13 +307,13 @@ static const value_string E212_codes[] = {
     {  458, "Unassigned" },
     {  459, "Unassigned" },
     {  460, "China" },
-    {  461, "Unassigned" },
+    {  461, "China" },
     {  462, "Unassigned" },
     {  463, "Unassigned" },
     {  464, "Unassigned" },
     {  465, "Unassigned" },
-    {  466, "Unassigned" },
-    {  467, "Unassigned" },
+    {  466, "Taiwan" },
+    {  467, "Dem. People's Rep. of Korea" },
     {  468, "Unassigned" },
     {  469, "Unassigned" },
     {  470, "Bangladesh" },
@@ -374,7 +382,7 @@ static const value_string E212_codes[] = {
     {  533, "Unassigned" },
     {  534, "Unassigned" },
     {  535, "Unassigned" },
-    {  536, "Unassigned" },
+    {  536, "Nauru" },
     {  537, "Papua New Guinea" },
     {  538, "Unassigned" },
     {  539, "Tonga" },
@@ -382,14 +390,15 @@ static const value_string E212_codes[] = {
     {  541, "Vanuatu" },
     {  542, "Fiji" },
     {  543, "Wallis and Futuna" },
-    {  544, "Unassigned" },
+    {  544, "American Samoa" },
+    /* Some operators use a USA MCC, some use the assigned */
     {  545, "Kiribati" },
     {  546, "New Caledonia" },
     {  547, "French Polynesia" },
     {  548, "Cook Islands" },
     {  549, "Samoa" },
     {  550, "Micronesia" },
-    {  551, "Unassigned" },
+    {  551, "Marshall Islands" },
     {  552, "Palau" },
     {  553, "Tuvalu" },
     {  554, "Tokelau" },
@@ -444,7 +453,7 @@ static const value_string E212_codes[] = {
     {  603, "Algeria" },
     {  604, "Morocco" },
     {  605, "Tunisia" },
-    {  606, "Unassigned" },
+    {  606, "Libya" },
     {  607, "Gambia" },
     {  608, "Senegal" },
     {  609, "Mauritania" },
@@ -475,7 +484,7 @@ static const value_string E212_codes[] = {
     {  634, "Sudan" },
     {  635, "Rwanda" },
     {  636, "Ethiopia" },
-    {  637, "Unassigned" },
+    {  637, "Somalia" },
     {  638, "Djibouti" },
     {  639, "Kenya" },
     {  640, "Tanzania" },
@@ -495,8 +504,8 @@ static const value_string E212_codes[] = {
     {  654, "Comoros" },
     {  655, "South Africa" },
     {  656, "Unassigned" },
-    {  657, "Unassigned" },
-    {  658, "Tristan da Cunha" },
+    {  657, "Eritrea" },
+    {  658, "Saint Helena, Ascension and Tristan da Cunha" },
     {  659, "South Sudan" },
     {  660, "Unassigned" },
     {  661, "Unassigned" },
@@ -572,15 +581,17 @@ static const value_string E212_codes[] = {
     {  731, "Unassigned" },
     {  732, "Colombia" },
     {  733, "Unassigned" },
-    {  734, "Venezuela (Bolivarian Republic of)" },
+    {  734, "Venezuela" },
     {  735, "Unassigned" },
-    {  736, "Bolivia (Plurinational State of)" },
+    {  736, "Bolivia" },
     {  737, "Unassigned" },
     {  738, "Guyana" },
     {  739, "Unassigned" },
     {  740, "Ecuador" },
     {  741, "Unassigned" },
-    {  742, "Unassigned" },
+    {  742, "French Guiana" },
+    /* French Guiana has been assigned MCC 742, but some networks
+     * still operate on MCC 340. */
     {  743, "Unassigned" },
     {  744, "Paraguay" },
     {  745, "Unassigned" },
