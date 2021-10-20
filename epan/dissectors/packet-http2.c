@@ -187,12 +187,14 @@ typedef struct _http2_multisegment_pdu_t {
 
 /* struct for per-stream, per-direction streaming DATA frame reassembly */
 typedef struct {
-    /* This tree is indexed by http2 frame num and keeps track of all pdus
-     * spanning multiple segments in DATAs for this direction of http2 stream. */
-    wmem_tree_t *multisegment_pdus;
-    /* This tree is indexed by http2 frame num and keeps track of the frag_offset
+    /* This map is keyed by http2 frame num and keeps track of all MSPs for this
+     * direction of http2 stream. Different http2 frames will point to the same
+     * MSP if they contain the data of this MSP. If a frame contains the data of
+     * two MSPs, it will point to the second MSP. */
+    wmem_map_t *multisegment_pdus;
+    /* This map is keyed by http2 frame num and keeps track of the frag_offset
      * of the first byte of a DATA frame for fragment_add() after first scan. */
-    wmem_tree_t *http2fn_frag_offset;
+    wmem_map_t *http2fn_frag_offset;
     /* how many bytes the current uncompleted MSP still need. (only valid for first scan) */
     gint prev_deseg_len;
     /* the current uncompleted MSP (only valid for first scan) */
@@ -2559,7 +2561,7 @@ dissect_http2_data_partial_body(tvbuff_t *tvb, packet_info *pinfo, http2_session
  * Part1.
  *
  * And another case is the entire DATA is one of middle parts of a multisegment PDU. We call it MoMSP. Following
- * case shows a multisegment PDU composed of Part3 + MoMSP + MoMSP + MoMSP + Part3:
+ * case shows a multisegment PDU composed of Part3 + MoMSP + MoMSP + MoMSP + Part1:
  *
  *                 +-------------------------------- One Multisegment PDU ---------------------------------+
  *                 |                                                                                       |
@@ -2580,15 +2582,15 @@ dissect_http2_data_partial_body(tvbuff_t *tvb, packet_info *pinfo, http2_session
  *    of entire message).
  *  - If a DATA contains Part2, we will need only call subdissector once on it. The subdissector need dissect
  *    all non-fragment PDUs in it. (no desegment_len should output)
- *  - If a DATA contains Part3, we will need call subdissector once on Part3 or Parts2+3 (because unknown
+ *  - If a DATA contains Part3, we will need call subdissector once on Part3 or Part2+3 (because unknown
  *    during first scan). The subdissector will output desegment_len (!= 0). Then we will call fragment_add()
  *    with a new reassembly id on Part3 for starting a new MSP.
  *  - If a DATA only contains MoMSP (entire DATA is part of a MSP), we will only call fragment_add() once or twice
  *    (at first scan) on it. The subdissector will not be called.
  *
- * In this implementation, only multisegment PDUs are recorded in multisegment_pdus tree with first frame
- * number (guint64) as key. Each MSP in the tree has a pointer referred to previous MSP, because we may need
- * two MSPs to dissect a DATA contains Part1 + Part3 at the same time. The multisegment_pdus tree is built during
+ * In this implementation, only multisegment PDUs are recorded in multisegment_pdus map keyed by the numbers (guint64)
+ * of frames belongs to MSPs. Each MSP in the map has a pointer referred to previous MSP, because we may need
+ * two MSPs to dissect a DATA that contains Part1 + Part3 at the same time. The multisegment_pdus map is built during
  * first scan (pinfo->visited == FALSE) with help of prev_deseg_len and last_msp fields of http2_streaming_reassembly_info_t
  * for each direction of a HTTP2 STREAM. The prev_deseg_len record how many bytes of next DATAs belong to previous
  * PDU during first scan. The last_msp member of http2_streaming_reassembly_info_t is always point to last MSP which
@@ -2611,10 +2613,9 @@ reassemble_http2_data_according_to_subdissector(tvbuff_t *tvb, packet_info *pinf
 {
     guint orig_offset = offset;
     gint orig_length = length;
-    wmem_tree_key_t key[2];
     gint datalen = 0;
     gint bytes_belong_to_prev_msp = 0; /* bytes belongs to previous MSP */
-    guint32 num32[2], reassembly_id = 0, frag_offset = 0;
+    guint32 reassembly_id = 0, frag_offset = 0;
     fragment_head *head = NULL;
     gboolean need_more = FALSE;
     http2_multisegment_pdu_t *cur_msp = NULL, *prev_msp = NULL;
@@ -2623,16 +2624,10 @@ reassemble_http2_data_according_to_subdissector(tvbuff_t *tvb, packet_info *pinf
     guint16 save_can_desegment;
     int save_desegment_offset;
     guint32 save_desegment_len;
+    http2_frame_num_t *frame_ptr;
 
     proto_tree_add_bytes_format(http2_tree, hf_http2_data_data, tvb, offset,
         length, NULL, "DATA payload (%u byte%s)", length, plurality(length, "", "s"));
-
-    num32[0] = (guint32) (cur_frame_num >> 32);
-    num32[1] = (guint32) cur_frame_num;
-    key[0].length = 2;
-    key[0].key = num32;
-    key[1].length = 0;
-    key[1].key = NULL;
 
     save_can_desegment = pinfo->can_desegment;
     save_desegment_offset = pinfo->desegment_offset;
@@ -2653,13 +2648,18 @@ reassemble_http2_data_according_to_subdissector(tvbuff_t *tvb, packet_info *pinf
             reassembly_id = reassembly_info->last_msp->streaming_reassembly_id;
             frag_offset = reassembly_info->last_msp->length;
             if (reassembly_info->http2fn_frag_offset == NULL) {
-                reassembly_info->http2fn_frag_offset = wmem_tree_new(wmem_file_scope());
+                reassembly_info->http2fn_frag_offset = wmem_map_new(wmem_file_scope(), g_int64_hash, g_int64_equal);
             }
-            wmem_tree_insert32_array(reassembly_info->http2fn_frag_offset, key, GUINT_TO_POINTER(frag_offset));
+            frame_ptr = (http2_frame_num_t*)wmem_memdup(wmem_file_scope(), &cur_frame_num, sizeof(http2_frame_num_t));
+            wmem_map_insert(reassembly_info->http2fn_frag_offset, frame_ptr, GUINT_TO_POINTER(frag_offset));
+            /* This DATA contains the data of previous msp, so we point to it. That may be override late. */
+            wmem_map_insert(reassembly_info->multisegment_pdus, frame_ptr, reassembly_info->last_msp);
         }
     } else {
         /* not first scan, use information of multisegment_pdus built during first scan */
-        cur_msp = (http2_multisegment_pdu_t *) wmem_tree_lookup32_array_le(reassembly_info->multisegment_pdus, key);
+        if (reassembly_info->multisegment_pdus) {
+            cur_msp = (http2_multisegment_pdu_t*)wmem_map_lookup(reassembly_info->multisegment_pdus, &cur_frame_num);
+        }
         if (cur_msp) {
             if (cur_msp->first_frame == cur_frame_num) {
                 /* Current DATA contains a beginning of a MSP. (Part3)
@@ -2685,7 +2685,9 @@ reassemble_http2_data_according_to_subdissector(tvbuff_t *tvb, packet_info *pinf
             }
             reassembly_id = prev_msp->streaming_reassembly_id;
         }
-        frag_offset = GPOINTER_TO_UINT(wmem_tree_lookup32_array(reassembly_info->http2fn_frag_offset, key));
+        if (reassembly_info->http2fn_frag_offset) {
+            frag_offset = GPOINTER_TO_UINT(wmem_map_lookup(reassembly_info->http2fn_frag_offset, &cur_frame_num));
+        }
     }
 
     /* handling Part1 or MoMSP (entire DATA being middle part of a MSP) */
@@ -2814,9 +2816,10 @@ reassemble_http2_data_according_to_subdissector(tvbuff_t *tvb, packet_info *pinf
             cur_msp->prev_msp = reassembly_info->last_msp;
             reassembly_info->last_msp = cur_msp;
             if (reassembly_info->multisegment_pdus == NULL) {
-                reassembly_info->multisegment_pdus = wmem_tree_new(wmem_file_scope());
+                reassembly_info->multisegment_pdus = wmem_map_new(wmem_file_scope(), g_int64_hash, g_int64_equal);
             }
-            wmem_tree_insert32_array(reassembly_info->multisegment_pdus, key, cur_msp);
+            frame_ptr = (http2_frame_num_t*)wmem_memdup(wmem_file_scope(), &cur_frame_num, sizeof(http2_frame_num_t));
+            wmem_map_insert(reassembly_info->multisegment_pdus, frame_ptr, cur_msp);
         } else {
             DISSECTOR_ASSERT(cur_msp && cur_msp->start_offset_at_first_frame == offset);
             reassembly_id = cur_msp->streaming_reassembly_id;
