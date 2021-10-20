@@ -30,6 +30,7 @@
 #include "packet-s1ap.h"
 #include "packet-ranap.h"
 #include "packet-bssgp.h"
+#include "packet-ngap.h"
 #include "packet-ntp.h"
 #include "packet-gtpv2.h"
 #include "packet-radius.h"
@@ -174,6 +175,10 @@ static int hf_gtpv2_5gcnrs = -1;
 static int hf_gtpv2_5gcnri = -1;
 static int hf_gtpv2_5srhoi = -1;
 
+static int hf_gtpv2_nspusi = -1;
+static int hf_gtpv2_pgwrnsi = -1;
+static int hf_gtpv2_rppcsi = -1;
+static int hf_gtpv2_pgwchi= -1;
 static int hf_gtpv2_sissme = -1;
 static int hf_gtpv2_nsenbi = -1;
 static int hf_gtpv2_idfupf = -1;
@@ -428,6 +433,7 @@ static int hf_gtpv2_mm_context_nrusrna = -1;
 static int hf_gtpv2_mm_context_nrna = -1;
 static int hf_gtpv2_mm_context_ussrna = -1;
 static int hf_gtpv2_mm_context_nrsrna = -1;
+static int hf_gtpv2_mm_context_ensct = -1;
 
 static int hf_gtpv2_mm_context_samb_ri = -1;
 static int hf_gtpv2_mm_context_unipa = -1;
@@ -670,6 +676,7 @@ static int hf_gtpv2_dcnr = -1;
 
 static int hf_gtpv2_secondary_rat_usage_data_report = -1;
 static int hf_gtpv2_secondary_rat_usage_data_report_spare_bits = -1;
+static int hf_gtpv2_secondary_rat_usage_data_report_bit3 = -1;
 static int hf_gtpv2_secondary_rat_usage_data_report_bit2 = -1;
 static int hf_gtpv2_secondary_rat_usage_data_report_bit1 = -1;
 static int hf_gtpv2_secondary_rat_usage_data_report_rat_type = -1;
@@ -677,6 +684,8 @@ static int hf_gtpv2_secondary_rat_usage_data_report_start_timestamp = -1;
 static int hf_gtpv2_secondary_rat_usage_data_report_end_timestamp = -1;
 static int hf_gtpv2_secondary_rat_usage_data_report_usage_data_dl = -1;
 static int hf_gtpv2_secondary_rat_usage_data_report_usage_data_ul = -1;
+static int hf_gtpv2_secondary_rat_usage_data_report_srudn_length = -1;
+static int hf_gtpv2_secondary_rat_usage_data_report_srudn_value = -1;
 static int hf_gtpv2_csg_info_rep_action_b0 = -1;
 static int hf_gtpv2_csg_info_rep_action_b1 = -1;
 static int hf_gtpv2_csg_info_rep_action_b2 = -1;
@@ -1713,8 +1722,10 @@ static const value_string gtpv2_cause_vals[] = {
     {127, "Request rejected due to UE capability"},
     {128, "S1-U Path Failure" },
     {129, "5GC not allowed" },
+    {130, "PGW mismatch with network slice subscribed by the UE" },
+    {131, "Rejection due to paging restriction" },
 
-    /* 130-239 Spare. For future use in a triggered/response message  */
+    /* 132-239 Spare. For future use in a triggered/response message  */
     /* 240-255 Spare. For future use in an initial/request message */
     {0, NULL}
 };
@@ -2507,7 +2518,10 @@ dissect_gtpv2_ind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_ite
     }
 
     static int* const oct13_flags[] = {
-        &hf_gtpv2_spare_b7_b4,
+        &hf_gtpv2_nspusi,
+        &hf_gtpv2_pgwrnsi,
+        &hf_gtpv2_rppcsi,
+        &hf_gtpv2_pgwchi,
         &hf_gtpv2_sissme,
         &hf_gtpv2_nsenbi,
         &hf_gtpv2_idfupf,
@@ -2515,7 +2529,7 @@ dissect_gtpv2_ind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_ite
         NULL
     };
 
-    /* Octet 13 Spare Spare Spare Spare SISSME NSENBI IDFUPF EMCI */
+    /* Octet 13 NSOUSI PGWRNSI RPPCSI PGWCHI SISSME NSENBI IDFUPF EMCI */
     proto_tree_add_bitmask_list(tree, tvb, offset, 1, oct13_flags, ENC_NA);
     offset += 1;
 
@@ -3284,7 +3298,7 @@ static const value_string gtpv2_f_teid_interface_type_vals[] = {
     {16, "S4 SGW GTP-U interface"},
     {17, "S4 SGSN GTP-C interface"},
     {18, "S16 SGSN GTP-C interface"},
-    {19, "eNodeB GTP-U interface for DL data forwarding"},
+    {19, "eNodeB/gNodeB GTP-U interface for DL data forwarding"},
     {20, "eNodeB GTP-U interface for UL data forwarding"},
     {21, "RNC GTP-U interface for data forwarding"},
     {22, "SGSN GTP-U interface for data forwarding"},
@@ -3978,6 +3992,14 @@ static const value_string gtpv2_mm_context_unipa_vals[] = {
     {5, "EIA5"},
     {6, "EIA6"},
     {7, "EIA7"},
+    {0, NULL}
+};
+
+/* Table 8.38-6: EPS NAS Security Context Type Values */
+static const value_string gtpv2_mm_context_eps_nas_security_context_type_vals[] = {
+    {0, "Reporting EPS NAS Security Context Type is not supported"},
+    {1, "Native EPS NAS Security Context Type"},
+    {2, "Mapped EPS NAS Security Context Type"},
     {0, NULL}
 };
 
@@ -4870,6 +4892,15 @@ dissect_gtpv2_mm_context_eps_qq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
         de_nas_5gs_mm_ue_radio_cap_id(tvb, tree, pinfo, offset, ie_len, NULL, 0);
         offset += ie_len;
     }
+
+    if (offset == (gint)length) {
+        return;
+    }
+
+    /*(a) ENSCT */
+    proto_tree_add_item(tree, hf_gtpv2_mm_context_ensct, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+
     if (offset < (gint)length){
         proto_tree_add_expert_format(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, offset, length - offset, "The rest of the IE not dissected yet");
     }
@@ -7694,9 +7725,15 @@ static const value_string gtpv2_secondary_rat_type_vals[] = {
 static void
 dissect_gtpv2_secondary_rat_usage_data_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_, session_args_t * args _U_)
 {
+   tvbuff_t   *new_tvb;
+   proto_tree *sub_tree;
    int offset = 0;
+   guint32 srudn_len;
+   guint64 gtpv2_secondary_rat_usage_data_report_flags_val = 0;
+
    static int * const secondary_rat_usage_data_report_flags[] = {
        &hf_gtpv2_secondary_rat_usage_data_report_spare_bits,
+       &hf_gtpv2_secondary_rat_usage_data_report_bit3,
        &hf_gtpv2_secondary_rat_usage_data_report_bit2,
        &hf_gtpv2_secondary_rat_usage_data_report_bit1,
        NULL
@@ -7705,11 +7742,12 @@ dissect_gtpv2_secondary_rat_usage_data_report(tvbuff_t *tvb, packet_info *pinfo,
   /*
    * The following bits within Octet 5 shall indicate:
    * Bit 8 to 3 - Spare, for future use and set to zero.
+   * Bit 3 - SRUDN (Secondary RAT Usage Report from NG-RAN)
    * Bit 2 - IRSGW (Intended Receiver SGW)
    * Bit 1 - IRPGW (Intended Receiver PGW)
    */
-   proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_gtpv2_secondary_rat_usage_data_report,
-     ett_gtpv2_secondary_rat_usage_data_report, secondary_rat_usage_data_report_flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
+   proto_tree_add_bitmask_with_flags_ret_uint64(tree, tvb, 0, hf_gtpv2_secondary_rat_usage_data_report, ett_gtpv2_secondary_rat_usage_data_report,
+        secondary_rat_usage_data_report_flags, ENC_BIG_ENDIAN, BMT_NO_APPEND, &gtpv2_secondary_rat_usage_data_report_flags_val);
    offset += 1;
 
     /* Octet 6 RAT Type */
@@ -7743,6 +7781,19 @@ dissect_gtpv2_secondary_rat_usage_data_report(tvbuff_t *tvb, packet_info *pinfo,
     /* 24 to 32 Usage Data UL */
     proto_tree_add_item(tree, hf_gtpv2_secondary_rat_usage_data_report_usage_data_ul, tvb, offset, 8, ENC_BIG_ENDIAN);
     offset += 8;
+
+    if(gtpv2_secondary_rat_usage_data_report_flags_val & 0x04) {
+        /* Octet k Length of Secondary RAT Data Usage Report Transfer */
+        proto_tree_add_item_ret_uint(tree, hf_gtpv2_secondary_rat_usage_data_report_srudn_length, tvb, offset, 1, ENC_BIG_ENDIAN, &srudn_len);
+        offset++;
+        /* Octet (k+1) to a SRUDN */
+        sub_tree = proto_tree_add_subtree(tree, tvb, offset, srudn_len, ett_gtpv2_son_con, NULL, "SecondaryRATDataUsageReportTransfer");
+        new_tvb = tvb_new_subset_length(tvb, offset, srudn_len);
+        asn1_ctx_t asn1_ctx;
+        asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+        dissect_ngap_SecondaryRATDataUsageReportTransfer(new_tvb, 0, &asn1_ctx, sub_tree, hf_gtpv2_secondary_rat_usage_data_report_srudn_value);
+        offset = offset + srudn_len;
+    }
 
    if (length - offset) {
       proto_tree_add_expert_format(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, offset, -1, "The rest of the IE not dissected yet");
@@ -9501,6 +9552,22 @@ void proto_register_gtpv2(void)
          {"ETHPDN (Ethernet PDN Support Indication)", "gtpv2.ethpdn",
           FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01, NULL, HFILL}
         },
+        { &hf_gtpv2_nspusi,
+         {"NSPUSI (Notify Start of Pause of Charging via User plane Support Indication)", "gtpv2.nspusi",
+          FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL}
+        },
+        { &hf_gtpv2_pgwrnsi,
+         {"PGWRNSI (PGW Redirection due to mismatch with Network Slice subscribed by UE Support Indication)", "gtpv2.pgwrnsi",
+          FT_BOOLEAN, 8, NULL, 0x40, NULL, HFILL}
+        },
+        { &hf_gtpv2_rppcsi,
+         {"RPPCSI (Restoration of PDN connections after an PGW-C/SMF change Support Indication)", "gtpv2.rppcsi",
+          FT_BOOLEAN, 8, NULL, 0x20, NULL, HFILL}
+        },
+        { &hf_gtpv2_pgwchi,
+         {"PGWCHI (PGW CHange Indication)", "gtpv2.pgwchi",
+          FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL}
+        },
         { &hf_gtpv2_sissme,
          {"SISSME (Same IWK-SCEF Selected for Monitoring Event Indication)", "gtpv2.sissme",
           FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL}
@@ -10605,6 +10672,11 @@ void proto_register_gtpv2(void)
            FT_BOOLEAN, 8, NULL, 0x01,
            NULL, HFILL}
         },
+        { &hf_gtpv2_mm_context_ensct,
+          {"ENSCT (EPS NAS Security Context Type)", "gtpv2.mm_context_ensct",
+           FT_UINT8, BASE_DEC, VALS(gtpv2_mm_context_eps_nas_security_context_type_vals), 0x01,
+           NULL, HFILL}
+        },
         { &hf_gtpv2_mm_context_samb_ri,
           {"SAMB RI", "gtpv2.mm_context_samb_ri",
            FT_BOOLEAN, 8, NULL, 0x0,
@@ -11510,7 +11582,12 @@ void proto_register_gtpv2(void)
       },
       { &hf_gtpv2_secondary_rat_usage_data_report_spare_bits,
           { "Spare", "gtpv2.secondary_rat_usage_data_report.spare_bits",
-          FT_UINT8, BASE_HEX, NULL, 0xFC,
+          FT_UINT8, BASE_HEX, NULL, 0xF8,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_secondary_rat_usage_data_report_bit3,
+          { "SRUDN  (Secondary RAT Usage Report from NG-RAN)", "gtpv2.secondary_rat_usage_data_report.srudn",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x04,
           NULL, HFILL }
       },
       { &hf_gtpv2_secondary_rat_usage_data_report_bit2,
@@ -11546,6 +11623,16 @@ void proto_register_gtpv2(void)
       { &hf_gtpv2_secondary_rat_usage_data_report_usage_data_ul,
       { "Usage Data UL", "gtpv2.secondary_rat_usage_data_report.usage_data_ul",
           FT_UINT64, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_secondary_rat_usage_data_report_srudn_length,
+          { "SRUDN length", "gtpv2.mon_event_inf.srudn_length",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_secondary_rat_usage_data_report_srudn_value,
+          { "SecondaryRATDataUsageReportTransfer", "gtpv2.mon_event_inf.srudn_value",
+          FT_BYTES, BASE_NONE, NULL, 0x0,
           NULL, HFILL }
       },
       { &hf_gtpv2_csg_info_rep_action_b0,

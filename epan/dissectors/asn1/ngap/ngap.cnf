@@ -18,6 +18,7 @@ LastVisitedNGRANCellInformation_PDU
 MDT-Configuration_PDU
 MobilityRestrictionList_PDU
 NGRAN-CGI_PDU
+SecondaryRATDataUsageReportTransfer
 SONConfigurationTransfer_PDU
 SourceNGRANNode-ToTargetNGRANNode-TransparentContainer_PDU
 TargetNGRANNode-ToSourceNGRANNode-TransparentContainer_PDU
