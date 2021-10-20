@@ -665,7 +665,6 @@ dissect_evs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             if (value == 0) {
                 /* Primary PPP/NELP frame */
                 proto_tree_add_bits_item(vd_tree, hf_evs_28_bw_ppp_nelp, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
-                bit_offset += 2;
             }
             break;
         case 61: /* 488 EVS Primary 24.4 */
