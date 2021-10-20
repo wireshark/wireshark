@@ -334,8 +334,8 @@ static const value_string evs_celp_or_mdct_core_values[] = {
 };
 
 static const value_string evs_tcx_or_hq_mdct_core_values[] = {
-    { 0x0, "TCX Core" },
-    { 0x1, "HQ-MDCT core" },
+    { 0x0, "HQ-MDCT core" },
+    { 0x1, "TCX Core" },
     { 0, NULL }
 };
 
