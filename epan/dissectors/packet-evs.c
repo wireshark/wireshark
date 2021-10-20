@@ -53,6 +53,8 @@ static int hf_evs_sid_cng = -1;
 static int hf_evs_celp_sample_rate = -1;
 static int hf_evs_core_sample_rate = -1;
 static int hf_evs_132_bwctrf_idx = -1;
+static int hf_evs_28_frame_type = -1;
+static int hf_evs_28_bw_ppp_nelp = -1;
 
 static int ett_evs = -1;
 static int ett_evs_header = -1;
@@ -385,6 +387,19 @@ static const value_string evs_132_bwctrf_idx_vals[] = {
     { 0, NULL }
 };
 
+static const value_string evs_28_frame_type_vals[] = {
+    { 0x0, "Primary PPP/NELP" },
+    { 0x1, "AMR-WB IO SID" },
+    { 0, NULL }
+};
+
+static const value_string evs_28_bw_ppp_nelp_vals[] = {
+    { 0x00, "NB PPP" },
+    { 0x01, "WB PPP" },
+    { 0x02, "NB NELP" },
+    { 0x03, "WB NELP" },
+    { 0, NULL }
+};
 
 
 static void
@@ -639,12 +654,19 @@ dissect_evs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                  /* CMR */
             proto_tree_add_item(evs_tree, hf_evs_cmr_amr_io, tvb, offset, 1, ENC_BIG_ENDIAN);
             break;
-        case 56:
+        case 7:
             /* A.2.1.3 Special case for 56 bit payload size (EVS Primary or EVS AMR-WB IO SID) */
             /* The resulting ambiguity between EVS Primary 2.8 kbps and EVS AMR-WB IO SID frames is resolved through the
                most significant bit (MSB) of the first byte of the payload. By definition, the first data bit d(0) of the EVS Primary 2.8
                kbps is always set to '0'.
              */
+            proto_tree_add_bits_ret_val(vd_tree, hf_evs_28_frame_type, tvb, bit_offset, 1, &value, ENC_BIG_ENDIAN);
+            bit_offset++;
+            if (value == 0) {
+                /* Primary PPP/NELP frame */
+                proto_tree_add_bits_item(vd_tree, hf_evs_28_bw_ppp_nelp, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
+                bit_offset += 2;
+            }
             break;
         case 61: /* 488 EVS Primary 24.4 */
             /* 7.1.3	Bit allocation at 16.4 and 24.4 kbps */
@@ -882,6 +904,16 @@ proto_register_evs(void)
     { &hf_evs_132_bwctrf_idx,
     { "BW CT RF Index", "evs.132.bwctrf_idx",
         FT_UINT8, BASE_DEC, VALS(evs_132_bwctrf_idx_vals), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_evs_28_frame_type,
+    { "Frame type", "evs.28.frame_type",
+        FT_UINT8, BASE_DEC, VALS(evs_28_frame_type_vals), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_evs_28_bw_ppp_nelp,
+    { "BW PPP/NELP", "evs.28.bw_ppp_nelp",
+        FT_UINT8, BASE_DEC, VALS(evs_28_bw_ppp_nelp_vals), 0x0,
         NULL, HFILL }
     },
 };
