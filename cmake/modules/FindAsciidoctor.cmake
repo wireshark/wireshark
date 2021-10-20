@@ -36,12 +36,6 @@ if(ASCIIDOCTOR_EXECUTABLE)
         )
     endfunction(set_asciidoctor_target_properties)
 
-    function(set_manpage_target_properties _target)
-        set_target_properties(${_target} PROPERTIES
-            FOLDER "Docs"
-        )
-    endfunction(set_manpage_target_properties)
-
     set (_asciidoctor_common_args
         # Doesn't work with AsciidoctorJ?
         # --failure-level=WARN
@@ -158,8 +152,6 @@ if(ASCIIDOCTOR_EXECUTABLE)
             DEPENDS
                 ${_input_adoc}
         )
-        add_custom_target(generate_roff_man${_man_section}_pages DEPENDS ${_output_man})
-        set_manpage_target_properties(generate_roff_man${_man_section}_pages)
         unset(_src_file)
         unset(_input_adoc)
         unset(_output_man)
@@ -185,8 +177,6 @@ if(ASCIIDOCTOR_EXECUTABLE)
             DEPENDS
                 ${_input_adoc}
         )
-        add_custom_target(generate_html_man_pages DEPENDS ${_output_man})
-        set_manpage_target_properties(generate_html_man_pages)
         unset(_src_file)
         unset(_input_adoc)
         unset(_output_man)
