@@ -565,7 +565,7 @@ dissect_evs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             /* CNG type flag 1 bit */
             proto_tree_add_bits_ret_val(vd_tree, hf_evs_sid_cng, tvb, bit_offset, 1, &value, ENC_BIG_ENDIAN);
             bit_offset++;
-            if (value == 0) {
+            if (value == 1) {
                 /* FD-CNG SID frame */
                 /* Bandwidth indicator 2 bits */
                 proto_tree_add_bits_item(vd_tree, hf_evs_bw, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
