@@ -864,7 +864,7 @@ dissect_utp_extension(tvbuff_t *tvb, packet_info _U_*pinfo, proto_tree *tree, in
   return offset;
 }
 
-gboolean
+static gboolean
 decode_utp(tvbuff_t *tvb, int offset, packet_info *pinfo,
     proto_tree *tree)
 {
