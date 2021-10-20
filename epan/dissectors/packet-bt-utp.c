@@ -1051,7 +1051,7 @@ dissect_bt_utp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
     offset += dissect_utp_payload(tvb_new_subset_remaining(tvb, offset), pinfo, sub_tree);
 
-    return tvb_reported_length(tvb);
+    return offset;
   }
   return 0;
 }
