@@ -31,7 +31,7 @@ if(ASCIIDOCTOR_EXECUTABLE)
 
     function(set_asciidoctor_target_properties _target)
         set_target_properties(${_target} PROPERTIES
-            FOLDER "Docbook"
+            FOLDER "Documentation"
             EXCLUDE_FROM_DEFAULT_BUILD True
         )
     endfunction(set_asciidoctor_target_properties)

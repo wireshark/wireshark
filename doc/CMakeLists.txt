@@ -97,7 +97,7 @@ if(ASCIIDOCTOR_FOUND)
 		${MAN1_INSTALL_FILES}
 		${MAN4_INSTALL_FILES}
 	)
-	set_target_properties(manpages PROPERTIES FOLDER "Docs")
+	set_target_properties(manpages PROPERTIES FOLDER "Documentation")
 endif()
 
 add_custom_target(
@@ -108,7 +108,7 @@ add_custom_target(
 		${MAN4_INSTALL_FILES}
 		${HTML_INSTALL_FILES}
 )
-set_target_properties(docs PROPERTIES FOLDER "Docs")
+set_target_properties(docs PROPERTIES FOLDER "Documentation")
 
 if(ASCIIDOCTOR_FOUND)
 	install(
