@@ -17420,22 +17420,16 @@ dissect_vendor_ie_extreme_mesh(proto_item *item _U_, proto_tree *ietree,
         tag_len  -= 6;
 
         proto_tree_add_item(ietree, hf_ieee80211_extreme_mesh_ie_nh, tvb, offset, 6, ENC_NA);
-        offset   += 6;
-        tag_len  -= 6;
       }
       break;
     case 2:
       {
          proto_tree_add_item(ietree, hf_ieee80211_extreme_mesh_ie_mesh_id, tvb, offset, tag_len, ENC_ASCII|ENC_NA);
-         offset   += tag_len;
-         tag_len  = 0;
       }
       break;
     case 3:
       {
          proto_tree_add_item(ietree, hf_ieee80211_extreme_mesh_ie_mp_id, tvb, offset, 6, ENC_NA);
-         offset   += 6;
-         tag_len  -= 6;
       }
       break;
     default:
