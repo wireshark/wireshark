@@ -171,6 +171,9 @@ static int hf_rsl_osmo_rep_acch_dl_sacch = -1;
 static int hf_rsl_osmo_rep_acch_dl_facch_all = -1;
 static int hf_rsl_osmo_rep_acch_dl_facch_cmd = -1;
 static int hf_rsl_osmo_top_acch_val = -1;
+static int hf_rsl_osmo_top_acch_sacch = -1;
+static int hf_rsl_osmo_top_acch_facch = -1;
+static int hf_rsl_osmo_top_acch_rxqual = -1;
 static int hf_rsl_osmo_tsc_set = -1;
 static int hf_rsl_osmo_tsc_val = -1;
 
@@ -3650,6 +3653,9 @@ dissect_rsl_ie_osmo_top_acch_cap(tvbuff_t *tvb, packet_info *pinfo _U_,
     proto_tree_add_item_ret_uint(ie_tree, hf_rsl_ie_length, tvb, offset++, 1, ENC_NA, &length);
     proto_item_set_len(ti, length + 2);
 
+    proto_tree_add_item(ie_tree, hf_rsl_osmo_top_acch_sacch, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(ie_tree, hf_rsl_osmo_top_acch_facch, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(ie_tree, hf_rsl_osmo_top_acch_rxqual, tvb, offset, 1, ENC_NA);
     proto_tree_add_item(ie_tree, hf_rsl_osmo_top_acch_val, tvb, offset, 1, ENC_NA);
     offset++;
 
@@ -5262,6 +5268,21 @@ void proto_register_rsl(void)
         { &hf_rsl_osmo_top_acch_val,
           { "Overpower value", "gsm_abis_rsl.osmo_top_acch.val",
             FT_UINT8, BASE_DEC | BASE_UNIT_STRING, &units_decibels, 0x07,
+            NULL, HFILL }
+        },
+        { &hf_rsl_osmo_top_acch_rxqual,
+          { "Uplink RxQual threshold", "gsm_abis_rsl.osmo_top_acch.rxqual",
+            FT_UINT8, BASE_DEC, VALS(gsm_a_rr_rxqual_vals), 0x38,
+            NULL, HFILL }
+        },
+        { &hf_rsl_osmo_top_acch_facch,
+          { "FACCH Overpower", "gsm_abis_rsl.osmo_top_acch.facch",
+            FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x40,
+            NULL, HFILL }
+        },
+        { &hf_rsl_osmo_top_acch_sacch,
+          { "SACCH Overpower", "gsm_abis_rsl.osmo_top_acch.sacch",
+            FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x80,
             NULL, HFILL }
         },
         { &hf_rsl_osmo_tsc_set,
