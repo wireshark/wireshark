@@ -1068,7 +1068,7 @@ static void transfer_add_ack(tcpcl_dissect_ctx_t *ctx, guint64 xfer_id, guint8 f
     }
     else {
         wmem_list_insert_sorted(xfer->ack_list, ack_meta, tcpcl_ack_meta_compare_loc);
-        frm = wmem_list_find_custom(xfer->ack_list, ack_meta, tcpcl_ack_meta_compare_loc);
+        wmem_list_find_custom(xfer->ack_list, ack_meta, tcpcl_ack_meta_compare_loc);
         // Set for new item
         ack_meta->flags = flags;
         ack_meta->seen_len = ack_len;
@@ -1703,7 +1703,6 @@ dissect_v4_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         wmem_strbuf_append(suffix_text, "|");
                     }
                     wmem_strbuf_append(suffix_text, "END");
-                    sep = TRUE;
                 }
             }
 
@@ -1759,7 +1758,6 @@ dissect_v4_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         wmem_strbuf_append(suffix_text, "|");
                     }
                     wmem_strbuf_append(suffix_text, "END");
-                    sep = TRUE;
                 }
             }
 
