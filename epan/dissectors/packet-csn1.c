@@ -521,25 +521,26 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
         csnStream_t arT = *ar;
         proto_item   *ti;
         proto_tree   *test_tree;
-
-        test_tree = proto_tree_add_subtree_format(tree, tvb, bit_offset>>3, 1, ett_csn1, &ti, "%s", pDescr->sz);
-
-        csnStreamInit(&arT, bit_offset, remaining_bits_len, ar->pinfo);
-        Status = csnStreamDissector(test_tree, &arT, (const CSN_DESCR*)pDescr->descr.ptr, tvb, pvDATA(data, pDescr->offset), ett_csn1);
-
-        if (Status >= 0)
+        if (pDescr->may_be_null && remaining_bits_len == 0)
         {
-          proto_item_set_len(ti,((arT.bit_offset-1)>>3) - (bit_offset>>3)+1);
-          remaining_bits_len  = arT.remaining_bits_len;
-          bit_offset          = arT.bit_offset;
-          pDescr++;
+          proto_tree_add_none_format(tree, hf_null_data, tvb, 0, 0, "[NULL data]: %s Not Present", pDescr->sz);
+        } else {
+          test_tree = proto_tree_add_subtree_format(tree, tvb, bit_offset>>3, 1, ett_csn1, &ti, "%s", pDescr->sz);
+          csnStreamInit(&arT, bit_offset, remaining_bits_len, ar->pinfo);
+          Status = csnStreamDissector(test_tree, &arT, (const CSN_DESCR*)pDescr->descr.ptr, tvb, pvDATA(data, pDescr->offset), ett_csn1);
+          if (Status >= 0)
+          {
+            proto_item_set_len(ti,((arT.bit_offset-1)>>3) - (bit_offset>>3)+1);
+            remaining_bits_len  = arT.remaining_bits_len;
+            bit_offset          = arT.bit_offset;
+          }
+          else
+          {
+            /* Has already been processed: ProcessError("csnStreamDissector", Status, pDescr);  */
+            return Status;
+          }
         }
-        else
-        {
-          /* Has already been processed: ProcessError("csnStreamDissector", Status, pDescr);  */
-          return Status;
-        }
-
+        pDescr++;
         break;
       }
 
@@ -982,22 +983,25 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
             proto_item   *ti;
             proto_tree   *test_tree;
 
-            test_tree = proto_tree_add_subtree(tree, tvb, bit_offset>>3, 1, ett_csn1, &ti, pDescr->sz);
-
-            csnStreamInit(&arT, bit_offset, remaining_bits_len, ar->pinfo);
-            Status = csnStreamDissector(test_tree, &arT, (const CSN_DESCR *)pDescr->descr.ptr, tvb, pvDATA(data, pDescr->offset), ett_csn1);
-            if (Status >= 0)
+            if (pDescr->may_be_null && remaining_bits_len == 0)
             {
-              proto_item_set_len(ti,((arT.bit_offset-1)>>3) - (bit_offset>>3)+1);
-              remaining_bits_len = arT.remaining_bits_len;
-              bit_offset         = arT.bit_offset;
-              pDescr++;
+              proto_tree_add_none_format(tree, hf_null_data, tvb, 0, 0, "[NULL data]: %s Not Present", pDescr->sz);
+            } else {
+              test_tree = proto_tree_add_subtree(tree, tvb, bit_offset>>3, 1, ett_csn1, &ti, pDescr->sz);
+              csnStreamInit(&arT, bit_offset, remaining_bits_len, ar->pinfo);
+              Status = csnStreamDissector(test_tree, &arT, (const CSN_DESCR *)pDescr->descr.ptr, tvb, pvDATA(data, pDescr->offset), ett_csn1);
+              if (Status >= 0)
+              {
+                proto_item_set_len(ti,((arT.bit_offset-1)>>3) - (bit_offset>>3)+1);
+                remaining_bits_len = arT.remaining_bits_len;
+                bit_offset         = arT.bit_offset;
+              }
+              else
+              { /* return error code Has already been processed:  */
+                return Status;
+              }
             }
-            else
-            { /* return error code Has already been processed:  */
-              return Status;
-            }
-
+            pDescr++;
             break;
           }
 

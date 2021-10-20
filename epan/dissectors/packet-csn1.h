@@ -478,6 +478,17 @@ gint16 csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pD
         {CSN_TYPE, 0, {(const void*)CSNDESCR_##_MEMBER_TYPE}, offsetof(_STRUCT, _MEMBER), FALSE, #_MEMBER, NULL, 0, NULL, NULL, NULL}
 
 /******************************************************************************
+ * M_TYPE_OR_NULL(Par1, Par2, Par3)
+ * Similar to the M_TYPE except that not only the request set of bits but also the
+ * end of the message may be encountered when looking for the next element in
+ * the message.
+ * Covers the case {null | 0 | 1 < IE >}
+ *****************************************************************************/
+#define M_TYPE_OR_NULL(_STRUCT, _MEMBER, _MEMBER_TYPE)\
+        {CSN_TYPE, 0, {(const void*)CSNDESCR_##_MEMBER_TYPE}, offsetof(_STRUCT, _MEMBER), TRUE, #_MEMBER, NULL, 0, NULL, NULL, NULL}
+
+
+/******************************************************************************
  * M_TYPE_LABEL(Par1, Par2, Par3, Par4)
  * Same as M_TYPE but allows to define a custom string for the subtree
  * <list> ::= {1 <type>} ** 0 ;
