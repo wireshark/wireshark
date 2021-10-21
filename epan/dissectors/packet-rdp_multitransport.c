@@ -62,12 +62,12 @@ static const value_string rdpmt_subheader_type_vals[] = {
 	{ 0x0, NULL}
 };
 
-
 enum {
 	RDPMT_TUNNEL_CREATE_REQ = 0,
 	RDPMT_TUNNEL_CREATE_RESP = 1,
 	RDPMT_TUNNEL_DATA = 2,
 };
+
 static int
 dissect_rdpmt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
 {
@@ -108,6 +108,8 @@ dissect_rdpmt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *
 		guint32 reqId;
 		conversation_t *conv = find_or_create_conversation(pinfo);
 
+		col_set_str(pinfo->cinfo, COL_INFO, "TunnelCreateRequest");
+
 		subtree = proto_tree_add_subtree(tree, tvb, offset, payload_len, ett_rdpmt_create_req, NULL, "TunnelCreateRequest");
 		proto_tree_add_item(subtree, pf_mt_createreq_reqId, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		reqId = tvb_get_guint32(tvb, offset, ENC_LITTLE_ENDIAN);
@@ -124,6 +126,7 @@ dissect_rdpmt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *
 		break;
 	}
 	case RDPMT_TUNNEL_CREATE_RESP:
+		col_set_str(pinfo->cinfo, COL_INFO, "TunnelCreateResponse");
 		subtree = proto_tree_add_subtree(tree, tvb, offset, payload_len, ett_rdpmt_create_resp, NULL, "TunnelCreateResponse");
 		proto_tree_add_item(subtree, pf_mt_createresp_hrResponse, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		break;
