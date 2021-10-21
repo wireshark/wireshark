@@ -55,6 +55,7 @@ static int hf_evs_core_sample_rate = -1;
 static int hf_evs_132_bwctrf_idx = -1;
 static int hf_evs_28_frame_type = -1;
 static int hf_evs_28_bw_ppp_nelp = -1;
+static int hf_evs_72_80_bwct_idx = -1;
 
 static int ett_evs = -1;
 static int ett_evs_header = -1;
@@ -401,6 +402,24 @@ static const value_string evs_28_bw_ppp_nelp_vals[] = {
     { 0, NULL }
 };
 
+static const value_string evs_72_80_bwct_idx_vals[] = {
+    { 0x0, "NB generic" },
+    { 0x1, "NB unvoiced" },
+    { 0x2, "NB voiced" },
+    { 0x3, "NB transition" },
+    { 0x4, "NB audio" },
+    { 0x5, "NB inactive" },
+    { 0x6, "WB generic" },
+    { 0x7, "WB unvoiced" },
+    { 0x8, "WB voiced" },
+    { 0x9, "WB transition" },
+    { 0xa, "WB audio" },
+    { 0xb, "WB inactive" },
+    { 0xc, "NB generic" },
+    { 0xd, "WB generic" },
+    { 0xe, "NB lrMDCT" },
+    { 0, NULL }
+};
 
 static void
 dissect_evs_cmr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *evs_tree, int offset, guint8 cmr_oct)
@@ -667,6 +686,15 @@ dissect_evs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                 proto_tree_add_bits_item(vd_tree, hf_evs_28_bw_ppp_nelp, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
             }
             break;
+        case 18: /* 144 EVS Primary 7.2 */
+        case 20: /* 160 EVS Primary 8.0 */
+            /* 7.1.1 Bit allocation at VBR 5.9, 7.2 – 9.6 kbps
+             * Note that the BW and CT parameters are combined together to form a single index at 7.2 and 8.0 kbps. This index
+             * conveys the information whether CELP core or HQ-MDCT core is used.
+             */
+            /* BW, CT, 4*/
+            proto_tree_add_bits_item(vd_tree, hf_evs_72_80_bwct_idx, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
+            break;
         case 61: /* 488 EVS Primary 24.4 */
             /* 7.1.3	Bit allocation at 16.4 and 24.4 kbps */
             /* BW 2 bits*/
@@ -913,6 +941,11 @@ proto_register_evs(void)
     { &hf_evs_28_bw_ppp_nelp,
     { "BW PPP/NELP", "evs.28.bw_ppp_nelp",
         FT_UINT8, BASE_DEC, VALS(evs_28_bw_ppp_nelp_vals), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_evs_72_80_bwct_idx,
+    { "BW CT Index", "evs.72.80.bwct_idx",
+        FT_UINT8, BASE_DEC, VALS(evs_72_80_bwct_idx_vals), 0x0,
         NULL, HFILL }
     },
 };
