@@ -88,7 +88,14 @@ typedef struct _usb_trans_info_t {
     guint64 usb_id;
 } usb_trans_info_t;
 
-enum usb_conv_class_data_type {USB_CONV_UNKNOWN = 0, USB_CONV_U3V, USB_CONV_AUDIO, USB_CONV_VIDEO, USB_CONV_MASS_STORAGE};
+enum usb_conv_class_data_type {
+    USB_CONV_UNKNOWN = 0,
+    USB_CONV_U3V,
+    USB_CONV_AUDIO,
+    USB_CONV_VIDEO,
+    USB_CONV_MASS_STORAGE_BOT,
+    USB_CONV_MASS_STORAGE_UASP,
+};
 
 /* Conversation Structure
  * there is one such structure for each device/endpoint conversation */

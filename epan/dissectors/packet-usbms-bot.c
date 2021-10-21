@@ -191,8 +191,8 @@ dissect_usbms_bot_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tre
         usbms_bot_conv_info->itl=wmem_tree_new(wmem_file_scope());
         usbms_bot_conv_info->itlq=wmem_tree_new(wmem_file_scope());
         usb_conv_info->class_data=usbms_bot_conv_info;
-        usb_conv_info->class_data_type = USB_CONV_MASS_STORAGE;
-    } else if (usb_conv_info->class_data_type != USB_CONV_MASS_STORAGE) {
+        usb_conv_info->class_data_type = USB_CONV_MASS_STORAGE_BOT;
+    } else if (usb_conv_info->class_data_type != USB_CONV_MASS_STORAGE_BOT) {
         /* Don't dissect if another USB type is in the conversation */
         return 0;
     }
