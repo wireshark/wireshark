@@ -3867,6 +3867,7 @@ dissect_unassociated_sta_link_metric_response(tvbuff_t *tvb, packet_info *pinfo 
     sta_count = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(tree, hf_ieee1905_unassoc_sta_link_metric_sta_count,
                         tvb, offset, 1, ENC_NA);
+    offset++;
 
     sta_list = proto_tree_add_subtree(tree, tvb, offset, sta_count * 12,
                         ett_unassoc_sta_link_metric_list, NULL,
