@@ -2,6 +2,7 @@
  * Routines for Concise Binary Object Representation (CBOR) (RFC 7049) dissection
  * References:
  *     RFC 7049: https://tools.ietf.org/html/rfc7049
+ *     RFC 8742: https://tools.ietf.org/html/rfc8742
  *
  * Copyright 2015, Hauke Mehrtens <hauke@hauke-m.de>
  *
@@ -60,6 +61,7 @@ static expert_field ei_cbor_invalid_element     = EI_INIT;
 static expert_field ei_cbor_too_long_length     = EI_INIT;
 
 static dissector_handle_t cbor_handle;
+static dissector_handle_t cborseq_handle;
 
 #define CBOR_TYPE_USIGNED_INT   0
 #define CBOR_TYPE_NEGATIVE_INT  1
@@ -700,6 +702,23 @@ dissect_cbor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 	return tvb_captured_length(tvb);
 }
 
+static int
+dissect_cborseq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)
+{
+	gint        offset = 0;
+	proto_item *cbor_root;
+	proto_tree *cbor_tree;
+
+	cbor_root = proto_tree_add_item(parent_tree, proto_cbor, tvb, offset, -1, ENC_NA);
+	proto_item_append_text(cbor_root, " Sequence");
+	cbor_tree = proto_item_add_subtree(cbor_root, ett_cbor);
+	while ((guint)offset < tvb_reported_length(tvb)) {
+		dissect_cbor_main_type(tvb, pinfo, cbor_tree, &offset);
+	}
+
+	return offset;
+}
+
 void
 proto_register_cbor(void)
 {
@@ -844,12 +863,14 @@ proto_register_cbor(void)
 	expert_register_field_array(expert_cbor, ei, array_length(ei));
 
 	cbor_handle = register_dissector("cbor", dissect_cbor, proto_cbor);
+	cborseq_handle = register_dissector("cborseq", dissect_cborseq, proto_cbor);
 }
 
 void
 proto_reg_handoff_cbor(void)
 {
 	dissector_add_string("media_type", "application/cbor", cbor_handle); /* RFC 7049 */
+	dissector_add_string("media_type", "application/cbor-seq", cborseq_handle); /* RFC 8742 */
 }
 
 /*
