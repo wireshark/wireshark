@@ -65,10 +65,13 @@ test_free(gpointer value)
 }
 
 static char *
-test_tostr(const void *value, gboolean pretty _U_)
+test_tostr(const void *value, gboolean pretty)
 {
 	const test_t *test = value;
 	ws_assert_magic(test, TEST_MAGIC);
+
+	if (pretty)
+		return g_strdup(sttype_test_todisplay(test->op));
 
 	const char *s = "<null>";
 
@@ -192,6 +195,74 @@ sttype_test_set2_args(stnode_t *node, stnode_t *val1, stnode_t *val2)
 	}
 	test->val1 = val1;
 	test->val2 = val2;
+}
+
+test_op_t
+sttype_test_get_op(stnode_t *node)
+{
+	ws_assert_magic(node, TEST_MAGIC);
+	return ((test_t *)node)->op;
+}
+
+const char *
+sttype_test_todisplay(test_op_t op)
+{
+	const char *s;
+
+	switch(op) {
+		case TEST_OP_EXISTS:
+			s = "exists";
+			break;
+		case TEST_OP_NOT:
+			s = "!";
+			break;
+		case TEST_OP_AND:
+			s = "&&";
+			break;
+		case TEST_OP_OR:
+			s = "||";
+			break;
+		case TEST_OP_ANY_EQ:
+			s = "==";
+			break;
+		case TEST_OP_ALL_NE:
+			s = "!=";
+			break;
+		case TEST_OP_ANY_NE:
+			s = "~=";
+			break;
+		case TEST_OP_GT:
+			s = ">";
+			break;
+		case TEST_OP_GE:
+			s = ">=";
+			break;
+		case TEST_OP_LT:
+			s = "<";
+			break;
+		case TEST_OP_LE:
+			s = "<=";
+			break;
+		case TEST_OP_BITWISE_AND:
+			s = "&";
+			break;
+		case TEST_OP_CONTAINS:
+			s = "contains";
+			break;
+		case TEST_OP_MATCHES:
+			s = "matches";
+			break;
+		case TEST_OP_IN:
+			s = "in";
+			break;
+		case TEST_OP_UNINITIALIZED:
+			s = "<uninitialized>";
+			break;
+		default:
+			s = "<null>";
+			break;
+	}
+	return s;
 }
 
 void
