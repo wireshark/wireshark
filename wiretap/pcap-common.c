@@ -762,6 +762,10 @@ wtap_max_snaplen_for_encap(int wtap_encap)
 		return WTAP_MAX_PACKET_SIZE_EBHSCR;
 
 	case WTAP_ENCAP_USBPCAP:
+	case WTAP_ENCAP_USB_LINUX:
+	case WTAP_ENCAP_USB_LINUX_MMAPPED:
+	case WTAP_ENCAP_USB_DARWIN:
+	case WTAP_ENCAP_USB_FREEBSD:
 		return WTAP_MAX_PACKET_SIZE_USBPCAP;
 
 	default:
