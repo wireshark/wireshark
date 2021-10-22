@@ -21,6 +21,7 @@
 #include <wsutil/wslog.h>
 #include <wsutil/inet_addr.h>
 #include <wsutil/pint.h>
+#include <wsutil/ws_return.h>
 
 /*
  * If a user _does_ pass in a too-small buffer, this is probably

@@ -11,15 +11,14 @@
 #ifndef __WSLOG_H__
 #define __WSLOG_H__
 
-#include <glib.h>
 #include <stdio.h>
 #include <time.h>
 #include <stdarg.h>
+#include <glib.h>
 
-#include <wireshark.h>
+#include <ws_symbol_export.h>
+#include <ws_attributes.h>
 #include <ws_log_defs.h>
-
-#include <wsutil/wmem/wmem.h>
 
 #ifdef WS_LOG_DOMAIN
 #define _LOG_DOMAIN WS_LOG_DOMAIN
@@ -295,38 +294,6 @@ void ws_logv_full(const char *domain, enum ws_log_level level,
  * Accepts a format string and includes the file and function name.
  */
 #define ws_noisy(...)    _LOG_DEBUG(LOG_LEVEL_NOISY, __VA_ARGS__)
-
-
-#define ws_warn_zero_len() ws_warning("Zero length passed to %s", __func__)
-
-#define ws_warn_null_ptr() ws_warning("Null pointer passed to %s", __func__)
-
-
-#define ws_return_str_if_zero(scope, len) \
-        do { \
-            if (!(len)) { \
-                ws_warn_zero_len(); \
-                return wmem_strdup(scope, "(zero length)"); \
-            } \
-        } while (0)
-
-
-#define ws_return_str_if_null(scope, ptr) \
-        do { \
-            if (!(ptr)) { \
-                ws_warn_null_ptr(); \
-                return wmem_strdup(scope, "(null pointer)"); \
-            } \
-        } while (0)
-
-
-#define ws_return_ptr_if_null(ptr, val) \
-        do { \
-            if (!(ptr)) { \
-                ws_warn_null_ptr(); \
-                return (val); \
-            } \
-        } while (0)
 
 
 /** This function is called to log a buffer (bytes array).
