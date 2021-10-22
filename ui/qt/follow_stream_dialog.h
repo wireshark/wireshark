@@ -122,7 +122,6 @@ private:
     bool                    use_regex_find_;
 
     bool                    terminating_;
-    bool                    isReadRunning_;
 
     int                     previous_sub_stream_num_;
 };
