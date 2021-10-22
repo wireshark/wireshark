@@ -17405,19 +17405,15 @@ dissect_vendor_ie_extreme_mesh(proto_item *item _U_, proto_tree *ietree,
         proto_tree_add_bitmask_with_flags(ietree, tvb, offset, hf_ieee80211_extreme_mesh_ie_services,
         ett_extreme_mesh_services_tree, ieee80211_extreme_mesh_ie_hello, ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
         offset   += 1;
-        tag_len  -= 1;
 
         proto_tree_add_item(ietree, hf_ieee80211_extreme_mesh_ie_htr, tvb, offset, 1, ENC_NA);
         offset   += 1;
-        tag_len  -= 1;
 
         proto_tree_add_item(ietree, hf_ieee80211_extreme_mesh_ie_mtr, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         offset   += 2;
-        tag_len  -= 2;
 
         proto_tree_add_item(ietree, hf_ieee80211_extreme_mesh_ie_root, tvb, offset, 6, ENC_NA);
         offset   += 6;
-        tag_len  -= 6;
 
         proto_tree_add_item(ietree, hf_ieee80211_extreme_mesh_ie_nh, tvb, offset, 6, ENC_NA);
       }
