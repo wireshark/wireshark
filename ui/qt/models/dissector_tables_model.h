@@ -34,6 +34,8 @@ protected:
 
 class DissectorTablesModel : public QAbstractItemModel
 {
+    Q_OBJECT
+
 public:
     explicit DissectorTablesModel(QObject * parent = Q_NULLPTR);
     virtual ~DissectorTablesModel();
@@ -60,8 +62,9 @@ private:
 
 class DissectorTablesProxyModel : public QSortFilterProxyModel
 {
-public:
+    Q_OBJECT
 
+public:
     explicit DissectorTablesProxyModel(QObject * parent = Q_NULLPTR);
 
     virtual bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const;

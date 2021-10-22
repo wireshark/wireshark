@@ -49,6 +49,8 @@ private:
 
 class PrefsModel : public QAbstractItemModel
 {
+    Q_OBJECT
+
 public:
     explicit PrefsModel(QObject * parent = Q_NULLPTR);
     virtual ~PrefsModel();
@@ -91,8 +93,9 @@ private:
 
 class AdvancedPrefsModel : public QSortFilterProxyModel
 {
-public:
+    Q_OBJECT
 
+public:
     explicit AdvancedPrefsModel(QObject * parent = Q_NULLPTR);
 
     enum AdvancedPrefsModelColumn {

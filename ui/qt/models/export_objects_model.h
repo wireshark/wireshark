@@ -26,6 +26,8 @@ typedef struct export_object_list_gui_t {
 
 class ExportObjectModel : public QAbstractTableModel
 {
+    Q_OBJECT
+
 public:
     ExportObjectModel(register_eo_t* eo, QObject *parent);
 

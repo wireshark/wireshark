@@ -22,6 +22,8 @@
 
 class FilesetEntryModel : public QAbstractItemModel
 {
+    Q_OBJECT
+
 public:
     explicit FilesetEntryModel(QObject * parent = 0);
 

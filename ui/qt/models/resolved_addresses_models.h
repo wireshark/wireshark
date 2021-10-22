@@ -17,6 +17,8 @@
 
 class EthernetAddressModel : public AStringListListModel
 {
+    Q_OBJECT
+
 public:
     EthernetAddressModel(QObject * parent = Q_NULLPTR);
 
@@ -30,6 +32,8 @@ protected:
 
 class PortsModel : public AStringListListModel
 {
+    Q_OBJECT
+
 public:
     PortsModel(QObject * parent = Q_NULLPTR);
 
