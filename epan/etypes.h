@@ -377,6 +377,10 @@ extern "C" {
 #define ETHERTYPE_IEEE_802_1AD		0x88A8	/* IEEE 802.1ad Provider Bridge, Q-in-Q */
 #endif
 
+#ifndef ETHERTYPE_IEEE_EXTREME_MESH
+#define ETHERTYPE_IEEE_EXTREME_MESH     0x88A9  /* Ethernet type for Extreme Mesh */
+#endif
+
 #ifndef ETHERTYPE_EPL_V2
 #define ETHERTYPE_EPL_V2		0x88AB	/* communication profile for Real-Time Ethernet */
 #endif

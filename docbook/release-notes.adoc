@@ -52,6 +52,8 @@ The following features are new (or have been significantly updated) since versio
   gRPC streaming call which allows sending many request or response messages in one HTTP2 stream). User can specify fake headers according to the
   server port, stream id and direction of the long-lived stream that we start capturing packets after it is established.
 
+* Mesh Connex (MCX) support in existing 802.11 packets.
+
 // === Removed Features and Support
 
 // === Removed Dissectors
@@ -71,6 +73,7 @@ The following features are new (or have been significantly updated) since versio
 --
 Host IP Configuration Protocol (HICP)
 Secure Host IP Configuration Protocol (SHICP)
+Mesh Connex (MCX)
 --
 
 === Updated Protocol Support
