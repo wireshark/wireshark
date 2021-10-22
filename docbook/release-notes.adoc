@@ -111,6 +111,8 @@ The following features are new (or have been significantly updated) since versio
 ** Regular expressions (using "matches" or "~") must be specified using character strings. It is a syntax error to omit the double-quotes around
    the regular expression. Before the syntax rules of an unquoted regex string could be difficult to predict.
 
+* Corrected calculation of mean jitter in RTP Stream Analysis dialog and IAX2 Stram Analysis dialog
+
 // === Removed Features and Support
 
 // === Removed Dissectors
