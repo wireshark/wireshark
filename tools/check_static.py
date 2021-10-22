@@ -41,7 +41,10 @@ class CalledSymbols:
         elif file.find('ui/qt') != -1:
             object_file = os.path.join(build_folder, os.path.dirname(file), 'CMakeFiles', ('qtui' + '.dir'), os.path.basename(file) + '.o')
         else:
-            object_file = os.path.join(build_folder, os.path.dirname(file), 'CMakeFiles', last_dir + '.dir', os.path.basename(file) + '.o')
+            if file.endswith('dissectors.c'):
+                object_file = os.path.join(build_folder, os.path.dirname(file), 'CMakeFiles', 'dissector-registration' + '.dir', os.path.basename(file) + '.o')
+            else:
+                object_file = os.path.join(build_folder, os.path.dirname(file), 'CMakeFiles', last_dir + '.dir', os.path.basename(file) + '.o')
         if not os.path.exists(object_file):
             print('Warning -', object_file, 'does not exist')
             return
@@ -74,6 +77,7 @@ class DefinedSymbols:
 
         # Make sure that file is built.
         object_file = os.path.join(build_folder, 'epan', 'dissectors', 'CMakeFiles', 'dissectors.dir', os.path.basename(file) + '.o')
+
         if not os.path.exists(object_file):
             print('Warning -', object_file, 'does not exist')
             return

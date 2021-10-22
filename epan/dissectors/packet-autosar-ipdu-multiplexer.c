@@ -318,7 +318,7 @@ copy_ipdum_can_mapping_cb(void *n, const void *o, size_t size _U_) {
     return new_rec;
 }
 
-void
+static void
 post_update_register_can(void) {
     if (ipdum_handle_can == NULL) {
         return;
@@ -510,7 +510,7 @@ update_ipdum_lin_mapping(void *r, char **err) {
     return TRUE;
 }
 
-void
+static void
 post_update_register_lin(void) {
     if (ipdum_handle_lin == NULL) {
         return;
@@ -612,7 +612,7 @@ update_ipdum_pdu_transport_mapping(void *r, char **err) {
     return TRUE;
 }
 
-void
+static void
 post_update_register_pdu_transport(void) {
     if (ipdum_handle_pdu_transport == NULL) {
         return;
