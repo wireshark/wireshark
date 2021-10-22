@@ -695,6 +695,34 @@ dissect_evs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             /* BW, CT, 4*/
             proto_tree_add_bits_item(vd_tree, hf_evs_72_80_bwct_idx, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
             break;
+        case 24: /* 192 EVS Primary 9.6 */
+            /* 7.1.1 Bit allocation at VBR 5.9, 7.2 – 9.6 kbps */
+            /* BW 2 bits */
+            proto_tree_add_bits_item(vd_tree, hf_evs_bw, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
+            break;
+        case 41: /* 328 EVS Primary 16.4 */
+            /* 7.1.3	Bit allocation at 16.4 and 24.4 kbps */
+            /* BW 2 bits*/
+            proto_tree_add_bits_item(vd_tree, hf_evs_bw, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
+            bit_offset+=2;
+            /* Reserved 1 bit */
+            proto_tree_add_bits_item(vd_tree, hf_evs_reserved_1bit, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+            break;
+        case 120: /* 960 EVS Primary 48 */
+            /* 7.1.5 Bit allocation at 48, 64, 96 and 128 kbps */
+            /* BW 2 bits*/
+            proto_tree_add_bits_item(vd_tree, hf_evs_bw, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
+            break;
+        case 240: /* 1920 EVS Primary 96 */
+            /* 7.1.5 Bit allocation at 48, 64, 96 and 128 kbps */
+            /* BW 2 bits*/
+            proto_tree_add_bits_item(vd_tree, hf_evs_bw, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
+            break;
+        case 320: /* 2560 EVS Primary 128 */
+            /* 7.1.5 Bit allocation at 48, 64, 96 and 128 kbps */
+            /* BW 2 bits*/
+            proto_tree_add_bits_item(vd_tree, hf_evs_bw, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
+            break;
         case 61: /* 488 EVS Primary 24.4 */
             /* 7.1.3	Bit allocation at 16.4 and 24.4 kbps */
             /* BW 2 bits*/
