@@ -44,6 +44,8 @@ public:
 
 class ColoringRulesModel : public QAbstractItemModel
 {
+    Q_OBJECT
+
 public:
     ColoringRulesModel(QColor defaultForeground, QColor defaultBackground, QObject *parent);
     virtual ~ColoringRulesModel();

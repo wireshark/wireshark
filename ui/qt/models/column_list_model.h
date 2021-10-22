@@ -48,6 +48,8 @@ public:
 
 class ColumnListModel : public QAbstractTableModel
 {
+    Q_OBJECT
+
 public:
     ColumnListModel(QObject * parent = Q_NULLPTR);
 

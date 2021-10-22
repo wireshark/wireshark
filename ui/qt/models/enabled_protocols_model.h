@@ -54,6 +54,8 @@ protected:
 
 class EnabledProtocolsModel : public QAbstractItemModel
 {
+    Q_OBJECT
+
 public:
     explicit EnabledProtocolsModel(QObject * parent = Q_NULLPTR);
     virtual ~EnabledProtocolsModel();
@@ -97,8 +99,8 @@ private:
 class EnabledProtocolsProxyModel : public QSortFilterProxyModel
 {
     Q_OBJECT
-public:
 
+public:
     enum SearchType
     {
         EveryWhere,

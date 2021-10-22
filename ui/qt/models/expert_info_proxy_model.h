@@ -19,6 +19,8 @@ class ExpertPacketItem;
 
 class ExpertInfoProxyModel : public QSortFilterProxyModel
 {
+    Q_OBJECT
+
 public:
     ExpertInfoProxyModel(QObject *parent = 0);
 

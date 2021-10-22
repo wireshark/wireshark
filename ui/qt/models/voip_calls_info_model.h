@@ -21,6 +21,8 @@
 
 class VoipCallsInfoModel : public QAbstractTableModel
 {
+    Q_OBJECT
+
 public:
     VoipCallsInfoModel(QObject *parent = 0);
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;

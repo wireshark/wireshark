@@ -41,6 +41,8 @@ private:
 
 class SupportedProtocolsModel : public QAbstractItemModel
 {
+    Q_OBJECT
+
 public:
     explicit SupportedProtocolsModel(QObject * parent = Q_NULLPTR);
     virtual ~SupportedProtocolsModel();
