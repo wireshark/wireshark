@@ -111,6 +111,8 @@ The following features are new (or have been significantly updated) since versio
 
 * Reload Lua plugins has been improved to properly support FileHandler.
 
+* Corrected calculation of mean jitter in RTP Stream Analysis dialog and IAX2 Stram Analysis dialog
+
 // === Removed Features and Support
 
 // === Removed Dissectors
