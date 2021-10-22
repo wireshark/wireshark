@@ -3840,9 +3840,12 @@ capture_loop_dequeue_packet(void) {
 
 /*
  * Note: this code will never be run on any OS other than Windows.
+ *
+ * We keep the arguments in case there's something in the future
+ * that needs to be reported as an NPCAP bug.
  */
 static char *
-please_report_npcap_bug(char *adapter_name, char *cap_err_str)
+handle_npcap_bug(char *adapter_name _U_, char *cap_err_str _U_)
 {
     GString *pcap_info_str;
     GString *windows_info_str;
@@ -3861,22 +3864,11 @@ please_report_npcap_bug(char *adapter_name, char *cap_err_str)
     windows_info_str = g_string_new("");
     get_os_version_info(windows_info_str);
     msg = g_strdup_printf("If you have not removed that adapter, this "
-                          "may be a bug in Npcap: please report it "
-                          "as an issue at https://github.com/nmap/npcap/issues\n\n"
-                          "Give all details, such as:\n\n"
-                          "The name of the adapter on which the error occurred (\"%s\");\n"
-                          "The error message \"%s\";\n"
-                          "The full version of Windows on which this occurred (\"%s\");\n"
-                          "The version of Npcap with which this occurred (\"%s\");\n"
-                          "Any indication of whether the machine went to sleep "
-                          "during the capture;\n"
-                          "Any indication of whether any other interfaces "
-                          "were added to or removed from the machine while "
-                          "the capture was taking place.",
-                          adapter_name,
-                          cap_err_str,
-                          windows_info_str->str,
-                          pcap_info_str->str);
+                          "is probably a known issue in Npcap resulting from "
+                          "the behavior of the Windows networking stack. "
+                          "Work is being done in Npcap to improve the "
+                          "handling of this issue; it does not need to "
+                          "be reported as a Wireshark or Npcap bug.");
     g_string_free(windows_info_str, TRUE);
     g_string_free(pcap_info_str, TRUE);
     return msg;
@@ -4241,8 +4233,8 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
                                               "is no longer attached; the "
                                               "capture has stopped.",
                                               interface_opts->display_name);
-                secondary_msg = please_report_npcap_bug(interface_opts->display_name,
-                                                        cap_err_str);
+                secondary_msg = handle_npcap_bug(interface_opts->display_name,
+                                                 cap_err_str);
             } else if (g_str_has_prefix(cap_err_str, "PacketReceivePacket error:") &&
                        g_str_has_suffix(cap_err_str, "(1617)")) {
                 /*
@@ -4266,8 +4258,8 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
                                               "is no longer attached; the "
                                               "capture has stopped.",
                                               interface_opts->display_name);
-                secondary_msg = please_report_npcap_bug(interface_opts->display_name,
-                                                        "The interface disappeared (error code ERROR_DEVICE_REMOVED/STATUS_DEVICE_REMOVED)");
+                secondary_msg = handle_npcap_bug(interface_opts->display_name,
+                                                 "The interface disappeared (error code ERROR_DEVICE_REMOVED/STATUS_DEVICE_REMOVED)");
             } else if (strcmp(cap_err_str, "The other host terminated the connection") == 0) {
                 primary_msg = g_strdup(cap_err_str);
                 secondary_msg = g_strdup("This may be a problem with the "
