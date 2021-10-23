@@ -933,6 +933,8 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
         if (extlen == 0) {
             expert_add_info_format(pinfo, extlen_ti, &ei_oran_extlen_zero,
                                    "extlen value of 0 is reserved");
+            /* Break out to avoid infinitely looping! */
+            break;
         }
 
         switch (exttype) {
