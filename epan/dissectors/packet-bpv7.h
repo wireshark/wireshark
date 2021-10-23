@@ -23,10 +23,18 @@
 extern "C" {
 #endif
 
-/*
- * BPv7 block-type-specific data dissectors are registered with the
+/* This dissector defines two layers of protocol:
+ * - The BPv7 bundle format and its block types.
+ * - The BPv7 Administrative Record which is a bundle payload as indicated by
+ *   a primary block flag.
+ *
+ * BPv7 block-type-specific data (BTSD) dissectors are registered with the
  * dissector table "bpv7.block_type" and Administrative Record dissectors
  * with the table "bpv7.admin_record_type". Both use guint64* table keys.
+ * Both use bp_dissector_data_t* as dissector user data.
+ *
+ * There is a BTSD heuristic dissector table "bpv7.btsd" which uses
+ * bp_dissector_data_t* as dissector user data.
  */
 
 /** Bundle CRC types.

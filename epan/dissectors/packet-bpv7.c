@@ -23,6 +23,7 @@
 #include <epan/ftypes/ftypes.h>
 #include <wsutil/crc16.h>
 #include <wsutil/crc32.h>
+#include <wsutil/utf8_entities.h>
 #include <stdio.h>
 #include <inttypes.h>
 
@@ -43,13 +44,17 @@ static int proto_bp_admin = -1;
 /// Protocol-level data
 static bp_history_t *bp_history = NULL;
 
+static dissector_handle_t handle_admin = NULL;
 /// Dissect opaque CBOR data
 static dissector_handle_t handle_cbor = NULL;
+static dissector_handle_t handle_cborseq = NULL;
 /// Extension sub-dissectors
 static dissector_table_t block_dissectors = NULL;
 static dissector_table_t payload_dissectors_dtn_wkssp = NULL;
 static dissector_table_t payload_dissectors_dtn_serv = NULL;
 static dissector_table_t admin_dissectors = NULL;
+/// BTSD heuristic
+static heur_dissector_list_t btsd_heur = NULL;
 
 /// Fragment reassembly
 static reassembly_table bp_reassembly_table;
@@ -876,7 +881,7 @@ static void show_crc_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree_bl
             chksum_flags |= PROTO_CHECKSUM_NOT_PRESENT;
         }
         else {
-            const guint block_len = tvb_captured_length(tvb);
+            const guint block_len = tvb_reported_length(tvb);
             guint8 *crcbuf = tvb_memdup(pinfo->pool, tvb, 0, block_len);
             switch (*crc_type) {
                 case BP_CRC_16:
@@ -1129,7 +1134,7 @@ static gint dissect_block_canonical(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     field_ix++;
     block->data = tvb_data;
 
-    const guint tvb_data_len = (tvb_data ? tvb_captured_length(tvb_data) : 0);
+    const guint tvb_data_len = (tvb_data ? tvb_reported_length(tvb_data) : 0);
     proto_item *item_data = proto_tree_add_uint64(tree_block, hf_canonical_data, tvb_data, 0, tvb_data_len, tvb_data_len);
     proto_tree *tree_data = proto_item_add_subtree(item_data, ett_canonical_data);
     block->tree_data = tree_data;
@@ -1237,11 +1242,12 @@ static void apply_bpsec_mark(const security_mark_t *sec, packet_info *pinfo, pro
  * @param payload True if this is bundle payload.
  * @return The number of dissected octets.
  */
-static gint dissect_carried_data(dissector_handle_t dissector, void *context, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean payload) {
+static gint dissect_carried_data(dissector_handle_t dissector, void *context, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean payload _U_) {
     int sublen = 0;
     if (dissector) {
-        sublen = call_dissector_with_data(dissector, tvb, pinfo, tree, context);
-        if ((sublen < 0) || ((guint)sublen < tvb_captured_length(tvb))) {
+        sublen = call_dissector_only(dissector, tvb, pinfo, tree, context);
+        if ((sublen < 0) ||
+            ((sublen > 0) && ((guint)sublen < tvb_reported_length(tvb)))) {
             expert_add_info(pinfo, proto_tree_get_parent(tree), &ei_sub_partial_decode);
         }
     }
@@ -1249,15 +1255,11 @@ static gint dissect_carried_data(dissector_handle_t dissector, void *context, tv
         expert_add_info(pinfo, proto_tree_get_parent(tree), &ei_sub_type_unknown);
     }
 
-    if ((sublen == 0) && bp_payload_try_heur) {
-        if (payload) {
-            col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Assumed CBOR");
+    if ((sublen <= 0) && bp_payload_try_heur) {
+        heur_dtbl_entry_t *entry = NULL;
+        if (dissector_try_heuristic(btsd_heur, tvb, pinfo, tree, &entry, context)) {
+            sublen = tvb_reported_length(tvb);
         }
-        TRY {
-            sublen = call_dissector(handle_cbor, tvb, pinfo, tree);
-        }
-        CATCH_ALL {}
-        ENDTRY;
     }
     if (sublen == 0) {
         sublen = call_data_dissector(tvb, pinfo, tree);
@@ -1297,7 +1299,7 @@ static int dissect_bp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
     bundle->frame_time = pinfo->abs_ts;
 
     // Read blocks directly from buffer with same addresses as #tvb
-    const guint buflen = tvb_captured_length(tvb);
+    const guint buflen = tvb_reported_length(tvb);
 
     // Require indefinite-length array type
     wscbor_chunk_t *chunk = wscbor_chunk_read(wmem_packet_scope(), tvb, &offset);
@@ -1466,7 +1468,9 @@ static gboolean proto_tree_add_status_assertion(proto_tree *tree, int hfassert, 
     return result;
 }
 
-static int dissect_payload_admin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bp_dissector_data_t *context) {
+static int dissect_payload_admin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
+    bp_dissector_data_t *context = (bp_dissector_data_t *)data;
+    DISSECTOR_ASSERT(context);
     {
         const gchar *proto_name = col_get_text(pinfo->cinfo, COL_PROTOCOL);
         if (g_strcmp0(proto_name, proto_name_bp_admin) != 0) {
@@ -1640,7 +1644,11 @@ static int dissect_status_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         }
         const char *status_buf = wmem_strbuf_finalize(status_text);
         proto_item_append_text(item_admin, ", Status: %s", status_buf);
-        col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Status: %s", status_buf);
+        col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s %s %s Status: %s",
+                            context->bundle->primary->src_nodeid->uri,
+                            UTF8_RIGHTWARDS_ARROW,
+                            context->bundle->primary->dst_eid->uri,
+                            status_buf);
     }
     if (reason_code) {
         proto_item_append_text(item_admin, ", Reason: %s", val64_to_str(*reason_code, status_report_reason_vals, "%" G_GUINT64_FORMAT));
@@ -1674,11 +1682,14 @@ static int dissect_block_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     if (is_fragment) {
         proto_item_append_text(item_bundle, ", FRAGMENT");
     }
-    const guint payload_len = tvb_captured_length(tvb);
+    const guint payload_len = tvb_reported_length(tvb);
     proto_item_append_text(item_bundle, ", Payload-Size: %d", payload_len);
 
     // identify bundle regardless of payload decoding
-    col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Bundle");
+    col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s %s %s",
+                        bundle->primary->src_nodeid->uri,
+                        UTF8_RIGHTWARDS_ARROW,
+                        bundle->primary->dst_eid->uri);
 
     // Set if the payload is fully defragmented
     tvbuff_t *tvb_payload = NULL;
@@ -1765,7 +1776,10 @@ static int dissect_block_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     // Payload is known to be administrative, independent of destination EID
     if (is_admin) {
         col_append_str(pinfo->cinfo, COL_INFO, " [Admin]");
-        return dissect_payload_admin(tvb_payload, pinfo, tree_top, context);
+        const int sublen = call_dissector_only(handle_admin, tvb_payload, pinfo, tree_top, context);
+        if (sublen > 0) {
+            return sublen;
+        }
     }
 
     // an EID shouldn't have both of these set
@@ -1822,6 +1836,26 @@ static int dissect_block_hop_count(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     proto_tree_add_cbor_uint64(tree, hf_hop_count_current, pinfo, tvb, chunk, current);
 
     return offset;
+}
+
+static gboolean btsd_heur_cbor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
+    gint offset = 0;
+
+    // check exactly one item
+    wscbor_skip_next_item(wmem_packet_scope(), tvb, &offset);
+    if ((guint)offset == tvb_reported_length(tvb)) {
+        call_dissector(handle_cbor, tvb, pinfo, tree);
+        return TRUE;
+    }
+
+    // attempt a multi-item sequence
+    TRY {
+        offset = call_dissector(handle_cborseq, tvb, pinfo, tree);
+    }
+    CATCH_ALL {}
+    ENDTRY;
+
+    return ((guint)offset == tvb_reported_length(tvb));
 }
 
 /// Clear state when new file scope is entered
@@ -1938,17 +1972,23 @@ void proto_register_bpv7(void) {
         &bundle_reassembly_table_functions
     );
 
+    btsd_heur = register_heur_dissector_list("bpv7.btsd", proto_bp);
 
     proto_bp_admin = proto_register_protocol(
         "BPv7 Administrative Record", /* name */
         "BPv7 Admin", /* short name */
         "bpv7.admin_rec" /* abbrev */
     );
+    handle_admin = create_dissector_handle(dissect_payload_admin, proto_bp_admin);
     admin_dissectors = register_custom_dissector_table("bpv7.admin_record_type", "BPv7 Administrative Record Type", proto_bp_admin, g_int64_hash, g_int64_equal);
 }
 
 void proto_reg_handoff_bpv7(void) {
+    const int proto_cbor = proto_get_id_by_filter_name("cbor");
+    heur_dissector_add("bpv7.btsd", btsd_heur_cbor, "CBOR in Bundle BTSD", "cbor_bpv7", proto_cbor, HEURISTIC_ENABLE);
+
     handle_cbor = find_dissector("cbor");
+    handle_cborseq = find_dissector("cborseq");
 
     /* Packaged extensions */
     {
