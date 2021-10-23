@@ -240,6 +240,10 @@ dissect_grpc_message(tvbuff_t *tvb, guint offset, guint length, packet_info *pin
     message_length = length - 5;  /* should be equal to tvb_get_ntohl(tvb, offset) */
     offset += 4;
 
+    if (message_length == 0) {
+        return offset;
+    }
+
     /* uncompressed message data if compressed_flag is set */
     if (compressed_flag & GRPC_COMPRESSED) {
         if (can_uncompress_body(pinfo, &compression_method)) {
