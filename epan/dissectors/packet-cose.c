@@ -397,8 +397,9 @@ static void dissect_header_pair(dissector_table_t dis_table, cose_header_context
 
     gint sublen = 0;
     if (dissector) {
-        sublen = call_dissector_with_data(dissector, tvb_value, pinfo, tree_label, ctx);
-        if ((sublen < 0) || ((guint)sublen < tvb_captured_length(tvb_value))) {
+        sublen = call_dissector_only(dissector, tvb_value, pinfo, tree_label, ctx);
+        if ((sublen < 0) ||
+            ((sublen > 0) && ((guint)sublen < tvb_reported_length(tvb_value)))) {
             expert_add_info(pinfo, proto_tree_get_parent(tree), &ei_value_partial_decode);
         }
     }
@@ -698,7 +699,7 @@ static int dissect_cose_msg_tagged(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             continue;
         }
         g_log(LOG_DOMAIN, G_LOG_LEVEL_INFO, "main dissector using tag %" G_GUINT64_FORMAT, tag->value);
-        int sublen = call_dissector_with_data(dissector, tvb, pinfo, tree, tag);
+        int sublen = call_dissector_only(dissector, tvb, pinfo, tree, tag);
         if (sublen > 0) {
             return sublen;
         }
