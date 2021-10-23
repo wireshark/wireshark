@@ -113,6 +113,8 @@ The following features are new (or have been significantly updated) since versio
 
 * Corrected calculation of mean jitter in RTP Stream Analysis dialog and IAX2 Stram Analysis dialog
 
+* RTP streams are created based on Skinny protocol messages
+
 // === Removed Features and Support
 
 // === Removed Dissectors

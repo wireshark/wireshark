@@ -2267,6 +2267,26 @@ dissect_skinny_ipv4or6(ptvcursor_t *cursor, int hfindex_ipv4, int hfindex_ipv6)
   }
 }
 
+/* Reads address to provided variable */
+static void
+read_skinny_ipv4or6(ptvcursor_t *cursor, address *media_addr)
+{
+  guint32            ipversion   = 0;
+  guint32            offset      = ptvcursor_current_offset(cursor);
+  tvbuff_t           *tvb        = ptvcursor_tvbuff(cursor);
+  guint32            hdr_version = tvb_get_letohl(tvb, 4);
+
+  /* ProtocolVersion > 18 include and extra field to declare IPv4 (0) / IPv6 (1) */
+  if (hdr_version >= V17_MSG_TYPE) {
+    ipversion = tvb_get_letohl(tvb, offset);
+  }
+  if (ipversion == IPADDRTYPE_IPV4) {
+    set_address_tvb(media_addr, AT_IPv4, 4, tvb, offset+4);
+  } else if (ipversion == IPADDRTYPE_IPV6 || ipversion == IPADDRTYPE_IPV4_V6) {
+    set_address_tvb(media_addr, AT_IPv6, 16, tvb, offset);
+  }
+}
+
 /**
  * Parse a displayLabel string and check if it is using any embedded labels, if so lookup the label and add a user readable translation to the item_tree
  */
@@ -2773,10 +2793,17 @@ handle_OpenReceiveChannelAckMessage(ptvcursor_t *cursor, packet_info * pinfo _U_
 {
   guint32 hdr_data_length = tvb_get_letohl(ptvcursor_tvbuff(cursor), 0);
   guint32 passThroughPartyId = 0;
+  address media_addr;
+  guint16 media_port = 0;
 
   si->mediaReceptionStatus = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_mediaReceptionStatus, 4, ENC_LITTLE_ENDIAN);
+  read_skinny_ipv4or6(cursor, &media_addr);
   dissect_skinny_ipv4or6(cursor, hf_skinny_ipAddr_ipv4, hf_skinny_ipAddr_ipv6);
+  media_port = (guint16)tvb_get_guint32(ptvcursor_tvbuff(cursor),
+    ptvcursor_current_offset(cursor), ENC_LITTLE_ENDIAN);
+  srtp_add_address(pinfo, PT_UDP, &media_addr, media_port, 0,
+    "SKINNY", pinfo->num, false, NULL, NULL, NULL);
   ptvcursor_add(cursor, hf_skinny_portNumber, 4, ENC_LITTLE_ENDIAN);
   passThroughPartyId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   si->passThroughPartyId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
@@ -4557,12 +4584,19 @@ handle_StartMediaTransmissionMessage(ptvcursor_t *cursor, packet_info * pinfo _U
   guint32 compressionType = 0;
   guint16 keylen = 0;
   guint16 saltlen = 0;
+  address media_addr;
+  guint16 media_port = 0;
 
   ptvcursor_add(cursor, hf_skinny_conferenceId, 4, ENC_LITTLE_ENDIAN);
   passThroughPartyId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   si->passThroughPartyId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_passThroughPartyId, 4, ENC_LITTLE_ENDIAN);
+  read_skinny_ipv4or6(cursor, &media_addr);
   dissect_skinny_ipv4or6(cursor, hf_skinny_remoteIpAddr_ipv4, hf_skinny_remoteIpAddr_ipv6);
+  media_port = (guint16)tvb_get_guint32(ptvcursor_tvbuff(cursor),
+    ptvcursor_current_offset(cursor), ENC_LITTLE_ENDIAN);
+  srtp_add_address(pinfo, PT_UDP, &media_addr, media_port, 0,
+    "SKINNY", pinfo->num, false, NULL, NULL, NULL);
   ptvcursor_add(cursor, hf_skinny_remotePortNumber, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_milliSecondPacketSize, 4, ENC_LITTLE_ENDIAN);
   compressionType = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
@@ -5227,6 +5261,8 @@ handle_OpenReceiveChannelMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, s
   guint32 hdr_version = tvb_get_letohl(ptvcursor_tvbuff(cursor), 4);
   guint16 keylen = 0;
   guint16 saltlen = 0;
+  address media_addr;
+  guint16 media_port = 0;
 
   ptvcursor_add(cursor, hf_skinny_conferenceId, 4, ENC_LITTLE_ENDIAN);
   passThroughPartyId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
@@ -5309,7 +5345,12 @@ handle_OpenReceiveChannelMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, s
   if (hdr_version >= V11_MSG_TYPE) {
     ptvcursor_add(cursor, hf_skinny_mixingMode, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_add(cursor, hf_skinny_partyDirection, 4, ENC_LITTLE_ENDIAN);
+    read_skinny_ipv4or6(cursor, &media_addr);
     dissect_skinny_ipv4or6(cursor, hf_skinny_sourceIpAddr_ipv4, hf_skinny_sourceIpAddr_ipv6);
+    media_port = (guint16)tvb_get_guint32(ptvcursor_tvbuff(cursor),
+      ptvcursor_current_offset(cursor), ENC_LITTLE_ENDIAN);
+    srtp_add_address(pinfo, PT_UDP, &media_addr, media_port, 0,
+      "SKINNY", pinfo->num, false, NULL, NULL, NULL);
     ptvcursor_add(cursor, hf_skinny_sourcePortNumber, 4, ENC_LITTLE_ENDIAN);
   }
   if (hdr_version >= V16_MSG_TYPE) {
@@ -7583,13 +7624,21 @@ static void
 handle_StartMediaTransmissionAckMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_conv_info_t * skinny_conv _U_)
 {
   guint32 passThroughPartyId = 0;
+  address media_addr;
+  guint16 media_port = 0;
+
   ptvcursor_add(cursor, hf_skinny_conferenceId, 4, ENC_LITTLE_ENDIAN);
   passThroughPartyId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   si->passThroughPartyId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_passThroughPartyId, 4, ENC_LITTLE_ENDIAN);
   si->callId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_callReference, 4, ENC_LITTLE_ENDIAN);
+  read_skinny_ipv4or6(cursor, &media_addr);
   dissect_skinny_ipv4or6(cursor, hf_skinny_transmitIpAddr_ipv4, hf_skinny_transmitIpAddr_ipv6);
+  media_port = (guint16)tvb_get_guint32(ptvcursor_tvbuff(cursor),
+    ptvcursor_current_offset(cursor), ENC_LITTLE_ENDIAN);
+  srtp_add_address(pinfo, PT_UDP, &media_addr, media_port, 0,
+    "SKINNY", pinfo->num, false, NULL, NULL, NULL);
   ptvcursor_add(cursor, hf_skinny_portNumber, 4, ENC_LITTLE_ENDIAN);
   si->mediaTransmissionStatus = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_mediaTransmissionStatus, 4, ENC_LITTLE_ENDIAN);
