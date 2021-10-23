@@ -5438,6 +5438,7 @@ dissect_dcerpc_cn_rts(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     }
 }
 
+/* Test to see if this looks like a connection oriented PDU */
 static gboolean
 is_dcerpc(tvbuff_t *tvb, int offset, packet_info *pinfo _U_)
 {
@@ -5445,6 +5446,7 @@ is_dcerpc(tvbuff_t *tvb, int offset, packet_info *pinfo _U_)
     guint8 rpc_ver_minor;
     guint8 ptype;
     guint8 drep[4];
+    guint16 frag_len;
 
     if (!tvb_bytes_exist(tvb, offset, sizeof(e_dce_cn_common_hdr_t)))
         return FALSE;   /* not enough information to check */
@@ -5466,6 +5468,11 @@ is_dcerpc(tvbuff_t *tvb, int offset, packet_info *pinfo _U_)
         return FALSE;
     if (drep[1] > DCE_RPC_DREP_FP_IBM)
         return FALSE;
+    offset += (int)sizeof(drep);
+    frag_len = dcerpc_tvb_get_ntohs(tvb, offset, drep);
+    if (frag_len < sizeof(e_dce_cn_common_hdr_t)) {
+        return FALSE;
+    }
 
     return TRUE;
 }
@@ -5861,15 +5868,24 @@ dissect_dcerpc_cn_bs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 
 static guint
 get_dcerpc_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
-                   int offset _U_, void *data _U_)
+                   int offset, void *data _U_)
 {
     guint8 drep[4];
     guint16 frag_len;
 
-    /* XXX: why does htis not take offset into account? */
-    tvb_memcpy(tvb, (guint8 *)drep, 4, sizeof(drep));
-    frag_len = dcerpc_tvb_get_ntohs(tvb, 8, drep);
+    tvb_memcpy(tvb, (guint8 *)drep, offset+4, sizeof(drep));
+    frag_len = dcerpc_tvb_get_ntohs(tvb, offset+8, drep);
 
+    if (!frag_len) {
+        /* tcp_dissect_pdus() interprets a 0 return value as meaning
+         * "a PDU starts here, but the length cannot be determined yet, so
+         * we need at least one more segment." However, a frag_len of 0 here
+         * is instead a bogus length. Instead return 1, another bogus length
+         * also less than our fixed length, so that the TCP dissector will
+         * correctly interpret it as a bogus and report an error.
+         */
+        frag_len = 1;
+    }
     return frag_len;
 }
 
@@ -5895,7 +5911,7 @@ dissect_dcerpc_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     decode_data = dcerpc_get_decode_data(pinfo);
     decode_data->dcetransporttype = DCE_TRANSPORT_UNKNOWN;
 
-    tcp_dissect_pdus(tvb, pinfo, tree, dcerpc_cn_desegment, 10, get_dcerpc_pdu_len, dissect_dcerpc_pdu, data);
+    tcp_dissect_pdus(tvb, pinfo, tree, dcerpc_cn_desegment, sizeof(e_dce_cn_common_hdr_t), get_dcerpc_pdu_len, dissect_dcerpc_pdu, data);
     return TRUE;
 }
 
@@ -5907,7 +5923,7 @@ dissect_dcerpc_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     decode_data = dcerpc_get_decode_data(pinfo);
     decode_data->dcetransporttype = DCE_TRANSPORT_UNKNOWN;
 
-    tcp_dissect_pdus(tvb, pinfo, tree, dcerpc_cn_desegment, 10, get_dcerpc_pdu_len, dissect_dcerpc_pdu, data);
+    tcp_dissect_pdus(tvb, pinfo, tree, dcerpc_cn_desegment, sizeof(e_dce_cn_common_hdr_t), get_dcerpc_pdu_len, dissect_dcerpc_pdu, data);
     return tvb_captured_length(tvb);
 }
 
