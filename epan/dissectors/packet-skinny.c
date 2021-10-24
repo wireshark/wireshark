@@ -2283,7 +2283,7 @@ read_skinny_ipv4or6(ptvcursor_t *cursor, address *media_addr)
   if (ipversion == IPADDRTYPE_IPV4) {
     set_address_tvb(media_addr, AT_IPv4, 4, tvb, offset+4);
   } else if (ipversion == IPADDRTYPE_IPV6 || ipversion == IPADDRTYPE_IPV4_V6) {
-    set_address_tvb(media_addr, AT_IPv6, 16, tvb, offset);
+    set_address_tvb(media_addr, AT_IPv6, 16, tvb, offset+4);
   }
 }
 
