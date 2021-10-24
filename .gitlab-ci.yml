@@ -285,6 +285,7 @@ Debian Stable APT Package:
     - export DH_QUIET=1
     - export MAKEFLAGS=--silent
     - dpkg-buildpackage -b --no-sign -jauto
+    - lintian --suppress-tags library-not-linked-against-libc,copyright-excludes-files-in-native-package --display-experimental --display-info --pedantic --profile debian
     - mkdir debian-packages
     - mv ../*.deb debian-packages/
   artifacts:
@@ -540,7 +541,6 @@ Ubuntu .dpkg:
     # build-ubuntu puts us in `build`.
     - cd ..
     - CC=/usr/lib/ccache/gcc CXX=/usr/lib/ccache/g++ MAKE=ninja dpkg-buildpackage -us -uc -rfakeroot -jauto -Zgzip -zfast
-    - lintian --suppress-tags library-not-linked-against-libc,copyright-excludes-files-in-native-package --display-experimental --display-info --pedantic --profile debian
   after_script:
     # dpkg-buildpackage builds in obj-<triplet>, so we need to override
     # .build-ubuntu. We also build more stuff, so decrease our multiplier.
