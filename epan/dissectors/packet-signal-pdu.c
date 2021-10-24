@@ -371,7 +371,7 @@ proto_reg_handoff_signal_pdu_pdu_transport(void) {
     }
 }
 
-void
+static void
 register_signal_pdu_ipdum_ids(void) {
     if (signal_pdu_handle_ipdum == NULL) {
         return;
