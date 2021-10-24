@@ -135,6 +135,11 @@ Wireshark 3.6.0 Release Notes
      • Reload Lua plugins has been improved to properly support
        FileHandler.
 
+     • Corrected calculation of mean jitter in RTP Stream Analysis
+       dialog and IAX2 Stram Analysis dialog
+
+     • RTP streams are created based on Skinny protocol messages
+
   New File Format Decoding Support
 
    Vector Informatik Binary Log File (BLF)
@@ -142,21 +147,22 @@ Wireshark 3.6.0 Release Notes
   New Protocol Support
 
    5G Lawful Interception (5GLI), Bluetooth Link Manager Protocol (BT
-   LMP), CBOR Object Signing and Encryption (COSE), E2 Application
-   Protocol (E2AP), Event Tracing for Windows (ETW), EXtreme extra Eth
-   Header (EXEH), High-Performance Connectivity Tracer (HiPerConTracer),
-   ISO 10681, Kerberos SPAKE, Linux psample protocol, Local Interconnect
-   Network (LIN), Microsoft Task Scheduler Service, O-RAN E2AP, O-RAN
-   fronthaul UC-plane (O-RAN), Opus Interactive Audio Codec (OPUS), PDU
-   Transport Protocol, R09.x (R09), RDP Dynamic Channel Protocol
-   (DRDYNVC), RDP Graphic pipeline channel Protocol (EGFX), RDP
-   Multi-transport (RDPMT), Real-Time Publish-Subscribe Virtual
-   Transport (RTPS-VT), Real-Time Publish-Subscribe Wire Protocol
-   (processed) (RTPS-PROC), Shared Memory Communications (SMC), Signal
-   PDU, SparkplugB, State Synchronization Protocol (SSyncP), Tagged
-   Image File Format (TIFF), TP-Link Smart Home Protocol, UAVCAN DSDL,
-   UAVCAN/CAN, UDP Remote Desktop Protocol (RDPUDP), Van Jacobson PPP
-   compression (VJC), World of Warcraft World (WOWW), and X2 xIRI
+   LMP), Bundle Protocol version 7 (BPv7), Bundle Protocol version 7
+   Security (BPSec), CBOR Object Signing and Encryption (COSE), E2
+   Application Protocol (E2AP), Event Tracing for Windows (ETW), EXtreme
+   extra Eth Header (EXEH), High-Performance Connectivity Tracer
+   (HiPerConTracer), ISO 10681, Kerberos SPAKE, Linux psample protocol,
+   Local Interconnect Network (LIN), Microsoft Task Scheduler Service,
+   O-RAN E2AP, O-RAN fronthaul UC-plane (O-RAN), Opus Interactive Audio
+   Codec (OPUS), PDU Transport Protocol, R09.x (R09), RDP Dynamic
+   Channel Protocol (DRDYNVC), RDP Graphic pipeline channel Protocol
+   (EGFX), RDP Multi-transport (RDPMT), Real-Time Publish-Subscribe
+   Virtual Transport (RTPS-VT), Real-Time Publish-Subscribe Wire
+   Protocol (processed) (RTPS-PROC), Shared Memory Communications (SMC),
+   Signal PDU, SparkplugB, State Synchronization Protocol (SSyncP),
+   Tagged Image File Format (TIFF), TP-Link Smart Home Protocol, UAVCAN
+   DSDL, UAVCAN/CAN, UDP Remote Desktop Protocol (RDPUDP), Van Jacobson
+   PPP compression (VJC), World of Warcraft World (WOWW), and X2 xIRI
    payload (xIRI)
 
   Updated Protocol Support
@@ -183,8 +189,9 @@ Wireshark 3.6.0 Release Notes
 
   Wireshark and TShark look in several different locations for
   preference files, plugins, SNMP MIBS, and RADIUS dictionaries. These
-  locations vary from platform to platform. You can use About → Folders
-  to find the default locations on your system.
+  locations vary from platform to platform. You can use Help › About
+  Wireshark › Folders or tshark -G folders to find the default locations
+  on your system.
 
  Getting Help
 
@@ -201,7 +208,7 @@ Wireshark 3.6.0 Release Notes
 
   A complete FAQ is available on the Wireshark web site[8].
 
-  Last updated 2021-10-17 09:32:29 UTC
+  Last updated 2021-10-24 17:31:21 UTC
 
  References
 
@@ -209,9 +216,9 @@ Wireshark 3.6.0 Release Notes
   .html
    2. https://www.wireshark.org/docs/wsug_html_chunked/_rtp.html#ChTelRt
   pPlayer
-   3. https://www.wireshark.org/docs/wsug_html_chunked//ChAdvFollowStrea
-  mSection.html
-   4. https://www.wireshark.org/download.html#thirdparty
+   3. https://www.wireshark.org/docs/wsug_html_chunked/ChAdvFollowStream
+  Section.html
+   4. https://www.wireshark.org/download.html
    5. https://ask.wireshark.org/
    6. https://www.wireshark.org/lists/
    7. https://gitlab.com/wireshark/wireshark/-/issues
