@@ -296,7 +296,6 @@ void MainWindow::filterPackets(QString new_filter, bool force)
     cf_status = cf_filter_packets(CaptureFile::globalCapFile(), new_filter.toUtf8().data(), force);
 
     if (cf_status == CF_OK) {
-        emit displayFilterSuccess(true);
         if (new_filter.length() > 0) {
             int index = df_combo_box_->findText(new_filter);
             if (index == -1) {
@@ -308,6 +307,9 @@ void MainWindow::filterPackets(QString new_filter, bool force)
         } else {
             df_combo_box_->lineEdit()->clear();
         }
+        // Only after the display filter has been updated,
+        // disable the arrow button
+        emit displayFilterSuccess(true);
     } else {
         emit displayFilterSuccess(false);
     }
