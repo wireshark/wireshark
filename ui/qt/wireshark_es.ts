@@ -689,7 +689,7 @@
     </message>
     <message>
         <source>Unknown</source>
-        <translation type="unfinished">Desconocida</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Adapter %1</source>
@@ -938,7 +938,7 @@
     </message>
     <message>
         <source>Unknown</source>
-        <translation type="unfinished">Desconocida</translation>
+        <translation>Desconocido</translation>
     </message>
     <message>
         <source>File</source>
@@ -974,7 +974,7 @@
     </message>
     <message>
         <source>Snapshot length</source>
-        <translation type="unfinished"></translation>
+        <translation>Longitud de instantánea</translation>
     </message>
     <message>
         <source>Time</source>
@@ -1094,15 +1094,15 @@
     </message>
     <message>
         <source>Section Comment</source>
-        <translation type="unfinished"></translation>
+        <translation>Sección de comentarios</translation>
     </message>
     <message>
         <source>Packet Comments</source>
-        <translation type="unfinished"></translation>
+        <translation>Comentarios de paquete</translation>
     </message>
     <message>
         <source>&lt;p&gt;Frame %1: </source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;Trama %1:</translation>
     </message>
     <message>
         <source>Created by Wireshark %1
@@ -3401,7 +3401,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Snapshot length</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Longitud de instantánea</translation>
     </message>
     <message>
         <source>Data</source>
@@ -6306,7 +6306,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Packet Comments</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Comentarios de paquete</translation>
     </message>
     <message>
         <source>Main Toolbar</source>
@@ -6358,8 +6358,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Rawshark</source>
-        <oldsource>RawShark</oldsource>
-        <translation type="unfinished">RawShark</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Dumpcap</source>
@@ -8488,7 +8487,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Snapshot length</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Longitud de instantánea</translation>
     </message>
     <message>
         <source>Data</source>
@@ -9958,7 +9957,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Unknown</source>
-        <translation type="unfinished">Desconocida</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>UE Id</source>
@@ -11205,7 +11204,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Unknown</source>
-        <translation type="unfinished">Desconocida</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -12893,13 +12892,11 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
 <context>
     <name>SyntaxLineEdit</name>
     <message>
-        <source>&quot;%1&quot; is deprecated in favour of &quot;%2&quot;. See Help section 6.4.9 for details.</source>
-        <oldsource>&quot;%1&quot; is deprecated in favour of &quot;%2&quot;. See the User&apos;s Guide.</oldsource>
+        <source>&quot;%1&quot; is deprecated in favour of &quot;%2&quot;. See Help section 6.4.8 for details.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&quot;%1&quot; may have unexpected results. See Help section 6.4.8 for details.</source>
-        <oldsource>&quot;%1&quot; may have unexpected results. See the User&apos;s Guide.</oldsource>
+        <source>%1</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -13618,7 +13615,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Unknown</source>
-        <translation type="unfinished">Desconocida</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -14007,7 +14004,7 @@ text-decoration: none;
     </message>
     <message>
         <source>Show in Folder</source>
-        <translation type="unfinished">Mostrar en carpeta</translation>
+        <translation>Mostrar en carpeta</translation>
     </message>
     <message>
         <source>All interfaces shown</source>
@@ -14022,7 +14019,7 @@ text-decoration: none;
     </message>
     <message>
         <source>You are sniffing the glue that holds the Internet together using Wireshark </source>
-        <translation type="unfinished"></translation>
+        <translation>Está absorbiendo el pegamento que mantiene unido internet usando Wireshark</translation>
     </message>
     <message>
         <source>You are running Wireshark </source>
@@ -14034,7 +14031,7 @@ text-decoration: none;
     </message>
     <message>
         <source> You have disabled automatic updates.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ha desactivado actualizaciones automáticas</translation>
     </message>
     <message>
         <source>not found</source>

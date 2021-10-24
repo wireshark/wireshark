@@ -140,27 +140,48 @@ Wireshark 3.7.0 Release Notes
        contains aa:bb" tries to match "aa:bb". Avoid this usage, always
        use double-quotes: http.user_agent contains "\xaa\xbb".
 
+        • Regular expressions (using "matches" or "~") must be specified
+       using character strings. It is a syntax error to omit the
+       double-quotes around the regular expression. Before the syntax
+       rules of an unquoted regex string could be difficult to predict.
+
+        • The expression "a != b" now always has the same meaning as !(a
+       == b). In particular this means filter expressions with
+       multi-value fields like "ip.addr != 1.1.1.1" will work as
+       expected (the result is the same as typing "ip.src != 1.1.1.1 and
+       ip.dst != 1.1.1.1"). This avoids the contradiction (a == b and a
+       != b) being true.
+
+        • Use the syntax "a ~= b" or "a any_ne b" to recover the
+       previous (inconsistent with ==) logic for not equal.
+
+     • Corrected calculation of mean jitter in RTP Stream Analysis
+       dialog and IAX2 Stram Analysis dialog
+
+     • RTP streams are created based on Skinny protocol messages
+
   New File Format Decoding Support
 
    Vector Informatik Binary Log File (BLF)
 
   New Protocol Support
 
-   Bluetooth Link Manager Protocol (BT LMP), Bundle Protocol version 7
-   (BPv7), Bundle Protocol version 7 Security (BPSec), CBOR Object
-   Signing and Encryption (COSE), E2 Application Protocol (E2AP), Event
-   Tracing for Windows (ETW), High-Performance Connectivity Tracer
-   (HiPerConTracer), ISO 10681, Kerberos SPAKE, Linux psample protocol,
-   Local Interconnect Network (LIN), Microsoft Task Scheduler Service,
-   O-RAN E2AP, O-RAN fronthaul UC-plane (O-RAN), Opus Interactive Audio
-   Codec (OPUS), PDU Transport Protocol, R09.x (R09), RDP Dynamic
-   Channel Protocol (DRDYNVC), Real-Time Publish-Subscribe Virtual
-   Transport (RTPS-VT), Real-Time Publish-Subscribe Wire Protocol
-   (processed) (RTPS-PROC), Shared Memory Communications (SMC), Signal
-   PDU, SparkplugB, State Synchronization Protocol (SSyncP), Tagged
-   Image File Format (TIFF), TP-Link Smart Home Protocol, UAVCAN DSDL,
-   UAVCAN/CAN, Van Jacobson PPP compression (VJC), and World of Warcraft
-   World (WOWW)
+   Allied Telesis Loop Detection Frames (AT LDF), Bluetooth Link Manager
+   Protocol (BT LMP), Bundle Protocol version 7 (BPv7), Bundle Protocol
+   version 7 Security (BPSec), CBOR Object Signing and Encryption
+   (COSE), DTN TCP Convergence Layer version 4 (TCPCLv4), E2 Application
+   Protocol (E2AP), Event Tracing for Windows (ETW), High-Performance
+   Connectivity Tracer (HiPerConTracer), ISO 10681, Kerberos SPAKE,
+   Linux psample protocol, Local Interconnect Network (LIN), Microsoft
+   Task Scheduler Service, O-RAN E2AP, O-RAN fronthaul UC-plane (O-RAN),
+   Opus Interactive Audio Codec (OPUS), PDU Transport Protocol, R09.x
+   (R09), RDP Dynamic Channel Protocol (DRDYNVC), Real-Time
+   Publish-Subscribe Virtual Transport (RTPS-VT), Real-Time
+   Publish-Subscribe Wire Protocol (processed) (RTPS-PROC), Shared
+   Memory Communications (SMC), Signal PDU, SparkplugB, State
+   Synchronization Protocol (SSyncP), Tagged Image File Format (TIFF),
+   TP-Link Smart Home Protocol, UAVCAN DSDL, UAVCAN/CAN, Van Jacobson
+   PPP compression (VJC), and World of Warcraft World (WOWW)
 
   Updated Protocol Support
 
@@ -205,7 +226,7 @@ Wireshark 3.7.0 Release Notes
 
   A complete FAQ is available on the Wireshark web site[8].
 
-  Last updated 2021-10-17 09:05:37 UTC
+  Last updated 2021-10-24 16:54:11 UTC
 
  References
 

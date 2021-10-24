@@ -6401,8 +6401,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Rawshark</source>
-        <oldsource>RawShark</oldsource>
-        <translation type="unfinished">RawShark</translation>
+        <translation>Rawshark</translation>
     </message>
     <message>
         <source>Dumpcap</source>
@@ -12969,14 +12968,12 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 <context>
     <name>SyntaxLineEdit</name>
     <message>
-        <source>&quot;%1&quot; is deprecated in favour of &quot;%2&quot;. See Help section 6.4.9 for details.</source>
-        <oldsource>&quot;%1&quot; is deprecated in favour of &quot;%2&quot;. See the User&apos;s Guide.</oldsource>
-        <translation type="unfinished">&quot;%1&quot;, &quot;%2&quot; yerine kullanımdan kaldırıldı. Kullanım Kılavuzuna bakın.</translation>
+        <source>&quot;%1&quot; is deprecated in favour of &quot;%2&quot;. See Help section 6.4.8 for details.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&quot;%1&quot; may have unexpected results. See Help section 6.4.8 for details.</source>
-        <oldsource>&quot;%1&quot; may have unexpected results. See the User&apos;s Guide.</oldsource>
-        <translation type="unfinished">&quot;%1&quot; beklenmeyen sonuçlara sahip olabilir. Kullanım Kılavuzuna bakın.</translation>
+        <source>%1</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

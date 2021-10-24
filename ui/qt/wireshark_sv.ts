@@ -723,7 +723,7 @@
     <name>ByteViewText</name>
     <message>
         <source>Allow hover selection</source>
-        <translation type="unfinished"></translation>
+        <translation>Tillåt håll över-val</translation>
     </message>
     <message>
         <source>Show bytes as hexadecimal</source>
@@ -731,7 +731,7 @@
     </message>
     <message>
         <source>…as bits</source>
-        <translation type="unfinished"></translation>
+        <translation>… som bitar</translation>
     </message>
     <message>
         <source>Show text based on packet</source>
@@ -739,11 +739,11 @@
     </message>
     <message>
         <source>…as ASCII</source>
-        <translation type="unfinished"></translation>
+        <translation>… som ASCII</translation>
     </message>
     <message>
         <source>…as EBCDIC</source>
-        <translation type="unfinished"></translation>
+        <translation>… som EBCDIC</translation>
     </message>
 </context>
 <context>
@@ -888,11 +888,11 @@
     </message>
     <message>
         <source>Unknown file type returned by save as dialog.</source>
-        <translation type="unfinished"></translation>
+        <translation>Okänd filtyp returnerad av spara som-dialogen.</translation>
     </message>
     <message>
         <source>Please report this as a Wireshark issue at https://gitlab.com/wireshark/wireshark/-/issues.</source>
-        <translation type="unfinished"></translation>
+        <translation>Rapportera gärna detta som ett problem med Wireshark på https://gitlab.com/wireshark/wireshark/-/issues.</translation>
     </message>
     <message>
         <source>directory</source>
@@ -1057,7 +1057,7 @@
     </message>
     <message>
         <source>Packet size limit (snaplen)</source>
-        <translation type="unfinished"></translation>
+        <translation>Storleksgräns på paket (snaplen)</translation>
     </message>
     <message>
         <source>none</source>
@@ -1363,15 +1363,15 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>compression</source>
-        <translation type="unfinished"></translation>
+        <translation>komprimering</translation>
     </message>
     <message>
         <source>None</source>
-        <translation type="unfinished"></translation>
+        <translation>Ingen</translation>
     </message>
     <message>
         <source>gzip</source>
-        <translation type="unfinished"></translation>
+        <translation>gzip</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;After capturing has switched to the next file and the given number of files has exceeded, the oldest file will be removed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -1644,11 +1644,11 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Import…</source>
-        <translation type="unfinished"></translation>
+        <translation>Importera …</translation>
     </message>
     <message>
         <source>Export…</source>
-        <translation type="unfinished"></translation>
+        <translation>Exportera …</translation>
     </message>
     <message>
         <source>Copy coloring rules from another profile.</source>
@@ -1757,7 +1757,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Field Occurrence</source>
-        <translation type="unfinished"></translation>
+        <translation>Fältförekomst</translation>
     </message>
     <message>
         <source>New Column</source>
@@ -1806,7 +1806,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <name>ConversationDialog</name>
     <message>
         <source>Follow Stream…</source>
-        <translation type="unfinished"></translation>
+        <translation>Följ strömmen …</translation>
     </message>
     <message>
         <source>Follow a TCP or UDP stream.</source>
@@ -1814,7 +1814,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Graph…</source>
-        <translation type="unfinished"></translation>
+        <translation>Graf …</translation>
     </message>
     <message>
         <source>Graph a TCP conversation.</source>
@@ -1901,7 +1901,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>…as Hex Dump</source>
-        <translation type="unfinished"></translation>
+        <translation>… som hexdump</translation>
     </message>
     <message>
         <source>Copy packet bytes as a hex dump.</source>
@@ -1909,7 +1909,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>…as Printable Text</source>
-        <translation type="unfinished"></translation>
+        <translation>… som skrivbar text</translation>
     </message>
     <message>
         <source>Copy only the printable text in the packet.</source>
@@ -1917,7 +1917,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>…as a Hex Stream</source>
-        <translation type="unfinished"></translation>
+        <translation>… som en hex-ström</translation>
     </message>
     <message>
         <source>Copy packet bytes as a stream of hex.</source>
@@ -1925,7 +1925,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>…as Raw Binary</source>
-        <translation type="unfinished"></translation>
+        <translation>… som rå binär</translation>
     </message>
     <message>
         <source>Copy packet bytes as application/octet-stream MIME data.</source>
@@ -1933,7 +1933,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>…as Escaped String</source>
-        <translation type="unfinished"></translation>
+        <translation>… som sträng med flyktföljder</translation>
     </message>
     <message>
         <source>Copy packet bytes as an escaped string.</source>
@@ -1960,7 +1960,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Decode As…</source>
-        <translation type="unfinished"></translation>
+        <translation>Avkoda som …</translation>
     </message>
     <message>
         <source>Open </source>
@@ -2049,7 +2049,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Display Filter Expression…</source>
-        <translation type="unfinished">Visningsfilteruttryck …</translation>
+        <translation>Visa filteruttryck …</translation>
     </message>
     <message>
         <source>Apply a display filter %1 &lt;%2/&gt;</source>
@@ -2323,7 +2323,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Save As…</source>
-        <translation type="unfinished"></translation>
+        <translation>Spara som …</translation>
     </message>
     <message>
         <source>Map file error</source>
@@ -2589,11 +2589,11 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Save Object As…</source>
-        <translation type="unfinished"></translation>
+        <translation>Spara objekt som …</translation>
     </message>
     <message>
         <source>Save All Objects In…</source>
-        <translation type="unfinished"></translation>
+        <translation>Spara alla objekt i …</translation>
     </message>
 </context>
 <context>
@@ -2761,19 +2761,19 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>…and Selected</source>
-        <translation type="unfinished"></translation>
+        <translation>… och valda</translation>
     </message>
     <message>
         <source>…or Selected</source>
-        <translation type="unfinished"></translation>
+        <translation>… eller valda</translation>
     </message>
     <message>
         <source>…and not Selected</source>
-        <translation type="unfinished"></translation>
+        <translation>… och inte valda</translation>
     </message>
     <message>
         <source>…or not Selected</source>
-        <translation type="unfinished"></translation>
+        <translation>… eller inte valda</translation>
     </message>
 </context>
 <context>
@@ -3877,7 +3877,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Save As…</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Spara som …</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -5962,7 +5962,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Save As…</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Spara som …</translation>
     </message>
     <message>
         <source>%1 %2 (%3s seq %4 len %5)</source>
@@ -6422,8 +6422,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Rawshark</source>
-        <oldsource>RawShark</oldsource>
-        <translation type="unfinished">RawShark</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Dumpcap</source>
@@ -8102,7 +8101,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Please report this as a Wireshark issue at https://gitlab.com/wireshark/wireshark/-/issues.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Rapportera gärna detta som ett problem med Wireshark på https://gitlab.com/wireshark/wireshark/-/issues.</translation>
     </message>
     <message>
         <source>Unknown file type returned by export dialog.</source>
@@ -8896,7 +8895,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Decode As…</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Avkoda som …</translation>
     </message>
     <message>
         <source>Frame %1: %2
@@ -9767,19 +9766,19 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>…and Selected</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">… och valda</translation>
     </message>
     <message>
         <source>…or Selected</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">… eller valda</translation>
     </message>
     <message>
         <source>…and not Selected</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">… och inte valda</translation>
     </message>
     <message>
         <source>…or not Selected</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">… eller inte valda</translation>
     </message>
     <message>
         <source>A </source>
@@ -13003,14 +13002,12 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
 <context>
     <name>SyntaxLineEdit</name>
     <message>
-        <source>&quot;%1&quot; is deprecated in favour of &quot;%2&quot;. See Help section 6.4.9 for details.</source>
-        <oldsource>&quot;%1&quot; is deprecated in favour of &quot;%2&quot;. See the User&apos;s Guide.</oldsource>
-        <translation type="unfinished">”%1” bör undvikas till förmån för ”%2”.  Se användarmanualen.</translation>
+        <source>&quot;%1&quot; is deprecated in favour of &quot;%2&quot;. See Help section 6.4.8 for details.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&quot;%1&quot; may have unexpected results. See Help section 6.4.8 for details.</source>
-        <oldsource>&quot;%1&quot; may have unexpected results. See the User&apos;s Guide.</oldsource>
-        <translation type="unfinished">”%1” kan ha oväntad effekt.  Se användarmanualen.</translation>
+        <source>%1</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -13520,7 +13517,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Save As…</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Spara som …</translation>
     </message>
     <message>
         <source>No Capture Data</source>
