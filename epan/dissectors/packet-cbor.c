@@ -699,7 +699,8 @@ dissect_cbor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 	cbor_tree = proto_item_add_subtree(cbor_root, ett_cbor);
 	dissect_cbor_main_type(tvb, pinfo, cbor_tree, &offset);
 
-	return tvb_captured_length(tvb);
+	proto_item_set_len(cbor_root, offset);
+	return offset;
 }
 
 static int
