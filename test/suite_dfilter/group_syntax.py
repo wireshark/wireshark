@@ -78,3 +78,11 @@ class case_syntax(unittest.TestCase):
     def test_not_equal_4(self, checkDFilterCount):
         dfilter = 'ip.addr != 10.0.0.5 or ip.addr != 207.46.134.94'
         checkDFilterCount(dfilter, 0)
+
+    def test_deprecated_1(self, checkDFilterSucceed):
+        dfilter = "http && udp || tcp"
+        checkDFilterSucceed(dfilter, "suggest parentheses around")
+
+    def test_deprecated_2(self, checkDFilterSucceed):
+        dfilter = "bootp"
+        checkDFilterSucceed(dfilter, "Deprecated tokens: \"bootp\"")
