@@ -115,8 +115,7 @@ The following features are new (or have been significantly updated) since versio
    contradiction (a == b and a != b) being true.
 ** Use the syntax "a ~= b" or "a any_ne b" to recover the previous (inconsistent with ==) logic for not equal.
 ** Adds support for the syntax "a not in b" as a synonym for "not a in b".
-** Set elements must now be separated using a comma (,). A filter such as http.request.method in {"GET" "HEAD"} must be written as ... in {"GET", "HEAD"}.
-   (Whitespace is of course optional.) The previous use of whitespace as separator is deprecated and will be removed in a future version.
+** Set elements must be separated using a comma, e.g: {1, 2, "foo"}. Using only whitespace as separator was deprecated in 3.6 and is now a syntax error.
 
 * Corrected calculation of mean jitter in RTP Stream Analysis dialog and IAX2 Stram Analysis dialog
 

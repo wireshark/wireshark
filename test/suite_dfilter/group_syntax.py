@@ -90,7 +90,3 @@ class case_syntax(unittest.TestCase):
     def test_deprecated_2(self, checkDFilterSucceed):
         dfilter = "bootp"
         checkDFilterSucceed(dfilter, "Deprecated tokens: \"bootp\"")
-
-    def test_deprecated_3(self, checkDFilterSucceed):
-        dfilter = "ip.version in {4 6}"
-        checkDFilterSucceed(dfilter, "Use ',' to separate set elements")

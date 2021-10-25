@@ -311,7 +311,6 @@ const char *tokenstr(int token)
 		case TOKEN_TEST_IN:	return "TEST_IN";
 		case TOKEN_LBRACE:	return "LBRACE";
 		case TOKEN_RBRACE:	return "RBRACE";
-		case TOKEN_WHITESPACE:	return "WHITESPACE";
 		case TOKEN_DOTDOT:	return "DOTDOT";
 		case TOKEN_LPAREN:	return "LPAREN";
 		case TOKEN_RPAREN:	return "RPAREN";
@@ -380,7 +379,6 @@ dfilter_compile(const gchar *text, dfilter_t **dfp, gchar **err_msg)
 
 	state.dfw = dfw;
 	state.quoted_string = NULL;
-	state.in_set = FALSE;
 	state.raw_string = FALSE;
 
 	df_set_extra(&state, scanner);

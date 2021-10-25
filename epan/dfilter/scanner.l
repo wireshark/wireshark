@@ -100,35 +100,14 @@ static int set_lval_str(int token, const char *token_value);
 
 %%
 
-[[:blank:]\n]+		{
-	/* Ignore whitespace, unless set elements are being parsed. Perhaps it
-	 * should have used commas from the beginning, but now we are stuck with
-	 * whitespace as separators. */
-	if (yyextra->in_set) {
-		return set_lval_str(TOKEN_WHITESPACE, " ");
-	}
-}
+[[:blank:]\n]+
 
 "("		return simple(TOKEN_LPAREN);
 ")"		return simple(TOKEN_RPAREN);
-
-[[:blank:]\n]*","[[:blank:]\n]*	{
-	return set_lval_str(TOKEN_COMMA, ",");
-}
-
-"{"[[:blank:]\n]*	{
-	yyextra->in_set = TRUE;
-	return set_lval_str(TOKEN_LBRACE, "{");
-}
-
-[[:blank:]\n]*".."[[:blank:]\n]*	{
-	return set_lval_str(TOKEN_DOTDOT, "..");
-}
-
-[[:blank:]\n]*"}"	{
-	yyextra->in_set = FALSE;
-	return set_lval_str(TOKEN_RBRACE, "}");
-}
+","		return simple(TOKEN_COMMA);
+"{"		return simple(TOKEN_LBRACE);
+".."		return simple(TOKEN_DOTDOT);
+"}"		return simple(TOKEN_RBRACE);
 
 "=="		return simple(TOKEN_TEST_ANY_EQ);
 "eq"		return simple(TOKEN_TEST_ANY_EQ);

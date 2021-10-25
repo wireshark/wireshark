@@ -256,16 +256,6 @@ set_list(L) ::= set_element(N).
 	L = g_slist_concat(NULL, N);
 }
 
-set_list(L) ::= set_list(P) WHITESPACE set_element(N).
-{
-	L = g_slist_concat(P, N);
-
-	add_deprecated_token(dfw,
-			"Use ',' to separate set elements. "
-			"The use of whitespace as separator in sets is "
-			"deprecated and will be removed in a future version.");
-}
-
 set_list(L) ::= set_list(P) COMMA set_element(N).
 {
 	L = g_slist_concat(P, N);
