@@ -65,20 +65,6 @@ static const example_s * all_examples[] = {
     &ex_false, &ex_true, &ex_null, &ex_undef, &ex_break
 };
 
-static wmem_map_t *real_errors = NULL;
-
-static gint has_real_errors(const wscbor_chunk_t *chunk) {
-    gint count = 0;
-    wmem_list_frame_t *frm = wmem_list_head(chunk->errors);
-    for (; frm; frm = wmem_list_frame_next(frm)) {
-        const wscbor_error_t *err = wmem_list_frame_data(frm);
-        if (wmem_map_contains(real_errors, err->ei)) {
-            count += 1;
-        }
-    }
-    return count;
-}
-
 /*
  * These test are organized in order of the appearance, in wscbor.h, of
  * the basic functions that they test.  This makes it easier to
@@ -100,7 +86,7 @@ wscbor_test_chunk_read_simple(void)
 
         wscbor_chunk_t *chunk = wscbor_chunk_read(test_scope, tvb, &offset);
         g_assert(chunk);
-        g_assert_cmpuint(has_real_errors(chunk), ==, 0);
+        g_assert_cmpuint(wscbor_has_errors(chunk), ==, 0);
 
         g_assert_cmpuint(chunk->head_length, ==, ex->head_length);
         g_assert_cmpuint(chunk->data_length, ==, ex->data_length);
@@ -132,7 +118,7 @@ wscbor_test_chunk_read_simple_tags(void)
 
         wscbor_chunk_t *chunk = wscbor_chunk_read(test_scope, tvb, &offset);
         g_assert(chunk);
-        g_assert_cmpuint(has_real_errors(chunk), ==, 0);
+        g_assert_cmpuint(wscbor_has_errors(chunk), ==, 0);
 
         g_assert_cmpuint(chunk->head_length, ==, ex->head_length + 3);
         g_assert_cmpuint(chunk->data_length, ==, ex->data_length + 3);
@@ -172,7 +158,7 @@ wscbor_test_chunk_read_invalid(void)
     { // last valid item
         wscbor_chunk_t *chunk = wscbor_chunk_read(test_scope, tvb, &offset);
         g_assert(chunk);
-        g_assert_cmpuint(has_real_errors(chunk), ==, 0);
+        g_assert_cmpuint(wscbor_has_errors(chunk), ==, 0);
         g_assert_cmpuint(chunk->type_major, ==, CBOR_TYPE_UINT);
         g_assert_cmpuint(chunk->head_value, ==, 2);
         wscbor_chunk_free(chunk);
@@ -220,17 +206,17 @@ wscbor_test_is_indefinite_break(void)
 
         wscbor_chunk_t *chunk = wscbor_chunk_read(test_scope, tvb, &offset);
         g_assert(chunk);
-        g_assert_cmpuint(has_real_errors(chunk), ==, 0);
+        g_assert_cmpuint(wscbor_has_errors(chunk), ==, 0);
 
         // this test never modifies the chunk
         const gboolean val = wscbor_is_indefinite_break(chunk);
         if (memcmp(ex->enc, "\xFF", 1) == 0) {
             g_assert(val);
-            g_assert_cmpuint(has_real_errors(chunk), ==, 0);
+            g_assert_cmpuint(wscbor_has_errors(chunk), ==, 0);
         }
         else {
             g_assert(!val);
-            g_assert_cmpuint(has_real_errors(chunk), ==, 0);
+            g_assert_cmpuint(wscbor_has_errors(chunk), ==, 0);
         }
 
         wscbor_chunk_free(chunk);
@@ -298,14 +284,14 @@ wscbor_test_require_major_type(void)
 
         wscbor_chunk_t *chunk = wscbor_chunk_read(test_scope, tvb, &offset);
         g_assert(chunk);
-        g_assert_cmpuint(has_real_errors(chunk), ==, 0);
+        g_assert_cmpuint(wscbor_has_errors(chunk), ==, 0);
 
         g_assert(wscbor_require_major_type(chunk, ex->type_major));
-        g_assert_cmpuint(has_real_errors(chunk), ==, 0);
+        g_assert_cmpuint(wscbor_has_errors(chunk), ==, 0);
 
         // any other type
         g_assert(!wscbor_require_major_type(chunk, ex->type_major + 1));
-        g_assert_cmpuint(has_real_errors(chunk), ==, 1);
+        g_assert_cmpuint(wscbor_has_errors(chunk), ==, 1);
 
         wscbor_chunk_free(chunk);
         tvb_free(tvb);
@@ -324,18 +310,18 @@ wscbor_test_require_boolean_simple(void)
 
         wscbor_chunk_t *chunk = wscbor_chunk_read(test_scope, tvb, &offset);
         g_assert(chunk);
-        g_assert_cmpuint(has_real_errors(chunk), ==, 0);
+        g_assert_cmpuint(wscbor_has_errors(chunk), ==, 0);
 
         const gboolean *val = wscbor_require_boolean(test_scope, chunk);
         if ((ex->type_major == CBOR_TYPE_FLOAT_CTRL)
                 && ((ex->head_value == CBOR_CTRL_FALSE) || (ex->head_value == CBOR_CTRL_TRUE))) {
             g_assert(val);
-            g_assert_cmpuint(has_real_errors(chunk), ==, 0);
+            g_assert_cmpuint(wscbor_has_errors(chunk), ==, 0);
             g_assert_cmpint(*val, ==, ex->head_value == CBOR_CTRL_TRUE);
         }
         else {
             g_assert(!val);
-            g_assert_cmpuint(has_real_errors(chunk), ==, 1);
+            g_assert_cmpuint(wscbor_has_errors(chunk), ==, 1);
         }
 
         wscbor_chunk_free(chunk);
@@ -355,22 +341,22 @@ wscbor_test_require_int64_simple(void)
 
         wscbor_chunk_t *chunk = wscbor_chunk_read(test_scope, tvb, &offset);
         g_assert(chunk);
-        g_assert_cmpuint(has_real_errors(chunk), ==, 0);
+        g_assert_cmpuint(wscbor_has_errors(chunk), ==, 0);
 
         const gint64 *val = wscbor_require_int64(test_scope, chunk);
         if (ex->type_major == CBOR_TYPE_UINT) {
             g_assert(val);
-            g_assert_cmpuint(has_real_errors(chunk), ==, 0);
+            g_assert_cmpuint(wscbor_has_errors(chunk), ==, 0);
             g_assert_cmpint(*val, ==, ex->head_value);
         }
         else if (ex->type_major == CBOR_TYPE_NEGINT) {
             g_assert(val);
-            g_assert_cmpuint(has_real_errors(chunk), ==, 0);
+            g_assert_cmpuint(wscbor_has_errors(chunk), ==, 0);
             g_assert_cmpint(*val, ==, -1 - ex->head_value);
         }
         else {
             g_assert(!val);
-            g_assert_cmpuint(has_real_errors(chunk), ==, 1);
+            g_assert_cmpuint(wscbor_has_errors(chunk), ==, 1);
         }
 
         wscbor_chunk_free(chunk);
@@ -393,24 +379,24 @@ wscbor_test_require_int64_overflow(void)
 
         wscbor_chunk_t *chunk = wscbor_chunk_read(test_scope, tvb, &offset);
         g_assert(chunk);
-        g_assert_cmpuint(has_real_errors(chunk), ==, 0);
+        g_assert_cmpuint(wscbor_has_errors(chunk), ==, 0);
         g_assert_cmpuint(chunk->type_major, ==, ex->type_major);
         g_assert_cmpuint(chunk->head_value, ==, ex->head_value);
 
         const gint64 *val = wscbor_require_int64(test_scope, chunk);
         if (ex->type_major == CBOR_TYPE_UINT) {
             g_assert(val);
-            g_assert_cmpuint(has_real_errors(chunk), ==, 1);
+            g_assert_cmpuint(wscbor_has_errors(chunk), ==, 1);
             g_assert_cmpint(*val, ==, G_MAXINT64);
         }
         else if (ex->type_major == CBOR_TYPE_NEGINT) {
             g_assert(val);
-            g_assert_cmpuint(has_real_errors(chunk), ==, 1);
+            g_assert_cmpuint(wscbor_has_errors(chunk), ==, 1);
             g_assert_cmpint(*val, ==, G_MININT64);
         }
         else {
             g_assert(!val);
-            g_assert_cmpuint(has_real_errors(chunk), ==, 1);
+            g_assert_cmpuint(wscbor_has_errors(chunk), ==, 1);
         }
 
         wscbor_chunk_free(chunk);
@@ -430,12 +416,12 @@ wscbor_test_require_tstr_simple(void)
 
         wscbor_chunk_t *chunk = wscbor_chunk_read(test_scope, tvb, &offset);
         g_assert(chunk);
-        g_assert_cmpuint(has_real_errors(chunk), ==, 0);
+        g_assert_cmpuint(wscbor_has_errors(chunk), ==, 0);
 
         const char *val = wscbor_require_tstr(test_scope, chunk);
         if (ex->type_major == CBOR_TYPE_STRING) {
             g_assert(val);
-            g_assert_cmpuint(has_real_errors(chunk), ==, 0);
+            g_assert_cmpuint(wscbor_has_errors(chunk), ==, 0);
             if (ex->head_value > 0) {
                 // only works because this is Latin-1 text
                 g_assert_cmpmem(val, strlen(val), ex->enc + ex->head_length, ex->head_value);
@@ -443,7 +429,7 @@ wscbor_test_require_tstr_simple(void)
         }
         else {
             g_assert(!val);
-            g_assert_cmpuint(has_real_errors(chunk), ==, 1);
+            g_assert_cmpuint(wscbor_has_errors(chunk), ==, 1);
         }
 
         wscbor_chunk_free(chunk);
@@ -469,7 +455,7 @@ wscbor_test_require_tstr_short(void)
 
         chunk = wscbor_chunk_read(test_scope, tvb, &offset);
         g_assert(chunk);
-        g_assert_cmpuint(has_real_errors(chunk), ==, 0);
+        g_assert_cmpuint(wscbor_has_errors(chunk), ==, 0);
         g_assert_cmpuint(chunk->type_major, ==, ex->type_major);
         g_assert_cmpuint(chunk->head_value, ==, ex->head_value);
 
@@ -501,12 +487,12 @@ wscbor_test_require_bstr_simple(void)
 
         wscbor_chunk_t *chunk = wscbor_chunk_read(test_scope, tvb, &offset);
         g_assert(chunk);
-        g_assert_cmpuint(has_real_errors(chunk), ==, 0);
+        g_assert_cmpuint(wscbor_has_errors(chunk), ==, 0);
 
         tvbuff_t *val = wscbor_require_bstr(test_scope, chunk);
         if (ex->type_major == CBOR_TYPE_BYTESTRING) {
             g_assert(val);
-            g_assert_cmpuint(has_real_errors(chunk), ==, 0);
+            g_assert_cmpuint(wscbor_has_errors(chunk), ==, 0);
             if (ex->head_value > 0) {
                 g_assert_cmpint(tvb_reported_length(val), ==, ex->head_value);
                 g_assert_cmpuint(tvb_captured_length(val), ==, ex->head_value);
@@ -519,7 +505,7 @@ wscbor_test_require_bstr_simple(void)
         }
         else {
             g_assert(!val);
-            g_assert_cmpuint(has_real_errors(chunk), ==, 1);
+            g_assert_cmpuint(wscbor_has_errors(chunk), ==, 1);
         }
 
         wscbor_chunk_free(chunk);
@@ -542,14 +528,14 @@ wscbor_test_require_bstr_short(void)
 
         wscbor_chunk_t *chunk = wscbor_chunk_read(test_scope, tvb, &offset);
         g_assert(chunk);
-        g_assert_cmpuint(has_real_errors(chunk), ==, 0);
+        g_assert_cmpuint(wscbor_has_errors(chunk), ==, 0);
         g_assert_cmpuint(chunk->type_major, ==, ex->type_major);
         g_assert_cmpuint(chunk->head_value, ==, ex->head_value);
 
         // no exception, but truncated captured length
         tvbuff_t *val = wscbor_require_bstr(test_scope, chunk);
         g_assert(val);
-        g_assert_cmpuint(has_real_errors(chunk), ==, 0);
+        g_assert_cmpuint(wscbor_has_errors(chunk), ==, 0);
         g_assert_cmpint(tvb_reported_length(val), ==, ex->head_value);
         g_assert_cmpuint(tvb_captured_length(val), <, ex->head_value);
 
@@ -585,13 +571,13 @@ wscbor_test_require_bstr_overflow(void)
 
         wscbor_chunk_t *chunk = wscbor_chunk_read(test_scope, tvb, &offset);
         g_assert(chunk);
-        g_assert_cmpuint(has_real_errors(chunk), ==, 1);
+        g_assert_cmpuint(wscbor_has_errors(chunk), ==, 1);
         g_assert_cmpuint(chunk->type_major, ==, ex->type_major);
         g_assert_cmpuint(chunk->head_value, ==, ex->head_value);
 
         const tvbuff_t *val = wscbor_require_bstr(test_scope, chunk);
         g_assert(val);
-        g_assert_cmpuint(has_real_errors(chunk), ==, 1);
+        g_assert_cmpuint(wscbor_has_errors(chunk), ==, 1);
         g_assert_cmpuint(tvb_reported_length(val), ==, G_MAXINT);
         g_assert_cmpuint(tvb_captured_length(val), ==, 2);
 
@@ -625,17 +611,6 @@ main(int argc, char **argv)
     wmem_init_scopes();
 
     test_scope = wmem_allocator_new(WMEM_ALLOCATOR_STRICT);
-    {
-        // Extract high-severity errors
-        int ex_size = 0;
-        const ei_register_info *ex_items = wscbor_expert_items(&ex_size);
-        real_errors = wmem_map_new(test_scope, g_direct_hash, g_direct_equal);
-        for (int ix = 0; ix < ex_size; ++ix) {
-            if (ex_items[ix].eiinfo.severity & (PI_NOTE|PI_WARN|PI_ERROR)) {
-                wmem_map_insert(real_errors, ex_items[ix].ids, NULL);
-            }
-        }
-    }
     //cannot use: wscbor_init();
     result = g_test_run();
     //none needed: wscbor_cleanup();
