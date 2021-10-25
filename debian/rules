@@ -15,8 +15,6 @@ ifeq ($(distrelease),n/a)
   distrelease     := sid
 endif
 
-GIT_VERSION = "Git v$(DEB_VERSION_UPSTREAM)" packaged as "$(DEB_VERSION)"
-
 # This has to be exported to make some magic below work.
 export DH_OPTIONS
 
@@ -36,7 +34,6 @@ endif
 	dh $@ --with python3 --buildsystem $(DH_BUILDSYSTEM) --with quilt
 
 override_dh_auto_configure:
-	echo "#define VCSVERSION \"$(GIT_VERSION)\"" > version.h
 	dh_auto_configure -- -DBUILD_xxx2deb=ON -DBUILD_corbaidl2wrs=ON
 
 override_dh_auto_build:
