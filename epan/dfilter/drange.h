@@ -49,6 +49,9 @@ typedef struct _drange {
 /* drange_node constructor */
 drange_node* drange_node_new(void);
 
+/* drange_node constructor */
+drange_node* drange_node_from_str(const char *range_str, char **err_ptr);
+
 /* drange_node destructor */
 void drange_node_free(drange_node* drnode);
 

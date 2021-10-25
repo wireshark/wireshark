@@ -189,79 +189,17 @@ range_node_list(L) ::= range_node_list(P) COMMA range_node(D).
 	L = g_slist_append(P, D);
 }
 
-/* x:y */
-range_node(D) ::= INTEGER(X) COLON INTEGER(Y).
+range_node(D) ::= RANGE(R).
 {
-	int32_t start = 0, length = 0;
+	char *err = NULL;
 
-	dfilter_str_to_gint32(dfw, stnode_token_value(X), &start);
-	dfilter_str_to_gint32(dfw, stnode_token_value(Y), &length);
+	D = drange_node_from_str(stnode_token_value(R), &err);
+	if (err != NULL) {
+		dfilter_parse_fail(dfw, "%s", err);
+		g_free(err);
+	}
 
-	D = drange_node_new();
-	drange_node_set_start_offset(D, start);
-	drange_node_set_length(D, length);
-
-	stnode_free(X);
-	stnode_free(Y);
-}
-
-/* x-y */
-range_node(D) ::= INTEGER(X) HYPHEN INTEGER(Y).
-{
-	int32_t start = 0, offset = 0;
-
-	dfilter_str_to_gint32(dfw, stnode_token_value(X), &start);
-	dfilter_str_to_gint32(dfw, stnode_token_value(Y), &offset);
-
-	D = drange_node_new();
-	drange_node_set_start_offset(D, start);
-	drange_node_set_end_offset(D, offset);
-
-	stnode_free(X);
-	stnode_free(Y);
-}
-
-
-/* :y = 0:y*/
-range_node(D) ::= COLON INTEGER(Y).
-{
-	int32_t length = 0;
-
-	dfilter_str_to_gint32(dfw, stnode_token_value(Y), &length);
-
-	D = drange_node_new();
-	drange_node_set_start_offset(D, 0);
-	drange_node_set_length(D, length);
-
-	stnode_free(Y);
-}
-
-/* x: = x:-1 */
-range_node(D) ::= INTEGER(X) COLON.
-{
-	int32_t start = 0;
-
-	dfilter_str_to_gint32(dfw, stnode_token_value(X), &start);
-
-	D = drange_node_new();
-	drange_node_set_start_offset(D, start);
-	drange_node_set_to_the_end(D);
-
-	stnode_free(X);
-}
-
-/* x = x:1 */
-range_node(D) ::= INTEGER(X).
-{
-	int32_t start = 0;
-
-	dfilter_str_to_gint32(dfw, stnode_token_value(X), &start);
-
-	D = drange_node_new();
-	drange_node_set_start_offset(D, start);
-	drange_node_set_length(D, 1);
-
-	stnode_free(X);
+	stnode_free(R);
 }
 
 rel_binop(O) ::= TEST_ANY_EQ.	{ O = TEST_OP_ANY_EQ; }

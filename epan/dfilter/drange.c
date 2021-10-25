@@ -12,6 +12,9 @@
 #include "config.h"
 
 #include "drange.h"
+
+#include <errno.h>
+#include <stdlib.h>
 #include <wsutil/ws_assert.h>
 
 /* drange_node constructor */
@@ -26,6 +29,136 @@ drange_node_new(void)
     new_range_node->end_offset = 0;
     new_range_node->ending = DRANGE_NODE_END_T_UNINITIALIZED;
     return new_range_node;
+}
+
+static gboolean
+drange_str_to_gint32(const char *s, gint32 *pint, char **endptr, char **err_ptr)
+{
+    long integer;
+
+    errno = 0;
+    integer = strtol(s, endptr, 0);
+    if (errno == EINVAL || *endptr == s) {
+        /* This isn't a valid number. */
+        *err_ptr = g_strdup_printf("\"%s\" is not a valid number.", s);
+        return FALSE;
+    }
+    if (errno == ERANGE || integer > G_MAXINT32 || integer < G_MININT32) {
+        *err_ptr = g_strdup_printf("\"%s\" causes an integer overflow.", s);
+        return FALSE;
+    }
+    *pint = (gint32)integer;
+    return TRUE;
+}
+
+/* drange_node constructor from string */
+drange_node*
+drange_node_from_str(const char *range_str, char **err_ptr)
+{
+    const char *str;
+    char *endptr;
+    gint32 lower, upper;
+    drange_node_end_t end = DRANGE_NODE_END_T_UNINITIALIZED;
+    drange_node *dn;
+    gboolean ok;
+
+    /*
+     * The following syntax governs slices:
+     * [i:j]    i = start_offset, j = length
+     * [i-j]    i = start_offset, j = end_offset, inclusive.
+     * [i]      i = start_offset, length = 1
+     * [:j]     start_offset = 0, length = j
+     * [i:]     start_offset = i, end_offset = end_of_field
+     */
+
+    str = range_str;
+    if (*str == ':') {
+        lower = 0;
+        str++;
+    }
+    else {
+        if (!drange_str_to_gint32(str, &lower, &endptr, err_ptr))
+            return NULL;
+        str = endptr;
+    }
+
+    while (*str != '\0' && g_ascii_isspace(*str))
+        str++;
+
+    if (*str == '-') {
+        str++;
+        end = DRANGE_NODE_END_T_OFFSET;
+        ok = drange_str_to_gint32(str, &upper, &endptr, err_ptr);
+        str = endptr;
+    }
+    else if (*str == ':') {
+        str++;
+        if (*str == '\0') {
+            end = DRANGE_NODE_END_T_TO_THE_END;
+            ok = TRUE;
+        }
+        else {
+            end = DRANGE_NODE_END_T_LENGTH;
+            ok = drange_str_to_gint32(str, &upper, &endptr, err_ptr);
+            str = endptr;
+        }
+    }
+    else if (*str == '\0') {
+        end = DRANGE_NODE_END_T_LENGTH;
+        upper = 1;
+        ok = TRUE;
+    }
+    else {
+        ok = FALSE;
+    }
+
+    while (*str != '\0' && g_ascii_isspace(*str))
+        str++;
+
+    if (!ok || *str != '\0') {
+        *err_ptr = g_strdup_printf("\"%s\" is not a valid range.", range_str);
+        return NULL;
+    }
+
+    dn = drange_node_new();
+    drange_node_set_start_offset(dn, lower);
+    switch (end) {
+        case DRANGE_NODE_END_T_LENGTH:
+            if (upper <= 0) {
+                *err_ptr = g_strdup_printf("Range %s isn't valid "
+                                    "because length %d isn't positive",
+                                    range_str, upper);
+                drange_node_free(dn);
+                return NULL;
+            }
+            drange_node_set_length(dn, upper);
+            break;
+        case DRANGE_NODE_END_T_OFFSET:
+            if ((lower < 0 && upper > 0) || (lower > 0 && upper < 0)) {
+                *err_ptr = g_strdup_printf("Range %s isn't valid "
+                                    "because %d and %d have different signs",
+                                    range_str, lower, upper);
+                drange_node_free(dn);
+                return NULL;
+            }
+            if (upper <= lower) {
+                *err_ptr = g_strdup_printf("Range %s isn't valid "
+                                    "because %d is greater or equal than %d",
+                                    range_str, lower, upper);
+                drange_node_free(dn);
+                return NULL;
+            }
+            drange_node_set_end_offset(dn, upper);
+            break;
+        case DRANGE_NODE_END_T_TO_THE_END:
+            drange_node_set_to_the_end(dn);
+            break;
+        default:
+            ws_assert_not_reached();
+            break;
+    }
+
+    return dn;
 }
 
 static drange_node*

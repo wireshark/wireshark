@@ -104,57 +104,6 @@ dfilter_new_regex(dfwork_t *dfw, stnode_t *node)
 	return node;
 }
 
-gboolean
-dfilter_str_to_gint32(dfwork_t *dfw, const char *s, gint32* pint)
-{
-	char    *endptr;
-	long	integer;
-
-	errno = 0;
-	integer = strtol(s, &endptr, 0);
-
-	if (errno == EINVAL || endptr == s || *endptr != '\0') {
-		/* This isn't a valid number. */
-		dfilter_parse_fail(dfw, "\"%s\" is not a valid number.", s);
-		return FALSE;
-	}
-	if (errno == ERANGE) {
-		if (integer == LONG_MAX) {
-			dfilter_parse_fail(dfw, "\"%s\" causes an integer overflow.", s);
-		}
-		else if (integer == LONG_MIN) {
-			dfilter_parse_fail(dfw, "\"%s\" causes an integer underflow.", s);
-		}
-		else {
-			/*
-			 * XXX - can "strtol()" set errno to ERANGE without
-			 * returning LONG_MAX or LONG_MIN?
-			 */
-			dfilter_parse_fail(dfw, "\"%s\" is not an integer.", s);
-		}
-		return FALSE;
-	}
-	if (integer > G_MAXINT32) {
-		/*
-		 * Fits in a long, but not in a gint32 (a long might be
-		 * 64 bits).
-		 */
-		dfilter_parse_fail(dfw, "\"%s\" causes an integer overflow.", s);
-		return FALSE;
-	}
-	if (integer < G_MININT32) {
-		/*
-		 * Fits in a long, but not in a gint32 (a long might be
-		 * 64 bits).
-		 */
-		dfilter_parse_fail(dfw, "\"%s\" causes an integer underflow.", s);
-		return FALSE;
-	}
-
-	*pint = (gint32)integer;
-	return TRUE;
-}
-
 /*
  * Tries to convert an STTYPE_UNPARSED to a STTYPE_FIELD. If it's not registered as
  * a field pass UNPARSED to the semantic check.
@@ -356,9 +305,6 @@ const char *tokenstr(int token)
 		case TOKEN_LBRACKET:	return "LBRACKET";
 		case TOKEN_RBRACKET:	return "RBRACKET";
 		case TOKEN_COMMA:	return "COMMA";
-		case TOKEN_INTEGER:	return "INTEGER";
-		case TOKEN_COLON:	return "COLON";
-		case TOKEN_HYPHEN:	return "HYPHEN";
 		case TOKEN_TEST_IN:	return "TEST_IN";
 		case TOKEN_LBRACE:	return "LBRACE";
 		case TOKEN_RBRACE:	return "RBRACE";

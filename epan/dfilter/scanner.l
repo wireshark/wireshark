@@ -103,8 +103,7 @@ static int simple(int token, const char *token_value);
 
 %}
 
-%x RANGE_INT
-%x RANGE_PUNCT
+%x RANGE
 %x DQUOTE
 %x SQUOTE
 
@@ -162,52 +161,27 @@ static int simple(int token, const char *token_value);
 "or"		return SIMPLE(TOKEN_TEST_OR);
 "in"		return SIMPLE(TOKEN_TEST_IN);
 
-	/*
-	 * The syntax for ranges must handle slice[-d-d] and slice[-d--5], e.g:
-	 *   frame[-10-5] (minus ten to five)
-	 *   frame[-10--5] (minus ten to minus 5)
-	 */
-
-"["					{
-	BEGIN(RANGE_INT);
+"["				{
+	BEGIN(RANGE);
 	return SIMPLE(TOKEN_LBRACKET);
 }
 
-<RANGE_INT>[+-]?[[:alnum:]]+		{
-	BEGIN(RANGE_PUNCT);
-	return set_lval_str(TOKEN_INTEGER, yytext);
+<RANGE>[^],]+			{
+	return set_lval_str(TOKEN_RANGE, yytext);
 }
 
-<RANGE_INT,RANGE_PUNCT>":"		{
-	BEGIN(RANGE_INT);
-	return SIMPLE(TOKEN_COLON);
-}
-
-<RANGE_PUNCT>"-"			{
-	BEGIN(RANGE_INT);
-	return SIMPLE(TOKEN_HYPHEN);
-}
-
-<RANGE_INT,RANGE_PUNCT>","		{
-	BEGIN(RANGE_INT);
+<RANGE>","			{
 	return SIMPLE(TOKEN_COMMA);
 }
 
-<RANGE_INT,RANGE_PUNCT>"]"		{
+<RANGE>"]"				{
 	BEGIN(INITIAL);
 	return SIMPLE(TOKEN_RBRACKET);
 }
 
-	/* Error if none of the above while scanning a range (slice) */
-
-<RANGE_PUNCT>[^:\-,\]]+		{
-	BEGIN(RANGE_INT);
-	return set_lval_str(TOKEN_UNPARSED, yytext);
-}
-
-<RANGE_INT>[+-]?[^[:alnum:]\]]+	{
-	BEGIN(RANGE_PUNCT);
-	return set_lval_str(TOKEN_UNPARSED, yytext);
+<RANGE><<EOF>>				{
+	dfilter_fail(yyextra->dfw, "The right bracket was missing from a slice.");
+	return SCAN_FAILED;
 }
 
 [rR]{0,1}\042			{
@@ -416,36 +390,6 @@ DIAG_ON_FLEX
 static int
 simple(int token, const char *token_value)
 {
-	switch (token) {
-		case TOKEN_LPAREN:
-		case TOKEN_RPAREN:
-		case TOKEN_LBRACKET:
-		case TOKEN_RBRACKET:
-		case TOKEN_LBRACE:
-		case TOKEN_RBRACE:
-		case TOKEN_COLON:
-		case TOKEN_COMMA:
-		case TOKEN_DOTDOT:
-		case TOKEN_HYPHEN:
-		case TOKEN_WHITESPACE:
-		case TOKEN_TEST_ANY_EQ:
-		case TOKEN_TEST_ALL_NE:
-		case TOKEN_TEST_ANY_NE:
-		case TOKEN_TEST_GT:
-		case TOKEN_TEST_GE:
-		case TOKEN_TEST_LT:
-		case TOKEN_TEST_LE:
-		case TOKEN_TEST_BITWISE_AND:
-		case TOKEN_TEST_CONTAINS:
-		case TOKEN_TEST_MATCHES:
-		case TOKEN_TEST_NOT:
-		case TOKEN_TEST_AND:
-		case TOKEN_TEST_OR:
-		case TOKEN_TEST_IN:
-			break;
-		default:
-			ws_assert_not_reached();
-	}
 	stnode_init(df_lval, STTYPE_UNINITIALIZED, NULL, token_value);
 	return token;
 }
@@ -465,7 +409,7 @@ set_lval_str(int token, const char *token_value)
 		case TOKEN_UNPARSED:
 			type_id = STTYPE_UNPARSED;
 			break;
-		case TOKEN_INTEGER:
+		case TOKEN_RANGE:
 			/* Not used in AST. */
 			type_id = STTYPE_UNINITIALIZED;
 			break;
