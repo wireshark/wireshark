@@ -387,56 +387,34 @@ Remember that whenever a protocol or field name occurs in an expression, the
 priority. This means that the first filter expression must be read as "show me
 the packets for which tcp.port exists and equals 80, and ip.src exists and
 equals 192.168.2.1". The second filter expression means "show me the packets
-where not (llc exists)", or in other words "where llc does not exist" and hence
+where not exists llc", or in other words "where llc does not exist" and hence
 will match all packets that do not contain the llc protocol.
 The third filter expression includes the constraint that offset 199 in the
 frame exists, in other words the length of the frame is at least 200.
 
-A special caveat must be given regarding fields that occur more than
-once per packet.  "ip.addr" occurs twice per IP packet, once for the
-source address, and once for the destination address.  Likewise,
-"tr.rif.ring" fields can occur more than once per packet.  The following
-two expressions are not equivalent:
-
-        ip.addr ne 192.168.4.1
-    not ip.addr eq 192.168.4.1
-
-The first filter says "show me packets where an ip.addr exists that
-does not equal 192.168.4.1".  That is, as long as one ip.addr in the
-packet does not equal 192.168.4.1, the packet passes the display
-filter.  The other ip.addr could equal 192.168.4.1 and the packet would
-still be displayed.
-The second filter says "don't show me any packets that have an
-ip.addr field equal to 192.168.4.1".  If one ip.addr is 192.168.4.1,
-the packet does not pass.  If *neither* ip.addr field is 192.168.4.1,
-then the packet is displayed.
-
-It is easy to think of the 'ne' and 'eq' operators as having an implicit
-"exists" modifier when dealing with multiply-recurring fields.  "ip.addr
-ne 192.168.4.1" can be thought of as "there exists an ip.addr that does
-not equal 192.168.4.1".  "not ip.addr eq 192.168.4.1" can be thought of as
-"there does not exist an ip.addr equal to 192.168.4.1".
-
-Be careful with multiply-recurring fields; they can be confusing.
-
-Care must also be taken when using the display filter to remove noise
-from the packet trace. If, for example, you want to filter out all IP
+Each comparison has an implicit exists test for any field value. Care must
+be taken when using the display filter to remove noise from
+the packet trace. If, for example, you want to filter out all IP
 multicast packets to address 224.1.2.3, then using:
 
     ip.dst ne 224.1.2.3
 
-may be too restrictive. Filtering with "ip.dst" selects only those
-*IP* packets that satisfy the rule. Any other packets, including all
-non-IP packets, will not be displayed. To display the non-IP
-packets as well, you can use one of the following two expressions:
+may be too restrictive. This is the same as writing:
 
-    not ip or ip.dst ne 224.1.2.3
-    not ip.addr eq 224.1.2.3
+    ip.dst and ip.dst ne 224.1.2.3
 
-The first filter uses "not ip" to include all non-IP packets and then
+The filter selects only frames that have the "ip.dst" field. Any
+other frames, including all non-IP packets, will not be displayed. To
+display the non-IP packets as well, you can use one of the following
+two expressions:
+
+    not ip.dst or ip.dst ne 224.1.2.3
+    not ip.dst eq 224.1.2.3
+
+The first filter uses "not ip.dst" to include all non-IP packets and then
 lets "ip.dst ne 224.1.2.3" filter out the unwanted IP packets. The
-second filter has already been explained above where filtering with
-multiply occurring fields was discussed.
+second filter also negates the implicit existance test and so is
+a shorter way to write the first.
 
 == FILTER FIELD REFERENCE
 
