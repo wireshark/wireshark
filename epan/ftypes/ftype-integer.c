@@ -391,13 +391,13 @@ sint8_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value, g
 }
 
 static int
-integer_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
+integer_repr_len(const fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
 {
 	return 11;	/* enough for 2^31-1, in decimal */
 }
 
 static void
-integer_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf, unsigned int size)
+integer_to_repr(const fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf, unsigned int size)
 {
 	guint32 val;
 
@@ -411,19 +411,19 @@ integer_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *b
 }
 
 static int
-uinteger_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
+uinteger_repr_len(const fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
 {
 	return 10;	/* enough for 2^32-1, in decimal or 0xXXXXXXXX */
 }
 
 static int
-char_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
+char_repr_len(const fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
 {
 	return 7;	/* enough for '\OOO' or '\xXX' */
 }
 
 static void
-uinteger_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display, char *buf, unsigned int size)
+uinteger_to_repr(const fvalue_t *fv, ftrepr_t rtype _U_, int field_display, char *buf, unsigned int size)
 {
 	if (((field_display & 0xff) == BASE_HEX) || ((field_display & 0xff) == BASE_HEX_DEC))
 	{
@@ -460,7 +460,7 @@ uinteger_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display, char *buf,
 }
 
 static void
-char_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display, char *buf, unsigned int size _U_)
+char_to_repr(const fvalue_t *fv, ftrepr_t rtype _U_, int field_display, char *buf, unsigned int size _U_)
 {
 	/*
 	 * The longest possible strings are "'\OOO'" and "'\xXX'", which
@@ -546,13 +546,13 @@ ipxnet_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _
 }
 
 static int
-ipxnet_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
+ipxnet_repr_len(const fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
 {
 	return 2+8;	/* 0xXXXXXXXX */
 }
 
 static void
-ipxnet_to_repr(fvalue_t *fv, ftrepr_t rtype, int field_display _U_, char *buf, unsigned int size)
+ipxnet_to_repr(const fvalue_t *fv, ftrepr_t rtype, int field_display _U_, char *buf, unsigned int size)
 {
 	uinteger_to_repr(fv, rtype, BASE_HEX, buf, size);
 }
@@ -785,13 +785,13 @@ sint40_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value, 
 }
 
 static int
-integer64_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
+integer64_repr_len(const fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
 {
 	return 20;	/* enough for -2^63-1, in decimal */
 }
 
 static void
-integer64_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf, unsigned int size)
+integer64_to_repr(const fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf, unsigned int size)
 {
 	guint64 val;
 
@@ -805,13 +805,13 @@ integer64_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char 
 }
 
 static int
-uinteger64_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
+uinteger64_repr_len(const fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
 {
 	return 20;	/* enough for 2^64-1, in decimal or 0xXXXXXXXXXXXXXXXX */
 }
 
 static void
-uinteger64_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display, char *buf, unsigned int size)
+uinteger64_to_repr(const fvalue_t *fv, ftrepr_t rtype _U_, int field_display, char *buf, unsigned int size)
 {
 	if ((field_display == BASE_HEX) || (field_display == BASE_HEX_DEC))
 	{
@@ -843,13 +843,13 @@ boolean_fvalue_new(fvalue_t *fv)
 }
 
 static int
-boolean_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
+boolean_repr_len(const fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
 {
 	return 1;
 }
 
 static void
-boolean_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf, unsigned int size _U_)
+boolean_to_repr(const fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf, unsigned int size _U_)
 {
 	*buf++ = (fv->value.uinteger64) ? '1' : '0';
 	*buf   = '\0';
@@ -913,13 +913,13 @@ eui64_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U
 }
 
 static int
-eui64_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
+eui64_repr_len(const fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
 {
 	return EUI64_STR_LEN;	/* XX:XX:XX:XX:XX:XX:XX:XX */
 }
 
 static void
-eui64_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf, unsigned int size)
+eui64_to_repr(const fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf, unsigned int size)
 {
 	union {
 		guint64 value;

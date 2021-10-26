@@ -96,7 +96,7 @@ val_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_,
 }
 
 static int
-val_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
+val_repr_len(const fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
 {
 	/*
 	 * 15 characters for "XXX.XXX.XXX.XXX".
@@ -106,7 +106,7 @@ val_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
 
 /* We're assuming the buffer is at least WS_INET_ADDRSTRLEN (16 bytes) */
 static void
-val_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf, unsigned int size _U_)
+val_to_repr(const fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf, unsigned int size _U_)
 {
 	guint32	ipv4_net_order = g_htonl(fv->value.ipv4.addr);
 	ip_to_str_buf((guint8*)&ipv4_net_order, buf, WS_INET_ADDRSTRLEN);

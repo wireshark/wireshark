@@ -22,7 +22,7 @@ typedef struct {
 static gpointer
 test_new(gpointer junk)
 {
-	test_t		*test;
+	test_t *test;
 
 	g_assert_true(junk == NULL);
 
@@ -33,27 +33,27 @@ test_new(gpointer junk)
 	test->val1 = NULL;
 	test->val2 = NULL;
 
-	return (gpointer) test;
+	return test;
 }
 
 static gpointer
 test_dup(gconstpointer data)
 {
-	const test_t *org = (const test_t *)data;
-	test_t		 *test;
+	const test_t *org = data;
+	test_t *test;
 
-	test = (test_t *)test_new(NULL);
+	test = test_new(NULL);
 	test->op   = org->op;
 	test->val1 = stnode_dup(org->val1);
 	test->val2 = stnode_dup(org->val1);
 
-	return (gpointer) test;
+	return test;
 }
 
 static void
 test_free(gpointer value)
 {
-	test_t	*test = (test_t *)value;
+	test_t *test = value;
 	ws_assert_magic(test, TEST_MAGIC);
 
 	if (test->val1)
@@ -67,7 +67,7 @@ test_free(gpointer value)
 static char *
 test_tostr(const void *value, gboolean pretty _U_)
 {
-	const test_t *test = (const test_t *)value;
+	const test_t *test = value;
 	ws_assert_magic(test, TEST_MAGIC);
 
 	const char *s = "<null>";
@@ -159,9 +159,7 @@ num_operands(test_op_t op)
 void
 sttype_test_set1(stnode_t *node, test_op_t op, stnode_t *val1)
 {
-	test_t	*test;
-
-	test = (test_t*)stnode_data(node);
+	test_t *test = stnode_data(node);
 	ws_assert_magic(test, TEST_MAGIC);
 
 	g_assert_true(num_operands(op) == 1);
@@ -172,9 +170,7 @@ sttype_test_set1(stnode_t *node, test_op_t op, stnode_t *val1)
 void
 sttype_test_set2(stnode_t *node, test_op_t op, stnode_t *val1, stnode_t *val2)
 {
-	test_t	*test;
-
-	test = (test_t*)stnode_data(node);
+	test_t *test = stnode_data(node);
 	ws_assert_magic(test, TEST_MAGIC);
 
 	g_assert_true(num_operands(op) == 2);
@@ -201,9 +197,7 @@ sttype_test_set2_args(stnode_t *node, stnode_t *val1, stnode_t *val2)
 void
 sttype_test_get(stnode_t *node, test_op_t *p_op, stnode_t **p_val1, stnode_t **p_val2)
 {
-	test_t	*test;
-
-	test = (test_t*)stnode_data(node);
+	test_t *test = stnode_data(node);
 	ws_assert_magic(test, TEST_MAGIC);
 
 	if (p_op)

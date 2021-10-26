@@ -116,7 +116,7 @@ val_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_,
 }
 
 static int
-val_repr_len(fvalue_t *fv, ftrepr_t rtype, int field_display _U_)
+val_repr_len(const fvalue_t *fv, ftrepr_t rtype, int field_display _U_)
 {
 	volatile guint length = 0;
 
@@ -136,7 +136,7 @@ val_repr_len(fvalue_t *fv, ftrepr_t rtype, int field_display _U_)
 }
 
 static void
-val_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char * volatile buf, unsigned int size _U_)
+val_to_repr(const fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char * volatile buf, unsigned int size _U_)
 {
 	guint length;
 

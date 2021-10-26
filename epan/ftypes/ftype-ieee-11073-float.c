@@ -201,7 +201,7 @@ sfloat_ieee_11073_val_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_
 }
 
 static void
-sfloat_ieee_11073_val_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf, unsigned int size)
+sfloat_ieee_11073_val_to_repr(const fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf, unsigned int size)
 {
     gint8    exponent;
     guint16  mantissa;
@@ -294,7 +294,7 @@ sfloat_ieee_11073_val_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_displa
 }
 
 static int
-sfloat_ieee_11073_val_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
+sfloat_ieee_11073_val_repr_len(const fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
 {
     /* Predefinied: +INFINITY, -INFINITY, RFU, NRes, NaN */
     /* Longest Signed Float Number:    -0.00002048  (11 characters without NULL) */
@@ -630,7 +630,7 @@ float_ieee_11073_val_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_p
 }
 
 static void
-float_ieee_11073_val_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf, unsigned int size)
+float_ieee_11073_val_to_repr(const fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf, unsigned int size)
 {
     gint8    exponent;
     guint32  mantissa;
@@ -720,7 +720,7 @@ float_ieee_11073_val_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display
 }
 
 static int
-float_ieee_11073_val_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
+float_ieee_11073_val_repr_len(const fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
 {
     /* Predefinied: +INFINITY, -INFINITY, RFU, NRes, NaN */
     /* Longest Signed Nonfloat Number: -8388608*(10^-128) (1 character for sign, 7 for mantisa digits, 127 zeros, 1 character for NULL) */

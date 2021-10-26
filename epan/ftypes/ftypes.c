@@ -343,7 +343,7 @@ fvalue_type_ftenum(fvalue_t *fv)
 }
 
 const char*
-fvalue_type_name(fvalue_t *fv)
+fvalue_type_name(const fvalue_t *fv)
 {
 	return fv->ftype->name;
 }
@@ -359,14 +359,14 @@ fvalue_length(fvalue_t *fv)
 }
 
 int
-fvalue_string_repr_len(fvalue_t *fv, ftrepr_t rtype, int field_display)
+fvalue_string_repr_len(const fvalue_t *fv, ftrepr_t rtype, int field_display)
 {
 	ws_assert(fv->ftype->len_string_repr);
 	return fv->ftype->len_string_repr(fv, rtype, field_display);
 }
 
 char *
-fvalue_to_string_repr(wmem_allocator_t *scope, fvalue_t *fv, ftrepr_t rtype, int field_display)
+fvalue_to_string_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype, int field_display)
 {
 	char *buf;
 	int len;

@@ -273,7 +273,7 @@ fvalue_from_string(ftenum_t ftype, const char *s, gchar **err_msg);
  * The length DOES NOT include the terminating NUL. */
 WS_DLL_PUBLIC
 int
-fvalue_string_repr_len(fvalue_t *fv, ftrepr_t rtype, int field_display);
+fvalue_string_repr_len(const fvalue_t *fv, ftrepr_t rtype, int field_display);
 
 /* Creates the string representation of the field value.
  * Memory for the buffer is allocated based on wmem allocator
@@ -284,13 +284,13 @@ fvalue_string_repr_len(fvalue_t *fv, ftrepr_t rtype, int field_display);
  *
  * Returns NULL if the string cannot be represented in the given rtype.*/
 WS_DLL_PUBLIC char *
-fvalue_to_string_repr(wmem_allocator_t *scope, fvalue_t *fv, ftrepr_t rtype, int field_display);
+fvalue_to_string_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype, int field_display);
 
 WS_DLL_PUBLIC ftenum_t
 fvalue_type_ftenum(fvalue_t *fv);
 
 const char*
-fvalue_type_name(fvalue_t *fv);
+fvalue_type_name(const fvalue_t *fv);
 
 void
 fvalue_set_byte_array(fvalue_t *fv, GByteArray *value);

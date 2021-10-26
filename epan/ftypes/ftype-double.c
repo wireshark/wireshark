@@ -68,25 +68,25 @@ val_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_,
 }
 
 static int
-float_val_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
+float_val_repr_len(const fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
 {
 	return G_ASCII_DTOSTR_BUF_SIZE;
 }
 
 static void
-float_val_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf, unsigned int size)
+float_val_to_repr(const fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf, unsigned int size)
 {
 	g_ascii_formatd(buf, size, "%." G_STRINGIFY(FLT_DIG) "g", fv->value.floating);
 }
 
 static int
-double_val_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
+double_val_repr_len(const fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
 {
 	return G_ASCII_DTOSTR_BUF_SIZE;
 }
 
 static void
-double_val_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf, unsigned int size)
+double_val_to_repr(const fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf, unsigned int size)
 {
 	g_ascii_formatd(buf, size, "%." G_STRINGIFY(DBL_DIG) "g", fv->value.floating);
 }

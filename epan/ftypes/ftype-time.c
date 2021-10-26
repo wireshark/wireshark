@@ -290,7 +290,7 @@ value_get(fvalue_t *fv)
 }
 
 static int
-absolute_val_repr_len(fvalue_t *fv, ftrepr_t rtype, int field_display)
+absolute_val_repr_len(const fvalue_t *fv, ftrepr_t rtype, int field_display)
 {
 	gchar *rep;
 	int ret;
@@ -322,7 +322,7 @@ absolute_val_repr_len(fvalue_t *fv, ftrepr_t rtype, int field_display)
 }
 
 static void
-absolute_val_to_repr(fvalue_t *fv, ftrepr_t rtype, int field_display, char *buf, unsigned int size)
+absolute_val_to_repr(const fvalue_t *fv, ftrepr_t rtype, int field_display, char *buf, unsigned int size)
 {
 	gchar *rep;
 	switch (rtype) {
@@ -356,7 +356,7 @@ absolute_val_to_repr(fvalue_t *fv, ftrepr_t rtype, int field_display, char *buf,
 }
 
 static int
-relative_val_repr_len(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_)
+relative_val_repr_len(const fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_)
 {
 	gchar *rep;
 	int ret;
@@ -369,7 +369,7 @@ relative_val_repr_len(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_)
 }
 
 static void
-relative_val_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf, unsigned int size)
+relative_val_to_repr(const fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf, unsigned int size)
 {
 	gchar *rep;
 	rep = rel_time_to_secs_str(NULL, &fv->value.time);

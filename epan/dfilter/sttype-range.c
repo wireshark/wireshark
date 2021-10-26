@@ -41,26 +41,26 @@ range_new(gpointer junk _U_)
 	range->entity = NULL;
 	range->drange = NULL;
 
-	return (gpointer) range;
+	return range;
 }
 
 static gpointer
 range_dup(gconstpointer data)
 {
-	const range_t *org = (const range_t *)data;
+	const range_t *org = data;
 	range_t       *range;
 
-	range = (range_t *)range_new(NULL);
+	range = range_new(NULL);
 	range->entity = stnode_dup(org->entity);
 	range->drange = drange_dup(org->drange);
 
-	return (gpointer) range;
+	return range;
 }
 
 static void
 range_free(gpointer value)
 {
-	range_t	*range = (range_t*)value;
+	range_t *range = value;
 	ws_assert_magic(range, RANGE_MAGIC);
 
 	if (range->drange)
@@ -75,8 +75,9 @@ range_free(gpointer value)
 static char *
 range_tostr(const void *data, gboolean pretty)
 {
-	range_t	*range = (range_t*)data;
+	const range_t *range = data;
 	ws_assert_magic(range, RANGE_MAGIC);
+
 	char *repr, *drange_str;
 
 	drange_str = drange_tostr(range->drange);
@@ -93,7 +94,7 @@ sttype_range_remove_drange(stnode_t *node)
 {
 	range_t		*range;
 
-	range = (range_t*)stnode_data(node);
+	range = stnode_data(node);
 	ws_assert_magic(range, RANGE_MAGIC);
 
 	range->drange = NULL;
@@ -106,7 +107,7 @@ sttype_range_set(stnode_t *node, stnode_t *entity, GSList* drange_list)
 {
 	range_t		*range;
 
-	range = (range_t*)stnode_data(node);
+	range = stnode_data(node);
 	ws_assert_magic(range, RANGE_MAGIC);
 
 	range->entity = entity;

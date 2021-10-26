@@ -16,7 +16,7 @@
 static void
 fvalue_free(gpointer value)
 {
-	fvalue_t *fvalue = (fvalue_t*)value;
+	fvalue_t *fvalue = value;
 
 	/* If the data was not claimed with stnode_steal_data(), free it. */
 	if (fvalue) {
@@ -43,7 +43,7 @@ pcre_free(gpointer value)
 static char *
 fvalue_tostr(const void *data, gboolean pretty)
 {
-	fvalue_t *fvalue = (fvalue_t*)data;
+	const fvalue_t *fvalue = data;
 
 	char *s, *repr;
 
@@ -59,7 +59,7 @@ fvalue_tostr(const void *data, gboolean pretty)
 static char *
 field_tostr(const void *data, gboolean pretty _U_)
 {
-	header_field_info *hfinfo = (header_field_info *)data;
+	const header_field_info *hfinfo = data;
 
 	return g_strdup(hfinfo->abbrev);
 }

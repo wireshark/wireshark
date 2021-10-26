@@ -44,7 +44,7 @@ bytes_fvalue_set(fvalue_t *fv, GByteArray *value)
 }
 
 static int
-bytes_repr_len(fvalue_t *fv, ftrepr_t rtype, int field_display _U_)
+bytes_repr_len(const fvalue_t *fv, ftrepr_t rtype, int field_display _U_)
 {
 	if (fv->value.bytes->len == 0) {
 		/* An empty array of bytes is represented as "" in a
@@ -77,13 +77,13 @@ bytes_repr_len(fvalue_t *fv, ftrepr_t rtype, int field_display _U_)
 #define OID_REPR_LEN(fv) (1 + REL_OID_REPR_LEN(fv))
 
 static int
-oid_repr_len(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_)
+oid_repr_len(const fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_)
 {
 	return OID_REPR_LEN(fv);
 }
 
 static void
-oid_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf, unsigned int size _U_)
+oid_to_repr(const fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf, unsigned int size _U_)
 {
 	char* oid_str = oid_encoded2string(NULL, fv->value.bytes->data,fv->value.bytes->len);
 	/*
@@ -98,13 +98,13 @@ oid_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf, 
 }
 
 static int
-rel_oid_repr_len(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_)
+rel_oid_repr_len(const fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_)
 {
 	return REL_OID_REPR_LEN(fv);
 }
 
 static void
-rel_oid_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf, unsigned int size _U_)
+rel_oid_to_repr(const fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf, unsigned int size _U_)
 {
 	char* oid_str = rel_oid_encoded2string(NULL, fv->value.bytes->data,fv->value.bytes->len);
 	/*
@@ -120,13 +120,13 @@ rel_oid_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *b
 }
 
 static void
-system_id_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf, unsigned int size)
+system_id_to_repr(const fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf, unsigned int size)
 {
 	print_system_id_buf(fv->value.bytes->data,fv->value.bytes->len, buf, size);
 }
 
 static void
-bytes_to_repr(fvalue_t *fv, ftrepr_t rtype, int field_display, char *buf, unsigned int size _U_)
+bytes_to_repr(const fvalue_t *fv, ftrepr_t rtype, int field_display, char *buf, unsigned int size _U_)
 {
 	char separator;
 

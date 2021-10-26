@@ -80,13 +80,13 @@ ipv6_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_
 }
 
 static int
-ipv6_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
+ipv6_repr_len(const fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
 {
 	return WS_INET6_ADDRSTRLEN;
 }
 
 static void
-ipv6_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf, unsigned int size)
+ipv6_to_repr(const fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf, unsigned int size)
 {
 	ip6_to_str_buf(&(fv->value.ipv6.addr), buf, size);
 }

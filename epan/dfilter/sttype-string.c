@@ -12,13 +12,13 @@
 static gpointer
 string_new(gpointer string)
 {
-	return (gpointer) g_strdup((char*) string);
+	return g_strdup(string);
 }
 
 static gpointer
 string_dup(gconstpointer string)
 {
-	return (gpointer) g_strdup((const char*) string);
+	return g_strdup(string);
 }
 
 static void
