@@ -771,6 +771,24 @@ blf_init_rec(blf_params_t *params, blf_logobjectheader_t *header, int pkt_encap,
     /* TODO: before we had to remove comments and verdict here to not leak memory but APIs have changed ... */
 }
 
+static void
+blf_add_direction_option(blf_params_t *params, guint16 direction) {
+    guint32 tmp = 0; /* dont care */
+
+    switch (direction) {
+    case BLF_DIR_RX:
+        tmp = 1; /* inbound */
+        break;
+    case BLF_DIR_TX:
+    case BLF_DIR_TX_RQ:
+        tmp = 2; /* outbound */
+        break;
+    }
+
+    /* pcapng.c: #define OPT_EPB_FLAGS 0x0002 */
+    wtap_block_add_uint32_option(params->rec->block, 0x0002, tmp);
+}
+
 static gboolean
 blf_read_log_object_header(blf_params_t *params, int *err, gchar **err_info, gint64 header2_start, gint64 data_start, blf_logobjectheader_t *logheader) {
     if (data_start - header2_start < (gint64)sizeof(blf_logobjectheader_t)) {
@@ -859,6 +877,7 @@ blf_read_ethernetframe(blf_params_t *params, int *err, gchar **err_info, gint64 
     params->buf->first_free += ethheader.payloadlength;
 
     blf_init_rec(params, &logheader, WTAP_ENCAP_ETHERNET, ethheader.channel, caplen, len);
+    blf_add_direction_option(params, ethheader.direction);
 
     return TRUE;
 }
@@ -901,6 +920,8 @@ blf_read_ethernetframe_ext(blf_params_t *params, int *err, gchar **err_info, gin
 
     blf_init_rec(params, &logheader, WTAP_ENCAP_ETHERNET, ethheader.channel, ethheader.frame_length, ethheader.frame_length);
     wtap_block_add_uint32_option(params->rec->block, OPT_PKT_QUEUE, ethheader.hw_channel);
+    blf_add_direction_option(params, ethheader.direction);
+
     return TRUE;
 }
 
@@ -941,6 +962,8 @@ blf_read_wlanframe(blf_params_t* params, int* err, gchar** err_info, gint64 bloc
     }
 
     blf_init_rec(params, &logheader, WTAP_ENCAP_IEEE_802_11, wlanheader.channel, wlanheader.frame_length, wlanheader.frame_length);
+    blf_add_direction_option(params, wlanheader.direction);
+
     return TRUE;
 }
 
@@ -1049,6 +1072,8 @@ blf_read_canmessage(blf_params_t *params, int *err, gchar **err_info, gint64 blo
         fix_endianness_blf_canmessage2_trailer(&can2trailer);
     }
 
+    blf_add_direction_option(params, (canheader.flags & BLF_CANMESSAGE_FLAG_TX) == BLF_CANMESSAGE_FLAG_TX ? BLF_DIR_TX: BLF_DIR_RX);
+
     return TRUE;
 }
 
@@ -1115,6 +1140,8 @@ blf_read_canfdmessage(blf_params_t *params, int *err, gchar **err_info, gint64 b
     if (!blf_can_fill_buf_and_rec(params, err, err_info, canid, payload_length, payload_length_valid, data_start + sizeof(canheader), &logheader, canheader.channel)) {
         return FALSE;
     }
+
+    blf_add_direction_option(params, (canheader.flags & BLF_CANMESSAGE_FLAG_TX) == BLF_CANMESSAGE_FLAG_TX ? BLF_DIR_TX : BLF_DIR_RX);
 
     return TRUE;
 }
@@ -1191,6 +1218,8 @@ blf_read_canfdmessage64(blf_params_t *params, int *err, gchar **err_info, gint64
         return FALSE;
     }
 
+    blf_add_direction_option(params, canheader.dir);
+
     return TRUE;
 }
 
@@ -1266,6 +1295,7 @@ blf_read_flexraydata(blf_params_t *params, int *err, gchar **err_info, gint64 bl
     params->buf->first_free += payload_length_valid;
 
     blf_init_rec(params, &logheader, WTAP_ENCAP_FLEXRAY, frheader.channel, caplen, len);
+    blf_add_direction_option(params, frheader.dir);
 
     return TRUE;
 }
@@ -1359,6 +1389,7 @@ blf_read_flexraymessage(blf_params_t *params, int *err, gchar **err_info, gint64
     params->buf->first_free += payload_length_valid;
 
     blf_init_rec(params, &logheader, WTAP_ENCAP_FLEXRAY, frheader.channel, caplen, len);
+    blf_add_direction_option(params, frheader.dir);
 
     return TRUE;
 }
@@ -1460,6 +1491,7 @@ blf_read_flexrayrcvmessageex(blf_params_t *params, int *err, gchar **err_info, g
     params->buf->first_free += payload_length_valid;
 
     blf_init_rec(params, &logheader, WTAP_ENCAP_FLEXRAY, frheader.channelMask, caplen, len);
+    blf_add_direction_option(params, frheader.dir);
 
     return TRUE;
 }
@@ -1538,6 +1570,7 @@ blf_read_linmessage(blf_params_t *params, int *err, gchar **err_info, gint64 blo
     /* we are not using it right now since the CRC is too big to convert */
 
     blf_init_rec(params, &logheader, WTAP_ENCAP_LIN, linheader.channel, caplen, len);
+    blf_add_direction_option(params, lintrailer.dir);
 
     return TRUE;
 }

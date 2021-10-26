@@ -84,6 +84,10 @@ typedef struct blf_logobjectheader {
     guint64 object_timestamp;
 } blf_logobjectheader_t;
 
+#define BLF_DIR_RX    0
+#define BLF_DIR_TX    1
+#define BLF_DIR_TX_RQ 2
+
 typedef struct blf_ethernetframeheader {
     guint8  src_addr[6];
     guint16 channel;
@@ -286,7 +290,7 @@ typedef struct blf_flexrayrcvmessage {
     guint16 channel;
     guint16 version;
     guint16 channelMask;    /* 0 res, 1 A, 2 B, 3 A+B */
-    guint16  dir;           /* 0 RX, 1 TX, 2 TX Req, 3 internal, 4 internal*/ /* high byte reserved! */
+    guint16 dir;            /* 0 RX, 1 TX, 2 TX Req, 3 internal, 4 internal*/ /* high byte reserved! */
     guint32 clientIndex;
     guint32 clusterNo;
     guint16 frameId;
