@@ -119,6 +119,8 @@ The following features are new (or have been significantly updated) since versio
 
 * RTP streams are created based on Skinny protocol messages
 
+* Flow sequence shows more infor about various Skinny messages
+
 // === Removed Features and Support
 
 // === Removed Dissectors
