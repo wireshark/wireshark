@@ -28,6 +28,9 @@
 
 #define DFILTER_TOKEN_ID_OFFSET	1
 
+/* Scanner's lval */
+extern df_lval_t *df_lval;
+
 /* Holds the singular instance of our Lemon parser object */
 static void*	ParserObj = NULL;
 
@@ -383,7 +386,7 @@ dfilter_compile(const gchar *text, dfilter_t **dfp, gchar **err_msg)
 	df_set_extra(&state, scanner);
 
 	while (1) {
-		df_lval = stnode_new(STTYPE_UNINITIALIZED, NULL, NULL);
+		df_lval = df_lval_new();
 		token = df_lex(scanner);
 
 		/* Check for scanner failure */
@@ -399,11 +402,11 @@ dfilter_compile(const gchar *text, dfilter_t **dfp, gchar **err_msg)
 
 		ws_debug("(%u) Token %d %s %s",
 				++token_count, token, tokenstr(token),
-				stnode_token_value(df_lval));
+				df_lval_value(df_lval));
 
 		/* Give the token to the parser */
 		Dfilter(ParserObj, token, df_lval, dfw);
-		/* We've used the stnode_t, so we don't want to free it */
+		/* The parser has freed the lval for us. */
 		df_lval = NULL;
 
 		if (dfw->syntax_error) {
@@ -413,10 +416,10 @@ dfilter_compile(const gchar *text, dfilter_t **dfp, gchar **err_msg)
 
 	} /* while (1) */
 
-	/* If we created an stnode_t but didn't use it, free it; the
+	/* If we created a df_lval_t but didn't use it, free it; the
 	 * parser doesn't know about it and won't free it for us. */
 	if (df_lval) {
-		stnode_free(df_lval);
+		df_lval_free(df_lval);
 		df_lval = NULL;
 	}
 

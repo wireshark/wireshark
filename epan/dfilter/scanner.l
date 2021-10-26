@@ -75,11 +75,10 @@
  */
 DIAG_OFF_FLEX
 
-stnode_t *df_lval;
+df_lval_t *df_lval;
 
 static int set_lval_str(int token, const char *token_value);
-static int simple(int token, const char *token_value);
-#define SIMPLE(token) simple(token, yytext)
+#define SIMPLE(token) set_lval_str(token, yytext)
 
 /*
  * Sleazy hack to suppress compiler warnings in yy_fatal_error().
@@ -106,11 +105,9 @@ static int simple(int token, const char *token_value);
 	 * should have used commas from the beginning, but now we are stuck with
 	 * whitespace as separators. */
 	if (yyextra->in_set) {
-		return simple(TOKEN_WHITESPACE, NULL);
+		return set_lval_str(TOKEN_WHITESPACE, " ");
 	}
 }
-
-
 
 "("		return SIMPLE(TOKEN_LPAREN);
 ")"		return SIMPLE(TOKEN_RPAREN);
@@ -118,12 +115,16 @@ static int simple(int token, const char *token_value);
 
 "{"[[:blank:]\n]*	{
 	yyextra->in_set = TRUE;
-	return simple(TOKEN_LBRACE, "{");
+	return set_lval_str(TOKEN_LBRACE, "{");
 }
-[[:blank:]\n]*".."[[:blank:]\n]*	return simple(TOKEN_DOTDOT, "..");
+
+[[:blank:]\n]*".."[[:blank:]\n]*	{
+	return set_lval_str(TOKEN_DOTDOT, "..");
+}
+
 [[:blank:]\n]*"}"	{
 	yyextra->in_set = FALSE;
-	return simple(TOKEN_RBRACE, "}");
+	return set_lval_str(TOKEN_RBRACE, "}");
 }
 
 "=="		return SIMPLE(TOKEN_TEST_ANY_EQ);
@@ -380,34 +381,8 @@ static int simple(int token, const char *token_value);
 DIAG_ON_FLEX
 
 static int
-simple(int token, const char *token_value)
-{
-	stnode_init(df_lval, STTYPE_UNINITIALIZED, NULL, token_value);
-	return token;
-}
-
-static int
 set_lval_str(int token, const char *token_value)
 {
-	sttype_id_t	type_id;
-
-	switch (token) {
-		case TOKEN_STRING:
-			type_id = STTYPE_STRING;
-			break;
-		case TOKEN_CHARCONST:
-			type_id = STTYPE_CHARCONST;
-			break;
-		case TOKEN_UNPARSED:
-			type_id = STTYPE_UNPARSED;
-			break;
-		case TOKEN_RANGE:
-			/* Not used in AST. */
-			type_id = STTYPE_UNINITIALIZED;
-			break;
-		default:
-			ws_assert_not_reached();
-	}
-	stnode_init(df_lval, type_id, (gpointer)token_value, token_value);
+	df_lval->value = g_strdup(token_value);
 	return token;
 }

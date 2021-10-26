@@ -27,10 +27,10 @@
 %extra_argument	{dfwork_t *dfw}
 
 /* Terminal and Non-Terminal types and destructors */
-%token_type			{stnode_t*}
+%token_type			{df_lval_t*}
 %token_destructor		{
-	(void) dfw; /* Mark unused, similar to Q_UNUSED */
-	stnode_free($$);
+	(void)dfw;
+	df_lval_free($$);
 }
 
 %type		sentence	{stnode_t*}
@@ -41,6 +41,9 @@
 
 %type		entity		{stnode_t*}
 %destructor	entity		{stnode_free($$);}
+
+%type		function	{stnode_t*}
+%destructor	function	{stnode_free($$);}
 
 %type		relation_test	{stnode_t*}
 %destructor	relation_test	{stnode_free($$);}
@@ -75,37 +78,8 @@ any "error" symbols are shifted, if possible. */
 		return;
 	}
 
-	switch(stnode_type_id(TOKEN)) {
-		case STTYPE_UNINITIALIZED: /* fall-through */
-		case STTYPE_UNPARSED:
-			if (stnode_token_value(TOKEN) != NULL)
-				dfilter_fail(dfw, "\"%s\" was unexpected in this context.",
-						stnode_token_value(TOKEN));
-			else
-				dfilter_fail(dfw, "Syntax error.");
-			break;
-		case STTYPE_STRING:
-			dfilter_fail(dfw, "The string \"%s\" was unexpected in this context.",
-				(char *)stnode_data(TOKEN));
-			break;
-		case STTYPE_CHARCONST:
-			dfilter_fail(dfw, "The character constant \"%s\" was unexpected in this context.",
-				(char *)stnode_data(TOKEN));
-			break;
-		/* These aren't handed to use as terminal tokens from
-		   the scanner, so was can assert that we'll never
-		   see them here. */
-		case STTYPE_NUM_TYPES:
-		case STTYPE_FIELD:
-		case STTYPE_FUNCTION:
-		case STTYPE_RANGE:
-		case STTYPE_FVALUE:
-		case STTYPE_PCRE:
-		case STTYPE_SET:
-		case STTYPE_TEST:
-			ws_assert_not_reached();
-			break;
-	}
+	dfilter_fail(dfw, "\"%s\" was unexpected in this context.",
+						df_lval_value(TOKEN));
 	dfw->syntax_error = TRUE;
 }
 
@@ -161,9 +135,22 @@ logical_test(T) ::= entity(E).
 
 
 /* Entities, or things that can be compared/tested/checked */
-entity(E) ::= STRING(S).	{ E = S; }
-entity(E) ::= CHARCONST(C).	{ E = C; }
-entity(E) ::= UNPARSED(U).	{ E = dfilter_resolve_unparsed(dfw, U); }
+entity(E) ::= STRING(S).
+{
+	E = stnode_new(STTYPE_STRING, df_lval_value(S), df_lval_value(S));
+	df_lval_free(S);
+}
+entity(E) ::= CHARCONST(C).
+{
+	E = stnode_new(STTYPE_CHARCONST, df_lval_value(C), df_lval_value(C));
+	df_lval_free(C);
+}
+entity(E) ::= UNPARSED(U).
+{
+	E = stnode_new(STTYPE_UNPARSED, df_lval_value(U), df_lval_value(U));
+	dfilter_resolve_unparsed(dfw, E);
+	df_lval_free(U);
+}
 entity(E) ::= range(R).		{ E = R; }
 entity(E) ::= function(F).	{ E = F; }
 
@@ -193,13 +180,13 @@ range_node(D) ::= RANGE(R).
 {
 	char *err = NULL;
 
-	D = drange_node_from_str(stnode_token_value(R), &err);
+	D = drange_node_from_str(df_lval_value(R), &err);
 	if (err != NULL) {
 		dfilter_parse_fail(dfw, "%s", err);
 		g_free(err);
 	}
 
-	stnode_free(R);
+	df_lval_free(R);
 }
 
 rel_binop(O) ::= TEST_ANY_EQ.	{ O = TEST_OP_ANY_EQ; }
@@ -287,16 +274,16 @@ set_node_list(L) ::= set_node_list(P) WHITESPACE entity(X) DOTDOT entity(Y).
 /* A function can have one or more parameters */
 function(F) ::= UNPARSED(U) LPAREN function_params(P) RPAREN.
 {
-	F = dfilter_new_function(dfw, stnode_token_value(U));
-	stnode_free(U);
+	F = dfilter_new_function(dfw, df_lval_value(U));
 	sttype_function_set_params(F, P);
+	df_lval_free(U);
 }
 
 /* A function can have zero parameters. */
 function(F) ::= UNPARSED(U) LPAREN RPAREN.
 {
-	F = dfilter_new_function(dfw, stnode_token_value(U));
-	stnode_free(U);
+	F = dfilter_new_function(dfw, df_lval_value(U));
+	df_lval_free(U);
 }
 
 function_params(P) ::= entity(E).
