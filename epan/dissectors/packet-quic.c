@@ -19,7 +19,7 @@
  *
  * Extension:
  * https://tools.ietf.org/html/draft-ferrieuxhamchaoui-quic-lossbits-03
- * https://tools.ietf.org/html/draft-pauly-quic-datagram-05
+ * https://datatracker.ietf.org/doc/html/draft-ietf-quic-datagram-06
  * https://tools.ietf.org/html/draft-huitema-quic-ts-02
  * https://tools.ietf.org/html/draft-iyengar-quic-delayed-ack-00
  * https://tools.ietf.org/html/draft-deconinck-quic-multipath-06
