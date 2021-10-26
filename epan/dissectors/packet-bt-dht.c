@@ -58,6 +58,7 @@ static int hf_port = -1;
 static int hf_truncated_data = -1;
 
 static expert_field ei_int_string = EI_INIT;
+static expert_field ei_invalid_len = EI_INIT;
 
 /* tree types */
 static gint ett_bt_dht = -1;
@@ -268,7 +269,13 @@ dissect_bt_dht_values(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
   {
     string_len = bencoded_string_length(pinfo, tvb, &offset);
 
-    if (string_len == 6)
+    if (string_len == 0)
+    {
+      expert_add_info(pinfo, ti, &ei_invalid_len);
+      // Fail hard here rather than potentially looping excessively.
+      return tvb_reported_length_remaining(tvb, offset);
+    }
+    else if (string_len == 6)
     {
       /* 4 bytes ip, 2 bytes port */
       peer_index += 1;
@@ -486,9 +493,9 @@ dissect_bencoded_dict_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     return 0;
   }
 
-  if( strlen(key)==1 )
+  if(key && strlen(key)==1 )
     key = val_to_str_const( key[0], short_key_name_value_string, key );
-  if( strlen(val)==1 )
+  if(val && strlen(val)==1 )
     val = val_to_str_const( val[0], short_val_name_value_string, val );
 
   proto_item_set_text( ti, "%s: %s", key, val );
@@ -689,7 +696,9 @@ proto_register_bt_dht(void)
 
   static ei_register_info ei[] = {
     { &ei_int_string, { "bt-dht.invalid_string", PI_MALFORMED, PI_ERROR,
-    "String must contain an integer", EXPFILL }}
+    "String must contain an integer", EXPFILL }},
+    { &ei_invalid_len, { "bt-dht.invalid_length", PI_MALFORMED, PI_ERROR,
+    "Invalid length", EXPFILL }},
   };
 
   /* Setup protocol subtree array */
