@@ -973,9 +973,9 @@ dissect_pvfs_opaque_data(tvbuff_t *tvb, int offset,
 
 static int
 dissect_pvfs_string(tvbuff_t *tvb, proto_tree *tree, int hfindex,
-		int offset, const char **string_buffer_ret)
+		int offset, packet_info *pinfo, const char **string_buffer_ret)
 {
-	return dissect_pvfs_opaque_data(tvb, offset, tree, NULL, hfindex,
+	return dissect_pvfs_opaque_data(tvb, offset, tree, pinfo, hfindex,
 			FALSE, 0, TRUE, string_buffer_ret);
 }
 
@@ -1165,7 +1165,7 @@ dissect_pvfs_distribution(tvbuff_t *tvb, proto_tree *tree, int offset,
 
 	/* io_dist */
 	offset = dissect_pvfs_string(tvb, dist_tree, hf_pvfs_io_dist, offset,
-			NULL);
+			pinfo, NULL);
 
 	/* TODO: only one distribution type is currently supported */
 	if (issimplestripe)
@@ -1268,7 +1268,7 @@ dissect_pvfs_object_attr(tvbuff_t *tvb, proto_tree *tree, int offset,
 
 					/* target_path */
 					offset = dissect_pvfs_string(tvb, attr_tree, hf_pvfs_path,
-							offset, NULL);
+							offset, pinfo, NULL);
 				}
 				else
 				{
@@ -1539,7 +1539,7 @@ dissect_pvfs2_lookup_path_request(tvbuff_t *tvb, proto_tree *tree,
 		int offset, packet_info *pinfo)
 {
 	/* Path */
-	offset = dissect_pvfs_string(tvb, tree, hf_pvfs_path, offset, NULL);
+	offset = dissect_pvfs_string(tvb, tree, hf_pvfs_path, offset, pinfo, NULL);
 
 	/* fs_id */
 	offset = dissect_pvfs_fs_id(tvb, tree, offset);
@@ -1560,7 +1560,7 @@ dissect_pvfs2_crdirent_request(tvbuff_t *tvb, proto_tree *tree, int offset,
 		packet_info *pinfo)
 {
 	/* Filename */
-	offset = dissect_pvfs_string(tvb, tree, hf_pvfs_path, offset, NULL);
+	offset = dissect_pvfs_string(tvb, tree, hf_pvfs_path, offset, pinfo, NULL);
 
 	offset = dissect_pvfs_fh(tvb, offset, pinfo, tree, "file handle", NULL);
 
@@ -1593,7 +1593,7 @@ dissect_pvfs2_rmdirent_request(tvbuff_t *tvb, proto_tree *tree, int offset,
 		packet_info *pinfo)
 {
 	/* path */
-	offset = dissect_pvfs_string(tvb, tree, hf_pvfs_path, offset, NULL);
+	offset = dissect_pvfs_string(tvb, tree, hf_pvfs_path, offset, pinfo, NULL);
 
 	/* handle */
 	offset = dissect_pvfs_fh(tvb, offset, pinfo, tree, "handle", NULL);
@@ -1623,7 +1623,7 @@ dissect_pvfs2_chdirent_request(tvbuff_t *tvb, proto_tree *tree, int offset,
 		packet_info *pinfo)
 {
 	/* path */
-	offset = dissect_pvfs_string(tvb, tree, hf_pvfs_path, offset, NULL);
+	offset = dissect_pvfs_string(tvb, tree, hf_pvfs_path, offset, pinfo, NULL);
 
 	/* New directory entry handle */
 	offset = dissect_pvfs_fh(tvb, offset, pinfo, tree, "new directory handle",
@@ -1846,7 +1846,7 @@ dissect_pvfs2_mgmt_remove_dirent_request(tvbuff_t *tvb,
 	offset += 4;
 
 	/* entry */
-	offset = dissect_pvfs_string(tvb, tree, hf_pvfs_path, offset, NULL);
+	offset = dissect_pvfs_string(tvb, tree, hf_pvfs_path, offset, pinfo, NULL);
 
 	return offset;
 }
@@ -1866,22 +1866,22 @@ dissect_pvfs2_mgmt_get_dirdata_handle_request(tvbuff_t *tvb,
 
 /* TODO: untested/incomplete */
 static int
-dissect_pvfs_ds_keyval(tvbuff_t *tvb, proto_tree *tree, int offset)
+dissect_pvfs_ds_keyval(tvbuff_t *tvb, proto_tree *tree, int offset, packet_info *pinfo)
 {
 	/* attribute key */
 	offset = dissect_pvfs_string(tvb, tree, hf_pvfs_attribute_key, offset,
-			NULL);
+			pinfo, NULL);
 
 	/* attribute value */
 	offset = dissect_pvfs_string(tvb, tree, hf_pvfs_attribute_value, offset,
-			NULL);
+			pinfo, NULL);
 
 	return offset;
 }
 
 /* TODO: incomplete/untested */
 static int
-dissect_ds_keyval_array(tvbuff_t *tvb, proto_tree *tree, int offset)
+dissect_ds_keyval_array(tvbuff_t *tvb, proto_tree *tree, int offset, packet_info *pinfo)
 {
 	guint32 nKey, i;
 
@@ -1890,7 +1890,7 @@ dissect_ds_keyval_array(tvbuff_t *tvb, proto_tree *tree, int offset)
 	offset += 4;
 
 	for (i = 0; i < nKey; i++)
-		offset = dissect_pvfs_ds_keyval(tvb, tree, offset);
+		offset = dissect_pvfs_ds_keyval(tvb, tree, offset, pinfo);
 
 	return offset;
 }
@@ -1908,7 +1908,7 @@ dissect_pvfs2_geteattr_request(tvbuff_t *tvb, proto_tree *tree,
 
 	offset += 4;
 
-	offset = dissect_ds_keyval_array(tvb, tree, offset);
+	offset = dissect_ds_keyval_array(tvb, tree, offset, pinfo);
 
 	return offset;
 }
@@ -1926,7 +1926,7 @@ dissect_pvfs2_seteattr_request(tvbuff_t *tvb, proto_tree *tree,
 
 	offset += 4;
 
-	offset = dissect_ds_keyval_array(tvb, tree, offset);
+	offset = dissect_ds_keyval_array(tvb, tree, offset, pinfo);
 
 	return offset;
 }
@@ -1943,7 +1943,7 @@ dissect_pvfs2_deleattr_request(tvbuff_t *tvb, proto_tree *tree,
 	offset = dissect_pvfs_fs_id(tvb, tree, offset);
 
 	/* key */
-	offset = dissect_pvfs_ds_keyval(tvb, tree, offset);
+	offset = dissect_pvfs_ds_keyval(tvb, tree, offset, pinfo);
 
 	return offset;
 }
@@ -2261,7 +2261,7 @@ dissect_pvfs2_readdir_response(tvbuff_t *tvb, proto_tree *tree, int offset,
 
 	for (nCount = 0; nCount < dirent_count; nCount++)
 	{
-		offset = dissect_pvfs_string(tvb, tree, hf_pvfs_path, offset, NULL);
+		offset = dissect_pvfs_string(tvb, tree, hf_pvfs_path, offset, pinfo, NULL);
 		offset = dissect_pvfs_fh(tvb, offset, pinfo, tree, "handle", NULL);
 	}
 
@@ -2696,7 +2696,7 @@ dissect_pvfs2_geteattr_response(tvbuff_t *tvb, proto_tree *tree, int offset,
 	offset += 4;
 
 	/* Dissect nKey & ds_keyval array */
-	offset = dissect_ds_keyval_array(tvb, tree, offset);
+	offset = dissect_ds_keyval_array(tvb, tree, offset, pinfo);
 
 	return offset;
 }
