@@ -21,6 +21,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/exceptions.h>
 #include <epan/reassemble.h>
 
 #define PROTONAME "Peer Name Resolution Protocol"
@@ -388,11 +389,11 @@ static const fragment_items pnrp_frag_items = {
 static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     /* Variable declaration */
-    gint offset;
+    int offset, start_offset;
     gint padding_bytes;
     guint8 message_type;
     guint16 field_type;
-    guint16 data_length;
+    unsigned data_length;
     proto_item *ti;
     proto_tree *pnrp_tree;
     proto_item *pnrp_header_item;
@@ -484,6 +485,7 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
      *------------------------------*/
 
     /* The following part has dynamic length depending on message type */
+    start_offset = offset;
     while (tvb_reported_length_remaining(tvb, offset) > 0) {
         /* Determine the Field Type */
         field_type = tvb_get_ntohs(tvb,offset );
@@ -567,7 +569,6 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
                             offset += data_length+2;
                         }
                         break;
-
 
                     default:
                         proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_flags, tvb, offset + 4, data_length -4, ENC_BIG_ENDIAN);
@@ -868,6 +869,10 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
                 }
                 offset += data_length;
                 break;
+        }
+        // SPLIT_CONTROLS might reset our offset.
+        if (start_offset <= offset) {
+            THROW(ReportedBoundsError);
         }
     }
     return offset;
