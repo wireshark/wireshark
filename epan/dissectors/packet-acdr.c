@@ -929,9 +929,6 @@ static int
 dissect_signaling_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 trace_point)
 {
     tvbuff_t *next_tvb = NULL;
-    proto_item *ti = NULL;
-    guint32 tmp;
-    gint64 timestamp;
     gint32 offset = 0;
     gint remaining;
     const gboolean is_incoming = trace_point == Host2Pstn || trace_point == DspIncoming;
@@ -944,17 +941,12 @@ dissect_signaling_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
                             HEADER_FIELD_SIG_SIZE_BYTE_COUNT, ENC_BIG_ENDIAN);
         offset += HEADER_FIELD_SIG_SIZE_BYTE_COUNT;
     } else {
-        ti = proto_tree_add_item(tree, hf_acdr_signaling_timestamp, tvb, HEADER_FIELD_SIG_TIME_BYTE_NO,
-                                 HEADER_FIELD_SIG_TIME_BYTE_COUNT, ENC_NA);
+        const guint32 timestamp = tvb_get_ntohl(tvb, HEADER_FIELD_SIG_TIME_BYTE_NO);
+        nstime_t time = {timestamp / 1000000, (timestamp % 1000000) * 1000};
+        proto_tree_add_time_format_value(
+                    tree, hf_acdr_signaling_timestamp, tvb, HEADER_FIELD_SIG_TIME_BYTE_NO,
+                    HEADER_FIELD_SIG_TIME_BYTE_COUNT, &time, "%f sec", timestamp / 1000000.0f);
         offset += HEADER_FIELD_SIG_TIME_BYTE_COUNT;
-
-        tmp = tvb_get_ntohl(tvb, HEADER_FIELD_SIG_TIME_BYTE_NO);
-
-        timestamp = (((gint64) tmp) << 16);
-        tmp = tvb_get_ntohs(tvb, HEADER_FIELD_SIG_TIME_BYTE_NO + 2);
-        timestamp |= tmp;
-
-        proto_item_append_text(ti, " (%f sec)", timestamp / 1000000.0);
     }
 
     remaining = tvb_reported_length_remaining(tvb, offset);
@@ -984,10 +976,8 @@ static void
 create_acdr_tree(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb)
 {
     proto_item *header_ti = NULL;
-    proto_item *ti = NULL;
     proto_tree *acdr_tree;
     tvbuff_t *next_tvb = NULL;
-    guint32 tmp;
     gint offset = 0;
     gint header_byte_length = 15;
     gint cid_byte_length = 2;
@@ -996,6 +986,8 @@ create_acdr_tree(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb)
     guint8 media_type, extra_data;
     gboolean medium_mii = 0;
     gint64 timestamp;
+    nstime_t time = NSTIME_INIT_ZERO;
+    gint time_size = 0;
     int acdr_header_length;
     gboolean header_added;
     gboolean li_packet;
@@ -1036,18 +1028,17 @@ create_acdr_tree(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb)
 
     // Timestamp
     if ((version & 0xF) <= 3) {
-        ti = proto_tree_add_item(acdr_tree, hf_acdr_timestamp, tvb, offset, 6, ENC_NA);
-        tmp = tvb_get_ntohl(tvb, offset);
-        timestamp = (((gint64) tmp) << 16);
-        tmp = tvb_get_ntohs(tvb, offset + 4);
-        timestamp |= tmp;
-        offset += 6;
+        timestamp = (tvb_get_ntohl(tvb, offset) << 16) | tvb_get_ntohs(tvb, offset + 4);
+        time_size = 6;
     } else {
-        ti = proto_tree_add_item(acdr_tree, hf_acdr_timestamp, tvb, offset, 4, ENC_NA);
         timestamp = tvb_get_ntohl(tvb, offset);
-        offset += 4;
+        time_size = 4;
     }
-    proto_item_append_text(ti, " (%f sec)", timestamp / 1000000.0);
+    time.secs = timestamp / 1000000;
+    time.nsecs = (timestamp % 1000000) * 1000;
+    proto_tree_add_time_format_value(acdr_tree, hf_acdr_timestamp, tvb, offset, time_size, &time,
+                                     "%f sec", timestamp / 1000000.0f);
+    offset += time_size;
 
     // Sequence Number
     if ((version & 0xF) >= 4) {
@@ -1375,7 +1366,7 @@ proto_register_acdr(void)
         },
         { &hf_acdr_timestamp,
             { "Time Stamp", "acdr.timestamp",
-                FT_BYTES, BASE_NONE,
+                FT_RELATIVE_TIME, BASE_NONE,
                 NULL, 0x0,
                 "timestamp in us resolution", HFILL }
         },
@@ -1778,7 +1769,7 @@ proto_register_acdr(void)
         },
         { &hf_acdr_signaling_timestamp,
             { "Timestamp", "acdr.signaling_timestamp",
-                FT_BYTES, BASE_NONE,
+                FT_RELATIVE_TIME, BASE_NONE,
                 NULL, 0x0,
                 "Timestamp in us resolution", HFILL }
         }
