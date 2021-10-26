@@ -65,8 +65,14 @@
 %type		function_params	{GSList*}
 %destructor	function_params	{st_funcparams_free($$);}
 
-%type		set_node_list	{GSList*}
-%destructor	set_node_list	{set_nodelist_free($$);}
+%type		set		{stnode_t*}
+%destructor	set		{stnode_free($$);}
+
+%type		set_list	{GSList*}
+%destructor	set_list	{set_nodelist_free($$);}
+
+%type		set_element	{GSList*}
+%destructor	set_element	{set_nodelist_free($$);}
 
 /* This is called as soon as a syntax error happens. After that, 
 any "error" symbols are shifted, if possible. */
@@ -228,36 +234,36 @@ relation_test(T) ::= entity(E) TEST_MATCHES entity(F).
 	T = stnode_new_test(TEST_OP_MATCHES, E, R);
 }
 
-relation_test(T) ::= entity(E) TEST_IN LBRACE set_node_list(L) RBRACE.
+relation_test(T) ::= entity(E) TEST_IN set(S).
 {
-	stnode_t *S = stnode_new(STTYPE_SET, L);
-
 	T = stnode_new_test(TEST_OP_IN, E, S);
 }
 
-set_node_list(L) ::= entity(E).
+set(S) ::= LBRACE set_list(L) RBRACE.
 {
-	L = g_slist_append(NULL, E);
-	L = g_slist_append(L, NULL);
+	S = stnode_new(STTYPE_SET, L);
 }
 
-set_node_list(L) ::= set_node_list(P) WHITESPACE entity(E).
+set_list(L) ::= set_element(N).
 {
-	L = g_slist_append(P, E);
-	L = g_slist_append(L, NULL);
+	L = g_slist_concat(NULL, N);
 }
 
-/* Set elements. */
-set_node_list(L) ::= entity(X) DOTDOT entity(Y).
+set_list(L) ::= set_list(P) WHITESPACE set_element(N).
 {
-	L = g_slist_append(NULL, X);
-	L = g_slist_append(L, Y);
+	L = g_slist_concat(P, N);
 }
 
-set_node_list(L) ::= set_node_list(P) WHITESPACE entity(X) DOTDOT entity(Y).
+set_element(N) ::= entity(X).
 {
-	L = g_slist_append(P, X);
-	L = g_slist_append(L, Y);
+	N = g_slist_append(NULL, X);
+	N = g_slist_append(N, NULL);
+}
+
+set_element(N) ::= entity(X) DOTDOT entity(Y).
+{
+	N = g_slist_append(NULL, X);
+	N = g_slist_append(N, Y);
 }
 
 /* Functions */
