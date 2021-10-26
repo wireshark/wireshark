@@ -298,7 +298,7 @@ add_option_info(tvbuff_t *tvb, int pos, proto_tree *tree, proto_item *ti)
             break;
 
         case WLAN_RADIO_HDR_CHANNEL:
-            proto_tree_add_item(tag_tree, hf_channel, tvb, pos, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tag_tree, hf_channel, tvb, pos, length, ENC_BIG_ENDIAN);
             break;
 
         case TZSP_HDR_SENSOR:
@@ -488,6 +488,66 @@ proto_register_tzsp(void)
         {153, "153 (5.765 GHz)"},
         {157, "157 (5.785 GHz)"},
         {161, "161 (5.805 GHz)"},
+        /* 802.11ax */
+        {191, "191 (5.955 GHz)"},
+        {195, "195 (5.975 GHz)"},
+        {199, "199 (5.995 GHz)"},
+        {203, "203 (6.015 GHz)"},
+        {207, "207 (6.035 GHz)"},
+        {211, "211 (6.055 GHz)"},
+        {215, "215 (6.075 GHz)"},
+        {219, "219 (6.095 GHz)"},
+        {223, "223 (6.115 GHz)"},
+        {227, "227 (6.135 GHz)"},
+        {231, "231 (6.155 GHz)"},
+        {235, "235 (6.175 GHz)"},
+        {239, "239 (6.195 GHz)"},
+        {243, "243 (6.215 GHz)"},
+        {247, "247 (6.235 GHz)"},
+        {251, "251 (6.255 GHz)"},
+        {255, "255 (6.275 GHz)"},
+        {259, "259 (6.295 GHz)"},
+        {263, "263 (6.315 GHz)"},
+        {267, "267 (6.335 GHz)"},
+        {271, "271 (6.355 GHz)"},
+        {275, "275 (6.375 GHz)"},
+        {279, "279 (6.395 GHz)"},
+        {283, "283 (6.415 GHz)"},
+        {287, "287 (6.435 GHz)"},
+        {291, "291 (6.455 GHz)"},
+        {295, "295 (6.475 GHz)"},
+        {299, "299 (6.495 GHz)"},
+        {303, "303 (6.515 GHz)"},
+        {307, "307 (6.535 GHz)"},
+        {311, "311 (6.555 GHz)"},
+        {315, "315 (6.575 GHz)"},
+        {319, "319 (6.595 GHz)"},
+        {323, "323 (6.615 GHz)"},
+        {327, "327 (6.635 GHz)"},
+        {331, "331 (6.655 GHz)"},
+        {335, "335 (6.675 GHz)"},
+        {339, "339 (6.695 GHz)"},
+        {343, "343 (6.715 GHz)"},
+        {347, "347 (6.735 GHz)"},
+        {351, "351 (6.755 GHz)"},
+        {355, "355 (6.775 GHz)"},
+        {359, "359 (6.795 GHz)"},
+        {363, "363 (6.815 GHz)"},
+        {367, "367 (6.835 GHz)"},
+        {371, "371 (6.855 GHz)"},
+        {375, "375 (6.875 GHz)"},
+        {379, "379 (6.895 GHz)"},
+        {383, "383 (6.915 GHz)"},
+        {387, "387 (6.935 GHz)"},
+        {391, "391 (6.955 GHz)"},
+        {395, "395 (6.975 GHz)"},
+        {399, "399 (6.995 GHz)"},
+        {403, "403 (7.015 GHz)"},
+        {407, "407 (7.035 GHz)"},
+        {411, "411 (7.055 GHz)"},
+        {415, "415 (7.075 GHz)"},
+        {419, "419 (7.095 GHz)"},
+        {423, "423 (7.115 GHz)"},
         {0, NULL}
     };
 
@@ -568,7 +628,7 @@ proto_register_tzsp(void)
             "Rate", "tzsp.wlan.rate", FT_UINT8, BASE_DEC,
             VALS(rates), 0, NULL, HFILL }},
         { &hf_channel, {
-            "Channel", "tzsp.wlan.channel", FT_UINT8, BASE_DEC,
+            "Channel", "tzsp.wlan.channel", FT_UINT16, BASE_DEC,
             VALS(channels), 0, NULL, HFILL }},
         { &hf_unknown, {
             "Unknown tag", "tzsp.unknown", FT_BYTES, BASE_NONE,
