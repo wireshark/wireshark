@@ -78,7 +78,7 @@ dfilter_new_function(dfwork_t *dfw, const char *name)
 	if (!def) {
 		dfilter_parse_fail(dfw, "Function '%s' does not exist", name);
 	}
-	return stnode_new(STTYPE_FUNCTION, def, name);
+	return stnode_new(STTYPE_FUNCTION, def);
 }
 
 /* Gets a regex from a string, and sets the error message on failure. */

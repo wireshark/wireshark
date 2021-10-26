@@ -110,25 +110,25 @@ expr(X) ::= logical_test(L).	{ X = L; }
 /* Logical tests */
 logical_test(T) ::= expr(E) TEST_AND expr(F).
 {
-	T = stnode_new(STTYPE_TEST, NULL, NULL);
+	T = stnode_new(STTYPE_TEST, NULL);
 	sttype_test_set2(T, TEST_OP_AND, E, F);
 }
 
 logical_test(T) ::= expr(E) TEST_OR expr(F).
 {
-	T = stnode_new(STTYPE_TEST, NULL, NULL);
+	T = stnode_new(STTYPE_TEST, NULL);
 	sttype_test_set2(T, TEST_OP_OR, E, F);
 }
 
 logical_test(T) ::= TEST_NOT expr(E).
 {
-	T = stnode_new(STTYPE_TEST, NULL, NULL);
+	T = stnode_new(STTYPE_TEST, NULL);
 	sttype_test_set1(T, TEST_OP_NOT, E);
 }
 
 logical_test(T) ::= entity(E).
 {
-	T = stnode_new(STTYPE_TEST, NULL, NULL);
+	T = stnode_new(STTYPE_TEST, NULL);
 	sttype_test_set1(T, TEST_OP_EXISTS, E);
 }
 
@@ -137,17 +137,17 @@ logical_test(T) ::= entity(E).
 /* Entities, or things that can be compared/tested/checked */
 entity(E) ::= STRING(S).
 {
-	E = stnode_new(STTYPE_STRING, df_lval_value(S), df_lval_value(S));
+	E = stnode_new(STTYPE_STRING, df_lval_value(S));
 	df_lval_free(S);
 }
 entity(E) ::= CHARCONST(C).
 {
-	E = stnode_new(STTYPE_CHARCONST, df_lval_value(C), df_lval_value(C));
+	E = stnode_new(STTYPE_CHARCONST, df_lval_value(C));
 	df_lval_free(C);
 }
 entity(E) ::= UNPARSED(U).
 {
-	E = stnode_new(STTYPE_UNPARSED, df_lval_value(U), df_lval_value(U));
+	E = stnode_new(STTYPE_UNPARSED, df_lval_value(U));
 	dfilter_resolve_unparsed(dfw, E);
 	df_lval_free(U);
 }
@@ -158,7 +158,7 @@ entity(E) ::= function(F).	{ E = F; }
 /* Ranges */
 range(R) ::= entity(E) LBRACKET range_node_list(L) RBRACKET.
 {
-	R = stnode_new(STTYPE_RANGE, NULL, NULL);
+	R = stnode_new(STTYPE_RANGE, NULL);
 	sttype_range_set(R, E, L);
 
 	/* Delete the list, but not the drange_nodes that
@@ -202,7 +202,7 @@ rel_binop(O) ::= TEST_CONTAINS.	{ O = TEST_OP_CONTAINS; }
 /* Relational tests */
 relation_test(T) ::= entity(E) rel_binop(O) entity(F).
 {
-	T = stnode_new(STTYPE_TEST, NULL, NULL);
+	T = stnode_new(STTYPE_TEST, NULL);
 	sttype_test_set2(T, O, E, F);
 }
 
@@ -220,10 +220,10 @@ relation_test(T) ::= entity(E) rel_binop(O) relation_test(R).
 		sttype_test_get(F, NULL, &F, NULL);
 	} while (stnode_type_id(F) == STTYPE_TEST);
 
-	L = stnode_new(STTYPE_TEST, NULL, NULL);
+	L = stnode_new(STTYPE_TEST, NULL);
 	sttype_test_set2(L, O, E, stnode_dup(F));
 
-	T = stnode_new(STTYPE_TEST, NULL, NULL);
+	T = stnode_new(STTYPE_TEST, NULL);
 	sttype_test_set2(T, TEST_OP_AND, L, R);
 }
 
@@ -232,15 +232,15 @@ relation_test(T) ::= entity(E) TEST_MATCHES entity(F).
 {
 	stnode_t *R = dfilter_new_regex(dfw, F);
 
-	T = stnode_new(STTYPE_TEST, NULL, NULL);
+	T = stnode_new(STTYPE_TEST, NULL);
 	sttype_test_set2(T, TEST_OP_MATCHES, E, R);
 }
 
 relation_test(T) ::= entity(E) TEST_IN LBRACE set_node_list(L) RBRACE.
 {
 	stnode_t *S;
-	T = stnode_new(STTYPE_TEST, NULL, NULL);
-	S = stnode_new(STTYPE_SET, L, NULL);
+	T = stnode_new(STTYPE_TEST, NULL);
+	S = stnode_new(STTYPE_SET, L);
 	sttype_test_set2(T, TEST_OP_IN, E, S);
 }
 
