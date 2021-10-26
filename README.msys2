@@ -1,0 +1,63 @@
+This document contains instructions to build Wireshark natively on Windows
+using GCC and MinGW-w64 with the MSYS2 distribution.
+
+Steps to setup the build environment:
+
+1. Download and install MSYS2 from https://www.msys2.org.
+
+2. Open the MSYS2 MSYS shell.
+
+3. Update with "pacman -Syu" as many times as necessary. You may also wish
+   to install base-devel at this point: pacman -S base-devel. Anytime you
+   want to run pacman it's recommended to do so from the MSYS shell.
+
+4. Install pactoys for convenience:
+
+     $ pacman -S pactoys-git
+
+5. Install the toolchain:
+
+     $ pacboy -S toolchain:x cmake:x ninja:x ccache:x
+
+From this point on it's a typical ninja build:
+
+1. Open the MSYS2 MINGW64 shell.
+
+2. Create the build directory. This example will assume the build directory
+   is under the source directory:
+
+     $ cd $srcdir && mkdir build && cd build
+
+3. Run cmake:
+
+     $ cmake -DENABLE_CCACHE=Yes -DDISABLE_WERROR=Yes ..
+
+4. Instal missing dependencies using pacman (there are a few minor gaps) and
+   re-run cmake, e.g.:
+
+     $ pacboy -S glib2:x libpcap:x libgcrypt:x gnutls:x qt5:x
+
+5. Build by running "ninja" in the build directory:
+
+     $ ninja
+
+There isn't a native git package provided with MSYS2 so it's recommended that
+you continue using the Git-For-Windows installer (or see [1]).
+
+Currently the Wireshark MinGW-w64 build using MSYS2 has the following
+limitations:
+
+* The ETW extcap (etwdump) does not build.
+
+* Some optional dependencies are not available in the official MSYS2
+  repositories. These will be provided at a later date.
+
+* Currently there is no Wireshark binary package available. More work is
+  needed to implement this. To be decided if it will use NSIS or something
+  else.
+
+* Many compiler warnings to be fixed.
+
+References:
+
+[1]https://github.com/git-for-windows/git/wiki/Install-inside-MSYS2-proper
