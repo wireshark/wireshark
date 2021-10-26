@@ -3705,8 +3705,10 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             }
 
             connection_parameter_info = (connection_parameter_info_t *) wmem_tree_lookup32_le(wmem_tree, pinfo->num);
-            item = proto_tree_add_uint(btle_tree, hf_connection_parameters_in, tvb, 0, 0, connection_parameter_info->parameters_frame);
-            proto_item_set_generated(item);
+            if (connection_parameter_info) {
+                item = proto_tree_add_uint(btle_tree, hf_connection_parameters_in, tvb, 0, 0, connection_parameter_info->parameters_frame);
+                proto_item_set_generated(item);
+            }
         }
 
         if ((crc_status == CRC_INDETERMINATE) &&
