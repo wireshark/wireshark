@@ -8499,6 +8499,7 @@ void
 proto_reg_handoff_gsm_a_dtap(void)
 {
     dissector_add_uint("bssap.pdu_type", BSSAP_PDU_TYPE_DTAP, dtap_handle);
+    dissector_add_uint("bssap_le.pdu_type", BSSAP_PDU_TYPE_DTAP, dtap_handle);
     dissector_add_uint("ranap.nas_pdu", BSSAP_PDU_TYPE_DTAP, dtap_handle);
     dissector_add_uint("llcgprs.sapi", 1 , dtap_handle); /* GPRS Mobility Management */
     dissector_add_uint("llcgprs.sapi", 7 , dtap_handle); /* SMS */

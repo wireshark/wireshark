@@ -744,13 +744,16 @@ static const fragment_items sccp_xudt_msg_frag_items = {
 static reassembly_table sccp_xudt_msg_reassembly_table;
 
 
-#define SCCP_USER_DATA   0
-#define SCCP_USER_TCAP   1
-#define SCCP_USER_RANAP  2
-#define SCCP_USER_BSSAP  3
-#define SCCP_USER_GSMMAP 4
-#define SCCP_USER_CAMEL  5
-#define SCCP_USER_INAP   6
+#define SCCP_USER_DATA       0
+#define SCCP_USER_TCAP       1
+#define SCCP_USER_RANAP      2
+#define SCCP_USER_BSSAP      3
+#define SCCP_USER_GSMMAP     4
+#define SCCP_USER_CAMEL      5
+#define SCCP_USER_INAP       6
+#define SCCP_USER_BSAP       7
+#define SCCP_USER_BSSAP_LE   8
+#define SCCP_USER_BSSAP_PLUS 9
 
 typedef struct _sccp_user_t {
   guint               ni;
@@ -772,18 +775,24 @@ static dissector_handle_t bssap_handle;
 static dissector_handle_t gsmmap_handle;
 static dissector_handle_t camel_handle;
 static dissector_handle_t inap_handle;
+static dissector_handle_t bsap_handle;
+static dissector_handle_t bssap_le_handle;
+static dissector_handle_t bssap_plus_handle;
 static dissector_handle_t default_handle;
 
 static const char *default_payload = NULL;
 
 static const value_string sccp_users_vals[] = {
-  { SCCP_USER_DATA,     "Data"},
-  { SCCP_USER_TCAP,     "TCAP"},
-  { SCCP_USER_RANAP,    "RANAP"},
-  { SCCP_USER_BSSAP,    "BSSAP"},
-  { SCCP_USER_GSMMAP,   "GSM MAP"},
-  { SCCP_USER_CAMEL,    "CAMEL"},
-  { SCCP_USER_INAP,     "INAP"},
+  { SCCP_USER_DATA,       "Data"},
+  { SCCP_USER_TCAP,       "TCAP"},
+  { SCCP_USER_RANAP,      "RANAP"},
+  { SCCP_USER_BSSAP,      "BSSAP"},
+  { SCCP_USER_GSMMAP,     "GSM MAP"},
+  { SCCP_USER_CAMEL,      "CAMEL"},
+  { SCCP_USER_INAP,       "INAP"},
+  { SCCP_USER_BSAP,       "BSAP"},
+  { SCCP_USER_BSSAP_LE,   "BSSAP-LE"},
+  { SCCP_USER_BSSAP_PLUS, "BSSAP+"},
   { 0, NULL }
 };
 
@@ -3486,13 +3495,16 @@ static struct _sccp_ul {
   dissector_handle_t *handlep;
 } user_list[] = {
 
-  {SCCP_USER_DATA,   FALSE, &data_handle},
-  {SCCP_USER_TCAP,   FALSE, &tcap_handle},
-  {SCCP_USER_RANAP,  FALSE, &ranap_handle},
-  {SCCP_USER_BSSAP,  FALSE, &bssap_handle},
-  {SCCP_USER_GSMMAP, TRUE,  &gsmmap_handle},
-  {SCCP_USER_CAMEL,  TRUE,  &camel_handle},
-  {SCCP_USER_INAP,   TRUE,  &inap_handle},
+  {SCCP_USER_DATA,       FALSE, &data_handle},
+  {SCCP_USER_TCAP,       FALSE, &tcap_handle},
+  {SCCP_USER_RANAP,      FALSE, &ranap_handle},
+  {SCCP_USER_BSSAP,      FALSE, &bssap_handle},
+  {SCCP_USER_GSMMAP,     TRUE,  &gsmmap_handle},
+  {SCCP_USER_CAMEL,      TRUE,  &camel_handle},
+  {SCCP_USER_INAP,       TRUE,  &inap_handle},
+  {SCCP_USER_BSAP,       FALSE, &bsap_handle},
+  {SCCP_USER_BSSAP_LE,   FALSE, &bssap_le_handle},
+  {SCCP_USER_BSSAP_PLUS, FALSE, &bssap_plus_handle},
   {0, FALSE, NULL}
 };
 
@@ -4235,13 +4247,16 @@ proto_reg_handoff_sccp(void)
     dissector_add_uint("mtp3.service_indicator", MTP_SI_SCCP, sccp_handle);
     dissector_add_string("tali.opcode", "sccp", sccp_handle);
 
-    data_handle   = find_dissector("data");
-    tcap_handle   = find_dissector_add_dependency("tcap", proto_sccp);
-    ranap_handle  = find_dissector_add_dependency("ranap", proto_sccp);
-    bssap_handle  = find_dissector_add_dependency("bssap", proto_sccp);
-    gsmmap_handle = find_dissector_add_dependency("gsm_map_sccp", proto_sccp);
-    camel_handle  = find_dissector_add_dependency("camel", proto_sccp);
-    inap_handle   = find_dissector_add_dependency("inap", proto_sccp);
+    data_handle       = find_dissector("data");
+    tcap_handle       = find_dissector_add_dependency("tcap", proto_sccp);
+    ranap_handle      = find_dissector_add_dependency("ranap", proto_sccp);
+    bssap_handle      = find_dissector_add_dependency("bssap", proto_sccp);
+    gsmmap_handle     = find_dissector_add_dependency("gsm_map_sccp", proto_sccp);
+    camel_handle      = find_dissector_add_dependency("camel", proto_sccp);
+    inap_handle       = find_dissector_add_dependency("inap", proto_sccp);
+    bsap_handle       = find_dissector_add_dependency("bsap", proto_sccp);
+    bssap_le_handle   = find_dissector_add_dependency("bssap_le", proto_sccp);
+    bssap_plus_handle = find_dissector_add_dependency("bssap_plus", proto_sccp);
 
     ss7pc_address_type = address_type_get_by_name("AT_SS7PC");
 
