@@ -29,16 +29,22 @@ def main():
                         help='The diagnostic text input file, or "-" for stdin')
     parser.add_argument('--outfile', default='-',
                         help='The PCAP output file, or "-" for stdout')
+    parser.add_argument('--intype', default='cbordiag',
+                        choices=['cbordiag', 'raw'],
+                        help='The input data type.')
     args = parser.parse_args()
 
     # First get the CBOR data itself
     infile_name = args.infile.strip()
     if infile_name != '-':
-        infile = open(infile_name, 'r')
+        infile = open(infile_name, 'rb')
     else:
-        infile = sys.stdin
+        infile = sys.stdin.buffer
 
-    cbordata = check_output('diag2cbor.rb', stdin=infile)
+    if args.intype == 'raw':
+        cbordata = infile.read()
+    elif args.intype == 'cbordiag':
+        cbordata = check_output('diag2cbor.rb', stdin=infile)
 
     # Now synthesize an HTTP request with that body
     req = HTTPRequest(

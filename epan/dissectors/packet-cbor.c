@@ -709,12 +709,16 @@ dissect_cborseq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void
 	gint        offset = 0;
 	proto_item *cbor_root;
 	proto_tree *cbor_tree;
+	proto_item *elem;
 
 	cbor_root = proto_tree_add_item(parent_tree, proto_cbor, tvb, offset, -1, ENC_NA);
 	proto_item_append_text(cbor_root, " Sequence");
 	cbor_tree = proto_item_add_subtree(cbor_root, ett_cbor);
 	while ((guint)offset < tvb_reported_length(tvb)) {
-		dissect_cbor_main_type(tvb, pinfo, cbor_tree, &offset);
+		elem = dissect_cbor_main_type(tvb, pinfo, cbor_tree, &offset);
+		if (!elem) {
+			break;
+		}
 	}
 
 	return offset;
