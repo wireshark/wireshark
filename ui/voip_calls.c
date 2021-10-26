@@ -4066,6 +4066,7 @@ skinny_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *ed
     add_to_graph(tapinfo, pinfo, edt, si->messageName, comment,
             callsinfo->call_num, &(pinfo->src), &(pinfo->dst), 1);
     g_free(comment);
+    append_to_frame_graph(tapinfo, pinfo->num, si->additionalInfo, NULL);
 
     tapinfo->redraw |= REDRAW_SKINNY;
 

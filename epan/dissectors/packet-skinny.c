@@ -362,7 +362,7 @@ static const value_string DisplayLabels_200[] = {
   { 0x00014, "Off Hook" },
   { 0x00015, "On Hook" },
   { 0x00016, "Ring Out" },
-  { 0x00017, "From" },
+  { 0x00017, "From " },
   { 0x00018, "Connected" },
   { 0x00019, "Busy" },
   { 0x0001a, "Line In Use" },
@@ -626,6 +626,28 @@ static const value_string KeyPadButton[] = {
   { 0x00000, NULL }
 };
 static value_string_ext KeyPadButton_ext = VALUE_STRING_EXT_INIT(KeyPadButton);
+
+static const value_string KeyPadButton_short[] = {
+  { 0x00000, "0" },
+  { 0x00001, "1" },
+  { 0x00002, "2" },
+  { 0x00003, "3" },
+  { 0x00004, "4" },
+  { 0x00005, "5" },
+  { 0x00006, "6" },
+  { 0x00007, "7" },
+  { 0x00008, "8" },
+  { 0x00009, "9" },
+  { 0x0000a, "A" },
+  { 0x0000b, "B" },
+  { 0x0000c, "C" },
+  { 0x0000d, "D" },
+  { 0x0000e, "*" },
+  { 0x0000f, "#" },
+  { 0x00010, "+" },
+  { 0x00000, NULL }
+};
+static value_string_ext KeyPadButton_short_ext = VALUE_STRING_EXT_INIT(KeyPadButton_short);
 
 static const value_string DeviceStimulus[] = {
   { 0x00001, "LastNumberRedial" },
@@ -2338,6 +2360,7 @@ dissect_skinny_displayLabel(ptvcursor_t *cursor, int hfindex, gint length)
     }
   }
   if (show_replaced_str) {
+    si->additionalInfo = g_strdup_printf("\"%s\"", wmem_strbuf_get_str(wmem_new));
     proto_item_append_text(item, " => \"%s\"" , wmem_strbuf_get_str(wmem_new));
   }
   ptvcursor_advance(cursor, length);
@@ -2496,6 +2519,13 @@ static void
 handle_KeypadButtonMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_conv_info_t * skinny_conv _U_)
 {
   guint32 hdr_data_length = tvb_get_letohl(ptvcursor_tvbuff(cursor), 0);
+
+  si->additionalInfo = g_strdup_printf("\"%s\"",
+    try_val_to_str_ext(
+      tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor)),
+      &KeyPadButton_short_ext
+    )
+  );
 
   ptvcursor_add(cursor, hf_skinny_kpButton, 4, ENC_LITTLE_ENDIAN);
   if (hdr_data_length > 8) {
@@ -2797,6 +2827,7 @@ handle_OpenReceiveChannelAckMessage(ptvcursor_t *cursor, packet_info * pinfo _U_
   guint32 passThroughPartyId = 0;
   address media_addr;
   guint16 media_port = 0;
+  char *media_addr_str = NULL;
 
   si->mediaReceptionStatus = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_mediaReceptionStatus, 4, ENC_LITTLE_ENDIAN);
@@ -2806,6 +2837,9 @@ handle_OpenReceiveChannelAckMessage(ptvcursor_t *cursor, packet_info * pinfo _U_
     ptvcursor_current_offset(cursor), ENC_LITTLE_ENDIAN);
   srtp_add_address(pinfo, PT_UDP, &media_addr, media_port, 0,
     "SKINNY", pinfo->num, false, NULL, NULL, NULL);
+  media_addr_str = address_to_display(NULL, &media_addr);
+  si->additionalInfo = g_strdup_printf("%s:%d", media_addr_str, media_port);
+  wmem_free(NULL, media_addr_str);
   ptvcursor_add(cursor, hf_skinny_portNumber, 4, ENC_LITTLE_ENDIAN);
   passThroughPartyId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   si->passThroughPartyId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
@@ -4477,6 +4511,12 @@ handle_RegisterAckMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_c
 static void
 handle_StartToneMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_conv_info_t * skinny_conv _U_)
 {
+  si->additionalInfo = g_strdup_printf("\"%s\"",
+    try_val_to_str_ext(
+      tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor)),
+      &DeviceTone_ext
+    )
+  );
   ptvcursor_add(cursor, hf_skinny_tone, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_tone_output_direction, 4, ENC_LITTLE_ENDIAN);
   si->lineId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
@@ -4588,6 +4628,7 @@ handle_StartMediaTransmissionMessage(ptvcursor_t *cursor, packet_info * pinfo _U
   guint16 saltlen = 0;
   address media_addr;
   guint16 media_port = 0;
+  char *media_addr_str = NULL;
 
   ptvcursor_add(cursor, hf_skinny_conferenceId, 4, ENC_LITTLE_ENDIAN);
   passThroughPartyId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
@@ -4599,6 +4640,9 @@ handle_StartMediaTransmissionMessage(ptvcursor_t *cursor, packet_info * pinfo _U
     ptvcursor_current_offset(cursor), ENC_LITTLE_ENDIAN);
   srtp_add_address(pinfo, PT_UDP, &media_addr, media_port, 0,
     "SKINNY", pinfo->num, false, NULL, NULL, NULL);
+  media_addr_str = address_to_display(NULL, &media_addr);
+  si->additionalInfo = g_strdup_printf("%s:%d", media_addr_str, media_port);
+  wmem_free(NULL, media_addr_str);
   ptvcursor_add(cursor, hf_skinny_remotePortNumber, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_milliSecondPacketSize, 4, ENC_LITTLE_ENDIAN);
   compressionType = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
@@ -4792,6 +4836,10 @@ handle_CallInfoMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_conv
   ptvcursor_add_no_advance(cursor, hf_skinny_RestrictInformationType_BitsReserved, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_advance(cursor, 4);
   ptvcursor_pop_subtree(cursor); /* end bitfield: partyPIRestrictionBits */
+
+  if (si->callingParty && si->calledParty) {
+    si->additionalInfo = g_strdup_printf("\"%s -> %s\"", si->callingParty, si->calledParty);
+  }
 }
 
 /*
@@ -5265,6 +5313,7 @@ handle_OpenReceiveChannelMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, s
   guint16 saltlen = 0;
   address media_addr;
   guint16 media_port = 0;
+  char *media_addr_str = NULL;
 
   ptvcursor_add(cursor, hf_skinny_conferenceId, 4, ENC_LITTLE_ENDIAN);
   passThroughPartyId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
@@ -5353,6 +5402,9 @@ handle_OpenReceiveChannelMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, s
       ptvcursor_current_offset(cursor), ENC_LITTLE_ENDIAN);
     srtp_add_address(pinfo, PT_UDP, &media_addr, media_port, 0,
       "SKINNY", pinfo->num, false, NULL, NULL, NULL);
+    media_addr_str = address_to_display(NULL, &media_addr);
+    si->additionalInfo = g_strdup_printf("%s:%d", media_addr_str, media_port);
+    wmem_free(NULL, media_addr_str);
     ptvcursor_add(cursor, hf_skinny_sourcePortNumber, 4, ENC_LITTLE_ENDIAN);
   }
   if (hdr_version >= V16_MSG_TYPE) {
@@ -5600,6 +5652,12 @@ static void
 handle_CallStateMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_conv_info_t * skinny_conv _U_)
 {
   si->callState = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+  si->additionalInfo = g_strdup_printf("\"%s\"",
+    try_val_to_str_ext(
+      tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor)),
+      &DCallState_ext
+    )
+  );
   ptvcursor_add(cursor, hf_skinny_callState, 4, ENC_LITTLE_ENDIAN);
   si->lineId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_lineInstance, 4, ENC_LITTLE_ENDIAN);
@@ -5791,6 +5849,13 @@ handle_DialedNumberMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_
   guint32 VariableDirnumSize = (hdr_version >= V18_MSG_TYPE) ? 25 : 24;
 
   if (hdr_version <= V17_MSG_TYPE) {
+    guint32 dialedNumber_len;
+
+    dialedNumber_len = tvb_strnlen(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor), 24)+1;
+    if (dialedNumber_len > 1) {
+      si->additionalInfo = g_strdup_printf("\"%s\"", tvb_format_stringzpad(pinfo->pool, ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor), dialedNumber_len));
+    }
+
     ptvcursor_add(cursor, hf_skinny_dialedNumber, 24, ENC_ASCII|ENC_NA);
     si->lineId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
     ptvcursor_add(cursor, hf_skinny_lineInstance, 4, ENC_LITTLE_ENDIAN);
@@ -5798,6 +5863,13 @@ handle_DialedNumberMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_
     ptvcursor_add(cursor, hf_skinny_callReference, 4, ENC_LITTLE_ENDIAN);
   }
   if (hdr_version >= V18_MSG_TYPE) {
+    guint32 dialedNumber_len;
+
+    dialedNumber_len = tvb_strnlen(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor), VariableDirnumSize)+1;
+    if (dialedNumber_len > 1) {
+      si->additionalInfo = g_strdup_printf("\"%s\"", tvb_format_stringzpad(pinfo->pool, ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor), dialedNumber_len));
+    }
+
     ptvcursor_add(cursor, hf_skinny_dialedNumber, VariableDirnumSize, ENC_ASCII|ENC_NA);
     si->lineId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
     ptvcursor_add(cursor, hf_skinny_lineInstance, 4, ENC_LITTLE_ENDIAN);
@@ -7384,6 +7456,10 @@ handle_CallInfoV2Message(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_co
       ptvcursor_advance(cursor, 1);
     }
   }
+
+  if (si->callingParty && si->calledParty) {
+    si->additionalInfo = g_strdup_printf("\"%s -> %s\"", si->callingParty, si->calledParty);
+  }
 }
 
 /*
@@ -7628,6 +7704,7 @@ handle_StartMediaTransmissionAckMessage(ptvcursor_t *cursor, packet_info * pinfo
   guint32 passThroughPartyId = 0;
   address media_addr;
   guint16 media_port = 0;
+  char *media_addr_str = NULL;
 
   ptvcursor_add(cursor, hf_skinny_conferenceId, 4, ENC_LITTLE_ENDIAN);
   passThroughPartyId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
@@ -7641,6 +7718,9 @@ handle_StartMediaTransmissionAckMessage(ptvcursor_t *cursor, packet_info * pinfo
     ptvcursor_current_offset(cursor), ENC_LITTLE_ENDIAN);
   srtp_add_address(pinfo, PT_UDP, &media_addr, media_port, 0,
     "SKINNY", pinfo->num, false, NULL, NULL, NULL);
+  media_addr_str = address_to_display(NULL, &media_addr);
+  si->additionalInfo = g_strdup_printf("%s:%d", media_addr_str, media_port);
+  wmem_free(NULL, media_addr_str);
   ptvcursor_add(cursor, hf_skinny_portNumber, 4, ENC_LITTLE_ENDIAN);
   si->mediaTransmissionStatus = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_mediaTransmissionStatus, 4, ENC_LITTLE_ENDIAN);
@@ -8113,6 +8193,8 @@ static int dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
   si->multimediaReceptionStatus = -1;
   si->multimediaTransmissionStatus = -1;
   si->multicastReceptionStatus = -1;
+  g_free(si->additionalInfo);
+  si->additionalInfo = NULL;
 
   col_add_fstr(pinfo->cinfo, COL_INFO,"%s ", si->messageName);
   col_set_fence(pinfo->cinfo, COL_INFO);
