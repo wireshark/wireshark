@@ -228,6 +228,7 @@ static int hf_capabilities_encoding_bytes = -1;
 static int hf_capabilities_encoding_number = -1;
 static int hf_cablelabs_ipv6_server = -1;
 static int hf_cablelabs_docsis_version_number = -1;
+static int hf_cablelabs_dpoe_server_version_number = -1;
 static int hf_cablelabs_interface_id = -1;
 static int hf_cablelabs_interface_id_link_address = -1;
 static int hf_option_s46_rule_flags = -1;
@@ -790,6 +791,7 @@ static const value_string lq_query_vals[] = {
 
 /** CableLabs TLVs for DOCS_CMTS_CAP Vendor Option **/
 #define CL_OPTION_DOCS_CMTS_TLV_VERS_NUM 0x01 /* 1 */
+#define CL_OPTION_DOCS_DPOE_TLV_VERS_NUM 0x02 /* 2 */
 
 static const value_string cl_vendor_subopt_values[] = {
     /*    1 */ { CL_OPTION_ORO,                     "Option Request = " },
@@ -1724,6 +1726,11 @@ dissect_cablelabs_specific_opts(proto_tree *v_tree, proto_item *v_item, packet_i
                                 2, ENC_BIG_ENDIAN);
                             sub_off += 2;
                         }
+                        else if ((tag == CL_OPTION_DOCS_DPOE_TLV_VERS_NUM) && (tagLen == 2)) {
+                            proto_tree_add_item(subtree, hf_cablelabs_dpoe_server_version_number, tvb, sub_off,
+                                2, ENC_BIG_ENDIAN);
+                            sub_off += 2;
+                        }
                         else
                             sub_off += tagLen;
 
@@ -1798,6 +1805,13 @@ dissect_cablelabs_specific_opts(proto_tree *v_tree, proto_item *v_item, packet_i
 
 static void
 cablelabs_fmt_docsis_version( gchar *result, guint32 revision )
+{
+   g_snprintf( result, ITEM_LABEL_LENGTH, "%d.%02d", (guint8)(( revision & 0xFF00 ) >> 8), (guint8)(revision & 0xFF) );
+}
+
+
+static void
+cablelabs_fmt_dpoe_server_version( gchar *result, guint32 revision )
 {
    g_snprintf( result, ITEM_LABEL_LENGTH, "%d.%02d", (guint8)(( revision & 0xFF00 ) >> 8), (guint8)(revision & 0xFF) );
 }
@@ -3412,6 +3426,8 @@ proto_register_dhcpv6(void)
           { "IPv6 address", "dhcpv6.cablelabs.ipv6_server", FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL}},
         { &hf_cablelabs_docsis_version_number,
           { "DOCSIS Version Number", "dhcpv6.cablelabs.docsis_version_number", FT_UINT16, BASE_CUSTOM, CF_FUNC(cablelabs_fmt_docsis_version), 0x0, NULL, HFILL}},
+        { &hf_cablelabs_dpoe_server_version_number,
+          { "DPoE Server Version Number", "dhcpv6.cablelabs.dpoe_server_version_number", FT_UINT16, BASE_CUSTOM, CF_FUNC(cablelabs_fmt_dpoe_server_version), 0x0, NULL, HFILL}},
         { &hf_cablelabs_interface_id,
           { "Interface-ID", "dhcpv6.cablelabs.interface_id", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
         { &hf_cablelabs_interface_id_link_address,
