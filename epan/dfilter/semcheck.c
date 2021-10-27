@@ -682,15 +682,15 @@ check_relation_LHS_FIELD(dfwork_t *dfw, const char *relation_string,
 			stnode_t *node_right = (stnode_t *)nodelist->data;
 			if (node_right) {
 				/* range type, check if comparison is possible. */
-				if (!ftype_can_ge(ftype1)) {
+				if (!ftype_can_cmp(ftype1)) {
 					dfilter_fail(dfw, "%s (type=%s) cannot participate in '%s' comparison.",
 							hfinfo1->abbrev, ftype_pretty_name(ftype1),
 							">=");
 					THROW(TypeError);
 				}
-				check_relation_LHS_FIELD(dfw, ">=", ftype_can_ge,
+				check_relation_LHS_FIELD(dfw, ">=", ftype_can_cmp,
 						allow_partial_value, st_arg2, st_arg1, node);
-				check_relation_LHS_FIELD(dfw, "<=", ftype_can_le,
+				check_relation_LHS_FIELD(dfw, "<=", ftype_can_cmp,
 						allow_partial_value, st_arg2, st_arg1, node_right);
 			} else {
 				check_relation_LHS_FIELD(dfw, "==", can_func,
@@ -1214,22 +1214,22 @@ check_test(dfwork_t *dfw, stnode_t *st_node)
 			check_relation(dfw, "==", FALSE, ftype_can_eq, st_node, st_arg1, st_arg2);
 			break;
 		case TEST_OP_ALL_NE:
-			check_relation(dfw, "!=", FALSE, ftype_can_ne, st_node, st_arg1, st_arg2);
+			check_relation(dfw, "!=", FALSE, ftype_can_eq, st_node, st_arg1, st_arg2);
 			break;
 		case TEST_OP_ANY_NE:
-			check_relation(dfw, "~=", FALSE, ftype_can_ne, st_node, st_arg1, st_arg2);
+			check_relation(dfw, "~=", FALSE, ftype_can_eq, st_node, st_arg1, st_arg2);
 			break;
 		case TEST_OP_GT:
-			check_relation(dfw, ">", FALSE, ftype_can_gt, st_node, st_arg1, st_arg2);
+			check_relation(dfw, ">", FALSE, ftype_can_cmp, st_node, st_arg1, st_arg2);
 			break;
 		case TEST_OP_GE:
-			check_relation(dfw, ">=", FALSE, ftype_can_ge, st_node, st_arg1, st_arg2);
+			check_relation(dfw, ">=", FALSE, ftype_can_cmp, st_node, st_arg1, st_arg2);
 			break;
 		case TEST_OP_LT:
-			check_relation(dfw, "<", FALSE, ftype_can_lt, st_node, st_arg1, st_arg2);
+			check_relation(dfw, "<", FALSE, ftype_can_cmp, st_node, st_arg1, st_arg2);
 			break;
 		case TEST_OP_LE:
-			check_relation(dfw, "<=", FALSE, ftype_can_le, st_node, st_arg1, st_arg2);
+			check_relation(dfw, "<=", FALSE, ftype_can_cmp, st_node, st_arg1, st_arg2);
 			break;
 		case TEST_OP_BITWISE_AND:
 			check_relation(dfw, "&", FALSE, ftype_can_bitwise_and, st_node, st_arg1, st_arg2);
@@ -1241,9 +1241,7 @@ check_test(dfwork_t *dfw, stnode_t *st_node)
 			check_relation_matches(dfw, st_node, st_arg1, st_arg2);
 			break;
 		case TEST_OP_IN:
-			/* Use the ftype_can_eq as the items in the set are evaluated using the
-			 * semantics of equality. */
-			check_relation(dfw, "in", FALSE, ftype_can_eq, st_node, st_arg1, st_arg2);
+			check_relation(dfw, "in", FALSE, ftype_can_cmp, st_node, st_arg1, st_arg2);
 			break;
 
 		default:

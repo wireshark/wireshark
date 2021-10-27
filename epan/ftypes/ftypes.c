@@ -179,43 +179,7 @@ ftype_can_eq(enum ftenum ftype)
 }
 
 gboolean
-ftype_can_ne(enum ftenum ftype)
-{
-	ftype_t	*ft;
-
-	FTYPE_LOOKUP(ftype, ft);
-	return ft->cmp_order != NULL;
-}
-
-gboolean
-ftype_can_gt(enum ftenum ftype)
-{
-	ftype_t	*ft;
-
-	FTYPE_LOOKUP(ftype, ft);
-	return ft->cmp_order != NULL;
-}
-
-gboolean
-ftype_can_ge(enum ftenum ftype)
-{
-	ftype_t	*ft;
-
-	FTYPE_LOOKUP(ftype, ft);
-	return ft->cmp_order != NULL;
-}
-
-gboolean
-ftype_can_lt(enum ftenum ftype)
-{
-	ftype_t	*ft;
-
-	FTYPE_LOOKUP(ftype, ft);
-	return ft->cmp_order != NULL;
-}
-
-gboolean
-ftype_can_le(enum ftenum ftype)
+ftype_can_cmp(enum ftenum ftype)
 {
 	ftype_t	*ft;
 

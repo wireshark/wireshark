@@ -358,23 +358,15 @@ void DisplayFilterExpressionDialog::on_fieldTreeWidget_itemSelectionChanged()
         QListWidgetItem *li = ui->relationListWidget->item(i);
         switch (li->type()) {
         case eq_op_:
-        case in_op_:
+        case ne_op_:
             li->setHidden(!ftype_can_eq(ftype_) && !(ftype_can_slice(ftype_) && ftype_can_eq(FT_BYTES)));
             break;
-        case ne_op_:
-            li->setHidden(!ftype_can_ne(ftype_) && !(ftype_can_slice(ftype_) && ftype_can_ne(FT_BYTES)));
-            break;
         case gt_op_:
-            li->setHidden(!ftype_can_gt(ftype_) && !(ftype_can_slice(ftype_) && ftype_can_gt(FT_BYTES)));
-            break;
         case lt_op_:
-            li->setHidden(!ftype_can_lt(ftype_) && !(ftype_can_slice(ftype_) && ftype_can_lt(FT_BYTES)));
-            break;
         case ge_op_:
-            li->setHidden(!ftype_can_ge(ftype_) && !(ftype_can_slice(ftype_) && ftype_can_ge(FT_BYTES)));
-            break;
         case le_op_:
-            li->setHidden(!ftype_can_le(ftype_) && !(ftype_can_slice(ftype_) && ftype_can_le(FT_BYTES)));
+        case in_op_:
+            li->setHidden(!ftype_can_cmp(ftype_) && !(ftype_can_slice(ftype_) && ftype_can_cmp(FT_BYTES)));
             break;
         case contains_op_:
             li->setHidden(!ftype_can_contains(ftype_) && !(ftype_can_slice(ftype_) && ftype_can_contains(FT_BYTES)));

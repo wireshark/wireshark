@@ -179,23 +179,7 @@ ftype_can_eq(enum ftenum ftype);
 
 WS_DLL_PUBLIC
 gboolean
-ftype_can_ne(enum ftenum ftype);
-
-WS_DLL_PUBLIC
-gboolean
-ftype_can_gt(enum ftenum ftype);
-
-WS_DLL_PUBLIC
-gboolean
-ftype_can_ge(enum ftenum ftype);
-
-WS_DLL_PUBLIC
-gboolean
-ftype_can_lt(enum ftenum ftype);
-
-WS_DLL_PUBLIC
-gboolean
-ftype_can_le(enum ftenum ftype);
+ftype_can_cmp(enum ftenum ftype);
 
 gboolean
 ftype_can_bitwise_and(enum ftenum ftype);
