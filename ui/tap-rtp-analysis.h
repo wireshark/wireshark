@@ -49,6 +49,7 @@ typedef struct _tap_rtp_stat_t {
     guint32         flags;      /* see STAT_FLAG-defines below */
     guint16         seq_num;
     guint32         timestamp;
+    guint32         seq_timestamp;
     guint32         first_timestamp;
     double          bandwidth;
     bw_history_item bw_history[BUFF_BW];
@@ -67,6 +68,7 @@ typedef struct _tap_rtp_stat_t {
     double          time;       /**< Unit is ms */
     double          start_time; /**< Unit is ms */
     double          lastnominaltime;
+    double          lastarrivaltime;
     double          min_delta;
     double          max_delta;
     double          mean_delta;
