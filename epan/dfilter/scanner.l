@@ -111,7 +111,10 @@ static int set_lval_str(int token, const char *token_value);
 
 "("		return SIMPLE(TOKEN_LPAREN);
 ")"		return SIMPLE(TOKEN_RPAREN);
-","		return SIMPLE(TOKEN_COMMA);
+
+[[:blank:]\n]*","[[:blank:]\n]*	{
+	return set_lval_str(TOKEN_COMMA, ",");
+}
 
 "{"[[:blank:]\n]*	{
 	yyextra->in_set = TRUE;

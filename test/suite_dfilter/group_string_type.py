@@ -185,7 +185,3 @@ class case_string(unittest.TestCase):
     def test_value_string_1(self, checkDFilterCount):
         dfilter = 'tcp.checksum.status == "Unverified" || tcp.checksum.status == "Good"'
         checkDFilterCount(dfilter, 1)
-
-    def test_value_string_2(self, checkDFilterCount):
-        dfilter = 'tcp.checksum.status in {"Unverified" "Good"}'
-        checkDFilterCount(dfilter, 1)
