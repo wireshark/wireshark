@@ -1,3 +1,91 @@
+2a0f68f3a9 Flow sequence: Shows more information about various skinny messages
+819a6b50f1 QUIC(Datagram): update to last IETF draft
+ff9c194582 QUIC: Update to final RFC...
+492a703820 BT SDP: Don't overrun our continuation state buffer.
+79dd8fd890 IDMP: Initialize some variables.
+33dc397ce0 SKINNY: Initialize our addresses.
+e138ec5dec BT-DHT: Fix another loop and add NULL checks.
+f21b94476e PNRP: Exit our main loop.
+1fbe71fe2b docs: Update wireshark-filter man page about "!="
+9a314b5595 ACDR: Handle timestamps as time values instead of bytes
+12fffa1c3e ACDR: Fix handling of short signaling packets
+839853938a BT-DHT: Disable heuristic for now
+e32e10e3d0 dfilter: Fix "!=" relation to be free of contradictions
+913b6c3390 Revert "debian: Report upstream and package version instead of git revision"
+a0414458c0 Increase max packet size for all USB encapsulation formats
+720e6cf60f Skinny: Create RTP stream based on messages (2)
+73c82db4c6 [Automatic update for 2021-10-24]
+654c563520 Skinny: Create RTP stream based on messages
+f8e42a0d14 IAX2 Stream Analysis: Fix of mean jitter calculation
+5fdd4c2e80 RTP Analysis: Fix of mean_jitter calculation
+a8226d7b1d Qt: Add back some Q_OBJECT calls.
+a37168822b Tools: Fix some fuzzing logic.
+4ebb4b1b51 dumpcap: don't tell users to bother the Npcap developers.
+8defce0446 docs/tshark: proper name is lopsided CamelCase (TShark)
+2b3ade549b http2: fix the stream mode reassembly issue
+59248a271e ieee1905: Add missing offset increment
+7dc822ef0e debian/rules: Run dh_dwz with debhelper (>= 12.6) only
+dbb6807e45 bpv7: Fix warning found by Clang Analyzer
+85bef7eeaf CMake+Docs: Update our man page targets.
+fa3d114a44 csn1: Avoid storing existence bit as true if content was actually NULL
+6d29253353 csn1: Avoid failing if optional DownlinkDualCarrierCapability_r7 is missing
+366ae9e2a3 QUIC: fix compilation on Raspberry
+dc42fd4ff9 wslua: Initialize Proto members on creation
+b600434639 EVS: Fix bug in decoding SID frame CNG type
+f7833b52d7 Docs: Move includes to the top of our man pages.
+94f5ef07ef CMake+Docs: Generate man pages all at once.
+bc878d4bef EVS: Fix CNG schema for SID payload
+b4ea2d0fd3 CSN.1: Fix definition for DownlinkDualCarrierCapability_r7_t in MS RA cap
+271bc73be2 BSSMAP LE: fix dissection of APDU in 2 messages
+5696fc869c Fix build with WS_DISABLE_DEBUG
+8e7207f4c6 socketcan: use ett_can_fd for CAN FD.
+178f4390d7 CMake+Docs: Try to build our man pages in parallel.
+2d390c2c3e Websocket frame reassembly support
+aa8119d7a1 GSM A-bis/RSL: dissect some more Osmocom specific IEs
+7128c8b44e GSM A-bis/RSL: add a checkbox for Osmocom specific definitions
+60440478d7 GSM A-bis/RSL: fix wrong tree/length in dissect_rsl_ie_message_id()
+4393c6a175 couchbase: Add Subdoc replace body with xattr opcode
+4c1285548d couchbase: Add ReviveDocument subdoc flag
+276597fb10 couchbase: Add new subdoc error codes
+3eeec0d99e gprscdr: Update to 3GPP TS 32.298 V17.0.0
+cefacc1b72 Add a comment to explain a cast done in file_fdopen().
+f99ccb9f2c SIP: 200 ok put resp to method in info col
+ae2fa6ebac pfcp: Update to 3GPP TS 29.244 V17.2.0
+65b001cfe4 extcap: reword error message referencing captype
+6c8af214a2 docs: -z stats - bootp now dhcp; not all in man page
+b1e0a73181 docs: -z stats - bootp now dhcp; not all in man page
+0497a29271 capinfos: man page typos; add longopts to Usage:
+96ad0d294e packet-btmesh: fix build without GCRYPT
+6ae51bc91e proto: Check for reserved keywords in filter names
+2eec5ed0a9 Fix some spelling errors
+576aa851e6 wiretap: fix a warning on Raspberry 4
+45772ee21a BPv7: Add Bundle Protocol version 7 and BPSec dissectors from dtn-wireshark
+4eabe65bf3 rdpudp: update parsing of AckVec packets to last spec
+6745a470fe Qt: Remove more Q_OBJECT macro calls.
+1d02303263 BT-uTP: Strengthen heuristic
+1493f11882 OptoMMP: Added expanded memory ranges and descriptions.
+24b7864041 TCP: Port reuse ends with false Retransmissions
+e7aeb9e0ed btsmp: Fix endianess of debug public key
+06b9d5a9af Revert "GitLab CI: Switch to clang 13."
+db4c49f0c2 NEWS: tshark folders; WSUG and download page links
+2d371a3cf6 RPC: Don't defragment without the entire fragment
+44a95de57b lisp: convert get_addr_str to use pinfo->pool
+8ee731b3ee BT-DHT: Support BEP 42, DHT Security Extension
+570389668f dfilter: Generalize special case of one byte literal
+af513fdfdf TECMP: Bugfix: TECMP should not decode NULL frames
+d5c3cc56dc AUTOSAR NM: Bugfix: wrong filters for user defined elements
+a5c4e30bf7 TECMP: Bugfix wrong payload length for payloadtvb
+930c6c17f3 ISO15765: Bugfix, LIN config influenced CAN
+92c8842707 [Automatic update for 2021-10-17]
+2acec5e5cc dumpcap: do all packet counting in capture_loop_wrote_one_packet().
+2ace5f9b22 socketcan: support the CANFD_FDF flag for identifying CAN FD frames.
+5e6ec27a85 CMake: Partially revert recent docs changes.
+5b18c8167d doc: fix the macOS build.
+5860b7db99 dumpcap: double received count when using threads
+9f8dc965e2 CMake: Try to make our man page builds faster.
+0a8affedf3 captype: add options to Usage: and man page
+01711916d8 Version: 3.6.0rc1 → 3.6.0rc2
+1decf2b777 Build 3.6.0rc0
 6bfef174c5 Packaging: Add captype to the Windows installers.
 da8a707b6c BT HCI_ISO: Don't overrun our reassembly buffer.
 0e453ec048 eNode-B: Fix check for eri_enb_log_magic

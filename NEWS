@@ -1,4 +1,4 @@
-Wireshark 3.6.0 Release Notes
+Wireshark 3.6.0rc2 Release Notes
 
  This is the first release candidate for Wireshark 3.6.
 
@@ -17,7 +17,8 @@ Wireshark 3.6.0 Release Notes
    The following features are new (or have been significantly updated)
    since version 3.6.0rc1:
 
-     • Nothing of note.
+     • The display filter expression “a != b” now has the same meaning
+       as “!(a == b)”.
 
    The following features are new (or have been significantly updated)
    since version 3.5.0:
@@ -40,8 +41,8 @@ Wireshark 3.6.0 Release Notes
 
      • Protobuf fields that are not serialized on the wire (missing in
        capture files) can now be displayed with default values by
-       setting the new 'add_default_value' preference. The default
-       values might be explicitly declared in 'proto2' files, or false
+       setting the new “add_default_value” preference. The default
+       values might be explicitly declared in “proto2” files, or false
        for bools, first value for enums, zero for numeric types.
 
      • Wireshark now supports reading Event Tracing for Windows (ETW). A
@@ -53,7 +54,7 @@ Wireshark 3.6.0 Release Notes
        calls packet_mbim sub_dissector if its provider matches the MBIM
        provider GUID.
 
-     • "Follow DCCP stream" feature to filter for and extract the
+     • “Follow DCCP stream” feature to filter for and extract the
        contents of DCCP streams.
 
      • Wireshark now supports dissecting the rtp packet with OPUS
@@ -111,8 +112,8 @@ Wireshark 3.6.0 Release Notes
        link-local (RFC 3927) IPv4 address continues to take the VLAN ID
        into account, as those addresses can be reused. To revert to the
        previous behavior and not reassemble fragments with different
-       VLAN IDs, turn on the "Enable stricter conversation tracking
-       heuristics" top level protocol preference.
+       VLAN IDs, turn on the “Enable stricter conversation tracking
+       heuristics” top level protocol preference.
 
      • USB Link Layer reassembly has been added, which allows hardware
        captures to be analyzed at the same level as software captures.
@@ -129,16 +130,31 @@ Wireshark 3.6.0 Release Notes
 
      • Wireshark now supports the Turkish language.
 
-     • The settings in the 'Import from Hex Dump' dialog is now stored
+     • The settings in the “Import from Hex Dump” dialog is now stored
        in a profile import_hexdump.json file.
 
      • Reload Lua plugins has been improved to properly support
        FileHandler.
 
+     • Display filter syntax:
+
+        • The expression “a != b” now always has the same meaning as
+       “!(a == b)”. In particular this means filter expressions with
+       multi-value fields like “ip.addr != 1.1.1.1” will work as
+       expected (the result is the same as typing “ip.src != 1.1.1.1 and
+       ip.dst != 1.1.1.1”). This avoids the contradiction (a == b and a
+       != b) being true.
+
+        • Use the syntax “a ~= b” or “a any_ne b” to recover the
+       previous (inconsistent with ==) logic for not equal.
+
      • Corrected calculation of mean jitter in RTP Stream Analysis
        dialog and IAX2 Stram Analysis dialog
 
      • RTP streams are created based on Skinny protocol messages
+
+     • The VoIP Calls Flow Sequence window shows more information about
+       various Skinny messages
 
   New File Format Decoding Support
 
@@ -208,7 +224,7 @@ Wireshark 3.6.0 Release Notes
 
   A complete FAQ is available on the Wireshark web site[8].
 
-  Last updated 2021-10-24 17:31:21 UTC
+  Last updated 2021-10-27 19:35:10 UTC
 
  References
 
