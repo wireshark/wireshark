@@ -247,7 +247,7 @@ dissect_rdp_drdynvc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 	gboolean haveChannelId, havePri, haveLen;
 	gboolean isServerTarget = rdp_isServerAddressTarget(pinfo);
 	guint32 channelId = 0;
-	guint32 pduLen;
+	guint32 pduLen = 0;
 	drdynvc_conv_info_t *info;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "DRDYNVC");
