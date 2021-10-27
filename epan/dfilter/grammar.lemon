@@ -314,6 +314,17 @@ set_node_list(L) ::= set_node_list(P) WHITESPACE entity(E).
 {
 	L = g_slist_append(P, E);
 	L = g_slist_append(L, NULL);
+
+	add_deprecated_token(dfw,
+			"Use ',' to separate set elements. "
+			"The use of whitespace as separator in sets is "
+			"deprecated and will be removed in a future version.");
+}
+
+set_node_list(L) ::= set_node_list(P) COMMA entity(E).
+{
+	L = g_slist_append(P, E);
+	L = g_slist_append(L, NULL);
 }
 
 /* Set elements. */
@@ -324,6 +335,17 @@ set_node_list(L) ::= entity(X) DOTDOT entity(Y).
 }
 
 set_node_list(L) ::= set_node_list(P) WHITESPACE entity(X) DOTDOT entity(Y).
+{
+	L = g_slist_append(P, X);
+	L = g_slist_append(L, Y);
+
+	add_deprecated_token(dfw,
+			"Use ',' to separate set elements. "
+			"The use of whitespace as separator in sets is "
+			"deprecated and will be removed in a future version.");
+}
+
+set_node_list(L) ::= set_node_list(P) COMMA entity(X) DOTDOT entity(Y).
 {
 	L = g_slist_append(P, X);
 	L = g_slist_append(L, Y);

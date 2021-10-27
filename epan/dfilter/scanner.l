@@ -126,7 +126,10 @@ static gboolean str_to_gint32(dfwork_t *dfw, const char *s, gint32* pint);
 
 "("		return SIMPLE(TOKEN_LPAREN);
 ")"		return SIMPLE(TOKEN_RPAREN);
-","		return SIMPLE(TOKEN_COMMA);
+
+[[:blank:]\n]*","[[:blank:]\n]*	{
+	return simple(TOKEN_COMMA, ",");
+}
 
 "{"[[:blank:]\n]*	{
 	yyextra->in_set = TRUE;

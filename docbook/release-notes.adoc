@@ -120,6 +120,8 @@ The following features are new (or have been significantly updated) since versio
    “ip.addr != 1.1.1.1” will work as expected (the result is the same as typing “ip.src != 1.1.1.1 and ip.dst != 1.1.1.1”). This avoids the
    contradiction (a == b and a != b) being true.
 ** Use the syntax “a ~= b” or “a any_ne b” to recover the previous (inconsistent with ==) logic for not equal.
+** Set elements must now be separated using a comma (,). A filter such as http.request.method in {"GET" "HEAD"} must be written as ... in {"GET", "HEAD"}.
+   (Whitespace is of course optional.) The previous use of whitespace as separator is deprecated and will be removed in a future version.
 
 * Corrected calculation of mean jitter in RTP Stream Analysis dialog and IAX2 Stram Analysis dialog
 
