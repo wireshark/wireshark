@@ -30,6 +30,10 @@ See the “New and Updated Features” section below for more details.
 
 === New and Updated Features
 
+The following features are new (or have been significantly updated) since version 3.6.0rc2:
+
+* Nothing of note.
+
 The following features are new (or have been significantly updated) since version 3.6.0rc1:
 
 * The display filter expression “a != b” now has the same meaning as “!(a == b)”.
