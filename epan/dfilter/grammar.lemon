@@ -110,26 +110,22 @@ expr(X) ::= logical_test(L).	{ X = L; }
 /* Logical tests */
 logical_test(T) ::= expr(E) TEST_AND expr(F).
 {
-	T = stnode_new(STTYPE_TEST, NULL);
-	sttype_test_set2(T, TEST_OP_AND, E, F);
+	T = stnode_new_test(TEST_OP_AND, E, F);
 }
 
 logical_test(T) ::= expr(E) TEST_OR expr(F).
 {
-	T = stnode_new(STTYPE_TEST, NULL);
-	sttype_test_set2(T, TEST_OP_OR, E, F);
+	T = stnode_new_test(TEST_OP_OR, E, F);
 }
 
 logical_test(T) ::= TEST_NOT expr(E).
 {
-	T = stnode_new(STTYPE_TEST, NULL);
-	sttype_test_set1(T, TEST_OP_NOT, E);
+	T = stnode_new_test(TEST_OP_NOT, E, NULL);
 }
 
 logical_test(T) ::= entity(E).
 {
-	T = stnode_new(STTYPE_TEST, NULL);
-	sttype_test_set1(T, TEST_OP_EXISTS, E);
+	T = stnode_new_test(TEST_OP_EXISTS, E, NULL);
 }
 
 
@@ -202,8 +198,7 @@ rel_binop(O) ::= TEST_CONTAINS.	{ O = TEST_OP_CONTAINS; }
 /* Relational tests */
 relation_test(T) ::= entity(E) rel_binop(O) entity(F).
 {
-	T = stnode_new(STTYPE_TEST, NULL);
-	sttype_test_set2(T, O, E, F);
+	T = stnode_new_test(O, E, F);
 }
 
 /* 'a == b == c' or 'a < b <= c <= d < e' */
@@ -220,11 +215,9 @@ relation_test(T) ::= entity(E) rel_binop(O) relation_test(R).
 		sttype_test_get(F, NULL, &F, NULL);
 	} while (stnode_type_id(F) == STTYPE_TEST);
 
-	L = stnode_new(STTYPE_TEST, NULL);
-	sttype_test_set2(L, O, E, stnode_dup(F));
+	L = stnode_new_test(O, E, stnode_dup(F));
 
-	T = stnode_new(STTYPE_TEST, NULL);
-	sttype_test_set2(T, TEST_OP_AND, L, R);
+	T = stnode_new_test(TEST_OP_AND, L, R);
 }
 
 /* "matches" does not chain with other relational tests. */ 
@@ -232,16 +225,14 @@ relation_test(T) ::= entity(E) TEST_MATCHES entity(F).
 {
 	stnode_t *R = dfilter_new_regex(dfw, F);
 
-	T = stnode_new(STTYPE_TEST, NULL);
-	sttype_test_set2(T, TEST_OP_MATCHES, E, R);
+	T = stnode_new_test(TEST_OP_MATCHES, E, R);
 }
 
 relation_test(T) ::= entity(E) TEST_IN LBRACE set_node_list(L) RBRACE.
 {
-	stnode_t *S;
-	T = stnode_new(STTYPE_TEST, NULL);
-	S = stnode_new(STTYPE_SET, L);
-	sttype_test_set2(T, TEST_OP_IN, E, S);
+	stnode_t *S = stnode_new(STTYPE_SET, L);
+
+	T = stnode_new_test(TEST_OP_IN, E, S);
 }
 
 set_node_list(L) ::= entity(E).

@@ -147,6 +147,19 @@ stnode_new(sttype_id_t type_id, gpointer data)
 	return node;
 }
 
+stnode_t *
+stnode_new_test(test_op_t op, stnode_t *val1, stnode_t *val2)
+{
+	stnode_t *node;
+
+	node = stnode_new(STTYPE_TEST, NULL);
+	if (val2 != NULL)
+		sttype_test_set2(node, op, val1, val2);
+	else
+		sttype_test_set1(node, op, val1);
+	return node;
+}
+
 stnode_t*
 stnode_dup(const stnode_t *node)
 {

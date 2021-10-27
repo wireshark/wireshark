@@ -34,6 +34,25 @@ typedef enum {
 	STTYPE_NUM_TYPES
 } sttype_id_t;
 
+typedef enum {
+	TEST_OP_UNINITIALIZED,
+	TEST_OP_EXISTS,
+	TEST_OP_NOT,
+	TEST_OP_AND,
+	TEST_OP_OR,
+	TEST_OP_ANY_EQ,
+	TEST_OP_ALL_NE,
+	TEST_OP_ANY_NE,
+	TEST_OP_GT,
+	TEST_OP_GE,
+	TEST_OP_LT,
+	TEST_OP_LE,
+	TEST_OP_BITWISE_AND,
+	TEST_OP_CONTAINS,
+	TEST_OP_MATCHES,
+	TEST_OP_IN
+} test_op_t;
+
 typedef gpointer        (*STTypeNewFunc)(gpointer);
 typedef gpointer        (*STTypeDupFunc)(gconstpointer);
 typedef void            (*STTypeFreeFunc)(gpointer);
@@ -82,6 +101,9 @@ sttype_register(sttype_t *type);
 
 stnode_t*
 stnode_new(sttype_id_t type_id, gpointer data);
+
+stnode_t *
+stnode_new_test(test_op_t op, stnode_t *val1, stnode_t *val2);
 
 stnode_t*
 stnode_dup(const stnode_t *org);

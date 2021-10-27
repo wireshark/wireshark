@@ -10,25 +10,6 @@
 #ifndef STTYPE_TEST_H
 #define STTYPE_TEST_H
 
-typedef enum {
-	TEST_OP_UNINITIALIZED,
-	TEST_OP_EXISTS,
-	TEST_OP_NOT,
-	TEST_OP_AND,
-	TEST_OP_OR,
-	TEST_OP_ANY_EQ,
-	TEST_OP_ALL_NE,
-	TEST_OP_ANY_NE,
-	TEST_OP_GT,
-	TEST_OP_GE,
-	TEST_OP_LT,
-	TEST_OP_LE,
-	TEST_OP_BITWISE_AND,
-	TEST_OP_CONTAINS,
-	TEST_OP_MATCHES,
-	TEST_OP_IN
-} test_op_t;
-
 void
 sttype_test_set1(stnode_t *node, test_op_t op, stnode_t *val1);
 
