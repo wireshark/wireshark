@@ -28,8 +28,10 @@ string_free(gpointer value)
 }
 
 static char *
-string_tostr(const void *data, gboolean pretty _U_)
+string_tostr(const void *data, gboolean pretty)
 {
+	if (pretty)
+		return g_strdup_printf("\"%s\"", (const char *)data);
 	return g_strdup(data);
 }
 

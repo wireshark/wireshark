@@ -1166,6 +1166,25 @@ check_relation(dfwork_t *dfw, const char *relation_string,
 	}
 }
 
+static void
+check_relation_matches(dfwork_t *dfw, stnode_t *st_node,
+		stnode_t *st_arg1, stnode_t *st_arg2)
+{
+	if (stnode_type_id(st_arg1) == STTYPE_FIELD) {
+		check_relation_LHS_FIELD(dfw, "matches", ftype_can_matches, TRUE, st_node, st_arg1, st_arg2);
+	}
+	else if (stnode_type_id(st_arg1) == STTYPE_FUNCTION) {
+		check_relation_LHS_FUNCTION(dfw, "matches", ftype_can_matches, TRUE, st_node, st_arg1, st_arg2);
+	}
+	else if (stnode_type_id(st_arg1) == STTYPE_RANGE) {
+		check_relation_LHS_RANGE(dfw, "matches", ftype_can_matches, TRUE, st_node, st_arg1, st_arg2);
+	}
+	else {
+		dfilter_fail(dfw, "%s is not a valid operand for matches.", stnode_todisplay(st_arg1));
+		THROW(TypeError);
+	}
+}
+
 /* Check the semantics of any type of TEST */
 static void
 check_test(dfwork_t *dfw, stnode_t *st_node)
@@ -1242,7 +1261,7 @@ check_test(dfwork_t *dfw, stnode_t *st_node)
 			check_relation(dfw, "contains", TRUE, ftype_can_contains, st_node, st_arg1, st_arg2);
 			break;
 		case TEST_OP_MATCHES:
-			check_relation(dfw, "matches", TRUE, ftype_can_matches, st_node, st_arg1, st_arg2);
+			check_relation_matches(dfw, st_node, st_arg1, st_arg2);
 			break;
 		case TEST_OP_IN:
 			/* Use the ftype_can_eq as the items in the set are evaluated using the
