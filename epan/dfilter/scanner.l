@@ -347,15 +347,20 @@ static int set_lval_str(int token, const char *token_value);
 }
 
 
-
-[-[:alnum:]_\.:]*\/[[:digit:]]+  {
-        /* CIDR */
-        return set_lval_str(TOKEN_UNPARSED, yytext);
+	/* None of the patterns below can match ".." anywhere in the token string. */
+ 
+[[:digit:]]{1,3}\.[[:digit:]]{1,3}\.[[:digit:]]{1,3}\.[[:digit:]]{1,3}(\/[[:digit:]]+)*  {
+	/* IPv4 CIDR */
+	return set_lval_str(TOKEN_UNPARSED, yytext);
+}
+ 
+[[:xdigit:]:]+(\/[[:digit:]]+)*  {
+	/* IPv6 CIDR or bytes-: or integer... */
+	return set_lval_str(TOKEN_UNPARSED, yytext);
 }
 
 		([.][-+[:alnum:]_:]+)+[.]{0,2} |
 [-+[:alnum:]_:]+([.][-+[:alnum:]_:]+)*[.]{0,2} {
-	/* Is it a field name or some other value (float, integer, bytes, ...)? */
 
 	/* Trailing dot is allowed for floats, but make sure that trailing ".."
 	 * is interpreted as a token on its own. */
@@ -363,13 +368,14 @@ static int set_lval_str(int token, const char *token_value);
 		yyless(yyleng-2);
 	}
 
-	/* No match, so treat it as an unparsed string */
+	/* It is a field name or some other value (float, bytes, ...). */
 	return set_lval_str(TOKEN_UNPARSED, yytext);
 }
 
 . {
-	/* Default */
-	return set_lval_str(TOKEN_UNPARSED, yytext);
+ 	/* Default */
+	dfilter_fail(yyextra->dfw, "\"%s\" was unexpected in this context.", yytext);
+	return SCAN_FAILED;
 }
 
 
