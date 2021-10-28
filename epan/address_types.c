@@ -584,6 +584,28 @@ static int numeric_addr_to_str(const address* addr, gchar *buf, int buf_len)
 }
 
 /******************************************************************************
+ * AT_MCTP
+ ******************************************************************************/
+
+static int mctp_addr_to_str(const address* addr, gchar *buf, int buf_len _U_)
+{
+	const guint8 *addr_data = (const guint8 *)addr->data;
+	gchar *bufp = buf;
+
+	return g_snprintf(bufp, 3, "%d", addr_data[0]);
+}
+
+static int mctp_addr_str_len(const address* addr _U_)
+{
+	return 3;
+}
+
+static int mctp_len(void)
+{
+	return 1;
+}
+
+/******************************************************************************
  * END OF PROVIDED ADDRESS TYPES
  ******************************************************************************/
 
@@ -759,6 +781,18 @@ void address_types_initialize(void)
         NULL,              /* addr_name_res_str */
         NULL,              /* addr_name_res_len */
     };
+    static address_type_t mctp_address = {
+        AT_MCTP,           /* addr_type */
+        "AT_MCTP" ,        /* name */
+        "MCTP Address",    /* pretty_name */
+        mctp_addr_to_str,  /* addr_to_str */
+        mctp_addr_str_len, /* addr_str_len */
+        NULL,              /* addr_to_byte */
+        NULL,              /* addr_col_filter */
+        mctp_len,          /* addr_fixed_len */
+        NULL,              /* addr_name_res_str */
+        NULL,              /* addr_name_res_len */
+    };
 
     num_dissector_addr_type = 0;
 
@@ -779,6 +813,7 @@ void address_types_initialize(void)
     address_type_register(AT_AX25, &ax25_address );
     address_type_register(AT_VINES, &vines_address );
     address_type_register(AT_NUMERIC, &numeric_address );
+    address_type_register(AT_MCTP, &mctp_address );
 }
 
 /* Given an address type id, return an address_type_t* */

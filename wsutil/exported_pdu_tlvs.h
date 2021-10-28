@@ -119,6 +119,7 @@
 #define EXP_PDU_PT_BLUETOOTH    15
 #define EXP_PDU_PT_TDMOP        16
 #define EXP_PDU_PT_IWARP_MPA    17
+#define EXP_PDU_PT_MCTP         18
 
 #define EXP_PDU_TAG_PORT_TYPE       24  /**< part type - 4 bytes, EXP_PDU_PT value */
 #define EXP_PDU_TAG_SRC_PORT        25  /**< source port - 4 bytes (even for protocols with 2-byte ports) */

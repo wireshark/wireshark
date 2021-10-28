@@ -89,6 +89,7 @@ typedef enum {
     CONVERSATION_BT_UTP,	/* BitTorrent uTP Connection ID */
     CONVERSATION_LOG,		/* Logging source */
     CONVERSATION_LTP,		/* LTP Engine ID and Session Number */
+    CONVERSATION_MCTP,
 } conversation_type;
 
 /*
@@ -133,6 +134,7 @@ typedef enum {
 #define ENDPOINT_IWARP_MPA	CONVERSATION_IWARP_MPA
 #define ENDPOINT_BT_UTP		CONVERSATION_BT_UTP
 #define ENDPOINT_LOG		CONVERSATION_LOG
+#define ENDPOINT_MCTP		CONVERSATION_MCTP
 
 typedef conversation_type endpoint_type;
 

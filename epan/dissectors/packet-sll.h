@@ -25,5 +25,6 @@
 #define LINUX_SLL_P_IRDA_LAP	0x0017	/* IrDA Link Access Protocol */
 #define LINUX_SLL_P_ISI		0x00F5  /* Intelligent Service Interface */
 #define LINUX_SLL_P_IEEE802154	0x00f6	/* 802.15.4 on monitor inteface */
+#define LINUX_SLL_P_MCTP	0x00fa	/* Management Component Transport Protocol */
 
 #endif

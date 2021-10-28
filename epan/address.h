@@ -47,6 +47,7 @@ typedef enum {
     AT_AX25,               /* AX.25 */
     AT_VINES,              /* Banyan Vines address */
     AT_NUMERIC,            /* Numeric address type. */
+    AT_MCTP,               /* MCTP */
 
     AT_END_OF_LIST         /* Must be last in list */
 } address_type;
@@ -363,7 +364,8 @@ typedef enum {
     PT_I2C,
     PT_IBQP,            /* Infiniband QP number */
     PT_BLUETOOTH,
-    PT_IWARP_MPA        /* iWarp MPA */
+    PT_IWARP_MPA,       /* iWarp MPA */
+    PT_MCTP
 } port_type;
 
 #ifdef __cplusplus

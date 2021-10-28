@@ -114,6 +114,8 @@ static guint exp_pdu_ws_port_type_to_exp_pdu_port_type(port_type pt)
 		return EXP_PDU_PT_BLUETOOTH;
 	case PT_IWARP_MPA:
 		return EXP_PDU_PT_IWARP_MPA;
+	case PT_MCTP:
+		return EXP_PDU_PT_MCTP;
 	}
 
 	DISSECTOR_ASSERT(FALSE);

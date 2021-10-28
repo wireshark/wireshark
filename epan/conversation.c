@@ -1912,6 +1912,8 @@ conversation_type conversation_pt_to_conversation_type(port_type pt)
             return CONVERSATION_BLUETOOTH;
         case PT_IWARP_MPA:
             return CONVERSATION_IWARP_MPA;
+        case PT_MCTP:
+            return CONVERSATION_MCTP;
     }
 
     DISSECTOR_ASSERT(FALSE);
@@ -1950,6 +1952,8 @@ endpoint_type conversation_pt_to_endpoint_type(port_type pt)
             return ENDPOINT_BLUETOOTH;
         case PT_IWARP_MPA:
             return ENDPOINT_IWARP_MPA;
+        case PT_MCTP:
+            return ENDPOINT_MCTP;
     }
 
     DISSECTOR_ASSERT(FALSE);

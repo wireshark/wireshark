@@ -80,6 +80,7 @@ SAP Internet Graphic Server (SAP IGS)
 SAP Network Interface (SAPNI)
 World of Warcraft World (WOWW) display filters have been changed to be more internally consistent.
 Support for almost all WoW 1.12 messages has been added.
+Management Component Transport Protocol (MCTP)
 --
 
 === Updated Protocol Support
