@@ -81,6 +81,7 @@ SAP Network Interface (SAPNI)
 World of Warcraft World (WOWW) display filters have been changed to be more internally consistent.
 Support for almost all WoW 1.12 messages has been added.
 Management Component Transport Protocol (MCTP)
+Management Component Transport Protocol - Control Protocol (MCTP CP)
 --
 
 === Updated Protocol Support
