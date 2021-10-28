@@ -289,10 +289,11 @@ register_pcapng_block_type_handler(guint block_type, block_reader reader,
     case BLOCK_TYPE_CB_NO_COPY:
     case BLOCK_TYPE_SYSDIG_EVENT:
     case BLOCK_TYPE_SYSDIG_EVENT_V2:
+    case BLOCK_TYPE_SYSDIG_EVENT_V2_LARGE:
     case BLOCK_TYPE_SYSTEMD_JOURNAL_EXPORT:
         /*
          * Yes; we already handle it, and don't allow a replacement to
-         * be registeted (if there's a bug in our code, or there's
+         * be registered (if there's a bug in our code, or there's
          * something we don't handle in that block, submit a change
          * to the main Wireshark source).
          */
@@ -303,6 +304,8 @@ register_pcapng_block_type_handler(guint block_type, block_reader reader,
     case BLOCK_TYPE_IRIG_TS:
     case BLOCK_TYPE_ARINC_429:
     case BLOCK_TYPE_SYSDIG_EVF:
+    case BLOCK_TYPE_SYSDIG_EVF_V2:
+    case BLOCK_TYPE_SYSDIG_EVF_V2_LARGE:
         /*
          * Yes, and we don't already handle it.  Allow a plugin to
          * handle it.
@@ -447,6 +450,7 @@ get_block_type_index(guint block_type, guint *bt_index)
 
         case BLOCK_TYPE_SYSDIG_EVENT:
         case BLOCK_TYPE_SYSDIG_EVENT_V2:
+        case BLOCK_TYPE_SYSDIG_EVENT_V2_LARGE:
         /* case BLOCK_TYPE_SYSDIG_EVF: */
             *bt_index = BT_INDEX_EVT;
             break;
@@ -2825,10 +2829,14 @@ pcapng_read_sysdig_event_block(FILE_T fh, pcapng_block_header_t *bh,
     guint32 nparams = 0;
     guint min_event_size;
 
-    if (bh->block_type == BLOCK_TYPE_SYSDIG_EVENT_V2) {
-        min_event_size = MIN_SYSDIG_EVENT_V2_SIZE;
-    } else {
-        min_event_size = MIN_SYSDIG_EVENT_SIZE;
+    switch (bh->block_type) {
+        case BLOCK_TYPE_SYSDIG_EVENT_V2_LARGE:
+        case BLOCK_TYPE_SYSDIG_EVENT_V2:
+            min_event_size = MIN_SYSDIG_EVENT_V2_SIZE;
+            break;
+        default:
+            min_event_size = MIN_SYSDIG_EVENT_SIZE;
+            break;
     }
 
     if (bh->block_total_length < min_event_size) {
@@ -2863,7 +2871,7 @@ pcapng_read_sysdig_event_block(FILE_T fh, pcapng_block_header_t *bh,
         ws_debug("failed to read sysdig event type");
         return FALSE;
     }
-    if (bh->block_type == BLOCK_TYPE_SYSDIG_EVENT_V2) {
+    if (bh->block_type == BLOCK_TYPE_SYSDIG_EVENT_V2 || bh->block_type == BLOCK_TYPE_SYSDIG_EVENT_V2_LARGE) {
         if (!wtap_read_bytes(fh, &nparams, sizeof nparams, err, err_info)) {
             ws_debug("failed to read sysdig number of parameters");
             return FALSE;
@@ -3256,6 +3264,7 @@ pcapng_read_block(wtap *wth, FILE_T fh, pcapng_t *pn,
                 break;
             case(BLOCK_TYPE_SYSDIG_EVENT):
             case(BLOCK_TYPE_SYSDIG_EVENT_V2):
+            case(BLOCK_TYPE_SYSDIG_EVENT_V2_LARGE):
             /* case(BLOCK_TYPE_SYSDIG_EVF): */
                 if (!pcapng_read_sysdig_event_block(fh, &bh, section_info, wblock, err, err_info))
                     return FALSE;
