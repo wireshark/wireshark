@@ -260,6 +260,10 @@ static const value_string block_type_vals[] = {
     { 0x0000000A,  "Decryption Secrets Block" },
     { 0x00000204,  "Sysdig Event Block" },
     { 0x00000208,  "Sysdig Event Block with flags" },
+    { 0x00000216,  "Sysdig Event Block v2" },
+    { 0x00000217,  "Sysdig Event Block with flags v2" },
+    { 0x00000221,  "Sysdig Event Block v2 large payload" },
+    { 0x00000222,  "Sysdig Event Block with flags v2 large payload" },
     { 0x0A0D0D0A,  "Section Header Block" },
     { 0x80000001,  "Darwin Process Event Block" },
     { 0, NULL }
