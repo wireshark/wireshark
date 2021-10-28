@@ -104,6 +104,7 @@ static int hf_someip_sd_entry_index1 = -1;
 static int hf_someip_sd_entry_index2 = -1;
 static int hf_someip_sd_entry_numopt1 = -1;
 static int hf_someip_sd_entry_numopt2 = -1;
+static int hf_someip_sd_entry_opts_referenced = -1;
 static int hf_someip_sd_entry_serviceid = -1;
 static int hf_someip_sd_entry_instanceid = -1;
 static int hf_someip_sd_entry_majorver = -1;
@@ -484,11 +485,16 @@ dissect_someip_sd_pdu_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     guint32             majorver = 0;
     guint32             minorver = 0;
     guint32             ttl = 0;
+    guint32             opt_index1;
+    guint32             opt_index2;
+    guint32             opt_num1;
+    guint32             opt_num2;
 
     guint64             uniqueid = 0;
     guint8              category = SD_ENTRY_UNKNOWN;
 
     const gchar        *description = NULL;
+    static gchar        buf_opt_ref[32];
 
     proto_item         *ti;
     proto_item         *ti_top;
@@ -525,14 +531,27 @@ dissect_someip_sd_pdu_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree_add_uint_format_value(tree, hf_someip_sd_entry_type, tvb, offset, 1, type, "0x%02x (%s)", type, description);
     offset += 1;
 
-    proto_tree_add_item(tree, hf_someip_sd_entry_index1, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_someip_sd_entry_index1, tvb, offset, 1, ENC_BIG_ENDIAN, &opt_index1);
     offset += 1;
-    proto_tree_add_item(tree, hf_someip_sd_entry_index2, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_someip_sd_entry_index2, tvb, offset, 1, ENC_BIG_ENDIAN, &opt_index2);
     offset += 1;
 
-    proto_tree_add_item(tree, hf_someip_sd_entry_numopt1, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_someip_sd_entry_numopt2, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item_ret_uint(tree, hf_someip_sd_entry_numopt1, tvb, offset, 1, ENC_NA, &opt_num1);
+    proto_tree_add_item_ret_uint(tree, hf_someip_sd_entry_numopt2, tvb, offset, 1, ENC_NA, &opt_num2);
     offset += 1;
+
+    if (opt_num1 != 0 && opt_num2 == 0) {
+        g_snprintf(buf_opt_ref, 32, "%d-%d", opt_index1, opt_index1 + opt_num1 - 1);
+    } else if (opt_num1 == 0 && opt_num2 != 0) {
+        g_snprintf(buf_opt_ref, 32, "%d-%d", opt_index2, opt_index2 + opt_num2 - 1);
+    } else if (opt_num1 != 0 && opt_num2 != 0) {
+        g_snprintf(buf_opt_ref, 32, "%d-%d,%d-%d", opt_index1, opt_index1 + opt_num1 - 1, opt_index2, opt_index2 + opt_num2 - 1);
+    } else {
+        g_snprintf(buf_opt_ref, 32, "None");
+    }
+
+    ti = proto_tree_add_string(tree, hf_someip_sd_entry_opts_referenced, tvb, offset - 3, 3, buf_opt_ref);
+    proto_item_set_generated(ti);
 
     ti = proto_tree_add_item_ret_uint(tree, hf_someip_sd_entry_serviceid, tvb, offset, 2, ENC_BIG_ENDIAN, &serviceid);
     description = someip_lookup_service_name((guint16)serviceid);
@@ -826,6 +845,9 @@ proto_register_someip_sd(void) {
         { &hf_someip_sd_entry_numopt2,
             { "Number of Opts 2", "someipsd.entry.numopt2",
             FT_UINT8, BASE_HEX, NULL, 0x0f, NULL, HFILL }},
+        { &hf_someip_sd_entry_opts_referenced,
+            { "Options referenced", "someipsd.entry.optionsreferenced",
+            FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL }},
 
         { &hf_someip_sd_entry_serviceid,
             { "Service ID", "someipsd.entry.serviceid",
