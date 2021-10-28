@@ -380,6 +380,8 @@ static int hf_http2_header_repr = -1;
 static int hf_http2_header_index = -1;
 static int hf_http2_header_table_size_update = -1;
 static int hf_http2_header_table_size = -1;
+static int hf_http2_fake_header_count = -1;
+static int hf_http2_fake_header = -1;
 /* RST Stream */
 static int hf_http2_rst_stream_error = -1;
 /* Settings */
@@ -940,6 +942,142 @@ UAT_CSTRING_CB_DEF(header_fields, header_desc, header_field_t)
 
 static hf_register_info* hf_uat = NULL;
 #endif
+
+/* message/stream direction (to or from server) vals */
+#define http2_direction_type_vals_VALUE_STRING_LIST(XXX)    \
+    XXX(DIRECTION_IN, 0, "IN")  \
+    XXX(DIRECTION_OUT, 1, "OUT")
+
+typedef VALUE_STRING_ENUM(http2_direction_type_vals) http2_direction_type;
+VALUE_STRING_ARRAY(http2_direction_type_vals);
+
+/* The fake headers will be used if the HEADERS frame before the first DATA is missing. */
+typedef struct {
+    range_t* server_port_range;
+    guint32 stream_id; /* 0 means applicable to all streams */
+    http2_direction_type direction;
+    gchar* header_name;
+    gchar* header_value;
+    gboolean enable; /* enable or disable this rule */
+} http2_fake_header_t;
+
+static http2_fake_header_t* http2_fake_headers = NULL;
+static guint num_http2_fake_headers = 0;
+
+static void*
+http2_fake_headers_copy_cb(void* n, const void* o, size_t siz _U_)
+{
+    http2_fake_header_t* new_rec = (http2_fake_header_t*)n;
+    const http2_fake_header_t* old_rec = (const http2_fake_header_t*)o;
+
+    /* copy values like guint32 */
+    memcpy(new_rec, old_rec, sizeof(http2_fake_header_t));
+
+    if (old_rec->server_port_range)
+        new_rec->server_port_range = range_copy(NULL, old_rec->server_port_range);
+
+    new_rec->header_name = g_strdup(old_rec->header_name);
+    new_rec->header_value = g_strdup(old_rec->header_value);
+
+    return new_rec;
+}
+
+static gboolean
+http2_fake_headers_update_cb(void* r, char** err)
+{
+    http2_fake_header_t* rec = (http2_fake_header_t*)r;
+    static range_t* empty;
+
+    empty = range_empty(NULL);
+    if (ranges_are_equal(rec->server_port_range, empty)) {
+        *err = g_strdup("Must specify server port(s) (like 50051 or 50051,60051-60054)");
+        wmem_free(NULL, empty);
+        return FALSE;
+    }
+
+    wmem_free(NULL, empty);
+
+    /* Check header_name */
+    if (rec->header_name == NULL) {
+        *err = g_strdup("Header name can't be empty");
+        return FALSE;
+    }
+
+    g_strstrip(rec->header_name);
+    if (rec->header_name[0] == 0) {
+        *err = g_strdup("Header name can't be empty");
+        return FALSE;
+    }
+
+    /* check value */
+    if (rec->header_value == NULL) {
+        *err = g_strdup("Header value can't be empty");
+        return FALSE;
+    }
+
+    g_strstrip(rec->header_value);
+    if (rec->header_name[0] == 0) {
+        *err = g_strdup("Header value can't be empty");
+        return FALSE;
+    }
+
+    *err = NULL;
+    return TRUE;
+}
+
+static void
+http2_fake_headers_free_cb(void* r)
+{
+    http2_fake_header_t* rec = (http2_fake_header_t*)r;
+
+    wmem_free(NULL, rec->server_port_range);
+    g_free(rec->header_name);
+    g_free(rec->header_value);
+}
+
+UAT_RANGE_CB_DEF(http2_fake_headers, server_port_range, http2_fake_header_t)
+UAT_DEC_CB_DEF(http2_fake_headers, stream_id, http2_fake_header_t)
+UAT_VS_DEF(http2_fake_headers, direction, http2_fake_header_t, http2_direction_type,
+    DIRECTION_IN, try_val_to_str(DIRECTION_IN, http2_direction_type_vals))
+UAT_CSTRING_CB_DEF(http2_fake_headers, header_name, http2_fake_header_t)
+UAT_CSTRING_CB_DEF(http2_fake_headers, header_value, http2_fake_header_t)
+UAT_BOOL_CB_DEF(http2_fake_headers, enable, http2_fake_header_t)
+
+static const gchar*
+get_fake_header_value(packet_info* pinfo, const gchar* name, gboolean the_other_direction)
+{
+    if (num_http2_fake_headers == 0) {
+        return NULL;
+    }
+
+    http2_direction_type direction;
+    range_t* server_port_range;
+    guint32 stream_id = http2_get_stream_id(pinfo);
+
+    for (guint i = 0; i < num_http2_fake_headers; i++) {
+        http2_fake_header_t* fake_header = http2_fake_headers + i;
+
+        if (fake_header->enable == FALSE ||
+            (fake_header->stream_id > 0 && fake_header->stream_id != stream_id)) {
+            continue;
+        }
+
+        server_port_range = fake_header->server_port_range;
+        if (value_is_in_range(server_port_range, pinfo->destport)) {
+            direction = the_other_direction ? DIRECTION_OUT : DIRECTION_IN;
+        } else if (value_is_in_range(server_port_range, pinfo->srcport)) {
+            direction = the_other_direction ? DIRECTION_IN : DIRECTION_OUT;
+        } else {
+            continue;
+        }
+
+        if (fake_header->direction == direction && strcmp(fake_header->header_name, name) == 0) {
+            return wmem_strdup(pinfo->pool, fake_header->header_value);
+        }
+    }
+
+    return NULL;
+}
 
 static void
 http2_init_protocol(void)
@@ -2064,6 +2202,96 @@ inflate_http2_header_block(tvbuff_t *tvb, packet_info *pinfo, guint offset, prot
         offset += in->length;
     }
 }
+
+/* If the initial/first HEADERS frame (containing ":method" or ":status" header) of this direction is not received
+ * (normally because of starting capturing after a long-lived HTTP2 stream like gRPC streaming call has been establied),
+ * we initialize the information in direction of the stream with the fake headers of wireshark http2 preferences. */
+static void
+try_init_stream_with_fake_headers(tvbuff_t* tvb, packet_info* pinfo, http2_session_t* h2session, proto_tree* tree, guint offset)
+{
+    if (num_http2_fake_headers == 0) {
+        return;
+    }
+
+    http2_direction_type direction;
+    range_t* server_port_range;
+    guint32 stream_id = h2session->current_stream_id;
+    wmem_array_t* indexes = NULL; /* the indexes of fake headers matching this stream and direction */
+    proto_item* ti, * ti_header;
+    proto_tree* header_tree;
+    http2_frame_num_t http2_frame_num = get_http2_frame_num(tvb, pinfo);
+
+    http2_data_stream_reassembly_info_t* reassembly_info = get_data_reassembly_info(pinfo, h2session);
+
+    if (!PINFO_FD_VISITED(pinfo) && reassembly_info->data_initiated_in == 0) {
+        /* At this time, the data_initiated_in has not been set,
+         * indicating that the previous initial HEADERS frame has been lost.
+         * We try to use fake headers to initialize stream reassembly info. */
+        reassembly_info->data_initiated_in = http2_frame_num;
+    }
+
+    if (reassembly_info->data_initiated_in == http2_frame_num) {
+        /* The data_initiated_in should have been equal to the frame number of initial HEADERS
+         * frame, but now it is the frame number of current DATA frame, so the initial HEADERS
+         * frame must be lost. We try to find the matching fake headers */
+        for (guint i = 0; i < num_http2_fake_headers; ++i) {
+            http2_fake_header_t* fake_header = http2_fake_headers + i;
+            if (fake_header->enable == FALSE ||
+                (fake_header->stream_id > 0 && fake_header->stream_id != stream_id)) {
+                continue;
+            }
+
+            server_port_range = fake_header->server_port_range;
+            if (value_is_in_range(server_port_range, pinfo->destport)) {
+                direction = DIRECTION_IN;
+            } else if (value_is_in_range(server_port_range, pinfo->srcport)) {
+                direction = DIRECTION_OUT;
+            } else {
+                continue;
+            }
+
+            if (fake_header->direction != direction) {
+                continue;
+            }
+
+            /* now match one */
+            if (!PINFO_FD_VISITED(pinfo)) {
+                populate_http_header_tracking(tvb, pinfo, h2session, (int)strlen(fake_header->header_value),
+                    fake_header->header_name, fake_header->header_value);
+            }
+
+            if (indexes == NULL) {
+                indexes = wmem_array_sized_new(wmem_file_scope(), sizeof(http2_fake_header_t*), 16);
+            }
+            wmem_array_append(indexes, &fake_header, 1);
+        }
+
+        /* Try to add the tree item of fake headers. */
+        if (indexes) {
+            guint total_matching_fake_headers = wmem_array_get_count(indexes);
+
+            ti = proto_tree_add_uint(tree, hf_http2_fake_header_count, tvb, offset, 0, total_matching_fake_headers);
+            proto_item_append_text(ti, " (Using fake headers because previous initial HEADERS frame is missing)");
+            proto_item_set_generated(ti);
+
+            for (guint i = 0; i < total_matching_fake_headers; ++i) {
+                http2_fake_header_t* header = *(http2_fake_header_t**)wmem_array_index(indexes, i);
+
+                ti_header = proto_tree_add_item(tree, hf_http2_fake_header, tvb, offset, 0, ENC_NA);
+                header_tree = proto_item_add_subtree(ti_header, ett_http2_header);
+                proto_item_append_text(ti_header, ": %s: %s", header->header_name, header->header_value);
+                proto_item_set_generated(ti_header);
+
+                ti = proto_tree_add_string(header_tree, hf_http2_header_name, tvb, offset, 0, header->header_name);
+                proto_item_set_generated(ti);
+                ti = proto_tree_add_string(header_tree, hf_http2_header_value, tvb, offset, 0, header->header_value);
+                proto_item_set_generated(ti);
+            }
+
+            wmem_destroy_array(indexes);
+        }
+    }
+}
 #endif
 
 static gchar*
@@ -2852,6 +3080,8 @@ reassemble_http2_data_according_to_subdissector(tvbuff_t *tvb, packet_info *pinf
 static void
 dissect_http2_data_body(tvbuff_t *tvb, packet_info *pinfo, http2_session_t* h2session, proto_tree *http2_tree, guint offset, guint8 flags, gint length)
 {
+    try_init_stream_with_fake_headers(tvb, pinfo, h2session, http2_tree, offset);
+
     http2_stream_info_t *stream_info = get_stream_info(h2session);
     if (stream_info->reassembly_mode == HTTP2_DATA_REASSEMBLY_MODE_STREAMING) {
         reassemble_http2_data_according_to_subdissector(tvb, pinfo, h2session, http2_tree, offset, flags, length);
@@ -2922,7 +3152,7 @@ http2_get_header_value(packet_info *pinfo, const gchar* name, gboolean the_other
         }
     }
 
-    return NULL;
+    return get_fake_header_value(pinfo, name, the_other_direction);
 }
 #else
 static void
@@ -3865,6 +4095,17 @@ proto_register_http2(void)
                FT_UINT32, BASE_DEC, NULL, 0x0,
                NULL, HFILL }
         },
+        { &hf_http2_fake_header_count,
+            { "Fake Header Count", "http2.fake.header.count",
+               FT_UINT32, BASE_DEC, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_http2_fake_header,
+            { "Fake Header", "http2.fake.header",
+               FT_NONE, BASE_NONE, NULL, 0x0,
+               NULL, HFILL }
+        },
+
         /* RST Stream */
         { &hf_http2_rst_stream_error,
             { "Error", "http2.rst_stream.error",
@@ -4107,6 +4348,41 @@ proto_register_http2(void)
     prefs_register_uat_preference(http2_module, "custom_http2_header_fields", "Custom HTTP2 header fields",
         "A table to define custom HTTP2 header for which fields can be setup and used for filtering/data extraction etc.",
         headers_uat);
+
+    uat_t* fake_headers_uat;
+
+    static uat_field_t http2_fake_header_uat_fields[] = {
+        UAT_FLD_RANGE(http2_fake_headers, server_port_range, "Server ports", 0xFFFF,
+                      "Server ports providing HTTP2 service"),
+        UAT_FLD_DEC(http2_fake_headers, stream_id, "Stream ID",
+                    "The HTTP2 Stream ID this rule will apply to. The 0 means applicable to all streams."),
+        UAT_FLD_VS(http2_fake_headers, direction, "Direction", http2_direction_type_vals,
+                   "This rule applies to the message sent to (IN) or from (OUT) server."),
+        UAT_FLD_CSTRING(http2_fake_headers, header_name, "Header name", "HTTP2 header name"),
+        UAT_FLD_CSTRING(http2_fake_headers, header_value, "Header value", "HTTP2 header value"),
+        UAT_FLD_BOOL(http2_fake_headers, enable, "Enable", "Enable this rule"),
+        UAT_END_FIELDS
+    };
+
+    fake_headers_uat = uat_new("HTTP2 Fake Headers",
+        sizeof(http2_fake_header_t),
+        "http2_fake_headers",
+        TRUE,
+        &http2_fake_headers,
+        &num_http2_fake_headers,
+        UAT_AFFECTS_DISSECTION | UAT_AFFECTS_FIELDS,
+        NULL,
+        http2_fake_headers_copy_cb,
+        http2_fake_headers_update_cb,
+        http2_fake_headers_free_cb,
+        NULL,
+        NULL,
+        http2_fake_header_uat_fields
+    );
+
+    prefs_register_uat_preference(http2_module, "fake_headers", "HTTP2 Fake Headers",
+        "A table to define HTTP2 fake headers for parsing a HTTP2 stream conversation that first HEADERS frame is missing.",
+        fake_headers_uat);
 
     /* Fill hash table with static headers */
     register_static_headers();

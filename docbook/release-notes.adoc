@@ -48,6 +48,10 @@ The following features are new (or have been significantly updated) since versio
    PCRE2 is compatible with PCRE so the user-visible changes should be minimal.
    Some exotic patterns may now be invalid and require rewriting.
 
+* HTTP2 dissector now supports using fake headers to parse the DATAs of streams captured without first HEADERS frames of a long-lived stream (like
+  gRPC streaming call which allows sending many request or response messages in one HTTP2 stream). User can specify fake headers according to the
+  server port, stream id and direction of the long-lived stream that we start capturing packets after it is established.
+
 // === Removed Features and Support
 
 // === Removed Dissectors
