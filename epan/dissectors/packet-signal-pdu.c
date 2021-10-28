@@ -1541,14 +1541,14 @@ dissect_spdu_payload_signal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         signal_length++;
     }
 
-    if (tvb_captured_length_remaining(tvb, offset) < signal_length) {
-        expert_spdu_payload_truncated(tree, pinfo, tvb, offset, tvb_captured_length_remaining(tvb, offset));
-        return -1;
-    }
-
     if (item->multiplex_value_only != -1 && item->multiplex_value_only != *multiplexer) {
         /* multiplexer set and we are in the wrong multiplex */
         return 0;
+    }
+
+    if (tvb_captured_length_remaining(tvb, offset) < signal_length) {
+        expert_spdu_payload_truncated(tree, pinfo, tvb, offset, tvb_captured_length_remaining(tvb, offset));
+        return -1;
     }
 
     if (!spdu_derserializer_show_hidden && item->hidden) {
