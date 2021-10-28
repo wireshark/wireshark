@@ -131,14 +131,14 @@ function ws_exit_error() {
     echo
 
     # Fill in build information
+    echo -e "Branch: $(git rev-parse --abbrev-ref HEAD)\n" > $TMP_DIR/${ERR_FILE}.header
     echo -e "Input file: $CF\n" > $TMP_DIR/${ERR_FILE}.header
     echo -e "Build host information:" >> $TMP_DIR/${ERR_FILE}.header
     uname -a >> $TMP_DIR/${ERR_FILE}.header
     lsb_release -a >> $TMP_DIR/${ERR_FILE}.header 2> /dev/null
 
-    if [ -n "$BUILDBOT_BUILDERNAME" ] ; then
-        echo -e "\nBuildbot information:" >> $TMP_DIR/${ERR_FILE}.header
-        env | grep "^BUILDBOT_" >> $TMP_DIR/${ERR_FILE}.header
+    if [ -n "$CI_JOB_NAME" ] ; then
+        echo -e "\nCI job $CI_JOB_NAME, ID $CI_JOB_ID: " >> $TMP_DIR/${ERR_FILE}.header
     fi
 
     echo -e "\nReturn value: " $RETVAL >> $TMP_DIR/${ERR_FILE}.header
