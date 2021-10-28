@@ -54,6 +54,7 @@
 #define DATAFILE_SOMEIP_SERVICES                "SOMEIP_service_identifiers"
 #define DATAFILE_SOMEIP_METHODS                 "SOMEIP_method_event_identifiers"
 #define DATAFILE_SOMEIP_EVENTGROUPS             "SOMEIP_eventgroup_identifiers"
+#define DATAFILE_SOMEIP_CLIENTS                 "SOMEIP_client_identifiers"
 
 #define DATAFILE_SOMEIP_PARAMETERS              "SOMEIP_parameter_list"
 #define DATAFILE_SOMEIP_BASE_TYPES              "SOMEIP_parameter_base_types"
@@ -279,6 +280,7 @@ static expert_field ef_someip_payload_dyn_array_not_within_limit        = EI_INI
 static GHashTable *data_someip_services                                 = NULL;
 static GHashTable *data_someip_methods                                  = NULL;
 static GHashTable *data_someip_eventgroups                              = NULL;
+static GHashTable *data_someip_clients                                  = NULL;
 
 static GHashTable *data_someip_parameter_list                           = NULL;
 static GHashTable *data_someip_parameter_base_type_list                 = NULL;
@@ -563,6 +565,9 @@ static guint someip_method_ident_num = 0;
 static generic_two_id_string_t *someip_eventgroup_ident = NULL;
 static guint someip_eventgroup_ident_num = 0;
 
+static generic_two_id_string_t *someip_client_ident = NULL;
+static guint someip_client_ident_num = 0;
+
 static someip_parameter_list_uat_t *someip_parameter_list = NULL;
 static guint someip_parameter_list_num = 0;
 
@@ -785,6 +790,17 @@ someip_lookup_eventgroup_name(guint16 serviceid, guint16 eventgroupid) {
     return (char *)g_hash_table_lookup(data_someip_eventgroups, &tmp);
 }
 
+char*
+someip_lookup_client_name(guint16 serviceid, guint16 clientid) {
+    guint32 tmp = (serviceid << 16) + clientid;
+
+    if (data_someip_clients == NULL) {
+        return NULL;
+    }
+
+    return (char *)g_hash_table_lookup(data_someip_clients, &tmp);
+}
+
 /*** SOME/IP Services ***/
 UAT_HEX_CB_DEF        (someip_service_ident, id,    generic_one_id_string_t)
 UAT_CSTRING_CB_DEF    (someip_service_ident, name,  generic_one_id_string_t)
@@ -836,6 +852,24 @@ post_update_someip_eventgroup_cb(void) {
     /* create new hash table */
     data_someip_eventgroups = g_hash_table_new_full(g_int_hash, g_int_equal, &someip_free_key, &simple_free);
     post_update_generic_two_id_string_template_cb(someip_eventgroup_ident, someip_eventgroup_ident_num, data_someip_eventgroups);
+}
+
+/*** SOME/IP Clients ***/
+UAT_HEX_CB_DEF(someip_client_ident, id, generic_two_id_string_t)
+UAT_HEX_CB_DEF(someip_client_ident, id2, generic_two_id_string_t)
+UAT_CSTRING_CB_DEF(someip_client_ident, name, generic_two_id_string_t)
+
+static void
+post_update_someip_client_cb(void) {
+    /* destroy old hash table, if it exists */
+    if (data_someip_clients) {
+        g_hash_table_destroy(data_someip_clients);
+        data_someip_clients = NULL;
+    }
+
+    /* create new hash table */
+    data_someip_clients = g_hash_table_new_full(g_int_hash, g_int_equal, &someip_free_key, &simple_free);
+    post_update_generic_two_id_string_template_cb(someip_client_ident, someip_client_ident_num, data_someip_clients);
 }
 
 static void
@@ -3320,10 +3354,12 @@ dissect_someip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     guint32         someip_messageid = 0;
     guint32         someip_serviceid = 0;
     guint32         someip_methodid = 0;
+    guint32         someip_clientid = 0;
     guint32         someip_sessionid = 0;
     guint32         someip_length = 0;
     const gchar    *service_description = NULL;
     const gchar    *method_description = NULL;
+    const gchar    *client_description = NULL;
 
     guint32         someip_payload_length = 0;
     tvbuff_t       *subtvb = NULL;
@@ -3410,7 +3446,11 @@ dissect_someip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     }
 
     /* Client ID */
-    proto_tree_add_item(someip_tree, hf_someip_clientid, tvb, offset, 2, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item_ret_uint(someip_tree, hf_someip_clientid, tvb, offset, 2, ENC_BIG_ENDIAN, &someip_clientid);
+    client_description = someip_lookup_client_name(someip_serviceid, someip_clientid);
+    if (client_description != NULL) {
+        proto_item_append_text(ti, " (%s)", client_description);
+    }
     offset += 2;
 
     /* Session ID */
@@ -3574,6 +3614,7 @@ proto_register_someip(void) {
     uat_t *someip_service_uat;
     uat_t *someip_method_uat;
     uat_t *someip_eventgroup_uat;
+    uat_t *someip_client_uat;
 
     uat_t  *someip_parameter_base_type_list_uat;
     uat_t  *someip_parameter_strings_uat;
@@ -3771,6 +3812,13 @@ proto_register_someip(void) {
         UAT_END_FIELDS
     };
 
+    static uat_field_t someip_client_uat_fields[] = {
+        UAT_FLD_HEX(someip_client_ident, id, "Service ID", "ID of the SOME/IP Service (16bit hex without leading 0x)"),
+        UAT_FLD_HEX(someip_client_ident, id2, "Client ID", "ID of the SOME/IP Client (16bit hex without leading 0x)"),
+        UAT_FLD_CSTRING(someip_client_ident, name, "Client Name", "Name of the SOME/IP Client (string)"),
+        UAT_END_FIELDS
+    };
+
     static uat_field_t someip_parameter_list_uat_fields[] = {
         UAT_FLD_HEX(someip_parameter_list, service_id,              "Service ID",               "ID of the SOME/IP Service (16bit hex without leading 0x)"),
         UAT_FLD_HEX(someip_parameter_list, method_id,               "Method ID",                "ID of the SOME/IP Method/Event/Notifier (16bit hex without leading 0x)"),
@@ -3951,7 +3999,7 @@ proto_register_someip(void) {
 
     someip_method_uat = uat_new("SOME/IP Methods/Events/Fields",
         sizeof(generic_two_id_string_t),            /* record size           */
-        DATAFILE_SOMEIP_METHODS,                    /* record size           */
+        DATAFILE_SOMEIP_METHODS,                    /* filename              */
         TRUE,                                       /* from profile          */
         (void **) &someip_method_ident,             /* data_ptr              */
         &someip_method_ident_num,                   /* numitems_ptr          */
@@ -3970,7 +4018,7 @@ proto_register_someip(void) {
 
     someip_eventgroup_uat = uat_new("SOME/IP Eventgroups",
         sizeof(generic_two_id_string_t),            /* record size           */
-        DATAFILE_SOMEIP_EVENTGROUPS,                /* record size           */
+        DATAFILE_SOMEIP_EVENTGROUPS,                /* filename              */
         TRUE,                                       /* from profile          */
         (void **) &someip_eventgroup_ident,         /* data_ptr              */
         &someip_eventgroup_ident_num,               /* numitems_ptr          */
@@ -3986,6 +4034,25 @@ proto_register_someip(void) {
 
     prefs_register_uat_preference(someip_module, "eventgroups", "SOME/IP Eventgroups",
         "A table to define names of SOME/IP eventgroups", someip_eventgroup_uat);
+
+    someip_client_uat = uat_new("SOME/IP Clients",
+        sizeof(generic_two_id_string_t),            /* record size           */
+        DATAFILE_SOMEIP_CLIENTS,                    /* filename              */
+        TRUE,                                       /* from profile          */
+        (void **)&someip_client_ident,              /* data_ptr              */
+        &someip_client_ident_num,                   /* numitems_ptr          */
+        UAT_AFFECTS_DISSECTION,                     /* but not fields        */
+        NULL,                                       /* help                  */
+        copy_generic_two_id_string_cb,              /* copy callback         */
+        update_generic_two_identifier_16bit,        /* update callback       */
+        free_generic_two_id_string_cb,              /* free callback         */
+        post_update_someip_client_cb,               /* post update callback  */
+        NULL,                                       /* reset callback        */
+        someip_client_uat_fields                    /* UAT field definitions */
+    );
+
+    prefs_register_uat_preference(someip_module, "clients", "SOME/IP Clients",
+        "A table to define names of SOME/IP clients", someip_client_uat);
 
     someip_parameter_list_uat = uat_new("SOME/IP Parameter List",
         sizeof(someip_parameter_list_uat_t), DATAFILE_SOMEIP_PARAMETERS, TRUE,
@@ -4153,6 +4220,10 @@ clean_all_hashtables_with_empty_uat(void) {
     if (data_someip_eventgroups && someip_eventgroup_ident_num==0) {
         g_hash_table_destroy(data_someip_eventgroups);
         data_someip_eventgroups = NULL;
+    }
+    if (data_someip_clients && someip_client_ident_num == 0) {
+        g_hash_table_destroy(data_someip_clients);
+        data_someip_clients = NULL;
     }
     if (data_someip_parameter_list && someip_parameter_list_num==0) {
         g_hash_table_destroy(data_someip_parameter_list);
