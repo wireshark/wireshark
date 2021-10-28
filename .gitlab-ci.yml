@@ -485,6 +485,8 @@ Windows Build:
     MIN_PLUGINS: 10
     MAX_PASSES: 5
   before_script:
+    - DEBIAN_FRONTEND=noninteractive apt-get update
+    - DEBIAN_FRONTEND=noninteractive apt-get --yes install llvm-$CLANG_VERSION
     - mkdir -p ccache
     # Signal after_script, which runs in its own shell.
     - echo "export FUZZ_PASSED=true" > /tmp/fuzz_result.sh
