@@ -31,8 +31,20 @@ class case_membership(unittest.TestCase):
         dfilter = 'tcp.port in {  80  ,  3267  }'
         checkDFilterCount(dfilter, 1)
 
-    def test_membership_2_range_match(self, checkDFilterCount):
+    def test_membership_range_match_1(self, checkDFilterCount):
         dfilter = 'tcp.port in {80..81}'
+        checkDFilterCount(dfilter, 1)
+
+    def test_membership_range_match_2(self, checkDFilterCount):
+        dfilter = 'tcp.port in {80 ..81}'
+        checkDFilterCount(dfilter, 1)
+
+    def test_membership_range_match_3(self, checkDFilterCount):
+        dfilter = 'tcp.port in {80.. 81}'
+        checkDFilterCount(dfilter, 1)
+
+    def test_membership_range_match_4(self, checkDFilterCount):
+        dfilter = 'tcp.port in {80 .. 81}'
         checkDFilterCount(dfilter, 1)
 
     def test_membership_3_range_no_match(self, checkDFilterCount):

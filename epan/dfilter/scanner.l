@@ -352,26 +352,28 @@ static int set_lval_str(int token, const char *token_value);
 
 	/* None of the patterns below can match ".." anywhere in the token string. */
  
-[[:digit:]]{1,3}\.[[:digit:]]{1,3}\.[[:digit:]]{1,3}\.[[:digit:]]{1,3}(\/[[:digit:]]+)*  {
-	/* IPv4 CIDR */
-	return set_lval_str(TOKEN_UNPARSED, yytext);
-}
- 
-[[:xdigit:]:]+(\/[[:digit:]]+)*  {
-	/* IPv6 CIDR or bytes-: or integer... */
-	return set_lval_str(TOKEN_UNPARSED, yytext);
-}
+[-+[:alnum:]_:./]+ {
+	char *s, *value;
 
-		([.][-+[:alnum:]_:]+)+[.]{0,2} |
-[-+[:alnum:]_:]+([.][-+[:alnum:]_:]+)*[.]{0,2} {
+	/* Hack (but lesser) to make sure that ".." is interpreted as a token on its own. */
+	if ((s = strstr(yytext, "..")) != NULL) {
+		/* If it starts with ".." it is its own token. */
+		if (yytext[0] == '.' && yytext[1] == '.') {
+			yyless(2);
+			df_lval->value = g_strdup("..");
+			return TOKEN_DOTDOT;
+		}
 
-	/* Trailing dot is allowed for floats, but make sure that trailing ".."
-	 * is interpreted as a token on its own. */
-	if (strstr(yytext, "..")) {
-		yyless(yyleng-2);
+		/* Match only the prefix before "..". */
+		*s = '\0';
+		value = g_strdup(yytext);
+		*s = '.'; /* Restore */
+		yyless(strlen(value));
+		df_lval->value = value;
+		return TOKEN_UNPARSED;
 	}
 
-	/* It is a field name or some other value (float, bytes, ...). */
+	/* It is a variable or a literal value (CIDR, bytes, number, ...). */
 	return set_lval_str(TOKEN_UNPARSED, yytext);
 }
 
