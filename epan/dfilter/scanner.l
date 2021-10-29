@@ -229,12 +229,10 @@ static int set_lval_str(int token, const char *token_value);
 
 <DQUOTE>\042			{
 	/* end quote */
-	int token;
 	BEGIN(INITIAL);
-	token = set_lval_str(TOKEN_STRING, yyextra->quoted_string->str);
-	g_string_free(yyextra->quoted_string, TRUE);
+	df_lval->value = g_string_free(yyextra->quoted_string, FALSE);
 	yyextra->quoted_string = NULL;
-	return token;
+	return TOKEN_STRING;
 }
 
 <DQUOTE>\\[0-7]{1,3} {
@@ -330,13 +328,11 @@ static int set_lval_str(int token, const char *token_value);
 
 <SQUOTE>\047			{
 	/* end quote */
-	int token;
 	BEGIN(INITIAL);
 	g_string_append_c(yyextra->quoted_string, '\'');
-	token = set_lval_str(TOKEN_CHARCONST, yyextra->quoted_string->str);
-	g_string_free(yyextra->quoted_string, TRUE);
+	df_lval->value = g_string_free(yyextra->quoted_string, FALSE);
 	yyextra->quoted_string = NULL;
-	return token;
+	return TOKEN_CHARCONST;
 }
 
 <SQUOTE>\\.				{
