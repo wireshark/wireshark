@@ -307,7 +307,7 @@ A field may be checked for matches against a set of values simply with the
 membership operator. For instance, you may find traffic on common HTTP/HTTPS
 ports with the following filter:
 
-    tcp.port in {80 443 8080}
+    tcp.port in {80, 443, 8080}
 
 as opposed to the more verbose:
 
@@ -315,12 +315,12 @@ as opposed to the more verbose:
 
 To find HTTP requests using the HEAD or GET methods:
 
-    http.request.method in {"HEAD" "GET"}
+    http.request.method in {"HEAD", "GET"}
 
 The set of values can also contain ranges:
 
-    tcp.port in {443 4430..4434}
-    ip.addr in {10.0.0.5 .. 10.0.0.9 192.168.1.1..192.168.1.9}
+    tcp.port in {443, 4430..4434}
+    ip.addr in {10.0.0.5 .. 10.0.0.9, 192.168.1.1..192.168.1.9}
     frame.time_delta in {10 .. 10.5}
 
 === Type conversions
