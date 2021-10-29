@@ -33,6 +33,11 @@ for FILE in $COMMIT_FILES; do
     then
         continue
     fi
+    # This is a template file, not a final '.c' file.
+    if test "$FILE_BASENAME" = "packet-asterix-template.c"
+    then
+        continue
+    fi
     # extcap/{etwdump.c,etl.c,etw_message.c}: those compile, and are compiled,
     # only on Windows
     # The same applies to capture-wpcap.c
