@@ -3310,6 +3310,13 @@ WS_DLL_PUBLIC const value_string proto_checksum_vals[];
 WS_DLL_PUBLIC guchar
 proto_check_field_name(const gchar *field_name);
 
+/** Check if given string is a valid field name. Accepts only lower case
+ * characters.
+ @param field_name the field name to check
+ @return 0 if valid, else first illegal character */
+WS_DLL_PUBLIC guchar
+proto_check_field_name_lower(const gchar *field_name);
+
 
 /** Check if given string is a valid field name
  @param tree the tree to append this item to

@@ -7361,7 +7361,7 @@ proto_tree_set_appendix(proto_tree *tree, tvbuff_t *tvb, gint start,
 }
 
 static void
-check_valid_filter_name_or_fail(const char *filter_name)
+check_protocol_filter_name_or_fail(const char *filter_name)
 {
 	if (proto_check_field_name(filter_name) != '\0') {
 		ws_error("Protocol filter name \"%s\" has one or more invalid characters."
@@ -7402,7 +7402,7 @@ proto_register_protocol(const char *name, const char *short_name,
 			" This might be caused by an inappropriate plugin or a development error.", short_name);
 	}
 
-	check_valid_filter_name_or_fail(filter_name);
+	check_protocol_filter_name_or_fail(filter_name);
 
 	if (g_hash_table_lookup(proto_filter_names, filter_name)) {
 		ws_error("Duplicate protocol filter_name \"%s\"!"
@@ -7465,7 +7465,7 @@ proto_register_protocol_in_name_only(const char *name, const char *short_name, c
 			" This might be caused by an inappropriate plugin or a development error.", name);
 	}
 
-	check_valid_filter_name_or_fail(filter_name);
+	check_protocol_filter_name_or_fail(filter_name);
 
 	/* Add this protocol to the list of helper protocols (just so it can be properly freed) */
 	protocol = g_new(protocol_t, 1);
@@ -8198,27 +8198,6 @@ proto_free_deregistered_fields (void)
 	g_ptr_array_free(deregistered_slice, TRUE);
 	deregistered_slice = g_ptr_array_new();
 }
-
-/* chars allowed in field abbrev: alphanumerics, '-', "_", and ".". */
-static
-const guint8 fld_abbrev_chars[256] = {
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* 0x00-0x0F */
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* 0x10-0x1F */
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, /* 0x20-0x2F '-', '.'	   */
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, /* 0x30-0x3F '0'-'9'	   */
-	0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, /* 0x40-0x4F 'A'-'O'	   */
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, /* 0x50-0x5F 'P'-'Z', '_' */
-	0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, /* 0x60-0x6F 'a'-'o'	   */
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, /* 0x70-0x7F 'p'-'z'	   */
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* 0x80-0x8F */
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* 0x90-0x9F */
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* 0xA0-0xAF */
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* 0xB0-0xBF */
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* 0xC0-0xCF */
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* 0xD0-0xDF */
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* 0xE0-0xEF */
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* 0xF0-0xFF */
-};
 
 static const value_string hf_display[] = {
 	{ BASE_NONE,			  "BASE_NONE"			   },
@@ -13144,8 +13123,34 @@ proto_tree_add_checksum(proto_tree *tree, tvbuff_t *tvb, const guint offset,
 	return ti;
 }
 
-guchar
-proto_check_field_name(const gchar *field_name)
+/* chars allowed: lower case letters, digits, '-', "_", and ".". */
+static
+const guint8 field_abbrev_chars_lower_case[128] = {
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* 0x00-0x0F */
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* 0x10-0x1F */
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, /* 0x20-0x2F '-', '.'	   */
+	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, /* 0x30-0x3F '0'-'9'	   */
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* 0x40-0x4F */
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, /* 0x50-0x5F '_' */
+	0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, /* 0x60-0x6F 'a'-'o'	   */
+	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, /* 0x70-0x7F 'p'-'z'	   */
+};
+
+/* chars allowed: alphanumerics, '-', "_", and ".". */
+static
+const guint8 field_abbrev_chars[128] = {
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* 0x00-0x0F */
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* 0x10-0x1F */
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, /* 0x20-0x2F '-', '.'	   */
+	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, /* 0x30-0x3F '0'-'9'	   */
+	0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, /* 0x40-0x4F 'A'-'O'	   */
+	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, /* 0x50-0x5F 'P'-'Z', '_' */
+	0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, /* 0x60-0x6F 'a'-'o'	   */
+	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, /* 0x70-0x7F 'p'-'z'	   */
+};
+
+static guchar
+_proto_check_field_name(const guint8 chars[128], const gchar *field_name)
 {
 	const char *p = field_name;
 	guchar c = '.', lastc;
@@ -13161,13 +13166,25 @@ proto_check_field_name(const gchar *field_name)
 		if (c == '.' && lastc == '.') {
 			break;
 		}
-	} while (fld_abbrev_chars[c]);
+	} while (c < 128 && chars[c]);
 
 	/* Trailing '.' is disallowed. */
 	if (lastc == '.') {
 		return '.';
 	}
 	return c;
+}
+
+guchar
+proto_check_field_name(const gchar *field_name)
+{
+	return _proto_check_field_name(field_abbrev_chars, field_name);
+}
+
+guchar
+proto_check_field_name_lower(const gchar *field_name)
+{
+	return _proto_check_field_name(field_abbrev_chars_lower_case, field_name);
 }
 
 gboolean
