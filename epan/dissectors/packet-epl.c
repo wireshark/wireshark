@@ -2521,11 +2521,8 @@ dissect_eplpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean udp
 	if (tvb_reported_length(tvb) < 3)
 	{
 		/* Not enough data for an EPL header; don't try to interpret it */
-		return FALSE;
+		return 0;
 	}
-
-	/* Make entries in Protocol column and Info column on summary display */
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, udpencap ? "POWERLINK/UDP" : "POWERLINK");
 
 	/* Get message type */
 	epl_mtyp = tvb_get_guint8(tvb, EPL_MTYP_OFFSET) & 0x7F;
@@ -2536,7 +2533,15 @@ dissect_eplpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean udp
 	* to dissect it as a normal EPL packet.
 	*/
 	if (dissector_try_heuristic(heur_epl_subdissector_list, tvb, pinfo, tree, &hdtbl_entry, &epl_mtyp))
-		return TRUE;
+		return tvb_reported_length(tvb);
+
+	if (!try_val_to_str(epl_mtyp, mtyp_vals)) {
+		/* Not an EPL packet */
+		return 0;
+	}
+
+	/* Make entries in Protocol column and Info column on summary display */
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, udpencap ? "POWERLINK/UDP" : "POWERLINK");
 
 	/* tap */
 	/*  mi.epl_mtyp = epl_mtyp;
@@ -2607,7 +2612,7 @@ dissect_eplpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean udp
 			break;
 
 		default:    /* no valid EPL packet */
-			return FALSE;
+			return 0;
 	}
 
 	if (tree)
