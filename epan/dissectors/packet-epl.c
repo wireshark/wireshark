@@ -67,6 +67,7 @@
 #include <epan/expert.h>
 #include <epan/reassemble.h>
 #include <epan/proto_data.h>
+#include <epan/strutil.h>
 #include <epan/uat.h>
 #include <wsutil/strtoi.h>
 #include <wsutil/file_util.h>
@@ -6737,15 +6738,19 @@ nodeid_profile_list_uats_nodeid_tostr_cb(void *_rec, char **out_ptr, unsigned *o
 static gboolean
 epl_uat_fld_cn_check_cb(void *record _U_, const char *str, guint len _U_, const void *u1 _U_, const void *u2 _U_, char **err)
 {
-	unsigned int c;
 	guint8 nodeid;
 
 	if (ws_strtou8(str, NULL, &nodeid) && EPL_IS_CN_NODEID(nodeid))
 		return TRUE;
 
-	if (sscanf(str, "%*02x%*c%*02x%*c%*02x%*c%*02x%*c%*02x%*c%02x", &c) > 0)
-		return TRUE;
+	GByteArray *addr = g_byte_array_new();
 
+	if (hex_str_to_bytes(str, addr, FALSE) && addr->len == FT_ETHER_LEN) {
+		g_byte_array_free(addr, TRUE);
+		return TRUE;
+	}
+
+	g_byte_array_free(addr, TRUE);
 	*err = g_strdup("Invalid argument. Expected either a CN ID [1-239] or a MAC address");
 	return FALSE;
 }
@@ -6754,27 +6759,21 @@ static void
 nodeid_profile_list_uats_nodeid_set_cb(void *_rec, const char *str, unsigned len, const void *set_data _U_, const void *fld_data _U_)
 {
 	struct nodeid_profile_uat_assoc *rec = (struct nodeid_profile_uat_assoc*)_rec;
-	guint8 addr[6];
+	GByteArray *addr = g_byte_array_new();
 
-	if (ws_strtou8(str, NULL, &addr[0]))
-	{
-		rec->is_nodeid = TRUE;
-		rec->node.id = addr[0];
-	}
-	else
-	{
-		unsigned i;
-		const char *endptr = str;
-		for (i = 0; i < 6; i++)
-		{
-			ws_hexstrtou8(endptr, &endptr, &addr[i]);
-			endptr++;
-		}
-
-		alloc_address_wmem(NULL, &rec->node.addr, AT_ETHER, 6, addr);
+	rec->is_nodeid = TRUE;
+	if (hex_str_to_bytes(str, addr, FALSE) && addr->len == FT_ETHER_LEN) {
+		alloc_address_wmem(NULL, &rec->node.addr, AT_ETHER, FT_ETHER_LEN, addr->data);
 		rec->is_nodeid = FALSE;
 	}
+	else if (!ws_strtou8(str, NULL, &rec->node.id))
+	{
+		/* Invalid input. Set this to a bad value and let
+		 * epl_uat_fld_cn_check_cb return an error message. */
+		rec->node.id = 0;
+	}
 
+	g_byte_array_free(addr, TRUE);
 	g_free(rec->id_str);
 	rec->id_str = g_strndup(str, len);
 }
