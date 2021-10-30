@@ -168,7 +168,7 @@
       <entry name="DisplayLabel_Off_Hook" text="Off Hook" value="0o024"/>
       <entry name="DisplayLabel_On_Hook" text="On Hook" value="0o025"/>
       <entry name="DisplayLabel_Ring_Out" text="Ring Out" value="0o026"/>
-      <entry name="DisplayLabel_From" text="From" value="0o027"/>
+      <entry name="DisplayLabel_From" text="From " value="0o027"/>
       <entry name="DisplayLabel_Connected" text="Connected" value="0o030"/>
       <entry name="DisplayLabel_Busy" text="Busy" value="0o031"/>
       <entry name="DisplayLabel_Line_In_Use" text="Line In Use" value="0o032"/>
@@ -440,7 +440,7 @@
       </struct>
       <ip comment="IPv4 Address" name="stationIpAddr" type="ipv4"/>
       <enum comment="Device Type" longcomment="Device Type of this phone / appliance" name="deviceType" subtype="DeviceType" type="uint32"/>
-      <integer comment="Maximum Number of Concurrent RTP Streams" longcomment="Indicates the maximum number of simultansous RTP duplex streams, which this client/appliance can handle." name="maxStreams" type="uint32"/>
+      <integer comment="Maximum Number of Concurrent RTP Streams" longcomment="Indicates the maximum number of simultaneous RTP duplex streams, which this client/appliance can handle." name="maxStreams" type="uint32"/>
     </fields>
     <fields size_gt="52">
       <integer comment="Active RTP Streams" longcomment="Active RTP Streams at Registration" name="activeStreams" type="uint32"/>
@@ -466,7 +466,7 @@
           <entry comment="Abbreviated Dial" name="PhoneFeatures_Abbreviated_Dial" text="AbbrevDial" value="0x8000"/>
         </entries>
       </bitfield>
-      <integer comment="Maximum Number of Concurrent Conferences" longcomment="Indicates the maximum number of simultansous Conferences, which this client/appliance can handle" name="maxConferences" type="uint32"/>
+      <integer comment="Maximum Number of Concurrent Conferences" longcomment="Indicates the maximum number of simultaneous Conferences, which this client/appliance can handle" name="maxConferences" type="uint32"/>
     </fields>
     <fields size_gt="100">
       <integer comment="Active Conferences" longcomment="Active Conferences at Registration" name="activeConferences" type="uint32"/>
@@ -502,6 +502,27 @@
       <entry comment="" name="KeyPadButton_Plus" text="Plus" value="0x0010"/>
     </entries>
   </enum>
+  <enum name="KeyPadButton_short">
+    <entries>
+      <entry comment="" name="KeyPadButton_Zero" text="0" value="0x0000"/>
+      <entry comment="" name="KeyPadButton_One" text="1" value="0x0001"/>
+      <entry comment="" name="KeyPadButton_Two" text="2" value="0x0002"/>
+      <entry comment="" name="KeyPadButton_Three" text="3" value="0x0003"/>
+      <entry comment="" name="KeyPadButton_Four" text="4" value="0x0004"/>
+      <entry comment="" name="KeyPadButton_Five" text="5" value="0x0005"/>
+      <entry comment="" name="KeyPadButton_Six" text="6" value="0x0006"/>
+      <entry comment="" name="KeyPadButton_Seven" text="7" value="0x0007"/>
+      <entry comment="" name="KeyPadButton_Eight" text="8" value="0x0008"/>
+      <entry comment="" name="KeyPadButton_Nine" text="9" value="0x0009"/>
+      <entry comment="" name="KeyPadButton_A" text="A" value="0x000a"/>
+      <entry comment="" name="KeyPadButton_B" text="B" value="0x000b"/>
+      <entry comment="" name="KeyPadButton_C" text="C" value="0x000c"/>
+      <entry comment="" name="KeyPadButton_D" text="D" value="0x000d"/>
+      <entry comment="" name="KeyPadButton_Star" text="*" value="0x000e"/>
+      <entry comment="" name="KeyPadButton_Pound" text="#" value="0x000f"/>
+      <entry comment="" name="KeyPadButton_Plus" text="+" value="0x0010"/>
+    </entries>
+  </enum>
   <message comment="" direction="dev2pbx" dynamic="no" msgtype="event" name="IpPortMessage" opcode="0x0002" type="CallControl">
     <fields beginversion="0" endversion="22">
       <integer comment="RTP Media Port" name="rtpMediaPort" type="uint32"/>
@@ -509,7 +530,7 @@
   </message>
   <message comment="" direction="dev2pbx" dynamic="no" msgtype="event" name="KeypadButtonMessage" opcode="0x0003" type="CallControl">
     <fields>
-      <enum comment="KeyPad Button which was Pressed" name="kpButton" subtype="KeyPadButton" type="uint32"/>
+      <enum comment="KeyPad Button which was Pressed" name="kpButton" subtype="KeyPadButton" type="uint32" make_additional_info_short="yes"/>
     </fields>
     <fields beginversion="0" endversion="22" size_gt="8">
       <integer comment="LineId" name="lineInstance" type="uint32"/>
@@ -807,8 +828,8 @@
   <message comment="" direction="dev2pbx" dynamic="no" msgtype="response" name="OpenReceiveChannelAckMessage" opcode="0x0022" request="0x0105" type="MediaControl">
     <fields>
       <enum comment="" name="mediaReceptionStatus" subtype="MediaStatus" type="uint32"/>
-      <ipv4or6 comment="" name="ipAddr" subtype="IPV4orV6Address" type="ipaddr"/>
-      <integer comment="" declare="yes" name="portNumber" subtype="uint32" type="ipport" use_param="ipAddr"/>
+      <ipv4or6 comment="" name="ipAddr" subtype="IPV4orV6Address" type="ipaddr" make_additional_info="yes"/>
+      <integer comment="" declare="yes" name="portNumber" subtype="uint32" type="ipport" use_param="ipAddr" make_additional_info="yes"/>
       <integer comment="PassThrough PartyId" declare="yes" name="passThroughPartyId" req_resp_key="1" type="uint32"/>
     </fields>
     <fields beginversion="0" endversion="22" size_gt="20">
@@ -846,7 +867,7 @@
       <string comment="Statistics" longcomment="variable field size (max: 600]" maxsize="600" name="data" size_fieldname="dataSize" type="char"/>
     </fields>
   </message>
-  <message comment="" direction="dev2pbx" dynamic="no" msgtype="event" name="OffHookWithCalingPartyNumberMessage" opcode="0x0024" type="CallControl">
+  <message comment="" direction="dev2pbx" dynamic="no" msgtype="event" name="OffHookWithCallingPartyNumberMessage" opcode="0x0024" type="CallControl">
     <fields>
       <string comment="Calling Party Number" declare="yes" name="callingPartyNumber" size="VariableDirnumSize" type="char"/>
       <string comment="Calling Party Voicemail Box Number" declare="yes" name="cgpnVoiceMailbox" size="VariableDirnumSize" type="char"/>
@@ -1001,8 +1022,8 @@
     <fields>
       <integer comment="Conference ID" name="conferenceId" type="uint32"/>
       <integer comment="PassThrough PartyId" declare="yes" name="passThroughPartyId" req_resp_key="1" type="uint32"/>
-      <ipv4or6 comment="ipaddress in big endian" endiannes="big" endianness="big" name="remoteIpAddr" subtype="IpAddress" type="ipaddr"/>
-      <integer comment="" name="remotePortNumber" subtype="uint32" type="ipport" use_param="remoteIpAddr"/>
+      <ipv4or6 comment="ipaddress in big endian" endiannes="big" endianness="big" name="remoteIpAddr" subtype="IpAddress" type="ipaddr" make_additional_info="yes"/>
+      <integer comment="" name="remotePortNumber" subtype="uint32" type="ipport" use_param="remoteIpAddr" make_additional_info="yes"/>
       <integer comment="CallId" name="callReference" type="uint32"/>
     </fields>
   </message>
@@ -1253,8 +1274,8 @@
   <message comment="" direction="dev2pbx" dynamic="no" msgtype="response" name="OpenMultiMediaReceiveChannelAckMessage" opcode="0x0031" request="0x0131" type="MediaControl">
     <fields>
       <enum comment="" name="multimediaReceptionStatus" subtype="OpenReceiveChanStatus" type="uint32"/>
-      <ipv4or6 comment="ipaddress in big endian" endiannes="big" endianness="big" name="ipAddr" subtype="IpAddress" type="ipaddr"/>
-      <integer comment="" declare="yes" name="portNumber" subtype="uint32" type="ipport" use_param="ipAddr"/>
+      <ipv4or6 comment="ipaddress in big endian" endiannes="big" endianness="big" name="ipAddr" subtype="IpAddress" type="ipaddr" make_additional_info="yes"/>
+      <integer comment="" declare="yes" name="portNumber" subtype="uint32" type="ipport" use_param="ipAddr" make_additional_info="yes"/>
       <integer comment="PassThrough PartyId" declare="yes" name="passThroughPartyId" req_resp_key="1" type="uint32"/>
       <integer comment="CallId" name="callReference" type="uint32"/>
     </fields>
@@ -1788,8 +1809,8 @@
       <integer comment="Conference ID" name="conferenceId" type="uint32"/>
       <integer comment="CallId" declare="yes" name="callReference" req_resp_key="1" type="uint32"/>
       <integer comment="PassThrough PartyId" name="passThroughPartyId" type="uint32"/>
-      <ipv4or6 comment="ipaddress in big endian" endiannes="big" endianness="big" name="ipAddr" subtype="IpAddress" type="ipaddr"/>
-      <integer comment="" name="portNumber" subtype="uint32" type="ipport" use_param="ipAddr"/>
+      <ipv4or6 comment="ipaddress in big endian" endiannes="big" endianness="big" name="ipAddr" subtype="IpAddress" type="ipaddr" make_additional_info="yes"/>
+      <integer comment="" name="portNumber" subtype="uint32" type="ipport" use_param="ipAddr" make_additional_info="yes"/>
       <integer comment="" name="RTCPPortNumber" type="uint32"/>
     </fields>
     <fields beginversion="19" endversion="22">
@@ -1808,8 +1829,8 @@
       <integer comment="Conference ID" name="conferenceId" type="uint32"/>
       <integer comment="CallId" name="callReference" type="uint32"/>
       <integer comment="PassThrough PartyId" name="passThroughPartyId" type="uint32"/>
-      <ipv4or6 comment="ipaddress in big endian" endianness="big" name="remoteIpAddr" subtype="uint32" type="ipaddr"/>
-      <integer comment="" name="remotePortNumber" subtype="uint32" type="ipport" use_param="remoteIpAddr"/>
+      <ipv4or6 comment="ipaddress in big endian" endianness="big" name="remoteIpAddr" subtype="uint32" type="ipaddr" make_additional_info="yes"/>
+      <integer comment="" name="remotePortNumber" subtype="uint32" type="ipport" use_param="remoteIpAddr" make_additional_info="yes"/>
       <enum comment="" name="direction" subtype="RSVPDirection" type="uint32"/>
     </fields>
   </message>
@@ -1856,8 +1877,8 @@
       <integer comment="Conference ID" name="conferenceId" type="uint32"/>
       <integer comment="CallId" name="callReference" type="uint32"/>
       <integer comment="PassThrough PartyId" name="passThroughPartyId" type="uint32"/>
-      <ipv4or6 comment="ipaddress in big endian" endianness="big" name="remoteIpAddr" subtype="uint32" type="ipaddr"/>
-      <integer comment="" name="remotePortNumber" subtype="uint32" type="ipport" use_param="remoteIpAddr"/>
+      <ipv4or6 comment="ipaddress in big endian" endianness="big" name="remoteIpAddr" subtype="uint32" type="ipaddr" make_additional_info="yes"/>
+      <integer comment="" name="remotePortNumber" subtype="uint32" type="ipport" use_param="remoteIpAddr" make_additional_info="yes"/>
       <enum comment="" name="direction" subtype="RSVPDirection" type="uint32"/>
       <enum comment="" name="errorCode" subtype="QoSErrorCode" type="uint32"/>
       <integer comment="" name="failureNodeIpAddr" type="uint32"/>
@@ -1874,7 +1895,7 @@
   <message comment="" direction="dev2pbx" dynamic="no" msgtype="request" name="SubscriptionStatReqMessage" opcode="0x0048" type="CallControl">
     <fields beginversion="0" endversion="22">
       <integer comment="" declare="yes" name="transactionId" req_resp_key="1" type="uint32"/>
-      <enum comment="" name="subcriptionFeatureID" subtype="SubscriptionFeatureID" type="uint32"/>
+      <enum comment="" name="subscriptionFeatureID" subtype="SubscriptionFeatureID" type="uint32"/>
       <integer comment="" name="timer" type="uint32"/>
       <string comment="" name="subscriptionID" size="64" type="char"/>
     </fields>
@@ -2092,7 +2113,7 @@
   </enum>
   <message comment="" direction="pbx2dev" dynamic="no" msgtype="event" name="StartToneMessage" opcode="0x0082" type="MediaControl">
     <fields beginversion="0" endversion="22">
-      <enum comment="" name="tone" subtype="DeviceTone" type="uint32"/>
+      <enum comment="" name="tone" subtype="DeviceTone" type="uint32" make_additional_info="yes"/>
       <enum comment="" name="tone_output_direction" subtype="ToneOutputDirection" type="uint32"/>
       <integer comment="LineId" name="lineInstance" type="uint32"/>
       <integer comment="CallId" name="callReference" type="uint32"/>
@@ -2191,8 +2212,8 @@
     <fields>
       <integer comment="Conference ID" name="conferenceId" type="uint32"/>
       <integer comment="PassThrough PartyId" declare="yes" name="passThroughPartyId" req_resp_key="1" type="uint32"/>
-      <ipv4or6 comment="" name="remoteIpAddr" subtype="IPV4orV6Address" type="ipaddr"/>
-      <integer comment="" name="remotePortNumber" subtype="uint32" type="ipport" use_param="remoteIpAddr"/>
+      <ipv4or6 comment="" name="remoteIpAddr" subtype="IPV4orV6Address" type="ipaddr" make_additional_info="yes"/>
+      <integer comment="" name="remotePortNumber" subtype="uint32" type="ipport" use_param="remoteIpAddr" make_additional_info="yes"/>
       <integer comment="" name="milliSecondPacketSize" type="uint32"/>
       <enum comment="" declare="yes" name="compressionType" subtype="Media_PayloadType" type="uint32"/>
       <struct comment="" name="qualifierOut" subtype="Media_QualifierOutgoing" type="struct">
@@ -2367,6 +2388,7 @@
           <entry comment="" name="RestrictInformationType_BitsReserved" text="BitsReserved" value="0xffffff00"/>
         </entries>
       </bitfield>
+      <code type="calling_and_called_party" use_param="callingParty,calledParty"/>
     </fields>
   </message>
   <message comment="" direction="pbx2dev" dynamic="no" msgtype="response" name="ForwardStatResMessage" opcode="0x0090" priority="send_immediate" request="0x0009" type="RegistrationAndManagement">
@@ -2591,8 +2613,8 @@
     <fields>
       <integer comment="Conference ID" name="conferenceId" type="uint32"/>
       <integer comment="PassThrough PartyId" declare="yes" name="passThroughPartyId" req_resp_key="1" type="uint32"/>
-      <ipv4or6 comment="ipaddress in big endian" endiannes="big" endianness="big" name="multicastIpAddr" subtype="IpAddress" type="ipaddr"/>
-      <integer comment="" name="multicastPortNumber" subtype="uint32" type="ipport" use_param="multicastIpAddr"/>
+      <ipv4or6 comment="ipaddress in big endian" endiannes="big" endianness="big" name="multicastIpAddr" subtype="IpAddress" type="ipaddr" make_additional_info="yes"/>
+      <integer comment="" name="multicastPortNumber" subtype="uint32" type="ipport" use_param="multicastIpAddr" make_additional_info="yes"/>
       <integer comment="" name="milliSecondPacketSize" type="uint32"/>
       <enum comment="" declare="yes" name="compressionType" subtype="Media_PayloadType" type="uint32"/>
       <struct comment="" name="qualifierIn" subtype="Media_QualifierIncoming" type="struct">
@@ -2625,8 +2647,8 @@
     <fields>
       <integer comment="Conference ID" name="conferenceId" type="uint32"/>
       <integer comment="PassThrough PartyId" declare="yes" name="passThroughPartyId" req_resp_key="1" type="uint32"/>
-      <ipv4or6 comment="ipaddress in big endian" endiannes="big" endianness="big" name="multicastIpAddr" subtype="IpAddress" type="ipaddr"/>
-      <integer comment="" name="multicastPortNumber" subtype="uint32" type="ipport" use_param="multicastIpAddr"/>
+      <ipv4or6 comment="ipaddress in big endian" endiannes="big" endianness="big" name="multicastIpAddr" subtype="IpAddress" type="ipaddr" make_additional_info="yes"/>
+      <integer comment="" name="multicastPortNumber" subtype="uint32" type="ipport" use_param="multicastIpAddr" make_additional_info="yes"/>
       <integer comment="" name="milliSecondPacketSize" type="uint32"/>
       <enum comment="" declare="yes" name="compressionType" subtype="Media_PayloadType" type="uint32"/>
       <struct comment="" name="qualifierOut" subtype="Media_QualifierOutgoing" type="struct">
@@ -2721,8 +2743,8 @@
     <fields beginversion="11">
       <integer comment="" name="mixingMode" type="uint32"/>
       <integer comment="" name="partyDirection" type="uint32"/>
-      <ipv4or6 comment="" name="sourceIpAddr" subtype="IPV4orV6Address" type="ipaddr"/>
-      <integer comment="" name="sourcePortNumber" subtype="uint32" type="ipport" use_param="sourceIpAddr"/>
+      <ipv4or6 comment="" name="sourceIpAddr" subtype="IPV4orV6Address" type="ipaddr" make_additional_info="yes"/>
+      <integer comment="" name="sourcePortNumber" subtype="uint32" type="ipport" use_param="sourceIpAddr" make_additional_info="yes"/>
     </fields>
     <fields beginversion="16">
       <enum comment="" name="requestedIpAddrType" subtype="IpAddrType" type="uint32"/>
@@ -2977,7 +2999,7 @@
   </enum>
   <message comment="" direction="pbx2dev" dynamic="no" msgtype="event" name="CallStateMessage" opcode="0x0111" type="CallControl">
     <fields beginversion="0" endversion="22">
-      <enum comment="" name="callState" subtype="DCallState" type="uint32"/>
+      <enum comment="" name="callState" subtype="DCallState" type="uint32" make_additional_info="yes"/>
       <integer comment="LineId" name="lineInstance" type="uint32"/>
       <integer comment="CallId" name="callReference" type="uint32"/>
       <enum comment="" name="privacy" subtype="CallPrivacy" type="uint32"/>
@@ -3074,12 +3096,12 @@
   </message>
   <message comment="" direction="pbx2dev" dynamic="no" msgtype="event" name="DialedNumberMessage" opcode="0x011d" type="CallControl">
     <fields endversion="17" fixed="yes">
-      <string comment="" name="dialedNumber" size="24" type="char"/>
+      <string comment="" name="dialedNumber" size="24" type="char" make_additional_info="yes"/>
       <integer comment="LineId" name="lineInstance" type="uint32"/>
       <integer comment="CallId" name="callReference" type="uint32"/>
     </fields>
     <fields beginversion="18" endversion="22" fixed="yes">
-      <string comment="" declare="yes" name="dialedNumber" size="VariableDirnumSize" type="char"/>
+      <string comment="" declare="yes" name="dialedNumber" size="VariableDirnumSize" type="char" make_additional_info="yes"/>
       <integer comment="LineId" name="lineInstance" type="uint32"/>
       <integer comment="CallId" name="callReference" type="uint32"/>
     </fields>
@@ -3383,8 +3405,8 @@
       <integer comment="" name="associatedStreamId" type="uint32"/>
     </fields>
     <fields beginversion="11">
-      <ipv4or6 comment="ipaddress in big endian" endianness="big" name="sourceIpAddr" subtype="uint32" type="ipaddr"/>
-      <integer comment="" name="sourcePortNumber" subtype="uint32" type="ipport" use_param="sourceIpAddr"/>
+      <ipv4or6 comment="ipaddress in big endian" endianness="big" name="sourceIpAddr" subtype="uint32" type="ipaddr" make_additional_info="yes"/>
+      <integer comment="" name="sourcePortNumber" subtype="uint32" type="ipport" use_param="sourceIpAddr" make_additional_info="yes"/>
     </fields>
     <fields beginversion="16" endversion="22">
       <enum comment="" name="requestedIpAddrType" subtype="IpAddrType" type="uint32"/>
@@ -3808,7 +3830,7 @@
   </message>
   <bitfield name="LineTypeBits">
     <entries>
-      <entry comment="" name="OrigDialed" text="Originaly Dialed" value="0x0001"/>
+      <entry comment="" name="OrigDialed" text="Originally Dialed" value="0x0001"/>
       <entry comment="" name="RedirDialed" text="Redirected Dialed" value="0x0002"/>
       <entry comment="" name="CallingPartyNumber" text="CallingNum" value="0x0004"/>
       <entry comment="" name="CallingPartyName" text="CallingName" value="0x0008"/>
@@ -3819,7 +3841,7 @@
       <integer comment="" declare="yes" name="lineNumber" req_resp_key="1" type="uint32"/>
       <bitfield comment="" name="lineType" size="uint32" subtype="LineTypeBits" type="bitfield">
         <entries>
-          <entry comment="" name="OrigDialed" text="Originaly Dialed" value="0x0001"/>
+          <entry comment="" name="OrigDialed" text="Originally Dialed" value="0x0001"/>
           <entry comment="" name="RedirDialed" text="Redirected Dialed" value="0x0002"/>
           <entry comment="" name="CallingPartyNumber" text="CallingNum" value="0x0004"/>
           <entry comment="" name="CallingPartyName" text="CallingName" value="0x0008"/>
@@ -3886,6 +3908,9 @@
       <string comment="" name="HuntPilotNumber" size="VariableDirnumSize" type="char"/>
       <string comment="" name="HuntPilotName" size="121" type="char"/>
     </fields>
+    <fields>
+      <code type="calling_and_called_party" use_param="callingParty,calledParty"/>
+    </fields>
   </message>
   <enum name="MediaTransportType">
     <entries>
@@ -3924,8 +3949,8 @@
       <integer comment="Conference ID" name="conferenceId" type="uint32"/>
       <integer comment="CallId" name="callReference" type="uint32"/>
       <integer comment="PassThrough PartyId" name="passThroughPartyId" type="uint32"/>
-      <ipv4or6 comment="ipaddress in big endian" endianness="big" name="remoteIpAddr" subtype="uint32" type="ipaddr"/>
-      <integer comment="" name="remotePortNumber" subtype="uint32" type="ipport" use_param="remoteIpAddr"/>
+      <ipv4or6 comment="ipaddress in big endian" endianness="big" name="remoteIpAddr" subtype="uint32" type="ipaddr" make_additional_info="yes"/>
+      <integer comment="" name="remotePortNumber" subtype="uint32" type="ipport" use_param="remoteIpAddr" make_additional_info="yes"/>
       <enum comment="" name="resvStyle" subtype="ResvStyle" type="uint32"/>
       <integer comment="" name="maxRetryNumber" type="int32"/>
       <integer comment="" name="retryTimer" type="uint32"/>
@@ -3951,8 +3976,8 @@
       <integer comment="Conference ID" name="conferenceId" type="uint32"/>
       <integer comment="CallId" name="callReference" type="uint32"/>
       <integer comment="PassThrough PartyId" name="passThroughPartyId" type="uint32"/>
-      <ipv4or6 comment="ipaddress in big endian" endianness="big" name="remoteIpAddr" subtype="uint32" type="ipaddr"/>
-      <integer comment="" name="remotePortNumber" subtype="uint32" type="ipport" use_param="remoteIpAddr"/>
+      <ipv4or6 comment="ipaddress in big endian" endianness="big" name="remoteIpAddr" subtype="uint32" type="ipaddr" make_additional_info="yes"/>
+      <integer comment="" name="remotePortNumber" subtype="uint32" type="ipport" use_param="remoteIpAddr" make_additional_info="yes"/>
       <enum comment="" name="resvStyle" subtype="ResvStyle" type="uint32"/>
       <integer comment="" name="maxRetryNumber" type="int32"/>
       <integer comment="" name="retryTimer" type="uint32"/>
@@ -3977,8 +4002,8 @@
       <integer comment="Conference ID" name="conferenceId" type="uint32"/>
       <integer comment="CallId" name="callReference" type="uint32"/>
       <integer comment="PassThrough PartyId" name="passThroughPartyId" type="uint32"/>
-      <ipv4or6 comment="ipaddress in big endian" endianness="big" name="remoteIpAddr" subtype="uint32" type="ipaddr"/>
-      <integer comment="" name="remotePortNumber" subtype="uint32" type="ipport" use_param="remoteIpAddr"/>
+      <ipv4or6 comment="ipaddress in big endian" endianness="big" name="remoteIpAddr" subtype="uint32" type="ipaddr" make_additional_info="yes"/>
+      <integer comment="" name="remotePortNumber" subtype="uint32" type="ipport" use_param="remoteIpAddr" make_additional_info="yes"/>
       <enum comment="" name="direction" subtype="RSVPDirection" type="uint32"/>
     </fields>
   </message>
@@ -3987,8 +4012,8 @@
       <integer comment="Conference ID" name="conferenceId" type="uint32"/>
       <integer comment="CallId" name="callReference" type="uint32"/>
       <integer comment="PassThrough PartyId" name="passThroughPartyId" type="uint32"/>
-      <ipv4or6 comment="ipaddress in big endian" endianness="big" name="remoteIpAddr" subtype="uint32" type="ipaddr"/>
-      <integer comment="" name="remotePortNumber" subtype="uint32" type="ipport" use_param="remoteIpAddr"/>
+      <ipv4or6 comment="ipaddress in big endian" endianness="big" name="remoteIpAddr" subtype="uint32" type="ipaddr" make_additional_info="yes"/>
+      <integer comment="" name="remotePortNumber" subtype="uint32" type="ipport" use_param="remoteIpAddr" make_additional_info="yes"/>
       <integer comment="" name="DSCPValue" type="uint32"/>
     </fields>
   </message>
@@ -3997,8 +4022,8 @@
       <integer comment="Conference ID" name="conferenceId" type="uint32"/>
       <integer comment="CallId" name="callReference" type="uint32"/>
       <integer comment="PassThrough PartyId" name="passThroughPartyId" type="uint32"/>
-      <ipv4or6 comment="ipaddress in big endian" endianness="big" name="remoteIpAddr" subtype="uint32" type="ipaddr"/>
-      <integer comment="" name="remotePortNumber" subtype="uint32" type="ipport" use_param="remoteIpAddr"/>
+      <ipv4or6 comment="ipaddress in big endian" endianness="big" name="remoteIpAddr" subtype="uint32" type="ipaddr" make_additional_info="yes"/>
+      <integer comment="" name="remotePortNumber" subtype="uint32" type="ipport" use_param="remoteIpAddr" make_additional_info="yes"/>
       <enum comment="" name="direction" subtype="RSVPDirection" type="uint32"/>
       <enum comment="" name="compressionType" subtype="Media_PayloadType" type="uint32"/>
       <integer comment="" name="averageBitRate" type="uint32"/>
@@ -4046,8 +4071,8 @@
       <integer comment="Conference ID" name="conferenceId" type="uint32"/>
       <integer comment="PassThrough PartyId" declare="yes" name="passThroughPartyId" req_resp_key="1" type="uint32"/>
       <integer comment="CallId" name="callReference" type="uint32"/>
-      <ipv4or6 comment="ipaddress in big endian" endiannes="big" endianness="big" name="transmitIpAddr" subtype="IpAddress" type="ipaddr"/>
-      <integer comment="transmit Port" declare="yes" name="portNumber" subtype="uint32" type="ipport"/>
+      <ipv4or6 comment="ipaddress in big endian" endiannes="big" endianness="big" name="transmitIpAddr" subtype="IpAddress" type="ipaddr" make_additional_info="yes"/>
+      <integer comment="transmit Port" declare="yes" name="portNumber" subtype="uint32" type="ipport" use_param="transmitIpAddr" make_additional_info="yes"/>
       <enum comment="" name="mediaTransmissionStatus" subtype="MediaStatus" type="uint32"/>
     </fields>
   </message>
@@ -4056,8 +4081,8 @@
       <integer comment="Conference ID" name="conferenceId" type="uint32"/>
       <integer comment="PassThrough PartyId" declare="yes" name="passThroughPartyId" req_resp_key="1" type="uint32"/>
       <integer comment="CallId" name="callReference" type="uint32"/>
-      <ipv4or6 comment="ipaddress in big endian" endiannes="big" endianness="big" name="transmitIpAddr" subtype="IpAddress" type="ipaddr"/>
-      <integer comment="transmit Port" declare="yes" name="portNumber" subtype="uint32" type="ipport"/>
+      <ipv4or6 comment="ipaddress in big endian" endiannes="big" endianness="big" name="transmitIpAddr" subtype="IpAddress" type="ipaddr" make_additional_info="yes"/>
+      <integer comment="transmit Port" declare="yes" name="portNumber" subtype="uint32" type="ipport" use_param="transmitIpAddr" make_additional_info="yes"/>
       <enum comment="" name="multimediaTransmissionStatus" subtype="MediaStatus" type="uint32"/>
     </fields>
   </message>
