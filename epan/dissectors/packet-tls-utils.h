@@ -123,9 +123,14 @@ typedef enum {
 #define SSL_HND_HELLO_EXT_POST_HANDSHAKE_AUTH           49
 #define SSL_HND_HELLO_EXT_SIGNATURE_ALGORITHMS_CERT     50
 #define SSL_HND_HELLO_EXT_KEY_SHARE                     51
+#define SSL_HND_HELLO_EXT_TRANSPARENCY_INFO             52 /* draft-ietf-trans-rfc6962-bis-41 */
 #define SSL_HND_HELLO_EXT_CONNECTION_ID_DEPRECATED      53 /* draft-ietf-tls-dtls-connection-id-07 */
 #define SSL_HND_HELLO_EXT_CONNECTION_ID                 54
+#define SSL_HND_HELLO_EXT_EXTERNAL_ID_HASH              55 /* RFC 8844 */
+#define SSL_HND_HELLO_EXT_EXTERNAL_SESSION_ID           56 /* RFC 8844 */
 #define SSL_HND_HELLO_EXT_QUIC_TRANSPORT_PARAMETERS_V1  57 /* draft-ietf-quic-tls-33 */
+#define SSL_HND_HELLO_EXT_TICKET_REQUEST                58 /* draft-ietf-tls-ticketrequests-07 */
+#define SSL_HND_HELLO_EXT_DNSSEC_CHAIN                  59 /* RFC 9102 */
 #define SSL_HND_HELLO_EXT_GREASE_0A0A                   2570
 #define SSL_HND_HELLO_EXT_GREASE_1A1A                   6682
 #define SSL_HND_HELLO_EXT_GREASE_2A2A                   10794

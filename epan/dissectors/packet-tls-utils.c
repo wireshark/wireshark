@@ -1208,9 +1208,14 @@ const value_string tls_hello_extension_types[] = {
     { SSL_HND_HELLO_EXT_POST_HANDSHAKE_AUTH, "post_handshake_auth" }, /* RFC 8446 */
     { SSL_HND_HELLO_EXT_SIGNATURE_ALGORITHMS_CERT, "signature_algorithms_cert" }, /* RFC 8446 */
     { SSL_HND_HELLO_EXT_KEY_SHARE, "key_share" }, /* RFC 8446 */
+    { SSL_HND_HELLO_EXT_TRANSPARENCY_INFO, "transparency_info" }, /* draft-ietf-trans-rfc6962-bis-41 */
     { SSL_HND_HELLO_EXT_CONNECTION_ID_DEPRECATED, "connection_id (deprecated)" }, /* draft-ietf-tls-dtls-connection-id-07 */
     { SSL_HND_HELLO_EXT_CONNECTION_ID, "connection_id" }, /* RFC 9146 */
+    { SSL_HND_HELLO_EXT_EXTERNAL_ID_HASH, "external_id_hash" }, /* RFC 8844 */
+    { SSL_HND_HELLO_EXT_EXTERNAL_SESSION_ID, "external_session_id" }, /* RFC 8844 */
     { SSL_HND_HELLO_EXT_QUIC_TRANSPORT_PARAMETERS_V1, "quic_transport_parameters" }, /* draft-ietf-quic-tls-33 */
+    { SSL_HND_HELLO_EXT_TICKET_REQUEST, "ticket_request" }, /* draft-ietf-tls-ticketrequests-07 */
+    { SSL_HND_HELLO_EXT_DNSSEC_CHAIN, "dnssec_chain" }, /* RFC 9102 */
     { SSL_HND_HELLO_EXT_GREASE_0A0A, "Reserved (GREASE)" }, /* RFC 8701 */
     { SSL_HND_HELLO_EXT_GREASE_1A1A, "Reserved (GREASE)" }, /* RFC 8701 */
     { SSL_HND_HELLO_EXT_GREASE_2A2A, "Reserved (GREASE)" }, /* RFC 8701 */
