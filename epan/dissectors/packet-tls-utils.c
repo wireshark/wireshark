@@ -1208,7 +1208,8 @@ const value_string tls_hello_extension_types[] = {
     { SSL_HND_HELLO_EXT_POST_HANDSHAKE_AUTH, "post_handshake_auth" }, /* RFC 8446 */
     { SSL_HND_HELLO_EXT_SIGNATURE_ALGORITHMS_CERT, "signature_algorithms_cert" }, /* RFC 8446 */
     { SSL_HND_HELLO_EXT_KEY_SHARE, "key_share" }, /* RFC 8446 */
-    { SSL_HND_HELLO_EXT_CONNECTION_ID, "connection_id" }, /* draft-ietf-tls-dtls-connection-id-07 */
+    { SSL_HND_HELLO_EXT_CONNECTION_ID_DEPRECATED, "connection_id (deprecated)" }, /* draft-ietf-tls-dtls-connection-id-07 */
+    { SSL_HND_HELLO_EXT_CONNECTION_ID, "connection_id" }, /* RFC 9146 */
     { SSL_HND_HELLO_EXT_QUIC_TRANSPORT_PARAMETERS_V1, "quic_transport_parameters" }, /* draft-ietf-quic-tls-33 */
     { SSL_HND_HELLO_EXT_GREASE_0A0A, "Reserved (GREASE)" }, /* RFC 8701 */
     { SSL_HND_HELLO_EXT_GREASE_1A1A, "Reserved (GREASE)" }, /* RFC 8701 */
@@ -4757,22 +4758,40 @@ tls_decrypt_aead_record(SslDecryptSession *ssl, SslDecoder *decoder,
         /* size of plaintext, additional authenticated data and auth tag. */
         guint64 lengths[3] = { ciphertext_len, is_v12 ? 13 : 0, auth_tag_len };
         if (is_cid) {
-            lengths[1] = 13 + 1 + cidl; /* cid length (1 byte) + cid (cidl bytes)*/
+            if (ssl->session.deprecated_cid) {
+                lengths[1] += 1 + cidl; /* cid length (1 byte) + cid (cidl bytes) */
+            } else {
+                lengths[1] += 8 + 1 + 1 + cidl; /* seq_num_placeholder + ct + cid length + cid */
+            }
         }
         gcry_cipher_ctl(decoder->evp, GCRYCTL_SET_CCM_LENGTHS, lengths, sizeof(lengths));
     }
 
     /* (D)TLS 1.2 needs specific AAD, TLS 1.3 (before -25) uses empty AAD. */
     if (is_cid) { /* if connection ID */
-        guchar aad[14+DTLS_MAX_CID_LENGTH];
-        guint aad_len = 14 + cidl;
-        phton64(aad, decoder->seq);         /* record sequence number */
-        phton16(aad, decoder->epoch);       /* DTLS 1.2 includes epoch. */
-        aad[8] = ct;                        /* TLSCompressed.type */
-        phton16(aad + 9, record_version);   /* TLSCompressed.version */
-        memcpy(aad + 11, cid, cidl);        /* cid */
-        aad[11 + cidl] = cidl;              /* cid_length */
-        phton16(aad + 12 + cidl, ciphertext_len);  /* TLSCompressed.length */
+        guchar aad[23+DTLS_MAX_CID_LENGTH];
+        guint aad_len;
+        if (ssl->session.deprecated_cid) {
+            aad_len = 13 + 1 + cidl;
+            phton64(aad, decoder->seq);         /* record sequence number */
+            phton16(aad, decoder->epoch);       /* DTLS 1.2 includes epoch. */
+            aad[8] = ct;                        /* TLSCompressed.type */
+            phton16(aad + 9, record_version);   /* TLSCompressed.version */
+            memcpy(aad + 11, cid, cidl);        /* cid */
+            aad[11 + cidl] = cidl;              /* cid_length */
+            phton16(aad + 12 + cidl, ciphertext_len);  /* TLSCompressed.length */
+        } else {
+            aad_len = 13 + 8 + 1 + 1 + cidl;
+            memset(aad, 0xFF, 8);               /* seq_num_placeholder */
+            aad[8] = ct;                        /* TLSCompressed.type */
+            aad[9] = cidl;                      /* cid_length */
+            aad[10] = ct;                       /* TLSCompressed.type */
+            phton16(aad + 11, record_version);  /* TLSCompressed.version */
+            phton64(aad + 13, decoder->seq);    /* record sequence number */
+            phton16(aad + 13, decoder->epoch);  /* DTLS 1.2 includes epoch. */
+            memcpy(aad + 21, cid, cidl);        /* cid */
+            phton16(aad + 21 + cidl, ciphertext_len);  /* TLSCompressed.length */
+        }
         ssl_print_data("AAD", aad, aad_len);
         err = gcry_cipher_authenticate(decoder->evp, aad, aad_len);
         if (err) {
@@ -9775,6 +9794,9 @@ ssl_dissect_hnd_extension(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
         case SSL_HND_HELLO_EXT_ENCRYPTED_SERVER_NAME:
             offset = ssl_dissect_hnd_hello_ext_esni(hf, tvb, pinfo, ext_tree, offset, next_offset, hnd_type, ssl);
             break;
+        case SSL_HND_HELLO_EXT_CONNECTION_ID_DEPRECATED:
+            session->deprecated_cid = TRUE;
+            /* FALLTHRU */
         case SSL_HND_HELLO_EXT_CONNECTION_ID:
             offset = ssl_dissect_hnd_hello_ext_connection_id(hf, tvb, pinfo, ext_tree, offset, hnd_type, session, ssl);
             break;

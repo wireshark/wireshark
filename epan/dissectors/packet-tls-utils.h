@@ -123,7 +123,8 @@ typedef enum {
 #define SSL_HND_HELLO_EXT_POST_HANDSHAKE_AUTH           49
 #define SSL_HND_HELLO_EXT_SIGNATURE_ALGORITHMS_CERT     50
 #define SSL_HND_HELLO_EXT_KEY_SHARE                     51
-#define SSL_HND_HELLO_EXT_CONNECTION_ID                 53
+#define SSL_HND_HELLO_EXT_CONNECTION_ID_DEPRECATED      53 /* draft-ietf-tls-dtls-connection-id-07 */
+#define SSL_HND_HELLO_EXT_CONNECTION_ID                 54
 #define SSL_HND_HELLO_EXT_QUIC_TRANSPORT_PARAMETERS_V1  57 /* draft-ietf-quic-tls-33 */
 #define SSL_HND_HELLO_EXT_GREASE_0A0A                   2570
 #define SSL_HND_HELLO_EXT_GREASE_1A1A                   6682
@@ -474,6 +475,7 @@ typedef struct _SslSession {
     guint8 *server_cid;
     guint8  client_cid_len;
     guint8  server_cid_len;
+    gboolean deprecated_cid; /* Set when handshake is using the deprecated CID extention type */
 } SslSession;
 
 /* RFC 5246, section 8.1 says that the master secret is always 48 bytes */
