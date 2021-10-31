@@ -569,7 +569,7 @@ dfilter_fvalue_from_charconst_string(dfwork_t *dfw, ftenum_t ftype, stnode_t *st
 	fvalue_t *fvalue;
 	const char *s = stnode_data(st);
 
-	fvalue = fvalue_from_unparsed(ftype, s, allow_partial_value,
+	fvalue = fvalue_from_unparsed(FT_CHAR, s, allow_partial_value,
 			dfw->error_message == NULL ? &dfw->error_message : NULL);
 	if (fvalue == NULL)
 		THROW(TypeError);

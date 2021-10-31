@@ -90,3 +90,12 @@ class case_syntax(unittest.TestCase):
     def test_deprecated_2(self, checkDFilterSucceed):
         dfilter = "bootp"
         checkDFilterSucceed(dfilter, "Deprecated tokens: \"bootp\"")
+
+    def test_charconst_1(self, checkDFilterCount):
+        # Bytes as a character constant.
+        dfilter = "frame contains 'H'"
+        checkDFilterCount(dfilter, 1)
+
+    def test_charconst_2(self, checkDFilterCount):
+        dfilter = "frame[54] == 'H'"
+        checkDFilterCount(dfilter, 1)
