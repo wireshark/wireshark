@@ -116,6 +116,9 @@ The following features are new (or have been significantly updated) since versio
 ** Use the syntax "a ~= b" or "a any_ne b" to recover the previous (inconsistent with ==) logic for not equal.
 ** Adds support for the syntax "a not in b" as a synonym for "not a in b".
 ** Set elements must be separated using a comma, e.g: {1, 2, "foo"}. Using only whitespace as separator was deprecated in 3.6 and is now a syntax error.
+** Adds support for some additional character escape sequences in double quoted strings. Besides octal and hex byte specification the following C escape
+   sequences are now supported with the same meaning: \a, \b, \f, \n, \r, \t, \v. Previously they were only supported with character constants. Note that
+   unrecognized escape sequences are treated as a literal character. This has not changed from previous versions.
 
 * Corrected calculation of mean jitter in RTP Stream Analysis dialog and IAX2 Stram Analysis dialog
 

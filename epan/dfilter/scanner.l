@@ -79,6 +79,7 @@ df_lval_t *df_lval;
 
 static int set_lval_str(int token, const char *token_value);
 #define simple(token) set_lval_str(token, yytext)
+static GString *append_escaped_char(GString *str, char c);
 
 /*
  * Sleazy hack to suppress compiler warnings in yy_fatal_error().
@@ -228,6 +229,10 @@ static int set_lval_str(int token, const char *token_value);
 
 <DQUOTE>\\x[[:xdigit:]]{1,2} {
 	/* hex sequence */
+	/*
+	 * C standard does not place a limit on the number of hex
+	 * digits after \x... but we do. \xNN can have 1 or two Ns, not more.
+	 */
 	if (yyextra->raw_string) {
 		g_string_append(yyextra->quoted_string, yytext);
 	}
@@ -251,7 +256,7 @@ static int set_lval_str(int token, const char *token_value);
 		g_string_append(yyextra->quoted_string, yytext);
 	}
 	else {
-		g_string_append_c(yyextra->quoted_string, yytext[1]);
+		append_escaped_char(yyextra->quoted_string, yytext[1]);
 	}
 }
 
@@ -341,4 +346,41 @@ set_lval_str(int token, const char *token_value)
 {
 	df_lval->value = g_strdup(token_value);
 	return token;
+}
+
+static GString *
+append_escaped_char(GString *str, char c)
+{
+	switch (c) {
+		case 'a':
+			c = '\a';
+			break;
+		case 'b':
+			c = '\b';
+			break;
+		case 'f':
+			c = '\f';
+			break;
+		case 'n':
+			c = '\n';
+			break;
+		case 'r':
+			c = '\r';
+			break;
+		case 't':
+			c = '\t';
+			break;
+		case 'v':
+			c = '\v';
+			break;
+		default:
+			/* Unrecognized escapes are treated as a literal character.
+			 * If this is turned into an error instead (which is a backward
+			 * incompatibility but arguably the right thing to do)
+			 * we need to take care to accept all valid sequences
+			 * (like \" and \\). */
+			break;
+	}
+
+	return g_string_append_c(str, c);
 }
