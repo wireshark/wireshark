@@ -12930,8 +12930,12 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>&quot;%1&quot; は非推奨で &quot;%2&quot; が推奨されます。ユーザーズガイドを参照ください</translation>
     </message>
     <message>
+        <source>%1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&quot;%1&quot; may have unexpected results. See the User&apos;s Guide.</source>
-        <translation>&quot;%1&quot; は予期せぬ結果となるかもしれません。ユーザーズガイドを参照ください</translation>
+        <translation type="vanished">&quot;%1&quot; は予期せぬ結果となるかもしれません。ユーザーズガイドを参照ください</translation>
     </message>
 </context>
 <context>

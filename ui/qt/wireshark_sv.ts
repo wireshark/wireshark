@@ -12954,8 +12954,12 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>”%1” bör undvikas till förmån för ”%2”.  Se användarmanualen.</translation>
     </message>
     <message>
+        <source>%1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&quot;%1&quot; may have unexpected results. See the User&apos;s Guide.</source>
-        <translation>”%1” kan ha oväntad effekt.  Se användarmanualen.</translation>
+        <translation type="vanished">”%1” kan ha oväntad effekt.  Se användarmanualen.</translation>
     </message>
 </context>
 <context>

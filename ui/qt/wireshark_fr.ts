@@ -12931,7 +12931,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&quot;%1&quot; may have unexpected results. See the User&apos;s Guide.</source>
+        <source>%1</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

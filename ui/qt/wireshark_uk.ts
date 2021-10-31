@@ -12893,7 +12893,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&quot;%1&quot; may have unexpected results. See the User&apos;s Guide.</source>
+        <source>%1</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

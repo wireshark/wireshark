@@ -12981,8 +12981,12 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>&quot;%1&quot; устарел, используйте &quot;%2&quot;. См. Руководство Пользователя.</translation>
     </message>
     <message>
+        <source>%1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&quot;%1&quot; may have unexpected results. See the User&apos;s Guide.</source>
-        <translation>&quot;%1&quot; может приводить к непредсказуемым результатам. Cм. Руководство Пользователя.</translation>
+        <translation type="vanished">&quot;%1&quot; может приводить к непредсказуемым результатам. Cм. Руководство Пользователя.</translation>
     </message>
 </context>
 <context>

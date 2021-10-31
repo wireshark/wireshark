@@ -723,7 +723,7 @@
     <name>ByteViewText</name>
     <message>
         <source>Allow hover selection</source>
-        <translation type="unfinished"></translation>
+        <translation>Hover-Auswahl erlauben</translation>
     </message>
     <message>
         <source>Show bytes as hexadecimal</source>
@@ -802,6 +802,29 @@
     <message>
         <source>Automatically detect file type</source>
         <translation>Dateityp automatisch erkennen</translation>
+    </message>
+    <message numerus="yes">
+        <source>%1, error after %Ln packet(s)</source>
+        <oldsource>%1, error after %2 packets</oldsource>
+        <translation type="vanished">
+            <numerusform>%1, Fehler nach %Ln Paket</numerusform>
+            <numerusform>%1, Fehler nach %Ln Paketen</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%1, timed out at %Ln packet(s)</source>
+        <oldsource>%1, timed out at %2 packets</oldsource>
+        <translation type="vanished">
+            <numerusform>%1, Zeitüberschreitung nach %Ln Paket</numerusform>
+            <numerusform>%1, Zeitüberschreitung nach %Ln Paketen</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%1, %Ln packet(s)</source>
+        <translation type="vanished">
+            <numerusform>%1, %Ln Paket</numerusform>
+            <numerusform>%1, %Ln Pakete</numerusform>
+        </translation>
     </message>
     <message>
         <source>Prepend packets</source>
@@ -3085,6 +3108,20 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <source>Print</source>
         <translation>Drucken</translation>
     </message>
+    <message numerus="yes">
+        <source>%Ln client pkt(s), </source>
+        <translation type="vanished">
+            <numerusform>%Ln Client Paket,</numerusform>
+            <numerusform>%Ln Client Pakete,</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln server pkt(s), </source>
+        <translation type="vanished">
+            <numerusform>%Ln Server Paket,</numerusform>
+            <numerusform>%Ln Server Pakete,</numerusform>
+        </translation>
+    </message>
     <message>
         <source>ASCII</source>
         <translation>ASCII</translation>
@@ -3631,7 +3668,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Automatic Update</source>
-        <translation type="unfinished"></translation>
+        <translation>Automatisch aktualisieren</translation>
     </message>
     <message>
         <source>Reset</source>
@@ -4299,11 +4336,11 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Perl compatible regular expression capturing a single packet in the file with named groups identifieing data to import. Anchors ^ and $ also match before/after newlines &lt;/p&gt;&lt;p&gt;Required is only a data group, also supported are time, dir and seqno.&lt;/p&gt;&lt;p&gt;Regex flags: DUPNAMES, MULTILINE and NOEMPTY&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Perl-kompatibler regulärer Ausdruck für ein einzelnes Paket in der Datei mit benannten Erfassungsgruppen zur Identifizierung der zu importierenden Daten. Die Anker ^ und $ treffen auch vor/nach Zeilenumbrüchen zu. &lt;/p&gt;&lt;p&gt;Nur die Gruppe data ist notwendig. Zusätzlich werden die Gruppen time, dir und seqno unterstützt.&lt;/p&gt;&lt;p&gt;Regex Flags: DUPNAMES, MULTILINE and NOEMPTY&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>This is regexHintLabel, it will be set to default_regex_hint</source>
-        <translation type="unfinished"></translation>
+        <translation>Das ist regexHintLabel, es wird auf default_regex_hint gesetzt</translation>
     </message>
     <message>
         <source>Data encoding:</source>
@@ -4367,7 +4404,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;recommended regex:&lt;/small&gt;&lt;/i&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;&lt;i&gt;empfohlener Regex:&lt;/small&gt;&lt;/i&gt;</translation>
     </message>
     <message>
         <source>The format in which to parse timestamps in the text file (e.g. %H:%M:%S.). Format specifiers are based on strptime(3)</source>
@@ -4375,7 +4412,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The format in which to parse timestamps in the text file (e.g. %H:%M:%S.%f).&lt;/p&gt;&lt;p&gt;Format specifiers are based on strptime(3) with the addition of %f for second fractions. The percision of %f is determined from it&apos;s length.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Das Format zum Interpretieren von Zeitstempeln der Textdatei. (z. B. %H:%M:%S.%f).&lt;/p&gt;&lt;p&gt;Formatbezeichner basieren auf strptime(3), zusätzlich %f für Sekundenbruchteile. Die Genauigkeit von %f wird durch deren Länge bestimmt.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>%H:%M:%S.%f</source>
@@ -4515,7 +4552,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Missing capturing group data (use (?</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehlende Erfassungsgruppe data (benutze (?</translation>
     </message>
     <message>
         <source>Import From Hex Dump</source>
@@ -6621,7 +6658,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Reliable Server Pooling (RSerPool)</source>
-        <translation type="unfinished"></translation>
+        <translation>Reliable Server Pooling (RSerPool)</translation>
     </message>
     <message>
         <source>Osmux</source>
@@ -7124,15 +7161,15 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>F1AP Messages</source>
-        <translation type="unfinished"></translation>
+        <translation>F1AP Nachrichten</translation>
     </message>
     <message>
         <source>NGAP</source>
-        <translation type="unfinished"></translation>
+        <translation>NGAP</translation>
     </message>
     <message>
         <source>NGAP Messages</source>
-        <translation type="unfinished"></translation>
+        <translation>NGAP Nachrichten</translation>
     </message>
     <message>
         <source>Change the way packets are dissected</source>
@@ -7296,7 +7333,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Start of &quot;REGISTER_STAT_GROUP_RSERPOOL&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Beginn von &quot;REGISTER_STAT_GROUP_RSERPOOL&quot;</translation>
     </message>
     <message>
         <source>No GSM statistics registered</source>
@@ -7636,7 +7673,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Resolve &amp;Physical Addresses</source>
-        <translation>&amp;Physikalische Adressen auflösen</translation>
+        <translation>&amp;Physische Adressen auflösen</translation>
     </message>
     <message>
         <source>Show names for known MAC addresses. Lookups use a local database.</source>
@@ -7737,7 +7774,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>RTP Stream Analysis for selected stream. Press CTRL key for adding reverse stream too.</source>
-        <translation type="unfinished"></translation>
+        <translation>RTP Stream-Analyse für ausgewählten Stream. STRG drücken um entgegengesetzten Stream auch auszuwählen.</translation>
     </message>
     <message>
         <source>RTP Player</source>
@@ -7745,7 +7782,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Play selected stream. Press CTRL key for playing reverse stream too.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausgewählten Stream abspielen. STRG drücken um entgegengesetzten Stream auch abzuspielen.</translation>
     </message>
     <message>
         <source>IA&amp;X2 Stream Analysis</source>
@@ -8158,6 +8195,14 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <source>No Keys</source>
         <translation>Keine Schlüssel</translation>
     </message>
+    <message numerus="yes">
+        <source>Export SSL Session Keys (%Ln key(s))</source>
+        <oldsource>Export SSL Session Keys (%1 key%2</oldsource>
+        <translation type="vanished">
+            <numerusform>SSL Sitzungsschlüssel exportieren (%Ln Schlüssel)</numerusform>
+            <numerusform>SSL Sitzungsschlüssel exportieren (%Ln Schlüssel)</numerusform>
+        </translation>
+    </message>
     <message>
         <source>Raw data (*.bin *.dat *.raw);;All Files (</source>
         <translation>Rohdaten (*.bin *.dat *.raw);; Alle Dateien (</translation>
@@ -8234,7 +8279,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source> before reloading Lua plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>vor dem Neuladen der Lua Plugins</translation>
     </message>
     <message>
         <source>Please wait while Wireshark is initializing…</source>
@@ -8277,7 +8322,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>RTP packet search failed</source>
-        <translation type="unfinished"></translation>
+        <translation>RTP Paketsuche fehlgeschlagen</translation>
     </message>
     <message>
         <source>No Interface Selected.</source>
@@ -9216,6 +9261,13 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Zum Exportieren eine Zipdatei auswählen</translation>
     </message>
     <message numerus="yes">
+        <source>… %Ln selected personal profile(s)</source>
+        <translation type="vanished">
+            <numerusform>… %Ln ausgewähltes persönliches Profil</numerusform>
+            <numerusform>… %Ln ausgewählte persönliche Profile</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
         <source>%Ln selected personal profile(s)</source>
         <translation>
             <numerusform>%Ln ausgewähltes persönliches Profil</numerusform>
@@ -9449,11 +9501,11 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Not a field or protocol</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein Feld oder Protokoll</translation>
     </message>
     <message>
         <source>No field reference available for text labels.</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine Feldbeschreibung als Textbezeichnung verfügbar.</translation>
     </message>
     <message>
         <source>Expand Subtrees</source>
@@ -10508,7 +10560,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Stream %1 Difference</source>
-        <translation type="unfinished"></translation>
+        <translation>Stream %1 Unterschied</translation>
     </message>
     <message>
         <source>Stream %1 Delta</source>
@@ -10520,11 +10572,11 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Save one stream CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>Speichern ein Stream CSV</translation>
     </message>
     <message>
         <source>Save all stream&apos;s CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>Speichern alle Streams CSV</translation>
     </message>
     <message>
         <source>&amp;Analyze</source>
@@ -10532,11 +10584,11 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Open the analysis window for the selected stream(s)</source>
-        <translation type="unfinished"></translation>
+        <translation>Analysefenster für die ausgewählten Streams anzeigen</translation>
     </message>
     <message>
         <source>&amp;Set List</source>
-        <translation type="unfinished"></translation>
+        <translation>Liste &amp;setzen</translation>
     </message>
     <message>
         <source>&amp;Add to List</source>
@@ -10544,19 +10596,19 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>&amp;Remove from List</source>
-        <translation type="unfinished"></translation>
+        <translation>Aus Liste entfe&amp;rnen</translation>
     </message>
     <message>
         <source>Replace existing list in RTP Analysis Dialog with new one</source>
-        <translation type="unfinished"></translation>
+        <translation>Vorhandene Liste in RTP Analyse Dialog mit neuer ersetzen</translation>
     </message>
     <message>
         <source>Add new set to existing list in RTP Analysis Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>Neuen Satz zu vorhandener Liste im RTP Analyse Dialog hinzufügen</translation>
     </message>
     <message>
         <source>Remove selected streams from list in RTP Analysis Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausgewählte Streams aus RTP Analyse Dialog Liste entfernen</translation>
     </message>
     <message>
         <source>Graph</source>
@@ -10584,15 +10636,15 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Current Tab Stream CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktueller Tab Stream CSV</translation>
     </message>
     <message>
         <source>Save the table on the current tab as CSV.</source>
-        <translation type="unfinished"></translation>
+        <translation>Speichere die Tabelle des aktuellen Tabs als CSV</translation>
     </message>
     <message>
         <source>All Tab Streams CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle Tabs Stream CSV</translation>
     </message>
     <message>
         <source>Save the table from all tabs as CSV.</source>
@@ -10632,7 +10684,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Prepare &amp;Filter</source>
-        <translation type="unfinished">&amp;Filter vorbereiten</translation>
+        <translation>&amp;Filter vorbereiten</translation>
     </message>
     <message>
         <source>Prepare a filter matching the selected stream(s).</source>
@@ -10640,11 +10692,11 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>&amp;Current Tab</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktueller Tab (&amp;C)</translation>
     </message>
     <message>
         <source>Prepare a filter matching current tab.</source>
-        <translation type="unfinished"></translation>
+        <translation>Filter für aktuellen Tab vorbereiten.</translation>
     </message>
     <message>
         <source>&amp;All Tabs</source>
@@ -10652,7 +10704,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Prepare a filter matching all tabs.</source>
-        <translation type="unfinished"></translation>
+        <translation>Filter für alle Tabs vorbereiten.</translation>
     </message>
     <message>
         <source>RTP Stream Analysis</source>
@@ -10746,11 +10798,11 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Start playback of all unmuted streams</source>
-        <translation type="unfinished"></translation>
+        <translation>Abspielen aller nicht Stumm geschalteten Streams starten</translation>
     </message>
     <message>
         <source>Pause/unpause playback</source>
-        <translation type="unfinished"></translation>
+        <translation>Abspielen pausieren/starten</translation>
     </message>
     <message>
         <source>Stop playback</source>
@@ -10758,15 +10810,15 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Enable/disable skipping of silence during playback</source>
-        <translation type="unfinished"></translation>
+        <translation>Überspringen von Stille während dem Abspielen aktivieren/deaktivieren</translation>
     </message>
     <message>
         <source>Min silence:</source>
-        <translation type="unfinished"></translation>
+        <translation>Min Stille:</translation>
     </message>
     <message>
         <source>Minimum silence duration to skip in seconds</source>
-        <translation type="unfinished"></translation>
+        <translation>Mindestdauer der Stille in Sekunden zum überspringen</translation>
     </message>
     <message>
         <source>Output Device:</source>
@@ -10774,7 +10826,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Output Audio Rate:</source>
-        <translation type="unfinished"></translation>
+        <translation>Audio Ausgaberate:</translation>
     </message>
     <message>
         <source>Jitter Buffer:</source>
@@ -10831,19 +10883,19 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Export audio of all unmuted selected channels or export payload of one channel.</source>
-        <translation type="unfinished"></translation>
+        <translation>Audio aller nicht stummen und markierten Kanäle exportieren oder Payload eines Kanals exportieren.</translation>
     </message>
     <message>
         <source>From &amp;cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>Von Zeiger &amp;C</translation>
     </message>
     <message>
         <source>Save audio data started at the cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>Audiodaten beginnend ab dem Zeiger speichern</translation>
     </message>
     <message>
         <source>&amp;Stream Synchronized Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Synchronisiertes Audio streamen </translation>
     </message>
     <message>
         <source>Save audio data synchronized to start of the earliest stream.</source>
@@ -11095,27 +11147,27 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>&amp;Set playlist</source>
-        <translation type="unfinished"></translation>
+        <translation>Wiedergabeliste &amp;setzen</translation>
     </message>
     <message>
         <source>Replace existing playlist in RTP Player with new one</source>
-        <translation type="unfinished"></translation>
+        <translation>Vorhandene Wiedergabeliste im RTP Player mit neuer ersetzen</translation>
     </message>
     <message>
         <source>&amp;Add to playlist</source>
-        <translation>Zur &amp;Abspielliste hinzufügen</translation>
+        <translation>Zur Wiedergabeliste hinzufügen (&amp;A)</translation>
     </message>
     <message>
         <source>Add new set to existing playlist in RTP Player</source>
-        <translation type="unfinished"></translation>
+        <translation>Neuen Satz zu vorhandener Wiedergabeliste im RTP Player hinzufügen</translation>
     </message>
     <message>
         <source>&amp;Remove from playlist</source>
-        <translation type="unfinished"></translation>
+        <translation>Von Wiedergabeliste entfe&amp;rnen</translation>
     </message>
     <message>
         <source>Remove selected streams from playlist in RTP Player</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausgewählte Streams aus RTP Player Wiedergabeliste entfernen</translation>
     </message>
     <message>
         <source>No Audio</source>
@@ -11143,31 +11195,31 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Double click on cell to change audio routing</source>
-        <translation type="unfinished"></translation>
+        <translation>Doppelklick auf Zelle um Audiorouting zu ändern</translation>
     </message>
     <message>
         <source>%1 streams</source>
-        <translation type="unfinished">%1 Streams</translation>
+        <translation>%1 Streams</translation>
     </message>
     <message>
         <source>, %1 selected</source>
-        <translation type="unfinished"></translation>
+        <translation>, %1 ausgewählt</translation>
     </message>
     <message>
         <source>, %1 not muted</source>
-        <translation type="unfinished"></translation>
+        <translation>, %1 nicht stumm</translation>
     </message>
     <message>
         <source>, start: %1. Double click on graph to set start of playback.</source>
-        <translation type="unfinished"></translation>
+        <translation>, Start: %1. Doppelklicken im Graphen um Wiedergabestart festzulegen.</translation>
     </message>
     <message>
         <source>, start: %1, cursor: %2. Press &quot;G&quot; to go to packet %3. Double click on graph to set start of playback.</source>
-        <translation type="unfinished"></translation>
+        <translation>, Start: %1, Cursor: %2. &quot;G&quot; drücken um zu Paket %3 zu springen. Doppelklicken im Graphen um Wiedergabestart festzulegen.</translation>
     </message>
     <message>
         <source>Playback of stream %1 failed!</source>
-        <translation type="unfinished"></translation>
+        <translation>Wiedergabe von Stream %1 fehlgeschlagen!</translation>
     </message>
     <message>
         <source>Automatic</source>
@@ -11207,19 +11259,19 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>All selected streams must use same play rate. Manual set of Output Audio Rate might help.</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle ausgewählten Streams müssen dieselbe Ausgaberate verwenden. Manuelles Setzen der Audio Ausgaberate hilft möglicherweise.</translation>
     </message>
     <message>
         <source>No streams are suitable for save</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine Streams sind zum Speichern geeignet</translation>
     </message>
     <message>
         <source>Save failed!</source>
-        <translation type="unfinished"></translation>
+        <translation>Speichern fehlgeschlagen!</translation>
     </message>
     <message>
         <source>Can&apos;t write header of AU file</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopfdaten der AU Datei können nicht geschrieben werden</translation>
     </message>
     <message>
         <source>Can&apos;t write header of WAV file</source>
@@ -11227,7 +11279,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Payload save works with just one audio stream.</source>
-        <translation type="unfinished"></translation>
+        <translation>Speichern des Payloads funktioniert nur mit einem Stream.</translation>
     </message>
     <message>
         <source>Double click to change audio routing</source>
@@ -11366,7 +11418,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Find All &amp;Pairs</source>
-        <translation type="unfinished"></translation>
+        <translation>Finde alle &amp;Paare</translation>
     </message>
     <message>
         <source>Select all streams which are paired in forward/reverse relation</source>
@@ -11382,7 +11434,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Find all streams which don&apos;t have paired reverse stream</source>
-        <translation type="unfinished"></translation>
+        <translation>Finde Streams ohne zugehörige entgegengesetzte Streams</translation>
     </message>
     <message>
         <source>Ctrl+R</source>
@@ -12954,8 +13006,12 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>&quot;%1&quot; wurde durch &quot;%2&quot; abgelöst. Siehe Benutzerhandbuch.</translation>
     </message>
     <message>
+        <source>%1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&quot;%1&quot; may have unexpected results. See the User&apos;s Guide.</source>
-        <translation>&quot;%1&quot; kann zu einem unerwarteten Ergebnis führen. Siehe Benutzerhandbuch.</translation>
+        <translation type="vanished">&quot;%1&quot; kann zu einem unerwarteten Ergebnis führen. Siehe Benutzerhandbuch.</translation>
     </message>
 </context>
 <context>

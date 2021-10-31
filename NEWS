@@ -1,4 +1,4 @@
-Wireshark 3.6.0rc2 Release Notes
+Wireshark 3.6.0 Release Notes
 
  This is the first release candidate for Wireshark 3.6.
 
@@ -13,6 +13,11 @@ Wireshark 3.6.0rc2 Release Notes
   section below for more details.
 
   New and Updated Features
+
+   The following features are new (or have been significantly updated)
+   since version 3.6.0rc2:
+
+     • Nothing of note.
 
    The following features are new (or have been significantly updated)
    since version 3.6.0rc1:
@@ -148,6 +153,15 @@ Wireshark 3.6.0rc2 Release Notes
         • Use the syntax “a ~= b” or “a any_ne b” to recover the
        previous (inconsistent with ==) logic for not equal.
 
+        • Set elements must now be separated using a comma (,). A filter
+       such as http.request.method in {"GET" "HEAD"} must be written as
+       …​ in {"GET", "HEAD"}. (Whitespace is of course optional.) The
+       previous use of whitespace as separator is deprecated and will be
+       removed in a future version.
+
+        • Adds support for the syntax "a not in b" as a synonym for "not
+       a in b".
+
      • Corrected calculation of mean jitter in RTP Stream Analysis
        dialog and IAX2 Stram Analysis dialog
 
@@ -224,7 +238,7 @@ Wireshark 3.6.0rc2 Release Notes
 
   A complete FAQ is available on the Wireshark web site[8].
 
-  Last updated 2021-10-27 19:35:10 UTC
+  Last updated 2021-10-31 16:06:27 UTC
 
  References
 
