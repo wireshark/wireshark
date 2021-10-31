@@ -46,6 +46,7 @@ giop.desegment_giop_messages: FALSE
 giop.reassemble: FALSE
 git.desegment: FALSE
 grpc.streaming_reassembly_mode: FALSE
+gryphon.desegment: FALSE
 gsm_sms.reassemble: FALSE
 gsm_sms.reassemble_with_lower_layers_info: FALSE
 gss-api.gssapi_reassembly: FALSE
@@ -95,6 +96,7 @@ rtse.reassemble: FALSE
 idmp.desegment_idmp_messages: FALSE
 idmp.reassemble: FALSE
 p_mul.reassemble: FALSE
+pn_rt.desegment: FALSE
 pop.desegment_data: FALSE
 ppi.reassemble: FALSE
 pvfs.desegment: FALSE
@@ -149,6 +151,7 @@ tls.desegment_ssl_records: FALSE
 tls.desegment_ssl_application_data: FALSE
 tns.desegment_tns_messages: FALSE
 tpkt.desegment: FALSE
+transum.reassembly: FALSE
 ucp.desegment_ucp_messages: FALSE
 udpcp.attempt_reassembly: FALSE
 ulp.desegment_ulp_messages: FALSE

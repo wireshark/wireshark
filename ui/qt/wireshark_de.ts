@@ -7495,7 +7495,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Resolve &amp;Physical Addresses</source>
-        <translation>&amp;Physikalische Adressen auflösen</translation>
+        <translation>&amp;Physische Adressen auflösen</translation>
     </message>
     <message>
         <source>Show names for known MAC addresses. Lookups use a local database.</source>
