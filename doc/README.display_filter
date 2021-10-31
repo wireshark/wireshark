@@ -222,28 +222,8 @@ with a central engine.
 Each node (stnode_t) in the syntax tree has a type (sttype).
 These sttypes are very much related to ftypes (field types), but there
 is not a one-to-one correspondence. The syntax tree nodes are slightly
-high-level. For example, there is only a single INTEGER sttype, unlike
-the ftype system that has a type for UINT64, UINT32, UINT16, UINT8, etc.
-(INTEGER removed in 2c701ddf - dfilter: Improve grammar to parse ranges)
-
-typedef enum {
-	STTYPE_UNINITIALIZED,
-	STTYPE_TEST,
-	STTYPE_UNPARSED,
-	STTYPE_STRING,
-	STTYPE_CHARCONST,
-	STTYPE_FIELD,
-	STTYPE_FVALUE,
-	STTYPE_RANGE,
-	STTYPE_FUNCTION,
-	STTYPE_SET,
-	STTYPE_PCRE,
-	STTYPE_NUM_TYPES
-} sttype_id_t;
-
-
-The root node of the syntax tree is the main test or comparison
-being done.
+higher-level abstractions. The root node of the syntax tree is the main
+test or comparison being done.
 
 Semantic Check
 --------------
