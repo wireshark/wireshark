@@ -81,7 +81,7 @@
     </message>
     <message>
         <source>The directory does not exist</source>
-        <translation type="unfinished"></translation>
+        <translation>El directorio no existe</translation>
     </message>
     <message>
         <source>Should the directory %1 be created?</source>
@@ -89,7 +89,7 @@
     </message>
     <message>
         <source>The directory could not be created</source>
-        <translation type="unfinished"></translation>
+        <translation>El directorio no se ha podido crear</translation>
     </message>
     <message>
         <source>The directory %1 could not be created.</source>
@@ -119,7 +119,7 @@
     <name>AddressEditorFrame</name>
     <message>
         <source>Frame</source>
-        <translation type="unfinished">Trama</translation>
+        <translation>Frame</translation>
     </message>
     <message>
         <source>Name Resolution Preferences…</source>
@@ -247,7 +247,7 @@
     <name>BluetoothDeviceDialog</name>
     <message>
         <source>Bluetooth Device</source>
-        <translation type="unfinished"></translation>
+        <translation>Dispositivo bluetooth</translation>
     </message>
     <message>
         <source>BD_ADDR</source>
@@ -299,23 +299,23 @@
     </message>
     <message>
         <source>ACL MTU</source>
-        <translation type="unfinished"></translation>
+        <translation>MTU ACL</translation>
     </message>
     <message>
         <source>ACL Total Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Paquetes ACL totales</translation>
     </message>
     <message>
         <source>SCO MTU</source>
-        <translation type="unfinished"></translation>
+        <translation>MTU SCO</translation>
     </message>
     <message>
         <source>SCO Total Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Paquetes SCO totales</translation>
     </message>
     <message>
         <source>LE ACL MTU</source>
-        <translation type="unfinished"></translation>
+        <translation>MTU LE ACL</translation>
     </message>
     <message>
         <source>LE ACL Total Packets</source>
@@ -625,7 +625,7 @@
     </message>
     <message>
         <source>Vendor-Specific Commands</source>
-        <translation type="unfinished"></translation>
+        <translation>Comandos específicos de proveedor</translation>
     </message>
     <message>
         <source>0x3F</source>
@@ -633,7 +633,7 @@
     </message>
     <message>
         <source>Unknown OGF</source>
-        <translation type="unfinished"></translation>
+        <translation>OGF desconocido</translation>
     </message>
     <message>
         <source>Events</source>
@@ -689,15 +689,15 @@
     </message>
     <message>
         <source>Unknown</source>
-        <translation type="unfinished"></translation>
+        <translation>Desconocido</translation>
     </message>
     <message>
         <source>Adapter %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Adaptador %1</translation>
     </message>
     <message>
         <source>Frame %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Trama %1</translation>
     </message>
     <message>
         <source>Pending</source>
@@ -761,19 +761,19 @@
     <name>CaptureFileDialog</name>
     <message>
         <source>This capture file contains comments.</source>
-        <translation type="unfinished"></translation>
+        <translation>Este archivo de captura contiene comentarios.</translation>
     </message>
     <message>
         <source>The file format you chose doesn&apos;t support comments. Do you want to save the capture in a format that supports comments or discard the comments and save in the format you chose?</source>
-        <translation type="unfinished"></translation>
+        <translation>El formato de archivo que eligió no soporta comentarios. ¿Desea guardar la captura en un formato que soporte comentarios o descartar los comentarios y guardar en el formato que eligió?</translation>
     </message>
     <message>
         <source>Discard comments and save</source>
-        <translation type="unfinished"></translation>
+        <translation>Descartar comentarios y guardar</translation>
     </message>
     <message>
         <source>Save in another format</source>
-        <translation type="unfinished"></translation>
+        <translation>Guardar en otro formato</translation>
     </message>
     <message>
         <source>No file format in which it can be saved supports comments. Do you want to discard the comments and save in the format you chose?</source>
@@ -1338,15 +1338,15 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>compression</source>
-        <translation type="unfinished"></translation>
+        <translation>compresión</translation>
     </message>
     <message>
         <source>None</source>
-        <translation type="unfinished">Ninguno</translation>
+        <translation>Ninguna</translation>
     </message>
     <message>
         <source>gzip</source>
-        <translation type="unfinished"></translation>
+        <translation>gzip</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;After capturing has switched to the next file and the given number of files has exceeded, the oldest file will be removed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -1501,7 +1501,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <name>CapturePreferencesFrame</name>
     <message>
         <source>Frame</source>
-        <translation type="unfinished">Trama</translation>
+        <translation>Frame</translation>
     </message>
     <message>
         <source>Default interface</source>
@@ -1559,11 +1559,11 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <name>ColoringRulesDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">Cuadro de diálogo</translation>
+        <translation>Dialog</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <source>Add a new coloring rule.</source>
@@ -1677,7 +1677,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <name>ColumnEditorFrame</name>
     <message>
         <source>Frame</source>
-        <translation type="unfinished">Trama</translation>
+        <translation>Frame</translation>
     </message>
     <message>
         <source>Title:</source>
@@ -1743,7 +1743,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <name>ColumnPreferencesFrame</name>
     <message>
         <source>Frame</source>
-        <translation type="unfinished">Trama</translation>
+        <translation>Frame</translation>
     </message>
     <message>
         <source>Add a new column</source>
@@ -1800,11 +1800,11 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <name>ConversationHashTablesDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">Cuadro de diálogo</translation>
+        <translation>Dialog</translation>
     </message>
     <message>
         <source>Conversation Hash Tables</source>
-        <translation type="unfinished"></translation>
+        <translation>Tablas hash de conversación</translation>
     </message>
 </context>
 <context>
@@ -1837,15 +1837,15 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <name>CredentialsModel</name>
     <message>
         <source>Click to select the packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Haga clic para seleccionar el paquete</translation>
     </message>
     <message>
         <source>Click to select the packet with username</source>
-        <translation type="unfinished"></translation>
+        <translation>Haga clic para seleccionar el paquete con el nombre de usuario</translation>
     </message>
     <message>
         <source>Username not available</source>
-        <translation type="unfinished"></translation>
+        <translation>Nombre de usuario no disponible</translation>
     </message>
     <message>
         <source>Packet No.</source>
@@ -2009,14 +2009,14 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Select from previously used filters.</source>
-        <translation type="unfinished"></translation>
+        <translation>Seleccione entre filtros usados anteriormente.</translation>
     </message>
 </context>
 <context>
     <name>DisplayFilterEdit</name>
     <message>
         <source>Display filter entry</source>
-        <translation type="unfinished"></translation>
+        <translation>Muestra entrada de filtro</translation>
     </message>
     <message>
         <source>Manage saved bookmarks.</source>
@@ -2024,7 +2024,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Display Filter Expression…</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostrar expresión de filtro…</translation>
     </message>
     <message>
         <source>Apply a display filter %1 &lt;%2/&gt;</source>
@@ -2056,7 +2056,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Invalid filter: </source>
-        <translation type="unfinished"></translation>
+        <translation>Filtro no valido:</translation>
     </message>
     <message>
         <source>Save this filter</source>
@@ -2079,7 +2079,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <name>DisplayFilterExpressionDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">Cuadro de diálogo</translation>
+        <translation>Dialog</translation>
     </message>
     <message>
         <source>Select a field to start building a display filter.</source>
@@ -2139,7 +2139,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <source>Display Filter Expression</source>
@@ -2158,7 +2158,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <name>DissectorTablesDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">Cuadro de diálogo</translation>
+        <translation>Dialog</translation>
     </message>
     <message>
         <source>Search:</source>
@@ -2208,7 +2208,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <name>EnabledProtocolsDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">Cuadro de diálogo</translation>
+        <translation>Dialog</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;Disabling a protocol prevents higher layer protocols from being displayed&lt;/i&gt;&lt;/small&gt;</source>
@@ -2360,11 +2360,11 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <name>ExpertInfoDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">Cuadro de diálogo</translation>
+        <translation>Dialog</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <source>Limit to Display Filter</source>
@@ -2528,7 +2528,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <name>ExportObjectDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">Cuadro de diálogo</translation>
+        <translation>Dialog</translation>
     </message>
     <message>
         <source>Content Type:</source>
@@ -2552,7 +2552,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>All Content-Types</source>
-        <translation type="unfinished"></translation>
+        <translation>Todos los tipos de contenido</translation>
     </message>
     <message>
         <source>Export</source>
@@ -2598,7 +2598,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <name>ExportPDUDialog</name>
     <message>
         <source>Dialog</source>
-        <translation>Cuadro de diálogo</translation>
+        <translation>Dialog</translation>
     </message>
     <message>
         <source>Display filter:</source>
@@ -2663,7 +2663,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <name>FieldFilterEdit</name>
     <message>
         <source>Display filter entry</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Muestra entrada de filtro</translation>
     </message>
     <message>
         <source>Enter a field %1</source>
@@ -2671,14 +2671,14 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Invalid filter: </source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Filtro no valido:</translation>
     </message>
 </context>
 <context>
     <name>FileSetDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">Cuadro de diálogo</translation>
+        <translation>Dialog</translation>
     </message>
     <message>
         <source>Directory:</source>
@@ -2755,7 +2755,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <name>FilterDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">Cuadro de diálogo</translation>
+        <translation>Dialog</translation>
     </message>
     <message>
         <source>Create a new filter.</source>
@@ -2777,7 +2777,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Display Filters</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtros de visualización</translation>
     </message>
     <message>
         <source>Open </source>
@@ -2791,14 +2791,14 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <message>
         <source>New display filter</source>
         <extracomment>This text is automatically filled in when a new filter is created</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Nuevo filtro de visualización</translation>
     </message>
 </context>
 <context>
     <name>FilterExpressionFrame</name>
     <message>
         <source>Frame</source>
-        <translation type="unfinished">Trama</translation>
+        <translation>Frame</translation>
     </message>
     <message>
         <source>Filter Buttons Preferences…</source>
@@ -2906,35 +2906,35 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>IPv4 source address.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dirección IPv4 de origen.</translation>
     </message>
     <message>
         <source>IPv4 destination address.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dirección IPv4 de destino.</translation>
     </message>
     <message>
         <source>Source port.</source>
-        <translation type="unfinished"></translation>
+        <translation>Puerto de origen.</translation>
     </message>
     <message>
         <source>Destination port.</source>
-        <translation type="unfinished"></translation>
+        <translation>Puerto de destino.</translation>
     </message>
     <message>
         <source>IPv4 source address and port.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dirección IPv4 y puerto de origen.</translation>
     </message>
     <message>
         <source>IPv4 destination address and port.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dirección IPv4 y puerto de destino.</translation>
     </message>
     <message>
         <source>MAC source address.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dirección MAC de origen.</translation>
     </message>
     <message>
         <source>MAC destination address.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dirección MAC de destino.</translation>
     </message>
     <message>
         <source>Text file (*.txt);;All Files (</source>
@@ -2946,7 +2946,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Unable to save %1</source>
-        <translation type="unfinished"></translation>
+        <translation>No puede guardar %1</translation>
     </message>
 </context>
 <context>
@@ -3077,7 +3077,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <message>
         <source>Filter Out This Stream</source>
         <oldsource>Hide this stream</oldsource>
-        <translation>Filtrar esta secuencia</translation>
+        <translation>Filtrar secuencia</translation>
     </message>
     <message>
         <source>Print</source>
@@ -3113,7 +3113,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Save as…</source>
-        <translation type="unfinished">Guardar como…</translation>
+        <translation>Guardar como…</translation>
     </message>
     <message>
         <source>Back</source>
@@ -3215,7 +3215,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Save Stream Content As…</source>
-        <translation type="unfinished"></translation>
+        <translation>Guardar contenido de flujo como…</translation>
     </message>
     <message>
         <source>[Stream output truncated]</source>
@@ -3242,7 +3242,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Hint.</source>
-        <translation type="unfinished"></translation>
+        <translation>Hint.</translation>
     </message>
     <message>
         <source>Show data as</source>
@@ -3270,7 +3270,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <name>FontColorPreferencesFrame</name>
     <message>
         <source>Frame</source>
-        <translation type="unfinished">Trama</translation>
+        <translation>Frame</translation>
     </message>
     <message>
         <source>Main window font:</source>
@@ -3355,14 +3355,14 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <name>FunnelStringDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">Cuadro de diálogo</translation>
+        <translation type="unfinished">Dialog</translation>
     </message>
 </context>
 <context>
     <name>FunnelTextDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">Cuadro de diálogo</translation>
+        <translation type="unfinished">Dialog</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enter some text or a regular expression. It will be highlighted above.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -3377,7 +3377,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <name>GsmMapSummaryDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">Cuadro de diálogo</translation>
+        <translation type="unfinished">Dialog</translation>
     </message>
     <message>
         <source>GSM MAP Summary</source>
@@ -3488,7 +3488,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <name>IOGraphDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">Cuadro de diálogo</translation>
+        <translation type="unfinished">Dialog</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
@@ -3613,7 +3613,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>zooms</source>
-        <translation>zooms</translation>
+        <translation>zoom</translation>
     </message>
     <message>
         <source>Interval</source>
@@ -3969,7 +3969,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <name>Iax2AnalysisDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">Cuadro de diálogo</translation>
+        <translation>Dialog</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:medium; font-weight:600;&quot;&gt;Forward&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:medium; font-weight:600;&quot;&gt;Reverse&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -4045,7 +4045,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <source>Audio</source>
@@ -4201,7 +4201,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Unable to save %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No puede guardar %1</translation>
     </message>
     <message>
         <source>Saving %1…</source>
@@ -4532,7 +4532,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <name>InterfaceFrame</name>
     <message>
         <source>Frame</source>
-        <translation type="unfinished">Trama</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Wired</source>
@@ -4626,7 +4626,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <name>InterfaceToolbar</name>
     <message>
         <source>Frame</source>
-        <translation type="unfinished">Trama</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Select interface</source>
@@ -5459,7 +5459,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <name>LBMStreamDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">Cuadro de diálogo</translation>
+        <translation type="unfinished">Dialog</translation>
     </message>
     <message>
         <source>Stream</source>
@@ -5543,7 +5543,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <name>LayoutPreferencesFrame</name>
     <message>
         <source>Frame</source>
-        <translation type="unfinished">Trama</translation>
+        <translation>Frame</translation>
     </message>
     <message>
         <source>Pane 1:</source>
@@ -5563,7 +5563,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Packet Diagram</source>
-        <translation type="unfinished"></translation>
+        <translation>Diagrama de paquete</translation>
     </message>
     <message>
         <source>None</source>
@@ -5591,7 +5591,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Enable mouse-over colorization</source>
-        <translation type="unfinished"></translation>
+        <translation>Activar coloración mouse-over</translation>
     </message>
     <message>
         <source>Status Bar settings:</source>
@@ -5629,7 +5629,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <name>LteRlcGraphDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">Cuadro de diálogo</translation>
+        <translation>Dialog</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
@@ -5662,7 +5662,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Mouse</source>
-        <translation type="unfinished">Ratón</translation>
+        <translation>Ratón</translation>
     </message>
     <message>
         <source>Drag using the mouse button.</source>
@@ -5670,7 +5670,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>drags</source>
-        <translation type="unfinished">arrastrar</translation>
+        <translation>arrastrar</translation>
     </message>
     <message>
         <source>Select using the mouse button.</source>
@@ -5678,7 +5678,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>zooms</source>
-        <translation type="unfinished">zooms</translation>
+        <translation>zoom</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Reset the graph to its initial state.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -5686,15 +5686,15 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Reset</source>
-        <translation type="unfinished">Restablecer</translation>
+        <translation>Restablecer</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Switch the direction of the connection (view the opposite flow).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Cambia la dirección de la conexión (ver el flujo opuesto).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Switch Direction</source>
-        <translation type="unfinished"></translation>
+        <translation>Cambiar dirección</translation>
     </message>
     <message>
         <source>Reset Graph</source>
@@ -5706,7 +5706,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>0</source>
-        <translation type="unfinished">0</translation>
+        <translation>0</translation>
     </message>
     <message>
         <source>Zoom In</source>
@@ -5714,7 +5714,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>+</source>
-        <translation type="unfinished">+</translation>
+        <translation>+</translation>
     </message>
     <message>
         <source>Zoom Out</source>
@@ -5722,7 +5722,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>-</source>
-        <translation type="unfinished">-</translation>
+        <translation>-</translation>
     </message>
     <message>
         <source>Move Up 10 Pixels</source>
@@ -5802,7 +5802,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Z</source>
-        <translation type="unfinished">Z</translation>
+        <translation>Z</translation>
     </message>
     <message>
         <source>Crosshairs</source>
@@ -5838,7 +5838,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>G</source>
-        <translation type="unfinished">G</translation>
+        <translation>G</translation>
     </message>
     <message>
         <source>Zoom In X Axis</source>
@@ -5846,7 +5846,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>X</source>
-        <translation type="unfinished">X</translation>
+        <translation>X</translation>
     </message>
     <message>
         <source>Zoom Out Y Axis</source>
@@ -5862,7 +5862,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Y</source>
-        <translation type="unfinished">Y</translation>
+        <translation>Y</translation>
     </message>
     <message>
         <source>Zoom Out X Axis</source>
@@ -5878,7 +5878,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>D</source>
-        <translation type="unfinished"></translation>
+        <translation>D</translation>
     </message>
     <message>
         <source>Time</source>
@@ -6036,15 +6036,15 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Manage Profiles…</source>
-        <translation type="unfinished"></translation>
+        <translation>Administrar perfiles…</translation>
     </message>
     <message>
         <source>New…</source>
-        <translation type="unfinished"></translation>
+        <translation>Nuevo…</translation>
     </message>
     <message>
         <source>Edit…</source>
-        <translation type="unfinished"></translation>
+        <translation>Editar…</translation>
     </message>
     <message>
         <source>Import</source>
@@ -6085,11 +6085,11 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>NOTE</source>
-        <translation type="unfinished"></translation>
+        <translation>NOTA</translation>
     </message>
     <message>
         <source>CHAT</source>
-        <translation type="unfinished"></translation>
+        <translation>CONVERSACIÓN</translation>
     </message>
     <message>
         <source>No expert information</source>
@@ -6099,9 +6099,9 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <message numerus="yes">
         <source>%Ln byte(s)</source>
         <oldsource>, %1 bytes</oldsource>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln byte</numerusform>
+            <numerusform>%Ln bytes</numerusform>
         </translation>
     </message>
     <message>
@@ -6222,7 +6222,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Prepare as Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Preparar como filtro</translation>
     </message>
     <message>
         <source>SCTP</source>
@@ -6358,7 +6358,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Rawshark</source>
-        <translation type="unfinished"></translation>
+        <translation>Rawshark</translation>
     </message>
     <message>
         <source>Dumpcap</source>
@@ -6374,7 +6374,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Text2pcap</source>
-        <translation type="unfinished"></translation>
+        <translation>Text2pcap</translation>
     </message>
     <message>
         <source>Website</source>
@@ -6438,7 +6438,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Expand the current packet detail</source>
-        <translation type="unfinished"></translation>
+        <translation>Expande los detalles de paquete actual</translation>
     </message>
     <message>
         <source>&amp;Expand All</source>
@@ -6446,7 +6446,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Expand packet details</source>
-        <translation type="unfinished"></translation>
+        <translation>Expande los detalles de paquete</translation>
     </message>
     <message>
         <source>Collapse &amp;All</source>
@@ -6611,7 +6611,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Help contents</source>
-        <translation type="unfinished"></translation>
+        <translation>Contenidos de ayuda</translation>
     </message>
     <message>
         <source>FAQs</source>
@@ -7261,7 +7261,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Display Filter Expression…</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Mostrar expresión de filtro…</translation>
     </message>
     <message>
         <source>REGISTER_STAT_GROUP_RSERPOOL</source>
@@ -7975,11 +7975,11 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Save changes in &quot;%1&quot; before merging?</source>
-        <translation type="unfinished"></translation>
+        <translation>¿Guardar cambios en &quot;%1&quot; antes de fusionar?</translation>
     </message>
     <message>
         <source>Changes must be saved before the files can be merged.</source>
-        <translation type="unfinished"></translation>
+        <translation>Los cambios se deben guardar antes de que los archivos se puedan fusionar.</translation>
     </message>
     <message>
         <source>Invalid Display Filter</source>
@@ -8013,7 +8013,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Your captured packets will be lost if you don&apos;t save them.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sus paquetes capturados se perderán si no los guarda</translation>
     </message>
     <message>
         <source>Do you want to save the changes you&apos;ve made to the capture file &quot;%1&quot;%2?</source>
@@ -8045,11 +8045,11 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Do you want to stop the capture and save the captured packets%1?</source>
-        <translation type="unfinished"></translation>
+        <translation>¿Desea detener la captura y guardar los paquetes capturados%1?</translation>
     </message>
     <message>
         <source>Do you want to save the captured packets%1?</source>
-        <translation type="unfinished"></translation>
+        <translation>¿Desea guardar los paquetes capturados%1?</translation>
     </message>
     <message>
         <source>Save before Continue</source>
@@ -8057,12 +8057,12 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Stop and Save</source>
-        <translation type="unfinished"></translation>
+        <translation>Detener y guardar</translation>
     </message>
     <message>
         <source>Stop and Quit &amp;without Saving</source>
         <oldsource>Stop and Quit without Saving</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Detener y salir &amp;sin guardar</translation>
     </message>
     <message>
         <source>Quit &amp;without Saving</source>
@@ -8101,7 +8101,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Capturing from %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Capturando desde %1</translation>
     </message>
     <message>
         <source> before opening another file</source>
@@ -8285,7 +8285,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <name>MainWindowPreferencesFrame</name>
     <message>
         <source>Frame</source>
-        <translation type="unfinished">Trama</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Checking this will save the size, position, and maximized state of the main window.</source>
@@ -8350,7 +8350,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Window title</source>
-        <translation type="unfinished"></translation>
+        <translation>Título de ventana</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Custom window title to be appended to the existing title&lt;br/&gt;%F = file path of the capture file&lt;br/&gt;%P = profile name&lt;br/&gt;%S = a conditional separator (&amp;quot; - &amp;quot;) that only shows when surrounded by variables with values or static text&lt;br/&gt;%V = version info&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -8358,7 +8358,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Prepend window title</source>
-        <translation type="unfinished"></translation>
+        <translation>Prefijo de título de ventana</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Custom window title to be prepended to the existing title&lt;br/&gt;%F = file path of the capture file&lt;br/&gt;%P = profile name&lt;br/&gt;%S = a conditional separator (&amp;quot; - &amp;quot;) that only shows when surrounded by variables with values or static text&lt;br/&gt;%V = version info&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -8463,7 +8463,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <name>Mtp3SummaryDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">Cuadro de diálogo</translation>
+        <translation type="unfinished">Dialog</translation>
     </message>
     <message>
         <source>MTP3 Summary</source>
@@ -8717,7 +8717,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <name>PacketDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">Cuadro de diálogo</translation>
+        <translation type="unfinished">Dialog</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;&lt;/i&gt;&lt;/small&gt;</source>
@@ -8894,7 +8894,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <name>PacketRangeGroupBox</name>
     <message>
         <source>Form</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Form</translation>
     </message>
     <message>
         <source>Packet Range</source>
@@ -9006,7 +9006,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <name>PreferenceEditorFrame</name>
     <message>
         <source>Frame</source>
-        <translation type="unfinished">Trama</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>…</source>
@@ -9371,7 +9371,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Copied from: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Copiado de: %1</translation>
     </message>
     <message>
         <source>renamed to %1</source>
@@ -9405,7 +9405,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <name>ProgressFrame</name>
     <message>
         <source>Frame</source>
-        <translation type="unfinished">Trama</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Loading</source>
@@ -9499,7 +9499,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <name>ProtocolHierarchyDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">Cuadro de diálogo</translation>
+        <translation type="unfinished">Dialog</translation>
     </message>
     <message>
         <source>Protocol</source>
@@ -9539,7 +9539,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <source>Copy as CSV</source>
@@ -9653,7 +9653,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Prepare as Filter</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Preparar como filtro</translation>
     </message>
     <message>
         <source>Find</source>
@@ -9741,7 +9741,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>&lt;Hidden&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;Hidden&gt;</translation>
     </message>
     <message>
         <source>BSSID</source>
@@ -10029,7 +10029,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Edit…</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Editar…</translation>
     </message>
     <message>
         <source>Browse…</source>
@@ -10118,7 +10118,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>None</source>
-        <translation type="unfinished">Ninguno</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>1 of</source>
@@ -10141,7 +10141,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <name>ResolvedAddressesDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">Cuadro de diálogo</translation>
+        <translation type="unfinished">Dialog</translation>
     </message>
     <message>
         <source>Hosts</source>
@@ -10432,7 +10432,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <name>RtpAnalysisDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">Cuadro de diálogo</translation>
+        <translation type="unfinished">Dialog</translation>
     </message>
     <message>
         <source>Packet</source>
@@ -10533,7 +10533,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <source>&amp;Export</source>
@@ -10896,7 +10896,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>None</source>
-        <translation type="unfinished">Ninguno</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Clear selection</source>
@@ -11211,7 +11211,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <name>RtpStreamDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">Cuadro de diálogo</translation>
+        <translation type="unfinished">Dialog</translation>
     </message>
     <message>
         <source>Source Address</source>
@@ -11271,7 +11271,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Only show conversations matching the current display filter&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -11375,7 +11375,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>None</source>
-        <translation type="unfinished">Ninguno</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Clear selection</source>
@@ -11630,7 +11630,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Switch Direction</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Cambiar dirección</translation>
     </message>
     <message>
         <source>Switch direction (swap TCP endpoints)</source>
@@ -11638,7 +11638,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>D</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">D</translation>
     </message>
     <message>
         <source>Go To Packet Under Cursor</source>
@@ -11674,7 +11674,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>S</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">S</translation>
     </message>
     <message>
         <source>Capture / Session Time Origin</source>
@@ -11904,7 +11904,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <name>SCTPChunkStatisticsDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">Cuadro de diálogo</translation>
+        <translation type="unfinished">Dialog</translation>
     </message>
     <message>
         <source>Association</source>
@@ -12171,7 +12171,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <name>SearchFrame</name>
     <message>
         <source>Frame</source>
-        <translation type="unfinished">Trama</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search the Info column of the packet list (summary pane), decoded packet display labels (tree view pane) or the ASCII-converted packet data (hex view pane).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -12402,7 +12402,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;A hint&lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Only show flows matching the current display filter&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -12414,19 +12414,19 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Flow type:</source>
-        <translation type="unfinished"></translation>
+        <translation>Tipo de flujo:</translation>
     </message>
     <message>
         <source>Addresses:</source>
-        <translation type="unfinished"></translation>
+        <translation>Direcciones:</translation>
     </message>
     <message>
         <source>Any</source>
-        <translation type="unfinished"></translation>
+        <translation>Cualquiera</translation>
     </message>
     <message>
         <source>Network</source>
-        <translation type="unfinished"></translation>
+        <translation>Red</translation>
     </message>
     <message>
         <source>Reset Diagram</source>
@@ -12554,7 +12554,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>All Flows</source>
-        <translation type="unfinished"></translation>
+        <translation>Todos los flujos</translation>
     </message>
     <message>
         <source>Show flows for all packets</source>
@@ -12566,7 +12566,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>TCP Flows</source>
-        <translation type="unfinished"></translation>
+        <translation>Flujos TCP</translation>
     </message>
     <message>
         <source>Show only TCP flow information</source>
@@ -12574,7 +12574,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Go To Next Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Ir a paquete siguiente</translation>
     </message>
     <message>
         <source>Go to the next packet</source>
@@ -12586,7 +12586,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Go To Previous Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Ir a paquete anterior</translation>
     </message>
     <message>
         <source>Go to the previous packet</source>
@@ -12606,7 +12606,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>S</source>
-        <translation type="unfinished"></translation>
+        <translation>S</translation>
     </message>
     <message>
         <source>Deselect RTP Stream</source>
@@ -12618,7 +12618,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>D</source>
-        <translation type="unfinished"></translation>
+        <translation>D</translation>
     </message>
 </context>
 <context>
@@ -12644,7 +12644,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Hint.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Hint.</translation>
     </message>
     <message>
         <source>Decode as</source>
@@ -12847,7 +12847,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <name>SupportedProtocolsDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">Cuadro de diálogo</translation>
+        <translation type="unfinished">Dialog</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search the list of field names.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -12904,7 +12904,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <name>TCPStreamDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">Cuadro de diálogo</translation>
+        <translation type="unfinished">Dialog</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
@@ -13012,15 +13012,15 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Switch the direction of the connection (view the opposite flow).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Cambia la dirección de la conexión (ver el flujo opuesto).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Switch Direction</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Cambiar dirección</translation>
     </message>
     <message>
         <source>Mouse</source>
-        <translation type="unfinished">Ratón</translation>
+        <translation>Ratón</translation>
     </message>
     <message>
         <source>Drag using the mouse button.</source>
@@ -13036,7 +13036,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>zooms</source>
-        <translation type="unfinished">zooms</translation>
+        <translation>zoom</translation>
     </message>
     <message>
         <source>Display Round Trip Time vs Sequence Number</source>
@@ -13044,7 +13044,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>RTT By Sequence Number</source>
-        <translation type="unfinished"></translation>
+        <translation>RTT por número de secuencia</translation>
     </message>
     <message>
         <source>Display graph of Segment Length vs Time</source>
@@ -13052,7 +13052,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Segment Length</source>
-        <translation type="unfinished"></translation>
+        <translation>Longitud de segmento</translation>
     </message>
     <message>
         <source>Display graph of Mean Transmitted Bytes vs Time</source>
@@ -13212,7 +13212,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>D</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">D</translation>
     </message>
     <message>
         <source>Go To Packet Under Cursor</source>
@@ -13248,7 +13248,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>S</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">S</translation>
     </message>
     <message>
         <source>Capture / Session Time Origin</source>
@@ -13451,7 +13451,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <name>TapParameterDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">Cuadro de diálogo</translation>
+        <translation type="unfinished">Dialog</translation>
     </message>
     <message>
         <source>Item</source>
@@ -13459,7 +13459,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <source>Display filter:</source>
@@ -13659,7 +13659,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <name>UatFrame</name>
     <message>
         <source>Frame</source>
-        <translation type="unfinished">Trama</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Create a new entry.</source>
@@ -13754,7 +13754,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>None</source>
-        <translation type="unfinished">Ninguno</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Invert</source>
@@ -13774,7 +13774,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>S</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">S</translation>
     </message>
     <message>
         <source>Deselect related RTP Streams</source>
@@ -13782,7 +13782,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>D</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">D</translation>
     </message>
     <message>
         <source>Clear selection</source>
@@ -13888,7 +13888,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <name>WelcomePage</name>
     <message>
         <source>Form</source>
-        <translation type="unfinished"></translation>
+        <translation>Form</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:large;&quot;&gt;Welcome to Wireshark&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -13904,11 +13904,11 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Recent capture files</source>
-        <translation type="unfinished"></translation>
+        <translation>Archivos de captura recientes</translation>
     </message>
     <message>
         <source>Capture files that have been opened previously</source>
-        <translation type="unfinished"></translation>
+        <translation>Archivos de captura que han sido abiertos anteriormente</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Capture live packets from your network.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -13924,11 +13924,11 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Interface list</source>
-        <translation type="unfinished"></translation>
+        <translation>Listado de interfaz</translation>
     </message>
     <message>
         <source>List of available capture interfaces</source>
-        <translation type="unfinished"></translation>
+        <translation>Listado de interfaces de captura disponibles</translation>
     </message>
     <message>
         <source>&lt;h2&gt;Learn&lt;/h2&gt;</source>
@@ -14050,7 +14050,7 @@ text-decoration: none;
     <name>WirelessFrame</name>
     <message>
         <source>Frame</source>
-        <translation type="unfinished">Trama</translation>
+        <translation>Frame</translation>
     </message>
     <message>
         <source>Interface</source>

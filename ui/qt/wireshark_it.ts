@@ -13003,11 +13003,11 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <name>SyntaxLineEdit</name>
     <message>
         <source>&quot;%1&quot; is deprecated in favour of &quot;%2&quot;. See Help section 6.4.8 for details.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; è sconsigliato in favore di &quot;%2&quot;. Vedi la sezione 6.4.8 della guida per i dettagli.</translation>
     </message>
     <message>
         <source>%1</source>
-        <translation type="unfinished"></translation>
+        <translation>%1</translation>
     </message>
 </context>
 <context>

@@ -155,10 +155,19 @@ Wireshark 3.7.0 Release Notes
         • Use the syntax "a ~= b" or "a any_ne b" to recover the
        previous (inconsistent with ==) logic for not equal.
 
+        • Adds support for the syntax "a not in b" as a synonym for "not
+       a in b".
+
+        • Set elements must be separated using a comma, e.g: {1, 2,
+       "foo"}. Using only whitespace as separator was deprecated in 3.6
+       and is now a syntax error.
+
      • Corrected calculation of mean jitter in RTP Stream Analysis
        dialog and IAX2 Stram Analysis dialog
 
      • RTP streams are created based on Skinny protocol messages
+
+     • Flow sequence shows more infor about various Skinny messages
 
   New File Format Decoding Support
 
@@ -226,7 +235,7 @@ Wireshark 3.7.0 Release Notes
 
   A complete FAQ is available on the Wireshark web site[8].
 
-  Last updated 2021-10-24 16:54:11 UTC
+  Last updated 2021-10-31 16:06:33 UTC
 
  References
 

@@ -12969,11 +12969,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>SyntaxLineEdit</name>
     <message>
         <source>&quot;%1&quot; is deprecated in favour of &quot;%2&quot;. See Help section 6.4.8 for details.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot;, &quot;%2&quot; yerine kullanımdan kaldırıldı. Ayrıntılar için Yardım bölümü 6.4.8&apos;e bakın.</translation>
     </message>
     <message>
         <source>%1</source>
-        <translation type="unfinished"></translation>
+        <translation>%1</translation>
     </message>
 </context>
 <context>
