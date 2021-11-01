@@ -8475,9 +8475,11 @@ ssl_dissect_ext_connection_id(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_in
                         tvb, offset, 1, ENC_NA);
     offset++;
 
-    proto_tree_add_item(tree, hf->hf.hs_ext_connection_id,
-                        tvb, offset, cidl, ENC_NA);
-    offset += cidl;
+    if (cidl > 0) {
+        proto_tree_add_item(tree, hf->hf.hs_ext_connection_id,
+                            tvb, offset, cidl, ENC_NA);
+        offset += cidl;
+    }
 
     return offset;
 }
