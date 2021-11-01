@@ -7363,33 +7363,15 @@ proto_tree_set_appendix(proto_tree *tree, tvbuff_t *tvb, gint start,
 static void
 check_valid_filter_name_or_fail(const char *filter_name)
 {
-	gboolean found_invalid = proto_check_field_name(filter_name);
-
-	/* Additionally forbid upper case characters. */
-	if (!found_invalid) {
-		for (guint i = 0; filter_name[i]; i++) {
-			if (g_ascii_isupper(filter_name[i])) {
-				found_invalid = TRUE;
-				break;
-			}
-		}
-	}
-
-	if (found_invalid) {
+	if (proto_check_field_name(filter_name) != '\0') {
 		ws_error("Protocol filter name \"%s\" has one or more invalid characters."
-			" Allowed are lower characters, digits, '-', '_' and non-repeating '.'."
+			" Allowed are letters, digits, '-', '_' and non-repeating '.'."
 			" This might be caused by an inappropriate plugin or a development error.", filter_name);
 	}
 
 	/* Check for reserved keywords. */
 	if (g_hash_table_contains(proto_reserved_filter_names, filter_name)) {
 		ws_error("Protocol filter name \"%s\" is invalid because it is a reserved keyword."
-			" This might be caused by an inappropriate plugin or a development error.", filter_name);
-	}
-
-	/* First character cannot be '-'. */
-	if (filter_name[0] == '-') {
-		ws_error("Protocol filter name \"%s\" cannot begin with '-'."
 			" This might be caused by an inappropriate plugin or a development error.", filter_name);
 	}
 }
@@ -13167,6 +13149,10 @@ proto_check_field_name(const gchar *field_name)
 {
 	const char *p = field_name;
 	guchar c = '.', lastc;
+
+	/* First character cannot be '-'. */
+	if (field_name[0] == '-')
+		return '-';
 
 	do {
 		lastc = c;

@@ -94,15 +94,27 @@ PROTOSHORTNAME  An abbreviated name for the protocol; this is displayed
                 any preferences, in the dialog box of enabled protocols,
                 and in the dialog box for filter fields when constructing
                 a filter expression.
-PROTOABBREV     A name for the protocol for use in filter expressions;
-                it may contain only lower-case letters, digits, and hyphens,
-                underscores, and periods.
+PROTOFILTERNAME A name for the protocol for use in filter expressions;
+                it may contain only letters, digits, hyphens, underscores and
+                periods. Lower-case letters are the preferred style.
+PROTOABBREV     An abbreviation for the protocol; this is used in code and
+                must be a valid C identifier. Additionally it should follow
+                any applicable C style guidelines. It is usually the same as
+                PROTOFILTERNAME with all lower-case letters and
+                non-alphanumerics replaced with underscores.
 LICENSE         The license this dissector is under. Please use a SPDX License
                 identifier.
 YEARS           The years the above license is valid for.
 FIELDNAME       The displayed name for the header field.
-FIELDABBREV     The abbreviated name for the header field; it may contain
-                only letters, digits, hyphens, underscores, and periods.
+FIELDFILTERNAME A name for the header field for use in filter expressions;
+                it may contain only letters, digits, hyphens, underscores and
+                periods. Lower-case letters are the preferred style and it
+                must start with PROTOFILTERNAME followed by a dot.
+FIELDABBREV     An abbreviation for the header field; this is used in code and
+                must be a valid C identifier. Additionally it should follow
+                any applicable C style guidelines. It is usually the same as
+                FIELDFILTERNAME with all lower-case letters and
+                non-alphanumerics replaced with underscores.
 FIELDTYPE       FT_NONE, FT_BOOLEAN, FT_CHAR, FT_UINT8, FT_UINT16, FT_UINT24,
                 FT_UINT32, FT_UINT40, FT_UINT48, FT_UINT56, FT_UINT64,
                 FT_INT8, FT_INT16, FT_INT24, FT_INT32, FT_INT40, FT_INT48,
@@ -195,7 +207,7 @@ BITMASK         Used to mask a field not 8-bit aligned or with a size other
 FIELDDESCR      A brief description of the field, or NULL. [Please do not use ""].
 
 If, for example, PROTONAME is "Internet Bogosity Discovery Protocol",
-PROTOSHORTNAME would be "IBDP", and PROTOABBREV would be "ibdp". Try to
+PROTOSHORTNAME would be "IBDP", and PROTOFILTERNAME would be "ibdp". Try to
 conform with IANA names.
 
 1.2.1 Automatic substitution in code skeleton
@@ -578,9 +590,9 @@ anyway, so it's best to use 'col_add_str' rather than 'col_set_str' in
 that case.
 
 For example, to set the "Protocol" column
-to "PROTOABBREV":
+to "PROTOFILTERNAME":
 
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "PROTOABBREV");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "PROTOFILTERNAME");
 
 
 1.4.2 The col_add_str function.
@@ -828,18 +840,16 @@ A string representing the name of the field. This is the name
 that will appear in the graphical protocol tree. It must be a non-empty
 string.
 
-abbrev (FIELDABBREV)
+abbrev (FIELDFILTERNAME)
 --------------------
-A string with an abbreviation of the field. The abbreviation should start
-with the abbreviation of the parent protocol followed by a period as a
+A string with a filter name for the field. The name should start
+with the filter name of the parent protocol followed by a period as a
 separator. For example, the "src" field in an IP packet would have "ip.src"
-as an abbreviation. It is acceptable to have multiple levels of periods if,
+as a filter name. It is acceptable to have multiple levels of periods if,
 for example, you have fields in your protocol that are then subdivided into
-subfields. For example, TRMAC has multiple error fields, so the abbreviations
+subfields. For example, TRMAC has multiple error fields, so the names
 follow this pattern: "trmac.errors.iso", "trmac.errors.noniso", etc.
-
-The abbreviation is the identifier used in a display filter. As such it
-cannot be an empty string.
+It must be a non-empty string.
 
 type (FIELDTYPE)
 ----------------

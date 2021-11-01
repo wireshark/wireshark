@@ -22,7 +22,7 @@
 
 #define PNAME  "HI2Operations"
 #define PSNAME "HI2OPERATIONS"
-#define PFNAME "hi2operations"
+#define PFNAME "HI2operations"
 
 void proto_register_HI2Operations(void);
 void proto_reg_handoff_HI2Operations(void);

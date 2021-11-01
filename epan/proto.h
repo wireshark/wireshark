@@ -735,7 +735,7 @@ typedef struct _header_field_info header_field_info;
 struct _header_field_info {
     /* ---------- set by dissector --------- */
     const char        *name;              /**< [FIELDNAME] full name of this field */
-    const char        *abbrev;            /**< [FIELDABBREV] abbreviated name of this field */
+    const char        *abbrev;            /**< [FIELDFILTERNAME] filter name of this field */
     enum ftenum        type;              /**< [FIELDTYPE] field type, one of FT_ (from ftypes.h) */
     int                display;           /**< [FIELDDISPLAY] one of BASE_, or field bit-width if FT_BOOLEAN and non-zero bitmask */
     const void        *strings;           /**< [FIELDCONVERT] value_string, val64_string, range_string or true_false_string,
