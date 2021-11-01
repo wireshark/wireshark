@@ -401,7 +401,7 @@ dissect_ippusb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
                     }
                 }
             }
-            else if ((last_chunk && strncmp(last_chunk, CHUNKED_END, CHUNK_LENGTH_MIN) == 0)) {
+            else if (current_msp &&last_chunk && strncmp(last_chunk, CHUNKED_END, CHUNK_LENGTH_MIN) == 0) {
                 /* This is the last segment of the chunked transfer and reassembled packet */
 
                 proto_tree_add_item(tree, proto_ippusb, tvb, offset, -1, 0);
