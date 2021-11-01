@@ -1064,6 +1064,10 @@ dissect_modbus_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *modbus_tre
     guint16       reg_base=0, diagnostic_code;
     guint32       group_byte_cnt, group_word_cnt;
 
+    if (!pkt_info) {
+        return 0;
+    }
+
     switch (function_code) {
 
         case READ_COILS:
@@ -1242,11 +1246,17 @@ dissect_modbus_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *modbus_tr
     proto_item    *mei;
     gint          byte_cnt, group_offset, event_index, object_index, object_len, num_objects, ii;
     guint8        object_type, mei_code, event_code;
-    guint16       diagnostic_code, num_reg = pkt_info->num_reg;
+    guint16       diagnostic_code, num_reg;
     guint32       group_byte_cnt, group_word_cnt;
 
     nstime_t      response_time;
     proto_item    *request_frame_item, *response_time_item;
+
+    if (!pkt_info) {
+        return 0;
+    }
+
+    num_reg = pkt_info->num_reg;
 
     if (pkt_info->request_found == TRUE) {
         request_frame_item = proto_tree_add_uint(modbus_tree, hf_modbus_request_frame, tvb, 0, 0, pkt_info->req_frame_num);
