@@ -5433,7 +5433,7 @@ static void rtps_util_add_type_element_struct(proto_tree *tree,
 
   offset_tmp += 4;
 
-  max_elements = (0/*enable_max_data_type_elements*/)
+  max_elements = (enable_max_data_type_elements)
           ? MIN(long_number, rtps_max_data_type_elements)
           : long_number;
 
