@@ -506,7 +506,22 @@ dissect_dtls_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     /* The entire payload was captured. */
     while (offset + 13 <= length && looks_like_dtls(tvb, offset)) {
       /* Advance offset to the end of the current DTLS record */
-      offset += tvb_get_ntohs(tvb, offset + 11) + 13;
+      guint8 record_type = tvb_get_guint8(tvb, offset);
+
+      if (record_type == SSL_ID_TLS12_CID) {
+        /* CID length is not embedded in the packet */
+        SslDecryptSession *ssl_session = ssl_get_session_by_cid(tvb, offset + 11);
+        if (ssl_session) {
+          SslSession *session = &ssl_session->session;
+          gint is_from_server = ssl_packet_from_server(session, dtls_associations, pinfo);
+          guint8 cid_length = is_from_server ? session->client_cid_len : session->server_cid_len;
+          offset += tvb_get_ntohs(tvb, offset + cid_length + 11) + 13 + cid_length;
+        } else {
+          return FALSE;
+        }
+      } else {
+        offset += tvb_get_ntohs(tvb, offset + 11) + 13;
+      }
       if (offset == length) {
         dissect_dtls(tvb, pinfo, tree, data);
         return TRUE;
