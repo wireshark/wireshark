@@ -169,6 +169,9 @@ static gint                dtls_decrypted_data_avail = 0;
 static ssl_common_options_t dtls_options = { NULL, NULL};
 static const gchar *dtls_debug_file_name = NULL;
 
+static guint32 dtls_default_client_cid_length;
+static guint32 dtls_default_server_cid_length;
+
 static heur_dissector_list_t heur_subdissector_list;
 
 static const fragment_items dtls_frag_items = {
@@ -493,6 +496,27 @@ dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   return tvb_captured_length(tvb);
 }
 
+static guint8 dtls_cid_length(SslSession *session, gboolean is_from_server)
+{
+  guint8 cid_length;
+
+  if (is_from_server) {
+    if (session && session->client_cid_len_present) {
+      cid_length = session->client_cid_len;
+    } else {
+      cid_length = (guint8)dtls_default_client_cid_length;
+    }
+  } else {
+    if (session && session->server_cid_len_present) {
+      cid_length = session->server_cid_len;
+    } else {
+      cid_length = (guint8)dtls_default_server_cid_length;
+    }
+  }
+
+  return cid_length;
+}
+
 static gboolean
 dissect_dtls_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
@@ -511,17 +535,11 @@ dissect_dtls_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
       if (record_type == SSL_ID_TLS12_CID) {
         /* CID length is not embedded in the packet */
         SslDecryptSession *ssl_session = ssl_get_session_by_cid(tvb, offset + 11);
-        if (ssl_session) {
-          SslSession *session = &ssl_session->session;
-          gint is_from_server = ssl_packet_from_server(session, dtls_associations, pinfo);
-          guint8 cid_length = is_from_server ? session->client_cid_len : session->server_cid_len;
-          offset += tvb_get_ntohs(tvb, offset + cid_length + 11) + 13 + cid_length;
-        } else {
-          return FALSE;
-        }
-      } else {
-        offset += tvb_get_ntohs(tvb, offset + 11) + 13;
+        SslSession *session = ssl_session ? &ssl_session->session : NULL;
+        gint is_from_server = ssl_packet_from_server(session, dtls_associations, pinfo);
+        offset += dtls_cid_length(session, is_from_server);
       }
+      offset += tvb_get_ntohs(tvb, offset + 11) + 13;
       if (offset == length) {
         dissect_dtls(tvb, pinfo, tree, data);
         return TRUE;
@@ -774,11 +792,11 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
   tvbuff_t       *decrypted;
   SslRecordInfo  *record = NULL;
   heur_dtbl_entry_t *hdtbl_entry;
-  guint8          cid[DTLS_MAX_CID_LENGTH];
+  guint8         *cid = NULL;
   guint8          cid_length;
 
   /* Connection ID length to use if any */
-  cid_length = is_from_server ? session->client_cid_len : session->server_cid_len;
+  cid_length = dtls_cid_length(session, is_from_server);
 
   /*
    * Get the record layer fields of interest
@@ -789,7 +807,7 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
   sequence_number       = tvb_get_ntoh48(tvb, offset + 5);
 
   if (content_type == SSL_ID_TLS12_CID && cid_length > 0) {
-    tvb_memcpy(tvb, cid, offset + 11, cid_length);
+    cid = tvb_memdup(wmem_packet_scope(), tvb, offset + 11, cid_length);
     record_length = tvb_get_ntohs(tvb, offset + cid_length + 11);
     dtls_record_length = 13 + cid_length + record_length;
   } else {
@@ -2164,6 +2182,15 @@ proto_register_dtls(void)
                                        "redirect dtls debug to file name; leave empty to disable debug, "
                                        "use \"" SSL_DEBUG_USE_STDERR "\" to redirect output to stderr\n",
                                        &dtls_debug_file_name, TRUE);
+
+    prefs_register_uint_preference(dtls_module, "client_cid_length", "Client Connection ID length",
+                                   "Default client Connection ID length used when the Client Handshake message is missing",
+                                   10, &dtls_default_client_cid_length);
+
+    prefs_register_uint_preference(dtls_module, "server_cid_length", "Server Connection ID length",
+                                   "Default server Connection ID length used when the Server Handshake message is missing",
+                                   10, &dtls_default_server_cid_length);
+
     ssl_common_register_options(dtls_module, &dtls_options, TRUE);
   }
 
