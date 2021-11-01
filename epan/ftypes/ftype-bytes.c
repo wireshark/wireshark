@@ -245,7 +245,7 @@ byte_array_from_unparsed(const char *s, gchar **err_msg)
 		 */
 		unsigned long value;
 		if (!parse_charconst(s, &value, err_msg))
-			return FALSE;
+			return NULL;
 		ws_assert(value <= UINT8_MAX);
 		uint8_t one_byte = (uint8_t)value;
 		bytes = g_byte_array_new();
