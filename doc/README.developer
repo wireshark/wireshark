@@ -430,6 +430,16 @@ Wireshark uses Libgcrypt as general-purpose crypto library. To use it from
 your dissector, do not include gcrypt.h directly, but use the wrapper file
 wsutil/wsgcrypt.h instead.
 
+We support building on Windows using MinGW-w64 (experimental) so be mindful
+of the difference between an #ifdef on _WIN32 and _MSC_VER. The first tests
+if the platform is some version of Windows and also applies to MinGW. The
+latter tests if the toolchain is Microsoft Visual Studio. Sometimes you need
+one or the other, depending on whether the condition applies to all Windows
+compilers or only Microsoft's compiler. Use #ifdef __MINGW32__ to test for
+a MinGW toolchain, including MinGW-w64. The same concern applies to CMake
+code. Depending on the particular situation you may need to use if(WIN32) or
+if(MSVC) or if(MINGW).
+
 2. String handling
 
 Do not use functions such as strcat() or strcpy().
