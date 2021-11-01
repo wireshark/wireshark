@@ -703,6 +703,17 @@ else() # ! MSVC
 		-Wcomma
 		-Wshorten-64-to-32
 		-Wredundant-decls
+		#
+		# -Wmaybe-uninitialized is enabled with -Wall. This is a low
+		# priority warning, sometimes with false positives, that
+		# can lay dormant and be triggered by increasing the optimization
+		# level to O3. This is a major inconvenience for developers
+		# (because the warning is typically unrelated to their code)
+		# and for end users it is a build breakage (with -Werror).
+		# For these reasons we disable the fatal error for this warning,
+		# until these procedural issues can be fixed or at least mitigated.
+		#
+		-Wno-error=maybe-uninitialized
 	)
 
 	#
