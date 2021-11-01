@@ -474,12 +474,13 @@ typedef struct _SslSession {
         opaque cid<0..2^8-1>;
     } ConnectionId;
     */
-#define DTLS_MAX_CID_LENGTH 256
 
     guint8 *client_cid;
     guint8 *server_cid;
     guint8  client_cid_len;
+    gboolean client_cid_len_present;
     guint8  server_cid_len;
+    gboolean server_cid_len_present;
     gboolean deprecated_cid; /* Set when handshake is using the deprecated CID extention type */
 } SslSession;
 

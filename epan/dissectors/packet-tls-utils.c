@@ -4664,6 +4664,8 @@ tls_decrypt_aead_record(SslDecryptSession *ssl, SslDecoder *decoder,
     const guint8    draft_version = ssl->session.tls13_draft_version;
     const guchar   *auth_tag_wire;
     guchar          auth_tag_calc[16];
+    guchar         *aad = NULL;
+    guint           aad_len = 0;
 #else
     guchar          nonce_with_counter[16] = { 0 };
 #endif
@@ -4774,10 +4776,9 @@ tls_decrypt_aead_record(SslDecryptSession *ssl, SslDecoder *decoder,
 
     /* (D)TLS 1.2 needs specific AAD, TLS 1.3 (before -25) uses empty AAD. */
     if (is_cid) { /* if connection ID */
-        guchar aad[23+DTLS_MAX_CID_LENGTH];
-        guint aad_len;
         if (ssl->session.deprecated_cid) {
-            aad_len = 13 + 1 + cidl;
+            aad_len = 14 + cidl;
+            aad = wmem_alloc(wmem_packet_scope(), aad_len);
             phton64(aad, decoder->seq);         /* record sequence number */
             phton16(aad, decoder->epoch);       /* DTLS 1.2 includes epoch. */
             aad[8] = ct;                        /* TLSCompressed.type */
@@ -4786,7 +4787,8 @@ tls_decrypt_aead_record(SslDecryptSession *ssl, SslDecoder *decoder,
             aad[11 + cidl] = cidl;              /* cid_length */
             phton16(aad + 12 + cidl, ciphertext_len);  /* TLSCompressed.length */
         } else {
-            aad_len = 13 + 8 + 1 + 1 + cidl;
+            aad_len = 23 + cidl;
+            aad = wmem_alloc(wmem_packet_scope(), aad_len);
             memset(aad, 0xFF, 8);               /* seq_num_placeholder */
             aad[8] = ct;                        /* TLSCompressed.type */
             aad[9] = cidl;                      /* cid_length */
@@ -4797,14 +4799,9 @@ tls_decrypt_aead_record(SslDecryptSession *ssl, SslDecoder *decoder,
             memcpy(aad + 21, cid, cidl);        /* cid */
             phton16(aad + 21 + cidl, ciphertext_len);  /* TLSCompressed.length */
         }
-        ssl_print_data("AAD", aad, aad_len);
-        err = gcry_cipher_authenticate(decoder->evp, aad, aad_len);
-        if (err) {
-            ssl_debug_printf("%s failed to set AAD: %s\n", G_STRFUNC, gcry_strerror(err));
-            return FALSE;
-        }
     } else if (is_v12) {
-        guchar aad[13];
+        aad_len = 13;
+        aad = wmem_alloc(wmem_packet_scope(), aad_len);
         phton64(aad, decoder->seq);         /* record sequence number */
         if (version == DTLSV1DOT2_VERSION) {
             phton16(aad, decoder->epoch);   /* DTLS 1.2 includes epoch. */
@@ -4812,19 +4809,17 @@ tls_decrypt_aead_record(SslDecryptSession *ssl, SslDecoder *decoder,
         aad[8] = ct;                        /* TLSCompressed.type */
         phton16(aad + 9, record_version);   /* TLSCompressed.version */
         phton16(aad + 11, ciphertext_len);  /* TLSCompressed.length */
-        ssl_print_data("AAD", aad, sizeof(aad));
-        err = gcry_cipher_authenticate(decoder->evp, aad, sizeof(aad));
-        if (err) {
-            ssl_debug_printf("%s failed to set AAD: %s\n", G_STRFUNC, gcry_strerror(err));
-            return FALSE;
-        }
     } else if (draft_version >= 25 || draft_version == 0) {
-        guchar aad[5];
+        aad_len = 5;
+        aad = wmem_alloc(wmem_packet_scope(), aad_len);
         aad[0] = ct;                        /* TLSCiphertext.opaque_type (23) */
         phton16(aad + 1, record_version);   /* TLSCiphertext.legacy_record_version (0x0303) */
         phton16(aad + 3, inl);              /* TLSCiphertext.length */
-        ssl_print_data("AAD", aad, sizeof(aad));
-        err = gcry_cipher_authenticate(decoder->evp, aad, sizeof(aad));
+    }
+
+    if (aad && aad_len > 0) {
+        ssl_print_data("AAD", aad, aad_len);
+        err = gcry_cipher_authenticate(decoder->evp, aad, aad_len);
         if (err) {
             ssl_debug_printf("%s failed to set AAD: %s\n", G_STRFUNC, gcry_strerror(err));
             return FALSE;
@@ -5433,7 +5428,7 @@ int
 ssl_packet_from_server(SslSession *session, dissector_table_t table, packet_info *pinfo)
 {
     gint ret;
-    if (session->srv_addr.type != AT_NONE) {
+    if (session && session->srv_addr.type != AT_NONE) {
         ret = (session->srv_ptype == pinfo->ptype) &&
               (session->srv_port == pinfo->srcport) &&
               addresses_equal(&session->srv_addr, &pinfo->src);
@@ -8498,9 +8493,11 @@ ssl_dissect_hnd_hello_ext_connection_id(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 
     switch (hnd_type) {
     case SSL_HND_CLIENT_HELLO:
+        session->client_cid_len_present = TRUE;
         return ssl_dissect_ext_connection_id(hf, tvb, pinfo, tree, offset, ssl,
                                              cidl, &session->client_cid, &session->client_cid_len);
     case SSL_HND_SERVER_HELLO:
+        session->server_cid_len_present = TRUE;
         return ssl_dissect_ext_connection_id(hf, tvb, pinfo, tree, offset, ssl,
                                              cidl, &session->server_cid, &session->server_cid_len);
     default:
