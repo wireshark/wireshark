@@ -9,7 +9,7 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
-iana_svc_url = 'http://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.csv'
+iana_svc_url = 'https://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.csv'
 
 __doc__ = '''\
 Usage: make-services.py [url]
@@ -23,7 +23,6 @@ import getopt
 import csv
 import re
 import collections
-
 import urllib.request, urllib.error, urllib.parse
 import codecs
 
@@ -55,7 +54,6 @@ def port_to_str(port):
     return str(port[0])
 
 def parse_rows(svc_fd):
-    lines = []
     port_reader = csv.reader(svc_fd)
     count = 0
 
@@ -158,10 +156,10 @@ def main(argv):
         sys.exit(2)
 
     try:
-        opts, args = getopt.getopt(argv, "h", ["help"])
+        opts, _ = getopt.getopt(argv, "h", ["help"])
     except getopt.GetoptError:
         exit_msg()
-    for opt, arg in opts:
+    for opt, _ in opts:
         if opt in ("-h", "--help"):
             exit_msg(None, 0)
 
