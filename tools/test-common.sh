@@ -17,7 +17,7 @@ if [ -z "$TEST_TYPE" ] ; then
 fi
 
 DATE=/bin/date
-BASE_NAME=$TEST_TYPE-`$DATE +%Y-%m-%d`-$$
+BASE_NAME=$TEST_TYPE-$($DATE +%Y-%m-%d)-$$
 
 # Directory containing binaries.  Default: cmake run directory.
 if [ -z "$WIRESHARK_BIN_DIR" ]; then
@@ -28,7 +28,7 @@ fi
 # (had problems with this on cygwin, tried TMP_DIR=./ which worked)
 TMP_DIR=/tmp
 if [ "$OSTYPE" == "cygwin" ] ; then
-        TMP_DIR=`cygpath --windows "$TMP_DIR"`
+        TMP_DIR=$(cygpath --windows "$TMP_DIR")
 fi
 TMP_FILE=$BASE_NAME.pcap
 ERR_FILE=$BASE_NAME.err
@@ -131,28 +131,26 @@ function ws_exit_error() {
     echo
 
     # Fill in build information
-    echo -e "Branch: $(git rev-parse --abbrev-ref HEAD)\n" > $TMP_DIR/${ERR_FILE}.header
-    echo -e "Input file: $CF\n" > $TMP_DIR/${ERR_FILE}.header
-    echo -e "Build host information:" >> $TMP_DIR/${ERR_FILE}.header
-    uname -a >> $TMP_DIR/${ERR_FILE}.header
-    lsb_release -a >> $TMP_DIR/${ERR_FILE}.header 2> /dev/null
+    {
+        echo -e "Branch: $(git rev-parse --abbrev-ref HEAD)\n"
+        echo -e "Input file: $CF\n"
+        echo -e "Build host information:"
+        uname -srvm
+        lsb_release -a 2> /dev/null
 
-    if [ -n "$CI_JOB_NAME" ] ; then
-        echo -e "\nCI job $CI_JOB_NAME, ID $CI_JOB_ID: " >> $TMP_DIR/${ERR_FILE}.header
-    fi
+        if [ -n "$CI_JOB_NAME" ] ; then
+            echo -e "\nCI job name: $CI_JOB_NAME, ID: $CI_JOB_ID "
+        fi
 
-    echo -e "\nReturn value: " $RETVAL >> $TMP_DIR/${ERR_FILE}.header
-    echo -e "\nDissector bug: " $DISSECTOR_BUG >> $TMP_DIR/${ERR_FILE}.header
-    echo -e "\nValgrind error count: " $VG_ERR_CNT >> $TMP_DIR/${ERR_FILE}.header
+        echo -e "\nReturn value: " $RETVAL
+        echo -e "\nDissector bug: " $DISSECTOR_BUG
+        echo -e "\nValgrind error count: " $VG_ERR_CNT
 
-    echo -e "\n" >> $TMP_DIR/${ERR_FILE}.header
-
-    if [ -d "${GIT_DIR:-.git}" ] ; then
-        echo -e "\nLatest (but not necessarily the problem) commit:" >> "$TMP_DIR/${ERR_FILE}.header"
-        git log --max-count=1 --oneline >> "$TMP_DIR/${ERR_FILE}.header"
-    fi
-
-    echo -e "\n" >> $TMP_DIR/${ERR_FILE}.header
+        if [ -d "${GIT_DIR:-.git}" ] ; then
+                echo -e "\nLatest (but not necessarily the problem) commit:"
+                git log --max-count=1 --oneline
+        fi
+    } > "$TMP_DIR/${ERR_FILE}.header"
 
     # Trim the stderr output if needed
     ERR_SIZE=$(du -sk $TMP_DIR/$ERR_FILE | awk '{ print $1 }')
