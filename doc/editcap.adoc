@@ -45,6 +45,7 @@ __outfile__
 [ *-V* ]
 [ *-I* <bytes to ignore> ]
 [ *--skip-radiotap-header* ]
+[ *--set-unused* ]
 __infile__
 __outfile__
 
@@ -462,6 +463,14 @@ currently only displays the first comment of a capture file.
 Discard all capture file comments from the input file when writing the output
 file. Does not discard comments added by *--capture-comment* in the same
 command line.
+--
+
+--set-unused::
++
+--
+Set the unused bytes (if any) to zero in SLL link type. Useful when when checking for duplicates.
+As the unused bytes can be anything. When the packet traverses the device stack
+for bonded interfaces on Linux for example.
 --
 
 include::diagnostic-options.adoc[]

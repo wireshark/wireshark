@@ -156,6 +156,7 @@ static gboolean               dup_detect_by_time        = FALSE;
 static gboolean               skip_radiotap             = FALSE;
 static gboolean               discard_all_secrets       = FALSE;
 static gboolean               discard_cap_comments      = FALSE;
+static gboolean               set_unused                = FALSE;
 
 static int                    do_strict_time_adjustment = FALSE;
 static struct time_adjustment strict_time_adj           = {NSTIME_INIT_ZERO, 0}; /* strict time adjustment */
@@ -558,11 +559,40 @@ sll_remove_vlan_info(guint8* fd, guint32* len) {
     }
 }
 
+#define LINUX_SLL_OFFSETLL 4
+#define SLL_ADDRLEN        8	/* length of address field */
+static void
+sll_set_unused_info(guint8* fd) {
+    guint32 ha_len;
+    ha_len = pntoh16(fd + LINUX_SLL_OFFSETLL);
+
+    if (ha_len < SLL_ADDRLEN) {
+        int unused;
+        unused = SLL_ADDRLEN - ha_len;
+        /* point to start of LL address offset plus addr len 2 bytes */
+        fd = fd + LINUX_SLL_OFFSETLL + 2;
+        /* set zeros in the unused data */
+        memset(fd + ha_len, 0, unused);
+    }
+}
+
 static void
 remove_vlan_info(const wtap_packet_header *phdr, guint8* fd, guint32* len) {
     switch (phdr->pkt_encap) {
         case WTAP_ENCAP_SLL:
             sll_remove_vlan_info(fd, len);
+            break;
+        default:
+            /* no support for current pkt_encap */
+            break;
+    }
+}
+
+static void
+set_unused_info(const wtap_packet_header *phdr, guint8* fd) {
+    switch (phdr->pkt_encap) {
+        case WTAP_ENCAP_SLL:
+            sll_set_unused_info(fd);
             break;
         default:
             /* no support for current pkt_encap */
@@ -768,6 +798,7 @@ print_usage(FILE *output)
     fprintf(output, "  --skip-radiotap-header skip radiotap header when checking for packet duplicates.\n");
     fprintf(output, "                         Useful when processing packets captured by multiple radios\n");
     fprintf(output, "                         on the same channel in the vicinity of each other.\n");
+    fprintf(output, "  --set-unused           set unused byts to zero in sll link addr.\n");
     fprintf(output, "\n");
     fprintf(output, "Packet manipulation:\n");
     fprintf(output, "  -s <snaplen>           truncate each packet to max. <snaplen> bytes of data.\n");
@@ -1128,6 +1159,7 @@ main(int argc, char *argv[])
 #define LONGOPT_DISCARD_ALL_SECRETS  LONGOPT_BASE_APPLICATION+5
 #define LONGOPT_CAPTURE_COMMENT      LONGOPT_BASE_APPLICATION+6
 #define LONGOPT_DISCARD_CAPTURE_COMMENT LONGOPT_BASE_APPLICATION+7
+#define LONGOPT_SET_UNUSED           LONGOPT_BASE_APPLICATION+8
 
     static const struct ws_option long_options[] = {
         {"novlan", ws_no_argument, NULL, LONGOPT_NO_VLAN},
@@ -1139,6 +1171,7 @@ main(int argc, char *argv[])
         {"version", ws_no_argument, NULL, 'v'},
         {"capture-comment", ws_required_argument, NULL, LONGOPT_CAPTURE_COMMENT},
         {"discard-capture-comment", ws_no_argument, NULL, LONGOPT_DISCARD_CAPTURE_COMMENT},
+        {"set-unused", ws_no_argument, NULL, LONGOPT_SET_UNUSED},
         {0, 0, 0, 0 }
     };
 
@@ -1314,6 +1347,12 @@ main(int argc, char *argv[])
         case LONGOPT_DISCARD_CAPTURE_COMMENT:
         {
             discard_cap_comments = TRUE;
+            break;
+        }
+
+        case LONGOPT_SET_UNUSED:
+        {
+            set_unused = TRUE;
             break;
         }
 
@@ -2064,6 +2103,12 @@ main(int argc, char *argv[])
                                 &rec->rec_header.packet_header, &buf,
                                 adjlen);
                 rec = &temp_rec;
+
+                /* set unused info */
+                if (set_unused) {
+                    /* set unused bytes to zero so that duplicates check ignores unused bytes */
+                    set_unused_info(&rec->rec_header.packet_header, buf);
+                }
 
                 /* remove vlan info */
                 if (rem_vlan) {
