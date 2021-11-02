@@ -109,7 +109,7 @@ eri_enb_log_open(wtap *wth, int *err, gchar **err_info)
 		return WTAP_OPEN_NOT_MINE;
 	}
 
-	if (g_strstr_len(line1, strlen(eri_enb_log_magic), eri_enb_log_magic) == NULL)
+	if (g_strstr_len(line1, sizeof(line1), eri_enb_log_magic) == NULL)
 	{
 		return WTAP_OPEN_NOT_MINE;
 	}
