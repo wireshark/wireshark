@@ -3643,6 +3643,22 @@ dissect_lte_rrc_ueradioaccesscapabilityinformation_msg(tvbuff_t* tvb, packet_inf
     return tvb_captured_length(tvb);
 }
 
+static int
+dissect_lte_rrc_dissect_SystemInformationBlockType1_v890_IEs(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
+{
+    proto_item* ti;
+    proto_tree* lte_rrc_tree;
+
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "LTE RRC SystemInformationBlockType1-v890-IEs");
+    col_set_str(pinfo->cinfo, COL_INFO, "LTE RRC SystemInformationBlockType1-v890-IEs");
+
+    ti = proto_tree_add_item(tree, proto_lte_rrc, tvb, 0, -1, ENC_NA);
+    lte_rrc_tree = proto_item_add_subtree(ti, ett_lte_rrc);
+    dissect_SystemInformationBlockType1_v890_IEs_PDU(tvb, pinfo, lte_rrc_tree, NULL);
+    return tvb_captured_length(tvb);
+}
+
+
 
 /*--- proto_register_rrc -------------------------------------------*/
 void proto_register_lte_rrc(void) {
@@ -4510,7 +4526,7 @@ void proto_register_lte_rrc(void) {
   register_dissector("lte_rrc.bcch_dl_sch.mbms", dissect_lte_rrc_BCCH_DL_SCH_MBMS, proto_lte_rrc);
   register_dissector("lte-rrc.ue_eutra_cap.msg", dissect_lte_rrc_ue_eutra_capability_msg, proto_lte_rrc);
   register_dissector("lte-rrc.ue_radio_access_cap_info.msg", dissect_lte_rrc_ueradioaccesscapabilityinformation_msg, proto_lte_rrc);
-
+  register_dissector("lte-rrc.systeminformationblocktype1_v890_ies", dissect_lte_rrc_dissect_SystemInformationBlockType1_v890_IEs, proto_lte_rrc);
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_lte_rrc, hf, array_length(hf));
