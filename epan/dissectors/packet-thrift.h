@@ -85,6 +85,7 @@ typedef struct _thrift_option_data_t {
                                         /* Useful if the caller can't reassemble (Framed). */
     gint32 reassembly_offset;           /* Where the incomplete data starts. */
     gint32 reassembly_length;           /* Expected size of the data. */
+    guint32 nested_type_depth;          /* Number of nested types allowed below the parameter or result type. */
 } thrift_option_data_t;
 
 #define TMFILL NULL, { .m = { NULL, NULL } }
