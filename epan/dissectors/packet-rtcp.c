@@ -21,12 +21,15 @@
 
 /*
  * This dissector tries to dissect the RTCP protocol according to Annex A
- * of ITU-T Recommendation H.225.0 (02/98) and RFC 1889
+ * of ITU-T Recommendation H.225.0 (02/98) and RFC 3550 (obsoleting 1889).
  * H.225.0 literally copies RFC 1889, but omitting a few sections.
  *
- * RTCP traffic is handled by an uneven UDP portnumber. This can be any
- * port number, but there is a registered port available, port 5005
+ * RTCP traffic is traditionally handled by an uneven UDP portnumber. This
+ * can be any port number, but there is a registered port available, port 5005
  * See Annex B of ITU-T Recommendation H.225.0, section B.7
+ *
+ * Note that nowadays RTP and RTCP are often multiplexed onto a single port,
+ * per RFC 5671.
  *
  * Information on PoC can be found from
  *    https://www.omaspecworks.org (OMA SpecWorks, formerly the Open
@@ -969,7 +972,8 @@ dissect_rtcp_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     packet_type = tvb_get_guint8(tvb, offset + 1);
 
     /* First packet within compound packet is supposed to be a sender
-       or receiver report.
+       or receiver report. (However, see RFC 5506 which allows the
+       use of non-compound RTCP packets in some circumstances.)
        - allow BYE because this happens anyway
        - allow APP because TBCP ("PoC1") packets aren't compound...
        - allow PSFB for MS */

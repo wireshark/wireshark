@@ -15,11 +15,14 @@
 
 /*
  * This dissector tries to dissect the RTP protocol according to Annex A
- * of ITU-T Recommendation H.225.0 (02/98) or RFC 1889
+ * of ITU-T Recommendation H.225.0 (02/98) or RFC 3550 (obsoleting 1889).
  *
- * RTP traffic is handled by an even UDP portnumber. This can be any
- * port number, but there is a registered port available, port 5004
+ * RTP traffic is traditionally handled by an even UDP portnumber. This can
+ * be any port number, but there is a registered port available, port 5004
  * See Annex B of ITU-T Recommendation H.225.0, section B.7
+ *
+ * Note that nowadays RTP and RTCP are often multiplexed onto a single port,
+ * per RFC 5671.
  *
  * This doesn't dissect older versions of RTP, such as:
  *
