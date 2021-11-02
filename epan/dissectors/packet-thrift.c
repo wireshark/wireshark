@@ -28,6 +28,7 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
+#include <epan/proto_data.h>
 
 #include "packet-tcp.h"
 #include "packet-tls.h"
@@ -75,6 +76,7 @@ static guint thrift_tls_port = 0;
 
 static gboolean show_internal_thrift_fields = FALSE;
 static gboolean try_generic_if_sub_dissector_fails = FALSE;
+static guint nested_type_depth = 25;
 
 static dissector_table_t thrift_method_name_dissector_table;
 
@@ -152,7 +154,9 @@ static int hf_thrift_list = -1;
 static int hf_thrift_set = -1;
 static int hf_thrift_map = -1;
 static int hf_thrift_num_list_item = -1;
+static int hf_thrift_num_list_pos = -1;
 static int hf_thrift_num_set_item = -1;
+static int hf_thrift_num_set_pos = -1;
 static int hf_thrift_num_map_item = -1;
 static int hf_thrift_large_container = -1;
 static int hf_thrift_double = -1;
@@ -168,7 +172,7 @@ static int ett_thrift_struct = -1;
 static int ett_thrift_list = -1;
 static int ett_thrift_set = -1;
 static int ett_thrift_map = -1;
-static int ett_thrift_error = -1; /* ME_THRIFT_T_REPLY with field id != 0 */
+static int ett_thrift_error = -1; /* Error while reading the header. */
 static int ett_thrift_exception = -1; /* ME_THRIFT_T_EXCEPTION */
 
 static expert_field ei_thrift_wrong_type = EI_INIT;
@@ -185,6 +189,7 @@ static expert_field ei_thrift_negative_field_id = EI_INIT;
 static expert_field ei_thrift_unordered_field_id = EI_INIT;
 static expert_field ei_thrift_application_exception = EI_INIT;
 static expert_field ei_thrift_protocol_exception = EI_INIT;
+static expert_field ei_thrift_too_many_subtypes = EI_INIT;
 
 static const thrift_member_t thrift_exception[] = {
     { &hf_thrift_exception_message, 1, TRUE, DE_THRIFT_T_BINARY, NULL, { .encoding = ENC_UTF_8|ENC_NA } },
@@ -1333,10 +1338,12 @@ dissect_thrift_c_list_set(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
     guint64 varint;
     int lt_offset;
     int hf_num_item = hf_thrift_num_set_item;
+    int hf_pos_item = hf_thrift_num_set_pos;
     thrift_type_enum_t expected = DE_THRIFT_T_SET;
 
     if (is_list) {
         hf_num_item = hf_thrift_num_list_item;
+        hf_pos_item = hf_thrift_num_list_pos;
         expected = DE_THRIFT_T_LIST;
     }
 
@@ -1403,7 +1410,7 @@ dissect_thrift_c_list_set(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
             break;
         }
     } else if (show_internal_thrift_fields) {
-        proto_tree_add_bits_item(sub_tree, hf_num_item, tvb, (lt_offset << OCTETS_TO_BITS_SHIFT), TCP_THRIFT_NIBBLE_SHIFT, ENC_BIG_ENDIAN);
+        proto_tree_add_bits_item(sub_tree, hf_pos_item, tvb, (lt_offset << OCTETS_TO_BITS_SHIFT), TCP_THRIFT_NIBBLE_SHIFT, ENC_BIG_ENDIAN);
     }
 
     /* Read the content of the container. */
@@ -1905,6 +1912,13 @@ dissect_thrift_binary_struct(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 static int
 dissect_thrift_binary_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, thrift_option_data_t *thrift_opt, proto_tree *header_tree, int type, proto_item *type_pi)
 {
+    guint nested_count = p_get_proto_depth(pinfo, proto_thrift);
+    if (++nested_count > thrift_opt->nested_type_depth) {
+        expert_add_info(pinfo, proto_tree_get_parent(tree), &ei_thrift_too_many_subtypes);
+        return THRIFT_REQUEST_REASSEMBLY;
+    }
+    p_set_proto_depth(pinfo, proto_thrift, nested_count);
+
     switch (type) {
     case DE_THRIFT_T_BOOL:
         ABORT_ON_INCOMPLETE_PDU(TBP_THRIFT_BOOL_LEN);
@@ -1967,6 +1981,7 @@ dissect_thrift_binary_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         return THRIFT_REQUEST_REASSEMBLY;
     }
 
+    p_set_proto_depth(pinfo, proto_thrift, --nested_count);
     return *offset;
 }
 /*=====END BINARY GENERIC DISSECTION=====*/
@@ -2059,6 +2074,7 @@ dissect_thrift_compact_list_set(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     int ett = ett_thrift_set;
     int hf_container = hf_thrift_set;
     int hf_num_item = hf_thrift_num_set_item;
+    int hf_pos_item = hf_thrift_num_set_pos;
     ABORT_ON_INCOMPLETE_PDU(TBP_THRIFT_TYPE_LEN);
 
     /* Set the different hf_id & ett depending on effective type. */
@@ -2066,6 +2082,7 @@ dissect_thrift_compact_list_set(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
         ett = ett_thrift_list;
         hf_container = hf_thrift_list;
         hf_num_item = hf_thrift_num_list_item;
+        hf_pos_item = hf_thrift_num_list_pos;
     }
 
     /* Create the sub-tree. */
@@ -2104,7 +2121,7 @@ dissect_thrift_compact_list_set(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
             break;
         }
     } else {
-        len_pi = proto_tree_add_bits_item(sub_tree, hf_num_item, tvb, (lt_offset << OCTETS_TO_BITS_SHIFT), TCP_THRIFT_NIBBLE_SHIFT, ENC_BIG_ENDIAN);
+        len_pi = proto_tree_add_bits_item(sub_tree, hf_pos_item, tvb, (lt_offset << OCTETS_TO_BITS_SHIFT), TCP_THRIFT_NIBBLE_SHIFT, ENC_BIG_ENDIAN);
     }
     if (container_len < 0) {
         expert_add_info(pinfo, len_pi, &ei_thrift_negative_length);
@@ -2295,6 +2312,13 @@ dissect_thrift_compact_struct(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 static int
 dissect_thrift_compact_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, thrift_option_data_t *thrift_opt, proto_tree *header_tree, int type, proto_item *type_pi)
 {
+    guint nested_count = p_get_proto_depth(pinfo, proto_thrift);
+    if (++nested_count > thrift_opt->nested_type_depth) {
+        expert_add_info(pinfo, proto_tree_get_parent(tree), &ei_thrift_too_many_subtypes);
+        return THRIFT_REQUEST_REASSEMBLY;
+    }
+    p_set_proto_depth(pinfo, proto_thrift, nested_count);
+
     switch (type) {
     case DE_THRIFT_C_BOOL_TRUE:
     case DE_THRIFT_C_BOOL_FALSE:
@@ -2364,6 +2388,7 @@ dissect_thrift_compact_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         return THRIFT_REQUEST_REASSEMBLY;
     }
 
+    p_set_proto_depth(pinfo, proto_thrift, --nested_count);
     return *offset;
 }
 /*=====END COMPACT GENERIC DISSECTION=====*/
@@ -2877,6 +2902,7 @@ dissect_thrift_transport(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     gint32 str_len, length = tvb_reported_length(tvb);
     thrift_option_data_t thrift_opt;
     memset(&thrift_opt, 0, sizeof(thrift_option_data_t));
+    thrift_opt.nested_type_depth = nested_type_depth;
 
     /* Starting without even the version / frame length / name length probably means a Keep-Alive at the beginning of the capture. */
     if (length < TBP_THRIFT_VERSION_LEN) {
@@ -3175,6 +3201,7 @@ dissect_thrift_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 {
     thrift_option_data_t thrift_opt;
     memset(&thrift_opt, 0, sizeof(thrift_option_data_t));
+    thrift_opt.nested_type_depth = nested_type_depth;
 
     if (!test_thrift_strict(tvb, pinfo, tree, &thrift_opt) && !test_thrift_compact(tvb, pinfo, tree, &thrift_opt)) {
         return FALSE;
@@ -3343,9 +3370,19 @@ proto_register_thrift(void)
                 FT_INT32, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }
         },
+        { &hf_thrift_num_set_pos,
+            { "Number of Set Items", "thrift.num_set_item",
+                FT_UINT32, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+        },
         { &hf_thrift_num_list_item,
             { "Number of List Items", "thrift.num_list_item",
                 FT_INT32, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_thrift_num_list_pos,
+            { "Number of List Items", "thrift.num_list_item",
+                FT_UINT32, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }
         },
         { &hf_thrift_num_map_item,
@@ -3390,6 +3427,7 @@ proto_register_thrift(void)
         { &ei_thrift_unordered_field_id, { "thrift.unordered_field_id", PI_PROTOCOL, PI_WARN, "Field id not defined by sub-dissector, using generic Thrift dissector.", EXPFILL } },
         { &ei_thrift_application_exception, { "thrift.application_exception", PI_PROTOCOL, PI_NOTE, "The application recognized the method but rejected the content.", EXPFILL } },
         { &ei_thrift_protocol_exception, { "thrift.protocol_exception", PI_PROTOCOL, PI_WARN, "The application was not able to handle the request.", EXPFILL } },
+        { &ei_thrift_too_many_subtypes, { "thrift.too_many_subtypes", PI_PROTOCOL, PI_ERROR, "Too many level of sub-types nesting.", EXPFILL } },
     };
 
 
@@ -3438,6 +3476,13 @@ proto_register_thrift(void)
                                    "Whether the Thrift dissector should try to dissect the data if the sub-dissector failed."
                                    " This option can be useful if the data is well-formed but the sub-dissector is expecting different type/content.",
                                    &try_generic_if_sub_dissector_fails);
+
+    prefs_register_uint_preference(thrift_module, "nested_type_depth",
+                                   "Thrift nested types depth",
+                                   "Maximum expected depth of nested types in the Thrift structures and containers."
+                                   " A Thrift-based protocol using no parameter and void return types only uses a depth of 0."
+                                   " A Thrift-based protocol using only simple types as parameters or return values uses a depth of 1.",
+                                   10, &nested_type_depth);
 
     prefs_register_bool_preference(thrift_module, "desegment_framed",
                                    "Reassemble Framed Thrift messages spanning multiple TCP segments",
