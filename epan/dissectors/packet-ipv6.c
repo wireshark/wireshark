@@ -103,6 +103,21 @@ void proto_reg_handoff_ipv6(void);
 #define IP6IOAM_POT                     2       /* Proof of Transit */
 #define IP6IOAM_E2E                     3       /* Edge to Edge */
 
+/* IOAM Trace Types */
+#define IP6IOAM_TRACE_MASK_BIT0         (1 << 23) /* Hop_lim + Node ID */
+#define IP6IOAM_TRACE_MASK_BIT1         (1 << 22) /* Ingress and Egress IDs */
+#define IP6IOAM_TRACE_MASK_BIT2         (1 << 21) /* Timestamp seconds */
+#define IP6IOAM_TRACE_MASK_BIT3         (1 << 20) /* Timestamp fraction */
+#define IP6IOAM_TRACE_MASK_BIT4         (1 << 19) /* Transit delay */
+#define IP6IOAM_TRACE_MASK_BIT5         (1 << 18) /* IOAM-Namespace data */
+#define IP6IOAM_TRACE_MASK_BIT6         (1 << 17) /* Queue depth */
+#define IP6IOAM_TRACE_MASK_BIT7         (1 << 16) /* Checksum complement */
+#define IP6IOAM_TRACE_MASK_BIT8         (1 << 15) /* (wide) Hop_lim + Node ID */
+#define IP6IOAM_TRACE_MASK_BIT9         (1 << 14) /* (wide) Ingress and Egress IDs */
+#define IP6IOAM_TRACE_MASK_BIT10        (1 << 13) /* (wide) IOAM-Namespace data */
+#define IP6IOAM_TRACE_MASK_BIT11        (1 << 12) /* Buffer occupancy */
+#define IP6IOAM_TRACE_MASK_BIT22        (1 <<  1) /* Opaque state snapshot */
+
 /* Protocol specific data indices */
 #define IPV6_PROTO_VALUE            1
 #define IPV6_PROTO_PINFO            2
@@ -225,6 +240,25 @@ static int hf_ipv6_opt_ioam_trace_type_undef    = -1;
 static int hf_ipv6_opt_ioam_trace_type_bit22    = -1;
 static int hf_ipv6_opt_ioam_trace_type_rsv      = -1;
 static int hf_ipv6_opt_ioam_trace_rsv           = -1;
+static int hf_ipv6_opt_ioam_trace_free_space    = -1;
+static int hf_ipv6_opt_ioam_trace_node_hlim     = -1;
+static int hf_ipv6_opt_ioam_trace_node_id       = -1;
+static int hf_ipv6_opt_ioam_trace_node_iif      = -1;
+static int hf_ipv6_opt_ioam_trace_node_eif      = -1;
+static int hf_ipv6_opt_ioam_trace_node_tss      = -1;
+static int hf_ipv6_opt_ioam_trace_node_tsf      = -1;
+static int hf_ipv6_opt_ioam_trace_node_trdelay  = -1;
+static int hf_ipv6_opt_ioam_trace_node_nsdata   = -1;
+static int hf_ipv6_opt_ioam_trace_node_qdepth   = -1;
+static int hf_ipv6_opt_ioam_trace_node_csum     = -1;
+static int hf_ipv6_opt_ioam_trace_node_id_wide  = -1;
+static int hf_ipv6_opt_ioam_trace_node_iif_wide = -1;
+static int hf_ipv6_opt_ioam_trace_node_eif_wide = -1;
+static int hf_ipv6_opt_ioam_trace_node_nsdata_wide = -1;
+static int hf_ipv6_opt_ioam_trace_node_bufoccup = -1;
+static int hf_ipv6_opt_ioam_trace_node_oss_len  = -1;
+static int hf_ipv6_opt_ioam_trace_node_oss_scid = -1;
+static int hf_ipv6_opt_ioam_trace_node_oss_data = -1;
 static int hf_ipv6_opt_tpf_information          = -1;
 static int hf_ipv6_opt_mipv6_home_address       = -1;
 static int hf_ipv6_opt_rpl_flag                 = -1;
@@ -1672,6 +1706,103 @@ static const value_string ipv6_ioam_opt_types[] = {
     { 0, NULL}
 };
 
+static gint
+dissect_opt_ioam_trace_node(tvbuff_t *tvb, gint offset,
+                            proto_tree *opt_tree, guint32 trace_type)
+{
+    proto_tree* sub_tree;
+
+    if (trace_type & IP6IOAM_TRACE_MASK_BIT0) {
+        sub_tree = proto_tree_add_subtree(opt_tree, tvb, offset, 4, 0, NULL,
+                                          "Hop_Lim and Node ID (short)");
+        proto_tree_add_item(sub_tree, hf_ipv6_opt_ioam_trace_node_hlim,
+                            tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(sub_tree, hf_ipv6_opt_ioam_trace_node_id,
+                            tvb, offset + 1, 3, ENC_BIG_ENDIAN);
+        offset += 4;
+    }
+
+    if (trace_type & IP6IOAM_TRACE_MASK_BIT1) {
+        sub_tree = proto_tree_add_subtree(opt_tree, tvb, offset, 4, 0, NULL,
+                                          "Ingress and Egress IDs (short)");
+        proto_tree_add_item(sub_tree, hf_ipv6_opt_ioam_trace_node_iif,
+                            tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_ipv6_opt_ioam_trace_node_eif,
+                            tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+        offset += 4;
+    }
+
+    if (trace_type & IP6IOAM_TRACE_MASK_BIT2) {
+        proto_tree_add_item(opt_tree, hf_ipv6_opt_ioam_trace_node_tss,
+                            tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+    }
+
+    if (trace_type & IP6IOAM_TRACE_MASK_BIT3) {
+        proto_tree_add_item(opt_tree, hf_ipv6_opt_ioam_trace_node_tsf,
+                            tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+    }
+
+    if (trace_type & IP6IOAM_TRACE_MASK_BIT4) {
+        proto_tree_add_item(opt_tree, hf_ipv6_opt_ioam_trace_node_trdelay,
+                            tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+    }
+
+    if (trace_type & IP6IOAM_TRACE_MASK_BIT5) {
+        proto_tree_add_item(opt_tree, hf_ipv6_opt_ioam_trace_node_nsdata,
+                            tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+    }
+
+    if (trace_type & IP6IOAM_TRACE_MASK_BIT6) {
+        proto_tree_add_item(opt_tree, hf_ipv6_opt_ioam_trace_node_qdepth,
+                            tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+    }
+
+    if (trace_type & IP6IOAM_TRACE_MASK_BIT7) {
+        proto_tree_add_item(opt_tree, hf_ipv6_opt_ioam_trace_node_csum,
+                            tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+    }
+
+    if (trace_type & IP6IOAM_TRACE_MASK_BIT8) {
+        sub_tree = proto_tree_add_subtree(opt_tree, tvb, offset, 8, 0, NULL,
+                                          "Hop_Lim and Node ID (wide)");
+        proto_tree_add_item(sub_tree, hf_ipv6_opt_ioam_trace_node_hlim,
+                            tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(sub_tree, hf_ipv6_opt_ioam_trace_node_id_wide,
+                            tvb, offset + 1, 7, ENC_BIG_ENDIAN);
+        offset += 8;
+    }
+
+    if (trace_type & IP6IOAM_TRACE_MASK_BIT9) {
+        sub_tree = proto_tree_add_subtree(opt_tree, tvb, offset, 8, 0, NULL,
+                                          "Ingress and Egress IDs (wide)");
+        proto_tree_add_item(sub_tree, hf_ipv6_opt_ioam_trace_node_iif_wide,
+                            tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_ipv6_opt_ioam_trace_node_eif_wide,
+                            tvb, offset + 4, 4, ENC_BIG_ENDIAN);
+        offset += 8;
+    }
+
+    if (trace_type & IP6IOAM_TRACE_MASK_BIT10) {
+        proto_tree_add_item(opt_tree, hf_ipv6_opt_ioam_trace_node_nsdata_wide,
+                            tvb, offset, 8, ENC_BIG_ENDIAN);
+        offset += 8;
+    }
+
+    if (trace_type & IP6IOAM_TRACE_MASK_BIT11) {
+        proto_tree_add_item(opt_tree, hf_ipv6_opt_ioam_trace_node_bufoccup,
+                            tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+    }
+
+    return offset;
+}
+
 /*
  * IOAM Trace Option Header
  *
@@ -1681,15 +1812,34 @@ static const value_string ipv6_ioam_opt_types[] = {
      |         Namespace-ID          | NodeLen | Flags | RemainingLen|
      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
      |                IOAM-Trace-Type                |   Reserved    |
+     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+<-+
+     |                                                               |  |
+     |                        node data list [0]                     |  |
+     |                                                               |  |
+     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+  D
+     |                                                               |  a
+     |                        node data list [1]                     |  t
+     |                                                               |  a
      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+     ~                             ........                          ~  S
+     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+  p
+     |                                                               |  a
+     |                        node data list [n-1]                   |  c
+     |                                                               |  e
+     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+  |
+     |                                                               |  |
+     |                        node data list [n]                     |  |
+     |                                                               |  |
+     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+<-+
 */
 static gint
 dissect_opt_ioam_trace(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                        proto_tree *opt_tree, struct opt_proto_item *opt_ti, guint8 opt_len)
 {
     proto_item *ti;
-    guint32 trace_type;
-    guint8 remlen;
+    guint32 trace_type, oss_scid;
+    guint16 len;
+    guint8 remlen, nodelen, oss_len, i = 0;
 
     static int * const ioam_trace_flags[] = {
         &hf_ipv6_opt_ioam_trace_flag_o,
@@ -1726,6 +1876,7 @@ dissect_opt_ioam_trace(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     proto_tree_add_item(opt_tree, hf_ipv6_opt_ioam_trace_ns, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
+    nodelen = tvb_get_bits8(tvb, offset * 8, 5);
     proto_tree_add_bits_item(opt_tree, hf_ipv6_opt_ioam_trace_nodelen, tvb,
                              offset * 8, 5, ENC_BIG_ENDIAN);
 
@@ -1750,6 +1901,64 @@ dissect_opt_ioam_trace(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
     if (!(trace_type & 0xfff002) || (trace_type & 0xffd)) {
         expert_add_info(pinfo, ti, &ei_ipv6_opt_ioam_invalid_trace_type);
+    }
+
+    /* node data list parsing starts here */
+    proto_tree* trace_tree
+        = proto_tree_add_subtree(opt_tree, tvb, offset, opt_len - 10, 0, NULL, "Trace Data");
+
+    if (remlen) {
+        proto_tree_add_item(trace_tree, hf_ipv6_opt_ioam_trace_free_space, tvb,
+                            offset, remlen * 4, ENC_NA);
+        offset += remlen * 4;
+    }
+
+    len = opt_len - 10 - remlen * 4;
+    while (len && len >= nodelen * 4) {
+        proto_tree* node_tree
+            = proto_tree_add_subtree_format(trace_tree, tvb, offset,
+                                            nodelen * 4, 0, NULL, "Node %u", ++i);
+
+        offset = dissect_opt_ioam_trace_node(tvb, offset, node_tree, trace_type);
+        len -= nodelen * 4;
+
+        /* Opaque State Snapshot */
+        if (trace_type & IP6IOAM_TRACE_MASK_BIT22) {
+            if (len < 4) {
+                expert_add_info_format(pinfo, opt_ti->len, &ei_ipv6_opt_invalid_len,
+                                       "IOAM Option: Invalid length (%u bytes)", opt_len);
+            }
+
+            oss_len = tvb_get_guint8(tvb, offset);
+
+            proto_tree* oss_tree
+                = proto_tree_add_subtree(node_tree, tvb, offset, (oss_len + 1) * 4,
+                                         0, NULL, "Opaque State Snapshot");
+            proto_tree_add_item(oss_tree, hf_ipv6_opt_ioam_trace_node_oss_len,
+                                tvb, offset, 1, ENC_NA);
+            proto_tree_add_item_ret_uint(oss_tree, hf_ipv6_opt_ioam_trace_node_oss_scid,
+                                         tvb, offset + 1, 3, ENC_BIG_ENDIAN, &oss_scid);
+            offset += 4;
+
+            len -= 4;
+            if (len < oss_len * 4) {
+                expert_add_info_format(pinfo, opt_ti->len, &ei_ipv6_opt_invalid_len,
+                                       "IOAM Option: Invalid length (%u bytes)", opt_len);
+            }
+
+            if (oss_len > 0) {
+                proto_tree_add_item(oss_tree, hf_ipv6_opt_ioam_trace_node_oss_data,
+                                    tvb, offset, oss_len * 4, ENC_NA);
+
+                len -= oss_len * 4;
+                offset += oss_len * 4;
+            }
+        }
+    }
+
+    if (len) {
+        expert_add_info_format(pinfo, opt_ti->len, &ei_ipv6_opt_invalid_len,
+                               "IOAM Option: Invalid length (%u bytes)", opt_len);
     }
 
     return offset;
@@ -3433,6 +3642,101 @@ proto_register_ipv6(void)
             { "Reserved", "ipv6.opt.ioam.trace.rsv",
                 FT_UINT8, BASE_DEC, NULL, 0x0,
                 "Reserved (must be zero)", HFILL }
+        },
+        { &hf_ipv6_opt_ioam_trace_free_space,
+            { "Free space", "ipv6.opt.ioam.trace.free_space",
+                FT_BYTES, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_ipv6_opt_ioam_trace_node_hlim,
+            { "Hop Limit", "ipv6.opt.ioam.trace.node.hlim",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_ipv6_opt_ioam_trace_node_id,
+            { "ID", "ipv6.opt.ioam.trace.node.id",
+                FT_UINT24, BASE_HEX, NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_ipv6_opt_ioam_trace_node_iif,
+            { "Ingress ID", "ipv6.opt.ioam.trace.node.iif",
+                FT_UINT16, BASE_HEX, NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_ipv6_opt_ioam_trace_node_eif,
+            { "Egress ID", "ipv6.opt.ioam.trace.node.eif",
+                FT_UINT16, BASE_HEX, NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_ipv6_opt_ioam_trace_node_tss,
+            { "Timestamp Seconds", "ipv6.opt.ioam.trace.node.tss",
+                FT_UINT32, BASE_HEX, NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_ipv6_opt_ioam_trace_node_tsf,
+            { "Timestamp Fraction", "ipv6.opt.ioam.trace.node.tsf",
+                FT_UINT32, BASE_HEX, NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_ipv6_opt_ioam_trace_node_trdelay,
+            { "Transit Delay", "ipv6.opt.ioam.trace.node.trdelay",
+                FT_UINT32, BASE_HEX, NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_ipv6_opt_ioam_trace_node_nsdata,
+            { "Namespace Data (short)", "ipv6.opt.ioam.trace.node.nsdata",
+                FT_UINT32, BASE_HEX, NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_ipv6_opt_ioam_trace_node_qdepth,
+            { "Queue Depth", "ipv6.opt.ioam.trace.node.qdepth",
+                FT_UINT32, BASE_HEX, NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_ipv6_opt_ioam_trace_node_csum,
+            { "Checksum Complement", "ipv6.opt.ioam.trace.node.csum",
+                FT_UINT32, BASE_HEX, NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_ipv6_opt_ioam_trace_node_id_wide,
+            { "ID", "ipv6.opt.ioam.trace.node.id_wide",
+                FT_UINT56, BASE_HEX, NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_ipv6_opt_ioam_trace_node_iif_wide,
+            { "Ingress ID", "ipv6.opt.ioam.trace.node.iif_wide",
+                FT_UINT32, BASE_HEX, NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_ipv6_opt_ioam_trace_node_eif_wide,
+            { "Egress ID", "ipv6.opt.ioam.trace.node.eif_wide",
+                FT_UINT32, BASE_HEX, NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_ipv6_opt_ioam_trace_node_nsdata_wide,
+            { "Namespace Data (wide)", "ipv6.opt.ioam.trace.node.nsdata_wide",
+                FT_UINT64, BASE_HEX, NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_ipv6_opt_ioam_trace_node_bufoccup,
+            { "Buffer Occupancy", "ipv6.opt.ioam.trace.node.bufoccup",
+                FT_UINT32, BASE_HEX, NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_ipv6_opt_ioam_trace_node_oss_len,
+            { "Length", "ipv6.opt.ioam.trace.node.oss.len",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_ipv6_opt_ioam_trace_node_oss_scid,
+            { "Schema ID", "ipv6.opt.ioam.trace.node.oss.scid",
+                FT_UINT24, BASE_HEX, NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_ipv6_opt_ioam_trace_node_oss_data,
+            { "Data", "ipv6.opt.ioam.trace.node.oss.data",
+                FT_BYTES, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }
         },
         { &hf_ipv6_opt_tpf_information,
             { "TPF Information", "ipv6.opt.tpf_information",
