@@ -2530,7 +2530,11 @@ if(BUILD_wireshark AND QT_FOUND)
 	endif()
 
 	if(ENABLE_APPLICATION_BUNDLE)
-		add_dependencies(wireshark manpages)
+		if(ASCIIDOCTOR_FOUND)
+			# Make sure to generate files referenced by
+			# BUNDLE_RESOURCE_SHARE_MAN1_FILES
+			add_dependencies(wireshark manpages)
+		endif()
 		set_target_properties(
 			wireshark PROPERTIES
 				MACOSX_BUNDLE_INFO_PLIST ${CMAKE_BINARY_DIR}/packaging/macosx/Info.plist
