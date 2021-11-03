@@ -200,6 +200,31 @@ static int hf_ipv6_opt_qs_nonce                 = -1;
 static int hf_ipv6_opt_qs_reserved              = -1;
 static int hf_ipv6_opt_ioam_rsv                 = -1;
 static int hf_ipv6_opt_ioam_opt_type            = -1;
+static int hf_ipv6_opt_ioam_trace_ns            = -1;
+static int hf_ipv6_opt_ioam_trace_nodelen       = -1;
+static int hf_ipv6_opt_ioam_trace_flags         = -1;
+static int hf_ipv6_opt_ioam_trace_flag_o        = -1;
+static int hf_ipv6_opt_ioam_trace_flag_l        = -1;
+static int hf_ipv6_opt_ioam_trace_flag_a        = -1;
+static int hf_ipv6_opt_ioam_trace_flag_rsv      = -1;
+static int hf_ipv6_opt_ioam_trace_remlen        = -1;
+static int hf_ipv6_opt_ioam_trace_type          = -1;
+static int hf_ipv6_opt_ioam_trace_type_bit0     = -1;
+static int hf_ipv6_opt_ioam_trace_type_bit1     = -1;
+static int hf_ipv6_opt_ioam_trace_type_bit2     = -1;
+static int hf_ipv6_opt_ioam_trace_type_bit3     = -1;
+static int hf_ipv6_opt_ioam_trace_type_bit4     = -1;
+static int hf_ipv6_opt_ioam_trace_type_bit5     = -1;
+static int hf_ipv6_opt_ioam_trace_type_bit6     = -1;
+static int hf_ipv6_opt_ioam_trace_type_bit7     = -1;
+static int hf_ipv6_opt_ioam_trace_type_bit8     = -1;
+static int hf_ipv6_opt_ioam_trace_type_bit9     = -1;
+static int hf_ipv6_opt_ioam_trace_type_bit10    = -1;
+static int hf_ipv6_opt_ioam_trace_type_bit11    = -1;
+static int hf_ipv6_opt_ioam_trace_type_undef    = -1;
+static int hf_ipv6_opt_ioam_trace_type_bit22    = -1;
+static int hf_ipv6_opt_ioam_trace_type_rsv      = -1;
+static int hf_ipv6_opt_ioam_trace_rsv           = -1;
 static int hf_ipv6_opt_tpf_information          = -1;
 static int hf_ipv6_opt_mipv6_home_address       = -1;
 static int hf_ipv6_opt_rpl_flag                 = -1;
@@ -313,6 +338,8 @@ static gint ett_ipv6_opt_type           = -1;
 static gint ett_ipv6_opt_rpl            = -1;
 static gint ett_ipv6_opt_mpl            = -1;
 static gint ett_ipv6_opt_dff_flags      = -1;
+static gint ett_ipv6_opt_ioam_trace_flags = -1;
+static gint ett_ipv6_opt_ioam_trace_types = -1;
 static gint ett_ipv6_hopopts_proto      = -1;
 static gint ett_ipv6_fraghdr_proto      = -1;
 static gint ett_ipv6_routing_proto      = -1;
@@ -349,6 +376,8 @@ static expert_field ei_ipv6_plen_zero = EI_INIT;
 static expert_field ei_ipv6_bogus_ipv6_version = EI_INIT;
 static expert_field ei_ipv6_invalid_header = EI_INIT;
 static expert_field ei_ipv6_opt_header_mismatch = EI_INIT;
+static expert_field ei_ipv6_opt_ioam_invalid_remlen = EI_INIT;
+static expert_field ei_ipv6_opt_ioam_invalid_trace_type = EI_INIT;
 
 static dissector_handle_t ipv6_handle;
 
@@ -1644,6 +1673,89 @@ static const value_string ipv6_ioam_opt_types[] = {
 };
 
 /*
+ * IOAM Trace Option Header
+ *
+      0                   1                   2                   3
+      0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+     |         Namespace-ID          | NodeLen | Flags | RemainingLen|
+     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+     |                IOAM-Trace-Type                |   Reserved    |
+     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+*/
+static gint
+dissect_opt_ioam_trace(tvbuff_t *tvb, gint offset, packet_info *pinfo,
+                       proto_tree *opt_tree, struct opt_proto_item *opt_ti, guint8 opt_len)
+{
+    proto_item *ti;
+    guint32 trace_type;
+    guint8 remlen;
+
+    static int * const ioam_trace_flags[] = {
+        &hf_ipv6_opt_ioam_trace_flag_o,
+        &hf_ipv6_opt_ioam_trace_flag_l,
+        &hf_ipv6_opt_ioam_trace_flag_a,
+        &hf_ipv6_opt_ioam_trace_flag_rsv,
+        NULL
+    };
+
+    static int * const ioam_trace_types[] = {
+        &hf_ipv6_opt_ioam_trace_type_bit0,
+        &hf_ipv6_opt_ioam_trace_type_bit1,
+        &hf_ipv6_opt_ioam_trace_type_bit2,
+        &hf_ipv6_opt_ioam_trace_type_bit3,
+        &hf_ipv6_opt_ioam_trace_type_bit4,
+        &hf_ipv6_opt_ioam_trace_type_bit5,
+        &hf_ipv6_opt_ioam_trace_type_bit6,
+        &hf_ipv6_opt_ioam_trace_type_bit7,
+        &hf_ipv6_opt_ioam_trace_type_bit8,
+        &hf_ipv6_opt_ioam_trace_type_bit9,
+        &hf_ipv6_opt_ioam_trace_type_bit10,
+        &hf_ipv6_opt_ioam_trace_type_bit11,
+        &hf_ipv6_opt_ioam_trace_type_undef,
+        &hf_ipv6_opt_ioam_trace_type_bit22,
+        &hf_ipv6_opt_ioam_trace_type_rsv,
+        NULL
+    };
+
+    if (opt_len < 10) {
+        expert_add_info_format(pinfo, opt_ti->len, &ei_ipv6_opt_invalid_len,
+                               "IOAM Option: Invalid length (%u bytes)", opt_len);
+    }
+
+    proto_tree_add_item(opt_tree, hf_ipv6_opt_ioam_trace_ns, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_bits_item(opt_tree, hf_ipv6_opt_ioam_trace_nodelen, tvb,
+                             offset * 8, 5, ENC_BIG_ENDIAN);
+
+    proto_tree_add_bitmask(opt_tree, tvb, offset, hf_ipv6_opt_ioam_trace_flags,
+                           ett_ipv6_opt_ioam_trace_flags, ioam_trace_flags, ENC_NA);
+
+    remlen = tvb_get_bits8(tvb, offset * 8 + 9, 7);
+    ti = proto_tree_add_bits_item(opt_tree, hf_ipv6_opt_ioam_trace_remlen, tvb,
+                                  offset * 8 + 9, 7, ENC_BIG_ENDIAN);
+    if (remlen * 4 > opt_len - 10) {
+        expert_add_info_format(pinfo, ti, &ei_ipv6_opt_ioam_invalid_remlen,
+                               "IOAM RemLen: Invalid length (%u bytes)", remlen * 4);
+    }
+
+    offset += 2;
+
+    trace_type = tvb_get_bits32(tvb, offset * 8, 24, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_bitmask(opt_tree, tvb, offset, hf_ipv6_opt_ioam_trace_type,
+                                ett_ipv6_opt_ioam_trace_types, ioam_trace_types, ENC_BIG_ENDIAN);
+    proto_tree_add_item(opt_tree, hf_ipv6_opt_ioam_trace_rsv, tvb, offset + 3, 1, ENC_NA);
+    offset += 4;
+
+    if (!(trace_type & 0xfff002) || (trace_type & 0xffd)) {
+        expert_add_info(pinfo, ti, &ei_ipv6_opt_ioam_invalid_trace_type);
+    }
+
+    return offset;
+}
+
+/*
  * IOAM Option Header
  *
       0                   1                   2                   3
@@ -1668,9 +1780,15 @@ dissect_opt_ioam(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                                  offset + 1, 1, ENC_NA, &opt_type);
     offset += 2;
 
+    proto_tree* opt_type_tree
+        = proto_tree_add_subtree(opt_tree, tvb, offset, opt_len - 2, 0, NULL,
+                                 val_to_str_const(opt_type, ipv6_ioam_opt_types,
+                                                  "Unknown Option-Type"));
+
     switch (opt_type) {
     case IP6IOAM_PRE_TRACE:
     case IP6IOAM_INC_TRACE:
+        offset = dissect_opt_ioam_trace(tvb, offset, pinfo, opt_type_tree, opt_ti, opt_len);
         break;
     case IP6IOAM_POT:
         break;
@@ -3191,6 +3309,131 @@ proto_register_ipv6(void)
                 FT_UINT8, BASE_DEC, VALS(ipv6_ioam_opt_types), 0x0,
                 NULL, HFILL }
         },
+        { &hf_ipv6_opt_ioam_trace_ns,
+            { "Namespace ID", "ipv6.opt.ioam.trace.ns",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_ipv6_opt_ioam_trace_nodelen,
+            { "Node Length", "ipv6.opt.ioam.trace.nodelen",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_ipv6_opt_ioam_trace_flags,
+            { "Flags", "ipv6.opt.ioam.trace.flags",
+                FT_UINT16, BASE_HEX, NULL, 0x780,
+                NULL, HFILL }
+        },
+        { &hf_ipv6_opt_ioam_trace_flag_o,
+            { "Overflow", "ipv6.opt.ioam.trace.flag.o",
+                FT_BOOLEAN, 16, NULL, 0x400,
+                "Not enough free space", HFILL }
+        },
+        { &hf_ipv6_opt_ioam_trace_flag_l,
+            { "Loopback", "ipv6.opt.ioam.trace.flag.l",
+                FT_BOOLEAN, 16, NULL, 0x200,
+                "Send a copy of the packet back towards the source", HFILL }
+        },
+        { &hf_ipv6_opt_ioam_trace_flag_a,
+            { "Active", "ipv6.opt.ioam.trace.flag.a",
+                FT_BOOLEAN, 16, NULL, 0x100,
+                "Active measurement packet", HFILL }
+        },
+        { &hf_ipv6_opt_ioam_trace_flag_rsv,
+            { "Reserved", "ipv6.opt.ioam.trace.flag.rsv",
+                FT_BOOLEAN, 16, NULL, 0x80,
+                "Reserved (must be zero)", HFILL }
+        },
+        { &hf_ipv6_opt_ioam_trace_remlen,
+            { "Remaining Length", "ipv6.opt.ioam.trace.remlen",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_ipv6_opt_ioam_trace_type,
+            { "Trace Type", "ipv6.opt.ioam.trace.type",
+                FT_UINT24, BASE_HEX, NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_ipv6_opt_ioam_trace_type_bit0,
+            { "Hop_Lim and Node ID (short)", "ipv6.opt.ioam.trace.type.bit0",
+                FT_BOOLEAN, 24, NULL, 0x800000,
+                NULL, HFILL }
+        },
+        { &hf_ipv6_opt_ioam_trace_type_bit1,
+            { "Ingress and Egress IDs (short)", "ipv6.opt.ioam.trace.type.bit1",
+                FT_BOOLEAN, 24, NULL, 0x400000,
+                NULL, HFILL }
+        },
+        { &hf_ipv6_opt_ioam_trace_type_bit2,
+            { "Timestamp seconds", "ipv6.opt.ioam.trace.type.bit2",
+                FT_BOOLEAN, 24, NULL, 0x200000,
+                NULL, HFILL }
+        },
+        { &hf_ipv6_opt_ioam_trace_type_bit3,
+            { "Timestamp fraction", "ipv6.opt.ioam.trace.type.bit3",
+                FT_BOOLEAN, 24, NULL, 0x100000,
+                NULL, HFILL }
+        },
+        { &hf_ipv6_opt_ioam_trace_type_bit4,
+            { "Transit delay", "ipv6.opt.ioam.trace.type.bit4",
+                FT_BOOLEAN, 24, NULL, 0x80000,
+                NULL, HFILL }
+        },
+        { &hf_ipv6_opt_ioam_trace_type_bit5,
+            { "IOAM-Namespace specific data (short)", "ipv6.opt.ioam.trace.type.bit5",
+                FT_BOOLEAN, 24, NULL, 0x40000,
+                NULL, HFILL }
+        },
+        { &hf_ipv6_opt_ioam_trace_type_bit6,
+            { "Queue depth", "ipv6.opt.ioam.trace.type.bit6",
+                FT_BOOLEAN, 24, NULL, 0x20000,
+                NULL, HFILL }
+        },
+        { &hf_ipv6_opt_ioam_trace_type_bit7,
+            { "Checksum complement", "ipv6.opt.ioam.trace.type.bit7",
+                FT_BOOLEAN, 24, NULL, 0x10000,
+                NULL, HFILL }
+        },
+        { &hf_ipv6_opt_ioam_trace_type_bit8,
+            { "Hop_Lim and Node ID (wide)", "ipv6.opt.ioam.trace.type.bit8",
+                FT_BOOLEAN, 24, NULL, 0x8000,
+                NULL, HFILL }
+        },
+        { &hf_ipv6_opt_ioam_trace_type_bit9,
+            { "Ingress and Egress IDs (wide)", "ipv6.opt.ioam.trace.type.bit9",
+                FT_BOOLEAN, 24, NULL, 0x4000,
+                NULL, HFILL }
+        },
+        { &hf_ipv6_opt_ioam_trace_type_bit10,
+            { "IOAM-Namespace specific data (wide)", "ipv6.opt.ioam.trace.type.bit10",
+                FT_BOOLEAN, 24, NULL, 0x2000,
+                NULL, HFILL }
+        },
+        { &hf_ipv6_opt_ioam_trace_type_bit11,
+            { "Buffer occupancy", "ipv6.opt.ioam.trace.type.bit11",
+                FT_BOOLEAN, 24, NULL, 0x1000,
+                NULL, HFILL }
+        },
+        { &hf_ipv6_opt_ioam_trace_type_undef,
+            { "Undefined", "ipv6.opt.ioam.trace.type.undef",
+                FT_BOOLEAN, 24, NULL, 0xffc,
+                NULL, HFILL }
+        },
+        { &hf_ipv6_opt_ioam_trace_type_bit22,
+            { "Opaque State Snapshot", "ipv6.opt.ioam.trace.type.bit22",
+                FT_BOOLEAN, 24, NULL, 0x2,
+                NULL, HFILL }
+        },
+        { &hf_ipv6_opt_ioam_trace_type_rsv,
+            { "Reserved", "ipv6.opt.ioam.trace.type.rsv",
+                FT_BOOLEAN, 24, NULL, 0x1,
+                NULL, HFILL }
+        },
+        { &hf_ipv6_opt_ioam_trace_rsv,
+            { "Reserved", "ipv6.opt.ioam.trace.rsv",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                "Reserved (must be zero)", HFILL }
+        },
         { &hf_ipv6_opt_tpf_information,
             { "TPF Information", "ipv6.opt.tpf_information",
                 FT_UINT32, BASE_HEX, NULL, 0x0,
@@ -3605,6 +3848,8 @@ proto_register_ipv6(void)
         &ett_ipv6_opt_rpl,
         &ett_ipv6_opt_mpl,
         &ett_ipv6_opt_dff_flags,
+        &ett_ipv6_opt_ioam_trace_flags,
+        &ett_ipv6_opt_ioam_trace_types,
         &ett_ipv6_fragment,
         &ett_ipv6_fragments
     };
@@ -3678,7 +3923,15 @@ proto_register_ipv6(void)
         { &ei_ipv6_opt_mpl_ipv6_src_seed_id,
             { "ipv6.opt.mpl.ipv6_src_seed_id", PI_PROTOCOL, PI_COMMENT,
                 "Seed ID is the IPv6 Source Address", EXPFILL }
-        }
+        },
+        { &ei_ipv6_opt_ioam_invalid_remlen,
+            { "ipv6.opt.ioam.trace.invalid_remlen", PI_PROTOCOL, PI_ERROR,
+                "Invalid \"RemLen\" value", EXPFILL }
+        },
+        { &ei_ipv6_opt_ioam_invalid_trace_type,
+            { "ipv6.opt.ioam.trace.invalid_type", PI_PROTOCOL, PI_WARN,
+                "Invalid Trace Type", EXPFILL }
+        },
     };
 
     static ei_register_info ei_ipv6_hopopts[] = {
