@@ -69,6 +69,7 @@ void proto_reg_handoff_ipv6(void);
 #define IP6OPT_EXP_1E                   0x1E    /* 00 0 11110 =  30 */
 #define IP6OPT_QUICKSTART               0x26    /* 00 1 00110 =  38 */
 #define IP6OPT_PMTU                     0x30    /* 00 1 10000 =  48 */
+#define IP6OPT_IOAM                     0x31    /* 00 1 10001 =  49 */
 #define IP6OPT_EXP_3E                   0x3E    /* 00 1 11110 =  62 */
 #define IP6OPT_TPF                      0x41    /* 01 0 00001 =  65 */
 #define IP6OPT_EXP_5E                   0x5E    /* 01 0 11110 =  94 */
@@ -95,6 +96,12 @@ void proto_reg_handoff_ipv6(void);
 #define IP6RRPL_BITMASK_CMPRE     0x0F000000
 #define IP6RRPL_BITMASK_PAD       0x00F00000
 #define IP6RRPL_BITMASK_RESERVED  0x000FFFFF
+
+/* IOAM Option-Types */
+#define IP6IOAM_PRE_TRACE               0       /* Pre-allocated Trace */
+#define IP6IOAM_INC_TRACE               1       /* Incremental Trace */
+#define IP6IOAM_POT                     2       /* Proof of Transit */
+#define IP6IOAM_E2E                     3       /* Edge to Edge */
 
 /* Protocol specific data indices */
 #define IPV6_PROTO_VALUE            1
@@ -191,6 +198,8 @@ static int hf_ipv6_opt_qs_ttl_diff              = -1;
 static int hf_ipv6_opt_qs_unused                = -1;
 static int hf_ipv6_opt_qs_nonce                 = -1;
 static int hf_ipv6_opt_qs_reserved              = -1;
+static int hf_ipv6_opt_ioam_rsv                 = -1;
+static int hf_ipv6_opt_ioam_opt_type            = -1;
 static int hf_ipv6_opt_tpf_information          = -1;
 static int hf_ipv6_opt_mipv6_home_address       = -1;
 static int hf_ipv6_opt_rpl_flag                 = -1;
@@ -560,6 +569,7 @@ static const value_string ipv6_opt_type_vals[] = {
     { IP6OPT_EXP_1E,        "Experimental (0x1E)"           },
     { IP6OPT_QUICKSTART,    "Quick-Start"                   },
     { IP6OPT_PMTU,          "Path MTU Option"               },
+    { IP6OPT_IOAM,          "IOAM Option"                   },
     { IP6OPT_EXP_3E,        "Experimental (0x3E)"           },
     { IP6OPT_TPF,           "Tunnel Payload Forwarding (TPF) Information" },
     { IP6OPT_EXP_5E,        "Experimental (0x5E)"           },
@@ -631,6 +641,7 @@ static const gint _ipv6_opt_type_hdr[][2] = {
     { IP6OPT_SMF_DPD,       IPv6_OPT_HDR_HBH },
     { IP6OPT_PDM,           IPv6_OPT_HDR_DST },
     { IP6OPT_QUICKSTART,    IPv6_OPT_HDR_HBH },
+    { IP6OPT_IOAM,          IPv6_OPT_HDR_HBH },
     { IP6OPT_TPF,           IPv6_OPT_HDR_DST },
     { IP6OPT_RPL,           IPv6_OPT_HDR_HBH },
     { IP6OPT_MPL,           IPv6_OPT_HDR_HBH },
@@ -1624,6 +1635,52 @@ dissect_opt_quickstart(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tre
     return offset;
 }
 
+static const value_string ipv6_ioam_opt_types[] = {
+    { IP6IOAM_PRE_TRACE,  "Pre-allocated Trace" },
+    { IP6IOAM_INC_TRACE,  "Incremental Trace"   },
+    { IP6IOAM_POT,        "Proof of Transit"    },
+    { IP6IOAM_E2E,        "Edge to Edge"        },
+    { 0, NULL}
+};
+
+/*
+ * IOAM Option Header
+ *
+      0                   1                   2                   3
+      0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+     |  Option Type  |  Opt Data Len |   Reserved    |   IOAM Type   |
+     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+*/
+static gint
+dissect_opt_ioam(tvbuff_t *tvb, gint offset, packet_info *pinfo,
+                 proto_tree *opt_tree, struct opt_proto_item *opt_ti, guint8 opt_len)
+{
+    guint32 opt_type;
+
+    if (opt_len < 2) {
+        expert_add_info_format(pinfo, opt_ti->len, &ei_ipv6_opt_invalid_len,
+                               "IOAM Option: Invalid length (%u bytes)", opt_len);
+    }
+
+    proto_tree_add_item(opt_tree, hf_ipv6_opt_ioam_rsv, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item_ret_uint(opt_tree, hf_ipv6_opt_ioam_opt_type, tvb,
+                                 offset + 1, 1, ENC_NA, &opt_type);
+    offset += 2;
+
+    switch (opt_type) {
+    case IP6IOAM_PRE_TRACE:
+    case IP6IOAM_INC_TRACE:
+        break;
+    case IP6IOAM_POT:
+        break;
+    case IP6IOAM_E2E:
+        break;
+    }
+
+    return offset;
+}
+
 /*
  * Tunnel Payload Forwarding Option for IPv6
  *
@@ -2101,6 +2158,9 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo, ws
             break;
         case IP6OPT_QUICKSTART:
             offset = dissect_opt_quickstart(tvb, offset, pinfo, opt_tree, &opt_ti, opt_len, iph);
+            break;
+        case IP6OPT_IOAM:
+            offset = dissect_opt_ioam(tvb, offset, pinfo, opt_tree, &opt_ti, opt_len);
             break;
         case IP6OPT_TPF:
             offset = dissect_opt_tpf(tvb, offset, pinfo, opt_tree, &opt_ti, opt_len);
@@ -3119,6 +3179,16 @@ proto_register_ipv6(void)
         { &hf_ipv6_opt_qs_reserved,
             { "Reserved", "ipv6.opt.qs_reserved",
                 FT_UINT32, BASE_HEX, NULL, 0x0003,
+                NULL, HFILL }
+        },
+        { &hf_ipv6_opt_ioam_rsv,
+            { "Reserved", "ipv6.opt.ioam.rsv",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                "Reserved (must be zero)", HFILL }
+        },
+        { &hf_ipv6_opt_ioam_opt_type,
+            { "Option-Type", "ipv6.opt.ioam.opt_type",
+                FT_UINT8, BASE_DEC, VALS(ipv6_ioam_opt_types), 0x0,
                 NULL, HFILL }
         },
         { &hf_ipv6_opt_tpf_information,
