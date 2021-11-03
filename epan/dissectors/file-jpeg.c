@@ -28,6 +28,8 @@
 #include <epan/expert.h>
 #include <wiretap/wtap.h>
 
+#include <inttypes.h>
+
 void proto_register_jfif(void);
 void proto_reg_handoff_jfif(void);
 
@@ -358,8 +360,14 @@ static gint hf_ifd_value_byte = -1;
 static gint hf_ifd_value_ascii = -1;
 static gint hf_ifd_value_short = -1;
 static gint hf_ifd_value_long = -1;
+static gint hf_ifd_value_rational = -1;
+static gint hf_ifd_value_rational_numerator = -1;
+static gint hf_ifd_value_rational_denominator = -1;
 static gint hf_ifd_value_undefined = -1;
 static gint hf_ifd_value_slong = -1;
+static gint hf_ifd_value_srational = -1;
+static gint hf_ifd_value_srational_numerator = -1;
+static gint hf_ifd_value_srational_denominator = -1;
 
 
 /* Initialize the subtree pointers */
@@ -367,10 +375,13 @@ static gint ett_jfif = -1;
 static gint ett_marker_segment = -1;
 static gint ett_details = -1;
 static gint ett_ifd = -1;
+static gint ett_rational = -1;
+static gint ett_srational = -1;
 
 static expert_field ei_file_jpeg_first_identifier_not_jfif   = EI_INIT;
 static expert_field ei_start_ifd_offset   = EI_INIT;
 static expert_field ei_next_ifd_offset   = EI_INIT;
+static expert_field ei_ifd_value_offset   = EI_INIT;
 
 /****************** JFIF protocol dissection functions ******************/
 
@@ -712,28 +723,75 @@ process_app1_segment(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, guint3
                     value_size = 2; value_hf = hf_ifd_value_short; break;
                 case EXIF_TYPE_LONG:
                     value_size = 4; value_hf = hf_ifd_value_long; break;
+                case EXIF_TYPE_RATIONAL:
+                    value_size = 8; value_hf = hf_ifd_value_rational; break;
                 case EXIF_TYPE_UNDEFINED:
                     value_size = 1; value_hf = hf_ifd_value_undefined; break;
                 case EXIF_TYPE_SLONG:
                     value_size = 4; value_hf = hf_ifd_value_slong; break;
-                /* We don't need special handling for RATIONAL/SRATIONAL,
-                   since they never fit into the offset field,
-                   so the default branch works for them. */
+                case EXIF_TYPE_SRATIONAL:
+                    value_size = 8; value_hf = hf_ifd_value_srational; break;
                 default:
-                    value_size = 0; break;
+                    value_size = 0; value_hf = -1; break;
                 }
 
+                int value_offset = -1;
+                proto_tree *value_parent = NULL;
+
                 if (value_size == 0 || 4 / value_size < value_count) {
-                    proto_tree_add_item(subtree_ifd, hf_ifd_offset, tvb, offset, 4, encoding);
+                    /* The value(s) are located outside the IFD, and the offset field points to them. */
+                    guint32 value_offset_rel_limit = len + 2 - (guint32)tiff_start;
+                    guint32 value_offset_rel;
+                    proto_item *offset_item = proto_tree_add_item_ret_uint(
+                        subtree_ifd, hf_ifd_offset, tvb, offset, 4, encoding, &value_offset_rel);
+
+                    if (value_offset_rel < value_offset_rel_limit) {
+                        value_offset = tiff_start + (int)value_offset_rel;
+                    } else {
+                        expert_add_info_format(pinfo, offset_item, &ei_ifd_value_offset,
+                            "bogus, should be < %"PRIu32, value_offset_rel_limit);
+                    }
+
+                    value_parent = subtree;
                 } else {
                     /* The value(s) are small enough to fit directly in the offset field. */
+                    value_offset = offset;
+                    value_parent = subtree_ifd;
+                }
 
+                if (value_offset >= 0) {
                     if (value_hf == hf_ifd_value_ascii || value_hf == hf_ifd_value_undefined)
-                        proto_tree_add_item(subtree_ifd, value_hf, tvb, offset, value_count, ENC_NA);
-                    else
-                        for (guint32 i = 0; i < value_count; ++i)
-                            proto_tree_add_item(subtree_ifd, value_hf, tvb,
-                                    offset + i * value_size, value_size, encoding);
+                        proto_tree_add_item(value_parent, value_hf, tvb, value_offset, value_count, ENC_NA);
+                    else if (value_size != 0)
+                        for (guint32 i = 0; i < value_count; ++i) {
+                            proto_item *value_item = proto_tree_add_item(value_parent, value_hf, tvb,
+                                value_offset, value_size, encoding);
+
+                            if (value_hf == hf_ifd_value_rational) {
+                                proto_tree *subtree_value = proto_item_add_subtree(value_item, ett_rational);
+                                guint32 num, denom;
+                                proto_tree_add_item_ret_uint(
+                                    subtree_value, hf_ifd_value_rational_numerator, tvb,
+                                    value_offset, 4, encoding, &num);
+                                proto_tree_add_item_ret_uint(
+                                    subtree_value, hf_ifd_value_rational_denominator, tvb,
+                                    value_offset + 4, 4, encoding, &denom);
+                                proto_item_set_text(value_item, "Value: %"PRIu32"/%"PRIu32, num, denom);
+                            }
+                            else if (value_hf == hf_ifd_value_srational) {
+                                proto_tree *subtree_value = proto_item_add_subtree(value_item, ett_srational);
+                                gint32 num, denom;
+                                proto_tree_add_item_ret_int(
+                                    subtree_value, hf_ifd_value_srational_numerator, tvb,
+                                    value_offset, 4, encoding, &num);
+                                proto_tree_add_item_ret_int(
+                                    subtree_value, hf_ifd_value_srational_denominator, tvb,
+                                    value_offset + 4, 4, encoding, &denom);
+                                proto_item_set_text(value_item, "Value: %"PRIi32"/%"PRIi32, num, denom);
+                            }
+
+                            value_offset += value_size;
+                        }
                 }
                 offset += 4;
             }
@@ -1366,6 +1424,30 @@ proto_register_jfif(void)
               HFILL
           }
         },
+        { &hf_ifd_value_rational,
+          {   "Value",
+              "image-jfif.ifd.value_rational",
+              FT_NONE, BASE_NONE, NULL, 0x0,
+              NULL,
+              HFILL
+          }
+        },
+        { &hf_ifd_value_rational_numerator,
+          {   "Numerator",
+              "image-jfif.ifd.value_rational.numerator",
+              FT_UINT32, BASE_DEC, NULL, 0x0,
+              NULL,
+              HFILL
+          }
+        },
+        { &hf_ifd_value_rational_denominator,
+          {   "Denominator",
+              "image-jfif.ifd.value_rational.denominator",
+              FT_UINT32, BASE_DEC, NULL, 0x0,
+              NULL,
+              HFILL
+          }
+        },
         { &hf_ifd_value_undefined,
           {   "Value (raw)",
               "image-jfif.ifd.value_undefined",
@@ -1382,6 +1464,30 @@ proto_register_jfif(void)
               HFILL
           }
         },
+        { &hf_ifd_value_srational,
+          {   "Value",
+              "image-jfif.ifd.value_srational",
+              FT_NONE, BASE_NONE, NULL, 0x0,
+              NULL,
+              HFILL
+          }
+        },
+        { &hf_ifd_value_srational_numerator,
+          {   "Numerator",
+              "image-jfif.ifd.value_srational.numerator",
+              FT_INT32, BASE_DEC, NULL, 0x0,
+              NULL,
+              HFILL
+          }
+        },
+        { &hf_ifd_value_srational_denominator,
+          {   "Denominator",
+              "image-jfif.ifd.value_srational.denominator",
+              FT_INT32, BASE_DEC, NULL, 0x0,
+              NULL,
+              HFILL
+          }
+        },
     };
 
     /* Setup protocol subtree array */
@@ -1390,6 +1496,8 @@ proto_register_jfif(void)
         &ett_marker_segment,
         &ett_details,
         &ett_ifd,
+        &ett_rational,
+        &ett_srational,
     };
 
     static ei_register_info ei[] = {
@@ -1401,6 +1509,9 @@ proto_register_jfif(void)
             "Invalid value", EXPFILL }},
         { &ei_next_ifd_offset,
           { "image-jfif.next_ifd_offset.invalid", PI_PROTOCOL, PI_WARN,
+            "Invalid value", EXPFILL }},
+        { &ei_ifd_value_offset,
+          { "image-jfif.ifd_value_offset.invalid", PI_PROTOCOL, PI_WARN,
             "Invalid value", EXPFILL }},
     };
 
