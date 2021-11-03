@@ -21,6 +21,7 @@ import re
 
 # Path to default upstream repository
 upstream_repo = 'https://zoranbosnjak.github.io/asterix-specs'
+dissector_file = 'epan/dissectors/packet-asterix.c'
 
 class Offset(object):
     """Keep track of number of added bits.
@@ -609,12 +610,36 @@ def part4(ctx, cats):
     for cat in sorted(cats):
         tell_pr('    prefs_register_enum_preference (asterix_prefs_module, "i{:03d}_version", "I{:03d} version", "Select the CAT{:03d} version", &global_categories_version[{}], I{:03d}_versions, FALSE);'.format(cat, cat, cat, cat, cat))
 
+class Output(object):
+    """Output context manager. Write either to stdout or to a dissector
+    file directly, depending on 'update' argument"""
+    def __init__(self, update):
+        self.update = update
+        self.f = None
+
+    def __enter__(self):
+        if self.update:
+            self.f = open(dissector_file, 'w')
+        return self
+
+    def __exit__(self, exc_type, exc_value, exc_traceback):
+        if self.f is not None:
+            self.f.close()
+
+    def dump(self, line):
+        if self.f is None:
+            print(line)
+        else:
+            self.f.write(line+'\n')
+
 def main():
     parser = argparse.ArgumentParser(description='Process asterix specs files.')
     parser.add_argument('paths', metavar='PATH', nargs='*',
         help='json spec file(s), use upstream repository in no input is given')
     parser.add_argument('--reference', action='store_true',
         help='print upstream reference and exit')
+    parser.add_argument("--update", action="store_true",
+        help="Update %s as needed instead of writing to stdout" % dissector_file)
     args = parser.parse_args()
 
     if args.reference:
@@ -669,21 +694,26 @@ def main():
         part4(ctx, set([spec['number'] for spec in jsons]))
 
         # use context buffer to render template
-        with open('packet-asterix-template.c') as f:
+        script_path = os.path.dirname(os.path.realpath(__file__))
+        with open(os.path.join(script_path, 'packet-asterix-template.c')) as f:
             template_lines = f.readlines()
 
-        # copy each line of the template to stdout,
+        # All input is collected and rendered.
+        # It's safe to update the disector.
+
+        # copy each line of the template to required output,
         # if the 'insertion' is found in the template,
         # replace it with the buffer content
-        for line in template_lines:
-            line = line.rstrip()
+        with Output(args.update) as out:
+            for line in template_lines:
+                line = line.rstrip()
 
-            insertion = ins.match(line)
-            if insertion is None:
-                print(line)
-            else:
-                segment = insertion.group(1)
-                [print(i) for i in ctx.buffer[segment]]
+                insertion = ins.match(line)
+                if insertion is None:
+                    out.dump(line)
+                else:
+                    segment = insertion.group(1)
+                    [out.dump(i) for i in ctx.buffer[segment]]
 
 if __name__ == '__main__':
     main()
