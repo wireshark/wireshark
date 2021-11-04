@@ -4010,11 +4010,7 @@ Mattia Cazzola <mattiac[AT]alinet.it> provided a patch to the hex dump display r
 
 We use the exception module from Kazlib, a C library written by Kaz Kylheku <kaz[AT]kylheku.com>. Thanks go to him for his well-written library. The Kazlib home page can be found at http://www.kylheku.com/~kaz/kazlib.html
 
-We use Lua BitOp, written by Mike Pall, for bitwise operations on numbers in Lua. The Lua BitOp home page can be found at https://bitop.luajit.org/
-
-Henrik Brix Andersen <brix[AT]gimp.org> gave permission for his webbrowser calling routine to be used.
-
-Christophe Devine <c.devine[AT]cr0.net> gave permission for his SHA1 routines to be used.
+We use Lua BitOp, written by Mike Pall, for bitwise operations on numbers in Lua. The Lua BitOp home page can be found at https://bitop.luajit.org
 
 snax <snax[AT]shmoo.com> gave permission to use his(?) weak key detection code from Airsnort.
 
@@ -4025,3 +4021,5 @@ We use the natural order string comparison algorithm, written by Martin Pool <mb
 Emanuel Eichhammer <support[AT]qcustomplot.com> granted permission to use QCustomPlot.
 
 Some icons made by Freepik, http://www.freepik.com from https://www.flaticon.com
+
+Insecure.Com LLC ("The Nmap Project") has granted the Wireshark Foundation permission to distribute Npcap with our Windows installers.
