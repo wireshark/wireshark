@@ -15,10 +15,11 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
+use v5.10;
+
 use warnings;
 use strict;
-use Getopt::Long;
-use Encode qw(encode decode);
+use open ':std', ':encoding(UTF-8)';
 
 my $state = "";
 my %contributors = ();
@@ -79,11 +80,11 @@ sub parse_author_name {
 		if ($3 ne "gerald[AT]wireshark.org") {
 			$email_key = lc($3);
 			$contributors{$email_key} = $1;
-			print encode('UTF-8', "$full_name\n");
+			say $full_name;
 		}
 	} elsif ($full_name =~ /^([\w\.\-\'\x80-\xff]+(\s*[\w+\.\-\'\x80-\xff])*)\s+\(/) {
 		$contributors{"<no_email>"} = $1;
-		print encode('UTF-8', "$full_name\n");
+		say $full_name;
 	}
 }
 
@@ -116,7 +117,7 @@ sub parse_git_name {
 					$line = $name . "\t" x $ntab . "<$email>";
 				}
 				$contributors{$email_key} = $1;
-				print encode('UTF-8', "$line\n");
+				say $line;
 			}
 		}
 	}
@@ -130,7 +131,7 @@ sub parse_git_name {
 print $header;
 
 open( my $author_fh, '<', $ARGV[0] ) or die "Can't open $ARGV[0]: $!";
-while ( my $line = decode('UTF-8', <$author_fh>) ) {
+while ( my $line = <$author_fh> ) {
 	chomp $line;
 
 	last if ($line =~ "Acknowledgements");
@@ -146,17 +147,17 @@ while ( my $line = decode('UTF-8', <$author_fh>) ) {
 		$state = "s_in_bracket";
 	} elsif ($state eq "s_in_bracket") {
 		if ($line =~ /([^\}]*)\}/) {
-			print encode('UTF-8', "$line\n");
+			say $line;
 			$state = "";
 		} else {
-			print encode('UTF-8', "$line\n");
+			say $line;
 		}
 	} elsif ($line =~ /</) {
 		parse_author_name($line);
 	} elsif ($line =~ "(e-mail address removed at contributor's request)") {
 		parse_author_name($line);
 	} else {
-		print encode('UTF-8', "$line\n");
+		say $line;
 	}
 }
 close $author_fh;
@@ -166,7 +167,7 @@ print $git_log_text;
 open( my $git_author_fh, 'git --no-pager shortlog -se HEAD|')
         or die "Can't execute git shortlog: $!";
 
-while ( my $git_line = decode('UTF-8', <$git_author_fh>) ) {
+while ( my $git_line = <$git_author_fh> ) {
 	chomp $git_line;
 
 	parse_git_name($git_line);
