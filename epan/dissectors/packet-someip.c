@@ -790,7 +790,7 @@ someip_lookup_eventgroup_name(guint16 serviceid, guint16 eventgroupid) {
     return (char *)g_hash_table_lookup(data_someip_eventgroups, &tmp);
 }
 
-char*
+static char*
 someip_lookup_client_name(guint16 serviceid, guint16 clientid) {
     guint32 tmp = (serviceid << 16) + clientid;
 
