@@ -23,41 +23,8 @@ use open ':std', ':encoding(UTF-8)';
 
 my $state = "";
 my %contributors = ();
-my $is_contributing = 0;
 
-my $header = "
-
-= Original Author =
-
-Gerald Combs            <gerald[AT]wireshark.org>
-
-
-";
-
-my $trailer = "
-
-= Acknowledgements =
-
-Dan Lasley <dlasley[AT]promus.com> gave permission for his dumpit() hex-dump routine to be used.
-
-Mattia Cazzola <mattiac[AT]alinet.it> provided a patch to the hex dump display routine.
-
-We use the exception module from Kazlib, a C library written by Kaz Kylheku <kaz[AT]kylheku.com>. Thanks go to him for his well-written library. The Kazlib home page can be found at http://www.kylheku.com/~kaz/kazlib.html
-
-We use Lua BitOp, written by Mike Pall, for bitwise operations on numbers in Lua. The Lua BitOp home page can be found at https://bitop.luajit.org
-
-snax <snax[AT]shmoo.com> gave permission to use his(?) weak key detection code from Airsnort.
-
-IANA gave permission for their port-numbers file to be used.
-
-We use the natural order string comparison algorithm, written by Martin Pool <mbp[AT]sourcefrog.net>.
-
-Emanuel Eichhammer <support[AT]qcustomplot.com> granted permission to use QCustomPlot.
-
-Some icons made by Freepik, http://www.freepik.com from https://www.flaticon.com
-
-Insecure.Com LLC (\"The Nmap Project\") has granted the Wireshark Foundation permission to distribute Npcap with our Windows installers.
-";
+my $acknowledgements_heading = "= Acknowledgements =";
 
 my $git_log_text = "
 = From git log =
@@ -130,19 +97,20 @@ sub parse_git_name {
 # MAIN
 #
 
-print $header;
-
 open( my $author_fh, '<', $ARGV[0] ) or die "Can't open $ARGV[0]: $!";
+
 while ( my $line = <$author_fh> ) {
 	chomp $line;
 
-	last if ($line =~ "Acknowledgements");
+	say $line;
 
-	if ($line =~ "Contributors") {
-		$is_contributing = 1;
-	} elsif ($is_contributing == 0) {
-		next;
-	}
+	last if $line eq "= Contributors =";
+}
+
+while ( my $line = <$author_fh> ) {
+	chomp $line;
+
+	last if ($line eq $acknowledgements_heading);
 
 	if ($line =~ /([^\{]*)\{/) {
 		parse_author_name($line);
@@ -162,7 +130,6 @@ while ( my $line = <$author_fh> ) {
 		say $line;
 	}
 }
-close $author_fh;
 
 print $git_log_text;
 
@@ -176,6 +143,15 @@ while ( my $git_line = <$git_author_fh> ) {
 }
 close $git_author_fh;
 
-print $trailer;
+print "\n\n";
+
+say $acknowledgements_heading;
+
+while ( my $line = <$author_fh> ) {
+	chomp $line;
+	say $line;
+}
+
+close $author_fh;
 
 __END__
