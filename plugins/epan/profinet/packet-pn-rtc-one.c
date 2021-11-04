@@ -64,7 +64,6 @@
 #include "packet-pn.h"
 
 
-#define F_MESSAGE_TRAILER_4BYTE  4      /* PROFIsafe: Defines the Amount of Bytes for CRC and Status-/Controlbyte */
 #define PN_INPUT_CR              1      /* PROFINET Input Connect Request value */
 #define PN_INPUT_DATADESCRITPION 1      /* PROFINET Input Data Description value */
 
@@ -386,6 +385,7 @@ dissect_PNIO_C_SDU_RTC1(tvbuff_t *tvb, int offset,
     guint16 number_iocs_input_cr;
     guint16 number_io_data_objects_output_cr;
     guint16 number_iocs_output_cr;
+    guint16 trailer_len;
 
     conversation_t    *conversation;
     stationInfo       *station_info = NULL;
@@ -556,9 +556,10 @@ dissect_PNIO_C_SDU_RTC1(tvbuff_t *tvb, int offset,
                             proto_tree_add_uint(IODataObject_tree, hf_pn_io_ps_f_dest_adr, tvb, 0, 0, io_data_object->f_dest_adr);
 
                             /* Get Safety IO Data */
-                            if ((io_data_object->length - F_MESSAGE_TRAILER_4BYTE) > 0) {
+                            trailer_len = io_data_object->f_crc_len + 1;
+                            if ((io_data_object->length - trailer_len) > 0) {
                                 offset = dissect_pn_io_ps_uint(tvb, offset, pinfo, IODataObject_tree, drep, hf_pn_io_ps_f_data,
-                                    (io_data_object->length - F_MESSAGE_TRAILER_4BYTE), &f_data);
+                                    (io_data_object->length - trailer_len), &f_data);
                             }
 
                             /* ---- Check for new PNIO data using togglebit ---- */
@@ -751,9 +752,10 @@ dissect_PNIO_C_SDU_RTC1(tvbuff_t *tvb, int offset,
                             proto_tree_add_uint(IODataObject_tree, hf_pn_io_ps_f_dest_adr, tvb, 0, 0, io_data_object->f_dest_adr);
 
                             /* Get Safety IO Data */
-                            if ((io_data_object->length - F_MESSAGE_TRAILER_4BYTE) > 0) {
+                            trailer_len = io_data_object->f_crc_len + 1;
+                            if ((io_data_object->length - trailer_len) > 0) {
                                 offset = dissect_pn_io_ps_uint(tvb, offset, pinfo, IODataObject_tree, drep, hf_pn_io_ps_f_data,
-                                    (io_data_object->length - F_MESSAGE_TRAILER_4BYTE), &f_data);
+                                    (io_data_object->length - trailer_len), &f_data);
                             }
 
                             /* ---- Check for new PNIO data using togglebit ---- */
