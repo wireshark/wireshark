@@ -456,8 +456,6 @@ prefs_register_module_or_subtree(module_t *parent, const char *name,
                                  gboolean use_gui)
 {
     module_t *module;
-    const char *p;
-    guchar c;
 
     /* this module may have been created as a subtree item previously */
     if ((module = find_subtree(parent, title))) {
@@ -493,20 +491,10 @@ prefs_register_module_or_subtree(module_t *parent, const char *name,
      * Do we have a module name?
      */
     if (name != NULL) {
-        /*
-         * Yes.
-         * Make sure that only lower-case ASCII letters, numbers,
-         * underscores, hyphens, and dots appear in the name.
-         *
-         * Crash if there is, as that's an error in the code;
-         * you can make the title a nice string with capitalization,
-         * white space, punctuation, etc., but the name can be used
-         * on the command line, and shouldn't require quoting,
-         * shifting, etc.
-         */
-        for (p = name; (c = *p) != '\0'; p++) {
-            if (!(g_ascii_islower(c) || g_ascii_isdigit(c) || c == '_' ||
-                  c == '-' || c == '.'))
+
+        /* Accept any letter case to conform with protocol names. ASN1 protocols
+         * don't use lower case names, so we can't require lower case. */
+        if (module_check_valid_name(name, FALSE) != '\0') {
                 ws_error("Preference module \"%s\" contains invalid characters", name);
         }
 
