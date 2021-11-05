@@ -28,7 +28,7 @@ FrameInformation::FrameInformation(CaptureFile * capfile, frame_data * fi, QObje
 :QObject(parent),
  fi_(fi),
  cap_file_(capfile),
- edt_(Q_NULLPTR)
+ data_()
 {
     wtap_rec_init(&rec_);
     ws_buffer_init(&buf_, 1514);
@@ -43,24 +43,26 @@ void FrameInformation::loadFrameTree()
     if (!cf_read_record(cap_file_->capFile(), fi_, &rec_, &buf_))
         return;
 
-    edt_ = g_new0(epan_dissect_t, 1);
+    epan_dissect_t edt;
 
     /* proto tree, visible. We need a proto tree if there's custom columns */
-    epan_dissect_init(edt_, cap_file_->capFile()->epan, TRUE, TRUE);
-    col_custom_prime_edt(edt_, &(cap_file_->capFile()->cinfo));
+    epan_dissect_init(&edt, cap_file_->capFile()->epan, TRUE, TRUE);
+    col_custom_prime_edt(&edt, &(cap_file_->capFile()->cinfo));
 
-    epan_dissect_run(edt_, cap_file_->capFile()->cd_t, &rec_,
+    epan_dissect_run(&edt, cap_file_->capFile()->cd_t, &rec_,
                      frame_tvbuff_new_buffer(&cap_file_->capFile()->provider, fi_, &buf_),
                      fi_, &(cap_file_->capFile()->cinfo));
-    epan_dissect_fill_in_columns(edt_, TRUE, TRUE);
+    epan_dissect_fill_in_columns(&edt, TRUE, TRUE);
+
+    int length = tvb_captured_length(edt.tvb);
+    const char *data = (const char *)tvb_get_ptr(edt.tvb, 0, length);
+    data_.replace(0, data_.size(), data, length);
+
+    epan_dissect_cleanup(&edt);
 }
 
 FrameInformation::~FrameInformation()
 {
-    if (edt_) {
-        epan_dissect_cleanup(edt_);
-        g_free(edt_);
-    }
     wtap_rec_cleanup(&rec_);
     ws_buffer_free(&buf_);
 }
@@ -69,7 +71,7 @@ bool FrameInformation::isValid()
 {
     bool ret = false;
 
-    if (fi_ && cap_file_ && edt_ && edt_->tvb)
+    if (fi_ && cap_file_)
     {
         ret = true;
     }
@@ -91,11 +93,5 @@ int FrameInformation::frameNum() const
 
 const QByteArray FrameInformation::printableData()
 {
-    if (!fi_ || !edt_)
-        return QByteArray();
-
-
-    int length = tvb_captured_length(edt_->tvb);
-    const char *data = (const char *)tvb_get_ptr(edt_->tvb, 0, length);
-    return QByteArray(data, length);
+    return data_;
 }
