@@ -48,10 +48,15 @@
 %type		relation_test	{stnode_t*}
 %destructor	relation_test	{stnode_free($$);}
 
+%type		comparison_test	{stnode_t*}
+%destructor	comparison_test	{stnode_free($$);}
+
 %type		logical_test	{stnode_t*}
 %destructor	logical_test	{stnode_free($$);}
 
 %type		rel_binop	{test_op_t}
+
+%type		cmp_op		{test_op_t}
 
 %type		range		{stnode_t*}
 %destructor	range		{stnode_free($$);}
@@ -192,24 +197,24 @@ range_node(D) ::= RANGE(R).
 	df_lval_free(R);
 }
 
-rel_binop(O) ::= TEST_ANY_EQ.	{ O = TEST_OP_ANY_EQ; }
-rel_binop(O) ::= TEST_ALL_NE.	{ O = TEST_OP_ALL_NE; }
-rel_binop(O) ::= TEST_ANY_NE.	{ O = TEST_OP_ANY_NE; }
-rel_binop(O) ::= TEST_GT.	{ O = TEST_OP_GT; }
-rel_binop(O) ::= TEST_GE.	{ O = TEST_OP_GE; }
-rel_binop(O) ::= TEST_LT.	{ O = TEST_OP_LT; }
-rel_binop(O) ::= TEST_LE.	{ O = TEST_OP_LE; }
-rel_binop(O) ::= TEST_BITWISE_AND. { O = TEST_OP_BITWISE_AND; }
-rel_binop(O) ::= TEST_CONTAINS.	{ O = TEST_OP_CONTAINS; }
 
 /* Relational tests */
-relation_test(T) ::= entity(E) rel_binop(O) entity(F).
+cmp_op(O) ::= TEST_ANY_EQ.	{ O = TEST_OP_ANY_EQ; }
+cmp_op(O) ::= TEST_ALL_NE.	{ O = TEST_OP_ALL_NE; }
+cmp_op(O) ::= TEST_ANY_NE.	{ O = TEST_OP_ANY_NE; }
+cmp_op(O) ::= TEST_GT.		{ O = TEST_OP_GT; }
+cmp_op(O) ::= TEST_GE.		{ O = TEST_OP_GE; }
+cmp_op(O) ::= TEST_LT.		{ O = TEST_OP_LT; }
+cmp_op(O) ::= TEST_LE.		{ O = TEST_OP_LE; }
+cmp_op(O) ::= TEST_BITWISE_AND. { O = TEST_OP_BITWISE_AND; }
+
+comparison_test(T) ::= entity(E) cmp_op(O) entity(F).
 {
 	T = stnode_new_test(O, E, F);
 }
 
 /* 'a == b == c' or 'a < b <= c <= d < e' */
-relation_test(T) ::= entity(E) rel_binop(O) relation_test(R).
+comparison_test(T) ::= entity(E) cmp_op(O) comparison_test(R).
 {
 	stnode_t *L, *F;
 	/* for now generate it like E O F  TEST_OP_AND  F P G, later it could be optimized
@@ -227,10 +232,15 @@ relation_test(T) ::= entity(E) rel_binop(O) relation_test(R).
 	T = stnode_new_test(TEST_OP_AND, L, R);
 }
 
-/* "matches" does not chain with other relational tests. */ 
-relation_test(T) ::= entity(E) TEST_MATCHES entity(F).
+relation_test(T) ::= comparison_test(C).	{ T = C; }
+
+/* Does not chain like math comparisons. */
+rel_binop(O) ::= TEST_CONTAINS.		{ O = TEST_OP_CONTAINS; }
+rel_binop(O) ::= TEST_MATCHES.		{ O = TEST_OP_MATCHES; }
+
+relation_test(T) ::= entity(E) rel_binop(O) entity(F).
 {
-	T = stnode_new_test(TEST_OP_MATCHES, E, F);
+	T = stnode_new_test(O, E, F);
 }
 
 relation_test(T) ::= entity(E) TEST_IN set(S).
