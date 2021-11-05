@@ -1126,6 +1126,27 @@ static void
 check_relation_matches(dfwork_t *dfw, stnode_t *st_node,
 		stnode_t *st_arg1, stnode_t *st_arg2)
 {
+	fvalue_regex_t *pcre;
+	char *errmsg = NULL;
+	const char *patt;
+
+	if (stnode_type_id(st_arg2) != STTYPE_STRING) {
+		dfilter_fail(dfw, "Expected a string not %s", stnode_todisplay(st_arg2));
+		THROW(TypeError);
+	}
+
+	patt = stnode_data(st_arg2);
+	ws_debug("Compile regex pattern: %s", patt);
+
+	pcre = fvalue_regex_compile(patt, &errmsg);
+	if (errmsg) {
+		dfilter_fail(dfw, "%s", errmsg);
+		g_free(errmsg);
+		THROW(TypeError);
+	}
+
+	stnode_replace(st_arg2, STTYPE_PCRE, pcre);
+
 	if (stnode_type_id(st_arg1) == STTYPE_FIELD) {
 		check_relation_LHS_FIELD(dfw, "matches", ftype_can_matches, TRUE, st_node, st_arg1, st_arg2);
 	}

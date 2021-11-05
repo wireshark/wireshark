@@ -109,9 +109,6 @@ stnode_t *
 dfilter_new_function(dfwork_t *dfw, const char *name);
 
 stnode_t *
-dfilter_new_regex(dfwork_t *dfw, stnode_t *node);
-
-stnode_t *
 dfilter_resolve_unparsed(dfwork_t *dfw, stnode_t *node);
 
 const char *tokenstr(int token);
