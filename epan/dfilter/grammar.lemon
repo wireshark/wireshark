@@ -18,6 +18,9 @@
 #pragma warning(disable:4671)
 #endif
 
+static stnode_t *
+new_function(dfwork_t *dfw, df_lval_t *lval);
+
 /* End of C code */
 }
 
@@ -284,10 +287,23 @@ set_element(N) ::= entity(X) DOTDOT entity(Y).
 
 /* Functions */
 
+%code {
+	static stnode_t *
+	new_function(dfwork_t *dfw, df_lval_t *lval)
+	{
+		const char *name = df_lval_value(lval);
+		df_func_def_t *def = df_func_lookup(name);
+		if (!def) {
+			dfilter_parse_fail(dfw, "Function '%s' does not exist", name);
+		}
+		return stnode_new(STTYPE_FUNCTION, def);
+	}
+}
+
 /* A function can have one or more parameters */
 function(F) ::= UNPARSED(U) LPAREN function_params(P) RPAREN.
 {
-	F = dfilter_new_function(dfw, df_lval_value(U));
+	F = new_function(dfw, U);
 	sttype_function_set_params(F, P);
 	df_lval_free(U);
 }
@@ -295,7 +311,7 @@ function(F) ::= UNPARSED(U) LPAREN function_params(P) RPAREN.
 /* A function can have zero parameters. */
 function(F) ::= UNPARSED(U) LPAREN RPAREN.
 {
-	F = dfilter_new_function(dfw, df_lval_value(U));
+	F = new_function(dfw, U);
 	df_lval_free(U);
 }
 

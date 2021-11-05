@@ -71,16 +71,6 @@ dfilter_parse_fail(dfwork_t *dfw, const char *format, ...)
 	dfw->syntax_error = TRUE;
 }
 
-stnode_t *
-dfilter_new_function(dfwork_t *dfw, const char *name)
-{
-	df_func_def_t *def = df_func_lookup(name);
-	if (!def) {
-		dfilter_parse_fail(dfw, "Function '%s' does not exist", name);
-	}
-	return stnode_new(STTYPE_FUNCTION, def);
-}
-
 /*
  * Tries to convert an STTYPE_UNPARSED to a STTYPE_FIELD. If it's not registered as
  * a field pass UNPARSED to the semantic check.
