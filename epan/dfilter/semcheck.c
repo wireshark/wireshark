@@ -1131,7 +1131,7 @@ check_relation_matches(dfwork_t *dfw, stnode_t *st_node,
 	const char *patt;
 
 	if (stnode_type_id(st_arg2) != STTYPE_STRING) {
-		dfilter_fail(dfw, "Expected a string not %s", stnode_todisplay(st_arg2));
+		dfilter_fail(dfw, "Expected a double quoted string not %s", stnode_todisplay(st_arg2));
 		THROW(TypeError);
 	}
 

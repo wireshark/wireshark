@@ -37,7 +37,7 @@ class case_syntax(unittest.TestCase):
 
     def test_matches_2(self, checkDFilterFail):
         dfilter = 'http.request.method matches HEAD'
-        checkDFilterFail(dfilter, 'Expected a string')
+        checkDFilterFail(dfilter, 'Expected a double quoted string')
 
     def test_matches_3(self, checkDFilterFail):
         dfilter = 'http.request.method matches "^HEAD" matches "^POST"'

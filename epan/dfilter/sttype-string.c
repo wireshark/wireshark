@@ -35,6 +35,12 @@ string_tostr(const void *data, gboolean pretty)
 	return g_strdup(data);
 }
 
+static char *
+unparsed_tostr(const void *data, gboolean pretty _U_)
+{
+	return g_strdup(data);
+}
+
 
 void
 sttype_register_string(void)
@@ -54,7 +60,7 @@ sttype_register_string(void)
 		string_new,
 		string_free,
 		string_dup,
-		string_tostr
+		unparsed_tostr
 	};
 
 	sttype_register(&string_type);
