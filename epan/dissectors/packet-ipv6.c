@@ -1904,6 +1904,9 @@ dissect_opt_ioam_trace(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     }
 
     /* node data list parsing starts here */
+    if (!nodelen || remlen * 4 > opt_len - 10)
+        return offset;
+
     proto_tree* trace_tree
         = proto_tree_add_subtree(opt_tree, tvb, offset, opt_len - 10, 0, NULL, "Trace Data");
 
