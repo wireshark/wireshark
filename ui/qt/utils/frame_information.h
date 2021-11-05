@@ -45,7 +45,7 @@ private:
 
     frame_data * fi_;
     CaptureFile * cap_file_;
-    epan_dissect_t * edt_;
+    QByteArray data_;
     wtap_rec rec_; /* Record metadata */
     Buffer buf_;   /* Record data */
 
