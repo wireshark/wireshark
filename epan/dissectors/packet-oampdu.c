@@ -600,6 +600,12 @@ static const value_string vendor_specific_opcode_vals[] = {
 #define DPOE_LB_NUM_S1_INT              0xD70009
 #define DPOE_LB_REP_THRESH              0xD7000B
 #define DPOE_LB_OAM_FR                  0xD7000D
+#define DPOE_LB_S1_INT_PORT_TYPE        0xD70010
+#define DPOE_LB_VENDOR_NAME             0xD70011
+#define DPOE_LB_MODEL_NUMBER            0xD70012
+#define DPOE_LB_HW_VERSION              0xD70013
+#define DPOE_LB_EPON_MODE               0xD70014
+#define DPOE_LB_SW_BUNDLE               0xD70015
 #define DPOE_LB_S1_INT_PORT_AUTONEG     0xD70105
 #define DPOE_LB_PORT_INGRESS_RULE       0xD70501
 #define DPOE_LB_QUEUE_CONFIG            0xD7010D
@@ -626,6 +632,11 @@ static const value_string dpoe_variable_descriptor_vals[] = {
     { DPOE_LB_OAM_FR,               "OAM Frame Rate" },
     { 0xD7000E,                     "ONU Manufacturer Organization Name" },
     { 0xD7000F,                     "Firmware Mfg Time Varying Controls" },
+    { DPOE_LB_S1_INT_PORT_TYPE,     "S1 interface port type" },
+    { DPOE_LB_VENDOR_NAME,          "Vendor name" },
+    { DPOE_LB_MODEL_NUMBER,         "Model number" },
+    { DPOE_LB_HW_VERSION,           "Hardware version" },
+    { DPOE_LB_SW_BUNDLE,            "Software bundle" },
     { 0xD90001,                     "Reset DPoE ONU" },
     { 0xD70101,                     "Dynamic Learning Table Size" },
     { 0xD70102,                     "Dynamic Address Age Limit" },
