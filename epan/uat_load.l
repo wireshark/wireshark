@@ -2,6 +2,10 @@
 /* Include this before everything else, for various large-file definitions */
 #include "config.h"
 #include <wireshark.h>
+
+#define WS_LOG_DOMAIN LOG_DOMAIN_UAT
+
+/* #define DEBUG_UAT_LOAD 1 */
 }
 
 /*
@@ -214,6 +218,7 @@ typedef struct {
 %}
 
 quoted_string \042([^\042]|\134\042)*\042
+extra_records_string (\042.*\042)
 binstring ([0-9a-zA-Z][0-9a-zA-Z])*
 separator [ \t]*,
 newline [ \t]*[\r]?\n
@@ -301,8 +306,10 @@ comment #[^\n]*\n
 	ERROR(("unexpected char '%s' while looking for field %s",yytext,yyextra->uat->fields[yyextra->colnum].name));
 }
 
-<END_OF_RECORD>{separator} {
-	ERROR(("more fields than required"));
+<END_OF_RECORD>{separator}{extra_records_string} {
+	/* If we wanted to be really fancy we could retain the extra data. */
+	ws_log(WS_LOG_DOMAIN, LOG_LEVEL_WARNING, "%s:%d: More fields than required. Discarding '%s'.",
+		yyextra->uat->filename, yyextra->linenum, yytext);
 }
 
 <END_OF_RECORD>{newline} {
