@@ -38,6 +38,8 @@
 
 #define LOG_DOMAIN_QTUI       "GUI"
 
+#define LOG_DOMAIN_UAT        "UAT"
+
 /*
  * Ascending order by priority needs to be maintained. Higher priorities have
  * higher values.
