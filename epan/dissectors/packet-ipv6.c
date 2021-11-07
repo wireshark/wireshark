@@ -3035,13 +3035,19 @@ ipv6_dissect_next(guint nxt, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     dissector_handle_t nxt_handle;
     ipv6_pinfo_t *ipv6_pinfo = p_get_ipv6_pinfo(pinfo);
 
+    /* https://www.iana.org/assignments/ipv6-parameters/ipv6-parameters.xhtml#extension-header */
+
     switch (nxt) {
         case IP_PROTO_HOPOPTS:
         case IP_PROTO_ROUTING:
         case IP_PROTO_FRAGMENT:
-        case IP_PROTO_DSTOPTS:
+        //case IP_PROTO_ESP:    Even though ESP is technically an extension header,
+        //                      we treat it as a payload container.
         case IP_PROTO_AH:
+        case IP_PROTO_DSTOPTS:
         case IP_PROTO_MIPV6:
+        //case IP_PROTO_HIP:    Even though HIP is technically an extension header, the only defined
+        //                      next header is IP_NONE. Also the HIP dissector is not ready for this.
         case IP_PROTO_SHIM6:
             nxt_handle = dissector_get_uint_handle(ip_dissector_table, nxt);
             break;
