@@ -13009,10 +13009,6 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <source>%1</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>&quot;%1&quot; may have unexpected results. See the User&apos;s Guide.</source>
-        <translation type="vanished">&quot;%1&quot; kann zu einem unerwarteten Ergebnis führen. Siehe Benutzerhandbuch.</translation>
-    </message>
 </context>
 <context>
     <name>TCPStreamDialog</name>

@@ -1,11 +1,11 @@
 #
-# generated from http://www.iana.org/assignments/enterprise-numbers
+# generated from https://www.iana.org/assignments/enterprise-numbers/enterprise-numbers
 # run "tools/make-sminmpec.pl [infile]" to regenerate
 #
 # The format used here is: <NUMERICAL_ID><SPACE><NAME>
 # Where SPACE can be any sequence of spaces and tabs.
 #
-# (last updated 2021-10-31)
+# (last updated 2021-11-05)
 
 0	Reserved
 1	NxNetworks
@@ -5800,7 +5800,7 @@
 5811	The GoldParrot Corporation
 5812	Coriolis Networks
 5813	The OpenNMS Group, Inc.
-5814	General Communications Inc.
+5814	GCI Communications Corp
 5815	Optima Tele.com, Inc.
 5816	Lockstep Systems
 5817	High Precision Record Company Limited
@@ -10520,7 +10520,7 @@
 10545	gentics net.solutions
 10546	Inturio Property Rights Holdings Limited
 10547	Matrix Applied Computing Ltd
-10548	Atos Convergence Creators GmbH	# formerly 'Netzwert AG'
+10548	ENEA AB
 10549	NewVation
 10550	n-tv GmbH & Co. KG
 10551	parergy
@@ -15362,7 +15362,7 @@
 15500	eWings Technologies, Inc.
 15501	M&C Laboratory Inc.
 15502	Animezone
-15503	University of Berne
+15503	University of Bern
 15504	Ministère de l'équipement, des transports, du logement, du tourisme et de la mer
 15505	Echoworx Corporation
 15506	Akiratech Limited
@@ -16959,7 +16959,7 @@
 17097	Weltek Technologies Co., Ltd.
 17098	Innomenta GmbH & Co. KG
 17099	TellusTech Ltd.
-17100	Fabasoft R&D Software GmbH & Co KG
+17100	Fabasoft R&D GmbH
 17101	InternetNu
 17102	Bororos
 17103	Biznet Information Systems and Consultancy
@@ -22439,7 +22439,7 @@
 22593	Emily Carr College of Art and Design
 22594	GoldKrush
 22595	Modulation Sciences Inc.
-22596	marrianne.com
+22596	GCI Wireless
 22597	eOrg
 22598	MissionMode Solutions, Inc.
 22599	Informatec Comercial e Serviços Ltda.
@@ -31216,7 +31216,7 @@
 31378	Vervis COMINT Services GmbH
 31379	inform solutions GmbH
 31380	Citec
-31381	FIGO	# formerly 'TI-WMC'
+31381	BauWatch Technology Group
 31382	EDEKA Handelsgesellschaft Suedwest mbH
 31383	east taiya wireless telecommunication Inc.
 31384	Port25 Solutions, Inc.
@@ -34395,7 +34395,7 @@
 34562	FUHST MEHRENS
 34563	Calame
 34564	Hoseo telecom Co., Ltd.
-34565	KVARTA Ltd.
+34565	KVARTA SOFT EOOD
 34566	Tradar Limited
 34567	Micronetics, Inc.
 34568	Synectics
@@ -49197,7 +49197,7 @@
 49379	RGB Spectrum
 49380	The Fastest Dog, Inc.
 49381	University of Wollongong
-49382	Engility Corporation
+49382	SAIC
 49383	Riverscape Software
 49384	InfoTest@KinLong
 49385	effiPilot
@@ -57858,3 +57858,26 @@
 58064	Zezima
 58065	cyan Security Group GmbH
 58066	UAB "ICECO"
+58067	Exsolvi Holding AB
+58068	TCN Inc
+58069	BxR
+58070	CRO55
+58071	AMT Group
+58072	yamnord GmbH
+58073	Hellmann Poultry GmbH & Co. KG
+58074	Weidner Apartment Homes
+58075	Wombkeepers AZ Obstetrics and Gynecology, PC
+58076	Anduril Industries
+58077	Electrotecnica S.A.
+58078	International vending network provider
+58079	Linux Laboratory Network
+58080	ITM Software sp. z o. o. sp. k.
+58081	Ballerup Kommune
+58082	ARS Products
+58083	IoT4Farms Ltd
+58084	Město Horšovský Týn
+58085	dcbel Inc.
+58086	GEDS Global Inc.
+58087	R+GA GmbH
+58088	Cybersign
+58089	Service Objects

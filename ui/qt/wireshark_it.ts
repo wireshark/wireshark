@@ -13007,11 +13007,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>%1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&quot;%1&quot; may have unexpected results. See the User&apos;s Guide.</source>
-        <translation type="vanished">&quot;%1&quot; potrebbe avere dei risultati inattesi. Vedi il Manuale utente.</translation>
+        <translation>%1</translation>
     </message>
 </context>
 <context>

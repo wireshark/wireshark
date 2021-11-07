@@ -954,7 +954,7 @@
     </message>
     <message>
         <source>Hash (SHA256)</source>
-        <translation type="unfinished"></translation>
+        <translation>Hachage (SHA256)</translation>
     </message>
     <message>
         <source>Hash (RIPEMD160)</source>
@@ -962,7 +962,7 @@
     </message>
     <message>
         <source>Hash (SHA1)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Hachage (SHA256) {1)?}</translation>
     </message>
     <message>
         <source>Format</source>
@@ -1468,7 +1468,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>%1: %2</source>
-        <translation type="unfinished">%1: %2</translation>
+        <translation>%1 : %2</translation>
     </message>
     <message>
         <source>Addresses</source>
@@ -2026,7 +2026,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>Display Filter Expression…</source>
-        <translation type="unfinished"></translation>
+        <translation>Afficher l&apos;Expression de Filtre…</translation>
     </message>
     <message>
         <source>Apply a display filter %1 &lt;%2/&gt;</source>
@@ -2181,7 +2181,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>Dissector</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Dissecteur</translation>
     </message>
     <message>
         <source>Integer</source>
@@ -2814,7 +2814,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>Filter:</source>
-        <translation>Filtre:</translation>
+        <translation>Filtre :</translation>
     </message>
     <message>
         <source>Enter a filter expression to be applied</source>
@@ -2926,7 +2926,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>IPv4 destination address and port.</source>
-        <translation type="unfinished"></translation>
+        <translation>Adresse et port de destination de l&apos;IPV4.</translation>
     </message>
     <message>
         <source>MAC source address.</source>
@@ -3146,7 +3146,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source> Click to select.</source>
-        <translation>Cliquez pour sélectionner</translation>
+        <translation> Cliquez pour sélectionner.</translation>
     </message>
     <message>
         <source>Regex Find:</source>
@@ -4395,7 +4395,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>Dissector</source>
-        <translation type="unfinished"></translation>
+        <translation>Dissecteur</translation>
     </message>
     <message>
         <source>The UDP, TCP or SCTP source port for each frame</source>
@@ -4582,11 +4582,11 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>Show hidden interfaces</source>
-        <translation type="unfinished"></translation>
+        <translation>Afficher les interfaces cachées</translation>
     </message>
     <message>
         <source>External capture interfaces disabled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Interfaces de capture externe désactivées.</translation>
     </message>
     <message>
         <source>&lt;p&gt;Local interfaces are unavailable because no packet capture driver is installed.&lt;/p&gt;&lt;p&gt;You can fix this by installing &lt;a href=&quot;https://nmap.org/npcap/&quot;&gt;Npcap&lt;/a&gt; or &lt;a href=&quot;https://www.winpcap.org/install/default.htm&quot;&gt;WinPcap&lt;/a&gt;.&lt;/p&gt;</source>
@@ -4714,7 +4714,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>No addresses</source>
-        <translation type="unfinished"></translation>
+        <translation>Pas d&apos;adresses</translation>
     </message>
     <message>
         <source>No capture filter</source>
@@ -6163,7 +6163,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source> %1 Ignored: %2 (%3%)</source>
-        <translation>%1 Ignorés: %2 (%3%)</translation>
+        <translation> %1 Ignorés : %2 (%3%)</translation>
     </message>
     <message>
         <source> %1 Comments: %2</source>
@@ -7288,7 +7288,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>Display Filter Expression…</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Afficher l&apos;Expression de Filtre…</translation>
     </message>
     <message>
         <source>REGISTER_STAT_GROUP_RSERPOOL</source>
@@ -8132,7 +8132,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source> before opening another file</source>
-        <translation type="unfinished"></translation>
+        <translation> avant d&apos;ouvrir un autre fichier</translation>
     </message>
     <message>
         <source>Merging files.</source>
@@ -8269,7 +8269,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>The &quot;%1&quot; column already exists.</source>
-        <translation type="unfinished"></translation>
+        <translation>La colonne &quot;%1&quot; existe déjà.</translation>
     </message>
     <message>
         <source>The &quot;%1&quot; column already exists as &quot;%2&quot;.</source>
@@ -9734,7 +9734,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>A </source>
-        <translation>A</translation>
+        <translation>A </translation>
     </message>
     <message>
         <source>B </source>
@@ -10544,7 +10544,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>&amp;Add to List</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Ajouter à la Liste</translation>
     </message>
     <message>
         <source>&amp;Remove from List</source>
@@ -11203,7 +11203,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>Error</source>
-        <translation type="unfinished">Erreur</translation>
+        <translation>Erreur</translation>
     </message>
     <message>
         <source>All selected streams must use same play rate. Manual set of Output Audio Rate might help.</source>
@@ -11235,7 +11235,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>Preparing to play...</source>
-        <translation type="unfinished"></translation>
+        <translation>Préparation de l&apos;écoute…</translation>
     </message>
     <message>
         <source>Unknown</source>
@@ -13793,7 +13793,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>Time of Day</source>
-        <translation type="unfinished">Heure du Jour</translation>
+        <translation>Heure du Jour</translation>
     </message>
     <message>
         <source>Flow &amp;Sequence</source>

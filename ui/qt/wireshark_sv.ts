@@ -12957,10 +12957,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <source>%1</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>&quot;%1&quot; may have unexpected results. See the User&apos;s Guide.</source>
-        <translation type="vanished">”%1” kan ha oväntad effekt.  Se användarmanualen.</translation>
-    </message>
 </context>
 <context>
     <name>TCPStreamDialog</name>

@@ -7,7 +7,7 @@
 # https://www.wireshark.org/lists/wireshark-dev/200708/msg00160.html
 #
 # The original file can be found at:
-# http://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.csv
+# https://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.csv
 #
 # The format is the same as that used for services(5). It is allowed to merge
 # identical protocols, for example:
