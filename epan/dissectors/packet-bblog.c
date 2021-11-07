@@ -248,8 +248,8 @@ static const true_false_string event_flags_stack = {
   "Stack specific information not available"
 };
 
-#define SND_SCALE_MASK 0xf0
-#define RCV_SCALE_MASK 0x0f
+#define SND_SCALE_MASK 0x0f
+#define RCV_SCALE_MASK 0xf0
 
 /*
  * The structures used here are defined in
@@ -376,8 +376,8 @@ proto_register_bblog(void)
         { &hf_flex_2,              { "Flex 2",                                          "bblog.flex_2",              FT_UINT32,  BASE_DEC,  NULL,                          0x0,                  NULL, HFILL} },
         { &hf_first_byte_in,       { "Time of First Byte In",                           "bblog.first_byte_in",       FT_UINT32,  BASE_DEC,  NULL,                          0x0,                  NULL, HFILL} },
         { &hf_first_byte_out,      { "Time of First Byte Out",                          "bblog.first_byte_out",      FT_UINT32,  BASE_DEC,  NULL,                          0x0,                  NULL, HFILL} },
-        { &hf_snd_scale,           { "Shift Count for Send Window",                     "bblog.snd_shift",           FT_UINT8,   BASE_DEC,  NULL,                          SND_SCALE_MASK,       NULL, HFILL} },
-        { &hf_rcv_scale,           { "Shift Count for Receive Window",                  "bblog.rcv_shift",           FT_UINT8,   BASE_DEC,  NULL,                          RCV_SCALE_MASK,       NULL, HFILL} },
+        { &hf_snd_scale,           { "Snd.Wind.Shift",                                  "bblog.snd_shift",           FT_UINT8,   BASE_DEC,  NULL,                          SND_SCALE_MASK,       NULL, HFILL} },
+        { &hf_rcv_scale,           { "Rcv.Wind.Shift",                                  "bblog.rcv_shift",           FT_UINT8,   BASE_DEC,  NULL,                          RCV_SCALE_MASK,       NULL, HFILL} },
         { &hf_pad_1,               { "Padding",                                         "bblog.pad_1",               FT_UINT8,   BASE_DEC,  NULL,                          0x0,                  NULL, HFILL} },
         { &hf_pad_2,               { "Padding",                                         "bblog.pad_2",               FT_UINT8,   BASE_DEC,  NULL,                          0x0,                  NULL, HFILL} },
         { &hf_pad_3,               { "Padding",                                         "bblog.pad_3",               FT_UINT8,   BASE_DEC,  NULL,                          0x0,                  NULL, HFILL} },
