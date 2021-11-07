@@ -4218,7 +4218,7 @@ proto_register_sccp(void)
                                    &default_payload);
 
   prefs_register_bool_preference(sccp_module, "dt1_ignore_length", "Ignore length in DT1",
-                                 "Use all bytes for data payload. Overcome 255 bytes limit of SCCP stadard."
+                                 "Use all bytes for data payload. Overcome 255 bytes limit of SCCP standard."
                                  "  (Some tracing tool save information without DT1 segmentation of 255 bytes)",
                                  &dt1_ignore_length);
 

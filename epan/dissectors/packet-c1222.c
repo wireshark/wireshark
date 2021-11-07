@@ -237,7 +237,7 @@ static expert_field ei_c1222_command_truncated = EI_INIT;
 static expert_field ei_c1222_bad_checksum = EI_INIT;
 static expert_field ei_c1222_epsem_missing = EI_INIT;
 static expert_field ei_c1222_epsem_failed_authentication = EI_INIT;
-static expert_field ei_c1222_epsem_not_decryped = EI_INIT;
+static expert_field ei_c1222_epsem_not_decrypted = EI_INIT;
 static expert_field ei_c1222_ed_class_missing = EI_INIT;
 static expert_field ei_c1222_epsem_ber_length_error = EI_INIT;
 static expert_field ei_c1222_epsem_field_length_error = EI_INIT;
@@ -1066,7 +1066,7 @@ dissect_epsem(tvbuff_t *tvb, int offset, guint32 len, packet_info *pinfo, proto_
   /* it's only encrypted if we have an undecrypted payload */
   if (encrypted) {
     proto_tree_add_item(tree, hf_c1222_epsem_total, tvb, offset, -1, ENC_NA);
-    expert_add_info(pinfo, tree, &ei_c1222_epsem_not_decryped);
+    expert_add_info(pinfo, tree, &ei_c1222_epsem_not_decrypted);
     local_offset = offset+len2-4;
     epsem_buffer = tvb;
   } else {  /* it's not (now) encrypted */
@@ -2031,7 +2031,7 @@ void proto_register_c1222(void) {
     { &ei_c1222_bad_checksum, { "c1222.bad_checksum", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
     { &ei_c1222_epsem_missing, { "c1222.epsem.missing", PI_MALFORMED, PI_ERROR, "C12.22 EPSEM missing", EXPFILL }},
     { &ei_c1222_epsem_failed_authentication, { "c1222.epsem.failed_authentication", PI_SECURITY, PI_ERROR, "C12.22 EPSEM failed authentication", EXPFILL }},
-    { &ei_c1222_epsem_not_decryped, { "c1222.epsem.not_decryped", PI_UNDECODED, PI_WARN, "C12.22 EPSEM could not be decrypted", EXPFILL }},
+    { &ei_c1222_epsem_not_decrypted, { "c1222.epsem.not_decrypted", PI_UNDECODED, PI_WARN, "C12.22 EPSEM could not be decrypted", EXPFILL }},
     { &ei_c1222_ed_class_missing, { "c1222.ed_class_missing", PI_SECURITY, PI_ERROR, "C12.22 ED Class missing", EXPFILL }},
     { &ei_c1222_epsem_ber_length_error, { "c1222.epsem.ber_length_error", PI_MALFORMED, PI_ERROR, "C12.22 EPSEM BER length error", EXPFILL }},
     { &ei_c1222_epsem_field_length_error, { "c1222.epsem.field_length_error", PI_MALFORMED, PI_ERROR, "C12.22 EPSEM field length error", EXPFILL }},
