@@ -9,6 +9,7 @@ INCLUDE(FindChocolatey)
 FIND_PROGRAM(ASCIIDOCTOR_EXECUTABLE
     NAMES
         asciidoctorj
+        asciidoctor.bat
         asciidoctor
         asciidoctor.ruby2.1
         # XXX Add Asciidoctor.js releases (asciidoctor-linux,
