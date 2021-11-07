@@ -656,47 +656,6 @@ check_relation_LHS_FIELD(dfwork_t *dfw, test_op_t st_op,
 
 		check_function(dfw, st_arg2);
 	}
-	else if (type2 == STTYPE_SET) {
-		GSList *nodelist;
-		/* A set should only ever appear on RHS of 'in' operation */
-		ws_assert(st_op == TEST_OP_IN);
-
-		/* Attempt to interpret one element of the set at a time. Each
-		 * element is represented by two items in the list, the element
-		 * value and NULL. Both will be replaced by a lower and upper
-		 * value if the element is a range. */
-		nodelist = (GSList*)stnode_data(st_arg2);
-		while (nodelist) {
-			stnode_t *node = (stnode_t*)nodelist->data;
-			/* Don't let a range on the RHS affect the LHS field. */
-			if (stnode_type_id(node) == STTYPE_RANGE) {
-				dfilter_fail(dfw, "A range may not appear inside a set.");
-				THROW(TypeError);
-				break;
-			}
-
-			nodelist = g_slist_next(nodelist);
-			ws_assert(nodelist);
-			stnode_t *node_right = (stnode_t *)nodelist->data;
-			if (node_right) {
-				/* range type, check if comparison is possible. */
-				if (!ftype_can_cmp(ftype1)) {
-					dfilter_fail(dfw, "%s (type=%s) cannot participate in '%s' comparison.",
-							hfinfo1->abbrev, ftype_pretty_name(ftype1),
-							">=");
-					THROW(TypeError);
-				}
-				check_relation_LHS_FIELD(dfw, TEST_OP_GE, ftype_can_cmp,
-						allow_partial_value, st_arg2, st_arg1, node);
-				check_relation_LHS_FIELD(dfw, TEST_OP_LE, ftype_can_cmp,
-						allow_partial_value, st_arg2, st_arg1, node_right);
-			} else {
-				check_relation_LHS_FIELD(dfw, TEST_OP_ANY_EQ, can_func,
-						allow_partial_value, st_arg2, st_arg1, node);
-			}
-			nodelist = g_slist_next(nodelist);
-		}
-	}
 	else if (type2 == STTYPE_PCRE) {
 		ws_assert(st_op == TEST_OP_MATCHES);
 	}
@@ -763,10 +722,6 @@ check_relation_LHS_STRING(dfwork_t *dfw, test_op_t st_op,
 		fvalue = dfilter_fvalue_from_string(dfw, ftype2, st_arg1, NULL);
 		stnode_replace(st_arg1, STTYPE_FVALUE, fvalue);
 	}
-	else if (type2 == STTYPE_SET) {
-		dfilter_fail(dfw, "Only a field may be tested for membership in a set.");
-		THROW(TypeError);
-	}
 	else {
 		ws_assert_not_reached();
 	}
@@ -828,10 +783,6 @@ check_relation_LHS_UNPARSED(dfwork_t *dfw, test_op_t st_op,
 
 		fvalue = dfilter_fvalue_from_unparsed(dfw, ftype2, st_arg1, allow_partial_value, NULL);
 		stnode_replace(st_arg1, STTYPE_FVALUE, fvalue);
-	}
-	else if (type2 == STTYPE_SET) {
-		dfilter_fail(dfw, "Only a field may be tested for membership in a set.");
-		THROW(TypeError);
 	}
 	else {
 		ws_assert_not_reached();
@@ -904,10 +855,6 @@ check_relation_LHS_RANGE(dfwork_t *dfw, test_op_t st_op,
 		}
 
 		check_function(dfw, st_arg2);
-	}
-	else if (type2 == STTYPE_SET) {
-		dfilter_fail(dfw, "Only a field may be tested for membership in a set.");
-		THROW(TypeError);
 	}
 	else if (type2 == STTYPE_PCRE) {
 		ws_assert(st_op == TEST_OP_MATCHES);
@@ -1026,10 +973,6 @@ check_relation_LHS_FUNCTION(dfwork_t *dfw, test_op_t st_op,
 
 		check_function(dfw, st_arg2);
 	}
-	else if (type2 == STTYPE_SET) {
-		dfilter_fail(dfw, "Only a field may be tested for membership in a set.");
-		THROW(TypeError);
-	}
 	else if (type2 == STTYPE_PCRE) {
 		ws_assert(st_op == TEST_OP_MATCHES);
 	}
@@ -1046,47 +989,10 @@ check_relation(dfwork_t *dfw, test_op_t st_op,
 		stnode_t *st_node, stnode_t *st_arg1, stnode_t *st_arg2)
 {
 	static guint i = 0;
-	header_field_info   *hfinfo;
-	char                *s;
 
 	ws_debug("4 check_relation(\"%s\") [%u]", sttype_test_todisplay(st_op), i++);
 	log_stnode(st_arg1);
 	log_stnode(st_arg2);
-
-	/* Protocol can only be on LHS (for "contains" or "matches" operators).
-	 * Check to see if protocol is on RHS, and re-interpret it as UNPARSED
-	 * instead. The subsequent functions will parse it according to the
-	 * existing rules for unparsed unquoted strings.
-	 *
-	 * This catches the case where the user has written "fc" on the RHS,
-	 * probably intending a byte value rather than the fibre channel
-	 * protocol, or similar for a number of other possibilities
-	 * ("dc", "ff", "fefd"), and also catches the case where the user
-	 * has written a generic string on the RHS for a "contains" or
-	 * "matches" relation with a string field. (The now unparsed value
-	 * will be interpreted in a way that matches the LHS; e.g.
-	 * FT_PROTOCOL and FT_BYTES fields expect byte arrays whereas
-	 * FT_STRING[Z][PAD] fields expect strings.)
-	 *
-	 * XXX: Is there a better way to do this in the grammar parser,
-	 * which now determines whether something is a field?
-	 */
-
-	if (stnode_type_id(st_arg2) == STTYPE_FIELD) {
-		hfinfo = (header_field_info*)stnode_data(st_arg2);
-		if (hfinfo->type == FT_PROTOCOL) {
-			/* Discard const qualifier from hfinfo->abbrev
-			 * for sttnode_new, even though it duplicates the
-			 * string.
-			 */
-			s = (char *)hfinfo->abbrev;
-			/* Send it through as unparsed and all the other
-			 * functions will take care of it as if it didn't
-			 * match a protocol string.
-			 */
-			stnode_replace(st_arg2, STTYPE_UNPARSED, s);
-		}
-	}
 
 	switch (stnode_type_id(st_arg1)) {
 		case STTYPE_FIELD:
@@ -1120,12 +1026,79 @@ check_relation(dfwork_t *dfw, test_op_t st_op,
 }
 
 static void
+check_relation_contains(dfwork_t *dfw, stnode_t *st_node,
+		stnode_t *st_arg1, stnode_t *st_arg2)
+{
+	static guint i = 0;
+
+	ws_debug("4 check_relation(\"contains\") [%u]", i++);
+	log_stnode(st_arg1);
+	log_stnode(st_arg2);
+
+	/* Protocol can only be on LHS for "contains".
+	 * Check to see if protocol is on RHS, and re-interpret it as UNPARSED
+	 * instead. The subsequent functions will parse it according to the
+	 * existing rules for unparsed unquoted strings.
+	 *
+	 * This catches the case where the user has written "fc" on the RHS,
+	 * probably intending a byte value rather than the fibre channel
+	 * protocol, or similar for a number of other possibilities
+	 * ("dc", "ff", "fefd"), and also catches the case where the user
+	 * has written a generic string on the RHS. (The now unparsed value
+	 * will be interpreted in a way that matches the LHS; e.g.
+	 * FT_PROTOCOL and FT_BYTES fields expect byte arrays whereas
+	 * FT_STRING[Z][PAD] fields expect strings.)
+	 *
+	 * XXX: Is there a better way to do this in the grammar parser,
+	 * which now determines whether something is a field?
+	 */
+
+	if (stnode_type_id(st_arg2) == STTYPE_FIELD) {
+		header_field_info *hfinfo = stnode_data(st_arg2);
+		if (hfinfo->type == FT_PROTOCOL) {
+			/* Send it through as unparsed and all the other
+			 * functions will take care of it as if it didn't
+			 * match a protocol string.
+			 */
+			stnode_replace(st_arg2, STTYPE_UNPARSED, (char *)hfinfo->abbrev);
+		}
+	}
+
+	switch (stnode_type_id(st_arg1)) {
+		case STTYPE_FIELD:
+			check_relation_LHS_FIELD(dfw, TEST_OP_CONTAINS, ftype_can_contains,
+							TRUE, st_node, st_arg1, st_arg2);
+			break;
+		case STTYPE_FUNCTION:
+			check_relation_LHS_FUNCTION(dfw, TEST_OP_CONTAINS, ftype_can_contains,
+							TRUE, st_node, st_arg1, st_arg2);
+			break;
+		case STTYPE_RANGE:
+			check_relation_LHS_RANGE(dfw, TEST_OP_CONTAINS, ftype_can_contains,
+							TRUE, st_node, st_arg1, st_arg2);
+			break;
+		case STTYPE_STRING:
+		case STTYPE_UNPARSED:
+			dfilter_fail(dfw, "%s is not a valid operand for contains.", stnode_todisplay(st_arg1));
+			THROW(TypeError);
+			break;
+		default:
+			ws_assert_not_reached();
+	}
+}
+
+static void
 check_relation_matches(dfwork_t *dfw, stnode_t *st_node,
 		stnode_t *st_arg1, stnode_t *st_arg2)
 {
+	static guint i = 0;
 	fvalue_regex_t *pcre;
 	char *errmsg = NULL;
 	const char *patt;
+
+	ws_debug("4 check_relation(\"matches\") [%u]", i++);
+	log_stnode(st_arg1);
+	log_stnode(st_arg2);
 
 	if (stnode_type_id(st_arg2) != STTYPE_STRING) {
 		dfilter_fail(dfw, "Expected a double quoted string not %s", stnode_todisplay(st_arg2));
@@ -1144,18 +1117,71 @@ check_relation_matches(dfwork_t *dfw, stnode_t *st_node,
 
 	stnode_replace(st_arg2, STTYPE_PCRE, pcre);
 
-	if (stnode_type_id(st_arg1) == STTYPE_FIELD) {
-		check_relation_LHS_FIELD(dfw, TEST_OP_MATCHES, ftype_can_matches, TRUE, st_node, st_arg1, st_arg2);
+	switch (stnode_type_id(st_arg1)) {
+		case STTYPE_FIELD:
+			check_relation_LHS_FIELD(dfw, TEST_OP_MATCHES, ftype_can_matches,
+							TRUE, st_node, st_arg1, st_arg2);
+			break;
+		case STTYPE_FUNCTION:
+			check_relation_LHS_FUNCTION(dfw, TEST_OP_MATCHES, ftype_can_matches,
+							TRUE, st_node, st_arg1, st_arg2);
+			break;
+		case STTYPE_RANGE:
+			check_relation_LHS_RANGE(dfw, TEST_OP_MATCHES, ftype_can_matches,
+							TRUE, st_node, st_arg1, st_arg2);
+			break;
+		case STTYPE_STRING:
+		case STTYPE_UNPARSED:
+			dfilter_fail(dfw, "%s is not a valid operand for matches.", stnode_todisplay(st_arg1));
+			THROW(TypeError);
+			break;
+		default:
+			ws_assert_not_reached();
 	}
-	else if (stnode_type_id(st_arg1) == STTYPE_FUNCTION) {
-		check_relation_LHS_FUNCTION(dfw, TEST_OP_MATCHES, ftype_can_matches, TRUE, st_node, st_arg1, st_arg2);
-	}
-	else if (stnode_type_id(st_arg1) == STTYPE_RANGE) {
-		check_relation_LHS_RANGE(dfw, TEST_OP_MATCHES, ftype_can_matches, TRUE, st_node, st_arg1, st_arg2);
-	}
-	else {
-		dfilter_fail(dfw, "%s is not a valid operand for matches.", stnode_todisplay(st_arg1));
+}
+
+static void
+check_relation_in(dfwork_t *dfw, stnode_t *st_node _U_,
+		stnode_t *st_arg1, stnode_t *st_arg2)
+{
+	GSList *nodelist;
+	stnode_t *node, *node_right;
+
+	if (stnode_type_id(st_arg1) != STTYPE_FIELD) {
+		dfilter_fail(dfw, "Only a field may be tested for membership in a set.");
 		THROW(TypeError);
+	}
+	/* Checked in the grammar parser. */
+	ws_assert(stnode_type_id(st_arg2) == STTYPE_SET);
+
+	/* Attempt to interpret one element of the set at a time. Each
+	 * element is represented by two items in the list, the element
+	 * value and NULL. Both will be replaced by a lower and upper
+	 * value if the element is a range. */
+	nodelist = stnode_data(st_arg2);
+	while (nodelist) {
+		node = nodelist->data;
+
+		/* Don't let a range on the RHS affect the LHS field. */
+		if (stnode_type_id(node) == STTYPE_RANGE) {
+			dfilter_fail(dfw, "A range may not appear inside a set.");
+			THROW(TypeError);
+			break;
+		}
+
+		nodelist = g_slist_next(nodelist);
+		ws_assert(nodelist);
+		node_right = nodelist->data;
+		if (node_right) {
+			check_relation_LHS_FIELD(dfw, TEST_OP_GE, ftype_can_cmp,
+					FALSE, st_arg2, st_arg1, node);
+			check_relation_LHS_FIELD(dfw, TEST_OP_LE, ftype_can_cmp,
+					FALSE, st_arg2, st_arg1, node_right);
+		} else {
+			check_relation_LHS_FIELD(dfw, TEST_OP_ANY_EQ, ftype_can_eq,
+					FALSE, st_arg2, st_arg1, node);
+		}
+		nodelist = g_slist_next(nodelist);
 	}
 }
 
@@ -1222,13 +1248,13 @@ check_test(dfwork_t *dfw, stnode_t *st_node)
 			check_relation(dfw, st_op, ftype_can_bitwise_and, FALSE, st_node, st_arg1, st_arg2);
 			break;
 		case TEST_OP_CONTAINS:
-			check_relation(dfw, st_op, ftype_can_contains, TRUE, st_node, st_arg1, st_arg2);
+			check_relation_contains(dfw, st_node, st_arg1, st_arg2);
 			break;
 		case TEST_OP_MATCHES:
 			check_relation_matches(dfw, st_node, st_arg1, st_arg2);
 			break;
 		case TEST_OP_IN:
-			check_relation(dfw, st_op, ftype_can_cmp, FALSE, st_node, st_arg1, st_arg2);
+			check_relation_in(dfw, st_node, st_arg1, st_arg2);
 			break;
 
 		default:
