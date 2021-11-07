@@ -1043,9 +1043,8 @@ check_relation_LHS_FUNCTION(dfwork_t *dfw, test_op_t st_op,
 /* Check the semantics of any relational test. */
 static void
 check_relation(dfwork_t *dfw, test_op_t st_op,
-		gboolean allow_partial_value,
-		FtypeCanFunc can_func, stnode_t *st_node,
-		stnode_t *st_arg1, stnode_t *st_arg2)
+		FtypeCanFunc can_func, gboolean allow_partial_value,
+		stnode_t *st_node, stnode_t *st_arg1, stnode_t *st_arg2)
 {
 	static guint i = 0;
 	header_field_info   *hfinfo;
@@ -1212,25 +1211,25 @@ check_test(dfwork_t *dfw, stnode_t *st_node)
 		case TEST_OP_ANY_EQ:
 		case TEST_OP_ALL_NE:
 		case TEST_OP_ANY_NE:
-			check_relation(dfw, st_op, FALSE, ftype_can_eq, st_node, st_arg1, st_arg2);
+			check_relation(dfw, st_op, ftype_can_eq, FALSE, st_node, st_arg1, st_arg2);
 			break;
 		case TEST_OP_GT:
 		case TEST_OP_GE:
 		case TEST_OP_LT:
 		case TEST_OP_LE:
-			check_relation(dfw, st_op, FALSE, ftype_can_cmp, st_node, st_arg1, st_arg2);
+			check_relation(dfw, st_op, ftype_can_cmp, FALSE, st_node, st_arg1, st_arg2);
 			break;
 		case TEST_OP_BITWISE_AND:
-			check_relation(dfw, st_op, FALSE, ftype_can_bitwise_and, st_node, st_arg1, st_arg2);
+			check_relation(dfw, st_op, ftype_can_bitwise_and, FALSE, st_node, st_arg1, st_arg2);
 			break;
 		case TEST_OP_CONTAINS:
-			check_relation(dfw, st_op, TRUE, ftype_can_contains, st_node, st_arg1, st_arg2);
+			check_relation(dfw, st_op, ftype_can_contains, TRUE, st_node, st_arg1, st_arg2);
 			break;
 		case TEST_OP_MATCHES:
 			check_relation_matches(dfw, st_node, st_arg1, st_arg2);
 			break;
 		case TEST_OP_IN:
-			check_relation(dfw, st_op, FALSE, ftype_can_cmp, st_node, st_arg1, st_arg2);
+			check_relation(dfw, st_op, ftype_can_cmp, FALSE, st_node, st_arg1, st_arg2);
 			break;
 
 		default:
