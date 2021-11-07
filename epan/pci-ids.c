@@ -6,8 +6,8 @@
  *
  * List of PCI ID's
  *
- * Version: 2021.11.01
- * Date:    2021-11-01 03:15:01
+ * Version: 2021.11.07
+ * Date:    2021-11-07 03:15:01
  *
  * Maintained by Albert Pool, Martin Mares, and other volunteers from
  * the PCI ID Project at https://pci-ids.ucw.cz/.
@@ -4662,6 +4662,7 @@ pci_id_t pci_vid_1014[] = {
 {0x1014, 0x021B, 0xFFFF, 0xFFFF, "GXT6500P Graphics Adapter(0x021B)"},
 {0x1014, 0x021C, 0xFFFF, 0xFFFF, "GXT4500P Graphics Adapter(0x021C)"},
 {0x1014, 0x0233, 0xFFFF, 0xFFFF, "GXT135P Graphics Adapter(0x0233)"},
+{0x1014, 0x025A, 0xFFFF, 0xFFFF, "Drone card(0x025A)"},
 {0x1014, 0x028C, 0xFFFF, 0xFFFF, "Citrine chipset SCSI controller(0x028C)"},
 {0x1014, 0x028C, 0x1014, 0x028D, "Dual Channel PCI-X DDR SAS RAID Adapter (572E)(0x1014-0x028D)"},
 {0x1014, 0x028C, 0x1014, 0x02BE, "Dual Channel PCI-X DDR U320 SCSI RAID Adapter (571B)(0x1014-0x02BE)"},
@@ -16479,6 +16480,7 @@ pci_id_t pci_vid_11AB[] = {
 {0x11AB, 0x2B38, 0xFFFF, 0xFFFF, "88W8897 [AVASTAR] 802.11ac Wireless(0x2B38)"},
 {0x11AB, 0x2B40, 0xFFFF, 0xFFFF, "88W8964 [Avastar] 802.11ac Wireless(0x2B40)"},
 {0x11AB, 0x4101, 0xFFFF, 0xFFFF, "OLPC Cafe Controller Secure Digital Controller(0x4101)"},
+{0x11AB, 0x4146, 0xFFFF, 0xFFFF, "GT-64111 System Controller(0x4146)"},
 {0x11AB, 0x4320, 0xFFFF, 0xFFFF, "88E8001 Gigabit Ethernet Controller(0x4320)"},
 {0x11AB, 0x4320, 0x1019, 0x0F38, "Marvell 88E8001 Gigabit Ethernet Controller (ECS)(0x1019-0x0F38)"},
 {0x11AB, 0x4320, 0x1019, 0x8001, "Marvell 88E8001 Gigabit Ethernet Controller (ECS)(0x1019-0x8001)"},
@@ -23705,6 +23707,7 @@ pci_id_t pci_vid_14F1[] = {
 {0x14F1, 0x2F30, 0xFFFF, 0xFFFF, "SoftV92 SpeakerPhone SoftRing Modem with SmartSP(0x2F30)"},
 {0x14F1, 0x2F30, 0x14F1, 0x2014, "Devolo MikroLink 56K Modem PCI(0x14F1-0x2014)"},
 {0x14F1, 0x2F50, 0xFFFF, 0xFFFF, "Conexant SoftK56 Data/Fax Modem(0x2F50)"},
+{0x14F1, 0x510F, 0xFFFF, 0xFFFF, "Conexant CX 20751/20752(0x510F)"},
 {0x14F1, 0x5B7A, 0xFFFF, 0xFFFF, "CX23418 Single-Chip MPEG-2 Encoder with Integrated Analog Video/Broadcast Audio Decoder(0x5B7A)"},
 {0x14F1, 0x5B7A, 0x0070, 0x7444, "WinTV HVR-1600(0x0070-0x7444)"},
 {0x14F1, 0x5B7A, 0x107D, 0x6F34, "WinFast DVR3100 H(0x107D-0x6F34)"},
@@ -29890,9 +29893,14 @@ pci_id_t pci_vid_1E95[] = {
 {0x1E95, 0x1002, 0x1EA0, 0x5636, "TP1500 Series U.2 NVMe Datacenter SSD(0x1EA0-0x5636)"},
 }; /* pci_vid_1E95[] */
 
+pci_id_t pci_vid_1E9F[] = {
+{0x1E9F, 0xFFFF, 0xFFFF, 0xFFFF, "Lynxi Technologies Co., Ltd.(0x1E9F)"},
+}; /* pci_vid_1E9F[] */
+
 pci_id_t pci_vid_1EA0[] = {
 {0x1EA0, 0xFFFF, 0xFFFF, 0xFFFF, "Tencent Technology (Shenzhen) Company Limited(0x1EA0)"},
 {0x1EA0, 0x2A16, 0xFFFF, 0xFFFF, "Cloud Intelligent Inference Controller(0x2A16)"},
+{0x1EA0, 0x2A18, 0xFFFF, 0xFFFF, "Video Transcode Controller(0x2A18)"},
 }; /* pci_vid_1EA0[] */
 
 pci_id_t pci_vid_1EA7[] = {
@@ -30139,6 +30147,10 @@ pci_id_t pci_vid_2955[] = {
 pci_id_t pci_vid_2A15[] = {
 {0x2A15, 0xFFFF, 0xFFFF, 0xFFFF, "3D Vision(?-?-?-)(0x2A15)"},
 }; /* pci_vid_2A15[] */
+
+pci_id_t pci_vid_2A18[] = {
+{0x2A18, 0xFFFF, 0xFFFF, 0xFFFF, "Video Transcode Controller(0x2A18)"},
+}; /* pci_vid_2A18[] */
 
 pci_id_t pci_vid_2BD8[] = {
 {0x2BD8, 0xFFFF, 0xFFFF, 0xFFFF, "ROPEX Industrie-Elektronik GmbH(0x2BD8)"},
@@ -33219,7 +33231,7 @@ pci_id_t pci_vid_8086[] = {
 {0x8086, 0x159B, 0x1137, 0x02BE, "E810XXVDA2 2x25/10 GbE SFP28 PCIe NIC(0x1137-0x02BE)"},
 {0x8086, 0x159B, 0x1BD4, 0x0057, "Ethernet Network Adapter E810-XXVAM2(0x1BD4-0x0057)"},
 {0x8086, 0x159B, 0x1BD4, 0x0058, "Ethernet Network Adapter E810-XXVAM2 for OCP 3.0(0x1BD4-0x0058)"},
-{0x8086, 0x159B, 0x1BD4, 0x006E, "25G SFP28 DP EO252FiE Adapter(0x1BD4-0x006E)"},
+{0x8086, 0x159B, 0x1BD4, 0x006E, "Ethernet Network Adapter E810-XXVAM2 for BD(0x1BD4-0x006E)"},
 {0x8086, 0x159B, 0x1EEC, 0x0102, "VSE250241E Dual-port 10Gb/25Gb Ethernet PCIe(0x1EEC-0x0102)"},
 {0x8086, 0x159B, 0x8086, 0x0001, "Ethernet 25G 2P E810-XXV OCP(0x8086-0x0001)"},
 {0x8086, 0x159B, 0x8086, 0x0002, "Ethernet 25G 2P E810-XXV Adapter(0x8086-0x0002)"},
@@ -40615,7 +40627,7 @@ pci_vid_index_t pci_vid_index[] = {
 {0x1011, 103, pci_vid_1011 },
 {0x1012, 1, pci_vid_1012 },
 {0x1013, 54, pci_vid_1013 },
-{0x1014, 161, pci_vid_1014 },
+{0x1014, 162, pci_vid_1014 },
 {0x1015, 1, pci_vid_1015 },
 {0x1016, 1, pci_vid_1016 },
 {0x1017, 2, pci_vid_1017 },
@@ -41014,7 +41026,7 @@ pci_vid_index_t pci_vid_index[] = {
 {0x11A8, 1, pci_vid_11A8 },
 {0x11A9, 2, pci_vid_11A9 },
 {0x11AA, 1, pci_vid_11AA },
-{0x11AB, 226, pci_vid_11AB },
+{0x11AB, 227, pci_vid_11AB },
 {0x11AC, 1, pci_vid_11AC },
 {0x11AD, 11, pci_vid_11AD },
 {0x11AE, 1, pci_vid_11AE },
@@ -41825,7 +41837,7 @@ pci_vid_index_t pci_vid_index[] = {
 {0x14EE, 1, pci_vid_14EE },
 {0x14EF, 1, pci_vid_14EF },
 {0x14F0, 1, pci_vid_14F0 },
-{0x14F1, 271, pci_vid_14F1 },
+{0x14F1, 272, pci_vid_14F1 },
 {0x14F2, 6, pci_vid_14F2 },
 {0x14F3, 5, pci_vid_14F3 },
 {0x14F4, 1, pci_vid_14F4 },
@@ -42555,7 +42567,8 @@ pci_vid_index_t pci_vid_index[] = {
 {0x1E89, 3, pci_vid_1E89 },
 {0x1E94, 1, pci_vid_1E94 },
 {0x1E95, 3, pci_vid_1E95 },
-{0x1EA0, 2, pci_vid_1EA0 },
+{0x1E9F, 1, pci_vid_1E9F },
+{0x1EA0, 3, pci_vid_1EA0 },
 {0x1EA7, 3, pci_vid_1EA7 },
 {0x1EAB, 3, pci_vid_1EAB },
 {0x1EAE, 1, pci_vid_1EAE },
@@ -42596,6 +42609,7 @@ pci_vid_index_t pci_vid_index[] = {
 {0x2711, 1, pci_vid_2711 },
 {0x2955, 2, pci_vid_2955 },
 {0x2A15, 1, pci_vid_2A15 },
+{0x2A18, 1, pci_vid_2A18 },
 {0x2BD8, 1, pci_vid_2BD8 },
 {0x3000, 1, pci_vid_3000 },
 {0x3112, 1, pci_vid_3112 },
@@ -42817,7 +42831,7 @@ pci_vid_index_t pci_vid_index[] = {
 {0xFFFD, 2, pci_vid_FFFD },
 {0xFFFE, 2, pci_vid_FFFE },
 {0xFFFF, 1, pci_vid_FFFF },
-}; /* We have 2261 VIDs */
+}; /* We have 2263 VIDs */
 
 static pci_vid_index_t *get_vid_index(guint16 vid)
 {

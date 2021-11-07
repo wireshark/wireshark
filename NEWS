@@ -162,6 +162,14 @@ Wireshark 3.7.0 Release Notes
        "foo"}. Using only whitespace as separator was deprecated in 3.6
        and is now a syntax error.
 
+        • Adds support for some additional character escape sequences in
+       double quoted strings. Besides octal and hex byte specification
+       the following C escape sequences are now supported with the same
+       meaning: \a, \b, \f, \n, \r, \t, \v. Previously they were only
+       supported with character constants. Note that unrecognized escape
+       sequences are treated as a literal character. This has not
+       changed from previous versions.
+
      • Corrected calculation of mean jitter in RTP Stream Analysis
        dialog and IAX2 Stram Analysis dialog
 
@@ -235,7 +243,7 @@ Wireshark 3.7.0 Release Notes
 
   A complete FAQ is available on the Wireshark web site[8].
 
-  Last updated 2021-10-31 16:06:33 UTC
+  Last updated 2021-11-07 16:06:45 UTC
 
  References
 
