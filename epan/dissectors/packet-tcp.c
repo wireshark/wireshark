@@ -1540,18 +1540,18 @@ process_tcp_payload(tvbuff_t *tvb, volatile int offset, packet_info *pinfo,
 
 
 static struct tcp_analysis *
-init_tcp_conversation_data(packet_info *pinfo)
+init_tcp_conversation_data(packet_info *pinfo, int direction)
 {
     struct tcp_analysis *tcpd;
 
     /* Initialize the tcp protocol data structure to add to the tcp conversation */
     tcpd=wmem_new0(wmem_file_scope(), struct tcp_analysis);
-    tcpd->flow1.win_scale=-1;
+    tcpd->flow1.win_scale = (direction >= 0) ? pinfo->src_win_scale : pinfo->dst_win_scale;
     tcpd->flow1.window = G_MAXUINT32;
     tcpd->flow1.multisegment_pdus=wmem_tree_new(wmem_file_scope());
 
     tcpd->flow2.window = G_MAXUINT32;
-    tcpd->flow2.win_scale=-1;
+    tcpd->flow2.win_scale = (direction >= 0) ? pinfo->dst_win_scale : pinfo->src_win_scale;
     tcpd->flow2.multisegment_pdus=wmem_tree_new(wmem_file_scope());
 
     /* Only allocate the data if its actually going to be analyzed */
@@ -1632,13 +1632,18 @@ get_tcp_conversation_data(conversation_t *conv, packet_info *pinfo)
     /* Get the data for this conversation */
     tcpd=(struct tcp_analysis *)conversation_get_proto_data(conv, proto_tcp);
 
+    direction = cmp_address(&pinfo->src, &pinfo->dst);
+    /* if the addresses are equal, match the ports instead */
+    if (direction == 0) {
+        direction = (pinfo->srcport > pinfo->destport) ? 1 : -1;
+    }
     /* If the conversation was just created or it matched a
      * conversation with template options, tcpd will not
      * have been initialized. So, initialize
      * a new tcpd structure for the conversation.
      */
     if (!tcpd) {
-        tcpd = init_tcp_conversation_data(pinfo);
+        tcpd = init_tcp_conversation_data(pinfo, direction);
         conversation_add_proto_data(conv, proto_tcp, tcpd);
     }
 
@@ -1647,11 +1652,6 @@ get_tcp_conversation_data(conversation_t *conv, packet_info *pinfo)
     }
 
     /* check direction and get ua lists */
-    direction=cmp_address(&pinfo->src, &pinfo->dst);
-    /* if the addresses are equal, match the ports instead */
-    if(direction==0) {
-        direction= (pinfo->srcport > pinfo->destport) ? 1 : -1;
-    }
     if(direction>=0) {
         tcpd->fwd=&(tcpd->flow1);
         tcpd->rev=&(tcpd->flow2);

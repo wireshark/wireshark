@@ -141,6 +141,9 @@ typedef struct _packet_info {
 
   int link_dir;                 /**< 3GPP messages are sometime different UP link(UL) or Downlink(DL) */
 
+  gint16 src_win_scale;        /**< Rcv.Wind.Shift src applies when sending segments; -1 unknown; -2 disabled */
+  gint16 dst_win_scale;        /**< Rcv.Wind.Shift dst applies when sending segments; -1 unknown; -2 disabled */
+
   GSList* proto_data;          /**< Per packet proto data */
 
   GSList* dependent_frames;     /**< A list of frames which this one depends on */

@@ -432,6 +432,14 @@ struct nflx_dumpinfo {
 #define NFLX_TLB_FLAG_VERBOSE   0x0008 /* Includes function/line numbers */
 #define NFLX_TLB_FLAG_STACKINFO 0x0010 /* Includes stack-specific info */
 
+/* Flags used in tlb_flags */
+#define NFLX_TLB_TF_REQ_SCALE   0x00000020 /* Sent WS option */
+#define NFLX_TLB_TF_RCVD_SCALE  0x00000040 /* Received WS option */
+
+/* Values of tlb_state */
+#define NFLX_TLB_TCPS_ESTABLISHED 4
+#define NFLX_TLB_IS_SYNCHRONIZED(state) (state >= NFLX_TLB_TCPS_ESTABLISHED)
+
 struct nflx_tcpinfo {
     guint64 tlb_tv_sec;
     guint64 tlb_tv_usec;

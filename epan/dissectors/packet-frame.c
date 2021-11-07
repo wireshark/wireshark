@@ -357,6 +357,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 	dissector_handle_t dissector_handle;
 	fr_foreach_t fr_user_data;
 	struct nflx_tcpinfo tcpinfo;
+	gboolean tcpinfo_filled;
 
 	tree=parent_tree;
 
@@ -438,6 +439,42 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 				    P2P_DIR_SENT : P2P_DIR_RECV;
 				break;
 			}
+		}
+
+		if (WTAP_OPTTYPE_SUCCESS == wtap_block_get_nflx_custom_option(fr_data->pkt_block,
+									      NFLX_OPT_TYPE_TCPINFO,
+									      (char *)&tcpinfo,
+									      sizeof(struct nflx_tcpinfo))) {
+			tcpinfo_filled = true;
+			if ((tcpinfo.tlb_flags & NFLX_TLB_TF_REQ_SCALE) &&
+			    (tcpinfo.tlb_flags & NFLX_TLB_TF_RCVD_SCALE)) {
+				/* TCP WS option has been sent and received. */
+				switch (pinfo->p2p_dir) {
+				case P2P_DIR_RECV:
+					pinfo->src_win_scale = tcpinfo.tlb_snd_scale;
+					pinfo->dst_win_scale = tcpinfo.tlb_rcv_scale;
+					break;
+				case P2P_DIR_SENT:
+					pinfo->src_win_scale = tcpinfo.tlb_rcv_scale;
+					pinfo->dst_win_scale = tcpinfo.tlb_snd_scale;
+					break;
+				case P2P_DIR_UNKNOWN:
+					pinfo->src_win_scale = -1; /* unknown */
+					pinfo->dst_win_scale = -1; /* unknown */
+					break;
+				default:
+					DISSECTOR_ASSERT_NOT_REACHED();
+				}
+			} else if (NFLX_TLB_IS_SYNCHRONIZED(tcpinfo.tlb_state)) {
+				/* TCP connection is in a synchronized state. */
+				pinfo->src_win_scale = -2; /* window scaling disabled */
+				pinfo->dst_win_scale = -2; /* window scaling disabled */
+			} else {
+				pinfo->src_win_scale = -1; /* unknown */
+				pinfo->dst_win_scale = -1; /* unknown */
+			}
+		} else {
+			tcpinfo_filled = false;
 		}
 		break;
 
@@ -787,7 +824,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 				proto_tree_add_uint(fh_tree, hf_link_number, tvb,
 						    0, 0, pinfo->link_number);
 			}
-			if (WTAP_OPTTYPE_SUCCESS == wtap_block_get_nflx_custom_option(fr_data->pkt_block, NFLX_OPT_TYPE_TCPINFO, (char *)&tcpinfo, sizeof(struct nflx_tcpinfo))) {
+			if (tcpinfo_filled) {
 				proto_tree *bblog_tree;
 				proto_item *bblog_item;
 
