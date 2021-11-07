@@ -1937,6 +1937,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  uat_new@Base 1.9.1
  uat_remove_record_idx@Base 1.9.1
  uat_save@Base 1.9.1
+ uat_set_default_values@Base 3.6.0
  uat_swap@Base 1.9.1
  uat_update_record@Base 1.99.3
  udp_dissect_pdus@Base 1.99.3

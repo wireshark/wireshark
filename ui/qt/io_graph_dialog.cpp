@@ -130,6 +130,11 @@ static io_graph_settings_t *iog_settings_ = NULL;
 static guint num_io_graphs_ = 0;
 static uat_t *iog_uat_ = NULL;
 
+// y_axis_factor was added in 3.6. Provide backward compatibility.
+static const char *iog_uat_defaults_[] = {
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, "1"
+};
+
 extern "C" {
 
 //Allow the enable/disable field to be a checkbox, but for backwards compatibility,
@@ -1201,6 +1206,8 @@ void IOGraphDialog::loadProfileGraphs()
                            NULL,
                            NULL,
                            io_graph_fields);
+
+        uat_set_default_values(iog_uat_, iog_uat_defaults_);
 
         char* err = NULL;
         if (!uat_load(iog_uat_, NULL, &err)) {
