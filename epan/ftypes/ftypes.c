@@ -16,11 +16,7 @@
 #endif
 
 struct _fvalue_regex_t {
-#ifdef HAVE_PCRE2
-	pcre2_code *code;
-#else
-	GRegex *code;
-#endif
+	void *code;
 	char *pattern;
 	char *repr_debug;
 };
@@ -767,44 +763,7 @@ _pcre2_matches(pcre2_code *code, const char *subj, gssize subj_size)
 
 	return rc < 0 ? FALSE : TRUE;
 }
-
-#else  /* HAVE_PCRE2 */
-
-static GRegex *
-_gregex_compile(const char *patt, char **errmsg)
-{
-	GError *regex_error = NULL;
-	GRegex *pcre;
-
-	/*
-	 * As a string is not guaranteed to contain valid UTF-8,
-	 * we have to disable support for UTF-8 patterns and treat
-	 * every pattern and subject as raw bytes.
-	 *
-	 * Should support for UTF-8 patterns be necessary, then we
-	 * should compile a pattern without G_REGEX_RAW. Additionally,
-	 * we MUST use g_utf8_validate() before calling g_regex_match_full()
-	 * or risk crashes.
-	 */
-	GRegexCompileFlags cflags = G_REGEX_CASELESS | G_REGEX_OPTIMIZE | G_REGEX_RAW;
-
-	pcre = g_regex_new(patt, cflags, 0, &regex_error);
-
-	if (regex_error) {
-		*errmsg = g_strdup(regex_error->message);
-		g_error_free(regex_error);
-		return NULL;
-	}
-
-	return pcre;
-}
-
-static gboolean
-_gregex_matches(GRegex *code, const char *subj, gssize subj_size)
-{
-	return g_regex_match_full(code, subj, subj_size, 0, 0, NULL, NULL);
-}
-#endif /* !HAVE_PCRE2 */
+#endif /* HAVE_PCRE2 */
 
 fvalue_regex_t *
 fvalue_regex_compile(const char *patt, char **errmsg)
@@ -814,7 +773,9 @@ fvalue_regex_compile(const char *patt, char **errmsg)
 #ifdef HAVE_PCRE2
 	code = _pcre2_compile(patt, errmsg);
 #else
-	code = _gregex_compile(patt, errmsg);
+	(void)patt;
+	code = NULL;
+	*errmsg = g_strdup("Wireshark was compiled without PCRE2");
 #endif
 	if (code == NULL)
 		return NULL;
@@ -830,9 +791,13 @@ gboolean
 fvalue_regex_matches(const fvalue_regex_t *regex, const char *subj, gssize subj_size)
 {
 #ifdef HAVE_PCRE2
+	ws_assert(regex != NULL);
 	return _pcre2_matches(regex->code, subj, subj_size);
 #else
-	return _gregex_matches(regex->code, subj, subj_size);
+	ws_assert(regex == NULL);
+	(void)subj;
+	(void)subj_size;
+	return FALSE;
 #endif
 }
 
@@ -841,8 +806,6 @@ fvalue_regex_free(fvalue_regex_t *regex)
 {
 #ifdef HAVE_PCRE2
 	pcre2_code_free(regex->code);
-#else
-	g_regex_unref(regex->code);
 #endif
 	g_free(regex->pattern);
 	g_free(regex->repr_debug);
@@ -859,7 +822,7 @@ fvalue_regex_tostr(const fvalue_regex_t *regex, gboolean pretty)
 #ifdef HAVE_PCRE2
 		const char *kind = "PCRE2";
 #else
-		const char *kind = "GRegex";
+		const char *kind = "not supported";
 #endif
 		((fvalue_regex_t *)regex)->repr_debug =
 			g_strdup_printf("(%s)%s", kind, regex->pattern);

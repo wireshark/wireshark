@@ -119,8 +119,8 @@ The following features are new (or have been significantly updated) since versio
 ** Adds support for some additional character escape sequences in double quoted strings. Besides octal and hex byte specification the following C escape
    sequences are now supported with the same meaning: \a, \b, \f, \n, \r, \t, \v. Previously they were only supported with character constants. Note that
    unrecognized escape sequences are treated as a literal character. This has not changed from previous versions.
-** The display filter engine now supports PCRE2 instead of GRegex (GLib bindings to the older end-of-life PCRE library). The PCRE2 library (https://www.pcre.org/)
-   is recommended to support pattern matching using regular expressions. PCRE2 is compatible with PCRE so the user-visible changes should be minimal. Some
+** The display filter engine now uses PCRE2 instead of GRegex (GLib bindings to the older end-of-life PCRE library). The PCRE2 library (https://www.pcre.org/)
+   is required to support pattern matching using regular expressions. PCRE2 is compatible with PCRE so the user-visible changes should be minimal. Some
    exotic patterns may now be invalid and require rewriting.
 
 * Corrected calculation of mean jitter in RTP Stream Analysis dialog and IAX2 Stram Analysis dialog
