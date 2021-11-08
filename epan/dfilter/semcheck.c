@@ -808,7 +808,6 @@ check_relation_LHS_RANGE(dfwork_t *dfw, test_op_t st_op,
 	type2 = stnode_type_id(st_arg2);
 
 	if (type2 == STTYPE_FIELD) {
-		ws_debug("5 check_relation_LHS_RANGE(type2 = STTYPE_FIELD)");
 		hfinfo2 = (header_field_info*)stnode_data(st_arg2);
 		ftype2 = hfinfo2->type;
 
@@ -825,17 +824,14 @@ check_relation_LHS_RANGE(dfwork_t *dfw, test_op_t st_op,
 		}
 	}
 	else if (type2 == STTYPE_STRING) {
-		ws_debug("5 check_relation_LHS_RANGE(type2 = STTYPE_STRING)");
 		fvalue = dfilter_fvalue_from_string(dfw, FT_BYTES, st_arg2, NULL);
 		stnode_replace(st_arg2, STTYPE_FVALUE, fvalue);
 	}
 	else if (type2 == STTYPE_UNPARSED) {
-		ws_debug("5 check_relation_LHS_RANGE(type2 = STTYPE_UNPARSED)");
 		fvalue = dfilter_fvalue_from_unparsed(dfw, FT_BYTES, st_arg2, allow_partial_value, NULL);
 		stnode_replace(st_arg2, STTYPE_FVALUE, fvalue);
 	}
 	else if (type2 == STTYPE_RANGE) {
-		ws_debug("5 check_relation_LHS_RANGE(type2 = STTYPE_RANGE)");
 		check_drange_sanity(dfw, st_arg2);
 	}
 	else if (type2 == STTYPE_FUNCTION) {
