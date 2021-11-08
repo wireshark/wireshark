@@ -1972,7 +1972,11 @@ static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset, 
     offset=dissect_gsm_map_er_SubBusyForMT_SMS_Param(FALSE, tvb, offset, actx, tree, -1);
     break;
   case 32: /* SM-DeliveryFailureCause */
-    offset=dissect_gsm_map_er_SM_DeliveryFailureCause(FALSE, tvb, offset, actx, tree, -1);
+    offset = dissect_mc_message(tvb, offset, actx, tree,
+                              FALSE, dissect_gsm_map_er_SM_EnumeratedDeliveryFailureCause, hf_gsm_map_er_sm_EnumeratedDeliveryFailureCause,
+                              FALSE, dissect_gsm_map_er_SM_DeliveryFailureCause, -1,
+                              FALSE, NULL, -1);
+
     break;
   case 33: /* MessageWaitListFullParam */
     offset=dissect_gsm_map_er_MessageWaitListFullParam(FALSE, tvb, offset, actx, tree, -1);
