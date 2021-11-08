@@ -85,16 +85,8 @@ new_function(dfwork_t *dfw, df_lval_t *lval);
 /* This is called as soon as a syntax error happens. After that, 
 any "error" symbols are shifted, if possible. */
 %syntax_error {
-
-	if (!TOKEN) {
-		dfilter_fail(dfw, "Unexpected end of filter string.");
-		dfw->syntax_error = TRUE;
-		return;
-	}
-
-	dfilter_fail(dfw, "\"%s\" was unexpected in this context.",
-						df_lval_value(TOKEN));
-	dfw->syntax_error = TRUE;
+	dfilter_fail_parse(dfw, "\"%s\" was unexpected in this context.",
+				df_lval_value(TOKEN));
 }
 
 /* When a parse fails, mark an error. This occurs after
@@ -147,18 +139,18 @@ logical_test(T) ::= entity(E).
 /* Entities, or things that can be compared/tested/checked */
 entity(E) ::= STRING(S).
 {
-	E = stnode_new(STTYPE_STRING, df_lval_value(S));
+	E = stnode_new_string(df_lval_value(S));
 	df_lval_free(S);
 }
 entity(E) ::= CHARCONST(C).
 {
 	/* A charconst uses "unparsed" semantic rules. */
-	E = stnode_new(STTYPE_UNPARSED, df_lval_value(C));
+	E = stnode_new_unparsed(df_lval_value(C));
 	df_lval_free(C);
 }
 entity(E) ::= UNPARSED(U).
 {
-	E = stnode_new(STTYPE_UNPARSED, df_lval_value(U));
+	E = stnode_new_unparsed(df_lval_value(U));
 	dfilter_resolve_unparsed(dfw, E);
 	df_lval_free(U);
 }
@@ -193,7 +185,7 @@ range_node(D) ::= RANGE(R).
 
 	D = drange_node_from_str(df_lval_value(R), &err);
 	if (err != NULL) {
-		dfilter_parse_fail(dfw, "%s", err);
+		dfilter_fail_parse(dfw, "%s", err);
 		g_free(err);
 	}
 
@@ -294,7 +286,7 @@ set_element(N) ::= entity(X) DOTDOT entity(Y).
 		const char *name = df_lval_value(lval);
 		df_func_def_t *def = df_func_lookup(name);
 		if (!def) {
-			dfilter_parse_fail(dfw, "Function '%s' does not exist", name);
+			dfilter_fail_parse(dfw, "Function '%s' does not exist", name);
 		}
 		return stnode_new(STTYPE_FUNCTION, def);
 	}

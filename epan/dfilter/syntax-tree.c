@@ -134,6 +134,18 @@ stnode_replace(stnode_t *node, sttype_id_t type_id, gpointer data)
 	node->flags = flags;
 }
 
+void
+stnode_replace_string(stnode_t *node, const char *str)
+{
+	stnode_replace(node, STTYPE_STRING, g_strdup(str));
+}
+
+void
+stnode_replace_unparsed(stnode_t *node, const char *str)
+{
+	stnode_replace(node, STTYPE_UNPARSED, g_strdup(str));
+}
+
 stnode_t*
 stnode_new(sttype_id_t type_id, gpointer data)
 {
@@ -158,6 +170,18 @@ stnode_new_test(test_op_t op, stnode_t *val1, stnode_t *val2)
 	else
 		sttype_test_set1(node, op, val1);
 	return node;
+}
+
+stnode_t *
+stnode_new_string(const char *str)
+{
+	return stnode_new(STTYPE_STRING, g_strdup(str));
+}
+
+stnode_t *
+stnode_new_unparsed(const char *str)
+{
+	return stnode_new(STTYPE_UNPARSED, g_strdup(str));
 }
 
 stnode_t*

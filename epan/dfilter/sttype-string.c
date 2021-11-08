@@ -10,12 +10,6 @@
 #include "syntax-tree.h"
 
 static gpointer
-string_new(gpointer string)
-{
-	return g_strdup(string);
-}
-
-static gpointer
 string_dup(gconstpointer string)
 {
 	return g_strdup(string);
@@ -48,7 +42,7 @@ sttype_register_string(void)
 	static sttype_t string_type = {
 		STTYPE_STRING,
 		"STRING",
-		string_new,
+		NULL,
 		string_free,
 		string_dup,
 		string_tostr
@@ -57,7 +51,7 @@ sttype_register_string(void)
 	static sttype_t unparsed_type = {
 		STTYPE_UNPARSED,
 		"UNPARSED",
-		string_new,
+		NULL,
 		string_free,
 		string_dup,
 		unparsed_tostr

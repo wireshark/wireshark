@@ -18,6 +18,7 @@
 #include "semcheck.h"
 #include "dfvm.h"
 #include <epan/epan_dissect.h>
+#include <epan/exceptions.h>
 #include "dfilter.h"
 #include "dfilter-macro.h"
 #include "scanner_lex.h"
@@ -40,7 +41,7 @@ static void*	ParserObj = NULL;
  */
 dfwork_t *global_dfw;
 
-static void
+void
 dfilter_vfail(dfwork_t *dfw, const char *format, va_list args)
 {
 	/* If we've already reported one error, don't overwite it */
@@ -61,7 +62,18 @@ dfilter_fail(dfwork_t *dfw, const char *format, ...)
 }
 
 void
-dfilter_parse_fail(dfwork_t *dfw, const char *format, ...)
+dfilter_fail_throw(dfwork_t *dfw, long code, const char *format, ...)
+{
+	va_list	args;
+
+	va_start(args, format);
+	dfilter_vfail(dfw, format, args);
+	va_end(args);
+	THROW(code);
+}
+
+void
+dfilter_fail_parse(dfwork_t *dfw, const char *format, ...)
 {
 	va_list	args;
 

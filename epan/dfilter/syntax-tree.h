@@ -104,6 +104,12 @@ stnode_new(sttype_id_t type_id, gpointer data);
 stnode_t *
 stnode_new_test(test_op_t op, stnode_t *val1, stnode_t *val2);
 
+stnode_t *
+stnode_new_string(const char *str);
+
+stnode_t *
+stnode_new_unparsed(const char *str);
+
 stnode_t*
 stnode_dup(const stnode_t *org);
 
@@ -115,6 +121,12 @@ stnode_init(stnode_t *node, sttype_id_t type_id, gpointer data);
 
 void
 stnode_replace(stnode_t *node, sttype_id_t type_id, gpointer data);
+
+void
+stnode_replace_string(stnode_t *node, const char *str);
+
+void
+stnode_replace_unparsed(stnode_t *node, const char *str);
 
 void
 stnode_free(stnode_t *node);
