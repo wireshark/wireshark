@@ -480,8 +480,10 @@ check_drange_sanity(dfwork_t *dfw, stnode_t *st)
 	ftenum_t		ftype1;
 
 	entity1 = sttype_range_entity(st);
-	if (entity1 && stnode_type_id(entity1) == STTYPE_FIELD) {
-		hfinfo1 = (header_field_info *)stnode_data(entity1);
+	ws_assert(entity1);
+
+	if (stnode_type_id(entity1) == STTYPE_FIELD) {
+		hfinfo1 = stnode_data(entity1);
 		ftype1 = hfinfo1->type;
 
 		if (!ftype_can_slice(ftype1)) {
@@ -489,7 +491,7 @@ check_drange_sanity(dfwork_t *dfw, stnode_t *st)
 					hfinfo1->abbrev, ftype_pretty_name(ftype1));
 			THROW(TypeError);
 		}
-	} else if (entity1 && stnode_type_id(entity1) == STTYPE_FUNCTION) {
+	} else if (stnode_type_id(entity1) == STTYPE_FUNCTION) {
 		df_func_def_t *funcdef = sttype_function_funcdef(entity1);
 		ftype1 = funcdef->retval_ftype;
 
@@ -500,15 +502,12 @@ check_drange_sanity(dfwork_t *dfw, stnode_t *st)
 		}
 
 		check_function(dfw, entity1);
-	} else if (entity1 && stnode_type_id(entity1) == STTYPE_RANGE) {
+	} else if (stnode_type_id(entity1) == STTYPE_RANGE) {
 		/* Should this be rejected instead? */
 		check_drange_sanity(dfw, entity1);
-	} else if (entity1) {
+	} else {
 		dfilter_fail(dfw, "Range is not supported for entity %s of type %s",
 					stnode_todisplay(entity1), stnode_type_name(entity1));
-		THROW(TypeError);
-	} else {
-		dfilter_fail(dfw, "Range is not supported, details: " G_STRLOC " entity: NULL");
 		THROW(TypeError);
 	}
 }
