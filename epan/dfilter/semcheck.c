@@ -32,9 +32,6 @@
 static void
 semcheck(dfwork_t *dfw, stnode_t *st_node);
 
-static stnode_t*
-check_param_entity(dfwork_t *dfw, stnode_t *st_node);
-
 static void
 check_function(dfwork_t *dfw, stnode_t *st_node);
 
@@ -551,8 +548,7 @@ check_function(dfwork_t *dfw, stnode_t *st_node)
 
 	iparam = 0;
 	while (params) {
-		params->data = check_param_entity(dfw, (stnode_t *)params->data);
-		funcdef->semcheck_param_function(dfw, iparam, (stnode_t *)params->data);
+		funcdef->semcheck_param_function(dfw, iparam, params->data);
 		params = params->next;
 		iparam++;
 	}
@@ -859,25 +855,6 @@ check_relation_LHS_RANGE(dfwork_t *dfw, test_op_t st_op,
 		ws_assert_not_reached();
 	}
 }
-
-static stnode_t*
-check_param_entity(dfwork_t *dfw, stnode_t *st_node)
-{
-	sttype_id_t		e_type;
-	stnode_t		*new_st;
-	fvalue_t		*fvalue;
-
-	e_type = stnode_type_id(st_node);
-	/* If there's an unparsed string, change it to an FT_STRING */
-	if (e_type == STTYPE_UNPARSED) {
-		fvalue = dfilter_fvalue_from_unparsed(dfw, FT_STRING, st_node, TRUE, NULL);
-		new_st = stnode_new(STTYPE_FVALUE, fvalue);
-		stnode_free(st_node);
-		return new_st;
-	}
-	return st_node;
-}
-
 
 /* If the LHS of a relation test is a FUNCTION, run some checks
  * and possibly some modifications of syntax tree nodes. */
