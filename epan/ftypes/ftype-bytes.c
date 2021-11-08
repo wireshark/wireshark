@@ -43,90 +43,26 @@ bytes_fvalue_set(fvalue_t *fv, GByteArray *value)
 	fv->value.bytes = value;
 }
 
-static int
-bytes_repr_len(const fvalue_t *fv, ftrepr_t rtype, int field_display _U_)
+static char *
+oid_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_)
 {
-	if (fv->value.bytes->len == 0) {
-		/* An empty array of bytes is represented as "" in a
-		   display filter and as an empty string otherwise. */
-		return (rtype == FTREPR_DFILTER) ? 2 : 0;
-	} else {
-		/* 3 bytes for each byte of the byte "NN<separator character>" minus 1 byte
-		 * as there's no trailing "<separator character>". */
-		return fv->value.bytes->len * 3 - 1;
-	}
+	return oid_encoded2string(scope, fv->value.bytes->data,fv->value.bytes->len);
 }
 
-/*
- * OID_REPR_LEN:
- *
- * 5 for the first byte ([0-2].[0-39].)
- *
- * REL_OID_REPR_LEN:
- * for each extra byte if the sub-id is:
- *   1 byte it can be at most "127." (4 bytes we give it 4)
- *   2 bytes it can be at most "16383." (6 bytes we give it 8)
- *   3 bytes it can be at most "2097151." (8 bytes we give it 12)
- *   4 bytes it can be at most "268435456." (10 bytes we give it 16)
- *   5 bytes it can be at most "34359738368." (12 bytes we give it 20)
- *
- *  a 5 bytes encoded subid can already overflow the guint32 that holds a sub-id,
- *  making it a completely different issue!
- */
-#define REL_OID_REPR_LEN(fv) (4 * ((fv)->value.bytes->len))
-#define OID_REPR_LEN(fv) (1 + REL_OID_REPR_LEN(fv))
-
-static int
-oid_repr_len(const fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_)
+static char *
+rel_oid_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_)
 {
-	return OID_REPR_LEN(fv);
+	return rel_oid_encoded2string(scope, fv->value.bytes->data,fv->value.bytes->len);
 }
 
-static void
-oid_to_repr(const fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf, unsigned int size _U_)
+static char *
+system_id_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_)
 {
-	char* oid_str = oid_encoded2string(NULL, fv->value.bytes->data,fv->value.bytes->len);
-	/*
-	 * XXX:
-	 * I'm assuming that oid_repr_len is going to be called before to set buf's size.
-	 * or else we might have a BO.
-	 * I guess that is why this callback is not passed a length.
-	 *    -- lego
-	 */
-	(void) g_strlcpy(buf,oid_str,OID_REPR_LEN(fv));
-	wmem_free(NULL, oid_str);
+	return print_system_id(scope, fv->value.bytes->data, fv->value.bytes->len);
 }
 
-static int
-rel_oid_repr_len(const fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_)
-{
-	return REL_OID_REPR_LEN(fv);
-}
-
-static void
-rel_oid_to_repr(const fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf, unsigned int size _U_)
-{
-	char* oid_str = rel_oid_encoded2string(NULL, fv->value.bytes->data,fv->value.bytes->len);
-	/*
-	 * XXX:
-	 * I'm assuming that oid_repr_len is going to be called before to set buf's size.
-	 * or else we might have a BO.
-	 * I guess that is why this callback is not passed a length.
-	 *    -- lego
-	 */
-	*buf++ = '.';
-	(void) g_strlcpy(buf,oid_str,REL_OID_REPR_LEN(fv));
-	wmem_free(NULL, oid_str);
-}
-
-static void
-system_id_to_repr(const fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf, unsigned int size)
-{
-	print_system_id_buf(fv->value.bytes->data,fv->value.bytes->len, buf, size);
-}
-
-static void
-bytes_to_repr(const fvalue_t *fv, ftrepr_t rtype, int field_display, char *buf, unsigned int size _U_)
+static char *
+bytes_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype, int field_display)
 {
 	char separator;
 
@@ -147,16 +83,15 @@ bytes_to_repr(const fvalue_t *fv, ftrepr_t rtype, int field_display, char *buf, 
 	}
 
 	if (fv->value.bytes->len) {
-		buf = bytes_to_hexstr_punct(buf, fv->value.bytes->data, fv->value.bytes->len, separator);
+		return bytes_to_str_punct_maxlen(scope, fv->value.bytes->data, fv->value.bytes->len, separator, 0);
 	}
-	else {
-		if (rtype == FTREPR_DFILTER) {
-			/* An empty byte array in a display filter is represented as "" */
-			*buf++ = '"';
-			*buf++ = '"';
-		}
+
+	if (rtype == FTREPR_DFILTER) {
+		/* An empty byte array in a display filter is represented as "" */
+		return wmem_strdup(scope, "\"\"");
 	}
-	*buf = '\0';
+
+	return wmem_strdup(scope, "");
 }
 
 static void
@@ -621,7 +556,6 @@ ftype_register_bytes(void)
 		bytes_from_unparsed,		/* val_from_unparsed */
 		bytes_from_string,		/* val_from_string */
 		bytes_to_repr,			/* val_to_string_repr */
-		bytes_repr_len,			/* len_string_repr */
 
 		{ .set_value_byte_array = bytes_fvalue_set },	/* union set_value */
 		{ .get_value_ptr = value_get },			/* union get_value */
@@ -645,7 +579,6 @@ ftype_register_bytes(void)
 		bytes_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
 		bytes_to_repr,			/* val_to_string_repr */
-		bytes_repr_len,			/* len_string_repr */
 
 		{ .set_value_byte_array = bytes_fvalue_set },	/* union set_value */
 		{ .get_value_ptr = value_get },			/* union get_value */
@@ -669,7 +602,6 @@ ftype_register_bytes(void)
 		ax25_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
 		bytes_to_repr,			/* val_to_string_repr */
-		bytes_repr_len,			/* len_string_repr */
 
 		{ .set_value_bytes = ax25_fvalue_set },	/* union set_value */
 		{ .get_value_ptr = value_get },			/* union get_value */
@@ -693,7 +625,6 @@ ftype_register_bytes(void)
 		vines_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
 		bytes_to_repr,			/* val_to_string_repr */
-		bytes_repr_len,			/* len_string_repr */
 
 		{ .set_value_bytes = vines_fvalue_set },	/* union set_value */
 		{ .get_value_ptr = value_get },			/* union get_value */
@@ -717,7 +648,6 @@ ftype_register_bytes(void)
 		ether_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
 		bytes_to_repr,			/* val_to_string_repr */
-		bytes_repr_len,			/* len_string_repr */
 
 		{ .set_value_bytes = ether_fvalue_set },	/* union set_value */
 		{ .get_value_ptr = value_get },			/* union get_value */
@@ -741,7 +671,6 @@ ftype_register_bytes(void)
 		oid_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
 		oid_to_repr,			/* val_to_string_repr */
-		oid_repr_len,			/* len_string_repr */
 
 		{ .set_value_byte_array = oid_fvalue_set },	/* union set_value */
 		{ .get_value_ptr = value_get },			/* union get_value */
@@ -765,7 +694,6 @@ ftype_register_bytes(void)
 		rel_oid_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
 		rel_oid_to_repr,		/* val_to_string_repr */
-		rel_oid_repr_len,		/* len_string_repr */
 
 		{ .set_value_byte_array = oid_fvalue_set },	/* union set_value */
 		{ .get_value_ptr = value_get },			/* union get_value */
@@ -789,7 +717,6 @@ ftype_register_bytes(void)
 		system_id_from_unparsed,	/* val_from_unparsed */
 		NULL,				/* val_from_string */
 		system_id_to_repr,		/* val_to_string_repr */
-		bytes_repr_len,			/* len_string_repr */
 
 		{ .set_value_byte_array = system_id_fvalue_set }, /* union set_value */
 		{ .get_value_ptr = value_get },			/* union get_value */
@@ -813,7 +740,6 @@ ftype_register_bytes(void)
 		fcwwn_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
 		bytes_to_repr,			/* val_to_string_repr */
-		bytes_repr_len,			/* len_string_repr */
 
 		{ .set_value_bytes = fcwwn_fvalue_set },	/* union set_value */
 		{ .get_value_ptr = value_get },			/* union get_value */

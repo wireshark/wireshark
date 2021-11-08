@@ -79,16 +79,10 @@ ipv6_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_
 	return TRUE;
 }
 
-static int
-ipv6_repr_len(const fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
+static char *
+ipv6_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_)
 {
-	return WS_INET6_ADDRSTRLEN;
-}
-
-static void
-ipv6_to_repr(const fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf, unsigned int size)
-{
-	ip6_to_str_buf(&(fv->value.ipv6.addr), buf, size);
+	return ip6_to_str(scope, &(fv->value.ipv6.addr));
 }
 
 static gpointer
@@ -184,7 +178,6 @@ ftype_register_ipv6(void)
 		ipv6_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
 		ipv6_to_repr,			/* val_to_string_repr */
-		ipv6_repr_len,			/* len_string_repr */
 
 		{ .set_value_bytes = ipv6_fvalue_set },	/* union set_value */
 		{ .get_value_ptr = value_get },		/* union get_value */

@@ -325,23 +325,12 @@ fvalue_length(fvalue_t *fv)
 char *
 fvalue_to_string_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype, int field_display)
 {
-	char *buf;
-	int len;
 	if (fv->ftype->val_to_string_repr == NULL) {
 		/* no value-to-string-representation function, so the value cannot be represented */
 		return NULL;
 	}
 
-	ws_assert(fv->ftype->len_string_repr);
-	len = fv->ftype->len_string_repr(fv, rtype, field_display);
-	if (len < 0) {
-		/* the value cannot be represented in the given representation type (rtype) */
-		return NULL;
-	}
-
-	buf = wmem_alloc0(scope, len + 1);
-	fv->ftype->val_to_string_repr(fv, rtype, field_display, buf, (unsigned int)len+1);
-	return buf;
+	return fv->ftype->val_to_string_repr(scope, fv, rtype, field_display);
 }
 
 typedef struct {

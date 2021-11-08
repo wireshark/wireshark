@@ -201,8 +201,8 @@ sfloat_ieee_11073_val_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_
     return TRUE;
 }
 
-static void
-sfloat_ieee_11073_val_to_repr(const fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf, unsigned int size)
+static char *
+sfloat_ieee_11073_val_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_)
 {
     gint8    exponent;
     uint16_t mantissa;
@@ -211,26 +211,36 @@ sfloat_ieee_11073_val_to_repr(const fvalue_t *fv, ftrepr_t rtype _U_, int field_
     char     mantissa_buf[5];
     char    *mantissa_str;
     guint8   mantissa_digits;
+    size_t size;
+    char *buf;
+
+    /* Predefinied: +INFINITY, -INFINITY, RFU, NRes, NaN */
+    /* Longest Signed Float Number:    -0.00002048  (11 characters without NULL) */
+    /* Longest Signed Float Number     -0.00000001 */
+    /* Longest Signed Nonfloat Number: -20480000000 (12 characters without NULL) */
+    /* NOTE: Possible memory optimization: compute length, but watch out for speed */
+    size = 13 + 1;
+    buf = wmem_alloc(scope, size);
 
     if (fv->value.sfloat_ieee_11073 >= 0x07FE && fv->value.sfloat_ieee_11073 <= 0x0802) {
         switch (fv->value.sfloat_ieee_11073) {
         case SFLOAT_VALUE_INFINITY_PLUS:
-            (void) g_strlcpy(buf, "+INFINITY", size);
+            g_strlcpy(buf, "+INFINITY", size);
             break;
         case SFLOAT_VALUE_NAN:
-            (void) g_strlcpy(buf, "NaN", size);
+            g_strlcpy(buf, "NaN", size);
             break;
         case SFLOAT_VALUE_NRES:
-            (void) g_strlcpy(buf, "NRes", size);
+            g_strlcpy(buf, "NRes", size);
             break;
         case SFLOAT_VALUE_RFU:
-            (void) g_strlcpy(buf, "RFU", size);
+            g_strlcpy(buf, "RFU", size);
             break;
         case SFLOAT_VALUE_INFINITY_MINUS:
-            (void) g_strlcpy(buf, "-INFINITY", size);
+            g_strlcpy(buf, "-INFINITY", size);
             break;
         }
-        return;
+        return buf;
     }
 
     exponent = fv->value.sfloat_ieee_11073 >> 12;
@@ -245,7 +255,7 @@ sfloat_ieee_11073_val_to_repr(const fvalue_t *fv, ftrepr_t rtype _U_, int field_
         buf[0] = '0';
         buf[1] = '\0';
 
-        return;
+        return buf;
     }
 
     if (mantissa_sign) {
@@ -293,17 +303,7 @@ sfloat_ieee_11073_val_to_repr(const fvalue_t *fv, ftrepr_t rtype _U_, int field_
     }
 
     buf[offset] = '\0';
-}
-
-static int
-sfloat_ieee_11073_val_repr_len(const fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
-{
-    /* Predefinied: +INFINITY, -INFINITY, RFU, NRes, NaN */
-    /* Longest Signed Float Number:    -0.00002048  (11 characters without NULL) */
-    /* Longest Signed Float Number     -0.00000001 */
-    /* Longest Signed Nonfloat Number: -20480000000 (12 characters without NULL) */
-    /* NOTE: Possible memory optimization: compute length, but watch out for speed */
-    return 13;
+    return buf;
 }
 
 static void
@@ -631,8 +631,8 @@ float_ieee_11073_val_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_p
     return TRUE;
 }
 
-static void
-float_ieee_11073_val_to_repr(const fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf, unsigned int size)
+static char *
+float_ieee_11073_val_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_)
 {
     gint8    exponent;
     uint32_t mantissa;
@@ -641,26 +641,34 @@ float_ieee_11073_val_to_repr(const fvalue_t *fv, ftrepr_t rtype _U_, int field_d
     char     mantissa_buf[8];
     char    *mantissa_str;
     guint8   mantissa_digits;
+    size_t   size;
+    char     *buf;
+
+    /* Predefinied: +INFINITY, -INFINITY, RFU, NRes, NaN */
+    /* Longest Signed Nonfloat Number: -8388608*(10^-128) (1 character for sign, 7 for mantisa digits, 127 zeros, 1 character for NULL) */
+    /* NOTE: Possible memory optimization: compute length, but watch out for speed */
+    size = 136 + 1;
+    buf = wmem_alloc(scope, size);
 
     if (fv->value.float_ieee_11073 >= 0x007FFFFE && fv->value.float_ieee_11073 <= 0x00800002) {
         switch (fv->value.float_ieee_11073) {
         case FLOAT_VALUE_INFINITY_PLUS:
-            (void) g_strlcpy(buf, "+INFINITY", size);
+            g_strlcpy(buf, "+INFINITY", size);
             break;
         case FLOAT_VALUE_NAN:
-            (void) g_strlcpy(buf, "NaN", size);
+            g_strlcpy(buf, "NaN", size);
             break;
         case FLOAT_VALUE_NRES:
-            (void) g_strlcpy(buf, "NRes", size);
+            g_strlcpy(buf, "NRes", size);
             break;
         case FLOAT_VALUE_RFU:
-            (void) g_strlcpy(buf, "RFU", size);
+            g_strlcpy(buf, "RFU", size);
             break;
         case FLOAT_VALUE_INFINITY_MINUS:
-            (void) g_strlcpy(buf, "-INFINITY", size);
+            g_strlcpy(buf, "-INFINITY", size);
             break;
         }
-        return;
+        return buf;
     }
 
     exponent = fv->value.float_ieee_11073 >> 24;
@@ -674,7 +682,7 @@ float_ieee_11073_val_to_repr(const fvalue_t *fv, ftrepr_t rtype _U_, int field_d
         buf[0] = '0';
         buf[1] = '\0';
 
-        return;
+        return buf;
     }
 
     if (mantissa_sign) {
@@ -722,15 +730,7 @@ float_ieee_11073_val_to_repr(const fvalue_t *fv, ftrepr_t rtype _U_, int field_d
     }
 
     buf[offset] = '\0';
-}
-
-static int
-float_ieee_11073_val_repr_len(const fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
-{
-    /* Predefinied: +INFINITY, -INFINITY, RFU, NRes, NaN */
-    /* Longest Signed Nonfloat Number: -8388608*(10^-128) (1 character for sign, 7 for mantisa digits, 127 zeros, 1 character for NULL) */
-    /* NOTE: Possible memory optimization: compute length, but watch out for speed */
-    return 136;
+    return buf;
 }
 
 static void
@@ -919,7 +919,6 @@ Example: 114 is 0x0072
         sfloat_ieee_11073_val_from_unparsed,  /* val_from_unparsed */
         NULL,                                 /* val_from_string */
         sfloat_ieee_11073_val_to_repr,        /* val_to_string_repr */
-        sfloat_ieee_11073_val_repr_len,       /* len_string_repr */
 
         { .set_value_uinteger = sfloat_ieee_11073_value_set }, /* union set_value */
         { .get_value_uinteger = sfloat_ieee_11073_value_get }, /* union get_value */
@@ -970,7 +969,6 @@ Example: 36.4 is 0xFF00016C
         float_ieee_11073_val_from_unparsed,  /* val_from_unparsed */
         NULL,                                /* val_from_string */
         float_ieee_11073_val_to_repr,        /* val_to_string_repr */
-        float_ieee_11073_val_repr_len,       /* len_string_repr */
 
         { .set_value_uinteger = float_ieee_11073_value_set }, /* union set_value */
         { .get_value_uinteger = float_ieee_11073_value_get }, /* union get_value */

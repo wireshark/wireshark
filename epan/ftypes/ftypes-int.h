@@ -39,8 +39,7 @@ typedef void (*FvalueFreeFunc)(fvalue_t*);
 
 typedef gboolean (*FvalueFromUnparsed)(fvalue_t*, const char*, gboolean, gchar **);
 typedef gboolean (*FvalueFromString)(fvalue_t*, const char*, gchar **);
-typedef void (*FvalueToStringRepr)(const fvalue_t*, ftrepr_t, int field_display, char*volatile, unsigned int);
-typedef int (*FvalueStringReprLen)(const fvalue_t*, ftrepr_t, int field_display);
+typedef char *(*FvalueToStringRepr)(wmem_allocator_t *, const fvalue_t*, ftrepr_t, int field_display);
 
 typedef void (*FvalueSetByteArrayFunc)(fvalue_t*, GByteArray *);
 typedef void (*FvalueSetBytesFunc)(fvalue_t*, const guint8 *);
@@ -79,7 +78,6 @@ struct _ftype_t {
 	FvalueFromUnparsed	val_from_unparsed;
 	FvalueFromString	val_from_string;
 	FvalueToStringRepr	val_to_string_repr;
-	FvalueStringReprLen	len_string_repr;
 
 	union {
 		FvalueSetByteArrayFunc	set_value_byte_array;

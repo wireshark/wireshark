@@ -40,31 +40,17 @@ string_fvalue_set_string(fvalue_t *fv, const gchar *value)
 	fv->value.string = (gchar *)g_strdup(value);
 }
 
-static int
-string_repr_len(const fvalue_t *fv, ftrepr_t rtype, int field_display _U_)
+static char *
+string_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype, int field_display _U_)
 {
-	switch (rtype) {
-		case FTREPR_DISPLAY:
-			return (int)strlen(fv->value.string);
-
-		case FTREPR_DFILTER:
-			return escape_string_len(fv->value.string);
+	if (rtype == FTREPR_DISPLAY) {
+		return wmem_strdup(scope, fv->value.string);
 	}
-	ws_assert_not_reached();
-	return -1;
-}
-
-static void
-string_to_repr(const fvalue_t *fv, ftrepr_t rtype, int field_display _U_, char *buf, unsigned int size)
-{
-	switch (rtype) {
-		case FTREPR_DISPLAY:
-			(void) g_strlcpy(buf, fv->value.string, size);
-			return;
-
-		case FTREPR_DFILTER:
-			escape_string(buf, fv->value.string);
-			return;
+	if (rtype == FTREPR_DFILTER) {
+		int len = escape_string_len(fv->value.string);
+		char *buf = wmem_alloc(scope, len + 1);
+		escape_string(buf, fv->value.string);
+		return buf;
 	}
 	ws_assert_not_reached();
 }
@@ -162,7 +148,6 @@ ftype_register_string(void)
 		val_from_unparsed,		/* val_from_unparsed */
 		val_from_string,		/* val_from_string */
 		string_to_repr,			/* val_to_string_repr */
-		string_repr_len,		/* len_string_repr */
 
 		{ .set_value_string = string_fvalue_set_string },	/* union set_value */
 		{ .get_value_ptr = value_get },	/* union get_value */
@@ -185,7 +170,6 @@ ftype_register_string(void)
 		val_from_unparsed,		/* val_from_unparsed */
 		val_from_string,		/* val_from_string */
 		string_to_repr,			/* val_to_string_repr */
-		string_repr_len,		/* len_string_repr */
 
 		{ .set_value_string = string_fvalue_set_string },	/* union set_value */
 		{ .get_value_ptr = value_get },	/* union get_value */
@@ -208,7 +192,6 @@ ftype_register_string(void)
 		val_from_unparsed,		/* val_from_unparsed */
 		val_from_string,		/* val_from_string */
 		string_to_repr,			/* val_to_string_repr */
-		string_repr_len,		/* len_string_repr */
 
 		{ .set_value_string = string_fvalue_set_string },	/* union set_value */
 		{ .get_value_ptr = value_get },	/* union get_value */
@@ -231,7 +214,6 @@ ftype_register_string(void)
 		val_from_unparsed,		/* val_from_unparsed */
 		val_from_string,		/* val_from_string */
 		string_to_repr,			/* val_to_string_repr */
-		string_repr_len,		/* len_string_repr */
 
 		{ .set_value_string = string_fvalue_set_string },	/* union set_value */
 		{ .get_value_ptr = value_get },	/* union get_value */
@@ -254,7 +236,6 @@ ftype_register_string(void)
 		val_from_unparsed,		/* val_from_unparsed */
 		val_from_string,		/* val_from_string */
 		string_to_repr,			/* val_to_string_repr */
-		string_repr_len,		/* len_string_repr */
 
 		{ .set_value_string = string_fvalue_set_string },	/* union set_value */
 		{ .get_value_ptr = value_get },	/* union get_value */

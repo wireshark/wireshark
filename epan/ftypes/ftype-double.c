@@ -67,28 +67,22 @@ val_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_,
 	return TRUE;
 }
 
-static int
-float_val_repr_len(const fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
+static char *
+float_val_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_)
 {
-	return G_ASCII_DTOSTR_BUF_SIZE;
+	size_t size = G_ASCII_DTOSTR_BUF_SIZE;
+	char *buf = wmem_alloc(scope, size);
+	g_ascii_formatd(buf, (gint)size, "%." G_STRINGIFY(FLT_DIG) "g", fv->value.floating);
+	return buf;
 }
 
-static void
-float_val_to_repr(const fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf, unsigned int size)
+static char *
+double_val_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_)
 {
-	g_ascii_formatd(buf, size, "%." G_STRINGIFY(FLT_DIG) "g", fv->value.floating);
-}
-
-static int
-double_val_repr_len(const fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
-{
-	return G_ASCII_DTOSTR_BUF_SIZE;
-}
-
-static void
-double_val_to_repr(const fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf, unsigned int size)
-{
-	g_ascii_formatd(buf, size, "%." G_STRINGIFY(DBL_DIG) "g", fv->value.floating);
+	size_t size = G_ASCII_DTOSTR_BUF_SIZE;
+	char *buf = wmem_alloc(scope, size);
+	g_ascii_formatd(buf, (gint)size, "%." G_STRINGIFY(DBL_DIG) "g", fv->value.floating);
+	return buf;
 }
 
 static int
@@ -115,7 +109,6 @@ ftype_register_double(void)
 		val_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
 		float_val_to_repr,		/* val_to_string_repr */
-		float_val_repr_len,		/* len_string_repr */
 
 		{ .set_value_floating = double_fvalue_set_floating },		/* union set_value */
 		{ .get_value_floating = value_get_floating },	/* union get_value */
@@ -139,7 +132,6 @@ ftype_register_double(void)
 		val_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
 		double_val_to_repr,		/* val_to_string_repr */
-		double_val_repr_len,		/* len_string_repr */
 
 		{ .set_value_floating = double_fvalue_set_floating },		/* union set_value */
 		{ .get_value_floating = value_get_floating },	/* union get_value */

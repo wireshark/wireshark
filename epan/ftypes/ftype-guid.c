@@ -81,16 +81,10 @@ guid_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_
     return TRUE;
 }
 
-static int
-guid_repr_len(const fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
+static char *
+guid_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_)
 {
-    return GUID_STR_LEN;
-}
-
-static void
-guid_to_repr(const fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf, unsigned int size)
-{
-    guid_to_str_buf(&fv->value.guid, buf, size);
+    return guid_to_str(scope, &fv->value.guid);
 }
 
 static int
@@ -113,7 +107,6 @@ ftype_register_guid(void)
         guid_from_unparsed,  /* val_from_unparsed */
         NULL,                /* val_from_string */
         guid_to_repr,        /* val_to_string_repr */
-        guid_repr_len,       /* len_string_repr */
 
         { .set_value_guid = guid_fvalue_set_guid }, /* union set_value */
         { .get_value_ptr = value_get },             /* union get_value */

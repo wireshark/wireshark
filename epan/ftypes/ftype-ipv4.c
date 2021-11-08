@@ -95,21 +95,11 @@ val_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_,
 	return TRUE;
 }
 
-static int
-val_repr_len(const fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
-{
-	/*
-	 * 15 characters for "XXX.XXX.XXX.XXX".
-	 */
-	return 15;
-}
-
-/* We're assuming the buffer is at least WS_INET_ADDRSTRLEN (16 bytes) */
-static void
-val_to_repr(const fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf, unsigned int size _U_)
+static char *
+val_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_)
 {
 	guint32	ipv4_net_order = g_htonl(fv->value.ipv4.addr);
-	ip_to_str_buf((guint8*)&ipv4_net_order, buf, WS_INET_ADDRSTRLEN);
+	return ip_to_str(scope, (guint8*)&ipv4_net_order);
 }
 
 
@@ -166,7 +156,6 @@ ftype_register_ipv4(void)
 		val_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
 		val_to_repr,			/* val_to_string_repr */
-		val_repr_len,			/* len_string_repr */
 
 		{ .set_value_uinteger = set_uinteger },	/* union set_value */
 		{ .get_value_uinteger = value_get },	/* union get_value */

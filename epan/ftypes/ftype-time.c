@@ -289,92 +289,44 @@ value_get(fvalue_t *fv)
 	return &(fv->value.time);
 }
 
-static int
-absolute_val_repr_len(const fvalue_t *fv, ftrepr_t rtype, int field_display)
+static char *
+absolute_val_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype, int field_display)
 {
 	gchar *rep;
-	int ret;
+	char *buf;
 
 	switch (rtype) {
+		case FTREPR_DISPLAY:
+			rep = abs_time_to_str(scope, &fv->value.time,
+					(absolute_time_display_e)field_display, TRUE);
+			break;
 
-	case FTREPR_DISPLAY:
-		rep = abs_time_to_str(NULL, &fv->value.time,
-				(absolute_time_display_e)field_display, TRUE);
-		break;
+		case FTREPR_DFILTER:
+			/* absolute_val_from_string only accepts local time,
+			 * with no time zone, so match that. */
+			rep = abs_time_to_str(scope, &fv->value.time,
+					ABSOLUTE_TIME_LOCAL, FALSE);
+			break;
 
-	case FTREPR_DFILTER:
-		/* absolute_val_from_string only accepts local time,
-		 * with no time zone, so match that. */
-		rep = abs_time_to_str(NULL, &fv->value.time,
-				ABSOLUTE_TIME_LOCAL, FALSE);
-		break;
-
-	default:
-		ws_assert_not_reached();
-		break;
+		default:
+			ws_assert_not_reached();
+			break;
 	}
-
-	ret = (int)strlen(rep) + ((rtype == FTREPR_DFILTER) ? 2 : 0);	/* 2 for opening and closing quotes */
-
-	wmem_free(NULL, rep);
-
-	return ret;
-}
-
-static void
-absolute_val_to_repr(const fvalue_t *fv, ftrepr_t rtype, int field_display, char *buf, unsigned int size)
-{
-	gchar *rep;
-	switch (rtype) {
-
-	case FTREPR_DISPLAY:
-		rep = abs_time_to_str(NULL, &fv->value.time,
-				(absolute_time_display_e)field_display, TRUE);
-		break;
-
-	case FTREPR_DFILTER:
-		/* absolute_val_from_string only accepts local time,
-		 * with no time zone, so match that. */
-		rep = abs_time_to_str(NULL, &fv->value.time,
-				ABSOLUTE_TIME_LOCAL, FALSE);
-		*buf++ = '\"';
-		break;
-
-	default:
-		ws_assert_not_reached();
-		break;
-	}
-
-	(void) g_strlcpy(buf, rep, size);
 
 	if (rtype == FTREPR_DFILTER) {
-		buf += strlen(rep);
-		*buf++ = '\"';
-		*buf++ = '\0';
+		buf = wmem_strdup_printf(scope, "\"%s\"", rep);
+		wmem_free(scope, rep);
 	}
-	wmem_free(NULL, rep);
+	else {
+		buf = rep;
+	}
+	return buf;
 }
 
-static int
-relative_val_repr_len(const fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_)
+static char *
+relative_val_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_)
 {
-	gchar *rep;
-	int ret;
-
-	rep = rel_time_to_secs_str(NULL, &fv->value.time);
-	ret = (int)strlen(rep);
-	wmem_free(NULL, rep);
-
-	return ret;
-}
-
-static void
-relative_val_to_repr(const fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf, unsigned int size)
-{
-	gchar *rep;
-	rep = rel_time_to_secs_str(NULL, &fv->value.time);
-	(void) g_strlcpy(buf, rep, size);
-	wmem_free(NULL, rep);
+	return rel_time_to_secs_str(scope, &fv->value.time);
 }
 
 void
@@ -391,7 +343,6 @@ ftype_register_time(void)
 		absolute_val_from_unparsed,	/* val_from_unparsed */
 		absolute_val_from_string,	/* val_from_string */
 		absolute_val_to_repr,		/* val_to_string_repr */
-		absolute_val_repr_len,		/* len_string_repr */
 
 		{ .set_value_time = time_fvalue_set },	/* union set_value */
 		{ .get_value_ptr = value_get },		/* union get_value */
@@ -414,7 +365,6 @@ ftype_register_time(void)
 		relative_val_from_unparsed,	/* val_from_unparsed */
 		NULL,				/* val_from_string */
 		relative_val_to_repr,		/* val_to_string_repr */
-		relative_val_repr_len,		/* len_string_repr */
 
 		{ .set_value_time = time_fvalue_set },	/* union set_value */
 		{ .get_value_ptr = value_get },		/* union get_value */

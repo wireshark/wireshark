@@ -25,7 +25,6 @@ ftype_register_none(void)
 		NULL,				/* val_from_unparsed */
 		NULL,				/* val_from_string */
 		NULL,				/* val_to_string_repr */
-		NULL,				/* len_string_repr */
 
 		{ NULL },			/* union set_value */
 		{ NULL },			/* union get_value */

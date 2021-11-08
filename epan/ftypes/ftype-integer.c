@@ -390,43 +390,34 @@ sint8_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value, g
 	return sint_from_unparsed (fv, s, allow_partial_value, err_msg, G_MAXINT8, G_MININT8);
 }
 
-static int
-integer_repr_len(const fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
-{
-	return 11;	/* enough for 2^31-1, in decimal */
-}
-
-static void
-integer_to_repr(const fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf, unsigned int size)
+static char *
+integer_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_)
 {
 	guint32 val;
+
+	size_t size = 11 + 1; /* enough for 2^31-1, in decimal */
+	char *result = wmem_alloc(scope, size);
+	char *buf = result;
 
 	if (fv->value.sinteger < 0) {
 		*buf++ = '-';
 		val = -fv->value.sinteger;
-	} else
+	} else {
 		val = fv->value.sinteger;
-
+	}
 	guint32_to_str_buf(val, buf, size);
+	return result;
 }
 
-static int
-uinteger_repr_len(const fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
+static char *
+uinteger_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype _U_, int field_display)
 {
-	return 10;	/* enough for 2^32-1, in decimal or 0xXXXXXXXX */
-}
+	size_t size = 10 + 1; /* enough for 2^32-1, in decimal or 0xXXXXXXXX */
+	char *result = wmem_alloc(scope, size);
+	char *buf = result;
 
-static int
-char_repr_len(const fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
-{
-	return 7;	/* enough for '\OOO' or '\xXX' */
-}
-
-static void
-uinteger_to_repr(const fvalue_t *fv, ftrepr_t rtype _U_, int field_display, char *buf, unsigned int size)
-{
-	if (((field_display & 0xff) == BASE_HEX) || ((field_display & 0xff) == BASE_HEX_DEC))
-	{
+	if ((field_display & 0xff) == BASE_HEX ||
+			(field_display & 0xff) == BASE_HEX_DEC) {
 		/* This format perfectly fits into 11 bytes. */
 		*buf++ = '0';
 		*buf++ = 'x';
@@ -453,15 +444,19 @@ uinteger_to_repr(const fvalue_t *fv, ftrepr_t rtype _U_, int field_display, char
 
 		*buf++ = '\0';
 	}
-	else
-	{
+	else {
 		guint32_to_str_buf(fv->value.uinteger, buf, size);
 	}
+	return result;
 }
 
-static void
-char_to_repr(const fvalue_t *fv, ftrepr_t rtype _U_, int field_display, char *buf, unsigned int size _U_)
+static char *
+char_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype _U_, int field_display)
 {
+	size_t size = 7 + 1; /* enough for '\OOO' or '\xXX' */
+	char *result = wmem_alloc(scope, size);
+	char *buf = result;
+
 	/*
 	 * The longest possible strings are "'\OOO'" and "'\xXX'", which
 	 * take 7 bytes, including the terminating '\0'.
@@ -472,7 +467,8 @@ char_to_repr(const fvalue_t *fv, ftrepr_t rtype _U_, int field_display, char *bu
 		if (fv->value.uinteger == '\\' || fv->value.uinteger == '\'')
 			*buf++ = '\\';
 		*buf++ = (char)fv->value.uinteger;
-	} else {
+	}
+	else {
 		*buf++ = '\\';
 		switch (fv->value.uinteger) {
 
@@ -513,8 +509,7 @@ char_to_repr(const fvalue_t *fv, ftrepr_t rtype _U_, int field_display, char *bu
 				*buf++ = 'x';
 				buf = guint8_to_hex(buf, fv->value.uinteger);
 			}
-			else
-			{
+			else {
 				*buf++ = ((fv->value.uinteger >> 6) & 0x7) + '0';
 				*buf++ = ((fv->value.uinteger >> 3) & 0x7) + '0';
 				*buf++ = ((fv->value.uinteger >> 0) & 0x7) + '0';
@@ -524,6 +519,7 @@ char_to_repr(const fvalue_t *fv, ftrepr_t rtype _U_, int field_display, char *bu
 	}
 	*buf++ = '\'';
 	*buf++ = '\0';
+	return result;
 }
 
 static gboolean
@@ -545,16 +541,10 @@ ipxnet_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _
 	return FALSE;
 }
 
-static int
-ipxnet_repr_len(const fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
+static char *
+ipxnet_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype, int field_display _U_)
 {
-	return 2+8;	/* 0xXXXXXXXX */
-}
-
-static void
-ipxnet_to_repr(const fvalue_t *fv, ftrepr_t rtype, int field_display _U_, char *buf, unsigned int size)
-{
-	uinteger_to_repr(fv, rtype, BASE_HEX, buf, size);
+	return uinteger_to_repr(scope, fv, rtype, BASE_HEX);
 }
 
 static int
@@ -784,37 +774,34 @@ sint40_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value, 
 	return _sint64_from_unparsed (fv, s, allow_partial_value, err_msg, G_GINT64_CONSTANT(0x7FFFFFFFFF), G_GINT64_CONSTANT(-0x8000000000));
 }
 
-static int
-integer64_repr_len(const fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
-{
-	return 20;	/* enough for -2^63-1, in decimal */
-}
-
-static void
-integer64_to_repr(const fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf, unsigned int size)
+static char *
+integer64_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_)
 {
 	guint64 val;
+
+	size_t size = 20 + 1; /* enough for -2^63-1, in decimal */
+	char *result = wmem_alloc(scope, size);
+	char *buf = result;
 
 	if (fv->value.sinteger64 < 0) {
 		*buf++ = '-';
 		val = -fv->value.sinteger64;
-	} else
+	}
+	else {
 		val = fv->value.sinteger64;
-
+	}
 	guint64_to_str_buf(val, buf, size);
+	return result;
 }
 
-static int
-uinteger64_repr_len(const fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
+static char *
+uinteger64_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_)
 {
-	return 20;	/* enough for 2^64-1, in decimal or 0xXXXXXXXXXXXXXXXX */
-}
+	size_t size = 20 + 1; /* enough for 2^64-1, in decimal or 0xXXXXXXXXXXXXXXXX */
+	char *result = wmem_alloc(scope, size);
+	char *buf = result;
 
-static void
-uinteger64_to_repr(const fvalue_t *fv, ftrepr_t rtype _U_, int field_display, char *buf, unsigned int size)
-{
-	if ((field_display == BASE_HEX) || (field_display == BASE_HEX_DEC))
-	{
+	if (field_display == BASE_HEX || field_display == BASE_HEX_DEC) {
 		/* This format perfectly fits into 19 bytes. */
 		*buf++ = '0';
 		*buf++ = 'x';
@@ -822,10 +809,10 @@ uinteger64_to_repr(const fvalue_t *fv, ftrepr_t rtype _U_, int field_display, ch
 		buf = qword_to_hex(buf, fv->value.uinteger64);
 		*buf++ = '\0';
 	}
-	else
-	{
+	else {
 		guint64_to_str_buf(fv->value.uinteger64, buf, size);
 	}
+	return result;
 }
 
 static gboolean
@@ -842,17 +829,12 @@ boolean_fvalue_new(fvalue_t *fv)
 	fv->value.uinteger64 = TRUE;
 }
 
-static int
-boolean_repr_len(const fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
+static char *
+boolean_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_)
 {
-	return 1;
-}
-
-static void
-boolean_to_repr(const fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf, unsigned int size _U_)
-{
-	*buf++ = (fv->value.uinteger64) ? '1' : '0';
-	*buf   = '\0';
+	if (fv->value.uinteger64)
+		return wmem_strdup(scope, "1");
+	return wmem_strdup(scope, "0");
 }
 
 /* False is less than True (arbitrary):
@@ -912,14 +894,8 @@ eui64_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U
 	return TRUE;
 }
 
-static int
-eui64_repr_len(const fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
-{
-	return EUI64_STR_LEN;	/* XX:XX:XX:XX:XX:XX:XX:XX */
-}
-
-static void
-eui64_to_repr(const fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf, unsigned int size)
+static char *
+eui64_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_)
 {
 	union {
 		guint64 value;
@@ -929,7 +905,7 @@ eui64_to_repr(const fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, cha
 	/* Copy and convert the address from host to network byte order. */
 	eui64.value = GUINT64_TO_BE(fv->value.integer64);
 
-	g_snprintf(buf, size, "%.2x:%.2x:%.2x:%.2x:%.2x:%.2x:%.2x:%.2x",
+	return wmem_strdup_printf(scope, "%.2x:%.2x:%.2x:%.2x:%.2x:%.2x:%.2x:%.2x",
 	    eui64.bytes[0], eui64.bytes[1], eui64.bytes[2], eui64.bytes[3],
 	    eui64.bytes[4], eui64.bytes[5], eui64.bytes[6], eui64.bytes[7]);
 }
@@ -947,7 +923,6 @@ ftype_register_integers(void)
 		uint8_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
 		char_to_repr,			/* val_to_string_repr */
-		char_repr_len,			/* len_string_repr */
 
 		{ .set_value_uinteger = set_uinteger },	/* union set_value */
 		{ .get_value_uinteger = get_uinteger },	/* union get_value */
@@ -970,7 +945,6 @@ ftype_register_integers(void)
 		uint8_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
 		uinteger_to_repr,		/* val_to_string_repr */
-		uinteger_repr_len,		/* len_string_repr */
 
 		{ .set_value_uinteger = set_uinteger },	/* union set_value */
 		{ .get_value_uinteger = get_uinteger },	/* union get_value */
@@ -993,7 +967,6 @@ ftype_register_integers(void)
 		uint16_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
 		uinteger_to_repr,		/* val_to_string_repr */
-		uinteger_repr_len,		/* len_string_repr */
 
 		{ .set_value_uinteger = set_uinteger },	/* union set_value */
 		{ .get_value_uinteger = get_uinteger },	/* union get_value */
@@ -1016,7 +989,6 @@ ftype_register_integers(void)
 		uint24_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
 		uinteger_to_repr,		/* val_to_string_repr */
-		uinteger_repr_len,		/* len_string_repr */
 
 		{ .set_value_uinteger = set_uinteger },	/* union set_value */
 		{ .get_value_uinteger = get_uinteger },	/* union get_value */
@@ -1039,7 +1011,6 @@ ftype_register_integers(void)
 		uint32_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
 		uinteger_to_repr,		/* val_to_string_repr */
-		uinteger_repr_len,		/* len_string_repr */
 
 		{ .set_value_uinteger = set_uinteger },	/* union set_value */
 		{ .get_value_uinteger = get_uinteger },	/* union get_value */
@@ -1062,7 +1033,6 @@ ftype_register_integers(void)
 		uint40_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
 		uinteger64_to_repr,		/* val_to_string_repr */
-		uinteger64_repr_len,		/* len_string_repr */
 
 		{ .set_value_uinteger64 = set_uinteger64 },	/* union set_value */
 		{ .get_value_uinteger64 = get_uinteger64 },	/* union get_value */
@@ -1085,7 +1055,6 @@ ftype_register_integers(void)
 		uint48_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
 		uinteger64_to_repr,		/* val_to_string_repr */
-		uinteger64_repr_len,		/* len_string_repr */
 
 		{ .set_value_uinteger64 = set_uinteger64 },	/* union set_value */
 		{ .get_value_uinteger64 = get_uinteger64 },	/* union get_value */
@@ -1108,7 +1077,6 @@ ftype_register_integers(void)
 		uint56_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
 		uinteger64_to_repr,		/* val_to_string_repr */
-		uinteger64_repr_len,		/* len_string_repr */
 
 		{ .set_value_uinteger64 = set_uinteger64 },	/* union set_value */
 		{ .get_value_uinteger64 = get_uinteger64 },	/* union get_value */
@@ -1131,7 +1099,6 @@ ftype_register_integers(void)
 		uint64_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
 		uinteger64_to_repr,		/* val_to_string_repr */
-		uinteger64_repr_len,		/* len_string_repr */
 
 		{ .set_value_uinteger64 = set_uinteger64 },	/* union set_value */
 		{ .get_value_uinteger64 = get_uinteger64 },	/* union get_value */
@@ -1154,7 +1121,6 @@ ftype_register_integers(void)
 		sint8_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
 		integer_to_repr,		/* val_to_string_repr */
-		integer_repr_len,		/* len_string_repr */
 
 		{ .set_value_sinteger = set_sinteger },	/* union set_value */
 		{ .get_value_sinteger = get_sinteger },	/* union get_value */
@@ -1177,7 +1143,6 @@ ftype_register_integers(void)
 		sint16_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
 		integer_to_repr,		/* val_to_string_repr */
-		integer_repr_len,		/* len_string_repr */
 
 		{ .set_value_sinteger = set_sinteger },	/* union set_value */
 		{ .get_value_sinteger = get_sinteger },	/* union get_value */
@@ -1200,7 +1165,6 @@ ftype_register_integers(void)
 		sint24_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
 		integer_to_repr,		/* val_to_string_repr */
-		integer_repr_len,		/* len_string_repr */
 
 		{ .set_value_sinteger = set_sinteger },	/* union set_value */
 		{ .get_value_sinteger = get_sinteger },	/* union get_value */
@@ -1223,7 +1187,6 @@ ftype_register_integers(void)
 		sint32_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
 		integer_to_repr,		/* val_to_string_repr */
-		integer_repr_len,		/* len_string_repr */
 
 		{ .set_value_sinteger = set_sinteger },	/* union set_value */
 		{ .get_value_sinteger = get_sinteger },	/* union get_value */
@@ -1246,7 +1209,6 @@ ftype_register_integers(void)
 		sint40_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
 		integer64_to_repr,		/* val_to_string_repr */
-		integer64_repr_len,		/* len_string_repr */
 
 		{ .set_value_sinteger64 = set_sinteger64 },	/* union set_value */
 		{ .get_value_sinteger64 = get_sinteger64 },	/* union get_value */
@@ -1269,7 +1231,6 @@ ftype_register_integers(void)
 		sint48_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
 		integer64_to_repr,		/* val_to_string_repr */
-		integer64_repr_len,		/* len_string_repr */
 
 		{ .set_value_sinteger64 = set_sinteger64 },	/* union set_value */
 		{ .get_value_sinteger64 = get_sinteger64 },	/* union get_value */
@@ -1292,7 +1253,6 @@ ftype_register_integers(void)
 		sint56_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
 		integer64_to_repr,		/* val_to_string_repr */
-		integer64_repr_len,		/* len_string_repr */
 
 		{ .set_value_sinteger64 = set_sinteger64 },	/* union set_value */
 		{ .get_value_sinteger64 = get_sinteger64 },	/* union get_value */
@@ -1315,7 +1275,6 @@ ftype_register_integers(void)
 		sint64_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
 		integer64_to_repr,		/* val_to_string_repr */
-		integer64_repr_len,		/* len_string_repr */
 
 		{ .set_value_sinteger64 = set_sinteger64 },	/* union set_value */
 		{ .get_value_sinteger64 = get_sinteger64 },	/* union get_value */
@@ -1338,7 +1297,6 @@ ftype_register_integers(void)
 		uint64_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
 		boolean_to_repr,		/* val_to_string_repr */
-		boolean_repr_len,		/* len_string_repr */
 
 		{ .set_value_uinteger64 = set_uinteger64 },	/* union set_value */
 		{ .get_value_uinteger64 = get_uinteger64 },	/* union get_value */
@@ -1362,7 +1320,6 @@ ftype_register_integers(void)
 		ipxnet_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
 		ipxnet_to_repr,			/* val_to_string_repr */
-		ipxnet_repr_len,		/* len_string_repr */
 
 		{ .set_value_uinteger = set_uinteger },	/* union set_value */
 		{ .get_value_uinteger = get_uinteger },	/* union get_value */
@@ -1386,7 +1343,6 @@ ftype_register_integers(void)
 		uint32_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
 		uinteger_to_repr,		/* val_to_string_repr */
-		uinteger_repr_len,		/* len_string_repr */
 
 		{ .set_value_uinteger = set_uinteger },	/* union set_value */
 		{ .get_value_uinteger = get_uinteger },	/* union get_value */
@@ -1410,7 +1366,6 @@ ftype_register_integers(void)
 		eui64_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
 		eui64_to_repr,			/* val_to_string_repr */
-		eui64_repr_len,			/* len_string_repr */
 
 		{ .set_value_uinteger64 = set_uinteger64 },	/* union set_value */
 		{ .get_value_uinteger64 = get_uinteger64 },	/* union get_value */
