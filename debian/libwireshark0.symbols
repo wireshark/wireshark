@@ -721,14 +721,10 @@ libwireshark.so.0 libwireshark0 #MINVER#
  free_srt_table@Base 1.99.8
  free_srt_table_data@Base 1.99.8
  free_stat_tables@Base 1.99.9
+ ftype_can_cmp@Base 3.7.0
  ftype_can_contains@Base 1.9.1
  ftype_can_eq@Base 1.9.1
- ftype_can_ge@Base 1.9.1
- ftype_can_gt@Base 1.9.1
- ftype_can_le@Base 1.9.1
- ftype_can_lt@Base 1.9.1
  ftype_can_matches@Base 1.9.1
- ftype_can_ne@Base 1.9.1
  ftype_can_slice@Base 1.9.1
  ftype_name@Base 1.9.1
  ftype_pretty_name@Base 1.9.1
@@ -1138,7 +1134,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  proto_can_match_selected@Base 1.9.1
  proto_can_toggle_protocol@Base 1.9.1
  proto_check_field_name@Base 1.9.1
- proto_check_field_name_lower@Base 3.8.0
+ proto_check_field_name_lower@Base 3.7.0
  proto_checksum_vals@Base 2.2.0
  proto_construct_match_selected_string@Base 1.9.1
  proto_deregister_field@Base 1.99.9
