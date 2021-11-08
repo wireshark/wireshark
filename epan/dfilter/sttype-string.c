@@ -22,15 +22,7 @@ string_free(gpointer value)
 }
 
 static char *
-string_tostr(const void *data, gboolean pretty)
-{
-	if (pretty)
-		return g_strdup_printf("\"%s\"", (const char *)data);
-	return g_strdup(data);
-}
-
-static char *
-unparsed_tostr(const void *data, gboolean pretty _U_)
+string_tostr(const void *data, gboolean pretty _U_)
 {
 	return g_strdup(data);
 }
@@ -54,7 +46,7 @@ sttype_register_string(void)
 		NULL,
 		string_free,
 		string_dup,
-		unparsed_tostr
+		string_tostr
 	};
 
 	sttype_register(&string_type);

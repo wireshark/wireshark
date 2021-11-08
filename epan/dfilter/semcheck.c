@@ -439,7 +439,7 @@ check_exists(dfwork_t *dfw, stnode_t *st_arg1)
 			break;
 		case STTYPE_STRING:
 		case STTYPE_UNPARSED:
-			FAIL(dfw, "%s is neither a field nor a protocol name.",
+			FAIL(dfw, "\"%s\" is neither a field nor a protocol name.",
 					stnode_todisplay(st_arg1));
 			break;
 
@@ -501,7 +501,7 @@ check_drange_sanity(dfwork_t *dfw, stnode_t *st)
 		/* Should this be rejected instead? */
 		check_drange_sanity(dfw, entity1);
 	} else {
-		FAIL(dfw, "Range is not supported for entity %s of type %s",
+		FAIL(dfw, "Range is not supported for entity \"%s\" of type %s",
 					stnode_todisplay(entity1), stnode_type_name(entity1));
 	}
 }
@@ -680,7 +680,7 @@ check_relation_LHS_STRING(dfwork_t *dfw, test_op_t st_op,
 	}
 	else if (type2 == STTYPE_STRING || type2 == STTYPE_UNPARSED) {
 		/* Well now that's silly... */
-		FAIL(dfw, "Neither %s nor %s are field or protocol names.",
+		FAIL(dfw, "Neither \"%s\" nor \"%s\" are field or protocol names.",
 				stnode_todisplay(st_arg1),
 				stnode_todisplay(st_arg2));
 	}
@@ -740,7 +740,7 @@ check_relation_LHS_UNPARSED(dfwork_t *dfw, test_op_t st_op,
 	}
 	else if (type2 == STTYPE_STRING || type2 == STTYPE_UNPARSED) {
 		/* Well now that's silly... */
-		FAIL(dfw, "Neither %s nor %s are field or protocol names.",
+		FAIL(dfw, "Neither \"%s\" nor \"%s\" are field or protocol names.",
 				stnode_todisplay(st_arg1),
 				stnode_todisplay(st_arg2));
 	}
@@ -1027,7 +1027,7 @@ check_relation_contains(dfwork_t *dfw, stnode_t *st_node,
 			break;
 		case STTYPE_STRING:
 		case STTYPE_UNPARSED:
-			FAIL(dfw, "%s is not a valid operand for contains.", stnode_todisplay(st_arg1));
+			FAIL(dfw, "\"%s\" is not a valid operand for contains.", stnode_todisplay(st_arg1));
 			break;
 		default:
 			ws_assert_not_reached();
@@ -1048,7 +1048,7 @@ check_relation_matches(dfwork_t *dfw, stnode_t *st_node,
 	log_stnode(st_arg2);
 
 	if (stnode_type_id(st_arg2) != STTYPE_STRING) {
-		FAIL(dfw, "Expected a double quoted string not %s", stnode_todisplay(st_arg2));
+		FAIL(dfw, "Expected a double quoted string not '%s'", stnode_todisplay(st_arg2));
 	}
 
 	patt = stnode_data(st_arg2);
@@ -1078,7 +1078,7 @@ check_relation_matches(dfwork_t *dfw, stnode_t *st_node,
 			break;
 		case STTYPE_STRING:
 		case STTYPE_UNPARSED:
-			FAIL(dfw, "%s is not a valid operand for matches.", stnode_todisplay(st_arg1));
+			FAIL(dfw, "\"%s\" is not a valid operand for matches.", stnode_todisplay(st_arg1));
 			break;
 		default:
 			ws_assert_not_reached();
