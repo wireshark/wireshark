@@ -548,7 +548,7 @@ check_function(dfwork_t *dfw, stnode_t *st_node)
 
 	iparam = 0;
 	while (params) {
-		funcdef->semcheck_param_function(dfw, iparam, params->data);
+		funcdef->semcheck_param_function(dfw, funcdef->name, iparam, params->data);
 		params = params->next;
 		iparam++;
 	}

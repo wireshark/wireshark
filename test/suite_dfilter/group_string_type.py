@@ -154,8 +154,7 @@ class case_string(unittest.TestCase):
 
     def test_contains_upper_2(self, checkDFilterFail):
         dfilter = 'upper(tcp.seq) == 4'
-        error = 'Only strings can be used in upper() or lower() or len()'
-        checkDFilterFail(dfilter, error)
+        checkDFilterFail(dfilter, 'Only string type fields can be used')
 
     def test_contains_lower_0(self, checkDFilterCount):
         dfilter = 'lower(http.user_agent) contains "UPDATE"'
@@ -167,8 +166,7 @@ class case_string(unittest.TestCase):
 
     def test_eq_lower_1(self, checkDFilterFail):
         dfilter = 'lower(tcp.seq) == 4'
-        error = 'Only strings can be used in upper() or lower() or len()'
-        checkDFilterFail(dfilter, error)
+        checkDFilterFail(dfilter, 'Only string type fields can be used')
 
     def test_string_len(self, checkDFilterCount):
         dfilter = 'len(http.request.method) == 4'
