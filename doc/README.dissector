@@ -96,7 +96,8 @@ PROTOSHORTNAME  An abbreviated name for the protocol; this is displayed
                 a filter expression.
 PROTOFILTERNAME A name for the protocol for use in filter expressions;
                 it may contain only letters, digits, hyphens, underscores and
-                periods. Lower-case letters are the preferred style.
+                periods. Names should use lower case only. (Support for
+                upper/mixed case may be removed in the future.)
 PROTOABBREV     An abbreviation for the protocol; this is used in code and
                 must be a valid C identifier. Additionally it should follow
                 any applicable C style guidelines. It is usually the same as
@@ -108,8 +109,9 @@ YEARS           The years the above license is valid for.
 FIELDNAME       The displayed name for the header field.
 FIELDFILTERNAME A name for the header field for use in filter expressions;
                 it may contain only letters, digits, hyphens, underscores and
-                periods. Lower-case letters are the preferred style and it
-                must start with PROTOFILTERNAME followed by a dot.
+                periods. It must start with PROTOFILTERNAME followed by a dot.
+                Names should use lower case only. (Support for upper/mixed case
+                may be removed in the future.)
 FIELDABBREV     An abbreviation for the header field; this is used in code and
                 must be a valid C identifier. Additionally it should follow
                 any applicable C style guidelines. It is usually the same as
