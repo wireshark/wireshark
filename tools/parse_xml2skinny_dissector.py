@@ -652,7 +652,7 @@ def xml2obj(src):
             if self.basemessage.dynamic == "yes":
                 ret += self.indent_out('%s_len = tvb_strnlen(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor), -1)+1;\n' %self.name)
                 ret += self.indent_out('if (%s_len > 1) {\n' %self.name)
-                ret += self.indent_out('  ptvcursor_add(cursor, hf_skinny_%s, 6, ENC_NA);\n' %(self.name, self.name))
+                ret += self.indent_out('  ptvcursor_add(cursor, hf_skinny_%s, 6, ENC_NA);\n' %(self.name))
                 ret += self.indent_out('  ptvcursor_advance(cursor, %s_len - 6);\n' %(self.name))
                 ret += self.indent_out('} else {\n')
                 ret += self.indent_out('  ptvcursor_advance(cursor, 1);\n')
