@@ -418,7 +418,7 @@ int ws_log_parse_args(int *argc_ptr, char *argv[],
         else if (option == opt_domain) {
             ws_log_set_domain_filter(value);
         }
-        else if (option == opt_file) {
+        else if (value && option == opt_file) {
             FILE *fp = ws_fopen(value, "w");
             if (fp == NULL) {
                 print_err(vcmdarg_err, exit_failure,
