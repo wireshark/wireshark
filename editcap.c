@@ -23,6 +23,7 @@
 #include <string.h>
 #include <stdarg.h>
 #include <math.h>
+#include <stddef.h>
 
 #include <time.h>
 #include <glib.h>
@@ -543,36 +544,69 @@ set_rel_time(char *optarg_str_p)
     return TRUE;
 }
 
-#define LINUX_SLL_OFFSETP 14
+#define SLL_ADDRLEN 8 /* length of address field */
+struct sll_header {
+	uint16_t sll_pkttype;		/* packet type */
+	uint16_t sll_hatype;		/* link-layer address type */
+	uint16_t sll_halen;		/* link-layer address length */
+	uint8_t  sll_addr[SLL_ADDRLEN];	/* link-layer address */
+	uint16_t sll_protocol;		/* protocol */
+};
+
+struct sll2_header {
+	uint16_t sll2_protocol;			/* protocol */
+	uint16_t sll2_reserved_mbz;		/* reserved - must be zero */
+	uint32_t sll2_if_index;			/* 1-based interface index */
+	uint16_t sll2_hatype;			/* link-layer address type */
+	uint8_t  sll2_pkttype;			/* packet type */
+	uint8_t  sll2_halen;			/* link-layer address length */
+	uint8_t  sll2_addr[SLL_ADDRLEN];	/* link-layer address */
+};
+
 #define VLAN_SIZE 4
 static void
 sll_remove_vlan_info(guint8* fd, guint32* len) {
-    if (pntoh16(fd + LINUX_SLL_OFFSETP) == ETHERTYPE_VLAN) {
+    if (pntoh16(fd + offsetof(struct sll_header, sll_protocol)) == ETHERTYPE_VLAN) {
         int rest_len;
         /* point to start of vlan */
-        fd = fd + LINUX_SLL_OFFSETP;
+        fd = fd + offsetof(struct sll_header, sll_protocol);
         /* bytes to read after vlan info */
-        rest_len = *len - (LINUX_SLL_OFFSETP + VLAN_SIZE);
+        rest_len = *len - (offsetof(struct sll_header, sll_protocol) + VLAN_SIZE);
         /* remove vlan info from packet */
         memmove(fd, fd + VLAN_SIZE, rest_len);
         *len -= 4;
     }
 }
 
-#define LINUX_SLL_OFFSETLL 4
-#define SLL_ADDRLEN        8	/* length of address field */
+
+
 static void
 sll_set_unused_info(guint8* fd) {
     guint32 ha_len;
-    ha_len = pntoh16(fd + LINUX_SLL_OFFSETLL);
+    ha_len = pntoh16(fd + offsetof(struct sll_header, sll_halen));
 
     if (ha_len < SLL_ADDRLEN) {
         int unused;
         unused = SLL_ADDRLEN - ha_len;
-        /* point to start of LL address offset plus addr len 2 bytes */
-        fd = fd + LINUX_SLL_OFFSETLL + 2;
+        /* point to end of sll_ddr */
+        fd = fd + offsetof(struct sll_header, sll_addr) + ha_len;
         /* set zeros in the unused data */
-        memset(fd + ha_len, 0, unused);
+        memset(fd, 0, unused);
+    }
+}
+
+static void
+sll2_set_unused_info(guint8* fd) {
+    guint32 ha_len;
+    ha_len = *(fd + offsetof(struct sll2_header, sll2_halen));
+
+    if (ha_len < SLL_ADDRLEN) {
+        int unused;
+        unused = SLL_ADDRLEN - ha_len;
+        /* point to end of sll2_addr */
+        fd = fd + offsetof(struct sll2_header, sll2_addr) + ha_len;
+        /* set zeros in the unused data */
+        memset(fd, 0, unused);
     }
 }
 
@@ -593,6 +627,9 @@ set_unused_info(const wtap_packet_header *phdr, guint8* fd) {
     switch (phdr->pkt_encap) {
         case WTAP_ENCAP_SLL:
             sll_set_unused_info(fd);
+            break;
+        case WTAP_ENCAP_SLL2:
+            sll2_set_unused_info(fd);
             break;
         default:
             /* no support for current pkt_encap */
