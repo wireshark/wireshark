@@ -104,6 +104,60 @@ static void test_bytes_to_str_punct(void)
     g_free(str);
 }
 
+static void test_bytes_to_str_punct_maxlen(void)
+{
+    char *str;
+
+    const guint8 buf[] = { 1, 2, 3};
+
+    str = bytes_to_str_punct_maxlen(NULL, buf, sizeof(buf), ':', 4);
+    g_assert_cmpstr(str, ==, "01:02:03");
+    g_free(str);
+
+    str = bytes_to_str_punct_maxlen(NULL, buf, sizeof(buf), ':', 3);
+    g_assert_cmpstr(str, ==, "01:02:03");
+    g_free(str);
+
+    str = bytes_to_str_punct_maxlen(NULL, buf, sizeof(buf), ':', 2);
+    g_assert_cmpstr(str, ==, "01:02:" UTF8_HORIZONTAL_ELLIPSIS);
+    g_free(str);
+
+    str = bytes_to_str_punct_maxlen(NULL, buf, sizeof(buf), ':', 1);
+    g_assert_cmpstr(str, ==, "01:" UTF8_HORIZONTAL_ELLIPSIS);
+    g_free(str);
+
+    str = bytes_to_str_punct_maxlen(NULL, buf, sizeof(buf), ':', 0);
+    g_assert_cmpstr(str, ==, "01:02:03");
+    g_free(str);
+}
+
+static void test_bytes_to_str_maxlen(void)
+{
+    char *str;
+
+    const guint8 buf[] = { 1, 2, 3};
+
+    str = bytes_to_str_maxlen(NULL, buf, sizeof(buf), 4);
+    g_assert_cmpstr(str, ==, "010203");
+    g_free(str);
+
+    str = bytes_to_str_maxlen(NULL, buf, sizeof(buf), 3);
+    g_assert_cmpstr(str, ==, "010203");
+    g_free(str);
+
+    str = bytes_to_str_maxlen(NULL, buf, sizeof(buf), 2);
+    g_assert_cmpstr(str, ==, "0102" UTF8_HORIZONTAL_ELLIPSIS);
+    g_free(str);
+
+    str = bytes_to_str_maxlen(NULL, buf, sizeof(buf), 1);
+    g_assert_cmpstr(str, ==, "01" UTF8_HORIZONTAL_ELLIPSIS);
+    g_free(str);
+
+    str = bytes_to_str_maxlen(NULL, buf, sizeof(buf), 0);
+    g_assert_cmpstr(str, ==, "010203");
+    g_free(str);
+}
+
 static void test_bytes_to_string_trunc1(void)
 {
     char *str;
@@ -478,6 +532,8 @@ int main(int argc, char **argv)
     g_test_add_func("/to_str/word_to_hex", test_word_to_hex);
     g_test_add_func("/to_str/bytes_to_str", test_bytes_to_str);
     g_test_add_func("/to_str/bytes_to_str_punct", test_bytes_to_str_punct);
+    g_test_add_func("/to_str/bytes_to_str_maxlen", test_bytes_to_str_maxlen);
+    g_test_add_func("/to_str/bytes_to_str_punct_maxlen", test_bytes_to_str_punct_maxlen);
     g_test_add_func("/to_str/bytes_to_str_trunc1", test_bytes_to_string_trunc1);
     g_test_add_func("/to_str/bytes_to_str_punct_trunc1", test_bytes_to_string_punct_trunc1);
     g_test_add_func("/to_str/oct_to_str_back", test_oct_to_str_back);

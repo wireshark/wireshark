@@ -303,14 +303,14 @@ void ws_logv_full(const char *domain, enum ws_log_level level,
 WS_DLL_PUBLIC
 void ws_log_buffer_full(const char *domain, enum ws_log_level level,
                     const char *file, int line, const char *func,
-                    const guint8 *buffer, size_t size, size_t max_len,
-                    const char *msg);
+                    const guint8 *buffer, size_t size,
+                    size_t max_bytes_len, const char *msg);
 
 
 #define _LOG_BUFFER(buf, size) \
     ws_log_buffer_full(_LOG_DOMAIN, LOG_LEVEL_DEBUG, \
                         __FILE__, __LINE__, __func__, \
-                        buf, size, 72, #buf)
+                        buf, size, 36, #buf)
 
 #ifdef WS_DISABLE_DEBUG
 #define ws_log_buffer(buf, size) \

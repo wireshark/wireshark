@@ -216,34 +216,45 @@ bytes_to_hexstr_punct(char *out, const guint8 *ad, size_t len, char punct)
  * If punct is '\0', no punctuation is applied (and thus
  * the resulting string is (len-1) bytes shorter)
  */
-gchar *
-bytes_to_str_punct_max(wmem_allocator_t *scope, const guint8 *ad, size_t len, const char punct, size_t max)
+char *
+bytes_to_str_punct_maxlen(wmem_allocator_t *scope,
+			const guint8 *src, size_t src_size,
+			char punct, size_t max_bytes_len)
 {
-	gchar *buf;
-	size_t buflen = len;
-	gchar *buf_ptr;
+	char *buf;
+	size_t max_char_size;
+	char *buf_ptr;
 	int truncated = 0;
 
-	ws_return_str_if_zero(scope, len);
-	ws_return_str_if_null(scope, ad);
+	ws_return_str_if_null(scope, src);
+	ws_return_str_if_zero(scope, src_size);
 
 	if (!punct)
-		return bytes_to_str_max(scope, ad, len, max);
+		return bytes_to_str_maxlen(scope, src, src_size, max_bytes_len);
 
-	if (max > len * 3)
-		max = len * 3;
-
-	buf=(gchar *)wmem_alloc(scope, max+3+1);
-	if (buflen > max/3) {
+	/* Sanity check */
+	if (src_size > 8192) {
+		src_size = 8192;
 		truncated = 1;
-		buflen = max/3;
 	}
 
-	buf_ptr = bytes_to_hexstr_punct(buf, ad, buflen, punct); /* maximum max-1 bytes */
+	if (max_bytes_len == 0 || max_bytes_len > src_size) {
+		max_bytes_len = src_size;
+	}
+	else if (max_bytes_len < src_size) {
+		truncated = 1;
+	}
+
+	/* Include space for ellipsis and '\0'. Optional extra punct
+	 * at the end is already accounted for. */
+	max_char_size = max_bytes_len * 3 + strlen(UTF8_HORIZONTAL_ELLIPSIS) + 1;
+
+	buf = wmem_alloc(scope, max_char_size);
+	buf_ptr = bytes_to_hexstr_punct(buf, src, max_bytes_len, punct);
 
 	if (truncated) {
-		*buf_ptr++ = punct;			/* 1 byte */
-		buf_ptr    = g_stpcpy(buf_ptr, UTF8_HORIZONTAL_ELLIPSIS);	/* 3 bytes */
+		*buf_ptr++ = punct;
+		buf_ptr = g_stpcpy(buf_ptr, UTF8_HORIZONTAL_ELLIPSIS);
 	}
 
 	*buf_ptr = '\0';
@@ -251,31 +262,41 @@ bytes_to_str_punct_max(wmem_allocator_t *scope, const guint8 *ad, size_t len, co
 }
 
 char *
-bytes_to_str_max(wmem_allocator_t *scope, const guint8 *bd, size_t bd_len, size_t max)
+bytes_to_str_maxlen(wmem_allocator_t *scope,
+			const guint8 *src, size_t src_size,
+			size_t max_bytes_len)
 {
-	gchar *cur;
-	gchar *cur_ptr;
+	char *buf;
+	size_t max_char_size;
+	char *buf_ptr;
 	int truncated = 0;
 
-	ws_return_str_if_zero(scope, bd_len);
-	ws_return_str_if_null(scope, bd);
+	ws_return_str_if_null(scope, src);
+	ws_return_str_if_zero(scope, src_size);
 
-	if (max > bd_len * 2)
-		max = bd_len * 2;
-
-	cur=(gchar *)wmem_alloc(scope, max+3+1);
-	if (bd_len > max/2) {
+	/* Sanity check */
+	if (src_size > 8192) {
+		src_size = 8192;
 		truncated = 1;
-		bd_len = max/2;
 	}
 
-	cur_ptr = bytes_to_hexstr(cur, bd, bd_len);	/* max MAX_BYTE_STR_LEN bytes */
+	if (max_bytes_len == 0 || max_bytes_len > src_size) {
+		max_bytes_len = src_size;
+	}
+	else if (max_bytes_len < src_size) {
+		truncated = 1;
+	}
+
+	max_char_size = max_bytes_len * 2 + strlen(UTF8_HORIZONTAL_ELLIPSIS) + 1;
+
+	buf = wmem_alloc(scope, max_char_size);
+	buf_ptr = bytes_to_hexstr(buf, src, max_bytes_len);
 
 	if (truncated)
-		cur_ptr = g_stpcpy(cur_ptr, UTF8_HORIZONTAL_ELLIPSIS);	/* 3 bytes */
+		buf_ptr = g_stpcpy(buf_ptr, UTF8_HORIZONTAL_ELLIPSIS);
 
-	*cur_ptr = '\0';				/* 1 byte */
-	return cur;
+	*buf_ptr = '\0';
+	return buf;
 }
 
 /*

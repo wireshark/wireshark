@@ -101,6 +101,10 @@ indent_size = 2
 indent_style = tab
 indent_size = tab
 
+[to_str.[ch]]
+indent_style = tab
+indent_size = tab
+
 [type_util.[ch]]
 indent_size = 2
 
