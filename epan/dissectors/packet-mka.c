@@ -314,29 +314,44 @@ dissect_sak_use(proto_tree *mka_tree, packet_info *pinfo _U_, tvbuff_t *tvb, int
 
   offset += 2;
 
-  proto_tree_add_item(sak_use_set_tree, hf_mka_latest_key_server_mi,
-                      tvb, offset, 12, ENC_NA);
-  offset += 12;
+  /*
+   * 802.1X-2020 specifies only 0 or 40 are valid! See Figure 11-10 Note d
+   */
+  if (sak_use_len == 0) /* MACsec not supported */
+  {
+    /* Nothing */
+  }
+  else if (sak_use_len == 40) /* MACsec supported */
+  {
+    proto_tree_add_item(sak_use_set_tree, hf_mka_latest_key_server_mi,
+                        tvb, offset, 12, ENC_NA);
+    offset += 12;
 
-  proto_tree_add_item(sak_use_set_tree, hf_mka_latest_key_number,
-                      tvb, offset, 4, ENC_NA);
-  offset += 4;
+    proto_tree_add_item(sak_use_set_tree, hf_mka_latest_key_number,
+                        tvb, offset, 4, ENC_NA);
+    offset += 4;
 
-  proto_tree_add_item(sak_use_set_tree, hf_mka_latest_lowest_acceptable_pn,
-                      tvb, offset, 4, ENC_NA);
-  offset += 4;
+    proto_tree_add_item(sak_use_set_tree, hf_mka_latest_lowest_acceptable_pn,
+                        tvb, offset, 4, ENC_NA);
+    offset += 4;
 
-  proto_tree_add_item(sak_use_set_tree, hf_mka_old_key_server_mi,
-                      tvb, offset, 12, ENC_NA);
-  offset += 12;
+    proto_tree_add_item(sak_use_set_tree, hf_mka_old_key_server_mi,
+                        tvb, offset, 12, ENC_NA);
+    offset += 12;
 
-  proto_tree_add_item(sak_use_set_tree, hf_mka_old_key_number,
-                      tvb, offset, 4, ENC_NA);
-  offset += 4;
+    proto_tree_add_item(sak_use_set_tree, hf_mka_old_key_number,
+                        tvb, offset, 4, ENC_NA);
+    offset += 4;
 
-  proto_tree_add_item(sak_use_set_tree, hf_mka_old_lowest_acceptable_pn,
-                      tvb, offset, 4, ENC_NA);
-  offset += 4;
+    proto_tree_add_item(sak_use_set_tree, hf_mka_old_lowest_acceptable_pn,
+                        tvb, offset, 4, ENC_NA);
+    offset += 4;
+  }
+  else
+  {
+    proto_tree_add_expert(sak_use_set_tree, pinfo, &ei_mka_undecoded, tvb, offset, sak_use_len);
+    offset += sak_use_len;
+  }
 
   *offset_ptr = offset;
 }
