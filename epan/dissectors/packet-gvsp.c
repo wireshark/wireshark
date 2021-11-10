@@ -1048,16 +1048,19 @@ static int hf_gvsp_gendc_payload_flow_flags_v2_2 = -1;
 static int hf_gvsp_gendc_payload_flow_flag_first_packet_v2_2 = -1;
 static int hf_gvsp_gendc_payload_flow_flag_last_packet_v2_2 = -1;
 static int hf_gvsp_gendc_payload_flow_id_v2_2 = -1;
+static int hf_gvsp_gendc_header_size_v2_2 = -1;
+static int hf_gvsp_gendc_header_type_v2_2 = -1;
+static int hf_gvsp_gendc_header_reserved_1_byte_v2_2 = -1;
+static int hf_gvsp_gendc_header_reserved_2_bytes_v2_2 = -1;
+static int hf_gvsp_gendc_header_reserved_4_bytes_v2_2 = -1;
 static int hf_gvsp_gendc_container_header_signature_v2_2 = -1;
 static int hf_gvsp_gendc_container_header_version_major_v2_2 = -1;
 static int hf_gvsp_gendc_container_header_version_minor_v2_2 = -1;
 static int hf_gvsp_gendc_container_header_version_sub_minor_v2_2 = -1;
-static int hf_gvsp_gendc_container_header_type_v2_2 = -1;
 static int hf_gvsp_gendc_container_header_flags_v2_2 = -1;
 static int hf_gvsp_gendc_container_header_flags_timestamp_ptp_v2_2 = -1;
 static int hf_gvsp_gendc_container_header_flags_component_invalid_v2_2 = -1;
 static int hf_gvsp_gendc_container_header_flags_reserved_v2_2 = -1;
-static int hf_gvsp_gendc_container_header_size_v2_2 = -1;
 static int hf_gvsp_gendc_container_header_id_v2_2 = -1;
 static int hf_gvsp_gendc_container_header_variable_fields_v2_2 = -1;
 static int hf_gvsp_gendc_container_header_variable_fields_data_size_v2_2 = -1;
@@ -1923,15 +1926,18 @@ static void dissect_packet_payload_gendc(proto_tree *gvsp_tree, tvbuff_t *tvb, p
             /* GenDC container header sub minor version */
             proto_tree_add_item(gvsp_gendc_container_descriptor_tree, hf_gvsp_gendc_container_header_version_sub_minor_v2_2, tvb, offset + 22, 1, ENC_LITTLE_ENDIAN);
 
+            /* GenDC 1 reserved byte */
+            proto_tree_add_item(gvsp_gendc_container_descriptor_tree, hf_gvsp_gendc_header_reserved_1_byte_v2_2, tvb, offset + 23, 1, ENC_LITTLE_ENDIAN);
+
             /* GenDC container header type */
-            proto_tree_add_item(gvsp_gendc_container_descriptor_tree, hf_gvsp_gendc_container_header_type_v2_2, tvb, offset + 24, 2, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(gvsp_gendc_container_descriptor_tree, hf_gvsp_gendc_header_type_v2_2, tvb, offset + 24, 2, ENC_LITTLE_ENDIAN);
 
             /* GenDC container header flags */
             proto_tree_add_bitmask(gvsp_gendc_container_descriptor_tree, tvb, offset + 26, hf_gvsp_gendc_container_header_flags_v2_2,
                 ett_gvsp_gendc_container_header_flags, gendc_container_header_flags_fields, ENC_LITTLE_ENDIAN);
 
             /* GenDC container header size */
-            proto_tree_add_item(gvsp_gendc_container_descriptor_tree, hf_gvsp_gendc_container_header_size_v2_2, tvb, offset + 28, 4, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(gvsp_gendc_container_descriptor_tree, hf_gvsp_gendc_header_size_v2_2, tvb, offset + 28, 4, ENC_LITTLE_ENDIAN);
 
             /* GenDC container header id */
             proto_tree_add_item(gvsp_gendc_container_descriptor_tree, hf_gvsp_gendc_container_header_id_v2_2, tvb, offset + 32, 8, ENC_LITTLE_ENDIAN);
@@ -1939,6 +1945,12 @@ static void dissect_packet_payload_gendc(proto_tree *gvsp_tree, tvbuff_t *tvb, p
             /* GenDC container header variable fields */
             proto_tree_add_bitmask(gvsp_gendc_container_descriptor_tree, tvb, offset + 40, hf_gvsp_gendc_container_header_variable_fields_v2_2,
                 ett_gvsp_gendc_container_header_variable_fields, gendc_container_header_variable_fields_fields, ENC_LITTLE_ENDIAN);
+
+            /* GenDC 2 reserved bytes */
+            proto_tree_add_item(gvsp_gendc_container_descriptor_tree, hf_gvsp_gendc_header_reserved_2_bytes_v2_2, tvb, offset + 42, 2, ENC_LITTLE_ENDIAN);
+
+            /* GenDC 4 reserved bytes */
+            proto_tree_add_item(gvsp_gendc_container_descriptor_tree, hf_gvsp_gendc_header_reserved_4_bytes_v2_2, tvb, offset + 44, 4, ENC_LITTLE_ENDIAN);
 
             /* GenDC container header data size */
             proto_tree_add_item(gvsp_gendc_container_descriptor_tree, hf_gvsp_gendc_container_header_data_size_v2_2, tvb, offset + 48, 8, ENC_LITTLE_ENDIAN);
@@ -1983,14 +1995,17 @@ static void dissect_packet_payload_gendc(proto_tree *gvsp_tree, tvbuff_t *tvb, p
                 */
 
                 /* GenDC component header type */
-                proto_tree_add_item(gvsp_gendc_component_header_tree, hf_gvsp_gendc_container_header_type_v2_2, tvb, component_offset, 2, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(gvsp_gendc_component_header_tree, hf_gvsp_gendc_header_type_v2_2, tvb, component_offset, 2, ENC_LITTLE_ENDIAN);
 
                 /* GenDC component header flags */
                 proto_tree_add_bitmask(gvsp_gendc_component_header_tree, tvb, component_offset + 2, hf_gvsp_gendc_component_header_flags_v2_2,
                     ett_gvsp_gendc_component_header_flags, gendc_component_header_flags_fields, ENC_LITTLE_ENDIAN);
 
                 /* GenDC component header size */
-                proto_tree_add_item(gvsp_gendc_component_header_tree, hf_gvsp_gendc_container_header_size_v2_2, tvb, component_offset + 4, 4, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(gvsp_gendc_component_header_tree, hf_gvsp_gendc_header_size_v2_2, tvb, component_offset + 4, 4, ENC_LITTLE_ENDIAN);
+
+                /* GenDC 2 reserved bytes */
+                proto_tree_add_item(gvsp_gendc_component_header_tree, hf_gvsp_gendc_header_reserved_2_bytes_v2_2, tvb, component_offset + 8, 2, ENC_LITTLE_ENDIAN);
 
                 /* GenDC component header group id */
                 proto_tree_add_item(gvsp_gendc_component_header_tree, hf_gvsp_gendc_component_header_group_id_v2_2, tvb, component_offset + 10, 2, ENC_LITTLE_ENDIAN);
@@ -2016,6 +2031,9 @@ static void dissect_packet_payload_gendc(proto_tree *gvsp_tree, tvbuff_t *tvb, p
                 /* GenDC component header format */
                 proto_tree_add_bitmask(gvsp_gendc_component_header_tree, tvb, component_offset + 40, hf_gvsp_pixelformat, ett_gvsp_pixelformat,
                     pixelformat_fields, ENC_LITTLE_ENDIAN);
+
+                /* GenDC 2 reserved bytes */
+                proto_tree_add_item(gvsp_gendc_component_header_tree, hf_gvsp_gendc_header_reserved_2_bytes_v2_2, tvb, component_offset + 44, 2, ENC_LITTLE_ENDIAN);
 
                 /* GenDC component header part count */
                 proto_tree_add_item(gvsp_gendc_component_header_tree, hf_gvsp_gendc_component_header_part_count_v2_2, tvb, component_offset + 46, 2, ENC_LITTLE_ENDIAN);
@@ -2045,7 +2063,7 @@ static void dissect_packet_payload_gendc(proto_tree *gvsp_tree, tvbuff_t *tvb, p
                     */
 
                     /* GenDC part header type */
-                    proto_tree_add_item(gvsp_gendc_part_header_tree, hf_gvsp_gendc_container_header_type_v2_2, tvb, part_offset, 2, ENC_LITTLE_ENDIAN);
+                    proto_tree_add_item(gvsp_gendc_part_header_tree, hf_gvsp_gendc_header_type_v2_2, tvb, part_offset, 2, ENC_LITTLE_ENDIAN);
 
                     /* GenDC part header flags */
                     if( part_type == GENDC_HEADER_TYPE_PART_XML )
@@ -2059,10 +2077,13 @@ static void dissect_packet_payload_gendc(proto_tree *gvsp_tree, tvbuff_t *tvb, p
                     }
 
                     /* GenDC part header size */
-                    proto_tree_add_item(gvsp_gendc_part_header_tree, hf_gvsp_gendc_container_header_size_v2_2, tvb, part_offset + 4, 4, ENC_LITTLE_ENDIAN);
+                    proto_tree_add_item(gvsp_gendc_part_header_tree, hf_gvsp_gendc_header_size_v2_2, tvb, part_offset + 4, 4, ENC_LITTLE_ENDIAN);
 
                     /* GenDC part header format */
                     proto_tree_add_bitmask(gvsp_gendc_part_header_tree, tvb, part_offset + 8, hf_gvsp_pixelformat, ett_gvsp_pixelformat, pixelformat_fields, ENC_LITTLE_ENDIAN);
+
+                    /* GenDC 2 reserved bytes */
+                    proto_tree_add_item(gvsp_gendc_part_header_tree, hf_gvsp_gendc_header_reserved_2_bytes_v2_2, tvb, part_offset + 12, 2, ENC_LITTLE_ENDIAN);
 
                     /* Flow ID */
                     proto_tree_add_item(gvsp_gendc_part_header_tree, hf_gvsp_gendc_payload_flow_id_v2_2, tvb, part_offset + 14, 2, ENC_LITTLE_ENDIAN);
@@ -2080,13 +2101,15 @@ static void dissect_packet_payload_gendc(proto_tree *gvsp_tree, tvbuff_t *tvb, p
                     {
                         case GENDC_HEADER_TYPE_PART_CHUNK:
                         case GENDC_HEADER_TYPE_PART_XML:
-                            break;
                         case GENDC_HEADER_TYPE_PART_1D:
                             /* GenDC part header size */
                             proto_tree_add_item(gvsp_gendc_part_header_tree, hf_gvsp_gendc_part_header_1D_size_v2_2, tvb, part_offset + 40, 8, ENC_LITTLE_ENDIAN);
 
                             /* GenDC part header padding */
                             proto_tree_add_item(gvsp_gendc_part_header_tree, hf_gvsp_gendc_part_header_1D_padding_v2_2, tvb, part_offset + 48, 4, ENC_LITTLE_ENDIAN);
+
+                            /* GenDC 4 reserved bytes */
+                            proto_tree_add_item(gvsp_gendc_part_header_tree, hf_gvsp_gendc_header_reserved_4_bytes_v2_2, tvb, part_offset + 52, 4, ENC_LITTLE_ENDIAN);
 
                             /* GenDC part header type specific */
                             proto_tree_add_item(gvsp_gendc_part_header_tree, hf_gvsp_gendc_part_header_type_specific_info_v2_2, tvb, part_offset + 56, 8, ENC_LITTLE_ENDIAN);
@@ -3288,6 +3311,36 @@ void proto_register_gvsp(void)
         NULL, HFILL
         } },
 
+        { &hf_gvsp_gendc_header_type_v2_2,
+        { "Header Type", "gvsp.gendc.header.type",
+        FT_UINT16, BASE_HEX, VALS(gendc_header_type_values), 0x0,
+        NULL, HFILL
+        } },
+
+        { &hf_gvsp_gendc_header_size_v2_2,
+        { "Size", "gvsp.gendc.header.size",
+        FT_UINT32, BASE_HEX_DEC, NULL, 0x0,
+        NULL, HFILL
+        } },
+
+        { &hf_gvsp_gendc_header_reserved_1_byte_v2_2,
+        { "Reserved (1 Byte)", "gvsp.gendc.header.reserved1",
+        FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL, HFILL
+        } },
+
+        { &hf_gvsp_gendc_header_reserved_2_bytes_v2_2,
+        { "Reserved (2 Bytes)", "gvsp.gendc.header.reserved2",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL
+        } },
+
+        { &hf_gvsp_gendc_header_reserved_4_bytes_v2_2,
+        { "Reserved (4 Bytes)", "gvsp.gendc.header.reserved4",
+        FT_UINT32, BASE_HEX, NULL, 0x0,
+        NULL, HFILL
+        } },
+
         { &hf_gvsp_gendc_container_header_signature_v2_2,
         { "Signature", "gvsp.gendc.container.header.signature",
         FT_STRING, BASE_NONE, NULL, 0x0,
@@ -3312,12 +3365,6 @@ void proto_register_gvsp(void)
         NULL, HFILL
         } },
 
-        { &hf_gvsp_gendc_container_header_type_v2_2,
-        { "Header Type", "gvsp.gendc.container.header.type",
-        FT_UINT16, BASE_HEX, VALS(gendc_header_type_values), 0x0,
-        NULL, HFILL
-        } },
-
         { &hf_gvsp_gendc_container_header_flags_v2_2,
         { "Flags", "gvsp.gendc.container.header.flags",
         FT_UINT16, BASE_HEX, NULL, 0x0,
@@ -3339,12 +3386,6 @@ void proto_register_gvsp(void)
         { &hf_gvsp_gendc_container_header_flags_reserved_v2_2,
         { "Reserved", "gvsp.gendc.container.header.flags.reserved",
         FT_UINT16, BASE_HEX, NULL, 0xFFFC,
-        NULL, HFILL
-        } },
-
-        { &hf_gvsp_gendc_container_header_size_v2_2,
-        { "Size", "gvsp.gendc.container.header.size",
-        FT_UINT32, BASE_HEX_DEC, NULL, 0x0,
         NULL, HFILL
         } },
 
@@ -3541,13 +3582,13 @@ void proto_register_gvsp(void)
         } },
 
         { &hf_gvsp_gendc_part_header_1D_size_v2_2,
-        { "Size", "gvsp.gendc.part.header.1d.size",
+        { "Size (1D Data)", "gvsp.gendc.part.header.1d.size",
         FT_UINT64, BASE_HEX_DEC, NULL, 0x0,
         NULL, HFILL
         } },
 
         { &hf_gvsp_gendc_part_header_1D_padding_v2_2,
-        { "Size", "gvsp.gendc.part.header.1d.padding",
+        { "Padding (1D Data)", "gvsp.gendc.part.header.1d.padding",
         FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
         NULL, HFILL
         } },
