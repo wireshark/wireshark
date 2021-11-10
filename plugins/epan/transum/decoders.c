@@ -79,7 +79,7 @@ int decode_dcerpc(packet_info *pinfo _U_, proto_tree *tree, PKT_INFO* pkt_info)
 
         if (is_dcerpc_context_zero(pkt_info->dcerpc_pkt_type))
         { /* This is needed to overcome an apparent Wireshark bug
-             found in the LUA code - is this still true in C? */
+             found in the Lua code - is this still true in C? */
             pkt_info->rrpd.session_id = 1;
         }
         else

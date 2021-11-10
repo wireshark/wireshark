@@ -2231,7 +2231,7 @@ foreach(_install_file ${INSTALL_FILES})
 	list(APPEND copy_data_files_depends "${_output_file}")
 endforeach()
 
-# Install LUA files in staging directory such that LUA can used when Wireshark
+# Install Lua files in staging directory such that Lua can used when Wireshark
 # is ran from the build directory. For install targets, see
 # epan/wslua/CMakeLists.txt
 if(LUA_FOUND AND ENABLE_LUA)

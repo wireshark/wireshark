@@ -818,7 +818,7 @@ static void cleanup_globals(void)
 
 /* This function adds the RTE data to the tree.  The summary ptr is currently
    not used but will be used for summariser information once this feature has
-   been ported from the LUA code. */
+   been ported from the Lua code. */
 static void write_rte(RRPD *in_rrpd, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, char *summary)
 {
     nstime_t rte_art;

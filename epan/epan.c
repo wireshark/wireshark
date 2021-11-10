@@ -769,7 +769,7 @@ epan_dissect_packet_contains_field(epan_dissect_t* edt,
 void
 epan_get_compiled_version_info(GString *str)
 {
-	/* LUA */
+	/* Lua */
 #ifdef HAVE_LUA
 	g_string_append(str, ", with " LUA_RELEASE);
 #else

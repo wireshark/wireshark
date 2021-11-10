@@ -339,9 +339,9 @@ https://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/[].
 
 [[ChLibsLua]]
 
-=== LUA (Optional)
+=== Lua (Optional)
 
-The LUA library is used to add scripting support to Wireshark.
+The Lua library is used to add scripting support to Wireshark.
 
 [[ChLibsUnixLua]]
 

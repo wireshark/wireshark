@@ -391,7 +391,7 @@ static true_false_string* true_false_string_from_table(lua_State* L, int idx) {
             return NULL;
         }
 
-        /* Arrays in LUA start with index number 1 */
+        /* Arrays in Lua start with index number 1 */
         switch (lua_tointeger(L,-2)) {
         case 1:
             g_free(true_string);
@@ -450,7 +450,7 @@ static unit_name_string* unit_name_string_from_table(lua_State* L, int idx) {
             return NULL;
         }
 
-        /* Arrays in LUA start with index number 1 */
+        /* Arrays in Lua start with index number 1 */
         switch (lua_tointeger(L,-2)) {
         case 1:
             g_free((gchar *)units->singular);
