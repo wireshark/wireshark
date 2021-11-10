@@ -725,7 +725,7 @@ tcp_flags_to_str(wmem_allocator_t *scope, const struct tcpheader *tcph)
     }
 
     if (buf[0] == '\0')
-        buf = "<None>";
+        g_stpcpy(pbuf, "<None>");
 
     return buf;
 }
