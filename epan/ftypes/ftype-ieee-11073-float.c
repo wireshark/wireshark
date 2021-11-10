@@ -925,6 +925,7 @@ float_ieee_11073_val_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display
             (void) g_strlcpy(buf, "-INFINITY", size);
             break;
         }
+        return;
     }
 
     exponent = fv->value.float_ieee_11073 >> 24;
