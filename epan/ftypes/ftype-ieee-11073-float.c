@@ -207,8 +207,8 @@ sfloat_ieee_11073_val_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_displa
     guint16  mantissa;
     guint16  mantissa_sign;
     guint32  offset = 0;
-#define MANTISSA_STR_BUFFER_SIZE 5
-    gchar    mantissa_str[MANTISSA_STR_BUFFER_SIZE];
+    char     mantissa_buf[5];
+    char    *mantissa_str;
     guint8   mantissa_digits;
 
     if (fv->value.sfloat_ieee_11073 >= 0x07FE && fv->value.sfloat_ieee_11073 <= 0x0802) {
@@ -252,7 +252,8 @@ sfloat_ieee_11073_val_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_displa
         offset += 1;
     }
 
-    mantissa_digits = g_snprintf(mantissa_str, MANTISSA_STR_BUFFER_SIZE, "%u", mantissa);
+    mantissa_digits = g_snprintf(mantissa_buf, sizeof(mantissa_buf), "%u", mantissa);
+    mantissa_str = mantissa_buf;
 
     if (exponent == 0) {
         memcpy(buf + offset, mantissa_str, mantissa_digits);
@@ -904,7 +905,8 @@ float_ieee_11073_val_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display
     guint32  mantissa;
     guint32  mantissa_sign;
     guint32  offset = 0;
-    gchar    mantissa_str[8];
+    char     mantissa_buf[8];
+    char    *mantissa_str;
     guint8   mantissa_digits;
 
     if (fv->value.float_ieee_11073 >= 0x007FFFFE && fv->value.float_ieee_11073 <= 0x00800002) {
@@ -946,7 +948,8 @@ float_ieee_11073_val_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display
         offset += 1;
     }
 
-    mantissa_digits = g_snprintf(mantissa_str, size, "%u", mantissa);
+    mantissa_digits = g_snprintf(mantissa_buf, sizeof(mantissa_buf), "%u", mantissa);
+    mantissa_str = mantissa_buf;
 
     if (exponent == 0) {
         memcpy(buf + offset, mantissa_str, mantissa_digits);
