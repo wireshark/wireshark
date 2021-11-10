@@ -249,16 +249,6 @@ fvalue_from_unparsed(ftenum_t ftype, const char *s, gboolean allow_partial_value
 fvalue_t*
 fvalue_from_string(ftenum_t ftype, const char *s, gchar **err_msg);
 
-/* Returns the length of the string required to hold the
- * string representation of the the field value.
- *
- * Returns -1 if the string cannot be represented in the given rtype.
- *
- * The length DOES NOT include the terminating NUL. */
-WS_DLL_PUBLIC
-int
-fvalue_string_repr_len(const fvalue_t *fv, ftrepr_t rtype, int field_display);
-
 /* Creates the string representation of the field value.
  * Memory for the buffer is allocated based on wmem allocator
  * provided.

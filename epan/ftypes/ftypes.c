@@ -322,13 +322,6 @@ fvalue_length(fvalue_t *fv)
 		return fv->ftype->wire_size;
 }
 
-int
-fvalue_string_repr_len(const fvalue_t *fv, ftrepr_t rtype, int field_display)
-{
-	ws_assert(fv->ftype->len_string_repr);
-	return fv->ftype->len_string_repr(fv, rtype, field_display);
-}
-
 char *
 fvalue_to_string_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype, int field_display)
 {
@@ -339,13 +332,14 @@ fvalue_to_string_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtyp
 		return NULL;
 	}
 
-	if ((len = fvalue_string_repr_len(fv, rtype, field_display)) >= 0) {
-		buf = (char *)wmem_alloc0(scope, len + 1);
-	} else {
+	ws_assert(fv->ftype->len_string_repr);
+	len = fv->ftype->len_string_repr(fv, rtype, field_display);
+	if (len < 0) {
 		/* the value cannot be represented in the given representation type (rtype) */
 		return NULL;
 	}
 
+	buf = wmem_alloc0(scope, len + 1);
 	fv->ftype->val_to_string_repr(fv, rtype, field_display, buf, (unsigned int)len+1);
 	return buf;
 }

@@ -741,7 +741,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  fvalue_get_sinteger@Base 1.9.1
  fvalue_get_uinteger64@Base 1.99.3
  fvalue_get_uinteger@Base 1.9.1
- fvalue_string_repr_len@Base 1.9.1
  fvalue_to_string_repr@Base 1.9.1
  fvalue_type_ftenum@Base 1.12.0~rc1
  gbl_resolv_flags@Base 1.9.1
