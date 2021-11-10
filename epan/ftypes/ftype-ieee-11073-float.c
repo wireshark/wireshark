@@ -12,8 +12,9 @@
 
 #include "config.h"
 
-#include <stdio.h>
 #include <ftypes-int.h>
+#include <inttypes.h>
+#include <stdio.h>
 #include <math.h>
 #include <errno.h>
 #include <float.h>
@@ -204,7 +205,7 @@ static void
 sfloat_ieee_11073_val_to_repr(const fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf, unsigned int size)
 {
     gint8    exponent;
-    guint16  mantissa;
+    uint16_t mantissa;
     guint16  mantissa_sign;
     guint32  offset = 0;
     char     mantissa_buf[5];
@@ -252,7 +253,7 @@ sfloat_ieee_11073_val_to_repr(const fvalue_t *fv, ftrepr_t rtype _U_, int field_
         offset += 1;
     }
 
-    mantissa_digits = g_snprintf(mantissa_buf, sizeof(mantissa_buf), "%u", mantissa);
+    mantissa_digits = snprintf(mantissa_buf, sizeof(mantissa_buf), "%"PRIu16, mantissa);
     mantissa_str = mantissa_buf;
 
     if (exponent == 0) {
@@ -634,7 +635,7 @@ static void
 float_ieee_11073_val_to_repr(const fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf, unsigned int size)
 {
     gint8    exponent;
-    guint32  mantissa;
+    uint32_t mantissa;
     guint32  mantissa_sign;
     guint32  offset = 0;
     char     mantissa_buf[8];
@@ -680,7 +681,7 @@ float_ieee_11073_val_to_repr(const fvalue_t *fv, ftrepr_t rtype _U_, int field_d
         offset += 1;
     }
 
-    mantissa_digits = g_snprintf(mantissa_buf, sizeof(mantissa_buf), "%u", mantissa);
+    mantissa_digits = snprintf(mantissa_buf, sizeof(mantissa_buf), "%"PRIu32, mantissa);
     mantissa_str = mantissa_buf;
 
     if (exponent == 0) {
