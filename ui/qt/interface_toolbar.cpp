@@ -666,7 +666,7 @@ void InterfaceToolbar::onLogButtonClicked()
 
     if (!interface_[ifname].log_dialog.contains(num))
     {
-        interface_[ifname].log_dialog[num] = new FunnelTextDialog(ifname + " " + button->text());
+        interface_[ifname].log_dialog[num] = new FunnelTextDialog(window(), ifname + " " + button->text());
         connect(interface_[ifname].log_dialog[num], SIGNAL(accepted()), this, SLOT(closeLog()));
         connect(interface_[ifname].log_dialog[num], SIGNAL(rejected()), this, SLOT(closeLog()));
 

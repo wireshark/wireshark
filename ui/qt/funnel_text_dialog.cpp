@@ -25,8 +25,8 @@
 
 static QHash<QObject *, funnel_bt_t*> text_button_to_funnel_button_;
 
-FunnelTextDialog::FunnelTextDialog(const QString &title) :
-    GeometryStateDialog(NULL),
+FunnelTextDialog::FunnelTextDialog(QWidget *parent, const QString &title) :
+    GeometryStateDialog(parent),
     ui(new Ui::FunnelTextDialog),
     close_cb_(NULL),
     close_cb_data_(NULL)
@@ -73,9 +73,9 @@ void FunnelTextDialog::reject()
     deleteLater();
 }
 
-struct _funnel_text_window_t *FunnelTextDialog::textWindowNew(const QString title)
+struct _funnel_text_window_t *FunnelTextDialog::textWindowNew(QWidget *parent, const QString title)
 {
-    FunnelTextDialog *ftd = new FunnelTextDialog(title);
+    FunnelTextDialog *ftd = new FunnelTextDialog(parent, title);
     ftd->show();
     return &ftd->funnel_text_window_;
 }
@@ -168,11 +168,6 @@ void FunnelTextDialog::on_findLineEdit_textChanged(const QString &pattern)
     // Restore cursor and anchor
     csr.setPosition(position, QTextCursor::MoveAnchor);
     setUpdatesEnabled(true);
-}
-
-struct _funnel_text_window_t* text_window_new(const char* title)
-{
-    return FunnelTextDialog::textWindowNew(title);
 }
 
 void text_window_set_text(funnel_text_window_t *ftw, const char* text)
