@@ -614,6 +614,8 @@ void IOGraphDialog::syncGraphSettings(int row)
         hint_err_ = iog->configError();
         visible = false;
         retap = false;
+    } else {
+        hint_err_.clear();
     }
 
     iog->setVisible(visible);

@@ -341,7 +341,7 @@ void DisplayFilterEdit::checkFilter(const QString& filter_text)
         alignActionButtons();
     }
 
-    if (filter_text.length() <= 0)
+    if ((filter_text.length() <= 0) && mainApp->mainWindow()->isActiveWindow())
         mainApp->popStatus(MainApplication::FilterSyntax);
 
     emit popFilterSyntaxStatus();
@@ -351,14 +351,17 @@ void DisplayFilterEdit::checkFilter(const QString& filter_text)
     switch (syntaxState()) {
     case Deprecated:
     {
-        mainApp->pushStatus(MainApplication::FilterSyntax, syntaxErrorMessage());
+        if (mainApp->mainWindow()->isActiveWindow())
+            mainApp->pushStatus(MainApplication::FilterSyntax, syntaxErrorMessage());
         setToolTip(syntaxErrorMessage());
         break;
     }
     case Invalid:
     {
-        mainApp->pushStatus(MainApplication::FilterSyntax, syntaxErrorMessage());
-        setToolTip(syntaxErrorMessageFull());
+        QString invalidMsg = tr("Invalid filter: ").append(syntaxErrorMessage());
+        if (mainApp->mainWindow()->isActiveWindow())
+            mainApp->pushStatus(MainApplication::FilterSyntax, syntaxErrorMessage());
+        setToolTip(invalidMsg);
         break;
     }
     default:
@@ -473,14 +476,16 @@ void DisplayFilterEdit::buildCompletionList(const QString &field_word)
 {
     // Push a hint about the current field.
     if (syntaxState() == Valid) {
-        mainApp->popStatus(MainApplication::FilterSyntax);
+        if (mainApp->mainWindow()->isActiveWindow())
+            mainApp->popStatus(MainApplication::FilterSyntax);
 
         header_field_info *hfinfo = proto_registrar_get_byname(field_word.toUtf8().constData());
         if (hfinfo) {
             QString cursor_field_msg = QString("%1: %2")
                     .arg(hfinfo->name)
                     .arg(ftype_pretty_name(hfinfo->type));
-            mainApp->pushStatus(MainApplication::FilterSyntax, cursor_field_msg);
+            if (mainApp->mainWindow()->isActiveWindow())
+                mainApp->pushStatus(MainApplication::FilterSyntax, cursor_field_msg);
         }
     }
 
