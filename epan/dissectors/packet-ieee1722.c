@@ -858,6 +858,7 @@ get_seqnum_exp_1722_udp(packet_info *pinfo, const guint32 seqnum)
 
 static int dissect_1722_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum IEEE_1722_TRANSPORT transport)
 {
+    tvbuff_t   *next_tvb;
     proto_item *ti;
     proto_tree *ieee1722_tree;
     guint32     encap_seqnum, encap_seqnum_exp;
@@ -888,6 +889,9 @@ static int dissect_1722_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
             }
         }
         offset += 4;
+        next_tvb = tvb_new_subset_remaining(tvb, offset);
+    } else {
+        next_tvb = tvb;
     }
 
     proto_tree_add_item_ret_uint(ieee1722_tree, hf_1722_subtype, tvb, offset, 1, ENC_BIG_ENDIAN, &subtype);
@@ -895,12 +899,12 @@ static int dissect_1722_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     proto_tree_add_bitmask_list(ieee1722_tree, tvb, offset, 1, fields, ENC_NA);
 
     /* call any registered subtype dissectors which use only the common AVTPDU (e.g. 1722.1, MAAP, 61883, AAF, CRF or CVF) */
-    dissected_size = dissector_try_uint(avb_dissector_table, subtype, tvb, pinfo, tree);
+    dissected_size = dissector_try_uint(avb_dissector_table, subtype, next_tvb, pinfo, tree);
     if (dissected_size > 0) {
         return dissected_size;
     }
 
-    call_data_dissector(tvb, pinfo, ieee1722_tree);
+    call_data_dissector(next_tvb, pinfo, ieee1722_tree);
     return tvb_captured_length(tvb);
 }
 
