@@ -483,7 +483,7 @@ int64_to_str_back(char *ptr, gint64 value)
 	return ptr;
 }
 
-static int
+static size_t
 guint32_to_str_buf_len(const guint32 u)
 {
 	/* ((2^32)-1) == 2147483647 */
@@ -501,9 +501,9 @@ guint32_to_str_buf_len(const guint32 u)
 }
 
 void
-guint32_to_str_buf(guint32 u, gchar *buf, int buf_len)
+guint32_to_str_buf(guint32 u, gchar *buf, size_t buf_len)
 {
-	int str_len = guint32_to_str_buf_len(u)+1;
+	size_t str_len = guint32_to_str_buf_len(u)+1;
 
 	gchar *bp = &buf[str_len];
 
@@ -514,7 +514,7 @@ guint32_to_str_buf(guint32 u, gchar *buf, int buf_len)
 	uint_to_str_back(bp, u);
 }
 
-static int
+static size_t
 guint64_to_str_buf_len(const guint64 u)
 {
 	/* ((2^64)-1) == 18446744073709551615 */
@@ -543,9 +543,9 @@ guint64_to_str_buf_len(const guint64 u)
 }
 
 void
-guint64_to_str_buf(guint64 u, gchar *buf, int buf_len)
+guint64_to_str_buf(guint64 u, gchar *buf, size_t buf_len)
 {
-	int str_len = guint64_to_str_buf_len(u)+1;
+	size_t str_len = guint64_to_str_buf_len(u)+1;
 
 	gchar *bp = &buf[str_len];
 

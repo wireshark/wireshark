@@ -1114,7 +1114,7 @@ static gboolean print_field_value(field_info *finfo, int cmd_line_index)
     char                *fs_buf = NULL;
     char                *fs_ptr = NULL;
     static GString     *label_s = NULL;
-    int                 fs_len;
+    size_t              fs_len;
     guint              i;
     string_fmt_t       *sf;
     guint32            uvalue;

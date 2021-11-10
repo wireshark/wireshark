@@ -280,9 +280,9 @@ WS_DLL_PUBLIC char *int_to_str_back(char *ptr, gint32 value);
  */
 WS_DLL_PUBLIC char *int64_to_str_back(char *ptr, gint64 value);
 
-WS_DLL_PUBLIC void guint32_to_str_buf(guint32 u, gchar *buf, int buf_len);
+WS_DLL_PUBLIC void guint32_to_str_buf(guint32 u, gchar *buf, size_t buf_len);
 
-WS_DLL_PUBLIC void guint64_to_str_buf(guint64 u, gchar *buf, int buf_len);
+WS_DLL_PUBLIC void guint64_to_str_buf(guint64 u, gchar *buf, size_t buf_len);
 
 WS_DLL_PUBLIC void ip_to_str_buf(const guint8 *ad, gchar *buf, const int buf_len);
 
