@@ -80,6 +80,30 @@ static int hf_ts_last_jump_ns = -1;
 static int hf_ts_utc_leap_sec = -1;
 static int hf_ts_sync_state = -1;
 
+static int hf_lin_1_3_classic_chksum = -1;
+static int hf_lin_1_2_enhanced_chksum = -1;
+static int hf_lin_wakeup = -1;
+static int hf_lin_time_jump = -1;
+
+static int hf_lin_reserved_bytes = -1;
+static int hf_lin_wakeup_length = -1;
+static int hf_lin_sts_reserved = -1;
+static int hf_lin_sts_syn = -1;
+static int hf_lin_sts_par = -1;
+static int hf_lin_sts_res = -1;
+static int hf_lin_sts_dat = -1;
+static int hf_lin_sts_chk = -1;
+static int hf_lin_sts_sta = -1;
+static int hf_lin_sts_sto = -1;
+static int hf_lin_sts_emp = -1;
+static int hf_lin_payload = -1;
+static int hf_lin_payload_pid = -1;
+static int hf_lin_payload_id_parity_0 = -1;
+static int hf_lin_payload_id_parity_1 = -1;
+static int hf_lin_payload_id = -1;
+static int hf_lin_payload_data = -1;
+static int hf_lin_payload_checksum = -1;
+
 static int hf_dio_overflow_mon_unit = -1;
 static int hf_dio_jump_occurred = -1;
 static int hf_dio_value_type = -1;
@@ -139,6 +163,8 @@ static gint ett_ebhscr_channel = -1;
 static gint ett_ebhscr_packet_header = -1;
 static gint ett_ebhscr_status = -1;
 static gint ett_ebhscr_mjr_hdr = -1;
+
+static gint ett_lin_payload = -1;
 
 static int * const can_status_bits[] = {
 	&hf_can_proto_type,
@@ -294,6 +320,37 @@ static const value_string ts_sync_state_strings[] = {
 	{ 0,	"Free running" },
 	{ 1,	"Locked to master" },
 	{ 0, NULL },
+};
+
+static int * const lin_status_bits[] = {
+	&hf_lin_time_jump,
+	&hf_lin_wakeup,
+	&hf_lin_1_2_enhanced_chksum,
+	&hf_lin_1_3_classic_chksum,
+	NULL
+};
+
+static int * const lin_mjr_hdr_bits[] = {
+
+	&hf_lin_wakeup_length,
+	&hf_lin_sts_emp,
+	&hf_lin_sts_sto,
+	&hf_lin_sts_sta,
+	&hf_lin_sts_chk,
+	&hf_lin_sts_dat,
+	&hf_lin_sts_res,
+	&hf_lin_sts_par,
+	&hf_lin_sts_syn,
+	&hf_lin_sts_reserved,
+	&hf_lin_reserved_bytes,
+	NULL
+};
+
+static int * const lin_payload_pid_bits[] = {
+	&hf_lin_payload_id,
+	&hf_lin_payload_id_parity_0,
+	&hf_lin_payload_id_parity_1,
+	NULL
 };
 
 static int * const dio_status_bits[] = {
@@ -459,6 +516,7 @@ static dissector_table_t subdissector_table;
 #define NMEA_FRAME 0x51
 #define TIME_STATE_FRAME 0x52
 #define CAN_FRAME 0x53
+#define LIN_FRAME 0x55
 #define DIO_FRAME 0x56
 #define FLEXRAY_FRAME 0x57
 #define EBHSCR_HEADER_LENGTH 32
@@ -623,6 +681,51 @@ static int dissect_ebhscr_ts(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 	next_tvb = tvb_new_subset_length(tvb, 32, ebhscr_current_payload_length);
 	call_data_dissector(next_tvb, pinfo, tree);
+
+	return tvb_captured_length(tvb);
+}
+
+static int dissect_ebhscr_lin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ebhscr_tree,
+					proto_tree *ebhscr_packet_header_tree, guint16 ebhscr_status, guint32 ebhscr_frame_length)
+{
+	proto_item* ti;
+	proto_tree *lin_payload_tree, *lin_pid_tree;
+	guint32 ebhscr_current_payload_length;
+
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "LIN (EBHSCR)");
+	ebhscr_current_payload_length = ebhscr_frame_length - EBHSCR_HEADER_LENGTH;
+
+	ti = proto_tree_add_bitmask(ebhscr_packet_header_tree, tvb, 2, hf_ebhscr_status,
+								ett_ebhscr_status, lin_status_bits, ENC_BIG_ENDIAN);
+
+	if (ebhscr_status) {
+		expert_add_info(pinfo, ti, &ei_ebhscr_info_status_flag);
+	}
+
+	if ((ebhscr_status & 0x0010) != 0) {
+		col_set_str(pinfo->cinfo, COL_INFO, "LIN Wake-Up Packet");
+	}
+	else {
+		col_set_str(pinfo->cinfo, COL_INFO, "LIN Frame");
+	}
+
+	proto_tree_add_bitmask(ebhscr_packet_header_tree, tvb, 24, hf_ebhscr_mjr_hdr, ett_ebhscr_mjr_hdr,
+							lin_mjr_hdr_bits, ENC_BIG_ENDIAN);
+
+	/* received hdr only and no data */
+	if (ebhscr_frame_length == EBHSCR_HEADER_LENGTH) {
+		return tvb_captured_length(tvb);
+	}
+
+	ti = proto_tree_add_item(ebhscr_tree, hf_lin_payload, tvb, 32, ebhscr_current_payload_length, ENC_NA);
+	lin_payload_tree = proto_item_add_subtree(ti, ett_lin_payload);
+
+	ti = proto_tree_add_item(lin_payload_tree, hf_lin_payload_pid, tvb, 32, 1, ENC_BIG_ENDIAN);
+	lin_pid_tree = proto_item_add_subtree(ti, ett_lin_payload);
+	proto_tree_add_bitmask_list(lin_pid_tree, tvb, 32, 1, lin_payload_pid_bits, ENC_BIG_ENDIAN);
+
+	proto_tree_add_item(lin_payload_tree, hf_lin_payload_data, tvb, EBHSCR_HEADER_LENGTH + 1, ebhscr_current_payload_length - 2, ENC_NA);
+	proto_tree_add_item(lin_payload_tree, hf_lin_payload_checksum, tvb, EBHSCR_HEADER_LENGTH + ebhscr_current_payload_length - 1, 1, ENC_BIG_ENDIAN);
 
 	return tvb_captured_length(tvb);
 }
@@ -931,6 +1034,10 @@ dissect_ebhscr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 	else if (ebhscr_major_num == TIME_STATE_FRAME) {
 		dissect_ebhscr_ts(tvb, pinfo, tree, ebhscr_packet_header_tree, ebhscr_status, ebhscr_frame_length);
 	}
+	else if (ebhscr_major_num == LIN_FRAME) {
+		dissect_ebhscr_lin(tvb, pinfo, ebhscr_tree, ebhscr_packet_header_tree, ebhscr_status, ebhscr_frame_length);
+	}
+
 	else if (ebhscr_major_num == DIO_FRAME) {
 		dissect_ebhscr_dio(tvb, pinfo, tree, ebhscr_packet_header_tree, ebhscr_status, ebhscr_frame_length);
 	}
@@ -1280,6 +1387,143 @@ proto_register_ebhscr(void)
 			{ "Sync state", "ebhscr.ts.syn", FT_UINT16, BASE_HEX,
 			VALS(ts_sync_state_strings), 0, NULL, HFILL }
 		},
+		{ &hf_lin_1_3_classic_chksum,
+			{ "LIN 1.3 Classic Checksum received", "ebhscr.lin.clchksum",
+			FT_BOOLEAN, 16,
+			NULL, 0x0001,
+			"During reception the checksum is validated to determine this bit."
+			"If the received checksum is invalid this bit can not be evaluated."
+			"Version 1.3 checksum is calculated over data bytes.", HFILL }
+		},
+		{ &hf_lin_1_2_enhanced_chksum,
+			{ "LIN 2.0 Enhanced Checksum received", "ebhscr.lin.enchksum",
+			FT_BOOLEAN, 16,
+			NULL, 0x0002,
+			"During reception the checksum is validated to determine this bit."
+			"If the received checksum is invalid this bit can not be evaluated."
+			"Version 2.0 checksum is calculated over ID and data byes.", HFILL }
+		},
+		{ &hf_lin_wakeup,
+			{ "LIN Wake-Up Packet was received", "ebhscr.lin.wakeup",
+			FT_BOOLEAN, 16,
+			NULL, 0x0010,
+			"A wakeup packet contains no payload (Payload length field is set to 0)."
+			"The wakeup length field in the major number specific header is set.", HFILL }
+		},
+		{ &hf_lin_time_jump,
+			{ "Time jump occured near the edge and thus the timestamp was estimated", "ebhscr.lin.timejmp",
+			FT_BOOLEAN, 16,
+			NULL, 0x0400,
+			"Only relevant for capture, ignored for replay.", HFILL }
+		},
+		{ &hf_lin_reserved_bytes,
+			{ "Reserved", "ebhscr.lin.rsv",
+			FT_BOOLEAN, 64, NULL,
+			0x00000000FFFFFFFF,
+			NULL, HFILL }
+		},
+		{ &hf_lin_wakeup_length,
+			{ "Wake-Up signal low phase length in us", "ebhscr.lin.wakeup",
+			FT_UINT64, BASE_DEC, NULL,
+			0xFFFF000000000000,
+			"Only valid if wakeup bit in status header is set. Set to 0 otherwise.", HFILL }
+		},
+		{ &hf_lin_sts_reserved,
+			{ "Reserved bit", "ebhscr.lin.bitrsv",
+			FT_BOOLEAN, 64,
+			NULL, 0x0000000100000000,
+			NULL, HFILL }
+		},
+		{ &hf_lin_sts_syn,
+			{ "SYN - Received syncronization field is not 0x55", "ebhscr.lin.syn",
+			FT_BOOLEAN, 64,
+			NULL, 0x0000000200000000,
+			NULL, HFILL }
+		},
+		{ &hf_lin_sts_par,
+			{ "PAR - Received parity does not match calculated parity", "ebhscr.lin.par",
+			FT_BOOLEAN, 64,
+			NULL, 0x0000000400000000,
+			NULL, HFILL }
+		},
+		{ &hf_lin_sts_res,
+			{ "RES - No response detected after LIN header", "ebhscr.lin.res",
+			FT_BOOLEAN, 64,
+			NULL, 0x0000000800000000,
+			NULL, HFILL }
+		},
+		{ &hf_lin_sts_dat,
+			{ "DAT - Too many data bytes received", "ebhscr.lin.dat",
+			FT_BOOLEAN, 64,
+			NULL, 0x0000001000000000,
+			NULL, HFILL }
+		},
+		{ &hf_lin_sts_chk,
+			{ "CHK - Checksum is invalid", "ebhscr.lin.chk",
+			FT_BOOLEAN, 64,
+			NULL, 0x0000002000000000,
+			NULL, HFILL }
+		},
+		{ &hf_lin_sts_sta,
+			{ "STA - Expected start bit, but detected recessive bus level", "ebhscr.lin.sta",
+			FT_BOOLEAN, 64,
+			NULL, 0x0000004000000000,
+			NULL, HFILL }
+		},
+		{ &hf_lin_sts_sto,
+			{ "STO - Expected stop bit, but detected recessive bus level", "ebhscr.lin.sto",
+			FT_BOOLEAN, 64,
+			NULL, 0x0000008000000000,
+			NULL, HFILL }
+		},
+		{ &hf_lin_sts_emp,
+			{ "EMP - Break and Sync received, but no further data", "ebhscr.lin.emp",
+			FT_BOOLEAN, 64,
+			NULL, 0x0000010000000000,
+			NULL, HFILL }
+		},
+		{ &hf_lin_payload,
+			{ "Payload", "ebhscr.lin.payload",
+			FT_BYTES, SEP_SPACE,
+			NULL, 0x0,
+			NULL, HFILL }
+			},
+		{ &hf_lin_payload_pid,
+			{ "LIN protected identifier", "ebhscr.lin.payload.pid",
+			FT_UINT8, BASE_HEX,
+			NULL, 0,
+			NULL, HFILL }
+			},
+		{ &hf_lin_payload_id,
+			{ "LIN identifier", "ebhscr.lin.payload.id",
+			FT_UINT8, BASE_HEX,
+			NULL, 0x3F,
+			NULL, HFILL }
+			},
+		{ &hf_lin_payload_id_parity_0,
+			{ "LIN identifier parity bit 0", "ebhscr.lin.payload.id_parity0",
+			FT_UINT8, BASE_HEX,
+			NULL, 0x40,
+			NULL, HFILL }
+			},
+		{ &hf_lin_payload_id_parity_1,
+			{ "LIN identifier parity bit 1", "ebhscr.lin.payload.id_parity1",
+			FT_UINT8, BASE_HEX,
+			NULL, 0x80,
+			NULL, HFILL }
+			},
+		{ &hf_lin_payload_data,
+			{ "Data", "ebhscr.lin.payload.data",
+			FT_BYTES, SEP_SPACE,
+			NULL, 0x0,
+			NULL, HFILL }
+			},
+		{ &hf_lin_payload_checksum,
+			{ "Checksum", "ebhscr.lin.payload.checksum",
+			FT_UINT8, BASE_HEX,
+			NULL, 0x0,
+			NULL, HFILL }
+			},
 		{ &hf_dio_overflow_mon_unit,
 			{ "Overflow in the monitoring unit", "ebhscr.dio.ofw_mon",
 			FT_BOOLEAN, 16,
@@ -1558,6 +1802,7 @@ proto_register_ebhscr(void)
 		&ett_ebhscr_packet_header,
 		&ett_ebhscr_status,
 		&ett_ebhscr_mjr_hdr,
+		&ett_lin_payload,
 	};
 
 	static ei_register_info ei[] = {
