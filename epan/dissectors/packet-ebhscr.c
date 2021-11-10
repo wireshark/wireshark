@@ -64,6 +64,8 @@ static int hf_eth_jabber_event = -1;
 static int hf_eth_pol_ch_event = -1;
 static int hf_eth_fls_carrier_event = -1;
 static int hf_eth_rx_trunc = -1;
+static int hf_eth_transmission_disc_err = -1;
+static int hf_eth_wait_frame_sep_bit = -1;
 
 static int hf_ts_time_offset_valid = -1;
 static int hf_ts_last_offset_change_valid = -1;
@@ -210,6 +212,8 @@ static int * const  eth_rx_error_bits[] = {
 	&hf_eth_pol_ch_event,
 	&hf_eth_fls_carrier_event,
 	&hf_eth_rx_trunc,
+	&hf_eth_transmission_disc_err,
+	&hf_eth_wait_frame_sep_bit,
 	NULL
 };
 
@@ -506,8 +510,9 @@ static int dissect_ebhscr_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 {
 	tvbuff_t* next_tvb;
 	proto_item *ti;
-	guint64 major_hrd, fsc_not_present;
+	guint8 channel;
 	guint32 ebhscr_current_payload_length;
+	guint64 major_hrd, fsc_not_present, link_up, link_speed;
 	ebhscr_current_payload_length = ebhscr_frame_length - EBHSCR_HEADER_LENGTH;
 
 	ti = proto_tree_add_bitmask(ebhscr_packet_header_tree, tvb, 2, hf_ebhscr_status,
@@ -517,15 +522,22 @@ static int dissect_ebhscr_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 		expert_add_info(pinfo, ti, &ei_ebhscr_err_status_flag);
 	}
 
+	channel = (tvb_get_guint8(tvb, 1) & 0x1C) >> 2;
 	major_hrd = tvb_get_guint64(tvb, 24, ENC_BIG_ENDIAN);
 
 	proto_tree_add_bitmask(ebhscr_packet_header_tree, tvb, 24, hf_ebhscr_mjr_hdr, ett_ebhscr_mjr_hdr,
 							eth_mjr_hdr_bits, ENC_BIG_ENDIAN);
 
 	fsc_not_present = (major_hrd & 0x0000000400000000);
-
+	link_up = (major_hrd & 0x0000000100000000) ? 1 : 0;
+	link_speed = (major_hrd & 0x00000000F0000000) >> 28U;
 	/* received hdr only and no data */
 	if (ebhscr_frame_length == EBHSCR_HEADER_LENGTH) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, "Ethernet controller %d %s", channel, val64_to_str_const(link_up, eth_link_strings, ""));
+		if (link_up)
+		{
+			col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val64_to_str_const(link_speed, eth_speed_strings, "Speed unknown"));
+		}
 		return tvb_captured_length(tvb);
 	}
 	/* payload is 802.3 Ethernet frame */
@@ -1175,6 +1187,18 @@ proto_register_ebhscr(void)
 			{ "Truncation", "ebhscr.eth.rxtrc",
 			FT_BOOLEAN, 16,
 			NULL, 0x0200,
+			NULL, HFILL }
+		},
+		{ &hf_eth_transmission_disc_err,
+			{ "Capture: Transmission Discarded Error, Replay: Start Frame Separation Bit", "ebhscr.eth.trdis",
+			FT_BOOLEAN, 16,
+			NULL, 0x0400,
+			NULL, HFILL }
+		},
+		{ &hf_eth_wait_frame_sep_bit,
+			{ "Wait Frame Separation Bit", "ebhscr.eth.wfsb",
+			FT_BOOLEAN, 16,
+			NULL, 0x0800,
 			NULL, HFILL }
 		},
 		{ &hf_eth_tx_trunc,
