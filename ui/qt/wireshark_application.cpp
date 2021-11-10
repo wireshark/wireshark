@@ -629,6 +629,7 @@ WiresharkApplication::WiresharkApplication(int &argc,  char **argv) :
     if_notifier_(NULL),
     active_captures_(0)
 {
+    wsApp = this;
     setApplicationName("Wireshark");
 
     MimeDatabaseInitThread *mime_db_init_thread = new(MimeDatabaseInitThread);
@@ -778,6 +779,7 @@ WiresharkApplication::WiresharkApplication(int &argc,  char **argv) :
 
 WiresharkApplication::~WiresharkApplication()
 {
+    wsApp = NULL;
     clearDynamicMenuGroupItems();
     free_filter_lists();
 }
