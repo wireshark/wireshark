@@ -1,3 +1,55 @@
+db3cfe5157 MKA: MACsec SAK USE body length = 0 does not decode (BUGFIX)
+55e05d3f76 Add initial support for MinGW-w64 to release notes
+a200e6459b README.msys2: Add more information about missing packages
+fa00ac03c0 MSYS2/CMake: Fix asciidoctor invocation
+0d6876f8c9 Add README for MinGW-w64 (MSYS2) build
+54eb9676a6 ftypes: Bugfix a buffer size
+b75b9896cc ftypes: Bugfix missing return statement
+f06c78d02e Revert "Qt: fix memory leaks found by Visual Leak Detector"
+1fe475c735 Revert "Qt: Fix epan cleanup exit crash"
+2d358af1af TCP: always return a free-able string buffer
+f339bdf2ab AVTP/IEEE1722: Fix offset when over UDP
+546ee81d29 Epan: Reset our tap globals on cleanup.
+1c2bac9107 BBLog: Fix support of TCP window scaling
+ef618098de Qt: Fix epan cleanup exit crash
+eb17a4fba1 UAT: Allow missing fields.
+9c09b06d1d UAT: Allow extra fields.
+a32e338700 [Automatic update for 2021-11-07]
+69965501de Fix a duplicate author name
+8d674e763e dissectors: support sysdig new block type BLOCK_TYPE_SYSDIG_EVENT_V2_LARGE
+32e01911be [Thrift] Limit depth of nested types using p_set_proto_depth
+412a64140b dtls: Add preferences for client/server CID length
+1db32f6cea CMake: fix macOS build without Asciidoctor
+130c63150f ErlDP: Don't overrun a buffer.
+067214a8ec Tools: Fetch IANA data over HTTPS.
+fbe8b36a43 Tools: make-pci-ids fixups.
+3279e8a088 tls: Omit Connection ID when length is 0
+8c0020e0da IPPUSB: Add a pointer check.
+e1efbe23f4 Modbus: Add null pointer checks.
+827daad901 RTPS: Enable a memory allocation limit.
+ab3bb4619c 802.11 Radio: Add null pointer checks.
+e2429a8db0 Tools: Fixup our fuzz test error header.
+07b4930731 BT LE LL: Add a NULL Check.
+0690856def tls: Fix DTLS heuristics when having connection_id
+9d52858089 tls: Update DTLS 1.2 Connection ID extension
+55ba59cd1f Skinny: Resynced Skinny xml definition with code
+aebe537fdf [Automatic update for 2021-10-31]
+cc1920819a docs: Update documentation to use ',' as set separator
+58da246c68 dfilter: Add synctatic sugar for "not in" test
+46f748e4a6 PVFS: Make sure we have pinfo when we need it.
+30793fbfc7 BP: Fix crashes on invalid fuzzed inputs
+0982831a85 QUIC: allow simple "tls" display filter
+56590ed209 SOME/IP: WTLV type 5 complains about 6 bit length field (BUGFIX)
+1b9972ae97 C12.22: Track our allocation sizes.
+99395fd030 GitLab CI+tools: Fuzz test updates.
+861803e3fc dfilter: Add support for comma as set separator
+b6dfd1abc1 tests/dfilter: Move deprecated to syntax group
+da88e69229 dfilter: Fixup deprecated tokens initialization
+e37e094bcf ORAN FH CUS: Avoid infinite loop on section extension
+1c0391e92b RDP: workaround setting pduLen for Manaro Linux
+a795384c43 Prep for 3.6.0rc3.
+4fe46200be Build 3.6.0rc2
+7b6b41a4d5 EAP: Add Autority ID Data from EAP-FAST
 2a0f68f3a9 Flow sequence: Shows more information about various skinny messages
 819a6b50f1 QUIC(Datagram): update to last IETF draft
 ff9c194582 QUIC: Update to final RFC...
