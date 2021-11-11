@@ -25,7 +25,7 @@
 #include <wsutil/wslog.h>
 #include <wsutil/ws_assert.h>
 
-#include <ftypes/ftypes-int.h>
+#include <ftypes/ftypes.h>
 
 #include "packet.h"
 #include "exceptions.h"
@@ -794,7 +794,7 @@ proto_tree_free_node(proto_node *node, gpointer data _U_)
 
 	proto_tree_children_foreach(node, proto_tree_free_node, NULL);
 
-	FVALUE_CLEANUP(&finfo->value);
+	fvalue_cleanup(&finfo->value);
 }
 
 void
@@ -7074,7 +7074,7 @@ finfo_set_len(field_info *fi, const gint length)
 	 * larger, if there's no data to back that length;
 	 * you can only make it smaller.
 	 */
-	if (fi->value.ftype->ftype == FT_BYTES && fi->length <= (gint)fi->value.value.bytes->len)
+	if (fvalue_type_ftenum(&fi->value) == FT_BYTES && fi->length <= (gint)fi->value.value.bytes->len)
 		fi->value.value.bytes->len = fi->length;
 }
 

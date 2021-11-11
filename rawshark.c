@@ -54,7 +54,7 @@
 
 #include "globals.h"
 #include <epan/packet.h>
-#include <epan/ftypes/ftypes-int.h>
+#include <epan/ftypes/ftypes.h>
 #include "file.h"
 #include "frame_tvbuff.h"
 #include <epan/disabled_protos.h>
@@ -1111,8 +1111,8 @@ static void field_display_to_string(header_field_info *hfi, char* buf, int size)
 static gboolean print_field_value(field_info *finfo, int cmd_line_index)
 {
     header_field_info   *hfinfo;
-    char                *fs_buf = NULL;
-    char                *fs_ptr = NULL;
+    char                *fs_buf;
+    char                *fs_ptr;
     static GString     *label_s = NULL;
     size_t              fs_len;
     guint              i;
@@ -1129,19 +1129,18 @@ static gboolean print_field_value(field_info *finfo, int cmd_line_index)
         label_s = g_string_new("");
     }
 
-    if(finfo->value.ftype->val_to_string_repr)
-    {
-        /*
-         * this field has an associated value,
-         * e.g: ip.hdr_len
-         */
-        fs_buf = fvalue_to_string_repr(NULL, &finfo->value,
-                              FTREPR_DFILTER, finfo->hfinfo->display);
+    /*
+     * this field has an associated value,
+     * e.g: ip.hdr_len
+     */
+    fs_buf = fvalue_to_string_repr(NULL, &finfo->value,
+                          FTREPR_DFILTER, finfo->hfinfo->display);
+    if (fs_buf != NULL) {
         fs_len = strlen(fs_buf);
         fs_ptr = fs_buf;
 
         /* String types are quoted. Remove them. */
-        if (IS_FT_STRING(finfo->value.ftype->ftype) && fs_len > 2) {
+        if (IS_FT_STRING(fvalue_type_ftenum(&finfo->value)) && fs_len > 2) {
             fs_buf[fs_len - 1] = '\0';
             fs_ptr++;
         }
@@ -1230,7 +1229,7 @@ static gboolean print_field_value(field_info *finfo, int cmd_line_index)
         return TRUE;
     }
 
-    if(finfo->value.ftype->val_to_string_repr)
+    if(fs_buf)
     {
         printf(" %d=\"%s\"", cmd_line_index, fs_ptr);
         wmem_free(NULL, fs_buf);

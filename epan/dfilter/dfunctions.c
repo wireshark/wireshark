@@ -15,7 +15,6 @@
 
 #include <string.h>
 
-#include <ftypes/ftypes-int.h>
 #include <ftypes/ftypes.h>
 #include <epan/exceptions.h>
 #include <wsutil/ws_assert.h>

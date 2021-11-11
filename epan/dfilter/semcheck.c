@@ -26,7 +26,7 @@
 #include <wsutil/ws_assert.h>
 #include <wsutil/wslog.h>
 
-#include <ftypes/ftypes-int.h>
+#include <ftypes/ftypes.h>
 
 
 #define FAIL(dfw, ...) \

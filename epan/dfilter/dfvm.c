@@ -10,7 +10,7 @@
 
 #include "dfvm.h"
 
-#include <ftypes/ftypes-int.h>
+#include <ftypes/ftypes.h>
 #include <wsutil/ws_assert.h>
 
 dfvm_insn_t*
@@ -32,7 +32,7 @@ dfvm_value_free(dfvm_value_t *v)
 {
 	switch (v->type) {
 		case FVALUE:
-			FVALUE_FREE(v->value.fvalue);
+			fvalue_free(v->value.fvalue);
 			break;
 		case DRANGE:
 			drange_free(v->value.drange);
@@ -504,7 +504,7 @@ static void
 free_owned_register(gpointer data, gpointer user_data _U_)
 {
 	fvalue_t *value = (fvalue_t *)data;
-	FVALUE_FREE(value);
+	fvalue_free(value);
 }
 
 /* Clear registers that were populated during evaluation (leaving constants

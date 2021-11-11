@@ -76,7 +76,7 @@ val_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_,
 			return FALSE;
 		}
 		nmask_bits = fvalue_get_uinteger(nmask_fvalue);
-		FVALUE_FREE(nmask_fvalue);
+		fvalue_free(nmask_fvalue);
 
 		if (nmask_bits > 32) {
 			if (err_msg != NULL) {

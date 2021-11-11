@@ -242,6 +242,12 @@ fvalue_new(ftenum_t ftype);
 void
 fvalue_init(fvalue_t *fv, ftenum_t ftype);
 
+void
+fvalue_cleanup(fvalue_t *fv);
+
+void
+fvalue_free(fvalue_t *fv);
+
 WS_DLL_PUBLIC
 fvalue_t*
 fvalue_from_unparsed(ftenum_t ftype, const char *s, gboolean allow_partial_value, gchar **err_msg);

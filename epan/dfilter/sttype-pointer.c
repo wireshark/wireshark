@@ -10,17 +10,17 @@
 #include "config.h"
 
 #include "ftypes/ftypes.h"
-#include "ftypes/ftypes-int.h"
 #include "syntax-tree.h"
+#include <epan/proto.h> // For BASE_NONE
 
 static void
-fvalue_free(gpointer value)
+sttype_fvalue_free(gpointer value)
 {
 	fvalue_t *fvalue = value;
 
 	/* If the data was not claimed with stnode_steal_data(), free it. */
 	if (fvalue) {
-		FVALUE_FREE(fvalue);
+		fvalue_free(fvalue);
 	}
 }
 
@@ -41,7 +41,7 @@ pcre_free(gpointer value)
 }
 
 static char *
-fvalue_tostr(const void *data, gboolean pretty)
+sttype_fvalue_tostr(const void *data, gboolean pretty)
 {
 	const fvalue_t *fvalue = data;
 
@@ -87,9 +87,9 @@ sttype_register_pointer(void)
 		STTYPE_FVALUE,
 		"FVALUE",
 		NULL,
-		fvalue_free,
+		sttype_fvalue_free,
 		NULL,
-		fvalue_tostr
+		sttype_fvalue_tostr
 	};
 	static sttype_t pcre_type = {
 		STTYPE_PCRE,

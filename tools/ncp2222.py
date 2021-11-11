@@ -5909,7 +5909,7 @@ def produce_code():
 #include <epan/packet.h>
 #include <epan/dfilter/dfilter.h>
 #include <epan/exceptions.h>
-#include <ftypes/ftypes-int.h>
+#include <ftypes/ftypes.h>
 #include <epan/to_str.h>
 #include <epan/conversation.h>
 #include <epan/ptvcursor.h>

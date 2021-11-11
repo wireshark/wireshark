@@ -111,26 +111,8 @@ struct _ftype_t {
 	FvalueSlice		slice;
 };
 
-/* Free all memory used by an fvalue_t. With MSVC and a
- * libwireshark.dll, we need a special declaration.
- */
-
-#define FVALUE_CLEANUP(fv)					\
-	{							\
-		register FvalueFreeFunc	free_value;		\
-		free_value = (fv)->ftype->free_value;	\
-		if (free_value) {				\
-			free_value((fv));			\
-		}						\
-	}
-
-#define FVALUE_FREE(fv)						\
-	{							\
-		FVALUE_CLEANUP(fv)				\
-		g_slice_free(fvalue_t, fv);			\
-	}
-
-GByteArray *byte_array_from_unparsed(const char *s, gchar **err_msg);
+GByteArray *
+byte_array_from_unparsed(const char *s, gchar **err_msg);
 
 gboolean
 parse_charconst(const char *s, unsigned long *valuep, gchar **err_msg);

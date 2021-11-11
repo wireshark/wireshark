@@ -252,6 +252,21 @@ fvalue_init(fvalue_t *fv, ftenum_t ftype)
 	}
 }
 
+void
+fvalue_cleanup(fvalue_t *fv)
+{
+	if (!fv->ftype->free_value)
+		return;
+	fv->ftype->free_value(fv);
+}
+
+void
+fvalue_free(fvalue_t *fv)
+{
+	fvalue_cleanup(fv);
+	g_slice_free(fvalue_t, fv);
+}
+
 fvalue_t*
 fvalue_from_unparsed(ftenum_t ftype, const char *s, gboolean allow_partial_value, gchar **err_msg)
 {
@@ -272,7 +287,7 @@ fvalue_from_unparsed(ftenum_t ftype, const char *s, gboolean allow_partial_value
 					s, ftype_pretty_name(ftype));
 		}
 	}
-	FVALUE_FREE(fv);
+	fvalue_free(fv);
 	return NULL;
 }
 
@@ -296,7 +311,7 @@ fvalue_from_string(ftenum_t ftype, const char *s, gchar **err_msg)
 					s, ftype_pretty_name(ftype));
 		}
 	}
-	FVALUE_FREE(fv);
+	fvalue_free(fv);
 	return NULL;
 }
 

@@ -15,7 +15,7 @@
 #include "config.h"
 
 #include <epan/dfilter/dfilter.h>
-#include <epan/ftypes/ftypes-int.h>
+#include <epan/ftypes/ftypes.h>
 
 /* WSLUA_MODULE Field Obtaining Dissection Data */
 
@@ -209,30 +209,22 @@ WSLUA_METAMETHOD FieldInfo__tostring(lua_State* L) {
     /* The string representation of the field. */
     FieldInfo fi = checkFieldInfo(L,1);
 
-    if (fi->ws_fi->value.ftype->val_to_string_repr) {
-        gchar* repr = NULL;
+    gchar* repr = NULL;
 
-        if (fi->ws_fi->hfinfo->type == FT_PROTOCOL) {
-            repr = fvalue_to_string_repr(NULL, &fi->ws_fi->value,FTREPR_DFILTER,BASE_NONE);
-        }
-        else {
-            repr = fvalue_to_string_repr(NULL, &fi->ws_fi->value,FTREPR_DISPLAY,fi->ws_fi->hfinfo->display);
-        }
-
-        if (repr) {
-            lua_pushstring(L,repr);
-            /* fvalue_to_string_repr() wmem_alloc's the string's buffer */
-            wmem_free(NULL, repr);
-        }
-        else {
-            lua_pushstring(L,"(unknown)");
-        }
-    }
-    else if (fi->ws_fi->hfinfo->type == FT_NONE) {
-        lua_pushstring(L, "(none)");
+    if (fi->ws_fi->hfinfo->type == FT_PROTOCOL) {
+        repr = fvalue_to_string_repr(NULL, &fi->ws_fi->value,FTREPR_DFILTER,BASE_NONE);
     }
     else {
-        lua_pushstring(L,"(n/a)");
+        repr = fvalue_to_string_repr(NULL, &fi->ws_fi->value,FTREPR_DISPLAY,fi->ws_fi->hfinfo->display);
+    }
+
+    if (repr) {
+        lua_pushstring(L,repr);
+        /* fvalue_to_string_repr() wmem_alloc's the string's buffer */
+        wmem_free(NULL, repr);
+    }
+    else {
+        lua_pushstring(L,"(unknown)");
     }
 
     return 1;

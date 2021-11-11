@@ -18,7 +18,7 @@
 #include "dfilter-int.h"
 #include "dfilter.h"
 #include "dfilter-macro.h"
-#include <ftypes/ftypes-int.h>
+#include <ftypes/ftypes.h>
 #include <epan/uat-int.h>
 #include <epan/proto.h>
 #include <wsutil/glib-compat.h>
@@ -50,7 +50,7 @@ static gboolean fvt_cache_cb(proto_node * node, gpointer data _U_) {
 
 	if ((e = (fvt_cache_entry_t*)g_hash_table_lookup(fvt_cache,finfo->hfinfo->abbrev))) {
 		e->usable = FALSE;
-	} else if (finfo->value.ftype->val_to_string_repr) {
+	} else {
 		switch (finfo->hfinfo->type) {
 			case FT_NONE:
 			case FT_PROTOCOL:
@@ -58,11 +58,14 @@ static gboolean fvt_cache_cb(proto_node * node, gpointer data _U_) {
 			default:
 				break;
 		}
-		e = g_new(fvt_cache_entry_t,1);
-		e->name = finfo->hfinfo->abbrev;
-		e->repr = fvalue_to_string_repr(NULL, &(finfo->value), FTREPR_DFILTER, finfo->hfinfo->display);
-		e->usable = TRUE;
-		g_hash_table_insert(fvt_cache,(void*)finfo->hfinfo->abbrev,e);
+		char *repr = fvalue_to_string_repr(NULL, &(finfo->value), FTREPR_DFILTER, finfo->hfinfo->display);
+		if (repr) {
+			e = g_new(fvt_cache_entry_t,1);
+			e->name = finfo->hfinfo->abbrev;
+			e->repr = repr;
+			e->usable = TRUE;
+			g_hash_table_insert(fvt_cache,(void*)finfo->hfinfo->abbrev,e);
+		}
 	}
 	return FALSE;
 }
