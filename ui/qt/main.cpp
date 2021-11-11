@@ -1048,10 +1048,17 @@ int main(int argc, char *qt_argv[])
 
     profile_store_persconffiles(FALSE);
 
+    // If the wsApp->exec() event loop exits cleanly, we call
+    // WiresharkApplication::cleanup().
     ret_val = wsApp->exec();
     wsApp = NULL;
 
+    // Many widgets assume that they always have valid epan data, so this
+    // must be called before epan_cleanup().
+    // XXX We need to clean up the Lua GUI here. We currently paper over
+    // this in FunnelStatistics::~FunnelStatistics, which leaks memory.
     delete main_w;
+
     recent_cleanup();
     epan_cleanup();
 
