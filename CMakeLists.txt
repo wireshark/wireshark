@@ -3439,7 +3439,6 @@ set(SHARK_PUBLIC_HEADERS
 	cfile.h
 	cli_main.h
 	file.h
-	globals.h
 	ws_attributes.h
 	ws_compiler_tests.h
 	ws_diag_control.h
