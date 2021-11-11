@@ -77,11 +77,6 @@ The following features are new (or have been significantly updated) since versio
   Also the timestamp format now allows the second-fractions to be placed anywhere in the timestamp and it will be stored with
   nanosecond instead of microsecond precision.
 
-* Display filter literal strings can now be specified using raw string syntax,
-  identical to raw strings in the Python programming language. This is useful
-  to avoid the complexity of using two levels of character escapes with regular
-  expressions.
-
 * Significant RTP Player redesign and improvements (see Wireshark User Documentation,
   {wireshark-users-guide-url}ChTelPlayingCalls.html[Playing VoIP Calls] and
   {wireshark-users-guide-url}_rtp.html#ChTelRtpPlayer[RTP Player Window])
@@ -120,13 +115,15 @@ The following features are new (or have been significantly updated) since versio
 * Reload Lua plugins has been improved to properly support FileHandler.
 
 * Display filter syntax:
+** Literal strings can now be specified using raw string syntax, identical to raw strings in the Python programming language. This is useful
+   to avoid the complexity of using two levels of character escapes with regular expressions.
 ** The expression “a != b” now always has the same meaning as “!(a == b)”. In particular this means filter expressions with multi-value fields like
    “ip.addr != 1.1.1.1” will work as expected (the result is the same as typing “ip.src != 1.1.1.1 and ip.dst != 1.1.1.1”). This avoids the
    contradiction (a == b and a != b) being true.
-** Use the syntax “a ~= b” or “a any_ne b” to recover the previous (inconsistent with ==) logic for not equal.
-** Set elements must now be separated using a comma (,). A filter such as http.request.method in {"GET" "HEAD"} must be written as ... in {"GET", "HEAD"}.
-   (Whitespace is of course optional.) The previous use of whitespace as separator is deprecated and will be removed in a future version.
-** Adds support for the syntax "a not in b" as a synonym for "not a in b".
+** It is possible to use the syntax “a ~= b” or “a any_ne b” to recover the previous (inconsistent with "==") logic for not equal.
+** Set elements must now be separated using a comma. A filter such as http.request.method in {"GET" "HEAD"} must be written as ... in {"GET", "HEAD"}.
+   (Whitespace is not significant.) The previous use of whitespace as separator is deprecated and will be removed in a future version.
+** Adds support for the syntax "a not in b" with the same meaning as "not a in b".
 
 * Corrected calculation of mean jitter in RTP Stream Analysis dialog and IAX2 Stram Analysis dialog
 
