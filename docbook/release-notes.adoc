@@ -130,6 +130,8 @@ The following features are new (or have been significantly updated) since versio
 
 * The VoIP Calls Flow Sequence window shows more information about various Skinny messages
 
+* Initial support for building Wireshark on Windows using GCC and MinGW-w64 (see README.msys2).
+
 // === Removed Features and Support
 
 // === Removed Dissectors
