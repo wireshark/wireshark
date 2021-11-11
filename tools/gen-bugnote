@@ -36,8 +36,13 @@ fi
 
 issue_title=$(
     curl -s -o - "${gitlab_issue_url_pfx}/$issue_id" \
-    | jq --raw-output '.title'
+    | jq '.title'
     )
+
+# We can escape backslashes in jq's --raw-output or we can trim quotes off
+# its plain output.
+issue_title="${issue_title%\"}"
+issue_title="${issue_title#\"}"
 
 echo -e "* $issue_title wsbuglink:${issue_id}[].\\n" \
     | $clipboard_cmd
