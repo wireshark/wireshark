@@ -14314,7 +14314,7 @@ void proto_register_rtps(void) {
         FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x0002, NULL, HFILL }
     },
     { &hf_rtps_flag_timestamp_present, {
-        "Timestamp present", "rtps.flag.offsetsn_present",
+        "Timestamp present", "rtps.flag.timestamp_present",
         FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x0001, NULL, HFILL }
     },
     { &hf_rtps_param_status_info_flags,
