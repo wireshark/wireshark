@@ -2478,7 +2478,7 @@ static void rtps_util_dissect_parameter_header(tvbuff_t * tvb, gint * offset,
   }
 }
 
-static gint dissect_mutable_member(proto_tree *tree , tvbuff_t * tvb, gint offset, guint encoding,
+static gint dissect_mutable_member(proto_tree *tree , tvbuff_t * tvb, gint offset, guint encoding, guint encoding_version,
         dissection_info * info, gboolean * is_end, gboolean show);
 
 static gint get_native_type_cdr_length(guint64 member_kind) {
@@ -2539,8 +2539,82 @@ static gint get_native_type_cdr_length(guint64 member_kind) {
   return length;
 }
 
+static gint get_native_type_cdr_alignment(guint64 member_kind, gint encapsulation_version) {
+  guint align = 0;
+
+  switch (member_kind) {
+  case RTI_CDR_TYPE_OBJECT_TYPE_KIND_BOOLEAN_TYPE: {
+    align = 1;
+    break;
+  }
+  case RTI_CDR_TYPE_OBJECT_TYPE_KIND_CHAR_8_TYPE:
+  case RTI_CDR_TYPE_OBJECT_TYPE_KIND_BYTE_TYPE: {
+    align = 1;
+    break;
+  }
+  case RTI_CDR_TYPE_OBJECT_TYPE_KIND_INT_16_TYPE: {
+    align = 2;
+    break;
+  }
+  case RTI_CDR_TYPE_OBJECT_TYPE_KIND_UINT_16_TYPE: {
+    align = 2;
+    break;
+  }
+  case RTI_CDR_TYPE_OBJECT_TYPE_KIND_ENUMERATION_TYPE:
+  case RTI_CDR_TYPE_OBJECT_TYPE_KIND_INT_32_TYPE: {
+    align = 4;
+    break;
+  }
+  case RTI_CDR_TYPE_OBJECT_TYPE_KIND_UINT_32_TYPE: {
+    align = 4;
+    break;
+  }
+  case RTI_CDR_TYPE_OBJECT_TYPE_KIND_INT_64_TYPE: {
+    align = (encapsulation_version == 1) ? 8 : 4;
+    break;
+  }
+  case RTI_CDR_TYPE_OBJECT_TYPE_KIND_UINT_64_TYPE: {
+    align = (encapsulation_version == 1) ? 8 : 4;
+    break;
+  }
+  case RTI_CDR_TYPE_OBJECT_TYPE_KIND_FLOAT_32_TYPE: {
+    align = 4;
+    break;
+  }
+  case RTI_CDR_TYPE_OBJECT_TYPE_KIND_FLOAT_64_TYPE: {
+    align = (encapsulation_version == 1) ? 8 : 4;
+    break;
+  }
+  case RTI_CDR_TYPE_OBJECT_TYPE_KIND_FLOAT_128_TYPE: {
+    align = (encapsulation_version == 1) ? 8 : 4;
+    break;
+  }
+  default: {
+    align = -1;
+    break;
+  }
+  }
+  return align;
+}
+
+static gint get_encapsulation_endianness(gint encapsulation_id)
+{
+  return (encapsulation_id == ENCAPSULATION_CDR_LE ||
+          encapsulation_id == ENCAPSULATION_PL_CDR_LE ||
+          encapsulation_id == ENCAPSULATION_CDR2_LE ||
+          encapsulation_id == ENCAPSULATION_D_CDR2_LE ||
+          encapsulation_id == ENCAPSULATION_PL_CDR2_LE) ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN;
+}
+
+static gint get_encapsulation_version(gint encapsulation_id)
+{
+  return (encapsulation_id == ENCAPSULATION_CDR2_LE ||
+    encapsulation_id == ENCAPSULATION_D_CDR2_LE ||
+    encapsulation_id == ENCAPSULATION_PL_CDR2_LE) ? 2 : 1;
+}
+
 /* this is a recursive function. _info may or may not be NULL depending on the use iteration */
-static gint dissect_user_defined(proto_tree *tree, tvbuff_t * tvb, gint offset, guint encoding,
+static gint dissect_user_defined(proto_tree *tree, tvbuff_t * tvb, gint offset, guint encoding, guint encoding_version,
         dissection_info * _info, guint64 type_id, gchar * name,
         RTICdrTypeObjectExtensibility extensibility, gint offset_zero,
         guint16 flags, guint32 element_member_id, gboolean show) {
@@ -2588,7 +2662,7 @@ static gint dissect_user_defined(proto_tree *tree, tvbuff_t * tvb, gint offset, 
         case RTI_CDR_TYPE_OBJECT_TYPE_KIND_BOOLEAN_TYPE: {
             gint length = get_native_type_cdr_length(member_kind);
             if (show) {
-                ALIGN_ZERO(offset, length, offset_zero);
+                ALIGN_ZERO(offset, get_native_type_cdr_alignment(member_kind, encoding_version), offset_zero);
                 gint16 value = tvb_get_gint8(tvb, offset);
                 proto_tree_add_boolean_format(tree, hf_rtps_dissection_boolean, tvb, offset, length, value,
                   "%s: %d", name, value);
@@ -2600,7 +2674,7 @@ static gint dissect_user_defined(proto_tree *tree, tvbuff_t * tvb, gint offset, 
         case RTI_CDR_TYPE_OBJECT_TYPE_KIND_BYTE_TYPE: {
             gint length = get_native_type_cdr_length(member_kind);
             if (show) {
-                ALIGN_ZERO(offset, length, offset_zero);
+                ALIGN_ZERO(offset, get_native_type_cdr_alignment(member_kind, encoding_version), offset_zero);
                 gint16 value = tvb_get_gint8(tvb, offset);
                 proto_tree_add_uint_format(tree, hf_rtps_dissection_byte, tvb, offset, length, value,
                     "%s: %d", name, value);
@@ -2611,7 +2685,7 @@ static gint dissect_user_defined(proto_tree *tree, tvbuff_t * tvb, gint offset, 
         case RTI_CDR_TYPE_OBJECT_TYPE_KIND_INT_16_TYPE: {
             gint length = get_native_type_cdr_length(member_kind);
             if (show) {
-                ALIGN_ZERO(offset, length, offset_zero);
+                ALIGN_ZERO(offset, get_native_type_cdr_alignment(member_kind, encoding_version), offset_zero);
                 gint16 value = tvb_get_gint16(tvb, offset, encoding);
                 proto_tree_add_int_format(tree, hf_rtps_dissection_int16, tvb, offset, length, value,
                   "%s: %d", name, value);
@@ -2622,7 +2696,7 @@ static gint dissect_user_defined(proto_tree *tree, tvbuff_t * tvb, gint offset, 
         case RTI_CDR_TYPE_OBJECT_TYPE_KIND_UINT_16_TYPE: {
             gint length = get_native_type_cdr_length(member_kind);
             if (show) {
-                ALIGN_ZERO(offset, length, offset_zero);
+                ALIGN_ZERO(offset, get_native_type_cdr_alignment(member_kind, encoding_version), offset_zero);
                 guint16 value = tvb_get_guint16(tvb, offset, encoding);
                 proto_tree_add_uint_format(tree, hf_rtps_dissection_uint16, tvb, offset, length, value,
                   "%s: %u", name, value);
@@ -2634,7 +2708,7 @@ static gint dissect_user_defined(proto_tree *tree, tvbuff_t * tvb, gint offset, 
         case RTI_CDR_TYPE_OBJECT_TYPE_KIND_INT_32_TYPE: {
             gint length = get_native_type_cdr_length(member_kind);
             if (show) {
-                ALIGN_ZERO(offset, length, offset_zero);
+                ALIGN_ZERO(offset, get_native_type_cdr_alignment(member_kind, encoding_version), offset_zero);
                 gint value = tvb_get_gint32(tvb, offset, encoding);
                 proto_tree_add_int_format(tree, hf_rtps_dissection_int32, tvb, offset, length, value,
                   "%s: %d", name, value);
@@ -2645,7 +2719,7 @@ static gint dissect_user_defined(proto_tree *tree, tvbuff_t * tvb, gint offset, 
         case RTI_CDR_TYPE_OBJECT_TYPE_KIND_UINT_32_TYPE: {
             gint length = get_native_type_cdr_length(member_kind);
             if (show) {
-                ALIGN_ZERO(offset, length, offset_zero);
+                ALIGN_ZERO(offset, get_native_type_cdr_alignment(member_kind, encoding_version), offset_zero);
                 guint value = tvb_get_guint32(tvb, offset, encoding);
                 proto_tree_add_uint_format(tree, hf_rtps_dissection_uint32, tvb, offset, length, value,
                   "%s: %u", name, value);
@@ -2656,7 +2730,7 @@ static gint dissect_user_defined(proto_tree *tree, tvbuff_t * tvb, gint offset, 
         case RTI_CDR_TYPE_OBJECT_TYPE_KIND_INT_64_TYPE: {
             gint length = get_native_type_cdr_length(member_kind);
             if (show) {
-                ALIGN_ZERO(offset, length, offset_zero);
+                ALIGN_ZERO(offset, get_native_type_cdr_alignment(member_kind, encoding_version), offset_zero);
                 gint64 value = tvb_get_gint64(tvb, offset, encoding);
                 proto_tree_add_int64_format(tree, hf_rtps_dissection_int64, tvb, offset, length, value,
                   "%s: %"G_GINT64_MODIFIER"d", name, value);
@@ -2667,7 +2741,7 @@ static gint dissect_user_defined(proto_tree *tree, tvbuff_t * tvb, gint offset, 
         case RTI_CDR_TYPE_OBJECT_TYPE_KIND_UINT_64_TYPE: {
             gint length = get_native_type_cdr_length(member_kind);
             if (show) {
-                ALIGN_ZERO(offset, length, offset_zero);
+                ALIGN_ZERO(offset, get_native_type_cdr_alignment(member_kind, encoding_version), offset_zero);
                 guint64 value = tvb_get_guint64(tvb, offset, encoding);
                 proto_tree_add_uint64_format(tree, hf_rtps_dissection_uint64, tvb, offset, length, value,
                   "%s: %"G_GINT64_MODIFIER"u", name, value);
@@ -2678,7 +2752,7 @@ static gint dissect_user_defined(proto_tree *tree, tvbuff_t * tvb, gint offset, 
         case RTI_CDR_TYPE_OBJECT_TYPE_KIND_FLOAT_32_TYPE: {
             gint length = get_native_type_cdr_length(member_kind);
             if (show) {
-                ALIGN_ZERO(offset, length, offset_zero);
+                ALIGN_ZERO(offset, get_native_type_cdr_alignment(member_kind, encoding_version), offset_zero);
                 gfloat value = tvb_get_ieee_float(tvb, offset, encoding);
                 proto_tree_add_float_format(tree, hf_rtps_dissection_float, tvb, offset, length, value,
                   "%s: %.6f", name, value);
@@ -2689,7 +2763,7 @@ static gint dissect_user_defined(proto_tree *tree, tvbuff_t * tvb, gint offset, 
         case RTI_CDR_TYPE_OBJECT_TYPE_KIND_FLOAT_64_TYPE: {
             gint length = get_native_type_cdr_length(member_kind);
             if (show) {
-                ALIGN_ZERO(offset, length, offset_zero);
+                ALIGN_ZERO(offset, get_native_type_cdr_alignment(member_kind, encoding_version), offset_zero);
                 gdouble value = tvb_get_ieee_double(tvb, offset, encoding);
                 if (show)
                   proto_tree_add_double_format(tree, hf_rtps_dissection_double, tvb, offset, length, value,
@@ -2701,7 +2775,7 @@ static gint dissect_user_defined(proto_tree *tree, tvbuff_t * tvb, gint offset, 
         case RTI_CDR_TYPE_OBJECT_TYPE_KIND_FLOAT_128_TYPE: {
             gint length = get_native_type_cdr_length(member_kind);
             if (show) {
-                ALIGN_ZERO(offset, length, offset_zero);
+                ALIGN_ZERO(offset, get_native_type_cdr_alignment(member_kind, encoding_version), offset_zero);
                 proto_tree_add_item(tree, hf_rtps_dissection_int128, tvb, offset, length, encoding);
             }
             offset += length;
@@ -2755,7 +2829,7 @@ static gint dissect_user_defined(proto_tree *tree, tvbuff_t * tvb, gint offset, 
                         break;
                     }
                 }
-                offset = dissect_user_defined(aux_tree, tvb, offset, encoding, NULL,
+                offset = dissect_user_defined(aux_tree, tvb, offset, encoding, encoding_version, NULL,
                         info->base_type_id, temp_buff, EXTENSIBILITY_INVALID, offset_zero, 0, 0, show_current_element);
             }
 
@@ -2826,7 +2900,7 @@ static gint dissect_user_defined(proto_tree *tree, tvbuff_t * tvb, gint offset, 
                     }
                 }
                 if (info->base_type_id > 0)
-                    offset = dissect_user_defined(aux_tree, tvb, offset, encoding, NULL,
+                    offset = dissect_user_defined(aux_tree, tvb, offset, encoding, encoding_version, NULL,
                          info->base_type_id, temp_buff, EXTENSIBILITY_INVALID, offset_zero, 0, 0, show_current_element);
             }
             /* If reached the limit and there are remaining elements we need to show the message and
@@ -2863,7 +2937,7 @@ static gint dissect_user_defined(proto_tree *tree, tvbuff_t * tvb, gint offset, 
             break;
         }
         case RTI_CDR_TYPE_OBJECT_TYPE_KIND_ALIAS_TYPE: {
-            offset = dissect_user_defined(tree, tvb, offset, encoding, NULL,
+            offset = dissect_user_defined(tree, tvb, offset, encoding, encoding_version, NULL,
                          info->base_type_id, name, EXTENSIBILITY_INVALID, offset_zero, 0, 0, show);
             break;
         }
@@ -2881,7 +2955,7 @@ static gint dissect_user_defined(proto_tree *tree, tvbuff_t * tvb, gint offset, 
                         proto_item_append_text(tree, " (discriminator = %d, type_id = 0x%016" G_GINT64_MODIFIER "x)",
                             value, result->member_type_id);
                     }
-                  offset = dissect_user_defined(tree, tvb, offset, encoding, NULL,
+                  offset = dissect_user_defined(tree, tvb, offset, encoding, encoding_version, NULL,
                       result->member_type_id, result->member_name, EXTENSIBILITY_INVALID, offset, 0, 0, show);
                 } else {
                     /* the hashmap uses the type_id to index the objects. substracting -2 here to lookup the discriminator
@@ -2893,7 +2967,7 @@ static gint dissect_user_defined(proto_tree *tree, tvbuff_t * tvb, gint offset, 
                             proto_item_append_text(tree, " (discriminator = %d, type_id = 0x%016" G_GINT64_MODIFIER "x)",
                                 value, result->member_type_id);
                         }
-                    offset = dissect_user_defined(tree, tvb, offset, encoding, NULL,
+                    offset = dissect_user_defined(tree, tvb, offset, encoding, encoding_version, NULL,
                         result->member_type_id, result->member_name, EXTENSIBILITY_INVALID, offset, 0, 0, show);
                     }
                 }
@@ -2925,7 +2999,7 @@ static gint dissect_user_defined(proto_tree *tree, tvbuff_t * tvb, gint offset, 
                         /* Updated only once */
                         first_skipped_element_offset = offset;
                         }
-                    offset = dissect_mutable_member(aux_tree, tvb, offset, encoding, info, &is_end, show_current_element);
+                    offset = dissect_mutable_member(aux_tree, tvb, offset, encoding, encoding_version, info, &is_end, show_current_element);
                     ++num_elements;
                     if (show_current_element) {
                         ++shown_elements;
@@ -2936,7 +3010,7 @@ static gint dissect_user_defined(proto_tree *tree, tvbuff_t * tvb, gint offset, 
                     if (show) {
                       proto_item_append_text(tree, "(BaseId: 0x%016" G_GINT64_MODIFIER "x)", info->base_type_id);
                     }
-                    offset = dissect_user_defined(aux_tree, tvb, offset, encoding, NULL,
+                    offset = dissect_user_defined(aux_tree, tvb, offset, encoding, encoding_version, NULL,
                             info->base_type_id, info->member_name, EXTENSIBILITY_INVALID,
                             offset, 0, 0, show);
                 }
@@ -2955,7 +3029,7 @@ static gint dissect_user_defined(proto_tree *tree, tvbuff_t * tvb, gint offset, 
                             first_skipped_element_offset = offset;
                         }
                         /* If a member is not shown all it children will inherit the "show_current_element" value */
-                        offset = dissect_user_defined(aux_tree, tvb, offset, encoding, NULL,
+                        offset = dissect_user_defined(aux_tree, tvb, offset, encoding, encoding_version, NULL,
                         info->elements[i].type_id, info->elements[i].member_name, info->extensibility,
                         offset_zero, info->elements[i].flags, info->elements[i].member_id, show_current_element);
                     }
@@ -2994,7 +3068,7 @@ static gint dissect_user_defined(proto_tree *tree, tvbuff_t * tvb, gint offset, 
     }
 }
 
-static gint dissect_mutable_member(proto_tree *tree , tvbuff_t * tvb, gint offset, guint encoding,
+static gint dissect_mutable_member(proto_tree *tree , tvbuff_t * tvb, gint offset, guint encoding, guint encoding_version,
         dissection_info * info, gboolean * is_end, gboolean show) {
 
     proto_tree * member;
@@ -3023,7 +3097,7 @@ static gint dissect_mutable_member(proto_tree *tree , tvbuff_t * tvb, gint offse
             mapping = (mutable_member_mapping *) wmem_map_lookup(mutable_member_mappings, &(key));
             if (mapping) { /* the library knows how to dissect this */
                 proto_item_append_text(member, "(base found 0x%016" G_GINT64_MODIFIER "x)", key);
-                dissect_user_defined(tree, tvb, offset, encoding, NULL, mapping->member_type_id,
+                dissect_user_defined(tree, tvb, offset, encoding, encoding_version, NULL, mapping->member_type_id,
                     mapping->member_name, EXTENSIBILITY_INVALID, offset, 0, mapping->member_id, show);
                 PROTO_ITEM_SET_HIDDEN(member);
                 return offset + member_length;
@@ -3037,7 +3111,7 @@ static gint dissect_mutable_member(proto_tree *tree , tvbuff_t * tvb, gint offse
     mapping = (mutable_member_mapping *) wmem_map_lookup(mutable_member_mappings, &(key));
     if (mapping) { /* the library knows how to dissect this */
         proto_item_append_text(member, "(found 0x%016" G_GINT64_MODIFIER "x)", key);
-        dissect_user_defined(tree, tvb, offset, encoding, NULL, mapping->member_type_id,
+        dissect_user_defined(tree, tvb, offset, encoding, encoding_version, NULL, mapping->member_type_id,
             mapping->member_name, EXTENSIBILITY_INVALID, offset, 0, mapping->member_id, show);
 
     } else
@@ -6048,7 +6122,7 @@ static void rtps_util_topic_info_add_tree(proto_tree *tree, tvbuff_t *tvb,
 
 static gboolean rtps_util_topic_info_add_column_info_and_try_dissector(proto_tree *tree,
         packet_info *pinfo, tvbuff_t *tvb, gint offset, endpoint_guid * guid,
-        rtps_dissector_data * data, guint encoding, gboolean try_dissection_from_type_object) {
+        rtps_dissector_data * data, guint encoding, guint encoding_version, gboolean try_dissection_from_type_object) {
   if (enable_topic_info) {
     type_mapping * type_mapping_object = rtps_util_get_topic_info(guid);
     if (type_mapping_object != NULL) {
@@ -6065,7 +6139,7 @@ static gboolean rtps_util_topic_info_add_column_info_and_try_dissector(proto_tre
         dissection_info * info = (dissection_info *) wmem_map_lookup(dissection_infos, &(type_mapping_object->type_id));
         if (info != NULL) {
           proto_item_append_text(tree, " (TypeId: 0x%016" G_GINT64_MODIFIER "x)", info->type_id);
-          return dissect_user_defined(tree, tvb, offset, encoding, info,
+          return dissect_user_defined(tree, tvb, offset, encoding, encoding_version, info,
               info->type_id, info->member_name, EXTENSIBILITY_INVALID, offset,
               0 /* flags */, 0 /* member_id */, TRUE);
         }
@@ -6114,7 +6188,7 @@ static gint rtps_util_add_rti_topic_query_service_request(proto_tree * tree,
   proto_tree_add_uint(topic_query_tree, hf_rtps_encapsulation_id,
         tvb, offset, 2, encapsulation_id);
   offset += 2;
-  encoding = (encapsulation_id == ENCAPSULATION_CDR_LE || encapsulation_id == ENCAPSULATION_PL_CDR_LE) ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN;
+  encoding = get_encapsulation_endianness(encapsulation_id);
   /* Encapsulation length (or option) */
   encapsulation_opt =  tvb_get_ntohs(tvb, offset);    /* Always big endian */
   proto_tree_add_uint(topic_query_tree, hf_rtps_encapsulation_options, tvb,
@@ -6210,7 +6284,7 @@ static gint rtps_util_add_rti_locator_reachability_service_request(proto_tree * 
   proto_tree_add_uint(locator_reachability_tree, hf_rtps_encapsulation_id,
         tvb, offset, 2, encapsulation_id);
   offset += 2;
-  encoding = (encapsulation_id == ENCAPSULATION_CDR_LE || encapsulation_id == ENCAPSULATION_PL_CDR_LE) ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN;
+  encoding = get_encapsulation_endianness(encapsulation_id);
   /* Encapsulation length (or option) */
   encapsulation_opt =  tvb_get_ntohs(tvb, offset);    /* Always big endian */
   proto_tree_add_uint(locator_reachability_tree, hf_rtps_encapsulation_options, tvb,
@@ -8786,6 +8860,7 @@ static void dissect_serialized_data(proto_tree *tree, packet_info *pinfo, tvbuff
   guint16 encapsulation_id;
   gboolean try_dissection_from_type_object = FALSE;
   guint encapsulation_encoding = ENC_BIG_ENDIAN;
+  guint encapsulation_encoding_version = 1;
   rtps_dissector_data * data = wmem_new(wmem_packet_scope(), rtps_dissector_data);
   data->info_displayed = FALSE;
   data->encapsulation_id = 0;
@@ -8807,14 +8882,11 @@ static void dissect_serialized_data(proto_tree *tree, packet_info *pinfo, tvbuff
     data->encapsulation_id = encapsulation_id;
     offset += 2;
 
-    /* Sets the correct values for encapsulation_le */
-    if (encapsulation_id == ENCAPSULATION_CDR_LE ||
-        encapsulation_id == ENCAPSULATION_PL_CDR_LE ||
-        encapsulation_id == ENCAPSULATION_CDR2_LE ||
-        encapsulation_id == ENCAPSULATION_D_CDR2_LE ||
-        encapsulation_id == ENCAPSULATION_PL_CDR2_LE) {
-      encapsulation_encoding = ENC_LITTLE_ENDIAN;
-    }
+    /* Sets the correct values for encapsulation_encoding */
+    encapsulation_encoding = get_encapsulation_endianness(encapsulation_id);
+
+    /* Sets the correct values for encapsulation_encoding_version */
+    encapsulation_encoding_version = get_encapsulation_version(encapsulation_id);
 
     /* Encapsulation length (or option) */
     proto_tree_add_item(rtps_parameter_sequence_tree, hf_rtps_param_serialize_encap_len, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -8824,12 +8896,14 @@ static void dissect_serialized_data(proto_tree *tree, packet_info *pinfo, tvbuff
      * the sample and will return TRUE if it did. We should return in that case.*/
     if (encapsulation_id == ENCAPSULATION_CDR_LE ||
         encapsulation_id == ENCAPSULATION_CDR_BE ||
+        encapsulation_id == ENCAPSULATION_CDR2_LE ||
+        encapsulation_id == ENCAPSULATION_CDR2_BE ||
         encapsulation_id == ENCAPSULATION_PL_CDR_LE ||
         encapsulation_id == ENCAPSULATION_PL_CDR_BE) {
       try_dissection_from_type_object = TRUE;
     }
     if (rtps_util_topic_info_add_column_info_and_try_dissector(rtps_parameter_sequence_tree,
-            pinfo, tvb, offset, guid, data, encapsulation_encoding, try_dissection_from_type_object))
+            pinfo, tvb, offset, guid, data, encapsulation_encoding, encapsulation_encoding_version, try_dissection_from_type_object))
       return;
 
     /* The payload */
@@ -10601,12 +10675,7 @@ static void dissect_RTPS_DATA(tvbuff_t *tvb, packet_info *pinfo, gint offset, gu
       proto_tree_add_item_ret_uint(rtps_pm_tree, hf_rtps_param_serialize_encap_kind, tvb, offset, 2, ENC_BIG_ENDIAN, &encapsulation_id);
       offset += 2;
 
-      encoding = (encapsulation_id == ENCAPSULATION_CDR_LE ||
-          encapsulation_id == ENCAPSULATION_PL_CDR_LE ||
-          encapsulation_id == ENCAPSULATION_CDR2_LE ||
-          encapsulation_id == ENCAPSULATION_D_CDR2_LE ||
-          encapsulation_id == ENCAPSULATION_PL_CDR2_LE)
-        ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN;
+      encoding = get_encapsulation_endianness(encapsulation_id);
 
       /* Encapsulation length (or option) */
       proto_tree_add_item_ret_uint(rtps_pm_tree, hf_rtps_param_serialize_encap_len, tvb, offset, 2, ENC_BIG_ENDIAN, &encapsulation_len);
@@ -10639,11 +10708,7 @@ static void dissect_RTPS_DATA(tvbuff_t *tvb, packet_info *pinfo, gint offset, gu
 
       proto_tree_add_item_ret_uint(rtps_pgm_tree, hf_rtps_param_serialize_encap_kind,
               tvb, offset, 2, ENC_BIG_ENDIAN, &encapsulation_id);
-      encoding = (encapsulation_id == ENCAPSULATION_CDR_LE ||
-          encapsulation_id == ENCAPSULATION_PL_CDR_LE ||
-          encapsulation_id == ENCAPSULATION_CDR2_LE ||
-          encapsulation_id == ENCAPSULATION_D_CDR2_LE ||
-          encapsulation_id == ENCAPSULATION_PL_CDR2_LE) ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN;
+      encoding = get_encapsulation_endianness(encapsulation_id);
 
       offset += 2;
       proto_tree_add_item_ret_uint(rtps_pgm_tree, hf_rtps_param_serialize_encap_len,
@@ -10729,7 +10794,8 @@ static void dissect_RTPS_DATA(tvbuff_t *tvb, packet_info *pinfo, gint offset, gu
       proto_tree_add_item_ret_uint(locator_ping_tree, hf_rtps_encapsulation_id,
                 tvb, offset, 2, ENC_BIG_ENDIAN, &encapsulation_id);
       offset += 2;
-      encoding = (encapsulation_id == ENCAPSULATION_CDR_LE || encapsulation_id == ENCAPSULATION_PL_CDR_LE) ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN;
+      encoding = get_encapsulation_endianness(encapsulation_id);
+
       /* Encapsulation length (or option) */
       proto_tree_add_item_ret_uint(locator_ping_tree, hf_rtps_encapsulation_options,
                 tvb, offset, 2, ENC_BIG_ENDIAN, &encapsulation_opt);
@@ -10766,7 +10832,7 @@ static void dissect_RTPS_DATA(tvbuff_t *tvb, packet_info *pinfo, gint offset, gu
       proto_tree_add_item_ret_uint(service_request_tree, hf_rtps_encapsulation_id,
                 tvb, offset, 2, ENC_BIG_ENDIAN, &encapsulation_id);
       offset += 2;
-      encoding = (encapsulation_id == ENCAPSULATION_CDR_LE || encapsulation_id == ENCAPSULATION_PL_CDR_LE) ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN;
+      encoding = get_encapsulation_endianness(encapsulation_id);
         /* Encapsulation length (or option) */
       proto_tree_add_item_ret_uint(service_request_tree, hf_rtps_encapsulation_options, tvb,
                 offset, 2, ENC_BIG_ENDIAN, &encapsulation_opt);
@@ -11327,6 +11393,8 @@ static void dissect_RTPS_DATA_BATCH(tvbuff_t *tvb, packet_info *pinfo, gint offs
       data->position_in_batch = count;
       if (encapsulation_id == ENCAPSULATION_CDR_LE ||
         encapsulation_id == ENCAPSULATION_CDR_BE ||
+        encapsulation_id == ENCAPSULATION_CDR2_LE ||
+        encapsulation_id == ENCAPSULATION_CDR2_BE ||
         encapsulation_id == ENCAPSULATION_PL_CDR_LE ||
         encapsulation_id == ENCAPSULATION_PL_CDR_BE) {
           try_dissection_from_type_object = TRUE;
@@ -11336,7 +11404,7 @@ static void dissect_RTPS_DATA_BATCH(tvbuff_t *tvb, packet_info *pinfo, gint offs
                 tvb, offset, sample_info_length[count], NULL, "serializedKey[%d]", count);
       } else {
         if (!rtps_util_topic_info_add_column_info_and_try_dissector(
-            sil_tree, pinfo, tvb, offset, guid, data, encoding, try_dissection_from_type_object)) {
+            sil_tree, pinfo, tvb, offset, guid, data, get_encapsulation_endianness(encapsulation_id), get_encapsulation_version(encapsulation_id), try_dissection_from_type_object)) {
           proto_tree_add_bytes_format(sil_tree, hf_rtps_serialized_data,
                   tvb, offset, sample_info_length[count], NULL, "serializedData[%d]", count);
         }
