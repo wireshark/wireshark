@@ -211,37 +211,35 @@ sfloat_ieee_11073_val_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrep
     char     mantissa_buf[5];
     char    *mantissa_str;
     guint8   mantissa_digits;
-    size_t size;
-    char *buf;
 
     /* Predefinied: +INFINITY, -INFINITY, RFU, NRes, NaN */
+    if (fv->value.sfloat_ieee_11073 >= 0x07FE && fv->value.sfloat_ieee_11073 <= 0x0802) {
+        char *s = NULL;
+
+        switch (fv->value.sfloat_ieee_11073) {
+        case SFLOAT_VALUE_INFINITY_PLUS:
+            s = "+INFINITY";
+            break;
+        case SFLOAT_VALUE_NAN:
+            s = "NaN";
+            break;
+        case SFLOAT_VALUE_NRES:
+            s = "NRes";
+            break;
+        case SFLOAT_VALUE_RFU:
+            s = "RFU";
+            break;
+        case SFLOAT_VALUE_INFINITY_MINUS:
+            s = "-INFINITY";
+            break;
+        }
+        return wmem_strdup(scope, s);
+    }
+
     /* Longest Signed Float Number:    -0.00002048  (11 characters without NULL) */
     /* Longest Signed Float Number     -0.00000001 */
     /* Longest Signed Nonfloat Number: -20480000000 (12 characters without NULL) */
-    /* NOTE: Possible memory optimization: compute length, but watch out for speed */
-    size = 13 + 1;
-    buf = wmem_alloc(scope, size);
-
-    if (fv->value.sfloat_ieee_11073 >= 0x07FE && fv->value.sfloat_ieee_11073 <= 0x0802) {
-        switch (fv->value.sfloat_ieee_11073) {
-        case SFLOAT_VALUE_INFINITY_PLUS:
-            g_strlcpy(buf, "+INFINITY", size);
-            break;
-        case SFLOAT_VALUE_NAN:
-            g_strlcpy(buf, "NaN", size);
-            break;
-        case SFLOAT_VALUE_NRES:
-            g_strlcpy(buf, "NRes", size);
-            break;
-        case SFLOAT_VALUE_RFU:
-            g_strlcpy(buf, "RFU", size);
-            break;
-        case SFLOAT_VALUE_INFINITY_MINUS:
-            g_strlcpy(buf, "-INFINITY", size);
-            break;
-        }
-        return buf;
-    }
+    char buf[13];
 
     exponent = fv->value.sfloat_ieee_11073 >> 12;
     if (exponent & 0x8)
@@ -252,10 +250,7 @@ sfloat_ieee_11073_val_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrep
         mantissa = -((gint16)mantissa | 0xF800);
 
     if (mantissa == 0) {
-        buf[0] = '0';
-        buf[1] = '\0';
-
-        return buf;
+        return wmem_strdup(scope, "0");
     }
 
     if (mantissa_sign) {
@@ -303,7 +298,7 @@ sfloat_ieee_11073_val_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrep
     }
 
     buf[offset] = '\0';
-    return buf;
+    return wmem_strdup(scope, buf);
 }
 
 static void
@@ -641,35 +636,32 @@ float_ieee_11073_val_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr
     char     mantissa_buf[8];
     char    *mantissa_str;
     guint8   mantissa_digits;
-    size_t   size;
-    char     *buf;
 
     /* Predefinied: +INFINITY, -INFINITY, RFU, NRes, NaN */
-    /* Longest Signed Nonfloat Number: -8388608*(10^-128) (1 character for sign, 7 for mantisa digits, 127 zeros, 1 character for NULL) */
-    /* NOTE: Possible memory optimization: compute length, but watch out for speed */
-    size = 136 + 1;
-    buf = wmem_alloc(scope, size);
-
     if (fv->value.float_ieee_11073 >= 0x007FFFFE && fv->value.float_ieee_11073 <= 0x00800002) {
+        char *s = NULL;
         switch (fv->value.float_ieee_11073) {
         case FLOAT_VALUE_INFINITY_PLUS:
-            g_strlcpy(buf, "+INFINITY", size);
+            s = "+INFINITY";
             break;
         case FLOAT_VALUE_NAN:
-            g_strlcpy(buf, "NaN", size);
+            s = "NaN";
             break;
         case FLOAT_VALUE_NRES:
-            g_strlcpy(buf, "NRes", size);
+            s = "NRes";
             break;
         case FLOAT_VALUE_RFU:
-            g_strlcpy(buf, "RFU", size);
+            s = "RFU";
             break;
         case FLOAT_VALUE_INFINITY_MINUS:
-            g_strlcpy(buf, "-INFINITY", size);
+            s = "-INFINITY";
             break;
         }
-        return buf;
+        return wmem_strdup(scope, s);
     }
+
+    /* Longest Signed Nonfloat Number: -8388608*(10^-128) (1 character for sign, 7 for mantisa digits, 127 zeros, 1 character for NULL) */
+    char buf[136];
 
     exponent = fv->value.float_ieee_11073 >> 24;
 
@@ -679,10 +671,7 @@ float_ieee_11073_val_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr
         mantissa = (guint32)(-((gint32)(mantissa | 0xFF000000)));
 
     if (mantissa == 0) {
-        buf[0] = '0';
-        buf[1] = '\0';
-
-        return buf;
+        return wmem_strdup(scope, "0");
     }
 
     if (mantissa_sign) {
@@ -730,7 +719,7 @@ float_ieee_11073_val_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr
     }
 
     buf[offset] = '\0';
-    return buf;
+    return wmem_strdup(scope, buf);
 }
 
 static void
