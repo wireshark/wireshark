@@ -393,6 +393,7 @@ endif()
 include_directories(
 	${CMAKE_BINARY_DIR}
 	${CMAKE_SOURCE_DIR}
+	${CMAKE_SOURCE_DIR}/include
 )
 
 if( DUMPCAP_INSTALL_OPTION STREQUAL "suid" )
@@ -3439,12 +3440,12 @@ set(SHARK_PUBLIC_HEADERS
 	cfile.h
 	cli_main.h
 	file.h
-	ws_attributes.h
-	ws_compiler_tests.h
-	ws_diag_control.h
-	ws_log_defs.h
-	ws_symbol_export.h
-	wireshark.h
+	include/ws_attributes.h
+	include/ws_compiler_tests.h
+	include/ws_diag_control.h
+	include/ws_log_defs.h
+	include/ws_symbol_export.h
+	include/wireshark.h
 	${CMAKE_BINARY_DIR}/ws_version.h
 )
 
