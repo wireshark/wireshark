@@ -9,30 +9,8 @@
 #ifndef FTYPES_INT_H
 #define FTYPES_INT_H
 
-#include <epan/proto.h>
 #include "ftypes.h"
-
-
-void
-ftype_register(enum ftenum ftype, ftype_t *ft);
-
-/* These are the ftype registration functions that need to be called.
- * This list and the initialization function could be produced
- * via a script, like the dissector registration, but there's so few
- * that I don't mind doing it by hand for now. */
-void ftype_register_bytes(void);
-void ftype_register_double(void);
-void ftype_register_ieee_11073_float(void);
-void ftype_register_fc(void);
-void ftype_register_integers(void);
-void ftype_register_ipv4(void);
-void ftype_register_ipv6(void);
-void ftype_register_guid(void);
-void ftype_register_none(void);
-void ftype_register_string(void);
-void ftype_register_time(void);
-void ftype_register_tvbuff(void);
-void ftype_register_pcre(void);
+#include <epan/proto.h>
 
 typedef void (*FvalueNewFunc)(fvalue_t*);
 typedef void (*FvalueFreeFunc)(fvalue_t*);
@@ -110,6 +88,20 @@ struct _ftype_t {
 	FvalueLen		len;
 	FvalueSlice		slice;
 };
+
+void ftype_register(enum ftenum ftype, ftype_t *ft);
+
+void ftype_register_bytes(void);
+void ftype_register_double(void);
+void ftype_register_ieee_11073_float(void);
+void ftype_register_integers(void);
+void ftype_register_ipv4(void);
+void ftype_register_ipv6(void);
+void ftype_register_guid(void);
+void ftype_register_none(void);
+void ftype_register_string(void);
+void ftype_register_time(void);
+void ftype_register_tvbuff(void);
 
 GByteArray *
 byte_array_from_unparsed(const char *s, gchar **err_msg);
