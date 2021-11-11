@@ -221,7 +221,7 @@ dissect_shicp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             (guint)flags_value,
             tfs_get_string(flags_value & SHICP_MSG_CLASS_FLAG, &tfs_response_request), "Error");
         if (payload_length != 1) {
-            error_pi = proto_tree_add_string(shicp_tree, hf_shicp_error_string, tvb, offset, -1, "Malformed message");
+            error_pi = proto_tree_add_string(shicp_tree, hf_shicp_error_string, tvb, offset, 0, "Malformed message");
             expert_add_info(pinfo, error_pi, &ei_shicp_malformed);
             col_append_str(pinfo->cinfo, COL_INFO, "Error: Malformed message");
         }
