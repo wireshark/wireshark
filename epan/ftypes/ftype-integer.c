@@ -890,7 +890,7 @@ eui64_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U
 
 	memcpy(eui64.bytes, bytes->data, 8);
 	g_byte_array_free(bytes, TRUE);
-	fv->value.integer64 = GUINT64_FROM_BE(eui64.value);
+	fv->value.uinteger64 = GUINT64_FROM_BE(eui64.value);
 	return TRUE;
 }
 
@@ -903,7 +903,7 @@ eui64_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype _U_, i
 	} eui64;
 
 	/* Copy and convert the address from host to network byte order. */
-	eui64.value = GUINT64_TO_BE(fv->value.integer64);
+	eui64.value = GUINT64_TO_BE(fv->value.uinteger64);
 
 	return wmem_strdup_printf(scope, "%.2x:%.2x:%.2x:%.2x:%.2x:%.2x:%.2x:%.2x",
 	    eui64.bytes[0], eui64.bytes[1], eui64.bytes[2], eui64.bytes[3],

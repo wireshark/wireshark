@@ -214,7 +214,6 @@ typedef struct _fvalue_t {
 		/* Put a few basic types in here */
 		guint32			uinteger;
 		gint32			sinteger;
-		guint64			integer64;
 		guint64			uinteger64;
 		gint64			sinteger64;
 		gdouble			floating;
