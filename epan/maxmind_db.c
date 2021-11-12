@@ -474,8 +474,6 @@ static void mmdb_resolve_start(void) {
     ws_pipe_init(&mmdbr_pipe);
     GPid pipe_pid = ws_pipe_spawn_async(&mmdbr_pipe, args);
     MMDB_DEBUG("spawned %s pid %d", mmdbresolve, pipe_pid);
-    ws_close(mmdbr_pipe.stderr_fd);
-
 
     for (guint i = 0; i < args->len; i++) {
         char *arg = (char *)g_ptr_array_index(args, i);
@@ -488,6 +486,7 @@ static void mmdb_resolve_start(void) {
         ws_pipe_init(&mmdbr_pipe);
         return;
     }
+    ws_close(mmdbr_pipe.stderr_fd);
 
     write_mmdbr_stdin_thread = g_thread_new("write_mmdbr_stdin_worker", write_mmdbr_stdin_worker, GINT_TO_POINTER(mmdbr_pipe.stdin_fd));
     read_mmdbr_stdout_thread = g_thread_new("read_mmdbr_stdout_worker", read_mmdbr_stdout_worker, NULL);
