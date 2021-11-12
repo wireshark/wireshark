@@ -179,7 +179,7 @@ bytes_to_hexstr(char *out, const guint8 *ad, size_t len)
 {
 	size_t i;
 
-	ws_return_ptr_if_null(ad, NULL);
+	ws_return_val_if_null(ad, NULL);
 
 	for (i = 0; i < len; i++)
 		out = byte_to_hex(out, ad[i]);
@@ -199,7 +199,7 @@ bytes_to_hexstr_punct(char *out, const guint8 *ad, size_t len, char punct)
 {
 	size_t i;
 
-	ws_return_ptr_if_null(ad, NULL);
+	ws_return_val_if_null(ad, NULL);
 
 	out = byte_to_hex(out, ad[0]);
 	for (i = 1; i < len; i++) {
