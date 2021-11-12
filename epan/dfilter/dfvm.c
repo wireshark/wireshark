@@ -38,7 +38,7 @@ dfvm_value_free(dfvm_value_t *v)
 			drange_free(v->value.drange);
 			break;
 		case PCRE:
-			fvalue_regex_free(v->value.pcre);
+			ws_regex_free(v->value.pcre);
 			break;
 		default:
 			/* nothing */
@@ -112,7 +112,7 @@ dfvm_dump(FILE *f, dfilter_t *df)
 			case PUT_PCRE:
 				fprintf(f, "%05d PUT_PCRE  \t%s <GRegex> -> reg#%u\n",
 					id,
-					fvalue_regex_pattern(arg1->value.pcre),
+					ws_regex_pattern(arg1->value.pcre),
 					arg2->value.numeric);
 				break;
 			case CHECK_EXISTS:
@@ -371,7 +371,7 @@ put_fvalue(dfilter_t *df, fvalue_t *fv, int reg)
 /* Put a constant PCRE in a register. These will not be cleared by
  * free_register_overhead. */
 static gboolean
-put_pcre(dfilter_t *df, fvalue_regex_t *pcre, int reg)
+put_pcre(dfilter_t *df, ws_regex_t *pcre, int reg)
 {
 	df->registers[reg] = g_list_append(NULL, pcre);
 	df->owns_memory[reg] = FALSE;

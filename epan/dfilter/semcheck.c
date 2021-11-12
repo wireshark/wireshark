@@ -1030,7 +1030,7 @@ check_relation_matches(dfwork_t *dfw, stnode_t *st_node,
 		stnode_t *st_arg1, stnode_t *st_arg2)
 {
 	static guint i = 0;
-	fvalue_regex_t *pcre;
+	ws_regex_t *pcre;
 	char *errmsg = NULL;
 	const char *patt;
 
@@ -1045,7 +1045,7 @@ check_relation_matches(dfwork_t *dfw, stnode_t *st_node,
 	patt = stnode_data(st_arg2);
 	ws_debug("Compile regex pattern: %s", patt);
 
-	pcre = fvalue_regex_compile(patt, &errmsg);
+	pcre = ws_regex_compile(patt, &errmsg);
 	if (errmsg) {
 		dfilter_fail(dfw, "%s", errmsg);
 		g_free(errmsg);

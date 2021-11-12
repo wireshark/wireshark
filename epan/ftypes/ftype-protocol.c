@@ -239,7 +239,7 @@ cmp_contains(const fvalue_t *fv_a, const fvalue_t *fv_b)
 }
 
 static gboolean
-cmp_matches(const fvalue_t *fv, const fvalue_regex_t *regex)
+cmp_matches(const fvalue_t *fv, const ws_regex_t *regex)
 {
 	const protocol_value_t *a = (const protocol_value_t *)&fv->value.protocol;
 	volatile gboolean rc = FALSE;
@@ -253,9 +253,9 @@ cmp_matches(const fvalue_t *fv, const fvalue_regex_t *regex)
 		if (a->tvb != NULL) {
 			tvb_len = tvb_captured_length(a->tvb);
 			data = (const char *)tvb_get_ptr(a->tvb, 0, tvb_len);
-			rc = fvalue_regex_matches(regex, data, tvb_len);
+			rc = ws_regex_matches(regex, data, tvb_len);
 		} else {
-			rc = fvalue_regex_matches(regex, a->proto_string, -1);
+			rc = ws_regex_matches(regex, a->proto_string, -1);
 		}
 	}
 	CATCH_ALL {

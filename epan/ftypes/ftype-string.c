@@ -124,14 +124,14 @@ cmp_contains(const fvalue_t *fv_a, const fvalue_t *fv_b)
 }
 
 static gboolean
-cmp_matches(const fvalue_t *fv, const fvalue_regex_t *regex)
+cmp_matches(const fvalue_t *fv, const ws_regex_t *regex)
 {
 	char *str = fv->value.string;
 
 	if (! regex) {
 		return FALSE;
 	}
-	return fvalue_regex_matches(regex, str, -1);
+	return ws_regex_matches(regex, str, -1);
 }
 
 void

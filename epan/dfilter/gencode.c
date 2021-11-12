@@ -234,7 +234,7 @@ dfw_append_function(dfwork_t *dfw, stnode_t *node, dfvm_value_t **p_jmp)
 
 /* returns register number */
 static int
-dfw_append_put_pcre(dfwork_t *dfw, fvalue_regex_t *pcre)
+dfw_append_put_pcre(dfwork_t *dfw, ws_regex_t *pcre)
 {
 	dfvm_insn_t	*insn;
 	dfvm_value_t	*val1, *val2;

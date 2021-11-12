@@ -11,13 +11,6 @@
 #include "ftypes-int.h"
 
 #include <wsutil/ws_assert.h>
-#include <wsutil/ws_return.h>
-#include <pcre2.h>
-
-struct _fvalue_regex_t {
-	pcre2_code *code;
-	char *pattern;
-};
 
 /* Keep track of ftype_t's via their ftenum number */
 static ftype_t* type_list[FT_NUM_TYPES];
@@ -714,89 +707,10 @@ fvalue_contains(const fvalue_t *a, const fvalue_t *b)
 }
 
 gboolean
-fvalue_matches(const fvalue_t *a, const fvalue_regex_t *b)
+fvalue_matches(const fvalue_t *a, const ws_regex_t *re)
 {
-	/* XXX - check compatibility of a and b */
 	ws_assert(a->ftype->cmp_matches);
-	return a->ftype->cmp_matches(a, b);
-}
-
-static pcre2_code *
-_pcre2_compile(const char *patt, char **errmsg)
-{
-	pcre2_code *code;
-	int errorcode;
-	PCRE2_SIZE erroroffset;
-
-	/* By default UTF-8 is off. */
-	code = pcre2_compile_8((PCRE2_SPTR)patt,
-				PCRE2_ZERO_TERMINATED,
-				PCRE2_NEVER_UTF,
-				&errorcode,
-				&erroroffset,
-				NULL);
-
-	if (code == NULL) {
-		*errmsg = g_malloc0(128);
-		pcre2_get_error_message(errorcode, *errmsg, 128);
-		return NULL;
-	}
-
-	return code;
-}
-
-static gboolean
-_pcre2_matches(pcre2_code *code, const char *subj, gssize subj_size)
-{
-	PCRE2_SIZE length;
-	pcre2_match_data *match_data;
-	int rc;
-
-	length = subj_size < 0 ? PCRE2_ZERO_TERMINATED : (PCRE2_SIZE)subj_size;
-	match_data = pcre2_match_data_create_from_pattern(code, NULL);
-
-	rc = pcre2_match(code, subj, length, 0, 0, match_data, NULL);
-	pcre2_match_data_free(match_data);
-
-	return rc < 0 ? FALSE : TRUE;
-}
-
-fvalue_regex_t *
-fvalue_regex_compile(const char *patt, char **errmsg)
-{
-	ws_return_val_if_null(patt, NULL);
-
-	pcre2_code *code = _pcre2_compile(patt, errmsg);
-	if (code == NULL)
-		return NULL;
-
-	fvalue_regex_t *re = g_new(fvalue_regex_t, 1);
-	re->code = code;
-	re->pattern = g_strdup(patt);
-	return re;
-}
-
-gboolean
-fvalue_regex_matches(const fvalue_regex_t *regex, const char *subj, gssize subj_size)
-{
-	ws_return_val_if_null(regex, FALSE);
-	ws_return_val_if_null(subj, FALSE);
-
-	return _pcre2_matches(regex->code, subj, subj_size);
-}
-
-void
-fvalue_regex_free(fvalue_regex_t *regex)
-{
-	pcre2_code_free(regex->code);
-	g_free(regex->pattern);
-	g_free(regex);
-}
-
-const char *
-fvalue_regex_pattern(const fvalue_regex_t *regex)
-{
-	return regex->pattern;
+	return a->ftype->cmp_matches(a, re);
 }
 
 /*

@@ -9,6 +9,7 @@
 #ifndef DFVM_H
 #define DFVM_H
 
+#include <wsutil/regex.h>
 #include <epan/proto.h>
 #include "dfilter-int.h"
 #include "syntax-tree.h"
@@ -36,7 +37,7 @@ typedef struct {
 		drange_t		*drange;
 		header_field_info	*hfinfo;
 		df_func_def_t		*funcdef;
-		fvalue_regex_t		*pcre;
+		ws_regex_t		*pcre;
 	} value;
 
 } dfvm_value_t;

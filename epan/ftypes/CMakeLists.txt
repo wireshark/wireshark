@@ -50,7 +50,6 @@ target_include_directories(ftypes
 		${CMAKE_CURRENT_BINARY_DIR}
 		${CMAKE_CURRENT_SOURCE_DIR}
 		${CMAKE_SOURCE_DIR}/epan
-		${PCRE2_INCLUDE_DIR}
 )
 
 set_target_properties(ftypes PROPERTIES

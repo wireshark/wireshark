@@ -56,6 +56,7 @@ set(WSUTIL_PUBLIC_HEADERS
 	pow2.h
 	privileges.h
 	processes.h
+	regex.h
 	report_message.h
 	sign_ext.h
 	sober128.h
@@ -117,6 +118,7 @@ set(WSUTIL_COMMON_FILES
 	os_version_info.c
 	please_report_bug.c
 	privileges.c
+	regex.c
 	rsa.c
 	sober128.c
 	socket.c
@@ -280,6 +282,7 @@ target_link_libraries(wsutil
 		${CMAKE_DL_LIBS}
 		${GCRYPT_LIBRARIES}
 		${GNUTLS_LIBRARIES}
+		${PCRE2_LIBRARIES}
 		${M_LIBRARIES}
 		${WIN_IPHLPAPI_LIBRARY}
 		${WIN_WS2_32_LIBRARY}
@@ -289,6 +292,7 @@ target_include_directories(wsutil
 	SYSTEM PRIVATE
 		${GCRYPT_INCLUDE_DIRS}
 		${GNUTLS_INCLUDE_DIRS}
+		${PCRE2_INCLUDE_DIRS}
 )
 
 install(TARGETS wsutil

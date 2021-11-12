@@ -535,11 +535,11 @@ cmp_contains(const fvalue_t *fv_a, const fvalue_t *fv_b)
 }
 
 static gboolean
-cmp_matches(const fvalue_t *fv, const fvalue_regex_t *regex)
+cmp_matches(const fvalue_t *fv, const ws_regex_t *regex)
 {
 	GByteArray *a = fv->value.bytes;
 
-	return fvalue_regex_matches(regex, a->data, a->len);
+	return ws_regex_matches(regex, a->data, a->len);
 }
 
 void
