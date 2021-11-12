@@ -1360,9 +1360,10 @@ find_package(DOXYGEN)
 
 # The SpeexDSP resampler is required iff building wireshark or sharkd.
 if(BUILD_wireshark OR BUILD_sharkd)
-	# On Windows we just use the bundled resampler. We don't have
-	# our own binary package for SpeexDSP and don't bother searching.
-	if (NOT WIN32)
+	# We don't provide a binary package for SpeexDSP in our repository.
+	# If using the repository don't bother searching for a system SpeexDSP
+	# installation and just use the bundled resampler code instead.
+	if (NOT USE_REPOSITORY)
 		find_package(SpeexDSP)
 	endif()
 	if(SpeexDSP_FOUND)
