@@ -7,6 +7,8 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+#include "config.h"
+
 #include <epan/epan_dissect.h>
 #include "epan/epan.h"
 #include "epan/column.h"

@@ -83,7 +83,7 @@ ws_regex_compile(const char *patt, char **errmsg)
 
 
 static bool
-match_pcre2(pcre2_code *code, const char *subj, gssize subj_size)
+match_pcre2(pcre2_code *code, const char *subj, ssize_t subj_size)
 {
     PCRE2_SIZE length;
     pcre2_match_data *match_data;
@@ -123,7 +123,7 @@ match_pcre2(pcre2_code *code, const char *subj, gssize subj_size)
 
 
 bool
-ws_regex_matches(const ws_regex_t *re, const char *subj, gssize subj_size)
+ws_regex_matches(const ws_regex_t *re, const char *subj, ssize_t subj_size)
 {
     ws_return_val_if_null(re, FALSE);
     ws_return_val_if_null(subj, FALSE);

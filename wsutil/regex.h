@@ -23,7 +23,7 @@ WS_DLL_PUBLIC ws_regex_t *
 ws_regex_compile(const char *patt, char **errmsg);
 
 WS_DLL_PUBLIC bool
-ws_regex_matches(const ws_regex_t *re, const char *subj, gssize subj_size);
+ws_regex_matches(const ws_regex_t *re, const char *subj, ssize_t subj_size);
 
 WS_DLL_PUBLIC void
 ws_regex_free(ws_regex_t *re);

@@ -294,10 +294,14 @@
 /* Note: not use in the code */
 #cmakedefine YYTEXT_POINTER
 
+/* Define to 1 if the 'ssize_t' type exists. */
+#cmakedefine HAVE_SSIZE_T 1
+
+#ifndef HAVE_SSIZE_T
+#  define ssize_t long int
+#endif
+
 #if defined(_MSC_VER)
-#  if !defined(QT_VERSION) || !defined(_SSIZE_T_DEFINED)
-   typedef int ssize_t;
-#  endif
 #  define strncasecmp strnicmp
 #  define popen       _popen
 #  define pclose      _pclose

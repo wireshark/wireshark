@@ -103,6 +103,10 @@ check_struct_has_member("struct tm"       tm_zone        time.h       HAVE_STRUC
 #Symbols but NOT enums or types
 check_symbol_exists(tzname "time.h" HAVE_TZNAME)
 
+# Types
+include(CheckTypeSize)
+check_type_size("ssize_t"       SSIZE_T)
+
 #
 # Check if the libc vsnprintf() conforms to C99. If this fails we may
 # need to fall-back on GLib I/O.
