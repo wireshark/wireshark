@@ -65,11 +65,11 @@ field_tostr(const void *data, gboolean pretty _U_)
 }
 
 static char *
-pcre_tostr(const void *data, gboolean pretty)
+pcre_tostr(const void *data, gboolean pretty _U_)
 {
 	const fvalue_regex_t *pcre = data;
 
-	return g_strdup(fvalue_regex_tostr(pcre, pretty));
+	return g_strdup(fvalue_regex_pattern(pcre));
 }
 
 void

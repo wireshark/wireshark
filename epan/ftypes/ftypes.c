@@ -11,14 +11,12 @@
 #include "ftypes-int.h"
 
 #include <wsutil/ws_assert.h>
-#ifdef HAVE_PCRE2
+#include <wsutil/ws_return.h>
 #include <pcre2.h>
-#endif
 
 struct _fvalue_regex_t {
-	void *code;
+	pcre2_code *code;
 	char *pattern;
-	char *repr_debug;
 };
 
 /* Keep track of ftype_t's via their ftenum number */
@@ -723,7 +721,6 @@ fvalue_matches(const fvalue_t *a, const fvalue_regex_t *b)
 	return a->ftype->cmp_matches(a, b);
 }
 
-#ifdef HAVE_PCRE2
 static pcre2_code *
 _pcre2_compile(const char *patt, char **errmsg)
 {
@@ -763,71 +760,37 @@ _pcre2_matches(pcre2_code *code, const char *subj, gssize subj_size)
 
 	return rc < 0 ? FALSE : TRUE;
 }
-#endif /* HAVE_PCRE2 */
 
 fvalue_regex_t *
 fvalue_regex_compile(const char *patt, char **errmsg)
 {
-	void *code;
+	ws_return_val_if_null(patt, NULL);
 
-#ifdef HAVE_PCRE2
-	code = _pcre2_compile(patt, errmsg);
-#else
-	(void)patt;
-	code = NULL;
-	*errmsg = g_strdup("Wireshark was compiled without PCRE2");
-#endif
+	pcre2_code *code = _pcre2_compile(patt, errmsg);
 	if (code == NULL)
 		return NULL;
 
 	fvalue_regex_t *re = g_new(fvalue_regex_t, 1);
 	re->code = code;
 	re->pattern = g_strdup(patt);
-	re->repr_debug = NULL;
 	return re;
 }
 
 gboolean
 fvalue_regex_matches(const fvalue_regex_t *regex, const char *subj, gssize subj_size)
 {
-#ifdef HAVE_PCRE2
-	ws_assert(regex != NULL);
+	ws_return_val_if_null(regex, FALSE);
+	ws_return_val_if_null(subj, FALSE);
+
 	return _pcre2_matches(regex->code, subj, subj_size);
-#else
-	ws_assert(regex == NULL);
-	(void)subj;
-	(void)subj_size;
-	return FALSE;
-#endif
 }
 
 void
 fvalue_regex_free(fvalue_regex_t *regex)
 {
-#ifdef HAVE_PCRE2
 	pcre2_code_free(regex->code);
-#endif
 	g_free(regex->pattern);
-	g_free(regex->repr_debug);
 	g_free(regex);
-}
-
-const char *
-fvalue_regex_tostr(const fvalue_regex_t *regex, gboolean pretty)
-{
-	if (pretty)
-		return regex->pattern;
-
-	if (regex->repr_debug == NULL) {
-#ifdef HAVE_PCRE2
-		const char *kind = "PCRE2";
-#else
-		const char *kind = "not supported";
-#endif
-		((fvalue_regex_t *)regex)->repr_debug =
-			g_strdup_printf("(%s)%s", kind, regex->pattern);
-	}
-	return regex->repr_debug;
 }
 
 const char *

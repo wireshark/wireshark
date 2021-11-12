@@ -362,9 +362,6 @@ void
 fvalue_regex_free(fvalue_regex_t *regex);
 
 const char *
-fvalue_regex_tostr(const fvalue_regex_t *regex, gboolean pretty);
-
-const char *
 fvalue_regex_pattern(const fvalue_regex_t *regex);
 
 guint

@@ -25,6 +25,7 @@
 #endif
 
 #include <glib.h>
+#include <pcre2.h>
 
 #ifdef HAVE_ZLIB
 #include <zlib.h>
@@ -174,6 +175,9 @@ get_compiled_version_info(void (*prepend_info)(GString *),
 #else
 		"GLib (version unknown)");
 #endif
+
+	/* PCRE2 */
+	g_string_append(str, ", with PCRE2");
 
 	g_string_append_printf(str, ", %s", get_zlib_compiled_version_info());
 
@@ -409,6 +413,15 @@ get_runtime_version_info(void (*additional_info)(GString *))
 	/* GLib */
 	g_string_append_printf(str, ", with GLib %u.%u.%u",
 			glib_major_version, glib_minor_version, glib_micro_version);
+
+	/* PCRE2 */
+	int pcre2_size = pcre2_config(PCRE2_CONFIG_VERSION, NULL);
+	if (pcre2_size > 0 && pcre2_size <= 255) {
+		char *pcre2_str = g_malloc0(pcre2_size + 1);
+		pcre2_config(PCRE2_CONFIG_VERSION, pcre2_str);
+		g_string_append_printf(str, ", with PCRE2 %s", pcre2_str);
+		g_free(pcre2_str);
+	}
 
 	/* zlib */
 #if defined(HAVE_ZLIB) && !defined(_WIN32)

@@ -97,10 +97,6 @@
 #include <libxml/parser.h>
 #endif
 
-#ifdef HAVE_PCRE2
-#include <pcre2.h>
-#endif
-
 #ifndef _WIN32
 #include <signal.h>
 #endif
@@ -809,13 +805,6 @@ epan_get_compiled_version_info(GString *str)
 	g_string_append(str, ", without MaxMind DB resolver");
 #endif /* HAVE_MAXMINDDB */
 
-	/* PCRE2 */
-#ifdef HAVE_PCRE2
-	g_string_append(str, ", with PCRE2");
-#else
-	g_string_append(str, ", without PCRE2");
-#endif /* HAVE_PCRE2 */
-
 	/* nghttp2 */
 #ifdef HAVE_NGHTTP2
 	g_string_append(str, ", with nghttp2 " NGHTTP2_VERSION);
@@ -882,17 +871,6 @@ epan_get_runtime_version_info(GString *str)
 
 	/* Gcrypt */
 	g_string_append_printf(str, ", with Gcrypt %s", gcry_check_version(NULL));
-
-	/* PCRE2 */
-#ifdef HAVE_PCRE2
-	int pcre2_size = pcre2_config(PCRE2_CONFIG_VERSION, NULL);
-	if (pcre2_size > 0 && pcre2_size <= 255) {
-		char *pcre2_str = g_malloc0(pcre2_size + 1);
-		pcre2_config(PCRE2_CONFIG_VERSION, pcre2_str);
-		g_string_append_printf(str, ", with PCRE2 %s", pcre2_str);
-		g_free(pcre2_str);
-	}
-#endif /* HAVE_PCRE2 */
 
 	/* nghttp2 */
 #if NGHTTP2_VERSION_AGE >= 1

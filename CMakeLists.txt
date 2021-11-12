@@ -1194,6 +1194,7 @@ reset_find_package(CARES)
 find_package(CARES "1.5.0" REQUIRED)
 find_package(LEX REQUIRED)
 find_package(Perl REQUIRED)
+find_package(PCRE2 REQUIRED)
 
 if(CMAKE_VERSION VERSION_LESS "3.12")
 	# Locate the Python interpreter. Finds the wrong (Python 2) version if:
@@ -1287,9 +1288,6 @@ ws_find_package(SMI ENABLE_SMI HAVE_LIBSMI)
 
 # Support for TLS decryption using RSA private keys.
 ws_find_package(GNUTLS ENABLE_GNUTLS HAVE_LIBGNUTLS "3.3.0")
-
-# PCRE2
-ws_find_package(PCRE2 ENABLE_PCRE2 HAVE_PCRE2)
 
 # Kerberos
 ws_find_package(KERBEROS ENABLE_KERBEROS HAVE_KERBEROS)
@@ -3774,12 +3772,6 @@ configure_file(
 
 add_custom_target(uninstall
 	COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
-
-if(NOT HAVE_PCRE2)
-	message(WARNING "Building without PCRE2 is not recommended. \
-Regular expression matching will be unavailable."
-	)
-endif()
 
 #
 # Editor modelines  -  https://www.wireshark.org/tools/modelines.html

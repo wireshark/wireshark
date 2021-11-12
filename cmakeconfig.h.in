@@ -92,7 +92,7 @@
 #cmakedefine HAVE_KERBEROS 1
 
 /* Define to use PCRE2 library */
-#cmakedefine HAVE_PCRE2 1
+#define HAVE_PCRE2 1
 
 /* Define to use nghttp2 */
 #cmakedefine HAVE_NGHTTP2 1
