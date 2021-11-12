@@ -55,6 +55,7 @@ BASIC_LIST="cmake \
 	git \
 	glib2-devel \
 	libpcap-devel \
+	pcre2-devel \
 	zlib-devel \
 	libgcrypt-devel"
 

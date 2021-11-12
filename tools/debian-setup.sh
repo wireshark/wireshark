@@ -63,6 +63,7 @@ BASIC_LIST="gcc \
 	qtbase5-dev-tools \
 	libc-ares-dev \
 	libpcap-dev \
+	libpcre2-dev \
 	flex \
 	make \
 	python3 \

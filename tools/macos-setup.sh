@@ -120,6 +120,10 @@ LIBGPG_ERROR_VERSION=1.39
 # libgcrypt is required.
 #
 LIBGCRYPT_VERSION=1.8.7
+#
+# libpcre2 is required.
+#
+PCRE2_VERSION=10.39
 
 #
 # One or more of the following libraries are required to build Wireshark.
@@ -392,6 +396,45 @@ uninstall_pcre() {
         fi
 
         installed_pcre_version=""
+    fi
+}
+
+install_pcre2() {
+    if [ "$PCRE2_VERSION" -a ! -f "pcre2-$PCRE2_VERSION-done" ] ; then
+        echo "Downloading, building, and installing pcre2:"
+        [ -f "pcre2-$PCRE2_VERSION.tar.bz2" ] || curl -L -O "https://github.com/PhilipHazel/pcre2/releases/download/pcre2-$PCRE2_VERSION/pcre2-10.39.tar.bz2" || exit 1
+        $no_build && echo "Skipping installation" && return
+        bzcat "pcre2-$PCRE2_VERSION.tar.bz2" | tar xf - || exit 1
+        cd "pcre2-$PCRE2_VERSION"
+        mkdir build_dir
+        cd build_dir
+        # https://github.com/Homebrew/homebrew-core/blob/master/Formula/pcre2.rb
+        # https://github.com/microsoft/vcpkg/blob/master/ports/pcre2/portfile.cmake
+        MACOSX_DEPLOYMENT_TARGET=$min_osx_target SDKROOT="$SDKPATH" \
+            cmake -DBUILD_STATIC_LIBS=OFF -DBUILD_SHARED_LIBS=ON -DPCRE2_SUPPORT_JIT=ON -DPCRE2_SUPPORT_UNICODE=ON .. || exit 1
+        make $MAKE_BUILD_OPTS || exit 1
+        $DO_MAKE_INSTALL || exit 1
+        cd ../..
+        touch "pcre2-$PCRE2_VERSION-done"
+    fi
+}
+
+uninstall_pcre2() {
+    if [ -n "$installed_pcre2_version" ] && [ -s "pcre2-$installed_pcre2_version/build_dir/install_manifest.txt" ] ; then
+        echo "Uninstalling pcre2:"
+        # PCRE2 10.39 installs pcre2unicode.3 twice, so this will return an error.
+        while read -r ; do $DO_RM -v "$REPLY" ; done < <(cat "pcre2-$installed_pcre2_version/build_dir/install_manifest.txt"; echo)
+        rm "pcre2-$installed_pcre2_version-done"
+
+        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
+            #
+            # Get rid of the previously downloaded and unpacked version.
+            #
+            rm -rf "pcre2-$installed_pcre2_version"
+            rm -rf "pcre2-$installed_pcre2_version.tar.bz2"
+        fi
+
+        installed_pcre2_version=""
     fi
 }
 
@@ -1600,17 +1643,21 @@ uninstall_snappy() {
         # just remove what we know it installs.
         #
         # $DO_MAKE_UNINSTALL || exit 1
-        $DO_RM -f /usr/local/lib/libsnappy.1.1.8.dylib \
-                  /usr/local/lib/libsnappy.1.dylib \
-                  /usr/local/lib/libsnappy.dylib \
-                  /usr/local/include/snappy-c.h \
-                  /usr/local/include/snappy-sinksource.h \
-                  /usr/local/include/snappy-stubs-public.h \
-                  /usr/local/include/snappy.h \
-                  /usr/local/lib/cmake/Snappy/SnappyConfig.cmake \
-                  /usr/local/lib/cmake/Snappy/SnappyConfigVersion.cmake \
-                  /usr/local/lib/cmake/Snappy/SnappyTargets-noconfig.cmake \
-                  /usr/local/lib/cmake/Snappy/SnappyTargets.cmake || exit 1
+        if [ -s build_dir/install_manifest.txt] ; then
+            while read -r ; do $DO_RM -v "$REPLY" ; done < <(cat build_dir/install_manifest.txt; echo)
+        else
+            $DO_RM -f /usr/local/lib/libsnappy.1.1.8.dylib \
+                    /usr/local/lib/libsnappy.1.dylib \
+                    /usr/local/lib/libsnappy.dylib \
+                    /usr/local/include/snappy-c.h \
+                    /usr/local/include/snappy-sinksource.h \
+                    /usr/local/include/snappy-stubs-public.h \
+                    /usr/local/include/snappy.h \
+                    /usr/local/lib/cmake/Snappy/SnappyConfig.cmake \
+                    /usr/local/lib/cmake/Snappy/SnappyConfigVersion.cmake \
+                    /usr/local/lib/cmake/Snappy/SnappyTargets-noconfig.cmake \
+                    /usr/local/lib/cmake/Snappy/SnappyTargets.cmake || exit 1
+        fi
         #
         # snappy uses cmake and doesn't support "make distclean";
         #.just remove the entire build directory.
@@ -2842,6 +2889,17 @@ install_all() {
         uninstall_pcre -r
     fi
 
+    if [ -n "$installed_pcre2_version" -a \
+              "$installed_pcre2_version" != "$PCRE2_VERSION" ] ; then
+        echo "Installed pcre2 version is $installed_pcre2_version"
+        if [ -z "$PCRE2_VERSION" ] ; then
+            echo "pcre2 is not requested"
+        else
+            echo "Requested pcre2 version is $PCRE2_VERSION"
+        fi
+        uninstall_pcre2 -r
+    fi
+
     if [ ! -z "$installed_lzip_version" -a \
               "$installed_lzip_version" != "$LZIP_VERSION" ] ; then
         echo "Installed lzip version is $installed_lzip_version"
@@ -3247,6 +3305,7 @@ then
     installed_xz_version=`ls xz-*-done 2>/dev/null | sed 's/xz-\(.*\)-done/\1/'`
     installed_lzip_version=`ls lzip-*-done 2>/dev/null | sed 's/lzip-\(.*\)-done/\1/'`
     installed_pcre_version=`ls pcre-*-done 2>/dev/null | sed 's/pcre-\(.*\)-done/\1/'`
+    installed_pcre2_version=$(ls pcre2-*-done 2>/dev/null | sed 's/pcre2-\(.*\)-done/\1/')
     installed_autoconf_version=`ls autoconf-*-done 2>/dev/null | sed 's/autoconf-\(.*\)-done/\1/'`
     installed_automake_version=`ls automake-*-done 2>/dev/null | sed 's/automake-\(.*\)-done/\1/'`
     installed_libtool_version=`ls libtool-*-done 2>/dev/null | sed 's/libtool-\(.*\)-done/\1/'`

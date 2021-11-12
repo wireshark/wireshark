@@ -43,7 +43,8 @@ done
 BASIC_LIST="\
 	cmake \
 	qt5 \
-	git"
+	git \
+	pcre2"
 
 ADDITIONAL_LIST="\
 	gettext-tools \

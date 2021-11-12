@@ -50,6 +50,7 @@ BASIC_LIST="cmake \
 	perl \
 	tiff-dev \
 	c-ares-dev \
+	pcre2-dev \
 	qt5-qtbase-dev \
 	qt5-qttools-dev \
 	qt5-qtmultimedia-dev \
