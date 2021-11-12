@@ -459,12 +459,7 @@ check_exists(dfwork_t *dfw, stnode_t *st_arg1)
 			FAIL(dfw, "You cannot test whether a function is present.");
 			break;
 
-		case STTYPE_UNINITIALIZED:
-		case STTYPE_TEST:
-		case STTYPE_FVALUE:
-		case STTYPE_SET:
-		case STTYPE_PCRE:
-		case STTYPE_NUM_TYPES:
+		default:
 			ws_assert_not_reached();
 	}
 }
@@ -964,10 +959,6 @@ check_relation(dfwork_t *dfw, test_op_t st_op,
 					allow_partial_value, st_node, st_arg1, st_arg2);
 			break;
 
-		case STTYPE_UNINITIALIZED:
-		case STTYPE_TEST:
-		case STTYPE_FVALUE:
-		case STTYPE_SET:
 		default:
 			ws_assert_not_reached();
 	}
