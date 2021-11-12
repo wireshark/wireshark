@@ -11,6 +11,8 @@
  *
  * SPDX-License-Identifier: LGPL-2.1-or-later
  */
+#include "config.h"
+
 #include "packet-bpsec.h"
 #include "packet-bpv7.h"
 #include <epan/packet.h>

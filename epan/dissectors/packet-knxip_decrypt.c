@@ -9,6 +9,8 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+#include "config.h"
+
 #define WS_LOG_DOMAIN "packet-knxip"
 
 #include <wsutil/file_util.h>

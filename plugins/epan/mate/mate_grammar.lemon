@@ -19,6 +19,7 @@
 #ifndef NDEBUG
 #define NDEBUG
 #endif
+#include "config.h"
 
 #include "mate.h"
 #include "mate_grammar.h"

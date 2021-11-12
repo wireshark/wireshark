@@ -7,6 +7,8 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+#include "config.h"
+
 #include <ui/rtp_media.h>
 #include <ui/tap-rtp-common.h>
 #include "rtp_player_dialog.h"
