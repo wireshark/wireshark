@@ -285,7 +285,7 @@ uninstall_curl() {
 install_xz() {
     if [ "$XZ_VERSION" -a ! -f xz-$XZ_VERSION-done ] ; then
         echo "Downloading, building, and installing xz:"
-        [ -f xz-$XZ_VERSION.tar.bz2 ] || curl -L -O http://tukaani.org/xz/xz-$XZ_VERSION.tar.bz2 || exit 1
+        [ -f xz-$XZ_VERSION.tar.bz2 ] || curl -L -O https://tukaani.org/xz/xz-$XZ_VERSION.tar.bz2 || exit 1
         $no_build && echo "Skipping installation" && return
         bzcat xz-$XZ_VERSION.tar.bz2 | tar xf - || exit 1
         cd xz-$XZ_VERSION
@@ -326,7 +326,7 @@ uninstall_xz() {
 install_lzip() {
     if [ "$LZIP_VERSION" -a ! -f lzip-$LZIP_VERSION-done ] ; then
         echo "Downloading, building, and installing lzip:"
-        [ -f lzip-$LZIP_VERSION.tar.gz ] || curl -L -O http://download.savannah.gnu.org/releases/lzip/lzip-$LZIP_VERSION.tar.gz || exit 1
+        [ -f lzip-$LZIP_VERSION.tar.gz ] || curl -L -O https://download.savannah.gnu.org/releases/lzip/lzip-$LZIP_VERSION.tar.gz || exit 1
         $no_build && echo "Skipping installation" && return
         gzcat lzip-$LZIP_VERSION.tar.gz | tar xf - || exit 1
         cd lzip-$LZIP_VERSION
@@ -728,7 +728,7 @@ uninstall_meson() {
 install_gettext() {
     if [ ! -f gettext-$GETTEXT_VERSION-done ] ; then
         echo "Downloading, building, and installing GNU gettext:"
-        [ -f gettext-$GETTEXT_VERSION.tar.gz ] || curl -L -O http://ftp.gnu.org/pub/gnu/gettext/gettext-$GETTEXT_VERSION.tar.gz || exit 1
+        [ -f gettext-$GETTEXT_VERSION.tar.gz ] || curl -L -O https://ftp.gnu.org/pub/gnu/gettext/gettext-$GETTEXT_VERSION.tar.gz || exit 1
         $no_build && echo "Skipping installation" && return
         gzcat gettext-$GETTEXT_VERSION.tar.gz | tar xf - || exit 1
         cd gettext-$GETTEXT_VERSION
@@ -809,7 +809,7 @@ install_glib() {
         #
         # Starting with GLib 2.28.8, xz-compressed tarballs are available.
         #
-        [ -f glib-$GLIB_VERSION.tar.xz ] || curl -L -O http://ftp.gnome.org/pub/gnome/sources/glib/$glib_dir/glib-$GLIB_VERSION.tar.xz || exit 1
+        [ -f glib-$GLIB_VERSION.tar.xz ] || curl -L -O https://download.gnome.org/sources/glib/$glib_dir/glib-$GLIB_VERSION.tar.xz || exit 1
         $no_build && echo "Skipping installation" && return
         xzcat glib-$GLIB_VERSION.tar.xz | tar xf - || exit 1
         cd glib-$GLIB_VERSION
@@ -1058,7 +1058,7 @@ install_qt() {
         # 5.3 - 5.8:  qt-opensource-mac-x64-clang-{version}.dmg
         # 5.9 - 5.14: qt-opensource-mac-x64-{version}.dmg
         # 5.15 - 6.0: Offline installers no longer provided.
-        # ( http://download.qt.io/archive/qt/5.15/5.15.0/OFFLINE_README.txt )
+        # ( https://download.qt.io/archive/qt/5.15/5.15.0/OFFLINE_README.txt )
         # XXX: We need a different approach for QT >= 5.15
         #
         case $QT_MAJOR_VERSION in
@@ -1086,7 +1086,7 @@ install_qt() {
                 ;;
 
             esac
-            [ -f $QT_VOLUME.dmg ] || curl -L -O http://download.qt.io/archive/qt/$QT_MAJOR_MINOR_VERSION/$QT_MAJOR_MINOR_DOTDOT_VERSION/$QT_VOLUME.dmg || exit 1
+            [ -f $QT_VOLUME.dmg ] || curl -L -O https://download.qt.io/archive/qt/$QT_MAJOR_MINOR_VERSION/$QT_MAJOR_MINOR_DOTDOT_VERSION/$QT_VOLUME.dmg || exit 1
             $no_build && echo "Skipping installation" && return
             sudo hdiutil attach $QT_VOLUME.dmg || exit 1
 
@@ -1253,7 +1253,7 @@ install_libgcrypt() {
         # libgcrypt expects gnu89, not c99/gnu99, semantics for
         # "inline".  See, for example:
         #
-        #    http://lists.freebsd.org/pipermail/freebsd-ports-bugs/2010-October/198809.html
+        #    https://lists.freebsd.org/pipermail/freebsd-ports-bugs/2010-October/198809.html
         #
         CFLAGS="$CFLAGS -std=gnu89 $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure --disable-asm || exit 1
         make $MAKE_BUILD_OPTS || exit 1
@@ -1527,7 +1527,7 @@ uninstall_gnutls() {
 install_lua() {
     if [ "$LUA_VERSION" -a ! -f lua-$LUA_VERSION-done ] ; then
         echo "Downloading, building, and installing Lua:"
-        [ -f lua-$LUA_VERSION.tar.gz ] || curl -L -O http://www.lua.org/ftp/lua-$LUA_VERSION.tar.gz || exit 1
+        [ -f lua-$LUA_VERSION.tar.gz ] || curl -L -O https://www.lua.org/ftp/lua-$LUA_VERSION.tar.gz || exit 1
         $no_build && echo "Skipping installation" && return
         gzcat lua-$LUA_VERSION.tar.gz | tar xf - || exit 1
         cd lua-$LUA_VERSION
@@ -1992,7 +1992,7 @@ uninstall_nghttp2() {
 install_libtiff() {
     if [ "$LIBTIFF_VERSION" -a ! -f tiff-$LIBTIFF_VERSION-done ] ; then
         echo "Downloading, building, and installing libtiff:"
-        [ -f libtiff-$LIBTIFF_VERSION.tar.gz ] || curl -L -O http://dl.maptools.org/dl/libtiff/tiff-$LIBTIFF_VERSION.tar.gz || exit 1
+        [ -f libtiff-$LIBTIFF_VERSION.tar.gz ] || curl -L -O https://download.osgeo.org/libtiff/tiff-$LIBTIFF_VERSION.tar.gz || exit 1
         $no_build && echo "Skipping installation" && return
         gzcat tiff-$LIBTIFF_VERSION.tar.gz | tar xf - || exit 1
         cd tiff-$LIBTIFF_VERSION
@@ -2070,7 +2070,7 @@ uninstall_spandsp() {
 install_speexdsp() {
     if [ "$SPEEXDSP_VERSION" -a ! -f speexdsp-$SPEEXDSP_VERSION-done ] ; then
         echo "Downloading, building, and installing SpeexDSP:"
-        [ -f speexdsp-$SPEEXDSP_VERSION.tar.gz ] || curl -L -O http://downloads.us.xiph.org/releases/speex/speexdsp-$SPEEXDSP_VERSION.tar.gz || exit 1
+        [ -f speexdsp-$SPEEXDSP_VERSION.tar.gz ] || curl -L -O https://ftp.osuosl.org/pub/xiph/releases/speex/speexdsp-$SPEEXDSP_VERSION.tar.gz || exit 1
         $no_build && echo "Skipping installation" && return
         gzcat speexdsp-$SPEEXDSP_VERSION.tar.gz | tar xf - || exit 1
         cd speexdsp-$SPEEXDSP_VERSION
@@ -2106,7 +2106,7 @@ uninstall_speexdsp() {
 install_bcg729() {
     if [ "$BCG729_VERSION" -a ! -f bcg729-$BCG729_VERSION-done ] ; then
         echo "Downloading, building, and installing bcg729:"
-        [ -f bcg729-$BCG729_VERSION.tar.gz ] || curl -L -O http://download-mirror.savannah.gnu.org/releases/linphone/plugins/sources/bcg729-$BCG729_VERSION.tar.gz || exit 1
+        [ -f bcg729-$BCG729_VERSION.tar.gz ] || curl -L -O https://download.savannah.gnu.org/releases/linphone/plugins/sources/bcg729-$BCG729_VERSION.tar.gz || exit 1
         $no_build && echo "Skipping installation" && return
         gzcat bcg729-$BCG729_VERSION.tar.gz | tar xf - || exit 1
         cd bcg729-$BCG729_VERSION
