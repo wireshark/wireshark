@@ -15245,7 +15245,7 @@ void proto_register_rtps(void) {
 
   coherent_set_tracking.entities_using_map = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), hash_by_guid, compare_by_guid);
   discovered_tcp_participants = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), hash_by_guid, compare_by_guid);
-  /* In order to get this dissector in LUA (aka "chained-dissector") */
+  /* In order to get this dissector from other dissectors */
   register_dissector("rtps", dissect_simple_rtps, proto_rtps);
 
   reassembly_table_register(&rtps_reassembly_table,
