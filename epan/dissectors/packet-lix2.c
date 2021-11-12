@@ -18,9 +18,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif
 
 #include <epan/packet.h>
 #include <epan/conversation.h>
@@ -741,7 +739,7 @@ static int hf_lix2_hUncertainty = -1;             /* SpeedUncertainty */
 static int hf_lix2_vUncertainty = -1;             /* SpeedUncertainty */
 
 /*--- End of included file: packet-lix2-hf.c ---*/
-#line 36 "./asn1/lix2/packet-lix2-template.c"
+#line 34 "./asn1/lix2/packet-lix2-template.c"
 
 
 /*--- Included file: packet-lix2-ett.c ---*/
@@ -993,7 +991,7 @@ static gint ett_lix2_HorizontalVelocityWithUncertainty = -1;
 static gint ett_lix2_HorizontalWithVerticalVelocityAndUncertainty = -1;
 
 /*--- End of included file: packet-lix2-ett.c ---*/
-#line 38 "./asn1/lix2/packet-lix2-template.c"
+#line 36 "./asn1/lix2/packet-lix2-template.c"
 
 
 /*--- Included file: packet-lix2-fn.c ---*/
@@ -9089,7 +9087,7 @@ static int dissect_XIRIPayload_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
 
 
 /*--- End of included file: packet-lix2-fn.c ---*/
-#line 40 "./asn1/lix2/packet-lix2-template.c"
+#line 38 "./asn1/lix2/packet-lix2-template.c"
 
 /*--- proto_register_lix2 -------------------------------------------*/
 void proto_register_lix2(void) {
@@ -11885,7 +11883,7 @@ void proto_register_lix2(void) {
         "SpeedUncertainty", HFILL }},
 
 /*--- End of included file: packet-lix2-hfarr.c ---*/
-#line 47 "./asn1/lix2/packet-lix2-template.c"
+#line 45 "./asn1/lix2/packet-lix2-template.c"
   };
 
   /* List of subtrees */
@@ -12140,7 +12138,7 @@ void proto_register_lix2(void) {
     &ett_lix2_HorizontalWithVerticalVelocityAndUncertainty,
 
 /*--- End of included file: packet-lix2-ettarr.c ---*/
-#line 52 "./asn1/lix2/packet-lix2-template.c"
+#line 50 "./asn1/lix2/packet-lix2-template.c"
   };
 
   /* Register protocol */
