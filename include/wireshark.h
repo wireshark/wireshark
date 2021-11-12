@@ -42,7 +42,6 @@
 #include <ws_compiler_tests.h>
 #include <ws_diag_control.h>
 #include <ws_symbol_export.h>
-#include <ws_version.h>
 
 #include <wsutil/ws_assert.h>
 #include <wsutil/wslog.h>
