@@ -206,7 +206,7 @@ Description: network packet capture library -- shared library
 
 Package: libwiretap-dev
 Section: libdevel
-Depends: ${misc:Depends}, libwiretap0 (= ${binary:Version})
+Depends: ${misc:Depends}, libwsutil-dev, libwiretap0 (= ${binary:Version})
 Architecture: any
 Description: network packet capture library -- development files
  Wiretap, part of the Wireshark project, is a library that allows one to
