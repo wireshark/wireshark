@@ -282,8 +282,14 @@ _node_tostr(stnode_t *node, gboolean pretty)
 	if (pretty)
 		return s;
 
-	repr = g_strdup_printf("%s<%s>", stnode_type_name(node), s);
-	g_free(s);
+	if (stnode_type_id(node) == STTYPE_TEST) {
+		repr = s;
+	}
+	else {
+		repr = g_strdup_printf("%s<%s>", stnode_type_name(node), s);
+		g_free(s);
+	}
+
 	return repr;
 }
 
@@ -352,7 +358,7 @@ visit_tree(wmem_strbuf_t *buf, stnode_t *node, int level)
 	stnode_t *left, *right;
 
 	if (stnode_type_id(node) == STTYPE_TEST) {
-		wmem_strbuf_append_printf(buf, "%s(", stnode_todisplay(node));
+		wmem_strbuf_append_printf(buf, "%s(", stnode_todebug(node));
 		sttype_test_get(node, NULL, &left, &right);
 		if (left && right) {
 			wmem_strbuf_append_c(buf, '\n');
