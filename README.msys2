@@ -15,9 +15,16 @@ Steps to setup the build environment:
 
      $ pacman -S pactoys
 
-5. Install the toolchain:
+5. Install the dependencies. From the source directory run:
+
+     $ ./tools/msys2-setup.sh --install-all
+   
+   Individual packages can be installed using pacboy:
 
      $ pacboy -S toolchain:x cmake:x ninja:x ccache:x
+
+   There isn't a native git package provided with MSYS2 so it's recommended that
+   you continue using the Git-For-Windows installer (or see [1]).
 
 From this point on it's a typical ninja build:
 
@@ -32,19 +39,9 @@ From this point on it's a typical ninja build:
 
      $ cmake -DENABLE_CCACHE=Yes -DDISABLE_WERROR=Yes ..
 
-4. Instal missing dependencies using pacman (there are a few gaps) and
-   re-run cmake, e.g.:
-
-     $ pacboy -S glib2:x libpcap:x libgcrypt:x gnutls:x qt5:x \
-     asciidoctor:x libssh:x libmaxminddb:x snappy:x spandsp:x \
-     libilbc:x doxygen:x winsparkle:x opus:x speexdsp:x
-
-5. Build by running "ninja" in the build directory:
+4. Build by running "ninja" in the build directory:
 
      $ ninja
-
-There isn't a native git package provided with MSYS2 so it's recommended that
-you continue using the Git-For-Windows installer (or see [1]).
 
 Currently the Wireshark MinGW-w64 build using MSYS2 has the following
 limitations:
@@ -53,12 +50,13 @@ limitations:
 
 * Some optional dependencies are not available in the official MSYS2
   repositories. These are:
-    * AirPcap
-    * libsmi
-    * Kerberos
-    * Lua-unicode (Lua 5.1 is available and can be used instead)
-    * SBC codec
-    * BCG729 codec
+
+    - AirPcap
+    - libsmi
+    - Kerberos
+    - Lua-unicode (Lua 5.1 is available and can be used instead)
+    - SBC codec
+    - BCG729 codec
 
 * There is no Wireshark binary package available. More work is
   needed to implement this. To be decided if it will use NSIS or something
