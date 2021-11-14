@@ -9,7 +9,7 @@ See tools/asterix/README.md for details.
 
 Data source:
 https://zoranbosnjak.github.io/asterix-specs
-git revision: dc8e48b56c7dd76cb15b2579af125d5e76c0a68b
+git revision: 88e59effb1f802c33b2909f557b4aac3da41b151
 
 
 */
@@ -33210,7 +33210,71 @@ static const AsterixField I247_V1_2_RE = { EXP, 0, 0, 1, &hf_247_V1_2_RE, NULL, 
 static gint hf_247_V1_2_SP = -1;
 static const AsterixField I247_V1_2_SP = { EXP, 0, 0, 1, &hf_247_V1_2_SP, NULL, { NULL } };
 
-/* Category 247, edition 1.2 (latest) */
+DIAG_OFF_PEDANTIC
+static const AsterixField *I247_V1_2_uap[] = {
+    &I247_V1_2_010,
+    &I247_V1_2_015,
+    &I247_V1_2_140,
+    &I247_V1_2_550,
+    &IX_SPARE,
+    &I247_V1_2_SP,
+    &I247_V1_2_RE,
+    NULL
+};
+static const AsterixField **I247_V1_2[] = {
+    I247_V1_2_uap,
+    NULL
+};
+DIAG_ON_PEDANTIC
+
+/* Category 247, edition 1.3 */
+static gint hf_247_V1_3_010 = -1;
+static gint hf_247_V1_3_010_SAC = -1;
+static const FieldPart I247_V1_3_010_SAC = { 8, 1.0, FIELD_PART_HEX, &hf_247_V1_3_010_SAC, NULL };
+static gint hf_247_V1_3_010_SIC = -1;
+static const FieldPart I247_V1_3_010_SIC = { 8, 1.0, FIELD_PART_HEX, &hf_247_V1_3_010_SIC, NULL };
+static const FieldPart *I247_V1_3_010_PARTS[] = {
+    &I247_V1_3_010_SAC,
+    &I247_V1_3_010_SIC,
+    NULL
+};
+static const AsterixField I247_V1_3_010 = { FIXED, 2, 0, 0, &hf_247_V1_3_010, I247_V1_3_010_PARTS, { NULL } };
+static gint hf_247_V1_3_015 = -1;
+static gint hf_247_V1_3_015_VALUE = -1;
+static const FieldPart I247_V1_3_015_VALUE = { 8, 1.0, FIELD_PART_HEX, &hf_247_V1_3_015_VALUE, NULL };
+static const FieldPart *I247_V1_3_015_PARTS[] = {
+    &I247_V1_3_015_VALUE,
+    NULL
+};
+static const AsterixField I247_V1_3_015 = { FIXED, 1, 0, 0, &hf_247_V1_3_015, I247_V1_3_015_PARTS, { NULL } };
+static gint hf_247_V1_3_140 = -1;
+static gint hf_247_V1_3_140_VALUE = -1;
+static const FieldPart I247_V1_3_140_VALUE = { 24, 0.0078125, FIELD_PART_UFLOAT, &hf_247_V1_3_140_VALUE, NULL };
+static const FieldPart *I247_V1_3_140_PARTS[] = {
+    &I247_V1_3_140_VALUE,
+    NULL
+};
+static const AsterixField I247_V1_3_140 = { FIXED, 3, 0, 0, &hf_247_V1_3_140, I247_V1_3_140_PARTS, { NULL } };
+static gint hf_247_V1_3_550 = -1;
+static gint hf_247_V1_3_550_CAT = -1;
+static const FieldPart I247_V1_3_550_CAT = { 8, 1.0, FIELD_PART_UINT, &hf_247_V1_3_550_CAT, NULL };
+static gint hf_247_V1_3_550_MAIN = -1;
+static const FieldPart I247_V1_3_550_MAIN = { 8, 1.0, FIELD_PART_UINT, &hf_247_V1_3_550_MAIN, NULL };
+static gint hf_247_V1_3_550_SUB = -1;
+static const FieldPart I247_V1_3_550_SUB = { 8, 1.0, FIELD_PART_UINT, &hf_247_V1_3_550_SUB, NULL };
+static const FieldPart *I247_V1_3_550_PARTS[] = {
+    &I247_V1_3_550_CAT,
+    &I247_V1_3_550_MAIN,
+    &I247_V1_3_550_SUB,
+    NULL
+};
+static const AsterixField I247_V1_3_550 = { REPETITIVE, 3, 1, 0, &hf_247_V1_3_550, I247_V1_3_550_PARTS, { NULL } };
+static gint hf_247_V1_3_RE = -1;
+static const AsterixField I247_V1_3_RE = { EXP, 0, 0, 1, &hf_247_V1_3_RE, NULL, { NULL } };
+static gint hf_247_V1_3_SP = -1;
+static const AsterixField I247_V1_3_SP = { EXP, 0, 0, 1, &hf_247_V1_3_SP, NULL, { NULL } };
+
+/* Category 247, edition 1.3 (latest) */
 static gint hf_247_010 = -1;
 static gint hf_247_010_SAC = -1;
 static const FieldPart I247_010_SAC = { 8, 1.0, FIELD_PART_HEX, &hf_247_010_SAC, NULL };
@@ -33258,18 +33322,18 @@ static gint hf_247_SP = -1;
 static const AsterixField I247_SP = { EXP, 0, 0, 1, &hf_247_SP, NULL, { NULL } };
 
 DIAG_OFF_PEDANTIC
-static const AsterixField *I247_V1_2_uap[] = {
-    &I247_V1_2_010,
-    &I247_V1_2_015,
-    &I247_V1_2_140,
-    &I247_V1_2_550,
+static const AsterixField *I247_V1_3_uap[] = {
+    &I247_V1_3_010,
+    &I247_V1_3_015,
+    &I247_V1_3_140,
+    &I247_V1_3_550,
     &IX_SPARE,
-    &I247_V1_2_SP,
-    &I247_V1_2_RE,
+    &I247_V1_3_SP,
+    &I247_V1_3_RE,
     NULL
 };
-static const AsterixField **I247_V1_2[] = {
-    I247_V1_2_uap,
+static const AsterixField **I247_V1_3[] = {
+    I247_V1_3_uap,
     NULL
 };
 DIAG_ON_PEDANTIC
@@ -33455,12 +33519,13 @@ static const enum_val_t I065_versions[] = {
 };
 
 DIAG_OFF_PEDANTIC
-static const AsterixField ***I247all[] = { I247, I247_V1_2 };
+static const AsterixField ***I247all[] = { I247, I247_V1_3, I247_V1_2 };
 DIAG_ON_PEDANTIC
 
 static const enum_val_t I247_versions[] = {
-    { "I247", "Version 1.2 (latest)", 0 },
-    { "I247_v1_2", "Version 1.2", 1 },
+    { "I247", "Version 1.3 (latest)", 0 },
+    { "I247_v1_3", "Version 1.3", 1 },
+    { "I247_v1_2", "Version 1.2", 2 },
     { NULL, NULL, 0 }
 };
 
@@ -39779,6 +39844,19 @@ void proto_register_asterix (void)
         { &hf_247_V1_2_550_SUB, { "SUB, Sub Version Number", "asterix.247_V1_2_550_SUB", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL } },
         { &hf_247_V1_2_RE, { "RE, Reserved Expansion Field", "asterix.247_V1_2_RE", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_247_V1_2_SP, { "SP, Special Purpose Field", "asterix.247_V1_2_SP", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_247_V1_3_010, { "010, Data Source Identifier", "asterix.247_V1_3_010", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_247_V1_3_010_SAC, { "SAC, System Area Code", "asterix.247_V1_3_010_SAC", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_247_V1_3_010_SIC, { "SIC, System Identification Code", "asterix.247_V1_3_010_SIC", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_247_V1_3_015, { "015, Service Identification", "asterix.247_V1_3_015", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_247_V1_3_015_VALUE, { "VALUE, Service Identification", "asterix.247_V1_3_015_VALUE", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_247_V1_3_140, { "140, Time of Day", "asterix.247_V1_3_140", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_247_V1_3_140_VALUE, { "VALUE, Time of Day, [s]", "asterix.247_V1_3_140_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_247_V1_3_550, { "550, Category Version Number Report", "asterix.247_V1_3_550", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_247_V1_3_550_CAT, { "CAT, Category", "asterix.247_V1_3_550_CAT", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_247_V1_3_550_MAIN, { "MAIN, Main Version Number", "asterix.247_V1_3_550_MAIN", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_247_V1_3_550_SUB, { "SUB, Sub Version Number", "asterix.247_V1_3_550_SUB", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_247_V1_3_RE, { "RE, Reserved Expansion Field", "asterix.247_V1_3_RE", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_247_V1_3_SP, { "SP, Special Purpose Field", "asterix.247_V1_3_SP", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_247_010, { "010, Data Source Identifier", "asterix.247_010", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_247_010_SAC, { "SAC, System Area Code", "asterix.247_010_SAC", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL } },
         { &hf_247_010_SIC, { "SIC, System Identification Code", "asterix.247_010_SIC", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL } },

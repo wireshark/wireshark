@@ -31,6 +31,7 @@ diameter.desegment: FALSE
 dicom.pdv_reassemble: FALSE
 distcc.desegment_distcc_over_tcp: FALSE
 djiuav.desegment: FALSE
+dlep.desegment: FALSE
 dnp3.desegment: FALSE
 dns.desegment_dns_messages: FALSE
 drda.desegment: FALSE
