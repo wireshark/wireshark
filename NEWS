@@ -1,6 +1,6 @@
 Wireshark 3.6.0 Release Notes
 
- This is the first release candidate for Wireshark 3.6.
+ This is the third release candidate for Wireshark 3.6.
 
  What is Wireshark?
 
@@ -15,9 +15,14 @@ Wireshark 3.6.0 Release Notes
   New and Updated Features
 
    The following features are new (or have been significantly updated)
-   since version 3.6.0rc2:
+   since version 3.6.0rc3:
 
      • Nothing of note.
+
+   The following features are new (or have been significantly updated)
+   since version 3.6.0rc2:
+
+     • Display filter set elements must now be comma-separated.
 
    The following features are new (or have been significantly updated)
    since version 3.6.0rc1:
@@ -73,11 +78,6 @@ Wireshark 3.6.0 Release Notes
        the timestamp format now allows the second-fractions to be placed
        anywhere in the timestamp and it will be stored with nanosecond
        instead of microsecond precision.
-
-     • Display filter literal strings can now be specified using raw
-       string syntax, identical to raw strings in the Python programming
-       language. This is useful to avoid the complexity of using two
-       levels of character escapes with regular expressions.
 
      • Significant RTP Player redesign and improvements (see Wireshark
        User Documentation, Playing VoIP Calls[1] and RTP Player
@@ -143,6 +143,11 @@ Wireshark 3.6.0 Release Notes
 
      • Display filter syntax:
 
+        • Literal strings can now be specified using raw string syntax,
+       identical to raw strings in the Python programming language. This
+       is useful to avoid the complexity of using two levels of
+       character escapes with regular expressions.
+
         • The expression “a != b” now always has the same meaning as
        “!(a == b)”. In particular this means filter expressions with
        multi-value fields like “ip.addr != 1.1.1.1” will work as
@@ -150,17 +155,18 @@ Wireshark 3.6.0 Release Notes
        ip.dst != 1.1.1.1”). This avoids the contradiction (a == b and a
        != b) being true.
 
-        • Use the syntax “a ~= b” or “a any_ne b” to recover the
-       previous (inconsistent with ==) logic for not equal.
+        • It is possible to use the syntax “a ~= b” or “a any_ne b” to
+       recover the previous (inconsistent with "==") logic for not
+       equal.
 
-        • Set elements must now be separated using a comma (,). A filter
+        • Set elements must now be separated using a comma. A filter
        such as http.request.method in {"GET" "HEAD"} must be written as
-       …​ in {"GET", "HEAD"}. (Whitespace is of course optional.) The
+       …​ in {"GET", "HEAD"}. (Whitespace is not significant.) The
        previous use of whitespace as separator is deprecated and will be
        removed in a future version.
 
-        • Adds support for the syntax "a not in b" as a synonym for "not
-       a in b".
+        • Adds support for the syntax "a not in b" with the same meaning
+       as "not a in b".
 
      • Corrected calculation of mean jitter in RTP Stream Analysis
        dialog and IAX2 Stram Analysis dialog
@@ -169,6 +175,9 @@ Wireshark 3.6.0 Release Notes
 
      • The VoIP Calls Flow Sequence window shows more information about
        various Skinny messages
+
+     • Initial support for building Wireshark on Windows using GCC and
+       MinGW-w64 (see README.msys2).
 
   New File Format Decoding Support
 
@@ -238,7 +247,7 @@ Wireshark 3.6.0 Release Notes
 
   A complete FAQ is available on the Wireshark web site[8].
 
-  Last updated 2021-11-07 16:06:34 UTC
+  Last updated 2021-11-14 16:07:12 UTC
 
  References
 
