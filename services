@@ -2579,6 +2579,7 @@ icslap		2869/tcp/udp	# ICSLAP
 daishi		2870/tcp/udp
 msi-selectplay	2871/tcp/udp	# MSI Select Play
 radix		2872/tcp/udp	# RADIX
+psrt		2873/tcp/udp	# PubSub Realtime Telemetry Protocol
 dxmessagebase1	2874/tcp/udp	# DX Message Base Transport Protocol
 dxmessagebase2	2875/tcp/udp	# DX Message Base Transport Protocol
 sps-tunnel	2876/tcp/udp	# SPS Tunnel
