@@ -326,7 +326,7 @@ sprint_node(stnode_t *node)
 	wmem_strbuf_append_printf(buf, "\t\tinside_parens = %s\n",
 					true_or_false(stnode_inside_parens(node)));
 	wmem_strbuf_append(buf, "\t}\n");
-	wmem_strbuf_append(buf, "}\n");
+	wmem_strbuf_append(buf, "}");
 	return wmem_strbuf_finalize(buf);
 }
 
@@ -337,6 +337,12 @@ log_stnode_full(enum ws_log_level level,
 {
 	if (!ws_log_msg_is_active(LOG_DOMAIN_DFILTER, level))
 		return;
+
+	if (node == NULL) {
+		ws_log_write_always_full(LOG_DOMAIN_DFILTER, level,
+					file, line, func, "%s: NULL", msg);
+		return;
+	}
 
 	char *str = sprint_node(node);
 	ws_log_write_always_full(LOG_DOMAIN_DFILTER, level,

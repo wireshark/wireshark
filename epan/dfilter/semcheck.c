@@ -431,7 +431,6 @@ check_exists(dfwork_t *dfw, stnode_t *st_arg1)
 	static guint i = 0;
 
 	ws_debug("4 check_exists() [%u]", i++);
-	log_stnode(st_arg1);
 
 	switch (stnode_type_id(st_arg1)) {
 		case STTYPE_FIELD:
@@ -971,8 +970,6 @@ check_relation_contains(dfwork_t *dfw, stnode_t *st_node,
 	static guint i = 0;
 
 	ws_debug("4 check_relation(\"contains\") [%u]", i++);
-	log_stnode(st_arg1);
-	log_stnode(st_arg2);
 
 	/* Protocol can only be on LHS for "contains".
 	 * Check to see if protocol is on RHS, and re-interpret it as UNPARSED
@@ -1035,8 +1032,6 @@ check_relation_matches(dfwork_t *dfw, stnode_t *st_node,
 	const char *patt;
 
 	ws_debug("4 check_relation(\"matches\") [%u]", i++);
-	log_stnode(st_arg1);
-	log_stnode(st_arg2);
 
 	if (stnode_type_id(st_arg2) != STTYPE_STRING) {
 		FAIL(dfw, "Expected a double quoted string not '%s'", stnode_todisplay(st_arg2));
@@ -1127,10 +1122,12 @@ check_test(dfwork_t *dfw, stnode_t *st_node)
 	stnode_t		*st_arg1, *st_arg2;
 	static guint i = 0;
 
-	ws_debug("3 check_test(stnode_t *st_node = %p) [%u]\n", st_node, i++);
-	log_stnode(st_node);
+	ws_debug("3 check_test(st_node <%p> = %s) [%u]", st_node, stnode_todebug(st_node), i++);
 
 	sttype_test_get(st_node, &st_op, &st_arg1, &st_arg2);
+
+	log_stnode(st_arg1);
+	log_stnode(st_arg2);
 
 	switch (st_op) {
 		case TEST_OP_UNINITIALIZED:
