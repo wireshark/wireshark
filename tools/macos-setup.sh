@@ -2969,8 +2969,6 @@ install_all() {
 
     install_pcre
 
-    install_pcre2
-
     install_autoconf
 
     install_automake
@@ -2978,6 +2976,8 @@ install_all() {
     install_libtool
 
     install_cmake
+
+    install_pcre2
 
     #
     # Install Python 3 now; not only is it needed for the Wireshark
