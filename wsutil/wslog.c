@@ -738,8 +738,6 @@ static void log_write_do_work(FILE *fp, gboolean use_color,
                                 const char *file, int line, const char *func,
                                 const char *user_format, va_list user_ap)
 {
-    gboolean doextra = (level != DEFAULT_LOG_LEVEL);
-
 #ifndef WS_DISABLE_DEBUG
     if (!init_complete)
         fputs(" ** (noinit)", fp);
@@ -766,15 +764,15 @@ static void log_write_do_work(FILE *fp, gboolean use_color,
                                 color_off(use_color));
 
     /* File/line */
-    if (doextra && file != NULL && line >= 0)
+    if (file != NULL && line >= 0)
         fprintf(fp, "%s:%d ", file, line);
-    else if (doextra && file != NULL)
+    else if (file != NULL)
         fprintf(fp, "%s ", file);
 
     fputs("-- ", fp);
 
     /* Function name */
-    if (doextra && func != NULL)
+    if (func != NULL)
         fprintf(fp, "%s(): ", func);
 
     /* User message */
