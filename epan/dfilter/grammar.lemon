@@ -85,6 +85,10 @@ new_function(dfwork_t *dfw, df_lval_t *lval);
 /* This is called as soon as a syntax error happens. After that, 
 any "error" symbols are shifted, if possible. */
 %syntax_error {
+	if (!TOKEN) {
+		dfilter_fail_parse(dfw, "Unexpected end of filter expression.");
+		return;
+	}
 	dfilter_fail_parse(dfw, "\"%s\" was unexpected in this context.",
 				df_lval_value(TOKEN));
 }
