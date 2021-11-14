@@ -2969,6 +2969,8 @@ install_all() {
 
     install_pcre
 
+    install_pcre2
+
     install_autoconf
 
     install_automake
