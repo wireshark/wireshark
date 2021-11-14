@@ -357,7 +357,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 	dissector_handle_t dissector_handle;
 	fr_foreach_t fr_user_data;
 	struct nflx_tcpinfo tcpinfo;
-	gboolean tcpinfo_filled;
+	gboolean tcpinfo_filled = false;
 
 	tree=parent_tree;
 
