@@ -21,13 +21,33 @@ struct _ws_regex {
 
 #define ERROR_MAXLEN_IN_CODE_UNITS   128
 
+static char *
+get_error_msg(int errorcode)
+{
+    char *buffer;
+
+    /*
+     * We have to provide a buffer and we don't know how long the
+     * error message is or even the maximum size. From pcre2api(3):
+     *     "None of the messages are very long; a
+     *     buffer size of 120 code units is ample."
+     */
+    /* Code unit = one byte */
+    buffer = g_malloc(ERROR_MAXLEN_IN_CODE_UNITS);
+    /* Message is returned with a trailing zero. */
+    pcre2_get_error_message(errorcode, buffer, ERROR_MAXLEN_IN_CODE_UNITS);
+    /* One more at the end for good luck. */
+    buffer[ERROR_MAXLEN_IN_CODE_UNITS-1] = '\0';
+    return buffer;
+}
+
+
 static pcre2_code *
-_pcre2_compile(const char *patt, char **errmsg)
+compile_pcre2(const char *patt, char **errmsg)
 {
     pcre2_code *code;
     int errorcode;
     PCRE2_SIZE erroroffset;
-    char *error_buffer;
 
     /* By default UTF-8 is off. */
     code = pcre2_compile_8((PCRE2_SPTR)patt,
@@ -38,19 +58,7 @@ _pcre2_compile(const char *patt, char **errmsg)
                 NULL);
 
     if (code == NULL) {
-        /*
-         * We have to provide a buffer and we don't know how long the
-         * error message is or even the maximum size. From pcre2api(3):
-         *     "None of the messages are very long; a
-         *     buffer size of 120 code units is ample."
-         */
-        /* Code unit = one byte */
-        error_buffer = g_malloc(ERROR_MAXLEN_IN_CODE_UNITS);
-        /* Message is returned with a trailing zero. */
-        pcre2_get_error_message(errorcode, error_buffer, ERROR_MAXLEN_IN_CODE_UNITS);
-        /* One more at the end for good luck. */
-        error_buffer[ERROR_MAXLEN_IN_CODE_UNITS-1] = '\0';
-        *errmsg = error_buffer;
+        *errmsg = get_error_msg(errorcode);
         return NULL;
     }
 
@@ -63,7 +71,7 @@ ws_regex_compile(const char *patt, char **errmsg)
 {
     ws_return_val_if_null(patt, NULL);
 
-    pcre2_code *code = _pcre2_compile(patt, errmsg);
+    pcre2_code *code = compile_pcre2(patt, errmsg);
     if (code == NULL)
         return NULL;
 
@@ -75,19 +83,42 @@ ws_regex_compile(const char *patt, char **errmsg)
 
 
 static bool
-_pcre2_matches(pcre2_code *code, const char *subj, gssize subj_size)
+match_pcre2(pcre2_code *code, const char *subj, gssize subj_size)
 {
     PCRE2_SIZE length;
     pcre2_match_data *match_data;
     int rc;
 
     length = subj_size < 0 ? PCRE2_ZERO_TERMINATED : (PCRE2_SIZE)subj_size;
-    match_data = pcre2_match_data_create_from_pattern(code, NULL);
 
-    rc = pcre2_match(code, subj, length, 0, 0, match_data, NULL);
+    /* We don't use the matched substring but pcre2_match requires
+     * at least one pair of offsets. */
+    match_data = pcre2_match_data_create(1, NULL);
+
+    rc = pcre2_match(code,
+                    subj,
+                    length,
+                    0,          /* start at offset zero of the subject */
+                    0,          /* default options */
+                    match_data,
+                    NULL);
+
     pcre2_match_data_free(match_data);
 
-    return rc < 0 ? FALSE : TRUE;
+    if (rc < 0) {
+        /* No match */
+        if (rc != PCRE2_ERROR_NOMATCH) {
+            /* Error. Should not happen with UTF-8 disabled. Some huge
+             * subject strings could hit some internal limit. */
+            char *msg = get_error_msg(rc);
+            ws_debug("Unexpected pcre2_match() error: %s.", msg);
+            g_free(msg);
+        }
+        return FALSE;
+    }
+
+    /* Matched */
+    return TRUE;
 }
 
 
@@ -97,7 +128,7 @@ ws_regex_matches(const ws_regex_t *re, const char *subj, gssize subj_size)
     ws_return_val_if_null(re, FALSE);
     ws_return_val_if_null(subj, FALSE);
 
-    return _pcre2_matches(re->code, subj, subj_size);
+    return match_pcre2(re->code, subj, subj_size);
 }
 
 
