@@ -387,6 +387,8 @@ drop_fragments(packet_info *pinfo) {
     case P2P_DIR_UNKNOWN:
 	    packet_direction = 0x0;
 	    break;
+    default:
+            packet_direction = 0x0;
     }
 
     if (pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID)
@@ -438,6 +440,8 @@ dissect_preemption(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 
     case P2P_DIR_UNKNOWN:
 	    packet_direction = 0x0;
 	    break;
+    default:
+	    packet_direction = 0x0;
     }
 
     if (pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID)
