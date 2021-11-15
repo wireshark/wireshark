@@ -1042,7 +1042,7 @@ check_relation_matches(dfwork_t *dfw, stnode_t *st_node,
 
 	pcre = ws_regex_compile(patt, &errmsg);
 	if (errmsg) {
-		dfilter_fail(dfw, "%s", errmsg);
+		dfilter_fail(dfw, "Regex compilation error: %s.", errmsg);
 		g_free(errmsg);
 		THROW(TypeError);
 	}
