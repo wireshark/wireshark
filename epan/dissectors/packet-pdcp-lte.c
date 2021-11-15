@@ -31,7 +31,7 @@
 #include "packet-rlc-lte.h"
 #include "packet-pdcp-lte.h"
 
-void proto_register_pdcp(void);
+void proto_register_pdcp_lte(void);
 void proto_reg_handoff_pdcp_lte(void);
 
 /* Described in:
@@ -2582,7 +2582,7 @@ static int dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 
-void proto_register_pdcp(void)
+void proto_register_pdcp_lte(void)
 {
     static hf_register_info hf[] =
     {
