@@ -146,7 +146,7 @@ foreach(_dll ${GLIB2_DLLS_RELEASE})
 	set(_all_manifest_contents "${_all_manifest_contents}File \"\${STAGING_DIR}\\${_dll}\"\n")
 endforeach()
 set(_all_manifest_contents "${_all_manifest_contents}!endif\n")
-foreach(_dll ${CARES_DLL} ${GCRYPT_DLLS}
+foreach(_dll ${CARES_DLL} ${PCRE2_DLL} ${GCRYPT_DLLS}
 		${GNUTLS_DLLS} ${KERBEROS_DLLS} ${LIBSSH_DLLS} ${LUA_DLL}
 		${LZ4_DLL} ${NGHTTP2_DLL} ${SBC_DLL} ${SMI_DLL} ${SNAPPY_DLL}
 		${SPANDSP_DLL} ${BCG729_DLL} ${LIBXML2_DLLS} ${WINSPARKLE_DLL}
