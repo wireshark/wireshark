@@ -1,6 +1,7 @@
-Wireshark 3.2.17 Release Notes
+Wireshark 3.2.18 Release Notes
 
  This is expected to be the final supported version of the 3.2 branch.
+ We really mean it this time.
 
  What is Wireshark?
 
@@ -9,9 +10,51 @@ Wireshark 3.2.17 Release Notes
 
  What’s New
 
+  This release fixes a forward compatibility issue[1] with the I/O
+  Graphs preferences.
+
   Bug Fixes
 
+   The following vulnerabilities have been fixed:
+
+     • wnpa-sec-2021-07[2] Bluetooth DHT dissector crash. Issue
+       17651[3]. CVE-2021-39929[4].
+
+     • wnpa-sec-2021-09[5] Bluetooth SDP dissector crash. Issue
+       17635[6]. CVE-2021-39925[7].
+
+     • wnpa-sec-2021-10[8] Bluetooth DHT dissector large loop. Issue
+       17677[9]. CVE-2021-39924[10].
+
+     • wnpa-sec-2021-11[11] PNRP dissector large loop. Issue 17684[12].
+
+     • wnpa-sec-2021-12[13] C12.22 dissector crash. Issue 17636[14].
+       CVE-2021-39922[15].
+
+     • wnpa-sec-2021-13[16] IEEE 802.11 dissector crash. Issue
+       17704[17]. CVE-2021-39928[18].
+
+     • wnpa-sec-2021-14[19] Modbus dissector crash. Issue 17703[20].
+       CVE-2021-39921[21].
+
    The following bugs have been fixed:
+
+     • Allow for '\0' (NULL) character as filter instead of requiring
+       0x00 for the character match Issue 16525[22].
+
+     • Dumpcap with threads reports double received count vs captured
+       Issue 17089[23].
+
+     • I/O Graphs values reset to default with 3.5 due to change of UAT
+       Issue 17623[24].
+
+     • TShark stops capturing when capturing with multiple files and
+       packet printing enabled Issue 17654[25].
+
+     • Wireshark is unable to decode the IMSI IE received in BSSMAP
+       Perform Location request Issue 17667[26].
+
+     • Crash in flow analysis for TCP Issue 17722[27].
 
   New and Updated Features
 
@@ -22,6 +65,9 @@ Wireshark 3.2.17 Release Notes
    There are no new protocols in this release.
 
   Updated Protocol Support
+
+   BT SDP, BT-DHT, C12.22, CAN FD, CSN1, EAPOL-MKA, EVS, GSM BSSMAP LE,
+   IEEE 802.11, PNRP, TCP, and TLS
 
   New and Updated Capture File Support
 
@@ -37,7 +83,7 @@ Wireshark 3.2.17 Release Notes
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[1] on the Wireshark web site.
+   be found on the download page[28] on the Wireshark web site.
 
  File Locations
 
@@ -51,22 +97,49 @@ Wireshark 3.2.17 Release Notes
   The User’s Guide, manual pages and various other documentation can be
   found at https://www.wireshark.org/docs/
 
-  Community support is available on Wireshark’s Q&A site[2] and on the
+  Community support is available on Wireshark’s Q&A site[29] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[3].
+  for all of Wireshark’s mailing lists can be found on the web site[30].
 
-  Issues and feature requests can be reported on the issue tracker[4].
+  Issues and feature requests can be reported on the issue tracker[31].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[5].
+  A complete FAQ is available on the Wireshark web site[32].
 
-  Last updated 2021-11-14 16:06:57 UTC
+  Last updated 2021-11-17 17:45:10 UTC
 
  References
 
-   1. https://www.wireshark.org/download.html#thirdparty
-   2. https://ask.wireshark.org/
-   3. https://www.wireshark.org/lists/
-   4. https://gitlab.com/wireshark/wireshark/-/issues
-   5. https://www.wireshark.org/faq.html
+   1. https://gitlab.com/wireshark/wireshark/-/issues/17623
+   2. https://www.wireshark.org/security/wnpa-sec-2021-07
+   3. https://gitlab.com/wireshark/wireshark/-/issues/17651
+   4. https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-39929
+   5. https://www.wireshark.org/security/wnpa-sec-2021-09
+   6. https://gitlab.com/wireshark/wireshark/-/issues/17635
+   7. https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-39925
+   8. https://www.wireshark.org/security/wnpa-sec-2021-10
+   9. https://gitlab.com/wireshark/wireshark/-/issues/17677
+  10. https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-39924
+  11. https://www.wireshark.org/security/wnpa-sec-2021-11
+  12. https://gitlab.com/wireshark/wireshark/-/issues/17684
+  13. https://www.wireshark.org/security/wnpa-sec-2021-12
+  14. https://gitlab.com/wireshark/wireshark/-/issues/17636
+  15. https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-39922
+  16. https://www.wireshark.org/security/wnpa-sec-2021-13
+  17. https://gitlab.com/wireshark/wireshark/-/issues/17704
+  18. https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-39928
+  19. https://www.wireshark.org/security/wnpa-sec-2021-14
+  20. https://gitlab.com/wireshark/wireshark/-/issues/17703
+  21. https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-39921
+  22. https://gitlab.com/wireshark/wireshark/-/issues/16525
+  23. https://gitlab.com/wireshark/wireshark/-/issues/17089
+  24. https://gitlab.com/wireshark/wireshark/-/issues/17623
+  25. https://gitlab.com/wireshark/wireshark/-/issues/17654
+  26. https://gitlab.com/wireshark/wireshark/-/issues/17667
+  27. https://gitlab.com/wireshark/wireshark/-/issues/17722
+  28. https://www.wireshark.org/download.html#thirdparty
+  29. https://ask.wireshark.org/
+  30. https://www.wireshark.org/lists/
+  31. https://gitlab.com/wireshark/wireshark/-/issues
+  32. https://www.wireshark.org/faq.html
