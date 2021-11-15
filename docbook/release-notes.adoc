@@ -32,7 +32,7 @@ See the “New and Updated Features” section below for more details.
 
 The following features are new (or have been significantly updated) since version 3.6.0rc3:
 
-* Nothing of note.
+* The macOS Intel packages now ship with Qt 5.15.3 and require macOS 10.13 or later.
 
 The following features are new (or have been significantly updated) since version 3.6.0rc2:
 
