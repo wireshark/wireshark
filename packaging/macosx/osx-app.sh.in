@@ -177,10 +177,10 @@ while $endl; do
 	#    when built by tools/macos-setup.sh;
 	#
 	#    replace "@rpath/libsnappy" with "/usr/local/lib/libssnappy" so that
-	#    it isn't excluded from subsequent filtering.
+	#    it isn't excluded from subsequent filtering;
 	#
 	#    replace "@rpath/libpcre2" with "/usr/local/lib/libpcre2" so that
-	#    it isn't excluded from subsequent filtering.
+	#    it isn't excluded from subsequent filtering;
 
 	#    replace "\tlibbrotli" with "\t/usr/local/lib/libbrotli" so that
 	#    it isn't excluded from subsequent filtering.
@@ -197,7 +197,8 @@ while $endl; do
 	#
 	#    `DYLD_PRINT_LIBRARIES=1 $bundle_binary`
 	#
-	# instead.
+	# instead, or just use CMake's fixup_bundle:
+	# https://cmake.org/cmake/help/latest/module/BundleUtilities.html
 	libs="$(
 		# shellcheck disable=SC2086
 		otool -L $bundle_binary_list "$pkglib"/*.dylib 2>/dev/null \
