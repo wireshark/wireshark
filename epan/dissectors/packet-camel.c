@@ -613,7 +613,6 @@ static int dissect_camel_EstablishTemporaryConnectionArgV2(gboolean implicit_tag
 static int dissect_camel_SpecializedResourceReportArgV23(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
 /* XXX - can we get rid of these and always do the SRT work? */
-static gboolean gcamel_HandleSRT=FALSE;
 static gboolean gcamel_PersistentSRT=FALSE;
 static gboolean gcamel_DisplaySRT=FALSE;
 gboolean gcamel_StatSRT=FALSE;
@@ -842,7 +841,7 @@ static gint ett_camel_T_problem = -1;
 static gint ett_camel_InvokeId = -1;
 
 /*--- End of included file: packet-camel-ett.c ---*/
-#line 146 "./asn1/camel/packet-camel-template.c"
+#line 145 "./asn1/camel/packet-camel-template.c"
 
 static expert_field ei_camel_unknown_invokeData = EI_INIT;
 static expert_field ei_camel_unknown_returnResultData = EI_INIT;
@@ -1184,7 +1183,7 @@ static const value_string camel_ectTreatmentIndicator_values[] = {
 #define noInvokeId                     NULL
 
 /*--- End of included file: packet-camel-val.h ---*/
-#line 303 "./asn1/camel/packet-camel-template.c"
+#line 302 "./asn1/camel/packet-camel-template.c"
 
 
 /*--- Included file: packet-camel-table.c ---*/
@@ -1274,7 +1273,7 @@ static const value_string camel_err_code_string_vals[] = {
 
 
 /*--- End of included file: packet-camel-table.c ---*/
-#line 305 "./asn1/camel/packet-camel-template.c"
+#line 304 "./asn1/camel/packet-camel-template.c"
 
 /*
  * DEBUG fonctions
@@ -7227,7 +7226,7 @@ static int dissect_CAP_U_ABORT_REASON_PDU(tvbuff_t *tvb _U_, packet_info *pinfo 
 
 
 /*--- End of included file: packet-camel-fn.c ---*/
-#line 406 "./asn1/camel/packet-camel-template.c"
+#line 405 "./asn1/camel/packet-camel-template.c"
 
 
 /*--- Included file: packet-camel-table2.c ---*/
@@ -7434,7 +7433,7 @@ static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset,a
 
 
 /*--- End of included file: packet-camel-table2.c ---*/
-#line 408 "./asn1/camel/packet-camel-template.c"
+#line 407 "./asn1/camel/packet-camel-template.c"
 
 /*
  * Functions needed for Hash-Table
@@ -7526,9 +7525,9 @@ camelsrt_init_routine(void)
 
   /* The Display of SRT is enable
    * 1) For wireshark only if Persistent Stat is enable
-   * 2) For Tshark, if the SRT handling is enable
+   * 2) For Tshark, if the SRT CLI tap is registered
    */
-  gcamel_DisplaySRT=gcamel_PersistentSRT || gcamel_HandleSRT&gcamel_StatSRT;
+  gcamel_DisplaySRT=gcamel_PersistentSRT || gcamel_StatSRT;
 }
 
 
@@ -8135,8 +8134,7 @@ dissect_camel_all(int version, const char* col_protocol, const char* suffix,
   dissect_camel_camelPDU(FALSE, tvb, 0, &asn1_ctx , tree, -1, p_private_tcap);
 
   /* If a Tcap context is associated to this transaction */
-  if (gcamel_HandleSRT &&
-      gp_camelsrt_info->tcap_context ) {
+  if (gp_camelsrt_info->tcap_context ) {
     if (gcamel_DisplaySRT && tree) {
       stat_tree = proto_tree_add_subtree(tree, tvb, 0, 0, ett_camel_stat, NULL, "Stat");
     }
@@ -8316,7 +8314,7 @@ void proto_reg_handoff_camel(void) {
 
 
 /*--- End of included file: packet-camel-dis-tab.c ---*/
-#line 1282 "./asn1/camel/packet-camel-template.c"
+#line 1280 "./asn1/camel/packet-camel-template.c"
   } else {
     range_foreach(ssn_range, range_delete_callback, NULL);
     wmem_free(wmem_epan_scope(), ssn_range);
@@ -10438,7 +10436,7 @@ void proto_register_camel(void) {
         "InvokeId_present", HFILL }},
 
 /*--- End of included file: packet-camel-hfarr.c ---*/
-#line 1455 "./asn1/camel/packet-camel-template.c"
+#line 1453 "./asn1/camel/packet-camel-template.c"
   };
 
   /* List of subtrees */
@@ -10666,7 +10664,7 @@ void proto_register_camel(void) {
     &ett_camel_InvokeId,
 
 /*--- End of included file: packet-camel-ettarr.c ---*/
-#line 1482 "./asn1/camel/packet-camel-template.c"
+#line 1480 "./asn1/camel/packet-camel-template.c"
   };
 
   static ei_register_info ei[] = {
@@ -10740,10 +10738,7 @@ void proto_register_camel(void) {
     "TCAP Subsystem numbers used for Camel",
     &global_ssn_range, MAX_SSN);
 
-  prefs_register_bool_preference(camel_module, "srt",
-                                 "Analyze Service Response Time",
-                                 "Enable response time analysis",
-                                 &gcamel_HandleSRT);
+  prefs_register_obsolete_preference(camel_module, "srt");
 
   prefs_register_bool_preference(camel_module, "persistentsrt",
                                  "Persistent stats for SRT",
