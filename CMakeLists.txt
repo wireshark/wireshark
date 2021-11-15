@@ -65,6 +65,12 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 message(STATUS "Generating build using CMake ${CMAKE_VERSION}")
 
+# Avoid an empty build type. If this is already set it does nothing.
+set(CMAKE_BUILD_TYPE "RelWithDebInfo" CACHE STRING
+		"Choose the build configuration (one of Debug, MinSizeRel, RelWithDebInfo, Release)")
+# Build type is ignored by multi-config generators.
+message(STATUS "Using ${CMAKE_GENERATOR} generator and build type ${CMAKE_BUILD_TYPE}")
+
 #Where to find local cmake scripts
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
 
@@ -144,7 +150,7 @@ if(WIN32)
 		endif()
 	endif()
 	message(STATUS
-		"Building for ${WIRESHARK_TARGET_PLATFORM} using \"${CMAKE_GENERATOR}\" \
+		"Building for ${WIRESHARK_TARGET_PLATFORM} \
 and CPU target ${WIRESHARK_TARGET_PROCESSOR_ARCHITECTURE}"
 	)
 
@@ -187,14 +193,6 @@ endif(WIN32)
 
 include(UseCustomIncludes)
 ADD_CUSTOM_CMAKE_INCLUDE()
-
-# This cannot be implemented via option(...)
-if( NOT CMAKE_BUILD_TYPE )
-	set( CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING
-		"Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel."
-		FORCE)
-endif()
-message(STATUS "CMake build type: ${CMAKE_BUILD_TYPE}")
 
 # Ensure that all executables and libraries end up in the same directory. Actual
 # files might end up in a configuration subdirectory, e.g. run/Debug or
