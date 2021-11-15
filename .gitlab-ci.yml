@@ -438,7 +438,7 @@ macOS Intel Package:
     - wireshark-macos-intel-package
   retry: 1
   script:
-    - export CMAKE_PREFIX_PATH="$HOME/Qt5.12.6/5.12.6/clang_64/lib/cmake"
+    - export CMAKE_PREFIX_PATH=/usr/local/Qt-5.15.3/lib/cmake
     - export PATH="$PATH:$HOME/bin"
     - perl tools/make-version.pl --set-release
     - mkdir build
