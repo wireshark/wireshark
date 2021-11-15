@@ -428,10 +428,6 @@ is_bytes_type(enum ftenum type)
 static void
 check_exists(dfwork_t *dfw, stnode_t *st_arg1)
 {
-	static guint i = 0;
-
-	ws_debug("4 check_exists() [%u]", i++);
-
 	switch (stnode_type_id(st_arg1)) {
 		case STTYPE_FIELD:
 			/* This is OK */
@@ -548,7 +544,7 @@ check_function(dfwork_t *dfw, stnode_t *st_node)
 static void
 check_relation_LHS_FIELD(dfwork_t *dfw, test_op_t st_op,
 		FtypeCanFunc can_func, gboolean allow_partial_value,
-		stnode_t *st_node, stnode_t *st_arg1, stnode_t *st_arg2)
+		stnode_t *st_node _U_, stnode_t *st_arg1, stnode_t *st_arg2)
 {
 	sttype_id_t		type2;
 	header_field_info	*hfinfo1, *hfinfo2;
@@ -560,12 +556,6 @@ check_relation_LHS_FIELD(dfwork_t *dfw, test_op_t st_op,
 
 	hfinfo1 = stnode_data(st_arg1);
 	ftype1 = hfinfo1->type;
-
-	if (stnode_type_id(st_node) == STTYPE_TEST) {
-		ws_debug("5 check_relation_LHS_FIELD(%s)", sttype_test_todisplay(st_op));
-	} else {
-		ws_debug("6 check_relation_LHS_FIELD(%s)", sttype_test_todisplay(st_op));
-	}
 
 	if (!can_func(ftype1)) {
 		FAIL(dfw, "%s (type=%s) cannot participate in '%s' comparison.",
@@ -657,8 +647,6 @@ check_relation_LHS_STRING(dfwork_t *dfw, test_op_t st_op,
 
 	type2 = stnode_type_id(st_arg2);
 
-	ws_debug("5 check_relation_LHS_STRING()");
-
 	if (type2 == STTYPE_FIELD) {
 		hfinfo2 = stnode_data(st_arg2);
 		ftype2 = hfinfo2->type;
@@ -717,8 +705,6 @@ check_relation_LHS_UNPARSED(dfwork_t *dfw, test_op_t st_op,
 
 	type2 = stnode_type_id(st_arg2);
 
-	ws_debug("5 check_relation_LHS_UNPARSED()");
-
 	if (type2 == STTYPE_FIELD) {
 		hfinfo2 = stnode_data(st_arg2);
 		ftype2 = hfinfo2->type;
@@ -773,8 +759,6 @@ check_relation_LHS_RANGE(dfwork_t *dfw, test_op_t st_op,
 	header_field_info	*hfinfo2;
 	ftenum_t		ftype2;
 	fvalue_t		*fvalue;
-
-	ws_debug("5 check_relation_LHS_RANGE(%s)", sttype_test_todisplay(st_op));
 
 	check_drange_sanity(dfw, st_arg1);
 
@@ -853,8 +837,6 @@ check_relation_LHS_FUNCTION(dfwork_t *dfw, test_op_t st_op,
 	funcdef = sttype_function_funcdef(st_arg1);
 	ftype1 = funcdef->retval_ftype;
 
-	ws_debug("5 check_relation_LHS_FUNCTION(%s)", sttype_test_todisplay(st_op));
-
 	if (!can_func(ftype1)) {
 		FAIL(dfw, "Function %s (type=%s) cannot participate in '%s' comparison.",
 				funcdef->name, ftype_pretty_name(ftype1),
@@ -930,12 +912,6 @@ check_relation(dfwork_t *dfw, test_op_t st_op,
 		FtypeCanFunc can_func, gboolean allow_partial_value,
 		stnode_t *st_node, stnode_t *st_arg1, stnode_t *st_arg2)
 {
-	static guint i = 0;
-
-	ws_debug("4 check_relation(\"%s\") [%u]", sttype_test_todisplay(st_op), i++);
-	log_stnode(st_arg1);
-	log_stnode(st_arg2);
-
 	switch (stnode_type_id(st_arg1)) {
 		case STTYPE_FIELD:
 			check_relation_LHS_FIELD(dfw, st_op, can_func,
@@ -967,10 +943,6 @@ static void
 check_relation_contains(dfwork_t *dfw, stnode_t *st_node,
 		stnode_t *st_arg1, stnode_t *st_arg2)
 {
-	static guint i = 0;
-
-	ws_debug("4 check_relation(\"contains\") [%u]", i++);
-
 	/* Protocol can only be on LHS for "contains".
 	 * Check to see if protocol is on RHS, and re-interpret it as UNPARSED
 	 * instead. The subsequent functions will parse it according to the
@@ -1026,12 +998,9 @@ static void
 check_relation_matches(dfwork_t *dfw, stnode_t *st_node,
 		stnode_t *st_arg1, stnode_t *st_arg2)
 {
-	static guint i = 0;
 	ws_regex_t *pcre;
 	char *errmsg = NULL;
 	const char *patt;
-
-	ws_debug("4 check_relation(\"matches\") [%u]", i++);
 
 	if (stnode_type_id(st_arg2) != STTYPE_STRING) {
 		FAIL(dfw, "Expected a double quoted string not '%s'", stnode_todisplay(st_arg2));
@@ -1120,14 +1089,10 @@ check_test(dfwork_t *dfw, stnode_t *st_node)
 {
 	test_op_t		st_op, st_arg_op;
 	stnode_t		*st_arg1, *st_arg2;
-	static guint i = 0;
 
-	ws_debug("3 check_test(st_node <%p> = %s) [%u]", st_node, stnode_todebug(st_node), i++);
+	log_test(st_node);
 
 	sttype_test_get(st_node, &st_op, &st_arg1, &st_arg2);
-
-	log_stnode(st_arg1);
-	log_stnode(st_arg2);
 
 	switch (st_op) {
 		case TEST_OP_UNINITIALIZED:
@@ -1198,10 +1163,6 @@ check_test(dfwork_t *dfw, stnode_t *st_node)
 static void
 semcheck(dfwork_t *dfw, stnode_t *st_node)
 {
-	static guint i = 0;
-
-	ws_debug("2 semcheck(stnode_t *st_node = %p) [%u]", st_node, i++);
-
 	/* The parser assures that the top-most syntax-tree
 	 * node will be a TEST node, no matter what. So assert that. */
 	switch (stnode_type_id(st_node)) {
@@ -1221,9 +1182,8 @@ gboolean
 dfw_semcheck(dfwork_t *dfw)
 {
 	volatile gboolean ok_filter = TRUE;
-	static guint i = 0;
 
-	ws_debug("1 dfw_semcheck(dfwork_t *dfw = %p) [%u]", dfw, i);
+	ws_debug("Starting semantic check (dfw = %p)", dfw);
 
 	/* Instead of having to check for errors at every stage of
 	 * the semantic-checking, the semantic-checking code will
@@ -1236,8 +1196,9 @@ dfw_semcheck(dfwork_t *dfw)
 	}
 	ENDTRY;
 
-	ws_debug("1 dfw_semcheck(dfwork_t *dfw = %p) [%u] - Returns %d",
-				dfw, i++, ok_filter);
+	ws_debug("Semantic check (dfw = %p) returns %s",
+			dfw, ok_filter ? "TRUE" : "FALSE");
+
 	return ok_filter;
 }
 

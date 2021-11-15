@@ -318,36 +318,47 @@ sprint_node(stnode_t *node)
 {
 	wmem_strbuf_t *buf = wmem_strbuf_new(NULL, NULL);
 
-	wmem_strbuf_append_printf(buf, "stnode <%p> = {\n", (void *)node);
-	wmem_strbuf_append_printf(buf, "\tmagic = 0x%"PRIx32"\n", node->magic);
-	wmem_strbuf_append_printf(buf, "\ttype = <%p>\n", (void *)(node->type));
-	wmem_strbuf_append_printf(buf, "\tdata = %s\n", stnode_todebug(node));
-	wmem_strbuf_append_printf(buf, "\tflags (0x%04"PRIx16") = {\n", node->flags);
-	wmem_strbuf_append_printf(buf, "\t\tinside_parens = %s\n",
-					true_or_false(stnode_inside_parens(node)));
-	wmem_strbuf_append(buf, "\t}\n");
-	wmem_strbuf_append(buf, "}");
+	wmem_strbuf_append_printf(buf, "stnode{ ");
+	wmem_strbuf_append_printf(buf, "magic=0x%"PRIx32", ", node->magic);
+	wmem_strbuf_append_printf(buf, "type=%s, ", stnode_type_name(node));
+	wmem_strbuf_append_printf(buf, "data=<%s>, ", stnode_todisplay(node));
+	wmem_strbuf_append_printf(buf, "flags=0x%04"PRIx16" }", node->flags);
 	return wmem_strbuf_finalize(buf);
 }
 
 void
-log_stnode_full(enum ws_log_level level,
-			const char *file, int line, const char *func,
+log_test_full(enum ws_log_level level,
+			const char *file _U_, int line _U_, const char *func,
 			stnode_t *node, const char *msg)
 {
-	if (!ws_log_msg_is_active(LOG_DOMAIN_DFILTER, level))
+	if (!ws_log_msg_is_active(WS_LOG_DOMAIN, level))
 		return;
 
 	if (node == NULL) {
-		ws_log_write_always_full(LOG_DOMAIN_DFILTER, level,
-					file, line, func, "%s: NULL", msg);
+		ws_log_write_always_full(WS_LOG_DOMAIN, level,
+					NULL, -1, func, "%s is NULL", msg);
 		return;
 	}
 
-	char *str = sprint_node(node);
-	ws_log_write_always_full(LOG_DOMAIN_DFILTER, level,
-					file, line, func, "%s:\n%s", msg, str);
-	g_free(str);
+	test_op_t st_op;
+	stnode_t *st_lhs = NULL, *st_rhs = NULL;
+	char *lhs = NULL, *rhs = NULL;
+
+	sttype_test_get(node, &st_op, &st_lhs, &st_rhs);
+
+	if (st_lhs)
+		lhs = sprint_node(st_lhs);
+	if (st_rhs)
+		rhs = sprint_node(st_rhs);
+
+	ws_log_write_always_full(WS_LOG_DOMAIN, level, NULL, -1, func,
+				"%s: LHS = %s; RHS = %s",
+				stnode_todebug(node),
+				lhs ? lhs : "NULL",
+				rhs ? rhs : "NULL");
+
+	g_free(lhs);
+	g_free(rhs);
 }
 
 static void
