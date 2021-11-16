@@ -48,11 +48,13 @@ static gint ansi_tcap_response_matching_type = ANSI_TCAP_TID_ONLY;
 /* Initialize the protocol and registered fields */
 static int proto_ansi_tcap = -1;
 
+#if 0
 static int hf_ansi_tcapsrt_SessionId = -1;
 static int hf_ansi_tcapsrt_Duplicate = -1;
 static int hf_ansi_tcapsrt_BeginSession = -1;
 static int hf_ansi_tcapsrt_EndSession = -1;
 static int hf_ansi_tcapsrt_SessionTime = -1;
+#endif
 static int hf_ansi_tcap_bit_h = -1;
 static int hf_ansi_tcap_op_family = -1;
 static int hf_ansi_tcap_op_specifier = -1;
@@ -113,7 +115,7 @@ static int hf_ansi_tcap_paramSequence = -1;       /* T_paramSequence */
 static int hf_ansi_tcap_paramSet = -1;            /* T_paramSet */
 
 /*--- End of included file: packet-ansi_tcap-hf.c ---*/
-#line 53 "./asn1/ansi_tcap/packet-ansi_tcap-template.c"
+#line 55 "./asn1/ansi_tcap/packet-ansi_tcap-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_tcap = -1;
@@ -161,7 +163,7 @@ static gint ett_ansi_tcap_T_paramSequence = -1;
 static gint ett_ansi_tcap_T_paramSet = -1;
 
 /*--- End of included file: packet-ansi_tcap-ett.c ---*/
-#line 74 "./asn1/ansi_tcap/packet-ansi_tcap-template.c"
+#line 76 "./asn1/ansi_tcap/packet-ansi_tcap-template.c"
 
 #define MAX_SSN 254
 
@@ -1364,7 +1366,7 @@ dissect_ansi_tcap_PackageType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 
 /*--- End of included file: packet-ansi_tcap-fn.c ---*/
-#line 307 "./asn1/ansi_tcap/packet-ansi_tcap-template.c"
+#line 309 "./asn1/ansi_tcap/packet-ansi_tcap-template.c"
 
 
 
@@ -1450,6 +1452,7 @@ proto_register_ansi_tcap(void)
 
 /* Setup list of header fields  See Section 1.6.1 for details*/
     static hf_register_info hf[] = {
+#if 0
         /* Tcap Service Response Time */
         { &hf_ansi_tcapsrt_SessionId,
           { "Session Id",
@@ -1481,6 +1484,7 @@ proto_register_ansi_tcap(void)
             FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
+#endif
         { &hf_ansi_tcap_bit_h,
           { "Require Reply", "ansi_tcap.req_rep",
             FT_BOOLEAN, 16, NULL, 0x8000,
@@ -1707,7 +1711,7 @@ proto_register_ansi_tcap(void)
         NULL, HFILL }},
 
 /*--- End of included file: packet-ansi_tcap-hfarr.c ---*/
-#line 441 "./asn1/ansi_tcap/packet-ansi_tcap-template.c"
+#line 445 "./asn1/ansi_tcap/packet-ansi_tcap-template.c"
     };
 
 /* Setup protocol subtree array */
@@ -1745,7 +1749,7 @@ proto_register_ansi_tcap(void)
     &ett_ansi_tcap_T_paramSet,
 
 /*--- End of included file: packet-ansi_tcap-ettarr.c ---*/
-#line 452 "./asn1/ansi_tcap/packet-ansi_tcap-template.c"
+#line 456 "./asn1/ansi_tcap/packet-ansi_tcap-template.c"
     };
 
     static ei_register_info ei[] = {

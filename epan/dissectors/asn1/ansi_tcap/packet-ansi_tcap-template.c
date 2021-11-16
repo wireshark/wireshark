@@ -40,11 +40,13 @@ static gint ansi_tcap_response_matching_type = ANSI_TCAP_TID_ONLY;
 /* Initialize the protocol and registered fields */
 static int proto_ansi_tcap = -1;
 
+#if 0
 static int hf_ansi_tcapsrt_SessionId = -1;
 static int hf_ansi_tcapsrt_Duplicate = -1;
 static int hf_ansi_tcapsrt_BeginSession = -1;
 static int hf_ansi_tcapsrt_EndSession = -1;
 static int hf_ansi_tcapsrt_SessionTime = -1;
+#endif
 static int hf_ansi_tcap_bit_h = -1;
 static int hf_ansi_tcap_op_family = -1;
 static int hf_ansi_tcap_op_specifier = -1;
@@ -389,6 +391,7 @@ proto_register_ansi_tcap(void)
 
 /* Setup list of header fields  See Section 1.6.1 for details*/
     static hf_register_info hf[] = {
+#if 0
         /* Tcap Service Response Time */
         { &hf_ansi_tcapsrt_SessionId,
           { "Session Id",
@@ -420,6 +423,7 @@ proto_register_ansi_tcap(void)
             FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
+#endif
         { &hf_ansi_tcap_bit_h,
           { "Require Reply", "ansi_tcap.req_rep",
             FT_BOOLEAN, 16, NULL, 0x8000,
