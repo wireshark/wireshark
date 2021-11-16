@@ -130,6 +130,7 @@ void ByteViewText::createContextMenu()
 void ByteViewText::toggleHoverAllowed(bool checked)
 {
     allow_hover_selection_ = ! checked;
+    recent.gui_allow_hover_selection = checked;
 }
 
 void ByteViewText::updateContextMenu()
