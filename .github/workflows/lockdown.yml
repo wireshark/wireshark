@@ -21,6 +21,7 @@ jobs:
           pr-comment: >
             Hi, thank you for your contribution!
 
-            GitHub is however not the right place for these, please have a look at
+            GitHub is however not the right place for these. The development repository is
+            hosted on GitLab: <https://gitlab.com/wireshark/wireshark>. Please have a look at
             <https://www.wireshark.org/docs/wsdg_html_chunked/ChSrcContribute.html>
             for further instructions.
