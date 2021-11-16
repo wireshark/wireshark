@@ -314,7 +314,8 @@ add_deprecated_token(dfwork_t *dfw, const char *token)
 }
 
 gboolean
-dfilter_compile(const gchar *text, dfilter_t **dfp, gchar **err_msg)
+dfilter_compile_real(const gchar *text, dfilter_t **dfp,
+			gchar **error_ret, const char *caller)
 {
 	gchar		*expanded_text;
 	int		token;
@@ -327,31 +328,45 @@ dfilter_compile(const gchar *text, dfilter_t **dfp, gchar **err_msg)
 	unsigned token_count = 0;
 
 	ws_assert(dfp);
+	*dfp = NULL;
 
-	if (!text) {
-		*dfp = NULL;
-		if (err_msg != NULL)
-			*err_msg = g_strdup("BUG: NULL text pointer passed to dfilter_compile()");
+	if (text == NULL) {
+		ws_log(WS_LOG_DOMAIN, LOG_LEVEL_DEBUG,
+			"%s() called from %s() with null filter",
+			__func__, caller);
+		if (error_ret != NULL) {
+			/* XXX This BUG happens often. Some callers are ignoring these errors. */
+			*error_ret = g_strdup("BUG: NULL text pointer passed to dfilter_compile");
+		}
 		return FALSE;
 	}
-
-	if ( !( expanded_text = dfilter_macro_apply(text, err_msg) ) ) {
-		*dfp = NULL;
-		return FALSE;
+	else if (*text == '\0') {
+		/* An empty filter is considered a valid input. */
+		ws_log(WS_LOG_DOMAIN, LOG_LEVEL_DEBUG,
+			"%s() called from %s() with empty filter",
+			__func__, caller);
 	}
+	else {
+		ws_log(WS_LOG_DOMAIN, LOG_LEVEL_DEBUG,
+			"%s() called from %s(), compiling filter: %s",
+			__func__, caller, text);
+	}
+
+	dfw = dfwork_new();
+
+	expanded_text = dfilter_macro_apply(text, &dfw->error_message);
+	if (expanded_text == NULL) {
+		goto FAILURE;
+	}
+
+	ws_noisy("Expanded text: %s", expanded_text);
 
 	if (df_lex_init(&scanner) != 0) {
-		wmem_free(NULL, expanded_text);
-		*dfp = NULL;
-		if (err_msg != NULL)
-			*err_msg = g_strdup_printf("Can't initialize scanner: %s",
-			    g_strerror(errno));
-		return FALSE;
+		dfw->error_message = g_strdup_printf("Can't initialize scanner: %s", g_strerror(errno));
+		goto FAILURE;
 	}
 
 	in_buffer = df__scan_string(expanded_text, scanner);
-
-	dfw = dfwork_new();
 
 	state.dfw = dfw;
 	state.quoted_string = NULL;
@@ -374,7 +389,7 @@ dfilter_compile(const gchar *text, dfilter_t **dfp, gchar **err_msg)
 			break;
 		}
 
-		ws_debug("(%u) Token %d %s %s",
+		ws_noisy("(%u) Token %d %s %s",
 				++token_count, token, tokenstr(token),
 				df_lval_value(df_lval));
 
@@ -461,28 +476,31 @@ dfilter_compile(const gchar *text, dfilter_t **dfp, gchar **err_msg)
 	/* SUCCESS */
 	global_dfw = NULL;
 	dfwork_free(dfw);
+	if (*dfp != NULL)
+		ws_log(WS_LOG_DOMAIN, LOG_LEVEL_INFO, "Compiled display filter: %s", text);
+	else
+		ws_debug("Compiled empty filter (successfully).");
 	wmem_free(NULL, expanded_text);
 	return TRUE;
 
 FAILURE:
-	if (dfw) {
-		if (err_msg != NULL)
-			*err_msg = dfw->error_message;
-		else
+	ws_assert(dfw);
+	if (dfw->error_message == NULL) {
+		/* We require an error message. */
+		ws_critical("Unknown error compiling filter: %s", text);
+	}
+	else {
+		ws_debug("Compiling filter failed with error: %s.", dfw->error_message);
+		if (error_ret != NULL) {
+			*error_ret = dfw->error_message;
+		}
+		else {
 			g_free(dfw->error_message);
-		global_dfw = NULL;
-		dfwork_free(dfw);
+		}
 	}
-	if (err_msg != NULL) {
-		/*
-		 * Default error message.
-		 *
-		 * XXX - we should really make sure that this is never the
-		 * case for any error.
-		 */
-		if (*err_msg == NULL)
-			*err_msg = g_strdup_printf("Unable to parse filter string \"%s\".", expanded_text);
-	}
+
+	global_dfw = NULL;
+	dfwork_free(dfw);
 	wmem_free(NULL, expanded_text);
 	*dfp = NULL;
 	return FALSE;

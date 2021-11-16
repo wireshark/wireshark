@@ -272,7 +272,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  deregister_depend_dissector@Base 2.1.0
  destroy_print_stream@Base 1.12.0~rc1
  dfilter_apply_edt@Base 1.9.1
- dfilter_compile@Base 1.9.1
+ dfilter_compile_real@Base 3.7.0
  dfilter_deprecated_tokens@Base 1.9.1
  dfilter_dump@Base 1.9.1
  dfilter_free@Base 1.9.1
