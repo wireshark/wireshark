@@ -468,7 +468,7 @@ void VoipCallsDialog::prepareFilter()
     while (cur_ga_item && cur_ga_item->data) {
         seq_analysis_item_t *ga_item = gxx_list_data(seq_analysis_item_t*, cur_ga_item);
         if (selected_calls.contains(ga_item->conv_num)) {
-            frame_numbers += QString("%1 ").arg(ga_item->frame_number);
+            frame_numbers += QString("%1,").arg(ga_item->frame_number);
         }
         cur_ga_item = gxx_list_next(cur_ga_item);
     }
