@@ -289,6 +289,10 @@ Debian Stable APT Test:
   script:
     - DEBIAN_FRONTEND=noninteractive apt-get install ./debian-packages/*.deb -y
     - tshark --version
+  after_script:
+    # Used for https://www.wireshark.org/docs/dfref/
+    - TSHARK_VERSION=$( tshark --version | head -n 1 | sed -e 's/.*(v//' -e 's/)$//' -e 's/-0-g.*//' )
+    - tshark -G fields > dfilter-list-${TSHARK_VERSION}.txt
   variables:
     GIT_STRATEGY: none
   needs: [ 'Debian Stable APT Package' ]
