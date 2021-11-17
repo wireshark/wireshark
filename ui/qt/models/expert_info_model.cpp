@@ -11,6 +11,7 @@
 #include "expert_info_model.h"
 
 #include "file.h"
+#include <epan/proto.h>
 
 ExpertPacketItem::ExpertPacketItem(const expert_info_t& expert_info, column_info *cinfo, ExpertPacketItem* parent) :
     packet_num_(expert_info.packet_num),
@@ -264,7 +265,11 @@ QVariant ExpertInfoModel::data(const QModelIndex &index, int role) const
             {
                 if (item->severity() == PI_COMMENT)
                     return "Packet comments listed below.";
-                return item->summary().simplified();
+                if (item->hfId() != -1) {
+                    return proto_registrar_get_name(item->hfId());
+                } else {
+                    return item->summary().simplified();
+                }
             }
         }
         return QVariant();
