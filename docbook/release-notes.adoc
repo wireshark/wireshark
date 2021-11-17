@@ -22,6 +22,8 @@ It is used for troubleshooting, analysis, development and education.
 // The Windows installers now ship with Qt 5.15.2.
 // They previously shipped with Qt 5.12.1.
 
+This release fixes a https://gitlab.com/wireshark/wireshark/-/issues/17623[forward compatibility issue] with the I/O Graphs preferences.
+
 === Bug Fixes
 
 The following vulnerabilities have been fixed:
@@ -29,7 +31,7 @@ The following vulnerabilities have been fixed:
 * wssalink:2021-07[]
 Bluetooth DHT dissector crash.
 wsbuglink:17651[].
-// cveidlink:2021-xxxxx[].
+cveidlink:2021-39929[].
 // Fixed in master: ed98abe2
 // Fixed in release-3.6: 1ffe0cef
 // Fixed in release-3.4: 4cd492c1
@@ -40,7 +42,7 @@ wsbuglink:17651[].
 * wssalink:2021-08[]
 Bluetooth HCI_ISO dissector crash.
 wsbuglink:17649[].
-// cveidlink:2021-xxxxx[].
+cveidlink:2021-39926[].
 // Fixed in master: acaaad15
 // Fixed in release-3.6: da8a707b
 // Fixed in release-3.4: 5077529f
@@ -51,7 +53,7 @@ wsbuglink:17649[].
 * wssalink:2021-09[]
 Bluetooth SDP dissector crash.
 wsbuglink:17635[].
-// cveidlink:2021-xxxxx[].
+cveidlink:2021-39925[].
 // Fixed in master: e15e9874
 // Fixed in release-3.6: 492a7038
 // Fixed in release-3.4: b18691c5
@@ -62,7 +64,7 @@ wsbuglink:17635[].
 * wssalink:2021-10[]
 Bluetooth DHT dissector large loop.
 wsbuglink:17677[].
-// cveidlink:2021-xxxxx[].
+cveidlink:2021-39924[].
 // Fixed in master: 79a9fe1c
 // Fixed in release-3.6: e138ec5d
 // Fixed in release-3.4: d3c762dc
@@ -84,7 +86,7 @@ wsbuglink:17684[].
 * wssalink:2021-12[]
 C12.22 dissector crash.
 wsbuglink:17636[].
-// cveidlink:2021-xxxxx[].
+cveidlink:2021-39922[].
 // Fixed in master: b760c356
 // Fixed in release-3.6: 1b9972ae
 // Fixed in release-3.4: 7ac1d5be
@@ -95,7 +97,7 @@ wsbuglink:17636[].
 * wssalink:2021-13[]
 IEEE 802.11 dissector crash.
 wsbuglink:17704[].
-// cveidlink:2021-xxxxx[].
+cveidlink:2021-39928[].
 // Fixed in master: 0b473c01
 // Fixed in release-3.6: ab3bb461
 // Fixed in release-3.4: 00581507
@@ -106,7 +108,7 @@ wsbuglink:17704[].
 * wssalink:2021-14[]
 Modbus dissector crash.
 wsbuglink:17703[].
-// cveidlink:2021-xxxxx[].
+cveidlink:2021-39921[].
 // Fixed in master: bb41b661
 // Fixed in release-3.6: e1efbe23
 // Fixed in release-3.4: 55c12cc7
@@ -117,7 +119,7 @@ wsbuglink:17703[].
 * wssalink:2021-15[]
 IPPUSB dissector crash.
 wsbuglink:17705[].
-// cveidlink:2021-xxxxx[].
+cveidlink:2021-39920[].
 // Fixed in master: 72ad7d9c
 // Fixed in release-3.6: 8c0020e0
 // Fixed in release-3.4: a59cb43c
@@ -145,11 +147,9 @@ The following bugs have been fixed:
 
 * TShark stops capturing when capturing with multiple files and packet printing enabled wsbuglink:17654[].
 
-* OSS-Fuzz 40081: wireshark:fuzzshark_ip: Heap-use-after-free in wmem_strdup wsbuglink:17664[].
-
 * Wireshark is unable to decode the IMSI IE received in BSSMAP Perform Location request wsbuglink:17667[].
 
-* WSLUA: crash on reload if Proto has no fields wsbuglink:17668[].
+* WSLUA: Crash on reload if Proto has no fields wsbuglink:17668[].
 
 * Crash in flow analysis for TCP wsbuglink:17722[].
 
@@ -196,11 +196,12 @@ TCP
 
 === New and Updated Capture File Support
 
-There is no new or updated capture file support in this release.
+// There is no new or updated capture file support in this release.
 // Add one file type per line between the -- delimiters.
-// [commaize]
-// --
-// --
+[commaize]
+--
+pcap
+--
 
 // === New and Updated Capture Interfaces support
 
