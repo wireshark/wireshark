@@ -7,7 +7,7 @@ include::attributes.adoc[]
 // https://asciidoctor.org/docs/asciidoc-syntax-quick-reference/
 
 This is expected to be the final supported version of the 3.2 branch.
-We really mean it this time.
+We really, really mean it this time.
 
 == What is Wireshark?
 
@@ -25,88 +25,21 @@ It is used for troubleshooting, analysis, development and education.
 // The Windows installers now ship with Qt 5.12.9.
 // They previously shipped with Qt 5.12.8.
 
-This release fixes a https://gitlab.com/wireshark/wireshark/-/issues/17623[forward compatibility issue] with the I/O Graphs preferences.
-
 === Bug Fixes
 
 The following vulnerabilities have been fixed:
 
-* wssalink:2021-07[]
-Bluetooth DHT dissector crash.
-wsbuglink:17651[].
-cveidlink:2021-39929[].
-// Fixed in master: ed98abe2
-// Fixed in release-3.6: 1ffe0cef
-// Fixed in release-3.4: 4cd492c1
-// Fixed in master-3.2: 98056d8f
-// CVSS AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:L
-// CWE-674: Uncontrolled Recursion
+// The following vulnerabilities have been fixed:
 
-* wssalink:2021-09[]
-Bluetooth SDP dissector crash.
-wsbuglink:17635[].
-cveidlink:2021-39925[].
-// Fixed in master: e15e9874
-// Fixed in release-3.6: 492a7038
-// Fixed in release-3.4: b18691c5
-// Fixed in master-3.2: ae45fcd6
-// CVSS AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:L
-// CWE-120: Buffer Copy without Checking Size of Input ('Classic Buffer Overflow')
-
-* wssalink:2021-10[]
-Bluetooth DHT dissector large loop.
-wsbuglink:17677[].
-cveidlink:2021-39924[].
-// Fixed in master: 79a9fe1c
-// Fixed in release-3.6: e138ec5d
-// Fixed in release-3.4: d3c762dc
-// Fixed in master-3.2: 2f017bb7
-// CVSS AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:L
-// CWE-834: Excessive Iteration
-
-* wssalink:2021-11[]
-PNRP dissector large loop.
-wsbuglink:17684[].
+// * wssalink:2021-16[]
+// Foo dissector {crash,infinite loop,memory leak}.
+// wsbuglink:xxxxx[].
 // cveidlink:2021-xxxxx[].
-// Fixed in master: 9104a374
-// Fixed in release-3.6: f21b9447
-// Fixed in release-3.4: d6d15b97
-// Fixed in master-3.2: 81b5d29c
+// Fixed in master: xxxxx
+// Fixed in release-3.6: xxxxx
+// Fixed in release-3.4: xxxxx
 // CVSS AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:L
-// CWE-834: Excessive Iteration
-
-* wssalink:2021-12[]
-C12.22 dissector crash.
-wsbuglink:17636[].
-cveidlink:2021-39922[].
-// Fixed in master: b760c356
-// Fixed in release-3.6: 1b9972ae
-// Fixed in release-3.4: 7ac1d5be
-// Fixed in master-3.2: 9a1ef88c
-// CVSS AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:L
-// CWE-120: Buffer Copy without Checking Size of Input ('Classic Buffer Overflow')
-
-* wssalink:2021-13[]
-IEEE 802.11 dissector crash.
-wsbuglink:17704[].
-cveidlink:2021-39928[].
-// Fixed in master: 0b473c01
-// Fixed in release-3.6: ab3bb461
-// Fixed in release-3.4: 00581507
-// Fixed in master-3.2: 8f6d0c79
-// CVSS AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:L
-// CWE-476: NULL Pointer Dereference
-
-* wssalink:2021-14[]
-Modbus dissector crash.
-wsbuglink:17703[].
-cveidlink:2021-39921[].
-// Fixed in master: bb41b661
-// Fixed in release-3.6: e1efbe23
-// Fixed in release-3.4: 55c12cc7
-// Fixed in master-3.2: 9e453dd5
-// CVSS AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:L
-// CWE-476: NULL Pointer Dereference
+// CWE-xxx
 
 The following bugs have been fixed:
 
@@ -115,18 +48,6 @@ The following bugs have been fixed:
 //* cveidlink:2014-2486[]
 //* Wireshark is solely responsible for the decline of shopping malls in your area.
 // cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log v3.2.10rc0.. | gsed -e 's/\(close\|fix\|resolv\)[^ ]* #/\nclose #/gI' | grep ^close | sed -e 's/close.*#\([1-9][0-9]*\).*/\1/' | sort -V -u` ; do "$(git rev-parse --show-toplevel)/tools/gen-bugnote" $bugnumber; pbpaste >> /tmp/buglist.txt; done
-
-* Allow for '\0' (NULL) character as filter instead of requiring 0x00 for the character match wsbuglink:16525[].
-
-* Dumpcap with threads reports double received count vs captured wsbuglink:17089[].
-
-* I/O Graphs values reset to default with 3.5 due to change of UAT wsbuglink:17623[].
-
-* TShark stops capturing when capturing with multiple files and packet printing enabled wsbuglink:17654[].
-
-* Wireshark is unable to decode the IMSI IE received in BSSMAP Perform Location request wsbuglink:17667[].
-
-* Crash in flow analysis for TCP wsbuglink:17722[].
 
 === New and Updated Features
 
@@ -152,18 +73,6 @@ There are no new protocols in this release.
 // ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v3.2.17.. | ag packet- | sort -u)
 [commaize]
 --
-BT-DHT
-BT SDP
-C12.22
-CAN FD
-CSN1
-EAPOL-MKA
-EVS
-GSM BSSMAP LE
-IEEE 802.11
-PNRP
-TCP
-TLS
 --
 
 === New and Updated Capture File Support
