@@ -137,7 +137,8 @@ static int hf_woww_movement_fall_start_elevation = -1;
 #define WOWW_MOVEMENT_ON_TRANSPORT 0x02000000
 #define WOWW_MOVEMENT_FALL_START_ELEVATION 0x04000000
 
-#define WOWW_TCP_PORT 8085
+// #define WOWW_TCP_PORT 8085
+#define WOWW_TCP_PORT 0
 
 #define WOWW_CLIENT_TO_SERVER pinfo->destport == WOWW_TCP_PORT
 #define WOWW_SERVER_TO_CLIENT pinfo->srcport  == WOWW_TCP_PORT
