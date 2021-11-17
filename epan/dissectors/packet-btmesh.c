@@ -33,6 +33,19 @@
 #define BTMESH_DEVICE_KEY_ENTRY_VALID 2
 #define BTMESH_LABEL_UUID_ENTRY_VALID 1
 #define NO_LABEL_UUID_IDX_USED -1
+#define PROPERTY_LENGTH_NO_HINT -1
+
+#define SENSOR_CADENCE_TRIGGER_TYPE_PROPERTY 0
+#define SENSOR_CADENCE_TRIGGER_TYPE_PERCENTAGE 1
+
+#define MPID_FORMAT_A 0
+#define MPID_FORMAT_B 1
+
+#define DISSECTOR_SIMPLE       0
+#define DISSECTOR_THREE_VALUES 1
+
+#define NOT_SUPPORTED_PROPERTY 0
+#define NOT_SUPPORTED_CHARACTERISTIC -1
 
 #define CONFIG_APPKEY_ADD                                        0x0000
 #define CONFIG_APPKEY_UPDATE                                     0x0001
@@ -320,6 +333,8 @@
 #define LIGHT_LC_LIGHT_ONOFF_STATUS                              0x829c
 #define LIGHT_LC_PROPERTY_GET                                    0x829d
 
+#define PHONY_PROPERTY_PERCENTAGE_CHANGE_16                                 0xFFFF
+#define PHONY_PROPERTY_INDEX                                                0xFFFE
 #define PROPERTY_AVERAGE_AMBIENT_TEMPERATURE_IN_A_PERIOD_OF_DAY             0x0001
 #define PROPERTY_AVERAGE_INPUT_CURRENT                                      0x0002
 #define PROPERTY_AVERAGE_INPUT_VOLTAGE                                      0x0003
@@ -498,6 +513,8 @@
 #define PROPERTY_THERMAL_DERATING                                           0x00B6
 #define PROPERTY_OUTPUT_CURRENT_PERCENT                                     0x00B7
 
+#define PHONY_CHARACTERISTIC_PERCENTAGE_CHANGE_16                 0xFFFF
+#define PHONY_CHARACTERISTIC_INDEX                                0xFFFE
 #define CHARACTERISTIC_APPARENT_ENERGY32                          0x2BCF
 #define CHARACTERISTIC_APPARENT_POWER                             0x2BD0
 #define CHARACTERISTIC_APPARENT_WIND_DIRECTION                    0x2A73
@@ -518,6 +535,7 @@
 #define CHARACTERISTIC_COUNT_24                                   0x2AEB
 #define CHARACTERISTIC_COUNTRY_CODE                               0x2AEC
 #define CHARACTERISTIC_DATE_UTC                                   0x2AED
+#define CHARACTERISTIC_DECIHOUR_8                                 0x2B12
 #define CHARACTERISTIC_DEW_POINT                                  0x2BD3
 #define CHARACTERISTIC_ELECTRIC_CURRENT                           0x2AEE
 #define CHARACTERISTIC_ELECTRIC_CURRENT_RANGE                     0x2AEF
@@ -532,6 +550,7 @@
 #define CHARACTERISTIC_FIXED_STRING_36                            0x2AF7
 #define CHARACTERISTIC_FIXED_STRING_64                            0x2BD5
 #define CHARACTERISTIC_FIXED_STRING_8                             0x2AF8
+#define CHARACTERISTIC_GENERIC_LEVEL                              0X2AF9
 #define CHARACTERISTIC_GLOBAL_TRADE_ITEM_NUMBER                   0x2AFA
 #define CHARACTERISTIC_GUST_FACTOR                                0x2A74
 #define CHARACTERISTIC_HEAT_INDEX                                 0x2A7A
@@ -650,13 +669,40 @@ static uat_btmesh_label_uuid_record_t *uat_btmesh_label_uuid_records = NULL;
 typedef struct {
     guint16 property_id;
     guint16 characteristic_id;
-} btmesh_properties_t;
+} btmesh_property_t;
 
 typedef struct {
     guint16 characteristic_id;
     guint16 characteristic_value_length;
     int     *hfindex;
+    guint8  dissector_type;
 } bt_gatt_characteristic_t;
+
+typedef struct {
+    guint16 characteristic_id;
+    guint16 x_characteristic_id;
+    guint16 y_characteristic_id;
+} btmesh_column_property_t;
+
+typedef struct {
+    int *hf_status_trigger_delta_up;
+    int *hf_status_trigger_delta_down;
+    int *hf_status_min_interval;
+    int *hf_fast_cadence_low;
+    int *hf_fast_cadence_high;
+    int *hf_remainder_not_dissected;
+} bt_sensor_cadence_dissector_t;
+
+typedef struct {
+    int *hf_raw_value_a;
+    int *hf_raw_value_b;
+    int *hf_raw_value_c;
+} bt_property_raw_value_entry_t;
+
+typedef struct {
+    int *hf_raw_value_a1;
+    int *hf_raw_value_a2;
+} bt_property_columns_raw_value_t;
 
 static int hf_btmesh_ivi = -1;
 static int hf_btmesh_nid = -1;
@@ -950,9 +996,9 @@ static int hf_btmesh_health_fault_test_test_id = -1;
 static int hf_btmesh_health_fault_test_company_id = -1;
 static int hf_btmesh_health_fault_test_unacknowledged_test_id = -1;
 static int hf_btmesh_health_fault_test_unacknowledged_company_id = -1;
-static int hf_btmesh_health_period_set_fastperioddivisor = -1;
-static int hf_btmesh_health_period_set_unacknowledged_fastperioddivisor = -1;
-static int hf_btmesh_health_period_status_fastperioddivisor = -1;
+static int hf_btmesh_health_period_set_fast_period_divisor = -1;
+static int hf_btmesh_health_period_set_unacknowledged_fast_period_divisor = -1;
+static int hf_btmesh_health_period_status_fast_period_divisor = -1;
 static int hf_btmesh_config_heartbeat_publication_set_destination = -1;
 static int hf_btmesh_config_heartbeat_publication_set_countlog = -1;
 static int hf_btmesh_config_heartbeat_publication_set_periodlog = -1;
@@ -1575,6 +1621,117 @@ static int hf_btmesh_light_lc_light_onoff_status_remaining_time_steps = -1;
 static int hf_btmesh_light_lc_light_onoff_status_remaining_time_resolution = -1;
 static int hf_btmesh_light_lc_property_get_light_lc_property_id = -1;
 
+static int hf_btmesh_generic_manufacturer_properties_status_manufacturer_property_id = -1;
+static int hf_btmesh_generic_manufacturer_property_set_manufacturer_property_id = -1;
+static int hf_btmesh_generic_manufacturer_property_set_manufacturer_user_access = -1;
+static int hf_btmesh_generic_manufacturer_property_set_unacknowledged_manufacturer_property_id = -1;
+static int hf_btmesh_generic_manufacturer_property_set_unacknowledged_manufacturer_user_access = -1;
+static int hf_btmesh_generic_manufacturer_property_status_manufacturer_property_id = -1;
+static int hf_btmesh_generic_manufacturer_property_status_manufacturer_user_access = -1;
+static int hf_btmesh_generic_manufacturer_property_status_manufacturer_property_value = -1;
+static int hf_btmesh_generic_admin_properties_status_admin_property_id = -1;
+static int hf_btmesh_generic_admin_property_set_admin_property_id = -1;
+static int hf_btmesh_generic_admin_property_set_admin_user_access = -1;
+static int hf_btmesh_generic_admin_property_set_admin_property_value = -1;
+static int hf_btmesh_generic_admin_property_set_unacknowledged_admin_property_id = -1;
+static int hf_btmesh_generic_admin_property_set_unacknowledged_admin_user_access = -1;
+static int hf_btmesh_generic_admin_property_set_unacknowledged_admin_property_value = -1;
+static int hf_btmesh_generic_admin_property_status_admin_property_id = -1;
+static int hf_btmesh_generic_admin_property_status_admin_user_access = -1;
+static int hf_btmesh_generic_admin_property_status_admin_property_value = -1;
+static int hf_btmesh_generic_user_properties_status_user_property_id = -1;
+static int hf_btmesh_generic_user_property_set_user_property_id = -1;
+static int hf_btmesh_generic_user_property_set_user_property_value = -1;
+static int hf_btmesh_generic_user_property_set_unacknowledged_user_property_id = -1;
+static int hf_btmesh_generic_user_property_set_unacknowledged_user_property_value = -1;
+static int hf_btmesh_generic_user_property_status_user_property_id = -1;
+static int hf_btmesh_generic_user_property_status_user_access = -1;
+static int hf_btmesh_generic_user_property_status_user_property_value = -1;
+static int hf_btmesh_generic_client_properties_get_client_property_id = -1;
+static int hf_btmesh_generic_client_properties_status_client_property_id = -1;
+static int hf_btmesh_sensor_descriptor_get_property_id = -1;
+static int hf_btmesh_sensor_descriptor_status_descriptor_sensor_property_id = -1;
+static int hf_btmesh_sensor_descriptor_status_descriptor_sensor_positive_tolerance = -1;
+static int hf_btmesh_sensor_descriptor_status_descriptor_sensor_negative_tolerance = -1;
+static int hf_btmesh_sensor_descriptor_status_descriptor_sensor_sampling_function = -1;
+static int hf_btmesh_sensor_descriptor_status_descriptor_sensor_measurement_period = -1;
+static int hf_btmesh_sensor_descriptor_status_descriptor_sensor_update_interval = -1;
+static int hf_btmesh_sensor_status_mpid_format = -1;
+static int hf_btmesh_sensor_status_mpid_format_a_length = -1;
+static int hf_btmesh_sensor_status_mpid_format_a_property_id = -1;
+static int hf_btmesh_sensor_status_mpid_format_b_length = -1;
+static int hf_btmesh_sensor_status_mpid_format_b_property_id = -1;
+static int hf_btmesh_sensor_status_raw_value = -1;
+static int hf_btmesh_sensor_column_status_property_id = -1;
+static int hf_btmesh_sensor_column_status_raw_value_a = -1;
+static int hf_btmesh_sensor_column_status_raw_value_b = -1;
+static int hf_btmesh_sensor_column_status_raw_value_c = -1;
+static int hf_btmesh_sensor_series_status_property_id = -1;
+static int hf_btmesh_sensor_series_status_raw_value_a = -1;
+static int hf_btmesh_sensor_series_status_raw_value_b = -1;
+static int hf_btmesh_sensor_series_status_raw_value_c = -1;
+static int hf_btmesh_sensor_cadence_set_property_id = -1;
+static int hf_btmesh_sensor_cadence_set_fast_cadence_period_divisor = -1;
+static int hf_btmesh_sensor_cadence_set_status_trigger_type = -1;
+static int hf_btmesh_sensor_cadence_set_status_trigger_delta_down = -1;
+static int hf_btmesh_sensor_cadence_set_status_trigger_delta_up = -1;
+static int hf_btmesh_sensor_cadence_set_status_min_interval = -1;
+static int hf_btmesh_sensor_cadence_set_fast_cadence_low = -1;
+static int hf_btmesh_sensor_cadence_set_fast_cadence_high = -1;
+static int hf_btmesh_sensor_cadence_set_remainder_not_dissected = -1;
+static int hf_btmesh_sensor_cadence_set_unacknowledged_property_id = -1;
+static int hf_btmesh_sensor_cadence_set_unacknowledged_fast_cadence_period_divisor = -1;
+static int hf_btmesh_sensor_cadence_set_unacknowledged_status_trigger_type = -1;
+static int hf_btmesh_sensor_cadence_set_unacknowledged_status_trigger_delta_down = -1;
+static int hf_btmesh_sensor_cadence_set_unacknowledged_status_trigger_delta_up = -1;
+static int hf_btmesh_sensor_cadence_set_unacknowledged_status_min_interval = -1;
+static int hf_btmesh_sensor_cadence_set_unacknowledged_fast_cadence_low = -1;
+static int hf_btmesh_sensor_cadence_set_unacknowledged_fast_cadence_high = -1;
+static int hf_btmesh_sensor_cadence_set_unacknowledged_remainder_not_dissected = -1;
+static int hf_btmesh_sensor_cadence_status_property_id = -1;
+static int hf_btmesh_sensor_cadence_status_fast_cadence_period_divisor = -1;
+static int hf_btmesh_sensor_cadence_status_status_trigger_type = -1;
+static int hf_btmesh_sensor_cadence_status_status_trigger_delta_down = -1;
+static int hf_btmesh_sensor_cadence_status_status_trigger_delta_up = -1;
+static int hf_btmesh_sensor_cadence_status_status_min_interval = -1;
+static int hf_btmesh_sensor_cadence_status_fast_cadence_low = -1;
+static int hf_btmesh_sensor_cadence_status_fast_cadence_high = -1;
+static int hf_btmesh_sensor_cadence_status_remainder_not_dissected = -1;
+static int hf_btmesh_sensor_settings_status_sensor_property_id = -1;
+static int hf_btmesh_sensor_settings_status_sensor_setting_property_id = -1;
+static int hf_btmesh_sensor_setting_set_sensor_property_id = -1;
+static int hf_btmesh_sensor_setting_set_sensor_setting_property_id = -1;
+static int hf_btmesh_sensor_setting_set_sensor_setting_raw = -1;
+static int hf_btmesh_sensor_setting_set_unacknowledged_sensor_property_id = -1;
+static int hf_btmesh_sensor_setting_set_unacknowledged_sensor_setting_property_id = -1;
+static int hf_btmesh_sensor_setting_set_unacknowledged_sensor_setting_raw = -1;
+static int hf_btmesh_sensor_setting_status_sensor_property_id = -1;
+static int hf_btmesh_sensor_setting_status_sensor_setting_property_id = -1;
+static int hf_btmesh_sensor_setting_status_sensor_setting_access = -1;
+static int hf_btmesh_sensor_setting_status_sensor_setting_raw = -1;
+static int hf_btmesh_generic_manufacturer_property_get_manufacturer_property_id = -1;
+static int hf_btmesh_generic_admin_property_get_admin_property_id = -1;
+static int hf_btmesh_generic_user_property_get_user_property_id = -1;
+
+static int hf_btmesh_sensor_get_property_id = -1;
+static int hf_btmesh_sensor_column_get_property_id = -1;
+static int hf_btmesh_sensor_column_get_raw_value_a = -1;
+static int hf_btmesh_sensor_series_get_property_id = -1;
+static int hf_btmesh_sensor_series_get_raw_value_a1 = -1;
+static int hf_btmesh_sensor_series_get_raw_value_a2 = -1;
+static int hf_btmesh_sensor_cadence_get_property_id = -1;
+static int hf_btmesh_sensor_settings_get_sensor_property_id = -1;
+static int hf_btmesh_sensor_setting_get_sensor_property_id = -1;
+static int hf_btmesh_sensor_setting_get_sensor_setting_property_id = -1;
+
+static int hf_bt_phony_characteristic_percentage_change_16 = -1;
+static int hf_bt_phony_characteristic_index = -1;
+static int hf_bt_characteristic_time_decihour_8 = -1;
+static int hf_bt_characteristic_temperature_8 = -1;
+static int hf_bt_characteristic_temperature = -1;
+static int hf_bt_characteristic_electric_current = -1;
+static int hf_bt_characteristic_energy = -1;
+static int hf_bt_characteristic_generic_level = -1;
 static int hf_bt_characteristic_boolean = -1;
 static int hf_bt_characteristic_coefficient = -1;
 static int hf_bt_characteristic_count_16 = -1;
@@ -1583,6 +1740,62 @@ static int hf_bt_characteristic_perceived_lightness = -1;
 static int hf_bt_characteristic_percentage_8 = -1;
 static int hf_bt_characteristic_time_millisecond_24 = -1;
 static int hf_bt_characteristic_time_second_16 = -1;
+
+static const
+bt_property_raw_value_entry_t sensor_column_status_hfs = {
+    .hf_raw_value_a = &hf_btmesh_sensor_column_status_raw_value_a,
+    .hf_raw_value_b = &hf_btmesh_sensor_column_status_raw_value_b,
+    .hf_raw_value_c = &hf_btmesh_sensor_column_status_raw_value_c
+};
+
+static const
+bt_property_raw_value_entry_t sensor_series_status_hfs = {
+    .hf_raw_value_a = &hf_btmesh_sensor_series_status_raw_value_a,
+    .hf_raw_value_b = &hf_btmesh_sensor_series_status_raw_value_b,
+    .hf_raw_value_c = &hf_btmesh_sensor_series_status_raw_value_c
+};
+
+static const
+bt_sensor_cadence_dissector_t sensor_cadence_set_hfs = {
+    .hf_status_trigger_delta_up   = &hf_btmesh_sensor_cadence_set_status_trigger_delta_down,
+    .hf_status_trigger_delta_down = &hf_btmesh_sensor_cadence_set_status_trigger_delta_up,
+    .hf_status_min_interval       = &hf_btmesh_sensor_cadence_set_status_min_interval,
+    .hf_fast_cadence_low          = &hf_btmesh_sensor_cadence_set_fast_cadence_low,
+    .hf_fast_cadence_high         = &hf_btmesh_sensor_cadence_set_fast_cadence_high,
+    .hf_remainder_not_dissected   = &hf_btmesh_sensor_cadence_set_remainder_not_dissected
+};
+
+static const
+bt_sensor_cadence_dissector_t sensor_cadence_set_unacknowledged_hfs = {
+    .hf_status_trigger_delta_up   = &hf_btmesh_sensor_cadence_set_unacknowledged_status_trigger_delta_down,
+    .hf_status_trigger_delta_down = &hf_btmesh_sensor_cadence_set_unacknowledged_status_trigger_delta_up,
+    .hf_status_min_interval       = &hf_btmesh_sensor_cadence_set_unacknowledged_status_min_interval,
+    .hf_fast_cadence_low          = &hf_btmesh_sensor_cadence_set_unacknowledged_fast_cadence_low,
+    .hf_fast_cadence_high         = &hf_btmesh_sensor_cadence_set_unacknowledged_fast_cadence_high,
+    .hf_remainder_not_dissected   = &hf_btmesh_sensor_cadence_set_unacknowledged_remainder_not_dissected
+};
+
+static const
+bt_sensor_cadence_dissector_t sensor_cadence_status_hfs = {
+    .hf_status_trigger_delta_up   = &hf_btmesh_sensor_cadence_status_status_trigger_delta_down,
+    .hf_status_trigger_delta_down = &hf_btmesh_sensor_cadence_status_status_trigger_delta_up,
+    .hf_status_min_interval       = &hf_btmesh_sensor_cadence_status_status_min_interval,
+    .hf_fast_cadence_low          = &hf_btmesh_sensor_cadence_status_fast_cadence_low,
+    .hf_fast_cadence_high         = &hf_btmesh_sensor_cadence_status_fast_cadence_high,
+    .hf_remainder_not_dissected   = &hf_btmesh_sensor_cadence_status_remainder_not_dissected
+};
+
+static const
+bt_property_columns_raw_value_t sensor_column_get_hfs = {
+    .hf_raw_value_a1 = &hf_btmesh_sensor_column_get_raw_value_a,
+    .hf_raw_value_a2 = NULL
+};
+
+static const
+bt_property_columns_raw_value_t sensor_series_get_hfs = {
+    .hf_raw_value_a1 = &hf_btmesh_sensor_series_get_raw_value_a1,
+    .hf_raw_value_a2 = &hf_btmesh_sensor_series_get_raw_value_a2
+};
 
 static int ett_btmesh = -1;
 static int ett_btmesh_net_pdu = -1;
@@ -1618,6 +1831,11 @@ static int ett_btmesh_scene_register_status_scenes = -1;
 static int ett_btmesh_scheduler_model_month = -1;
 static int ett_btmesh_scheduler_model_day_of_week = -1;
 static int ett_btmesh_scheduler_schedules = -1;
+static int ett_btmesh_user_property_ids = -1;
+static int ett_btmesh_admin_property_ids = -1;
+static int ett_btmesh_manufacturer_property_ids = -1;
+static int ett_btmesh_generic_client_property_ids = -1;
+static int ett_btmesh_sensor_setting_property_ids = -1;
 
 static expert_field ei_btmesh_not_decoded_yet = EI_INIT;
 static expert_field ei_btmesh_unknown_payload = EI_INIT;
@@ -2300,6 +2518,30 @@ static const value_string btmesh_scene_status_code_vals[] = {
     { 0, NULL }
 };
 
+static const value_string btmesh_sensor_sampling_function_vals[] = {
+    { 0x00, "Unspecified" },
+    { 0x01, "Instantaneous" },
+    { 0x02, "Arithmetic Mean" },
+    { 0x03, "RMS" },
+    { 0x04, "Maximum" },
+    { 0x05, "Minimum" },
+    { 0x06, "Accumulated" },
+    { 0x07, "Count" },
+    { 0, NULL }
+};
+
+static const value_string btmesh_status_trigger_type_vals[] = {
+    { 0x00, "same format as property" },
+    { 0x01, "unitless" },
+    { 0, NULL }
+};
+
+static const value_string btmesh_mpid_format_vals[] = {
+    { 0x00, "Format A" },
+    { 0x01, "Format B" },
+    { 0, NULL }
+};
+
 static const value_string btmesh_model_vals[] = {
     { 0x0000, "Configuration Server" },
     { 0x0001, "Configuration Client" },
@@ -2361,6 +2603,8 @@ static const value_string btmesh_model_vals[] = {
 };
 
 static const value_string btmesh_properties_vals[] = {
+    { PHONY_PROPERTY_PERCENTAGE_CHANGE_16                              , "Percentage Change"                                        },
+    { PHONY_PROPERTY_INDEX                                             , "Index"                                                    },
     { PROPERTY_AVERAGE_AMBIENT_TEMPERATURE_IN_A_PERIOD_OF_DAY          , "Average Ambient Temperature In A Period Of Day"           },
     { PROPERTY_AVERAGE_INPUT_CURRENT                                   , "Average Input Current"                                    },
     { PROPERTY_AVERAGE_INPUT_VOLTAGE                                   , "Average Input Voltage"                                    },
@@ -2541,7 +2785,10 @@ static const value_string btmesh_properties_vals[] = {
     { 0, NULL }
 };
 #if GCRYPT_VERSION_NUMBER >= 0x010600 /* 1.6.0 */
-static const btmesh_properties_t btmesh_properties[] = {
+
+static const btmesh_property_t btmesh_properties[] = {
+    { PHONY_PROPERTY_PERCENTAGE_CHANGE_16                              , PHONY_CHARACTERISTIC_PERCENTAGE_CHANGE_16                },
+    { PHONY_PROPERTY_INDEX                                             , PHONY_CHARACTERISTIC_INDEX                               },
     { PROPERTY_ACTIVE_ENERGY_LOADSIDE                                  , CHARACTERISTIC_ENERGY32                                  },
     { PROPERTY_ACTIVE_POWER_LOADSIDE                                   , CHARACTERISTIC_POWER                                     },
     { PROPERTY_AIR_PRESSURE                                            , CHARACTERISTIC_PRESSURE                                  },
@@ -2722,93 +2969,107 @@ static const btmesh_properties_t btmesh_properties[] = {
     { 0, 0},
 };
 
+static const btmesh_column_property_t  btmesh_column_properties[] = {
+    { CHARACTERISTIC_TEMPERATURE_8_IN_A_PERIOD_OF_DAY, CHARACTERISTIC_DECIHOUR_8, CHARACTERISTIC_TEMPERATURE_8 },
+    { CHARACTERISTIC_RELATIVE_VALUE_IN_A_TEMPERATURE_RANGE, CHARACTERISTIC_TEMPERATURE, CHARACTERISTIC_PERCENTAGE_8 },
+    { CHARACTERISTIC_RELATIVE_RUNTIME_IN_A_CURRENT_RANGE, CHARACTERISTIC_ELECTRIC_CURRENT, CHARACTERISTIC_PERCENTAGE_8 },
+    { CHARACTERISTIC_ENERGY_IN_A_PERIOD_OF_DAY, CHARACTERISTIC_DECIHOUR_8, CHARACTERISTIC_ENERGY },
+    { CHARACTERISTIC_RELATIVE_VALUE_IN_AN_ILLUMINANCE_RANGE, CHARACTERISTIC_ILLUMINANCE, CHARACTERISTIC_PERCENTAGE_8 },
+    { CHARACTERISTIC_RELATIVE_RUNTIME_IN_A_GENERIC_LEVEL_RANGE, CHARACTERISTIC_GENERIC_LEVEL, CHARACTERISTIC_PERCENTAGE_8 },
+    { 0, 0, 0},
+};
+
 static const bt_gatt_characteristic_t bt_gatt_characteristics[] = {
-    { CHARACTERISTIC_APPARENT_ENERGY32                        , 4, NULL                                      },
-    { CHARACTERISTIC_APPARENT_POWER                           , 3, NULL                                      },
-    { CHARACTERISTIC_APPARENT_WIND_DIRECTION                  , 2, NULL                                      },
-    { CHARACTERISTIC_APPARENT_WIND_SPEED                      , 2, NULL                                      },
-    { CHARACTERISTIC_APPEARANCE                               , 2, NULL                                      },
-    { CHARACTERISTIC_AVERAGE_CURRENT                          , 3, NULL                                      },
-    { CHARACTERISTIC_AVERAGE_VOLTAGE                          , 3, NULL                                      },
-    { CHARACTERISTIC_BOOLEAN                                  , 1, &hf_bt_characteristic_boolean             },
-    { CHARACTERISTIC_CHROMATIC_DISTANCE_FROM_PLANCKIAN        , 2, NULL                                      },
-    { CHARACTERISTIC_CHROMATICITY_COORDINATES                 , 2, NULL                                      },
-    { CHARACTERISTIC_CHROMATICITY_TOLERANCE                   , 1, NULL                                      },
-    { CHARACTERISTIC_CIE_13_3_1995_COLOR_RENDERING_INDEX      , 1, NULL                                      },
-    { CHARACTERISTIC_CO2_CONCENTRATION                        , 2, NULL                                      },
-    { CHARACTERISTIC_COEFFICIENT                              , 4, &hf_bt_characteristic_coefficient         },
-    { CHARACTERISTIC_CORRELATED_COLOR_TEMPERATURE             , 2, NULL                                      },
-    { CHARACTERISTIC_COSINE_OF_THE_ANGLE                      , 1, NULL                                      },
-    { CHARACTERISTIC_COUNT_16                                 , 2, &hf_bt_characteristic_count_16            },
-    { CHARACTERISTIC_COUNT_24                                 , 3, NULL                                      },
-    { CHARACTERISTIC_COUNTRY_CODE                             , 2, NULL                                      },
-    { CHARACTERISTIC_DATE_UTC                                 , 3, NULL                                      },
-    { CHARACTERISTIC_DEW_POINT                                , 1, NULL                                      },
-    { CHARACTERISTIC_ELECTRIC_CURRENT                         , 2, NULL                                      },
-    { CHARACTERISTIC_ELECTRIC_CURRENT_RANGE                   , 4, NULL                                      },
-    { CHARACTERISTIC_ELECTRIC_CURRENT_SPECIFICATION           , 6, NULL                                      },
-    { CHARACTERISTIC_ELECTRIC_CURRENT_STATISTICS              , 9, NULL                                      },
-    { CHARACTERISTIC_ENERGY                                   , 3, NULL                                      },
-    { CHARACTERISTIC_ENERGY_IN_A_PERIOD_OF_DAY                , 5, NULL                                      },
-    { CHARACTERISTIC_ENERGY32                                 , 4, NULL                                      },
-    { CHARACTERISTIC_EVENT_STATISTICS                         , 6, NULL                                      },
-    { CHARACTERISTIC_FIXED_STRING_16                          , 16, NULL                                     },
-    { CHARACTERISTIC_FIXED_STRING_24                          , 24, NULL                                     },
-    { CHARACTERISTIC_FIXED_STRING_36                          , 36, NULL                                     },
-    { CHARACTERISTIC_FIXED_STRING_64                          , 64, NULL                                     },
-    { CHARACTERISTIC_FIXED_STRING_8                           , 8, NULL                                      },
-    { CHARACTERISTIC_GLOBAL_TRADE_ITEM_NUMBER                 , 6, NULL                                      },
-    { CHARACTERISTIC_GUST_FACTOR                              , 1, NULL                                      },
-    { CHARACTERISTIC_HEAT_INDEX                               , 1, NULL                                      },
-    { CHARACTERISTIC_HIGH_TEMPERATURE                         , 2, NULL                                      },
-    { CHARACTERISTIC_HIGH_VOLTAGE                             , 3, NULL                                      },
-    { CHARACTERISTIC_HUMIDITY                                 , 2, NULL                                      },
-    { CHARACTERISTIC_ILLUMINANCE                              , 3, &hf_bt_characteristic_illuminance         },
-    { CHARACTERISTIC_LIGHT_DISTRIBUTION                       , 1, NULL                                      },
-    { CHARACTERISTIC_LIGHT_OUTPUT                             , 3, NULL                                      },
-    { CHARACTERISTIC_LIGHT_SOURCE_TYPE                        , 1, NULL                                      },
-    { CHARACTERISTIC_LUMINOUS_EFFICACY                        , 2, NULL                                      },
-    { CHARACTERISTIC_LUMINOUS_ENERGY                          , 3, NULL                                      },
-    { CHARACTERISTIC_LUMINOUS_EXPOSURE                        , 3, NULL                                      },
-    { CHARACTERISTIC_LUMINOUS_FLUX                            , 2, NULL                                      },
-    { CHARACTERISTIC_LUMINOUS_FLUX_RANGE                      , 4, NULL                                      },
-    { CHARACTERISTIC_LUMINOUS_INTENSITY                       , 2, NULL                                      },
-    { CHARACTERISTIC_MAGNETIC_DECLINATION                     , 2, NULL                                      },
-    { CHARACTERISTIC_MAGNETIC_FLUX_DENSITY_2_D                , 4, NULL                                      },
-    { CHARACTERISTIC_MAGNETIC_FLUX_DENSITY_3_D                , 6, NULL                                      },
-    { CHARACTERISTIC_NOISE                                    , 1, NULL                                      },
-    { CHARACTERISTIC_PERCEIVED_LIGHTNESS                      , 2, &hf_bt_characteristic_perceived_lightness },
-    { CHARACTERISTIC_PERCENTAGE_8                             , 1, &hf_bt_characteristic_percentage_8        },
-    { CHARACTERISTIC_POLLEN_CONCENTRATION                     , 3, NULL                                      },
-    { CHARACTERISTIC_POWER                                    , 3, NULL                                      },
-    { CHARACTERISTIC_POWER_SPECIFICATION                      , 9, NULL                                      },
-    { CHARACTERISTIC_PRESSURE                                 , 4, NULL                                      },
-    { CHARACTERISTIC_RAINFALL                                 , 2, NULL                                      },
-    { CHARACTERISTIC_RELATIVE_RUNTIME_IN_A_CURRENT_RANGE      , 5, NULL                                      },
-    { CHARACTERISTIC_RELATIVE_RUNTIME_IN_A_GENERIC_LEVEL_RANGE, 5, NULL                                      },
-    { CHARACTERISTIC_RELATIVE_VALUE_IN_A_TEMPERATURE_RANGE    , 3, NULL                                      },
-    { CHARACTERISTIC_RELATIVE_VALUE_IN_A_VOLTAGE_RANGE        , 5, NULL                                      },
-    { CHARACTERISTIC_RELATIVE_VALUE_IN_AN_ILLUMINANCE_RANGE   , 5, NULL                                      },
-    { CHARACTERISTIC_TEMPERATURE                              , 2, NULL                                      },
-    { CHARACTERISTIC_TEMPERATURE_8                            , 1, NULL                                      },
-    { CHARACTERISTIC_TEMPERATURE_8_IN_A_PERIOD_OF_DAY         , 3, NULL                                      },
-    { CHARACTERISTIC_TEMPERATURE_8_STATISTICS                 , 5, NULL                                      },
-    { CHARACTERISTIC_TEMPERATURE_RANGE                        , 4, NULL                                      },
-    { CHARACTERISTIC_TEMPERATURE_STATISTICS                   , 9, NULL                                      },
-    { CHARACTERISTIC_TIME_HOUR_24                             , 3, NULL                                      },
-    { CHARACTERISTIC_TIME_MILLISECOND_24                      , 3, &hf_bt_characteristic_time_millisecond_24 },
-    { CHARACTERISTIC_TIME_SECOND_16                           , 2, &hf_bt_characteristic_time_second_16      },
-    { CHARACTERISTIC_TIME_SECOND_32                           , 4, NULL                                      },
-    { CHARACTERISTIC_TRUE_WIND_DIRECTION                      , 2, NULL                                      },
-    { CHARACTERISTIC_TRUE_WIND_SPEED                          , 2, NULL                                      },
-    { CHARACTERISTIC_UV_INDEX                                 , 1, NULL                                      },
-    { CHARACTERISTIC_VOC_CONCENTRATION                        , 2, NULL                                      },
-    { CHARACTERISTIC_VOLTAGE                                  , 2, NULL                                      },
-    { CHARACTERISTIC_VOLTAGE_FREQUENCY                        , 2, NULL                                      },
-    { CHARACTERISTIC_VOLTAGE_SPECIFICATION                    , 6, NULL                                      },
-    { CHARACTERISTIC_VOLTAGE_STATISTICS                       , 9, NULL                                      },
-    { CHARACTERISTIC_WIND_CHILL                               , 1, NULL                                      },
-    { 0, 0, NULL},
+    { PHONY_CHARACTERISTIC_PERCENTAGE_CHANGE_16               , 2, &hf_bt_phony_characteristic_percentage_change_16 , DISSECTOR_SIMPLE },
+    { PHONY_CHARACTERISTIC_INDEX                              , 2, &hf_bt_phony_characteristic_index         , DISSECTOR_SIMPLE },
+    { CHARACTERISTIC_APPARENT_ENERGY32                        , 4, NULL                                      , DISSECTOR_SIMPLE },
+    { CHARACTERISTIC_APPARENT_POWER                           , 3, NULL                                      , DISSECTOR_SIMPLE },
+    { CHARACTERISTIC_APPARENT_WIND_DIRECTION                  , 2, NULL                                      , DISSECTOR_SIMPLE },
+    { CHARACTERISTIC_APPARENT_WIND_SPEED                      , 2, NULL                                      , DISSECTOR_SIMPLE },
+    { CHARACTERISTIC_APPEARANCE                               , 2, NULL                                      , DISSECTOR_SIMPLE },
+    { CHARACTERISTIC_AVERAGE_CURRENT                          , 3, NULL                                      , DISSECTOR_SIMPLE },
+    { CHARACTERISTIC_AVERAGE_VOLTAGE                          , 3, NULL                                      , DISSECTOR_SIMPLE },
+    { CHARACTERISTIC_BOOLEAN                                  , 1, &hf_bt_characteristic_boolean             , DISSECTOR_SIMPLE },
+    { CHARACTERISTIC_CHROMATIC_DISTANCE_FROM_PLANCKIAN        , 2, NULL                                      , DISSECTOR_SIMPLE },
+    { CHARACTERISTIC_CHROMATICITY_COORDINATES                 , 2, NULL                                      , DISSECTOR_SIMPLE },
+    { CHARACTERISTIC_CHROMATICITY_TOLERANCE                   , 1, NULL                                      , DISSECTOR_SIMPLE },
+    { CHARACTERISTIC_CIE_13_3_1995_COLOR_RENDERING_INDEX      , 1, NULL                                      , DISSECTOR_SIMPLE },
+    { CHARACTERISTIC_CO2_CONCENTRATION                        , 2, NULL                                      , DISSECTOR_SIMPLE },
+    { CHARACTERISTIC_COEFFICIENT                              , 4, &hf_bt_characteristic_coefficient         , DISSECTOR_SIMPLE },
+    { CHARACTERISTIC_CORRELATED_COLOR_TEMPERATURE             , 2, NULL                                      , DISSECTOR_SIMPLE },
+    { CHARACTERISTIC_COSINE_OF_THE_ANGLE                      , 1, NULL                                      , DISSECTOR_SIMPLE },
+    { CHARACTERISTIC_COUNT_16                                 , 2, &hf_bt_characteristic_count_16            , DISSECTOR_SIMPLE },
+    { CHARACTERISTIC_COUNT_24                                 , 3, NULL                                      , DISSECTOR_SIMPLE },
+    { CHARACTERISTIC_COUNTRY_CODE                             , 2, NULL                                      , DISSECTOR_SIMPLE },
+    { CHARACTERISTIC_DATE_UTC                                 , 3, NULL                                      , DISSECTOR_SIMPLE },
+    { CHARACTERISTIC_DECIHOUR_8                               , 1, &hf_bt_characteristic_time_decihour_8     , DISSECTOR_SIMPLE },
+    { CHARACTERISTIC_DEW_POINT                                , 1, NULL                                      , DISSECTOR_SIMPLE },
+    { CHARACTERISTIC_ELECTRIC_CURRENT                         , 2, &hf_bt_characteristic_electric_current    , DISSECTOR_SIMPLE },
+    { CHARACTERISTIC_ELECTRIC_CURRENT_RANGE                   , 4, NULL                                      , DISSECTOR_SIMPLE },
+    { CHARACTERISTIC_ELECTRIC_CURRENT_SPECIFICATION           , 6, NULL                                      , DISSECTOR_SIMPLE },
+    { CHARACTERISTIC_ELECTRIC_CURRENT_STATISTICS              , 9, NULL                                      , DISSECTOR_SIMPLE },
+    { CHARACTERISTIC_ENERGY                                   , 3, &hf_bt_characteristic_energy              , DISSECTOR_SIMPLE },
+    { CHARACTERISTIC_ENERGY_IN_A_PERIOD_OF_DAY                , 5, NULL                                      , DISSECTOR_THREE_VALUES },
+    { CHARACTERISTIC_ENERGY32                                 , 4, NULL                                      , DISSECTOR_SIMPLE },
+    { CHARACTERISTIC_EVENT_STATISTICS                         , 6, NULL                                      , DISSECTOR_SIMPLE },
+    { CHARACTERISTIC_FIXED_STRING_16                          , 16, NULL                                     , DISSECTOR_SIMPLE },
+    { CHARACTERISTIC_FIXED_STRING_24                          , 24, NULL                                     , DISSECTOR_SIMPLE },
+    { CHARACTERISTIC_FIXED_STRING_36                          , 36, NULL                                     , DISSECTOR_SIMPLE },
+    { CHARACTERISTIC_FIXED_STRING_64                          , 64, NULL                                     , DISSECTOR_SIMPLE },
+    { CHARACTERISTIC_FIXED_STRING_8                           , 8, NULL                                      , DISSECTOR_SIMPLE },
+    { CHARACTERISTIC_GENERIC_LEVEL                            , 2, &hf_bt_characteristic_generic_level       , DISSECTOR_SIMPLE },
+    { CHARACTERISTIC_GLOBAL_TRADE_ITEM_NUMBER                 , 6, NULL                                      , DISSECTOR_SIMPLE },
+    { CHARACTERISTIC_GUST_FACTOR                              , 1, NULL                                      , DISSECTOR_SIMPLE },
+    { CHARACTERISTIC_HEAT_INDEX                               , 1, NULL                                      , DISSECTOR_SIMPLE },
+    { CHARACTERISTIC_HIGH_TEMPERATURE                         , 2, NULL                                      , DISSECTOR_SIMPLE },
+    { CHARACTERISTIC_HIGH_VOLTAGE                             , 3, NULL                                      , DISSECTOR_SIMPLE },
+    { CHARACTERISTIC_HUMIDITY                                 , 2, NULL                                      , DISSECTOR_SIMPLE },
+    { CHARACTERISTIC_ILLUMINANCE                              , 3, &hf_bt_characteristic_illuminance         , DISSECTOR_SIMPLE },
+    { CHARACTERISTIC_LIGHT_DISTRIBUTION                       , 1, NULL                                      , DISSECTOR_SIMPLE },
+    { CHARACTERISTIC_LIGHT_OUTPUT                             , 3, NULL                                      , DISSECTOR_SIMPLE },
+    { CHARACTERISTIC_LIGHT_SOURCE_TYPE                        , 1, NULL                                      , DISSECTOR_SIMPLE },
+    { CHARACTERISTIC_LUMINOUS_EFFICACY                        , 2, NULL                                      , DISSECTOR_SIMPLE },
+    { CHARACTERISTIC_LUMINOUS_ENERGY                          , 3, NULL                                      , DISSECTOR_SIMPLE },
+    { CHARACTERISTIC_LUMINOUS_EXPOSURE                        , 3, NULL                                      , DISSECTOR_SIMPLE },
+    { CHARACTERISTIC_LUMINOUS_FLUX                            , 2, NULL                                      , DISSECTOR_SIMPLE },
+    { CHARACTERISTIC_LUMINOUS_FLUX_RANGE                      , 4, NULL                                      , DISSECTOR_SIMPLE },
+    { CHARACTERISTIC_LUMINOUS_INTENSITY                       , 2, NULL                                      , DISSECTOR_SIMPLE },
+    { CHARACTERISTIC_MAGNETIC_DECLINATION                     , 2, NULL                                      , DISSECTOR_SIMPLE },
+    { CHARACTERISTIC_MAGNETIC_FLUX_DENSITY_2_D                , 4, NULL                                      , DISSECTOR_SIMPLE },
+    { CHARACTERISTIC_MAGNETIC_FLUX_DENSITY_3_D                , 6, NULL                                      , DISSECTOR_SIMPLE },
+    { CHARACTERISTIC_NOISE                                    , 1, NULL                                      , DISSECTOR_SIMPLE },
+    { CHARACTERISTIC_PERCEIVED_LIGHTNESS                      , 2, &hf_bt_characteristic_perceived_lightness , DISSECTOR_SIMPLE },
+    { CHARACTERISTIC_PERCENTAGE_8                             , 1, &hf_bt_characteristic_percentage_8        , DISSECTOR_SIMPLE },
+    { CHARACTERISTIC_POLLEN_CONCENTRATION                     , 3, NULL                                      , DISSECTOR_SIMPLE },
+    { CHARACTERISTIC_POWER                                    , 3, NULL                                      , DISSECTOR_SIMPLE },
+    { CHARACTERISTIC_POWER_SPECIFICATION                      , 9, NULL                                      , DISSECTOR_SIMPLE },
+    { CHARACTERISTIC_PRESSURE                                 , 4, NULL                                      , DISSECTOR_SIMPLE },
+    { CHARACTERISTIC_RAINFALL                                 , 2, NULL                                      , DISSECTOR_SIMPLE },
+    { CHARACTERISTIC_RELATIVE_RUNTIME_IN_A_CURRENT_RANGE      , 5, NULL                                      , DISSECTOR_THREE_VALUES },
+    { CHARACTERISTIC_RELATIVE_RUNTIME_IN_A_GENERIC_LEVEL_RANGE, 5, NULL                                      , DISSECTOR_THREE_VALUES },
+    { CHARACTERISTIC_RELATIVE_VALUE_IN_A_TEMPERATURE_RANGE    , 5, NULL                                      , DISSECTOR_THREE_VALUES },
+    { CHARACTERISTIC_RELATIVE_VALUE_IN_A_VOLTAGE_RANGE        , 5, NULL                                      , DISSECTOR_SIMPLE },
+    { CHARACTERISTIC_RELATIVE_VALUE_IN_AN_ILLUMINANCE_RANGE   , 7, NULL                                      , DISSECTOR_THREE_VALUES },
+    { CHARACTERISTIC_TEMPERATURE                              , 2, &hf_bt_characteristic_temperature         , DISSECTOR_SIMPLE },
+    { CHARACTERISTIC_TEMPERATURE_8                            , 1, &hf_bt_characteristic_temperature_8       , DISSECTOR_SIMPLE },
+    { CHARACTERISTIC_TEMPERATURE_8_IN_A_PERIOD_OF_DAY         , 3, NULL                                      , DISSECTOR_THREE_VALUES },
+    { CHARACTERISTIC_TEMPERATURE_8_STATISTICS                 , 5, NULL                                      , DISSECTOR_SIMPLE },
+    { CHARACTERISTIC_TEMPERATURE_RANGE                        , 4, NULL                                      , DISSECTOR_SIMPLE },
+    { CHARACTERISTIC_TEMPERATURE_STATISTICS                   , 9, NULL                                      , DISSECTOR_SIMPLE },
+    { CHARACTERISTIC_TIME_HOUR_24                             , 3, NULL                                      , DISSECTOR_SIMPLE },
+    { CHARACTERISTIC_TIME_MILLISECOND_24                      , 3, &hf_bt_characteristic_time_millisecond_24 , DISSECTOR_SIMPLE },
+    { CHARACTERISTIC_TIME_SECOND_16                           , 2, &hf_bt_characteristic_time_second_16      , DISSECTOR_SIMPLE },
+    { CHARACTERISTIC_TIME_SECOND_32                           , 4, NULL                                      , DISSECTOR_SIMPLE },
+    { CHARACTERISTIC_TRUE_WIND_DIRECTION                      , 2, NULL                                      , DISSECTOR_SIMPLE },
+    { CHARACTERISTIC_TRUE_WIND_SPEED                          , 2, NULL                                      , DISSECTOR_SIMPLE },
+    { CHARACTERISTIC_UV_INDEX                                 , 1, NULL                                      , DISSECTOR_SIMPLE },
+    { CHARACTERISTIC_VOC_CONCENTRATION                        , 2, NULL                                      , DISSECTOR_SIMPLE },
+    { CHARACTERISTIC_VOLTAGE                                  , 2, NULL                                      , DISSECTOR_SIMPLE },
+    { CHARACTERISTIC_VOLTAGE_FREQUENCY                        , 2, NULL                                      , DISSECTOR_SIMPLE },
+    { CHARACTERISTIC_VOLTAGE_SPECIFICATION                    , 6, NULL                                      , DISSECTOR_SIMPLE },
+    { CHARACTERISTIC_VOLTAGE_STATISTICS                       , 9, NULL                                      , DISSECTOR_SIMPLE },
+    { CHARACTERISTIC_WIND_CHILL                               , 1, NULL                                      , DISSECTOR_SIMPLE },
+    { 0, 0, NULL, 0},
 };
 #endif /* GCRYPT_VERSION_NUMBER >= 0x010600 */
 
@@ -3864,12 +4125,218 @@ format_xyl_coordinate(gchar *buf, guint32 value) {
 }
 
 static void
+format_sensor_setting_access(gchar *buf, guint32 value)
+{
+    if (value == 0x01 ) {
+        g_snprintf(buf, ITEM_LABEL_LENGTH, "Can be read");
+    } else if (value == 0x03) {
+        g_snprintf(buf, ITEM_LABEL_LENGTH, "Can be read and written");
+    } else {
+        g_snprintf(buf, ITEM_LABEL_LENGTH, "Prohibited");
+    }
+}
+
+static void
+format_fast_cadence_period_divisor(gchar *buf, guint32 value)
+{
+    if (value > 15) {
+        g_snprintf(buf, ITEM_LABEL_LENGTH, "Prohibited");
+    } else {
+        guint32 v = (1 << value);
+        g_snprintf(buf, ITEM_LABEL_LENGTH, "%d", v);
+    }
+}
+
+static void
+format_status_min_interval(gchar *buf, guint32 value)
+{
+    if (value > 26) {
+        g_snprintf(buf, ITEM_LABEL_LENGTH, "Prohibited");
+    } else {
+        guint32 v = (1 << value);
+        g_snprintf(buf, ITEM_LABEL_LENGTH, "%d ms", v);
+    }
+}
+
+static void
+format_admin_user_access(gchar *buf, guint32 value)
+{
+    switch (value) {
+        case 0x0:
+            g_snprintf(buf, ITEM_LABEL_LENGTH, "Not a Generic User Property");
+        break;
+
+        case 0x1:
+            g_snprintf(buf, ITEM_LABEL_LENGTH, "Can be read");
+        break;
+
+        case 0x2:
+            g_snprintf(buf, ITEM_LABEL_LENGTH, "Can be written");
+        break;
+
+        case 0x3:
+            g_snprintf(buf, ITEM_LABEL_LENGTH, "Can be read and written");
+        break;
+
+        default:
+            g_snprintf(buf, ITEM_LABEL_LENGTH, "Prohibited");
+        break;
+    }
+}
+
+static void
+format_manufacturer_user_access(gchar *buf, guint32 value)
+{
+    if (value == 0x00) {
+        g_snprintf(buf, ITEM_LABEL_LENGTH, "Not a Generic User Property");
+    } else if (value == 0x01) {
+        g_snprintf(buf, ITEM_LABEL_LENGTH, "Can be read");
+    } else {
+        g_snprintf(buf, ITEM_LABEL_LENGTH, "Prohibited");
+    }
+}
+
+static void
+format_user_access(gchar *buf, guint32 value)
+{
+    switch (value) {
+        case 0x1:
+            g_snprintf(buf, ITEM_LABEL_LENGTH, "Can be read");
+        break;
+
+        case 0x2:
+            g_snprintf(buf, ITEM_LABEL_LENGTH, "Can be written");
+        break;
+
+        case 0x3:
+            g_snprintf(buf, ITEM_LABEL_LENGTH, "Can be read and written");
+        break;
+
+        default:
+            g_snprintf(buf, ITEM_LABEL_LENGTH, "Prohibited");
+        break;
+    }
+}
+
+static void
+format_sensor_descriptor_tolerance(gchar *buf, guint32 value)
+{
+    if (value == 0x000) {
+        g_snprintf(buf, ITEM_LABEL_LENGTH, "Unspecified");
+    } else {
+        gdouble val;
+        val =  (gdouble)value / (gdouble)40.95;
+        g_snprintf(buf, ITEM_LABEL_LENGTH, "% 3.2f %%", val);
+    }
+}
+
+static void
+format_sensor_period(gchar *buf, guint32 value)
+{
+    if (value == 0) {
+        g_snprintf(buf, ITEM_LABEL_LENGTH, "Not Applicable");
+    } else {
+        gdouble val;
+
+        val = pow((gdouble)1.1, (gdouble)value - (gdouble)64.0);
+        if ( val < 1.0 ) { //Milliseconds
+            g_snprintf(buf, ITEM_LABEL_LENGTH, "%.0f ms", val * 1000.0);
+        } else {
+            if ( val < 60.0 ) { //Seconds
+                g_snprintf(buf, ITEM_LABEL_LENGTH, "%.1f s", val);
+            } else {
+                gulong v = (gulong)val;
+                    if ( val < 86400 ) { //Hours:Minutes:Seconds
+                        g_snprintf(buf, ITEM_LABEL_LENGTH, "%02lu:%02lu:%02lu", v/3600, (v % 3600)/60, v % 60);
+                    } else { //Days Hours:Minutes:Seconds
+                        g_snprintf(buf, ITEM_LABEL_LENGTH, "%lu days %02lu:%02lu:%02lu", v/86400, (v % 86400)/3600, (v % 3600)/60, v % 60);
+                    }
+            }
+        }
+    }
+}
+
+static void
+format_percentage_change_16(gchar *buf, guint32 value)
+{
+    gdouble val;
+    val =  (gdouble)value / (gdouble)(100);
+    g_snprintf(buf, ITEM_LABEL_LENGTH, "%.2f %%", val);
+}
+
+static void
+format_decihour_8(gchar *buf, guint32 value)
+{
+    if (value == 0xFF) {
+        g_snprintf(buf, ITEM_LABEL_LENGTH, "Value is not known");
+    } else {
+        if (value > 240) {
+            g_snprintf(buf, ITEM_LABEL_LENGTH, "Prohibited");
+        } else {
+            gdouble val;
+            val =  (gdouble)value / (gdouble)(10);
+            g_snprintf(buf, ITEM_LABEL_LENGTH, "%.1f h", val);
+        }
+    }
+}
+
+static void
+format_temperature_8(gchar *buf, gint32 value)
+{
+    if (value == 0x7F) {
+        g_snprintf(buf, ITEM_LABEL_LENGTH, "Value is not known");
+    } else {
+        gdouble val;
+        val =  (gdouble)value * (gdouble)(0.5);
+        g_snprintf(buf, ITEM_LABEL_LENGTH, "%.1f C", val);
+    }
+}
+
+static void
+format_temperature(gchar *buf, gint32 value)
+{
+    if (value == INT16_MIN ) {
+        g_snprintf(buf, ITEM_LABEL_LENGTH, "Value is not known");
+    } else {
+        if (value < (gint32)(-27315)) {
+            g_snprintf(buf, ITEM_LABEL_LENGTH, "Prohibited");
+        } else {
+            gdouble val;
+            val =  (gdouble)value / (gdouble)(100);
+            g_snprintf(buf, ITEM_LABEL_LENGTH, "%.2f C", val);
+        }
+    }
+}
+
+static void
+format_electric_current(gchar *buf, guint32 value)
+{
+    if (value == 0xFFFF) {
+        g_snprintf(buf, ITEM_LABEL_LENGTH, "Value is not known");
+    } else {
+        gdouble val;
+        val =  (gdouble)value / (gdouble)(100);
+        g_snprintf(buf, ITEM_LABEL_LENGTH, "%.2f A", val);
+    }
+}
+
+static void
+format_energy(gchar *buf, guint32 value)
+{
+    if (value == 0xFFFFFF) {
+        g_snprintf(buf, ITEM_LABEL_LENGTH, "Value is not known");
+    } else {
+        g_snprintf(buf, ITEM_LABEL_LENGTH, "%d kWh", value);
+    }
+}
+
+static void
 format_illuminance(gchar *buf, guint32 value) {
     if (value == 0xFFFFFF) {
         g_snprintf(buf, ITEM_LABEL_LENGTH, "Value is not known");
     } else {
         gdouble val;
-        val =  (gdouble)value / (gdouble) (100);
+        val =  (gdouble)value / (gdouble)(100);
         g_snprintf(buf, ITEM_LABEL_LENGTH, "%.2f lux", val);
     }
 }
@@ -3882,7 +4349,7 @@ format_percentage_8(gchar *buf, guint32 value) {
         g_snprintf(buf, ITEM_LABEL_LENGTH, "Prohibited (%d)", value);
     } else {
         gdouble val;
-        val =  (gdouble)value / (gdouble) (2);
+        val =  (gdouble)value / (gdouble)(2);
         g_snprintf(buf, ITEM_LABEL_LENGTH, "%.1f %%", val);
     }
 }
@@ -3893,7 +4360,7 @@ format_time_millisecond_24(gchar *buf, guint32 value) {
         g_snprintf(buf, ITEM_LABEL_LENGTH, "Value is not known");
     } else {
         gdouble val;
-        val =  (gdouble)value / (gdouble) (1000);
+        val =  (gdouble)value / (gdouble)(1000);
         g_snprintf(buf, ITEM_LABEL_LENGTH, "%.2f s", val);
     }
 }
@@ -3930,38 +4397,373 @@ format_time_second_16(gchar *buf, guint32 value) {
 #if GCRYPT_VERSION_NUMBER >= 0x010600 /* 1.6.0 */
 
 static guint16
-dissect_btmesh_property(tvbuff_t *tvb _U_, proto_tree *tree _U_, int offset _U_, guint16 property_id)
+find_characteristic_id(guint16 property_id)
 {
     int i;
-    guint16 characteristic_id = 0;
-    guint16 characteristic_value_length = 0;
-    int hfindex = -1;
+    guint16 characteristic_id = NOT_SUPPORTED_PROPERTY;
 
-    //Find characteristic
     for (i=0; btmesh_properties[i].characteristic_id !=0; i++ ) {
         if (btmesh_properties[i].property_id == property_id) {
             characteristic_id = btmesh_properties[i].characteristic_id;
             break;
         }
     }
-    if (characteristic_id == 0) {
-        return 0;
-    }
-    //Find field length and index
+    return characteristic_id;
+}
+
+static int
+find_characteristic_idx(guint16 characteristic_id)
+{
+    int i, idx = NOT_SUPPORTED_CHARACTERISTIC;
+
     for (i=0; bt_gatt_characteristics[i].characteristic_id !=0; i++ ) {
         if (bt_gatt_characteristics[i].characteristic_id == characteristic_id) {
-            if (bt_gatt_characteristics[i].characteristic_value_length == 0 || bt_gatt_characteristics[i].hfindex == NULL) {
-                return 0;
-            }
-            characteristic_value_length = bt_gatt_characteristics[i].characteristic_value_length;
-            hfindex = *bt_gatt_characteristics[i].hfindex;
+            idx = i;
             break;
         }
     }
+    return idx;
+}
 
-    //Dissect
-    proto_tree_add_item(tree, hfindex, tvb, offset, characteristic_value_length, ENC_LITTLE_ENDIAN);
+static int
+find_column_properties_idx(int idx)
+{
+    int idx_3 = NOT_SUPPORTED_CHARACTERISTIC;
+    for (int i=0; btmesh_column_properties[i].characteristic_id !=0; i++ ) {
+        if (btmesh_column_properties[i].characteristic_id == bt_gatt_characteristics[idx].characteristic_id) {
+            idx_3 = i;
+            break;
+        }
+    }
+    return idx_3;
+}
+
+static guint16
+dissect_btmesh_property_idx(tvbuff_t *tvb, proto_tree *tree, int offset, int characteristic_idx)
+{
+    guint16 characteristic_value_length = 0;
+    int hfindex = -1;
+    proto_item *pi;
+
+    if (characteristic_idx < 0) {
+        return 0;
+    }
+
+    characteristic_value_length = bt_gatt_characteristics[characteristic_idx].characteristic_value_length;
+    if (bt_gatt_characteristics[characteristic_idx].characteristic_value_length == 0) {
+        return 0;
+    }
+
+    if (bt_gatt_characteristics[characteristic_idx].dissector_type == DISSECTOR_SIMPLE) {
+        //DISSECTOR_SIMPLE case
+        if (bt_gatt_characteristics[characteristic_idx].hfindex == NULL) {
+            return 0;
+        }
+        hfindex = *bt_gatt_characteristics[characteristic_idx].hfindex;
+
+        pi = proto_tree_add_item(tree, hfindex, tvb, offset, characteristic_value_length, ENC_LITTLE_ENDIAN);
+        proto_item_set_generated(pi);
+    } else {
+        //DISSECTOR_THREE_VALUES case
+        int idx_3 = find_column_properties_idx(characteristic_idx);
+        if (idx_3 != NOT_SUPPORTED_CHARACTERISTIC) {
+            int idx_x = find_characteristic_idx(btmesh_column_properties[idx_3].x_characteristic_id);
+            if (idx_x == NOT_SUPPORTED_CHARACTERISTIC ||
+                bt_gatt_characteristics[idx_x].characteristic_value_length == 0 ||
+                bt_gatt_characteristics[idx_x].hfindex == NULL ||
+                bt_gatt_characteristics[idx_x].dissector_type != DISSECTOR_SIMPLE) {
+                return 0;
+            }
+            int idx_y = find_characteristic_idx(btmesh_column_properties[idx_3].y_characteristic_id);
+            if (idx_y == NOT_SUPPORTED_CHARACTERISTIC ||
+                bt_gatt_characteristics[idx_y].characteristic_value_length == 0 ||
+                bt_gatt_characteristics[idx_y].hfindex == NULL ||
+                bt_gatt_characteristics[idx_y].dissector_type != DISSECTOR_SIMPLE) {
+                return 0;
+            }
+            characteristic_value_length=0;
+            pi = proto_tree_add_item(tree, *bt_gatt_characteristics[idx_x].hfindex,
+                tvb, offset,
+                bt_gatt_characteristics[idx_x].characteristic_value_length, ENC_LITTLE_ENDIAN);
+            proto_item_set_generated(pi);
+            characteristic_value_length+=bt_gatt_characteristics[idx_x].characteristic_value_length;
+
+            pi = proto_tree_add_item(tree, *bt_gatt_characteristics[idx_x].hfindex,
+                tvb, offset+characteristic_value_length,
+                bt_gatt_characteristics[idx_x].characteristic_value_length, ENC_LITTLE_ENDIAN);
+            proto_item_set_generated(pi);
+            characteristic_value_length+=bt_gatt_characteristics[idx_x].characteristic_value_length;
+
+            pi = proto_tree_add_item(tree, *bt_gatt_characteristics[idx_y].hfindex,
+                tvb, offset+characteristic_value_length,
+                bt_gatt_characteristics[idx_y].characteristic_value_length, ENC_LITTLE_ENDIAN);
+            proto_item_set_generated(pi);
+            characteristic_value_length+=bt_gatt_characteristics[idx_y].characteristic_value_length;
+        } else {
+            return 0;
+        }
+    }
     return characteristic_value_length;
+}
+
+static int
+find_btmesh_property_characteristic_idx(guint16 property_id)
+{
+    int characteristic_idx;
+    guint16 characteristic_id = 0;
+
+    characteristic_id = find_characteristic_id(property_id);
+    if (characteristic_id == NOT_SUPPORTED_PROPERTY) {
+        return NOT_SUPPORTED_CHARACTERISTIC;
+    }
+    characteristic_idx = find_characteristic_idx(characteristic_id);
+    if (characteristic_idx == NOT_SUPPORTED_CHARACTERISTIC) {
+        return NOT_SUPPORTED_CHARACTERISTIC;
+    }
+    return characteristic_idx;
+}
+
+static int
+find_btmesh_property_length(guint16 property_id)
+{
+    int characteristic_idx;
+    guint16 characteristic_id = 0;
+
+    characteristic_id = find_characteristic_id(property_id);
+    if (characteristic_id == NOT_SUPPORTED_PROPERTY) {
+        return 0;
+    }
+    characteristic_idx = find_characteristic_idx(characteristic_id);
+    if (characteristic_idx == NOT_SUPPORTED_CHARACTERISTIC) {
+        return 0;
+    }
+    return bt_gatt_characteristics[characteristic_idx].characteristic_value_length;
+}
+
+static guint16
+dissect_btmesh_property(proto_tree *tree, int p_id, tvbuff_t *tvb, int offset, guint16 property_id, int length_hint)
+{
+    int characteristic_idx;
+    int characteristic_length;
+    int guessed_property_length;
+    guint16 delta = 0;
+
+    if (length_hint == PROPERTY_LENGTH_NO_HINT) {
+        guessed_property_length = tvb_reported_length_remaining(tvb, offset);
+    } else {
+        guessed_property_length = length_hint;
+    }
+
+    characteristic_idx = find_btmesh_property_characteristic_idx(property_id);
+    if (characteristic_idx != NOT_SUPPORTED_CHARACTERISTIC) {
+        characteristic_length = bt_gatt_characteristics[characteristic_idx].characteristic_value_length;
+        if (characteristic_length > 0 ) {
+            proto_tree_add_item(tree, p_id, tvb, offset, characteristic_length, ENC_NA);
+            dissect_btmesh_property_idx(tvb, tree, offset, characteristic_idx);
+            delta = characteristic_length;
+        } else {
+            proto_tree_add_item(tree, p_id, tvb, offset, guessed_property_length, ENC_NA);
+            delta = guessed_property_length;
+        }
+    } else {
+        proto_tree_add_item(tree, p_id, tvb, offset, guessed_property_length, ENC_NA);
+        delta = guessed_property_length;
+    }
+    return delta;
+}
+
+static int
+dissect_sensor_cadence(proto_tree *tree, tvbuff_t *tvb, int offset, guint16 property_id, guint8 trigger_type, const bt_sensor_cadence_dissector_t *sensor_cadence_hfs)
+{
+    int initial_offset = offset;
+    int guessed_property_length;
+    int trigger_delta_length = 0;
+    int fast_cadence_length = 0;
+
+    //Trigger delta length
+    if ( trigger_type == SENSOR_CADENCE_TRIGGER_TYPE_PROPERTY) {
+        //Find or guess trigger delta and fast cadence fields length
+        trigger_delta_length = find_btmesh_property_length(property_id);
+        if (trigger_delta_length == 0) {
+            guessed_property_length = tvb_reported_length_remaining(tvb, offset) - 1;
+            if (guessed_property_length % 4 == 0) {
+                trigger_delta_length = guessed_property_length/4;
+            } else {
+                //Failed to guess fields length
+                trigger_delta_length = PROPERTY_LENGTH_NO_HINT;
+            }
+        }
+        fast_cadence_length = trigger_delta_length;
+    } else {
+        //Trigger delta length is always 2 octets here
+        trigger_delta_length = 2;
+        //Find or guess fast cadence field length
+        fast_cadence_length = find_btmesh_property_length(property_id);
+        if (fast_cadence_length == 0) {
+            guessed_property_length = tvb_reported_length_remaining(tvb, offset) - 1 - 2 * trigger_delta_length;
+            if (guessed_property_length % 2 == 0) {
+                fast_cadence_length = guessed_property_length/2;
+            } else {
+                //Failed to guess field length
+                fast_cadence_length = PROPERTY_LENGTH_NO_HINT;
+            }
+        }
+    }
+
+    if (trigger_delta_length != PROPERTY_LENGTH_NO_HINT) {
+        //Trigger delta field length is known, so dissect individual fields
+        if ( trigger_type == SENSOR_CADENCE_TRIGGER_TYPE_PROPERTY) {
+            offset+=dissect_btmesh_property(tree, *sensor_cadence_hfs->hf_status_trigger_delta_down, tvb, offset, property_id, trigger_delta_length);
+            offset+=dissect_btmesh_property(tree, *sensor_cadence_hfs->hf_status_trigger_delta_up, tvb, offset, property_id, trigger_delta_length);
+        } else {
+            offset+=dissect_btmesh_property(tree, *sensor_cadence_hfs->hf_status_trigger_delta_down, tvb, offset, PHONY_PROPERTY_PERCENTAGE_CHANGE_16, trigger_delta_length);
+            offset+=dissect_btmesh_property(tree, *sensor_cadence_hfs->hf_status_trigger_delta_up, tvb, offset, PHONY_PROPERTY_PERCENTAGE_CHANGE_16, trigger_delta_length);
+        }
+        proto_tree_add_item(tree, *sensor_cadence_hfs->hf_status_min_interval, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        if (fast_cadence_length != PROPERTY_LENGTH_NO_HINT) {
+            //Fast cadence field length is known
+            offset+=dissect_btmesh_property(tree, *sensor_cadence_hfs->hf_fast_cadence_low, tvb, offset, property_id, fast_cadence_length);
+            offset+=dissect_btmesh_property(tree, *sensor_cadence_hfs->hf_fast_cadence_high, tvb, offset, property_id, fast_cadence_length);
+        } else {
+           offset+=dissect_btmesh_property(tree, *sensor_cadence_hfs->hf_remainder_not_dissected, tvb, offset, property_id, tvb_reported_length_remaining(tvb, offset));
+        }
+    } else {
+        //Property field length is unknown, fail to dissect
+        offset+=dissect_btmesh_property(tree, *sensor_cadence_hfs->hf_remainder_not_dissected, tvb, offset, property_id, tvb_reported_length_remaining(tvb, offset));
+    }
+    return offset - initial_offset;
+}
+
+static int
+dissect_property_raw_value_entry(proto_tree *tree, tvbuff_t *tvb, int offset, guint16 property_id, const bt_property_raw_value_entry_t *property_raw_value_entry_hfs)
+{
+    gboolean display_raw;
+    int idx;
+    int initial_offset = offset;
+    int guessed_field_length;
+
+    idx = find_btmesh_property_characteristic_idx(property_id);
+    display_raw = true;
+    guessed_field_length = tvb_reported_length_remaining(tvb, offset);
+    if ( idx != NOT_SUPPORTED_CHARACTERISTIC) {
+        if (bt_gatt_characteristics[idx].dissector_type == DISSECTOR_SIMPLE) {
+            //Single value
+            offset+=dissect_btmesh_property(tree, *property_raw_value_entry_hfs->hf_raw_value_a, tvb, offset, property_id, PROPERTY_LENGTH_NO_HINT);
+            display_raw = false;
+        } else {
+            //Three values expected
+            int idx_3 = find_column_properties_idx(idx);
+            if (idx_3 != NOT_SUPPORTED_CHARACTERISTIC) {
+                int idx_x = find_characteristic_idx(btmesh_column_properties[idx_3].x_characteristic_id);
+                if (idx_x != NOT_SUPPORTED_CHARACTERISTIC) {
+                    if ( bt_gatt_characteristics[idx_x].characteristic_value_length != 0) {
+                        if (bt_gatt_characteristics[idx_x].hfindex != NULL &&
+                            bt_gatt_characteristics[idx_x].dissector_type == DISSECTOR_SIMPLE)
+                        {
+                            //Full dissection
+                            display_raw = false;
+                            proto_tree_add_item(tree, *property_raw_value_entry_hfs->hf_raw_value_a, tvb, offset, bt_gatt_characteristics[idx_x].characteristic_value_length, ENC_NA);
+                            dissect_btmesh_property_idx(tvb, tree, offset, idx_x);
+                            offset+=bt_gatt_characteristics[idx_x].characteristic_value_length;
+                            proto_tree_add_item(tree, *property_raw_value_entry_hfs->hf_raw_value_b, tvb, offset, bt_gatt_characteristics[idx_x].characteristic_value_length, ENC_NA);
+                            dissect_btmesh_property_idx(tvb, tree, offset, idx_x);
+                            offset+=bt_gatt_characteristics[idx_x].characteristic_value_length;
+                            //Value C
+                            int idx_y = find_characteristic_idx(btmesh_column_properties[idx_3].y_characteristic_id);
+                            if (idx_y != NOT_SUPPORTED_CHARACTERISTIC &&
+                                bt_gatt_characteristics[idx_y].characteristic_value_length != 0 &&
+                                bt_gatt_characteristics[idx_y].hfindex != NULL &&
+                                bt_gatt_characteristics[idx_y].dissector_type == DISSECTOR_SIMPLE)
+                            {
+                                proto_tree_add_item(tree, *property_raw_value_entry_hfs->hf_raw_value_c, tvb, offset, bt_gatt_characteristics[idx_y].characteristic_value_length, ENC_NA);
+                                dissect_btmesh_property_idx(tvb, tree, offset, idx_y);
+                                offset+=bt_gatt_characteristics[idx_y].characteristic_value_length;
+                            } else {
+                                proto_tree_add_item(tree, *property_raw_value_entry_hfs->hf_raw_value_c, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_NA);
+                                offset+=tvb_reported_length_remaining(tvb, offset);
+                            }
+                        } else {
+                            //Raw value, but length is known
+                            guessed_field_length = bt_gatt_characteristics[idx_x].characteristic_value_length;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    if (display_raw) {
+        //Raw value, no interpretation, just Value A
+        proto_tree_add_item(tree, *property_raw_value_entry_hfs->hf_raw_value_a, tvb, offset, guessed_field_length, ENC_NA);
+        offset+=guessed_field_length;
+    }
+    return offset - initial_offset;
+}
+
+static int
+dissect_columns_raw_value(proto_tree *sub_tree, tvbuff_t *tvb, int offset, guint16 property_id, const bt_property_columns_raw_value_t *columns_raw_value_hfs)
+{
+    gboolean display_raw;
+    int idx;
+    int initial_offset = offset;
+    int guessed_field_length;
+
+    idx = find_btmesh_property_characteristic_idx(property_id);
+    display_raw = true;
+    guessed_field_length = tvb_reported_length_remaining(tvb, offset);
+
+    if (columns_raw_value_hfs->hf_raw_value_a2 != NULL && guessed_field_length > 1) {
+        //Two values are expected
+        guessed_field_length = guessed_field_length / 2;
+    }
+
+    if ( idx != NOT_SUPPORTED_CHARACTERISTIC) {
+        if (bt_gatt_characteristics[idx].dissector_type == DISSECTOR_SIMPLE) {
+            //Index - phony characteristics, 2 octets
+            display_raw = false;
+            offset+=dissect_btmesh_property(sub_tree, *columns_raw_value_hfs->hf_raw_value_a1, tvb, offset, PHONY_PROPERTY_INDEX, 2);
+            if (columns_raw_value_hfs->hf_raw_value_a2 != NULL ) {
+                offset+=dissect_btmesh_property(sub_tree, *columns_raw_value_hfs->hf_raw_value_a2, tvb, offset, PHONY_PROPERTY_INDEX, 2);
+            }
+        } else {
+            //DISSECTOR_THREE_VALUES, first value
+            int idx_3 = find_column_properties_idx(idx);
+            if (idx_3 != NOT_SUPPORTED_CHARACTERISTIC) {
+                int idx_x = find_characteristic_idx(btmesh_column_properties[idx_3].x_characteristic_id);
+                if (idx_x != NOT_SUPPORTED_CHARACTERISTIC) {
+                    if ( bt_gatt_characteristics[idx_x].characteristic_value_length != 0) {
+                        if (bt_gatt_characteristics[idx_x].hfindex != NULL &&
+                            bt_gatt_characteristics[idx_x].dissector_type == DISSECTOR_SIMPLE)
+                        {
+                            //full dissection
+                            display_raw = false;
+                            proto_tree_add_item(sub_tree, *columns_raw_value_hfs->hf_raw_value_a1, tvb, offset, bt_gatt_characteristics[idx_x].characteristic_value_length, ENC_NA);
+                            dissect_btmesh_property_idx(tvb, sub_tree, offset, idx_x);
+                            offset+=bt_gatt_characteristics[idx_x].characteristic_value_length;
+                            if (columns_raw_value_hfs->hf_raw_value_a2 != NULL ) {
+                                proto_tree_add_item(sub_tree, *columns_raw_value_hfs->hf_raw_value_a2, tvb, offset, bt_gatt_characteristics[idx_x].characteristic_value_length, ENC_NA);
+                                dissect_btmesh_property_idx(tvb, sub_tree, offset, idx_x);
+                                offset+=bt_gatt_characteristics[idx_x].characteristic_value_length;
+                            }
+                        } else {
+                            //raw, but known length
+                            guessed_field_length = bt_gatt_characteristics[idx_x].characteristic_value_length;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    if (display_raw) {
+        //Raw values, no interpretation
+        proto_tree_add_item(sub_tree, *columns_raw_value_hfs->hf_raw_value_a1, tvb, offset, guessed_field_length, ENC_NA);
+        offset+=guessed_field_length;
+        if (columns_raw_value_hfs->hf_raw_value_a2 != NULL ) {
+            proto_tree_add_item(sub_tree, *columns_raw_value_hfs->hf_raw_value_a2, tvb, offset, guessed_field_length, ENC_NA);
+            offset+=guessed_field_length;
+        }
+    }
+    return offset - initial_offset;
 }
 
 static void
@@ -3984,11 +4786,18 @@ dissect_btmesh_model_layer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     proto_tree *fault_array_tree;
     proto_tree *sceneslist_tree, *month_sub_tree, *day_of_week_sub_tree;
     proto_tree *scheduler_tree;
+    proto_tree *user_property_ids_tree;
+    proto_tree *admin_property_ids_tree;
+    proto_tree *manufacturer_property_ids_tree;
+    proto_tree *generic_client_property_ids_tree;
+    proto_tree *sensor_setting_property_ids_tree;
 
     guint32 netkeyindexes, appkeyindexes;
     guint32 nums, numv, element;
     guint i;
-    guint16 property_id, offset_delta;
+    guint16 property_id;
+    guint8 trigger_type;
+    guint32 mpid_format, mpid_property_id, mpid_length;
 
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_btmesh_model_layer, NULL, "Model Layer");
 
@@ -4577,15 +5386,15 @@ dissect_btmesh_model_layer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     case HEALTH_PERIOD_GET:
         break;
     case HEALTH_PERIOD_SET:
-        proto_tree_add_item(sub_tree, hf_btmesh_health_period_set_fastperioddivisor, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_btmesh_health_period_set_fast_period_divisor, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         offset++;
         break;
     case HEALTH_PERIOD_SET_UNACKNOWLEDGED:
-        proto_tree_add_item(sub_tree, hf_btmesh_health_period_set_unacknowledged_fastperioddivisor, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_btmesh_health_period_set_unacknowledged_fast_period_divisor, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         offset++;
         break;
     case HEALTH_PERIOD_STATUS:
-        proto_tree_add_item(sub_tree, hf_btmesh_health_period_status_fastperioddivisor, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_btmesh_health_period_status_fast_period_divisor, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         offset++;
         break;
     case CONFIG_HEARTBEAT_PUBLICATION_GET:
@@ -5344,9 +6153,8 @@ dissect_btmesh_model_layer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         proto_tree_add_item(day_of_week_sub_tree, hf_btmesh_scheduler_schedule_register_day_of_week_friday, tvb, offset, 4, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(day_of_week_sub_tree, hf_btmesh_scheduler_schedule_register_day_of_week_saturday, tvb, offset, 4, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(day_of_week_sub_tree, hf_btmesh_scheduler_schedule_register_day_of_week_sunday, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-        offset+=1;
         proto_tree_add_item(sub_tree, hf_btmesh_scheduler_action_status_schedule_register_action, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-        offset+=3;
+        offset+=4;
         publishperiod_item = proto_tree_add_item(sub_tree, hf_btmesh_scheduler_action_status_schedule_register_transition_time, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         publishperiod_sub_tree = proto_item_add_subtree(publishperiod_item, ett_btmesh_config_model_publishperiod);
         proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_scheduler_action_status_schedule_register_transition_time_steps, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -5386,9 +6194,8 @@ dissect_btmesh_model_layer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         proto_tree_add_item(day_of_week_sub_tree, hf_btmesh_scheduler_schedule_register_day_of_week_friday, tvb, offset, 4, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(day_of_week_sub_tree, hf_btmesh_scheduler_schedule_register_day_of_week_saturday, tvb, offset, 4, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(day_of_week_sub_tree, hf_btmesh_scheduler_schedule_register_day_of_week_sunday, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-        offset+=1;
         proto_tree_add_item(sub_tree, hf_btmesh_scheduler_action_set_schedule_register_action, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-        offset+=3;
+        offset+=4;
         publishperiod_item = proto_tree_add_item(sub_tree, hf_btmesh_scheduler_action_set_schedule_register_transition_time, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         publishperiod_sub_tree = proto_item_add_subtree(publishperiod_item, ett_btmesh_config_model_publishperiod);
         proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_scheduler_action_set_schedule_register_transition_time_steps, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -5428,9 +6235,8 @@ dissect_btmesh_model_layer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         proto_tree_add_item(day_of_week_sub_tree, hf_btmesh_scheduler_schedule_register_day_of_week_friday, tvb, offset, 4, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(day_of_week_sub_tree, hf_btmesh_scheduler_schedule_register_day_of_week_saturday, tvb, offset, 4, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(day_of_week_sub_tree, hf_btmesh_scheduler_schedule_register_day_of_week_sunday, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-        offset+=1;
         proto_tree_add_item(sub_tree, hf_btmesh_scheduler_action_set_unacknowledged_schedule_register_action, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-        offset+=3;
+        offset+=4;
         publishperiod_item = proto_tree_add_item(sub_tree, hf_btmesh_scheduler_action_set_unacknowledged_schedule_register_transition_time, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         publishperiod_sub_tree = proto_item_add_subtree(publishperiod_item, ett_btmesh_config_model_publishperiod);
         proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_scheduler_action_set_unacknowledged_schedule_register_transition_time_steps, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -5517,37 +6323,19 @@ dissect_btmesh_model_layer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         proto_tree_add_item(sub_tree, hf_btmesh_light_lc_property_set_light_lc_property_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         property_id = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
         offset+=2;
-        offset_delta = dissect_btmesh_property(tvb, sub_tree, offset, property_id);
-        if (offset_delta == 0) {
-            proto_tree_add_item(sub_tree, hf_btmesh_light_lc_property_set_light_lc_property_value, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_NA);
-            offset+=tvb_reported_length_remaining(tvb, offset);
-        } else {
-            offset += offset_delta;
-        }
+        offset+=dissect_btmesh_property(sub_tree, hf_btmesh_light_lc_property_set_light_lc_property_value, tvb, offset, property_id, PROPERTY_LENGTH_NO_HINT);
         break;
     case LIGHT_LC_PROPERTY_SET_UNACKNOWLEDGED:
         proto_tree_add_item(sub_tree, hf_btmesh_light_lc_property_set_unacknowledged_light_lc_property_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         property_id = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
         offset+=2;
-        offset_delta = dissect_btmesh_property(tvb, sub_tree, offset, property_id);
-        if (offset_delta == 0) {
-            proto_tree_add_item(sub_tree, hf_btmesh_light_lc_property_set_unacknowledged_light_lc_property_value, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_NA);
-            offset+=tvb_reported_length_remaining(tvb, offset);
-        } else {
-            offset += offset_delta;
-        }
+        offset+=dissect_btmesh_property(sub_tree, hf_btmesh_light_lc_property_set_unacknowledged_light_lc_property_value, tvb, offset, property_id, PROPERTY_LENGTH_NO_HINT);
         break;
     case LIGHT_LC_PROPERTY_STATUS:
         proto_tree_add_item(sub_tree, hf_btmesh_light_lc_property_status_light_lc_property_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         property_id = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
         offset+=2;
-        offset_delta = dissect_btmesh_property(tvb, sub_tree, offset, property_id);
-        if (offset_delta == 0) {
-            proto_tree_add_item(sub_tree, hf_btmesh_light_lc_property_status_light_lc_property_value, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_NA);
-            offset += tvb_reported_length_remaining(tvb, offset);
-        } else {
-            offset += offset_delta;
-        }
+        offset+=dissect_btmesh_property(sub_tree, hf_btmesh_light_lc_property_status_light_lc_property_value, tvb, offset, property_id, PROPERTY_LENGTH_NO_HINT);
         break;
     case LIGHT_LIGHTNESS_GET:
         break;
@@ -6299,6 +7087,297 @@ dissect_btmesh_model_layer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         proto_tree_add_item(sub_tree, hf_btmesh_light_lc_property_get_light_lc_property_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         offset+=2;
         break;
+    case GENERIC_MANUFACTURER_PROPERTIES_GET:
+        break;
+    case GENERIC_MANUFACTURER_PROPERTIES_STATUS:
+        manufacturer_property_ids_tree = proto_tree_add_subtree(sub_tree, tvb, offset, tvb_reported_length_remaining(tvb, offset), ett_btmesh_manufacturer_property_ids, NULL, "Manufacturer Property IDs");
+        while (tvb_reported_length_remaining(tvb, offset) > 1) {
+            proto_tree_add_item(manufacturer_property_ids_tree, hf_btmesh_generic_manufacturer_properties_status_manufacturer_property_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset+=2;
+        }
+        break;
+    case GENERIC_MANUFACTURER_PROPERTY_GET:
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_manufacturer_property_get_manufacturer_property_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        break;
+    case GENERIC_MANUFACTURER_PROPERTY_SET:
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_manufacturer_property_set_manufacturer_property_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_manufacturer_property_set_manufacturer_user_access, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        break;
+    case GENERIC_MANUFACTURER_PROPERTY_SET_UNACKNOWLEDGED:
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_manufacturer_property_set_unacknowledged_manufacturer_property_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_manufacturer_property_set_unacknowledged_manufacturer_user_access, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        break;
+    case GENERIC_MANUFACTURER_PROPERTY_STATUS:
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_manufacturer_property_status_manufacturer_property_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        property_id = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        // Optional
+        if (tvb_reported_length_remaining(tvb, offset) > 0) {
+            proto_tree_add_item(sub_tree, hf_btmesh_generic_manufacturer_property_status_manufacturer_user_access, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            offset+=dissect_btmesh_property(sub_tree, hf_btmesh_generic_manufacturer_property_status_manufacturer_property_value, tvb, offset, property_id, PROPERTY_LENGTH_NO_HINT);
+        }
+        break;
+    case GENERIC_ADMIN_PROPERTIES_GET:
+        break;
+    case GENERIC_ADMIN_PROPERTIES_STATUS:
+        admin_property_ids_tree = proto_tree_add_subtree(sub_tree, tvb, offset, tvb_reported_length_remaining(tvb, offset), ett_btmesh_admin_property_ids, NULL, "Admin Property IDs");
+        while (tvb_reported_length_remaining(tvb, offset) > 1) {
+            proto_tree_add_item(admin_property_ids_tree, hf_btmesh_generic_admin_properties_status_admin_property_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset+=2;
+        }
+        break;
+    case GENERIC_ADMIN_PROPERTY_GET:
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_admin_property_get_admin_property_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        break;
+    case GENERIC_ADMIN_PROPERTY_SET:
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_admin_property_set_admin_property_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        property_id = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_admin_property_set_admin_user_access, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        offset+=dissect_btmesh_property(sub_tree, hf_btmesh_generic_admin_property_set_admin_property_value, tvb, offset, property_id, PROPERTY_LENGTH_NO_HINT);
+        break;
+    case GENERIC_ADMIN_PROPERTY_SET_UNACKNOWLEDGED:
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_admin_property_set_unacknowledged_admin_property_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        property_id = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_admin_property_set_unacknowledged_admin_user_access, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        offset+=dissect_btmesh_property(sub_tree, hf_btmesh_generic_admin_property_set_unacknowledged_admin_property_value, tvb, offset, property_id, PROPERTY_LENGTH_NO_HINT);
+        break;
+    case GENERIC_ADMIN_PROPERTY_STATUS:
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_admin_property_status_admin_property_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        property_id = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        // Optional
+        if (tvb_reported_length_remaining(tvb, offset) > 0) {
+            proto_tree_add_item(sub_tree, hf_btmesh_generic_admin_property_status_admin_user_access, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            offset+=dissect_btmesh_property(sub_tree, hf_btmesh_generic_admin_property_status_admin_property_value, tvb, offset, property_id, PROPERTY_LENGTH_NO_HINT);
+        }
+        break;
+    case GENERIC_USER_PROPERTIES_GET:
+        break;
+    case GENERIC_USER_PROPERTIES_STATUS:
+        user_property_ids_tree = proto_tree_add_subtree(sub_tree, tvb, offset, tvb_reported_length_remaining(tvb, offset), ett_btmesh_user_property_ids, NULL, "User Property IDs");
+        while (tvb_reported_length_remaining(tvb, offset) > 1) {
+            proto_tree_add_item(user_property_ids_tree, hf_btmesh_generic_user_properties_status_user_property_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset+=2;
+        }
+        break;
+    case GENERIC_USER_PROPERTY_GET:
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_user_property_get_user_property_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        break;
+    case GENERIC_USER_PROPERTY_SET:
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_user_property_set_user_property_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        property_id = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        offset+=dissect_btmesh_property(sub_tree, hf_btmesh_generic_user_property_set_user_property_value, tvb, offset, property_id, PROPERTY_LENGTH_NO_HINT);
+        break;
+    case GENERIC_USER_PROPERTY_SET_UNACKNOWLEDGED:
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_user_property_set_unacknowledged_user_property_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        property_id = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        offset+=dissect_btmesh_property(sub_tree, hf_btmesh_generic_user_property_set_unacknowledged_user_property_value, tvb, offset, property_id, PROPERTY_LENGTH_NO_HINT);
+        break;
+    case GENERIC_USER_PROPERTY_STATUS:
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_user_property_status_user_property_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        property_id = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        // Optional
+        if (tvb_reported_length_remaining(tvb, offset) > 0) {
+            proto_tree_add_item(sub_tree, hf_btmesh_generic_user_property_status_user_access, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            offset+=dissect_btmesh_property(sub_tree, hf_btmesh_generic_user_property_status_user_property_value, tvb, offset, property_id, PROPERTY_LENGTH_NO_HINT);
+        }
+        break;
+    case GENERIC_CLIENT_PROPERTIES_GET:
+        proto_tree_add_item(sub_tree, hf_btmesh_generic_client_properties_get_client_property_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        break;
+    case GENERIC_CLIENT_PROPERTIES_STATUS:
+        generic_client_property_ids_tree = proto_tree_add_subtree(sub_tree, tvb, offset, tvb_reported_length_remaining(tvb, offset), ett_btmesh_generic_client_property_ids, NULL, "Client Property IDs");
+        while (tvb_reported_length_remaining(tvb, offset) > 1) {
+            proto_tree_add_item(generic_client_property_ids_tree, hf_btmesh_generic_client_properties_status_client_property_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset+=2;
+        }
+        break;
+    case SENSOR_DESCRIPTOR_GET:
+        // Optional
+        if (tvb_reported_length_remaining(tvb, offset) > 1) {
+            proto_tree_add_item(sub_tree, hf_btmesh_sensor_descriptor_get_property_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset+=2;
+        }
+        break;
+    case SENSOR_DESCRIPTOR_STATUS:
+        if (tvb_reported_length_remaining(tvb, offset) == 2) {
+            proto_tree_add_item(sub_tree, hf_btmesh_sensor_descriptor_status_descriptor_sensor_property_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset+=2;
+        } else {
+            while (tvb_reported_length_remaining(tvb, offset) > 0) {
+                proto_tree_add_item(sub_tree, hf_btmesh_sensor_descriptor_status_descriptor_sensor_property_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset+=2;
+                proto_tree_add_item(sub_tree, hf_btmesh_sensor_descriptor_status_descriptor_sensor_positive_tolerance, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(sub_tree, hf_btmesh_sensor_descriptor_status_descriptor_sensor_negative_tolerance, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+                offset+=3;
+                proto_tree_add_item(sub_tree, hf_btmesh_sensor_descriptor_status_descriptor_sensor_sampling_function, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                offset+=1;
+                proto_tree_add_item(sub_tree, hf_btmesh_sensor_descriptor_status_descriptor_sensor_measurement_period, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                offset+=1;
+                proto_tree_add_item(sub_tree, hf_btmesh_sensor_descriptor_status_descriptor_sensor_update_interval, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                offset+=1;
+            }
+        }
+        break;
+    case SENSOR_CADENCE_GET:
+        proto_tree_add_item(sub_tree, hf_btmesh_sensor_cadence_get_property_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        break;
+    case SENSOR_CADENCE_SET:
+        proto_tree_add_item(sub_tree, hf_btmesh_sensor_cadence_set_property_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        property_id = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_sensor_cadence_set_fast_cadence_period_divisor, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_btmesh_sensor_cadence_set_status_trigger_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        trigger_type = tvb_get_guint8(tvb, offset) >> 7;
+        offset++;
+        offset+=dissect_sensor_cadence(sub_tree, tvb, offset, property_id, trigger_type, &sensor_cadence_set_hfs);
+        break;
+    case SENSOR_CADENCE_SET_UNACKNOWLEDGED:
+        proto_tree_add_item(sub_tree, hf_btmesh_sensor_cadence_set_unacknowledged_property_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        property_id = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_sensor_cadence_set_unacknowledged_fast_cadence_period_divisor, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_btmesh_sensor_cadence_set_unacknowledged_status_trigger_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        trigger_type = tvb_get_guint8(tvb, offset) >> 7;
+        offset++;
+
+        offset+=dissect_sensor_cadence(sub_tree, tvb, offset, property_id, trigger_type, &sensor_cadence_set_unacknowledged_hfs);
+        break;
+    case SENSOR_CADENCE_STATUS:
+        proto_tree_add_item(sub_tree, hf_btmesh_sensor_cadence_status_property_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        property_id = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_sensor_cadence_status_fast_cadence_period_divisor, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_btmesh_sensor_cadence_status_status_trigger_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        trigger_type = tvb_get_guint8(tvb, offset) >> 7;
+        offset++;
+        offset+=dissect_sensor_cadence(sub_tree, tvb, offset, property_id, trigger_type, &sensor_cadence_status_hfs);
+        break;
+    case SENSOR_SETTINGS_GET:
+        proto_tree_add_item(sub_tree, hf_btmesh_sensor_settings_get_sensor_property_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        break;
+    case SENSOR_SETTINGS_STATUS:
+        proto_tree_add_item(sub_tree, hf_btmesh_sensor_settings_status_sensor_property_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        // Optional
+        if (tvb_reported_length_remaining(tvb, offset) > 0) {
+            sensor_setting_property_ids_tree = proto_tree_add_subtree(sub_tree, tvb, offset, tvb_reported_length_remaining(tvb, offset), ett_btmesh_sensor_setting_property_ids, NULL, "Sensor Setting Property IDs");
+            while (tvb_reported_length_remaining(tvb, offset) > 1) {
+                proto_tree_add_item(sensor_setting_property_ids_tree, hf_btmesh_sensor_settings_status_sensor_setting_property_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset+=2;
+            }
+        }
+        break;
+    case SENSOR_SETTING_GET:
+        proto_tree_add_item(sub_tree, hf_btmesh_sensor_setting_get_sensor_property_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_sensor_setting_get_sensor_setting_property_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        break;
+    case SENSOR_SETTING_SET:
+        proto_tree_add_item(sub_tree, hf_btmesh_sensor_setting_set_sensor_property_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_sensor_setting_set_sensor_setting_property_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        property_id = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        offset+=dissect_btmesh_property(sub_tree, hf_btmesh_sensor_setting_set_sensor_setting_raw, tvb, offset, property_id, PROPERTY_LENGTH_NO_HINT);
+        break;
+    case SENSOR_SETTING_SET_UNACKNOWLEDGED:
+        proto_tree_add_item(sub_tree, hf_btmesh_sensor_setting_set_unacknowledged_sensor_property_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_sensor_setting_set_unacknowledged_sensor_setting_property_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        property_id = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        offset+=dissect_btmesh_property(sub_tree, hf_btmesh_sensor_setting_set_unacknowledged_sensor_setting_raw, tvb, offset, property_id, PROPERTY_LENGTH_NO_HINT);
+        break;
+    case SENSOR_SETTING_STATUS:
+        proto_tree_add_item(sub_tree, hf_btmesh_sensor_setting_status_sensor_property_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_sensor_setting_status_sensor_setting_property_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        property_id = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        //Optional
+        if (tvb_reported_length_remaining(tvb, offset) > 0) {
+            proto_tree_add_item(sub_tree, hf_btmesh_sensor_setting_status_sensor_setting_access, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            offset+=dissect_btmesh_property(sub_tree, hf_btmesh_sensor_setting_status_sensor_setting_raw, tvb, offset, property_id, PROPERTY_LENGTH_NO_HINT);
+        }
+        break;
+    case SENSOR_GET:
+        // Optional
+        if (tvb_reported_length_remaining(tvb, offset) > 0) {
+            proto_tree_add_item(sub_tree, hf_btmesh_sensor_get_property_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset+=2;
+        }
+        break;
+    case SENSOR_STATUS:
+        // Optional
+        while (tvb_reported_length_remaining(tvb, offset) > 0) {
+            proto_tree_add_item_ret_uint(sub_tree, hf_btmesh_sensor_status_mpid_format, tvb, offset, 1, ENC_LITTLE_ENDIAN, &mpid_format);
+            if (mpid_format == MPID_FORMAT_A) {
+                proto_tree_add_item_ret_uint(sub_tree, hf_btmesh_sensor_status_mpid_format_a_length, tvb, offset, 1, ENC_LITTLE_ENDIAN, &mpid_length);
+                proto_tree_add_item_ret_uint(sub_tree, hf_btmesh_sensor_status_mpid_format_a_property_id, tvb, offset, 2, ENC_LITTLE_ENDIAN, &mpid_property_id);
+                offset+=2;
+            } else {
+                proto_tree_add_item_ret_uint(sub_tree, hf_btmesh_sensor_status_mpid_format_b_length, tvb, offset, 1, ENC_LITTLE_ENDIAN, &mpid_length);
+                offset++;
+                proto_tree_add_item_ret_uint(sub_tree, hf_btmesh_sensor_status_mpid_format_b_property_id, tvb, offset, 2, ENC_LITTLE_ENDIAN, &mpid_property_id);
+                offset+=2;
+            }
+            offset+=dissect_btmesh_property(sub_tree, hf_btmesh_sensor_status_raw_value, tvb, offset, (guint16)mpid_property_id, mpid_length);
+        }
+        break;
+    case SENSOR_COLUMN_GET:
+        proto_tree_add_item(sub_tree, hf_btmesh_sensor_column_get_property_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        property_id = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        offset+=dissect_columns_raw_value(sub_tree, tvb, offset, property_id, &sensor_column_get_hfs);
+        break;
+    case SENSOR_COLUMN_STATUS:
+        proto_tree_add_item(sub_tree, hf_btmesh_sensor_column_status_property_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        property_id = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        offset+=dissect_property_raw_value_entry(sub_tree, tvb, offset, property_id, &sensor_column_status_hfs);
+        break;
+    case SENSOR_SERIES_GET:
+        proto_tree_add_item(sub_tree, hf_btmesh_sensor_series_get_property_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        property_id = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        // Optional
+        if (tvb_reported_length_remaining(tvb, offset) > 0) {
+            offset+=dissect_columns_raw_value(sub_tree, tvb, offset, property_id, &sensor_series_get_hfs);
+        }
+        break;
+    case SENSOR_SERIES_STATUS:
+        //first property_id is manadatory
+        proto_tree_add_item(sub_tree, hf_btmesh_sensor_series_status_property_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        property_id = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        //Optional, dissect one or more values
+        while (tvb_reported_length_remaining(tvb, offset) > 0) {
+            offset+=dissect_property_raw_value_entry(sub_tree, tvb, offset, property_id, &sensor_series_status_hfs);
+        }
+        break;
 //
 //  ******************************************************************************************
 //
@@ -6579,7 +7658,7 @@ btmesh_access_find_key_and_decrypt(tvbuff_t *tvb, packet_info *pinfo, int offset
                     if (dst_address_type == BTMESH_ADDRESS_VIRTUAL) {
                         for (j = 0; j < num_btmesh_label_uuid_uat; j++) {
                             label_record = &uat_btmesh_label_uuid_records[j];
-                            if (label_record->valid == BTMESH_LABEL_UUID_ENTRY_VALID && label_record->hash == dec_ctx->dst){
+                            if (label_record->valid == BTMESH_LABEL_UUID_ENTRY_VALID && label_record->hash == dec_ctx->dst) {
                                 dec_ctx->label_uuid_idx = j;
                                 if (try_access_decrypt(tvb, offset, decrypted_data, enc_data_len, record->application_key, dec_ctx)) {
                                     return tvb_new_child_real_data(tvb, decrypted_data, enc_data_len, enc_data_len);
@@ -6606,7 +7685,7 @@ btmesh_access_find_key_and_decrypt(tvbuff_t *tvb, packet_info *pinfo, int offset
                     if (dst_address_type == BTMESH_ADDRESS_VIRTUAL) {
                         for (j = 0; j < num_btmesh_label_uuid_uat; j++) {
                             label_record = &uat_btmesh_label_uuid_records[j];
-                            if (label_record->valid == BTMESH_LABEL_UUID_ENTRY_VALID && label_record->hash == dec_ctx->dst){
+                            if (label_record->valid == BTMESH_LABEL_UUID_ENTRY_VALID && label_record->hash == dec_ctx->dst) {
                                 dec_ctx->label_uuid_idx = j;
                                 if (try_access_decrypt(tvb, offset, decrypted_data, enc_data_len, dev_record->device_key, dec_ctx)) {
                                     return tvb_new_child_real_data(tvb, decrypted_data, enc_data_len, enc_data_len);
@@ -7650,50 +8729,50 @@ proto_register_btmesh(void)
                 NULL, HFILL }
         },
         { &hf_btmesh_cntr_unknown_payload,
-        { "Unknown Control Message payload", "btmesh.cntr.unknownpayload",
-            FT_BYTES, BASE_NONE, NULL, 0x0,
-            NULL, HFILL }
-        },
+            { "Unknown Control Message payload", "btmesh.cntr.unknownpayload",
+                FT_BYTES, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }
+            },
         { &hf_btmesh_enc_access_pld,
-        { "Encrypted Access Payload", "btmesh.enc_access_pld",
-            FT_BYTES, BASE_NONE, NULL, 0x0,
-            NULL, HFILL }
-        },
+            { "Encrypted Access Payload", "btmesh.enc_access_pld",
+                FT_BYTES, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }
+            },
         { &hf_btmesh_transtmic,
-        { "TransMIC", "btmesh.transtmic",
-            FT_BYTES, BASE_NONE, NULL, 0x0,
-            NULL, HFILL }
-        },
+            { "TransMIC", "btmesh.transtmic",
+                FT_BYTES, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }
+            },
         { &hf_btmesh_szmic,
-        { "SZMIC", "btmesh.szmic",
-            FT_UINT24, BASE_DEC, VALS(btmesh_szmic_vals), 0x800000,
-            NULL, HFILL }
-        },
+            { "SZMIC", "btmesh.szmic",
+                FT_UINT24, BASE_DEC, VALS(btmesh_szmic_vals), 0x800000,
+                NULL, HFILL }
+            },
         { &hf_btmesh_seqzero_data,
-        { "SeqZero", "btmesh.seqzero_data",
-            FT_UINT24, BASE_DEC, NULL, 0x7ffc00,
-            NULL, HFILL }
-        },
+            { "SeqZero", "btmesh.seqzero_data",
+                FT_UINT24, BASE_DEC, NULL, 0x7ffc00,
+                NULL, HFILL }
+            },
         { &hf_btmesh_sego,
-        { "Segment Offset number(SegO)", "btmesh.sego",
-            FT_UINT24, BASE_DEC, NULL, 0x0003e0,
-            NULL, HFILL }
-        },
+            { "Segment Offset number(SegO)", "btmesh.sego",
+                FT_UINT24, BASE_DEC, NULL, 0x0003e0,
+                NULL, HFILL }
+            },
         { &hf_btmesh_segn,
-        { "Last Segment number(SegN)", "btmesh.segn",
-            FT_UINT24, BASE_DEC, NULL, 0x00001f,
-            NULL, HFILL }
-        },
+            { "Last Segment number(SegN)", "btmesh.segn",
+                FT_UINT24, BASE_DEC, NULL, 0x00001f,
+                NULL, HFILL }
+            },
         { &hf_btmesh_seg_rfu,
-        { "RFU", "btmesh.seg.rfu",
-            FT_UINT24, BASE_DEC, NULL, 0x800000,
-            NULL, HFILL }
-        },
+            { "RFU", "btmesh.seg.rfu",
+                FT_UINT24, BASE_DEC, NULL, 0x800000,
+                NULL, HFILL }
+            },
         { &hf_btmesh_segment,
-        { "Segment", "btmesh.segment",
-            FT_BYTES, BASE_NONE, NULL, 0x0,
-            NULL, HFILL }
-        },
+            { "Segment", "btmesh.segment",
+                FT_BYTES, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }
+            },
         /* Access Message Reassembly */
         { &hf_btmesh_segmented_access_fragments,
             { "Reassembled Segmented Access Message Fragments", "btmesh.segmented.access.fragments",
@@ -8817,18 +9896,18 @@ proto_register_btmesh(void)
             FT_UINT16, BASE_HEX | BASE_EXT_STRING, &bluetooth_company_id_vals_ext, 0x0,
             NULL, HFILL }
         },
-        { &hf_btmesh_health_period_set_fastperioddivisor,
-            { "FastPeriodDivisor", "btmesh.model.health_period_set.fastperioddivisor",
+        { &hf_btmesh_health_period_set_fast_period_divisor,
+            { "Fast Period Divisor", "btmesh.model.health_period_set.fast_period_divisor",
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_btmesh_health_period_set_unacknowledged_fastperioddivisor,
-            { "FastPeriodDivisor", "btmesh.model.health_period_set_unacknowledged.fastperioddivisor",
+        { &hf_btmesh_health_period_set_unacknowledged_fast_period_divisor,
+            { "Fast Period Divisor", "btmesh.model.health_period_set_unacknowledged.fast_period_divisor",
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_btmesh_health_period_status_fastperioddivisor,
-            { "FastPeriodDivisor", "btmesh.model.health_period_status.fastperioddivisor",
+        { &hf_btmesh_health_period_status_fast_period_divisor,
+            { "Fast Period Divisor", "btmesh.model.health_period_status.fast_period_divisor",
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
@@ -10594,7 +11673,7 @@ proto_register_btmesh(void)
         },
         { &hf_btmesh_light_lc_property_set_light_lc_property_value,
             { "Light LC Property Value", "btmesh.model.light_lc_property_set.light_lc_property_value",
-            FT_UINT16, BASE_HEX, NULL, 0x0,
+           FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_btmesh_light_lc_property_set_unacknowledged_light_lc_property_id,
@@ -10604,7 +11683,7 @@ proto_register_btmesh(void)
         },
         { &hf_btmesh_light_lc_property_set_unacknowledged_light_lc_property_value,
             { "Light LC Property Value", "btmesh.model.light_lc_property_set_unacknowledged.light_lc_property_value",
-            FT_UINT16, BASE_HEX, NULL, 0x0,
+            FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_btmesh_light_lc_property_status_light_lc_property_id,
@@ -10614,7 +11693,7 @@ proto_register_btmesh(void)
         },
         { &hf_btmesh_light_lc_property_status_light_lc_property_value,
             { "Light LC Property Value", "btmesh.model.light_lc_property_status.light_lc_property_value",
-            FT_UINT16, BASE_HEX, NULL, 0x0,
+            FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_btmesh_light_lightness_set_lightness,
@@ -11932,6 +13011,511 @@ proto_register_btmesh(void)
             FT_UINT16, BASE_DEC, VALS(btmesh_properties_vals), 0x0,
             NULL, HFILL }
         },
+        { &hf_btmesh_generic_manufacturer_properties_status_manufacturer_property_id,
+            { "Manufacturer Property ID", "btmesh.model.generic_manufacturer_properties_status.manufacturer_property_id",
+            FT_UINT16, BASE_DEC, VALS(btmesh_properties_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_manufacturer_property_set_manufacturer_property_id,
+            { "Manufacturer Property ID", "btmesh.model.generic_manufacturer_property_set.manufacturer_property_id",
+            FT_UINT16, BASE_DEC, VALS(btmesh_properties_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_manufacturer_property_set_manufacturer_user_access,
+            { "Manufacturer User Access", "btmesh.model.generic_manufacturer_property_set.manufacturer_user_access",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_manufacturer_user_access), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_manufacturer_property_set_unacknowledged_manufacturer_property_id,
+            { "Manufacturer Property ID", "btmesh.model.generic_manufacturer_property_set_unacknowledged.manufacturer_property_id",
+            FT_UINT16, BASE_DEC, VALS(btmesh_properties_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_manufacturer_property_set_unacknowledged_manufacturer_user_access,
+            { "Manufacturer User Access", "btmesh.model.generic_manufacturer_property_set_unacknowledged.manufacturer_user_access",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_manufacturer_user_access), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_manufacturer_property_status_manufacturer_property_id,
+            { "Manufacturer Property ID", "btmesh.model.generic_manufacturer_property_status.manufacturer_property_id",
+            FT_UINT16, BASE_DEC, VALS(btmesh_properties_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_manufacturer_property_status_manufacturer_user_access,
+            { "Manufacturer User Access", "btmesh.model.generic_manufacturer_property_status.manufacturer_user_access",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_manufacturer_user_access), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_manufacturer_property_status_manufacturer_property_value,
+            { "Manufacturer Property Value", "btmesh.model.generic_manufacturer_property_status.manufacturer_property_value",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_admin_properties_status_admin_property_id,
+            { "Admin Property ID", "btmesh.model.generic_admin_properties_status.admin_property_id",
+            FT_UINT16, BASE_DEC, VALS(btmesh_properties_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_admin_property_set_admin_property_id,
+            { "Admin Property ID", "btmesh.model.generic_admin_property_set.admin_property_id",
+            FT_UINT16, BASE_DEC, VALS(btmesh_properties_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_admin_property_set_admin_user_access,
+            { "Admin User Access", "btmesh.model.generic_admin_property_set.admin_user_access",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_admin_user_access), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_admin_property_set_admin_property_value,
+            { "Admin Property Value", "btmesh.model.generic_admin_property_set.admin_property_value",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_admin_property_set_unacknowledged_admin_property_id,
+            { "Admin Property ID", "btmesh.model.generic_admin_property_set_unacknowledged.admin_property_id",
+            FT_UINT16, BASE_DEC, VALS(btmesh_properties_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_admin_property_set_unacknowledged_admin_user_access,
+            { "Admin User Access", "btmesh.model.generic_admin_property_set_unacknowledged.admin_user_access",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_admin_user_access), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_admin_property_set_unacknowledged_admin_property_value,
+            { "Admin Property Value", "btmesh.model.generic_admin_property_set_unacknowledged.admin_property_value",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_admin_property_status_admin_property_id,
+            { "Admin Property ID", "btmesh.model.generic_admin_property_status.admin_property_id",
+            FT_UINT16, BASE_DEC, VALS(btmesh_properties_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_admin_property_status_admin_user_access,
+            { "Admin User Access", "btmesh.model.generic_admin_property_status.admin_user_access",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_admin_user_access), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_admin_property_status_admin_property_value,
+            { "Admin Property Value", "btmesh.model.generic_admin_property_status.admin_property_value",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_user_properties_status_user_property_id,
+            { "User Property ID", "btmesh.model.generic_user_properties_status.user_property_id",
+            FT_UINT16, BASE_DEC, VALS(btmesh_properties_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_user_property_set_user_property_id,
+            { "User Property ID", "btmesh.model.generic_user_property_set.user_property_id",
+            FT_UINT16, BASE_DEC, VALS(btmesh_properties_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_user_property_set_user_property_value,
+            { "User Property Value", "btmesh.model.generic_user_property_set.user_property_value",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_user_property_set_unacknowledged_user_property_id,
+            { "User Property ID", "btmesh.model.generic_user_property_set_unacknowledged.user_property_id",
+            FT_UINT16, BASE_DEC, VALS(btmesh_properties_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_user_property_set_unacknowledged_user_property_value,
+            { "User Property Value", "btmesh.model.generic_user_property_set_unacknowledged.user_property_value",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_user_property_status_user_property_id,
+            { "User Property ID", "btmesh.model.generic_user_property_status.user_property_id",
+            FT_UINT16, BASE_DEC, VALS(btmesh_properties_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_user_property_status_user_access,
+            { "User Access", "btmesh.model.generic_user_property_status.user_access",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_user_access), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_user_property_status_user_property_value,
+            { "User Property Value", "btmesh.model.generic_user_property_status.user_property_value",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_client_properties_get_client_property_id,
+            { "Client Property ID", "btmesh.model.generic_client_properties_get.client_property_id",
+            FT_UINT16, BASE_DEC, VALS(btmesh_properties_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_client_properties_status_client_property_id,
+            { "Client Property ID", "btmesh.model.generic_client_properties_status.client_property_id",
+            FT_UINT16, BASE_DEC, VALS(btmesh_properties_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_sensor_descriptor_status_descriptor_sensor_property_id,
+            { "Sensor Property ID", "btmesh.model.sensor_descriptor_status.descriptor_sensor_property_id",
+            FT_UINT16, BASE_DEC, VALS(btmesh_properties_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_sensor_descriptor_status_descriptor_sensor_positive_tolerance,
+            { "Sensor Positive Tolerance", "btmesh.model.sensor_descriptor_status.descriptor_positive_tolerance",
+            FT_UINT24, BASE_CUSTOM, CF_FUNC(format_sensor_descriptor_tolerance), 0x000FFF,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_sensor_descriptor_status_descriptor_sensor_negative_tolerance,
+            { "Sensor Negative Tolerance", "btmesh.model.sensor_descriptor_status.descriptor_negative_tolerance",
+            FT_UINT24, BASE_CUSTOM, CF_FUNC(format_sensor_descriptor_tolerance), 0xFFF000,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_sensor_descriptor_status_descriptor_sensor_sampling_function,
+            { "Sensor Sampling Function", "btmesh.model.sensor_descriptor_status.descriptor_sensor_sampling_function",
+            FT_UINT8, BASE_DEC, VALS(btmesh_sensor_sampling_function_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_sensor_descriptor_status_descriptor_sensor_measurement_period,
+            { "Sensor Measurement Period", "btmesh.model.sensor_descriptor_status.descriptor_sensor_measurement_period",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_sensor_period), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_sensor_descriptor_status_descriptor_sensor_update_interval,
+            { "Sensor Update Interval", "btmesh.model.sensor_descriptor_status.descriptor_sensor_update_interval",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_sensor_period), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_sensor_status_mpid_format,
+            { "MPID Format", "btmesh.model.sensor_status.mpid.format",
+            FT_UINT8, BASE_DEC, VALS(btmesh_mpid_format_vals), 0x01,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_sensor_status_mpid_format_a_length,
+            { "MPID Length", "btmesh.model.sensor_status.mpid.format_a.length",
+            FT_UINT8, BASE_DEC, NULL, 0x1e,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_sensor_status_mpid_format_b_length,
+            { "MPID Length", "btmesh.model.sensor_status.mpid.format_b.length",
+            FT_UINT8, BASE_DEC, NULL, 0xfe,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_sensor_status_mpid_format_a_property_id,
+            { "MPID Property ID", "btmesh.model.sensor_status.mpid.format_a.property_id",
+            FT_UINT16, BASE_DEC, VALS(btmesh_properties_vals), 0xFFE0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_sensor_status_mpid_format_b_property_id,
+            { "MPID Property ID", "btmesh.model.sensor_status.mpid.format_b.property_id",
+            FT_UINT16, BASE_DEC, VALS(btmesh_properties_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_sensor_status_raw_value,
+            { "Raw Value", "btmesh.model.sensor_status.raw_value",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_sensor_column_status_property_id,
+            { "Property ID", "btmesh.model.sensor_column_status.property_id",
+            FT_UINT16, BASE_DEC, VALS(btmesh_properties_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_sensor_column_status_raw_value_a,
+            { "Raw Value A", "btmesh.model.sensor_column_status.raw_value_a",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_sensor_column_status_raw_value_b,
+            { "Raw Value B", "btmesh.model.sensor_column_status.raw_value_b",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_sensor_column_status_raw_value_c,
+            { "Raw Value C", "btmesh.model.sensor_column_status.raw_value_c",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_sensor_series_status_property_id,
+            { "Property ID", "btmesh.model.sensor_series_status.property_id",
+            FT_UINT16, BASE_DEC, VALS(btmesh_properties_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_sensor_series_status_raw_value_a,
+            { "Raw Value A", "btmesh.model.sensor_series_status.raw_value_a",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_sensor_series_status_raw_value_b,
+            { "Raw Value B", "btmesh.model.sensor_series_status.raw_value_b",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_sensor_series_status_raw_value_c,
+            { "Raw Value C", "btmesh.model.sensor_series_status.raw_value_c",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_sensor_cadence_set_property_id,
+            { "Property ID", "btmesh.model.sensor_cadence_set.property_id",
+            FT_UINT16, BASE_DEC, VALS(btmesh_properties_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_sensor_cadence_set_fast_cadence_period_divisor,
+            { "Fast Cadence Period Divisor", "btmesh.model.sensor_cadence_set.fast_cadence_period_divisor",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_fast_cadence_period_divisor), 0x7F,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_sensor_cadence_set_status_trigger_type,
+            { "Status Trigger Type", "btmesh.model.sensor_cadence_set.status_trigger_type",
+            FT_UINT8, BASE_DEC, VALS(btmesh_status_trigger_type_vals), 0x80,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_sensor_cadence_set_status_trigger_delta_down,
+            { "Status Trigger Delta Down", "btmesh.model.sensor_cadence_set.status_trigger_delta_down",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_sensor_cadence_set_status_trigger_delta_up,
+            { "Status Trigger Delta Up", "btmesh.model.sensor_cadence_set.status_trigger_delta_up",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_sensor_cadence_set_status_min_interval,
+            { "Status Min Interval", "btmesh.model.sensor_cadence_set.status_min_interval",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_status_min_interval), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_sensor_cadence_set_fast_cadence_low,
+            { "Fast Cadence Low", "btmesh.model.sensor_cadence_set.fast_cadence_low",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_sensor_cadence_set_fast_cadence_high,
+            { "Fast Cadence High", "btmesh.model.sensor_cadence_set.fast_cadence_high",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_sensor_cadence_set_remainder_not_dissected,
+            { "Remainder Not Dissected", "btmesh.model.sensor_cadence_set.remainder_not_dissected",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_sensor_cadence_set_unacknowledged_property_id,
+            { "Property ID", "btmesh.model.sensor_cadence_set_unacknowledged.property_id",
+            FT_UINT16, BASE_DEC, VALS(btmesh_properties_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_sensor_cadence_set_unacknowledged_fast_cadence_period_divisor,
+            { "Fast Cadence Period Divisor", "btmesh.model.sensor_cadence_set_unacknowledged.fast_cadence_period_divisor",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_fast_cadence_period_divisor), 0x7F,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_sensor_cadence_set_unacknowledged_status_trigger_type,
+            { "Status Trigger Type", "btmesh.model.sensor_cadence_set_unacknowledged.status_trigger_type",
+            FT_UINT8, BASE_DEC, VALS(btmesh_status_trigger_type_vals), 0x80,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_sensor_cadence_set_unacknowledged_status_trigger_delta_down,
+            { "Status Trigger Delta Down", "btmesh.model.sensor_cadence_set_unacknowledged.status_trigger_delta_down",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_sensor_cadence_set_unacknowledged_status_trigger_delta_up,
+            { "Status Trigger Delta Up", "btmesh.model.sensor_cadence_set_unacknowledged.status_trigger_delta_up",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_sensor_cadence_set_unacknowledged_status_min_interval,
+            { "Status Min Interval", "btmesh.model.sensor_cadence_set_unacknowledged.status_min_interval",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_status_min_interval), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_sensor_cadence_set_unacknowledged_fast_cadence_low,
+            { "Fast Cadence Low", "btmesh.model.sensor_cadence_set_unacknowledged.fast_cadence_low",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_sensor_cadence_set_unacknowledged_fast_cadence_high,
+            { "Fast Cadence High", "btmesh.model.sensor_cadence_set_unacknowledged.fast_cadence_high",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_sensor_cadence_set_unacknowledged_remainder_not_dissected,
+            { "Remainder Not Dissected", "btmesh.model.sensor_cadence_set_unacknowledged.remainder_not_dissected",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_sensor_cadence_status_property_id,
+            { "Property ID", "btmesh.model.sensor_cadence_status.property_id",
+            FT_UINT16, BASE_DEC, VALS(btmesh_properties_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_sensor_cadence_status_fast_cadence_period_divisor,
+            { "Fast Cadence Period Divisor", "btmesh.model.sensor_cadence_status.fast_cadence_period_divisor",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_fast_cadence_period_divisor), 0x7F,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_sensor_cadence_status_status_trigger_type,
+            { "Status Trigger Type", "btmesh.model.sensor_cadence_status.status_trigger_type",
+            FT_UINT8, BASE_DEC, VALS(btmesh_status_trigger_type_vals), 0x80,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_sensor_cadence_status_status_trigger_delta_down,
+            { "Status Trigger Delta Down", "btmesh.model.sensor_cadence_status.status_trigger_delta_down",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_sensor_cadence_status_status_trigger_delta_up,
+            { "Status Trigger Delta Up", "btmesh.model.sensor_cadence_status.status_trigger_delta_up",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_sensor_cadence_status_status_min_interval,
+            { "Status Min Interval", "btmesh.model.sensor_cadence_status.status_min_interval",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_status_min_interval), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_sensor_cadence_status_fast_cadence_low,
+            { "Fast Cadence Low", "btmesh.model.sensor_cadence_status.fast_cadence_low",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_sensor_cadence_status_fast_cadence_high,
+            { "Fast Cadence High", "btmesh.model.sensor_cadence_status.fast_cadence_high",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_sensor_cadence_status_remainder_not_dissected,
+            { "Remainder Not Dissected", "btmesh.model.sensor_cadence_status.remainder_not_dissected",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_sensor_settings_status_sensor_property_id,
+            { "Sensor Property ID", "btmesh.model.sensor_settings_status.sensor_property_id",
+            FT_UINT16, BASE_DEC, VALS(btmesh_properties_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_sensor_settings_status_sensor_setting_property_id,
+            { "Sensor Setting Property ID", "btmesh.model.sensor_settings_status.sensor_setting_property_id",
+            FT_UINT16, BASE_DEC, VALS(btmesh_properties_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_sensor_setting_set_sensor_property_id,
+            { "Sensor Property ID", "btmesh.model.sensor_setting_set.sensor_property_id",
+            FT_UINT16, BASE_DEC, VALS(btmesh_properties_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_sensor_setting_set_sensor_setting_property_id,
+            { "Sensor Setting Property ID", "btmesh.model.sensor_setting_set.sensor_setting_property_id",
+            FT_UINT16, BASE_DEC, VALS(btmesh_properties_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_sensor_setting_set_sensor_setting_raw,
+            { "Sensor Setting Raw", "btmesh.model.sensor_setting_set.sensor_setting_raw",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_sensor_setting_set_unacknowledged_sensor_property_id,
+            { "Sensor Property ID", "btmesh.model.sensor_setting_set_unacknowledged.sensor_property_id",
+            FT_UINT16, BASE_DEC, VALS(btmesh_properties_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_sensor_setting_set_unacknowledged_sensor_setting_property_id,
+            { "Sensor Setting Property ID", "btmesh.model.sensor_setting_set_unacknowledged.sensor_setting_property_id",
+            FT_UINT16, BASE_DEC, VALS(btmesh_properties_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_sensor_setting_set_unacknowledged_sensor_setting_raw,
+            { "Sensor Setting Raw", "btmesh.model.sensor_setting_set_unacknowledged.sensor_setting_raw",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_sensor_setting_status_sensor_property_id,
+            { "Sensor Property ID", "btmesh.model.sensor_setting_status.sensor_property_id",
+            FT_UINT16, BASE_DEC, VALS(btmesh_properties_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_sensor_setting_status_sensor_setting_property_id,
+            { "Sensor Setting Property ID", "btmesh.model.sensor_setting_status.sensor_setting_property_id",
+            FT_UINT16, BASE_DEC, VALS(btmesh_properties_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_sensor_setting_status_sensor_setting_access,
+            { "Sensor Setting Access", "btmesh.model.sensor_setting_status.sensor_setting_access",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_sensor_setting_access), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_sensor_setting_status_sensor_setting_raw,
+            { "Sensor Setting Raw", "btmesh.model.sensor_setting_status.sensor_setting_raw",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_manufacturer_property_get_manufacturer_property_id,
+            { "Manufacturer Property ID", "btmesh.model.generic_manufacturer_property_get.manufacturer_property_id",
+            FT_UINT16, BASE_DEC, VALS(btmesh_properties_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_admin_property_get_admin_property_id,
+            { "Admin Property ID", "btmesh.model.generic_admin_property_get.admin_property_id",
+            FT_UINT16, BASE_DEC, VALS(btmesh_properties_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_generic_user_property_get_user_property_id,
+            { "User Property ID", "btmesh.model.generic_user_property_get.user_property_id",
+            FT_UINT16, BASE_DEC, VALS(btmesh_properties_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_sensor_descriptor_get_property_id,
+            { "Property ID", "btmesh.model.sensor_descriptor_get.property_id",
+            FT_UINT16, BASE_DEC, VALS(btmesh_properties_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_sensor_get_property_id,
+            { "Property ID", "btmesh.model.sensor_get.property_id",
+            FT_UINT16, BASE_DEC, VALS(btmesh_properties_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_sensor_column_get_property_id,
+            { "Property ID", "btmesh.model.sensor_column_get.property_id",
+            FT_UINT16, BASE_DEC, VALS(btmesh_properties_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_sensor_column_get_raw_value_a,
+            { "Raw Value A", "btmesh.model.sensor_column_get.raw_value_a",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_sensor_series_get_property_id,
+            { "Property ID", "btmesh.model.sensor_series_get.property_id",
+            FT_UINT16, BASE_DEC, VALS(btmesh_properties_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_sensor_series_get_raw_value_a1,
+            { "Raw Value A1", "btmesh.model.sensor_series_get.raw_value_a1",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_sensor_series_get_raw_value_a2,
+            { "Raw Value A2", "btmesh.model.sensor_series_get.raw_value_a2",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_sensor_cadence_get_property_id,
+            { "Property ID", "btmesh.model.sensor_cadence_get.property_id",
+            FT_UINT16, BASE_DEC, VALS(btmesh_properties_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_sensor_settings_get_sensor_property_id,
+            { "Sensor Property ID", "btmesh.model.sensor_settings_get.sensor_property_id",
+            FT_UINT16, BASE_DEC, VALS(btmesh_properties_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_sensor_setting_get_sensor_property_id,
+            { "Sensor Property ID", "btmesh.model.sensor_setting_get.sensor_property_id",
+            FT_UINT16, BASE_DEC, VALS(btmesh_properties_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_sensor_setting_get_sensor_setting_property_id,
+            { "Sensor Setting Property ID", "btmesh.model.sensor_setting_get.sensor_setting_property_id",
+            FT_UINT16, BASE_DEC, VALS(btmesh_properties_vals), 0x0,
+            NULL, HFILL }
+        },
         { &hf_bt_characteristic_illuminance,
             { "Illuminance", "btmesh.property.illuminance",
             FT_UINT24, BASE_CUSTOM, CF_FUNC(format_illuminance), 0x0,
@@ -11960,6 +13544,46 @@ proto_register_btmesh(void)
         { &hf_bt_characteristic_count_16,
             { "Count 16", "btmesh.property.count_16",
             FT_UINT16, BASE_CUSTOM, CF_FUNC(format_count_16), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bt_phony_characteristic_percentage_change_16,
+            { "Percentage Change", "btmesh.property.percentage_change_16",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_percentage_change_16), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bt_phony_characteristic_index,
+            { "Index", "btmesh.property.index",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bt_characteristic_time_decihour_8,
+            { "Time Decihour 8", "btmesh.property.time_decihour_8",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_decihour_8), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bt_characteristic_temperature_8,
+            { "Temperature 8", "btmesh.property.temperature_8",
+            FT_INT8, BASE_CUSTOM, CF_FUNC(format_temperature_8), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bt_characteristic_temperature,
+            { "Temperature", "btmesh.property.temperature",
+            FT_INT16, BASE_CUSTOM, CF_FUNC(format_temperature), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bt_characteristic_electric_current,
+            { "Electric Current", "btmesh.property.electric_current",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_electric_current), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bt_characteristic_energy,
+            { "Energy", "btmesh.property.energy",
+            FT_UINT24, BASE_CUSTOM, CF_FUNC(format_energy), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bt_characteristic_generic_level,
+            { "Generic Level", "btmesh.property.generic_level",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_bt_characteristic_boolean,
@@ -12008,6 +13632,11 @@ proto_register_btmesh(void)
         &ett_btmesh_scheduler_model_month,
         &ett_btmesh_scheduler_model_day_of_week,
         &ett_btmesh_scheduler_schedules,
+        &ett_btmesh_user_property_ids,
+        &ett_btmesh_admin_property_ids,
+        &ett_btmesh_manufacturer_property_ids,
+        &ett_btmesh_generic_client_property_ids,
+        &ett_btmesh_sensor_setting_property_ids,
     };
 
     static ei_register_info ei[] = {
