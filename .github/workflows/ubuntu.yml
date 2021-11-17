@@ -31,7 +31,11 @@ jobs:
       - name: Run tests
         env:
           PYTEST_ADDOPTS: --skip-missing-programs=rawshark
-        run: pytest
+        # Remove the XDG_CONFIG_HOME variable and ensure that tshark reads configurations from the home directory
+        # which created by pytest, and test cases will success in Ubuntu System.
+        run: |
+          unset XDG_CONFIG_HOME
+          pytest
         working-directory: build
       - name: Build debian pkg
         run: dpkg-buildpackage -b -us -uc -jauto
