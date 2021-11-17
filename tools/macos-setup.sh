@@ -87,7 +87,7 @@ PCRE_VERSION=8.44
 # version (currently 3.19.7).
 #
 if [[ $DARWIN_MAJOR_VERSION -gt 13 ]]; then
-    CMAKE_VERSION=${CMAKE_VERSION-3.19.7}
+    CMAKE_VERSION=${CMAKE_VERSION-3.21.4}
 else
     CMAKE_VERSION=${CMAKE_VERSION-3.18.6}
 fi
@@ -233,13 +233,13 @@ BROTLI_VERSION=1.0.9
 # minizip
 ZLIB_VERSION=1.2.11
 # Uncomment to enable automatic updates using Sparkle
-#SPARKLE_VERSION=1.26.0
+#SPARKLE_VERSION=1.27.0
 
 #
 # Asciidoctor is required to build the documentation.
 #
-ASCIIDOCTOR_VERSION=${ASCIIDOCTOR_VERSION-2.0.10}
-ASCIIDOCTORPDF_VERSION=${ASCIIDOCTORPDF_VERSION-1.5.0.beta.5}
+ASCIIDOCTOR_VERSION=${ASCIIDOCTOR_VERSION-2.0.16}
+ASCIIDOCTORPDF_VERSION=${ASCIIDOCTORPDF_VERSION-1.6.1}
 
 #
 # GNU autotools; they're provided with releases up to Snow Leopard, but
@@ -618,7 +618,7 @@ install_asciidoctorpdf() {
         ## record them for uninstallation
         ## ttfunk, pdf-core, prawn, prawn-table, Ascii85, ruby-rc4, hashery, afm, pdf-reader, prawn-templates, public_suffix, addressable, css_parser, prawn-svg, prawn-icon, safe_yaml, thread_safe, polyglot, treetop, asciidoctor-pdf
         echo "Downloading and installing Asciidoctor-pdf:"
-        sudo gem install -V asciidoctor-pdf --prerelease --version "=${ASCIIDOCTORPDF_VERSION}"
+        sudo gem install -V asciidoctor-pdf --version "=${ASCIIDOCTORPDF_VERSION}"
         touch asciidoctorpdf-${ASCIIDOCTORPDF_VERSION}-done
     fi
 }
