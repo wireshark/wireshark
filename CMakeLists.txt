@@ -72,7 +72,8 @@ set(CMAKE_BUILD_TYPE "RelWithDebInfo" CACHE STRING
 message(STATUS "Using ${CMAKE_GENERATOR} generator and build type ${CMAKE_BUILD_TYPE}")
 
 #Where to find local cmake scripts
-set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
+set(WS_CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
+set(CMAKE_MODULE_PATH ${WS_CMAKE_MODULE_PATH})
 
 # CMake >= 3.9.0 supports LTO/IPO.
 if (ENABLE_LTO)
@@ -3522,12 +3523,13 @@ endif()
 
 install(
 	FILES
-		${CMAKE_MODULE_PATH}/FindGLIB2.cmake
-		${CMAKE_MODULE_PATH}/FindWSLibrary.cmake
-		${CMAKE_MODULE_PATH}/FindWSWinLibs.cmake
-		${CMAKE_MODULE_PATH}/UseAsn2Wrs.cmake
-		${CMAKE_MODULE_PATH}/LocatePythonModule.cmake
-		${CMAKE_MODULE_PATH}/UseMakePluginReg.cmake
+		# Qt6 extends CMAKE_MODULE_PATH, so use our local version
+		${WS_CMAKE_MODULE_PATH}/FindGLIB2.cmake
+		${WS_CMAKE_MODULE_PATH}/FindWSLibrary.cmake
+		${WS_CMAKE_MODULE_PATH}/FindWSWinLibs.cmake
+		${WS_CMAKE_MODULE_PATH}/UseAsn2Wrs.cmake
+		${WS_CMAKE_MODULE_PATH}/LocatePythonModule.cmake
+		${WS_CMAKE_MODULE_PATH}/UseMakePluginReg.cmake
 	DESTINATION
 		${WIRESHARK_INSTALL_CMAKEDIR}
 )
