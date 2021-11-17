@@ -27,6 +27,11 @@
 #include <string.h>
 #include <fcntl.h>
 
+#include <time.h>
+#ifndef strptime
+#include "wsutil/strptime.h"
+#endif
+
 #include <cli_main.h>
 
 #define CISCODUMP_VERSION_MAJOR "1"
@@ -34,15 +39,17 @@
 #define CISCODUMP_VERSION_RELEASE "0"
 
 /* The read timeout in msec */
-#define CISCODUMP_READ_TIMEOUT 3000
+#define CISCODUMP_READ_TIMEOUT_MSEC 300
 
 #define CISCODUMP_EXTCAP_INTERFACE "ciscodump"
 #define SSH_READ_BLOCK_SIZE 1024
-#define SSH_READ_TIMEOUT 10000
+#define SSH_READ_TIMEOUT_MSES 10000
+#define SSH_READ_TIMEOUT_USEC (SSH_READ_TIMEOUT_MSES*1000)
 
-#define WIRESHARK_CAPTURE_POINT "WIRESHARK_CAPTURE_POINT"
-#define WIRESHARK_CAPTURE_BUFFER "WIRESHARK_CAPTURE_BUFFER"
-#define WIRESHARK_CAPTURE_ACCESSLIST "WIRESHARK_CAPTURE_ACCESSLIST"
+#define WIRESHARK_CAPTURE "WSC"
+#define WIRESHARK_CAPTURE_POINT "WSC_P"
+#define WIRESHARK_CAPTURE_BUFFER "WSC_B"
+#define WIRESHARK_CAPTURE_ACCESSLIST "WSC_ACL"
 
 #define PCAP_SNAPLEN 0xffff
 
@@ -50,6 +57,28 @@
 
 #define MINIMUM_IOS_MAJOR 12
 #define MINIMUM_IOS_MINOR 4
+#define MINIMUM_IOS_XE_MAJOR 16
+#define MINIMUM_IOS_XE_MINOR 1
+#define MINIMUM_ASA_MAJOR 8
+#define MINIMUM_ASA_MINOR 4
+
+#define READ_PROMPT_ERROR -1
+#define READ_PROMPT_EOLN 0
+#define READ_PROMPT_PROMPT 1
+#define READ_PROMPT_TOO_LONG 2
+
+#define READ_LINE_ERROR -1
+#define READ_LINE_EOLN 0
+#define READ_LINE_TIMEOUT 1
+#define READ_LINE_TOO_LONG 2
+
+/* Type of Cisco device */
+typedef enum {
+	CISCO_UNKNOWN,
+	CISCO_IOS,
+	CISCO_IOS_XE,
+	CISCO_ASA
+} CISCO_SW_TYPE;
 
 /* Status of the parser */
 enum {
@@ -57,7 +86,7 @@ enum {
 	CISCODUMP_PARSER_IN_PACKET,
 	CISCODUMP_PARSER_IN_HEADER,
 	CISCODUMP_PARSER_END_PACKET,
-	CISCODUMP_PARSER_ERROR
+	CISCODUMP_PARSER_UNKNOWN
 };
 
 enum {
@@ -76,6 +105,11 @@ enum {
 	OPT_REMOTE_COUNT
 };
 
+static char prompt_str[SSH_READ_BLOCK_SIZE + 1];
+static gint32 prompt_len = -1;
+
+static gboolean end_application = FALSE;
+
 static struct ws_option longopts[] = {
 	EXTCAP_BASE_OPTIONS,
 	{ "help", ws_no_argument, NULL, OPT_HELP},
@@ -83,6 +117,42 @@ static struct ws_option longopts[] = {
 	SSH_BASE_OPTIONS,
 	{ 0, 0, 0, 0}
 };
+
+#ifdef _WIN32
+static BOOL WINAPI
+exit_from_loop(DWORD dwCtrlType _U_)
+#else
+static void exit_from_loop(int signo _U_)
+#endif /* _WIN32 */
+{
+#ifndef _WIN32
+	/* Disable signal reception after first signal to avoid signal storms */
+	signal(signo, SIG_IGN);
+#endif /* _WIN32 */
+	ws_warning("Exiting from main loop");
+	end_application = TRUE;
+#ifdef _WIN32
+	return TRUE;
+#endif /* _WIN32 */
+}
+
+/* Replaces needle with rep in line */
+static char* str_replace_char(char *line, char needle, char rep)
+{
+	for(int i = 0; line[i] != '\0'; i++) {
+		if (line[i] == needle) {
+			line[i] = rep;
+		}
+	}
+
+	return line;
+}
+
+/* Replaces CR with LN */
+static char* crtoln(char *line)
+{
+	return str_replace_char(line, '\r', '\n');
+}
 
 static char* interfaces_list_to_filter(GSList* interfaces, unsigned int remote_port)
 {
@@ -112,7 +182,32 @@ static char* local_interfaces_to_filter(const unsigned int remote_port)
 	return filter;
 }
 
-/* Read bytes from the channel. If bytes == -1, read all data (until timeout). If outbuf != NULL, data are stored there */
+/* Read bytes from the channel with no escape character.
+ * If bytes == -1, read all data (until timeout). If outbuf != NULL, data are stored there
+ */
+static int read_output_bytes_any(ssh_channel channel, int bytes, char* outbuf)
+{
+	char chr;
+	int total;
+	int bytes_read;
+
+	total = (bytes > 0 ? bytes : G_MAXINT);
+	bytes_read = 0;
+
+	while(ssh_channel_read_timeout(channel, &chr, 1, 0, CISCODUMP_READ_TIMEOUT_MSEC) > 0 && bytes_read < total) {
+		ws_noisy("%c %02x", chr, chr);
+		if (outbuf)
+			outbuf[bytes_read] = chr;
+		bytes_read++;
+	}
+	if (outbuf)
+		outbuf[bytes_read+1] = '\0';
+	return EXIT_SUCCESS;
+}
+
+/* Read bytes from the channel. Recognize escape char '^'.
+ * If bytes == -1, read all data (until timeout). If outbuf != NULL, data are stored there
+ */
 static int read_output_bytes(ssh_channel channel, int bytes, char* outbuf)
 {
 	char chr;
@@ -122,8 +217,8 @@ static int read_output_bytes(ssh_channel channel, int bytes, char* outbuf)
 	total = (bytes > 0 ? bytes : G_MAXINT);
 	bytes_read = 0;
 
-	while(ssh_channel_read_timeout(channel, &chr, 1, 0, 2000) > 0 && bytes_read < total) {
-		ws_debug("%c", chr);
+	while(ssh_channel_read_timeout(channel, &chr, 1, 0, CISCODUMP_READ_TIMEOUT_MSEC) > 0 && bytes_read < total) {
+		ws_noisy("%c %02x", chr, chr);
 		if (chr == '^')
 			return EXIT_FAILURE;
 		if (outbuf)
@@ -133,52 +228,387 @@ static int read_output_bytes(ssh_channel channel, int bytes, char* outbuf)
 	return EXIT_SUCCESS;
 }
 
-static void ciscodump_cleanup(ssh_session sshs, ssh_channel channel, const char* iface, const char* cfilter)
+/* Reads input to buffer and parses EOL
+ *   If line is NULL, just received count of characters in len is calculated
+ * It returns:
+ *   READ_LINE_ERROR - any ssh error occured
+ *   READ_LINE_EOLN - EOLN found, line/len contains \0 terminated string
+ *   READ_LINE_TIMEOUT - reading ended with timeout, line/len contains \0 terminate prompt
+ *   READ_LINE_TOO_LONG - buffer is full with no EOLN nor PROMPT found, line is filled with NOT \0 terminated data
+ */
+static int ssh_channel_read_line_timeout(ssh_channel channel, char *line, int *len, int max_len) {
+	char chr;
+	int rlen = 0;
+
+	*len = 0;
+	do {
+		rlen = ssh_channel_read_timeout(channel, &chr, 1, FALSE, CISCODUMP_READ_TIMEOUT_MSEC);
+		ws_noisy("%c %02x %d", chr, chr, rlen);
+		if (rlen == SSH_ERROR) {
+			ws_warning("Error reading from channel");
+			return READ_LINE_ERROR;
+		} else if (rlen > 0) {
+			if (chr != '\n') {
+				/* Ignore \r */
+				if (chr != '\r') {
+					if (line) {
+						line[*len] = chr;
+					}
+					(*len)++;
+				}
+			} else {
+				/* Parse the current line */
+				if (line) {
+					line[*len] = '\0';
+				}
+				return READ_LINE_EOLN;
+			}
+		} else {
+			return READ_LINE_TIMEOUT;
+		}
+	} while (*len < max_len);
+
+	return READ_LINE_TOO_LONG;
+}
+
+/* Reads input to buffer and parses EOL or prompt_str PROMPT
+ * It returns:
+ *   READ_PROMPT_ERROR - any ssh error occured
+ *   READ_PROMPT_EOLN - EOLN found, line/len contains \0 terminated string
+ *   READ_PROMPT_PROMPT - reading ended and it ends with PROMPT, line/len contains \0 terminate prompt
+ *   READ_PROMPT_TOO_LONG - buffer is full with no EOLN nor PROMPT found, line is filled with NOT \0 terminated data
+ */
+static int ssh_channel_read_prompt(ssh_channel channel, char *line, guint32 *len, guint32 max_len) {
+	char chr;
+	int rlen = 0;
+	gint64 start_time = g_get_monotonic_time();
+
+	do {
+		rlen = ssh_channel_read_timeout(channel, &chr, 1, FALSE, CISCODUMP_READ_TIMEOUT_MSEC);
+		ws_noisy("%c %02x %d", chr, chr, rlen);
+		if (rlen == SSH_ERROR) {
+			ws_warning("Error reading from channel");
+			return READ_PROMPT_ERROR;
+		} else if (rlen > 0) {
+			if (chr != '\n') {
+				line[*len] = chr;
+				(*len)++;
+			} else {
+				/* Parse the current line */
+				line[*len] = '\0';
+				return READ_PROMPT_EOLN;
+			}
+		} else {
+			gint64 cur_time = g_get_monotonic_time();
+
+			/* ssh timeout, we might be on prompt */
+			/* IOS, IOS-XE: check if line has same length as prompt and if it match prompt */
+			if ((*len == (guint32)prompt_len) && (0 == strncmp(line, prompt_str, prompt_len))) {
+				line[*len] = '\0';
+				return READ_PROMPT_PROMPT;
+			}
+			/* ASA: check if line begins with \r and has same length as prompt and if it match prompt */
+			if ((line[0] == '\r') && (*len == (guint32)prompt_len+1) && (0 == strncmp(line+1, prompt_str, prompt_len))) {
+				line[*len] = '\0';
+				return READ_PROMPT_PROMPT;
+			}
+			/* no prompt found, so we continue in waiting for data, but we should check global timeout */
+			if ((cur_time-start_time) > SSH_READ_TIMEOUT_USEC) {
+				line[*len] = '\0';
+				return READ_PROMPT_ERROR;
+			}
+		}
+	} while (!end_application && (*len < max_len));
+
+	line[*len] = '\0';
+	return READ_PROMPT_TOO_LONG;
+}
+
+static int ssh_channel_wait_prompt(ssh_channel channel, char *line, guint32 *len, guint32 max_len) {
+	char line2[SSH_READ_BLOCK_SIZE + 1];
+	guint32 len2;
+	int status;
+
+	memset(line2, 0x0, SSH_READ_BLOCK_SIZE + 1);
+	line[0] = '\0';
+	*len = 0;
+	do {
+		len2 = 0;
+		switch (status = ssh_channel_read_prompt(channel, line2, &len2, SSH_READ_BLOCK_SIZE)) {
+			case READ_PROMPT_EOLN:
+				*len = (guint32)g_strlcat(line, line2, max_len);
+				len2 = 0;
+				break;
+			case READ_PROMPT_PROMPT:
+				*len = (guint32)g_strlcat(line, line2, max_len);
+				len2 = 0;
+				break;
+			default:
+				/* We do not have better solution for that cases */
+				/* Just terminate the line and return error */
+				*len = (guint32)g_strlcat(line, line2, max_len);
+				line[max_len] = '\0';
+				return READ_PROMPT_ERROR;
+		}
+	} while (status == READ_PROMPT_EOLN);
+
+	return READ_PROMPT_PROMPT;
+}
+
+/* TRUE if prompt and no error text in response. FALSE otherwise */
+/* Note: It do not catch all CISCO CLI errors, but many of them */
+static gboolean ssh_channel_wait_prompt_check_error(ssh_channel channel, char *line, guint32 *len, guint32 max_len, char *error_re) {
+	/* Did we received prompt? */
+	if (ssh_channel_wait_prompt(channel, line, len, max_len) != READ_PROMPT_PROMPT) {
+		return FALSE;
+	}
+
+	/* Is there ERROR: text in output? */
+	if (NULL != g_strstr_len(line, -1, "ERROR:")) {
+		return FALSE;
+	}
+
+	/* Is there ERROR: text in output? */
+	if (NULL != g_strstr_len(line, -1, "% Invalid input detected at")) {
+		return FALSE;
+	}
+
+	/* Is there error_re text in output? */
+	if (error_re &&
+	    g_regex_match_simple(error_re, line, (GRegexCompileFlags) (G_REGEX_CASELESS | G_REGEX_RAW), 0)
+	   ) {
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+static void ciscodump_cleanup_ios(ssh_channel channel, const char* iface, const char* cfilter)
 {
+	char line[SSH_READ_BLOCK_SIZE + 1];
+	guint32 len;
+	int status;
+	gchar* iface_copy = g_strdup(iface);
+	gchar* iface_one;
+	gchar* str = NULL;
+	int wscp_cnt = 1;
+	gchar* wscp_str = NULL;
+
+	end_application = FALSE;
 	if (channel) {
+		ws_debug("Removing configuration...");
+
+		/* Empty line to see prompt as soon as possible */
+		ssh_channel_printf(channel, "\n", WIRESHARK_CAPTURE_POINT);
+
+		/* Discard any input including running packet dump */
+		len = 0;
+		do {
+			switch (status = ssh_channel_read_prompt(channel, line, &len, SSH_READ_BLOCK_SIZE)) {
+				case READ_PROMPT_EOLN:
+					len = 0;
+					break;
+				case READ_PROMPT_PROMPT:
+					break;
+				default:
+					/* We do not have better solution for that cases */
+					ws_warning("Timeout or response was too long\n");
+					break;
+			}
+		} while (status == READ_PROMPT_EOLN);
+
+		wscp_cnt = 1;
+		for (str = iface_copy; ; str = NULL) {
+			iface_one = strtok(str, ",");
+			if (iface_one == NULL)
+				break;
+
+			wscp_str = g_strdup_printf("%s_%d", WIRESHARK_CAPTURE_POINT, wscp_cnt);
+			wscp_cnt++;
+
+			ssh_channel_printf(channel, "monitor capture point stop %s\n", wscp_str);
+			ssh_channel_printf(channel, "no monitor capture point ip cef %s %s\n", wscp_str, iface_one);
+
+			g_free(wscp_str);
+			wscp_str = NULL;
+		}
+
+		ssh_channel_printf(channel, "no monitor capture buffer %s\n", WIRESHARK_CAPTURE_BUFFER);
+		if (cfilter) {
+			ssh_channel_printf(channel, "configure terminal\n");
+			ssh_channel_printf(channel, "no ip access-list ex %s\n", WIRESHARK_CAPTURE_ACCESSLIST);
+		}
+
+		ws_debug("Configuration removed");
+	}
+
+	g_free(iface_copy);
+}
+
+static void ciscodump_cleanup_ios_xe(ssh_channel channel, const char* cfilter)
+{
+	char line[SSH_READ_BLOCK_SIZE + 1];
+	guint32 len;
+	int status;
+
+	if (channel) {
+		ws_debug("Removing configuration...");
+
+		/* Empty line to see prompt as soon as possible */
+		ssh_channel_printf(channel, "\n", WIRESHARK_CAPTURE_POINT);
+
+		/* Discard any input including running packet dump */
+		len = 0;
+		do {
+			switch (status = ssh_channel_read_prompt(channel, line, &len, SSH_READ_BLOCK_SIZE)) {
+				case READ_PROMPT_EOLN:
+					len = 0;
+					break;
+				case READ_PROMPT_PROMPT:
+					break;
+				default:
+					/* We do not have better solution for that cases */
+					ws_warning("Timeout or response was too long\n");
+					break;
+			}
+		} while (status == READ_PROMPT_EOLN);
+
 		if (read_output_bytes(channel, -1, NULL) == EXIT_SUCCESS) {
-			ssh_channel_printf(channel, "monitor capture point stop %s\n", WIRESHARK_CAPTURE_POINT);
-			ssh_channel_printf(channel, "no monitor capture point ip cef %s %s\n", WIRESHARK_CAPTURE_POINT, iface);
-			ssh_channel_printf(channel, "no monitor capture buffer %s\n", WIRESHARK_CAPTURE_BUFFER);
+			ssh_channel_printf(channel, "monitor capture %s stop\n", WIRESHARK_CAPTURE);
+			ssh_channel_printf(channel, "no monitor capture %s\n", WIRESHARK_CAPTURE);
 			if (cfilter) {
 				ssh_channel_printf(channel, "configure terminal\n");
-				ssh_channel_printf(channel, "no ip access-list ex %s\n", WIRESHARK_CAPTURE_ACCESSLIST);
+				ssh_channel_printf(channel, "no ip access-list extended %s\n", WIRESHARK_CAPTURE_ACCESSLIST);
+				ssh_channel_printf(channel, "\nend\n");
 			}
-			read_output_bytes(channel, -1, NULL);
 		}
+
+		ws_debug("Configuration removed");
 	}
+}
+
+static void ciscodump_cleanup_asa(ssh_channel channel, const char* cfilter)
+{
+	if (channel) {
+		ws_debug("Removing configuration...");
+
+		if (read_output_bytes(channel, -1, NULL) == EXIT_SUCCESS) {
+			ssh_channel_printf(channel, "no capture %s\n", WIRESHARK_CAPTURE);
+			if (cfilter) {
+				ssh_channel_printf(channel, "configure terminal\n");
+				ssh_channel_printf(channel, "clear configure access-list %s\n", WIRESHARK_CAPTURE_ACCESSLIST);
+				ssh_channel_printf(channel, "\nend\n", WIRESHARK_CAPTURE_ACCESSLIST);
+			}
+		}
+
+		ws_debug("Configuration removed");
+	}
+}
+
+static void ciscodump_cleanup(ssh_session sshs, ssh_channel channel, const char* iface, const char* cfilter, CISCO_SW_TYPE sw_type)
+{
+	switch (sw_type) {
+		case CISCO_IOS:
+			ciscodump_cleanup_ios(channel, iface, cfilter);
+			break;
+		case CISCO_IOS_XE:
+			ciscodump_cleanup_ios_xe(channel, cfilter);
+			break;
+		case CISCO_ASA:
+			ciscodump_cleanup_asa(channel, cfilter);
+			break;
+		case CISCO_UNKNOWN:
+			break;
+	}
+	read_output_bytes_any(channel, -1, NULL);
 	ssh_cleanup(&sshs, &channel);
 }
 
-static int wait_until_data(ssh_channel channel, const guint32 count)
-{
-	long unsigned got = 0;
-	char output[SSH_READ_BLOCK_SIZE];
-	char* output_ptr;
-	guint rounds = 100;
+static void packets_captured_count_ios(char *line, guint32 *max, gboolean *running) {
+	char** part;
 
-	while (got < count && rounds--) {
-		if (ssh_channel_printf(channel, "show monitor capture buffer %s parameters\n", WIRESHARK_CAPTURE_BUFFER) == EXIT_FAILURE) {
-			ws_warning("Can't write to channel");
-			return EXIT_FAILURE;
-		}
-		if (read_output_bytes(channel, SSH_READ_BLOCK_SIZE, output) == EXIT_FAILURE)
-			return EXIT_FAILURE;
+	*max = 0;
 
-		output_ptr = g_strstr_len(output, strlen(output), "Packets");
-		if (!output_ptr) {
-			ws_warning("Error in sscanf()");
-			return EXIT_FAILURE;
-		} else {
-			if (sscanf(output_ptr, "Packets : %lu", &got) != 1)
-				return EXIT_FAILURE;
+	ws_debug("Analyzing response: %s", line);
+
+	/* Read count of packets */
+	part = g_regex_split_simple(
+		"Packets :\\s*(\\d+)",
+		line, G_REGEX_CASELESS, 0);
+	if (*part && *(part+1)) {
+		/* RE matched */
+		if (strlen(*(part+1)) > 0) {
+			ws_strtou32(*(part+1), NULL, max);
 		}
 	}
-	ws_debug("All packets got: dumping");
-	return EXIT_SUCCESS;
+	g_strfreev(part);
+
+	*running = FALSE;
+	if (g_regex_match_simple("Status : Active", line, (GRegexCompileFlags) (G_REGEX_CASELESS | G_REGEX_RAW), 0)) {
+		*running = TRUE;
+	}
+	ws_debug("Count of packets: %d", *max);
+	ws_debug("Capture is running: %d", *running);
 }
 
-static int parse_line(guint8* packet, unsigned* offset, char* line, int status)
+static void packets_captured_count_ios_xe(char *line, guint32 *max, gboolean *running) {
+	char** part;
+
+	*max = 0;
+
+	ws_debug("Analyzing response: %s", line);
+
+	part = g_regex_split_simple(
+		"packets in buf\\s+:\\s+(\\d+)",
+		line, G_REGEX_CASELESS, 0);
+	if (*part && *(part+1)) {
+		/* RE matched */
+		if (strlen(*(part+1)) > 0) {
+			ws_strtou32(*(part+1), NULL, max);
+		}
+	}
+	g_strfreev(part);
+
+	*running = FALSE;
+	/* Check if capture is running */
+	if (g_regex_match_simple("Status : Active", line, (GRegexCompileFlags) (G_REGEX_CASELESS | G_REGEX_RAW), 0)) {
+		*running = TRUE;
+	}
+	ws_debug("Count of packets: %d", *max);
+	ws_debug("Capture is running: %d", *running);
+}
+
+static void packets_captured_count_asa(char *line, guint32 *max, gboolean *running) {
+	char** part;
+
+	*max = 0;
+
+	ws_debug("Analyzing response: %s", line);
+
+	/* Read count of packets */
+	part = g_regex_split_simple(
+		"(\\d+) packets captured",
+		line, G_REGEX_CASELESS, 0);
+	if (*part && *(part+1)) {
+		/* RE matched */
+		if (strlen(*(part+1)) > 0) {
+			ws_strtou32(*(part+1), NULL, max);
+		}
+	}
+	g_strfreev(part);
+
+        if (running != NULL) {
+		*running = FALSE;
+		/* Check if capture is running */
+		if (g_regex_match_simple("\\[Capturing -", line, (GRegexCompileFlags) (G_REGEX_CASELESS | G_REGEX_RAW), 0)) {
+			*running = TRUE;
+		}
+		ws_debug("Capture is running: %d", *running);
+	}
+	ws_debug("Count of packets: %d", *max);
+}
+
+static int parse_line_ios(guint8* packet, unsigned* offset, char* line, int status, time_t *pkt_time, guint32 *pkt_usec)
 {
 	char** parts;
 	char** part;
@@ -192,12 +622,67 @@ static int parse_line(guint8* packet, unsigned* offset, char* line, int status)
 			return status;
 	}
 
+/*
+22:45:44.700 UTC Nov 27 2021 : IPv4 LES CEF    : Fa4.320 None
+
+0F1A2C00:                   B0FAEBC7 A8620050          0zkG(b.P
+0F1A2C10: 568494FB 08004588 004EF201 40003F11  V..{..E..Nr.@.?.
+0F1A2C20: 5263AC10 1F60AC10 7F31D0DF 00A1003A  Rc,..`,..1P_.!.:
+0F1A2C30: D1753030 02010104 07707269 76617465  Qu00.....private
+0F1A2C40: A0220204 1A00A2E8 02010002 01003014   "...."h......0.
+0F1A2C50: 3012060E 2B060104 0182CB21 01040103  0...+.....K!....
+0F1A2C60: 06000500 00                          .....
+
+22:45:44.700 UTC Nov 27 2021 : IPv4 LES CEF    : Fa4.320 None
+
+0F1A2C00:                   B0FAEBC7 A8620050          0zkG(b.P
+0F1A2C10: 568494FB 08004588 004E7FFB 40003F11  V..{..E..N.{@.?.
+0F1A2C20: EB72AC10 1F60AC10 5828E872 00A1003A  kr,..`,.X(hr.!.:
+0F1A2C30: 2B393030 02010104 07707269 76617465  +900.....private
+0F1A2C40: A0220204 07836B18 02010002 01003014   "....k.......0.
+0F1A2C50: 3012060E 2B060104 0182CB21 01040103  0...+.....K!....
+0F1A2C60: 06000500 00                          .....
+*/
+
 	/* we got the packet header                                    */
 	/* The packet header is a line like:                           */
 	/* 16:09:37.171 ITA Mar 18 2016 : IPv4 LES CEF    : Gi0/1 None */
-	if (g_regex_match_simple("^\\d{2}:\\d{2}:\\d{2}.\\d+ .*", line, (GRegexCompileFlags) (G_REGEX_CASELESS | G_REGEX_RAW), G_REGEX_MATCH_ANCHORED)) {
+	parts = g_regex_split_simple(
+		"^(\\d{2}:\\d{2}:\\d{2}).(\\d+) (\\w+) (\\w+ \\d+ \\d+) :",
+		line, G_REGEX_CASELESS, 0);
+	if (parts && *(parts+1)) {
+		/* RE matched */
+		gchar* cp;
+		struct tm tm;
+		/* Date without msec, with timezone */
+		gchar* d1 = g_strdup_printf("%s %s %s", *(parts+1), *(parts+3), *(parts+4));
+		/* Date without msec, without timezone */
+		gchar* d2 = g_strdup_printf("%s %s", *(parts+1), *(parts+4));
+
+		memset(&tm, 0x0, sizeof(struct tm));
+
+		cp = strptime(d1, "%H:%M:%S %Z %b %d %Y", &tm);
+		if (*cp != '\0') {
+			/* Time zone parse failed */
+			cp = strptime(d2, "%H:%M:%S %b %d %Y", &tm);
+			if (*cp != '\0') {
+				/* Time parse failed, use now */
+				time_t t;
+				struct tm *tm2;
+
+				t = time(0);
+				tm2 = localtime(&t);
+				memcpy(&tm, tm2, sizeof(struct tm));
+			}
+		}
+		ws_strtou32(*(parts+2), NULL, pkt_usec);
+		*pkt_usec *= 1000;
+		*pkt_time = mktime(&tm);
+
+		g_strfreev(parts);
 		return CISCODUMP_PARSER_IN_HEADER;
 	}
+	g_strfreev(parts);
 
 	/* we got a line of the packet                                                          */
 	/* A line looks like                                                                    */
@@ -206,115 +691,1122 @@ static int parse_line(guint8* packet, unsigned* offset, char* line, int status)
 	/* Note that any of the 4 groups are optional and that a group can be 1 to 4 bytes long */
 	parts = g_regex_split_simple(
 		"^[\\dA-F]{8,8}:\\s+([\\dA-F]{2,8})\\s+([\\dA-F]{2,8}){0,1}\\s+([\\dA-F]{2,8}){0,1}\\s+([\\dA-F]{2,8}){0,1}.*",
-		line, G_REGEX_CASELESS, G_REGEX_MATCH_ANCHORED);
+		line, G_REGEX_CASELESS, 0);
 
 	part = parts;
-	while(*part) {
-		if (strlen(*part) > 1) {
-			value = (guint32)strtoul(*part, NULL, 16);
-			value = ntohl(value);
-			size = strlen(*part) / 2;
-			memcpy(packet + *offset, &value, size);
-			*offset += (guint32)size;
-		}
+	if (*part && *(part+1)) {
+		/* There is at least one match. Skip first string */
 		part++;
+		while(*part) {
+			/* RE matched */
+			if (strlen(*part) > 1) {
+				ws_hexstrtou32(*part, NULL, &value);
+				value = g_ntohl(value);
+				size = strlen(*part) / 2;
+				memcpy(packet + *offset, &value, size);
+				*offset += (guint32)size;
+			}
+			part++;
+		}
 	}
 	g_strfreev(parts);
 	return CISCODUMP_PARSER_IN_PACKET;
 }
 
-static void ssh_loop_read(ssh_channel channel, FILE* fp, const guint32 count)
+static int parse_line_ios_xe(guint8* packet, unsigned* offset, char* line)
 {
-	char line[SSH_READ_BLOCK_SIZE];
-	char chr;
-	unsigned offset = 0;
-	unsigned packet_size = 0;
-	guint8* packet;
-	gint64 curtime = g_get_real_time();
-	int err;
-	guint64 bytes_written;
-	long unsigned packets = 0;
+	char** parts;
+	char** part;
+	guint32 value;
+	size_t size;
+
+	if (strlen(line) <= 1) {
+		return CISCODUMP_PARSER_END_PACKET;
+	}
+
+	/*
+0
+  0000:  00000C07 AC154C5D 3C259068 08004500   ......L]<%.h..E.
+  0010:  00547549 40003F01 B582C0A8 4983C0A8   .TuI@.?.....I...
+  0020:  46090800 B28E456E 00030000 00000000   F.....En........
+  0030:  00000000 00000000 00000000 00000000   ................
+  0040:  00000000 00000000 00000000 00000000   ................
+  0050:  00000000 00000000 00000000 00000000   ................
+  0060:  0000                                  ..
+
+1
+  0000:  4C5D3C25 9068A49B CD904C74 08004500   L]<%.h....Lt..E.
+  0010:  00547549 4000FF01 F581C0A8 4609C0A8   .TuI@.......F...
+  0020:  49830000 BA8E456E 00030000 00000000   I.....En........
+  0030:  00000000 00000000 00000000 00000000   ................
+  0040:  00000000 00000000 00000000 00000000   ................
+  0050:  00000000 00000000 00000000 00000000   ................
+  0060:  0000                                  ..
+*/
+
+	/* we got the packet header                                    */
+	/*0*/
+	if (g_regex_match_simple("^\\d+$", line, (GRegexCompileFlags) (G_REGEX_CASELESS | G_REGEX_RAW), 0)) {
+		return CISCODUMP_PARSER_IN_HEADER;
+	}
+
+	/* we got a line of the packet                                                          */
+	/* A line looks like                                                                    */
+	/*   0000:  00000C07 AC154C5D 3C259068 08004500   ......L]<%.h..E.                      */
+	/*   ...                                                                                */
+	/*   0060:  0000                                  ..                                    */
+	/* Note that any of the 4 groups are optional and that a group can be 1 to 8 bytes long */
+	parts = g_regex_split_simple(
+		"^\\s+[0-9A-F]{4,4}:  ([0-9A-F]{2,8}) ([0-9A-F]{2,8}){0,1} ([0-9A-F]{2,8}){0,1} ([0-9A-F]{2,8}){0,1}\\s+.*",
+		line, G_REGEX_CASELESS, 0);
+
+	part = parts;
+	if (*part && *(part+1)) {
+		/* There is at least one match. Skip first string */
+		part++;
+		while(*part) {
+			if (strlen(*part) > 1) {
+				ws_hexstrtou32(*part, NULL, &value);
+				value = g_ntohl(value);
+				size = strlen(*part) / 2;
+				memcpy(packet + *offset, &value, size);
+				*offset += (guint32)size;
+			}
+			part++;
+		}
+	}
+	g_strfreev(parts);
+
+	return CISCODUMP_PARSER_IN_PACKET;
+}
+
+static int parse_line_asa(guint8* packet, unsigned* offset, char* line, guint32 *current_max, time_t *pkt_time, guint32 *pkt_usec)
+{
+	char** parts;
+	char** part;
+	guint16 value;
+	size_t size;
+	guint32 new_max;
+
+	if (strlen(line) <= 1) {
+		return CISCODUMP_PARSER_UNKNOWN;
+	}
+
+	/*
+4599 packets captured
+
+   1: 20:40:01.108469       10.124.255.212 > 10.124.255.5 icmp: echo request
+0x0000 a453 0ef3 7fc0 74ad 98e5 0004 0800 4500 .S....t.......E.
+0x0010 0054 dc73 4000 4001 4a63 0a7c ffd4 0a7c .T.s@.@.Jc.|...|
+0x0020 ff05 0800 275b d0a4 0000 0000 0000 0000 ....'[..........
+0x0030 0000 0000 0000 0000 0000 0000 0000 0000 ................
+0x0040 0000 0000 0000 0000 0000 0000 0000 0000 ................
+0x0050 0000 0000 0000 0000 0000 0000 0000 0000 ................
+0x0060 0000                                    ..
+1 packet shown
+*/
+
+	/* Update count of available packets */
+	/* 4599 packets captured */
+	packets_captured_count_asa(line, &new_max, NULL);
+	if (new_max > 0) {
+		*current_max = new_max;
+		return CISCODUMP_PARSER_IN_HEADER;
+	}
+
+	/* we got the packet header                                    */
+	/*   1: 20:40:01.108469       10.124.255.212 > 10.124.255.5 icmp: echo request */
+	parts = g_regex_split_simple("^\\s*\\d+:\\s+(\\d+):(\\d+):(\\d+)\\.(\\d+)\\s+", line, (GRegexCompileFlags) (G_REGEX_CASELESS | G_REGEX_RAW), 0);
+	if (parts && *(parts+1)) {
+		/* RE matched */
+		struct tm *tm;
+		time_t t;
+
+		t = time(0);
+		tm = localtime(&t);
+		ws_strtoi32(*(parts+1), NULL, &(tm->tm_hour));
+		ws_strtoi32(*(parts+2), NULL, &(tm->tm_min));
+		ws_strtoi32(*(parts+3), NULL, &(tm->tm_sec));
+		ws_strtou32(*(parts+4), NULL, pkt_usec);
+		*pkt_time = mktime(tm);
+
+		g_strfreev(parts);
+		return CISCODUMP_PARSER_IN_HEADER;
+	}
+	g_strfreev(parts);
+
+	/* we got the packet tail */
+	/* 1 packet shown         */
+	if (g_regex_match_simple("^\\s*1 packet shown.*$", line, (GRegexCompileFlags) (G_REGEX_CASELESS | G_REGEX_RAW), 0)) {
+		return CISCODUMP_PARSER_END_PACKET;
+	}
+
+	/* we got a line of the packet                                                          */
+	/* A line looks like                                                                    */
+	/* 0x<address>: <1st group> <...> <8th group> <5th group> <ascii representation>        */
+	/* 0x0000 a453 0ef3 7fc0 74ad 98e5 0004 0800 4500 -.S....t.......E.                     */
+	/* 0x0060 0000                                    ..                                    */
+	/* Note that any of the 8 groups are optional and that a group can be 1 to 8 bytes long */
+	parts = g_regex_split_simple(
+		"^0x[0-9A-F]{4,4}\\s+([0-9A-F]{2,4}) ([0-9A-F]{2,4}){0,1} ([0-9A-F]{2,4}){0,1} ([0-9A-F]{2,4}){0,1} ([0-9A-F]{2,4}){0,1} ([0-9A-F]{2,4}){0,1} ([0-9A-F]{2,4}){0,1} ([0-9A-F]{2,4}){0,1}\\s+.*",
+		line, G_REGEX_CASELESS, 0);
+
+	part = parts;
+	if (*part && *(part+1)) {
+		/* There is at least one match. Skip first string */
+		part++;
+		while(*part) {
+			if (strlen(*part) > 1) {
+				ws_hexstrtou16(*part, NULL, &value);
+				value = g_ntohs(value);
+				size = strlen(*part) / 2;
+				memcpy(packet + *offset, &value, size);
+				*offset += (guint32)size;
+			}
+			part++;
+		}
+	}
+	g_strfreev(parts);
+
+	return CISCODUMP_PARSER_IN_PACKET;
+}
+
+/* IOS: Reads response and parses buffer till prompt received */
+static int process_buffer_response_ios(ssh_channel channel, guint8* packet, FILE* fp, const guint32 count, guint32 *processed_packets)
+{
+	char line[SSH_READ_BLOCK_SIZE + 1];
+	guint32 read_packets = 1;
 	int status = CISCODUMP_PARSER_STARTING;
+	int loop_end = 0;
+	unsigned packet_size = 0;
+	time_t pkt_time = 0;
+	guint32 pkt_usec = 0;
+	guint32 len = 0;
+
+	/* Process response */
+	do {
+
+		loop_end = 0;
+		/* Read input till EOLN or prompt */
+		switch (ssh_channel_read_prompt(channel, line, &len, SSH_READ_BLOCK_SIZE)) {
+			case READ_PROMPT_EOLN:
+				status = parse_line_ios(packet, &packet_size, line, status, &pkt_time, &pkt_usec);
+
+				if (status == CISCODUMP_PARSER_END_PACKET) {
+					ws_debug("Read packet %d\n", read_packets);
+					if (read_packets > *processed_packets) {
+						int err;
+						guint64 bytes_written;
+
+						ws_debug("Exporting packet %d\n", *processed_packets);
+						/*  dump the packet to the pcap file */
+						if (!libpcap_write_packet(fp,
+								pkt_time, pkt_usec,
+								packet_size, packet_size, packet, &bytes_written, &err)) {
+							ws_debug("Error in libpcap_write_packet(): %s", g_strerror(err));
+							break;
+						}
+						fflush(fp);
+						ws_debug("Dumped packet %u size: %u\n", *processed_packets, packet_size);
+						(*processed_packets)++;
+					}
+					packet_size = 0;
+					read_packets++;
+				}
+				break;
+			case READ_PROMPT_PROMPT:
+				loop_end = 1;
+				break;
+			default:
+				/* We do not have better solution for that cases */
+				ws_warning("Timeout or response was too long\n");
+				return FALSE;
+		}
+		len = 0;
+	} while ((!end_application) && (!loop_end) && (*processed_packets < count));
+
+	return TRUE;
+}
+
+/* IOS: Queries buffer content and reads it */
+static void ssh_loop_read_ios(ssh_channel channel, FILE* fp, const guint32 count)
+{
+	char line[SSH_READ_BLOCK_SIZE + 1];
+	guint8* packet;
+	guint32 processed_packets = 0;
+	gboolean running = TRUE;
+	guint32 current_max = 0;
+	guint32 new_max;
 
 	/* This is big enough to put on the heap */
 	packet = (guint8*)g_malloc(PACKET_MAX_SIZE);
 
 	do {
-		if (ssh_channel_read_timeout(channel, &chr, 1, FALSE, SSH_READ_TIMEOUT) == SSH_ERROR) {
-			ws_warning("Error reading from channel");
+		guint32 len = 0;
+
+		/* Query count of available packets in buffer */
+		if (ssh_channel_printf(channel, "show monitor capture buffer %s parameters\n", WIRESHARK_CAPTURE_BUFFER) == EXIT_FAILURE) {
+			g_free(packet);
+			return;
+		}
+		if (!ssh_channel_wait_prompt_check_error(channel, line, &len, SSH_READ_BLOCK_SIZE, NULL)) {
+			g_free(packet);
+			return;
+		}
+		ws_debug("Read: %s", line);
+		packets_captured_count_ios(line, &new_max, &running);
+		if (new_max == current_max) {
+			/* There is no change in count of available packets, repeat the loop */
+			continue;
+		} else if (new_max < current_max) {
+			/* Buffer was cleared, stop */
+			g_free(packet);
+			return;
+		}
+		current_max = new_max;
+		ws_debug("New packet count %d\n", current_max);
+
+		/* Dump buffer */
+		if (ssh_channel_printf(channel, "show monitor capture buffer %s dump\n", WIRESHARK_CAPTURE_BUFFER) == EXIT_FAILURE) {
 			g_free(packet);
 			return;
 		}
 
-		if (chr != '\n') {
-			line[offset] = chr;
-			offset++;
-		} else {
-			/* Parse the current line */
-			line[offset] = '\0';
-			status = parse_line(packet, &packet_size, line, status);
-
-			if (status == CISCODUMP_PARSER_END_PACKET) {
-				/* dump the packet to the pcap file */
-				if (!libpcap_write_packet(fp,
-						(guint32)(curtime / G_USEC_PER_SEC), (guint32)(curtime % G_USEC_PER_SEC),
-						packet_size, packet_size, packet, &bytes_written, &err)) {
-					ws_debug("Error in libpcap_write_packet(): %s", g_strerror(err));
-					break;
-				}
-				ws_debug("Dumped packet %lu size: %u", packets, packet_size);
-				packet_size = 0;
-				status = CISCODUMP_PARSER_STARTING;
-				packets++;
-			}
-			offset = 0;
+		/* Process buffer */
+		if (!process_buffer_response_ios(channel, packet, fp, count, &processed_packets)) {
+			g_free(packet);
+			return;
 		}
-
-	} while(packets < count);
+	} while (!end_application && running && (processed_packets < count));
 
 	g_free(packet);
+
+	/* Discard any subsequent messages */
+	read_output_bytes_any(channel, -1, NULL);
 }
 
-static int check_ios_version(ssh_channel channel)
+/* IOS-XE: Reads response and parses buffer till prompt received */
+static int process_buffer_response_ios_xe(ssh_channel channel, guint8* packet, FILE* fp, const guint32 count, guint32 *processed_packets)
 {
-	gchar* cmdline = "show version | include Cisco IOS\n";
-	gchar version[255];
-	guint major = 0;
-	guint minor = 0;
-	gchar* cur;
+	char line[SSH_READ_BLOCK_SIZE + 1];
+	guint32 read_packets = 1;
+	int status = CISCODUMP_PARSER_STARTING;
+	int loop_end = 0;
+	unsigned packet_size = 0;
+	guint32 len = 0;
 
-	memset(version, 0x0, 255);
+	/* Process response */
+	do {
+		loop_end = 0;
+		/* Read input till EOLN or prompt */
+		switch (ssh_channel_read_prompt(channel, line, &len, SSH_READ_BLOCK_SIZE)) {
+			case READ_PROMPT_EOLN:
+				status = parse_line_ios_xe(packet, &packet_size, line);
 
-	if (ssh_channel_write(channel, cmdline, (guint32)strlen(cmdline)) == SSH_ERROR)
-		return FALSE;
-	if (read_output_bytes(channel, (int)strlen(cmdline), NULL) == EXIT_FAILURE)
-		return FALSE;
-	if (read_output_bytes(channel, 255, version) == EXIT_FAILURE)
-		return FALSE;
+				if (status == CISCODUMP_PARSER_END_PACKET) {
+					ws_debug("Read packet %d\n", read_packets);
+					if (read_packets > *processed_packets) {
+						int err;
+						gint64 cur_time = g_get_real_time();
+						guint64 bytes_written;
 
-	cur = g_strstr_len(version, strlen(version), "Version");
-	if (cur) {
-		cur += strlen("Version ");
-		if (sscanf(cur, "%u.%u", &major, &minor) != 2)
-			return FALSE;
-
-		if ((major > MINIMUM_IOS_MAJOR) || (major == MINIMUM_IOS_MAJOR && minor >= MINIMUM_IOS_MINOR)) {
-			ws_debug("Current IOS Version: %u.%u", major, minor);
-			if (read_output_bytes(channel, -1, NULL) == EXIT_FAILURE)
+						ws_debug("Exporting packet %d\n", *processed_packets);
+						/*  dump the packet to the pcap file */
+						if (!libpcap_write_packet(fp,
+								(guint32)(cur_time / G_USEC_PER_SEC), (guint32)(cur_time % G_USEC_PER_SEC),
+								packet_size, packet_size, packet, &bytes_written, &err)) {
+							ws_debug("Error in libpcap_write_packet(): %s", g_strerror(err));
+							break;
+						}
+						fflush(fp);
+						ws_debug("Dumped packet %u size: %u\n", *processed_packets, packet_size);
+						(*processed_packets)++;
+					}
+					packet_size = 0;
+					read_packets++;
+				}
+				break;
+			case READ_PROMPT_PROMPT:
+				loop_end = 1;
+				break;
+			default:
+				/* We do not have better solution for that cases */
+				ws_warning("Timeout or response was too long\n");
 				return FALSE;
+		}
+		len = 0;
+	} while ((!end_application) && (!loop_end) && (*processed_packets < count));
+
+	return TRUE;
+}
+
+/* IOS-XE: Queries buffer content and reads it */
+static void ssh_loop_read_ios_xe(ssh_channel channel, FILE* fp, const guint32 count)
+{
+	char line[SSH_READ_BLOCK_SIZE + 1];
+	guint8* packet;
+	guint32 processed_packets = 0;
+	gboolean running = TRUE;
+	guint32 current_max = 0;
+	guint32 new_max;
+
+	/* This is big enough to put on the heap */
+	packet = (guint8*)g_malloc(PACKET_MAX_SIZE);
+
+	do {
+		guint32 len = 0;
+
+		/* Query count of available packets in buffer */
+		if (ssh_channel_printf(channel, "show monitor capture %s buffer | inc packets in buf\nshow monitor capture %s | inc Status :\n", WIRESHARK_CAPTURE, WIRESHARK_CAPTURE) == EXIT_FAILURE) {
+			g_free(packet);
+			return;
+		}
+		if (!ssh_channel_wait_prompt_check_error(channel, line, &len, SSH_READ_BLOCK_SIZE, NULL)) {
+			g_free(packet);
+			return;
+		}
+		ws_debug("Read: %s", line);
+		packets_captured_count_ios_xe(line, &new_max, &running);
+		if (new_max == current_max) {
+			/* There is no change in count of available packets, repeat the loop */
+			continue;
+		} else if (new_max < current_max) {
+			/* Buffer was cleared, stop */
+			g_free(packet);
+			return;
+		}
+		current_max = new_max;
+		ws_debug("New packet count %d\n", current_max);
+
+		/* Dump buffer */
+		if (ssh_channel_printf(channel, "show monitor capture %s buffer dump\n", WIRESHARK_CAPTURE) == EXIT_FAILURE) {
+			g_free(packet);
+			return;
+		}
+
+		/* Process buffer */
+		if (!process_buffer_response_ios_xe(channel, packet, fp, count, &processed_packets)) {
+			g_free(packet);
+			return;
+		}
+	} while (!end_application && running && (processed_packets < count));
+
+	g_free(packet);
+
+	/* Discard any subsequent messages */
+	read_output_bytes_any(channel, -1, NULL);
+}
+
+/* ASA: Reads response and parses buffer till prompt end of packet received */
+static int process_buffer_response_asa(ssh_channel channel, guint8* packet, FILE* fp, const guint32 count, guint32 *processed_packets, guint32 *current_max)
+{
+	char line[SSH_READ_BLOCK_SIZE + 1];
+	guint32 read_packets = 1;
+	int status = CISCODUMP_PARSER_STARTING;
+	int loop_end = 0;
+	unsigned packet_size = 0;
+
+	do {
+		time_t pkt_time = 0;
+		guint32 pkt_usec = 0;
+		guint32 len = 0;
+
+		/* Dump buffer */
+		if (ssh_channel_printf(channel, "show cap %s packet-number %ld dump\n", WIRESHARK_CAPTURE, (*processed_packets)+1) == EXIT_FAILURE) {
+			return FALSE;
+		}
+
+		/* Process response */
+		do {
+			loop_end = 0;
+			/* Read input till EOLN or prompt */
+			switch (ssh_channel_read_prompt(channel, line, &len, SSH_READ_BLOCK_SIZE)) {
+				case READ_PROMPT_EOLN:
+					status = parse_line_asa(packet, &packet_size, line, current_max, &pkt_time, &pkt_usec);
+
+					if (status == CISCODUMP_PARSER_END_PACKET) {
+						ws_debug("Read packet %d\n", read_packets);
+						int err;
+						guint64 bytes_written;
+
+						ws_debug("Exporting packet %d\n", *processed_packets);
+						/*  dump the packet to the pcap file */
+						if (!libpcap_write_packet(fp,
+								pkt_time, pkt_usec,
+								packet_size, packet_size, packet, &bytes_written, &err)) {
+							ws_debug("Error in libpcap_write_packet(): %s", g_strerror(err));
+							break;
+						}
+						fflush(fp);
+						ws_debug("Dumped packet %u size: %u\n", *processed_packets, packet_size);
+						(*processed_packets)++;
+						packet_size = 0;
+						read_packets++;
+						loop_end = 1;
+					}
+					break;
+				case READ_PROMPT_PROMPT:
+					loop_end = 1;
+					break;
+				default:
+					/* We do not have better solution for that cases */
+					ws_warning("Timeout or response was too long\n");
+					return FALSE;
+			}
+			len = 0;
+		} while (!end_application && !loop_end);
+	} while (!end_application && (*processed_packets < *current_max) && ((*processed_packets < count)));
+
+	return TRUE;
+}
+
+/* ASA: Queries buffer content and reads it */
+static void ssh_loop_read_asa(ssh_channel channel, FILE* fp, const guint32 count)
+{
+	char line[SSH_READ_BLOCK_SIZE + 1];
+	guint8* packet;
+	guint32 processed_packets = 0;
+	guint32 current_max = 0;
+	gboolean running = TRUE;
+	guint32 new_max;
+
+	/* This is big enough to put on the heap */
+	packet = (guint8*)g_malloc(PACKET_MAX_SIZE);
+
+	do {
+		guint32 len = 0;
+
+		/* Query count of available packets in buffer */
+		if (ssh_channel_printf(channel, "show cap %s packet-number 0 | inc packets captured\nshow cap | inc %s\n", WIRESHARK_CAPTURE, WIRESHARK_CAPTURE) == EXIT_FAILURE) {
+			g_free(packet);
+			return;
+		}
+		if (!ssh_channel_wait_prompt_check_error(channel, line, &len, SSH_READ_BLOCK_SIZE, NULL)) {
+			g_free(packet);
+			return;
+		}
+		ws_debug("Read: %s", line);
+		packets_captured_count_asa(line, &new_max, &running);
+		if (new_max == current_max) {
+			/* There is no change in count of available packets, repeat the loop */
+			continue;
+		} else if (new_max < current_max) {
+			/* Buffer was cleared, stop */
+			g_free(packet);
+			return;
+		}
+		current_max = new_max;
+		ws_debug("New packet count %d\n", current_max);
+
+		/* Process buffer */
+		if (!process_buffer_response_asa(channel, packet, fp, count, &processed_packets, &current_max)) {
+			g_free(packet);
+			return;
+		}
+	} while (!end_application && running && (processed_packets < count));
+
+	g_free(packet);
+
+	/* Discard any subsequent messages */
+	read_output_bytes_any(channel, -1, NULL);
+}
+
+
+static void ssh_loop_read(ssh_channel channel, FILE* fp, const guint32 count _U_, CISCO_SW_TYPE sw_type)
+{
+	switch (sw_type) {
+		case CISCO_IOS:
+			ssh_loop_read_ios(channel, fp, count);
+			break;
+		case CISCO_IOS_XE:
+			ssh_loop_read_ios_xe(channel, fp, count);
+			break;
+		case CISCO_ASA:
+			ssh_loop_read_asa(channel, fp, count);
+			break;
+		case CISCO_UNKNOWN:
+			break;
+	}
+}
+
+static int read_host_prompt(ssh_channel channel)
+{
+	char line[SSH_READ_BLOCK_SIZE + 1];
+	int len = 0;
+	char prompt_2[SSH_READ_BLOCK_SIZE + 1];
+
+	/* Discard any login message */
+	if (read_output_bytes(channel, -1, NULL) == EXIT_FAILURE)
+		return EXIT_FAILURE;
+
+	if (ssh_channel_printf(channel, "\n") == EXIT_FAILURE)
+		return EXIT_FAILURE;
+
+	/* Check if there is any response to empty line */
+	switch (ssh_channel_read_line_timeout(channel, line, &len, SSH_READ_BLOCK_SIZE)) {
+		case READ_LINE_EOLN:
+			break;
+		default:
+			return EXIT_FAILURE;
+	}
+
+	if (ssh_channel_printf(channel, "\n") == EXIT_FAILURE)
+		return EXIT_FAILURE;
+
+	/* Read prompt_str and level char */
+	switch (ssh_channel_read_line_timeout(channel, line, &len, SSH_READ_BLOCK_SIZE)) {
+		case READ_LINE_EOLN:
+			break;
+		default:
+			return EXIT_FAILURE;
+	}
+	if (len > 0) {
+		g_strlcpy(prompt_str, line, SSH_READ_BLOCK_SIZE + 1);
+
+		/* Is there hashtag at the end => enabled mode? */
+		if (prompt_str[strlen(prompt_str)-1] != '#') {
+			/* Is there hashtag and space (ASA) at the end => enabled mode? */
+			if ((prompt_str[strlen(prompt_str)-2] != '#') || (prompt_str[strlen(prompt_str)-1] != ' ')) {
+				return EXIT_FAILURE;
+			}
+		}
+		prompt_len = (gint32)strlen(prompt_str);
+	} else {
+		return EXIT_FAILURE;
+        }
+
+	if (ssh_channel_printf(channel, "\n") == EXIT_FAILURE)
+		return EXIT_FAILURE;
+
+	/* Read prompt_str and level char again */
+	switch (ssh_channel_read_line_timeout(channel, line, &len, SSH_READ_BLOCK_SIZE)) {
+		case READ_LINE_EOLN:
+			break;
+		default:
+			return EXIT_FAILURE;
+	}
+	if (len > 0) {
+		g_strlcpy(prompt_2, line, SSH_READ_BLOCK_SIZE + 1);
+		/* Does second prompt_str match first one? */
+		if (0 == g_strcmp0(prompt_str, prompt_2)) {
 			return TRUE;
 		}
 	}
 
-	ws_warning("Invalid IOS version. Minimum version: 12.4, current: %u.%u", major, minor);
+	return EXIT_FAILURE;
+}
+
+static int check_ios_version(ssh_channel channel, CISCO_SW_TYPE *sw_type)
+{
+	gchar* cmdline_version = "show version | include Version\n";
+	const gchar* msg_ios = "Cisco IOS Software";
+	const gchar* msg_ios_xe = "Cisco IOS XE Software";
+	const gchar* msg_asa = "Cisco Adaptive Security Appliance Software";
+	const gchar* msg_version = "Version ";
+	gchar version[255];
+	gint sw_major = 0;
+	gint sw_minor = 0;
+	gchar* cur;
+
+	memset(version, 0x0, 255);
+
+	/* Discard any login message */
+	if (read_output_bytes(channel, -1, NULL) == EXIT_FAILURE)
+		return FALSE;
+
+	if (ssh_channel_write(channel, cmdline_version, (guint32)strlen(cmdline_version)) == SSH_ERROR)
+		return FALSE;
+	if (read_output_bytes(channel, 255, version) == EXIT_FAILURE)
+		return FALSE;
+
+	/* Discard any subsequent text */
+	if (read_output_bytes(channel, -1, NULL) == EXIT_FAILURE)
+		return FALSE;
+
+	/* We should check IOS XE first as its version contains IOS string too */
+	cur = g_strstr_len(version, strlen(version), msg_ios_xe);
+	if (cur) {
+		*sw_type = CISCO_IOS_XE;
+		cur += strlen(msg_ios_xe);
+	} else {
+		cur = g_strstr_len(version, strlen(version), msg_ios);
+		if (cur) {
+			*sw_type = CISCO_IOS;
+			cur += strlen(msg_ios);
+		} else {
+			cur = g_strstr_len(version, strlen(version), msg_asa);
+			if (cur) {
+				*sw_type = CISCO_ASA;
+			cur += strlen(msg_asa);
+			}
+		}
+	}
+
+	if (*sw_type != CISCO_UNKNOWN) {
+		cur = g_strstr_len(cur, 255-strlen(cur), msg_version);
+		if (cur) {
+			cur += strlen(msg_version);
+			if (sscanf(cur, "%u.%u", &sw_major, &sw_minor) != 2)
+				return FALSE;
+
+			switch (*sw_type) {
+				case CISCO_IOS:
+					ws_debug("Current IOS version: %u.%u", sw_major, sw_minor);
+					if ((sw_major > MINIMUM_IOS_MAJOR) || (sw_major == MINIMUM_IOS_MAJOR && sw_minor >= MINIMUM_IOS_MINOR)) {
+						return TRUE;
+					}
+					break;
+				case CISCO_IOS_XE:
+					ws_debug("Current IOS XE version: %u.%u", sw_major, sw_minor);
+					if ((sw_major > MINIMUM_IOS_XE_MAJOR) || (sw_major == MINIMUM_IOS_XE_MAJOR && sw_minor >= MINIMUM_IOS_XE_MINOR)) {
+						return TRUE;
+					}
+					break;
+				case CISCO_ASA:
+					ws_debug("Current ASA version: %u.%u", sw_major, sw_minor);
+					if ((sw_major > MINIMUM_ASA_MAJOR) || (sw_major == MINIMUM_ASA_MAJOR && sw_minor >= MINIMUM_ASA_MINOR)) {
+						return TRUE;
+					}
+					break;
+				default:
+					return FALSE;
+			}
+			ws_warning("Recognized software type, but minimal version requirements were not met\n");
+			return FALSE;
+		} else {
+			ws_warning("Recognized software type %d, but unrecognized version\n", *sw_type);
+		}
+	} else {
+		ws_warning("Unrecognized type of control software.");
+	}
+
 	return FALSE;
 }
 
-static ssh_channel run_capture(ssh_session sshs, const char* iface, const char* cfilter, const guint32 count)
+static ssh_channel run_capture_ios(ssh_channel channel, const char* iface, const char* cfilter, const guint32 count)
 {
 	char* cmdline = NULL;
-	ssh_channel channel;
 	int ret = 0;
+	char line[SSH_READ_BLOCK_SIZE + 1];
+	guint32 len;
+	gchar* iface_copy = g_strdup(iface);
+	gchar* iface_one;
+	gchar* str = NULL;
+	int wscp_cnt = 1;
+	gchar* wscp_str = NULL;
+
+	if (ssh_channel_printf(channel, "terminal length 0\n") == EXIT_FAILURE)
+		goto error;
+
+	if (!ssh_channel_wait_prompt_check_error(channel, line, &len, SSH_READ_BLOCK_SIZE, NULL)) {
+		ws_warning("Received response: %s", crtoln(line));
+		goto error;
+	}
+
+	if (ssh_channel_printf(channel, "monitor capture buffer %s max-size 9500\n", WIRESHARK_CAPTURE_BUFFER) == EXIT_FAILURE)
+		goto error;
+
+	if (!ssh_channel_wait_prompt_check_error(channel, line, &len, SSH_READ_BLOCK_SIZE, NULL)) {
+		ws_warning("Received response: %s", crtoln(line));
+		goto error;
+	}
+
+	if (count > 0) {
+		if (ssh_channel_printf(channel, "monitor capture buffer %s limit packet-count %u\n", WIRESHARK_CAPTURE_BUFFER, count) == EXIT_FAILURE)
+			goto error;
+
+		if (!ssh_channel_wait_prompt_check_error(channel, line, &len, SSH_READ_BLOCK_SIZE, NULL)) {
+			ws_warning("Received response: %s", crtoln(line));
+			goto error;
+		}
+        }
+
+	if (cfilter) {
+		gchar* multiline_filter;
+		gchar* chr;
+
+		if (ssh_channel_printf(channel, "configure terminal\n") == EXIT_FAILURE)
+			goto error;
+
+		if (ssh_channel_printf(channel, "ip access-list extended %s\n", WIRESHARK_CAPTURE_ACCESSLIST) == EXIT_FAILURE)
+			goto error;
+
+		multiline_filter = g_strdup(cfilter);
+		chr = multiline_filter;
+		while((chr = g_strstr_len(chr, strlen(chr), ",")) != NULL) {
+			chr[0] = '\n';
+			ws_debug("Splitting filter into multiline");
+		}
+		ret = ssh_channel_write(channel, multiline_filter, (uint32_t)strlen(multiline_filter));
+		g_free(multiline_filter);
+		if (ret == SSH_ERROR)
+			goto error;
+
+		if (ssh_channel_printf(channel, "\nend\n") == EXIT_FAILURE)
+			goto error;
+
+		if (!ssh_channel_wait_prompt_check_error(channel, line, &len, SSH_READ_BLOCK_SIZE, NULL)) {
+			ws_warning("Received response: %s", crtoln(line));
+			goto error;
+		}
+
+		if (ssh_channel_printf(channel, "monitor capture buffer %s filter access-list %s\n",
+				WIRESHARK_CAPTURE_BUFFER, WIRESHARK_CAPTURE_ACCESSLIST) == EXIT_FAILURE)
+			goto error;
+
+		if (!ssh_channel_wait_prompt_check_error(channel, line, &len, SSH_READ_BLOCK_SIZE, NULL)) {
+			ws_warning("Received response: %s", crtoln(line));
+			goto error;
+		}
+	}
+
+	wscp_cnt = 1;
+	for (str = iface_copy; ; str = NULL) {
+		iface_one = strtok(str, ",");
+		if (iface_one == NULL)
+			break;
+
+		wscp_str = g_strdup_printf("%s_%d", WIRESHARK_CAPTURE_POINT, wscp_cnt);
+		wscp_cnt++;
+
+		if (0 == g_strcmp0(iface_one, "process-switched")) {
+			cmdline = g_strdup_printf("monitor capture point ip process-switched %s both", wscp_str);
+		} else if (0 == g_strcmp0(iface_one, "from-us")) {
+			cmdline = g_strdup_printf("monitor capture point ip process-switched %s from-us", wscp_str);
+		} else {
+			cmdline = g_strdup_printf("monitor capture point ip cef %s %s both", wscp_str, iface_one);
+		}
+
+		if (ssh_channel_printf(channel, "%s\n", cmdline) == EXIT_FAILURE)
+			goto error;
+
+		if (!ssh_channel_wait_prompt_check_error(channel, line, &len, SSH_READ_BLOCK_SIZE, NULL)) {
+			ws_warning("Received response: %s", crtoln(line));
+			goto error;
+		}
+
+		if (ssh_channel_printf(channel, "monitor capture point associate %s %s \n", wscp_str,
+				WIRESHARK_CAPTURE_BUFFER) == EXIT_FAILURE)
+			goto error;
+
+		if (!ssh_channel_wait_prompt_check_error(channel, line, &len, SSH_READ_BLOCK_SIZE, NULL)) {
+			ws_warning("Received response: %s", crtoln(line));
+			goto error;
+		}
+
+		g_free(cmdline);
+		cmdline = NULL;
+	}
+
+	wscp_cnt = 1;
+	for (str = iface_copy; ; str = NULL) {
+		iface_one = strtok(str, ",");
+		if (iface_one == NULL)
+			break;
+
+		wscp_str = g_strdup_printf("%s_%d", WIRESHARK_CAPTURE_POINT, wscp_cnt);
+		wscp_cnt++;
+
+		if (ssh_channel_printf(channel, "monitor capture point start %s\n", wscp_str) == EXIT_FAILURE)
+			goto error;
+
+		if (!ssh_channel_wait_prompt_check_error(channel, line, &len, SSH_READ_BLOCK_SIZE, NULL)) {
+			ws_warning("Received response: %s", crtoln(line));
+			goto error;
+		}
+
+		g_free(wscp_str);
+		wscp_str = NULL;
+	}
+
+	g_free(iface_copy);
+	return channel;
+error:
+	g_free(wscp_str);
+	g_free(iface_copy);
+	g_free(cmdline);
+	ws_warning("Error running ssh remote command");
+	read_output_bytes(channel, -1, NULL);
+
+	ssh_channel_close(channel);
+	ssh_channel_free(channel);
+	return NULL;
+}
+
+static ssh_channel run_capture_ios_xe(ssh_channel channel, const char* iface, const char* cfilter, const guint32 count)
+{
+	int ret = 0;
+	char line[SSH_READ_BLOCK_SIZE + 1];
+	guint32 len;
+	gchar* iface_copy = g_strdup(iface);
+	gchar* iface_one;
+	gchar* str = NULL;
+
+	if (ssh_channel_printf(channel, "terminal length 0\n") == EXIT_FAILURE)
+		goto error;
+
+	if (!ssh_channel_wait_prompt_check_error(channel, line, &len, SSH_READ_BLOCK_SIZE, NULL)) {
+		ws_warning("Received response: %s", crtoln(line));
+		goto error;
+	}
+
+	if (ssh_channel_printf(channel, "monitor capture %s limit packet-len 9500\n", WIRESHARK_CAPTURE) == EXIT_FAILURE)
+		goto error;
+
+	if (!ssh_channel_wait_prompt_check_error(channel, line, &len, SSH_READ_BLOCK_SIZE, NULL)) {
+		ws_warning("Received response: %s", crtoln(line));
+		goto error;
+	}
+
+	if (count > 0) {
+		if (ssh_channel_printf(channel, "monitor capture %s limit packets %u\n", WIRESHARK_CAPTURE, count) == EXIT_FAILURE)
+			goto error;
+
+		if (!ssh_channel_wait_prompt_check_error(channel, line, &len, SSH_READ_BLOCK_SIZE, NULL)) {
+			ws_warning("Received response: %s", crtoln(line));
+			goto error;
+		}
+	}
+
+	if (cfilter) {
+		gchar* multiline_filter;
+		gchar* chr;
+
+		if (ssh_channel_printf(channel, "configure terminal\n") == EXIT_FAILURE)
+			goto error;
+
+		if (ssh_channel_printf(channel, "ip access-list extended %s\n", WIRESHARK_CAPTURE_ACCESSLIST) == EXIT_FAILURE)
+			goto error;
+
+		multiline_filter = g_strdup(cfilter);
+		chr = multiline_filter;
+		while((chr = g_strstr_len(chr, strlen(chr), ",")) != NULL) {
+			chr[0] = '\n';
+			ws_debug("Splitting filter into multiline");
+		}
+		ret = ssh_channel_write(channel, multiline_filter, (uint32_t)strlen(multiline_filter));
+		g_free(multiline_filter);
+		if (ret == SSH_ERROR)
+			goto error;
+
+		if (ssh_channel_printf(channel, "\nend\n") == EXIT_FAILURE)
+			goto error;
+
+		if (!ssh_channel_wait_prompt_check_error(channel, line, &len, SSH_READ_BLOCK_SIZE, NULL)) {
+			ws_warning("Received response: %s", crtoln(line));
+			goto error;
+		}
+
+		if (ssh_channel_printf(channel, "monitor capture %s access-list %s\n",
+				WIRESHARK_CAPTURE, WIRESHARK_CAPTURE_ACCESSLIST) == EXIT_FAILURE)
+			goto error;
+	} else {
+		if (ssh_channel_printf(channel, "monitor capture %s match any\n",
+				WIRESHARK_CAPTURE) == EXIT_FAILURE)
+			goto error;
+	}
+
+	if (!ssh_channel_wait_prompt_check_error(channel, line, &len, SSH_READ_BLOCK_SIZE, NULL)) {
+		ws_warning("Received response: %s", crtoln(line));
+		goto error;
+	}
+
+	for (str = iface_copy; ; str = NULL) {
+		iface_one = strtok(str, ",");
+		if (iface_one == NULL)
+			break;
+
+		if (0 == g_strcmp0(iface_one, "control-plane")) {
+			if (ssh_channel_printf(channel, "monitor capture %s control-plane both\n", WIRESHARK_CAPTURE
+					) == EXIT_FAILURE)
+				goto error;
+		} else {
+			if (ssh_channel_printf(channel, "monitor capture %s interface %s both\n", WIRESHARK_CAPTURE,
+					iface_one) == EXIT_FAILURE)
+				goto error;
+		}
+	}
+
+	if (!ssh_channel_wait_prompt_check_error(channel, line, &len, SSH_READ_BLOCK_SIZE, NULL)) {
+		ws_warning("Received response: %s", crtoln(line));
+		goto error;
+	}
+
+	if (ssh_channel_printf(channel, "monitor capture %s start\n", WIRESHARK_CAPTURE) == EXIT_FAILURE)
+		goto error;
+
+	if (!ssh_channel_wait_prompt_check_error(channel, line, &len, SSH_READ_BLOCK_SIZE,
+	    "(Capture is not Supported|Unable to activate Capture)")
+	   ) {
+		ws_warning("Received response: %s", crtoln(line));
+		goto error;
+	}
+
+	g_free(iface_copy);
+	return channel;
+error:
+	g_free(iface_copy);
+	ws_warning("Error running ssh remote command");
+	read_output_bytes(channel, -1, NULL);
+
+	ssh_channel_close(channel);
+	ssh_channel_free(channel);
+	return NULL;
+}
+
+static ssh_channel run_capture_asa(ssh_channel channel, const char* iface, const char* cfilter)
+{
+	char* cmdline = NULL;
+	char line[SSH_READ_BLOCK_SIZE + 1];
+	guint32 len;
+	gchar *sep;
+	gboolean process_filter = TRUE;
+	gchar* iface_copy = g_strdup(iface);
+	gchar* iface_one;
+	gchar* str = NULL;
+
+	if (ssh_channel_printf(channel, "terminal pager 0\n") == EXIT_FAILURE)
+		goto error;
+
+	if (!ssh_channel_wait_prompt_check_error(channel, line, &len, SSH_READ_BLOCK_SIZE, NULL)) {
+		ws_warning("Received response: %s", crtoln(line));
+		goto error;
+	}
+
+	for (str = iface_copy; ; str = NULL) {
+		iface_one = strtok(str, ",");
+		if (iface_one == NULL)
+			break;
+
+		if (0 == g_strcmp0(iface_one, "asp-drop")) {
+			/* asp-drop: asp-drop: capture %s type asp-drop all packet-length 9216 !INCLUDE-DECRYPTED
+			 */
+			cmdline = g_strdup_printf("capture %s type asp-drop all packet-length 9216", WIRESHARK_CAPTURE);
+		} else if (NULL != (sep = g_strstr_len(iface_one, -1, "---"))) {
+			/* Interface type separator found. We support:
+			 * isakmp---ifname: capture %s type isakmp packet-length 32810 interface %s
+			 * // webvpn---ifname: capture %s type webvpn user %s !NO FILTER !INCLUDE-DECRYPTED
+			 * lacp---ifname: capture %s type lacp interface %s packet-length 9216 !NO FILTER !INCLUDE-DECRYPTED
+			 * tls-proxy---ifname: capture %s type tls-proxy packet-length 9216 interface %s
+			 * inline-tag---ifname: capture %s type inline-tag packet-length 9216 interface %s
+			 * raw-data---ifname: capture %s type rawdata packet-length 9216 interface %s
+			 *
+			 * We support /decrypted for some of it:
+			 * isakmp/decrypted---ifname
+			 * tls-proxy/decrypted---ifname
+			 * inline-tag/decrypted---ifname
+			 * raw-data/decrypted---ifname
+			 */
+			gchar* ifname = sep+3;
+
+			if (strstr(iface_one,  "isakmp")) {
+				if (strstr(iface_one,  "/decrypted")) {
+					cmdline = g_strdup_printf("capture %s type isakmp include-decrypted packet-length 32810 interface %s", WIRESHARK_CAPTURE, ifname);
+				} else {
+					cmdline = g_strdup_printf("capture %s type isakmp packet-length 32810 interface %s", WIRESHARK_CAPTURE, ifname);
+				}
+				/* Completelly different output
+				} else if (strstr(iface_one,  "webvpn")) {
+					cmdline = g_strdup_printf("capture %s type webvpn user %s", WIRESHARK_CAPTURE, ifname);
+					process_filter = FALSE;
+				*/
+			} else if (strstr(iface_one,  "lacp")) {
+				cmdline = g_strdup_printf("capture %s type lacp interface %s packet-length 9216", WIRESHARK_CAPTURE, ifname);
+				process_filter = FALSE;
+			} else if (strstr(iface_one,  "tls-proxy")) {
+				if (strstr(iface_one,  "/decrypted")) {
+					cmdline = g_strdup_printf("capture %s type tls-proxy include-decrypted packet-length 9216 interface %s", WIRESHARK_CAPTURE, ifname);
+				} else {
+					cmdline = g_strdup_printf("capture %s type tls-proxy packet-length 9216 interface %s", WIRESHARK_CAPTURE, ifname);
+				}
+			} else if (strstr(iface_one,  "inline-tag")) {
+				if (strstr(iface_one,  "/decrypted")) {
+					cmdline = g_strdup_printf("capture %s type inline-tag include-decrypted packet-length 9216 interface %s", WIRESHARK_CAPTURE, ifname);
+				} else {
+					cmdline = g_strdup_printf("capture %s type inline-tag packet-length 9216 interface %s", WIRESHARK_CAPTURE, ifname);
+				}
+			} else if (strstr(iface_one,  "raw-data")) {
+				if (strstr(iface_one,  "/decrypted")) {
+					cmdline = g_strdup_printf("capture %s type raw-data include-decrypted packet-length 9216 interface %s", WIRESHARK_CAPTURE, ifname);
+				} else {
+					cmdline = g_strdup_printf("capture %s type raw-data packet-length 9216 interface %s", WIRESHARK_CAPTURE, ifname);
+				}
+			} else {
+				ws_warning("Unknown interface type : %s", iface_one);
+				goto error;
+			}
+		} else {
+			/* Just interface name */
+			cmdline = g_strdup_printf("capture %s type raw-data packet-length 9216 interface %s", WIRESHARK_CAPTURE, iface_one);
+		}
+
+		if (ssh_channel_printf(channel, "%s\n", cmdline) == EXIT_FAILURE)
+			goto error;
+
+		if (!ssh_channel_wait_prompt_check_error(channel, line, &len, SSH_READ_BLOCK_SIZE, NULL)) {
+			ws_warning("Received response: %s", crtoln(line));
+			goto error;
+		}
+
+		g_free(cmdline);
+		cmdline = NULL;
+	}
+
+	if (process_filter && cfilter) {
+		gchar* multiline_filter;
+		gchar* chr;
+		gchar* start;
+
+		if (ssh_channel_printf(channel, "configure terminal\n") == EXIT_FAILURE)
+			goto error;
+
+		multiline_filter = g_strdup(cfilter);
+		chr = multiline_filter;
+		start = multiline_filter;
+		while((chr = g_strstr_len(chr, strlen(chr), ",")) != NULL) {
+			chr[0] = '\0';
+			ws_debug("Splitting filter into multiline");
+			if (ssh_channel_printf(channel, "access-list %s %s\n", WIRESHARK_CAPTURE_ACCESSLIST, start) == EXIT_FAILURE)
+				goto error;
+			start = chr+1;
+		}
+
+		if (ssh_channel_printf(channel, "access-list %s %s\n", WIRESHARK_CAPTURE_ACCESSLIST, start) == EXIT_FAILURE)
+			goto error;
+
+		if (ssh_channel_printf(channel, "\nend\n") == EXIT_FAILURE)
+			goto error;
+
+		if (!ssh_channel_wait_prompt_check_error(channel, line, &len, SSH_READ_BLOCK_SIZE, NULL)) {
+			ws_warning("Received response: %s", crtoln(line));
+			goto error;
+		}
+
+		if (ssh_channel_printf(channel, "capture %s access-list %s\n", WIRESHARK_CAPTURE, WIRESHARK_CAPTURE_ACCESSLIST) == EXIT_FAILURE)
+			goto error;
+
+		if (!ssh_channel_wait_prompt_check_error(channel, line, &len, SSH_READ_BLOCK_SIZE, NULL)) {
+			ws_warning("Received response: %s", crtoln(line));
+			goto error;
+		}
+	}
+
+	g_free(iface_copy);
+	return channel;
+error:
+	g_free(iface_copy);
+	g_free(cmdline);
+	ws_warning("Error running ssh remote command");
+	read_output_bytes(channel, -1, NULL);
+
+	ssh_channel_close(channel);
+	ssh_channel_free(channel);
+	return NULL;
+}
+
+static ssh_channel run_capture(ssh_session sshs, const char* iface, const char* cfilter, const guint32 count, CISCO_SW_TYPE *sw_type)
+{
+	ssh_channel channel;
 
 	channel = ssh_channel_new(sshs);
 	if (!channel)
@@ -332,78 +1824,25 @@ static ssh_channel run_capture(ssh_session sshs, const char* iface, const char* 
 	if (ssh_channel_request_shell(channel) != SSH_OK)
 		goto error;
 
-	if (!check_ios_version(channel))
+	if (!read_host_prompt(channel))
 		goto error;
 
-	if (ssh_channel_printf(channel, "terminal length 0\n") == EXIT_FAILURE)
+	if (!check_ios_version(channel, sw_type))
 		goto error;
 
-	if (ssh_channel_printf(channel, "monitor capture buffer %s max-size 9500\n", WIRESHARK_CAPTURE_BUFFER) == EXIT_FAILURE)
-		goto error;
-
-	if (ssh_channel_printf(channel, "monitor capture buffer %s limit packet-count %u\n", WIRESHARK_CAPTURE_BUFFER, count) == EXIT_FAILURE)
-		goto error;
-
-	if (cfilter) {
-		gchar* multiline_filter;
-		gchar* chr;
-
-		if (ssh_channel_printf(channel, "configure terminal\n") == EXIT_FAILURE)
-			goto error;
-
-		if (ssh_channel_printf(channel, "ip access-list ex %s\n", WIRESHARK_CAPTURE_ACCESSLIST) == EXIT_FAILURE)
-			goto error;
-
-		multiline_filter = g_strdup(cfilter);
-		chr = multiline_filter;
-		while((chr = g_strstr_len(chr, strlen(chr), ",")) != NULL) {
-			chr[0] = '\n';
-			ws_debug("Splitting filter into multiline");
-		}
-		ret = ssh_channel_write(channel, multiline_filter, (uint32_t)strlen(multiline_filter));
-		g_free(multiline_filter);
-		if (ret == SSH_ERROR)
-			goto error;
-
-		if (ssh_channel_printf(channel, "\nend\n") == EXIT_FAILURE)
-			goto error;
-
-		if (ssh_channel_printf(channel, "monitor capture buffer %s filter access-list %s\n",
-				WIRESHARK_CAPTURE_BUFFER, WIRESHARK_CAPTURE_ACCESSLIST) == EXIT_FAILURE)
-			goto error;
+	switch (*sw_type) {
+		case CISCO_IOS:
+			return run_capture_ios(channel, iface, cfilter, count);
+		case CISCO_IOS_XE:
+			return run_capture_ios_xe(channel, iface, cfilter, count);
+		case CISCO_ASA:
+			return run_capture_asa(channel, iface, cfilter);
+		case CISCO_UNKNOWN:
+			ws_warning("Unsupported cisco software. It will not collect any data most probably!");
+			break;
 	}
 
-	if (ssh_channel_printf(channel, "monitor capture point ip cef %s %s both\n", WIRESHARK_CAPTURE_POINT,
-			iface) == EXIT_FAILURE)
-		goto error;
-
-	if (ssh_channel_printf(channel, "monitor capture point associate %s %s \n", WIRESHARK_CAPTURE_POINT,
-			WIRESHARK_CAPTURE_BUFFER) == EXIT_FAILURE)
-		goto error;
-
-	if (ssh_channel_printf(channel, "monitor capture point start %s\n", WIRESHARK_CAPTURE_POINT) == EXIT_FAILURE)
-		goto error;
-
-	if (read_output_bytes(channel, -1, NULL) == EXIT_FAILURE)
-		goto error;
-
-	if (wait_until_data(channel, count) == EXIT_FAILURE)
-		goto error;
-
-	if (read_output_bytes(channel, -1, NULL) == EXIT_FAILURE)
-		goto error;
-
-	cmdline = ws_strdup_printf("show monitor capture buffer %s dump\n", WIRESHARK_CAPTURE_BUFFER);
-	if (ssh_channel_printf(channel, cmdline) == EXIT_FAILURE)
-		goto error;
-
-	if (read_output_bytes(channel, (int)strlen(cmdline), NULL) == EXIT_FAILURE)
-		goto error;
-
-	g_free(cmdline);
-	return channel;
 error:
-	g_free(cmdline);
 	ws_warning("Error running ssh remote command");
 	read_output_bytes(channel, -1, NULL);
 
@@ -422,6 +1861,7 @@ static int ssh_open_remote_connection(const ssh_params_t* ssh_params, const char
 	int err;
 	int ret = EXIT_FAILURE;
 	char* err_info = NULL;
+	CISCO_SW_TYPE sw_type = CISCO_UNKNOWN;
 
 	if (g_strcmp0(fifo, "-")) {
 		/* Open or create the output file */
@@ -438,22 +1878,43 @@ static int ssh_open_remote_connection(const ssh_params_t* ssh_params, const char
 		goto cleanup;
 	}
 
+#ifdef _WIN32
+	if (!SetConsoleCtrlHandler(exit_from_loop, TRUE)) {
+		ws_warning("Can't set console handler");
+		goto cleanup;
+	}
+#else
+	/* Catch signals to be able to cleanup config later */
+	if (signal(SIGINT, exit_from_loop) == SIG_ERR) {
+		ws_warning("Can't set SIGINT signal handler");
+		goto cleanup;
+	}
+	if (signal(SIGTERM, exit_from_loop) == SIG_ERR) {
+		ws_warning("Can't set SIGTERM signal handler");
+		goto cleanup;
+	}
+	if (signal(SIGPIPE, exit_from_loop) == SIG_ERR) {
+		ws_warning("Can't set SIGPIPE signal handler");
+		goto cleanup;
+	}
+#endif /* _WIN32 */
+
 	if (!libpcap_write_file_header(fp, 1, PCAP_SNAPLEN, FALSE, &bytes_written, &err)) {
 		ws_warning("Can't write pcap file header");
 		goto cleanup;
 	}
 
-	channel = run_capture(sshs, iface, cfilter, count);
+	channel = run_capture(sshs, iface, cfilter, count, &sw_type);
 	if (!channel) {
 		ret = EXIT_FAILURE;
 		goto cleanup;
 	}
 
 	/* read from channel and write into fp */
-	ssh_loop_read(channel, fp, count);
+	ssh_loop_read(channel, fp, count, sw_type);
 
 	/* clean up and exit */
-	ciscodump_cleanup(sshs, channel, iface, cfilter);
+	ciscodump_cleanup(sshs, channel, iface, cfilter, sw_type);
 
 	ret = EXIT_SUCCESS;
 cleanup:
@@ -520,6 +1981,16 @@ static int list_config(char *interface, unsigned int remote_port)
 	return EXIT_SUCCESS;
 }
 
+static void
+discard_log_writer(const char *domain _U_, enum ws_log_level level _U_,
+                                   ws_log_time_t timestamp _U_,
+                                   const char *file _U_, int line _U_, const char *func _U_,
+                                   const char *user_format _U_, va_list user_ap _U_,
+                                   void *user_data _U_)
+{
+	/* Discard log to stdout */
+}
+
 int main(int argc, char *argv[])
 {
 	char* err_msg;
@@ -583,7 +2054,7 @@ int main(int argc, char *argv[])
 	extcap_help_add_option(extcap_conf, "--proxycommand <proxy command>", "the command to use as proxy for the ssh connection");
 	extcap_help_add_option(extcap_conf, "--remote-interface <iface>", "the remote capture interface");
 	extcap_help_add_option(extcap_conf, "--remote-filter <filter>", "a filter for remote capture "
-		"(default: don't capture data for lal interfaces IPs)");
+		"(default: don't capture data for all interfaces IPs)");
 
 	ws_opterr = 0;
 	ws_optind = 0;
@@ -593,6 +2064,7 @@ int main(int argc, char *argv[])
 		goto end;
 	}
 
+	ws_log_set_level(LOG_LEVEL_DEBUG);
 	while ((result = ws_getopt_long(argc, argv, ":", longopts, &option_idx)) != -1) {
 
 		switch (result) {
@@ -688,7 +2160,13 @@ int main(int argc, char *argv[])
 	}
 
 	if (extcap_conf->show_config) {
-		ret = list_config(extcap_conf->interface, ssh_params->port);
+		unsigned int port;
+		if (!ws_strtou16(ws_optarg, NULL, &ssh_params->port) || ssh_params->port == 0) {
+			port = 22;
+		} else {
+			port = ssh_params->port;
+		}
+		ret = list_config(extcap_conf->interface, port);
 		goto end;
 	}
 

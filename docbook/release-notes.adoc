@@ -205,6 +205,8 @@ They previously shipped with Qt 5.12.2.
 
 * The Event Tracing for Windows (ETW) file reader now supports displaying IP packets from an event trace logfile or an event trace live session.
 
+* ciscodump now supports IOS, IOS-XE and ASA remote capturing
+
 === Removed Features and Support
 
 * The CMake options starting with DISABLE_something were renamed ENABLE_something for consistency.

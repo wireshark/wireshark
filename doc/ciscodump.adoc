@@ -7,7 +7,7 @@ include::../docbook/attributes.adoc[]
 
 == NAME
 
-ciscodump - Provide interfaces to capture from a remote Cisco router through SSH.
+ciscodump - Provide interfaces to capture from a remote Cisco device through SSH.
 
 == SYNOPSIS
 
@@ -29,6 +29,7 @@ ciscodump - Provide interfaces to capture from a remote Cisco router through SSH
 [ *--remote-filter*=<filter> ]
 [ *--sshkey*=<public key path> ]
 [ *--remote-interface*=<interface> ]
+[ *--remote-count*=<count> ]
 
 [manarg]
 *ciscodump*
@@ -36,34 +37,54 @@ ciscodump - Provide interfaces to capture from a remote Cisco router through SSH
 
 [manarg]
 *ciscodump*
-*--extcap-interface*=<interface>
+*--extcap-interface*=ciscodump
 *--extcap-dlts*
 
 [manarg]
 *ciscodump*
-*--extcap-interface*=<interface>
+*--extcap-interface*=ciscodump
 *--extcap-config*
 
 [manarg]
 *ciscodump*
-*--extcap-interface*=<interface>
+*--extcap-interface*=ciscodump
 *--fifo*=<path to file or pipe>
 *--capture*
-*--remote-host=remoterouter*
-*--remote-port=22*
-*--remote-username=user*
-*--remote-interface*=<the router interface>
+*--remote-host*=remotedevice
+*--remote-port*=22
+*--remote-username*=user
+*--remote-interface*=<the device interface>
+*--remote-count*=<count>
 
 == DESCRIPTION
 
 *Ciscodump* is an extcap tool that relies on Cisco EPC to allow a user to run a remote capture
-on a Cisco router in a SSH connection. The minimum IOS version supporting this feature is 12.4(20)T. More details can be
-found here:
-https://www.cisco.com/c/en/us/products/collateral/ios-nx-os-software/ios-embedded-packet-capture/datasheet_c78-502727.html
+on a Cisco device in a SSH connection. It supports IOS, IOS-XE based device and ASA devices.
 
-Supported interfaces:
+The tool configures capture on the device, reads data and removes configuration from the device. Provided credentials must allow the tool to configure the device.
 
-1. cisco
+When capture is started, packets are provided as they are received from the device. Capture stops when:
+
+* requested count of packets is reached (*--remote-count* is mandatory)
+* when capture finishes on the device (e.g. capture buffer is full)
+* the capture is stopped by the user
+
+Capture performance depends on a device type. The tool tries to read packets as soon as they received, but is usually slower than capturing device captures packets. Therefore packets are read in batches.
+
+IOS/IOS-XE provides only access to all captured packets from the top. Therefore reading of second batch means to read all packets from first batch, but ignore them and then read new packets in second batch.
+
+ASA provides access to specific packet so tool reads every packet just once.
+
+
+=== SUPPORTED CISCO SOFTWARE
+
+The application supports IOS version is 12.4 and higher. The IOS version supporting capture feature is 12.4(20)T and higher. More details can be
+found here: https://www.cisco.com/c/en/us/products/collateral/ios-nx-os-software/ios-embedded-packet-capture/datasheet_c78-502727.html
+
+The application supports IOS-XE version 16.1 and higher. Search for "Embedded Packet Capture Configuration Guide, Cisco IOS XE" to get more details.
+
+The application supports ASA version 8.4 and higher. More details can be found here: https://community.cisco.com/t5/security-documents/asa-using-packet-capture-to-troubleshoot-asa-firewall/ta-p/3129889
+
 
 == OPTIONS
 
@@ -144,18 +165,28 @@ recommended to use keyfiles with a SSH agent.
 --remote-filter=<filter>::
 +
 --
-The remote filter on the router. This is a capture filter that follows the Cisco
-IOS standards
-(https://www.cisco.com/c/en/us/support/docs/ip/access-lists/26448-ACLsamples.html).
+The remote filter on the device. This is a capture filter that follows the Cisco
+standards.
+
+For IOS/IOS-XE see https://www.cisco.com/c/en/us/support/docs/ip/access-lists/26448-ACLsamples.html.
+
+For ASA see https://www.cisco.com/c/en/us/td/docs/security/asa/asa96/configuration/firewall/asa-96-firewall-config/access-acls.html.
+
 Multiple filters can be specified using a comma between them. BEWARE: when using
 a filter, the default behavior is to drop all the packets except the ones that
 fall into the filter.
 
-Examples:
+Examples for IOS/IOS-XE:
 
     permit ip host MYHOST any, permit ip any host MYHOST (capture the traffic for MYHOST)
 
     deny ip host MYHOST any, deny ip any host MYHOST, permit ip any any (capture all the traffic except MYHOST)
+
+Examples for ASA:
+
+    permit any4 host MYHOST, permit host MYHOST any4 (capture IPv4 traffic for MYHOST)
+
+NOTE: Different capture types support or do not support specific ACL keywords. The tool is not able to check it, just tries to configure it. If error occurs, the tool just reports it and terminates. Debris are left in configuration in this case.
 --
 
 --sshkey=<SSH private key path>::
@@ -167,7 +198,41 @@ The path to a private key for authentication.
 --remote-interface=<remote interface>::
 +
 --
-The remote network interface to capture from.
+The remote network interface to capture from. One interface or list of interface names can be used. Iterfaces are separated by comma.  Interface names must be supported by the device.
+
+There are interface names causing different capture types. They are specific to used Cisco software.
+
+*IOS special names*
+
+* `process-switched` - capture process switched packets in both directions
+* `from-us` - capture process switched packets originating at the device
+
+*IOS-XE special names*
+
+* `control-plane` - captures in/out packets touching control plane
+
+*ASA special names*
+
+* `asp-drop` - capture packets dropped by all asp categories
+* `TYPE---ifname` - syntax to refer ASA capture types, see https://www.cisco.com/c/en/us/td/docs/security/asa/asa-cli-reference/A-H/asa-command-ref-A-H/ca-cld-commands.html#wp2435483314
+** `isakmp---ifname` - capture isakmp packets
+** `lacp---ifname` - capture lacp packets (just physical interfaces are supported)
+** `tls-proxy---ifname` - capture tls-proxy packets
+** `inline-tag---ifname` - capture all SGT tagget packets
+** `raw-data---ifname` - same as `ifname`
+* syntax to capture decrypted traffic for some of capture types:
+** `isakmp/decrypted---ifname` - capture isakmp packets including decrypted payload
+** `tls-proxy/decrypted---ifname` - capture tls-proxy packets including decrypted payload
+** `inline-tag/decrypted---ifname` - capture inline-tag packets including decrypted payload
+** `raw-data/decrypted---ifname` - capture raw-data packets including decrypted payload
+
+Use e. g. `isakmp/decrypted---outside` to capture encrypted and decrypted isakmp traffic on `outside` interface.
+--
+
+--remote-count=<count>::
++
+--
+Count of packets to capture. Capture is stopped when count is reached.
 --
 
 --extcap-capture-filter=<capture filter>::
@@ -190,65 +255,100 @@ To see interfaces:
 
     ciscodump --extcap-interfaces
 
-Only one interface (cisco) is supported.
+Only one interface (ciscodump) is supported.
 
 .Example output
-    interface {value=cisco}{display=SSH remote capture}
+    interface {value=ciscodump}{display=SSH remote capture}
 
 To see interface DLTs:
 
-    ciscodump --extcap-interface=cisco --extcap-dlts
+    ciscodump --extcap-interface=ciscodump --extcap-dlts
 
 .Example output
-    dlt {number=147}{name=cisco}{display=Remote capture dependent DLT}
+    dlt {number=147}{name=ciscodump}{display=Remote capture dependent DLT}
 
 To see interface configuration options:
 
-    ciscodump --extcap-interface=cisco --extcap-config
+    ciscodump --extcap-interface=ciscodump --extcap-config
 
 .Example output
-    ciscodump --extcap-interface=cisco --extcap-config
+    ciscodump --extcap-interface=ciscodump --extcap-config
     arg {number=0}{call=--remote-host}{display=Remote SSH server address}
         {type=string}{tooltip=The remote SSH host. It can be both an IP address or a hostname}
-        {required=true}
-    arg {number=1}{call=--remote-port}{display=Remote SSH server port}{type=unsigned}
-        {default=22}{tooltip=The remote SSH host port (1-65535)}{range=1,65535}
-    arg {number=2}{call=--remote-username}{display=Remote SSH server username}{type=string}
-        {default=<current user>}{tooltip=The remote SSH username. If not provided, the current
-        user will be used}
-    arg {number=3}{call=--remote-password}{display=Remote SSH server password}{type=string}
-        {tooltip=The SSH password, used when other methods (SSH agent or key files) are unavailable.}
-    arg {number=4}{call=--sshkey}{display=Path to SSH private key}{type=fileselect}
-        {tooltip=The path on the local filesystem of the private ssh key}
-    arg {number=5}{call--sshkey-passphrase}{display=SSH key passphrase}
-        {type=string}{tooltip=Passphrase to unlock the SSH private key}
-    arg {number=6}{call=--remote-interface}{display=Remote interface}{type=string}
-        {required=true}{tooltip=The remote network interface used for capture}
-    arg {number=7}{call=--remote-filter}{display=Remote capture filter}{type=string}
-        {default=(null)}{tooltip=The remote capture filter}
-    arg {number=8}{call=--remote-count}{display=Packets to capture}{type=unsigned}{required=true}
-        {tooltip=The number of remote packets to capture.}
+        {required=true}{group=Server}
+    arg {number=1}{call=--remote-port}{display=Remote SSH server port}
+        {type=unsigned}{default=22}{tooltip=The remote SSH host port (1-65535)}
+        {range=1,65535}{group=Server}
+    arg {number=2}{call=--remote-username}{display=Remote SSH server username}
+        {type=string}{default=<current user>}{tooltip=The remote SSH username. If not provided, the current user will be used}
+        {group=Authentication}
+    arg {number=3}{call=--remote-password}{display=Remote SSH server password}
+        {type=password}{tooltip=The SSH password, used when other methods (SSH agent or key files) are unavailable.}
+        {group=Authentication}
+    arg {number=4}{call=--sshkey}{display=Path to SSH private key}
+        {type=fileselect}{tooltip=The path on the local filesystem of the private ssh key}
+        {group=Authentication}
+    arg {number=5}{call=--proxycommand}{display=ProxyCommand}
+        {type=string}{tooltip=The command to use as proxy for the SSH connection}{group=Authentication}
+    arg {number=6}{call--sshkey-passphrase}{display=SSH key passphrase}
+        {type=password}{tooltip=Passphrase to unlock the SSH private key}{group=Authentication
+    arg {number=7}{call=--remote-interface}{display=Remote interface}
+        {type=string}{tooltip=The remote network interface used for capture}
+        {required=true}{group=Capture}
+    arg {number=8}{call=--remote-filter}{display=Remote capture filter}
+        {type=string}{tooltip=The remote capture filter}{default=<filter to exclude current host>}
+        {group=Capture}
+    arg {number=9}{call=--remote-count}{display=Packets to capture}
+        {type=unsigned}{tooltip=The number of remote packets to capture.}
+        {required=true}{group=Capture}
+    arg {number=10}{call=--debug}{display=Run in debug mode}
+        {type=boolflag}{default=false}{tooltip=Print debug messages}
+        {required=false}{group=Debug}
+    arg {number=11}{call=--debug-file}{display=Use a file for debug}
+        {type=string}{tooltip=Set a file where the debug messages are written}
+        {required=false}{group=Debug}
 
-To capture:
+To capture on IOS/IOS-XE:
 
-    ciscodump --extcap-interface cisco --fifo=/tmp/cisco.pcap --capture --remote-host 192.168.1.10
-        --remote-username user --remote-interface gigabit0/0
+    ciscodump --extcap-interface ciscodump --fifo=/tmp/cisco.pcap --capture --remote-host 192.168.1.10
+        --remote-username user --remote-interface gigabit0/0,gigiabit0/1
         --remote-filter "permit ip host 192.168.1.1 any, permit ip any host 192.168.1.1"
+        --remote-count=10
 
-NOTE: Packet count is mandatory, hence the capture will start after this number.
+To capture on IOS/IOS-XE:
+
+    ciscodump --extcap-interface ciscodump --fifo=/tmp/cisco.pcap --capture --remote-host 192.168.1.10
+        --remote-username user --remote-interface outside,dmz
+        --remote-filter "permit host 192.168.1.1 any4, permit any4 host 192.168.1.1"
+        --remote-count=10
+
+    ciscodump --extcap-interface ciscodump --fifo=/tmp/cisco.pcap --capture --remote-host 192.168.1.10
+        --remote-username user --remote-interface raw-data/decrypted---outside
+        --remote-filter "permit host 192.168.1.1 any4, permit any4 host 192.168.1.1"
 
 == KNOWN ISSUES
 
-The configuration of the capture on the routers is a multi-step process. If the SSH connection is interrupted during
-it, the configuration can be in an inconsistent state. That can happen also if the capture is stopped and ciscodump
-can't clean the configuration up. In this case it is necessary to log into the router and manually clean the
-configuration, removing both the capture point (WIRESHARK_CAPTURE_POINT), the capture buffer (WIRESHARK_CAPTURE_BUFFER)
-and the capture filter (WIRESHARK_CAPTURE_FILTER).
+When capture stopped by the user before it finishes on Windows platform, configuration is not cleared on the device. Next run will probably fails because parts of configuration already exists on the device.
 
-Another known issues is related to the number of captured packets (--remote-count). Due to the nature of the capture
-buffer, ciscodump waits for the capture to complete and then issues the command to show it. It means that if the user
-specifies a number of packets above the currently captured, the show command is never shown. Not only is the count of
-the maximum number of captured packets, but it is also the _exact_ number of expected packets.
+Reading performance on IOS/IOS-XE is poor because re-reading of capture buffer over and over.
+
+The configuration of the capture on the device is a multi-step process. If the SSH connection is interrupted during
+it, the configuration can be in an inconsistent state. That can happen also if the capture is stopped and ciscodump
+can't clean the configuration up. In this case it is necessary to log into the device and manually clean the
+configuration, removing configuration elements:
+
+* IOS
+** capture points WSC_P_<number> (depends on count of capture interfaces)
+** the capture buffer WSC_B
+** the capture capture acl WSC_ACL (if filter was used)
+* IOS-XE
+** the capture WSC
+** the capture capture acl WSC_ACL (if filter was used)
+* ASA
+** the capture WSC
+** the capture capture acl WSC_ACL (if filter was used)
+
+On IOS platforms, only IPv4 commands issued and only IPv4 packets are captured.
 
 == SEE ALSO
 
