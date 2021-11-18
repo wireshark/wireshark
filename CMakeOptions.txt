@@ -1,6 +1,9 @@
 # Build options for use by CMake
 
 option(BUILD_wireshark     "Build Wireshark" ON)
+if(BUILD_wireshark)
+	option(USE_qt6     "Use Qt6 instead of Qt5 - WIP, GUI developers only!" OFF)
+endif()
 option(BUILD_tshark        "Build tshark" ON)
 option(BUILD_tfshark       "Build tfshark" OFF)
 option(BUILD_rawshark      "Build rawshark" ON)

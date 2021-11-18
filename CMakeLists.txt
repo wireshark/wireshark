@@ -1226,6 +1226,11 @@ ws_find_package(Systemd BUILD_sdjournal HAVE_SYSTEMD)
 
 # Build the Qt GUI?
 if(BUILD_wireshark)
+	if(USE_qt6)
+		set(qtver "6")
+	else()
+		set(qtver "5")
+	endif()
 	# Untested, may not work if CMAKE_PREFIX_PATH gets overwritten
 	# somewhere. The if WIN32 in this place is annoying as well.
 	if(WIN32)
@@ -1243,17 +1248,29 @@ if(BUILD_wireshark)
 		list(APPEND QT_FIND_PACKAGE_OPTIONS PATHS /usr/local/opt/qt5)
 	endif()
 	set(QT_PACKAGELIST
-		Qt5Core
-		Qt5LinguistTools
-		Qt5Multimedia
-		Qt5PrintSupport
-		Qt5Widgets
+		Qt${qtver}Core
+		Qt${qtver}Gui
+		Qt${qtver}LinguistTools
+		Qt${qtver}Multimedia
+		Qt${qtver}PrintSupport
+		Qt${qtver}Widgets
 	)
-	if(APPLE)
-		ws_find_package(Sparkle ENABLE_SPARKLE HAVE_SOFTWARE_UPDATE)
-	endif()
-	if(WIN32)
-		list(APPEND QT_PACKAGELIST Qt5WinExtras)
+	if(USE_qt6)
+		set(CMAKE_CXX_STANDARD 17)
+		# Setting CMAKE_CXX_STANDARD is not sufficient with MSVC, see
+		#   https://gitlab.kitware.com/cmake/cmake/-/issues/18837
+		# The below snippet can be found in Qt6, lib/cmake/Qt6/QtFeature.cmake
+		if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC" AND MSVC_VERSION GREATER_EQUAL 1913)
+			list(APPEND CMAKE_REQUIRED_FLAGS "-Zc:__cplusplus")
+		endif()
+		list(APPEND QT_PACKAGELIST Qt6Core5Compat)
+		if(APPLE)
+			set(MIN_MACOS_VERSION 10.14)
+		endif()
+	else()
+		if(WIN32)
+			list(APPEND QT_PACKAGELIST Qt5WinExtras)
+		endif()
 	endif()
 	foreach(_qt_package IN LISTS QT_PACKAGELIST)
 		find_package(${_qt_package} REQUIRED ${QT_FIND_PACKAGE_OPTIONS})
@@ -1271,6 +1288,9 @@ if(BUILD_wireshark)
 		list(APPEND QT_INCLUDE_DIRS /usr/local/opt/qt5/include)
 	endif()
 	set(QT_FOUND ON)
+	if(APPLE)
+		ws_find_package(Sparkle ENABLE_SPARKLE HAVE_SOFTWARE_UPDATE)
+	endif()
 endif()
 
 # MaxMind DB address resolution
@@ -1395,10 +1415,11 @@ if(GNUTLS_FOUND AND NOT GNUTLS_VERSION VERSION_LESS "3.4.0")
 endif()
 
 if (QT_FOUND)
-	if (Qt5Widgets_VERSION VERSION_LESS 5.6)
+	if (Qt${qtver}Widgets_VERSION VERSION_LESS 5.6)
 		message(FATAL_ERROR "Qt 5.6 or later is required.")
 	endif()
-	if (Qt5Widgets_VERSION VERSION_GREATER 5.6
+	if (Qt${qtver}Widgets_VERSION VERSION_GREATER 5.6
+	    AND qtver MATCHES "5"
 	    AND (CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID MATCHES "Clang"))
 		# Qt 5.7 and later require C++ 11.
 		set(CMAKE_CXX_STANDARD 11)
@@ -1413,7 +1434,7 @@ if (QT_FOUND)
 	# to find Qt5. This means that we can't assume that the qmake
 	# in our PATH is the correct one. We can fetch qmake's location
 	# from Qt5::qmake, which is is defined in Qt5CoreConfigExtras.cmake.
-	get_target_property(QT_QMAKE_EXECUTABLE Qt5::qmake IMPORTED_LOCATION)
+	get_target_property(QT_QMAKE_EXECUTABLE Qt${qtver}::qmake IMPORTED_LOCATION)
 	get_filename_component(_qt_bin_path "${QT_QMAKE_EXECUTABLE}" DIRECTORY)
 	set(QT_BIN_PATH "${_qt_bin_path}" CACHE INTERNAL
 		"Path to qmake, macdeployqt, windeployqt, and other Qt utilities."
@@ -1438,7 +1459,7 @@ if (QT_FOUND)
 		# https://doc.qt.io/qt-5.15/supported-platforms.html
 		# https://doc-snapshots.qt.io/qt6-dev/supported-platforms.html
 		# CMake < 3.7 doesn't support VERSION_GREATER_EQUAL.
-		if(Qt5Widgets_VERSION VERSION_GREATER "5.999.999")
+		if(Qt${qtver}Widgets_VERSION VERSION_GREATER "5.999.999")
 			set(MIN_MACOS_VERSION 10.14)
 		elseif(Qt5Widgets_VERSION VERSION_GREATER "5.14.999")
 			set(MIN_MACOS_VERSION 10.13)
@@ -1452,7 +1473,7 @@ if (QT_FOUND)
 			set(MIN_MACOS_VERSION 10.9)
 		endif()
 		if(CMAKE_OSX_DEPLOYMENT_TARGET AND CMAKE_OSX_DEPLOYMENT_TARGET VERSION_LESS MIN_MACOS_VERSION)
-			message(FATAL_ERROR "Qt version ${Qt5Widgets_VERSION} requires CMAKE_OSX_DEPLOYMENT_TARGET (${CMAKE_OSX_DEPLOYMENT_TARGET}) >= ${MIN_MACOS_VERSION}")
+			message(FATAL_ERROR "Qt version ${Qt${qtver}Widgets_VERSION} requires CMAKE_OSX_DEPLOYMENT_TARGET (${CMAKE_OSX_DEPLOYMENT_TARGET}) >= ${MIN_MACOS_VERSION}")
 		endif()
 	endif()
 

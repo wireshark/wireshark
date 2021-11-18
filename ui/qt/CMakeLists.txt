@@ -7,6 +7,12 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
 
+if(USE_qt6)
+  set(qtver "6")
+else()
+  set(qtver "5")
+endif()
+
 ADD_CUSTOM_CMAKE_INCLUDE()
 
 set(WIRESHARK_WIDGET_HEADERS
@@ -633,7 +639,7 @@ set(WIRESHARK_QT_QRC
 	${CMAKE_CURRENT_BINARY_DIR}/i18n.qrc
 )
 
-if(NOT Qt5Widgets_VERSION VERSION_LESS "5.9")
+if(NOT Qt${qtver}Widgets_VERSION VERSION_LESS "5.9")
 	# Drop the file modification time of source files from generated files
 	# to help with reproducible builds. We do not use QFileInfo.lastModified
 	# so this has no unwanted side effects. This mtime started appearing in
@@ -642,7 +648,11 @@ if(NOT Qt5Widgets_VERSION VERSION_LESS "5.9")
 	set(CMAKE_AUTORCC_OPTIONS --format-version 1)
 endif()
 
-QT5_ADD_TRANSLATION(WIRESHARK_QT_QM ${WIRESHARK_QT_TS})
+if (USE_qt6)
+	QT6_ADD_TRANSLATION(WIRESHARK_QT_QM ${WIRESHARK_QT_TS})
+else()
+	QT5_ADD_TRANSLATION(WIRESHARK_QT_QM ${WIRESHARK_QT_TS})
+endif()
 
 add_custom_target(
 	translations
