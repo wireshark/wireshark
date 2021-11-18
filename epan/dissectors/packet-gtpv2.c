@@ -442,6 +442,7 @@ static int hf_gtpv2_sai_sac= -1;
 static int hf_gtpv2_rai_lac= -1;
 static int hf_gtpv2_rai_rac= -1;
 static int hf_gtpv2_tai_tac= -1;
+static int hf_gtpv2_5gs_tai_tac = -1;
 static int hf_gtpv2_ecgi_eci= -1;
 static int hf_gtpv2_ncgi_nrci= -1;
 static int hf_gtpv2_uli_lai_lac = -1;
@@ -2776,17 +2777,21 @@ dissect_gtpv2_tad(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_ite
  * to 23.003 in a future version.
  */
 gchar*
-dissect_gtpv2_tai(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset)
+dissect_gtpv2_tai(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, gboolean is_5gs)
 {
     gchar      *str = NULL;
     gchar      *mcc_mnc_str;
-    guint16 tac;
+    guint32     tac;
 
     mcc_mnc_str = dissect_e212_mcc_mnc_wmem_packet_str(tvb, pinfo, tree, *offset, E212_TAI, TRUE);
     *offset += 3;
-    tac = tvb_get_ntohs(tvb, *offset);
-    proto_tree_add_item(tree, hf_gtpv2_tai_tac, tvb, *offset, 2, ENC_BIG_ENDIAN);
-    *offset += 2;
+    if (is_5gs) {
+        proto_tree_add_item_ret_uint(tree, hf_gtpv2_5gs_tai_tac, tvb, *offset, 3, ENC_BIG_ENDIAN, &tac);
+        *offset += 3;
+    } else {
+        proto_tree_add_item_ret_uint(tree, hf_gtpv2_tai_tac, tvb, *offset, 2, ENC_BIG_ENDIAN, &tac);
+        *offset += 2;
+    }
     str = wmem_strdup_printf(pinfo->pool, "%s, TAC 0x%x",
         mcc_mnc_str,
         tac);
@@ -3006,7 +3011,7 @@ decode_gtpv2_uli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item
         part_tree = proto_tree_add_subtree(tree, tvb, offset, 5,
             ett_gtpv2_uli_field, NULL, "Tracking Area Identity (TAI)");
 
-        str = dissect_gtpv2_tai(tvb, pinfo, part_tree, &offset);
+        str = dissect_gtpv2_tai(tvb, pinfo, part_tree, &offset, FALSE);
 
         if (offset == length)
             return str;
@@ -3207,9 +3212,9 @@ dissect_3gpp_uli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gchar **av
         {
             proto_tree *subtree;
 
-            subtree = proto_tree_add_subtree(tree, tvb, offset, 5, ett_gtpv2_uli_field, NULL,
+            subtree = proto_tree_add_subtree(tree, tvb, offset, 6, ett_gtpv2_uli_field, NULL,
                                              "Tracking Area Identity (TAI)");
-            *avp_str = dissect_gtpv2_tai(tvb, pinfo, subtree, &offset);
+            *avp_str = dissect_gtpv2_tai(tvb, pinfo, subtree, &offset, TRUE);
         }
         return length;
     case 137:
@@ -3219,9 +3224,9 @@ dissect_3gpp_uli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gchar **av
             guint64 nr_cell_id;
             proto_tree *subtree;
 
-            subtree = proto_tree_add_subtree(tree, tvb, offset, 5, ett_gtpv2_uli_field, NULL,
+            subtree = proto_tree_add_subtree(tree, tvb, offset, 6, ett_gtpv2_uli_field, NULL,
                                              "Tracking Area Identity (TAI)");
-            *avp_str = dissect_gtpv2_tai(tvb, pinfo, subtree, &offset);
+            *avp_str = dissect_gtpv2_tai(tvb, pinfo, subtree, &offset, TRUE);
             subtree = proto_tree_add_subtree(tree, tvb, offset, 8, ett_gtpv2_uli_field, NULL,
                                              "NR Cell Global Identifier (NCGI)");
             mcc_mnc_str = dissect_e212_mcc_mnc_wmem_packet_str(tvb, pinfo, subtree, offset, E212_NRCGI, TRUE);
@@ -7126,7 +7131,7 @@ dissect_diameter_3gpp_presence_reporting_area_elements_list(tvbuff_t *tvb, packe
     i = 1;
     while (no_tai > 0){
         sub_tree = proto_tree_add_subtree_format(tree, tvb, offset, 5, ett_gtpv2_preaa_tais, &item, "Tracking Area Identity (TAI) Number %u",i);
-        append_str = dissect_gtpv2_tai(tvb, pinfo, sub_tree, &offset);
+        append_str = dissect_gtpv2_tai(tvb, pinfo, sub_tree, &offset, FALSE);
         proto_item_append_text(item, " %s",append_str);
         i++;
         no_tai--;
@@ -10163,6 +10168,11 @@ void proto_register_gtpv2(void)
         { &hf_gtpv2_tai_tac,
           {"Tracking Area Code", "gtpv2.tai_tac",
            FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
+        { &hf_gtpv2_5gs_tai_tac,
+          {"5GS Tracking Area Code", "gtpv2.5gs_tai_tac",
+           FT_UINT24, BASE_HEX_DEC, NULL, 0x0,
            NULL, HFILL}
         },
         {&hf_gtpv2_ecgi_eci,
