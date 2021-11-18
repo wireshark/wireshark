@@ -633,7 +633,7 @@ void CaptureOptionsDialog::updateInterfaces()
 
     if (global_capture_opts.has_autostop_duration) {
         ui->stopSecsCheckBox->setChecked(true);
-        int value = global_capture_opts.file_interval;
+        int value = global_capture_opts.autostop_duration;
         if (value > 3600 && value % 3600 == 0) {
             ui->stopSecsSpinBox->setValue(value / 3600);
             ui->stopSecsComboBox->setCurrentIndex(2);
@@ -874,10 +874,21 @@ bool CaptureOptionsDialog::saveOptionsToPreferences()
     }
     global_capture_opts.multi_files_on = ui->gbNewFileAuto->isChecked();
     if (global_capture_opts.multi_files_on) {
-        global_capture_opts.has_file_interval = ui->SecsCheckBox->isChecked();
-        if (global_capture_opts.has_file_interval) {
-            global_capture_opts.file_interval = ui->SecsSpinBox->value();
+        global_capture_opts.has_file_duration = ui->SecsCheckBox->isChecked();
+        if (global_capture_opts.has_file_duration) {
+            global_capture_opts.file_duration = ui->SecsSpinBox->value();
             int index = ui->SecsComboBox->currentIndex();
+            switch (index) {
+            case 1: global_capture_opts.file_duration *= 60;
+                break;
+            case 2: global_capture_opts.file_duration *= 3600;
+                break;
+            }
+         }
+        global_capture_opts.has_file_interval = ui->IntervalSecsCheckBox->isChecked();
+        if (global_capture_opts.has_file_interval) {
+            global_capture_opts.file_interval = ui->IntervalSecsSpinBox->value();
+            int index = ui->IntervalSecsComboBox->currentIndex();
             switch (index) {
             case 1: global_capture_opts.file_interval *= 60;
                 break;
