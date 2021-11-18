@@ -242,6 +242,11 @@ def make_env():
             # This directory is supposed not to be written and is used by
             # "readonly" tests that do not read any other preferences.
             env[home_env] = "/wireshark-tests-unused"
+        # XDG_CONFIG_HOME takes precedence over HOME, which we don't want.
+        try:
+            del env['XDG_CONFIG_HOME']
+        except KeyError:
+            pass
         return env
     return make_env_real
 
