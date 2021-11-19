@@ -946,9 +946,23 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 			case REC_TYPE_CUSTOM_BLOCK:
 				switch (pinfo->rec->rec_header.custom_block_header.pen) {
 				case PEN_NFLX:
-					call_dissector_with_data(bblog_handle,
-					                         tvb, pinfo, parent_tree,
-					                         (void *)pinfo->pseudo_header);
+					switch (pinfo->rec->rec_header.custom_block_header.custom_data_header.nflx_custom_data_header.type) {
+					case BBLOG_TYPE_SKIPPED_BLOCK:
+						col_set_str(pinfo->cinfo, COL_PROTOCOL, "BBLog");
+						col_add_fstr(pinfo->cinfo, COL_INFO, "Number of skipped events: %u",
+						             pinfo->rec->rec_header.custom_block_header.custom_data_header.nflx_custom_data_header.skipped);
+						break;
+					case BBLOG_TYPE_EVENT_BLOCK:
+						call_dissector_with_data(bblog_handle,
+						                         tvb, pinfo, parent_tree,
+						                         (void *)pinfo->pseudo_header);
+						break;
+					default:
+						col_set_str(pinfo->cinfo, COL_PROTOCOL, "BBLog");
+						col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown type: %u",
+						             pinfo->rec->rec_header.custom_block_header.custom_data_header.nflx_custom_data_header.type);
+						break;
+					}
 					break;
 				default:
 					col_set_str(pinfo->cinfo, COL_PROTOCOL, "PCAPNG");

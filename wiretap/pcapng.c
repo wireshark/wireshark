@@ -2709,13 +2709,16 @@ pcapng_read_nflx_custom_block(FILE_T fh, pcapng_block_header_t *bh,
                                             MIN_NFLX_CB_SIZE + (guint32)sizeof(guint32));
                 return FALSE;
             }
-            wblock->rec->rec_header.custom_block_header.custom_data_header.nflx_custom_data_header.type = BBLOG_TYPE_SKIPPED_BLOCK;
-            opt_cont_buf_len = bh->block_total_length - MIN_NFLX_CB_SIZE - sizeof(guint32);
             if (!wtap_read_bytes(fh, &skipped, sizeof(guint32), err, err_info)) {
                 ws_debug("Failed to read skipped");
                 return FALSE;
             }
+            wblock->rec->presence_flags = 0;
+            wblock->rec->rec_header.custom_block_header.length = 4;
+            wblock->rec->rec_header.custom_block_header.custom_data_header.nflx_custom_data_header.type = BBLOG_TYPE_SKIPPED_BLOCK;
             wblock->rec->rec_header.custom_block_header.custom_data_header.nflx_custom_data_header.skipped = GUINT32_FROM_LE(skipped);
+            wblock->internal = FALSE;
+            opt_cont_buf_len = bh->block_total_length - MIN_NFLX_CB_SIZE - sizeof(guint32);
             ws_debug("skipped: %u", wblock->rec->rec_header.custom_block_header.custom_data_header.nflx_custom_data_header.skipped);
             break;
         default:
