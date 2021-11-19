@@ -511,6 +511,7 @@ static const fragment_items btle_ea_host_advertising_data_frag_items = {
 typedef struct _ae_had_info_t {
     guint  fragment_counter;
     guint32 first_frame_num;
+    address adv_addr;
 } ae_had_info_t;
 
 typedef struct _control_proc_info_t {
@@ -2189,6 +2190,11 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                                     ae_had_info = wmem_new0(wmem_file_scope(), ae_had_info_t);
                                     ae_had_info->first_frame_num=pinfo->num;
 
+                                    if (flags & 0x01) {
+                                        /* Copy Advertiser Address to reassemble AUX_CHAIN_IND */
+                                        copy_address_wmem(wmem_file_scope(), &ae_had_info->adv_addr, &pinfo->src);
+                                    }
+
                                     ae_had_key[0].length = 1;
                                     ae_had_key[0].key = &interface_id;
                                     ae_had_key[1].length = 1;
@@ -2231,6 +2237,11 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                                 ae_had_info = (ae_had_info_t *) wmem_tree_lookup32_array(adi_to_first_frame_tree, ae_had_key);
 
                                 if (ae_had_info != NULL) {
+                                    if (!(flags & 0x01) && (ae_had_info->adv_addr.len > 0)) {
+                                        /* Copy Advertiser Address from AUX_ADV_IND if not present. */
+                                        copy_address_shallow(&pinfo->src, &ae_had_info->adv_addr);
+                                    }
+
                                     fragment_add_seq(&btle_ea_host_advertising_data_reassembly_table,
                                         tvb, offset, pinfo,
                                         ae_had_info->first_frame_num, NULL,
@@ -2262,13 +2273,21 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                                 if (ae_had_info != NULL) {
                                     col_append_str(pinfo->cinfo, COL_INFO, " (EA HAD Reassembled)");
 
+                                    if (!(flags & 0x01) && (ae_had_info->adv_addr.len > 0)) {
+                                        /* Copy Advertiser Address from AUX_ADV_IND if not present. */
+                                        copy_address_shallow(&pinfo->src, &ae_had_info->adv_addr);
+                                    }
+
                                     fd_head = fragment_get(&btle_ea_host_advertising_data_reassembly_table, pinfo, ae_had_info->first_frame_num, NULL);
                                     assembled_tvb = process_reassembled_data(
                                         tvb, offset, pinfo,
                                         "Reassembled Host Advertising Data", fd_head,
                                         &btle_ea_host_advertising_data_frag_items,
                                         NULL, btle_tree);
-                                    dissect_ad_eir(assembled_tvb, interface_id, adapter_id, frame_number, src_bd_addr, pinfo, btle_tree);
+
+                                    if (assembled_tvb) {
+                                        dissect_ad_eir(assembled_tvb, interface_id, adapter_id, frame_number, src_bd_addr, pinfo, btle_tree);
+                                    }
                                 }
                             }
                             else {
