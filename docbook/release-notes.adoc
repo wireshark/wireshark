@@ -28,107 +28,23 @@ See the “New and Updated Features” section below for more details.
 //* wsbuglink:5000[]
 //* wsbuglink:6000[Wireshark bug]
 //* cveidlink:2014-2486[]
-//* Wireshark keeps banging out random chords on your piano and yelling “LIPS LIKE SUGUAR, SUGAR KISSES” because it was funny that one time at a party.
+//* Wireshark insists on subscribing to two dozen streaming services but only watches three.
 
 === New and Updated Features
 
-The following features are new (or have been significantly updated) since version 3.4.0:
+The following features are new (or have been significantly updated) since version 3.6.0:
 
-* The Windows installers now ship with Npcap 1.55.
-//They previously shipped with Npcap 1.31.
-
-* A 64-bit Windows PortableApps package is now available.
-
-* A macOS Arm 64 (Apple Silicon) package is now available.
-
-* TCP conversations now support a completeness criteria, which facilitates the identification of TCP streams having any
-  of opening or closing handshakes, a payload, in any combination. It is accessed with the new tcp.completeness filter.
-
-* Protobuf fields that are not serialized on the wire (missing in capture files) can now be displayed with default values
-  by setting the new 'add_default_value' preference. The default values might be explicitly declared in 'proto2' files,
-  or false for bools, first value for enums, zero for numeric types.
-
-* Wireshark now supports reading Event Tracing for Windows (ETW). A new extcap named ETW reader is created that now can open an etl file,
-  convert all events in the file to DLT_ETW packets and write to a specified FIFO destination. Also, a new packet_etw dissector is
-  created to dissect DLT_ETW packets so Wireshark can display the DLT_ETW packet header, its message and packet_etw dissector
-  calls packet_mbim sub_dissector if its provider matches the MBIM provider GUID.
-
-* "Follow DCCP stream" feature to filter for and extract the contents of DCCP streams.
-
-* Wireshark now supports dissecting the rtp packet with OPUS payload.
-
-* Importing captures from text files is now also possible based on regular expressions. By specifying a regex capturing a single
-  packet including capturing groups for relevant fields a textfile can be converted to a libpcap capture file. Supported data
-  encodings are plain-hexadecimal, -octal, -binary and base64.
-  Also the timestamp format now allows the second-fractions to be placed anywhere in the timestamp and it will be stored with
-  nanosecond instead of microsecond precision.
-
-* Display filter literal strings can now be specified using raw string syntax,
-  identical to raw strings in the Python programming language. This is useful
-  to avoid the complexity of using two levels of character escapes with regular
-  expressions.
-
-* Significant RTP Player redesign and improvements (see Wireshark User Documentation,
-  {wireshark-users-guide-url}ChTelPlayingCalls.html[Playing VoIP Calls] and
-  {wireshark-users-guide-url}_rtp.html#ChTelRtpPlayer[RTP Player Window])
-** RTP Player can play many streams in row
-** UI is more responsive
-** RTP Player maintains playlist, other tools can add/remove streams to it
-** Every stream can be muted or routed to L/R channel for replay
-** Save audio is moved from RTP Analysis to RTP Player. RTP Player saves what was played. RTP Player can save in multichannel .au or .wav.
-** RTP Player added to menu Telephony>RTP>RTP Player
-
-* VoIP dialogs (VoIP Calls, RTP Streams, RTP Analysis, RTP Player, SIP Flows) are non-modal, can stay opened on background
-** Same tools are provided across all dialogs (Prepare Filter, Analyse, RTP Player ...)
-
-* Follow stream is now able to follow SIP calls based on their Call-ID value.
-
-* Follow stream YAML output format’s has been changed to add timestamps and peers information (for more details see the user’s guide,
-{wireshark-users-guide-url}ChAdvFollowStreamSection.html[Following Protocol Streams])
-
-* IP fragments between public IPv4 addresses are now reassembled even if they have different VLAN IDs. Reassembly of IP fragments
-  where one endpoint is a private (RFC 1918 section 3) or link-local (RFC 3927) IPv4 address continues to take the VLAN ID into
-  account, as those addresses can be reused. To revert to the previous behavior and not reassemble fragments with different VLAN IDs,
-  turn on the "Enable stricter conversation tracking heuristics" top level protocol preference.
-
-* USB Link Layer reassembly has been added, which allows hardware captures to be analyzed at the same level as software captures.
-
-* TShark can now export TLS session keys with the --export-tls-session-keys option.
-
-* Wireshark participated in the Google Season of Docs 2020 and the User’s Guide has been extensively updated.
-
-* Format of export to CSV in RTP Stream Analysis dialog was slightly changed. First line of export contains names of columns as in other CSV exports.
-
-* Wireshark now supports the Turkish language.
-
-* The settings in the 'Import from Hex Dump' dialog is now stored in a profile import_hexdump.json file.
-
-* Reload Lua plugins has been improved to properly support FileHandler.
+// * The Windows installers now ship with Npcap 1.55.
+// They previously shipped with Npcap 1.31.
 
 * Display filter syntax:
-** Protocols always parse unquoted strings as byte values. Before an expression such as "tcp contains ff.fg" would look for the string "ff.fg" if it does not
-   match a valid byte array specification. Now this is a syntax error. Use double-quotes to match literal strings.
-** For string comparisons literal byte arrays are always interpreted as unquoted literal strings. This avoids unexpected results with embedded NUL bytes.
-   For example "http.user_agent contains aa:bb" tries to match "aa:bb". Avoid this usage, always use double-quotes: http.user_agent contains "\xaa\xbb".
-** Regular expressions (using "matches" or "~") must be specified using character strings. It is a syntax error to omit the double-quotes around
-   the regular expression. Before the syntax rules of an unquoted regex string could be difficult to predict.
-** The expression "a != b" now always has the same meaning as !(a == b). In particular this means filter expressions with multi-value fields like
-   "ip.addr != 1.1.1.1" will work as expected (the result is the same as typing "ip.src != 1.1.1.1 and ip.dst != 1.1.1.1"). This avoids the
-   contradiction (a == b and a != b) being true.
-** Use the syntax "a ~= b" or "a any_ne b" to recover the previous (inconsistent with ==) logic for not equal.
-** Adds support for the syntax "a not in b" as a synonym for "not a in b".
-** Set elements must be separated using a comma, e.g: {1, 2, "foo"}. Using only whitespace as separator was deprecated in 3.6 and is now a syntax error.
-** Adds support for some additional character escape sequences in double quoted strings. Besides octal and hex byte specification the following C escape
-   sequences are now supported with the same meaning: \a, \b, \f, \n, \r, \t, \v. Previously they were only supported with character constants. Note that
-   unrecognized escape sequences are treated as a literal character. This has not changed from previous versions.
-** The display filter engine now uses PCRE2 instead of GRegex (GLib bindings to the older end-of-life PCRE library). PCRE2 is compatible with PCRE so
-   the user-visible changes should be minimal. Some exotic patterns may now be invalid and require rewriting.
-
-* Corrected calculation of mean jitter in RTP Stream Analysis dialog and IAX2 Stram Analysis dialog
-
-* RTP streams are created based on Skinny protocol messages
-
-* Flow sequence shows more infor about various Skinny messages
+** Adds support for some additional character escape sequences in double quoted strings.
+   Besides octal and hex byte specification the following C escape sequences are now supported with the same meaning: \a, \b, \f, \n, \r, \t, \v.
+   Previously they were only supported with character constants.
+   Note that unrecognized escape sequences are treated as a literal character. This has not changed from previous versions.
+** The display filter engine now uses PCRE2 instead of GRegex (GLib bindings to the older end-of-life PCRE library).
+   PCRE2 is compatible with PCRE so the user-visible changes should be minimal.
+   Some exotic patterns may now be invalid and require rewriting.
 
 // === Removed Features and Support
 
@@ -138,47 +54,15 @@ The following features are new (or have been significantly updated) since versio
 
 [commaize]
 --
-Vector Informatik Binary Log File (BLF)
 --
 
 === New Protocol Support
 
 // Add one protocol per line between the -- delimiters in the format
-// "Full protocol name (Abbreviation)"
+// “Full protocol name (Abbreviation)”
+// git log --oneline --diff-filter=A --stat v3.7.0rc0.. epan/dissectors plugins
 [commaize]
 --
-Allied Telesis Loop Detection Frames (AT LDF)
-Bluetooth Link Manager Protocol (BT LMP)
-Bundle Protocol version 7 (BPv7)
-Bundle Protocol version 7 Security (BPSec)
-CBOR Object Signing and Encryption (COSE)
-DTN TCP Convergence Layer version 4 (TCPCLv4)
-E2 Application Protocol (E2AP)
-Event Tracing for Windows (ETW)
-High-Performance Connectivity Tracer (HiPerConTracer)
-ISO 10681
-Kerberos SPAKE
-Linux psample protocol
-Local Interconnect Network (LIN)
-Microsoft Task Scheduler Service
-O-RAN E2AP
-O-RAN fronthaul UC-plane (O-RAN)
-Opus Interactive Audio Codec (OPUS)
-PDU Transport Protocol
-R09.x (R09)
-RDP Dynamic Channel Protocol (DRDYNVC)
-Real-Time Publish-Subscribe Virtual Transport (RTPS-VT)
-Real-Time Publish-Subscribe Wire Protocol (processed) (RTPS-PROC)
-Shared Memory Communications (SMC)
-Signal PDU
-SparkplugB
-State Synchronization Protocol (SSyncP)
-Tagged Image File Format (TIFF)
-TP-Link Smart Home Protocol
-UAVCAN/CAN
-UAVCAN DSDL
-Van Jacobson PPP compression (VJC)
-World of Warcraft World (WOWW)
 Host IP Configuration Protocol (HICP)
 Secure Host IP Configuration Protocol (SHICP)
 --
@@ -193,7 +77,6 @@ Too many protocols have been updated to list here.
 // Add one file type per line between the -- delimiters.
 [commaize]
 --
-Vector Informatik Binary Log File (BLF)
 --
 
 // === New and Updated Capture Interfaces support
