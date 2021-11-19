@@ -38,6 +38,7 @@ The following features are new (or have been significantly updated) since versio
 // They previously shipped with Npcap 1.31.
 
 * Display filter syntax:
+** Set elements must be separated using a comma, e.g: {1, 2, "foo"}. Using only whitespace as separator was deprecated in 3.6 and is now a syntax error.
 ** Adds support for some additional character escape sequences in double quoted strings.
    Besides octal and hex byte specification the following C escape sequences are now supported with the same meaning: \a, \b, \f, \n, \r, \t, \v.
    Previously they were only supported with character constants.
