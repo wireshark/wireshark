@@ -293,7 +293,7 @@ https://rrthomas.github.io/lrexlib/manual.html[]
 
 The GLib Regular expression syntax (which is essentially PCRE syntax) can be
 found at
-https://developer.gnome.org/glib/2.38/glib-regex-syntax.html[]
+https://developer-old.gnome.org/glib/stable/glib-regex-syntax.html[]
 
 [[lua_class_GRegex]]
 

@@ -298,7 +298,7 @@ Wireshark will immediately alert you to any detected issues.
 $ cmake .. -G Ninja -DENABLE_ASAN=1
 ----
 
-See https://developer.gnome.org/glib/stable/glib-running.html[]
+See https://developer-old.gnome.org/glib/stable/glib-running.html
 
 [[ChSrcWin32Debug]]
 ==== Windows Native

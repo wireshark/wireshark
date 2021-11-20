@@ -463,7 +463,7 @@ The latest version of *Wireshark* can be found at
 https://www.wireshark.org.
 
 Regular expressions in the "matches" operator are provided by GRegex in GLib.
-See https://developer.gnome.org/glib/2.32/glib-regex-syntax.html or https://www.pcre.org/ for more information.
+See https://www.pcre.org/ for more information.
 
 This manpage does not describe the capture filter syntax, which is
 different. See the manual page of xref:https://www.tcpdump.org/manpages/pcap-filter.7.html[pcap-filter](7) or, if that doesn't exist,

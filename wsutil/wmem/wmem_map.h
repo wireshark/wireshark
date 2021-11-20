@@ -40,7 +40,7 @@ typedef struct _wmem_map_t wmem_map_t;
  * the map is fully destroyed. Items stored in it will not be freed unless they
  * were allocated from the same scope. For details on the GHashFunc and
  * GEqualFunc parameters, see the glib documentation at:
- * https://developer.gnome.org/glib/unstable/glib-Hash-Tables.html
+ * https://developer-old.gnome.org/glib/stable/glib-Hash-Tables.html
  *
  * If the keys are coming from untrusted data, do *not* use glib's default hash
  * functions for strings, int64s or doubles. Wmem provides stronger equivalents

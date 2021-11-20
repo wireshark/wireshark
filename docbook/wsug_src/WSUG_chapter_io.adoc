@@ -482,7 +482,7 @@ way it should be processed e.g. timestamps, encapsulation type etc.
 ==== Regular Text Dumps
 
 Wireshark is also capable of scanning the input using a custom perl regular
-expression as specified by GLib's https://developer.gnome.org/glib/stable/glib-regex-syntax.html[GRegex here].
+expression as specified by GLib's https://developer-old.gnome.org/glib/stable/glib-regex-syntax.html[GRegex here].
 Using a regex capturing a single packet in the given file
 wireshark will search the given file from start to the second to last character
 (the last character has to be `\n` and is ignored)
@@ -609,7 +609,7 @@ Packet format regular expression::
 This is the regex used for searching packets and metadata inside the input file.
 Named capturing subgroups are used to find the individual fields. Anchors `^` and
 `$` are set to match directly before and after newlines `\n` or `\r\n`. See
-https://developer.gnome.org/glib/stable/glib-regex-syntax.html[GRegex] for a full
+https://developer-old.gnome.org/glib/stable/glib-regex-syntax.html[GRegex] for a full
 documentation.
 
 Data encoding::
