@@ -73,7 +73,7 @@ const QString PacketListRecord::columnString(capture_file *cap_file, int column,
     // packet_list_store.c:packet_list_get_value
     Q_ASSERT(fdata_);
 
-    if (!cap_file || column < 0 || column > cap_file->cinfo.num_cols) {
+    if (!cap_file || column < 0 || column >= cap_file->cinfo.num_cols) {
         return QString();
     }
 
