@@ -13,6 +13,7 @@
 #include <ui/qt/models/uat_delegate.h>
 #include "epan/value_string.h"
 #include <wsutil/ws_assert.h>
+#include <QRegExp>
 #include <QComboBox>
 #include <QEvent>
 #include <QFileDialog>

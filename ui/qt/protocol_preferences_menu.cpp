@@ -27,6 +27,8 @@
 #include "uat_dialog.h"
 #include "wireshark_application.h"
 
+#include <QActionGroup>
+
 // To do:
 // - Elide really long items?
 // - Handle color prefs.

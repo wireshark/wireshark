@@ -15,6 +15,7 @@
 #include <ui/qt/utils/color_utils.h>
 
 #include <QStyle>
+#include <QRegExp>
 
 // To do:
 // - Make a narrower apply button

@@ -11,6 +11,7 @@
 #define INTERFACE_TOOLBAR_LINEEDIT_H
 
 #include <QLineEdit>
+#include <QRegExp>
 
 class StockIconToolButton;
 

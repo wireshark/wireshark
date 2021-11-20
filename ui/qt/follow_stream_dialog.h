@@ -29,6 +29,7 @@
 #include <QFile>
 #include <QMap>
 #include <QPushButton>
+#include <QTextCodec>
 
 namespace Ui {
 class FollowStreamDialog;

@@ -14,6 +14,7 @@
 #include <QAction>
 #include <QKeyEvent>
 #include <QMenu>
+#include <QRegExp>
 
 void FindLineEdit::contextMenuEvent(QContextMenuEvent *event)
 {

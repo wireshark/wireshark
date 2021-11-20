@@ -24,6 +24,7 @@
 #include <QLineEdit>
 #include <QPushButton>
 #include <QTextEdit>
+#include <QTextCodec>
 
 namespace Ui {
 class ShowPacketBytesDialog;

@@ -19,6 +19,7 @@
 
 #include <QFont>
 #include <QColor>
+#include <QRegExp>
 
 // XXX Should we move this to ui/preference_utils?
 static GHashTable * pref_ptr_to_pref_ = NULL;

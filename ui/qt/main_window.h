@@ -59,6 +59,7 @@
 #include <QMainWindow>
 #include <QPointer>
 #include <QSplitter>
+#include <QTextCodec>
 
 #ifdef _WIN32
 # include <QTimer>

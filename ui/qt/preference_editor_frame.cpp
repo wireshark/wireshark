@@ -29,6 +29,7 @@
 
 #include <QPushButton>
 #include <QKeyEvent>
+#include <QRegExp>
 
 PreferenceEditorFrame::PreferenceEditorFrame(QWidget *parent) :
     AccordionFrame(parent),

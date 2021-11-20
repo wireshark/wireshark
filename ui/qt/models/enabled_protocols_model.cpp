@@ -16,6 +16,8 @@
 #include <ui/qt/utils/variant_pointer.h>
 #include "wireshark_application.h"
 
+#include <QRegExp>
+
 class ProtocolTreeItem : public EnabledProtocolItem
 {
 public:

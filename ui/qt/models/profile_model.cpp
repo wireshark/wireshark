@@ -26,6 +26,7 @@
 #include <QDir>
 #include <QFont>
 #include <QTemporaryDir>
+#include <QRegExp>
 
 Q_LOGGING_CATEGORY(profileLogger, "wireshark.profiles")
 

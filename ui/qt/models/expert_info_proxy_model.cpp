@@ -12,6 +12,8 @@
 #include <ui/qt/models/expert_info_proxy_model.h>
 #include <ui/qt/utils/color_utils.h>
 
+#include <QRegExp>
+
 ExpertInfoProxyModel::ExpertInfoProxyModel(QObject *parent) : QSortFilterProxyModel(parent),
     severityMode_(Group)
 {

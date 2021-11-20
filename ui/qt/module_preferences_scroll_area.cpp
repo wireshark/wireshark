@@ -32,6 +32,7 @@
 #include <QRadioButton>
 #include <QScrollBar>
 #include <QSpacerItem>
+#include <QRegExp>
 
 const char *pref_prop_ = "pref_ptr";
 

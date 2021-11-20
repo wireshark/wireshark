@@ -12,6 +12,7 @@
 #include <QPalette>
 #include <QApplication>
 #include <QBrush>
+#include <QRegExp>
 
 #include <ui/qt/models/supported_protocols_model.h>
 

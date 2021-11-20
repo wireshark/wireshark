@@ -28,6 +28,7 @@
 #include <QDialogButtonBox>
 #include <QListWidgetItem>
 #include <QTreeWidgetItem>
+#include <QRegExp>
 
 // To do:
 // - Speed up initialization.
