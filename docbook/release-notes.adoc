@@ -7,8 +7,6 @@ include::attributes.adoc[]
 // Asciidoctor Syntax Quick Reference:
 // https://asciidoctor.org/docs/asciidoc-syntax-quick-reference/
 
-This is the third release candidate for Wireshark 3.6.
-
 == What is Wireshark?
 
 Wireshark is the world’s most popular network protocol analyzer.
@@ -18,6 +16,7 @@ It is used for troubleshooting, analysis, development and education.
 
 Many improvements have been made.
 See the “New and Updated Features” section below for more details.
+You might want to pay particular attention to the display filter syntax updates.
 
 // === Bug Fixes
 
@@ -48,6 +47,17 @@ The following features are new (or have been significantly updated) since versio
 
 The following features are new (or have been significantly updated) since version 3.4.0:
 
+* Several changes have been made to the display filter syntax:
+** The expression “a != b” now always has the same meaning as “!(a == b)”.
+   In particular this means filter expressions with multi-value fields like “ip.addr != 1.1.1.1” will work as expected (the result is the same as typing “ip.src != 1.1.1.1 and ip.dst != 1.1.1.1”).
+   This avoids the contradiction (a == b and a != b) being true.
+** It is possible to use the syntax “a ~= b” or “a any_ne b” to recover the previous (inconsistent with "==") logic for not equal.
+** Literal strings can now be specified using raw string syntax, identical to raw strings in the Python programming language.
+   This can be used to avoid the complexity of using two levels of character escapes with regular expressions.
+** Set elements must now be separated using a comma. A filter such as http.request.method in {"GET" "HEAD"} must be written as ... in {"GET", "HEAD"}.
+   (Whitespace is not significant.) The previous use of whitespace as separator is deprecated and will be removed in a future version.
+** Support for the syntax "a not in b" with the same meaning as "not a in b" has been added.
+
 * The Windows installers now ship with Npcap 1.55.
 //They previously shipped with Npcap 1.31.
 
@@ -56,9 +66,9 @@ The following features are new (or have been significantly updated) since versio
 * A macOS Arm 64 (Apple Silicon) package is now available.
 
 * TCP conversations now support a completeness criteria, which facilitates the identification of TCP streams having any
-  of opening or closing handshakes, a payload, in any combination. It is accessed with the new tcp.completeness filter.
+  of opening or closing handshakes, a payload, in any combination. It can be accessed with the new `tcp.completeness` filter.
 
-* Protobuf fields that are not serialized on the wire (missing in capture files) can now be displayed with default values
+* Protobuf fields that are not serialized on the wire or otherwise missing in capture files can now be displayed with default values
   by setting the new “add_default_value” preference. The default values might be explicitly declared in “proto2” files,
   or false for bools, first value for enums, zero for numeric types.
 
@@ -69,9 +79,9 @@ The following features are new (or have been significantly updated) since versio
 
 * “Follow DCCP stream” feature to filter for and extract the contents of DCCP streams.
 
-* Wireshark now supports dissecting the rtp packet with OPUS payload.
+* Wireshark now supports dissecting RTP packets with OPUS payloads.
 
-* Importing captures from text files is now also possible based on regular expressions. By specifying a regex capturing a single
+* Importing captures from text files based on regular expressions is now possible. By specifying a regex capturing a single
   packet including capturing groups for relevant fields a textfile can be converted to a libpcap capture file. Supported data
   encodings are plain-hexadecimal, -octal, -binary and base64.
   Also the timestamp format now allows the second-fractions to be placed anywhere in the timestamp and it will be stored with
@@ -80,20 +90,20 @@ The following features are new (or have been significantly updated) since versio
 * Significant RTP Player redesign and improvements (see Wireshark User Documentation,
   {wireshark-users-guide-url}ChTelPlayingCalls.html[Playing VoIP Calls] and
   {wireshark-users-guide-url}_rtp.html#ChTelRtpPlayer[RTP Player Window])
-** RTP Player can play many streams in row
-** UI is more responsive
-** RTP Player maintains playlist, other tools can add/remove streams to it
-** Every stream can be muted or routed to L/R channel for replay
-** Save audio is moved from RTP Analysis to RTP Player. RTP Player saves what was played. RTP Player can save in multichannel .au or .wav.
-** RTP Player added to menu Telephony>RTP>RTP Player
+** The RTP Player can play many streams in row.
+** The UI is more responsive.
+** The RTP Player maintains playlist and other tools can add and remove streams to and from it.
+** Every stream can be muted or routed to the left or right channel for replay.
+** The option to save audio has been moved from the RTP Analysis dialog to the RTP Player. The RTP Player also saves what was played, and it can save in multichannel .au or .wav.
+** The RTP Player is now accessible from the menu:Telephony[RTP,RTP Player] menu.
 
-* VoIP dialogs (VoIP Calls, RTP Streams, RTP Analysis, RTP Player, SIP Flows) are non-modal, can stay opened on background
-** Same tools are provided across all dialogs (Prepare Filter, Analyse, RTP Player ...)
+* The VoIP dialogs (VoIP Calls, RTP Streams, RTP Analysis, RTP Player, SIP Flows) are non-modal and can stay opened on background.
+** The same tools are provided across all dialogs (Prepare Filter, Analyse, RTP Player ...)
 
-* Follow stream is now able to follow SIP calls based on their Call-ID value.
+* The “Follow Stream” dialog is now able to follow SIP calls based on their Call-ID value.
 
-* Follow stream YAML output format’s has been changed to add timestamps and peers information (for more details see the user’s guide,
-{wireshark-users-guide-url}ChAdvFollowStreamSection.html[Following Protocol Streams])
+* The “Follow Stream” dialog’s YAML output format has been updated to add timestamps and peers information
+  For more details see {wireshark-users-guide-url}ChAdvFollowStreamSection.html[Following Protocol Streams] in the User’s Guide.
 
 * IP fragments between public IPv4 addresses are now reassembled even if they have different VLAN IDs. Reassembly of IP fragments
   where one endpoint is a private (RFC 1918 section 3) or link-local (RFC 3927) IPv4 address continues to take the VLAN ID into
@@ -102,36 +112,27 @@ The following features are new (or have been significantly updated) since versio
 
 * USB Link Layer reassembly has been added, which allows hardware captures to be analyzed at the same level as software captures.
 
-* TShark can now export TLS session keys with the --export-tls-session-keys option.
+* TShark can now export TLS session keys with the `--export-tls-session-keys` option.
 
 * Wireshark participated in the Google Season of Docs 2020 and the User’s Guide has been extensively updated.
 
-* Format of export to CSV in RTP Stream Analysis dialog was slightly changed. First line of export contains names of columns as in other CSV exports.
+* The “RTP Stream Analysis” dialog CSV export format was slightly changed.
+  The first line of the export contains column titles as in other CSV exports.
 
 * Wireshark now supports the Turkish language.
 
 * The settings in the “Import from Hex Dump” dialog is now stored in a profile import_hexdump.json file.
 
-* Reload Lua plugins has been improved to properly support FileHandler.
+* menu:Analyze[Reload Lua Plugins] has been improved to properly support FileHandler.
 
-* Display filter syntax:
-** Literal strings can now be specified using raw string syntax, identical to raw strings in the Python programming language. This is useful
-   to avoid the complexity of using two levels of character escapes with regular expressions.
-** The expression “a != b” now always has the same meaning as “!(a == b)”. In particular this means filter expressions with multi-value fields like
-   “ip.addr != 1.1.1.1” will work as expected (the result is the same as typing “ip.src != 1.1.1.1 and ip.dst != 1.1.1.1”). This avoids the
-   contradiction (a == b and a != b) being true.
-** It is possible to use the syntax “a ~= b” or “a any_ne b” to recover the previous (inconsistent with "==") logic for not equal.
-** Set elements must now be separated using a comma. A filter such as http.request.method in {"GET" "HEAD"} must be written as ... in {"GET", "HEAD"}.
-   (Whitespace is not significant.) The previous use of whitespace as separator is deprecated and will be removed in a future version.
-** Adds support for the syntax "a not in b" with the same meaning as "not a in b".
-
-* Corrected calculation of mean jitter in RTP Stream Analysis dialog and IAX2 Stram Analysis dialog
+* Corrected calculation of mean jitter in RTP Stream Analysis dialog and “IAX2 Stream Analysis” dialog
 
 * RTP streams are created based on Skinny protocol messages
 
-* The VoIP Calls Flow Sequence window shows more information about various Skinny messages
+* The “VoIP Calls Flow Sequence” window shows more information about various Skinny messages
 
-* Initial support for building Wireshark on Windows using GCC and MinGW-w64 (see README.msys2).
+* Initial support for building Wireshark on Windows using GCC and MinGW-w64 has been added.
+  See README.msys2 in the sources for more information.
 
 // === Removed Features and Support
 
