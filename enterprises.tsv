@@ -5,7 +5,7 @@
 # The format used here is: <NUMERICAL_ID><SPACE><NAME>
 # Where SPACE can be any sequence of spaces and tabs.
 #
-# (last updated 2021-11-13)
+# (last updated 2021-11-21)
 
 0	Reserved
 1	NxNetworks
@@ -6291,7 +6291,7 @@
 6304	fogcity
 6305	Flextronics International
 6306	Dartware, LLC
-6307	InfoVista SAS	# formerly 'Ipanema Technologies'
+6307	Extreme Networks	# formerly 'Ipanema Technologies'
 6308	cholul
 6309	Dan Nielsen Consulting
 6310	KaanBaan Technologies
@@ -6388,7 +6388,7 @@
 6401	JTI OF GEORGIA
 6402	OPTEL Ges. für Lasertechnik und Elektronik mbH
 6403	Universidad Blas Pascal
-6404	ECRESO	# formerly 'Ecreso RFTS Broadcast'
+6404	ECRESO
 6405	Activ Australia
 6406	Neomar
 6407	bit-Services GmbH
@@ -7586,7 +7586,7 @@
 7604	MSE-iT
 7605	e-point S.A
 7606	The University of Alabama in Huntsville
-7607	AppGate, Inc.
+7607	Appgate Cybersecurity, Inc.
 7608	Celion Networks, Inc.
 7609	SpinState
 7610	Something 4 Ltd
@@ -38917,7 +38917,7 @@
 39089	Krones AG
 39090	subreport Verlag Schawe GmbH
 39091	Good Link
-39092	ChongQing Cable Network
+39092	Chongqing Cable Network Co.,Ltd
 39093	Basler AG
 39094	Kambi
 39095	iFlex Ltd.
@@ -43687,7 +43687,7 @@
 43865	Matthias Krause (spectre-net)
 43866	beijing huafei technology co.,ltd
 43867	Rename it
-43868	Conjur Inc
+43868	CyberArk Software Inc.
 43869	Yatharth Gupta
 43870	Precyse Technologies
 43871	Metricell Ltd.
@@ -57910,3 +57910,35 @@
 58116	Cats Protection
 58117	Daemex LLC
 58118	Tau Hypercomputing Facility
+58119	Sungrow Power Supply Co., Ltd.
+58120	Kombiverkehr Deutsche Gesellschaft für kombinierten Güterverkehr mbH & Co. KG
+58121	Marcel Krüger
+58122	FHEM e.V.
+58123	Nations Holding Company
+58124	DPC INDIA PRIVATE LIMITED
+58125	Pulsar K Bogusz Spółka Jawna
+58126	Frodexim Trade LLC
+58127	ООО "Корда Групп" ("Korda Group" Ltd.)
+58128	Salzgitter Maschinenbau
+58129	Beyond Expectations - BEXP
+58130	Sapphire Community Health Inc.
+58131	Digital Harmonic, LLC
+58132	xFusion Digital Technologies Co., Ltd.
+58133	Bait Al-Gomla Corporation
+58134	IEF-Werner GmbH
+58135	Stephan Brunner
+58136	Lexicon Pharmaceuticals, Inc
+58137	TBS Factoring Service, LLC
+58138	TBS Factoring Service, LLC
+58139	Daniel Cardoza
+58140	Royal National Orthopaedic Hospital
+58141	Inetum Switzerland Ltd.
+58142	Avenda Health
+58143	Sheldon College
+58144	Skaylink GmbH
+58145	PREMIER MEDICAL GROUP OF CA
+58146	ShenYang JinJinXin Science and Technology Ltd.
+58147	Shenyang Wonderful Techenology Co., Ltd
+58148	Busana Apparel Group
+58149	S&T Hrvatska d.o.o.
+58150	West Texas Obgyn
