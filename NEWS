@@ -1,4 +1,4 @@
-Wireshark 3.4.10 Release Notes
+Wireshark 3.4.11 Release Notes
 
  What is Wireshark?
 
@@ -7,64 +7,9 @@ Wireshark 3.4.10 Release Notes
 
  What’s New
 
-  This release fixes a forward compatibility issue[1] with the I/O
-  Graphs preferences.
-
   Bug Fixes
 
-   The following vulnerabilities have been fixed:
-
-     • wnpa-sec-2021-07[2] Bluetooth DHT dissector crash. Issue
-       17651[3]. CVE-2021-39929[4].
-
-     • wnpa-sec-2021-08[5] Bluetooth HCI_ISO dissector crash. Issue
-       17649[6]. CVE-2021-39926[7].
-
-     • wnpa-sec-2021-09[8] Bluetooth SDP dissector crash. Issue
-       17635[9]. CVE-2021-39925[10].
-
-     • wnpa-sec-2021-10[11] Bluetooth DHT dissector large loop. Issue
-       17677[12]. CVE-2021-39924[13].
-
-     • wnpa-sec-2021-11[14] PNRP dissector large loop. Issue 17684[15].
-
-     • wnpa-sec-2021-12[16] C12.22 dissector crash. Issue 17636[17].
-       CVE-2021-39922[18].
-
-     • wnpa-sec-2021-13[19] IEEE 802.11 dissector crash. Issue
-       17704[20]. CVE-2021-39928[21].
-
-     • wnpa-sec-2021-14[22] Modbus dissector crash. Issue 17703[23].
-       CVE-2021-39921[24].
-
-     • wnpa-sec-2021-15[25] IPPUSB dissector crash. Issue 17705[26].
-       CVE-2021-39920[27].
-
    The following bugs have been fixed:
-
-     • OSS-Fuzz: Heap-use-after-free in ROS Issue 16342[28].
-
-     • Allow for '\0' (NULL) character as filter instead of requiring
-       0x00 for the character match Issue 16525[29].
-
-     • Dumpcap with threads reports double received count vs captured
-       Issue 17089[30].
-
-     • I/O Graphs values reset to default with 3.5 due to change of UAT
-       Issue 17623[31].
-
-     • HTTP2 dissector reports an assertion error on large data frames
-       Issue 17633[32].
-
-     • TShark stops capturing when capturing with multiple files and
-       packet printing enabled Issue 17654[33].
-
-     • Wireshark is unable to decode the IMSI IE received in BSSMAP
-       Perform Location request Issue 17667[34].
-
-     • WSLUA: Crash on reload if Proto has no fields Issue 17668[35].
-
-     • Crash in flow analysis for TCP Issue 17722[36].
 
   New and Updated Features
 
@@ -74,13 +19,9 @@ Wireshark 3.4.10 Release Notes
 
   Updated Protocol Support
 
-   BT HCI_ISO, BT SDP, BT-DHT, C12.22, CAN FD, CSN1, EAPOL-MKA, EVS, GSM
-   BSSMAP LE, HTTP2, IDMP, IEEE 1905.1a, IEEE 802.11, IPPUSB, Modbus,
-   PNRP, and TCP
-
   New and Updated Capture File Support
 
-   pcap
+   There is no new or updated capture file support in this release.
 
  Getting Wireshark
 
@@ -92,7 +33,7 @@ Wireshark 3.4.10 Release Notes
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[37] on the Wireshark web site.
+   be found on the download page[1] on the Wireshark web site.
 
  File Locations
 
@@ -106,58 +47,22 @@ Wireshark 3.4.10 Release Notes
   The User’s Guide, manual pages and various other documentation can be
   found at https://www.wireshark.org/docs/
 
-  Community support is available on Wireshark’s Q&A site[38] and on the
+  Community support is available on Wireshark’s Q&A site[2] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[39].
+  for all of Wireshark’s mailing lists can be found on the web site[3].
 
-  Issues and feature requests can be reported on the issue tracker[40].
+  Issues and feature requests can be reported on the issue tracker[4].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[41].
+  A complete FAQ is available on the Wireshark web site[5].
 
-  Last updated 2021-11-17 17:47:32 UTC
+  Last updated 2021-11-21 16:06:49 UTC
 
  References
 
-   1. https://gitlab.com/wireshark/wireshark/-/issues/17623
-   2. https://www.wireshark.org/security/wnpa-sec-2021-07
-   3. https://gitlab.com/wireshark/wireshark/-/issues/17651
-   4. https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-39929
-   5. https://www.wireshark.org/security/wnpa-sec-2021-08
-   6. https://gitlab.com/wireshark/wireshark/-/issues/17649
-   7. https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-39926
-   8. https://www.wireshark.org/security/wnpa-sec-2021-09
-   9. https://gitlab.com/wireshark/wireshark/-/issues/17635
-  10. https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-39925
-  11. https://www.wireshark.org/security/wnpa-sec-2021-10
-  12. https://gitlab.com/wireshark/wireshark/-/issues/17677
-  13. https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-39924
-  14. https://www.wireshark.org/security/wnpa-sec-2021-11
-  15. https://gitlab.com/wireshark/wireshark/-/issues/17684
-  16. https://www.wireshark.org/security/wnpa-sec-2021-12
-  17. https://gitlab.com/wireshark/wireshark/-/issues/17636
-  18. https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-39922
-  19. https://www.wireshark.org/security/wnpa-sec-2021-13
-  20. https://gitlab.com/wireshark/wireshark/-/issues/17704
-  21. https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-39928
-  22. https://www.wireshark.org/security/wnpa-sec-2021-14
-  23. https://gitlab.com/wireshark/wireshark/-/issues/17703
-  24. https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-39921
-  25. https://www.wireshark.org/security/wnpa-sec-2021-15
-  26. https://gitlab.com/wireshark/wireshark/-/issues/17705
-  27. https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-39920
-  28. https://gitlab.com/wireshark/wireshark/-/issues/16342
-  29. https://gitlab.com/wireshark/wireshark/-/issues/16525
-  30. https://gitlab.com/wireshark/wireshark/-/issues/17089
-  31. https://gitlab.com/wireshark/wireshark/-/issues/17623
-  32. https://gitlab.com/wireshark/wireshark/-/issues/17633
-  33. https://gitlab.com/wireshark/wireshark/-/issues/17654
-  34. https://gitlab.com/wireshark/wireshark/-/issues/17667
-  35. https://gitlab.com/wireshark/wireshark/-/issues/17668
-  36. https://gitlab.com/wireshark/wireshark/-/issues/17722
-  37. https://www.wireshark.org/download.html#thirdparty
-  38. https://ask.wireshark.org/
-  39. https://www.wireshark.org/lists/
-  40. https://gitlab.com/wireshark/wireshark/-/issues
-  41. https://www.wireshark.org/faq.html
+   1. https://www.wireshark.org/download.html#thirdparty
+   2. https://ask.wireshark.org/
+   3. https://www.wireshark.org/lists/
+   4. https://gitlab.com/wireshark/wireshark/-/issues
+   5. https://www.wireshark.org/faq.html
