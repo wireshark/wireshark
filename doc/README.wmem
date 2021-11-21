@@ -113,6 +113,10 @@ wmem_list.h
 wmem_map.h
  - A hash map (AKA hash table) implementation.
 
+wmem_multimap.h
+ - A hash multimap (map that can store multiple values with the same key)
+   implementation.
+
 wmem_queue.h
  - A queue implementation (first-in, first-out).
 

@@ -377,7 +377,7 @@ static void dissect_ansi_map_win_trigger_list(tvbuff_t *tvb, packet_info *pinfo 
 
 
 /* Transaction table */
-static wmem_map_t *TransactionId_table=NULL;
+static wmem_multimap_t *TransactionId_table=NULL;
 
 /* Store Invoke information needed for the corresponding reply */
 static void
@@ -408,17 +408,14 @@ update_saved_invokedata(packet_info *pinfo, struct ansi_tcap_private_t *p_privat
                 buf = wmem_strdup_printf(pinfo->pool, "%s%s%s",p_private_tcap->TransactionID_str,src_str,dst_str);
                 break;
         }
-        /* If the entry allready exists don't owervrite it */
-        ansi_map_saved_invokedata = (struct ansi_map_invokedata_t *)wmem_map_lookup(TransactionId_table,buf);
-        if(ansi_map_saved_invokedata)
-            return;
 
         ansi_map_saved_invokedata = wmem_new(wmem_file_scope(), struct ansi_map_invokedata_t);
         ansi_map_saved_invokedata->opcode = p_private_tcap->d.OperationCode_private;
         ansi_map_saved_invokedata->ServiceIndicator = ServiceIndicator;
 
-        wmem_map_insert(TransactionId_table,
+        wmem_multimap_insert32(TransactionId_table,
                             wmem_strdup(wmem_file_scope(), buf),
+                            pinfo->num,
                             ansi_map_saved_invokedata);
 
         /*ws_warning("Invoke Hash string %s pkt: %u",buf,pinfo->num);*/
@@ -4330,7 +4327,7 @@ find_saved_invokedata(asn1_ctx_t *actx, struct ansi_tcap_private_t *p_private_tc
     }
 
     /*ws_warning("Find Hash string %s pkt: %u",buf,actx->pinfo->num);*/
-    ansi_map_saved_invokedata = (struct ansi_map_invokedata_t *)wmem_map_lookup(TransactionId_table, buf);
+    ansi_map_saved_invokedata = (struct ansi_map_invokedata_t *)wmem_multimap_lookup32_le(TransactionId_table, buf, actx->pinfo->num);
     if(ansi_map_saved_invokedata){
         OperationCode = ansi_map_saved_invokedata->opcode & 0xff;
         ServiceIndicator = ansi_map_saved_invokedata->ServiceIndicator;
@@ -5480,7 +5477,7 @@ void proto_register_ansi_map(void) {
                                   "Type of matching invoke/response, risk of mismatch if loose matching chosen",
                                   &ansi_map_response_matching_type, ansi_map_response_matching_type_values, FALSE);
 
-    TransactionId_table = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), wmem_str_hash, g_str_equal);
+    TransactionId_table = wmem_multimap_new_autoreset(wmem_epan_scope(), wmem_file_scope(), wmem_str_hash, g_str_equal);
     register_stat_tap_table_ui(&stat_table);
 }
 

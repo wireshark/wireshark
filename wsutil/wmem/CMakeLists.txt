@@ -14,6 +14,7 @@ set(WMEM_PUBLIC_HEADERS
 	wmem_list.h
 	wmem_map.h
 	wmem_miscutl.h
+	wmem_multimap.h
 	wmem_queue.h
 	wmem_stack.h
 	wmem_strbuf.h
@@ -47,6 +48,7 @@ set(WMEM_FILES
 	wmem_list.c
 	wmem_map.c
 	wmem_miscutl.c
+	wmem_multimap.c
 	wmem_stack.c
 	wmem_strbuf.c
 	wmem_strutl.c

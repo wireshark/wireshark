@@ -287,7 +287,7 @@ static value_string_ext gsm_sms_coding_group_bits_vals_ext = VALUE_STRING_EXT_IN
 static dissector_table_t gsm_sms_dissector_tbl;
 /* Short Message reassembly */
 static reassembly_table g_sm_reassembly_table;
-static wmem_map_t *g_sm_fragment_params_table = NULL;
+static wmem_multimap_t *g_sm_fragment_params_table = NULL;
 static gint ett_gsm_sms_ud_fragment = -1;
 static gint ett_gsm_sms_ud_fragments = -1;
  /*
@@ -2106,7 +2106,7 @@ dis_field_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
             p_frag_params->udl = udl;
             p_frag_params->fill_bits =  fill_bits;
             p_frag_params->length = length;
-            wmem_map_insert(g_sm_fragment_params_table, p_frag_params_key, p_frag_params);
+            wmem_multimap_insert32(g_sm_fragment_params_table, p_frag_params_key, pinfo->num, p_frag_params);
         }
     } /* Else: not fragmented */
     if (! sm_tvb) /* One single Short Message, or not reassembled */
@@ -2148,8 +2148,8 @@ dis_field_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
                     copy_address_shallow(&frag_params_key.src, &pinfo->src);
                     copy_address_shallow(&frag_params_key.dst, &pinfo->dst);
                     frag_params_key.id = (udh_fields.sm_id<<16)|i;
-                    p_frag_params = (sm_fragment_params*)wmem_map_lookup(g_sm_fragment_params_table,
-                                                                         &frag_params_key);
+                    p_frag_params = (sm_fragment_params*)wmem_multimap_lookup32_le(g_sm_fragment_params_table,
+                                                                         &frag_params_key, pinfo->num);
 
                     if (p_frag_params) {
                         proto_tree_add_item(subtree, hf_gsm_sms_text, sm_tvb, total_sms_len,
@@ -2181,8 +2181,8 @@ dis_field_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
                     copy_address_shallow(&frag_params_key.src, &pinfo->src);
                     copy_address_shallow(&frag_params_key.dst, &pinfo->dst);
                     frag_params_key.id = (udh_fields.sm_id<<16)|i;
-                    p_frag_params = (sm_fragment_params*)wmem_map_lookup(g_sm_fragment_params_table,
-                                                                         &frag_params_key);
+                    p_frag_params = (sm_fragment_params*)wmem_multimap_lookup32_le(g_sm_fragment_params_table,
+                                                                         &frag_params_key, pinfo->num);
 
                     if (p_frag_params) {
                         proto_tree_add_ts_23_038_7bits_packed_item(subtree, hf_gsm_sms_text, sm_tvb,
@@ -2235,8 +2235,8 @@ dis_field_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
                         copy_address_shallow(&frag_params_key.src, &pinfo->src);
                         copy_address_shallow(&frag_params_key.dst, &pinfo->dst);
                         frag_params_key.id = (udh_fields.sm_id<<16)|i;
-                        p_frag_params = (sm_fragment_params*)wmem_map_lookup(g_sm_fragment_params_table,
-                                                                             &frag_params_key);
+                        p_frag_params = (sm_fragment_params*)wmem_multimap_lookup32_le(g_sm_fragment_params_table,
+                                                                             &frag_params_key, pinfo->num);
 
                         if (p_frag_params) {
                             /* Decode as ENC_UTF_16 instead of UCS2 because Android and iOS smartphones
@@ -3593,7 +3593,7 @@ proto_register_gsm_sms(void)
 
     register_dissector("gsm_sms", dissect_gsm_sms, proto_gsm_sms);
 
-    g_sm_fragment_params_table = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(),
+    g_sm_fragment_params_table = wmem_multimap_new_autoreset(wmem_epan_scope(), wmem_file_scope(),
                                                         sm_fragment_params_hash, sm_fragment_params_equal);
 
     reassembly_table_register(&g_sm_reassembly_table,
