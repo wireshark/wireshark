@@ -3704,7 +3704,9 @@ decode_command(tvbuff_t *tvb, packet_info* pinfo, int msglen, int offset, int ds
     if (cmd > 0x3F)
         cmd += dst * 256;
 
-    if (!pinfo->fd->visited) {
+    pkt_info = (gryphon_pkt_info_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_gryphon, (guint32)tvb_raw_offset(tvb));
+
+    if (!pkt_info) {
         /* Find a conversation, create a new if no one exists */
         gryphon_conversation *conv_data = get_conversation_data(pinfo);
 
@@ -3718,8 +3720,6 @@ decode_command(tvbuff_t *tvb, packet_info* pinfo, int msglen, int offset, int ds
         wmem_list_prepend(conv_data->request_frame_data, pkt_info);
 
         p_add_proto_data(wmem_file_scope(), pinfo, proto_gryphon, (guint32)tvb_raw_offset(tvb), pkt_info);
-    } else {
-        pkt_info = (gryphon_pkt_info_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_gryphon, (guint32)tvb_raw_offset(tvb));
     }
 
     proto_tree_add_uint(pt, hf_gryphon_command, tvb, offset, 1, cmd);
@@ -3967,7 +3967,9 @@ decode_response(tvbuff_t *tvb, packet_info* pinfo, int offset, int src, proto_tr
     if (cmd > 0x3F)
         cmd += src * 256;
 
-    if (!pinfo->fd->visited) {
+    pkt_info = (gryphon_pkt_info_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_gryphon, (guint32)tvb_raw_offset(tvb));
+
+    if (!pkt_info) {
         /* Find a conversation, create a new if no one exists */
         gryphon_conversation *conv_data = get_conversation_data(pinfo);
 
@@ -3991,9 +3993,6 @@ decode_response(tvbuff_t *tvb, packet_info* pinfo, int offset, int src, proto_tr
         }
 
         p_add_proto_data(wmem_file_scope(), pinfo, proto_gryphon, (guint32)tvb_raw_offset(tvb), pkt_info);
-    }
-    else {
-        pkt_info = (gryphon_pkt_info_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_gryphon, (guint32)tvb_raw_offset(tvb));
     }
 
     /* this is the old original way of displaying */
