@@ -1,4 +1,4 @@
-Capinfos (Wireshark) 3.2.17 (v3.2.17rc0-4-ge079cfbf17f2)
+Capinfos (Wireshark) 3.2.19 (v3.2.18-1-g121dafa5311a)
 Print various information (infos) about capture files.
 See https://www.wireshark.org for more information.
 
