@@ -6985,7 +6985,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Collectd statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>Estadísticas de Collectd</translation>
     </message>
     <message>
         <source>DNS</source>
@@ -7057,7 +7057,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Sametime statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>Estadísticas de Sametime</translation>
     </message>
     <message>
         <source>&amp;ISUP Messages</source>
@@ -7117,7 +7117,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Reload Lua plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>Vuelve a cargar los complementos Lua</translation>
     </message>
     <message>
         <source>Advertisements by Topic</source>

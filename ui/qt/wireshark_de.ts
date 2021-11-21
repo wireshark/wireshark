@@ -10688,7 +10688,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Prepare a filter matching the selected stream(s).</source>
-        <translation>Filter für ausgewählten Stream vorbereiten.</translation>
+        <translation>Filter für ausgewählte Streams vorbereiten.</translation>
     </message>
     <message>
         <source>&amp;Current Tab</source>
@@ -10899,15 +10899,15 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Save audio data synchronized to start of the earliest stream.</source>
-        <translation type="unfinished"></translation>
+        <translation>Audiodaten synchronisiert zum Startzeitpunkt des früheren Streams speichern.</translation>
     </message>
     <message>
         <source>&amp;File Synchronized Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>Synchronisiertes Audio der Datei (&amp;F)</translation>
     </message>
     <message>
         <source>Save audio data synchronized to start of the capture file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Audiodaten synchronisiert zum Startzeitpunkt der Mitschnittdatei speichern.</translation>
     </message>
     <message>
         <source>&amp;Payload</source>
@@ -11015,31 +11015,31 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>I&amp;naudible streams</source>
-        <translation type="unfinished"></translation>
+        <translation>U&amp;nhörbare Streams</translation>
     </message>
     <message>
         <source>Select/Deselect inaudible streams</source>
-        <translation type="unfinished"></translation>
+        <translation>Unhörbare Streams auswählen/abwählen</translation>
     </message>
     <message>
         <source>Inaudible streams</source>
-        <translation type="unfinished"></translation>
+        <translation>Unhörbare Streams</translation>
     </message>
     <message>
         <source>&amp;Select</source>
-        <translation type="unfinished"></translation>
+        <translation>Au&amp;swählen</translation>
     </message>
     <message>
         <source>Select inaudible streams</source>
-        <translation type="unfinished"></translation>
+        <translation>Unhörbare Streams wählen</translation>
     </message>
     <message>
         <source>&amp;Deselect</source>
-        <translation type="unfinished"></translation>
+        <translation>Abwählen (&amp;D)</translation>
     </message>
     <message>
         <source>Deselect inaudible streams</source>
-        <translation type="unfinished"></translation>
+        <translation>Unhörbare Streams abwählen</translation>
     </message>
     <message>
         <source>Prepare &amp;Filter</source>
@@ -11047,15 +11047,15 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Prepare a filter matching the selected stream(s).</source>
-        <translation>Filter für ausgewählten Stream vorbereiten.</translation>
+        <translation>Filter für ausgewählte Streams vorbereiten.</translation>
     </message>
     <message>
         <source>R&amp;efresh streams</source>
-        <translation type="unfinished"></translation>
+        <translation>Str&amp;eams aktualisieren</translation>
     </message>
     <message>
         <source>Read captured packets from capture in progress to player</source>
-        <translation type="unfinished"></translation>
+        <translation>Mitgeschnittene Pakete aus laufendem Mitschnitt in Wiedergabefenster laden</translation>
     </message>
     <message>
         <source>Zoom In</source>
@@ -11067,7 +11067,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Sample rate of codec</source>
-        <translation type="unfinished"></translation>
+        <translation>Abtastrate des Codec</translation>
     </message>
     <message>
         <source>PR (Hz)</source>
@@ -11075,7 +11075,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Play rate of decoded audio (depends e. g. on selected sound card)</source>
-        <translation type="unfinished"></translation>
+        <translation>Wiedergaberate des dekodierten Audio (abhängig von z. B. Soundkarte)</translation>
     </message>
     <message>
         <source>Zoom Out</source>
@@ -11390,7 +11390,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Open the analysis window for the selected stream(s) and add it to it</source>
-        <translation type="unfinished"></translation>
+        <translation>Analysenfenster für die ausgewählten Streams anzeigen und zu diesem hinzufügen</translation>
     </message>
     <message>
         <source>Find the reverse stream matching the selected forward stream.</source>
@@ -11410,7 +11410,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>All forward/reverse stream actions</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle vorwärts/rückwärts Stream Aktionen</translation>
     </message>
     <message>
         <source>R</source>
@@ -11422,7 +11422,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Select all streams which are paired in forward/reverse relation</source>
-        <translation type="unfinished"></translation>
+        <translation>Wähle alle Streams, die in Vorwärts- und Rückwärtsrichtung verbunden sind</translation>
     </message>
     <message>
         <source>Shift+R</source>
@@ -11430,7 +11430,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Find Only &amp;Singles</source>
-        <translation type="unfinished"></translation>
+        <translation>Einzelne &amp;suchen</translation>
     </message>
     <message>
         <source>Find all streams which don&apos;t have paired reverse stream</source>
@@ -11490,7 +11490,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Prepare a filter matching the selected stream(s).</source>
-        <translation>Filter für ausgewählten Stream vorbereiten.</translation>
+        <translation>Filter für ausgewählte Streams vorbereiten.</translation>
     </message>
     <message>
         <source>P</source>
@@ -13007,7 +13007,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>%1</source>
-        <translation type="unfinished"></translation>
+        <translation>%1</translation>
     </message>
 </context>
 <context>
@@ -13883,7 +13883,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Prepare a filter matching the selected calls(s).</source>
-        <translation>Filter für ausgewählten Anrufe vorbereiten.</translation>
+        <translation>Filter für ausgewählte Anrufe vorbereiten.</translation>
     </message>
     <message>
         <source>Cop&amp;y</source>
@@ -13919,7 +13919,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Select RTP streams related to selected calls in RTP Streams dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>Zu den im RTP Streams Dialog ausgewählten Anrufen zugehörige RTP Streams auswählen</translation>
     </message>
     <message>
         <source>S</source>
