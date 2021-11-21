@@ -541,6 +541,15 @@ dissect_announcement(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, in
 
   offset += announcement_len;
 
+  if (announcement_len%4) {
+    int padding_len = (4 - (announcement_len % 4));
+
+    proto_tree_add_item(announcement_set_tree, hf_mka_padding,
+                        tvb, offset, padding_len, ENC_NA);
+
+    offset += padding_len;
+  }
+
   *offset_ptr = offset;
 }
 
