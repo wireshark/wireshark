@@ -3,10 +3,10 @@
 # Do so in the appropriate Dockerfile at
 # https://gitlab.com/wireshark/wireshark-containers/ instead.
 # The resulting images can be found at
-# https://hub.docker.com/r/wireshark/wireshark-centos-7-dev
-# https://hub.docker.com/r/wireshark/wireshark-debian-stable-dev
-# https://hub.docker.com/r/wireshark/wireshark-fedora-dev
-# https://hub.docker.com/r/wireshark/wireshark-opensuse-15.1-dev
+# https://hub.docker.com/r/registry.gitlab.com/wireshark/wireshark-containers/centos-7-dev
+# https://hub.docker.com/r/registry.gitlab.com/wireshark/wireshark-containers/debian-stable-dev
+# https://hub.docker.com/r/registry.gitlab.com/wireshark/wireshark-containers/fedora-dev
+# https://hub.docker.com/r/registry.gitlab.com/wireshark/wireshark-containers/opensuse-15.1-dev
 # https://hub.docker.com/r/wireshark/wireshark-ubuntu-dev
 
 stages:
@@ -64,7 +64,7 @@ variables:
 
 .build-ubuntu:
   extends: .build
-  image: wireshark/wireshark-ubuntu-dev
+  image: registry.gitlab.com/wireshark/wireshark-containers/ubuntu-dev:2021-Q4
   retry: 1
   # https://gould.cx/ted/blog/2017/06/10/ccache-for-Gitlab-CI/
   cache:
@@ -129,14 +129,14 @@ Source Package:
     # - ccache --max-size $( du --summarize --block-size=1M "$CI_PROJECT_DIR/build" | awk '{printf ("%dM", $1 * 1.5)}' )
     - for digest in sha256 rmd160 sha1 ; do openssl $digest wireshark-*.tar.* ; done
     # This will break if we produce multiple tarballs, which is arguably a good thing.
-    - if [ -n "$AWS_ACCESS_KEY_ID" ] && [ -n "$AWS_SECRET_ACCESS_KEY" ] && [ -n "$S3_DESTINATION_DIST" ] ; then aws s3 cp wireshark-*.tar.* "$S3_DESTINATION_DIST/" ; fi
+    # - if [ -n "$AWS_ACCESS_KEY_ID" ] && [ -n "$AWS_SECRET_ACCESS_KEY" ] && [ -n "$S3_DESTINATION_DIST" ] ; then aws s3 cp wireshark-*.tar.* "$S3_DESTINATION_DIST/" ; fi
   artifacts:
     paths:
       - wireshark-*.tar.*
 
 CentOS 7 RPM Package:
   extends: .build-rpm
-  image: wireshark/wireshark-centos-7-dev
+  image: registry.gitlab.com/wireshark/wireshark-containers/centos-7-dev:2021-Q4
   script:
     - mkdir build
     - cd build
@@ -144,7 +144,7 @@ CentOS 7 RPM Package:
     - ninja-build rpm-package
 CentOS 7 RPM Test:
   extends: .test-rpm
-  image: wireshark/wireshark-centos-7-dev
+  image: registry.gitlab.com/wireshark/wireshark-containers/centos-7-dev:2021-Q4
   script:
     - yum --nogpgcheck localinstall -y build/packaging/rpm/RPMS/x86_64/*.rpm
     - tshark --version
@@ -152,7 +152,7 @@ CentOS 7 RPM Test:
 
 openSUSE 15.1 RPM Package:
   extends: .build-rpm
-  image: wireshark/wireshark-opensuse-15.1-dev
+  image: registry.gitlab.com/wireshark/wireshark-containers/opensuse-15.1-dev:2021-Q4
   script:
     - mkdir build
     - cd build
@@ -160,7 +160,7 @@ openSUSE 15.1 RPM Package:
     - ninja rpm-package
 openSUSE 15.1 RPM Test:
   extends: .test-rpm
-  image: wireshark/wireshark-opensuse-15.1-dev
+  image: registry.gitlab.com/wireshark/wireshark-containers/opensuse-15.1-dev:2021-Q4
   script:
     - zypper --no-gpg-checks install -y build/packaging/rpm/RPMS/x86_64/*.rpm
     - tshark --version
@@ -169,7 +169,7 @@ openSUSE 15.1 RPM Test:
 # Disabled for now due to issues with Fedora 33.
 .Fedora RPM Package:
   extends: .build-rpm
-  image: wireshark/wireshark-fedora-dev
+  image: registry.gitlab.com/wireshark/wireshark-containers/fedora-dev
   script:
     - mkdir build
     - cd build
@@ -187,7 +187,7 @@ openSUSE 15.1 RPM Test:
 Debian Stable APT Package:
   extends: .build
   rules: !reference [.if-merged]
-  image: wireshark/wireshark-debian-stable-dev
+  image: registry.gitlab.com/wireshark/wireshark-containers/debian-stable-dev:2021-Q4
   script:
     # Shared GitLab runners limit the log size to 4M, so reduce verbosity. See
     # https://gitlab.com/gitlab-com/support-forum/issues/2790
@@ -202,7 +202,7 @@ Debian Stable APT Package:
     expire_in: 3 days
 Debian Stable APT Test:
   rules: !reference [.if-merged]
-  image: wireshark/wireshark-debian-stable-dev
+  image: registry.gitlab.com/wireshark/wireshark-containers/debian-stable-dev:2021-Q4
   stage: test
   script:
     - DEBIAN_FRONTEND=noninteractive apt-get install ./debian-packages/*.deb -y
@@ -269,7 +269,7 @@ Code Checks + Clang Warnings:
 # Dockerfile at https://github.com/wireshark/wireshark-windows-dev-docker.
 # XXX We currently depend on Qt being installed in C:\Qt on the host. We should
 # find a more independent way of installing Qt, e.g. via a download+cache.
-Windows Build:
+.Windows Build:
   rules: !reference [.if-attached-merge-request]
   tags:
     - wireshark-windows-merge-req
@@ -328,16 +328,16 @@ Windows Build:
     - FUZZ_ERRORS="/tmp/fuzz/$( basename "$FUZZ_CAPTURE" .pcap ).err"
     - printf "\nfuzz-test.sh stderr:\n" >> "$FUZZ_ERRORS"
     - cat fuzz-test.err >> "$FUZZ_ERRORS"
-    - |
-      if [ -n "$AWS_ACCESS_KEY_ID" ] && [ -n "$AWS_SECRET_ACCESS_KEY" ] && [ -n "$S3_DESTINATION_FUZZ" ] ; then
-        aws s3 cp "$FUZZ_CAPTURE" "$S3_DESTINATION_FUZZ/"
-        aws s3 cp "$FUZZ_ERRORS" "$S3_DESTINATION_FUZZ/"
-      fi
+    # - |
+    #   if [ -n "$AWS_ACCESS_KEY_ID" ] && [ -n "$AWS_SECRET_ACCESS_KEY" ] && [ -n "$S3_DESTINATION_FUZZ" ] ; then
+    #     aws s3 cp "$FUZZ_CAPTURE" "$S3_DESTINATION_FUZZ/"
+    #     aws s3 cp "$FUZZ_ERRORS" "$S3_DESTINATION_FUZZ/"
+    #   fi
     # The cache should be large enough to be useful but it shouldn't take
     # too long to restore+save each run.
     - ccache --max-size $( du --summarize --block-size=1M "$CI_PROJECT_DIR/build" | awk '{printf ("%dM", $1 * 1.5)}' )
 
-ASan Menagerie Fuzz:
+.ASan Menagerie Fuzz:
   extends: .fuzz-ubuntu
   stage: fuzz-asan
   script:
@@ -352,7 +352,7 @@ ASan Menagerie Fuzz:
     # We have more captures than we can fuzz in $MAX_SECONDS, so we shuffle them each run.
     - ./tools/fuzz-test.sh -a -2 -P $MIN_PLUGINS -b $INSTALL_PREFIX/bin -d /tmp/fuzz -t $MAX_SECONDS $( shuf -e /var/menagerie/*/* ) 2> fuzz-test.err || echo "export FUZZ_PASSED=false" > /tmp/fuzz_result.sh
 
-ASan randpkt Fuzz:
+.ASan randpkt Fuzz:
   extends: .fuzz-ubuntu
   stage: fuzz-randpkt
   script:
@@ -366,7 +366,7 @@ ASan randpkt Fuzz:
     - ./tools/randpkt-test.sh -a -b $INSTALL_PREFIX/bin -d /tmp/fuzz -p $MAX_PASSES 2> fuzz-test.err || echo "export FUZZ_PASSED=false" > /tmp/fuzz_result.sh
   needs: [ 'ASan Menagerie Fuzz' ]
 
-Valgrind Menagerie Fuzz:
+.Valgrind Menagerie Fuzz:
   extends: .fuzz-ubuntu
   stage: fuzz-valgrind
   script:
