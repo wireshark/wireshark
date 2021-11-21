@@ -134,6 +134,7 @@ public:
 };
 
 
+#ifdef QT_MULTIMEDIA_LIB
 RtpPlayerDialog *RtpPlayerDialog::pinstance_{nullptr};
 std::mutex RtpPlayerDialog::mutex_;
 
@@ -148,6 +149,7 @@ RtpPlayerDialog *RtpPlayerDialog::openRtpPlayerDialog(QWidget &parent, CaptureFi
     }
     return pinstance_;
 }
+#endif // QT_MULTIMEDIA_LIB
 
 RtpPlayerDialog::RtpPlayerDialog(QWidget &parent, CaptureFile &cf, bool capture_running) :
     WiresharkDialog(parent, cf)
@@ -158,7 +160,6 @@ RtpPlayerDialog::RtpPlayerDialog(QWidget &parent, CaptureFile &cf, bool capture_
     , first_stream_rel_stop_time_(0.0)
     , streams_length_(0.0)
     , start_marker_time_(0.0)
-#endif // QT_MULTIMEDIA_LIB
     , number_ticker_(new QCPAxisTicker)
     , datetime_ticker_(new QCPAxisTickerDateTime)
     , stereo_available_(false)
@@ -170,6 +171,7 @@ RtpPlayerDialog::RtpPlayerDialog(QWidget &parent, CaptureFile &cf, bool capture_
     , lock_ui_(0)
     , read_capture_enabled_(capture_running)
     , silence_skipped_time_(0.0)
+#endif // QT_MULTIMEDIA_LIB
 {
     ui->setupUi(this);
     loadGeometry(parent.width(), parent.height());

@@ -1251,7 +1251,8 @@ if(BUILD_wireshark)
 		Qt${qtver}Core
 		Qt${qtver}Gui
 		Qt${qtver}LinguistTools
-		Qt${qtver}Multimedia
+		# Our code currently does not compile with Qt6Multimedia
+		# Qt${qtver}Multimedia
 		Qt${qtver}PrintSupport
 		Qt${qtver}Widgets
 	)
@@ -1268,6 +1269,7 @@ if(BUILD_wireshark)
 			set(MIN_MACOS_VERSION 10.14)
 		endif()
 	else()
+		list(APPEND QT_PACKAGELIST Qt5Multimedia)
 		if(WIN32)
 			list(APPEND QT_PACKAGELIST Qt5WinExtras)
 		endif()
@@ -1290,6 +1292,9 @@ if(BUILD_wireshark)
 	set(QT_FOUND ON)
 	if(APPLE)
 		ws_find_package(Sparkle ENABLE_SPARKLE HAVE_SOFTWARE_UPDATE)
+	endif()
+	if(Qt${qtver}Multimedia_FOUND)
+		set(QT_MULTIMEDIA_LIB 1)
 	endif()
 endif()
 

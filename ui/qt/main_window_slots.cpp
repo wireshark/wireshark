@@ -3576,8 +3576,10 @@ void MainWindow::on_actionTelephonyRtpPlayer_triggered()
         QMessageBox::warning(this, tr("RTP packet search failed"),
                              err,
                              QMessageBox::Ok);
+#ifdef QT_MULTIMEDIA_LIB
     } else {
         openTelephonyRtpPlayerDialog()->addRtpStreams(stream_ids);
+#endif // QT_MULTIMEDIA_LIB
     }
     foreach(rtpstream_id_t *id, stream_ids) {
         rtpstream_id_free(id);
@@ -4165,6 +4167,7 @@ void MainWindow::activatePluginIFToolbar(bool)
     }
 }
 
+#ifdef QT_MULTIMEDIA_LIB
 void MainWindow::rtpPlayerDialogReplaceRtpStreams(QVector<rtpstream_id_t *> stream_ids)
 {
     openTelephonyRtpPlayerDialog()->replaceRtpStreams(stream_ids);
@@ -4179,6 +4182,7 @@ void MainWindow::rtpPlayerDialogRemoveRtpStreams(QVector<rtpstream_id_t *> strea
 {
     openTelephonyRtpPlayerDialog()->removeRtpStreams(stream_ids);
 }
+#endif // QT_MULTIMEDIA_LIB
 
 void MainWindow::rtpAnalysisDialogReplaceRtpStreams(QVector<rtpstream_id_t *> stream_ids)
 {
