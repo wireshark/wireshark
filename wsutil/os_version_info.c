@@ -361,7 +361,7 @@ get_os_version_info(GString *str)
 			is_nt_workstation = (win_version_info.wProductType == VER_NT_WORKSTATION);
 			switch (win_version_info.dwMinorVersion) {
 			case 0:
-				g_string_append_printf(str, is_nt_workstation ? "Windows 10" : "Windows Server 2016");
+				g_string_append_printf(str, is_nt_workstation ? "Windows 10/11" : "Windows Server 2016/2019");
                                 if (RegGetValue(HKEY_LOCAL_MACHINE, L"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion",
                                                 L"DisplayVersion", RRF_RT_REG_SZ, NULL, &ReleaseId, &ridSize) == ERROR_SUCCESS) {
                                         g_string_append_printf(str, " (%s)", utf_16to8(ReleaseId));
