@@ -293,6 +293,9 @@ Debian Stable APT Test:
     # Used for https://www.wireshark.org/docs/dfref/
     - TSHARK_VERSION=$( tshark --version | head -n 1 | sed -e 's/.*(v//' -e 's/)$//' -e 's/-0-g.*//' )
     - tshark -G fields > dfilter-list-${TSHARK_VERSION}.txt
+  artifacts:
+    paths:
+      - dfilter-list-*.txt
   variables:
     GIT_STRATEGY: none
   needs: [ 'Debian Stable APT Package' ]
