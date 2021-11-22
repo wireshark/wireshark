@@ -22,7 +22,8 @@ Wireshark 3.6.0 Release Notes
    The following features are new (or have been significantly updated)
    since version 3.6.0rc2:
 
-     • Display filter set elements must now be comma-separated.
+     • Display filter set elements must now be comma-separated. See
+       below for more details.
 
    The following features are new (or have been significantly updated)
    since version 3.6.0rc1:
@@ -58,18 +59,23 @@ Wireshark 3.6.0 Release Notes
 
         • Set elements must now be separated using a comma. A filter
        such as http.request.method in {"GET" "HEAD"} must be written as
-       …​ in {"GET", "HEAD"}. (Whitespace is not significant.) The
+       …​ in {"GET", "HEAD"}. Whitespace is not significant. The
        previous use of whitespace as separator is deprecated and will be
        removed in a future version.
 
         • Support for the syntax "a not in b" with the same meaning as
        "not a in b" has been added.
 
-     • The Windows installers now ship with Npcap 1.55.
+     • Packaging updates:
 
-     • A 64-bit Windows PortableApps package is now available.
+        • A macOS Arm 64 (Apple Silicon) package is now available.
 
-     • A macOS Arm 64 (Apple Silicon) package is now available.
+        • The macOS Intel packages now ship with Qt 5.15.3 and require
+       macOS 10.13 or later.
+
+        • The Windows installers now ship with Npcap 1.55.
+
+        • A 64-bit Windows PortableApps package is now available.
 
      • TCP conversations now support a completeness criteria, which
        facilitates the identification of TCP streams having any of
@@ -105,9 +111,9 @@ Wireshark 3.6.0 Release Notes
        the timestamp and it will be stored with nanosecond instead of
        microsecond precision.
 
-     • Significant RTP Player redesign and improvements (see Wireshark
-       User Documentation, Playing VoIP Calls[1] and RTP Player
-       Window[2])
+     • The RTP Player has been significatnly redesigned and improved.
+       See Playing VoIP Calls[1] and RTP Player Window[2] in the User’s
+       Guide for more details.
 
         • The RTP Player can play many streams in row.
 
@@ -170,13 +176,14 @@ Wireshark 3.6.0 Release Notes
      • Analyze › Reload Lua Plugins has been improved to properly
        support FileHandler.
 
-     • Corrected calculation of mean jitter in RTP Stream Analysis
-       dialog and “IAX2 Stream Analysis” dialog
+     • The “RTP Stream Analysis” and “IAX2 Stream Analysis” dialogs now
+       show correct calculation mean jitter calculations.
 
-     • RTP streams are created based on Skinny protocol messages
+     • RTP streams are now created based on Skinny protocol messages in
+       addition to other types of messages.
 
      • The “VoIP Calls Flow Sequence” window shows more information
-       about various Skinny messages
+       about various Skinny messages.
 
      • Initial support for building Wireshark on Windows using GCC and
        MinGW-w64 has been added. See README.msys2 in the sources for
@@ -250,7 +257,7 @@ Wireshark 3.6.0 Release Notes
 
   A complete FAQ is available on the Wireshark web site[8].
 
-  Last updated 2021-11-21 16:06:54 UTC
+  Last updated 2021-11-22 18:33:14 UTC
 
  References
 

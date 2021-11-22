@@ -35,7 +35,7 @@ The following features are new (or have been significantly updated) since versio
 
 The following features are new (or have been significantly updated) since version 3.6.0rc2:
 
-* Display filter set elements must now be comma-separated.
+* Display filter set elements must now be comma-separated. See below for more details.
 
 The following features are new (or have been significantly updated) since version 3.6.0rc1:
 
@@ -54,16 +54,22 @@ The following features are new (or have been significantly updated) since versio
 ** It is possible to use the syntax “a ~= b” or “a any_ne b” to recover the previous (inconsistent with "==") logic for not equal.
 ** Literal strings can now be specified using raw string syntax, identical to raw strings in the Python programming language.
    This can be used to avoid the complexity of using two levels of character escapes with regular expressions.
-** Set elements must now be separated using a comma. A filter such as http.request.method in {"GET" "HEAD"} must be written as ... in {"GET", "HEAD"}.
-   (Whitespace is not significant.) The previous use of whitespace as separator is deprecated and will be removed in a future version.
+** Set elements must now be separated using a comma.
+   A filter such as http.request.method in {"GET" "HEAD"} must be written as ... in {"GET", "HEAD"}.
+   Whitespace is not significant.
+   The previous use of whitespace as separator is deprecated and will be removed in a future version.
 ** Support for the syntax "a not in b" with the same meaning as "not a in b" has been added.
 
-* The Windows installers now ship with Npcap 1.55.
+* Packaging updates:
+** A macOS Arm 64 (Apple Silicon) package is now available.
+
+** The macOS Intel packages now ship with Qt 5.15.3 and require macOS 10.13 or later.
+
+** The Windows installers now ship with Npcap 1.55.
 //They previously shipped with Npcap 1.31.
 
-* A 64-bit Windows PortableApps package is now available.
+** A 64-bit Windows PortableApps package is now available.
 
-* A macOS Arm 64 (Apple Silicon) package is now available.
 
 * TCP conversations now support a completeness criteria, which facilitates the identification of TCP streams having any
   of opening or closing handshakes, a payload, in any combination. It can be accessed with the new `tcp.completeness` filter.
@@ -87,9 +93,11 @@ The following features are new (or have been significantly updated) since versio
   Also the timestamp format now allows the second-fractions to be placed anywhere in the timestamp and it will be stored with
   nanosecond instead of microsecond precision.
 
-* Significant RTP Player redesign and improvements (see Wireshark User Documentation,
+* The RTP Player has been significatnly redesigned and improved.
+  See
   {wireshark-users-guide-url}ChTelPlayingCalls.html[Playing VoIP Calls] and
-  {wireshark-users-guide-url}_rtp.html#ChTelRtpPlayer[RTP Player Window])
+  {wireshark-users-guide-url}_rtp.html#ChTelRtpPlayer[RTP Player Window]
+  in the User’s Guide for more details.
 ** The RTP Player can play many streams in row.
 ** The UI is more responsive.
 ** The RTP Player maintains playlist and other tools can add and remove streams to and from it.
@@ -125,11 +133,11 @@ The following features are new (or have been significantly updated) since versio
 
 * menu:Analyze[Reload Lua Plugins] has been improved to properly support FileHandler.
 
-* Corrected calculation of mean jitter in RTP Stream Analysis dialog and “IAX2 Stream Analysis” dialog
+* The “RTP Stream Analysis” and “IAX2 Stream Analysis” dialogs now show correct calculation mean jitter calculations.
 
-* RTP streams are created based on Skinny protocol messages
+* RTP streams are now created based on Skinny protocol messages in addition to other types of messages.
 
-* The “VoIP Calls Flow Sequence” window shows more information about various Skinny messages
+* The “VoIP Calls Flow Sequence” window shows more information about various Skinny messages.
 
 * Initial support for building Wireshark on Windows using GCC and MinGW-w64 has been added.
   See README.msys2 in the sources for more information.

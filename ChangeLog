@@ -1,3 +1,31 @@
+bb91f28f65 EVS: Fix bug in decoding LP-CNG SID BW value
+8185593be2 MKA: Adding Announcement TLV parsing and Cipher Suite
+4328ee8982 MKA: Adding support for Announcement TLV padding (Bugfix)
+2836470b73 gryphon: Create pkt_info if it doesn't exist
+f30ae830db [Automatic update for 2021-11-21]
+f140d026dd Qt: Fix column validation in columnString()
+c7ec98d91b Docs: Clean up the release notes.
+9d3efe18bc Docs: Remove a link to GRegex from the wireshark-filter man page.
+a7562a6d4d btle: Improve Advertising Data reassembly
+e551d30b50 BBLog: Fix the handling of skipped blocks
+87d9568f7e GTPv2: fix dissection of 5GS TAC
+4787a74f9e Test: Make sure XDG_CONFIG_HOME isn't set.
+d9846f8f0e Don't close stdin on spawn error
+9e294a7ac5 WOWW: Switch to port 0 for now.
+e1b8a37bf1 GitLab CI: Add dfilter list generation.
+5c2d2b2462 tests: fix test fails on Ubuntu, fix #17730
+e57aac1338 TCP Black Box Log: Fix and improve some fields
+f1af4af44a VoIP calls dialog: fix generated filter
+1e9ffa036f GitLab CI: Bump our minimum macOS Intel version.
+9a1c3ba7cd GitLab CI: Switch the macOS Intel build to Qt 5.15.3.
+d8a6524db7 PDCP-LTE: add missing _lte to register function name
+d34fdf6e20 [Automatic update for 2021-11-14]
+66dccb7363 Don't include config.h in the example plugin.
+dd163afb55 Don't use HAVE_CONFIG_H in sample code in the documentation.
+369041a925 We cannot use HAVE_CONFIG_H
+a29da2ca0c Release notes: Group display filter items together
+acaee66e52 Prep for the next release candidate.
+2828b8b713 Build 3.6.0rc3
 db3cfe5157 MKA: MACsec SAK USE body length = 0 does not decode (BUGFIX)
 55e05d3f76 Add initial support for MinGW-w64 to release notes
 a200e6459b README.msys2: Add more information about missing packages
