@@ -15533,7 +15533,7 @@ void proto_register_rtps(void) {
         FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x08, NULL, HFILL }
     },
     { &hf_rtps_udpv4_wan_locator_flags, {
-        "UDPv4 WAN locator flags", "rtps.flag.udpv4_wan_locator",
+        "Flags", "rtps.flag.udpv4_wan_locator",
         FT_UINT8, BASE_HEX, NULL, 0, "Bitmask representing the flags UDPv4 WAN locator", HFILL }
     },
     { &hf_rtps_uuid,{
@@ -15541,19 +15541,19 @@ void proto_register_rtps(void) {
         FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }
     },
     { &hf_rtps_udpv4_wan_locator_public_ip, {
-        "WAN locator public IP", "rtps.udpv4_wan_locator.public_ip",
+        "Public IP", "rtps.udpv4_wan_locator.public_ip",
         FT_IPv4, BASE_NONE, NULL, 0, NULL, HFILL }
     },
     { &hf_rtps_udpv4_wan_locator_public_port, {
-        "WAN locator public port", "rtps.udpv4_wan_locator.public_port",
+        "Public port", "rtps.udpv4_wan_locator.public_port",
         FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }
     },
     { &hf_rtps_udpv4_wan_locator_local_ip,{
-        "WAN locator local IP", "rtps.udpv4_wan_locator.local_ip",
+        "Local IP", "rtps.udpv4_wan_locator.local_ip",
         FT_IPv4, BASE_NONE, NULL, 0, NULL, HFILL }
     },
     { &hf_rtps_udpv4_wan_locator_local_port,{
-        "WAN locator local port", "rtps.udpv4_wan_locator.local_port",
+        "Local port", "rtps.udpv4_wan_locator.local_port",
         FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }
     },
     { &hf_rtps_flag_udpv4_wan_binding_ping_e, {
@@ -15561,7 +15561,7 @@ void proto_register_rtps(void) {
         FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x01, NULL, HFILL }
     },
     { &hf_rtps_flag_udpv4_wan_binding_ping_l, {
-        "long address", "rtps.flag.udpv4_wan_binding_ping.l",
+        "Long address", "rtps.flag.udpv4_wan_binding_ping.l",
         FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x02, NULL, HFILL }
     },
     { &hf_rtps_flag_udpv4_wan_binding_ping_b,{
@@ -15569,11 +15569,11 @@ void proto_register_rtps(void) {
         FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x04, NULL, HFILL }
     },
     { &hf_rtps_udpv4_wan_binding_ping_flags, {
-        "UDPv4 WAN binding ping flags", "rtps.flag.udpv4_wan_binding_ping",
+        "Flags", "rtps.flag.udpv4_wan_binding_ping",
         FT_UINT8, BASE_HEX, NULL, 0, "Bitmask representing the flags UDPv4 WAN binding ping", HFILL }
     },
     { &hf_rtps_udpv4_wan_binding_ping_port, {
-        "UDPv4 WAN binding RTPS port", "rtps.flag.udpv4_wan_binding_rtps_port",
+        "RTPS port", "rtps.flag.udpv4_wan_binding_rtps_port",
         FT_UINT32, BASE_DEC, NULL, 0, "UDPv4 WAN binding ping RTPS port", HFILL }
     },
     { &hf_rtps_long_address, {
