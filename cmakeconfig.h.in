@@ -283,9 +283,6 @@
 /* Define if we have QtMultimedia */
 #define QT_MULTIMEDIA_LIB 1
 
-/* Define if we have QtMacExtras */
-#cmakedefine QT_MACEXTRAS_LIB 1
-
 /* Build androiddump with libpcap instead of wireshark stuff */
 #cmakedefine ANDROIDDUMP_USE_LIBPCAP 1
 

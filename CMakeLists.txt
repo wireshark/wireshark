@@ -1250,7 +1250,6 @@ if(BUILD_wireshark)
 		Qt5Widgets
 	)
 	if(APPLE)
-		list(APPEND QT_PACKAGELIST Qt5MacExtras)
 		ws_find_package(Sparkle ENABLE_SPARKLE HAVE_SOFTWARE_UPDATE)
 	endif()
 	if(WIN32)
@@ -1272,9 +1271,6 @@ if(BUILD_wireshark)
 		list(APPEND QT_INCLUDE_DIRS /usr/local/opt/qt5/include)
 	endif()
 	set(QT_FOUND ON)
-	if(Qt5MacExtras_FOUND)
-		set(QT_MACEXTRAS_LIB 1)
-	endif()
 endif()
 
 # MaxMind DB address resolution
