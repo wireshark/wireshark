@@ -134,8 +134,8 @@ static const value_string param_set_type_vals[] = {
 static const value_string macsec_capability_type_vals[] = {
   { 0,                     "MACsec not implemented" },
   { 1,                     "MACsec Integrity without confidentiality" },
-  { 2,                     "MACsec Integrity with no confidentiality offset" },
-  { 3,                     "MACsec Integrity with confidentiality offset" },
+  { 2,                     "MACsec Integrity with/without confidentiality, no confidentiality offset" },
+  { 3,                     "MACsec Integrity with/without confidentiality, confidentiality offset 0, 30, or 50" },
   { 0, NULL }
 };
 
