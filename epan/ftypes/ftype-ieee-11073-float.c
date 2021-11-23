@@ -907,6 +907,7 @@ Example: 114 is 0x0072
         NULL,                                 /* free_value */
         sfloat_ieee_11073_val_from_unparsed,  /* val_from_unparsed */
         NULL,                                 /* val_from_string */
+        NULL,                                 /* val_from_charconst */
         sfloat_ieee_11073_val_to_repr,        /* val_to_string_repr */
 
         { .set_value_uinteger = sfloat_ieee_11073_value_set }, /* union set_value */
@@ -957,6 +958,7 @@ Example: 36.4 is 0xFF00016C
         NULL,                                /* free_value */
         float_ieee_11073_val_from_unparsed,  /* val_from_unparsed */
         NULL,                                /* val_from_string */
+        NULL,                                /* val_from_charconst */
         float_ieee_11073_val_to_repr,        /* val_to_string_repr */
 
         { .set_value_uinteger = float_ieee_11073_value_set }, /* union set_value */

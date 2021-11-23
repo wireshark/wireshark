@@ -24,6 +24,7 @@ ftype_register_none(void)
 		NULL,				/* free_value */
 		NULL,				/* val_from_unparsed */
 		NULL,				/* val_from_string */
+		NULL,				/* val_from_charconst */
 		NULL,				/* val_to_string_repr */
 
 		{ NULL },			/* union set_value */

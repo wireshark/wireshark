@@ -80,6 +80,7 @@ df_lval_t *df_lval;
 static int set_lval_str(int token, const char *token_value);
 #define simple(token) set_lval_str(token, yytext)
 static gboolean append_escaped_char(dfwork_t *dfw, GString *str, char c);
+static gboolean parse_charconst(dfwork_t *dfw, const char *s, unsigned long *valuep);
 
 /*
  * Sleazy hack to suppress compiler warnings in yy_fatal_error().
@@ -286,6 +287,10 @@ static gboolean append_escaped_char(dfwork_t *dfw, GString *str, char c);
 	g_string_append_c(yyextra->quoted_string, '\'');
 	df_lval->value = g_string_free(yyextra->quoted_string, FALSE);
 	yyextra->quoted_string = NULL;
+
+	if (!parse_charconst(yyextra->dfw, df_lval->value, &df_lval->number)) {
+		return SCAN_FAILED;
+	}
 	return TOKEN_CHARCONST;
 }
 
@@ -383,5 +388,145 @@ append_escaped_char(dfwork_t *dfw, GString *str, char c)
 	}
 
 	g_string_append_c(str, c);
+	return TRUE;
+}
+
+static gboolean
+parse_charconst(dfwork_t *dfw, const char *s, unsigned long *valuep)
+{
+	const char *cp;
+	unsigned long value;
+
+	cp = s + 1;	/* skip the leading ' */
+	if (*cp == '\\') {
+		/*
+		 * C escape sequence.
+		 * An escape sequence is an octal number \NNN,
+		 * an hex number \xNN, or one of \' \" \\ \a \b \f \n \r \t \v
+		 * that stands for the byte value of the equivalent
+		 * C-escape in ASCII encoding.
+		 */
+		cp++;
+		switch (*cp) {
+
+		case '\0':
+			dfilter_fail(dfw, "\"%s\" isn't a valid character constant.", s);
+			return FALSE;
+
+		case 'a':
+			value = '\a';
+			break;
+
+		case 'b':
+			value = '\b';
+			break;
+
+		case 'f':
+			value = '\f';
+			break;
+
+		case 'n':
+			value = '\n';
+			break;
+
+		case 'r':
+			value = '\r';
+			break;
+
+		case 't':
+			value = '\t';
+			break;
+
+		case 'v':
+			value = '\v';
+			break;
+
+		case '\'':
+			value = '\'';
+			break;
+
+		case '\\':
+			value = '\\';
+			break;
+
+		case '"':
+			value = '"';
+			break;
+
+		case 'x':
+			cp++;
+			if (*cp >= '0' && *cp <= '9')
+				value = *cp - '0';
+			else if (*cp >= 'A' && *cp <= 'F')
+				value = 10 + (*cp - 'A');
+			else if (*cp >= 'a' && *cp <= 'f')
+				value = 10 + (*cp - 'a');
+			else {
+				dfilter_fail(dfw, "\"%s\" isn't a valid character constant.", s);
+				return FALSE;
+			}
+			cp++;
+			if (*cp != '\'') {
+				value <<= 4;
+				if (*cp >= '0' && *cp <= '9')
+					value |= *cp - '0';
+				else if (*cp >= 'A' && *cp <= 'F')
+					value |= 10 + (*cp - 'A');
+				else if (*cp >= 'a' && *cp <= 'f')
+					value |= 10 + (*cp - 'a');
+				else {
+					dfilter_fail(dfw, "\"%s\" isn't a valid character constant.", s);
+					return FALSE;
+				}
+			}
+			break;
+
+		default:
+			/* Octal */
+			if (*cp >= '0' && *cp <= '7')
+				value = *cp - '0';
+			else {
+				dfilter_fail(dfw, "\"%s\" isn't a valid character constant.", s);
+				return FALSE;
+			}
+			if (*(cp + 1) != '\'') {
+				cp++;
+				value <<= 3;
+				if (*cp >= '0' && *cp <= '7')
+					value |= *cp - '0';
+				else {
+					dfilter_fail(dfw, "\"%s\" isn't a valid character constant.", s);
+					return FALSE;
+				}
+				if (*(cp + 1) != '\'') {
+					cp++;
+					value <<= 3;
+					if (*cp >= '0' && *cp <= '7')
+						value |= *cp - '0';
+					else {
+						dfilter_fail(dfw, "\"%s\" isn't a valid character constant.", s);
+						return FALSE;
+					}
+				}
+			}
+			if (value > 0xFF) {
+				dfilter_fail(dfw, "\"%s\" is too large to be a valid character constant.", s);
+				return FALSE;
+			}
+		}
+	} else {
+		value = *cp;
+		if (!g_ascii_isprint(value)) {
+			dfilter_fail(dfw, "Non-printable character '\\x%02lx' in character constant.", value);
+			return FALSE;
+		}
+	}
+	cp++;
+	if ((*cp != '\'') || (*(cp + 1) != '\0')){
+		dfilter_fail(dfw, "\"%s\" is too long to be a valid character constant.", s);
+		return FALSE;
+	}
+
+	*valuep = value;
 	return TRUE;
 }

@@ -112,7 +112,7 @@ stnode_t *
 stnode_new_unparsed(const char *str);
 
 stnode_t *
-stnode_new_charconst(const char *str);
+stnode_new_charconst(unsigned long number);
 
 stnode_t*
 stnode_dup(const stnode_t *org);

@@ -342,6 +342,7 @@ ftype_register_time(void)
 		NULL,				/* free_value */
 		absolute_val_from_unparsed,	/* val_from_unparsed */
 		absolute_val_from_string,	/* val_from_string */
+		NULL,				/* val_from_charconst */
 		absolute_val_to_repr,		/* val_to_string_repr */
 
 		{ .set_value_time = time_fvalue_set },	/* union set_value */
@@ -364,6 +365,7 @@ ftype_register_time(void)
 		NULL,				/* free_value */
 		relative_val_from_unparsed,	/* val_from_unparsed */
 		NULL,				/* val_from_string */
+		NULL,				/* val_from_charconst */
 		relative_val_to_repr,		/* val_to_string_repr */
 
 		{ .set_value_time = time_fvalue_set },	/* union set_value */

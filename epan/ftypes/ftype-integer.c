@@ -49,206 +49,49 @@ get_sinteger(fvalue_t *fv)
 }
 
 static gboolean
-parse_charconst(const char *s, unsigned long *valuep, gchar **err_msg)
-{
-	const char *cp;
-	unsigned long value;
-
-	cp = s + 1;	/* skip the leading ' */
-	if (*cp == '\\') {
-		/*
-		 * C escape sequence.
-		 * An escape sequence is an octal number \NNN,
-		 * an hex number \xNN, or one of \' \" \\ \a \b \f \n \r \t \v
-		 * that stands for the byte value of the equivalent
-		 * C-escape in ASCII encoding.
-		 */
-		cp++;
-		switch (*cp) {
-
-		case '\0':
-			if (err_msg != NULL)
-				*err_msg = g_strdup_printf("\"%s\" isn't a valid character constant.", s);
-			return FALSE;
-
-		case 'a':
-			value = '\a';
-			break;
-
-		case 'b':
-			value = '\b';
-			break;
-
-		case 'f':
-			value = '\f';
-			break;
-
-		case 'n':
-			value = '\n';
-			break;
-
-		case 'r':
-			value = '\r';
-			break;
-
-		case 't':
-			value = '\t';
-			break;
-
-		case 'v':
-			value = '\v';
-			break;
-
-		case '\'':
-			value = '\'';
-			break;
-
-		case '\\':
-			value = '\\';
-			break;
-
-		case '"':
-			value = '"';
-			break;
-
-		case 'x':
-			cp++;
-			if (*cp >= '0' && *cp <= '9')
-				value = *cp - '0';
-			else if (*cp >= 'A' && *cp <= 'F')
-				value = 10 + (*cp - 'A');
-			else if (*cp >= 'a' && *cp <= 'f')
-				value = 10 + (*cp - 'a');
-			else {
-				if (err_msg != NULL)
-					*err_msg = g_strdup_printf("\"%s\" isn't a valid character constant.", s);
-				return FALSE;
-			}
-			cp++;
-			if (*cp != '\'') {
-				value <<= 4;
-				if (*cp >= '0' && *cp <= '9')
-					value |= *cp - '0';
-				else if (*cp >= 'A' && *cp <= 'F')
-					value |= 10 + (*cp - 'A');
-				else if (*cp >= 'a' && *cp <= 'f')
-					value |= 10 + (*cp - 'a');
-				else {
-					if (err_msg != NULL)
-						*err_msg = g_strdup_printf("\"%s\" isn't a valid character constant.", s);
-					return FALSE;
-				}
-			}
-			break;
-
-		default:
-			/* Octal */
-			if (*cp >= '0' && *cp <= '7')
-				value = *cp - '0';
-			else {
-				if (err_msg != NULL)
-					*err_msg = g_strdup_printf("\"%s\" isn't a valid character constant.", s);
-				return FALSE;
-			}
-			if (*(cp + 1) != '\'') {
-				cp++;
-				value <<= 3;
-				if (*cp >= '0' && *cp <= '7')
-					value |= *cp - '0';
-				else {
-					if (err_msg != NULL)
-						*err_msg = g_strdup_printf("\"%s\" isn't a valid character constant.", s);
-					return FALSE;
-				}
-				if (*(cp + 1) != '\'') {
-					cp++;
-					value <<= 3;
-					if (*cp >= '0' && *cp <= '7')
-						value |= *cp - '0';
-					else {
-						if (err_msg != NULL)
-							*err_msg = g_strdup_printf("\"%s\" isn't a valid character constant.", s);
-						return FALSE;
-					}
-				}
-			}
-			if (value > 0xFF) {
-				if (err_msg != NULL)
-					*err_msg = g_strdup_printf("\"%s\" is too large to be a valid character constant.", s);
-				return FALSE;
-			}
-		}
-	} else {
-		value = *cp;
-		if (!g_ascii_isprint(value)) {
-			if (err_msg != NULL)
-				*err_msg = g_strdup_printf("Non-printable character '\\x%02lx' in character constant.", value);
-			return FALSE;
-		}
-	}
-	cp++;
-	if ((*cp != '\'') || (*(cp + 1) != '\0')){
-		if (err_msg != NULL)
-			*err_msg = g_strdup_printf("\"%s\" is too long to be a valid character constant.", s);
-		return FALSE;
-	}
-
-	*valuep = value;
-	return TRUE;
-}
-
-static gboolean
 uint_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg,
 		   guint32 max)
 {
 	unsigned long value;
 	char	*endptr;
 
-	if (s[0] == '\'') {
+	/*
+	 * Try to parse it as a number.
+	 */
+	if (strchr (s, '-') && strtol(s, NULL, 0) < 0) {
 		/*
-		 * Represented as a C-style character constant.
+		 * Probably a negative integer, but will be
+		 * "converted in the obvious manner" by strtoul().
 		 */
-		if (!parse_charconst(s, &value, err_msg))
-			return FALSE;
-	} else {
-		/*
-		 * Try to parse it as a number.
-		 */
-		if (strchr (s, '-') && strtol(s, NULL, 0) < 0) {
-			/*
-			 * Probably a negative integer, but will be
-			 * "converted in the obvious manner" by strtoul().
-			 */
-			if (err_msg != NULL)
-				*err_msg = g_strdup_printf("\"%s\" too small for this field, minimum 0.", s);
-			return FALSE;
-		}
+		if (err_msg != NULL)
+			*err_msg = g_strdup_printf("\"%s\" too small for this field, minimum 0.", s);
+		return FALSE;
+	}
 
-		errno = 0;
-		value = strtoul(s, &endptr, 0);
+	errno = 0;
+	value = strtoul(s, &endptr, 0);
 
-		if (errno == EINVAL || endptr == s || *endptr != '\0') {
-			/* This isn't a valid number. */
-			if (err_msg != NULL)
-				*err_msg = g_strdup_printf("\"%s\" is not a valid number.", s);
-			return FALSE;
-		}
-		if (errno == ERANGE) {
-			if (err_msg != NULL) {
-				if (value == ULONG_MAX) {
-					*err_msg = g_strdup_printf("\"%s\" causes an integer overflow.",
-					    s);
-				}
-				else {
-					/*
-					 * XXX - can "strtoul()" set errno to
-					 * ERANGE without returning ULONG_MAX?
-					 */
-					*err_msg = g_strdup_printf("\"%s\" is not an integer.", s);
-				}
+	if (errno == EINVAL || endptr == s || *endptr != '\0') {
+		/* This isn't a valid number. */
+		if (err_msg != NULL)
+			*err_msg = g_strdup_printf("\"%s\" is not a valid number.", s);
+		return FALSE;
+	}
+	if (errno == ERANGE) {
+		if (err_msg != NULL) {
+			if (value == ULONG_MAX) {
+				*err_msg = g_strdup_printf("\"%s\" causes an integer overflow.",
+				    s);
 			}
-			return FALSE;
+			else {
+				/*
+				 * XXX - can "strtoul()" set errno to
+				 * ERANGE without returning ULONG_MAX?
+				 */
+				*err_msg = g_strdup_printf("\"%s\" is not an integer.", s);
+			}
 		}
+		return FALSE;
 	}
 
 	if (value > max) {
@@ -286,68 +129,59 @@ uint8_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value, g
 }
 
 static gboolean
+uint_from_charconst(fvalue_t *fv, unsigned long num, gchar **err_msg _U_)
+{
+	fv->value.uinteger = (guint32)num;
+	return TRUE;
+}
+
+static gboolean
 sint_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg,
 		   gint32 max, gint32 min)
 {
 	long value;
-	unsigned long charvalue;
 	char *endptr;
 
-	if (s[0] == '\'') {
+	/*
+	 * Try to parse it as a number.
+	 */
+	if (!strchr (s, '-') && strtoul(s, NULL, 0) > G_MAXINT32) {
 		/*
-		 * Represented as a C-style character constant.
+		 * Probably a positive integer > G_MAXINT32, but
+		 * will be "converted in the obvious manner" by
+		 * strtol().
 		 */
-		if (!parse_charconst(s, &charvalue, err_msg))
-			return FALSE;
+		if (err_msg != NULL)
+			*err_msg = g_strdup_printf("\"%s\" causes an integer overflow.", s);
+		return FALSE;
+	}
 
-		/*
-		 * The FT_CHAR type is defined to be signed, regardless
-		 * of whether char is signed or unsigned, so cast the value
-		 * to "signed char".
-		 */
-		value = (signed char)charvalue;
-	} else {
-		/*
-		 * Try to parse it as a number.
-		 */
-		if (!strchr (s, '-') && strtoul(s, NULL, 0) > G_MAXINT32) {
-			/*
-			 * Probably a positive integer > G_MAXINT32, but
-			 * will be "converted in the obvious manner" by
-			 * strtol().
-			 */
-			if (err_msg != NULL)
+	errno = 0;
+	value = strtol(s, &endptr, 0);
+
+	if (errno == EINVAL || endptr == s || *endptr != '\0') {
+		/* This isn't a valid number. */
+		if (err_msg != NULL)
+			*err_msg = g_strdup_printf("\"%s\" is not a valid number.", s);
+		return FALSE;
+	}
+	if (errno == ERANGE) {
+		if (err_msg != NULL) {
+			if (value == LONG_MAX) {
 				*err_msg = g_strdup_printf("\"%s\" causes an integer overflow.", s);
-			return FALSE;
-		}
-
-		errno = 0;
-		value = strtol(s, &endptr, 0);
-
-		if (errno == EINVAL || endptr == s || *endptr != '\0') {
-			/* This isn't a valid number. */
-			if (err_msg != NULL)
-				*err_msg = g_strdup_printf("\"%s\" is not a valid number.", s);
-			return FALSE;
-		}
-		if (errno == ERANGE) {
-			if (err_msg != NULL) {
-				if (value == LONG_MAX) {
-					*err_msg = g_strdup_printf("\"%s\" causes an integer overflow.", s);
-				}
-				else if (value == LONG_MIN) {
-					*err_msg = g_strdup_printf("\"%s\" causes an integer underflow.", s);
-				}
-				else {
-					/*
-					 * XXX - can "strtol()" set errno to
-					 * ERANGE without returning ULONG_MAX?
-					 */
-					*err_msg = g_strdup_printf("\"%s\" is not an integer.", s);
-				}
 			}
-			return FALSE;
+			else if (value == LONG_MIN) {
+				*err_msg = g_strdup_printf("\"%s\" causes an integer underflow.", s);
+			}
+			else {
+				/*
+				 * XXX - can "strtol()" set errno to
+				 * ERANGE without returning ULONG_MAX?
+				 */
+				*err_msg = g_strdup_printf("\"%s\" is not an integer.", s);
+			}
 		}
+		return FALSE;
 	}
 
 	if (value > max) {
@@ -388,6 +222,13 @@ static gboolean
 sint8_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value, gchar **err_msg)
 {
 	return sint_from_unparsed (fv, s, allow_partial_value, err_msg, G_MAXINT8, G_MININT8);
+}
+
+static gboolean
+sint_from_charconst(fvalue_t *fv, unsigned long num, gchar **err_msg _U_)
+{
+	fv->value.sinteger = (gint32)num;
+	return TRUE;
 }
 
 static char *
@@ -692,6 +533,13 @@ uint40_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value, 
 }
 
 static gboolean
+uint64_from_charconst(fvalue_t *fv, unsigned long num, gchar **err_msg _U_)
+{
+	fv->value.uinteger64 = (guint64)num;
+	return TRUE;
+}
+
+static gboolean
 _sint64_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg,
 		   gint64 max, gint64 min)
 {
@@ -772,6 +620,13 @@ static gboolean
 sint40_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value, gchar **err_msg)
 {
 	return _sint64_from_unparsed (fv, s, allow_partial_value, err_msg, G_GINT64_CONSTANT(0x7FFFFFFFFF), G_GINT64_CONSTANT(-0x8000000000));
+}
+
+static gboolean
+sint64_from_charconst(fvalue_t *fv, unsigned long num, gchar **err_msg _U_)
+{
+	fv->value.sinteger64 = (gint64)num;
+	return TRUE;
 }
 
 static char *
@@ -922,6 +777,7 @@ ftype_register_integers(void)
 		NULL,				/* free_value */
 		uint8_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
+		uint_from_charconst,		/* val_from_charconst */
 		char_to_repr,			/* val_to_string_repr */
 
 		{ .set_value_uinteger = set_uinteger },	/* union set_value */
@@ -944,6 +800,7 @@ ftype_register_integers(void)
 		NULL,				/* free_value */
 		uint8_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
+		uint_from_charconst,		/* val_from_charconst */
 		uinteger_to_repr,		/* val_to_string_repr */
 
 		{ .set_value_uinteger = set_uinteger },	/* union set_value */
@@ -966,6 +823,7 @@ ftype_register_integers(void)
 		NULL,				/* free_value */
 		uint16_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
+		uint_from_charconst,		/* val_from_charconst */
 		uinteger_to_repr,		/* val_to_string_repr */
 
 		{ .set_value_uinteger = set_uinteger },	/* union set_value */
@@ -988,6 +846,7 @@ ftype_register_integers(void)
 		NULL,				/* free_value */
 		uint24_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
+		uint_from_charconst,		/* val_from_charconst */
 		uinteger_to_repr,		/* val_to_string_repr */
 
 		{ .set_value_uinteger = set_uinteger },	/* union set_value */
@@ -1010,6 +869,7 @@ ftype_register_integers(void)
 		NULL,				/* free_value */
 		uint32_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
+		uint_from_charconst,		/* val_from_charconst */
 		uinteger_to_repr,		/* val_to_string_repr */
 
 		{ .set_value_uinteger = set_uinteger },	/* union set_value */
@@ -1032,6 +892,7 @@ ftype_register_integers(void)
 		NULL,				/* free_value */
 		uint40_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
+		uint64_from_charconst,		/* val_from_charconst */
 		uinteger64_to_repr,		/* val_to_string_repr */
 
 		{ .set_value_uinteger64 = set_uinteger64 },	/* union set_value */
@@ -1054,6 +915,7 @@ ftype_register_integers(void)
 		NULL,				/* free_value */
 		uint48_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
+		uint64_from_charconst,		/* val_from_charconst */
 		uinteger64_to_repr,		/* val_to_string_repr */
 
 		{ .set_value_uinteger64 = set_uinteger64 },	/* union set_value */
@@ -1076,6 +938,7 @@ ftype_register_integers(void)
 		NULL,				/* free_value */
 		uint56_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
+		uint64_from_charconst,		/* val_from_charconst */
 		uinteger64_to_repr,		/* val_to_string_repr */
 
 		{ .set_value_uinteger64 = set_uinteger64 },	/* union set_value */
@@ -1098,6 +961,7 @@ ftype_register_integers(void)
 		NULL,				/* free_value */
 		uint64_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
+		uint64_from_charconst,		/* val_from_charconst */
 		uinteger64_to_repr,		/* val_to_string_repr */
 
 		{ .set_value_uinteger64 = set_uinteger64 },	/* union set_value */
@@ -1120,6 +984,7 @@ ftype_register_integers(void)
 		NULL,				/* free_value */
 		sint8_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
+		sint_from_charconst,		/* val_from_charconst */
 		integer_to_repr,		/* val_to_string_repr */
 
 		{ .set_value_sinteger = set_sinteger },	/* union set_value */
@@ -1142,6 +1007,7 @@ ftype_register_integers(void)
 		NULL,				/* free_value */
 		sint16_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
+		sint_from_charconst,		/* val_from_charconst */
 		integer_to_repr,		/* val_to_string_repr */
 
 		{ .set_value_sinteger = set_sinteger },	/* union set_value */
@@ -1164,6 +1030,7 @@ ftype_register_integers(void)
 		NULL,				/* free_value */
 		sint24_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
+		sint_from_charconst,		/* val_from_charconst */
 		integer_to_repr,		/* val_to_string_repr */
 
 		{ .set_value_sinteger = set_sinteger },	/* union set_value */
@@ -1186,6 +1053,7 @@ ftype_register_integers(void)
 		NULL,				/* free_value */
 		sint32_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
+		sint_from_charconst,		/* val_from_charconst */
 		integer_to_repr,		/* val_to_string_repr */
 
 		{ .set_value_sinteger = set_sinteger },	/* union set_value */
@@ -1208,6 +1076,7 @@ ftype_register_integers(void)
 		NULL,				/* free_value */
 		sint40_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
+		sint64_from_charconst,		/* val_from_charconst */
 		integer64_to_repr,		/* val_to_string_repr */
 
 		{ .set_value_sinteger64 = set_sinteger64 },	/* union set_value */
@@ -1230,6 +1099,7 @@ ftype_register_integers(void)
 		NULL,				/* free_value */
 		sint48_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
+		sint64_from_charconst,		/* val_from_charconst */
 		integer64_to_repr,		/* val_to_string_repr */
 
 		{ .set_value_sinteger64 = set_sinteger64 },	/* union set_value */
@@ -1252,6 +1122,7 @@ ftype_register_integers(void)
 		NULL,				/* free_value */
 		sint56_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
+		sint64_from_charconst,		/* val_from_charconst */
 		integer64_to_repr,		/* val_to_string_repr */
 
 		{ .set_value_sinteger64 = set_sinteger64 },	/* union set_value */
@@ -1274,6 +1145,7 @@ ftype_register_integers(void)
 		NULL,				/* free_value */
 		sint64_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
+		sint64_from_charconst,		/* val_from_charconst */
 		integer64_to_repr,		/* val_to_string_repr */
 
 		{ .set_value_sinteger64 = set_sinteger64 },	/* union set_value */
@@ -1296,6 +1168,7 @@ ftype_register_integers(void)
 		NULL,				/* free_value */
 		uint64_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
+		uint64_from_charconst,		/* val_from_charconst */
 		boolean_to_repr,		/* val_to_string_repr */
 
 		{ .set_value_uinteger64 = set_uinteger64 },	/* union set_value */
@@ -1319,6 +1192,7 @@ ftype_register_integers(void)
 		NULL,				/* free_value */
 		ipxnet_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
+		NULL,				/* val_from_charconst */
 		ipxnet_to_repr,			/* val_to_string_repr */
 
 		{ .set_value_uinteger = set_uinteger },	/* union set_value */
@@ -1342,6 +1216,7 @@ ftype_register_integers(void)
 		NULL,				/* free_value */
 		uint32_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
+		uint_from_charconst,		/* val_from_charconst */
 		uinteger_to_repr,		/* val_to_string_repr */
 
 		{ .set_value_uinteger = set_uinteger },	/* union set_value */
@@ -1365,6 +1240,7 @@ ftype_register_integers(void)
 		NULL,				/* free_value */
 		eui64_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
+		NULL,				/* val_from_charconst */
 		eui64_to_repr,			/* val_to_string_repr */
 
 		{ .set_value_uinteger64 = set_uinteger64 },	/* union set_value */

@@ -108,6 +108,7 @@ ftype_register_double(void)
 		NULL,				/* free_value */
 		val_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
+		NULL,				/* val_from_charconst */
 		float_val_to_repr,		/* val_to_string_repr */
 
 		{ .set_value_floating = double_fvalue_set_floating },		/* union set_value */
@@ -131,6 +132,7 @@ ftype_register_double(void)
 		NULL,				/* free_value */
 		val_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
+		NULL,				/* val_from_charconst */
 		double_val_to_repr,		/* val_to_string_repr */
 
 		{ .set_value_floating = double_fvalue_set_floating },		/* union set_value */

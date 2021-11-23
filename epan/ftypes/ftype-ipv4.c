@@ -155,6 +155,7 @@ ftype_register_ipv4(void)
 		NULL,				/* free_value */
 		val_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
+		NULL,				/* val_from_charconst */
 		val_to_repr,			/* val_to_string_repr */
 
 		{ .set_value_uinteger = set_uinteger },	/* union set_value */

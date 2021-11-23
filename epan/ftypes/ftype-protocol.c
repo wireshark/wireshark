@@ -115,6 +115,44 @@ val_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_,
 	return FALSE;
 }
 
+static gboolean
+val_from_charconst(fvalue_t *fv, unsigned long num, gchar **err_msg)
+{
+	GByteArray *bytes;
+	tvbuff_t *new_tvb;
+
+	/* Free up the old value, if we have one */
+	value_free(fv);
+	fv->value.protocol.tvb = NULL;
+	fv->value.protocol.proto_string = NULL;
+
+	/* Does this look like a byte string? */
+	bytes = byte_array_from_charconst(num, err_msg);
+	if (bytes != NULL) {
+		/* Make a tvbuff from the bytes */
+		new_tvb = tvb_new_real_data(bytes->data, bytes->len, bytes->len);
+
+		/* Let the tvbuff know how to delete the data. */
+		tvb_set_free_cb(new_tvb, g_free);
+
+		/* Free GByteArray, but keep data. */
+		g_byte_array_free(bytes, FALSE);
+
+		/* And let us know that we need to free the tvbuff */
+		fv->tvb_is_private = TRUE;
+		fv->value.protocol.tvb = new_tvb;
+
+		/* This "field" is a value, it has no protocol description, but
+		 * we might compare it to a protocol with NULL tvb.
+		 * (e.g., proto_expert) */
+		fv->value.protocol.proto_string = g_strdup("");
+		return TRUE;
+	}
+
+	/* Not a byte array, forget about it. */
+	return FALSE;
+}
+
 static char *
 val_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_)
 {
@@ -278,6 +316,7 @@ ftype_register_tvbuff(void)
 		value_free,			/* free_value */
 		val_from_unparsed,		/* val_from_unparsed */
 		val_from_string,		/* val_from_string */
+		val_from_charconst,		/* val_from_charconst */
 		val_to_repr,			/* val_to_string_repr */
 
 		{ .set_value_protocol = value_set },	/* union set_value */

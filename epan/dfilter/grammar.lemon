@@ -148,7 +148,7 @@ entity(E) ::= STRING(S).
 }
 entity(E) ::= CHARCONST(C).
 {
-	E = stnode_new_charconst(df_lval_value(C));
+	E = stnode_new_charconst(df_lval_number(C));
 	df_lval_free(C);
 }
 entity(E) ::= UNPARSED(U).

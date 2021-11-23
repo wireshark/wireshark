@@ -106,6 +106,7 @@ ftype_register_guid(void)
         NULL,                /* free_value */
         guid_from_unparsed,  /* val_from_unparsed */
         NULL,                /* val_from_string */
+        NULL,                /* val_from_charconst */
         guid_to_repr,        /* val_to_string_repr */
 
         { .set_value_guid = guid_fvalue_set_guid }, /* union set_value */

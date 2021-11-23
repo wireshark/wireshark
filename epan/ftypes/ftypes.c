@@ -311,6 +311,36 @@ fvalue_from_string(ftenum_t ftype, const char *s, gchar **err_msg)
 	return NULL;
 }
 
+fvalue_t*
+fvalue_from_charconst(ftenum_t ftype, unsigned long num, gchar **err_msg)
+{
+	fvalue_t	*fv;
+
+	fv = fvalue_new(ftype);
+	if (fv->ftype->val_from_charconst) {
+		if (fv->ftype->val_from_charconst(fv, num, err_msg)) {
+			/* Success */
+			if (err_msg != NULL)
+				*err_msg = NULL;
+			return fv;
+		}
+	}
+	else {
+		if (err_msg != NULL) {
+			if (num <= 0x7f && g_ascii_isprint(num)) {
+				*err_msg = g_strdup_printf("Character constant '%c' (0x%lx) cannot be converted to %s.",
+						(int)num, num, ftype_pretty_name(ftype));
+			}
+			else {
+				*err_msg = g_strdup_printf("Character constant 0x%lx cannot be converted to %s.",
+						num, ftype_pretty_name(ftype));
+			}
+		}
+	}
+	fvalue_free(fv);
+	return NULL;
+}
+
 ftenum_t
 fvalue_type_ftenum(fvalue_t *fv)
 {

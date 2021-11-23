@@ -177,6 +177,7 @@ ftype_register_ipv6(void)
 		NULL,				/* free_value */
 		ipv6_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
+		NULL,				/* val_from_charconst */
 		ipv6_to_repr,			/* val_to_string_repr */
 
 		{ .set_value_bytes = ipv6_fvalue_set },	/* union set_value */

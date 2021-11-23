@@ -56,6 +56,7 @@ typedef struct {
 
 typedef struct {
 	char *value;
+	unsigned long number;
 } df_lval_t;
 
 static inline df_lval_t *
@@ -70,6 +71,12 @@ df_lval_value(df_lval_t *lval)
 	if (!lval || !lval->value)
 		return "(fixme: null)";
 	return lval->value;
+}
+
+static inline unsigned long
+df_lval_number(df_lval_t *lval)
+{
+	return lval->number;
 }
 
 static inline void

@@ -82,6 +82,30 @@ val_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_,
 	return val_from_string(fv, s, err_msg);
 }
 
+static gboolean
+val_from_charconst(fvalue_t *fv, unsigned long num, gchar **err_msg)
+{
+	/* XXX Should be a syntax error if unparsed is also a syntax error. */
+
+	/* Free up the old value, if we have one */
+	string_fvalue_free(fv);
+	fv->value.string = NULL;
+
+	if (num > UINT8_MAX) {
+		if (err_msg) {
+			*err_msg = g_strdup_printf("%lu is too large for a byte value", num);
+		}
+		return FALSE;
+	}
+
+	char c = (char)num;
+	fv->value.string = g_malloc(2);
+	fv->value.string[0] = c;
+	fv->value.string[1] = '\0';
+
+	return TRUE;
+}
+
 static guint
 len(fvalue_t *fv)
 {
@@ -147,6 +171,7 @@ ftype_register_string(void)
 		string_fvalue_free,		/* free_value */
 		val_from_unparsed,		/* val_from_unparsed */
 		val_from_string,		/* val_from_string */
+		val_from_charconst,		/* val_from_charconst */
 		string_to_repr,			/* val_to_string_repr */
 
 		{ .set_value_string = string_fvalue_set_string },	/* union set_value */
@@ -169,6 +194,7 @@ ftype_register_string(void)
 		string_fvalue_free,		/* free_value */
 		val_from_unparsed,		/* val_from_unparsed */
 		val_from_string,		/* val_from_string */
+		val_from_charconst,		/* val_from_charconst */
 		string_to_repr,			/* val_to_string_repr */
 
 		{ .set_value_string = string_fvalue_set_string },	/* union set_value */
@@ -191,6 +217,7 @@ ftype_register_string(void)
 		string_fvalue_free,		/* free_value */
 		val_from_unparsed,		/* val_from_unparsed */
 		val_from_string,		/* val_from_string */
+		val_from_charconst,		/* val_from_charconst */
 		string_to_repr,			/* val_to_string_repr */
 
 		{ .set_value_string = string_fvalue_set_string },	/* union set_value */
@@ -213,6 +240,7 @@ ftype_register_string(void)
 		string_fvalue_free,		/* free_value */
 		val_from_unparsed,		/* val_from_unparsed */
 		val_from_string,		/* val_from_string */
+		val_from_charconst,		/* val_from_charconst */
 		string_to_repr,			/* val_to_string_repr */
 
 		{ .set_value_string = string_fvalue_set_string },	/* union set_value */
@@ -235,6 +263,7 @@ ftype_register_string(void)
 		string_fvalue_free,		/* free_value */
 		val_from_unparsed,		/* val_from_unparsed */
 		val_from_string,		/* val_from_string */
+		val_from_charconst,		/* val_from_charconst */
 		string_to_repr,			/* val_to_string_repr */
 
 		{ .set_value_string = string_fvalue_set_string },	/* union set_value */
