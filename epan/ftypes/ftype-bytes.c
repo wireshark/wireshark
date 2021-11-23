@@ -174,20 +174,6 @@ byte_array_from_unparsed(const char *s, gchar **err_msg)
 	GByteArray	*bytes;
 	gboolean	res;
 
-	if (s[0] == '\'') {
-		/*
-		 * byte array with length 1 represented as a C-style character constant.
-		 */
-		unsigned long value;
-		if (!parse_charconst(s, &value, err_msg))
-			return NULL;
-		ws_assert(value <= UINT8_MAX);
-		uint8_t one_byte = (uint8_t)value;
-		bytes = g_byte_array_new();
-		g_byte_array_append(bytes, &one_byte, 1);
-		return bytes;
-	}
-
 	/*
 	 * Special case where the byte string is specified using a one byte
 	 * hex literal. We can't allow this for byte strings that are longer

@@ -106,9 +106,6 @@ void ftype_register_tvbuff(void);
 GByteArray *
 byte_array_from_unparsed(const char *s, gchar **err_msg);
 
-gboolean
-parse_charconst(const char *s, unsigned long *valuep, gchar **err_msg);
-
 #endif /* FTYPES_INT_H */
 
 /*

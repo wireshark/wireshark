@@ -24,6 +24,7 @@ typedef enum {
 	STTYPE_TEST,
 	STTYPE_UNPARSED,
 	STTYPE_STRING,
+	STTYPE_CHARCONST,
 	STTYPE_FIELD,
 	STTYPE_FVALUE,
 	STTYPE_RANGE,
@@ -109,6 +110,9 @@ stnode_new_string(const char *str);
 
 stnode_t *
 stnode_new_unparsed(const char *str);
+
+stnode_t *
+stnode_new_charconst(const char *str);
 
 stnode_t*
 stnode_dup(const stnode_t *org);

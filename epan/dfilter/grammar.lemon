@@ -148,8 +148,7 @@ entity(E) ::= STRING(S).
 }
 entity(E) ::= CHARCONST(C).
 {
-	/* A charconst uses "unparsed" semantic rules. */
-	E = stnode_new_unparsed(df_lval_value(C));
+	E = stnode_new_charconst(df_lval_value(C));
 	df_lval_free(C);
 }
 entity(E) ::= UNPARSED(U).

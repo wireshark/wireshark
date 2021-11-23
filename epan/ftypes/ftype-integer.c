@@ -48,7 +48,7 @@ get_sinteger(fvalue_t *fv)
 	return fv->value.sinteger;
 }
 
-gboolean
+static gboolean
 parse_charconst(const char *s, unsigned long *valuep, gchar **err_msg)
 {
 	const char *cp;

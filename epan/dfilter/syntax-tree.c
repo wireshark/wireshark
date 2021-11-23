@@ -184,6 +184,12 @@ stnode_new_unparsed(const char *str)
 	return stnode_new(STTYPE_UNPARSED, g_strdup(str));
 }
 
+stnode_t *
+stnode_new_charconst(const char *str)
+{
+	return stnode_new(STTYPE_CHARCONST, g_strdup(str));
+}
+
 stnode_t*
 stnode_dup(const stnode_t *node)
 {
