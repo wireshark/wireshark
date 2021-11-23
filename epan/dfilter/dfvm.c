@@ -110,7 +110,7 @@ dfvm_dump(FILE *f, dfilter_t *df)
 				wmem_free(NULL, value_str);
 				break;
 			case PUT_PCRE:
-				fprintf(f, "%05d PUT_PCRE  \t%s <GRegex> -> reg#%u\n",
+				fprintf(f, "%05d PUT_PCRE  \t%s -> reg#%u\n",
 					id,
 					ws_regex_pattern(arg1->value.pcre),
 					arg2->value.numeric);
